@@ -1,5 +1,6 @@
 node_modules/
 .tools/
 dist/
+public/pyodide/
 *.log
 .DS_Store

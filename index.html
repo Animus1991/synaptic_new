@@ -4,6 +4,21 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <meta name="theme-color" content="#0f0a1e" />
+    <script>
+      (function () {
+        try {
+          var raw = localStorage.getItem('synapse:theme-preference');
+          var pref = raw ? JSON.parse(raw) : 'dark';
+          var resolved = pref === 'system'
+            ? (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark')
+            : pref;
+          document.documentElement.setAttribute('data-theme', resolved);
+          document.documentElement.style.colorScheme = resolved;
+          var meta = document.querySelector('meta[name="theme-color"]');
+          if (meta) meta.content = resolved === 'light' ? '#f8f7fc' : '#0f0a1e';
+        } catch (e) {}
+      })();
+    </script>
     <meta name="description" content="Synapse — Upload your material. AI builds your personalized tutor-course. From static notes to adaptive tutoring." />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />

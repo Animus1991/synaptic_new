@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
-// DraggableConceptMap — interactive drag/zoom concept graph
+import { useI18n } from '../../lib/i18n';
 
 interface DragNode {
   id: string;
@@ -30,6 +30,7 @@ const MASTERY_COLOR = (m: number) =>
 const TYPE_EMOJI: Record<string, string> = { concept: '💡', formula: '📐', definition: '📖', theory: '🧠' };
 
 export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate }: Props) {
+  const { t } = useI18n();
   const [nodes, setNodes] = useState<DragNode[]>(initialNodes);
   const [edges] = useState<DragEdge[]>(initialEdges);
   const [selected, setSelected] = useState<string | null>(null);
@@ -83,11 +84,15 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate }
 
   const handlePointerUp = useCallback(() => {
     if (dragging.current) {
+      const id = dragging.current;
       dragging.current = null;
-      onNodeUpdate?.(nodes);
+      setNodes((prev) => {
+        onNodeUpdate?.(prev);
+        return prev;
+      });
     }
     setIsPanning(false);
-  }, [nodes, onNodeUpdate]);
+  }, [onNodeUpdate]);
 
   const handleBgPointerDown = useCallback((e: React.PointerEvent) => {
     if (dragging.current) return;
@@ -122,14 +127,14 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate }
       {/* Toolbar */}
       <div className="flex items-center justify-between px-4 py-2 border-b border-border-subtle bg-surface-secondary/40 shrink-0">
         <div className="flex items-center gap-2">
-          <span className="text-xs font-semibold text-text-secondary">🗺 Concept Map</span>
-          <span className="text-[10px] text-text-muted">Drag nodes • Scroll to zoom • Click to select</span>
+          <span className="text-xs font-semibold text-text-secondary">🗺 {t('conceptMap')}</span>
+          <span className="text-[10px] text-text-muted">{t('dragHint')}</span>
         </div>
         <div className="flex items-center gap-1.5">
           <button onClick={() => setZoom(z => Math.min(2.5, z + 0.2))} className="w-6 h-6 rounded bg-surface-hover text-text-secondary text-xs flex items-center justify-center hover:bg-surface-active">+</button>
           <span className="text-[10px] text-text-muted w-10 text-center">{Math.round(zoom * 100)}%</span>
           <button onClick={() => setZoom(z => Math.max(0.3, z - 0.2))} className="w-6 h-6 rounded bg-surface-hover text-text-secondary text-xs flex items-center justify-center hover:bg-surface-active">−</button>
-          <button onClick={() => { setZoom(1); setPan({ x: 0, y: 0 }); }} className="ml-1 px-2 py-1 rounded text-[10px] text-text-muted hover:text-text-secondary bg-surface-hover">Reset</button>
+          <button onClick={() => { setZoom(1); setPan({ x: 0, y: 0 }); }} className="ml-1 px-2 py-1 rounded text-[10px] text-text-muted hover:text-text-secondary bg-surface-hover">{t('reset')}</button>
         </div>
       </div>
 
@@ -200,10 +205,10 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate }
             <span className="text-lg">{TYPE_EMOJI[selectedNode.type]}</span>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold">{selectedNode.label}</p>
-              <p className="text-[10px] text-text-muted">Mastery {selectedNode.mastery}% • {edges.filter(e => e.to === selectedNode.id).length} prerequisites</p>
+              <p className="text-[10px] text-text-muted">{t('masteryLabel')} {selectedNode.mastery}% • {edges.filter(e => e.to === selectedNode.id).length} {t('prerequisites')}</p>
             </div>
             <button onClick={() => startNote(selectedNode.id)} className="px-2.5 py-1.5 rounded-lg text-[10px] font-medium bg-brand-600/20 text-brand-300 border border-brand-500/30 hover:bg-brand-600/30">
-              {selectedNode.note ? '✏️ Edit Note' : '📝 Add Note'}
+              {selectedNode.note ? `✏️ ${t('editNote')}` : `📝 ${t('addNote')}`}
             </button>
             <button onClick={() => setSelected(null)} className="text-text-muted hover:text-text-secondary text-xs">✕</button>
           </div>
@@ -214,29 +219,29 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate }
       {/* Note Editor */}
       {editingNote && (
         <div className="absolute bottom-0 left-0 right-0 p-3 glass-strong border-t border-border-subtle">
-          <p className="text-xs font-semibold mb-2">📝 Note for "{nodeMap[editingNote]?.label}"</p>
+          <p className="text-xs font-semibold mb-2">📝 {t('noteFor')} "{nodeMap[editingNote]?.label}"</p>
           <textarea
             value={noteText} onChange={e => setNoteText(e.target.value)}
-            placeholder="Type your note about this concept…"
+            placeholder={t('notePlaceholder')}
             className="w-full px-3 py-2 rounded-lg bg-surface-input border border-border-subtle text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-brand-500/50 resize-none"
             rows={2} autoFocus
           />
           <div className="flex justify-end gap-2 mt-2">
-            <button onClick={() => setEditingNote(null)} className="px-3 py-1 text-xs text-text-muted hover:text-text-secondary">Cancel</button>
-            <button onClick={saveNote} className="px-3 py-1.5 text-xs font-medium bg-brand-600 text-white rounded-lg hover:bg-brand-500">Save</button>
+            <button onClick={() => setEditingNote(null)} className="px-3 py-1 text-xs text-text-muted hover:text-text-secondary">{t('cancel')}</button>
+            <button onClick={saveNote} className="px-3 py-1.5 text-xs font-medium bg-brand-600 text-white rounded-lg hover:bg-brand-500">{t('save')}</button>
           </div>
         </div>
       )}
 
       {/* Legend */}
       <div className="flex items-center justify-center gap-3 py-2 border-t border-border-subtle bg-surface-secondary/30 shrink-0">
-        {[{ c: '#34d399', l: 'Strong' }, { c: '#fbbf24', l: 'Proficient' }, { c: '#38bdf8', l: 'Developing' }, { c: '#fb7185', l: 'Weak' }].map(b => (
+        {[{ c: '#34d399', l: t('strong') }, { c: '#fbbf24', l: t('proficient') }, { c: '#38bdf8', l: t('developing') }, { c: '#fb7185', l: t('weakLabel') }].map(b => (
           <span key={b.l} className="flex items-center gap-1 text-[9px] text-text-muted">
             <span className="w-2 h-2 rounded-full" style={{ backgroundColor: b.c }} />{b.l}
           </span>
         ))}
-        <span className="text-[9px] text-text-muted ml-2">→ prerequisite</span>
-        <span className="text-[9px] text-text-muted">┄ related</span>
+        <span className="text-[9px] text-text-muted ml-2">→ {t('prerequisite')}</span>
+        <span className="text-[9px] text-text-muted">┄ {t('related')}</span>
       </div>
     </div>
   );

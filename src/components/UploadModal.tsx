@@ -7,10 +7,13 @@ import {
 } from 'lucide-react';
 import { cn } from '../utils/cn';
 
+import type { UploadPayload } from '../lib/uploadPipeline';
+
 interface UploadModalProps {
   isOpen: boolean;
   onClose: () => void;
   onUpload: (files: File[]) => void;
+  onProcessUpload?: (payload: UploadPayload) => Promise<unknown>;
   onProceed: () => void;
 }
 
@@ -25,14 +28,22 @@ const acceptedFormats = [
 
 type SourceMode = 'strict' | 'enriched' | 'notes-only';
 
-export function UploadModal({ isOpen, onClose, onUpload, onProceed }: UploadModalProps) {
+export function UploadModal({ isOpen, onClose, onUpload, onProcessUpload, onProceed }: UploadModalProps) {
   const [dragActive, setDragActive] = useState(false);
   const [files, setFiles] = useState<File[]>([]);
   const [pastedContent, setPastedContent] = useState('');
   const [sourceMode, setSourceMode] = useState<SourceMode>('enriched');
   const [step, setStep] = useState<'upload' | 'configure' | 'processing'>('upload');
   const [youtubeUrl, setYoutubeUrl] = useState('');
+  const [focusTags, setFocusTags] = useState<string[]>(['Deep understanding']);
+  const [examDate, setExamDate] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const FOCUS_OPTIONS = ['Exam preparation', 'Deep understanding', 'Quick review', 'Practice-heavy', 'Beginner-friendly'];
+
+  const toggleFocus = (tag: string) => {
+    setFocusTags((prev) => prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]);
+  };
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -51,18 +62,31 @@ export function UploadModal({ isOpen, onClose, onUpload, onProceed }: UploadModa
     setFiles(prev => prev.filter((_, i) => i !== index));
   };
 
-  const handleProceed = () => {
-    if (files.length > 0) {
+  const handleProceed = async () => {
+    const payload: UploadPayload = {
+      files,
+      pastedContent: pastedContent.trim() || undefined,
+      youtubeUrl: youtubeUrl.trim() || undefined,
+      sourceMode,
+      focusTags,
+      examDate: examDate || undefined,
+    };
+    setStep('processing');
+    if (onProcessUpload) {
+      await onProcessUpload(payload);
+    } else if (files.length > 0) {
       onUpload(files);
     }
-    setStep('processing');
     setTimeout(() => {
       onProceed();
       onClose();
       setStep('upload');
       setFiles([]);
       setPastedContent('');
-    }, 3000);
+      setYoutubeUrl('');
+      setFocusTags(['Deep understanding']);
+      setExamDate('');
+    }, 1500);
   };
 
   const hasContent = files.length > 0 || pastedContent.trim().length > 0 || youtubeUrl.trim().length > 0;
@@ -231,10 +255,17 @@ export function UploadModal({ isOpen, onClose, onUpload, onProceed }: UploadModa
                 <div>
                   <label className="text-sm font-medium block mb-3">Learning Focus</label>
                   <div className="flex flex-wrap gap-2">
-                    {['Exam preparation', 'Deep understanding', 'Quick review', 'Practice-heavy', 'Beginner-friendly'].map(focus => (
+                    {FOCUS_OPTIONS.map(focus => (
                       <button
                         key={focus}
-                        className="px-3 py-1.5 rounded-lg text-xs font-medium border border-border-subtle hover:border-brand-500/30 hover:bg-brand-500/5 transition-all"
+                        type="button"
+                        onClick={() => toggleFocus(focus)}
+                        className={cn(
+                          'px-3 py-1.5 rounded-lg text-xs font-medium border transition-all',
+                          focusTags.includes(focus)
+                            ? 'border-brand-500/50 bg-brand-500/10 text-brand-300'
+                            : 'border-border-subtle hover:border-brand-500/30 hover:bg-brand-500/5',
+                        )}
                       >
                         {focus}
                       </button>
@@ -247,6 +278,8 @@ export function UploadModal({ isOpen, onClose, onUpload, onProceed }: UploadModa
                   <label className="text-sm font-medium block mb-2">Exam Date (optional)</label>
                   <input
                     type="date"
+                    value={examDate}
+                    onChange={(e) => setExamDate(e.target.value)}
                     className="px-4 py-2.5 rounded-xl bg-surface-input border border-border-subtle text-sm text-text-primary focus:outline-none focus:border-brand-500/50"
                   />
                 </div>

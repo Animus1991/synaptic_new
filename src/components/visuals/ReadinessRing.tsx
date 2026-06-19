@@ -29,7 +29,7 @@ export function ReadinessRing({ value, size = 180, strokeWidth = 12, label = 'Ex
       <div className="relative" style={{ width: size, height: size }}>
         <svg width={size} height={size} className="-rotate-90">
           {/* Background track */}
-          <circle cx={center} cy={center} r={r} fill="none" stroke="#1e1740" strokeWidth={strokeWidth} />
+          <circle cx={center} cy={center} r={r} fill="none" stroke="var(--viz-track)" strokeWidth={strokeWidth} />
           {/* Gradient arc */}
           <defs>
             <linearGradient id={`ring-grad-${value}`} x1="0%" y1="0%" x2="100%" y2="100%">

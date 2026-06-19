@@ -2,9 +2,10 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronUp, ChevronDown, Brain, AlertTriangle, Target, Zap, RotateCcw, BookOpen } from 'lucide-react';
 import { cn } from '../../utils/cn';
+import { useI18n, type I18nKey } from '../../lib/i18n';
 
 interface WeakSpot { concept: string; mastery: number; course: string }
-interface NextAction { label: string; type: string; minutes: number; xp: number }
+interface NextAction { label: string; type: string; minutes: number; xp: number; taskId?: string }
 
 interface Props {
   readiness: number;
@@ -14,18 +15,20 @@ interface Props {
   nextActions: NextAction[];
   conceptsMastered: number;
   totalConcepts: number;
+  onStartTask?: (taskId: string) => void;
 }
 
-const BAND = (v: number) =>
-  v >= 80 ? { label: 'Strong', color: '#34d399' }
-  : v >= 60 ? { label: 'Proficient', color: '#fbbf24' }
-  : v >= 40 ? { label: 'Developing', color: '#38bdf8' }
-  : { label: 'Weak', color: '#fb7185' };
+const BAND = (v: number, t: (k: I18nKey) => string) =>
+  v >= 80 ? { label: t('strong'), color: '#34d399' }
+  : v >= 60 ? { label: t('proficient'), color: '#fbbf24' }
+  : v >= 40 ? { label: t('developing'), color: '#38bdf8' }
+  : { label: t('weakLabel'), color: '#fb7185' };
 
-export function MiniDashboard({ readiness, streak, reviewsDue, weakSpots, nextActions, conceptsMastered, totalConcepts }: Props) {
+export function MiniDashboard({ readiness, streak, reviewsDue, weakSpots, nextActions, conceptsMastered, totalConcepts, onStartTask }: Props) {
+  const { t } = useI18n();
   const [collapsed, setCollapsed] = useState(false);
   const [activeTab, setActiveTab] = useState<'overview' | 'weak' | 'next'>('overview');
-  const band = BAND(readiness);
+  const band = BAND(readiness, t);
 
   // Readiness ring mini
   const size = 68, sw = 6, r = (size - sw) / 2;
@@ -41,7 +44,7 @@ export function MiniDashboard({ readiness, streak, reviewsDue, weakSpots, nextAc
       {/* Header */}
       <div className={cn('flex items-center gap-2 px-3 py-2 border-b border-border-subtle bg-surface-secondary/40 cursor-pointer', collapsed && 'justify-center')}
         onClick={() => setCollapsed(!collapsed)}>
-        {!collapsed && <span className="text-[10px] font-semibold text-text-secondary flex-1">📊 Quick View</span>}
+        {!collapsed && <span className="text-[10px] font-semibold text-text-secondary flex-1">📊 {t('quickView')}</span>}
         {collapsed
           ? <ChevronUp className="w-3.5 h-3.5 text-text-muted rotate-90" />
           : <ChevronDown className="w-3.5 h-3.5 text-text-muted rotate-90" />
@@ -53,11 +56,11 @@ export function MiniDashboard({ readiness, streak, reviewsDue, weakSpots, nextAc
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
             {/* Tabs */}
             <div className="flex border-b border-border-subtle">
-              {(['overview', 'weak', 'next'] as const).map(t => (
-                <button key={t} onClick={() => setActiveTab(t)}
+              {(['overview', 'weak', 'next'] as const).map((tab) => (
+                <button key={tab} type="button" onClick={() => setActiveTab(tab)}
                   className={cn('flex-1 py-1.5 text-[9px] font-medium capitalize transition-all',
-                    activeTab === t ? 'text-brand-300 border-b border-brand-400' : 'text-text-muted hover:text-text-secondary')}>
-                  {t === 'overview' ? '🎯 Status' : t === 'weak' ? '⚠ Weak' : '▶ Next'}
+                    activeTab === tab ? 'text-brand-300 border-b border-brand-400' : 'text-text-muted hover:text-text-secondary')}>
+                  {tab === 'overview' ? `🎯 ${t('status')}` : tab === 'weak' ? `⚠ ${t('weak')}` : `▶ ${t('nextActions')}`}
                 </button>
               ))}
             </div>
@@ -77,16 +80,16 @@ export function MiniDashboard({ readiness, streak, reviewsDue, weakSpots, nextAc
                   </svg>
                   <div>
                     <p className="text-xs font-semibold">{band.label}</p>
-                    <p className="text-[9px] text-text-muted">Exam Readiness</p>
-                    <p className="text-[9px] text-text-muted mt-1">{conceptsMastered}/{totalConcepts} concepts</p>
+                    <p className="text-[9px] text-text-muted">{t('examReadiness')}</p>
+                    <p className="text-[9px] text-text-muted mt-1">{conceptsMastered}/{totalConcepts} {t('concepts')}</p>
                   </div>
                 </div>
 
                 {/* Quick stats */}
                 <div className="grid grid-cols-3 gap-1.5">
-                  <StatPill icon={<Zap className="w-3 h-3 text-accent-amber" />} label="Streak" value={`${streak}d`} />
-                  <StatPill icon={<RotateCcw className="w-3 h-3 text-accent-teal" />} label="Due" value={`${reviewsDue}`} />
-                  <StatPill icon={<Brain className="w-3 h-3 text-brand-400" />} label="Weak" value={`${weakSpots.length}`} />
+                  <StatPill icon={<Zap className="w-3 h-3 text-accent-amber" />} label={t('streak')} value={`${streak}d`} />
+                  <StatPill icon={<RotateCcw className="w-3 h-3 text-accent-teal" />} label={t('due')} value={`${reviewsDue}`} />
+                  <StatPill icon={<Brain className="w-3 h-3 text-brand-400" />} label={t('weak')} value={`${weakSpots.length}`} />
                 </div>
               </div>
             )}
@@ -95,7 +98,7 @@ export function MiniDashboard({ readiness, streak, reviewsDue, weakSpots, nextAc
             {activeTab === 'weak' && (
               <div className="p-3 space-y-1.5 max-h-48 overflow-y-auto">
                 {weakSpots.length === 0 ? (
-                  <p className="text-[10px] text-text-muted text-center py-4">No weak spots! 🎉</p>
+                  <p className="text-[10px] text-text-muted text-center py-4">{t('noWeakSpots')}</p>
                 ) : weakSpots.map((w, i) => (
                   <div key={i} className="flex items-center gap-2">
                     <AlertTriangle className="w-3 h-3 text-accent-rose shrink-0" />
@@ -118,7 +121,13 @@ export function MiniDashboard({ readiness, streak, reviewsDue, weakSpots, nextAc
             {activeTab === 'next' && (
               <div className="p-3 space-y-1.5 max-h-48 overflow-y-auto">
                 {nextActions.map((a, i) => (
-                  <div key={i} className="flex items-center gap-2 p-1.5 rounded-lg hover:bg-surface-hover/50 cursor-pointer transition-colors">
+                  <button
+                    key={i}
+                    type="button"
+                    disabled={!a.taskId || !onStartTask}
+                    onClick={() => a.taskId && onStartTask?.(a.taskId)}
+                    className="w-full flex items-center gap-2 p-1.5 rounded-lg hover:bg-surface-hover/50 cursor-pointer transition-colors text-left disabled:cursor-default disabled:opacity-80"
+                  >
                     <div className="w-5 h-5 rounded-md bg-surface-hover flex items-center justify-center shrink-0">
                       {a.type === 'review' ? <RotateCcw className="w-3 h-3 text-accent-amber" />
                         : a.type === 'practice' ? <Target className="w-3 h-3 text-accent-teal" />
@@ -128,7 +137,7 @@ export function MiniDashboard({ readiness, streak, reviewsDue, weakSpots, nextAc
                       <p className="text-[10px] font-medium truncate">{a.label}</p>
                       <p className="text-[8px] text-text-muted">{a.minutes}m • +{a.xp} XP</p>
                     </div>
-                  </div>
+                  </button>
                 ))}
               </div>
             )}

@@ -1,39 +1,93 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   X, BookOpen, Map, FileText, Calculator, Layout,
   ChevronRight, Sparkles, PanelLeftClose, PanelLeftOpen,
-  Maximize2, Minimize2
+  Maximize2, Minimize2, Layers, Timer, GitCompare,
+  SlidersHorizontal, PenSquare, Type, GitCommit,
 } from 'lucide-react';
 import { cn } from '../../utils/cn';
+import type { WorkspaceToolId } from '../../lib/taskFlows';
 import { DraggableConceptMap } from './DraggableConceptMap';
 import { AnnotationOverlay } from './AnnotationOverlay';
 import { FormulaScratchpad } from './FormulaScratchpad';
 import { MiniDashboard } from './MiniDashboard';
+import { LeitnerBox } from './LeitnerBox';
+import { StudyTimer } from './StudyTimer';
+import { InteractiveSimulator } from './InteractiveSimulator';
+import { ArgumentMap } from './ArgumentMap';
+import { CognitiveReader } from './CognitiveReader';
+import { StudyWhiteboard } from './StudyWhiteboard';
+import { FeynmanCheck } from './FeynmanCheck';
+import { ComparisonTable } from '../visuals/DiagramGenerator';
+import { buildWorkspaceSteps, buildQuizForConcept, type QuizDef } from '../../lib/lessonContent';
+import { loadWorkspaceStep, saveWorkspaceStep, loadConceptMapPositions, saveConceptMapPositions } from '../../lib/workspacePersistence';
+import {
+  buildMiniDashboardProps,
+  buildConceptMapNodes,
+  buildCompareRows,
+  leitnerCardsFromSpacing,
+  readerTextFromUploads,
+} from '../../lib/workspaceData';
+import { pickSourceText } from '../../lib/annotationStore';
+import { useI18n, type I18nKey } from '../../lib/i18n';
+import type { LearnerModel, UploadedFile, UserSettings } from '../../types';
 
-type WorkspaceTool = 'concept-map' | 'annotations' | 'scratchpad' | 'source';
+type WorkspaceTool = WorkspaceToolId;
 type LayoutMode = 'split' | 'focus-lesson' | 'focus-tool';
 
 interface Props {
   onClose: () => void;
   onOpenAgent: () => void;
+  onComplete?: () => void;
+  taskTitle?: string;
+  courseName?: string;
+  quizConcept?: string;
+  xpReward?: number;
+  initialTool?: WorkspaceTool;
+  taskId?: string | null;
+  learnerModel?: LearnerModel;
+  dashboardStats?: { streak: number; reviewsDue: number };
+  conceptBars?: { concept: string; mastery: number }[];
+  uploadedFiles?: UploadedFile[];
+  onQuizAttempt?: (concept: string, correct: boolean, confidence: number, stepKey?: string) => void;
+  onLogStudyMinutes?: (minutes: number, label?: string) => void;
+  onStartTask?: (taskId: string) => void;
+  tasks?: { id: string; title: string; status: string; isSpacedRepetition?: boolean; estimatedMinutes: number; xpReward: number }[];
+  userSettings?: UserSettings;
 }
 
-const TOOLS: { id: WorkspaceTool; icon: typeof Map; label: string }[] = [
-  { id: 'concept-map', icon: Map, label: 'Concept Map' },
-  { id: 'annotations', icon: FileText, label: 'Source & Notes' },
-  { id: 'scratchpad', icon: Calculator, label: 'Scratchpad' },
-];
+const TOOL_LABELS: Record<WorkspaceTool, I18nKey> = {
+  'concept-map': 'toolMap',
+  simulator: 'toolSandbox',
+  leitner: 'toolLeitner',
+  compare: 'toolCompare',
+  whiteboard: 'toolBoard',
+  feynman: 'toolFeynman',
+  timer: 'toolTimer',
+  debate: 'toolDebate',
+  reader: 'toolReader',
+  scratchpad: 'toolScratchpad',
+  annotations: 'toolSource',
+};
 
-// Sample concept map data
-const CONCEPT_NODES = [
-  { id: 'sd', label: 'Supply & Demand', mastery: 92, type: 'concept' as const, x: 140, y: 80 },
-  { id: 'ct', label: 'Consumer Theory', mastery: 78, type: 'theory' as const, x: 360, y: 60 },
-  { id: 'el', label: 'Elasticity', mastery: 45, type: 'formula' as const, x: 140, y: 240 },
-  { id: 'ms', label: 'Market Structures', mastery: 45, type: 'concept' as const, x: 380, y: 210 },
-  { id: 'we', label: 'Welfare Econ', mastery: 20, type: 'theory' as const, x: 560, y: 130 },
-  { id: 'gt', label: 'Game Theory', mastery: 0, type: 'concept' as const, x: 560, y: 300 },
-];
+const TOOL_ICONS: Record<WorkspaceTool, typeof Map> = {
+  'concept-map': Map,
+  simulator: SlidersHorizontal,
+  leitner: Layers,
+  compare: GitCompare,
+  whiteboard: PenSquare,
+  feynman: Sparkles,
+  timer: Timer,
+  debate: GitCommit,
+  reader: Type,
+  scratchpad: Calculator,
+  annotations: FileText,
+};
+
+const TOOL_IDS = Object.keys(TOOL_LABELS) as WorkspaceTool[];
+
+// Sample concept map edges (positions come from store + persistence)
 const CONCEPT_EDGES = [
   { from: 'sd', to: 'ct', relation: 'prerequisite' as const },
   { from: 'sd', to: 'el', relation: 'prerequisite' as const },
@@ -44,14 +98,71 @@ const CONCEPT_EDGES = [
   { from: 'el', to: 'we', relation: 'related' as const },
 ];
 
-export function StudyWorkspace({ onClose, onOpenAgent }: Props) {
-  const [activeTool, setActiveTool] = useState<WorkspaceTool>('concept-map');
+export function StudyWorkspace({
+  onClose,
+  onOpenAgent,
+  onComplete,
+  taskTitle,
+  courseName,
+  quizConcept = 'Market Structures',
+  xpReward = 50,
+  initialTool = 'concept-map',
+  taskId,
+  learnerModel,
+  dashboardStats,
+  conceptBars = [],
+  uploadedFiles = [],
+  onQuizAttempt,
+  onLogStudyMinutes,
+  onStartTask,
+  tasks = [],
+  userSettings,
+}: Props) {
+  const { t, lang } = useI18n();
+  const progressKey = taskId ? `workspace:${taskId}` : 'workspace:market-structures';
+  const [activeTool, setActiveTool] = useState<WorkspaceTool>(initialTool);
   const [layout, setLayout] = useState<LayoutMode>('split');
-  const [splitPos, setSplitPos] = useState(50); // percentage
+  const [splitPos, setSplitPos] = useState(50);
   const [lessonCollapsed, setLessonCollapsed] = useState(false);
-  const [currentStep, setCurrentStep] = useState(0);
+  const [currentStep, setCurrentStep] = useState(() => loadWorkspaceStep(progressKey));
+  const [quizAnswer, setQuizAnswer] = useState<number | null>(null);
+  const [quizPassed, setQuizPassed] = useState(false);
   const resizing = useRef(false);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  const STEPS = useMemo(() => buildWorkspaceSteps(quizConcept, lang), [quizConcept, lang]);
+  const quizDef = useMemo(() => buildQuizForConcept(quizConcept, lang), [quizConcept, lang]);
+  const compareRows = useMemo(() => buildCompareRows(quizConcept), [quizConcept]);
+  const readerText = useMemo(
+    () => readerTextFromUploads(uploadedFiles, quizConcept),
+    [uploadedFiles, quizConcept],
+  );
+  const source = useMemo(
+    () => pickSourceText(uploadedFiles, readerText),
+    [uploadedFiles, readerText],
+  );
+  const leitnerCards = useMemo(
+    () => leitnerCardsFromSpacing(learnerModel?.spacingIntervals ?? [], quizConcept),
+    [learnerModel?.spacingIntervals, quizConcept],
+  );
+  const conceptNodes = useMemo(() => {
+    const base = buildConceptMapNodes(conceptBars, quizConcept);
+    return loadConceptMapPositions(base);
+  }, [conceptBars, quizConcept]);
+
+  const miniDash = useMemo(() => {
+    if (!learnerModel || !dashboardStats) return null;
+    return buildMiniDashboardProps(
+      learnerModel,
+      { ...dashboardStats, studyTimeToday: 0, studyTimeWeek: 0, tasksCompleted: 0, todayXP: 0, weeklyXP: 0 },
+      tasks as never,
+      onStartTask,
+    );
+  }, [learnerModel, dashboardStats, tasks, onStartTask]);
+
+  useEffect(() => {
+    saveWorkspaceStep(progressKey, currentStep);
+  }, [currentStep, progressKey]);
 
   const handleResizeStart = useCallback((e: React.PointerEvent) => {
     e.preventDefault();
@@ -79,16 +190,22 @@ export function StudyWorkspace({ onClose, onOpenAgent }: Props) {
     setLayout(prev => prev === 'split' ? 'focus-lesson' : prev === 'focus-lesson' ? 'focus-tool' : 'split');
   };
 
-  const STEPS = [
-    { title: 'Two Models of Oligopoly', type: 'Core Concept' },
-    { title: 'Cournot: Quantity Competition', type: 'Deep Dive' },
-    { title: 'Bertrand: Price Competition', type: 'Deep Dive' },
-    { title: 'The Bertrand Paradox', type: 'Key Insight' },
-    { title: 'Worked Example', type: 'Practice' },
-    { title: 'Knowledge Check', type: 'Quiz' },
-  ];
+  const workspaceTitle = taskTitle ?? 'Market Structures';
+  const workspaceCourse = courseName ?? 'Microeconomics';
+  const isLastStep = currentStep >= STEPS.length - 1;
 
-  const leftWidth = layout === 'focus-lesson' ? 100 : layout === 'focus-tool' ? 0 : splitPos;
+  const handleStepNext = () => {
+    const onQuizStep = STEPS[currentStep]?.type === 'Quiz';
+    if (onQuizStep && !quizPassed) return;
+    if (isLastStep) {
+      onComplete?.();
+      onClose();
+      return;
+    }
+    setCurrentStep((s) => s + 1);
+  };
+
+  const leftWidth = layout === 'focus-lesson' ? 100 : layout === 'focus-tool' || lessonCollapsed ? 0 : splitPos;
   const rightWidth = 100 - leftWidth;
 
   return (
@@ -99,25 +216,31 @@ export function StudyWorkspace({ onClose, onOpenAgent }: Props) {
           <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-surface-hover"><X className="w-4 h-4 text-text-secondary" /></button>
           <div className="flex items-center gap-1.5">
             <BookOpen className="w-4 h-4 text-brand-400" />
-            <span className="text-sm font-semibold">Market Structures</span>
-            <span className="text-[10px] text-text-muted">• Microeconomics</span>
+            <span className="text-sm font-semibold">{workspaceTitle}</span>
+            <span className="text-[10px] text-text-muted">• {workspaceCourse}</span>
           </div>
         </div>
-        <div className="flex items-center gap-2">
-          {/* Tool tabs */}
-          {TOOLS.map(t => (
-            <button key={t.id} onClick={() => { setActiveTool(t.id); if (layout === 'focus-lesson') setLayout('split'); }}
-              className={cn('flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[10px] font-medium transition-all',
-                activeTool === t.id ? 'bg-brand-600/20 text-brand-300 border border-brand-500/30' : 'text-text-muted hover:text-text-secondary hover:bg-surface-hover')}>
-              <t.icon className="w-3.5 h-3.5" />{t.label}
+        <div className="flex items-center gap-2 min-w-0">
+          <span className="hidden sm:inline text-xs text-accent-amber font-medium shrink-0">+{xpReward} XP</span>
+          {/* Tool tabs — scrollable (11 tools, matches LearnAI) */}
+          <div className="flex items-center gap-1 overflow-x-auto hide-scrollbar max-w-[calc(100vw-12rem)]">
+          {TOOL_IDS.map((toolId) => {
+            const Icon = TOOL_ICONS[toolId];
+            return (
+            <button key={toolId} onClick={() => { setActiveTool(toolId); if (layout === 'focus-lesson') setLayout('split'); }}
+              className={cn('flex items-center gap-1 px-2 py-1.5 rounded-lg text-[10px] font-medium transition-all shrink-0',
+                activeTool === toolId ? 'bg-brand-600/20 text-brand-300 border border-brand-500/30' : 'text-text-muted hover:text-text-secondary hover:bg-surface-hover')}>
+              <Icon className="w-3.5 h-3.5" />{t(TOOL_LABELS[toolId])}
             </button>
-          ))}
+            );
+          })}
+          </div>
           <div className="w-px h-5 bg-border-subtle mx-1" />
           <button onClick={cycleLayout} className="p-1.5 rounded-lg hover:bg-surface-hover text-text-muted hover:text-text-secondary" title="Toggle layout">
             {layout === 'split' ? <Layout className="w-4 h-4" /> : layout === 'focus-lesson' ? <Maximize2 className="w-4 h-4" /> : <Minimize2 className="w-4 h-4" />}
           </button>
           <button onClick={onOpenAgent} className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[10px] font-medium border border-border-subtle hover:border-brand-500/30 text-text-secondary">
-            <Sparkles className="w-3.5 h-3.5 text-brand-400" /> Agent
+            <Sparkles className="w-3.5 h-3.5 text-brand-400" /> {t('agentBtn')}
           </button>
         </div>
       </div>
@@ -160,7 +283,21 @@ export function StudyWorkspace({ onClose, onOpenAgent }: Props) {
 
               {/* Lesson body */}
               <div className="flex-1 overflow-y-auto p-5">
-                <LessonContent step={currentStep} onOpenAgent={onOpenAgent} />
+                <LessonContent
+                  step={currentStep}
+                  concept={quizConcept}
+                  onOpenAgent={onOpenAgent}
+                  quizDef={quizDef}
+                  quizAnswer={quizAnswer}
+                  quizPassed={quizPassed}
+                  onQuizSelect={(idx) => {
+                    setQuizAnswer(idx);
+                    const correct = idx === quizDef.correctIndex;
+                    setQuizPassed(correct);
+                    onQuizAttempt?.(quizConcept, correct, 75, `${progressKey}:quiz`);
+                  }}
+                  t={t}
+                />
               </div>
 
               {/* Bottom nav */}
@@ -168,9 +305,9 @@ export function StudyWorkspace({ onClose, onOpenAgent }: Props) {
                 <button onClick={() => currentStep > 0 && setCurrentStep(currentStep - 1)} disabled={currentStep === 0}
                   className={cn('text-xs', currentStep === 0 ? 'text-text-muted' : 'text-text-secondary hover:text-text-primary')}>← Previous</button>
                 <span className="text-[10px] text-text-muted">{currentStep + 1}/{STEPS.length}</span>
-                <button onClick={() => currentStep < STEPS.length - 1 && setCurrentStep(currentStep + 1)}
+                <button onClick={handleStepNext}
                   className="flex items-center gap-1 text-xs text-brand-400 hover:text-brand-300 font-medium">
-                  Next <ChevronRight className="w-3 h-3" />
+                  {isLastStep ? t('finish') : t('next')} <ChevronRight className="w-3 h-3" />
                 </button>
               </div>
             </motion.div>
@@ -197,10 +334,42 @@ export function StudyWorkspace({ onClose, onOpenAgent }: Props) {
               className="overflow-hidden flex flex-col"
             >
               {activeTool === 'concept-map' && (
-                <DraggableConceptMap initialNodes={CONCEPT_NODES} initialEdges={CONCEPT_EDGES} />
+                <DraggableConceptMap
+                  initialNodes={conceptNodes}
+                  initialEdges={CONCEPT_EDGES}
+                  onNodeUpdate={(nodes) => saveConceptMapPositions(nodes)}
+                />
               )}
+              {activeTool === 'simulator' && <InteractiveSimulator />}
+              {activeTool === 'leitner' && <LeitnerBox cards={leitnerCards} concept={quizConcept} />}
+              {activeTool === 'compare' && (
+                <div className="p-4 overflow-y-auto h-full">
+                  <ComparisonTable
+                    title={`Compare: ${quizConcept}`}
+                    headers={['Dimension', 'Option A', 'Option B']}
+                    items={compareRows}
+                  />
+                </div>
+              )}
+              {activeTool === 'whiteboard' && <StudyWhiteboard />}
+              {activeTool === 'feynman' && (
+                <FeynmanCheck
+                  concept={quizConcept}
+                  settings={userSettings}
+                  onOpenAgent={onOpenAgent}
+                  onFocusConcept={() => { setActiveTool('concept-map'); if (layout === 'focus-lesson') setLayout('split'); }}
+                />
+              )}
+              {activeTool === 'timer' && <StudyTimer onSessionComplete={onLogStudyMinutes} />}
+              {activeTool === 'debate' && <ArgumentMap concept={quizConcept} storageKey={`debate-${progressKey}`} />}
+              {activeTool === 'reader' && <CognitiveReader text={readerText} />}
               {activeTool === 'annotations' && (
-                <AnnotationOverlay onAskAgent={() => { onOpenAgent(); }} />
+                <AnnotationOverlay
+                  sourceText={source.text}
+                  sourceName={source.name}
+                  fileKey={source.fileKey}
+                  onAskAgent={() => { onOpenAgent(); }}
+                />
               )}
               {activeTool === 'scratchpad' && (
                 <FormulaScratchpad />
@@ -211,23 +380,19 @@ export function StudyWorkspace({ onClose, onOpenAgent }: Props) {
 
         {/* Mini Dashboard - floating */}
         <div className="absolute bottom-4 right-4 z-20">
-          <MiniDashboard
-            readiness={58}
-            streak={12}
-            reviewsDue={3}
-            weakSpots={[
-              { concept: 'Elasticity Calculations', mastery: 45, course: 'Microeconomics' },
-              { concept: 'Welfare Economics', mastery: 20, course: 'Microeconomics' },
-              { concept: 'Game Theory', mastery: 0, course: 'Microeconomics' },
-            ]}
-            nextActions={[
-              { label: 'Review: Supply & Demand', type: 'review', minutes: 8, xp: 30 },
-              { label: 'Practice: Elasticity', type: 'practice', minutes: 12, xp: 35 },
-              { label: 'Lesson: Welfare Economics', type: 'lesson', minutes: 20, xp: 50 },
-            ]}
-            conceptsMastered={31}
-            totalConcepts={136}
-          />
+          {miniDash ? (
+            <MiniDashboard {...miniDash} />
+          ) : (
+            <MiniDashboard
+              readiness={58}
+              streak={12}
+              reviewsDue={3}
+              weakSpots={[]}
+              nextActions={[]}
+              conceptsMastered={31}
+              totalConcepts={136}
+            />
+          )}
         </div>
       </div>
     </div>
@@ -235,12 +400,30 @@ export function StudyWorkspace({ onClose, onOpenAgent }: Props) {
 }
 
 /* --- Inline lesson content for the workspace --- */
-function LessonContent({ step, onOpenAgent }: { step: number; onOpenAgent: () => void }) {
+function LessonContent({
+  step,
+  concept,
+  onOpenAgent,
+  quizDef,
+  quizAnswer,
+  quizPassed,
+  onQuizSelect,
+  t,
+}: {
+  step: number;
+  concept: string;
+  onOpenAgent: () => void;
+  quizDef: QuizDef;
+  quizAnswer: number | null;
+  quizPassed: boolean;
+  onQuizSelect: (idx: number) => void;
+  t: (key: import('../../lib/i18n').I18nKey) => string;
+}) {
   switch (step) {
     case 0: return (
       <div className="space-y-4">
         <span className="text-[10px] text-brand-400 font-semibold uppercase tracking-wider">Core Concept</span>
-        <h2 className="text-xl font-bold">Two Models of Oligopoly</h2>
+        <h2 className="text-xl font-bold">{concept}</h2>
         <p className="text-sm text-text-secondary leading-relaxed">
           When a market has only a few firms, each firm's decisions affect the others. The key strategic question is:
           <strong className="text-text-primary"> what variable do firms compete on?</strong>
@@ -336,16 +519,33 @@ function LessonContent({ step, onOpenAgent }: { step: number; onOpenAgent: () =>
     );
     case 5: return (
       <div className="space-y-4">
-        <span className="text-[10px] text-accent-cyan font-semibold uppercase tracking-wider">Quiz</span>
-        <h2 className="text-xl font-bold">Knowledge Check</h2>
+        <span className="text-[10px] text-accent-cyan font-semibold uppercase tracking-wider">{t('quiz')}</span>
+        <h2 className="text-xl font-bold">{t('knowledgeCheck')}</h2>
         <div className="p-3 rounded-xl bg-surface-card border border-border-subtle">
-          <p className="text-sm mb-3">In Bertrand competition with identical products, the equilibrium price is:</p>
-          {['Above marginal cost', 'Equal to marginal cost', 'Equal to average total cost', 'Zero'].map((opt, i) => (
-            <button key={i} className="w-full text-left p-2.5 rounded-lg border border-border-subtle hover:border-brand-500/30 text-sm mb-1.5 transition-all flex items-center gap-2">
-              <span className="w-5 h-5 rounded-full border border-text-muted text-[10px] flex items-center justify-center shrink-0">{String.fromCharCode(65 + i)}</span>
+          <p className="text-sm mb-3">{quizDef.question}</p>
+          {quizDef.options.map((opt, i) => (
+            <button
+              key={i}
+              type="button"
+              onClick={() => onQuizSelect(i)}
+              className={cn(
+                'w-full text-left p-2.5 rounded-lg border text-sm mb-1.5 transition-all flex items-center gap-2',
+                quizAnswer === i
+                  ? i === quizDef.correctIndex
+                    ? 'border-accent-emerald/50 bg-accent-emerald/10 text-accent-emerald'
+                    : 'border-accent-rose/50 bg-accent-rose/10 text-accent-rose'
+                  : 'border-border-subtle hover:border-brand-500/30',
+              )}
+            >
+              <span className="w-5 h-5 rounded-full border border-current text-[10px] flex items-center justify-center shrink-0">{String.fromCharCode(65 + i)}</span>
               {opt}
             </button>
           ))}
+          {quizAnswer !== null && (
+            <p className={cn('text-xs mt-2', quizPassed ? 'text-accent-emerald' : 'text-accent-rose')}>
+              {quizPassed ? `✓ ${t('canFinish')}` : `✗ ${t('reviewMaterial')}`}
+            </p>
+          )}
         </div>
       </div>
     );

@@ -75,6 +75,30 @@ export function FormulaScratchpad() {
         `Step 3: |Eₚ| = ${Math.abs(e).toFixed(2)} → demand is ${desc}`,
         `✓ Price elasticity is ${e.toFixed(2)} (${desc}).`,
       ]);
+    } else if (active === 'f3') {
+      const pmax = parseFloat(vars[0].value), pStar = parseFloat(vars[1].value), qStar = parseFloat(vars[2].value);
+      if ([pmax, pStar, qStar].some(isNaN)) { setSteps(['⚠ Invalid numbers.']); return; }
+      const cs = 0.5 * (pmax - pStar) * qStar;
+      setSteps([
+        `Step 1: CS = ½ × (Pmax − P*) × Q*`,
+        `Step 2: CS = ½ × (${pmax} − ${pStar}) × ${qStar}`,
+        `Step 3: CS = ½ × ${(pmax - pStar).toFixed(2)} × ${qStar}`,
+        `Step 4: CS = ${cs.toFixed(2)}`,
+        `✓ Consumer surplus is ${cs.toFixed(2)}.`,
+      ]);
+    } else if (active === 'f4') {
+      const p = parseFloat(vars[0].value), q = parseFloat(vars[1].value), tc = parseFloat(vars[2].value);
+      if ([p, q, tc].some(isNaN)) { setSteps(['⚠ Invalid numbers.']); return; }
+      const tr = p * q;
+      const profit = tr - tc;
+      setSteps([
+        `Step 1: TR = P × Q = ${p} × ${q} = ${tr.toFixed(2)}`,
+        `Step 2: π = TR − TC = ${tr.toFixed(2)} − ${tc}`,
+        `Step 3: π = ${profit.toFixed(2)}`,
+        profit >= 0
+          ? `✓ Profit is ${profit.toFixed(2)} (positive).`
+          : `✓ Loss of ${Math.abs(profit).toFixed(2)} (negative profit).`,
+      ]);
     } else {
       setSteps([`Substituting values into ${activeFormula.formula}…`, '✓ Computation complete (full solver coming soon).']);
     }

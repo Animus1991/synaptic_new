@@ -19,6 +19,8 @@ const defaultSettings: UserSettings = {
   theme: 'dark',
   dailyGoalMinutes: 30,
   examDate: '2026-02-20',
+  useLlm: true,
+  llmModel: 'gpt-4o-mini',
 };
 
 export const mockUser: User = {

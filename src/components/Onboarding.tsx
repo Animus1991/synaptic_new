@@ -8,7 +8,13 @@ import {
 import { cn } from '../utils/cn';
 
 interface OnboardingProps {
-  onComplete: () => void;
+  onComplete: (data: {
+    role?: string;
+    goals?: string[];
+    dailyGoalMinutes?: number;
+    examDate?: string;
+    openUpload?: boolean;
+  }) => void;
 }
 
 type Step = 'welcome' | 'role' | 'goals' | 'preferences' | 'upload';
@@ -35,6 +41,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
   const [selectedRole, setSelectedRole] = useState<string | null>(null);
   const [selectedGoals, setSelectedGoals] = useState<string[]>([]);
   const [dailyTime, setDailyTime] = useState(30);
+  const [examDate, setExamDate] = useState('');
 
   const stepIndex = ['welcome', 'role', 'goals', 'preferences', 'upload'].indexOf(step);
   const progress = ((stepIndex + 1) / 5) * 100;
@@ -150,7 +157,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                       <Calendar className="w-4 h-4 text-text-tertiary" />
                       <span className="text-sm font-medium">Upcoming exam?</span>
                     </div>
-                    <input type="date" className="px-4 py-2 rounded-xl bg-surface-input border border-border-subtle text-sm text-text-primary focus:outline-none focus:border-brand-500/50" />
+                    <input type="date" value={examDate} onChange={e => setExamDate(e.target.value)} className="px-4 py-2 rounded-xl bg-surface-input border border-border-subtle text-sm text-text-primary focus:outline-none focus:border-brand-500/50 w-full" />
                   </div>
                   <div className="p-3 rounded-xl bg-surface-hover/50 text-xs text-text-muted flex items-start gap-2">
                     <Brain className="w-4 h-4 text-brand-400 shrink-0 mt-0.5" />
@@ -170,10 +177,21 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                   Upload your first document to generate an interactive course, or explore the dashboard first.
                 </p>
                 <div className="flex flex-col gap-3">
-                  <button onClick={onComplete} className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-gradient-to-r from-brand-600 to-brand-500 text-white rounded-xl font-medium hover:from-brand-500 hover:to-brand-400 transition-all">
+                  <button onClick={() => onComplete({
+                    role: selectedRole ?? undefined,
+                    goals: selectedGoals,
+                    dailyGoalMinutes: dailyTime,
+                    examDate: examDate || undefined,
+                    openUpload: true,
+                  })} className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-gradient-to-r from-brand-600 to-brand-500 text-white rounded-xl font-medium hover:from-brand-500 hover:to-brand-400 transition-all">
                     <Upload className="w-4 h-4" /> Upload My First Material
                   </button>
-                  <button onClick={onComplete} className="text-sm text-text-secondary hover:text-text-primary transition-colors">
+                  <button onClick={() => onComplete({
+                    role: selectedRole ?? undefined,
+                    goals: selectedGoals,
+                    dailyGoalMinutes: dailyTime,
+                    examDate: examDate || undefined,
+                  })} className="text-sm text-text-secondary hover:text-text-primary transition-colors">
                     Skip — explore the demo first
                   </button>
                 </div>

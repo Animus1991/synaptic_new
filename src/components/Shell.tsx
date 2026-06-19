@@ -2,10 +2,11 @@ import { ReactNode } from 'react';
 import {
   BookOpen, CheckSquare, Bot, LayoutDashboard, Settings,
   Sparkles, Menu, X, Upload, Bell, Search, ChevronRight,
-  BarChart3
+  BarChart3, Sun, Moon
 } from 'lucide-react';
 import type { AppView, User, DashboardStats } from '../types';
 import { cn } from '../utils/cn';
+import { useI18n, type I18nKey } from '../lib/i18n';
 
 interface ShellProps {
   children: ReactNode;
@@ -16,18 +17,25 @@ interface ShellProps {
   user: User;
   stats: DashboardStats;
   onUpload: () => void;
+  theme?: 'dark' | 'light' | 'system';
+  onToggleTheme?: () => void;
+  onOpenSearch?: () => void;
+  onOpenNotifications?: () => void;
+  notificationCount?: number;
+  breadcrumb?: { course?: string; lesson?: string };
 }
 
-const navItems: { view: AppView; icon: typeof BookOpen; label: string }[] = [
-  { view: 'dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-  { view: 'library', icon: BookOpen, label: 'Library' },
-  { view: 'tasks', icon: CheckSquare, label: 'Tasks' },
-  { view: 'agent', icon: Bot, label: 'Agent' },
-  { view: 'analytics', icon: BarChart3, label: 'Analytics' },
-  { view: 'settings', icon: Settings, label: 'Settings' },
+const navViews: { view: AppView; icon: typeof BookOpen; labelKey: I18nKey }[] = [
+  { view: 'dashboard', icon: LayoutDashboard, labelKey: 'dashboard' },
+  { view: 'library', icon: BookOpen, labelKey: 'library' },
+  { view: 'tasks', icon: CheckSquare, labelKey: 'tasks' },
+  { view: 'agent', icon: Bot, labelKey: 'agent' },
+  { view: 'analytics', icon: BarChart3, labelKey: 'analytics' },
+  { view: 'settings', icon: Settings, labelKey: 'settings' },
 ];
 
-export function Shell({ children, currentView, onNavigate, sidebarOpen, onToggleSidebar, user, stats, onUpload }: ShellProps) {
+export function Shell({ children, currentView, onNavigate, sidebarOpen, onToggleSidebar, user, stats, onUpload, theme = 'dark', onToggleTheme, onOpenSearch, onOpenNotifications, notificationCount = 0, breadcrumb }: ShellProps) {
+  const { t } = useI18n();
   return (
     <div className="min-h-screen bg-surface-primary flex">
       {/* Desktop Sidebar */}
@@ -42,7 +50,7 @@ export function Shell({ children, currentView, onNavigate, sidebarOpen, onToggle
         </div>
 
         <nav className="flex-1 p-3 space-y-1">
-          {navItems.map(item => (
+          {navViews.map(item => (
             <button
               key={item.view}
               onClick={() => onNavigate(item.view)}
@@ -54,7 +62,7 @@ export function Shell({ children, currentView, onNavigate, sidebarOpen, onToggle
               )}
             >
               <item.icon className="w-5 h-5" />
-              {item.label}
+              {t(item.labelKey)}
               {item.view === 'tasks' && stats.reviewsDue > 0 && (
                 <span className="ml-auto text-xs bg-accent-rose/20 text-accent-rose px-2 py-0.5 rounded-full font-semibold">
                   {stats.reviewsDue}
@@ -70,7 +78,7 @@ export function Shell({ children, currentView, onNavigate, sidebarOpen, onToggle
             className="w-full flex items-center gap-2 px-4 py-3 rounded-xl bg-gradient-to-r from-brand-600 to-brand-500 text-white font-medium text-sm hover:from-brand-500 hover:to-brand-400 transition-all"
           >
             <Upload className="w-4 h-4" />
-            Upload Material
+            {t('uploadMaterial')}
           </button>
         </div>
 
@@ -128,7 +136,7 @@ export function Shell({ children, currentView, onNavigate, sidebarOpen, onToggle
                 className="w-full flex items-center gap-2 px-4 py-3 rounded-xl bg-gradient-to-r from-brand-600 to-brand-500 text-white font-medium text-sm"
               >
                 <Upload className="w-4 h-4" />
-                Upload Material
+                {t('uploadMaterial')}
               </button>
             </div>
           </div>
@@ -148,21 +156,55 @@ export function Shell({ children, currentView, onNavigate, sidebarOpen, onToggle
                 <Menu className="w-5 h-5 text-text-secondary" />
               </button>
               <div className="hidden sm:flex items-center gap-1.5 text-sm text-text-tertiary">
-                <span className="text-text-secondary font-medium capitalize">{currentView}</span>
+                {breadcrumb?.course ? (
+                  <>
+                    <span className="text-text-secondary font-medium">{breadcrumb.course}</span>
+                    {breadcrumb.lesson && (
+                      <>
+                        <span>•</span>
+                        <span className="truncate max-w-[200px]">{breadcrumb.lesson}</span>
+                      </>
+                    )}
+                  </>
+                ) : (
+                  <span className="text-text-secondary font-medium capitalize">{currentView}</span>
+                )}
               </div>
             </div>
 
             <div className="flex items-center gap-2">
-              <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface-input border border-border-subtle text-sm text-text-tertiary">
+              <button
+                onClick={onOpenSearch}
+                className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface-input border border-border-subtle text-sm text-text-tertiary hover:border-brand-500/30 transition-colors"
+              >
                 <Search className="w-4 h-4" />
-                <span>Search...</span>
+                <span>{t('search')}</span>
                 <kbd className="text-xs bg-surface-hover px-1.5 py-0.5 rounded border border-border-subtle ml-4">⌘K</kbd>
-              </div>
-
-              <button className="relative p-2 rounded-lg hover:bg-surface-hover transition-colors">
-                <Bell className="w-5 h-5 text-text-secondary" />
-                <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-accent-rose rounded-full" />
               </button>
+
+              <button
+                onClick={onOpenNotifications}
+                className="relative p-2 rounded-lg hover:bg-surface-hover transition-colors"
+              >
+                <Bell className="w-5 h-5 text-text-secondary" />
+                {notificationCount > 0 && (
+                  <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-accent-rose rounded-full" />
+                )}
+              </button>
+
+              {onToggleTheme && (
+                <button
+                  onClick={onToggleTheme}
+                  className="p-2 rounded-lg hover:bg-surface-hover transition-colors"
+                  title={theme === 'light' ? t('switchDark') : t('switchLight')}
+                >
+                  {theme === 'light' ? (
+                    <Moon className="w-5 h-5 text-text-secondary" />
+                  ) : (
+                    <Sun className="w-5 h-5 text-text-secondary" />
+                  )}
+                </button>
+              )}
 
               <div className="flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-surface-hover cursor-pointer transition-colors">
                 <div className="w-7 h-7 rounded-full bg-gradient-to-br from-brand-500 to-accent-teal flex items-center justify-center text-white text-xs font-bold">
@@ -185,7 +227,7 @@ export function Shell({ children, currentView, onNavigate, sidebarOpen, onToggle
         {/* Mobile bottom nav */}
         <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-30 glass-strong border-t border-border-subtle">
           <div className="flex items-center justify-around h-16 px-2">
-            {navItems.slice(0, 5).map(item => (
+            {[...navViews.slice(0, 4), { view: 'settings' as AppView, icon: Settings, labelKey: 'settings' as I18nKey }].map(item => (
               <button
                 key={item.view}
                 onClick={() => onNavigate(item.view)}
@@ -197,7 +239,7 @@ export function Shell({ children, currentView, onNavigate, sidebarOpen, onToggle
                 )}
               >
                 <item.icon className="w-5 h-5" />
-                <span className="text-[10px] font-medium">{item.label}</span>
+                <span className="text-[10px] font-medium">{t(item.labelKey)}</span>
               </button>
             ))}
           </div>

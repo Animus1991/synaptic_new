@@ -6,6 +6,8 @@ import {
   Activity, Shield, Eye, HelpCircle
 } from 'lucide-react';
 import type { LearnerModel, DashboardStats, Course } from '../types';
+import { computeCalibration } from '../lib/pedagogy';
+import { CalibrationChip } from './visuals/CalibrationChip';
 import { cn } from '../utils/cn';
 import { ReadinessRing } from './visuals/ReadinessRing';
 import { RetentionCurve } from './visuals/DiagramGenerator';
@@ -56,8 +58,12 @@ export function Analytics({ learnerModel, stats, courses }: AnalyticsProps) {
 }
 
 function OverviewTab({ learnerModel, stats, courses }: { learnerModel: LearnerModel; stats: DashboardStats; courses: Course[] }) {
+  const calibration = computeCalibration(learnerModel.confidenceCalibration);
   return (
     <div className="space-y-6">
+      {calibration && (
+        <CalibrationChip score={calibration.score} direction={calibration.direction} />
+      )}
       {/* Readiness Ring + Retention Curve */}
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="grid grid-cols-1 sm:grid-cols-2 gap-6">
         <div className="rounded-2xl border border-border-subtle bg-surface-card p-6 flex items-center justify-center">
@@ -85,7 +91,7 @@ function OverviewTab({ learnerModel, stats, courses }: { learnerModel: LearnerMo
             {learnerModel.weeklyMastery.map((val, i) => (
               <div key={i} className="flex-1 flex flex-col items-center gap-1">
                 <span className="text-[9px] text-text-muted font-medium">{val}%</span>
-                <div className="w-full rounded-t transition-all duration-500" style={{ height: `${val * 1.2}%`, backgroundColor: i === learnerModel.weeklyMastery.length - 1 ? '#818cf8' : '#2a2252' }} />
+                <div className="w-full rounded-t transition-all duration-500" style={{ height: `${val * 1.2}%`, backgroundColor: i === learnerModel.weeklyMastery.length - 1 ? '#818cf8' : 'var(--viz-track)' }} />
                 <span className="text-[9px] text-text-muted">{['M', 'T', 'W', 'T', 'F', 'S', 'S'][i]}</span>
               </div>
             ))}

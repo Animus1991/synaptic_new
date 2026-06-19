@@ -1,21 +1,13 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MessageSquare, Pin, Highlighter, X, ChevronDown, ChevronUp, Sparkles, Trash2 } from 'lucide-react';
+import { MessageSquare, Pin, Highlighter, X, ChevronDown, ChevronUp, Sparkles, Trash2, FileText } from 'lucide-react';
 import { cn } from '../../utils/cn';
-
-interface Annotation {
-  id: string;
-  type: 'highlight' | 'comment' | 'pin';
-  y: number;
-  text: string;
-  color: string;
-  lineStart: number;
-  lineEnd: number;
-}
+import { useI18n } from '../../lib/i18n';
+import { loadAnnotations, saveAnnotations, type StoredAnnotation } from '../../lib/annotationStore';
 
 const COLORS = ['#818cf8', '#fbbf24', '#34d399', '#fb7185', '#22d3ee'];
 
-const MOCK_SOURCE = `Chapter 4: Market Structures
+const DEFAULT_SOURCE = `Chapter 4: Market Structures
 
 4.1 Perfect Competition
 
@@ -41,16 +33,23 @@ The Bertrand Paradox states that with just two firms selling identical products 
 
 4.4 Monopolistic Competition
 
-Many firms sell differentiated products. Each firm has some market power but faces competition from close substitutes. In the long run, economic profits are driven to zero by entry.
+Many firms sell differentiated products. Each firm has some market power but faces competition from close substitutes. In the long run, economic profits are driven to zero by entry.`;
 
-Key distinction: product differentiation gives each firm a downward-sloping demand curve, unlike in perfect competition.`;
+interface Props {
+  onAskAgent?: (text: string) => void;
+  sourceText?: string;
+  sourceName?: string;
+  fileKey?: string;
+}
 
-export function AnnotationOverlay({ onAskAgent }: { onAskAgent?: (text: string) => void }) {
-  const [annotations, setAnnotations] = useState<Annotation[]>([
-    { id: 'a1', type: 'highlight', y: 108, text: '', color: '#818cf8', lineStart: 3, lineEnd: 4 },
-    { id: 'a2', type: 'comment', y: 220, text: 'Why does this create deadweight loss exactly?', color: '#fbbf24', lineStart: 10, lineEnd: 10 },
-    { id: 'a3', type: 'pin', y: 360, text: 'Key for exam — know all three models', color: '#fb7185', lineStart: 17, lineEnd: 20 },
-  ]);
+export function AnnotationOverlay({
+  onAskAgent,
+  sourceText = DEFAULT_SOURCE,
+  sourceName = 'Lecture_Notes_Micro.pdf — Ch4',
+  fileKey = 'default-source',
+}: Props) {
+  const { t } = useI18n();
+  const [annotations, setAnnotations] = useState<StoredAnnotation[]>(() => loadAnnotations(fileKey));
   const [tool, setTool] = useState<'highlight' | 'comment' | 'pin'>('highlight');
   const [activeColor, setActiveColor] = useState(COLORS[0]);
   const [newComment, setNewComment] = useState('');
@@ -58,71 +57,77 @@ export function AnnotationOverlay({ onAskAgent }: { onAskAgent?: (text: string) 
   const [expanded, setExpanded] = useState(true);
   const contentRef = useRef<HTMLDivElement>(null);
 
-  const lines = MOCK_SOURCE.split('\n');
+  useEffect(() => {
+    setAnnotations(loadAnnotations(fileKey));
+  }, [fileKey]);
+
+  useEffect(() => {
+    saveAnnotations(fileKey, annotations);
+  }, [annotations, fileKey]);
+
+  const lines = sourceText.split('\n');
 
   const addAnnotation = useCallback((lineIdx: number) => {
     if (tool === 'comment') {
       setAddingAt(lineIdx);
       return;
     }
-    const ann: Annotation = {
+    const ann: StoredAnnotation = {
       id: `ann-${Date.now()}`,
       type: tool,
-      y: lineIdx * 22 + 20,
-      text: '',
+      text: tool === 'pin' ? t('pin') : '',
       color: activeColor,
       lineStart: lineIdx,
       lineEnd: lineIdx,
     };
-    setAnnotations(prev => [...prev, ann]);
-  }, [tool, activeColor]);
+    setAnnotations((prev) => [...prev, ann]);
+  }, [tool, activeColor, t]);
 
   const confirmComment = () => {
     if (addingAt === null || !newComment.trim()) return;
-    const ann: Annotation = {
+    const ann: StoredAnnotation = {
       id: `ann-${Date.now()}`,
       type: 'comment',
-      y: addingAt * 22 + 20,
       text: newComment.trim(),
       color: activeColor,
       lineStart: addingAt,
       lineEnd: addingAt,
     };
-    setAnnotations(prev => [...prev, ann]);
+    setAnnotations((prev) => [...prev, ann]);
     setNewComment('');
     setAddingAt(null);
   };
 
-  const removeAnnotation = (id: string) => setAnnotations(prev => prev.filter(a => a.id !== id));
+  const removeAnnotation = (id: string) => setAnnotations((prev) => prev.filter((a) => a.id !== id));
 
   const highlightedLines = new Set<number>();
-  annotations.filter(a => a.type === 'highlight').forEach(a => {
+  annotations.filter((a) => a.type === 'highlight').forEach((a) => {
     for (let i = a.lineStart; i <= a.lineEnd; i++) highlightedLines.add(i);
   });
 
   return (
-    <div className="flex flex-col h-full rounded-2xl border border-border-subtle bg-surface-card overflow-hidden">
-      {/* Toolbar */}
+    <div className="relative flex flex-col h-full rounded-2xl border border-border-subtle bg-surface-card overflow-hidden">
       <div className="flex items-center justify-between px-4 py-2 border-b border-border-subtle bg-surface-secondary/40 shrink-0">
-        <div className="flex items-center gap-2">
-          <span className="text-xs font-semibold text-text-secondary">📄 Source Viewer</span>
-          <span className="text-[10px] text-text-muted">Lecture_Notes_Micro.pdf — Ch4</span>
+        <div className="flex items-center gap-2 min-w-0">
+          <FileText className="w-3.5 h-3.5 text-brand-400 shrink-0" />
+          <span className="text-xs font-semibold text-text-secondary">{t('sourceViewer')}</span>
+          <span className="text-[10px] text-text-muted truncate">{sourceName}</span>
         </div>
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1 shrink-0">
           {[
-            { t: 'highlight' as const, icon: Highlighter, label: 'Highlight' },
-            { t: 'comment' as const, icon: MessageSquare, label: 'Comment' },
-            { t: 'pin' as const, icon: Pin, label: 'Pin' },
-          ].map(b => (
-            <button key={b.t} onClick={() => setTool(b.t)}
+            { tool: 'highlight' as const, icon: Highlighter, label: t('highlight') },
+            { tool: 'comment' as const, icon: MessageSquare, label: t('comment') },
+            { tool: 'pin' as const, icon: Pin, label: t('pin') },
+          ].map((b) => (
+            <button key={b.tool} type="button" onClick={() => setTool(b.tool)}
               className={cn('flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-medium transition-all',
-                tool === b.t ? 'bg-brand-600/20 text-brand-300 border border-brand-500/30' : 'text-text-muted hover:text-text-secondary')}>
+                tool === b.tool ? 'bg-brand-600/20 text-brand-300 border border-brand-500/30' : 'text-text-muted hover:text-text-secondary')}>
               <b.icon className="w-3 h-3" />{b.label}
             </button>
           ))}
           <div className="ml-2 flex gap-1">
-            {COLORS.map(c => (
-              <button key={c} onClick={() => setActiveColor(c)}
+            {COLORS.map((c) => (
+              <button key={c} type="button" onClick={() => setActiveColor(c)}
                 className={cn('w-4 h-4 rounded-full border-2 transition-all', activeColor === c ? 'border-white scale-125' : 'border-transparent opacity-60')}
                 style={{ backgroundColor: c }} />
             ))}
@@ -131,36 +136,37 @@ export function AnnotationOverlay({ onAskAgent }: { onAskAgent?: (text: string) 
       </div>
 
       <div className="flex flex-1 overflow-hidden">
-        {/* Source content */}
         <div ref={contentRef} className="flex-1 overflow-y-auto p-4 font-mono text-[13px] leading-[22px] text-text-secondary relative">
           {lines.map((line, i) => {
             const isHighlighted = highlightedLines.has(i);
             const isEmpty = line.trim() === '';
-            const isHeading = line.startsWith('Chapter') || line.startsWith('4.');
+            const isHeading = /^(Chapter|\d+\.)/.test(line.trim());
+            const pinHere = annotations.some((a) => a.type === 'pin' && a.lineStart === i);
             return (
-              <div key={i} onClick={() => addAnnotation(i)}
+              <div key={i} onClick={() => addAnnotation(i)} role="button" tabIndex={0}
+                onKeyDown={(e) => e.key === 'Enter' && addAnnotation(i)}
                 className={cn(
-                  'px-2 rounded cursor-pointer transition-colors hover:bg-surface-hover/50',
+                  'px-2 rounded cursor-pointer transition-colors hover:bg-surface-hover/50 relative',
                   isHighlighted && 'bg-brand-500/10 border-l-2 border-brand-500',
                   isHeading && 'font-bold text-text-primary text-sm mt-2',
-                  isEmpty && 'h-3'
+                  isEmpty && 'h-3',
                 )}>
+                {pinHere && <span className="absolute -left-1 text-[10px]">📌</span>}
                 {line || '\u00A0'}
               </div>
             );
           })}
         </div>
 
-        {/* Annotation sidebar */}
         <div className={cn('border-l border-border-subtle bg-surface-secondary/30 transition-all overflow-y-auto', expanded ? 'w-64' : 'w-8')}>
-          <button onClick={() => setExpanded(!expanded)} className="w-full p-2 flex items-center justify-center text-text-muted hover:text-text-secondary">
+          <button type="button" onClick={() => setExpanded(!expanded)} className="w-full p-2 flex items-center justify-center text-text-muted hover:text-text-secondary">
             {expanded ? <ChevronDown className="w-3.5 h-3.5 rotate-90" /> : <ChevronUp className="w-3.5 h-3.5 rotate-90" />}
           </button>
           {expanded && (
             <div className="px-2 pb-2 space-y-2">
-              <p className="text-[10px] text-text-muted font-medium px-1">{annotations.length} annotations</p>
+              <p className="text-[10px] text-text-muted font-medium px-1">{annotations.length} {t('annotations')}</p>
               <AnimatePresence>
-                {annotations.map(ann => (
+                {annotations.map((ann) => (
                   <motion.div key={ann.id} initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 10 }}
                     className="p-2 rounded-lg border text-[10px]"
                     style={{ borderColor: ann.color + '40', backgroundColor: ann.color + '08' }}>
@@ -168,14 +174,14 @@ export function AnnotationOverlay({ onAskAgent }: { onAskAgent?: (text: string) 
                       <span className="font-medium capitalize" style={{ color: ann.color }}>
                         {ann.type === 'highlight' ? '🖍' : ann.type === 'comment' ? '💬' : '📌'} {ann.type}
                       </span>
-                      <button onClick={() => removeAnnotation(ann.id)} className="text-text-muted hover:text-accent-rose"><Trash2 className="w-3 h-3" /></button>
+                      <button type="button" onClick={() => removeAnnotation(ann.id)} className="text-text-muted hover:text-accent-rose"><Trash2 className="w-3 h-3" /></button>
                     </div>
                     <p className="text-text-muted">Line {ann.lineStart + 1}</p>
                     {ann.text && <p className="text-text-secondary mt-1">{ann.text}</p>}
-                    {ann.type === 'highlight' && onAskAgent && (
-                      <button onClick={() => onAskAgent(lines[ann.lineStart] || '')}
+                    {(ann.type === 'highlight' || ann.type === 'pin') && onAskAgent && (
+                      <button type="button" onClick={() => onAskAgent(lines[ann.lineStart] || '')}
                         className="mt-1.5 flex items-center gap-1 text-brand-400 hover:text-brand-300">
-                        <Sparkles className="w-3 h-3" /> Ask Agent about this
+                        <Sparkles className="w-3 h-3" /> {t('askAgent')}
                       </button>
                     )}
                   </motion.div>
@@ -186,19 +192,18 @@ export function AnnotationOverlay({ onAskAgent }: { onAskAgent?: (text: string) 
         </div>
       </div>
 
-      {/* Comment input overlay */}
       <AnimatePresence>
         {addingAt !== null && (
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 20 }}
             className="absolute bottom-0 left-0 right-0 p-3 glass-strong border-t border-border-subtle">
-            <p className="text-xs font-semibold mb-2">💬 Add comment (line {addingAt + 1})</p>
+            <p className="text-xs font-semibold mb-2">💬 {t('addComment')} (line {addingAt + 1})</p>
             <div className="flex gap-2">
-              <input value={newComment} onChange={e => setNewComment(e.target.value)} autoFocus
-                placeholder="Your comment…"
-                onKeyDown={e => e.key === 'Enter' && confirmComment()}
+              <input value={newComment} onChange={(e) => setNewComment(e.target.value)} autoFocus
+                placeholder="…"
+                onKeyDown={(e) => e.key === 'Enter' && confirmComment()}
                 className="flex-1 px-3 py-2 rounded-lg bg-surface-input border border-border-subtle text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-brand-500/50" />
-              <button onClick={confirmComment} className="px-3 py-2 bg-brand-600 hover:bg-brand-500 text-white text-xs font-medium rounded-lg">Add</button>
-              <button onClick={() => setAddingAt(null)} className="px-3 py-2 text-text-muted hover:text-text-secondary text-xs rounded-lg"><X className="w-4 h-4" /></button>
+              <button type="button" onClick={confirmComment} className="px-3 py-2 bg-brand-600 hover:bg-brand-500 text-white text-xs font-medium rounded-lg">OK</button>
+              <button type="button" onClick={() => setAddingAt(null)} className="px-3 py-2 text-text-muted hover:text-text-secondary text-xs rounded-lg"><X className="w-4 h-4" /></button>
             </div>
           </motion.div>
         )}

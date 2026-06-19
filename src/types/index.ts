@@ -34,6 +34,11 @@ export interface UserSettings {
   theme: 'dark' | 'light' | 'system';
   dailyGoalMinutes: number;
   examDate?: string;
+  /** OpenAI-compatible API key (stored locally). Falls back to VITE_OPENAI_API_KEY. */
+  openaiApiKey?: string;
+  llmModel?: string;
+  llmBaseUrl?: string;
+  useLlm?: boolean;
 }
 
 export interface UploadedFile {
@@ -46,6 +51,7 @@ export interface UploadedFile {
   progress?: number;
   courseId?: string;
   extractedTopics?: string[];
+  extractedText?: string;
   pageCount?: number;
   detectedLanguage?: string;
 }
@@ -235,6 +241,38 @@ export interface ConfidencePoint {
   predicted: number;
   actual: number;
   concept: string;
+  timestamp: string;
+}
+
+export interface MistakeRecord {
+  id: string;
+  concept: string;
+  questionSummary: string;
+  wrongAnswer?: string;
+  correctAnswer?: string;
+  courseId: string;
+  createdAt: string;
+  resolved: boolean;
+}
+
+export type ActivityType =
+  | 'lesson_complete'
+  | 'quiz_passed'
+  | 'quiz_failed'
+  | 'review_done'
+  | 'streak'
+  | 'mastery_up'
+  | 'xp_earned'
+  | 'mistake_fixed'
+  | 'task_complete'
+  | 'study_time'
+  | 'upload';
+
+export interface ActivityItem {
+  id: string;
+  type: ActivityType;
+  description: string;
+  xp?: number;
   timestamp: string;
 }
 

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   CheckCircle2, Circle, Clock, Zap, AlertTriangle, RotateCcw,
@@ -6,17 +6,27 @@ import {
   GraduationCap, Lightbulb, Code, MessageSquare, Sparkles,
   Mic, ArrowDownRight, GitCompare, Shield, Calendar
 } from 'lucide-react';
-import type { Task, TaskType } from '../types';
+import type { Task, TaskType, MistakeRecord } from '../types';
 import { cn } from '../utils/cn';
+import { buildStudyPlanBlocks } from '../lib/pedagogy';
+import type { FsrsRating } from '../lib/pedagogy';
+import { filterTasksForSession, startButtonLabel, type SessionType } from '../lib/taskFlows';
+import { ErrorNotebook } from './visuals/ErrorNotebook';
 
 interface TasksProps {
   tasks: Task[];
   onComplete: (taskId: string) => void;
-  onStartSession: () => void;
+  onReviewRating?: (taskId: string, rating: FsrsRating) => void;
+  onStartTask?: (taskId: string) => void;
+  onStartSession?: (session: SessionType) => void;
+  daysToExam?: number | null;
+  expandedTaskId?: string | null;
+  onExpandedTaskChange?: (taskId: string | null) => void;
+  openMistakes?: MistakeRecord[];
+  onResolveMistake?: (id: string) => void;
 }
 
 type TaskFilter = 'all' | 'learn' | 'review' | 'practice' | 'exam' | 'fix' | 'completed';
-type SessionType = '10min' | '25min' | '50min' | 'cram' | 'review';
 
 const taskTypeConfig: Record<TaskType, { icon: typeof BookOpen; color: string; label: string }> = {
   lesson: { icon: BookOpen, color: 'text-brand-400', label: 'Lesson' },
@@ -43,10 +53,21 @@ const sessionTypes: { type: SessionType; label: string; desc: string; minutes: n
   { type: 'review', label: 'Spaced Review', desc: 'Due spaced repetitions', minutes: 15, icon: RotateCcw },
 ];
 
-export function Tasks({ tasks, onComplete, onStartSession }: TasksProps) {
+export function Tasks({ tasks, onComplete, onReviewRating, onStartTask, onStartSession, daysToExam = null, expandedTaskId = null, onExpandedTaskChange, openMistakes = [], onResolveMistake }: TasksProps) {
   const [filter, setFilter] = useState<TaskFilter>('all');
   const [showSessions, setShowSessions] = useState(false);
-  const [expandedTask, setExpandedTask] = useState<string | null>(null);
+  const [localExpanded, setLocalExpanded] = useState<string | null>(null);
+  const expandedTask = expandedTaskId ?? localExpanded;
+  const setExpandedTask = (id: string | null) => {
+    setLocalExpanded(id);
+    onExpandedTaskChange?.(id);
+  };
+
+  useEffect(() => {
+    if (expandedTaskId) setLocalExpanded(expandedTaskId);
+  }, [expandedTaskId]);
+
+  const studyPlan = buildStudyPlanBlocks(tasks);
 
   const filteredTasks = tasks.filter(t => {
     if (filter === 'completed') return t.status === 'completed';
@@ -90,18 +111,60 @@ export function Tasks({ tasks, onComplete, onStartSession }: TasksProps) {
         {showSessions && (
           <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 pb-4">
-              {sessionTypes.map(s => (
-                <button key={s.type} onClick={onStartSession} className="p-4 rounded-xl border border-border-subtle bg-surface-card hover:border-brand-500/30 transition-all text-left group">
+              {sessionTypes.map(s => {
+                const sessionTasks = filterTasksForSession(tasks, s.type);
+                return (
+                <button
+                  key={s.type}
+                  onClick={() => { onStartSession?.(s.type); setShowSessions(false); }}
+                  disabled={sessionTasks.length === 0}
+                  className={cn(
+                    'p-4 rounded-xl border bg-surface-card transition-all text-left group',
+                    sessionTasks.length === 0
+                      ? 'border-border-subtle opacity-50 cursor-not-allowed'
+                      : 'border-border-subtle hover:border-brand-500/30',
+                  )}
+                >
                   <s.icon className="w-5 h-5 text-brand-400 mb-2 group-hover:scale-110 transition-transform" />
                   <p className="text-sm font-semibold">{s.label}</p>
                   <p className="text-xs text-text-tertiary mt-0.5">{s.desc}</p>
-                  <p className="text-xs text-brand-400 mt-2">{s.minutes} min</p>
+                  <p className="text-xs text-brand-400 mt-2">{s.minutes} min · {sessionTasks.length} task{sessionTasks.length === 1 ? '' : 's'}</p>
                 </button>
-              ))}
+              );})}
             </div>
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Daily study plan */}
+      {studyPlan.length > 0 && filter !== 'completed' && (
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="rounded-2xl border border-brand-500/20 bg-brand-500/5 p-5">
+          <h3 className="text-sm font-semibold flex items-center gap-2 mb-4">
+            <Calendar className="w-4 h-4 text-brand-400" />
+            Today&apos;s study plan
+          </h3>
+          <div className="space-y-3">
+            {studyPlan.map((block) => (
+              <div key={block.label} className="p-3 rounded-xl bg-surface-card border border-border-subtle">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs font-semibold text-text-primary">{block.label}</span>
+                  <span className="text-[10px] text-text-tertiary">{block.minutes} min</span>
+                </div>
+                <ul className="space-y-1">
+                  {block.items.map((item) => (
+                    <li key={item} className="text-xs text-text-secondary truncate">· {item}</li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+      )}
+
+      {/* Error notebook */}
+      {openMistakes.length > 0 && filter !== 'completed' && (
+        <ErrorNotebook mistakes={openMistakes} onResolve={onResolveMistake} />
+      )}
 
       {/* Danger Zone */}
       {dangerTasks.length > 0 && filter !== 'completed' && (
@@ -112,11 +175,15 @@ export function Tasks({ tasks, onComplete, onStartSession }: TasksProps) {
           </h3>
           <div className="space-y-2">
             {dangerTasks.slice(0, 3).map(task => (
-              <div key={task.id} className="flex items-center gap-3 text-sm">
+              <button
+                key={task.id}
+                onClick={() => onStartTask?.(task.id)}
+                className="w-full flex items-center gap-3 text-sm text-left hover:bg-surface-hover rounded-lg p-1.5 -m-1.5 transition-all"
+              >
                 <span className="w-2 h-2 rounded-full bg-accent-rose animate-pulse shrink-0" />
                 <span className="flex-1 truncate">{task.title}</span>
                 <span className="text-xs text-accent-rose">{task.estimatedMinutes}m</span>
-              </div>
+              </button>
             ))}
           </div>
         </motion.div>
@@ -134,10 +201,19 @@ export function Tasks({ tasks, onComplete, onStartSession }: TasksProps) {
           <Clock className="w-4 h-4 text-text-tertiary" />
           <span className="text-text-secondary">~{Math.round(tasks.filter(t => t.status === 'pending').reduce((s, t) => s + t.estimatedMinutes, 0))} min total</span>
         </div>
-        <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-surface-card border border-border-subtle text-sm shrink-0">
-          <Calendar className="w-4 h-4 text-text-tertiary" />
-          <span className="text-text-secondary">Exam in 36 days</span>
-        </div>
+        {daysToExam !== null ? (
+          <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-accent-rose/10 border border-accent-rose/20 text-sm shrink-0">
+            <Calendar className="w-4 h-4 text-accent-rose" />
+            <span className="text-accent-rose font-medium">
+              {daysToExam === 0 ? 'Exam today' : `Exam in ${daysToExam} day${daysToExam === 1 ? '' : 's'}`}
+            </span>
+          </div>
+        ) : (
+          <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-surface-card border border-border-subtle text-sm shrink-0">
+            <Calendar className="w-4 h-4 text-text-tertiary" />
+            <span className="text-text-secondary">No exam date set</span>
+          </div>
+        )}
       </div>
 
       {/* Filters */}
@@ -200,8 +276,33 @@ export function Tasks({ tasks, onComplete, onStartSession }: TasksProps) {
                             <span className="text-xs text-accent-rose flex items-center gap-1"><AlertTriangle className="w-3 h-3" />Retention: {Math.round(task.retentionPrediction * 100)}%</span>
                           )}
                         </div>
-                        {!isCompleted && (
-                          <button onClick={() => onComplete(task.id)} className="mt-3 px-4 py-2 bg-brand-600 hover:bg-brand-500 text-white rounded-lg text-sm font-medium transition-all">Start Task</button>
+                        {!isCompleted && task.isSpacedRepetition && task.category === 'review' && onReviewRating ? (
+                          <div className="mt-3">
+                            <p className="text-xs text-text-tertiary mb-2">How well did you recall this?</p>
+                            <div className="flex flex-wrap gap-2">
+                              {([
+                                { rating: 'again' as FsrsRating, label: 'Again', color: 'bg-accent-rose/15 text-accent-rose border-accent-rose/30' },
+                                { rating: 'hard' as FsrsRating, label: 'Hard', color: 'bg-accent-orange/15 text-accent-orange border-accent-orange/30' },
+                                { rating: 'good' as FsrsRating, label: 'Good', color: 'bg-accent-amber/15 text-accent-amber border-accent-amber/30' },
+                                { rating: 'easy' as FsrsRating, label: 'Easy', color: 'bg-accent-emerald/15 text-accent-emerald border-accent-emerald/30' },
+                              ]).map(({ rating, label, color }) => (
+                                <button
+                                  key={rating}
+                                  onClick={() => onReviewRating(task.id, rating)}
+                                  className={cn('px-3 py-1.5 rounded-lg text-xs font-medium border transition-all hover:opacity-90', color)}
+                                >
+                                  {label}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        ) : !isCompleted && (
+                          <button
+                            onClick={() => (onStartTask ? onStartTask(task.id) : onComplete(task.id))}
+                            className="mt-3 px-4 py-2 bg-brand-600 hover:bg-brand-500 text-white rounded-lg text-sm font-medium transition-all"
+                          >
+                            {startButtonLabel(task)}
+                          </button>
                         )}
                       </div>
                     </motion.div>

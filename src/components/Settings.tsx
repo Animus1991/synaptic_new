@@ -127,6 +127,46 @@ export function Settings({ settings, onUpdate }: SettingsProps) {
         </div>
       </SettingsSection>
 
+      {/* AI / LLM */}
+      <SettingsSection title="AI & LLM" icon={<Brain className="w-5 h-5 text-brand-400" />} delay={0.32}>
+        <div>
+          <label className="text-xs text-text-secondary block mb-2">OpenAI API key (stored locally in browser)</label>
+          <input
+            type="password"
+            value={settings.openaiApiKey ?? ''}
+            onChange={(e) => onUpdate({ openaiApiKey: e.target.value || undefined })}
+            placeholder="sk-… or set VITE_OPENAI_API_KEY at build time"
+            className="w-full px-4 py-2 rounded-xl bg-surface-input border border-border-subtle text-sm text-text-primary focus:outline-none focus:border-brand-500/50"
+          />
+        </div>
+        <div>
+          <label className="text-xs text-text-secondary block mb-2">Model</label>
+          <input
+            type="text"
+            value={settings.llmModel ?? 'gpt-4o-mini'}
+            onChange={(e) => onUpdate({ llmModel: e.target.value || undefined })}
+            className="w-full px-4 py-2 rounded-xl bg-surface-input border border-border-subtle text-sm text-text-primary focus:outline-none focus:border-brand-500/50"
+          />
+        </div>
+        <div>
+          <label className="text-xs text-text-secondary block mb-2">API base URL (optional, for OpenAI-compatible proxies)</label>
+          <input
+            type="url"
+            value={settings.llmBaseUrl ?? ''}
+            onChange={(e) => onUpdate({ llmBaseUrl: e.target.value || undefined })}
+            placeholder="https://api.openai.com/v1"
+            className="w-full px-4 py-2 rounded-xl bg-surface-input border border-border-subtle text-sm text-text-primary focus:outline-none focus:border-brand-500/50"
+          />
+        </div>
+        <ToggleRow label="Use LLM for Agent & Feynman" options={[
+          { value: 'true', label: 'Enabled' },
+          { value: 'false', label: 'Offline only' },
+        ]} value={settings.useLlm !== false ? 'true' : 'false'} onChange={v => onUpdate({ useLlm: v === 'true' })} />
+        <p className="text-xs text-text-muted mt-1 px-1">
+          Without a key, Agent and Feynman use offline templates. Keys never leave your browser except to your chosen API endpoint.
+        </p>
+      </SettingsSection>
+
       {/* Interface */}
       <SettingsSection title="Interface" icon={<Palette className="w-5 h-5 text-brand-300" />} delay={0.35}>
         <ToggleRow label="Theme" options={[

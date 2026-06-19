@@ -6,15 +6,22 @@ import {
   RotateCcw, Target, PenTool, Smile, Search, FileText,
   HelpCircle, Zap, Settings2
 } from 'lucide-react';
-import type { AgentMessage, AgentMode, Course } from '../types';
+import type { AgentMessage, AgentMode, Course, UserSettings } from '../types';
 import { cn } from '../utils/cn';
+import { streamAgentReply, isLlmAvailable } from '../lib/llmClient';
 
 interface AgentProps {
   messages: AgentMessage[];
   mode: AgentMode;
   courses: Course[];
   onSendMessage: (msg: AgentMessage) => void;
+  onUpdateMessage: (id: string, patch: Partial<AgentMessage>) => void;
   onChangeMode: (mode: AgentMode) => void;
+  activeTaskTitle?: string;
+  activeTaskConcept?: string;
+  xpReward?: number;
+  onCompleteTask?: () => void;
+  settings?: UserSettings;
 }
 
 const agentModes: { mode: AgentMode; icon: typeof Brain; label: string; desc: string; color: string }[] = [
@@ -44,52 +51,90 @@ const quickActions = [
   'Simulate an exam question',
 ];
 
-export function Agent({ messages, mode, courses, onSendMessage, onChangeMode }: AgentProps) {
+export function Agent({
+  messages,
+  mode,
+  courses,
+  onSendMessage,
+  onUpdateMessage,
+  onChangeMode,
+  activeTaskTitle,
+  activeTaskConcept,
+  xpReward,
+  onCompleteTask,
+  settings,
+}: AgentProps) {
   const [input, setInput] = useState('');
   const [showModes, setShowModes] = useState(false);
   const [showQuickActions, setShowQuickActions] = useState(true);
   const [selectedSource, setSelectedSource] = useState<string>('all');
+  const [isThinking, setIsThinking] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const llmReady = isLlmAvailable(settings);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  const handleSend = () => {
-    if (!input.trim()) return;
+  const handleSend = async (overrideText?: string) => {
+    const text = (overrideText ?? input).trim();
+    if (!text || isThinking) return;
     const msg: AgentMessage = {
       id: `msg-${Date.now()}`,
       role: 'user',
-      content: input,
+      content: text,
       timestamp: new Date().toISOString(),
       type: 'text',
     };
     onSendMessage(msg);
     setInput('');
     setShowQuickActions(false);
+    setIsThinking(true);
 
-    // Simulate agent response
-    setTimeout(() => {
-      const response: AgentMessage = {
-        id: `msg-${Date.now() + 1}`,
-        role: 'agent',
-        content: generateAgentResponse(input, mode),
-        timestamp: new Date().toISOString(),
-        type: 'text',
-        metadata: {
-          sourceGrounded: mode !== 'motivation',
-          enrichmentUsed: false,
-          inferenceUsed: true,
-        },
-      };
-      onSendMessage(response);
-    }, 1500);
+    const streamId = `msg-${Date.now() + 1}`;
+    onSendMessage({
+      id: streamId,
+      role: 'agent',
+      content: '',
+      timestamp: new Date().toISOString(),
+      type: 'text',
+      isStreaming: true,
+      metadata: {
+        sourceGrounded: mode !== 'motivation',
+        enrichmentUsed: false,
+        inferenceUsed: llmReady,
+      },
+    });
+
+    setIsThinking(false);
+
+    const { content, usedLlm } = await streamAgentReply(
+      text,
+      mode,
+      settings,
+      {
+        taskTitle: activeTaskTitle,
+        concept: activeTaskConcept,
+        courses: courses.map((c) => c.title),
+      },
+      (full) => onUpdateMessage(streamId, { content: full }),
+    );
+
+    onUpdateMessage(streamId, {
+      content,
+      isStreaming: false,
+      metadata: {
+        sourceGrounded: mode !== 'motivation',
+        enrichmentUsed: false,
+        inferenceUsed: usedLlm,
+      },
+    });
+    setIsThinking(false);
   };
 
   const handleQuickAction = (action: string) => {
-    setInput(action);
-    setTimeout(() => handleSend(), 100);
+    void handleSend(action);
   };
 
   const currentMode = agentModes.find(m => m.mode === mode)!;
@@ -115,7 +160,9 @@ export function Agent({ messages, mode, courses, onSendMessage, onChangeMode }: 
                   <ChevronDown className={cn('w-3 h-3 transition-transform', showModes && 'rotate-180')} />
                 </button>
               </div>
-              <p className="text-xs text-text-tertiary">Source-grounded · Adaptive</p>
+              <p className="text-xs text-text-tertiary">
+                {llmReady ? 'LLM connected · streaming' : 'Offline mode · Add API key in Settings'}
+              </p>
             </div>
           </div>
 
@@ -136,6 +183,32 @@ export function Agent({ messages, mode, courses, onSendMessage, onChangeMode }: 
           </div>
         </div>
       </div>
+
+      {activeTaskTitle && (
+        <div className="px-4 sm:px-6 py-2 border-b border-brand-500/20 bg-brand-500/5">
+          <div className="max-w-4xl mx-auto flex items-center justify-between gap-3 flex-wrap">
+            <div className="min-w-0">
+              <p className="text-xs font-semibold text-brand-300 truncate">{activeTaskTitle}</p>
+              {activeTaskConcept && (
+                <p className="text-[10px] text-text-tertiary truncate">Focus: {activeTaskConcept}</p>
+              )}
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              {xpReward !== undefined && (
+                <span className="text-xs text-accent-amber font-medium">+{xpReward} XP</span>
+              )}
+              {onCompleteTask && (
+                <button
+                  onClick={onCompleteTask}
+                  className="px-3 py-1.5 rounded-lg text-xs font-medium bg-brand-600 hover:bg-brand-500 text-white transition-all"
+                >
+                  Complete task
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Mode Selector Dropdown */}
       <AnimatePresence>
@@ -177,6 +250,12 @@ export function Agent({ messages, mode, courses, onSendMessage, onChangeMode }: 
           {messages.map(msg => (
             <MessageBubble key={msg.id} message={msg} />
           ))}
+          {isThinking && (
+            <div className="flex gap-3 px-1 py-2 text-sm text-text-muted">
+              <Sparkles className="w-4 h-4 text-brand-400 animate-pulse shrink-0 mt-0.5" />
+              <span>Thinking…</span>
+            </div>
+          )}
           <div ref={messagesEndRef} />
 
           {/* Quick Actions */}
@@ -215,11 +294,12 @@ export function Agent({ messages, mode, courses, onSendMessage, onChangeMode }: 
                 onKeyDown={e => {
                   if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
-                    handleSend();
+                    void handleSend();
                   }
                 }}
                 placeholder="Ask anything about your material..."
                 rows={1}
+                disabled={isThinking}
                 className="w-full px-4 py-3 pr-12 rounded-xl bg-surface-input border border-border-subtle text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-brand-500/50 resize-none"
                 style={{ minHeight: '46px', maxHeight: '120px' }}
               />
@@ -233,11 +313,11 @@ export function Agent({ messages, mode, courses, onSendMessage, onChangeMode }: 
               </div>
             </div>
             <button
-              onClick={handleSend}
-              disabled={!input.trim()}
+              onClick={() => void handleSend()}
+              disabled={!input.trim() || isThinking}
               className={cn(
                 'p-3 rounded-xl transition-all shrink-0',
-                input.trim()
+                input.trim() && !isThinking
                   ? 'bg-brand-600 hover:bg-brand-500 text-white'
                   : 'bg-surface-hover text-text-muted cursor-not-allowed'
               )}
@@ -304,12 +384,15 @@ function MessageBubble({ message }: { message: AgentMessage }) {
           : 'bg-surface-card border border-border-subtle rounded-tl-md'
       )}>
         <div className="whitespace-pre-wrap">
-          {message.content.split(/(\*\*[^*]+\*\*)/).map((part, i) => {
+          {(message.content || (message.isStreaming ? '…' : '')).split(/(\*\*[^*]+\*\*)/).map((part, i) => {
             if (part.startsWith('**') && part.endsWith('**')) {
               return <strong key={i} className="font-semibold">{part.slice(2, -2)}</strong>;
             }
             return <span key={i}>{part}</span>;
           })}
+          {message.isStreaming && message.content && (
+            <span className="inline-block w-0.5 h-4 bg-brand-400 animate-pulse ml-0.5 align-middle" />
+          )}
         </div>
 
         {message.sourceReference && (
@@ -348,22 +431,3 @@ function MessageBubble({ message }: { message: AgentMessage }) {
   );
 }
 
-function generateAgentResponse(input: string, mode: AgentMode): string {
-  const topic = input.length > 60 ? `${input.slice(0, 60)}…` : input;
-  const responses: Record<string, string> = {
-    socratic: `You asked about **"${topic}"**.\n\nBefore I explain directly: **what do you already know about this?** What would you predict happens if we change one variable?\n\nName your assumptions — I'll guide you to the answer through your own reasoning.`,
-    direct: `**Direct explanation** for "${topic}":\n\n1. Identify the core variables\n2. Apply the relevant framework from your notes\n3. Check boundary conditions\n\n📖 *Source-grounded from your uploaded material*\n\nWant a practice question to verify understanding?`,
-    beginner: `Let's simplify **"${topic}"** 😊\n\nThink of it like a recipe: inputs → process → output. I'll use plain language and a concrete example.\n\nWhich part feels unclear — the definition, the example, or how to apply it?`,
-    'exam-coach': `🎯 **Exam focus** on "${topic}":\n\n**Likely format:** definition + short application (~5 min)\n**Model answer:** define → formula/framework → apply → state assumptions\n\n⚠️ Common trap: forgetting prerequisites. Want a timed practice question?`,
-    practical: `**Hands-on mode** for "${topic}":\n\nTry this: write the steps you'd take to solve a similar problem, then run one line at a time.\n\nI'll flag data-shape errors and procedural slips — not just the final answer.`,
-    'error-diagnosis': `Let's diagnose your thinking on **"${topic}"**.\n\n**Error type checklist:**\n- Conceptual (wrong model)\n- Procedural (right model, wrong steps)\n- Recall (forgot definition)\n\nWhich feels closest? I'll target the repair.`,
-    feynman: `**Feynman check** for "${topic}":\n\nExplain it in 2–3 sentences as if teaching a friend. I'll highlight gaps in mechanism, example, and contrast with related concepts.`,
-    'oral-exam': `**Oral exam simulation** — "${topic}"\n\nProfessor: "Define the concept and give one real-world example in under 60 seconds."\n\nGo ahead — I'll score clarity, accuracy, and structure.`,
-    'math-tutor': `**Step-by-step** for "${topic}":\n\nWrite what you're solving for. I'll verify each algebraic step and flag when an assumption is missing.`,
-    'coding-tutor': `**Code mode** for "${topic}":\n\nPaste your attempt or describe the bug. I'll explain the error, suggest a minimal fix, and give one similar exercise.`,
-    'memory-coach': `**Retrieval practice** for "${topic}":\n\nClose your notes. Answer from memory, rate confidence, then I'll schedule the optimal review interval.`,
-    motivation: `**Next small step** on "${topic}":\n\nDon't study everything — do one 5-minute retrieval attempt, then one worked example. Momentum beats marathon sessions.`,
-  };
-
-  return responses[mode] ?? responses.direct;
-}

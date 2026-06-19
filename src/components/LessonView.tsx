@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ArrowLeft, ArrowRight, CheckCircle2, Circle, ChevronRight,
@@ -8,40 +8,125 @@ import {
 import { cn } from '../utils/cn';
 import { SupplyDemandDiagram, FormulaExplorer, ComparisonTable, FlowchartDiagram } from './visuals/DiagramGenerator';
 import { ConfidenceSelector } from './visuals/ConfidenceSelector';
+import {
+  buildLessonSteps,
+  buildQuizForConcept,
+  practiceAnswerForConcept,
+  lessonKeyFromTask,
+  type LessonStepKey,
+} from '../lib/lessonContent';
+import { getLessonProgress, saveLessonProgress } from '../lib/lessonProgress';
+import { passThreshold } from '../lib/settingsEffects';
+import { useI18n } from '../lib/i18n';
+import type { UserSettings } from '../types';
 
 interface LessonViewProps {
   onClose: () => void;
   onOpenAgent: () => void;
+  onComplete?: () => void;
   onQuizAttempt?: (concept: string, correct: boolean, confidence: number) => void;
+  onPracticeAttempt?: (concept: string, correct: boolean) => void;
+  taskTitle?: string;
+  courseName?: string;
+  quizConcept?: string;
+  xpReward?: number;
+  taskId?: string;
+  settings?: UserSettings;
+  overallMastery?: number;
+  streak?: number;
+  onStartNextTask?: () => void;
 }
 
-type LessonStep = 'intro' | 'explanation' | 'example' | 'misconception' | 'practice' | 'quiz' | 'summary';
+type LessonStep = LessonStepKey;
 
-const steps: { key: LessonStep; label: string }[] = [
-  { key: 'intro', label: 'Introduction' },
-  { key: 'explanation', label: 'Core Concept' },
-  { key: 'example', label: 'Example' },
-  { key: 'misconception', label: 'Common Mistakes' },
-  { key: 'practice', label: 'Practice' },
-  { key: 'quiz', label: 'Check' },
-  { key: 'summary', label: 'Summary' },
-];
+function normalizeNumericAnswer(raw: string): number | null {
+  const cleaned = raw.replace(/[^0-9.]/g, '');
+  if (!cleaned) return null;
+  const n = parseFloat(cleaned);
+  return Number.isFinite(n) ? n : null;
+}
 
-export function LessonView({ onClose, onOpenAgent, onQuizAttempt }: LessonViewProps) {
+export function LessonView({
+  onClose,
+  onOpenAgent,
+  onComplete,
+  onQuizAttempt,
+  onPracticeAttempt,
+  taskTitle,
+  courseName,
+  quizConcept = 'Cournot equilibrium',
+  xpReward = 50,
+  taskId,
+  settings,
+  overallMastery = 72,
+  streak = 12,
+  onStartNextTask,
+}: LessonViewProps) {
+  const { t, lang } = useI18n();
+  const lessonKey = taskId ? `lesson:${taskId}` : lessonKeyFromTask(null);
+  const dynamicSteps = useMemo(() => buildLessonSteps(settings), [settings]);
+  const quizDef = useMemo(() => buildQuizForConcept(quizConcept, lang), [quizConcept, lang]);
+  const practiceExpected = useMemo(() => practiceAnswerForConcept(quizConcept), [quizConcept]);
+
   const [currentStep, setCurrentStep] = useState(0);
   const [quizAnswer, setQuizAnswer] = useState<number | null>(null);
   const [showHint, setShowHint] = useState(false);
   const [confidence, setConfidence] = useState<number | null>(null);
+  const [practiceAnswer, setPracticeAnswer] = useState('');
+  const [practiceResult, setPracticeResult] = useState<boolean | null>(null);
+  const [quizPassed, setQuizPassed] = useState(false);
 
-  const step = steps[currentStep];
-  const progress = ((currentStep + 1) / steps.length) * 100;
+  useEffect(() => {
+    const saved = getLessonProgress(lessonKey);
+    if (saved?.step != null) {
+      setCurrentStep(Math.min(saved.step, dynamicSteps.length - 1));
+      setQuizPassed(saved.quizPassed ?? false);
+      setPracticeResult(saved.practicePassed ? true : null);
+    }
+  }, [lessonKey, dynamicSteps.length]);
+
+  useEffect(() => {
+    saveLessonProgress(lessonKey, {
+      step: currentStep,
+      practicePassed: practiceResult === true,
+      quizPassed,
+    });
+  }, [lessonKey, currentStep, practiceResult, quizPassed]);
+
+  const lessonTitle = taskTitle ?? 'Cournot vs Bertrand Competition';
+  const lessonCourse = courseName ?? 'Market Structures · Microeconomics';
+
+  const checkPracticeAnswer = () => {
+    const parsed = normalizeNumericAnswer(practiceAnswer);
+    if (parsed === null) {
+      setPracticeResult(false);
+      onPracticeAttempt?.(quizConcept, false);
+      return;
+    }
+    const correct = Math.abs(parsed - practiceExpected) < 0.01;
+    setPracticeResult(correct);
+    onPracticeAttempt?.(quizConcept, correct);
+  };
+
+  const step = dynamicSteps[currentStep] ?? dynamicSteps[0]!;
+  const progress = ((currentStep + 1) / dynamicSteps.length) * 100;
+  const threshold = settings ? passThreshold(settings) : 70;
+
+  const canAdvance = () => {
+    if (step.key === 'practice' && practiceResult !== true) return false;
+    if (step.key === 'quiz' && !quizPassed) return false;
+    return true;
+  };
 
   const goNext = () => {
-    if (currentStep < steps.length - 1) {
+    if (!canAdvance()) return;
+    if (currentStep < dynamicSteps.length - 1) {
       setCurrentStep(prev => prev + 1);
       setQuizAnswer(null);
       setShowHint(false);
       setConfidence(null);
+      setPracticeAnswer('');
+      setPracticeResult(null);
     }
   };
 
@@ -60,8 +145,8 @@ export function LessonView({ onClose, onOpenAgent, onQuizAttempt }: LessonViewPr
             <X className="w-5 h-5 text-text-secondary" />
           </button>
           <div>
-            <p className="text-sm font-semibold">Cournot vs Bertrand Competition</p>
-            <p className="text-xs text-text-tertiary">Market Structures · Microeconomics</p>
+            <p className="text-sm font-semibold">{lessonTitle}</p>
+            <p className="text-xs text-text-tertiary">{lessonCourse}</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -72,7 +157,7 @@ export function LessonView({ onClose, onOpenAgent, onQuizAttempt }: LessonViewPr
             <Sparkles className="w-3.5 h-3.5 text-brand-400" />
             Ask Agent
           </button>
-          <span className="text-xs text-accent-amber font-medium">+50 XP</span>
+          <span className="text-xs text-accent-amber font-medium">+{xpReward} XP</span>
         </div>
       </div>
 
@@ -86,7 +171,7 @@ export function LessonView({ onClose, onOpenAgent, onQuizAttempt }: LessonViewPr
 
       {/* Step indicators */}
       <div className="flex items-center gap-1 px-4 py-2 overflow-x-auto hide-scrollbar">
-        {steps.map((s, i) => (
+        {dynamicSteps.map((s, i) => (
           <button
             key={s.key}
             onClick={() => i <= currentStep && setCurrentStep(i)}
@@ -393,6 +478,11 @@ export function LessonView({ onClose, onOpenAgent, onQuizAttempt }: LessonViewPr
                         <p className="text-xs text-text-muted mb-2">Your answer:</p>
                         <input
                           type="text"
+                          value={practiceAnswer}
+                          onChange={(e) => {
+                            setPracticeAnswer(e.target.value);
+                            setPracticeResult(null);
+                          }}
                           placeholder="Enter the Bertrand equilibrium price..."
                           className="w-full bg-transparent text-sm text-text-primary placeholder:text-text-muted focus:outline-none"
                         />
@@ -407,12 +497,32 @@ export function LessonView({ onClose, onOpenAgent, onQuizAttempt }: LessonViewPr
                           {showHint ? 'Hide hint' : 'Show hint'}
                         </button>
                         <button
-                          className="px-3 py-1.5 rounded-lg text-xs font-medium bg-brand-600 hover:bg-brand-500 text-white transition-all"
+                          onClick={checkPracticeAnswer}
+                          disabled={!practiceAnswer.trim()}
+                          className="px-3 py-1.5 rounded-lg text-xs font-medium bg-brand-600 hover:bg-brand-500 text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           Check Answer
                         </button>
                       </div>
 
+                      {practiceResult !== null && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 8 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          className={cn(
+                            'p-3 rounded-lg text-xs border',
+                            practiceResult
+                              ? 'bg-accent-emerald/10 border-accent-emerald/20 text-accent-emerald'
+                              : 'bg-accent-rose/10 border-accent-rose/20 text-accent-rose',
+                          )}
+                        >
+                          {practiceResult ? (
+                            <p>✓ Correct! With identical products, Bertrand competition drives price to marginal cost (P = MC = 10).</p>
+                          ) : (
+                            <p>✗ Not quite. With homogeneous products, undercutting drives price down to MC = 10 (the Bertrand Paradox).</p>
+                          )}
+                        </motion.div>
+                      )}
                       {showHint && (
                         <motion.div
                           initial={{ opacity: 0, height: 0 }}
@@ -437,28 +547,25 @@ export function LessonView({ onClose, onOpenAgent, onQuizAttempt }: LessonViewPr
 
                   <div className="p-5 rounded-xl bg-surface-card border border-border-subtle">
                     <p className="text-sm font-medium mb-4">
-                      In a Cournot duopoly with identical firms, the equilibrium output per firm is:
+                      {quizDef.question}
                     </p>
 
                     <div className="space-y-2">
-                      {[
-                        'Equal to the monopoly output',
-                        'Between monopoly output and competitive output per firm',
-                        'Equal to the competitive output',
-                        'Zero (no production)',
-                      ].map((option, i) => (
+                      {quizDef.options.map((option, i) => (
                         <button
                           key={i}
                           onClick={() => {
                             if (confidence === null) return;
                             setQuizAnswer(i);
-                            onQuizAttempt?.('Cournot equilibrium', i === 1, confidence);
+                            const correct = i === quizDef.correctIndex;
+                            setQuizPassed(correct);
+                            onQuizAttempt?.(quizConcept, correct, confidence, `${lessonKey}:quiz`);
                           }}
                           disabled={confidence === null}
                           className={cn(
                             'w-full text-left p-3 rounded-xl border text-sm transition-all',
                             quizAnswer === i
-                              ? i === 1
+                              ? i === quizDef.correctIndex
                                 ? 'border-accent-emerald/50 bg-accent-emerald/10 text-accent-emerald'
                                 : 'border-accent-rose/50 bg-accent-rose/10 text-accent-rose'
                               : 'border-border-subtle hover:border-brand-500/30'
@@ -469,7 +576,7 @@ export function LessonView({ onClose, onOpenAgent, onQuizAttempt }: LessonViewPr
                               {String.fromCharCode(65 + i)}
                             </span>
                             {option}
-                            {quizAnswer === i && i === 1 && <CheckCircle2 className="w-4 h-4 ml-auto" />}
+                            {quizAnswer === i && i === quizDef.correctIndex && <CheckCircle2 className="w-4 h-4 ml-auto" />}
                           </div>
                         </button>
                       ))}
@@ -481,21 +588,15 @@ export function LessonView({ onClose, onOpenAgent, onQuizAttempt }: LessonViewPr
                         animate={{ opacity: 1, y: 0 }}
                         className={cn(
                           'mt-4 p-4 rounded-xl text-sm',
-                          quizAnswer === 1
+                          quizAnswer === quizDef.correctIndex
                             ? 'bg-accent-emerald/10 border border-accent-emerald/20'
                             : 'bg-accent-rose/10 border border-accent-rose/20'
                         )}
                       >
-                        {quizAnswer === 1 ? (
-                          <p className="text-accent-emerald">
-                            ✓ Correct! In Cournot, output is greater than monopoly but less than perfect competition. 
-                            As N → ∞, Cournot converges to the competitive outcome.
-                          </p>
+                        {quizAnswer === quizDef.correctIndex ? (
+                          <p className="text-accent-emerald">✓ {t('correct')}</p>
                         ) : (
-                          <p className="text-accent-rose">
-                            ✗ Not quite. Remember: Cournot firms produce more than a monopolist (because they compete) 
-                            but less than competitive firms (because they still have market power).
-                          </p>
+                          <p className="text-accent-rose">✗ {t('incorrect')}</p>
                         )}
                       </motion.div>
                     )}
@@ -549,17 +650,17 @@ export function LessonView({ onClose, onOpenAgent, onQuizAttempt }: LessonViewPr
                   <div className="grid grid-cols-3 gap-3">
                     <div className="p-4 rounded-xl bg-surface-card border border-border-subtle text-center">
                       <Zap className="w-5 h-5 text-accent-amber mx-auto mb-1" />
-                      <p className="text-lg font-bold">+50</p>
+                      <p className="text-lg font-bold">+{xpReward}</p>
                       <p className="text-xs text-text-tertiary">XP Earned</p>
                     </div>
                     <div className="p-4 rounded-xl bg-surface-card border border-border-subtle text-center">
                       <Brain className="w-5 h-5 text-brand-400 mx-auto mb-1" />
-                      <p className="text-lg font-bold">72%</p>
-                      <p className="text-xs text-text-tertiary">Mastery</p>
+                      <p className="text-lg font-bold">{overallMastery}%</p>
+                      <p className="text-xs text-text-tertiary">Mastery (≥{threshold}% target)</p>
                     </div>
                     <div className="p-4 rounded-xl bg-surface-card border border-border-subtle text-center">
                       <Star className="w-5 h-5 text-accent-amber mx-auto mb-1" />
-                      <p className="text-lg font-bold">12</p>
+                      <p className="text-lg font-bold">{streak}</p>
                       <p className="text-xs text-text-tertiary">Day Streak</p>
                     </div>
                   </div>
@@ -634,13 +735,25 @@ export function LessonView({ onClose, onOpenAgent, onQuizAttempt }: LessonViewPr
             Previous
           </button>
 
-          <span className="text-xs text-text-muted">{currentStep + 1} / {steps.length}</span>
+          <span className="text-xs text-text-muted">{currentStep + 1} / {dynamicSteps.length}</span>
 
           <button
-            onClick={currentStep === steps.length - 1 ? onClose : goNext}
-            className="flex items-center gap-2 px-5 py-2 bg-brand-600 hover:bg-brand-500 text-white rounded-xl text-sm font-medium transition-all"
+            onClick={() => {
+              if (currentStep === dynamicSteps.length - 1) {
+                saveLessonProgress(lessonKey, { step: currentStep, quizPassed, practicePassed: practiceResult === true, completedAt: new Date().toISOString() });
+                onComplete?.();
+                onClose();
+              } else {
+                goNext();
+              }
+            }}
+            disabled={!canAdvance() && step.key !== 'summary'}
+            className={cn(
+              'flex items-center gap-2 px-5 py-2 bg-brand-600 hover:bg-brand-500 text-white rounded-xl text-sm font-medium transition-all',
+              !canAdvance() && step.key !== 'summary' && 'opacity-50 cursor-not-allowed',
+            )}
           >
-            {currentStep === steps.length - 1 ? 'Finish' : 'Continue'}
+            {currentStep === dynamicSteps.length - 1 ? t('finish') : t('continue')}
             <ArrowRight className="w-4 h-4" />
           </button>
         </div>
