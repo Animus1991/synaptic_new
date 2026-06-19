@@ -12,6 +12,7 @@ import { ConfidenceSelector } from './visuals/ConfidenceSelector';
 interface LessonViewProps {
   onClose: () => void;
   onOpenAgent: () => void;
+  onQuizAttempt?: (concept: string, correct: boolean, confidence: number) => void;
 }
 
 type LessonStep = 'intro' | 'explanation' | 'example' | 'misconception' | 'practice' | 'quiz' | 'summary';
@@ -26,7 +27,7 @@ const steps: { key: LessonStep; label: string }[] = [
   { key: 'summary', label: 'Summary' },
 ];
 
-export function LessonView({ onClose, onOpenAgent }: LessonViewProps) {
+export function LessonView({ onClose, onOpenAgent, onQuizAttempt }: LessonViewProps) {
   const [currentStep, setCurrentStep] = useState(0);
   const [quizAnswer, setQuizAnswer] = useState<number | null>(null);
   const [showHint, setShowHint] = useState(false);
@@ -448,7 +449,12 @@ export function LessonView({ onClose, onOpenAgent }: LessonViewProps) {
                       ].map((option, i) => (
                         <button
                           key={i}
-                          onClick={() => setQuizAnswer(i)}
+                          onClick={() => {
+                            if (confidence === null) return;
+                            setQuizAnswer(i);
+                            onQuizAttempt?.('Cournot equilibrium', i === 1, confidence);
+                          }}
+                          disabled={confidence === null}
                           className={cn(
                             'w-full text-left p-3 rounded-xl border text-sm transition-all',
                             quizAnswer === i

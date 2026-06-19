@@ -77,6 +77,11 @@ export function Agent({ messages, mode, courses, onSendMessage, onChangeMode }: 
         content: generateAgentResponse(input, mode),
         timestamp: new Date().toISOString(),
         type: 'text',
+        metadata: {
+          sourceGrounded: mode !== 'motivation',
+          enrichmentUsed: false,
+          inferenceUsed: true,
+        },
       };
       onSendMessage(response);
     }, 1500);
@@ -343,13 +348,22 @@ function MessageBubble({ message }: { message: AgentMessage }) {
   );
 }
 
-function generateAgentResponse(_input: string, mode: AgentMode): string {
+function generateAgentResponse(input: string, mode: AgentMode): string {
+  const topic = input.length > 60 ? `${input.slice(0, 60)}…` : input;
   const responses: Record<string, string> = {
-    socratic: `That's an interesting question. Before I explain directly, let me ask you something:\n\n**What do you think happens when we consider this from the opposite perspective?**\n\nThink about it for a moment. What assumptions are you making? Are there cases where your initial reasoning might break down?\n\nI want you to discover the answer through your own reasoning — I'll guide you step by step.`,
-    direct: `Great question! Let me explain this clearly:\n\n**The key concept here is:**\nThis relates to the fundamental principle in your notes where the relationship between variables is defined by their interaction pattern.\n\n**Step 1:** First, identify the core variables involved.\n**Step 2:** Apply the relevant formula or framework.\n**Step 3:** Check your result against boundary conditions.\n\n📖 *Reference: Your uploaded lecture notes, section 3.2*\n\nWould you like me to give you a practice question to test your understanding?`,
-    beginner: `No worries, let me break this down in the simplest way possible! 😊\n\n**Imagine it like this:**\nThink of this concept as a recipe. You need specific ingredients (inputs) and you follow steps (process) to get a dish (output).\n\n**The ingredients are:**\n1. The first thing you need to know...\n2. The second building block...\n3. And how they connect...\n\nDoes this analogy make sense? I can make it even simpler or give you a real example!`,
-    'exam-coach': `🎯 **Exam Focus Mode**\n\nBased on your material and common exam patterns, here's what you need to know:\n\n**Most likely question format:** Definition + Application\n**Time allocation:** ~5 minutes for this type\n\n**Model answer structure:**\n1. State the definition precisely\n2. Give the formula/framework\n3. Apply to the given scenario\n4. Conclude with limitations\n\n⚠️ **Common trap:** Students often forget to mention the assumptions. Always state them!\n\nWant me to give you a timed practice question?`,
+    socratic: `You asked about **"${topic}"**.\n\nBefore I explain directly: **what do you already know about this?** What would you predict happens if we change one variable?\n\nName your assumptions — I'll guide you to the answer through your own reasoning.`,
+    direct: `**Direct explanation** for "${topic}":\n\n1. Identify the core variables\n2. Apply the relevant framework from your notes\n3. Check boundary conditions\n\n📖 *Source-grounded from your uploaded material*\n\nWant a practice question to verify understanding?`,
+    beginner: `Let's simplify **"${topic}"** 😊\n\nThink of it like a recipe: inputs → process → output. I'll use plain language and a concrete example.\n\nWhich part feels unclear — the definition, the example, or how to apply it?`,
+    'exam-coach': `🎯 **Exam focus** on "${topic}":\n\n**Likely format:** definition + short application (~5 min)\n**Model answer:** define → formula/framework → apply → state assumptions\n\n⚠️ Common trap: forgetting prerequisites. Want a timed practice question?`,
+    practical: `**Hands-on mode** for "${topic}":\n\nTry this: write the steps you'd take to solve a similar problem, then run one line at a time.\n\nI'll flag data-shape errors and procedural slips — not just the final answer.`,
+    'error-diagnosis': `Let's diagnose your thinking on **"${topic}"**.\n\n**Error type checklist:**\n- Conceptual (wrong model)\n- Procedural (right model, wrong steps)\n- Recall (forgot definition)\n\nWhich feels closest? I'll target the repair.`,
+    feynman: `**Feynman check** for "${topic}":\n\nExplain it in 2–3 sentences as if teaching a friend. I'll highlight gaps in mechanism, example, and contrast with related concepts.`,
+    'oral-exam': `**Oral exam simulation** — "${topic}"\n\nProfessor: "Define the concept and give one real-world example in under 60 seconds."\n\nGo ahead — I'll score clarity, accuracy, and structure.`,
+    'math-tutor': `**Step-by-step** for "${topic}":\n\nWrite what you're solving for. I'll verify each algebraic step and flag when an assumption is missing.`,
+    'coding-tutor': `**Code mode** for "${topic}":\n\nPaste your attempt or describe the bug. I'll explain the error, suggest a minimal fix, and give one similar exercise.`,
+    'memory-coach': `**Retrieval practice** for "${topic}":\n\nClose your notes. Answer from memory, rate confidence, then I'll schedule the optimal review interval.`,
+    motivation: `**Next small step** on "${topic}":\n\nDon't study everything — do one 5-minute retrieval attempt, then one worked example. Momentum beats marathon sessions.`,
   };
 
-  return responses[mode] || responses.direct;
+  return responses[mode] ?? responses.direct;
 }

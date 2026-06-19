@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, RotateCcw, Copy, Check } from 'lucide-react';
 import { cn } from '../../utils/cn';
+import { loadJson, saveJson } from '../../lib/persistence';
 
 interface Variable { symbol: string; value: string; unit: string }
 interface SavedFormula { id: string; name: string; formula: string; variables: Variable[] }
@@ -23,11 +24,15 @@ const PRESET_FORMULAS: SavedFormula[] = [
 ];
 
 export function FormulaScratchpad() {
-  const [formulas, setFormulas] = useState<SavedFormula[]>(PRESET_FORMULAS);
+  const [formulas, setFormulas] = useState<SavedFormula[]>(() => loadJson('scratchpad-formulas', PRESET_FORMULAS));
   const [active, setActive] = useState<string>('f2');
-  const [vars, setVars] = useState<Variable[]>(PRESET_FORMULAS[1].variables);
-  const [steps, setSteps] = useState<string[]>([]);
+  const [vars, setVars] = useState<Variable[]>(() => loadJson('scratchpad-vars', PRESET_FORMULAS[1].variables));
+  const [steps, setSteps] = useState<string[]>(() => loadJson('scratchpad-steps', []));
   const [copied, setCopied] = useState(false);
+
+  useEffect(() => { saveJson('scratchpad-formulas', formulas); }, [formulas]);
+  useEffect(() => { saveJson('scratchpad-vars', vars); }, [vars]);
+  useEffect(() => { saveJson('scratchpad-steps', steps); }, [steps]);
 
   const activeFormula = formulas.find(f => f.id === active);
 

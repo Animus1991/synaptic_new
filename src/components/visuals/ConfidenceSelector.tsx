@@ -19,10 +19,13 @@ export function ConfidenceSelector({ value, onChange, required }: ConfidenceSele
         How confident are you?
         {required && !value && <span className="text-accent-rose text-[9px]">*required before submitting</span>}
       </p>
-      <div className="flex gap-2">
+      <div className="flex gap-2" role="radiogroup" aria-label="Confidence level">
         {levels.map(l => (
           <button
             key={l.value}
+            type="button"
+            role="radio"
+            aria-checked={value === l.value}
             onClick={() => onChange(l.value)}
             className={cn(
               'flex-1 py-2.5 px-2 rounded-xl border text-xs font-medium transition-all text-center',

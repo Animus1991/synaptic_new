@@ -30,14 +30,14 @@ export function Analytics({ learnerModel, stats, courses }: AnalyticsProps) {
       </motion.div>
 
       {/* Tabs */}
-      <div className="flex items-center gap-6 border-b border-border-subtle">
+      <div className="flex items-center gap-6 border-b border-border-subtle" role="tablist" aria-label="Analytics sections">
         {([
           { key: 'overview' as AnalyticsTab, label: 'Overview', icon: BarChart3 },
           { key: 'mastery' as AnalyticsTab, label: 'Mastery Map', icon: Brain },
           { key: 'behavior' as AnalyticsTab, label: 'Behavior', icon: Activity },
           { key: 'insights' as AnalyticsTab, label: 'AI Insights', icon: Lightbulb },
         ]).map(t => (
-          <button key={t.key} onClick={() => setTab(t.key)}
+          <button key={t.key} type="button" role="tab" aria-selected={tab === t.key} onClick={() => setTab(t.key)}
             className={cn('pb-3 text-sm font-medium transition-all border-b-2 flex items-center gap-1.5',
               tab === t.key ? 'text-brand-400 border-brand-400' : 'text-text-tertiary border-transparent hover:text-text-secondary'
             )}>

@@ -36,7 +36,7 @@ export default function App() {
         <CourseView course={store.selectedCourse} onBack={() => store.navigate('library')} onStartLesson={() => store.setStudyWorkspaceOpen(true)} onOpenAgent={() => store.navigate('agent')} />
         <UploadModal isOpen={store.showUploadModal} onClose={() => store.setShowUploadModal(false)} onUpload={store.simulateUpload} onProceed={() => store.navigate('library')} />
         {store.activeLessonView && (
-          <LessonView onClose={() => store.setActiveLessonView(false)} onOpenAgent={() => { store.setActiveLessonView(false); store.navigate('agent'); }} />
+          <LessonView onClose={() => store.setActiveLessonView(false)} onOpenAgent={() => { store.setActiveLessonView(false); store.navigate('agent'); }} onQuizAttempt={store.recordQuizAttempt} />
         )}
       </Shell>
     );
@@ -87,7 +87,7 @@ export default function App() {
 
       <UploadModal isOpen={store.showUploadModal} onClose={() => store.setShowUploadModal(false)} onUpload={store.simulateUpload} onProceed={() => store.navigate('library')} />
       {store.activeLessonView && (
-        <LessonView onClose={() => store.setActiveLessonView(false)} onOpenAgent={() => { store.setActiveLessonView(false); store.navigate('agent'); }} />
+        <LessonView onClose={() => store.setActiveLessonView(false)} onOpenAgent={() => { store.setActiveLessonView(false); store.navigate('agent'); }} onQuizAttempt={store.recordQuizAttempt} />
       )}
       {store.practicalLessonView && (
         <PracticalLessonView onClose={() => store.setPracticalLessonView(false)} onOpenAgent={() => { store.setPracticalLessonView(false); store.navigate('agent'); }} />
