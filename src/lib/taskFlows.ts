@@ -26,7 +26,7 @@ export function getTaskConcept(task: Task): string {
 
 export type WorkspaceToolId =
   | 'concept-map' | 'simulator' | 'leitner' | 'compare' | 'whiteboard'
-  | 'feynman' | 'timer' | 'debate' | 'reader' | 'scratchpad' | 'annotations';
+  | 'feynman' | 'timer' | 'debate' | 'reader' | 'scratchpad' | 'annotations' | 'quiz' | 'dashboard';
 
 export function getWorkspaceTool(task: Task): WorkspaceToolId {
   if (task.type === 'self-explanation') return 'feynman';

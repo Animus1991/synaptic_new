@@ -20,9 +20,13 @@ unchanged — only the base URL changes.
 | Library sync (`/v1/library`) | ✅ JSONB blob |
 | Session sync (`/v1/session`) | ✅ Tasks, XP, mastery, settings |
 | YouTube transcript proxy (`/v1/youtube/transcript`) | ✅ Used by client upload pipeline |
+| OCR (`/v1/ocr/pages`) | ✅ Scanned PDF / image ingestion path |
+| NLP entities (`/v1/nlp/entities`) | ✅ Hybrid extraction endpoint for note enrichment |
+| Semantic RAG (`/v1/rag/query`) | ✅ Optional server-side rerank/search over client chunks |
+| Teacher dashboard (`/v1/teacher/dashboard`) | ✅ Aggregate account/library/usage surface; UI still future work |
 | Admin stats (`/v1/admin/stats`) | ✅ Behind `ADMIN_SECRET` |
-| Refresh tokens, password reset, email verify | ⏳ Roadmap |
-| Rate limiting + audit log | ⏳ Roadmap |
+| Refresh tokens + password reset | ✅ |
+| Rate limiting + audit log | ✅ rate limiting, ⏳ audit log |
 
 For a full request/response contract, see [`../API.md`](../API.md).
 
@@ -69,8 +73,8 @@ Common:
 | `DATABASE_URL` | – | Postgres connection (enables durable storage) |
 | `RUN_MIGRATIONS_ON_START` | `true` | Apply pending migrations on boot |
 | `FREE_MONTHLY_TOKEN_QUOTA` | `100000` | Free plan monthly token cap |
-| `PRO_MONTHLY_TOKEN_QUOTA` | `1000000` | Pro plan monthly token cap |
-| `TEAM_MONTHLY_TOKEN_QUOTA` | `5000000` | Team plan monthly token cap |
+| `PRO_MONTHLY_TOKEN_QUOTA` | `5000000` | Pro plan monthly token cap |
+| `TEAM_MONTHLY_TOKEN_QUOTA` | `25000000` | Team plan monthly token cap |
 | `STRIPE_SECRET_KEY` | – | Stripe API key |
 | `STRIPE_WEBHOOK_SECRET` | – | Stripe webhook signing secret (production) |
 | `STRIPE_PRICE_PRO` | – | Stripe Price ID for Pro |
@@ -109,6 +113,9 @@ fine for dev).
 | `GET`  | `/health` | – | Liveness + config echo (`upstream`, `anonymous`, `database`) |
 | `POST` | `/auth/register` | – | Create account → `{ token, account }` |
 | `POST` | `/auth/login` | – | Sign in → `{ token, account }` |
+| `POST` | `/auth/refresh` | – | Rotate refresh token and issue a new access token |
+| `POST` | `/auth/forgot-password` | – | Issue a password-reset token (test-returned outside production) |
+| `POST` | `/auth/reset-password` | – | Reset password from a valid reset token |
 | `GET`  | `/auth/me` | Bearer | Account profile + usage |
 | `POST` | `/v1/chat/completions` | Bearer/anon | Streaming + JSON chat proxy, metered |
 | `POST` | `/v1/embeddings` | Bearer/anon | Embeddings proxy, metered |
@@ -118,9 +125,13 @@ fine for dev).
 | `GET`  | `/v1/session` | Bearer | Synced session blob (tasks/XP/mastery/settings) |
 | `PUT`  | `/v1/session` | Bearer | Save session blob |
 | `GET`  | `/v1/youtube/transcript?url=` | Bearer/anon | Fetch YouTube captions as text |
+| `POST` | `/v1/nlp/entities` | Bearer | Hybrid server-side entity extraction |
+| `POST` | `/v1/rag/query` | Bearer | Semantic retrieval over client-supplied chunks |
+| `POST` | `/v1/ocr/pages` | Bearer | OCR over client-rendered page images |
 | `GET`  | `/v1/billing/status` | – | Reports whether Stripe is configured |
 | `POST` | `/v1/billing/checkout` | Bearer | Create Stripe Checkout session for `pro`/`team` |
 | `POST` | `/v1/billing/webhook` | Stripe sig | Webhook for `checkout.session.completed`, `customer.subscription.deleted` |
+| `GET`  | `/v1/teacher/dashboard` | Bearer | Course/file/topic + usage aggregates for instructor views |
 | `GET`  | `/v1/admin/stats` | Bearer + `x-admin-secret` | Account counts + uptime |
 
 For full request/response shapes, see [`../API.md`](../API.md).
@@ -154,8 +165,8 @@ checklist.
 
 - ✅ Replace `store/accounts.ts` with Postgres — set `DATABASE_URL`.
 - ✅ Stripe checkout + webhook → `account.plan` persists when DB is on.
-- ⏳ Refresh tokens, password reset, email verification.
-- ⏳ Per-account rate limiting (token bucket) and structured request logs.
-- ⏳ Teacher/admin dashboard reading `/v1/usage` aggregates.
+- ✅ Refresh tokens + password reset; ⏳ email verification and OAuth.
+- ✅ In-process per-account/IP RPM limiting; ⏳ distributed / Redis-backed limiting and structured request logs.
+- ✅ Teacher aggregate endpoint; ⏳ full teacher/class dashboard UI, roles, and assignment workflows.
 - 🔒 Deploy behind TLS; pin `ALLOWED_ORIGINS`; rotate `JWT_SECRET`; set
   `ADMIN_SECRET`; verify webhook signatures (`STRIPE_WEBHOOK_SECRET`).

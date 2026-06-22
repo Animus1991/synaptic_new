@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
-import { Search, BookOpen, CheckSquare, Bot, LayoutDashboard, BarChart3, Settings, Play } from 'lucide-react';
+import { Search, BookOpen, CheckSquare, Bot, LayoutDashboard, BarChart3, Settings, Play, Users } from 'lucide-react';
 import type { AppView, Task } from '../types';
 import { cn } from '../utils/cn';
 import { useI18n } from '../lib/i18n';
@@ -24,6 +24,7 @@ const NAV: { view: AppView; label: string; icon: typeof LayoutDashboard }[] = [
   { view: 'tasks', label: 'Tasks', icon: CheckSquare },
   { view: 'agent', label: 'Agent', icon: Bot },
   { view: 'analytics', label: 'Analytics', icon: BarChart3 },
+  { view: 'teacher', label: 'Teacher', icon: Users },
   { view: 'settings', label: 'Settings', icon: Settings },
 ];
 

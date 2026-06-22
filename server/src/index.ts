@@ -15,53 +15,61 @@ import { nlpRouter } from './routes/nlp';
 import { ragRouter } from './routes/rag';
 import { teacherRouter } from './routes/teacher';
 import { ocrRouter } from './routes/ocr';
+import { transcribeRouter } from './routes/transcribe';
 
-const app = express();
+export function createApp(): express.Application {
+  const app = express();
 
-app.use(
-  cors({
-    origin: config.allowedOrigins.includes('*') ? true : config.allowedOrigins,
-    credentials: true,
-  }),
-);
+  app.use(
+    cors({
+      origin: config.allowedOrigins.includes('*') ? true : config.allowedOrigins,
+      credentials: true,
+    }),
+  );
 
-app.post('/v1/billing/webhook', express.raw({ type: 'application/json' }), billingWebhookHandler);
-app.use(express.json({ limit: '15mb' }));
+  app.post('/v1/billing/webhook', express.raw({ type: 'application/json' }), billingWebhookHandler);
+  app.use(express.json({ limit: '15mb' }));
 
-app.get('/health', (_req, res) => {
-  res.json({
-    ok: true,
-    upstream: config.upstreamBaseUrl,
-    anonymous: config.allowAnonymous,
-    database: Boolean(config.databaseUrl),
-    features: {
-      embeddings: Boolean(config.upstreamApiKey),
-      rag: Boolean(config.upstreamApiKey),
-      ner: true,
-      refreshTokens: true,
-      ocr: true,
-      rateLimitRpm: config.rateLimitRpm,
-    },
+  app.get('/health', (_req, res) => {
+    res.json({
+      ok: true,
+      upstream: config.upstreamBaseUrl,
+      anonymous: config.allowAnonymous,
+      database: Boolean(config.databaseUrl),
+      features: {
+        embeddings: Boolean(config.upstreamApiKey),
+        rag: Boolean(config.upstreamApiKey),
+        ner: true,
+        refreshTokens: true,
+        ocr: true,
+        rateLimitRpm: config.rateLimitRpm,
+      },
+    });
   });
-});
 
-app.use('/auth', authRouter);
-app.use('/v1', rateLimit);
-app.use('/v1', usageRouter);
-app.use('/v1', libraryRouter);
-app.use('/v1', sessionRouter);
-app.use('/v1', youtubeRouter);
-app.use('/v1', billingRouter);
-app.use('/v1', adminRouter);
-app.use('/v1', nlpRouter);
-app.use('/v1', ragRouter);
-app.use('/v1', ocrRouter);
-app.use('/v1', teacherRouter);
-app.use('/v1', proxyRouter);
+  app.use('/auth', authRouter);
+  app.use('/v1', rateLimit);
+  app.use('/v1', usageRouter);
+  app.use('/v1', libraryRouter);
+  app.use('/v1', sessionRouter);
+  app.use('/v1', youtubeRouter);
+  app.use('/v1', billingRouter);
+  app.use('/v1', adminRouter);
+  app.use('/v1', nlpRouter);
+  app.use('/v1', ragRouter);
+  app.use('/v1', ocrRouter);
+  app.use('/v1', transcribeRouter);
+  app.use('/v1', teacherRouter);
+  app.use('/v1', proxyRouter);
 
-app.use((_req, res) => res.status(404).json({ error: 'Not found' }));
+  app.use((_req, res) => res.status(404).json({ error: 'Not found' }));
 
-async function main(): Promise<void> {
+  return app;
+}
+
+export const app = createApp();
+
+export async function startServer(): Promise<void> {
   if (config.databaseUrl && config.runMigrationsOnStart) {
     await runMigrations(config.databaseUrl);
   }
@@ -75,7 +83,9 @@ async function main(): Promise<void> {
   });
 }
 
-main().catch((err) => {
-  console.error('[synapse-proxy] failed to start:', err);
-  process.exit(1);
-});
+if (process.env.NODE_ENV !== 'test') {
+  startServer().catch((err) => {
+    console.error('[synapse-proxy] failed to start:', err);
+    process.exit(1);
+  });
+}

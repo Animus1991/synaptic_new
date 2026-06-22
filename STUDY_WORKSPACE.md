@@ -30,6 +30,22 @@ enabled.
 | Scratchpad | `extractFormulas` + `formulaSolver` | formulas in notes | generic shunting-yard solver (sin/cos/log/sqrt/etc.), per-task persistence |
 | Source | annotations panel | `annotationText` | per-file highlights (local) |
 
+## Source intelligence
+
+Every grounded workspace session now computes a `sourceIntelligence` report in
+`workspaceNoteContent.ts` and renders it above the lesson pane.
+
+- **Inputs** β€” top BM25 passages (`topRelevantChunks`), concept relevance,
+  explicit definitions, glossary overlap, worked examples, extracted formulas,
+  comparison rows, concept-map size, step count, quiz availability.
+- **Output** β€” `score` (0β€“100), `band` (`weak` / `moderate` / `strong`),
+  `bestTool`, a human-readable reason, strengths, gaps, and next-action hints.
+- **Recommendation logic** β€” tool scoring is capped per signal family so a
+  large comparison table cannot drown out formulas/practice or terminology.
+- **UX effect** β€” the user sees whether the current concept is truly
+  well-grounded, what is missing from the notes, and can jump straight into the
+  recommended tool.
+
 ## Step rail
 
 `buildWorkspaceStepsFromNotes()` produces the lesson rail from the source:
@@ -108,6 +124,37 @@ When a proxy + LLM key are configured and `hasSource` is true,
 the LLM is unavailable or returns malformed JSON, the workspace falls
 back to the deterministic biased-TextRank summaries from `groundedLesson.ts`
 (see `ALGORITHMS.md` §2.5).
+
+## Correlation bus & discoverability
+
+Every grounded session exposes a **discoverability panel** above the tool pane
+(`workspace-discoverability`). It surfaces:
+
+- **Correlation chips** — mastery, focus term, Leitner due count, IRT θ,
+  spaced-step due count, sandbox sensitivity cue (all from `workspaceCorrelation`).
+- **Per-tool feature guide** — shipped capabilities for the active tab (W0–W8),
+  with quick actions (open reader focus, Leitner due, quiz jump, command palette).
+- **Source intelligence** — grounded score and recommended tool when `hasSource`.
+
+All tools read/write through `workspaceFocus` + `workspaceCorrelation` so
+features stay harmonized (not isolated silos).
+
+## Shipped upgrades (W0–W8)
+
+| Phase | Highlights |
+| ----- | ---------- |
+| **W0–W2** | Focus bus, adaptive steps, Anki export, exam timer, PNG concept map, teacher annotations |
+| **W3–W4** | Reader translation, compare CSV/sort, force layout, whiteboard layers, Feynman rubric export, debate counter-args |
+| **W5** | Bilingual paragraph sync, annotation SSE/poll, spaced step scheduling, hierarchy layout |
+| **W6** | Leitner heatmap/deck sync, scratchpad graph, timer .ics, paragraph TTS, annotation SSE |
+| **W7** | Quiz IRT, sandbox sensitivity heatmap, LaTeX stamps, compare diff+CSV, command palette macros |
+| **W8** | Multi-item quiz session + confidence rating; Feynman voice + auto-gap; debate rebuttal graph; concept-map collaborative cursors (SSE); reader OCR overlay |
+
+## Roadmap / next scale work
+
+Shell UX (resizable split, pop-out tools, session continuity) and content-quality
+dashboard remain in `EXHAUSTIVE_PRODUCT_SCALE_BLUEPRINT.md` §5. Infra deferrals
+(BullMQ, pgvector, LTI) are tracked in `WORKSPACE_UPGRADE_PLAN.md`.
 
 See [`ARCHITECTURE.md`](ARCHITECTURE.md) for data flow and
 [`ALGORITHMS.md`](ALGORITHMS.md) for the algorithms behind every extractor.

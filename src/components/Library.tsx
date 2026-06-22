@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Search, Upload, BookOpen, FileText, ChevronRight,
   Clock, BarChart3, Sparkles, Plus, Grid3X3, List, Loader2,
-  File, Image, Code, Presentation, Table2
+  File, Image, Code, Presentation, Table2, AlertTriangle
 } from 'lucide-react';
 import type { Course, UploadedFile } from '../types';
 import { cn } from '../utils/cn';
@@ -180,6 +180,17 @@ export function Library({ courses, uploadedFiles, onSelectCourse, onUpload }: Li
 function CourseCard({ course, index, onClick }: { course: Course; index: number; onClick: () => void }) {
   const progress = (course.completedLessons / Math.max(course.totalLessons, 1)) * 100;
   const isGenerating = course.status === 'generating';
+  const quality = course.sourceQuality;
+  const qualityTone = quality?.band === 'strong'
+    ? 'bg-accent-emerald/10 text-accent-emerald border-accent-emerald/20'
+    : quality?.band === 'moderate'
+      ? 'bg-accent-cyan/10 text-accent-cyan border-accent-cyan/20'
+      : 'bg-accent-amber/10 text-accent-amber border-accent-amber/20';
+  const qualityLabel = quality?.band === 'strong'
+    ? 'Strong source'
+    : quality?.band === 'moderate'
+      ? 'Moderate source'
+      : 'Needs more material';
 
   return (
     <motion.div
@@ -206,6 +217,20 @@ function CourseCard({ course, index, onClick }: { course: Course; index: number;
 
       <h3 className="font-semibold mb-1 group-hover:text-brand-300 transition-colors" data-testid="library-course-title">{course.title}</h3>
       <p className="text-xs text-text-tertiary mb-4 line-clamp-2">{course.description}</p>
+      {quality && !isGenerating && (
+        <div className="mb-3 flex items-center justify-between gap-2">
+          <span className={cn('inline-flex items-center gap-1 rounded-full border px-2 py-1 text-[10px] font-medium', qualityTone)}>
+            {quality.needsMoreMaterial ? <AlertTriangle className="w-3 h-3" /> : <Sparkles className="w-3 h-3" />}
+            {qualityLabel}
+          </span>
+          <span className="text-[10px] text-text-muted">{quality.score}/100</span>
+        </div>
+      )}
+      {quality?.needsMoreMaterial && !isGenerating && (
+        <p className="mb-3 text-[11px] text-accent-amber line-clamp-2">
+          {quality.warnings[0] ?? 'Add more material to deepen grounding before intensive study.'}
+        </p>
+      )}
 
       <div className="flex items-center gap-4 text-xs text-text-tertiary mb-3">
         <span className="flex items-center gap-1">
@@ -269,6 +294,7 @@ function CourseCard({ course, index, onClick }: { course: Course; index: number;
 
 function CourseListItem({ course, index, onClick }: { course: Course; index: number; onClick: () => void }) {
   const progress = (course.completedLessons / Math.max(course.totalLessons, 1)) * 100;
+  const quality = course.sourceQuality;
 
   return (
     <motion.div
@@ -282,6 +308,16 @@ function CourseListItem({ course, index, onClick }: { course: Course; index: num
       <div className="flex-1 min-w-0">
         <h3 className="font-semibold text-sm group-hover:text-brand-300 transition-colors truncate">{course.title}</h3>
         <p className="text-xs text-text-tertiary mt-0.5">{course.subject} · {course.totalLessons} lessons · {course.estimatedHours}h</p>
+        {quality && (
+          <p className={cn(
+            'text-[11px] mt-1 truncate',
+            quality.needsMoreMaterial ? 'text-accent-amber' : 'text-text-muted',
+          )}>
+            {quality.needsMoreMaterial
+              ? (quality.warnings[0] ?? 'Needs more material for stronger grounding.')
+              : `Source quality ${quality.score}/100 · ${quality.finalTopicCount} modules`}
+          </p>
+        )}
       </div>
       <div className="hidden sm:flex items-center gap-4">
         <div className="w-24">

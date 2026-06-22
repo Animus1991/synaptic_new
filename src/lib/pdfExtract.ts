@@ -40,6 +40,98 @@ export type FileExtractResult = {
 
 
 
+interface TextItem {
+  str: string;
+  transform: number[];
+  width: number;
+  height: number;
+  hasEOL?: boolean;
+}
+
+const LINE_TOLERANCE = 4;
+const COLUMN_GAP_FRACTION = 0.03;
+
+/**
+ * Reconstruct PDF text in human reading order using coordinates from PDF.js.
+ *
+ * 1. Items are grouped into horizontal lines by y-coordinate.
+ * 2. Items within a line are sorted left-to-right.
+ * 3. Lines are clustered into columns based on their x-ranges.
+ * 4. Multi-column pages are read left column then right column.
+ */
+function layoutAwareTextFromItems(items: unknown[], pageWidth: number): string {
+  const raw = items.filter((it) => it && typeof it === 'object' && 'str' in it) as TextItem[];
+  const withCoords = raw
+    .map((it) => {
+      const t = it.transform;
+      const x = t[4] ?? 0;
+      const y = t[5] ?? 0;
+      return { ...it, x, y, endX: x + it.width };
+    })
+    .filter((it) => it.str.trim().length > 0);
+
+  if (withCoords.length === 0) return '';
+
+  // Group into lines by y-coordinate (tolerance for small variations).
+  const sortedByY = [...withCoords].sort((a, b) => a.y - b.y);
+  const lines: { y: number; items: typeof withCoords }[] = [];
+  for (const it of sortedByY) {
+    const line = lines.find((l) => Math.abs(l.y - it.y) <= LINE_TOLERANCE);
+    if (line) {
+      line.items.push(it);
+      line.y = (line.y + it.y) / 2;
+    } else {
+      lines.push({ y: it.y, items: [it] });
+    }
+  }
+
+  // Sort lines top-to-bottom.
+  lines.sort((a, b) => a.y - b.y);
+
+  // Sort items within each line left-to-right.
+  for (const line of lines) {
+    line.items.sort((a, b) => a.x - b.x);
+  }
+
+  // Detect columns by looking at the dominant x ranges across lines.
+  const columnGap = pageWidth * COLUMN_GAP_FRACTION;
+  const columns: { minX: number; maxX: number }[] = [];
+  for (const line of lines) {
+    const lineMin = Math.min(...line.items.map((it) => it.x));
+    const lineMax = Math.max(...line.items.map((it) => it.endX));
+    const col = columns.find((c) => lineMin < c.maxX + columnGap && lineMax > c.minX - columnGap);
+    if (col) {
+      col.minX = Math.min(col.minX, lineMin);
+      col.maxX = Math.max(col.maxX, lineMax);
+    } else {
+      columns.push({ minX: lineMin, maxX: lineMax });
+    }
+  }
+  columns.sort((a, b) => a.minX - b.minX);
+
+  const isMultiColumn = columns.length >= 2 && columns[0]!.maxX < pageWidth * 0.55;
+
+  if (isMultiColumn) {
+    const lineTexts: string[] = [];
+    for (const line of lines) {
+      const parts: string[] = [];
+      for (const col of columns) {
+        const colItems = line.items.filter((it) => it.x >= col.minX - columnGap && it.endX <= col.maxX + columnGap);
+        if (colItems.length === 0) continue;
+        const colText = colItems.map((it) => it.str).join(' ');
+        parts.push(colText);
+      }
+      if (parts.length > 0) lineTexts.push(parts.join('   '));
+    }
+    return lineTexts.join('\n');
+  }
+
+  // Single-column: join line items, adding line breaks where PDF indicates EOL.
+  return lines
+    .map((line) => line.items.map((it) => it.str).join(' '))
+    .join('\n');
+}
+
 export async function extractTextFromPdf(file: File, settings?: UserSettings): Promise<PdfExtractResult> {
 
   const pdfjs = await import('pdfjs-dist');
@@ -61,13 +153,8 @@ export async function extractTextFromPdf(file: File, settings?: UserSettings): P
     const page = await doc.getPage(i);
 
     const content = await page.getTextContent();
-
-    const pageText = content.items
-
-      .map((item) => ('str' in item ? item.str : ''))
-
-      .join(' ');
-
+    const viewport = page.getViewport({ scale: 1.0 });
+    const pageText = layoutAwareTextFromItems(content.items, viewport.width);
     parts.push(pageText);
 
   }

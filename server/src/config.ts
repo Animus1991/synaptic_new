@@ -29,6 +29,8 @@ export const config = {
   accessTokenTtl: process.env.ACCESS_TOKEN_TTL ?? '15m',
   refreshTokenTtlDays: num(process.env.REFRESH_TOKEN_TTL_DAYS, 30),
   ocrMaxPages: num(process.env.OCR_MAX_PAGES, 15),
+  /** Optional spaCy/Stanza NER microservice base URL (no trailing slash). */
+  nerServiceUrl: process.env.NER_SERVICE_URL?.trim() || undefined,
 };
 
 export type Plan = 'free' | 'pro' | 'team';

@@ -31,8 +31,10 @@ Adversaries we care about:
 | ------- | ----- | ----- |
 | LLM key never leaves server | `server/src/lib/upstream.ts` | The browser sends no provider key. |
 | JWT auth (`HS256`) | `server/src/middleware/auth.ts` | Configured by `JWT_SECRET`. |
+| Refresh + password-reset tokens | `server/src/routes/auth.ts`, `server/src/store/tokenStore.ts` | Refresh tokens are hashed, TTL-bound, revocable; password-reset tokens reuse the same store. |
 | CORS allowlist | `server/src/index.ts` | `ALLOWED_ORIGINS` (comma-separated, no `*` in production). |
 | Per-account, per-month token quota | `server/src/middleware/usage.ts` | Returns `429` once cap hit. |
+| Per-account/IP RPM limiter | `server/src/middleware/rateLimit.ts` | Sliding-window limiter on all `/v1/*` routes; current implementation is in-memory/single-node. |
 | Plan-aware billing | `server/src/routes/billing.ts` | Plan changes only flow through Stripe webhook events. |
 | Stripe webhook signature verification | `billingWebhookHandler` | Active when `STRIPE_WEBHOOK_SECRET` is set. |
 | Admin endpoint behind shared secret | `server/src/routes/admin.ts` | `x-admin-secret: $ADMIN_SECRET`. |
@@ -68,9 +70,10 @@ Before exposing Synapse to real learners:
 7. **Run migrations once** — set `RUN_MIGRATIONS_ON_START=false` in
    multi-replica deployments and call `npm run migrate` from CI.
 8. **Rotate `JWT_SECRET`** at least quarterly; force-logout on rotation.
-9. **Add rate limiting** at the edge (Cloudflare, nginx `limit_req`, Express
-   middleware, etc.). The current code path has no per-account RL beyond the
-   monthly token quota.
+9. **Layer edge rate limiting on top of the built-in limiter** — the server
+   already enforces an in-process per-account/IP RPM cap on `/v1/*`, but
+   production should add an edge/global limiter and move to a distributed
+   store before multi-replica scale.
 10. **Structured logging + audit trail** for `/auth/*`, `/v1/billing/*`, and
     `/v1/admin/*`. The current code uses `console.log`; pipe through your log
     aggregator.
@@ -80,11 +83,11 @@ Before exposing Synapse to real learners:
 
 ## Roadmap (not yet in code)
 
-- Refresh tokens + token expiry/rotation.
-- Email verification + password reset.
+- Access/refresh rotation UX and session-management surfaces.
+- Email verification.
 - Password hashing parameter audit (currently scrypt with default cost — see
   `server/src/store/accounts.ts`).
-- Per-account rate limiting (token bucket).
+- Distributed / Redis-backed rate limiting (the current limiter is single-node).
 - Content moderation pass on Agent prompts.
 - CSRF protection if cookies are added later (current Bearer-token flow does
   not need it).

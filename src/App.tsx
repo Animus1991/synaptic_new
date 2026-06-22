@@ -32,6 +32,7 @@ import { visibleCourses } from './lib/demoMode';
 
 const Agent = lazy(() => import('./components/Agent').then((m) => ({ default: m.Agent })));
 const Analytics = lazy(() => import('./components/Analytics').then((m) => ({ default: m.Analytics })));
+const TeacherDashboard = lazy(() => import('./components/TeacherDashboard').then((m) => ({ default: m.TeacherDashboard })));
 const LessonView = lazy(() => import('./components/LessonView').then((m) => ({ default: m.LessonView })));
 const PracticalLessonView = lazy(() => import('./components/PracticalLessonView').then((m) => ({ default: m.PracticalLessonView })));
 const StudyWorkspace = lazy(() => import('./components/workspace/StudyWorkspace').then((m) => ({ default: m.StudyWorkspace })));
@@ -45,6 +46,7 @@ export default function App() {
   const store = useAppStore();
   const { open: paletteOpen, close: closePalette, setOpen: setPaletteOpen } = useCommandPalette();
   const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [uploadIntent, setUploadIntent] = useState<{ mode: 'new' | 'extend'; targetCourseId?: string }>({ mode: 'new' });
 
   const closeLessonView = () => {
     store.setActiveLessonView(false);
@@ -78,6 +80,16 @@ export default function App() {
     store.setActiveTaskId(null);
   };
 
+  const openUploadModal = (intent?: { mode: 'new' | 'extend'; targetCourseId?: string }) => {
+    setUploadIntent(intent ?? { mode: 'new' });
+    store.setShowUploadModal(true);
+  };
+
+  const closeUploadModal = () => {
+    store.setShowUploadModal(false);
+    setUploadIntent({ mode: 'new' });
+  };
+
   const handleReviewRating = (rating: FsrsRating) => {
     if (store.activeTaskId) {
       store.submitReviewAndAdvance(store.activeTaskId, rating);
@@ -87,6 +99,10 @@ export default function App() {
   };
 
   const taskConcept = store.activeTask ? getTaskConcept(store.activeTask) : undefined;
+  const workspaceConcept = taskConcept
+    ?? store.studyConceptOverride
+    ?? store.selectedCourse?.topics[0]?.title
+    ?? 'Study concept';
   const taskFlowCtx = useMemo(
     () => buildTaskFlowContext({
       uploadedFiles: store.uploadedFiles,
@@ -127,15 +143,17 @@ export default function App() {
     onToggleSidebar: store.setSidebarOpen,
     user: store.user,
     stats: store.dashboardStats,
-    onUpload: () => store.setShowUploadModal(true),
+    onUpload: () => openUploadModal(),
     theme: store.user.settings.theme,
     onToggleTheme: store.toggleTheme,
     onOpenSearch: () => setPaletteOpen(true),
     onOpenNotifications: () => setNotificationsOpen(true),
     notificationCount: store.activities.length,
-    breadcrumb: store.activeTask
-      ? { course: store.activeTask.courseName, lesson: store.activeTask.title }
-      : store.selectedCourse
+    breadcrumb: store.currentView === 'course' && store.selectedCourse
+      ? { course: store.selectedCourse.title }
+      : store.activeTask
+        ? { course: store.activeTask.courseName, lesson: store.activeTask.title }
+        : store.selectedCourse
         ? { course: store.selectedCourse.title }
         : undefined,
   };
@@ -175,7 +193,7 @@ export default function App() {
           uploadedFiles={store.uploadedFiles}
           glossaryEntries={store.glossaryEntries}
           courses={store.courses}
-          onUpload={() => store.setShowUploadModal(true)}
+          onUpload={() => openUploadModal()}
         />
         </LazyOverlay>
       )}
@@ -195,20 +213,20 @@ export default function App() {
           courses={store.courses}
           courseId={store.activeTask?.courseId}
           lang={store.user.settings.language}
-          onUpload={() => store.setShowUploadModal(true)}
+          onUpload={() => openUploadModal()}
         />
         </LazyOverlay>
       )}
       {store.studyWorkspaceOpen && (
         <LazyOverlay>
         <StudyWorkspace
-          key={`${store.activeTaskId ?? store.selectedCourse?.id ?? 'free'}-${store.uploadedFiles.length}`}
+          key={`${store.activeTaskId ?? store.selectedCourse?.id ?? 'free'}-${store.studyConceptOverride ?? 'default'}-${store.uploadedFiles.length}`}
           onClose={closeWorkspace}
           onOpenAgent={() => { store.setStudyWorkspaceOpen(false); store.navigate('agent'); }}
           onComplete={completeActiveTask}
           taskTitle={store.activeTask?.title}
           courseName={store.activeTask?.courseName ?? store.selectedCourse?.title}
-          quizConcept={taskConcept}
+          quizConcept={workspaceConcept}
           xpReward={store.activeTask?.xpReward}
           initialTool={workspaceTool}
           taskId={store.activeTaskId}
@@ -224,7 +242,7 @@ export default function App() {
           onLeitnerRate={(concept, rating) => store.submitLeitnerRating(concept, rating, store.activeTask?.courseId ?? store.selectedCourse?.id)}
           onLogStudyMinutes={store.logStudyMinutes}
           userSettings={store.user.settings}
-          onUpload={() => store.setShowUploadModal(true)}
+          onUpload={() => openUploadModal()}
           sourceHighlight={store.sourceHighlight}
           openSourceAt={store.openSourceAt}
           clearSourceHighlight={store.clearSourceHighlight}
@@ -297,17 +315,21 @@ export default function App() {
       )}
       <UploadModal
         isOpen={store.showUploadModal}
-        onClose={() => store.setShowUploadModal(false)}
+        onClose={closeUploadModal}
         onUpload={() => {}}
         onProcessUpload={store.processUpload}
         onUploadComplete={(course) => {
           store.setSelectedCourse(course);
-          store.setStudyWorkspaceOpen(true);
+          store.setStudyWorkspaceOpen(false);
+          store.navigate('course');
+          setUploadIntent({ mode: 'new' });
         }}
         onProceed={() => {
           /* Navigation handled in onUploadComplete after successful upload */
         }}
         courses={visibleCourses(store.courses, store.user.settings)}
+        defaultUploadMode={uploadIntent.mode}
+        defaultTargetCourseId={uploadIntent.targetCourseId}
       />
     </>
   );
@@ -355,10 +377,20 @@ export default function App() {
 
   // Course detail view
   if (store.currentView === 'course' && store.selectedCourse) {
+    const selectedCourse = store.selectedCourse;
     return (
       <I18nContext.Provider value={i18nValue}>
         <Shell {...shellProps} currentView={store.currentView}>
-          <CourseView course={store.selectedCourse} onBack={() => store.navigate('library')} onStartLesson={() => store.setStudyWorkspaceOpen(true)} onOpenAgent={() => store.navigate('agent')} />
+          <CourseView
+            course={selectedCourse}
+            uploadedFiles={store.uploadedFiles.filter((f) => f.courseId === selectedCourse.id)}
+            glossaryEntries={store.glossaryEntries.filter((g) => g.courseId === selectedCourse.id)}
+            onGoToSource={store.openSourceAt}
+            onBack={() => store.navigate('library')}
+            onStartLesson={(topicTitle?: string) => store.openStudyWorkspaceForConcept(topicTitle)}
+            onOpenAgent={() => store.navigate('agent')}
+            onUploadMore={() => openUploadModal({ mode: 'extend', targetCourseId: selectedCourse.id })}
+          />
         </Shell>
         {overlays}
       </I18nContext.Provider>
@@ -398,7 +430,7 @@ export default function App() {
               courses={visibleCourses(store.courses, store.user.settings)}
               uploadedFiles={store.uploadedFiles}
               onSelectCourse={(course) => { store.setSelectedCourse(course); store.navigate('course'); }}
-              onUpload={() => store.setShowUploadModal(true)}
+              onUpload={() => openUploadModal()}
             />
           )}
           {store.currentView === 'tasks' && (
@@ -444,6 +476,11 @@ export default function App() {
               activities={store.activities}
               prerequisiteRepairs={store.pedagogyMetrics.repairs}
             />
+            </LazyOverlay>
+          )}
+          {store.currentView === 'teacher' && (
+            <LazyOverlay>
+            <TeacherDashboard settings={store.user.settings} lang={store.user.settings.language} />
             </LazyOverlay>
           )}
           {store.currentView === 'settings' && (

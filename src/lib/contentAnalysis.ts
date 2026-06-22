@@ -29,6 +29,7 @@ import type { GeneratedOutline, GeneratedTopic, GeneratedGlossaryEntry } from '.
 import { filterConceptsForSection } from './conceptSectionBinding';
 import { agglomerativeCluster, chooseClusterCount, groupByCluster, medoidIndex } from './embeddingCluster';
 import { embedTexts } from './llmClient';
+import { localEmbedder } from './localEmbedder';
 import { STOPWORDS, looksLikeHeading } from './rag';
 
 const WORD_RE = /[\p{L}\p{N}][\p{L}\p{N}'’-]*/gu;
@@ -86,6 +87,133 @@ export function detectSections(text: string): Section[] {
   flush();
 
   return sections.filter((s) => s.text.length > 60 || (s.heading && s.text.length > 0));
+}
+
+/** Discourse role of a section: how it functions in the document. */
+export type DiscourseRole = 'intro' | 'body' | 'example' | 'summary' | 'aside' | 'unknown';
+
+export interface HierarchicalSection extends Section {
+  /** 0-based flat index. */
+  index: number;
+  /** Heading depth: 1 = H1 / chapter, 2 = H2, 3 = H3, 4+ = deeper. */
+  level: number;
+  /** Index of the nearest parent section with a smaller level, or -1 for root. */
+  parentIndex: number;
+  /** Best-effort discourse role for this section. */
+  role: DiscourseRole;
+}
+
+function inferHeadingLevel(line: string, previousLevel: number): number {
+  const trimmed = line.trim();
+  const markdownMatch = trimmed.match(/^#{1,6}(?!#)\s/);
+  if (markdownMatch) {
+    return Math.min(6, markdownMatch[0]!.length - 1);
+  }
+  const numberedMatch = trimmed.match(/^(\d+(?:\.\d+)*|chapter|κεφάλαιο|section|ενότητα|unit|module|part|μέρος)/i);
+  if (numberedMatch) {
+    const num = numberedMatch[1]!;
+    const dots = num.split('.').length - 1;
+    if (dots >= 2) return 3;
+    if (dots === 1) return 2;
+    return 1;
+  }
+  if (trimmed === trimmed.toUpperCase() && /[A-ZΑ-Ω]/.test(trimmed)) return Math.max(2, previousLevel);
+  return Math.max(2, previousLevel);
+}
+
+function inferDiscourseRole(heading: string | undefined, body: string, index: number, totalSections: number): DiscourseRole {
+  const h = (heading ?? '').toLowerCase();
+  const b = body.toLowerCase();
+  if (
+    /\b(intro|introduction|overview|preamble|prologue|preface|αρχή|εισαγωγή|επισκόπηση)\b/.test(h)
+  ) {
+    return 'intro';
+  }
+  if (
+    /\b(summary|conclusion|conclusions|wrap[- ]?up|recap|takeaway|takeaways|επισκόπηση|συμπέρασμα|συμπεράσματα)\b/.test(h)
+  ) {
+    return 'summary';
+  }
+  if (
+    /\b(example|examples|exercise|exercises|sample|samples|case study|worked|solution|solutions|παράδειγμα|ασκήσεις)\b/.test(h) ||
+    /\b(for example\b|e\.g\.\b|for instance\b)/.test(b)
+  ) {
+    return 'example';
+  }
+  if (
+    /\b(note|notes|remark|remarks|tip|warning|caution|sidebar|appendix|υποσημείωση|σημείωση)\b/.test(h)
+  ) {
+    return 'aside';
+  }
+  if (index === 0 && totalSections > 1) return 'intro';
+  if (index === totalSections - 1 && totalSections > 2) return 'summary';
+  return 'body';
+}
+
+/**
+ * Detect heading-delimited sections and build a real H1→H2→H3 tree with
+ * discourse roles. Returns a flat array where `parentIndex` links each node
+ * to its nearest ancestor with a smaller level.
+ */
+export function detectHierarchicalSections(text: string): HierarchicalSection[] {
+  const lines = text.replace(/\r\n/g, '\n').split('\n');
+  const raw: { heading: string | undefined; body: string[]; level: number }[] = [];
+  let heading: string | undefined;
+  let level = 1;
+  let buffer: string[] = [];
+
+  const flush = () => {
+    if (heading || buffer.length > 0) {
+      raw.push({ heading, body: [...buffer], level });
+    }
+    buffer = [];
+  };
+
+  for (const line of lines) {
+    if (looksLikeHeading(line) && line.trim().length > 0) {
+      flush();
+      level = inferHeadingLevel(line, level);
+      heading = cleanHeading(line) || line.trim();
+    } else {
+      buffer.push(line);
+    }
+  }
+  flush();
+
+  // Drop empty/too-small sections unless they have a heading.
+  const filtered = raw.filter(
+    (s) => s.body.join('\n').trim().length > 60 || (s.heading && s.body.join('\n').trim().length > 0),
+  );
+
+  // Recompute levels so the first heading is always level 1 and subsequent
+  // levels are relative to the actual minimum depth used in the document.
+  const minLevel = filtered.length > 0 ? Math.min(...filtered.map((s) => s.level)) : 1;
+  const normalized = filtered.map((s) => ({ ...s, level: Math.max(1, s.level - minLevel + 1) }));
+
+  // Compute parent indices using a stack of ancestors.
+  const parents: number[] = [];
+  for (let i = 0; i < normalized.length; i++) {
+    let parent = -1;
+    for (let j = i - 1; j >= 0; j--) {
+      if (normalized[j]!.level < normalized[i]!.level) {
+        parent = j;
+        break;
+      }
+    }
+    parents.push(parent);
+  }
+
+  return normalized.map((s, i) => {
+    const body = s.body.join('\n').trim();
+    return {
+      heading: s.heading,
+      text: body,
+      index: i,
+      level: s.level,
+      parentIndex: parents[i]!,
+      role: inferDiscourseRole(s.heading, body, i, normalized.length),
+    };
+  });
 }
 
 /* ------------------------------------------------------------------ *
@@ -289,6 +417,188 @@ export function rankKeyphrases(text: string, max = 30, headingText = ''): Keyphr
       if (words.some((w) => headingWords.has(w))) score *= 1.4;
       return { phrase: e.phrase, score };
     })
+    .sort((a, b) => b.score - a.score)
+    .slice(0, max);
+}
+
+/* ------------------------------------------------------------------ *
+ * Concept extraction v2: termhood, salience, optional embedding rerank
+ * ------------------------------------------------------------------ */
+
+/**
+ * Termhood score: how much a phrase behaves as a single unit rather than an
+ * accidental co-occurrence of its words. Higher when the words appear together
+ * much more often than they appear apart in the document.
+ */
+function termhoodScores(phrases: string[][], tokenCounts: Map<string, number>): Map<string, number> {
+  const scores = new Map<string, number>();
+  const totalTokens = [...tokenCounts.values()].reduce((a, b) => a + b, 0);
+  if (totalTokens === 0) return scores;
+
+  for (const p of phrases) {
+    if (p.length < 2) continue;
+    const phrase = p.join(' ');
+    const phraseFreq = tokenCounts.get(phrase) ?? 0;
+    const denom = p.reduce((sum, w) => sum + (tokenCounts.get(w) ?? 0), 0);
+    if (denom === 0) continue;
+    // C-value style: phrase frequency * (log2(len) - log2 of how much its
+    // component words are reused outside the phrase). Simple proxy.
+    const termhood = (phraseFreq * Math.log2(1 + p.length)) / (1 + denom / p.length / phraseFreq);
+    scores.set(phrase, Number.isFinite(termhood) ? termhood : 0);
+  }
+  return scores;
+}
+
+/**
+ * Salience score: combine early-document position, frequency, and heading
+ * presence into a single signal. Concepts mentioned in headings and early in
+ * the document are usually more central.
+ */
+function salienceScores(
+  phrases: string[][],
+  tokens: string[],
+  headings: string[],
+): Map<string, number> {
+  const scores = new Map<string, number>();
+  const total = tokens.length;
+  const headingSet = new Set(
+    headings
+      .flatMap((h) => (h.toLowerCase().match(WORD_RE) ?? []).filter(isContentWord))
+      .map(stemLite),
+  );
+
+  const positions = new Map<string, number[]>();
+  for (let i = 0; i < tokens.length; i++) {
+    const t = tokens[i]!;
+    if (!positions.has(t)) positions.set(t, []);
+    positions.get(t)!.push(i);
+  }
+
+  for (const p of phrases) {
+    const phrase = p.join(' ');
+    const key = normalizeConcept(phrase);
+    const freq = tokens.filter((t) => t === key).length;
+    const posList = positions.get(key) ?? [];
+    const avgPos = posList.length > 0 ? posList.reduce((a, b) => a + b, 0) / posList.length : total;
+    const positionBoost = 1 + Math.max(0, (total - avgPos) / total);
+    const headingBoost = p.some((w) => headingSet.has(stemLite(w))) ? 1.5 : 1.0;
+    scores.set(phrase, freq * positionBoost * headingBoost);
+  }
+  return scores;
+}
+
+function cosineSimilarity(a: number[], b: number[]): number {
+  if (a.length === 0 || b.length === 0 || a.length !== b.length) return 0;
+  let dot = 0;
+  let na = 0;
+  let nb = 0;
+  for (let i = 0; i < a.length; i++) {
+    dot += a[i]! * b[i]!;
+    na += a[i]! * a[i]!;
+    nb += b[i]! * b[i]!;
+  }
+  return (na > 0 && nb > 0) ? dot / (Math.sqrt(na) * Math.sqrt(nb)) : 0;
+}
+
+export interface ConceptExtractorOptions {
+  max?: number;
+  headingText?: string;
+  /** Optional multi-word embedding rerank. Falls back to lexical scores if unavailable. */
+  embedder?: { embed(texts: string[]): Promise<number[][] | null>; ready: boolean };
+  /** When true, require the candidate to appear more than once (single-shot docs are exempt). */
+  requireMultiple?: boolean;
+}
+
+/**
+ * Concept extraction v2. Blends RAKE, TextRank, termhood, salience, and an
+ * optional embedding-based semantic rerank. Returns a deduplicated, ranked list
+ * of candidate concepts with confidence scores.
+ */
+export async function extractConceptsV2(
+  text: string,
+  options: ConceptExtractorOptions = {},
+): Promise<Keyphrase[]> {
+  const { max = 30, headingText = '', embedder, requireMultiple = true } = options;
+  const phrases = candidatePhrases(text);
+  if (phrases.length === 0) return [];
+
+  const tokens = contentTokens(text);
+  const rake = rakeWordScores(phrases);
+  const tr = textRankWordScores(tokens);
+  const tokenCounts = new Map<string, number>();
+  for (const t of tokens) tokenCounts.set(t, (tokenCounts.get(t) ?? 0) + 1);
+  const phraseCounts = new Map<string, number>();
+  for (const p of phrases) {
+    const phrase = p.join(' ');
+    phraseCounts.set(phrase, (phraseCounts.get(phrase) ?? 0) + 1);
+  }
+  const termhood = termhoodScores(phrases, tokenCounts);
+  const salience = salienceScores(phrases, tokens, headingText.split('\n'));
+
+  const headings = headingText.toLowerCase().split('\n');
+  const headingWords = new Set(
+    headings.flatMap((h) => (h.match(WORD_RE) ?? []).filter(isContentWord)),
+  );
+
+  const raw = new Map<string, { phrase: string; rake: number; tr: number; termhood: number; salience: number }>();
+  for (const p of phrases) {
+    if (p.length > 4) continue;
+    const phrase = p.join(' ');
+    const key = normalizeConcept(phrase);
+    if (!key) continue;
+    const rakeScore = p.reduce((a, w) => a + (rake.get(w) ?? 0), 0);
+    const trScore = p.reduce((a, w) => a + (tr.get(w) ?? 0), 0);
+    const th = termhood.get(phrase) ?? 0;
+    const sal = salience.get(phrase) ?? 0;
+    const prev = raw.get(key);
+    if (!prev || rakeScore > prev.rake) {
+      raw.set(key, { phrase, rake: rakeScore, tr: trScore, termhood: th, salience: sal });
+    }
+  }
+
+  const entries = [...raw.values()];
+  if (entries.length === 0) return [];
+
+  const maxRake = Math.max(...entries.map((e) => e.rake), 1);
+  const maxTr = Math.max(...entries.map((e) => e.tr), 1);
+  const maxTh = Math.max(...entries.map((e) => e.termhood), 1);
+  const maxSal = Math.max(...entries.map((e) => e.salience), 1);
+
+  const scored = entries.map((e) => {
+    const words = e.phrase.split(/\s+/);
+    let score =
+      0.25 * (e.rake / maxRake) +
+      0.25 * (e.tr / maxTr) +
+      0.25 * (e.termhood / maxTh) +
+      0.25 * (e.salience / maxSal);
+    if (words.length > 1) score *= 1.18;
+    if (words.some((w) => headingWords.has(w))) score *= 1.4;
+    return { phrase: e.phrase, score };
+  });
+
+  if (embedder?.ready) {
+    const phraseTexts = scored.map((e) => e.phrase);
+    const embeddings = await embedder.embed(phraseTexts);
+    if (embeddings && embeddings.length === phraseTexts.length) {
+      const textEmbedding = await embedder.embed([text]);
+      if (textEmbedding && textEmbedding.length === 1) {
+        const textVec = textEmbedding[0]!;
+        for (let i = 0; i < scored.length; i++) {
+          const sim = cosineSimilarity(embeddings[i]!, textVec);
+          scored[i]!.score = 0.8 * scored[i]!.score + 0.2 * sim;
+        }
+      }
+    }
+  }
+
+  if (requireMultiple && tokens.length > 120) {
+    return scored
+      .filter((e) => (phraseCounts.get(e.phrase) ?? 0) > 1)
+      .sort((a, b) => b.score - a.score)
+      .slice(0, max);
+  }
+
+  return scored
     .sort((a, b) => b.score - a.score)
     .slice(0, max);
 }
@@ -545,20 +855,20 @@ const SUBJECT_LEXICON: { subject: string; terms: string[] }[] = [
 
 export function inferSubject(text: string): string {
   const lower = text.toLowerCase();
-  let best = 'General Studies';
-  let bestScore = 0;
-  for (const { subject, terms } of SUBJECT_LEXICON) {
-    let score = 0;
+  const scored = SUBJECT_LEXICON.map(({ subject, terms }) => {
+    let uniqueHits = 0;
     for (const term of terms) {
-      const re = new RegExp(`\\b${term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'g');
-      score += (lower.match(re)?.length ?? 0);
+      const re = new RegExp(`\\b${term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
+      if (re.test(lower)) uniqueHits += 1;
     }
-    if (score > bestScore) {
-      bestScore = score;
-      best = subject;
-    }
-  }
-  return bestScore >= 2 ? best : 'General Studies';
+    return { subject, uniqueHits };
+  }).sort((a, b) => b.uniqueHits - a.uniqueHits);
+
+  const best = scored[0];
+  const runnerUp = scored[1];
+  if (!best || best.uniqueHits < 2) return 'General Studies';
+  if (runnerUp && best.uniqueHits === runnerUp.uniqueHits) return 'General Studies';
+  return best.subject;
 }
 
 export function estimateDifficulty(text: string): 'beginner' | 'intermediate' | 'advanced' {
@@ -904,6 +1214,20 @@ function sectionsForEmbedding(clean: string): Section[] {
 }
 
 /**
+ * Try local offline embedder first, then LLM endpoint, returning null if neither works.
+ */
+async function embedForAnalysis(
+  texts: string[],
+  settings?: UserSettings,
+): Promise<number[][] | null> {
+  if (localEmbedder.ready) {
+    const local = await localEmbedder.embed(texts);
+    if (local && local.length === texts.length && local.every((e) => e.length > 0)) return local;
+  }
+  return embedTexts(texts, settings);
+}
+
+/**
  * Semantic topic discovery via section/chunk embeddings + agglomerative clustering.
  * Returns null when embeddings are unavailable (caller keeps lexical pipeline).
  */
@@ -916,7 +1240,7 @@ async function topicsFromEmbeddingClusters(
   if (sections.length < 2) return null;
 
   const bodies = sections.map((s) => `${s.heading ?? ''}\n${s.text}`.trim().slice(0, 2500));
-  const embeddings = await embedTexts(bodies, settings);
+  const embeddings = await embedForAnalysis(bodies, settings);
   if (!embeddings || embeddings.some((e) => e.length === 0)) return null;
 
   const k = chooseClusterCount(sections.length);

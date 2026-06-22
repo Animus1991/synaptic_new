@@ -2,7 +2,7 @@ import { ReactNode } from 'react';
 import {
   BookOpen, CheckSquare, Bot, LayoutDashboard, Settings,
   Sparkles, Menu, X, Upload, Bell, Search, ChevronRight,
-  BarChart3, Sun, Moon
+  BarChart3, Sun, Moon, Users
 } from 'lucide-react';
 import type { AppView, User, DashboardStats } from '../types';
 import { cn } from '../utils/cn';
@@ -31,6 +31,7 @@ const navViews: { view: AppView; icon: typeof BookOpen; labelKey: I18nKey }[] = 
   { view: 'tasks', icon: CheckSquare, labelKey: 'tasks' },
   { view: 'agent', icon: Bot, labelKey: 'agent' },
   { view: 'analytics', icon: BarChart3, labelKey: 'analytics' },
+  { view: 'teacher', icon: Users, labelKey: 'teacher' },
   { view: 'settings', icon: Settings, labelKey: 'settings' },
 ];
 

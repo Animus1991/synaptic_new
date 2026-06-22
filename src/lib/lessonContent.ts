@@ -15,19 +15,21 @@ import {
 
 export type { LessonStepDef, LessonStepKey, QuizDef };
 
-const ALL_STEP_KEYS: LessonStepKey[] = [
-  'intro', 'explanation', 'example', 'misconception', 'practice', 'quiz', 'summary',
+const FULL_ARC: LessonStepKey[] = [
+  'hook', 'prior', 'core', 'worked-example', 'practice', 'misconception', 'retrieval', 'summary',
 ];
 
-const SHORT_STEP_KEYS: LessonStepKey[] = [
-  'intro', 'explanation', 'practice', 'quiz', 'summary',
-];
+function arcKeysForCount(count: number): LessonStepKey[] {
+  if (count <= 5) return ['hook', 'prior', 'core', 'practice', 'summary'];
+  if (count === 6) return ['hook', 'prior', 'core', 'worked-example', 'practice', 'summary'];
+  if (count === 7) return ['hook', 'prior', 'core', 'worked-example', 'practice', 'retrieval', 'summary'];
+  return FULL_ARC;
+}
 
 export function buildLessonSteps(settings?: UserSettings): LessonStepDef[] {
   const lang: Lang = settings?.language ?? 'en';
   const count = settings ? lessonStepCount(settings) : 7;
-  const keys = count <= 5 ? SHORT_STEP_KEYS : ALL_STEP_KEYS;
-  return keys.map((key) => ({ key, label: lessonStepLabel(key, lang) }));
+  return arcKeysForCount(count).map((key) => ({ key, label: lessonStepLabel(key, lang) }));
 }
 
 export function lessonKeyFromTask(task: Task | null | undefined, fallback = 'default-lesson'): string {

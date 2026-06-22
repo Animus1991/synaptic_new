@@ -1,10 +1,19 @@
-import { useState, useMemo } from 'react';
-import { Sparkles, Bot, Loader2 } from 'lucide-react';
+import { useState, useMemo, useRef, useEffect } from 'react';
+import { Sparkles, Bot, Loader2, Download, Printer, Mic, MicOff } from 'lucide-react';
 import { computeRubric, weakestDimensions, type RubricDimension } from '../../lib/feynmanRubric';
+import { detectFeynmanGaps } from '../../lib/feynmanGapDetect';
+import { startFeynmanVoiceInput } from '../../lib/feynmanVoice';
 import { generateFeynmanCoachFeedbackAsync, isLlmAvailable } from '../../lib/llmClient';
 import type { CoachFeedback } from '../../lib/feynmanCoach';
 import { useI18n } from '../../lib/i18n';
+import { cn } from '../../utils/cn';
 import type { UserSettings } from '../../types';
+import { BookOpen } from 'lucide-react';
+import {
+  buildFeynmanRubricHtml,
+  downloadFeynmanRubricReport,
+  printFeynmanRubricReport,
+} from '../../lib/feynmanRubricExport';
 
 const RUBRIC_LABELS: Record<RubricDimension, string> = {
   accuracy: 'Accuracy',
@@ -29,14 +38,27 @@ const DEFAULT_OUTLINE = (concept: string, lang: 'en' | 'el') =>
     ? [`Ποια είναι η βασική ιδέα του «${concept}»;`, 'Γιατί έχει σημασία;', 'Ποια παρανόηση να αποφύγεις;', 'Παράδειγμα από τις σημειώσεις σου.']
     : [`What is the core idea of ${concept}?`, 'Why does it matter?', 'What misconception to avoid?', 'One example from your notes.'];
 
+function gapSearchTerm(dim: RubricDimension, concept: string, gapTerms: string[]): string {
+  switch (dim) {
+    case 'accuracy': return gapTerms[0] ?? concept;
+    case 'completeness': return concept;
+    case 'simplicity': return gapTerms[1] ?? gapTerms[0] ?? concept;
+    case 'structure': return gapTerms[2] ?? concept;
+    default: return concept;
+  }
+}
+
 interface Props {
   concept?: string;
   onFocusConcept?: (conceptId: string) => void;
+  /** Open reader at source span for a glossary term or concept. */
+  onOpenInReader?: (query: string) => void;
   settings?: UserSettings;
   onOpenAgent?: () => void;
   outline?: string[];
   placeholder?: string;
   gapHints?: string[];
+  gapTerms?: string[];
   /** Uploaded note excerpt for coach grounding (not the user's draft). */
   referenceNotes?: string;
   /** Glossary terms from the source corpus — used to score accuracy fairly. */
@@ -47,11 +69,13 @@ interface Props {
 export function FeynmanCheck({
   concept = 'Study concept',
   onFocusConcept,
+  onOpenInReader,
   settings,
   onOpenAgent,
   outline: outlineProp,
   placeholder: placeholderProp,
   gapHints,
+  gapTerms = [],
   referenceNotes = '',
   glossary,
   extraTerms,
@@ -60,6 +84,8 @@ export function FeynmanCheck({
   const [text, setText] = useState('');
   const [coachFeedback, setCoachFeedback] = useState<CoachFeedback | null>(null);
   const [coachUsedLlm, setCoachUsedLlm] = useState(false);
+  const [voiceActive, setVoiceActive] = useState(false);
+  const voiceStopRef = useRef<(() => void) | null>(null);
   const [coachLoading, setCoachLoading] = useState(false);
   const wordCount = text.trim().split(/\s+/).filter(Boolean).length;
   const outline = outlineProp ?? DEFAULT_OUTLINE(concept, lang);
@@ -79,6 +105,26 @@ export function FeynmanCheck({
     return { scores, weak: weakestDimensions(scores) };
   }, [text, wordCount, concept, referenceNotes, glossary, extraTerms]);
 
+  const autoGaps = useMemo(
+    () => detectFeynmanGaps(text, concept, referenceNotes, gapTerms, glossary, extraTerms),
+    [text, concept, referenceNotes, gapTerms, glossary, extraTerms],
+  );
+
+  useEffect(() => () => { voiceStopRef.current?.(); }, []);
+
+  const toggleVoice = () => {
+    if (voiceActive) {
+      voiceStopRef.current?.();
+      voiceStopRef.current = null;
+      setVoiceActive(false);
+      return;
+    }
+    const stop = startFeynmanVoiceInput(lang, (chunk) => setText(chunk));
+    if (!stop) return;
+    voiceStopRef.current = stop;
+    setVoiceActive(true);
+  };
+
   const requestCoach = async () => {
     if (!rubric) return;
     setCoachLoading(true);
@@ -90,7 +136,8 @@ export function FeynmanCheck({
       concept,
       settings,
       referenceNotes,
-    );    setCoachFeedback(feedback);
+    );
+    setCoachFeedback(feedback);
     setCoachUsedLlm(usedLlm);
     setCoachLoading(false);
   };
@@ -101,6 +148,20 @@ export function FeynmanCheck({
     : isLlmAvailable(settings)
       ? 'AI Coach · offline rubric'
       : 'AI Coach · offline (add API key in Settings)';
+
+  const exportRubric = (mode: 'download' | 'print') => {
+    if (!rubric) return;
+    const html = buildFeynmanRubricHtml({
+      concept,
+      explanation: text,
+      scores: rubric.scores,
+      weak: rubric.weak,
+      coach: coachFeedback,
+      lang,
+    });
+    if (mode === 'print') printFeynmanRubricReport(html);
+    else downloadFeynmanRubricReport(`feynman-${concept.slice(0, 24).replace(/\s+/g, '-')}`, html);
+  };
 
   return (
     <div className="flex h-full flex-col overflow-hidden">
@@ -131,6 +192,18 @@ export function FeynmanCheck({
             <div className="flex items-center justify-between gap-2 flex-wrap">
               <span className="text-xs text-text-tertiary">{wordCount} {t('words')}</span>
               <div className="flex gap-2">
+                <button
+                  type="button"
+                  data-testid="feynman-voice-input"
+                  onClick={toggleVoice}
+                  className={cn(
+                    'flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium border',
+                    voiceActive ? 'border-accent-rose/40 bg-accent-rose/15 text-accent-rose' : 'border-border-subtle text-text-muted',
+                  )}
+                >
+                  {voiceActive ? <MicOff className="w-3.5 h-3.5" /> : <Mic className="w-3.5 h-3.5" />}
+                  {lang === 'el' ? 'Φωνή' : 'Voice'}
+                </button>
                 <button
                   type="button"
                   disabled={!rubric || coachLoading}
@@ -173,9 +246,55 @@ export function FeynmanCheck({
               </div>
             )}
 
+            {autoGaps.length > 0 && (
+              <div className="rounded-xl border border-accent-amber/30 bg-accent-amber/8 p-3" data-testid="feynman-auto-gaps">
+                <p className="text-[10px] font-semibold text-accent-amber mb-2">
+                  {lang === 'el' ? 'Αυτόματα κενά (rubric)' : 'Auto-detected gaps'}
+                </p>
+                <ul className="space-y-2">
+                  {autoGaps.slice(0, 3).map((g) => (
+                    <li key={g.dimension} className="flex items-start justify-between gap-2 text-[11px]">
+                      <span className="text-text-secondary">{g.hint}</span>
+                      {onOpenInReader && (
+                        <button
+                          type="button"
+                          onClick={() => onOpenInReader(g.searchTerm)}
+                          className="shrink-0 text-brand-400 hover:text-brand-300 text-[10px]"
+                        >
+                          Reader →
+                        </button>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
             {rubric && (
               <div className="rounded-xl border border-border-subtle bg-surface-primary/40 p-3">
-                <p className="mb-2 text-[10px] font-semibold uppercase tracking-wide text-text-muted">Rubric</p>
+                <div className="mb-2 flex items-center justify-between gap-2">
+                  <p className="text-[10px] font-semibold uppercase tracking-wide text-text-muted">Rubric</p>
+                  <div className="flex gap-1">
+                    <button
+                      type="button"
+                      data-testid="feynman-export-rubric"
+                      onClick={() => exportRubric('download')}
+                      className="inline-flex items-center gap-1 rounded-lg border border-brand-500/30 px-2 py-0.5 text-[9px] text-brand-300 hover:bg-brand-600/10"
+                    >
+                      <Download className="w-3 h-3" />
+                      {lang === 'el' ? 'Αναφορά' : 'Report'}
+                    </button>
+                    <button
+                      type="button"
+                      data-testid="feynman-print-rubric"
+                      onClick={() => exportRubric('print')}
+                      className="inline-flex items-center gap-1 rounded-lg border border-border-subtle px-2 py-0.5 text-[9px] text-text-muted hover:text-text-secondary"
+                    >
+                      <Printer className="w-3 h-3" />
+                      PDF
+                    </button>
+                  </div>
+                </div>
                 <div className="space-y-2">
                   {rubricDims.map((dim) => (
                     <div key={dim}>
@@ -197,12 +316,26 @@ export function FeynmanCheck({
                 <p className="text-[10px] font-semibold uppercase tracking-wide text-text-muted">Gaps to fix</p>
                 {rubric.weak.map((dim) => (
                   <div key={dim} className="rounded-lg border border-border-subtle bg-surface-primary/50 p-2.5 text-[11px] leading-5 text-text-secondary">
-                    <p>{gapHints?.[0] ?? rubricGapHint(dim, concept, lang)}</p>
-                    {onFocusConcept && (
-                      <button type="button" onClick={() => onFocusConcept('concept-map')}                        className="mt-1.5 text-[10px] font-medium text-brand-400 hover:text-brand-300">
-                        Open related concept →
-                      </button>
-                    )}
+                    <p className="font-medium text-text-primary">{RUBRIC_LABELS[dim]}</p>
+                    <p className="mt-0.5">{gapHints?.[0] ?? rubricGapHint(dim, concept, lang)}</p>
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {onOpenInReader && (
+                        <button
+                          type="button"
+                          onClick={() => onOpenInReader(gapSearchTerm(dim, concept, gapTerms))}
+                          className="flex items-center gap-1 text-[10px] font-medium text-accent-cyan hover:text-accent-cyan/80"
+                        >
+                          <BookOpen className="w-3 h-3" />
+                          {lang === 'el' ? 'Άνοιγμα στον αναγνώστη' : 'Read in source'}
+                        </button>
+                      )}
+                      {onFocusConcept && (
+                        <button type="button" onClick={() => onFocusConcept('concept-map')}
+                          className="text-[10px] font-medium text-brand-400 hover:text-brand-300">
+                          {lang === 'el' ? 'Χάρτης εννοιών →' : 'Concept map →'}
+                        </button>
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>

@@ -66,7 +66,7 @@ export function GroundedLessonContent({
     );
   }
 
-  if (stepKey === 'quiz' && quizDef && onQuizSelect && isMcQuiz(quizDef)) {
+  if (stepKey === 'retrieval' && quizDef && onQuizSelect && isMcQuiz(quizDef)) {
     return (
       <div className="space-y-4">
         <span className="text-xs text-brand-400 font-medium uppercase tracking-wider">{t('quiz')}</span>

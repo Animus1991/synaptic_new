@@ -85,3 +85,68 @@ export function saveScratchpadFormulas<T>(scope: string, formulas: T): void {
   all[scope] = formulas;
   saveJson(SCRATCHPAD_KEY, all);
 }
+
+/* ------------------------------------------------------------------ *
+ * Timer session log (scoped) — concept + step binding per workspace.
+ * ------------------------------------------------------------------ */
+export type TimerSessionLog = {
+  at: string;
+  minutes: number;
+  label: string;
+  preset: string;
+};
+
+const TIMER_KEY = 'timer-sessions';
+
+export function loadTimerSessions(scope: string): TimerSessionLog[] {
+  const all = loadJson<Record<string, TimerSessionLog[]>>(TIMER_KEY, {});
+  return all[scope] ?? [];
+}
+
+export function appendTimerSession(scope: string, entry: TimerSessionLog): void {
+  const all = loadJson<Record<string, TimerSessionLog[]>>(TIMER_KEY, {});
+  const list = all[scope] ?? [];
+  list.push(entry);
+  all[scope] = list.slice(-20);
+  saveJson(TIMER_KEY, all);
+}
+
+/* ------------------------------------------------------------------ *
+ * Concept bus (scoped) — cross-tool concept engagement per workspace key.
+ * Persists the shared concept activity map so interconnection survives
+ * across sessions for the same task/concept.
+ * ------------------------------------------------------------------ */
+const CONCEPT_BUS_KEY = 'workspace-concept-bus';
+
+export function loadConceptBus<T = unknown>(scope: string): T | null {
+  const all = loadJson<Record<string, T>>(CONCEPT_BUS_KEY, {});
+  return all[scope] ?? null;
+}
+
+export function saveConceptBus<T>(scope: string, state: T): void {
+  const all = loadJson<Record<string, T>>(CONCEPT_BUS_KEY, {});
+  all[scope] = state;
+  saveJson(CONCEPT_BUS_KEY, all);
+}
+
+/** Entire scope→bus map, used for backend session sync. */
+export function loadAllConceptBuses(): Record<string, unknown> {
+  return loadJson<Record<string, unknown>>(CONCEPT_BUS_KEY, {});
+}
+
+/** Replace the entire scope→bus map (e.g. after pulling a remote session). */
+export function replaceAllConceptBuses(map: Record<string, unknown> | null | undefined): void {
+  saveJson(CONCEPT_BUS_KEY, map ?? {});
+}
+
+const EXAM_TARGET_KEY = 'exam-target';
+
+export function loadExamTarget(scope: string): string | null {
+  return loadJson<Record<string, string>>(EXAM_TARGET_KEY, {})[scope] ?? null;
+}
+
+export function saveExamTarget(scope: string, iso: string): void {
+  const all = loadJson<Record<string, string>>(EXAM_TARGET_KEY, {});
+  all[scope] = iso;
+  saveJson(EXAM_TARGET_KEY, all);
+}

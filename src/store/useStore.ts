@@ -30,12 +30,19 @@ import {
   localSessionToRemote,
   remoteSessionToLocal,
 } from '../lib/sessionSync';
+import {
+  enrichLearnerModelFromConceptBus,
+  mergeDashboardReviewsDue,
+} from '../lib/conceptBusSync';
+import { loadAllConceptBuses, replaceAllConceptBuses } from '../lib/workspacePersistence';
+import { loadAllStepSchedules, replaceAllStepSchedules } from '../lib/spacedStepSchedule';
 import { filterTasksForSession, getTaskAction, getTaskConcept, getAgentMode, type SessionType } from '../lib/taskFlows';
 import { settingsToAgentMode } from '../lib/settingsEffects';
-import { buildCourseFromUpload, buildCourseFromOutline, readTextFromFiles, uploadedFileMeta, extractFileContent, type UploadPayload } from '../lib/uploadPipeline';
+import { readTextFromFiles, uploadedFileMeta, extractFileContent, type UploadPayload } from '../lib/uploadPipeline';
+import { recognizeCourse } from '../lib/recognitionWorkerClient';
 import { buildConceptSpans, type SourceHighlight } from '../lib/conceptProvenance';
-import { generateCourseOutline } from '../lib/courseGenerator';
-import { analyzeContentToOutline, analyzeContentToOutlineAsync } from '../lib/contentAnalysis';
+import { CONTENT_PIPELINE_VERSION } from '../lib/pipelineConstants';
+import { appendLearningEvent } from '../lib/learningEvents';
 import type { BetaMastery } from '../lib/pedagogy';
 import {
   shouldShowDemo,
@@ -47,7 +54,6 @@ import { createEmptyLearnerModel, EMPTY_DASHBOARD_STATS } from '../lib/emptyLear
 import { mergeCourseTasks } from '../lib/taskGenerator';
 import { syncLearnerHeatmap, computeStreakFromHeatmap } from '../lib/activityAnalytics';
 import { computeRetentionRate, weeklyMasteryFromActivities } from '../lib/retentionAnalytics';
-import { mergeOutlineIntoCourse } from '../lib/courseMerge';
 import {
   applySkillUpdate,
   ensureSkillNode,
@@ -139,6 +145,11 @@ function masteryMapFromSkills(lm: LearnerModel, courses: Course[], showDemo: boo
   return map;
 }
 
+export interface WorkspaceFocus {
+  concept: string;
+  sourceSpan?: SourceHighlight;
+}
+
 export function useAppStore() {
   const persisted = useMemo(() => loadPersisted(), []);
   const library = useMemo(() => loadLibrarySync(), []);
@@ -155,6 +166,7 @@ export function useAppStore() {
     [persisted, mergedSettings],
   );
 
+  const [workspaceFocus, setWorkspaceFocus] = useState<WorkspaceFocus | null>(null);
   const [currentView, setCurrentView] = useState<AppView>('landing');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [user, setUser] = useState(() => buildInitialUser({
@@ -203,8 +215,21 @@ export function useAppStore() {
   const [activeLessonView, setActiveLessonView] = useState(false);
   const [practicalLessonView, setPracticalLessonView] = useState(false);
   const [studyWorkspaceOpen, setStudyWorkspaceOpen] = useState(false);
+  /** When set, the Study Workspace opens focused on this specific concept/topic
+   * instead of defaulting to the course's first topic. Cleared on each open so
+   * "Continue" (no concept) resumes the default entry point. */
+  const [studyConceptOverride, setStudyConceptOverride] = useState<string | null>(null);
+  const openStudyWorkspaceForConcept = useCallback((concept?: string) => {
+    setStudyConceptOverride(concept?.trim() ? concept.trim() : null);
+    setStudyWorkspaceOpen(true);
+  }, []);
   const [sourceHighlight, setSourceHighlight] = useState<SourceHighlight | null>(null);
   const openSourceAt = useCallback((highlight: SourceHighlight) => {
+    appendLearningEvent('source_opened', {
+      fileId: highlight.fileId,
+      charStart: highlight.charStart,
+      charEnd: highlight.charEnd,
+    });
     setSourceHighlight(highlight);
     setStudyWorkspaceOpen(true);
   }, []);
@@ -838,12 +863,24 @@ export function useAppStore() {
   }, [user.settings, applyRemoteLibrary]);
 
   const applyRemoteSession = useCallback((merged: ReturnType<typeof mergeSessions>) => {
+    if (merged.conceptBuses) replaceAllConceptBuses(merged.conceptBuses);
+    if (merged.stepSchedules) replaceAllStepSchedules(merged.stepSchedules);
+
     const nextTasks = stripDemoFromTasks(merged.tasks as typeof tasks);
     const nextKeys = new Set(merged.firstAttemptKeys);
-    const nextLm = syncLearnerHeatmap(merged.learnerModel, merged.activities);
+    const nextLmBase = syncLearnerHeatmap(merged.learnerModel, merged.activities);
+    const nextLm = enrichLearnerModelFromConceptBus(
+      nextLmBase,
+      merged.conceptBuses ?? {},
+      merged.betaMastery,
+    );
     const nextStats = {
       ...merged.dashboardStats,
       streak: computeStreakFromHeatmap(nextLm.heatmapData),
+      reviewsDue: mergeDashboardReviewsDue(
+        merged.dashboardStats.reviewsDue,
+        merged.stepSchedules ?? {},
+      ),
     };
     setLearnerModel(nextLm);
     setDashboardStats(nextStats);
@@ -898,6 +935,8 @@ export function useAppStore() {
       openMistakes,
       activities,
       userSettings: user.settings,
+      conceptBuses: loadAllConceptBuses() as import('../lib/conceptBusSync').ConceptBusMap,
+      stepSchedules: loadAllStepSchedules(),
       ...local,
     });
     return pushRemoteSession(token, user.settings, payload);
@@ -963,7 +1002,15 @@ export function useAppStore() {
       for (const f of payload.files) {
         const extracted = await extractFileContent(f, user.settings);
         if (extracted.text.trim()) fileTexts.push(extracted.text);
-        newFiles.push(uploadedFileMeta(f, undefined, undefined, extracted.text, extracted.pageCount));
+        newFiles.push(
+          uploadedFileMeta(f, undefined, undefined, extracted.text, extracted.pageCount, {
+            ocrUsed: extracted.ocrUsed,
+            ingestMethod: extracted.ocrUsed ? 'ocr-client' : 'text-layer',
+          }),
+        );
+        if (extracted.ocrUsed) {
+          appendLearningEvent('ocr_applied', { fileName: f.name, chars: extracted.text.length });
+        }
       }
       if (payload.youtubeUrl) {
         const fetched = await fetchYoutubeTranscript(payload.youtubeUrl, user.settings);
@@ -1009,82 +1056,88 @@ export function useAppStore() {
         });
       }
 
-    // Course generation, best source first:
-    //   1. LLM-grounded outline (richest) when an API key is configured;
-    //   2. otherwise the offline content-recognition engine, which derives a
-    //      real structured outline from the actual note content — no key needed;
-    //   3. only if there's too little text, the lightweight keyword template.
-    let course: Course;
+    // Course generation runs off the main thread in a Web Worker so the UI
+    // stays responsive during LLM calls, embedding clustering, and course building.
     const fileNames = payload.files.map((f) => f.name);
-    const outline =
-      (await generateCourseOutline(text, fileNames, user.settings)) ??
-      (await analyzeContentToOutlineAsync(text, fileNames, user.settings)) ??
-      analyzeContentToOutline(text, fileNames, user.settings);
-    let nextGlossary = glossaryEntries;
     const extendTarget =
       payload.uploadMode === 'extend' && payload.targetCourseId
         ? courses.find((c) => c.id === payload.targetCourseId && !MOCK_COURSE_IDS.has(c.id))
         : undefined;
 
-    if (outline) {
-      const built = buildCourseFromOutline(outline, { ...payload, pastedContent: text }, courses.length);
-      if (extendTarget) {
-        const merged = mergeOutlineIntoCourse(
-          extendTarget,
-          outline,
-          fileNames,
-          glossaryEntries,
-          built.glossary,
-        );
-        course = merged.course;
-        nextGlossary = [
-          ...glossaryEntries.filter((g) => g.courseId !== course.id),
-          ...merged.glossary,
-        ];
-        setGlossaryEntries(nextGlossary);
-      } else {
-        course = built.course;
-        if (built.glossary.length > 0) {
-          nextGlossary = [...glossaryEntries, ...built.glossary];
-          setGlossaryEntries(nextGlossary);
-        }
-      }
-    } else if (extendTarget) {
-      course = extendTarget;
-    } else {
-      course = buildCourseFromUpload({ ...payload, pastedContent: text }, courses.length);
-    }
+    const workerPayload = {
+      files: payload.files.map((f) => ({ name: f.name, type: getFileType(f.name), size: f.size })),
+      pastedContent: pasted,
+      youtubeUrl: payload.youtubeUrl,
+      sourceMode: payload.sourceMode,
+      focusTags: payload.focusTags,
+      examDate: payload.examDate,
+      title: payload.title,
+      targetCourseId: payload.targetCourseId,
+      uploadMode: payload.uploadMode,
+    };
+
+    const result = await recognizeCourse({
+      text,
+      fileNames,
+      payload: workerPayload,
+      settings: user.settings,
+      existingCount: courses.length,
+      extendTarget,
+      uploadedFiles,
+      glossaryEntries,
+    });
+
+    let course = result.course;
+    let nextGlossary = result.glossary;
     const topics = course.topics.map((t) => t.title);
-    const withCourse = newFiles.map((meta) => ({
-      ...meta,
-      courseId: course.id,
-      extractedTopics: topics,
-      extractedText: meta.extractedText?.trim()
-        ? meta.extractedText
-        : (newFiles.length === 1 ? text : meta.extractedText),
-    }));
-    if (payload.youtubeUrl) {
+    const withCourse: UploadedFile[] = result.withCourse.length > 0
+      ? result.withCourse.map((meta, i) => ({
+        ...meta,
+        courseId: course.id,
+        extractedTopics: topics,
+        pipelineVersion: CONTENT_PIPELINE_VERSION,
+        extractedText: newFiles[i]?.extractedText?.trim()
+          ? newFiles[i]!.extractedText
+          : (newFiles.length === 1 ? text : meta.extractedText),
+        pageCount: newFiles[i]?.pageCount ?? meta.pageCount,
+        ocrUsed: newFiles[i]?.ocrUsed,
+        ingestMethod: newFiles[i]?.ingestMethod ?? (pasted ? 'paste' : undefined),
+      }))
+      : newFiles.map((f) => ({
+        ...f,
+        courseId: course.id,
+        extractedTopics: topics,
+        pipelineVersion: CONTENT_PIPELINE_VERSION,
+        extractedText: f.extractedText?.trim() ? f.extractedText : text,
+        ingestMethod: f.ingestMethod ?? (pasted ? 'paste' : undefined),
+      }));
+    if (result.ytFile) {
       withCourse.push({
-        id: `file-yt-${Date.now()}`,
-        name: payload.youtubeUrl,
-        type: 'txt',
-        size: ytTranscript.length,
-        uploadedAt: new Date().toISOString(),
-        status: 'analyzed',
-        progress: 100,
+        ...result.ytFile,
         courseId: course.id,
         extractedTopics: topics,
         extractedText: ytTranscript || undefined,
+        size: ytTranscript.length,
+        ingestMethod: 'youtube',
+        pipelineVersion: CONTENT_PIPELINE_VERSION,
       });
     }
-    const nextFiles = [...uploadedFiles, ...withCourse];
-    if (outline && course.conceptSpans === undefined) {
-      const conceptLabels = [...new Set(outline.topics.flatMap((t) => t.concepts))];
+
+    const conceptLabels = [...new Set(course.topics.flatMap((t) => t.keyConcepts ?? [t.title]))];
+    if (conceptLabels.length > 0 && withCourse.some((f) => (f.extractedText?.trim().length ?? 0) > 40)) {
       course = {
         ...course,
         conceptSpans: buildConceptSpans(withCourse, conceptLabels, course.id),
+        pipelineMeta: course.pipelineMeta ?? {
+          version: CONTENT_PIPELINE_VERSION,
+          generatedAt: new Date().toISOString(),
+          outlineSource: result.outline ? (extendTarget ? 'extend' : 'lexical') : 'fallback',
+        },
       };
     }
+
+    const nextFiles = [...uploadedFiles, ...withCourse];
+
     const generatedOnly = [
       ...courses.filter((c) => !MOCK_COURSE_IDS.has(c.id) && c.id !== course.id),
       course,
@@ -1101,6 +1154,11 @@ export function useAppStore() {
     setLearnerModel(nextLmMetrics);
     persistLibrary(nextFiles, nextGlossary, nextCourses.filter((c) => !MOCK_COURSE_IDS.has(c.id)));
     const actLabel = extendTarget ? `Extended course: ${course.title}` : `Created course: ${course.title}`;
+    appendLearningEvent('course_generated', {
+      topicCount: course.topics.length,
+      conceptCount: course.conceptCount,
+      pipelineVersion: CONTENT_PIPELINE_VERSION,
+    }, { courseId: course.id });
     const nextActs = logActivity(createActivity('upload', actLabel));
     persist(nextLmMetrics, dashboardStats, nextTasks, user.xp, nextBeta, firstAttemptKeys, openMistakes, nextActs, user.settings);
     setSelectedCourse(course);
@@ -1291,6 +1349,8 @@ export function useAppStore() {
     activeLessonView, setActiveLessonView,
     practicalLessonView, setPracticalLessonView,
     studyWorkspaceOpen, setStudyWorkspaceOpen,
+    studyConceptOverride, openStudyWorkspaceForConcept,
+    workspaceFocus, setWorkspaceFocus,
     sourceHighlight, openSourceAt, clearSourceHighlight: () => setSourceHighlight(null),
     reviewSessionOpen, setReviewSessionOpen,
     mistakeRetryOpen, setMistakeRetryOpen,

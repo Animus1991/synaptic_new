@@ -1,5 +1,7 @@
 import type { LearnerModel, DashboardStats, Task } from '../types';
 import { findPendingTask } from './taskFlows';
+import type { ConceptBusInsight } from './conceptBusSync';
+import { normalizeFocusTerm } from './workspaceFocus';
 
 export function buildMiniDashboardProps(
   learnerModel: LearnerModel,
@@ -7,15 +9,47 @@ export function buildMiniDashboardProps(
   tasks: Task[],
   onStartTask?: (taskId: string) => void,
   courseName?: string,
+  opts?: {
+    conceptInsights?: ConceptBusInsight[];
+    extraReviewsDue?: number;
+  },
 ) {
-  const weakSpots = learnerModel.weakAreas.slice(0, 5).map((s) => ({
+  const busWeak = (opts?.conceptInsights ?? [])
+    .filter((i) => i.struggling)
+    .slice(0, 3)
+    .map((i) => ({
+      concept: i.concept,
+      mastery: i.mastery,
+      course: courseName ?? 'Workspace',
+    }));
+
+  const modelWeak = learnerModel.weakAreas.slice(0, 5).map((s) => ({
     concept: s.concept,
     mastery: s.mastery,
     course: courseName ?? 'Your course',
   }));
 
+  const seen = new Set<string>();
+  const weakSpots = [...busWeak, ...modelWeak].filter((s) => {
+    const key = normalizeFocusTerm(s.concept);
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  }).slice(0, 5);
+
   const pendingReviews = tasks.filter((t) => t.isSpacedRepetition && t.status === 'pending');
   const nextPending = findPendingTask(tasks, () => true);
+
+  const busActions = (opts?.conceptInsights ?? [])
+    .filter((i) => i.struggling)
+    .slice(0, 2)
+    .map((i, idx) => ({
+      label: `Cross-study: ${i.concept}`,
+      type: 'practice' as const,
+      minutes: 14 + idx * 2,
+      xp: 40,
+      taskId: nextPending?.id,
+    }));
 
   const nextActions = [
     ...pendingReviews.slice(0, 2).map((t) => ({
@@ -25,6 +59,7 @@ export function buildMiniDashboardProps(
       xp: t.xpReward,
       taskId: t.id,
     })),
+    ...busActions,
     ...learnerModel.weakAreas.slice(0, 2).map((s, i) => ({
       label: `Practice: ${s.concept}`,
       type: 'practice' as const,
@@ -37,12 +72,15 @@ export function buildMiniDashboardProps(
   const conceptsMastered = [
     ...learnerModel.strongAreas,
     ...learnerModel.almostKnown.filter((s) => s.mastery >= 60),
+    ...(opts?.conceptInsights ?? []).filter((i) => i.confident),
   ].length;
+
+  const reviewsDue = dashboardStats.reviewsDue + (opts?.extraReviewsDue ?? 0);
 
   return {
     readiness: Math.round(learnerModel.overallMastery),
     streak: dashboardStats.streak,
-    reviewsDue: dashboardStats.reviewsDue,
+    reviewsDue,
     weakSpots,
     nextActions,
     conceptsMastered,

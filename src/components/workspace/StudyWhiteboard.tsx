@@ -1,21 +1,34 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
-  ArrowRight, Circle, Eraser, Highlighter, Minus, Pen,
-  Redo2, Ruler, Save, Square, Trash2, Type, Undo2, BookOpen,
+  ArrowRight, Circle, Eraser, Eye, EyeOff, Highlighter, Layers, Lock, Minus, Pen,
+  Plus, Redo2, Ruler, Save, Square, Trash2, Type, Undo2, BookOpen, Calculator, X, Unlock,
 } from 'lucide-react';
 import { cn } from '../../utils/cn';
 import type { ExtractedFormula } from '../../lib/noteContentExtractors';
+import type { ScratchpadExport } from '../../lib/workspaceScratchpadBridge';
 import { loadWhiteboardStrokes, saveWhiteboardStrokes } from '../../lib/workspacePersistence';
+import {
+  isLayerLocked,
+  migrateWhiteboardPayload,
+  visibleStrokes,
+  type LayeredStroke,
+  type WhiteboardDocument,
+} from '../../lib/whiteboardLayers';
+import { FormulaLatexPreview } from './FormulaLatexPreview';
+import { buildLatexStampLibrary, stampToInsertText, type LatexStamp } from '../../lib/whiteboardLatexStamps';
 
 type Tool = 'pen' | 'marker' | 'highlighter' | 'eraser' | 'line' | 'rect' | 'ellipse' | 'arrow' | 'ruler' | 'text';
 type Point = { x: number; y: number };
-type Stroke = { tool: Tool; color: string; width: number; points: Point[]; text?: string };
 
 const COLORS = ['#f8fafc', '#67e8f9', '#a78bfa', '#6ee7b7', '#fbbf24', '#f87171', '#fb7185', '#1e293b'];
 const LEGACY_STORAGE_KEY = 'synapse.whiteboard.v1';
 
 function dist(a: Point, b: Point) {
   return Math.hypot(b.x - a.x, b.y - a.y);
+}
+
+function emptyDoc(lang: 'en' | 'el'): WhiteboardDocument {
+  return migrateWhiteboardPayload([], lang);
 }
 
 const TOOL_DEFS: { id: Tool; icon: typeof Pen; label: string }[] = [
@@ -35,24 +48,40 @@ export function StudyWhiteboard({
   referenceFormulas = [],
   referenceExcerpt,
   scopeKey,
+  scratchpadImport,
+  onDismissScratchpadImport,
+  onEngage,
+  lang = 'en',
 }: {
   referenceFormulas?: ExtractedFormula[];
   referenceExcerpt?: string;
-  /** Workspace/task identifier used to scope persistence (avoids cross-task bleed). */
   scopeKey?: string;
+  scratchpadImport?: ScratchpadExport | null;
+  onDismissScratchpadImport?: () => void;
+  onEngage?: () => void;
+  lang?: 'en' | 'el';
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [tool, setTool] = useState<Tool>('pen');
   const [color, setColor] = useState(COLORS[1]!);
   const [width, setWidth] = useState(3);
-  const [strokes, setStrokes] = useState<Stroke[]>([]);
-  const [redoStack, setRedoStack] = useState<Stroke[]>([]);
-  const [draft, setDraft] = useState<Stroke | null>(null);
+  const [doc, setDoc] = useState<WhiteboardDocument>(() => emptyDoc(lang));
+  const [redoStack, setRedoStack] = useState<LayeredStroke[]>([]);
+  const [draft, setDraft] = useState<LayeredStroke | null>(null);
   const [savedMsg, setSavedMsg] = useState(false);
+  const [showLayers, setShowLayers] = useState(true);
+  const [showStamps, setShowStamps] = useState(false);
   const drawing = useRef(false);
 
-  const redraw = useCallback((list: Stroke[], current?: Stroke | null) => {
+  const stampLibrary = useMemo(
+    () => buildLatexStampLibrary(referenceFormulas, lang),
+    [referenceFormulas, lang],
+  );
+
+  const activeLayerLocked = isLayerLocked(doc, doc.activeLayerId);
+
+  const redraw = useCallback((list: LayeredStroke[], current?: LayeredStroke | null) => {
     const canvas = canvasRef.current;
     const container = containerRef.current;
     if (!canvas || !container) return;
@@ -72,22 +101,23 @@ export function StudyWhiteboard({
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
 
-    const drawStroke = (s: Stroke) => {
+    const drawStroke = (s: LayeredStroke) => {
       if (s.points.length === 0) return;
-      if (s.tool === 'text' && s.text) {
+      const strokeTool = s.tool as Tool;
+      if (strokeTool === 'text' && s.text) {
         ctx.fillStyle = s.color;
         ctx.font = `${Math.max(14, s.width * 5)}px system-ui, sans-serif`;
         ctx.fillText(s.text, s.points[0]?.x, s.points[0]?.y);
         return;
       }
-      if (s.tool === 'eraser') {
+      if (strokeTool === 'eraser') {
         ctx.globalCompositeOperation = 'destination-out';
         ctx.strokeStyle = 'rgba(0,0,0,1)';
-      } else if (s.tool === 'highlighter') {
+      } else if (strokeTool === 'highlighter') {
         ctx.globalCompositeOperation = 'source-over';
         ctx.strokeStyle = s.color;
         ctx.globalAlpha = 0.35;
-      } else if (s.tool === 'marker') {
+      } else if (strokeTool === 'marker') {
         ctx.globalCompositeOperation = 'source-over';
         ctx.strokeStyle = s.color;
         ctx.globalAlpha = 0.75;
@@ -101,11 +131,11 @@ export function StudyWhiteboard({
       const p0 = s.points[0]!;
       const p1 = s.points[s.points.length - 1]!;
 
-      if (['line', 'ruler', 'arrow', 'rect', 'ellipse'].includes(s.tool) && s.points.length >= 2) {
+      if (['line', 'ruler', 'arrow', 'rect', 'ellipse'].includes(strokeTool) && s.points.length >= 2) {
         ctx.beginPath();
-        if (s.tool === 'rect') {
+        if (strokeTool === 'rect') {
           ctx.strokeRect(p0.x, p0.y, p1.x - p0.x, p1.y - p0.y);
-        } else if (s.tool === 'ellipse') {
+        } else if (strokeTool === 'ellipse') {
           const rx = Math.abs(p1.x - p0.x) / 2;
           const ry = Math.abs(p1.y - p0.y) / 2;
           ctx.ellipse((p0.x + p1.x) / 2, (p0.y + p1.y) / 2, rx, ry, 0, 0, Math.PI * 2);
@@ -114,7 +144,7 @@ export function StudyWhiteboard({
           ctx.moveTo(p0.x, p0.y);
           ctx.lineTo(p1.x, p1.y);
           ctx.stroke();
-          if (s.tool === 'arrow') {
+          if (strokeTool === 'arrow') {
             const angle = Math.atan2(p1.y - p0.y, p1.x - p0.x);
             const head = 10 + s.width;
             ctx.beginPath();
@@ -124,7 +154,7 @@ export function StudyWhiteboard({
             ctx.lineTo(p1.x - head * Math.cos(angle + 0.4), p1.y - head * Math.sin(angle + 0.4));
             ctx.stroke();
           }
-          if (s.tool === 'ruler') {
+          if (strokeTool === 'ruler') {
             ctx.fillStyle = s.color;
             ctx.globalAlpha = 1;
             ctx.font = '11px system-ui';
@@ -148,32 +178,32 @@ export function StudyWhiteboard({
   useEffect(() => {
     try {
       const scope = scopeKey ?? '__global';
-      const persisted = loadWhiteboardStrokes<Stroke[]>(scope);
+      const persisted = loadWhiteboardStrokes<unknown>(scope);
       if (persisted) {
-        setStrokes(persisted);
+        setDoc(migrateWhiteboardPayload(persisted, lang));
         return;
       }
-      // One-time migration from the legacy single-key whiteboard so existing
-      // boards aren't lost when scoped persistence is introduced.
       if (scope === '__global') {
         const legacy = localStorage.getItem(LEGACY_STORAGE_KEY);
         if (legacy) {
-          const parsed = JSON.parse(legacy) as Stroke[];
-          setStrokes(parsed);
-          saveWhiteboardStrokes(scope, parsed);
+          const parsed = JSON.parse(legacy) as LayeredStroke[];
+          const migrated = migrateWhiteboardPayload(parsed, lang);
+          setDoc(migrated);
+          saveWhiteboardStrokes(scope, migrated);
           localStorage.removeItem(LEGACY_STORAGE_KEY);
         }
       }
     } catch { /* ignore */ }
-  }, [scopeKey]);
+  }, [scopeKey, lang]);
 
-  useEffect(() => { redraw(strokes, draft); }, [strokes, draft, redraw]);
+  const visible = visibleStrokes(doc);
+  useEffect(() => { redraw(visible, draft); }, [visible, draft, redraw]);
 
   useEffect(() => {
-    const ro = new ResizeObserver(() => redraw(strokes, draft));
+    const ro = new ResizeObserver(() => redraw(visible, draft));
     if (containerRef.current) ro.observe(containerRef.current);
     return () => ro.disconnect();
-  }, [strokes, draft, redraw]);
+  }, [visible, draft, redraw]);
 
   const pos = (e: React.PointerEvent<HTMLCanvasElement>): Point => {
     const rect = canvasRef.current?.getBoundingClientRect();
@@ -182,23 +212,42 @@ export function StudyWhiteboard({
 
   const effectiveWidth = tool === 'marker' ? width * 2.5 : tool === 'highlighter' ? width * 4 : tool === 'eraser' ? width * 3 : width;
 
+  const appendStroke = (stroke: LayeredStroke) => {
+    setDoc((d) => ({ ...d, strokes: [...d.strokes, stroke] }));
+    setRedoStack([]);
+    onEngage?.();
+  };
+
   const onDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    if (activeLayerLocked) return;
     if (tool === 'text') {
       const p = pos(e);
-      const text = window.prompt('Enter text:');
+      const text = window.prompt(lang === 'el' ? 'Κείμενο:' : 'Enter text:');
       if (text?.trim()) {
-        setStrokes((s) => [...s, { tool: 'text', color, width, points: [p], text: text.trim() }]);
-        setRedoStack([]);
+        appendStroke({
+          layerId: doc.activeLayerId,
+          tool,
+          color,
+          width,
+          points: [p],
+          text: text.trim(),
+        });
       }
       return;
     }
     drawing.current = true;
-    setDraft({ tool, color, width: effectiveWidth, points: [pos(e)] });
+    setDraft({
+      layerId: doc.activeLayerId,
+      tool,
+      color,
+      width: effectiveWidth,
+      points: [pos(e)],
+    });
     (e.target as HTMLCanvasElement).setPointerCapture(e.pointerId);
   };
 
   const onMove = (e: React.PointerEvent<HTMLCanvasElement>) => {
-    if (!drawing.current || !draft) return;
+    if (!drawing.current || !draft || activeLayerLocked) return;
     const p = pos(e);
     if (['line', 'ruler', 'arrow', 'rect', 'ellipse'].includes(tool)) {
       setDraft({ ...draft, points: [draft.points[0]!, p] });
@@ -210,16 +259,16 @@ export function StudyWhiteboard({
   const onUp = () => {
     if (!drawing.current || !draft) return;
     drawing.current = false;
-    setStrokes((s) => [...s, draft]);
+    appendStroke(draft);
     setDraft(null);
-    setRedoStack([]);
   };
 
   const undo = () => {
-    setStrokes((s) => {
-      if (s.length === 0) return s;
-      setRedoStack((r) => [...r, s[s.length - 1]!]);
-      return s.slice(0, -1);
+    setDoc((d) => {
+      if (d.strokes.length === 0) return d;
+      const last = d.strokes[d.strokes.length - 1]!;
+      setRedoStack((r) => [...r, last]);
+      return { ...d, strokes: d.strokes.slice(0, -1) };
     });
   };
 
@@ -227,51 +276,169 @@ export function StudyWhiteboard({
     setRedoStack((r) => {
       if (r.length === 0) return r;
       const last = r[r.length - 1]!;
-      setStrokes((s) => [...s, last]);
+      setDoc((d) => ({ ...d, strokes: [...d.strokes, last] }));
       return r.slice(0, -1);
     });
   };
 
+  const clearActiveLayer = () => {
+    setDoc((d) => ({
+      ...d,
+      strokes: d.strokes.filter((s) => s.layerId !== d.activeLayerId),
+    }));
+    setRedoStack([]);
+    setDraft(null);
+  };
+
   const save = () => {
     try {
-      saveWhiteboardStrokes(scopeKey ?? '__global', strokes);
+      saveWhiteboardStrokes(scopeKey ?? '__global', doc);
       setSavedMsg(true);
       setTimeout(() => setSavedMsg(false), 2000);
     } catch { /* ignore */ }
   };
 
-  const insertFormulaLabel = (label: string, formula: string) => {
+  const insertFormulaLabel = (label: string, formula: string, extraLines?: string[]) => {
     const x = 40 + Math.random() * 80;
-    const y = 40 + Math.random() * 60;
-    const stroke: Stroke = {
+    let y = 40 + Math.random() * 60;
+    const strokesToAdd: LayeredStroke[] = [{
+      layerId: doc.activeLayerId,
       tool: 'text',
       color,
       width: 2,
       points: [{ x, y }],
       text: `${label}: ${formula}`,
-    };
-    setStrokes((s) => [...s, stroke]);
+    }];
+    if (extraLines?.length) {
+      for (const line of extraLines.slice(0, 6)) {
+        y += 22;
+        strokesToAdd.push({
+          layerId: doc.activeLayerId,
+          tool: 'text',
+          color: COLORS[2]!,
+          width: 1,
+          points: [{ x, y }],
+          text: line.slice(0, 120),
+        });
+      }
+    }
+    setDoc((d) => ({ ...d, strokes: [...d.strokes, ...strokesToAdd] }));
     setRedoStack([]);
+  };
+
+  const insertScratchpadImport = () => {
+    if (!scratchpadImport) return;
+    insertFormulaLabel(scratchpadImport.name, scratchpadImport.formula, scratchpadImport.steps);
+    onDismissScratchpadImport?.();
+  };
+
+  const insertLatexStamp = (stamp: LatexStamp) => {
+    const x = 48 + Math.random() * 100;
+    const y = 48 + Math.random() * 80;
+    setDoc((d) => ({
+      ...d,
+      strokes: [...d.strokes, {
+        layerId: d.activeLayerId,
+        tool: 'text',
+        color: COLORS[2]!,
+        width: 2,
+        points: [{ x, y }],
+        text: stampToInsertText(stamp),
+      }],
+    }));
+    setRedoStack([]);
+  };
+
+  const addLayer = () => {
+    const id = `layer-${Date.now()}`;
+    setDoc((d) => ({
+      ...d,
+      layers: [
+        ...d.layers,
+        {
+          id,
+          name: lang === 'el' ? `Επίπεδο ${d.layers.length + 1}` : `Layer ${d.layers.length + 1}`,
+          visible: true,
+          locked: false,
+        },
+      ],
+      activeLayerId: id,
+    }));
+  };
+
+  const toggleLayerVisibility = (layerId: string) => {
+    setDoc((d) => ({
+      ...d,
+      layers: d.layers.map((l) => (l.id === layerId ? { ...l, visible: !l.visible } : l)),
+    }));
+  };
+
+  const toggleLayerLock = (layerId: string) => {
+    setDoc((d) => ({
+      ...d,
+      layers: d.layers.map((l) => (l.id === layerId ? { ...l, locked: !l.locked } : l)),
+    }));
   };
 
   return (
     <div className="flex h-full flex-col lg:flex-row min-w-0">
-      {(referenceFormulas.length > 0 || referenceExcerpt) && (
-        <aside className="shrink-0 border-b lg:border-b-0 lg:border-r border-border-subtle lg:w-56 overflow-y-auto p-3 space-y-3">
+      {(referenceFormulas.length > 0 || referenceExcerpt || scratchpadImport) && (
+        <aside className="shrink-0 border-b lg:border-b-0 lg:border-r border-border-subtle lg:w-64 overflow-y-auto p-3 space-y-3">
+          {scratchpadImport && (
+            <div className="p-3 rounded-xl border border-accent-cyan/30 bg-accent-cyan/5 space-y-2">
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-1.5 text-xs font-semibold text-accent-cyan">
+                  <Calculator className="w-3.5 h-3.5" />
+                  {lang === 'el' ? 'Από scratchpad' : 'From scratchpad'}
+                </div>
+                <button type="button" onClick={onDismissScratchpadImport} className="text-text-muted hover:text-text-secondary">
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </div>
+              <p className="text-[10px] font-medium text-brand-300">{scratchpadImport.name}</p>
+              <div className="rounded-lg bg-surface-primary/60 p-2 overflow-x-auto">
+                <FormulaLatexPreview formula={scratchpadImport.formula} />
+              </div>
+              {scratchpadImport.variables && scratchpadImport.variables.length > 0 && (
+                <div className="text-[9px] text-text-muted space-y-0.5">
+                  {scratchpadImport.variables.map((v) => (
+                    <p key={v.symbol}>{v.symbol} = {v.value}{v.unit ? ` ${v.unit}` : ''}</p>
+                  ))}
+                </div>
+              )}
+              {scratchpadImport.steps && scratchpadImport.steps.length > 0 && (
+                <div className="text-[9px] font-mono text-text-tertiary space-y-0.5 max-h-24 overflow-y-auto">
+                  {scratchpadImport.steps.map((s, i) => (
+                    <p key={i}>{s}</p>
+                  ))}
+                </div>
+              )}
+              <button
+                type="button"
+                onClick={insertScratchpadImport}
+                className="w-full py-1.5 rounded-lg text-[10px] font-semibold bg-brand-600 text-white hover:bg-brand-500"
+              >
+                {lang === 'el' ? 'Εισαγωγή στον πίνακα' : 'Insert on board'}
+              </button>
+            </div>
+          )}
           <div className="flex items-center gap-1.5 text-xs font-semibold text-text-secondary">
             <BookOpen className="w-3.5 h-3.5 text-brand-400" />
-            From your notes
+            {lang === 'el' ? 'Από τις σημειώσεις' : 'From your notes'}
           </div>
           {referenceFormulas.map((f) => (
             <div key={f.id} className="p-2 rounded-lg bg-surface-card border border-border-subtle">
               <p className="text-[10px] font-medium text-brand-300 truncate">{f.name}</p>
-              <p className="text-[10px] font-mono text-text-secondary mt-1 break-all">{f.formula}</p>
+              <div className="mt-1 overflow-x-auto">
+                <FormulaLatexPreview formula={f.formula} display={false} />
+              </div>
+              <p className="text-[9px] font-mono text-text-muted mt-1 break-all opacity-70">{f.formula}</p>
               <button
                 type="button"
                 onClick={() => insertFormulaLabel(f.name, f.formula)}
                 className="mt-2 text-[9px] font-medium text-brand-400 hover:text-brand-300"
               >
-                Insert on board →
+                {lang === 'el' ? 'Εισαγωγή →' : 'Insert on board →'}
               </button>
             </div>
           ))}
@@ -284,7 +451,9 @@ export function StudyWhiteboard({
       <div className="flex min-h-0 flex-1 flex-col min-w-0">
       <div className="shrink-0 border-b border-border-subtle px-3 py-2">
         <h3 className="text-sm font-semibold">Study Whiteboard</h3>
-        <p className="text-[10px] text-text-tertiary">Sketch diagrams, annotate, and save to this device.</p>
+        <p className="text-[10px] text-text-tertiary">
+          {lang === 'el' ? 'Σκίτσα, επίπεδα, αποθήκευση τοπικά.' : 'Sketch diagrams, layers, save to this device.'}
+        </p>
       </div>
 
       <div className="flex shrink-0 flex-wrap items-center gap-2 border-b border-border-subtle px-3 py-2">
@@ -293,10 +462,12 @@ export function StudyWhiteboard({
             key={id}
             type="button"
             title={label}
+            disabled={activeLayerLocked}
             onClick={() => setTool(id)}
             className={cn(
               'flex items-center gap-1 rounded-lg px-2 py-1.5 text-[10px] font-medium transition-colors',
               tool === id ? 'bg-brand-600/20 text-brand-300' : 'text-text-muted hover:bg-surface-hover',
+              activeLayerLocked && 'opacity-40 cursor-not-allowed',
             )}
           >
             <Icon className="w-3.5 h-3.5" />
@@ -304,12 +475,108 @@ export function StudyWhiteboard({
           </button>
         ))}
         <div className="mx-1 h-5 w-px bg-border-subtle" />
-        <button type="button" onClick={undo} disabled={strokes.length === 0} className="rounded-lg p-1.5 text-text-muted hover:bg-surface-hover disabled:opacity-40 disabled:cursor-not-allowed"><Undo2 className="w-3.5 h-3.5" /></button>
+        <button
+          type="button"
+          data-testid="whiteboard-layers-toggle"
+          onClick={() => setShowLayers((v) => !v)}
+          className={cn(
+            'rounded-lg p-1.5',
+            showLayers ? 'bg-brand-600/20 text-brand-300' : 'text-text-muted hover:bg-surface-hover',
+          )}
+          title={lang === 'el' ? 'Επίπεδα' : 'Layers'}
+        >
+          <Layers className="w-3.5 h-3.5" />
+        </button>
+        <button
+          type="button"
+          data-testid="whiteboard-latex-stamps"
+          onClick={() => setShowStamps((v) => !v)}
+          className={cn(
+            'rounded-lg px-2 py-1.5 text-[10px] font-medium',
+            showStamps ? 'bg-accent-cyan/20 text-accent-cyan' : 'text-text-muted hover:bg-surface-hover',
+          )}
+          title={lang === 'el' ? 'LaTeX stamps' : 'LaTeX stamps'}
+        >
+          <Calculator className="w-3.5 h-3.5 inline" />
+          <span className="hidden sm:inline ml-1">LaTeX</span>
+        </button>
+        <button type="button" onClick={undo} disabled={doc.strokes.length === 0} className="rounded-lg p-1.5 text-text-muted hover:bg-surface-hover disabled:opacity-40 disabled:cursor-not-allowed"><Undo2 className="w-3.5 h-3.5" /></button>
         <button type="button" onClick={redo} disabled={redoStack.length === 0} className="rounded-lg p-1.5 text-text-muted hover:bg-surface-hover disabled:opacity-40 disabled:cursor-not-allowed"><Redo2 className="w-3.5 h-3.5" /></button>
-        <button type="button" onClick={() => { setStrokes([]); setRedoStack([]); setDraft(null); }} className="rounded-lg p-1.5 text-text-muted hover:bg-surface-hover"><Trash2 className="w-3.5 h-3.5" /></button>
+        <button type="button" onClick={clearActiveLayer} className="rounded-lg p-1.5 text-text-muted hover:bg-surface-hover" title={lang === 'el' ? 'Καθαρισμός ενεργού επιπέδου' : 'Clear active layer'}><Trash2 className="w-3.5 h-3.5" /></button>
         <button type="button" onClick={save} className="rounded-lg p-1.5 text-text-muted hover:bg-surface-hover"><Save className="w-3.5 h-3.5" /></button>
-        {savedMsg && <span className="text-[10px] text-accent-emerald">Saved</span>}
+        {savedMsg && <span className="text-[10px] text-accent-emerald">{lang === 'el' ? 'Αποθηκεύτηκε' : 'Saved'}</span>}
+        {activeLayerLocked && (
+          <span className="text-[10px] text-accent-amber">{lang === 'el' ? 'Επίπεδο κλειδωμένο' : 'Layer locked'}</span>
+        )}
       </div>
+
+      {showStamps && (
+        <div
+          className="flex shrink-0 flex-wrap gap-2 border-b border-border-subtle px-3 py-2 max-h-28 overflow-y-auto"
+          data-testid="whiteboard-stamp-panel"
+        >
+          {stampLibrary.map((stamp) => (
+            <button
+              key={stamp.id}
+              type="button"
+              onClick={() => insertLatexStamp(stamp)}
+              className="rounded-lg border border-border-subtle bg-surface-card px-2 py-1 text-[9px] text-text-secondary hover:border-accent-cyan/40 hover:text-accent-cyan"
+              title={stamp.latex}
+            >
+              {stamp.label}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {showLayers && (
+        <div
+          className="flex shrink-0 flex-wrap items-center gap-2 border-b border-border-subtle px-3 py-2 text-[10px]"
+          data-testid="whiteboard-layers"
+        >
+          <span className="text-text-tertiary font-semibold uppercase tracking-wide">
+            {lang === 'el' ? 'Επίπεδα' : 'Layers'}
+          </span>
+          {doc.layers.map((layer) => {
+            const active = layer.id === doc.activeLayerId;
+            const strokeCount = doc.strokes.filter((s) => s.layerId === layer.id).length;
+            return (
+              <div
+                key={layer.id}
+                className={cn(
+                  'flex items-center gap-1 rounded-lg border px-2 py-1',
+                  active ? 'border-brand-500/40 bg-brand-600/10' : 'border-border-subtle bg-surface-primary/40',
+                )}
+              >
+                <button
+                  type="button"
+                  data-testid={`whiteboard-layer-${layer.id}`}
+                  onClick={() => setDoc((d) => ({ ...d, activeLayerId: layer.id }))}
+                  className="font-medium text-text-secondary hover:text-brand-300"
+                >
+                  {layer.name}
+                  <span className="ml-1 text-text-muted">({strokeCount})</span>
+                </button>
+                <button type="button" onClick={() => toggleLayerVisibility(layer.id)} className="text-text-muted hover:text-text-secondary">
+                  {layer.visible ? <Eye className="w-3 h-3" /> : <EyeOff className="w-3 h-3" />}
+                </button>
+                <button type="button" onClick={() => toggleLayerLock(layer.id)} className="text-text-muted hover:text-text-secondary">
+                  {layer.locked ? <Lock className="w-3 h-3 text-accent-amber" /> : <Unlock className="w-3 h-3" />}
+                </button>
+              </div>
+            );
+          })}
+          <button
+            type="button"
+            data-testid="whiteboard-layer-add"
+            onClick={addLayer}
+            className="inline-flex items-center gap-1 rounded-lg border border-dashed border-border-subtle px-2 py-1 text-text-muted hover:border-brand-500/30 hover:text-brand-300"
+          >
+            <Plus className="w-3 h-3" />
+            {lang === 'el' ? 'Νέο' : 'Add'}
+          </button>
+        </div>
+      )}
 
       <div className="flex shrink-0 flex-wrap items-center gap-3 border-b border-border-subtle px-3 py-2 text-[10px]">
         <span className="text-text-tertiary">Color</span>
@@ -329,7 +596,10 @@ export function StudyWhiteboard({
       <div ref={containerRef} className="relative min-h-0 flex-1 p-2">
         <canvas
           ref={canvasRef}
-          className="touch-none rounded-xl border border-border-subtle w-full"
+          className={cn(
+            'touch-none rounded-xl border border-border-subtle w-full',
+            activeLayerLocked && 'cursor-not-allowed opacity-90',
+          )}
           onPointerDown={onDown}
           onPointerMove={onMove}
           onPointerUp={onUp}

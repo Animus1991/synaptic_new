@@ -3,6 +3,7 @@ import {
   extractComparisons,
   buildQuizFromNotes,
   rankDistractorTerms,
+  notesSupportSandbox,
 } from './noteContentExtractors';
 import { isMcQuiz, quizKind } from './lessonTypes';
 import type { GlossaryEntry } from '../types';
@@ -123,5 +124,20 @@ describe('rankDistractorTerms', () => {
     // The two regression-flavored terms should rank above the biology terms.
     expect(distractors).toContain('Logistic regression');
     expect(distractors).toContain('Ridge regression');
+  });
+});
+
+describe('notesSupportSandbox — D9 guard', () => {
+  it('is enabled by explicit formulas, not by hardcoded economics vocabulary', () => {
+    expect(notesSupportSandbox('Ed = %ΔQ / %ΔP', 'elasticity', [{ id: 'f1', name: 'Elasticity', formula: 'Ed = %ΔQ / %ΔP' }])).toBe(true);
+    expect(notesSupportSandbox('The mitochondria is the powerhouse of the cell.', 'photosynthesis', [])).toBe(false);
+  });
+
+  it('does not rely on hardcoded economics terms in the concept', () => {
+    expect(notesSupportSandbox('Any text', 'supply and demand', [])).toBe(false);
+  });
+
+  it('is enabled by generic quantitative cues in the excerpt', () => {
+    expect(notesSupportSandbox('Calculate the range of values for this parameter.', 'variables', [])).toBe(true);
   });
 });

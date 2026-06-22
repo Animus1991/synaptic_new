@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   X, Upload, FileText, Image, Code, Presentation,
@@ -20,6 +20,8 @@ interface UploadModalProps {
   onUploadComplete?: (course: Course) => void;
   onProceed: () => void;
   courses?: Course[];
+  defaultUploadMode?: 'new' | 'extend';
+  defaultTargetCourseId?: string;
 }
 
 const acceptedFormats = [
@@ -32,8 +34,19 @@ const acceptedFormats = [
 ];
 
 type SourceMode = 'strict' | 'enriched' | 'notes-only';
+type UploadMode = 'new' | 'extend';
 
-export function UploadModal({ isOpen, onClose, onUpload, onProcessUpload, onUploadComplete, onProceed, courses = [] }: UploadModalProps) {
+export function UploadModal({
+  isOpen,
+  onClose,
+  onUpload,
+  onProcessUpload,
+  onUploadComplete,
+  onProceed,
+  courses = [],
+  defaultUploadMode = 'new',
+  defaultTargetCourseId,
+}: UploadModalProps) {
   const [dragActive, setDragActive] = useState(false);
   const [files, setFiles] = useState<File[]>([]);
   const [pastedContent, setPastedContent] = useState('');
@@ -43,9 +56,10 @@ export function UploadModal({ isOpen, onClose, onUpload, onProcessUpload, onUplo
   const [youtubeUrl, setYoutubeUrl] = useState('');
   const [focusTags, setFocusTags] = useState<string[]>(['Deep understanding']);
   const [examDate, setExamDate] = useState('');
-  const [uploadMode, setUploadMode] = useState<'new' | 'extend'>('new');
+  const [uploadMode, setUploadMode] = useState<UploadMode>('new');
   const [targetCourseId, setTargetCourseId] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const wasOpenRef = useRef(false);
 
   const extendableCourses = courses.filter((c) => !isDemoCourse(c.id));
 
@@ -72,17 +86,36 @@ export function UploadModal({ isOpen, onClose, onUpload, onProcessUpload, onUplo
     setFiles(prev => prev.filter((_, i) => i !== index));
   };
 
-  const resetForm = () => {
+  const resolveDefaultUploadMode = useCallback((): UploadMode => {
+    if (
+      defaultUploadMode === 'extend'
+      && defaultTargetCourseId
+      && extendableCourses.some((course) => course.id === defaultTargetCourseId)
+    ) {
+      return 'extend';
+    }
+    return 'new';
+  }, [defaultTargetCourseId, defaultUploadMode, extendableCourses]);
+
+  const resetForm = useCallback(() => {
     setStep('upload');
     setFiles([]);
     setPastedContent('');
     setYoutubeUrl('');
     setFocusTags(['Deep understanding']);
     setExamDate('');
-    setUploadMode('new');
-    setTargetCourseId('');
+    const nextUploadMode = resolveDefaultUploadMode();
+    setUploadMode(nextUploadMode);
+    setTargetCourseId(nextUploadMode === 'extend' ? (defaultTargetCourseId ?? '') : '');
     setProcessingError(null);
-  };
+  }, [defaultTargetCourseId, resolveDefaultUploadMode]);
+
+  useEffect(() => {
+    if (isOpen && !wasOpenRef.current) {
+      resetForm();
+    }
+    wasOpenRef.current = isOpen;
+  }, [isOpen, resetForm]);
 
   const handleProceed = async () => {
     const payload: UploadPayload = {
@@ -356,7 +389,7 @@ export function UploadModal({ isOpen, onClose, onUpload, onProcessUpload, onUplo
                 <div className="p-3 rounded-xl bg-surface-hover/50 border border-border-subtle">
                   <p className="text-xs text-text-secondary flex items-start gap-2">
                     <AlertCircle className="w-4 h-4 text-brand-400 shrink-0 mt-0.5" />
-                    The AI will extract topics, concepts, prerequisites, definitions, examples, and exercises from your material and build a structured adaptive course.
+                    The generator stores course-level source quality, adapts topic splitting when notes are sparse, and flags when more material is needed before deep study.
                   </p>
                 </div>
               </>
@@ -387,14 +420,14 @@ export function UploadModal({ isOpen, onClose, onUpload, onProcessUpload, onUplo
                 </div>
                 <h3 className="text-lg font-semibold mb-2">AI is analyzing your material</h3>
                 <p className="text-sm text-text-secondary mb-6 max-w-sm mx-auto">
-                  Extracting topics, concepts, prerequisites, and building your personalized course...
+                  Extracting grounded concepts, scoring source density, and shaping your course before the workspace opens...
                 </p>
                 <div className="space-y-3 max-w-xs mx-auto text-left">
                   {[
                     { label: 'Reading document structure', done: true },
                     { label: 'Extracting key concepts', done: true },
-                    { label: 'Mapping prerequisites', done: false },
-                    { label: 'Generating learning path', done: false },
+                    { label: 'Scoring source quality', done: false },
+                    { label: 'Adapting module density', done: false },
                     { label: 'Creating exercises & quizzes', done: false },
                   ].map((step, i) => (
                     <div key={i} className="flex items-center gap-2 text-sm">

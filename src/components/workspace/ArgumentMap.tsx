@@ -1,7 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { GitCommit, Plus, Pencil } from 'lucide-react';
+import { GitCommit, Plus, Pencil, BookOpen, Shield } from 'lucide-react';
+import { cn } from '../../utils/cn';
 import { saveJson } from '../../lib/persistence';
+import { suggestCounterArguments } from '../../lib/debateCounterArgs';
+import { buildRebuttalGraph } from '../../lib/debateRebuttalGraph';
 import { WorkspaceEmptyState } from './WorkspaceEmptyState';
 
 export type ArgNodeType = 'claim' | 'premise' | 'support' | 'refutation';
@@ -44,15 +47,40 @@ function addChild(node: ArgNode, parentId: string, child: ArgNode): ArgNode {
   return { ...node, children: node.children.map((c) => addChild(c, parentId, child)) };
 }
 
+function findNode(node: ArgNode, id: string): ArgNode | null {
+  if (node.id === id) return node;
+  for (const c of node.children ?? []) {
+    const hit = findNode(c, id);
+    if (hit) return hit;
+  }
+  return null;
+}
+
 interface Props {
   tree?: ArgNode | null;
   storageKey?: string;
   concept?: string;
   emptyMessage?: string;
   onUpload?: () => void;
+  /** Open reader highlighted at this claim/premise text in source notes. */
+  onOpenInReader?: (claimText: string) => void;
+  /** Grounded source for counter-argument suggestions. */
+  sourceText?: string;
+  focusTerm?: string;
+  lang?: 'en' | 'el';
 }
 
-export function ArgumentMap({ tree, storageKey = 'debate-tree', concept, emptyMessage, onUpload }: Props) {
+export function ArgumentMap({
+  tree,
+  storageKey = 'debate-tree',
+  concept,
+  emptyMessage,
+  onUpload,
+  onOpenInReader,
+  sourceText = '',
+  focusTerm,
+  lang = 'en',
+}: Props) {
   const [root, setRoot] = useState<ArgNode | null>(tree ?? null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [draft, setDraft] = useState('');
@@ -86,18 +114,37 @@ export function ArgumentMap({ tree, storageKey = 'debate-tree', concept, emptyMe
     setEditingId(null);
   };
 
-  const addNode = (parentId: string) => {
+  const addNode = (parentId: string, type: ArgNodeType = 'support', text?: string) => {
     const id = `n-${Date.now()}`;
     const child: ArgNode = {
       id,
-      type: 'support',
-      text: 'New argument point',
+      type,
+      text: text ?? (type === 'refutation'
+        ? (lang === 'el' ? 'Αντίθετο επιχείρημα' : 'Counter-argument')
+        : 'New argument point'),
       x: 300 + Math.random() * 80,
       y: 280 + Math.random() * 40,
     };
     persist(addChild(root, parentId, child));
     startEdit(child);
   };
+
+  const addCounterFromNotes = (parentId: string) => {
+    const parent = findNode(root, parentId);
+    const claim = parent?.text ?? concept ?? '';
+    const suggestions = sourceText.trim()
+      ? suggestCounterArguments(sourceText, focusTerm ?? concept ?? '', claim)
+      : [];
+    addNode(parentId, 'refutation', suggestions[0] ?? undefined);
+  };
+
+  const counterSuggestions = useMemo(() => {
+    if (!sourceText.trim() || !concept) return [];
+    const claim = root.text;
+    return suggestCounterArguments(sourceText, focusTerm ?? concept, claim, 2);
+  }, [sourceText, concept, focusTerm, root.text]);
+
+  const rebuttalGraph = useMemo(() => buildRebuttalGraph(root), [root]);
 
   const renderEdges = (node: ArgNode): React.ReactNode => {
     if (!node.children || !node.expanded) return null;
@@ -141,11 +188,30 @@ export function ArgumentMap({ tree, storageKey = 'debate-tree', concept, emptyMe
             <>
               <span>{node.text}</span>
               <div className="absolute -bottom-7 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                {onOpenInReader && node.text.trim().length > 8 && (
+                  <button
+                    type="button"
+                    title={lang === 'el' ? 'Άνοιγμα στον αναγνώστη' : 'Read in source'}
+                    onClick={() => onOpenInReader(node.text)}
+                    className="p-1 rounded bg-surface-primary/80 border border-border-subtle text-accent-cyan"
+                  >
+                    <BookOpen className="w-3 h-3" />
+                  </button>
+                )}
                 <button type="button" onClick={() => startEdit(node)} className="p-1 rounded bg-surface-primary/80 border border-border-subtle">
                   <Pencil className="w-3 h-3" />
                 </button>
-                <button type="button" onClick={() => addNode(node.id)} className="p-1 rounded bg-surface-primary/80 border border-border-subtle">
+                <button type="button" onClick={() => addNode(node.id, 'support')} className="p-1 rounded bg-surface-primary/80 border border-border-subtle">
                   <Plus className="w-3 h-3" />
+                </button>
+                <button
+                  type="button"
+                  data-testid="debate-add-counter"
+                  title={lang === 'el' ? 'Αντίθετο από σημειώσεις' : 'Counter from notes'}
+                  onClick={() => addCounterFromNotes(node.id)}
+                  className="p-1 rounded bg-surface-primary/80 border border-accent-rose/40 text-accent-rose"
+                >
+                  <Shield className="w-3 h-3" />
                 </button>
               </div>
             </>
@@ -169,7 +235,46 @@ export function ArgumentMap({ tree, storageKey = 'debate-tree', concept, emptyMe
           <GitCommit className="w-4 h-4 text-accent-cyan" />
           Debate Tree{concept ? ` — ${concept}` : ''}
         </span>
-        <span className="text-[10px] text-text-muted">Click node to edit · + to add branch</span>
+        <span className="text-[10px] text-text-muted">
+          {lang === 'el' ? 'Επεξεργασία · + υποστήριξη · 🛡 αντίθετο' : 'Edit · + support · 🛡 counter'}
+        </span>
+      </div>
+      {counterSuggestions.length > 0 && (
+        <div className="shrink-0 border-b border-border-subtle bg-accent-rose/5 px-4 py-2 text-[10px] text-text-secondary">
+          <span className="font-semibold text-accent-rose">{lang === 'el' ? 'Προτεινόμενα αντίθετα:' : 'Suggested counters:'}</span>
+          {' '}
+          {counterSuggestions.map((s, i) => (
+            <button
+              key={i}
+              type="button"
+              className="ml-1 underline hover:text-accent-rose"
+              onClick={() => addNode(root.id, 'refutation', s)}
+            >
+              {s.slice(0, 48)}{s.length > 48 ? '…' : ''}
+            </button>
+          ))}
+        </div>
+      )}
+      <div
+        className="mx-4 mb-2 rounded-xl border border-border-subtle bg-surface-card p-3"
+        data-testid="debate-rebuttal-graph"
+      >
+        <p className="text-[10px] font-semibold text-text-muted mb-2">
+          {lang === 'el' ? 'Rebuttal graph' : 'Rebuttal graph'} · {rebuttalGraph.edges.length} {lang === 'el' ? 'συνδέσεις' : 'edges'}
+        </p>
+        <div className="flex flex-wrap gap-1.5 max-h-20 overflow-y-auto">
+          {rebuttalGraph.edges.map((e, i) => (
+            <span
+              key={i}
+              className={cn(
+                'rounded-full px-2 py-0.5 text-[9px] font-medium border',
+                e.kind === 'rebuts' ? 'border-accent-rose/40 text-accent-rose bg-accent-rose/10' : 'border-accent-emerald/40 text-accent-emerald bg-accent-emerald/10',
+              )}
+            >
+              {e.label}: {rebuttalGraph.nodes.find((n) => n.id === e.fromId)?.text.slice(0, 24)}…
+            </span>
+          ))}
+        </div>
       </div>
       <div className="relative flex-1 cursor-grab overflow-auto bg-surface-primary active:cursor-grabbing">
         <div className="relative h-[600px] w-[800px]">

@@ -11,6 +11,8 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
+    "eval": "vitest run src/eval",
+    "doc-lint": "node scripts/doc-lint.mjs",
     "build": "npm run typecheck:all && vite build",
     "build:fast": "vite build",
     "preview": "vite preview",
@@ -19,6 +21,7 @@
   "dependencies": {
     "@codemirror/lang-python": "^6.2.1",
     "@uiw/react-codemirror": "^4.25.10",
+    "@xenova/transformers": "^2.17.2",
     "clsx": "2.1.1",
     "framer-motion": "^12.40.0",
     "jszip": "^3.10.1",
@@ -30,6 +33,7 @@
     "pyodide": "^0.26.4",
     "react": "19.2.6",
     "react-dom": "19.2.6",
+    "react-resizable-panels": "^4.11.2",
     "tailwind-merge": "3.4.0",
     "tesseract.js": "^5.1.1"
   },

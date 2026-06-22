@@ -108,6 +108,7 @@ export function CommandPalette({ open, onClose, items, placeholder }: Props) {
           role="dialog"
           aria-modal="true"
           aria-label="Command palette"
+          data-testid="command-palette"
         >
           <motion.div
             initial={{ y: -8, opacity: 0 }}

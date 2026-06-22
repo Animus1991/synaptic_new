@@ -47,9 +47,9 @@ test.describe('YouTube upload flow', () => {
     await page.getByTestId('upload-generate').click();
 
     await expect(page.getByRole('heading', { name: 'AI is analyzing your material' })).toBeVisible();
-    await expect(page.getByTestId('library-course-card').first()).toBeVisible({ timeout: 45_000 });
+    await expect(page.getByTestId('course-generation-diagnostics')).toBeVisible({ timeout: 45_000 });
 
-    const title = page.getByTestId('library-course-title').first();
+    const title = page.getByTestId('course-title');
     await expect(title).not.toHaveText('');
     await expect(title).toContainText(/supply|demand|elastic/i);
   });

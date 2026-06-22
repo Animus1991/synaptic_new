@@ -1,8 +1,9 @@
 # Synapse Learning
 
 Note-grounded adaptive learning platform: upload your material, get a
-structured course, study in an 11-tool workspace, and practice with tasks
-derived from your own content — not demo templates.
+structured course with source-quality diagnostics, review it before study, and
+work inside an 11-tool workspace grounded in your own content — not demo
+templates.
 
 ## Quick start
 
@@ -34,7 +35,8 @@ Open [http://localhost:5173](http://localhost:5173).
 ## Optional: LLM proxy + sync server (Phase 6)
 
 For grounded lesson generation, embeddings, Agent chat, library + session
-sync, and Stripe billing without exposing API keys in the browser:
+sync, Stripe billing, OCR, NLP enrichment, and optional server-side RAG
+without exposing API keys in the browser:
 
 ```bash
 cd server
@@ -51,16 +53,21 @@ full endpoint contract.
 
 ## Core workflow
 
-1. **Upload** notes (PDF, PPTX, DOCX, TXT, Markdown, YouTube URL) via
+1. **Upload** notes (PDF, PPTX, DOCX, TXT, Markdown, images / scanned PDFs,
+   YouTube URL) via
    **Upload Material**.
 2. **Content pipeline** extracts text (PDFs use `\f` page separators for
-   citations), builds an outline (offline engine or LLM), and creates a
-   course + glossary + tasks.
-3. **Tasks** are generated from the course outline (lessons, review,
-   practice, exam prep).
-4. **Study Workspace** and **LessonView** ground all 11 tools in uploaded
+   citations), runs OCR when needed, builds an outline (offline engine or
+   LLM), scores course-level source quality, and adaptively compacts
+   over-split outlines before creating the course + glossary + tasks.
+3. **Course review** opens first after generation so the learner can inspect
+   source quality, warnings, module density, and “needs more material”
+   diagnostics before entering the workspace.
+4. **Tasks** are generated from the final quality-adjusted course outline
+   (lessons, review, practice, exam prep).
+5. **Study Workspace** and **LessonView** ground all 11 tools in uploaded
    text (`hasSource` gate; never demo content unless explicitly enabled).
-5. **Agent** uses BM25 (+ optional embedding rerank) over your uploads for
+6. **Agent** uses BM25 (+ optional embedding rerank) over your uploads for
    citations.
 
 Demo showcase courses (Microeconomics, Python, etc.) are **hidden by
@@ -106,7 +113,8 @@ Session backup exports all `synapse:*` keys from Settings. Full key list in
 - [`AGENT_RAG.md`](AGENT_RAG.md) — BM25 + embeddings + source modes.
 - [`PERSISTENCE.md`](PERSISTENCE.md) — keys, scoping, sync.
 - [`API.md`](API.md), [`server/README.md`](server/README.md) — server
-  contract.
+  contract, including auth refresh/reset, OCR, NLP, RAG, and teacher
+  endpoints.
 - [`DEPLOYMENT.md`](DEPLOYMENT.md) — frontend + server hosting.
 - [`SECURITY.md`](SECURITY.md) — threat model + production checklist.
 - [`TESTING.md`](TESTING.md) — Vitest + Playwright + smoke checklist.

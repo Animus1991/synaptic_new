@@ -10,11 +10,14 @@ UploadModal → processUpload()  [in src/store/useStore.ts]
   → generateCourseOutline() [LLM, if proxy/key]
   → analyzeContentToOutlineAsync() [offline; embedding-cluster topics when embeddings available]
   → analyzeContentToOutline() [offline; deterministic lexical fallback]
+  → analyzeCourseSourceQuality() [course-level grounding / density / warning signals]
+  → adaptOutlineToSourceQuality() [adaptive topic splitting / compaction]
   → buildCourseFromOutline() | mergeOutlineIntoCourse() [extend mode]
   → buildConceptSpans() [sentence-level source provenance]
   → mergeCourseTasks()
   → skill nodes + beta mastery init
   → persistLibrary()
+  → CourseView diagnostics before Study Workspace
 ```
 
 ## Offline engine (`contentAnalysis.ts`)
@@ -30,6 +33,22 @@ UploadModal → processUpload()  [in src/store/useStore.ts]
 - Used when `useLlm !== false` and proxy/key available
 - Richer topics, objectives, glossary
 
+## Course-level source quality (`courseSourceQuality.ts`)
+
+- `analyzeCourseSourceQuality(text, outline)` scores the generated course on:
+  word count, section count, definition density, glossary breadth, keyphrase
+  breadth, formulas, comparisons, worked-example signals, and average
+  concepts/topic.
+- Produces `Course.sourceQuality` with:
+  `score`, `band`, `needsMoreMaterial`, `warnings`, `nextActions`,
+  `recommendedTopicCount`, `detectedTopicCount`, `finalTopicCount`, and
+  `outlineAdjusted`.
+- `adaptOutlineToSourceQuality(outline, quality)` compacts neighboring topics
+  when the source is too sparse for the generated topic count, so the course is
+  shaped before the learner ever opens the workspace.
+- Extend mode recomputes the quality signal on the merged course, not just on
+  the delta upload, so the course-level metadata stays representative.
+
 ## Source modes
 
 | Mode | Behavior |
@@ -41,6 +60,10 @@ UploadModal → processUpload()  [in src/store/useStore.ts]
 ## Incremental upload
 
 Upload modal → **Extend existing course** → `mergeOutlineIntoCourse()` merges topics/glossary by normalized title.
+
+After every successful upload, the learner lands on **CourseView** first.
+Weak/sparse courses expose warnings and an **Add Material** path so the next
+upload can strengthen the same course before deep study.
 
 ## Limitations
 

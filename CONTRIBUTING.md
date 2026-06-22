@@ -112,7 +112,10 @@ updates mastery should:
 
 - Be deterministic given its inputs (no `Math.random` without a seed).
 - Not depend on a specific subject (no hardcoded economics/Cournot/Bertrand
-  vocabulary on the production path — see `feynmanRubric.ts` for the pattern).
+  vocabulary on the production path — see `feynmanRubric.ts` for the pattern, and
+  `uploadPipeline.ts` / `uploadPipeline.test.ts` for the D9 cautionary example:
+  a hardcoded `TOPIC_KEYWORDS` fallback that defaulted to Economics was removed
+  and is now guarded by regression tests).
 - Cite its sources (RAG hits return citations like `p.X` / `¶X`; concept
   edges record the sentences they were inferred from).
 - Have a unit test covering the math (see `formulaSolver.test.ts`,

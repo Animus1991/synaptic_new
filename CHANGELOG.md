@@ -7,11 +7,41 @@ client and server are versioned together.
 
 ### Added
 
+- **Concept bus backend sync** — `conceptBuses` and `stepSchedules` travel through
+  `GET/PUT /v1/session` (JSONB-safe additive fields). Client merge via
+  `conceptBusSync.ts`; pull enriches `weakAreas`, `spacingIntervals`, and
+  `reviewsDue` from cross-tool struggle + spaced step due counts.
+  and quick actions above the tool pane (`WorkspaceDiscoverabilityPanel`,
+  `workspaceDiscoverability.ts`).
+- **W8 — Quiz session** — multi-item flow with 1–5 confidence rating and per-task
+  persistence (`quizSession.ts`, `WorkspaceQuizSession`).
+- **W8 — Feynman** — speech-to-text input and rubric-based auto-gap detection with
+  Reader deep-links (`feynmanVoice.ts`, `feynmanGapDetect.ts`).
+- **W8 — Debate** — interactive rebuttal graph from claim tree (`debateRebuttalGraph.ts`).
+- **W8 — Concept map** — collaborative cursor overlay via SSE
+  (`conceptMapCursorSync.ts`, `POST/GET /v1/concept-map/cursors`).
+- **W8 — Reader** — OCR overlay regions for scanned uploads (`readerOcrOverlay.ts`).
+
+### Added (prior unreleased batches W4–W7)
+
+- **Phase W4–W7 workspace upgrades** — bilingual reader sync, compare sort/diff/CSV,
+  whiteboard layers + LaTeX stamps, Feynman rubric export, debate counter-args,
+  spaced scheduling, annotation SSE, Leitner heatmap, scratchpad graph, timer .ics,
+  quiz IRT, sandbox sensitivity heatmap, command palette macros.
+
+### Added
+
 - **Documentation sweep** — new `API.md`, `ALGORITHMS.md`, `SECURITY.md`,
-  `CONTRIBUTING.md`, `CHANGELOG.md`. Existing docs (`ROADMAP.md`,
-  `ARCHITECTURE.md`, `CONTENT_PIPELINE.md`, `PERSISTENCE.md`,
-  `DEPLOYMENT.md`, `TESTING.md`, `server/README.md`) updated to match
-  shipped behavior.
+  `CONTRIBUTING.md`, `CHANGELOG.md`, `EXHAUSTIVE_PRODUCT_SCALE_BLUEPRINT.md`.
+  Existing docs (`ROADMAP.md`, `ARCHITECTURE.md`, `CONTENT_PIPELINE.md`,
+  `PERSISTENCE.md`, `DEPLOYMENT.md`, `TESTING.md`, `STUDY_WORKSPACE.md`,
+  `server/README.md`) updated to match shipped behavior.
+- **Server OCR endpoint** — `POST /v1/ocr/pages` (Tesseract over client-rendered page images) for scanned PDFs and image uploads.
+- **Server NLP entities endpoint** — `POST /v1/nlp/entities` for hybrid rule + LLM entity extraction.
+- **Server semantic RAG endpoint** — `POST /v1/rag/query` for cosine-ranked retrieval over client-supplied chunks.
+- **Server teacher dashboard endpoint** — `GET /v1/teacher/dashboard` for course/file/topic + usage aggregates.
+- **Server refresh / password-reset tokens** — `POST /auth/refresh`, `/auth/forgot-password`, `/auth/reset-password` with hashed, revocable, TTL-bound tokens.
+- **Server rate limiting** — sliding-window per-account/IP RPM cap on `/v1/*` routes.
 - **`src/lib/identity.ts`** — production-safe user identity helper
   (`buildInitialUser`, `applyAuthIdentity`, `levelFromXp`,
   `nameFromEmail`).
@@ -21,13 +51,23 @@ client and server are versioned together.
 - **`src/lib/formulaSolver.test.ts`** — 14 Vitest cases covering arithmetic,
   unary minus, scientific notation, trig/log/sqrt, constants, and error
   paths.
-- **`src/lib/noteContentExtractors.test.ts`** — 6 Vitest cases covering
+- **`src/lib/noteContentExtractors.test.ts`** — 7 Vitest cases covering
   Markdown-table comparison parsing, quiz `correctIndex` correctness,
   deterministic option ordering, distinct correct positions across
   concepts, and near-miss distractor ranking.
 - **`src/lib/contentAnalysis.test.ts`** — extended with biased-TextRank,
   MMR redundancy filtering, and Bloom-aware objective tests (10 cases
   total).
+- **`src/lib/courseSourceQuality.ts`** β€” new upstream course-quality scoring
+  layer that stores course-level source signals, emits “needs more material”
+  warnings, and adaptively compacts over-split outlines before course
+  creation.
+- **`src/lib/courseSourceQuality.test.ts`** β€” targeted coverage for sparse
+  uploads, adaptive topic compaction, and richer material that preserves the
+  outline without compression.
+- **`src/lib/workspaceNoteContent.test.ts`** β€” 2 Vitest cases covering
+  end-to-end Study Workspace source-intelligence scoring on both rich and
+  sparse note material.
 - **Mobile workspace** — single-pane stacking and a top-bar pane-swap toggle
   in `StudyWorkspace.tsx`.
 - **Keyboard shortcuts** — `1`–`0` switch tools, `L`/`T`/`S` rotate layout,
@@ -42,6 +82,23 @@ client and server are versioned together.
 
 ### Changed
 
+- **Documentation reconciliation pass** — `README.md`, `ARCHITECTURE.md`,
+  `TESTING.md`, `SECURITY.md`, `DEPLOYMENT.md`, `ROADMAP.md`, and
+  `server/README.md` now reflect the shipped OCR, NLP, semantic RAG,
+  refresh/reset auth flows, built-in `/v1/*` rate limiting, teacher
+  aggregate endpoint, current quota defaults, and the expanded Vitest
+  inventory (12 files / 59 tests) plus the current Playwright spec count (2).
+- **Upload/course-generation flow** β€” successful uploads now land on
+  `CourseView` first instead of jumping directly into `StudyWorkspace`, so the
+  learner can inspect generation diagnostics, topic compaction, and “needs
+  more material” warnings before starting.
+- **Course assembly pipeline** now stores `Course.sourceQuality`, lets sparse
+  material reduce fallback topic counts, and recomputes quality after extend
+  uploads so the course metadata evolves with the source corpus.
+- **Study Workspace source intelligence** β€” `workspaceNoteContent.ts` now
+  computes a bundle-level grounding score, strengths/gaps, next actions, and
+  a capped-signal recommended tool so the active concept surfaces its real
+  source quality instead of relying only on raw extractor counts.
 - **Summarizer** rewritten as **biased TextRank with MMR** — topic-aware
   teleport vector (sentences mentioning the title/key concepts attract
   rank mass), mild lead bias, and Maximal Marginal Relevance reranker so
@@ -56,6 +113,10 @@ client and server are versioned together.
   Markdown tables (`parseMarkdownTables` emits `(dim, col_i, col_j)`
   rows); **(2)** "X vs Y" / "compared to" / "ενώ" sentence patterns;
   **(3)** glossary + definition fallback.
+- **Fallback subject inference** is now more conservative: it classifies by
+  distinct matched domain terms instead of raw repeated-token counts, and
+  falls back to `General Studies` when evidence is weak or tied across
+  subjects.
 - **Debate-tree mining** now scores each sentence on three independent
   axes (claim / support / refute) using rich connective + modality cues
   (e.g. `because`, `for example`, `studies show` for support; `however`,

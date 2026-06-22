@@ -10,11 +10,14 @@ flowchart LR
   Extract --> Outline{LLM available?}
   Outline -->|yes| LLM[generateCourseOutline]
   Outline -->|no| Offline[analyzeContentToOutline]
-  LLM --> Build[buildCourseFromOutline]
-  Offline --> Build
+  LLM --> Quality[analyzeCourseSourceQuality]
+  Offline --> Quality
+  Quality --> Adapt[adaptOutlineToSourceQuality]
+  Adapt --> Build[buildCourseFromOutline]
   Build --> Tasks[mergeCourseTasks]
   Build --> Persist[synapse:library-v1 + IndexedDB]
-  Persist --> Workspace[Study Workspace]
+  Persist --> Review[CourseView diagnostics]
+  Review --> Workspace[Study Workspace]
   Persist --> Lesson[LessonView]
   Persist --> TaskFlows[Review / Exam / Prereq]
   Persist --> Agent[RAG + citations]
@@ -26,8 +29,10 @@ flowchart LR
 
 | Module | Role |
 | ------ | ---- |
-| `uploadPipeline.ts` | File read (PDF/DOCX/TXT/MD), `processUpload`, course assembly |
+| `src/store/useStore.ts` | `processUpload` orchestrator: extract → outline → course → tasks → persistence |
+| `uploadPipeline.ts` | File read (`extractFileContent`), course assembly helpers (`buildCourseFromOutline`, fallback builder) |
 | `contentAnalysis.ts` | Offline outline v2: sections, RAKE+TextRank, definitions, prerequisites |
+| `courseSourceQuality.ts` | Course-level source quality scoring, warnings, recommended topic budget, adaptive outline compaction |
 | `courseGenerator.ts` | LLM outline when proxy/API available |
 | `taskGenerator.ts` | Tasks from generated course topics |
 
@@ -38,10 +43,13 @@ Upload path: **UploadModal → `processUpload`** (not `simulateUpload`).
 ```
 extractedText
   → analyzeContentToOutline | generateCourseOutline
+  → analyzeCourseSourceQuality
+  → adaptOutlineToSourceQuality
   → buildCourseFromOutline
-  → Course { topics, lessons, glossary }
+  → Course { topics, lessons, glossary, sourceQuality }
   → mergeCourseTasks
   → persistLibrary
+  → CourseView review landing
 ```
 
 ## Study Workspace (11 tools)
@@ -59,7 +67,7 @@ Orchestrated by `workspaceNoteContent.ts` → `buildWorkspaceNoteBundle()`.
 | Timer | Local session timer |
 | Debate | `buildDebateTreeFromNotes` |
 | Reader | `relevantExcerpt` |
-| Scratchpad | `extractFormulas` + economics solvers (partial) |
+| Scratchpad | `extractFormulas` + generic `formulaSolver` |
 | Source / annotations | Per-file local annotations |
 
 All extractors live in `noteContentExtractors.ts`. Semantic step content uses `groundedLesson.ts` → `getNoteContentForLessonStep()`.
@@ -135,8 +143,13 @@ Express server in `server/` — JWT auth, OpenAI-compatible `/v1/chat/completion
 | Login / register / me | `/auth/*` | `authClient.ts`, `Settings.tsx` |
 | Library sync | `GET/PUT /v1/library` | `librarySync.ts`, `pullLibraryFromServer` / `pushLibraryToServer` |
 | Session sync | `GET/PUT /v1/session` | `sessionSync.ts`, `pull/pushSessionToServer`, auto-pull on login |
+| Token refresh / password reset | `/auth/refresh`, `/auth/forgot-password`, `/auth/reset-password` | `authClient.ts` (refresh), auth settings / recovery flows |
 | Billing | `POST /v1/billing/checkout`, `GET /v1/billing/status`, `POST /v1/billing/webhook` | `Settings.tsx` Upgrade buttons + redirect refresh |
 | YouTube | `GET /v1/youtube/transcript` | `youtubeTranscript.ts` invoked from `processUpload` |
+| OCR | `POST /v1/ocr/pages` | `ocrExtract.ts` proxy path for scanned PDFs / images |
+| NLP entities | `POST /v1/nlp/entities` | `entityExtract.ts` enrichment path when proxy is configured |
+| Semantic RAG (optional) | `POST /v1/rag/query` | Server path exists; current client default remains local BM25/hybrid retrieval |
+| Teacher aggregates | `GET /v1/teacher/dashboard` | Endpoint ships; dedicated teacher UI remains future work |
 | Admin | `GET /v1/admin/stats` | (Operator only — not exposed in UI) |
 
 Postgres tables (`accounts`, `account_libraries`, `account_sessions`) are versioned in `server/migrations/` and applied via `npm run migrate` or automatically with `RUN_MIGRATIONS_ON_START=true`.
@@ -146,16 +159,17 @@ See [server/README.md](server/README.md), [API.md](API.md), [SECURITY.md](SECURI
 ## Extension points (remaining)
 
 1. **Local offline embeddings** — drop the proxy/key dependency by shipping a transformers.js model.
-2. **OCR + audio pipelines** — extend `uploadPipeline` for image and audio sources (Tesseract/Whisper-WASM).
+2. **Audio / richer multimodal pipelines** — OCR for images + scanned PDFs already ships; extend ingestion to audio/Whisper, handwriting, math OCR, and richer figure extraction.
 3. **Server-side RAG index** — index synced uploads server-side for cross-device retrieval.
-4. **Refresh tokens / email verify / password reset** — auth lifecycle.
+4. **Email verification / auth hardening** — refresh + password-reset tokens already ship; remaining work is rotation UX, verification, OAuth, and stronger session controls.
 5. **Collaborative annotations + whiteboard** — multi-user shared state.
-6. **Teacher / class dashboard** — surface admin stats + per-student progress.
+6. **Teacher / class dashboard UI** — build the actual product surface on top of the shipped teacher aggregate endpoint.
 
 ## Key files index
 
 ```
 src/lib/contentAnalysis.ts          Offline outline engine (RAKE+TextRank, sections, prereqs)
+src/lib/courseSourceQuality.ts      Course-level source-quality scoring + adaptive topic compaction
 src/lib/noteContentExtractors.ts    Per-tool extractors + quiz + BM25 unified
 src/lib/workspaceNoteContent.ts     Workspace bundle assembler
 src/lib/taskFlowContent.ts          Review/exam/prereq from notes

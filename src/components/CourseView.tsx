@@ -3,26 +3,53 @@ import { motion } from 'framer-motion';
 import {
   ArrowLeft, BookOpen, Clock, BarChart3, Calendar, FileText,
   Lock, CheckCircle2, Circle, ChevronRight, Brain, Target,
-  AlertTriangle, Sparkles, Play, MapPin, Network
+  AlertTriangle, Sparkles, Play, MapPin, Network, Upload
 } from 'lucide-react';
-import type { Course, Topic } from '../types';
+import type { Course, Topic, UploadedFile, GlossaryEntry } from '../types';
 import { cn } from '../utils/cn';
 import { ConceptGraph } from './visuals/ConceptGraph';
 import { ProgressTimeline } from './visuals/DiagramGenerator';
 import { ReadinessRing } from './visuals/ReadinessRing';
+import { findConceptSpan } from '../lib/conceptProvenance';
+import { GoToSourceButton } from './GoToSourceButton';
 
 interface CourseViewProps {
   course: Course;
+  uploadedFiles?: UploadedFile[];
+  glossaryEntries?: GlossaryEntry[];
+  onGoToSource?: (highlight: { fileId: string; charStart: number; charEnd: number }) => void;
   onBack: () => void;
-  onStartLesson: () => void;
+  /** Open the Study Workspace. When a topic title is passed, the workspace opens
+   * focused on that concept; otherwise it resumes the course's default entry. */
+  onStartLesson: (topicTitle?: string) => void;
   onOpenAgent: () => void;
+  onUploadMore?: () => void;
+}
+
+/** Real per-topic lesson count: explicit lessons if present, else derived from
+ * the topic's concept density (2-6 micro-lessons). No placeholders. */
+function topicLessonCount(topic: Topic): number {
+  if (topic.lessons.length > 0) return topic.lessons.length;
+  const concepts = topic.keyConcepts?.length || topic.conceptCount || 0;
+  return Math.min(6, Math.max(2, Math.ceil(concepts / 2)));
 }
 
 type CourseTab = 'path' | 'map' | 'sources' | 'analytics';
 
-export function CourseView({ course, onBack, onStartLesson, onOpenAgent }: CourseViewProps) {
+export function CourseView({
+  course,
+  uploadedFiles = [],
+  glossaryEntries = [],
+  onGoToSource,
+  onBack,
+  onStartLesson,
+  onOpenAgent,
+  onUploadMore,
+}: CourseViewProps) {
   const [tab, setTab] = useState<CourseTab>('path');
   const progress = (course.completedLessons / Math.max(course.totalLessons, 1)) * 100;
+  const quality = course.sourceQuality;
+  const needsSourceUpgrade = Boolean(quality && (quality.needsMoreMaterial || quality.outlineAdjusted));
 
   return (
     <div className="p-4 sm:p-6 lg:px-8 pb-24 lg:pb-6 w-full min-w-0 space-y-6">
@@ -43,7 +70,7 @@ export function CourseView({ course, onBack, onStartLesson, onOpenAgent }: Cours
           <div className="flex items-start gap-4">
             <div className="text-4xl">{course.icon}</div>
             <div>
-              <h1 className="text-2xl sm:text-3xl font-bold">{course.title}</h1>
+              <h1 className="text-2xl sm:text-3xl font-bold" data-testid="course-title">{course.title}</h1>
               <p className="text-text-secondary mt-1 text-sm max-w-xl">{course.description}</p>
               <div className="flex flex-wrap items-center gap-3 mt-3 text-xs text-text-tertiary">
                 <span className="flex items-center gap-1">
@@ -69,6 +96,16 @@ export function CourseView({ course, onBack, onStartLesson, onOpenAgent }: Cours
           </div>
 
           <div className="flex gap-2 shrink-0">
+            {needsSourceUpgrade && onUploadMore && (
+              <button
+                onClick={onUploadMore}
+                data-testid="course-upload-more"
+                className="flex items-center gap-2 px-4 py-2.5 border border-accent-amber/30 bg-accent-amber/10 hover:bg-accent-amber/15 rounded-xl text-sm font-medium text-accent-amber transition-all"
+              >
+                <Upload className="w-4 h-4" />
+                Add Material
+              </button>
+            )}
             <button
               onClick={onOpenAgent}
               className="flex items-center gap-2 px-4 py-2.5 border border-border-default hover:border-brand-500/30 rounded-xl text-sm font-medium transition-all"
@@ -77,7 +114,8 @@ export function CourseView({ course, onBack, onStartLesson, onOpenAgent }: Cours
               Ask Agent
             </button>
             <button
-              onClick={onStartLesson}
+              onClick={() => onStartLesson()}
+              data-testid="course-open-workspace"
               className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-brand-600 to-brand-500 text-white rounded-xl text-sm font-medium hover:from-brand-500 hover:to-brand-400 transition-all"
             >
               <Play className="w-4 h-4" />
@@ -86,6 +124,76 @@ export function CourseView({ course, onBack, onStartLesson, onOpenAgent }: Cours
           </div>
         </div>
       </motion.div>
+
+      {quality && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.05 }}
+          data-testid="course-generation-diagnostics"
+          className={cn(
+            'rounded-2xl border p-5',
+            quality.band === 'strong'
+              ? 'border-accent-emerald/20 bg-accent-emerald/5'
+              : quality.band === 'moderate'
+                ? 'border-accent-cyan/20 bg-accent-cyan/5'
+                : 'border-accent-amber/20 bg-accent-amber/5',
+          )}
+        >
+          <div className="flex items-start justify-between gap-4 flex-wrap">
+            <div>
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className={cn(
+                  'inline-flex items-center gap-1 rounded-full px-2 py-1 text-[10px] font-semibold uppercase tracking-wide',
+                  quality.band === 'strong'
+                    ? 'bg-accent-emerald/12 text-accent-emerald'
+                    : quality.band === 'moderate'
+                      ? 'bg-accent-cyan/12 text-accent-cyan'
+                      : 'bg-accent-amber/12 text-accent-amber',
+                )}>
+                  {quality.needsMoreMaterial ? <AlertTriangle className="w-3 h-3" /> : <Sparkles className="w-3 h-3" />}
+                  {quality.needsMoreMaterial ? 'Needs More Material' : `${quality.band[0]!.toUpperCase()}${quality.band.slice(1)} Source`}
+                </span>
+                <span className="text-xs text-text-muted">Source quality {quality.score}/100</span>
+              </div>
+              <h2 className="mt-3 text-sm font-semibold">Generation diagnostics</h2>
+              <p className="mt-1 text-sm text-text-secondary max-w-3xl">
+                {quality.outlineAdjusted
+                  ? `The course outline was compacted to ${quality.finalTopicCount} modules so the source material stays grounded instead of being over-split.`
+                  : `The current material supports ${quality.finalTopicCount} grounded modules without needing outline compaction.`}
+              </p>
+            </div>
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              <div className="rounded-xl border border-white/10 bg-surface-primary/40 px-3 py-2">
+                <p className="text-text-muted">Detected topics</p>
+                <p className="mt-1 font-semibold">{quality.detectedTopicCount}</p>
+              </div>
+              <div className="rounded-xl border border-white/10 bg-surface-primary/40 px-3 py-2">
+                <p className="text-text-muted">Final topics</p>
+                <p className="mt-1 font-semibold">{quality.finalTopicCount}</p>
+              </div>
+              <div className="rounded-xl border border-white/10 bg-surface-primary/40 px-3 py-2">
+                <p className="text-text-muted">Sections</p>
+                <p className="mt-1 font-semibold">{quality.metrics.sectionCount}</p>
+              </div>
+              <div className="rounded-xl border border-white/10 bg-surface-primary/40 px-3 py-2">
+                <p className="text-text-muted">Worked signals</p>
+                <p className="mt-1 font-semibold">{quality.metrics.workedExampleCount + quality.metrics.formulaCount}</p>
+              </div>
+            </div>
+          </div>
+          {quality.warnings.length > 0 && (
+            <p className="mt-4 text-sm text-text-secondary">
+              <span className="font-semibold text-text-primary">Watch-outs:</span> {quality.warnings.join(' ')}
+            </p>
+          )}
+          {quality.nextActions.length > 0 && (
+            <p className="mt-2 text-sm text-text-secondary">
+              <span className="font-semibold text-text-primary">Best next upgrade:</span> {quality.nextActions[0]}
+            </p>
+          )}
+        </motion.div>
+      )}
 
       {/* Progress bar */}
       <motion.div
@@ -144,7 +252,7 @@ export function CourseView({ course, onBack, onStartLesson, onOpenAgent }: Cours
       {tab === 'path' && (
         <div className="space-y-4">
           {course.topics.map((topic, i) => (
-            <TopicCard key={topic.id} topic={topic} index={i} courseColor={course.color} onStart={onStartLesson} />
+            <TopicCard key={topic.id} topic={topic} index={i} courseColor={course.color} course={course} onGoToSource={onGoToSource} onStart={() => onStartLesson(topic.title)} />
           ))}
           {course.topics.length === 0 && (
             <div className="text-center py-16">
@@ -156,13 +264,27 @@ export function CourseView({ course, onBack, onStartLesson, onOpenAgent }: Cours
       )}
 
       {tab === 'map' && <ConceptMap course={course} />}
-      {tab === 'sources' && <SourceFiles course={course} />}
+      {tab === 'sources' && (
+        <SourceFiles
+          course={course}
+          uploadedFiles={uploadedFiles}
+          glossaryEntries={glossaryEntries}
+          onGoToSource={onGoToSource}
+        />
+      )}
       {tab === 'analytics' && <CourseAnalytics course={course} />}
     </div>
   );
 }
 
-function TopicCard({ topic, index, courseColor, onStart }: { topic: Topic; index: number; courseColor: string; onStart: () => void }) {
+function TopicCard({ topic, index, courseColor, course, onGoToSource, onStart }: {
+  topic: Topic;
+  index: number;
+  courseColor: string;
+  course: Course;
+  onGoToSource?: (highlight: { fileId: string; charStart: number; charEnd: number }) => void;
+  onStart: () => void;
+}) {
   const [expanded, setExpanded] = useState(false);
   const hasDetail = (topic.objectives?.length ?? 0) > 0 || (topic.keyConcepts?.length ?? 0) > 0;
   return (
@@ -202,7 +324,7 @@ function TopicCard({ topic, index, courseColor, onStart }: { topic: Topic; index
           <p className="text-xs text-text-tertiary mt-0.5">{topic.description}</p>
           <div className="flex items-center gap-3 mt-2 text-xs text-text-muted">
             <span>{topic.estimatedMinutes}m</span>
-            <span>{topic.lessons.length || '3-5'} lessons</span>
+            <span>{topicLessonCount(topic)} lessons</span>
             {topic.conceptCount > 0 && <span>{topic.conceptCount} concepts</span>}
             {topic.prerequisites.length > 0 && (
               <span className="flex items-center gap-1">
@@ -278,11 +400,24 @@ function TopicCard({ topic, index, courseColor, onStart }: { topic: Topic; index
                 <Brain className="w-3.5 h-3.5 text-accent-cyan" /> Key concepts
               </p>
               <div className="flex flex-wrap gap-1.5">
-                {topic.keyConcepts!.map((c, i) => (
-                  <span key={i} className="text-[11px] px-2 py-0.5 rounded-full bg-surface-hover border border-border-subtle text-text-secondary">
-                    {c}
-                  </span>
-                ))}
+                {topic.keyConcepts!.map((c, i) => {
+                  const span = onGoToSource ? findConceptSpan(course, c) : undefined;
+                  return span ? (
+                    <button
+                      key={i}
+                      onClick={() => onGoToSource!({ fileId: span.fileId, charStart: span.charStart, charEnd: span.charEnd })}
+                      title="Go to source"
+                      className="group flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-full bg-brand-500/10 border border-brand-500/30 text-brand-300 hover:bg-brand-500/20 transition-colors"
+                    >
+                      {c}
+                      <MapPin className="w-2.5 h-2.5 opacity-60 group-hover:opacity-100" />
+                    </button>
+                  ) : (
+                    <span key={i} className="text-[11px] px-2 py-0.5 rounded-full bg-surface-hover border border-border-subtle text-text-secondary">
+                      {c}
+                    </span>
+                  );
+                })}
               </div>
             </div>
           )}
@@ -327,53 +462,132 @@ function ConceptMap({ course }: { course: Course }) {
   );
 }
 
-function SourceFiles({ course }: { course: Course }) {
+function SourceFiles({
+  course,
+  uploadedFiles,
+  glossaryEntries,
+  onGoToSource,
+}: {
+  course: Course;
+  uploadedFiles: UploadedFile[];
+  glossaryEntries: GlossaryEntry[];
+  onGoToSource?: (highlight: { fileId: string; charStart: number; charEnd: number }) => void;
+}) {
+  const provenanceCount = course.conceptSpans?.length ?? 0;
   return (
-    <div className="rounded-2xl border border-border-subtle bg-surface-card p-6">
-      <h3 className="font-semibold mb-4 flex items-center gap-2">
-        <FileText className="w-5 h-5 text-brand-400" />
-        Source Files
-      </h3>
-      <div className="space-y-2">
-        {course.sourceFiles.map((file, i) => (
-          <div key={i} className="flex items-center gap-3 p-3 rounded-xl bg-surface-primary/50 border border-border-subtle">
-            <FileText className="w-5 h-5 text-text-tertiary shrink-0" />
-            <span className="text-sm font-medium flex-1">{file}</span>
-            <span className="text-xs text-text-muted">Analyzed</span>
-          </div>
-        ))}
+    <div className="space-y-6">
+      <div className="rounded-2xl border border-border-subtle bg-surface-card p-6">
+        <h3 className="font-semibold mb-4 flex items-center gap-2">
+          <FileText className="w-5 h-5 text-brand-400" />
+          Source Files
+        </h3>
+        <div className="space-y-2">
+          {(uploadedFiles.length > 0 ? uploadedFiles : course.sourceFiles.map((name) => ({ name } as UploadedFile))).map((file, i) => (
+            <div key={file.id ?? i} className="flex items-center gap-3 p-3 rounded-xl bg-surface-primary/50 border border-border-subtle flex-wrap">
+              <FileText className="w-5 h-5 text-text-tertiary shrink-0" />
+              <span className="text-sm font-medium flex-1 min-w-0 truncate">{file.name}</span>
+              {'ocrUsed' in file && file.ocrUsed && (
+                <span className="text-[10px] px-1.5 py-0.5 rounded bg-accent-cyan/10 text-accent-cyan">OCR</span>
+              )}
+              {'ingestMethod' in file && file.ingestMethod && (
+                <span className="text-[10px] text-text-muted">{file.ingestMethod}</span>
+              )}
+              <span className="text-xs text-text-muted">Analyzed</span>
+            </div>
+          ))}
+        </div>
+        {course.pipelineMeta && (
+          <p className="mt-3 text-[10px] text-text-muted">
+            Pipeline v{course.pipelineMeta.version} · {course.pipelineMeta.outlineSource} · {new Date(course.pipelineMeta.generatedAt).toLocaleString()}
+          </p>
+        )}
       </div>
-      <div className="mt-4 p-4 rounded-xl bg-surface-hover/50 border border-border-subtle">
-        <p className="text-xs text-text-tertiary mb-2 flex items-center gap-1.5">
-          <AlertTriangle className="w-3.5 h-3.5 text-accent-amber" />
-          Source Analysis Report
-        </p>
-        <ul className="text-xs text-text-secondary space-y-1">
-          <li>• All content is source-grounded from your uploaded materials</li>
-          <li>• 2 possible gaps detected in welfare economics coverage</li>
-          <li>• No contradictions found between sources</li>
-          <li>• External enrichment available for 4 topics</li>
-        </ul>
+
+      {glossaryEntries.length > 0 && (
+        <div className="rounded-2xl border border-border-subtle bg-surface-card p-6">
+          <h3 className="font-semibold mb-3 flex items-center gap-2">
+            <BookOpen className="w-5 h-5 text-accent-emerald" />
+            Glossary ({glossaryEntries.length})
+          </h3>
+          <ul className="space-y-2 max-h-64 overflow-y-auto">
+            {glossaryEntries.slice(0, 24).map((g) => {
+              const span = findConceptSpan(course, g.term);
+              return (
+                <li key={g.term} className="flex items-start justify-between gap-2 text-sm border-b border-border-subtle/50 pb-2">
+                  <div className="min-w-0">
+                    <span className="font-medium text-brand-300">{g.term}</span>
+                    <p className="text-xs text-text-tertiary mt-0.5 line-clamp-2">{g.definition}</p>
+                    {(g.relatedConcepts?.length ?? 0) > 0 && (
+                      <div className="flex flex-wrap gap-1 mt-1.5">
+                        {g.relatedConcepts!.slice(0, 4).map((rc) => (
+                          <span key={rc} className="text-[10px] px-1.5 py-0.5 rounded-full bg-surface-hover border border-border-subtle/60 text-text-muted">
+                            {rc}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  {span && onGoToSource && (
+                    <GoToSourceButton onClick={() => onGoToSource({
+                      fileId: span.fileId,
+                      charStart: span.charStart,
+                      charEnd: span.charEnd,
+                    })} />
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      )}
+
+      <div className="rounded-2xl border border-border-subtle bg-surface-card p-6">
+        <div className="mt-0 p-4 rounded-xl bg-surface-hover/50 border border-border-subtle">
+          <p className="text-xs text-text-tertiary mb-2 flex items-center gap-1.5">
+            <AlertTriangle className="w-3.5 h-3.5 text-accent-amber" />
+            Source Analysis Report
+          </p>
+          <ul className="text-xs text-text-secondary space-y-1">
+            <li>• {provenanceCount} concept spans linked to source sentences</li>
+            <li>• All content is source-grounded from your uploaded materials</li>
+            {course.sourceQuality?.warnings.slice(0, 2).map((w) => (
+              <li key={w}>• {w}</li>
+            ))}
+          </ul>
+        </div>
       </div>
     </div>
   );
 }
 
 function CourseAnalytics({ course }: { course: Course }) {
+  const maxMinutes = Math.max(...course.topics.map((t) => t.estimatedMinutes || 0), 1);
+  const totalConcepts = course.topics.reduce((s, t) => s + (t.conceptCount || 0), 0);
+  const masteredConcepts = course.topics.reduce(
+    (s, t) => s + Math.round((t.conceptCount || 0) * (t.mastery / 100)),
+    0,
+  );
+  const progressFraction = course.completedLessons / Math.max(course.totalLessons, 1);
+  const studiedHours = course.estimatedHours * progressFraction;
+  const baselineCph = totalConcepts / Math.max(course.estimatedHours, 1);
+  const actualCph = studiedHours > 0 ? masteredConcepts / studiedHours : 0;
+  const velocity = baselineCph > 0 && actualCph > 0 ? actualCph / baselineCph : 0;
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
       <div className="rounded-2xl border border-border-subtle bg-surface-card p-5">
         <h4 className="text-sm font-semibold mb-3">Study Time Distribution</h4>
+        <p className="text-[11px] text-text-tertiary mb-3">Estimated minutes per module, from the generated outline</p>
         <div className="space-y-2">
-          {course.topics.slice(0, 5).map(topic => (
+          {course.topics.slice(0, 6).map(topic => (
             <div key={topic.id} className="flex items-center gap-2">
               <span className="text-xs text-text-secondary w-24 truncate">{topic.title}</span>
               <div className="flex-1 bg-surface-hover rounded-full h-2">
                 <div
-                  className="h-2 rounded-full bg-brand-500"
-                  style={{ width: `${Math.random() * 80 + 20}%` }}
+                  className="h-2 rounded-full bg-brand-500 transition-all"
+                  style={{ width: `${Math.max(8, ((topic.estimatedMinutes || 0) / maxMinutes) * 100)}%` }}
                 />
               </div>
+              <span className="text-[10px] text-text-muted w-10 text-right">{topic.estimatedMinutes}m</span>
             </div>
           ))}
         </div>
@@ -398,15 +612,26 @@ function CourseAnalytics({ course }: { course: Course }) {
         </div>
       </div>
       <div className="rounded-2xl border border-border-subtle bg-surface-card p-5 sm:col-span-2">
-        <h4 className="text-sm font-semibold mb-3">Learning Velocity</h4>
-        <p className="text-xs text-text-secondary mb-4">How quickly you're acquiring new concepts relative to baseline</p>
-        <div className="flex items-center gap-4">
-          <div className="text-3xl font-bold text-accent-emerald">1.15×</div>
-          <div>
-            <p className="text-sm font-medium">Above average pace</p>
-            <p className="text-xs text-text-tertiary">You learn 15% faster than the baseline for this difficulty level</p>
+        <h4 className="text-sm font-semibold mb-3">Concept Coverage &amp; Pace</h4>
+        <p className="text-xs text-text-secondary mb-4">Mastered concepts relative to the {totalConcepts} concepts extracted from your material</p>
+        {masteredConcepts > 0 ? (
+          <div className="flex items-center gap-6 flex-wrap">
+            <div>
+              <div className="text-3xl font-bold text-accent-emerald">{masteredConcepts}<span className="text-base text-text-muted">/{totalConcepts}</span></div>
+              <p className="text-xs text-text-tertiary mt-1">concepts mastered</p>
+            </div>
+            {velocity > 0 && (
+              <div>
+                <div className={cn('text-3xl font-bold', velocity >= 1 ? 'text-accent-emerald' : 'text-accent-amber')}>{velocity.toFixed(2)}×</div>
+                <p className="text-xs text-text-tertiary mt-1">
+                  {velocity >= 1.05 ? 'Ahead of the expected pace' : velocity <= 0.95 ? 'Behind the expected pace' : 'On the expected pace'}
+                </p>
+              </div>
+            )}
           </div>
-        </div>
+        ) : (
+          <p className="text-sm text-text-tertiary">Start studying this course to see your concept mastery and pace.</p>
+        )}
       </div>
     </div>
   );

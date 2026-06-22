@@ -74,7 +74,7 @@ export function LessonView({
 
   const dynamicSteps = useMemo(() => {
     if (!noteBundle.hasSource) {
-      return [{ key: 'intro' as const, label: lang === 'el' ? 'Ανέβασμα' : 'Upload' }];
+      return [{ key: 'hook' as const, label: lang === 'el' ? 'Ανέβασμα' : 'Upload' }];
     }
     return buildLessonSteps(settings);
   }, [noteBundle.hasSource, settings, lang]);
@@ -145,7 +145,7 @@ export function LessonView({
 
   const canAdvance = () => {
     if (!noteBundle.hasSource) return false;
-    if (step.key === 'quiz' && !quizPassed) return false;
+    if (step.key === 'retrieval' && !quizPassed) return false;
     return true;
   };
 
@@ -254,7 +254,7 @@ export function LessonView({
                 t={t}
               />
 
-              {step.key === 'quiz' && quizAnswer !== null && (
+              {step.key === 'retrieval' && quizAnswer !== null && (
                 <div className="mt-6">
                   <ConfidenceSelector value={confidence} onChange={setConfidence} />
                 </div>

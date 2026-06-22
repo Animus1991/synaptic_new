@@ -121,6 +121,8 @@ export type RemoteSession = {
   openMistakes: unknown[];
   activities: unknown[];
   userSettings: unknown;
+  conceptBuses?: Record<string, unknown>;
+  stepSchedules?: Record<string, unknown>;
   updatedAt: string;
 };
 
@@ -240,4 +242,65 @@ export async function ragQuery(
   });
   if (!res.ok) throw new Error(await res.text());
   return res.json() as Promise<{ results: { id: string; text: string; score: number }[] }>;
+}
+
+export type SharedAnnotationDto = {
+  id: string;
+  courseId: string;
+  fileKey: string;
+  type: 'highlight' | 'comment' | 'pin';
+  text: string;
+  color: string;
+  lineStart: number;
+  lineEnd: number;
+  focusTerm?: string;
+  teacherEmail: string;
+  createdAt: string;
+};
+
+export type SharedAnnotationSyncResult = {
+  annotations: SharedAnnotationDto[];
+  version: number;
+  serverTime: string;
+};
+
+export async function fetchSharedAnnotations(
+  settings: UserSettings,
+  courseId: string,
+  fileKey: string,
+  opts?: { since?: string },
+): Promise<SharedAnnotationSyncResult> {
+  const base = proxyBase(settings);
+  if (!base) return { annotations: [], version: 0, serverTime: new Date().toISOString() };
+  try {
+    const params = new URLSearchParams({ courseId, fileKey });
+    if (opts?.since) params.set('since', opts.since);
+    const res = await fetch(`${base}/v1/annotations/shared?${params.toString()}`);
+    if (!res.ok) return { annotations: [], version: 0, serverTime: new Date().toISOString() };
+    const data = (await res.json()) as SharedAnnotationSyncResult;
+    return {
+      annotations: data.annotations ?? [],
+      version: data.version ?? 0,
+      serverTime: data.serverTime ?? new Date().toISOString(),
+    };
+  } catch {
+    return { annotations: [], version: 0, serverTime: new Date().toISOString() };
+  }
+}
+
+export async function publishTeacherAnnotation(
+  token: string,
+  settings: UserSettings,
+  payload: Omit<SharedAnnotationDto, 'id' | 'teacherEmail' | 'createdAt'>,
+): Promise<SharedAnnotationDto | null> {
+  const res = await fetch(`${proxyBase(settings)}/v1/teacher/annotations`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) return null;
+  return res.json() as Promise<SharedAnnotationDto>;
 }

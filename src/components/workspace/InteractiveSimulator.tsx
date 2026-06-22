@@ -1,8 +1,15 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight, SlidersHorizontal, Target, Zap } from 'lucide-react';
 import { cn } from '../../utils/cn';
 import { useI18n } from '../../lib/i18n';
+import type { NumericCue } from '../../lib/numericCues';
+import { sandboxDeltaInsight } from '../../lib/numericCues';
+import {
+  buildEconomicsSensitivity,
+  buildParameterSensitivity,
+  topSensitivityCue,
+} from '../../lib/sandboxSensitivity';
 import { WorkspaceEmptyState } from './WorkspaceEmptyState';
 
 const PRESET_KEYS = [
@@ -18,14 +25,69 @@ const CHALLENGE_TOLERANCE = 3;
 interface Props {
   insight?: string;
   economicsMode?: boolean;
+  numericCues?: NumericCue[];
+  concept?: string;
   emptyMessage?: string;
   onUpload?: () => void;
+  lang?: 'en' | 'el';
+  onSensitivityCue?: (cueId: string) => void;
 }
 
-export function InteractiveSimulator({ insight, economicsMode = false, emptyMessage, onUpload }: Props) {
-  const { t } = useI18n();
+export function InteractiveSimulator({
+  insight,
+  economicsMode = false,
+  numericCues = [],
+  concept = '',
+  emptyMessage,
+  onUpload,
+  lang: langProp,
+  onSensitivityCue,
+}: Props) {
+  const { t, lang: i18nLang } = useI18n();
+  const lang = langProp ?? i18nLang;
   const [demandShift, setDemandShift] = useState(0);
   const [supplyShift, setSupplyShift] = useState(0);
+  const [cueValues, setCueValues] = useState<Record<string, number>>(() =>
+    Object.fromEntries(numericCues.map((c) => [c.id, c.baseline])),
+  );
+
+  useEffect(() => {
+    setCueValues(Object.fromEntries(numericCues.map((c) => [c.id, c.baseline])));
+  }, [numericCues]);
+
+  const genericInsight = useMemo(
+    () => sandboxDeltaInsight(numericCues, cueValues, concept, lang),
+    [numericCues, cueValues, concept, lang],
+  );
+
+  const sensitivityCells = useMemo(() => {
+    if (numericCues.length === 0) return [];
+    return buildParameterSensitivity(numericCues, cueValues, (trial) => {
+      let sum = 0;
+      for (const c of numericCues) {
+        const v = trial[c.id] ?? c.baseline;
+        sum += (v - c.baseline) / Math.max(c.baseline, 1e-6);
+      }
+      return sum;
+    });
+  }, [numericCues, cueValues]);
+
+  useEffect(() => {
+    const top = topSensitivityCue(sensitivityCells);
+    if (top) onSensitivityCue?.(top);
+  }, [sensitivityCells, onSensitivityCue]);
+
+  const econSensitivity = useMemo(
+    () => buildEconomicsSensitivity(demandShift, supplyShift),
+    [demandShift, supplyShift],
+  );
+
+  useEffect(() => {
+    if (economicsMode) {
+      const top = topSensitivityCue(econSensitivity);
+      if (top) onSensitivityCue?.(top);
+    }
+  }, [economicsMode, econSensitivity, onSensitivityCue]);
 
   const w = 360;
   const h = 280;
@@ -53,6 +115,84 @@ export function InteractiveSimulator({ insight, economicsMode = false, emptyMess
   const presetButtons = useMemo(() => PRESET_KEYS, []);
 
   if (!economicsMode) {
+    if (numericCues.length > 0) {
+      return (
+        <div className="flex h-full flex-col overflow-hidden">
+          <div className="flex items-center justify-between border-b border-border-subtle bg-surface-card px-4 py-2.5 shrink-0">
+            <span className="flex items-center gap-2 text-sm font-semibold">
+              <SlidersHorizontal className="w-4 h-4 text-brand-400" />
+              {t('parametricSandbox')}
+            </span>
+            <span className="rounded border border-brand-500/30 bg-brand-500/10 px-2 py-0.5 text-[10px] text-brand-300">
+              {lang === 'el' ? 'Από σημειώσεις' : 'From notes'}
+            </span>
+          </div>
+          <div className="flex-1 overflow-y-auto p-4 space-y-4">
+            <p className="text-xs text-text-tertiary">
+              {lang === 'el'
+                ? 'Ρύθμισε τιμές που εμφανίζονται στο υλικό σου και παρατήρησε τη μεταβολή.'
+                : 'Adjust values found in your material and observe the relative change.'}
+            </p>
+            {numericCues.map((cue) => (
+              <div key={cue.id} className="rounded-xl border border-border-subtle bg-surface-card p-4">
+                <div className="mb-2 flex justify-between items-start gap-2">
+                  <div>
+                    <p className="text-xs font-semibold text-brand-300">{cue.label}</p>
+                    <p className="text-[10px] text-text-muted mt-0.5 line-clamp-2">{cue.context}</p>
+                  </div>
+                  <span className="font-mono text-sm text-text-secondary shrink-0">
+                    {(cueValues[cue.id] ?? cue.baseline).toFixed(cue.unit === '%' ? 0 : 1)}
+                    {cue.unit === '%' ? '%' : cue.unit ? ` ${cue.unit}` : ''}
+                  </span>
+                </div>
+                <input
+                  type="range"
+                  min={cue.min}
+                  max={cue.max}
+                  step={cue.unit === '%' ? 1 : (cue.max - cue.min) / 40}
+                  value={cueValues[cue.id] ?? cue.baseline}
+                  onChange={(e) => setCueValues((v) => ({ ...v, [cue.id]: Number(e.target.value) }))}
+                  className="w-full"
+                  style={{ accentColor: '#818cf8' }}
+                />
+                <div className="flex justify-between text-[9px] text-text-muted mt-1">
+                  <span>{cue.min}</span>
+                  <span>{lang === 'el' ? 'βάση' : 'baseline'}: {cue.baseline}</span>
+                  <span>{cue.max}</span>
+                </div>
+              </div>
+            ))}
+            <div className="rounded-lg border border-brand-500/30 bg-brand-500/10 p-3 text-sm text-brand-200">
+              <Zap className="w-4 h-4 inline mr-1.5 mb-0.5" />
+              {genericInsight || insight}
+            </div>
+            {sensitivityCells.length > 0 && (
+              <div className="rounded-xl border border-border-subtle bg-surface-card p-3" data-testid="sandbox-sensitivity-heatmap">
+                <p className="mb-2 text-[10px] font-semibold text-text-muted">
+                  {lang === 'el' ? 'Ευαισθησία παραμέτρων' : 'Parameter sensitivity'}
+                </p>
+                <div className="space-y-2">
+                  {sensitivityCells.map((cell) => (
+                    <div key={cell.cueId} className="flex items-center gap-2">
+                      <span className="w-24 truncate text-[10px] text-text-secondary">{cell.label}</span>
+                      <div className="flex-1 h-2 rounded-full bg-surface-primary overflow-hidden">
+                        <div
+                          className="h-full rounded-full bg-accent-cyan/80"
+                          style={{ width: `${Math.round(cell.intensity * 100)}%` }}
+                        />
+                      </div>
+                      <span className="text-[9px] font-mono text-text-muted w-8 text-right">
+                        {(cell.intensity * 100).toFixed(0)}%
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    }
     return (
       <div className="flex h-full flex-col overflow-hidden">
         <div className="flex items-center justify-between border-b border-border-subtle bg-surface-card px-4 py-2.5 shrink-0">
@@ -202,6 +342,32 @@ export function InteractiveSimulator({ insight, economicsMode = false, emptyMess
         <div className="mt-4 flex w-full max-w-sm items-start gap-2 rounded-lg border border-brand-500/30 bg-brand-500/12 p-3.5 text-sm text-brand-200">
           <Zap className="mt-0.5 w-4 h-4 shrink-0" />
           <p>{insight ?? t('sandboxInsight')}</p>
+        </div>
+
+        <div className="mt-4 w-full max-w-sm rounded-xl border border-border-subtle bg-surface-card p-3" data-testid="sandbox-sensitivity-heatmap">
+          <p className="mb-2 text-[10px] font-semibold text-text-muted">
+            {lang === 'el' ? 'Ευαισθησία P*' : 'P* sensitivity'}
+          </p>
+          <div className="grid grid-cols-2 gap-2">
+            {['demand', 'supply'].map((axis) => {
+              const cells = econSensitivity.filter((c) => c.cueId === axis);
+              const peak = Math.max(...cells.map((c) => c.intensity), 0.01);
+              return (
+                <div key={axis} className="rounded-lg bg-surface-primary/50 p-2">
+                  <p className="text-[9px] font-medium text-text-secondary mb-1 capitalize">{axis}</p>
+                  <div className="flex gap-0.5 h-6 items-end">
+                    {cells.slice(0, 5).map((cell, i) => (
+                      <div
+                        key={i}
+                        className="flex-1 rounded-sm bg-accent-cyan/70"
+                        style={{ height: `${Math.max(12, (cell.intensity / peak) * 100)}%`, opacity: 0.35 + (cell.intensity / peak) * 0.65 }}
+                      />
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
       </div>
     </div>

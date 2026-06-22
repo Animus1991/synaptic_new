@@ -54,4 +54,36 @@ describe('uploadPipeline D9 — subject-agnostic fallback', () => {
     expect(a.subject).toBe(b.subject);
     expect(a.topics.length).toBe(b.topics.length);
   });
+
+  it('respects upstream source-quality compaction signals in fallback mode', () => {
+    const course = buildCourseFromUpload(
+      payloadFor(`${BIO_TEXT}\n\n${LAW_TEXT}`),
+      0,
+      {
+        score: 38,
+        band: 'weak',
+        needsMoreMaterial: true,
+        warnings: ['Sparse source material.'],
+        strengths: [],
+        nextActions: ['Upload more.'],
+        recommendedTopicCount: 3,
+        detectedTopicCount: 6,
+        finalTopicCount: 3,
+        outlineAdjusted: true,
+        metrics: {
+          wordCount: 120,
+          sectionCount: 1,
+          definitionCount: 1,
+          glossaryCount: 0,
+          keyphraseCount: 4,
+          workedExampleCount: 0,
+          formulaCount: 0,
+          comparisonCount: 0,
+          averageConceptsPerTopic: 1,
+        },
+      },
+    );
+    expect(course.topics.length).toBeLessThanOrEqual(3);
+    expect(course.description.toLowerCase()).toContain('sparse');
+  });
 });

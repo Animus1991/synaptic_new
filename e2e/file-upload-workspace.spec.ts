@@ -25,8 +25,8 @@ async function skipOnboarding(page: import('@playwright/test').Page) {
   await page.getByRole('button', { name: 'Skip — explore the demo first' }).click();
 }
 
-test.describe('Paste upload → Study Workspace', () => {
-  test('opens workspace with note-grounded content after paste upload', async ({ page }) => {
+test.describe('Paste upload → course review → Study Workspace', () => {
+  test('shows course diagnostics before opening the workspace', async ({ page }) => {
     await page.goto('/');
     await skipOnboarding(page);
 
@@ -37,8 +37,12 @@ test.describe('Paste upload → Study Workspace', () => {
     await page.getByTestId('upload-continue').click();
     await page.getByTestId('upload-generate').click();
 
+    await expect(page.getByTestId('course-generation-diagnostics')).toBeVisible({ timeout: 45_000 });
+    await expect(page.getByTestId('course-title')).not.toHaveText('');
+
+    await page.getByTestId('course-open-workspace').click();
     await expect(page.getByTestId('study-workspace')).toBeVisible({ timeout: 45_000 });
-    await expect(page.getByText(/from your notes|από τις σημειώσεις σου/i)).toBeVisible();
+    await expect(page.getByText(/from your notes|από τις σημειώσεις σου/i).first()).toBeVisible();
     await expect(page.getByText(/supply|demand|elasticity/i).first()).toBeVisible({ timeout: 15_000 });
   });
 });

@@ -11,17 +11,17 @@ This document separates **done**, **partial**, and **missing** against the produ
 | Layer | Completion | Notes |
 | ----- | ---------- | ----- |
 | Content engine (offline v2) | **~90%** | RAKE+TextRank, sections, prerequisites, BM25 unified across deterministic tools, PMI co-occurrence edges |
-| Upload → course pipeline | **~85%** | PDF/DOCX/PPTX/TXT/MD/CSV + YouTube transcript live; OCR/audio still placeholders |
-| Study Workspace (11 tools) | **~80%** | Note-grounded, scoped persistence, mobile stacking, full keyboard shortcut surface |
+| Upload → course pipeline | **~90%** | PDF/DOCX/PPTX/TXT/MD/CSV + YouTube transcript + OCR for images/scanned PDFs are live, with course-level source-quality scoring and adaptive topic compaction before study |
+| Study Workspace (11 tools) | **~83%** | Note-grounded, scoped persistence, mobile stacking, full keyboard shortcut surface, source-intelligence diagnostics; upload now lands on course review before workspace |
 | Lesson surfaces | **~80%** | LessonView + PracticalLessonView fully note/LLM-grounded |
 | Tasks & pedagogy | **~80%** | Generated tasks, FSRS→store, Beta-Bernoulli mastery, course-derived prereq edges |
 | Analytics & Dashboard | **~75%** | Mastery map now derived from real `learnerModel + courses`; some metric depth still partial |
 | RAG / Agent | **~80%** | BM25 + hybrid embedding rerank; chunk-level page citations after PDF `\f` fix |
 | Client persistence | **~85%** | localStorage + IndexedDB + backup; whiteboard/scratchpad/concept-map scoped per task |
 | Auth & full sync | **~80%** | JWT login/register, library + session pull/push, plan refresh, identity isolation |
-| Phase 6 server | **~80%** | Proxy + JWT + metering + library + session + YouTube + Stripe + admin + Postgres migrations |
-| Documentation | **~85%** | 11 MD files + new SECURITY/API/CHANGELOG/ALGORITHMS docs |
-| Tests & CI | **~55%** | Vitest: contentAnalysis + retentionAnalytics + formulaSolver; Playwright E2E (1 spec) |
+| Phase 6 server | **~90%** | Express proxy + JWT + refresh/reset flows + metering + rate limiting + library/session sync + YouTube + OCR + NLP + semantic RAG endpoint + teacher aggregates + Stripe + Postgres migrations |
+| Documentation | **~90%** | 11 MD files + new SECURITY/API/CHANGELOG/ALGORITHMS docs + `EXHAUSTIVE_PRODUCT_SCALE_BLUEPRINT.md` |
+| Tests & CI | **~71%** | Vitest: 12 `src/lib/*.test.ts` files / 59 tests; Playwright E2E (2 specs); server integration tests still missing |
 | i18n | **~35%** | Shell + onboarding EL; analytics/feynman/argument labels still EN-only |
 
 **Overall product-scale readiness: ~80%** — past the MVP boundary; remaining work is depth (offline embeddings, OCR, full i18n, multi-user collaboration) rather than gaps.
@@ -33,6 +33,7 @@ This document separates **done**, **partial**, and **missing** against the produ
 ### Content & pipeline
 - `contentAnalysis.ts` v2 — segmentation, RAKE+TextRank, definitions, prerequisite inference, LexRank-lite summarization
 - `processUpload()` — extract → LLM or offline outline → course → tasks → skill nodes
+- `courseSourceQuality.ts` — course-level quality signals, warnings, recommended topic budget, and adaptive outline compaction upstream of course creation
 - `mergeOutlineIntoCourse()` — incremental extend mode
 - `youtubeCaptions.ts` (server) + `youtubeTranscript.ts` (client) — full caption fetch including manual/ASR track selection and json3/XML parsing
 - `formulaSolver.ts` — generic shunting-yard evaluator with `sin/cos/tan/log/ln/exp/sqrt/abs/round/floor/ceil/min/max`, `pi`/`e` constants, unary minus/plus, scientific notation; **14 unit tests**
@@ -43,6 +44,7 @@ This document separates **done**, **partial**, and **missing** against the produ
 
 ### Study Workspace
 - `workspaceNoteContent.ts` — 11-tool bundle, `hasSource` gate
+- `sourceIntelligence` — bundle-level grounding score, tool recommendation, gaps, and next-action hints for the active concept
 - Section-aware steps (`buildWorkspaceStepsFromNotes`)
 - Leitner → `submitLeitnerRating` → FSRS/mastery in store
 - Concept map co-occurrence edges from source text
@@ -55,6 +57,7 @@ This document separates **done**, **partial**, and **missing** against the produ
 ### Surfaces & identity
 - `LessonView.tsx` — note-grounded via `GroundedLessonContent` + LLM panels
 - `PracticalLessonView.tsx` — exercises derived from notes, no demo stubs
+- `CourseView` review landing — post-upload generation diagnostics, topic-density review, and “Add Material” path before Study Workspace
 - `Analytics` Mastery Map — built from `learnerModel + courses`, not hardcoded econ graph
 - `buildInitialUser()` — production users start as a clean `Learner` identity (auth/onboarding populates name/email); `Alex Chen / Level 7` only appears with `showDemoContent: true`
 - Layout: full-width pages, Shell `lg:ml-64`
@@ -72,9 +75,12 @@ This document separates **done**, **partial**, and **missing** against the produ
 ### Backend (Phase 6)
 - Express OpenAI-compatible proxy (`/v1/chat/completions`, `/v1/embeddings`)
 - JWT `/auth/register`, `/auth/login`, `/auth/me`
+- `/auth/refresh`, `/auth/forgot-password`, `/auth/reset-password`
 - Usage metering + plan-aware quotas (`free` / `pro` / `team`)
+- Sliding-window `/v1/*` rate limiting
 - `/v1/library` GET/PUT, `/v1/session` GET/PUT
 - `/v1/youtube/transcript` (CORS-bypassing transcript proxy)
+- `/v1/nlp/entities`, `/v1/rag/query`, `/v1/ocr/pages`, `/v1/teacher/dashboard`
 - `/v1/billing/checkout`, `/v1/billing/status`, `/v1/billing/webhook` (real Stripe)
 - `/v1/admin/stats` gated by `ADMIN_SECRET`
 - Postgres migrations (`node-pg-migrate`) — `npm run migrate` + optional `RUN_MIGRATIONS_ON_START`
@@ -83,8 +89,8 @@ This document separates **done**, **partial**, and **missing** against the produ
 - Code-split Vite build (~281 KB main entry vs former ~8.6 MB monolith)
 - `npm run typecheck:all` gates client + server before build
 - CI: client typecheck + test + build; server typecheck
-- Vitest test suite: `contentAnalysis.test.ts`, `retentionAnalytics.test.ts`, `formulaSolver.test.ts` (24 unit tests)
-- Playwright `e2e/youtube-upload.spec.ts` (run with `npm run test:e2e`; not yet in CI)
+- Vitest test suite: 12 files / 59 unit tests across content analysis, provenance, clustering, OCR, entities, course source quality, quiz extraction, upload fallback, retention, formula solving, and workspace source intelligence
+- Playwright `e2e/youtube-upload.spec.ts` + `e2e/file-upload-workspace.spec.ts` (run with `npm run test:e2e`; not yet in CI)
 
 ### Documentation (current)
 | File | Covers |
@@ -105,6 +111,7 @@ This document separates **done**, **partial**, and **missing** against the produ
 | `ALGORITHMS.md` *(new)* | RAKE+TextRank, BM25, PMI edges, FSRS, formula solver internals |
 | `CHANGELOG.md` *(new)* | Versioned shipping log |
 | `CONTRIBUTING.md` *(new)* | Local dev, branch convention, gates, doc-maintenance checklist |
+| `EXHAUSTIVE_PRODUCT_SCALE_BLUEPRINT.md` *(new)* | Product-scale audit + canonical plan for every page, tool, algorithm, and backend surface |
 
 ---
 
@@ -131,7 +138,7 @@ After the recent sweep, no demo concept (Cournot/Bertrand/Elasticity/Pandas/Micr
 | Gap | Current | Target |
 | --- | ------- | ------ |
 | Local embeddings | Server-side via `/v1/embeddings` (proxy/key required) | Optional local model (transformers.js / WASM) |
-| OCR / audio | UI types only | Tesseract.js OCR + Whisper-WASM audio pipeline |
+| Audio / richer OCR modes | OCR for scanned PDFs + images ships today | Whisper ingestion, handwriting support, math OCR, richer figure extraction |
 | Worked examples | Section-aware paragraph picks | Step-by-step problem mining + scaffolded variants |
 | Compare detection | Pattern + glossary | Markdown/HTML table mining + diff highlighting |
 | Multi-turn debate | Static argument tree | Counter-argument generation via LLM with note grounding |
@@ -159,13 +166,18 @@ After the recent sweep, no demo concept (Cournot/Bertrand/Elasticity/Pandas/Micr
 
 | Done | Remaining |
 | ---- | --------- |
-| Express OpenAI-compatible proxy | Refresh tokens / email verify / password reset |
-| JWT `/auth/*` | Server-side RAG index (post-sync) |
-| Usage metering + plan-aware quotas | Per-route rate limiting + audit logs |
+| Express OpenAI-compatible proxy | Email verification / OAuth / account lifecycle polish |
+| JWT `/auth/*` + refresh / forgot / reset tokens | Server-side persistent RAG index (pgvector, post-sync) |
+| Usage metering + plan-aware quotas | Distributed / Redis-backed rate limiting + structured audit logs |
 | `/v1/library` GET/PUT | Class management / teacher dashboard UI |
 | `/v1/session` GET/PUT | TLS deploy guide + Helm/Compose example |
-| `/v1/youtube/transcript` | Offline embedding model option |
-| Stripe checkout + webhook + status | Multi-tenant org accounts |
+| `/v1/youtube/transcript` | Offline embedding model option (transformers.js) |
+| `/v1/ocr/pages` (scanned PDF / image) | Handwriting OCR, math OCR, richer figure extraction |
+| `/v1/nlp/entities` | Deeper entity typing / linking |
+| `/v1/rag/query` (semantic over client chunks) | Persistent server-side hybrid retrieval |
+| `/v1/teacher/dashboard` (aggregate endpoint) | Multi-tenant org accounts + full teacher UI |
+| `/v1/*` sliding-window rate limiting | Distributed Redis rate limiting for multi-replica |
+| Stripe checkout + webhook + status |  |
 | Admin stats endpoint | Collaborative whiteboard / annotations |
 | Postgres `accounts`/`account_libraries`/`account_sessions` via `node-pg-migrate` | |
 
@@ -203,12 +215,17 @@ After the recent sweep, no demo concept (Cournot/Bertrand/Elasticity/Pandas/Micr
 - [x] Server session sync
 - [x] Stripe + admin
 - [x] Postgres + node-pg-migrate
-- [x] Playwright E2E (one spec; CI integration pending)
-- [ ] Offline embeddings model
+- [x] Playwright E2E (two specs; CI integration pending)
+- [x] OCR for scanned PDFs / images
+- [x] Server NLP entities endpoint
+- [x] Server semantic RAG endpoint (`/v1/rag/query`)
+- [x] Server teacher dashboard aggregate endpoint
+- [x] Built-in `/v1/*` rate limiting + refresh/reset token flows
+- [ ] Offline embeddings model (transformers.js)
 - [ ] Full i18n (Analytics, Feynman, Argument labels still EN)
 - [ ] Collaborative annotations / whiteboard
-- [ ] Class / teacher dashboard
-- [ ] OCR + audio pipelines
+- [ ] Class / teacher dashboard UI
+- [ ] Audio / Whisper transcription, handwriting OCR, math OCR
 
 ---
 
@@ -217,8 +234,8 @@ After the recent sweep, no demo concept (Cournot/Bertrand/Elasticity/Pandas/Micr
 - `npm run typecheck` — client strict mode ✅ **0 errors**
 - `npm run typecheck:all` — client + server ✅
 - `npm run build` — runs `typecheck:all` then Vite build ✅
-- `npm test` — Vitest (3 files / 24 tests) ✅
-- `npm run test:e2e` — Playwright (1 spec) ✅ (not yet wired to CI)
+- `npm test` — Vitest (12 files / 59 unit tests) ✅
+- `npm run test:e2e` — Playwright (2 specs) ✅ (not yet wired to CI)
 - CI runs client typecheck/test/build + server typecheck
 
 Previously reported latent issues (`navItems`, `studyTimeWeek`, duplicate imports) remain **resolved** — `tsc --noEmit` is the build gate.

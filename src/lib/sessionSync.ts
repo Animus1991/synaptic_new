@@ -7,6 +7,13 @@ import type {
 } from '../types';
 import type { BetaMastery } from './pedagogy';
 import { loadJson } from './persistence';
+import type { ConceptBusMap, StepScheduleMap } from './conceptBusSync';
+import {
+  mergeAllConceptBuses,
+  mergeAllStepSchedules,
+} from './conceptBusSync';
+import { loadAllConceptBuses } from './workspacePersistence';
+import { loadAllStepSchedules } from './spacedStepSchedule';
 
 const SESSION_KEY = 'session-v2';
 
@@ -20,6 +27,10 @@ export type LocalSession = {
   openMistakes: MistakeRecord[];
   activities: ActivityItem[];
   userSettings: UserSettings;
+  /** Scoped workspace concept buses — synced via /v1/session. */
+  conceptBuses?: ConceptBusMap;
+  /** Scoped lesson step spaced schedules — synced via /v1/session. */
+  stepSchedules?: StepScheduleMap;
 };
 
 export function loadLocalSession(): Partial<LocalSession> {
@@ -38,6 +49,11 @@ export function mergeSessions(local: Partial<LocalSession>, remote: Partial<Loca
   const pick = <T>(localVal: T | undefined, remoteVal: T | undefined): T | undefined =>
     preferRemote ? (remoteVal ?? localVal) : (localVal ?? remoteVal);
 
+  const localBuses = (local.conceptBuses ?? loadAllConceptBuses()) as ConceptBusMap;
+  const remoteBuses = (remote.conceptBuses ?? {}) as ConceptBusMap;
+  const localSchedules = local.stepSchedules ?? loadAllStepSchedules();
+  const remoteSchedules = remote.stepSchedules ?? {};
+
   return {
     learnerModel: pick(local.learnerModel, remote.learnerModel) as LearnerModel,
     dashboardStats: pick(local.dashboardStats, remote.dashboardStats) as DashboardStats,
@@ -48,6 +64,8 @@ export function mergeSessions(local: Partial<LocalSession>, remote: Partial<Loca
     openMistakes: (pick(local.openMistakes, remote.openMistakes) ?? []) as MistakeRecord[],
     activities: (pick(local.activities, remote.activities) ?? []) as ActivityItem[],
     userSettings: pick(local.userSettings, remote.userSettings) as UserSettings,
+    conceptBuses: mergeAllConceptBuses(localBuses, remoteBuses),
+    stepSchedules: mergeAllStepSchedules(localSchedules, remoteSchedules),
   };
 }
 
@@ -62,6 +80,8 @@ export function localSessionToRemote(session: Partial<LocalSession>): Omit<Local
     openMistakes: session.openMistakes ?? [],
     activities: session.activities ?? [],
     userSettings: session.userSettings as UserSettings,
+    conceptBuses: (session.conceptBuses ?? loadAllConceptBuses()) as ConceptBusMap,
+    stepSchedules: session.stepSchedules ?? loadAllStepSchedules(),
   };
 }
 
@@ -75,6 +95,8 @@ export function remoteSessionToLocal(remote: {
   openMistakes?: unknown[];
   activities?: unknown[];
   userSettings?: unknown;
+  conceptBuses?: Record<string, unknown>;
+  stepSchedules?: Record<string, unknown>;
   updatedAt?: string;
 }): Partial<LocalSession> & { updatedAt?: string } {
   return {
@@ -87,6 +109,8 @@ export function remoteSessionToLocal(remote: {
     openMistakes: remote.openMistakes as MistakeRecord[] | undefined,
     activities: remote.activities as ActivityItem[] | undefined,
     userSettings: remote.userSettings as UserSettings | undefined,
+    conceptBuses: remote.conceptBuses as ConceptBusMap | undefined,
+    stepSchedules: remote.stepSchedules as StepScheduleMap | undefined,
     updatedAt: remote.updatedAt,
   };
 }

@@ -4,6 +4,7 @@
 
 import { config } from '../config';
 import { upstreamFetch } from './upstream';
+import { fetchDedicatedNer } from './nerDedicated';
 
 const DEF_RE =
   /\b([A-ZΑ-Ω][\w\- ]{2,48}?)\s+(?:is|are|refers to|means|defined as|είναι|ορίζεται)\s+([^.\n]{12,180})/giu;
@@ -99,9 +100,12 @@ export async function extractEntitiesLlm(text: string, max = 30): Promise<NerEnt
   }
 }
 
-/** Hybrid NER: rule-based baseline merged with LLM entities when available. */
+/** Hybrid NER: rule-based + optional spaCy/Stanza service + LLM merge. */
 export async function extractEntitiesHybrid(text: string, max = 30): Promise<NerEntity[]> {
   const rule = extractEntitiesRuleBased(text, max);
+  const dedicated = await fetchDedicatedNer(text, max);
+  let merged = dedicated?.length ? mergeEntities(rule, dedicated, max) : rule;
   const llm = await extractEntitiesLlm(text, max);
-  return llm?.length ? mergeEntities(rule, llm, max) : rule;
+  if (llm?.length) merged = mergeEntities(merged, llm, max);
+  return merged;
 }

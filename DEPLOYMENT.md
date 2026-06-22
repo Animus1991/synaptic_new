@@ -81,6 +81,7 @@ npm start                 # or npm run dev for watch mode
 | `ALLOW_ANONYMOUS` | Set `false` to require sign-in for all `/v1/*` routes |
 | `PORT` | Listen port (default `8787`) |
 | `UPSTREAM_BASE_URL` | OpenAI-compatible API base |
+| `RATE_LIMIT_RPM` | Built-in per-account/IP requests-per-minute cap on `/v1/*` |
 | `FREE_MONTHLY_TOKEN_QUOTA`, `PRO_…`, `TEAM_…` | Per-plan token limits |
 | `CLIENT_APP_URL` | Where Stripe redirects after checkout (`?billing=success`) |
 | `STRIPE_SECRET_KEY` | Stripe API key (server-only) |
@@ -140,9 +141,10 @@ local testing — see `SECURITY.md` for the production checklist.
 - Set `ALLOW_ANONYMOUS=false` for paid/managed tiers.
 - Set `ADMIN_SECRET` to a long random secret — without it, every authenticated
   account can call `/v1/admin/stats`.
-- Rotate `JWT_SECRET`; plan for refresh tokens before scale.
+- Rotate `JWT_SECRET`; review refresh-token TTL, revocation, and silent-refresh behavior before scale.
 - Set `STRIPE_WEBHOOK_SECRET` so webhooks are signature-verified.
-- Add rate limiting and structured logging at the edge.
+- Keep the shipped in-process RPM limiter enabled and add edge/global rate limiting plus structured logging before multi-replica production.
+- Add a production `server/Dockerfile`, `server/docker-compose.yml` (Postgres+Redis+API), and a Helm chart for Kubernetes. Tracked in `EXHAUSTIVE_PRODUCT_SCALE_BLUEPRINT.md` §6.6.
 
 ## CI
 

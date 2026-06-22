@@ -1,7 +1,8 @@
-import type { Course, GlossaryEntry, UploadedFile, UserSettings } from '../types';
+import type { Course, CourseSourceQuality, GlossaryEntry, UploadedFile, UserSettings } from '../types';
 import { extractTextFromFile } from './pdfExtract';
 import { inferSubject, rankKeyphrases, titleCasePhrase } from './contentAnalysis';
 import type { GeneratedOutline } from './courseGenerator';
+import { CONTENT_PIPELINE_VERSION } from './pipelineConstants';
 
 /**
  * Derive candidate topic titles from the material itself — subject-agnostic.
@@ -31,16 +32,38 @@ export type UploadPayload = {
   uploadMode?: 'new' | 'extend';
 };
 
-export function buildCourseFromUpload(payload: UploadPayload, existingCount: number): Course {
+function qualityAwareDescription(
+  base: string,
+  sourceQuality?: CourseSourceQuality,
+): string {
+  if (!sourceQuality) return base;
+  if (sourceQuality.needsMoreMaterial) {
+    return `${base} Source signal is still sparse, so upload more material for deeper grounding.`;
+  }
+  if (sourceQuality.outlineAdjusted) {
+    return `${base} The outline was compacted to match the density of the current material.`;
+  }
+  return base;
+}
+
+export function buildCourseFromUpload(
+  payload: UploadPayload,
+  existingCount: number,
+  sourceQuality?: CourseSourceQuality,
+): Course {
   const primaryName = payload.files[0]?.name ?? payload.youtubeUrl ?? 'Custom Material';
   const title = payload.title ?? primaryName.replace(/\.[^.]+$/, '').replace(/[_-]/g, ' ');
   const rawTopics = extractTopicsFromText(payload.pastedContent ?? '', payload.files.map((f) => f.name));
-  const topics = rawTopics.length > 0 ? rawTopics : [title];
+  const topicLimit = sourceQuality ? Math.min(6, Math.max(1, sourceQuality.finalTopicCount)) : 6;
+  const topics = (rawTopics.length > 0 ? rawTopics : [title]).slice(0, topicLimit);
 
   return {
     id: `c-upload-${Date.now()}`,
     title,
-    description: `Generated from ${payload.files.length} file(s)${payload.youtubeUrl ? ' + video' : ''}. Focus: ${payload.focusTags.join(', ') || 'General'}.`,
+    description: qualityAwareDescription(
+      `Generated from ${payload.files.length} file(s)${payload.youtubeUrl ? ' + video' : ''}. Focus: ${payload.focusTags.join(', ') || 'General'}.`,
+      sourceQuality,
+    ),
     subject: inferSubject(payload.pastedContent ?? ''),
     color: ['#818cf8', '#22d3ee', '#2dd4bf', '#fb923c'][existingCount % 4]!,
     icon: '📚',
@@ -73,6 +96,7 @@ export function buildCourseFromUpload(payload: UploadPayload, existingCount: num
     glossaryCount: topics.length * 2,
     exerciseCount: topics.length * 3,
     examDate: payload.examDate,
+    ...(sourceQuality ? { sourceQuality } : {}),
   };
 }
 
@@ -89,6 +113,7 @@ export function buildCourseFromOutline(
   outline: GeneratedOutline,
   payload: UploadPayload,
   existingCount: number,
+  sourceQuality?: CourseSourceQuality,
 ): { course: Course; glossary: GlossaryEntry[] } {
   const now = Date.now();
   const courseId = `c-upload-${now}`;
@@ -138,7 +163,10 @@ export function buildCourseFromOutline(
   const course: Course = {
     id: courseId,
     title: outline.title,
-    description: outline.summary || `Generated from ${payload.files.length} file(s). Focus: ${payload.focusTags.join(', ') || 'General'}.`,
+    description: qualityAwareDescription(
+      outline.summary || `Generated from ${payload.files.length} file(s). Focus: ${payload.focusTags.join(', ') || 'General'}.`,
+      sourceQuality,
+    ),
     subject: outline.subject,
     color: COURSE_COLORS[existingCount % COURSE_COLORS.length]!,
     icon: '📚',
@@ -159,6 +187,7 @@ export function buildCourseFromOutline(
     glossaryCount: glossary.length,
     exerciseCount: outline.topics.length * 3,
     examDate: payload.examDate,
+    ...(sourceQuality ? { sourceQuality } : {}),
   };
 
   return { course, glossary };
@@ -190,6 +219,7 @@ export function uploadedFileMeta(
   topics?: string[],
   extractedText?: string,
   pageCount?: number,
+  ingest?: Pick<UploadedFile, 'ocrUsed' | 'ingestMethod'>,
 ): UploadedFile {
   return {
     id: `file-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
@@ -204,6 +234,9 @@ export function uploadedFileMeta(
     extractedText,
     pageCount,
     detectedLanguage: 'en',
+    pipelineVersion: CONTENT_PIPELINE_VERSION,
+    ...(ingest?.ocrUsed !== undefined ? { ocrUsed: ingest.ocrUsed } : {}),
+    ...(ingest?.ingestMethod ? { ingestMethod: ingest.ingestMethod } : {}),
   };
 }
 

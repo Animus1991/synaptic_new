@@ -1,4 +1,16 @@
 import { motion } from 'framer-motion';
+import { useMemo, useState } from 'react';
+import { ArrowDownUp, Download } from 'lucide-react';
+import { termMatchesFocus } from '../../lib/workspaceFocus';
+import { cn } from '../../utils/cn';
+import { downloadCompareCsv } from '../../lib/compareExport';
+import { nextSortDirection, sortCompareRows, type CompareSortDir } from '../../lib/compareSort';
+import {
+  annotateDiffCells,
+  findFocusBaselineRow,
+  isDiffHighlight,
+  rowDiffScores,
+} from '../../lib/compareDiff';
 
 /* --- Flowchart Diagram --- */
 interface FlowNode { id: string; label: string; type: 'start' | 'step' | 'decision' | 'end' }
@@ -95,32 +107,144 @@ export function FormulaExplorer({ formula, name, symbols }: { formula: string; n
 }
 
 /* --- Comparison Table --- */
-export function ComparisonTable({ title, items, headers }: { title: string; items: string[][]; headers: string[] }) {
+export function ComparisonTable({
+  title,
+  items,
+  headers,
+  focusTerm,
+  onRowFocus,
+  concept,
+  lang = 'en',
+}: {
+  title: string;
+  items: string[][];
+  headers: string[];
+  focusTerm?: string;
+  onRowFocus?: (term: string) => void;
+  concept?: string;
+  lang?: 'en' | 'el';
+}) {
+  const [sortCol, setSortCol] = useState<number | null>(null);
+  const [sortDir, setSortDir] = useState<CompareSortDir>('asc');
+  const [diffMode, setDiffMode] = useState(true);
+
+  const baselineIndex = useMemo(
+    () => findFocusBaselineRow(items, focusTerm),
+    [items, focusTerm],
+  );
+
+  const sortedItems = useMemo(() => {
+    if (sortCol === null) return items;
+    return sortCompareRows(items, sortCol, sortDir, focusTerm);
+  }, [items, sortCol, sortDir, focusTerm]);
+
+  const diffScores = useMemo(() => {
+    const baseline = sortedItems[baselineIndex] ?? sortedItems[0] ?? [];
+    return sortedItems.map((row) => rowDiffScores(row, baseline));
+  }, [sortedItems, baselineIndex]);
+
+  const toggleSort = (col: number) => {
+    if (sortCol === col) {
+      setSortDir(nextSortDirection(sortDir));
+    } else {
+      setSortCol(col);
+      setSortDir('asc');
+    }
+  };
+
   return (
-    <div className="rounded-xl border border-border-subtle bg-surface-card p-4 overflow-x-auto">
-      <p className="text-xs font-semibold mb-3 text-text-secondary">⚖️ {title}</p>
+    <div className="rounded-xl border border-border-subtle bg-surface-card p-4 overflow-x-auto" data-testid="comparison-table">
+      <div className="flex items-center justify-between gap-2 mb-3">
+        <p className="text-xs font-semibold text-text-secondary">⚖️ {title}</p>
+        <div className="flex items-center gap-1.5">
+          <button
+            type="button"
+            data-testid="compare-diff-toggle"
+            onClick={() => setDiffMode((v) => !v)}
+            className={cn(
+              'rounded-lg border px-2 py-1 text-[10px] font-medium',
+              diffMode ? 'border-accent-amber/40 bg-accent-amber/10 text-accent-amber' : 'border-border-subtle text-text-muted',
+            )}
+          >
+            {lang === 'el' ? 'Διαφορές' : 'Diff'}
+          </button>
+          <button
+            type="button"
+            data-testid="compare-export-csv"
+            onClick={() => {
+              const rows = diffMode ? annotateDiffCells(sortedItems, baselineIndex) : sortedItems;
+              downloadCompareCsv(`comparison-${lang}`, title, headers, rows, concept);
+            }}
+            className="inline-flex items-center gap-1 rounded-lg border border-brand-500/30 bg-brand-600/10 px-2 py-1 text-[10px] font-medium text-brand-300 hover:bg-brand-600/20"
+          >
+            <Download className="w-3 h-3" />
+            CSV
+          </button>
+        </div>
+      </div>
       <table className="w-full text-xs">
         <thead>
           <tr className="border-b border-border-subtle">
             {headers.map((h, i) => (
-              <th key={i} className="text-left py-2 px-3 text-text-tertiary font-medium">{h}</th>
+              <th key={i} className="text-left py-2 px-3 text-text-tertiary font-medium">
+                <button
+                  type="button"
+                  data-testid={`compare-sort-col-${i}`}
+                  onClick={() => toggleSort(i)}
+                  className={cn(
+                    'inline-flex items-center gap-1 hover:text-brand-300 transition-colors',
+                    sortCol === i && 'text-brand-300',
+                  )}
+                >
+                  {h}
+                  <ArrowDownUp className="w-3 h-3 opacity-60" />
+                  {sortCol === i && (
+                    <span className="text-[8px] font-mono">{sortDir === 'asc' ? '↑' : '↓'}</span>
+                  )}
+                </button>
+              </th>
             ))}
           </tr>
         </thead>
         <tbody>
-          {items.map((row, i) => (
-            <motion.tr
-              key={i}
-              initial={{ opacity: 0, x: -5 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: i * 0.05 }}
-              className="border-b border-border-subtle/50 last:border-0"
-            >
-              {row.map((cell, j) => (
-                <td key={j} className="py-2 px-3 text-text-secondary">{cell}</td>
-              ))}
-            </motion.tr>
-          ))}
+          {sortedItems.map((row, i) => {
+            const dim = row[0] ?? '';
+            const focused = termMatchesFocus(dim, focusTerm);
+            const isBaseline = i === baselineIndex;
+            return (
+              <motion.tr
+                key={`${dim}-${i}`}
+                initial={{ opacity: 0, x: -5 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: i * 0.05 }}
+                data-testid={diffMode && !isBaseline ? 'compare-diff-row' : undefined}
+                className={cn(
+                  'border-b border-border-subtle/50 last:border-0',
+                  focused && 'bg-brand-500/10',
+                  isBaseline && diffMode && 'ring-1 ring-accent-amber/30',
+                  onRowFocus && 'cursor-pointer hover:bg-surface-hover',
+                )}
+                onClick={() => onRowFocus?.(dim)}
+              >
+                {row.map((cell, j) => {
+                  const sim = diffScores[i]?.[j] ?? 1;
+                  const highlight = diffMode && !isBaseline && j > 0 && isDiffHighlight(sim);
+                  return (
+                    <td
+                      key={j}
+                      className={cn(
+                        'py-2 px-3 text-text-secondary',
+                        j === 0 && focused && 'font-semibold text-brand-200',
+                        highlight && 'bg-accent-amber/15 text-accent-amber font-medium',
+                      )}
+                    >
+                      {cell}
+                    </td>
+                  );
+                })}
+              </motion.tr>
+            );
+          })}
         </tbody>
       </table>
     </div>

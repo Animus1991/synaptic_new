@@ -18,6 +18,14 @@ export default defineConfig({
       "@": path.resolve(__dirname, "src"),
     },
   },
+  worker: {
+    format: 'es',
+    rollupOptions: {
+      output: {
+        inlineDynamicImports: true,
+      },
+    },
+  },
   build: {
     rollupOptions: {
       output: {

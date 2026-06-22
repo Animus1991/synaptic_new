@@ -1,12 +1,13 @@
 import type { Lang } from './i18n';
 
 export type LessonStepKey =
-  | 'intro'
-  | 'explanation'
-  | 'example'
-  | 'misconception'
+  | 'hook'
+  | 'prior'
+  | 'core'
+  | 'worked-example'
   | 'practice'
-  | 'quiz'
+  | 'misconception'
+  | 'retrieval'
   | 'summary';
 
 export type LessonStepDef = { key: LessonStepKey; label: string };
@@ -51,21 +52,23 @@ export function isMcQuiz(def: QuizDef): def is Extract<QuizDef, { options: strin
 
 const STEP_LABELS: Record<Lang, Record<LessonStepKey, string>> = {
   en: {
-    intro: 'Introduction',
-    explanation: 'Core Concept',
-    example: 'Example',
-    misconception: 'Common Mistakes',
+    hook: 'Hook',
+    prior: 'Prior Knowledge',
+    core: 'Core Concept',
+    'worked-example': 'Worked Example',
     practice: 'Practice',
-    quiz: 'Check',
+    misconception: 'Common Misconception',
+    retrieval: 'Retrieval Check',
     summary: 'Summary',
   },
   el: {
-    intro: 'Εισαγωγή',
-    explanation: 'Βασική Έννοια',
-    example: 'Παράδειγμα',
-    misconception: 'Συχνά Λάθη',
+    hook: 'Εισαγωγή',
+    prior: 'Προηγούμενες Γνώσεις',
+    core: 'Βασική Έννοια',
+    'worked-example': 'Επιλυμένο Παράδειγμα',
     practice: 'Εξάσκηση',
-    quiz: 'Έλεγχος',
+    misconception: 'Συχνή Παρανόηση',
+    retrieval: 'Έλεγχος Ανάκλησης',
     summary: 'Περίληψη',
   },
 };
@@ -91,21 +94,24 @@ export type WorkspaceStep = { title: string; type: string };
 
 /** Minimal step rail when no note sections exist yet. */
 export function genericWorkspaceSteps(concept: string, lang: Lang): WorkspaceStep[] {
-  const quizStep = lang === 'el'
-    ? { title: 'Έλεγχος Γνώσεων', type: 'Κουίζ' }
-    : { title: 'Knowledge Check', type: 'Quiz' };
   if (lang === 'el') {
     return [
+      { title: 'Γιατί μετράει;', type: 'Εισαγωγή' },
+      { title: 'Τι ξέρεις ήδη;', type: 'Προηγούμενες Γνώσεις' },
       { title: concept, type: 'Βασική Έννοια' },
-      { title: 'Μηχανισμός', type: 'Εμβάθυνση' },
+      { title: 'Επιλυμένο Παράδειγμα', type: 'Παράδειγμα' },
       { title: 'Εφαρμογή', type: 'Εξάσκηση' },
-      quizStep,
+      { title: 'Έλεγχος Ανάκλησης', type: 'Κουίζ' },
+      { title: 'Περίληψη', type: 'Συμπέρασμα' },
     ];
   }
   return [
+    { title: 'Why does this matter?', type: 'Hook' },
+    { title: 'What do you already know?', type: 'Prior Knowledge' },
     { title: concept, type: 'Core Concept' },
-    { title: 'Mechanism', type: 'Deep Dive' },
+    { title: 'Worked Example', type: 'Example' },
     { title: 'Application', type: 'Practice' },
-    quizStep,
+    { title: 'Retrieval Check', type: 'Quiz' },
+    { title: 'Summary', type: 'Wrap-up' },
   ];
 }

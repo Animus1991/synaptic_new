@@ -29,11 +29,20 @@ npm run typecheck
 
 | File | Covers |
 | ---- | ------ |
-| `src/lib/contentAnalysis.test.ts` | Sentence splitting, section detection, concept normalization, RAKE/TextRank phrasing, end-to-end outline |
-| `src/lib/retentionAnalytics.test.ts` | Retention rate, retention curve, weekly mastery from activity log |
-| `src/lib/formulaSolver.test.ts` | Arithmetic precedence, unary minus, trig/log/sqrt, constants, variable substitution, error paths (14 tests) |
+| `src/lib/contentAnalysis.test.ts` | Sentence splitting, section detection, concept normalization, end-to-end outline, Bloom-aware objectives, biased TextRank + MMR |
+| `src/lib/conceptProvenance.test.ts` | Sentence-level concept spans and span lookup by normalized label |
+| `src/lib/conceptSectionBinding.test.ts` | Section salience scoring and per-section concept filtering |
+| `src/lib/courseSourceQuality.test.ts` | Sparse-material warnings, adaptive topic compaction, rich-material preservation |
+| `src/lib/embeddingCluster.test.ts` | Cosine similarity, cluster-count heuristic, agglomerative clustering |
+| `src/lib/entityExtract.test.ts` | Definition/acronym/entity extraction |
+| `src/lib/formulaSolver.test.ts` | Arithmetic precedence, unary minus, trig/log/sqrt, constants, variable substitution, error paths |
+| `src/lib/noteContentExtractors.test.ts` | Markdown-table parsing, comparison fallback, deterministic quiz ordering, richer quiz kinds, near-miss distractors |
+| `src/lib/ocrExtract.test.ts` | OCR gate heuristics for scanned / text-rich PDFs |
+| `src/lib/retentionAnalytics.test.ts` | Retention rate, retention curve, weekly mastery, mastery bands |
+| `src/lib/uploadPipeline.test.ts` | Subject-agnostic fallback course generation, topic derivation, determinism regression checks, source-quality-aware fallback compaction |
+| `src/lib/workspaceNoteContent.test.ts` | End-to-end Study Workspace source-intelligence scoring and recommendation logic |
 
-Total today: **3 files / 24 tests**.
+Total today: **12 files / 59 unit tests** in `src/lib/`, plus **2 Playwright specs** in `e2e/`.
 
 Add tests next to the module under test: `foo.test.ts` beside `foo.ts`.
 
@@ -56,7 +65,8 @@ npm run test:watch -- formulaSolver
 
 | Spec | Covers |
 | ---- | ------ |
-| `e2e/youtube-upload.spec.ts` | Onboarding → Upload modal → YouTube URL → mocked `/v1/youtube/transcript` → course appears in Library |
+| `e2e/file-upload-workspace.spec.ts` | Paste upload → course diagnostics → Study Workspace with note-grounded content |
+| `e2e/youtube-upload.spec.ts` | Onboarding → Upload modal → YouTube URL → mocked `/v1/youtube/transcript` → course review diagnostics appear |
 
 Configuration: `playwright.config.ts` (Chromium, auto-spawns `npm run dev`).
 
@@ -93,8 +103,9 @@ After substantive changes, verify locally:
 
 1. Settings → Demo showcase **Hidden**
 2. Upload a `.txt` or `.md` file (or paste a YouTube URL)
-3. Library shows a generated course; tasks appear on Dashboard/Tasks
-4. Reader/Concept Map/Feynman in the workspace pull from the actual material
+3. App lands on **CourseView** first and shows generation diagnostics / source quality
+4. If the course is sparse, verify the warning and **Add Material** CTA appear
+5. Continue into the workspace and confirm Reader/Concept Map/Feynman pull from the actual material
 
 ### Study workspace
 

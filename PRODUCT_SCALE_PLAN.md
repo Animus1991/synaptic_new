@@ -1,7 +1,7 @@
 # Synapse Learning — Product-Scale Masterplan
 
-> **Purpose.** This document is the authoritative, exhaustive enhancement plan
-> that takes Synapse Learning from its current ~80% "post-MVP" state to a
+> **Purpose.** This document is the strategic masterplan that takes Synapse
+> Learning from its current ~80% "post-MVP" state to a
 > **state-of-the-art, product-scale, note-grounded adaptive learning platform**.
 > It is the output of a full audit of every project Markdown file plus a
 > ground-truth code verification of the upload→recognition→course→study→backend
@@ -14,6 +14,8 @@
 >
 > **Scope:** `synapse-learning/` only.
 > **Status baseline:** audited June 2026 against the shipped client + `server/`.
+> For canonical current-state contracts, prefer `API.md`, `ARCHITECTURE.md`,
+> `TESTING.md`, and `server/README.md` after their reconciliation pass.
 
 ---
 
@@ -43,7 +45,7 @@ Legend used throughout: **[SHIPS]** already on the production code path ·
 
 ## 1. Documentation audit (scientific review of all `*.md`)
 
-**Method.** Each of the 16 project docs was read in full and cross-checked
+**Method.** Each of the 18 project docs was read in full and cross-checked
 against the implementation in `src/lib/`, `src/components/`, and `server/src/`.
 The vendored `public/pyodide/README.md` is a third-party package readme and is
 **excluded** from project-documentation scope (it should not be treated as

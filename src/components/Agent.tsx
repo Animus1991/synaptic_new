@@ -11,6 +11,8 @@ import { cn } from '../utils/cn';
 import { streamAgentReply, isLlmAvailable } from '../lib/llmClient';
 import { buildSourceExcerpt, retrieveForQueryHybrid } from '../lib/sourceContext';
 import { spanFromCitation } from '../lib/conceptProvenance';
+import { verifyGrounding } from '../lib/groundingVerifier';
+import { appendLearningEvent } from '../lib/learningEvents';
 import { formatCitation } from '../lib/rag';
 import { GoToSourceButton } from './GoToSourceButton';
 import { RichText } from './RichText';
@@ -156,6 +158,19 @@ export function Agent({
       ? retrieval.citations.slice(0, 3).map(formatCitation).join('  ·  ')
       : undefined;
 
+    const strictGrounding =
+      settings?.sourceMode === 'strict' || settings?.sourceMode === 'notes-only';
+    const grounding = strictGrounding
+      ? verifyGrounding(content, retrieval.citations, { strict: true })
+      : null;
+    if (grounding) {
+      appendLearningEvent('grounding_checked', {
+        verified: grounding.verified,
+        coverage: Math.round(grounding.coverage * 100) / 100,
+        unattributed: grounding.unattributedCount,
+      });
+    }
+
     onUpdateMessage(streamId, {
       content,
       isStreaming: false,
@@ -165,6 +180,8 @@ export function Agent({
         sourceGrounded: retrieval.grounded || sourceGrounded || (mode !== 'motivation' && !!queryExcerpt),
         enrichmentUsed: settings?.sourceMode === 'enriched' && !retrieval.grounded,
         inferenceUsed: usedLlm,
+        groundingVerified: grounding?.verified,
+        groundingCoverage: grounding?.coverage,
       },
     });
     setIsThinking(false);
@@ -503,6 +520,16 @@ function MessageBubble({
             {message.sourceReference}
           </div>
         ) : null}
+
+        {message.metadata?.groundingVerified === true && (
+          <p className="mt-1.5 text-[10px] text-accent-emerald">✓ Source grounding verified</p>
+        )}
+        {message.metadata?.groundingVerified === false && (
+          <p className="mt-1.5 text-[10px] text-accent-amber flex items-center gap-1">
+            <AlertTriangle className="w-3 h-3" />
+            Review citations — some claims may lack source overlap
+          </p>
+        )}
 
         {message.confidence !== undefined && message.confidence < 0.8 && (
           <div className="mt-1.5 flex items-center gap-1 text-xs text-accent-amber">

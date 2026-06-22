@@ -175,6 +175,19 @@ that topic.
 `src/lib/uploadPipeline.ts` → `buildCourseFromOutline` materializes the
 outline into the runtime types:
 
+- `src/lib/courseSourceQuality.ts` analyzes the *whole course source* before
+  assembly. It mixes word count, section count, definitions, glossary breadth,
+  keyphrase breadth, formulas, comparisons, worked-example cues, and
+  concept-density into a normalized **course-level source quality score**.
+- The output is stored as `Course.sourceQuality`:
+  `{ score, band, needsMoreMaterial, warnings, nextActions, detectedTopicCount, recommendedTopicCount, finalTopicCount, outlineAdjusted, metrics }`.
+- `adaptOutlineToSourceQuality` is the upstream control loop: when the outline
+  has more topics than the source can realistically support, neighboring topics
+  are merged before the course is built. This prevents shallow, over-split
+  courses and makes the final module count match source density.
+- Incremental upload (`mergeOutlineIntoCourse`) recomputes the quality signal on
+  the merged course preview, so warnings and module budgets evolve as more
+  material is added.
 - `Course` with `topics: Topic[]`, each `Topic` has `concepts`, `objectives`,
   `prerequisites`, `examples`, and a deterministic stable id derived from
   the canonical title + content hash.
@@ -241,6 +254,7 @@ deterministic and citable.
 | --------- | --------- |
 | `relevantExcerpt(text, concept)` | Hybrid score: `tokenOverlap(rag.tokenize) + phraseHit + BM25 over chunks` for large docs. Reorders top hits by document order so the excerpt reads naturally. |
 | `topRelevantChunks(text, concept, k)` | Direct BM25 hits (deduped by chunk id). |
+| `buildWorkspaceSourceIntelligence(...)` | Composite scoring over passage relevance, structure, explicit definitions, glossary overlap, worked examples, formulas, comparison rows, concept-map breadth, step count, and quiz availability. Emits a 0β€“100 grounding score plus a recommended workspace tool. |
 | `buildConceptMapFromCourse(course)` | Topic-level nodes + edges from prerequisites + **PMI co-occurrence** edges across sliding sentence windows (`window=3`, threshold from observed mass). |
 | `buildQuizFromNotes(text, concept, glossary)` | Cloze (glossary-grounded) and MC items pulled from sentences scoring high on `conceptRelevanceScore`. Distractors via `rankDistractorTerms` / `rankDistractorSentences`. Options ordered by **deterministic seeded shuffle** (`seedFromString(concept + correct)`), so the correct answer is randomly placed but the order is stable across renders. |
 | `extractWorkedExamples(text)` | Detects sentences flagged by example markers (`for example`, `παράδειγμα`, `consider`, numbered "Example 1." headings). |

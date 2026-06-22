@@ -6,6 +6,7 @@ import {
   stemLite,
   extractiveSummary,
   analyzeContentToOutline,
+  inferSubject,
 } from './contentAnalysis';
 
 describe('splitSentences', () => {
@@ -124,5 +125,23 @@ Plants use chlorophyll molecules to capture light.
     const summary = extractiveSummary(repetitive, 2, { mmrLambda: 0.4 });
     expect(summary.length).toBe(2);
     expect(summary[0]).not.toBe(summary[1]);
+  });
+});
+
+describe('inferSubject', () => {
+  it('classifies clear law content without defaulting to economics', () => {
+    const text = `
+Contract liability requires a valid statute, a plaintiff, and a defendant.
+Jurisdiction and legislation determine how the court evaluates the dispute.
+    `.trim();
+    expect(inferSubject(text)).toBe('Law');
+  });
+
+  it('falls back to General Studies for ambiguous mixed-domain notes', () => {
+    const text = `
+This short note mentions a function, an argument, and a contract,
+but it does not stay long enough in any one subject to support a strong classification.
+    `.trim();
+    expect(inferSubject(text)).toBe('General Studies');
   });
 });

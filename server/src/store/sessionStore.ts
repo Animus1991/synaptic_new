@@ -12,6 +12,10 @@ export type StoredSession = {
   openMistakes: unknown[];
   activities: unknown[];
   userSettings: unknown;
+  /** Workspace concept bus map (scope → activities) — JSONB-safe additive field. */
+  conceptBuses?: Record<string, unknown>;
+  /** Workspace spaced step schedules (scope → stepIndex → entry). */
+  stepSchedules?: Record<string, unknown>;
   updatedAt: string;
 };
 

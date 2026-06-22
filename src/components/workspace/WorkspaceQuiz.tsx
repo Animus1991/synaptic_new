@@ -2,10 +2,12 @@ import { useMemo, useState } from 'react';
 import { cn } from '../../utils/cn';
 import { isMcQuiz, type QuizDef } from '../../lib/lessonTypes';
 import type { Lang } from '../../lib/i18n';
+import type { QuizIrtDisplay } from '../../lib/quizIrt';
 
 type Props = {
   quizDef: QuizDef;
   lang: Lang;
+  irt?: QuizIrtDisplay;
   onComplete: (correct: boolean) => void;
 };
 
@@ -13,7 +15,7 @@ function normalizeAnswer(s: string): string {
   return s.trim().toLowerCase().replace(/\s+/g, ' ');
 }
 
-export function WorkspaceQuiz({ quizDef, lang, onComplete }: Props) {
+export function WorkspaceQuiz({ quizDef, lang, irt, onComplete }: Props) {
   const [mcAnswer, setMcAnswer] = useState<number | null>(null);
   const [shortText, setShortText] = useState('');
   const [shortChecked, setShortChecked] = useState<boolean | null>(null);
@@ -32,7 +34,25 @@ export function WorkspaceQuiz({ quizDef, lang, onComplete }: Props) {
   if (isMcQuiz(quizDef)) {
     const passed = mcAnswer !== null && mcAnswer === quizDef.correctIndex;
     return (
-      <div className="space-y-3">
+      <div className="space-y-3" data-testid="workspace-quiz">
+        {irt && (
+          <div
+            className="flex flex-wrap items-center gap-2 rounded-lg border border-border-subtle bg-surface-primary/40 px-2.5 py-1.5 text-[10px] text-text-muted"
+            data-testid="quiz-irt-badge"
+          >
+            <span>
+              {lang === 'el' ? 'Ικανότητα' : 'Ability'}: {irt.ability.toFixed(2)}
+            </span>
+            <span>·</span>
+            <span>
+              {lang === 'el' ? 'Δυσκολία' : 'Difficulty'}: {irt.difficulty.toFixed(2)}
+            </span>
+            <span>·</span>
+            <span>
+              P ≈ {(irt.passProbability * 100).toFixed(0)}%
+            </span>
+          </div>
+        )}
         <p className="text-sm mb-3">{quizDef.question}</p>
         {quizDef.options.map((opt, i) => (
           <button
@@ -78,7 +98,12 @@ export function WorkspaceQuiz({ quizDef, lang, onComplete }: Props) {
       onComplete(ok);
     };
     return (
-      <div className="space-y-3">
+      <div className="space-y-3" data-testid="workspace-quiz">
+        {irt && (
+          <div className="text-[10px] text-text-muted" data-testid="quiz-irt-badge">
+            {lang === 'el' ? 'Προσαρμοστική' : 'Adaptive'} · θ={irt.ability.toFixed(2)} · b={irt.difficulty.toFixed(2)}
+          </div>
+        )}
         <p className="text-sm">{sa.question}</p>
         {sa.hint && <p className="text-xs text-text-muted">{sa.hint}</p>}
         <input

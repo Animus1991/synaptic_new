@@ -25,6 +25,8 @@ sessionRouter.put('/session', authenticate, async (req: Request, res: Response) 
       openMistakes: body.openMistakes ?? [],
       activities: body.activities ?? [],
       userSettings: body.userSettings ?? null,
+      conceptBuses: body.conceptBuses ?? {},
+      stepSchedules: body.stepSchedules ?? {},
     });
     res.json(saved);
   } catch (e) {

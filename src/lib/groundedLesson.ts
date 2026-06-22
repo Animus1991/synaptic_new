@@ -38,29 +38,35 @@ export function getNoteContentForLessonStep(
   const paragraphs = excerpt.split(/\n{2,}/).filter((p) => p.trim());
 
   switch (key) {
-    case 'intro': {
+    case 'hook': {
       const biasTerms = [concept, topic?.title, ...(topic?.keyConcepts?.slice(0, 3) ?? [])].filter(
         (s): s is string => typeof s === 'string' && s.length > 0,
       );
-      const summary = extractiveSummary(excerpt, 2, { biasTerms, leadBias: 0.2, mmrLambda: 0.7 }).join('\n\n');
-      const objectives = topic?.objectives?.length
-        ? topic.objectives.map((o) => `• ${o}`).join('\n')
-        : '';
+      const why = extractiveSummary(excerpt, 1, { biasTerms, leadBias: 0.25, mmrLambda: 0.7 })[0] ?? '';
       const heading = topic?.title ?? concept;
       const lead =
         lang === 'el'
-          ? `Αυτό το μάθημα βασίζεται αποκλειστικά στο υλικό που ανέβασες για «${heading}».`
-          : `This lesson is grounded exclusively in your uploaded material for «${heading}».`;
-      const sectionLead = sections[0]?.heading
-        ? (lang === 'el' ? `Ενότητα: ${sections[0].heading}` : `Section: ${sections[0].heading}`)
-        : '';
-      return [lead, sectionLead, summary, objectives].filter(Boolean).join('\n\n');
+          ? `Γιατί μετράει το «${heading}»;`
+          : `Why does «${heading}» matter?`;
+      return [lead, why].filter(Boolean).join('\n\n');
     }
-    case 'explanation': {
+    case 'prior': {
+      const prior = splitSentences(excerpt)
+        .filter((s) => /\b(before|first|assume|already know|foundation|prerequisite|πριν|γνωρίζεις|βάση)/i.test(s))
+        .slice(0, 2)
+        .join(' ');
+      return (
+        prior ||
+        (lang === 'el'
+          ? `Πριν προχωρήσουμε: τι ξέρεις ήδη για το «${concept}»;`
+          : `Before we continue: what do you already know about «${concept}»?`)
+      );
+    }
+    case 'core': {
       const sec = pickSection(sections, 0, concept);
       return sec?.text?.trim() || paragraphs[0]?.trim() || excerpt.slice(0, 900);
     }
-    case 'example': {
+    case 'worked-example': {
       const ex = extractWorkedExamples(excerpt, concept, 1)[0];
       const exampleSection = pickSection(sections, 1, concept);
       return ex ?? exampleSection?.text?.trim() ?? paragraphs[1]?.trim() ?? '';
@@ -99,7 +105,7 @@ export function getNoteContentForLessonStep(
       const summary = extractiveSummary(lastSection?.text ?? excerpt, 3, { biasTerms, mmrLambda: 0.6 }).join('\n\n');
       return summary || excerpt.slice(0, 600);
     }
-    case 'quiz':
+    case 'retrieval':
     default:
       return '';
   }

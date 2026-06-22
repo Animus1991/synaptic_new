@@ -16,6 +16,8 @@ import {
   titleCasePhrase,
 } from './contentAnalysis';
 import { buildCorpusFromChunks, chunkText, retrieve, tokenize, type SourceChunk } from './rag';
+import { extractTables, tableToComparisonRows } from './tableExtract';
+import { targetQuizDifficulty } from './quizIrt';
 
 /* ------------------------------------------------------------------ *
  * Source gathering & relevance
@@ -175,6 +177,11 @@ export interface ExtractedFormula {
 const FORMULA_LINE =
   /(?:^|\n)\s*(?:Formula|Τύπος|Equation|Ισοδύναμο|Expression)?\s*:?\s*([A-Za-zΑ-Ωα-ω][A-Za-zΑ-Ωα-ω0-9_²³*+\-/()=.,%Δ\s]{4,80}=[A-Za-zΑ-Ωα-ω0-9_²³*+\-/().,%Δ\s]{2,80})/gim;
 
+const INLINE_MATH_DELIMITERS = /\\\[([^\\]+)\\\]|\\\(([^\\]+)\\\)|\$\$?([^$]+)\$\$?/g;
+
+const MATH_EXPRESSION =
+  /([A-Za-zΑ-Ωα-ω][A-Za-zΑ-Ωα-ω0-9_²³*+\-/()=.,%Δ\s]*(?:=|≥|≤|≈|→|⇒)[A-Za-zΑ-Ωα-ω0-9_²³*+\-/().,%Δ\s]{2,80})/g;
+
 export function extractFormulas(text: string, concept?: string, max = 8): ExtractedFormula[] {
   const excerpt = concept ? relevantExcerpt(text, concept, 12000) : text;
   const out: ExtractedFormula[] = [];
@@ -183,16 +190,17 @@ export function extractFormulas(text: string, concept?: string, max = 8): Extrac
   const add = (raw: string, label?: string) => {
     const formula = raw.replace(/\s+/g, ' ').trim();
     if (formula.length < 5 || formula.length > 120) return;
-    if (!/[=]/.test(formula) && !/\$/.test(formula)) return;
+    if (!/[=≥≤≈→⇒]/.test(formula) && !/\$|\\/.test(formula)) return;
     const k = normalizeConcept(formula);
     if (seen.has(k)) return;
     seen.add(k);
-    const name = label?.trim() || formula.split('=')[0]?.trim() || `Formula ${out.length + 1}`;
+    const name = label?.trim() || formula.split(/[=≥≤≈→⇒]/)[0]?.trim() || `Formula ${out.length + 1}`;
     out.push({ id: `nf-${out.length}`, name: name.slice(0, 48), formula });
   };
 
-  for (const m of excerpt.matchAll(/\$\$?([^$]+)\$\$?/g)) {
-    add(m[1]!.trim(), 'LaTeX');
+  for (const m of excerpt.matchAll(INLINE_MATH_DELIMITERS)) {
+    const raw = m[1] ?? m[2] ?? m[3];
+    if (raw) add(raw.trim(), 'LaTeX');
     if (out.length >= max) return out;
   }
 
@@ -201,12 +209,53 @@ export function extractFormulas(text: string, concept?: string, max = 8): Extrac
     if (out.length >= max) return out;
   }
 
+  for (const m of excerpt.matchAll(MATH_EXPRESSION)) {
+    add(m[1]!);
+    if (out.length >= max) return out;
+  }
+
   for (const s of splitSentences(excerpt)) {
-    if (!/[=]/.test(s) || s.length > 140) continue;
-    const eq = s.match(/([A-Za-zΑ-Ω][A-Za-zΑ-Ω0-9_²³]*\s*=\s*[^.]{3,60})/);
+    if (!/[=≥≤≈]/.test(s) || s.length > 140) continue;
+    const eq = s.match(/([A-Za-zΑ-Ω][A-Za-zΑ-Ω0-9_²³]*\s*[=≥≤≈]\s*[^.]{3,60})/);
     if (eq) add(eq[1]!, titleCasePhrase((concept ?? 'Key').toLowerCase()));
     if (out.length >= max) break;
   }
+
+  return out;
+}
+
+/**
+ * Convert a plain-text formula into a best-effort LaTeX string for rendering.
+ * Handles Greek letters, superscripts/subscripts, common operators, and
+ * fractions written as a/b.
+ */
+export function formulaToLatex(formula: string): string {
+  let out = formula.trim();
+  if (out.startsWith('$') && out.endsWith('$')) {
+    return out.slice(1, -1);
+  }
+  if (out.startsWith('\\(') && out.endsWith('\\)')) {
+    return out.slice(2, -2);
+  }
+
+  // Greek letters.
+  const greek: Record<string, string> = {
+    α: '\\alpha', β: '\\beta', γ: '\\gamma', δ: '\\delta', ε: '\\epsilon', ζ: '\\zeta',
+    η: '\\eta', θ: '\\theta', ι: '\\iota', κ: '\\kappa', λ: '\\lambda', μ: '\\mu',
+    ν: '\\nu', ξ: '\\xi', ο: 'o', π: '\\pi', ρ: '\\rho', σ: '\\sigma', τ: '\\tau',
+    υ: '\\upsilon', φ: '\\phi', χ: '\\chi', ψ: '\\psi', ω: '\\omega',
+    Δ: '\\Delta', Σ: '\\Sigma', Π: '\\Pi', Θ: '\\Theta', Λ: '\\Lambda', Ω: '\\Omega',
+  };
+  out = out.replace(/[Α-Ωα-ω]/gu, (ch) => greek[ch] ?? ch);
+
+  // Superscripts ² and ³.
+  out = out.replace(/²/g, '^{2}').replace(/³/g, '^{3}');
+
+  // Fractions a/b where a and b are simple terms.
+  out = out.replace(/\b([A-Za-z0-9_{}\\]+)\s*\/\s*([A-Za-z0-9_{}\\]+)\b/g, '\\frac{$1}{$2}');
+
+  // Square root sqrt(...).
+  out = out.replace(/\bsqrt\s*\(([^)]+)\)/gi, '\\sqrt{$1}');
 
   return out;
 }
@@ -224,95 +273,6 @@ const COMPARE_PATTERNS: RegExp[] = [
   /\b(.{4,50}?)\s+(?:vs\.?|versus|compared to|unlike|whereas|while|in contrast to|differs from)\s+(.{4,80}?)[.;]/gi,
   /\b(.{4,50}?)\s+(?:ενώ|αντίθετα|σε αντίθεση|σε σύγκριση με|διαφέρει από)\s+(.{4,80}?)[.;]/gi,
 ];
-
-interface MarkdownTable {
-  headers: string[];
-  rows: string[][];
-}
-
-/**
- * Parse Markdown pipe tables out of a body of text.
- *
- * A valid Markdown table is: a header line, an alignment line containing only
- * `|`, `-`, and `:`, and one or more data rows. We tolerate optional leading
- * pipes and ignore any indentation. Lines that aren't part of a table flush
- * any in-progress block.
- */
-function parseMarkdownTables(text: string): MarkdownTable[] {
-  const lines = text.replace(/\r\n/g, '\n').split('\n');
-  const tables: MarkdownTable[] = [];
-  let i = 0;
-
-  const splitRow = (line: string): string[] | null => {
-    const trimmed = line.trim();
-    if (!trimmed.includes('|')) return null;
-    const inner = trimmed.replace(/^\|/, '').replace(/\|$/, '');
-    const cells = inner.split('|').map((c) => c.trim());
-    if (cells.length < 2) return null;
-    return cells;
-  };
-
-  while (i < lines.length) {
-    const headerCells = splitRow(lines[i] ?? '');
-    const align = lines[i + 1]?.trim() ?? '';
-    const isAlignRow = /^\|?\s*:?-{2,}:?\s*(\|\s*:?-{2,}:?\s*)+\|?$/.test(align);
-    if (headerCells && isAlignRow && headerCells.length >= 2) {
-      const headers = headerCells;
-      const rows: string[][] = [];
-      i += 2;
-      while (i < lines.length) {
-        const row = splitRow(lines[i] ?? '');
-        if (!row) break;
-        // Pad/truncate to the header width.
-        const padded = row.slice(0, headers.length);
-        while (padded.length < headers.length) padded.push('');
-        rows.push(padded);
-        i++;
-      }
-      if (rows.length > 0) tables.push({ headers, rows });
-      continue;
-    }
-    i++;
-  }
-  return tables;
-}
-
-/**
- * Convert a Markdown comparison table into `[dimension, left, right]` rows.
- *
- * A "comparison table" is one with at least 2 data columns; we treat the first
- * column as the dimension and the remaining columns as the things being
- * compared. For tables with >2 data columns we emit one row per
- * (dim, col_i, col_j) pair, capped to keep the UI usable.
- */
-function rowsFromTable(t: MarkdownTable, conceptKey: string): [string, string, string][] {
-  if (t.headers.length < 3 || t.rows.length === 0) return [];
-  const dimHeader = t.headers[0]!.trim();
-  const out: [string, string, string][] = [];
-  for (const row of t.rows) {
-    const dim = (row[0] ?? dimHeader).trim();
-    if (!dim) continue;
-    for (let i = 1; i < row.length; i++) {
-      for (let j = i + 1; j < row.length; j++) {
-        const left = (row[i] ?? '').trim();
-        const right = (row[j] ?? '').trim();
-        if (left.length < 2 || right.length < 2 || left === right) continue;
-        const ai = (t.headers[i] ?? '').trim();
-        const bj = (t.headers[j] ?? '').trim();
-        const label = ai && bj ? `${dim} (${ai} vs ${bj})` : dim;
-        out.push([label.slice(0, 80), left.slice(0, 100), right.slice(0, 100)]);
-      }
-    }
-    if (out.length >= 8) break;
-  }
-  // Lightweight relevance bias: keep tables whose header or first cell mentions the concept.
-  const concept = conceptKey.toLowerCase();
-  if (concept) {
-    const head = (dimHeader + ' ' + t.rows.map((r) => r[0] ?? '').join(' ')).toLowerCase();
-    if (!head.includes(concept) && out.length > 4) return out.slice(0, 4);
-  }
-  return out;
-}
 
 export function extractComparisons(
   text: string,
@@ -334,10 +294,10 @@ export function extractComparisons(
     rows.push([d || concept, left, right]);
   };
 
-  // 1) Structured: Markdown comparison tables in the source notes.
-  const tables = parseMarkdownTables(excerpt);
+  // 1) Structured: Markdown and plain-text comparison tables in the source notes.
+  const tables = extractTables(excerpt);
   for (const tbl of tables) {
-    for (const r of rowsFromTable(tbl, concept)) {
+    for (const r of tableToComparisonRows(tbl, concept)) {
       push(r[0], r[1], r[2]);
       if (rows.length >= 6) return rows;
     }
@@ -738,6 +698,30 @@ export function buildQuizFromNotes(
     if (q) return q;
   }
   return null;
+}
+
+/** IRT-guided quiz selection — tries builders closest to target difficulty first (W7). */
+export function buildAdaptiveQuizFromNotes(
+  text: string,
+  concept: string,
+  glossary: GlossaryEntry[],
+  lang: Lang,
+  ability: number,
+  conceptMastery: number,
+): QuizDef | null {
+  const target = targetQuizDifficulty(ability, conceptMastery);
+  const candidates: { build: () => QuizDef | null; difficulty: number }[] = [
+    { build: () => buildMatchingQuizFromGlossary(glossary, concept, lang), difficulty: 2.4 },
+    { build: () => buildOrderingQuizFromNotes(text, concept, lang), difficulty: 2.0 },
+    { build: () => buildShortAnswerQuizFromGlossary(glossary, concept, lang), difficulty: 1.6 },
+    { build: () => buildMcQuizFromNotes(text, concept, glossary, lang), difficulty: 1.0 },
+  ];
+  candidates.sort((a, b) => Math.abs(a.difficulty - target) - Math.abs(b.difficulty - target));
+  for (const c of candidates) {
+    const q = c.build();
+    if (q) return q;
+  }
+  return buildQuizFromNotes(text, concept, glossary, lang);
 }
 
 /* ------------------------------------------------------------------ *
@@ -1173,10 +1157,7 @@ export function buildFeynmanOutline(
 }
 
 export function buildFeynmanGaps(glossary: GlossaryEntry[], concept: string, lang: Lang): string[] {
-  const terms = glossary
-    .filter((g) => conceptRelevanceScore(g.term, concept) > 0.2)
-    .slice(0, 4)
-    .map((g) => g.term);
+  const terms = buildFeynmanGapTerms(glossary, concept);
   if (terms.length === 0) {
     return lang === 'el'
       ? [`Χρησιμοποίησε ακριβείς όροι από τις σημειώσεις για το «${concept}».`]
@@ -1187,12 +1168,24 @@ export function buildFeynmanGaps(glossary: GlossaryEntry[], concept: string, lan
     : [`Include these terms from your material: ${terms.join(', ')}.`];
 }
 
-const ECON_SANDBOX =
-  /\b(supply|demand|equilibrium|elasticity|price|quantity|προσφορ|ζήτησ|ισορροπ|ελαστικ|τιμή|ποσότητ)/i;
+export function buildFeynmanGapTerms(glossary: GlossaryEntry[], concept: string): string[] {
+  return glossary
+    .filter((g) => conceptRelevanceScore(g.term, concept) > 0.2)
+    .slice(0, 4)
+    .map((g) => g.term);
+}
 
-export function notesSupportEconomicsSandbox(text: string, concept: string): boolean {
+/**
+ * Determine whether the current material supports the parametric sandbox.
+ * The current UI is a transitional supply/demand explorer; it is enabled only
+ * when the notes contain explicit formulas or quantitative comparisons so it
+ * is not domain-specific. A generic parameter explorer is planned for Phase 4
+ * (see EXHAUSTIVE_PRODUCT_SCALE_BLUEPRINT.md §5).
+ */
+export function notesSupportSandbox(text: string, concept: string, formulas: ExtractedFormula[]): boolean {
+  if (formulas.length > 0) return true;
   const excerpt = relevantExcerpt(text, concept, 6000);
-  return ECON_SANDBOX.test(excerpt) || ECON_SANDBOX.test(concept);
+  return /\b(?:calculate|compute|parameter|variable|value|range|percent|rate|ratio|vs\.?|versus)\b/i.test(excerpt);
 }
 
 export function sandboxInsightFromNotes(text: string, concept: string, lang: Lang): string {

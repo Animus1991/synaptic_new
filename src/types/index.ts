@@ -64,9 +64,39 @@ export interface UploadedFile {
   extractedText?: string;
   pageCount?: number;
   detectedLanguage?: string;
+  /** True when OCR was applied to extract text (scanned PDF / image). */
+  ocrUsed?: boolean;
+  /** How text was obtained from this file. */
+  ingestMethod?: 'text-layer' | 'ocr-server' | 'ocr-client' | 'paste' | 'youtube' | 'transcript';
+  /** Pipeline version that processed this file. */
+  pipelineVersion?: string;
 }
 
 export type FileType = 'pdf' | 'docx' | 'pptx' | 'txt' | 'md' | 'image' | 'csv' | 'code' | 'youtube' | 'audio';
+
+export interface CourseSourceQuality {
+  score: number;
+  band: 'weak' | 'moderate' | 'strong';
+  needsMoreMaterial: boolean;
+  warnings: string[];
+  strengths: string[];
+  nextActions: string[];
+  recommendedTopicCount: number;
+  detectedTopicCount: number;
+  finalTopicCount: number;
+  outlineAdjusted: boolean;
+  metrics: {
+    wordCount: number;
+    sectionCount: number;
+    definitionCount: number;
+    glossaryCount: number;
+    keyphraseCount: number;
+    workedExampleCount: number;
+    formulaCount: number;
+    comparisonCount: number;
+    averageConceptsPerTopic: number;
+  };
+}
 
 export interface Course {
   id: string;
@@ -92,6 +122,16 @@ export interface Course {
   exerciseCount: number;
   /** Sentence-level provenance linking concepts to source file spans. */
   conceptSpans?: ConceptSpan[];
+  /** Upload/course-generation quality signals derived from the source material. */
+  sourceQuality?: CourseSourceQuality;
+  /** Typed concept graph + prerequisite DAG powering ordering and locking. */
+  conceptGraph?: import('../lib/conceptGraph').ConceptGraph;
+  /** Pipeline lineage for reproducibility. */
+  pipelineMeta?: {
+    version: string;
+    generatedAt: string;
+    outlineSource: 'llm' | 'embedding' | 'lexical' | 'fallback' | 'extend';
+  };
 }
 
 /** Maps a course concept to a precise span in uploaded source material. */
@@ -341,6 +381,9 @@ export interface AgentMessage {
     sourceGrounded: boolean;
     enrichmentUsed: boolean;
     inferenceUsed: boolean;
+    /** Post-hoc citation overlap check (strict / notes-only). */
+    groundingVerified?: boolean;
+    groundingCoverage?: number;
   };
 }
 
@@ -405,4 +448,4 @@ export interface ConceptNode {
   connections: { to: string; relation: string }[];
 }
 
-export type AppView = 'landing' | 'onboarding' | 'dashboard' | 'library' | 'tasks' | 'agent' | 'course' | 'lesson' | 'settings' | 'analytics';
+export type AppView = 'landing' | 'onboarding' | 'dashboard' | 'library' | 'tasks' | 'agent' | 'course' | 'lesson' | 'settings' | 'analytics' | 'teacher';
