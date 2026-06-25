@@ -14,11 +14,15 @@ import {
   buildProgressSessionExportPayload,
   buildProgressSessionHtml,
   buildProgressSessionJson,
+  buildConceptBusExportSnapshot,
   downloadProgressSessionJson,
   downloadProgressSessionReport,
   printProgressSessionReport,
   progressSessionFilename,
 } from '../../lib/progressSessionExport';
+import { auditProgressConceptBusMirror } from '../../lib/progressConceptBusMirrorQA';
+import type { ConceptBusRow } from '../../lib/conceptBusPanelModel';
+import { ProgressConceptBusMirrorStrip } from './ProgressConceptBusMirrorStrip';
 import { WorkspaceEmptyState } from './WorkspaceEmptyState';
 import { MiniDashboard } from './MiniDashboard';
 import type { ToolActivityCount } from '../../lib/conceptBusPanelModel';
@@ -53,6 +57,7 @@ type Props = {
   onRemediateWeakSpot?: (concept: string, action: ConceptRemediationId) => void;
   courseName?: string;
   nextAction?: NextActionRecommendation | null;
+  conceptBusRows?: ConceptBusRow[];
 };
 
 export function DashboardPanel({
@@ -70,6 +75,7 @@ export function DashboardPanel({
   onRemediateWeakSpot,
   courseName,
   nextAction,
+  conceptBusRows = [],
 }: Props) {
   const [filterQuery, setFilterQuery] = useState('');
   const isEl = lang === 'el';
@@ -93,8 +99,28 @@ export function DashboardPanel({
       nextActions: miniProps.nextActions,
       session,
       nextAction,
+      conceptBusSnapshot: buildConceptBusExportSnapshot(conceptBusRows),
     }),
-    [lang, concept, courseName, session, miniProps, nextAction],
+    [lang, concept, courseName, session, miniProps, nextAction, conceptBusRows],
+  );
+
+  const mirrorReport = useMemo(
+    () => auditProgressConceptBusMirror({
+      lang,
+      concept,
+      conceptBusRows,
+      toolActivity: miniProps.toolActivity ?? [],
+      weakSpotsDetail: miniProps.weakSpotsDetail ?? [],
+      session,
+      nextAction,
+      readiness: miniProps.readiness,
+      streak: miniProps.streak,
+      reviewsDue: miniProps.reviewsDue,
+      conceptsMastered: miniProps.conceptsMastered,
+      totalConcepts: miniProps.totalConcepts,
+      nextActions: miniProps.nextActions,
+    }),
+    [lang, concept, conceptBusRows, miniProps, session, nextAction],
   );
 
   const exportHtml = useCallback(
@@ -171,6 +197,12 @@ export function DashboardPanel({
             </p>
           </div>
         )}
+
+        <ProgressConceptBusMirrorStrip
+          report={mirrorReport}
+          lang={lang}
+          onExportHtml={handleExportHtml}
+        />
 
         <div className="mb-2 flex flex-wrap items-center gap-2">
           {session.weakSpotCount > 0 && (

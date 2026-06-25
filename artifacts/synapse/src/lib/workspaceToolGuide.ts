@@ -62,7 +62,7 @@ export const WORKSPACE_TOOL_GUIDE: Record<WorkspaceToolId, WorkspaceToolGuide> =
     howTo: [
       { en: 'Explain the concept in plain words, as if to a beginner.', el: 'Εξήγησε την έννοια με απλά λόγια, σαν σε αρχάριο.' },
       { en: 'Get a rubric score on accuracy, simplicity and completeness.', el: 'Πάρε βαθμολογία rubric για ακρίβεια, απλότητα και πληρότητα.' },
-      { en: 'Fix the gaps it finds, then re-explain.', el: 'Διόρθωσε τα κενά που εντοπίζει και εξήγησε ξανά.' },
+      { en: 'Export the rubric report (HTML or PDF) and fix gaps it finds.', el: 'Εξήγαγε την αναφορά rubric (HTML ή PDF) και διόρθωσε τα κενά.' },
     ],
     produces: { en: 'Real understanding you can actually put into words.', el: 'Πραγματική κατανόηση που μπορείς να διατυπώσεις.' },
   },

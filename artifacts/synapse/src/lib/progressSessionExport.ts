@@ -11,6 +11,27 @@ import type { NextActionRecommendation } from './nextActionEngine';
 import { nextActionLabel } from './nextActionEngine';
 import { workspaceToolLabel } from './workspaceToolRegistry';
 import type { WorkspaceToolId } from './taskFlows';
+import type { ConceptBusRow } from './conceptBusPanelModel';
+
+export type ConceptBusExportSnapshot = {
+  concept: string;
+  tools: string[];
+  engagement: number;
+  struggling: boolean;
+  confident: boolean;
+  isFocus: boolean;
+};
+
+export function buildConceptBusExportSnapshot(rows: ConceptBusRow[]): ConceptBusExportSnapshot[] {
+  return rows.map((row) => ({
+    concept: row.concept,
+    tools: row.tools,
+    engagement: row.engagement,
+    struggling: row.struggling,
+    confident: row.confident,
+    isFocus: row.isFocus,
+  }));
+}
 
 export type ProgressSessionExportPayload = {
   lang: Lang;
@@ -27,6 +48,8 @@ export type ProgressSessionExportPayload = {
   totalConcepts: number;
   weakSpots: DashboardWeakSpot[];
   toolActivity: ToolActivityCount[];
+  feynmanActivityCount: number;
+  conceptBusSnapshot: ConceptBusExportSnapshot[];
   nextActions: { label: string; type: string; minutes: number; xp?: number }[];
   workspaceNextAction: { primary: string; reason: string } | null;
   session: Pick<
@@ -72,6 +95,7 @@ export function buildProgressSessionExportPayload(opts: {
   nextActions: { label: string; type: string; minutes: number; xp?: number }[];
   session: DashboardSessionContent;
   nextAction?: NextActionRecommendation | null;
+  conceptBusSnapshot?: ConceptBusExportSnapshot[];
 }): ProgressSessionExportPayload {
   const {
     lang,
@@ -91,6 +115,7 @@ export function buildProgressSessionExportPayload(opts: {
     nextActions,
     session,
     nextAction,
+    conceptBusSnapshot = [],
   } = opts;
 
   const weakExport: DashboardWeakSpot[] = weakSpotsDetail ?? weakSpots.map((w) => ({
@@ -115,6 +140,8 @@ export function buildProgressSessionExportPayload(opts: {
     totalConcepts,
     weakSpots: weakExport,
     toolActivity,
+    feynmanActivityCount: toolActivity.find((row) => row.tool === 'feynman')?.count ?? 0,
+    conceptBusSnapshot,
     nextActions,
     workspaceNextAction: nextAction
       ? {
@@ -151,6 +178,8 @@ export function buildProgressSessionHtml(payload: ProgressSessionExportPayload):
     totalConcepts,
     weakSpots,
     toolActivity,
+    feynmanActivityCount,
+    conceptBusSnapshot,
     nextActions,
     workspaceNextAction,
     session,
@@ -192,6 +221,31 @@ export function buildProgressSessionHtml(payload: ProgressSessionExportPayload):
     : `<ul>${toolActivity.map((row) =>
       `<li>${escapeHtml(workspaceToolLabel(row.tool as WorkspaceToolId, lang))} ×${row.count}</li>`,
     ).join('')}</ul>`;
+
+  const busBlock = conceptBusSnapshot.length === 0
+    ? `<p>${isEl ? 'Concept Bus κενό — δεν καταγράφηκαν συσχετίσεις εννοιών.' : 'Concept Bus empty — no concept correlations recorded.'}</p>`
+    : `<table><thead><tr>
+        <th>${isEl ? 'Έννοια' : 'Concept'}</th>
+        <th>${isEl ? 'Εργαλεία' : 'Tools'}</th>
+        <th>${isEl ? 'Engagement' : 'Engagement'}</th>
+        <th>${isEl ? 'Κατάσταση' : 'Status'}</th>
+      </tr></thead><tbody>${conceptBusSnapshot.map((row) => {
+        const status = row.struggling
+          ? (isEl ? 'Αδύναμο' : 'Struggling')
+          : row.confident
+            ? (isEl ? 'Ισχυρό' : 'Confident')
+            : '—';
+        return `<tr>
+          <td>${escapeHtml(row.concept)}${row.isFocus ? ' ★' : ''}</td>
+          <td>${row.tools.map((t) => escapeHtml(workspaceToolLabel(t as WorkspaceToolId, lang))).join(', ') || '—'}</td>
+          <td>${row.engagement}</td>
+          <td>${escapeHtml(status)}</td>
+        </tr>`;
+      }).join('')}</tbody></table>`;
+
+  const feynmanBlock = feynmanActivityCount > 0
+    ? `<p class="meta">${isEl ? 'Feynman ενέργειες' : 'Feynman actions'}: ${feynmanActivityCount}</p>`
+    : '';
 
   const taskBlock = nextActions.length === 0
     ? `<p>${isEl ? 'Δεν υπάρχουν εργασίες.' : 'No scheduled tasks.'}</p>`
@@ -236,6 +290,10 @@ ${weakBlock}
 
 <h2>${isEl ? 'Εργαλεία συνεδρίας' : 'Session tool activity'}</h2>
 ${toolBlock}
+${feynmanBlock}
+
+<h2>${isEl ? 'Concept Bus (mirror)' : 'Concept Bus mirror'}</h2>
+${busBlock}
 
 <h2>${isEl ? 'Επόμενες εργασίες' : 'Next tasks'}</h2>
 ${taskBlock}

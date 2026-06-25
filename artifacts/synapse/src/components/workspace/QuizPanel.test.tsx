@@ -24,6 +24,12 @@ const session: QuizSessionContent = {
   hasSource: true,
 };
 
+const quizPanelDefaults = {
+  desiredCount: 5,
+  onChangeDesiredCount: vi.fn(),
+  countOptions: [3, 5, 10] as const,
+};
+
 describe('QuizPanel — selection contract §13.5 (Wave 5D)', () => {
   it('shows selection bar when question is clicked', () => {
     const onSelectionAction = vi.fn();
@@ -35,6 +41,7 @@ describe('QuizPanel — selection contract §13.5 (Wave 5D)', () => {
         scopeKey="test-scope"
         onSessionComplete={vi.fn()}
         onSelectionAction={onSelectionAction}
+        {...quizPanelDefaults}
       />,
     );
     fireEvent.click(screen.getByTestId('quiz-question-select'));
@@ -57,6 +64,7 @@ describe('QuizPanel — selection contract §13.5 (Wave 5D)', () => {
         scopeKey="test-scope"
         onSessionComplete={vi.fn()}
         onSelectionAction={vi.fn()}
+        {...quizPanelDefaults}
       />,
     );
     fireEvent.click(screen.getByTestId('quiz-question-select'));
@@ -73,6 +81,7 @@ describe('QuizPanel — selection contract §13.5 (Wave 5D)', () => {
         scopeKey="test-scope"
         onSessionComplete={vi.fn()}
         onSelectionAction={vi.fn()}
+        {...quizPanelDefaults}
       />,
     );
     expect(screen.getByTestId('quiz-selection-contract-strip')).toBeTruthy();

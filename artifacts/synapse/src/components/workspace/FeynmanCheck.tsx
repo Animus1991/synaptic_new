@@ -17,6 +17,8 @@ import {
   downloadFeynmanRubricReport,
   printFeynmanRubricReport,
 } from '../../lib/feynmanRubricExport';
+import { auditFeynmanRubricExportDiscoverability } from '../../lib/feynmanRubricExportDiscoverabilityQA';
+import { FeynmanRubricExportDiscoverabilityStrip } from './FeynmanRubricExportDiscoverabilityStrip';
 
 const RUBRIC_LABEL_KEYS: Record<RubricDimension, I18nKey> = {
   accuracy: 'feynmanAccuracy',
@@ -90,6 +92,8 @@ interface Props {
   initialDraft?: string;
   /** Fired once when the learner submits for coach feedback (deliberate action). */
   onExplanationSubmitted?: (draft: string, overallScore?: number) => void;
+  /** Jump to Dashboard for full session export (Wave 6.8l discoverability). */
+  onOpenDashboard?: () => void;
 }
 export function FeynmanCheck({
   concept = 'Introduction',
@@ -115,6 +119,7 @@ export function FeynmanCheck({
   draftScopeKey,
   initialDraft = '',
   onExplanationSubmitted,
+  onOpenDashboard,
 }: Props) {
   const { t, lang } = useI18n();
   const [text, setText] = useState(initialDraft);  const [coachFeedback, setCoachFeedback] = useState<CoachFeedback | null>(null);
@@ -215,6 +220,17 @@ export function FeynmanCheck({
     else downloadFeynmanRubricReport(`feynman-${concept.slice(0, 24).replace(/\s+/g, '-')}`, html);
   };
 
+  const exportDiscoverability = useMemo(
+    () => auditFeynmanRubricExportDiscoverability({
+      draft: text,
+      rubricReady: Boolean(rubric),
+      scores: rubric?.scores ?? null,
+      hasCoachFeedback: Boolean(coachFeedback),
+      lang,
+    }),
+    [text, rubric, coachFeedback, lang],
+  );
+
   if (!hasSource) {
     return (
       <WorkspaceEmptyState
@@ -233,6 +249,14 @@ export function FeynmanCheck({
           {t('feynmanCheck')} — {concept}
         </h3>
         <p className="mb-3 text-xs text-text-tertiary">{t('feynmanHint')}</p>
+
+        <FeynmanRubricExportDiscoverabilityStrip
+          report={exportDiscoverability}
+          lang={lang}
+          onExportDownload={rubric ? () => exportRubric('download') : undefined}
+          onExportPrint={rubric ? () => exportRubric('print') : undefined}
+          onOpenDashboard={onOpenDashboard}
+        />
 
         {sectionLabel && (
           <p className="mb-2 text-[10px] text-text-muted" data-testid="feynman-section-label">
@@ -402,6 +426,28 @@ export function FeynmanCheck({
               <div className="rounded-xl border border-border-subtle bg-surface-primary/40 p-3">
                 <div className="mb-2 flex items-center justify-between gap-2">
                   <p className="text-[10px] font-semibold uppercase tracking-wide text-text-muted">Rubric</p>
+                  <div className="flex gap-1">
+                    <button
+                      type="button"
+                      data-testid="feynman-rubric-export-download"
+                      onClick={() => exportRubric('download')}
+                      title={lang === 'el' ? 'Κατέβασε αναφορά' : 'Download report'}
+                      className="inline-flex items-center gap-1 rounded-md border border-brand-500/30 bg-brand-600/10 px-2 py-0.5 text-[10px] font-medium text-brand-300 hover:bg-brand-600/20"
+                    >
+                      <Download className="w-3 h-3" />
+                      {lang === 'el' ? 'Εξαγωγή' : 'Export'}
+                    </button>
+                    <button
+                      type="button"
+                      data-testid="feynman-rubric-export-print"
+                      onClick={() => exportRubric('print')}
+                      title={lang === 'el' ? 'PDF' : 'Print / PDF'}
+                      className="inline-flex items-center gap-1 rounded-md border border-border-subtle px-2 py-0.5 text-[10px] font-medium text-text-muted hover:text-text-secondary"
+                    >
+                      <Printer className="w-3 h-3" />
+                      PDF
+                    </button>
+                  </div>
                 </div>
                 <div className="space-y-2">
                   {rubricDims.map((dim) => (

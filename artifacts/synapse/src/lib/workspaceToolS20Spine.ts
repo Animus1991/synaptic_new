@@ -230,8 +230,8 @@ export const WORKSPACE_TOOL_S20: Record<WorkspaceToolId, WorkspaceToolS20Record>
     mobileReady: true,
     bilingual: true,
     hasTests: true,
-    readiness: 'needs-polish',
-    launchBlockers: ['Rubric export discoverability'],
+    readiness: 'launch-ready',
+    launchBlockers: [],
   }),
   quiz: spine({
     toolId: 'quiz',

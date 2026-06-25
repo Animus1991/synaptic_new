@@ -57,10 +57,13 @@ describe('progressSessionExport', () => {
     expect(html).toContain('2× quiz mistakes');
     expect(html).toContain('Test me');
     expect(html).toContain('Quiz ×2');
+    expect(html).toContain('Concept Bus mirror');
 
     const json = JSON.parse(buildProgressSessionJson(payload));
     expect(json.concept).toBe('Elasticity');
     expect(json.weakSpots[0].remediation[0].id).toBe('quiz');
+    expect(json.feynmanActivityCount).toBe(0);
+    expect(Array.isArray(json.conceptBusSnapshot)).toBe(true);
   });
 
   it('generates stable filenames', () => {

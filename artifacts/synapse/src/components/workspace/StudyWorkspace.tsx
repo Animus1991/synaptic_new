@@ -2180,6 +2180,7 @@ export function StudyWorkspace({
                     onRemediateWeakSpot={handleConceptBusRemediation}
                     courseName={courseName ?? linkedCourse?.title}
                     nextAction={nextActionRecommendation}
+                    conceptBusRows={conceptBusRows}
                   />
                 )}
                 {activeTool === 'leitner' && (
@@ -2332,6 +2333,7 @@ export function StudyWorkspace({
                     }}
                     onFocusConcept={() => openWorkspaceTool('concept-map')}
                     onOpenInReader={(query) => openReaderAtSearch(query, 'feynman')}
+                    onOpenDashboard={() => openWorkspaceTool('dashboard')}
                   />
                 )}
                 {activeTool === 'annotations' && (
