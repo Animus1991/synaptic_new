@@ -52,11 +52,14 @@
 ### Tests
 - `readerStepSync.test.ts` — lib mapping
 - `readerStepSyncBridge.test.ts` — component-level integration (round-trip, quiz no-focus)
+- `readerStepSyncP104QA.test.ts` — SW-P1-04 QA spine
+- `utf8MojibakeRepair.test.ts` — mojibake repair (`έΑΦ` → em dash, etc.)
+- `WorkspaceMobileToolDrawer.test.tsx` — SW-P1-02 mobile drawer
 - `readerGreekSyllabus.test.ts`, `readerBilingualSync.test.ts`, κ.ά.
 
 ### Κενά / επόμενο
-- [ ] Reprocess/re-upload για παλιά PPTX/PDF (garbled Greek pre-2.4)
-- [ ] Component DOM tests (χρειάζεται @testing-library — optional)
+- [ ] Reprocess/re-upload για παλιά PPTX/PDF (garbled Greek pre-2.4) — UI mojibake repair ✅ mitigates display; source reprocess still recommended
+- [x] Component DOM tests — partial: `WorkspaceMobileToolDrawer.test.tsx` (`@testing-library/react`)
 - [ ] Inline glossary popover on hover
 
 ---
@@ -278,7 +281,10 @@
 |------|--------|-------|
 | Regenerate tasks after reprocess | ✅ | `pipelineReprocess.ts`, `useStore.reprocessCourseMaterial`, `pipelineReprocess.test.ts` |
 | CourseView low-quality banner | ✅ | `SourceQualityBanner` in `CourseView.tsx` |
-| Reader↔step sync component tests | ✅ | `readerStepSyncBridge.test.ts` |
+| Reader↔step sync component tests | ✅ | `readerStepSyncBridge.test.ts`, `readerStepSyncP104QA.test.ts` |
+| Mobile tool drawer (SW-P1-02) | ✅ | `WorkspaceMobileToolDrawer.tsx`, `WorkspaceMobileToolDrawer.test.tsx` |
+| UTF-8 mojibake repair + Noto Greek typography | ✅ | `utf8MojibakeRepair.ts`, `index.html`, `.reader-prose` |
+| LessonStepToolBar ↔ nextAction (SW-07) | ✅ | `lessonStepToolbarNextActionSync.ts` |
 | Cross-link bar all tools | ✅ | `WorkspaceToolCrossLinkBar`, `workspaceToolCrossLinks.ts` |
 | Quiz ↔ Leitner ↔ Reader wiring | ✅ | `WorkspaceQuizSession`, `LeitnerBox`, `StudyWorkspace` |
 | Scratchpad / Annotations Agent | ✅ | `FormulaScratchpad`, `AnnotationOverlay` |
@@ -287,8 +293,8 @@
 ### Επόμενα (backlog)
 - [ ] Glossary refresh on reprocess (currently topics + tasks only)
 - [ ] Feynman / Compare / Debate dedicated Agent chips (beyond cross-link bar)
-- [ ] E2E: Reader section nav → step rail sync
-- [ ] `@testing-library/react` for true DOM component tests
+- [ ] E2E: Reader section nav → step rail sync (unit/QA tests ✅; Playwright E2E pending)
+- [ ] `@testing-library/react` — expand beyond mobile drawer test
 
 ---
 
@@ -320,7 +326,7 @@ npm run typecheck
 npm test
 ```
 
-Hard refresh (`Ctrl+Shift+R`) μετά από HMR issues. Για garbled Greek Reader: **Reprocess** ή re-upload (pipeline ≥ 2.4.0).
+Hard refresh (`Ctrl+Shift+R`) μετά από HMR issues. Για garbled Greek Reader: **Reprocess** ή re-upload (pipeline ≥ 2.4.0). Runtime mojibake (`έΑΦ` κ.λπ.) mitigated by `utf8MojibakeRepair` — reprocess still fixes source text.
 
 ---
 

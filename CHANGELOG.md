@@ -7,6 +7,19 @@ client and server are versioned together.
 
 ### Added
 
+- **Launch Wave 7 — Study Workspace Phase 2 UI (`552d0ef`)**
+  - **SW-07:** `lessonStepToolbarNextActionSync` wires `LessonStepToolBar` to
+    `nextActionEngine` recommendations.
+  - **SW-P1-02:** `WorkspaceMobileToolDrawer` — bottom sheet with clustered tools
+    on mobile (`lg:hidden`); fixed bottom bar shows active tool.
+  - **SW-P1-04:** Bidirectional reader↔step sync via `readerStepSyncBridge` +
+    `readerStepSyncP104QA` (section nav ↔ lesson step rail).
+  - **SW-P1-03:** Unified lesson action row on `LessonStepToolBar` — Study / Test /
+    Explain / Agent (`lessonStepUnifiedActions.ts`); highlights `nextActionEngine` match.
+  - **Typography / encoding:** `utf8MojibakeRepair.ts` (pipeline + reader display);
+    Noto Sans + Noto Sans Greek fonts; `.reader-prose` class for EL+EN long-form text.
+  - **Tests:** `WorkspaceMobileToolDrawer.test.tsx`, `utf8MojibakeRepair.test.ts`,
+    `lessonStepUnifiedActions.test.ts`, `LessonStepToolBar.test.tsx`.
 - **Upload outline preview (Phase B)** — `uploadOutlinePreview.ts` +
   `OutlinePreviewPanel`: client-side text extraction on the configure step shows
   detected sections, proposed modules, and source-quality score **before**

@@ -65,6 +65,17 @@ After every successful upload, the learner lands on **CourseView** first.
 Weak/sparse courses expose warnings and an **Add Material** path so the next
 upload can strengthen the same course before deep study.
 
+## Text normalization (reader + pipeline)
+
+`normalizeDocumentText()` in `textSegmentation.ts` runs before segmentation:
+
+1. **`repairUtf8Mojibake`** — fixes double-encoded UTF-8 (e.g. `έΑΦ` → em dash) from bad exports or legacy saves
+2. **`repairGreekDocumentText`** — glued/spaced Greek OCR (`greekTextRepair.ts`)
+
+Reader display applies the same mojibake repair via `repairDisplayText()` in
+`CognitiveReader.tsx`. Reprocess still recommended for permanently fixing source
+text in `extractedText`.
+
 ## Limitations
 
 - YouTube URLs: **transcripts ingested** via the server proxy `/v1/youtube/transcript` — captions are parsed (manual track preferred, ASR fallback) and the resulting text feeds the same outline → course pipeline as text uploads. The video metadata is preserved on the file row; the transcript becomes `extractedText` for chunking + RAG.

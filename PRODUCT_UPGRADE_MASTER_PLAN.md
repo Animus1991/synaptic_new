@@ -203,10 +203,10 @@ See **§4** (deep audit).
 | SW-01 | Discoverability + Concept Bus panels **expanded by default** | P0 | ✅ Fixed: default `false` |
 | SW-02 | Source Intelligence card always expanded — competes with lesson | P0 | ✅ Fixed: collapsed chip |
 | SW-03 | No single “where am I / what next” strip | P0 | ✅ Fixed: context strip |
-| SW-04 | Intelligence rail + ConceptLensBar + weak areas + metrics = clutter | P0 | 🟡 Partial: panels collapsed; weak areas rail still always visible |
-| SW-05 | Step rail duplicates reader section nav | P1 | 📋 Merge semantics |
-| SW-06 | Tool dock 13 icons — no grouping on mobile | P1 | WorkspaceDock has clusters desktop only |
-| SW-07 | LessonContent actions not consistently “next best action” | P1 | 📋 LessonStepToolBar pass |
+| SW-04 | Intelligence rail + ConceptLensBar + weak areas + metrics = clutter | P0 | ✅ Fixed: weak areas rail collapsed when empty (SW-P1-01) |
+| SW-05 | Step rail duplicates reader section nav | P1 | ✅ Fixed: bidirectional reader↔step sync (SW-P1-04) |
+| SW-06 | Tool dock 13 icons — no grouping on mobile | P1 | ✅ Fixed: `WorkspaceMobileToolDrawer` + bottom bar (SW-P1-02) |
+| SW-07 | LessonContent actions not consistently “next best action” | P1 | ✅ Fixed: `lessonStepToolbarNextActionSync` ↔ `nextActionEngine` |
 | SW-08 | Zen mode hides context strip — OK | — | Keep |
 | SW-09 | Empty state good (`WorkspaceEmptyState`) | ✅ | — |
 | SW-10 | Reupload banner compact in workspace | ✅ | User should reprocess for 2.2.1 |
@@ -248,9 +248,9 @@ See **§4** (deep audit).
 ### 4.5 Study Workspace — remaining implementation checklist
 
 - [x] SW-P1-01: Collapse `WeakAreasFocusRail` when `spots.length === 0`
-- [ ] SW-P1-02: Mobile tool drawer (replace tiny dock)
-- [ ] SW-P1-03: `LessonStepToolBar` unified actions (Study / Test / Explain / Agent)
-- [ ] SW-P1-04: Reader section click → workspace step (bidirectional)
+- [x] SW-P1-02: Mobile tool drawer (replace tiny dock) — `WorkspaceMobileToolDrawer.tsx`, `StudyWorkspace` bottom bar (`552d0ef`)
+- [x] SW-P1-03: `LessonStepToolBar` unified actions (Study / Test / Explain / Agent) — `lessonStepUnifiedActions.ts` + action row on toolbar
+- [x] SW-P1-04: Reader section click → workspace step (bidirectional) — `readerStepSyncBridge`, `readerStepSyncP104QA` (`993963f`–`552d0ef`)
 - [ ] SW-P2-05: Agent opens with workspace context JSON
 - [ ] SW-P2-06: Reduce `ConceptLensBar` overlap on small screens
 - [ ] SW-P2-07: Dark/light contrast audit (WCAG AA)
@@ -446,9 +446,9 @@ interface AuthoredBlock { id; courseId; type; content; order; metadata }
 ## 13. Next recommended step
 
 1. **User:** Open course «Διανομή εισοδήματος» → **Επανεπεξεργασία κειμένου** (pipeline 2.2.1)
-2. **Dev:** Implement SW-P1-01–04 (weak areas collapse, mobile drawer, lesson actions, reader sync)
-3. **Dev:** Greek OCR v2.3 with user PDF fixtures in `greekTextRepair.test.ts`
-4. **Dev:** Library files tab delete/reprocess parity with CourseView
+2. **Dev:** SW-P2-05–08 (Agent context JSON, ConceptLens mobile, WCAG audit, `?` i18n)
+4. **Dev:** Greek OCR v2.3 with user PDF fixtures in `greekTextRepair.test.ts`
+5. **Dev:** Sync remaining `WORKSPACE_TOOLS_UPGRADE.md` backlog items
 
 ---
 
@@ -482,22 +482,21 @@ COMPLETED (do not redo)
 - Greek repairGluedGreekText + repairGreekDocumentText in normalizeDocumentText
 - reprocessCourseMaterial without re-upload
 - Waves 3.1–3.3 i18n, 4.1 teacher dashboard, 4.2 billing webhooks
+- **Launch Wave 7 (Jun 2026, `552d0ef`):** SW-07 `lessonStepToolbarNextActionSync`, SW-P1-02 mobile tool drawer, SW-P1-04 reader↔step sync, UTF-8 mojibake repair (`utf8MojibakeRepair.ts`), Noto Sans Greek typography
 
 PRIORITY ORDER (strict)
-1. Study Workspace UI/UX Phase 2 (§4.5 checklist SW-P1-01 through SW-P1-04)
-2. Library files tab: delete + reprocess (parity with CourseView)
-3. Greek OCR v2.3: multi-column order, lecture merge, more glued-word fixtures
-4. Reader ↔ workspace step bidirectional sync
-5. Agent workspace context injection
-6. Editable notes MVP (OCR line correction in Reader)
-7. Teacher authoring shell (plan only unless requested)
-8. Collaborative study (plan only)
+1. Study Workspace UI/UX Phase 2 — SW-P2-05 through SW-P3-08 (SW-P1-01–04 ✅)
+2. Greek OCR v2.3: multi-column order, lecture merge, more glued-word fixtures
+3. Agent workspace context injection (SW-P2-05)
+4. Editable notes MVP (OCR line correction in Reader)
+5. Teacher authoring shell (plan only unless requested)
+6. Collaborative study (plan only)
 
 STUDY WORKSPACE TASKS (implement one per session minimum)
-- SW-P1-01: Collapse WeakAreasFocusRail when spots.length === 0
-- SW-P1-02: Mobile tool drawer with clustered tools (see WorkspaceDock clusters)
-- SW-P1-03: LessonStepToolBar — unified actions: Study section, Test me, Explain from zero, Ask Agent
-- SW-P1-04: CognitiveReader section nav → setCurrentStep; step rail → reader scroll
+- SW-P1-01: Collapse WeakAreasFocusRail when spots.length === 0 — ✅
+- SW-P1-02: Mobile tool drawer with clustered tools — ✅
+- SW-P1-03: LessonStepToolBar — unified actions: Study section, Test me, Explain from zero, Ask Agent — ✅
+- SW-P1-04: CognitiveReader section nav → setCurrentStep; step rail → reader scroll — ✅
 
 DOCUMENT MANAGEMENT
 - Add delete/reprocess to Library.tsx files tab using store.removeUploadedFile and store.reprocessCourseMaterial

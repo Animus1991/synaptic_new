@@ -105,15 +105,16 @@
 
 ### 2.7 Study Workspace (13 εργαλεία)
 
-Βλ. `STUDY_WORKSPACE_LAUNCH_PLAN.md` Wave 6+. Εδώ το UI/UX layer:
+Βλ. `STUDY_WORKSPACE_LAUNCH_PLAN.md` Wave 6+ · **Wave 7 ✅** (`552d0ef`). Εδώ το UI/UX layer:
 
-| Ζώνη | Στόχος |
-|------|--------|
-| **Tool dock** | Μόνο ενεργό + recommended + 3 recent· «Όλα τα εργαλεία» drawer |
-| **Intelligence rail** | Κλειστό by default· 3 tabs (Concept Bus / Weak / Discoverability) με badge counts |
-| **Context strip** | Πάντα: μάθημα · concept · πηγή · επόμενη ενέργεια |
-| **Empty states** | Κάθε tool: γιατί άδειο + CTA (upload / reprocess / άλλο tool) |
-| **Mobile** | Tool drawer + intelligence ως bottom sheet· όχι 4 στήλες ταυτόχρονα |
+| Ζώνη | Στόχος | Wave 7 |
+|------|--------|--------|
+| **Tool dock** | Μόνο ενεργό + recommended + 3 recent· «Όλα τα εργαλεία» drawer | ✅ Desktop clusters + mobile `WorkspaceMobileToolDrawer` (SW-P1-02) |
+| **Intelligence rail** | Κλειστό by default· 3 tabs (Concept Bus / Weak / Discoverability) με badge counts | ✅ (Wave 6.7) |
+| **Context strip** | Πάντα: μάθημα · concept · πηγή · επόμενη ενέργεια | ✅ |
+| **Empty states** | Κάθε tool: γιατί άδειο + CTA (upload / reprocess / άλλο tool) | 🟡 |
+| **Mobile** | Tool drawer + intelligence ως bottom sheet· όχι 4 στήλες ταυτόχρονα | 🟡 Tool drawer ✅ · intelligence bottom sheet pending |
+| **Reader typography** | EL+EN long-form, no mojibake | ✅ Noto Greek + `utf8MojibakeRepair` |
 
 **Acceptance:** §20 questionnaire — κάθε κουμπί έχει τεκμηριωμένο learning outcome.
 
@@ -281,4 +282,4 @@ Exam countdown → exam-prep task → Timer preset → Simulator
 
 ---
 
-*Τελευταία ενημέρωση: Ιούνιος 2026 — συμπεριλαμβάνει lifecycle fixes για Study Workspace.*
+*Τελευταία ενημέρωση: Ιούνιος 2026 — Wave 7 (SW-P1-02 mobile drawer, SW-P1-04 reader sync, typography/mojibake) + lifecycle fixes.*

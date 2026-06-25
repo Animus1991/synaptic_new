@@ -168,10 +168,16 @@
 | **Context strip** (step + tool + next action) | ✅ | `workspaceDiscoverability` | ✅ P0 UX |
 | **Intelligence panels collapsed by default** | ✅ | discoverability + concept bus | ✅ P0 UX |
 | **Weak areas rail (hidden when empty, collapsed default)** | ✅ | `WeakAreasFocusRail`, `shouldShowWeakAreasRail` | ✅ SW-P1-01 |
+| **Mobile tool drawer** (clustered tools, `lg:hidden`) | ✅ | `WorkspaceMobileToolDrawer`, `StudyWorkspace` | ✅ SW-P1-02 |
+| **Reader ↔ step bidirectional sync** | ✅ | `readerStepSyncBridge`, `readerStepSyncP104QA` | ✅ SW-P1-04 |
+| **LessonStepToolBar ↔ nextActionEngine** | ✅ | `lessonStepToolbarNextActionSync` | ✅ SW-07 |
+| **LessonStepToolBar unified actions** | ✅ | `lessonStepUnifiedActions`, `LessonStepToolBar` | ✅ SW-P1-03 |
+| **UTF-8 mojibake repair (display + pipeline)** | ✅ | `utf8MojibakeRepair`, `textSegmentation`, `CognitiveReader` | ✅ Wave 7 |
+| **Noto Sans Greek reader typography** | ✅ | `index.html`, `.reader-prose` | ✅ Wave 7 |
 | **Learning action bar** (study/test/agent/flashcards) | ✅ | `workspaceLearningActions` | ✅ Prompt 4 |
 | Workspace → Agent draft prompt | ✅ | `openAgentFromWorkspace` | ✅ Prompt 8 partial |
 | **Source Intelligence collapsed by default** | ✅ | `SourceIntelligenceCard` | ✅ P0 UX |
-| Lesson pane (steps rail) | ✅ | `buildWorkspaceStepsFromNotes` | 📋 W1 step ↔ section scroll |
+| Lesson pane (steps rail) | ✅ | `buildWorkspaceStepsFromNotes` | ✅ SW-P1-04 reader↔step sync |
 | Source Intelligence card | ✅ | `documentStructureReport` | 📋 W1 merged section count |
 | **Discoverability panel** | ✅ | `workspaceDiscoverability` | ✅ sticky rail |
 | **Concept Bus panel** | ✅ | `conceptBusPanelModel` | ✅ sticky rail |
@@ -193,7 +199,7 @@
 | **Front-matter card** | ✅ **new** | `FrontMatterCard` | — |
 | **Ordered syllabus lists** | ✅ **new** | `listOrdered` | — |
 | Full vs excerpt toggle | ✅ | `sourceFullText` | — |
-| Section nav chips (lectures only) | ✅ | `readerSectionNav` | — |
+| Section nav chips (lectures only) | ✅ | `readerSectionNav` | ✅ SW-P1-04 bidirectional step sync |
 | Annotate / highlights | ✅ | `readerAnnotationStore` | — |
 | Dyslexia mode | ✅ | — | — |
 | TTS read-all | ✅ | `readerTts` | — |

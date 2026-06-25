@@ -122,6 +122,7 @@ export function LessonContent({
       stepCount={stepCount}
       activeTool={activeTool}
       onOpenTool={onOpenTool}
+      onLearningAction={onLearningAction}
       lang={lang}
       nextActionRecommendation={nextActionRecommendation}
       sourceBestTool={sourceBestTool}

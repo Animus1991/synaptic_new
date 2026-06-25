@@ -108,8 +108,20 @@ See **`PLATFORM_UI_UX_MASTER_PLAN.md`** for platform-wide UI/UX, reliability, an
 | 6.8i | Compare | launch-ready | ✅ Reader selection parity + bilingual OCR ensemble (`compareReaderSelectionParityQA.ts`, `bilingualOcrEnsemble.ts`) |
 | 6.8j | Simulator | launch-ready | ✅ Timer preset sync (`simulatorTimerPresetSyncQA.ts`) |
 | 6.8k | Timer | launch-ready | ✅ Exam countdown ↔ dashboard (`timerExamCountdownDashboardQA.ts`) |
-| 6.8l | Feynman | needs-polish | Rubric export discoverability |
-| 6.8m | Progress | launch-ready | Export + Concept Bus mirror |
+| 6.8l | Feynman | needs-polish | Rubric export discoverability — spine shipped (`feynmanRubricExportDiscoverabilityQA.ts`) |
+| 6.8m | Progress | launch-ready | ✅ Export + Concept Bus mirror |
+
+---
+
+## Wave 7 — Study Workspace Phase 2 UI ✅ (Jun 2026, `552d0ef`)
+
+| ID | Item | Status | Spine / files |
+|----|------|--------|---------------|
+| SW-07 | `LessonStepToolBar` ↔ `nextActionEngine` | ✅ | `lessonStepToolbarNextActionSync.ts` |
+| SW-P1-02 | Mobile tool drawer (clustered tools) | ✅ | `WorkspaceMobileToolDrawer.tsx`, `StudyWorkspace` bottom bar |
+| SW-P1-04 | Reader section ↔ workspace step (bidirectional) | ✅ | `readerStepSyncBridge.ts`, `readerStepSyncP104QA.ts` |
+| SW-P1-03 | Unified lesson actions (Study / Test / Explain / Agent) | ✅ | `lessonStepUnifiedActions.ts`, `LessonStepToolBar` action row |
+| — | UTF-8 mojibake repair + Noto Greek typography | ✅ | `utf8MojibakeRepair.ts`, `index.html`, `.reader-prose` |
 
 ---
 
@@ -121,6 +133,7 @@ See **`PLATFORM_UI_UX_MASTER_PLAN.md`** for platform-wide UI/UX, reliability, an
 4. ✅ Wave 5C Discoverability sync
 5. ✅ Wave 5D Quiz selection
 6. ✅ Wave 5E Progress export
-7. ⬜ Wave 6 per-tool polish — Reader 6.1 ✅ · Debate 6.2 ✅ · Sim/Timer 6.3 ✅ · Annotations 6.4 ✅ · Whiteboard 6.5 ✅ · Scratchpad 6.6 ✅ · Mobile intel rail 6.7 ✅ · §20 spine 6.8 🔄
+7. ✅ Wave 6 per-tool polish — Reader 6.1 ✅ · Debate 6.2 ✅ · Sim/Timer 6.3 ✅ · Annotations 6.4 ✅ · Whiteboard 6.5 ✅ · Scratchpad 6.6 ✅ · Mobile intel rail 6.7 ✅ · §20 spine 6.8 ✅
+8. ✅ Wave 7 — SW-07, SW-P1-02, SW-P1-04, typography/mojibake (`552d0ef`)
 
-*Updated: Wave 5E — Progress panel HTML/PDF/JSON session export on shared spine.*
+*Updated: Wave 7 — mobile drawer, reader↔step sync, mojibake repair, Noto Greek typography.*

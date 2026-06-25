@@ -266,12 +266,13 @@ It is **not** a production multi-tenant backend. RAG runs client-side (BM25 + op
 
 ## Next recommended steps (strict order)
 
-1. **Reader↔step bidirectional sync** (SW-P1-04)  
-2. **Reprocess banner** when `sourceQuality < 50` or `pipelineVersion < 2.4`  
-3. **Delete cascade** — remove generated tasks/lessons with file  
-4. **Reader section actions** — Study / Ask Agent from section nav  
-5. **Agent selected-text handoff** from Reader selection  
-6. **UI hierarchy pass** — Greek reading spacing, toolbar grouping  
+1. ~~**Reader↔step bidirectional sync** (SW-P1-04)~~ ✅ `readerStepSyncBridge`, `readerStepSyncP104QA` (`552d0ef`)
+2. ~~**SW-P1-03 full action row**~~ ✅ `lessonStepUnifiedActions` on `LessonStepToolBar`
+3. **Reprocess banner** when `sourceQuality < 50` or `pipelineVersion < 2.4`
+4. **Delete cascade** — remove generated tasks/lessons with file
+5. **Reader section actions** — Study / Ask Agent from section nav
+6. **Agent selected-text handoff** from Reader selection
+7. **UI hierarchy pass** — remaining Greek spacing polish (Noto Greek ✅ shipped)
 
 ---
 

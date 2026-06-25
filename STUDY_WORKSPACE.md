@@ -120,6 +120,11 @@ and switches to **single-pane mode** below that breakpoint. A top-bar
 pane-swap button toggles between the lesson and tool views; the layout
 shortcuts (`L`/`T`/`S`) all map to single-pane modes on mobile.
 
+Below the `lg` breakpoint (1024px), the desktop `WorkspaceDock` hides and
+a **fixed bottom bar** opens `WorkspaceMobileToolDrawer` — a bottom sheet with
+clustered tools (SW-P1-02, `552d0ef`). Same tool groups as desktop dock
+(`WORKSPACE_TOOL_GROUPS` from `workspaceToolRegistry`).
+
 ## Lesson generation (LLM)
 
 When a proxy + LLM key are configured and `hasSource` is true,
@@ -152,6 +157,7 @@ features stay harmonized (not isolated silos).
 | **W6** | Leitner heatmap/deck sync, scratchpad graph, timer .ics, paragraph TTS, annotation SSE |
 | **W7** | Quiz IRT, sandbox sensitivity heatmap, LaTeX stamps, compare diff+CSV, command palette macros |
 | **W8** | Multi-item quiz session + confidence rating; Feynman voice + auto-gap; debate rebuttal graph; concept-map collaborative cursors (SSE); reader OCR overlay |
+| **Launch Wave 7** | SW-07 nextAction toolbar sync; SW-P1-02 mobile drawer; SW-P1-04 reader↔step; UTF-8 mojibake repair; Noto Greek typography (`552d0ef`) |
 
 ## Roadmap / next scale work
 
