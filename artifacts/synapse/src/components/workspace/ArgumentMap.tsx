@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { GitCommit, Plus, Pencil, BookOpen, Shield, Sparkles } from 'lucide-react';
 import { cn } from '../../utils/cn';
-import { suggestCounterArguments } from '../../lib/debateCounterArgs';
+import { suggestCounterArguments, counterArgKindLabel } from '../../lib/debateCounterArgs';
 import { buildRebuttalGraph } from '../../lib/debateRebuttalGraph';
 import { auditDebateRebuttalPersistence } from '../../lib/debateRebuttalGraphPersistQA';
 import {
@@ -201,7 +201,7 @@ export function ArgumentMap({
     const suggestions = sourceText.trim()
       ? suggestCounterArguments(sourceText, focusTerm ?? concept ?? '', claim)
       : [];
-    addNode(parentId, 'refutation', suggestions[0] ?? undefined);
+    addNode(parentId, 'refutation', suggestions[0]?.text ?? undefined);
   };
 
   const counterSuggestions = useMemo(() => {
@@ -333,18 +333,36 @@ export function ArgumentMap({
       </div>
       {counterSuggestions.length > 0 && (
         <div className="shrink-0 border-b border-border-subtle bg-accent-rose/5 px-4 py-2 text-[10px] text-text-secondary">
-          <span className="font-semibold text-accent-rose">{lang === 'el' ? 'Προτεινόμενα αντίθετα:' : 'Suggested counters:'}</span>
-          {' '}
-          {counterSuggestions.map((s, i) => (
-            <button
-              key={i}
-              type="button"
-              className="ml-1 underline hover:text-accent-rose"
-              onClick={() => addNode(root.id, 'refutation', s)}
-            >
-              {s.slice(0, 48)}{s.length > 48 ? '…' : ''}
-            </button>
-          ))}
+          <p className="mb-1.5 font-semibold text-accent-rose">
+            {lang === 'el' ? 'Αντίθετα από τις σημειώσεις σου:' : 'Counters grounded in your notes:'}
+          </p>
+          <div className="flex flex-col gap-1.5">
+            {counterSuggestions.map((s, i) => (
+              <div key={i} className="flex items-start gap-1.5" data-testid="debate-counter-suggestion">
+                <span className="mt-0.5 shrink-0 rounded-full border border-accent-rose/40 bg-accent-rose/10 px-1.5 py-0.5 text-[8px] font-semibold uppercase tracking-wide text-accent-rose">
+                  {counterArgKindLabel(s.kind, lang)}
+                </span>
+                <button
+                  type="button"
+                  className="flex-1 text-left leading-snug hover:text-accent-rose"
+                  title={lang === 'el' ? 'Πρόσθεσε ως αντίθετο' : 'Add as counter'}
+                  onClick={() => addNode(root.id, 'refutation', s.text)}
+                >
+                  {s.text.slice(0, 96)}{s.text.length > 96 ? '…' : ''}
+                </button>
+                {onOpenInReader && (
+                  <button
+                    type="button"
+                    title={lang === 'el' ? 'Δες στην πηγή' : 'Read in source'}
+                    onClick={() => onOpenInReader(s.source)}
+                    className="mt-0.5 shrink-0 rounded p-0.5 text-accent-cyan hover:bg-accent-cyan/10"
+                  >
+                    <BookOpen className="h-3 w-3" />
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
         </div>
       )}
       <DebateRebuttalPersistStrip report={persistReport} lang={lang} />

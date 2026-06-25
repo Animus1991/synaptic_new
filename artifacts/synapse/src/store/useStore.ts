@@ -1635,9 +1635,11 @@ export function useAppStore() {
       ? Math.max(0, Math.ceil((new Date(examDate).getTime() - Date.now()) / 86400000))
       : null;
     const pendingReviews = tasks.filter((t) => t.isSpacedRepetition && t.status === 'pending').length;
+    const lastCalibration =
+      learnerModel.confidenceCalibration[learnerModel.confidenceCalibration.length - 1];
     const antiPassive = dashboardStats.studyTimeToday > 20
       && learnerModel.confidenceCalibration.length > 0
-      && Date.now() - new Date(learnerModel.confidenceCalibration.at(-1)?.timestamp ?? 0).getTime() > 86400000;
+      && Date.now() - new Date(lastCalibration?.timestamp ?? 0).getTime() > 86400000;
     return { masteryDelta, daysToExam, pendingReviews, antiPassive };
   }, [learnerModel, user.settings.examDate, tasks, dashboardStats.studyTimeToday]);
 

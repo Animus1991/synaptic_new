@@ -9,7 +9,10 @@ import {
   type DiagramCoachStep,
   type WhiteboardDiagramAgentIntent,
 } from '../../lib/whiteboardDiagramCoach';
-import { auditWhiteboardBlueprintCoverage } from '../../lib/whiteboardBlueprintCoverageQA';
+import {
+  auditWhiteboardBlueprintCoverage,
+  evaluateLearnerBlueprintCoverage,
+} from '../../lib/whiteboardBlueprintCoverageQA';
 import { WorkspaceEmptyState } from './WorkspaceEmptyState';
 import { StudyWhiteboard } from './StudyWhiteboard';
 import { WhiteboardDiagramCoach } from './WhiteboardDiagramCoach';
@@ -50,6 +53,7 @@ export function WhiteboardPanel({
   const [filterQuery, setFilterQuery] = useState('');
   const [labelInsertKey, setLabelInsertKey] = useState(0);
   const [labelInsertPayload, setLabelInsertPayload] = useState<string[]>([]);
+  const [placedText, setPlacedText] = useState<string[]>([]);
   const isEl = lang === 'el';
 
   const filterMatches = useMemo(
@@ -89,6 +93,18 @@ export function WhiteboardPanel({
       session.sectionLabel, relatedConcepts.length, weakFocus,
     ],
   );
+
+  const learnerCoverage = useMemo(() => {
+    const requiredFormulas = session.formulas
+      .map((f) => f.name)
+      .filter((n) => !coachPlan.nodeLabels.some((l) => l.toLowerCase() === n.toLowerCase()))
+      .slice(0, 3);
+    return evaluateLearnerBlueprintCoverage({
+      requiredLabels: coachPlan.nodeLabels,
+      requiredFormulas,
+      placedText,
+    });
+  }, [coachPlan.nodeLabels, session.formulas, placedText]);
 
   const handleInsertLabels = useCallback((labels: string[]) => {
     if (labels.length === 0) return;
@@ -204,6 +220,7 @@ export function WhiteboardPanel({
       <WhiteboardDiagramCoach
         plan={coachPlan}
         coverageReport={blueprintCoverage}
+        learnerCoverage={learnerCoverage}
         lang={lang}
         onInsertLabels={handleInsertLabels}
         onAskAgent={handleCoachAskAgent}
@@ -220,6 +237,7 @@ export function WhiteboardPanel({
           lang={lang}
           labelInsertKey={labelInsertKey}
           labelInsertPayload={labelInsertPayload}
+          onPlacedTextChange={setPlacedText}
         />
       </div>
     </div>

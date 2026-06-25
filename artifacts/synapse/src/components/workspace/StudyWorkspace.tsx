@@ -10,7 +10,7 @@ import type { WorkspaceToolId } from '../../lib/taskFlows';
 import { WorkspaceDock } from './WorkspaceDock';
 import { WorkspaceMobileToolDrawer } from './WorkspaceMobileToolDrawer';
 import { WorkspaceToolStrip } from './WorkspaceToolStrip';
-import { WorkspaceToolPurposeHint } from './WorkspaceToolPurposeHint';
+import { WorkspaceToolHeader } from './WorkspaceToolHeader';
 import { workspaceToolLabel } from '../../lib/workspaceToolRegistry';
 import { fallbackWorkspaceSteps } from '../../lib/noteContentExtractors';
 import { SourceIntelligenceCard } from './SourceIntelligenceCard';
@@ -1892,7 +1892,14 @@ export function StudyWorkspace({
                   onSelectTool={openWorkspaceTool}
                   lang={lang}
                 />
-                <WorkspaceToolPurposeHint activeTool={activeTool} lang={lang} />
+                <WorkspaceToolHeader
+                  activeTool={activeTool}
+                  lang={lang}
+                  concept={effectiveFocus?.term ?? quizConcept}
+                  hasSource={noteBundle.hasSource}
+                  sourceName={noteBundle.sourceName}
+                  onJumpTool={(tool) => openWorkspaceTool(tool)}
+                />
                 </>
               )}
               {/* Tool surface */}
