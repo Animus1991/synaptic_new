@@ -7,7 +7,7 @@ client and server are versioned together.
 
 ### Added
 
-- **Pipeline P0 — table + math blocks in segmentation path (`a4d5dff`)**
+- **Pipeline P0 — table + math blocks in segmentation path (`1cd7e5e`)**
   - `segmentationEmbeddedBlocks.ts` — shared `collectEmbeddedBlocks` /
     `splitTextWithEmbeddedBlocks` for `textSegmentation` and Reader layout.
   - `detectDocumentSections()` emits `boundaryKind: 'table' | 'math'` with
