@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo, useCallback, lazy, Suspense, type ReactNode } from 'react';
+import { useEffect, useState, useMemo, useCallback, useRef, lazy, Suspense, startTransition, type ReactNode } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useAppStore } from './store/useStore';
 import { applyTheme, watchSystemTheme } from './lib/theme';
@@ -31,7 +31,11 @@ import { AppToastBanner } from './components/AppToastBanner';
 import type { AppView } from './types';
 import type { FsrsRating } from './lib/pedagogy';
 import { visibleCourses } from './lib/demoMode';
-import { StudyWorkspace } from './components/workspace/StudyWorkspace';
+import { WorkspaceBootShell } from './components/workspace/WorkspaceBootShell';
+
+const StudyWorkspace = lazy(() =>
+  import('./components/workspace/StudyWorkspace').then((m) => ({ default: m.StudyWorkspace })),
+);
 
 const Agent = lazy(() => import('./components/Agent').then((m) => ({ default: m.Agent })));
 const Analytics = lazy(() => import('./components/Analytics').then((m) => ({ default: m.Analytics })));
@@ -85,16 +89,59 @@ export default function App() {
   };
 
   const openWorkspace = useCallback(() => {
-    store.openStudyWorkspace();
+    if (store.currentView === 'landing' || store.currentView === 'onboarding') {
+      store.navigate('dashboard');
+    }
+    startTransition(() => {
+      store.openStudyWorkspace();
+    });
   }, [store]);
 
   const openWorkspaceForConcept = useCallback((concept?: string) => {
-    store.openStudyWorkspaceForConcept(concept);
+    if (store.currentView === 'landing' || store.currentView === 'onboarding') {
+      store.navigate('dashboard');
+    }
+    startTransition(() => {
+      store.openStudyWorkspaceForConcept(concept);
+    });
   }, [store]);
 
   const openExamTimerWorkspace = useCallback(() => {
-    store.openStudyWorkspaceForExamCountdown();
+    if (store.currentView === 'landing' || store.currentView === 'onboarding') {
+      store.navigate('dashboard');
+    }
+    startTransition(() => {
+      store.openStudyWorkspaceForExamCountdown();
+    });
   }, [store]);
+
+  const hasCourses = visibleCourses(store.courses, store.user.settings).length > 0;
+
+  const handleSeeDemo = useCallback(() => {
+    store.enableDemoContent();
+    store.navigate('dashboard');
+    startTransition(() => {
+      store.openStudyWorkspace();
+    });
+  }, [store]);
+
+  const handleOnboardingComplete = useCallback((
+    data: Parameters<typeof store.completeOnboarding>[0] & { exploreDemoMode?: boolean },
+  ) => {
+    const { exploreDemoMode, ...rest } = data;
+    if (exploreDemoMode) {
+      store.enableDemoContent();
+      store.navigate('dashboard');
+      startTransition(() => {
+        store.openStudyWorkspace();
+      });
+      return;
+    }
+    store.completeOnboarding(rest);
+  }, [store]);
+
+  const demoDeepLinkFired = useRef(false);
+  const viewDeepLinkFired = useRef(false);
 
   const closeReviewSession = () => {
     store.setReviewSessionOpen(false);
@@ -182,6 +229,7 @@ export default function App() {
   };
 
   const studyWorkspaceElement = (
+    <Suspense fallback={<WorkspaceBootShell compact={agentSplitActive} />}>
       <StudyWorkspace
         key={workspaceSessionKey}
         agentSplit={agentSplitActive}
@@ -228,6 +276,7 @@ export default function App() {
         workspaceOpenTool={store.workspaceOpenTool}
         onConsumeWorkspaceOpenTool={store.consumeWorkspaceOpenTool}
       />
+    </Suspense>
   );
 
   const i18nValue = useMemo(() => ({
@@ -481,11 +530,32 @@ export default function App() {
     });
   }, [store.user.settings.authToken, store.refreshAuthPlan]);
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('demo') !== '1' || demoDeepLinkFired.current) return;
+    demoDeepLinkFired.current = true;
+    handleSeeDemo();
+  }, [handleSeeDemo]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const view = params.get('view');
+    if (!view || viewDeepLinkFired.current) return;
+    const allowed: AppView[] = ['dashboard', 'library', 'tasks', 'agent', 'analytics', 'teacher', 'settings'];
+    if (!allowed.includes(view as AppView)) return;
+    viewDeepLinkFired.current = true;
+    if (!hasCourses) store.enableDemoContent();
+    store.navigate(view as AppView);
+  }, [hasCourses, store]);
+
   // Landing page
   if (store.currentView === 'landing') {
     return (
       <I18nContext.Provider value={i18nValue}>
-        <Landing onGetStarted={() => store.navigate('onboarding')} />
+        <Landing
+          onGetStarted={() => store.navigate('onboarding')}
+          onSeeDemo={handleSeeDemo}
+        />
       </I18nContext.Provider>
     );
   }
@@ -494,7 +564,7 @@ export default function App() {
   if (store.currentView === 'onboarding') {
     return (
       <I18nContext.Provider value={i18nValue}>
-        <Onboarding onComplete={store.completeOnboarding} />
+        <Onboarding onComplete={handleOnboardingComplete} />
       </I18nContext.Provider>
     );
   }
@@ -553,6 +623,8 @@ export default function App() {
               onOpenWorkspace={openWorkspace}
               onOpenExamTimer={openExamTimerWorkspace}
               onFocusWeakArea={openWorkspaceForConcept}
+              onUpload={() => openUploadModal()}
+              onExploreDemo={!hasCourses ? handleSeeDemo : undefined}
               workspaceLive={store.workspaceLive}
               dashboardNextAction={store.dashboardNextAction}
               lang={store.user.settings.language}

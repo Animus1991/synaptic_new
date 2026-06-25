@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+﻿import { useCallback, useState } from 'react';
 import { Sparkles } from 'lucide-react';
 import { RichText } from '../RichText';
 import type { WorkspaceToolId } from '../../lib/taskFlows';
@@ -48,6 +48,7 @@ interface LessonContentProps {
   stepConfusing?: boolean;
   onSelectionAction?: (action: WorkspaceSelectionActionId, ctx: WorkspaceSelectionContext) => void;
   onRemediateWrong?: (kind: 'make-card' | 'feynman', item: QuizSessionItem) => void;
+  sourceBestTool?: WorkspaceToolId | null;
 }
 
 export function LessonContent({
@@ -78,6 +79,7 @@ export function LessonContent({
   stepConfusing,
   onSelectionAction,
   onRemediateWrong,
+  sourceBestTool,
 }: LessonContentProps) {
   const [textSelection, setTextSelection] = useState<string | null>(null);
 
@@ -121,6 +123,8 @@ export function LessonContent({
       activeTool={activeTool}
       onOpenTool={onOpenTool}
       lang={lang}
+      nextActionRecommendation={nextActionRecommendation}
+      sourceBestTool={sourceBestTool}
     />
   ) : null;
 
@@ -146,7 +150,7 @@ export function LessonContent({
             <WorkspaceQuiz quizDef={quizDef} lang={lang} irt={quizIrt} onComplete={onQuizComplete} />
           )}
           {quizPassed && (
-             <p className="text-xs mt-2 text-accent-emerald">✓ {t('canFinish')}</p>
+             <p className="text-xs mt-2 text-accent-emerald">έεΥ {t('canFinish')}</p>
           )}
         </div>
         {toolBar}
@@ -162,7 +166,7 @@ export function LessonContent({
       <div className="space-y-4">
         {learningBar}
         <span className="text-[10px] text-accent-cyan font-semibold uppercase tracking-wider">
-          {lang === 'el' ? 'Από τις σημειώσεις σου' : 'From your notes'}
+          {lang === 'el' ? '╬Σ╧Α╧Ν ╧Ε╬╣╧Γ ╧Δ╬╖╬╝╬╡╬╣╧Ο╧Δ╬╡╬╣╧Γ ╧Δ╬┐╧Ζ' : 'From your notes'}
         </span>
         <h2 className="text-xl font-bold">{stepTitle ?? concept}</h2>
         {stepType && (
@@ -186,7 +190,7 @@ export function LessonContent({
         )}
         {genStatus === 'loading' && (
           <span className="inline-flex items-center gap-1 text-[9px] px-1.5 py-0.5 rounded bg-brand-500/10 text-brand-300 font-medium animate-pulse">
-            <Sparkles className="w-2.5 h-2.5" /> {lang === 'el' ? 'Δημιουργία από τις πηγές σου…' : 'Generating from your sources…'}
+            <Sparkles className="w-2.5 h-2.5" /> {lang === 'el' ? '╬Φ╬╖╬╝╬╣╬┐╧Ζ╧Β╬│╬ψ╬▒ ╬▒╧Α╧Ν ╧Ε╬╣╧Γ ╧Α╬╖╬│╬φ╧Γ ╧Δ╬┐╧ΖέΑο' : 'Generating from your sourcesέΑο'}
           </span>
         )}
         {toolBar}
@@ -199,7 +203,7 @@ export function LessonContent({
       <p className="text-sm text-text-secondary">{emptyMessage}</p>
       {!hasSource && onUpload && (
         <button type="button" onClick={onUpload} className="mt-2 px-4 py-2 rounded-xl text-sm font-medium bg-brand-600 text-white hover:bg-brand-500">
-          {lang === 'el' ? 'Ανέβασμα Υλικού' : 'Upload Material'}
+          {lang === 'el' ? '╬Σ╬╜╬φ╬▓╬▒╧Δ╬╝╬▒ ╬ξ╬╗╬╣╬║╬┐╧Ξ' : 'Upload Material'}
         </button>
       )}
     </div>

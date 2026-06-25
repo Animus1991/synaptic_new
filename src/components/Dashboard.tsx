@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 import {
   Flame, Zap, Target, Clock, BookOpen, AlertTriangle,
   ChevronRight, TrendingUp, Brain, Calendar, ArrowRight, Play,
-  Shield, Lightbulb, RotateCcw, Eye, Layout, CheckCircle2
+  Shield, Lightbulb, RotateCcw, Eye, Layout, CheckCircle2, Upload, Sparkles
 } from 'lucide-react';
 import type { Course, DashboardStats, LearnerModel, Task } from '../types';
 import { cn } from '../utils/cn';
@@ -33,6 +33,8 @@ interface DashboardProps {
   onSelectCourse: (course: Course) => void;
   onOpenWorkspace?: () => void;
   onOpenExamTimer?: () => void;
+  onUpload?: () => void;
+  onExploreDemo?: () => void;
   prerequisiteRepairs?: PrerequisiteRepair[];
   calibration?: { score: number; direction: CalibrationDirection } | null;
   conceptMastery?: { concept: string; mastery: number }[];
@@ -52,7 +54,7 @@ interface DashboardProps {
   lang?: Lang;
 }
 
-export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onSelectCourse, onOpenWorkspace, onOpenExamTimer, prerequisiteRepairs = [], calibration, conceptMastery = [], activities = [], masteryDelta = 0, daysToExam = null, antiPassiveAlert = false, onStartTask, onStartSession, onResolveMisconception, onFocusWeakArea, workspaceLive = null, workspaceBooting = false, dashboardNextAction = null, lang = 'en' }: DashboardProps) {
+export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onSelectCourse, onOpenWorkspace, onOpenExamTimer, onUpload, onExploreDemo, prerequisiteRepairs = [], calibration, conceptMastery = [], activities = [], masteryDelta = 0, daysToExam = null, antiPassiveAlert = false, onStartTask, onStartSession, onResolveMisconception, onFocusWeakArea, workspaceLive = null, workspaceBooting = false, dashboardNextAction = null, lang = 'en' }: DashboardProps) {
   const { t } = useI18n();
   const pendingTasks = tasks.filter(t => t.status === 'pending');
   const criticalTasks = pendingTasks.filter(t => t.priority === 'critical' || t.priority === 'high');
@@ -61,6 +63,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
   const firstReviewTask = findPendingTask(tasks, (t) => t.isSpacedRepetition && t.status === 'pending');
   const showWorkspaceResume = workspaceLive && !workspaceLiveIsStale(workspaceLive);
   const isEl = lang === 'el';
+  const isEmpty = courses.length === 0;
 
   const handleDashboardNextAction = () => {
     if (!dashboardNextAction) return;
@@ -86,6 +89,54 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
         break;
     }
   };
+
+  if (isEmpty) {
+    return (
+      <div className="p-4 sm:p-6 lg:px-8 pb-24 lg:pb-6 w-full min-w-0 flex items-start justify-center pt-8 sm:pt-16">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-2xl">
+          <div className="text-center mb-8">
+            <h1 className="text-2xl sm:text-3xl font-bold text-text-primary mb-2">
+              {isEl ? 'Καλώς ήρθες στο Synapse' : 'Welcome to Synapse'}
+            </h1>
+            <p className="text-text-secondary text-sm sm:text-base max-w-md mx-auto">
+              {isEl
+                ? 'Ανέβασε σημειώσεις ή δοκίμασε το demo για να ανοίξεις τον χώρο μελέτης.'
+                : 'Upload your notes or try the demo to open the study workspace.'}
+            </p>
+          </div>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            {onUpload && (
+              <button
+                type="button"
+                onClick={onUpload}
+                className="flex items-center justify-center gap-2 px-8 py-3.5 bg-gradient-to-r from-brand-600 to-brand-500 text-white rounded-xl font-semibold text-sm hover:from-brand-500 hover:to-brand-400 transition-all"
+              >
+                <Upload className="w-4 h-4" />
+                {isEl ? 'Ανέβασε Υλικό' : 'Upload Material'}
+              </button>
+            )}
+            {onExploreDemo && (
+              <button
+                type="button"
+                onClick={onExploreDemo}
+                className="flex items-center justify-center gap-2 px-8 py-3.5 border border-brand-500/40 bg-brand-500/5 hover:bg-brand-500/10 text-brand-300 rounded-xl font-semibold text-sm transition-all"
+              >
+                <Sparkles className="w-4 h-4" />
+                {isEl ? 'Εξερεύνησε Demo' : 'Explore Demo'}
+              </button>
+            )}
+          </div>
+          {onExploreDemo && (
+            <p className="text-center text-xs text-text-muted mt-3">
+              {isEl
+                ? 'Demo: Μάθημα Οικονομικών — δεν χρειάζεται upload'
+                : 'Demo uses preloaded Economics notes — no upload needed'}
+            </p>
+          )}
+        </motion.div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-4 sm:p-6 lg:px-8 pb-24 lg:pb-6 w-full min-w-0 space-y-6">

@@ -1,7 +1,9 @@
-import { Map, Calculator, Layers, GitCompare, PenSquare, Sparkles, Timer, GitCommit, Type, Highlighter, SlidersHorizontal, CheckSquare, LayoutDashboard } from 'lucide-react';
+﻿import { Map, Calculator, Layers, GitCompare, PenSquare, Sparkles, Timer, GitCommit, Type, Highlighter, SlidersHorizontal, CheckSquare, LayoutDashboard } from 'lucide-react';
 import { cn } from '../../utils/cn';
 import type { WorkspaceToolId } from '../../lib/taskFlows';
 import { recommendToolsForStep, stepToolActionLabel, type WorkspaceStep } from '../../lib/workspaceStepTools';
+import { buildLessonStepToolbarTools } from '../../lib/lessonStepToolbarNextActionSync';
+import type { NextActionRecommendation } from '../../lib/nextActionEngine';
 
 const TOOL_ICONS: Record<WorkspaceToolId, typeof Map> = {
   'concept-map': Map,
@@ -26,6 +28,8 @@ export function LessonStepToolBar({
   activeTool,
   onOpenTool,
   lang,
+  nextActionRecommendation,
+  sourceBestTool,
 }: {
   step: WorkspaceStep;
   stepIndex: number;
@@ -33,17 +37,26 @@ export function LessonStepToolBar({
   activeTool?: WorkspaceToolId;
   onOpenTool: (tool: WorkspaceToolId) => void;
   lang: 'en' | 'el';
+  nextActionRecommendation?: NextActionRecommendation | null;
+  sourceBestTool?: WorkspaceToolId | null;
 }) {
-  const tools = recommendToolsForStep(step, stepIndex, stepCount);
+  const { tools, recommendedTool } = buildLessonStepToolbarTools({
+    step,
+    stepIndex,
+    stepCount,
+    nextAction: nextActionRecommendation,
+    sourceBestTool,
+  });
 
   return (
     <div className="flex flex-wrap items-center gap-1.5 pt-2 border-t border-border-subtle/60 mt-3">
       <span className="text-[9px] font-semibold uppercase tracking-wide text-text-muted w-full sm:w-auto">
-        {lang === 'el' ? 'Άνοιγμα εργαλείου' : 'Open tool'}
+        {lang === 'el' ? '╬Η╬╜╬┐╬╣╬│╬╝╬▒ ╬╡╧Β╬│╬▒╬╗╬╡╬ψ╬┐╧Ζ' : 'Open tool'}
       </span>
       {tools.map((tool) => {
         const Icon = TOOL_ICONS[tool];
         const isActive = activeTool === tool;
+        const isRecommended = recommendedTool === tool;
         return (
           <button
             key={tool}
@@ -51,14 +64,22 @@ export function LessonStepToolBar({
             onClick={() => onOpenTool(tool)}
             className={cn(
               'inline-flex items-center gap-1 rounded-lg border px-2 py-1 text-[10px] font-medium transition-all',
-              isActive
-                ? 'border-brand-500/40 bg-brand-600/15 text-brand-300'
-                : 'border-border-subtle text-text-muted hover:border-brand-500/30 hover:text-brand-300',
+              isRecommended
+                ? 'border-accent-emerald/35 bg-accent-emerald/10 text-accent-emerald'
+                : isActive
+                  ? 'border-brand-500/40 bg-brand-600/15 text-brand-300'
+                  : 'border-border-subtle text-text-muted hover:border-brand-500/30 hover:text-brand-300',
             )}
             data-testid={`lesson-open-tool-${tool}`}
+            data-recommended={isRecommended ? 'true' : undefined}
           >
             <Icon className="w-3 h-3" />
             {stepToolActionLabel(tool, lang)}
+            {isRecommended && (
+              <span className="rounded bg-accent-emerald/15 px-1 text-[8px] font-semibold uppercase">
+                {lang === 'el' ? '╬Χ╧Α╧Ν╬╝╬╡╬╜╬┐' : 'Next'}
+              </span>
+            )}
           </button>
         );
       })}

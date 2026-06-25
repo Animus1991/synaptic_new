@@ -1,4 +1,4 @@
-import type { Course, Task, UserSettings } from '../types';
+import type { Course, Task, UserSettings, UploadedFile, GlossaryEntry } from '../types';
 
 /** Demo seed IDs — never treat as user-generated content. */
 export const MOCK_COURSE_IDS = new Set(['c1', 'c2', 'c3', 'c4']);
@@ -39,4 +39,33 @@ export function initialCourses(
 
 export function stripDemoFromTasks(tasks: Task[]): Task[] {
   return tasks.filter((t) => !isDemoTask(t.id));
+}
+
+const isDemoFile = (f: { id: string }): boolean => f.id.startsWith('demo-file-');
+
+/** Inject in-memory demo source when demo content is enabled; never persisted. */
+export function initialUploadedFiles(
+  libraryFiles: UploadedFile[],
+  settings: UserSettings,
+  demoFiles: UploadedFile[],
+): UploadedFile[] {
+  if (!shouldShowDemo(settings)) return libraryFiles.filter((f) => !isDemoFile(f));
+  const have = new Set(libraryFiles.map((f) => f.id));
+  const add = demoFiles.filter((f) => !have.has(f.id));
+  return add.length ? [...add, ...libraryFiles] : libraryFiles;
+}
+
+export function initialGlossary(
+  libraryGlossary: GlossaryEntry[],
+  settings: UserSettings,
+  demoGlossary: GlossaryEntry[],
+): GlossaryEntry[] {
+  if (!shouldShowDemo(settings)) return libraryGlossary;
+  const have = new Set(libraryGlossary.map((g) => `${g.courseId}::${g.term}`));
+  const add = demoGlossary.filter((g) => !have.has(`${g.courseId}::${g.term}`));
+  return add.length ? [...add, ...libraryGlossary] : libraryGlossary;
+}
+
+export function stripDemoFiles(files: UploadedFile[]): UploadedFile[] {
+  return files.filter((f) => !isDemoFile(f));
 }

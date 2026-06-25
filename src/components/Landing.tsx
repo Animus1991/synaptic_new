@@ -11,13 +11,14 @@ import { getLandingContent } from '../lib/landingContent';
 
 interface LandingProps {
   onGetStarted: () => void;
+  onSeeDemo?: () => void;
 }
 
 const featureIcons = [Upload, Brain, Target, Zap, Clock, BarChart3];
 const userTypeIcons = [GraduationCap, BookOpen, Sparkles, Users, Building2];
 const featureColors = ['text-brand-400', 'text-accent-teal', 'text-accent-cyan', 'text-accent-amber', 'text-accent-emerald', 'text-accent-rose'];
 
-export function Landing({ onGetStarted }: LandingProps) {
+export function Landing({ onGetStarted, onSeeDemo }: LandingProps) {
   const { lang } = useI18n();
   const content = getLandingContent(lang);
   return (
@@ -100,13 +101,26 @@ export function Landing({ onGetStarted }: LandingProps) {
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </button>
             <button
-              onClick={onGetStarted}
-              className="flex items-center gap-2 px-8 py-4 border border-border-default hover:border-brand-500/50 text-text-primary rounded-xl font-semibold text-lg transition-all hover:bg-surface-hover"
+              onClick={onSeeDemo ?? onGetStarted}
+              className="group flex items-center gap-2 px-8 py-4 border border-brand-500/40 hover:border-brand-400/60 bg-brand-500/5 hover:bg-brand-500/10 text-brand-300 hover:text-brand-200 rounded-xl font-semibold text-lg transition-all"
             >
               {content.ctaSecondary}
-              <ChevronRight className="w-5 h-5" />
+              <ChevronRight className="w-5 h-5 group-hover:translate-x-0.5 transition-transform" />
             </button>
           </motion.div>
+
+          {onSeeDemo && (
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.6, delay: 0.45 }}
+              className="mt-4 text-sm text-text-muted"
+            >
+              {lang === 'el'
+                ? 'Demo: Μάθημα Οικονομικών — χωρίς upload'
+                : 'Demo uses preloaded Economics notes — no upload needed'}
+            </motion.p>
+          )}
 
           {/* Trust indicators */}
           <motion.div
