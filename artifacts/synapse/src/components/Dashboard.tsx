@@ -2,11 +2,12 @@ import { motion } from 'framer-motion';
 import {
   Flame, Zap, Target, Clock, BookOpen, AlertTriangle,
   ChevronRight, TrendingUp, Brain, Calendar, ArrowRight, Play,
-  Shield, Lightbulb, RotateCcw, Eye, Layout, CheckCircle2,
+  Shield, Lightbulb, RotateCcw, Eye, Layout, LayoutDashboard, CheckCircle2,
   Upload, Sparkles, FileText, Check
 } from 'lucide-react';
 import type { Course, DashboardStats, LearnerModel, Task } from '../types';
 import { cn } from '../utils/cn';
+import { Page, PageHeader, Card, SectionHeading, CardLink, StatTile } from './ui/primitives';
 import { ReadinessRing } from './visuals/ReadinessRing';
 import { SignalBars } from './visuals/SignalBars';
 import { ActivityFeed } from './visuals/ActivityFeed';
@@ -144,20 +145,20 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                   : 'Interactive lessons, flashcards, exam prep — adapted to you',
               },
             ].map(({ num, icon: Icon, color, bg, title, desc }) => (
-              <div key={num} className="p-5 rounded-2xl border border-border-subtle bg-surface-card text-center">
+              <Card key={num} className="text-center">
                 <div className={`w-10 h-10 rounded-xl ${bg} flex items-center justify-center mx-auto mb-3`}>
                   <Icon className={`w-5 h-5 ${color}`} />
                 </div>
-                <div className="text-xs font-bold text-text-muted mb-1">STEP {num}</div>
+                <div className="ws-eyebrow font-bold text-text-muted mb-1">STEP {num}</div>
                 <h3 className="font-semibold text-sm mb-1">{title}</h3>
                 <p className="text-xs text-text-tertiary leading-relaxed">{desc}</p>
-              </div>
+              </Card>
             ))}
           </div>
 
           {/* Supported formats */}
-          <div className="p-4 rounded-2xl border border-border-subtle bg-surface-card mb-6">
-            <p className="text-xs font-semibold text-text-tertiary mb-3 flex items-center gap-2">
+          <Card padding="sm" className="mb-6">
+            <p className="ws-caption font-semibold text-text-tertiary mb-3 flex items-center gap-2">
               <FileText className="w-3.5 h-3.5" />
               {isEl ? 'Υποστηριζόμενες μορφές' : 'Supported formats'}
             </p>
@@ -168,11 +169,11 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                 </span>
               ))}
             </div>
-          </div>
+          </Card>
 
           {/* What you get */}
-          <div className="p-4 rounded-2xl border border-brand-500/20 bg-brand-500/5 mb-8">
-            <p className="text-xs font-semibold text-brand-300 mb-3">
+          <Card tone="brand" padding="sm" className="mb-8">
+            <p className="ws-caption font-semibold text-brand-300 mb-3">
               {isEl ? 'Τι παίρνεις αυτόματα' : 'What gets created automatically'}
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -188,7 +189,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                 </div>
               ))}
             </div>
-          </div>
+          </Card>
 
           {/* CTAs */}
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
@@ -224,42 +225,42 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
   }
 
   return (
-    <div className="p-4 sm:p-6 lg:px-8 pb-24 lg:pb-6 w-full min-w-0 space-y-6">
+    <Page>
       {/* Welcome header */}
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold">{greetingForTime(lang)}! 👋</h1>
-          <p className="text-text-secondary mt-1">
-            {dashboardSubtitle(lang, criticalTasks.length, stats.streak)}
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          {onOpenWorkspace && (
-            <button
-              type="button"
-              onClick={onOpenWorkspace}
-              aria-busy={workspaceBooting}
-              className={cn(
-                'flex items-center gap-2 px-4 py-2.5 border border-brand-500/40 text-brand-300 rounded-xl font-medium text-sm hover:bg-brand-600/10 transition-all whitespace-nowrap',
-                workspaceBooting && 'opacity-70',
-              )}
-            >
-              <Layout className="w-4 h-4" /> {t('navStudyWorkspace')}
+      <PageHeader
+        icon={LayoutDashboard}
+        eyebrow={isEl ? 'ΕΠΙΣΚΟΠΗΣΗ' : 'OVERVIEW'}
+        title={`${greetingForTime(lang)}! 👋`}
+        subtitle={dashboardSubtitle(lang, criticalTasks.length, stats.streak)}
+        actions={
+          <>
+            {onOpenWorkspace && (
+              <button
+                type="button"
+                onClick={onOpenWorkspace}
+                aria-busy={workspaceBooting}
+                className={cn(
+                  'flex items-center gap-2 px-4 py-2.5 border border-brand-500/40 text-brand-300 rounded-xl font-medium text-sm hover:bg-brand-600/10 transition-all whitespace-nowrap',
+                  workspaceBooting && 'opacity-70',
+                )}
+              >
+                <Layout className="w-4 h-4" /> {t('navStudyWorkspace')}
+              </button>
+            )}
+            <button onClick={() => onStartSession?.('25min') ?? onNavigate('tasks')} className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-brand-600 to-brand-500 text-white rounded-xl font-medium text-sm hover:from-brand-500 hover:to-brand-400 transition-all whitespace-nowrap">
+              <Play className="w-4 h-4" /> Start Session
             </button>
-          )}
-          <button onClick={() => onStartSession?.('25min') ?? onNavigate('tasks')} className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-brand-600 to-brand-500 text-white rounded-xl font-medium text-sm hover:from-brand-500 hover:to-brand-400 transition-all whitespace-nowrap">
-            <Play className="w-4 h-4" /> Start Session
-          </button>
-        </div>
-      </motion.div>
+          </>
+        }
+      />
 
       {/* Stats Row */}
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="grid grid-cols-2 sm:grid-cols-5 gap-3">
-        <StatCard icon={<Flame className="w-5 h-5 text-accent-amber" />} label="Streak" value={`${stats.streak} days`} />
-        <StatCard icon={<Zap className="w-5 h-5 text-brand-400" />} label="Today's XP" value={`${stats.todayXP}`} />
-        <StatCard icon={<Target className="w-5 h-5 text-accent-teal" />} label="Reviews Due" value={`${stats.reviewsDue}`} />
-        <StatCard icon={<Brain className="w-5 h-5 text-accent-cyan" />} label="Concepts Mastered" value={`${stats.conceptsMastered}/${stats.totalConcepts}`} />
-        <StatCard icon={<Clock className="w-5 h-5 text-accent-emerald" />} label="Study Today" value={`${stats.studyTimeToday}m`} />
+        <StatTile icon={<Flame className="w-5 h-5 text-accent-amber" />} label="Streak" value={`${stats.streak} days`} />
+        <StatTile icon={<Zap className="w-5 h-5 text-brand-400" />} label="Today's XP" value={`${stats.todayXP}`} />
+        <StatTile icon={<Target className="w-5 h-5 text-accent-teal" />} label="Reviews Due" value={`${stats.reviewsDue}`} />
+        <StatTile icon={<Brain className="w-5 h-5 text-accent-cyan" />} label="Concepts Mastered" value={`${stats.conceptsMastered}/${stats.totalConcepts}`} />
+        <StatTile icon={<Clock className="w-5 h-5 text-accent-emerald" />} label="Study Today" value={`${stats.studyTimeToday}m`} />
       </motion.div>
 
       {/* Exam countdown */}
@@ -364,7 +365,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="lg:col-span-2 space-y-6">
 
           {/* Readiness Hero */}
-          <div className="rounded-2xl border border-border-subtle bg-surface-card p-6">
+          <Card padding="lg">
             <div className="flex flex-col sm:flex-row items-center gap-6">
               <ReadinessRing value={learnerModel.overallMastery} sublabel="Derived from graded first-attempts only — never from self-reported skill." />
               <div className="flex-1 space-y-4">
@@ -376,18 +377,16 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                 ]} />
               </div>
             </div>
-          </div>
+          </Card>
 
           {/* Concept mastery + prerequisite repair */}
           {(conceptMastery.length > 0 || prerequisiteRepairs.length > 0) && (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {conceptMastery.length > 0 && (
-                <div className="rounded-2xl border border-border-subtle bg-surface-card p-5">
-                  <h3 className="text-sm font-semibold flex items-center gap-2 mb-4">
-                    <Brain className="w-4 h-4 text-brand-400" />Concept Mastery
-                  </h3>
+                <Card>
+                  <SectionHeading title="Concept Mastery" icon={Brain} iconClassName="text-brand-400" className="mb-4" />
                   <ConceptMasteryBars concepts={conceptMastery} />
-                </div>
+                </Card>
               )}
               {prerequisiteRepairs.length > 0 && (
                 <PrerequisiteRepairPanel
@@ -403,13 +402,15 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
           )}
 
           {/* Priority tasks */}
-          <div className="rounded-2xl border border-border-subtle bg-surface-card p-5">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold flex items-center gap-2">
-                <AlertTriangle className="w-5 h-5 text-accent-amber" /> Priority Tasks
-              </h2>
-              <button onClick={() => onNavigate('tasks')} className="text-sm text-brand-400 hover:text-brand-300 flex items-center gap-1">View all <ChevronRight className="w-4 h-4" /></button>
-            </div>
+          <Card>
+            <SectionHeading
+              title="Priority Tasks"
+              icon={AlertTriangle}
+              iconClassName="text-accent-amber"
+              size="lg"
+              className="mb-4"
+              action={<CardLink onClick={() => onNavigate('tasks')}>View all <ChevronRight className="w-4 h-4" /></CardLink>}
+            />
             <div className="space-y-2">
               {criticalTasks.slice(0, 5).map((task, i) => (
                 <motion.div key={task.id} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.15 + i * 0.04 }}
@@ -431,12 +432,12 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
               ))}
               {criticalTasks.length === 0 && <p className="text-sm text-text-tertiary text-center py-6">All caught up! 🎉</p>}
             </div>
-          </div>
+          </Card>
 
           {/* Needs fixing */}
           {fixTasks.length > 0 && (
-            <div className="rounded-2xl border border-accent-orange/20 bg-accent-orange/5 p-5">
-              <h3 className="text-sm font-semibold flex items-center gap-2 mb-3"><Shield className="w-4 h-4 text-accent-orange" />Needs Fixing — Mistakes & Prerequisites</h3>
+            <Card tone="orange">
+              <SectionHeading title="Needs Fixing — Mistakes & Prerequisites" icon={Shield} iconClassName="text-accent-orange" className="mb-3" />
               <div className="space-y-2">
                 {fixTasks.slice(0, 3).map(task => (
                   <div
@@ -451,15 +452,19 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                   </div>
                 ))}
               </div>
-            </div>
+            </Card>
           )}
 
           {/* Active Courses */}
-          <div className="rounded-2xl border border-border-subtle bg-surface-card p-5">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold flex items-center gap-2"><BookOpen className="w-5 h-5 text-brand-400" />Active Courses</h2>
-              <button onClick={() => onNavigate('library')} className="text-sm text-brand-400 hover:text-brand-300 flex items-center gap-1">Library <ChevronRight className="w-4 h-4" /></button>
-            </div>
+          <Card>
+            <SectionHeading
+              title="Active Courses"
+              icon={BookOpen}
+              iconClassName="text-brand-400"
+              size="lg"
+              className="mb-4"
+              action={<CardLink onClick={() => onNavigate('library')}>Library <ChevronRight className="w-4 h-4" /></CardLink>}
+            />
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {courses.filter(c => c.status !== 'generating').map((course, i) => (
                 <motion.div key={course.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 + i * 0.04 }}
@@ -480,15 +485,15 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                 </motion.div>
               ))}
             </div>
-          </div>
+          </Card>
         </motion.div>
 
         {/* Right sidebar */}
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="space-y-6">
 
           {/* Mastery Trend */}
-          <div className="rounded-2xl border border-border-subtle bg-surface-card p-5">
-            <h3 className="text-sm font-semibold flex items-center gap-2 mb-4"><TrendingUp className="w-4 h-4 text-accent-emerald" />Weekly Mastery</h3>
+          <Card>
+            <SectionHeading title="Weekly Mastery" icon={TrendingUp} iconClassName="text-accent-emerald" className="mb-4" />
             <div className="flex items-end gap-1.5 h-24">
               {stats.masteryTrend.map((val, i) => (
                 <div key={i} className="flex-1 flex flex-col items-center gap-1">
@@ -503,11 +508,11 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                 {masteryDelta >= 0 ? '+' : ''}{masteryDelta}% this week
               </span>
             </div>
-          </div>
+          </Card>
 
           {/* Weak Areas */}
-          <div className="rounded-2xl border border-border-subtle bg-surface-card p-5">
-            <h3 className="text-sm font-semibold flex items-center gap-2 mb-4"><Brain className="w-4 h-4 text-accent-rose" />Weak Areas</h3>
+          <Card>
+            <SectionHeading title="Weak Areas" icon={Brain} iconClassName="text-accent-rose" className="mb-4" />
             <div className="space-y-3">
               {learnerModel.weakAreas.slice(0, 3).map(area => (
                 <button
@@ -544,12 +549,12 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
             >
               Practice weak areas <ArrowRight className="w-3 h-3" />
             </button>
-          </div>
+          </Card>
 
           {/* Almost Known */}
           {learnerModel.almostKnown.length > 0 && (
-            <div className="rounded-2xl border border-accent-amber/20 bg-accent-amber/5 p-5">
-              <h3 className="text-sm font-semibold flex items-center gap-2 mb-3"><Lightbulb className="w-4 h-4 text-accent-amber" />Almost There!</h3>
+            <Card tone="amber">
+              <SectionHeading title="Almost There!" icon={Lightbulb} iconClassName="text-accent-amber" className="mb-3" />
               <p className="text-xs text-text-tertiary mb-3">1-2 more practice sessions to master:</p>
               <div className="space-y-2">
                 {learnerModel.almostKnown.map(a => (
@@ -559,13 +564,13 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                   </div>
                 ))}
               </div>
-            </div>
+            </Card>
           )}
 
           {/* Upcoming Exam */}
           {courses.some(c => c.examDate) && (
-            <div className="rounded-2xl border border-accent-rose/20 bg-accent-rose/5 p-5">
-              <h3 className="text-sm font-semibold flex items-center gap-2 mb-3"><Calendar className="w-4 h-4 text-accent-rose" />Upcoming Exam</h3>
+            <Card tone="rose">
+              <SectionHeading title="Upcoming Exam" icon={Calendar} iconClassName="text-accent-rose" className="mb-3" />
               {courses.filter(c => c.examDate).map(course => {
                 const daysLeft = Math.max(0, Math.ceil((new Date(course.examDate!).getTime() - Date.now()) / 86400000));
                 return (
@@ -589,21 +594,21 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                   </div>
                 );
               })}
-            </div>
+            </Card>
           )}
 
           {/* Confidence Calibration mini */}
           {calibration ? (
             <CalibrationChip score={calibration.score} direction={calibration.direction} />
           ) : (
-          <div className="rounded-2xl border border-border-subtle bg-surface-card p-5">
-            <h3 className="text-sm font-semibold flex items-center gap-2 mb-3"><Eye className="w-4 h-4 text-accent-amber" />Confidence Check</h3>
+          <Card>
+            <SectionHeading title="Confidence Check" icon={Eye} iconClassName="text-accent-amber" className="mb-3" />
             <p className="text-xs text-text-tertiary mb-2">Complete 5+ graded attempts to unlock calibration score.</p>
-          </div>
+          </Card>
           )}
           {calibration && (
-          <div className="rounded-2xl border border-border-subtle bg-surface-card p-5">
-            <h3 className="text-sm font-semibold flex items-center gap-2 mb-3"><Eye className="w-4 h-4 text-accent-amber" />Recent Calibration</h3>
+          <Card>
+            <SectionHeading title="Recent Calibration" icon={Eye} iconClassName="text-accent-amber" className="mb-3" />
             {learnerModel.confidenceCalibration.slice(0, 3).map((p, i) => {
               const overconfident = p.predicted > p.actual + 0.15;
               return (
@@ -620,21 +625,21 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
             <button onClick={() => onNavigate('analytics')} className="mt-2 w-full text-xs text-brand-400 hover:text-brand-300 flex items-center justify-center gap-1">
               Full analytics <ArrowRight className="w-3 h-3" />
             </button>
-          </div>
+          </Card>
           )}
 
           {/* Learning Insight */}
           {learnerModel.interactionInsights.length > 0 && (
-            <div className="rounded-2xl border border-brand-500/20 bg-brand-500/5 p-5">
-              <h3 className="text-sm font-semibold flex items-center gap-2 mb-3"><Lightbulb className="w-4 h-4 text-brand-400" />Learning Insight</h3>
+            <Card tone="brand">
+              <SectionHeading title="Learning Insight" icon={Lightbulb} iconClassName="text-brand-400" className="mb-3" />
               <p className="text-xs text-text-secondary leading-relaxed">{learnerModel.interactionInsights[0]}</p>
-            </div>
+            </Card>
           )}
 
           {/* Misconceptions */}
           {learnerModel.misconceptions.length > 0 && (
-            <div className="rounded-2xl border border-border-subtle bg-surface-card p-5">
-              <h3 className="text-sm font-semibold flex items-center gap-2 mb-3"><AlertTriangle className="w-4 h-4 text-accent-orange" />Active Misconceptions</h3>
+            <Card>
+              <SectionHeading title="Active Misconceptions" icon={AlertTriangle} iconClassName="text-accent-orange" className="mb-3" />
               <div className="space-y-2">
                 {learnerModel.misconceptions.filter(m => !m.corrected).slice(0, 2).map(m => (
                   <div key={m.id} className="p-2.5 rounded-lg bg-accent-orange/5 border border-accent-orange/20 text-xs">
@@ -651,12 +656,12 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                   </div>
                 ))}
               </div>
-            </div>
+            </Card>
           )}
 
           {/* Spaced Rep Info */}
-          <div className="rounded-2xl border border-border-subtle bg-surface-card p-5">
-            <h3 className="text-sm font-semibold flex items-center gap-2 mb-2"><RotateCcw className="w-4 h-4 text-accent-teal" />Spaced Repetition</h3>
+          <Card>
+            <SectionHeading title="Spaced Repetition" icon={RotateCcw} iconClassName="text-accent-teal" className="mb-2" />
             <p className="text-xs text-text-tertiary">Reviews are scheduled based on your personal forgetting curve — not fixed intervals.</p>
             <div className="mt-3 grid grid-cols-3 gap-2 text-center">
               <button
@@ -670,25 +675,16 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
               <div className="p-2 rounded-lg bg-surface-primary/50"><p className="text-lg font-bold">{Math.round(learnerModel.retentionRate * 100)}%</p><p className="text-[9px] text-text-muted">Retention</p></div>
               <div className="p-2 rounded-lg bg-surface-primary/50"><p className="text-lg font-bold">{learnerModel.streakDays}</p><p className="text-[9px] text-text-muted">Streak</p></div>
             </div>
-          </div>
+          </Card>
 
           {/* Activity Feed */}
-          <div className="rounded-2xl border border-border-subtle bg-surface-card p-5">
-            <h3 className="text-sm font-semibold mb-3 flex items-center gap-2"><Zap className="w-4 h-4 text-brand-400" />Recent Activity</h3>
+          <Card>
+            <SectionHeading title="Recent Activity" icon={Zap} iconClassName="text-brand-400" className="mb-3" />
             <ActivityFeed activities={activities} maxItems={5} />
-          </div>
+          </Card>
         </motion.div>
       </div>
-    </div>
-  );
-}
-
-function StatCard({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
-  return (
-    <div className="p-4 rounded-xl border border-border-subtle bg-surface-card">
-      <div className="flex items-center gap-2 mb-2">{icon}<span className="text-xs text-text-tertiary font-medium">{label}</span></div>
-      <p className="text-xl font-bold">{value}</p>
-    </div>
+    </Page>
   );
 }
 
