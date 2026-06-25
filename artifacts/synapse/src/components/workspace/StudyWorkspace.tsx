@@ -1690,16 +1690,13 @@ export function StudyWorkspace({
                 </span>
                 <span aria-hidden>·</span>
                 <span className="shrink-0" data-testid="workspace-context-step">{workspaceContext.stepLabel}</span>
-                {typeof sourceQualityScore === 'number' && (
-                  <span className="shrink-0 text-accent-amber">· {lang === 'el' ? 'Ποιότητα' : 'Quality'} {sourceQualityScore}/100</span>
-                )}
                 <span className="hidden" data-testid="workspace-context-tool">{workspaceContext.toolLabel}</span>
               </span>
             </div>
           </div>
 
           <div className="flex items-center gap-1.5 shrink-0">
-            {nextActionRecommendation && noteBundle.hasSource && (
+            {nextActionRecommendation && noteBundle.hasSource && (layout === 'focus-tool' || lessonCollapsed) && (
               <button
                 type="button"
                 onClick={runNextAction}
@@ -1709,7 +1706,7 @@ export function StudyWorkspace({
                 {nextActionLabel(nextActionRecommendation.primary, lang)}
               </button>
             )}
-            {nextActionRecommendation && noteBundle.hasSource && (
+            {nextActionRecommendation && noteBundle.hasSource && (layout === 'focus-tool' || lessonCollapsed) && (
               <span className="mx-0.5 hidden h-5 w-px bg-border-subtle sm:block" aria-hidden />
             )}
 
