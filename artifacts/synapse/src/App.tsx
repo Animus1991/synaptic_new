@@ -512,6 +512,21 @@ export default function App() {
     handleSeeDemo();
   }, [handleSeeDemo]);
 
+  // Shareable view deep-link: `?view=<name>` opens a specific page directly
+  // (seeds demo content when the library is empty so the page isn't blank).
+  const viewDeepLinkFired = useRef(false);
+  useEffect(() => {
+    if (viewDeepLinkFired.current) return;
+    const params = new URLSearchParams(window.location.search);
+    const view = params.get('view');
+    if (!view) return;
+    const allowed: AppView[] = ['dashboard', 'library', 'tasks', 'agent', 'analytics', 'teacher', 'settings'];
+    if (!allowed.includes(view as AppView)) return;
+    viewDeepLinkFired.current = true;
+    if (!hasCourses) store.enableDemoContent();
+    store.navigate(view as AppView);
+  }, [hasCourses, store]);
+
   // Landing page
   if (store.currentView === 'landing') {
     return (

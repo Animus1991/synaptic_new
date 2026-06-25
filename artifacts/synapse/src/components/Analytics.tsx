@@ -14,6 +14,7 @@ import {
 } from '../lib/retentionAnalytics';
 import { CalibrationChip } from './visuals/CalibrationChip';
 import { cn } from '../utils/cn';
+import { Page, PageHeader, Card, SectionHeading, CardLink, StatTile } from './ui/primitives';
 import { ReadinessRing } from './visuals/ReadinessRing';
 import { RetentionCurve } from './visuals/DiagramGenerator';
 import { ConceptGraph } from './visuals/ConceptGraph';
@@ -150,11 +151,8 @@ export function Analytics({
   const { t } = useI18n();
 
   return (
-    <div className="p-4 sm:p-6 lg:px-8 pb-24 lg:pb-6 w-full min-w-0 space-y-6">
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-        <h1 className="text-2xl sm:text-3xl font-bold">{t('analyticsTitle')}</h1>
-        <p className="text-text-secondary mt-1">{t('analyticsSubtitle')}</p>
-      </motion.div>
+    <Page>
+      <PageHeader icon={BarChart3} title={t('analyticsTitle')} subtitle={t('analyticsSubtitle')} />
 
       {/* Tabs */}
       <div className="flex items-center gap-6 border-b border-border-subtle" role="tablist" aria-label="Analytics sections">
@@ -182,7 +180,7 @@ export function Analytics({
       {tab === 'insights' && (
         <InsightsTab learnerModel={learnerModel} activities={activities} repairs={prerequisiteRepairs} />
       )}
-    </div>
+    </Page>
   );
 }
 
@@ -213,9 +211,9 @@ function OverviewTab({
       )}
       {/* Readiness Ring + Retention Curve */}
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-        <div className="rounded-2xl border border-border-subtle bg-surface-card p-6 flex items-center justify-center">
+        <Card padding="lg" className="flex items-center justify-center">
           <ReadinessRing value={learnerModel.overallMastery} size={200} sublabel={t('analyticsReadinessSublabel')} />
-        </div>
+        </Card>
         <RetentionCurve dataPoints={hasRetentionData ? retentionPoints : [{ day: 0, retention: 100 }]} />
       </motion.div>
 
@@ -229,8 +227,8 @@ function OverviewTab({
 
       {/* Weekly mastery + Heatmap */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="rounded-2xl border border-border-subtle bg-surface-card p-5">
-          <h3 className="text-sm font-semibold flex items-center gap-2 mb-4"><TrendingUp className="w-4 h-4 text-accent-emerald" />{t('analyticsWeeklyTrend')}</h3>
+        <Card>
+          <SectionHeading title={t('analyticsWeeklyTrend')} icon={TrendingUp} iconClassName="text-accent-emerald" className="mb-4" />
           <div className="flex items-end gap-1.5 h-28">
             {weekly.map((val, i) => (
               <div key={i} className="flex-1 flex flex-col items-center gap-1">
@@ -240,11 +238,11 @@ function OverviewTab({
               </div>
             ))}
           </div>
-        </motion.div>
+        </Card>
 
         {/* Study Heatmap */}
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="rounded-2xl border border-border-subtle bg-surface-card p-5">
-          <h3 className="text-sm font-semibold flex items-center gap-2 mb-4"><Calendar className="w-4 h-4 text-accent-teal" />{t('analyticsStudyHeatmap')}</h3>
+        <Card>
+          <SectionHeading title={t('analyticsStudyHeatmap')} icon={Calendar} iconClassName="text-accent-teal" className="mb-4" />
           <div className="grid grid-cols-[repeat(13,1fr)] gap-[3px]">
             {learnerModel.heatmapData.slice(-91).map((day, i) => {
               const intensity = day.minutes === 0 ? 0 : day.minutes < 15 ? 1 : day.minutes < 30 ? 2 : day.minutes < 60 ? 3 : 4;
@@ -254,19 +252,19 @@ function OverviewTab({
               );
             })}
           </div>
-          <div className="flex items-center justify-end gap-1 mt-2 text-[9px] text-text-muted">
+          <div className="flex items-center justify-end gap-1 mt-2 ws-caption text-text-muted">
             <span>{t('analyticsHeatmapLess')}</span>
             {['bg-surface-hover', 'bg-brand-900', 'bg-brand-700', 'bg-brand-500', 'bg-brand-400'].map((c, i) => (
               <div key={i} className={cn('w-2.5 h-2.5 rounded-[2px]', c)} />
             ))}
             <span>{t('analyticsHeatmapMore')}</span>
           </div>
-        </motion.div>
+        </Card>
       </div>
 
       {/* Confidence Calibration */}
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="rounded-2xl border border-border-subtle bg-surface-card p-5">
-        <h3 className="text-sm font-semibold flex items-center gap-2 mb-4"><Eye className="w-4 h-4 text-accent-amber" />{t('analyticsConfidenceCalibration')}</h3>
+      <Card>
+        <SectionHeading title={t('analyticsConfidenceCalibration')} icon={Eye} iconClassName="text-accent-amber" className="mb-4" />
         <p className="text-xs text-text-tertiary mb-4">{t('analyticsConfidenceHint')}</p>
         <div className="space-y-2">
           {learnerModel.confidenceCalibration.map((point, i) => {
@@ -292,11 +290,11 @@ function OverviewTab({
             );
           })}
         </div>
-      </motion.div>
+      </Card>
 
       {/* Course mastery */}
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }} className="rounded-2xl border border-border-subtle bg-surface-card p-5">
-        <h3 className="text-sm font-semibold mb-4">{t('analyticsCourseMastery')}</h3>
+      <Card>
+        <SectionHeading title={t('analyticsCourseMastery')} className="mb-4" />
         <div className="space-y-3">
           {courses.filter(c => c.status !== 'generating').map(course => (
             <div key={course.id} className="flex items-center gap-3">
@@ -309,7 +307,7 @@ function OverviewTab({
             </div>
           ))}
         </div>
-      </motion.div>
+      </Card>
     </div>
   );
 }
@@ -330,38 +328,38 @@ function MasteryTab({ learnerModel, courses }: { learnerModel: LearnerModel; cou
           />
         </motion.div>
       ) : (
-        <div className="rounded-2xl border border-border-subtle bg-surface-card p-8 text-center text-sm text-text-secondary">
+        <Card padding="none" className="p-8 text-center text-sm text-text-secondary">
           {t('analyticsMasteryMapEmpty')}
-        </div>
+        </Card>
       )}
 
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="rounded-2xl border border-border-subtle bg-surface-card p-5">
-        <h3 className="text-sm font-semibold flex items-center gap-2 mb-4"><CheckCircle2 className="w-4 h-4 text-accent-emerald" />{t('analyticsStrongAreas')}</h3>
+      <Card>
+        <SectionHeading title={t('analyticsStrongAreas')} icon={CheckCircle2} iconClassName="text-accent-emerald" className="mb-4" />
         <div className="space-y-3">
           {learnerModel.strongAreas.map(a => (
             <SkillBar key={a.concept} concept={a.concept} mastery={a.mastery} retention={a.retentionPrediction} count={a.practiceCount} color="emerald" />
           ))}
         </div>
-      </motion.div>
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="rounded-2xl border border-border-subtle bg-surface-card p-5">
-        <h3 className="text-sm font-semibold flex items-center gap-2 mb-4"><XCircle className="w-4 h-4 text-accent-rose" />{t('analyticsWeakAreas')}</h3>
+      </Card>
+      <Card>
+        <SectionHeading title={t('analyticsWeakAreas')} icon={XCircle} iconClassName="text-accent-rose" className="mb-4" />
         <div className="space-y-3">
           {learnerModel.weakAreas.map(a => (
             <SkillBar key={a.concept} concept={a.concept} mastery={a.mastery} retention={a.retentionPrediction} count={a.practiceCount} color="rose" />
           ))}
         </div>
-      </motion.div>
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="rounded-2xl border border-accent-amber/20 bg-accent-amber/5 p-5">
-        <h3 className="text-sm font-semibold flex items-center gap-2 mb-4"><AlertTriangle className="w-4 h-4 text-accent-amber" />{t('analyticsAlmostKnown')}</h3>
+      </Card>
+      <Card tone="amber">
+        <SectionHeading title={t('analyticsAlmostKnown')} icon={AlertTriangle} iconClassName="text-accent-amber" className="mb-4" />
         <div className="space-y-3">
           {learnerModel.almostKnown.map(a => (
             <SkillBar key={a.concept} concept={a.concept} mastery={a.mastery} retention={a.retentionPrediction} count={a.practiceCount} color="amber" />
           ))}
         </div>
-      </motion.div>
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="rounded-2xl border border-border-subtle bg-surface-card p-5">
-        <h3 className="text-sm font-semibold flex items-center gap-2 mb-4"><Brain className="w-4 h-4 text-accent-rose" />{t('analyticsActiveMisconceptions')}</h3>
+      </Card>
+      <Card>
+        <SectionHeading title={t('analyticsActiveMisconceptions')} icon={Brain} iconClassName="text-accent-rose" className="mb-4" />
         <div className="space-y-3">
           {learnerModel.misconceptions.map(m => (
             <div key={m.id} className="p-3 rounded-xl bg-accent-rose/5 border border-accent-rose/20">
@@ -372,11 +370,11 @@ function MasteryTab({ learnerModel, courses }: { learnerModel: LearnerModel; cou
                 </span>
               </div>
               <p className="text-xs text-text-secondary">{m.description}</p>
-              <p className="text-[10px] text-accent-teal mt-1.5 flex items-center gap-1"><Zap className="w-3 h-3" />{m.suggestedFix}</p>
+              <p className="ws-caption text-accent-teal mt-1.5 flex items-center gap-1"><Zap className="w-3 h-3" />{m.suggestedFix}</p>
             </div>
           ))}
         </div>
-      </motion.div>
+      </Card>
     </div>
     </div>
   );
@@ -401,8 +399,8 @@ function BehaviorTab({ learnerModel }: { learnerModel: LearnerModel }) {
         <MetricCard icon={<Shield className="w-5 h-5 text-text-tertiary" />} label={t('analyticsPersistence')} value={`${Math.round(learnerModel.persistenceScore * 100)}%`} sub={t('analyticsPersistenceSub')} />
       </div>
 
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="rounded-2xl border border-border-subtle bg-surface-card p-5">
-        <h3 className="text-sm font-semibold flex items-center gap-2 mb-4"><AlertTriangle className="w-4 h-4 text-accent-orange" />{t('analyticsErrorPatterns')}</h3>
+      <Card>
+        <SectionHeading title={t('analyticsErrorPatterns')} icon={AlertTriangle} iconClassName="text-accent-orange" className="mb-4" />
         <div className="space-y-3">
           {learnerModel.errorPatterns.map((p, i) => (
             <div key={i} className="p-4 rounded-xl bg-surface-primary/50 border border-border-subtle">
@@ -419,22 +417,22 @@ function BehaviorTab({ learnerModel }: { learnerModel: LearnerModel }) {
             </div>
           ))}
         </div>
-      </motion.div>
+      </Card>
 
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="rounded-2xl border border-border-subtle bg-surface-card p-5">
-        <h3 className="text-sm font-semibold mb-4">{t('analyticsAdaptiveModelVars')}</h3>
+      <Card>
+        <SectionHeading title={t('analyticsAdaptiveModelVars')} className="mb-4" />
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
           {modelVars.map((item) => (
             <div key={item.labelKey} className="p-3 rounded-xl bg-surface-primary/50 border border-border-subtle text-center">
-              <p className="text-[10px] text-text-muted mb-1">{t(item.labelKey)}</p>
+              <p className="ws-caption text-text-muted mb-1">{t(item.labelKey)}</p>
               <p className="text-sm font-semibold capitalize">{item.value}</p>
             </div>
           ))}
         </div>
-        <p className="text-[10px] text-text-muted mt-4 leading-relaxed">
+        <p className="ws-caption text-text-muted mt-4 leading-relaxed">
           {t('analyticsAdaptiveModelFootnote')}
         </p>
-      </motion.div>
+      </Card>
     </div>
   );
 }
@@ -452,8 +450,8 @@ function InsightsTab({
   const tips = adaptiveRecommendations(learnerModel, activities, repairs);
   return (
     <div className="space-y-4">
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="rounded-2xl border border-brand-500/20 bg-brand-500/5 p-5">
-        <h3 className="text-sm font-semibold flex items-center gap-2 mb-4"><Lightbulb className="w-4 h-4 text-brand-400" />{t('analyticsInsightsLearnedTitle')}</h3>
+      <Card tone="brand">
+        <SectionHeading title={t('analyticsInsightsLearnedTitle')} icon={Lightbulb} iconClassName="text-brand-400" className="mb-4" />
         <p className="text-xs text-text-tertiary mb-4">{t('analyticsInsightsLearnedHint')}</p>
         <div className="space-y-3">
           {(learnerModel.interactionInsights.length > 0 ? learnerModel.interactionInsights : tips.slice(0, 2)).map((insight, i) => (
@@ -466,10 +464,10 @@ function InsightsTab({
             </motion.div>
           ))}
         </div>
-      </motion.div>
+      </Card>
 
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="rounded-2xl border border-border-subtle bg-surface-card p-5">
-        <h3 className="text-sm font-semibold mb-3">{t('analyticsAdaptiveRecommendations')}</h3>
+      <Card>
+        <SectionHeading title={t('analyticsAdaptiveRecommendations')} className="mb-3" />
         <div className="space-y-2 text-sm text-text-secondary">
           {tips.length > 0 ? tips.map((tip, i) => (
             <p key={i}>• {tip}</p>
@@ -477,18 +475,14 @@ function InsightsTab({
             <p>{t('analyticsRecommendationsEmpty')}</p>
           )}
         </div>
-      </motion.div>
+      </Card>
     </div>
   );
 }
 
 function MetricCard({ icon, label, value, sub }: { icon: React.ReactNode; label: string; value: string; sub: string }) {
   return (
-    <div className="p-4 rounded-xl border border-border-subtle bg-surface-card">
-      <div className="flex items-center gap-2 mb-2">{icon}<span className="text-xs text-text-tertiary font-medium">{label}</span></div>
-      <p className="text-xl font-bold">{value}</p>
-      <p className="text-[10px] text-text-muted mt-0.5">{sub}</p>
-    </div>
+    <StatTile icon={icon} label={label} value={value} hint={sub} />
   );
 }
 
