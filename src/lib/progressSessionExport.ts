@@ -1,5 +1,5 @@
-/**
- * Wave 5E — Progress / session export (print-ready HTML + JSON snapshot).
+﻿/**
+ * Wave 5E έΑΦ Progress / session export (print-ready HTML + JSON snapshot).
  * Shares spine data: weak spots, tool activity, next actions, workspace recommendation.
  */
 
@@ -11,6 +11,27 @@ import type { NextActionRecommendation } from './nextActionEngine';
 import { nextActionLabel } from './nextActionEngine';
 import { workspaceToolLabel } from './workspaceToolRegistry';
 import type { WorkspaceToolId } from './taskFlows';
+import type { ConceptBusRow } from './conceptBusPanelModel';
+
+export type ConceptBusExportSnapshot = {
+  concept: string;
+  tools: string[];
+  engagement: number;
+  struggling: boolean;
+  confident: boolean;
+  isFocus: boolean;
+};
+
+export function buildConceptBusExportSnapshot(rows: ConceptBusRow[]): ConceptBusExportSnapshot[] {
+  return rows.map((row) => ({
+    concept: row.concept,
+    tools: row.tools,
+    engagement: row.engagement,
+    struggling: row.struggling,
+    confident: row.confident,
+    isFocus: row.isFocus,
+  }));
+}
 
 export type ProgressSessionExportPayload = {
   lang: Lang;
@@ -27,7 +48,9 @@ export type ProgressSessionExportPayload = {
   totalConcepts: number;
   weakSpots: DashboardWeakSpot[];
   toolActivity: ToolActivityCount[];
-  nextActions: { label: string; type: string; minutes: number; xp: number }[];
+  feynmanActivityCount: number;
+  conceptBusSnapshot: ConceptBusExportSnapshot[];
+  nextActions: { label: string; type: string; minutes: number; xp?: number }[];
   workspaceNextAction: { primary: string; reason: string } | null;
   session: Pick<
     DashboardSessionContent,
@@ -36,10 +59,10 @@ export type ProgressSessionExportPayload = {
 };
 
 function readinessBand(readiness: number, lang: Lang): string {
-  if (readiness >= 80) return lang === 'el' ? 'Ισχυρό' : 'Strong';
-  if (readiness >= 60) return lang === 'el' ? 'Επαρκές' : 'Proficient';
-  if (readiness >= 40) return lang === 'el' ? 'Αναπτυσσόμενο' : 'Developing';
-  return lang === 'el' ? 'Αδύναμο' : 'Weak';
+  if (readiness >= 80) return lang === 'el' ? '╬β╧Δ╧Θ╧Ζ╧Β╧Ν' : 'Strong';
+  if (readiness >= 60) return lang === 'el' ? '╬Χ╧Α╬▒╧Β╬║╬φ╧Γ' : 'Proficient';
+  if (readiness >= 40) return lang === 'el' ? '╬Σ╬╜╬▒╧Α╧Ε╧Ζ╧Δ╧Δ╧Ν╬╝╬╡╬╜╬┐' : 'Developing';
+  return lang === 'el' ? '╬Σ╬┤╧Ξ╬╜╬▒╬╝╬┐' : 'Weak';
 }
 
 function escapeHtml(s: string): string {
@@ -69,9 +92,10 @@ export function buildProgressSessionExportPayload(opts: {
   weakSpotsDetail?: DashboardWeakSpot[];
   weakSpots: { concept: string; mastery: number; course: string }[];
   toolActivity?: ToolActivityCount[];
-  nextActions: { label: string; type: string; minutes: number; xp: number }[];
+  nextActions: { label: string; type: string; minutes: number; xp?: number }[];
   session: DashboardSessionContent;
   nextAction?: NextActionRecommendation | null;
+  conceptBusSnapshot?: ConceptBusExportSnapshot[];
 }): ProgressSessionExportPayload {
   const {
     lang,
@@ -91,6 +115,7 @@ export function buildProgressSessionExportPayload(opts: {
     nextActions,
     session,
     nextAction,
+    conceptBusSnapshot = [],
   } = opts;
 
   const weakExport: DashboardWeakSpot[] = weakSpotsDetail ?? weakSpots.map((w) => ({
@@ -115,6 +140,8 @@ export function buildProgressSessionExportPayload(opts: {
     totalConcepts,
     weakSpots: weakExport,
     toolActivity,
+    feynmanActivityCount: toolActivity.find((row) => row.tool === 'feynman')?.count ?? 0,
+    conceptBusSnapshot,
     nextActions,
     workspaceNextAction: nextAction
       ? {
@@ -151,56 +178,83 @@ export function buildProgressSessionHtml(payload: ProgressSessionExportPayload):
     totalConcepts,
     weakSpots,
     toolActivity,
+    feynmanActivityCount,
+    conceptBusSnapshot,
     nextActions,
     workspaceNextAction,
     session,
   } = payload;
   const isEl = lang === 'el';
-  const title = isEl ? 'Αναφορά προόδου συνεδρίας' : 'Study session progress report';
+  const title = isEl ? '╬Σ╬╜╬▒╧Η╬┐╧Β╬υ ╧Α╧Β╬┐╧Ν╬┤╬┐╧Ζ ╧Δ╧Ζ╬╜╬╡╬┤╧Β╬ψ╬▒╧Γ' : 'Study session progress report';
   const band = readinessBand(readiness, lang);
 
   const statsRows = [
-    [isEl ? 'Ετοιμότητα εξετάσεων' : 'Exam readiness', `${readiness}% (${band})`],
-    [isEl ? 'Έννοιες' : 'Concepts', `${conceptsMastered}/${totalConcepts}`],
-    [isEl ? 'Σειρά ημερών' : 'Streak', `${streak}d`],
-    [isEl ? 'Ληξιπρόθεσμα' : 'Due reviews', String(reviewsDue)],
-    [isEl ? 'Μελέτη σήμερα' : 'Study today', `${studyTimeToday}m`],
-    [isEl ? 'Μελέτη εβδομάδας' : 'Study this week', `${studyTimeWeek}m`],
-    [isEl ? 'Εργαλεία συνεδρίας' : 'Session tools', String(session.engagedToolCount)],
-    [isEl ? 'Ενέργειες εργαλείων' : 'Tool actions', String(session.toolActivityCount)],
+    [isEl ? '╬Χ╧Ε╬┐╬╣╬╝╧Ν╧Ε╬╖╧Ε╬▒ ╬╡╬╛╬╡╧Ε╬υ╧Δ╬╡╧Κ╬╜' : 'Exam readiness', `${readiness}% (${band})`],
+    [isEl ? '╬Ι╬╜╬╜╬┐╬╣╬╡╧Γ' : 'Concepts', `${conceptsMastered}/${totalConcepts}`],
+    [isEl ? '╬μ╬╡╬╣╧Β╬υ ╬╖╬╝╬╡╧Β╧Ο╬╜' : 'Streak', `${streak}d`],
+    [isEl ? '╬δ╬╖╬╛╬╣╧Α╧Β╧Ν╬╕╬╡╧Δ╬╝╬▒' : 'Due reviews', String(reviewsDue)],
+    [isEl ? '╬ε╬╡╬╗╬φ╧Ε╬╖ ╧Δ╬χ╬╝╬╡╧Β╬▒' : 'Study today', `${studyTimeToday}m`],
+    [isEl ? '╬ε╬╡╬╗╬φ╧Ε╬╖ ╬╡╬▓╬┤╬┐╬╝╬υ╬┤╬▒╧Γ' : 'Study this week', `${studyTimeWeek}m`],
+    [isEl ? '╬Χ╧Β╬│╬▒╬╗╬╡╬ψ╬▒ ╧Δ╧Ζ╬╜╬╡╬┤╧Β╬ψ╬▒╧Γ' : 'Session tools', String(session.engagedToolCount)],
+    [isEl ? '╬Χ╬╜╬φ╧Β╬│╬╡╬╣╬╡╧Γ ╬╡╧Β╬│╬▒╬╗╬╡╬ψ╧Κ╬╜' : 'Tool actions', String(session.toolActivityCount)],
   ].map(([k, v]) => `<tr><th>${escapeHtml(k)}</th><td>${escapeHtml(v)}</td></tr>`).join('');
 
   const weakBlock = weakSpots.length === 0
-    ? `<p>${isEl ? 'Καμία αδύναμη έννοια.' : 'No weak concepts.'}</p>`
+    ? `<p>${isEl ? '╬γ╬▒╬╝╬ψ╬▒ ╬▒╬┤╧Ξ╬╜╬▒╬╝╬╖ ╬φ╬╜╬╜╬┐╬╣╬▒.' : 'No weak concepts.'}</p>`
     : `<table><thead><tr>
-        <th>${isEl ? 'Έννοια' : 'Concept'}</th>
-        <th>${isEl ? 'Μάθημα' : 'Course'}</th>
-        <th>${isEl ? 'Εξοικείωση' : 'Mastery'}</th>
-        <th>${isEl ? 'Λόγοι' : 'Reasons'}</th>
-        <th>${isEl ? 'Επανόρθωση' : 'Remediation'}</th>
+        <th>${isEl ? '╬Ι╬╜╬╜╬┐╬╣╬▒' : 'Concept'}</th>
+        <th>${isEl ? '╬ε╬υ╬╕╬╖╬╝╬▒' : 'Course'}</th>
+        <th>${isEl ? '╬Χ╬╛╬┐╬╣╬║╬╡╬ψ╧Κ╧Δ╬╖' : 'Mastery'}</th>
+        <th>${isEl ? '╬δ╧Ν╬│╬┐╬╣' : 'Reasons'}</th>
+        <th>${isEl ? '╬Χ╧Α╬▒╬╜╧Ν╧Β╬╕╧Κ╧Δ╬╖' : 'Remediation'}</th>
       </tr></thead><tbody>${weakSpots.map((w) => `
         <tr>
           <td>${escapeHtml(w.concept)}</td>
           <td>${escapeHtml(w.course)}</td>
           <td>${w.mastery}%</td>
-          <td>${w.reasons.map((r) => escapeHtml(r.label)).join('<br/>') || '—'}</td>
-          <td>${w.remediation.map((a) => escapeHtml(a.label)).join(', ') || '—'}</td>
+          <td>${w.reasons.map((r) => escapeHtml(r.label)).join('<br/>') || 'έΑΦ'}</td>
+          <td>${w.remediation.map((a) => escapeHtml(a.label)).join(', ') || 'έΑΦ'}</td>
         </tr>`).join('')}</tbody></table>`;
 
   const toolBlock = toolActivity.length === 0
-    ? `<p>${isEl ? 'Δεν καταγράφηκαν εργαλεία.' : 'No tool activity recorded.'}</p>`
+    ? `<p>${isEl ? '╬Φ╬╡╬╜ ╬║╬▒╧Ε╬▒╬│╧Β╬υ╧Η╬╖╬║╬▒╬╜ ╬╡╧Β╬│╬▒╬╗╬╡╬ψ╬▒.' : 'No tool activity recorded.'}</p>`
     : `<ul>${toolActivity.map((row) =>
-      `<li>${escapeHtml(workspaceToolLabel(row.tool as WorkspaceToolId, lang))} ×${row.count}</li>`,
+      `<li>${escapeHtml(workspaceToolLabel(row.tool as WorkspaceToolId, lang))} ├Ω${row.count}</li>`,
     ).join('')}</ul>`;
 
+  const busBlock = conceptBusSnapshot.length === 0
+    ? `<p>${isEl ? 'Concept Bus ╬║╬╡╬╜╧Ν έΑΦ ╬┤╬╡╬╜ ╬║╬▒╧Ε╬▒╬│╧Β╬υ╧Η╬╖╬║╬▒╬╜ ╧Δ╧Ζ╧Δ╧Θ╬╡╧Ε╬ψ╧Δ╬╡╬╣╧Γ ╬╡╬╜╬╜╬┐╬╣╧Ο╬╜.' : 'Concept Bus empty έΑΦ no concept correlations recorded.'}</p>`
+    : `<table><thead><tr>
+        <th>${isEl ? '╬Ι╬╜╬╜╬┐╬╣╬▒' : 'Concept'}</th>
+        <th>${isEl ? '╬Χ╧Β╬│╬▒╬╗╬╡╬ψ╬▒' : 'Tools'}</th>
+        <th>${isEl ? 'Engagement' : 'Engagement'}</th>
+        <th>${isEl ? '╬γ╬▒╧Ε╬υ╧Δ╧Ε╬▒╧Δ╬╖' : 'Status'}</th>
+      </tr></thead><tbody>${conceptBusSnapshot.map((row) => {
+        const status = row.struggling
+          ? (isEl ? '╬Σ╬┤╧Ξ╬╜╬▒╬╝╬┐' : 'Struggling')
+          : row.confident
+            ? (isEl ? '╬β╧Δ╧Θ╧Ζ╧Β╧Ν' : 'Confident')
+            : 'έΑΦ';
+        return `<tr>
+          <td>${escapeHtml(row.concept)}${row.isFocus ? ' έαΖ' : ''}</td>
+          <td>${row.tools.map((t) => escapeHtml(workspaceToolLabel(t as WorkspaceToolId, lang))).join(', ') || 'έΑΦ'}</td>
+          <td>${row.engagement}</td>
+          <td>${escapeHtml(status)}</td>
+        </tr>`;
+      }).join('')}</tbody></table>`;
+
+  const feynmanBlock = feynmanActivityCount > 0
+    ? `<p class="meta">${isEl ? 'Feynman ╬╡╬╜╬φ╧Β╬│╬╡╬╣╬╡╧Γ' : 'Feynman actions'}: ${feynmanActivityCount}</p>`
+    : '';
+
   const taskBlock = nextActions.length === 0
-    ? `<p>${isEl ? 'Δεν υπάρχουν εργασίες.' : 'No scheduled tasks.'}</p>`
+    ? `<p>${isEl ? '╬Φ╬╡╬╜ ╧Ζ╧Α╬υ╧Β╧Θ╬┐╧Ζ╬╜ ╬╡╧Β╬│╬▒╧Δ╬ψ╬╡╧Γ.' : 'No scheduled tasks.'}</p>`
     : `<ul>${nextActions.map((a) =>
-      `<li><strong>${escapeHtml(a.label)}</strong> — ${a.minutes}m · +${a.xp} XP</li>`,
+      `<li><strong>${escapeHtml(a.label)}</strong> έΑΦ ${a.minutes}m${a.xp != null ? ` ┬╖ +${a.xp} XP` : ''}</li>`,
     ).join('')}</ul>`;
 
   const nextActionBlock = workspaceNextAction
-    ? `<section><h2>${isEl ? 'Επόμενη ενέργεια workspace' : 'Workspace next action'}</h2>
+    ? `<section><h2>${isEl ? '╬Χ╧Α╧Ν╬╝╬╡╬╜╬╖ ╬╡╬╜╬φ╧Β╬│╬╡╬╣╬▒ workspace' : 'Workspace next action'}</h2>
        <p><strong>${escapeHtml(workspaceNextAction.primary)}</strong></p>
        <p>${escapeHtml(workspaceNextAction.reason)}</p></section>`
     : '';
@@ -209,7 +263,7 @@ export function buildProgressSessionHtml(payload: ProgressSessionExportPayload):
     ? workspaceToolLabel(session.suggestFocusTool, lang)
     : null;
 
-  return `<!DOCTYPE html><html><head><meta charset="utf-8"/><title>${title} — ${escapeHtml(concept)}</title>
+  return `<!DOCTYPE html><html><head><meta charset="utf-8"/><title>${title} έΑΦ ${escapeHtml(concept)}</title>
 <style>
   body{font-family:system-ui,sans-serif;max-width:800px;margin:2rem auto;color:#111;line-height:1.5}
   h1{font-size:1.35rem} h2{font-size:1rem;margin-top:1.5rem}
@@ -221,27 +275,31 @@ export function buildProgressSessionHtml(payload: ProgressSessionExportPayload):
 </style></head><body>
 <h1>${title}</h1>
 <p class="meta">
-  <strong>${isEl ? 'Έννοια' : 'Concept'}:</strong> ${escapeHtml(concept)}
-  ${courseName ? ` · <strong>${isEl ? 'Μάθημα' : 'Course'}:</strong> ${escapeHtml(courseName)}` : ''}
-  ${sectionLabel ? ` · <strong>${isEl ? 'Ενότητα' : 'Section'}:</strong> ${escapeHtml(sectionLabel)}` : ''}
+  <strong>${isEl ? '╬Ι╬╜╬╜╬┐╬╣╬▒' : 'Concept'}:</strong> ${escapeHtml(concept)}
+  ${courseName ? ` ┬╖ <strong>${isEl ? '╬ε╬υ╬╕╬╖╬╝╬▒' : 'Course'}:</strong> ${escapeHtml(courseName)}` : ''}
+  ${sectionLabel ? ` ┬╖ <strong>${isEl ? '╬Χ╬╜╧Ν╧Ε╬╖╧Ε╬▒' : 'Section'}:</strong> ${escapeHtml(sectionLabel)}` : ''}
 </p>
-<p class="meta">${isEl ? 'Εξαγωγή' : 'Exported'}: ${generatedAt.slice(0, 19).replace('T', ' ')} UTC</p>
-${suggestTool ? `<p class="meta">${isEl ? 'Προτεινόμενο εργαλείο' : 'Suggested tool'}: ${escapeHtml(suggestTool)}</p>` : ''}
+<p class="meta">${isEl ? '╬Χ╬╛╬▒╬│╧Κ╬│╬χ' : 'Exported'}: ${generatedAt.slice(0, 19).replace('T', ' ')} UTC</p>
+${suggestTool ? `<p class="meta">${isEl ? '╬ι╧Β╬┐╧Ε╬╡╬╣╬╜╧Ν╬╝╬╡╬╜╬┐ ╬╡╧Β╬│╬▒╬╗╬╡╬ψ╬┐' : 'Suggested tool'}: ${escapeHtml(suggestTool)}</p>` : ''}
 
-<h2>${isEl ? 'Σύνοψη' : 'Summary'}</h2>
+<h2>${isEl ? '╬μ╧Ξ╬╜╬┐╧Ι╬╖' : 'Summary'}</h2>
 <table><tbody>${statsRows}</tbody></table>
 
-<h2>${isEl ? 'Αδύναμα σημεία' : 'Weak spots'}</h2>
+<h2>${isEl ? '╬Σ╬┤╧Ξ╬╜╬▒╬╝╬▒ ╧Δ╬╖╬╝╬╡╬ψ╬▒' : 'Weak spots'}</h2>
 ${weakBlock}
 
-<h2>${isEl ? 'Εργαλεία συνεδρίας' : 'Session tool activity'}</h2>
+<h2>${isEl ? '╬Χ╧Β╬│╬▒╬╗╬╡╬ψ╬▒ ╧Δ╧Ζ╬╜╬╡╬┤╧Β╬ψ╬▒╧Γ' : 'Session tool activity'}</h2>
 ${toolBlock}
+${feynmanBlock}
 
-<h2>${isEl ? 'Επόμενες εργασίες' : 'Next tasks'}</h2>
+<h2>${isEl ? 'Concept Bus (mirror)' : 'Concept Bus mirror'}</h2>
+${busBlock}
+
+<h2>${isEl ? '╬Χ╧Α╧Ν╬╝╬╡╬╜╬╡╧Γ ╬╡╧Β╬│╬▒╧Δ╬ψ╬╡╧Γ' : 'Next tasks'}</h2>
 ${taskBlock}
 ${nextActionBlock}
 
-<p style="font-size:10px;color:#666;margin-top:2rem">Synapse Study Workspace · Concept Bus correlation export</p>
+<p style="font-size:10px;color:#666;margin-top:2rem">Synapse Study Workspace ┬╖ Concept Bus correlation export</p>
 </body></html>`;
 }
 

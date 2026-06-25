@@ -1,4 +1,4 @@
-/** @vitest-environment jsdom */
+﻿/** @vitest-environment jsdom */
 import { describe, expect, it, vi, afterEach } from 'vitest';
 import { render, screen, fireEvent, cleanup } from '@testing-library/react';
 import { QuizPanel } from './QuizPanel';
@@ -24,7 +24,13 @@ const session: QuizSessionContent = {
   hasSource: true,
 };
 
-describe('QuizPanel — selection contract §13.5 (Wave 5D)', () => {
+const quizPanelDefaults = {
+  desiredCount: 5,
+  onChangeDesiredCount: vi.fn(),
+  countOptions: [3, 5, 10] as const,
+};
+
+describe('QuizPanel έΑΦ selection contract ┬π13.5 (Wave 5D)', () => {
   it('shows selection bar when question is clicked', () => {
     const onSelectionAction = vi.fn();
     render(
@@ -35,6 +41,7 @@ describe('QuizPanel — selection contract §13.5 (Wave 5D)', () => {
         scopeKey="test-scope"
         onSessionComplete={vi.fn()}
         onSelectionAction={onSelectionAction}
+        {...quizPanelDefaults}
       />,
     );
     fireEvent.click(screen.getByTestId('quiz-question-select'));
@@ -57,6 +64,7 @@ describe('QuizPanel — selection contract §13.5 (Wave 5D)', () => {
         scopeKey="test-scope"
         onSessionComplete={vi.fn()}
         onSelectionAction={vi.fn()}
+        {...quizPanelDefaults}
       />,
     );
     fireEvent.click(screen.getByTestId('quiz-question-select'));
@@ -64,7 +72,7 @@ describe('QuizPanel — selection contract §13.5 (Wave 5D)', () => {
     expect(screen.getByTestId('selection-action-open-reader')).toBeTruthy();
   });
 
-  it('shows §13.5 selection contract strip (Wave 6.8c)', () => {
+  it('shows ┬π13.5 selection contract strip (Wave 6.8c)', () => {
     render(
       <QuizPanel
         session={session}
@@ -73,9 +81,10 @@ describe('QuizPanel — selection contract §13.5 (Wave 5D)', () => {
         scopeKey="test-scope"
         onSessionComplete={vi.fn()}
         onSelectionAction={vi.fn()}
+        {...quizPanelDefaults}
       />,
     );
     expect(screen.getByTestId('quiz-selection-contract-strip')).toBeTruthy();
-    expect(screen.getByTestId('quiz-selection-contract-strip').textContent).toMatch(/§13\.5/);
+    expect(screen.getByTestId('quiz-selection-contract-strip').textContent).toMatch(/┬π13\.5/);
   });
 });

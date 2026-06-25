@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+﻿import { describe, expect, it } from 'vitest';
 import {
   buildProgressSessionExportPayload,
   buildProgressSessionHtml,
@@ -38,7 +38,7 @@ describe('progressSessionExport', () => {
         mastery: 35,
         course: 'Econ 101',
         source: 'bus',
-        reasons: [{ id: 'quiz-wrong', label: '2× quiz mistakes', severity: 'high' }],
+        reasons: [{ id: 'quiz-wrong', label: '2├Ω quiz mistakes', severity: 'high' }],
         remediation: [{ id: 'quiz', label: 'Quiz', hint: 'Retest' }],
       }],
       toolActivity: [{ tool: 'quiz', count: 2, lastAt: 1 }],
@@ -54,13 +54,16 @@ describe('progressSessionExport', () => {
     const html = buildProgressSessionHtml(payload);
     expect(html).toContain('Elasticity');
     expect(html).toContain('62%');
-    expect(html).toContain('2× quiz mistakes');
+    expect(html).toContain('2├Ω quiz mistakes');
     expect(html).toContain('Test me');
-    expect(html).toContain('Quiz ×2');
+    expect(html).toContain('Quiz ├Ω2');
+    expect(html).toContain('Concept Bus mirror');
 
     const json = JSON.parse(buildProgressSessionJson(payload));
     expect(json.concept).toBe('Elasticity');
     expect(json.weakSpots[0].remediation[0].id).toBe('quiz');
+    expect(json.feynmanActivityCount).toBe(0);
+    expect(Array.isArray(json.conceptBusSnapshot)).toBe(true);
   });
 
   it('generates stable filenames', () => {

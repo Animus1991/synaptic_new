@@ -2158,6 +2158,7 @@ export function StudyWorkspace({
                     onRemediateWeakSpot={handleConceptBusRemediation}
                     courseName={courseName ?? linkedCourse?.title}
                     nextAction={nextActionRecommendation}
+                    conceptBusRows={conceptBusRows}
                   />
                 )}
                 {activeTool === 'leitner' && (
