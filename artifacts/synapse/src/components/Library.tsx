@@ -558,21 +558,42 @@ function FileItem({
 }
 
 function EmptyState({ onUpload }: { onUpload: () => void }) {
+  const steps = [
+    { icon: Upload, label: 'Upload', desc: 'PDF, DOCX, PPTX, or YouTube URL' },
+    { icon: Sparkles, label: 'AI Builds', desc: 'Lessons, quizzes & flashcards' },
+    { icon: BookOpen, label: 'Study', desc: 'Adaptive tools tuned to you' },
+  ];
   return (
-    <div className="flex flex-col items-center justify-center py-20 text-center">
-      <div className="w-20 h-20 rounded-2xl bg-surface-card border border-border-subtle flex items-center justify-center mb-6">
-        <Plus className="w-8 h-8 text-text-muted" />
+    <div className="flex flex-col items-center justify-center py-16 text-center">
+      <div className="w-16 h-16 rounded-2xl bg-brand-500/10 border border-brand-500/20 flex items-center justify-center mb-6">
+        <Sparkles className="w-7 h-7 text-brand-400" />
       </div>
-      <h3 className="text-lg font-semibold mb-2">No content yet</h3>
-      <p className="text-text-secondary text-sm mb-6 max-w-sm">
-        Upload your first document and the AI will transform it into an interactive learning course.
+      <h3 className="text-xl font-bold mb-2">Your library is empty</h3>
+      <p className="text-text-secondary text-sm mb-8 max-w-sm">
+        Upload study material and Synapse builds a full interactive course — lessons, tasks, and adaptive reviews.
       </p>
+      <div className="flex items-start gap-6 mb-8">
+        {steps.map((s, i) => (
+          <div key={s.label} className="flex flex-col items-center gap-2 w-28">
+            <div className="relative">
+              <div className="w-10 h-10 rounded-full bg-surface-card border border-border-subtle flex items-center justify-center">
+                <s.icon className="w-4 h-4 text-brand-400" />
+              </div>
+              {i < steps.length - 1 && (
+                <div className="absolute top-5 left-10 w-[calc(100%+1.5rem)] h-px bg-border-subtle" style={{ width: '4rem' }} />
+              )}
+            </div>
+            <p className="text-xs font-semibold text-text-primary">{s.label}</p>
+            <p className="text-[11px] text-text-tertiary leading-tight">{s.desc}</p>
+          </div>
+        ))}
+      </div>
       <button
         onClick={onUpload}
-        className="flex items-center gap-2 px-6 py-3 bg-brand-600 hover:bg-brand-500 text-white rounded-xl font-medium text-sm transition-all"
+        className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-500 hover:to-brand-400 text-white rounded-xl font-medium text-sm transition-all shadow-lg shadow-brand-500/20"
       >
         <Upload className="w-4 h-4" />
-        Upload Material
+        Upload Your First Material
       </button>
     </div>
   );

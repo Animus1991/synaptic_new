@@ -17,6 +17,7 @@ interface OnboardingProps {
     examDate?: string;
     openUpload?: boolean;
     displayName?: string;
+    exploreDemoMode?: boolean;
   }) => void;
 }
 
@@ -201,13 +202,36 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                   })} className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-gradient-to-r from-brand-600 to-brand-500 text-white rounded-xl font-medium hover:from-brand-500 hover:to-brand-400 transition-all">
                     <Upload className="w-4 h-4" /> {content.uploadCta}
                   </button>
+
+                  {/* Demo fork — explore with preloaded Economics example */}
+                  <div className="relative">
+                    <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-border-subtle" /></div>
+                    <div className="relative flex justify-center">
+                      <span className="bg-surface-primary px-3 text-xs text-text-muted">or</span>
+                    </div>
+                  </div>
                   <button onClick={() => onComplete({
                     role: selectedRole ?? undefined,
                     goals: selectedGoals,
                     dailyGoalMinutes: dailyTime,
                     examDate: examDate || undefined,
                     displayName: displayName.trim() || undefined,
-                  })} className="text-sm text-text-secondary hover:text-text-primary transition-colors">
+                    exploreDemoMode: true,
+                  })} className="inline-flex items-center justify-center gap-2 px-8 py-3 border border-brand-500/40 bg-brand-500/5 text-brand-300 rounded-xl font-medium hover:bg-brand-500/10 hover:border-brand-400/60 transition-all">
+                    <Sparkles className="w-4 h-4" />
+                    Explore Demo First
+                  </button>
+                  <p className="text-xs text-text-muted">
+                    See a live example with Economics notes — no upload needed. You can add your own material anytime.
+                  </p>
+
+                  <button onClick={() => onComplete({
+                    role: selectedRole ?? undefined,
+                    goals: selectedGoals,
+                    dailyGoalMinutes: dailyTime,
+                    examDate: examDate || undefined,
+                    displayName: displayName.trim() || undefined,
+                  })} className="text-sm text-text-secondary hover:text-text-primary transition-colors mt-1">
                     {content.skipExplore}
                   </button>
                 </div>

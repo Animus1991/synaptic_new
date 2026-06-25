@@ -1,1 +1,3 @@
 - [Synapse Learning port decisions](synapse-port.md) — key package firewall issues and stub solutions for @xenova/transformers and pyodide
+- [App.tsx hook ordering](app-hook-ordering.md) — hasCourses + any callbacks that shellProps or early JSX reference must be declared BEFORE those uses (temporal dead zone with const).
+- [Shell progressive disclosure](shell-nav-disclosure.md) — NavItem is a named module-level component (not inline); useI18n() valid there; REQUIRES_COURSES gates agent/analytics/teacher.

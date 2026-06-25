@@ -96,6 +96,21 @@ export default function App() {
     store.openStudyWorkspaceForExamCountdown();
   }, [store]);
 
+  const hasCourses = visibleCourses(store.courses, store.user.settings).length > 0;
+
+  const handleSeeDemo = useCallback(() => {
+    store.updateSettings({ showDemoContent: true });
+    store.completeOnboarding({ openUpload: false });
+  }, [store]);
+
+  const handleOnboardingComplete = useCallback((data: Parameters<typeof store.completeOnboarding>[0] & { exploreDemoMode?: boolean }) => {
+    if (data.exploreDemoMode) {
+      store.updateSettings({ showDemoContent: true });
+    }
+    const { exploreDemoMode: _ignored, ...rest } = data;
+    store.completeOnboarding(rest);
+  }, [store]);
+
   const closeReviewSession = () => {
     store.setReviewSessionOpen(false);
     store.setActiveTaskId(null);
@@ -248,6 +263,7 @@ export default function App() {
     onOpenSearch: () => togglePalette(),
     onOpenNotifications: () => setNotificationsOpen(true),
     notificationCount: store.activities.length,
+    hasCourses,
     breadcrumb: store.currentView === 'course' && store.selectedCourse
       ? { course: store.selectedCourse.title }
       : store.activeTask
@@ -485,7 +501,10 @@ export default function App() {
   if (store.currentView === 'landing') {
     return (
       <I18nContext.Provider value={i18nValue}>
-        <Landing onGetStarted={() => store.navigate('onboarding')} />
+        <Landing
+          onGetStarted={() => store.navigate('onboarding')}
+          onSeeDemo={handleSeeDemo}
+        />
       </I18nContext.Provider>
     );
   }
@@ -494,7 +513,7 @@ export default function App() {
   if (store.currentView === 'onboarding') {
     return (
       <I18nContext.Provider value={i18nValue}>
-        <Onboarding onComplete={store.completeOnboarding} />
+        <Onboarding onComplete={handleOnboardingComplete} />
       </I18nContext.Provider>
     );
   }
@@ -535,7 +554,7 @@ export default function App() {
           {store.currentView === 'dashboard' && (
             <Dashboard
               stats={store.dashboardStats}
-              courses={store.courses}
+              courses={visibleCourses(store.courses, store.user.settings)}
               tasks={store.tasks}
               learnerModel={store.learnerModel}
               prerequisiteRepairs={store.pedagogyMetrics.repairs}
@@ -555,6 +574,8 @@ export default function App() {
               onFocusWeakArea={openWorkspaceForConcept}
               workspaceLive={store.workspaceLive}
               dashboardNextAction={store.dashboardNextAction}
+              onUpload={() => openUploadModal()}
+              onExploreDemo={!hasCourses ? handleSeeDemo : undefined}
               lang={store.user.settings.language}
             />
           )}
@@ -584,6 +605,7 @@ export default function App() {
               onExpandedTaskChange={store.setExpandedTaskId}
               openMistakes={store.pedagogyMetrics.openMistakes}
               onResolveMistake={store.resolveMistake}
+              onUpload={() => openUploadModal()}
             />
           )}
           {store.currentView === 'agent' && !agentSplitActive && (

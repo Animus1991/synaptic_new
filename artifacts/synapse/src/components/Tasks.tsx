@@ -4,7 +4,7 @@ import {
   CheckCircle2, Circle, Clock, Zap, AlertTriangle, RotateCcw,
   Brain, Target, BookOpen, Timer, ChevronDown, Play, Flame,
   GraduationCap, Lightbulb, Code, MessageSquare, Sparkles,
-  Mic, ArrowDownRight, GitCompare, Shield, Calendar
+  Mic, ArrowDownRight, GitCompare, Shield, Calendar, Upload, ArrowRight,
 } from 'lucide-react';
 import type { Task, TaskType, MistakeRecord } from '../types';
 import { cn } from '../utils/cn';
@@ -53,7 +53,11 @@ const sessionTypes: { type: SessionType; label: string; desc: string; minutes: n
   { type: 'review', label: 'Spaced Review', desc: 'Due spaced repetitions', minutes: 15, icon: RotateCcw },
 ];
 
-export function Tasks({ tasks, onComplete, onReviewRating, onStartTask, onStartSession, daysToExam = null, expandedTaskId = null, onExpandedTaskChange, openMistakes = [], onResolveMistake }: TasksProps) {
+interface TasksPropsExtended extends TasksProps {
+  onUpload?: () => void;
+}
+
+export function Tasks({ tasks, onComplete, onReviewRating, onStartTask, onStartSession, daysToExam = null, expandedTaskId = null, onExpandedTaskChange, openMistakes = [], onResolveMistake, onUpload }: TasksPropsExtended) {
   const [filter, setFilter] = useState<TaskFilter>('all');
   const [showSessions, setShowSessions] = useState(false);
   const [localExpanded, setLocalExpanded] = useState<string | null>(null);
@@ -90,6 +94,33 @@ export function Tasks({ tasks, onComplete, onReviewRating, onStartTask, onStartS
     fix: tasks.filter(t => t.category === 'fix' && t.status !== 'completed').length,
     completed: completedCount,
   };
+
+  // No tasks at all — user hasn't uploaded anything yet
+  if (tasks.length === 0) {
+    return (
+      <div className="p-4 sm:p-6 lg:px-8 pb-24 lg:pb-6 w-full min-w-0 flex flex-col items-center justify-center min-h-[60vh] text-center">
+        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="max-w-md">
+          <div className="w-16 h-16 rounded-2xl bg-brand-500/10 border border-brand-500/20 flex items-center justify-center mx-auto mb-6">
+            <Brain className="w-7 h-7 text-brand-400" />
+          </div>
+          <h2 className="text-2xl font-bold mb-3">No tasks yet</h2>
+          <p className="text-text-secondary text-sm mb-8 leading-relaxed">
+            Upload your study material and Synapse will generate a personalised task list — lessons, reviews, quizzes, and spaced-repetition cards automatically prioritised for you.
+          </p>
+          {onUpload && (
+            <button
+              onClick={onUpload}
+              className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-500 hover:to-brand-400 text-white rounded-xl font-medium text-sm transition-all shadow-lg shadow-brand-500/20"
+            >
+              <Upload className="w-4 h-4" />
+              Upload Material to Get Started
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          )}
+        </motion.div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-4 sm:p-6 lg:px-8 pb-24 lg:pb-6 w-full min-w-0 space-y-6">

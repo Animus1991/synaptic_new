@@ -23,6 +23,7 @@ interface ShellProps {
   onOpenNotifications?: () => void;
   notificationCount?: number;
   breadcrumb?: { course?: string; lesson?: string };
+  hasCourses?: boolean;
 }
 
 const navViews: { view: AppView; icon: typeof BookOpen; labelKey: I18nKey }[] = [
@@ -35,7 +36,47 @@ const navViews: { view: AppView; icon: typeof BookOpen; labelKey: I18nKey }[] = 
   { view: 'settings', icon: Settings, labelKey: 'settings' },
 ];
 
-export function Shell({ children, currentView, onNavigate, sidebarOpen, onToggleSidebar, user, stats, onUpload, theme = 'dark', onToggleTheme, onOpenSearch, onOpenNotifications, notificationCount = 0, breadcrumb }: ShellProps) {
+const REQUIRES_COURSES: AppView[] = ['agent', 'analytics', 'teacher'];
+
+function NavItem({
+  item, active, locked, badge, onClick,
+}: {
+  item: typeof navViews[number];
+  active: boolean;
+  locked?: boolean;
+  badge?: number;
+  onClick: () => void;
+}) {
+  const { t } = useI18n();
+  return (
+    <button
+      data-testid={`nav-${item.view}`}
+      onClick={locked ? undefined : onClick}
+      title={locked ? 'Upload study material to unlock' : undefined}
+      className={cn(
+        'w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all',
+        active
+          ? 'bg-brand-600/20 text-brand-300 border border-brand-500/30'
+          : locked
+            ? 'text-text-muted cursor-not-allowed opacity-50'
+            : 'text-text-secondary hover:text-text-primary hover:bg-surface-hover',
+      )}
+    >
+      <item.icon className="w-5 h-5" />
+      {t(item.labelKey)}
+      {locked && (
+        <span className="ml-auto text-[10px] text-text-muted border border-border-subtle rounded px-1">soon</span>
+      )}
+      {!locked && badge !== undefined && badge > 0 && (
+        <span className="ml-auto text-xs bg-accent-rose/20 text-accent-rose px-2 py-0.5 rounded-full font-semibold">
+          {badge}
+        </span>
+      )}
+    </button>
+  );
+}
+
+export function Shell({ children, currentView, onNavigate, sidebarOpen, onToggleSidebar, user, stats, onUpload, theme = 'dark', onToggleTheme, onOpenSearch, onOpenNotifications, notificationCount = 0, breadcrumb, hasCourses = false }: ShellProps) {
   const { t } = useI18n();
   return (
     <div className="min-h-screen bg-surface-primary flex">
@@ -50,39 +91,48 @@ export function Shell({ children, currentView, onNavigate, sidebarOpen, onToggle
           </div>
         </div>
 
-        <nav className="flex-1 p-3 space-y-1">
-          {navViews.map(item => (
+        {/* Upload prompt when no courses yet */}
+        {!hasCourses && (
+          <div className="mx-3 mt-3 p-3 rounded-xl border border-brand-500/30 bg-brand-500/5">
+            <p className="text-xs font-semibold text-brand-300 mb-1">Get started</p>
+            <p className="text-[11px] text-text-tertiary mb-2 leading-relaxed">Upload your notes or PDFs to unlock all features.</p>
             <button
-              key={item.view}
-              data-testid={`nav-${item.view}`}
-              onClick={() => onNavigate(item.view)}
-              className={cn(
-                'w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all',
-                currentView === item.view
-                  ? 'bg-brand-600/20 text-brand-300 border border-brand-500/30'
-                  : 'text-text-secondary hover:text-text-primary hover:bg-surface-hover'
-              )}
+              onClick={onUpload}
+              className="w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-brand-600 hover:bg-brand-500 text-white text-xs font-medium transition-all"
             >
-              <item.icon className="w-5 h-5" />
-              {t(item.labelKey)}
-              {item.view === 'tasks' && stats.reviewsDue > 0 && (
-                <span className="ml-auto text-xs bg-accent-rose/20 text-accent-rose px-2 py-0.5 rounded-full font-semibold">
-                  {stats.reviewsDue}
-                </span>
-              )}
+              <Upload className="w-3.5 h-3.5" /> Upload Material
             </button>
-          ))}
+          </div>
+        )}
+
+        <nav className="flex-1 p-3 space-y-1 mt-1">
+          {navViews.map(item => {
+            const locked = REQUIRES_COURSES.includes(item.view) && !hasCourses;
+            const badge = item.view === 'tasks' ? stats.reviewsDue : undefined;
+            return (
+              <NavItem
+                key={item.view}
+                item={item}
+                active={currentView === item.view}
+                locked={locked}
+                badge={badge}
+                onClick={() => onNavigate(item.view)}
+              />
+            );
+          })}
         </nav>
 
-        <div className="p-3">
-          <button
-            onClick={onUpload}
-            className="w-full flex items-center gap-2 px-4 py-3 rounded-xl bg-gradient-to-r from-brand-600 to-brand-500 text-white font-medium text-sm hover:from-brand-500 hover:to-brand-400 transition-all"
-          >
-            <Upload className="w-4 h-4" />
-            {t('uploadMaterial')}
-          </button>
-        </div>
+        {hasCourses && (
+          <div className="p-3">
+            <button
+              onClick={onUpload}
+              className="w-full flex items-center gap-2 px-4 py-3 rounded-xl bg-gradient-to-r from-brand-600 to-brand-500 text-white font-medium text-sm hover:from-brand-500 hover:to-brand-400 transition-all"
+            >
+              <Upload className="w-4 h-4" />
+              {t('uploadMaterial')}
+            </button>
+          </div>
+        )}
 
         <div className="p-3 border-t border-border-subtle">
           <div className="flex items-center gap-3 px-2">
@@ -114,38 +164,47 @@ export function Shell({ children, currentView, onNavigate, sidebarOpen, onToggle
               </button>
             </div>
 
-            <nav className="flex-1 p-3 space-y-1">
-              {navViews.map(item => (
+            {!hasCourses && (
+              <div className="mx-3 mt-3 p-3 rounded-xl border border-brand-500/30 bg-brand-500/5">
+                <p className="text-xs font-semibold text-brand-300 mb-1">Get started</p>
+                <p className="text-[11px] text-text-tertiary mb-2 leading-relaxed">Upload your notes to unlock all features.</p>
                 <button
-                  key={item.view}
-                  onClick={() => onNavigate(item.view)}
-                  className={cn(
-                    'w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all',
-                    currentView === item.view
-                      ? 'bg-brand-600/20 text-brand-300 border border-brand-500/30'
-                      : 'text-text-secondary hover:text-text-primary hover:bg-surface-hover'
-                  )}
+                  onClick={() => { onUpload(); onToggleSidebar(false); }}
+                  className="w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-brand-600 hover:bg-brand-500 text-white text-xs font-medium transition-all"
                 >
-                  <item.icon className="w-5 h-5" />
-                  {t(item.labelKey)}
-                  {item.view === 'tasks' && stats.reviewsDue > 0 && (
-                    <span className="ml-auto text-xs bg-accent-rose/20 text-accent-rose px-2 py-0.5 rounded-full font-semibold">
-                      {stats.reviewsDue}
-                    </span>
-                  )}
+                  <Upload className="w-3.5 h-3.5" /> Upload Material
                 </button>
-              ))}
+              </div>
+            )}
+
+            <nav className="flex-1 p-3 space-y-1 mt-1">
+              {navViews.map(item => {
+                const locked = REQUIRES_COURSES.includes(item.view) && !hasCourses;
+                const badge = item.view === 'tasks' ? stats.reviewsDue : undefined;
+                return (
+                  <NavItem
+                    key={item.view}
+                    item={item}
+                    active={currentView === item.view}
+                    locked={locked}
+                    badge={badge}
+                    onClick={() => { onNavigate(item.view); onToggleSidebar(false); }}
+                  />
+                );
+              })}
             </nav>
 
-            <div className="p-3 border-t border-border-subtle">
-              <button
-                onClick={() => { onUpload(); onToggleSidebar(false); }}
-                className="w-full flex items-center gap-2 px-4 py-3 rounded-xl bg-gradient-to-r from-brand-600 to-brand-500 text-white font-medium text-sm"
-              >
-                <Upload className="w-4 h-4" />
-                {t('uploadMaterial')}
-              </button>
-            </div>
+            {hasCourses && (
+              <div className="p-3 border-t border-border-subtle">
+                <button
+                  onClick={() => { onUpload(); onToggleSidebar(false); }}
+                  className="w-full flex items-center gap-2 px-4 py-3 rounded-xl bg-gradient-to-r from-brand-600 to-brand-500 text-white font-medium text-sm"
+                >
+                  <Upload className="w-4 h-4" />
+                  {t('uploadMaterial')}
+                </button>
+              </div>
+            )}
           </div>
         </div>
       )}
