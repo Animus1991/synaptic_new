@@ -13,6 +13,7 @@ import { ConfirmDialog } from './ui/ConfirmDialog';
 import { buildDeleteFileCascadeCopy } from '../lib/deleteFileCascadeCopy';
 import { countFilesForCourse } from '../lib/deleteCascade';
 import { countGeneratedTasksForCourse } from '../lib/pipelineReprocess';
+import { Page, PageHeader } from './ui/primitives';
 
 interface LibraryProps {
   courses: Course[];
@@ -68,26 +69,24 @@ export function Library({
   });
 
   return (
-    <div className="p-4 sm:p-6 lg:px-8 pb-24 lg:pb-6 w-full min-w-0 space-y-6">
+    <Page>
       {/* Header */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
-      >
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold">Library</h1>
-          <p className="text-text-secondary mt-1">Your uploaded materials and generated courses</p>
-        </div>
-        <button
-          onClick={onUpload}
-          data-testid="library-upload"
-          className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-brand-600 to-brand-500 text-white rounded-xl font-medium text-sm hover:from-brand-500 hover:to-brand-400 transition-all whitespace-nowrap"
-        >
-          <Upload className="w-4 h-4" />
-          Upload Material
-        </button>
-      </motion.div>
+      <PageHeader
+        eyebrow="Materials"
+        icon={BookOpen}
+        title="Library"
+        subtitle="Your uploaded materials and generated courses"
+        actions={
+          <button
+            onClick={onUpload}
+            data-testid="library-upload"
+            className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-brand-600 to-brand-500 text-white rounded-xl font-medium text-sm hover:from-brand-500 hover:to-brand-400 transition-all whitespace-nowrap"
+          >
+            <Upload className="w-4 h-4" />
+            Upload Material
+          </button>
+        }
+      />
 
       {/* Tabs */}
       <div className="flex items-center gap-6 border-b border-border-subtle">
@@ -210,7 +209,7 @@ export function Library({
           </motion.div>
         )}
       </AnimatePresence>
-    </div>
+    </Page>
   );
 }
 
@@ -264,7 +263,7 @@ function CourseCard({ course, index, onClick }: { course: Course; index: number;
         </div>
       )}
       {quality?.needsMoreMaterial && !isGenerating && (
-        <p className="mb-3 text-[11px] text-accent-amber line-clamp-2">
+        <p className="mb-3 ws-caption text-accent-amber line-clamp-2">
           {quality.warnings[0] ?? 'Add more material to deepen grounding before intensive study.'}
         </p>
       )}
@@ -347,7 +346,7 @@ function CourseListItem({ course, index, onClick }: { course: Course; index: num
         <p className="text-xs text-text-tertiary mt-0.5">{course.subject} · {course.totalLessons} lessons · {course.estimatedHours}h</p>
         {quality && (
           <p className={cn(
-            'text-[11px] mt-1 truncate',
+            'ws-caption mt-1 truncate',
             quality.needsMoreMaterial ? 'text-accent-amber' : 'text-text-muted',
           )}>
             {quality.needsMoreMaterial
@@ -584,7 +583,7 @@ function EmptyState({ onUpload }: { onUpload: () => void }) {
               )}
             </div>
             <p className="text-xs font-semibold text-text-primary">{s.label}</p>
-            <p className="text-[11px] text-text-tertiary leading-tight">{s.desc}</p>
+            <p className="ws-caption text-text-tertiary leading-tight">{s.desc}</p>
           </div>
         ))}
       </div>

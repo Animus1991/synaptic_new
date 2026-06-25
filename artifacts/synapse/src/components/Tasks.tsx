@@ -5,6 +5,7 @@ import {
   Brain, Target, BookOpen, Timer, ChevronDown, Play, Flame,
   GraduationCap, Lightbulb, Code, MessageSquare, Sparkles,
   Mic, ArrowDownRight, GitCompare, Shield, Calendar, Upload, ArrowRight,
+  CheckSquare,
 } from 'lucide-react';
 import type { Task, TaskType, MistakeRecord } from '../types';
 import { cn } from '../utils/cn';
@@ -12,6 +13,7 @@ import { buildStudyPlanBlocks } from '../lib/pedagogy';
 import type { FsrsRating } from '../lib/pedagogy';
 import { filterTasksForSession, startButtonLabel, type SessionType } from '../lib/taskFlows';
 import { ErrorNotebook } from './visuals/ErrorNotebook';
+import { Page, PageHeader, Card, SectionHeading } from './ui/primitives';
 
 interface TasksProps {
   tasks: Task[];
@@ -98,7 +100,7 @@ export function Tasks({ tasks, onComplete, onReviewRating, onStartTask, onStartS
   // No tasks at all — user hasn't uploaded anything yet
   if (tasks.length === 0) {
     return (
-      <div className="p-4 sm:p-6 lg:px-8 pb-24 lg:pb-6 w-full min-w-0 flex flex-col items-center justify-center min-h-[60vh] text-center">
+      <Page className="flex flex-col items-center justify-center min-h-[60vh] text-center">
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="max-w-md">
           <div className="w-16 h-16 rounded-2xl bg-brand-500/10 border border-brand-500/20 flex items-center justify-center mx-auto mb-6">
             <Brain className="w-7 h-7 text-brand-400" />
@@ -118,24 +120,26 @@ export function Tasks({ tasks, onComplete, onReviewRating, onStartTask, onStartS
             </button>
           )}
         </motion.div>
-      </div>
+      </Page>
     );
   }
 
   return (
-    <div className="p-4 sm:p-6 lg:px-8 pb-24 lg:pb-6 w-full min-w-0 space-y-6">
+    <Page>
       {/* Header */}
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold">Tasks</h1>
-          <p className="text-text-secondary mt-1">{pendingCount} pending · {completedCount} done · {totalXP} XP available</p>
-        </div>
-        <button onClick={() => setShowSessions(!showSessions)} className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-brand-600 to-brand-500 text-white rounded-xl font-medium text-sm hover:from-brand-500 hover:to-brand-400 transition-all">
-          <Play className="w-4 h-4" />
-          Start Session
-          <ChevronDown className={cn('w-4 h-4 transition-transform', showSessions && 'rotate-180')} />
-        </button>
-      </motion.div>
+      <PageHeader
+        eyebrow="Study queue"
+        icon={CheckSquare}
+        title="Tasks"
+        subtitle={`${pendingCount} pending · ${completedCount} done · ${totalXP} XP available`}
+        actions={
+          <button onClick={() => setShowSessions(!showSessions)} className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-brand-600 to-brand-500 text-white rounded-xl font-medium text-sm hover:from-brand-500 hover:to-brand-400 transition-all">
+            <Play className="w-4 h-4" />
+            Start Session
+            <ChevronDown className={cn('w-4 h-4 transition-transform', showSessions && 'rotate-180')} />
+          </button>
+        }
+      />
 
       {/* Session Picker */}
       <AnimatePresence>
@@ -169,26 +173,30 @@ export function Tasks({ tasks, onComplete, onReviewRating, onStartTask, onStartS
 
       {/* Daily study plan */}
       {studyPlan.length > 0 && filter !== 'completed' && (
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="rounded-2xl border border-brand-500/20 bg-brand-500/5 p-5">
-          <h3 className="text-sm font-semibold flex items-center gap-2 mb-4">
-            <Calendar className="w-4 h-4 text-brand-400" />
-            Today&apos;s study plan
-          </h3>
-          <div className="space-y-3">
-            {studyPlan.map((block) => (
-              <div key={block.label} className="p-3 rounded-xl bg-surface-card border border-border-subtle">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-semibold text-text-primary">{block.label}</span>
-                  <span className="text-[10px] text-text-tertiary">{block.minutes} min</span>
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+          <Card tone="brand">
+            <SectionHeading
+              title="Today's study plan"
+              icon={Calendar}
+              iconClassName="text-brand-400"
+              className="mb-4"
+            />
+            <div className="space-y-3">
+              {studyPlan.map((block) => (
+                <div key={block.label} className="p-3 rounded-xl bg-surface-card border border-border-subtle">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="ws-caption font-semibold text-text-primary">{block.label}</span>
+                    <span className="text-[10px] text-text-tertiary">{block.minutes} min</span>
+                  </div>
+                  <ul className="space-y-1">
+                    {block.items.map((item) => (
+                      <li key={item} className="ws-caption text-text-secondary truncate">· {item}</li>
+                    ))}
+                  </ul>
                 </div>
-                <ul className="space-y-1">
-                  {block.items.map((item) => (
-                    <li key={item} className="text-xs text-text-secondary truncate">· {item}</li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          </Card>
         </motion.div>
       )}
 
@@ -199,24 +207,28 @@ export function Tasks({ tasks, onComplete, onReviewRating, onStartTask, onStartS
 
       {/* Danger Zone */}
       {dangerTasks.length > 0 && filter !== 'completed' && (
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="p-4 rounded-2xl border border-accent-rose/30 bg-accent-rose/5">
-          <h3 className="text-sm font-semibold flex items-center gap-2 mb-3 text-accent-rose">
-            <Shield className="w-4 h-4" />
-            Danger Zone — Needs Immediate Attention
-          </h3>
-          <div className="space-y-2">
-            {dangerTasks.slice(0, 3).map(task => (
-              <button
-                key={task.id}
-                onClick={() => onStartTask?.(task.id)}
-                className="w-full flex items-center gap-3 text-sm text-left hover:bg-surface-hover rounded-lg p-1.5 -m-1.5 transition-all"
-              >
-                <span className="w-2 h-2 rounded-full bg-accent-rose animate-pulse shrink-0" />
-                <span className="flex-1 truncate">{task.title}</span>
-                <span className="text-xs text-accent-rose">{task.estimatedMinutes}m</span>
-              </button>
-            ))}
-          </div>
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+          <Card tone="rose" padding="sm">
+            <SectionHeading
+              title={<span className="text-accent-rose">Danger Zone — Needs Immediate Attention</span>}
+              icon={Shield}
+              iconClassName="text-accent-rose"
+              className="mb-3"
+            />
+            <div className="space-y-2">
+              {dangerTasks.slice(0, 3).map(task => (
+                <button
+                  key={task.id}
+                  onClick={() => onStartTask?.(task.id)}
+                  className="w-full flex items-center gap-3 text-sm text-left hover:bg-surface-hover rounded-lg p-1.5 -m-1.5 transition-all"
+                >
+                  <span className="w-2 h-2 rounded-full bg-accent-rose animate-pulse shrink-0" />
+                  <span className="flex-1 truncate">{task.title}</span>
+                  <span className="text-xs text-accent-rose">{task.estimatedMinutes}m</span>
+                </button>
+              ))}
+            </div>
+          </Card>
         </motion.div>
       )}
 
@@ -351,6 +363,6 @@ export function Tasks({ tasks, onComplete, onReviewRating, onStartTask, onStartS
           </div>
         )}
       </div>
-    </div>
+    </Page>
   );
 }

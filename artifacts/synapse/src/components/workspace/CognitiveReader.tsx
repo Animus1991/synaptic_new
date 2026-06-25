@@ -941,7 +941,7 @@ export function CognitiveReader({
         >
           <div className="flex items-start gap-2">
             <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-accent-amber" />
-            <p className="text-[11px] text-accent-amber">
+            <p className="ws-caption text-accent-amber">
               {lang === 'el'
                 ? `${suspiciousSegments.length} ενότητ${suspiciousSegments.length === 1 ? 'α' : 'ες'} με πιθανό σφάλμα OCR/εξαγωγής — μην τις χρησιμοποιείς ως αυθεντικές χωρίς επαλήθευση.`
                 : `${suspiciousSegments.length} section${suspiciousSegments.length === 1 ? '' : 's'} may contain OCR/extraction errors — do not treat as authoritative without verification.`}
@@ -954,7 +954,7 @@ export function CognitiveReader({
                 type="button"
                 data-testid={`reader-suspicious-jump-${seg.index}`}
                 onClick={() => scrollToSection(seg.index)}
-                className="rounded-full border border-accent-amber/40 bg-accent-amber/10 px-2 py-0.5 text-[9px] text-accent-amber hover:bg-accent-amber/20"
+                className="rounded-full border border-accent-amber/40 bg-accent-amber/10 px-2 py-1 ws-caption text-accent-amber hover:bg-accent-amber/20"
               >
                 {seg.label.slice(0, 48)}{seg.label.length > 48 ? '…' : ''}
               </button>
@@ -969,8 +969,8 @@ export function CognitiveReader({
           data-testid="reader-glossary-popover"
         >
           <div className="min-w-0">
-            <p className="text-[11px] font-semibold text-accent-cyan">{glossaryPopover.term}</p>
-            <p className="text-[10px] text-text-secondary mt-0.5">
+            <p className="ws-meta font-semibold text-accent-cyan">{glossaryPopover.term}</p>
+            <p className="ws-caption text-text-secondary mt-0.5">
               {glossaryPopover.definition || (lang === 'el' ? 'Δεν υπάρχει ορισμός στο γλωσσάρι.' : 'No glossary definition.')}
             </p>
           </div>
@@ -982,7 +982,7 @@ export function CognitiveReader({
                   onTermFocus(glossaryPopover.term);
                   setGlossaryPopover(null);
                 }}
-                className="rounded-lg border border-brand-500/30 bg-brand-600/10 px-2 py-1 text-[9px] font-medium text-brand-300"
+                className="rounded-lg border border-brand-500/30 bg-brand-600/10 px-2.5 py-1.5 ws-caption font-medium text-brand-300"
               >
                 {lang === 'el' ? 'Εστίαση' : 'Focus'}
               </button>
@@ -1000,12 +1000,12 @@ export function CognitiveReader({
       )}
 
       {annotateMode && (
-        <div className="flex shrink-0 items-center gap-2 border-b border-border-subtle bg-surface-secondary/40 px-4 py-1.5">
-          <span className="text-[10px] text-text-muted">{lang === 'el' ? 'Χρώμα:' : 'Color:'}</span>
+        <div className="flex shrink-0 items-center gap-2 border-b border-border-subtle bg-surface-secondary/40 px-4 py-2">
+          <span className="ws-caption text-text-muted">{lang === 'el' ? 'Χρώμα:' : 'Color:'}</span>
           {ANN_COLORS.map((c) => (
-            <button key={c} type="button" onClick={() => setActiveColor(c)} className={cn('h-4 w-4 rounded-full border-2', activeColor === c ? 'border-white' : 'border-transparent')} style={{ backgroundColor: c }} />
+            <button key={c} type="button" aria-label={lang === 'el' ? `Χρώμα ${c}` : `Color ${c}`} onClick={() => setActiveColor(c)} className={cn('h-5 w-5 rounded-full border-2', activeColor === c ? 'border-white' : 'border-transparent')} style={{ backgroundColor: c }} />
           ))}
-          <span className="text-[10px] text-text-muted ml-2">{lang === 'el' ? 'Επίλεξε κείμενο για σημείωση' : 'Select text to annotate'}</span>
+          <span className="ws-caption text-text-muted ml-2">{lang === 'el' ? 'Επίλεξε κείμενο για σημείωση' : 'Select text to annotate'}</span>
         </div>
       )}
 
@@ -1014,7 +1014,7 @@ export function CognitiveReader({
           className="flex shrink-0 gap-1.5 overflow-x-auto border-b border-border-subtle bg-surface-secondary/40 px-3 py-2 hide-scrollbar"
           data-testid="reader-section-nav"
         >
-          <span className="shrink-0 self-center text-[9px] font-semibold uppercase tracking-wide text-text-muted">
+          <span className="shrink-0 self-center ws-eyebrow text-text-muted">
             {sectionNavRailLabel(sectionNav, lang)}
           </span>
           {sectionNav.map((item) => {
@@ -1030,7 +1030,7 @@ export function CognitiveReader({
                 onSectionNavSelect?.(item.label);
               }}
               className={cn(
-                'shrink-0 max-w-[140px] truncate rounded-full border px-2.5 py-1 text-[10px] transition-colors',
+                'shrink-0 max-w-[140px] truncate rounded-full border px-2.5 py-1.5 ws-caption transition-colors',
                 isActive
                   ? 'border-accent-cyan/40 bg-accent-cyan/15 text-accent-cyan font-medium'
                   : 'border-white/10 bg-surface-card text-text-secondary hover:border-brand-400/40 hover:text-brand-200',
@@ -1050,7 +1050,7 @@ export function CognitiveReader({
           className="flex shrink-0 flex-wrap items-center gap-2 border-b border-border-subtle bg-surface-secondary/30 px-3 py-1.5"
           data-testid="reader-section-actions"
         >
-          <span className="max-w-[180px] truncate text-[10px] text-text-muted" title={activeSectionLabel}>
+          <span className="max-w-[180px] truncate ws-caption text-text-muted" title={activeSectionLabel}>
             {activeSectionLabel.slice(0, 40)}
           </span>
           {onSectionStudy && (
@@ -1058,7 +1058,7 @@ export function CognitiveReader({
               type="button"
               data-testid="reader-section-study"
               onClick={() => onSectionStudy(activeSectionLabel)}
-              className="inline-flex items-center gap-1 rounded-lg border border-brand-500/30 bg-brand-600/10 px-2 py-1 text-[10px] font-medium text-brand-300 hover:bg-brand-600/15"
+              className="inline-flex items-center gap-1 rounded-lg border border-brand-500/30 bg-brand-600/10 px-2.5 py-1.5 ws-caption font-medium text-brand-300 hover:bg-brand-600/15"
             >
               <BookOpen className="h-3 w-3" />
               {lang === 'el' ? 'Μελέτη' : 'Study'}
@@ -1069,7 +1069,7 @@ export function CognitiveReader({
               type="button"
               data-testid="reader-section-ask-agent"
               onClick={() => onSectionAskAgent(activeSectionLabel)}
-              className="inline-flex items-center gap-1 rounded-lg border border-accent-cyan/30 bg-accent-cyan/10 px-2 py-1 text-[10px] font-medium text-accent-cyan hover:bg-accent-cyan/15"
+              className="inline-flex items-center gap-1 rounded-lg border border-accent-cyan/30 bg-accent-cyan/10 px-2.5 py-1.5 ws-caption font-medium text-accent-cyan hover:bg-accent-cyan/15"
             >
               <Sparkles className="h-3 w-3" />
               {lang === 'el' ? 'Ρώτα Agent' : 'Ask Agent'}
