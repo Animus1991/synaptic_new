@@ -9,7 +9,6 @@ import { cn } from '../../utils/cn';
 import type { WorkspaceToolId } from '../../lib/taskFlows';
 import { WorkspaceDock } from './WorkspaceDock';
 import { WorkspaceMobileToolDrawer } from './WorkspaceMobileToolDrawer';
-import { WorkspaceToolStrip } from './WorkspaceToolStrip';
 import { WorkspaceToolHeader } from './WorkspaceToolHeader';
 import { workspaceToolLabel } from '../../lib/workspaceToolRegistry';
 import { fallbackWorkspaceSteps } from '../../lib/noteContentExtractors';
@@ -1913,13 +1912,6 @@ export function StudyWorkspace({
               className="flex flex-col bg-surface-primary"
             >
               {!chromeHidden && (
-                <>
-                <WorkspaceToolStrip
-                  activeTool={activeTool}
-                  availableTools={AVAILABLE_TOOLS}
-                  onSelectTool={openWorkspaceTool}
-                  lang={lang}
-                />
                 <WorkspaceToolHeader
                   activeTool={activeTool}
                   lang={lang}
@@ -1928,7 +1920,6 @@ export function StudyWorkspace({
                   sourceName={noteBundle.sourceName}
                   onJumpTool={(tool) => openWorkspaceTool(tool)}
                 />
-                </>
               )}
               {/* Tool surface */}
               <div className="flex-1 relative overflow-hidden bg-surface-primary/50 flex flex-col">
