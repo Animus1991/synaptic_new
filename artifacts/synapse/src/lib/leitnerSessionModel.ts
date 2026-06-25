@@ -6,7 +6,7 @@
 import type { Lang } from './i18n';
 import type { GlossaryEntry, SpacingData } from '../types';
 import type { CustomLeitnerCard } from './leitnerCustomCards';
-import { buildFlashcards } from './noteContentExtractors';
+import { buildFlashcards, relevantExcerpt } from './noteContentExtractors';
 import { isGenericStudyConcept } from './workspaceContentFallback';
 import { filterLeitnerCardsByConfidence } from './confidenceGating';
 
@@ -41,11 +41,32 @@ export function mergeLeitnerCards(...sources: LeitnerCard[][]): LeitnerCard[] {
   return [...seen.values()];
 }
 
+/** Pull a concise, concept-relevant sentence from the notes for a flashcard back. */
+function groundedSpacingBack(text: string, concept: string): string | null {
+  const probe = concept.trim().toLowerCase().slice(0, 6);
+  if (!probe) return null;
+  const excerpt = relevantExcerpt(text, concept, 600).replace(/\s+/g, ' ').trim();
+  if (excerpt.length < 12 || !excerpt.toLowerCase().includes(probe)) return null;
+  const sentences = excerpt
+    .split(/(?<=[.;!·])\s+/)
+    .map((s) => s.trim())
+    .filter((s) => s.length >= 12);
+  const pick = sentences.find((s) => s.toLowerCase().includes(probe)) ?? sentences[0] ?? excerpt;
+  return pick.slice(0, 240);
+}
+
+/**
+ * Build flashcards for concepts DUE in the FSRS schedule that overlap the active
+ * concept. The back must be real study content — a glossary definition if
+ * available, otherwise a grounded sentence from the learner's own notes. A due
+ * concept with no grounded back is EXCLUDED: we never fake an answer like
+ * "next review in N days" (the due date already lives in the spacing heatmap).
+ */
 export function buildSpacingLeitnerCards(
   spacingIntervals: SpacingData[],
   concept: string,
   glossary: GlossaryEntry[],
-  lang: Lang,
+  text = '',
 ): LeitnerCard[] {
   const conceptLower = concept.toLowerCase();
   return spacingIntervals
@@ -54,15 +75,15 @@ export function buildSpacingLeitnerCards(
       return sLower.includes(conceptLower.slice(0, 5))
         || conceptLower.includes(sLower.slice(0, 5));
     })
-    .map((s) => ({
-      front: s.concept,
-      back: glossary.find((g) =>
+    .map((s): LeitnerCard | null => {
+      const glossaryDef = glossary.find((g) =>
         g.term.toLowerCase().includes(s.concept.toLowerCase().slice(0, 6)),
-      )?.definition
-        ?? (lang === 'el'
-          ? `Επόμενη επανάληψη σε ${Math.round(s.interval)} ημέρες`
-          : `Next review in ${Math.round(s.interval)} days`),
-    }));
+      )?.definition;
+      const back = glossaryDef ?? groundedSpacingBack(text, s.concept);
+      if (!back) return null;
+      return { front: s.concept, back };
+    })
+    .filter((card): card is LeitnerCard => card !== null);
 }
 
 export function filterLeitnerCards(cards: LeitnerCard[], query: string): LeitnerCard[] {
@@ -105,7 +126,7 @@ export function buildLeitnerSessionContent(opts: {
   }
 
   const fromNotes = buildFlashcards(text, concept, glossary, lang);
-  const fromSpacing = buildSpacingLeitnerCards(spacingIntervals, concept, glossary, lang);
+  const fromSpacing = buildSpacingLeitnerCards(spacingIntervals, concept, glossary, text);
   const cards = filterLeitnerCardsByConfidence(mergeLeitnerCards(fromSpacing, fromNotes, customCards));
   const generic = isGenericStudyConcept(concept);
   const passageGrounded = generic && fromNotes.length > 0;

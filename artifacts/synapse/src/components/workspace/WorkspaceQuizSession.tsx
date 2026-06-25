@@ -65,6 +65,11 @@ export function WorkspaceQuizSession({
 
   useEffect(() => {
     if (items.length === 0) return;
+    // Reset ephemeral answer UI so a re-initialized/restarted session never
+    // inherits an unconfirmed answer from the previous one (would otherwise be
+    // recordable against the fresh session).
+    setLastCorrect(null);
+    setConfidence(3);
     const prev = loadQuizSession(scopeKey, concept);
     if (prev && prev.items.length === items.length && !prev.completedAt) {
       setSession(prev);

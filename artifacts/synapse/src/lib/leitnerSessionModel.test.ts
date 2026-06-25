@@ -53,21 +53,39 @@ describe('leitnerSessionModel', () => {
     expect(filterLeitnerCards(merged, 'export')).toHaveLength(1);
   });
 
-  it('builds spacing cards matched to concept', () => {
+  it('grounds spacing card backs in notes and never fakes a review-interval answer', () => {
     const cards = buildSpacingLeitnerCards(
       [{
-        concept: 'Introduction to trade',
+        concept: 'εμπόριο',
         interval: 3,
         nextReview: '2026-01-01',
         stability: 2,
         difficulty: 0.5,
         reviewCount: 1,
       }],
-      'Introduction',
+      'εμπόριο',
       [],
-      'en',
+      GREEK_ECON_PASSAGE,
     );
     expect(cards).toHaveLength(1);
-    expect(cards[0]?.back).toContain('3');
+    expect(cards[0]?.back).toContain('συγκριτικά');
+    expect(cards[0]?.back ?? '').not.toMatch(/Next review|Επόμενη επανάληψη|ημέρες|days/i);
+  });
+
+  it('excludes due cards with no grounded back instead of faking one', () => {
+    const cards = buildSpacingLeitnerCards(
+      [{
+        concept: 'Quantum Chromodynamics',
+        interval: 3,
+        nextReview: '2026-01-01',
+        stability: 2,
+        difficulty: 0.5,
+        reviewCount: 1,
+      }],
+      'Quantum Chromodynamics',
+      [],
+      GREEK_ECON_PASSAGE,
+    );
+    expect(cards).toHaveLength(0);
   });
 });

@@ -27,7 +27,7 @@ export type ProgressSessionExportPayload = {
   totalConcepts: number;
   weakSpots: DashboardWeakSpot[];
   toolActivity: ToolActivityCount[];
-  nextActions: { label: string; type: string; minutes: number; xp: number }[];
+  nextActions: { label: string; type: string; minutes: number; xp?: number }[];
   workspaceNextAction: { primary: string; reason: string } | null;
   session: Pick<
     DashboardSessionContent,
@@ -69,7 +69,7 @@ export function buildProgressSessionExportPayload(opts: {
   weakSpotsDetail?: DashboardWeakSpot[];
   weakSpots: { concept: string; mastery: number; course: string }[];
   toolActivity?: ToolActivityCount[];
-  nextActions: { label: string; type: string; minutes: number; xp: number }[];
+  nextActions: { label: string; type: string; minutes: number; xp?: number }[];
   session: DashboardSessionContent;
   nextAction?: NextActionRecommendation | null;
 }): ProgressSessionExportPayload {
@@ -196,7 +196,7 @@ export function buildProgressSessionHtml(payload: ProgressSessionExportPayload):
   const taskBlock = nextActions.length === 0
     ? `<p>${isEl ? 'Δεν υπάρχουν εργασίες.' : 'No scheduled tasks.'}</p>`
     : `<ul>${nextActions.map((a) =>
-      `<li><strong>${escapeHtml(a.label)}</strong> — ${a.minutes}m · +${a.xp} XP</li>`,
+      `<li><strong>${escapeHtml(a.label)}</strong> — ${a.minutes}m${a.xp != null ? ` · +${a.xp} XP` : ''}</li>`,
     ).join('')}</ul>`;
 
   const nextActionBlock = workspaceNextAction

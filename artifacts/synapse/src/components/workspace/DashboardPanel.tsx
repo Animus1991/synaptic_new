@@ -31,7 +31,7 @@ type MiniDashboardProps = {
   studyTimeWeek?: number;
   recentStudyDays?: number[];
   weakSpots: { concept: string; mastery: number; course: string }[];
-  nextActions: { label: string; type: string; minutes: number; xp: number; taskId?: string }[];
+  nextActions: { label: string; type: string; minutes: number; xp?: number; taskId?: string }[];
   conceptsMastered: number;
   totalConcepts: number;
   toolActivity?: ToolActivityCount[];

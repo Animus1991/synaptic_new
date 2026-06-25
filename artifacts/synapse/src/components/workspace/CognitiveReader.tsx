@@ -60,6 +60,7 @@ import {
 } from '../../lib/readerLearningHeatmap';
 import type { ReaderStepHeatSyncSummary } from '../../lib/readerHeatmapStepSyncQA';
 import { ReaderStepHeatSyncStrip } from './ReaderStepHeatSyncStrip';
+import { estimateDifficulty } from '../../lib/contentAnalysis';
 
 type ReaderHeatmapMode = 'off' | 'learning' | 'complexity';
 
@@ -67,7 +68,6 @@ const ANN_COLORS = ['#818cf8', '#fbbf24', '#34d399', '#fb7185', '#22d3ee'];
 
 interface Props {
   text?: string;
-  complexityThreshold?: number;
   emptyMessage?: string;
   hasSource?: boolean;
   onUpload?: () => void;
@@ -126,7 +126,6 @@ function downloadBlob(filename: string, content: string, mime: string) {
 
 export function CognitiveReader({
   text = '',
-  complexityThreshold = 25,
   emptyMessage,
   hasSource = false,
   onUpload,
@@ -572,8 +571,15 @@ export function CognitiveReader({
   }
 
   const renderParagraphWords = (paragraph: string, rangeStart: number, bodyIndex: number, segmentIndex?: number) => {
-    const wordCount = paragraph.split(/\s+/).filter(Boolean).length;
-    const isComplex = wordCount > complexityThreshold;
+    // Deterministic readability per paragraph (sentence length, long-word ratio,
+    // formula density) — replaces the old raw word-count > 25 heuristic.
+    const difficulty = heatmapMode === 'complexity' ? estimateDifficulty(paragraph) : 'beginner';
+    const complexityClass =
+      difficulty === 'advanced'
+        ? 'border-l-2 border-accent-rose bg-accent-rose/10 text-text-primary'
+        : difficulty === 'intermediate'
+          ? 'border-l-2 border-accent-amber bg-accent-amber/10 text-text-primary'
+          : 'text-text-secondary';
     const learningHeat = segmentIndex != null ? learningHeatBySegment.get(segmentIndex) : undefined;
     const words = paragraph.split(/(\s+)/);
     let charInPara = 0;
@@ -584,7 +590,7 @@ export function CognitiveReader({
           'rounded-lg p-2 text-[15px] transition-colors',
           dyslexia ? 'leading-loose tracking-wide' : 'leading-relaxed',
           heatmapMode === 'complexity'
-            ? isComplex ? 'border-l-2 border-accent-rose bg-accent-rose/10 text-text-primary' : 'text-text-secondary'
+            ? complexityClass
             : heatmapMode === 'learning' && learningHeat
               ? readerHeatmapLevelClass(learningHeat.level)
               : 'text-text-primary',
@@ -900,7 +906,7 @@ export function CognitiveReader({
               heatmapMode === 'learning'
                 ? (lang === 'el' ? 'Heatmap αδυναμιών (Concept Bus)' : 'Weak-area heatmap (Concept Bus)')
                 : heatmapMode === 'complexity'
-                  ? (lang === 'el' ? 'Heatmap πυκνότητας όρων' : 'Term density heatmap')
+                  ? (lang === 'el' ? 'Heatmap αναγνωσιμότητας' : 'Readability heatmap')
                   : (lang === 'el' ? 'Heatmap μελέτης' : 'Study heatmap')
             }
           >
@@ -1248,7 +1254,7 @@ export function CognitiveReader({
           {heatmapMode === 'complexity' && !highlight && (
             <div className="mx-auto mt-6 flex max-w-xl items-start gap-2 rounded-lg border border-accent-amber/20 bg-accent-amber/5 p-3 text-xs text-accent-amber">
               <Sparkles className="w-4 h-4 shrink-0" />
-              <span>{lang === 'el' ? 'Πυκνή ορολογία — άνοιξε χάρτη ή πρόσθεσε σημείωση.' : 'Dense terminology — open concept map or add a note.'}</span>
+              <span>{lang === 'el' ? 'Κόκκινο = δύσκολη ανάγνωση, πορτοκαλί = μέτρια (μήκος προτάσεων, σύνθετοι όροι, τύποι).' : 'Rose = hard to read, amber = moderate (sentence length, complex terms, formulas).'}</span>
             </div>
           )}
         </div>

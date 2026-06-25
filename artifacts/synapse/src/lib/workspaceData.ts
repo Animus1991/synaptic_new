@@ -24,7 +24,7 @@ export function buildMiniDashboardProps(
   studyTimeWeek: number;
   recentStudyDays: number[];
   weakSpots: { concept: string; mastery: number; course: string }[];
-  nextActions: { label: string; type: string; minutes: number; xp: number; taskId?: string }[];
+  nextActions: { label: string; type: string; minutes: number; xp?: number; taskId?: string }[];
   conceptsMastered: number;
   totalConcepts: number;
   onStartTask?: (taskId: string) => void;
@@ -46,7 +46,6 @@ export function buildMiniDashboardProps(
       label: `Cross-study: ${i.concept}`,
       type: 'practice' as const,
       minutes: 14 + idx * 2,
-      xp: 40,
       taskId: nextPending?.id,
     }));
 
@@ -63,7 +62,6 @@ export function buildMiniDashboardProps(
       label: `Practice: ${s.concept}`,
       type: 'practice' as const,
       minutes: 12 + i * 3,
-      xp: 35,
       taskId: nextPending?.id,
     })),
   ].slice(0, 4);

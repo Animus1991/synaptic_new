@@ -79,6 +79,23 @@ export function clearQuizSessions(scopeKey?: string): void {
   saveJson(SESSION_KEY, all);
 }
 
+const COUNT_KEY = 'quiz-desired-count';
+/** Selectable quiz lengths. Actual generated count may be lower if notes are thin. */
+export const QUIZ_COUNT_OPTIONS = [5, 10, 20] as const;
+export const DEFAULT_QUIZ_COUNT = 5;
+
+export function loadQuizDesiredCount(scopeKey: string): number | null {
+  const all = loadJson<Record<string, number>>(COUNT_KEY, {});
+  const n = all[scopeKey];
+  return typeof n === 'number' && (QUIZ_COUNT_OPTIONS as readonly number[]).includes(n) ? n : null;
+}
+
+export function saveQuizDesiredCount(scopeKey: string, count: number): void {
+  const all = loadJson<Record<string, number>>(COUNT_KEY, {});
+  all[scopeKey] = count;
+  saveJson(COUNT_KEY, all);
+}
+
 export function initQuizSession(
   scopeKey: string,
   concept: string,
