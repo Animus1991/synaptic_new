@@ -77,3 +77,74 @@ export function buildEconomicsSensitivity(
 export function topSensitivityCue(cells: SensitivityCell[]): string | undefined {
   return cells[0]?.cueId;
 }
+
+export type DeviationRow = {
+  cueId: string;
+  label: string;
+  unit?: string;
+  baseline: number;
+  current: number;
+  /** Signed absolute change of the current value vs. the notes baseline. */
+  deltaAbs: number;
+  /** Signed % change vs. baseline. Undefined/huge when baseline≈0 — see pctMeaningful. */
+  deltaPct: number;
+  /**
+   * Whether deltaPct is safe to show as a percentage. False when the baseline is
+   * ~0 (percent is mathematically undefined) or so small the percentage explodes
+   * into indefensible numbers — in that case the UI shows the absolute change.
+   */
+  pctMeaningful: boolean;
+  /** 0–100: fraction of the slider's own range the learner moved. Always defined. */
+  movePct: number;
+  direction: 'up' | 'down' | 'flat';
+};
+
+/**
+ * Honest what-if readout: reports how far the learner has moved each parameter
+ * from the value found in their notes. This makes no claim about relationships
+ * between parameters — it only states each independent change, which is a fact
+ * we can defend. Rows are sorted by how much of each slider's range was moved
+ * (biggest mover first), which stays meaningful even for a zero baseline.
+ */
+export function buildDeviationReadout(
+  cues: NumericCue[],
+  values: Record<string, number>,
+): DeviationRow[] {
+  return cues
+    .map((cue) => {
+      const current = values[cue.id] ?? cue.baseline;
+      const deltaAbs = current - cue.baseline;
+      const baseMag = Math.abs(cue.baseline);
+      const deltaPct = (deltaAbs / Math.max(baseMag, 1e-6)) * 100;
+      // A percentage relative to a ~0 baseline is undefined/explosive, so only
+      // trust it when the baseline is non-trivial and the result stays sane.
+      const pctMeaningful = baseMag > 1e-9 && Math.abs(deltaPct) <= 999;
+      const range = Math.abs(cue.max - cue.min);
+      const movePct =
+        range > 1e-9
+          ? Math.min(100, (Math.abs(deltaAbs) / range) * 100)
+          : Math.abs(deltaAbs) > 1e-9
+            ? 100
+            : 0;
+      const direction: DeviationRow['direction'] =
+        movePct < 0.5 ? 'flat' : deltaAbs > 0 ? 'up' : 'down';
+      return {
+        cueId: cue.id,
+        label: cue.label,
+        unit: cue.unit,
+        baseline: cue.baseline,
+        current,
+        deltaAbs,
+        deltaPct,
+        pctMeaningful,
+        movePct,
+        direction,
+      };
+    })
+    .sort((a, b) => b.movePct - a.movePct);
+}
+
+/** The parameter the learner has explored most (largest move from baseline). */
+export function topDeviationCue(rows: DeviationRow[]): string | undefined {
+  return rows.find((r) => r.direction !== 'flat')?.cueId;
+}

@@ -293,6 +293,87 @@ export function blueprintKindLabel(kind: DiagramBlueprintKind, lang: Lang): stri
   return (lang === 'el' ? el : en)[kind];
 }
 
+/* ------------------------------------------------------------------ *
+ * Learner coverage — validates the LEARNER'S actual board against the
+ * blueprint's required labels/formulas (distinct from the template QA
+ * above, which only checks that the plan itself is well-formed).
+ * ------------------------------------------------------------------ */
+
+export type LearnerCoverageItemKind = 'label' | 'formula';
+
+export type LearnerCoverageItem = {
+  label: string;
+  kind: LearnerCoverageItemKind;
+  covered: boolean;
+};
+
+export type LearnerCoverageReport = {
+  items: LearnerCoverageItem[];
+  coveredCount: number;
+  totalCount: number;
+  /** 0..1 fraction of required items present on the board. */
+  ratio: number;
+  missing: string[];
+};
+
+function normalizeForMatch(s: string): string {
+  return s
+    .toLowerCase()
+    .replace(/[^\p{L}\p{N}\s]/gu, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function isCovered(normLabel: string, haystack: string[]): boolean {
+  if (!normLabel) return false;
+  for (const text of haystack) {
+    if (text.includes(normLabel)) return true;
+  }
+  // Multi-word fallback: covered if every significant token (>=4 chars)
+  // appears somewhere on the board, even across separate text shapes.
+  const tokens = normLabel.split(' ').filter((w) => w.length >= 4);
+  if (tokens.length === 0) return false;
+  return tokens.every((tok) => haystack.some((text) => text.includes(tok)));
+}
+
+/**
+ * Compare the required blueprint labels/formulas against the text the learner
+ * has actually placed on the whiteboard. Returns a per-item covered/missing
+ * checklist plus an overall ratio so the coach can show real progress and a
+ * one-click "insert missing" action.
+ */
+export function evaluateLearnerBlueprintCoverage(input: {
+  requiredLabels: string[];
+  requiredFormulas?: string[];
+  placedText: string[];
+}): LearnerCoverageReport {
+  const haystack = input.placedText.map(normalizeForMatch).filter(Boolean);
+  const seen = new Set<string>();
+  const items: LearnerCoverageItem[] = [];
+
+  const consider = (raw: string, kind: LearnerCoverageItemKind) => {
+    const label = raw.trim();
+    if (!label) return;
+    const norm = normalizeForMatch(label);
+    if (!norm || seen.has(norm)) return;
+    seen.add(norm);
+    items.push({ label: label.slice(0, 48), kind, covered: isCovered(norm, haystack) });
+  };
+
+  for (const l of input.requiredLabels ?? []) consider(l, 'label');
+  for (const f of input.requiredFormulas ?? []) consider(f, 'formula');
+
+  const coveredCount = items.filter((i) => i.covered).length;
+  const totalCount = items.length;
+  return {
+    items,
+    coveredCount,
+    totalCount,
+    ratio: totalCount === 0 ? 0 : coveredCount / totalCount,
+    missing: items.filter((i) => !i.covered).map((i) => i.label),
+  };
+}
+
 export function blueprintContextHint(edge: BlueprintContextEdge, lang: Lang): string | null {
   const hints: Partial<Record<BlueprintContextEdge, { en: string; el: string }>> = {
     'sparse-context': {

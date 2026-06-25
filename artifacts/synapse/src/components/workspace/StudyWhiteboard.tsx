@@ -56,6 +56,7 @@ export function StudyWhiteboard({
   lang = 'en',
   labelInsertKey = 0,
   labelInsertPayload = [],
+  onPlacedTextChange,
 }: {
   referenceFormulas?: ExtractedFormula[];
   referenceExcerpt?: string;
@@ -66,6 +67,8 @@ export function StudyWhiteboard({
   lang?: 'en' | 'el';
   labelInsertKey?: number;
   labelInsertPayload?: string[];
+  /** Reports the text currently placed on the board (for blueprint coverage). */
+  onPlacedTextChange?: (texts: string[]) => void;
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -325,6 +328,14 @@ export function StudyWhiteboard({
     if (labelInsertKey === 0 || labelInsertPayload.length === 0) return;
     insertCoachLabels(labelInsertPayload);
   }, [labelInsertKey, labelInsertPayload, insertCoachLabels]);
+
+  useEffect(() => {
+    if (!onPlacedTextChange) return;
+    const texts = visibleStrokes(doc)
+      .filter((s) => s.tool === 'text' && s.text?.trim())
+      .map((s) => s.text!.trim());
+    onPlacedTextChange(texts);
+  }, [doc, onPlacedTextChange]);
 
   const insertFormulaLabel = (label: string, formula: string, extraLines?: string[]) => {
     const x = 40 + Math.random() * 80;

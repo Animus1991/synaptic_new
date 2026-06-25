@@ -1,14 +1,18 @@
 import { useState } from 'react';
-import { Bot, ChevronDown, ChevronUp, LayoutTemplate, PenLine, Sparkles } from 'lucide-react';
+import { Bot, Check, ChevronDown, ChevronUp, Circle, LayoutTemplate, PenLine, Sparkles } from 'lucide-react';
 import { cn } from '../../utils/cn';
 import type { DiagramCoachPlan, DiagramCoachStep } from '../../lib/whiteboardDiagramCoach';
-import type { WhiteboardBlueprintCoverageReport } from '../../lib/whiteboardBlueprintCoverageQA';
+import type {
+  WhiteboardBlueprintCoverageReport,
+  LearnerCoverageReport,
+} from '../../lib/whiteboardBlueprintCoverageQA';
 import { blueprintKindLabel } from '../../lib/whiteboardBlueprintCoverageQA';
 import { WhiteboardBlueprintCoverageStrip } from './WhiteboardBlueprintCoverageStrip';
 
 type Props = {
   plan: DiagramCoachPlan;
   coverageReport: WhiteboardBlueprintCoverageReport;
+  learnerCoverage?: LearnerCoverageReport;
   lang: 'en' | 'el';
   onInsertLabels: (labels: string[]) => void;
   onAskAgent: (intent: 'guide' | 'step' | 'critique', step?: DiagramCoachStep) => void;
@@ -18,6 +22,7 @@ type Props = {
 export function WhiteboardDiagramCoach({
   plan,
   coverageReport,
+  learnerCoverage,
   lang,
   onInsertLabels,
   onAskAgent,
@@ -58,6 +63,62 @@ export function WhiteboardDiagramCoach({
       {expanded && (
         <div className="px-4 pb-3 space-y-2">
           <WhiteboardBlueprintCoverageStrip report={coverageReport} lang={lang} />
+
+          {learnerCoverage && learnerCoverage.totalCount > 0 && (
+            <div
+              className="rounded-lg border border-border-subtle bg-surface-card/60 p-2 space-y-1.5"
+              data-testid="whiteboard-learner-coverage"
+            >
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-[10px] font-semibold text-text-secondary">
+                  {isEl ? 'Η κάλυψή σου' : 'Your coverage'}
+                  {' · '}
+                  <span className={cn(learnerCoverage.ratio >= 1 ? 'text-accent-emerald' : 'text-accent-cyan')}>
+                    {learnerCoverage.coveredCount}/{learnerCoverage.totalCount}
+                  </span>
+                </span>
+                {learnerCoverage.missing.length > 0 && (
+                  <button
+                    type="button"
+                    data-testid="whiteboard-insert-missing"
+                    onClick={() => onInsertLabels(learnerCoverage.missing)}
+                    className="inline-flex items-center gap-1 rounded-lg border border-brand-500/30 bg-brand-600/10 px-2 py-0.5 text-[9px] font-medium text-brand-300 hover:bg-brand-600/15"
+                  >
+                    <PenLine className="w-3 h-3" />
+                    {isEl ? `Πρόσθεσε ${learnerCoverage.missing.length} που λείπουν` : `Insert ${learnerCoverage.missing.length} missing`}
+                  </button>
+                )}
+              </div>
+              <div className="h-1 overflow-hidden rounded-full bg-surface-hover">
+                <div
+                  className={cn('h-full rounded-full transition-all', learnerCoverage.ratio >= 1 ? 'bg-accent-emerald' : 'bg-brand-500')}
+                  style={{ width: `${Math.round(learnerCoverage.ratio * 100)}%` }}
+                />
+              </div>
+              <div className="flex flex-wrap gap-1">
+                {learnerCoverage.items.map((item) => (
+                  <button
+                    key={`${item.kind}-${item.label}`}
+                    type="button"
+                    title={item.covered
+                      ? (isEl ? 'Υπάρχει στον πίνακα' : 'Present on the board')
+                      : (isEl ? 'Πρόσθεσέ το στον πίνακα' : 'Add it to the board')}
+                    onClick={() => { if (!item.covered) onInsertLabels([item.label]); }}
+                    className={cn(
+                      'inline-flex items-center gap-1 rounded-full border px-1.5 py-0.5 text-[9px]',
+                      item.covered
+                        ? 'border-accent-emerald/30 bg-accent-emerald/10 text-accent-emerald'
+                        : 'border-border-subtle bg-surface-primary/50 text-text-muted hover:border-brand-500/40 hover:text-brand-300',
+                    )}
+                  >
+                    {item.covered ? <Check className="w-2.5 h-2.5" /> : <Circle className="w-2.5 h-2.5" />}
+                    {item.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
           <p className="text-[10px] text-text-muted leading-relaxed">{plan.summary}</p>
           {plan.weakFocus && (
             <p className="text-[10px] text-accent-amber" data-testid="whiteboard-coach-weak-focus">

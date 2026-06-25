@@ -324,6 +324,28 @@ export function FeynmanCheck({
                     {lang === 'el' ? 'Ρώτα Agent' : 'Ask Agent'}
                   </button>
                 )}
+                <button
+                  type="button"
+                  data-testid="feynman-export-rubric"
+                  disabled={!rubric}
+                  onClick={() => exportRubric('download')}
+                  title={lang === 'el' ? 'Κατέβασε αναφορά αξιολόγησης' : 'Download rubric report'}
+                  className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium border border-brand-500/30 bg-brand-600/10 text-brand-300 hover:bg-brand-600/20 disabled:opacity-40"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  {lang === 'el' ? 'Εξαγωγή' : 'Export report'}
+                </button>
+                <button
+                  type="button"
+                  data-testid="feynman-print-rubric"
+                  disabled={!rubric}
+                  onClick={() => exportRubric('print')}
+                  title={lang === 'el' ? 'Εκτύπωση / PDF' : 'Print / save as PDF'}
+                  className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium border border-border-subtle text-text-muted hover:text-text-secondary disabled:opacity-40"
+                >
+                  <Printer className="w-3.5 h-3.5" />
+                  PDF
+                </button>
               </div>
             </div>
           </div>
@@ -380,26 +402,6 @@ export function FeynmanCheck({
               <div className="rounded-xl border border-border-subtle bg-surface-primary/40 p-3">
                 <div className="mb-2 flex items-center justify-between gap-2">
                   <p className="text-[10px] font-semibold uppercase tracking-wide text-text-muted">Rubric</p>
-                  <div className="flex gap-1">
-                    <button
-                      type="button"
-                      data-testid="feynman-export-rubric"
-                      onClick={() => exportRubric('download')}
-                      className="inline-flex items-center gap-1 rounded-lg border border-brand-500/30 px-2 py-0.5 text-[9px] text-brand-300 hover:bg-brand-600/10"
-                    >
-                      <Download className="w-3 h-3" />
-                      {lang === 'el' ? 'Αναφορά' : 'Report'}
-                    </button>
-                    <button
-                      type="button"
-                      data-testid="feynman-print-rubric"
-                      onClick={() => exportRubric('print')}
-                      className="inline-flex items-center gap-1 rounded-lg border border-border-subtle px-2 py-0.5 text-[9px] text-text-muted hover:text-text-secondary"
-                    >
-                      <Printer className="w-3 h-3" />
-                      PDF
-                    </button>
-                  </div>
                 </div>
                 <div className="space-y-2">
                   {rubricDims.map((dim) => (

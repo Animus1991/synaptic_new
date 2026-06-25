@@ -7,7 +7,8 @@ import type { NumericCue } from '../../lib/numericCues';
 import { sandboxDeltaInsight } from '../../lib/numericCues';
 import {
   buildEconomicsSensitivity,
-  buildParameterSensitivity,
+  buildDeviationReadout,
+  topDeviationCue,
   topSensitivityCue,
 } from '../../lib/sandboxSensitivity';
 import {
@@ -68,22 +69,16 @@ export function InteractiveSimulator({
     [numericCues, cueValues, concept, lang],
   );
 
-  const sensitivityCells = useMemo(() => {
-    if (numericCues.length === 0) return [];
-    return buildParameterSensitivity(numericCues, cueValues, (trial) => {
-      let sum = 0;
-      for (const c of numericCues) {
-        const v = trial[c.id] ?? c.baseline;
-        sum += (v - c.baseline) / Math.max(c.baseline, 1e-6);
-      }
-      return sum;
-    });
-  }, [numericCues, cueValues]);
+  const deviationRows = useMemo(
+    () => buildDeviationReadout(numericCues, cueValues),
+    [numericCues, cueValues],
+  );
+  const movedCount = deviationRows.filter((r) => r.direction !== 'flat').length;
 
   useEffect(() => {
-    const top = topSensitivityCue(sensitivityCells);
+    const top = topDeviationCue(deviationRows);
     if (top) onSensitivityCue?.(top);
-  }, [sensitivityCells, onSensitivityCue]);
+  }, [deviationRows, onSensitivityCue]);
 
   const econSensitivity = useMemo(
     () => buildEconomicsSensitivity(demandShift, supplyShift),
@@ -186,29 +181,57 @@ export function InteractiveSimulator({
               <Zap className="w-4 h-4 inline mr-1.5 mb-0.5" />
               {genericInsight || insight}
             </div>
-            {sensitivityCells.length > 0 && (
+            {movedCount > 0 && (
               <div className="rounded-xl border border-border-subtle bg-surface-card p-3" data-testid="sandbox-sensitivity-heatmap">
-                <p className="mb-2 text-[10px] font-semibold text-text-muted">
-                  {lang === 'el' ? 'Ευαισθησία παραμέτρων' : 'Parameter sensitivity'}
-                </p>
+                <div className="mb-2 flex items-center justify-between">
+                  <p className="text-[10px] font-semibold text-text-muted">
+                    {lang === 'el' ? 'Μεταβολή από τη βάση' : 'Change from baseline'}
+                  </p>
+                  <span className="text-[9px] text-text-muted">
+                    {movedCount} {lang === 'el' ? 'άλλαξαν' : 'changed'}
+                  </span>
+                </div>
                 <div className="space-y-2">
-                  {sensitivityCells.map((cell) => (
-                    <div key={cell.cueId} className="flex items-center gap-2">
-                      <span className="w-24 truncate text-[10px] text-text-secondary">{cell.label}</span>
-                      <div className="flex-1 h-2 rounded-full bg-surface-primary overflow-hidden">
-                        <div
-                          className="h-full rounded-full bg-accent-cyan/80"
-                          style={{ width: `${Math.round(cell.intensity * 100)}%` }}
-                        />
-                      </div>
-                      <span className="text-[9px] font-mono text-text-muted w-8 text-right">
-                        {(cell.intensity * 100).toFixed(0)}%
-                      </span>
-                    </div>
-                  ))}
+                  {deviationRows
+                    .filter((row) => row.direction !== 'flat')
+                    .map((row) => {
+                      const up = row.direction === 'up';
+                      const fmt = (n: number) =>
+                        Math.abs(n) >= 100 ? n.toFixed(0) : String(parseFloat(n.toFixed(2)));
+                      const readout = row.pctMeaningful
+                        ? `${up ? '+' : ''}${row.deltaPct.toFixed(0)}%`
+                        : `${row.deltaAbs > 0 ? '+' : ''}${fmt(row.deltaAbs)}${row.unit ? ` ${row.unit}` : ''}`;
+                      return (
+                        <div key={row.cueId} className="flex items-center gap-2">
+                          <span className="w-24 truncate text-[10px] text-text-secondary" title={row.label}>
+                            {row.label}
+                          </span>
+                          <div className="relative flex-1 h-2 overflow-hidden rounded-full bg-surface-primary">
+                            <div
+                              className={cn('h-full rounded-full', up ? 'bg-accent-emerald/80' : 'bg-accent-amber/80')}
+                              style={{ width: `${row.movePct}%` }}
+                            />
+                          </div>
+                          <span
+                            className={cn('w-16 text-right font-mono text-[9px]', up ? 'text-accent-emerald' : 'text-accent-amber')}
+                            title={`${fmt(row.baseline)} → ${fmt(row.current)}${row.unit ? ` ${row.unit}` : ''}`}
+                          >
+                            {readout}
+                          </span>
+                        </div>
+                      );
+                    })}
                 </div>
               </div>
             )}
+            <p className="flex items-start gap-1.5 rounded-lg border border-border-subtle bg-surface-primary/40 px-3 py-2 text-[10px] leading-snug text-text-muted">
+              <Target className="mt-0.5 h-3 w-3 shrink-0" aria-hidden />
+              <span>
+                {lang === 'el'
+                  ? 'Μέθοδος: ο πίνακας μετράει πόσο μετακίνησες κάθε τιμή από τη βάση των σημειώσεων. Δεν μοντελοποιεί σχέσεις μεταξύ παραμέτρων — αν οι σημειώσεις σου έχουν τύπο, χρησιμοποίησε τον Scratchpad για ακριβή υπολογισμό.'
+                  : 'Method: this tracks how far you moved each value from your notes baseline. It does not model relationships between parameters — if your notes contain a formula, use the Scratchpad to compute exact results.'}
+              </span>
+            </p>
           </div>
         </div>
       );
@@ -319,6 +342,14 @@ export function InteractiveSimulator({
           <p className="mb-1 text-[11px] font-semibold text-brand-300">{t('equilibriumFormulas')}</p>
           <p className="font-mono text-sm text-text-secondary">P* = (100 + ΔD − ΔS) / 2</p>
           <p className="font-mono text-sm text-text-secondary">Q* = P* + ΔS</p>
+          <p className="mt-2 flex items-start gap-1.5 text-[10px] leading-snug text-text-muted">
+            <Target className="mt-0.5 h-3 w-3 shrink-0" aria-hidden />
+            <span>
+              {lang === 'el'
+                ? 'Πρότυπο μοντέλο προσφοράς–ζήτησης (γραμμικές καμπύλες, βάση 100) για εξάσκηση της λογικής ισορροπίας — όχι από τους αριθμούς σου.'
+                : 'Standard linear supply–demand reference model (baseline 100) for practising equilibrium logic — not derived from your numbers.'}
+            </span>
+          </p>
         </div>
 
         <div className="w-full max-w-sm space-y-4 rounded-xl border border-border-subtle bg-surface-card p-4">

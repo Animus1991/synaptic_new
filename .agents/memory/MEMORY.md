@@ -1,3 +1,5 @@
-- [Synapse Learning port decisions](synapse-port.md) — key package firewall issues and stub solutions for @xenova/transformers and pyodide
-- [App.tsx hook ordering](app-hook-ordering.md) — hasCourses + any callbacks that shellProps or early JSX reference must be declared BEFORE those uses (temporal dead zone with const).
-- [Shell progressive disclosure](shell-nav-disclosure.md) — NavItem is a named module-level component (not inline); useI18n() valid there; REQUIRES_COURSES gates agent/analytics/teacher.
+# Memory index
+
+- [Bilingual regex boundaries](bilingual-regex.md) — JS `\b` is ASCII-only and never fires around Greek letters; use `\p{L}\p{N}` lookarounds + `/u` in this EL/EN codebase.
+- [Workspace honesty convention](workspace-honesty-convention.md) — Study Workspace tools must avoid false precision; show absolute / fraction-of-range when a percent is undefined.
+- [Synapse typecheck ops](synapse-typecheck-ops.md) — phantom TS errors in untouched files = stale `.tsbuildinfo`; how to get a true-green check; tests are env-only.

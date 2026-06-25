@@ -112,6 +112,23 @@ function scoreAccuracy(text: string, keyTerms: string[]): number {
   return Math.min(100, score);
 }
 
+/**
+ * Jargon density = fraction of content words that are long (>=9 chars) AND not
+ * grounded in the learner's key-term corpus. Feynman's whole premise is "explain
+ * it simply", so ungrounded jargon should pull simplicity down — but legitimate
+ * technical vocabulary the learner is *supposed* to use (key terms) must not.
+ * Returns a 0-25 penalty; 0 when there is no corpus to judge against.
+ */
+function jargonPenalty(text: string, keyTerms: string[]): number {
+  if (keyTerms.length === 0) return 0;
+  const keyTermSet = new Set(keyTerms.map((t) => t.toLowerCase()));
+  const words = tokens(text);
+  if (words.length < 6) return 0;
+  const jargon = words.filter((w) => w.length >= 9 && !keyTermSet.has(w));
+  const ratio = jargon.length / words.length;
+  return Math.round(Math.min(25, ratio * 100));
+}
+
 export function computeRubric(
   text: string,
   wordCount: number,
@@ -125,7 +142,8 @@ export function computeRubric(
 
   const sentences = text.split(/[.!?]+/).filter((s) => s.trim().length > 0);
   const avgLen = wordCount / Math.max(sentences.length, 1);
-  const simplicity = avgLen > 22 ? 48 : avgLen > 16 ? 68 : avgLen > 11 ? 82 : 90;
+  const lengthScore = avgLen > 22 ? 48 : avgLen > 16 ? 68 : avgLen > 11 ? 82 : 90;
+  const simplicity = Math.max(20, lengthScore - jargonPenalty(text, keyTerms));
 
   const lower = text.toLowerCase();
   let structure = 45;
