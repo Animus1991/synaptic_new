@@ -587,13 +587,13 @@ function MessageBubble({
         {!isUser && message.metadata && (
           <div className="mt-2 pt-2 border-t border-border-subtle flex items-center gap-2 flex-wrap">
             {message.metadata.sourceGrounded && (
-              <span className="text-[9px] px-1.5 py-0.5 rounded bg-accent-emerald/10 text-accent-emerald font-medium">{ui.badgeSourceGrounded}</span>
+              <span className="ws-caption px-1.5 py-0.5 rounded bg-accent-emerald/10 text-accent-emerald font-medium">{ui.badgeSourceGrounded}</span>
             )}
             {message.metadata.inferenceUsed && (
-              <span className="text-[9px] px-1.5 py-0.5 rounded bg-brand-500/10 text-brand-300 font-medium">{ui.badgeAiInference}</span>
+              <span className="ws-caption px-1.5 py-0.5 rounded bg-brand-500/10 text-brand-300 font-medium">{ui.badgeAiInference}</span>
             )}
             {message.metadata.enrichmentUsed && (
-              <span className="text-[9px] px-1.5 py-0.5 rounded bg-accent-amber/10 text-accent-amber font-medium">{ui.badgeEnrichment}</span>
+              <span className="ws-caption px-1.5 py-0.5 rounded bg-accent-amber/10 text-accent-amber font-medium">{ui.badgeEnrichment}</span>
             )}
           </div>
         )}
