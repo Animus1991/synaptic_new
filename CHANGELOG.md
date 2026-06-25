@@ -7,6 +7,14 @@ client and server are versioned together.
 
 ### Added
 
+- **Pipeline P0 — table + math blocks in segmentation path (`a4d5dff`)**
+  - `segmentationEmbeddedBlocks.ts` — shared `collectEmbeddedBlocks` /
+    `splitTextWithEmbeddedBlocks` for `textSegmentation` and Reader layout.
+  - `detectDocumentSections()` emits `boundaryKind: 'table' | 'math'` with
+    `ExtractedTable` / `mathLatex` metadata; `expandDocumentSectionsWithEmbeddedBlocks`.
+  - `readerDocumentLayout.ts` refactored to use the same splitter (no duplicate logic).
+  - **Tests:** `segmentationEmbeddedBlocks.test.ts` (5 cases + integration with
+    `detectDocumentSections`).
 - **Launch Wave 8A — Study Workspace Phase 2 UI (`49afe23`)**
   - **SW-P2-05:** Structured workspace context JSON on every Agent open —
     `toAgentWorkspaceContextJson`, `buildAgentContextSystemBlock` in

@@ -9,12 +9,17 @@
 import { isMathLikeLine } from './readerMathBlocks';
 import { repairGreekDocumentText } from './greekTextRepair';
 import { repairUtf8Mojibake } from './utf8MojibakeRepair';
+import type { ExtractedTable } from './tableExtract';
+import { splitTextWithEmbeddedBlocks } from './segmentationEmbeddedBlocks';
 
 export interface DocumentSection {
   heading?: string;
   text: string;
   boundaryKind?: SectionBoundaryKind;
   headingLevel?: number;
+  table?: ExtractedTable;
+  mathLatex?: string;
+  mathDisplay?: boolean;
 }
 
 export type SectionBoundaryKind =
@@ -27,7 +32,9 @@ export type SectionBoundaryKind =
   | 'dialogue'
   | 'date-block'
   | 'list'
-  | 'code';
+  | 'code'
+  | 'table'
+  | 'math';
 
 const SLIDE_PAGE_PATTERNS: RegExp[] = [
   /^slide\s*[#:]?\s*\d+/i,
@@ -385,11 +392,81 @@ function enrichDocumentSections(sections: DocumentSection[]): DocumentSection[] 
     const heading = resolveSectionHeading(s.heading, s.text, s.boundaryKind);
     const inferredFromBody = inferSectionTitleFromBody(s.text);
     const boundaryKind =
-      heading && inferredFromBody && (s.boundaryKind === 'page' || s.boundaryKind === 'slide')
-        ? 'heading'
-        : s.boundaryKind;
+      s.boundaryKind === 'table' || s.boundaryKind === 'math'
+        ? s.boundaryKind
+        : heading && inferredFromBody && (s.boundaryKind === 'page' || s.boundaryKind === 'slide')
+          ? 'heading'
+          : s.boundaryKind;
     return { ...s, heading, boundaryKind };
   });
+}
+
+function isMeaningfulSection(s: DocumentSection): boolean {
+  return (
+    s.boundaryKind === 'table' ||
+    s.boundaryKind === 'math' ||
+    s.text.length >= 20 ||
+    (Boolean(s.heading) && !isGenericSectionHeading(s.heading) && s.text.length > 0) ||
+    (Boolean(s.heading) && s.boundaryKind === 'slide')
+  );
+}
+
+/** Split section bodies into dedicated table/math blocks (Pipeline P0). */
+export function expandDocumentSectionsWithEmbeddedBlocks(
+  sections: DocumentSection[],
+): DocumentSection[] {
+  const out: DocumentSection[] = [];
+
+  for (const sec of sections) {
+    if (!sec.text.trim() || sec.boundaryKind === 'table' || sec.boundaryKind === 'math') {
+      out.push(sec);
+      continue;
+    }
+
+    const pieces = splitTextWithEmbeddedBlocks(sec.text);
+    const hasEmbedded = pieces.some((p) => p.boundaryKind !== 'paragraph');
+    if (!hasEmbedded) {
+      out.push(sec);
+      continue;
+    }
+
+    for (let i = 0; i < pieces.length; i++) {
+      const piece = pieces[i]!;
+      const inheritedHeading = i === 0 ? sec.heading : undefined;
+      if (piece.boundaryKind === 'table') {
+        out.push({
+          heading: piece.table?.title ?? inheritedHeading,
+          text: piece.text,
+          boundaryKind: 'table',
+          headingLevel: sec.headingLevel,
+          table: piece.table,
+        });
+      } else if (piece.boundaryKind === 'math') {
+        out.push({
+          heading: inheritedHeading,
+          text: piece.text,
+          boundaryKind: 'math',
+          headingLevel: sec.headingLevel,
+          mathLatex: piece.mathLatex,
+          mathDisplay: piece.mathDisplay,
+        });
+      } else {
+        out.push({
+          heading: inheritedHeading,
+          text: piece.text,
+          boundaryKind: 'paragraph',
+          headingLevel: sec.headingLevel,
+        });
+      }
+    }
+  }
+
+  return out;
+}
+
+function finalizeDetectedSections(sections: DocumentSection[]): DocumentSection[] {
+  return expandDocumentSectionsWithEmbeddedBlocks(enrichDocumentSections(sections))
+    .filter(isMeaningfulSection);
 }
 
 export function looksLikeHeadingLine(line: string, nextLine?: string): boolean {
@@ -474,16 +551,16 @@ export function detectDocumentSections(text: string): DocumentSection[] {
   if (!normalized) return [];
 
   const explicitQA = detectExplicitQAPairSections(normalized);
-  if (explicitQA) return explicitQA;
+  if (explicitQA) return finalizeDetectedSections(explicitQA);
 
   const conversation = detectConversationSections(normalized);
-  if (conversation) return conversation;
+  if (conversation) return finalizeDetectedSections(conversation);
 
   const dashDialogue = detectDashDialogueSections(normalized);
-  if (dashDialogue) return dashDialogue;
+  if (dashDialogue) return finalizeDetectedSections(dashDialogue);
 
   const dateBlocks = detectDateBlockSections(normalized);
-  if (dateBlocks) return dateBlocks;
+  if (dateBlocks) return finalizeDetectedSections(dateBlocks);
 
   const lines = normalized.split('\n');
   const sections: DocumentSection[] = [];
@@ -599,22 +676,14 @@ export function detectDocumentSections(text: string): DocumentSection[] {
     }
   }
 
-  const enriched = enrichDocumentSections(sections);
+  const finalized = finalizeDetectedSections(sections);
+  if (finalized.length >= 2) return finalized;
+  if (finalized.length === 1 && finalized[0]!.text.length > 80) return finalized;
 
-  const meaningful = enriched.filter(
-    (s) =>
-      s.text.length >= 20 ||
-      (s.heading && !isGenericSectionHeading(s.heading) && s.text.length > 0) ||
-      (s.heading && s.boundaryKind === 'slide'),
-  );
+  const paraFinalized = finalizeDetectedSections(segmentByParagraphBlocks(normalized));
+  if (paraFinalized.length >= 2) return paraFinalized;
 
-  if (meaningful.length >= 2) return meaningful;
-  if (meaningful.length === 1 && meaningful[0]!.text.length > 80) return meaningful;
-
-  const paraSections = enrichDocumentSections(segmentByParagraphBlocks(normalized));
-  if (paraSections.length >= 2) return paraSections;
-
-  return meaningful.length > 0 ? meaningful : paraSections;
+  return finalized.length > 0 ? finalized : paraFinalized;
 }
 
 /** Split reader/bilingual paragraphs respecting page/slide boundaries. */

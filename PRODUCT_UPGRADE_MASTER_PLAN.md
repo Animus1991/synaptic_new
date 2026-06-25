@@ -271,16 +271,16 @@ File → extract (pdf.js / docx / image OCR) → normalizeDocumentText()
 
 ### 5.2 Weaknesses by file type
 
-| Type | Issue | Priority | Fix |
-|------|-------|----------|-----|
-| Image-only PDF | OCR glue, spacing | P0 | Extend `repairGluedGreekText` + sentence heuristics |
-| Multi-column PDF | Wrong reading order | P0 | Column detector in `readerDocumentLayout` |
-| Greek syllabus | Front-matter conflated with lectures | P1 | `FrontMatterCard` + lecture merge rules |
-| Slides PDF | One section per page | P1 | `logicalSectionMerge` by “ΔΙΑΛΕΞΗ” pattern |
-| Tables | Flattened to prose | P1 | Table block type in segmentation |
-| Math | Corrupted LaTeX | P2 | Math zone detection + `FormulaLatexPreview` |
-| Mixed EL/EN | Heading patterns | P1 | Bilingual heading regex set |
-| Scanned photos | Low confidence | P1 | Style `ocrRegions` + user reprocess CTA |
+| Type | Issue | Priority | Fix | Status |
+|------|-------|----------|-----|--------|
+| Image-only PDF | OCR glue, spacing | P0 | Extend `repairGluedGreekText` + sentence heuristics | 🟡 partial |
+| Multi-column PDF | Wrong reading order | P0 | `layoutAwareTextFromItems` in `pdfExtract.ts` + `repairInterleavedTwoColumnText` in `readerTableLayout.ts` | ✅ extract path |
+| Greek syllabus | Front-matter conflated with lectures | P1 | `FrontMatterCard` + lecture merge rules | ✅ partial |
+| Slides PDF | One section per page | P1 | `logicalSectionMerge` by “ΔΙΑΛΕΞΗ” pattern | ✅ partial |
+| Tables | Flattened to prose | P1 | Table block type in segmentation | ✅ `segmentationEmbeddedBlocks.ts` → `detectDocumentSections` |
+| Math | Corrupted LaTeX / lost zones | P2 | Math zone detection in segmentation + Reader KaTeX | ✅ detection in segmentation + Reader; OCR repair pending |
+| Mixed EL/EN | Heading patterns | P1 | Bilingual heading regex set | ✅ partial |
+| Scanned photos | Low confidence | P1 | Style `ocrRegions` + user reprocess CTA | 🟡 partial |
 
 ### 5.3 Algorithm improvements (concrete tasks)
 
@@ -289,19 +289,21 @@ File → extract (pdf.js / docx / image OCR) → normalizeDocumentText()
    - Sentence-level: if >40% single-char tokens separated by space → `repairSpacedGreekText`
    - Unit tests per regression PDF snippet
 
-2. **Multi-column** (`readerDocumentLayout.ts`)
-   - Detect x-clusters of text blocks per page
-   - Sort columns left-to-right, then top-to-bottom within column
+2. **Multi-column** (`pdfExtract.ts`, `readerTableLayout.ts`) — ✅ column-major extract + interleaved repair
 
-3. **Lecture merge** (`textSegmentation.ts`)
+3. **Table + math blocks** (`segmentationEmbeddedBlocks.ts`, `textSegmentation.ts`) — ✅
+   - `extractReaderTables` + `extractReaderMathBlocks` → `boundaryKind: table | math`
+   - Shared splitter wired in `readerDocumentLayout.ts` and `detectDocumentSections`
+
+4. **Lecture merge** (`textSegmentation.ts`)
    - Regex: `^ΔΙΑΛΕΞΗ\s+\d+` → start new logical unit until next match
    - Do not split on page breaks inside lecture
 
-4. **Bibliography** (`BibliographyBlock.tsx`)
+5. **Bibliography** (`BibliographyBlock.tsx`)
    - Detect `Βιβλιογραφία|Bibliography|References`
    - Separate from quiz generation context
 
-5. **Reprocess path**
+6. **Reprocess path**
    - User action: CourseView or Workspace banner → `reprocessCourseMaterial`
    - **No re-upload required** for pipeline upgrades
    - After delete file: auto-reprocess remaining sources
@@ -446,10 +448,9 @@ interface AuthoredBlock { id; courseId; type; content; order; metadata }
 ## 13. Next recommended step
 
 1. **User:** Open course «Διανομή εισοδήματος» → **Επανεπεξεργασία κειμένου** (pipeline 2.2.1)
-2. **Dev:** Pipeline P0 — table block type in `textSegmentation`, math zone detection/repair (multi-column ✅ in `pdfExtract.ts`)
-3. **Dev:** EKPA PDF QA — user fixtures in `greekTextRepair.test.ts` / `pdfExtract.test.ts`
-4. **Dev:** Greek OCR v2.3 with user PDF fixtures in `greekTextRepair.test.ts`
-5. **Dev:** Sync remaining `WORKSPACE_TOOLS_UPGRADE.md` backlog items
+2. **Dev:** EKPA PDF QA — fixed-gap column tables + glued math OCR repair fixtures (`greekTextRepair.test.ts`, `pdfExtract.test.ts`, `segmentationEmbeddedBlocks.test.ts`)
+3. **Dev:** Greek OCR v2.3 — glued-word phrase dictionary from user PDF snippets
+4. **Dev:** Sync remaining `WORKSPACE_TOOLS_UPGRADE.md` backlog items
 
 ---
 
@@ -485,14 +486,14 @@ COMPLETED (do not redo)
 - Waves 3.1–3.3 i18n, 4.1 teacher dashboard, 4.2 billing webhooks
 - **Launch Wave 7 (Jun 2026, `552d0ef`):** SW-07 `lessonStepToolbarNextActionSync`, SW-P1-02 mobile tool drawer, SW-P1-04 reader↔step sync, UTF-8 mojibake repair (`utf8MojibakeRepair.ts`), Noto Sans Greek typography
 - **Launch Wave 8A (Jun 2026, `49afe23`):** SW-P2-05 Agent context JSON, SW-P2-06 ConceptLens strip `< lg`, SW-P2-07 WCAG contrast tokens, SW-P3-08 keyboard help EL/EN
+- **Pipeline P0 (Jun 2026, `a4d5dff`):** table + math block types in `detectDocumentSections` via `segmentationEmbeddedBlocks.ts`; shared splitter in Reader layout
 
 PRIORITY ORDER (strict)
-1. Pipeline P0 — table segmentation block type, math zone detection/repair (multi-column ✅ in main extract path)
-2. EKPA PDF QA — user syllabus fixtures for Greek OCR / lecture merge
-3. Greek OCR v2.3: multi-column order, lecture merge, more glued-word fixtures
-4. Editable notes MVP (OCR line correction in Reader)
-5. Teacher authoring shell (plan only unless requested)
-6. Collaborative study (plan only)
+1. EKPA PDF QA — fixed-gap column tables + glued math OCR repair fixtures
+2. Greek OCR v2.3: multi-column order, lecture merge, more glued-word fixtures
+3. Editable notes MVP (OCR line correction in Reader)
+4. Teacher authoring shell (plan only unless requested)
+5. Collaborative study (plan only)
 
 STUDY WORKSPACE TASKS (implement one per session minimum)
 - SW-P1-01: Collapse WeakAreasFocusRail when spots.length === 0 — ✅

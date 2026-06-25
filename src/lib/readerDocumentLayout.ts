@@ -14,7 +14,6 @@ import {
 } from './textSegmentation';
 import { detectReadingSections } from './sectionMerger';
 import type { ExtractedTable } from './tableExtract';
-import { extractReaderTables, tableSegmentContent } from './readerTableLayout';
 import {
   detectBibliographyItems,
   isBibliographyBlock,
@@ -22,11 +21,10 @@ import {
   looksLikeCitationLine,
 } from './readerBibliography';
 import {
-  extractReaderMathBlocks,
   isMathBoundaryLine,
   isMathLikeLine,
-  type ExtractedMathBlock,
 } from './readerMathBlocks';
+import { splitTextWithEmbeddedBlocks } from './segmentationEmbeddedBlocks';
 
 export type ReaderSegmentKind =
   | 'heading'
@@ -307,55 +305,23 @@ function emitBodyWithTables(body: string, push: SegmentPusher, heading?: string)
   const trimmed = body.trim();
   if (!trimmed) return;
 
-  const tables = extractReaderTables(trimmed);
-  const mathBlocks = extractReaderMathBlocks(trimmed);
-  type PositionedBlock =
-    | { kind: 'table'; start: number; end: number; table: ExtractedTable }
-    | { kind: 'math'; start: number; end: number; math: ExtractedMathBlock };
-
-  const positioned: PositionedBlock[] = [
-    ...tables.map((table) => ({
-      kind: 'table' as const,
-      start: table.charStart ?? 0,
-      end: table.charEnd ?? 0,
-      table,
-    })),
-    ...mathBlocks.map((math) => ({
-      kind: 'math' as const,
-      start: math.charStart,
-      end: math.charEnd,
-      math,
-    })),
-  ].sort((a, b) => a.start - b.start);
-
-  const deduped: PositionedBlock[] = [];
-  for (const block of positioned) {
-    const overlaps = deduped.some(
-      (prev) => Math.max(prev.start, block.start) < Math.min(prev.end, block.end),
-    );
-    if (!overlaps) deduped.push(block);
-  }
-
-  if (deduped.length === 0) {
+  const pieces = splitTextWithEmbeddedBlocks(trimmed);
+  if (pieces.length === 1 && pieces[0]!.boundaryKind === 'paragraph') {
     emitParagraphBlocks(trimmed, push, heading);
     return;
   }
 
-  let cursor = 0;
-  for (const block of deduped) {
-    if (block.start > cursor) {
-      emitParagraphBlocks(trimmed.slice(cursor, block.start), push, heading);
-    }
-    if (block.kind === 'table') {
-      push('table', tableSegmentContent(block.table), { table: block.table });
+  for (const piece of pieces) {
+    if (piece.boundaryKind === 'paragraph') {
+      emitParagraphBlocks(piece.text, push, heading);
+    } else if (piece.boundaryKind === 'table') {
+      push('table', piece.text, { table: piece.table });
     } else {
-      const raw = trimmed.slice(block.start, block.end);
-      push('math', raw, { mathLatex: block.math.latex, mathDisplay: block.math.display });
+      push('math', piece.text, {
+        mathLatex: piece.mathLatex,
+        mathDisplay: piece.mathDisplay,
+      });
     }
-    cursor = Math.max(cursor, block.end);
-  }
-  if (cursor < trimmed.length) {
-    emitParagraphBlocks(trimmed.slice(cursor), push, heading);
   }
 }
 
