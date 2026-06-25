@@ -81,6 +81,7 @@ export const mockCourses: Course[] = [
     createdAt: '2025-10-15', lastStudied: '2026-01-14', examDate: '2026-02-20', estimatedHours: 18,
     sourceFiles: ['Lecture_Notes_Micro.pdf', 'Textbook_Ch1-6.pdf', 'Problem_Sets.docx'], status: 'in-progress',
     sourceMode: 'enriched', conceptCount: 59, glossaryCount: 42, exerciseCount: 85,
+    pipelineMeta: { version: '2.4.0', generatedAt: '2025-10-15T09:00:00.000Z', outlineSource: 'lexical' },
   },
   {
     id: 'c2', title: 'Python for Data Science', description: 'Interactive course built from bootcamp slides and Jupyter notebooks covering pandas, numpy, matplotlib, and scikit-learn.',
@@ -95,6 +96,7 @@ export const mockCourses: Course[] = [
     createdAt: '2025-11-01', lastStudied: '2026-01-13', estimatedHours: 22,
     sourceFiles: ['DS_Bootcamp_Slides.pptx', 'Notebooks.zip', 'Exercises.py'], status: 'in-progress',
     sourceMode: 'enriched', conceptCount: 44, glossaryCount: 30, exerciseCount: 120,
+    pipelineMeta: { version: '2.4.0', generatedAt: '2025-11-01T09:00:00.000Z', outlineSource: 'lexical' },
   },
   {
     id: 'c3', title: 'Intro to Philosophy', description: 'Course generated from lecture transcripts and reading excerpts on epistemology, ethics, and philosophy of mind.',

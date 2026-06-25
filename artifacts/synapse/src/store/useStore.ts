@@ -66,8 +66,12 @@ import type { BetaMastery } from '../lib/pedagogy';
 import {
   shouldShowDemo,
   initialCourses,
+  initialUploadedFiles,
+  initialGlossary,
+  stripDemoFiles,
   stripDemoFromTasks,
 } from '../lib/demoMode';
+import { mockUploadedFiles, mockGlossaryEntries } from '../demo/mockSource';
 import { buildInitialUser, applyAuthIdentity, levelFromXp } from '../lib/identity';
 import { createEmptyLearnerModel, EMPTY_DASHBOARD_STATS } from '../lib/emptyLearnerState';
 import { mergeCourseTasks } from '../lib/taskGenerator';
@@ -237,8 +241,12 @@ export function useAppStore() {
     setWorkspaceContext(live.snapshot);
   }, []);
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
-  const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>(library.uploadedFiles);
-  const [glossaryEntries, setGlossaryEntries] = useState<GlossaryEntry[]>(library.glossaryEntries);
+  const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>(
+    () => initialUploadedFiles(library.uploadedFiles, mergedSettings, mockUploadedFiles),
+  );
+  const [glossaryEntries, setGlossaryEntries] = useState<GlossaryEntry[]>(
+    () => initialGlossary(library.glossaryEntries, mergedSettings, mockGlossaryEntries),
+  );
   const [isUploading, setIsUploading] = useState(false);
   const [isReprocessing, setIsReprocessing] = useState(false);
   const [showUploadModal, setShowUploadModal] = useState(false);
@@ -367,7 +375,7 @@ export function useAppStore() {
     allCourses: Course[],
   ) => {
     saveLibrarySync({
-      uploadedFiles: files,
+      uploadedFiles: stripDemoFiles(files),
       glossaryEntries: glossary,
       generatedCourses: allCourses.filter((c) => !MOCK_COURSE_IDS.has(c.id)),
     });
@@ -380,10 +388,10 @@ export function useAppStore() {
       generatedCourses: library.generatedCourses,
     }).then((hydrated) => {
       if (hydrated.uploadedFiles.some((f, i) => f.extractedText !== library.uploadedFiles[i]?.extractedText)) {
-        setUploadedFiles(hydrated.uploadedFiles);
+        setUploadedFiles(initialUploadedFiles(hydrated.uploadedFiles, mergedSettings, mockUploadedFiles));
       }
     });
-  }, [library.uploadedFiles, library.glossaryEntries, library.generatedCourses]);
+  }, [library.uploadedFiles, library.glossaryEntries, library.generatedCourses, mergedSettings]);
 
   const persist = useCallback((
     nextLearner: LearnerModel,
@@ -991,6 +999,16 @@ export function useAppStore() {
     setBetaMastery((prev) => (prev.length > 0 ? prev : demoBeta));
     setOpenMistakes((prev) => (prev.length > 0 ? prev : INITIAL_MISTAKES));
     setAgentMessages((prev) => (prev.length > 0 ? prev : mockAgentMessages));
+    setUploadedFiles((prev) => {
+      const have = new Set(prev.map((f) => f.id));
+      const add = mockUploadedFiles.filter((f) => !have.has(f.id));
+      return add.length ? [...add, ...prev] : prev;
+    });
+    setGlossaryEntries((prev) => {
+      const have = new Set(prev.map((g) => `${g.courseId}::${g.term}`));
+      const add = mockGlossaryEntries.filter((g) => !have.has(`${g.courseId}::${g.term}`));
+      return add.length ? [...add, ...prev] : prev;
+    });
     setSelectedCourse((prev) => prev ?? mockCourses[0] ?? null);
   }, [user.settings, activities, firstAttemptKeys, persist]);
 

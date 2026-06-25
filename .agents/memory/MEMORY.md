@@ -1,1 +1,1 @@
-- [Reaching the Study Workspace in tests](synapse-demo-workspace-access.md) — Explore/See Demo persists a flag but needs a page reload to seed demo courses before the workspace is reachable.
+- [Synapse demo + Study Workspace](synapse-demo-workspace.md) — demo must seed source content or every tool shows empty "upload your notes"; nav must open workspace; demo files need current pipelineVersion.
