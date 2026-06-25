@@ -1,0 +1,20 @@
+{
+  "expectedConcepts": [
+    "contract",
+    "offer",
+    "acceptance",
+    "consideration",
+    "breach",
+    "remedies"
+  ],
+  "expectedDefinitions": [
+    "contract",
+    "offer",
+    "acceptance",
+    "consideration",
+    "breach"
+  ],
+  "expectedFormulas": [],
+  "expectedTopicCount": 3,
+  "expectedSubject": "Law"
+}

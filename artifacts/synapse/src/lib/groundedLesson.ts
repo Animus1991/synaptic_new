@@ -1,0 +1,114 @@
+import type { Lang } from './i18n';
+import type { LessonStepKey } from './domainContent';
+import type { Topic } from '../types';
+import {
+  detectSections,
+  extractiveSummary,
+  splitSentences,
+} from './contentAnalysis';
+import { extractWorkedExamples, relevantExcerpt, conceptRelevanceScore } from './noteContentExtractors';
+
+/** Pick the best section for a lesson step (section-aware, not paragraph rotation). */
+function pickSection(
+  sections: ReturnType<typeof detectSections>,
+  preferredIndex: number,
+  concept: string,
+): (typeof sections)[number] | undefined {
+  if (sections.length === 0) return undefined;
+  const scored = sections.map((s, i) => ({
+    s,
+    score: conceptRelevanceScore((s.heading ?? '') + ' ' + s.text, concept) - Math.abs(i - preferredIndex) * 0.05,
+  }));
+  scored.sort((a, b) => b.score - a.score);
+  return scored[0]?.s;
+}
+
+/** Map canonical lesson step keys to note-grounded text (no demo templates). */
+export function getNoteContentForLessonStep(
+  key: LessonStepKey,
+  text: string,
+  concept: string,
+  topic: Topic | undefined,
+  lang: Lang,
+): string {
+  if (!text.trim()) return '';
+
+  const excerpt = relevantExcerpt(text, concept, 14000);
+  const sections = detectSections(text).filter(
+    (s) => conceptRelevanceScore((s.heading ?? '') + s.text, concept) > 0.15,
+  );
+  const paragraphs = excerpt.split(/\n{2,}/).filter((p) => p.trim());
+
+  switch (key) {
+    case 'hook': {
+      const biasTerms = [concept, topic?.title, ...(topic?.keyConcepts?.slice(0, 3) ?? [])].filter(
+        (s): s is string => typeof s === 'string' && s.length > 0,
+      );
+      const why = extractiveSummary(excerpt, 1, { biasTerms, leadBias: 0.25, mmrLambda: 0.7 })[0] ?? '';
+      const heading = topic?.title ?? concept;
+      const lead =
+        lang === 'el'
+          ? `Γιατί μετράει το «${heading}»;`
+          : `Why does «${heading}» matter?`;
+      return [lead, why].filter(Boolean).join('\n\n');
+    }
+    case 'prior': {
+      const prior = splitSentences(excerpt)
+        .filter((s) => /\b(before|first|assume|already know|foundation|prerequisite|πριν|γνωρίζεις|βάση)/i.test(s))
+        .slice(0, 2)
+        .join(' ');
+      return (
+        prior ||
+        (lang === 'el'
+          ? `Πριν προχωρήσουμε: τι ξέρεις ήδη για το «${concept}»;`
+          : `Before we continue: what do you already know about «${concept}»?`)
+      );
+    }
+    case 'core': {
+      const sec = pickSection(sections, 0, concept);
+      return sec?.text?.trim() || paragraphs[0]?.trim() || excerpt.slice(0, 900);
+    }
+    case 'worked-example': {
+      const ex = extractWorkedExamples(excerpt, concept, 1)[0];
+      const exampleSection = pickSection(sections, 1, concept);
+      return ex ?? exampleSection?.text?.trim() ?? paragraphs[1]?.trim() ?? '';
+    }
+    case 'misconception': {
+      const caution = splitSentences(excerpt).find((s) =>
+        /\b(common mistake|misconception|confus|λάθος|παρερμην|συχνό λάθος|προσοχή|προσέξτε)/i.test(s),
+      );
+      const contrastSection = sections.find((s) =>
+        /\b(vs|versus|unlike|whereas|αντίθετα|διαφορά|compare)/i.test((s.heading ?? '') + s.text),
+      );
+      return (
+        caution ??
+        contrastSection?.text?.trim().slice(0, 500) ??
+        (lang === 'el'
+          ? 'Σύγκρινε προσεκτικά τους ορισμούς στις σημειώσεις σου — αποφύγετε εννοιολογικές συγχύσεις.'
+          : 'Compare definitions in your notes carefully — avoid conflating related concepts.')
+      );
+    }
+    case 'practice': {
+      const ex = extractWorkedExamples(excerpt, concept, 1)[0];
+      if (ex) return ex;
+      const practiceSection = pickSection(sections, Math.max(0, sections.length - 2), concept);
+      return (
+        practiceSection?.text?.trim().slice(0, 600) ??
+        (lang === 'el'
+          ? `Εξάσκηση: Εφάρμοσε την έννοια «${concept}» σε μια πρόταση από τις σημειώσεις σου.`
+          : `Practice: Apply «${concept}» using a sentence pattern from your notes.`)
+      );
+    }
+    case 'summary': {
+      const lastSection = sections[sections.length - 1];
+      const biasTerms = [concept, topic?.title, ...(topic?.keyConcepts?.slice(0, 3) ?? [])].filter(
+        (s): s is string => typeof s === 'string' && s.length > 0,
+      );
+      const summary = extractiveSummary(lastSection?.text ?? excerpt, 3, { biasTerms, mmrLambda: 0.6 }).join('\n\n');
+      return summary || excerpt.slice(0, 600);
+    }
+    case 'retrieval':
+    default:
+      return '';
+  }
+}
