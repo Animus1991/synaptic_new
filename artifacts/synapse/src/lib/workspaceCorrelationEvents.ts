@@ -133,12 +133,13 @@ export function appendCorrelationEvent(
   const mapped = eventToConceptSignal(event);
   let nextBus = conceptBus;
   if (mapped && input.conceptId.trim()) {
+    const eventTs = new Date(event.ts).getTime();
     nextBus = recordConceptActivity(
       conceptBus,
       input.conceptId,
       mapped.tool,
       mapped.signal,
-      input.confidence,
+      Number.isFinite(eventTs) ? eventTs : Date.now(),
     );
   }
   return { event, conceptBus: nextBus };

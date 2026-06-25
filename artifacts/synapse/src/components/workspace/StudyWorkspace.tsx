@@ -35,7 +35,7 @@ import {
   workspaceToolEmptyMessage,
   type WorkspaceEmptyTool,
 } from '../../lib/workspaceEmptyState';
-import { loadWorkspaceStep, saveWorkspaceStep, saveConceptMapPositions, loadWorkspaceNotes, saveWorkspaceNotes, loadConceptBus, saveConceptBus, loadAllConceptBuses } from '../../lib/workspacePersistence';
+import { loadWorkspaceStep, saveWorkspaceStep, saveConceptMapPositions, loadConceptMapPositions, loadWorkspaceNotes, saveWorkspaceNotes, loadConceptBus, saveConceptBus, loadAllConceptBuses } from '../../lib/workspacePersistence';
 import { buildMiniDashboardProps } from '../../lib/workspaceData';
 import { collectConceptBusInsights, countSpacedStepReviewsDue, type ConceptBusMap } from '../../lib/conceptBusSync';
 import { loadAllStepSchedules } from '../../lib/spacedStepSchedule';
@@ -119,6 +119,12 @@ import {
 } from '../../lib/workspaceWeakAreas';
 import { buildQuizSessionContent } from '../../lib/quizSessionModel';
 import type { QuizSessionItem } from '../../lib/quizSession';
+import {
+  loadQuizDesiredCount,
+  saveQuizDesiredCount,
+  DEFAULT_QUIZ_COUNT,
+  QUIZ_COUNT_OPTIONS,
+} from '../../lib/quizSession';
 import {
   buildQuizMistakeFlashcard,
   buildQuizMistakeFeynmanPrompt,
@@ -1117,6 +1123,17 @@ export function StudyWorkspace({
     return buildQuizIrtDisplay(quizDef, quizConcept, quizIrtState.ability, conceptMastery);
   }, [noteBundle.hasSource, quizDef, quizConcept, quizIrtState.ability, conceptMastery]);
 
+  const [quizDesiredCount, setQuizDesiredCount] = useState(
+    () => loadQuizDesiredCount(progressKey) ?? DEFAULT_QUIZ_COUNT,
+  );
+  useEffect(() => {
+    setQuizDesiredCount(loadQuizDesiredCount(progressKey) ?? DEFAULT_QUIZ_COUNT);
+  }, [progressKey]);
+  const changeQuizDesiredCount = useCallback((n: number) => {
+    setQuizDesiredCount(n);
+    saveQuizDesiredCount(progressKey, n);
+  }, [progressKey]);
+
   const quizSession = useMemo(
     () => buildQuizSessionContent({
       text: noteBundle.annotationText,
@@ -1127,11 +1144,11 @@ export function StudyWorkspace({
       mastery: conceptMastery,
       sectionLabel: STEPS[currentStep]?.title,
       hasSource: noteBundle.hasSource,
-      count: 3,
+      count: quizDesiredCount,
     }),
     [
       noteBundle.hasSource, noteBundle.annotationText, quizConcept, scopedGlossary,
-      lang, quizIrtState.ability, conceptMastery, STEPS, currentStep,
+      lang, quizIrtState.ability, conceptMastery, STEPS, currentStep, quizDesiredCount,
     ],
   );
 
@@ -1171,13 +1188,24 @@ export function StudyWorkspace({
 
   const conceptNodes = useMemo(() => {
     const base = noteBundle.conceptMap.nodes;
+    // Restore any positions/notes the learner saved for this scope so a dragged
+    // layout survives remounts; falls back to the deterministic seeded arc.
     if (base.length === 0 && quizConcept) {
-      return [{ id: '1', label: quizConcept, type: 'concept' as const, x: 200, y: 150, mastery: 0 }];
+      return loadConceptMapPositions(
+        [{ id: '1', label: quizConcept, type: 'concept' as const, x: 200, y: 150, mastery: 0 }],
+        progressKey,
+      );
     }
-    return base;
-  }, [noteBundle.conceptMap.nodes, quizConcept]);
+    return loadConceptMapPositions(base, progressKey);
+  }, [noteBundle.conceptMap.nodes, quizConcept, progressKey]);
 
   const conceptEdges = noteBundle.conceptMap.edges;
+
+  const handleConceptMapSave = useCallback(
+    (nodes: { id: string; x: number; y: number; note?: string }[]) =>
+      saveConceptMapPositions(nodes, progressKey),
+    [progressKey],
+  );
 
   const workspaceContext = useMemo(
     () => selectWorkspaceContext({
@@ -1483,7 +1511,7 @@ export function StudyWorkspace({
         studyTimeWeek: dashboardStats.studyTimeWeek ?? 0,
         recentStudyDays: [] as number[],
         weakSpots: enrichedWeak,
-        nextActions: [] as { label: string; type: string; minutes: number; xp: number; taskId?: string }[],
+        nextActions: [] as { label: string; type: string; minutes: number; xp?: number; taskId?: string }[],
         conceptsMastered: 0,
         totalConcepts: 0,
         toolActivity: buildToolActivityBreakdown(conceptBus),
@@ -2005,7 +2033,7 @@ export function StudyWorkspace({
                   <DraggableConceptMap
                     initialNodes={conceptNodes}
                     initialEdges={conceptEdges}
-                    onNodeUpdate={(nodes) => saveConceptMapPositions(nodes, progressKey)}
+                    onNodeUpdate={handleConceptMapSave}
                     emptyMessage={toolEmptyMessage('concept-map')}
                     onUpload={handleToolUpload}
                     hasSource={noteBundle.hasSource}
@@ -2202,7 +2230,10 @@ export function StudyWorkspace({
                     conceptMastery={workspaceCorrelation.conceptMastery}
                     emptyMessage={toolEmptyMessage('timer')}
                     onUpload={handleToolUpload}
-                    onSessionComplete={(minutes, label) => onLogStudyMinutes?.(minutes, label)}
+                    onSessionComplete={(minutes, label) => {
+                      onLogStudyMinutes?.(minutes, label);
+                      noteConceptActivity(quizConcept, 'timer', 'noted');
+                    }}
                     onOpenBreakTool={() => openWorkspaceTool('leitner')}
                     onOpenInReader={(query) => openReaderAtSearch(query, 'timer')}
                     onOpenSimulator={() => openWorkspaceTool('simulator')}
@@ -2363,6 +2394,9 @@ export function StudyWorkspace({
                     scopeKey={progressKey}
                     irt={quizSessionIrt}
                     irtResponseCount={quizIrtState.responses}
+                    desiredCount={quizDesiredCount}
+                    onChangeDesiredCount={changeQuizDesiredCount}
+                    countOptions={QUIZ_COUNT_OPTIONS}
                     emptyMessage={toolEmptyMessage('quiz')}
                     onUpload={handleToolUpload}
                     onSessionComplete={(summary) => {

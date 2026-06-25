@@ -18,6 +18,11 @@ Concrete patterns established:
 - **State the method:** sensitivity/what-if readouts include a one-line method note
   clarifying they report independent per-parameter change and do NOT model
   relationships between parameters (point users to the Scratchpad for real formulas).
+- **Optional-by-design fields must be guarded at EVERY render site.** Dashboard XP is
+  optional: only a real `t.xpReward` is shown; synthetic bus/weak-area next-actions
+  carry no `xp`. There are 3 render sites (MiniDashboard, DashboardPanel, and the HTML
+  progress export in `progressSessionExport.ts`) — each must guard `xp != null` or it
+  prints `+undefined XP`. The HTML export is the one most easily forgotten.
 
 **Why:** The product goal is "maximally functional, no demo/placeholder logic, no
 false precision." An earlier sandbox readout divided by a near-zero baseline and

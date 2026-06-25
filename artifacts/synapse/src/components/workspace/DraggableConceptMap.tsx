@@ -110,6 +110,34 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
   );
   const lastCursorPost = useRef(0);
 
+  // Debounced persistence: coalesce rapid drag/layout/note updates into a single
+  // write, and flush any pending write when the save handler (scope) changes or
+  // on unmount so the last layout is never lost.
+  const saveTimer = useRef<number | null>(null);
+  const pendingSave = useRef<DragNode[] | null>(null);
+  const persistNodes = useCallback((next: DragNode[]) => {
+    pendingSave.current = next;
+    if (saveTimer.current !== null) window.clearTimeout(saveTimer.current);
+    saveTimer.current = window.setTimeout(() => {
+      saveTimer.current = null;
+      pendingSave.current = null;
+      onNodeUpdate?.(next);
+    }, 400);
+  }, [onNodeUpdate]);
+  useEffect(() => {
+    const handler = onNodeUpdate;
+    return () => {
+      if (saveTimer.current !== null) {
+        window.clearTimeout(saveTimer.current);
+        saveTimer.current = null;
+      }
+      if (pendingSave.current) {
+        handler?.(pendingSave.current);
+        pendingSave.current = null;
+      }
+    };
+  }, [onNodeUpdate]);
+
   const nodeMap = Object.fromEntries(nodes.map(n => [n.id, n]));
 
   const publishCursor = useCallback((nodeId: string, x: number, y: number, label: string) => {
@@ -183,12 +211,12 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
     if (dragging.current) {
       dragging.current = null;
       setNodes((prev) => {
-        onNodeUpdate?.(prev);
+        persistNodes(prev);
         return prev;
       });
     }
     setIsPanning(false);
-  }, [onNodeUpdate]);
+  }, [persistNodes]);
 
   const handleBgPointerDown = useCallback((e: React.PointerEvent) => {
     if (dragging.current) return;
@@ -210,7 +238,11 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
 
   const saveNote = () => {
     if (!editingNote) return;
-    setNodes(prev => prev.map(n => n.id === editingNote ? { ...n, note: noteText } : n));
+    setNodes(prev => {
+      const next = prev.map(n => n.id === editingNote ? { ...n, note: noteText } : n);
+      persistNodes(next);
+      return next;
+    });
     setEditingNote(null);
   };
 
@@ -232,7 +264,7 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
         return pos ? { ...n, x: pos.x, y: pos.y } : n;
       });
       setNodes(merged);
-      onNodeUpdate?.(merged);
+      persistNodes(merged);
       setLayoutRunning(false);
       setZoom(1);
       setPan({ x: 0, y: 0 });
@@ -242,7 +274,7 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
     } else {
       apply();
     }
-  }, [nodes, edges, focusConcept, lensConcept, onNodeUpdate]);
+  }, [nodes, edges, focusConcept, lensConcept, persistNodes]);
 
   const layerMap = useMemo(() => assignConceptLayers(nodes, edges), [nodes, edges]);
   const layerGroups = useMemo(() => groupNodesByLayer(nodes, layerMap, lang), [nodes, layerMap, lang]);
@@ -259,11 +291,11 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
     setActiveLayerDepth(null);
     const laid = computeHierarchicalLayout(nodes, edges, { width: 640, height: 400 }) as DragNode[];
     setNodes(laid);
-    onNodeUpdate?.(laid);
+    persistNodes(laid);
     setLayoutRunning(false);
     setZoom(1);
     setPan({ x: 0, y: 0 });
-  }, [nodes, edges, onNodeUpdate]);
+  }, [nodes, edges, persistNodes]);
 
   useEffect(() => { setNodes(initialNodes); }, [initialNodes]);
 

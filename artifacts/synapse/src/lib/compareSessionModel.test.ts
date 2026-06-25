@@ -27,7 +27,7 @@ describe('compareSessionModel', () => {
     expect(session.sectionLabel).toBe('Ricardo trade theory');
   });
 
-  it('uses Greek headers when lang is el', () => {
+  it('names comparison columns after a grounded structured table (never "A"/"B")', () => {
     const session = buildCompareSessionContent({
       concept: 'Εμπόριο',
       text: GREEK_ECON_PASSAGE,
@@ -39,7 +39,24 @@ describe('compareSessionModel', () => {
       lang: 'el',
     });
 
-    expect(session.headers).toEqual(['Διάσταση', 'Α', 'Β']);
+    expect(session.headers).toEqual(['Διάσταση', 'Αγγλία', 'Πορτογαλία']);
+    expect(session.headers.slice(1)).not.toContain('Α');
+    expect(session.headers.slice(1)).not.toContain('Β');
+  });
+
+  it('falls back to honest neutral labels when no structured table exists', () => {
+    const session = buildCompareSessionContent({
+      concept: 'Εμπόριο',
+      text: 'Η Αγγλία παράγει ύφασμα ενώ η Πορτογαλία παράγει κρασί.',
+      glossary: [
+        { term: 'Αγγλία', definition: 'Παράγει ύφασμα', source: 'notes', relatedConcepts: [], courseId: 'c1' },
+        { term: 'Πορτογαλία', definition: 'Παράγει κρασί', source: 'notes', relatedConcepts: [], courseId: 'c1' },
+      ],
+      hasSource: true,
+      lang: 'el',
+    });
+
+    expect(session.headers).toEqual(['Διάσταση', 'Στοιχείο 1', 'Στοιχείο 2']);
   });
 
   it('returns empty session when no source uploaded', () => {

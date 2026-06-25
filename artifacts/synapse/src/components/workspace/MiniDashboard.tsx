@@ -10,7 +10,7 @@ import type { ConceptRemediationId } from '../../lib/conceptBusRemediation';
 import type { DashboardWeakSpot } from '../../lib/dashboardWeakSpotsModel';
 
 interface WeakSpot { concept: string; mastery: number; course: string }
-interface NextAction { label: string; type: string; minutes: number; xp: number; taskId?: string }
+interface NextAction { label: string; type: string; minutes: number; xp?: number; taskId?: string }
 
 interface Props {
   readiness: number;
@@ -284,7 +284,7 @@ export function MiniDashboard({
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-[10px] font-medium truncate">{a.label}</p>
-                      <p className="text-[8px] text-text-muted">{a.minutes}m • +{a.xp} XP</p>
+                      <p className="text-[8px] text-text-muted">~{a.minutes}m{a.xp != null ? ` • +${a.xp} XP` : ''}</p>
                     </div>
                   </button>
                 ))}

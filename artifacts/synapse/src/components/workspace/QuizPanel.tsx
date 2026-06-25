@@ -1,10 +1,11 @@
 import { useCallback, useMemo, useState } from 'react';
 import { AlertTriangle, BookOpen, Search } from 'lucide-react';
+import { cn } from '../../utils/cn';
 import type { QuizIrtDisplay } from '../../lib/quizIrt';
 import type { QuizSessionContent } from '../../lib/quizSessionModel';
 import { filterQuizItems, quizItemQuestion } from '../../lib/quizSessionModel';
 import type { QuizSessionItem } from '../../lib/quizSession';
-import { loadQuizSession } from '../../lib/quizSession';
+import { clearQuizSessions, loadQuizSession } from '../../lib/quizSession';
 import { auditQuizSelectionRemediation } from '../../lib/quizSelectionRemediationQA';
 import { WorkspaceEmptyState } from './WorkspaceEmptyState';
 import { WorkspaceQuizSession } from './WorkspaceQuizSession';
@@ -31,6 +32,9 @@ type Props = {
   onOpenInReader?: (query: string) => void;
   onRemediateWrong?: (kind: 'make-card' | 'feynman', item: QuizSessionItem) => void;
   onSelectionAction?: (action: WorkspaceSelectionActionId, ctx: WorkspaceSelectionContext) => void;
+  desiredCount: number;
+  onChangeDesiredCount: (n: number) => void;
+  countOptions: readonly number[];
   artifactStale?: boolean;
   onAcknowledgeStale?: () => void;
 };
@@ -50,12 +54,30 @@ export function QuizPanel({
   onOpenInReader,
   onRemediateWrong,
   onSelectionAction,
+  desiredCount,
+  onChangeDesiredCount,
+  countOptions,
   artifactStale = false,
   onAcknowledgeStale,
 }: Props) {
   const [filterQuery, setFilterQuery] = useState('');
   const [selectedPassage, setSelectedPassage] = useState<{ text: string; term: string } | null>(null);
+  const [pendingCount, setPendingCount] = useState<number | null>(null);
   const isEl = lang === 'el';
+
+  const applyCount = useCallback((n: number) => {
+    clearQuizSessions(scopeKey);
+    onChangeDesiredCount(n);
+    setPendingCount(null);
+  }, [scopeKey, onChangeDesiredCount]);
+
+  const handlePickCount = useCallback((n: number) => {
+    if (n === desiredCount) { setPendingCount(null); return; }
+    const live = loadQuizSession(scopeKey, concept);
+    const inProgress = !!live && !live.completedAt && live.correctFlags.length > 0;
+    if (inProgress) setPendingCount(n);
+    else applyCount(n);
+  }, [desiredCount, scopeKey, concept, applyCount]);
 
   const selectPassage = useCallback((text: string, term?: string) => {
     if (!onSelectionAction) return;
@@ -170,8 +192,31 @@ export function QuizPanel({
             data-testid="quiz-filter"
           />
         </div>
-        <span className="text-[10px] text-text-muted">
-          {session.items.length} {isEl ? 'ερωτήσεις' : 'questions'}
+        <div className="flex items-center gap-1" data-testid="quiz-count-selector">
+          <span className="text-[10px] text-text-muted">{isEl ? 'Πλήθος:' : 'Length:'}</span>
+          {countOptions.map((n) => (
+            <button
+              key={n}
+              type="button"
+              data-testid={`quiz-count-${n}`}
+              onClick={() => handlePickCount(n)}
+              className={cn(
+                'rounded px-2 py-0.5 text-[10px] border',
+                n === desiredCount
+                  ? 'border-brand-500 bg-brand-600/20 text-brand-200'
+                  : 'border-border-subtle text-text-muted hover:text-text-secondary',
+              )}
+            >
+              {n}
+            </button>
+          ))}
+        </div>
+        <span className="text-[10px] text-text-muted" data-testid="quiz-count-actual">
+          {session.items.length < desiredCount
+            ? (isEl
+              ? `${session.items.length} από ${desiredCount} ερωτήσεις`
+              : `${session.items.length} of ${desiredCount} questions`)
+            : `${session.items.length} ${isEl ? 'ερωτήσεις' : 'questions'}`}
         </span>
         {onOpenInReader && (
           <button
@@ -185,6 +230,35 @@ export function QuizPanel({
           </button>
         )}
       </div>
+
+      {pendingCount !== null && (
+        <div
+          className="mb-3 flex flex-wrap items-center gap-2 rounded-xl border border-accent-amber/30 bg-accent-amber/8 px-3 py-2 text-[10px] text-accent-amber"
+          data-testid="quiz-restart-confirm"
+        >
+          <span>
+            {isEl
+              ? `Συνεδρία σε εξέλιξη — επανεκκίνηση με ${pendingCount} ερωτήσεις; Η πρόοδος θα χαθεί.`
+              : `Session in progress — restart with ${pendingCount} questions? Current progress will be lost.`}
+          </span>
+          <button
+            type="button"
+            data-testid="quiz-restart-apply"
+            onClick={() => pendingCount !== null && applyCount(pendingCount)}
+            className="rounded-lg border border-accent-rose/40 bg-accent-rose/10 px-2 py-0.5 text-accent-rose"
+          >
+            {isEl ? 'Επανεκκίνηση' : 'Restart'}
+          </button>
+          <button
+            type="button"
+            data-testid="quiz-restart-cancel"
+            onClick={() => setPendingCount(null)}
+            className="rounded-lg border border-border-subtle px-2 py-0.5 text-text-muted"
+          >
+            {isEl ? 'Άκυρο' : 'Cancel'}
+          </button>
+        </div>
+      )}
 
       {filterQuery.trim() && filterMatches.length > 0 && (
         <div className="mb-3 flex flex-wrap gap-1.5" data-testid="quiz-filter-matches">
