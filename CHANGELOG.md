@@ -7,7 +7,7 @@ client and server are versioned together.
 
 ### Added
 
-- **Launch Wave 8A — Study Workspace Phase 2 UI**
+- **Launch Wave 8A — Study Workspace Phase 2 UI (`49afe23`)**
   - **SW-P2-05:** Structured workspace context JSON on every Agent open —
     `toAgentWorkspaceContextJson`, `buildAgentContextSystemBlock` in
     `agentWorkspaceContext.ts`; collapsible JSON in `AgentContextBanner`; injected

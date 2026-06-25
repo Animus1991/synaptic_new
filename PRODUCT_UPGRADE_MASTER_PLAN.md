@@ -484,7 +484,7 @@ COMPLETED (do not redo)
 - reprocessCourseMaterial without re-upload
 - Waves 3.1–3.3 i18n, 4.1 teacher dashboard, 4.2 billing webhooks
 - **Launch Wave 7 (Jun 2026, `552d0ef`):** SW-07 `lessonStepToolbarNextActionSync`, SW-P1-02 mobile tool drawer, SW-P1-04 reader↔step sync, UTF-8 mojibake repair (`utf8MojibakeRepair.ts`), Noto Sans Greek typography
-- **Launch Wave 8A (Jun 2026):** SW-P2-05 Agent context JSON, SW-P2-06 ConceptLens strip `< lg`, SW-P2-07 WCAG contrast tokens, SW-P3-08 keyboard help EL/EN
+- **Launch Wave 8A (Jun 2026, `49afe23`):** SW-P2-05 Agent context JSON, SW-P2-06 ConceptLens strip `< lg`, SW-P2-07 WCAG contrast tokens, SW-P3-08 keyboard help EL/EN
 
 PRIORITY ORDER (strict)
 1. Pipeline P0 — table segmentation block type, math zone detection/repair (multi-column ✅ in main extract path)
