@@ -2308,6 +2308,7 @@ export function StudyWorkspace({
                     }}
                     onFocusConcept={() => openWorkspaceTool('concept-map')}
                     onOpenInReader={(query) => openReaderAtSearch(query, 'feynman')}
+                    onOpenDashboard={() => openWorkspaceTool('dashboard')}
                   />
                 )}
                 {activeTool === 'annotations' && (
