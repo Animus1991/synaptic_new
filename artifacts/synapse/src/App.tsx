@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo, useCallback, lazy, Suspense, type ReactNode } from 'react';
+import { useEffect, useState, useMemo, useCallback, useRef, lazy, Suspense, type ReactNode } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useAppStore } from './store/useStore';
 import { applyTheme, watchSystemTheme } from './lib/theme';
@@ -99,15 +99,20 @@ export default function App() {
   const hasCourses = visibleCourses(store.courses, store.user.settings).length > 0;
 
   const handleSeeDemo = useCallback(() => {
-    store.updateSettings({ showDemoContent: true });
-    store.completeOnboarding({ openUpload: false });
+    store.enableDemoContent();
+    // Leave the landing/onboarding gate so the workspace overlay can render.
+    store.navigate('dashboard');
+    store.openStudyWorkspace();
   }, [store]);
 
   const handleOnboardingComplete = useCallback((data: Parameters<typeof store.completeOnboarding>[0] & { exploreDemoMode?: boolean }) => {
-    if (data.exploreDemoMode) {
-      store.updateSettings({ showDemoContent: true });
+    const { exploreDemoMode, ...rest } = data;
+    if (exploreDemoMode) {
+      store.enableDemoContent();
+      store.navigate('dashboard');
+      store.openStudyWorkspace();
+      return;
     }
-    const { exploreDemoMode: _ignored, ...rest } = data;
     store.completeOnboarding(rest);
   }, [store]);
 
@@ -496,6 +501,16 @@ export default function App() {
       window.history.replaceState({}, '', window.location.pathname);
     });
   }, [store.user.settings.authToken, store.refreshAuthPlan]);
+
+  // Shareable demo deep-link: `?demo=1` opens the seeded Study Workspace directly.
+  const demoDeepLinkFired = useRef(false);
+  useEffect(() => {
+    if (demoDeepLinkFired.current) return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('demo') !== '1') return;
+    demoDeepLinkFired.current = true;
+    handleSeeDemo();
+  }, [handleSeeDemo]);
 
   // Landing page
   if (store.currentView === 'landing') {

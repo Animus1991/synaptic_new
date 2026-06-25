@@ -3,7 +3,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { Group, Panel, Separator } from 'react-resizable-panels';
 import {
   X, Maximize2, Minimize2, ChevronRight, Sparkles, PanelLeftClose, PanelLeftOpen, StickyNote,
-  LayoutGrid,
+  LayoutGrid, AlertTriangle,
 } from 'lucide-react';
 import { cn } from '../../utils/cn';
 import type { WorkspaceToolId } from '../../lib/taskFlows';
@@ -142,7 +142,7 @@ import { ConceptBusPanel } from './ConceptBusPanel';
 import { ConceptLensPanel } from './ConceptLensPanel';
 import { WeakAreasFocusRail } from './WeakAreasFocusRail';
 import { WorkspaceMobileIntelligenceTabs, intelPanelId, type MobileIntelTab } from './WorkspaceMobileIntelligenceTabs';
-import { WorkspaceToolCrossLinkBar, crossLinkAgentPrompt } from './WorkspaceToolCrossLinkBar';
+import { crossLinkAgentPrompt } from './WorkspaceToolCrossLinkBar';
 import type { OpenAgentFromWorkspaceOpts } from '../../lib/agentWorkspaceContext';
 import { buildAgentWorkspaceContext } from '../../lib/agentWorkspaceContext';
 import { nextActionLabel } from '../../lib/nextActionEngine';
@@ -181,7 +181,6 @@ import { buildWhiteboardSessionContent } from '../../lib/whiteboardSessionModel'
 import { buildTimerSessionContent } from '../../lib/timerSessionModel';
 import { buildDashboardSessionContent } from '../../lib/dashboardSessionModel';
 import { displayWorkspaceStepTitle } from '../../lib/workspaceContextModel';
-import { WorkspaceContextStrip } from './WorkspaceContextStrip';
 import { WorkspaceSourceStatusBar } from './WorkspaceSourceStatusBar';
 import {
   fetchSharedAnnotations,
@@ -1661,51 +1660,77 @@ export function StudyWorkspace({
       data-testid="study-workspace"
       data-grounded={noteBundle.hasSource ? 'true' : 'false'}
     >
-      {/* Top bar */}
+      {/* Unified top bar: identity + breadcrumb (left), learning + global actions (right). */}
       {!chromeHidden && (
-        <div className="relative z-10 flex items-center justify-between gap-2 px-3 py-2 border-b border-border-subtle bg-surface-secondary/85 backdrop-blur-xl shrink-0">
-          <div className="flex items-center gap-3 min-w-0">
+        <div
+          className="relative z-10 flex items-center justify-between gap-2 px-3 py-2 border-b border-border-subtle bg-surface-secondary/85 backdrop-blur-xl shrink-0"
+          data-testid="workspace-context-strip"
+        >
+          <div className="flex items-center gap-2.5 min-w-0 flex-1">
             <button onClick={onClose} title={lang === 'el' ? 'Κλείσιμο χώρου μελέτης' : 'Close workspace'} aria-label={lang === 'el' ? 'Κλείσιμο' : 'Close'} className="p-1.5 rounded-lg hover:bg-surface-hover text-text-secondary hover:text-text-primary transition-colors shrink-0">
               <X className="w-4 h-4" />
             </button>
-            <div className="min-w-0">
-              <div className="flex items-center gap-2 flex-wrap">
-                <h1 className="text-sm font-semibold truncate text-text-primary" data-testid="workspace-header-title">
-                  {courseName ?? linkedCourse?.title ?? taskTitle ?? quizConcept}
-                </h1>
-                {(courseName || linkedCourse?.title) && taskTitle && taskTitle !== (courseName ?? linkedCourse?.title) && (
-                  <span className="hidden sm:inline-block px-2 py-0.5 rounded-md border border-border-subtle bg-surface-hover text-[10px] font-medium text-text-secondary shrink-0 truncate max-w-[140px]">
-                    {taskTitle}
-                  </span>
+            <div className="flex items-center gap-2 min-w-0">
+              <h1 className="ws-title truncate text-text-primary shrink-0 max-w-[40vw]" data-testid="workspace-header-title">
+                {courseName ?? linkedCourse?.title ?? taskTitle ?? quizConcept}
+              </h1>
+              {(courseName || linkedCourse?.title) && taskTitle && taskTitle !== (courseName ?? linkedCourse?.title) && (
+                <span className="hidden md:inline-block px-2 py-0.5 rounded-md border border-border-subtle bg-surface-hover ws-eyebrow text-text-secondary shrink-0 truncate max-w-[140px]">
+                  {taskTitle}
+                </span>
+              )}
+              {/* Breadcrumb trail — section · step · quality. Course lives in the title, tool in the panel header (no duplication). */}
+              <span className="hidden lg:flex items-center gap-1.5 min-w-0 ws-caption text-text-muted">
+                <ChevronRight className="w-3.5 h-3.5 text-text-muted/60 shrink-0" aria-hidden />
+                <span className="truncate max-w-[200px] text-text-secondary" title={workspaceContext.sectionLabel} data-testid="workspace-context-section">
+                  {workspaceContext.lowConfidenceSection && (
+                    <AlertTriangle className="mr-0.5 inline h-3 w-3 text-accent-amber align-[-2px]" aria-hidden />
+                  )}
+                  {workspaceContext.sectionLabel}
+                </span>
+                <span aria-hidden>·</span>
+                <span className="shrink-0" data-testid="workspace-context-step">{workspaceContext.stepLabel}</span>
+                {typeof sourceQualityScore === 'number' && (
+                  <span className="shrink-0 text-accent-amber">· {lang === 'el' ? 'Ποιότητα' : 'Quality'} {sourceQualityScore}/100</span>
                 )}
-              </div>
-              <p className="text-[10px] text-text-muted truncate mt-0.5" data-testid="workspace-header-subtitle">
-                {displayWorkspaceStepTitle(STEPS[currentStep]?.title ?? quizConcept, quizConcept, lang)}
-                {' · '}
-                {workspaceToolLabel(activeTool, lang)}
-              </p>
+                <span className="hidden" data-testid="workspace-context-tool">{workspaceContext.toolLabel}</span>
+              </span>
             </div>
           </div>
 
           <div className="flex items-center gap-1.5 shrink-0">
+            {nextActionRecommendation && noteBundle.hasSource && (
+              <button
+                type="button"
+                onClick={runNextAction}
+                data-testid="workspace-next-action"
+                className="hidden sm:inline-flex items-center gap-1 rounded-lg border border-brand-500/30 bg-brand-500/10 px-2.5 py-1 ws-caption font-semibold text-brand-300 hover:bg-brand-500/15 transition-colors"
+              >
+                {nextActionLabel(nextActionRecommendation.primary, lang)}
+              </button>
+            )}
+            {nextActionRecommendation && noteBundle.hasSource && (
+              <span className="mx-0.5 hidden h-5 w-px bg-border-subtle sm:block" aria-hidden />
+            )}
+
             {layout !== 'zen' && (
               <button
                 type="button"
                 onClick={() => setShowPalette(true)}
                 data-testid="workspace-command-palette-open"
                 title={lang === 'el' ? 'Παλέτα εντολών (⌘K)' : 'Command palette (⌘K)'}
-                className="hidden sm:inline-flex items-center gap-1 px-2 py-1 rounded-lg border border-border-subtle bg-surface-card hover:bg-surface-hover text-[10px] font-mono text-text-secondary hover:text-text-primary shrink-0 transition-colors"
+                className="hidden sm:inline-flex items-center gap-1 px-2 py-1 rounded-lg border border-border-subtle bg-surface-card hover:bg-surface-hover ws-eyebrow font-mono text-text-secondary hover:text-text-primary shrink-0 transition-colors"
               >
                 ⌘K
               </button>
             )}
-            <button onClick={() => setShowNotes((v) => !v)} className="p-1.5 rounded-lg hover:bg-surface-hover text-text-secondary hover:text-text-primary transition-colors shrink-0" title={lang === 'el' ? 'Σημειώσεις' : 'Session notes'}>
+            <button onClick={() => setShowNotes((v) => !v)} className="p-1.5 rounded-lg hover:bg-surface-hover text-text-secondary hover:text-text-primary transition-colors shrink-0" title={lang === 'el' ? 'Σημειώσεις' : 'Session notes'} aria-label={lang === 'el' ? 'Σημειώσεις' : 'Session notes'}>
               <StickyNote className={cn('w-4 h-4', showNotes && 'text-accent-cyan')} />
             </button>
-            <button onClick={() => setLayout(layout === 'zen' ? 'split' : 'zen')} className="p-1.5 rounded-lg hover:bg-surface-hover text-text-secondary hover:text-text-primary transition-colors shrink-0" title={layout === 'zen' ? (lang === 'el' ? 'Έξοδος εστίασης (Z)' : 'Exit focus (Z)') : (lang === 'el' ? 'Εναλλαγή διάταξης (S)' : 'Toggle layout (S)')}>
+            <button onClick={() => setLayout(layout === 'zen' ? 'split' : 'zen')} className="p-1.5 rounded-lg hover:bg-surface-hover text-text-secondary hover:text-text-primary transition-colors shrink-0" title={layout === 'zen' ? (lang === 'el' ? 'Έξοδος εστίασης (Z)' : 'Exit focus (Z)') : (lang === 'el' ? 'Εναλλαγή διάταξης (S)' : 'Toggle layout (S)')} aria-label={layout === 'zen' ? (lang === 'el' ? 'Έξοδος εστίασης' : 'Exit focus') : (lang === 'el' ? 'Εναλλαγή διάταξης' : 'Toggle layout')}>
               {layout === 'zen' ? <Minimize2 className="w-4 h-4 text-accent-cyan" /> : <Maximize2 className="w-4 h-4" />}
             </button>
-            <button onClick={handleOpenAgent} className="flex items-center gap-1 px-2.5 py-1.5 rounded-full text-[10px] font-medium border border-border-subtle bg-surface-card hover:border-accent-cyan/40 hover:bg-surface-hover text-text-secondary hover:text-text-primary shrink-0 transition-colors">
+            <button onClick={handleOpenAgent} className="flex items-center gap-1 px-2.5 py-1.5 rounded-full ws-eyebrow font-medium border border-border-subtle bg-surface-card hover:border-accent-cyan/40 hover:bg-surface-hover text-text-secondary hover:text-text-primary shrink-0 transition-colors">
               <Sparkles className="w-3.5 h-3.5 text-accent-cyan" /> {t('agentBtn')}
             </button>
           </div>
@@ -1716,23 +1741,6 @@ export function StudyWorkspace({
       <div className="relative z-10 h-0.5 bg-white/5 shrink-0">
         <div className="h-0.5 bg-gradient-to-r from-accent-cyan to-brand-400 transition-all duration-500" style={{ width: `${STEPS.length ? Math.max(5, ((Math.min(currentStep, STEPS.length - 1) + 1) / STEPS.length) * 100) : 5}%` }} />
       </div>
-
-      {!chromeHidden && (
-        <WorkspaceContextStrip
-          context={workspaceContext}
-          lang={lang}
-          sourceQuality={sourceQualityScore ?? null}
-          showNextAction={Boolean(nextActionRecommendation && noteBundle.hasSource)}
-          nextActionLabel={nextActionRecommendation ? nextActionLabel(nextActionRecommendation.primary, lang) : undefined}
-          onNextAction={runNextAction}
-          weakCount={weakAreaSpots.length}
-          onWeakAreas={() => setIntelTab((t) => (t === 'weak-areas' ? null : 'weak-areas'))}
-          onConceptBus={() => setIntelTab((t) => (t === 'concept-bus' ? null : 'concept-bus'))}
-          conceptCount={conceptBusRows.length}
-          weakPanelOpen={intelTab === 'weak-areas'}
-          conceptBusOpen={intelTab === 'concept-bus'}
-        />
-      )}
 
       <div className="relative z-10 flex-1 flex overflow-hidden">
         {/* Tool Dock (Left Sidebar) */}
@@ -1918,7 +1926,12 @@ export function StudyWorkspace({
                   concept={effectiveFocus?.term ?? quizConcept}
                   hasSource={noteBundle.hasSource}
                   sourceName={noteBundle.sourceName}
-                  onJumpTool={(tool) => openWorkspaceTool(tool)}
+                  onJumpTool={(tool) => {
+                    openWorkspaceTool(tool);
+                    noteConceptActivity(quizConcept, tool, 'focus');
+                  }}
+                  onOpenReader={handleCrossLinkReader}
+                  onAskAgent={handleCrossLinkAgent}
                 />
               )}
               {/* Tool surface */}
@@ -1993,20 +2006,6 @@ export function StudyWorkspace({
                 </div>
 
                 <div className="flex-1 relative overflow-hidden min-h-0">
-                {!chromeHidden && noteBundle.hasSource && (
-                  <WorkspaceToolCrossLinkBar
-                    activeTool={activeTool}
-                    lang={lang}
-                    concept={effectiveFocus?.term ?? quizConcept}
-                    stepTitle={STEPS[currentStep]?.title}
-                    onJumpTool={(tool) => {
-                      openWorkspaceTool(tool);
-                      noteConceptActivity(quizConcept, tool, 'focus');
-                    }}
-                    onOpenReader={handleCrossLinkReader}
-                    onAskAgent={handleCrossLinkAgent}
-                  />
-                )}
                 <ConceptLensPanel
                   lens={conceptLensView}
                   activity={activityFor(conceptBus, activeConceptLabel)}
