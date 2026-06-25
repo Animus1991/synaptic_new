@@ -10,14 +10,11 @@ import {
   buildParameterSensitivity,
   topSensitivityCue,
 } from '../../lib/sandboxSensitivity';
+import {
+  SIMULATOR_SCENARIO_PRESETS,
+  type SimulatorScenarioId,
+} from '../../lib/examPracticePresets';
 import { WorkspaceEmptyState } from './WorkspaceEmptyState';
-
-const PRESET_KEYS = [
-  { id: 'baseline', key: 'presetBaseline' as const, demand: 0, supply: 0 },
-  { id: 'demand-boom', key: 'presetDemandBoom' as const, demand: 25, supply: 0 },
-  { id: 'supply-shock', key: 'presetSupplyShock' as const, demand: 0, supply: 25 },
-  { id: 'recession', key: 'presetRecession' as const, demand: -20, supply: 10 },
-];
 
 const CHALLENGE_TARGET_P = 55;
 const CHALLENGE_TOLERANCE = 3;
@@ -28,9 +25,13 @@ interface Props {
   numericCues?: NumericCue[];
   concept?: string;
   emptyMessage?: string;
+  hasSource?: boolean;
   onUpload?: () => void;
   lang?: 'en' | 'el';
   onSensitivityCue?: (cueId: string) => void;
+  onEngage?: () => void;
+  onScenarioSelect?: (scenarioId: SimulatorScenarioId) => void;
+  initialScenarioId?: SimulatorScenarioId | null;
 }
 
 export function InteractiveSimulator({
@@ -39,14 +40,21 @@ export function InteractiveSimulator({
   numericCues = [],
   concept = '',
   emptyMessage,
+  hasSource = false,
   onUpload,
   lang: langProp,
   onSensitivityCue,
+  onEngage,
+  onScenarioSelect,
+  initialScenarioId,
 }: Props) {
   const { t, lang: i18nLang } = useI18n();
   const lang = langProp ?? i18nLang;
-  const [demandShift, setDemandShift] = useState(0);
-  const [supplyShift, setSupplyShift] = useState(0);
+  const initialScenario = initialScenarioId
+    ? SIMULATOR_SCENARIO_PRESETS.find((p) => p.id === initialScenarioId)
+    : null;
+  const [demandShift, setDemandShift] = useState(initialScenario?.demand ?? 0);
+  const [supplyShift, setSupplyShift] = useState(initialScenario?.supply ?? 0);
   const [cueValues, setCueValues] = useState<Record<string, number>>(() =>
     Object.fromEntries(numericCues.map((c) => [c.id, c.baseline])),
   );
@@ -112,7 +120,16 @@ export function InteractiveSimulator({
   const sP2 = 140;
   const sQ2 = sP2 + supplyShift;
 
-  const presetButtons = useMemo(() => PRESET_KEYS, []);
+  const presetButtons = useMemo(() => SIMULATOR_SCENARIO_PRESETS, []);
+
+  const applyScenario = (scenarioId: SimulatorScenarioId) => {
+    const preset = SIMULATOR_SCENARIO_PRESETS.find((p) => p.id === scenarioId);
+    if (!preset) return;
+    setDemandShift(preset.demand);
+    setSupplyShift(preset.supply);
+    onEngage?.();
+    onScenarioSelect?.(scenarioId);
+  };
 
   if (!economicsMode) {
     if (numericCues.length > 0) {
@@ -151,7 +168,10 @@ export function InteractiveSimulator({
                   max={cue.max}
                   step={cue.unit === '%' ? 1 : (cue.max - cue.min) / 40}
                   value={cueValues[cue.id] ?? cue.baseline}
-                  onChange={(e) => setCueValues((v) => ({ ...v, [cue.id]: Number(e.target.value) }))}
+                  onChange={(e) => {
+                    setCueValues((v) => ({ ...v, [cue.id]: Number(e.target.value) }));
+                    onEngage?.();
+                  }}
                   className="w-full"
                   style={{ accentColor: '#818cf8' }}
                 />
@@ -204,6 +224,7 @@ export function InteractiveSimulator({
         <div className="flex flex-1 flex-col items-center justify-center p-6">
           <WorkspaceEmptyState
             message={emptyMessage ?? (insight || t('sandboxInsight'))}
+            hasSource={hasSource}
             onUpload={onUpload}
           />
           {insight && (
@@ -236,10 +257,11 @@ export function InteractiveSimulator({
               <button
                 key={p.id}
                 type="button"
-                onClick={() => { setDemandShift(p.demand); setSupplyShift(p.supply); }}
+                data-testid={`simulator-scenario-${p.id}`}
+                onClick={() => applyScenario(p.id)}
                 className="rounded-full border border-border-subtle bg-surface-primary/50 px-2.5 py-1 text-xs hover:border-brand-500/40 transition-all"
               >
-                {t(p.key)}
+                {t(p.i18nKey)}
               </button>
             ))}
           </div>
@@ -305,14 +327,14 @@ export function InteractiveSimulator({
               <label className="text-xs font-semibold text-accent-emerald">{t('demandShock')}</label>
               <span className="font-mono text-xs text-text-tertiary">{demandShift > 0 ? '+' : ''}{demandShift}</span>
             </div>
-            <input type="range" min={-40} max={40} value={demandShift} onChange={(e) => setDemandShift(Number(e.target.value))} className="w-full" style={{ accentColor: '#34d399' }} />
+            <input type="range" min={-40} max={40} value={demandShift} onChange={(e) => { setDemandShift(Number(e.target.value)); onEngage?.(); }} className="w-full" style={{ accentColor: '#34d399' }} />
           </div>
           <div>
             <div className="mb-2 flex justify-between">
               <label className="text-xs font-semibold text-brand-300">{t('supplyShock')}</label>
               <span className="font-mono text-xs text-text-tertiary">{supplyShift > 0 ? '+' : ''}{supplyShift}</span>
             </div>
-            <input type="range" min={-40} max={40} value={supplyShift} onChange={(e) => setSupplyShift(Number(e.target.value))} className="w-full" style={{ accentColor: '#818cf8' }} />
+            <input type="range" min={-40} max={40} value={supplyShift} onChange={(e) => { setSupplyShift(Number(e.target.value)); onEngage?.(); }} className="w-full" style={{ accentColor: '#818cf8' }} />
           </div>
           <div className="flex items-center justify-between border-t border-border-subtle pt-3 font-mono text-sm">
             <span>P* = <strong>{eqP.toFixed(1)}</strong></span>

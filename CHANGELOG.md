@@ -7,6 +7,72 @@ client and server are versioned together.
 
 ### Added
 
+- **Upload outline preview (Phase B)** — `uploadOutlinePreview.ts` +
+  `OutlinePreviewPanel`: client-side text extraction on the configure step shows
+  detected sections, proposed modules, and source-quality score **before**
+  Generate Course. Course Library file rows expand to the same compact preview
+  from stored `extractedText`.
+- **Concept Bus panel (Phase C)** — `ConceptBusPanel` + `conceptBusPanelModel`:
+  visible term ↔ tool activity correlation in Study Workspace (chips + expandable
+  rows with signals and one-click tool jumps).
+- **Upload success toast (Phase D)** — `uploadStructureSummary.ts` +
+  `AppToastBanner`: after generate, toast shows «X conversations, Y sections
+  detected» (or sections-only for non-chat sources).
+- **Eval harness (Phase E)** — `collectPipelineConcepts()` unions outline topics,
+  glossary, definitions, sections, and keyphrases; pass gate raised to concept
+  recall ≥ 0.6 on physics/law fixtures.
+- **Reader layout v2 (recognition hardening)** — `readerDocumentLayout.ts`:
+  adaptive wrap-width paragraph reconstruction; enumerated syllabus detection
+  (`1 ΕΘΝΙΚΟ …` without dot); multi-line list items (`whitespace-pre-line`);
+  front-matter heading inference (no generic `Introduction` when syllabus rows
+  detected); `documentStructureReport` prefers `headings` over `slides` when
+  lecture titles are inferred across PDF pages.
+- **Section merger + front-matter UX** — `sectionMerger.ts` collapses
+  page-per-PDF sections into lecture units; `FrontMatterCard` + ordered `<ol>`
+  syllabus lists; sticky `workspace-intelligence-rail` (Discoverability +
+  Concept Bus); **`FUNCTION_CATALOG.md`** master function inventory + upgrade
+  waves; `ROADMAP.md` / `PRODUCT_SCALE_PLAN.md` synced with phases A–E.
+- **Reader section nav (lectures only)** — `readerSectionNav.ts` filters
+  horizontal nav chips to merged ΔΙΑΛΕΞΗ headings (not per-page §N); rail label
+  «Διαλέξεις» when all chips are lectures; `documentStructureReport` uses the
+  same filter for Source Intelligence chips.
+- **Lesson rail ↔ Reader scroll sync** — `readerStepSync.ts` maps workspace
+  steps to reader heading segments (title match + ordinal fallback); rail click
+  opens Reader and scrolls; Reader section nav updates the active lesson step.
+- **Weak areas → workspace focus** — `workspaceWeakAreas.ts` +
+  `WeakAreasFocusRail`: Dashboard weak-area clicks and in-workspace chips set
+  focus term + reader highlight; opens Reader and jumps to matching lesson step.
+- **Reader tables / multi-column PDF** — `readerTableLayout.ts` detects
+  fixed-gutter column blocks and repairs interleaved two-column PDF text;
+  `buildReaderSegments` emits `table` segments; Cognitive Reader renders
+  structured `<table>` (Markdown + aligned columns).
+- **Reader bibliography blocks** — `readerBibliography.ts` detects
+  Βιβλιογραφία/References headings, bracket-numbered refs, and author-year
+  citation runs; `BibliographyBlock` card in Cognitive Reader with folded
+  multi-line entries.
+- **Reader LaTeX / math blocks** — `readerMathBlocks.ts` preserves `$$…$$`,
+  `\[…\]`, and `\\begin{…}` display math before paragraph flow; inline
+  `$…$` / `\\(…\\)` paragraphs render via KaTeX (`RichText`); display
+  equations use `FormulaLatexPreview`; `isMathLikeLine` stops false section
+  splits on equation lines.
+- **OCR default for image-only PDFs** — `isImageOnlyPdf` + stricter `needsOcr`
+  per-page density; scanned PDFs skip the empty text layer and run OCR
+  immediately; `ingestMethod` records `ocr-server` / `ocr-client`.
+- **Re-upload migration hint** — `pipelineMigration.ts` + `ReuploadMigrationBanner`
+  in Course view and Study Workspace when `pipelineVersion` &lt; v2.2.0;
+  pipeline bumped to **2.2.0** (Wave 1 recognition).
+- **ChatGPT JSON/ZIP import** — `chatGptImport.ts` parses OpenAI exports, injects
+  `User:` / `Assistant:` labels before segmentation, sets `ingestMethod:
+  'chatgpt-export'`. Upload modal accepts `.json` / `.zip`; structure surfaces in
+  Source Intelligence + Reader section rail.
+- **Document structure report** — `documentStructureReport.ts` +
+  `SourceIntelligenceCard` section chips; `CognitiveReader` horizontal section nav
+  with scroll-to-heading.
+- **Segmentation v3** — unified `textSegmentation.ts` (headings, slides, Q&A turns,
+  dialogue, date blocks, code-fence awareness) wired through content analysis, RAG,
+  lesson steps, and reader paragraph splits.
+- **TypeScript build gate** — `npm run build` runs `typecheck:all` first; fixed
+  latent errors (`ingestMethod` on extract pipeline, SourceIntelligenceCard `??`/`||`).
 - **Concept bus backend sync** — `conceptBuses` and `stepSchedules` travel through
   `GET/PUT /v1/session` (JSONB-safe additive fields). Client merge via
   `conceptBusSync.ts`; pull enriches `weakAreas`, `spacingIntervals`, and

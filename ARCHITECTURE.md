@@ -38,6 +38,24 @@ flowchart LR
 
 Upload path: **UploadModal → `processUpload`** (not `simulateUpload`).
 
+## Reader recognition pipeline (v2.2.0)
+
+After `extractFileContent`, the Cognitive Reader uses a dedicated layout stack (separate from RAG chunking):
+
+| Module | Role |
+| ------ | ---- |
+| `textSegmentation.ts` | Page breaks (`\f` → marker), headings, Greek lecture patterns |
+| `sectionMerger.ts` | Collapse page-per-PDF into ΔΙΑΛΕΞΗ sections |
+| `readerDocumentLayout.ts` | Segments: heading, paragraph, list, front-matter, table, bibliography, math |
+| `readerTableLayout.ts` | Fixed-gap tables + interleaved column repair |
+| `readerBibliography.ts` | Reference block detection |
+| `readerMathBlocks.ts` | Display + inline math preservation |
+| `readerSectionNav.ts` | Lecture-only horizontal nav |
+| `pipelineMigration.ts` | Stale `pipelineVersion` → re-upload hint |
+| `CognitiveReader.tsx` | Renders segments (KaTeX, tables, cards) |
+
+Stored `UploadedFile.extractedText` + `pipelineVersion` are set at upload time. **Re-upload required** after pipeline upgrades for existing courses.
+
 ### Outline → course
 
 ```

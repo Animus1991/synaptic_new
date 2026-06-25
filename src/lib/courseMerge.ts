@@ -11,6 +11,41 @@ function dedupeGlossary(existing: GlossaryEntry[], incoming: GlossaryEntry[]): G
   return [...map.values()];
 }
 
+/** Build glossary entries from an analyzed outline (shared by upload + reprocess). */
+export function buildGlossaryEntriesFromOutline(
+  courseId: string,
+  outline: GeneratedOutline,
+  sourceName: string,
+): GlossaryEntry[] {
+  const allConcepts = outline.topics.flatMap((t) => t.concepts);
+  return outline.glossary.map((g) => {
+    const termLower = g.term.toLowerCase();
+    const related = allConcepts
+      .filter(
+        (c) =>
+          c.toLowerCase() !== termLower
+          && (c.toLowerCase().includes(termLower) || termLower.includes(c.toLowerCase())),
+      )
+      .slice(0, 5);
+    return {
+      term: g.term,
+      definition: g.definition,
+      source: sourceName,
+      relatedConcepts: related,
+      courseId,
+    };
+  });
+}
+
+/** Replace all glossary rows for one course (reprocess refresh). */
+export function replaceCourseGlossary(
+  existing: GlossaryEntry[],
+  courseId: string,
+  refreshed: GlossaryEntry[],
+): GlossaryEntry[] {
+  return [...existing.filter((g) => g.courseId !== courseId), ...refreshed];
+}
+
 /**
  * Merge a newly analyzed outline into an existing user course (incremental upload).
  */

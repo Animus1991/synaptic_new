@@ -18,9 +18,9 @@ describe('recognition eval harness', () => {
 
   it('aggregates a multi-fixture report', () => {
     const report = evaluateAll(['physics.md', 'law.md']);
-    console.log(JSON.stringify(report, null, 2));
     expect(report.results).toHaveLength(2);
-    expect(report.averageConceptRecall).toBeGreaterThan(0);
-    expect(report.averageConceptPrecision).toBeGreaterThan(0);
+    expect(report.averageConceptRecall).toBeGreaterThanOrEqual(0.6);
+    expect(report.results.every((r) => r.conceptRecall >= 0.6)).toBe(true);
+    expect(report.pass).toBe(true);
   });
 });

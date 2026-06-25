@@ -150,3 +150,26 @@ export function saveExamTarget(scope: string, iso: string): void {
   all[scope] = iso;
   saveJson(EXAM_TARGET_KEY, all);
 }
+
+const EXAM_PRACTICE_PRESET_KEY = 'exam-practice-preset';
+const SIMULATOR_SCENARIO_KEY = 'simulator-scenario';
+
+export function loadExamPracticePreset(scope: string): string | null {
+  return loadJson<Record<string, string>>(EXAM_PRACTICE_PRESET_KEY, {})[scope] ?? null;
+}
+
+export function saveExamPracticePreset(scope: string, presetId: string): void {
+  const all = loadJson<Record<string, string>>(EXAM_PRACTICE_PRESET_KEY, {});
+  all[scope] = presetId;
+  saveJson(EXAM_PRACTICE_PRESET_KEY, all);
+}
+
+export function loadLastSimulatorScenario(scope: string): string | null {
+  return loadJson<Record<string, string>>(SIMULATOR_SCENARIO_KEY, {})[scope] ?? null;
+}
+
+export function saveLastSimulatorScenario(scope: string, scenarioId: string): void {
+  const all = loadJson<Record<string, string>>(SIMULATOR_SCENARIO_KEY, {});
+  all[scope] = scenarioId;
+  saveJson(SIMULATOR_SCENARIO_KEY, all);
+}

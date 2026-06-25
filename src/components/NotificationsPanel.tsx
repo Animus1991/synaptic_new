@@ -2,6 +2,7 @@ import { X, Zap } from 'lucide-react';
 import type { ActivityItem } from '../types';
 import { cn } from '../utils/cn';
 import { useI18n } from '../lib/i18n';
+import { formatDateTime } from '../lib/localeFormat';
 
 interface Props {
   open: boolean;
@@ -10,7 +11,7 @@ interface Props {
 }
 
 export function NotificationsPanel({ open, onClose, activities }: Props) {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   if (!open) return null;
 
   const recent = activities.slice(0, 8);
@@ -38,7 +39,7 @@ export function NotificationsPanel({ open, onClose, activities }: Props) {
                 <div className="min-w-0">
                   <p className="text-xs font-medium leading-relaxed">{a.description}</p>
                   <p className="text-[10px] text-text-muted mt-0.5">
-                    {new Date(a.timestamp).toLocaleString()}
+                    {formatDateTime(a.timestamp, lang)}
                     {a.xp ? ` · +${a.xp} XP` : ''}
                   </p>
                 </div>

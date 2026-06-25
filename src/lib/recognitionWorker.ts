@@ -39,6 +39,7 @@ export type RecognitionWorkerInput = {
     title?: string;
     targetCourseId?: string;
     uploadMode?: 'new' | 'extend';
+    editedOutline?: GeneratedOutline;
   };
   settings: UserSettings;
   existingCount: number;
@@ -114,10 +115,11 @@ self.onmessage = async (event: MessageEvent<RecognitionWorkerInput>) => {
       : text;
 
     let outline =
-      (await generateCourseOutline(text, fileNames, settings)) ??
+      payload.editedOutline ??
+      ((await generateCourseOutline(text, fileNames, settings)) ??
       (await analyzeContentToOutlineAsync(text, fileNames, settings)) ??
-      analyzeContentToOutline(text, fileNames, settings);
-    if (outline && outline.topics.length > 1) {
+      analyzeContentToOutline(text, fileNames, settings));
+    if (outline && !payload.editedOutline && outline.topics.length > 1) {
       outline = await synthesizeOutlineV2(text, outline, { settings });
     }
     let course: Course;

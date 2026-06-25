@@ -347,14 +347,44 @@ Course + usage aggregates for an instructor view:
 ```json
 {
   "account": { "id": "acc_…", "email": "teacher@example.com", "plan": "team" },
-  "usage": { "month": "2026-06", "promptTokens": 1234, "completionTokens": 5678, "totalTokens": 6912, "quota": 25000000, "remainingTokens": 24993088 },
-  "library": { "courseCount": 4, "fileCount": 12, "topicCount": 31 },
-  "features": { "embeddings": true, "rag": true, "ner": true, "stripe": true }
+  "usage": {
+    "month": "2026-06",
+    "requests": 12,
+    "promptTokens": 1234,
+    "completionTokens": 5678,
+    "quota": 25000000,
+    "remainingTokens": 24993088
+  },
+  "library": {
+    "courseCount": 4,
+    "fileCount": 12,
+    "topicCount": 31,
+    "glossaryCount": 18,
+    "updatedAt": "2026-06-23T12:00:00.000Z"
+  },
+  "courses": [
+    {
+      "id": "c1",
+      "title": "Microeconomics",
+      "topicCount": 8,
+      "fileCount": 2,
+      "mastery": 42,
+      "status": "ready",
+      "examDate": "2026-07-15"
+    }
+  ],
+  "publishing": {
+    "annotationCount": 3,
+    "fileCount": 2,
+    "courseCount": 1,
+    "recent": []
+  },
+  "features": { "embeddings": true, "rag": true, "ner": true, "stripe": true, "ocr": true },
+  "syncedAt": "2026-06-23T12:05:00.000Z"
 }
 ```
 
-> The client UI for this endpoint is not built yet — see
-> `PRODUCT_SCALE_PLAN.md` §7.4 (multi-tenant teacher/class dashboard).
+Client UI: `TeacherDashboard` (Shell → Εκπαιδευτής / Teacher).
 
 ---
 

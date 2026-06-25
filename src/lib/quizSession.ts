@@ -2,6 +2,7 @@ import type { Lang } from './i18n';
 import type { QuizDef } from './lessonTypes';
 import type { GlossaryEntry } from '../types';
 import { buildAdaptiveQuizFromNotes } from './noteContentExtractors';
+import { buildFallbackQuizFromPassage } from './workspaceContentFallback';
 import { loadJson, saveJson } from './persistence';
 
 export type QuizSessionItem = {
@@ -34,7 +35,17 @@ export function buildQuizSession(
   const seen = new Set<string>();
   for (let i = 0; i < count + 2; i++) {
     const q = buildAdaptiveQuizFromNotes(text, concept, glossary, lang, ability + i * 0.15, mastery);
-    if (!q) continue;
+    if (!q) {
+      const fb = buildFallbackQuizFromPassage(text, concept, glossary, lang, i);
+      if (fb) {
+        const key = JSON.stringify(fb).slice(0, 120);
+        if (!seen.has(key)) {
+          seen.add(key);
+          items.push({ id: `q-${items.length}`, quiz: fb });
+        }
+      }
+      continue;
+    }
     const key = JSON.stringify(q).slice(0, 120);
     if (seen.has(key)) continue;
     seen.add(key);
@@ -54,6 +65,17 @@ export function loadQuizSession(scopeKey: string, concept: string): QuizSessionS
 export function saveQuizSession(state: QuizSessionState): void {
   const all = loadJson<Record<string, QuizSessionState>>(SESSION_KEY, {});
   all[state.scopeKey] = state;
+  saveJson(SESSION_KEY, all);
+}
+
+/** Clear cached quiz sessions after source reprocess (stale question anchors). */
+export function clearQuizSessions(scopeKey?: string): void {
+  if (!scopeKey) {
+    saveJson(SESSION_KEY, {});
+    return;
+  }
+  const all = loadJson<Record<string, QuizSessionState>>(SESSION_KEY, {});
+  delete all[scopeKey];
   saveJson(SESSION_KEY, all);
 }
 

@@ -52,6 +52,35 @@ export function listSharedAnnotationsWithMeta(
   return { annotations: delta, version, serverTime };
 }
 
+export function summarizeTeacherPublishing(teacherEmail: string): {
+  annotationCount: number;
+  fileCount: number;
+  courseCount: number;
+  recent: SharedAnnotation[];
+} {
+  const normalized = teacherEmail.trim().toLowerCase();
+  let annotationCount = 0;
+  const fileKeys = new Set<string>();
+  const courseIds = new Set<string>();
+  const recent: SharedAnnotation[] = [];
+  for (const [, list] of memory) {
+    for (const ann of list) {
+      if (ann.teacherEmail.trim().toLowerCase() !== normalized) continue;
+      annotationCount += 1;
+      fileKeys.add(`${ann.courseId}::${ann.fileKey}`);
+      courseIds.add(ann.courseId);
+      recent.push(ann);
+    }
+  }
+  recent.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  return {
+    annotationCount,
+    fileCount: fileKeys.size,
+    courseCount: courseIds.size,
+    recent: recent.slice(0, 8),
+  };
+}
+
 export function addSharedAnnotation(
   courseId: string,
   fileKey: string,

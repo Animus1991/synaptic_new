@@ -12,7 +12,8 @@ export type LearningEventType =
   | 'ocr_applied'
   | 'grounding_checked'
   | 'quiz_attempted'
-  | 'agent_message';
+  | 'agent_message'
+  | 'workspace_correlated';
 
 export interface LearningEvent {
   id: string;

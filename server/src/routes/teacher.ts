@@ -6,6 +6,7 @@ import { getLibraryAsync } from '../store/libraryStore';
 import {
   addSharedAnnotation,
   listSharedAnnotationsWithMeta,
+  summarizeTeacherPublishing,
   type SharedAnnotation,
 } from '../store/sharedAnnotationStore';
 import { notifyAnnotationStream, registerAnnotationStream } from './annotationStream';
@@ -60,16 +61,54 @@ teacherRouter.get('/teacher/dashboard', async (req, res) => {
   let courseCount = 0;
   let fileCount = 0;
   let topicCount = 0;
+  let glossaryCount = 0;
+  let libraryUpdatedAt: string | undefined;
+  let courses: {
+    id: string;
+    title: string;
+    topicCount: number;
+    fileCount: number;
+    mastery?: number;
+    status?: string;
+    examDate?: string;
+    lastStudied?: string;
+    createdAt?: string;
+  }[] = [];
 
   try {
     const lib = await getLibraryAsync(account.id);
-    const courses = lib.generatedCourses as { topics?: unknown[] }[];
-    courseCount = courses.length;
+    libraryUpdatedAt = lib.updatedAt;
+    glossaryCount = lib.glossaryEntries.length;
     fileCount = lib.uploadedFiles.length;
-    topicCount = courses.reduce((s, c) => s + (c.topics?.length ?? 0), 0);
+    const rawCourses = lib.generatedCourses as {
+      id?: string;
+      title?: string;
+      topics?: unknown[];
+      mastery?: number;
+      status?: string;
+      examDate?: string;
+      lastStudied?: string;
+      createdAt?: string;
+      sourceFiles?: string[];
+    }[];
+    courses = rawCourses.map((c) => ({
+      id: c.id ?? 'unknown',
+      title: c.title ?? 'Untitled',
+      topicCount: c.topics?.length ?? 0,
+      fileCount: c.sourceFiles?.length ?? 0,
+      mastery: c.mastery,
+      status: c.status,
+      examDate: c.examDate,
+      lastStudied: c.lastStudied,
+      createdAt: c.createdAt,
+    }));
+    courseCount = courses.length;
+    topicCount = courses.reduce((s, c) => s + c.topicCount, 0);
   } catch {
     /* library optional */
   }
+
+  const publishing = summarizeTeacherPublishing(account.email);
 
   res.json({
     account: { id: account.id, email: account.email, plan: account.plan },
@@ -78,7 +117,21 @@ teacherRouter.get('/teacher/dashboard', async (req, res) => {
       quota,
       remainingTokens: Math.max(0, quota - usage.promptTokens - usage.completionTokens),
     },
-    library: { courseCount, fileCount, topicCount },
+    library: { courseCount, fileCount, topicCount, glossaryCount, updatedAt: libraryUpdatedAt },
+    courses,
+    publishing: {
+      annotationCount: publishing.annotationCount,
+      fileCount: publishing.fileCount,
+      courseCount: publishing.courseCount,
+      recent: publishing.recent.map((a) => ({
+        id: a.id,
+        courseId: a.courseId,
+        fileKey: a.fileKey,
+        type: a.type,
+        text: a.text.slice(0, 120),
+        createdAt: a.createdAt,
+      })),
+    },
     features: {
       embeddings: Boolean(config.upstreamApiKey),
       rag: Boolean(config.upstreamApiKey),
@@ -87,5 +140,6 @@ teacherRouter.get('/teacher/dashboard', async (req, res) => {
       ocr: true,
       stripe: Boolean(config.stripeSecretKey),
     },
+    syncedAt: new Date().toISOString(),
   });
 });

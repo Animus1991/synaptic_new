@@ -3,12 +3,21 @@ import { useI18n } from '../../lib/i18n';
 import { exportConceptMapPng } from '../../lib/conceptMapExport';
 import { computeForceLayout, resolveFocusAnchorId } from '../../lib/conceptMapForceLayout';
 import {
+  conceptMapLargeGraphMessage,
+  resolveConceptMapLayoutPlan,
+} from '../../lib/conceptMapLayoutPolicy';
+import { lensHighlightsMapNode } from '../../lib/conceptMapLensBridge';
+import type { ConceptLensView } from '../../lib/conceptGraphModel';
+import {
   assignConceptLayers,
   computeHierarchicalLayout,
   groupNodesByLayer,
   layerColor,
 } from '../../lib/conceptMapHierarchy';
+import { filterConceptNodes } from '../../lib/conceptGraphModel';
 import { WorkspaceEmptyState } from './WorkspaceEmptyState';
+import { WorkspaceSelectionActionBar } from './WorkspaceSelectionActionBar';
+import type { WorkspaceSelectionActionId, WorkspaceSelectionContext } from '../../lib/workspaceSelectionActions';
 import { cn } from '../../utils/cn';
 import {
   connectConceptMapCursors,
@@ -33,16 +42,34 @@ interface DragEdge {
   relation: 'prerequisite' | 'related' | 'contrasts';
 }
 
+const RELATION_LABEL: Record<DragEdge['relation'], string> = {
+  prerequisite: '→',
+  related: '~',
+  contrasts: '≠',
+};
+
+function nodeMasteryOpacity(mastery: number): number {
+  if (mastery < 40) return 0.48;
+  if (mastery < 55) return 0.72;
+  return 1;
+}
+
 interface Props {
   initialNodes: DragNode[];
   initialEdges: DragEdge[];
   onNodeUpdate?: (nodes: DragNode[]) => void;
   emptyMessage?: string;
+  hasSource?: boolean;
   onUpload?: () => void;
   /** Open reader with this concept label highlighted. */
   onFocusTerm?: (term: string) => void;
+  /** §13.5 unified selection actions for the selected node. */
+  onSelectionAction?: (action: WorkspaceSelectionActionId, ctx: WorkspaceSelectionContext) => void;
   /** Workspace focus concept — anchors force layout at center. */
   focusConcept?: string;
+  lensConcept?: string;
+  conceptLens?: ConceptLensView;
+  onConceptSelect?: (label: string) => void;
   /** Collaborative cursor sync (W8) — requires proxy + course. */
   cursorSync?: { courseId: string; conceptKey: string; baseUrl: string };
 }
@@ -52,7 +79,7 @@ const MASTERY_COLOR = (m: number) =>
 
 const TYPE_EMOJI: Record<string, string> = { concept: '💡', formula: '📐', definition: '📖', theory: '🧠' };
 
-export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, emptyMessage, onUpload, onFocusTerm, focusConcept, cursorSync }: Props) {
+export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, emptyMessage, hasSource = false, onUpload, onFocusTerm, onSelectionAction, focusConcept, lensConcept, conceptLens, onConceptSelect, cursorSync }: Props) {
   const { t, lang } = useI18n();
   const [nodes, setNodes] = useState<DragNode[]>(initialNodes);
   const [edges] = useState<DragEdge[]>(initialEdges);
@@ -67,6 +94,7 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
   const [activeLayerDepth, setActiveLayerDepth] = useState<number | null>(null);
   const [isPanning, setIsPanning] = useState(false);
   const [remoteCursors, setRemoteCursors] = useState<ConceptMapCursor[]>([]);
+  const [filterQuery, setFilterQuery] = useState('');
   const panStart = useRef({ x: 0, y: 0, px: 0, py: 0 });
   const dragging = useRef<string | null>(null);
   const dragOffset = useRef({ x: 0, y: 0 });
@@ -128,7 +156,8 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
     const node = nodeMap[nodeId];
     dragOffset.current = { x: pt.x - node.x, y: pt.y - node.y };
     setSelected(nodeId);
-  }, [toSvg, nodeMap]);
+    if (node) onConceptSelect?.(node.label);
+  }, [toSvg, nodeMap, onConceptSelect]);
 
   const handlePointerMove = useCallback((e: React.PointerEvent) => {
     if (dragging.current) {
@@ -189,25 +218,39 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
     if (nodes.length === 0) return;
     setLayoutRunning(true);
     setHierarchyMode(false);
-    const anchorId = resolveFocusAnchorId(nodes, focusConcept);
-    const laid = computeForceLayout(nodes, edges, { width: 640, height: 400, anchorId });
-    const merged = nodes.map((n) => {
-      const pos = laid.find((p) => p.id === n.id);
-      return pos ? { ...n, x: pos.x, y: pos.y } : n;
-    });
-    setNodes(merged);
-    onNodeUpdate?.(merged);
-    setLayoutRunning(false);
-    setZoom(1);
-    setPan({ x: 0, y: 0 });
-  }, [nodes, edges, focusConcept, onNodeUpdate]);
+    const plan = resolveConceptMapLayoutPlan(nodes.length);
+    const anchorId = resolveFocusAnchorId(nodes, focusConcept ?? lensConcept);
+    const apply = () => {
+      const laid = computeForceLayout(nodes, edges, {
+        width: 640,
+        height: 400,
+        anchorId,
+        iterations: plan.iterations,
+      });
+      const merged = nodes.map((n) => {
+        const pos = laid.find((p) => p.id === n.id);
+        return pos ? { ...n, x: pos.x, y: pos.y } : n;
+      });
+      setNodes(merged);
+      onNodeUpdate?.(merged);
+      setLayoutRunning(false);
+      setZoom(1);
+      setPan({ x: 0, y: 0 });
+    };
+    if (plan.deferMs > 0) {
+      window.setTimeout(apply, plan.deferMs);
+    } else {
+      apply();
+    }
+  }, [nodes, edges, focusConcept, lensConcept, onNodeUpdate]);
 
   const layerMap = useMemo(() => assignConceptLayers(nodes, edges), [nodes, edges]);
   const layerGroups = useMemo(() => groupNodesByLayer(nodes, layerMap, lang), [nodes, layerMap, lang]);
   const visibleNodes = useMemo(() => {
-    if (activeLayerDepth === null) return nodes;
-    return nodes.filter((n) => (layerMap.get(n.id) ?? 0) === activeLayerDepth);
-  }, [nodes, layerMap, activeLayerDepth]);
+    const filtered = filterConceptNodes(nodes, filterQuery);
+    if (activeLayerDepth === null) return filtered;
+    return filtered.filter((n) => (layerMap.get(n.id) ?? 0) === activeLayerDepth);
+  }, [nodes, layerMap, activeLayerDepth, filterQuery]);
 
   const runHierarchyLayout = useCallback(() => {
     if (nodes.length === 0) return;
@@ -230,6 +273,7 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
     return (
       <WorkspaceEmptyState
         message={emptyMessage ?? 'Upload notes to build a concept map from your course topics and glossary.'}
+        hasSource={hasSource}
         onUpload={onUpload}
       />
     );
@@ -242,6 +286,14 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
         <div className="flex items-center gap-2">
           <span className="text-xs font-semibold text-text-secondary">🗺 {t('conceptMap')}</span>
           <span className="text-[10px] text-text-muted">{t('dragHint')}</span>
+          <input
+            type="search"
+            value={filterQuery}
+            onChange={(e) => setFilterQuery(e.target.value)}
+            placeholder={lang === 'el' ? 'Αναζήτηση εννοιών…' : 'Filter concepts…'}
+            className="ml-2 w-32 rounded border border-border-subtle bg-surface-card px-2 py-0.5 text-[10px] text-text-secondary placeholder:text-text-muted focus:border-accent-cyan/40 focus:outline-none"
+            data-testid="concept-map-filter"
+          />
         </div>
         <div className="flex items-center gap-1.5">
           <button onClick={() => setZoom(z => Math.min(2.5, z + 0.2))} className="w-6 h-6 rounded bg-surface-hover text-text-secondary text-xs flex items-center justify-center hover:bg-surface-active">+</button>
@@ -285,6 +337,15 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
           </button>
         </div>
       </div>
+
+      {conceptMapLargeGraphMessage(nodes.length, lang) && (
+        <div
+          className="shrink-0 border-b border-accent-amber/25 bg-accent-amber/10 px-4 py-1.5 text-[10px] text-accent-amber"
+          data-testid="concept-map-large-graph-banner"
+        >
+          {conceptMapLargeGraphMessage(nodes.length, lang)}
+        </div>
+      )}
 
       {layerGroups.length > 1 && (
         <div className="flex flex-wrap items-center gap-1.5 px-4 py-1.5 border-b border-border-subtle bg-surface-secondary/20 shrink-0" data-testid="concept-map-layers">
@@ -346,12 +407,26 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
               }
               const lit = selected === edge.from || selected === edge.to;
               const dash = edge.relation === 'contrasts' ? '8,4' : edge.relation === 'related' ? '4,4' : 'none';
+              const midX = (from.x + to.x) / 2;
+              const midY = (from.y + to.y) / 2;
               return (
-                <line key={i}
-                  x1={from.x} y1={from.y} x2={to.x} y2={to.y}
-                  stroke={lit ? '#818cf8' : '#2a2252'} strokeWidth={lit ? 2.5 : 1.5}
-                  strokeDasharray={dash} markerEnd="url(#dm-arrow)"
-                />
+                <g key={i}>
+                  <line
+                    x1={from.x} y1={from.y} x2={to.x} y2={to.y}
+                    stroke={lit ? '#818cf8' : '#2a2252'} strokeWidth={lit ? 2.5 : 1.5}
+                    strokeDasharray={dash} markerEnd="url(#dm-arrow)"
+                  />
+                  <text
+                    x={midX}
+                    y={midY - 4}
+                    textAnchor="middle"
+                    fontSize={9}
+                    fill={lit ? '#a5b4fc' : '#6b6494'}
+                    data-testid="concept-map-edge-label"
+                  >
+                    {RELATION_LABEL[edge.relation]}
+                  </text>
+                </g>
               );
             })}
 
@@ -359,9 +434,18 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
             {visibleNodes.map(node => {
               const color = hierarchyMode ? layerColor(layerMap.get(node.id) ?? 0) : MASTERY_COLOR(node.mastery);
               const isSel = selected === node.id;
+              const lensHit = conceptLens ? lensHighlightsMapNode(node.label, conceptLens) : false;
               const r = 30;
               return (
-                <g key={node.id} onPointerDown={e => handlePointerDown(e, node.id)} className="cursor-move">
+                <g
+                  key={node.id}
+                  opacity={nodeMasteryOpacity(node.mastery)}
+                  onPointerDown={e => handlePointerDown(e, node.id)}
+                  className="cursor-move"
+                >
+                  {lensHit && !isSel && (
+                    <circle cx={node.x} cy={node.y} r={r + 6} fill="none" stroke="#22d3ee" strokeWidth={1.5} opacity={0.45} data-testid="concept-map-lens-highlight" />
+                  )}
                   {isSel && <circle cx={node.x} cy={node.y} r={r + 8} fill="none" stroke={color} strokeWidth={2} opacity={0.35} />}
                   <circle cx={node.x} cy={node.y} r={r} fill="#0f0a1e" stroke={color} strokeWidth={isSel ? 3 : 2} />
                   {/* mastery arc */}
@@ -392,16 +476,15 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
         </svg>
       </div>
 
-      {/* Detail Panel */}
       {selectedNode && !editingNote && (
-        <div className="absolute bottom-0 left-0 right-0 p-3 glass-strong border-t border-border-subtle">
-          <div className="flex items-center gap-3">
+        <div className="absolute bottom-0 left-0 right-0 glass-strong border-t border-border-subtle">
+          <div className="flex items-center gap-3 p-3 pb-2">
             <span className="text-lg">{TYPE_EMOJI[selectedNode.type]}</span>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold">{selectedNode.label}</p>
               <p className="text-[10px] text-text-muted">{t('masteryLabel')} {selectedNode.mastery}% • {edges.filter(e => e.to === selectedNode.id).length} {t('prerequisites')}</p>
             </div>
-            {onFocusTerm && (
+            {!onSelectionAction && onFocusTerm && (
               <button
                 type="button"
                 onClick={() => onFocusTerm(selectedNode.label)}
@@ -415,7 +498,26 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
             </button>
             <button onClick={() => setSelected(null)} className="text-text-muted hover:text-text-secondary text-xs">✕</button>
           </div>
-          {selectedNode.note && <p className="text-xs text-text-secondary mt-2 bg-surface-hover/50 rounded-lg p-2">{selectedNode.note}</p>}
+          {selectedNode.note && (
+            <p className="px-3 pb-2 text-xs text-text-secondary bg-surface-hover/50 mx-3 rounded-lg p-2 mb-2">{selectedNode.note}</p>
+          )}
+          {onSelectionAction && (
+            <WorkspaceSelectionActionBar
+              lang={lang}
+              excerpt={selectedNode.note?.trim() || selectedNode.label}
+              originTool="concept-map"
+              onAction={(action) => {
+                onSelectionAction(action, {
+                  text: selectedNode.note?.trim() || selectedNode.label,
+                  term: selectedNode.label,
+                  originTool: 'concept-map',
+                });
+                setSelected(null);
+              }}
+              onDismiss={() => setSelected(null)}
+              data-testid="concept-map-selection-actions"
+            />
+          )}
         </div>
       )}
 

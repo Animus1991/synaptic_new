@@ -130,7 +130,7 @@ fine for dev).
 | `POST` | `/v1/ocr/pages` | Bearer | OCR over client-rendered page images |
 | `GET`  | `/v1/billing/status` | – | Reports whether Stripe is configured |
 | `POST` | `/v1/billing/checkout` | Bearer | Create Stripe Checkout session for `pro`/`team` |
-| `POST` | `/v1/billing/webhook` | Stripe sig | Webhook for `checkout.session.completed`, `customer.subscription.deleted` |
+| `POST` | `/v1/billing/webhook` | Stripe sig (required in prod) | Idempotent handler: `checkout.session.completed`, `customer.subscription.updated`, `customer.subscription.deleted`, `invoice.payment_failed` |
 | `GET`  | `/v1/teacher/dashboard` | Bearer | Course/file/topic + usage aggregates for instructor views |
 | `GET`  | `/v1/admin/stats` | Bearer + `x-admin-secret` | Account counts + uptime |
 
@@ -152,7 +152,8 @@ For full request/response shapes, see [`../API.md`](../API.md).
    `STRIPE_PRICE_TEAM`.
 2. Set `STRIPE_SECRET_KEY` (and `STRIPE_WEBHOOK_SECRET` in production).
 3. Point a webhook at `POST /v1/billing/webhook` for events
-   `checkout.session.completed` and `customer.subscription.deleted`.
+   `checkout.session.completed`, `customer.subscription.updated`,
+   `customer.subscription.deleted`, and optionally `invoice.payment_failed`.
 4. Client **Upgrade to Pro/Team** calls `POST /v1/billing/checkout` →
    redirects to Stripe → on return, the client calls `/auth/me` to refresh
    the plan badge.

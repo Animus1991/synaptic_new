@@ -34,7 +34,9 @@ export function getNoteContentForLessonStep(
   if (!text.trim()) return '';
 
   const excerpt = relevantExcerpt(text, concept, 14000);
-  const sections = detectSections(excerpt);
+  const sections = detectSections(text).filter(
+    (s) => conceptRelevanceScore((s.heading ?? '') + s.text, concept) > 0.15,
+  );
   const paragraphs = excerpt.split(/\n{2,}/).filter((p) => p.trim());
 
   switch (key) {

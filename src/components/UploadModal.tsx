@@ -3,13 +3,16 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   X, Upload, FileText, Image, Code, Presentation,
   File, CheckCircle2, Sparkles, ArrowRight, Link2,
-  AlertCircle
+  AlertCircle, MessageSquare
 } from 'lucide-react';
 import { cn } from '../utils/cn';
 
 import type { UploadPayload } from '../lib/uploadPipeline';
-import type { Course } from '../types';
+import type { Course, UserSettings } from '../types';
 import { isDemoCourse } from '../lib/demoMode';
+import { previewUploadOutline, type UploadOutlinePreview } from '../lib/uploadOutlinePreview';
+import { OutlinePreviewPanel } from './OutlinePreviewPanel';
+import { applyEditedTopicTitles, outlineTopicsWereEdited } from '../lib/outlineTopicEdit';
 
 interface UploadModalProps {
   isOpen: boolean;
@@ -22,6 +25,7 @@ interface UploadModalProps {
   courses?: Course[];
   defaultUploadMode?: 'new' | 'extend';
   defaultTargetCourseId?: string;
+  userSettings?: UserSettings;
 }
 
 const acceptedFormats = [
@@ -29,6 +33,7 @@ const acceptedFormats = [
   { ext: 'DOCX', icon: File, color: 'text-blue-400' },
   { ext: 'PPTX', icon: Presentation, color: 'text-orange-400' },
   { ext: 'TXT/MD', icon: FileText, color: 'text-text-secondary' },
+  { ext: 'ChatGPT JSON/ZIP', icon: MessageSquare, color: 'text-brand-400' },
   { ext: 'Images', icon: Image, color: 'text-accent-emerald' },
   { ext: 'Code', icon: Code, color: 'text-accent-teal' },
 ];
@@ -46,6 +51,7 @@ export function UploadModal({
   courses = [],
   defaultUploadMode = 'new',
   defaultTargetCourseId,
+  userSettings,
 }: UploadModalProps) {
   const [dragActive, setDragActive] = useState(false);
   const [files, setFiles] = useState<File[]>([]);
@@ -58,8 +64,13 @@ export function UploadModal({
   const [examDate, setExamDate] = useState('');
   const [uploadMode, setUploadMode] = useState<UploadMode>('new');
   const [targetCourseId, setTargetCourseId] = useState('');
+  const [outlinePreview, setOutlinePreview] = useState<UploadOutlinePreview | null>(null);
+  const [editedTopicTitles, setEditedTopicTitles] = useState<string[]>([]);
+  const [previewLoading, setPreviewLoading] = useState(false);
+  const [previewError, setPreviewError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const wasOpenRef = useRef(false);
+  const previewLang = userSettings?.language === 'el' ? 'el' : 'en';
 
   const extendableCourses = courses.filter((c) => !isDemoCourse(c.id));
 
@@ -108,6 +119,10 @@ export function UploadModal({
     setUploadMode(nextUploadMode);
     setTargetCourseId(nextUploadMode === 'extend' ? (defaultTargetCourseId ?? '') : '');
     setProcessingError(null);
+    setOutlinePreview(null);
+    setEditedTopicTitles([]);
+    setPreviewLoading(false);
+    setPreviewError(null);
   }, [defaultTargetCourseId, resolveDefaultUploadMode]);
 
   useEffect(() => {
@@ -117,7 +132,54 @@ export function UploadModal({
     wasOpenRef.current = isOpen;
   }, [isOpen, resetForm]);
 
+  useEffect(() => {
+    if (step !== 'configure') return;
+
+    let cancelled = false;
+    setPreviewLoading(true);
+    setPreviewError(null);
+    setOutlinePreview(null);
+
+    previewUploadOutline(
+      {
+        files,
+        pastedContent: pastedContent.trim() || undefined,
+        youtubeUrl: youtubeUrl.trim() || undefined,
+      },
+      userSettings,
+    )
+      .then((result) => {
+        if (cancelled) return;
+        setOutlinePreview(result);
+        if (result) {
+          setEditedTopicTitles(result.outline.topics.map((t) => t.title));
+        }
+        if (!result) {
+          setPreviewError(
+            previewLang === 'el'
+              ? 'Δεν βρέθηκε αρκετό κείμενο για προεπισκόπηση outline.'
+              : 'Not enough text to preview the course outline.',
+          );
+        }
+      })
+      .catch((err) => {
+        if (cancelled) return;
+        setPreviewError(err instanceof Error ? err.message : 'Outline preview failed.');
+      })
+      .finally(() => {
+        if (!cancelled) setPreviewLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [step, files, pastedContent, youtubeUrl, userSettings, previewLang]);
+
   const handleProceed = async () => {
+    const editedOutline = outlinePreview && outlineTopicsWereEdited(outlinePreview.outline, editedTopicTitles)
+      ? applyEditedTopicTitles(outlinePreview.outline, editedTopicTitles)
+      : outlinePreview?.outline;
+
     const payload: UploadPayload = {
       files,
       pastedContent: pastedContent.trim() || undefined,
@@ -127,6 +189,7 @@ export function UploadModal({
       examDate: examDate || undefined,
       uploadMode,
       targetCourseId: uploadMode === 'extend' && targetCourseId ? targetCourseId : undefined,
+      editedOutline,
     };
     setStep('processing');
     setProcessingError(null);
@@ -207,7 +270,7 @@ export function UploadModal({
                     multiple
                     onChange={handleFileSelect}
                     className="hidden"
-                    accept=".pdf,.docx,.doc,.pptx,.ppt,.txt,.md,.csv,.py,.js,.ts,.r,.sql,.jpg,.jpeg,.png,.gif,.webp"
+                    accept=".pdf,.docx,.doc,.pptx,.ppt,.txt,.md,.csv,.py,.js,.ts,.r,.sql,.jpg,.jpeg,.png,.gif,.webp,.json,.zip"
                   />
                   <Upload className={cn(
                     'w-10 h-10 mx-auto mb-3 transition-colors',
@@ -217,7 +280,7 @@ export function UploadModal({
                     {dragActive ? 'Drop files here' : 'Click to upload or drag and drop'}
                   </p>
                   <p className="text-xs text-text-tertiary">
-                    PDF, DOCX, PPTX, TXT, MD, Images, Code files, CSV
+                    PDF, DOCX, PPTX, TXT, MD, ChatGPT export (JSON/ZIP), Images, Code, CSV
                   </p>
                 </div>
 
@@ -235,10 +298,19 @@ export function UploadModal({
                 {files.length > 0 && (
                   <div className="space-y-2">
                     <p className="text-xs text-text-tertiary font-medium">{files.length} file(s) selected</p>
-                    {files.map((file, i) => (
+                    {files.map((file, i) => {
+                      const isChatGpt = /\.(json|zip)$/i.test(file.name);
+                      return (
                       <div key={i} className="flex items-center gap-3 p-3 rounded-xl bg-surface-card border border-border-subtle">
-                        <FileText className="w-4 h-4 text-brand-400 shrink-0" />
+                        {isChatGpt ? (
+                          <MessageSquare className="w-4 h-4 text-brand-400 shrink-0" />
+                        ) : (
+                          <FileText className="w-4 h-4 text-brand-400 shrink-0" />
+                        )}
                         <span className="text-sm flex-1 truncate">{file.name}</span>
+                        {isChatGpt && (
+                          <span className="text-[10px] font-medium text-brand-300 shrink-0">ChatGPT export</span>
+                        )}
                         <span className="text-xs text-text-muted">{(file.size / 1024).toFixed(1)} KB</span>
                         <button
                           onClick={e => { e.stopPropagation(); removeFile(i); }}
@@ -247,7 +319,7 @@ export function UploadModal({
                           <X className="w-4 h-4" />
                         </button>
                       </div>
-                    ))}
+                    );})}
                   </div>
                 )}
 
@@ -284,6 +356,22 @@ export function UploadModal({
 
             {step === 'configure' && (
               <>
+                <OutlinePreviewPanel
+                  preview={outlinePreview}
+                  loading={previewLoading}
+                  error={previewError}
+                  language={previewLang}
+                  editable
+                  editedTopicTitles={editedTopicTitles}
+                  onTopicTitleChange={(index, title) => {
+                    setEditedTopicTitles((prev) => {
+                      const next = [...prev];
+                      next[index] = title;
+                      return next;
+                    });
+                  }}
+                />
+
                 {extendableCourses.length > 0 && (
                   <div>
                     <label className="text-sm font-medium block mb-3">Course target</label>

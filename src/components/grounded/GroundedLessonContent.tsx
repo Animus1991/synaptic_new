@@ -53,7 +53,7 @@ export function GroundedLessonContent({
     return (
       <div className="space-y-4 text-center py-12">
         <p className="text-sm text-text-secondary max-w-md mx-auto">{emptyMessage}</p>
-        {onUpload && (
+        {onUpload && !hasSource && (
           <button
             type="button"
             onClick={onUpload}

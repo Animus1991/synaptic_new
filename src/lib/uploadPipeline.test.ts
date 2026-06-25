@@ -86,4 +86,13 @@ describe('uploadPipeline D9 — subject-agnostic fallback', () => {
     expect(course.topics.length).toBeLessThanOrEqual(3);
     expect(course.description.toLowerCase()).toContain('sparse');
   });
+
+  it('uses analyzedText for file-only uploads (D9)', () => {
+    const course = buildCourseFromUpload(
+      { files: [], analyzedText: LAW_TEXT, sourceMode: 'enriched', focusTags: [] },
+      0,
+    );
+    expect(course.subject).not.toBe('Economics');
+    expect(['Law', 'General Studies']).toContain(course.subject);
+  });
 });

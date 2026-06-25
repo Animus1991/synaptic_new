@@ -1,34 +1,61 @@
-import { useEffect, useState, useCallback } from 'react';
-import { Search, BookOpen, CheckSquare, Bot, LayoutDashboard, BarChart3, Settings, Play, Users } from 'lucide-react';
-import type { AppView, Task } from '../types';
+import { useEffect, useState, useCallback, useMemo } from 'react';
+import { Search, BookOpen, CheckSquare, Bot, LayoutDashboard, BarChart3, Settings, Play, Users, FileText, GraduationCap, LayoutGrid } from 'lucide-react';
+import type { AppView, Course, GlossaryEntry, Task, UploadedFile } from '../types';
 import { cn } from '../utils/cn';
-import { useI18n } from '../lib/i18n';
+import { useI18n, type I18nKey } from '../lib/i18n';
+import { searchUploadedContent, type ContentSearchHit } from '../lib/globalContentSearch';
 
 export type CommandAction =
   | { type: 'navigate'; view: AppView; label: string; icon: typeof Search }
+  | { type: 'workspace'; label: string; icon: typeof LayoutGrid }
   | { type: 'task'; taskId: string; label: string; icon: typeof Play }
-  | { type: 'session'; session: '10min' | '25min' | 'review'; label: string; icon: typeof Play };
+  | { type: 'session'; session: '10min' | '25min' | 'review'; label: string; icon: typeof Play }
+  | { type: 'content'; hit: ContentSearchHit; label: string; sublabel?: string; icon: typeof BookOpen };
 
 interface Props {
   open: boolean;
   onClose: () => void;
   tasks: Task[];
+  courses: Course[];
+  uploadedFiles: UploadedFile[];
+  glossaryEntries: GlossaryEntry[];
   onNavigate: (view: AppView) => void;
   onStartTask: (taskId: string) => void;
   onStartSession: (session: '10min' | '25min' | 'review') => void;
+  onContentSelect: (hit: ContentSearchHit) => void;
+  onOpenWorkspace?: () => void;
 }
 
-const NAV: { view: AppView; label: string; icon: typeof LayoutDashboard }[] = [
-  { view: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { view: 'library', label: 'Library', icon: BookOpen },
-  { view: 'tasks', label: 'Tasks', icon: CheckSquare },
-  { view: 'agent', label: 'Agent', icon: Bot },
-  { view: 'analytics', label: 'Analytics', icon: BarChart3 },
-  { view: 'teacher', label: 'Teacher', icon: Users },
-  { view: 'settings', label: 'Settings', icon: Settings },
+const NAV: { view: AppView; labelKey: I18nKey; icon: typeof LayoutDashboard }[] = [
+  { view: 'dashboard', labelKey: 'navDashboard', icon: LayoutDashboard },
+  { view: 'library', labelKey: 'navLibrary', icon: BookOpen },
+  { view: 'tasks', labelKey: 'navTasks', icon: CheckSquare },
+  { view: 'agent', labelKey: 'navAgent', icon: Bot },
+  { view: 'analytics', labelKey: 'navAnalytics', icon: BarChart3 },
+  { view: 'teacher', labelKey: 'navTeacher', icon: Users },
+  { view: 'settings', labelKey: 'navSettings', icon: Settings },
 ];
 
-export function CommandPalette({ open, onClose, tasks, onNavigate, onStartTask, onStartSession }: Props) {
+const CONTENT_ICONS = {
+  course: GraduationCap,
+  topic: BookOpen,
+  glossary: FileText,
+  note: FileText,
+} as const;
+
+export function CommandPalette({
+  open,
+  onClose,
+  tasks,
+  courses,
+  uploadedFiles,
+  glossaryEntries,
+  onNavigate,
+  onStartTask,
+  onStartSession,
+  onContentSelect,
+  onOpenWorkspace,
+}: Props) {
   const { t } = useI18n();
   const [query, setQuery] = useState('');
 
@@ -37,46 +64,62 @@ export function CommandPalette({ open, onClose, tasks, onNavigate, onStartTask, 
   }, [open]);
 
   useEffect(() => {
+    if (!open) return;
     const onKey = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
-        e.preventDefault();
-        if (open) onClose();
-      }
       if (e.key === 'Escape') onClose();
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [open, onClose]);
 
+  const contentHits = useMemo(
+    () => searchUploadedContent(query, courses, uploadedFiles, glossaryEntries, 8),
+    [query, courses, uploadedFiles, glossaryEntries],
+  );
+
   if (!open) return null;
 
   const q = query.toLowerCase();
   const navActions: CommandAction[] = NAV
-    .filter((n) => n.label.toLowerCase().includes(q))
-    .map((n) => ({ type: 'navigate', view: n.view, label: n.label, icon: n.icon }));
+    .filter((n) => t(n.labelKey).toLowerCase().includes(q))
+    .map((n) => ({ type: 'navigate', view: n.view, label: t(n.labelKey), icon: n.icon }));
 
   const taskActions: CommandAction[] = tasks
-    .filter((t) => t.status === 'pending' && (t.title.toLowerCase().includes(q) || t.courseName.toLowerCase().includes(q)))
+    .filter((task) => task.status === 'pending' && (task.title.toLowerCase().includes(q) || task.courseName.toLowerCase().includes(q)))
     .slice(0, 6)
-    .map((t) => ({ type: 'task', taskId: t.id, label: t.title, icon: Play }));
+    .map((task) => ({ type: 'task', taskId: task.id, label: task.title, icon: Play }));
 
   const sessionActions: CommandAction[] = [
-    { type: 'session' as const, session: '10min' as const, label: 'Start Quick Sprint (10 min)', icon: Play },
-    { type: 'session' as const, session: '25min' as const, label: 'Start Focused Session (25 min)', icon: Play },
-    { type: 'session' as const, session: 'review' as const, label: 'Start Spaced Review', icon: Play },
+    { type: 'session' as const, session: '10min' as const, label: t('sessionQuickSprint'), icon: Play },
+    { type: 'session' as const, session: '25min' as const, label: t('sessionFocused'), icon: Play },
+    { type: 'session' as const, session: 'review' as const, label: t('sessionSpacedReview'), icon: Play },
   ].filter((s) => s.label.toLowerCase().includes(q));
 
-  const actions = [...navActions, ...taskActions, ...sessionActions];
+  const contentActions: CommandAction[] = contentHits.map((hit) => ({
+    type: 'content' as const,
+    hit,
+    label: hit.label,
+    sublabel: hit.sublabel,
+    icon: CONTENT_ICONS[hit.kind],
+  }));
+
+  const workspaceAction: CommandAction[] = onOpenWorkspace
+    ? [{ type: 'workspace' as const, label: t('navStudyWorkspace'), icon: LayoutGrid }].filter((a) => a.label.toLowerCase().includes(q))
+    : [];
+
+  const actions = [...workspaceAction, ...contentActions, ...navActions, ...taskActions, ...sessionActions];
 
   const run = (a: CommandAction) => {
     if (a.type === 'navigate') onNavigate(a.view);
+    if (a.type === 'workspace') onOpenWorkspace?.();
     if (a.type === 'task') onStartTask(a.taskId);
     if (a.type === 'session') onStartSession(a.session);
+    if (a.type === 'content') onContentSelect(a.hit);
     onClose();
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-start justify-center pt-[15vh] p-4">
+    <div className="fixed inset-0 z-[100] flex items-start justify-center pt-[15vh] p-4" data-testid="command-palette">
       <div className="absolute inset-0 bg-black/60" onClick={onClose} />
       <div className="relative w-full max-w-lg rounded-2xl border border-border-subtle bg-surface-secondary shadow-2xl overflow-hidden">
         <div className="flex items-center gap-2 px-4 py-3 border-b border-border-subtle">
@@ -86,6 +129,7 @@ export function CommandPalette({ open, onClose, tasks, onNavigate, onStartTask, 
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder={t('searchPages')}
+            data-testid="command-palette-input"
             className="flex-1 bg-transparent text-sm outline-none placeholder:text-text-muted"
           />
           <kbd className="text-[10px] px-1.5 py-0.5 rounded border border-border-subtle text-text-muted">ESC</kbd>
@@ -96,6 +140,7 @@ export function CommandPalette({ open, onClose, tasks, onNavigate, onStartTask, 
           ) : actions.map((a, i) => (
             <button
               key={`${a.type}-${i}`}
+              data-testid={a.type === 'content' ? `command-content-${a.hit.kind}` : undefined}
               onClick={() => run(a)}
               className={cn(
                 'w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-sm',
@@ -103,7 +148,12 @@ export function CommandPalette({ open, onClose, tasks, onNavigate, onStartTask, 
               )}
             >
               <a.icon className="w-4 h-4 text-brand-400 shrink-0" />
-              <span className="truncate">{a.label}</span>
+              <span className="min-w-0 flex-1">
+                <span className="block truncate">{a.label}</span>
+                {a.type === 'content' && a.sublabel && (
+                  <span className="block truncate text-[10px] text-text-muted">{a.sublabel}</span>
+                )}
+              </span>
             </button>
           ))}
         </div>

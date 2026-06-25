@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ArrowRight, Circle, Eraser, Eye, EyeOff, Highlighter, Layers, Lock, Minus, Pen,
-  Plus, Redo2, Ruler, Save, Square, Trash2, Type, Undo2, BookOpen, Calculator, X, Unlock,
+  Plus, Redo2, Ruler, Save, Square, Trash2, Type, Undo2, BookOpen, Calculator, X, Unlock, Download,
 } from 'lucide-react';
+import { downloadWhiteboardPng } from '../../lib/whiteboardExport';
 import { cn } from '../../utils/cn';
 import type { ExtractedFormula } from '../../lib/noteContentExtractors';
 import type { ScratchpadExport } from '../../lib/workspaceScratchpadBridge';
@@ -16,6 +17,7 @@ import {
 } from '../../lib/whiteboardLayers';
 import { FormulaLatexPreview } from './FormulaLatexPreview';
 import { buildLatexStampLibrary, stampToInsertText, type LatexStamp } from '../../lib/whiteboardLatexStamps';
+import { layoutCoachNodePositions } from '../../lib/whiteboardDiagramCoach';
 
 type Tool = 'pen' | 'marker' | 'highlighter' | 'eraser' | 'line' | 'rect' | 'ellipse' | 'arrow' | 'ruler' | 'text';
 type Point = { x: number; y: number };
@@ -52,6 +54,8 @@ export function StudyWhiteboard({
   onDismissScratchpadImport,
   onEngage,
   lang = 'en',
+  labelInsertKey = 0,
+  labelInsertPayload = [],
 }: {
   referenceFormulas?: ExtractedFormula[];
   referenceExcerpt?: string;
@@ -60,6 +64,8 @@ export function StudyWhiteboard({
   onDismissScratchpadImport?: () => void;
   onEngage?: () => void;
   lang?: 'en' | 'el';
+  labelInsertKey?: number;
+  labelInsertPayload?: string[];
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -298,6 +304,28 @@ export function StudyWhiteboard({
     } catch { /* ignore */ }
   };
 
+  const insertCoachLabels = useCallback((labels: string[]) => {
+    const trimmed = labels.map((l) => l.trim()).filter(Boolean).slice(0, 8);
+    if (trimmed.length === 0) return;
+    const positions = layoutCoachNodePositions(trimmed.length);
+    const strokesToAdd: LayeredStroke[] = trimmed.map((text, i) => ({
+      layerId: doc.activeLayerId,
+      tool: 'text',
+      color: COLORS[1]!,
+      width: 2,
+      points: [positions[i] ?? { x: 56, y: 72 + i * 48 }],
+      text: text.slice(0, 80),
+    }));
+    setDoc((d) => ({ ...d, strokes: [...d.strokes, ...strokesToAdd] }));
+    setRedoStack([]);
+    onEngage?.();
+  }, [doc.activeLayerId, onEngage]);
+
+  useEffect(() => {
+    if (labelInsertKey === 0 || labelInsertPayload.length === 0) return;
+    insertCoachLabels(labelInsertPayload);
+  }, [labelInsertKey, labelInsertPayload, insertCoachLabels]);
+
   const insertFormulaLabel = (label: string, formula: string, extraLines?: string[]) => {
     const x = 40 + Math.random() * 80;
     let y = 40 + Math.random() * 60;
@@ -324,6 +352,7 @@ export function StudyWhiteboard({
     }
     setDoc((d) => ({ ...d, strokes: [...d.strokes, ...strokesToAdd] }));
     setRedoStack([]);
+    onEngage?.();
   };
 
   const insertScratchpadImport = () => {
@@ -347,6 +376,7 @@ export function StudyWhiteboard({
       }],
     }));
     setRedoStack([]);
+    onEngage?.();
   };
 
   const addLayer = () => {
@@ -504,6 +534,17 @@ export function StudyWhiteboard({
         <button type="button" onClick={redo} disabled={redoStack.length === 0} className="rounded-lg p-1.5 text-text-muted hover:bg-surface-hover disabled:opacity-40 disabled:cursor-not-allowed"><Redo2 className="w-3.5 h-3.5" /></button>
         <button type="button" onClick={clearActiveLayer} className="rounded-lg p-1.5 text-text-muted hover:bg-surface-hover" title={lang === 'el' ? 'Καθαρισμός ενεργού επιπέδου' : 'Clear active layer'}><Trash2 className="w-3.5 h-3.5" /></button>
         <button type="button" onClick={save} className="rounded-lg p-1.5 text-text-muted hover:bg-surface-hover"><Save className="w-3.5 h-3.5" /></button>
+        <button
+          type="button"
+          data-testid="whiteboard-export-png"
+          onClick={() => {
+            if (canvasRef.current) downloadWhiteboardPng(canvasRef.current, `whiteboard-${scopeKey ?? 'board'}`);
+          }}
+          className="rounded-lg p-1.5 text-text-muted hover:bg-surface-hover"
+          title={lang === 'el' ? 'Εξαγωγή PNG' : 'Export PNG'}
+        >
+          <Download className="w-3.5 h-3.5" />
+        </button>
         {savedMsg && <span className="text-[10px] text-accent-emerald">{lang === 'el' ? 'Αποθηκεύτηκε' : 'Saved'}</span>}
         {activeLayerLocked && (
           <span className="text-[10px] text-accent-amber">{lang === 'el' ? 'Επίπεδο κλειδωμένο' : 'Layer locked'}</span>

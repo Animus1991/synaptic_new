@@ -141,4 +141,21 @@ This short note does not define the concept carefully and does not include examp
     expect(bundle.sourceIntelligence?.gaps.length).toBeGreaterThan(0);
     expect(bundle.sourceIntelligence?.nextActions.length).toBeGreaterThan(0);
   });
+
+  it('always provides workspace steps when source text exists', () => {
+    const text = 'Elasticity matters in markets. It can affect demand. Sometimes price changes matter. Students should remember the idea for exams.';
+    const bundle = buildWorkspaceNoteBundle({
+      uploadedFiles: [mkFile(text)],
+      glossaryEntries: [],
+      courses: [mkCourse()],
+      courseId: 'c1',
+      concept: 'Elasticity',
+      conceptBars: [],
+      lang: 'en',
+    });
+
+    expect(bundle.hasSource).toBe(true);
+    expect(bundle.workspaceSteps?.length).toBeGreaterThanOrEqual(2);
+    expect(bundle.workspaceSteps?.at(-1)?.title).toMatch(/knowledge check/i);
+  });
 });

@@ -9,6 +9,7 @@ import type { Course, GlossaryEntry, LearnerModel, Topic, UploadedFile } from '.
 import type { WorkspaceToolId } from './taskFlows';
 import { extractDefinitions } from './contentAnalysis';
 import type { DebateNode, ConceptMapEdge, ConceptMapNode, ExtractedFormula } from './noteContentExtractors';
+import { workspaceNoSourceMessage } from './workspaceEmptyState';
 import {
   buildConceptMapFromCourse,
   buildDebateTreeFromNotes,
@@ -18,6 +19,7 @@ import {
   buildFlashcards,
   buildQuizFromNotes,
   buildWorkspaceStepsFromNotes,
+  fallbackWorkspaceSteps,
   conceptRelevanceScore,
   extractComparisons,
   extractFormulas,
@@ -31,6 +33,8 @@ import {
 } from './noteContentExtractors';
 import type { NumericCue } from './numericCues';
 import { extractNumericCues } from './numericCues';
+import { analyzeDocumentStructure, type DocumentStructureReport } from './documentStructureReport';
+import { detectDocumentSections } from './textSegmentation';
 
 export interface WorkspaceSourceIntelligence {
   score: number;
@@ -52,13 +56,16 @@ export interface WorkspaceSourceIntelligence {
     conceptNodeCount: number;
     stepCount: number;
   };
+  documentStructure: DocumentStructureReport | null;
 }
 
 export interface WorkspaceNoteBundle {
   hasSource: boolean;
   sourceName: string;
   fileKey: string;
-  /** Full relevant excerpt for reader + lesson grounding. */
+  /** Full analyzed source (preserves layout for Reader). */
+  sourceFullText: string;
+  /** Concept-focused BM25 excerpt (legacy tools / lesson). */
   readerText: string;
   /** Tighter excerpt for annotation/source panel. */
   annotationText: string;
@@ -80,6 +87,9 @@ export interface WorkspaceNoteBundle {
   courseTitle: string | undefined;
   emptyMessage: string;
   sourceIntelligence: WorkspaceSourceIntelligence | null;
+  documentStructure: DocumentStructureReport | null;
+  /** Content pipeline version for annotation anchor migration. */
+  pipelineVersion?: string;
 }
 
 function clamp01(value: number): number {
@@ -103,6 +113,7 @@ export function buildWorkspaceSourceIntelligence(opts: {
   formulaCount: number;
   stepCount: number;
   hasQuiz: boolean;
+  documentStructure: DocumentStructureReport | null;
 }): WorkspaceSourceIntelligence {
   const {
     text,
@@ -116,6 +127,7 @@ export function buildWorkspaceSourceIntelligence(opts: {
     stepCount,
     hasQuiz,
   } = opts;
+  const structure = opts.documentStructure;
   const excerpt = relevantExcerpt(text, concept, 14000);
   const chunks = topRelevantChunks(text, concept, 4);
   const chunkScores = chunks.map((chunk) => conceptRelevanceScore(`${chunk.heading ?? ''} ${chunk.text}`, concept));
@@ -123,13 +135,10 @@ export function buildWorkspaceSourceIntelligence(opts: {
   const avgPassageRelevance = chunkScores.length > 0
     ? chunkScores.reduce((sum, score) => sum + score, 0) / chunkScores.length
     : 0;
-  const sectionCount = excerpt.trim()
-    ? excerpt
-      .split(/\n{2,}/)
-      .map((block) => block.trim())
-      .filter((block) => block.length >= 70 && conceptRelevanceScore(block, concept) > 0.18)
-      .length
-    : 0;
+  const sectionCount = structure?.sectionCount
+    ?? detectDocumentSections(text).filter(
+      (s) => conceptRelevanceScore((s.heading ?? '') + s.text, concept) > 0.15,
+    ).length;
   const definitionCount = extractDefinitions(excerpt, 10)
     .filter((entry) => conceptRelevanceScore(`${entry.term} ${entry.definition}`, concept) > 0.22)
     .length;
@@ -163,10 +172,11 @@ export function buildWorkspaceSourceIntelligence(opts: {
     );
   }
   if (sectionCount >= 2) {
+    const structLabel = structure?.labels[0];
     strengths.push(
       lang === 'el'
-        ? `Το υλικό έχει καθαρή δομή με ${sectionCount} χρήσιμες ενότητες για grounding.`
-        : `The material has clear structure with ${sectionCount} grounded sections.`,
+        ? `Το υλικό έχει καθαρή δομή με ${sectionCount} ενότητες${structLabel ? ` (${structLabel})` : ''}.`
+        : `The material has clear structure with ${sectionCount} sections${structLabel ? ` (${structLabel})` : ''}.`,
     );
   }
   if (definitionCount + glossaryCount >= 4) {
@@ -324,6 +334,7 @@ export function buildWorkspaceSourceIntelligence(opts: {
       conceptNodeCount,
       stepCount,
     },
+    documentStructure: structure,
   };
 }
 
@@ -349,16 +360,14 @@ export function buildWorkspaceNoteBundle(opts: {
   const topics = course?.topics ?? [];
   const matchingTopic = findMatchingTopic(topics, concept);
 
-  const emptyMessage =
-    lang === 'el'
-      ? 'Ανέβασε σημειώσεις για να εμφανιστεί εξατομικευμένο περιεχόμενο από το δικό σου υλικό.'
-      : 'Upload your notes to see personalized content from your own material.';
+  const emptyMessage = workspaceNoSourceMessage(lang);
 
   if (!hasSource) {
     return {
       hasSource: false,
       sourceName: '',
       fileKey: 'no-source',
+      sourceFullText: '',
       readerText: '',
       annotationText: '',
       conceptMap: { nodes: [], edges: [] },
@@ -386,13 +395,21 @@ export function buildWorkspaceNoteBundle(opts: {
       courseTitle: undefined,
       emptyMessage,
       sourceIntelligence: null,
+      documentStructure: null,
+      pipelineVersion: undefined,
     };
   }
 
+  const documentStructure = analyzeDocumentStructure(text, lang);
+  const sourceFullText = text;
   const readerText = relevantExcerpt(text, concept, 12000);
   const annotationText = relevantExcerpt(text, concept, 16000);
   const sourceName = fileNames.join(', ') || course?.title || 'Your notes';
   const fileKey = fileNames[0] ?? courseId ?? 'notes';
+  const linkedFile = uploadedFiles.find(
+    (f) => f.courseId === linkedCourseId && (f.extractedText?.trim().length ?? 0) > 0,
+  );
+  const pipelineVersion = linkedFile?.pipelineVersion ?? course?.pipelineMeta?.version;
 
   const conceptMap = buildConceptMapFromCourse(topics, scopedGlossary, conceptBars, concept, text);
   const leitnerFromNotes = buildFlashcards(text, concept, scopedGlossary, lang);
@@ -411,6 +428,7 @@ export function buildWorkspaceNoteBundle(opts: {
     formulaCount: formulas.length,
     stepCount: workspaceSteps?.length ?? 0,
     hasQuiz: Boolean(quiz),
+    documentStructure,
   });
 
   // Merge FSRS spacing cards that match the concept, but only if they exist in learner model.
@@ -431,6 +449,7 @@ export function buildWorkspaceNoteBundle(opts: {
     hasSource: true,
     sourceName,
     fileKey,
+    sourceFullText,
     readerText,
     annotationText,
     conceptMap,
@@ -445,7 +464,7 @@ export function buildWorkspaceNoteBundle(opts: {
       lang === 'el'
         ? `Εξήγησε το «${concept}» με απλά λόγια, βασιζόμενος/η μόνο στις σημειώσεις σου…`
         : `Explain «${concept}» simply, using only your uploaded notes…`,
-    workspaceSteps,
+    workspaceSteps: workspaceSteps ?? fallbackWorkspaceSteps(concept, lang),
     quiz,
     economicsSandbox: notesSupportSandbox(text, concept, formulas),
     numericCues: extractNumericCues(text, concept),
@@ -454,5 +473,7 @@ export function buildWorkspaceNoteBundle(opts: {
     courseTitle: course?.title,
     emptyMessage,
     sourceIntelligence,
+    documentStructure,
+    pipelineVersion,
   };
 }

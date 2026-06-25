@@ -35,8 +35,12 @@ test.describe('Paste upload → course review → Study Workspace', () => {
 
     await page.getByTestId('upload-paste').fill(NOTES);
     await page.getByTestId('upload-continue').click();
+    await expect(page.getByTestId('upload-outline-preview')).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByText(/supply|demand|elasticity/i).first()).toBeVisible();
     await page.getByTestId('upload-generate').click();
 
+    await expect(page.getByTestId('app-toast')).toBeVisible({ timeout: 45_000 });
+    await expect(page.getByTestId('app-toast')).toContainText(/sections detected|ενότητες ανιχνεύθηκαν/i);
     await expect(page.getByTestId('course-generation-diagnostics')).toBeVisible({ timeout: 45_000 });
     await expect(page.getByTestId('course-title')).not.toHaveText('');
 

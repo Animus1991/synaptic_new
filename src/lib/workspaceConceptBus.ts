@@ -28,12 +28,15 @@ export type ConceptSignal =
   | 'quiz-correct'
   | 'quiz-wrong'
   | 'leitner-easy'
-  | 'leitner-hard';
+  | 'leitner-hard'
+  | 'annotated-confusing'
+  | 'annotated-exam';
 
 /** Signals that indicate the learner is finding a concept difficult. */
 const STRUGGLE_SIGNALS: ReadonlySet<ConceptSignal> = new Set<ConceptSignal>([
   'quiz-wrong',
   'leitner-hard',
+  'annotated-confusing',
 ]);
 
 /** Signals that indicate confident mastery of a concept. */
@@ -42,6 +45,14 @@ const MASTERY_SIGNALS: ReadonlySet<ConceptSignal> = new Set<ConceptSignal>([
   'leitner-easy',
   'explained',
 ]);
+
+/** Navigation-only signals — tracked for engagement but not toolHitCounts. */
+const PASSIVE_HIT_SIGNALS: ReadonlySet<ConceptSignal> = new Set<ConceptSignal>(['focus']);
+
+/** True when a signal represents a deliberate learner action (not passive focus). */
+export function isDeliberateConceptSignal(signal: ConceptSignal): boolean {
+  return !PASSIVE_HIT_SIGNALS.has(signal);
+}
 
 export interface ConceptActivity {
   /** Display label (first non-empty form seen). */
@@ -57,6 +68,8 @@ export interface ConceptActivity {
   lastTool?: WorkspaceToolId;
   /** Net struggle counter: +1 per struggle signal, -1 per mastery signal. */
   struggleScore: number;
+  /** Per-tool interaction count this session. */
+  toolHitCounts: Partial<Record<WorkspaceToolId, number>>;
 }
 
 export type ConceptBusState = Record<string, ConceptActivity>;
@@ -96,6 +109,7 @@ export function recordConceptActivity(
         lastAt: now,
         lastTool: tool,
         struggleScore: signalDelta(signal),
+        toolHitCounts: isDeliberateConceptSignal(signal) ? { [tool]: 1 } : {},
       },
     };
   }
@@ -104,6 +118,10 @@ export function recordConceptActivity(
     ? existing.tools
     : [...existing.tools, tool];
   const signals = [...existing.signals, signal].slice(-MAX_SIGNALS_PER_CONCEPT);
+  const prevHits = existing.toolHitCounts ?? {};
+  const toolHitCounts = isDeliberateConceptSignal(signal)
+    ? { ...prevHits, [tool]: (prevHits[tool] ?? 0) + 1 }
+    : prevHits;
 
   return {
     ...state,
@@ -114,6 +132,7 @@ export function recordConceptActivity(
       lastAt: now,
       lastTool: tool,
       struggleScore: existing.struggleScore + signalDelta(signal),
+      toolHitCounts,
     },
   };
 }
@@ -163,4 +182,23 @@ export function topEngagedConcepts(state: ConceptBusState, limit = 8): ConceptAc
 /** Look up the activity record for a concept (by normalized key). */
 export function activityFor(state: ConceptBusState, concept: string): ConceptActivity | undefined {
   return state[normalizeFocusTerm(concept)];
+}
+
+/** Hydrate persisted bus entries missing newer fields (e.g. toolHitCounts). */
+export function normalizeConceptActivity(activity: ConceptActivity): ConceptActivity {
+  return {
+    ...activity,
+    toolHitCounts: activity.toolHitCounts ?? {},
+    struggleScore: activity.struggleScore ?? 0,
+    signals: activity.signals ?? [],
+    tools: activity.tools ?? [],
+  };
+}
+
+export function normalizeConceptBusState(state: ConceptBusState): ConceptBusState {
+  const normalized: ConceptBusState = {};
+  for (const [key, activity] of Object.entries(state)) {
+    normalized[key] = normalizeConceptActivity(activity);
+  }
+  return normalized;
 }

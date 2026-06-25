@@ -150,4 +150,86 @@ describe('server integration sweep', () => {
     expect(res.body.conceptBuses['workspace:task-1'].elasticity.concept).toBe('Elasticity');
     expect(res.body.stepSchedules['workspace:task-1']['0'].visitCount).toBe(1);
   });
+
+  it('GET /v1/teacher/dashboard returns library and usage aggregates', async () => {
+    const reg = await request(app)
+      .post('/auth/register')
+      .send({ email: 'teacher@example.com', password: 'password123' })
+      .expect(201);
+    const token = reg.body.token as string;
+
+    await request(app)
+      .put('/v1/library')
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        uploadedFiles: [{ id: 'f1', name: 'notes.pdf' }],
+        glossaryEntries: [{ id: 'g1', term: 'elasticity' }],
+        generatedCourses: [{
+          id: 'c1',
+          title: 'Microeconomics',
+          topics: [{ id: 't1' }, { id: 't2' }],
+          sourceFiles: ['notes.pdf'],
+          mastery: 42,
+          status: 'ready',
+        }],
+      })
+      .expect(200);
+
+    const res = await request(app)
+      .get('/v1/teacher/dashboard')
+      .set('Authorization', `Bearer ${token}`)
+      .expect(200);
+
+    expect(res.body.library.courseCount).toBe(1);
+    expect(res.body.library.fileCount).toBe(1);
+    expect(res.body.library.topicCount).toBe(2);
+    expect(res.body.library.glossaryCount).toBe(1);
+    expect(res.body.courses).toHaveLength(1);
+    expect(res.body.courses[0].title).toBe('Microeconomics');
+    expect(res.body.courses[0].topicCount).toBe(2);
+    expect(res.body.account.email).toBe('teacher@example.com');
+    expect(res.body.usage.quota).toBeGreaterThan(0);
+    expect(res.body.syncedAt).toBeDefined();
+    expect(res.body.publishing.annotationCount).toBe(0);
+  });
+
+  it('POST /v1/billing/webhook deduplicates Stripe event ids', async () => {
+    const reg = await request(app)
+      .post('/auth/register')
+      .send({ email: 'billing@example.com', password: 'password123' })
+      .expect(201);
+    const accountId = reg.body.account.id as string;
+
+    const payload = {
+      id: 'evt_test_checkout_dup',
+      type: 'checkout.session.completed',
+      data: {
+        object: {
+          client_reference_id: accountId,
+          metadata: { plan: 'pro', accountId },
+          customer: 'cus_billing_test',
+        },
+      },
+    };
+
+    const first = await request(app)
+      .post('/v1/billing/webhook')
+      .set('Content-Type', 'application/json')
+      .send(JSON.stringify(payload))
+      .expect(200);
+    expect(first.body.status).toBe('processed');
+
+    const second = await request(app)
+      .post('/v1/billing/webhook')
+      .set('Content-Type', 'application/json')
+      .send(JSON.stringify(payload))
+      .expect(200);
+    expect(second.body.status).toBe('duplicate');
+
+    const dash = await request(app)
+      .get('/v1/teacher/dashboard')
+      .set('Authorization', `Bearer ${reg.body.token}`)
+      .expect(200);
+    expect(dash.body.account.plan).toBe('pro');
+  });
 });

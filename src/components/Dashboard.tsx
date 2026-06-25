@@ -16,6 +16,13 @@ import type { PrerequisiteRepair } from '../lib/pedagogy';
 import type { CalibrationDirection } from '../lib/pedagogy';
 import type { SessionType } from '../lib/taskFlows';
 import { findPendingTask, findTaskForRepair, findTaskForConcept } from '../lib/taskFlows';
+import type { WorkspaceLiveSync } from '../lib/workspaceStoreSpine';
+import { workspaceLiveIsStale } from '../lib/workspaceStoreSpine';
+import { nextActionLabel } from '../lib/nextActionEngine';
+import type { Lang } from '../lib/i18n';
+import type { DashboardNextAction } from '../lib/dashboardNextAction';
+import { greetingForTime, dashboardSubtitle } from '../lib/greeting';
+import { useI18n } from '../lib/i18n';
 
 interface DashboardProps {
   stats: DashboardStats;
@@ -25,6 +32,7 @@ interface DashboardProps {
   onNavigate: (view: 'library' | 'tasks' | 'agent' | 'course' | 'analytics') => void;
   onSelectCourse: (course: Course) => void;
   onOpenWorkspace?: () => void;
+  onOpenExamTimer?: () => void;
   prerequisiteRepairs?: PrerequisiteRepair[];
   calibration?: { score: number; direction: CalibrationDirection } | null;
   conceptMastery?: { concept: string; mastery: number }[];
@@ -35,29 +43,72 @@ interface DashboardProps {
   onStartTask?: (taskId: string) => void;
   onStartSession?: (session: SessionType) => void;
   onResolveMisconception?: (misconceptionId: string) => void;
+  /** Open Study Workspace with reader focus on a weak-area concept */
+  onFocusWeakArea?: (concept: string) => void;
+  /** §2.1 — last synced workspace state for resume + next-action projection */
+  workspaceLive?: WorkspaceLiveSync | null;
+  workspaceBooting?: boolean;
+  dashboardNextAction?: DashboardNextAction | null;
+  lang?: Lang;
 }
 
-export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onSelectCourse, onOpenWorkspace, prerequisiteRepairs = [], calibration, conceptMastery = [], activities = [], masteryDelta = 0, daysToExam = null, antiPassiveAlert = false, onStartTask, onStartSession, onResolveMisconception }: DashboardProps) {
+export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onSelectCourse, onOpenWorkspace, onOpenExamTimer, prerequisiteRepairs = [], calibration, conceptMastery = [], activities = [], masteryDelta = 0, daysToExam = null, antiPassiveAlert = false, onStartTask, onStartSession, onResolveMisconception, onFocusWeakArea, workspaceLive = null, workspaceBooting = false, dashboardNextAction = null, lang = 'en' }: DashboardProps) {
+  const { t } = useI18n();
   const pendingTasks = tasks.filter(t => t.status === 'pending');
   const criticalTasks = pendingTasks.filter(t => t.priority === 'critical' || t.priority === 'high');
   const fixTasks = pendingTasks.filter(t => t.category === 'fix');
   const examTask = findPendingTask(tasks, (t) => t.type === 'exam-prep');
   const firstReviewTask = findPendingTask(tasks, (t) => t.isSpacedRepetition && t.status === 'pending');
+  const showWorkspaceResume = workspaceLive && !workspaceLiveIsStale(workspaceLive);
+  const isEl = lang === 'el';
+
+  const handleDashboardNextAction = () => {
+    if (!dashboardNextAction) return;
+    switch (dashboardNextAction.kind) {
+      case 'critical-task':
+        if (dashboardNextAction.taskId) onStartTask?.(dashboardNextAction.taskId);
+        else onNavigate('tasks');
+        break;
+      case 'review-due':
+        if (firstReviewTask) onStartTask?.(firstReviewTask.id);
+        else onStartSession?.('25min') ?? onNavigate('tasks');
+        break;
+      case 'exam-prep':
+        if (dashboardNextAction.taskId) onStartTask?.(dashboardNextAction.taskId);
+        else onOpenExamTimer?.() ?? onOpenWorkspace?.();
+        break;
+      case 'weak-area':
+        if (dashboardNextAction.concept) onFocusWeakArea?.(dashboardNextAction.concept);
+        else onOpenWorkspace?.();
+        break;
+      case 'start-session':
+        onStartSession?.('25min') ?? onNavigate('tasks');
+        break;
+    }
+  };
 
   return (
     <div className="p-4 sm:p-6 lg:px-8 pb-24 lg:pb-6 w-full min-w-0 space-y-6">
       {/* Welcome header */}
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold">Good morning! 👋</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold">{greetingForTime(lang)}! 👋</h1>
           <p className="text-text-secondary mt-1">
-            {criticalTasks.length > 0 ? `You have ${criticalTasks.length} priority tasks today. Let's keep that ${stats.streak}-day streak going!` : 'All caught up — keep building momentum!'}
+            {dashboardSubtitle(lang, criticalTasks.length, stats.streak)}
           </p>
         </div>
         <div className="flex items-center gap-2">
           {onOpenWorkspace && (
-            <button onClick={onOpenWorkspace} className="flex items-center gap-2 px-4 py-2.5 border border-brand-500/40 text-brand-300 rounded-xl font-medium text-sm hover:bg-brand-600/10 transition-all whitespace-nowrap">
-              <Layout className="w-4 h-4" /> Study Workspace
+            <button
+              type="button"
+              onClick={onOpenWorkspace}
+              aria-busy={workspaceBooting}
+              className={cn(
+                'flex items-center gap-2 px-4 py-2.5 border border-brand-500/40 text-brand-300 rounded-xl font-medium text-sm hover:bg-brand-600/10 transition-all whitespace-nowrap',
+                workspaceBooting && 'opacity-70',
+              )}
+            >
+              <Layout className="w-4 h-4" /> {t('navStudyWorkspace')}
             </button>
           )}
           <button onClick={() => onStartSession?.('25min') ?? onNavigate('tasks')} className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-brand-600 to-brand-500 text-white rounded-xl font-medium text-sm hover:from-brand-500 hover:to-brand-400 transition-all whitespace-nowrap">
@@ -88,7 +139,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
             </div>
           </div>
           <button
-            onClick={() => (examTask ? onStartTask?.(examTask.id) : onNavigate('tasks'))}
+            onClick={() => (examTask ? onStartTask?.(examTask.id) : onOpenExamTimer?.() ?? onOpenWorkspace?.())}
             className="text-xs text-brand-400 hover:text-brand-300 font-medium flex items-center gap-1 shrink-0"
           >
             {examTask ? 'Start exam prep' : 'Exam prep'} <ArrowRight className="w-3 h-3" />
@@ -110,6 +161,65 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
               Take a quick quiz <ArrowRight className="w-3 h-3" />
             </button>
           </div>
+        </motion.div>
+      )}
+
+      {showWorkspaceResume && (
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="p-4 rounded-2xl border border-brand-500/30 bg-brand-600/5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-start gap-3 min-w-0">
+            <Layout className="w-5 h-5 text-brand-400 shrink-0 mt-0.5" />
+            <div className="min-w-0">
+              <p className="text-sm font-medium text-brand-300">
+                {isEl ? 'Συνέχισε από εκεί που σταμάτησες' : 'Resume where you left off'}
+              </p>
+              <p className="text-xs text-text-secondary mt-0.5 truncate">
+                {[workspaceLive.snapshot.courseLabel, workspaceLive.snapshot.activeConcept, workspaceLive.snapshot.toolLabel, workspaceLive.snapshot.stepLabel]
+                  .filter(Boolean)
+                  .join(' · ')}
+              </p>
+              {workspaceLive.nextAction && (
+                <p className="text-xs text-text-tertiary mt-1 line-clamp-2">
+                  {isEl ? 'Επόμενο:' : 'Next:'}{' '}
+                  <span className="text-brand-400 font-medium">
+                    {nextActionLabel(workspaceLive.nextAction.primary, lang)}
+                  </span>
+                  {' — '}{workspaceLive.nextAction.reason}
+                </p>
+              )}
+            </div>
+          </div>
+          <button
+            onClick={() => {
+              if (workspaceLive?.snapshot?.activeConcept) {
+                onFocusWeakArea?.(workspaceLive.snapshot.activeConcept);
+              } else {
+                onOpenWorkspace?.();
+              }
+            }}
+            className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-medium bg-brand-600/20 text-brand-300 border border-brand-500/30 hover:bg-brand-600/30 transition-all shrink-0"
+          >
+            {isEl ? 'Άνοιγμα workspace' : 'Open workspace'} <ArrowRight className="w-3 h-3" />
+          </button>
+        </motion.div>
+      )}
+
+      {!showWorkspaceResume && dashboardNextAction && (
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="p-4 rounded-2xl border border-accent-teal/30 bg-accent-teal/5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-start gap-3 min-w-0">
+            <Lightbulb className="w-5 h-5 text-accent-teal shrink-0 mt-0.5" />
+            <div className="min-w-0">
+              <p className="text-sm font-medium text-accent-teal">
+                {isEl ? 'Προτεινόμενο επόμενο βήμα' : 'Suggested next step'}
+              </p>
+              <p className="text-xs text-text-secondary mt-0.5 line-clamp-2">{dashboardNextAction.reason}</p>
+            </div>
+          </div>
+          <button
+            onClick={handleDashboardNextAction}
+            className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-medium bg-accent-teal/15 text-accent-teal border border-accent-teal/30 hover:bg-accent-teal/25 transition-all shrink-0"
+          >
+            {dashboardNextAction.label} <ArrowRight className="w-3 h-3" />
+          </button>
         </motion.div>
       )}
 
@@ -268,6 +378,10 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                   key={area.concept}
                   type="button"
                   onClick={() => {
+                    if (onFocusWeakArea) {
+                      onFocusWeakArea(area.concept);
+                      return;
+                    }
                     const task = findTaskForConcept(tasks, area.concept);
                     if (task) onStartTask?.(task.id);
                     else onNavigate('agent');
@@ -284,7 +398,14 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                 </button>
               ))}
             </div>
-            <button onClick={() => onNavigate('agent')} className="mt-4 w-full text-xs text-brand-400 hover:text-brand-300 flex items-center justify-center gap-1">
+            <button
+              onClick={() => {
+                const first = learnerModel.weakAreas[0];
+                if (first && onFocusWeakArea) onFocusWeakArea(first.concept);
+                else onNavigate('agent');
+              }}
+              className="mt-4 w-full text-xs text-brand-400 hover:text-brand-300 flex items-center justify-center gap-1"
+            >
               Practice weak areas <ArrowRight className="w-3 h-3" />
             </button>
           </div>

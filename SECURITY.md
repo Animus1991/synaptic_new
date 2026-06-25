@@ -36,7 +36,8 @@ Adversaries we care about:
 | Per-account, per-month token quota | `server/src/middleware/usage.ts` | Returns `429` once cap hit. |
 | Per-account/IP RPM limiter | `server/src/middleware/rateLimit.ts` | Sliding-window limiter on all `/v1/*` routes; current implementation is in-memory/single-node. |
 | Plan-aware billing | `server/src/routes/billing.ts` | Plan changes only flow through Stripe webhook events. |
-| Stripe webhook signature verification | `billingWebhookHandler` | Active when `STRIPE_WEBHOOK_SECRET` is set. |
+| Stripe webhook signature verification | `billingWebhookHandler` | Required in production (`STRIPE_WEBHOOK_SECRET`). Unsigned bodies rejected when `NODE_ENV=production`. Dev/test may parse unsigned JSON. |
+| Webhook idempotency | `webhookIdempotency.ts` | Stripe `event.id` deduplication prevents double plan upgrades on retries. |
 | Admin endpoint behind shared secret | `server/src/routes/admin.ts` | `x-admin-secret: $ADMIN_SECRET`. |
 | Postgres parameterized queries | `server/src/store/postgres.ts` | No string-concatenated SQL. |
 | Anonymous fallback | `ALLOW_ANONYMOUS=true` | All anonymous traffic uses one synthetic account; turn off for paid tiers. |

@@ -1,9 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import {
   estimateQuizDifficulty,
+  formatQuizIrtForLearner,
   probabilityCorrect,
   targetQuizDifficulty,
   updateQuizAbility,
+  buildQuizIrtDisplay,
 } from './quizIrt';
 
 describe('quizIrt', () => {
@@ -26,5 +28,20 @@ describe('quizIrt', () => {
 
   it('estimates difficulty by quiz kind', () => {
     expect(estimateQuizDifficulty({ kind: 'matching', question: 'q', left: [], right: [], pairs: [] })).toBe(2.4);
+  });
+
+  it('formats learner-friendly IRT copy without raw theta', () => {
+    const irt = buildQuizIrtDisplay(
+      { kind: 'mc', question: 'q', options: ['a', 'b', 'c', 'd'], correctIndex: 0 },
+      'Supply',
+      0,
+      50,
+    );
+    const copy = formatQuizIrtForLearner(irt, 'el', 0);
+    expect(copy.readinessLabel).toContain('Άγνωστη');
+    expect(copy.difficultyLabel).toContain('Βασική');
+    expect(copy.probabilityLabel).toMatch(/~\d+%/);
+    expect(copy.hint).toBeTruthy();
+    expect(JSON.stringify(copy)).not.toContain('Ικανότητα');
   });
 });

@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { useMemo, useState } from 'react';
-import { ArrowDownUp, Download } from 'lucide-react';
+import { ArrowDownUp, Download, Sparkles } from 'lucide-react';
 import { termMatchesFocus } from '../../lib/workspaceFocus';
 import { cn } from '../../utils/cn';
 import { downloadCompareCsv } from '../../lib/compareExport';
@@ -113,16 +113,22 @@ export function ComparisonTable({
   headers,
   focusTerm,
   onRowFocus,
+  onRowSelect,
+  selectedTerm,
   concept,
   lang = 'en',
+  onAskAgent,
 }: {
   title: string;
   items: string[][];
   headers: string[];
   focusTerm?: string;
   onRowFocus?: (term: string) => void;
+  onRowSelect?: (term: string, rowText: string) => void;
+  selectedTerm?: string;
   concept?: string;
   lang?: 'en' | 'el';
+  onAskAgent?: () => void;
 }) {
   const [sortCol, setSortCol] = useState<number | null>(null);
   const [sortDir, setSortDir] = useState<CompareSortDir>('asc');
@@ -180,6 +186,17 @@ export function ComparisonTable({
             <Download className="w-3 h-3" />
             CSV
           </button>
+          {onAskAgent && (
+            <button
+              type="button"
+              data-testid="compare-ask-agent"
+              onClick={onAskAgent}
+              className="inline-flex items-center gap-1 rounded-lg border border-accent-cyan/30 bg-accent-cyan/10 px-2 py-1 text-[10px] font-medium text-accent-cyan hover:bg-accent-cyan/15"
+            >
+              <Sparkles className="w-3 h-3" />
+              Agent
+            </button>
+          )}
         </div>
       </div>
       <table className="w-full text-xs">
@@ -210,6 +227,7 @@ export function ComparisonTable({
           {sortedItems.map((row, i) => {
             const dim = row[0] ?? '';
             const focused = termMatchesFocus(dim, focusTerm);
+            const selected = selectedTerm != null && termMatchesFocus(dim, selectedTerm);
             const isBaseline = i === baselineIndex;
             return (
               <motion.tr
@@ -221,10 +239,15 @@ export function ComparisonTable({
                 className={cn(
                   'border-b border-border-subtle/50 last:border-0',
                   focused && 'bg-brand-500/10',
+                  selected && 'ring-1 ring-accent-cyan/40 bg-accent-cyan/5',
                   isBaseline && diffMode && 'ring-1 ring-accent-amber/30',
-                  onRowFocus && 'cursor-pointer hover:bg-surface-hover',
+                  (onRowFocus || onRowSelect) && 'cursor-pointer hover:bg-surface-hover',
                 )}
-                onClick={() => onRowFocus?.(dim)}
+                onClick={() => {
+                  const rowText = row.filter(Boolean).join(' · ');
+                  if (onRowSelect) onRowSelect(dim, rowText);
+                  else onRowFocus?.(dim);
+                }}
               >
                 {row.map((cell, j) => {
                   const sim = diffScores[i]?.[j] ?? 1;

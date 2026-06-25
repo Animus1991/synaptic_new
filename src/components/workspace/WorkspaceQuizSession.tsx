@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { cn } from '../../utils/cn';
 import type { QuizIrtDisplay } from '../../lib/quizIrt';
 import type { QuizSessionItem, QuizSessionState } from '../../lib/quizSession';
@@ -9,6 +9,12 @@ import {
   recordSessionAnswer,
   sessionAccuracy,
 } from '../../lib/quizSession';
+import { buildQuizSessionSummaryCopy } from '../../lib/quizSessionSummaryCopy';
+import { quizItemQuestion } from '../../lib/quizSessionModel';
+import {
+  buildQuizWrongItemSummaries,
+  quizWrongAnswerHint,
+} from '../../lib/quizSelectionRemediationQA';
 import { WorkspaceQuiz } from './WorkspaceQuiz';
 
 type Props = {
@@ -17,10 +23,38 @@ type Props = {
   items: QuizSessionItem[];
   lang: 'en' | 'el';
   irt?: QuizIrtDisplay;
+  irtResponseCount?: number;
   onSessionComplete: (summary: { accuracy: number; meanConfidence: number }) => void;
+  sectionLabel?: string;
+  onOpenFlashcards?: () => void;
+  onOpenFeynman?: () => void;
+  onOpenReader?: () => void;
+  onOpenQuestionInReader?: (query: string) => void;
+  onRemediateWrong?: (kind: 'make-card' | 'feynman', item: QuizSessionItem) => void;
+  /** §13.5 — select question/passage for unified action bar */
+  onSelectPassage?: (text: string, term?: string) => void;
+  onClearSelection?: () => void;
+  onQuestionSelect?: (question: string) => void;
 };
 
-export function WorkspaceQuizSession({ scopeKey, concept, items, lang, irt, onSessionComplete }: Props) {
+export function WorkspaceQuizSession({
+  scopeKey,
+  concept,
+  items,
+  lang,
+  irt,
+  irtResponseCount = 0,
+  onSessionComplete,
+  sectionLabel,
+  onOpenFlashcards,
+  onOpenFeynman,
+  onOpenReader,
+  onOpenQuestionInReader,
+  onRemediateWrong,
+  onSelectPassage,
+  onClearSelection,
+  onQuestionSelect,
+}: Props) {
   const [session, setSession] = useState<QuizSessionState>(() => {
     const prev = loadQuizSession(scopeKey, concept);
     if (prev && prev.items.length === items.length && !prev.completedAt) return prev;
@@ -28,6 +62,16 @@ export function WorkspaceQuizSession({ scopeKey, concept, items, lang, irt, onSe
   });
   const [confidence, setConfidence] = useState(3);
   const [lastCorrect, setLastCorrect] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    if (items.length === 0) return;
+    const prev = loadQuizSession(scopeKey, concept);
+    if (prev && prev.items.length === items.length && !prev.completedAt) {
+      setSession(prev);
+      return;
+    }
+    setSession(initQuizSession(scopeKey, concept, items));
+  }, [scopeKey, concept, items]);
 
   const current = session.items[session.currentIndex];
   const done = Boolean(session.completedAt) || session.currentIndex >= session.items.length;
@@ -38,6 +82,7 @@ export function WorkspaceQuizSession({ scopeKey, concept, items, lang, irt, onSe
     setSession(next);
     setLastCorrect(null);
     setConfidence(3);
+    onClearSelection?.();
     if (next.completedAt) {
       onSessionComplete({
         accuracy: sessionAccuracy(next),
@@ -45,6 +90,11 @@ export function WorkspaceQuizSession({ scopeKey, concept, items, lang, irt, onSe
       });
     }
   };
+
+  useEffect(() => {
+    if (lastCorrect !== false || !current || !onSelectPassage) return;
+    onSelectPassage(quizItemQuestion(current), concept);
+  }, [lastCorrect, current, concept, onSelectPassage]);
 
   if (items.length === 0) {
     return (
@@ -55,15 +105,103 @@ export function WorkspaceQuizSession({ scopeKey, concept, items, lang, irt, onSe
   }
 
   if (done) {
+    const accuracy = sessionAccuracy(session);
+    const confidence = meanConfidence(session);
+    const summary = buildQuizSessionSummaryCopy(accuracy, confidence, lang);
+    const wrongSummaries = buildQuizWrongItemSummaries(session, sectionLabel);
     return (
       <div className="space-y-3" data-testid="quiz-session-complete">
-        <p className="text-sm font-semibold text-accent-emerald">
-          {lang === 'el' ? 'Ολοκληρώθηκε η συνεδρία κουίζ' : 'Quiz session complete'}
-        </p>
-        <p className="text-xs text-text-secondary">
-          {lang === 'el' ? 'Ακρίβεια' : 'Accuracy'}: {sessionAccuracy(session)}% ·
-          {lang === 'el' ? ' μέση εμπιστοσύνη' : ' mean confidence'}: {meanConfidence(session).toFixed(1)}/5
-        </p>
+        <p className="text-sm font-semibold text-accent-emerald">{summary.headline}</p>
+        <p className="text-xs text-text-secondary" data-testid="quiz-session-summary-detail">{summary.detail}</p>
+        {summary.suggestion && (
+          <p className="text-[10px] text-brand-300" data-testid="quiz-session-summary-suggestion">{summary.suggestion}</p>
+        )}
+        {wrongSummaries.length > 0 && (
+          <div
+            className="rounded-xl border border-accent-rose/25 bg-accent-rose/5 p-3 space-y-2"
+            data-testid="quiz-session-wrong-review"
+          >
+            <p className="text-[10px] font-medium text-accent-rose">
+              {lang === 'el'
+                ? `${wrongSummaries.length} λάθος/η — επανόρθωση`
+                : `${wrongSummaries.length} mistake(s) — review`}
+            </p>
+            <ul className="space-y-2">
+              {wrongSummaries.map((w) => {
+                const item = session.items.find((i) => i.id === w.itemId);
+                if (!item) return null;
+                return (
+                <li key={w.itemId} className="rounded-lg border border-white/8 bg-surface-primary/40 p-2">
+                  <p className="text-[10px] text-text-secondary line-clamp-2">{w.question}</p>
+                  <p className="mt-1 text-[9px] text-accent-emerald">{w.correctAnswer}</p>
+                  {onRemediateWrong && (
+                    <div className="mt-2 flex flex-wrap gap-1.5">
+                      <button
+                        type="button"
+                        data-testid={`quiz-review-make-card-${w.itemId}`}
+                        onClick={() => onRemediateWrong('make-card', item)}
+                        className="rounded border border-brand-500/30 bg-brand-600/10 px-2 py-0.5 text-[9px] text-brand-300"
+                      >
+                        {lang === 'el' ? 'Κάρτα' : 'Card'}
+                      </button>
+                      <button
+                        type="button"
+                        data-testid={`quiz-review-feynman-${w.itemId}`}
+                        onClick={() => onRemediateWrong('feynman', item)}
+                        className="rounded border border-accent-cyan/30 bg-accent-cyan/10 px-2 py-0.5 text-[9px] text-accent-cyan"
+                      >
+                        Feynman
+                      </button>
+                      {onOpenQuestionInReader && (
+                        <button
+                          type="button"
+                          data-testid={`quiz-review-reader-${w.itemId}`}
+                          onClick={() => onOpenQuestionInReader(w.question)}
+                          className="rounded border border-white/10 px-2 py-0.5 text-[9px] text-text-secondary hover:text-accent-cyan"
+                        >
+                          {lang === 'el' ? 'Reader' : 'Reader'}
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </li>
+                );
+              })}
+            </ul>
+          </div>
+        )}
+        <div className="flex flex-wrap gap-2 pt-1">
+          {accuracy < 70 && onOpenFlashcards && (
+            <button
+              type="button"
+              data-testid="quiz-open-flashcards"
+              onClick={onOpenFlashcards}
+              className="rounded-lg border border-brand-500/30 bg-brand-600/10 px-3 py-1.5 text-[10px] font-medium text-brand-300"
+            >
+              {lang === 'el' ? 'Κάρτες επανάληψης' : 'Review flashcards'}
+            </button>
+          )}
+          {accuracy < 70 && onOpenFeynman && (
+            <button
+              type="button"
+              data-testid="quiz-open-feynman"
+              onClick={onOpenFeynman}
+              className="rounded-lg border border-accent-cyan/30 bg-accent-cyan/10 px-3 py-1.5 text-[10px] font-medium text-accent-cyan"
+            >
+              {lang === 'el' ? 'Feynman — εξήγησε απλά' : 'Feynman — explain simply'}
+            </button>
+          )}
+          {onOpenReader && (
+            <button
+              type="button"
+              data-testid="quiz-open-reader"
+              onClick={onOpenReader}
+              className="rounded-lg border border-white/10 px-3 py-1.5 text-[10px] font-medium text-text-secondary hover:text-brand-200"
+            >
+              {lang === 'el' ? 'Επιστροφή στο Reader' : 'Back to Reader'}
+            </button>
+          )}
+        </div>
       </div>
     );
   }
@@ -86,7 +224,9 @@ export function WorkspaceQuizSession({ scopeKey, concept, items, lang, irt, onSe
           quizDef={current.quiz}
           lang={lang}
           irt={irt}
+          irtResponseCount={irtResponseCount}
           onComplete={(correct) => setLastCorrect(correct)}
+          onQuestionSelect={onQuestionSelect}
         />
       ) : (
         <div className="space-y-3">
@@ -95,6 +235,49 @@ export function WorkspaceQuizSession({ scopeKey, concept, items, lang, irt, onSe
               ? (lang === 'el' ? '✓ Σωστά — βαθμολόγησε την εμπιστοσύνη σου' : '✓ Correct — rate your confidence')
               : (lang === 'el' ? '✗ Δες ξανά — βαθμολόγησε την εμπιστοσύνη σου' : '✗ Review — rate your confidence')}
           </p>
+          {lastCorrect === false && (
+            <div
+              className="rounded-xl border border-accent-rose/25 bg-accent-rose/5 p-3 space-y-2"
+              data-testid="quiz-wrong-remediation"
+            >
+              <p className="text-[10px] font-medium text-accent-rose">
+                {lang === 'el' ? 'Επανόρθωση λάθους' : 'Fix this mistake'}
+              </p>
+              <p className="text-[10px] text-text-secondary" data-testid="quiz-wrong-answer-hint">
+                {quizWrongAnswerHint(current, concept, lang)}
+              </p>
+              {onRemediateWrong && (
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    data-testid="quiz-remediate-make-card"
+                    onClick={() => onRemediateWrong('make-card', current)}
+                    className="rounded-lg border border-brand-500/30 bg-brand-600/10 px-3 py-1.5 text-[10px] font-medium text-brand-300 hover:bg-brand-600/20"
+                  >
+                    {lang === 'el' ? 'Κάρτα από το λάθος' : 'Make card from mistake'}
+                  </button>
+                  <button
+                    type="button"
+                    data-testid="quiz-remediate-feynman"
+                    onClick={() => onRemediateWrong('feynman', current)}
+                    className="rounded-lg border border-accent-cyan/30 bg-accent-cyan/10 px-3 py-1.5 text-[10px] font-medium text-accent-cyan hover:bg-accent-cyan/15"
+                  >
+                    {lang === 'el' ? 'Feynman — εξήγησε απλά' : 'Feynman — explain simply'}
+                  </button>
+                  {onOpenQuestionInReader && (
+                    <button
+                      type="button"
+                      data-testid="quiz-remediate-reader"
+                      onClick={() => onOpenQuestionInReader(quizItemQuestion(current))}
+                      className="rounded-lg border border-white/10 px-3 py-1.5 text-[10px] font-medium text-text-secondary hover:border-accent-cyan/35 hover:text-accent-cyan"
+                    >
+                      {lang === 'el' ? 'Άνοιγμα στο Reader' : 'Open in Reader'}
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
           <div className="rounded-xl border border-border-subtle bg-surface-primary/50 p-3" data-testid="quiz-confidence-rating">
             <p className="text-[10px] font-medium text-text-muted mb-2">
               {lang === 'el' ? 'Εμπιστοσύνη (1–5)' : 'Confidence (1–5)'}

@@ -13,10 +13,13 @@ import { useI18n } from '../../lib/i18n';
 import { downloadAnkiDeck } from '../../lib/ankiExport';
 
 import { buildDueHeatmap } from '../../lib/leitnerDueHeatmap';
+import { leitnerCardSourceLabel } from '../../lib/leitnerCardSources';
+import type { LeitnerCard } from '../../lib/leitnerSessionModel';
 
 import { saveDeckState, syncDeckState } from '../../lib/leitnerDeckSync';
 
 import { WorkspaceEmptyState } from './WorkspaceEmptyState';
+import { LeitnerStaleArtifactBanner } from './LeitnerStaleArtifactBanner';
 
 
 
@@ -26,7 +29,7 @@ const BOX_KEYS = ['leitnerAgain', 'leitnerHard', 'leitnerGood', 'leitnerEasy'] a
 
 interface LeitnerBoxProps {
 
-  cards?: { front: string; back: string }[];
+  cards?: LeitnerCard[];
 
   concept?: string;
 
@@ -40,8 +43,14 @@ interface LeitnerBoxProps {
 
   emptyMessage?: string;
 
-  onUpload?: () => void;
+  hasSource?: boolean;
 
+  onUpload?: () => void;
+  onOpenQuiz?: () => void;
+  onQuizCard?: (front: string) => void;
+  artifactStale?: boolean;
+  onAcknowledgeStale?: () => void;
+  lang?: 'en' | 'el';
 }
 
 
@@ -62,11 +71,19 @@ export function LeitnerBox({
 
   emptyMessage,
 
+  hasSource = false,
+
   onUpload,
 
+  onOpenQuiz,
+  onQuizCard,
+  artifactStale = false,
+  onAcknowledgeStale,
+  lang: langProp,
 }: LeitnerBoxProps) {
 
-  const { t, lang } = useI18n();
+  const { t, lang: i18nLang } = useI18n();
+  const lang = langProp ?? i18nLang;
 
   const [deck, setDeck] = useState(cards);
 
@@ -214,6 +231,8 @@ export function LeitnerBox({
 
         message={emptyMessage ?? 'Upload notes to generate flashcards from your glossary and definitions.'}
 
+        hasSource={hasSource}
+
         onUpload={onUpload}
 
       />
@@ -227,6 +246,14 @@ export function LeitnerBox({
   return (
 
     <div className="flex flex-col h-full p-4">
+
+      {artifactStale && onAcknowledgeStale && (
+        <LeitnerStaleArtifactBanner
+          lang={lang}
+          placement="deck-sticky"
+          onDismiss={onAcknowledgeStale}
+        />
+      )}
 
       <h3 className="text-sm font-semibold flex items-center gap-2 mb-2">
 
@@ -248,6 +275,17 @@ export function LeitnerBox({
 
           </span>
 
+        )}
+
+        {onOpenQuiz && (
+          <button
+            type="button"
+            data-testid="leitner-open-quiz"
+            onClick={onOpenQuiz}
+            className="ml-auto flex items-center gap-1 text-[10px] font-medium text-accent-cyan hover:text-accent-cyan/80 border border-accent-cyan/30 rounded-lg px-2 py-0.5 mr-1"
+          >
+            {lang === 'el' ? 'Κουίζ' : 'Quiz'}
+          </button>
         )}
 
         {deck.length > 0 && (
@@ -343,7 +381,14 @@ export function LeitnerBox({
       >
 
         <p className="text-[10px] text-text-muted mb-2">{flipped ? t('answer') : t('question')}</p>
-
+        {card?.source && (
+          <span
+            className="mb-2 inline-block rounded-full border border-brand-500/25 bg-brand-600/10 px-2 py-0.5 text-[9px] font-medium text-brand-300"
+            data-testid="leitner-card-source"
+          >
+            {leitnerCardSourceLabel(card.source, lang)}
+          </span>
+        )}
         <p className="text-sm font-medium leading-relaxed">{flipped ? card!.back : card!.front}</p>
 
       </button>
@@ -361,6 +406,17 @@ export function LeitnerBox({
       )}
 
 
+
+      {flipped && !finished && onQuizCard && card && (
+        <button
+          type="button"
+          data-testid="leitner-quiz-this-card"
+          onClick={() => onQuizCard(card.front)}
+          className="mt-2 w-full rounded-lg border border-accent-cyan/30 bg-accent-cyan/10 py-1.5 text-[10px] font-medium text-accent-cyan hover:bg-accent-cyan/15"
+        >
+          {lang === 'el' ? 'Κουίζ αυτής της κάρτας →' : 'Quiz this card →'}
+        </button>
+      )}
 
       {flipped && !finished && (
 
@@ -392,7 +448,7 @@ export function LeitnerBox({
 
               onClick={() => rate(rating)}
 
-              className={cn('py-2 rounded-lg text-xs font-medium border transition-all hover:opacity-90', color)}
+              className={cn('min-h-11 py-2 rounded-lg text-xs font-medium border transition-all hover:opacity-90 touch-manipulation', color)}
 
             >
 

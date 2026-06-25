@@ -1,17 +1,26 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import {
   ArrowLeft, BookOpen, Clock, BarChart3, Calendar, FileText,
   Lock, CheckCircle2, Circle, ChevronRight, Brain, Target,
-  AlertTriangle, Sparkles, Play, MapPin, Network, Upload
+  AlertTriangle, Sparkles, Play, MapPin, Network, Upload, Trash2, RefreshCw
 } from 'lucide-react';
-import type { Course, Topic, UploadedFile, GlossaryEntry } from '../types';
+import type { Course, Topic, UploadedFile, GlossaryEntry, Task } from '../types';
 import { cn } from '../utils/cn';
 import { ConceptGraph } from './visuals/ConceptGraph';
 import { ProgressTimeline } from './visuals/DiagramGenerator';
 import { ReadinessRing } from './visuals/ReadinessRing';
 import { findConceptSpan } from '../lib/conceptProvenance';
 import { GoToSourceButton } from './GoToSourceButton';
+import { WorkspaceSourceStatusBar } from './workspace/WorkspaceSourceStatusBar';
+import { courseQualityDismissKey, shouldShowCourseQualityBanner } from '../lib/courseQualityBanner';
+import { buildReprocessPreview } from '../lib/reprocessPreview';
+import { ReprocessPreviewModal } from './ReprocessPreviewModal';
+import { ConfirmDialog } from './ui/ConfirmDialog';
+import { useI18n } from '../lib/i18n';
+import { buildDeleteFileCascadeCopy } from '../lib/deleteFileCascadeCopy';
+import { countFilesForCourse } from '../lib/deleteCascade';
+import { countGeneratedTasksForCourse } from '../lib/pipelineReprocess';
 
 interface CourseViewProps {
   course: Course;
@@ -24,6 +33,10 @@ interface CourseViewProps {
   onStartLesson: (topicTitle?: string) => void;
   onOpenAgent: () => void;
   onUploadMore?: () => void;
+  onReprocessMaterial?: () => boolean | void;
+  reprocessingMaterial?: boolean;
+  onRemoveFile?: (fileId: string) => void;
+  tasks?: Task[];
 }
 
 /** Real per-topic lesson count: explicit lessons if present, else derived from
@@ -45,11 +58,57 @@ export function CourseView({
   onStartLesson,
   onOpenAgent,
   onUploadMore,
+  onReprocessMaterial,
+  reprocessingMaterial = false,
+  onRemoveFile,
+  tasks = [],
 }: CourseViewProps) {
   const [tab, setTab] = useState<CourseTab>('path');
+  const [reprocessWizardOpen, setReprocessWizardOpen] = useState(false);
+  const [reprocessApplied, setReprocessApplied] = useState(false);
+  const [qualityDismissed, setQualityDismissed] = useState(() => {
+    try {
+      return sessionStorage.getItem(courseQualityDismissKey(course.id)) === '1';
+    } catch {
+      return false;
+    }
+  });
+  const { lang } = useI18n();
   const progress = (course.completedLessons / Math.max(course.totalLessons, 1)) * 100;
   const quality = course.sourceQuality;
   const needsSourceUpgrade = Boolean(quality && (quality.needsMoreMaterial || quality.outlineAdjusted));
+  const qualityBanner = shouldShowCourseQualityBanner({
+    course,
+    uploadedFiles,
+    hasReuploadHandler: Boolean(onUploadMore),
+  });
+  const showReuploadHint = qualityBanner.showMigrationBanner;
+  const showQualityBar = !qualityDismissed && (showReuploadHint || qualityBanner.show) && qualityBanner.score != null;
+
+  const dismissQualityBar = () => {
+    try {
+      sessionStorage.setItem(courseQualityDismissKey(course.id), '1');
+    } catch {
+      /* ignore */
+    }
+    setQualityDismissed(true);
+  };
+
+  const openReprocessWizard = () => {
+    setReprocessApplied(false);
+    setReprocessWizardOpen(true);
+  };
+
+  const reprocessPreview = useMemo(() => {
+    if (!reprocessWizardOpen) return null;
+    return buildReprocessPreview(course, uploadedFiles, lang);
+  }, [reprocessWizardOpen, course, uploadedFiles, lang]);
+
+  const handleApplyReprocess = () => {
+    if (!onReprocessMaterial) return;
+    const ok = onReprocessMaterial();
+    if (ok !== false) setReprocessApplied(true);
+  };
 
   return (
     <div className="p-4 sm:p-6 lg:px-8 pb-24 lg:pb-6 w-full min-w-0 space-y-6">
@@ -124,6 +183,21 @@ export function CourseView({
           </div>
         </div>
       </motion.div>
+
+      {showQualityBar && (
+        <WorkspaceSourceStatusBar
+          lang={lang}
+          score={qualityBanner.score}
+          showMigration={showReuploadHint}
+          showQualityWarning={qualityBanner.show}
+          reprocessing={reprocessingMaterial}
+          onInspect={openReprocessWizard}
+          onReprocess={onReprocessMaterial ? openReprocessWizard : undefined}
+          onReupload={onUploadMore}
+          onContinue={qualityBanner.show && !showReuploadHint ? dismissQualityBar : undefined}
+          className="max-w-[1600px] mx-auto"
+        />
+      )}
 
       {quality && (
         <motion.div
@@ -269,10 +343,25 @@ export function CourseView({
           course={course}
           uploadedFiles={uploadedFiles}
           glossaryEntries={glossaryEntries}
+          tasks={tasks}
           onGoToSource={onGoToSource}
+          onRemoveFile={onRemoveFile}
+          onReprocessMaterial={onReprocessMaterial ? openReprocessWizard : undefined}
+          reprocessingMaterial={reprocessingMaterial}
+          lang={lang}
         />
       )}
       {tab === 'analytics' && <CourseAnalytics course={course} />}
+
+      <ReprocessPreviewModal
+        open={reprocessWizardOpen}
+        onClose={() => setReprocessWizardOpen(false)}
+        preview={reprocessPreview}
+        lang={lang}
+        applying={reprocessingMaterial}
+        applied={reprocessApplied}
+        onApply={onReprocessMaterial ? handleApplyReprocess : undefined}
+      />
     </div>
   );
 }
@@ -466,33 +555,103 @@ function SourceFiles({
   course,
   uploadedFiles,
   glossaryEntries,
+  tasks,
   onGoToSource,
+  onRemoveFile,
+  onReprocessMaterial,
+  reprocessingMaterial = false,
+  lang,
 }: {
   course: Course;
   uploadedFiles: UploadedFile[];
   glossaryEntries: GlossaryEntry[];
+  tasks: Task[];
   onGoToSource?: (highlight: { fileId: string; charStart: number; charEnd: number }) => void;
+  onRemoveFile?: (fileId: string) => void;
+  onReprocessMaterial?: () => void;
+  reprocessingMaterial?: boolean;
+  lang: 'en' | 'el';
 }) {
+  const el = lang === 'el';
   const provenanceCount = course.conceptSpans?.length ?? 0;
+  const [pendingRemove, setPendingRemove] = useState<UploadedFile | null>(null);
+  const generatedTaskCount = countGeneratedTasksForCourse(tasks, course.id);
+  const glossaryCount = glossaryEntries.filter((g) => g.courseId === course.id).length;
+
+  const confirmRemove = (file: UploadedFile) => {
+    if (!file.id || !onRemoveFile) return;
+    setPendingRemove(file);
+  };
+
+  const cascadeCopy = useMemo(() => {
+    if (!pendingRemove) return null;
+    const remainingFilesForCourse = countFilesForCourse(
+      uploadedFiles.filter((f) => f.id !== pendingRemove.id),
+      course.id,
+    );
+    return buildDeleteFileCascadeCopy({
+      lang,
+      fileName: pendingRemove.name,
+      courseTitle: course.title,
+      remainingFilesForCourse,
+      generatedTaskCount,
+      glossaryCount,
+    });
+  }, [pendingRemove, uploadedFiles, course.id, course.title, lang, generatedTaskCount, glossaryCount]);
+
+  const removeTitle = cascadeCopy?.title ?? '';
+  const removeDescription = cascadeCopy?.description ?? '';
+
   return (
+    <>
     <div className="space-y-6">
       <div className="rounded-2xl border border-border-subtle bg-surface-card p-6">
-        <h3 className="font-semibold mb-4 flex items-center gap-2">
-          <FileText className="w-5 h-5 text-brand-400" />
-          Source Files
-        </h3>
+        <div className="flex items-center justify-between gap-3 mb-4 flex-wrap">
+          <h3 className="font-semibold flex items-center gap-2">
+            <FileText className="w-5 h-5 text-brand-400" />
+            {el ? 'Αρχεία πηγής' : 'Source Files'}
+          </h3>
+          {onReprocessMaterial && uploadedFiles.length > 0 && (
+            <button
+              type="button"
+              onClick={onReprocessMaterial}
+              disabled={reprocessingMaterial}
+              data-testid="course-reprocess-sources"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-brand-500/30 text-xs font-medium text-brand-300 hover:bg-brand-500/10 disabled:opacity-60"
+            >
+              <RefreshCw className={cn('w-3.5 h-3.5', reprocessingMaterial && 'animate-spin')} />
+              {el ? 'Επανεπεξεργασία κειμένου' : 'Reprocess stored text'}
+            </button>
+          )}
+        </div>
         <div className="space-y-2">
           {(uploadedFiles.length > 0 ? uploadedFiles : course.sourceFiles.map((name) => ({ name } as UploadedFile))).map((file, i) => (
-            <div key={file.id ?? i} className="flex items-center gap-3 p-3 rounded-xl bg-surface-primary/50 border border-border-subtle flex-wrap">
+            <div key={file.id ?? i} className="flex items-center gap-3 p-3 rounded-xl bg-surface-primary/50 border border-border-subtle flex-wrap" data-testid={file.id ? `source-file-${file.id}` : undefined}>
               <FileText className="w-5 h-5 text-text-tertiary shrink-0" />
-              <span className="text-sm font-medium flex-1 min-w-0 truncate">{file.name}</span>
+              <div className="flex-1 min-w-0">
+                <span className="text-sm font-medium block truncate">{file.name}</span>
+                {'pipelineVersion' in file && file.pipelineVersion && (
+                  <span className="text-[10px] text-text-muted">pipeline v{file.pipelineVersion}</span>
+                )}
+              </div>
               {'ocrUsed' in file && file.ocrUsed && (
                 <span className="text-[10px] px-1.5 py-0.5 rounded bg-accent-cyan/10 text-accent-cyan">OCR</span>
               )}
               {'ingestMethod' in file && file.ingestMethod && (
                 <span className="text-[10px] text-text-muted">{file.ingestMethod}</span>
               )}
-              <span className="text-xs text-text-muted">Analyzed</span>
+              <span className="text-xs text-text-muted">{el ? 'Αναλυμένο' : 'Analyzed'}</span>
+              {file.id && onRemoveFile && (
+                <button
+                  type="button"
+                  onClick={() => confirmRemove(file)}
+                  data-testid={`remove-source-${file.id}`}
+                  className="p-1.5 rounded-lg border border-accent-rose/30 text-accent-rose hover:bg-accent-rose/10 transition-colors"
+                  title={el ? 'Αφαίρεση αρχείου' : 'Remove file'}
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              )}
             </div>
           ))}
         </div>
@@ -557,6 +716,21 @@ function SourceFiles({
         </div>
       </div>
     </div>
+    <ConfirmDialog
+      open={!!pendingRemove}
+      onClose={() => setPendingRemove(null)}
+      onConfirm={() => {
+        if (pendingRemove?.id && onRemoveFile) onRemoveFile(pendingRemove.id);
+        setPendingRemove(null);
+      }}
+      title={removeTitle}
+      description={removeDescription}
+      confirmLabel={el ? 'Αφαίρεση' : 'Remove'}
+      cancelLabel={el ? 'Ακύρωση' : 'Cancel'}
+      destructive
+      data-testid="course-remove-source-dialog"
+    />
+    </>
   );
 }
 

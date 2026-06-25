@@ -1,21 +1,43 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type KeyboardEvent } from 'react';
 import { cn } from '../../utils/cn';
 import { isMcQuiz, type QuizDef } from '../../lib/lessonTypes';
 import type { Lang } from '../../lib/i18n';
 import type { QuizIrtDisplay } from '../../lib/quizIrt';
+import { formatQuizIrtForLearner } from '../../lib/quizIrt';
 
 type Props = {
   quizDef: QuizDef;
   lang: Lang;
   irt?: QuizIrtDisplay;
+  irtResponseCount?: number;
   onComplete: (correct: boolean) => void;
+  onQuestionSelect?: (question: string) => void;
 };
+
+function questionProps(question: string, onQuestionSelect?: (q: string) => void) {
+  if (!onQuestionSelect) {
+    return { className: 'text-sm mb-3' };
+  }
+  return {
+    className: 'text-sm mb-3 rounded-lg border border-transparent px-1 py-0.5 cursor-pointer hover:border-accent-cyan/30 hover:bg-accent-cyan/5 transition-colors',
+    role: 'button' as const,
+    tabIndex: 0,
+    'data-testid': 'quiz-question-select',
+    onClick: () => onQuestionSelect(question),
+    onKeyDown: (e: KeyboardEvent) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        onQuestionSelect(question);
+      }
+    },
+  };
+}
 
 function normalizeAnswer(s: string): string {
   return s.trim().toLowerCase().replace(/\s+/g, ' ');
 }
 
-export function WorkspaceQuiz({ quizDef, lang, irt, onComplete }: Props) {
+export function WorkspaceQuiz({ quizDef, lang, irt, irtResponseCount = 0, onComplete, onQuestionSelect }: Props) {
   const [mcAnswer, setMcAnswer] = useState<number | null>(null);
   const [shortText, setShortText] = useState('');
   const [shortChecked, setShortChecked] = useState<boolean | null>(null);
@@ -35,25 +57,20 @@ export function WorkspaceQuiz({ quizDef, lang, irt, onComplete }: Props) {
     const passed = mcAnswer !== null && mcAnswer === quizDef.correctIndex;
     return (
       <div className="space-y-3" data-testid="workspace-quiz">
-        {irt && (
+        {irt && (() => {
+          const copy = formatQuizIrtForLearner(irt, lang, irtResponseCount);
+          return (
           <div
-            className="flex flex-wrap items-center gap-2 rounded-lg border border-border-subtle bg-surface-primary/40 px-2.5 py-1.5 text-[10px] text-text-muted"
+            className="rounded-lg border border-border-subtle bg-surface-primary/40 px-2.5 py-1.5 text-[10px] text-text-muted space-y-0.5"
             data-testid="quiz-irt-badge"
           >
-            <span>
-              {lang === 'el' ? 'Ικανότητα' : 'Ability'}: {irt.ability.toFixed(2)}
-            </span>
-            <span>·</span>
-            <span>
-              {lang === 'el' ? 'Δυσκολία' : 'Difficulty'}: {irt.difficulty.toFixed(2)}
-            </span>
-            <span>·</span>
-            <span>
-              P ≈ {(irt.passProbability * 100).toFixed(0)}%
-            </span>
+            <p className="text-text-secondary">{copy.readinessLabel}</p>
+            <p>{copy.difficultyLabel} · {copy.probabilityLabel}</p>
+            {copy.hint && <p className="text-text-muted italic">{copy.hint}</p>}
           </div>
-        )}
-        <p className="text-sm mb-3">{quizDef.question}</p>
+          );
+        })()}
+        <p {...questionProps(quizDef.question, onQuestionSelect)}>{quizDef.question}</p>
         {quizDef.options.map((opt, i) => (
           <button
             key={i}
@@ -99,12 +116,15 @@ export function WorkspaceQuiz({ quizDef, lang, irt, onComplete }: Props) {
     };
     return (
       <div className="space-y-3" data-testid="workspace-quiz">
-        {irt && (
-          <div className="text-[10px] text-text-muted" data-testid="quiz-irt-badge">
-            {lang === 'el' ? 'Προσαρμοστική' : 'Adaptive'} · θ={irt.ability.toFixed(2)} · b={irt.difficulty.toFixed(2)}
+        {irt && (() => {
+          const copy = formatQuizIrtForLearner(irt, lang, irtResponseCount);
+          return (
+          <div className="text-[10px] text-text-muted space-y-0.5" data-testid="quiz-irt-badge">
+            <p>{copy.readinessLabel} · {copy.probabilityLabel}</p>
           </div>
-        )}
-        <p className="text-sm">{sa.question}</p>
+          );
+        })()}
+        <p {...questionProps(sa.question, onQuestionSelect)}>{sa.question}</p>
         {sa.hint && <p className="text-xs text-text-muted">{sa.hint}</p>}
         <input
           type="text"
@@ -149,7 +169,7 @@ export function WorkspaceQuiz({ quizDef, lang, irt, onComplete }: Props) {
     };
     return (
       <div className="space-y-3">
-        <p className="text-sm">{ord.question}</p>
+        <p {...questionProps(ord.question, onQuestionSelect)}>{ord.question}</p>
         <ul className="space-y-2">
           {order.map((itemIdx, pos) => (
             <li key={itemIdx} className="flex items-center gap-2 p-2 rounded-lg border border-border-subtle bg-surface-card text-sm">
@@ -181,7 +201,7 @@ export function WorkspaceQuiz({ quizDef, lang, irt, onComplete }: Props) {
     };
     return (
       <div className="space-y-3">
-        <p className="text-sm">{match.question}</p>
+        <p {...questionProps(match.question, onQuestionSelect)}>{match.question}</p>
         <div className="grid gap-2">
           {match.left.map((left, li) => (
             <div key={li} className="flex items-center gap-2 text-sm">

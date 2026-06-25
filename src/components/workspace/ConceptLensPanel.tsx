@@ -1,0 +1,261 @@
+import { Aperture, AlertTriangle, CheckCircle2, BookOpen, ChevronDown, ChevronUp } from 'lucide-react';
+import { cn } from '../../utils/cn';
+import type { ConceptLensAction, ConceptLensView } from '../../lib/conceptGraphModel';
+import {
+  conceptEngagement,
+  isConfident,
+  isStruggling,
+  type ConceptActivity,
+} from '../../lib/workspaceConceptBus';
+import type { WorkspaceToolId } from '../../lib/taskFlows';
+
+const TOOL_LABELS: Record<WorkspaceToolId, { en: string; el: string }> = {
+  'concept-map': { en: 'Map', el: 'Χάρτης' },
+  reader: { en: 'Reader', el: 'Reader' },
+  leitner: { en: 'Leitner', el: 'Leitner' },
+  quiz: { en: 'Quiz', el: 'Quiz' },
+  feynman: { en: 'Feynman', el: 'Feynman' },
+  compare: { en: 'Compare', el: 'Σύγκριση' },
+  simulator: { en: 'Sandbox', el: 'Sandbox' },
+  scratchpad: { en: 'Scratch', el: 'Scratch' },
+  whiteboard: { en: 'Board', el: 'Πίνακας' },
+  debate: { en: 'Debate', el: 'Debate' },
+  timer: { en: 'Timer', el: 'Χρόνος' },
+  annotations: { en: 'Notes', el: 'Σχόλια' },
+  dashboard: { en: 'Stats', el: 'Στατιστ.' },
+};
+
+const ACTION_LABELS: Record<ConceptLensAction, { en: string; el: string }> = {
+  explain: { en: 'Explain', el: 'Εξήγηση' },
+  quiz: { en: 'Quiz', el: 'Quiz' },
+  flashcards: { en: 'Cards', el: 'Κάρτες' },
+  compare: { en: 'Compare', el: 'Σύγκριση' },
+  debate: { en: 'Debate', el: 'Debate' },
+  feynman: { en: 'Feynman', el: 'Feynman' },
+  'mark-confusing': { en: 'Confusing', el: 'Μπερδευτικό' },
+  'mark-mastered': { en: 'Mastered', el: 'Κατάλαβα' },
+  'open-reader': { en: 'Reader', el: 'Ανάγνωση' },
+};
+
+type Props = {
+  lens: ConceptLensView;
+  activity?: ConceptActivity;
+  activeTool: WorkspaceToolId;
+  lang: 'en' | 'el';
+  expanded?: boolean;
+  onToggleExpand?: () => void;
+  onFocus: (term: string) => void;
+  onJumpTool: (tool: WorkspaceToolId) => void;
+  onAction: (action: ConceptLensAction) => void;
+  onOpenReaderSection?: () => void;
+};
+
+export function ConceptLensPanel({
+  lens,
+  activity,
+  activeTool,
+  lang,
+  expanded = false,
+  onToggleExpand,
+  onFocus,
+  onJumpTool,
+  onAction,
+  onOpenReaderSection,
+}: Props) {
+  const isEl = lang === 'el';
+  const label = lens.activeConcept?.trim();
+  if (!label) return null;
+
+  const engagement = activity ? conceptEngagement(activity) : lens.engagement;
+  const filledDots = Math.max(activity ? 1 : 0, Math.round(engagement * 4));
+  const struggling = activity ? isStruggling(activity) : lens.struggling;
+  const confident = activity ? isConfident(activity) : lens.confident;
+  const studiedTools = (activity?.tools ?? []).filter((tl) => tl !== activeTool);
+
+  return (
+    <div
+      className="absolute top-2 right-3 z-20 flex flex-col items-end gap-1 max-w-[min(420px,72vw)]"
+      data-testid="concept-lens-panel"
+    >
+      <div className="flex items-center gap-2 w-full rounded-full border border-white/10 bg-surface-secondary/85 backdrop-blur px-2.5 py-1 shadow-[0_8px_30px_rgba(2,6,23,0.45)]">
+        <Aperture className="w-3.5 h-3.5 text-accent-cyan shrink-0" />
+        <button
+          type="button"
+          onClick={() => onFocus(label)}
+          title={isEl ? 'Εστίαση σε όλα τα εργαλεία' : 'Focus across all tools'}
+          className="text-[11px] font-semibold truncate max-w-[140px] text-text-primary hover:text-accent-cyan transition-colors"
+        >
+          {label}
+        </button>
+
+        <div
+          className="flex items-center gap-0.5 shrink-0"
+          title={`${Math.round(engagement * 100)}% ${isEl ? 'διασύνδεση' : 'cross-tool engagement'}`}
+        >
+          {[0, 1, 2, 3].map((i) => (
+            <span
+              key={i}
+              className={cn('w-1.5 h-1.5 rounded-full', i < filledDots ? 'bg-accent-cyan' : 'bg-white/15')}
+            />
+          ))}
+        </div>
+
+        {struggling && (
+          <span className="hidden sm:inline-flex items-center gap-1 rounded-full bg-accent-amber/15 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-accent-amber">
+            <AlertTriangle className="w-2.5 h-2.5" />
+          </span>
+        )}
+        {confident && !struggling && (
+          <span className="hidden sm:inline-flex items-center gap-1 rounded-full bg-accent-emerald/15 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-accent-emerald">
+            <CheckCircle2 className="w-2.5 h-2.5" />
+          </span>
+        )}
+
+        {studiedTools.length > 0 ? (
+          <div className="flex items-center gap-1 border-l border-white/10 pl-2">
+            {studiedTools.slice(0, 3).map((tl) => (
+              <button
+                key={tl}
+                type="button"
+                onClick={() => onJumpTool(tl)}
+                className="rounded-full border border-white/10 bg-white/[0.04] px-1.5 py-0.5 text-[9px] font-medium text-text-secondary hover:border-accent-cyan/40 hover:text-accent-cyan transition-colors"
+              >
+                {TOOL_LABELS[tl][lang]}
+              </button>
+            ))}
+          </div>
+        ) : null}
+
+        {onToggleExpand && (
+          <button
+            type="button"
+            onClick={onToggleExpand}
+            className="ml-0.5 shrink-0 rounded p-0.5 text-text-muted hover:text-text-primary"
+            aria-expanded={expanded}
+            data-testid="concept-lens-expand"
+          >
+            {expanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+          </button>
+        )}
+      </div>
+
+      {expanded && (
+        <div
+          className="w-full rounded-xl border border-white/10 bg-surface-secondary/95 backdrop-blur px-3 py-2.5 shadow-lg space-y-2 max-h-56 overflow-y-auto"
+          data-testid="concept-lens-detail"
+        >
+          {lens.emptyReason === 'weak-extraction' && (
+            <p className="text-[10px] text-accent-amber">
+              {isEl
+                ? 'Αδύναμη εξαγωγή εννοιών — δοκίμασε Reprocess ή ανέβασε καλύτερο υλικό.'
+                : 'Weak concept extraction — try Reprocess or upload clearer material.'}
+            </p>
+          )}
+
+          {(lens.definition || lens.note) && (
+            <p className="text-[10px] text-text-secondary line-clamp-3">
+              {lens.definition ?? lens.note}
+            </p>
+          )}
+
+          {lens.sourceSections.length > 0 && (
+            <div className="flex flex-wrap items-center gap-1">
+              <BookOpen className="w-3 h-3 text-text-muted shrink-0" />
+              {lens.sourceSections.map((section) => (
+                <button
+                  key={section}
+                  type="button"
+                  onClick={onOpenReaderSection}
+                  className="rounded-full border border-white/10 bg-white/[0.04] px-2 py-0.5 text-[9px] text-text-secondary hover:border-accent-cyan/35 hover:text-accent-cyan truncate max-w-[160px]"
+                  data-testid="concept-lens-section"
+                >
+                  {section}
+                </button>
+              ))}
+            </div>
+          )}
+
+          <ConceptRefRow
+            title={isEl ? 'Προαπαιτούμενα' : 'Prerequisites'}
+            refs={lens.prerequisites}
+            onSelect={onFocus}
+          />
+          <ConceptRefRow
+            title={isEl ? 'Σχετικές' : 'Related'}
+            refs={lens.related}
+            onSelect={onFocus}
+          />
+          <ConceptRefRow
+            title={isEl ? 'Επόμενες' : 'Follow-up'}
+            refs={lens.followUp}
+            onSelect={onFocus}
+          />
+
+          {lens.toolHits.length > 0 && (
+            <div className="flex flex-wrap gap-1">
+              <span className="text-[9px] text-text-muted w-full">
+                {isEl ? 'Δραστηριότητα εργαλείων' : 'Tool activity'}
+              </span>
+              {lens.toolHits.map(({ tool, count }) => (
+                <span
+                  key={tool}
+                  className="rounded-full border border-white/10 px-1.5 py-0.5 text-[9px] text-text-secondary"
+                  data-testid={`concept-lens-hit-${tool}`}
+                >
+                  {TOOL_LABELS[tool][lang]} ×{count}
+                </span>
+              ))}
+            </div>
+          )}
+
+          <div className="flex flex-wrap gap-1 pt-0.5">
+            {lens.suggestedActions.slice(0, 6).map((action) => (
+              <button
+                key={action}
+                type="button"
+                onClick={() => onAction(action)}
+                className="rounded-full border border-brand-500/30 bg-brand-600/10 px-2 py-0.5 text-[9px] font-medium text-brand-300 hover:bg-brand-600/20 transition-colors"
+                data-testid={`concept-lens-action-${action}`}
+              >
+                {ACTION_LABELS[action][lang]}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ConceptRefRow({
+  title,
+  refs,
+  onSelect,
+}: {
+  title: string;
+  refs: { label: string; mastery?: number }[];
+  onSelect: (term: string) => void;
+}) {
+  if (refs.length === 0) return null;
+  return (
+    <div>
+      <p className="text-[9px] font-semibold uppercase tracking-wide text-text-muted mb-0.5">{title}</p>
+      <div className="flex flex-wrap gap-1">
+        {refs.map((ref) => (
+          <button
+            key={ref.label}
+            type="button"
+            onClick={() => onSelect(ref.label)}
+            className="rounded-full border border-white/10 bg-white/[0.04] px-2 py-0.5 text-[9px] text-text-secondary hover:border-accent-cyan/35 hover:text-accent-cyan truncate max-w-[140px]"
+            data-testid={`concept-ref-${ref.label.slice(0, 12).toLowerCase().replace(/\s+/g, '-')}`}
+          >
+            {ref.label}
+            {ref.mastery != null && ref.mastery > 0 ? (
+              <span className="ml-1 opacity-60">{ref.mastery}%</span>
+            ) : null}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}

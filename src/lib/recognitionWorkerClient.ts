@@ -24,6 +24,7 @@ export interface RecognitionJob {
     title?: string;
     targetCourseId?: string;
     uploadMode?: 'new' | 'extend';
+    editedOutline?: GeneratedOutline;
   };
   settings: UserSettings;
   existingCount: number;

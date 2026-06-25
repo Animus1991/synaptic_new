@@ -56,17 +56,23 @@ function reconstructText(items: MockItem[], pageWidth: number): string {
   const isMultiColumn = columns.length >= 2 && columns[0]!.maxX < pageWidth * 0.55;
 
   if (isMultiColumn) {
-    const lineTexts: string[] = [];
+    const columnLines: string[][] = columns.map(() => []);
     for (const line of lines) {
-      const parts: string[] = [];
-      for (const col of columns) {
-        const colItems = line.items.filter((it) => it.x >= col.minX - columnGap && it.endX <= col.maxX + columnGap);
-        if (colItems.length === 0) continue;
-        parts.push(colItems.map((it) => it.str).join(' '));
+      for (let ci = 0; ci < columns.length; ci++) {
+        const col = columns[ci]!;
+        const colItems = line.items.filter((it) => {
+          const mid = it.x + it.width / 2;
+          return mid >= col.minX - columnGap && mid <= col.maxX + columnGap;
+        });
+        if (colItems.length > 0) {
+          columnLines[ci]!.push(colItems.map((it) => it.str).join(' '));
+        }
       }
-      if (parts.length > 0) lineTexts.push(parts.join('   '));
     }
-    return lineTexts.join('\n');
+    return columnLines
+      .map((colBlock) => colBlock.join('\n'))
+      .filter((block) => block.trim().length > 0)
+      .join('\n\n');
   }
 
   return lines
@@ -87,7 +93,7 @@ describe('pdfExtract layout-aware reconstruction', () => {
     expect(text).toContain('Second line.');
   });
 
-  it('reads multi-column text left-to-right per line', () => {
+  it('reads multi-column text column-major (left then right)', () => {
     const pageWidth = 600;
     const items: MockItem[] = [
       makeItem('Left', 50, 100, 50),
@@ -100,9 +106,11 @@ describe('pdfExtract layout-aware reconstruction', () => {
       makeItem('side', 410, 120, 50),
     ];
     const text = reconstructText(items, pageWidth);
-    const lines = text.split('\n');
-    expect(lines[0]).toMatch(/Left column.*Right column/);
-    expect(lines[1]).toMatch(/Next row.*Far side/);
+    expect(text).toMatch(/Left column[\s\S]*Next row/);
+    expect(text).toMatch(/Right column[\s\S]*Far side/);
+    const leftIdx = text.indexOf('Left column');
+    const rightIdx = text.indexOf('Right column');
+    expect(leftIdx).toBeLessThan(rightIdx);
   });
 
   it('sorts items left-to-right on the same line', () => {

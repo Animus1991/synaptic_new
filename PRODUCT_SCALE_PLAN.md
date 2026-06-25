@@ -36,6 +36,7 @@
 | §11 | **Risks & mitigations** |
 | §12 | **Documentation reconciliation checklist** |
 | §13 | **Appendix** — file/function pointer index |
+| — | **`FUNCTION_CATALOG.md`** — exhaustive per-page function inventory + upgrade waves |
 
 Legend used throughout: **[SHIPS]** already on the production code path ·
 **[PARTIAL]** built but dormant/narrowly wired · **[GAP]** genuinely missing ·
@@ -73,12 +74,11 @@ these features (`server/src/index.ts` lines 37–44: `ner: true`,
 | D6 | "Refresh tokens + token expiry/rotation", "Email verification + password reset" are roadmap (`SECURITY.md`, `server/README.md`) | **Token store ships** for `refresh` + `password_reset` kinds, Postgres-backed with hashing, TTL, revoke, hourly purge; `/health` reports `refreshTokens: true` | `server/src/store/tokenStore.ts`, `server/src/store/postgres.ts` (`createTokenRepo`) |
 | D7 | `ALGORITHMS.md` describes recognition as RAKE+TextRank+PMI+definitions only | **Four additional recognition stages ship and are undocumented**: rule-based NER, embedding-space agglomerative clustering for topic discovery, concept→section salience binding, and sentence-level concept provenance spans | `src/lib/entityExtract.ts`, `src/lib/embeddingCluster.ts`, `src/lib/conceptSectionBinding.ts`, `src/lib/conceptProvenance.ts` (all wired; see §2) |
 | D8 | `ARCHITECTURE.md`/`ALGORITHMS.md` say `processUpload` is the orchestrator "in `uploadPipeline.ts`" | `processUpload` actually lives in the **store** (`src/store/useStore.ts`); `uploadPipeline.ts` exposes the builders it calls | confirmed by usage search (`store.processUpload`, `onProcessUpload={store.processUpload}`) |
-| D9 | "No hardcoded vocabulary on the production path" (`ALGORITHMS.md` design rule; `CONTRIBUTING.md`) | **A fallback production path still uses hardcoded economics vocabulary**: `TOPIC_KEYWORDS = ['supply','demand','elasticity','cournot','bertrand','pandas','numpy',…]` and `inferSubject()` defaults to `'Economics'` | `src/lib/uploadPipeline.ts:5–18, 169–175`; reached via `buildCourseFromUpload` when no outline is produced |
+| D9 | "No hardcoded vocabulary on the production path" (`ALGORITHMS.md` design rule; `CONTRIBUTING.md`) | **Resolved (Wave 2):** `buildCourseFromUpload` uses `analyzedText` / `analyzeContentToOutline`; no `TOPIC_KEYWORDS` fallback | `src/lib/uploadPipeline.ts`; `uploadPipeline.test.ts` |
 
-> **D9 is a genuine correctness defect**, not just drift: a notes set with no
-> detected outline falls back to keyword-spotting econ terms and labels the
-> course "Economics". This violates the platform's core promise and must be
-> fixed (see §4.A0 and §5.B1).
+> **D9 was a genuine correctness defect** (fixed in Wave 2): the no-outline path
+> now routes through `analyzeContentToOutline` with `analyzedText`, not keyword
+> spotting. See `uploadPipeline.test.ts` for non-econ regression coverage.
 
 ### 1.3 Per-file verdicts
 
@@ -135,6 +135,25 @@ floor every workstream builds on.
 | BM25 retrieval | `rag.ts` (`buildCorpus`, `retrieve`) | **[SHIPS]** | k1=1.5, b=0.75 |
 | Hybrid embedding rerank | `sourceContext.ts` | **[PARTIAL]** | 0.6 BM25 + 0.4 cosine; proxy-gated |
 
+#### 2.1.1 Reader rendering pipeline (Wave 1 — **complete**, v2.2.0)
+
+| Stage | Module | State | Notes |
+| ----- | ------ | ----- | ----- |
+| Structured segments | `readerDocumentLayout.ts` | **[SHIPS]** | heading / paragraph / list / front-matter / table / bibliography / math |
+| Front-matter card | `FrontMatterCard.tsx` | **[SHIPS]** | ΕΚΠΑ enumerated syllabus (`1 ΕΘΝΙΚΟ…`, eclass, email, hours) |
+| Page → lecture merge | `sectionMerger.ts` | **[SHIPS]** | collapses page-per-PDF into ΔΙΑΛΕΞΗ units |
+| Lecture-only nav | `readerSectionNav.ts` | **[SHIPS]** | horizontal chips, not per-page §N |
+| Tables / multi-column | `readerTableLayout.ts` | **[SHIPS]** | fixed-gap columns + interleaved repair |
+| Bibliography | `readerBibliography.ts` | **[SHIPS]** | Βιβλιογραφία / References + `[n]` refs |
+| Math / LaTeX | `readerMathBlocks.ts` | **[SHIPS]** | `$$`, `\[ \]`, inline `$…$` via KaTeX |
+| OCR image-only PDF | `ocrExtract.ts` | **[SHIPS]** | `isImageOnlyPdf` → default OCR path |
+| Pipeline migration UI | `pipelineMigration.ts` | **[SHIPS]** | re-upload banner when `pipelineVersion` stale |
+| Greek syllabus harness | `readerGreekSyllabus.test.ts` | **[SHIPS]** | acceptance tests for ΕΚΠΑ-style fixtures |
+
+**Re-upload:** stored `extractedText` is not re-segmented in place. Users must re-upload after pipeline upgrades (banner in Course view + Study Workspace).
+
+**Remaining Reader gaps:** per-word OCR bounding boxes (overlay is heuristic), math OCR from scanned pages, layout-aware PDF blocks beyond fixed-gap heuristics, in-app “Reprocess” without re-upload.
+
 ### 2.2 Course creation + pedagogy
 
 | Capability | Module | State |
@@ -159,7 +178,9 @@ floor every workstream builds on.
 `InteractiveSimulator`, `MiniDashboard`, and a `CommandPalette`. Mobile single-pane,
 full keyboard surface, per-task scoped persistence — all **[SHIPS]**.
 
-### 2.4 Backend (`server/`) — far more complete than documented
+### 2.4 Backend (`server/`) — dev-ready skeleton, not full production scale
+
+The `server/` package is a **functional development proxy** (auth, metering, OCR, RAG, sync) — not a hardened multi-tenant production deployment. See `server/README.md` for endpoint coverage; see §7 Workstream D for production gaps (pgvector RAG index, Redis rate limits, org accounts, observability).
 
 | Surface | Route/module | State |
 | ------- | ------------ | ----- |
@@ -251,25 +272,14 @@ This `DocumentModel` becomes the contract documented in `ALGORITHMS.md`.
 
 ---
 
-### 4.A0 — Fix the hardcoded-vocabulary defect (D9) — **P3, blocking**
+### 4.A0 — Fix the hardcoded-vocabulary defect (D9) — **done (Wave 2)**
 
-**Problem.** `uploadPipeline.buildCourseFromUpload` + `extractTopicsFromText`
-use `TOPIC_KEYWORDS` (econ/python terms) and `inferSubject()` defaults to
-`'Economics'`. Reached whenever no outline is produced.
+**Problem (historical).** `uploadPipeline.buildCourseFromUpload` used econ keyword fallbacks.
 
-**Fix (minimal, root-cause).**
-- Delete `TOPIC_KEYWORDS`, `extractTopicsFromText`, and `inferSubject`'s hardcoded
-  branches. Route the no-outline case through `analyzeContentToOutline` (the
-  offline engine already handles arbitrary text) so there is **one** path:
-  notes → outline → `buildCourseFromOutline`.
-- For genuinely empty/too-short input, produce an explicit "needs more material"
-  course stub, **not** an econ-labeled course.
-- Derive `subject` from the top cluster medoid label + entity types, never a
-  hardcoded default; fall back to `"General"`.
-- **Acceptance:** uploading a biology or law PDF never yields `subject: 'Economics'`;
-  add a regression test in `uploadPipeline.test.ts` with non-econ fixtures.
-- **CI guard:** a test that greps `src/lib/**` for domain token arrays and fails
-  the build (enforces principle #1).
+**Fix shipped.**
+- `analyzedText` passed into `buildCourseFromUpload`; no-outline path uses `analyzeContentToOutline`.
+- Regression tests in `uploadPipeline.test.ts` for non-econ subjects.
+- CI vocab guard still recommended (§12).
 
 ---
 

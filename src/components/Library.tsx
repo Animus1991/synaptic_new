@@ -1,18 +1,30 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Search, Upload, BookOpen, FileText, ChevronRight,
+  Search, Upload, BookOpen, FileText, ChevronRight, ChevronDown,
   Clock, BarChart3, Sparkles, Plus, Grid3X3, List, Loader2,
-  File, Image, Code, Presentation, Table2, AlertTriangle
+  File, Image, Code, Presentation, Table2, AlertTriangle, Trash2, RefreshCw,
 } from 'lucide-react';
-import type { Course, UploadedFile } from '../types';
+import type { Course, UploadedFile, UserSettings, Task, GlossaryEntry } from '../types';
 import { cn } from '../utils/cn';
+import { buildMaterialOutlinePreview } from '../lib/uploadOutlinePreview';
+import { OutlinePreviewPanel } from './OutlinePreviewPanel';
+import { ConfirmDialog } from './ui/ConfirmDialog';
+import { buildDeleteFileCascadeCopy } from '../lib/deleteFileCascadeCopy';
+import { countFilesForCourse } from '../lib/deleteCascade';
+import { countGeneratedTasksForCourse } from '../lib/pipelineReprocess';
 
 interface LibraryProps {
   courses: Course[];
   uploadedFiles: UploadedFile[];
   onSelectCourse: (course: Course) => void;
   onUpload: () => void;
+  onRemoveFile?: (fileId: string) => void;
+  onReprocessCourse?: (courseId: string) => void;
+  reprocessingMaterial?: boolean;
+  userSettings?: UserSettings;
+  tasks?: Task[];
+  glossaryEntries?: GlossaryEntry[];
 }
 
 type LibraryTab = 'courses' | 'files';
@@ -29,7 +41,19 @@ const fileTypeIcons: Record<string, typeof FileText> = {
   code: Code,
 };
 
-export function Library({ courses, uploadedFiles, onSelectCourse, onUpload }: LibraryProps) {
+export function Library({
+  courses,
+  uploadedFiles,
+  onSelectCourse,
+  onUpload,
+  onRemoveFile,
+  onReprocessCourse,
+  reprocessingMaterial = false,
+  userSettings,
+  tasks = [],
+  glossaryEntries = [],
+}: LibraryProps) {
+  const userLanguage = userSettings?.language === 'el' ? 'el' : 'en';
   const [tab, setTab] = useState<LibraryTab>('courses');
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
   const [search, setSearch] = useState('');
@@ -166,7 +190,20 @@ export function Library({ courses, uploadedFiles, onSelectCourse, onUpload }: Li
             ) : (
               <div className="space-y-2">
                 {uploadedFiles.map((file, i) => (
-                  <FileItem key={file.id} file={file} index={i} />
+                  <FileItem
+                    key={file.id}
+                    file={file}
+                    index={i}
+                    course={courses.find((c) => c.id === file.courseId)}
+                    uploadedFiles={uploadedFiles}
+                    tasks={tasks}
+                    glossaryEntries={glossaryEntries}
+                    userSettings={userSettings}
+                    userLanguage={userLanguage}
+                    onRemoveFile={onRemoveFile}
+                    onReprocessCourse={onReprocessCourse}
+                    reprocessingMaterial={reprocessingMaterial}
+                  />
                 ))}
               </div>
             )}
@@ -335,48 +372,188 @@ function CourseListItem({ course, index, onClick }: { course: Course; index: num
   );
 }
 
-function FileItem({ file, index }: { file: UploadedFile; index: number }) {
+function FileItem({
+  file,
+  index,
+  course,
+  uploadedFiles,
+  tasks = [],
+  glossaryEntries = [],
+  userSettings,
+  userLanguage = 'en',
+  onRemoveFile,
+  onReprocessCourse,
+  reprocessingMaterial = false,
+}: {
+  file: UploadedFile;
+  index: number;
+  course?: Course;
+  uploadedFiles: UploadedFile[];
+  tasks?: Task[];
+  glossaryEntries?: GlossaryEntry[];
+  userSettings?: UserSettings;
+  userLanguage?: 'en' | 'el';
+  onRemoveFile?: (fileId: string) => void;
+  onReprocessCourse?: (courseId: string) => void;
+  reprocessingMaterial?: boolean;
+}) {
   const Icon = fileTypeIcons[file.type] || FileText;
+  const [expanded, setExpanded] = useState(false);
+  const [removeDialogOpen, setRemoveDialogOpen] = useState(false);
+  const el = userLanguage === 'el';
+  const outlinePreview = useMemo(() => {
+    if (!file.extractedText?.trim() || file.status !== 'analyzed') return null;
+    return buildMaterialOutlinePreview(file.extractedText, [file.name], userSettings);
+  }, [file.extractedText, file.name, file.status, userSettings]);
+  const canExpand = Boolean(outlinePreview);
+  const canReprocess = Boolean(file.courseId && onReprocessCourse && file.status === 'analyzed');
+
+  const confirmRemove = () => {
+    if (!file.id || !onRemoveFile) return;
+    setRemoveDialogOpen(true);
+  };
+
+  const cascadeCopy = useMemo(() => {
+    if (!file.courseId) {
+      return buildDeleteFileCascadeCopy({
+        lang: userLanguage,
+        fileName: file.name,
+        remainingFilesForCourse: 0,
+        generatedTaskCount: 0,
+        glossaryCount: 0,
+      });
+    }
+    const remainingFilesForCourse = countFilesForCourse(
+      uploadedFiles.filter((f) => f.id !== file.id),
+      file.courseId,
+    );
+    return buildDeleteFileCascadeCopy({
+      lang: userLanguage,
+      fileName: file.name,
+      courseTitle: course?.title,
+      remainingFilesForCourse,
+      generatedTaskCount: countGeneratedTasksForCourse(tasks, file.courseId),
+      glossaryCount: glossaryEntries.filter((g) => g.courseId === file.courseId).length,
+    });
+  }, [file, uploadedFiles, course?.title, tasks, glossaryEntries, userLanguage]);
+
+  const removeTitle = cascadeCopy.title;
+  const removeDescription = cascadeCopy.description;
 
   return (
+    <>
     <motion.div
       initial={{ opacity: 0, x: -10 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: index * 0.03 }}
-      className="flex items-center gap-3 p-3 rounded-xl border border-border-subtle bg-surface-card"
+      className="rounded-xl border border-border-subtle bg-surface-card overflow-hidden"
     >
-      <div className="w-10 h-10 rounded-lg bg-surface-hover flex items-center justify-center shrink-0">
-        <Icon className="w-5 h-5 text-brand-400" />
-      </div>
-      <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium truncate">{file.name}</p>
-        <p className="text-xs text-text-tertiary mt-0.5">
-          {(file.size / 1024).toFixed(1)} KB · {file.type.toUpperCase()}
-        </p>
-      </div>
-      <div className="shrink-0">
-        {file.status === 'uploading' && (
-          <div className="flex items-center gap-2">
-            <div className="w-16 bg-surface-hover rounded-full h-1.5">
-              <div className="h-1.5 rounded-full bg-brand-500 transition-all" style={{ width: `${file.progress}%` }} />
+      <div className="flex items-center gap-3 p-3">
+        <div className="w-10 h-10 rounded-lg bg-surface-hover flex items-center justify-center shrink-0">
+          <Icon className="w-5 h-5 text-brand-400" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-medium truncate">{file.name}</p>
+          <p className="text-xs text-text-tertiary mt-0.5">
+            {(file.size / 1024).toFixed(1)} KB · {file.type.toUpperCase()}
+            {course && <> · {course.title}</>}
+            {outlinePreview && (
+              <> · {outlinePreview.outline.topics.length} {el ? 'ενότητες' : 'modules'}</>
+            )}
+          </p>
+          {file.pipelineVersion && (
+            <p className="text-[10px] text-text-muted mt-0.5">pipeline v{file.pipelineVersion}</p>
+          )}
+        </div>
+        <div className="shrink-0 flex items-center gap-2">
+          {file.status === 'uploading' && (
+            <div className="flex items-center gap-2">
+              <div className="w-16 bg-surface-hover rounded-full h-1.5">
+                <div className="h-1.5 rounded-full bg-brand-500 transition-all" style={{ width: `${file.progress}%` }} />
+              </div>
+              <span className="text-xs text-text-tertiary">{Math.round(file.progress || 0)}%</span>
             </div>
-            <span className="text-xs text-text-tertiary">{Math.round(file.progress || 0)}%</span>
-          </div>
-        )}
-        {file.status === 'processing' && (
-          <span className="flex items-center gap-1 text-xs text-accent-amber">
-            <Loader2 className="w-3 h-3 animate-spin" />
-            Analyzing
-          </span>
-        )}
-        {file.status === 'analyzed' && (
-          <span className="flex items-center gap-1 text-xs text-accent-emerald">
-            <Sparkles className="w-3 h-3" />
-            Ready
-          </span>
-        )}
+          )}
+          {file.status === 'processing' && (
+            <span className="flex items-center gap-1 text-xs text-accent-amber">
+              <Loader2 className="w-3 h-3 animate-spin" />
+              Analyzing
+            </span>
+          )}
+          {file.status === 'analyzed' && (
+            <span className="flex items-center gap-1 text-xs text-accent-emerald">
+              <Sparkles className="w-3 h-3" />
+              {el ? 'Έτοιμο' : 'Ready'}
+            </span>
+          )}
+          {canReprocess && (
+            <button
+              type="button"
+              onClick={() => file.courseId && onReprocessCourse?.(file.courseId)}
+              disabled={reprocessingMaterial}
+              data-testid={`library-reprocess-${file.id}`}
+              className="p-1.5 rounded-lg border border-brand-500/30 text-brand-300 hover:bg-brand-500/10 disabled:opacity-60 transition-colors"
+              title={el ? 'Επανεπεξεργασία κειμένου μαθήματος' : 'Reprocess course stored text'}
+            >
+              <RefreshCw className={cn('w-4 h-4', reprocessingMaterial && 'animate-spin')} />
+            </button>
+          )}
+          {file.id && onRemoveFile && file.status === 'analyzed' && (
+            <button
+              type="button"
+              onClick={confirmRemove}
+              data-testid={`library-remove-${file.id}`}
+              className="p-1.5 rounded-lg border border-accent-rose/30 text-accent-rose hover:bg-accent-rose/10 transition-colors"
+              title={el ? 'Αφαίρεση αρχείου' : 'Remove file'}
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
+          )}
+          {canExpand && (
+            <button
+              type="button"
+              onClick={() => setExpanded((v) => !v)}
+              className="p-1.5 rounded-lg hover:bg-surface-hover text-text-secondary"
+              aria-expanded={expanded}
+              aria-label={expanded ? 'Hide outline preview' : 'Show outline preview'}
+            >
+              <ChevronDown className={cn('w-4 h-4 transition-transform', expanded && 'rotate-180')} />
+            </button>
+          )}
+        </div>
       </div>
+      <AnimatePresence>
+        {expanded && outlinePreview && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="px-3 pb-3"
+          >
+            <OutlinePreviewPanel
+              preview={outlinePreview}
+              compact
+              language={userLanguage}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
+    <ConfirmDialog
+      open={removeDialogOpen}
+      onClose={() => setRemoveDialogOpen(false)}
+      onConfirm={() => {
+        if (file.id && onRemoveFile) onRemoveFile(file.id);
+        setRemoveDialogOpen(false);
+      }}
+      title={removeTitle}
+      description={removeDescription}
+      confirmLabel={el ? 'Αφαίρεση' : 'Remove'}
+      cancelLabel={el ? 'Ακύρωση' : 'Cancel'}
+      destructive
+      data-testid={`library-remove-dialog-${file.id}`}
+    />
+    </>
   );
 }
 

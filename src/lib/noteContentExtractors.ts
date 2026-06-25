@@ -15,9 +15,23 @@ import {
   splitSentences,
   titleCasePhrase,
 } from './contentAnalysis';
+import { inferSectionTitleFromBody, isGenericSectionHeading } from './textSegmentation';
+import {
+  buildReaderSegments,
+  isStudyToolExcludedText,
+  readerSegmentsToStepSections,
+} from './readerDocumentLayout';
+import { isGarbageStepTitle, sanitizeStepTitle } from './workspaceStepTitleQuality';
+import { isLectureHeadingText } from './sectionMerger';
 import { buildCorpusFromChunks, chunkText, retrieve, tokenize, type SourceChunk } from './rag';
 import { extractTables, tableToComparisonRows } from './tableExtract';
 import { targetQuizDifficulty } from './quizIrt';
+import {
+  buildFallbackComparisons,
+  buildFallbackDebateTree,
+  buildFallbackQuizFromPassage,
+  isGenericStudyConcept,
+} from './workspaceContentFallback';
 
 /* ------------------------------------------------------------------ *
  * Source gathering & relevance
@@ -44,11 +58,7 @@ export function gatherAnalyzedText(files: UploadedFile[], courseId?: string): {
 }
 
 function conceptWords(concept: string): string[] {
-  return concept
-    .toLowerCase()
-    .split(/[\s,/·–—-]+/)
-    .map((w) => w.trim())
-    .filter((w) => w.length >= 3);
+  return tokenize(concept).filter((w) => w.length >= 2);
 }
 
 /**
@@ -341,6 +351,10 @@ export function extractComparisons(
     }
   }
 
+  if (rows.length === 0) {
+    rows.push(...buildFallbackComparisons(text, concept));
+  }
+
   return rows;
 }
 
@@ -362,6 +376,7 @@ export function buildFlashcards(
     const f = front.trim();
     const b = back.trim();
     if (f.length < 2 || b.length < 8) return;
+    if (isStudyToolExcludedText(f) || isStudyToolExcludedText(b)) return;
     const k = normalizeConcept(f);
     if (seen.has(k)) return;
     seen.add(k);
@@ -376,10 +391,13 @@ export function buildFlashcards(
   }
 
   for (const d of extractDefinitions(excerpt, 10)) {
+    if (isStudyToolExcludedText(d.definition)) continue;
     add(d.term, d.definition);
   }
 
-  const sentences = splitSentences(excerpt).filter((s) => conceptRelevanceScore(s, concept) > 0.3);
+  const sentences = splitSentences(excerpt).filter(
+    (s) => !isStudyToolExcludedText(s) && conceptRelevanceScore(s, concept) > 0.3,
+  );
   for (const s of sentences.slice(0, 4)) {
     const words = conceptWords(concept);
     const hit = words.find((w) => s.toLowerCase().includes(w));
@@ -409,16 +427,8 @@ export function buildFlashcards(
  * Distractor selection
  * ------------------------------------------------------------------ */
 
-const TERM_STOP = new Set([
-  'the', 'a', 'an', 'of', 'and', 'or', 'to', 'for', 'in', 'on', 'is', 'are', 'this', 'that',
-]);
-
 function termTokens(s: string): Set<string> {
-  const out = new Set<string>();
-  for (const w of s.toLowerCase().split(/[^a-z0-9]+/)) {
-    if (w.length >= 3 && !TERM_STOP.has(w)) out.add(w);
-  }
-  return out;
+  return new Set(tokenize(s));
 }
 
 function termJaccard(a: string, b: string): number {
@@ -540,7 +550,9 @@ function buildMcQuizFromNotes(
   lang: Lang,
 ): QuizDef | null {
   const excerpt = relevantExcerpt(text, concept, 10000);
-  const sentences = splitSentences(excerpt).filter((s) => conceptRelevanceScore(s, concept) > 0.25);
+  const sentences = splitSentences(excerpt).filter(
+    (s) => !isStudyToolExcludedText(s) && conceptRelevanceScore(s, concept) > 0.25,
+  );
 
   // Prefer cloze from glossary (P1 quality): pick the term most relevant to concept.
   const scopedTerms = glossary
@@ -697,7 +709,7 @@ export function buildQuizFromNotes(
     const q = builders[(variant + i) % builders.length]!();
     if (q) return q;
   }
-  return null;
+  return buildFallbackQuizFromPassage(text, concept, glossary, lang);
 }
 
 /** IRT-guided quiz selection — tries builders closest to target difficulty first (W7). */
@@ -730,6 +742,123 @@ export function buildAdaptiveQuizFromNotes(
 
 const STEP_TYPES_EN = ['Core Concept', 'Deep Dive', 'Key Insight', 'Practice', 'Quiz'];
 const STEP_TYPES_EL = ['Βασική Έννοια', 'Εμβάθυνση', 'Βασική Ιδέα', 'Εξάσκηση', 'Κουίζ'];
+const GENERIC_TURN_HEADINGS = new Set([
+  'user', 'assistant', 'system', 'tool',
+  'q', 'a', 'question', 'answer',
+  'speaker 1', 'speaker 2',
+]);
+
+function cleanStepHeading(raw: string): string {
+  return raw
+    .replace(/^#{1,6}\s+/, '')
+    .replace(/^\s*(?:\d+(?:\.\d+)*|chapter|κεφάλαιο|section|ενότητα|unit|module|part|μέρος)[).:\s-]*/i, '')
+    .replace(/^[•\-–—*·\d.)\s]+/, '')
+    .replace(/[:.]\s*$/, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function sectionFallbackTitle(text: string, concept: string): string {
+  const phrase = titleCasePhrase(rankKeyphrases(text, 1)[0]?.phrase ?? concept).trim();
+  return phrase || concept;
+}
+
+function makeStepTitle(
+  section: { heading?: string; text: string },
+  concept: string,
+  lang: Lang = 'en',
+): string {
+  let heading = cleanStepHeading(section.heading ?? '');
+  if (!heading || isGenericSectionHeading(heading)) {
+    heading = cleanStepHeading(inferSectionTitleFromBody(section.text) ?? heading);
+  }
+  if (heading) {
+    if (!GENERIC_TURN_HEADINGS.has(heading.toLowerCase()) && !isGenericSectionHeading(heading)) {
+      if (isLectureHeadingText(heading) || !isGarbageStepTitle(heading)) {
+        return heading.slice(0, 42);
+      }
+    }
+    const preview = section.text.split('\n').map((line) => line.trim()).find(Boolean) ?? '';
+    if (preview && !isGarbageStepTitle(preview)) {
+      return `${heading}: ${preview}`.slice(0, 42);
+    }
+  }
+  const fallback = sectionFallbackTitle(section.text, concept);
+  return sanitizeStepTitle(fallback, concept, lang).slice(0, 42);
+}
+
+function isMeaningfulStepSection(section: { heading?: string; text: string }): boolean {
+  if (isGenericSectionHeading(section.heading)) {
+    return Boolean(inferSectionTitleFromBody(section.text));
+  }
+  return section.text.trim().length >= 20 || Boolean(section.heading?.trim());
+}
+
+function dedupeStepSectionsByTitle(
+  sections: { heading?: string; text: string }[],
+  concept: string,
+): { heading?: string; text: string }[] {
+  const seen = new Set<string>();
+  const out: { heading?: string; text: string }[] = [];
+  for (const section of sections) {
+    const title = makeStepTitle(section, concept).toLowerCase();
+    if (isGarbageStepTitle(title)) continue;
+    if (seen.has(title)) continue;
+    seen.add(title);
+    out.push(section);
+  }
+  return out;
+}
+
+function hasExplicitSectionTitle(section: { heading?: string; text: string }): boolean {
+  if (section.heading && !isGenericSectionHeading(section.heading)) return true;
+  return Boolean(inferSectionTitleFromBody(section.text));
+}
+
+function selectStructuredStepSections(
+  sections: { heading?: string; text: string }[],
+  concept: string,
+  maxSections = 5,
+): { heading?: string; text: string }[] {
+  const scored = sections.map((section, index) => ({
+    section,
+    index,
+    score: conceptRelevanceScore(`${section.heading ?? ''}\n${section.text}`, concept),
+  }));
+  const best = scored
+    .slice()
+    .sort((a, b) => b.score - a.score)[0];
+  if (!best) return [];
+
+  const leftBudget = Math.min(best.index, Math.floor((maxSections - 1) / 2));
+  let start = Math.max(0, best.index - leftBudget);
+  let end = Math.min(scored.length, start + maxSections);
+  if (end - start < Math.min(2, scored.length)) {
+    start = Math.max(0, end - Math.min(maxSections, scored.length));
+  }
+
+  const windowed = dedupeStepSectionsByTitle(
+    scored
+      .slice(start, end)
+      .filter(({ section, score, index }) =>
+        isMeaningfulStepSection(section) &&
+        (hasExplicitSectionTitle(section) || score > 0.05 || index === best.index),
+      )
+      .map(({ section }) => section),
+    concept,
+  );
+
+  if (windowed.length >= 2) return windowed.slice(0, maxSections);
+
+  return dedupeStepSectionsByTitle(
+    scored
+      .filter(({ section }) => isMeaningfulStepSection(section))
+      .sort((a, b) => a.index - b.index)
+      .slice(0, maxSections * 2)
+      .map(({ section }) => section),
+    concept,
+  ).slice(0, maxSections);
+}
 
 /** Detect worked-example / numeric exercise sentences in the material. */
 export function extractWorkedExamples(text: string, concept: string, max = 4): string[] {
@@ -740,40 +869,64 @@ export function extractWorkedExamples(text: string, concept: string, max = 4): s
     .slice(0, max);
 }
 
+/** Minimum lesson rail when structured steps cannot be inferred from source text. */
+export function fallbackWorkspaceSteps(
+  concept: string,
+  lang: Lang,
+): { title: string; type: string }[] {
+  return [
+    {
+      title: concept.trim() || (lang === 'el' ? 'Μελέτη' : 'Study'),
+      type: lang === 'el' ? 'Κύρια έννοια' : 'Core Concept',
+    },
+    {
+      title: lang === 'el' ? 'Έλεγχος Γνώσεων' : 'Knowledge Check',
+      type: lang === 'el' ? 'Κουίζ' : 'Quiz',
+    },
+  ];
+}
+
 export function buildWorkspaceStepsFromNotes(
   text: string,
   concept: string,
   lang: Lang,
 ): { title: string; type: string }[] | null {
   const excerpt = relevantExcerpt(text, concept, 16000);
-  const sections = detectSections(excerpt).filter(
-    (s) => conceptRelevanceScore((s.heading ?? '') + s.text, concept) > 0.2,
-  );
+  const segmentSections = readerSegmentsToStepSections(buildReaderSegments(text), lang);
   const types = lang === 'el' ? STEP_TYPES_EL : STEP_TYPES_EN;
   const quizStep = {
     title: lang === 'el' ? 'Έλεγχος Γνώσεων' : 'Knowledge Check',
     type: lang === 'el' ? 'Κουίζ' : 'Quiz',
   };
 
-  if (sections.length >= 2) {
-    const steps = sections.slice(0, 5).map((s, i) => ({
-      title: (s.heading ?? titleCasePhrase(rankKeyphrases(s.text, 1)[0]?.phrase ?? concept)).slice(0, 42),
+  const structuredSections = segmentSections.length >= 2
+    ? segmentSections
+    : selectStructuredStepSections(detectSections(text), concept, 5);
+
+  if (structuredSections.length >= 2) {
+    const steps = structuredSections.map((s, i) => ({
+      title: makeStepTitle(s, concept, lang),
       type: types[Math.min(i, types.length - 2)] ?? types[0]!,
-    }));
+    })).filter((s) => !isGarbageStepTitle(s.title));
     const examples = extractWorkedExamples(excerpt, concept, 1);
-    if (examples.length > 0 && steps.length < 5) {
+    const hasPracticeLikeTitle = steps.some((step) =>
+      /\b(example|exercise|practice|παράδειγμα|άσκηση|εξάσκηση)\b/i.test(step.title),
+    );
+    if (examples.length > 0 && steps.length < 5 && !hasPracticeLikeTitle) {
       steps.push({
         title: (lang === 'el' ? 'Παράδειγμα: ' : 'Example: ') + examples[0]!.slice(0, 32) + '…',
         type: lang === 'el' ? 'Εξάσκηση' : 'Practice',
       });
     }
-    return [...steps, quizStep];
+    if (steps.length >= 2) return [...steps, quizStep];
   }
 
-  const keyphrases = rankKeyphrases(excerpt, 5).filter((k) => conceptRelevanceScore(k.phrase, concept) > 0.1);
+  const keyphrases = rankKeyphrases(excerpt, 8)
+    .filter((k) => conceptRelevanceScore(k.phrase, concept) > 0.1)
+    .filter((k) => !isGarbageStepTitle(k.phrase));
   if (keyphrases.length >= 2) {
     const steps = keyphrases.slice(0, 4).map((k, i) => ({
-      title: titleCasePhrase(k.phrase).slice(0, 42),
+      title: sanitizeStepTitle(titleCasePhrase(k.phrase), concept, lang).slice(0, 42),
       type: types[Math.min(i, types.length - 2)] ?? types[0]!,
     }));
     steps.push({
@@ -786,8 +939,11 @@ export function buildWorkspaceStepsFromNotes(
   const summaries = extractiveSummary(excerpt, 3, { biasTerms: [concept], leadBias: 0.1 });
   if (summaries.length >= 2) {
     return [
-      ...summaries.slice(0, 4).map((s, i) => ({
-        title: s.slice(0, 48) + (s.length > 48 ? '…' : ''),
+      ...summaries.slice(0, 4)
+        .map((s) => s.slice(0, 48) + (s.length > 48 ? '…' : ''))
+        .filter((title) => !isGarbageStepTitle(title))
+        .map((title, i) => ({
+        title,
         type: types[Math.min(i, types.length - 2)] ?? types[0]!,
       })),
       quizStep,
@@ -1064,7 +1220,9 @@ function scoreDebateSentence(sentence: string, concept: string): DebateScore {
 export function buildDebateTreeFromNotes(text: string, concept: string): DebateNode | null {
   const excerpt = relevantExcerpt(text, concept, 10000);
   const sentences = splitSentences(excerpt).filter((s) => conceptRelevanceScore(s, concept) > 0.2);
-  if (sentences.length < 2) return null;
+  if (sentences.length < 2) {
+    return buildFallbackDebateTree(text, concept) as DebateNode | null;
+  }
 
   const scored = sentences.map((s) => scoreDebateSentence(s, concept));
 
@@ -1140,8 +1298,15 @@ export function buildFeynmanOutline(
   concept: string,
   lang: Lang,
 ): string[] {
-  if (topic?.objectives?.length) return topic.objectives.slice(0, 5);
-  if (topic?.keyConcepts?.length) {
+  const topicMatchesConcept = topic && conceptRelevanceScore(topic.title, concept) >= 0.45;
+  if (
+    topicMatchesConcept
+    && topic?.objectives?.length
+    && !isGenericStudyConcept(concept)
+  ) {
+    return topic.objectives.slice(0, 5);
+  }
+  if (topicMatchesConcept && topic?.keyConcepts?.length) {
     return topic.keyConcepts.map((c) =>
       lang === 'el' ? `Εξήγησε: ${c}` : `Explain: ${c}`,
     );

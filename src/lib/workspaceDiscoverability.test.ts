@@ -5,6 +5,33 @@ import {
   buildToolFeatureGuide,
 } from './workspaceDiscoverability';
 import { buildWorkspaceCorrelation } from './workspaceCorrelation';
+import type { WorkspaceSourceIntelligence } from './workspaceNoteContent';
+
+function sampleSourceIntel(overrides: Partial<WorkspaceSourceIntelligence> = {}): WorkspaceSourceIntelligence {
+  return {
+    score: 80,
+    band: 'strong',
+    bestTool: 'reader',
+    bestToolReason: 'Read first',
+    strengths: [],
+    gaps: [],
+    nextActions: [],
+    metrics: {
+      passageCount: 2,
+      avgPassageRelevance: 0.7,
+      sectionCount: 3,
+      definitionCount: 1,
+      glossaryCount: 2,
+      workedExampleCount: 0,
+      formulaCount: 0,
+      comparisonCount: 0,
+      conceptNodeCount: 1,
+      stepCount: 4,
+    },
+    documentStructure: null,
+    ...overrides,
+  };
+}
 
 function sampleCorrelation(overrides: Partial<ReturnType<typeof buildWorkspaceCorrelation>> = {}) {
   return buildWorkspaceCorrelation({
@@ -42,5 +69,25 @@ describe('workspaceDiscoverability', () => {
     );
     expect(summary.grounded).toBe(false);
     expect(summary.headline).toMatch(/upload/i);
+    expect(summary.nextAction).toBeNull();
+  });
+
+  it('syncs subline and recommended tool from next action engine (Wave 5C)', () => {
+    const summary = buildDiscoverabilitySummary(
+      true,
+      sampleSourceIntel({ score: 82, bestTool: 'feynman', bestToolReason: 'Try Feynman' }),
+      sampleCorrelation(),
+      'reader',
+      'en',
+      {
+        primary: 'test-me',
+        reason: 'Section marked clear — verify with a quick check.',
+        secondary: ['flashcards'],
+      },
+    );
+    expect(summary.subline).toContain('verify');
+    expect(summary.recommendedTool).toBe('quiz');
+    expect(summary.nextAction?.primary).toBe('test-me');
+    expect(summary.toolGuide.quickActionIds[0]).toBe('jump-quiz');
   });
 });

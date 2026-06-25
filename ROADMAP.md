@@ -1,6 +1,6 @@
 # Roadmap & Gap Analysis
 
-**Status baseline:** June 2026 — post P0/P1/P2 sweep covering Stripe billing, account session sync, real YouTube transcript ingestion, `node-pg-migrate`, Playwright E2E, generic formula solver, BM25-unified deterministic tools, identity isolation, and a subject-agnostic Feynman rubric.
+**Status baseline:** June 2026 — post P0/P1/P2 sweep plus June wave: Study Workspace stability fixes, Agent workspace handoff (auto-send + step RAG context), mobile intelligence tabs, OCR line correction MVP, pipeline **v2.4.0** (column-major PDF + lecture merge tuning), library delete/reprocess, Greek OCR v2.3 repair path.
 
 This document separates **done**, **partial**, and **missing** against the product goal: *note-grounded adaptive learning at product scale, not MVP/demo-first.*
 
@@ -12,19 +12,62 @@ This document separates **done**, **partial**, and **missing** against the produ
 | ----- | ---------- | ----- |
 | Content engine (offline v2) | **~90%** | RAKE+TextRank, sections, prerequisites, BM25 unified across deterministic tools, PMI co-occurrence edges |
 | Upload → course pipeline | **~90%** | PDF/DOCX/PPTX/TXT/MD/CSV + YouTube transcript + OCR for images/scanned PDFs are live, with course-level source-quality scoring and adaptive topic compaction before study |
-| Study Workspace (11 tools) | **~83%** | Note-grounded, scoped persistence, mobile stacking, full keyboard shortcut surface, source-intelligence diagnostics; upload now lands on course review before workspace |
+| Study Workspace (11 tools) | **~88%** | Note-grounded, scoped persistence, mobile tool drawer + intelligence tabs, learning-action Agent handoff, context strip; upload lands on course review before workspace |
 | Lesson surfaces | **~80%** | LessonView + PracticalLessonView fully note/LLM-grounded |
 | Tasks & pedagogy | **~80%** | Generated tasks, FSRS→store, Beta-Bernoulli mastery, course-derived prereq edges |
 | Analytics & Dashboard | **~75%** | Mastery map now derived from real `learnerModel + courses`; some metric depth still partial |
-| RAG / Agent | **~80%** | BM25 + hybrid embedding rerank; chunk-level page citations after PDF `\f` fix |
+| RAG / Agent | **~85%** | BM25 + hybrid embedding rerank; workspace step/course context on handoff; chunk-level page citations after PDF `\f` fix |
 | Client persistence | **~85%** | localStorage + IndexedDB + backup; whiteboard/scratchpad/concept-map scoped per task |
 | Auth & full sync | **~80%** | JWT login/register, library + session pull/push, plan refresh, identity isolation |
-| Phase 6 server | **~90%** | Express proxy + JWT + refresh/reset flows + metering + rate limiting + library/session sync + YouTube + OCR + NLP + semantic RAG endpoint + teacher aggregates + Stripe + Postgres migrations |
+| Phase 6 server | **~75%** (dev skeleton) | Express proxy + auth + sync + OCR/RAG routes ship locally; **not** hardened multi-tenant production (see `server/README.md`) |
 | Documentation | **~90%** | 11 MD files + new SECURITY/API/CHANGELOG/ALGORITHMS docs + `EXHAUSTIVE_PRODUCT_SCALE_BLUEPRINT.md` |
-| Tests & CI | **~71%** | Vitest: 12 `src/lib/*.test.ts` files / 59 tests; Playwright E2E (2 specs); server integration tests still missing |
+| Tests & CI | **~85%** | Vitest: **335+** unit tests; Playwright E2E (2 specs); server integration tests still missing |
 | i18n | **~35%** | Shell + onboarding EL; analytics/feynman/argument labels still EN-only |
 
-**Overall product-scale readiness: ~80%** — past the MVP boundary; remaining work is depth (offline embeddings, OCR, full i18n, multi-user collaboration) rather than gaps.
+**Overall product-scale readiness: ~84%** — past the MVP boundary; remaining work is depth (offline embeddings, full i18n, multi-user collaboration) rather than core workflow gaps.
+
+### Reader / pipeline v2.4.0 — **complete** (June 2026)
+
+| Capability | Module | Status |
+| ---------- | ------ | ------ |
+| Column-major multi-column PDF reading order | `pdfExtract.ts` | ✅ |
+| Lecture merge threshold tuning (2+ lectures) | `sectionMerger.ts` | ✅ |
+| Greek OCR repair (reprocess path) | `greekTextRepair.ts` v2.3 | ✅ |
+| Reader OCR line correction (local) | `readerOcrCorrectionStore.ts`, `OcrCorrectionPanel.tsx` | ✅ MVP |
+| Agent auto-send + workspace RAG context | `agentWorkspaceContext.ts`, `Agent.tsx` | ✅ |
+| Mobile intelligence tabs | `WorkspaceMobileIntelligenceTabs.tsx` | ✅ |
+
+**Re-upload / reprocess:** courses analyzed before **v2.4.0** keep stored `extractedText`. Use **re-upload** for full Reader v2.4 layout, or **Επανεπεξεργασία κειμένου** when `pipelineVersion < 2.4.0` for Greek repair + merge without re-uploading the file.
+
+### Launch phases A–E (June 2026) — **complete**
+
+| Phase | Deliverable | Key files |
+| ----- | ----------- | --------- |
+| A | Lesson rail + Reader structure from real headings | `textSegmentation.ts`, `readerDocumentLayout.ts`, `noteContentExtractors.ts` |
+| B | Outline preview before generate | `uploadOutlinePreview.ts`, `OutlinePreviewPanel.tsx` |
+| C | Concept Bus panel (term ↔ tool activity) | `ConceptBusPanel.tsx`, `conceptBusPanelModel.ts` |
+| D | Upload success toast | `uploadStructureSummary.ts`, `AppToastBanner.tsx` |
+| E | Eval harness recall ≥ 0.6 | `evalHarness.ts`, `collectPipelineConcepts()` |
+
+See **`FUNCTION_CATALOG.md`** for the exhaustive per-function inventory and upgrade waves.
+
+### Reader recognition Wave 1 — **complete** (pipeline v2.2.0)
+
+| Capability | Module | Status |
+| ---------- | ------ | ------ |
+| Front-matter card (`Στοιχεία μαθήματος`) | `readerDocumentLayout.ts`, `FrontMatterCard.tsx` | ✅ |
+| Ordered syllabus lists (`<ol>`) | `readerDocumentLayout.ts`, `detectEnumeratedItems` | ✅ |
+| Adaptive paragraph reconstruction | `readerDocumentLayout.ts` | ✅ |
+| Page → lecture merge | `sectionMerger.ts` | ✅ |
+| Lecture-only Reader nav | `readerSectionNav.ts` | ✅ |
+| Tables / multi-column PDF | `readerTableLayout.ts` | ✅ |
+| Bibliography blocks | `readerBibliography.ts`, `BibliographyBlock.tsx` | ✅ |
+| LaTeX / math preservation | `readerMathBlocks.ts`, KaTeX in `CognitiveReader` | ✅ |
+| OCR default for image-only PDFs | `ocrExtract.ts` (`isImageOnlyPdf`, `needsOcr`) | ✅ |
+| Re-upload migration hint | `pipelineMigration.ts`, `ReuploadMigrationBanner.tsx` | ✅ |
+| Greek syllabus acceptance harness | `readerGreekSyllabus.test.ts` | ✅ |
+
+**Re-upload required:** courses analyzed before v2.2.0 keep stored `extractedText` and segments from the old pipeline. The UI shows a dismissible re-upload banner; users must **re-upload** (or extend-upload) the PDF for improved Reader output.
 
 ---
 
@@ -129,7 +172,7 @@ After the recent sweep, no demo concept (Cournot/Bertrand/Elasticity/Pandas/Micr
 | `SupplyDemandDiagram` | **Removed** (was unused) |
 | `marketStructures` / `microeconomics` i18n keys | **Removed** (were unused) |
 | `INITIAL_MISTAKES` | Moved to `src/demo/mockData.ts` (`DEMO_INITIAL_MISTAKES`) |
-| `StudyWorkspace` default `quizConcept` | Now generic `'Study concept'`, never `'Market Structures'` |
+| `StudyWorkspace` default `quizConcept` | First course topic title (or course title); never hardcoded demo labels |
 
 ---
 
@@ -234,7 +277,7 @@ After the recent sweep, no demo concept (Cournot/Bertrand/Elasticity/Pandas/Micr
 - `npm run typecheck` — client strict mode ✅ **0 errors**
 - `npm run typecheck:all` — client + server ✅
 - `npm run build` — runs `typecheck:all` then Vite build ✅
-- `npm test` — Vitest (12 files / 59 unit tests) ✅
+- `npm test` — Vitest (**335+** unit tests) ✅
 - `npm run test:e2e` — Playwright (2 specs) ✅ (not yet wired to CI)
 - CI runs client typecheck/test/build + server typecheck
 

@@ -18,12 +18,14 @@ ocrRouter.post('/ocr/pages', async (req, res) => {
   }
 
   try {
-    const { text, pagesProcessed } = await ocrBase64Pages(pages, languages);
+    const { text, pagesProcessed, regions, modelsUsed } = await ocrBase64Pages(pages, languages);
     res.json({
       text,
       pageCount: Math.max(pageCount, pagesProcessed),
       ocrUsed: true,
       pagesProcessed,
+      regions,
+      modelsUsed,
     });
   } catch {
     res.status(502).json({ error: 'OCR processing failed' });

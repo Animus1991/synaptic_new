@@ -36,13 +36,32 @@ import {
 } from '../lib/conceptBusSync';
 import { loadAllConceptBuses, replaceAllConceptBuses } from '../lib/workspacePersistence';
 import { loadAllStepSchedules, replaceAllStepSchedules } from '../lib/spacedStepSchedule';
-import { filterTasksForSession, getTaskAction, getTaskConcept, getAgentMode, type SessionType } from '../lib/taskFlows';
+import { createDebouncedConceptBusPusher } from '../lib/conceptBusSessionSync';
+import { mergeAgentWorkspaceContext, type WorkspaceLiveSync } from '../lib/workspaceStoreSpine';
+import { filterTasksForSession, getTaskAction, getTaskConcept, getAgentMode, type SessionType, type WorkspaceToolId } from '../lib/taskFlows';
 import { settingsToAgentMode } from '../lib/settingsEffects';
 import { readTextFromFiles, uploadedFileMeta, extractFileContent, type UploadPayload } from '../lib/uploadPipeline';
 import { recognizeCourse } from '../lib/recognitionWorkerClient';
 import { buildConceptSpans, type SourceHighlight } from '../lib/conceptProvenance';
+import type { WorkspaceFocus } from '../lib/workspaceFocus';
 import { CONTENT_PIPELINE_VERSION } from '../lib/pipelineConstants';
-import { appendLearningEvent } from '../lib/learningEvents';
+import {
+  reprocessCourseRecognition as runCourseReprocess,
+  regenerateTasksAfterReprocess,
+  regenerateGlossaryAfterReprocess,
+  summarizeReprocessTaskDelta,
+} from '../lib/pipelineReprocess';
+import { reprocessCourseAnnotations } from '../lib/annotationStore';
+import { clearQuizSessions } from '../lib/quizSession';
+import { markCourseArtifactsStale, clearCourseArtifactsStale } from '../lib/artifactStaleness';
+import { removeUploadedFileFromLibrary } from '../lib/removeUploadedFile';
+import {
+  glossaryAfterCourseSourceRemoval,
+  tasksAfterFileRemoval,
+} from '../lib/deleteCascade';
+import { emitAnalyticsLearningEvent } from '../lib/emitLearningEvent';
+import { selectDashboardNextAction } from '../lib/dashboardNextAction';
+import { formatUploadSuccessToast, summarizeUploadStructure } from '../lib/uploadStructureSummary';
 import type { BetaMastery } from '../lib/pedagogy';
 import {
   shouldShowDemo,
@@ -145,11 +164,6 @@ function masteryMapFromSkills(lm: LearnerModel, courses: Course[], showDemo: boo
   return map;
 }
 
-export interface WorkspaceFocus {
-  concept: string;
-  sourceSpan?: SourceHighlight;
-}
-
 export function useAppStore() {
   const persisted = useMemo(() => loadPersisted(), []);
   const library = useMemo(() => loadLibrarySync(), []);
@@ -207,32 +221,122 @@ export function useAppStore() {
     shouldShowDemo(mergedSettings) ? mockAgentMessages : [],
   );
   const [agentMode, setAgentMode] = useState<AgentMode>('socratic');
+  const [agentDraftPrompt, setAgentDraftPrompt] = useState<string | null>(null);
+  const [agentAutoSend, setAgentAutoSend] = useState(false);
+  const [agentWorkspaceContext, setAgentWorkspaceContext] = useState<
+    import('../lib/agentWorkspaceContext').AgentWorkspaceContext | null
+  >(null);
+  const [workspaceLive, setWorkspaceLive] = useState<WorkspaceLiveSync | null>(null);
+  const [workspaceContext, setWorkspaceContext] = useState<
+    import('../lib/workspaceContextModel').WorkspaceContext | null
+  >(null);
+  const workspaceLiveRef = useRef<WorkspaceLiveSync | null>(null);
+  const syncWorkspaceLive = useCallback((live: WorkspaceLiveSync) => {
+    workspaceLiveRef.current = live;
+    setWorkspaceLive(live);
+    setWorkspaceContext(live.snapshot);
+  }, []);
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>(library.uploadedFiles);
   const [glossaryEntries, setGlossaryEntries] = useState<GlossaryEntry[]>(library.glossaryEntries);
   const [isUploading, setIsUploading] = useState(false);
+  const [isReprocessing, setIsReprocessing] = useState(false);
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [activeLessonView, setActiveLessonView] = useState(false);
   const [practicalLessonView, setPracticalLessonView] = useState(false);
   const [studyWorkspaceOpen, setStudyWorkspaceOpen] = useState(false);
+  /** Side-by-side workspace + Agent when navigating via sidebar while workspace is open. */
+  const [workspaceAgentSplit, setWorkspaceAgentSplit] = useState(false);
+  const studyWorkspaceOpenRef = useRef(false);
+  /** One-shot tool focus when opening workspace from dashboard exam countdown. */
+  const [workspaceOpenTool, setWorkspaceOpenTool] = useState<WorkspaceToolId | null>(null);
+  const studyConceptOverrideRef = useRef<string | null>(null);
+  /** Bumped on open to cancel an in-flight async close (flush) that would otherwise race. */
+  const workspaceCloseGenRef = useRef(0);
   /** When set, the Study Workspace opens focused on this specific concept/topic
    * instead of defaulting to the course's first topic. Cleared on each open so
    * "Continue" (no concept) resumes the default entry point. */
   const [studyConceptOverride, setStudyConceptOverride] = useState<string | null>(null);
-  const openStudyWorkspaceForConcept = useCallback((concept?: string) => {
-    setStudyConceptOverride(concept?.trim() ? concept.trim() : null);
-    setStudyWorkspaceOpen(true);
+
+  const cancelPendingWorkspaceClose = useCallback(() => {
+    workspaceCloseGenRef.current += 1;
   }, []);
+
+  const closeCompetingTaskOverlays = useCallback((except?: 'workspace') => {
+    setActiveLessonView(false);
+    setPracticalLessonView(false);
+    setReviewSessionOpen(false);
+    setMistakeRetryOpen(false);
+    setExamPrepOpen(false);
+    setPrerequisiteRepairOpen(false);
+    if (except !== 'workspace') {
+      workspaceCloseGenRef.current += 1;
+      studyWorkspaceOpenRef.current = false;
+      setStudyWorkspaceOpen(false);
+      setWorkspaceAgentSplit(false);
+    }
+  }, []);
+
+  const openStudyWorkspace = useCallback((opts?: { keepTask?: boolean }) => {
+    cancelPendingWorkspaceClose();
+    closeCompetingTaskOverlays('workspace');
+
+    if (!opts?.keepTask) {
+      setActiveTaskId(null);
+    }
+
+    setStudyConceptOverride(null);
+    setWorkspaceFocus(null);
+    setWorkspaceAgentSplit(false);
+    studyWorkspaceOpenRef.current = true;
+    setStudyWorkspaceOpen(true);
+  }, [cancelPendingWorkspaceClose, closeCompetingTaskOverlays]);
+
+  const openStudyWorkspaceForConcept = useCallback((concept?: string) => {
+    cancelPendingWorkspaceClose();
+    closeCompetingTaskOverlays('workspace');
+    setActiveTaskId(null);
+
+    const trimmed = concept?.trim() || null;
+
+    setStudyConceptOverride(trimmed);
+    setWorkspaceFocus(trimmed ? { term: trimmed, originTool: 'dashboard' } : null);
+    setWorkspaceAgentSplit(false);
+    studyWorkspaceOpenRef.current = true;
+    setStudyWorkspaceOpen(true);
+  }, [cancelPendingWorkspaceClose, closeCompetingTaskOverlays]);
+
+  const openStudyWorkspaceForExamCountdown = useCallback(() => {
+    cancelPendingWorkspaceClose();
+    closeCompetingTaskOverlays('workspace');
+    setActiveTaskId(null);
+    setStudyConceptOverride(null);
+    setWorkspaceFocus(null);
+    setWorkspaceAgentSplit(false);
+    setWorkspaceOpenTool('timer');
+    studyWorkspaceOpenRef.current = true;
+    setStudyWorkspaceOpen(true);
+  }, [cancelPendingWorkspaceClose, closeCompetingTaskOverlays]);
+
+  const consumeWorkspaceOpenTool = useCallback(() => {
+    setWorkspaceOpenTool(null);
+  }, []);
+
   const [sourceHighlight, setSourceHighlight] = useState<SourceHighlight | null>(null);
   const openSourceAt = useCallback((highlight: SourceHighlight) => {
-    appendLearningEvent('source_opened', {
+    cancelPendingWorkspaceClose();
+    closeCompetingTaskOverlays('workspace');
+
+    emitAnalyticsLearningEvent('source_opened', {
       fileId: highlight.fileId,
       charStart: highlight.charStart,
       charEnd: highlight.charEnd,
     });
     setSourceHighlight(highlight);
+    setWorkspaceAgentSplit(false);
+    studyWorkspaceOpenRef.current = true;
     setStudyWorkspaceOpen(true);
-  }, []);
+  }, [cancelPendingWorkspaceClose, closeCompetingTaskOverlays]);
   const [reviewSessionOpen, setReviewSessionOpen] = useState(false);
   const [mistakeRetryOpen, setMistakeRetryOpen] = useState(false);
   const [examPrepOpen, setExamPrepOpen] = useState(false);
@@ -242,6 +346,20 @@ export function useAppStore() {
   const [activeSessionType, setActiveSessionType] = useState<SessionType | null>(null);
   const [activeTaskId, setActiveTaskId] = useState<string | null>(null);
   const [expandedTaskId, setExpandedTaskId] = useState<string | null>(null);
+  const [appToast, setAppToast] = useState<{ id: number; message: string } | null>(null);
+  const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const dismissAppToast = useCallback(() => {
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    setAppToast(null);
+  }, []);
+
+  const showAppToast = useCallback((message: string) => {
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    const id = Date.now();
+    setAppToast({ id, message });
+    toastTimerRef.current = setTimeout(() => setAppToast(null), 6000);
+  }, []);
 
   const persistLibrary = useCallback((
     files: UploadedFile[],
@@ -332,8 +450,35 @@ export function useAppStore() {
   const navigate = useCallback((view: AppView) => {
     setCurrentView(view);
     setSidebarOpen(false);
+    if (view === 'agent' && studyWorkspaceOpenRef.current) {
+      setWorkspaceAgentSplit(true);
+      if (workspaceLiveRef.current?.agentContext) {
+        setAgentWorkspaceContext(workspaceLiveRef.current.agentContext);
+      }
+    } else if (view !== 'agent') {
+      setWorkspaceAgentSplit(false);
+    }
     window.scrollTo(0, 0);
   }, []);
+
+  const exitWorkspaceAgentSplit = useCallback(() => {
+    setWorkspaceAgentSplit(false);
+    setCurrentView((v) => (v === 'agent' ? 'dashboard' : v));
+  }, []);
+
+  useEffect(() => {
+    studyWorkspaceOpenRef.current = studyWorkspaceOpen;
+  }, [studyWorkspaceOpen]);
+
+  useEffect(() => {
+    studyConceptOverrideRef.current = studyConceptOverride;
+  }, [studyConceptOverride]);
+
+  useEffect(() => {
+    if (currentView !== 'agent' || !workspaceAgentSplit || !studyWorkspaceOpen) return;
+    if (!workspaceLive?.agentContext) return;
+    setAgentWorkspaceContext(workspaceLive.agentContext);
+  }, [workspaceLive, currentView, workspaceAgentSplit, studyWorkspaceOpen]);
 
   const completeTask = useCallback((taskId: string) => {
     setTasks((prev) => {
@@ -732,17 +877,23 @@ export function useAppStore() {
     setAgentMessages((prev) => [...prev, contextMsg]);
   }, []);
 
+  const openAgentFromWorkspace = useCallback((opts?: import('../lib/agentWorkspaceContext').OpenAgentFromWorkspaceOpts) => {
+    const merged = mergeAgentWorkspaceContext(workspaceLiveRef.current?.agentContext, opts?.context);
+    if (opts?.mode) setAgentMode(opts.mode);
+    setAgentDraftPrompt(opts?.prompt?.trim() || null);
+    setAgentAutoSend(opts?.autoSend ?? false);
+    setAgentWorkspaceContext(merged);
+    setWorkspaceAgentSplit(false);
+    studyWorkspaceOpenRef.current = false;
+    setStudyWorkspaceOpen(false);
+    navigate('agent');
+  }, [navigate]);
+
   const startTaskRef = useRef<(taskId: string) => void>(() => {});
 
   const closeTaskViews = useCallback(() => {
-    setActiveLessonView(false);
-    setPracticalLessonView(false);
-    setStudyWorkspaceOpen(false);
-    setReviewSessionOpen(false);
-    setMistakeRetryOpen(false);
-    setExamPrepOpen(false);
-    setPrerequisiteRepairOpen(false);
-  }, []);
+    closeCompetingTaskOverlays();
+  }, [closeCompetingTaskOverlays]);
 
   const advanceSession = useCallback((completedTaskId: string) => {
     setSessionQueue((prev) => {
@@ -952,6 +1103,49 @@ export function useAppStore() {
     activities,
   ]);
 
+  const conceptBusPusherRef = useRef<ReturnType<typeof createDebouncedConceptBusPusher> | null>(null);
+
+  useEffect(() => {
+    conceptBusPusherRef.current = createDebouncedConceptBusPusher(
+      () => pushSessionToServer(),
+      {
+        debounceMs: 2500,
+        isEnabled: () => Boolean(user.settings.authToken),
+      },
+    );
+    return () => {
+      conceptBusPusherRef.current?.cancel();
+    };
+  }, [pushSessionToServer, user.settings.authToken]);
+
+  const queueConceptBusSync = useCallback(() => {
+    conceptBusPusherRef.current?.schedule();
+  }, []);
+
+  const flushConceptBusSync = useCallback(async () => {
+    await conceptBusPusherRef.current?.flush();
+  }, []);
+
+  const closeStudyWorkspace = useCallback(() => {
+    ++workspaceCloseGenRef.current;
+    studyWorkspaceOpenRef.current = false;
+    setStudyWorkspaceOpen(false);
+    setWorkspaceAgentSplit(false);
+    setActiveTaskId(null);
+    void flushConceptBusSync().catch(() => {});
+  }, [flushConceptBusSync]);
+
+  useEffect(() => {
+    if (!user.settings.authToken) return;
+    const onHidden = () => {
+      if (document.visibilityState === 'hidden') {
+        void conceptBusPusherRef.current?.flush();
+      }
+    };
+    document.addEventListener('visibilitychange', onHidden);
+    return () => document.removeEventListener('visibilitychange', onHidden);
+  }, [user.settings.authToken]);
+
   const syncAccountOnLogin = useCallback(async () => {
     const token = user.settings.authToken;
     if (token) {
@@ -1005,11 +1199,12 @@ export function useAppStore() {
         newFiles.push(
           uploadedFileMeta(f, undefined, undefined, extracted.text, extracted.pageCount, {
             ocrUsed: extracted.ocrUsed,
-            ingestMethod: extracted.ocrUsed ? 'ocr-client' : 'text-layer',
+            ingestMethod: extracted.ingestMethod ?? (extracted.ocrUsed ? 'ocr-client' : 'text-layer'),
+            ocrRegions: extracted.ocrRegions,
           }),
         );
         if (extracted.ocrUsed) {
-          appendLearningEvent('ocr_applied', { fileName: f.name, chars: extracted.text.length });
+          emitAnalyticsLearningEvent('ocr_applied', { fileName: f.name, chars: extracted.text.length });
         }
       }
       if (payload.youtubeUrl) {
@@ -1074,6 +1269,7 @@ export function useAppStore() {
       title: payload.title,
       targetCourseId: payload.targetCourseId,
       uploadMode: payload.uploadMode,
+      editedOutline: payload.editedOutline,
     };
 
     const result = await recognizeCourse({
@@ -1154,7 +1350,7 @@ export function useAppStore() {
     setLearnerModel(nextLmMetrics);
     persistLibrary(nextFiles, nextGlossary, nextCourses.filter((c) => !MOCK_COURSE_IDS.has(c.id)));
     const actLabel = extendTarget ? `Extended course: ${course.title}` : `Created course: ${course.title}`;
-    appendLearningEvent('course_generated', {
+    emitAnalyticsLearningEvent('course_generated', {
       topicCount: course.topics.length,
       conceptCount: course.conceptCount,
       pipelineVersion: CONTENT_PIPELINE_VERSION,
@@ -1162,11 +1358,141 @@ export function useAppStore() {
     const nextActs = logActivity(createActivity('upload', actLabel));
     persist(nextLmMetrics, dashboardStats, nextTasks, user.xp, nextBeta, firstAttemptKeys, openMistakes, nextActs, user.settings);
     setSelectedCourse(course);
+    const lang = user.settings.language === 'el' ? 'el' : 'en';
+    showAppToast(formatUploadSuccessToast(summarizeUploadStructure(text, lang), lang));
     return course;
     } finally {
       setIsUploading(false);
     }
-  }, [courses, uploadedFiles, glossaryEntries, learnerModel, dashboardStats, tasks, user.xp, user.settings, betaMastery, firstAttemptKeys, openMistakes, persist, persistLibrary, logActivity]);
+  }, [courses, uploadedFiles, glossaryEntries, learnerModel, dashboardStats, tasks, user.xp, user.settings, betaMastery, firstAttemptKeys, openMistakes, persist, persistLibrary, logActivity, showAppToast]);
+
+  const reprocessCourseMaterial = useCallback((courseId: string) => {
+    setIsReprocessing(true);
+    try {
+      const result = runCourseReprocess(courseId, courses, uploadedFiles);
+      if (!result) {
+        const lang = user.settings.language === 'el' ? 'el' : 'en';
+        showAppToast(
+          lang === 'el'
+            ? 'Δεν βρέθηκε αποθηκευμένο κείμενο για επανεπεξεργασία.'
+            : 'No stored extracted text found to reprocess.',
+        );
+        return false;
+      }
+      const nextCourses = courses.map((c) => (c.id === courseId ? result.course : c));
+      setCourses(nextCourses);
+      setUploadedFiles(result.files);
+      let nextTasks = tasks;
+      let taskDelta: ReturnType<typeof summarizeReprocessTaskDelta> | null = null;
+      if (result.tasksRegenerated) {
+        nextTasks = regenerateTasksAfterReprocess(tasks, result.course);
+        taskDelta = summarizeReprocessTaskDelta(
+          tasks,
+          nextTasks,
+          courseId,
+          result.course.topics.length,
+        );
+        setTasks(nextTasks);
+      }
+      const nextGlossary = regenerateGlossaryAfterReprocess(glossaryEntries, courseId, result.glossary);
+      setGlossaryEntries(nextGlossary);
+      if (selectedCourse?.id === courseId) setSelectedCourse(result.course);
+      persistLibrary(result.files, nextGlossary, nextCourses.filter((c) => !MOCK_COURSE_IDS.has(c.id)));
+      if (result.tasksRegenerated) {
+        persist(learnerModel, dashboardStats, nextTasks, user.xp, betaMastery, firstAttemptKeys, openMistakes, activities, user.settings);
+      }
+      const courseFiles = result.files.filter(
+        (f) => f.courseId === courseId && (f.extractedText?.trim().length ?? 0) > 0,
+      );
+      const textByFileKey = Object.fromEntries(
+        courseFiles.map((f) => [f.name, f.extractedText!.trim()]),
+      );
+      const annotationsFlagged = reprocessCourseAnnotations(
+        courseFiles.map((f) => f.name),
+        textByFileKey,
+        CONTENT_PIPELINE_VERSION,
+      );
+      clearQuizSessions();
+      markCourseArtifactsStale(courseId, CONTENT_PIPELINE_VERSION);
+      const lang = user.settings.language === 'el' ? 'el' : 'en';
+      const reviewHint = annotationsFlagged > 0
+        ? (lang === 'el'
+          ? ` ${annotationsFlagged} σημειώσεις χρειάζονται επανέλεγχο.`
+          : ` ${annotationsFlagged} annotation(s) need review.`)
+        : '';
+      const taskHint = taskDelta && taskDelta.addedGenerated > 0
+        ? (lang === 'el'
+          ? ` ${taskDelta.addedGenerated} νέες εργασίες (${taskDelta.removedGenerated} παλιές αντικαταστάθηκαν).`
+          : ` ${taskDelta.addedGenerated} new tasks (${taskDelta.removedGenerated} stale replaced).`)
+        : '';
+      const staleHint = lang === 'el'
+        ? ' Κουίζ, κάρτες και προσομοίωση σημειώθηκαν ως παρωχημένα.'
+        : ' Quiz, flashcards, and simulator flagged as outdated.';
+      showAppToast(
+        (result.tasksRegenerated
+          ? (lang === 'el'
+            ? 'Αναγνώριση, γλωσσάρι και εργασίες ενημερώθηκαν από το αποθηκευμένο κείμενο.'
+            : 'Recognition, glossary, and tasks refreshed from stored text.')
+          : (lang === 'el'
+            ? 'Η αναγνώριση ενημερώθηκε από το αποθηκευμένο κείμενο.'
+            : 'Recognition refreshed from stored text.')) + taskHint + staleHint + reviewHint,
+      );
+      return true;
+    } finally {
+      setIsReprocessing(false);
+    }
+  }, [courses, uploadedFiles, glossaryEntries, tasks, selectedCourse, learnerModel, dashboardStats, user, betaMastery, firstAttemptKeys, openMistakes, activities, persistLibrary, persist, showAppToast]);
+
+  const removeUploadedFile = useCallback((fileId: string) => {
+    const result = removeUploadedFileFromLibrary(fileId, uploadedFiles, courses);
+    if (!result.removed) {
+      const lang = user.settings.language === 'el' ? 'el' : 'en';
+      showAppToast(lang === 'el' ? 'Το αρχείο δεν βρέθηκε.' : 'File not found.');
+      return false;
+    }
+    const removedCourseId = uploadedFiles.find((f) => f.id === fileId)?.courseId;
+    const nextGlossary = glossaryAfterCourseSourceRemoval(
+      glossaryEntries,
+      removedCourseId,
+      result.remainingFilesForCourse,
+    );
+    const nextTasks = tasksAfterFileRemoval(
+      tasks,
+      removedCourseId,
+      result.remainingFilesForCourse,
+    );
+    setUploadedFiles(result.files);
+    setCourses(result.courses);
+    setTasks(nextTasks);
+    const courseId = removedCourseId;
+    if (selectedCourse?.id === courseId) {
+      const updated = result.courses.find((c) => c.id === courseId);
+      if (updated) setSelectedCourse(updated);
+    }
+    persistLibrary(
+      result.files,
+      nextGlossary,
+      result.courses.filter((c) => !MOCK_COURSE_IDS.has(c.id)),
+    );
+    persist(learnerModel, dashboardStats, nextTasks, user.xp, betaMastery, firstAttemptKeys, openMistakes, activities, user.settings);
+    if (result.courseFullyOrphaned && courseId) {
+      clearCourseArtifactsStale(courseId);
+    }
+    const lang = user.settings.language === 'el' ? 'el' : 'en';
+    if (result.reprocessed && courseId) {
+      markCourseArtifactsStale(courseId, CONTENT_PIPELINE_VERSION);
+      clearQuizSessions();
+    }
+    const cascadeNote = result.courseFullyOrphaned
+      ? (lang === 'el' ? ' Αφαιρέθηκαν και οι εργασίες του μαθήματος.' : ' Course tasks were removed too.')
+      : '';
+    showAppToast(
+      (result.reprocessed
+        ? (lang === 'el' ? 'Αφαιρέθηκε · επανεπεξεργασία υπόλοιπων πηγών.' : 'Removed · reprocessed remaining sources.')
+        : (lang === 'el' ? 'Το αρχείο αφαιρέθηκε.' : 'File removed.')) + cascadeNote,
+    );
+    return true;
+  }, [uploadedFiles, courses, glossaryEntries, tasks, selectedCourse, learnerModel, dashboardStats, user, betaMastery, firstAttemptKeys, openMistakes, activities, persistLibrary, persist, showAppToast]);
 
   const simulateUpload = useCallback((files: File[]) => {
     setIsUploading(true);
@@ -1203,6 +1529,7 @@ export function useAppStore() {
     const task = tasks.find((t) => t.id === taskId);
     if (!task || task.status === 'completed') return;
 
+    closeCompetingTaskOverlays();
     setActiveTaskId(taskId);
     const action = getTaskAction(task);
 
@@ -1211,7 +1538,7 @@ export function useAppStore() {
         setPracticalLessonView(true);
         break;
       case 'workspace':
-        setStudyWorkspaceOpen(true);
+        openStudyWorkspace({ keepTask: true });
         break;
       case 'agent':
         bindAgentToTask(task);
@@ -1233,7 +1560,7 @@ export function useAppStore() {
         setActiveLessonView(true);
         break;
     }
-  }, [tasks, navigate, bindAgentToTask]);
+  }, [tasks, navigate, bindAgentToTask, openStudyWorkspace, closeCompetingTaskOverlays]);
 
   startTaskRef.current = startTask;
 
@@ -1329,6 +1656,26 @@ export function useAppStore() {
     return { repairs, calibration, conceptBars, openMistakes: openMistakes.filter((m) => !m.resolved) };
   }, [learnerModel, betaMastery, openMistakes, courses, user.settings]);
 
+  const dashboardNextAction = useMemo(
+    () => selectDashboardNextAction({
+      lang: user.settings.language,
+      learnerModel,
+      tasks,
+      stats: dashboardStats,
+      workspaceLive,
+      daysToExam: dashboardExtras.daysToExam,
+    }),
+    [user.settings.language, learnerModel, tasks, dashboardStats, workspaceLive, dashboardExtras.daysToExam],
+  );
+
+  const agentContextForView = useMemo(
+    () => mergeAgentWorkspaceContext(
+      workspaceLive?.agentContext,
+      agentWorkspaceContext,
+    ),
+    [workspaceLive, agentWorkspaceContext],
+  );
+
   return {
     currentView, navigate,
     sidebarOpen, setSidebarOpen,
@@ -1342,20 +1689,30 @@ export function useAppStore() {
     recordConfidence, recordQuizAttempt,
     openMistakes, resolveMistake, resolveMisconception, completeOnboarding,
     agentMessages, addAgentMessage, updateAgentMessage, agentMode, setAgentMode, bindAgentToTask,
-    uploadedFiles, glossaryEntries, isUploading, simulateUpload, processUpload,
+    agentDraftPrompt, setAgentDraftPrompt, agentAutoSend, setAgentAutoSend,
+    agentWorkspaceContext, setAgentWorkspaceContext, openAgentFromWorkspace, agentContextForView,
+    workspaceLive, syncWorkspaceLive, workspaceContext,
+    workspaceAgentSplit, setWorkspaceAgentSplit, exitWorkspaceAgentSplit,
+    dashboardNextAction,
+    uploadedFiles, glossaryEntries, isUploading, isReprocessing, simulateUpload, processUpload,
+    reprocessCourseMaterial, removeUploadedFile,
     pullLibraryFromServer, pullSessionFromServer, pushSessionToServer, syncAccountOnLogin,
+    queueConceptBusSync, flushConceptBusSync,
     refreshAuthPlan, logStudyMinutes,
     showUploadModal, setShowUploadModal,
     activeLessonView, setActiveLessonView,
     practicalLessonView, setPracticalLessonView,
     studyWorkspaceOpen, setStudyWorkspaceOpen,
-    studyConceptOverride, openStudyWorkspaceForConcept,
+    openStudyWorkspace, closeStudyWorkspace,
+    studyConceptOverride, openStudyWorkspaceForConcept, openStudyWorkspaceForExamCountdown,
+    workspaceOpenTool, consumeWorkspaceOpenTool,
     workspaceFocus, setWorkspaceFocus,
     sourceHighlight, openSourceAt, clearSourceHighlight: () => setSourceHighlight(null),
     reviewSessionOpen, setReviewSessionOpen,
     mistakeRetryOpen, setMistakeRetryOpen,
     examPrepOpen, setExamPrepOpen,
     prerequisiteRepairOpen, setPrerequisiteRepairOpen,
+    appToast, showAppToast, dismissAppToast,
   };
 }
 

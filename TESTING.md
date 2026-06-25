@@ -37,12 +37,24 @@ npm run typecheck
 | `src/lib/entityExtract.test.ts` | Definition/acronym/entity extraction |
 | `src/lib/formulaSolver.test.ts` | Arithmetic precedence, unary minus, trig/log/sqrt, constants, variable substitution, error paths |
 | `src/lib/noteContentExtractors.test.ts` | Markdown-table parsing, comparison fallback, deterministic quiz ordering, richer quiz kinds, near-miss distractors |
-| `src/lib/ocrExtract.test.ts` | OCR gate heuristics for scanned / text-rich PDFs |
+| `src/lib/ocrExtract.test.ts` | OCR gate + `isImageOnlyPdf` for scanned / text-rich PDFs |
+| `src/lib/greekTextRepair.test.ts` | PDF spaced-Greek repair (Greek PDF fixtures) |
+| `src/lib/pipelineReprocess.test.ts` | Reprocess stored text + pipeline version bump |
+| `src/lib/readerGreekSyllabus.test.ts` | Greek university syllabus acceptance (front-matter, merge, table, math, bib, RAG) |
+| `src/lib/readerBibliography.test.ts` | Bibliography / reference block detection |
+| `src/lib/readerMathBlocks.test.ts` | LaTeX display + inline math preservation |
+| `src/lib/readerTableLayout.test.ts` | Fixed-gap tables + interleaved PDF columns |
+| `src/lib/readerDocumentLayout.test.ts` | Paragraph flow, enumerated lists, section headings |
+| `src/lib/sectionMerger.test.ts` | Page → lecture collapse |
+| `src/lib/readerSectionNav.test.ts` | Lecture-only Reader nav chips |
+| `src/lib/readerStepSync.test.ts` | Lesson rail ↔ Reader scroll sync |
 | `src/lib/retentionAnalytics.test.ts` | Retention rate, retention curve, weekly mastery, mastery bands |
 | `src/lib/uploadPipeline.test.ts` | Subject-agnostic fallback course generation, topic derivation, determinism regression checks, source-quality-aware fallback compaction |
-| `src/lib/workspaceNoteContent.test.ts` | End-to-end Study Workspace source-intelligence scoring and recommendation logic |
+| `src/lib/globalContentSearch.test.ts` | Command palette content hits (courses, topics, glossary, notes) |
 
-Total today: **12 files / 59 unit tests** in `src/lib/`, plus **2 Playwright specs** in `e2e/`.
+Total today: **84** test files / **300** unit tests in `src/lib/` (and related), plus **2 Playwright specs** in `e2e/`.
+
+Gate: `npm run typecheck:all && npm test` before merge.
 
 Add tests next to the module under test: `foo.test.ts` beside `foo.ts`.
 

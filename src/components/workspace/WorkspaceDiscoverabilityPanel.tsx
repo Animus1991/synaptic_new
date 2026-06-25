@@ -1,7 +1,11 @@
 import { ChevronDown, ChevronUp, Link2, Sparkles } from 'lucide-react';
 import { cn } from '../../utils/cn';
+import type { Lang } from '../../lib/i18n';
 import type { DiscoverabilityActionId } from '../../lib/workspaceDiscoverability';
 import { buildDiscoverabilitySummary } from '../../lib/workspaceDiscoverability';
+import { nextActionLabel } from '../../lib/nextActionEngine';
+import type { LearningActionId } from '../../lib/workspaceLearningActions';
+import { getLearningActions } from '../../lib/workspaceLearningActions';
 
 type DiscoverabilitySummary = ReturnType<typeof buildDiscoverabilitySummary>;
 type ActionHandlers = Partial<Record<DiscoverabilityActionId, () => void>>;
@@ -18,11 +22,15 @@ const ACTION_LABELS: Record<DiscoverabilityActionId, { en: string; el: string }>
 
 type Props = {
   summary: DiscoverabilitySummary;
-  lang: 'en' | 'el';
+  lang: Lang;
   expanded: boolean;
   onToggle: () => void;
   actions: ActionHandlers;
   onOpenRecommendedTool?: () => void;
+  onRunNextAction?: () => void;
+  onLearningAction?: (id: LearningActionId) => void;
+  stepUnderstood?: boolean;
+  stepConfusing?: boolean;
 };
 
 export function WorkspaceDiscoverabilityPanel({
@@ -32,8 +40,16 @@ export function WorkspaceDiscoverabilityPanel({
   onToggle,
   actions,
   onOpenRecommendedTool,
+  onRunNextAction,
+  onLearningAction,
+  stepUnderstood,
+  stepConfusing,
 }: Props) {
-  const { chips, toolGuide, grounded, headline, subline, recommendedTool } = summary;
+  const { chips, toolGuide, grounded, headline, subline, recommendedTool, nextAction } = summary;
+  const isEl = lang === 'el';
+  const secondaryActions = nextAction && onLearningAction
+    ? getLearningActions(lang).filter((a) => nextAction.secondary.includes(a.id))
+    : [];
 
   return (
     <div
@@ -74,6 +90,53 @@ export function WorkspaceDiscoverabilityPanel({
 
       {expanded && (
         <div className="px-3 pb-3 space-y-3 border-t border-white/6 pt-2">
+          {nextAction && onRunNextAction && (
+            <div data-testid="discoverability-next-action">
+              <p className="text-[10px] font-semibold uppercase tracking-wide text-brand-500 mb-1.5">
+                {isEl ? 'Επόμενη ενέργεια' : 'Next action'}
+              </p>
+              <button
+                type="button"
+                data-testid="discoverability-next-action-primary"
+                onClick={onRunNextAction}
+                className="w-full rounded-lg border border-brand-500/35 bg-brand-500/12 px-2.5 py-2 text-left transition-colors hover:bg-brand-500/18"
+              >
+                <span className="block text-[11px] font-semibold text-brand-300">
+                  {nextActionLabel(nextAction.primary, lang)}
+                </span>
+                <span className="mt-0.5 block text-[10px] leading-relaxed text-text-muted">
+                  {nextAction.reason}
+                </span>
+              </button>
+              {secondaryActions.length > 0 && (
+                <div className="mt-1.5 flex flex-wrap gap-1" data-testid="discoverability-next-action-secondary">
+                  {secondaryActions.map((action) => {
+                    const active =
+                      (action.id === 'mark-understood' && stepUnderstood)
+                      || (action.id === 'mark-confusing' && stepConfusing);
+                    return (
+                      <button
+                        key={action.id}
+                        type="button"
+                        title={action.hint}
+                        data-testid={`discoverability-learning-${action.id}`}
+                        onClick={() => onLearningAction?.(action.id)}
+                        className={cn(
+                          'rounded-lg border px-2 py-0.5 text-[10px] font-medium transition-colors',
+                          'border-white/10 text-text-secondary hover:border-brand-500/30 hover:text-brand-200',
+                          active && action.id === 'mark-understood' && 'border-accent-emerald/40 bg-accent-emerald/10 text-accent-emerald',
+                          active && action.id === 'mark-confusing' && 'border-accent-amber/40 bg-accent-amber/10 text-accent-amber',
+                        )}
+                      >
+                        {action.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          )}
+
           <div>
             <p className="text-[10px] font-semibold uppercase tracking-wide text-brand-500 mb-1">
               {toolGuide.title}

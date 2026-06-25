@@ -1,7 +1,8 @@
 import type { Course, CourseSourceQuality, GlossaryEntry, UploadedFile, UserSettings } from '../types';
-import { extractTextFromFile } from './pdfExtract';
+import { extractTextFromFile, type FileExtractResult } from './pdfExtract';
 import { inferSubject, rankKeyphrases, titleCasePhrase } from './contentAnalysis';
 import type { GeneratedOutline } from './courseGenerator';
+import { buildGlossaryEntriesFromOutline } from './courseMerge';
 import { CONTENT_PIPELINE_VERSION } from './pipelineConstants';
 
 /**
@@ -30,6 +31,10 @@ export type UploadPayload = {
   /** When set, merge new material into this course instead of creating a new one. */
   targetCourseId?: string;
   uploadMode?: 'new' | 'extend';
+  /** Full extracted/analyzed text for subject-agnostic fallback (D9). */
+  analyzedText?: string;
+  /** User-edited outline from the upload preview step — skips outline regeneration. */
+  editedOutline?: GeneratedOutline;
 };
 
 function qualityAwareDescription(
@@ -53,7 +58,8 @@ export function buildCourseFromUpload(
 ): Course {
   const primaryName = payload.files[0]?.name ?? payload.youtubeUrl ?? 'Custom Material';
   const title = payload.title ?? primaryName.replace(/\.[^.]+$/, '').replace(/[_-]/g, ' ');
-  const rawTopics = extractTopicsFromText(payload.pastedContent ?? '', payload.files.map((f) => f.name));
+  const sourceText = payload.analyzedText ?? payload.pastedContent ?? '';
+  const rawTopics = extractTopicsFromText(sourceText, payload.files.map((f) => f.name));
   const topicLimit = sourceQuality ? Math.min(6, Math.max(1, sourceQuality.finalTopicCount)) : 6;
   const topics = (rawTopics.length > 0 ? rawTopics : [title]).slice(0, topicLimit);
 
@@ -64,7 +70,7 @@ export function buildCourseFromUpload(
       `Generated from ${payload.files.length} file(s)${payload.youtubeUrl ? ' + video' : ''}. Focus: ${payload.focusTags.join(', ') || 'General'}.`,
       sourceQuality,
     ),
-    subject: inferSubject(payload.pastedContent ?? ''),
+    subject: inferSubject(sourceText),
     color: ['#818cf8', '#22d3ee', '#2dd4bf', '#fb923c'][existingCount % 4]!,
     icon: '📚',
     totalLessons: Math.max(6, topics.length * 2),
@@ -145,20 +151,7 @@ export function buildCourseFromOutline(
 
   // Relate each glossary term to the topic concepts that mention it, so the
   // concept graph and glossary cross-link instead of being isolated entries.
-  const allConcepts = outline.topics.flatMap((t) => t.concepts);
-  const glossary: GlossaryEntry[] = outline.glossary.map((g) => {
-    const termLower = g.term.toLowerCase();
-    const related = allConcepts
-      .filter((c) => c.toLowerCase() !== termLower && (c.toLowerCase().includes(termLower) || termLower.includes(c.toLowerCase())))
-      .slice(0, 5);
-    return {
-      term: g.term,
-      definition: g.definition,
-      source: payload.files[0]?.name ?? payload.youtubeUrl ?? 'Uploaded material',
-      relatedConcepts: related,
-      courseId,
-    };
-  });
+  const glossary: GlossaryEntry[] = buildGlossaryEntriesFromOutline(courseId, outline, payload.files[0]?.name ?? payload.youtubeUrl ?? 'Uploaded material');
 
   const course: Course = {
     id: courseId,
@@ -209,7 +202,7 @@ export async function readTextFromFiles(files: File[], settings?: UserSettings):
 export async function extractFileContent(
   file: File,
   settings?: UserSettings,
-): Promise<{ text: string; pageCount?: number; ocrUsed?: boolean }> {
+): Promise<FileExtractResult> {
   return extractTextFromFile(file, settings);
 }
 
@@ -219,7 +212,7 @@ export function uploadedFileMeta(
   topics?: string[],
   extractedText?: string,
   pageCount?: number,
-  ingest?: Pick<UploadedFile, 'ocrUsed' | 'ingestMethod'>,
+  ingest?: Pick<UploadedFile, 'ocrUsed' | 'ingestMethod' | 'ocrRegions'>,
 ): UploadedFile {
   return {
     id: `file-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
@@ -237,6 +230,7 @@ export function uploadedFileMeta(
     pipelineVersion: CONTENT_PIPELINE_VERSION,
     ...(ingest?.ocrUsed !== undefined ? { ocrUsed: ingest.ocrUsed } : {}),
     ...(ingest?.ingestMethod ? { ingestMethod: ingest.ingestMethod } : {}),
+    ...(ingest?.ocrRegions?.length ? { ocrRegions: ingest.ocrRegions } : {}),
   };
 }
 
@@ -248,6 +242,7 @@ function inferFileType(name: string): UploadedFile['type'] {
     case 'pptx': case 'ppt': return 'pptx';
     case 'txt': return 'txt';
     case 'md': return 'md';
+    case 'json': case 'zip': return 'txt';
     case 'csv': return 'csv';
     case 'py': case 'js': case 'ts': return 'code';
     default: return 'pdf';

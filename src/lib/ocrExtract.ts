@@ -5,6 +5,7 @@
 
 import type { UserSettings } from '../types';
 import { ocrPages as ocrPagesServer } from './authClient';
+import { normalizeBilingualExtractedText, runClientBilingualOcrEnsemble } from './bilingualOcrEnsemble';
 import pdfjsWorker from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 
 export const OCR_MIN_TOTAL_CHARS = 80;
@@ -15,20 +16,33 @@ export type OcrExtractResult = {
   text: string;
   pageCount: number;
   ocrUsed: boolean;
+  ingestMethod?: 'text-layer' | 'ocr-server' | 'ocr-client' | 'ocr-ensemble';
+  ocrRegions?: import('./readerOcrOverlay').OcrStoredRegion[];
+  ocrModelsUsed?: string[];
 };
 
 function proxyConfigured(settings?: UserSettings): boolean {
   return !!(settings?.llmProxyUrl?.trim() || settings?.authProxyBase?.trim());
 }
 
-/** Heuristic: PDF/image likely needs OCR when the text layer is nearly empty. */
+/**
+ * Heuristic: PDF/image likely needs OCR when the text layer is nearly empty
+ * or too sparse per page (scanned / image-only PDFs).
+ */
 export function needsOcr(text: string, pageCount = 1): boolean {
+  const pages = text.split('\f').map((p) => p.replace(/\s+/g, ' ').trim());
+  const effectivePages = Math.max(1, pageCount, pages.filter(Boolean).length || 1);
   const clean = text.replace(/\f/g, ' ').replace(/\s+/g, ' ').trim();
-  if (clean.length >= OCR_MIN_TOTAL_CHARS) {
-    const perPage = clean.length / Math.max(1, pageCount);
-    if (perPage >= OCR_MIN_CHARS_PER_PAGE) return false;
-  }
-  return clean.length < OCR_MIN_TOTAL_CHARS;
+  if (clean.length < OCR_MIN_TOTAL_CHARS) return true;
+  const perPage = clean.length / effectivePages;
+  return perPage < OCR_MIN_CHARS_PER_PAGE;
+}
+
+/** True when most PDF pages lack a meaningful text layer (image-only / scanned). */
+export function isImageOnlyPdf(pageCharCounts: number[]): boolean {
+  if (pageCharCounts.length === 0) return true;
+  const sparse = pageCharCounts.filter((n) => n < OCR_MIN_CHARS_PER_PAGE).length;
+  return sparse / pageCharCounts.length >= 0.75;
 }
 
 export function isImageUpload(file: File): boolean {
@@ -85,21 +99,11 @@ function arrayBufferToBase64(buf: ArrayBuffer): string {
   return btoa(binary);
 }
 
-async function recognizeWithTesseract(source: File | HTMLCanvasElement, languages = 'eng+ell'): Promise<string> {
-  const { createWorker } = await import('tesseract.js');
-  const worker = await createWorker(languages);
-  try {
-    const { data } = await worker.recognize(source);
-    return data.text.trim();
-  } finally {
-    await worker.terminate();
-  }
-}
-
 async function ocrPdfClient(file: File, pageCount: number, maxPages = OCR_MAX_PAGES): Promise<OcrExtractResult> {
   const doc = await loadPdfDocument(file);
   const limit = Math.min(doc.numPages, maxPages);
   const parts: string[] = [];
+  const modelsUsed = new Set<string>();
 
   for (let i = 1; i <= limit; i++) {
     const page = await doc.getPage(i);
@@ -110,20 +114,33 @@ async function ocrPdfClient(file: File, pageCount: number, maxPages = OCR_MAX_PA
     const ctx = canvas.getContext('2d');
     if (!ctx) continue;
     await page.render({ canvasContext: ctx, viewport }).promise;
-    const text = await recognizeWithTesseract(canvas);
-    if (text) parts.push(text);
+    const ensemble = await runClientBilingualOcrEnsemble(canvas);
+    if (ensemble.text) {
+      parts.push(ensemble.text);
+      for (const m of ensemble.modelsUsed) modelsUsed.add(m);
+    }
   }
 
+  const text = normalizeBilingualExtractedText(parts.join('\n\f\n'));
+
   return {
-    text: parts.join('\n\f\n'),
+    text,
     pageCount,
     ocrUsed: true,
+    ingestMethod: 'ocr-ensemble',
+    ocrModelsUsed: [...modelsUsed],
   };
 }
 
 async function ocrImageClient(file: File): Promise<OcrExtractResult> {
-  const text = await recognizeWithTesseract(file);
-  return { text, pageCount: 1, ocrUsed: true };
+  const ensemble = await runClientBilingualOcrEnsemble(file);
+  return {
+    text: normalizeBilingualExtractedText(ensemble.text),
+    pageCount: 1,
+    ocrUsed: true,
+    ingestMethod: 'ocr-ensemble',
+    ocrModelsUsed: ensemble.modelsUsed,
+  };
 }
 
 /**
@@ -142,7 +159,14 @@ export async function extractWithOcrFallback(
         const base64 = arrayBufferToBase64(buf);
         const remote = await ocrPagesServer(settings.authToken, settings, [base64], 1);
         if (remote.text.trim().length >= 20) {
-          return { text: remote.text, pageCount: 1, ocrUsed: true };
+          return {
+            text: normalizeBilingualExtractedText(remote.text),
+            pageCount: 1,
+            ocrUsed: true,
+            ingestMethod: 'ocr-server',
+            ocrRegions: remote.regions,
+            ocrModelsUsed: remote.modelsUsed,
+          };
         }
       } catch {
         /* client fallback */
@@ -152,7 +176,13 @@ export async function extractWithOcrFallback(
   }
 
   if (!needsOcr(textLayer.text, textLayer.pageCount)) {
-    return { ...textLayer, ocrUsed: false };
+    return {
+      ...textLayer,
+      text: normalizeBilingualExtractedText(textLayer.text),
+      ocrUsed: false,
+      ingestMethod: 'text-layer',
+      ocrModelsUsed: ['text-layer', 'greek-document-repair', 'unicode-nfc'],
+    };
   }
 
   if (settings && proxyConfigured(settings)) {
@@ -166,7 +196,14 @@ export async function extractWithOcrFallback(
           textLayer.pageCount,
         );
         if (remote.text.trim().length >= OCR_MIN_TOTAL_CHARS / 2) {
-          return { text: remote.text, pageCount: textLayer.pageCount, ocrUsed: true };
+          return {
+            text: normalizeBilingualExtractedText(remote.text),
+            pageCount: textLayer.pageCount,
+            ocrUsed: true,
+            ingestMethod: 'ocr-server',
+            ocrRegions: remote.regions,
+            ocrModelsUsed: remote.modelsUsed,
+          };
         }
       }
     } catch {

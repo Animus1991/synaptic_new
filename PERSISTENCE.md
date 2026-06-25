@@ -57,7 +57,9 @@ Server tables live in Postgres when `DATABASE_URL` is set. Schema is owned by
 `RUN_MIGRATIONS_ON_START=true`. In dev mode without `DATABASE_URL` the server
 falls back to in-memory repos.
 
-Module: `src/lib/sessionSync.ts`, `src/lib/librarySync.ts`, `server/src/routes/library.ts`, `server/src/routes/session.ts`.
+Module: `src/lib/sessionSync.ts`, `src/lib/conceptBusSessionSync.ts`, `src/lib/librarySync.ts`, `server/src/routes/library.ts`, `server/src/routes/session.ts`.
+
+While studying (authenticated), `queueConceptBusSync` debounces `PUT /v1/session` by 2.5s after concept-bus or spaced-step changes; `flushConceptBusSync` runs on workspace close and tab hide.
 
 ## Quotas
 

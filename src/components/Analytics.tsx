@@ -17,6 +17,8 @@ import { cn } from '../utils/cn';
 import { ReadinessRing } from './visuals/ReadinessRing';
 import { RetentionCurve } from './visuals/DiagramGenerator';
 import { ConceptGraph } from './visuals/ConceptGraph';
+import { useI18n, type I18nKey } from '../lib/i18n';
+import { formatHeatmapDayTooltip } from '../lib/localeFormat';
 
 interface AnalyticsProps {
   learnerModel: LearnerModel;
@@ -27,6 +29,17 @@ interface AnalyticsProps {
 }
 
 type AnalyticsTab = 'overview' | 'mastery' | 'behavior' | 'insights';
+
+const WEEKDAY_KEYS: I18nKey[] = [
+  'analyticsWeekMon', 'analyticsWeekTue', 'analyticsWeekWed', 'analyticsWeekThu',
+  'analyticsWeekFri', 'analyticsWeekSat', 'analyticsWeekSun',
+];
+
+function errorCategoryLabel(category: string, t: (key: I18nKey) => string): string {
+  if (category === 'calculation') return t('analyticsCatCalculation');
+  if (category === 'conceptual') return t('analyticsCatConceptual');
+  return t('analyticsCatProcedural');
+}
 
 type GraphNode = {
   id: string;
@@ -134,28 +147,29 @@ export function Analytics({
   prerequisiteRepairs = [],
 }: AnalyticsProps) {
   const [tab, setTab] = useState<AnalyticsTab>('overview');
+  const { t } = useI18n();
 
   return (
     <div className="p-4 sm:p-6 lg:px-8 pb-24 lg:pb-6 w-full min-w-0 space-y-6">
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-        <h1 className="text-2xl sm:text-3xl font-bold">Learning Analytics</h1>
-        <p className="text-text-secondary mt-1">Your adaptive learner profile — built from real behavior, not assumptions</p>
+        <h1 className="text-2xl sm:text-3xl font-bold">{t('analyticsTitle')}</h1>
+        <p className="text-text-secondary mt-1">{t('analyticsSubtitle')}</p>
       </motion.div>
 
       {/* Tabs */}
       <div className="flex items-center gap-6 border-b border-border-subtle" role="tablist" aria-label="Analytics sections">
         {([
-          { key: 'overview' as AnalyticsTab, label: 'Overview', icon: BarChart3 },
-          { key: 'mastery' as AnalyticsTab, label: 'Mastery Map', icon: Brain },
-          { key: 'behavior' as AnalyticsTab, label: 'Behavior', icon: Activity },
-          { key: 'insights' as AnalyticsTab, label: 'AI Insights', icon: Lightbulb },
-        ]).map(t => (
-          <button key={t.key} type="button" role="tab" aria-selected={tab === t.key} onClick={() => setTab(t.key)}
+          { key: 'overview' as AnalyticsTab, label: t('analyticsTabOverview'), icon: BarChart3 },
+          { key: 'mastery' as AnalyticsTab, label: t('analyticsTabMastery'), icon: Brain },
+          { key: 'behavior' as AnalyticsTab, label: t('analyticsTabBehavior'), icon: Activity },
+          { key: 'insights' as AnalyticsTab, label: t('analyticsTabInsights'), icon: Lightbulb },
+        ]).map(tabDef => (
+          <button key={tabDef.key} type="button" role="tab" aria-selected={tab === tabDef.key} onClick={() => setTab(tabDef.key)}
             className={cn('pb-3 text-sm font-medium transition-all border-b-2 flex items-center gap-1.5',
-              tab === t.key ? 'text-brand-400 border-brand-400' : 'text-text-tertiary border-transparent hover:text-text-secondary'
+              tab === tabDef.key ? 'text-brand-400 border-brand-400' : 'text-text-tertiary border-transparent hover:text-text-secondary'
             )}>
-            <t.icon className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">{t.label}</span>
+            <tabDef.icon className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">{tabDef.label}</span>
           </button>
         ))}
       </div>
@@ -183,6 +197,7 @@ function OverviewTab({
   courses: Course[];
   activities: ActivityItem[];
 }) {
+  const { t, lang } = useI18n();
   const calibration = computeCalibration(learnerModel.confidenceCalibration);
   const retentionPoints = retentionCurveFromActivities(activities);
   const weekly = learnerModel.weeklyMastery.some((v) => v > 0)
@@ -199,29 +214,29 @@ function OverviewTab({
       {/* Readiness Ring + Retention Curve */}
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="grid grid-cols-1 sm:grid-cols-2 gap-6">
         <div className="rounded-2xl border border-border-subtle bg-surface-card p-6 flex items-center justify-center">
-          <ReadinessRing value={learnerModel.overallMastery} size={200} sublabel="Derived from graded first-attempts only — never from self-reported skill." />
+          <ReadinessRing value={learnerModel.overallMastery} size={200} sublabel={t('analyticsReadinessSublabel')} />
         </div>
         <RetentionCurve dataPoints={hasRetentionData ? retentionPoints : [{ day: 0, retention: 100 }]} />
       </motion.div>
 
       {/* Metrics */}
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <MetricCard icon={<Brain className="w-5 h-5 text-brand-400" />} label="Overall Mastery" value={`${learnerModel.overallMastery}%`} sub={`${stats.conceptsMastered}/${stats.totalConcepts} concepts`} />
-        <MetricCard icon={<Clock className="w-5 h-5 text-accent-teal" />} label="Total Study Time" value={`${Math.round(learnerModel.totalStudyTime / 60)}h`} sub={`${learnerModel.totalSessions} sessions`} />
-        <MetricCard icon={<Target className="w-5 h-5 text-accent-cyan" />} label="Retention Rate" value={`${Math.round(learnerModel.retentionRate * 100)}%`} sub="7-day recall" />
-        <MetricCard icon={<Zap className="w-5 h-5 text-accent-amber" />} label="Learning Velocity" value={`${learnerModel.learningVelocity}×`} sub="vs baseline" />
+        <MetricCard icon={<Brain className="w-5 h-5 text-brand-400" />} label={t('analyticsOverallMastery')} value={`${learnerModel.overallMastery}%`} sub={`${stats.conceptsMastered}/${stats.totalConcepts} ${t('concepts')}`} />
+        <MetricCard icon={<Clock className="w-5 h-5 text-accent-teal" />} label={t('analyticsTotalStudyTime')} value={`${Math.round(learnerModel.totalStudyTime / 60)}h`} sub={`${learnerModel.totalSessions} ${t('analyticsSessions')}`} />
+        <MetricCard icon={<Target className="w-5 h-5 text-accent-cyan" />} label={t('analyticsRetentionRate')} value={`${Math.round(learnerModel.retentionRate * 100)}%`} sub={t('analyticsSevenDayRecall')} />
+        <MetricCard icon={<Zap className="w-5 h-5 text-accent-amber" />} label={t('analyticsLearningVelocity')} value={`${learnerModel.learningVelocity}×`} sub={t('analyticsVsBaseline')} />
       </motion.div>
 
       {/* Weekly mastery + Heatmap */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="rounded-2xl border border-border-subtle bg-surface-card p-5">
-          <h3 className="text-sm font-semibold flex items-center gap-2 mb-4"><TrendingUp className="w-4 h-4 text-accent-emerald" />Weekly Mastery Trend</h3>
+          <h3 className="text-sm font-semibold flex items-center gap-2 mb-4"><TrendingUp className="w-4 h-4 text-accent-emerald" />{t('analyticsWeeklyTrend')}</h3>
           <div className="flex items-end gap-1.5 h-28">
             {weekly.map((val, i) => (
               <div key={i} className="flex-1 flex flex-col items-center gap-1">
                 <span className="text-[9px] text-text-muted font-medium">{val}%</span>
                 <div className="w-full rounded-t transition-all duration-500" style={{ height: `${val * 1.2}%`, backgroundColor: i === weekly.length - 1 ? '#818cf8' : 'var(--viz-track)' }} />
-                <span className="text-[9px] text-text-muted">{['M', 'T', 'W', 'T', 'F', 'S', 'S'][i]}</span>
+                <span className="text-[9px] text-text-muted">{t(WEEKDAY_KEYS[i]!)}</span>
               </div>
             ))}
           </div>
@@ -229,30 +244,30 @@ function OverviewTab({
 
         {/* Study Heatmap */}
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="rounded-2xl border border-border-subtle bg-surface-card p-5">
-          <h3 className="text-sm font-semibold flex items-center gap-2 mb-4"><Calendar className="w-4 h-4 text-accent-teal" />Study Heatmap (90 days)</h3>
+          <h3 className="text-sm font-semibold flex items-center gap-2 mb-4"><Calendar className="w-4 h-4 text-accent-teal" />{t('analyticsStudyHeatmap')}</h3>
           <div className="grid grid-cols-[repeat(13,1fr)] gap-[3px]">
             {learnerModel.heatmapData.slice(-91).map((day, i) => {
               const intensity = day.minutes === 0 ? 0 : day.minutes < 15 ? 1 : day.minutes < 30 ? 2 : day.minutes < 60 ? 3 : 4;
               const colors = ['bg-surface-hover', 'bg-brand-900', 'bg-brand-700', 'bg-brand-500', 'bg-brand-400'];
               return (
-                <div key={i} className={cn('w-full aspect-square rounded-[2px]', colors[intensity])} title={`${day.date}: ${day.minutes}m`} />
+                <div key={i} className={cn('w-full aspect-square rounded-[2px]', colors[intensity])} title={formatHeatmapDayTooltip(day.date, day.minutes, lang)} />
               );
             })}
           </div>
           <div className="flex items-center justify-end gap-1 mt-2 text-[9px] text-text-muted">
-            <span>Less</span>
+            <span>{t('analyticsHeatmapLess')}</span>
             {['bg-surface-hover', 'bg-brand-900', 'bg-brand-700', 'bg-brand-500', 'bg-brand-400'].map((c, i) => (
               <div key={i} className={cn('w-2.5 h-2.5 rounded-[2px]', c)} />
             ))}
-            <span>More</span>
+            <span>{t('analyticsHeatmapMore')}</span>
           </div>
         </motion.div>
       </div>
 
       {/* Confidence Calibration */}
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="rounded-2xl border border-border-subtle bg-surface-card p-5">
-        <h3 className="text-sm font-semibold flex items-center gap-2 mb-4"><Eye className="w-4 h-4 text-accent-amber" />Confidence Calibration</h3>
-        <p className="text-xs text-text-tertiary mb-4">How well does your predicted confidence match actual performance?</p>
+        <h3 className="text-sm font-semibold flex items-center gap-2 mb-4"><Eye className="w-4 h-4 text-accent-amber" />{t('analyticsConfidenceCalibration')}</h3>
+        <p className="text-xs text-text-tertiary mb-4">{t('analyticsConfidenceHint')}</p>
         <div className="space-y-2">
           {learnerModel.confidenceCalibration.map((point, i) => {
             const gap = Math.abs(point.predicted - point.actual);
@@ -265,13 +280,13 @@ function OverviewTab({
                     <div className="absolute inset-y-0 left-0 bg-brand-500/30 rounded-lg" style={{ width: `${point.predicted * 100}%` }} />
                     <div className="absolute inset-y-0 left-0 bg-accent-emerald/40 rounded-lg" style={{ width: `${point.actual * 100}%` }} />
                     <div className="absolute inset-0 flex items-center justify-between px-2 text-[10px] font-medium">
-                      <span className="text-brand-300">You: {Math.round(point.predicted * 100)}%</span>
-                      <span className="text-accent-emerald">Actual: {Math.round(point.actual * 100)}%</span>
+                      <span className="text-brand-300">{t('analyticsCalibrationYou')}: {Math.round(point.predicted * 100)}%</span>
+                      <span className="text-accent-emerald">{t('analyticsCalibrationActual')}: {Math.round(point.actual * 100)}%</span>
                     </div>
                   </div>
                 </div>
                 <span className={cn('text-[10px] font-medium w-20 text-right', gap > 0.2 ? (overconfident ? 'text-accent-rose' : 'text-accent-amber') : 'text-accent-emerald')}>
-                  {gap > 0.2 ? (overconfident ? '⚠ Overconfident' : '↑ Underconfident') : '✓ Calibrated'}
+                  {gap > 0.2 ? (overconfident ? `⚠ ${t('analyticsOverconfident')}` : `↑ ${t('analyticsUnderconfident')}`) : `✓ ${t('analyticsCalibrated')}`}
                 </span>
               </div>
             );
@@ -281,7 +296,7 @@ function OverviewTab({
 
       {/* Course mastery */}
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }} className="rounded-2xl border border-border-subtle bg-surface-card p-5">
-        <h3 className="text-sm font-semibold mb-4">Course Mastery</h3>
+        <h3 className="text-sm font-semibold mb-4">{t('analyticsCourseMastery')}</h3>
         <div className="space-y-3">
           {courses.filter(c => c.status !== 'generating').map(course => (
             <div key={course.id} className="flex items-center gap-3">
@@ -300,6 +315,7 @@ function OverviewTab({
 }
 
 function MasteryTab({ learnerModel, courses }: { learnerModel: LearnerModel; courses: Course[] }) {
+  const { t } = useI18n();
   const graph = buildMasteryGraph(learnerModel, courses);
   return (
     <div className="space-y-6">
@@ -315,13 +331,13 @@ function MasteryTab({ learnerModel, courses }: { learnerModel: LearnerModel; cou
         </motion.div>
       ) : (
         <div className="rounded-2xl border border-border-subtle bg-surface-card p-8 text-center text-sm text-text-secondary">
-          Upload your notes and complete a few activities to see your concept mastery map.
+          {t('analyticsMasteryMapEmpty')}
         </div>
       )}
 
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="rounded-2xl border border-border-subtle bg-surface-card p-5">
-        <h3 className="text-sm font-semibold flex items-center gap-2 mb-4"><CheckCircle2 className="w-4 h-4 text-accent-emerald" />Strong Areas</h3>
+        <h3 className="text-sm font-semibold flex items-center gap-2 mb-4"><CheckCircle2 className="w-4 h-4 text-accent-emerald" />{t('analyticsStrongAreas')}</h3>
         <div className="space-y-3">
           {learnerModel.strongAreas.map(a => (
             <SkillBar key={a.concept} concept={a.concept} mastery={a.mastery} retention={a.retentionPrediction} count={a.practiceCount} color="emerald" />
@@ -329,7 +345,7 @@ function MasteryTab({ learnerModel, courses }: { learnerModel: LearnerModel; cou
         </div>
       </motion.div>
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="rounded-2xl border border-border-subtle bg-surface-card p-5">
-        <h3 className="text-sm font-semibold flex items-center gap-2 mb-4"><XCircle className="w-4 h-4 text-accent-rose" />Weak Areas</h3>
+        <h3 className="text-sm font-semibold flex items-center gap-2 mb-4"><XCircle className="w-4 h-4 text-accent-rose" />{t('analyticsWeakAreas')}</h3>
         <div className="space-y-3">
           {learnerModel.weakAreas.map(a => (
             <SkillBar key={a.concept} concept={a.concept} mastery={a.mastery} retention={a.retentionPrediction} count={a.practiceCount} color="rose" />
@@ -337,7 +353,7 @@ function MasteryTab({ learnerModel, courses }: { learnerModel: LearnerModel; cou
         </div>
       </motion.div>
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="rounded-2xl border border-accent-amber/20 bg-accent-amber/5 p-5">
-        <h3 className="text-sm font-semibold flex items-center gap-2 mb-4"><AlertTriangle className="w-4 h-4 text-accent-amber" />Almost Known — Needs 1-2 More Practice</h3>
+        <h3 className="text-sm font-semibold flex items-center gap-2 mb-4"><AlertTriangle className="w-4 h-4 text-accent-amber" />{t('analyticsAlmostKnown')}</h3>
         <div className="space-y-3">
           {learnerModel.almostKnown.map(a => (
             <SkillBar key={a.concept} concept={a.concept} mastery={a.mastery} retention={a.retentionPrediction} count={a.practiceCount} color="amber" />
@@ -345,14 +361,14 @@ function MasteryTab({ learnerModel, courses }: { learnerModel: LearnerModel; cou
         </div>
       </motion.div>
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="rounded-2xl border border-border-subtle bg-surface-card p-5">
-        <h3 className="text-sm font-semibold flex items-center gap-2 mb-4"><Brain className="w-4 h-4 text-accent-rose" />Active Misconceptions</h3>
+        <h3 className="text-sm font-semibold flex items-center gap-2 mb-4"><Brain className="w-4 h-4 text-accent-rose" />{t('analyticsActiveMisconceptions')}</h3>
         <div className="space-y-3">
           {learnerModel.misconceptions.map(m => (
             <div key={m.id} className="p-3 rounded-xl bg-accent-rose/5 border border-accent-rose/20">
               <div className="flex items-center justify-between mb-1">
                 <span className="text-sm font-medium text-accent-rose">{m.concept}</span>
                 <span className={cn('text-[10px] px-2 py-0.5 rounded-full font-medium', m.corrected ? 'bg-accent-emerald/10 text-accent-emerald' : 'bg-accent-rose/10 text-accent-rose')}>
-                  {m.corrected ? 'Corrected' : 'Active'}
+                  {m.corrected ? t('analyticsMisconceptionCorrected') : t('analyticsMisconceptionActive')}
                 </span>
               </div>
               <p className="text-xs text-text-secondary">{m.description}</p>
@@ -367,17 +383,26 @@ function MasteryTab({ learnerModel, courses }: { learnerModel: LearnerModel; cou
 }
 
 function BehaviorTab({ learnerModel }: { learnerModel: LearnerModel }) {
+  const { t } = useI18n();
+  const modelVars: { labelKey: I18nKey; value: string }[] = [
+    { labelKey: 'analyticsRetrievalPerformance', value: `${Math.round(learnerModel.retrievalPerformance * 100)}%` },
+    { labelKey: 'analyticsTransferAbility', value: `${Math.round(learnerModel.transferAbility * 100)}%` },
+    { labelKey: 'analyticsCognitiveLoadPref', value: learnerModel.cognitiveLoadPreference },
+    { labelKey: 'analyticsBestStudyTime', value: learnerModel.bestTimeOfDay },
+    { labelKey: 'analyticsLearningVelocity', value: `${learnerModel.learningVelocity}×` },
+    { labelKey: 'analyticsStreakDays', value: `${learnerModel.streakDays}` },
+  ];
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <MetricCard icon={<Clock className="w-5 h-5 text-text-tertiary" />} label="Avg Session" value={`${learnerModel.averageSessionLength}m`} sub="preferred length" />
-        <MetricCard icon={<Target className="w-5 h-5 text-text-tertiary" />} label="Confidence" value={`${Math.round(learnerModel.averageConfidence * 100)}%`} sub="avg self-rating" />
-        <MetricCard icon={<HelpCircle className="w-5 h-5 text-text-tertiary" />} label="Help-Seeking" value={`${Math.round(learnerModel.helpSeekingRate * 100)}%`} sub="hint usage" />
-        <MetricCard icon={<Shield className="w-5 h-5 text-text-tertiary" />} label="Persistence" value={`${Math.round(learnerModel.persistenceScore * 100)}%`} sub="retry rate" />
+        <MetricCard icon={<Clock className="w-5 h-5 text-text-tertiary" />} label={t('analyticsAvgSession')} value={`${learnerModel.averageSessionLength}m`} sub={t('analyticsAvgSessionSub')} />
+        <MetricCard icon={<Target className="w-5 h-5 text-text-tertiary" />} label={t('analyticsConfidence')} value={`${Math.round(learnerModel.averageConfidence * 100)}%`} sub={t('analyticsConfidenceSub')} />
+        <MetricCard icon={<HelpCircle className="w-5 h-5 text-text-tertiary" />} label={t('analyticsHelpSeeking')} value={`${Math.round(learnerModel.helpSeekingRate * 100)}%`} sub={t('analyticsHelpSeekingSub')} />
+        <MetricCard icon={<Shield className="w-5 h-5 text-text-tertiary" />} label={t('analyticsPersistence')} value={`${Math.round(learnerModel.persistenceScore * 100)}%`} sub={t('analyticsPersistenceSub')} />
       </div>
 
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="rounded-2xl border border-border-subtle bg-surface-card p-5">
-        <h3 className="text-sm font-semibold flex items-center gap-2 mb-4"><AlertTriangle className="w-4 h-4 text-accent-orange" />Error Patterns</h3>
+        <h3 className="text-sm font-semibold flex items-center gap-2 mb-4"><AlertTriangle className="w-4 h-4 text-accent-orange" />{t('analyticsErrorPatterns')}</h3>
         <div className="space-y-3">
           {learnerModel.errorPatterns.map((p, i) => (
             <div key={i} className="p-4 rounded-xl bg-surface-primary/50 border border-border-subtle">
@@ -387,9 +412,9 @@ function BehaviorTab({ learnerModel }: { learnerModel: LearnerModel }) {
                   p.category === 'calculation' ? 'bg-accent-amber/10 text-accent-amber' :
                   p.category === 'conceptual' ? 'bg-accent-rose/10 text-accent-rose' :
                   'bg-accent-cyan/10 text-accent-cyan'
-                )}>{p.category}</span>
+                )}>{errorCategoryLabel(p.category, t)}</span>
               </div>
-              <p className="text-xs text-text-tertiary">{p.frequency} occurrences across: {p.concepts.join(', ')}</p>
+              <p className="text-xs text-text-tertiary">{p.frequency} {t('analyticsErrorOccurrences')}: {p.concepts.join(', ')}</p>
               <p className="text-xs text-accent-teal mt-1.5 flex items-center gap-1"><Zap className="w-3 h-3" />{p.suggestedRemedy}</p>
             </div>
           ))}
@@ -397,24 +422,17 @@ function BehaviorTab({ learnerModel }: { learnerModel: LearnerModel }) {
       </motion.div>
 
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="rounded-2xl border border-border-subtle bg-surface-card p-5">
-        <h3 className="text-sm font-semibold mb-4">Adaptive Model Variables</h3>
+        <h3 className="text-sm font-semibold mb-4">{t('analyticsAdaptiveModelVars')}</h3>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-          {[
-            { label: 'Retrieval Performance', value: `${Math.round(learnerModel.retrievalPerformance * 100)}%` },
-            { label: 'Transfer Ability', value: `${Math.round(learnerModel.transferAbility * 100)}%` },
-            { label: 'Cognitive Load Pref.', value: learnerModel.cognitiveLoadPreference },
-            { label: 'Best Study Time', value: learnerModel.bestTimeOfDay },
-            { label: 'Learning Velocity', value: `${learnerModel.learningVelocity}×` },
-            { label: 'Streak Days', value: `${learnerModel.streakDays}` },
-          ].map(item => (
-            <div key={item.label} className="p-3 rounded-xl bg-surface-primary/50 border border-border-subtle text-center">
-              <p className="text-[10px] text-text-muted mb-1">{item.label}</p>
+          {modelVars.map((item) => (
+            <div key={item.labelKey} className="p-3 rounded-xl bg-surface-primary/50 border border-border-subtle text-center">
+              <p className="text-[10px] text-text-muted mb-1">{t(item.labelKey)}</p>
               <p className="text-sm font-semibold capitalize">{item.value}</p>
             </div>
           ))}
         </div>
         <p className="text-[10px] text-text-muted mt-4 leading-relaxed">
-          Your learner model tracks: prior knowledge, mastery level, retrieval performance, response latency, confidence calibration, error types, cognitive load, spacing intervals, help-seeking behavior, persistence, misconceptions, transfer ability, and retention decay.
+          {t('analyticsAdaptiveModelFootnote')}
         </p>
       </motion.div>
     </div>
@@ -430,12 +448,13 @@ function InsightsTab({
   activities: ActivityItem[];
   repairs: PrerequisiteRepair[];
 }) {
+  const { t } = useI18n();
   const tips = adaptiveRecommendations(learnerModel, activities, repairs);
   return (
     <div className="space-y-4">
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="rounded-2xl border border-brand-500/20 bg-brand-500/5 p-5">
-        <h3 className="text-sm font-semibold flex items-center gap-2 mb-4"><Lightbulb className="w-4 h-4 text-brand-400" />What We've Learned About Your Learning</h3>
-        <p className="text-xs text-text-tertiary mb-4">These insights are discovered from your behavior — not declared by you.</p>
+        <h3 className="text-sm font-semibold flex items-center gap-2 mb-4"><Lightbulb className="w-4 h-4 text-brand-400" />{t('analyticsInsightsLearnedTitle')}</h3>
+        <p className="text-xs text-text-tertiary mb-4">{t('analyticsInsightsLearnedHint')}</p>
         <div className="space-y-3">
           {(learnerModel.interactionInsights.length > 0 ? learnerModel.interactionInsights : tips.slice(0, 2)).map((insight, i) => (
             <motion.div key={i} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.08 }}
@@ -450,12 +469,12 @@ function InsightsTab({
       </motion.div>
 
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="rounded-2xl border border-border-subtle bg-surface-card p-5">
-        <h3 className="text-sm font-semibold mb-3">Adaptive Recommendations</h3>
+        <h3 className="text-sm font-semibold mb-3">{t('analyticsAdaptiveRecommendations')}</h3>
         <div className="space-y-2 text-sm text-text-secondary">
           {tips.length > 0 ? tips.map((tip, i) => (
             <p key={i}>• {tip}</p>
           )) : (
-            <p>Complete lessons and reviews from your uploaded material to unlock personalized recommendations.</p>
+            <p>{t('analyticsRecommendationsEmpty')}</p>
           )}
         </div>
       </motion.div>
@@ -474,6 +493,7 @@ function MetricCard({ icon, label, value, sub }: { icon: React.ReactNode; label:
 }
 
 function SkillBar({ concept, mastery, retention, count, color }: { concept: string; mastery: number; retention: number; count: number; color: string }) {
+  const { t } = useI18n();
   const barColor = color === 'emerald' ? 'bg-accent-emerald' : color === 'rose' ? 'bg-accent-rose' : 'bg-accent-amber';
   return (
     <div>
@@ -485,8 +505,8 @@ function SkillBar({ concept, mastery, retention, count, color }: { concept: stri
         <div className={cn('h-2 rounded-full transition-all', barColor)} style={{ width: `${Math.max(mastery, 3)}%` }} />
       </div>
       <div className="flex gap-3 mt-1 text-[10px] text-text-muted">
-        <span>Retention: {Math.round(retention * 100)}%</span>
-        <span>Practiced {count}×</span>
+        <span>{t('analyticsSkillRetention')}: {Math.round(retention * 100)}%</span>
+        <span>{t('analyticsSkillPracticed')} {count}×</span>
       </div>
     </div>
   );

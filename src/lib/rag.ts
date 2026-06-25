@@ -12,6 +12,12 @@
  */
 
 import type { UploadedFile } from '../types';
+import {
+  detectDocumentSections,
+  looksLikeHeadingLine,
+  normalizeDocumentText,
+  isStructuralBoundaryLine,
+} from './textSegmentation';
 
 /** A retrievable unit of source material with precise provenance. */
 export interface SourceChunk {
@@ -101,16 +107,7 @@ export function tokenize(text: string): string[] {
 
 /** Heuristic: is this line a heading (short, no terminal period, not a list item)? */
 export function looksLikeHeading(line: string): boolean {
-  const trimmed = line.trim();
-  if (trimmed.length === 0 || trimmed.length > 80) return false;
-  if (/^#{1,6}\s+\S/.test(trimmed)) return true;
-  if (/[.:;,]$/.test(trimmed)) return false;
-  const words = trimmed.split(/\s+/);
-  if (words.length > 12) return false;
-  const isUpperish = trimmed === trimmed.toUpperCase() && /[A-ZΑ-Ω]/.test(trimmed);
-  const isTitleish = /^[A-ZΑ-Ω0-9]/.test(trimmed) && words.length <= 8;
-  const isNumbered = /^(\d+(\.\d+)*|chapter|κεφάλαιο|section|ενότητα)\b/i.test(trimmed);
-  return isUpperish || isTitleish || isNumbered;
+  return looksLikeHeadingLine(line);
 }
 
 /**
@@ -122,17 +119,49 @@ export function looksLikeHeading(line: string): boolean {
 export function chunkText(text: string, fileId: string, fileName: string): SourceChunk[] {
   if (!text || !text.trim()) return [];
 
+  const normalized = normalizeDocumentText(text);
+  const sections = detectDocumentSections(normalized);
+
+  if (sections.length >= 2) {
+    const chunks: SourceChunk[] = [];
+    let index = 0;
+    let searchFrom = 0;
+
+    for (const sec of sections) {
+      const body = sec.text.trim();
+      if (!body) {
+        if (sec.heading) searchFrom = Math.max(searchFrom, normalized.indexOf(sec.heading, searchFrom));
+        continue;
+      }
+      const bodyStart = normalized.indexOf(body, searchFrom);
+      const start = bodyStart >= 0 ? bodyStart : searchFrom;
+      const end = start + body.length;
+      const segChunks = chunkTextRange(normalized, start, end, fileId, fileName, index, sec.heading);
+      chunks.push(...segChunks);
+      index = chunks.length;
+      searchFrom = end;
+    }
+    return chunks;
+  }
+
+  return chunkTextRange(normalized, 0, normalized.length, fileId, fileName, 0);
+}
+
+function chunkTextRange(
+  normalized: string,
+  rangeStart: number,
+  rangeEnd: number,
+  fileId: string,
+  fileName: string,
+  startIndex: number,
+  sectionHeading?: string,
+): SourceChunk[] {
   const chunks: SourceChunk[] = [];
-  // Normalize CRLF, keep offsets meaningful against the normalized string.
-  const normalized = text.replace(/\r\n/g, '\n');
+  const hasPageMarkers = normalized.includes('--- page break ---');
 
-  // Page tracking: pdf/pptx extractors join pages with blank lines; treat
-  // explicit form-feeds (\f) as hard page breaks when present.
-  const hasFormFeeds = normalized.includes('\f');
-
-  let cursor = 0;
-  let index = 0;
-  let currentHeading: string | undefined;
+  let cursor = rangeStart;
+  let index = startIndex;
+  let currentHeading = sectionHeading;
   let page = 1;
 
   const pushChunk = (chunkStart: number, chunkEnd: number, heading?: string, pageNo?: number) => {
@@ -153,39 +182,51 @@ export function chunkText(text: string, fileId: string, fileName: string): Sourc
     index += 1;
   };
 
-  while (cursor < normalized.length) {
-    let end = Math.min(cursor + TARGET_CHARS, normalized.length);
+  while (cursor < rangeEnd) {
+    let end = Math.min(cursor + TARGET_CHARS, rangeEnd);
 
-    // Prefer to break on a paragraph or sentence boundary near the target.
-    if (end < normalized.length) {
+    if (end < rangeEnd) {
       const window = normalized.slice(cursor, end);
+      const hardBreak = findStructuralBreak(window);
       const lastPara = window.lastIndexOf('\n\n');
       const lastSentence = Math.max(window.lastIndexOf('. '), window.lastIndexOf('.\n'));
-      const breakAt = lastPara > TARGET_CHARS * 0.5
-        ? lastPara
-        : lastSentence > TARGET_CHARS * 0.5
-          ? lastSentence + 1
-          : -1;
+      const breakAt = hardBreak > TARGET_CHARS * 0.3
+        ? hardBreak
+        : lastPara > TARGET_CHARS * 0.5
+          ? lastPara
+          : lastSentence > TARGET_CHARS * 0.5
+            ? lastSentence + 1
+            : -1;
       if (breakAt > 0) end = cursor + breakAt;
     }
 
-    // Capture nearest heading inside this slice for citation context.
     const lines = normalized.slice(cursor, end).split('\n');
-    for (const line of lines) {
-      if (looksLikeHeading(line)) currentHeading = line.trim();
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i]!;
+      if (looksLikeHeadingLine(line, lines[i + 1])) currentHeading = line.trim();
     }
-    if (hasFormFeeds) {
-      page += (normalized.slice(cursor, end).match(/\f/g)?.length ?? 0);
+    if (hasPageMarkers) {
+      page += (normalized.slice(cursor, end).match(/--- page break ---/g)?.length ?? 0);
     }
 
-    pushChunk(cursor, end, currentHeading, hasFormFeeds ? page : undefined);
+    pushChunk(cursor, end, currentHeading, hasPageMarkers ? page : undefined);
 
-    if (end >= normalized.length) break;
-    // Advance with overlap, but always make forward progress.
+    if (end >= rangeEnd) break;
     cursor = Math.max(end - OVERLAP_CHARS, cursor + MIN_CHUNK_CHARS);
   }
 
   return chunks;
+}
+
+function findStructuralBreak(window: string): number {
+  const lines = window.split('\n');
+  let offset = 0;
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i]!;
+    if (isStructuralBoundaryLine(line.trim())) return offset;
+    offset += line.length + 1;
+  }
+  return -1;
 }
 
 /** Stable signature so the corpus cache invalidates when files change. */

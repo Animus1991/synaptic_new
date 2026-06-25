@@ -1,6 +1,7 @@
 import type { GlossaryEntry, UserSettings } from '../types';
 import { chatCompletion, isLlmAvailable } from './llmClient';
 import { conceptRelevanceScore } from './noteContentExtractors';
+import { splitStructuredParagraphs } from './textSegmentation';
 import { loadJson, saveJson } from './persistence';
 import { normalizeFocusTerm, termMatchesFocus } from './workspaceFocus';
 
@@ -19,7 +20,7 @@ function escapeRegex(s: string): string {
 }
 
 export function splitReaderParagraphs(text: string): string[] {
-  return text.split(/\n\n+/).filter((p) => p.trim());
+  return splitStructuredParagraphs(text);
 }
 
 function scopedGlossary(glossary: GlossaryEntry[], concept?: string): GlossaryEntry[] {

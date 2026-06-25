@@ -47,6 +47,11 @@ export function mergeConceptActivity(a: ConceptActivity, b: ConceptActivity): Co
   for (const t of newer.tools) {
     if (!tools.includes(t)) tools.push(t);
   }
+  const toolHitCounts: ConceptActivity['toolHitCounts'] = { ...(older.toolHitCounts ?? {}) };
+  for (const [tool, count] of Object.entries(newer.toolHitCounts ?? {})) {
+    const key = tool as ConceptActivity['tools'][number];
+    toolHitCounts[key] = (toolHitCounts[key] ?? 0) + count;
+  }
   return {
     concept: newer.concept,
     key: newer.key,
@@ -56,6 +61,7 @@ export function mergeConceptActivity(a: ConceptActivity, b: ConceptActivity): Co
     lastAt: Math.max(a.lastAt, b.lastAt),
     lastTool: newer.lastTool,
     struggleScore: a.struggleScore + b.struggleScore,
+    toolHitCounts,
   };
 }
 

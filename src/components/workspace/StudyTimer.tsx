@@ -10,6 +10,16 @@ import {
   type TimerSessionLog,
 } from '../../lib/workspacePersistence';
 import { buildExamIcs, buildStudySessionsIcs, downloadIcs } from '../../lib/timerCalendarSync';
+import type { TimerPresetKey } from '../../lib/timerSessionModel';
+import { buildTimerSessionLabel } from '../../lib/timerSessionModel';
+import {
+  EXAM_PRACTICE_PRESETS,
+  examPracticeLabel,
+  getExamPracticePreset,
+  workSecondsForExamPractice,
+  type ExamPracticePresetId,
+} from '../../lib/examPracticePresets';
+import { saveExamPracticePreset } from '../../lib/workspacePersistence';
 
 const PRESET_DEFS = [
   { key: 'focus25' as const, work: 25 * 60, break: 5 * 60 },
@@ -25,14 +35,10 @@ interface StudyTimerProps {
   stepIndex?: number;
   scopeKey?: string;
   conceptMastery?: number;
+  suggestedPreset?: TimerPresetKey;
+  suggestedExamPractice?: ExamPracticePresetId;
   onSessionComplete?: (minutes: number, label: string) => void;
-}
-
-function buildSessionLabel(concept: string, stepLabel?: string, stepIndex?: number, lang: 'en' | 'el' = 'en'): string {
-  const stepPart = stepLabel
-    ? (stepIndex !== undefined ? `${lang === 'el' ? 'Βήμα' : 'Step'} ${stepIndex + 1}: ${stepLabel}` : stepLabel)
-    : (lang === 'el' ? 'Εστίαση' : 'Focus');
-  return concept ? `${concept} · ${stepPart}` : stepPart;
+  onOpenSimulator?: () => void;
 }
 
 function defaultExamIso(): string {
@@ -48,11 +54,15 @@ export function StudyTimer({
   stepIndex,
   scopeKey = '__global',
   conceptMastery,
+  suggestedPreset,
+  suggestedExamPractice,
   onSessionComplete,
+  onOpenSimulator,
 }: StudyTimerProps) {
   const { t, lang } = useI18n();
   const [mode, setMode] = useState<TimerMode>('pomodoro');
   const [presetIdx, setPresetIdx] = useState(0);
+  const [examPracticeId, setExamPracticeId] = useState<ExamPracticePresetId | null>(null);
   const [phase, setPhase] = useState<'work' | 'break'>('work');
   const [examTarget, setExamTarget] = useState(() => loadExamTarget(scopeKey) ?? defaultExamIso());
   const [examTick, setExamTick] = useState(0);
@@ -65,7 +75,28 @@ export function StudyTimer({
   onCompleteRef.current = onSessionComplete;
 
   const preset = PRESET_DEFS[presetIdx];
-  const sessionLabel = buildSessionLabel(concept, stepLabel, stepIndex, lang);
+  const workDurationSeconds = examPracticeId
+    ? workSecondsForExamPractice(examPracticeId)
+    : preset.work;
+  const sessionLabel = buildTimerSessionLabel(concept, stepLabel, stepIndex, lang);
+
+  useEffect(() => {
+    if (!suggestedPreset || running) return;
+    const idx = PRESET_DEFS.findIndex((p) => p.key === suggestedPreset);
+    if (idx < 0) return;
+    setPresetIdx(idx);
+    setPhase('work');
+    setSecondsLeft(examPracticeId ? workSecondsForExamPractice(examPracticeId) : PRESET_DEFS[idx].work);
+  }, [suggestedPreset, scopeKey, running, examPracticeId]);
+
+  useEffect(() => {
+    if (!suggestedExamPractice || running) return;
+    setExamPracticeId(suggestedExamPractice);
+    setMode('pomodoro');
+    setPhase('work');
+    setSecondsLeft(workSecondsForExamPractice(suggestedExamPractice));
+    saveExamPracticePreset(scopeKey, suggestedExamPractice);
+  }, [suggestedExamPractice, scopeKey, running]);
 
   const examBaselineRef = useRef(0);
   useEffect(() => {
@@ -81,7 +112,7 @@ export function StudyTimer({
   const displaySeconds = mode === 'exam' ? examSecondsLeft : secondsLeft;
   const total = mode === 'exam'
     ? Math.max(examSecondsLeft, 1)
-    : (phase === 'work' ? preset.work : preset.break);
+    : (phase === 'work' ? workDurationSeconds : preset.break);
   const pct = mode === 'exam'
     ? Math.min(100, Math.max(0, 100 - (examSecondsLeft / examBaselineRef.current) * 100))
     : ((total - secondsLeft) / total) * 100;
@@ -107,12 +138,14 @@ export function StudyTimer({
         if (s <= 1) {
           const nextPhase = phase === 'work' ? 'break' : 'work';
           if (phase === 'work') {
-            const mins = Math.round(preset.work / 60);
+            const mins = Math.round(workDurationSeconds / 60);
             setLoggedWork((w) => w + mins);
             const log: TimerSessionLog = {
               at: new Date().toISOString(),
               minutes: mins,
-              label: sessionLabel,
+              label: examPracticeId
+                ? `${sessionLabel} · ${examPracticeLabel(examPracticeId, lang)}`
+                : sessionLabel,
               preset: preset.key,
             };
             appendTimerSession(scopeKey, log);
@@ -120,18 +153,18 @@ export function StudyTimer({
             onCompleteRef.current?.(mins, sessionLabel);
           }
           setPhase(nextPhase);
-          return nextPhase === 'work' ? preset.work : preset.break;
+          return nextPhase === 'work' ? workDurationSeconds : preset.break;
         }
         return s - 1;
       });
     }, 1000);
     return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
-  }, [running, phase, preset, sessionLabel, scopeKey, mode]);
+  }, [running, phase, preset, workDurationSeconds, examPracticeId, sessionLabel, scopeKey, mode, lang]);
 
   const reset = () => {
     setRunning(false);
     setPhase('work');
-    setSecondsLeft(preset.work);
+    setSecondsLeft(workDurationSeconds);
   };
 
   const h = Math.floor(displaySeconds / 3600);
@@ -185,20 +218,66 @@ export function StudyTimer({
       )}
 
       {mode === 'pomodoro' && (
-        <div className="flex gap-2 mb-6 self-start">
-          {PRESET_DEFS.map((p, i) => (
-            <button
-              key={p.key}
-              onClick={() => { setPresetIdx(i); setPhase('work'); setSecondsLeft(p.work); setRunning(false); }}
-              className={cn(
-                'px-2.5 py-1 rounded-lg text-[10px] font-medium border transition-all',
-                presetIdx === i ? 'border-brand-500/40 text-brand-300 bg-brand-600/10' : 'border-border-subtle text-text-muted',
-              )}
-            >
-              {t(p.key)}
-            </button>
-          ))}
-        </div>
+        <>
+          <div className="flex gap-2 mb-3 self-start flex-wrap">
+            {PRESET_DEFS.map((p, i) => (
+              <button
+                key={p.key}
+                onClick={() => {
+                  setPresetIdx(i);
+                  setExamPracticeId(null);
+                  setPhase('work');
+                  setSecondsLeft(p.work);
+                  setRunning(false);
+                }}
+                className={cn(
+                  'px-2.5 py-1 rounded-lg text-[10px] font-medium border transition-all',
+                  presetIdx === i && !examPracticeId ? 'border-brand-500/40 text-brand-300 bg-brand-600/10' : 'border-border-subtle text-text-muted',
+                )}
+              >
+                {t(p.key)}
+              </button>
+            ))}
+          </div>
+          <div className="mb-6 w-full max-w-md">
+            <p className="mb-1.5 text-[10px] font-semibold text-text-muted">
+              {lang === 'el' ? 'Exam practice blocks' : 'Exam practice blocks'}
+            </p>
+            <div className="flex flex-wrap gap-1.5" data-testid="timer-exam-practice-presets">
+              {EXAM_PRACTICE_PRESETS.map((block) => (
+                <button
+                  key={block.id}
+                  type="button"
+                  onClick={() => {
+                    setExamPracticeId(block.id);
+                    setPhase('work');
+                    setSecondsLeft(workSecondsForExamPractice(block.id));
+                    setRunning(false);
+                    saveExamPracticePreset(scopeKey, block.id);
+                  }}
+                  className={cn(
+                    'rounded-full border px-2.5 py-1 text-[10px] font-medium transition-all',
+                    examPracticeId === block.id
+                      ? 'border-accent-amber/40 bg-accent-amber/15 text-accent-amber'
+                      : 'border-border-subtle text-text-muted hover:border-accent-amber/30',
+                  )}
+                >
+                  {examPracticeLabel(block.id, lang)}
+                </button>
+              ))}
+            </div>
+            {examPracticeId && onOpenSimulator && getExamPracticePreset(examPracticeId).simulatorScenarioId && (
+              <button
+                type="button"
+                data-testid="timer-open-simulator"
+                onClick={onOpenSimulator}
+                className="mt-2 text-[10px] text-accent-cyan hover:underline"
+              >
+                {lang === 'el' ? 'Άνοιγμα Simulator για το σενάριο' : 'Open Simulator for this scenario'}
+              </button>
+            )}
+          </div>
+        </>
       )}
 
       {mode === 'exam' && (

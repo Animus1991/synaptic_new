@@ -2,6 +2,8 @@ import type { Lang } from './i18n';
 import type { WorkspaceToolId } from './taskFlows';
 import type { WorkspaceCorrelation } from './workspaceCorrelation';
 import type { WorkspaceSourceIntelligence } from './workspaceNoteContent';
+import type { NextActionRecommendation } from './nextActionEngine';
+import { applyNextActionToDiscoverability } from './discoverabilityNextActionSync';
 
 export type CorrelationChip = {
   id: string;
@@ -77,7 +79,7 @@ const TOOL_GUIDES_EN: Record<WorkspaceToolId, Omit<ToolFeatureGuide, 'toolId'>> 
     quickActionIds: ['open-reader-focus'],
   },
   reader: {
-    title: 'Cognitive Reader',
+    title: 'Reader',
     summary: 'BM25 excerpt, dyslexia mode, bilingual sync, paragraph TTS, OCR overlay for scans.',
     features: ['Bilingual paragraph sync', 'Paragraph TTS + scroll', 'OCR overlay'],
     quickActionIds: ['open-reader-focus'],
@@ -158,7 +160,7 @@ const TOOL_GUIDES_EL: Record<WorkspaceToolId, Omit<ToolFeatureGuide, 'toolId'>> 
     quickActionIds: ['open-reader-focus'],
   },
   reader: {
-    title: 'Cognitive Reader',
+    title: 'Ανάγνωση',
     summary: 'BM25 απόσπασμα, dyslexia, bilingual sync, TTS ανά παράγραφο, OCR overlay.',
     features: ['Bilingual sync', 'Paragraph TTS', 'OCR overlay'],
     quickActionIds: ['open-reader-focus'],
@@ -242,21 +244,26 @@ export function buildToolFeatureGuide(
   return { toolId, ...base };
 }
 
-export function buildDiscoverabilitySummary(
-  hasSource: boolean,
-  sourceIntel: WorkspaceSourceIntelligence | null,
-  correlation: WorkspaceCorrelation,
-  activeTool: WorkspaceToolId,
-  lang: Lang,
-): {
+export type DiscoverabilitySummary = {
   grounded: boolean;
   headline: string;
   subline: string;
   chips: CorrelationChip[];
   toolGuide: ToolFeatureGuide;
   recommendedTool: WorkspaceToolId | null;
-} {
-  const toolGuide = buildToolFeatureGuide(activeTool, lang);
+  /** Wave 5C — engine recommendation mirrored for panel + context strip harmony */
+  nextAction: NextActionRecommendation | null;
+};
+
+export function buildDiscoverabilitySummary(
+  hasSource: boolean,
+  sourceIntel: WorkspaceSourceIntelligence | null,
+  correlation: WorkspaceCorrelation,
+  activeTool: WorkspaceToolId,
+  lang: Lang,
+  nextAction?: NextActionRecommendation | null,
+): DiscoverabilitySummary {
+  const baseGuide = buildToolFeatureGuide(activeTool, lang);
   const chips = buildCorrelationChips(correlation, lang);
 
   if (!hasSource) {
@@ -267,8 +274,9 @@ export function buildDiscoverabilitySummary(
         ? 'Χωρίς πηγή (>80 χαρακτήρες) τα εργαλεία μένουν κενά — όχι demo.'
         : 'Without source text (80+ chars) tools stay empty — no demo filler.',
       chips,
-      toolGuide,
+      toolGuide: baseGuide,
       recommendedTool: null,
+      nextAction: null,
     };
   }
 
@@ -276,15 +284,23 @@ export function buildDiscoverabilitySummary(
     ? `Grounded workspace · σκορ πηγών ${sourceIntel?.score ?? '—'}/100`
     : `Grounded workspace · source score ${sourceIntel?.score ?? '—'}/100`;
 
-  const subline = sourceIntel?.bestToolReason
+  const fallbackSubline = sourceIntel?.bestToolReason
     ?? (lang === 'el' ? 'Όλα τα εργαλεία συνδέονται μέσω correlation bus.' : 'All tools share the correlation bus.');
+
+  const synced = applyNextActionToDiscoverability({
+    nextAction,
+    sourceBestTool: sourceIntel?.bestTool ?? null,
+    subline: fallbackSubline,
+    quickActionIds: baseGuide.quickActionIds,
+  });
 
   return {
     grounded: true,
     headline,
-    subline,
+    subline: synced.subline,
     chips,
-    toolGuide,
-    recommendedTool: sourceIntel?.bestTool ?? null,
+    toolGuide: { ...baseGuide, quickActionIds: synced.quickActionIds },
+    recommendedTool: synced.recommendedTool,
+    nextAction: synced.nextAction,
   };
 }

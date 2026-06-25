@@ -57,9 +57,11 @@ full endpoint contract.
    YouTube URL) via
    **Upload Material**.
 2. **Content pipeline** extracts text (PDFs use `\f` page separators for
-   citations), runs OCR when needed, builds an outline (offline engine or
-   LLM), scores course-level source quality, and adaptively compacts
-   over-split outlines before creating the course + glossary + tasks.
+   citations; v2.4 column-major PDF reading + lecture merge), runs OCR when
+   needed, builds an outline (offline engine or LLM), scores course-level
+   source quality, and adaptively compacts over-split outlines before creating
+   the course + glossary + tasks. Reader supports local OCR line correction
+   when the overlay is on.
 3. **Course review** opens first after generation so the learner can inspect
    source quality, warnings, module density, and “needs more material”
    diagnostics before entering the workspace.
@@ -67,8 +69,11 @@ full endpoint contract.
    (lessons, review, practice, exam prep).
 5. **Study Workspace** and **LessonView** ground all 11 tools in uploaded
    text (`hasSource` gate; never demo content unless explicitly enabled).
+   Learning actions **Explain from zero** / **Ask Agent** auto-send to the
+   Agent with course + section + step context for RAG. On mobile, Concept Bus
+   and weak-area panels collapse into tabs.
 6. **Agent** uses BM25 (+ optional embedding rerank) over your uploads for
-   citations.
+   citations, widened by workspace step context when opened from Study Workspace.
 
 Demo showcase courses (Microeconomics, Python, etc.) are **hidden by
 default**. Enable in **Settings → Demo showcase content** only for demos.

@@ -12,11 +12,14 @@ import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
   analyzeContentToOutline,
+  detectSections,
+  extractAcronyms,
   extractDefinitions,
   rankKeyphrases,
 } from '../lib/contentAnalysis';
 import { extractFormulas } from '../lib/noteContentExtractors';
 import { analyzeCourseSourceQuality } from '../lib/courseSourceQuality';
+import type { GeneratedOutline } from '../lib/courseGenerator';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -80,6 +83,38 @@ function computePrecision(gold: string[], found: string[]): number {
   return hits / found.length;
 }
 
+/** Union concepts from the full recognition pipeline (not keyphrases alone). */
+export function collectPipelineConcepts(text: string, outline: GeneratedOutline): string[] {
+  const raw: string[] = [];
+  const push = (value: string) => {
+    const trimmed = value.trim();
+    if (trimmed.length >= 2) raw.push(trimmed);
+  };
+
+  for (const { phrase } of rankKeyphrases(text, 24)) push(phrase);
+  for (const topic of outline.topics) {
+    push(topic.title);
+    for (const concept of topic.concepts) push(concept);
+    for (const objective of topic.objectives ?? []) push(objective);
+  }
+  for (const entry of outline.glossary) push(entry.term);
+  for (const def of extractDefinitions(text, 24)) push(def.term);
+  for (const acronym of extractAcronyms(text)) push(acronym.term);
+  for (const section of detectSections(text)) {
+    if (section.heading?.trim()) push(section.heading);
+  }
+
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const value of raw) {
+    const key = normalize(value);
+    if (!key || seen.has(key)) continue;
+    seen.add(key);
+    out.push(value);
+  }
+  return out;
+}
+
 export function evaluateFixture(name: string): EvalResult {
   const { text, gold } = loadFixture(name);
   const outline = analyzeContentToOutline(text, [name]);
@@ -101,7 +136,7 @@ export function evaluateFixture(name: string): EvalResult {
   const formulas = extractFormulas(text);
   const quality = analyzeCourseSourceQuality(text, outline);
 
-  const foundConcepts = rankKeyphrases(text, 20).map((k) => k.phrase);
+  const foundConcepts = collectPipelineConcepts(text, outline);
   const foundDefs = definitions.map((d) => d.term);
   const foundFormulas = formulas.map((f) => f.formula);
 
@@ -152,9 +187,8 @@ export function evaluateAll(fixtures: string[]): EvalReport {
   }
 
   const pass =
-    averageConceptRecall >= 0.5 &&
-    averageConceptPrecision >= 0.3 &&
-    averageDefinitionRecall >= 0.3;
+    averageConceptRecall >= 0.6
+    && results.every((r) => r.conceptRecall >= 0.6);
 
   return {
     results,

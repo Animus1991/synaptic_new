@@ -1,4 +1,6 @@
 import type { UserSettings } from '../types';
+import type { OcrStoredRegion } from './readerOcrOverlay';
+import type { TeacherDashboardResponse } from './teacherDashboardTypes';
 
 export type AuthSession = {
   token: string;
@@ -11,6 +13,17 @@ function proxyBase(settings: UserSettings): string {
   return (settings.authProxyBase ?? settings.llmProxyUrl ?? 'http://localhost:8787')
     .replace(/\/v1\/?$/, '')
     .replace(/\/$/, '');
+}
+
+/** Proxy URL only when the user explicitly configured one — never implicit localhost. */
+export function configuredProxyBase(settings?: UserSettings): string | null {
+  const raw = settings?.authProxyBase?.trim() || settings?.llmProxyUrl?.trim();
+  if (!raw) return null;
+  return raw.replace(/\/v1\/?$/, '').replace(/\/$/, '');
+}
+
+export function isProxyConfigured(settings?: UserSettings): boolean {
+  return configuredProxyBase(settings) != null;
 }
 
 export async function authRegister(
@@ -200,12 +213,13 @@ export async function authForgotPassword(
   return res.json() as Promise<{ ok: boolean; resetToken?: string }>;
 }
 
+
 export async function fetchTeacherDashboard(token: string, settings: UserSettings) {
   const res = await fetch(`${proxyBase(settings)}/v1/teacher/dashboard`, {
     headers: { Authorization: `Bearer ${token}` },
   });
   if (!res.ok) throw new Error(await res.text());
-  return res.json();
+  return res.json() as Promise<TeacherDashboardResponse>;
 }
 
 export async function ocrPages(
@@ -223,7 +237,13 @@ export async function ocrPages(
     body: JSON.stringify({ pages, pageCount, languages }),
   });
   if (!res.ok) throw new Error(await res.text());
-  return res.json() as Promise<{ text: string; pageCount: number; ocrUsed: boolean }>;
+  return res.json() as Promise<{
+    text: string;
+    pageCount: number;
+    ocrUsed: boolean;
+    regions?: OcrStoredRegion[];
+    modelsUsed?: string[];
+  }>;
 }
 
 export async function ragQuery(
@@ -262,6 +282,8 @@ export type SharedAnnotationSyncResult = {
   annotations: SharedAnnotationDto[];
   version: number;
   serverTime: string;
+  /** False when no proxy is configured or the server could not be reached. */
+  reachable?: boolean;
 };
 
 export async function fetchSharedAnnotations(
@@ -270,21 +292,26 @@ export async function fetchSharedAnnotations(
   fileKey: string,
   opts?: { since?: string },
 ): Promise<SharedAnnotationSyncResult> {
-  const base = proxyBase(settings);
-  if (!base) return { annotations: [], version: 0, serverTime: new Date().toISOString() };
+  const base = configuredProxyBase(settings);
+  if (!base) {
+    return { annotations: [], version: 0, serverTime: new Date().toISOString(), reachable: false };
+  }
   try {
     const params = new URLSearchParams({ courseId, fileKey });
     if (opts?.since) params.set('since', opts.since);
     const res = await fetch(`${base}/v1/annotations/shared?${params.toString()}`);
-    if (!res.ok) return { annotations: [], version: 0, serverTime: new Date().toISOString() };
+    if (!res.ok) {
+      return { annotations: [], version: 0, serverTime: new Date().toISOString(), reachable: false };
+    }
     const data = (await res.json()) as SharedAnnotationSyncResult;
     return {
       annotations: data.annotations ?? [],
       version: data.version ?? 0,
       serverTime: data.serverTime ?? new Date().toISOString(),
+      reachable: true,
     };
   } catch {
-    return { annotations: [], version: 0, serverTime: new Date().toISOString() };
+    return { annotations: [], version: 0, serverTime: new Date().toISOString(), reachable: false };
   }
 }
 

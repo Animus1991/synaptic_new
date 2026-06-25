@@ -1,10 +1,17 @@
 import { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { GitCommit, Plus, Pencil, BookOpen, Shield } from 'lucide-react';
+import { GitCommit, Plus, Pencil, BookOpen, Shield, Sparkles } from 'lucide-react';
 import { cn } from '../../utils/cn';
-import { saveJson } from '../../lib/persistence';
 import { suggestCounterArguments } from '../../lib/debateCounterArgs';
 import { buildRebuttalGraph } from '../../lib/debateRebuttalGraph';
+import { auditDebateRebuttalPersistence } from '../../lib/debateRebuttalGraphPersistQA';
+import {
+  debateSeedFingerprint,
+  loadDebateTreeEnvelope,
+  resolveDebateTree,
+  saveDebateTreeEnvelope,
+} from '../../lib/debateTreePersist';
+import { DebateRebuttalPersistStrip } from './DebateRebuttalPersistStrip';
 import { WorkspaceEmptyState } from './WorkspaceEmptyState';
 
 export type ArgNodeType = 'claim' | 'premise' | 'support' | 'refutation';
@@ -61,6 +68,7 @@ interface Props {
   storageKey?: string;
   concept?: string;
   emptyMessage?: string;
+  hasSource?: boolean;
   onUpload?: () => void;
   /** Open reader highlighted at this claim/premise text in source notes. */
   onOpenInReader?: (claimText: string) => void;
@@ -68,6 +76,10 @@ interface Props {
   sourceText?: string;
   focusTerm?: string;
   lang?: 'en' | 'el';
+  onAskAgent?: (claimText?: string) => void;
+  onNodeSelect?: (claimText: string) => void;
+  selectedClaim?: string | null;
+  onRebuttalPersisted?: (rebuttalText: string) => void;
 }
 
 export function ArgumentMap({
@@ -75,30 +87,83 @@ export function ArgumentMap({
   storageKey = 'debate-tree',
   concept,
   emptyMessage,
+  hasSource = false,
   onUpload,
   onOpenInReader,
   sourceText = '',
   focusTerm,
   lang = 'en',
+  onAskAgent,
+  onNodeSelect,
+  selectedClaim,
+  onRebuttalPersisted,
 }: Props) {
-  const [root, setRoot] = useState<ArgNode | null>(tree ?? null);
+  const seedFingerprint = useMemo(() => debateSeedFingerprint(tree ?? null), [tree]);
+
+  const [root, setRoot] = useState<ArgNode | null>(() => {
+    const envelope = loadDebateTreeEnvelope(storageKey);
+    return resolveDebateTree(
+      envelope?.tree ?? null,
+      tree ?? null,
+      envelope?.seedFingerprint ?? null,
+      seedFingerprint,
+    );
+  });
   const [editingId, setEditingId] = useState<string | null>(null);
   const [draft, setDraft] = useState('');
 
   useEffect(() => {
-    setRoot(tree ?? null);
-  }, [tree]);
-
-  const persist = (next: ArgNode) => {
+    const envelope = loadDebateTreeEnvelope(storageKey);
+    const next = resolveDebateTree(
+      envelope?.tree ?? null,
+      tree ?? null,
+      envelope?.seedFingerprint ?? null,
+      seedFingerprint,
+    );
     setRoot(next);
-    saveJson(storageKey, next);
+  }, [tree, storageKey, seedFingerprint]);
+
+  const persistReport = useMemo(() => {
+    const envelope = loadDebateTreeEnvelope(storageKey);
+    return auditDebateRebuttalPersistence({
+      activeTree: root,
+      seed: tree ?? null,
+      lang,
+      envelope,
+    });
+  }, [root, tree, storageKey, lang]);
+
+  const persist = (next: ArgNode, opts?: { rebuttalText?: string }) => {
+    setRoot(next);
+    saveDebateTreeEnvelope(storageKey, next, seedFingerprint);
+    if (opts?.rebuttalText?.trim()) {
+      onRebuttalPersisted?.(opts.rebuttalText.trim());
+    }
+  };
+
+  const startDebate = () => {
+    const seed: ArgNode = {
+      id: 'root',
+      type: 'claim',
+      text: concept?.trim() || (lang === 'el' ? 'Κύριο επιχείρημα' : 'Main claim'),
+      x: 320,
+      y: 200,
+      expanded: true,
+      children: [],
+    };
+    persist(seed);
+    setEditingId(seed.id);
+    setDraft(seed.text);
   };
 
   if (!root) {
     return (
       <WorkspaceEmptyState
         message={emptyMessage ?? 'Upload notes to build a debate tree from claims in your material.'}
+        hasSource={hasSource}
         onUpload={onUpload}
+        secondaryLabel={hasSource ? (lang === 'el' ? 'Ξεκίνα συζήτηση' : 'Start debate tree') : undefined}
+        onSecondary={hasSource ? startDebate : undefined}
       />
     );
   }
@@ -116,16 +181,17 @@ export function ArgumentMap({
 
   const addNode = (parentId: string, type: ArgNodeType = 'support', text?: string) => {
     const id = `n-${Date.now()}`;
+    const label = text ?? (type === 'refutation'
+      ? (lang === 'el' ? 'Αντίθετο επιχείρημα' : 'Counter-argument')
+      : 'New argument point');
     const child: ArgNode = {
       id,
       type,
-      text: text ?? (type === 'refutation'
-        ? (lang === 'el' ? 'Αντίθετο επιχείρημα' : 'Counter-argument')
-        : 'New argument point'),
+      text: label,
       x: 300 + Math.random() * 80,
       y: 280 + Math.random() * 40,
     };
-    persist(addChild(root, parentId, child));
+    persist(addChild(root, parentId, child), type === 'refutation' ? { rebuttalText: label } : undefined);
     startEdit(child);
   };
 
@@ -165,12 +231,16 @@ export function ArgumentMap({
   const renderNodes = (node: ArgNode): React.ReactNode => {
     const colorStyle = NODE_COLORS[node.type];
     const isEditing = editingId === node.id;
+    const isSelected = Boolean(selectedClaim && node.text === selectedClaim);
     return (
       <div key={`wrap-${node.id}`}>
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="absolute group flex flex-col items-center justify-center rounded-xl border-2 p-3 text-center text-xs font-medium shadow-lg"
+          className={cn(
+            'absolute group flex flex-col items-center justify-center rounded-xl border-2 p-3 text-center text-xs font-medium shadow-lg',
+            isSelected && 'ring-2 ring-accent-cyan/50',
+          )}
           style={{
             width: 150, minHeight: 84, left: node.x - 75, top: node.y - 42,
             backgroundColor: colorStyle.bg, borderColor: colorStyle.border, color: colorStyle.text,
@@ -186,7 +256,16 @@ export function ArgumentMap({
             />
           ) : (
             <>
-              <span>{node.text}</span>
+              <span
+                className={cn(onNodeSelect && 'cursor-pointer hover:underline decoration-accent-cyan/40')}
+                onClick={(e) => {
+                  if (!onNodeSelect || node.text.trim().length < 4) return;
+                  e.stopPropagation();
+                  onNodeSelect(node.text);
+                }}
+              >
+                {node.text}
+              </span>
               <div className="absolute -bottom-7 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                 {onOpenInReader && node.text.trim().length > 8 && (
                   <button
@@ -235,9 +314,22 @@ export function ArgumentMap({
           <GitCommit className="w-4 h-4 text-accent-cyan" />
           Debate Tree{concept ? ` — ${concept}` : ''}
         </span>
-        <span className="text-[10px] text-text-muted">
-          {lang === 'el' ? 'Επεξεργασία · + υποστήριξη · 🛡 αντίθετο' : 'Edit · + support · 🛡 counter'}
-        </span>
+        <div className="flex items-center gap-2">
+          {onAskAgent && (
+            <button
+              type="button"
+              data-testid="debate-ask-agent"
+              onClick={() => onAskAgent(root.text)}
+              className="inline-flex items-center gap-1 rounded-lg border border-accent-cyan/30 bg-accent-cyan/10 px-2 py-1 text-[10px] font-medium text-accent-cyan hover:bg-accent-cyan/15"
+            >
+              <Sparkles className="w-3 h-3" />
+              {lang === 'el' ? 'Ρώτα Agent' : 'Ask Agent'}
+            </button>
+          )}
+          <span className="text-[10px] text-text-muted">
+            {lang === 'el' ? 'Επεξεργασία · + υποστήριξη · 🛡 αντίθετο' : 'Edit · + support · 🛡 counter'}
+          </span>
+        </div>
       </div>
       {counterSuggestions.length > 0 && (
         <div className="shrink-0 border-b border-border-subtle bg-accent-rose/5 px-4 py-2 text-[10px] text-text-secondary">
@@ -255,6 +347,7 @@ export function ArgumentMap({
           ))}
         </div>
       )}
+      <DebateRebuttalPersistStrip report={persistReport} lang={lang} />
       <div
         className="mx-4 mb-2 rounded-xl border border-border-subtle bg-surface-card p-3"
         data-testid="debate-rebuttal-graph"

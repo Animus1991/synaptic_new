@@ -7,8 +7,9 @@ import mammoth from 'mammoth';
 import JSZip from 'jszip';
 
 import type { UserSettings } from '../types';
+import { importChatGptExportFile, isChatGptExportFile, isLikelyChatGptExportJson } from './chatGptImport';
 
-import { extractWithOcrFallback, isImageUpload } from './ocrExtract';
+import { extractWithOcrFallback, isImageOnlyPdf, isImageUpload } from './ocrExtract';
 
 // Vite resolves this to a stable public URL in dev + production builds.
 
@@ -24,6 +25,10 @@ export type PdfExtractResult = {
 
   ocrUsed?: boolean;
 
+  ingestMethod?: FileExtractResult['ingestMethod'];
+
+  ocrRegions?: FileExtractResult['ocrRegions'];
+
 };
 
 
@@ -35,6 +40,10 @@ export type FileExtractResult = {
   pageCount?: number;
 
   ocrUsed?: boolean;
+
+  ingestMethod?: 'text-layer' | 'ocr-client' | 'ocr-server' | 'ocr-ensemble' | 'chatgpt-export';
+
+  ocrRegions?: import('./readerOcrOverlay').OcrStoredRegion[];
 
 };
 
@@ -112,18 +121,24 @@ function layoutAwareTextFromItems(items: unknown[], pageWidth: number): string {
   const isMultiColumn = columns.length >= 2 && columns[0]!.maxX < pageWidth * 0.55;
 
   if (isMultiColumn) {
-    const lineTexts: string[] = [];
+    // v2.4: column-major order — read full left column top-to-bottom, then right.
+    const columnLines: string[][] = columns.map(() => []);
     for (const line of lines) {
-      const parts: string[] = [];
-      for (const col of columns) {
-        const colItems = line.items.filter((it) => it.x >= col.minX - columnGap && it.endX <= col.maxX + columnGap);
-        if (colItems.length === 0) continue;
-        const colText = colItems.map((it) => it.str).join(' ');
-        parts.push(colText);
+      for (let ci = 0; ci < columns.length; ci++) {
+        const col = columns[ci]!;
+        const colItems = line.items.filter((it) => {
+          const mid = it.x + it.width / 2;
+          return mid >= col.minX - columnGap && mid <= col.maxX + columnGap;
+        });
+        if (colItems.length > 0) {
+          columnLines[ci]!.push(colItems.map((it) => it.str).join(' '));
+        }
       }
-      if (parts.length > 0) lineTexts.push(parts.join('   '));
     }
-    return lineTexts.join('\n');
+    return columnLines
+      .map((colBlock) => colBlock.join('\n'))
+      .filter((block) => block.trim().length > 0)
+      .join('\n\n');
   }
 
   // Single-column: join line items, adding line breaks where PDF indicates EOL.
@@ -145,6 +160,7 @@ export async function extractTextFromPdf(file: File, settings?: UserSettings): P
   const doc = await pdfjs.getDocument({ data }).promise;
 
   const parts: string[] = [];
+  const pageCharCounts: number[] = [];
 
 
 
@@ -156,16 +172,30 @@ export async function extractTextFromPdf(file: File, settings?: UserSettings): P
     const viewport = page.getViewport({ scale: 1.0 });
     const pageText = layoutAwareTextFromItems(content.items, viewport.width);
     parts.push(pageText);
+    pageCharCounts.push(pageText.replace(/\s+/g, '').length);
 
   }
 
 
 
+  const pageCount = doc.numPages;
+
+  if (isImageOnlyPdf(pageCharCounts)) {
+    const ocr = await extractWithOcrFallback(file, { text: '', pageCount }, settings);
+    return {
+      text: ocr.text,
+      pageCount: ocr.pageCount,
+      ocrUsed: ocr.ocrUsed,
+      ingestMethod: ocr.ingestMethod ?? (ocr.ocrUsed ? 'ocr-client' : 'text-layer'),
+      ocrRegions: ocr.ocrRegions,
+    };
+  }
+
   const textLayer = {
 
     text: parts.join('\n\f\n'),
 
-    pageCount: doc.numPages,
+    pageCount,
 
   };
 
@@ -180,6 +210,10 @@ export async function extractTextFromPdf(file: File, settings?: UserSettings): P
     pageCount: withOcr.pageCount,
 
     ocrUsed: withOcr.ocrUsed,
+
+    ingestMethod: withOcr.ingestMethod ?? (withOcr.ocrUsed ? 'ocr-client' : 'text-layer'),
+
+    ocrRegions: withOcr.ocrRegions,
 
   };
 
@@ -245,7 +279,13 @@ export async function extractTextFromFile(file: File, settings?: UserSettings): 
 
     const ocr = await extractWithOcrFallback(file, { text: '', pageCount: 1 }, settings);
 
-    return { text: ocr.text, pageCount: 1, ocrUsed: ocr.ocrUsed };
+    return {
+      text: ocr.text,
+      pageCount: 1,
+      ocrUsed: ocr.ocrUsed,
+      ingestMethod: ocr.ingestMethod ?? 'ocr-client',
+      ocrRegions: ocr.ocrRegions,
+    };
 
   }
 
@@ -255,7 +295,14 @@ export async function extractTextFromFile(file: File, settings?: UserSettings): 
 
   if (ext === 'pdf' || file.type === 'application/pdf') {
 
-    return extractTextFromPdf(file, settings);
+    const pdf = await extractTextFromPdf(file, settings);
+    return {
+      text: pdf.text,
+      pageCount: pdf.pageCount,
+      ocrUsed: pdf.ocrUsed,
+      ingestMethod: pdf.ingestMethod,
+      ocrRegions: pdf.ocrRegions,
+    };
 
   }
 
@@ -301,7 +348,49 @@ export async function extractTextFromFile(file: File, settings?: UserSettings): 
 
     || ext === 'xml'
 
+    || ext === 'zip'
+
   ) {
+
+    if (ext === 'zip' && isChatGptExportFile(file)) {
+
+      try {
+
+        const imported = await importChatGptExportFile(file);
+
+        return { text: imported.text, pageCount: imported.conversations.length, ocrUsed: false, ingestMethod: 'chatgpt-export' };
+
+      } catch {
+
+        /* fall through */
+
+      }
+
+    }
+
+    if (ext === 'json') {
+
+      const raw = await file.text();
+
+      try {
+
+        if (isLikelyChatGptExportJson(JSON.parse(raw))) {
+
+          const imported = await importChatGptExportFile(file);
+
+          return { text: imported.text, pageCount: imported.conversations.length, ocrUsed: false, ingestMethod: 'chatgpt-export' };
+
+        }
+
+      } catch {
+
+        /* plain json */
+
+      }
+
+      return { text: raw };
+
+    }
 
     return { text: await file.text() };
 

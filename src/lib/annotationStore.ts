@@ -1,4 +1,22 @@
 import { loadJson, saveJson } from './persistence';
+import { refreshAnnotationsAfterReprocess } from './annotationAnchor';
+
+export type AnnotationCategory =
+  | 'general'
+  | 'confusing'
+  | 'exam-relevant'
+  | 'important'
+  | 'definition';
+
+export type AnnotationAnchorStatus = 'ok' | 'needs-review' | 'legacy';
+
+export type AnnotationAnchor = {
+  courseId?: string;
+  fileKey: string;
+  pipelineVersion?: string;
+  excerpt: string;
+  sectionLabel?: string;
+};
 
 export type StoredAnnotation = {
   id: string;
@@ -10,6 +28,11 @@ export type StoredAnnotation = {
   /** Optional glossary/concept tag linked to workspace focus. */
   focusTerm?: string;
   createdAt?: string;
+  /** Semantic learning tag (confusing, exam-relevant, …). */
+  category?: AnnotationCategory;
+  /** Source grounding for reprocess migration. */
+  anchor?: AnnotationAnchor;
+  anchorStatus?: AnnotationAnchorStatus;
 };
 
 export function loadAnnotations(fileKey: string): StoredAnnotation[] {
@@ -18,6 +41,33 @@ export function loadAnnotations(fileKey: string): StoredAnnotation[] {
 
 export function saveAnnotations(fileKey: string, items: StoredAnnotation[]): void {
   saveJson(`annotations:${fileKey}`, items);
+}
+
+/** Reprocess all annotations for a file key against refreshed source text. */
+export function reprocessFileAnnotations(
+  fileKey: string,
+  newSourceText: string,
+  pipelineVersion?: string,
+): StoredAnnotation[] {
+  const lines = newSourceText.split('\n');
+  const refreshed = refreshAnnotationsAfterReprocess(loadAnnotations(fileKey), lines, pipelineVersion);
+  saveAnnotations(fileKey, refreshed);
+  return refreshed;
+}
+
+export function reprocessCourseAnnotations(
+  fileKeys: string[],
+  textByFileKey: Record<string, string>,
+  pipelineVersion?: string,
+): number {
+  let flagged = 0;
+  for (const key of fileKeys) {
+    const text = textByFileKey[key];
+    if (!text?.trim()) continue;
+    const items = reprocessFileAnnotations(key, text, pipelineVersion);
+    flagged += items.filter((a) => a.anchorStatus === 'needs-review' || a.anchorStatus === 'legacy').length;
+  }
+  return flagged;
 }
 
 export function exportAnnotationsMarkdown(
@@ -31,9 +81,10 @@ export function exportAnnotationsMarkdown(
     .map((ann) => {
       const excerpt = (lines[ann.lineStart] ?? '').trim();
       const parts = [
-        `## Line ${ann.lineStart + 1} · ${ann.type}`,
+        `## Line ${ann.lineStart + 1} · ${ann.type}${ann.category ? ` · ${ann.category}` : ''}`,
         excerpt ? `> ${excerpt}` : '',
         ann.focusTerm ? `**Term:** ${ann.focusTerm}` : '',
+        ann.anchorStatus && ann.anchorStatus !== 'ok' ? `**Status:** ${ann.anchorStatus}` : '',
         ann.text ? ann.text : '',
       ].filter(Boolean);
       return parts.join('\n\n');

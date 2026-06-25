@@ -67,9 +67,11 @@ export interface UploadedFile {
   /** True when OCR was applied to extract text (scanned PDF / image). */
   ocrUsed?: boolean;
   /** How text was obtained from this file. */
-  ingestMethod?: 'text-layer' | 'ocr-server' | 'ocr-client' | 'paste' | 'youtube' | 'transcript';
+  ingestMethod?: 'text-layer' | 'ocr-server' | 'ocr-client' | 'ocr-ensemble' | 'paste' | 'youtube' | 'transcript' | 'chatgpt-export';
   /** Pipeline version that processed this file. */
   pipelineVersion?: string;
+  /** Server OCR word bounding boxes (percent of page), when available. */
+  ocrRegions?: import('../lib/readerOcrOverlay').OcrStoredRegion[];
 }
 
 export type FileType = 'pdf' | 'docx' | 'pptx' | 'txt' | 'md' | 'image' | 'csv' | 'code' | 'youtube' | 'audio';

@@ -117,9 +117,18 @@ export function generateTasksFromCourse(course: Course): Task[] {
   return tasks;
 }
 
+/** Prefix for auto-generated tasks tied to a course outline (replaced on reprocess). */
+export function generatedTaskPrefix(courseId: string): string {
+  return `gen-${courseId}-`;
+}
+
+export function isGeneratedCourseTask(task: Task, courseId: string): boolean {
+  return task.id.startsWith(generatedTaskPrefix(courseId));
+}
+
 export function mergeCourseTasks(existing: Task[], course: Course): Task[] {
-  const prefix = `gen-${course.id}-`;
-  const without = existing.filter((t) => !t.id.startsWith(prefix) && t.courseId !== course.id);
+  const prefix = generatedTaskPrefix(course.id);
+  const without = existing.filter((t) => !t.id.startsWith(prefix));
   return [...without, ...generateTasksFromCourse(course)];
 }
 

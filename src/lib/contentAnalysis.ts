@@ -27,10 +27,12 @@
 import type { UserSettings } from '../types';
 import type { GeneratedOutline, GeneratedTopic, GeneratedGlossaryEntry } from './courseGenerator';
 import { filterConceptsForSection } from './conceptSectionBinding';
+import { inferHeadingLevel, looksLikeHeadingLine, normalizeDocumentText } from './textSegmentation';
+import { detectReadingSections } from './sectionMerger';
 import { agglomerativeCluster, chooseClusterCount, groupByCluster, medoidIndex } from './embeddingCluster';
 import { embedTexts } from './llmClient';
 import { localEmbedder } from './localEmbedder';
-import { STOPWORDS, looksLikeHeading } from './rag';
+import { STOPWORDS } from './rag';
 
 const WORD_RE = /[\p{L}\p{N}][\p{L}\p{N}'’-]*/gu;
 
@@ -63,30 +65,9 @@ function cleanHeading(raw: string): string {
     .trim();
 }
 
-/** Detect heading-delimited sections. Returns [] when the document is flat. */
+/** Detect heading-delimited sections (lecture-merged when appropriate). */
 export function detectSections(text: string): Section[] {
-  const lines = text.replace(/\r\n/g, '\n').split('\n');
-  const sections: Section[] = [];
-  let heading: string | undefined;
-  let buffer: string[] = [];
-
-  const flush = () => {
-    const body = buffer.join('\n').trim();
-    if (heading || body.length > 0) sections.push({ heading, text: body });
-    buffer = [];
-  };
-
-  for (const line of lines) {
-    if (looksLikeHeading(line) && line.trim().length > 0) {
-      flush();
-      heading = cleanHeading(line) || line.trim();
-    } else {
-      buffer.push(line);
-    }
-  }
-  flush();
-
-  return sections.filter((s) => s.text.length > 60 || (s.heading && s.text.length > 0));
+  return detectReadingSections(text);
 }
 
 /** Discourse role of a section: how it functions in the document. */
@@ -103,23 +84,6 @@ export interface HierarchicalSection extends Section {
   role: DiscourseRole;
 }
 
-function inferHeadingLevel(line: string, previousLevel: number): number {
-  const trimmed = line.trim();
-  const markdownMatch = trimmed.match(/^#{1,6}(?!#)\s/);
-  if (markdownMatch) {
-    return Math.min(6, markdownMatch[0]!.length - 1);
-  }
-  const numberedMatch = trimmed.match(/^(\d+(?:\.\d+)*|chapter|κεφάλαιο|section|ενότητα|unit|module|part|μέρος)/i);
-  if (numberedMatch) {
-    const num = numberedMatch[1]!;
-    const dots = num.split('.').length - 1;
-    if (dots >= 2) return 3;
-    if (dots === 1) return 2;
-    return 1;
-  }
-  if (trimmed === trimmed.toUpperCase() && /[A-ZΑ-Ω]/.test(trimmed)) return Math.max(2, previousLevel);
-  return Math.max(2, previousLevel);
-}
 
 function inferDiscourseRole(heading: string | undefined, body: string, index: number, totalSections: number): DiscourseRole {
   const h = (heading ?? '').toLowerCase();
@@ -156,11 +120,14 @@ function inferDiscourseRole(heading: string | undefined, body: string, index: nu
  * to its nearest ancestor with a smaller level.
  */
 export function detectHierarchicalSections(text: string): HierarchicalSection[] {
-  const lines = text.replace(/\r\n/g, '\n').split('\n');
+  const normalizedText = normalizeDocumentText(text);
+  const lines = normalizedText.split('\n');
   const raw: { heading: string | undefined; body: string[]; level: number }[] = [];
   let heading: string | undefined;
   let level = 1;
   let buffer: string[] = [];
+  let inCodeFence = false;
+  let fenceMarker = '';
 
   const flush = () => {
     if (heading || buffer.length > 0) {
@@ -169,11 +136,27 @@ export function detectHierarchicalSections(text: string): HierarchicalSection[] 
     buffer = [];
   };
 
-  for (const line of lines) {
-    if (looksLikeHeading(line) && line.trim().length > 0) {
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i]!;
+    const next = lines[i + 1];
+    const trimmed = line.trim();
+
+    if (trimmed.match(/^(`{3,}|~{3,})/)) {
+      const marker = trimmed.match(/^(`{3,}|~{3,})/)![1]!;
+      if (!inCodeFence) {
+        inCodeFence = true;
+        fenceMarker = marker;
+      } else if (trimmed.startsWith(fenceMarker)) {
+        inCodeFence = false;
+        fenceMarker = '';
+      }
+    }
+
+    if (!inCodeFence && looksLikeHeadingLine(trimmed, next) && trimmed.length > 0) {
       flush();
-      level = inferHeadingLevel(line, level);
-      heading = cleanHeading(line) || line.trim();
+      level = inferHeadingLevel(trimmed, level);
+      heading = cleanHeading(trimmed) || trimmed;
+      if (next && /^[-–—=_*·━]{3,}\s*$/.test(next.trim())) i += 1;
     } else {
       buffer.push(line);
     }
@@ -188,14 +171,14 @@ export function detectHierarchicalSections(text: string): HierarchicalSection[] 
   // Recompute levels so the first heading is always level 1 and subsequent
   // levels are relative to the actual minimum depth used in the document.
   const minLevel = filtered.length > 0 ? Math.min(...filtered.map((s) => s.level)) : 1;
-  const normalized = filtered.map((s) => ({ ...s, level: Math.max(1, s.level - minLevel + 1) }));
+  const leveled = filtered.map((s) => ({ ...s, level: Math.max(1, s.level - minLevel + 1) }));
 
   // Compute parent indices using a stack of ancestors.
   const parents: number[] = [];
-  for (let i = 0; i < normalized.length; i++) {
+  for (let i = 0; i < leveled.length; i++) {
     let parent = -1;
     for (let j = i - 1; j >= 0; j--) {
-      if (normalized[j]!.level < normalized[i]!.level) {
+      if (leveled[j]!.level < leveled[i]!.level) {
         parent = j;
         break;
       }
@@ -203,7 +186,7 @@ export function detectHierarchicalSections(text: string): HierarchicalSection[] 
     parents.push(parent);
   }
 
-  return normalized.map((s, i) => {
+  return leveled.map((s, i) => {
     const body = s.body.join('\n').trim();
     return {
       heading: s.heading,
@@ -211,7 +194,7 @@ export function detectHierarchicalSections(text: string): HierarchicalSection[] 
       index: i,
       level: s.level,
       parentIndex: parents[i]!,
-      role: inferDiscourseRole(s.heading, body, i, normalized.length),
+      role: inferDiscourseRole(s.heading, body, i, leveled.length),
     };
   });
 }

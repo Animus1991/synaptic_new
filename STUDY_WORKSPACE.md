@@ -26,7 +26,7 @@ enabled.
 | Feynman | `buildFeynmanOutline` + `feynmanRubric` | topic objectives, keyphrases, glossary | outline + gap hints + offline rubric (subject-agnostic) |
 | Timer | `StudyTimer` | — | session minutes logged to activity stream |
 | Debate | `buildDebateTreeFromNotes` | sentence scoring on claim/support/refute axes | argument tree with separate support / counter subtrees |
-| Reader | `relevantExcerpt` | concept-scored text via BM25 | readable excerpt with citations |
+| Reader | `relevantExcerpt` + **`documentStructure`** + **`readerDocumentLayout`** | concept-scored BM25 excerpt; **`sourceFullText`** full document | structured `<h3>` sections, `<p>` paragraphs, `<ul>` lists (enumerated syllabus rows, multi-line items); adaptive PDF line-wrap reconstruction; section nav chips |
 | Scratchpad | `extractFormulas` + `formulaSolver` | formulas in notes | generic shunting-yard solver (sin/cos/log/sqrt/etc.), per-task persistence |
 | Source | annotations panel | `annotationText` | per-file highlights (local) |
 
@@ -37,20 +37,23 @@ Every grounded workspace session now computes a `sourceIntelligence` report in
 
 - **Inputs** β€” top BM25 passages (`topRelevantChunks`), concept relevance,
   explicit definitions, glossary overlap, worked examples, extracted formulas,
-  comparison rows, concept-map size, step count, quiz availability.
+  comparison rows, concept-map size, step count, quiz availability,
+  **`documentStructure`** (section kind, count, heading previews).
 - **Output** β€” `score` (0β€“100), `band` (`weak` / `moderate` / `strong`),
   `bestTool`, a human-readable reason, strengths, gaps, and next-action hints.
 - **Recommendation logic** β€” tool scoring is capped per signal family so a
   large comparison table cannot drown out formulas/practice or terminology.
 - **UX effect** β€” the user sees whether the current concept is truly
-  well-grounded, what is missing from the notes, and can jump straight into the
-  recommended tool.
+  well-grounded, what is missing from the notes, detected **section chips**
+  (conversation / FAQ / slides / headings), and can jump straight into the
+  recommended tool via `SourceIntelligenceCard`.
 
 ## Step rail
 
 `buildWorkspaceStepsFromNotes()` produces the lesson rail from the source:
 
-- Sections (when 2+ headings detected in the relevant excerpt), each labeled
+- Sections from **`detectDocumentSections` on the full analyzed text** (not just
+  the BM25 excerpt) when 2+ headings/turns are detected — each labeled
   Core Concept / Deep Dive / Key Insight / Practice.
 - Otherwise, the top keyphrases from `rankKeyphrases` filtered by
   `conceptRelevanceScore > 0.1`.

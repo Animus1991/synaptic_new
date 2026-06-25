@@ -21,7 +21,8 @@ produced it.
 | `src/lib/pdfExtract.ts` | `extractTextFromPdf` | Streams a PDF through `pdfjs-dist`, joins page text with the form-feed character (`\f`) so RAG can attach `p.X` citations. |
 | `src/lib/pdfExtract.ts` | `extractTextFromPptx` | Reads PPTX via JSZip; one slide per `\f` block. |
 | `src/lib/youtubeTranscript.ts` | `fetchYoutubeTranscript` | Calls the proxy (`/v1/youtube/transcript`) which uses `server/src/lib/youtubeCaptions.ts` to download timed-text and normalize to plain text. |
-| `src/lib/uploadPipeline.ts` | `extractFileContent` | Plain text / Markdown / DOCX (mammoth) / **image + scanned-PDF OCR** routing. |
+| `src/lib/uploadPipeline.ts` | `extractFileContent` | Plain text / Markdown / DOCX (mammoth) / **ChatGPT JSON/ZIP** / **image + scanned-PDF OCR** routing. |
+| `src/lib/chatGptImport.ts` | `importChatGptExportFile` | Parses OpenAI export JSON (single conversation or array) and ZIP archives; walks the `mapping` tree in chronological order; emits `User:` / `Assistant:` / `System:` labels via `formatConversationWithLabels` so `textSegmentation` can split Q&A turns before course creation. Sets `ingestMethod: 'chatgpt-export'`. |
 | `src/lib/ocrExtract.ts` | `ocrExtract` | Rasterizes pages and runs Tesseract.js in-browser, or delegates to the server proxy `POST /v1/ocr/pages` (`eng+ell`). |
 
 Output: a normalized UTF-8 string with `\f` between page/slide blocks,
@@ -35,14 +36,29 @@ ready for the offline content engine.
 core of course creation. **It always runs**, even when the LLM is on, so we
 have a known-good fallback.
 
-### 2.1 Segmentation
+### 2.1 Segmentation (`textSegmentation.ts` v3)
 
-- **Sentence splitter** (`splitSentences`) — punctuation-aware regex that
-  handles EN/EL `.!?;·` and ignores fragments shorter than 12 chars.
-- **Section detector** (`detectSections`) — uses `looksLikeHeading`
-  (Markdown `#`, numbered headings, `Chapter/Κεφάλαιο/Section/Ενότητα`,
-  Title-Case lines, etc.) to split the document into `{ heading, text }`
-  blocks. When the document is flat, falls back to "one giant section".
+Production segmentation is centralized in `src/lib/textSegmentation.ts` and
+surfaced to the UI via `documentStructureReport.ts`.
+
+- **`detectDocumentSections`** — primary section splitter used by
+  `contentAnalysis`, `noteContentExtractors`, `groundedLesson`, and RAG chunking.
+  Boundary kinds include:
+  - Markdown / numbered / underline headings (`#`, `Chapter`, `Κεφάλαιο`, etc.)
+  - Slide/page breaks (`\f` form-feed from PDF/PPTX)
+  - Horizontal rules and blank-line clusters
+  - **Conversation turns** — `User:` / `Assistant:` / `Q:` / `A:` lines (ChatGPT exports)
+  - **Dialogue** — em-dash speaker lines
+  - **Date blocks** — journal-style temporal sections
+  - Code-fence awareness (headings inside fenced blocks are ignored)
+- **`detectHierarchicalSections`** — nested outline for hierarchical lesson mapping.
+- **`splitStructuredParagraphs`** — reader-safe paragraph splits respecting fences
+  and list boundaries.
+- **Legacy wrapper** — `detectSections` in `contentAnalysis.ts` delegates to
+  `detectDocumentSections` for backward compatibility.
+
+When the document is flat, the engine falls back to one giant section; the Study
+Workspace still shows paragraph-flow structure in `SourceIntelligenceCard`.
 
 ### 2.2 Keyphrase extraction (RAKE + TextRank blend)
 

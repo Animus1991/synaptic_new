@@ -122,3 +122,44 @@ export function buildQuizIrtDisplay(
     itemId: quizItemId(concept, quiz),
   };
 }
+
+export type QuizIrtLearnerCopy = {
+  readinessLabel: string;
+  difficultyLabel: string;
+  probabilityLabel: string;
+  hint: string;
+};
+
+/** User-facing quiz metrics — replaces raw θ/b/P (Prompt 5). */
+export function formatQuizIrtForLearner(
+  irt: QuizIrtDisplay,
+  lang: 'en' | 'el',
+  responseCount = 0,
+): QuizIrtLearnerCopy {
+  const isEl = lang === 'el';
+  const pct = Math.round(irt.passProbability * 100);
+
+  const readinessLabel = responseCount === 0
+    ? (isEl ? 'Ετοιμότητα: Άγνωστη (χωρίς προσπάθειες)' : 'Readiness: Unknown (no attempts yet)')
+    : irt.ability < -0.5
+      ? (isEl ? 'Ετοιμότητα: Χαμηλή' : 'Readiness: Low')
+      : irt.ability < 0.5
+        ? (isEl ? 'Ετοιμότητα: Μέτρια' : 'Readiness: Moderate')
+        : (isEl ? 'Ετοιμότητα: Καλή' : 'Readiness: Good');
+
+  const difficultyLabel = irt.difficulty < 1.2
+    ? (isEl ? 'Δυσκολία: Βασική' : 'Difficulty: Basic')
+    : irt.difficulty < 2
+      ? (isEl ? 'Δυσκολία: Μέτρια' : 'Difficulty: Medium')
+      : (isEl ? 'Δυσκολία: Υψηλή' : 'Difficulty: Hard');
+
+  const probabilityLabel = isEl
+    ? `Πιθανότητα σωστής: ~${pct}%`
+    : `Estimated success: ~${pct}%`;
+
+  const hint = responseCount === 0
+    ? (isEl ? 'Η εκτίμηση βελτιώνεται μετά την πρώτη απάντηση.' : 'Estimates improve after your first answer.')
+    : '';
+
+  return { readinessLabel, difficultyLabel, probabilityLabel, hint };
+}

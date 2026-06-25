@@ -10,6 +10,20 @@ const __dirname = path.dirname(__filename);
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), tailwindcss()],
+  server: {
+    warmup: {
+      clientFiles: [
+        "./src/components/workspace/StudyWorkspace.tsx",
+        "./src/components/workspace/CognitiveReader.tsx",
+        "./src/components/workspace/QuizPanel.tsx",
+        "./src/components/workspace/SimulatorPanel.tsx",
+        "./src/components/workspace/ComparePanel.tsx",
+        "./src/components/workspace/TimerPanel.tsx",
+        "./src/components/workspace/LeitnerPanel.tsx",
+        "./src/components/workspace/DebatePanel.tsx",
+      ],
+    },
+  },
   optimizeDeps: {
     exclude: ['pyodide'],
   },

@@ -288,3 +288,10 @@ input[type="range"]::-webkit-slider-thumb {
   outline: 2px solid var(--color-brand-400);
   outline-offset: 2px;
 }
+
+@layer base {
+  html,
+  :host {
+    text-size-adjust: 100%;
+  }
+}

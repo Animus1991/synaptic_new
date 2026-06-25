@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Send, Sparkles, BookOpen, Brain, GraduationCap, MessageSquare,
@@ -10,12 +10,15 @@ import type { AgentMessage, AgentMode, Course, UserSettings, UploadedFile, Messa
 import { cn } from '../utils/cn';
 import { streamAgentReply, isLlmAvailable } from '../lib/llmClient';
 import { buildSourceExcerpt, retrieveForQueryHybrid } from '../lib/sourceContext';
+import { buildAgentRetrievalQuery, formatAgentWorkspaceContextLine, type AgentWorkspaceContext } from '../lib/agentWorkspaceContext';
 import { spanFromCitation } from '../lib/conceptProvenance';
 import { verifyGrounding } from '../lib/groundingVerifier';
-import { appendLearningEvent } from '../lib/learningEvents';
+import { emitAnalyticsLearningEvent } from '../lib/emitLearningEvent';
 import { formatCitation } from '../lib/rag';
 import { GoToSourceButton } from './GoToSourceButton';
+import { AgentContextBanner } from './AgentContextBanner';
 import { RichText } from './RichText';
+import { getAgentContent, type AgentUiCopy } from '../lib/agentContent';
 
 interface AgentProps {
   messages: AgentMessage[];
@@ -32,33 +35,29 @@ interface AgentProps {
   uploadedFiles?: UploadedFile[];
   onGoToSource?: (highlight: { fileId: string; charStart: number; charEnd: number }) => void;
   lang?: 'en' | 'el';
+  draftPrompt?: string | null;
+  onConsumeDraftPrompt?: () => void;
+  autoSendDraft?: boolean;
+  onConsumeAutoSend?: () => void;
+  workspaceContext?: AgentWorkspaceContext | null;
 }
 
-const agentModes: { mode: AgentMode; icon: typeof Brain; label: string; desc: string; color: string }[] = [
-  { mode: 'socratic', icon: HelpCircle, label: 'Socratic Tutor', desc: 'Guided questioning', color: 'text-brand-400' },
-  { mode: 'direct', icon: Lightbulb, label: 'Direct Explain', desc: 'Clear explanations', color: 'text-accent-cyan' },
-  { mode: 'beginner', icon: Smile, label: 'Beginner', desc: 'No prior knowledge', color: 'text-accent-emerald' },
-  { mode: 'exam-coach', icon: GraduationCap, label: 'Exam Coach', desc: 'Exam-focused prep', color: 'text-accent-amber' },
-  { mode: 'deep-theory', icon: BookOpen, label: 'Deep Theory', desc: 'Rigorous analysis', color: 'text-brand-300' },
-  { mode: 'practical', icon: Code, label: 'Practical', desc: 'Exercises & code', color: 'text-accent-teal' },
-  { mode: 'error-diagnosis', icon: AlertTriangle, label: 'Error Diagnosis', desc: 'Analyze mistakes', color: 'text-accent-rose' },
-  { mode: 'feynman', icon: MessageSquare, label: 'Feynman', desc: 'Explain to learn', color: 'text-accent-orange' },
-  { mode: 'debate', icon: Target, label: 'Debate', desc: 'Critical discussion', color: 'text-brand-200' },
-  { mode: 'oral-exam', icon: Mic, label: 'Oral Exam', desc: 'Professor simulation', color: 'text-accent-rose' },
-  { mode: 'math-tutor', icon: Zap, label: 'Math Tutor', desc: 'Step-by-step math', color: 'text-accent-amber' },
-  { mode: 'coding-tutor', icon: Code, label: 'Coding Tutor', desc: 'Interactive code', color: 'text-accent-teal' },
-  { mode: 'writing-coach', icon: PenTool, label: 'Writing Coach', desc: 'Essay structure', color: 'text-brand-300' },
-  { mode: 'memory-coach', icon: RotateCcw, label: 'Memory Coach', desc: 'Retrieval practice', color: 'text-accent-emerald' },
-  { mode: 'motivation', icon: Sparkles, label: 'Focus Coach', desc: 'Small actionable steps', color: 'text-accent-amber' },
-];
-
-const quickActions = [
-  'Explain this concept simply',
-  'Give me a practice question',
-  'Where does this come from in my notes?',
-  'What are common mistakes here?',
-  'Create flashcards for this topic',
-  'Simulate an exam question',
+const AGENT_MODE_META: { mode: AgentMode; icon: typeof Brain; color: string }[] = [
+  { mode: 'socratic', icon: HelpCircle, color: 'text-brand-400' },
+  { mode: 'direct', icon: Lightbulb, color: 'text-accent-cyan' },
+  { mode: 'beginner', icon: Smile, color: 'text-accent-emerald' },
+  { mode: 'exam-coach', icon: GraduationCap, color: 'text-accent-amber' },
+  { mode: 'deep-theory', icon: BookOpen, color: 'text-brand-300' },
+  { mode: 'practical', icon: Code, color: 'text-accent-teal' },
+  { mode: 'error-diagnosis', icon: AlertTriangle, color: 'text-accent-rose' },
+  { mode: 'feynman', icon: MessageSquare, color: 'text-accent-orange' },
+  { mode: 'debate', icon: Target, color: 'text-brand-200' },
+  { mode: 'oral-exam', icon: Mic, color: 'text-accent-rose' },
+  { mode: 'math-tutor', icon: Zap, color: 'text-accent-amber' },
+  { mode: 'coding-tutor', icon: Code, color: 'text-accent-teal' },
+  { mode: 'writing-coach', icon: PenTool, color: 'text-brand-300' },
+  { mode: 'memory-coach', icon: RotateCcw, color: 'text-accent-emerald' },
+  { mode: 'motivation', icon: Sparkles, color: 'text-accent-amber' },
 ];
 
 export function Agent({
@@ -76,6 +75,11 @@ export function Agent({
   uploadedFiles = [],
   onGoToSource,
   lang = settings?.language ?? 'en',
+  draftPrompt,
+  onConsumeDraftPrompt,
+  autoSendDraft,
+  onConsumeAutoSend,
+  workspaceContext,
 }: AgentProps) {
   const [input, setInput] = useState('');
   const [showModes, setShowModes] = useState(false);
@@ -86,17 +90,29 @@ export function Agent({
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const llmReady = isLlmAvailable(settings);
+  const agentContent = useMemo(() => getAgentContent(lang), [lang]);
+  const agentModes = useMemo(
+    () => AGENT_MODE_META.map((meta) => ({
+      ...meta,
+      label: agentContent.modes[meta.mode].label,
+      desc: agentContent.modes[meta.mode].desc,
+    })),
+    [agentContent],
+  );
+  const { quickActions, ui } = agentContent;
   const sourceExcerpt = attachSource
     ? buildSourceExcerpt(
         uploadedFiles,
-        activeTaskConcept,
-        selectedSource === 'all' ? undefined : selectedSource,
+        workspaceContext?.concept ?? activeTaskConcept,
+        workspaceContext?.courseId ?? (selectedSource === 'all' ? undefined : selectedSource),
       )
     : undefined;
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  const handleSendRef = useRef<(overrideText?: string) => Promise<void>>(async () => {});
 
   const handleSend = async (overrideText?: string) => {
     const text = (overrideText ?? input).trim();
@@ -113,16 +129,20 @@ export function Agent({
     setShowQuickActions(false);
     setIsThinking(true);
 
-    // Query-aware retrieval: rank source chunks against the actual message
-    // (widened by the active concept) for grounding + precise citations.
+    const retrievalQuery = buildAgentRetrievalQuery(text, workspaceContext ?? undefined);
+    const ragConcept = workspaceContext?.concept ?? activeTaskConcept;
+    const ragCourseId =
+      workspaceContext?.courseId ?? (selectedSource === 'all' ? undefined : selectedSource);
+
     const retrieval = attachSource
-      ? await retrieveForQueryHybrid(uploadedFiles, text, settings, {
-          concept: activeTaskConcept,
-          courseId: selectedSource === 'all' ? undefined : selectedSource,
+      ? await retrieveForQueryHybrid(uploadedFiles, retrievalQuery, settings, {
+          concept: ragConcept,
+          courseId: ragCourseId,
         })
       : { excerpt: undefined, citations: [], grounded: false };
 
     const queryExcerpt = retrieval.excerpt ?? sourceExcerpt;
+    const contextLine = formatAgentWorkspaceContextLine(workspaceContext, lang);
 
     const streamId = `msg-${Date.now() + 1}`;
     onSendMessage({
@@ -142,12 +162,12 @@ export function Agent({
     setIsThinking(false);
 
     const { content, usedLlm, sourceGrounded } = await streamAgentReply(
-      text,
+      contextLine ? `${contextLine}\n\n${text}` : text,
       mode,
       settings,
       {
-        taskTitle: activeTaskTitle,
-        concept: activeTaskConcept,
+        taskTitle: workspaceContext?.stepTitle ?? activeTaskTitle,
+        concept: ragConcept,
         courses: courses.map((c) => c.title),
         sourceExcerpt: queryExcerpt,
       },
@@ -164,7 +184,7 @@ export function Agent({
       ? verifyGrounding(content, retrieval.citations, { strict: true })
       : null;
     if (grounding) {
-      appendLearningEvent('grounding_checked', {
+      emitAnalyticsLearningEvent('grounding_checked', {
         verified: grounding.verified,
         coverage: Math.round(grounding.coverage * 100) / 100,
         unattributed: grounding.unattributedCount,
@@ -187,6 +207,24 @@ export function Agent({
     setIsThinking(false);
   };
 
+  handleSendRef.current = handleSend;
+
+  useEffect(() => {
+    if (!draftPrompt?.trim()) return;
+    if (autoSendDraft) {
+      const prompt = draftPrompt.trim();
+      onConsumeDraftPrompt?.();
+      onConsumeAutoSend?.();
+      setShowQuickActions(false);
+      void handleSendRef.current(prompt);
+      return;
+    }
+    setInput(draftPrompt);
+    setShowQuickActions(false);
+    onConsumeDraftPrompt?.();
+    inputRef.current?.focus();
+  }, [draftPrompt, autoSendDraft, onConsumeDraftPrompt, onConsumeAutoSend]);
+
   const handleQuickAction = (action: string) => {
     void handleSend(action);
   };
@@ -204,7 +242,7 @@ export function Agent({
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-sm font-semibold">Synapse Agent</span>
+                <span className="text-sm font-semibold">{ui.title}</span>
                 <button
                   onClick={() => setShowModes(!showModes)}
                   className="flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium bg-surface-hover border border-border-subtle hover:border-brand-500/30 transition-all"
@@ -215,8 +253,8 @@ export function Agent({
                 </button>
               </div>
               <p className="text-xs text-text-tertiary">
-                {llmReady ? 'LLM connected · streaming' : 'Offline mode · Add API key in Settings'}
-                {sourceExcerpt ? ' · source context attached' : ''}
+                {llmReady ? ui.llmConnected : ui.offlineMode}
+                {sourceExcerpt ? ui.sourceAttached : ''}
               </p>
             </div>
           </div>
@@ -227,7 +265,7 @@ export function Agent({
               onChange={e => setSelectedSource(e.target.value)}
               className="text-xs bg-surface-input border border-border-subtle rounded-lg px-2 py-1.5 text-text-secondary focus:outline-none focus:border-brand-500/50"
             >
-              <option value="all">All Sources</option>
+              <option value="all">{ui.allSources}</option>
               {courses.map(c => (
                 <option key={c.id} value={c.id}>{c.title}</option>
               ))}
@@ -239,13 +277,15 @@ export function Agent({
         </div>
       </div>
 
+      <AgentContextBanner context={workspaceContext} lang={lang} />
+
       {activeTaskTitle && (
         <div className="px-4 sm:px-6 py-2 border-b border-brand-500/20 bg-brand-500/5">
           <div className="max-w-none w-full min-w-0 flex items-center justify-between gap-3 flex-wrap">
             <div className="min-w-0">
               <p className="text-xs font-semibold text-brand-300 truncate">{activeTaskTitle}</p>
               {activeTaskConcept && (
-                <p className="text-[10px] text-text-tertiary truncate">Focus: {activeTaskConcept}</p>
+                <p className="text-[10px] text-text-tertiary truncate">{ui.focus}: {activeTaskConcept}</p>
               )}
             </div>
             <div className="flex items-center gap-2 shrink-0">
@@ -257,7 +297,7 @@ export function Agent({
                   onClick={onCompleteTask}
                   className="px-3 py-1.5 rounded-lg text-xs font-medium bg-brand-600 hover:bg-brand-500 text-white transition-all"
                 >
-                  Complete task
+                  {ui.completeTask}
                 </button>
               )}
             </div>
@@ -275,7 +315,7 @@ export function Agent({
             className="border-b border-border-subtle bg-surface-secondary/50 overflow-hidden"
           >
             <div className="max-w-none w-full min-w-0 px-4 sm:px-6 py-4">
-              <p className="text-xs text-text-tertiary font-medium uppercase tracking-wider mb-3">Agent Mode</p>
+              <p className="text-xs text-text-tertiary font-medium uppercase tracking-wider mb-3">{ui.agentModeHeading}</p>
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
                 {agentModes.map(m => (
                   <button
@@ -303,12 +343,12 @@ export function Agent({
       <div className="flex-1 overflow-y-auto">
         <div className="max-w-none w-full min-w-0 px-4 sm:px-6 py-4 space-y-4">
           {messages.map(msg => (
-            <MessageBubble key={msg.id} message={msg} onGoToSource={onGoToSource} lang={lang} />
+            <MessageBubble key={msg.id} message={msg} onGoToSource={onGoToSource} lang={lang} ui={ui} />
           ))}
           {isThinking && (
             <div className="flex gap-3 px-1 py-2 text-sm text-text-muted">
               <Sparkles className="w-4 h-4 text-brand-400 animate-pulse shrink-0 mt-0.5" />
-              <span>Thinking…</span>
+              <span>{ui.thinking}</span>
             </div>
           )}
           <div ref={messagesEndRef} />
@@ -320,7 +360,7 @@ export function Agent({
               animate={{ opacity: 1, y: 0 }}
               className="pt-4"
             >
-              <p className="text-xs text-text-tertiary mb-3">Quick actions:</p>
+              <p className="text-xs text-text-tertiary mb-3">{ui.quickActionsHeading}</p>
               <div className="flex flex-wrap gap-2">
                 {quickActions.map(action => (
                   <button
@@ -352,7 +392,7 @@ export function Agent({
                     void handleSend();
                   }
                 }}
-                placeholder="Ask anything about your material..."
+                placeholder={ui.inputPlaceholder}
                 rows={1}
                 disabled={isThinking}
                 className="w-full px-4 py-3 pr-12 rounded-xl bg-surface-input border border-border-subtle text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-brand-500/50 resize-none"
@@ -385,13 +425,13 @@ export function Agent({
             <div className="flex items-center gap-3 text-[10px] text-text-muted flex-wrap">
               <span className="flex items-center gap-1">
                 <Volume2 className="w-3 h-3" />
-                Source-grounded
+                {ui.sourceGroundedBadge}
               </span>
               <span>•</span>
-              <span>{currentMode.label} mode</span>
+              <span>{currentMode.label} {ui.modeSuffix}</span>
               <span>•</span>
               <button className="text-brand-400 hover:text-brand-300 transition-colors">
-                🛡️ Don't give me the answer
+                {ui.noAnswerHint}
               </button>
               <span>•</span>
               <button
@@ -402,10 +442,10 @@ export function Agent({
                   attachSource && sourceExcerpt && 'text-brand-400',
                 )}
               >
-                📎 {attachSource ? 'Source context on' : 'Source context off'}
+                {attachSource ? ui.sourceOn : ui.sourceOff}
               </button>
             </div>
-            <span className="text-[10px] text-text-muted">Shift+Enter for new line</span>
+            <span className="text-[10px] text-text-muted">{ui.shiftEnter}</span>
           </div>
         </div>
       </div>
@@ -417,10 +457,12 @@ function CitationList({
   citations,
   onGoToSource,
   lang = 'en',
+  ui,
 }: {
   citations: MessageCitation[];
   onGoToSource?: (highlight: { fileId: string; charStart: number; charEnd: number }) => void;
   lang?: 'en' | 'el';
+  ui: AgentUiCopy;
 }) {
   const [open, setOpen] = useState(false);
   return (
@@ -431,7 +473,7 @@ function CitationList({
         className="flex items-center gap-1.5 text-xs text-text-tertiary hover:text-brand-300 transition-colors"
       >
         <FileText className="w-3 h-3" />
-        {citations.length} {citations.length === 1 ? 'source' : 'sources'} · show me where this came from
+        {citations.length} {citations.length === 1 ? ui.citationSingular : ui.citationPlural} · {ui.citationToggle}
         <ChevronDown className={cn('w-3 h-3 transition-transform', open && 'rotate-180')} />
       </button>
       {open && (
@@ -462,10 +504,12 @@ function MessageBubble({
   message,
   onGoToSource,
   lang = 'en',
+  ui,
 }: {
   message: AgentMessage;
   onGoToSource?: (highlight: { fileId: string; charStart: number; charEnd: number }) => void;
   lang?: 'en' | 'el';
+  ui: AgentUiCopy;
 }) {
   const isUser = message.role === 'user';
   const isSystem = message.role === 'system';
@@ -510,7 +554,7 @@ function MessageBubble({
         </div>
 
         {message.citations && message.citations.length > 0 ? (
-          <CitationList citations={message.citations} onGoToSource={onGoToSource} lang={lang} />
+          <CitationList citations={message.citations} onGoToSource={onGoToSource} lang={lang} ui={ui} />
         ) : message.sourceReference ? (
           <div className={cn(
             'mt-2 pt-2 border-t flex items-center gap-1.5 text-xs',
@@ -522,19 +566,19 @@ function MessageBubble({
         ) : null}
 
         {message.metadata?.groundingVerified === true && (
-          <p className="mt-1.5 text-[10px] text-accent-emerald">✓ Source grounding verified</p>
+          <p className="mt-1.5 text-[10px] text-accent-emerald">{ui.groundingVerified}</p>
         )}
         {message.metadata?.groundingVerified === false && (
           <p className="mt-1.5 text-[10px] text-accent-amber flex items-center gap-1">
             <AlertTriangle className="w-3 h-3" />
-            Review citations — some claims may lack source overlap
+            {ui.groundingWarning}
           </p>
         )}
 
         {message.confidence !== undefined && message.confidence < 0.8 && (
           <div className="mt-1.5 flex items-center gap-1 text-xs text-accent-amber">
             <AlertTriangle className="w-3 h-3" />
-            <span>Lower confidence — verify with source</span>
+            <span>{ui.lowConfidence}</span>
           </div>
         )}
 
@@ -542,13 +586,13 @@ function MessageBubble({
         {!isUser && message.metadata && (
           <div className="mt-2 pt-2 border-t border-border-subtle flex items-center gap-2 flex-wrap">
             {message.metadata.sourceGrounded && (
-              <span className="text-[9px] px-1.5 py-0.5 rounded bg-accent-emerald/10 text-accent-emerald font-medium">📖 Source-grounded</span>
+              <span className="text-[9px] px-1.5 py-0.5 rounded bg-accent-emerald/10 text-accent-emerald font-medium">{ui.badgeSourceGrounded}</span>
             )}
             {message.metadata.inferenceUsed && (
-              <span className="text-[9px] px-1.5 py-0.5 rounded bg-brand-500/10 text-brand-300 font-medium">🧠 AI inference</span>
+              <span className="text-[9px] px-1.5 py-0.5 rounded bg-brand-500/10 text-brand-300 font-medium">{ui.badgeAiInference}</span>
             )}
             {message.metadata.enrichmentUsed && (
-              <span className="text-[9px] px-1.5 py-0.5 rounded bg-accent-amber/10 text-accent-amber font-medium">✨ External enrichment</span>
+              <span className="text-[9px] px-1.5 py-0.5 rounded bg-accent-amber/10 text-accent-amber font-medium">{ui.badgeEnrichment}</span>
             )}
           </div>
         )}
