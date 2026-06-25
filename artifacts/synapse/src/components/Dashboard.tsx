@@ -2,7 +2,8 @@ import { motion } from 'framer-motion';
 import {
   Flame, Zap, Target, Clock, BookOpen, AlertTriangle,
   ChevronRight, TrendingUp, Brain, Calendar, ArrowRight, Play,
-  Shield, Lightbulb, RotateCcw, Eye, Layout, CheckCircle2
+  Shield, Lightbulb, RotateCcw, Eye, Layout, CheckCircle2,
+  Upload, Sparkles, FileText, Check
 } from 'lucide-react';
 import type { Course, DashboardStats, LearnerModel, Task } from '../types';
 import { cn } from '../utils/cn';
@@ -33,6 +34,8 @@ interface DashboardProps {
   onSelectCourse: (course: Course) => void;
   onOpenWorkspace?: () => void;
   onOpenExamTimer?: () => void;
+  onUpload?: () => void;
+  onExploreDemo?: () => void;
   prerequisiteRepairs?: PrerequisiteRepair[];
   calibration?: { score: number; direction: CalibrationDirection } | null;
   conceptMastery?: { concept: string; mastery: number }[];
@@ -52,7 +55,7 @@ interface DashboardProps {
   lang?: Lang;
 }
 
-export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onSelectCourse, onOpenWorkspace, onOpenExamTimer, prerequisiteRepairs = [], calibration, conceptMastery = [], activities = [], masteryDelta = 0, daysToExam = null, antiPassiveAlert = false, onStartTask, onStartSession, onResolveMisconception, onFocusWeakArea, workspaceLive = null, workspaceBooting = false, dashboardNextAction = null, lang = 'en' }: DashboardProps) {
+export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onSelectCourse, onOpenWorkspace, onOpenExamTimer, onUpload, onExploreDemo, prerequisiteRepairs = [], calibration, conceptMastery = [], activities = [], masteryDelta = 0, daysToExam = null, antiPassiveAlert = false, onStartTask, onStartSession, onResolveMisconception, onFocusWeakArea, workspaceLive = null, workspaceBooting = false, dashboardNextAction = null, lang = 'en' }: DashboardProps) {
   const { t } = useI18n();
   const pendingTasks = tasks.filter(t => t.status === 'pending');
   const criticalTasks = pendingTasks.filter(t => t.priority === 'critical' || t.priority === 'high');
@@ -61,6 +64,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
   const firstReviewTask = findPendingTask(tasks, (t) => t.isSpacedRepetition && t.status === 'pending');
   const showWorkspaceResume = workspaceLive && !workspaceLiveIsStale(workspaceLive);
   const isEl = lang === 'el';
+  const isEmpty = courses.length === 0;
 
   const handleDashboardNextAction = () => {
     if (!dashboardNextAction) return;
@@ -86,6 +90,138 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
         break;
     }
   };
+
+  if (isEmpty) {
+    return (
+      <div className="p-4 sm:p-6 lg:px-8 pb-24 lg:pb-6 w-full min-w-0 flex items-start justify-center pt-8 sm:pt-16">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-2xl">
+          {/* Hero */}
+          <div className="text-center mb-8">
+            <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-brand-500 to-accent-teal flex items-center justify-center mb-4">
+              <Sparkles className="w-8 h-8 text-white" />
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-bold mb-2">
+              {isEl ? 'Καλωσόρισες στο Synapse 👋' : 'Welcome to Synapse 👋'}
+            </h1>
+            <p className="text-text-secondary max-w-md mx-auto">
+              {isEl
+                ? 'Ανέβασε το υλικό σου και το AI θα φτιάξει ένα εξατομικευμένο διαδραστικό μάθημα για σένα.'
+                : 'Upload your study material and the AI builds a personalized interactive course — then adapts to how you actually learn.'}
+            </p>
+          </div>
+
+          {/* 3-step flow */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+            {[
+              {
+                num: '1',
+                icon: Upload,
+                color: 'text-brand-400',
+                bg: 'bg-brand-500/10',
+                title: isEl ? 'Ανέβασε Υλικό' : 'Upload Material',
+                desc: isEl
+                  ? 'PDF, slides, σημειώσεις, YouTube URL, ή κώδικας'
+                  : 'PDF, slides, notes, YouTube URL, or plain text',
+              },
+              {
+                num: '2',
+                icon: Brain,
+                color: 'text-accent-teal',
+                bg: 'bg-accent-teal/10',
+                title: isEl ? 'Το AI Χτίζει Μάθημα' : 'AI Builds Your Course',
+                desc: isEl
+                  ? 'Εξάγει θέματα, έννοιες, quiz και διαδρομή μάθησης'
+                  : 'Extracts topics, concepts, quizzes, and a learning path',
+              },
+              {
+                num: '3',
+                icon: Target,
+                color: 'text-accent-cyan',
+                bg: 'bg-accent-cyan/10',
+                title: isEl ? 'Μάθε & Προσαρμόσου' : 'Learn & Adapt',
+                desc: isEl
+                  ? 'Διαδραστικά μαθήματα, flashcards, εξετάσεις — προσαρμοσμένα σε σένα'
+                  : 'Interactive lessons, flashcards, exam prep — adapted to you',
+              },
+            ].map(({ num, icon: Icon, color, bg, title, desc }) => (
+              <div key={num} className="p-5 rounded-2xl border border-border-subtle bg-surface-card text-center">
+                <div className={`w-10 h-10 rounded-xl ${bg} flex items-center justify-center mx-auto mb-3`}>
+                  <Icon className={`w-5 h-5 ${color}`} />
+                </div>
+                <div className="text-xs font-bold text-text-muted mb-1">STEP {num}</div>
+                <h3 className="font-semibold text-sm mb-1">{title}</h3>
+                <p className="text-xs text-text-tertiary leading-relaxed">{desc}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* Supported formats */}
+          <div className="p-4 rounded-2xl border border-border-subtle bg-surface-card mb-6">
+            <p className="text-xs font-semibold text-text-tertiary mb-3 flex items-center gap-2">
+              <FileText className="w-3.5 h-3.5" />
+              {isEl ? 'Υποστηριζόμενες μορφές' : 'Supported formats'}
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {['PDF', 'DOCX', 'PPTX', 'TXT / MD', 'Images', 'YouTube URL', 'Code files'].map(fmt => (
+                <span key={fmt} className="text-xs px-2.5 py-1 rounded-lg bg-surface-hover text-text-secondary border border-border-subtle">
+                  {fmt}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          {/* What you get */}
+          <div className="p-4 rounded-2xl border border-brand-500/20 bg-brand-500/5 mb-8">
+            <p className="text-xs font-semibold text-brand-300 mb-3">
+              {isEl ? 'Τι παίρνεις αυτόματα' : 'What gets created automatically'}
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              {[
+                isEl ? 'Δομημένο μάθημα με θέματα & έννοιες' : 'Structured course with topics & concepts',
+                isEl ? 'Quiz, flashcards, & Socratic tutoring' : 'Quizzes, flashcards & Socratic tutoring',
+                isEl ? 'Spaced repetition βάσει λησμονιά' : 'Spaced repetition based on your forgetting curve',
+                isEl ? 'Εντοπισμός αδύναμων σημείων' : 'Weak area detection & remediation tasks',
+              ].map(item => (
+                <div key={item} className="flex items-start gap-2">
+                  <Check className="w-3.5 h-3.5 text-accent-emerald shrink-0 mt-0.5" />
+                  <span className="text-xs text-text-secondary">{item}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* CTAs */}
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            {onUpload && (
+              <button
+                onClick={onUpload}
+                className="flex items-center justify-center gap-2 px-8 py-3.5 bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-500 hover:to-brand-400 text-white rounded-xl font-semibold text-sm transition-all"
+              >
+                <Upload className="w-4 h-4" />
+                {isEl ? 'Ανέβασε Υλικό' : 'Upload Material'}
+              </button>
+            )}
+            {onExploreDemo && (
+              <button
+                onClick={onExploreDemo}
+                className="flex items-center justify-center gap-2 px-8 py-3.5 border border-brand-500/40 bg-brand-500/5 hover:bg-brand-500/10 text-brand-300 rounded-xl font-semibold text-sm transition-all"
+              >
+                <Sparkles className="w-4 h-4" />
+                {isEl ? 'Εξερεύνησε Demo' : 'Explore Demo'}
+              </button>
+            )}
+          </div>
+          {onExploreDemo && (
+            <p className="text-center text-xs text-text-muted mt-3">
+              {isEl
+                ? 'Demo: Μάθημα Οικονομικών — δεν χρειάζεται upload'
+                : 'Demo uses preloaded Economics notes — no upload needed'}
+            </p>
+          )}
+        </motion.div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-4 sm:p-6 lg:px-8 pb-24 lg:pb-6 w-full min-w-0 space-y-6">
