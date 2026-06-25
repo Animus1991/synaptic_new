@@ -2,10 +2,12 @@ import { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import {
   Brain, BookOpen, Target, Zap,
-  Gauge, Shield, Calendar, Palette, Database, KeyRound
+  Gauge, Shield, Calendar, Palette, Database, KeyRound, SlidersHorizontal
 } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import type { UserSettings } from '../types';
 import { cn } from '../utils/cn';
+import { Page, PageHeader, Card, SectionHeading, CardLink, StatTile } from './ui/primitives';
 import { clearAllSessionData, downloadBackup, importSessionData } from '../lib/sessionBackup';
 import { authLogin, authRegister, pushRemoteLibrary, createCheckoutSession, type AuthSession } from '../lib/authClient';
 import { loadLibrarySync } from '../lib/libraryStorage';
@@ -86,15 +88,17 @@ export function Settings({
   };
 
   return (
-    <div className="p-4 sm:p-6 lg:px-8 pb-24 lg:pb-6 w-full min-w-0 space-y-6">
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-        <h1 className="text-2xl sm:text-3xl font-bold">Learning Preferences</h1>
-        <p className="text-text-secondary mt-1">Customize how Synapse teaches you. These are UI preferences — the adaptive engine also learns from your behavior.</p>
-      </motion.div>
+    <Page>
+      <PageHeader
+        eyebrow="Preferences"
+        icon={SlidersHorizontal}
+        title="Learning Preferences"
+        subtitle="Customize how Synapse teaches you. These are UI preferences — the adaptive engine also learns from your behavior."
+      />
 
       <div className="lg:grid lg:grid-cols-2 lg:gap-6 lg:items-start [&>*]:mb-6 lg:[&>*]:mb-0">
       {/* Teaching Style */}
-      <SettingsSection title="Teaching Approach" icon={<Brain className="w-5 h-5 text-brand-400" />} delay={0.05}>
+      <SettingsSection title="Teaching Approach" icon={Brain} iconClassName="text-brand-400" delay={0.05}>
         <ToggleRow label="Teaching style" options={[
           { value: 'socratic', label: 'Socratic' },
           { value: 'direct', label: 'Direct' },
@@ -114,7 +118,7 @@ export function Settings({
       </SettingsSection>
 
       {/* Content Balance */}
-      <SettingsSection title="Content Balance" icon={<BookOpen className="w-5 h-5 text-accent-teal" />} delay={0.1}>
+      <SettingsSection title="Content Balance" icon={BookOpen} iconClassName="text-accent-teal" delay={0.1}>
         <SliderRow label="Theory vs Practice" leftLabel="More theory" rightLabel="More practice" value={settings.theoryVsPractice} onChange={v => onUpdate({ theoryVsPractice: v })} />
         <ToggleRow label="Question frequency" options={[
           { value: 'minimal', label: 'Fewer' },
@@ -134,7 +138,7 @@ export function Settings({
       </SettingsSection>
 
       {/* Pacing & Difficulty */}
-      <SettingsSection title="Pacing & Difficulty" icon={<Gauge className="w-5 h-5 text-accent-amber" />} delay={0.15}>
+      <SettingsSection title="Pacing & Difficulty" icon={Gauge} iconClassName="text-accent-amber" delay={0.15}>
         <ToggleRow label="Pacing" options={[
           { value: 'slow', label: 'Slow' },
           { value: 'moderate', label: 'Moderate' },
@@ -154,7 +158,7 @@ export function Settings({
       </SettingsSection>
 
       {/* Practice & Revision */}
-      <SettingsSection title="Practice & Revision" icon={<Target className="w-5 h-5 text-accent-cyan" />} delay={0.2}>
+      <SettingsSection title="Practice & Revision" icon={Target} iconClassName="text-accent-cyan" delay={0.2}>
         <ToggleRow label="Practice intensity" options={[
           { value: 'light', label: 'Light' },
           { value: 'moderate', label: 'Moderate' },
@@ -168,7 +172,7 @@ export function Settings({
       </SettingsSection>
 
       {/* Source & Privacy */}
-      <SettingsSection title="Source & Content Mode" icon={<Shield className="w-5 h-5 text-accent-emerald" />} delay={0.25}>
+      <SettingsSection title="Source & Content Mode" icon={Shield} iconClassName="text-accent-emerald" delay={0.25}>
         <ToggleRow label="Source mode" options={[
           { value: 'strict', label: 'Strict (Notes Only)' },
           { value: 'enriched', label: 'Notes + Enrichment' },
@@ -180,7 +184,7 @@ export function Settings({
       </SettingsSection>
 
       {/* Study Goals */}
-      <SettingsSection title="Study Goals" icon={<Calendar className="w-5 h-5 text-accent-rose" />} delay={0.3}>
+      <SettingsSection title="Study Goals" icon={Calendar} iconClassName="text-accent-rose" delay={0.3}>
         <div className="space-y-3">
           <div>
             <label className="text-sm text-text-secondary block mb-1">Daily study goal</label>
@@ -202,7 +206,7 @@ export function Settings({
       </SettingsSection>
 
       {/* AI / LLM */}
-      <SettingsSection title="AI & LLM" icon={<Brain className="w-5 h-5 text-brand-400" />} delay={0.32}>
+      <SettingsSection title="AI & LLM" icon={Brain} iconClassName="text-brand-400" delay={0.32}>
         <div>
           <label className="text-xs text-text-secondary block mb-2">OpenAI API key (stored locally in browser)</label>
           <input
@@ -241,7 +245,7 @@ export function Settings({
             placeholder="https://your-proxy.example.com/v1"
             className="w-full px-4 py-2 rounded-xl bg-surface-input border border-border-subtle text-sm text-text-primary focus:outline-none focus:border-brand-500/50"
           />
-          <p className="text-[11px] text-text-muted mt-1.5">When set, chat & embeddings route here with no browser key — the proxy injects the secret server-side and can meter managed (paid) usage.</p>
+          <p className="ws-caption text-text-muted mt-1.5">When set, chat & embeddings route here with no browser key — the proxy injects the secret server-side and can meter managed (paid) usage.</p>
         </div>
         <ToggleRow label="Use LLM for Agent & Feynman" options={[
           { value: 'true', label: 'Enabled' },
@@ -252,7 +256,7 @@ export function Settings({
         </p>
       </SettingsSection>
 
-      <SettingsSection title="Account & Sync" icon={<KeyRound className="w-5 h-5 text-accent-teal" />} delay={0.34}>
+      <SettingsSection title="Account & Sync" icon={KeyRound} iconClassName="text-accent-teal" delay={0.34}>
         {settings.authToken && (
           <div className="flex flex-wrap items-center gap-2 mb-3">
             <span className="text-xs px-2 py-1 rounded-lg bg-surface-hover border border-border-subtle">
@@ -433,7 +437,7 @@ export function Settings({
       </SettingsSection>
 
       {/* Interface */}
-      <SettingsSection title="Interface" icon={<Palette className="w-5 h-5 text-brand-300" />} delay={0.35}>
+      <SettingsSection title="Interface" icon={Palette} iconClassName="text-brand-300" delay={0.35}>
         <ToggleRow label="Theme" options={[
           { value: 'dark', label: 'Dark' },
           { value: 'light', label: 'Light' },
@@ -446,12 +450,12 @@ export function Settings({
       </SettingsSection>
 
       {/* Data management */}
-      <SettingsSection title="Data & Progress" icon={<Database className="w-5 h-5 text-accent-cyan" />} delay={0.38}>
+      <SettingsSection title="Data & Progress" icon={Database} iconClassName="text-accent-cyan" delay={0.38}>
         <ToggleRow label="Demo showcase content" options={[
           { value: 'off', label: 'Hidden' },
           { value: 'on', label: 'Show demo' },
         ]} value={settings.showDemoContent ? 'on' : 'off'} onChange={v => onUpdate({ showDemoContent: v === 'on' })} />
-        <p className="text-[11px] text-text-muted">When hidden, only courses and tasks from your uploaded notes appear. Reload after toggling.</p>
+        <p className="ws-caption text-text-muted">When hidden, only courses and tasks from your uploaded notes appear. Reload after toggling.</p>
         <div className="flex flex-wrap gap-2">
           <button
             type="button"
@@ -497,22 +501,23 @@ export function Settings({
       </SettingsSection>
       </div>
 
-      <div className="p-4 rounded-xl bg-surface-card border border-border-subtle">
+      <Card padding="sm">
         <p className="text-xs text-text-tertiary leading-relaxed flex items-start gap-2">
           <Zap className="w-4 h-4 text-brand-400 shrink-0 mt-0.5" />
           These are your UI preferences. The adaptive engine also learns from your behavior — response time, accuracy, confidence calibration, error patterns, help-seeking rate, and retention over time. It adjusts independently of these settings.
         </p>
-      </div>
-    </div>
+      </Card>
+    </Page>
   );
 }
 
-function SettingsSection({ title, icon, children, delay }: { title: string; icon: React.ReactNode; children: React.ReactNode; delay: number }) {
+function SettingsSection({ title, icon, iconClassName, children, delay }: { title: string; icon: LucideIcon; iconClassName?: string; children: React.ReactNode; delay: number }) {
   return (
-    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay }}
-      className="rounded-2xl border border-border-subtle bg-surface-card p-5">
-      <h3 className="text-sm font-semibold flex items-center gap-2 mb-4">{icon}{title}</h3>
-      <div className="space-y-4">{children}</div>
+    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay }}>
+      <Card>
+        <SectionHeading title={title} icon={icon} iconClassName={iconClassName} className="mb-4" />
+        <div className="space-y-4">{children}</div>
+      </Card>
     </motion.div>
   );
 }
@@ -538,9 +543,9 @@ function SliderRow({ label, leftLabel, rightLabel, value, onChange, min = 0, max
     <div>
       <label className="text-xs text-text-secondary block mb-2">{label}</label>
       <div className="flex items-center gap-3">
-        <span className="text-[10px] text-text-muted w-20 text-right">{leftLabel}</span>
+        <span className="ws-caption text-text-muted w-20 text-right">{leftLabel}</span>
         <input type="range" min={min} max={max} value={value} onChange={e => onChange(Number(e.target.value))} className="flex-1" />
-        <span className="text-[10px] text-text-muted w-20">{rightLabel}</span>
+        <span className="ws-caption text-text-muted w-20">{rightLabel}</span>
       </div>
     </div>
   );

@@ -19,6 +19,7 @@ import { GoToSourceButton } from './GoToSourceButton';
 import { AgentContextBanner } from './AgentContextBanner';
 import { RichText } from './RichText';
 import { getAgentContent, type AgentUiCopy } from '../lib/agentContent';
+import { Card } from './ui/primitives';
 
 interface AgentProps {
   messages: AgentMessage[];
@@ -285,7 +286,7 @@ export function Agent({
             <div className="min-w-0">
               <p className="text-xs font-semibold text-brand-300 truncate">{activeTaskTitle}</p>
               {activeTaskConcept && (
-                <p className="text-[10px] text-text-tertiary truncate">{ui.focus}: {activeTaskConcept}</p>
+                <p className="ws-caption text-text-tertiary truncate">{ui.focus}: {activeTaskConcept}</p>
               )}
             </div>
             <div className="flex items-center gap-2 shrink-0">
@@ -330,7 +331,7 @@ export function Agent({
                   >
                     <m.icon className={cn('w-4 h-4 mb-1', m.color)} />
                     <p className="text-xs font-medium">{m.label}</p>
-                    <p className="text-[10px] text-text-tertiary">{m.desc}</p>
+                    <p className="ws-caption text-text-tertiary">{m.desc}</p>
                   </button>
                 ))}
               </div>
@@ -422,7 +423,7 @@ export function Agent({
           </div>
 
           <div className="flex items-center justify-between mt-2 flex-wrap gap-2">
-            <div className="flex items-center gap-3 text-[10px] text-text-muted flex-wrap">
+            <div className="flex items-center gap-3 ws-caption text-text-muted flex-wrap">
               <span className="flex items-center gap-1">
                 <Volume2 className="w-3 h-3" />
                 {ui.sourceGroundedBadge}
@@ -445,7 +446,7 @@ export function Agent({
                 {attachSource ? ui.sourceOn : ui.sourceOff}
               </button>
             </div>
-            <span className="text-[10px] text-text-muted">{ui.shiftEnter}</span>
+            <span className="ws-caption text-text-muted">{ui.shiftEnter}</span>
           </div>
         </div>
       </div>
@@ -479,9 +480,9 @@ function CitationList({
       {open && (
         <div className="mt-2 space-y-1.5">
           {citations.map((c) => (
-            <div key={c.chunkId} className="rounded-lg border border-border-subtle bg-surface-primary/40 px-2.5 py-1.5">
+            <Card key={c.chunkId} tone="muted" padding="none" className="px-2.5 py-1.5">
               <div className="flex items-center justify-between gap-2">
-                <div className="flex items-center gap-1.5 text-[10px] text-brand-300 font-medium min-w-0">
+                <div className="flex items-center gap-1.5 ws-caption text-brand-300 font-medium min-w-0">
                   <FileText className="w-3 h-3 shrink-0" />
                   <span className="truncate">{c.fileName}</span>
                   <span className="text-text-muted">· {c.locator}</span>
@@ -491,8 +492,8 @@ function CitationList({
                   <GoToSourceButton lang={lang} onClick={() => onGoToSource(spanFromCitation(c))} />
                 )}
               </div>
-              <p className="text-[11px] text-text-tertiary mt-0.5 leading-snug">{c.snippet}</p>
-            </div>
+              <p className="ws-caption text-text-tertiary mt-0.5">{c.snippet}</p>
+            </Card>
           ))}
         </div>
       )}
@@ -566,10 +567,10 @@ function MessageBubble({
         ) : null}
 
         {message.metadata?.groundingVerified === true && (
-          <p className="mt-1.5 text-[10px] text-accent-emerald">{ui.groundingVerified}</p>
+          <p className="mt-1.5 ws-caption text-accent-emerald">{ui.groundingVerified}</p>
         )}
         {message.metadata?.groundingVerified === false && (
-          <p className="mt-1.5 text-[10px] text-accent-amber flex items-center gap-1">
+          <p className="mt-1.5 ws-caption text-accent-amber flex items-center gap-1">
             <AlertTriangle className="w-3 h-3" />
             {ui.groundingWarning}
           </p>
