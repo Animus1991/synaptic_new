@@ -1882,6 +1882,7 @@ export function StudyWorkspace({
                     stepConfusing={stepMarks[currentStep] === 'confusing'}
                     onSelectionAction={handleWorkspaceSelectionAction}
                     onRemediateWrong={handleQuizRemediateWrong}
+                    sourceBestTool={sourceIntelligence?.bestTool ?? null}
                   />
                 </div>
                 

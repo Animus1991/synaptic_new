@@ -1,17 +1,34 @@
-# Run Synapse dev server (no system Node.js required)
-# Prefer:  .\run-dev.cmd
-# Or:      powershell -ExecutionPolicy Bypass -File .\run-dev.ps1
-$nodeBin = Join-Path $PSScriptRoot ".tools\nodejs\node-v22.16.0-win-x64"
-$npmCmd = Join-Path $nodeBin "npm.cmd"
-if (-not (Test-Path $npmCmd)) {
-    Write-Error "Portable Node.js not found at $nodeBin. Install Node.js from https://nodejs.org or run install-deps.cmd"
-    exit 1
-}
-$env:PATH = "$nodeBin;$env:PATH"
+# Run Synapse dev server
+# replit-redesign (pnpm monorepo): pnpm run dev  →  artifacts/synapse @ :22167
+# legacy main (flat npm):           npm run dev  →  :5173
+$ErrorActionPreference = 'Stop'
 Set-Location $PSScriptRoot
-if (-not (Test-Path "node_modules\vite")) {
-    Write-Host "Installing dependencies..."
-    & $npmCmd install
+
+$isMonorepo = Test-Path 'pnpm-workspace.yaml'
+
+if ($isMonorepo) {
+  $pnpm = Get-Command pnpm -ErrorAction SilentlyContinue
+  if (-not $pnpm) {
+    Write-Error 'pnpm is required for replit-redesign. Install: npm install -g pnpm'
+    exit 1
+  }
+  if (-not (Test-Path 'node_modules')) {
+    Write-Host 'Installing pnpm workspace dependencies...'
+    pnpm install
+  }
+  Write-Host 'Starting Synapse (pnpm monorepo) at http://localhost:22167/'
+  pnpm run dev
+  exit $LASTEXITCODE
 }
-Write-Host "Starting dev server at http://localhost:5173/"
+
+$nodeBin = Join-Path $PSScriptRoot '.tools\nodejs\node-v22.16.0-win-x64'
+$npmCmd = Join-Path $nodeBin 'npm.cmd'
+if (-not (Test-Path $npmCmd)) {
+  $npmCmd = 'npm.cmd'
+}
+if (-not (Test-Path 'node_modules\vite')) {
+  Write-Host 'Installing dependencies...'
+  & $npmCmd install
+}
+Write-Host 'Starting dev server at http://localhost:5173/'
 & $npmCmd run dev

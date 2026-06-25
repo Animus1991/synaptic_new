@@ -48,6 +48,7 @@ interface LessonContentProps {
   stepConfusing?: boolean;
   onSelectionAction?: (action: WorkspaceSelectionActionId, ctx: WorkspaceSelectionContext) => void;
   onRemediateWrong?: (kind: 'make-card' | 'feynman', item: QuizSessionItem) => void;
+  sourceBestTool?: WorkspaceToolId | null;
 }
 
 export function LessonContent({
@@ -78,6 +79,7 @@ export function LessonContent({
   stepConfusing,
   onSelectionAction,
   onRemediateWrong,
+  sourceBestTool,
 }: LessonContentProps) {
   const [textSelection, setTextSelection] = useState<string | null>(null);
 
@@ -121,6 +123,8 @@ export function LessonContent({
       activeTool={activeTool}
       onOpenTool={onOpenTool}
       lang={lang}
+      nextActionRecommendation={nextActionRecommendation}
+      sourceBestTool={sourceBestTool}
     />
   ) : null;
 
