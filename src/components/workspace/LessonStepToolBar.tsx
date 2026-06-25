@@ -1,4 +1,4 @@
-﻿import { Map, Calculator, Layers, GitCompare, PenSquare, Sparkles, Timer, GitCommit, Type, Highlighter, SlidersHorizontal, CheckSquare, LayoutDashboard } from 'lucide-react';
+import { Map, Calculator, Layers, GitCompare, PenSquare, Sparkles, Timer, GitCommit, Type, Highlighter, SlidersHorizontal, CheckSquare, LayoutDashboard } from 'lucide-react';
 import { cn } from '../../utils/cn';
 import type { WorkspaceToolId } from '../../lib/taskFlows';
 import { recommendToolsForStep, stepToolActionLabel, type WorkspaceStep } from '../../lib/workspaceStepTools';
@@ -51,7 +51,7 @@ export function LessonStepToolBar({
   return (
     <div className="flex flex-wrap items-center gap-1.5 pt-2 border-t border-border-subtle/60 mt-3">
       <span className="text-[9px] font-semibold uppercase tracking-wide text-text-muted w-full sm:w-auto">
-        {lang === 'el' ? '╬Η╬╜╬┐╬╣╬│╬╝╬▒ ╬╡╧Β╬│╬▒╬╗╬╡╬ψ╬┐╧Ζ' : 'Open tool'}
+        {lang === 'el' ? 'Άνοιγμα εργαλείου' : 'Open tool'}
       </span>
       {tools.map((tool) => {
         const Icon = TOOL_ICONS[tool];
@@ -77,7 +77,7 @@ export function LessonStepToolBar({
             {stepToolActionLabel(tool, lang)}
             {isRecommended && (
               <span className="rounded bg-accent-emerald/15 px-1 text-[8px] font-semibold uppercase">
-                {lang === 'el' ? '╬Χ╧Α╧Ν╬╝╬╡╬╜╬┐' : 'Next'}
+                {lang === 'el' ? 'Επόμενο' : 'Next'}
               </span>
             )}
           </button>

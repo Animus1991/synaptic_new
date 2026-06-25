@@ -1,4 +1,4 @@
-﻿import { ReactNode } from 'react';
+import { ReactNode } from 'react';
 import { motion } from 'framer-motion';
 import type { LucideIcon } from 'lucide-react';
 import { cn } from '../../utils/cn';
@@ -7,7 +7,7 @@ import { cn } from '../../utils/cn';
  * Shared page-level layout primitives for Synapse top-level views.
  *
  * These deepen the EXISTING token/design language (surface-*, border-*, text-*,
- * brand-*) έΑΦ they do NOT introduce a new palette or component library. Use them
+ * brand-*) — they do NOT introduce a new palette or component library. Use them
  * across Dashboard, Library, Tasks, Agent, Analytics, Teacher and Settings so the
  * chrome reads consistently and calmly across the whole app.
  */
@@ -176,7 +176,7 @@ export function CardLink({
   );
 }
 
-/** Small KPI tile (streak, XP, reviews due, έΑο). */
+/** Small KPI tile (streak, XP, reviews due, …). */
 export function StatTile({
   icon,
   label,

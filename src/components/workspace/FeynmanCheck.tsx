@@ -1,4 +1,4 @@
-﻿import { useState, useMemo, useRef, useEffect, useCallback } from 'react';
+import { useState, useMemo, useRef, useEffect, useCallback } from 'react';
 import { Sparkles, Bot, Loader2, Download, Printer, Mic, MicOff, BookOpen, AlertTriangle } from 'lucide-react';
 import { computeRubric, weakestDimensions, type RubricDimension } from '../../lib/feynmanRubric';
 import { detectFeynmanGaps } from '../../lib/feynmanGapDetect';
@@ -36,15 +36,15 @@ const RUBRIC_GAP_KEYS: Record<Exclude<RubricDimension, 'accuracy'>, I18nKey> = {
 function rubricGapHint(dim: RubricDimension, concept: string, t: (k: I18nKey) => string, lang: 'en' | 'el'): string {
   if (dim === 'accuracy') {
     return lang === 'el'
-      ? `╬π╧Β╬╖╧Δ╬╣╬╝╬┐╧Α╬┐╬ψ╬╖╧Δ╬╡ ╬▒╬║╧Β╬╣╬▓╬╡╬ψ╧Γ ╧Ν╧Β╬┐╧Ζ╧Γ ╬│╬╣╬▒ ┬τ${concept}┬╗ ╬▒╧Α╧Ν ╧Ε╬╣╧Γ ╧Δ╬╖╬╝╬╡╬╣╧Ο╧Δ╬╡╬╣╧Γ.`
-      : `Use precise terms for ┬τ${concept}┬╗ from your notes.`;
+      ? `Χρησιμοποίησε ακριβείς όρους για «${concept}» από τις σημειώσεις.`
+      : `Use precise terms for «${concept}» from your notes.`;
   }
   return t(RUBRIC_GAP_KEYS[dim]);
 }
 
 const DEFAULT_OUTLINE = (concept: string, lang: 'en' | 'el') =>
   lang === 'el'
-    ? [`╬ι╬┐╬╣╬▒ ╬╡╬ψ╬╜╬▒╬╣ ╬╖ ╬▓╬▒╧Δ╬╣╬║╬χ ╬╣╬┤╬φ╬▒ ╧Ε╬┐╧Ζ ┬τ${concept}┬╗;`, '╬Υ╬╣╬▒╧Ε╬ψ ╬φ╧Θ╬╡╬╣ ╧Δ╬╖╬╝╬▒╧Δ╬ψ╬▒;', '╬ι╬┐╬╣╬▒ ╧Α╬▒╧Β╬▒╬╜╧Ν╬╖╧Δ╬╖ ╬╜╬▒ ╬▒╧Α╬┐╧Η╧Ξ╬│╬╡╬╣╧Γ;', '╬ι╬▒╧Β╬υ╬┤╬╡╬╣╬│╬╝╬▒ ╬▒╧Α╧Ν ╧Ε╬╣╧Γ ╧Δ╬╖╬╝╬╡╬╣╧Ο╧Δ╬╡╬╣╧Γ ╧Δ╬┐╧Ζ.']
+    ? [`Ποια είναι η βασική ιδέα του «${concept}»;`, 'Γιατί έχει σημασία;', 'Ποια παρανόηση να αποφύγεις;', 'Παράδειγμα από τις σημειώσεις σου.']
     : [`What is the core idea of ${concept}?`, 'Why does it matter?', 'What misconception to avoid?', 'One example from your notes.'];
 
 function gapSearchTerm(dim: RubricDimension, concept: string, gapTerms: string[]): string {
@@ -74,7 +74,7 @@ interface Props {
   gapTerms?: string[];
   /** Uploaded note excerpt for coach grounding (not the user's draft). */
   referenceNotes?: string;
-  /** Glossary terms from the source corpus έΑΦ used to score accuracy fairly. */
+  /** Glossary terms from the source corpus — used to score accuracy fairly. */
   glossary?: Array<{ term: string; definition?: string }>;
   /** Additional course/topic terms that should count as keywords. */
   extraTerms?: string[];
@@ -131,8 +131,8 @@ export function FeynmanCheck({
   const outline = outlineProp ?? DEFAULT_OUTLINE(concept, lang);
   const placeholder = placeholderProp ?? (
     lang === 'el'
-      ? `╬Χ╬╛╬χ╬│╬╖╧Δ╬╡ ╧Ε╬╖╬╜ ╬φ╬╜╬╜╬┐╬╣╬▒ ┬τ${concept}┬╗ ╬╝╬╡ ╬┤╬╣╬║╬υ ╧Δ╬┐╧Ζ ╬╗╧Ν╬│╬╣╬▒, ╬▓╬▒╧Δ╬╣╬╢╧Ν╬╝╬╡╬╜╬┐╧Γ/╬╖ ╧Δ╧Ε╬╣╧Γ ╧Δ╬╖╬╝╬╡╬╣╧Ο╧Δ╬╡╬╣╧Γ ╧Δ╬┐╧ΖέΑο`
-      : `Explain ${concept} in your own words, using your uploaded notesέΑο`
+      ? `Εξήγησε την έννοια «${concept}» με δικά σου λόγια, βασιζόμενος/η στις σημειώσεις σου…`
+      : `Explain ${concept} in your own words, using your uploaded notes…`
   );
   const rubric = useMemo(() => {
     if (wordCount < 8) return null;
@@ -201,10 +201,10 @@ export function FeynmanCheck({
   };
   const rubricDims: RubricDimension[] = ['accuracy', 'completeness', 'simplicity', 'structure'];
   const coachEngineLabel = coachUsedLlm
-    ? 'AI Coach ┬╖ LLM'
+    ? 'AI Coach · LLM'
     : isLlmAvailable(settings)
-      ? 'AI Coach ┬╖ offline rubric'
-      : 'AI Coach ┬╖ offline (add API key in Settings)';
+      ? 'AI Coach · offline rubric'
+      : 'AI Coach · offline (add API key in Settings)';
 
   const exportRubric = (mode: 'download' | 'print') => {
     if (!rubric) return;
@@ -246,7 +246,7 @@ export function FeynmanCheck({
       <div className="flex-1 overflow-y-auto p-4">
         <h3 className="mb-1 text-sm font-semibold flex items-center gap-2">
           <Sparkles className="w-4 h-4 text-brand-400" />
-          {t('feynmanCheck')} έΑΦ {concept}
+          {t('feynmanCheck')} — {concept}
         </h3>
         <p className="mb-3 text-xs text-text-tertiary">{t('feynmanHint')}</p>
 
@@ -260,7 +260,7 @@ export function FeynmanCheck({
 
         {sectionLabel && (
           <p className="mb-2 text-[10px] text-text-muted" data-testid="feynman-section-label">
-            {lang === 'el' ? '╬Χ╬╜╧Ν╧Ε╬╖╧Ε╬▒:' : 'Section:'}{' '}
+            {lang === 'el' ? 'Ενότητα:' : 'Section:'}{' '}
             <span className="text-text-secondary">{sectionLabel}</span>
           </p>
         )}
@@ -273,8 +273,8 @@ export function FeynmanCheck({
             <AlertTriangle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
             <p>
               {lang === 'el'
-                ? '╬Σ╬┤╧Ξ╬╜╬▒╬╝╬╖ ╬╡╬╛╬▒╬│╧Κ╬│╬χ ╬╡╬╜╬╜╬┐╬╣╧Ο╬╜ έΑΦ ╧Ε╬┐ outline ╬▓╬▒╧Δ╬ψ╬╢╬╡╧Ε╬▒╬╣ ╧Δ╧Ε╬┐ ╬▒╧Α╧Ν╧Δ╧Α╬▒╧Δ╬╝╬▒. ╬Φ╬┐╬║╬ψ╬╝╬▒╧Δ╬╡ Reprocess ╬│╬╣╬▒ ╬║╬▒╬╗╧Ξ╧Ε╬╡╧Β╬▒ ╬▒╧Α╬┐╧Ε╬╡╬╗╬φ╧Δ╬╝╬▒╧Ε╬▒.'
-                : 'Weak concept extraction έΑΦ outline is passage-grounded. Try Reprocess for richer structure.'}
+                ? 'Αδύναμη εξαγωγή εννοιών — το outline βασίζεται στο απόσπασμα. Δοκίμασε Reprocess για καλύτερα αποτελέσματα.'
+                : 'Weak concept extraction — outline is passage-grounded. Try Reprocess for richer structure.'}
             </p>
           </div>
         )}
@@ -282,7 +282,7 @@ export function FeynmanCheck({
         {keyTerms.length > 0 && (
           <div className="mb-3 flex flex-wrap gap-1.5" data-testid="feynman-key-terms">
             <span className="text-[10px] text-text-muted w-full">
-              {lang === 'el' ? '╬Ν╧Β╬┐╬╣ ╬▒╧Α╧Ν ╧Ε╬┐ ╧Ζ╬╗╬╣╬║╧Ν:' : 'Terms from your material:'}
+              {lang === 'el' ? 'Όροι από το υλικό:' : 'Terms from your material:'}
             </span>
             {keyTerms.map((kt) => (
               <button
@@ -303,7 +303,7 @@ export function FeynmanCheck({
               <p className="mb-2 text-[10px] font-semibold uppercase tracking-wide text-text-muted">{t('outline')}</p>
               <ul className="space-y-1 text-[11px] text-text-secondary">
                 {outline.map((item) => (
-                  <li key={item}>έΑλ {item}</li>
+                  <li key={item}>• {item}</li>
                 ))}
               </ul>
             </div>
@@ -326,7 +326,7 @@ export function FeynmanCheck({
                   )}
                 >
                   {voiceActive ? <MicOff className="w-3.5 h-3.5" /> : <Mic className="w-3.5 h-3.5" />}
-                  {lang === 'el' ? '╬ο╧Κ╬╜╬χ' : 'Voice'}
+                  {lang === 'el' ? 'Φωνή' : 'Voice'}
                 </button>
                 <button
                   type="button"
@@ -345,7 +345,7 @@ export function FeynmanCheck({
                     className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium border border-accent-cyan/30 bg-accent-cyan/10 text-accent-cyan hover:bg-accent-cyan/15"
                   >
                     <Sparkles className="w-3.5 h-3.5" />
-                    {lang === 'el' ? '╬κ╧Ο╧Ε╬▒ Agent' : 'Ask Agent'}
+                    {lang === 'el' ? 'Ρώτα Agent' : 'Ask Agent'}
                   </button>
                 )}
                 <button
@@ -353,18 +353,18 @@ export function FeynmanCheck({
                   data-testid="feynman-export-rubric"
                   disabled={!rubric}
                   onClick={() => exportRubric('download')}
-                  title={lang === 'el' ? '╬γ╬▒╧Ε╬φ╬▓╬▒╧Δ╬╡ ╬▒╬╜╬▒╧Η╬┐╧Β╬υ ╬▒╬╛╬╣╬┐╬╗╧Ν╬│╬╖╧Δ╬╖╧Γ' : 'Download rubric report'}
+                  title={lang === 'el' ? 'Κατέβασε αναφορά αξιολόγησης' : 'Download rubric report'}
                   className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium border border-brand-500/30 bg-brand-600/10 text-brand-300 hover:bg-brand-600/20 disabled:opacity-40"
                 >
                   <Download className="w-3.5 h-3.5" />
-                  {lang === 'el' ? '╬Χ╬╛╬▒╬│╧Κ╬│╬χ' : 'Export report'}
+                  {lang === 'el' ? 'Εξαγωγή' : 'Export report'}
                 </button>
                 <button
                   type="button"
                   data-testid="feynman-print-rubric"
                   disabled={!rubric}
                   onClick={() => exportRubric('print')}
-                  title={lang === 'el' ? '╬Χ╬║╧Ε╧Ξ╧Α╧Κ╧Δ╬╖ / PDF' : 'Print / save as PDF'}
+                  title={lang === 'el' ? 'Εκτύπωση / PDF' : 'Print / save as PDF'}
                   className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium border border-border-subtle text-text-muted hover:text-text-secondary disabled:opacity-40"
                 >
                   <Printer className="w-3.5 h-3.5" />
@@ -382,13 +382,13 @@ export function FeynmanCheck({
                 <div>
                   <p className="text-[10px] font-semibold text-accent-emerald mb-1">Strengths</p>
                   <ul className="text-[11px] text-text-secondary space-y-0.5">
-                    {coachFeedback.strengths.map((s, i) => <li key={i}>έΑλ {s}</li>)}
+                    {coachFeedback.strengths.map((s, i) => <li key={i}>• {s}</li>)}
                   </ul>
                 </div>
                 <div>
                   <p className="text-[10px] font-semibold text-accent-amber mb-1">Improve</p>
                   <ul className="text-[11px] text-text-secondary space-y-0.5">
-                    {coachFeedback.improvements.map((s, i) => <li key={i}>έΑλ {s}</li>)}
+                    {coachFeedback.improvements.map((s, i) => <li key={i}>• {s}</li>)}
                   </ul>
                 </div>
                 {coachFeedback.rewrite && (
@@ -401,7 +401,7 @@ export function FeynmanCheck({
             {autoGaps.length > 0 && (
               <div className="rounded-xl border border-accent-amber/30 bg-accent-amber/8 p-3" data-testid="feynman-auto-gaps">
                 <p className="text-[10px] font-semibold text-accent-amber mb-2">
-                  {lang === 'el' ? '╬Σ╧Ζ╧Ε╧Ν╬╝╬▒╧Ε╬▒ ╬║╬╡╬╜╬υ (rubric)' : 'Auto-detected gaps'}
+                  {lang === 'el' ? 'Αυτόματα κενά (rubric)' : 'Auto-detected gaps'}
                 </p>
                 <ul className="space-y-2">
                   {autoGaps.slice(0, 3).map((g) => (
@@ -413,7 +413,7 @@ export function FeynmanCheck({
                           onClick={() => onOpenInReader(g.searchTerm)}
                           className="shrink-0 text-brand-400 hover:text-brand-300 text-[10px]"
                         >
-                          Reader έΗΤ
+                          Reader →
                         </button>
                       )}
                     </li>
@@ -431,11 +431,11 @@ export function FeynmanCheck({
                       type="button"
                       data-testid="feynman-rubric-export-download"
                       onClick={() => exportRubric('download')}
-                      title={lang === 'el' ? '╬γ╬▒╧Ε╬φ╬▓╬▒╧Δ╬╡ ╬▒╬╜╬▒╧Η╬┐╧Β╬υ' : 'Download report'}
+                      title={lang === 'el' ? 'Κατέβασε αναφορά' : 'Download report'}
                       className="inline-flex items-center gap-1 rounded-md border border-brand-500/30 bg-brand-600/10 px-2 py-0.5 text-[10px] font-medium text-brand-300 hover:bg-brand-600/20"
                     >
                       <Download className="w-3 h-3" />
-                      {lang === 'el' ? '╬Χ╬╛╬▒╬│╧Κ╬│╬χ' : 'Export'}
+                      {lang === 'el' ? 'Εξαγωγή' : 'Export'}
                     </button>
                     <button
                       type="button"
@@ -485,7 +485,7 @@ export function FeynmanCheck({
                           className="inline-flex items-center gap-1 rounded-lg border border-accent-cyan/30 bg-accent-cyan/10 px-2 py-1 text-[10px] font-medium text-accent-cyan hover:bg-accent-cyan/15"
                         >
                           <Sparkles className="w-3 h-3" />
-                          {lang === 'el' ? `Agent έΗΤ ${t(RUBRIC_LABEL_KEYS[dim])}` : `Agent έΗΤ fix ${t(RUBRIC_LABEL_KEYS[dim])}`}
+                          {lang === 'el' ? `Agent → ${t(RUBRIC_LABEL_KEYS[dim])}` : `Agent → fix ${t(RUBRIC_LABEL_KEYS[dim])}`}
                         </button>
                       )}
                       {onOpenInReader && (
@@ -495,13 +495,13 @@ export function FeynmanCheck({
                           className="flex items-center gap-1 text-[10px] font-medium text-accent-cyan hover:text-accent-cyan/80"
                         >
                           <BookOpen className="w-3 h-3" />
-                          {lang === 'el' ? '╬Η╬╜╬┐╬╣╬│╬╝╬▒ ╧Δ╧Ε╬┐╬╜ ╬▒╬╜╬▒╬│╬╜╧Ο╧Δ╧Ε╬╖' : 'Read in source'}
+                          {lang === 'el' ? 'Άνοιγμα στον αναγνώστη' : 'Read in source'}
                         </button>
                       )}
                       {onFocusConcept && (
                         <button type="button" onClick={() => onFocusConcept('concept-map')}
                           className="text-[10px] font-medium text-brand-400 hover:text-brand-300">
-                          {lang === 'el' ? '╬π╬υ╧Β╧Ε╬╖╧Γ ╬╡╬╜╬╜╬┐╬╣╧Ο╬╜ έΗΤ' : 'Concept map έΗΤ'}
+                          {lang === 'el' ? 'Χάρτης εννοιών →' : 'Concept map →'}
                         </button>
                       )}
                     </div>

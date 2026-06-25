@@ -1,17 +1,17 @@
-﻿/**
+/**
  * First-glance "how to use" guidance for every workspace tool.
  * Complements workspaceToolS20Spine (purpose / learnerProblem) and
  * workspaceToolCrossLinks (next tools) with concrete, new-user-friendly steps.
  *
  * Goal: a brand-new user understands what a tool does, how to use it in 3 steps,
- * and what they will get out of it έΑΦ without hunting.
+ * and what they will get out of it — without hunting.
  */
 
 import type { WorkspaceToolId } from './taskFlows';
 import type { BilingualText } from './workspaceToolS20Spine';
 
 export type WorkspaceToolGuide = {
-  /** 3 short imperative steps έΑΦ the minimum to be productive. */
+  /** 3 short imperative steps — the minimum to be productive. */
   howTo: BilingualText[];
   /** The concrete outcome a learner walks away with. */
   produces: BilingualText;
@@ -20,107 +20,107 @@ export type WorkspaceToolGuide = {
 export const WORKSPACE_TOOL_GUIDE: Record<WorkspaceToolId, WorkspaceToolGuide> = {
   reader: {
     howTo: [
-      { en: 'Read the source text, section by section.', el: '╬Φ╬╣╬υ╬▓╬▒╧Δ╬╡ ╧Ε╬┐ ╬║╬╡╬ψ╬╝╬╡╬╜╬┐ ╧Α╬╖╬│╬χ╧Γ, ╬╡╬╜╧Ν╧Ε╬╖╧Ε╬▒ ╧Α╧Β╬┐╧Γ ╬╡╬╜╧Ν╧Ε╬╖╧Ε╬▒.' },
-      { en: 'Click a highlighted term to see its meaning and focus it everywhere.', el: '╬γ╬υ╬╜╬╡ ╬║╬╗╬╣╬║ ╧Δ╬╡ ╧Ζ╧Α╬┐╬│╧Β╬▒╬╝╬╝╬╣╧Δ╬╝╬φ╬╜╬┐ ╧Ν╧Β╬┐ ╬│╬╣╬▒ ╬╡╧Α╬╡╬╛╬χ╬│╬╖╧Δ╬╖ ╬║╬▒╬╣ ╬╡╧Δ╧Ε╬ψ╬▒╧Δ╬╖ ╧Α╬▒╬╜╧Ε╬┐╧Ξ.' },
-      { en: 'Mark passages as understood or confusing to steer your plan.', el: '╬μ╬╖╬╝╬╡╬ψ╧Κ╧Δ╬╡ ╧Δ╬╖╬╝╬╡╬ψ╬▒ ╧Κ╧Γ ╬║╬▒╧Ε╬▒╬╜╬┐╬╖╧Ε╬υ ╬χ ╬╝╧Α╬╡╧Β╬┤╬╡╬╝╬φ╬╜╬▒ ╬│╬╣╬▒ ╬╜╬▒ ╬║╬▒╬╕╬┐╬┤╬╖╬│╬χ╧Δ╬╡╬╣╧Γ ╧Ε╬┐ ╧Α╬╗╬υ╬╜╬┐.' },
+      { en: 'Read the source text, section by section.', el: 'Διάβασε το κείμενο πηγής, ενότητα προς ενότητα.' },
+      { en: 'Click a highlighted term to see its meaning and focus it everywhere.', el: 'Κάνε κλικ σε υπογραμμισμένο όρο για επεξήγηση και εστίαση παντού.' },
+      { en: 'Mark passages as understood or confusing to steer your plan.', el: 'Σημείωσε σημεία ως κατανοητά ή μπερδεμένα για να καθοδηγήσεις το πλάνο.' },
     ],
-    produces: { en: 'A solid grasp of the original material before you practice.', el: '╬μ╧Ε╬φ╧Β╬╡╬╖ ╬║╬▒╧Ε╬▒╬╜╧Ν╬╖╧Δ╬╖ ╧Ε╬┐╧Ζ ╧Ζ╬╗╬╣╬║╬┐╧Ξ ╧Α╧Β╬╣╬╜ ╧Ε╬╖╬╜ ╬╡╬╛╬υ╧Δ╬║╬╖╧Δ╬╖.' },
+    produces: { en: 'A solid grasp of the original material before you practice.', el: 'Στέρεη κατανόηση του υλικού πριν την εξάσκηση.' },
   },
   'concept-map': {
     howTo: [
-      { en: 'See how concepts connect as a draggable graph.', el: '╬Φ╬╡╧Γ ╧Α╧Ο╧Γ ╧Δ╧Ζ╬╜╬┤╬φ╬┐╬╜╧Ε╬▒╬╣ ╬┐╬╣ ╬φ╬╜╬╜╬┐╬╣╬╡╧Γ ╧Δ╬╡ ╬┤╬╣╬▒╬┤╧Β╬▒╧Δ╧Ε╬╣╬║╧Ν ╬│╧Β╬υ╧Η╬┐.' },
-      { en: 'Click a node to focus that concept across every tool.', el: '╬γ╬υ╬╜╬╡ ╬║╬╗╬╣╬║ ╧Δ╬╡ ╬║╧Ν╬╝╬▓╬┐ ╬│╬╣╬▒ ╬╡╧Δ╧Ε╬ψ╬▒╧Δ╬╖ ╧Ε╬╖╧Γ ╬φ╬╜╬╜╬┐╬╣╬▒╧Γ ╧Δ╬╡ ╧Ν╬╗╬▒ ╧Ε╬▒ ╬╡╧Β╬│╬▒╬╗╬╡╬ψ╬▒.' },
-      { en: 'Drag nodes to arrange them your way έΑΦ positions are saved.', el: '╬μ╧Ξ╧Β╬╡ ╧Ε╬┐╧Ζ╧Γ ╬║╧Ν╬╝╬▓╬┐╧Ζ╧Γ ╧Ν╧Α╧Κ╧Γ ╬╕╬╡╧Γ έΑΦ ╬┐╬╣ ╬╕╬φ╧Δ╬╡╬╣╧Γ ╬▒╧Α╬┐╬╕╬╖╬║╬╡╧Ξ╬┐╬╜╧Ε╬▒╬╣.' },
+      { en: 'See how concepts connect as a draggable graph.', el: 'Δες πώς συνδέονται οι έννοιες σε διαδραστικό γράφο.' },
+      { en: 'Click a node to focus that concept across every tool.', el: 'Κάνε κλικ σε κόμβο για εστίαση της έννοιας σε όλα τα εργαλεία.' },
+      { en: 'Drag nodes to arrange them your way — positions are saved.', el: 'Σύρε τους κόμβους όπως θες — οι θέσεις αποθηκεύονται.' },
     ],
-    produces: { en: 'A clear mental model of how the ideas relate.', el: '╬γ╬▒╬╕╬▒╧Β╧Ν ╬╜╬┐╬╖╧Ε╬╣╬║╧Ν ╬╝╬┐╬╜╧Ε╬φ╬╗╬┐ ╬│╬╣╬▒ ╧Ε╬┐ ╧Α╧Ο╧Γ ╧Δ╧Θ╬╡╧Ε╬ψ╬╢╬┐╬╜╧Ε╬▒╬╣ ╬┐╬╣ ╬╣╬┤╬φ╬╡╧Γ.' },
+    produces: { en: 'A clear mental model of how the ideas relate.', el: 'Καθαρό νοητικό μοντέλο για το πώς σχετίζονται οι ιδέες.' },
   },
   scratchpad: {
     howTo: [
-      { en: 'Write a formula or derivation step by step.', el: '╬Υ╧Β╬υ╧Ι╬╡ ╬φ╬╜╬▒╬╜ ╧Ε╧Ξ╧Α╬┐ ╬χ ╬╝╬╣╬▒ ╧Α╬▒╧Β╬▒╬│╧Κ╬│╬χ ╬▓╬χ╬╝╬▒-╬▓╬χ╬╝╬▒.' },
-      { en: 'Assign values to the variables.', el: '╬Φ╧Ο╧Δ╬╡ ╧Ε╬╣╬╝╬φ╧Γ ╧Δ╧Ε╬╣╧Γ ╬╝╬╡╧Ε╬▒╬▓╬╗╬╖╧Ε╬φ╧Γ.' },
-      { en: 'Check each line έΑΦ verified math is flagged.', el: '╬Ι╬╗╬╡╬│╬╛╬╡ ╬║╬υ╬╕╬╡ ╬│╧Β╬▒╬╝╬╝╬χ έΑΦ ╧Ε╬▒ ╧Δ╧Κ╧Δ╧Ε╬υ ╬▓╬χ╬╝╬▒╧Ε╬▒ ╬╡╧Α╬╣╧Δ╬╖╬╝╬▒╬ψ╬╜╬┐╬╜╧Ε╬▒╬╣.' },
+      { en: 'Write a formula or derivation step by step.', el: 'Γράψε έναν τύπο ή μια παραγωγή βήμα-βήμα.' },
+      { en: 'Assign values to the variables.', el: 'Δώσε τιμές στις μεταβλητές.' },
+      { en: 'Check each line — verified math is flagged.', el: 'Έλεγξε κάθε γραμμή — τα σωστά βήματα επισημαίνονται.' },
     ],
-    produces: { en: 'Confidence that your working is mathematically correct.', el: '╬μ╬╣╬│╬┐╧Ζ╧Β╬╣╬υ ╧Ν╧Ε╬╣ ╬╖ ╬╗╧Ξ╧Δ╬╖ ╧Δ╬┐╧Ζ ╬╡╬ψ╬╜╬▒╬╣ ╬╝╬▒╬╕╬╖╬╝╬▒╧Ε╬╣╬║╬υ ╧Δ╧Κ╧Δ╧Ε╬χ.' },
+    produces: { en: 'Confidence that your working is mathematically correct.', el: 'Σιγουριά ότι η λύση σου είναι μαθηματικά σωστή.' },
   },
   whiteboard: {
     howTo: [
-      { en: 'Pick a concept and draw it freely.', el: '╬Φ╬╣╬υ╬╗╬╡╬╛╬╡ ╬╝╬╣╬▒ ╬φ╬╜╬╜╬┐╬╣╬▒ ╬║╬▒╬╣ ╧Δ╧Θ╬╡╬┤╬ψ╬▒╧Δ╬φ ╧Ε╬╖╬╜ ╬╡╬╗╬╡╧Ξ╬╕╬╡╧Β╬▒.' },
-      { en: 'Drop concept labels and formulas as stamps.', el: '╬ι╧Β╧Ν╧Δ╬╕╬╡╧Δ╬╡ ╬╡╧Ε╬╣╬║╬φ╧Ε╬╡╧Γ ╬╡╬╜╬╜╬┐╬╣╧Ο╬╜ ╬║╬▒╬╣ ╧Ε╧Ξ╧Α╬┐╧Ζ╧Γ ╧Κ╧Γ ╧Δ╧Η╧Β╬▒╬│╬ψ╬┤╬╡╧Γ.' },
-      { en: 'Check coverage έΑΦ see which required labels are still missing.', el: '╬Ι╬╗╬╡╬│╬╛╬╡ ╧Ε╬╖╬╜ ╬║╬υ╬╗╧Ζ╧Ι╬╖ έΑΦ ╬┤╬╡╧Γ ╧Α╬┐╬╣╬╡╧Γ ╬╡╧Ε╬╣╬║╬φ╧Ε╬╡╧Γ ╬╗╬╡╬ψ╧Α╬┐╧Ζ╬╜ ╬▒╬║╧Ν╬╝╬╖.' },
+      { en: 'Pick a concept and draw it freely.', el: 'Διάλεξε μια έννοια και σχεδίασέ την ελεύθερα.' },
+      { en: 'Drop concept labels and formulas as stamps.', el: 'Πρόσθεσε ετικέτες εννοιών και τύπους ως σφραγίδες.' },
+      { en: 'Check coverage — see which required labels are still missing.', el: 'Έλεγξε την κάλυψη — δες ποιες ετικέτες λείπουν ακόμη.' },
     ],
-    produces: { en: 'A diagram that proves you can reconstruct the concept.', el: '╬Ι╬╜╬▒ ╬┤╬╣╬υ╬│╧Β╬▒╬╝╬╝╬▒ ╧Α╬┐╧Ζ ╬▒╧Α╬┐╬┤╬╡╬╣╬║╬╜╧Ξ╬╡╬╣ ╧Ν╧Ε╬╣ ╬▒╬╜╬▒╧Δ╧Ζ╬╜╬╕╬φ╧Ε╬╡╬╣╧Γ ╧Ε╬╖╬╜ ╬φ╬╜╬╜╬┐╬╣╬▒.' },
+    produces: { en: 'A diagram that proves you can reconstruct the concept.', el: 'Ένα διάγραμμα που αποδεικνύει ότι ανασυνθέτεις την έννοια.' },
   },
   leitner: {
     howTo: [
-      { en: 'Review the cards that are due today.', el: '╬Χ╧Α╬▒╬╜╬υ╬╗╬▒╬▓╬╡ ╧Ε╬╣╧Γ ╬║╬υ╧Β╧Ε╬╡╧Γ ╧Α╬┐╧Ζ ╬╡╬ψ╬╜╬▒╬╣ ╬│╬╣╬▒ ╧Δ╬χ╬╝╬╡╧Β╬▒.' },
-      { en: 'Rate your recall: Again, Hard, Good, or Easy.', el: '╬Τ╬▒╬╕╬╝╬┐╬╗╧Ν╬│╬╖╧Δ╬╡ ╧Ε╬╖╬╜ ╬▒╬╜╬υ╬║╬╗╬╖╧Δ╬╖: ╬η╬▒╬╜╬υ, ╬Φ╧Ξ╧Δ╬║╬┐╬╗╬┐, ╬γ╬▒╬╗╧Ν ╬χ ╬Χ╧Ξ╬║╬┐╬╗╬┐.' },
-      { en: 'Cards you struggle with come back sooner.', el: '╬θ╬╣ ╬┤╧Ξ╧Δ╬║╬┐╬╗╬╡╧Γ ╬║╬υ╧Β╧Ε╬╡╧Γ ╬╡╧Α╬▒╬╜╬φ╧Β╧Θ╬┐╬╜╧Ε╬▒╬╣ ╬╜╧Κ╧Β╬ψ╧Ε╬╡╧Β╬▒.' },
+      { en: 'Review the cards that are due today.', el: 'Επανάλαβε τις κάρτες που είναι για σήμερα.' },
+      { en: 'Rate your recall: Again, Hard, Good, or Easy.', el: 'Βαθμολόγησε την ανάκληση: Ξανά, Δύσκολο, Καλό ή Εύκολο.' },
+      { en: 'Cards you struggle with come back sooner.', el: 'Οι δύσκολες κάρτες επανέρχονται νωρίτερα.' },
     ],
-    produces: { en: 'Long-term retention through spaced repetition.', el: '╬ε╬▒╬║╧Β╬┐╧Α╧Β╧Ν╬╕╬╡╧Δ╬╝╬╖ ╧Δ╧Ζ╬│╬║╧Β╬υ╧Ε╬╖╧Δ╬╖ ╬╝╬φ╧Δ╧Κ ╬╡╧Α╬▒╬╜╬υ╬╗╬╖╧Ι╬╖╧Γ ╬╝╬╡ ╬┤╬╣╬▒╧Δ╧Ε╬χ╬╝╬▒╧Ε╬▒.' },
+    produces: { en: 'Long-term retention through spaced repetition.', el: 'Μακροπρόθεσμη συγκράτηση μέσω επανάληψης με διαστήματα.' },
   },
   feynman: {
     howTo: [
-      { en: 'Explain the concept in plain words, as if to a beginner.', el: '╬Χ╬╛╬χ╬│╬╖╧Δ╬╡ ╧Ε╬╖╬╜ ╬φ╬╜╬╜╬┐╬╣╬▒ ╬╝╬╡ ╬▒╧Α╬╗╬υ ╬╗╧Ν╬│╬╣╬▒, ╧Δ╬▒╬╜ ╧Δ╬╡ ╬▒╧Β╧Θ╬υ╧Β╬╣╬┐.' },
-      { en: 'Get a rubric score on accuracy, simplicity and completeness.', el: '╬ι╬υ╧Β╬╡ ╬▓╬▒╬╕╬╝╬┐╬╗╬┐╬│╬ψ╬▒ rubric ╬│╬╣╬▒ ╬▒╬║╧Β╬ψ╬▓╬╡╬╣╬▒, ╬▒╧Α╬╗╧Ν╧Ε╬╖╧Ε╬▒ ╬║╬▒╬╣ ╧Α╬╗╬╖╧Β╧Ν╧Ε╬╖╧Ε╬▒.' },
-      { en: 'Export the rubric report (HTML or PDF) and fix gaps it finds.', el: '╬Χ╬╛╬χ╬│╬▒╬│╬╡ ╧Ε╬╖╬╜ ╬▒╬╜╬▒╧Η╬┐╧Β╬υ rubric (HTML ╬χ PDF) ╬║╬▒╬╣ ╬┤╬╣╧Ν╧Β╬╕╧Κ╧Δ╬╡ ╧Ε╬▒ ╬║╬╡╬╜╬υ.' },
+      { en: 'Explain the concept in plain words, as if to a beginner.', el: 'Εξήγησε την έννοια με απλά λόγια, σαν σε αρχάριο.' },
+      { en: 'Get a rubric score on accuracy, simplicity and completeness.', el: 'Πάρε βαθμολογία rubric για ακρίβεια, απλότητα και πληρότητα.' },
+      { en: 'Export the rubric report (HTML or PDF) and fix gaps it finds.', el: 'Εξήγαγε την αναφορά rubric (HTML ή PDF) και διόρθωσε τα κενά.' },
     ],
-    produces: { en: 'Real understanding you can actually put into words.', el: '╬ι╧Β╬▒╬│╬╝╬▒╧Ε╬╣╬║╬χ ╬║╬▒╧Ε╬▒╬╜╧Ν╬╖╧Δ╬╖ ╧Α╬┐╧Ζ ╬╝╧Α╬┐╧Β╬╡╬ψ╧Γ ╬╜╬▒ ╬┤╬╣╬▒╧Ε╧Ζ╧Α╧Ο╧Δ╬╡╬╣╧Γ.' },
+    produces: { en: 'Real understanding you can actually put into words.', el: 'Πραγματική κατανόηση που μπορείς να διατυπώσεις.' },
   },
   quiz: {
     howTo: [
-      { en: 'Answer each active-recall question.', el: '╬Σ╧Α╬υ╬╜╧Ε╬╖╧Δ╬╡ ╧Δ╬╡ ╬║╬υ╬╕╬╡ ╬╡╧Β╧Ο╧Ε╬╖╧Δ╬╖ active recall.' },
-      { en: 'Rate how confident you were.', el: '╬Τ╬▒╬╕╬╝╬┐╬╗╧Ν╬│╬╖╧Δ╬╡ ╧Α╧Ν╧Δ╬┐ ╧Δ╬ψ╬│╬┐╧Ζ╧Β╬┐╧Γ ╬χ╧Δ╬┐╧Ζ╬╜.' },
-      { en: 'Review wrong answers against the source.', el: '╬Φ╬╡╧Γ ╧Ε╬╣╧Γ ╬╗╬υ╬╕╬┐╧Γ ╬▒╧Α╬▒╬╜╧Ε╬χ╧Δ╬╡╬╣╧Γ ╧Δ╬╡ ╧Δ╧Θ╬φ╧Δ╬╖ ╬╝╬╡ ╧Ε╬╖╬╜ ╧Α╬╖╬│╬χ.' },
+      { en: 'Answer each active-recall question.', el: 'Απάντησε σε κάθε ερώτηση active recall.' },
+      { en: 'Rate how confident you were.', el: 'Βαθμολόγησε πόσο σίγουρος ήσουν.' },
+      { en: 'Review wrong answers against the source.', el: 'Δες τις λάθος απαντήσεις σε σχέση με την πηγή.' },
     ],
-    produces: { en: 'Proof of what you truly remember vs. only recognize.', el: '╬Σ╧Α╧Ν╬┤╬╡╬╣╬╛╬╖ ╬│╬╣╬▒ ╧Ε╬┐ ╧Ε╬╣ ╬╕╧Ζ╬╝╬υ╧Δ╬▒╬╣ ╧Α╧Β╬▒╬│╬╝╬▒╧Ε╬╣╬║╬υ ╬║╬╣ ╧Ν╧Θ╬╣ ╬▒╧Α╬╗╧Ο╧Γ ╬▒╬╜╬▒╬│╬╜╧Κ╧Β╬ψ╬╢╬╡╬╣╧Γ.' },
+    produces: { en: 'Proof of what you truly remember vs. only recognize.', el: 'Απόδειξη για το τι θυμάσαι πραγματικά κι όχι απλώς αναγνωρίζεις.' },
   },
   simulator: {
     howTo: [
-      { en: 'Adjust the input parameters with the sliders.', el: '╬κ╧Ξ╬╕╬╝╬╣╧Δ╬╡ ╧Ε╬╣╧Γ ╧Α╬▒╧Β╬▒╬╝╬φ╧Ε╧Β╬┐╧Ζ╧Γ ╬╡╬╣╧Δ╧Ν╬┤╬┐╧Ζ ╬╝╬╡ ╧Ε╬┐╧Ζ╧Γ sliders.' },
-      { en: 'Watch the outputs and sensitivity update live.', el: '╬Φ╬╡╧Γ ╧Ε╬▒ ╬▒╧Α╬┐╧Ε╬╡╬╗╬φ╧Δ╬╝╬▒╧Ε╬▒ ╬║╬▒╬╣ ╧Ε╬╖╬╜ ╬╡╧Ζ╬▒╬╣╧Δ╬╕╬╖╧Δ╬ψ╬▒ ╬╜╬▒ ╬╡╬╜╬╖╬╝╬╡╧Β╧Ο╬╜╬┐╬╜╧Ε╬▒╬╣ ╬╢╧Κ╬╜╧Ε╬▒╬╜╬υ.' },
-      { en: 'Test "what-if" scenarios against your notes.', el: '╬Φ╬┐╬║╬ψ╬╝╬▒╧Δ╬╡ ╧Δ╬╡╬╜╬υ╧Β╬╣╬▒ "╧Ε╬╣-╬▒╬╜" ╧Δ╬╡ ╧Δ╧Θ╬φ╧Δ╬╖ ╬╝╬╡ ╧Ε╬╣╧Γ ╧Δ╬╖╬╝╬╡╬╣╧Ο╧Δ╬╡╬╣╧Γ ╧Δ╬┐╧Ζ.' },
+      { en: 'Adjust the input parameters with the sliders.', el: 'Ρύθμισε τις παραμέτρους εισόδου με τους sliders.' },
+      { en: 'Watch the outputs and sensitivity update live.', el: 'Δες τα αποτελέσματα και την ευαισθησία να ενημερώνονται ζωντανά.' },
+      { en: 'Test "what-if" scenarios against your notes.', el: 'Δοκίμασε σενάρια "τι-αν" σε σχέση με τις σημειώσεις σου.' },
     ],
-    produces: { en: 'Intuition for how each variable drives the result.', el: '╬Φ╬╣╬▒╬ψ╧Δ╬╕╬╖╧Δ╬╖ ╬│╬╣╬▒ ╧Ε╬┐ ╧Α╧Ο╧Γ ╬║╬υ╬╕╬╡ ╬╝╬╡╧Ε╬▒╬▓╬╗╬╖╧Ε╬χ ╬╡╧Α╬╖╧Β╬╡╬υ╬╢╬╡╬╣ ╧Ε╬┐ ╬▒╧Α╬┐╧Ε╬φ╬╗╬╡╧Δ╬╝╬▒.' },
+    produces: { en: 'Intuition for how each variable drives the result.', el: 'Διαίσθηση για το πώς κάθε μεταβλητή επηρεάζει το αποτέλεσμα.' },
   },
   compare: {
     howTo: [
-      { en: 'Pick two related concepts.', el: '╬Φ╬╣╬υ╬╗╬╡╬╛╬╡ ╬┤╧Ξ╬┐ ╧Δ╧Θ╬╡╧Ε╬╣╬║╬φ╧Γ ╬φ╬╜╬╜╬┐╬╣╬╡╧Γ.' },
-      { en: 'See them side by side across key dimensions.', el: '╬Φ╬╡╧Γ ╧Ε╬╡╧Γ ╬┤╬ψ╧Α╬╗╬▒-╬┤╬ψ╧Α╬╗╬▒ ╧Δ╧Ε╬╣╧Γ ╬▓╬▒╧Δ╬╣╬║╬φ╧Γ ╬┤╬╣╬▒╧Δ╧Ε╬υ╧Δ╬╡╬╣╧Γ.' },
-      { en: 'Study the differences that trip you up.', el: '╬ε╬╡╬╗╬φ╧Ε╬╖╧Δ╬╡ ╧Ε╬╣╧Γ ╬┤╬╣╬▒╧Η╬┐╧Β╬φ╧Γ ╧Α╬┐╧Ζ ╧Δ╬╡ ╬╝╧Α╬╡╧Β╬┤╬╡╧Ξ╬┐╧Ζ╬╜.' },
+      { en: 'Pick two related concepts.', el: 'Διάλεξε δύο σχετικές έννοιες.' },
+      { en: 'See them side by side across key dimensions.', el: 'Δες τες δίπλα-δίπλα στις βασικές διαστάσεις.' },
+      { en: 'Study the differences that trip you up.', el: 'Μελέτησε τις διαφορές που σε μπερδεύουν.' },
     ],
-    produces: { en: 'Clear separation of easily-confused terms.', el: '╬γ╬▒╬╕╬▒╧Β╧Ν╧Γ ╬┤╬╣╬▒╧Θ╧Κ╧Β╬╣╧Δ╬╝╧Ν╧Γ ╬╡╧Ξ╬║╬┐╬╗╬▒ ╬╝╧Α╬╡╧Β╬┤╬╡╬╝╬φ╬╜╧Κ╬╜ ╧Ν╧Β╧Κ╬╜.' },
+    produces: { en: 'Clear separation of easily-confused terms.', el: 'Καθαρός διαχωρισμός εύκολα μπερδεμένων όρων.' },
   },
   debate: {
     howTo: [
-      { en: 'Pick a claim from your material.', el: '╬Φ╬╣╬υ╬╗╬╡╬╛╬╡ ╬φ╬╜╬▒╬╜ ╬╣╧Δ╧Θ╧Ζ╧Β╬╣╧Δ╬╝╧Ν ╬▒╧Α╧Ν ╧Ε╬┐ ╧Ζ╬╗╬╣╬║╧Ν ╧Δ╬┐╧Ζ.' },
-      { en: 'Read its support and the counter-arguments.', el: '╬Φ╬╣╬υ╬▓╬▒╧Δ╬╡ ╧Ε╬╖╬╜ ╧Ε╬╡╬║╬╝╬╖╧Β╬ψ╧Κ╧Δ╬╖ ╬║╬▒╬╣ ╧Ε╬▒ ╬▒╬╜╧Ε╬╡╧Α╬╣╧Θ╬╡╬╣╧Β╬χ╬╝╬▒╧Ε╬▒.' },
-      { en: 'Write your own rebuttal έΑΦ it is saved.', el: '╬Υ╧Β╬υ╧Ι╬╡ ╧Ε╬╖ ╬┤╬╣╬║╬χ ╧Δ╬┐╧Ζ ╬▒╬╜╧Ε╬ψ╬║╧Β╬┐╧Ζ╧Δ╬╖ έΑΦ ╬▒╧Α╬┐╬╕╬╖╬║╬╡╧Ξ╬╡╧Ε╬▒╬╣.' },
+      { en: 'Pick a claim from your material.', el: 'Διάλεξε έναν ισχυρισμό από το υλικό σου.' },
+      { en: 'Read its support and the counter-arguments.', el: 'Διάβασε την τεκμηρίωση και τα αντεπιχειρήματα.' },
+      { en: 'Write your own rebuttal — it is saved.', el: 'Γράψε τη δική σου αντίκρουση — αποθηκεύεται.' },
     ],
-    produces: { en: 'Understanding that survives challenge, not just recall.', el: '╬γ╬▒╧Ε╬▒╬╜╧Ν╬╖╧Δ╬╖ ╧Α╬┐╧Ζ ╬▒╬╜╧Ε╬φ╧Θ╬╡╬╣ ╧Δ╧Ε╬╖╬╜ ╬▒╬╝╧Η╬╣╧Δ╬▓╬χ╧Ε╬╖╧Δ╬╖, ╧Ν╧Θ╬╣ ╬▒╧Α╬╗╬χ ╬▒╬╜╬υ╬║╬╗╬╖╧Δ╬╖.' },
+    produces: { en: 'Understanding that survives challenge, not just recall.', el: 'Κατανόηση που αντέχει στην αμφισβήτηση, όχι απλή ανάκληση.' },
   },
   timer: {
     howTo: [
-      { en: 'Set a focus goal and pick a preset.', el: '╬Ν╧Β╬╣╧Δ╬╡ ╧Δ╧Ε╧Ν╧Θ╬┐ ╬╡╧Δ╧Ε╬ψ╬▒╧Δ╬╖╧Γ ╬║╬▒╬╣ ╬┤╬╣╬υ╬╗╬╡╬╛╬╡ preset.' },
-      { en: 'Study until the timer ends.', el: '╬ε╬╡╬╗╬φ╧Ε╬╖╧Δ╬╡ ╬╝╬φ╧Θ╧Β╬╣ ╬╜╬▒ ╬╗╬χ╬╛╬╡╬╣ ╧Ε╬┐ ╧Θ╧Β╬┐╬╜╧Ν╬╝╬╡╧Ε╧Β╬┐.' },
-      { en: 'Log a quick reflection έΑΦ minutes feed your analytics.', el: '╬γ╬▒╧Ε╬υ╬│╧Β╬▒╧Ι╬╡ ╬φ╬╜╬▒╬╜ ╧Δ╧Ξ╬╜╧Ε╬┐╬╝╬┐ ╬▒╬╜╬▒╧Δ╧Ε╬┐╧Θ╬▒╧Δ╬╝╧Ν έΑΦ ╧Ε╬▒ ╬╗╬╡╧Α╧Ε╬υ ╧Ε╧Β╬┐╧Η╬┐╬┤╬┐╧Ε╬┐╧Ξ╬╜ ╧Ε╬▒ analytics.' },
+      { en: 'Set a focus goal and pick a preset.', el: 'Όρισε στόχο εστίασης και διάλεξε preset.' },
+      { en: 'Study until the timer ends.', el: 'Μελέτησε μέχρι να λήξει το χρονόμετρο.' },
+      { en: 'Log a quick reflection — minutes feed your analytics.', el: 'Κατάγραψε έναν σύντομο αναστοχασμό — τα λεπτά τροφοδοτούν τα analytics.' },
     ],
-    produces: { en: 'Focused sessions with measured, exam-ready pacing.', el: '╬Χ╧Δ╧Ε╬╣╬▒╧Δ╬╝╬φ╬╜╬╡╧Γ ╧Δ╧Ζ╬╜╬╡╬┤╧Β╬ψ╬╡╧Γ ╬╝╬╡ ╬╝╬╡╧Ε╧Β╬╖╬╝╬φ╬╜╬┐ ╧Β╧Ζ╬╕╬╝╧Ν ╬╡╬╛╬φ╧Ε╬▒╧Δ╬╖╧Γ.' },
+    produces: { en: 'Focused sessions with measured, exam-ready pacing.', el: 'Εστιασμένες συνεδρίες με μετρημένο ρυθμό εξέτασης.' },
   },
   annotations: {
     howTo: [
-      { en: 'Highlight passages in the source.', el: '╬ξ╧Α╬┐╬│╧Β╬υ╬╝╬╝╬╣╧Δ╬╡ ╬▒╧Α╬┐╧Δ╧Α╬υ╧Δ╬╝╬▒╧Ε╬▒ ╧Δ╧Ε╬╖╬╜ ╧Α╬╖╬│╬χ.' },
-      { en: 'Add a margin note or pin.', el: '╬ι╧Β╧Ν╧Δ╬╕╬╡╧Δ╬╡ ╧Δ╬╖╬╝╬╡╬ψ╧Κ╧Δ╬╖ ╧Α╬╡╧Β╬╣╬╕╧Κ╧Β╬ψ╬┐╧Ζ ╬χ pin.' },
-      { en: 'Revisit your marks any time έΑΦ they survive reprocessing.', el: '╬Φ╬╡╧Γ ╬╛╬▒╬╜╬υ ╧Ε╬╣╧Γ ╧Δ╬╖╬╝╬╡╬╣╧Ο╧Δ╬╡╬╣╧Γ ╧Δ╬┐╧Ζ έΑΦ ╬╡╧Α╬╣╬▓╬╣╧Ο╬╜╬┐╧Ζ╬╜ ╬╝╬╡╧Ε╬υ ╧Ε╬╖╬╜ ╬╡╧Α╬▒╬╜╬╡╧Α╬╡╬╛╬╡╧Β╬│╬▒╧Δ╬ψ╬▒.' },
+      { en: 'Highlight passages in the source.', el: 'Υπογράμμισε αποσπάσματα στην πηγή.' },
+      { en: 'Add a margin note or pin.', el: 'Πρόσθεσε σημείωση περιθωρίου ή pin.' },
+      { en: 'Revisit your marks any time — they survive reprocessing.', el: 'Δες ξανά τις σημειώσεις σου — επιβιώνουν μετά την επανεπεξεργασία.' },
     ],
-    produces: { en: 'A personal layer of marks anchored to the material.', el: '╬Ι╬╜╬▒ ╧Α╧Β╬┐╧Δ╧Κ╧Α╬╣╬║╧Ν ╧Δ╧Ε╧Β╧Ο╬╝╬▒ ╧Δ╬╖╬╝╬╡╬╣╧Ο╧Δ╬╡╧Κ╬╜ ╧Α╬υ╬╜╧Κ ╧Δ╧Ε╬┐ ╧Ζ╬╗╬╣╬║╧Ν.' },
+    produces: { en: 'A personal layer of marks anchored to the material.', el: 'Ένα προσωπικό στρώμα σημειώσεων πάνω στο υλικό.' },
   },
   dashboard: {
     howTo: [
-      { en: 'See your mastery and weak spots at a glance.', el: '╬Φ╬╡╧Γ ╧Ε╬╖╬╜ ╬║╧Ζ╧Β╬╣╬▒╧Β╧Θ╬ψ╬▒ ╬║╬▒╬╣ ╧Ε╬▒ ╬▒╬┤╧Ξ╬╜╬▒╬╝╬▒ ╧Δ╬╖╬╝╬╡╬ψ╬▒ ╬╝╬╡ ╬╝╬╣╬▒ ╬╝╬▒╧Ε╬╣╬υ.' },
-      { en: 'Read what changed in this session.', el: '╬Φ╬╡╧Γ ╧Ε╬╣ ╬υ╬╗╬╗╬▒╬╛╬╡ ╧Δ╬╡ ╬▒╧Ζ╧Ε╬χ ╧Ε╬╖ ╧Δ╧Ζ╬╜╬╡╬┤╧Β╬ψ╬▒.' },
-      { en: 'Follow the recommended next action.', el: '╬Σ╬║╬┐╬╗╬┐╧Ξ╬╕╬╖╧Δ╬╡ ╧Ε╬╖╬╜ ╧Α╧Β╬┐╧Ε╬╡╬╣╬╜╧Ν╬╝╬╡╬╜╬╖ ╬╡╧Α╧Ν╬╝╬╡╬╜╬╖ ╬╡╬╜╬φ╧Β╬│╬╡╬╣╬▒.' },
+      { en: 'See your mastery and weak spots at a glance.', el: 'Δες την κυριαρχία και τα αδύναμα σημεία με μια ματιά.' },
+      { en: 'Read what changed in this session.', el: 'Δες τι άλλαξε σε αυτή τη συνεδρία.' },
+      { en: 'Follow the recommended next action.', el: 'Ακολούθησε την προτεινόμενη επόμενη ενέργεια.' },
     ],
-    produces: { en: 'Always knowing what to study next, and why.', el: '╬ζ╬▒ ╬╛╬φ╧Β╬╡╬╣╧Γ ╧Α╬υ╬╜╧Ε╬▒ ╧Ε╬╣ ╬╜╬▒ ╬╝╬╡╬╗╬╡╧Ε╬χ╧Δ╬╡╬╣╧Γ ╬╝╬╡╧Ε╬υ, ╬║╬▒╬╣ ╬│╬╣╬▒╧Ε╬ψ.' },
+    produces: { en: 'Always knowing what to study next, and why.', el: 'Να ξέρεις πάντα τι να μελετήσεις μετά, και γιατί.' },
   },
 };
 

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import { Sparkles, Type, Volume2, Highlighter, Download, StickyNote, X, Languages, BookOpen, AlertTriangle } from 'lucide-react';
 import { cn } from '../../utils/cn';
+import { repairDisplayText } from '../../lib/utf8MojibakeRepair';
 import { useI18n } from '../../lib/i18n';
 import type { SourceHighlight } from '../../lib/conceptProvenance';
 import { normalizeFocusTerm } from '../../lib/workspaceFocus';
@@ -184,7 +185,7 @@ export function CognitiveReader({
   const [textSelection, setTextSelection] = useState<string | null>(null);
   const rawDisplayText = fullSource ? (sourceFullText?.trim() || text) : text;
   const displayText = useMemo(
-    () => applyOcrCorrectionsToText(rawDisplayText ?? '', annotationScopeKey ?? ''),
+    () => repairDisplayText(applyOcrCorrectionsToText(rawDisplayText ?? '', annotationScopeKey ?? '')),
     [rawDisplayText, annotationScopeKey, ocrCorrectionRevision],
   );
 
@@ -605,7 +606,7 @@ export function CognitiveReader({
   const renderStructuredBody = () => {
     let bodyIndex = 0;
     return (
-      <div className="w-full space-y-3" data-testid="reader-structured-body">
+      <div className="w-full space-y-3 reader-prose" data-testid="reader-structured-body">
         {readerSegments.map((seg, i) => {
           if (seg.kind === 'heading') {
             const suspicious = suspiciousIndexSet.has(i);

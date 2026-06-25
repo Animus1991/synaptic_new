@@ -1,5 +1,5 @@
-﻿/**
- * Wave 6.8l έΑΦ QA spine for Feynman rubric export discoverability.
+/**
+ * Wave 6.8l — QA spine for Feynman rubric export discoverability.
  * Ensures learners can find HTML/PDF export once rubric is ready and that
  * discoverability guides + progress mirror stay aligned.
  */
@@ -112,26 +112,26 @@ export function formatFeynmanRubricExportBanner(input: {
 
   if (input.draftWordCount === 0) {
     return isEl
-      ? '╬Υ╧Β╬υ╧Ι╬╡ ╧Ε╬╖╬╜ ╬╡╬╛╬χ╬│╬╖╧Δ╬χ ╧Δ╬┐╧Ζ έΑΦ ╬╝╬╡╧Ε╬υ ╬╛╬╡╬║╬╗╬╡╬╣╬┤╧Ο╬╜╬╡╧Ε╬▒╬╣ ╬╖ ╬╡╬╛╬▒╬│╧Κ╬│╬χ rubric (HTML/PDF).'
-      : 'Write your explanation έΑΦ rubric export (HTML/PDF) unlocks next.';
+      ? 'Γράψε την εξήγησή σου — μετά ξεκλειδώνεται η εξαγωγή rubric (HTML/PDF).'
+      : 'Write your explanation — rubric export (HTML/PDF) unlocks next.';
   }
 
   if (!input.rubricReady && input.wordsUntilRubric > 0) {
     return isEl
-      ? `╬Σ╬║╧Ν╬╝╬▒ ${input.wordsUntilRubric} ╬╗╬φ╬╛${input.wordsUntilRubric === 1 ? '╬╖' : '╬╡╬╣╧Γ'} ╬│╬╣╬▒ rubric + ╬╡╬╛╬▒╬│╧Κ╬│╬χ ╬▒╬╜╬▒╧Η╬┐╧Β╬υ╧Γ.`
+      ? `Ακόμα ${input.wordsUntilRubric} λέξ${input.wordsUntilRubric === 1 ? 'η' : 'εις'} για rubric + εξαγωγή αναφοράς.`
       : `${input.wordsUntilRubric} more word${input.wordsUntilRubric === 1 ? '' : 's'} to unlock rubric + report export.`;
   }
 
   if (input.exportReady && input.overallScore !== null) {
     const scoreNote = isEl
-      ? `╬ε╬φ╧Δ╬┐╧Γ ╧Ν╧Β╬┐╧Γ rubric ${input.overallScore}%`
+      ? `Μέσος όρος rubric ${input.overallScore}%`
       : `Rubric avg ${input.overallScore}%`;
     const exportNote = isEl
-      ? ' ┬╖ ╬Χ╬╛╬▒╬│╧Κ╬│╬χ HTML ╬χ PDF ╧Α╬▒╧Β╬▒╬║╬υ╧Ε╧Κ'
-      : ' ┬╖ Export HTML or PDF below';
+      ? ' · Εξαγωγή HTML ή PDF παρακάτω'
+      : ' · Export HTML or PDF below';
     const coachNote = input.coachEnhancesExport
-      ? (isEl ? ' ┬╖ Coach ╧Δ╧Ζ╬╝╧Α╬╡╧Β╬╣╬╗╬▒╬╝╬▓╬υ╬╜╬╡╧Ε╬▒╬╣' : ' ┬╖ Coach included')
-      : (isEl ? ' ┬╖ ╬ι╬υ╧Β╬╡ Coach ╬│╬╣╬▒ ╧Α╬╗╬χ╧Β╬╖ ╬▒╬╜╬▒╧Η╬┐╧Β╬υ' : ' ┬╖ Get Coach for full report');
+      ? (isEl ? ' · Coach συμπεριλαμβάνεται' : ' · Coach included')
+      : (isEl ? ' · Πάρε Coach για πλήρη αναφορά' : ' · Get Coach for full report');
     return `${scoreNote}${exportNote}${coachNote}`;
   }
 

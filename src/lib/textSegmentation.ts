@@ -8,6 +8,7 @@
 
 import { isMathLikeLine } from './readerMathBlocks';
 import { repairGreekDocumentText } from './greekTextRepair';
+import { repairUtf8Mojibake } from './utf8MojibakeRepair';
 
 export interface DocumentSection {
   heading?: string;
@@ -292,7 +293,7 @@ export function detectDateBlockSections(text: string): DocumentSection[] | null 
 
 /** Normalize OCR/PDF text while preserving structural markers. */
 export function normalizeDocumentText(text: string): string {
-  const normalized = text
+  const normalized = repairUtf8Mojibake(text)
     .replace(/\r\n/g, '\n')
     .replace(/\r/g, '\n')
     .replace(/\f/g, `\n${PAGE_BREAK_MARKER}\n`)

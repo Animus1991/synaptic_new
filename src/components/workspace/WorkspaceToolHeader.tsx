@@ -1,4 +1,4 @@
-﻿import { useState } from 'react';
+import { useState } from 'react';
 import { ChevronDown, ChevronRight, Target, ArrowRight, Sparkles, CircleDot, BookOpen, HelpCircle } from 'lucide-react';
 import type { WorkspaceToolId } from '../../lib/taskFlows';
 import { getWorkspaceToolMeta, workspaceToolLabel } from '../../lib/workspaceToolRegistry';
@@ -11,7 +11,7 @@ import { cn } from '../../utils/cn';
 type Props = {
   activeTool: WorkspaceToolId;
   lang: 'en' | 'el';
-  /** Currently focused concept, if any έΑΦ shown as live context. */
+  /** Currently focused concept, if any — shown as live context. */
   concept?: string;
   hasSource?: boolean;
   sourceName?: string;
@@ -86,7 +86,7 @@ export function WorkspaceToolHeader({
             <h2 className="ws-title truncate text-text-primary">{name}</h2>
             {s20.readiness !== 'launch-ready' && (
               <span className="rounded-full bg-accent-amber/15 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-accent-amber">
-                {isEl ? '╬▓╬╡╬╗╧Ε╬╣╧Ο╬╜╬╡╧Ε╬▒╬╣' : 'polishing'}
+                {isEl ? 'βελτιώνεται' : 'polishing'}
               </span>
             )}
           </div>
@@ -107,7 +107,7 @@ export function WorkspaceToolHeader({
           )}
         >
           <HelpCircle className="h-3.5 w-3.5" aria-hidden />
-          <span className="hidden sm:inline">{isEl ? '╬θ╬┤╬╖╬│╧Ν╧Γ' : 'Guide'}</span>
+          <span className="hidden sm:inline">{isEl ? 'Οδηγός' : 'Guide'}</span>
           {collapsed ? <ChevronRight className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
         </button>
       </div>
@@ -135,14 +135,14 @@ export function WorkspaceToolHeader({
             <p className="ws-caption flex flex-1 items-start gap-2 rounded-lg bg-accent-cyan/8 px-2.5 py-2 text-text-secondary">
               <Sparkles className="mt-0.5 h-3.5 w-3.5 shrink-0 text-accent-cyan" aria-hidden />
               <span>
-                <span className="font-semibold text-text-primary">{isEl ? '╬Υ╬╣╬▒╧Ε╬ψ: ' : 'Why: '}</span>
+                <span className="font-semibold text-text-primary">{isEl ? 'Γιατί: ' : 'Why: '}</span>
                 {why}
               </span>
             </p>
             <p className="ws-caption flex flex-1 items-start gap-2 rounded-lg bg-brand-500/8 px-2.5 py-2 text-text-secondary">
               <Target className="mt-0.5 h-3.5 w-3.5 shrink-0 text-brand-300" aria-hidden />
               <span>
-                <span className="font-semibold text-text-primary">{isEl ? '╬α╬▒ ╧Α╬υ╧Β╬╡╬╣╧Γ: ' : "You'll get: "}</span>
+                <span className="font-semibold text-text-primary">{isEl ? 'Θα πάρεις: ' : "You'll get: "}</span>
                 {produces}
               </span>
             </p>
@@ -157,13 +157,13 @@ export function WorkspaceToolHeader({
                   data-testid="workspace-tool-header-concept"
                 >
                   <CircleDot className="h-3 w-3 text-brand-300" aria-hidden />
-                  {isEl ? '╬Χ╧Δ╧Ε╬ψ╬▒╧Δ╬╖:' : 'Focus:'}{' '}
+                  {isEl ? 'Εστίαση:' : 'Focus:'}{' '}
                   <span className="max-w-[180px] truncate font-medium text-text-primary">{concept}</span>
                 </span>
               )}
               {sourceName && (
                 <span className="ws-caption inline-flex max-w-[220px] items-center gap-1 truncate rounded-full border border-border-subtle bg-surface-primary/50 px-2 py-0.5 text-text-muted">
-                  {isEl ? '╬ι╬╖╬│╬χ:' : 'Source:'} <span className="truncate">{sourceName}</span>
+                  {isEl ? 'Πηγή:' : 'Source:'} <span className="truncate">{sourceName}</span>
                 </span>
               )}
             </div>
@@ -172,7 +172,7 @@ export function WorkspaceToolHeader({
           {/* Connected tools + source/agent shortcuts */}
           <div className="flex flex-wrap items-center gap-1.5 border-t border-border-subtle/60 pt-2.5">
             <span className="ws-eyebrow shrink-0 text-text-muted">
-              {isEl ? '╬μ╧Ζ╬╜╬┤╬φ╬╡╧Ε╬▒╬╣ ╬╝╬╡' : 'Connects to'}
+              {isEl ? 'Συνδέεται με' : 'Connects to'}
             </span>
             {relatedTools.map((link, i) => (
               <button
@@ -196,7 +196,7 @@ export function WorkspaceToolHeader({
                 className="ws-caption inline-flex items-center gap-1.5 rounded-lg border border-border-subtle px-2.5 py-1 text-text-secondary transition-colors hover:border-brand-400/40 hover:text-brand-200"
               >
                 <BookOpen className="h-3.5 w-3.5" />
-                {isEl ? '╬ι╬╖╬│╬χ' : 'Source'}
+                {isEl ? 'Πηγή' : 'Source'}
               </button>
             )}
             {onAskAgent && (
@@ -207,7 +207,7 @@ export function WorkspaceToolHeader({
                 className="ws-caption inline-flex items-center gap-1.5 rounded-lg border border-accent-cyan/30 bg-accent-cyan/10 px-2.5 py-1 text-accent-cyan transition-colors hover:bg-accent-cyan/15"
               >
                 <Sparkles className="h-3.5 w-3.5" />
-                {isEl ? '╬κ╧Ο╧Ε╬▒ ╧Ε╬┐╬╜ Agent' : 'Ask Agent'}
+                {isEl ? 'Ρώτα τον Agent' : 'Ask Agent'}
               </button>
             )}
           </div>

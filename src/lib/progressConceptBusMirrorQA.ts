@@ -1,5 +1,5 @@
-﻿/**
- * Wave 6.8m έΑΦ QA spine for Progress export έΗΦ Concept Bus mirror parity.
+/**
+ * Wave 6.8m — QA spine for Progress export ↔ Concept Bus mirror parity.
  */
 
 import type { Lang } from './i18n';
@@ -154,22 +154,22 @@ export function formatProgressConceptBusMirrorBanner(input: {
   const isEl = input.lang === 'el';
   if (input.rowCount === 0 && input.weakSpotCount === 0) {
     return isEl
-      ? 'Export ╧Δ╧Ζ╬╜╬╡╬┤╧Β╬ψ╬▒╧Γ ┬╖ Concept Bus ╬║╬╡╬╜╧Ν έΑΦ ╬╝╬╡╬╗╬φ╧Ε╬╖╧Δ╬╡ ╬╡╧Β╬│╬▒╬╗╬╡╬ψ╬▒ ╬│╬╣╬▒ mirror.'
-      : 'Session export ┬╖ Concept Bus empty έΑΦ use tools to populate mirror.';
+      ? 'Export συνεδρίας · Concept Bus κενό — μελέτησε εργαλεία για mirror.'
+      : 'Session export · Concept Bus empty — use tools to populate mirror.';
   }
 
   const busNote = isEl
-    ? `${input.rowCount} ╬φ╬╜╬╜╬┐╬╣╬╡╧Γ ╧Δ╧Ε╬┐ bus`
+    ? `${input.rowCount} έννοιες στο bus`
     : `${input.rowCount} bus concept${input.rowCount === 1 ? '' : 's'}`;
   const feynmanNote = input.feynmanCount > 0
-    ? (isEl ? ` ┬╖ Feynman ├Ω${input.feynmanCount}` : ` ┬╖ Feynman ├Ω${input.feynmanCount}`)
+    ? (isEl ? ` · Feynman ×${input.feynmanCount}` : ` · Feynman ×${input.feynmanCount}`)
     : '';
   const weakNote = input.weakSpotCount > 0
-    ? (isEl ? ` ┬╖ ${input.weakSpotCount} ╬▒╬┤╧Ξ╬╜╬▒╬╝╬▒` : ` ┬╖ ${input.weakSpotCount} weak`)
+    ? (isEl ? ` · ${input.weakSpotCount} αδύναμα` : ` · ${input.weakSpotCount} weak`)
     : '';
   const nextNote = input.hasNextAction
-    ? (isEl ? ' ┬╖ next action' : ' ┬╖ next action')
+    ? (isEl ? ' · next action' : ' · next action')
     : '';
 
-  return `${isEl ? 'Export έΗΦ Concept Bus' : 'Export έΗΦ Concept Bus'} ┬╖ ${busNote}${feynmanNote}${weakNote}${nextNote}${input.ok ? '' : (isEl ? ' ┬╖ ╬φ╬╗╬╡╬│╧Θ╬┐╧Γ' : ' ┬╖ check')}`;
+  return `${isEl ? 'Export ↔ Concept Bus' : 'Export ↔ Concept Bus'} · ${busNote}${feynmanNote}${weakNote}${nextNote}${input.ok ? '' : (isEl ? ' · έλεγχος' : ' · check')}`;
 }

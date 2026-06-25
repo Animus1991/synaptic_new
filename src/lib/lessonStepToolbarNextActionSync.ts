@@ -1,5 +1,5 @@
-﻿/**
- * Wave 7 / SW-07 έΑΦ LessonStepToolBar έΗΦ nextActionEngine parity (Prompt 7 spine).
+/**
+ * Wave 7 / SW-07 — LessonStepToolBar ↔ nextActionEngine parity (Prompt 7 spine).
  */
 
 import type { WorkspaceToolId } from './taskFlows';
@@ -36,7 +36,7 @@ function uniqueTools(tools: WorkspaceToolId[]): WorkspaceToolId[] {
   });
 }
 
-/** Merge step heuristics with engine recommendation έΑΦ recommended tool first. */
+/** Merge step heuristics with engine recommendation — recommended tool first. */
 export function buildLessonStepToolbarTools(opts: {
   step: WorkspaceStep;
   stepIndex: number;
@@ -72,8 +72,8 @@ export function lessonStepToolbarBanner(
 ): string | null {
   if (!report.recommendedTool) return null;
   const isEl = lang === 'el';
-  const label = isEl ? '╬Χ╧Α╧Ν╬╝╬╡╬╜╬┐ ╬╡╧Β╬│╬▒╬╗╬╡╬ψ╬┐' : 'Next tool';
+  const label = isEl ? 'Επόμενο εργαλείο' : 'Next tool';
   return report.alignedWithNextAction
-    ? `${label} ┬╖ ${report.recommendedTool}`
-    : `${label} ┬╖ ${report.recommendedTool} (${isEl ? '╧Δ╧Ζ╬│╧Θ╧Β╬┐╬╜╬╣╧Δ╬╝╬φ╬╜╬┐' : 'synced'})`;
+    ? `${label} · ${report.recommendedTool}`
+    : `${label} · ${report.recommendedTool} (${isEl ? 'συγχρονισμένο' : 'synced'})`;
 }
