@@ -957,6 +957,43 @@ export function useAppStore() {
     });
   }, [learnerModel, dashboardStats, tasks, betaMastery, firstAttemptKeys, openMistakes, activities, persist]);
 
+  /**
+   * Seed the bundled demo course/tasks into live state without a page reload and
+   * mark onboarding complete. Mirrors the store's init-time demo branch so the
+   * Study Workspace is immediately reachable from "See Demo" / "Explore Demo".
+   * Guarded so it never clobbers a returning user's real data.
+   */
+  const enableDemoContent = useCallback(() => {
+    const demoLearner = syncLearnerHeatmap(mockLearnerModel, activities);
+    const demoBeta = initBetaMastery({ ...user.settings, showDemoContent: true });
+    setUser((prev) => {
+      const nextSettings = { ...prev.settings, showDemoContent: true };
+      applyTheme(nextSettings.theme);
+      persist(mockLearnerModel, mockDashboardStats, mockTasks, prev.xp, demoBeta, firstAttemptKeys, INITIAL_MISTAKES, activities, nextSettings);
+      return { ...prev, onboardingComplete: true, settings: nextSettings };
+    });
+    setCourses((prev) => {
+      const have = new Set(prev.map((c) => c.id));
+      const add = mockCourses.filter((c) => !have.has(c.id));
+      return add.length ? [...add, ...prev] : prev;
+    });
+    setTasks((prev) => {
+      const have = new Set(prev.map((t) => t.id));
+      const add = mockTasks.filter((t) => !have.has(t.id));
+      return add.length ? [...add, ...prev] : prev;
+    });
+    setLearnerModel((prev) =>
+      prev.strongAreas.length > 0 || prev.weakAreas.length > 0 || prev.almostKnown.length > 0
+        ? prev
+        : demoLearner,
+    );
+    setDashboardStats((prev) => (prev.studyTimeWeek > 0 ? prev : { ...mockDashboardStats, streak: prev.streak }));
+    setBetaMastery((prev) => (prev.length > 0 ? prev : demoBeta));
+    setOpenMistakes((prev) => (prev.length > 0 ? prev : INITIAL_MISTAKES));
+    setAgentMessages((prev) => (prev.length > 0 ? prev : mockAgentMessages));
+    setSelectedCourse((prev) => prev ?? mockCourses[0] ?? null);
+  }, [user.settings, activities, firstAttemptKeys, persist]);
+
   const logStudyMinutes = useCallback((minutes: number, label = 'Focus session') => {
     if (minutes <= 0) return;
     setDashboardStats((stats) => {
@@ -1689,7 +1726,7 @@ export function useAppStore() {
     activeTask, activeTaskId, setActiveTaskId, expandedTaskId, setExpandedTaskId,
     learnerModel, dashboardStats, pedagogyMetrics, dashboardExtras, activities,
     recordConfidence, recordQuizAttempt,
-    openMistakes, resolveMistake, resolveMisconception, completeOnboarding,
+    openMistakes, resolveMistake, resolveMisconception, completeOnboarding, enableDemoContent,
     agentMessages, addAgentMessage, updateAgentMessage, agentMode, setAgentMode, bindAgentToTask,
     agentDraftPrompt, setAgentDraftPrompt, agentAutoSend, setAgentAutoSend,
     agentWorkspaceContext, setAgentWorkspaceContext, openAgentFromWorkspace, agentContextForView,
