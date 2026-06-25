@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { buildAgentRetrievalQuery, buildAgentContextBanner, formatAgentWorkspaceContextLine } from './agentWorkspaceContext';
+import {
+  buildAgentRetrievalQuery,
+  buildAgentContextBanner,
+  buildAgentContextSystemBlock,
+  formatAgentWorkspaceContextLine,
+  serializeAgentWorkspaceContextJson,
+  toAgentWorkspaceContextJson,
+} from './agentWorkspaceContext';
 
 describe('buildAgentRetrievalQuery', () => {
   it('widens query with course, section, and concept', () => {
@@ -43,5 +50,44 @@ describe('buildAgentContextBanner', () => {
     expect(banner?.line).toContain('Ανάγνωση');
     expect(banner?.line).toContain('37/100');
     expect(banner?.caution).toBeTruthy();
+    expect(banner?.contextJson?.stepTitle).toBe('Αγαθά Αναγκαία');
+  });
+});
+
+describe('toAgentWorkspaceContextJson (SW-P2-05)', () => {
+  it('strips undefined and serializes stable JSON', () => {
+    const json = toAgentWorkspaceContextJson({
+      courseName: 'Microeconomics',
+      stepIndex: 1,
+      stepCount: 5,
+      stepTitle: 'Supply',
+      concept: 'elasticity',
+      activeTool: 'reader',
+      activeToolLabel: 'Reader',
+    });
+    expect(json).toEqual({
+      courseName: 'Microeconomics',
+      stepIndex: 1,
+      stepCount: 5,
+      stepTitle: 'Supply',
+      concept: 'elasticity',
+      activeTool: 'reader',
+      activeToolLabel: 'Reader',
+    });
+    const text = serializeAgentWorkspaceContextJson(json);
+    expect(text).toContain('"concept": "elasticity"');
+    expect(text).not.toContain('undefined');
+  });
+
+  it('buildAgentContextSystemBlock includes JSON fence', () => {
+    const block = buildAgentContextSystemBlock({
+      courseName: 'Οικονομία',
+      stepTitle: 'Διάλεξη 1',
+      concept: 'εμπόριο',
+      stepIndex: 0,
+    }, 'el');
+    expect(block).toContain('Context χώρου μελέτης');
+    expect(block).toContain('```json');
+    expect(block).toContain('"concept": "εμπόριο"');
   });
 });

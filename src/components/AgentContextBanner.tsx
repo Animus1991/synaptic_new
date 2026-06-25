@@ -1,7 +1,9 @@
-import { AlertTriangle, MapPin } from 'lucide-react';
+import { useState } from 'react';
+import { AlertTriangle, ChevronDown, ChevronUp, MapPin } from 'lucide-react';
 import { cn } from '../utils/cn';
 import {
   buildAgentContextBanner,
+  serializeAgentWorkspaceContextJson,
   type AgentWorkspaceContext,
 } from '../lib/agentWorkspaceContext';
 
@@ -14,7 +16,10 @@ type Props = {
 /** Visible workspace handoff strip in the Agent panel (Prompt 3). */
 export function AgentContextBanner({ context, lang, className }: Props) {
   const banner = buildAgentContextBanner(context, lang);
+  const [jsonOpen, setJsonOpen] = useState(false);
   if (!banner) return null;
+
+  const jsonText = serializeAgentWorkspaceContextJson(context);
 
   return (
     <div
@@ -40,6 +45,28 @@ export function AgentContextBanner({ context, lang, className }: Props) {
           )}
           {banner.groundingNote && (
             <p className="text-[10px] text-text-muted">{banner.groundingNote}</p>
+          )}
+          {jsonText && (
+            <div className="pt-0.5">
+              <button
+                type="button"
+                onClick={() => setJsonOpen((v) => !v)}
+                className="inline-flex items-center gap-1 text-[10px] font-medium text-brand-300 hover:text-brand-200"
+                data-testid="agent-context-json-toggle"
+                aria-expanded={jsonOpen}
+              >
+                {jsonOpen ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+                {lang === 'el' ? 'JSON context' : 'JSON context'}
+              </button>
+              {jsonOpen && (
+                <pre
+                  className="mt-1 max-h-40 overflow-auto rounded-lg border border-border-subtle bg-surface-input/80 p-2 font-mono text-[10px] leading-relaxed text-text-secondary"
+                  data-testid="agent-context-json"
+                >
+                  {jsonText}
+                </pre>
+              )}
+            </div>
           )}
         </div>
       </div>

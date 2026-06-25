@@ -251,10 +251,10 @@ See **§4** (deep audit).
 - [x] SW-P1-02: Mobile tool drawer (replace tiny dock) — `WorkspaceMobileToolDrawer.tsx`, `StudyWorkspace` bottom bar (`552d0ef`)
 - [x] SW-P1-03: `LessonStepToolBar` unified actions (Study / Test / Explain / Agent) — `lessonStepUnifiedActions.ts` + action row on toolbar
 - [x] SW-P1-04: Reader section click → workspace step (bidirectional) — `readerStepSyncBridge`, `readerStepSyncP104QA` (`993963f`–`552d0ef`)
-- [ ] SW-P2-05: Agent opens with workspace context JSON
-- [ ] SW-P2-06: Reduce `ConceptLensBar` overlap on small screens
-- [ ] SW-P2-07: Dark/light contrast audit (WCAG AA)
-- [ ] SW-P3-08: Keyboard shortcut help panel (`?`) i18n
+- [x] SW-P2-05: Agent opens with workspace context JSON — `buildAgentContextSystemBlock`, collapsible JSON in `AgentContextBanner`
+- [x] SW-P2-06: Reduce `ConceptLensBar` overlap on small screens — `ConceptLensPanel` strip mode `< lg`
+- [x] SW-P2-07: Dark/light contrast audit (WCAG AA) — `index.css` text token pass
+- [x] SW-P3-08: Keyboard shortcut help panel (`?`) i18n — `WorkspaceKeyboardHelp`, `workspaceKeyboardShortcuts.ts`
 
 ---
 
@@ -446,7 +446,8 @@ interface AuthoredBlock { id; courseId; type; content; order; metadata }
 ## 13. Next recommended step
 
 1. **User:** Open course «Διανομή εισοδήματος» → **Επανεπεξεργασία κειμένου** (pipeline 2.2.1)
-2. **Dev:** SW-P2-05–08 (Agent context JSON, ConceptLens mobile, WCAG audit, `?` i18n)
+2. **Dev:** Pipeline P0 — table block type in `textSegmentation`, math zone detection/repair (multi-column ✅ in `pdfExtract.ts`)
+3. **Dev:** EKPA PDF QA — user fixtures in `greekTextRepair.test.ts` / `pdfExtract.test.ts`
 4. **Dev:** Greek OCR v2.3 with user PDF fixtures in `greekTextRepair.test.ts`
 5. **Dev:** Sync remaining `WORKSPACE_TOOLS_UPGRADE.md` backlog items
 
@@ -483,11 +484,12 @@ COMPLETED (do not redo)
 - reprocessCourseMaterial without re-upload
 - Waves 3.1–3.3 i18n, 4.1 teacher dashboard, 4.2 billing webhooks
 - **Launch Wave 7 (Jun 2026, `552d0ef`):** SW-07 `lessonStepToolbarNextActionSync`, SW-P1-02 mobile tool drawer, SW-P1-04 reader↔step sync, UTF-8 mojibake repair (`utf8MojibakeRepair.ts`), Noto Sans Greek typography
+- **Launch Wave 8A (Jun 2026):** SW-P2-05 Agent context JSON, SW-P2-06 ConceptLens strip `< lg`, SW-P2-07 WCAG contrast tokens, SW-P3-08 keyboard help EL/EN
 
 PRIORITY ORDER (strict)
-1. Study Workspace UI/UX Phase 2 — SW-P2-05 through SW-P3-08 (SW-P1-01–04 ✅)
-2. Greek OCR v2.3: multi-column order, lecture merge, more glued-word fixtures
-3. Agent workspace context injection (SW-P2-05)
+1. Pipeline P0 — table segmentation block type, math zone detection/repair (multi-column ✅ in main extract path)
+2. EKPA PDF QA — user syllabus fixtures for Greek OCR / lecture merge
+3. Greek OCR v2.3: multi-column order, lecture merge, more glued-word fixtures
 4. Editable notes MVP (OCR line correction in Reader)
 5. Teacher authoring shell (plan only unless requested)
 6. Collaborative study (plan only)
@@ -497,6 +499,10 @@ STUDY WORKSPACE TASKS (implement one per session minimum)
 - SW-P1-02: Mobile tool drawer with clustered tools — ✅
 - SW-P1-03: LessonStepToolBar — unified actions: Study section, Test me, Explain from zero, Ask Agent — ✅
 - SW-P1-04: CognitiveReader section nav → setCurrentStep; step rail → reader scroll — ✅
+- SW-P2-05: Agent workspace context JSON — ✅
+- SW-P2-06: ConceptLens strip on `< lg` — ✅
+- SW-P2-07: WCAG contrast token pass — ✅
+- SW-P3-08: Keyboard shortcut help (`?`) EL/EN — ✅
 
 DOCUMENT MANAGEMENT
 - Add delete/reprocess to Library.tsx files tab using store.removeUploadedFile and store.reprocessCourseMaterial

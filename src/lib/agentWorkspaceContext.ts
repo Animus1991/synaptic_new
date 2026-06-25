@@ -103,12 +103,75 @@ export function buildAgentWorkspaceContext(opts: {
   };
 }
 
+/** Stable JSON payload attached on every workspace → Agent handoff (SW-P2-05). */
+export type AgentWorkspaceContextJson = {
+  courseId?: string;
+  courseName?: string;
+  stepIndex?: number;
+  stepCount?: number;
+  stepTitle?: string;
+  stepType?: string;
+  concept?: string;
+  activeTool?: string;
+  activeToolLabel?: string;
+  sourceQuality?: number | null;
+  oldPipeline?: boolean;
+  pipelineVersion?: string;
+  lowConfidenceSection?: boolean;
+};
+
 export type AgentContextBannerView = {
   heading: string;
   line: string;
   caution?: string;
   groundingNote?: string;
+  contextJson?: AgentWorkspaceContextJson;
 };
+
+/** Strip undefined fields for a compact, stable JSON handoff object. */
+export function toAgentWorkspaceContextJson(
+  ctx: AgentWorkspaceContext | null | undefined,
+): AgentWorkspaceContextJson | null {
+  if (!ctx) return null;
+  const out: AgentWorkspaceContextJson = {};
+  if (ctx.courseId) out.courseId = ctx.courseId;
+  if (ctx.courseName) out.courseName = ctx.courseName;
+  if (ctx.stepIndex != null) out.stepIndex = ctx.stepIndex;
+  if (ctx.stepCount != null) out.stepCount = ctx.stepCount;
+  if (ctx.stepTitle) out.stepTitle = ctx.stepTitle;
+  if (ctx.stepType) out.stepType = ctx.stepType;
+  if (ctx.concept) out.concept = ctx.concept;
+  if (ctx.activeTool) out.activeTool = ctx.activeTool;
+  if (ctx.activeToolLabel) out.activeToolLabel = ctx.activeToolLabel;
+  if (typeof ctx.sourceQuality === 'number') out.sourceQuality = ctx.sourceQuality;
+  if (ctx.oldPipeline != null) out.oldPipeline = ctx.oldPipeline;
+  if (ctx.pipelineVersion) out.pipelineVersion = ctx.pipelineVersion;
+  if (ctx.lowConfidenceSection != null) out.lowConfidenceSection = ctx.lowConfidenceSection;
+  return Object.keys(out).length > 0 ? out : null;
+}
+
+export function serializeAgentWorkspaceContextJson(
+  ctx: AgentWorkspaceContext | null | undefined,
+): string | null {
+  const payload = toAgentWorkspaceContextJson(ctx);
+  return payload ? JSON.stringify(payload, null, 2) : null;
+}
+
+/** Human line + structured JSON block for Agent system grounding. */
+export function buildAgentContextSystemBlock(
+  ctx: AgentWorkspaceContext | null | undefined,
+  lang: 'en' | 'el' = 'en',
+): string | undefined {
+  const line = formatAgentWorkspaceContextLine(ctx, lang);
+  const json = serializeAgentWorkspaceContextJson(ctx);
+  if (!line && !json) return undefined;
+  const jsonBlock = json
+    ? (lang === 'el'
+      ? `\n\nContext χώρου μελέτης (JSON):\n\`\`\`json\n${json}\n\`\`\``
+      : `\n\nStudy workspace context (JSON):\n\`\`\`json\n${json}\n\`\`\``)
+    : '';
+  return `${line ?? ''}${jsonBlock}`.trim() || undefined;
+}
 
 /** Structured banner for the Agent panel UI. */
 export function buildAgentContextBanner(
@@ -155,5 +218,6 @@ export function buildAgentContextBanner(
     line: bits.join(' · '),
     caution,
     groundingNote,
+    contextJson: toAgentWorkspaceContextJson(ctx) ?? undefined,
   };
 }

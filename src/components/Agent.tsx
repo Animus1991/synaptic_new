@@ -10,7 +10,7 @@ import type { AgentMessage, AgentMode, Course, UserSettings, UploadedFile, Messa
 import { cn } from '../utils/cn';
 import { streamAgentReply, isLlmAvailable } from '../lib/llmClient';
 import { buildSourceExcerpt, retrieveForQueryHybrid } from '../lib/sourceContext';
-import { buildAgentRetrievalQuery, formatAgentWorkspaceContextLine, type AgentWorkspaceContext } from '../lib/agentWorkspaceContext';
+import { buildAgentRetrievalQuery, buildAgentContextSystemBlock, type AgentWorkspaceContext } from '../lib/agentWorkspaceContext';
 import { spanFromCitation } from '../lib/conceptProvenance';
 import { verifyGrounding } from '../lib/groundingVerifier';
 import { emitAnalyticsLearningEvent } from '../lib/emitLearningEvent';
@@ -142,7 +142,7 @@ export function Agent({
       : { excerpt: undefined, citations: [], grounded: false };
 
     const queryExcerpt = retrieval.excerpt ?? sourceExcerpt;
-    const contextLine = formatAgentWorkspaceContextLine(workspaceContext, lang);
+    const contextBlock = buildAgentContextSystemBlock(workspaceContext, lang);
 
     const streamId = `msg-${Date.now() + 1}`;
     onSendMessage({
@@ -162,7 +162,7 @@ export function Agent({
     setIsThinking(false);
 
     const { content, usedLlm, sourceGrounded } = await streamAgentReply(
-      contextLine ? `${contextLine}\n\n${text}` : text,
+      contextBlock ? `${contextBlock}\n\n${text}` : text,
       mode,
       settings,
       {

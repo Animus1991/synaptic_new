@@ -42,6 +42,8 @@ type Props = {
   activity?: ConceptActivity;
   activeTool: WorkspaceToolId;
   lang: 'en' | 'el';
+  /** overlay = floating on tool pane (desktop); strip = inline under context strip (< lg). */
+  placement?: 'overlay' | 'strip';
   expanded?: boolean;
   onToggleExpand?: () => void;
   onFocus: (term: string) => void;
@@ -55,6 +57,7 @@ export function ConceptLensPanel({
   activity,
   activeTool,
   lang,
+  placement = 'overlay',
   expanded = false,
   onToggleExpand,
   onFocus,
@@ -66,6 +69,8 @@ export function ConceptLensPanel({
   const label = lens.activeConcept?.trim();
   if (!label) return null;
 
+  const isStrip = placement === 'strip';
+
   const engagement = activity ? conceptEngagement(activity) : lens.engagement;
   const filledDots = Math.max(activity ? 1 : 0, Math.round(engagement * 4));
   const struggling = activity ? isStruggling(activity) : lens.struggling;
@@ -74,16 +79,26 @@ export function ConceptLensPanel({
 
   return (
     <div
-      className="absolute top-2 right-3 z-20 flex flex-col items-end gap-1 max-w-[min(420px,72vw)]"
-      data-testid="concept-lens-panel"
+      className={cn(
+        isStrip
+          ? 'relative z-10 w-full px-3 py-1 border-b border-border-subtle/70 bg-surface-primary/80'
+          : 'absolute top-2 right-3 z-20 flex flex-col items-end gap-1 max-w-[min(420px,72vw)]',
+      )}
+      data-testid={isStrip ? 'concept-lens-strip' : 'concept-lens-panel'}
     >
-      <div className="flex items-center gap-2 w-full rounded-full border border-white/10 bg-surface-secondary/85 backdrop-blur px-2.5 py-1 shadow-[0_8px_30px_rgba(2,6,23,0.45)]">
+      <div className={cn(
+        'flex items-center gap-2 w-full rounded-full border border-white/10 bg-surface-secondary/85 backdrop-blur px-2.5 py-1 shadow-[0_8px_30px_rgba(2,6,23,0.45)]',
+        isStrip && 'shadow-none max-w-full',
+      )}>
         <Aperture className="w-3.5 h-3.5 text-accent-cyan shrink-0" />
         <button
           type="button"
           onClick={() => onFocus(label)}
           title={isEl ? 'Εστίαση σε όλα τα εργαλεία' : 'Focus across all tools'}
-          className="text-[11px] font-semibold truncate max-w-[140px] text-text-primary hover:text-accent-cyan transition-colors"
+          className={cn(
+            'text-[11px] font-semibold truncate text-text-primary hover:text-accent-cyan transition-colors',
+            isStrip ? 'max-w-[min(200px,40vw)]' : 'max-w-[140px]',
+          )}
         >
           {label}
         </button>
@@ -141,7 +156,10 @@ export function ConceptLensPanel({
 
       {expanded && (
         <div
-          className="w-full rounded-xl border border-white/10 bg-surface-secondary/95 backdrop-blur px-3 py-2.5 shadow-lg space-y-2 max-h-56 overflow-y-auto"
+          className={cn(
+            'w-full rounded-xl border border-white/10 bg-surface-secondary/95 backdrop-blur px-3 py-2.5 shadow-lg space-y-2 max-h-56 overflow-y-auto',
+            isStrip && 'mt-1 rounded-lg shadow-none',
+          )}
           data-testid="concept-lens-detail"
         >
           {lens.emptyReason === 'weak-extraction' && (

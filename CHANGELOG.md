@@ -7,6 +7,20 @@ client and server are versioned together.
 
 ### Added
 
+- **Launch Wave 8A — Study Workspace Phase 2 UI**
+  - **SW-P2-05:** Structured workspace context JSON on every Agent open —
+    `toAgentWorkspaceContextJson`, `buildAgentContextSystemBlock` in
+    `agentWorkspaceContext.ts`; collapsible JSON in `AgentContextBanner`; injected
+    into Agent LLM stream metadata.
+  - **SW-P2-06:** `ConceptLensPanel` `placement="strip"` on `< lg` — inline under
+    context strip (collapsed by default); desktop keeps floating overlay.
+  - **SW-P3-08:** `WorkspaceKeyboardHelp` overlay (`?`) with EL/EN labels;
+    `workspaceKeyboardShortcuts.ts` wires documented shortcuts (`Esc`, `⌘K`,
+    `←/→`, `1–0`, `L/T/S`, `N`) in `StudyWorkspace`.
+  - **SW-P2-07:** WCAG AA contrast token pass — dark/light `text-secondary`,
+    `text-tertiary`, `text-muted` in `index.css`.
+  - **Tests:** `agentWorkspaceContext.test.ts`, `workspaceKeyboardShortcuts.test.ts`,
+    `WorkspaceKeyboardHelp.test.tsx`.
 - **Launch Wave 7 — Study Workspace Phase 2 UI (`552d0ef`)**
   - **SW-07:** `lessonStepToolbarNextActionSync` wires `LessonStepToolBar` to
     `nextActionEngine` recommendations.

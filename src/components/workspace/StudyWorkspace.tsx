@@ -177,7 +177,13 @@ import { buildTimerSessionContent } from '../../lib/timerSessionModel';
 import { buildDashboardSessionContent } from '../../lib/dashboardSessionModel';
 import { displayWorkspaceStepTitle } from '../../lib/workspaceContextModel';
 import { WorkspaceContextStrip } from './WorkspaceContextStrip';
+import { WorkspaceKeyboardHelp } from './WorkspaceKeyboardHelp';
 import { WorkspaceSourceStatusBar } from './WorkspaceSourceStatusBar';
+import {
+  isTypingTarget,
+  resolveWorkspaceShortcutKey,
+  WORKSPACE_KEYBOARD_SHORTCUTS,
+} from '../../lib/workspaceKeyboardShortcuts';
 import {
   fetchSharedAnnotations,
   publishTeacherAnnotation,
@@ -286,6 +292,7 @@ export function StudyWorkspace({
   const [lessonCollapsed, setLessonCollapsed] = useState(false);
   const [chromeHidden, setChromeHidden] = useState(false);
   const [showPalette, setShowPalette] = useState(false);
+  const [showShortcutHelp, setShowShortcutHelp] = useState(false);
   const [showNotes, setShowNotes] = useState(false);
   const [notes, setNotes] = useState(() => loadWorkspaceNotes(progressKey));
   const [scratchpadImport, setScratchpadImport] = useState<ScratchpadExport | null>(null);
@@ -1623,6 +1630,76 @@ export function StudyWorkspace({
     }
   };
 
+  useEffect(() => {
+    if (isMobile) setConceptLensExpanded(false);
+  }, [isMobile]);
+
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      const resolved = resolveWorkspaceShortcutKey(e);
+      if (!resolved) return;
+
+      const def = WORKSPACE_KEYBOARD_SHORTCUTS.find((s) => s.id === resolved.action);
+      const allowWhileTyping = def?.allowWhileTyping ?? false;
+      if (!allowWhileTyping && isTypingTarget(e.target)) return;
+
+      switch (resolved.action) {
+        case 'close-overlay':
+          e.preventDefault();
+          if (showShortcutHelp) setShowShortcutHelp(false);
+          else if (showPalette) setShowPalette(false);
+          else if (showNotes) setShowNotes(false);
+          else if (mobileToolDrawerOpen) setMobileToolDrawerOpen(false);
+          else if (reprocessWizardOpen) setReprocessWizardOpen(false);
+          else onClose();
+          break;
+        case 'open-palette':
+          e.preventDefault();
+          setShowPalette(true);
+          break;
+        case 'toggle-help':
+          e.preventDefault();
+          setShowShortcutHelp((v) => !v);
+          break;
+        case 'prev-step':
+          e.preventDefault();
+          if (currentStep > 0) selectWorkspaceStep(currentStep - 1, { focusReader: true });
+          break;
+        case 'next-step':
+          e.preventDefault();
+          if (currentStep < STEPS.length - 1) selectWorkspaceStep(currentStep + 1, { focusReader: true });
+          break;
+        case 'tool-index': {
+          e.preventDefault();
+          const tool = AVAILABLE_TOOLS[resolved.toolIndex ?? 0];
+          if (tool) openWorkspaceTool(tool);
+          break;
+        }
+        case 'layout-lesson':
+          e.preventDefault();
+          setLayout('focus-lesson');
+          break;
+        case 'layout-tool':
+          e.preventDefault();
+          setLayout('focus-tool');
+          break;
+        case 'layout-split':
+          e.preventDefault();
+          setLayout(isMobile ? 'focus-tool' : 'split');
+          break;
+        case 'toggle-notes':
+          e.preventDefault();
+          setShowNotes((v) => !v);
+          break;
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [
+    showShortcutHelp, showPalette, showNotes, mobileToolDrawerOpen, reprocessWizardOpen,
+    onClose, currentStep, STEPS.length, selectWorkspaceStep, openWorkspaceTool, isMobile,
+  ]);
+
   return (
     <div
       className={cn(
@@ -1704,6 +1781,22 @@ export function StudyWorkspace({
           conceptCount={conceptBusRows.length}
           weakPanelOpen={intelTab === 'weak-areas'}
           conceptBusOpen={intelTab === 'concept-bus'}
+        />
+      )}
+
+      {!chromeHidden && isMobile && conceptLensView.activeConcept && (
+        <ConceptLensPanel
+          placement="strip"
+          lens={conceptLensView}
+          activity={activityFor(conceptBus, activeConceptLabel)}
+          activeTool={activeTool}
+          expanded={conceptLensExpanded}
+          onToggleExpand={() => setConceptLensExpanded((v) => !v)}
+          onJumpTool={(tool) => openWorkspaceTool(tool)}
+          onFocus={(term) => focusOnTerm(term, activeTool)}
+          onAction={handleConceptLensAction}
+          onOpenReaderSection={openReaderAtConceptSection}
+          lang={lang}
         />
       )}
 
@@ -1982,7 +2075,9 @@ export function StudyWorkspace({
                     onAskAgent={handleCrossLinkAgent}
                   />
                 )}
+                {!isMobile && (
                 <ConceptLensPanel
+                  placement="overlay"
                   lens={conceptLensView}
                   activity={activityFor(conceptBus, activeConceptLabel)}
                   activeTool={activeTool}
@@ -1994,6 +2089,7 @@ export function StudyWorkspace({
                   onOpenReaderSection={openReaderAtConceptSection}
                   lang={lang}
                 />
+                )}
 
                 {activeTool === 'concept-map' && (
                   <DraggableConceptMap
@@ -2434,6 +2530,12 @@ export function StudyWorkspace({
         onClose={() => setShowPalette(false)}
         items={paletteItems}
         placeholder={lang === 'el' ? 'Εργαλείο, αναζήτηση ή ενέργεια…' : 'Type a tool, search, or action…'}
+      />
+
+      <WorkspaceKeyboardHelp
+        open={showShortcutHelp}
+        onClose={() => setShowShortcutHelp(false)}
+        lang={lang}
       />
 
       <WorkspaceMobileToolDrawer
