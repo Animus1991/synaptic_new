@@ -7,7 +7,7 @@ import {
 import type { LucideIcon } from 'lucide-react';
 import type { UserSettings } from '../types';
 import { cn } from '../utils/cn';
-import { Page, PageHeader, Card, SectionHeading, CardLink, StatTile } from './ui/primitives';
+import { Page, PageHeader, Card, SectionHeading } from './ui/primitives';
 import { clearAllSessionData, downloadBackup, importSessionData } from '../lib/sessionBackup';
 import { authLogin, authRegister, pushRemoteLibrary, createCheckoutSession, type AuthSession } from '../lib/authClient';
 import { loadLibrarySync } from '../lib/libraryStorage';
