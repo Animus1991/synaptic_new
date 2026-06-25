@@ -1,0 +1,403 @@
+/** Client-side document text extraction (PDF, DOCX, PPTX, plain text, OCR). */
+
+
+
+import mammoth from 'mammoth';
+
+import JSZip from 'jszip';
+
+import type { UserSettings } from '../types';
+import { importChatGptExportFile, isChatGptExportFile, isLikelyChatGptExportJson } from './chatGptImport';
+
+import { extractWithOcrFallback, isImageOnlyPdf, isImageUpload } from './ocrExtract';
+
+// Vite resolves this to a stable public URL in dev + production builds.
+
+import pdfjsWorker from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
+
+
+
+export type PdfExtractResult = {
+
+  text: string;
+
+  pageCount: number;
+
+  ocrUsed?: boolean;
+
+  ingestMethod?: FileExtractResult['ingestMethod'];
+
+  ocrRegions?: FileExtractResult['ocrRegions'];
+
+};
+
+
+
+export type FileExtractResult = {
+
+  text: string;
+
+  pageCount?: number;
+
+  ocrUsed?: boolean;
+
+  ingestMethod?: 'text-layer' | 'ocr-client' | 'ocr-server' | 'ocr-ensemble' | 'chatgpt-export';
+
+  ocrRegions?: import('./readerOcrOverlay').OcrStoredRegion[];
+
+};
+
+
+
+interface TextItem {
+  str: string;
+  transform: number[];
+  width: number;
+  height: number;
+  hasEOL?: boolean;
+}
+
+const LINE_TOLERANCE = 4;
+const COLUMN_GAP_FRACTION = 0.03;
+
+/**
+ * Reconstruct PDF text in human reading order using coordinates from PDF.js.
+ *
+ * 1. Items are grouped into horizontal lines by y-coordinate.
+ * 2. Items within a line are sorted left-to-right.
+ * 3. Lines are clustered into columns based on their x-ranges.
+ * 4. Multi-column pages are read left column then right column.
+ */
+function layoutAwareTextFromItems(items: unknown[], pageWidth: number): string {
+  const raw = items.filter((it) => it && typeof it === 'object' && 'str' in it) as TextItem[];
+  const withCoords = raw
+    .map((it) => {
+      const t = it.transform;
+      const x = t[4] ?? 0;
+      const y = t[5] ?? 0;
+      return { ...it, x, y, endX: x + it.width };
+    })
+    .filter((it) => it.str.trim().length > 0);
+
+  if (withCoords.length === 0) return '';
+
+  // Group into lines by y-coordinate (tolerance for small variations).
+  const sortedByY = [...withCoords].sort((a, b) => a.y - b.y);
+  const lines: { y: number; items: typeof withCoords }[] = [];
+  for (const it of sortedByY) {
+    const line = lines.find((l) => Math.abs(l.y - it.y) <= LINE_TOLERANCE);
+    if (line) {
+      line.items.push(it);
+      line.y = (line.y + it.y) / 2;
+    } else {
+      lines.push({ y: it.y, items: [it] });
+    }
+  }
+
+  // Sort lines top-to-bottom.
+  lines.sort((a, b) => a.y - b.y);
+
+  // Sort items within each line left-to-right.
+  for (const line of lines) {
+    line.items.sort((a, b) => a.x - b.x);
+  }
+
+  // Detect columns by looking at the dominant x ranges across lines.
+  const columnGap = pageWidth * COLUMN_GAP_FRACTION;
+  const columns: { minX: number; maxX: number }[] = [];
+  for (const line of lines) {
+    const lineMin = Math.min(...line.items.map((it) => it.x));
+    const lineMax = Math.max(...line.items.map((it) => it.endX));
+    const col = columns.find((c) => lineMin < c.maxX + columnGap && lineMax > c.minX - columnGap);
+    if (col) {
+      col.minX = Math.min(col.minX, lineMin);
+      col.maxX = Math.max(col.maxX, lineMax);
+    } else {
+      columns.push({ minX: lineMin, maxX: lineMax });
+    }
+  }
+  columns.sort((a, b) => a.minX - b.minX);
+
+  const isMultiColumn = columns.length >= 2 && columns[0]!.maxX < pageWidth * 0.55;
+
+  if (isMultiColumn) {
+    // v2.4: column-major order — read full left column top-to-bottom, then right.
+    const columnLines: string[][] = columns.map(() => []);
+    for (const line of lines) {
+      for (let ci = 0; ci < columns.length; ci++) {
+        const col = columns[ci]!;
+        const colItems = line.items.filter((it) => {
+          const mid = it.x + it.width / 2;
+          return mid >= col.minX - columnGap && mid <= col.maxX + columnGap;
+        });
+        if (colItems.length > 0) {
+          columnLines[ci]!.push(colItems.map((it) => it.str).join(' '));
+        }
+      }
+    }
+    return columnLines
+      .map((colBlock) => colBlock.join('\n'))
+      .filter((block) => block.trim().length > 0)
+      .join('\n\n');
+  }
+
+  // Single-column: join line items, adding line breaks where PDF indicates EOL.
+  return lines
+    .map((line) => line.items.map((it) => it.str).join(' '))
+    .join('\n');
+}
+
+export async function extractTextFromPdf(file: File, settings?: UserSettings): Promise<PdfExtractResult> {
+
+  const pdfjs = await import('pdfjs-dist');
+
+  pdfjs.GlobalWorkerOptions.workerSrc = pdfjsWorker;
+
+
+
+  const data = new Uint8Array(await file.arrayBuffer());
+
+  const doc = await pdfjs.getDocument({ data }).promise;
+
+  const parts: string[] = [];
+  const pageCharCounts: number[] = [];
+
+
+
+  for (let i = 1; i <= doc.numPages; i++) {
+
+    const page = await doc.getPage(i);
+
+    const content = await page.getTextContent();
+    const viewport = page.getViewport({ scale: 1.0 });
+    const pageText = layoutAwareTextFromItems(content.items, viewport.width);
+    parts.push(pageText);
+    pageCharCounts.push(pageText.replace(/\s+/g, '').length);
+
+  }
+
+
+
+  const pageCount = doc.numPages;
+
+  if (isImageOnlyPdf(pageCharCounts)) {
+    const ocr = await extractWithOcrFallback(file, { text: '', pageCount }, settings);
+    return {
+      text: ocr.text,
+      pageCount: ocr.pageCount,
+      ocrUsed: ocr.ocrUsed,
+      ingestMethod: ocr.ingestMethod ?? (ocr.ocrUsed ? 'ocr-client' : 'text-layer'),
+      ocrRegions: ocr.ocrRegions,
+    };
+  }
+
+  const textLayer = {
+
+    text: parts.join('\n\f\n'),
+
+    pageCount,
+
+  };
+
+
+
+  const withOcr = await extractWithOcrFallback(file, textLayer, settings);
+
+  return {
+
+    text: withOcr.text,
+
+    pageCount: withOcr.pageCount,
+
+    ocrUsed: withOcr.ocrUsed,
+
+    ingestMethod: withOcr.ingestMethod ?? (withOcr.ocrUsed ? 'ocr-client' : 'text-layer'),
+
+    ocrRegions: withOcr.ocrRegions,
+
+  };
+
+}
+
+
+
+export async function extractTextFromDocx(file: File): Promise<string> {
+
+  const arrayBuffer = await file.arrayBuffer();
+
+  const result = await mammoth.extractRawText({ arrayBuffer });
+
+  return result.value;
+
+}
+
+
+
+export async function extractTextFromPptx(file: File): Promise<{ text: string; pageCount: number }> {
+
+  const zip = await JSZip.loadAsync(await file.arrayBuffer());
+
+  const slidePaths = Object.keys(zip.files)
+
+    .filter((name) => /^ppt\/slides\/slide\d+\.xml$/i.test(name))
+
+    .sort((a, b) => {
+
+      const na = Number(a.match(/slide(\d+)/i)?.[1] ?? 0);
+
+      const nb = Number(b.match(/slide(\d+)/i)?.[1] ?? 0);
+
+      return na - nb;
+
+    });
+
+
+
+  const parts: string[] = [];
+
+  for (const path of slidePaths) {
+
+    const xml = await zip.files[path].async('string');
+
+    const texts = [...xml.matchAll(/<a:t[^>]*>([^<]*)<\/a:t>/g)].map((m) => m[1]?.trim()).filter(Boolean);
+
+    if (texts.length > 0) parts.push(texts.join(' '));
+
+  }
+
+
+
+  return { text: parts.join('\n\f\n'), pageCount: slidePaths.length };
+
+}
+
+
+
+export async function extractTextFromFile(file: File, settings?: UserSettings): Promise<FileExtractResult> {
+
+  if (isImageUpload(file)) {
+
+    const ocr = await extractWithOcrFallback(file, { text: '', pageCount: 1 }, settings);
+
+    return {
+      text: ocr.text,
+      pageCount: 1,
+      ocrUsed: ocr.ocrUsed,
+      ingestMethod: ocr.ingestMethod ?? 'ocr-client',
+      ocrRegions: ocr.ocrRegions,
+    };
+
+  }
+
+
+
+  const ext = file.name.split('.').pop()?.toLowerCase();
+
+  if (ext === 'pdf' || file.type === 'application/pdf') {
+
+    const pdf = await extractTextFromPdf(file, settings);
+    return {
+      text: pdf.text,
+      pageCount: pdf.pageCount,
+      ocrUsed: pdf.ocrUsed,
+      ingestMethod: pdf.ingestMethod,
+      ocrRegions: pdf.ocrRegions,
+    };
+
+  }
+
+  if (ext === 'docx' || ext === 'doc' || file.type.includes('wordprocessingml')) {
+
+    return { text: await extractTextFromDocx(file) };
+
+  }
+
+  if (ext === 'pptx' || ext === 'ppt' || file.type.includes('presentationml')) {
+
+    return extractTextFromPptx(file);
+
+  }
+
+  if (
+
+    file.type.startsWith('text/')
+
+    || ext === 'txt'
+
+    || ext === 'md'
+
+    || ext === 'csv'
+
+    || ext === 'py'
+
+    || ext === 'js'
+
+    || ext === 'ts'
+
+    || ext === 'tsx'
+
+    || ext === 'jsx'
+
+    || ext === 'sql'
+
+    || ext === 'r'
+
+    || ext === 'json'
+
+    || ext === 'html'
+
+    || ext === 'xml'
+
+    || ext === 'zip'
+
+  ) {
+
+    if (ext === 'zip' && isChatGptExportFile(file)) {
+
+      try {
+
+        const imported = await importChatGptExportFile(file);
+
+        return { text: imported.text, pageCount: imported.conversations.length, ocrUsed: false, ingestMethod: 'chatgpt-export' };
+
+      } catch {
+
+        /* fall through */
+
+      }
+
+    }
+
+    if (ext === 'json') {
+
+      const raw = await file.text();
+
+      try {
+
+        if (isLikelyChatGptExportJson(JSON.parse(raw))) {
+
+          const imported = await importChatGptExportFile(file);
+
+          return { text: imported.text, pageCount: imported.conversations.length, ocrUsed: false, ingestMethod: 'chatgpt-export' };
+
+        }
+
+      } catch {
+
+        /* plain json */
+
+      }
+
+      return { text: raw };
+
+    }
+
+    return { text: await file.text() };
+
+  }
+
+  return { text: '' };
+
+}
+
+

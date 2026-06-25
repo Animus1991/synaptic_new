@@ -1,0 +1,22 @@
+{
+  "expectedConcepts": [
+    "Newton's laws",
+    "inertia",
+    "force",
+    "acceleration",
+    "mass",
+    "action",
+    "reaction"
+  ],
+  "expectedDefinitions": [
+    "inertia",
+    "force",
+    "acceleration",
+    "mass"
+  ],
+  "expectedFormulas": [
+    "F = m a"
+  ],
+  "expectedTopicCount": 4,
+  "expectedSubject": "Physics"
+}
