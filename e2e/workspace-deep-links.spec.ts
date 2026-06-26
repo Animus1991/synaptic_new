@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { skipOnboardingToLibrary } from './helpers/onboarding';
 
 const NOTES = `
 # Microeconomics — Supply and Demand
@@ -21,17 +22,6 @@ Linear model example: y = m * x + b
 | Inelastic demand | Small shift | Low |
 `.trim();
 
-async function skipOnboarding(page: import('@playwright/test').Page) {
-  await page.getByTestId('landing-get-started').click();
-  await page.getByTestId('onboarding-continue').click();
-  await page.getByRole('button', { name: 'Self-Learner' }).click();
-  await page.getByTestId('onboarding-next').click();
-  await page.getByRole('button', { name: 'Deeply understand material' }).click();
-  await page.getByTestId('onboarding-next').click();
-  await page.getByTestId('onboarding-next').click();
-  await page.getByRole('button', { name: 'Skip — explore the demo first' }).click();
-}
-
 async function openGroundedStudyWorkspace(page: import('@playwright/test').Page) {
   await page.getByTestId('nav-library').click();
   await page.getByTestId('library-upload').click();
@@ -50,7 +40,7 @@ test.describe('Study Workspace deep links (W2)', () => {
 
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
-    await skipOnboarding(page);
+    await skipOnboardingToLibrary(page);
     await openGroundedStudyWorkspace(page);
   });
 
@@ -102,7 +92,7 @@ test.describe('Study Workspace W4 features', () => {
 
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
-    await skipOnboarding(page);
+    await skipOnboardingToLibrary(page);
     await openGroundedStudyWorkspace(page);
   });
 
@@ -145,7 +135,7 @@ test.describe('Study Workspace W5 features', () => {
 
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
-    await skipOnboarding(page);
+    await skipOnboardingToLibrary(page);
     await openGroundedStudyWorkspace(page);
   });
 
@@ -170,7 +160,7 @@ test.describe('Study Workspace W6 features', () => {
 
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
-    await skipOnboarding(page);
+    await skipOnboardingToLibrary(page);
     await openGroundedStudyWorkspace(page);
   });
 
@@ -207,7 +197,7 @@ test.describe('Study Workspace W7 features', () => {
 
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
-    await skipOnboarding(page);
+    await skipOnboardingToLibrary(page);
     await openGroundedStudyWorkspace(page);
   });
 
@@ -240,7 +230,7 @@ test.describe('Study Workspace discoverability + W8', () => {
 
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
-    await skipOnboarding(page);
+    await skipOnboardingToLibrary(page);
     await openGroundedStudyWorkspace(page);
   });
 

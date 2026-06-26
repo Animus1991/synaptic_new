@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { skipOnboardingToLibrary } from './helpers/onboarding';
 
 const MOCK_TRANSCRIPT = `
 # Supply and Demand
@@ -13,17 +14,6 @@ Price elasticity of demand measures the percentage change in quantity demanded d
 Elastic demand means consumers are highly responsive to price changes.
 `.trim();
 
-async function skipOnboarding(page: import('@playwright/test').Page) {
-  await page.getByTestId('landing-get-started').click();
-  await page.getByTestId('onboarding-continue').click();
-  await page.getByRole('button', { name: 'Self-Learner' }).click();
-  await page.getByTestId('onboarding-next').click();
-  await page.getByRole('button', { name: 'Deeply understand material' }).click();
-  await page.getByTestId('onboarding-next').click();
-  await page.getByTestId('onboarding-next').click();
-  await page.getByRole('button', { name: 'Skip — explore the demo first' }).click();
-}
-
 test.describe('YouTube upload flow', () => {
   test.beforeEach(async ({ page }) => {
     await page.route('**/v1/youtube/transcript**', async (route) => {
@@ -37,7 +27,7 @@ test.describe('YouTube upload flow', () => {
 
   test('creates a course from a YouTube URL transcript', async ({ page }) => {
     await page.goto('/');
-    await skipOnboarding(page);
+    await skipOnboardingToLibrary(page);
 
     await page.getByTestId('nav-library').click();
     await page.getByTestId('library-upload').click();

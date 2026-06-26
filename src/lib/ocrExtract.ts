@@ -6,11 +6,15 @@
 import type { UserSettings } from '../types';
 import { ocrPages as ocrPagesServer } from './authClient';
 import { normalizeBilingualExtractedText, runClientBilingualOcrEnsemble } from './bilingualOcrEnsemble';
+import { textLayerLooksCorrupted } from './textQualityMetrics';
 import pdfjsWorker from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 
 export const OCR_MIN_TOTAL_CHARS = 80;
 export const OCR_MIN_CHARS_PER_PAGE = 28;
 export const OCR_MAX_PAGES = 15;
+
+export const OCR_RENDER_SCALE_SERVER = 2.25;
+export const OCR_RENDER_SCALE_CLIENT = 2.5;
 
 export type OcrExtractResult = {
   text: string;
@@ -35,7 +39,9 @@ export function needsOcr(text: string, pageCount = 1): boolean {
   const clean = text.replace(/\f/g, ' ').replace(/\s+/g, ' ').trim();
   if (clean.length < OCR_MIN_TOTAL_CHARS) return true;
   const perPage = clean.length / effectivePages;
-  return perPage < OCR_MIN_CHARS_PER_PAGE;
+  if (perPage < OCR_MIN_CHARS_PER_PAGE) return true;
+  if (textLayerLooksCorrupted(clean)) return true;
+  return false;
 }
 
 /** True when most PDF pages lack a meaningful text layer (image-only / scanned). */
@@ -75,7 +81,7 @@ export async function renderPdfPagesToBase64(file: File, maxPages = OCR_MAX_PAGE
 
   for (let i = 1; i <= limit; i++) {
     const page = await doc.getPage(i);
-    const viewport = page.getViewport({ scale: 1.75 });
+    const viewport = page.getViewport({ scale: OCR_RENDER_SCALE_SERVER });
     const canvas = document.createElement('canvas');
     canvas.width = Math.floor(viewport.width);
     canvas.height = Math.floor(viewport.height);
@@ -107,7 +113,7 @@ async function ocrPdfClient(file: File, pageCount: number, maxPages = OCR_MAX_PA
 
   for (let i = 1; i <= limit; i++) {
     const page = await doc.getPage(i);
-    const viewport = page.getViewport({ scale: 2 });
+    const viewport = page.getViewport({ scale: OCR_RENDER_SCALE_CLIENT });
     const canvas = document.createElement('canvas');
     canvas.width = Math.floor(viewport.width);
     canvas.height = Math.floor(viewport.height);

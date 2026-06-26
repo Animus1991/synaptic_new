@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import { Sparkles, Type, Volume2, Highlighter, Download, StickyNote, X, Languages, BookOpen, AlertTriangle } from 'lucide-react';
 import { cn } from '../../utils/cn';
-import { repairDisplayText } from '../../lib/utf8MojibakeRepair';
+import { repairDisplayPipeline } from '../../lib/documentTextPipeline';
 import { useI18n } from '../../lib/i18n';
 import type { SourceHighlight } from '../../lib/conceptProvenance';
 import { normalizeFocusTerm } from '../../lib/workspaceFocus';
@@ -185,7 +185,7 @@ export function CognitiveReader({
   const [textSelection, setTextSelection] = useState<string | null>(null);
   const rawDisplayText = fullSource ? (sourceFullText?.trim() || text) : text;
   const displayText = useMemo(
-    () => repairDisplayText(applyOcrCorrectionsToText(rawDisplayText ?? '', annotationScopeKey ?? '')),
+    () => repairDisplayPipeline(applyOcrCorrectionsToText(rawDisplayText ?? '', annotationScopeKey ?? '')),
     [rawDisplayText, annotationScopeKey, ocrCorrectionRevision],
   );
 

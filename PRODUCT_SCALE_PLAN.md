@@ -998,17 +998,18 @@ The cheapest, highest-trust win. Apply these corrections (all derived from §1):
       §5.5 concept provenance (`conceptProvenance`), and an OCR branch in §1; move OCR
       out of §13 roadmap.
 - [ ] `AGENT_RAG.md`: document optional `POST /v1/rag/query`; correct "no server RAG".
-- [ ] `CONTENT_PIPELINE.md`: OCR is live (image + scanned PDF); only audio remains.
-- [ ] `API.md`: add `/v1/nlp/entities`, `/v1/rag/query`, `/v1/ocr`,
-      `/v1/teacher/dashboard`, and auth refresh/reset routes; verify exact shapes via §7.1 sweep.
+- [x] `CONTENT_PIPELINE.md`: OCR is live (image + scanned PDF); only audio remains (§12 batch 1).
+- [x] `API.md`: `/v1/nlp/entities`, `/v1/rag/query`, `/v1/ocr/pages`,
+      `/v1/teacher/dashboard`, and auth refresh/reset routes documented (§12 batch 1).
 - [ ] `SECURITY.md`: move rate-limiting + refresh/reset tokens to "in place"; keep
       hardening items (rotation, audit shipping, argon2).
 - [ ] `server/README.md`: mark teacher/rate-limit/refresh done; add nlp/rag/ocr rows.
 - [ ] `ARCHITECTURE.md`: relocate `processUpload` to the store; add recognition stages
       + server routes; reference `DocumentModel`.
-- [ ] `ROADMAP.md`: re-baseline %; move OCR/server-RAG/teacher/rate-limit/refresh to done;
-      import this plan's phasing.
-- [ ] `CHANGELOG.md`: backfill entries for OCR, NER, server RAG, teacher, rate-limit, tokens.
+- [x] `ROADMAP.md`: re-baseline %; OCR/server-RAG/teacher/rate-limit/refresh marked done;
+      Wave 8B slices documented (§12 batch 1).
+- [x] `CHANGELOG.md`: backfill entries for OCR, NER, server RAG, teacher, rate-limit, tokens;
+      Package A quiz E2E in `[Unreleased]`.
 - [ ] `PERSISTENCE.md`: document `Course.conceptSpans` (+ future `ConceptGraph`).
 - [ ] `README.md`: add image/OCR + advanced server endpoints to features.
 - [ ] `CONTRIBUTING.md`: cite D9 as the cautionary example for the no-hardcoded-vocab rule.

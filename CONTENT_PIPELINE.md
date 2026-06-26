@@ -65,16 +65,27 @@ After every successful upload, the learner lands on **CourseView** first.
 Weak/sparse courses expose warnings and an **Add Material** path so the next
 upload can strengthen the same course before deep study.
 
-## Text normalization (reader + pipeline)
+## Text normalization (reader + pipeline) — v2.5.0 (Wave 8B-β)
 
-`normalizeDocumentText()` in `textSegmentation.ts` runs before segmentation:
+`normalizeDocumentText()` delegates to **`runDocumentTextPipeline()`** in
+`documentTextPipeline.ts` before segmentation. Layer order:
 
-1. **`repairUtf8Mojibake`** — fixes double-encoded UTF-8 (e.g. `έΑΦ` → em dash) from bad exports or legacy saves
-2. **`repairGreekDocumentText`** — glued/spaced Greek OCR (`greekTextRepair.ts`)
+1. **`sanitizeUnicode`** — NFKC + strip PUA/control/decorative symbols (preserves `\f` page breaks)
+2. **`stripPresentationMarkup`** — flatten HTML/font spans from PDF extract
+3. **`repairUtf8Mojibake`** — double-encoded UTF-8 repair
+4. **Structural normalize** — form-feed → `--- page break ---`, whitespace cleanup
+5. **`repairGreekDocumentText`** + **`repairSpacedLatinText`** — spaced/glued EL+EN OCR
+6. **`applySpellGateDocument`** — offline lexicon + Viterbi segmentation + fuzzy OCR fix (skips chat speaker lines)
+7. **`flattenReaderPresentation`** — plain text for Reader parity
 
-Reader display applies the same mojibake repair via `repairDisplayText()` in
-`CognitiveReader.tsx`. Reprocess still recommended for permanently fixing source
-text in `extractedText`.
+Reader display uses **`repairDisplayPipeline()`** in `CognitiveReader.tsx` (same
+core repair). `analyzeTextHygiene()` feeds **`courseSourceQuality`** with
+`textHygieneScore` / corruption flags. `needsOcr()` also triggers when
+`textLayerLooksCorrupted()` (spaced-glyphs, mojibake, PUA noise).
+
+Reprocess bumps `pipelineVersion` to **2.5.0** and re-runs the full stack on
+stored `extractedText`. Regression vectors: `greekOcrFixtures.ts` +
+`documentTextPipeline.test.ts`.
 
 ## Limitations
 

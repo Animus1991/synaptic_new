@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo, useCallback, useRef, lazy, Suspense, startTransition, type ReactNode } from 'react';
+import { useEffect, useState, useMemo, useCallback, useRef, lazy, Suspense, type ReactNode } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useAppStore } from './store/useStore';
 import { applyTheme, watchSystemTheme } from './lib/theme';
@@ -32,15 +32,8 @@ import type { AppView } from './types';
 import type { FsrsRating } from './lib/pedagogy';
 import { visibleCourses } from './lib/demoMode';
 import { ErrorBoundary } from './components/ErrorBoundary';
-import { WorkspaceBootShell } from './components/workspace/WorkspaceBootShell';
-
-const StudyWorkspace = lazy(() =>
-  import('./components/workspace/StudyWorkspace').then((m) => ({ default: m.StudyWorkspace })),
-);
-
-function preloadStudyWorkspace() {
-  void import('./components/workspace/StudyWorkspace');
-}
+import { StudyWorkspaceLazy } from './components/workspace/StudyWorkspaceLazy';
+import { preloadStudyWorkspace } from './lib/studyWorkspaceChunk';
 
 const Agent = lazy(() => import('./components/Agent').then((m) => ({ default: m.Agent })));
 const Analytics = lazy(() => import('./components/Analytics').then((m) => ({ default: m.Analytics })));
@@ -94,21 +87,19 @@ export default function App() {
   };
 
   const openWorkspace = useCallback(() => {
+    preloadStudyWorkspace();
     if (store.currentView === 'landing' || store.currentView === 'onboarding') {
       store.navigate('dashboard');
     }
-    startTransition(() => {
-      store.openStudyWorkspace();
-    });
+    store.openStudyWorkspace();
   }, [store]);
 
   const openWorkspaceForConcept = useCallback((concept?: string) => {
+    preloadStudyWorkspace();
     if (store.currentView === 'landing' || store.currentView === 'onboarding') {
       store.navigate('dashboard');
     }
-    startTransition(() => {
-      store.openStudyWorkspaceForConcept(concept);
-    });
+    store.openStudyWorkspaceForConcept(concept);
   }, [store]);
 
   /** Course / library Continue — preload chunk then open workspace. */
@@ -122,12 +113,11 @@ export default function App() {
   }, [store]);
 
   const openExamTimerWorkspace = useCallback(() => {
+    preloadStudyWorkspace();
     if (store.currentView === 'landing' || store.currentView === 'onboarding') {
       store.navigate('dashboard');
     }
-    startTransition(() => {
-      store.openStudyWorkspaceForExamCountdown();
-    });
+    store.openStudyWorkspaceForExamCountdown();
   }, [store]);
 
   const hasCourses = visibleCourses(store.courses, store.user.settings).length > 0;
@@ -246,15 +236,10 @@ export default function App() {
       onRecover={closeWorkspace}
       onRetry={closeWorkspace}
     >
-      <Suspense fallback={
-        <WorkspaceBootShell
-          compact={agentSplitActive}
-          onClose={closeWorkspace}
-          lang={store.user.settings.language === 'el' ? 'el' : 'en'}
-        />
-      }>
-        <StudyWorkspace
+      <StudyWorkspaceLazy
         key={workspaceSessionKey}
+        bootCompact={agentSplitActive}
+        bootLang={store.user.settings.language === 'el' ? 'el' : 'en'}
         agentSplit={agentSplitActive}
         onClose={closeWorkspace}
         onOpenAgent={() => store.openAgentFromWorkspace()}
@@ -299,7 +284,6 @@ export default function App() {
         workspaceOpenTool={store.workspaceOpenTool}
         onConsumeWorkspaceOpenTool={store.consumeWorkspaceOpenTool}
       />
-      </Suspense>
     </ErrorBoundary>
   );
 
@@ -534,6 +518,17 @@ export default function App() {
     if (store.user.settings.theme !== 'system') return;
     return watchSystemTheme(() => applyTheme('system'));
   }, [store.user.settings.theme]);
+
+  /** Warm the ~470KB workspace chunk after first paint so boot shell is brief. */
+  useEffect(() => {
+    const warm = () => preloadStudyWorkspace();
+    if (typeof requestIdleCallback === 'function') {
+      const id = requestIdleCallback(warm, { timeout: 4000 });
+      return () => cancelIdleCallback(id);
+    }
+    const t = window.setTimeout(warm, 1500);
+    return () => window.clearTimeout(t);
+  }, []);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);

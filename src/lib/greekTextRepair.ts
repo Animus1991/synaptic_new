@@ -35,18 +35,23 @@ export function repairSpacedGreekLine(line: string): string {
   const trimmed = line.trim();
   if (!trimmed) return line;
 
+  const digitPrefix = trimmed.match(/^(\d+[.)]?)\s+(.+)$/);
+  if (digitPrefix) {
+    return `${digitPrefix[1]} ${repairSpacedGreekLine(digitPrefix[2]!)}`;
+  }
+
   const tokens = trimmed.split(/\s+/);
-  if (tokens.length < 4) return line;
+  if (tokens.length < 3) return line;
 
   const spacedGlyphs = tokens.filter(isSpacedGlyphToken).length;
   const spacedRatio = spacedGlyphs / tokens.length;
   const hasEmbeddedWords = tokens.some(isFullWordToken);
 
-  // Full-line join only when every letter token is a spaced glyph (no intact words).
+  // Full-line join when every letter token is a spaced glyph (no intact words).
   if (spacedRatio >= 0.38 && !hasEmbeddedWords) {
     const joined = tokens.join('');
-    if (joined.length >= Math.max(6, Math.floor(tokens.length * 1.5))) {
-      return segmentGluedGreekBlob(joined);
+    if (joined.length >= Math.max(4, Math.floor(tokens.length * 1.2))) {
+      return repairGluedGreekLine(segmentGluedGreekBlob(joined));
     }
   }
 
@@ -108,6 +113,16 @@ const GREEK_LEXICON: string[] = [
   'επιτρέπει', 'μειώσουν', 'μειώσει',
   'χώρες', 'χώρα', 'χώρας', 'αποφάσεις', 'αποφάσεων',
   'μετά', 'από', 'έναν', 'ένα', 'ένας', 'μία', 'μια',
+  // Varian Ch31 / behavioral economics (present value, hyperbolic discounting)
+  'πουθαδοθεί', 'δοθεί', 'δωθεί', 'υπόσχεση', 'λαμβάνει', 'σαμπουάν', 'κομμωτήριο',
+  'πληρώνατε', 'πιθανότητα', 'φαινόμενα', 'τοποθετούνται', 'καθαρισμό', 'καθαρισμός',
+  'πλήρη', 'απώλεια', 'καμίας', 'ζωής', 'ακριβό', 'χάσετε', 'τρεις', 'μπορεί',
+  'αποδίδει', 'δολάριο', 'μικρότερη', 'προεξόφληση', 'αναμονής', 'κερδίσει', 'συνεχίσει',
+  'επιθυμία', 'πωλεί', 'σπίτι', 'πληρώνετε', 'χαμηλότερη', 'τιμή', 'προσφορές',
+  // Particles needed for DFS tail segmentation
+  'θα', 'να', 'ως', 'η', 'ο', 'οι', 'τα', 'το', 'την', 'τον', 'της', 'του', 'των',
+  'και', 'για', 'με', 'σε', 'που', 'ότι', 'είναι', 'έχει', 'αυτό', 'αυτή', 'στις', 'στο',
+  'στη', 'στην', 'στον', 'στα', 'στους', 'πριν', 'όταν', 'ενώ', 'αλλά', 'άρα', 'μόνο',
 ].sort((a, b) => b.length - a.length);
 
 const LEXICON_LOWER = new Set(GREEK_LEXICON.map((w) => w.toLowerCase()));
@@ -181,6 +196,8 @@ const GLUED_SEVERE_WORDS = [
   'συμπεριφορική', 'ορθολογικής', 'επιλογής', 'επιλογή', 'επιλογές', 'πραγματικά', 'οικονομικές',
   'παρούσα', 'αξία', 'κόστος', 'μήνες', 'μήνα', 'σήμερα', 'καταναλωτής', 'προσφορά', 'συνάρτηση',
   'περισσότερο', 'περισσότεροι', 'αποδίδει', 'δολάριο', 'δολάρι',
+  'υπόσχεση', 'λαμβάνει', 'σαμπουάν', 'κομμωτήριο', 'πιθανότητα', 'φαινόμενα', 'καθαρισμό',
+  'πουθαδοθεί', 'δοθεί', 'μπορεί', 'τρεις', 'απώλεια', 'ζωής', 'πλήρη', 'πληρώνατε',
 ];
 
 const PHRASE_FIXES: Array<[RegExp, string]> = [
@@ -205,6 +222,53 @@ const PHRASE_FIXES: Array<[RegExp, string]> = [
   [/Η\s+η\s+με\s+δαπή/giu, 'Η ημεδαπή'],
   [/αποφά\s+σε\s+ις/giu, 'αποφάσεις'],
   [/Ηημεδαπή/giu, 'Η ημεδαπή'],
+  [/σαμπουσεένα/giu, 'σαμπουάν σε ένα'],
+  [/σαμπουανένα/giu, 'σαμπουάν σε ένα'],
+  [/υπόσχεση/giu, 'υπόσχεση'],
+  [/υπό\s+σχε/giu, 'υπόσχε'],
+  [/λαμβάνεισήμερα/giu, 'λαμβάνει σήμερα'],
+  [/λαμβάνεισή\s+με\s+ρα/giu, 'λαμβάνει σήμερα'],
+  [/τρειςμήνες/giu, 'τρεις μήνες'],
+  [/μπορείνα/giu, 'μπορεί να'],
+  [/μπορ\s+είναι/giu, 'μπορεί να είναι'],
+  [/δοθείως/giu, 'δοθεί ως'],
+  [/δωθείως/giu, 'δοθεί ως'],
+  [/ηπιθα\s+ενοτηταναχά\s+σε\s+τε/giu, 'η πιθανότητα να χάσετε'],
+  [/ηπιθανότητανα/giu, 'η πιθανότητα να'],
+  [/μεπιθα/giu, 'με πιθα'],
+  [/απώλειακαμίας/giu, 'απώλεια καμίας'],
+  [/ζωήςμε/giu, 'ζωής με'],
+  [/μεπλήρη/giu, 'με πλήρη'],
+  [/καταρισμό/giu, 'καθαρισμό'],
+  [/πληρωνετη/giu, 'πληρώνετε τη'],
+  [/χαμηλότερητιμή/giu, 'χαμηλότερη τιμή'],
+  [/1πουθαδοθεί/giu, '1 που θα δοθεί'],
+  [/πουθαδοθεί/giu, 'που θα δοθεί'],
+  [/μετάαπόμήνες/giu, 'μετά από μήνες'],
+  [/μηνες\s+ςε\s+ειναι/giu, 'μήνες είναι'],
+  [/μετάαπόέναν/giu, 'μετά από έναν'],
+  [/ένανμήνα/giu, 'έναν μήνα'],
+  [/ένανενα/giu, 'έναν ένα'],
+  [/σή\s+με\s+ρα/giu, 'σήμερα'],
+  [/λαμβάνει\s+σή\s+με\s+ρα/giu, 'λαμβάνει σήμερα'],
+  [/λαμβάνεισή\s+με\s+ρα/giu, 'λαμβάνει σήμερα'],
+  [/θαπάρει/giu, 'θα πάρει'],
+  [/μεπλήρηκαταρισμό/giu, 'με πλήρη καθαρισμό'],
+  [/μεπλήρηκαθαρισμό/giu, 'με πλήρη καθαρισμό'],
+  [/πληρη\s+θα\s+ρισμό/giu, 'πλήρη καθαρισμό'],
+  [/ακριβόκομμωτήριο/giu, 'ακριβό κομμωτήριο'],
+  [/σαμπουαν/giu, 'σαμπουάν'],
+  [/αμ\s+που\s+άν/giu, 'σαμπουάν'],
+  [/χά\s+σε\s+τε/giu, 'χάσετε'],
+  [/να\s+χά\s+σε\s+τε/giu, 'να χάσετε'],
+  [/σαμ\s+που\s+αν/giu, 'σαμπουάν'],
+  [/μήνεςείναι/giu, 'μήνες είναι'],
+  [/μηνες\s+ςε\s+ειναι/giu, 'μήνες είναι'],
+  [/μηνες\s+ειναι/giu, 'μήνες είναι'],
+  [/η\s+πι\s+θα\s+ενοτητα/giu, 'η πιθανότητα'],
+  [/ηπιθα\s+ενοτηταναχά\s+σετε/giu, 'η πιθανότητα να χάσετε'],
+  [/ηπιθα\s+ενοτηταναχά\s+σε\s+τε/giu, 'η πιθανότητα να χάσετε'],
+  [/ενοτηταναχά/giu, 'πιθανότητα να χά'],
 ];
 
 /** Greek tokens that must stay separate when split-repair runs. */
@@ -276,12 +340,49 @@ function particleInsideLexiconWord(whole: string, particleStart: number, particl
   while (start > 0 && /[\p{Script=Greek}]/u.test(whole[start - 1]!)) start -= 1;
   let end = particleEnd;
   while (end < whole.length && /[\p{Script=Greek}]/u.test(whole[end]!)) end += 1;
+  const word = whole.slice(start, end);
+  if (isLexiconWord(word)) return true;
+  // Substring may be a glued blob — scan all lexicon hits overlapping the particle.
   for (let s = particleStart; s >= start; s -= 1) {
     for (let e = particleEnd; e <= end; e += 1) {
-      if (isLexiconWord(whole.slice(s, e))) return true;
+      const slice = whole.slice(s, e);
+      if (slice.length >= 4 && isLexiconWord(slice)) return true;
     }
   }
   return false;
+}
+
+/** Merge OCR-broken Greek words split by stray spaces (σή με ρα → σήμερα). */
+export function repairFragmentedGreekWords(line: string): string {
+  const tokens = line.trim().split(/\s+/);
+  if (tokens.length < 2) return line;
+
+  const out: string[] = [];
+  let i = 0;
+  while (i < tokens.length) {
+    let merged: string | null = null;
+    let take = 0;
+    const maxWindow = Math.min(6, tokens.length - i);
+    for (let w = maxWindow; w >= 2; w -= 1) {
+      const slice = tokens.slice(i, i + w);
+      if (slice.some((t) => /^\d+$/.test(t))) continue;
+      const joined = slice.join('');
+      if (!GREEK_SCRIPT.test(joined)) continue;
+      if (isLexiconWord(joined)) {
+        merged = joined;
+        take = w;
+        break;
+      }
+    }
+    if (merged && take > 0) {
+      out.push(merged);
+      i += take;
+    } else {
+      out.push(tokens[i]!);
+      i += 1;
+    }
+  }
+  return out.join(' ');
 }
 
 /** Split common Greek particles when OCR merged adjacent words. */
@@ -386,10 +487,22 @@ function repairKnownPhrases(line: string): string {
   return out;
 }
 
+/** Light phrase + fragment pass after spell gate (spell gate can re-break Greek compounds). */
+export function repairGreekPhraseCleanup(text: string): string {
+  return text
+    .split('\n')
+    .map((line) => {
+      if (/ {3,}/.test(line)) return line;
+      return repairKnownPhrases(repairFragmentedGreekWords(line));
+    })
+    .join('\n');
+}
+
 /** Repair OCR word glue on a single line (inverse of spaced-glyph corruption). */
 export function repairGluedGreekLine(line: string): string {
   const trimmed = line.trim();
   if (!trimmed) return line;
+  if (/ {3,}/.test(trimmed)) return line;
   let s = trimmed;
   s = repairHtmlEntitiesInText(s);
   s = repairCurrencySpacing(s);
@@ -406,7 +519,9 @@ export function repairGluedGreekLine(line: string): string {
   s = repairGreekOrdinalSpaces(s);
   s = repairSpacedRomanNumerals(s);
   s = repairGreekMathLabelHyphens(s);
+  s = repairFragmentedGreekWords(s);
   s = repairIntraWordGreekSplits(s);
+  s = repairFragmentedGreekWords(s);
   s = segmentGluedGreekBlob(s);
   s = repairKnownPhrases(s);
   // Collapse only accidental double-spaces introduced by particle/article
@@ -427,5 +542,10 @@ export function repairGluedGreekText(text: string): string {
 export function repairGreekDocumentText(text: string): string {
   const normalized = repairHtmlEntitiesInText(text.replace(/\r\n/g, '\n'));
   const hyphenFixed = repairGreekHyphenationBreaks(normalized);
-  return repairGluedGreekText(repairSpacedGreekText(hyphenFixed));
+  let out = repairGluedGreekText(repairSpacedGreekText(hyphenFixed));
+  out = out
+    .split('\n')
+    .map((line) => (/ {3,}/.test(line) ? line : repairKnownPhrases(repairFragmentedGreekWords(line))))
+    .join('\n');
+  return out;
 }

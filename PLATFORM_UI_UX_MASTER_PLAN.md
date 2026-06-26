@@ -242,7 +242,7 @@ Exam countdown → exam-prep task → Timer preset → Simulator
 - [ ] §20 questionnaire ανά tool
 - [x] E2E upload → course review → workspace (`file-upload-workspace.spec.ts`)
 - [x] E2E reader ↔ step rail sync (`reader-step-sync.spec.ts`)
-- [ ] E2E quiz flow (Playwright pending)
+- [x] E2E quiz flow (`quiz-workspace-flow.spec.ts`)
 - [ ] Performance budget: LCP, TTI με workspace closed
 - [ ] Error boundaries με recover copy EL/EN
 
@@ -280,7 +280,7 @@ Exam countdown → exam-prep task → Timer preset → Simulator
 1. **Τώρα:** Δοκίμασε upload → course review → Continue → workspace (Library path)
 2. **Αυτή την εβδομάδα:** Phase B (empty states, context strip, resume card)
 3. **Παράλληλα:** Wave 8B pipeline (multi-column PDF main path, math OCR zones)
-4. **Πριν launch:** E2E quiz flow + §20 audit + performance budget
+4. **Πριν launch:** §20 audit + performance budget (quiz E2E shipped)
 
 ---
 

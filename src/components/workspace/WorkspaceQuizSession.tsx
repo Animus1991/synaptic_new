@@ -57,7 +57,7 @@ export function WorkspaceQuizSession({
 }: Props) {
   const [session, setSession] = useState<QuizSessionState>(() => {
     const prev = loadQuizSession(scopeKey, concept);
-    if (prev && prev.items.length === items.length && !prev.completedAt) return prev;
+    if (prev && prev.items.length === items.length) return prev;
     return initQuizSession(scopeKey, concept, items);
   });
   const [confidence, setConfidence] = useState(3);
@@ -66,7 +66,7 @@ export function WorkspaceQuizSession({
   useEffect(() => {
     if (items.length === 0) return;
     const prev = loadQuizSession(scopeKey, concept);
-    if (prev && prev.items.length === items.length && !prev.completedAt) {
+    if (prev && prev.items.length === items.length) {
       setSession(prev);
       return;
     }

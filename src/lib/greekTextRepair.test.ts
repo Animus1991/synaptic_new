@@ -8,6 +8,7 @@ import {
 } from './greekTextRepair';
 import {
   EXPECTED_REPAIRS,
+  GREEK_REPAIR_FIXTURES,
   GLUED_ARTICLE_PRODUCTION,
   GLUED_HYPERBOLIC_LINE,
   GLUED_INCOME_TITLE,
@@ -79,7 +80,7 @@ describe('greekTextRepair', () => {
 });
 
 describe('greekTextRepair v2.3 — Greek PDF fixtures', () => {
-  it.each(EXPECTED_REPAIRS)('repairs: $input', ({ input, mustContain, mustNotContain }) => {
+  it.each(GREEK_REPAIR_FIXTURES)('repairs: $input', ({ input, mustContain, mustNotContain }) => {
     const out = repairGreekDocumentText(input);
     for (const phrase of mustContain) {
       expect(out, `expected "${phrase}" in "${out}"`).toContain(phrase);

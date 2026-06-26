@@ -7,8 +7,7 @@
  */
 
 import { isMathLikeLine } from './readerMathBlocks';
-import { repairGreekDocumentText } from './greekTextRepair';
-import { repairUtf8Mojibake } from './utf8MojibakeRepair';
+import { runDocumentTextPipeline } from './documentTextPipeline';
 import type { ExtractedTable } from './tableExtract';
 import { splitTextWithEmbeddedBlocks } from './segmentationEmbeddedBlocks';
 
@@ -299,22 +298,8 @@ export function detectDateBlockSections(text: string): DocumentSection[] | null 
 }
 
 /** Normalize OCR/PDF text while preserving structural markers. */
-export function normalizeDocumentText(text: string): string {
-  const normalized = repairUtf8Mojibake(text)
-    .replace(/\r\n/g, '\n')
-    .replace(/\r/g, '\n')
-    .replace(/\f/g, `\n${PAGE_BREAK_MARKER}\n`)
-    .replace(/[\u00A0\u2000-\u200B\u202F\u205F\u3000]/g, ' ')
-    .replace(/[""]/g, '"')
-    .replace(/['']/g, "'")
-    .replace(/[–—]/g, '-')
-    .replace(/[\u200B-\u200D\uFEFF]/g, '')
-    .split('\n')
-    .map((line) => line.trimEnd())
-    .join('\n')
-    .replace(/\n{4,}/g, '\n\n\n')
-    .trim();
-  return repairGreekDocumentText(normalized);
+export function normalizeDocumentText(text: string, glossaryTerms: string[] = []): string {
+  return runDocumentTextPipeline(text, { glossaryTerms }).text;
 }
 
 export function isStructuralBoundaryLine(line: string): SectionBoundaryKind | null {

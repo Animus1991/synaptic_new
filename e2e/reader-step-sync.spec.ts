@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { skipOnboardingToLibrary } from './helpers/onboarding';
 
 const GREEK_SYLLABUS = `
 ΕΘΝΙΚΟ ΚΑΙ ΚΑΠΟΔΙΣΤΡΙΑΚΟ ΠΑΝΕΠΙΣΤΗΜΙΟ ΑΘΗΝΩΝ
@@ -11,17 +12,6 @@ const GREEK_SYLLABUS = `
 Βιβλιογραφία
 [1] Krugman, P. (2018). International Economics. Pearson.
 `.trim();
-
-async function skipOnboarding(page: import('@playwright/test').Page) {
-  await page.getByTestId('landing-get-started').click();
-  await page.getByTestId('onboarding-continue').click();
-  await page.getByRole('button', { name: 'Self-Learner' }).click();
-  await page.getByTestId('onboarding-next').click();
-  await page.getByRole('button', { name: 'Deeply understand material' }).click();
-  await page.getByTestId('onboarding-next').click();
-  await page.getByTestId('onboarding-next').click();
-  await page.getByRole('button', { name: 'Skip — explore the demo first' }).click();
-}
 
 async function openGreekWorkspace(page: import('@playwright/test').Page) {
   await page.getByTestId('nav-library').click();
@@ -41,7 +31,7 @@ test.describe('Reader ↔ lesson rail sync (E2E)', () => {
 
   test('reader section nav selects matching workspace step', async ({ page }) => {
     await page.goto('/');
-    await skipOnboarding(page);
+    await skipOnboardingToLibrary(page);
     await openGreekWorkspace(page);
 
     const sectionNav = page.getByTestId('reader-section-nav');
@@ -55,7 +45,7 @@ test.describe('Reader ↔ lesson rail sync (E2E)', () => {
 
   test('workspace step rail keeps reader on lecture sections', async ({ page }) => {
     await page.goto('/');
-    await skipOnboarding(page);
+    await skipOnboardingToLibrary(page);
     await openGreekWorkspace(page);
 
     await page.getByTestId('workspace-step-rail-0').click();

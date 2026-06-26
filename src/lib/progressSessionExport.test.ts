@@ -38,7 +38,7 @@ describe('progressSessionExport', () => {
         mastery: 35,
         course: 'Econ 101',
         source: 'bus',
-        reasons: [{ id: 'quiz-wrong', label: '2├Ω quiz mistakes', severity: 'high' }],
+        reasons: [{ id: 'quiz-wrong', label: '2× quiz mistakes', severity: 'high' }],
         remediation: [{ id: 'quiz', label: 'Quiz', hint: 'Retest' }],
       }],
       toolActivity: [{ tool: 'quiz', count: 2, lastAt: 1 }],
@@ -54,9 +54,9 @@ describe('progressSessionExport', () => {
     const html = buildProgressSessionHtml(payload);
     expect(html).toContain('Elasticity');
     expect(html).toContain('62%');
-    expect(html).toContain('2├Ω quiz mistakes');
+    expect(html).toContain('2× quiz mistakes');
     expect(html).toContain('Test me');
-    expect(html).toContain('Quiz ├Ω2');
+    expect(html).toContain('Quiz ×2');
     expect(html).toContain('Concept Bus mirror');
 
     const json = JSON.parse(buildProgressSessionJson(payload));

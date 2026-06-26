@@ -4,6 +4,7 @@
  */
 
 import { repairGreekDocumentText } from './greekTextRepair';
+import { runDocumentTextPipeline } from './documentTextPipeline';
 
 export type OcrModelId =
   | 'text-layer'
@@ -147,7 +148,8 @@ export function normalizeBilingualExtractedText(text: string): string {
   const merged = mergeBilingualOcrCandidates(
     buildPostProcessCandidates(text, 'text-layer'),
   );
-  return merged.text || text.trim();
+  const base = merged.text || text.trim();
+  return runDocumentTextPipeline(base).text;
 }
 
 const TESSERACT_LANGS: Array<{ modelId: OcrModelId; langs: string }> = [

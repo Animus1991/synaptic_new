@@ -76,7 +76,7 @@ export function repairUtf8Mojibake(text: string, depth = 0): string {
   return out;
 }
 
-/** Reader-safe display text: mojibake repair + Greek OCR repair hook point. */
+/** @deprecated Prefer `repairDisplayPipeline` from `documentTextPipeline.ts` (Wave 8B-β). */
 export function repairDisplayText(text: string): string {
   return repairUtf8Mojibake(text);
 }

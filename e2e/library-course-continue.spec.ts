@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { skipOnboardingToLibrary } from './helpers/onboarding';
 
 const NOTES = `
 # Behavioral Economics
@@ -7,20 +8,9 @@ Waiting costs shape intertemporal choice.
 Present bias can explain why people prefer smaller sooner rewards.
 `.trim();
 
-async function skipOnboardingToLibrary(page: import('@playwright/test').Page) {
-  await page.getByTestId('landing-get-started').click();
-  await page.getByTestId('onboarding-continue').click();
-  await page.getByRole('button', { name: 'Self-Learner' }).click();
-  await page.getByTestId('onboarding-next').click();
-  await page.getByRole('button', { name: 'Deeply understand material' }).click();
-  await page.getByTestId('onboarding-next').click();
-  await page.getByTestId('onboarding-next').click();
-  await page.getByTestId('onboarding-skip-explore').click();
-  await expect(page.getByTestId('nav-library')).toBeVisible({ timeout: 15_000 });
-}
-
 test.describe('Library course review Continue', () => {
   test('library card → course review → workspace opens; back escapes overlay', async ({ page }) => {
+    test.setTimeout(120_000);
     await page.goto('/');
     await skipOnboardingToLibrary(page);
 

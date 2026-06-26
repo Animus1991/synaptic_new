@@ -42,6 +42,12 @@ export const HTML_ENTITY_MATH = 'είναι &lt;1 όπου n';
 
 export const GLUED_CURRENCY = 'Το $1 . 000 . 000 ;';
 
+export const PUA_ICON_NOISE = 'Διανομή\uE001\uE002 εισοδήματος';
+
+export const SPACED_SUPPLY_EN = 's u p p l y curve shifts when price changes.';
+
+export const FONT_MARKUP = '<span style="font-family: Wingdings">Διανομή</span> <i>εισοδήματος</i>';
+
 export const EXPECTED_REPAIRS: Array<{ input: string; mustContain: string[]; mustNotContain?: string[] }> = [
   {
     input: SPACED_ABSOLUTE_ADVANTAGE,
@@ -100,4 +106,32 @@ export const EXPECTED_REPAIRS: Array<{ input: string; mustContain: string[]; mus
     mustContain: ['$1.000.000'],
     mustNotContain: ['$1 . 000'],
   },
+  {
+    input: PUA_ICON_NOISE,
+    mustContain: ['Διανομή', 'εισοδήματος'],
+    mustNotContain: ['\uE001'],
+  },
+  {
+    input: SPACED_SUPPLY_EN,
+    mustContain: ['supply'],
+    mustNotContain: ['s u p'],
+  },
+  {
+    input: FONT_MARKUP,
+    mustContain: ['Διανομή', 'εισοδήματος'],
+    mustNotContain: ['<span', '<i>'],
+  },
 ];
+
+/** Regression vectors that need the full documentTextPipeline (not greekTextRepair alone). */
+export const PIPELINE_ONLY_REPAIRS = EXPECTED_REPAIRS.filter(({ input }) =>
+  input === PUA_ICON_NOISE ||
+  input === SPACED_SUPPLY_EN ||
+  input === FONT_MARKUP ||
+  input === HTML_ENTITY_MATH,
+);
+
+/** Subset for unit tests of repairGreekDocumentText only. */
+export const GREEK_REPAIR_FIXTURES = EXPECTED_REPAIRS.filter(
+  (fixture) => !PIPELINE_ONLY_REPAIRS.some((p) => p.input === fixture.input),
+);

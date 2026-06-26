@@ -39,7 +39,7 @@ describe('progressConceptBusMirrorQA', () => {
         mastery: 35,
         course: 'Econ 101',
         source: 'bus',
-        reasons: [{ id: 'quiz-wrong', label: '2├Ω quiz mistakes', severity: 'high' }],
+        reasons: [{ id: 'quiz-wrong', label: '2× quiz mistakes', severity: 'high' }],
         remediation: [{ id: 'feynman', label: 'Feynman', hint: 'Explain' }],
       }],
       session,
@@ -59,6 +59,6 @@ describe('progressConceptBusMirrorQA', () => {
     expect(report.ok).toBe(true);
     expect(report.feynmanActivityCount).toBe(1);
     expect(report.exportIncludesBus).toBe(true);
-    expect(report.bannerSummary).toContain('Feynman ├Ω1');
+    expect(report.bannerSummary).toContain('Feynman ×1');
   });
 });

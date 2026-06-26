@@ -97,6 +97,9 @@ export interface CourseSourceQuality {
     formulaCount: number;
     comparisonCount: number;
     averageConceptsPerTopic: number;
+    textHygieneScore?: number;
+    textCorruptionScore?: number;
+    textHygieneFlags?: string[];
   };
 }
 

@@ -85,6 +85,6 @@ describe('QuizPanel έΑΦ selection contract ┬π13.5 (Wave 5D)', () => {
       />,
     );
     expect(screen.getByTestId('quiz-selection-contract-strip')).toBeTruthy();
-    expect(screen.getByTestId('quiz-selection-contract-strip').textContent).toMatch(/┬π13\.5/);
+    expect(screen.getByTestId('quiz-selection-contract-strip').textContent).toMatch(/§13\.5/);
   });
 });

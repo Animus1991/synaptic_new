@@ -1,6 +1,6 @@
 # Roadmap & Gap Analysis
 
-**Status baseline:** June 2026 — post P0/P1/P2 sweep plus June wave: Study Workspace stability fixes, Agent workspace handoff (auto-send + step RAG context), mobile intelligence tabs, OCR line correction MVP, pipeline **v2.4.0** (column-major PDF + lecture merge tuning), library delete/reprocess, Greek OCR v2.3 repair path.
+**Status baseline:** June 2026 — post P0/P1/P2 sweep plus June wave: Study Workspace stability fixes, Agent workspace handoff (auto-send + step RAG context), mobile intelligence tabs, OCR line correction MVP, pipeline **v2.5.0** (Wave 8B-β layered text repair + hygiene scoring), library delete/reprocess, Greek OCR v2.3 repair path.
 
 This document separates **done**, **partial**, and **missing** against the product goal: *note-grounded adaptive learning at product scale, not MVP/demo-first.*
 
@@ -21,7 +21,7 @@ This document separates **done**, **partial**, and **missing** against the produ
 | Auth & full sync | **~80%** | JWT login/register, library + session pull/push, plan refresh, identity isolation |
 | Phase 6 server | **~75%** (dev skeleton) | Express proxy + auth + sync + OCR/RAG routes ship locally; **not** hardened multi-tenant production (see `server/README.md`) |
 | Documentation | **~90%** | 11 MD files + new SECURITY/API/CHANGELOG/ALGORITHMS docs + `EXHAUSTIVE_PRODUCT_SCALE_BLUEPRINT.md` |
-| Tests & CI | **~85%** | Vitest: **335+** unit tests; Playwright E2E (2 specs); server integration tests still missing |
+| Tests & CI | **~85%** | Vitest: **335+** unit tests; Playwright E2E (**7** specs); server integration tests still missing |
 | i18n | **~35%** | Shell + onboarding EL; analytics/feynman/argument labels still EN-only |
 
 **Overall product-scale readiness: ~84%** — past the MVP boundary; remaining work is depth (offline embeddings, full i18n, multi-user collaboration) rather than core workflow gaps.
@@ -38,6 +38,19 @@ This document separates **done**, **partial**, and **missing** against the produ
 | Mobile intelligence tabs | `WorkspaceMobileIntelligenceTabs.tsx` | ✅ |
 
 **Re-upload / reprocess:** courses analyzed before **v2.4.0** keep stored `extractedText`. Use **re-upload** for full Reader v2.4 layout, or **Επανεπεξεργασία κειμένου** when `pipelineVersion < 2.4.0` for Greek repair + merge without re-uploading the file.
+
+### Wave 8B — recognition depth (June 2026 baseline)
+
+Much of the original Wave 8B scope is already live; remaining work is split into three slices:
+
+| Slice | Scope | Status |
+| ----- | ----- | ------ |
+| **Main path** | Multi-column PDF (`pdfExtract.ts` v2.4 column-major), table/math blocks in segmentation (`segmentationEmbeddedBlocks.ts`), scanned PDF OCR (`ocrExtract.ts` + `POST /v1/ocr/pages`) | **~80–100% shipped** |
+| **8B-β** | Layered text repair (`documentTextPipeline` v2.5.0), `needsOcr` corruption gate, hygiene score in course diagnostics, Varian/EKPA-style fixtures | ✅ **shipped** |
+| **8B-α** | Math OCR zones: detect image regions without text layer → crop → (later) server `mode=math` | Not started |
+| **8B-γ** | Layout-aware `DocumentModel` (`Block[]` + reading order, `PRODUCT_SCALE_PLAN` §4.A1) | Future epic |
+
+Math OCR for existing text layers uses heuristics only (`readerMathBlocks.ts`); flat `extractedText` remains the course store until 8B-γ.
 
 ### Launch phases A–E (June 2026) — **complete**
 
@@ -133,7 +146,7 @@ See **`FUNCTION_CATALOG.md`** for the exhaustive per-function inventory and upgr
 - `npm run typecheck:all` gates client + server before build
 - CI: client typecheck + test + build; server typecheck
 - Vitest test suite: 12 files / 59 unit tests across content analysis, provenance, clustering, OCR, entities, course source quality, quiz extraction, upload fallback, retention, formula solving, and workspace source intelligence
-- Playwright `e2e/youtube-upload.spec.ts` + `e2e/file-upload-workspace.spec.ts` (run with `npm run test:e2e`; not yet in CI)
+- Playwright `e2e/*.spec.ts` — **7** specs including upload→workspace, quiz session, library Continue, reader sync, greek syllabus, deep links, youtube (run with `npm run test:e2e`; not yet in CI)
 
 ### Documentation (current)
 | File | Covers |
@@ -258,7 +271,7 @@ After the recent sweep, no demo concept (Cournot/Bertrand/Elasticity/Pandas/Micr
 - [x] Server session sync
 - [x] Stripe + admin
 - [x] Postgres + node-pg-migrate
-- [x] Playwright E2E (5 specs: upload→workspace, reader-step-sync, greek-syllabus, workspace-deep-links, youtube-upload; CI integration pending)
+- [x] Playwright E2E (7 specs: upload→workspace, quiz session, library Continue, reader-step-sync, greek-syllabus, workspace-deep-links, youtube-upload; CI integration pending)
 - [x] OCR for scanned PDFs / images
 - [x] Server NLP entities endpoint
 - [x] Server semantic RAG endpoint (`/v1/rag/query`)
@@ -278,7 +291,7 @@ After the recent sweep, no demo concept (Cournot/Bertrand/Elasticity/Pandas/Micr
 - `npm run typecheck:all` — client + server ✅
 - `npm run build` — runs `typecheck:all` then Vite build ✅
 - `npm test` — Vitest (**335+** unit tests) ✅
-- `npm run test:e2e` — Playwright (5 specs) ✅ (not yet wired to CI)
+- `npm run test:e2e` — Playwright (7 specs) ✅ (not yet wired to CI)
 - CI runs client typecheck/test/build + server typecheck
 
 Previously reported latent issues (`navItems`, `studyTimeWeek`, duplicate imports) remain **resolved** — `tsc --noEmit` is the build gate.

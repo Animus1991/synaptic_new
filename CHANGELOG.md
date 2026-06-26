@@ -16,8 +16,39 @@ client and server are versioned together.
   - Demo / onboarding explore → Library (no auto-open workspace); onboarding skip passes `exploreDemoMode`.
   - `removeCourse` + always-visible delete on Library cards and Course view header.
   - E2E: `library-course-continue.spec.ts`.
+- **Quiz session summary reset after finish** — `WorkspaceQuizSession` now restores
+  completed sessions from persistence when parent re-renders, instead of re-initializing
+  a fresh session (blocked `quiz-session-complete` in E2E and live flows).
 
 ### Added
+
+- **Wave 8B-β slice 2 — Varian Ch31 OCR regression (`CONTENT_PIPELINE_VERSION` 2.5.1)**
+  - `varianCh31Fixtures.ts` — 11 screenshot-derived corruption vectors (spaced Greek,
+    glued present-value lines, σήμερα/πιθανότητα splits, shampoo/salon glue).
+  - `repairFragmentedGreekWords` — merge OCR-broken syllables (`σή με ρα` → `σήμερα`).
+  - `repairGreekPhraseCleanup` — post-spell-gate phrase pass (spell gate no longer
+    re-breaks `σήμερα`, `καθαρισμό`, `σαμπουάν`).
+  - Expanded Varian lexicon + phrase fixes; stricter Greek fuzzy correction in
+    `miniSymSpell`; table-gutter lines (3+ spaces) skip OCR repair.
+  - **Tests:** `varianCh31Fixtures.test.ts` (11 cases).
+
+- **Wave 8B-β — layered text repair pipeline (`CONTENT_PIPELINE_VERSION` 2.5.0, Jun 2026)**
+  - `documentTextPipeline.ts` orchestrates Unicode sanitize → presentation flatten →
+    mojibake → structural normalize → Greek/Latin spaced repair → spell gate → Reader flatten.
+  - New modules: `textSanitizer`, `presentationSanitizer`, `latinTextRepair`,
+    `spellLexicon`, `miniSymSpell`, `viterbiWordSegment`, `spellGate`,
+    `paragraphLangDetect`, `textQualityMetrics`.
+  - `needsOcr()` flags corrupted text layers; OCR render scale tuned
+    (`OCR_RENDER_SCALE_SERVER=2.25`, client `2.5`).
+  - `courseSourceQuality` exposes `textHygieneScore`, corruption metrics, and watch-outs.
+  - **Tests:** `documentTextPipeline.test.ts`, `textSanitizer.test.ts`,
+    `textQualityMetrics.test.ts`; extended `greekOcrFixtures.ts` (PUA, font markup, EN spaced).
+
+- **Quiz workspace E2E (Phase D / Package A, Jun 2026)** — `e2e/quiz-workspace-flow.spec.ts`:
+  paste upload → course review → workspace → Quiz dock → full session with
+  confidence ratings → `quiz-session-complete` summary. Shared helpers:
+  `e2e/helpers/onboarding.ts`, `e2e/helpers/quizSession.ts`. All Playwright specs
+  now skip onboarding via `onboarding-skip-explore`.
 
 - **Pipeline P0 — table + math blocks in segmentation path (`1cd7e5e`)**
   - `segmentationEmbeddedBlocks.ts` — shared `collectEmbeddedBlocks` /
