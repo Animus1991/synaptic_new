@@ -52,7 +52,7 @@ npm run typecheck
 | `src/lib/uploadPipeline.test.ts` | Subject-agnostic fallback course generation, topic derivation, determinism regression checks, source-quality-aware fallback compaction |
 | `src/lib/globalContentSearch.test.ts` | Command palette content hits (courses, topics, glossary, notes) |
 
-Total today: **84** test files / **300** unit tests in `src/lib/` (and related), plus **2 Playwright specs** in `e2e/`.
+Total today: **170+** test files / **680+** unit tests, plus **5 Playwright specs** in `e2e/`.
 
 Gate: `npm run typecheck:all && npm test` before merge.
 
@@ -77,7 +77,10 @@ npm run test:watch -- formulaSolver
 
 | Spec | Covers |
 | ---- | ------ |
-| `e2e/file-upload-workspace.spec.ts` | Paste upload → course diagnostics → Study Workspace with note-grounded content |
+| `e2e/file-upload-workspace.spec.ts` | Paste upload → course diagnostics → Continue → Study Workspace with note-grounded content |
+| `e2e/reader-step-sync.spec.ts` | Reader section nav ↔ workspace step rail bidirectional sync |
+| `e2e/greek-syllabus-reader.spec.ts` | Greek university syllabus upload → Reader layout + section nav |
+| `e2e/workspace-deep-links.spec.ts` | Dashboard / weak-area deep links into workspace tools |
 | `e2e/youtube-upload.spec.ts` | Onboarding → Upload modal → YouTube URL → mocked `/v1/youtube/transcript` → course review diagnostics appear |
 
 Configuration: `playwright.config.ts` (Chromium, auto-spawns `npm run dev`).

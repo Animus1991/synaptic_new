@@ -5,6 +5,17 @@ client and server are versioned together.
 
 ## [Unreleased]
 
+### Fixed
+
+- **Library / Course Continue regression (Jun 2026)**
+  - Restore post-upload flow: `onUploadComplete` navigates to `course` review instead of
+    auto-opening workspace (Wave 7 regression in `b6155b3`).
+  - `openCourseWorkspace()` — Continue without topic uses `openStudyWorkspace()`; topic
+    cards pass concept override via `openStudyWorkspaceForConcept`.
+  - `AppToastBanner` moved into shared `overlays` so course view shows structure toasts
+    after generate.
+  - **E2E:** `file-upload-workspace.spec.ts` passes (upload → diagnostics → Continue → workspace).
+
 ### Added
 
 - **Pipeline P0 — table + math blocks in segmentation path (`1cd7e5e`)**

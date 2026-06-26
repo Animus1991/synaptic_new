@@ -55,6 +55,7 @@ import { reprocessCourseAnnotations } from '../lib/annotationStore';
 import { clearQuizSessions } from '../lib/quizSession';
 import { markCourseArtifactsStale, clearCourseArtifactsStale } from '../lib/artifactStaleness';
 import { removeUploadedFileFromLibrary } from '../lib/removeUploadedFile';
+import { removeCourseFromLibrary } from '../lib/removeCourse';
 import {
   glossaryAfterCourseSourceRemoval,
   tasksAfterFileRemoval,
@@ -456,6 +457,13 @@ export function useAppStore() {
   }, [courses, user.settings]);
 
   const navigate = useCallback((view: AppView) => {
+    if (view === 'course' || view === 'library') {
+      workspaceCloseGenRef.current += 1;
+      studyWorkspaceOpenRef.current = false;
+      setStudyWorkspaceOpen(false);
+      setWorkspaceAgentSplit(false);
+      setActiveTaskId(null);
+    }
     setCurrentView(view);
     setSidebarOpen(false);
     if (view === 'agent' && studyWorkspaceOpenRef.current) {
@@ -468,6 +476,11 @@ export function useAppStore() {
     }
     window.scrollTo(0, 0);
   }, []);
+
+  const openCourseReview = useCallback((course: Course) => {
+    setSelectedCourse(course);
+    navigate('course');
+  }, [navigate]);
 
   const exitWorkspaceAgentSplit = useCallback(() => {
     setWorkspaceAgentSplit(false);
@@ -1502,6 +1515,45 @@ export function useAppStore() {
     return true;
   }, [uploadedFiles, courses, glossaryEntries, tasks, selectedCourse, learnerModel, dashboardStats, user, betaMastery, firstAttemptKeys, openMistakes, activities, persistLibrary, persist, showAppToast]);
 
+  const removeCourse = useCallback((courseId: string) => {
+    const result = removeCourseFromLibrary(courseId, courses, uploadedFiles, glossaryEntries, tasks);
+    const lang = user.settings.language === 'el' ? 'el' : 'en';
+    if (!result.removed) {
+      if (result.reason === 'demo') {
+        showAppToast(lang === 'el' ? 'Τα demo μαθήματα δεν διαγράφονται.' : 'Demo courses cannot be deleted.');
+      } else {
+        showAppToast(lang === 'el' ? 'Το μάθημα δεν βρέθηκε.' : 'Course not found.');
+      }
+      return false;
+    }
+    setCourses(result.courses);
+    setUploadedFiles(result.files);
+    setGlossaryEntries(result.glossary);
+    setTasks(result.tasks);
+    clearCourseArtifactsStale(courseId);
+    clearQuizSessions();
+    persistLibrary(
+      result.files,
+      result.glossary,
+      result.courses.filter((c) => !MOCK_COURSE_IDS.has(c.id)),
+    );
+    persist(learnerModel, dashboardStats, result.tasks, user.xp, betaMastery, firstAttemptKeys, openMistakes, activities, user.settings);
+    if (selectedCourse?.id === courseId) {
+      setSelectedCourse(null);
+      navigate('library');
+    }
+    showAppToast(
+      lang === 'el'
+        ? 'Το μάθημα και οι πηγές του αφαιρέθηκαν.'
+        : 'Course and its sources were removed.',
+    );
+    return true;
+  }, [
+    courses, uploadedFiles, glossaryEntries, tasks, selectedCourse, learnerModel, dashboardStats,
+    user, betaMastery, firstAttemptKeys, openMistakes, activities, persistLibrary, persist,
+    navigate, showAppToast,
+  ]);
+
   const simulateUpload = useCallback((files: File[]) => {
     setIsUploading(true);
     const newFiles: UploadedFile[] = files.map((f, i) => ({
@@ -1726,7 +1778,7 @@ export function useAppStore() {
   );
 
   return {
-    currentView, navigate,
+    currentView, navigate, openCourseReview,
     sidebarOpen, setSidebarOpen,
     user, updateSettings, toggleTheme,
     courses, selectedCourse, setSelectedCourse,
@@ -1744,7 +1796,7 @@ export function useAppStore() {
     workspaceAgentSplit, setWorkspaceAgentSplit, exitWorkspaceAgentSplit,
     dashboardNextAction,
     uploadedFiles, glossaryEntries, isUploading, isReprocessing, simulateUpload, processUpload,
-    reprocessCourseMaterial, removeUploadedFile,
+    reprocessCourseMaterial, removeUploadedFile, removeCourse,
     pullLibraryFromServer, pullSessionFromServer, pushSessionToServer, syncAccountOnLogin,
     queueConceptBusSync, flushConceptBusSync,
     refreshAuthPlan, logStudyMinutes,

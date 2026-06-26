@@ -215,9 +215,9 @@ Exam countdown → exam-prep task → Timer preset → Simulator
 - [x] Workspace open/close lifecycle fix
 - [x] Lazy `StudyWorkspace` + `WorkspaceBootShell`
 - [x] Overlay mutual exclusion στο `startTask`
-- [ ] `greetingForTime` + i18n dashboard header
-- [ ] `aria-busy` σε Study Workspace button κατά boot
-- [ ] Post-upload CTA → workspace
+- [x] `greetingForTime` + i18n dashboard header — `greeting.ts`, `Dashboard.tsx`
+- [x] `aria-busy` σε Study Workspace button κατά boot — `Dashboard.tsx` (`workspaceBooting`); `WorkspaceBootShell` overlay
+- [x] Post-upload → course review → Continue opens workspace — `onUploadComplete` → `navigate('course')`; `course-open-workspace` (regression fix Jun 2026)
 - [ ] React Profiler session — document baseline ms
 
 ### Phase B — Αυτοεπεξήγηση (2–3 εβδομάδες)
@@ -226,7 +226,7 @@ Exam countdown → exam-prep task → Timer preset → Simulator
 - [ ] Context strip workspace πάντα ορατό
 - [ ] Tool dock σύμπτυξη + discoverability primary CTA
 - [ ] Onboarding βήμα «upload → workspace»
-- [ ] Shortcuts help `?` στο workspace
+- [x] Shortcuts help `?` στο workspace — SW-P3-08 `WorkspaceKeyboardHelp` (EL/EN)
 - [ ] Resume card με live tool/concept
 
 ### Phase C — Οπτική συνοχή (2 εβδομάδες)
@@ -240,7 +240,9 @@ Exam countdown → exam-prep task → Timer preset → Simulator
 ### Phase D — Launch hardening (ongoing)
 
 - [ ] §20 questionnaire ανά tool
-- [ ] E2E Playwright: open workspace, quiz flow, upload flow
+- [x] E2E upload → course review → workspace (`file-upload-workspace.spec.ts`)
+- [x] E2E reader ↔ step rail sync (`reader-step-sync.spec.ts`)
+- [ ] E2E quiz flow (Playwright pending)
 - [ ] Performance budget: LCP, TTI με workspace closed
 - [ ] Error boundaries με recover copy EL/EN
 
@@ -275,11 +277,11 @@ Exam countdown → exam-prep task → Timer preset → Simulator
 
 ## 9. Επόμενα βήματα (σύσταση ομάδας)
 
-1. **Τώρα:** Δοκίμασε Study Workspace μετά το fix — ένα κλικ, πολλαπλά κλικ, close→reopen γρήγορα
-2. **Αυτή την εβδομάδα:** Phase A υπόλοιπα (greeting i18n, post-upload CTA)
-3. **Παράλληλα:** Wave 6 workspace features από `STUDY_WORKSPACE_LAUNCH_PLAN.md`
-4. **Πριν launch:** Playwright E2E + §20 audit
+1. **Τώρα:** Δοκίμασε upload → course review → Continue → workspace (Library path)
+2. **Αυτή την εβδομάδα:** Phase B (empty states, context strip, resume card)
+3. **Παράλληλα:** Wave 8B pipeline (multi-column PDF main path, math OCR zones)
+4. **Πριν launch:** E2E quiz flow + §20 audit + performance budget
 
 ---
 
-*Τελευταία ενημέρωση: Ιούνιος 2026 — Wave 7 (SW-P1-02 mobile drawer, SW-P1-04 reader sync, typography/mojibake) + lifecycle fixes.*
+*Τελευταία ενημέρωση: Ιούνιος 2026 — Wave 8A (SW-P2-05/06/07, SW-P3-08), Pipeline P0, Library Continue regression fix, Phase A UI checklist sync.*

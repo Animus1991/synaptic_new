@@ -58,7 +58,7 @@
 - `readerGreekSyllabus.test.ts`, `readerBilingualSync.test.ts`, κ.ά.
 
 ### Κενά / επόμενο
-- [ ] Reprocess/re-upload για παλιά PPTX/PDF (garbled Greek pre-2.4) — UI mojibake repair ✅ mitigates display; source reprocess still recommended
+- [ ] Reprocess/re-upload για παλιά PPTX/PDF (garbled Greek pre-2.4) — runtime `greekTextRepair` + `utf8MojibakeRepair` mitigate display; source reprocess still recommended
 - [x] Component DOM tests — partial: `WorkspaceMobileToolDrawer.test.tsx` (`@testing-library/react`)
 - [ ] Inline glossary popover on hover
 
@@ -293,7 +293,7 @@
 ### Επόμενα (backlog)
 - [ ] Glossary refresh on reprocess (currently topics + tasks only)
 - [ ] Feynman / Compare / Debate dedicated Agent chips (beyond cross-link bar)
-- [ ] E2E: Reader section nav → step rail sync (unit/QA tests ✅; Playwright E2E pending)
+- [x] E2E: Reader section nav → step rail sync — `reader-step-sync.spec.ts` (2 cases)
 - [ ] `@testing-library/react` — expand beyond mobile drawer test
 
 ---

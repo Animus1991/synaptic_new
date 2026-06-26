@@ -19,8 +19,11 @@ import { ReprocessPreviewModal } from './ReprocessPreviewModal';
 import { ConfirmDialog } from './ui/ConfirmDialog';
 import { useI18n } from '../lib/i18n';
 import { buildDeleteFileCascadeCopy } from '../lib/deleteFileCascadeCopy';
+import { buildDeleteCourseCascadeCopy } from '../lib/deleteCourseCascadeCopy';
 import { countFilesForCourse } from '../lib/deleteCascade';
 import { countGeneratedTasksForCourse } from '../lib/pipelineReprocess';
+import { courseDeleteStats } from '../lib/removeCourse';
+import { isDemoCourse } from '../lib/demoMode';
 
 interface CourseViewProps {
   course: Course;
@@ -36,6 +39,7 @@ interface CourseViewProps {
   onReprocessMaterial?: () => boolean | void;
   reprocessingMaterial?: boolean;
   onRemoveFile?: (fileId: string) => void;
+  onRemoveCourse?: (courseId: string) => boolean;
   tasks?: Task[];
 }
 
@@ -61,11 +65,13 @@ export function CourseView({
   onReprocessMaterial,
   reprocessingMaterial = false,
   onRemoveFile,
+  onRemoveCourse,
   tasks = [],
 }: CourseViewProps) {
   const [tab, setTab] = useState<CourseTab>('path');
   const [reprocessWizardOpen, setReprocessWizardOpen] = useState(false);
   const [reprocessApplied, setReprocessApplied] = useState(false);
+  const [removeCourseOpen, setRemoveCourseOpen] = useState(false);
   const [qualityDismissed, setQualityDismissed] = useState(() => {
     try {
       return sessionStorage.getItem(courseQualityDismissKey(course.id)) === '1';
@@ -104,6 +110,16 @@ export function CourseView({
     return buildReprocessPreview(course, uploadedFiles, lang);
   }, [reprocessWizardOpen, course, uploadedFiles, lang]);
 
+  const canDeleteCourse = Boolean(onRemoveCourse) && !isDemoCourse(course.id);
+  const deleteCourseCopy = useMemo(() => {
+    const stats = courseDeleteStats(course.id, uploadedFiles, tasks, glossaryEntries);
+    return buildDeleteCourseCascadeCopy({
+      lang,
+      courseTitle: course.title,
+      ...stats,
+    });
+  }, [course.id, course.title, uploadedFiles, tasks, glossaryEntries, lang]);
+
   const handleApplyReprocess = () => {
     if (!onReprocessMaterial) return;
     const ok = onReprocessMaterial();
@@ -118,7 +134,9 @@ export function CourseView({
         animate={{ opacity: 1, y: 0 }}
       >
         <button
+          type="button"
           onClick={onBack}
+          data-testid="course-back"
           className="flex items-center gap-1.5 text-sm text-text-secondary hover:text-text-primary mb-4 transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
@@ -155,8 +173,21 @@ export function CourseView({
           </div>
 
           <div className="flex gap-2 shrink-0">
+            {canDeleteCourse && (
+              <button
+                type="button"
+                onClick={() => setRemoveCourseOpen(true)}
+                data-testid="course-delete"
+                className="flex items-center gap-2 px-3 py-2.5 border border-accent-rose/30 hover:bg-accent-rose/10 rounded-xl text-sm font-medium text-accent-rose transition-all"
+                aria-label={lang === 'el' ? 'Διαγραφή μαθήματος' : 'Delete course'}
+              >
+                <Trash2 className="w-4 h-4" />
+                <span className="hidden sm:inline">{lang === 'el' ? 'Διαγραφή' : 'Delete'}</span>
+              </button>
+            )}
             {needsSourceUpgrade && onUploadMore && (
               <button
+                type="button"
                 onClick={onUploadMore}
                 data-testid="course-upload-more"
                 className="flex items-center gap-2 px-4 py-2.5 border border-accent-amber/30 bg-accent-amber/10 hover:bg-accent-amber/15 rounded-xl text-sm font-medium text-accent-amber transition-all"
@@ -166,6 +197,7 @@ export function CourseView({
               </button>
             )}
             <button
+              type="button"
               onClick={onOpenAgent}
               className="flex items-center gap-2 px-4 py-2.5 border border-border-default hover:border-brand-500/30 rounded-xl text-sm font-medium transition-all"
             >
@@ -173,6 +205,7 @@ export function CourseView({
               Ask Agent
             </button>
             <button
+              type="button"
               onClick={() => onStartLesson()}
               data-testid="course-open-workspace"
               className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-brand-600 to-brand-500 text-white rounded-xl text-sm font-medium hover:from-brand-500 hover:to-brand-400 transition-all"
@@ -362,6 +395,21 @@ export function CourseView({
         applied={reprocessApplied}
         onApply={onReprocessMaterial ? handleApplyReprocess : undefined}
       />
+      {canDeleteCourse && (
+        <ConfirmDialog
+          open={removeCourseOpen}
+          title={deleteCourseCopy.title}
+          description={deleteCourseCopy.description}
+          confirmLabel={lang === 'el' ? 'Διαγραφή' : 'Delete'}
+          cancelLabel={lang === 'el' ? 'Ακύρωση' : 'Cancel'}
+          destructive
+          onConfirm={() => {
+            onRemoveCourse?.(course.id);
+            setRemoveCourseOpen(false);
+          }}
+          onClose={() => setRemoveCourseOpen(false)}
+        />
+      )}
     </div>
   );
 }

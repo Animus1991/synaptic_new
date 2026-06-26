@@ -11,13 +11,17 @@ import { buildMaterialOutlinePreview } from '../lib/uploadOutlinePreview';
 import { OutlinePreviewPanel } from './OutlinePreviewPanel';
 import { ConfirmDialog } from './ui/ConfirmDialog';
 import { buildDeleteFileCascadeCopy } from '../lib/deleteFileCascadeCopy';
+import { buildDeleteCourseCascadeCopy } from '../lib/deleteCourseCascadeCopy';
 import { countFilesForCourse } from '../lib/deleteCascade';
 import { countGeneratedTasksForCourse } from '../lib/pipelineReprocess';
+import { courseDeleteStats } from '../lib/removeCourse';
+import { isDemoCourse } from '../lib/demoMode';
 
 interface LibraryProps {
   courses: Course[];
   uploadedFiles: UploadedFile[];
   onSelectCourse: (course: Course) => void;
+  onRemoveCourse?: (courseId: string) => boolean;
   onUpload: () => void;
   onRemoveFile?: (fileId: string) => void;
   onReprocessCourse?: (courseId: string) => void;
@@ -45,6 +49,7 @@ export function Library({
   courses,
   uploadedFiles,
   onSelectCourse,
+  onRemoveCourse,
   onUpload,
   onRemoveFile,
   onReprocessCourse,
@@ -170,8 +175,8 @@ export function Library({
               )}>
                 {filteredCourses.map((course, i) => (
                   viewMode === 'grid'
-                    ? <CourseCard key={course.id} course={course} index={i} onClick={() => onSelectCourse(course)} />
-                    : <CourseListItem key={course.id} course={course} index={i} onClick={() => onSelectCourse(course)} />
+                    ? <CourseCard key={course.id} course={course} index={i} tasks={tasks} glossaryEntries={glossaryEntries} uploadedFiles={uploadedFiles} userLanguage={userLanguage} onClick={() => onSelectCourse(course)} onRemoveCourse={onRemoveCourse} />
+                    : <CourseListItem key={course.id} course={course} index={i} tasks={tasks} glossaryEntries={glossaryEntries} uploadedFiles={uploadedFiles} userLanguage={userLanguage} onClick={() => onSelectCourse(course)} onRemoveCourse={onRemoveCourse} />
                 ))}
               </div>
             )}
@@ -214,7 +219,36 @@ export function Library({
   );
 }
 
-function CourseCard({ course, index, onClick }: { course: Course; index: number; onClick: () => void }) {
+function CourseCard({
+  course,
+  index,
+  onClick,
+  onRemoveCourse,
+  uploadedFiles,
+  tasks = [],
+  glossaryEntries = [],
+  userLanguage = 'en',
+}: {
+  course: Course;
+  index: number;
+  onClick: () => void;
+  onRemoveCourse?: (courseId: string) => boolean;
+  uploadedFiles: UploadedFile[];
+  tasks?: Task[];
+  glossaryEntries?: GlossaryEntry[];
+  userLanguage?: 'en' | 'el';
+}) {
+  const [removeDialogOpen, setRemoveDialogOpen] = useState(false);
+  const canDelete = Boolean(onRemoveCourse) && !isDemoCourse(course.id);
+  const deleteCopy = useMemo(() => {
+    const stats = courseDeleteStats(course.id, uploadedFiles, tasks, glossaryEntries);
+    return buildDeleteCourseCascadeCopy({
+      lang: userLanguage,
+      courseTitle: course.title,
+      ...stats,
+    });
+  }, [course.id, course.title, uploadedFiles, tasks, glossaryEntries, userLanguage]);
+
   const progress = (course.completedLessons / Math.max(course.totalLessons, 1)) * 100;
   const isGenerating = course.status === 'generating';
   const quality = course.sourceQuality;
@@ -240,7 +274,19 @@ function CourseCard({ course, index, onClick }: { course: Course; index: number;
     >
       <div className="flex items-start justify-between mb-4">
         <div className="text-3xl">{course.icon}</div>
-        {isGenerating ? (
+        <div className="flex items-center gap-1">
+          {canDelete && (
+            <button
+              type="button"
+              onClick={(e) => { e.stopPropagation(); setRemoveDialogOpen(true); }}
+              data-testid="library-course-delete"
+              className="rounded-lg p-1.5 text-text-tertiary opacity-0 transition-all hover:bg-accent-rose/10 hover:text-accent-rose group-hover:opacity-100"
+              aria-label={userLanguage === 'el' ? 'Διαγραφή μαθήματος' : 'Delete course'}
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
+          )}
+          {isGenerating ? (
           <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-accent-amber/10 text-accent-amber text-xs font-medium">
             <Loader2 className="w-3 h-3 animate-spin" />
             Generating
@@ -250,6 +296,7 @@ function CourseCard({ course, index, onClick }: { course: Course; index: number;
             {course.difficulty}
           </div>
         )}
+        </div>
       </div>
 
       <h3 className="font-semibold mb-1 group-hover:text-brand-300 transition-colors" data-testid="library-course-title">{course.title}</h3>
@@ -325,11 +372,55 @@ function CourseCard({ course, index, onClick }: { course: Course; index: number;
           <span>{course.exerciseCount} exercises</span>
         </div>
       )}
+      {canDelete && (
+        <ConfirmDialog
+          open={removeDialogOpen}
+          title={deleteCopy.title}
+          description={deleteCopy.description}
+          confirmLabel={userLanguage === 'el' ? 'Διαγραφή' : 'Delete'}
+          cancelLabel={userLanguage === 'el' ? 'Ακύρωση' : 'Cancel'}
+          destructive
+          onConfirm={() => {
+            onRemoveCourse?.(course.id);
+            setRemoveDialogOpen(false);
+          }}
+          onClose={() => setRemoveDialogOpen(false)}
+        />
+      )}
     </motion.div>
   );
 }
 
-function CourseListItem({ course, index, onClick }: { course: Course; index: number; onClick: () => void }) {
+function CourseListItem({
+  course,
+  index,
+  onClick,
+  onRemoveCourse,
+  uploadedFiles,
+  tasks = [],
+  glossaryEntries = [],
+  userLanguage = 'en',
+}: {
+  course: Course;
+  index: number;
+  onClick: () => void;
+  onRemoveCourse?: (courseId: string) => boolean;
+  uploadedFiles: UploadedFile[];
+  tasks?: Task[];
+  glossaryEntries?: GlossaryEntry[];
+  userLanguage?: 'en' | 'el';
+}) {
+  const [removeDialogOpen, setRemoveDialogOpen] = useState(false);
+  const canDelete = Boolean(onRemoveCourse) && !isDemoCourse(course.id);
+  const deleteCopy = useMemo(() => {
+    const stats = courseDeleteStats(course.id, uploadedFiles, tasks, glossaryEntries);
+    return buildDeleteCourseCascadeCopy({
+      lang: userLanguage,
+      courseTitle: course.title,
+      ...stats,
+    });
+  }, [course.id, course.title, uploadedFiles, tasks, glossaryEntries, userLanguage]);
+
   const progress = (course.completedLessons / Math.max(course.totalLessons, 1)) * 100;
   const quality = course.sourceQuality;
 
@@ -367,7 +458,33 @@ function CourseListItem({ course, index, onClick }: { course: Course; index: num
         </div>
         <span className="text-sm font-medium w-12 text-right">{course.mastery}%</span>
       </div>
+      {canDelete && (
+        <button
+          type="button"
+          onClick={(e) => { e.stopPropagation(); setRemoveDialogOpen(true); }}
+          data-testid="library-course-delete"
+          className="rounded-lg p-1.5 text-text-tertiary opacity-0 transition-all hover:bg-accent-rose/10 hover:text-accent-rose group-hover:opacity-100"
+          aria-label={userLanguage === 'el' ? 'Διαγραφή μαθήματος' : 'Delete course'}
+        >
+          <Trash2 className="w-4 h-4" />
+        </button>
+      )}
       <ChevronRight className="w-4 h-4 text-text-tertiary group-hover:text-brand-400" />
+      {canDelete && (
+        <ConfirmDialog
+          open={removeDialogOpen}
+          title={deleteCopy.title}
+          description={deleteCopy.description}
+          confirmLabel={userLanguage === 'el' ? 'Διαγραφή' : 'Delete'}
+          cancelLabel={userLanguage === 'el' ? 'Ακύρωση' : 'Cancel'}
+          destructive
+          onConfirm={() => {
+            onRemoveCourse?.(course.id);
+            setRemoveDialogOpen(false);
+          }}
+          onClose={() => setRemoveDialogOpen(false)}
+        />
+      )}
     </motion.div>
   );
 }

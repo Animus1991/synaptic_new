@@ -106,6 +106,15 @@ export default function App() {
     });
   }, [store]);
 
+  /** Course / library Continue — opens workspace immediately (no startTransition delay). */
+  const openCourseWorkspace = useCallback((topicTitle?: string) => {
+    if (topicTitle?.trim()) {
+      store.openStudyWorkspaceForConcept(topicTitle.trim());
+      return;
+    }
+    store.openStudyWorkspace();
+  }, [store]);
+
   const openExamTimerWorkspace = useCallback(() => {
     if (store.currentView === 'landing' || store.currentView === 'onboarding') {
       store.navigate('dashboard');
@@ -310,8 +319,7 @@ export default function App() {
     if (hit.courseId) {
       const course = store.courses.find((c) => c.id === hit.courseId);
       if (course) {
-        store.setSelectedCourse(course);
-        store.navigate('course');
+        store.openCourseReview(course);
       }
     }
     if (hit.kind === 'topic' || hit.kind === 'glossary' || hit.kind === 'note') {
@@ -481,20 +489,9 @@ export default function App() {
         onUpload={() => {}}
         onProcessUpload={store.processUpload}
         onUploadComplete={(course) => {
-          store.setSelectedCourse(course);
           closeUploadModal();
-          const firstTopic = course.topics[0]?.title;
-          if (firstTopic) {
-            openWorkspaceForConcept(firstTopic);
-          } else {
-            openWorkspace();
-          }
-          const isEl = store.user.settings.language === 'el';
-          store.showAppToast(
-            isEl
-              ? `Το μάθημα «${course.title}» έτοιμο — άνοιξε τον χώρο μελέτης.`
-              : `Course "${course.title}" is ready — study workspace opened.`,
-          );
+          setUploadIntent({ mode: 'new' });
+          store.openCourseReview(course);
         }}
         onProceed={() => {
           /* Navigation handled in onUploadComplete after successful upload */
@@ -504,6 +501,7 @@ export default function App() {
         defaultTargetCourseId={uploadIntent.targetCourseId}
         userSettings={store.user.settings}
       />
+      <AppToastBanner toast={store.appToast} onDismiss={store.dismissAppToast} />
     </>
   );
 
@@ -581,12 +579,13 @@ export default function App() {
             glossaryEntries={store.glossaryEntries.filter((g) => g.courseId === selectedCourse.id)}
             onGoToSource={store.openSourceAt}
             onBack={() => store.navigate('library')}
-            onStartLesson={(topicTitle?: string) => openWorkspaceForConcept(topicTitle)}
+            onStartLesson={(topicTitle?: string) => openCourseWorkspace(topicTitle)}
             onOpenAgent={() => store.navigate('agent')}
             onUploadMore={() => openUploadModal({ mode: 'extend', targetCourseId: selectedCourse.id })}
             onReprocessMaterial={() => store.reprocessCourseMaterial(selectedCourse.id)}
             reprocessingMaterial={store.isReprocessing}
             onRemoveFile={store.removeUploadedFile}
+            onRemoveCourse={store.removeCourse}
             tasks={store.tasks}
           />
         </Shell>
@@ -619,7 +618,7 @@ export default function App() {
               onStartSession={store.startSession}
               onResolveMisconception={store.resolveMisconception}
               onNavigate={(view: AppView) => store.navigate(view)}
-              onSelectCourse={(course) => { store.setSelectedCourse(course); store.navigate('course'); }}
+              onSelectCourse={(course) => store.openCourseReview(course)}
               onOpenWorkspace={openWorkspace}
               onOpenExamTimer={openExamTimerWorkspace}
               onFocusWeakArea={openWorkspaceForConcept}
@@ -634,7 +633,8 @@ export default function App() {
             <Library
               courses={visibleCourses(store.courses, store.user.settings)}
               uploadedFiles={store.uploadedFiles}
-              onSelectCourse={(course) => { store.setSelectedCourse(course); store.navigate('course'); }}
+              onSelectCourse={(course) => store.openCourseReview(course)}
+              onRemoveCourse={store.removeCourse}
               onUpload={() => openUploadModal()}
               onRemoveFile={store.removeUploadedFile}
               onReprocessCourse={store.reprocessCourseMaterial}
@@ -684,10 +684,7 @@ export default function App() {
               learnerModel={store.learnerModel}
               onOpenCourse={(id) => {
                 const course = store.courses.find((c) => c.id === id);
-                if (course) {
-                  store.setSelectedCourse(course);
-                  store.navigate('course');
-                }
+                if (course) store.openCourseReview(course);
               }}
             />
             </LazyOverlay>
@@ -706,7 +703,6 @@ export default function App() {
         </motion.div>
       </AnimatePresence>
       </Shell>
-      <AppToastBanner toast={store.appToast} onDismiss={store.dismissAppToast} />
       {overlays}
     </I18nContext.Provider>
   );

@@ -258,7 +258,7 @@ After the recent sweep, no demo concept (Cournot/Bertrand/Elasticity/Pandas/Micr
 - [x] Server session sync
 - [x] Stripe + admin
 - [x] Postgres + node-pg-migrate
-- [x] Playwright E2E (two specs; CI integration pending)
+- [x] Playwright E2E (5 specs: upload→workspace, reader-step-sync, greek-syllabus, workspace-deep-links, youtube-upload; CI integration pending)
 - [x] OCR for scanned PDFs / images
 - [x] Server NLP entities endpoint
 - [x] Server semantic RAG endpoint (`/v1/rag/query`)
@@ -278,7 +278,7 @@ After the recent sweep, no demo concept (Cournot/Bertrand/Elasticity/Pandas/Micr
 - `npm run typecheck:all` — client + server ✅
 - `npm run build` — runs `typecheck:all` then Vite build ✅
 - `npm test` — Vitest (**335+** unit tests) ✅
-- `npm run test:e2e` — Playwright (2 specs) ✅ (not yet wired to CI)
+- `npm run test:e2e` — Playwright (5 specs) ✅ (not yet wired to CI)
 - CI runs client typecheck/test/build + server typecheck
 
 Previously reported latent issues (`navItems`, `studyTimeWeek`, duplicate imports) remain **resolved** — `tsc --noEmit` is the build gate.
