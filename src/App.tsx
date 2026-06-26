@@ -37,6 +37,10 @@ const StudyWorkspace = lazy(() =>
   import('./components/workspace/StudyWorkspace').then((m) => ({ default: m.StudyWorkspace })),
 );
 
+function preloadStudyWorkspace() {
+  void import('./components/workspace/StudyWorkspace');
+}
+
 const Agent = lazy(() => import('./components/Agent').then((m) => ({ default: m.Agent })));
 const Analytics = lazy(() => import('./components/Analytics').then((m) => ({ default: m.Analytics })));
 const TeacherDashboard = lazy(() => import('./components/TeacherDashboard').then((m) => ({ default: m.TeacherDashboard })));
@@ -106,8 +110,9 @@ export default function App() {
     });
   }, [store]);
 
-  /** Course / library Continue — opens workspace immediately (no startTransition delay). */
+  /** Course / library Continue — preload chunk then open workspace. */
   const openCourseWorkspace = useCallback((topicTitle?: string) => {
+    preloadStudyWorkspace();
     if (topicTitle?.trim()) {
       store.openStudyWorkspaceForConcept(topicTitle.trim());
       return;
@@ -128,10 +133,7 @@ export default function App() {
 
   const handleSeeDemo = useCallback(() => {
     store.enableDemoContent();
-    store.navigate('dashboard');
-    startTransition(() => {
-      store.openStudyWorkspace();
-    });
+    store.navigate('library');
   }, [store]);
 
   const handleOnboardingComplete = useCallback((
@@ -140,10 +142,7 @@ export default function App() {
     const { exploreDemoMode, ...rest } = data;
     if (exploreDemoMode) {
       store.enableDemoContent();
-      store.navigate('dashboard');
-      startTransition(() => {
-        store.openStudyWorkspace();
-      });
+      store.navigate('library');
       return;
     }
     store.completeOnboarding(rest);
@@ -238,7 +237,13 @@ export default function App() {
   };
 
   const studyWorkspaceElement = (
-    <Suspense fallback={<WorkspaceBootShell compact={agentSplitActive} />}>
+    <Suspense fallback={
+      <WorkspaceBootShell
+        compact={agentSplitActive}
+        onClose={closeWorkspace}
+        lang={store.user.settings.language === 'el' ? 'el' : 'en'}
+      />
+    }>
       <StudyWorkspace
         key={workspaceSessionKey}
         agentSplit={agentSplitActive}
@@ -326,6 +331,12 @@ export default function App() {
       openWorkspaceForConcept(hit.concept ?? hit.label);
     }
   };
+
+  useEffect(() => {
+    if (store.currentView === 'course' && store.selectedCourse) {
+      preloadStudyWorkspace();
+    }
+  }, [store.currentView, store.selectedCourse?.id]);
 
   const overlays = (
     <>
@@ -618,7 +629,7 @@ export default function App() {
               onStartSession={store.startSession}
               onResolveMisconception={store.resolveMisconception}
               onNavigate={(view: AppView) => store.navigate(view)}
-              onSelectCourse={(course) => store.openCourseReview(course)}
+              onSelectCourse={(course) => { preloadStudyWorkspace(); store.openCourseReview(course); }}
               onOpenWorkspace={openWorkspace}
               onOpenExamTimer={openExamTimerWorkspace}
               onFocusWeakArea={openWorkspaceForConcept}
@@ -633,7 +644,7 @@ export default function App() {
             <Library
               courses={visibleCourses(store.courses, store.user.settings)}
               uploadedFiles={store.uploadedFiles}
-              onSelectCourse={(course) => store.openCourseReview(course)}
+              onSelectCourse={(course) => { preloadStudyWorkspace(); store.openCourseReview(course); }}
               onRemoveCourse={store.removeCourse}
               onUpload={() => openUploadModal()}
               onRemoveFile={store.removeUploadedFile}

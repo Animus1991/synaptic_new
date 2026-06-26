@@ -1,5 +1,18 @@
-﻿/** Instant visual feedback while StudyWorkspace chunk loads — avoids "dead click" perception. */
-export function WorkspaceBootShell({ compact = false }: { compact?: boolean }) {
+﻿import { X } from 'lucide-react';
+
+/** Instant visual feedback while StudyWorkspace chunk loads. */
+export function WorkspaceBootShell({
+  compact = false,
+  onClose,
+  lang = 'en',
+}: {
+  compact?: boolean;
+  onClose?: () => void;
+  lang?: 'en' | 'el';
+}) {
+  const label = lang === 'el' ? '\u03a6\u03cc\u03c1\u03c4\u03c9\u03c3\u03b7 \u03c7\u03ce\u03c1\u03bf\u03c5 \u03bc\u03b5\u03bb\u03ad\u03c4\u03b7\u03c2' : 'Loading study workspace';
+  const closeLabel = lang === 'el' ? '\u039a\u03bb\u03b5\u03af\u03c3\u03b9\u03bc\u03bf' : 'Close';
+
   return (
     <div
       className={
@@ -9,9 +22,21 @@ export function WorkspaceBootShell({ compact = false }: { compact?: boolean }) {
       }
       data-testid="workspace-boot-shell"
       aria-busy="true"
-      aria-label="Loading study workspace"
+      aria-label={label}
     >
       <div className="flex shrink-0 items-center justify-between border-b border-border-subtle bg-surface-card px-4 py-3">
+        {onClose ? (
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-lg p-1.5 text-text-secondary hover:bg-surface-hover hover:text-text-primary transition-colors"
+            aria-label={closeLabel}
+          >
+            <X className="h-4 w-4" />
+          </button>
+        ) : (
+          <div className="h-8 w-8" />
+        )}
         <div className="h-4 w-40 animate-pulse rounded bg-brand-600/20" />
         <div className="h-8 w-20 animate-pulse rounded-lg bg-surface-elevated" />
       </div>
@@ -28,7 +53,7 @@ export function WorkspaceBootShell({ compact = false }: { compact?: boolean }) {
           <div className="flex-1 animate-pulse rounded-2xl border border-border-subtle bg-surface-card/60" />
         </div>
       </div>
-      <p className="sr-only">Loading study workspace…</p>
+      <p className="sr-only">{label}</p>
     </div>
   );
 }

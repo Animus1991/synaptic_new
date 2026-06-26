@@ -280,7 +280,7 @@ function CourseCard({
               type="button"
               onClick={(e) => { e.stopPropagation(); setRemoveDialogOpen(true); }}
               data-testid="library-course-delete"
-              className="rounded-lg p-1.5 text-text-tertiary opacity-0 transition-all hover:bg-accent-rose/10 hover:text-accent-rose group-hover:opacity-100"
+              className="rounded-lg p-1.5 text-text-tertiary opacity-70 transition-all hover:bg-accent-rose/10 hover:text-accent-rose hover:opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
               aria-label={userLanguage === 'el' ? 'Διαγραφή μαθήματος' : 'Delete course'}
             >
               <Trash2 className="w-4 h-4" />
@@ -463,7 +463,7 @@ function CourseListItem({
           type="button"
           onClick={(e) => { e.stopPropagation(); setRemoveDialogOpen(true); }}
           data-testid="library-course-delete"
-          className="rounded-lg p-1.5 text-text-tertiary opacity-0 transition-all hover:bg-accent-rose/10 hover:text-accent-rose group-hover:opacity-100"
+          className="rounded-lg p-1.5 text-text-tertiary opacity-70 transition-all hover:bg-accent-rose/10 hover:text-accent-rose hover:opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
           aria-label={userLanguage === 'el' ? 'Διαγραφή μαθήματος' : 'Delete course'}
         >
           <Trash2 className="w-4 h-4" />

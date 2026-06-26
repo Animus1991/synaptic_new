@@ -10,11 +10,10 @@ client and server are versioned together.
 - **Library / Course Continue regression (Jun 2026)**
   - Restore post-upload flow: `onUploadComplete` navigates to `course` review instead of
     auto-opening workspace (Wave 7 regression in `b6155b3`).
-  - `openCourseWorkspace()` — Continue without topic uses `openStudyWorkspace()`; topic
-    cards pass concept override via `openStudyWorkspaceForConcept`.
-  - `AppToastBanner` moved into shared `overlays` so course view shows structure toasts
-    after generate.
-  - **E2E:** `file-upload-workspace.spec.ts` passes (upload → diagnostics → Continue → workspace).
+  - `openCourseReview` closes stale workspace overlay when browsing library/course review.
+  - `WorkspaceBootShell` close button while chunk loads; preload `StudyWorkspace` on course view.
+  - Demo / onboarding explore → Library (no auto-open workspace).
+  - `removeCourse` + delete UI on Library cards and Course view header.
 
 ### Added
 
