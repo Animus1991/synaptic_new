@@ -9,11 +9,13 @@ import {
 import {
   EXPECTED_REPAIRS,
   GLUED_ARTICLE_PRODUCTION,
+  GLUED_HYPERBOLIC_LINE,
   GLUED_INCOME_TITLE,
   GLUED_PARTICLE_FOREIGN,
   GLUED_TWO_SPACES_LECTURE,
   SPACED_ABSOLUTE_ADVANTAGE,
   SPACED_COMPETITION,
+  SPACED_COST_WORD,
   SPACED_INCOME_DISTRIBUTION,
   SPACED_PRODUCTION_INCOME,
   SPACED_TWO_SPACES_TITLE,
@@ -76,7 +78,7 @@ describe('greekTextRepair', () => {
   });
 });
 
-describe('greekTextRepair v2.3 — ΕΚΠΑ PDF fixtures', () => {
+describe('greekTextRepair v2.3 — Greek PDF fixtures', () => {
   it.each(EXPECTED_REPAIRS)('repairs: $input', ({ input, mustContain, mustNotContain }) => {
     const out = repairGreekDocumentText(input);
     for (const phrase of mustContain) {
@@ -104,5 +106,13 @@ describe('greekTextRepair v2.3 — ΕΚΠΑ PDF fixtures', () => {
   it('splits glued particles and articles', () => {
     expect(repairGluedGreekLine(GLUED_PARTICLE_FOREIGN)).toBe('και Αλλοδαπή');
     expect(repairGluedGreekLine(GLUED_ARTICLE_PRODUCTION)).toBe('την παραγωγή');
+  });
+
+  it('repairs severely glued hyperbolic-discounting line', () => {
+    const out = repairGreekDocumentText(GLUED_HYPERBOLIC_LINE);
+    expect(out).toContain('1 μετά');
+    expect(out).toContain('από');
+    expect(out).toContain('μήνα');
+    expect(out).not.toMatch(/1μετάαπό/);
   });
 });

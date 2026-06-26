@@ -118,3 +118,25 @@ export function isMathLikeLine(line: string): boolean {
   if (/\\%/.test(t)) return true;
   return false;
 }
+
+/**
+ * PDF text layer dropped embedded math fonts — commas remain where f(x), f′, etc. were.
+ * Used to flag lines for OCR reprocess or Reader placeholders.
+ */
+export function hasLostMathTextLayerGap(line: string): boolean {
+  const t = line.trim();
+  if (!t) return false;
+  if (/συνάρτηση\s*,\s*η/i.test(t)) return true;
+  if (/,\s*η\s+γραφική/i.test(t)) return true;
+  if (/μηδενίζεται\s+(?:για\s*,|η\s)/i.test(t)) return true;
+  if (/Έστω\s*,\s*και/i.test(t)) return true;
+  if (/παραγωγίσιμη\s+στο\s*,/i.test(t)) return true;
+  if (/έχει\s+παράγωγο\s*\./i.test(t) && !/\$|\\\(|\\frac|\\int/.test(t)) return true;
+  if (/(?:^|[\s(])[,;]\s*η(?:\s|$)/i.test(t)) return true;
+  return false;
+}
+
+/** Count lines with missing math text-layer content (calculus PDFs). */
+export function countLostMathTextLayerGaps(text: string): number {
+  return text.split('\n').filter((line) => hasLostMathTextLayerGap(line)).length;
+}

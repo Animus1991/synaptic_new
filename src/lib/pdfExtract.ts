@@ -60,6 +60,16 @@ interface TextItem {
 const LINE_TOLERANCE = 4;
 const COLUMN_GAP_FRACTION = 0.03;
 
+/** PDF user space: when transform d > 0, y increases upward (native PDF coords). */
+function pdfVerticalSortDirection(items: TextItem[]): 'asc' | 'desc' {
+  const ds = items
+    .map((it) => it.transform[3] ?? 0)
+    .filter((d) => Math.abs(d) > 0.01);
+  if (ds.length === 0) return 'asc';
+  const avg = ds.reduce((sum, d) => sum + d, 0) / ds.length;
+  return avg > 0 ? 'desc' : 'asc';
+}
+
 /**
  * Reconstruct PDF text in human reading order using coordinates from PDF.js.
  *
@@ -81,8 +91,10 @@ function layoutAwareTextFromItems(items: unknown[], pageWidth: number): string {
 
   if (withCoords.length === 0) return '';
 
+  const ySort = pdfVerticalSortDirection(raw);
+
   // Group into lines by y-coordinate (tolerance for small variations).
-  const sortedByY = [...withCoords].sort((a, b) => a.y - b.y);
+  const sortedByY = [...withCoords].sort((a, b) => (ySort === 'desc' ? b.y - a.y : a.y - b.y));
   const lines: { y: number; items: typeof withCoords }[] = [];
   for (const it of sortedByY) {
     const line = lines.find((l) => Math.abs(l.y - it.y) <= LINE_TOLERANCE);
@@ -95,7 +107,7 @@ function layoutAwareTextFromItems(items: unknown[], pageWidth: number): string {
   }
 
   // Sort lines top-to-bottom.
-  lines.sort((a, b) => a.y - b.y);
+  lines.sort((a, b) => (ySort === 'desc' ? b.y - a.y : a.y - b.y));
 
   // Sort items within each line left-to-right.
   for (const line of lines) {

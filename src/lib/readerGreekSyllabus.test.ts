@@ -1,5 +1,5 @@
 /**
- * Acceptance harness for Greek university syllabus PDFs (Greek university).
+ * Acceptance harness for Greek university syllabus PDFs.
  * Composes unit-tested recognition modules into an end-to-end checklist.
  */
 
