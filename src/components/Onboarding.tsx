@@ -17,6 +17,7 @@ interface OnboardingProps {
     examDate?: string;
     openUpload?: boolean;
     displayName?: string;
+    exploreDemoMode?: boolean;
   }) => void;
 }
 
@@ -201,12 +202,16 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                   })} className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-gradient-to-r from-brand-600 to-brand-500 text-white rounded-xl font-medium hover:from-brand-500 hover:to-brand-400 transition-all">
                     <Upload className="w-4 h-4" /> {content.uploadCta}
                   </button>
-                  <button onClick={() => onComplete({
+                  <button
+                    type="button"
+                    data-testid="onboarding-skip-explore"
+                    onClick={() => onComplete({
                     role: selectedRole ?? undefined,
                     goals: selectedGoals,
                     dailyGoalMinutes: dailyTime,
                     examDate: examDate || undefined,
                     displayName: displayName.trim() || undefined,
+                    exploreDemoMode: true,
                   })} className="text-sm text-text-secondary hover:text-text-primary transition-colors">
                     {content.skipExplore}
                   </button>

@@ -1,4 +1,4 @@
-﻿import { X } from 'lucide-react';
+import { X } from 'lucide-react';
 
 /** Instant visual feedback while StudyWorkspace chunk loads. */
 export function WorkspaceBootShell({

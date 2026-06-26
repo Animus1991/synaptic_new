@@ -478,9 +478,16 @@ export function useAppStore() {
   }, []);
 
   const openCourseReview = useCallback((course: Course) => {
+    workspaceCloseGenRef.current += 1;
+    studyWorkspaceOpenRef.current = false;
+    setStudyWorkspaceOpen(false);
+    setWorkspaceAgentSplit(false);
+    setActiveTaskId(null);
     setSelectedCourse(course);
-    navigate('course');
-  }, [navigate]);
+    setCurrentView('course');
+    setSidebarOpen(false);
+    window.scrollTo(0, 0);
+  }, []);
 
   const exitWorkspaceAgentSplit = useCallback(() => {
     setWorkspaceAgentSplit(false);
@@ -1688,6 +1695,12 @@ export function useAppStore() {
   }, [learnerModel, dashboardStats, tasks, betaMastery, firstAttemptKeys, openMistakes, activities, persist, navigate]);
 
   const enableDemoContent = useCallback(() => {
+    workspaceCloseGenRef.current += 1;
+    studyWorkspaceOpenRef.current = false;
+    setStudyWorkspaceOpen(false);
+    setWorkspaceAgentSplit(false);
+    setActiveTaskId(null);
+
     const demoLearner = syncLearnerHeatmap(mockLearnerModel, activities);
     const demoBeta = initBetaMastery({ ...user.settings, showDemoContent: true });
     setUser((prev) => {

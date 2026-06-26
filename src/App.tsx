@@ -31,6 +31,7 @@ import { AppToastBanner } from './components/AppToastBanner';
 import type { AppView } from './types';
 import type { FsrsRating } from './lib/pedagogy';
 import { visibleCourses } from './lib/demoMode';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import { WorkspaceBootShell } from './components/workspace/WorkspaceBootShell';
 
 const StudyWorkspace = lazy(() =>
@@ -132,6 +133,7 @@ export default function App() {
   const hasCourses = visibleCourses(store.courses, store.user.settings).length > 0;
 
   const handleSeeDemo = useCallback(() => {
+    store.closeStudyWorkspace();
     store.enableDemoContent();
     store.navigate('library');
   }, [store]);
@@ -141,6 +143,7 @@ export default function App() {
   ) => {
     const { exploreDemoMode, ...rest } = data;
     if (exploreDemoMode) {
+      store.closeStudyWorkspace();
       store.enableDemoContent();
       store.navigate('library');
       return;
@@ -237,14 +240,20 @@ export default function App() {
   };
 
   const studyWorkspaceElement = (
-    <Suspense fallback={
-      <WorkspaceBootShell
-        compact={agentSplitActive}
-        onClose={closeWorkspace}
-        lang={store.user.settings.language === 'el' ? 'el' : 'en'}
-      />
-    }>
-      <StudyWorkspace
+    <ErrorBoundary
+      overlay
+      remountKey={workspaceSessionKey}
+      onRecover={closeWorkspace}
+      onRetry={closeWorkspace}
+    >
+      <Suspense fallback={
+        <WorkspaceBootShell
+          compact={agentSplitActive}
+          onClose={closeWorkspace}
+          lang={store.user.settings.language === 'el' ? 'el' : 'en'}
+        />
+      }>
+        <StudyWorkspace
         key={workspaceSessionKey}
         agentSplit={agentSplitActive}
         onClose={closeWorkspace}
@@ -290,7 +299,8 @@ export default function App() {
         workspaceOpenTool={store.workspaceOpenTool}
         onConsumeWorkspaceOpenTool={store.consumeWorkspaceOpenTool}
       />
-    </Suspense>
+      </Suspense>
+    </ErrorBoundary>
   );
 
   const i18nValue = useMemo(() => ({
@@ -331,12 +341,6 @@ export default function App() {
       openWorkspaceForConcept(hit.concept ?? hit.label);
     }
   };
-
-  useEffect(() => {
-    if (store.currentView === 'course' && store.selectedCourse) {
-      preloadStudyWorkspace();
-    }
-  }, [store.currentView, store.selectedCourse?.id]);
 
   const overlays = (
     <>
@@ -589,7 +593,7 @@ export default function App() {
             uploadedFiles={store.uploadedFiles.filter((f) => f.courseId === selectedCourse.id)}
             glossaryEntries={store.glossaryEntries.filter((g) => g.courseId === selectedCourse.id)}
             onGoToSource={store.openSourceAt}
-            onBack={() => store.navigate('library')}
+            onBack={() => { store.closeStudyWorkspace(); store.navigate('library'); }}
             onStartLesson={(topicTitle?: string) => openCourseWorkspace(topicTitle)}
             onOpenAgent={() => store.navigate('agent')}
             onUploadMore={() => openUploadModal({ mode: 'extend', targetCourseId: selectedCourse.id })}
@@ -629,7 +633,7 @@ export default function App() {
               onStartSession={store.startSession}
               onResolveMisconception={store.resolveMisconception}
               onNavigate={(view: AppView) => store.navigate(view)}
-              onSelectCourse={(course) => { preloadStudyWorkspace(); store.openCourseReview(course); }}
+              onSelectCourse={(course) => store.openCourseReview(course)}
               onOpenWorkspace={openWorkspace}
               onOpenExamTimer={openExamTimerWorkspace}
               onFocusWeakArea={openWorkspaceForConcept}
@@ -644,7 +648,7 @@ export default function App() {
             <Library
               courses={visibleCourses(store.courses, store.user.settings)}
               uploadedFiles={store.uploadedFiles}
-              onSelectCourse={(course) => { preloadStudyWorkspace(); store.openCourseReview(course); }}
+              onSelectCourse={(course) => store.openCourseReview(course)}
               onRemoveCourse={store.removeCourse}
               onUpload={() => openUploadModal()}
               onRemoveFile={store.removeUploadedFile}

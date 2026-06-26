@@ -10,10 +10,12 @@ client and server are versioned together.
 - **Library / Course Continue regression (Jun 2026)**
   - Restore post-upload flow: `onUploadComplete` navigates to `course` review instead of
     auto-opening workspace (Wave 7 regression in `b6155b3`).
-  - `openCourseReview` closes stale workspace overlay when browsing library/course review.
-  - `WorkspaceBootShell` close button while chunk loads; preload `StudyWorkspace` on course view.
-  - Demo / onboarding explore → Library (no auto-open workspace).
-  - `removeCourse` + delete UI on Library cards and Course view header.
+  - `openCourseReview` forcibly closes stale workspace overlay before course review.
+  - Defer `StudyWorkspace` chunk preload until Continue (boot shell visible; avoids UI freeze on heavy courses).
+  - `ErrorBoundary` around lazy workspace; `WorkspaceBootShell` close (X) while chunk loads.
+  - Demo / onboarding explore → Library (no auto-open workspace); onboarding skip passes `exploreDemoMode`.
+  - `removeCourse` + always-visible delete on Library cards and Course view header.
+  - E2E: `library-course-continue.spec.ts`.
 
 ### Added
 
