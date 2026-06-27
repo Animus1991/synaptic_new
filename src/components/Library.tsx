@@ -7,7 +7,7 @@ import {
 } from '@/lib/lucide-shim';
 import type { Course, UploadedFile, UserSettings, Task, GlossaryEntry } from '../types';
 import { cn } from '../utils/cn';
-import { workspaceEntryPrefetchHandlers } from '../lib/workspaceEntryPrefetch';
+import { prefetchWorkspaceEntry, workspaceEntryPrefetchHandlers } from '../lib/workspaceEntryPrefetch';
 import { buildMaterialOutlinePreview } from '../lib/uploadOutlinePreview';
 import { OutlinePreviewPanel } from './OutlinePreviewPanel';
 import { ConfirmDialog } from './ui/ConfirmDialog';
@@ -313,7 +313,10 @@ function CourseCard({
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.05 }}
-      onClick={onClick}
+      onClick={() => {
+        prefetchWorkspaceEntry();
+        onClick();
+      }}
       data-testid="library-course-card"
       {...workspaceEntryPrefetchHandlers()}
       className="p-5 ws-bento hover:border-brand-500/35 cursor-pointer transition-all group"

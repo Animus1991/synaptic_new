@@ -2,10 +2,12 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 
 vi.mock('./studyWorkspaceChunk', () => ({
+  loadStudyWorkspaceModule: vi.fn(() => Promise.resolve({})),
   preloadStudyWorkspace: vi.fn(),
 }));
 
 vi.mock('./cognitiveReaderChunk', () => ({
+  loadReaderModule: vi.fn(() => Promise.resolve({})),
   preloadReaderModule: vi.fn(),
 }));
 
@@ -17,30 +19,42 @@ vi.mock('./workspaceChunkLinkPrefetch', () => ({
   injectWorkspaceEntryLinkPrefetch: vi.fn(),
 }));
 
-import { prefetchWorkspaceEntry, workspaceEntryPrefetchHandlers } from './workspaceEntryPrefetch';
-import { preloadStudyWorkspace } from './studyWorkspaceChunk';
-import { preloadReaderModule } from './cognitiveReaderChunk';
+import {
+  prefetchWorkspaceEntry,
+  resetWorkspaceEntryPrefetchForTests,
+  whenWorkspaceEntryPrefetchSettled,
+  workspaceEntryPrefetchHandlers,
+} from './workspaceEntryPrefetch';
+import { loadStudyWorkspaceModule } from './studyWorkspaceChunk';
+import { loadReaderModule } from './cognitiveReaderChunk';
 import { warmWorkspaceWorker } from './workspaceWorkerClient';
 import { injectWorkspaceEntryLinkPrefetch } from './workspaceChunkLinkPrefetch';
 
 describe('workspaceEntryPrefetch', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(loadStudyWorkspaceModule).mockImplementation(() => Promise.resolve({} as never));
+    vi.mocked(loadReaderModule).mockImplementation(() => Promise.resolve({} as never));
+    resetWorkspaceEntryPrefetchForTests();
   });
 
-  it('prefetches shell, reader, worker warm-up, and link hints together', () => {
+  it('prefetches shell, reader, worker warm-up, and link hints together', async () => {
     prefetchWorkspaceEntry();
+    await whenWorkspaceEntryPrefetchSettled();
     expect(warmWorkspaceWorker).toHaveBeenCalledTimes(1);
     expect(injectWorkspaceEntryLinkPrefetch).toHaveBeenCalledTimes(1);
-    expect(preloadStudyWorkspace).toHaveBeenCalledTimes(1);
-    expect(preloadReaderModule).toHaveBeenCalledTimes(1);
+    expect(loadStudyWorkspaceModule).toHaveBeenCalledTimes(1);
+    expect(loadReaderModule).toHaveBeenCalledTimes(1);
+    expect(document.documentElement.dataset.workspaceEntryPrefetch).toBe('ready');
   });
 
-  it('exposes hover/focus handlers that prefetch', () => {
+  it('exposes hover/focus handlers that prefetch', async () => {
     const handlers = workspaceEntryPrefetchHandlers();
     handlers.onMouseEnter();
-    expect(preloadStudyWorkspace).toHaveBeenCalled();
+    await whenWorkspaceEntryPrefetchSettled();
     handlers.onFocus();
-    expect(preloadReaderModule).toHaveBeenCalledTimes(2);
+    await whenWorkspaceEntryPrefetchSettled();
+    expect(loadStudyWorkspaceModule).toHaveBeenCalledTimes(1);
+    expect(loadReaderModule).toHaveBeenCalledTimes(1);
   });
 });

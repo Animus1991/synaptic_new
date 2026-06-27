@@ -1,5 +1,5 @@
 /**
- * B11 — inject `<link rel="prefetch">` for hashed workspace entry chunks (from build manifest).
+ * B11 — inject `<link rel="modulepreload">` / `prefetch` for hashed workspace entry chunks.
  */
 
 const MANIFEST_URL = '/workspace-entry-chunks.json';
@@ -13,16 +13,17 @@ export function injectWorkspaceEntryLinkPrefetch(): void {
     .then((res) => (res.ok ? res.json() : null))
     .then((urls: unknown) => {
       if (!Array.isArray(urls)) return;
-      for (const href of urls) {
-        if (typeof href !== 'string' || !href.startsWith('/')) continue;
-        if (document.querySelector(`link[rel="prefetch"][href="${href}"]`)) continue;
+      urls.forEach((href, index) => {
+        if (typeof href !== 'string' || !href.startsWith('/')) return;
+        if (document.querySelector(`link[href="${href}"]`)) return;
         const link = document.createElement('link');
-        link.rel = 'prefetch';
+        const isWorker = /workspace\.worker/i.test(href);
+        link.rel = isWorker ? 'prefetch' : index < 2 ? 'modulepreload' : 'prefetch';
         link.as = 'script';
         link.href = href;
         link.crossOrigin = 'anonymous';
         document.head.appendChild(link);
-      }
+      });
     })
     .catch(() => {
       /* non-fatal — dynamic import prefetch still runs */
