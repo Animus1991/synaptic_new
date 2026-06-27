@@ -1,5 +1,6 @@
 /**
- * Phase B2 shell entry — thin re-export while StudyWorkspace.tsx is split incrementally.
- * Import from here in routes; the implementation lives in StudyWorkspace until <300-line extraction completes.
+ * Phase B2 shell entry — re-exports the thin StudyWorkspace orchestrator (~40 lines).
+ * Implementation is split under `./studyWorkspace/` (hook + chrome / panels / overlays).
  */
 export { StudyWorkspace, StudyWorkspace as StudyWorkspaceShell } from './StudyWorkspace';
+export type { StudyWorkspaceProps } from './StudyWorkspace';

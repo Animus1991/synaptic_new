@@ -1,0 +1,30 @@
+import { Group } from 'react-resizable-panels';
+import { WorkspaceDock } from '../WorkspaceDock';
+import { StudyWorkspaceLessonPanel } from './StudyWorkspaceLessonPanel';
+import { StudyWorkspaceToolSurface } from './StudyWorkspaceToolSurface';
+import type { StudyWorkspaceModel } from './useStudyWorkspace';
+import { AVAILABLE_TOOLS } from './types';
+
+interface StudyWorkspaceMainLayoutProps {
+  model: StudyWorkspaceModel;
+}
+
+export function StudyWorkspaceMainLayout({ model }: StudyWorkspaceMainLayoutProps) {
+  const { chromeHidden, isMobile, activeTool, openWorkspaceTool, lang } = model;
+  return (
+    <div className="relative z-10 flex-1 flex overflow-hidden" id="workspace-main" role="main" tabIndex={-1}>
+      {!chromeHidden && !isMobile && (
+        <WorkspaceDock
+          activeTool={activeTool}
+          onSelectTool={openWorkspaceTool}
+          availableTools={AVAILABLE_TOOLS}
+          lang={lang}
+        />
+      )}
+      <Group orientation={isMobile ? 'vertical' : 'horizontal'} className="flex-1 w-full h-full">
+        <StudyWorkspaceLessonPanel model={model} />
+        <StudyWorkspaceToolSurface model={model} />
+      </Group>
+    </div>
+  );
+}
