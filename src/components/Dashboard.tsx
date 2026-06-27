@@ -275,11 +275,11 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
       )}
 
       {!showWorkspaceResume && dashboardNextAction && (
-        <MotionSection initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="p-4 rounded-2xl border border-accent-teal/30 bg-accent-teal/5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <MotionSection initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="platform-banner-brand p-4 rounded-2xl border flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-start gap-3 min-w-0">
-            <Lightbulb className="w-5 h-5 text-accent-teal shrink-0 mt-0.5" />
+            <Lightbulb className="w-5 h-5 text-brand-700 shrink-0 mt-0.5" />
             <div className="min-w-0">
-              <p className="text-sm font-medium text-accent-teal">
+              <p className="platform-banner-title text-sm font-semibold">
                 {isEl ? 'Προτεινόμενο επόμενο βήμα' : 'Suggested next step'}
               </p>
               <p className="text-xs text-text-secondary mt-0.5 line-clamp-2">{dashboardNextAction.reason}</p>
@@ -287,7 +287,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
           </div>
           <button
             onClick={handleDashboardNextAction}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-medium bg-accent-teal/15 text-accent-teal border border-accent-teal/30 hover:bg-accent-teal/25 transition-all shrink-0"
+            className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-medium ws-empty-cta-secondary shrink-0"
           >
             {dashboardNextAction.label} <ArrowRight className="w-3 h-3" />
           </button>

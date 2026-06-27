@@ -62,10 +62,10 @@ export function Onboarding({ onComplete }: OnboardingProps) {
   };
 
   return (
-    <div className="min-h-screen bg-surface-primary flex flex-col">
+    <div className="min-h-screen bg-surface-primary flex flex-col" data-ws-theme="warm">
       {/* Progress */}
       <div className="h-1 bg-surface-hover">
-        <div className="h-1 bg-brand-500 transition-all duration-500" style={{ width: `${progress}%` }} />
+        <div className="h-1 bg-brand-700 transition-all duration-500" style={{ width: `${progress}%` }} />
       </div>
 
       <div className="flex-1 flex items-center justify-center p-4">
@@ -73,10 +73,10 @@ export function Onboarding({ onComplete }: OnboardingProps) {
           <AnimatePresence mode="wait">
             {step === 'welcome' && (
               <motion.div key="welcome" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="text-center space-y-6">
-                <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-brand-500 to-accent-teal flex items-center justify-center">
-                  <Sparkles className="w-8 h-8 text-white" />
+                <div className="w-16 h-16 mx-auto rounded-2xl platform-brand-icon flex items-center justify-center">
+                  <Sparkles className="w-8 h-8" />
                 </div>
-                <h1 className="text-3xl font-bold">{content.welcomeTitle}</h1>
+                <h1 className="text-3xl font-medium ws-serif">{content.welcomeTitle}</h1>
                 <p className="text-text-secondary leading-relaxed max-w-md mx-auto">
                   {content.welcomeBody}
                 </p>
@@ -94,7 +94,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                     className="w-full px-4 py-2.5 rounded-xl bg-surface-input border border-border-subtle text-sm text-text-primary focus:outline-none focus:border-brand-500/50"
                   />
                 </div>
-                <button onClick={next} data-testid="onboarding-continue" className="inline-flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-brand-600 to-brand-500 text-white rounded-xl font-medium hover:from-brand-500 hover:to-brand-400 transition-all">
+                <button onClick={next} data-testid="onboarding-continue" className="inline-flex items-center gap-2 px-8 py-3 ws-fab rounded-xl font-medium transition-all">
                   {content.letsGo} <ArrowRight className="w-4 h-4" />
                 </button>
               </motion.div>
@@ -103,7 +103,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
             {step === 'role' && (
               <motion.div key="role" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-6">
                 <div className="text-center">
-                  <h2 className="text-2xl font-bold">{content.roleTitle}</h2>
+                  <h2 className="text-2xl font-medium ws-serif">{content.roleTitle}</h2>
                   <p className="text-text-secondary mt-1 text-sm">{content.roleSubtitle}</p>
                 </div>
                 <div className="space-y-2">
@@ -130,7 +130,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
             {step === 'goals' && (
               <motion.div key="goals" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-6">
                 <div className="text-center">
-                  <h2 className="text-2xl font-bold">{content.goalsTitle}</h2>
+                  <h2 className="text-2xl font-medium ws-serif">{content.goalsTitle}</h2>
                   <p className="text-text-secondary mt-1 text-sm">{content.goalsSubtitle}</p>
                 </div>
                 <div className="grid grid-cols-2 gap-2">
@@ -150,7 +150,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
             {step === 'preferences' && (
               <motion.div key="prefs" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-6">
                 <div className="text-center">
-                  <h2 className="text-2xl font-bold">{content.prefsTitle}</h2>
+                  <h2 className="text-2xl font-medium ws-serif">{content.prefsTitle}</h2>
                   <p className="text-text-secondary mt-1 text-sm">{content.prefsSubtitle}</p>
                 </div>
                 <div className="space-y-5">
@@ -163,7 +163,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                       {[15, 30, 45, 60, 90].map(m => (
                         <button key={m} onClick={() => setDailyTime(m)}
                           className={cn('flex-1 py-2 rounded-lg text-xs font-medium transition-all',
-                            dailyTime === m ? 'bg-brand-600/20 text-brand-300 border border-brand-500/30' : 'border border-border-subtle text-text-tertiary'
+                            dailyTime === m ? 'platform-nav-active' : 'border border-border-subtle text-text-tertiary'
                           )}>{m}m</button>
                       ))}
                     </div>
@@ -185,10 +185,10 @@ export function Onboarding({ onComplete }: OnboardingProps) {
 
             {step === 'upload' && (
               <motion.div key="upload" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-6 text-center">
-                <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-brand-500 to-accent-teal flex items-center justify-center">
-                  <Target className="w-8 h-8 text-white" />
+                <div className="w-16 h-16 mx-auto rounded-2xl platform-brand-icon flex items-center justify-center">
+                  <Target className="w-8 h-8" />
                 </div>
-                <h2 className="text-2xl font-bold">{content.uploadTitle}</h2>
+                <h2 className="text-2xl font-medium ws-serif">{content.uploadTitle}</h2>
                 <p className="text-text-secondary leading-relaxed max-w-md mx-auto">
                   {content.uploadBody}
                 </p>
@@ -203,7 +203,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                     examDate: examDate || undefined,
                     openUpload: true,
                     displayName: displayName.trim() || undefined,
-                  })} className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-gradient-to-r from-brand-600 to-brand-500 text-white rounded-xl font-medium hover:from-brand-500 hover:to-brand-400 transition-all">
+                  })} className="inline-flex items-center justify-center gap-2 px-8 py-3 ws-fab rounded-xl font-medium transition-all">
                     <Upload className="w-4 h-4" /> {content.uploadCta}
                   </button>
                   <button
@@ -232,7 +232,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
           <button onClick={prev} className="flex items-center gap-1 text-sm text-text-secondary hover:text-text-primary"><ArrowLeft className="w-4 h-4" /> {content.back}</button>
         ) : <div />}
         {step !== 'upload' && step !== 'welcome' && (
-          <button onClick={next} data-testid="onboarding-next" className="flex items-center gap-2 px-5 py-2 bg-brand-600 hover:bg-brand-500 text-white rounded-xl text-sm font-medium transition-all">
+          <button onClick={next} data-testid="onboarding-next" className="flex items-center gap-2 px-5 py-2 ws-fab rounded-xl text-sm font-medium transition-all">
             {content.continueBtn} <ArrowRight className="w-4 h-4" />
           </button>
         )}

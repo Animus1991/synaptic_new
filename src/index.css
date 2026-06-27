@@ -649,6 +649,27 @@ input[type="range"]::-webkit-slider-thumb {
 [data-ws-theme="warm"] .platform-banner-danger .platform-banner-title {
   color: var(--color-accent-rose);
 }
+[data-ws-theme="warm"] .platform-banner-brand {
+  border-color: color-mix(in srgb, var(--color-brand-600) 40%, var(--color-border-subtle));
+  background: color-mix(in srgb, var(--color-brand-600) 8%, #faf8f5);
+}
+[data-ws-theme="warm"] .platform-banner-brand .platform-banner-title {
+  color: var(--color-brand-800);
+}
+[data-ws-theme="warm"] .platform-nav-active {
+  background: color-mix(in srgb, var(--color-brand-100) 85%, #faf8f5);
+  color: var(--color-brand-800);
+  border-color: color-mix(in srgb, var(--color-brand-400) 32%, var(--color-border-subtle));
+  font-weight: 600;
+}
+[data-ws-theme="warm"] .platform-nav-mobile-active {
+  color: var(--color-brand-800);
+  background: color-mix(in srgb, var(--color-brand-100) 70%, #faf8f5);
+}
+[data-ws-theme="warm"] .platform-brand-icon {
+  background: var(--color-brand-700);
+  color: #faf8f5;
+}
 
 [data-ws-theme="warm"] .text-brand-100 {
   color: var(--color-brand-800);

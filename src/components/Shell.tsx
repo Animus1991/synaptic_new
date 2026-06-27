@@ -35,18 +35,26 @@ const navViews: { view: AppView; icon: typeof BookOpen; labelKey: I18nKey }[] = 
   { view: 'settings', icon: Settings, labelKey: 'settings' },
 ];
 
+const shellNavClass = (active: boolean) =>
+  cn(
+    'w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all border',
+    active
+      ? 'platform-nav-active'
+      : 'border-transparent text-text-secondary hover:text-text-primary hover:bg-surface-hover',
+  );
+
 export function Shell({ children, currentView, onNavigate, sidebarOpen, onToggleSidebar, user, stats, onUpload, theme = 'dark', onToggleTheme, onOpenSearch, onOpenNotifications, notificationCount = 0, breadcrumb }: ShellProps) {
   const { t } = useI18n();
   return (
-    <div className="min-h-screen bg-surface-primary flex">
+    <div className="min-h-screen bg-surface-primary flex" data-ws-theme="warm">
       {/* Desktop Sidebar */}
       <aside className="hidden lg:flex flex-col w-64 border-r border-border-subtle bg-surface-secondary/50 fixed inset-y-0 left-0 z-30">
         <div className="p-4 border-b border-border-subtle">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-500 to-accent-teal flex items-center justify-center">
-              <Sparkles className="w-5 h-5 text-white" />
+            <div className="w-8 h-8 rounded-lg platform-brand-icon flex items-center justify-center">
+              <Sparkles className="w-5 h-5" />
             </div>
-            <span className="text-xl font-bold">Synapse</span>
+            <span className="text-xl font-bold ws-serif">Synapse</span>
           </div>
         </div>
 
@@ -56,17 +64,12 @@ export function Shell({ children, currentView, onNavigate, sidebarOpen, onToggle
               key={item.view}
               data-testid={`nav-${item.view}`}
               onClick={() => onNavigate(item.view)}
-              className={cn(
-                'w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all',
-                currentView === item.view
-                  ? 'bg-brand-600/20 text-brand-300 border border-brand-500/30'
-                  : 'text-text-secondary hover:text-text-primary hover:bg-surface-hover'
-              )}
+              className={shellNavClass(currentView === item.view)}
             >
               <item.icon className="w-5 h-5" />
               {t(item.labelKey)}
               {item.view === 'tasks' && stats.reviewsDue > 0 && (
-                <span className="ml-auto text-xs bg-accent-rose/20 text-accent-rose px-2 py-0.5 rounded-full font-semibold">
+                <span className="ml-auto text-xs ws-chip-danger px-2 py-0.5 rounded-full font-semibold">
                   {stats.reviewsDue}
                 </span>
               )}
@@ -77,7 +80,7 @@ export function Shell({ children, currentView, onNavigate, sidebarOpen, onToggle
         <div className="p-3">
           <button
             onClick={onUpload}
-            className="w-full flex items-center gap-2 px-4 py-3 rounded-xl bg-gradient-to-r from-brand-600 to-brand-500 text-white font-medium text-sm hover:from-brand-500 hover:to-brand-400 transition-all"
+            className="w-full flex items-center gap-2 px-4 py-3 rounded-xl ws-fab font-medium text-sm transition-all"
           >
             <Upload className="w-4 h-4" />
             {t('uploadMaterial')}
@@ -86,7 +89,7 @@ export function Shell({ children, currentView, onNavigate, sidebarOpen, onToggle
 
         <div className="p-3 border-t border-border-subtle">
           <div className="flex items-center gap-3 px-2">
-            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-brand-500 to-accent-teal flex items-center justify-center text-white text-sm font-bold">
+            <div className="w-9 h-9 rounded-full platform-brand-icon flex items-center justify-center text-sm font-bold">
               {user.name.charAt(0)}
             </div>
             <div className="flex-1 min-w-0">
@@ -104,10 +107,10 @@ export function Shell({ children, currentView, onNavigate, sidebarOpen, onToggle
           <div className="absolute inset-y-0 left-0 w-72 bg-surface-secondary border-r border-border-subtle flex flex-col">
             <div className="p-4 border-b border-border-subtle flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-500 to-accent-teal flex items-center justify-center">
-                  <Sparkles className="w-5 h-5 text-white" />
+                <div className="w-8 h-8 rounded-lg platform-brand-icon flex items-center justify-center">
+                  <Sparkles className="w-5 h-5" />
                 </div>
-                <span className="text-xl font-bold">Synapse</span>
+                <span className="text-xl font-bold ws-serif">Synapse</span>
               </div>
               <button onClick={() => onToggleSidebar(false)} className="p-1.5 rounded-lg hover:bg-surface-hover">
                 <X className="w-5 h-5 text-text-secondary" />
@@ -119,17 +122,12 @@ export function Shell({ children, currentView, onNavigate, sidebarOpen, onToggle
                 <button
                   key={item.view}
                   onClick={() => onNavigate(item.view)}
-                  className={cn(
-                    'w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all',
-                    currentView === item.view
-                      ? 'bg-brand-600/20 text-brand-300 border border-brand-500/30'
-                      : 'text-text-secondary hover:text-text-primary hover:bg-surface-hover'
-                  )}
+                  className={shellNavClass(currentView === item.view)}
                 >
                   <item.icon className="w-5 h-5" />
                   {t(item.labelKey)}
                   {item.view === 'tasks' && stats.reviewsDue > 0 && (
-                    <span className="ml-auto text-xs bg-accent-rose/20 text-accent-rose px-2 py-0.5 rounded-full font-semibold">
+                    <span className="ml-auto text-xs ws-chip-danger px-2 py-0.5 rounded-full font-semibold">
                       {stats.reviewsDue}
                     </span>
                   )}
@@ -140,7 +138,7 @@ export function Shell({ children, currentView, onNavigate, sidebarOpen, onToggle
             <div className="p-3 border-t border-border-subtle">
               <button
                 onClick={() => { onUpload(); onToggleSidebar(false); }}
-                className="w-full flex items-center gap-2 px-4 py-3 rounded-xl bg-gradient-to-r from-brand-600 to-brand-500 text-white font-medium text-sm"
+                className="w-full flex items-center gap-2 px-4 py-3 rounded-xl ws-fab font-medium text-sm"
               >
                 <Upload className="w-4 h-4" />
                 {t('uploadMaterial')}
@@ -214,7 +212,7 @@ export function Shell({ children, currentView, onNavigate, sidebarOpen, onToggle
               )}
 
               <div className="flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-surface-hover cursor-pointer transition-colors">
-                <div className="w-7 h-7 rounded-full bg-gradient-to-br from-brand-500 to-accent-teal flex items-center justify-center text-white text-xs font-bold">
+                <div className="w-7 h-7 rounded-full platform-brand-icon flex items-center justify-center text-xs font-bold">
                   {user.name.charAt(0)}
                 </div>
                 <div className="hidden sm:flex items-center gap-1">
@@ -244,7 +242,7 @@ export function Shell({ children, currentView, onNavigate, sidebarOpen, onToggle
                 className={cn(
                   'flex flex-col items-center gap-1 p-2 rounded-xl transition-all min-w-[60px]',
                   currentView === item.view
-                    ? 'text-brand-400'
+                    ? 'platform-nav-mobile-active'
                     : 'text-text-tertiary'
                 )}
               >

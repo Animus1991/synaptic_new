@@ -16,6 +16,7 @@ export type WorkspaceEmptyTool =
   | 'dashboard'
   | 'concept-map'
   | 'annotations'
+  | 'feynman'
   | 'lesson';
 
 export function workspaceNoSourceMessage(lang: Lang): string {
@@ -139,6 +140,16 @@ const NO_EXTRACT: Record<WorkspaceEmptyTool, { en: (concept?: string) => string;
     en: () => 'No source text is available to annotate for the current focus.',
     el: () => 'Δεν υπάρχει διαθέσιμο κείμενο προς σχολιασμό για το τρέχον θέμα.',
   },
+  feynman: {
+    en: (c) =>
+      c
+        ? `No explanation prompt was built for «${c}». Try Reader first or reprocess your notes.`
+        : 'No explanation prompt was built from your notes. Try Reader first or reprocess material.',
+    el: (c) =>
+      c
+        ? `Δεν δημιουργήθηκε prompt για «${c}». Δοκίμασε Reader ή reprocess.`
+        : 'Δεν δημιουργήθηκε prompt από τις σημειώσεις. Δοκίμασε Reader ή reprocess.',
+  },
   lesson: {
     en: (c) =>
       c
@@ -180,7 +191,7 @@ export type WorkspaceEmptyAction = {
 };
 
 const REPROCESS_ELIGIBLE = new Set<WorkspaceEmptyTool>([
-  'reader', 'scratchpad', 'concept-map', 'quiz', 'leitner', 'simulator', 'compare', 'debate', 'dashboard',
+  'reader', 'scratchpad', 'concept-map', 'quiz', 'leitner', 'simulator', 'compare', 'debate', 'dashboard', 'feynman',
 ]);
 
 /** Per-tool CTAs: upload (no source), reprocess, or jump to a related tool. */

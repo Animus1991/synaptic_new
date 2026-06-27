@@ -101,7 +101,7 @@ export function Tasks({ tasks, onComplete, onReviewRating, onStartTask, onStartS
         subtitle={`${pendingCount} pending · ${completedCount} done · ${totalXP} XP available`}
         icon={CheckCircle2}
         actions={
-          <button onClick={() => setShowSessions(!showSessions)} className="flex items-center gap-2 px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-semibold text-sm transition-colors">
+          <button onClick={() => setShowSessions(!showSessions)} className="flex items-center gap-2 px-5 py-2.5 ws-fab rounded-xl font-semibold text-sm transition-colors">
             <Play className="w-4 h-4" />
             Start Session
             <ChevronDown className={cn('w-4 h-4 transition-transform', showSessions && 'rotate-180')} />
@@ -167,7 +167,7 @@ export function Tasks({ tasks, onComplete, onReviewRating, onStartTask, onStartS
 
       {/* Danger Zone */}
       {dangerTasks.length > 0 && filter !== 'completed' && (
-        <PlatformSection title="Danger Zone — Needs Immediate Attention" icon={Shield} tone="rose">
+        <PlatformSection title="Danger Zone — Needs Immediate Attention" icon={Shield} tone="default" className="platform-banner-danger">
           <div className="space-y-2">
             {dangerTasks.slice(0, 3).map(task => (
               <button
@@ -176,8 +176,8 @@ export function Tasks({ tasks, onComplete, onReviewRating, onStartTask, onStartS
                 className="w-full flex items-center gap-3 text-sm text-left hover:bg-surface-hover rounded-lg p-1.5 -m-1.5 transition-all"
               >
                 <span className="w-2 h-2 rounded-full bg-accent-rose animate-pulse shrink-0" />
-                <span className="flex-1 truncate">{task.title}</span>
-                <span className="text-xs text-accent-rose">{task.estimatedMinutes}m</span>
+                <span className="flex-1 truncate text-text-primary">{task.title}</span>
+                <span className="text-xs ws-chip-danger px-2 py-0.5 rounded-full">{task.estimatedMinutes}m</span>
               </button>
             ))}
           </div>
@@ -185,25 +185,25 @@ export function Tasks({ tasks, onComplete, onReviewRating, onStartTask, onStartS
       )}
       <div className="flex items-center gap-3 overflow-x-auto hide-scrollbar">
         {reviewCount > 0 && (
-          <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-accent-amber/10 border border-accent-amber/20 text-sm shrink-0">
-            <RotateCcw className="w-4 h-4 text-accent-amber" />
-            <span className="text-accent-amber font-medium">{reviewCount} reviews due</span>
+          <div className="flex items-center gap-2 px-4 py-2 rounded-xl ws-chip-warn text-sm shrink-0">
+            <RotateCcw className="w-4 h-4 shrink-0" />
+            <span>{reviewCount} reviews due</span>
           </div>
         )}
-        <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-surface-card border border-border-subtle text-sm shrink-0">
+        <div className="flex items-center gap-2 px-4 py-2 rounded-xl ws-chip-neutral text-sm shrink-0">
           <Clock className="w-4 h-4 text-text-tertiary" />
           <span className="text-text-secondary">~{Math.round(tasks.filter(t => t.status === 'pending').reduce((s, t) => s + t.estimatedMinutes, 0))} min total</span>
         </div>
         {daysToExam !== null ? (
-          <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-accent-rose/10 border border-accent-rose/20 text-sm shrink-0">
-            <Calendar className="w-4 h-4 text-accent-rose" />
-            <span className="text-accent-rose font-medium">
+          <div className="flex items-center gap-2 px-4 py-2 rounded-xl ws-chip-danger text-sm shrink-0">
+            <Calendar className="w-4 h-4 shrink-0" />
+            <span>
               {daysToExam === 0 ? 'Exam today' : `Exam in ${daysToExam} day${daysToExam === 1 ? '' : 's'}`}
             </span>
           </div>
         ) : (
-          <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-surface-card border border-border-subtle text-sm shrink-0">
-            <Calendar className="w-4 h-4 text-text-tertiary" />
+          <div className="flex items-center gap-2 px-4 py-2 rounded-xl ws-chip-neutral text-sm shrink-0">
+            <Calendar className="w-4 h-4 shrink-0" />
             <span className="text-text-secondary">No exam date set</span>
           </div>
         )}
@@ -213,8 +213,8 @@ export function Tasks({ tasks, onComplete, onReviewRating, onStartTask, onStartS
       <div className="flex items-center gap-2 overflow-x-auto hide-scrollbar">
         {(['all', 'learn', 'review', 'practice', 'fix', 'exam', 'completed'] as TaskFilter[]).map(f => (
           <button key={f} onClick={() => setFilter(f)} className={cn(
-            'px-3 py-1.5 rounded-lg text-xs font-medium transition-all capitalize shrink-0 flex items-center gap-1.5',
-            filter === f ? 'bg-brand-600/20 text-brand-300 border border-brand-500/30' : 'text-text-tertiary hover:text-text-secondary border border-border-subtle'
+            'platform-pill px-3 py-1.5 rounded-lg text-xs transition-all capitalize shrink-0 flex items-center gap-1.5 border',
+            filter === f ? 'platform-pill-active' : '',
           )}>
             {f}
             {filterCounts[f] > 0 && <span className="text-[10px] opacity-60">({filterCounts[f]})</span>}
