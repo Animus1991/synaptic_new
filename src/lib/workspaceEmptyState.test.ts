@@ -1,5 +1,6 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import {
+  buildWorkspaceEmptyActions,
   workspaceEmptyUploadHandler,
   workspaceNoSourceMessage,
   workspaceToolEmptyMessage,
@@ -28,5 +29,36 @@ describe('workspaceEmptyState', () => {
     const upload = () => {};
     expect(workspaceEmptyUploadHandler(true, upload)).toBeUndefined();
     expect(workspaceEmptyUploadHandler(false, upload)).toBe(upload);
+  });
+
+  it('builds upload action when no source', () => {
+    const upload = vi.fn();
+    const actions = buildWorkspaceEmptyActions({
+      tool: 'reader',
+      hasSource: false,
+      lang: 'en',
+      onUpload: upload,
+    });
+    expect(actions).toHaveLength(1);
+    expect(actions[0]?.id).toBe('upload');
+    actions[0]?.onClick();
+    expect(upload).toHaveBeenCalled();
+  });
+
+  it('builds reprocess and related-tool actions when source exists', () => {
+    const reprocess = vi.fn();
+    const switchTool = vi.fn();
+    const actions = buildWorkspaceEmptyActions({
+      tool: 'quiz',
+      hasSource: true,
+      lang: 'en',
+      onReprocess: reprocess,
+      onSwitchTool: switchTool,
+    });
+    expect(actions.map((a) => a.id)).toEqual(['reprocess', 'switch-tool']);
+    actions[0]?.onClick();
+    actions[1]?.onClick();
+    expect(reprocess).toHaveBeenCalled();
+    expect(switchTool).toHaveBeenCalled();
   });
 });

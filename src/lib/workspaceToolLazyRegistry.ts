@@ -1,6 +1,6 @@
 /**
  * Phase B — lazy code-split registry for workspace tool panels.
- * Reader & concept-map lazy-loaded; prefetch on workspace mount (B3).
+ * Reader, concept-map & scratchpad lazy-loaded; prefetch on workspace mount / entry hover (B3).
  */
 
 import { lazyWithRetry } from './lazyWithRetry';
@@ -13,6 +13,11 @@ export const LazyCognitiveReader = lazyWithRetry(
 export const LazyDraggableConceptMap = lazyWithRetry(
   () => import('../components/workspace/DraggableConceptMap').then((m) => ({ default: m.DraggableConceptMap })),
   'workspace-tool-concept-map',
+);
+
+export const LazyFormulaScratchpad = lazyWithRetry(
+  () => import('../components/workspace/FormulaScratchpad').then((m) => ({ default: m.FormulaScratchpad })),
+  'workspace-tool-scratchpad',
 );
 
 export const LazyWhiteboardPanel = lazyWithRetry(

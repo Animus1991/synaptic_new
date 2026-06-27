@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
-import { preloadStudyWorkspace } from '../lib/studyWorkspaceChunk';
+import { prefetchWorkspaceEntry, workspaceEntryPrefetchHandlers } from '../lib/workspaceEntryPrefetch';
 import { motion } from 'framer-motion';
 import {
   ArrowLeft, BookOpen, Clock, BarChart3, Calendar, FileText,
@@ -133,9 +133,9 @@ export function CourseView({
     if (ok !== false) setReprocessApplied(true);
   };
 
-  /** B10 — warm workspace chunk while the learner reads the course overview. */
+  /** B10/B11 — warm workspace + reader chunks while viewing course overview. */
   useEffect(() => {
-    preloadStudyWorkspace();
+    prefetchWorkspaceEntry();
   }, [course.id]);
 
   return (
@@ -215,6 +215,7 @@ export function CourseView({
               type="button"
               onClick={() => onStartLesson()}
               data-testid="course-open-workspace"
+              {...workspaceEntryPrefetchHandlers()}
               className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-brand-600 to-brand-500 text-white rounded-xl text-sm font-medium hover:from-brand-500 hover:to-brand-400 transition-all"
             >
               <Play className="w-4 h-4" />

@@ -61,6 +61,7 @@ export function SimulatorPanel({
   if (!session.hasSource) {
     return (
       <WorkspaceEmptyState
+        tool="simulator"
         message={emptyMessage ?? (isEl ? 'Ανέβασε σημειώσεις για προσομοίωση.' : 'Upload notes to simulate.')}
         hasSource={false}
         onUpload={onUpload}
@@ -72,6 +73,7 @@ export function SimulatorPanel({
     return (
       <div className="p-4" data-testid="simulator-panel-empty">
         <WorkspaceEmptyState
+          tool="simulator"
           message={emptyMessage ?? (isEl
             ? 'Δεν βρέθηκαν αριθμητικές παράμετροι — δοκίμασε Reprocess ή ανέβασε πίνακες/δείκτες.'
             : 'No numeric parameters found — try Reprocess or upload tables/indicators.')}

@@ -45,12 +45,39 @@ function chunkErrorsDevPlugin(): Plugin {
   };
 }
 
+/** B11 — emit hashed entry-chunk URLs for runtime `<link rel="prefetch">`. */
+function workspaceEntryManifestPlugin(): Plugin {
+  return {
+    name: 'synapse-workspace-entry-manifest',
+    generateBundle(_options, bundle) {
+      const urls: string[] = [];
+      for (const item of Object.values(bundle)) {
+        const fileName = item.type === 'chunk' || item.type === 'asset' ? item.fileName : null;
+        if (!fileName) continue;
+        if (
+          /StudyWorkspace/i.test(fileName)
+          || /CognitiveReader/i.test(fileName)
+          || /workspace\.worker/i.test(fileName)
+        ) {
+          urls.push(`/${fileName}`);
+        }
+      }
+      if (urls.length === 0) return;
+      this.emitFile({
+        type: 'asset',
+        fileName: 'workspace-entry-chunks.json',
+        source: JSON.stringify(urls),
+      });
+    },
+  };
+}
+
 // https://vite.dev/config/
 export default defineConfig({
   define: {
     __APP_VERSION__: JSON.stringify(process.env.APP_VERSION || process.env.VERCEL_GIT_COMMIT_SHA || `dev-${Date.now()}`),
   },
-  plugins: [react(), tailwindcss(), chunkErrorsDevPlugin()],
+  plugins: [react(), tailwindcss(), chunkErrorsDevPlugin(), workspaceEntryManifestPlugin()],
   server: {
     warmup: {
       clientFiles: [

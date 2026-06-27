@@ -84,8 +84,8 @@ export function LessonStepToolBar({
                 className={cn(
                   'inline-flex items-center gap-1 rounded-lg border px-2 py-1.5 text-[10px] font-medium transition-all',
                   action.recommended
-                    ? 'border-brand-500/40 bg-brand-600/15 text-brand-200'
-                    : 'border-border-subtle text-text-secondary hover:border-brand-500/30 hover:text-brand-300',
+                    ? 'border-brand-600/30 bg-brand-100/70 text-brand-800'
+                    : 'border-border-subtle text-text-secondary hover:border-brand-500/30 hover:text-brand-800',
                 )}
               >
                 <Icon className="w-3 h-3 shrink-0" />
@@ -113,8 +113,8 @@ export function LessonStepToolBar({
               isRecommended
                 ? 'border-accent-emerald/35 bg-accent-emerald/10 text-accent-emerald'
                 : isActive
-                  ? 'border-brand-500/40 bg-brand-600/15 text-brand-300'
-                  : 'border-border-subtle text-text-muted hover:border-brand-500/30 hover:text-brand-300',
+                  ? 'border-brand-600/30 bg-brand-100/70 text-brand-800'
+                  : 'border-border-subtle text-text-muted hover:border-brand-500/30 hover:text-brand-800',
             )}
             data-testid={`lesson-open-tool-${tool}`}
             data-recommended={isRecommended ? 'true' : undefined}

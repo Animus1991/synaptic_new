@@ -228,6 +228,7 @@ export function LeitnerBox({
     return (
 
       <WorkspaceEmptyState
+        tool="leitner"
 
         message={emptyMessage ?? 'Upload notes to generate flashcards from your glossary and definitions.'}
 

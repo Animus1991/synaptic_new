@@ -23,6 +23,7 @@ import { workspaceLiveIsStale } from '../lib/workspaceStoreSpine';
 import { nextActionLabel } from '../lib/nextActionEngine';
 import type { Lang } from '../lib/i18n';
 import type { DashboardNextAction } from '../lib/dashboardNextAction';
+import { workspaceEntryPrefetchHandlers } from '../lib/workspaceEntryPrefetch';
 import { greetingForTime, dashboardSubtitle } from '../lib/greeting';
 import { useI18n } from '../lib/i18n';
 import { Page, PageHeader, PlatformSection } from './ui/primitives';
@@ -161,6 +162,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                 type="button"
                 onClick={onOpenWorkspace}
                 aria-busy={workspaceBooting}
+                {...workspaceEntryPrefetchHandlers()}
                 className={cn(
                   'flex items-center gap-2 px-4 py-2.5 border border-brand-500/40 text-brand-700 rounded-xl font-medium text-sm hover:bg-brand-600/10 transition-all whitespace-nowrap',
                   workspaceBooting && 'opacity-70',
@@ -235,6 +237,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                 type="button"
                 onClick={() => onOpenWorkspace?.()}
                 data-testid="dashboard-resume-workspace"
+                {...workspaceEntryPrefetchHandlers()}
                 className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold bg-brand-700 text-white hover:bg-brand-800 transition-all shrink-0"
               >
                 {isEl ? 'Συνέχεια' : 'Resume'} <ArrowRight className="w-3 h-3" />

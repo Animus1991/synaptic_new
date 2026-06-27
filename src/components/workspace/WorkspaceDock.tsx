@@ -107,7 +107,7 @@ export function WorkspaceDock({ activeTool, onSelectTool, availableTools, lang =
                       'focus-visible:ring-2 focus-visible:ring-brand-400/60 focus-visible:ring-inset',
                       expanded ? 'gap-2.5 px-3 py-2' : 'h-11 justify-center px-1',
                       active
-                        ? 'text-brand-100 bg-brand-600/15'
+                        ? 'bg-brand-100/80 text-brand-800 font-semibold'
                         : 'text-text-secondary hover:bg-surface-hover hover:text-text-primary',
                     )}
                   >

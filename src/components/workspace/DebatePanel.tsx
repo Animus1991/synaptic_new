@@ -69,6 +69,7 @@ export function DebatePanel({
   if (!session.hasSource) {
     return (
       <WorkspaceEmptyState
+        tool="debate"
         message={emptyMessage ?? (isEl ? 'Ανέβασε σημειώσεις για συζήτηση.' : 'Upload notes to debate.')}
         hasSource={false}
         onUpload={onUpload}

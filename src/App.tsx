@@ -34,7 +34,7 @@ import type { FsrsRating } from './lib/pedagogy';
 import { visibleCourses } from './lib/demoMode';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { StudyWorkspaceLazy } from './components/workspace/StudyWorkspaceLazy';
-import { preloadStudyWorkspace } from './lib/studyWorkspaceChunk';
+import { prefetchWorkspaceEntry } from './lib/workspaceEntryPrefetch';
 import { preloadCriticalChunks } from './lib/preloadCriticalChunks';
 import { lazyWithRetry } from './lib/lazyWithRetry';
 
@@ -110,7 +110,7 @@ export default function App() {
   };
 
   const openWorkspace = useCallback(() => {
-    preloadStudyWorkspace();
+    prefetchWorkspaceEntry();
     if (store.currentView === 'landing' || store.currentView === 'onboarding') {
       store.navigate('dashboard');
     }
@@ -118,7 +118,7 @@ export default function App() {
   }, [store]);
 
   const openWorkspaceForConcept = useCallback((concept?: string) => {
-    preloadStudyWorkspace();
+    prefetchWorkspaceEntry();
     if (store.currentView === 'landing' || store.currentView === 'onboarding') {
       store.navigate('dashboard');
     }
@@ -127,7 +127,7 @@ export default function App() {
 
   /** Course / library Continue — preload chunk then open workspace. */
   const openCourseWorkspace = useCallback((topicTitle?: string) => {
-    preloadStudyWorkspace();
+    prefetchWorkspaceEntry();
     if (topicTitle?.trim()) {
       store.openStudyWorkspaceForConcept(topicTitle.trim());
       return;
@@ -136,7 +136,7 @@ export default function App() {
   }, [store]);
 
   const openExamTimerWorkspace = useCallback(() => {
-    preloadStudyWorkspace();
+    prefetchWorkspaceEntry();
     if (store.currentView === 'landing' || store.currentView === 'onboarding') {
       store.navigate('dashboard');
     }
@@ -591,7 +591,7 @@ export default function App() {
   /** Warm the workspace + secondary chunks after first paint to keep flows snappy. */
   useEffect(() => {
     const warm = () => {
-      preloadStudyWorkspace();
+      prefetchWorkspaceEntry();
       preloadCriticalChunks();
     };
     if (typeof requestIdleCallback === 'function') {

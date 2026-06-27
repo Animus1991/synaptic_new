@@ -234,6 +234,7 @@ export function FeynmanCheck({
   if (!hasSource) {
     return (
       <WorkspaceEmptyState
+        tool="feynman"
         message={emptyMessage ?? placeholder}
         hasSource={false}
         onUpload={onUpload}

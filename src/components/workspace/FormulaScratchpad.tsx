@@ -239,6 +239,7 @@ export function FormulaScratchpad({
           />
         ) : (
           <WorkspaceEmptyState
+        tool="scratchpad"
             message={emptyMessage ?? 'Upload notes to extract formulas from your material, or add a custom formula.'}
             hasSource={hasSource}
             onUpload={onUpload}

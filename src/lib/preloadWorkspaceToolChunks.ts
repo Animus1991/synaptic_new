@@ -3,12 +3,16 @@
  */
 
 import { importWithRetry } from './lazyWithRetry';
+import { preloadReaderModule } from './cognitiveReaderChunk';
 import { workspaceFeatureFlags } from './workspaceFeatureFlags';
 
-const READER_LOAD = () => import('../components/workspace/CognitiveReader').then((m) => m.CognitiveReader);
 const CONCEPT_MAP_LOAD = () => import('../components/workspace/DraggableConceptMap').then((m) => m.DraggableConceptMap);
 
 const SECONDARY_TOOLS: { flow: string; load: () => Promise<unknown> }[] = [
+  {
+    flow: 'scratchpad',
+    load: () => import('../components/workspace/FormulaScratchpad').then((m) => m.FormulaScratchpad),
+  },
   {
     flow: 'quiz',
     load: () => import('../components/workspace/QuizPanel').then((m) => m.QuizPanel),
@@ -51,7 +55,7 @@ function schedulePrefetch(entry: { flow: string; load: () => Promise<unknown> },
 export function preloadPrimaryWorkspaceTools(): void {
   if (primaryStarted || typeof window === 'undefined') return;
   primaryStarted = true;
-  schedulePrefetch({ flow: 'reader', load: READER_LOAD }, 0);
+  preloadReaderModule();
   schedulePrefetch({ flow: 'concept-map', load: CONCEPT_MAP_LOAD }, 120);
 }
 

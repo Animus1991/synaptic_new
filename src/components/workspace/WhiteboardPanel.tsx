@@ -117,6 +117,7 @@ export function WhiteboardPanel({
   if (!session.hasSource) {
     return (
       <WorkspaceEmptyState
+        tool="whiteboard"
         message={emptyMessage ?? (isEl ? 'Ανέβασε σημειώσεις για τον πίνακα.' : 'Upload notes for the whiteboard.')}
         hasSource={false}
         onUpload={onUpload}

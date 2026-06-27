@@ -74,6 +74,7 @@ export function TimerPanel({
   if (!session.hasSource) {
     return (
       <WorkspaceEmptyState
+        tool="timer"
         message={emptyMessage ?? (isEl ? 'Ανέβασε σημειώσεις για χρονόμετρο μελέτης.' : 'Upload notes to use the study timer.')}
         hasSource={false}
         onUpload={onUpload}

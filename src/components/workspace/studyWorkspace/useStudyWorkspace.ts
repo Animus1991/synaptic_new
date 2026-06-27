@@ -3,6 +3,7 @@ import { workspaceToolLabel } from '../../../lib/workspaceToolRegistry';
 import { crossLinkAgentPrompt } from '../WorkspaceToolCrossLinkBar';
 import { useWorkspaceNoteBundle } from '../../../lib/useWorkspaceNoteBundle';
 import {
+  buildWorkspaceEmptyActions,
   workspaceEmptyUploadHandler,
   workspaceToolEmptyMessage,
   type WorkspaceEmptyTool,
@@ -498,6 +499,19 @@ export function useStudyWorkspace({
     setActiveTool(tool);
     if (layout === 'focus-lesson') setLayout(isMobile ? 'focus-tool' : 'split');
   }, [layout, isMobile]);
+
+  const resolveEmptyActions = useCallback(
+    (tool: WorkspaceEmptyTool) =>
+      buildWorkspaceEmptyActions({
+        tool,
+        hasSource: noteBundle.hasSource,
+        lang,
+        onUpload: handleToolUpload,
+        onReprocess: onReprocessMaterial ? openReprocessWizard : undefined,
+        onSwitchTool: openWorkspaceTool,
+      }),
+    [noteBundle.hasSource, lang, handleToolUpload, onReprocessMaterial, openReprocessWizard, openWorkspaceTool],
+  );
 
   const openReaderAtSearch = useCallback((query: string, origin?: WorkspaceTool) => {
     const courseSpan = linkedCourse ? findConceptSpan(linkedCourse, query) : undefined;
@@ -1726,6 +1740,7 @@ export function useStudyWorkspace({
     sourceIntelligence,
     toolEmptyMessage,
     handleToolUpload,
+    resolveEmptyActions,
     linkedCourse,
     effectiveCourseId,
     handleReuploadMaterial,

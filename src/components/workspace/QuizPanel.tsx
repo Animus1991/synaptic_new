@@ -104,6 +104,7 @@ export function QuizPanel({
   if (!session.hasSource) {
     return (
       <WorkspaceEmptyState
+        tool="quiz"
         message={emptyMessage ?? (isEl ? 'Ανέβασε σημειώσεις για κουίζ.' : 'Upload notes to quiz.')}
         hasSource={false}
         onUpload={onUpload}
@@ -115,6 +116,7 @@ export function QuizPanel({
     return (
       <div className="p-4" data-testid="quiz-panel-empty">
         <WorkspaceEmptyState
+          tool="quiz"
           message={emptyMessage ?? (isEl
             ? 'Δεν δημιουργήθηκαν ερωτήσεις — δοκίμασε Reprocess ή ανέβασε πιο δομημένες σημειώσεις.'
             : 'No questions generated — try Reprocess or upload more structured notes.')}

@@ -50,6 +50,7 @@ export function LeitnerPanel({
   if (!session.hasSource) {
     return (
       <WorkspaceEmptyState
+        tool="leitner"
         message={emptyMessage ?? (isEl ? 'Ανέβασε σημειώσεις για κάρτες.' : 'Upload notes for flashcards.')}
         hasSource={false}
         onUpload={onUpload}
@@ -61,6 +62,7 @@ export function LeitnerPanel({
     return (
       <div className="p-4" data-testid="leitner-panel-empty">
         <WorkspaceEmptyState
+        tool="leitner"
           message={emptyMessage ?? (isEl
             ? 'Δεν δημιουργήθηκαν κάρτες — δοκίμασε Reprocess ή πρόσθεσε όρους στο γλωσσάρι.'
             : 'No flashcards generated — try Reprocess or add glossary terms.')}

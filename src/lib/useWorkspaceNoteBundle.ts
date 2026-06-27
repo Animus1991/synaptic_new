@@ -4,19 +4,7 @@ import {
   type BuildWorkspaceNoteBundleOpts,
   type WorkspaceNoteBundle,
 } from './workspaceNoteContent';
-
-let worker: Worker | null = null;
-
-function getWorker(): Worker | null {
-  if (typeof Worker === 'undefined') return null;
-  if (worker) return worker;
-  try {
-    worker = new Worker(new URL('../workers/workspace.worker.ts', import.meta.url), { type: 'module' });
-    return worker;
-  } catch {
-    return null;
-  }
-}
+import { getWorkspaceWorker } from './workspaceWorkerClient';
 
 /** Fast first paint — skips PMI co-occurrence, BM25 excerpts, and source intelligence. */
 export function buildWorkspaceNoteBundleFast(opts: BuildWorkspaceNoteBundleOpts): WorkspaceNoteBundle {
@@ -43,7 +31,7 @@ export function useWorkspaceNoteBundle(opts: BuildWorkspaceNoteBundleOpts): Work
 
   useEffect(() => {
     setBundle(fastBundle);
-    const w = getWorker();
+    const w = getWorkspaceWorker();
     if (!w) {
       setBundle(buildWorkspaceNoteBundle(opts));
       return;

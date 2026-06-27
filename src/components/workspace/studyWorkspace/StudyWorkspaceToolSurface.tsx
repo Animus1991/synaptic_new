@@ -3,11 +3,10 @@ import { WorkspaceToolStrip } from '../WorkspaceToolStrip';
 import { ToolFrame } from '../ToolFrame';
 import {
   LazyAnnotationOverlay, LazyComparePanel, LazyConceptBusPanel, LazyCognitiveReader,
-  LazyDashboardPanel, LazyDebatePanel, LazyDraggableConceptMap, LazyFeynmanCheck, LazyLeitnerPanel,
-  LazyQuizPanel, LazySimulatorPanel, LazyTimerPanel, LazyWeakAreasFocusRail, LazyWhiteboardPanel,
+  LazyDashboardPanel, LazyDebatePanel, LazyDraggableConceptMap, LazyFeynmanCheck, LazyFormulaScratchpad,
+  LazyLeitnerPanel, LazyQuizPanel, LazySimulatorPanel, LazyTimerPanel, LazyWeakAreasFocusRail, LazyWhiteboardPanel,
   LazyWorkspaceDiscoverabilityPanel,
 } from '../../../lib/workspaceToolLazyRegistry';
-import { FormulaScratchpad } from '../FormulaScratchpad';
 import { WorkspaceIdleMount } from '../WorkspaceIdleMount';
 import { WorkspaceToolSuspense } from '../WorkspaceToolSuspense';
 import { mergeReaderHighlight } from '../../../lib/workspaceFocus';
@@ -245,7 +244,8 @@ export function StudyWorkspaceToolSurface({ model }: StudyWorkspaceToolSurfacePr
                         </WorkspaceToolSuspense>
                       )}
                       {activeTool === 'scratchpad' && (
-                        <FormulaScratchpad
+                        <WorkspaceToolSuspense tool="scratchpad" lang={lang}>
+                        <LazyFormulaScratchpad
                           noteFormulas={noteBundle.formulas}
                           emptyMessage={toolEmptyMessage('scratchpad')}
                           onUpload={handleToolUpload}
@@ -304,6 +304,7 @@ export function StudyWorkspaceToolSurface({ model }: StudyWorkspaceToolSurfacePr
                           }}
                           lang={lang}
                         />
+                        </WorkspaceToolSuspense>
                       )}
                       {activeTool === 'whiteboard' && (
                         <WorkspaceToolSuspense tool="whiteboard" lang={lang}>

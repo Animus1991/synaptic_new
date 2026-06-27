@@ -333,6 +333,7 @@ export function AnnotationOverlay({
   if (!sourceText.trim()) {
     return (
       <WorkspaceEmptyState
+        tool="annotations"
         message={emptyMessage ?? 'Upload notes to annotate your own source material.'}
         hasSource={hasSource}
         onUpload={onUpload}

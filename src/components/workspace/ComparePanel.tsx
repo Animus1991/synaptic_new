@@ -92,6 +92,7 @@ export function ComparePanel({
   if (!session.hasSource) {
     return (
       <WorkspaceEmptyState
+        tool="compare"
         message={emptyMessage ?? (isEl ? 'Ανέβασε σημειώσεις για σύγκριση.' : 'Upload notes to compare.')}
         hasSource={false}
         onUpload={onUpload}
@@ -103,6 +104,7 @@ export function ComparePanel({
     return (
       <div className="p-4" data-testid="compare-panel-empty">
         <WorkspaceEmptyState
+        tool="compare"
           message={emptyMessage ?? (isEl
             ? 'Δεν βρέθηκαν συγκρίσεις στο υλικό — δοκίμασε Reprocess ή ανέβασε πιο δομημένες σημειώσεις.'
             : 'No comparisons found in your material — try Reprocess or upload more structured notes.')}

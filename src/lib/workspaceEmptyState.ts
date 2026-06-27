@@ -1,4 +1,6 @@
 import type { Lang } from './i18n';
+import type { WorkspaceToolId } from './taskFlows';
+import { WORKSPACE_TOOL_CROSS_LINKS } from './workspaceToolCrossLinks';
 
 /** Tools that render `WorkspaceEmptyState` when extraction yields nothing. */
 export type WorkspaceEmptyTool =
@@ -166,4 +168,63 @@ export function workspaceEmptyUploadHandler(
   onUpload?: () => void,
 ): (() => void) | undefined {
   return !hasSource ? onUpload : undefined;
+}
+
+export type WorkspaceEmptyActionId = 'upload' | 'reprocess' | 'switch-tool';
+
+export type WorkspaceEmptyAction = {
+  id: WorkspaceEmptyActionId;
+  label: string;
+  onClick: () => void;
+  primary?: boolean;
+};
+
+const REPROCESS_ELIGIBLE = new Set<WorkspaceEmptyTool>([
+  'reader', 'scratchpad', 'concept-map', 'quiz', 'leitner', 'simulator', 'compare', 'debate', 'dashboard',
+]);
+
+/** Per-tool CTAs: upload (no source), reprocess, or jump to a related tool. */
+export function buildWorkspaceEmptyActions(opts: {
+  tool: WorkspaceEmptyTool;
+  hasSource: boolean;
+  lang: Lang;
+  onUpload?: () => void;
+  onReprocess?: () => void;
+  onSwitchTool?: (tool: WorkspaceToolId) => void;
+}): WorkspaceEmptyAction[] {
+  const { tool, hasSource, lang, onUpload, onReprocess, onSwitchTool } = opts;
+  const isEl = lang === 'el';
+
+  if (!hasSource) {
+    if (!onUpload) return [];
+    return [{
+      id: 'upload',
+      label: isEl ? 'Ανέβασμα υλικού' : 'Upload material',
+      onClick: onUpload,
+      primary: true,
+    }];
+  }
+
+  const actions: WorkspaceEmptyAction[] = [];
+
+  if (onReprocess && REPROCESS_ELIGIBLE.has(tool)) {
+    actions.push({
+      id: 'reprocess',
+      label: isEl ? 'Reprocess υλικού' : 'Reprocess material',
+      onClick: onReprocess,
+      primary: actions.length === 0,
+    });
+  }
+
+  const crossKey = tool as WorkspaceToolId;
+  const related = WORKSPACE_TOOL_CROSS_LINKS[crossKey]?.related?.find((r) => r.tool !== crossKey);
+  if (related && onSwitchTool) {
+    actions.push({
+      id: 'switch-tool',
+      label: isEl ? related.labelEl : related.labelEn,
+      onClick: () => onSwitchTool(related.tool),
+    });
+  }
+
+  return actions;
 }

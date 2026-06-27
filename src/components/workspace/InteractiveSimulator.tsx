@@ -223,6 +223,7 @@ export function InteractiveSimulator({
         </div>
         <div className="flex flex-1 flex-col items-center justify-center p-6">
           <WorkspaceEmptyState
+        tool="simulator"
             message={emptyMessage ?? (insight || t('sandboxInsight'))}
             hasSource={hasSource}
             onUpload={onUpload}

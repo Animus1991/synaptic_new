@@ -159,6 +159,7 @@ export function ArgumentMap({
   if (!root) {
     return (
       <WorkspaceEmptyState
+        tool="debate"
         message={emptyMessage ?? 'Upload notes to build a debate tree from claims in your material.'}
         hasSource={hasSource}
         onUpload={onUpload}

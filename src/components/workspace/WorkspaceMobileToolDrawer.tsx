@@ -107,11 +107,11 @@ export function WorkspaceMobileToolDrawer({
                             className={cn(
                               'flex items-start gap-2.5 rounded-md border p-3 text-left transition-colors min-h-[56px]',
                               active
-                                ? 'border-brand-500/40 bg-brand-600/12 text-brand-200'
+                                ? 'border-brand-600/30 bg-brand-100/70 text-brand-800'
                                 : 'border-border-subtle bg-surface-primary/50 text-text-secondary hover:border-brand-400/30 hover:bg-surface-hover',
                             )}
                           >
-                            <Icon className={cn('h-4 w-4 shrink-0 mt-0.5', active ? 'text-brand-300' : 'text-text-muted')} aria-hidden />
+                            <Icon className={cn('h-4 w-4 shrink-0 mt-0.5', active ? 'text-brand-700' : 'text-text-muted')} aria-hidden />
                             <span className="min-w-0 flex-1">
                               <span className="block text-[13px] font-semibold leading-tight truncate">
                                 {el ? meta.labelEl : meta.label}

@@ -1,4 +1,5 @@
 import { WorkspaceProvider } from './WorkspaceProvider';
+import { WorkspaceEmptyActionsProvider } from './WorkspaceEmptyActionsContext';
 import { cn } from '../../utils/cn';
 import { useStudyWorkspace } from './studyWorkspace/useStudyWorkspace';
 import { StudyWorkspaceChrome } from './studyWorkspace/StudyWorkspaceChrome';
@@ -19,6 +20,7 @@ export function StudyWorkspace(props: StudyWorkspaceProps) {
       hasSource={model.noteBundle.hasSource}
       pipelineVersion={model.noteBundle.pipelineVersion}
     >
+      <WorkspaceEmptyActionsProvider resolve={model.resolveEmptyActions}>
       <div
         data-ws-theme="warm"
         className={cn(
@@ -34,6 +36,7 @@ export function StudyWorkspace(props: StudyWorkspaceProps) {
         <StudyWorkspaceMainLayout model={model} />
         <StudyWorkspaceOverlays model={model} />
       </div>
+      </WorkspaceEmptyActionsProvider>
     </WorkspaceProvider>
   );
 }

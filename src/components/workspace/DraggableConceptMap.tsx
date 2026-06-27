@@ -273,6 +273,7 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
   if (initialNodes.length === 0) {
     return (
       <WorkspaceEmptyState
+        tool="concept-map"
         message={emptyMessage ?? 'Upload notes to build a concept map from your course topics and glossary.'}
         hasSource={hasSource}
         onUpload={onUpload}

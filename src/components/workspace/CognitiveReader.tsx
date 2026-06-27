@@ -565,6 +565,7 @@ export function CognitiveReader({
   if (!displayText.trim() && !text.trim()) {
     return (
       <WorkspaceEmptyState
+        tool="reader"
         message={emptyMessage ?? 'Upload notes to read your material with bionic and complexity highlighting.'}
         hasSource={hasSource}
         onUpload={onUpload}

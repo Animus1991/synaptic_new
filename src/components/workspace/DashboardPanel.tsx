@@ -159,6 +159,7 @@ export function DashboardPanel({
   if (!session.hasSource) {
     return (
       <WorkspaceEmptyState
+        tool="dashboard"
         message={emptyMessage ?? (isEl ? 'Ανέβασε σημειώσεις για εξατομικευμένη πρόοδο.' : 'Upload notes for personalized progress.')}
         hasSource={false}
         onUpload={onUpload}

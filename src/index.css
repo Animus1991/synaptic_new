@@ -650,6 +650,52 @@ input[type="range"]::-webkit-slider-thumb {
   color: var(--color-accent-rose);
 }
 
+[data-ws-theme="warm"] .text-brand-100 {
+  color: var(--color-brand-800);
+}
+[data-ws-theme="warm"] .bg-brand-600\/15,
+[data-ws-theme="warm"] .bg-brand-600\/12 {
+  background: color-mix(in srgb, var(--color-brand-600) 12%, #faf8f5);
+}
+[data-ws-theme="warm"] .bg-brand-100\/70,
+[data-ws-theme="warm"] .bg-brand-100\/80 {
+  background: color-mix(in srgb, var(--color-brand-100) 85%, #faf8f5);
+}
+
+/* Workspace empty states — minimal brown CTAs */
+[data-ws-theme="warm"] .ws-empty-cta-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.5rem 0.875rem;
+  border-radius: 0.5rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  background: var(--color-brand-700);
+  color: #faf8f5;
+  border: 1px solid var(--color-brand-700);
+  transition: background 0.15s ease;
+}
+[data-ws-theme="warm"] .ws-empty-cta-primary:hover {
+  background: var(--color-brand-800);
+}
+[data-ws-theme="warm"] .ws-empty-cta-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.5rem 0.875rem;
+  border-radius: 0.5rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  background: transparent;
+  color: var(--color-brand-800);
+  border: 1px solid color-mix(in srgb, var(--color-brand-600) 35%, var(--color-border-subtle));
+  transition: background 0.15s ease;
+}
+[data-ws-theme="warm"] .ws-empty-cta-secondary:hover {
+  background: color-mix(in srgb, var(--color-brand-100) 60%, #faf8f5);
+}
+
 /* Hide scrollbars inside ribbons (already have .scrollbar-none but extra-safe) */
 [data-ws-theme="warm"] .ws-ribbon::-webkit-scrollbar { display: none; }
 [data-ws-theme="warm"] .ws-ribbon { scrollbar-width: none; }
