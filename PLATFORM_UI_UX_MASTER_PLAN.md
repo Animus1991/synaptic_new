@@ -49,7 +49,7 @@
 | Στοιχείο | Κατάσταση | Αναβάθμιση |
 |----------|-----------|------------|
 | Sidebar nav | 🟡 | Ενεργή κατάσταση όταν workspace ανοιχτό· badge «συνεχίζεις εδώ» |
-| Breadcrumb | 🟡 | Κλικ σε course → CourseView χωρίς χάσιμο workspace (split ή toast) |
+| Breadcrumb | ✅ | Course + workspace split (`workspace-course-split`) when workspace is open |
 | ⌘K Command Palette | 🟢 | Προσθήκη «Τι μπορώ να κάνω τώρα;» από `dashboardNextAction` |
 | Mobile bottom nav | 🟡 | Study Workspace shortcut αν υπάρχει `workspaceLive` |
 | Theme / γλώσσα | 🟢 | — |
@@ -225,7 +225,8 @@ Exam countdown → exam-prep task → Timer preset → Simulator
 - [x] Empty states παντού (shared component) — `PlatformEmptyState` (Library, Tasks)
 - [ ] Context strip workspace πάντα ορατό
 - [ ] Tool dock σύμπτυξη + discoverability primary CTA
-- [ ] Onboarding βήμα «upload → workspace»
+- [x] Onboarding βήμα «upload → workspace» — hint στο upload step
+- [x] Reduced-motion audit (Dashboard card motion) — `MotionSection` + global CSS
 - [x] Shortcuts help `?` στο workspace — SW-P3-08 `WorkspaceKeyboardHelp` (EL/EN)
 - [x] Resume card με live tool/concept — `PlatformSection` + `workspaceLive` στο Dashboard
 

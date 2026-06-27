@@ -18,6 +18,7 @@ import { initThemeEarly } from "./lib/theme";
 import { clearChunkReloadFlags } from "./lib/lazyWithRetry";
 import { initSentry } from "./lib/sentryInit";
 import { IconContext } from "@phosphor-icons/react";
+import { LazyMotion, MotionConfig, domAnimation } from "framer-motion";
 
 clearChunkReloadFlags();
 void initSentry();
@@ -34,9 +35,13 @@ if (typeof document !== 'undefined') {
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <ErrorBoundary>
-      <IconContext.Provider value={{ weight: "thin", mirrored: false }}>
-        <App />
-      </IconContext.Provider>
+      <MotionConfig reducedMotion="user">
+        <LazyMotion features={domAnimation}>
+          <IconContext.Provider value={{ weight: "thin", mirrored: false }}>
+            <App />
+          </IconContext.Provider>
+        </LazyMotion>
+      </MotionConfig>
     </ErrorBoundary>
-  </StrictMode>
+  </StrictMode>,
 );

@@ -256,6 +256,8 @@ export function useAppStore() {
   const [studyWorkspaceOpen, setStudyWorkspaceOpen] = useState(false);
   /** Side-by-side workspace + Agent when navigating via sidebar while workspace is open. */
   const [workspaceAgentSplit, setWorkspaceAgentSplit] = useState(false);
+  /** Side-by-side workspace + CourseView when opening a course while workspace stays open. */
+  const [workspaceCourseSplit, setWorkspaceCourseSplit] = useState(false);
   const studyWorkspaceOpenRef = useRef(false);
   /** One-shot tool focus when opening workspace from dashboard exam countdown. */
   const [workspaceOpenTool, setWorkspaceOpenTool] = useState<WorkspaceToolId | null>(null);
@@ -466,6 +468,7 @@ export function useAppStore() {
       studyWorkspaceOpenRef.current = false;
       setStudyWorkspaceOpen(false);
       setWorkspaceAgentSplit(false);
+      setWorkspaceCourseSplit(false);
       setActiveTaskId(null);
     }
     setCurrentView(view);
@@ -482,20 +485,31 @@ export function useAppStore() {
   }, []);
 
   const openCourseReview = useCallback((course: Course) => {
+    setSelectedCourse(course);
+    setCurrentView('course');
+    setSidebarOpen(false);
+    if (studyWorkspaceOpenRef.current) {
+      setWorkspaceCourseSplit(true);
+      window.scrollTo(0, 0);
+      return;
+    }
     workspaceCloseGenRef.current += 1;
     studyWorkspaceOpenRef.current = false;
     setStudyWorkspaceOpen(false);
     setWorkspaceAgentSplit(false);
+    setWorkspaceCourseSplit(false);
     setActiveTaskId(null);
-    setSelectedCourse(course);
-    setCurrentView('course');
-    setSidebarOpen(false);
     window.scrollTo(0, 0);
   }, []);
 
   const exitWorkspaceAgentSplit = useCallback(() => {
     setWorkspaceAgentSplit(false);
     setCurrentView((v) => (v === 'agent' ? 'dashboard' : v));
+  }, []);
+
+  const exitWorkspaceCourseSplit = useCallback(() => {
+    setWorkspaceCourseSplit(false);
+    setCurrentView('library');
   }, []);
 
   useEffect(() => {
@@ -1163,6 +1177,7 @@ export function useAppStore() {
     studyWorkspaceOpenRef.current = false;
     setStudyWorkspaceOpen(false);
     setWorkspaceAgentSplit(false);
+    setWorkspaceCourseSplit(false);
     setActiveTaskId(null);
     void flushConceptBusSync().catch(() => {});
   }, [flushConceptBusSync]);
@@ -1811,6 +1826,7 @@ export function useAppStore() {
     agentWorkspaceContext, setAgentWorkspaceContext, openAgentFromWorkspace, agentContextForView,
     workspaceLive, syncWorkspaceLive, workspaceContext,
     workspaceAgentSplit, setWorkspaceAgentSplit, exitWorkspaceAgentSplit,
+    workspaceCourseSplit, exitWorkspaceCourseSplit,
     dashboardNextAction,
     uploadedFiles, glossaryEntries, isUploading, isReprocessing, simulateUpload, processUpload,
     reprocessCourseMaterial, removeUploadedFile, removeCourse,

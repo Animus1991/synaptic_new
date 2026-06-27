@@ -192,6 +192,9 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                 <p className="text-text-secondary leading-relaxed max-w-md mx-auto">
                   {content.uploadBody}
                 </p>
+                <p className="text-xs text-brand-700/90 max-w-md mx-auto rounded-xl border border-brand-500/20 bg-brand-500/5 px-4 py-3">
+                  {content.uploadWorkspaceHint}
+                </p>
                 <div className="flex flex-col gap-3">
                   <button onClick={() => onComplete({
                     role: selectedRole ?? undefined,

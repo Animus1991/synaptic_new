@@ -1,7 +1,7 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { X, StickyNote, LayoutGrid } from '@/lib/lucide-shim';
 import { workspaceToolLabel } from '../../../lib/workspaceToolRegistry';
-import { CommandPalette } from '../CommandPalette';
+import { WorkspaceCommandPaletteMount } from '../WorkspaceCommandPaletteMount';
 import { ReprocessPreviewModal } from '../../ReprocessPreviewModal';
 import { WorkspaceIntelSideSheet } from '../WorkspaceIntelSideSheet';
 import { WorkspaceKeyboardHelp } from '../WorkspaceKeyboardHelp';
@@ -139,7 +139,7 @@ export function StudyWorkspaceOverlays({ model }: StudyWorkspaceOverlaysProps) {
               onFocusWeakSpot={focusWeakArea}
             />
       
-            <CommandPalette
+            <WorkspaceCommandPaletteMount
               open={showPalette}
               onClose={() => setShowPalette(false)}
               items={paletteItems}

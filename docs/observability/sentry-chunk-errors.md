@@ -41,6 +41,10 @@ The same payload is also dispatched as a `CustomEvent('synapse:chunk-error')`
 and beaconed to `POST /__chunk_errors` (best-effort) so non-Sentry hosts can
 subscribe.
 
+Static SPA hosts: `vercel.json` + `api/chunk-errors.js`, or `netlify.toml` +
+`netlify/functions/chunk-errors.mjs`. Vite preview/dev use the middleware in
+`vite.config.ts`.
+
 ## 1. Inbound issue grouping
 
 Add a Sentry **Inbound Filter / Fingerprint Rule** so chunk errors group by

@@ -7,31 +7,40 @@ import { defineConfig, type Plugin } from "vite";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-/** Dev-only ingest for chunkErrorReporter beacons (mirrors server POST /__chunk_errors). */
+/** Dev + preview ingest for chunkErrorReporter beacons (mirrors server POST /__chunk_errors). */
+function chunkErrorsBeaconMiddleware(
+  req: import('http').IncomingMessage,
+  res: import('http').ServerResponse,
+  next: () => void,
+) {
+  if (req.method !== 'POST' || !req.url?.startsWith('/__chunk_errors')) {
+    next();
+    return;
+  }
+  const chunks: Buffer[] = [];
+  req.on('data', (chunk) => chunks.push(Buffer.from(chunk)));
+  req.on('end', () => {
+    try {
+      const raw = Buffer.concat(chunks).toString('utf8');
+      const payload = raw ? JSON.parse(raw) : {};
+      // eslint-disable-next-line no-console
+      console.info('[synapse] chunk-error beacon', payload);
+    } catch {
+      /* ignore malformed beacons */
+    }
+    res.statusCode = 204;
+    res.end();
+  });
+}
+
 function chunkErrorsDevPlugin(): Plugin {
   return {
     name: 'synapse-chunk-errors-beacon',
     configureServer(server) {
-      server.middlewares.use('/__chunk_errors', (req, res, next) => {
-        if (req.method !== 'POST') {
-          next();
-          return;
-        }
-        const chunks: Buffer[] = [];
-        req.on('data', (chunk) => chunks.push(Buffer.from(chunk)));
-        req.on('end', () => {
-          try {
-            const raw = Buffer.concat(chunks).toString('utf8');
-            const payload = raw ? JSON.parse(raw) : {};
-            // eslint-disable-next-line no-console
-            console.info('[synapse] chunk-error beacon (dev)', payload);
-          } catch {
-            /* ignore malformed beacons */
-          }
-          res.statusCode = 204;
-          res.end();
-        });
-      });
+      server.middlewares.use(chunkErrorsBeaconMiddleware);
+    },
+    configurePreviewServer(server) {
+      server.middlewares.use(chunkErrorsBeaconMiddleware);
     },
   };
 }

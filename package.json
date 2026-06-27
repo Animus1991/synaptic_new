@@ -16,6 +16,7 @@
     "test:e2e:visual": "playwright test e2e/visual-regression.spec.ts",
     "test:e2e:visual:update": "playwright test e2e/visual-regression.spec.ts --update-snapshots",
     "test:e2e:perf": "playwright test e2e/workspace-perf-budget.spec.ts",
+    "test:e2e:perf:prod": "playwright test e2e/workspace-perf-budget.spec.ts --config playwright.prod.config.ts",
     "eval": "vitest run src/eval",
     "doc-lint": "node scripts/doc-lint.mjs",
     "sentry:import-dashboard": "node scripts/sentry-import-dashboard.mjs",

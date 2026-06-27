@@ -181,3 +181,29 @@ jobs:
           if-no-files-found: ignore
           retention-days: 7
 
+  perf-budget-prod:
+    # B11 prod gate — build + vite preview; demo Continue ≤12s (1.2s stretch logged as annotation)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build:fast
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e:perf:prod
+        env:
+          CI: true
+          PLAYWRIGHT_PROD_PERF: '1'
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: perf-budget-prod-playwright-report
+          path: |
+            playwright-report
+            test-results
+          if-no-files-found: ignore
+          retention-days: 7
+

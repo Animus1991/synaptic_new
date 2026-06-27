@@ -1,0 +1,6 @@
+{
+  "rewrites": [
+    { "source": "/__chunk_errors", "destination": "/api/chunk-errors" },
+    { "source": "/((?!api/).*)", "destination": "/index.html" }
+  ]
+}

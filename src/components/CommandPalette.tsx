@@ -178,3 +178,27 @@ export function useCommandPalette() {
   }, []);
   return { open, toggle, close, setOpen };
 }
+
+/** B9 — Global palette: defer mount until idle; mount immediately when opened. */
+export function AppCommandPaletteMount(props: Props) {
+  const { open } = props;
+  const [mounted, setMounted] = useState(open);
+
+  useEffect(() => {
+    if (open) setMounted(true);
+  }, [open]);
+
+  useEffect(() => {
+    if (mounted) return;
+    const ric = window.requestIdleCallback;
+    if (typeof ric === 'function') {
+      const id = ric(() => setMounted(true), { timeout: 2200 });
+      return () => window.cancelIdleCallback?.(id);
+    }
+    const t = window.setTimeout(() => setMounted(true), 500);
+    return () => window.clearTimeout(t);
+  }, [mounted]);
+
+  if (!mounted) return null;
+  return <CommandPalette {...props} />;
+}

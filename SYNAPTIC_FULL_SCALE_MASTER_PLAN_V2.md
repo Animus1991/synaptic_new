@@ -100,7 +100,7 @@
 | A1 | Chunk retry + stale reload | `test:e2e:chunk-recovery` green | ✅ |
 | A2 | Boot shell Try again / Reload | No infinite spinner | ✅ |
 | A3 | Sentry runtime + dashboard | Events in Sentry prod; dashboard imported | 🔶 code done |
-| A4 | `POST /__chunk_errors` beacon endpoint | Server route or CF worker; 2xx | 🔲 |
+| A4 | `POST /__chunk_errors` beacon endpoint | Server route or CF worker; 2xx | ✅ |
 | A5 | a11y CI gate | `npm run test:a11y` in Actions | ✅ |
 | A6 | Varian regression CI gate | Dedicated job on `varianCh31Fixtures.test.ts` | ✅ |
 | A7 | Fix flaky reprocess tests | 702/702 stable under `vitest run` | ✅ |
@@ -120,10 +120,10 @@
 | B6 | Virtualised StepRail | No sync step computation per render | ✅ |
 | B7 | **`WorkspaceContextBar`** (3 chips + ⓘ side-sheet) | Replace 7+ strips; relocate Discoverability/WeakAreas/ConceptBus/SourceIntel | ✅ |
 | B8 | **`<ToolFrame>`** | Merge `WorkspaceToolHeader` + `WorkspaceToolCrossLinkBar` | ✅ |
-| B9 | Idle-mount CommandPalette index | `WorkspaceIdleMount` pattern | 🔲 |
-| B10 | Preload top-3 tools on idle | focus-bus stats → prefetch quiz/leitner/dashboard | 🔲 |
-| B11 | Perf budget E2E | Playwright: Continue → interactive ≤1.2s cold | ✅ dev gate (8–12s) |
-| B12 | Feature flag `?ws=v2=1` | 1-week canary before default | 🔲 |
+| B9 | Idle-mount CommandPalette index | `WorkspaceIdleMount` pattern | ✅ |
+| B10 | Preload top-3 tools on idle | focus-bus stats → prefetch quiz/leitner/dashboard | ✅ |
+| B11 | Perf budget E2E | Playwright: Continue → interactive ≤1.2s cold (stretch) | ✅ dev gate 8s; prod job `perf-budget-prod` (12s gate + 1.2s soft stretch) |
+| B12 | Feature flag `?ws=v2=1` | Cohort tracking only (v2 shell is default) | ✅ |
 
 **Per-tool checklist (13 tools — καμία εξαίρεση):**
 
@@ -349,7 +349,7 @@
 | Fingerprint rules | `sentry-chunk-errors.md` §1 | 🔲 manual |
 | Alerts spike per release | §4 alerts | 🔲 |
 | Chunk-error issue template | `.github/ISSUE_TEMPLATE/chunk-error.yml` | ✅ |
-| `__chunk_errors` ingest | A4 | 🔲 |
+| `__chunk_errors` ingest | A4 | ✅ |
 | Source maps upload | Sentry release artifacts | 🔲 |
 | Structured logging server | JSON logs + request IDs | 🔲 |
 

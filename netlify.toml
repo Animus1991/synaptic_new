@@ -1,0 +1,14 @@
+[build]
+  command = "npm run build:fast"
+  publish = "dist"
+
+[[redirects]]
+  from = "/__chunk_errors"
+  to = "/.netlify/functions/chunk-errors"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

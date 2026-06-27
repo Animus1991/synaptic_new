@@ -151,6 +151,13 @@ describe('server integration sweep', () => {
     expect(res.body.stepSchedules['workspace:task-1']['0'].visitCount).toBe(1);
   });
 
+  it('POST /__chunk_errors accepts beacon payloads (A4)', async () => {
+    await request(app)
+      .post('/__chunk_errors')
+      .send({ flow: 'test', message: 'chunk load failed', version: 'dev' })
+      .expect(204);
+  });
+
   it('GET /v1/teacher/dashboard returns library and usage aggregates', async () => {
     const reg = await request(app)
       .post('/auth/register')

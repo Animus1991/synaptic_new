@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+import { MotionSection } from './ui/MotionSection';
 import {
   Flame, Lightning as Zap, Target, Clock, BookOpen, Warning as AlertTriangle,
   CaretRight as ChevronRight, TrendUp as TrendingUp, Brain, Calendar, ArrowRight, Play,
@@ -97,7 +97,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
   if (isEmpty) {
     return (
       <div className="p-4 sm:p-6 lg:px-8 pb-24 lg:pb-6 w-full min-w-0 flex items-start justify-center pt-8 sm:pt-16">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-2xl">
+        <MotionSection initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-2xl">
           <div className="text-center mb-8">
             <h1 className="text-2xl sm:text-3xl font-bold text-text-primary mb-2">
               {isEl ? 'Καλώς ήρθες στο Synapse' : 'Welcome to Synapse'}
@@ -137,7 +137,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                 : 'Demo uses preloaded Economics notes — no upload needed'}
             </p>
           )}
-        </motion.div>
+        </MotionSection>
       </div>
     );
   }
@@ -177,17 +177,17 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
       />
 
       {/* Stats Row */}
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+      <MotionSection initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="grid grid-cols-2 sm:grid-cols-5 gap-3">
         <StatCard icon={<Flame className="w-5 h-5 text-accent-amber" />} label="Streak" value={`${stats.streak} days`} />
         <StatCard icon={<Zap className="w-5 h-5 text-brand-400" />} label="Today's XP" value={`${stats.todayXP}`} />
         <StatCard icon={<Target className="w-5 h-5 text-accent-teal" />} label="Reviews Due" value={`${stats.reviewsDue}`} />
         <StatCard icon={<Brain className="w-5 h-5 text-accent-cyan" />} label="Concepts Mastered" value={`${stats.conceptsMastered}/${stats.totalConcepts}`} />
         <StatCard icon={<Clock className="w-5 h-5 text-accent-emerald" />} label="Study Today" value={`${stats.studyTimeToday}m`} />
-      </motion.div>
+      </MotionSection>
 
       {/* Exam countdown */}
       {daysToExam !== null && (
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="p-4 rounded-2xl border border-accent-rose/30 bg-accent-rose/5 flex items-center justify-between gap-4">
+        <MotionSection initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="p-4 rounded-2xl border border-accent-rose/30 bg-accent-rose/5 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <Calendar className="w-5 h-5 text-accent-rose shrink-0" />
             <div>
@@ -203,12 +203,12 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
           >
             {examTask ? 'Start exam prep' : 'Exam prep'} <ArrowRight className="w-3 h-3" />
           </button>
-        </motion.div>
+        </MotionSection>
       )}
 
       {/* Anti-passive learning alert */}
       {(antiPassiveAlert || stats.antiPassiveAlert) && (
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="p-4 rounded-2xl border border-accent-amber/30 bg-accent-amber/5 flex items-start gap-3">
+        <MotionSection initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="p-4 rounded-2xl border border-accent-amber/30 bg-accent-amber/5 flex items-start gap-3">
           <Eye className="w-5 h-5 text-accent-amber shrink-0 mt-0.5" />
           <div>
             <p className="text-sm font-medium text-accent-amber">Active Recall Reminder</p>
@@ -220,11 +220,11 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
               Take a quick quiz <ArrowRight className="w-3 h-3" />
             </button>
           </div>
-        </motion.div>
+        </MotionSection>
       )}
 
       {showWorkspaceResume && (
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+        <MotionSection initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
           <PlatformSection
             tone="brand"
             title={isEl ? 'Συνέχισε από εκεί που σταμάτησες' : 'Resume where you left off'}
@@ -262,11 +262,11 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
               </p>
             )}
           </PlatformSection>
-        </motion.div>
+        </MotionSection>
       )}
 
       {!showWorkspaceResume && dashboardNextAction && (
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="p-4 rounded-2xl border border-accent-teal/30 bg-accent-teal/5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <MotionSection initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="p-4 rounded-2xl border border-accent-teal/30 bg-accent-teal/5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-start gap-3 min-w-0">
             <Lightbulb className="w-5 h-5 text-accent-teal shrink-0 mt-0.5" />
             <div className="min-w-0">
@@ -282,12 +282,12 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
           >
             {dashboardNextAction.label} <ArrowRight className="w-3 h-3" />
           </button>
-        </motion.div>
+        </MotionSection>
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left column */}
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="lg:col-span-2 space-y-6">
+        <MotionSection initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="lg:col-span-2 space-y-6">
 
           {/* Readiness Hero */}
           <div className="ws-bento p-6">
@@ -338,7 +338,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
             </div>
             <div className="space-y-2">
               {criticalTasks.slice(0, 5).map((task, i) => (
-                <motion.div key={task.id} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.15 + i * 0.04 }}
+                <MotionSection key={task.id} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.15 + i * 0.04 }}
                   onClick={() => onStartTask?.(task.id)}
                   className="flex items-center gap-3 p-3 rounded-xl hover:bg-surface-hover transition-all cursor-pointer group">
                   <CourseIcon icon={task.courseIcon} size="sm" colorClassName="text-brand-500 shrink-0" />
@@ -353,7 +353,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                     )}>{task.priority}</span>
                     <span className="text-xs text-accent-amber">+{task.xpReward}</span>
                   </div>
-                </motion.div>
+                </MotionSection>
               ))}
               {criticalTasks.length === 0 && <p className="text-sm text-text-tertiary text-center py-6 flex items-center justify-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-accent-emerald" /> All caught up!</p>}
             </div>
@@ -388,7 +388,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {courses.filter(c => c.status !== 'generating').map((course, i) => (
-                <motion.div key={course.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 + i * 0.04 }}
+                <MotionSection key={course.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 + i * 0.04 }}
                   onClick={() => onSelectCourse(course)} className="p-4 rounded-xl border border-border-subtle hover:border-brand-500/30 bg-surface-primary/50 cursor-pointer transition-all group">
                   <div className="flex items-start justify-between mb-3">
                     <CourseIcon icon={course.icon} size="lg" colorClassName="text-brand-600" />
@@ -403,14 +403,14 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                   <div className="w-full bg-surface-hover rounded-full h-1.5">
                     <div className="h-1.5 rounded-full transition-all duration-500" style={{ width: `${(course.completedLessons / course.totalLessons) * 100}%`, backgroundColor: course.color }} />
                   </div>
-                </motion.div>
+                </MotionSection>
               ))}
             </div>
           </div>
-        </motion.div>
+        </MotionSection>
 
         {/* Right sidebar */}
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="space-y-6">
+        <MotionSection initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="space-y-6">
 
           {/* Mastery Trend */}
           <div className="ws-bento p-5">
@@ -603,7 +603,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
             <h3 className="text-sm font-semibold mb-3 flex items-center gap-2"><Zap className="w-4 h-4 text-brand-400" />Recent Activity</h3>
             <ActivityFeed activities={activities} maxItems={5} />
           </div>
-        </motion.div>
+        </MotionSection>
       </div>
     </Page>
   );

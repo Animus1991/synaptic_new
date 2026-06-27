@@ -11,7 +11,8 @@ import {
   resolvePrerequisiteSteps,
   resolveReviewCards,
 } from './lib/taskFlowContent';
-import { CommandPalette, useCommandPalette } from './components/CommandPalette';
+import { AppCommandPaletteMount, useCommandPalette } from './components/CommandPalette';
+import { persistWorkspaceV2CanaryFromUrl, reportWorkspaceCanaryCohort } from './lib/workspaceFeatureFlags';
 import type { ContentSearchHit } from './lib/globalContentSearch';
 import { NotificationsPanel } from './components/NotificationsPanel';
 import { MistakeRetryView } from './components/MistakeRetryView';
@@ -228,6 +229,10 @@ export default function App() {
 
   const nextPendingTask = findPendingTask(store.tasks, () => true);
   const agentSplitActive = store.studyWorkspaceOpen && store.workspaceAgentSplit && store.currentView === 'agent';
+  const courseSplitActive = Boolean(
+    store.studyWorkspaceOpen && store.workspaceCourseSplit && store.currentView === 'course' && store.selectedCourse,
+  );
+  const embeddedSplitActive = agentSplitActive || courseSplitActive;
 
   const agentPanelProps = {
     messages: store.agentMessages,
@@ -260,9 +265,9 @@ export default function App() {
     >
       <StudyWorkspaceLazy
         key={workspaceSessionKey}
-        bootCompact={agentSplitActive}
+        bootCompact={embeddedSplitActive}
         bootLang={store.user.settings.language === 'el' ? 'el' : 'en'}
-        agentSplit={agentSplitActive}
+        agentSplit={embeddedSplitActive}
         onClose={closeWorkspace}
         onOpenAgent={() => store.openAgentFromWorkspace()}
         onOpenAgentWithPrompt={store.openAgentFromWorkspace}
@@ -350,7 +355,7 @@ export default function App() {
 
   const overlays = (
     <>
-      <CommandPalette
+      <AppCommandPaletteMount
         open={paletteOpen}
         onClose={closePalette}
         tasks={store.tasks}
@@ -413,7 +418,44 @@ export default function App() {
         </LazyOverlay>
       )}
       {store.studyWorkspaceOpen && (
-        agentSplitActive ? (
+        courseSplitActive && store.selectedCourse ? (
+          <div className="fixed inset-0 z-50 flex bg-surface-primary" data-testid="workspace-course-split">
+            <div className="w-[58%] min-w-0 shrink-0 border-r border-border-subtle">
+              {studyWorkspaceElement}
+            </div>
+            <div className="flex w-[42%] min-w-0 flex-col bg-surface-primary overflow-hidden">
+              <div className="flex shrink-0 items-center justify-between border-b border-border-subtle bg-surface-card px-3 py-2 gap-2">
+                <span className="text-xs font-semibold text-brand-700 truncate">{store.selectedCourse.title}</span>
+                <button
+                  type="button"
+                  onClick={store.exitWorkspaceCourseSplit}
+                  className="text-[10px] font-medium text-text-secondary hover:text-brand-700 transition-colors shrink-0"
+                >
+                  {store.user.settings.language === 'el' ? 'Πλήρες workspace' : 'Full workspace'}
+                </button>
+              </div>
+              <div className="min-h-0 flex-1 overflow-y-auto">
+                <CourseView
+                  course={store.selectedCourse}
+                  uploadedFiles={store.uploadedFiles.filter((f) => f.courseId === store.selectedCourse!.id)}
+                  glossaryEntries={store.glossaryEntries.filter((g) => g.courseId === store.selectedCourse!.id)}
+                  onGoToSource={store.openSourceAt}
+                  onBack={store.exitWorkspaceCourseSplit}
+                  onStartLesson={(topicTitle?: string) => openCourseWorkspace(topicTitle)}
+                  onOpenAgent={() => store.navigate('agent')}
+                  onUploadMore={() => openUploadModal({ mode: 'extend', targetCourseId: store.selectedCourse!.id })}
+                  onReprocessMaterial={() => store.reprocessCourseMaterial(store.selectedCourse!.id)}
+                  reprocessingMaterial={store.isReprocessing}
+                  onRemoveFile={store.removeUploadedFile}
+                  onRemoveCourse={store.removeCourse}
+                  tasks={store.tasks}
+                  showPostUploadBanner={store.postUploadCourseId === store.selectedCourse!.id}
+                  onDismissPostUpload={store.clearPostUploadHighlight}
+                />
+              </div>
+            </div>
+          </div>
+        ) : agentSplitActive ? (
           <div className="fixed inset-0 z-50 flex bg-surface-primary" data-testid="workspace-agent-split">
             <div className="w-[58%] min-w-0 shrink-0 border-r border-border-subtle">
               {studyWorkspaceElement}
@@ -542,6 +584,10 @@ export default function App() {
     return watchSystemTheme(() => applyTheme('system'));
   }, [store.user.settings.theme]);
 
+  useEffect(() => {
+    if (persistWorkspaceV2CanaryFromUrl()) reportWorkspaceCanaryCohort();
+  }, []);
+
   /** Warm the workspace + secondary chunks after first paint to keep flows snappy. */
   useEffect(() => {
     const warm = () => {
@@ -603,8 +649,8 @@ export default function App() {
     );
   }
 
-  // Course detail view
-  if (store.currentView === 'course' && store.selectedCourse) {
+  // Course detail view (full page — skipped when workspace+course split is active)
+  if (store.currentView === 'course' && store.selectedCourse && !store.workspaceCourseSplit) {
     const selectedCourse = store.selectedCourse;
     return (
       <I18nContext.Provider value={i18nValue}>
@@ -614,7 +660,7 @@ export default function App() {
             uploadedFiles={store.uploadedFiles.filter((f) => f.courseId === selectedCourse.id)}
             glossaryEntries={store.glossaryEntries.filter((g) => g.courseId === selectedCourse.id)}
             onGoToSource={store.openSourceAt}
-            onBack={() => { store.closeStudyWorkspace(); store.navigate('library'); }}
+            onBack={() => store.navigate('library')}
             onStartLesson={(topicTitle?: string) => openCourseWorkspace(topicTitle)}
             onOpenAgent={() => store.navigate('agent')}
             onUploadMore={() => openUploadModal({ mode: 'extend', targetCourseId: selectedCourse.id })}

@@ -1,4 +1,5 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
+import { preloadStudyWorkspace } from '../lib/studyWorkspaceChunk';
 import { motion } from 'framer-motion';
 import {
   ArrowLeft, BookOpen, Clock, BarChart3, Calendar, FileText,
@@ -131,6 +132,11 @@ export function CourseView({
     const ok = onReprocessMaterial();
     if (ok !== false) setReprocessApplied(true);
   };
+
+  /** B10 — warm workspace chunk while the learner reads the course overview. */
+  useEffect(() => {
+    preloadStudyWorkspace();
+  }, [course.id]);
 
   return (
     <Page>

@@ -137,6 +137,7 @@ import {
   type SharedAnnotationDto,
 } from '../../../lib/authClient';
 import type { StoredAnnotation } from '../../../lib/annotationStore';
+import { preloadWorkspaceToolChunks } from '../../../lib/preloadWorkspaceToolChunks';
 
 import { useState, useRef, useCallback, useEffect, useMemo, useDeferredValue } from 'react';
 import type { CommandItem } from '../CommandPalette';
@@ -218,6 +219,11 @@ export function useStudyWorkspace({
     setActiveTool(workspaceOpenTool);
     onConsumeWorkspaceOpenTool?.();
   }, [workspaceOpenTool, onConsumeWorkspaceOpenTool]);
+
+  useEffect(() => {
+    preloadWorkspaceToolChunks();
+  }, []);
+
   const [sharedAnnotations, setSharedAnnotations] = useState<SharedAnnotationDto[]>([]);
   const [annotationSyncVersion, setAnnotationSyncVersion] = useState(0);
   const [annotationSyncLive, setAnnotationSyncLive] = useState(false);
