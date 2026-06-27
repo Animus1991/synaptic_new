@@ -20,13 +20,13 @@ export function ArtifactStaleBanner({ lang, tool, onDismiss }: Props) {
 
   return (
     <div
-      className="mb-3 flex flex-col gap-2 rounded-xl border border-accent-amber/35 bg-accent-amber/10 px-3 py-2.5 sm:flex-row sm:items-start sm:justify-between"
+      className="mb-3 flex flex-col gap-2 rounded-xl border border-accent-amber/35 bg-accent-amber/10 px-3 py-2.5 ws-status-strip ws-status-warn sm:flex-row sm:items-start sm:justify-between"
       data-testid={`artifact-stale-banner-${tool}`}
       role="status"
     >
       <div className="flex items-start gap-2 min-w-0">
-        <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-accent-amber" aria-hidden />
-        <p className="text-[11px] leading-relaxed text-accent-amber">
+        <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 opacity-90" aria-hidden />
+        <p className="text-[11px] leading-relaxed">
           {isEl
             ? `Η πηγή επανεπεξεργάστηκε — οι ${label} μπορεί να βασίζονται σε παλιό υλικό.`
             : `Source was reprocessed — ${label} may be based on outdated material.`}
@@ -35,7 +35,7 @@ export function ArtifactStaleBanner({ lang, tool, onDismiss }: Props) {
       <button
         type="button"
         onClick={onDismiss}
-        className="shrink-0 self-end rounded-lg border border-accent-amber/40 bg-accent-amber/15 px-2.5 py-1 text-[10px] font-medium text-accent-amber hover:bg-accent-amber/25 transition-colors"
+        className="ws-empty-cta-secondary shrink-0 self-end px-2.5 py-1 text-[10px]"
         data-testid={`artifact-stale-dismiss-${tool}`}
       >
         {isEl ? 'Εντάξει, συνέχεια' : 'Got it'}

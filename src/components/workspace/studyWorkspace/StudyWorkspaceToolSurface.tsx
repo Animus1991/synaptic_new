@@ -128,6 +128,7 @@ export function StudyWorkspaceToolSurface({ model }: StudyWorkspaceToolSurfacePr
     conceptLensView,
     openReaderAtConceptSection,
     handleConceptBusRemediation,
+    openReprocessWizard,
     handleConceptLensAction,
     quizArtifactStale,
     leitnerArtifactStale,
@@ -653,6 +654,9 @@ export function StudyWorkspaceToolSurface({ model }: StudyWorkspaceToolSurfacePr
                   onRemediate={handleConceptBusRemediation}
                   activeLens={conceptLensView}
                   onOpenReaderSection={openReaderAtConceptSection}
+                  hasSource={noteBundle.hasSource}
+                  onUpload={handleToolUpload}
+                  onReprocess={openReprocessWizard}
                 />
               </WorkspaceToolSuspense>
             </WorkspaceIdleMount>

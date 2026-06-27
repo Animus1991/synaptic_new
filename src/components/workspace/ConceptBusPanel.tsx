@@ -53,6 +53,9 @@ type Props = {
   /** Active concept lens metadata for expanded detail rows. */
   activeLens?: ConceptLensView;
   onOpenReaderSection?: () => void;
+  hasSource?: boolean;
+  onUpload?: () => void;
+  onReprocess?: () => void;
 };
 
 export function ConceptBusPanel({
@@ -66,6 +69,9 @@ export function ConceptBusPanel({
   onRemediate,
   activeLens,
   onOpenReaderSection,
+  hasSource = false,
+  onUpload,
+  onReprocess,
 }: Props) {
   const isEl = lang === 'el';
   const engagedCount = rows.length;
@@ -106,10 +112,60 @@ export function ConceptBusPanel({
               : 'Study with Reader, Quiz, or Feynman — terms will appear here with cross-tool activity.'}
           </p>
           {activeLens?.emptyReason === 'weak-extraction' && (
-            <p className="mt-1 text-[10px] text-accent-amber">
+            <p className="mt-1 inline-flex rounded-full px-2 py-0.5 text-[10px] ws-chip-warn">
               {isEl ? 'Αδύναμη εξαγωγή — δοκίμασε Reprocess.' : 'Weak extraction — try Reprocess.'}
             </p>
           )}
+          <div className="mt-2 flex flex-wrap gap-1.5">
+            {!hasSource && onUpload && (
+              <button
+                type="button"
+                onClick={onUpload}
+                className="ws-empty-cta-primary text-[10px] px-2.5 py-1"
+                data-testid="concept-bus-empty-upload"
+              >
+                {isEl ? 'Ανέβασμα υλικού' : 'Upload material'}
+              </button>
+            )}
+            {hasSource && (
+              <>
+                <button
+                  type="button"
+                  onClick={() => onJumpTool('reader')}
+                  className="ws-empty-cta-primary text-[10px] px-2.5 py-1"
+                  data-testid="concept-bus-empty-reader"
+                >
+                  {isEl ? 'Άνοιγμα Reader' : 'Open Reader'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onJumpTool('quiz')}
+                  className="ws-empty-cta-secondary text-[10px] px-2.5 py-1"
+                  data-testid="concept-bus-empty-quiz"
+                >
+                  Quiz
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onJumpTool('feynman')}
+                  className="ws-empty-cta-secondary text-[10px] px-2.5 py-1"
+                  data-testid="concept-bus-empty-feynman"
+                >
+                  Feynman
+                </button>
+              </>
+            )}
+            {hasSource && onReprocess && (
+              <button
+                type="button"
+                onClick={onReprocess}
+                className="ws-empty-cta-secondary text-[10px] px-2.5 py-1"
+                data-testid="concept-bus-empty-reprocess"
+              >
+                {isEl ? 'Reprocess υλικού' : 'Reprocess material'}
+              </button>
+            )}
+          </div>
         </div>
       )}
 
