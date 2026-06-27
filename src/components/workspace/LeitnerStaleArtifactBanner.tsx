@@ -1,4 +1,4 @@
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
 import {
   LEITNER_STALE_MIN_TOUCH_PX,

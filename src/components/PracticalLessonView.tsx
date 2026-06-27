@@ -4,7 +4,7 @@ import {
   X, Play, CheckCircle2, AlertTriangle, Lightbulb,
   ChevronRight, ArrowRight, Sparkles, RotateCcw,
   Terminal, Eye, Gauge, Zap, Upload,
-} from 'lucide-react';
+} from '@/lib/lucide-shim';
 import { cn } from '../utils/cn';
 import { CodeEditor } from './CodeEditor';
 import { buildPracticeExercisesFromNotes, getPracticeExercises } from '../lib/practiceExercises';

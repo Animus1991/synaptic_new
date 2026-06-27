@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import {
   BarChart3, BookOpen, Cpu, Database, FileText, Layers, RefreshCw,
   Shield, Sparkles, Users, Zap, BookMarked, PenLine,
-} from 'lucide-react';
+} from '@/lib/lucide-shim';
 import type { ActivityItem, Course, LearnerModel, UserSettings } from '../types';
 import { fetchTeacherDashboard } from '../lib/authClient';
 import { listLearningEvents, countLearningEventsByType } from '../lib/learningEvents';

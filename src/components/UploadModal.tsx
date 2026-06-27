@@ -4,7 +4,7 @@ import {
   X, Upload, FileText, Image, Code, Presentation,
   File, CheckCircle2, Sparkles, ArrowRight, Link2,
   AlertCircle, MessageSquare
-} from 'lucide-react';
+} from '@/lib/lucide-shim';
 import { cn } from '../utils/cn';
 
 import type { UploadPayload } from '../lib/uploadPipeline';

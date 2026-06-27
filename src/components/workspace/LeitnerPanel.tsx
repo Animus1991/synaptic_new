@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { AlertTriangle, BookOpen, Search } from 'lucide-react';
+import { AlertTriangle, BookOpen, Search } from '@/lib/lucide-shim';
 import type { FsrsRating } from '../../lib/pedagogy';
 import type { SpacingData } from '../../types';
 import type { LeitnerSessionContent } from '../../lib/leitnerSessionModel';

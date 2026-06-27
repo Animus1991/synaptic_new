@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { Keyboard, X } from 'lucide-react';
+import { Keyboard, X } from '@/lib/lucide-shim';
 import { workspaceShortcutGroups } from '../../lib/workspaceKeyboardShortcuts';
 
 type Props = {

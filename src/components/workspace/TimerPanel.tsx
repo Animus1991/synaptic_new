@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { AlertTriangle, BookOpen, Layers, Search } from 'lucide-react';
+import { AlertTriangle, BookOpen, Layers, Search } from '@/lib/lucide-shim';
 import type { TimerSessionContent } from '../../lib/timerSessionModel';
 import { filterTimerSessionLogs } from '../../lib/timerSessionModel';
 import { examPracticeLabel } from '../../lib/examPracticePresets';

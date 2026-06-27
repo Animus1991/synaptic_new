@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronUp, ChevronDown, Brain, AlertTriangle, Target, Zap, RotateCcw, BookOpen, Clock } from 'lucide-react';
+import { ChevronUp, ChevronDown, Brain, AlertTriangle, Target, Zap, RotateCcw, BookOpen, Clock } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
 import { useI18n, type I18nKey } from '../../lib/i18n';
 import type { WorkspaceToolId } from '../../lib/taskFlows';
@@ -10,7 +10,7 @@ import type { ConceptRemediationId } from '../../lib/conceptBusRemediation';
 import type { DashboardWeakSpot } from '../../lib/dashboardWeakSpotsModel';
 
 interface WeakSpot { concept: string; mastery: number; course: string }
-interface NextAction { label: string; type: string; minutes: number; xp: number; taskId?: string }
+interface NextAction { label: string; type: string; minutes: number; xp?: number; taskId?: string }
 
 interface Props {
   readiness: number;

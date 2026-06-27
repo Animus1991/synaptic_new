@@ -1,4 +1,4 @@
-import { Layers, Sparkles } from 'lucide-react';
+import { Layers, Sparkles } from '@/lib/lucide-shim';
 import type { buildWorkspaceNoteBundle } from '../../lib/workspaceNoteContent';
 import type { DocumentStructureKind } from '../../lib/documentStructureReport';
 import { displaySectionLabel } from '../../lib/readerDocumentLayout';

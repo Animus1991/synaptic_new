@@ -1,4 +1,4 @@
-import { Moon, Sun } from 'lucide-react';
+import { Moon, Sun } from '@/lib/lucide-shim';
 import { useEffect, useState } from 'react';
 import { applyTheme, loadThemePreference, resolveTheme } from '../lib/theme';
 import type { UserSettings } from '../types';

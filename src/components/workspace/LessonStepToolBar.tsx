@@ -1,4 +1,4 @@
-import { Map, Calculator, Layers, GitCompare, PenSquare, Sparkles, Timer, GitCommit, Type, Highlighter, SlidersHorizontal, CheckSquare, LayoutDashboard, BookOpen, MessageCircle } from 'lucide-react';
+import { Map, Calculator, Layers, GitCompare, PenSquare, Sparkles, Timer, GitCommit, Type, Highlighter, SlidersHorizontal, CheckSquare, LayoutDashboard, BookOpen, MessageCircle } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
 import type { WorkspaceToolId } from '../../lib/taskFlows';
 import { stepToolActionLabel, type WorkspaceStep } from '../../lib/workspaceStepTools';

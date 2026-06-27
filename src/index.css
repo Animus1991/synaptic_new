@@ -1,17 +1,18 @@
 @import "tailwindcss";
 
 @theme {
-  --color-brand-50: #eef2ff;
-  --color-brand-100: #e0e7ff;
-  --color-brand-200: #c7d2fe;
-  --color-brand-300: #a5b4fc;
-  --color-brand-400: #818cf8;
-  --color-brand-500: #6366f1;
-  --color-brand-600: #4f46e5;
-  --color-brand-700: #4338ca;
-  --color-brand-800: #3730a3;
-  --color-brand-900: #312e81;
-  --color-brand-950: #1e1b4b;
+  /* Brand: editorial academic blue (was indigo). Tokens preserved app-wide. */
+  --color-brand-50: #eff6ff;
+  --color-brand-100: #dbeafe;
+  --color-brand-200: #bfdbfe;
+  --color-brand-300: #93c5fd;
+  --color-brand-400: #60a5fa;
+  --color-brand-500: #3b82f6;
+  --color-brand-600: #2563eb;
+  --color-brand-700: #1d4ed8;
+  --color-brand-800: #1e40af;
+  --color-brand-900: #1e3a8a;
+  --color-brand-950: #172554;
 
   --color-accent-teal: #2dd4bf;
   --color-accent-cyan: #22d3ee;
@@ -20,31 +21,32 @@
   --color-accent-rose: #fb7185;
   --color-accent-orange: #fb923c;
 
-  /* Dark theme (default) */
-  --color-surface-primary: #0f0a1e;
-  --color-surface-secondary: #1a1333;
-  --color-surface-tertiary: #241d42;
-  --color-surface-card: #1e1740;
-  --color-surface-hover: #2a2252;
-  --color-surface-active: #332b5e;
-  --color-surface-input: #16112b;
+  /* Dark theme (default) — editorial near-black with cool slate undertone */
+  --color-surface-primary: #0a0a0c;
+  --color-surface-secondary: #111114;
+  --color-surface-tertiary: #16161b;
+  --color-surface-card: #131318;
+  --color-surface-hover: #1c1c22;
+  --color-surface-active: #24242c;
+  --color-surface-input: #0f0f13;
 
-  --color-border-subtle: #2a2252;
-  --color-border-default: #352d60;
-  --color-border-strong: #4a3f80;
+  --color-border-subtle: #1f1f27;
+  --color-border-default: #2a2a35;
+  --color-border-strong: #3a3a48;
 
-  --color-text-primary: #f1f0f7;
-  --color-text-secondary: #b8b3d4;
-  --color-text-tertiary: #8f89ad;
-  --color-text-muted: #6e6894; /* SW-P2-07: ≥4.5:1 on surface-primary */
+  --color-text-primary: #f4f4f6;
+  --color-text-secondary: #b4b4c0;
+  --color-text-tertiary: #8a8a99;
+  --color-text-muted: #6c6c7c;
 
-  --viz-track: #2a2252;
-  --viz-node-fill: #1e1740;
-  --viz-canvas-bg: #0f172a;
-  --viz-grid-line: #1e1740;
+  --viz-track: #1f1f27;
+  --viz-node-fill: #131318;
+  --viz-canvas-bg: #0a0a0c;
+  --viz-grid-line: #16161b;
 
   --font-sans: 'Inter', 'Noto Sans', 'Noto Sans Greek', ui-sans-serif, system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  --font-display: 'Playfair Display', 'Noto Serif', ui-serif, Georgia, serif;
 }
 
 /* Light theme */
@@ -86,12 +88,13 @@ body {
   text-rendering: optimizeLegibility;
 }
 
-/* Study Workspace type scale (replit-redesign) */
+/* Study Workspace type scale (editorial academic) */
 .ws-eyebrow {
+  font-family: var(--font-mono);
   font-size: 0.6875rem;
   line-height: 1rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
+  font-weight: 500;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
 }
 
@@ -111,9 +114,22 @@ body {
 }
 
 .ws-title {
-  font-size: 1rem;
-  line-height: 1.5rem;
+  font-family: var(--font-display);
+  font-size: 1.125rem;
+  line-height: 1.4;
   font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.ws-display-title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+
+.ws-num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
 }
 
 /* Reader long-form: Greek + Latin mixed academic text */
@@ -338,3 +354,156 @@ input[type="range"]::-webkit-slider-thumb {
     text-size-adjust: 100%;
   }
 }
+
+/* Hide scrollbars on horizontally scrollable chip rows (mobile) */
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+/* xs breakpoint helper for ultra-narrow screens */
+@media (min-width: 420px) {
+  .xs\:inline { display: inline; }
+  .xs\:hidden { display: none; }
+  .xs\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+/* Skip-to-content link — visually hidden until focused */
+.skip-to-content {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  padding: 0.5rem 0.875rem;
+  background: var(--color-brand-600);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 0 0 6px 0;
+  transform: translateY(-110%);
+  transition: transform 120ms ease;
+}
+.skip-to-content:focus {
+  transform: translateY(0);
+  outline: 2px solid var(--color-brand-300);
+  outline-offset: 2px;
+}
+
+
+/* ============================================================
+   WORKSPACE — Warm Bento theme (scoped to Study Workspace only)
+   Re-themes existing surface/text/border tokens to Warm Sand.
+   Adds typography (Lora + Nunito Sans) + bento utilities.
+   ============================================================ */
+[data-ws-theme="warm"] {
+  --color-surface-primary: #faf8f5;
+  --color-surface-secondary: #f4f0e9;
+  --color-surface-card: #ffffff;
+  --color-surface-hover: #efe9de;
+  --color-border-subtle: #e3dccb;
+  --color-text-primary: #3d2f1f;
+  --color-text-secondary: #6b5a44;
+  --color-text-muted: #8b7355;
+  --color-accent-cyan: #8b7355;
+  --color-brand-50: #faf6ef;
+  --color-brand-100: #f0e7d4;
+  --color-brand-200: #e3d3b1;
+  --color-brand-300: #d3bb89;
+  --color-brand-400: #c9b99a;
+  --color-brand-500: #a98d63;
+  --color-brand-600: #8b7355;
+  --color-brand-700: #6f5b42;
+  --color-brand-800: #574630;
+  --color-brand-900: #3d2f1f;
+  --color-brand-950: #2a1f12;
+
+  font-family: 'Nunito Sans', system-ui, -apple-system, sans-serif;
+  color: var(--color-text-primary);
+  background: var(--color-surface-primary);
+}
+[data-ws-theme="warm"] .blueprint-grid,
+[data-ws-theme="warm"].blueprint-grid {
+  background-image: none !important;
+}
+[data-ws-theme="warm"] h1,
+[data-ws-theme="warm"] h2,
+[data-ws-theme="warm"] h3,
+[data-ws-theme="warm"] .ws-serif {
+  font-family: 'Lora', Georgia, serif;
+  font-weight: 500;
+  letter-spacing: -0.005em;
+}
+[data-ws-theme="warm"] .ws-eyebrow,
+[data-ws-theme="warm"] .ws-title,
+[data-ws-theme="warm"] .ws-num {
+  font-family: 'Nunito Sans', system-ui, sans-serif;
+  letter-spacing: 0.14em;
+}
+
+/* Bento card primitive: rounded, hairline, soft */
+.ws-bento {
+  background: var(--color-surface-card);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 1.25rem;
+  box-shadow: 0 1px 0 rgba(139, 115, 85, 0.04);
+}
+.ws-bento-soft {
+  background: var(--color-surface-secondary);
+  border: 1px solid color-mix(in srgb, var(--color-brand-400) 28%, transparent);
+  border-radius: 1.25rem;
+}
+.ws-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.625rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, #ffffff 65%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-brand-400) 35%, transparent);
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+}
+.ws-pill[data-active="true"] {
+  background: var(--color-brand-600);
+  color: #faf8f5;
+  border-color: var(--color-brand-600);
+}
+.ws-fab {
+  background: var(--color-brand-600);
+  color: #faf8f5;
+  border-radius: 1.75rem;
+  box-shadow: 0 12px 28px -10px rgba(61, 47, 31, 0.45),
+              0 2px 6px rgba(61, 47, 31, 0.18);
+}
+.ws-fab button { color: inherit; }
+
+/* Hide scrollbars inside ribbons (already have .scrollbar-none but extra-safe) */
+[data-ws-theme="warm"] .ws-ribbon::-webkit-scrollbar { display: none; }
+[data-ws-theme="warm"] .ws-ribbon { scrollbar-width: none; }
+
+/* ================================================================
+   GLOBAL MINIMALIST SWEEP
+   - Thin all Lucide strokes app-wide → Phosphor-thin feel
+     without rewriting every icon import.
+   - Soften oversized headings on web/tablet for a calmer surface.
+   - Slightly looser line-height for an editorial feel.
+   ================================================================ */
+svg.lucide {
+  stroke-width: 1.25 !important;
+}
+
+/* Tame the loudest display headings (≥ tablet). Mobile keeps its own scale. */
+@media (min-width: 768px) {
+  h1.text-5xl, h1.text-6xl, h1.text-7xl { font-size: clamp(1.75rem, 3.5vw, 2.75rem); line-height: 1.1; }
+  h2.text-4xl, h2.text-5xl, h2.text-6xl { font-size: clamp(1.4rem, 2.6vw, 2rem); line-height: 1.15; }
+  h3.text-3xl, h3.text-4xl { font-size: clamp(1.15rem, 1.8vw, 1.5rem); line-height: 1.2; }
+}
+
+/* Calmer default body rhythm */
+body { font-feature-settings: "ss01", "cv11"; letter-spacing: -0.005em; }
+

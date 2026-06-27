@@ -5,7 +5,7 @@ import {
   Brain, Target, BookOpen, Timer, ChevronDown, Play, Flame,
   GraduationCap, Lightbulb, Code, MessageSquare, Sparkles,
   Mic, ArrowDownRight, GitCompare, Shield, Calendar
-} from 'lucide-react';
+} from '@/lib/lucide-shim';
 import type { Task, TaskType, MistakeRecord } from '../types';
 import { cn } from '../utils/cn';
 import { buildStudyPlanBlocks } from '../lib/pedagogy';

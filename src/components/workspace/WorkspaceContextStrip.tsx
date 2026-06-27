@@ -1,4 +1,4 @@
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle } from '@/lib/lucide-shim';
 import type { WorkspaceContextBreadcrumb } from '../../lib/workspaceContextModel';
 
 type Props = {
@@ -34,21 +34,21 @@ export function WorkspaceContextStrip({
 
   return (
     <div
-      className="relative z-10 flex items-center justify-between gap-2 px-3 py-1.5 border-b border-border-subtle/70 bg-surface-primary/70 shrink-0"
+      className="relative z-10 flex flex-col gap-1.5 px-3 py-1.5 border-b border-border-subtle/70 bg-surface-primary/70 shrink-0 sm:flex-row sm:items-center sm:justify-between sm:gap-2"
       data-testid="workspace-context-strip"
     >
-      <div className="min-w-0 flex-1">
-        <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[11px] text-text-muted">
+      <div className="min-w-0 flex-1 overflow-hidden">
+        <div className="flex min-w-0 flex-nowrap items-center gap-x-1.5 overflow-hidden text-[11px] text-text-muted whitespace-nowrap">
           {context.courseLabel && (
             <>
-              <span className="truncate max-w-[120px] font-medium text-text-secondary" title={context.courseLabel}>
+              <span className="truncate shrink min-w-0 font-medium text-text-secondary" title={context.courseLabel}>
                 {context.courseLabel}
               </span>
-              <span aria-hidden>/</span>
+              <span aria-hidden className="shrink-0">/</span>
             </>
           )}
           <span
-            className="truncate max-w-[160px] font-medium text-text-primary"
+            className="truncate shrink min-w-0 font-medium text-text-primary"
             title={context.sectionLabel}
             data-testid="workspace-context-section"
           >
@@ -57,16 +57,16 @@ export function WorkspaceContextStrip({
             )}
             {context.sectionLabel}
           </span>
-          <span aria-hidden>·</span>
+          <span aria-hidden className="shrink-0">·</span>
           <span className="shrink-0" data-testid="workspace-context-step">{context.stepLabel}</span>
           {context.stepType && (
             <>
-              <span aria-hidden>·</span>
-              <span className="truncate max-w-[100px]">{context.stepType}</span>
+              <span aria-hidden className="shrink-0">·</span>
+              <span className="truncate shrink min-w-0 hidden sm:inline">{context.stepType}</span>
             </>
           )}
-          <span aria-hidden>·</span>
-          <span className="truncate font-medium text-brand-300" data-testid="workspace-context-tool">
+          <span aria-hidden className="shrink-0 hidden xs:inline">·</span>
+          <span className="truncate shrink-0 font-medium text-brand-300 hidden xs:inline" data-testid="workspace-context-tool">
             {context.toolLabel}
           </span>
         </div>
@@ -79,12 +79,12 @@ export function WorkspaceContextStrip({
           )}
         </p>
       </div>
-      <div className="flex shrink-0 items-center gap-1.5">
+      <div className="flex shrink-0 items-center gap-1.5 overflow-x-auto -mx-1 px-1 scrollbar-none">
         {showNextAction && onNextAction && (
           <button
             type="button"
             onClick={onNextAction}
-            className="inline-flex items-center gap-1 rounded-lg border border-brand-500/30 bg-brand-500/10 px-2 py-1 text-[10px] font-semibold text-brand-300 hover:bg-brand-500/15"
+            className="ws-eyebrow inline-flex shrink-0 items-center gap-1 rounded-md border border-brand-500/35 bg-brand-500/10 px-2 py-1 text-[10px] text-brand-200 hover:bg-brand-500/15"
             data-testid="workspace-next-action"
           >
             {nextActionLabelProp ?? (isEl ? 'Επόμενο' : 'Next')}
@@ -94,28 +94,30 @@ export function WorkspaceContextStrip({
           <button
             type="button"
             onClick={onWeakAreas}
-            className={`rounded-lg border px-2 py-1 text-[10px] font-medium ${
+            aria-pressed={weakPanelOpen}
+            className={`ws-eyebrow shrink-0 rounded-md border px-2 py-1 text-[10px] ${
               weakPanelOpen
                 ? 'border-accent-rose/40 bg-accent-rose/10 text-accent-rose'
                 : 'border-border-subtle text-text-secondary hover:bg-surface-hover'
             }`}
             data-testid="workspace-weak-areas-toggle"
           >
-            {isEl ? 'Αδύναμα' : 'Weak'} ({weakCount})
+            {isEl ? 'Αδύναμα' : 'Weak'} <span className="ws-num">({weakCount})</span>
           </button>
         )}
         {onConceptBus && (
           <button
             type="button"
             onClick={onConceptBus}
-            className={`rounded-lg border px-2 py-1 text-[10px] font-medium ${
+            aria-pressed={conceptBusOpen}
+            className={`ws-eyebrow shrink-0 rounded-md border px-2 py-1 text-[10px] ${
               conceptBusOpen
                 ? 'border-accent-cyan/40 bg-accent-cyan/10 text-accent-cyan'
                 : 'border-border-subtle text-text-secondary hover:bg-surface-hover'
             }`}
             data-testid="workspace-concept-bus-toggle"
           >
-            {isEl ? 'Έννοιες' : 'Concepts'} {conceptCount > 0 ? `(${conceptCount})` : ''}
+            {isEl ? 'Έννοιες' : 'Concepts'} {conceptCount > 0 ? <span className="ws-num">({conceptCount})</span> : ''}
           </button>
         )}
       </div>

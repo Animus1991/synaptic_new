@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import {
   Brain, BookOpen, Target, Zap,
   Gauge, Shield, Calendar, Palette, Database, KeyRound
-} from 'lucide-react';
+} from '@/lib/lucide-shim';
 import type { UserSettings } from '../types';
 import { cn } from '../utils/cn';
 import { clearAllSessionData, downloadBackup, importSessionData } from '../lib/sessionBackup';

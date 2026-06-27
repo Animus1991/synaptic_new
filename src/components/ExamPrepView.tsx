@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { X, Timer, GraduationCap, CheckCircle2, AlertTriangle, Sparkles } from 'lucide-react';
+import { X, Timer, GraduationCap, CheckCircle2, AlertTriangle, Sparkles } from '@/lib/lucide-shim';
 import type { ExamQuestion } from '../lib/taskFlows';
 import { cn } from '../utils/cn';
 

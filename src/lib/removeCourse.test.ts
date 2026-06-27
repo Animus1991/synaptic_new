@@ -21,6 +21,7 @@ const course = (id: string): Course => ({
   exerciseCount: 0,
   sourceFiles: [],
   sourceMode: 'notes-only',
+  createdAt: new Date().toISOString(),
 });
 
 describe('removeCourseFromLibrary', () => {
@@ -29,8 +30,8 @@ describe('removeCourseFromLibrary', () => {
       'user-1',
       [course('user-1'), course('c1')],
       [{ id: 'f1', name: 'a.pdf', type: 'pdf', size: 1, uploadedAt: '', status: 'analyzed', courseId: 'user-1' }],
-      [{ term: 'x', definition: 'y', courseId: 'user-1' }],
-      [{ id: 't1', title: 'Task', courseId: 'user-1', courseName: 'user-1', status: 'pending', priority: 'medium', estimatedMinutes: 10, xpReward: 5, type: 'study' }],
+      [{ term: 'x', definition: 'y', courseId: 'user-1', source: '', relatedConcepts: [] }],
+      [{ id: 't1', title: 'Task', description: '', courseId: 'user-1', courseName: 'user-1', courseColor: '#000', courseIcon: '📘', status: 'pending', priority: 'medium', estimatedMinutes: 10, xpReward: 5, type: 'lesson', isSpacedRepetition: false, tags: [], category: 'learn' }],
     );
     expect(result.removed).toBe(true);
     expect(result.courses.map((c) => c.id)).toEqual(['c1']);

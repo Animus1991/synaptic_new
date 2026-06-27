@@ -1,4 +1,4 @@
-import { MapPin, Trash2, Check, Wand2 } from 'lucide-react';
+import { MapPin, Trash2, Check, Wand2 } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
 import type { AnnotationRemapEntry } from '../../lib/annotationAnchorRemap';
 import type { AnnotationRemapEdgeReport } from '../../lib/annotationRemapEdgeCasesQA';

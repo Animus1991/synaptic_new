@@ -1,4 +1,4 @@
-import { AlertTriangle, Cpu, FileSearch, RefreshCw } from 'lucide-react';
+import { AlertTriangle, Cpu, FileSearch, RefreshCw } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
 import { reuploadMigrationMessage } from '../../lib/pipelineMigration';
 import { lowSourceQualityMessage } from '../../lib/sourceQualityPrompt';
@@ -41,42 +41,43 @@ export function WorkspaceSourceStatusBar({
   return (
     <div
       className={cn(
-        'mb-4 max-w-2xl mx-auto rounded-xl border border-accent-amber/30 bg-accent-amber/8 px-3 py-2.5',
+        'mb-4 max-w-2xl mx-auto rounded-md border-l-2 border-accent-amber/60 border-y border-r border-border-subtle bg-accent-amber/5 px-3.5 py-2.5',
         className,
       )}
       data-testid="workspace-source-status-bar"
       role="alert"
     >
-      <div className="flex items-start gap-2">
-        <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-accent-amber" />
+      <div className="flex items-start gap-2.5">
+        <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-accent-amber" aria-hidden />
         <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-center gap-2 text-[10px]">
+          <div className="flex flex-wrap items-center gap-2 ws-eyebrow text-text-muted">
             {typeof score === 'number' && (
-              <span className="font-semibold text-text-primary" data-testid="source-status-score">
-                {isEl ? 'Ποιότητα πηγής' : 'Source quality'} {score}/100
+              <span className="text-text-primary" data-testid="source-status-score">
+                {isEl ? 'Ποιότητα πηγής' : 'Source quality'}{' '}
+                <span className="ws-num">{score}/100</span>
                 {typeof sectionCount === 'number' && (
-                  <span className="font-normal text-text-muted">
-                    {' '}· {sectionCount} {isEl ? 'ενότητες' : 'sections'}
+                  <span className="ml-1 text-text-muted">
+                    · <span className="ws-num">{sectionCount}</span> {isEl ? 'ενότητες' : 'sections'}
                   </span>
                 )}
               </span>
             )}
             {showMigration && (
-              <span className="rounded-full border border-accent-amber/40 bg-accent-amber/10 px-1.5 py-0.5 text-accent-amber">
+              <span className="rounded-sm border border-accent-amber/40 bg-accent-amber/10 px-1.5 py-0.5 text-accent-amber font-mono normal-case tracking-normal">
                 pipeline v2.4
               </span>
             )}
           </div>
-          <p className="mt-1 text-[10px] leading-relaxed text-text-secondary">{message}</p>
-          <div className="mt-2 flex flex-wrap gap-1.5">
+          <p className="mt-1.5 text-[11px] leading-relaxed text-text-secondary">{message}</p>
+          <div className="mt-2.5 flex flex-wrap gap-1.5">
             {onInspect && (
               <button
                 type="button"
                 onClick={onInspect}
-                className="inline-flex items-center gap-1 rounded-lg border border-white/15 bg-surface-card/50 px-2 py-1 text-[10px] font-medium text-text-secondary hover:text-text-primary"
+                className="ws-eyebrow inline-flex items-center gap-1.5 rounded-md border border-border-subtle bg-surface-card/60 px-2 py-1 text-text-secondary hover:text-text-primary hover:border-brand-400/40 transition-colors"
                 data-testid="source-status-inspect"
               >
-                <FileSearch className="h-3 w-3" />
+                <FileSearch className="h-3 w-3" aria-hidden />
                 {isEl ? 'Προεπισκόπηση' : 'Preview'}
               </button>
             )}
@@ -85,10 +86,10 @@ export function WorkspaceSourceStatusBar({
                 type="button"
                 onClick={onReprocess}
                 disabled={reprocessing}
-                className="inline-flex items-center gap-1 rounded-lg border border-brand-500/40 bg-brand-500/15 px-2 py-1 text-[10px] font-medium text-brand-300 disabled:opacity-60"
+                className="ws-eyebrow inline-flex items-center gap-1.5 rounded-md border border-brand-500/40 bg-brand-500/10 px-2 py-1 text-brand-200 hover:bg-brand-500/15 disabled:opacity-60 transition-colors"
                 data-testid="source-status-reprocess"
               >
-                <Cpu className={cn('h-3 w-3', reprocessing && 'animate-pulse')} />
+                <Cpu className={cn('h-3 w-3', reprocessing && 'animate-pulse')} aria-hidden />
                 {reprocessing
                   ? (isEl ? 'Επεξεργασία…' : 'Processing…')
                   : (isEl ? 'Επανεπεξεργασία' : 'Reprocess')}
@@ -98,10 +99,10 @@ export function WorkspaceSourceStatusBar({
               <button
                 type="button"
                 onClick={onReupload}
-                className="inline-flex items-center gap-1 rounded-lg border border-accent-amber/40 bg-accent-amber/15 px-2 py-1 text-[10px] font-medium text-accent-amber"
+                className="ws-eyebrow inline-flex items-center gap-1.5 rounded-md border border-accent-amber/40 bg-accent-amber/10 px-2 py-1 text-accent-amber hover:bg-accent-amber/15 transition-colors"
                 data-testid="source-status-reupload"
               >
-                <RefreshCw className="h-3 w-3" />
+                <RefreshCw className="h-3 w-3" aria-hidden />
                 {isEl ? 'Ανέβασμα ξανά' : 'Re-upload'}
               </button>
             )}
@@ -109,7 +110,7 @@ export function WorkspaceSourceStatusBar({
               <button
                 type="button"
                 onClick={onContinue}
-                className="rounded-lg border border-white/10 px-2 py-1 text-[10px] text-text-muted hover:text-text-secondary"
+                className="ws-eyebrow rounded-md border border-transparent px-2 py-1 text-text-muted hover:text-text-secondary hover:border-border-subtle transition-colors"
                 data-testid="source-status-continue"
               >
                 {isEl ? 'Συνέχεια' : 'Continue'}

@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, useMemo } from 'react';
-import { Search, BookOpen, CheckSquare, Bot, LayoutDashboard, BarChart3, Settings, Play, Users, FileText, GraduationCap, LayoutGrid } from 'lucide-react';
+import { Search, BookOpen, CheckSquare, Bot, LayoutDashboard, BarChart3, Settings, Play, Users, FileText, GraduationCap, LayoutGrid } from '@/lib/lucide-shim';
 import type { AppView, Course, GlossaryEntry, Task, UploadedFile } from '../types';
 import { cn } from '../utils/cn';
 import { useI18n, type I18nKey } from '../lib/i18n';

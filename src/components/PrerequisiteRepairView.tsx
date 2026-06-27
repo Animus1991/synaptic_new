@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X, ArrowDownRight, CheckCircle2, Sparkles, BookOpen } from 'lucide-react';
+import { X, ArrowDownRight, CheckCircle2, Sparkles, BookOpen } from '@/lib/lucide-shim';
 import type { PrerequisiteStep } from '../lib/taskFlows';
 import { cn } from '../utils/cn';
 

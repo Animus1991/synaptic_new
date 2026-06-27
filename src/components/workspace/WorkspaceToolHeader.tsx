@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ChevronDown, ChevronRight, Target, ArrowRight, Sparkles, CircleDot, BookOpen, HelpCircle } from 'lucide-react';
+import { ChevronDown, ChevronRight, Target, ArrowRight, Sparkles, CircleDot, BookOpen, HelpCircle } from '@/lib/lucide-shim';
 import type { WorkspaceToolId } from '../../lib/taskFlows';
 import { getWorkspaceToolMeta, workspaceToolLabel } from '../../lib/workspaceToolRegistry';
 import { toolPurposeLine, toolLearnerProblem, getToolS20 } from '../../lib/workspaceToolS20Spine';
@@ -76,21 +76,26 @@ export function WorkspaceToolHeader({
       data-testid="workspace-tool-header"
       data-tool={activeTool}
     >
-      {/* Always-visible title row */}
-      <div className="flex items-center gap-2.5 px-3.5 py-2.5">
-        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-brand-500/15 text-brand-200">
+      {/* Always-visible title row — editorial academic, mobile-first */}
+      <div className="flex items-start gap-2.5 px-3 py-2.5 sm:gap-3 sm:px-4 sm:py-3">
+        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-brand-500/25 bg-brand-500/8 text-brand-200 sm:h-9 sm:w-9">
           <Icon className="h-4 w-4" aria-hidden />
         </span>
         <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-2">
-            <h2 className="ws-title truncate text-text-primary">{name}</h2>
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+            <h2 className="ws-display-title min-w-0 break-words text-[0.9375rem] leading-tight text-text-primary sm:text-[1.0625rem] sm:leading-snug sm:truncate">
+              {name}
+            </h2>
             {s20.readiness !== 'launch-ready' && (
-              <span className="rounded-full bg-accent-amber/15 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-accent-amber">
+              <span className="ws-eyebrow rounded-sm bg-accent-amber/15 px-1.5 py-0.5 text-[9px] text-accent-amber">
                 {isEl ? 'βελτιώνεται' : 'polishing'}
               </span>
             )}
           </div>
-          <p className="ws-caption mt-0.5 truncate text-text-secondary" title={purpose}>
+          <p
+            className="mt-0.5 line-clamp-2 font-display text-[0.75rem] italic leading-snug text-text-secondary sm:mt-1 sm:line-clamp-1 sm:truncate sm:text-[0.8125rem]"
+            title={purpose}
+          >
             {purpose}
           </p>
         </div>
@@ -99,11 +104,12 @@ export function WorkspaceToolHeader({
           onClick={() => setCollapsed(!collapsed)}
           data-testid="workspace-tool-header-toggle"
           aria-expanded={!collapsed}
+          aria-label={isEl ? 'Οδηγός εργαλείου' : 'Tool guide'}
           className={cn(
-            'inline-flex shrink-0 items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-medium transition-colors',
+            'inline-flex shrink-0 items-center gap-1 rounded-md border px-2 py-1.5 text-[10px] transition-colors ws-eyebrow min-h-[36px] sm:gap-1.5 sm:px-2.5',
             collapsed
               ? 'border-border-subtle text-text-secondary hover:border-brand-400/40 hover:text-brand-200'
-              : 'border-brand-500/30 bg-brand-500/10 text-brand-200',
+              : 'border-brand-500/35 bg-brand-500/10 text-brand-200',
           )}
         >
           <HelpCircle className="h-3.5 w-3.5" aria-hidden />
@@ -111,6 +117,8 @@ export function WorkspaceToolHeader({
           {collapsed ? <ChevronRight className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
         </button>
       </div>
+
+
 
       {/* Expandable guidance */}
       {!collapsed && (

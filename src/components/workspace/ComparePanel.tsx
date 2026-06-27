@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { AlertTriangle, BookOpen, Search } from 'lucide-react';
+import { AlertTriangle, BookOpen, Search } from '@/lib/lucide-shim';
 import { ComparisonTable } from '../visuals/DiagramGenerator';
 import { WorkspaceEmptyState } from './WorkspaceEmptyState';
 import { WorkspaceSelectionActionBar } from './WorkspaceSelectionActionBar';

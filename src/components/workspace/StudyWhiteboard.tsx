@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ArrowRight, Circle, Eraser, Eye, EyeOff, Highlighter, Layers, Lock, Minus, Pen,
   Plus, Redo2, Ruler, Save, Square, Trash2, Type, Undo2, BookOpen, Calculator, X, Unlock, Download,
-} from 'lucide-react';
+} from '@/lib/lucide-shim';
 import { downloadWhiteboardPng } from '../../lib/whiteboardExport';
 import { cn } from '../../utils/cn';
 import type { ExtractedFormula } from '../../lib/noteContentExtractors';

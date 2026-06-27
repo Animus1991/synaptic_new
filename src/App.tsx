@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo, useCallback, useRef, lazy, Suspense, type ReactNode } from 'react';
+import { useEffect, useState, useMemo, useCallback, useRef, Suspense, type ReactNode } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useAppStore } from './store/useStore';
 import { applyTheme, watchSystemTheme } from './lib/theme';
@@ -34,24 +34,46 @@ import { visibleCourses } from './lib/demoMode';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { StudyWorkspaceLazy } from './components/workspace/StudyWorkspaceLazy';
 import { preloadStudyWorkspace } from './lib/studyWorkspaceChunk';
+import { preloadCriticalChunks } from './lib/preloadCriticalChunks';
+import { lazyWithRetry } from './lib/lazyWithRetry';
 
-const Agent = lazy(() => import('./components/Agent').then((m) => ({ default: m.Agent })));
-const Analytics = lazy(() => import('./components/Analytics').then((m) => ({ default: m.Analytics })));
-const TeacherDashboard = lazy(() => import('./components/TeacherDashboard').then((m) => ({ default: m.TeacherDashboard })));
-const LessonView = lazy(() => import('./components/LessonView').then((m) => ({ default: m.LessonView })));
-const PracticalLessonView = lazy(() => import('./components/PracticalLessonView').then((m) => ({ default: m.PracticalLessonView })));
-const ReviewSessionView = lazy(() => import('./components/ReviewSessionView').then((m) => ({ default: m.ReviewSessionView })));
+const Agent = lazyWithRetry(() => import('./components/Agent').then((m) => ({ default: m.Agent })), 'agent');
+const Analytics = lazyWithRetry(() => import('./components/Analytics').then((m) => ({ default: m.Analytics })), 'analytics');
+const TeacherDashboard = lazyWithRetry(() => import('./components/TeacherDashboard').then((m) => ({ default: m.TeacherDashboard })), 'teacher');
+const LessonView = lazyWithRetry(() => import('./components/LessonView').then((m) => ({ default: m.LessonView })), 'lesson');
+const PracticalLessonView = lazyWithRetry(() => import('./components/PracticalLessonView').then((m) => ({ default: m.PracticalLessonView })), 'practical-lesson');
+const ReviewSessionView = lazyWithRetry(() => import('./components/ReviewSessionView').then((m) => ({ default: m.ReviewSessionView })), 'review-session');
 
-function LazyOverlay({ children, fallback }: { children: ReactNode; fallback?: ReactNode }) {
+/**
+ * Wraps lazy overlay subtrees in an ErrorBoundary so a chunk-load failure
+ * renders a Try-again / Reload card instead of stranding the user on a blank
+ * spinner. `flow` is forwarded into the Suspense fallback testid for E2E.
+ */
+function LazyOverlay({
+  children,
+  fallback,
+  flow,
+  onRecover,
+}: {
+  children: ReactNode;
+  fallback?: ReactNode;
+  flow?: string;
+  onRecover?: () => void;
+}) {
   const resolvedFallback = fallback !== undefined ? fallback : (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-surface-primary/95 backdrop-blur-sm"
       data-testid="lazy-overlay-loading"
+      data-flow={flow}
     >
       <p className="text-sm text-text-secondary">Loading…</p>
     </div>
   );
-  return <Suspense fallback={resolvedFallback}>{children}</Suspense>;
+  return (
+    <ErrorBoundary overlay onRecover={onRecover}>
+      <Suspense fallback={resolvedFallback}>{children}</Suspense>
+    </ErrorBoundary>
+  );
 }
 
 export default function App() {
@@ -519,9 +541,12 @@ export default function App() {
     return watchSystemTheme(() => applyTheme('system'));
   }, [store.user.settings.theme]);
 
-  /** Warm the ~470KB workspace chunk after first paint so boot shell is brief. */
+  /** Warm the workspace + secondary chunks after first paint to keep flows snappy. */
   useEffect(() => {
-    const warm = () => preloadStudyWorkspace();
+    const warm = () => {
+      preloadStudyWorkspace();
+      preloadCriticalChunks();
+    };
     if (typeof requestIdleCallback === 'function') {
       const id = requestIdleCallback(warm, { timeout: 4000 });
       return () => cancelIdleCallback(id);

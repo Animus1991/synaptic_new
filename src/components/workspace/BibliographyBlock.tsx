@@ -1,4 +1,4 @@
-import { Library } from 'lucide-react';
+import { Library } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
 
 export function BibliographyBlock({

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X, AlertTriangle, CheckCircle2, Sparkles, BookX } from 'lucide-react';
+import { X, AlertTriangle, CheckCircle2, Sparkles, BookX } from '@/lib/lucide-shim';
 import type { MistakeRecord } from '../types';
 import { cn } from '../utils/cn';
 

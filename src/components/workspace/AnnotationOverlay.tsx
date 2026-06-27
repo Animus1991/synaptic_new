@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   MessageSquare, Pin, Highlighter, X, ChevronDown, ChevronUp,
   Sparkles, Trash2, FileText, Download, BookOpen, Tag, AlertTriangle, Wand2,
-} from 'lucide-react';
+} from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
 import { useI18n } from '../../lib/i18n';
 import {

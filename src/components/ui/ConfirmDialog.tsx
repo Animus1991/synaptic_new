@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { AlertTriangle, X } from 'lucide-react';
+import { AlertTriangle, X } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
 
 export interface ConfirmDialogProps {

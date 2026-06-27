@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Bot, ChevronDown, ChevronUp, LayoutTemplate, PenLine, Sparkles } from 'lucide-react';
+import { Bot, ChevronDown, ChevronUp, LayoutTemplate, PenLine, Sparkles } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
 import type { DiagramCoachPlan, DiagramCoachStep } from '../../lib/whiteboardDiagramCoach';
 import type { WhiteboardBlueprintCoverageReport } from '../../lib/whiteboardBlueprintCoverageQA';

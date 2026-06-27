@@ -1,0 +1,77 @@
+{
+  "title": "Synapse — Chunk Health",
+  "widgets": [
+    {
+      "title": "Chunk errors per release",
+      "displayType": "bar",
+      "interval": "1h",
+      "queries": [
+        {
+          "name": "all",
+          "fields": ["count()"],
+          "conditions": "event.type:error message:\"*dynamically imported module*\"",
+          "aggregates": ["count()"],
+          "columns": ["extra.version"],
+          "orderby": "-count()"
+        }
+      ]
+    },
+    {
+      "title": "Errors by flow",
+      "displayType": "bar",
+      "interval": "1h",
+      "queries": [
+        {
+          "name": "by-flow",
+          "fields": ["count()"],
+          "conditions": "event.type:error has:extra.flow message:\"*dynamically imported module*\"",
+          "aggregates": ["count()"],
+          "columns": ["extra.flow", "extra.version"],
+          "orderby": "-count()"
+        }
+      ]
+    },
+    {
+      "title": "Hard-reloads forced",
+      "displayType": "table",
+      "queries": [
+        {
+          "name": "reloads",
+          "fields": ["extra.flow", "extra.version", "count()"],
+          "conditions": "extra.willReload:true",
+          "aggregates": ["count()"],
+          "columns": ["extra.flow", "extra.version"],
+          "orderby": "-count()"
+        }
+      ]
+    },
+    {
+      "title": "Top failing chunk URLs",
+      "displayType": "table",
+      "queries": [
+        {
+          "name": "urls",
+          "fields": ["extra.url", "extra.flow", "count()"],
+          "conditions": "has:extra.url message:\"*dynamically imported module*\"",
+          "aggregates": ["count()"],
+          "columns": ["extra.url", "extra.flow"],
+          "orderby": "-count()"
+        }
+      ]
+    },
+    {
+      "title": "Median attempts",
+      "displayType": "big_number",
+      "queries": [
+        {
+          "name": "attempts",
+          "fields": ["avg(extra.attempt)"],
+          "conditions": "message:\"*dynamically imported module*\"",
+          "aggregates": ["avg(extra.attempt)"],
+          "columns": [],
+          "orderby": ""
+        }
+      ]
+    }
+  ]
+}

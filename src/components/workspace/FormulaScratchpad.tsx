@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, RotateCcw, Copy, Check, PenSquare, LineChart, Sparkles, ShieldCheck, Loader2 } from 'lucide-react';
+import { Plus, RotateCcw, Copy, Check, PenSquare, LineChart, Sparkles, ShieldCheck, Loader2 } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
 import { inferVariablesFromFormula, evaluateFormulaExpression, type FormulaVariable } from '../../lib/formulaSolver';
 import { loadScratchpadFormulas, saveScratchpadFormulas } from '../../lib/workspacePersistence';

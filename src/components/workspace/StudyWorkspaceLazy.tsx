@@ -23,9 +23,11 @@ export function StudyWorkspaceLazy({
     (typeof import('./StudyWorkspace'))['StudyWorkspace'] | null
   >(null);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [retryTick, setRetryTick] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
+    setLoadError(null);
     loadStudyWorkspaceModule()
       .then((mod) => {
         if (!cancelled) setStudyWorkspace(() => mod.StudyWorkspace);
@@ -38,7 +40,7 @@ export function StudyWorkspaceLazy({
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [retryTick]);
 
   if (loadError) {
     return (
@@ -47,6 +49,7 @@ export function StudyWorkspaceLazy({
         onClose={workspaceProps.onClose}
         lang={bootLang}
         error={loadError}
+        onRetry={() => setRetryTick((n) => n + 1)}
       />
     );
   }

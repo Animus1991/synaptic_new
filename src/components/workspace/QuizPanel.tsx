@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
-import { AlertTriangle, BookOpen, Search } from 'lucide-react';
+import { AlertTriangle, BookOpen, Search } from '@/lib/lucide-shim';
 import type { QuizIrtDisplay } from '../../lib/quizIrt';
 import type { QuizSessionContent } from '../../lib/quizSessionModel';
 import { filterQuizItems, quizItemQuestion } from '../../lib/quizSessionModel';

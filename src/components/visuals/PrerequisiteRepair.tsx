@@ -1,4 +1,4 @@
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle } from '@/lib/lucide-shim';
 import type { PrerequisiteRepair } from '../../lib/pedagogy';
 
 interface Props {

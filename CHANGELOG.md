@@ -5,6 +5,16 @@ client and server are versioned together.
 
 ## [Unreleased]
 
+### Added
+
+- **synaptic-refined merge (Jun 2026)** — port from `Animus1991/synaptic-refined@main` (`ef06b0a`):
+  - Chunk resilience: `lazyWithRetry`, `chunkErrorReporter`, `preloadCriticalChunks`, stale-chunk reload.
+  - Visual system: Phosphor thin icons (`lucide-shim`), Warm Sand theme, editorial `@fontsource` fonts.
+  - Embeddings: `@huggingface/transformers` v4 (replaces `@xenova/transformers`).
+  - a11y E2E (`test:a11y`), chunk-recovery E2E, Sentry observability docs, SEO public files.
+  - See `SYNAPTIC_REFINED_UPGRADE_PLAN.md` for full audit + forward roadmap.
+  - **Preserved locally:** Wave 8B-β pipeline v2.5.1, Varian fixtures, `CognitiveReader` live repair.
+
 ### Fixed
 
 - **Library / Course Continue regression (Jun 2026)**

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { RefreshCw, X, Cpu } from 'lucide-react';
+import { RefreshCw, X, Cpu } from '@/lib/lucide-shim';
 import { cn } from '../utils/cn';
 import {
   dismissReuploadHint,

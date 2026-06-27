@@ -1,5 +1,5 @@
 import { useMemo, useState, useCallback } from 'react';
-import { AlertTriangle, BookOpen, Download, Printer, Search, Target } from 'lucide-react';
+import { AlertTriangle, BookOpen, Download, Printer, Search, Target } from '@/lib/lucide-shim';
 import type { DashboardSessionContent } from '../../lib/dashboardSessionModel';
 import {
   filterDashboardToolActivity,

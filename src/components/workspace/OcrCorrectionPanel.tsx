@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Pencil, Check, X } from 'lucide-react';
+import { Pencil, Check, X } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
 import type { OcrOverlayRegion } from '../../lib/readerOcrOverlay';
 import { isLowConfidenceRegion } from '../../lib/readerOcrOverlay';

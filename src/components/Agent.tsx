@@ -5,7 +5,7 @@ import {
   Code, Lightbulb, AlertTriangle, Mic, Volume2, ChevronDown,
   RotateCcw, Target, PenTool, Smile, Search, FileText,
   HelpCircle, Zap, Settings2
-} from 'lucide-react';
+} from '@/lib/lucide-shim';
 import type { AgentMessage, AgentMode, Course, UserSettings, UploadedFile, MessageCitation } from '../types';
 import { cn } from '../utils/cn';
 import { streamAgentReply, isLlmAvailable } from '../lib/llmClient';
@@ -270,8 +270,12 @@ export function Agent({
                 <option key={c.id} value={c.id}>{c.title}</option>
               ))}
             </select>
-            <button className="p-1.5 rounded-lg hover:bg-surface-hover text-text-tertiary">
-              <Settings2 className="w-4 h-4" />
+            <button
+              type="button"
+              aria-label={lang === 'el' ? 'Ρυθμίσεις πηγών' : 'Source settings'}
+              className="p-1.5 rounded-lg hover:bg-surface-hover text-text-tertiary"
+            >
+              <Settings2 className="w-4 h-4" aria-hidden="true" />
             </button>
           </div>
         </div>
@@ -399,17 +403,27 @@ export function Agent({
                 style={{ minHeight: '46px', maxHeight: '120px' }}
               />
               <div className="absolute right-2 bottom-2 flex items-center gap-1">
-                <button className="p-1.5 rounded-lg hover:bg-surface-hover text-text-muted">
-                  <Search className="w-4 h-4" />
+                <button
+                  type="button"
+                  aria-label={lang === 'el' ? 'Αναζήτηση στις πηγές' : 'Search sources'}
+                  className="p-1.5 rounded-lg hover:bg-surface-hover text-text-muted"
+                >
+                  <Search className="w-4 h-4" aria-hidden="true" />
                 </button>
-                <button className="p-1.5 rounded-lg hover:bg-surface-hover text-text-muted">
-                  <FileText className="w-4 h-4" />
+                <button
+                  type="button"
+                  aria-label={lang === 'el' ? 'Επισύναψη αρχείου' : 'Attach file'}
+                  className="p-1.5 rounded-lg hover:bg-surface-hover text-text-muted"
+                >
+                  <FileText className="w-4 h-4" aria-hidden="true" />
                 </button>
               </div>
             </div>
             <button
+              type="button"
               onClick={() => void handleSend()}
               disabled={!input.trim() || isThinking}
+              aria-label={lang === 'el' ? 'Αποστολή μηνύματος' : 'Send message'}
               className={cn(
                 'p-3 rounded-xl transition-all shrink-0',
                 input.trim() && !isThinking
@@ -417,7 +431,7 @@ export function Agent({
                   : 'bg-surface-hover text-text-muted cursor-not-allowed'
               )}
             >
-              <Send className="w-5 h-5" />
+              <Send className="w-5 h-5" aria-hidden="true" />
             </button>
           </div>
 

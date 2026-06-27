@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   X, CheckCircle2, Circle, ChevronRight, Sparkles,
-} from 'lucide-react';
+} from '@/lib/lucide-shim';
 import { cn } from '../utils/cn';
 import { ConfidenceSelector } from './visuals/ConfidenceSelector';
 import { GroundedLessonContent } from './grounded/GroundedLessonContent';
@@ -167,58 +167,106 @@ export function LessonView({
 
   const panelForStep = genPanels?.[currentStep] ?? null;
 
+  const stepCountLabel = lang === 'el' ? 'Βήμα' : 'Step';
+
   return (
-    <div className="fixed inset-0 z-50 bg-surface-primary flex flex-col">
-      <div className="flex items-center justify-between px-4 py-3 border-b border-border-subtle bg-surface-secondary/50">
-        <div className="flex items-center gap-3 min-w-0">
-          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-surface-hover shrink-0">
+    <div
+      className="fixed inset-0 z-50 bg-surface-primary flex flex-col"
+      role="dialog"
+      aria-modal="true"
+      aria-label={lessonTitle}
+    >
+      <a href="#lesson-main" className="skip-to-content">
+        {lang === 'el' ? 'Μετάβαση στο περιεχόμενο' : 'Skip to content'}
+      </a>
+
+      <header className="flex items-center justify-between gap-3 px-4 sm:px-6 py-3 border-b border-border-subtle bg-surface-secondary/40">
+        <div className="flex items-center gap-3 min-w-0 flex-1">
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label={lang === 'el' ? 'Κλείσιμο μαθήματος' : 'Close lesson'}
+            className="p-2 -ml-1 rounded-md hover:bg-surface-hover shrink-0 min-h-9 min-w-9 inline-flex items-center justify-center"
+          >
             <X className="w-5 h-5 text-text-secondary" />
           </button>
           <div className="min-w-0">
-            <p className="text-sm font-semibold truncate">{lessonTitle}</p>
-            <p className="text-xs text-text-tertiary truncate">
+            <p className="ws-eyebrow text-text-muted truncate">
               {lessonCourse}
               {noteBundle.hasSource && (
-                <span className="ml-1.5 text-accent-emerald">· {lang === 'el' ? 'από τις σημειώσεις σου' : 'from your notes'}</span>
+                <span className="ml-1.5 text-accent-emerald normal-case tracking-normal">
+                  · {lang === 'el' ? 'από τις σημειώσεις σου' : 'from your notes'}
+                </span>
               )}
             </p>
+            <h1 className="ws-title text-base sm:text-lg leading-tight truncate">{lessonTitle}</h1>
           </div>
         </div>
         <div className="flex items-center gap-2 shrink-0">
           <button
+            type="button"
             onClick={onOpenAgent}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border border-border-subtle hover:border-brand-500/30 transition-all"
+            aria-label={t('agentBtn')}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium border border-border-subtle hover:border-brand-500/40 hover:bg-surface-hover transition-colors min-h-9"
           >
             <Sparkles className="w-3.5 h-3.5 text-brand-400" />
-            {t('agentBtn')}
+            <span className="hidden xs:inline">{t('agentBtn')}</span>
           </button>
-          <span className="text-xs text-accent-amber font-medium">+{xpReward} XP</span>
-        </div>
-      </div>
-
-      <div className="h-1 bg-surface-hover">
-        <div className="h-1 bg-brand-500 transition-all duration-500" style={{ width: `${progress}%` }} />
-      </div>
-
-      <div className="flex items-center gap-1 px-4 py-2 overflow-x-auto hide-scrollbar">
-        {dynamicSteps.map((s, i) => (
-          <button
-            key={s.key}
-            onClick={() => noteBundle.hasSource && i <= currentStep && setCurrentStep(i)}
-            className={cn(
-              'flex items-center gap-1 px-2 py-1 rounded text-[10px] font-medium transition-all shrink-0',
-              i === currentStep ? 'bg-brand-600/20 text-brand-300'
-                : i < currentStep ? 'text-accent-emerald' : 'text-text-muted',
-            )}
+          <span
+            className="ws-num text-xs text-accent-amber font-medium px-2 py-1 rounded border border-accent-amber/20 bg-accent-amber/5"
+            aria-label={`${xpReward} XP`}
           >
-            {i < currentStep ? <CheckCircle2 className="w-3 h-3" /> : <Circle className={cn('w-3 h-3', i !== currentStep && 'opacity-30')} />}
-            {s.label}
-          </button>
-        ))}
+            +{xpReward} XP
+          </span>
+        </div>
+      </header>
+
+      <div
+        className="h-[3px] bg-surface-hover"
+        role="progressbar"
+        aria-valuenow={Math.round(progress)}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-label={lang === 'el' ? 'Πρόοδος μαθήματος' : 'Lesson progress'}
+      >
+        <div className="h-full bg-brand-500 transition-all duration-500" style={{ width: `${progress}%` }} />
       </div>
 
-      <div className="flex-1 overflow-y-auto">
-        <div className="w-full min-w-0 px-4 sm:px-6 lg:px-8 py-6">
+      <nav
+        aria-label={lang === 'el' ? 'Βήματα μαθήματος' : 'Lesson steps'}
+        className="flex items-center gap-1 px-4 sm:px-6 py-2 overflow-x-auto scrollbar-none border-b border-border-subtle/60 bg-surface-secondary/20"
+      >
+        {dynamicSteps.map((s, i) => {
+          const completed = i < currentStep;
+          const current = i === currentStep;
+          const accessible = noteBundle.hasSource && i <= currentStep;
+          return (
+            <button
+              key={s.key}
+              type="button"
+              onClick={() => accessible && setCurrentStep(i)}
+              disabled={!accessible}
+              aria-current={current ? 'step' : undefined}
+              aria-label={`${stepCountLabel} ${i + 1}: ${s.label}`}
+              className={cn(
+                'inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded text-[11px] font-medium tracking-wide transition-colors shrink-0 min-h-8',
+                current && 'bg-brand-600/15 text-brand-200 border border-brand-500/30',
+                !current && completed && 'text-accent-emerald hover:bg-surface-hover',
+                !current && !completed && 'text-text-muted',
+                !accessible && 'cursor-not-allowed opacity-60',
+              )}
+            >
+              {completed
+                ? <CheckCircle2 className="w-3.5 h-3.5" aria-hidden="true" />
+                : <Circle className={cn('w-3.5 h-3.5', !current && 'opacity-40')} aria-hidden="true" />}
+              <span className="whitespace-nowrap">{s.label}</span>
+            </button>
+          );
+        })}
+      </nav>
+
+      <main id="lesson-main" tabIndex={-1} className="flex-1 overflow-y-auto focus:outline-none">
+        <div className="w-full min-w-0 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
           <AnimatePresence mode="wait">
             <motion.div
               key={step.key}
@@ -262,45 +310,64 @@ export function LessonView({
             </motion.div>
           </AnimatePresence>
         </div>
-      </div>
+      </main>
 
-      <div className="flex items-center justify-between px-4 sm:px-6 py-3 border-t border-border-subtle bg-surface-secondary/30">
-        <button
-          onClick={goPrev}
-          disabled={currentStep === 0}
-          className={cn('text-sm', currentStep === 0 ? 'text-text-muted' : 'text-text-secondary hover:text-text-primary')}
-        >
-          ← {t('previous')}
-        </button>
-        <div className="text-center">
-          <p className="text-[10px] text-text-muted">{currentStep + 1}/{dynamicSteps.length}</p>
-          {noteBundle.hasSource && (
-            <p className="text-[10px] text-text-tertiary">{overallMastery}% · 🔥 {streak}d</p>
-          )}
-        </div>
-        <button
-          onClick={goNext}
-          disabled={!canAdvance()}
-          className={cn(
-            'flex items-center gap-1 text-sm font-medium',
-            canAdvance() ? 'text-brand-400 hover:text-brand-300' : 'text-text-muted cursor-not-allowed',
-          )}
-        >
-          {isLast ? t('finish') : t('next')}
-          <ChevronRight className="w-4 h-4" />
-        </button>
-      </div>
-
-      {isLast && quizPassed && onStartNextTask && (
-        <div className="px-4 pb-4">
+      <footer className="border-t border-border-subtle bg-surface-secondary/30">
+        <div className="flex items-center justify-between gap-3 px-4 sm:px-6 py-3">
           <button
-            onClick={onStartNextTask}
-            className="w-full py-2.5 rounded-xl text-sm font-medium border border-brand-500/30 text-brand-300 hover:bg-brand-600/10"
+            type="button"
+            onClick={goPrev}
+            disabled={currentStep === 0}
+            aria-label={t('previous')}
+            className={cn(
+              'inline-flex items-center gap-1 px-3 py-2 rounded-md text-sm font-medium transition-colors min-h-10',
+              currentStep === 0
+                ? 'text-text-muted cursor-not-allowed'
+                : 'text-text-secondary hover:text-text-primary hover:bg-surface-hover',
+            )}
           >
-            {lang === 'el' ? 'Επόμενη εργασία →' : 'Next task →'}
+            <ChevronRight className="w-4 h-4 rotate-180" aria-hidden="true" />
+            <span className="hidden xs:inline">{t('previous')}</span>
+          </button>
+          <div className="text-center min-w-0">
+            <p className="ws-num text-[11px] text-text-secondary">
+              {currentStep + 1} <span className="text-text-muted">/ {dynamicSteps.length}</span>
+            </p>
+            {noteBundle.hasSource && (
+              <p className="ws-num text-[10px] text-text-muted mt-0.5">
+                {overallMastery}% · {streak}d
+              </p>
+            )}
+          </div>
+          <button
+            type="button"
+            onClick={goNext}
+            disabled={!canAdvance()}
+            aria-label={isLast ? t('finish') : t('next')}
+            className={cn(
+              'inline-flex items-center gap-1 px-3 py-2 rounded-md text-sm font-medium transition-colors min-h-10',
+              canAdvance()
+                ? 'text-brand-200 bg-brand-600/15 border border-brand-500/30 hover:bg-brand-600/25'
+                : 'text-text-muted cursor-not-allowed border border-border-subtle/40',
+            )}
+          >
+            <span>{isLast ? t('finish') : t('next')}</span>
+            <ChevronRight className="w-4 h-4" aria-hidden="true" />
           </button>
         </div>
-      )}
+
+        {isLast && quizPassed && onStartNextTask && (
+          <div className="px-4 sm:px-6 pb-4">
+            <button
+              type="button"
+              onClick={onStartNextTask}
+              className="w-full py-2.5 rounded-md text-sm font-medium border border-brand-500/30 text-brand-200 hover:bg-brand-600/10 transition-colors min-h-11"
+            >
+              {lang === 'el' ? 'Επόμενη εργασία →' : 'Next task →'}
+            </button>
+          </div>
+        )}
+      </footer>
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import { useState, useMemo, useRef, useEffect, useCallback } from 'react';
-import { Sparkles, Bot, Loader2, Download, Printer, Mic, MicOff, BookOpen, AlertTriangle } from 'lucide-react';
+import { Sparkles, Bot, Loader2, Download, Printer, Mic, MicOff, BookOpen, AlertTriangle } from '@/lib/lucide-shim';
 import { computeRubric, weakestDimensions, type RubricDimension } from '../../lib/feynmanRubric';
 import { detectFeynmanGaps } from '../../lib/feynmanGapDetect';
 import { startFeynmanVoiceInput } from '../../lib/feynmanVoice';

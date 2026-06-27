@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { GitCommit, Plus, Pencil, BookOpen, Shield, Sparkles } from 'lucide-react';
+import { GitCommit, Plus, Pencil, BookOpen, Shield, Sparkles } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
 import { suggestCounterArguments } from '../../lib/debateCounterArgs';
 import { buildRebuttalGraph } from '../../lib/debateRebuttalGraph';

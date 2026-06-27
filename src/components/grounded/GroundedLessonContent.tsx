@@ -1,4 +1,4 @@
-import { Sparkles } from 'lucide-react';
+import { Sparkles } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
 import { RichText } from '../RichText';
 import type { QuizDef, LessonStepKey } from '../../lib/domainContent';

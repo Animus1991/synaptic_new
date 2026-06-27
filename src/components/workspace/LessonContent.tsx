@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { Sparkles } from 'lucide-react';
+import { Sparkles } from '@/lib/lucide-shim';
 import { RichText } from '../RichText';
 import type { WorkspaceToolId } from '../../lib/taskFlows';
 import { LessonStepToolBar } from './LessonStepToolBar';

@@ -1,4 +1,4 @@
-import { AlertTriangle, ChevronDown, ChevronUp } from 'lucide-react';
+import { AlertTriangle, ChevronDown, ChevronUp } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
 import type { WeakSpotWithReasons } from '../../lib/weakAreaReasons';
 import { isWeakSpotFocused } from '../../lib/workspaceWeakAreas';

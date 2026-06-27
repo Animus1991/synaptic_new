@@ -1,9 +1,9 @@
 import { ReactNode } from 'react';
 import {
-  BookOpen, CheckSquare, Bot, LayoutDashboard, Settings,
-  Sparkles, Menu, X, Upload, Bell, Search, ChevronRight,
-  BarChart3, Sun, Moon, Users
-} from 'lucide-react';
+  BookOpen, CheckSquare, Robot as Bot, SquaresFour as LayoutDashboard, Gear as Settings,
+  Sparkle as Sparkles, List as Menu, X, UploadSimple as Upload, Bell, MagnifyingGlass as Search, CaretRight as ChevronRight,
+  ChartBar as BarChart3, Sun, Moon, Users
+} from '@phosphor-icons/react';
 import type { AppView, User, DashboardStats } from '../types';
 import { cn } from '../utils/cn';
 import { useI18n, type I18nKey } from '../lib/i18n';

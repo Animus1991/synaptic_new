@@ -1,4 +1,4 @@
-﻿import { CheckCircle2, AlertTriangle, Download } from 'lucide-react';
+﻿import { CheckCircle2, AlertTriangle, Download } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
 import type { ProgressConceptBusMirrorReport } from '../../lib/progressConceptBusMirrorQA';
 

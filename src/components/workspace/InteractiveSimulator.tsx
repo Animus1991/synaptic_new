@@ -1,6 +1,6 @@
 import { useMemo, useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowRight, SlidersHorizontal, Target, Zap } from 'lucide-react';
+import { ArrowRight, SlidersHorizontal, Target, Zap } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
 import { useI18n } from '../../lib/i18n';
 import type { NumericCue } from '../../lib/numericCues';

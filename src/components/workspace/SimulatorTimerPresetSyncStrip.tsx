@@ -1,4 +1,4 @@
-import { CheckCircle2, AlertTriangle } from 'lucide-react';
+import { CheckCircle2, AlertTriangle } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
 import type { SimulatorTimerPresetSyncReport } from '../../lib/simulatorTimerPresetSyncQA';
 

@@ -4,7 +4,7 @@ import {
   Brain, TrendingUp, Clock, Target, AlertTriangle, BarChart3,
   Zap, Calendar, CheckCircle2, XCircle, Lightbulb,
   Activity, Shield, Eye, HelpCircle
-} from 'lucide-react';
+} from '@/lib/lucide-shim';
 import type { LearnerModel, DashboardStats, Course, ActivityItem } from '../types';
 import { computeCalibration, type PrerequisiteRepair } from '../lib/pedagogy';
 import {

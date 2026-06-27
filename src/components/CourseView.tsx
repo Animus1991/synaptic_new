@@ -4,7 +4,7 @@ import {
   ArrowLeft, BookOpen, Clock, BarChart3, Calendar, FileText,
   Lock, CheckCircle2, Circle, ChevronRight, Brain, Target,
   AlertTriangle, Sparkles, Play, MapPin, Network, Upload, Trash2, RefreshCw
-} from 'lucide-react';
+} from '@/lib/lucide-shim';
 import type { Course, Topic, UploadedFile, GlossaryEntry, Task } from '../types';
 import { cn } from '../utils/cn';
 import { ConceptGraph } from './visuals/ConceptGraph';

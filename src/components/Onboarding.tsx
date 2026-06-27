@@ -4,7 +4,7 @@ import {
   GraduationCap, BookOpen, Sparkles, Users, Building2,
   ArrowRight, ArrowLeft, Upload, Target, Brain,
   Calendar, Clock, CheckCircle2
-} from 'lucide-react';
+} from '@/lib/lucide-shim';
 import { cn } from '../utils/cn';
 import { useI18n } from '../lib/i18n';
 import { getOnboardingContent } from '../lib/onboardingContent';

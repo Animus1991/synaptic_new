@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
-import { Timer, Play, Pause, RotateCcw, BookOpen, GraduationCap, Calendar } from 'lucide-react';
+import { Timer, Play, Pause, RotateCcw, BookOpen, GraduationCap, Calendar } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
 import { useI18n } from '../../lib/i18n';
 import {

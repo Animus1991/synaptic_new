@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 
-import { Layers, RotateCcw, Download } from 'lucide-react';
+import { Layers, RotateCcw, Download } from '@/lib/lucide-shim';
 
 import { cn } from '../../utils/cn';
 

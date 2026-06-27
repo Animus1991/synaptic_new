@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { useMemo, useState } from 'react';
-import { ArrowDownUp, Download, Sparkles } from 'lucide-react';
+import { ArrowDownUp, Download, Sparkles } from '@/lib/lucide-shim';
 import { termMatchesFocus } from '../../lib/workspaceFocus';
 import { cn } from '../../utils/cn';
 import { downloadCompareCsv } from '../../lib/compareExport';

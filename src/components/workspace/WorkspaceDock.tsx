@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { PanelLeftClose, PanelLeftOpen } from 'lucide-react';
+import { PanelLeftClose, PanelLeftOpen } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
 import type { WorkspaceToolId } from '../../lib/taskFlows';
 import {
@@ -103,22 +103,30 @@ export function WorkspaceDock({ activeTool, onSelectTool, availableTools, lang =
                     aria-current={active ? 'true' : undefined}
                     data-testid={`dock-tool-${id}`}
                     className={cn(
-                      'relative flex items-center transition-colors',
+                      'group relative flex items-center transition-colors outline-none',
+                      'focus-visible:ring-2 focus-visible:ring-brand-400/60 focus-visible:ring-inset',
                       expanded ? 'gap-2.5 px-3 py-2' : 'h-11 justify-center px-1',
                       active
-                        ? 'text-brand-300 bg-brand-600/12'
+                        ? 'text-brand-100 bg-brand-600/15'
                         : 'text-text-secondary hover:bg-surface-hover hover:text-text-primary',
                     )}
                   >
-                    {active && (
-                      <span className="absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-r bg-brand-400" />
-                    )}
+                    <span
+                      aria-hidden="true"
+                      className={cn(
+                        'absolute left-0 top-0 h-full w-[2px] transition-colors',
+                        active ? 'bg-brand-400' : 'bg-transparent group-hover:bg-border-subtle',
+                      )}
+                    />
                     <Icon className={cn('shrink-0', expanded ? 'h-[18px] w-[18px]' : 'h-5 w-5')} />
-                    {expanded && <span className="ws-meta truncate">{label}</span>}
+                    {expanded && (
+                      <span className={cn('ws-meta truncate', active && 'font-medium')}>{label}</span>
+                    )}
                   </button>
                 );
               })}
             </div>
+
           );
         })}
       </div>

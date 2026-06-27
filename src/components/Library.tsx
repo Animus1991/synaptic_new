@@ -4,7 +4,7 @@ import {
   Search, Upload, BookOpen, FileText, ChevronRight, ChevronDown,
   Clock, BarChart3, Sparkles, Plus, Grid3X3, List, Loader2,
   File, Image, Code, Presentation, Table2, AlertTriangle, Trash2, RefreshCw,
-} from 'lucide-react';
+} from '@/lib/lucide-shim';
 import type { Course, UploadedFile, UserSettings, Task, GlossaryEntry } from '../types';
 import { cn } from '../utils/cn';
 import { buildMaterialOutlinePreview } from '../lib/uploadOutlinePreview';
@@ -80,75 +80,123 @@ export function Library({
         animate={{ opacity: 1, y: 0 }}
         className="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
       >
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold">Library</h1>
-          <p className="text-text-secondary mt-1">Your uploaded materials and generated courses</p>
+        <div className="space-y-2">
+          <div className="flex items-center gap-3">
+            <div className="h-px w-8 bg-brand-500" />
+            <span className="text-[10px] uppercase tracking-[0.3em] text-brand-400 font-medium" style={{ fontFamily: 'var(--font-mono)' }}>
+              {userLanguage === 'el' ? 'Βιβλιοθήκη' : 'Library'}
+            </span>
+          </div>
+          <h1
+            className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight text-text-primary"
+            style={{ fontFamily: 'var(--font-display)' }}
+          >
+            {userLanguage === 'el' ? 'Το υλικό σου' : 'Your materials'}
+          </h1>
+          <p className="text-sm text-text-tertiary max-w-xl">
+            {userLanguage === 'el'
+              ? 'Ανεβασμένα έγγραφα και δημιουργημένα μαθήματα.'
+              : 'Uploaded documents and generated courses.'}
+          </p>
         </div>
         <button
           onClick={onUpload}
           data-testid="library-upload"
-          className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-brand-600 to-brand-500 text-white rounded-xl font-medium text-sm hover:from-brand-500 hover:to-brand-400 transition-all whitespace-nowrap"
+          className="inline-flex items-center gap-2 px-5 py-2.5 bg-text-primary text-surface-primary rounded-md text-[11px] uppercase tracking-[0.2em] font-semibold hover:bg-text-secondary transition-colors whitespace-nowrap self-start sm:self-auto"
         >
-          <Upload className="w-4 h-4" />
-          Upload Material
+          <Upload className="w-4 h-4" aria-hidden="true" />
+          {userLanguage === 'el' ? 'Ανέβασμα' : 'Upload'}
         </button>
       </motion.div>
 
       {/* Tabs */}
       <div className="flex items-center gap-6 border-b border-border-subtle">
-        {(['courses', 'files'] as LibraryTab[]).map(t => (
-          <button
-            key={t}
-            onClick={() => setTab(t)}
-            className={cn(
-              'pb-3 text-sm font-medium transition-all border-b-2 capitalize',
-              tab === t
-                ? 'text-brand-400 border-brand-400'
-                : 'text-text-tertiary border-transparent hover:text-text-secondary'
-            )}
-          >
-            {t} {t === 'courses' && `(${courses.length})`} {t === 'files' && `(${uploadedFiles.length})`}
-          </button>
-        ))}
+        {(['courses', 'files'] as LibraryTab[]).map(t => {
+          const labelEl = t === 'courses' ? 'Μαθήματα' : 'Αρχεία';
+          const labelEn = t === 'courses' ? 'Courses' : 'Files';
+          const count = t === 'courses' ? courses.length : uploadedFiles.length;
+          return (
+            <button
+              key={t}
+              onClick={() => setTab(t)}
+              className={cn(
+                'pb-3 text-[11px] uppercase tracking-[0.2em] font-semibold transition-colors border-b-2 inline-flex items-center gap-2',
+                tab === t
+                  ? 'text-text-primary border-brand-500'
+                  : 'text-text-tertiary border-transparent hover:text-text-secondary',
+              )}
+              style={{ fontFamily: 'var(--font-mono)' }}
+            >
+              {userLanguage === 'el' ? labelEl : labelEn}
+              <span className="text-text-muted font-normal tabular-nums">{count}</span>
+            </button>
+          );
+        })}
       </div>
 
       {/* Search & Filters */}
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="flex-1 relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-tertiary" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-tertiary pointer-events-none" aria-hidden="true" />
           <input
-            type="text"
-            placeholder="Search courses, topics, or files..."
+            type="search"
+            placeholder={userLanguage === 'el' ? 'Αναζήτηση μαθημάτων, θεμάτων, αρχείων…' : 'Search courses, topics, or files…'}
+            aria-label={userLanguage === 'el' ? 'Αναζήτηση στη βιβλιοθήκη' : 'Search the library'}
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-surface-input border border-border-subtle text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-brand-500/50"
+            className="w-full pl-10 pr-10 py-2.5 rounded-md bg-surface-input border border-border-subtle text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500/40 transition-colors"
           />
-        </div>
-        <div className="flex items-center gap-2">
-          {['all', 'in-progress', 'generating', 'completed'].map(f => (
+          {search && (
             <button
-              key={f}
-              onClick={() => setFilter(f)}
-              className={cn(
-                'px-3 py-2 rounded-lg text-xs font-medium transition-all capitalize',
-                filter === f
-                  ? 'bg-brand-600/20 text-brand-300 border border-brand-500/30'
-                  : 'text-text-tertiary hover:text-text-secondary border border-border-subtle hover:border-border-default'
-              )}
+              type="button"
+              onClick={() => setSearch('')}
+              aria-label={userLanguage === 'el' ? 'Καθαρισμός αναζήτησης' : 'Clear search'}
+              className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded text-text-tertiary hover:text-text-primary hover:bg-surface-hover transition-colors"
             >
-              {f}
+              <span aria-hidden="true" className="text-xs">✕</span>
             </button>
-          ))}
-          <div className="hidden sm:flex items-center border border-border-subtle rounded-lg">
+          )}
+        </div>
+        <div className="flex items-center gap-2 flex-wrap">
+          {(['all', 'in-progress', 'generating', 'completed'] as const).map(f => {
+            const labelMap: Record<string, { en: string; el: string }> = {
+              all: { en: 'All', el: 'Όλα' },
+              'in-progress': { en: 'In progress', el: 'Σε εξέλιξη' },
+              generating: { en: 'Generating', el: 'Δημιουργία' },
+              completed: { en: 'Completed', el: 'Ολοκληρωμένα' },
+            };
+            const active = filter === f;
+            return (
+              <button
+                key={f}
+                onClick={() => setFilter(f)}
+                aria-pressed={active}
+                className={cn(
+                  'px-3 py-1.5 rounded-md text-[10px] uppercase tracking-[0.18em] font-semibold transition-colors border',
+                  active
+                    ? 'bg-brand-600/15 text-brand-300 border-brand-500/40'
+                    : 'text-text-tertiary border-border-subtle hover:text-text-primary hover:border-border-default',
+                )}
+                style={{ fontFamily: 'var(--font-mono)' }}
+              >
+                {labelMap[f][userLanguage]}
+              </button>
+            );
+          })}
+          <div className="hidden sm:flex items-center border border-border-subtle rounded-md overflow-hidden">
             <button
               onClick={() => setViewMode('grid')}
-              className={cn('p-2 rounded-l-lg', viewMode === 'grid' ? 'bg-surface-hover text-text-primary' : 'text-text-tertiary')}
+              aria-label={userLanguage === 'el' ? 'Πλέγμα' : 'Grid view'}
+              aria-pressed={viewMode === 'grid'}
+              className={cn('p-2', viewMode === 'grid' ? 'bg-surface-hover text-text-primary' : 'text-text-tertiary hover:text-text-secondary')}
             >
               <Grid3X3 className="w-4 h-4" />
             </button>
             <button
               onClick={() => setViewMode('list')}
-              className={cn('p-2 rounded-r-lg', viewMode === 'list' ? 'bg-surface-hover text-text-primary' : 'text-text-tertiary')}
+              aria-label={userLanguage === 'el' ? 'Λίστα' : 'List view'}
+              aria-pressed={viewMode === 'list'}
+              className={cn('p-2 border-l border-border-subtle', viewMode === 'list' ? 'bg-surface-hover text-text-primary' : 'text-text-tertiary hover:text-text-secondary')}
             >
               <List className="w-4 h-4" />
             </button>

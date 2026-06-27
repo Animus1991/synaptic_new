@@ -1,4 +1,4 @@
-import { MapPin } from 'lucide-react';
+import { MapPin } from '@/lib/lucide-shim';
 import { cn } from '../utils/cn';
 
 interface Props {

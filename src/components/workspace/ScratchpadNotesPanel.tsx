@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Save, Trash2, CheckCircle2, Circle, Sparkles, Highlighter, Layers,
-} from 'lucide-react';
+} from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
 import {
   type ScratchpadMode,

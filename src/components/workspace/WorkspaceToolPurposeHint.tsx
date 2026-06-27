@@ -1,4 +1,4 @@
-import { Lightbulb } from 'lucide-react';
+import { Lightbulb } from '@/lib/lucide-shim';
 import type { WorkspaceToolId } from '../../lib/taskFlows';
 import { toolLearnerProblem, toolLaunchBlockers, getToolS20 } from '../../lib/workspaceToolS20Spine';
 

@@ -1,4 +1,4 @@
-import { Aperture, AlertTriangle, CheckCircle2, BookOpen, ChevronDown, ChevronUp } from 'lucide-react';
+import { Aperture, AlertTriangle, CheckCircle2, BookOpen, ChevronDown, ChevronUp } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
 import type { ConceptLensAction, ConceptLensView } from '../../lib/conceptGraphModel';
 import {

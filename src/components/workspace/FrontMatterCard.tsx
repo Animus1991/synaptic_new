@@ -1,4 +1,4 @@
-import { BookOpen } from 'lucide-react';
+import { BookOpen } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
 
 export function FrontMatterCard({

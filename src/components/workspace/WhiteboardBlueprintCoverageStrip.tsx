@@ -1,4 +1,4 @@
-import { CheckCircle2, AlertTriangle } from 'lucide-react';
+import { CheckCircle2, AlertTriangle } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
 import type { WhiteboardBlueprintCoverageReport } from '../../lib/whiteboardBlueprintCoverageQA';
 import { blueprintContextHint, blueprintKindLabel } from '../../lib/whiteboardBlueprintCoverageQA';

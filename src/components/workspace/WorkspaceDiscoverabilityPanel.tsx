@@ -1,4 +1,4 @@
-import { ChevronDown, ChevronUp, Link2, Sparkles } from 'lucide-react';
+import { ChevronDown, ChevronUp, Link2, Sparkles } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
 import type { Lang } from '../../lib/i18n';
 import type { DiscoverabilityActionId } from '../../lib/workspaceDiscoverability';

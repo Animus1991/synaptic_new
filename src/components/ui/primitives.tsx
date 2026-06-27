@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
 import { motion } from 'framer-motion';
-import type { LucideIcon } from 'lucide-react';
+import type { LucideIcon } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
 
 /**

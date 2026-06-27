@@ -51,9 +51,9 @@ async function loadPipeline(): Promise<Pipeline | null> {
     return null;
   }
   try {
-    const { pipeline } = await import('@xenova/transformers');
+    const { pipeline } = await import('@huggingface/transformers');
     return (await pipeline('feature-extraction', MODEL_NAME, {
-      quantized: true,
+      dtype: 'q8',
     })) as Pipeline;
   } catch (err) {
     console.warn('[localEmbedder] failed to load model:', (err as Error).message);

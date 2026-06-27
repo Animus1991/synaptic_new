@@ -1,4 +1,4 @@
-import { ChevronDown, ChevronUp, GitBranch, AlertTriangle, CheckCircle2 } from 'lucide-react';
+import { ChevronDown, ChevronUp, GitBranch, AlertTriangle, CheckCircle2 } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
 import type { ConceptBusRow } from '../../lib/conceptBusPanelModel';
 import {

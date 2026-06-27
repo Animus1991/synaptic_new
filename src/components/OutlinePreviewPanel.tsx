@@ -1,4 +1,4 @@
-import { Layers, ListTree, Loader2, AlertTriangle } from 'lucide-react';
+import { Layers, ListTree, Loader2, AlertTriangle } from '@/lib/lucide-shim';
 import type { UploadOutlinePreview } from '../lib/uploadOutlinePreview';
 import type { DocumentStructureKind } from '../lib/documentStructureReport';
 import { cn } from '../utils/cn';

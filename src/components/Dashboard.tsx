@@ -1,9 +1,9 @@
 import { motion } from 'framer-motion';
 import {
-  Flame, Zap, Target, Clock, BookOpen, AlertTriangle,
-  ChevronRight, TrendingUp, Brain, Calendar, ArrowRight, Play,
-  Shield, Lightbulb, RotateCcw, Eye, Layout, CheckCircle2, Upload, Sparkles
-} from 'lucide-react';
+  Flame, Lightning as Zap, Target, Clock, BookOpen, Warning as AlertTriangle,
+  CaretRight as ChevronRight, TrendUp as TrendingUp, Brain, Calendar, ArrowRight, Play,
+  Shield, Lightbulb, ArrowCounterClockwise as RotateCcw, Eye, SquaresFour as Layout, CheckCircle as CheckCircle2, UploadSimple as Upload, Sparkle as Sparkles
+} from '@phosphor-icons/react';
 import type { Course, DashboardStats, LearnerModel, Task } from '../types';
 import { cn } from '../utils/cn';
 import { ReadinessRing } from './visuals/ReadinessRing';
@@ -143,7 +143,10 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
       {/* Welcome header */}
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold">{greetingForTime(lang)}! 👋</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold">
+            <span className="sr-only">{isEl ? 'Πίνακας Μάθησης — ' : 'Learning Dashboard — '}</span>
+            {greetingForTime(lang)}! 👋
+          </h1>
           <p className="text-text-secondary mt-1">
             {dashboardSubtitle(lang, criticalTasks.length, stats.streak)}
           </p>

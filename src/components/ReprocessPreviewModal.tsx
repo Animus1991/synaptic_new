@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ArrowRight, CheckCircle2, Cpu, X } from 'lucide-react';
+import { ArrowRight, CheckCircle2, Cpu, X } from '@/lib/lucide-shim';
 import { cn } from '../utils/cn';
 import type { ReprocessPreview } from '../lib/reprocessPreview';
 

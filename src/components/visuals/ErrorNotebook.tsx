@@ -1,4 +1,4 @@
-import { BookX, CheckCircle2 } from 'lucide-react';
+import { BookX, CheckCircle2 } from '@/lib/lucide-shim';
 import type { MistakeRecord } from '../../types';
 
 interface Props {

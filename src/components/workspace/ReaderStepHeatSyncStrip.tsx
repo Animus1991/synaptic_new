@@ -1,4 +1,4 @@
-import { Link2, Flame } from 'lucide-react';
+import { Link2, Flame } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
 import type { ReaderStepHeatSyncSummary } from '../../lib/readerHeatmapStepSyncQA';
 import { stepHeatDotClass } from '../../lib/readerHeatmapStepSyncQA';

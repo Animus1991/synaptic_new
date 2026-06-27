@@ -1,0 +1,76 @@
+name: Chunk / dynamic-import failure
+description: Triage a `synapse:chunk-error` event surfaced by Sentry or user report.
+title: "[chunk-error] <flow> @ <version>"
+labels: ["bug", "resilience", "chunk-error"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this template for every dynamic-import / chunk-load failure routed
+        through `reportChunkError`. The reporter ships a structured `extra`
+        payload — please paste the exact values from Sentry (or
+        `window.addEventListener('synapse:chunk-error', …)` if reproducing
+        locally).
+  - type: input
+    id: flow
+    attributes:
+      label: Flow
+      description: Value of `extra.flow` (e.g. `analytics`, `lesson`, `study-workspace`).
+      placeholder: analytics
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: App version
+      description: Value of `extra.version` (`__APP_VERSION__` at build time).
+      placeholder: 2026.06.27-abc1234
+    validations:
+      required: true
+  - type: input
+    id: url
+    attributes:
+      label: Failing chunk URL
+      description: Value of `extra.url` when present.
+    validations:
+      required: false
+  - type: input
+    id: attempt
+    attributes:
+      label: Attempt / maxAttempts
+      placeholder: "3 / 3"
+    validations:
+      required: false
+  - type: dropdown
+    id: willReload
+    attributes:
+      label: Hard reload triggered?
+      options:
+        - "true"
+        - "false"
+        - "unknown"
+    validations:
+      required: true
+  - type: textarea
+    id: message
+    attributes:
+      label: Error message
+      render: shell
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Reproduction notes
+      description: User agent, route, repro steps, console/network excerpts.
+    validations:
+      required: false
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Triage checklist
+      options:
+        - label: Verified `extra.version` matches the currently deployed release
+        - label: Confirmed the chunk file exists at the URL (or returns 404 → stale deploy)
+        - label: Reproduced locally via `e2e/chunk-failure-recovery.spec.ts` or `e2e/chunk-failure-flows.spec.ts`
+        - label: Added/updated a regression test if the flow is new

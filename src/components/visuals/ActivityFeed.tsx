@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { BookOpen, CheckCircle2, Brain, Zap, RotateCcw, AlertTriangle, Star, Target, Clock, Upload, Activity } from 'lucide-react';
+import { BookOpen, CheckCircle2, Brain, Zap, RotateCcw, AlertTriangle, Star, Target, Clock, Upload, Activity } from '@/lib/lucide-shim';
 import type { ActivityItem, ActivityType } from '../../types';
 import { formatRelativeTime } from '../../lib/activityLog';
 import { useI18n } from '../../lib/i18n';

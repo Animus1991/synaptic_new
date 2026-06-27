@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, X } from 'lucide-react';
+import { Search, X } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
 
 export interface CommandItem {

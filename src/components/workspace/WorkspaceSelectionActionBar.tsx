@@ -1,4 +1,4 @@
-import { X } from 'lucide-react';
+import { X } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
 import type { Lang } from '../../lib/i18n';
 import type { WorkspaceToolId } from '../../lib/taskFlows';

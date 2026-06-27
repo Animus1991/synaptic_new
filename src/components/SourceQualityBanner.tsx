@@ -1,4 +1,4 @@
-import { AlertTriangle, Cpu, FileSearch, RefreshCw, X } from 'lucide-react';
+import { AlertTriangle, Cpu, FileSearch, RefreshCw, X } from '@/lib/lucide-shim';
 import { useState } from 'react';
 import { cn } from '../utils/cn';
 import { lowSourceQualityMessage } from '../lib/sourceQualityPrompt';

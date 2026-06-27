@@ -5,8 +5,8 @@
 import {
   BookOpen, Brain, PenTool, Layout, Timer, MessageSquare, Zap, GitCompare,
   Scale, FlaskConical, BarChart3, Layers, StickyNote,
-} from 'lucide-react';
-import type { LucideIcon } from 'lucide-react';
+} from '@/lib/lucide-shim';
+import type { LucideIcon } from '@/lib/lucide-shim';
 import type { WorkspaceToolId } from './taskFlows';
 
 export type WorkspaceToolMeta = {

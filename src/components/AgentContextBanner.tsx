@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { AlertTriangle, ChevronDown, ChevronUp, MapPin } from 'lucide-react';
+import { AlertTriangle, ChevronDown, ChevronUp, MapPin } from '@/lib/lucide-shim';
 import { cn } from '../utils/cn';
 import {
   buildAgentContextBanner,

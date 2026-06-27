@@ -4,7 +4,7 @@ import { Group, Panel, Separator } from 'react-resizable-panels';
 import {
   X, Maximize2, Minimize2, ChevronRight, Sparkles, PanelLeftClose, PanelLeftOpen, StickyNote,
   LayoutGrid,
-} from 'lucide-react';
+} from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
 import type { WorkspaceToolId } from '../../lib/taskFlows';
 import { WorkspaceDock } from './WorkspaceDock';
@@ -284,8 +284,14 @@ export function StudyWorkspace({
   const progressKey = taskId ? `task:${taskId}` : `concept:${quizConcept}`;
 
   const [activeTool, setActiveTool] = useState<WorkspaceTool>(initialTool);
-  const [layout, setLayout] = useState<LayoutMode>('split');
-  const [isMobile, setIsMobile] = useState(false);
+  // Initialize from current viewport so mobile users land directly on the lesson
+  // panel instead of a crowded split layout where neither pane is usable.
+  const [isMobile, setIsMobile] = useState(() =>
+    typeof window !== 'undefined' ? window.innerWidth < 1024 : false,
+  );
+  const [layout, setLayout] = useState<LayoutMode>(() =>
+    typeof window !== 'undefined' && window.innerWidth < 1024 ? 'focus-lesson' : 'split',
+  );
   const [currentStep, setCurrentStep] = useState(() => loadWorkspaceStep(progressKey));
   const [quizPassed, setQuizPassed] = useState(false);
   const [genStatus] = useState<'idle' | 'loading' | 'ready' | 'fallback'>('idle');
@@ -703,7 +709,18 @@ export function StudyWorkspace({
   }, [sourceHighlight, layout, isMobile]);
 
   useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth < 1024);
+    const checkMobile = () => {
+      const mobile = window.innerWidth < 1024;
+      setIsMobile((prev) => {
+        // Auto-correct stale split layout when crossing into mobile so the
+        // lesson surface always wins (previous layout left both panes too
+        // cramped to read or interact on phones).
+        if (mobile && !prev) {
+          setLayout((current) => (current === 'split' ? 'focus-lesson' : current));
+        }
+        return mobile;
+      });
+    };
     checkMobile();
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
@@ -1702,17 +1719,163 @@ export function StudyWorkspace({
 
   return (
     <div
+      data-ws-theme="warm"
       className={cn(
         agentSplit
-          ? 'relative h-full w-full bg-surface-primary flex flex-col blueprint-canvas blueprint-grid'
-          : 'fixed inset-0 z-50 bg-surface-primary flex flex-col blueprint-canvas blueprint-grid',
-        isMobile && !chromeHidden && 'pb-14',
+          ? 'relative h-full w-full bg-surface-primary flex flex-col'
+          : 'fixed inset-0 z-50 bg-surface-primary flex flex-col',
+        isMobile && !chromeHidden && 'pb-20',
       )}
       data-testid="study-workspace"
       data-grounded={noteBundle.hasSource ? 'true' : 'false'}
     >
-      {/* Top bar */}
-      {!chromeHidden && (
+      {/* Skip link for keyboard users — visible on focus only */}
+      <a
+        href="#workspace-main"
+        className="skip-to-content"
+        data-testid="workspace-skip-link"
+      >
+        {lang === 'el' ? 'Παράκαμψη στο κύριο περιεχόμενο' : 'Skip to main content'}
+      </a>
+
+      {/* ============================================================ */}
+      {/* MOBILE COMPACT CHROME — Bento integrated flow                */}
+      {/* ============================================================ */}
+      {!chromeHidden && isMobile && (
+        <>
+          <header className="relative z-10 px-5 pt-4 pb-2 shrink-0">
+            <div className="flex items-center justify-between mb-3">
+              <button
+                onClick={onClose}
+                aria-label={lang === 'el' ? 'Κλείσιμο' : 'Close'}
+                className="p-2 -ml-2 rounded-full hover:bg-surface-hover text-text-secondary hover:text-text-primary transition-colors min-h-[40px] min-w-[40px] flex items-center justify-center"
+              >
+                <X className="w-5 h-5" />
+              </button>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setShowNotes((v) => !v)}
+                  aria-label={lang === 'el' ? 'Σημειώσεις' : 'Session notes'}
+                  aria-pressed={showNotes}
+                  className="p-2 rounded-full bg-surface-secondary hover:bg-surface-hover text-text-secondary transition-colors min-h-[40px] min-w-[40px] flex items-center justify-center"
+                >
+                  <StickyNote className={cn('w-4 h-4', showNotes && 'text-brand-600')} />
+                </button>
+                <button
+                  onClick={handleOpenAgent}
+                  aria-label={t('agentBtn')}
+                  className="p-2 rounded-full bg-surface-secondary hover:bg-surface-hover text-text-secondary transition-colors min-h-[40px] min-w-[40px] flex items-center justify-center"
+                >
+                  <Sparkles className="w-4 h-4 text-brand-600" />
+                </button>
+              </div>
+            </div>
+            <div className="space-y-1">
+              <p className="ws-eyebrow text-[10px] uppercase tracking-[0.14em] text-brand-400 font-bold truncate">
+                {courseName ?? linkedCourse?.title ?? (lang === 'el' ? 'Μάθημα' : 'Course')}
+              </p>
+              <h1
+                className="ws-serif text-[22px] leading-tight text-text-primary truncate"
+                data-testid="workspace-header-title"
+              >
+                {displayWorkspaceStepTitle(STEPS[currentStep]?.title ?? quizConcept, quizConcept, lang)}
+              </h1>
+            </div>
+          </header>
+
+          {/* Progressive disclosure: step + source quality in one row */}
+          <div className="px-4 py-2 shrink-0">
+            <div className="ws-bento-soft p-3 flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2 min-w-0">
+                <div className="flex -space-x-1 shrink-0" aria-hidden>
+                  <div className="w-6 h-6 rounded-full bg-brand-600 border-2 border-surface-secondary flex items-center justify-center text-[10px] text-white font-semibold">
+                    {Math.min(currentStep + 1, STEPS.length || 1)}
+                  </div>
+                  <div className="w-6 h-6 rounded-full bg-brand-400 border-2 border-surface-secondary flex items-center justify-center text-[10px] text-white font-semibold">
+                    {STEPS.length || 7}
+                  </div>
+                </div>
+                <span className="text-xs font-semibold text-text-secondary truncate">
+                  {lang === 'el' ? `Βήμα ${Math.min(currentStep + 1, STEPS.length || 1)} από ${STEPS.length || 7}` : `Step ${Math.min(currentStep + 1, STEPS.length || 1)} of ${STEPS.length || 7}`}
+                </span>
+              </div>
+              <div className="flex items-center gap-1 shrink-0">
+                {typeof sourceQualityScore === 'number' && (
+                  <span className="ws-pill" data-testid="workspace-mobile-source-quality">
+                    {sourceQualityScore}% {lang === 'el' ? 'πηγή' : 'source'}
+                  </span>
+                )}
+                <button
+                  type="button"
+                  onClick={() => setIntelTab((tb) => (tb === 'weak-areas' ? null : 'weak-areas'))}
+                  aria-pressed={intelTab === 'weak-areas'}
+                  className="ws-pill"
+                  data-active={intelTab === 'weak-areas' || undefined}
+                >
+                  {lang === 'el' ? 'Αδύνατα' : 'Weak'} ({weakAreaSpots.length})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIntelTab((tb) => (tb === 'concept-bus' ? null : 'concept-bus'))}
+                  aria-pressed={intelTab === 'concept-bus'}
+                  className="ws-pill"
+                  data-active={intelTab === 'concept-bus' || undefined}
+                >
+                  {lang === 'el' ? 'Έννοιες' : 'Concepts'} ({conceptBusRows.length})
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Concept ribbon — only when there's an active lens */}
+          {conceptLensView.activeConcept && (
+            <div className="ws-ribbon px-4 py-1 flex gap-2 overflow-x-auto shrink-0" role="list">
+              <button
+                type="button"
+                role="listitem"
+                className="whitespace-nowrap px-3 py-1.5 rounded-lg bg-brand-600 text-white text-xs font-medium"
+                onClick={() => setConceptLensExpanded((v) => !v)}
+                aria-expanded={conceptLensExpanded}
+              >
+                {activeConceptLabel ?? conceptLensView.activeConcept}
+              </button>
+              {conceptLensView.related?.slice(0, 4).map((c) => (
+                <button
+                  key={c.label}
+                  type="button"
+                  role="listitem"
+                  className="whitespace-nowrap px-3 py-1.5 rounded-lg bg-surface-secondary text-text-secondary text-xs font-medium hover:bg-surface-hover"
+                  onClick={() => focusOnTerm(c.label, activeTool)}
+                >
+                  {c.label}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {/* Expanded concept lens panel — kept, but only when user expands */}
+          {conceptLensView.activeConcept && conceptLensExpanded && (
+            <ConceptLensPanel
+              placement="strip"
+              lens={conceptLensView}
+              activity={activityFor(conceptBus, activeConceptLabel)}
+              activeTool={activeTool}
+              expanded={conceptLensExpanded}
+              onToggleExpand={() => setConceptLensExpanded((v) => !v)}
+              onJumpTool={(tool) => openWorkspaceTool(tool)}
+              onFocus={(term) => focusOnTerm(term, activeTool)}
+              onAction={handleConceptLensAction}
+              onOpenReaderSection={openReaderAtConceptSection}
+              lang={lang}
+            />
+          )}
+        </>
+      )}
+
+      {/* ============================================================ */}
+      {/* DESKTOP / TABLET CHROME (unchanged behaviour)                */}
+      {/* ============================================================ */}
+      {!chromeHidden && !isMobile && (
         <div className="relative z-10 flex items-center justify-between gap-2 px-3 py-2 border-b border-border-subtle bg-surface-secondary/85 backdrop-blur-xl shrink-0">
           <div className="flex items-center gap-3 min-w-0">
             <button onClick={onClose} title={lang === 'el' ? 'Κλείσιμο χώρου μελέτης' : 'Close workspace'} aria-label={lang === 'el' ? 'Κλείσιμο' : 'Close'} className="p-1.5 rounded-lg hover:bg-surface-hover text-text-secondary hover:text-text-primary transition-colors shrink-0">
@@ -1763,11 +1926,11 @@ export function StudyWorkspace({
       )}
 
       {/* Progress mini-bar */}
-      <div className="relative z-10 h-0.5 bg-white/5 shrink-0">
-        <div className="h-0.5 bg-gradient-to-r from-accent-cyan to-brand-400 transition-all duration-500" style={{ width: `${STEPS.length ? Math.max(5, ((Math.min(currentStep, STEPS.length - 1) + 1) / STEPS.length) * 100) : 5}%` }} />
+      <div className="relative z-10 h-0.5 bg-border-subtle/40 shrink-0">
+        <div className="h-0.5 bg-brand-600 transition-all duration-500" style={{ width: `${STEPS.length ? Math.max(5, ((Math.min(currentStep, STEPS.length - 1) + 1) / STEPS.length) * 100) : 5}%` }} />
       </div>
 
-      {!chromeHidden && (
+      {!chromeHidden && !isMobile && (
         <WorkspaceContextStrip
           context={workspaceContext}
           lang={lang}
@@ -1784,23 +1947,9 @@ export function StudyWorkspace({
         />
       )}
 
-      {!chromeHidden && isMobile && conceptLensView.activeConcept && (
-        <ConceptLensPanel
-          placement="strip"
-          lens={conceptLensView}
-          activity={activityFor(conceptBus, activeConceptLabel)}
-          activeTool={activeTool}
-          expanded={conceptLensExpanded}
-          onToggleExpand={() => setConceptLensExpanded((v) => !v)}
-          onJumpTool={(tool) => openWorkspaceTool(tool)}
-          onFocus={(term) => focusOnTerm(term, activeTool)}
-          onAction={handleConceptLensAction}
-          onOpenReaderSection={openReaderAtConceptSection}
-          lang={lang}
-        />
-      )}
 
-      <div className="relative z-10 flex-1 flex overflow-hidden">
+
+      <div className="relative z-10 flex-1 flex overflow-hidden" id="workspace-main" role="main" tabIndex={-1}>
         {/* Tool Dock (Left Sidebar) */}
         {!chromeHidden && !isMobile && (
           <WorkspaceDock 
@@ -2549,20 +2698,48 @@ export function StudyWorkspace({
 
       {!chromeHidden && isMobile && (
         <div
-          className="fixed bottom-0 left-0 right-0 z-[120] flex items-center gap-2 border-t border-border-subtle bg-surface-card/95 px-3 py-2 backdrop-blur-md lg:hidden"
+          className="fixed bottom-3 left-1/2 -translate-x-1/2 z-[120] w-[88%] max-w-[420px] ws-fab flex items-center justify-between gap-2 px-3 py-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] lg:hidden"
           data-testid="workspace-mobile-tool-bar"
+          role="navigation"
+          aria-label={lang === 'el' ? 'Επιλογή εργαλείου' : 'Tool picker'}
         >
+          <div className="flex items-center gap-2 pl-2 min-w-0 flex-1">
+            <div
+              className="w-8 h-8 rounded-full bg-white/15 flex items-center justify-center shrink-0"
+              aria-hidden
+            >
+              <LayoutGrid className="h-4 w-4 text-[#faf8f5]" />
+            </div>
+            <span className="text-[11px] uppercase tracking-[0.14em] font-semibold text-[#faf8f5]/80 truncate">
+              {workspaceToolLabel(activeTool, lang)}
+            </span>
+          </div>
+          {nextActionRecommendation && noteBundle.hasSource && (
+            <button
+              type="button"
+              onClick={runNextAction}
+              className="px-3 py-1.5 rounded-full bg-white/15 text-[#faf8f5] text-[11px] font-semibold hover:bg-white/25 transition-colors shrink-0"
+              data-testid="workspace-mobile-next-action"
+              aria-label={nextActionLabel(nextActionRecommendation.primary, lang)}
+            >
+              {lang === 'el' ? 'Επόμενο' : 'Next'}
+            </button>
+          )}
           <button
             type="button"
             onClick={() => setMobileToolDrawerOpen(true)}
             data-testid="workspace-mobile-tools-open"
-            className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-brand-500/30 bg-brand-600/10 px-3 py-2.5 text-sm font-medium text-brand-200"
+            aria-haspopup="dialog"
+            aria-expanded={mobileToolDrawerOpen}
+            aria-label={lang === 'el' ? `Εργαλεία — τρέχον: ${workspaceToolLabel(activeTool, lang)}` : `Tools — current: ${workspaceToolLabel(activeTool, lang)}`}
+            className="w-10 h-10 rounded-full bg-[#faf8f5] text-brand-700 flex items-center justify-center shadow-inner shrink-0 hover:bg-white transition-colors min-h-[40px] min-w-[40px]"
           >
-            <LayoutGrid className="h-4 w-4" />
-            {workspaceToolLabel(activeTool, lang)}
+            <LayoutGrid className="h-5 w-5" aria-hidden />
           </button>
         </div>
       )}
+
+
       {linkedCourse && (
         <ReprocessPreviewModal
           open={reprocessWizardOpen}

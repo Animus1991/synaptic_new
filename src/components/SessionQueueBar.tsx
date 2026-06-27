@@ -1,4 +1,4 @@
-import { X, Play } from 'lucide-react';
+import { X, Play } from '@/lib/lucide-shim';
 import { sessionLabel, type SessionType } from '../lib/taskFlows';
 
 interface SessionQueueBarProps {

@@ -1,4 +1,4 @@
-﻿import { CheckCircle2, Download, FileText, Printer } from 'lucide-react';
+﻿import { CheckCircle2, Download, FileText, Printer } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
 import type { FeynmanRubricExportDiscoverabilityReport } from '../../lib/feynmanRubricExportDiscoverabilityQA';
 

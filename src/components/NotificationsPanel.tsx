@@ -1,4 +1,4 @@
-import { X, Zap } from 'lucide-react';
+import { X, Zap } from '@/lib/lucide-shim';
 import type { ActivityItem } from '../types';
 import { cn } from '../utils/cn';
 import { useI18n } from '../lib/i18n';
