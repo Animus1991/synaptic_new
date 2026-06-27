@@ -31,7 +31,7 @@ export function SourceIntelligenceCard({
       <div className="flex items-start justify-between gap-3 flex-wrap">
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="inline-flex items-center rounded-full px-2 py-1 text-[10px] font-semibold uppercase tracking-wide bg-accent-cyan/12 text-accent-cyan">
+            <span className="inline-flex items-center rounded-full px-2 py-1 text-[10px] font-semibold bg-accent-cyan/12 text-accent-cyan">
               Source Intelligence
             </span>
             <span className={`text-[11px] font-semibold ${bandColor}`}>

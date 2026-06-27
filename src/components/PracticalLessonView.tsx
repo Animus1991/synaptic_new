@@ -223,7 +223,7 @@ export function PracticalLessonView({
         <div className="lg:w-[40%] border-b lg:border-b-0 lg:border-r border-border-subtle overflow-y-auto min-w-0">
           <div className="p-5 space-y-5">
             <div>
-              <span className="text-xs text-accent-teal font-medium uppercase tracking-wider">
+              <span className="text-xs text-accent-teal font-medium">
                 {hasNoteSource ? (lang === 'el' ? 'Από τις σημειώσεις σου' : 'From your notes') : 'Exercise'}
               </span>
               <h2 className="text-xl font-bold mt-1">{exercise.title}</h2>

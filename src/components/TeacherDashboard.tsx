@@ -214,7 +214,7 @@ export function TeacherDashboard({
               <p className="text-sm text-text-muted">{ui.noAnnotations}</p>
             ) : (
               <ul className="space-y-2 text-xs">
-                <li className="text-[10px] uppercase tracking-wide text-text-muted font-medium">{ui.recentAnnotations}</li>
+                <li className="text-[10px] text-text-muted font-medium">{ui.recentAnnotations}</li>
                 {data.publishing.recent.map((ann) => (
                   <li key={ann.id} className="flex justify-between gap-2 border-b border-border-subtle/50 pb-1.5">
                     <span className="text-text-secondary truncate">
@@ -264,7 +264,7 @@ export function TeacherDashboard({
             </span>
           </div>
         )}
-        <h3 className="text-xs font-semibold text-text-tertiary uppercase tracking-wide mb-2">{ui.learningEvents}</h3>
+        <h3 className="text-xs font-semibold text-text-tertiary mb-2">{ui.learningEvents}</h3>
         <div className="flex flex-wrap gap-2 mb-4 text-xs">
           {Object.entries(localEvents).map(([type, count]) => (
             <span key={type} className="px-2 py-1 rounded-lg bg-surface-hover border border-border-subtle">

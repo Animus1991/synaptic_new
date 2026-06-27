@@ -296,7 +296,7 @@ export function ArgumentMap({
             </>
           )}
           <div
-            className="absolute -top-2 rounded-full border bg-surface-primary px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider"
+            className="absolute -top-2 rounded-full border bg-surface-primary px-2 py-0.5 text-[9px] font-bold"
             style={{ borderColor: colorStyle.border, color: colorStyle.border }}
           >
             {TYPE_LABELS[node.type]}

@@ -148,7 +148,7 @@ export function CommandPalette({ open, onClose, items, placeholder }: Props) {
                 grouped.map(([group, list]) => (
                   <div key={group || 'default'} className="mb-1 last:mb-0">
                     {group && (
-                      <div className="px-2 pb-1 pt-2 text-[10px] font-semibold uppercase tracking-wide text-text-muted">
+                      <div className="px-2 pb-1 pt-2 text-[10px] font-semibold text-text-muted">
                         {group}
                       </div>
                     )}

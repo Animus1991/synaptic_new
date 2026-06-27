@@ -616,7 +616,7 @@ export function CognitiveReader({
                 key={`seg-${i}`}
                 id={`reader-seg-${i}`}
                 className={cn(
-                  'scroll-mt-4 border-b pb-1 pt-2 text-sm font-semibold uppercase tracking-wide',
+                  'scroll-mt-4 border-b pb-1 pt-2 text-sm font-semibold',
                   heatmapMode === 'learning' && learningHeat
                     ? readerHeatmapLevelClass(learningHeat.level)
                     : suspicious
@@ -1009,7 +1009,7 @@ export function CognitiveReader({
           className="flex shrink-0 gap-1.5 overflow-x-auto border-b border-border-subtle bg-surface-secondary/40 px-3 py-2 hide-scrollbar"
           data-testid="reader-section-nav"
         >
-          <span className="shrink-0 self-center text-[9px] font-semibold uppercase tracking-wide text-text-muted">
+          <span className="shrink-0 self-center text-[9px] font-semibold text-text-muted">
             {sectionNavRailLabel(sectionNav, lang)}
           </span>
           {sectionNav.map((item) => {
@@ -1139,7 +1139,7 @@ export function CognitiveReader({
               onScroll={onSourceScroll}
               className="overflow-y-auto border-r border-border-subtle/60 bg-surface-primary p-4 md:p-6"
             >
-              <p className="sticky top-0 z-10 mb-2 bg-surface-primary/90 py-1 text-[10px] font-semibold uppercase tracking-wide text-text-muted backdrop-blur-sm">
+              <p className="sticky top-0 z-10 mb-2 bg-surface-primary/90 py-1 text-[10px] font-semibold text-text-muted backdrop-blur-sm">
                 {lang === 'el' ? 'Πηγή' : 'Source'}
               </p>
               <div className="space-y-4">
@@ -1169,7 +1169,7 @@ export function CognitiveReader({
               onScroll={onCompanionScroll}
               className="overflow-y-auto bg-surface-secondary/40 p-4 md:p-6"
             >
-              <p className="sticky top-0 z-10 mb-2 bg-surface-primary/90 py-1 text-[10px] font-semibold uppercase tracking-wide text-accent-cyan backdrop-blur-sm">
+              <p className="sticky top-0 z-10 mb-2 bg-surface-primary/90 py-1 text-[10px] font-semibold text-accent-cyan backdrop-blur-sm">
                 {translationMode === 'full'
                   ? (lang === 'el' ? 'Μετάφραση' : 'Translation')
                   : (lang === 'el' ? 'Γλωσσάρι / ορισμοί' : 'Glossary companion')}

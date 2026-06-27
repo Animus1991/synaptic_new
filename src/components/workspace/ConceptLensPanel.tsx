@@ -116,12 +116,12 @@ export function ConceptLensPanel({
         </div>
 
         {struggling && (
-          <span className="hidden sm:inline-flex items-center gap-1 rounded-full bg-accent-amber/15 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-accent-amber">
+          <span className="hidden sm:inline-flex items-center gap-1 rounded-full bg-accent-amber/15 px-1.5 py-0.5 text-[9px] font-semibold text-accent-amber">
             <AlertTriangle className="w-2.5 h-2.5" />
           </span>
         )}
         {confident && !struggling && (
-          <span className="hidden sm:inline-flex items-center gap-1 rounded-full bg-accent-emerald/15 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-accent-emerald">
+          <span className="hidden sm:inline-flex items-center gap-1 rounded-full bg-accent-emerald/15 px-1.5 py-0.5 text-[9px] font-semibold text-accent-emerald">
             <CheckCircle2 className="w-2.5 h-2.5" />
           </span>
         )}
@@ -257,7 +257,7 @@ function ConceptRefRow({
   if (refs.length === 0) return null;
   return (
     <div>
-      <p className="text-[9px] font-semibold uppercase tracking-wide text-text-muted mb-0.5">{title}</p>
+      <p className="text-[9px] font-semibold text-text-muted mb-0.5">{title}</p>
       <div className="flex flex-wrap gap-1">
         {refs.map((ref) => (
           <button

@@ -1,4 +1,3 @@
-import { cn } from '../../../utils/cn';
 import { Panel } from 'react-resizable-panels';
 import { WorkspaceToolStrip } from '../WorkspaceToolStrip';
 import { ToolFrame } from '../ToolFrame';
@@ -29,7 +28,7 @@ import { saveLastSimulatorScenario, saveExamPracticePreset } from '../../../lib/
 import { examPracticePresetForScenario, type SimulatorScenarioId } from '../../../lib/examPracticePresets';
 import { loadFeynmanDraft } from '../../../lib/feynmanDraftStore';
 import { ConceptLensPanel } from '../ConceptLensPanel';
-import { WorkspaceMobileIntelligenceTabs, intelPanelId, type MobileIntelTab } from '../WorkspaceMobileIntelligenceTabs';
+import { WorkspaceMobileIntelligenceBottomSheet } from '../WorkspaceMobileIntelligenceBottomSheet';
 import { AVAILABLE_TOOLS, type WorkspaceTool } from './types';
 
 import type { StudyWorkspaceModel } from './useStudyWorkspace';
@@ -172,88 +171,6 @@ export function StudyWorkspaceToolSurface({ model }: StudyWorkspaceToolSurfacePr
                       onOpenReader={handleCrossLinkReader}
                       onAskAgent={handleCrossLinkAgent}
                     >
-                    {!chromeHidden && isMobile && (
-                      <div
-                        className="shrink-0 sticky top-0 z-30 bg-surface-primary/95 backdrop-blur border-b border-white/5 shadow-[0_8px_24px_rgba(2,6,23,0.35)]"
-                        data-testid="workspace-intelligence-rail"
-                      >
-                      <WorkspaceMobileIntelligenceTabs
-                        active={intelTab}
-                        onChange={(tab: MobileIntelTab) => setIntelTab((prev: MobileIntelTab | null) => (prev === tab ? null : tab))}
-                        lang={lang}
-                        badges={{
-                          'weak-areas': weakAreaSpots.length,
-                          'concept-bus': conceptBusRows.length,
-                        }}
-                      />
-                      {intelTab && (
-                        <div
-                          role="tabpanel"
-                          id={intelPanelId(intelTab)}
-                          aria-labelledby={`workspace-intel-tab-${intelTab}`}
-                          className={cn(
-                            'overflow-y-auto overscroll-contain border-t border-white/5',
-                            isMobile ? 'max-h-[min(50vh,18rem)]' : 'max-h-[min(45vh,20rem)]',
-                          )}
-                        >
-                      {intelTab === 'discover' && (
-                        <WorkspaceIdleMount enabled>
-                          <WorkspaceToolSuspense tool="discover" lang={lang}>
-                            <LazyWorkspaceDiscoverabilityPanel
-                              summary={discoverabilitySummary}
-                              lang={lang}
-                              expanded
-                              onToggle={() => setIntelTab(null)}
-                              actions={discoverabilityActions}
-                              onRunNextAction={runNextAction}
-                              onLearningAction={handleLearningAction}
-                              stepUnderstood={stepMarks[currentStep] === 'understood'}
-                              stepConfusing={stepMarks[currentStep] === 'confusing'}
-                              onOpenRecommendedTool={
-                                discoverabilitySummary.recommendedTool
-                                  ? () => openWorkspaceTool(discoverabilitySummary.recommendedTool as WorkspaceTool)
-                                  : undefined
-                              }
-                            />
-                          </WorkspaceToolSuspense>
-                        </WorkspaceIdleMount>
-                      )}
-                      {intelTab === 'concept-bus' && (
-                        <WorkspaceIdleMount enabled>
-                          <WorkspaceToolSuspense tool="concept-bus" lang={lang}>
-                            <LazyConceptBusPanel
-                              rows={conceptBusRows}
-                              activeTool={activeTool}
-                              lang={lang}
-                              expanded
-                              onToggle={() => setIntelTab(null)}
-                              onFocusTerm={(term) => focusOnTerm(term, activeTool)}
-                              onJumpTool={(tool) => openWorkspaceTool(tool)}
-                              onRemediate={handleConceptBusRemediation}
-                              activeLens={conceptLensView}
-                              onOpenReaderSection={openReaderAtConceptSection}
-                            />
-                          </WorkspaceToolSuspense>
-                        </WorkspaceIdleMount>
-                      )}
-                      {intelTab === 'weak-areas' && (
-                        <WorkspaceIdleMount enabled>
-                          <WorkspaceToolSuspense tool="weak-areas" lang={lang}>
-                            <LazyWeakAreasFocusRail
-                              spots={weakAreaSpots}
-                              focusTerm={effectiveFocus?.term}
-                              lang={lang}
-                              expanded
-                              onToggle={() => setIntelTab(null)}
-                              onFocusWeakSpot={focusWeakArea}
-                            />
-                          </WorkspaceToolSuspense>
-                        </WorkspaceIdleMount>
-                      )}
-                        </div>
-                      )}
-                      </div>
-                    )}
                       <div className="flex-1 relative overflow-hidden min-h-0">
                       {!isMobile && (
                       <ConceptLensPanel
@@ -686,6 +603,72 @@ export function StudyWorkspaceToolSurface({ model }: StudyWorkspaceToolSurfacePr
                     </ToolFrame>
                   </Panel>
                 )}
+      {!chromeHidden && isMobile && (
+        <WorkspaceMobileIntelligenceBottomSheet
+          active={intelTab}
+          onChange={setIntelTab}
+          lang={lang}
+          badges={{
+            'weak-areas': weakAreaSpots.length,
+            'concept-bus': conceptBusRows.length,
+          }}
+        >
+          {intelTab === 'discover' && (
+            <WorkspaceIdleMount enabled>
+              <WorkspaceToolSuspense tool="discover" lang={lang}>
+                <LazyWorkspaceDiscoverabilityPanel
+                  summary={discoverabilitySummary}
+                  lang={lang}
+                  expanded
+                  onToggle={() => setIntelTab(null)}
+                  actions={discoverabilityActions}
+                  onRunNextAction={runNextAction}
+                  onLearningAction={handleLearningAction}
+                  stepUnderstood={stepMarks[currentStep] === 'understood'}
+                  stepConfusing={stepMarks[currentStep] === 'confusing'}
+                  onOpenRecommendedTool={
+                    discoverabilitySummary.recommendedTool
+                      ? () => openWorkspaceTool(discoverabilitySummary.recommendedTool as WorkspaceTool)
+                      : undefined
+                  }
+                />
+              </WorkspaceToolSuspense>
+            </WorkspaceIdleMount>
+          )}
+          {intelTab === 'concept-bus' && (
+            <WorkspaceIdleMount enabled>
+              <WorkspaceToolSuspense tool="concept-bus" lang={lang}>
+                <LazyConceptBusPanel
+                  rows={conceptBusRows}
+                  activeTool={activeTool}
+                  lang={lang}
+                  expanded
+                  onToggle={() => setIntelTab(null)}
+                  onFocusTerm={(term) => focusOnTerm(term, activeTool)}
+                  onJumpTool={(tool) => openWorkspaceTool(tool)}
+                  onRemediate={handleConceptBusRemediation}
+                  activeLens={conceptLensView}
+                  onOpenReaderSection={openReaderAtConceptSection}
+                />
+              </WorkspaceToolSuspense>
+            </WorkspaceIdleMount>
+          )}
+          {intelTab === 'weak-areas' && (
+            <WorkspaceIdleMount enabled>
+              <WorkspaceToolSuspense tool="weak-areas" lang={lang}>
+                <LazyWeakAreasFocusRail
+                  spots={weakAreaSpots}
+                  focusTerm={effectiveFocus?.term}
+                  lang={lang}
+                  expanded
+                  onToggle={() => setIntelTab(null)}
+                  onFocusWeakSpot={focusWeakArea}
+                />
+              </WorkspaceToolSuspense>
+            </WorkspaceIdleMount>
+          )}
+        </WorkspaceMobileIntelligenceBottomSheet>
+      )}
     </>
   );
 }

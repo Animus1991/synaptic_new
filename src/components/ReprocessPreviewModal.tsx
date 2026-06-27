@@ -145,7 +145,7 @@ export function ReprocessPreviewModal({
                   </div>
                 </div>
                 <div>
-                  <p className="mb-2 text-[10px] font-medium uppercase tracking-wide text-text-muted">
+                  <p className="mb-2 text-[10px] font-medium text-text-muted">
                     {isEl ? 'Νέα βήματα μαθήματος' : 'Updated lesson steps'}
                   </p>
                   <StepRailPreview titles={preview.afterStepTitles} lang={lang} side="after" />
@@ -183,7 +183,7 @@ export function ReprocessPreviewModal({
 
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div>
-                    <p className="mb-2 text-[10px] font-semibold uppercase tracking-wide text-accent-rose">
+                    <p className="mb-2 text-[10px] font-semibold text-accent-rose">
                       {isEl ? 'Reader — πριν' : 'Reader — before'}
                     </p>
                     <pre
@@ -194,7 +194,7 @@ export function ReprocessPreviewModal({
                     </pre>
                   </div>
                   <div>
-                    <p className="mb-2 text-[10px] font-semibold uppercase tracking-wide text-accent-emerald">
+                    <p className="mb-2 text-[10px] font-semibold text-accent-emerald">
                       {isEl ? 'Reader — μετά' : 'Reader — after'}
                     </p>
                     <pre
@@ -208,13 +208,13 @@ export function ReprocessPreviewModal({
 
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div>
-                    <p className="mb-2 text-[10px] font-semibold uppercase tracking-wide text-text-muted">
+                    <p className="mb-2 text-[10px] font-semibold text-text-muted">
                       {isEl ? 'Step rail — πριν' : 'Step rail — before'}
                     </p>
                     <StepRailPreview titles={preview.beforeStepTitles} lang={lang} side="before" />
                   </div>
                   <div>
-                    <p className="mb-2 text-[10px] font-semibold uppercase tracking-wide text-text-muted">
+                    <p className="mb-2 text-[10px] font-semibold text-text-muted">
                       {isEl ? 'Step rail — μετά' : 'Step rail — after'}
                     </p>
                     <StepRailPreview titles={preview.afterStepTitles} lang={lang} side="after" />

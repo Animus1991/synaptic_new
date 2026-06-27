@@ -92,7 +92,7 @@ export function WorkspaceDiscoverabilityPanel({
         <div className="px-3 pb-3 space-y-3 border-t border-white/6 pt-2">
           {nextAction && onRunNextAction && (
             <div data-testid="discoverability-next-action">
-              <p className="text-[10px] font-semibold uppercase tracking-wide text-brand-500 mb-1.5">
+              <p className="text-[10px] font-semibold text-brand-500 mb-1.5">
                 {isEl ? 'Επόμενη ενέργεια' : 'Next action'}
               </p>
               <button
@@ -138,7 +138,7 @@ export function WorkspaceDiscoverabilityPanel({
           )}
 
           <div>
-            <p className="text-[10px] font-semibold uppercase tracking-wide text-brand-500 mb-1">
+            <p className="text-[10px] font-semibold text-brand-500 mb-1">
               {toolGuide.title}
             </p>
             <p className="text-[11px] text-text-secondary leading-relaxed">{toolGuide.summary}</p>

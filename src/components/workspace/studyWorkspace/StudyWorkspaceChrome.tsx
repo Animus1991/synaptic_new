@@ -105,7 +105,7 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
                     </div>
                   </div>
                   <div className="space-y-1">
-                    <p className="ws-eyebrow text-[10px] uppercase tracking-[0.14em] text-brand-400 font-bold truncate">
+                    <p className="ws-eyebrow text-[10px] text-brand-800 font-semibold truncate">
                       {courseName ?? linkedCourse?.title ?? (lang === 'el' ? 'Μάθημα' : 'Course')}
                     </p>
                     <h1

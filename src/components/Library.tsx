@@ -19,6 +19,7 @@ import { isDemoCourse } from '../lib/demoMode';
 import { CourseIcon } from './ui/CourseIcon';
 import { UiIcon } from './ui/UiIcon';
 import { PlatformEmptyState } from './ui/PlatformEmptyState';
+import { Page, PageHeader } from './ui/primitives';
 
 interface LibraryProps {
   courses: Course[];
@@ -76,41 +77,25 @@ export function Library({
   });
 
   return (
-    <div className="p-4 sm:p-6 lg:px-8 pb-24 lg:pb-6 w-full min-w-0 space-y-6">
-      {/* Header */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
-      >
-        <div className="space-y-2">
-          <div className="flex items-center gap-3">
-            <div className="h-px w-8 bg-brand-500" />
-            <span className="text-[10px] uppercase tracking-[0.3em] text-brand-400 font-medium" style={{ fontFamily: 'var(--font-mono)' }}>
-              {userLanguage === 'el' ? 'Βιβλιοθήκη' : 'Library'}
-            </span>
-          </div>
-          <h1
-            className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight text-text-primary"
-            style={{ fontFamily: 'var(--font-display)' }}
+    <Page>
+      <PageHeader
+        eyebrow={userLanguage === 'el' ? 'Βιβλιοθήκη' : 'Library'}
+        title={userLanguage === 'el' ? 'Το υλικό σου' : 'Your materials'}
+        subtitle={userLanguage === 'el'
+          ? 'Ανεβασμένα έγγραφα και δημιουργημένα μαθήματα.'
+          : 'Uploaded documents and generated courses.'}
+        icon={BookOpen}
+        actions={
+          <button
+            onClick={onUpload}
+            data-testid="library-upload"
+            className="inline-flex items-center gap-2 px-5 py-2.5 bg-brand-700 hover:bg-brand-800 text-white rounded-xl text-sm font-semibold transition-colors whitespace-nowrap"
           >
-            {userLanguage === 'el' ? 'Το υλικό σου' : 'Your materials'}
-          </h1>
-          <p className="text-sm text-text-tertiary max-w-xl">
-            {userLanguage === 'el'
-              ? 'Ανεβασμένα έγγραφα και δημιουργημένα μαθήματα.'
-              : 'Uploaded documents and generated courses.'}
-          </p>
-        </div>
-        <button
-          onClick={onUpload}
-          data-testid="library-upload"
-          className="inline-flex items-center gap-2 px-5 py-2.5 bg-text-primary text-surface-primary rounded-md text-[11px] uppercase tracking-[0.2em] font-semibold hover:bg-text-secondary transition-colors whitespace-nowrap self-start sm:self-auto"
-        >
-          <Upload className="w-4 h-4" aria-hidden="true" />
-          {userLanguage === 'el' ? 'Ανέβασμα' : 'Upload'}
-        </button>
-      </motion.div>
+            <Upload className="w-4 h-4" aria-hidden="true" />
+            {userLanguage === 'el' ? 'Ανέβασμα' : 'Upload'}
+          </button>
+        }
+      />
 
       {/* Tabs */}
       <div className="flex items-center gap-6 border-b border-border-subtle">
@@ -123,7 +108,7 @@ export function Library({
               key={t}
               onClick={() => setTab(t)}
               className={cn(
-                'pb-3 text-[11px] uppercase tracking-[0.2em] font-semibold transition-colors border-b-2 inline-flex items-center gap-2',
+                'pb-3 text-sm font-medium transition-colors border-b-2 inline-flex items-center gap-2',
                 tab === t
                   ? 'text-text-primary border-brand-500'
                   : 'text-text-tertiary border-transparent hover:text-text-secondary',
@@ -175,7 +160,7 @@ export function Library({
                 onClick={() => setFilter(f)}
                 aria-pressed={active}
                 className={cn(
-                  'px-3 py-1.5 rounded-md text-[10px] uppercase tracking-[0.18em] font-semibold transition-colors border',
+                  'px-3 py-1.5 rounded-md text-xs font-medium transition-colors border',
                   active
                     ? 'bg-brand-600/15 text-brand-300 border-brand-500/40'
                     : 'text-text-tertiary border-border-subtle hover:text-text-primary hover:border-border-default',
@@ -276,7 +261,7 @@ export function Library({
           </motion.div>
         )}
       </AnimatePresence>
-    </div>
+    </Page>
   );
 }
 

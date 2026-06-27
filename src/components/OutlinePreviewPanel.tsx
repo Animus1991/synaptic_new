@@ -95,7 +95,7 @@ export function OutlinePreviewPanel({
       <div className="flex items-start justify-between gap-3 flex-wrap">
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="inline-flex items-center gap-1 rounded-full px-2 py-1 text-[10px] font-semibold uppercase tracking-wide bg-brand-500/15 text-brand-300">
+            <span className="inline-flex items-center gap-1 rounded-full px-2 py-1 text-[10px] font-semibold bg-brand-500/15 text-brand-300">
               <ListTree className="w-3 h-3" />
               {isEl ? 'Προεπισκόπηση outline' : 'Outline preview'}
             </span>
@@ -120,7 +120,7 @@ export function OutlinePreviewPanel({
           )}
         </div>
         <div className="text-right shrink-0">
-          <p className="text-[10px] text-text-tertiary uppercase tracking-wide">
+          <p className="text-[10px] text-text-tertiary">
             {isEl ? 'Προτεινόμενα modules' : 'Proposed modules'}
           </p>
           <p className="text-lg font-bold text-text-primary">{outline.topics.length}</p>

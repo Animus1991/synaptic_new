@@ -300,7 +300,7 @@ export function FeynmanCheck({
 
         <div className="grid gap-3 xl:grid-cols-[1fr_0.85fr]">          <div className="space-y-3">
             <div className="rounded-xl border border-border-subtle bg-surface-primary/40 p-3">
-              <p className="mb-2 text-[10px] font-semibold uppercase tracking-wide text-text-muted">{t('outline')}</p>
+              <p className="mb-2 text-[10px] font-semibold text-text-muted">{t('outline')}</p>
               <ul className="space-y-1 text-[11px] text-text-secondary">
                 {outline.map((item) => (
                   <li key={item}>• {item}</li>
@@ -425,7 +425,7 @@ export function FeynmanCheck({
             {rubric && (
               <div className="rounded-xl border border-border-subtle bg-surface-primary/40 p-3">
                 <div className="mb-2 flex items-center justify-between gap-2">
-                  <p className="text-[10px] font-semibold uppercase tracking-wide text-text-muted">Rubric</p>
+                  <p className="text-[10px] font-semibold text-text-muted">Rubric</p>
                   <div className="flex gap-1">
                     <button
                       type="button"
@@ -467,7 +467,7 @@ export function FeynmanCheck({
 
             {rubric && rubric.weak.length > 0 && (
               <div className="space-y-2">
-                <p className="text-[10px] font-semibold uppercase tracking-wide text-text-muted">Gaps to fix</p>
+                <p className="text-[10px] font-semibold text-text-muted">Gaps to fix</p>
                 {rubric.weak.map((dim) => (
                   <div key={dim} className="rounded-lg border border-border-subtle bg-surface-primary/50 p-2.5 text-[11px] leading-5 text-text-secondary">
                     <p className="font-medium text-text-primary">{t(RUBRIC_LABEL_KEYS[dim])}</p>

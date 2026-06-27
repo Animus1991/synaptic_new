@@ -46,7 +46,7 @@ export function OcrCorrectionPanel({ regions, scopeKey, lang = 'en', onApplied }
       className="shrink-0 border-b border-accent-amber/20 bg-accent-amber/5 px-3 py-2"
       data-testid="reader-ocr-correction-panel"
     >
-      <p className="text-[10px] font-semibold uppercase tracking-wide text-accent-amber mb-1.5">
+      <p className="text-[10px] font-semibold text-accent-amber mb-1.5">
         {lang === 'el' ? 'Διόρθωση OCR (τοπικά)' : 'OCR line correction (local)'}
       </p>
       <ul className="space-y-1.5 max-h-28 overflow-y-auto">

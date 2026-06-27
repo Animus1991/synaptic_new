@@ -182,7 +182,7 @@ export function ScratchpadNotesPanel({
 
         {entries.length > 0 && (
           <div className="pt-2 space-y-1.5">
-            <p className="text-[10px] font-semibold text-text-muted uppercase tracking-wide">
+            <p className="text-[10px] font-semibold text-text-muted">
               {lang === 'el' ? 'Αποθηκευμένες' : 'Saved'} ({entries.length})
             </p>
             <AnimatePresence>

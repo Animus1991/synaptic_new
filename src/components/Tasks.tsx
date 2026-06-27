@@ -242,7 +242,7 @@ export function Tasks({ tasks, onComplete, onReviewRating, onStartTask, onStartS
                     <div className="flex items-center gap-2 mb-0.5">
                       <CourseIcon icon={task.courseIcon} size="sm" colorClassName="text-brand-500 shrink-0" />
                       <config.icon className={cn('w-3.5 h-3.5 shrink-0', config.color)} />
-                      <span className="text-[10px] font-medium text-text-tertiary uppercase tracking-wider">{config.label}</span>
+                      <span className="text-[10px] font-medium text-text-tertiary">{config.label}</span>
                     </div>
                     <p className={cn('text-sm font-medium truncate', isCompleted && 'line-through text-text-tertiary')}>{task.title}</p>
                   </div>

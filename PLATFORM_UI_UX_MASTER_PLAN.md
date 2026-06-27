@@ -113,7 +113,7 @@
 | **Intelligence rail** | Κλειστό by default· 3 tabs (Concept Bus / Weak / Discoverability) με badge counts | ✅ (Wave 6.7) |
 | **Context strip** | Πάντα: μάθημα · concept · πηγή · επόμενη ενέργεια | ✅ |
 | **Empty states** | Κάθε tool: γιατί άδειο + CTA (upload / reprocess / άλλο tool) | 🟡 |
-| **Mobile** | Tool drawer + intelligence ως bottom sheet· όχι 4 στήλες ταυτόχρονα | 🟡 Tool drawer ✅ · intelligence bottom sheet pending |
+| **Mobile** | Tool drawer + intelligence ως bottom sheet· όχι 4 στήλες ταυτόχρονα | ✅ `WorkspaceMobileToolDrawer` + `WorkspaceMobileIntelligenceBottomSheet` |
 | **Reader typography** | EL+EN long-form, no mojibake | ✅ Noto Greek + `utf8MojibakeRepair` |
 
 **Acceptance:** §20 questionnaire — κάθε κουμπί έχει τεκμηριωμένο learning outcome.
@@ -222,18 +222,18 @@ Exam countdown → exam-prep task → Timer preset → Simulator
 
 ### Phase B — Αυτοεπεξήγηση (2–3 εβδομάδες)
 
-- [ ] Empty states παντού (shared component)
+- [x] Empty states παντού (shared component) — `PlatformEmptyState` (Library, Tasks)
 - [ ] Context strip workspace πάντα ορατό
 - [ ] Tool dock σύμπτυξη + discoverability primary CTA
 - [ ] Onboarding βήμα «upload → workspace»
 - [x] Shortcuts help `?` στο workspace — SW-P3-08 `WorkspaceKeyboardHelp` (EL/EN)
-- [ ] Resume card με live tool/concept
+- [x] Resume card με live tool/concept — `PlatformSection` + `workspaceLive` στο Dashboard
 
 ### Phase C — Οπτική συνοχή (2 εβδομάδες)
 
 - [ ] CTA component library
 - [ ] Μείωση motion / reduced-motion
-- [ ] Mobile intelligence bottom sheet QA
+- [x] Mobile intelligence bottom sheet QA
 - [ ] Sidebar active states + badges
 - [ ] Illustration set για empty states (consistent blueprint style)
 

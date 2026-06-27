@@ -353,7 +353,7 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
 
       {layerGroups.length > 1 && (
         <div className="flex flex-wrap items-center gap-1.5 px-4 py-1.5 border-b border-border-subtle bg-surface-secondary/20 shrink-0" data-testid="concept-map-layers">
-          <span className="text-[9px] font-semibold uppercase tracking-wide text-text-muted">{lang === 'el' ? 'Επίπεδα' : 'Layers'}</span>
+          <span className="text-[9px] font-semibold text-text-muted">{lang === 'el' ? 'Επίπεδα' : 'Layers'}</span>
           <button
             type="button"
             onClick={() => setActiveLayerDepth(null)}

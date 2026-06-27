@@ -39,7 +39,7 @@ export function WorkspaceLearningActionBar({
       className="rounded-xl border border-border-subtle bg-surface-card/80 p-2.5 space-y-2.5"
       data-testid="workspace-learning-actions"
     >
-      <div className="text-[10px] font-semibold uppercase tracking-wide text-text-muted">
+      <div className="text-[10px] font-semibold text-text-muted">
         {isEl ? 'Επόμενη ενέργεια' : 'Next action'}
       </div>
 

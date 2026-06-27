@@ -88,14 +88,14 @@ body {
   text-rendering: optimizeLegibility;
 }
 
-/* Study Workspace type scale (editorial academic) */
+/* Study Workspace type scale (editorial academic) — sentence case labels */
 .ws-eyebrow {
   font-family: var(--font-mono);
   font-size: 0.6875rem;
   line-height: 1rem;
-  font-weight: 500;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  text-transform: none;
 }
 
 .ws-caption {
@@ -441,12 +441,22 @@ input[type="range"]::-webkit-slider-thumb {
   color: #6b5238;
 }
 [data-ws-theme="warm"] .ws-eyebrow {
-  color: var(--color-brand-800);
-  font-weight: 600;
+  color: var(--color-brand-900);
+  font-weight: 700;
 }
 [data-ws-theme="warm"] .ws-pill {
-  color: var(--color-brand-800);
+  color: var(--color-brand-900);
   font-weight: 600;
+}
+[data-ws-theme="warm"] button.ws-eyebrow,
+[data-ws-theme="warm"] .ws-eyebrow.text-brand-200 {
+  color: var(--color-brand-800);
+}
+[data-ws-theme="warm"] .text-brand-200 {
+  color: var(--color-brand-800);
+}
+[data-ws-theme="warm"] .text-brand-300 {
+  color: var(--color-brand-800);
 }
 [data-ws-theme="warm"] a.text-brand-400,
 [data-ws-theme="warm"] button.text-brand-400 {
@@ -468,7 +478,7 @@ input[type="range"]::-webkit-slider-thumb {
 [data-ws-theme="warm"] .ws-title,
 [data-ws-theme="warm"] .ws-num {
   font-family: 'Nunito Sans', system-ui, sans-serif;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.01em;
 }
 
 /* Bento card primitive: rounded, hairline, soft */
@@ -491,10 +501,12 @@ input[type="range"]::-webkit-slider-thumb {
   border-radius: 999px;
   background: color-mix(in srgb, #ffffff 65%, transparent);
   border: 1px solid color-mix(in srgb, var(--color-brand-400) 35%, transparent);
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 600;
   color: var(--color-text-secondary);
   white-space: nowrap;
+  text-transform: none;
+  letter-spacing: 0;
 }
 .ws-pill[data-active="true"] {
   background: var(--color-brand-600);

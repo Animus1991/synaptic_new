@@ -227,7 +227,7 @@ export function ConceptBusPanel({
               )}
               {onRemediate && (row.struggling || row.signals.some((s) => s === 'quiz-wrong' || s === 'leitner-hard' || s === 'annotated-confusing')) && (
                 <div className="mt-1.5 flex flex-wrap gap-1" data-testid={`concept-bus-remediation-${row.key}`}>
-                  <span className="w-full text-[8px] font-medium uppercase tracking-wide text-text-muted">
+                  <span className="w-full text-[8px] font-medium text-text-muted">
                     {isEl ? 'Επόμενο βήμα' : 'Next step'}
                   </span>
                   {buildConceptRemediationMatrix(row, lang).map((action) => (

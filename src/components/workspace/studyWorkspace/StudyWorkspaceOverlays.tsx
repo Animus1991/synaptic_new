@@ -175,7 +175,7 @@ export function StudyWorkspaceOverlays({ model }: StudyWorkspaceOverlaysProps) {
                   >
                     <LayoutGrid className="h-4 w-4 text-[#faf8f5]" />
                   </div>
-                  <span className="text-[11px] uppercase tracking-[0.14em] font-semibold text-[#faf8f5]/80 truncate">
+                  <span className="text-[11px] font-semibold text-[#faf8f5]/80 truncate">
                     {workspaceToolLabel(activeTool, lang)}
                   </span>
                 </div>

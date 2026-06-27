@@ -69,7 +69,7 @@ export function GroundedLessonContent({
   if (stepKey === 'retrieval' && quizDef && onQuizSelect && isMcQuiz(quizDef)) {
     return (
       <div className="space-y-4">
-        <span className="text-xs text-brand-400 font-medium uppercase tracking-wider">{t('quiz')}</span>
+        <span className="text-xs text-brand-400 font-medium">{t('quiz')}</span>
         <h2 className="text-2xl font-bold">{t('knowledgeCheck')}</h2>
         <div className="p-4 rounded-xl bg-surface-card border border-border-subtle">
           <p className="text-sm mb-3">{quizDef.question}</p>
@@ -107,7 +107,7 @@ export function GroundedLessonContent({
     return (
       <div className="space-y-5">
         <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-xs text-brand-400 font-medium uppercase tracking-wider">{generatedPanel.badge}</span>
+          <span className="text-xs text-brand-400 font-medium">{generatedPanel.badge}</span>
           <span className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-accent-emerald/10 text-accent-emerald font-medium">
             <Sparkles className="w-3 h-3" />
             {lang === 'el' ? 'Από τις πηγές σου' : 'From your sources'}
@@ -133,7 +133,7 @@ export function GroundedLessonContent({
   return (
     <div className="space-y-5">
       <div>
-        <span className="text-xs text-accent-cyan font-medium uppercase tracking-wider">{stepLabel}</span>
+        <span className="text-xs text-accent-cyan font-medium">{stepLabel}</span>
         <h2 className="text-2xl font-bold mt-2">{concept}</h2>
       </div>
       <div className="text-sm text-text-secondary leading-relaxed">

@@ -318,7 +318,7 @@ export function LeitnerBox({
 
       <div className="mb-3" data-testid="leitner-due-heatmap">
 
-        <p className="text-[9px] font-semibold uppercase tracking-wide text-text-muted mb-1">
+        <p className="text-[9px] font-semibold text-text-muted mb-1">
 
           {lang === 'el' ? 'Ουρά επανάληψης (7ημ)' : 'Due queue (7d)'}
 

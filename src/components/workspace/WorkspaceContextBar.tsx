@@ -93,7 +93,7 @@ export function WorkspaceContextBar({
 
       {focusConcept && (
         <span
-          className="ws-eyebrow max-w-[8rem] truncate shrink rounded-full border border-brand-500/30 bg-brand-500/10 px-2 py-0.5 text-[10px] text-brand-200"
+          className="ws-eyebrow max-w-[8rem] truncate shrink rounded-full border border-brand-500/30 bg-brand-500/10 px-2 py-0.5 text-[10px] text-brand-800"
           data-testid="context-bar-focus-chip"
           title={focusConcept}
         >
@@ -105,7 +105,7 @@ export function WorkspaceContextBar({
         <button
           type="button"
           onClick={onNextAction}
-          className="ws-eyebrow inline-flex shrink-0 items-center gap-1 rounded-full border border-brand-500/35 bg-brand-500/10 px-2 py-0.5 text-[10px] text-brand-200 hover:bg-brand-500/15"
+          className="ws-eyebrow inline-flex shrink-0 items-center gap-1 rounded-full border border-brand-500/35 bg-brand-500/10 px-2 py-0.5 text-[10px] text-brand-800 hover:bg-brand-500/15"
           data-testid="context-bar-next-action"
         >
           <Sparkles className="h-3 w-3" aria-hidden />

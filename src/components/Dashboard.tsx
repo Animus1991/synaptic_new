@@ -25,6 +25,8 @@ import type { Lang } from '../lib/i18n';
 import type { DashboardNextAction } from '../lib/dashboardNextAction';
 import { greetingForTime, dashboardSubtitle } from '../lib/greeting';
 import { useI18n } from '../lib/i18n';
+import { Page, PageHeader, PlatformSection } from './ui/primitives';
+import { Layout as LucideLayout } from '@/lib/lucide-shim';
 
 interface DashboardProps {
   stats: DashboardStats;
@@ -141,38 +143,38 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
   }
 
   return (
-    <div className="p-4 sm:p-6 lg:px-8 pb-24 lg:pb-6 w-full min-w-0 space-y-6">
-      {/* Welcome header */}
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold ws-serif font-medium flex items-center gap-2">
+    <Page>
+      <PageHeader
+        eyebrow={isEl ? 'Πίνακας μάθησης' : 'Dashboard'}
+        title={
+          <>
             <span className="sr-only">{isEl ? 'Πίνακας Μάθησης — ' : 'Learning Dashboard — '}</span>
             {greetingForTime(lang)}!
-            <Hand className="w-7 h-7 text-brand-600 shrink-0" aria-hidden />
-          </h1>
-          <p className="text-text-secondary mt-1">
-            {dashboardSubtitle(lang, criticalTasks.length, stats.streak)}
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          {onOpenWorkspace && (
-            <button
-              type="button"
-              onClick={onOpenWorkspace}
-              aria-busy={workspaceBooting}
-              className={cn(
-                'flex items-center gap-2 px-4 py-2.5 border border-brand-500/40 text-brand-300 rounded-xl font-medium text-sm hover:bg-brand-600/10 transition-all whitespace-nowrap',
-                workspaceBooting && 'opacity-70',
-              )}
-            >
-              <Layout className="w-4 h-4" /> {t('navStudyWorkspace')}
+            <Hand className="inline-block w-7 h-7 text-brand-600 shrink-0 ml-2 align-middle" aria-hidden />
+          </>
+        }
+        subtitle={dashboardSubtitle(lang, criticalTasks.length, stats.streak)}
+        actions={
+          <>
+            {onOpenWorkspace && (
+              <button
+                type="button"
+                onClick={onOpenWorkspace}
+                aria-busy={workspaceBooting}
+                className={cn(
+                  'flex items-center gap-2 px-4 py-2.5 border border-brand-500/40 text-brand-700 rounded-xl font-medium text-sm hover:bg-brand-600/10 transition-all whitespace-nowrap',
+                  workspaceBooting && 'opacity-70',
+                )}
+              >
+                <Layout className="w-4 h-4" /> {t('navStudyWorkspace')}
+              </button>
+            )}
+            <button onClick={() => onStartSession?.('25min') ?? onNavigate('tasks')} className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-brand-600 to-brand-500 text-white rounded-xl font-medium text-sm hover:from-brand-500 hover:to-brand-400 transition-all whitespace-nowrap">
+              <Play className="w-4 h-4" /> Start session
             </button>
-          )}
-          <button onClick={() => onStartSession?.('25min') ?? onNavigate('tasks')} className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-brand-600 to-brand-500 text-white rounded-xl font-medium text-sm hover:from-brand-500 hover:to-brand-400 transition-all whitespace-nowrap">
-            <Play className="w-4 h-4" /> Start Session
-          </button>
-        </div>
-      </motion.div>
+          </>
+        }
+      />
 
       {/* Stats Row */}
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="grid grid-cols-2 sm:grid-cols-5 gap-3">
@@ -222,41 +224,44 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
       )}
 
       {showWorkspaceResume && (
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="p-4 rounded-2xl border border-brand-500/30 bg-brand-600/5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-start gap-3 min-w-0">
-            <Layout className="w-5 h-5 text-brand-400 shrink-0 mt-0.5" />
-            <div className="min-w-0">
-              <p className="text-sm font-medium text-brand-300">
-                {isEl ? 'Συνέχισε από εκεί που σταμάτησες' : 'Resume where you left off'}
-              </p>
-              <p className="text-xs text-text-secondary mt-0.5 truncate">
-                {[workspaceLive.snapshot.courseLabel, workspaceLive.snapshot.activeConcept, workspaceLive.snapshot.toolLabel, workspaceLive.snapshot.stepLabel]
-                  .filter(Boolean)
-                  .join(' · ')}
-              </p>
-              {workspaceLive.nextAction && (
-                <p className="text-xs text-text-tertiary mt-1 line-clamp-2">
-                  {isEl ? 'Επόμενο:' : 'Next:'}{' '}
-                  <span className="text-brand-400 font-medium">
-                    {nextActionLabel(workspaceLive.nextAction.primary, lang)}
-                  </span>
-                  {' — '}{workspaceLive.nextAction.reason}
-                </p>
-              )}
-            </div>
-          </div>
-          <button
-            onClick={() => {
-              if (workspaceLive?.snapshot?.activeConcept) {
-                onFocusWeakArea?.(workspaceLive.snapshot.activeConcept);
-              } else {
-                onOpenWorkspace?.();
-              }
-            }}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-medium bg-brand-600/20 text-brand-300 border border-brand-500/30 hover:bg-brand-600/30 transition-all shrink-0"
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+          <PlatformSection
+            tone="brand"
+            title={isEl ? 'Συνέχισε από εκεί που σταμάτησες' : 'Resume where you left off'}
+            icon={LucideLayout}
+            iconClassName="text-brand-600"
+            action={
+              <button
+                type="button"
+                onClick={() => {
+                  if (workspaceLive?.snapshot?.activeConcept) {
+                    onFocusWeakArea?.(workspaceLive.snapshot.activeConcept);
+                  } else {
+                    onOpenWorkspace?.();
+                  }
+                }}
+                data-testid="dashboard-resume-workspace"
+                className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-medium bg-brand-700 text-white hover:bg-brand-800 transition-all shrink-0"
+              >
+                {isEl ? 'Άνοιγμα workspace' : 'Open workspace'} <ArrowRight className="w-3 h-3" />
+              </button>
+            }
           >
-            {isEl ? 'Άνοιγμα workspace' : 'Open workspace'} <ArrowRight className="w-3 h-3" />
-          </button>
+            <p className="text-xs text-text-secondary truncate">
+              {[workspaceLive.snapshot.courseLabel, workspaceLive.snapshot.activeConcept, workspaceLive.snapshot.toolLabel, workspaceLive.snapshot.stepLabel]
+                .filter(Boolean)
+                .join(' · ')}
+            </p>
+            {workspaceLive.nextAction && (
+              <p className="text-xs text-text-tertiary mt-2 line-clamp-2">
+                {isEl ? 'Επόμενο:' : 'Next:'}{' '}
+                <span className="text-brand-700 font-medium">
+                  {nextActionLabel(workspaceLive.nextAction.primary, lang)}
+                </span>
+                {' — '}{workspaceLive.nextAction.reason}
+              </p>
+            )}
+          </PlatformSection>
         </motion.div>
       )}
 
@@ -600,7 +605,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
           </div>
         </motion.div>
       </div>
-    </div>
+    </Page>
   );
 }
 

@@ -18,7 +18,6 @@ import { buildReprocessPreview } from '../lib/reprocessPreview';
 import { ReprocessPreviewModal } from './ReprocessPreviewModal';
 import { ConfirmDialog } from './ui/ConfirmDialog';
 import { useI18n } from '../lib/i18n';
-import { CourseIcon } from './ui/CourseIcon';
 import { buildDeleteFileCascadeCopy } from '../lib/deleteFileCascadeCopy';
 import { buildDeleteCourseCascadeCopy } from '../lib/deleteCourseCascadeCopy';
 import { countFilesForCourse } from '../lib/deleteCascade';
@@ -26,6 +25,7 @@ import { countGeneratedTasksForCourse } from '../lib/pipelineReprocess';
 import { courseDeleteStats } from '../lib/removeCourse';
 import { isDemoCourse } from '../lib/demoMode';
 import { PostUploadBanner } from './ui/PostUploadBanner';
+import { Page, PageHeader } from './ui/primitives';
 
 interface CourseViewProps {
   course: Course;
@@ -133,52 +133,47 @@ export function CourseView({
   };
 
   return (
-    <div className="p-4 sm:p-6 lg:px-8 pb-24 lg:pb-6 w-full min-w-0 space-y-6">
-      {/* Back + Header */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
+    <Page>
+      <button
+        type="button"
+        onClick={onBack}
+        data-testid="course-back"
+        className="flex items-center gap-1.5 text-sm text-text-secondary hover:text-text-primary mb-2 transition-colors -mt-1"
       >
-        <button
-          type="button"
-          onClick={onBack}
-          data-testid="course-back"
-          className="flex items-center gap-1.5 text-sm text-text-secondary hover:text-text-primary mb-4 transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Back to Library
-        </button>
+        <ArrowLeft className="w-4 h-4" />
+        Back to library
+      </button>
 
-        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-          <div className="flex items-start gap-4">
-            <CourseIcon icon={course.icon} size="xl" className="h-10 w-10" colorClassName="text-brand-600" />
-            <div>
-              <h1 className="text-2xl sm:text-3xl font-bold" data-testid="course-title">{course.title}</h1>
-              <p className="text-text-secondary mt-1 text-sm max-w-xl">{course.description}</p>
-              <div className="flex flex-wrap items-center gap-3 mt-3 text-xs text-text-tertiary">
-                <span className="flex items-center gap-1">
-                  <BookOpen className="w-3.5 h-3.5" />
-                  {course.totalLessons} lessons
+      <PageHeader
+        eyebrow={lang === 'el' ? 'Μάθημα' : 'Course'}
+        title={<span data-testid="course-title">{course.title}</span>}
+        subtitle={
+          <>
+            <span className="block max-w-xl">{course.description}</span>
+            <span className="mt-2 flex flex-wrap items-center gap-3 text-xs text-text-tertiary">
+              <span className="flex items-center gap-1">
+                <BookOpen className="w-3.5 h-3.5" />
+                {course.totalLessons} lessons
+              </span>
+              <span className="flex items-center gap-1">
+                <Clock className="w-3.5 h-3.5" />
+                {course.estimatedHours}h estimated
+              </span>
+              <span className="flex items-center gap-1">
+                <BarChart3 className="w-3.5 h-3.5" />
+                {course.mastery}% mastery
+              </span>
+              {course.examDate && (
+                <span className="flex items-center gap-1 text-accent-amber">
+                  <Calendar className="w-3.5 h-3.5" />
+                  Exam: {new Date(course.examDate).toLocaleDateString()}
                 </span>
-                <span className="flex items-center gap-1">
-                  <Clock className="w-3.5 h-3.5" />
-                  {course.estimatedHours}h estimated
-                </span>
-                <span className="flex items-center gap-1">
-                  <BarChart3 className="w-3.5 h-3.5" />
-                  {course.mastery}% mastery
-                </span>
-                {course.examDate && (
-                  <span className="flex items-center gap-1 text-accent-amber">
-                    <Calendar className="w-3.5 h-3.5" />
-                    Exam: {new Date(course.examDate).toLocaleDateString()}
-                  </span>
-                )}
-              </div>
-            </div>
-          </div>
-
-          <div className="flex gap-2 shrink-0">
+              )}
+            </span>
+          </>
+        }
+        actions={
+          <div className="flex flex-wrap gap-2 shrink-0">
             {canDeleteCourse && (
               <button
                 type="button"
@@ -199,7 +194,7 @@ export function CourseView({
                 className="flex items-center gap-2 px-4 py-2.5 border border-accent-amber/30 bg-accent-amber/10 hover:bg-accent-amber/15 rounded-xl text-sm font-medium text-accent-amber transition-all"
               >
                 <Upload className="w-4 h-4" />
-                Add Material
+                Add material
               </button>
             )}
             <button
@@ -207,8 +202,8 @@ export function CourseView({
               onClick={onOpenAgent}
               className="flex items-center gap-2 px-4 py-2.5 border border-border-default hover:border-brand-500/30 rounded-xl text-sm font-medium transition-all"
             >
-              <Sparkles className="w-4 h-4 text-brand-400" />
-              Ask Agent
+              <Sparkles className="w-4 h-4 text-brand-600" />
+              Ask agent
             </button>
             <button
               type="button"
@@ -220,8 +215,8 @@ export function CourseView({
               Continue
             </button>
           </div>
-        </div>
-      </motion.div>
+        }
+      />
 
       {showPostUploadBanner && (
         <PostUploadBanner
@@ -273,7 +268,7 @@ export function CourseView({
             <div>
               <div className="flex items-center gap-2 flex-wrap">
                 <span className={cn(
-                  'inline-flex items-center gap-1 rounded-full px-2 py-1 text-[10px] font-semibold uppercase tracking-wide',
+                  'inline-flex items-center gap-1 rounded-full px-2 py-1 text-[10px] font-semibold',
                   quality.band === 'strong'
                     ? 'bg-accent-emerald/12 text-accent-emerald'
                     : quality.band === 'moderate'
@@ -432,7 +427,7 @@ export function CourseView({
           onClose={() => setRemoveCourseOpen(false)}
         />
       )}
-    </div>
+    </Page>
   );
 }
 

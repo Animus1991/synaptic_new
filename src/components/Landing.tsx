@@ -44,7 +44,7 @@ export function Landing({ onGetStarted, onSeeDemo }: LandingProps) {
               <button
                 onClick={onGetStarted}
                 data-testid="landing-get-started"
-                className="px-5 py-2 rounded-[25px] bg-text-primary text-surface-primary text-[11px] uppercase tracking-[0.2em] font-semibold hover:bg-text-secondary transition-colors"
+                className="px-5 py-2 rounded-[25px] bg-text-primary text-surface-primary text-sm font-semibold hover:bg-text-secondary transition-colors"
               >
                 {content.getStarted}
               </button>
@@ -67,7 +67,7 @@ export function Landing({ onGetStarted, onSeeDemo }: LandingProps) {
           >
             <div className="h-px w-12 bg-brand-500" />
             <span
-              className="text-[10px] uppercase tracking-[0.3em] text-brand-400 font-medium"
+              className="text-xs font-medium text-brand-700 tracking-wide"
               style={mono}
             >
               {content.badge}
@@ -82,7 +82,7 @@ export function Landing({ onGetStarted, onSeeDemo }: LandingProps) {
             style={serif}
           >
             {content.heroTitle}{' '}
-            <span className="italic text-text-secondary">{content.heroHighlight}</span>
+            <span className="text-brand-800">{content.heroHighlight}</span>
             <span className="text-brand-500">.</span>
           </motion.h1>
 
@@ -103,14 +103,14 @@ export function Landing({ onGetStarted, onSeeDemo }: LandingProps) {
           >
             <button
               onClick={onGetStarted}
-              className="group flex items-center gap-3 px-[29px] py-[12.5px] rounded-[25px] bg-text-primary text-surface-primary text-[11px] uppercase tracking-[0.25em] font-semibold hover:bg-text-secondary transition-colors"
+              className="group flex items-center gap-3 px-[29px] py-[12.5px] rounded-[25px] bg-text-primary text-surface-primary text-sm font-semibold hover:bg-text-secondary transition-colors"
             >
               {content.ctaPrimary}
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </button>
             <button
               onClick={onSeeDemo ?? onGetStarted}
-              className="group flex items-center gap-3 px-[29px] py-[12.5px] rounded-[25px] border border-border-default text-text-primary text-[11px] uppercase tracking-[0.25em] font-semibold hover:border-brand-500 hover:text-brand-300 transition-colors"
+              className="group flex items-center gap-3 px-[29px] py-[12.5px] rounded-[25px] border border-border-default text-text-primary text-sm font-semibold hover:border-brand-500 hover:text-brand-700 transition-colors"
             >
               {content.ctaSecondary}
               <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
@@ -164,7 +164,7 @@ export function Landing({ onGetStarted, onSeeDemo }: LandingProps) {
                   className="flex items-center gap-2 px-4 py-2 rounded-[25px] border border-border-subtle bg-surface-card/40 hover:border-brand-500/50 transition-colors"
                 >
                   <Icon className="w-3.5 h-3.5 text-brand-400" />
-                  <span className="text-xs text-text-secondary uppercase tracking-wider" style={mono}>
+                  <span className="text-xs text-text-secondary" style={mono}>
                     {ut.label}
                   </span>
                 </motion.div>
@@ -180,8 +180,7 @@ export function Landing({ onGetStarted, onSeeDemo }: LandingProps) {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">
             <div className="lg:col-span-4">
               <h2
-                className="text-base sm:text-lg md:text-xl font-semibold tracking-[0.15em] uppercase text-text-primary mb-6"
-                style={mono}
+                className="text-base sm:text-lg md:text-xl font-semibold text-text-primary mb-6"
               >
                 {content.howItWorksTitle}
               </h2>
@@ -201,7 +200,7 @@ export function Landing({ onGetStarted, onSeeDemo }: LandingProps) {
                   className="group"
                 >
                   <div
-                    className="text-4xl sm:text-5xl italic text-brand-500/30 group-hover:text-brand-500 transition-colors mb-3"
+                    className="text-4xl sm:text-5xl text-brand-600/40 group-hover:text-brand-700 transition-colors mb-3 font-medium"
                     style={serif}
                   >
                     {step.num}
@@ -226,8 +225,7 @@ export function Landing({ onGetStarted, onSeeDemo }: LandingProps) {
 
             <div className="mb-16 max-w-2xl">
               <h2
-                className="text-[11px] font-semibold uppercase tracking-[0.4em] text-brand-400 mb-5"
-                style={mono}
+                className="text-xs font-semibold text-brand-700 mb-5"
               >
                 {content.featuresSectionTitle}
               </h2>
@@ -255,7 +253,7 @@ export function Landing({ onGetStarted, onSeeDemo }: LandingProps) {
                       <div className="w-8 h-px bg-border-strong group-hover:bg-brand-500 transition-colors" />
                       <Icon className="w-4 h-4 text-brand-400" />
                     </div>
-                    <h4 className="text-sm font-bold text-text-primary uppercase tracking-wider">
+                    <h4 className="text-sm font-semibold text-text-primary">
                       {f.title}
                     </h4>
                     <p className="text-xs text-text-tertiary leading-relaxed">{f.desc}</p>
@@ -273,8 +271,7 @@ export function Landing({ onGetStarted, onSeeDemo }: LandingProps) {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 mb-12">
             <div className="lg:col-span-5">
               <h2
-                className="text-[11px] font-semibold uppercase tracking-[0.4em] text-brand-400 mb-5"
-                style={mono}
+                className="text-xs font-semibold text-brand-700 mb-5"
               >
                 {lang === 'el' ? 'Διαφοροποίηση' : 'Differentiation'}
               </h2>
@@ -296,7 +293,7 @@ export function Landing({ onGetStarted, onSeeDemo }: LandingProps) {
                   transition={{ delay: 0.06 * i }}
                   className="bg-surface-primary p-6 hover:bg-surface-card transition-colors"
                 >
-                  <div className="flex items-start gap-2 mb-3 text-[10px] uppercase tracking-[0.2em] text-text-muted" style={mono}>
+                  <div className="flex items-start gap-2 mb-3 text-xs text-text-muted" style={mono}>
                     <X className="w-3 h-3 mt-px text-accent-rose shrink-0" />
                     <span>{item.wrong.replace(/^[^\p{L}\p{N}]+/u, '').trim()}</span>
                   </div>
@@ -320,14 +317,14 @@ export function Landing({ onGetStarted, onSeeDemo }: LandingProps) {
             ))}
           </div>
           <blockquote
-            className="text-sm sm:text-base md:text-lg lg:text-xl font-normal text-text-primary mb-8 leading-snug italic"
+            className="text-sm sm:text-base md:text-lg lg:text-xl font-normal text-text-primary mb-8 leading-snug"
             style={serif}
           >
             "{content.testimonialQuote}"
           </blockquote>
           <div className="flex items-center gap-3">
             <div className="h-px w-8 bg-brand-500" />
-            <span className="text-xs uppercase tracking-[0.2em] text-text-secondary" style={mono}>
+            <span className="text-xs text-text-secondary" style={mono}>
               {content.testimonialAuthor}
             </span>
           </div>
@@ -351,7 +348,7 @@ export function Landing({ onGetStarted, onSeeDemo }: LandingProps) {
               </p>
               <button
                 onClick={onGetStarted}
-                className="group inline-flex items-center gap-3 px-[29px] py-[12.5px] rounded-[25px] bg-text-primary text-surface-primary text-[11px] uppercase tracking-[0.25em] font-semibold hover:bg-text-secondary transition-colors"
+                className="group inline-flex items-center gap-3 px-[29px] py-[12.5px] rounded-[25px] bg-text-primary text-surface-primary text-sm font-semibold hover:bg-text-secondary transition-colors"
               >
                 {content.ctaButton}
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
@@ -371,7 +368,7 @@ export function Landing({ onGetStarted, onSeeDemo }: LandingProps) {
               Synapse<span className="text-brand-500">.</span>
             </span>
           </div>
-          <p className="text-[10px] uppercase tracking-[0.3em] text-text-muted" style={mono}>
+          <p className="text-xs text-text-muted" style={mono}>
             {content.footerTagline}
           </p>
         </div>

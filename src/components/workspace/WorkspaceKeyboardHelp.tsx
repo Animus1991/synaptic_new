@@ -54,7 +54,7 @@ export function WorkspaceKeyboardHelp({ open, onClose, lang }: Props) {
             <div className="max-h-[60vh] overflow-y-auto p-4 space-y-4">
               {groups.map(({ group, items }) => (
                 <div key={group}>
-                  <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-wide text-text-muted">
+                  <p className="mb-1.5 text-[10px] font-semibold text-text-muted">
                     {group}
                   </p>
                   <ul className="space-y-1">

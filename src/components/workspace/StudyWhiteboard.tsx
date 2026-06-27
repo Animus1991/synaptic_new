@@ -575,7 +575,7 @@ export function StudyWhiteboard({
           className="flex shrink-0 flex-wrap items-center gap-2 border-b border-border-subtle px-3 py-2 text-[10px]"
           data-testid="whiteboard-layers"
         >
-          <span className="text-text-tertiary font-semibold uppercase tracking-wide">
+          <span className="text-text-tertiary font-semibold">
             {lang === 'el' ? 'Επίπεδα' : 'Layers'}
           </span>
           {doc.layers.map((layer) => {

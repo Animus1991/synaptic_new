@@ -134,7 +134,7 @@ export function LessonContent({
     return (
       <div className="space-y-4">
         {learningBar}
-        <span className="text-[10px] text-accent-cyan font-semibold uppercase tracking-wider">{t('quiz')}</span>
+        <span className="text-[10px] text-accent-cyan font-semibold">{t('quiz')}</span>
         <h2 className="text-xl font-bold">{t('knowledgeCheck')}</h2>
         <div className="p-3 rounded-xl bg-surface-card border border-border-subtle">
           {quizSessionItems && quizSessionItems.length > 0 && quizSessionScopeKey ? (
@@ -166,7 +166,7 @@ export function LessonContent({
     return (
       <div className="space-y-4">
         {learningBar}
-        <span className="text-[10px] text-accent-cyan font-semibold uppercase tracking-wider">
+        <span className="text-[10px] text-accent-cyan font-semibold">
           {lang === 'el' ? 'Από τις σημειώσεις σου' : 'From your notes'}
         </span>
         <h2 className="text-xl font-bold">{stepTitle ?? concept}</h2>
