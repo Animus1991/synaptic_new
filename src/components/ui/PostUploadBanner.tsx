@@ -11,7 +11,7 @@ type Props = {
 };
 
 /** Post-upload CTA strip — open workspace or explore course (PLATFORM_UI_UX §2.3). */
-export function PostUploadBanner({ courseTitle, lang = 'en', onOpenWorkspace, onDismiss, className }: Props) {
+export function PostUploadBanner({ courseTitle, lang = 'en', onOpenWorkspace, onViewCourse, onDismiss, className }: Props) {
   const isEl = lang === 'el';
   return (
     <div
@@ -40,8 +40,8 @@ export function PostUploadBanner({ courseTitle, lang = 'en', onOpenWorkspace, on
         </button>
         <button
           type="button"
-          onClick={onDismiss}
-          className="inline-flex items-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-medium text-text-secondary hover:text-text-primary border border-border-subtle hover:border-brand-500/30 transition-colors"
+          onClick={onViewCourse ?? onDismiss}
+          className="inline-flex items-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-medium platform-pill transition-colors"
         >
           <BookOpen className="w-3.5 h-3.5" />
           {isEl ? 'Περιήγηση modules' : 'Browse modules'}

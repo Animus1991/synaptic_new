@@ -123,7 +123,7 @@ export function ScratchpadNotesPanel({
       {(sectionLabel || concept) && (
         <div className="px-4 py-1.5 border-b border-border-subtle bg-surface-primary/30 text-[10px] text-text-muted shrink-0">
           {lang === 'el' ? 'Συνδεδεμένο με' : 'Attached to'}
-          {sectionLabel && <span className="ml-1 text-brand-300">§ {sectionLabel}</span>}
+          {sectionLabel && <span className="ml-1 font-medium text-brand-800">{sectionLabel}</span>}
           {concept && sectionLabel !== concept && <span className="ml-1 text-accent-cyan">· {concept}</span>}
         </div>
       )}

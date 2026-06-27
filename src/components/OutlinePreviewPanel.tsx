@@ -2,6 +2,7 @@ import { Layers, ListTree, Loader2, AlertTriangle } from '@/lib/lucide-shim';
 import type { UploadOutlinePreview } from '../lib/uploadOutlinePreview';
 import type { DocumentStructureKind } from '../lib/documentStructureReport';
 import { cn } from '../utils/cn';
+import { formatSectionFallbackLabel } from '../lib/sectionLabel';
 
 const KIND_BADGE: Record<DocumentStructureKind, string> = {
   conversation: 'Chat / Q&A',
@@ -130,7 +131,7 @@ export function OutlinePreviewPanel({
       {structure.sections.length > 0 && (
         <div className="mt-3 flex flex-wrap gap-1.5 max-h-20 overflow-y-auto">
           {structure.sections.slice(0, compact ? 5 : 8).map((sec, i) => {
-            const label = sec.heading ?? `§${i + 1}`;
+            const label = sec.heading ?? formatSectionFallbackLabel(i, language);
             if (/page break/i.test(label)) return null;
             return (
               <span

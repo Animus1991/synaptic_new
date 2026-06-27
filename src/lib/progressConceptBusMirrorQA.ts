@@ -171,5 +171,5 @@ export function formatProgressConceptBusMirrorBanner(input: {
     ? (isEl ? ' · next action' : ' · next action')
     : '';
 
-  return `${isEl ? 'Export ↔ Concept Bus' : 'Export ↔ Concept Bus'} · ${busNote}${feynmanNote}${weakNote}${nextNote}${input.ok ? '' : (isEl ? ' · έλεγχος' : ' · check')}`;
+  return `${isEl ? 'Session export' : 'Session export'} · ${busNote}${feynmanNote}${weakNote}${nextNote}${input.ok ? '' : (isEl ? ' · έλεγχος' : ' · check')}`;
 }

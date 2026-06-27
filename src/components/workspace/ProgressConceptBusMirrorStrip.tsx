@@ -1,6 +1,6 @@
-﻿import { CheckCircle2, AlertTriangle, Download } from '@/lib/lucide-shim';
-import { cn } from '../../utils/cn';
+﻿import { Download } from '@/lib/lucide-shim';
 import type { ProgressConceptBusMirrorReport } from '../../lib/progressConceptBusMirrorQA';
+import { WorkspaceQaStatusStrip } from './WorkspaceQaStatusStrip';
 
 type Props = {
   report: ProgressConceptBusMirrorReport;
@@ -9,39 +9,32 @@ type Props = {
 };
 
 export function ProgressConceptBusMirrorStrip({ report, lang, onExportHtml }: Props) {
-  const isEl = lang === 'el';
   if (!report.bannerSummary) return null;
 
-  const Icon = report.ok ? CheckCircle2 : AlertTriangle;
-
   return (
-    <div
-      className={cn(
-        'mb-3 flex items-center gap-2 rounded-xl border px-3 py-2 text-[10px]',
-        report.ok
-          ? 'border-accent-emerald/25 bg-accent-emerald/5 text-accent-emerald'
-          : 'border-accent-amber/30 bg-accent-amber/8 text-accent-amber',
-      )}
-      data-testid="progress-concept-bus-mirror-strip"
+    <WorkspaceQaStatusStrip
+      ok={report.ok}
+      testId="progress-concept-bus-mirror-strip"
+      trailing={
+        <>
+          {onExportHtml && report.exportIncludesBus && (
+            <button
+              type="button"
+              data-testid="progress-mirror-export-html"
+              onClick={onExportHtml}
+              className="ws-chip-brand inline-flex shrink-0 items-center gap-1 rounded-lg px-2 py-1 text-[10px] font-medium"
+            >
+              <Download className="h-3 w-3" />
+              HTML
+            </button>
+          )}
+          {!report.ok && (
+            <span className="shrink-0 text-[10px] opacity-90">{lang === 'el' ? 'έλεγχος' : 'check'}</span>
+          )}
+        </>
+      }
     >
-      <Icon className="h-3.5 w-3.5 shrink-0" aria-hidden />
-      <p className="min-w-0 flex-1 leading-snug">{report.bannerSummary}</p>
-      {onExportHtml && report.exportIncludesBus && (
-        <button
-          type="button"
-          data-testid="progress-mirror-export-html"
-          onClick={onExportHtml}
-          className="inline-flex shrink-0 items-center gap-1 rounded-lg border border-accent-emerald/35 bg-accent-emerald/10 px-2 py-1 text-[10px] font-medium hover:bg-accent-emerald/15"
-        >
-          <Download className="h-3 w-3" />
-          HTML
-        </button>
-      )}
-      {!report.ok && (
-        <span className="shrink-0 opacity-90">
-          {isEl ? 'mirror QA' : 'mirror QA'}
-        </span>
-      )}
-    </div>
+      {report.bannerSummary}
+    </WorkspaceQaStatusStrip>
   );
 }

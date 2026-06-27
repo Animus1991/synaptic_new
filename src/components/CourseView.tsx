@@ -232,6 +232,7 @@ export function CourseView({
             onDismissPostUpload?.();
             onStartLesson();
           }}
+          onViewCourse={() => onDismissPostUpload?.()}
           onDismiss={() => onDismissPostUpload?.()}
         />
       )}

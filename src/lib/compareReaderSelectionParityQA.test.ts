@@ -24,7 +24,7 @@ describe('compareReaderSelectionParityQA', () => {
     expect(report.readerVisibleActionCount).toBe(7);
     expect(report.openReaderAvailable).toBe(true);
     expect(report.ok).toBe(true);
-    expect(report.bannerSummary).toContain('§13.5');
+    expect(report.bannerSummary).toContain('Text selection');
   });
 
   it('flags unwired selection handler when rows exist', () => {

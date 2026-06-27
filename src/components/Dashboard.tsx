@@ -187,11 +187,11 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
 
       {/* Exam countdown */}
       {daysToExam !== null && (
-        <MotionSection initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="p-4 rounded-2xl border border-accent-rose/30 bg-accent-rose/5 flex items-center justify-between gap-4">
+        <MotionSection initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="platform-banner-danger p-4 rounded-2xl border flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <Calendar className="w-5 h-5 text-accent-rose shrink-0" />
             <div>
-              <p className="text-sm font-medium text-accent-rose">Exam Countdown</p>
+              <p className="platform-banner-title text-sm font-semibold">Exam Countdown</p>
               <p className="text-xs text-text-secondary mt-0.5">
                 {daysToExam === 0 ? 'Exam is today — good luck!' : `${daysToExam} day${daysToExam === 1 ? '' : 's'} until your exam`}
               </p>
@@ -199,7 +199,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
           </div>
           <button
             onClick={() => (examTask ? onStartTask?.(examTask.id) : onOpenExamTimer?.() ?? onOpenWorkspace?.())}
-            className="text-xs text-brand-400 hover:text-brand-300 font-medium flex items-center gap-1 shrink-0"
+            className="platform-link text-xs flex items-center gap-1 shrink-0"
           >
             {examTask ? 'Start exam prep' : 'Exam prep'} <ArrowRight className="w-3 h-3" />
           </button>
@@ -208,14 +208,14 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
 
       {/* Anti-passive learning alert */}
       {(antiPassiveAlert || stats.antiPassiveAlert) && (
-        <MotionSection initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="p-4 rounded-2xl border border-accent-amber/30 bg-accent-amber/5 flex items-start gap-3">
+        <MotionSection initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="platform-banner-warn p-4 rounded-2xl border flex items-start gap-3">
           <Eye className="w-5 h-5 text-accent-amber shrink-0 mt-0.5" />
           <div>
-            <p className="text-sm font-medium text-accent-amber">Active Recall Reminder</p>
+            <p className="platform-banner-title text-sm font-semibold">Active Recall Reminder</p>
             <p className="text-xs text-text-secondary mt-0.5">You've been reading for a while without answering questions. Let's test what you remember!</p>
             <button
               onClick={() => (firstReviewTask ? onStartTask?.(firstReviewTask.id) : onNavigate('tasks'))}
-              className="mt-2 text-xs text-brand-400 hover:text-brand-300 font-medium flex items-center gap-1"
+              className="mt-2 platform-link text-xs flex items-center gap-1"
             >
               Take a quick quiz <ArrowRight className="w-3 h-3" />
             </button>
@@ -233,21 +233,27 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
             action={
               <button
                 type="button"
-                onClick={() => {
-                  if (workspaceLive?.snapshot?.activeConcept) {
-                    onFocusWeakArea?.(workspaceLive.snapshot.activeConcept);
-                  } else {
-                    onOpenWorkspace?.();
-                  }
-                }}
+                onClick={() => onOpenWorkspace?.()}
                 data-testid="dashboard-resume-workspace"
-                className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-medium bg-brand-700 text-white hover:bg-brand-800 transition-all shrink-0"
+                className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold bg-brand-700 text-white hover:bg-brand-800 transition-all shrink-0"
               >
-                {isEl ? 'Άνοιγμα workspace' : 'Open workspace'} <ArrowRight className="w-3 h-3" />
+                {isEl ? 'Συνέχεια' : 'Resume'} <ArrowRight className="w-3 h-3" />
               </button>
             }
           >
-            <p className="text-xs text-text-secondary truncate">
+            <div className="flex flex-wrap items-center gap-1.5">
+              {workspaceLive.snapshot.toolLabel && (
+                <span className="ws-chip-brand rounded-full px-2 py-0.5 text-[10px] font-semibold">
+                  {workspaceLive.snapshot.toolLabel}
+                </span>
+              )}
+              {workspaceLive.snapshot.activeConcept && (
+                <span className="ws-chip-neutral rounded-full px-2 py-0.5 text-[10px] font-semibold truncate max-w-[12rem]">
+                  {workspaceLive.snapshot.activeConcept}
+                </span>
+              )}
+            </div>
+            <p className="text-xs text-text-secondary truncate mt-2">
               {[workspaceLive.snapshot.courseLabel, workspaceLive.snapshot.activeConcept, workspaceLive.snapshot.toolLabel, workspaceLive.snapshot.stepLabel]
                 .filter(Boolean)
                 .join(' · ')}
@@ -334,7 +340,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
               <h2 className="text-lg font-semibold ws-serif font-medium flex items-center gap-2">
                 <AlertTriangle className="w-5 h-5 text-accent-amber" /> Priority Tasks
               </h2>
-              <button onClick={() => onNavigate('tasks')} className="text-sm text-brand-400 hover:text-brand-300 flex items-center gap-1">View all <ChevronRight className="w-4 h-4" /></button>
+              <button onClick={() => onNavigate('tasks')} className="text-sm text-brand-400 hover:text-brand-700 flex items-center gap-1">View all <ChevronRight className="w-4 h-4" /></button>
             </div>
             <div className="space-y-2">
               {criticalTasks.slice(0, 5).map((task, i) => (
@@ -384,7 +390,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
           <div className="ws-bento p-5">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold ws-serif font-medium flex items-center gap-2"><BookOpen className="w-5 h-5 text-brand-400" />Active Courses</h2>
-              <button onClick={() => onNavigate('library')} className="text-sm text-brand-400 hover:text-brand-300 flex items-center gap-1">Library <ChevronRight className="w-4 h-4" /></button>
+              <button onClick={() => onNavigate('library')} className="text-sm text-brand-400 hover:text-brand-700 flex items-center gap-1">Library <ChevronRight className="w-4 h-4" /></button>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {courses.filter(c => c.status !== 'generating').map((course, i) => (
@@ -466,7 +472,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                 if (first && onFocusWeakArea) onFocusWeakArea(first.concept);
                 else onNavigate('agent');
               }}
-              className="mt-4 w-full text-xs text-brand-400 hover:text-brand-300 flex items-center justify-center gap-1"
+              className="mt-4 w-full text-xs text-brand-400 hover:text-brand-700 flex items-center justify-center gap-1"
             >
               Practice weak areas <ArrowRight className="w-3 h-3" />
             </button>
@@ -543,7 +549,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                 </div>
               );
             })}
-            <button onClick={() => onNavigate('analytics')} className="mt-2 w-full text-xs text-brand-400 hover:text-brand-300 flex items-center justify-center gap-1">
+            <button onClick={() => onNavigate('analytics')} className="mt-2 w-full text-xs text-brand-400 hover:text-brand-700 flex items-center justify-center gap-1">
               Full analytics <ArrowRight className="w-3 h-3" />
             </button>
           </div>
@@ -569,7 +575,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                     {onResolveMisconception && (
                       <button
                         onClick={() => onResolveMisconception(m.id)}
-                        className="mt-2 text-[10px] font-medium text-brand-400 hover:text-brand-300 flex items-center gap-1"
+                        className="mt-2 platform-link text-[10px] flex items-center gap-1"
                       >
                         <CheckCircle2 className="w-3 h-3" /> Mark as corrected
                       </button>

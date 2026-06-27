@@ -31,9 +31,9 @@ function qualityBand(score: number): 'weak' | 'moderate' | 'strong' {
 }
 
 const bandClass = {
-  weak: 'border-accent-amber/40 bg-accent-amber/10 text-accent-amber',
-  moderate: 'border-accent-cyan/35 bg-accent-cyan/10 text-accent-cyan',
-  strong: 'border-accent-emerald/35 bg-accent-emerald/10 text-accent-emerald',
+  weak: 'ws-chip-warn',
+  moderate: 'ws-chip-brand',
+  strong: 'ws-chip-ok',
 };
 
 /** Single contextual strip — replaces stacked WorkspaceContextStrip + collapsed source intel. */
@@ -121,8 +121,8 @@ export function WorkspaceContextBar({
           className={cn(
             'ws-eyebrow shrink-0 rounded-full border px-2 py-0.5 text-[10px]',
             weakOpen
-              ? 'border-accent-rose/40 bg-accent-rose/10 text-accent-rose'
-              : 'border-border-subtle text-text-secondary hover:bg-surface-hover',
+              ? 'ws-chip-danger'
+              : 'ws-chip-neutral',
           )}
           data-testid="context-bar-weak-chip"
         >
@@ -138,8 +138,8 @@ export function WorkspaceContextBar({
           className={cn(
             'ws-eyebrow shrink-0 rounded-full border px-2 py-0.5 text-[10px]',
             conceptsOpen
-              ? 'border-accent-cyan/40 bg-accent-cyan/10 text-accent-cyan'
-              : 'border-border-subtle text-text-secondary hover:bg-surface-hover',
+              ? 'ws-chip-brand'
+              : 'ws-chip-neutral',
           )}
           data-testid="context-bar-concepts-chip"
         >
@@ -157,8 +157,8 @@ export function WorkspaceContextBar({
           className={cn(
             'ml-auto shrink-0 rounded-full border p-1 transition-colors',
             intelSheetOpen
-              ? 'border-accent-cyan/40 bg-accent-cyan/10 text-accent-cyan'
-              : 'border-border-subtle text-text-muted hover:text-text-primary hover:bg-surface-hover',
+              ? 'ws-chip-brand'
+              : 'ws-chip-neutral border-transparent bg-transparent',
           )}
           data-testid="context-bar-intel-info"
         >

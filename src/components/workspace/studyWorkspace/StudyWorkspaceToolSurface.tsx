@@ -1,14 +1,13 @@
 import { Panel } from 'react-resizable-panels';
 import { WorkspaceToolStrip } from '../WorkspaceToolStrip';
 import { ToolFrame } from '../ToolFrame';
-import { DraggableConceptMap } from '../DraggableConceptMap';
-import { FormulaScratchpad } from '../FormulaScratchpad';
-import { CognitiveReader } from '../CognitiveReader';
 import {
-  LazyAnnotationOverlay, LazyComparePanel, LazyConceptBusPanel, LazyDashboardPanel,
-  LazyDebatePanel, LazyFeynmanCheck, LazyLeitnerPanel, LazyQuizPanel, LazySimulatorPanel,
-  LazyTimerPanel, LazyWeakAreasFocusRail, LazyWhiteboardPanel, LazyWorkspaceDiscoverabilityPanel,
+  LazyAnnotationOverlay, LazyComparePanel, LazyConceptBusPanel, LazyCognitiveReader,
+  LazyDashboardPanel, LazyDebatePanel, LazyDraggableConceptMap, LazyFeynmanCheck, LazyLeitnerPanel,
+  LazyQuizPanel, LazySimulatorPanel, LazyTimerPanel, LazyWeakAreasFocusRail, LazyWhiteboardPanel,
+  LazyWorkspaceDiscoverabilityPanel,
 } from '../../../lib/workspaceToolLazyRegistry';
+import { FormulaScratchpad } from '../FormulaScratchpad';
 import { WorkspaceIdleMount } from '../WorkspaceIdleMount';
 import { WorkspaceToolSuspense } from '../WorkspaceToolSuspense';
 import { mergeReaderHighlight } from '../../../lib/workspaceFocus';
@@ -189,7 +188,8 @@ export function StudyWorkspaceToolSurface({ model }: StudyWorkspaceToolSurfacePr
                       )}
       
                       {activeTool === 'concept-map' && (
-                        <DraggableConceptMap
+                        <WorkspaceToolSuspense tool="concept-map" lang={lang}>
+                        <LazyDraggableConceptMap
                           initialNodes={conceptNodes}
                           initialEdges={conceptEdges}
                           onNodeUpdate={(nodes) => saveConceptMapPositions(nodes, progressKey)}
@@ -207,9 +207,11 @@ export function StudyWorkspaceToolSurface({ model }: StudyWorkspaceToolSurfacePr
                           onSelectionAction={handleWorkspaceSelectionAction}
                           cursorSync={layout === 'split' ? conceptMapCursorSync : undefined}
                         />
+                        </WorkspaceToolSuspense>
                       )}
                       {activeTool === 'reader' && (
-                        <CognitiveReader
+                        <WorkspaceToolSuspense tool="reader" lang={lang}>
+                        <LazyCognitiveReader
                           text={readerText}
                           highlight={mergeReaderHighlight(sourceHighlight, effectiveFocus ?? {})}
                           focusTerm={effectiveFocus?.term}
@@ -240,6 +242,7 @@ export function StudyWorkspaceToolSurface({ model }: StudyWorkspaceToolSurfacePr
                           stepToSegmentIndex={readerStepToSegmentIndex}
                           stepHeatSync={readerActiveStepSync}
                         />
+                        </WorkspaceToolSuspense>
                       )}
                       {activeTool === 'scratchpad' && (
                         <FormulaScratchpad

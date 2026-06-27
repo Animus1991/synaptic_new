@@ -16,10 +16,8 @@ export function WhiteboardBlueprintCoverageStrip({ report, lang }: Props) {
   return (
     <div
       className={cn(
-        'rounded-lg border px-2.5 py-1.5 text-[10px] space-y-1',
-        report.ok
-          ? 'border-accent-emerald/25 bg-accent-emerald/5 text-accent-emerald'
-          : 'border-accent-amber/30 bg-accent-amber/8 text-accent-amber',
+        'ws-status-strip rounded-lg space-y-1',
+        report.ok ? 'ws-status-ok' : 'ws-status-warn',
       )}
       data-testid="whiteboard-blueprint-coverage-strip"
     >

@@ -16,10 +16,8 @@ export function DebateRebuttalPersistStrip({ report, lang }: Props) {
   return (
     <div
       className={cn(
-        'mx-4 mb-2 rounded-lg border px-2.5 py-1.5 text-[10px] flex items-center gap-2',
-        report.ok
-          ? 'border-accent-emerald/25 bg-accent-emerald/5 text-accent-emerald'
-          : 'border-accent-amber/30 bg-accent-amber/8 text-accent-amber',
+        'ws-status-strip mx-4 mb-2 flex items-center gap-2',
+        report.ok ? 'ws-status-ok' : 'ws-status-warn',
       )}
       data-testid="debate-rebuttal-persist-strip"
     >

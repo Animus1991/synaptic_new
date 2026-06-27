@@ -137,7 +137,7 @@ import {
   type SharedAnnotationDto,
 } from '../../../lib/authClient';
 import type { StoredAnnotation } from '../../../lib/annotationStore';
-import { preloadWorkspaceToolChunks } from '../../../lib/preloadWorkspaceToolChunks';
+import { preloadPrimaryWorkspaceTools, preloadWorkspaceToolChunks } from '../../../lib/preloadWorkspaceToolChunks';
 
 import { useState, useRef, useCallback, useEffect, useMemo, useDeferredValue } from 'react';
 import type { CommandItem } from '../CommandPalette';
@@ -221,6 +221,7 @@ export function useStudyWorkspace({
   }, [workspaceOpenTool, onConsumeWorkspaceOpenTool]);
 
   useEffect(() => {
+    preloadPrimaryWorkspaceTools();
     preloadWorkspaceToolChunks();
   }, []);
 

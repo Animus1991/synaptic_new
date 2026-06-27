@@ -16,10 +16,8 @@ export function ScratchpadSympyChainStrip({ report, lang }: Props) {
   return (
     <div
       className={cn(
-        'rounded-lg border px-2.5 py-1.5 text-[10px] flex items-center gap-2',
-        report.ok && report.invalidStepCount === 0
-          ? 'border-accent-emerald/25 bg-accent-emerald/5 text-accent-emerald'
-          : 'border-accent-amber/30 bg-accent-amber/8 text-accent-amber',
+        'ws-status-strip flex items-center gap-2',
+        report.ok && report.invalidStepCount === 0 ? 'ws-status-ok' : 'ws-status-warn',
       )}
       data-testid="scratchpad-sympy-chain-strip"
     >

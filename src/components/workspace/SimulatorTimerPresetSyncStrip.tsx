@@ -14,10 +14,8 @@ export function SimulatorTimerPresetSyncStrip({ report, lang }: Props) {
   return (
     <div
       className={cn(
-        'mb-3 flex items-center gap-2 rounded-xl border px-3 py-2 text-[10px]',
-        report.ok
-          ? 'border-accent-emerald/25 bg-accent-emerald/5 text-accent-emerald'
-          : 'border-accent-amber/30 bg-accent-amber/8 text-accent-amber',
+        'ws-status-strip mb-3 flex items-center gap-2',
+        report.ok ? 'ws-status-ok' : 'ws-status-warn',
       )}
       data-testid="simulator-timer-preset-sync-strip"
     >

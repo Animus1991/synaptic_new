@@ -114,7 +114,7 @@
 | **Context strip** | Πάντα: μάθημα · concept · πηγή · επόμενη ενέργεια | ✅ |
 | **Empty states** | Κάθε tool: γιατί άδειο + CTA (upload / reprocess / άλλο tool) | 🟡 |
 | **Mobile** | Tool drawer + intelligence ως bottom sheet· όχι 4 στήλες ταυτόχρονα | ✅ `WorkspaceMobileToolDrawer` + `WorkspaceMobileIntelligenceBottomSheet` |
-| **Reader typography** | EL+EN long-form, no mojibake | ✅ Noto Greek + `utf8MojibakeRepair` |
+| **Contrast (Warm Sand)** | Dark gold-brown tokens; workspace + platform pills/links | ✅ |
 
 **Acceptance:** §20 questionnaire — κάθε κουμπί έχει τεκμηριωμένο learning outcome.
 

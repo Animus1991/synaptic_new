@@ -25,10 +25,8 @@ export function FeynmanRubricExportDiscoverabilityStrip({
   return (
     <div
       className={cn(
-        'mb-3 flex flex-col gap-2 rounded-xl border px-3 py-2 text-[10px] sm:flex-row sm:items-center',
-        ready
-          ? 'border-accent-emerald/25 bg-accent-emerald/5 text-accent-emerald'
-          : 'border-brand-500/25 bg-brand-500/5 text-brand-300',
+        'ws-status-strip mb-3 flex flex-col gap-2 sm:flex-row sm:items-center',
+        ready ? 'ws-status-ok' : 'ws-status-warn',
       )}
       data-testid="feynman-rubric-export-discoverability-strip"
     >
@@ -48,7 +46,7 @@ export function FeynmanRubricExportDiscoverabilityStrip({
               type="button"
               data-testid="feynman-strip-export-download"
               onClick={onExportDownload}
-              className="inline-flex items-center gap-1 rounded-lg border border-accent-emerald/35 bg-accent-emerald/10 px-2 py-1 text-[10px] font-medium text-accent-emerald hover:bg-accent-emerald/15"
+              className="ws-chip-brand inline-flex items-center gap-1 rounded-lg px-2 py-1 text-[10px] font-medium hover:opacity-90"
             >
               <Download className="h-3 w-3" />
               {isEl ? 'HTML' : 'HTML'}
@@ -59,7 +57,7 @@ export function FeynmanRubricExportDiscoverabilityStrip({
               type="button"
               data-testid="feynman-strip-export-print"
               onClick={onExportPrint}
-              className="inline-flex items-center gap-1 rounded-lg border border-accent-emerald/25 px-2 py-1 text-[10px] font-medium text-accent-emerald hover:bg-accent-emerald/10"
+              className="ws-chip-brand inline-flex items-center gap-1 rounded-lg px-2 py-1 text-[10px] font-medium hover:opacity-90"
             >
               <Printer className="h-3 w-3" />
               PDF

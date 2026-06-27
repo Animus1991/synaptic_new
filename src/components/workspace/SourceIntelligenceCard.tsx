@@ -2,6 +2,7 @@ import { Layers, Sparkles } from '@/lib/lucide-shim';
 import type { buildWorkspaceNoteBundle } from '../../lib/workspaceNoteContent';
 import type { DocumentStructureKind } from '../../lib/documentStructureReport';
 import { displaySectionLabel } from '../../lib/readerDocumentLayout';
+import { formatSectionFallbackLabel } from '../../lib/sectionLabel';
 
 const KIND_BADGE: Record<DocumentStructureKind, string> = {
   conversation: 'Chat / Q&A',
@@ -50,7 +51,7 @@ export function SourceIntelligenceCard({
           {structure && structure.sections.length > 0 && (
             <div className="mt-3 flex flex-wrap gap-1.5 max-h-24 overflow-y-auto">
               {structure.sections.slice(0, 8).map((sec, i) => {
-                const label = sec.heading ?? displaySectionLabel(undefined, sec.preview) ?? `§${i + 1}`;
+                const label = sec.heading ?? displaySectionLabel(undefined, sec.preview) ?? formatSectionFallbackLabel(i);
                 if (/page break/i.test(label)) return null;
                 return (
                 <span

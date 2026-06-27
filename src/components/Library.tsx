@@ -160,10 +160,8 @@ export function Library({
                 onClick={() => setFilter(f)}
                 aria-pressed={active}
                 className={cn(
-                  'px-3 py-1.5 rounded-md text-xs font-medium transition-colors border',
-                  active
-                    ? 'bg-brand-600/15 text-brand-300 border-brand-500/40'
-                    : 'text-text-tertiary border-border-subtle hover:text-text-primary hover:border-border-default',
+                  'platform-pill px-3 py-1.5 rounded-md text-xs transition-colors border',
+                  active ? 'platform-pill-active' : '',
                 )}
                 style={{ fontFamily: 'var(--font-mono)' }}
               >

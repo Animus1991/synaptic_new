@@ -52,8 +52,8 @@ export function WorkspaceSourceStatusBar({
 
   const pipelineBadge = showMigration
     ? (storedPipelineVersion
-      ? `stored v${storedPipelineVersion} → v${CONTENT_PIPELINE_VERSION}`
-      : `pipeline v${CONTENT_PIPELINE_VERSION}`)
+      ? `Pipeline v${storedPipelineVersion} → v${CONTENT_PIPELINE_VERSION}`
+      : `Pipeline v${CONTENT_PIPELINE_VERSION}`)
     : undefined;
 
   const showHygiene = typeof textHygieneScore === 'number' || typeof textCorruptionScore === 'number';
@@ -64,7 +64,7 @@ export function WorkspaceSourceStatusBar({
   return (
     <div
       className={cn(
-        'mb-4 max-w-2xl mx-auto rounded-md border-l-2 border-accent-amber/60 border-y border-r border-border-subtle bg-accent-amber/5 px-3.5 py-2.5',
+        'ws-source-alert mb-4 max-w-2xl mx-auto rounded-md border border-y border-r border-border-subtle px-3.5 py-2.5',
         className,
       )}
       data-testid="workspace-source-status-bar"
@@ -87,7 +87,7 @@ export function WorkspaceSourceStatusBar({
             )}
             {pipelineBadge && (
               <span
-                className="rounded-sm border border-accent-amber/40 bg-accent-amber/10 px-1.5 py-0.5 text-accent-amber font-mono normal-case tracking-normal"
+                className="ws-chip-warn rounded-sm px-1.5 py-0.5 font-mono normal-case tracking-normal text-[10px]"
                 data-testid="source-status-pipeline-badge"
               >
                 {pipelineBadge}
@@ -95,7 +95,7 @@ export function WorkspaceSourceStatusBar({
             )}
             {showHygiene && (
               <span
-                className="rounded-sm border border-border-subtle bg-surface-card/60 px-1.5 py-0.5 font-mono normal-case tracking-normal text-text-secondary"
+                className="ws-chip-neutral rounded-sm px-1.5 py-0.5 font-mono normal-case tracking-normal text-[10px]"
                 data-testid="source-status-hygiene"
               >
                 {isEl ? 'Υγιεινότητα' : 'Hygiene'}{' '}
@@ -110,7 +110,7 @@ export function WorkspaceSourceStatusBar({
             )}
             {spellGateHint && (
               <span
-                className="rounded-sm border border-brand-500/30 bg-brand-500/10 px-1.5 py-0.5 text-brand-200 font-mono normal-case tracking-normal"
+                className="ws-chip-brand rounded-sm px-1.5 py-0.5 font-mono normal-case tracking-normal text-[10px]"
                 data-testid="source-status-spell-gate"
                 title={isEl ? 'Spell-gate (SymSpell + λεξικό)' : 'Spell-gate (SymSpell + lexicon)'}
               >
@@ -123,7 +123,7 @@ export function WorkspaceSourceStatusBar({
               {textHygieneFlags.map((flag) => (
                 <span
                   key={flag}
-                  className="rounded-sm border border-accent-amber/30 bg-accent-amber/5 px-1.5 py-0.5 text-[10px] text-accent-amber"
+                  className="ws-chip-warn rounded-sm px-1.5 py-0.5 text-[10px]"
                 >
                   {hygieneFlagLabel(flag, lang)}
                 </span>
@@ -148,7 +148,7 @@ export function WorkspaceSourceStatusBar({
                 type="button"
                 onClick={onReprocess}
                 disabled={reprocessing}
-                className="ws-eyebrow inline-flex items-center gap-1.5 rounded-md border border-brand-500/40 bg-brand-500/10 px-2 py-1 text-brand-200 hover:bg-brand-500/15 disabled:opacity-60 transition-colors"
+                className="ws-eyebrow inline-flex items-center gap-1.5 rounded-md ws-chip-brand px-2 py-1 transition-colors hover:opacity-90 disabled:opacity-60"
                 data-testid="source-status-reprocess"
               >
                 <Cpu className={cn('h-3 w-3', reprocessing && 'animate-pulse')} aria-hidden />
@@ -161,7 +161,7 @@ export function WorkspaceSourceStatusBar({
               <button
                 type="button"
                 onClick={onReupload}
-                className="ws-eyebrow inline-flex items-center gap-1.5 rounded-md border border-accent-amber/40 bg-accent-amber/10 px-2 py-1 text-accent-amber hover:bg-accent-amber/15 transition-colors"
+                className="ws-eyebrow inline-flex items-center gap-1.5 rounded-md ws-chip-warn px-2 py-1 transition-colors hover:opacity-90"
                 data-testid="source-status-reupload"
               >
                 <RefreshCw className="h-3 w-3" aria-hidden />

@@ -1,9 +1,19 @@
 /**
  * Phase B — lazy code-split registry for workspace tool panels.
- * Primary tools (reader, concept-map) stay eager in StudyWorkspace for fast TTI.
+ * Reader & concept-map lazy-loaded; prefetch on workspace mount (B3).
  */
 
 import { lazyWithRetry } from './lazyWithRetry';
+
+export const LazyCognitiveReader = lazyWithRetry(
+  () => import('../components/workspace/CognitiveReader').then((m) => ({ default: m.CognitiveReader })),
+  'workspace-tool-reader',
+);
+
+export const LazyDraggableConceptMap = lazyWithRetry(
+  () => import('../components/workspace/DraggableConceptMap').then((m) => ({ default: m.DraggableConceptMap })),
+  'workspace-tool-concept-map',
+);
 
 export const LazyWhiteboardPanel = lazyWithRetry(
   () => import('../components/workspace/WhiteboardPanel').then((m) => ({ default: m.WhiteboardPanel })),

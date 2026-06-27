@@ -175,8 +175,8 @@ export function formatCompareParityBanner(input: {
   const isEl = input.lang === 'el';
   const parts = [
     isEl
-      ? `§13.5 · ${input.selectionActionCount} ενέργειες`
-      : `§13.5 · ${input.selectionActionCount} actions`,
+      ? `Επιλογή κειμένου · ${input.selectionActionCount} ενέργειες`
+      : `Text selection · ${input.selectionActionCount} actions`,
     isEl ? `${input.rowCount} σειρές` : `${input.rowCount} rows`,
   ];
   if (input.ocrRiskRowCount > 0) {
