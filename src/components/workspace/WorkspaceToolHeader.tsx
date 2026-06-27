@@ -78,8 +78,8 @@ export function WorkspaceToolHeader({
     >
       {/* Always-visible title row — editorial academic, mobile-first */}
       <div className="flex items-start gap-2.5 px-3 py-2.5 sm:gap-3 sm:px-4 sm:py-3">
-        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-brand-500/25 bg-brand-500/8 text-brand-200 sm:h-9 sm:w-9">
-          <Icon className="h-4 w-4" aria-hidden />
+        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md ws-chip-brand sm:h-9 sm:w-9">
+          <Icon className="h-4 w-4 text-brand-800" aria-hidden />
         </span>
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
@@ -87,7 +87,7 @@ export function WorkspaceToolHeader({
               {name}
             </h2>
             {s20.readiness !== 'launch-ready' && (
-              <span className="ws-eyebrow rounded-sm bg-accent-amber/15 px-1.5 py-0.5 text-[9px] text-accent-amber">
+              <span className="ws-eyebrow ws-chip-warn rounded-sm px-1.5 py-0.5 text-[9px]">
                 {isEl ? 'βελτιώνεται' : 'polishing'}
               </span>
             )}
@@ -108,8 +108,8 @@ export function WorkspaceToolHeader({
           className={cn(
             'inline-flex shrink-0 items-center gap-1 rounded-md border px-2 py-1.5 text-[10px] transition-colors ws-eyebrow min-h-[36px] sm:gap-1.5 sm:px-2.5',
             collapsed
-              ? 'border-border-subtle text-text-secondary hover:border-brand-400/40 hover:text-brand-200'
-              : 'border-brand-500/35 bg-brand-500/10 text-brand-200',
+              ? 'ws-chip-neutral hover:opacity-90'
+              : 'ws-chip-brand',
           )}
         >
           <HelpCircle className="h-3.5 w-3.5" aria-hidden />

@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { AlertTriangle, BookOpen, Layers, Search } from '@/lib/lucide-shim';
+import { BookOpen, Layers, Search } from '@/lib/lucide-shim';
 import type { TimerSessionContent } from '../../lib/timerSessionModel';
 import { filterTimerSessionLogs } from '../../lib/timerSessionModel';
 import { examPracticeLabel } from '../../lib/examPracticePresets';
@@ -9,6 +9,7 @@ import { loadTimerSessions } from '../../lib/workspacePersistence';
 import { WorkspaceEmptyState } from './WorkspaceEmptyState';
 import { StudyTimer } from './StudyTimer';
 import { TimerExamCountdownDashboardStrip } from './TimerExamCountdownDashboardStrip';
+import { WorkspacePanelWarnStrip } from './WorkspacePanelWarnStrip';
 
 type Props = {
   session: TimerSessionContent;
@@ -93,21 +94,15 @@ export function TimerPanel({
         )}
 
         {(session.weakExtraction || session.passageGrounded) && (
-          <div
-            className="mb-3 flex items-start gap-2 rounded-xl border border-accent-amber/30 bg-accent-amber/8 px-3 py-2 text-[10px] text-accent-amber"
-            data-testid="timer-weak-extraction"
-          >
-            <AlertTriangle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
-            <p>
-              {session.passageGrounded
-                ? (isEl
-                  ? 'Η συνεδρία δένεται σε generic concept — επίλεξε πιο συγκεκριμένο βήμα για καλύτερο tracking.'
-                  : 'Session is tied to a generic concept — pick a specific step for better tracking.')
-                : (isEl
-                  ? 'Γενική έννοια — δοκίμασε Reprocess ή άλλαξε βήμα.'
-                  : 'Generic concept — try Reprocess or switch step.')}
-            </p>
-          </div>
+          <WorkspacePanelWarnStrip testId="timer-weak-extraction">
+            {session.passageGrounded
+              ? (isEl
+                ? 'Η συνεδρία δένεται σε generic concept — επίλεξε πιο συγκεκριμένο βήμα για καλύτερο tracking.'
+                : 'Session is tied to a generic concept — pick a specific step for better tracking.')
+              : (isEl
+                ? 'Γενική έννοια — δοκίμασε Reprocess ή άλλαξε βήμα.'
+                : 'Generic concept — try Reprocess or switch step.')}
+          </WorkspacePanelWarnStrip>
         )}
 
         <TimerExamCountdownDashboardStrip report={countdownReport} lang={lang} />
@@ -120,7 +115,7 @@ export function TimerPanel({
             {PRESET_LABELS[session.suggestedPreset][lang]}
           </span>
           <span
-            className="rounded-full border border-accent-amber/30 bg-accent-amber/10 px-2 py-0.5 text-[9px] font-medium text-accent-amber"
+            className="ws-eyebrow ws-chip-warn rounded-full px-2 py-0.5 text-[9px] font-medium"
             data-testid="timer-suggested-exam-practice"
           >
             {examPracticeLabel(activeExamPractice ?? session.suggestedExamPractice, lang)}

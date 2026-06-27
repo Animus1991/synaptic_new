@@ -1,5 +1,5 @@
 import { useState, useMemo, useRef, useEffect, useCallback } from 'react';
-import { Sparkles, Bot, Loader2, Download, Printer, Mic, MicOff, BookOpen, AlertTriangle } from '@/lib/lucide-shim';
+import { Sparkles, Bot, Loader2, Download, Printer, Mic, MicOff, BookOpen } from '@/lib/lucide-shim';
 import { computeRubric, weakestDimensions, type RubricDimension } from '../../lib/feynmanRubric';
 import { detectFeynmanGaps } from '../../lib/feynmanGapDetect';
 import { startFeynmanVoiceInput } from '../../lib/feynmanVoice';
@@ -19,6 +19,7 @@ import {
 } from '../../lib/feynmanRubricExport';
 import { auditFeynmanRubricExportDiscoverability } from '../../lib/feynmanRubricExportDiscoverabilityQA';
 import { FeynmanRubricExportDiscoverabilityStrip } from './FeynmanRubricExportDiscoverabilityStrip';
+import { WorkspacePanelWarnStrip } from './WorkspacePanelWarnStrip';
 
 const RUBRIC_LABEL_KEYS: Record<RubricDimension, I18nKey> = {
   accuracy: 'feynmanAccuracy',
@@ -267,17 +268,11 @@ export function FeynmanCheck({
         )}
 
         {weakExtraction && (
-          <div
-            className="mb-3 flex items-start gap-2 rounded-xl border border-accent-amber/30 bg-accent-amber/8 px-3 py-2 text-[10px] text-accent-amber"
-            data-testid="feynman-weak-extraction"
-          >
-            <AlertTriangle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
-            <p>
-              {lang === 'el'
-                ? 'Αδύναμη εξαγωγή εννοιών — το outline βασίζεται στο απόσπασμα. Δοκίμασε Reprocess για καλύτερα αποτελέσματα.'
-                : 'Weak concept extraction — outline is passage-grounded. Try Reprocess for richer structure.'}
-            </p>
-          </div>
+          <WorkspacePanelWarnStrip testId="feynman-weak-extraction">
+            {lang === 'el'
+              ? 'Αδύναμη εξαγωγή εννοιών — το outline βασίζεται στο απόσπασμα. Δοκίμασε Reprocess για καλύτερα αποτελέσματα.'
+              : 'Weak concept extraction — outline is passage-grounded. Try Reprocess for richer structure.'}
+          </WorkspacePanelWarnStrip>
         )}
 
         {keyTerms.length > 0 && (
@@ -400,19 +395,19 @@ export function FeynmanCheck({
             )}
 
             {autoGaps.length > 0 && (
-              <div className="rounded-xl border border-accent-amber/30 bg-accent-amber/8 p-3" data-testid="feynman-auto-gaps">
-                <p className="text-[10px] font-semibold text-accent-amber mb-2">
+              <WorkspacePanelWarnStrip layout="box" testId="feynman-auto-gaps" className="mb-0">
+                <p className="mb-2 text-[10px] font-semibold">
                   {lang === 'el' ? 'Αυτόματα κενά (rubric)' : 'Auto-detected gaps'}
                 </p>
                 <ul className="space-y-2">
                   {autoGaps.slice(0, 3).map((g) => (
-                    <li key={g.dimension} className="flex items-start justify-between gap-2 text-[11px]">
+                    <li key={g.dimension} className="flex items-start justify-between gap-2 text-[11px] font-normal">
                       <span className="text-text-secondary">{g.hint}</span>
                       {onOpenInReader && (
                         <button
                           type="button"
                           onClick={() => onOpenInReader(g.searchTerm)}
-                          className="shrink-0 text-brand-400 hover:text-brand-300 text-[10px]"
+                          className="shrink-0 text-[10px] text-brand-800 hover:text-brand-700"
                         >
                           Reader →
                         </button>
@@ -420,7 +415,7 @@ export function FeynmanCheck({
                     </li>
                   ))}
                 </ul>
-              </div>
+              </WorkspacePanelWarnStrip>
             )}
 
             {rubric && (

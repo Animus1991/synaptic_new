@@ -151,7 +151,7 @@ export function StudyWorkspaceLessonPanel({ model }: StudyWorkspaceLessonPanelPr
                           className={cn('text-xs', currentStep === 0 ? 'text-text-muted' : 'text-text-secondary hover:text-text-primary')}>← {t('previous')}</button>
                         <span className="text-[10px] text-text-muted">{currentStep + 1}/{STEPS.length}</span>
                         <button onClick={handleStepNext}
-                          className="flex items-center gap-1 text-xs text-brand-400 hover:text-brand-300 font-medium">
+                          className="flex items-center gap-1 text-xs font-medium text-brand-800 hover:text-brand-700">
                           {currentStep === STEPS.length - 1 ? t('finish') : t('next')} <ChevronRight className="w-3 h-3" />
                         </button>
                       </div>

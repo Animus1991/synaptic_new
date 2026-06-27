@@ -117,6 +117,7 @@ export function StudyWorkspaceToolSurface({ model }: StudyWorkspaceToolSurfacePr
     handleLearningAction,
     runNextAction,
     feynmanSession,
+    resolveEmptyActions,
     compareSession,
     debateSession,
     simulatorSession,
@@ -155,6 +156,7 @@ export function StudyWorkspaceToolSurface({ model }: StudyWorkspaceToolSurfacePr
                         availableTools={AVAILABLE_TOOLS}
                         onSelectTool={openWorkspaceTool}
                         lang={lang}
+                        className="md:hidden"
                       />
                     )}
                     <ToolFrame
@@ -636,6 +638,8 @@ export function StudyWorkspaceToolSurface({ model }: StudyWorkspaceToolSurfacePr
                       ? () => openWorkspaceTool(discoverabilitySummary.recommendedTool as WorkspaceTool)
                       : undefined
                   }
+                  hasSource={noteBundle.hasSource}
+                  emptyActions={resolveEmptyActions('discover')}
                 />
               </WorkspaceToolSuspense>
             </WorkspaceIdleMount>
@@ -671,6 +675,7 @@ export function StudyWorkspaceToolSurface({ model }: StudyWorkspaceToolSurfacePr
                   expanded
                   onToggle={() => setIntelTab(null)}
                   onFocusWeakSpot={focusWeakArea}
+                  emptyActions={resolveEmptyActions('weak-areas')}
                 />
               </WorkspaceToolSuspense>
             </WorkspaceIdleMount>

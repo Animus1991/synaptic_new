@@ -53,7 +53,7 @@ export function WorkspaceContextStrip({
             data-testid="workspace-context-section"
           >
             {context.lowConfidenceSection && (
-              <AlertTriangle className="mr-0.5 inline h-3 w-3 text-accent-amber align-[-2px]" aria-hidden />
+              <AlertTriangle className="mr-0.5 inline h-3 w-3 align-[-2px] opacity-90" aria-hidden />
             )}
             {context.sectionLabel}
           </span>
@@ -66,14 +66,14 @@ export function WorkspaceContextStrip({
             </>
           )}
           <span aria-hidden className="shrink-0 hidden xs:inline">·</span>
-          <span className="truncate shrink-0 font-medium text-brand-300 hidden xs:inline" data-testid="workspace-context-tool">
+          <span className="truncate shrink-0 font-medium text-brand-800 hidden xs:inline" data-testid="workspace-context-tool">
             {context.toolLabel}
           </span>
         </div>
         <p className="mt-0.5 hidden text-[9px] text-text-muted sm:block truncate" title={context.toolDescription}>
           {context.toolDescription}
           {typeof sourceQuality === 'number' && (
-            <span className="ml-2 text-accent-amber">
+            <span className="ml-2 ws-chip-warn inline-flex rounded-full px-1.5 py-px text-[9px]">
               · {isEl ? 'Ποιότητα' : 'Quality'} {sourceQuality}/100
             </span>
           )}
@@ -84,7 +84,7 @@ export function WorkspaceContextStrip({
           <button
             type="button"
             onClick={onNextAction}
-            className="ws-eyebrow inline-flex shrink-0 items-center gap-1 rounded-md border border-brand-500/35 bg-brand-500/10 px-2 py-1 text-[10px] text-brand-200 hover:bg-brand-500/15"
+            className="ws-eyebrow ws-chip-brand inline-flex shrink-0 items-center gap-1 rounded-md px-2 py-1 text-[10px] hover:opacity-90"
             data-testid="workspace-next-action"
           >
             {nextActionLabelProp ?? (isEl ? 'Επόμενο' : 'Next')}
@@ -95,10 +95,8 @@ export function WorkspaceContextStrip({
             type="button"
             onClick={onWeakAreas}
             aria-pressed={weakPanelOpen}
-            className={`ws-eyebrow shrink-0 rounded-md border px-2 py-1 text-[10px] ${
-              weakPanelOpen
-                ? 'border-accent-rose/40 bg-accent-rose/10 text-accent-rose'
-                : 'border-border-subtle text-text-secondary hover:bg-surface-hover'
+            className={`ws-eyebrow shrink-0 rounded-md px-2 py-1 text-[10px] ${
+              weakPanelOpen ? 'ws-chip-danger' : 'ws-chip-neutral hover:opacity-90'
             }`}
             data-testid="workspace-weak-areas-toggle"
           >
@@ -110,10 +108,8 @@ export function WorkspaceContextStrip({
             type="button"
             onClick={onConceptBus}
             aria-pressed={conceptBusOpen}
-            className={`ws-eyebrow shrink-0 rounded-md border px-2 py-1 text-[10px] ${
-              conceptBusOpen
-                ? 'border-accent-cyan/40 bg-accent-cyan/10 text-accent-cyan'
-                : 'border-border-subtle text-text-secondary hover:bg-surface-hover'
+            className={`ws-eyebrow shrink-0 rounded-md px-2 py-1 text-[10px] ${
+              conceptBusOpen ? 'ws-chip-brand' : 'ws-chip-neutral hover:opacity-90'
             }`}
             data-testid="workspace-concept-bus-toggle"
           >

@@ -1,5 +1,5 @@
 import { useMemo, useState, useCallback } from 'react';
-import { AlertTriangle, BookOpen, Download, Printer, Search, Target } from '@/lib/lucide-shim';
+import { BookOpen, Download, Printer, Search, Target } from '@/lib/lucide-shim';
 import type { DashboardSessionContent } from '../../lib/dashboardSessionModel';
 import {
   filterDashboardToolActivity,
@@ -23,6 +23,7 @@ import {
 import { auditProgressConceptBusMirror } from '../../lib/progressConceptBusMirrorQA';
 import type { ConceptBusRow } from '../../lib/conceptBusPanelModel';
 import { ProgressConceptBusMirrorStrip } from './ProgressConceptBusMirrorStrip';
+import { WorkspacePanelWarnStrip } from './WorkspacePanelWarnStrip';
 import { WorkspaceEmptyState } from './WorkspaceEmptyState';
 import { MiniDashboard } from './MiniDashboard';
 import type { ToolActivityCount } from '../../lib/conceptBusPanelModel';
@@ -182,21 +183,15 @@ export function DashboardPanel({
         )}
 
         {(session.weakExtraction || session.passageGrounded) && (
-          <div
-            className="mb-3 flex items-start gap-2 rounded-xl border border-accent-amber/30 bg-accent-amber/8 px-3 py-2 text-[10px] text-accent-amber"
-            data-testid="dashboard-weak-extraction"
-          >
-            <AlertTriangle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
-            <p>
-              {session.passageGrounded
-                ? (isEl
-                  ? 'Τα weak spots δένονται σε generic concept — επίλεξε πιο συγκεκριμένο βήμα.'
-                  : 'Weak spots are tied to a generic concept — pick a more specific step.')
-                : (isEl
-                  ? 'Γενική έννοια — η πρόοδος είναι λιγότερο ακριβής μέχρι Reprocess.'
-                  : 'Generic concept — progress tracking is less precise until Reprocess.')}
-            </p>
-          </div>
+          <WorkspacePanelWarnStrip testId="dashboard-weak-extraction">
+            {session.passageGrounded
+              ? (isEl
+                ? 'Τα weak spots δένονται σε generic concept — επίλεξε πιο συγκεκριμένο βήμα.'
+                : 'Weak spots are tied to a generic concept — pick a more specific step.')
+              : (isEl
+                ? 'Γενική έννοια — η πρόοδος είναι λιγότερο ακριβής μέχρι Reprocess.'
+                : 'Generic concept — progress tracking is less precise until Reprocess.')}
+          </WorkspacePanelWarnStrip>
         )}
 
         <ProgressConceptBusMirrorStrip

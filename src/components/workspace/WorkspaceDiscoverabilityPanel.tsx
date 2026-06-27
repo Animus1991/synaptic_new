@@ -6,6 +6,9 @@ import { buildDiscoverabilitySummary } from '../../lib/workspaceDiscoverability'
 import { nextActionLabel } from '../../lib/nextActionEngine';
 import type { LearningActionId } from '../../lib/workspaceLearningActions';
 import { getLearningActions } from '../../lib/workspaceLearningActions';
+import type { WorkspaceEmptyAction } from '../../lib/workspaceEmptyState';
+import { workspaceToolEmptyMessage } from '../../lib/workspaceEmptyState';
+import { WorkspaceEmptyState } from './WorkspaceEmptyState';
 
 type DiscoverabilitySummary = ReturnType<typeof buildDiscoverabilitySummary>;
 type ActionHandlers = Partial<Record<DiscoverabilityActionId, () => void>>;
@@ -31,6 +34,8 @@ type Props = {
   onLearningAction?: (id: LearningActionId) => void;
   stepUnderstood?: boolean;
   stepConfusing?: boolean;
+  hasSource?: boolean;
+  emptyActions?: WorkspaceEmptyAction[];
 };
 
 export function WorkspaceDiscoverabilityPanel({
@@ -44,6 +49,8 @@ export function WorkspaceDiscoverabilityPanel({
   onLearningAction,
   stepUnderstood,
   stepConfusing,
+  hasSource = true,
+  emptyActions = [],
 }: Props) {
   const { chips, toolGuide, grounded, headline, subline, recommendedTool, nextAction } = summary;
   const isEl = lang === 'el';
@@ -193,11 +200,15 @@ export function WorkspaceDiscoverabilityPanel({
           </div>
 
           {!grounded && (
-            <p className="text-[10px] text-accent-amber border border-accent-amber/30 rounded-lg px-2 py-1.5 bg-accent-amber/8">
-              {lang === 'el'
-                ? 'Βήματα: Library → Upload → Generate course → Open Workspace'
-                : 'Steps: Library → Upload → Generate course → Open Workspace'}
-            </p>
+            <div data-testid="discoverability-empty">
+              <WorkspaceEmptyState
+                compact
+                tool="discover"
+                message={workspaceToolEmptyMessage({ tool: 'discover', hasSource, lang })}
+                hasSource={hasSource}
+                actions={emptyActions}
+              />
+            </div>
           )}
         </div>
       )}

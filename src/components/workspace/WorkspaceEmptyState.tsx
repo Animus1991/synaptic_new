@@ -1,3 +1,4 @@
+import { cn } from '../../utils/cn';
 import { RefreshCw, Upload } from '@/lib/lucide-shim';
 import { useI18n } from '../../lib/i18n';
 import type { WorkspaceEmptyAction, WorkspaceEmptyTool } from '../../lib/workspaceEmptyState';
@@ -15,6 +16,8 @@ interface Props {
   onSecondary?: () => void;
   /** Explicit actions override context. */
   actions?: WorkspaceEmptyAction[];
+  /** Inline layout for intel panels (not full-height center). */
+  compact?: boolean;
 }
 
 export function WorkspaceEmptyState({
@@ -25,6 +28,7 @@ export function WorkspaceEmptyState({
   secondaryLabel,
   onSecondary,
   actions: actionsOverride,
+  compact = false,
 }: Props) {
   const { t, lang } = useI18n();
   const contextActionsRaw = useWorkspaceEmptyActions(tool ?? 'reader');
@@ -37,16 +41,23 @@ export function WorkspaceEmptyState({
 
   return (
     <div
-      className="flex flex-col items-center justify-center h-full min-h-[200px] p-8 text-center"
+      className={cn(
+        compact
+          ? 'flex flex-col items-start gap-2 p-3 text-left min-h-0'
+          : 'flex flex-col items-center justify-center h-full min-h-[200px] p-8 text-center',
+      )}
       data-testid="workspace-empty-state"
       data-has-source={hasSource ? 'true' : 'false'}
       data-tool={tool}
     >
-      <p className="text-sm text-text-secondary max-w-md leading-relaxed">
+      <p className={cn('text-sm text-text-secondary leading-relaxed', compact ? 'max-w-none' : 'max-w-md')}>
         {message}
       </p>
       {(actions.length > 0 || showLegacyUpload) && (
-        <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
+        <div className={cn(
+          'flex flex-wrap gap-2',
+          compact ? 'mt-1' : 'mt-5 items-center justify-center',
+        )}>
           {showLegacyUpload && (
             <button
               type="button"

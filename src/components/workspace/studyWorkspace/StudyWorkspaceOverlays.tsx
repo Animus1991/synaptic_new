@@ -62,6 +62,7 @@ export function StudyWorkspaceOverlays({ model }: StudyWorkspaceOverlaysProps) {
     conceptLensView,
     openReaderAtConceptSection,
     handleConceptBusRemediation,
+    resolveEmptyActions,
   } = model;
 
   return (
@@ -137,6 +138,9 @@ export function StudyWorkspaceOverlays({ model }: StudyWorkspaceOverlaysProps) {
               weakAreaSpots={weakAreaSpots}
               focusTerm={effectiveFocus?.term}
               onFocusWeakSpot={focusWeakArea}
+              hasSource={noteBundle.hasSource}
+              discoverEmptyActions={resolveEmptyActions('discover')}
+              weakAreasEmptyActions={resolveEmptyActions('weak-areas')}
             />
       
             <WorkspaceCommandPaletteMount

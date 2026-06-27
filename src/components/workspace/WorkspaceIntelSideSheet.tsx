@@ -16,6 +16,7 @@ import type { DiscoverabilitySummary, DiscoverabilityActionId } from '../../lib/
 import type { LearningActionId } from '../../lib/workspaceLearningActions';
 import type { ConceptRemediationId } from '../../lib/conceptBusRemediation';
 import type { ConceptLensView } from '../../lib/conceptGraphModel';
+import type { WorkspaceEmptyAction } from '../../lib/workspaceEmptyState';
 
 type Props = {
   open: boolean;
@@ -41,6 +42,9 @@ type Props = {
   weakAreaSpots: WeakSpotWithReasons[];
   focusTerm?: string;
   onFocusWeakSpot: (concept: string) => void;
+  hasSource?: boolean;
+  discoverEmptyActions?: WorkspaceEmptyAction[];
+  weakAreasEmptyActions?: WorkspaceEmptyAction[];
 };
 
 export function WorkspaceIntelSideSheet({
@@ -67,6 +71,9 @@ export function WorkspaceIntelSideSheet({
   weakAreaSpots,
   focusTerm,
   onFocusWeakSpot,
+  hasSource = true,
+  discoverEmptyActions = [],
+  weakAreasEmptyActions = [],
 }: Props) {
   const isEl = lang === 'el';
 
@@ -126,6 +133,8 @@ export function WorkspaceIntelSideSheet({
                     stepUnderstood={stepUnderstood}
                     stepConfusing={stepConfusing}
                     onOpenRecommendedTool={onOpenRecommendedToolFromDiscover}
+                    hasSource={hasSource}
+                    emptyActions={discoverEmptyActions}
                   />
                 </WorkspaceToolSuspense>
               </WorkspaceIdleMount>
@@ -147,20 +156,19 @@ export function WorkspaceIntelSideSheet({
                   </WorkspaceToolSuspense>
                 </WorkspaceIdleMount>
               )}
-              {weakAreaSpots.length > 0 && (
-                <WorkspaceIdleMount enabled>
-                  <WorkspaceToolSuspense tool="weak-areas" lang={lang}>
-                    <LazyWeakAreasFocusRail
-                      spots={weakAreaSpots}
-                      focusTerm={focusTerm}
-                      lang={lang}
-                      expanded
-                      onToggle={onClose}
-                      onFocusWeakSpot={onFocusWeakSpot}
-                    />
-                  </WorkspaceToolSuspense>
-                </WorkspaceIdleMount>
-              )}
+              <WorkspaceIdleMount enabled>
+                <WorkspaceToolSuspense tool="weak-areas" lang={lang}>
+                  <LazyWeakAreasFocusRail
+                    spots={weakAreaSpots}
+                    focusTerm={focusTerm}
+                    lang={lang}
+                    expanded
+                    onToggle={onClose}
+                    onFocusWeakSpot={onFocusWeakSpot}
+                    emptyActions={weakAreasEmptyActions}
+                  />
+                </WorkspaceToolSuspense>
+              </WorkspaceIdleMount>
             </div>
           </motion.div>
         </>

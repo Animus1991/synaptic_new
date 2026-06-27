@@ -17,7 +17,9 @@ export type WorkspaceEmptyTool =
   | 'concept-map'
   | 'annotations'
   | 'feynman'
-  | 'lesson';
+  | 'lesson'
+  | 'discover'
+  | 'weak-areas';
 
 export function workspaceNoSourceMessage(lang: Lang): string {
   return lang === 'el'
@@ -160,6 +162,22 @@ const NO_EXTRACT: Record<WorkspaceEmptyTool, { en: (concept?: string) => string;
         ? `Δεν βρέθηκε περιεχόμενο μαθήματος για «${c}» στις σημειώσεις.`
         : 'Δεν βρέθηκε περιεχόμενο μαθήματος για αυτό το βήμα.',
   },
+  discover: {
+    en: () =>
+      'Upload notes in Library, generate a course, then open Workspace for personalized study guidance.',
+    el: () =>
+      'Ανέβασε σημειώσεις στη Library, δημιούργησε μάθημα και άνοιξε Workspace για εξατομικευμένη καθοδήγηση.',
+  },
+  'weak-areas': {
+    en: (c) =>
+      c
+        ? `No weak spots for «${c}» yet — complete a quiz or rate flashcards to build mastery signals.`
+        : 'No weak spots yet — complete a quiz or rate flashcards to build your mastery profile.',
+    el: (c) =>
+      c
+        ? `Δεν υπάρχουν αδύναμα σημεία για «${c}» — ολοκλήρωσε quiz ή βαθμολόγησε κάρτες.`
+        : 'Δεν υπάρχουν αδύναμα σημεία — ολοκλήρωσε quiz ή βαθμολόγησε κάρτες για προφίλ mastery.',
+  },
 };
 
 export function workspaceToolEmptyMessage(opts: {
@@ -214,6 +232,43 @@ export function buildWorkspaceEmptyActions(opts: {
       onClick: onUpload,
       primary: true,
     }];
+  }
+
+  if (tool === 'weak-areas' && onSwitchTool) {
+    return [
+      {
+        id: 'switch-tool',
+        label: isEl ? 'Έλεγχος γνώσεων (Quiz)' : 'Knowledge check (Quiz)',
+        onClick: () => onSwitchTool('quiz'),
+        primary: true,
+      },
+      {
+        id: 'switch-tool',
+        label: isEl ? 'Κάρτες Leitner' : 'Leitner flashcards',
+        onClick: () => onSwitchTool('leitner'),
+      },
+      {
+        id: 'switch-tool',
+        label: isEl ? 'Άνοιγμα Reader' : 'Open Reader',
+        onClick: () => onSwitchTool('reader'),
+      },
+    ];
+  }
+
+  if (tool === 'discover' && onSwitchTool) {
+    return [
+      {
+        id: 'switch-tool',
+        label: isEl ? 'Άνοιγμα Reader' : 'Open Reader',
+        onClick: () => onSwitchTool('reader'),
+        primary: true,
+      },
+      {
+        id: 'switch-tool',
+        label: isEl ? 'Χάρτης εννοιών' : 'Concept map',
+        onClick: () => onSwitchTool('concept-map'),
+      },
+    ];
   }
 
   const actions: WorkspaceEmptyAction[] = [];

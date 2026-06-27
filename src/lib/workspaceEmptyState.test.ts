@@ -45,6 +45,20 @@ describe('workspaceEmptyState', () => {
     expect(upload).toHaveBeenCalled();
   });
 
+  it('builds weak-areas tool switch actions when source exists', () => {
+    const switchTool = vi.fn();
+    const actions = buildWorkspaceEmptyActions({
+      tool: 'weak-areas',
+      hasSource: true,
+      lang: 'en',
+      onSwitchTool: switchTool,
+    });
+    expect(actions.length).toBeGreaterThanOrEqual(2);
+    expect(actions[0]?.id).toBe('switch-tool');
+    actions[0]?.onClick();
+    expect(switchTool).toHaveBeenCalledWith('quiz');
+  });
+
   it('builds reprocess and related-tool actions when source exists', () => {
     const reprocess = vi.fn();
     const switchTool = vi.fn();

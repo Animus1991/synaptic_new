@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { AlertTriangle, BookOpen, Search, Timer } from '@/lib/lucide-shim';
+import { BookOpen, Search, Timer } from '@/lib/lucide-shim';
 import type { SimulatorSessionContent } from '../../lib/simulatorSessionModel';
 import { filterNumericCues } from '../../lib/simulatorSessionModel';
 import { examPracticeLabel } from '../../lib/examPracticePresets';
@@ -8,6 +8,7 @@ import { auditSimulatorTimerPresetSync } from '../../lib/simulatorTimerPresetSyn
 import { WorkspaceEmptyState } from './WorkspaceEmptyState';
 import { InteractiveSimulator } from './InteractiveSimulator';
 import { ArtifactStaleBanner } from './ArtifactStaleBanner';
+import { WorkspacePanelWarnStrip } from './WorkspacePanelWarnStrip';
 import { SimulatorTimerPresetSyncStrip } from './SimulatorTimerPresetSyncStrip';
 
 type Props = {
@@ -104,21 +105,15 @@ export function SimulatorPanel({
         )}
 
         {(session.weakExtraction || session.passageGrounded) && (
-          <div
-            className="mb-3 flex items-start gap-2 rounded-xl border border-accent-amber/30 bg-accent-amber/8 px-3 py-2 text-[10px] text-accent-amber"
-            data-testid="simulator-weak-extraction"
-          >
-            <AlertTriangle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
-            <p>
-              {session.passageGrounded
-                ? (isEl
-                  ? 'Οι παράμετροι προέρχονται από το απόσπασμα (generic concept) — Reprocess για πιο πλούσια δομή.'
-                  : 'Parameters are passage-grounded (generic concept) — Reprocess for richer structure.')
-                : (isEl
-                  ? 'Αδύναμη εξαγωγή — λίγοι αριθμοί στο υλικό. Δοκίμασε Reprocess.'
-                  : 'Weak extraction — sparse numerics in material. Try Reprocess.')}
-            </p>
-          </div>
+          <WorkspacePanelWarnStrip testId="simulator-weak-extraction">
+            {session.passageGrounded
+              ? (isEl
+                ? 'Οι παράμετροι προέρχονται από το απόσπασμα (generic concept) — Reprocess για πιο πλούσια δομή.'
+                : 'Parameters are passage-grounded (generic concept) — Reprocess for richer structure.')
+              : (isEl
+                ? 'Αδύναμη εξαγωγή — λίγοι αριθμοί στο υλικό. Δοκίμασε Reprocess.'
+                : 'Weak extraction — sparse numerics in material. Try Reprocess.')}
+          </WorkspacePanelWarnStrip>
         )}
 
         <SimulatorTimerPresetSyncStrip report={syncReport} lang={lang} />
@@ -148,7 +143,7 @@ export function SimulatorPanel({
               type="button"
               data-testid="simulator-start-timed-practice"
               onClick={() => onStartTimedPractice(session.suggestedExamPractice)}
-              className="inline-flex items-center gap-1 rounded-lg border border-accent-amber/30 bg-accent-amber/10 px-2 py-1 text-[10px] font-medium text-accent-amber hover:bg-accent-amber/15"
+              className="ws-eyebrow ws-chip-warn inline-flex items-center gap-1 rounded-lg px-2 py-1 text-[10px] font-medium hover:opacity-90"
             >
               <Timer className="w-3 h-3" />
               {isEl ? 'Χρονομέτρηση' : 'Timed block'} · {examPracticeLabel(session.suggestedExamPractice, lang)}

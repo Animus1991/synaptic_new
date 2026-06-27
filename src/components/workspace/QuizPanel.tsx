@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
-import { AlertTriangle, BookOpen, Search } from '@/lib/lucide-shim';
+import { BookOpen, Search } from '@/lib/lucide-shim';
 import type { QuizIrtDisplay } from '../../lib/quizIrt';
 import type { QuizSessionContent } from '../../lib/quizSessionModel';
 import { filterQuizItems, quizItemQuestion } from '../../lib/quizSessionModel';
@@ -11,6 +11,7 @@ import { WorkspaceQuizSession } from './WorkspaceQuizSession';
 import { WorkspaceSelectionActionBar } from './WorkspaceSelectionActionBar';
 import { QuizSelectionContractStrip } from './QuizSelectionContractStrip';
 import { ArtifactStaleBanner } from './ArtifactStaleBanner';
+import { WorkspacePanelWarnStrip } from './WorkspacePanelWarnStrip';
 import type {
   WorkspaceSelectionActionId,
   WorkspaceSelectionContext,
@@ -143,21 +144,15 @@ export function QuizPanel({
       <QuizSelectionContractStrip report={selectionContractReport} lang={lang} />
 
       {(session.weakExtraction || session.passageGrounded) && (
-        <div
-          className="mb-3 flex items-start gap-2 rounded-xl border border-accent-amber/30 bg-accent-amber/8 px-3 py-2 text-[10px] text-accent-amber"
-          data-testid="quiz-weak-extraction"
-        >
-          <AlertTriangle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
-          <p>
-            {session.passageGrounded
-              ? (isEl
-                ? 'Οι ερωτήσεις προέρχονται από το απόσπασμα (generic concept) — Reprocess για πιο πλούσια δομή.'
-                : 'Questions are passage-grounded (generic concept) — Reprocess for richer structure.')
-              : (isEl
-                ? 'Αδύναμη εξαγωγή — λίγοι όροι γλωσσαρίου. Δοκίμασε Reprocess.'
-                : 'Weak extraction — sparse glossary. Try Reprocess.')}
-          </p>
-        </div>
+        <WorkspacePanelWarnStrip testId="quiz-weak-extraction">
+          {session.passageGrounded
+            ? (isEl
+              ? 'Οι ερωτήσεις προέρχονται από το απόσπασμα (generic concept) — Reprocess για πιο πλούσια δομή.'
+              : 'Questions are passage-grounded (generic concept) — Reprocess for richer structure.')
+            : (isEl
+              ? 'Αδύναμη εξαγωγή — λίγοι όροι γλωσσαρίου. Δοκίμασε Reprocess.'
+              : 'Weak extraction — sparse glossary. Try Reprocess.')}
+        </WorkspacePanelWarnStrip>
       )}
 
       <div className="mb-3 flex flex-wrap items-center gap-2">
