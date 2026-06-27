@@ -190,6 +190,11 @@ jobs:
         with:
           node-version: '22'
           cache: npm
+      - uses: actions/cache@v4
+        with:
+          path: .github/perf/b11-prod-stretch-history.json
+          key: b11-prod-stretch-history-v1
+          restore-keys: b11-prod-stretch-history-v1
       - run: npm ci
       - run: npm run build:fast
       - run: npx playwright install --with-deps chromium
@@ -198,7 +203,17 @@ jobs:
           CI: true
           PLAYWRIGHT_PROD_PERF: '1'
           PROD_INTERACTIVE_BUDGET_MS: '20000'
-          # PROD_STRETCH_GATE: '1'  # enable when ubuntu median Continue → interactive ≤1.2s
+          # PROD_STRETCH_GATE: '1'  # enable when perf-budget-prod summary reports gate ready (median ≤1.2s for 10 runs)
+      - name: B11 stretch rolling median
+        if: success()
+        run: npm run b11:stretch-tracker
+        env:
+          B11_STRETCH_WINDOW: '10'
+      - uses: actions/cache/save@v4
+        if: success()
+        with:
+          path: .github/perf/b11-prod-stretch-history.json
+          key: b11-prod-stretch-history-v1
       - if: failure()
         uses: actions/upload-artifact@v4
         with:

@@ -2,6 +2,7 @@ node_modules/
 .tools/
 dist/
 public/pyodide/
+.github/perf/b11-prod-stretch-history.json
 *.log
 .DS_Store
 scripts/pdf-probe-dumps/

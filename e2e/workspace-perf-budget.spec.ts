@@ -1,4 +1,6 @@
 import { test, expect } from '@playwright/test';
+import { mkdirSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { skipOnboardingToLibrary } from './helpers/onboarding';
 
 const NOTES = `
@@ -27,6 +29,19 @@ async function waitForWorkspaceEntryPrefetch(page: import('@playwright/test').Pa
     undefined,
     { timeout: 30_000 },
   );
+}
+
+function recordProdStretchSample(elapsed: number): void {
+  if (!IS_PROD_PERF) return;
+  const payload = {
+    elapsedMs: elapsed,
+    stretchTargetMs: PROD_STRETCH_MS,
+    withinStretch: elapsed <= PROD_STRETCH_MS,
+    recordedAt: new Date().toISOString(),
+  };
+  const dir = join(process.cwd(), 'test-results');
+  mkdirSync(dir, { recursive: true });
+  writeFileSync(join(dir, 'b11-prod-stretch.json'), `${JSON.stringify(payload)}\n`, 'utf8');
 }
 
 test.describe('Workspace perf budget (B11)', () => {
@@ -79,6 +94,8 @@ test.describe('Workspace perf budget (B11)', () => {
       INTERACTIVE_BUDGET_MS,
     );
 
+    recordProdStretchSample(elapsed);
+
     if (PROD_STRETCH_GATE) {
       expect(
         elapsed,
@@ -88,6 +105,11 @@ test.describe('Workspace perf budget (B11)', () => {
       test.info().annotations.push({
         type: 'B11 stretch',
         description: `Continue → interactive ${elapsed}ms (stretch target ≤${PROD_STRETCH_MS}ms)`,
+      });
+    } else {
+      test.info().annotations.push({
+        type: 'B11 stretch',
+        description: `Continue → interactive ${elapsed}ms (within stretch ≤${PROD_STRETCH_MS}ms)`,
       });
     }
   });
