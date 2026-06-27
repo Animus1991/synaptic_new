@@ -13,6 +13,8 @@ import { isDemoCourse } from '../lib/demoMode';
 import { previewUploadOutline, type UploadOutlinePreview } from '../lib/uploadOutlinePreview';
 import { OutlinePreviewPanel } from './OutlinePreviewPanel';
 import { applyEditedTopicTitles, outlineTopicsWereEdited } from '../lib/outlineTopicEdit';
+import { UiIcon } from './ui/UiIcon';
+import type { UiIconId } from '../lib/uiIconRegistry';
 
 interface UploadModalProps {
   isOpen: boolean;
@@ -417,9 +419,9 @@ export function UploadModal({
                   <label className="text-sm font-medium block mb-3">Source Mode</label>
                   <div className="space-y-2">
                     {[
-                      { mode: 'strict' as SourceMode, label: 'Strict Source-Grounded', desc: 'Only use content from your uploaded material. Minimizes hallucination risk.', icon: '🔒' },
-                      { mode: 'enriched' as SourceMode, label: 'Notes + Enrichment', desc: 'Use your notes as primary source, add trusted external explanations and examples.', icon: '✨' },
-                      { mode: 'notes-only' as SourceMode, label: 'Notes Only', desc: 'Generate course structure from your notes without any additions.', icon: '📝' },
+                      { mode: 'strict' as SourceMode, label: 'Strict Source-Grounded', desc: 'Only use content from your uploaded material. Minimizes hallucination risk.', icon: 'lock' as UiIconId },
+                      { mode: 'enriched' as SourceMode, label: 'Notes + Enrichment', desc: 'Use your notes as primary source, add trusted external explanations and examples.', icon: 'sparkle' as UiIconId },
+                      { mode: 'notes-only' as SourceMode, label: 'Notes Only', desc: 'Generate course structure from your notes without any additions.', icon: 'notes' as UiIconId },
                     ].map(s => (
                       <button
                         key={s.mode}
@@ -432,7 +434,7 @@ export function UploadModal({
                         )}
                       >
                         <div className="flex items-center gap-2 mb-1">
-                          <span>{s.icon}</span>
+                          <UiIcon id={s.icon} size="sm" className="text-brand-600" />
                           <span className="font-medium text-sm">{s.label}</span>
                         </div>
                         <p className="text-xs text-text-secondary ml-6">{s.desc}</p>

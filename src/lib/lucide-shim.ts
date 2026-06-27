@@ -46,6 +46,7 @@ export {
   File,
   FileMagnifyingGlass as FileSearch,
   FileText,
+  Flag,
   Fire as Flame,
   Flask as FlaskConical,
   Gauge,

@@ -12,6 +12,7 @@ import { buildStudyPlanBlocks } from '../lib/pedagogy';
 import type { FsrsRating } from '../lib/pedagogy';
 import { filterTasksForSession, startButtonLabel, type SessionType } from '../lib/taskFlows';
 import { ErrorNotebook } from './visuals/ErrorNotebook';
+import { CourseIcon } from './ui/CourseIcon';
 
 interface TasksProps {
   tasks: Task[];
@@ -247,7 +248,7 @@ export function Tasks({ tasks, onComplete, onReviewRating, onStartTask, onStartS
                   <div className="w-1 h-8 rounded-full shrink-0" style={{ backgroundColor: task.courseColor }} />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-0.5">
-                      <span className="text-sm">{task.courseIcon}</span>
+                      <CourseIcon icon={task.courseIcon} size="sm" colorClassName="text-brand-500 shrink-0" />
                       <config.icon className={cn('w-3.5 h-3.5 shrink-0', config.color)} />
                       <span className="text-[10px] font-medium text-text-tertiary uppercase tracking-wider">{config.label}</span>
                     </div>

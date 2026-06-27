@@ -18,6 +18,7 @@ import { buildReprocessPreview } from '../lib/reprocessPreview';
 import { ReprocessPreviewModal } from './ReprocessPreviewModal';
 import { ConfirmDialog } from './ui/ConfirmDialog';
 import { useI18n } from '../lib/i18n';
+import { CourseIcon } from './ui/CourseIcon';
 import { buildDeleteFileCascadeCopy } from '../lib/deleteFileCascadeCopy';
 import { buildDeleteCourseCascadeCopy } from '../lib/deleteCourseCascadeCopy';
 import { countFilesForCourse } from '../lib/deleteCascade';
@@ -145,7 +146,7 @@ export function CourseView({
 
         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
           <div className="flex items-start gap-4">
-            <div className="text-4xl">{course.icon}</div>
+            <CourseIcon icon={course.icon} size="xl" className="h-10 w-10" colorClassName="text-brand-600" />
             <div>
               <h1 className="text-2xl sm:text-3xl font-bold" data-testid="course-title">{course.title}</h1>
               <p className="text-text-secondary mt-1 text-sm max-w-xl">{course.description}</p>

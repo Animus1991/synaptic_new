@@ -13,6 +13,7 @@ import {
   weeklyMasteryFromActivities,
 } from '../lib/retentionAnalytics';
 import { CalibrationChip } from './visuals/CalibrationChip';
+import { CourseIcon } from './ui/CourseIcon';
 import { cn } from '../utils/cn';
 import { ReadinessRing } from './visuals/ReadinessRing';
 import { RetentionCurve } from './visuals/DiagramGenerator';
@@ -300,7 +301,7 @@ function OverviewTab({
         <div className="space-y-3">
           {courses.filter(c => c.status !== 'generating').map(course => (
             <div key={course.id} className="flex items-center gap-3">
-              <span className="text-lg">{course.icon}</span>
+              <CourseIcon icon={course.icon} size="md" colorClassName="text-brand-600 shrink-0" />
               <span className="text-sm text-text-secondary w-36 truncate">{course.title}</span>
               <div className="flex-1 bg-surface-hover rounded-full h-2.5">
                 <div className="h-2.5 rounded-full transition-all" style={{ width: `${course.mastery}%`, backgroundColor: course.color }} />

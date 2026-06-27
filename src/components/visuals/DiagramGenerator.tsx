@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { useMemo, useState } from 'react';
-import { ArrowDownUp, Download, Sparkles } from '@/lib/lucide-shim';
+import { ArrowDownUp, Download, Sparkles, List, Calculator, Scale, Flag, TrendingUp } from '@/lib/lucide-shim';
 import { termMatchesFocus } from '../../lib/workspaceFocus';
 import { cn } from '../../utils/cn';
 import { downloadCompareCsv } from '../../lib/compareExport';
@@ -36,7 +36,7 @@ export function FlowchartDiagram({ nodes, edges, title }: { nodes: FlowNode[]; e
 
   return (
     <div className="rounded-xl border border-border-subtle bg-surface-card p-4">
-      {title && <p className="text-xs font-semibold mb-2 text-text-secondary">📋 {title}</p>}
+      {title && <p className="text-xs font-semibold mb-2 text-text-secondary inline-flex items-center gap-1.5"><List className="w-3.5 h-3.5" /> {title}</p>}
       <svg width={320} height={svgH} className="block mx-auto">
         {/* Edges */}
         {edges.map((e, i) => {
@@ -84,7 +84,7 @@ interface FormulaSymbol { symbol: string; meaning: string; unit?: string }
 export function FormulaExplorer({ formula, name, symbols }: { formula: string; name: string; symbols: FormulaSymbol[] }) {
   return (
     <div className="rounded-xl border border-border-subtle bg-surface-card p-4">
-      <p className="text-xs font-semibold mb-3 text-text-secondary">📐 Formula Explorer</p>
+      <p className="text-xs font-semibold mb-3 text-text-secondary inline-flex items-center gap-1.5"><Calculator className="w-3.5 h-3.5" /> Formula Explorer</p>
       <div className="text-center mb-4">
         <p className="text-xs text-text-muted mb-1">{name}</p>
         <div className="text-2xl font-mono font-bold text-brand-300 py-3 px-4 rounded-lg bg-surface-primary/60 inline-block">
@@ -161,7 +161,7 @@ export function ComparisonTable({
   return (
     <div className="rounded-xl border border-border-subtle bg-surface-card p-4 overflow-x-auto" data-testid="comparison-table">
       <div className="flex items-center justify-between gap-2 mb-3">
-        <p className="text-xs font-semibold text-text-secondary">⚖️ {title}</p>
+        <p className="text-xs font-semibold text-text-secondary inline-flex items-center gap-1.5"><Scale className="w-3.5 h-3.5" /> {title}</p>
         <div className="flex items-center gap-1.5">
           <button
             type="button"
@@ -280,7 +280,7 @@ interface Milestone { label: string; completed: boolean; date?: string; xp?: num
 export function ProgressTimeline({ milestones, title }: { milestones: Milestone[]; title?: string }) {
   return (
     <div className="rounded-xl border border-border-subtle bg-surface-card p-4">
-      {title && <p className="text-xs font-semibold mb-3 text-text-secondary">🏁 {title}</p>}
+      {title && <p className="text-xs font-semibold mb-3 text-text-secondary inline-flex items-center gap-1.5"><Flag className="w-3.5 h-3.5" /> {title}</p>}
       <div className="space-y-0">
         {milestones.map((m, i) => (
           <motion.div
@@ -324,7 +324,7 @@ export function RetentionCurve({ dataPoints }: { dataPoints: { day: number; rete
 
   return (
     <div className="rounded-xl border border-border-subtle bg-surface-card p-4">
-      <p className="text-xs font-semibold mb-2 text-text-secondary">📉 Forgetting Curve</p>
+      <p className="text-xs font-semibold mb-2 text-text-secondary inline-flex items-center gap-1.5"><TrendingUp className="w-3.5 h-3.5 rotate-180" /> Forgetting Curve</p>
       <svg width={w} height={h} className="block mx-auto">
         {/* Grid */}
         {[0, 25, 50, 75, 100].map(v => (

@@ -39,12 +39,14 @@ import {
   auditAnnotationRemapEdgeCases,
   formatRemapEdgeCaseBanner,
 } from '../../lib/annotationRemapEdgeCasesQA';
+import type { UiIconId } from '../../lib/uiIconRegistry';
+import { UiIcon } from '../ui/UiIcon';
 
 const COLORS = ['#818cf8', '#fbbf24', '#34d399', '#fb7185', '#22d3ee'];
 
-const SEMANTIC_CATEGORIES: { cat: AnnotationCategory; icon: string; labelEn: string; labelEl: string }[] = [
-  { cat: 'confusing', icon: '⚠', labelEn: 'Confusing', labelEl: 'Μπερδεμένο' },
-  { cat: 'exam-relevant', icon: '📝', labelEn: 'Exam', labelEl: 'Εξέταση' },
+const SEMANTIC_CATEGORIES: { cat: AnnotationCategory; iconId: UiIconId; labelEn: string; labelEl: string }[] = [
+  { cat: 'confusing', iconId: 'warning', labelEn: 'Confusing', labelEl: 'Μπερδεμένο' },
+  { cat: 'exam-relevant', iconId: 'notes', labelEn: 'Exam', labelEl: 'Εξέταση' },
 ];
 
 function categoryLabel(cat: AnnotationCategory, lang: 'en' | 'el'): string {
@@ -408,14 +410,14 @@ export function AnnotationOverlay({
           >
             {lang === 'el' ? 'Γενικό' : 'General'}
           </button>
-          {SEMANTIC_CATEGORIES.map(({ cat, icon, labelEn, labelEl }) => (
+          {SEMANTIC_CATEGORIES.map(({ cat, iconId, labelEn, labelEl }) => (
             <button
               key={cat}
               type="button"
               data-testid={`annotation-category-${cat}`}
               onClick={() => setActiveCategory(cat)}
               className={cn(
-                'px-1.5 py-0.5 rounded text-[9px] font-medium border transition-all',
+                'px-1.5 py-0.5 rounded text-[9px] font-medium border transition-all inline-flex items-center gap-0.5',
                 activeCategory === cat
                   ? cat === 'confusing'
                     ? 'border-accent-amber/50 text-accent-amber bg-accent-amber/10'
@@ -423,7 +425,8 @@ export function AnnotationOverlay({
                   : 'border-transparent text-text-muted hover:text-text-secondary',
               )}
             >
-              {icon} {lang === 'el' ? labelEl : labelEn}
+              <UiIcon id={iconId} size="xs" />
+              {lang === 'el' ? labelEl : labelEn}
             </button>
           ))}
         </div>
@@ -529,17 +532,18 @@ export function AnnotationOverlay({
               {term}
             </button>
           ))}
-          {SEMANTIC_CATEGORIES.map(({ cat, icon, labelEn, labelEl }) => (
+          {SEMANTIC_CATEGORIES.map(({ cat, iconId, labelEn, labelEl }) => (
             <button
               key={`filter-${cat}`}
               type="button"
               onClick={() => setFilterCategory(filterCategory === cat ? null : cat)}
               className={cn(
-                'text-[9px] px-1.5 py-0.5 rounded border',
+                'text-[9px] px-1.5 py-0.5 rounded border inline-flex items-center gap-0.5',
                 filterCategory === cat ? 'border-brand-400 text-brand-300 bg-brand-500/10' : 'border-border-subtle text-text-muted',
               )}
             >
-              {icon} {lang === 'el' ? labelEl : labelEn}
+              <UiIcon id={iconId} size="xs" />
+              {lang === 'el' ? labelEl : labelEn}
             </button>
           ))}
           <input
@@ -583,7 +587,7 @@ export function AnnotationOverlay({
                   isEmpty && 'h-3',
                 )}
               >
-                {pinHere && <span className="absolute -left-1 text-[10px]">📌</span>}
+                {pinHere && <Pin className="absolute -left-1 w-2.5 h-2.5 text-brand-500" aria-hidden />}
                 {line || '\u00A0'}
                 {onOpenInReader && line.trim().length > 8 && (
                   <button
@@ -601,10 +605,14 @@ export function AnnotationOverlay({
                   </span>
                 )}
                 {lineAnns.some((a) => a.category === 'confusing') && (
-                  <span className="ml-1 text-[8px] text-accent-amber" title={categoryLabel('confusing', lang)}>⚠</span>
+                  <span className="ml-1 inline-flex" title={categoryLabel('confusing', lang)}>
+                    <AlertTriangle className="w-2.5 h-2.5 text-accent-amber" aria-hidden />
+                  </span>
                 )}
                 {lineAnns.some((a) => a.category === 'exam-relevant') && (
-                  <span className="ml-1 text-[8px] text-accent-cyan" title={categoryLabel('exam-relevant', lang)}>📝</span>
+                  <span className="ml-1 inline-flex" title={categoryLabel('exam-relevant', lang)}>
+                    <FileText className="w-2.5 h-2.5 text-accent-cyan" aria-hidden />
+                  </span>
                 )}
               </div>
             );
@@ -651,8 +659,9 @@ export function AnnotationOverlay({
                     data-testid={`annotation-card-${ann.id}`}
                   >
                     <div className="flex items-center justify-between mb-1">
-                      <span className="font-medium capitalize" style={{ color: ann.color }}>
-                        {ann.type === 'highlight' ? '🖍' : ann.type === 'comment' ? '💬' : '📌'} {ann.type}
+                      <span className="font-medium capitalize inline-flex items-center gap-1" style={{ color: ann.color }}>
+                        {ann.type === 'highlight' ? <Highlighter className="w-3 h-3" /> : ann.type === 'comment' ? <MessageSquare className="w-3 h-3" /> : <Pin className="w-3 h-3" />}
+                        {ann.type}
                       </span>
                       <button
                         type="button"
@@ -774,8 +783,9 @@ export function AnnotationOverlay({
             exit={{ opacity: 0, y: 20 }}
             className="absolute bottom-0 left-0 right-0 p-3 glass-strong border-t border-border-subtle z-10"
           >
-            <p className="text-xs font-semibold mb-2">
-              💬 {t('addComment')} (line {addingAt + 1})
+            <p className="text-xs font-semibold mb-2 inline-flex items-center gap-1.5">
+              <MessageSquare className="w-3.5 h-3.5 text-brand-500" />
+              {t('addComment')} (line {addingAt + 1})
               {tagDraft && <span className="text-brand-300 font-normal ml-1">· #{tagDraft}</span>}
             </p>
             <div className="flex gap-2">

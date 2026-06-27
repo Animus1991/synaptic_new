@@ -403,26 +403,41 @@ input[type="range"]::-webkit-slider-thumb {
   --color-surface-secondary: #f4f0e9;
   --color-surface-card: #ffffff;
   --color-surface-hover: #efe9de;
-  --color-border-subtle: #e3dccb;
-  --color-text-primary: #3d2f1f;
-  --color-text-secondary: #6b5a44;
-  --color-text-muted: #8b7355;
-  --color-accent-cyan: #8b7355;
+  --color-border-subtle: #dccfb8;
+  --color-text-primary: #2a1f12;
+  --color-text-secondary: #4a3825;
+  --color-text-muted: #6b5238;
+  --color-accent-cyan: #7a5c32;
   --color-brand-50: #faf6ef;
-  --color-brand-100: #f0e7d4;
-  --color-brand-200: #e3d3b1;
-  --color-brand-300: #d3bb89;
-  --color-brand-400: #c9b99a;
-  --color-brand-500: #a98d63;
-  --color-brand-600: #8b7355;
-  --color-brand-700: #6f5b42;
-  --color-brand-800: #574630;
-  --color-brand-900: #3d2f1f;
-  --color-brand-950: #2a1f12;
+  --color-brand-100: #ede0c8;
+  --color-brand-200: #dcc9a3;
+  --color-brand-300: #c9a86a;
+  --color-brand-400: #a37845;
+  --color-brand-500: #8b5e2a;
+  --color-brand-600: #704820;
+  --color-brand-700: #573a18;
+  --color-brand-800: #3f2a10;
+  --color-brand-900: #2a1c0b;
+  --color-brand-950: #1a1107;
 
   font-family: 'Nunito Sans', system-ui, -apple-system, sans-serif;
   color: var(--color-text-primary);
   background: var(--color-surface-primary);
+}
+[data-ws-theme="warm"] .text-brand-300,
+[data-ws-theme="warm"] .text-brand-400 {
+  color: var(--color-brand-600);
+}
+[data-ws-theme="warm"] .text-brand-500 {
+  color: var(--color-brand-700);
+}
+[data-ws-theme="warm"] .ws-eyebrow {
+  color: var(--color-brand-700);
+  font-weight: 600;
+}
+[data-ws-theme="warm"] .ws-pill {
+  color: var(--color-brand-700);
+  font-weight: 600;
 }
 [data-ws-theme="warm"] .blueprint-grid,
 [data-ws-theme="warm"].blueprint-grid {

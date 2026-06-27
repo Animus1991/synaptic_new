@@ -1,7 +1,9 @@
 import type { Lang } from './i18n';
 
+import type { UiIconId } from './uiIconRegistry';
+
 export type OnboardingRole = { id: string; label: string; desc: string };
-export type OnboardingGoal = { id: string; label: string; icon: string };
+export type OnboardingGoal = { id: string; label: string; icon: UiIconId };
 
 export type OnboardingContent = {
   welcomeTitle: string;
@@ -47,7 +49,7 @@ const EN: OnboardingContent = {
   upcomingExam: 'Upcoming exam?',
   adaptiveHint:
     'The adaptive engine will also learn from your behavior — response time, accuracy, confidence, error patterns — to optimize your path automatically.',
-  uploadTitle: "You're All Set! 🎉",
+  uploadTitle: "You're All Set!",
   uploadBody: 'Upload your first document to generate an interactive course, or explore the dashboard first.',
   uploadCta: 'Upload My First Material',
   skipExplore: 'Skip — explore the demo first',
@@ -61,12 +63,12 @@ const EN: OnboardingContent = {
     { id: 'company', label: 'Company / Training', desc: 'Transform documents into training' },
   ],
   goals: [
-    { id: 'exam', label: 'Pass an upcoming exam', icon: '🎯' },
-    { id: 'understand', label: 'Deeply understand material', icon: '🧠' },
-    { id: 'review', label: 'Quick review & revision', icon: '⚡' },
-    { id: 'practice', label: 'Get more practice problems', icon: '💪' },
-    { id: 'organize', label: 'Organize & structure my notes', icon: '📚' },
-    { id: 'explore', label: 'Explore a new subject', icon: '🔍' },
+    { id: 'exam', label: 'Pass an upcoming exam', icon: 'target' },
+    { id: 'understand', label: 'Deeply understand material', icon: 'brain' },
+    { id: 'review', label: 'Quick review & revision', icon: 'bolt' },
+    { id: 'practice', label: 'Get more practice problems', icon: 'strength' },
+    { id: 'organize', label: 'Organize & structure my notes', icon: 'books' },
+    { id: 'explore', label: 'Explore a new subject', icon: 'search' },
   ],
 };
 
@@ -88,7 +90,7 @@ const EL: OnboardingContent = {
   upcomingExam: 'Επερχόμενη εξέταση;',
   adaptiveHint:
     'Το προσαρμοστικό σύστημα μαθαίνει από τη συμπεριφορά σου — χρόνο απόκρισης, ακρίβεια, εμπιστοσύνη, μοτίβα λαθών — για να βελτιστοποιεί τη διαδρομή σου.',
-  uploadTitle: 'Όλα έτοιμα! 🎉',
+  uploadTitle: 'Όλα έτοιμα!',
   uploadBody: 'Ανέβασε το πρώτο σου έγγραφο για διαδραστικό μάθημα ή εξερεύνησε πρώτα τον πίνακα.',
   uploadCta: 'Ανέβασμα Πρώτου Υλικού',
   skipExplore: 'Παράλειψη — εξερεύνησε πρώτα το demo',
@@ -102,12 +104,12 @@ const EL: OnboardingContent = {
     { id: 'company', label: 'Εταιρεία / Εκπαίδευση', desc: 'Μετατροπή εγγράφων σε training' },
   ],
   goals: [
-    { id: 'exam', label: 'Επιτυχία σε επερχόμενη εξέταση', icon: '🎯' },
-    { id: 'understand', label: 'Βαθιά κατανόηση υλικού', icon: '🧠' },
-    { id: 'review', label: 'Γρήγορη επανάληψη', icon: '⚡' },
-    { id: 'practice', label: 'Περισσότερες ασκήσεις', icon: '💪' },
-    { id: 'organize', label: 'Οργάνωση σημειώσεων', icon: '📚' },
-    { id: 'explore', label: 'Εξερεύνηση νέου αντικειμένου', icon: '🔍' },
+    { id: 'exam', label: 'Επιτυχία σε επερχόμενη εξέταση', icon: 'target' },
+    { id: 'understand', label: 'Βαθιά κατανόηση υλικού', icon: 'brain' },
+    { id: 'review', label: 'Γρήγορη επανάληψη', icon: 'bolt' },
+    { id: 'practice', label: 'Περισσότερες ασκήσεις', icon: 'strength' },
+    { id: 'organize', label: 'Οργάνωση σημειώσεων', icon: 'books' },
+    { id: 'explore', label: 'Εξερεύνηση νέου αντικειμένου', icon: 'search' },
   ],
 };
 

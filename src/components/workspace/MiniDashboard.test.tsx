@@ -72,7 +72,7 @@ describe('MiniDashboard — Progress tool activity (Prompt 17)', () => {
       />,
     );
     fireEvent.click(screen.getByText(/status/i));
-    fireEvent.click(screen.getByRole('button', { name: /⚠/i }));
+    fireEvent.click(screen.getByRole('button', { name: /weak/i }));
     expect(screen.getByText('2× quiz mistakes')).toBeTruthy();
     fireEvent.click(screen.getByText('Quiz'));
     expect(onRemediate).toHaveBeenCalledWith('Tariffs', 'quiz');

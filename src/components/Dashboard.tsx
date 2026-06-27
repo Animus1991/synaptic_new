@@ -12,6 +12,7 @@ import { ActivityFeed } from './visuals/ActivityFeed';
 import { CalibrationChip } from './visuals/CalibrationChip';
 import { ConceptMasteryBars } from './visuals/ConceptMasteryBars';
 import { PrerequisiteRepairPanel } from './visuals/PrerequisiteRepair';
+import { CourseIcon } from './ui/CourseIcon';
 import type { PrerequisiteRepair } from '../lib/pedagogy';
 import type { CalibrationDirection } from '../lib/pedagogy';
 import type { SessionType } from '../lib/taskFlows';
@@ -287,10 +288,10 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
               <ReadinessRing value={learnerModel.overallMastery} sublabel="Derived from graded first-attempts only — never from self-reported skill." />
               <div className="flex-1 space-y-4">
                 <SignalBars signals={[
-                  { label: 'Accuracy', value: Math.round(learnerModel.retentionRate * 100), icon: '🎯', color: '#34d399', detail: 'Correct first-attempt rate' },
-                  { label: 'Self-Reliance', value: Math.round((1 - learnerModel.helpSeekingRate) * 100), icon: '💪', color: '#818cf8', detail: 'Solved without hints' },
-                  { label: 'Practice Volume', value: Math.min(100, Math.round(learnerModel.totalSessions * 2.1)), icon: '📊', color: '#22d3ee', detail: `${learnerModel.totalSessions} sessions completed` },
-                  { label: 'Retrieval Strength', value: Math.round(learnerModel.retrievalPerformance * 100), icon: '🧠', color: '#fbbf24', detail: 'Recall without prompts' },
+                  { label: 'Accuracy', value: Math.round(learnerModel.retentionRate * 100), icon: 'target', color: '#34d399', detail: 'Correct first-attempt rate' },
+                  { label: 'Self-Reliance', value: Math.round((1 - learnerModel.helpSeekingRate) * 100), icon: 'strength', color: '#818cf8', detail: 'Solved without hints' },
+                  { label: 'Practice Volume', value: Math.min(100, Math.round(learnerModel.totalSessions * 2.1)), icon: 'chart', color: '#22d3ee', detail: `${learnerModel.totalSessions} sessions completed` },
+                  { label: 'Retrieval Strength', value: Math.round(learnerModel.retrievalPerformance * 100), icon: 'brain', color: '#fbbf24', detail: 'Recall without prompts' },
                 ]} />
               </div>
             </div>
@@ -333,7 +334,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                 <motion.div key={task.id} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.15 + i * 0.04 }}
                   onClick={() => onStartTask?.(task.id)}
                   className="flex items-center gap-3 p-3 rounded-xl hover:bg-surface-hover transition-all cursor-pointer group">
-                  <span className="text-sm">{task.courseIcon}</span>
+                  <CourseIcon icon={task.courseIcon} size="sm" colorClassName="text-brand-500 shrink-0" />
                   <div className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: task.courseColor }} />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium truncate group-hover:text-brand-300 transition-colors">{task.title}</p>
@@ -347,7 +348,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                   </div>
                 </motion.div>
               ))}
-              {criticalTasks.length === 0 && <p className="text-sm text-text-tertiary text-center py-6">All caught up! 🎉</p>}
+              {criticalTasks.length === 0 && <p className="text-sm text-text-tertiary text-center py-6 flex items-center justify-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-accent-emerald" /> All caught up!</p>}
             </div>
           </div>
 
@@ -362,7 +363,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                     onClick={() => onStartTask?.(task.id)}
                     className="flex items-center gap-3 p-2.5 rounded-lg bg-surface-card/50 hover:bg-surface-hover cursor-pointer transition-all group"
                   >
-                    <span className="text-sm">{task.courseIcon}</span>
+                    <CourseIcon icon={task.courseIcon} size="sm" colorClassName="text-brand-500 shrink-0" />
                     <span className="text-sm flex-1 truncate group-hover:text-brand-300 transition-colors">{task.title}</span>
                     <span className="text-xs text-accent-orange">{task.estimatedMinutes}m</span>
                     <ChevronRight className="w-3.5 h-3.5 text-text-muted group-hover:text-brand-400" />
@@ -383,7 +384,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                 <motion.div key={course.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 + i * 0.04 }}
                   onClick={() => onSelectCourse(course)} className="p-4 rounded-xl border border-border-subtle hover:border-brand-500/30 bg-surface-primary/50 cursor-pointer transition-all group">
                   <div className="flex items-start justify-between mb-3">
-                    <div className="text-2xl">{course.icon}</div>
+                    <CourseIcon icon={course.icon} size="lg" colorClassName="text-brand-600" />
                     <MasteryRing mastery={course.mastery} size={38} />
                   </div>
                   <h3 className="font-semibold text-sm mb-1 group-hover:text-brand-300 transition-colors">{course.title}</h3>

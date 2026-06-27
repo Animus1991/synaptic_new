@@ -16,6 +16,8 @@ import { countFilesForCourse } from '../lib/deleteCascade';
 import { countGeneratedTasksForCourse } from '../lib/pipelineReprocess';
 import { courseDeleteStats } from '../lib/removeCourse';
 import { isDemoCourse } from '../lib/demoMode';
+import { CourseIcon } from './ui/CourseIcon';
+import { UiIcon } from './ui/UiIcon';
 
 interface LibraryProps {
   courses: Course[];
@@ -321,7 +323,7 @@ function CourseCard({
       className="p-5 rounded-2xl border border-border-subtle bg-surface-card hover:border-brand-500/30 cursor-pointer transition-all group"
     >
       <div className="flex items-start justify-between mb-4">
-        <div className="text-3xl">{course.icon}</div>
+        <CourseIcon icon={course.icon} size="xl" colorClassName="text-brand-600" />
         <div className="flex items-center gap-1">
           {canDelete && (
             <button
@@ -407,10 +409,11 @@ function CourseCard({
             </span>
           )}
         </div>
-        <span className={cn('text-[9px] px-1.5 py-0.5 rounded-full font-medium',
-          course.sourceMode === 'strict' ? 'bg-accent-emerald/10 text-accent-emerald' : course.sourceMode === 'enriched' ? 'bg-brand-500/10 text-brand-300' : 'bg-surface-hover text-text-muted'
+        <span className={cn('inline-flex items-center gap-1 text-[9px] px-1.5 py-0.5 rounded-full font-medium',
+          course.sourceMode === 'strict' ? 'bg-accent-emerald/10 text-accent-emerald' : course.sourceMode === 'enriched' ? 'bg-brand-500/10 text-brand-600' : 'bg-surface-hover text-text-muted'
         )}>
-          {course.sourceMode === 'strict' ? '🔒 Strict' : course.sourceMode === 'enriched' ? '✨ Enriched' : '📝 Notes'}
+          <UiIcon id={course.sourceMode === 'strict' ? 'lock' : course.sourceMode === 'enriched' ? 'sparkle' : 'notes'} size="xs" />
+          {course.sourceMode === 'strict' ? 'Strict' : course.sourceMode === 'enriched' ? 'Enriched' : 'Notes'}
         </span>
       </div>
       {course.conceptCount > 0 && (
@@ -480,7 +483,7 @@ function CourseListItem({
       onClick={onClick}
       className="flex items-center gap-4 p-4 rounded-xl border border-border-subtle bg-surface-card hover:border-brand-500/30 cursor-pointer transition-all group"
     >
-      <div className="text-2xl">{course.icon}</div>
+      <CourseIcon icon={course.icon} size="lg" colorClassName="text-brand-600 shrink-0" />
       <div className="flex-1 min-w-0">
         <h3 className="font-semibold text-sm group-hover:text-brand-300 transition-colors truncate">{course.title}</h3>
         <p className="text-xs text-text-tertiary mt-0.5">{course.subject} · {course.totalLessons} lessons · {course.estimatedHours}h</p>

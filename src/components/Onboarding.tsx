@@ -8,6 +8,7 @@ import {
 import { cn } from '../utils/cn';
 import { useI18n } from '../lib/i18n';
 import { getOnboardingContent } from '../lib/onboardingContent';
+import { UiIcon } from './ui/UiIcon';
 
 interface OnboardingProps {
   onComplete: (data: {
@@ -138,7 +139,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                       className={cn('p-4 rounded-xl border transition-all text-left',
                         selectedGoals.includes(goal.id) ? 'border-brand-500/50 bg-brand-500/10' : 'border-border-subtle hover:border-brand-500/20'
                       )}>
-                      <span className="text-xl mb-2 block">{goal.icon}</span>
+                      <UiIcon id={goal.icon} size="lg" className="mb-2 text-brand-600" />
                       <p className="text-sm font-medium">{goal.label}</p>
                     </button>
                   ))}

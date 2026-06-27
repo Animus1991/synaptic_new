@@ -4,6 +4,7 @@ import { inferSubject, rankKeyphrases, titleCasePhrase } from './contentAnalysis
 import type { GeneratedOutline } from './courseGenerator';
 import { buildGlossaryEntriesFromOutline } from './courseMerge';
 import { CONTENT_PIPELINE_VERSION } from './pipelineConstants';
+import { DEFAULT_COURSE_ICON_ID } from './uiIconRegistry';
 
 /**
  * Derive candidate topic titles from the material itself — subject-agnostic.
@@ -72,7 +73,7 @@ export function buildCourseFromUpload(
     ),
     subject: inferSubject(sourceText),
     color: ['#818cf8', '#22d3ee', '#2dd4bf', '#fb923c'][existingCount % 4]!,
-    icon: '📚',
+    icon: DEFAULT_COURSE_ICON_ID,
     totalLessons: Math.max(6, topics.length * 2),
     completedLessons: 0,
     mastery: 0,
@@ -162,7 +163,7 @@ export function buildCourseFromOutline(
     ),
     subject: outline.subject,
     color: COURSE_COLORS[existingCount % COURSE_COLORS.length]!,
-    icon: '📚',
+    icon: DEFAULT_COURSE_ICON_ID,
     totalLessons: Math.max(6, outline.topics.length * 2),
     completedLessons: 0,
     mastery: 0,
