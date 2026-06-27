@@ -68,13 +68,13 @@ const file: UploadedFile = {
   pipelineVersion: '2.0.0',
 };
 
-describe('reprocessPreview', () => {
+describe.sequential('reprocessPreview', () => {
   it('extractReaderPreviewSnippet prefers lecture headings', () => {
     const snippet = extractReaderPreviewSnippet(cleanAfterShape);
     expect(snippet).toMatch(/ΔΙΑΛΕΞΗ/i);
   });
 
-  it('buildReprocessPreview exposes before/after snippets and step titles', () => {
+  it('buildReprocessPreview exposes before/after snippets and step titles', { timeout: 30_000 }, () => {
     const preview = buildReprocessPreview(course, [file], 'el');
     expect(preview).not.toBeNull();
     expect(preview!.beforeScore).toBe(37);

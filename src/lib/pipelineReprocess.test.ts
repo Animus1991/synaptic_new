@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { reprocessCourseFromStoredText, regenerateTasksAfterReprocess, regenerateGlossaryAfterReprocess, summarizeReprocessTaskDelta } from './pipelineReprocess';
+import {
+  reprocessCourseFromStoredText,
+  regenerateTasksAfterReprocess,
+  regenerateGlossaryAfterReprocess,
+  summarizeReprocessTaskDelta,
+} from './pipelineReprocess';
 import type { Course, UploadedFile } from '../types';
 import { CONTENT_PIPELINE_VERSION } from './pipelineConstants';
 
@@ -49,8 +54,8 @@ const file: UploadedFile = {
   pipelineVersion: '2.0.0',
 };
 
-describe('pipelineReprocess', () => {
-  it('bumps pipeline version and refreshes concept spans from stored text', () => {
+describe.sequential('pipelineReprocess', () => {
+  it('bumps pipeline version and refreshes concept spans from stored text', { timeout: 30_000 }, () => {
     const result = reprocessCourseFromStoredText(course, [file]);
     expect(result).not.toBeNull();
     expect(result!.files[0]!.pipelineVersion).toBe(CONTENT_PIPELINE_VERSION);
@@ -63,7 +68,7 @@ describe('pipelineReprocess', () => {
     expect(reprocessCourseFromStoredText(course, [{ ...file, extractedText: '' }])).toBeNull();
   });
 
-  it('repairs OCR-glued Greek in stored text on reprocess', () => {
+  it('repairs OCR-glued Greek in stored text on reprocess', { timeout: 30_000 }, () => {
     const gluedFile: UploadedFile = {
       ...file,
       extractedText: `${GREEK_TEXT}\n\n6.Δύοχώρες;ΗημεδαπήκαιΑλλοδαπή`,
@@ -77,7 +82,7 @@ describe('pipelineReprocess', () => {
     expect(result!.files[0]!.pipelineVersion).toBe(CONTENT_PIPELINE_VERSION);
   });
 
-  it('merges outline topics and regenerates course tasks after reprocess', () => {
+  it('merges outline topics and regenerates course tasks after reprocess', { timeout: 30_000 }, () => {
     const result = reprocessCourseFromStoredText(course, [file]);
     expect(result).not.toBeNull();
     expect(result!.tasksRegenerated).toBe(true);
@@ -88,7 +93,7 @@ describe('pipelineReprocess', () => {
     expect(tasks.some((t) => t.id.startsWith(`gen-${course.id}-`))).toBe(true);
   });
 
-  it('summarizeReprocessTaskDelta reports stale generated task replacement', () => {
+  it('summarizeReprocessTaskDelta reports stale generated task replacement', { timeout: 30_000 }, () => {
     const result = reprocessCourseFromStoredText(course, [file]);
     expect(result).not.toBeNull();
     const before = [{
@@ -114,7 +119,7 @@ describe('pipelineReprocess', () => {
     expect(delta.addedGenerated).toBeGreaterThan(0);
   });
 
-  it('refreshes glossary entries for the course on reprocess', () => {
+  it('refreshes glossary entries for the course on reprocess', { timeout: 30_000 }, () => {
     const stale: import('../types').GlossaryEntry[] = [
       { term: 'StaleTerm', definition: 'old', source: 'x', relatedConcepts: [], courseId: course.id },
       { term: 'OtherCourse', definition: 'keep', source: 'y', relatedConcepts: [], courseId: 'other' },

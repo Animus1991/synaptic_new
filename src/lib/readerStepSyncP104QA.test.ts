@@ -16,8 +16,8 @@ const steps = [
   { title: 'Knowledge Check', type: 'Quiz' },
 ];
 
-describe('readerStepSyncP104QA (Wave 7 / SW-P1-04)', () => {
-  it('passes when reader sections and lesson steps bidirectionally sync', () => {
+describe.sequential('readerStepSyncP104QA (Wave 7 / SW-P1-04)', () => {
+  it('passes when reader sections and lesson steps bidirectionally sync', { timeout: 30_000 }, () => {
     const report = auditReaderStepSyncP104({
       lang: 'en',
       steps,

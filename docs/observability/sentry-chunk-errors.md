@@ -1,5 +1,25 @@
 # Sentry — `synapse:chunk-error` triage
 
+## 0. Runtime init (client)
+
+Set `VITE_SENTRY_DSN` in `.env` (see `.env.example`). `main.tsx` calls
+`initSentry()` at boot — no-op when the DSN is absent. When enabled,
+`@sentry/react` initializes and exposes `window.Sentry` so
+`reportChunkError` forwards chunk-load failures automatically.
+
+## 0.1 Dashboard import (one-time)
+
+```bash
+export SENTRY_AUTH_TOKEN=…   # org token with project:write
+export SENTRY_ORG=my-org
+export SENTRY_PROJECT=synapse-web
+npm run sentry:import-dashboard
+```
+
+Template: `docs/observability/sentry-dashboard.synapse-chunk-health.json`.
+
+---
+
 `reportChunkError` forwards every dynamic-import / chunk-load failure to
 `window.Sentry.captureException` with a structured `extra` payload:
 

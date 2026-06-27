@@ -224,6 +224,10 @@ export function CourseView({
           showMigration={showReuploadHint}
           showQualityWarning={qualityBanner.show}
           reprocessing={reprocessingMaterial}
+          storedPipelineVersion={course.pipelineMeta?.version}
+          textHygieneScore={quality?.metrics.textHygieneScore}
+          textCorruptionScore={quality?.metrics.textCorruptionScore}
+          textHygieneFlags={quality?.metrics.textHygieneFlags}
           onInspect={openReprocessWizard}
           onReprocess={onReprocessMaterial ? openReprocessWizard : undefined}
           onReupload={onUploadMore}

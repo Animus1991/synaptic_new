@@ -1,7 +1,9 @@
 import { AlertTriangle, Cpu, FileSearch, RefreshCw } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
+import { CONTENT_PIPELINE_VERSION } from '../../lib/pipelineConstants';
 import { reuploadMigrationMessage } from '../../lib/pipelineMigration';
 import { lowSourceQualityMessage } from '../../lib/sourceQualityPrompt';
+import { hygieneFlagLabel } from '../../lib/textQualityMetrics';
 
 type Props = {
   lang: 'en' | 'el';
@@ -10,6 +12,12 @@ type Props = {
   showMigration: boolean;
   showQualityWarning: boolean;
   reprocessing?: boolean;
+  /** Stored pipeline version on the course/file (may be stale). */
+  storedPipelineVersion?: string;
+  /** Wave 8B-β hygiene metrics from courseSourceQuality or live analyzeTextHygiene. */
+  textHygieneScore?: number;
+  textCorruptionScore?: number;
+  textHygieneFlags?: string[];
   onInspect?: () => void;
   onReprocess?: () => void;
   onReupload?: () => void;
@@ -17,7 +25,7 @@ type Props = {
   className?: string;
 };
 
-/** Single consolidated source-quality + pipeline strip (replaces stacked banners). */
+/** Consolidated source-quality + pipeline strip with hygiene diagnostics (v2). */
 export function WorkspaceSourceStatusBar({
   lang,
   score,
@@ -25,6 +33,10 @@ export function WorkspaceSourceStatusBar({
   showMigration,
   showQualityWarning,
   reprocessing = false,
+  storedPipelineVersion,
+  textHygieneScore,
+  textCorruptionScore,
+  textHygieneFlags = [],
   onInspect,
   onReprocess,
   onReupload,
@@ -37,6 +49,17 @@ export function WorkspaceSourceStatusBar({
   const message = showMigration
     ? reuploadMigrationMessage(lang)
     : (score != null ? lowSourceQualityMessage(lang, score) : '');
+
+  const pipelineBadge = showMigration
+    ? (storedPipelineVersion
+      ? `stored v${storedPipelineVersion} → v${CONTENT_PIPELINE_VERSION}`
+      : `pipeline v${CONTENT_PIPELINE_VERSION}`)
+    : undefined;
+
+  const showHygiene = typeof textHygieneScore === 'number' || typeof textCorruptionScore === 'number';
+  const spellGateHint = textHygieneFlags.includes('unknown-tokens')
+    || textHygieneFlags.includes('spaced-glyphs')
+    || textHygieneFlags.includes('glued-words');
 
   return (
     <div
@@ -62,12 +85,51 @@ export function WorkspaceSourceStatusBar({
                 )}
               </span>
             )}
-            {showMigration && (
-              <span className="rounded-sm border border-accent-amber/40 bg-accent-amber/10 px-1.5 py-0.5 text-accent-amber font-mono normal-case tracking-normal">
-                pipeline v2.4
+            {pipelineBadge && (
+              <span
+                className="rounded-sm border border-accent-amber/40 bg-accent-amber/10 px-1.5 py-0.5 text-accent-amber font-mono normal-case tracking-normal"
+                data-testid="source-status-pipeline-badge"
+              >
+                {pipelineBadge}
+              </span>
+            )}
+            {showHygiene && (
+              <span
+                className="rounded-sm border border-border-subtle bg-surface-card/60 px-1.5 py-0.5 font-mono normal-case tracking-normal text-text-secondary"
+                data-testid="source-status-hygiene"
+              >
+                {isEl ? 'Υγιεινότητα' : 'Hygiene'}{' '}
+                <span className="ws-num text-text-primary">{textHygieneScore ?? '—'}</span>
+                {typeof textCorruptionScore === 'number' && (
+                  <span className="ml-1 text-text-muted">
+                    · {isEl ? 'διαφθορά' : 'corruption'}{' '}
+                    <span className="ws-num">{textCorruptionScore}</span>
+                  </span>
+                )}
+              </span>
+            )}
+            {spellGateHint && (
+              <span
+                className="rounded-sm border border-brand-500/30 bg-brand-500/10 px-1.5 py-0.5 text-brand-200 font-mono normal-case tracking-normal"
+                data-testid="source-status-spell-gate"
+                title={isEl ? 'Spell-gate (SymSpell + λεξικό)' : 'Spell-gate (SymSpell + lexicon)'}
+              >
+                spell-gate
               </span>
             )}
           </div>
+          {textHygieneFlags.length > 0 && (
+            <div className="mt-1.5 flex flex-wrap gap-1" data-testid="source-status-hygiene-flags">
+              {textHygieneFlags.map((flag) => (
+                <span
+                  key={flag}
+                  className="rounded-sm border border-accent-amber/30 bg-accent-amber/5 px-1.5 py-0.5 text-[10px] text-accent-amber"
+                >
+                  {hygieneFlagLabel(flag, lang)}
+                </span>
+              ))}
+            </div>
+          )}
           <p className="mt-1.5 text-[11px] leading-relaxed text-text-secondary">{message}</p>
           <div className="mt-2.5 flex flex-wrap gap-1.5">
             {onInspect && (

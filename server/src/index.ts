@@ -16,6 +16,7 @@ import { ragRouter } from './routes/rag';
 import { teacherRouter } from './routes/teacher';
 import { ocrRouter } from './routes/ocr';
 import { transcribeRouter } from './routes/transcribe';
+import { chunkErrorsRouter } from './routes/chunkErrors';
 
 export function createApp(): express.Application {
   const app = express();
@@ -61,6 +62,8 @@ export function createApp(): express.Application {
   app.use('/v1', transcribeRouter);
   app.use('/v1', teacherRouter);
   app.use('/v1', proxyRouter);
+
+  app.use(chunkErrorsRouter);
 
   app.use((_req, res) => res.status(404).json({ error: 'Not found' }));
 

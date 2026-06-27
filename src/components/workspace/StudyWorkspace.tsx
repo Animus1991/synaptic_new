@@ -10,26 +10,33 @@ import type { WorkspaceToolId } from '../../lib/taskFlows';
 import { WorkspaceDock } from './WorkspaceDock';
 import { WorkspaceMobileToolDrawer } from './WorkspaceMobileToolDrawer';
 import { WorkspaceToolStrip } from './WorkspaceToolStrip';
-import { WorkspaceToolPurposeHint } from './WorkspaceToolPurposeHint';
+import { ToolFrame } from './ToolFrame';
 import { workspaceToolLabel } from '../../lib/workspaceToolRegistry';
 import { fallbackWorkspaceSteps } from '../../lib/noteContentExtractors';
-import { SourceIntelligenceCard } from './SourceIntelligenceCard';
 import { LessonContent } from './LessonContent';
 import { DraggableConceptMap } from './DraggableConceptMap';
-import { AnnotationOverlay } from './AnnotationOverlay';
 import { FormulaScratchpad } from './FormulaScratchpad';
-import { DashboardPanel } from './DashboardPanel';
-import { LeitnerPanel } from './LeitnerPanel';
-import { TimerPanel } from './TimerPanel';
-import { SimulatorPanel } from './SimulatorPanel';
-import { DebatePanel } from './DebatePanel';
 import { CognitiveReader } from './CognitiveReader';
-import { WhiteboardPanel } from './WhiteboardPanel';
-import { FeynmanCheck } from './FeynmanCheck';
-import { ComparePanel } from './ComparePanel';
-import { QuizPanel } from './QuizPanel';
+import {
+  LazyAnnotationOverlay,
+  LazyComparePanel,
+  LazyConceptBusPanel,
+  LazyDashboardPanel,
+  LazyDebatePanel,
+  LazyFeynmanCheck,
+  LazyLeitnerPanel,
+  LazyQuizPanel,
+  LazySimulatorPanel,
+  LazyTimerPanel,
+  LazyWeakAreasFocusRail,
+  LazyWhiteboardPanel,
+  LazyWorkspaceDiscoverabilityPanel,
+} from '../../lib/workspaceToolLazyRegistry';
+import { WorkspaceIdleMount } from './WorkspaceIdleMount';
+import { WorkspaceProvider } from './WorkspaceProvider';
+import { WorkspaceToolSuspense } from './WorkspaceToolSuspense';
 import { CommandPalette, type CommandItem } from './CommandPalette';
-import { buildWorkspaceNoteBundle } from '../../lib/workspaceNoteContent';
+import { useWorkspaceNoteBundle } from '../../lib/useWorkspaceNoteBundle';
 import {
   workspaceEmptyUploadHandler,
   workspaceToolEmptyMessage,
@@ -131,13 +138,11 @@ import {
   buildAgentPromptForSection,
   type LearningActionId,
 } from '../../lib/workspaceLearningActions';
+import { analyzeTextHygiene } from '../../lib/textQualityMetrics';
 import type { AgentMode } from '../../types';
-import { WorkspaceDiscoverabilityPanel } from './WorkspaceDiscoverabilityPanel';
-import { ConceptBusPanel } from './ConceptBusPanel';
 import { ConceptLensPanel } from './ConceptLensPanel';
-import { WeakAreasFocusRail } from './WeakAreasFocusRail';
 import { WorkspaceMobileIntelligenceTabs, intelPanelId, type MobileIntelTab } from './WorkspaceMobileIntelligenceTabs';
-import { WorkspaceToolCrossLinkBar, crossLinkAgentPrompt } from './WorkspaceToolCrossLinkBar';
+import { crossLinkAgentPrompt } from './WorkspaceToolCrossLinkBar';
 import type { OpenAgentFromWorkspaceOpts } from '../../lib/agentWorkspaceContext';
 import { buildAgentWorkspaceContext } from '../../lib/agentWorkspaceContext';
 import { nextActionLabel } from '../../lib/nextActionEngine';
@@ -176,7 +181,8 @@ import { buildWhiteboardSessionContent } from '../../lib/whiteboardSessionModel'
 import { buildTimerSessionContent } from '../../lib/timerSessionModel';
 import { buildDashboardSessionContent } from '../../lib/dashboardSessionModel';
 import { displayWorkspaceStepTitle } from '../../lib/workspaceContextModel';
-import { WorkspaceContextStrip } from './WorkspaceContextStrip';
+import { WorkspaceContextBar } from './WorkspaceContextBar';
+import { WorkspaceIntelSideSheet } from './WorkspaceIntelSideSheet';
 import { WorkspaceKeyboardHelp } from './WorkspaceKeyboardHelp';
 import { WorkspaceSourceStatusBar } from './WorkspaceSourceStatusBar';
 import {
@@ -322,8 +328,8 @@ export function StudyWorkspace({
   const [pendingExamPractice, setPendingExamPractice] = useState<ExamPracticePresetId | null>(null);
   /** Single open intelligence panel (tabs on all breakpoints). null = collapsed. */
   const [intelTab, setIntelTab] = useState<MobileIntelTab | null>(null);
+  const [intelSheetOpen, setIntelSheetOpen] = useState(false);
   const [conceptLensExpanded, setConceptLensExpanded] = useState(false);
-  const [sourceIntelExpanded, setSourceIntelExpanded] = useState(false);
   const [stepMarks, setStepMarks] = useState<Record<number, 'understood' | 'confusing'>>({});
   const [mobileToolDrawerOpen, setMobileToolDrawerOpen] = useState(false);
   const [localFocus, setLocalFocus] = useState<WorkspaceFocus>({});
@@ -358,8 +364,8 @@ export function StudyWorkspace({
     return localFocus.term ? localFocus : workspaceFocus ?? {};
   }, [workspaceFocus, localFocus]);
 
-  const noteBundle = useMemo(
-    () => buildWorkspaceNoteBundle({
+  const noteBundleOpts = useMemo(
+    () => ({
       uploadedFiles,
       glossaryEntries,
       courses,
@@ -371,6 +377,7 @@ export function StudyWorkspace({
     }),
     [uploadedFiles, glossaryEntries, courses, courseId, quizConcept, conceptBars, lang, learnerModel],
   );
+  const noteBundle = useWorkspaceNoteBundle(noteBundleOpts);
   const sourceIntelligence = noteBundle.sourceIntelligence;
 
   const toolEmptyMessage = useCallback(
@@ -438,6 +445,25 @@ export function StudyWorkspace({
     ?? linkedCourse?.sourceQuality?.score
     ?? sourceIntelligence?.score;
   const showLowQualityBanner = qualityBannerDecision.show;
+
+  const sourceTextHygiene = useMemo(() => {
+    const fromCourse = linkedCourse?.sourceQuality?.metrics;
+    if (fromCourse?.textHygieneScore != null || fromCourse?.textCorruptionScore != null) {
+      return {
+        hygieneScore: fromCourse.textHygieneScore,
+        corruptionScore: fromCourse.textCorruptionScore,
+        flags: fromCourse.textHygieneFlags ?? [],
+      };
+    }
+    const sample = noteBundle.sourceFullText?.slice(0, 80_000) ?? '';
+    if (sample.length < 80) return null;
+    const report = analyzeTextHygiene(sample);
+    return {
+      hygieneScore: report.hygieneScore,
+      corruptionScore: report.corruptionScore,
+      flags: report.flags,
+    };
+  }, [linkedCourse?.sourceQuality?.metrics, noteBundle.sourceFullText]);
 
   /** Report a real cross-tool concept interaction via unified learning event path (§2.2). */
   const noteConceptActivity = useCallback(
@@ -1718,6 +1744,13 @@ export function StudyWorkspace({
   ]);
 
   return (
+    <WorkspaceProvider
+      progressKey={progressKey}
+      lang={lang}
+      courseId={effectiveCourseId}
+      hasSource={noteBundle.hasSource}
+      pipelineVersion={noteBundle.pipelineVersion}
+    >
     <div
       data-ws-theme="warm"
       className={cn(
@@ -1930,20 +1963,33 @@ export function StudyWorkspace({
         <div className="h-0.5 bg-brand-600 transition-all duration-500" style={{ width: `${STEPS.length ? Math.max(5, ((Math.min(currentStep, STEPS.length - 1) + 1) / STEPS.length) * 100) : 5}%` }} />
       </div>
 
-      {!chromeHidden && !isMobile && (
-        <WorkspaceContextStrip
+      {!chromeHidden && (
+        <WorkspaceContextBar
           context={workspaceContext}
           lang={lang}
           sourceQuality={sourceQualityScore ?? null}
+          sourceIntelligence={sourceIntelligence}
+          focusConcept={effectiveFocus?.term ?? quizConcept}
           showNextAction={Boolean(nextActionRecommendation && noteBundle.hasSource)}
           nextActionLabel={nextActionRecommendation ? nextActionLabel(nextActionRecommendation.primary, lang) : undefined}
           onNextAction={runNextAction}
           weakCount={weakAreaSpots.length}
-          onWeakAreas={() => setIntelTab((t) => (t === 'weak-areas' ? null : 'weak-areas'))}
-          onConceptBus={() => setIntelTab((t) => (t === 'concept-bus' ? null : 'concept-bus'))}
+          onToggleWeak={
+            isMobile
+              ? () => setIntelTab((t) => (t === 'weak-areas' ? null : 'weak-areas'))
+              : () => setIntelSheetOpen(true)
+          }
+          onToggleConcepts={
+            isMobile
+              ? () => setIntelTab((t) => (t === 'concept-bus' ? null : 'concept-bus'))
+              : () => setIntelSheetOpen(true)
+          }
           conceptCount={conceptBusRows.length}
-          weakPanelOpen={intelTab === 'weak-areas'}
-          conceptBusOpen={intelTab === 'concept-bus'}
+          weakOpen={isMobile ? intelTab === 'weak-areas' : intelSheetOpen}
+          conceptsOpen={isMobile ? intelTab === 'concept-bus' : intelSheetOpen}
+          onOpenIntelSheet={() => setIntelSheetOpen((v) => !v)}
+          intelSheetOpen={intelSheetOpen}
+          showMigration={showReuploadHint}
         />
       )}
 
@@ -2012,49 +2058,14 @@ export function StudyWorkspace({
                     showMigration={showReuploadHint}
                     showQualityWarning={showLowQualityBanner}
                     reprocessing={reprocessingMaterial}
+                    storedPipelineVersion={noteBundle.pipelineVersion}
+                    textHygieneScore={sourceTextHygiene?.hygieneScore}
+                    textCorruptionScore={sourceTextHygiene?.corruptionScore}
+                    textHygieneFlags={sourceTextHygiene?.flags}
                     onInspect={openReprocessWizard}
                     onReprocess={onReprocessMaterial ? openReprocessWizard : undefined}
                     onReupload={handleReuploadMaterial}
                   />
-                )}
-                {sourceIntelligence && !chromeHidden && !(showLowQualityBanner || showReuploadHint) && (
-                  <div className="mb-4 max-w-2xl mx-auto">
-                    {!sourceIntelExpanded ? (
-                      <button
-                        type="button"
-                        onClick={() => setSourceIntelExpanded(true)}
-                        data-testid="source-intel-collapsed"
-                        className="w-full flex items-center justify-between gap-2 rounded-xl border border-border-subtle bg-surface-card/60 px-3 py-2 text-left hover:bg-surface-hover transition-colors"
-                      >
-                        <span className="text-[11px] text-text-secondary">
-                          {lang === 'el' ? 'Ποιότητα πηγής' : 'Source quality'}{' '}
-                          <span className="font-semibold text-text-primary">{sourceIntelligence.score}/100</span>
-                          {' · '}
-                          {sourceIntelligence.documentStructure?.sectionCount ?? 0}{' '}
-                          {lang === 'el' ? 'ενότητες' : 'sections'}
-                        </span>
-                        <ChevronRight className="w-3.5 h-3.5 text-text-muted shrink-0" />
-                      </button>
-                    ) : (
-                      <div className="space-y-2">
-                        <button
-                          type="button"
-                          onClick={() => setSourceIntelExpanded(false)}
-                          className="text-[10px] text-text-muted hover:text-text-secondary"
-                        >
-                          {lang === 'el' ? '← Σύμπτυξη' : '← Collapse'}
-                        </button>
-                        <SourceIntelligenceCard
-                          report={sourceIntelligence}
-                          toolLabel={activeTool}
-                          onOpenRecommendedTool={() => {
-                            setActiveTool(sourceIntelligence.bestTool as WorkspaceTool);
-                            if (layout === 'focus-lesson') setLayout(isMobile ? 'focus-tool' : 'split');
-                          }}
-                        />
-                      </div>
-                    )}
-                  </div>
                 )}
                 <div key={currentStep} className="w-full min-w-0 animate-fade-up max-w-2xl mx-auto">
                   <LessonContent
@@ -2128,18 +2139,27 @@ export function StudyWorkspace({
               className="flex flex-col bg-surface-primary"
             >
               {!chromeHidden && (
-                <>
                 <WorkspaceToolStrip
                   activeTool={activeTool}
                   availableTools={AVAILABLE_TOOLS}
                   onSelectTool={openWorkspaceTool}
                   lang={lang}
                 />
-                <WorkspaceToolPurposeHint activeTool={activeTool} lang={lang} />
-                </>
               )}
-              {/* Tool surface */}
-              <div className="flex-1 relative overflow-hidden bg-surface-primary/50 flex flex-col">
+              <ToolFrame
+                activeTool={activeTool}
+                lang={lang}
+                concept={effectiveFocus?.term ?? quizConcept}
+                hasSource={noteBundle.hasSource}
+                sourceName={noteBundle.sourceName}
+                onJumpTool={(tool) => {
+                  openWorkspaceTool(tool);
+                  noteConceptActivity(quizConcept, tool, 'focus');
+                }}
+                onOpenReader={handleCrossLinkReader}
+                onAskAgent={handleCrossLinkAgent}
+              >
+              {!chromeHidden && isMobile && (
                 <div
                   className="shrink-0 sticky top-0 z-30 bg-surface-primary/95 backdrop-blur border-b border-white/5 shadow-[0_8px_24px_rgba(2,6,23,0.35)]"
                   data-testid="workspace-intelligence-rail"
@@ -2164,66 +2184,64 @@ export function StudyWorkspace({
                     )}
                   >
                 {intelTab === 'discover' && (
-                  <WorkspaceDiscoverabilityPanel
-                    summary={discoverabilitySummary}
-                    lang={lang}
-                    expanded
-                    onToggle={() => setIntelTab(null)}
-                    actions={discoverabilityActions}
-                    onRunNextAction={runNextAction}
-                    onLearningAction={handleLearningAction}
-                    stepUnderstood={stepMarks[currentStep] === 'understood'}
-                    stepConfusing={stepMarks[currentStep] === 'confusing'}
-                    onOpenRecommendedTool={
-                      discoverabilitySummary.recommendedTool
-                        ? () => openWorkspaceTool(discoverabilitySummary.recommendedTool as WorkspaceTool)
-                        : undefined
-                    }
-                  />
+                  <WorkspaceIdleMount enabled>
+                    <WorkspaceToolSuspense tool="discover" lang={lang}>
+                      <LazyWorkspaceDiscoverabilityPanel
+                        summary={discoverabilitySummary}
+                        lang={lang}
+                        expanded
+                        onToggle={() => setIntelTab(null)}
+                        actions={discoverabilityActions}
+                        onRunNextAction={runNextAction}
+                        onLearningAction={handleLearningAction}
+                        stepUnderstood={stepMarks[currentStep] === 'understood'}
+                        stepConfusing={stepMarks[currentStep] === 'confusing'}
+                        onOpenRecommendedTool={
+                          discoverabilitySummary.recommendedTool
+                            ? () => openWorkspaceTool(discoverabilitySummary.recommendedTool as WorkspaceTool)
+                            : undefined
+                        }
+                      />
+                    </WorkspaceToolSuspense>
+                  </WorkspaceIdleMount>
                 )}
                 {intelTab === 'concept-bus' && (
-                  <ConceptBusPanel
-                    rows={conceptBusRows}
-                    activeTool={activeTool}
-                    lang={lang}
-                    expanded
-                    onToggle={() => setIntelTab(null)}
-                    onFocusTerm={(term) => focusOnTerm(term, activeTool)}
-                    onJumpTool={(tool) => openWorkspaceTool(tool)}
-                    onRemediate={handleConceptBusRemediation}
-                    activeLens={conceptLensView}
-                    onOpenReaderSection={openReaderAtConceptSection}
-                  />
+                  <WorkspaceIdleMount enabled>
+                    <WorkspaceToolSuspense tool="concept-bus" lang={lang}>
+                      <LazyConceptBusPanel
+                        rows={conceptBusRows}
+                        activeTool={activeTool}
+                        lang={lang}
+                        expanded
+                        onToggle={() => setIntelTab(null)}
+                        onFocusTerm={(term) => focusOnTerm(term, activeTool)}
+                        onJumpTool={(tool) => openWorkspaceTool(tool)}
+                        onRemediate={handleConceptBusRemediation}
+                        activeLens={conceptLensView}
+                        onOpenReaderSection={openReaderAtConceptSection}
+                      />
+                    </WorkspaceToolSuspense>
+                  </WorkspaceIdleMount>
                 )}
                 {intelTab === 'weak-areas' && (
-                  <WeakAreasFocusRail
-                    spots={weakAreaSpots}
-                    focusTerm={effectiveFocus?.term}
-                    lang={lang}
-                    expanded
-                    onToggle={() => setIntelTab(null)}
-                    onFocusWeakSpot={focusWeakArea}
-                  />
+                  <WorkspaceIdleMount enabled>
+                    <WorkspaceToolSuspense tool="weak-areas" lang={lang}>
+                      <LazyWeakAreasFocusRail
+                        spots={weakAreaSpots}
+                        focusTerm={effectiveFocus?.term}
+                        lang={lang}
+                        expanded
+                        onToggle={() => setIntelTab(null)}
+                        onFocusWeakSpot={focusWeakArea}
+                      />
+                    </WorkspaceToolSuspense>
+                  </WorkspaceIdleMount>
                 )}
                   </div>
                 )}
                 </div>
-
+              )}
                 <div className="flex-1 relative overflow-hidden min-h-0">
-                {!chromeHidden && noteBundle.hasSource && (
-                  <WorkspaceToolCrossLinkBar
-                    activeTool={activeTool}
-                    lang={lang}
-                    concept={effectiveFocus?.term ?? quizConcept}
-                    stepTitle={STEPS[currentStep]?.title}
-                    onJumpTool={(tool) => {
-                      openWorkspaceTool(tool);
-                      noteConceptActivity(quizConcept, tool, 'focus');
-                    }}
-                    onOpenReader={handleCrossLinkReader}
-                    onAskAgent={handleCrossLinkAgent}
-                  />
-                )}
                 {!isMobile && (
                 <ConceptLensPanel
                   placement="overlay"
@@ -2355,7 +2373,8 @@ export function StudyWorkspace({
                   />
                 )}
                 {activeTool === 'whiteboard' && (
-                  <WhiteboardPanel
+                  <WorkspaceToolSuspense tool="whiteboard" lang={lang}>
+                  <LazyWhiteboardPanel
                     session={whiteboardSession}
                     concept={quizConcept}
                     lang={lang}
@@ -2384,9 +2403,11 @@ export function StudyWorkspace({
                       noteConceptActivity(quizConcept, 'whiteboard', 'noted');
                     }}
                   />
+                  </WorkspaceToolSuspense>
                 )}
                 {activeTool === 'dashboard' && (
-                  <DashboardPanel
+                  <WorkspaceToolSuspense tool="dashboard" lang={lang}>
+                  <LazyDashboardPanel
                     session={dashboardSession}
                     concept={quizConcept}
                     lang={lang}
@@ -2406,9 +2427,11 @@ export function StudyWorkspace({
                     nextAction={nextActionRecommendation}
                     conceptBusRows={conceptBusRows}
                   />
+                  </WorkspaceToolSuspense>
                 )}
                 {activeTool === 'leitner' && (
-                  <LeitnerPanel
+                  <WorkspaceToolSuspense tool="leitner" lang={lang}>
+                  <LazyLeitnerPanel
                     session={leitnerSession}
                     concept={quizConcept}
                     lang={lang}
@@ -2430,9 +2453,11 @@ export function StudyWorkspace({
                     artifactStale={leitnerArtifactStale}
                     onAcknowledgeStale={() => acknowledgePracticeStale('leitner')}
                   />
+                  </WorkspaceToolSuspense>
                 )}
                 {activeTool === 'timer' && (
-                  <TimerPanel
+                  <WorkspaceToolSuspense tool="timer" lang={lang}>
+                  <LazyTimerPanel
                     session={timerSession}
                     concept={quizConcept}
                     lang={lang}
@@ -2450,9 +2475,11 @@ export function StudyWorkspace({
                     settingsExamDate={userSettings?.examDate}
                     courseExamDate={linkedCourse?.examDate}
                   />
+                  </WorkspaceToolSuspense>
                 )}
                 {activeTool === 'simulator' && (
-                  <SimulatorPanel
+                  <WorkspaceToolSuspense tool="simulator" lang={lang}>
+                  <LazySimulatorPanel
                     session={simulatorSession}
                     concept={quizConcept}
                     lang={lang}
@@ -2476,9 +2503,11 @@ export function StudyWorkspace({
                     onAcknowledgeStale={() => acknowledgePracticeStale('simulator')}
                     scopeKey={progressKey}
                   />
+                  </WorkspaceToolSuspense>
                 )}
                 {activeTool === 'compare' && (
-                  <ComparePanel
+                  <WorkspaceToolSuspense tool="compare" lang={lang}>
+                  <LazyComparePanel
                     session={compareSession}
                     concept={quizConcept}
                     lang={lang}
@@ -2500,9 +2529,11 @@ export function StudyWorkspace({
                       openAgentForTool('compare', buildCompareToolAgentPrompt(quizConcept, lang));
                     }}
                   />
+                  </WorkspaceToolSuspense>
                 )}
                 {activeTool === 'debate' && (
-                  <DebatePanel
+                  <WorkspaceToolSuspense tool="debate" lang={lang}>
+                  <LazyDebatePanel
                     session={debateSession}
                     concept={quizConcept}
                     lang={lang}
@@ -2523,9 +2554,11 @@ export function StudyWorkspace({
                       noteConceptActivity(quizConcept, 'debate', 'noted');
                     }}
                   />
+                  </WorkspaceToolSuspense>
                 )}
                 {activeTool === 'feynman' && (
-                  <FeynmanCheck
+                  <WorkspaceToolSuspense tool="feynman" lang={lang}>
+                  <LazyFeynmanCheck
                     concept={quizConcept}
                     settings={userSettings}
                     hasSource={noteBundle.hasSource}
@@ -2556,9 +2589,11 @@ export function StudyWorkspace({
                     onOpenInReader={(query) => openReaderAtSearch(query, 'feynman')}
                     onOpenDashboard={() => openWorkspaceTool('dashboard')}
                   />
+                  </WorkspaceToolSuspense>
                 )}
                 {activeTool === 'annotations' && (
-                  <AnnotationOverlay
+                  <WorkspaceToolSuspense tool="annotations" lang={lang}>
+                  <LazyAnnotationOverlay
                     sourceText={noteBundle.annotationText}
                     sourceName={noteBundle.sourceName}
                     fileKey={noteBundle.fileKey}
@@ -2595,9 +2630,11 @@ export function StudyWorkspace({
                       if (count > 0) noteConceptActivity(quizConcept, 'annotations', 'annotated');
                     }}
                   />
+                  </WorkspaceToolSuspense>
                 )}
                 {activeTool === 'quiz' && (
-                  <QuizPanel
+                  <WorkspaceToolSuspense tool="quiz" lang={lang}>
+                  <LazyQuizPanel
                     session={quizSession}
                     concept={quizConcept}
                     lang={lang}
@@ -2630,9 +2667,10 @@ export function StudyWorkspace({
                     artifactStale={quizArtifactStale}
                     onAcknowledgeStale={() => acknowledgePracticeStale('quiz')}
                   />
+                  </WorkspaceToolSuspense>
                 )}
                 </div>
-              </div>
+              </ToolFrame>
             </Panel>
           )}
         </Group>
@@ -2673,6 +2711,43 @@ export function StudyWorkspace({
           </>
         )}
       </AnimatePresence>
+
+      <WorkspaceIntelSideSheet
+        open={intelSheetOpen}
+        onClose={() => setIntelSheetOpen(false)}
+        lang={lang}
+        isMobile={isMobile}
+        sourceIntelligence={sourceIntelligence}
+        activeTool={activeTool}
+        onOpenRecommendedTool={
+          sourceIntelligence
+            ? () => {
+                openWorkspaceTool(sourceIntelligence.bestTool as WorkspaceTool);
+                if (layout === 'focus-lesson') setLayout(isMobile ? 'focus-tool' : 'split');
+              }
+            : undefined
+        }
+        discoverabilitySummary={discoverabilitySummary}
+        discoverabilityActions={discoverabilityActions}
+        onRunNextAction={runNextAction}
+        onLearningAction={handleLearningAction}
+        stepUnderstood={stepMarks[currentStep] === 'understood'}
+        stepConfusing={stepMarks[currentStep] === 'confusing'}
+        onOpenRecommendedToolFromDiscover={
+          discoverabilitySummary.recommendedTool
+            ? () => openWorkspaceTool(discoverabilitySummary.recommendedTool as WorkspaceTool)
+            : undefined
+        }
+        conceptBusRows={conceptBusRows}
+        onFocusTerm={(term) => focusOnTerm(term, activeTool)}
+        onJumpTool={(tool) => openWorkspaceTool(tool)}
+        onRemediate={handleConceptBusRemediation}
+        conceptLensView={conceptLensView}
+        onOpenReaderSection={openReaderAtConceptSection}
+        weakAreaSpots={weakAreaSpots}
+        focusTerm={effectiveFocus?.term}
+        onFocusWeakSpot={focusWeakArea}
+      />
 
       <CommandPalette
         open={showPalette}
@@ -2752,5 +2827,6 @@ export function StudyWorkspace({
         />
       )}
     </div>
+    </WorkspaceProvider>
   );
 }

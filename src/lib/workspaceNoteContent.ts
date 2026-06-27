@@ -338,7 +338,7 @@ export function buildWorkspaceSourceIntelligence(opts: {
   };
 }
 
-export function buildWorkspaceNoteBundle(opts: {
+export type BuildWorkspaceNoteBundleOpts = {
   uploadedFiles: UploadedFile[];
   glossaryEntries: GlossaryEntry[];
   courses: Course[];
@@ -347,8 +347,12 @@ export function buildWorkspaceNoteBundle(opts: {
   conceptBars: { concept: string; mastery: number }[];
   lang: Lang;
   learnerModel?: LearnerModel;
-}): WorkspaceNoteBundle {
-  const { uploadedFiles, glossaryEntries, courses, courseId, concept, conceptBars, lang, learnerModel } = opts;
+  /** Skip PMI co-occurrence + BM25 excerpt for faster first paint. */
+  lightweight?: boolean;
+};
+
+export function buildWorkspaceNoteBundle(opts: BuildWorkspaceNoteBundleOpts): WorkspaceNoteBundle {
+  const { uploadedFiles, glossaryEntries, courses, courseId, concept, conceptBars, lang, learnerModel, lightweight = false } = opts;
 
   const { text, fileNames, hasSource } = gatherAnalyzedText(uploadedFiles, courseId);
   const linkedCourseId =
@@ -400,10 +404,10 @@ export function buildWorkspaceNoteBundle(opts: {
     };
   }
 
-  const documentStructure = analyzeDocumentStructure(text, lang);
+  const documentStructure = lightweight ? null : analyzeDocumentStructure(text, lang);
   const sourceFullText = text;
-  const readerText = relevantExcerpt(text, concept, 12000);
-  const annotationText = relevantExcerpt(text, concept, 16000);
+  const readerText = lightweight ? text.slice(0, 12000) : relevantExcerpt(text, concept, 12000);
+  const annotationText = lightweight ? text.slice(0, 16000) : relevantExcerpt(text, concept, 16000);
   const sourceName = fileNames.join(', ') || course?.title || 'Your notes';
   const fileKey = fileNames[0] ?? courseId ?? 'notes';
   const linkedFile = uploadedFiles.find(
@@ -411,13 +415,21 @@ export function buildWorkspaceNoteBundle(opts: {
   );
   const pipelineVersion = linkedFile?.pipelineVersion ?? course?.pipelineMeta?.version;
 
-  const conceptMap = buildConceptMapFromCourse(topics, scopedGlossary, conceptBars, concept, text);
+  const conceptMap = buildConceptMapFromCourse(
+    topics,
+    scopedGlossary,
+    conceptBars,
+    concept,
+    lightweight ? undefined : text,
+  );
   const leitnerFromNotes = buildFlashcards(text, concept, scopedGlossary, lang);
   const compareRows = extractComparisons(text, concept, scopedGlossary);
   const formulas = extractFormulas(text, concept);
   const workspaceSteps = buildWorkspaceStepsFromNotes(text, concept, lang);
   const quiz = buildQuizFromNotes(text, concept, scopedGlossary, lang);
-  const sourceIntelligence = buildWorkspaceSourceIntelligence({
+  const sourceIntelligence = lightweight
+    ? null
+    : buildWorkspaceSourceIntelligence({
     text,
     concept,
     glossary: scopedGlossary,

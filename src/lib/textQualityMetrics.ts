@@ -83,6 +83,20 @@ export function analyzeTextHygiene(rawText: string): TextHygieneReport {
   };
 }
 
+const HYGIENE_FLAG_LABELS: Record<string, { en: string; el: string }> = {
+  'spaced-glyphs': { en: 'Spaced glyphs', el: 'Διασπαρμένα γράμματα' },
+  'glued-words': { en: 'Glued words', el: 'Κολλημένες λέξεις' },
+  'unknown-tokens': { en: 'Unknown tokens', el: 'Άγνωστες λέξεις' },
+  'pua-or-icons': { en: 'Icon/PUA chars', el: 'Εικονίδια/PUA' },
+  'replacement-chars': { en: 'Replacement chars', el: 'Χαρακτήρες �' },
+};
+
+export function hygieneFlagLabel(flag: string, lang: 'en' | 'el'): string {
+  const entry = HYGIENE_FLAG_LABELS[flag];
+  if (entry) return lang === 'el' ? entry.el : entry.en;
+  return flag.replace(/-/g, ' ');
+}
+
 /** True when text layer looks corrupted enough to prefer OCR over sparse extract. */
 export function textLayerLooksCorrupted(text: string): boolean {
   const h = analyzeTextHygiene(text);
