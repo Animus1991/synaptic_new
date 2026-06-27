@@ -426,18 +426,31 @@ input[type="range"]::-webkit-slider-thumb {
 }
 [data-ws-theme="warm"] .text-brand-300,
 [data-ws-theme="warm"] .text-brand-400 {
-  color: var(--color-brand-600);
+  color: var(--color-brand-700);
 }
 [data-ws-theme="warm"] .text-brand-500 {
-  color: var(--color-brand-700);
+  color: var(--color-brand-800);
+}
+[data-ws-theme="warm"] .text-text-secondary {
+  color: #3f2a10;
+}
+[data-ws-theme="warm"] .text-text-muted {
+  color: #5c4528;
+}
+[data-ws-theme="warm"] .text-text-tertiary {
+  color: #6b5238;
 }
 [data-ws-theme="warm"] .ws-eyebrow {
-  color: var(--color-brand-700);
+  color: var(--color-brand-800);
   font-weight: 600;
 }
 [data-ws-theme="warm"] .ws-pill {
-  color: var(--color-brand-700);
+  color: var(--color-brand-800);
   font-weight: 600;
+}
+[data-ws-theme="warm"] a.text-brand-400,
+[data-ws-theme="warm"] button.text-brand-400 {
+  color: var(--color-brand-700);
 }
 [data-ws-theme="warm"] .blueprint-grid,
 [data-ws-theme="warm"].blueprint-grid {

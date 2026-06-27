@@ -54,6 +54,7 @@ export {
   GitCommit,
   GitDiff as GitCompare,
   GraduationCap,
+  HandWaving as Hand,
   GridFour as Grid3X3,
   Question as HelpCircle,
   Highlighter,

@@ -13,6 +13,8 @@ import type { FsrsRating } from '../lib/pedagogy';
 import { filterTasksForSession, startButtonLabel, type SessionType } from '../lib/taskFlows';
 import { ErrorNotebook } from './visuals/ErrorNotebook';
 import { CourseIcon } from './ui/CourseIcon';
+import { Page, PageHeader, PlatformSection } from './ui/primitives';
+import { PlatformEmptyState } from './ui/PlatformEmptyState';
 
 interface TasksProps {
   tasks: Task[];
@@ -93,19 +95,19 @@ export function Tasks({ tasks, onComplete, onReviewRating, onStartTask, onStartS
   };
 
   return (
-    <div className="p-4 sm:p-6 lg:px-8 pb-24 lg:pb-6 w-full min-w-0 space-y-6">
-      {/* Header */}
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold">Tasks</h1>
-          <p className="text-text-secondary mt-1">{pendingCount} pending · {completedCount} done · {totalXP} XP available</p>
-        </div>
-        <button onClick={() => setShowSessions(!showSessions)} className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-brand-600 to-brand-500 text-white rounded-xl font-medium text-sm hover:from-brand-500 hover:to-brand-400 transition-all">
-          <Play className="w-4 h-4" />
-          Start Session
-          <ChevronDown className={cn('w-4 h-4 transition-transform', showSessions && 'rotate-180')} />
-        </button>
-      </motion.div>
+    <Page>
+      <PageHeader
+        title="Tasks"
+        subtitle={`${pendingCount} pending · ${completedCount} done · ${totalXP} XP available`}
+        icon={CheckCircle2}
+        actions={
+          <button onClick={() => setShowSessions(!showSessions)} className="flex items-center gap-2 px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-semibold text-sm transition-colors">
+            <Play className="w-4 h-4" />
+            Start Session
+            <ChevronDown className={cn('w-4 h-4 transition-transform', showSessions && 'rotate-180')} />
+          </button>
+        }
+      />
 
       {/* Session Picker */}
       <AnimatePresence>
@@ -120,10 +122,10 @@ export function Tasks({ tasks, onComplete, onReviewRating, onStartTask, onStartS
                   onClick={() => { onStartSession?.(s.type); setShowSessions(false); }}
                   disabled={sessionTasks.length === 0}
                   className={cn(
-                    'p-4 rounded-xl border bg-surface-card transition-all text-left group',
+                    'ws-bento p-4 transition-all text-left group',
                     sessionTasks.length === 0
-                      ? 'border-border-subtle opacity-50 cursor-not-allowed'
-                      : 'border-border-subtle hover:border-brand-500/30',
+                      ? 'opacity-50 cursor-not-allowed'
+                      : 'hover:border-brand-500/35',
                   )}
                 >
                   <s.icon className="w-5 h-5 text-brand-400 mb-2 group-hover:scale-110 transition-transform" />
@@ -139,14 +141,10 @@ export function Tasks({ tasks, onComplete, onReviewRating, onStartTask, onStartS
 
       {/* Daily study plan */}
       {studyPlan.length > 0 && filter !== 'completed' && (
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="rounded-2xl border border-brand-500/20 bg-brand-500/5 p-5">
-          <h3 className="text-sm font-semibold flex items-center gap-2 mb-4">
-            <Calendar className="w-4 h-4 text-brand-400" />
-            Today&apos;s study plan
-          </h3>
+        <PlatformSection title="Today's study plan" icon={Calendar} iconClassName="text-brand-600">
           <div className="space-y-3">
             {studyPlan.map((block) => (
-              <div key={block.label} className="p-3 rounded-xl bg-surface-card border border-border-subtle">
+              <div key={block.label} className="ws-bento-soft p-3">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-xs font-semibold text-text-primary">{block.label}</span>
                   <span className="text-[10px] text-text-tertiary">{block.minutes} min</span>
@@ -159,7 +157,7 @@ export function Tasks({ tasks, onComplete, onReviewRating, onStartTask, onStartS
               </div>
             ))}
           </div>
-        </motion.div>
+        </PlatformSection>
       )}
 
       {/* Error notebook */}
@@ -169,11 +167,7 @@ export function Tasks({ tasks, onComplete, onReviewRating, onStartTask, onStartS
 
       {/* Danger Zone */}
       {dangerTasks.length > 0 && filter !== 'completed' && (
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="p-4 rounded-2xl border border-accent-rose/30 bg-accent-rose/5">
-          <h3 className="text-sm font-semibold flex items-center gap-2 mb-3 text-accent-rose">
-            <Shield className="w-4 h-4" />
-            Danger Zone — Needs Immediate Attention
-          </h3>
+        <PlatformSection title="Danger Zone — Needs Immediate Attention" icon={Shield} tone="rose">
           <div className="space-y-2">
             {dangerTasks.slice(0, 3).map(task => (
               <button
@@ -187,10 +181,8 @@ export function Tasks({ tasks, onComplete, onReviewRating, onStartTask, onStartS
               </button>
             ))}
           </div>
-        </motion.div>
+        </PlatformSection>
       )}
-
-      {/* Quick Stats */}
       <div className="flex items-center gap-3 overflow-x-auto hide-scrollbar">
         {reviewCount > 0 && (
           <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-accent-amber/10 border border-accent-amber/20 text-sm shrink-0">
@@ -239,7 +231,7 @@ export function Tasks({ tasks, onComplete, onReviewRating, onStartTask, onStartS
             const isCompleted = task.status === 'completed';
             return (
               <motion.div key={task.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ delay: i * 0.03 }}
-                className={cn('rounded-xl border bg-surface-card transition-all', isCompleted ? 'border-border-subtle opacity-60' : 'border-border-subtle hover:border-brand-500/30', task.priority === 'critical' && !isCompleted && 'border-accent-rose/30')}
+                className={cn('ws-bento transition-all', isCompleted ? 'opacity-60' : '', task.priority === 'critical' && !isCompleted && 'border-accent-rose/30')}
               >
                 <div className="flex items-center gap-3 p-4 cursor-pointer" onClick={() => setExpandedTask(isExpanded ? null : task.id)}>
                   <button onClick={e => { e.stopPropagation(); if (!isCompleted) onComplete(task.id); }} className="shrink-0">
@@ -314,13 +306,15 @@ export function Tasks({ tasks, onComplete, onReviewRating, onStartTask, onStartS
           })}
         </AnimatePresence>
         {filteredTasks.length === 0 && (
-          <div className="text-center py-16">
-            <CheckCircle2 className="w-12 h-12 text-accent-emerald mx-auto mb-4" />
-            <h3 className="text-lg font-semibold mb-1">All done!</h3>
-            <p className="text-text-secondary text-sm">No tasks match this filter.</p>
-          </div>
+          <PlatformEmptyState
+            title="All done!"
+            description="No tasks match this filter. Try another category or start a focused session."
+            icon={CheckCircle2}
+            actionLabel={filter !== 'all' ? 'Show all tasks' : undefined}
+            onAction={filter !== 'all' ? () => setFilter('all') : undefined}
+          />
         )}
       </div>
-    </div>
+    </Page>
   );
 }

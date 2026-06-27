@@ -25,6 +25,7 @@ import { countFilesForCourse } from '../lib/deleteCascade';
 import { countGeneratedTasksForCourse } from '../lib/pipelineReprocess';
 import { courseDeleteStats } from '../lib/removeCourse';
 import { isDemoCourse } from '../lib/demoMode';
+import { PostUploadBanner } from './ui/PostUploadBanner';
 
 interface CourseViewProps {
   course: Course;
@@ -42,6 +43,8 @@ interface CourseViewProps {
   onRemoveFile?: (fileId: string) => void;
   onRemoveCourse?: (courseId: string) => boolean;
   tasks?: Task[];
+  showPostUploadBanner?: boolean;
+  onDismissPostUpload?: () => void;
 }
 
 /** Real per-topic lesson count: explicit lessons if present, else derived from
@@ -68,6 +71,8 @@ export function CourseView({
   onRemoveFile,
   onRemoveCourse,
   tasks = [],
+  showPostUploadBanner = false,
+  onDismissPostUpload,
 }: CourseViewProps) {
   const [tab, setTab] = useState<CourseTab>('path');
   const [reprocessWizardOpen, setReprocessWizardOpen] = useState(false);
@@ -218,6 +223,18 @@ export function CourseView({
         </div>
       </motion.div>
 
+      {showPostUploadBanner && (
+        <PostUploadBanner
+          courseTitle={course.title}
+          lang={lang}
+          onOpenWorkspace={() => {
+            onDismissPostUpload?.();
+            onStartLesson();
+          }}
+          onDismiss={() => onDismissPostUpload?.()}
+        />
+      )}
+
       {showQualityBar && (
         <WorkspaceSourceStatusBar
           lang={lang}
@@ -312,7 +329,7 @@ export function CourseView({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.1 }}
-        className="rounded-2xl border border-border-subtle bg-surface-card p-5"
+        className="ws-bento p-5"
       >
         <div className="flex items-center justify-between mb-3">
           <span className="text-sm font-medium">Course Progress</span>
@@ -597,7 +614,7 @@ function ConceptMap({ course }: { course: Course }) {
         }))}
       />
 
-      <div className="rounded-2xl border border-border-subtle bg-surface-card p-5 flex items-center justify-center">
+      <div className="ws-bento p-5 flex items-center justify-center">
         <ReadinessRing value={course.mastery} size={160} label="Course Readiness" sublabel="Based on weighted concept mastery across all topics" />
       </div>
     </div>
@@ -658,7 +675,7 @@ function SourceFiles({
   return (
     <>
     <div className="space-y-6">
-      <div className="rounded-2xl border border-border-subtle bg-surface-card p-6">
+      <div className="ws-bento p-6">
         <div className="flex items-center justify-between gap-3 mb-4 flex-wrap">
           <h3 className="font-semibold flex items-center gap-2">
             <FileText className="w-5 h-5 text-brand-400" />
@@ -716,7 +733,7 @@ function SourceFiles({
       </div>
 
       {glossaryEntries.length > 0 && (
-        <div className="rounded-2xl border border-border-subtle bg-surface-card p-6">
+        <div className="ws-bento p-6">
           <h3 className="font-semibold mb-3 flex items-center gap-2">
             <BookOpen className="w-5 h-5 text-accent-emerald" />
             Glossary ({glossaryEntries.length})
@@ -753,7 +770,7 @@ function SourceFiles({
         </div>
       )}
 
-      <div className="rounded-2xl border border-border-subtle bg-surface-card p-6">
+      <div className="ws-bento p-6">
         <div className="mt-0 p-4 rounded-xl bg-surface-hover/50 border border-border-subtle">
           <p className="text-xs text-text-tertiary mb-2 flex items-center gap-1.5">
             <AlertTriangle className="w-3.5 h-3.5 text-accent-amber" />
@@ -801,7 +818,7 @@ function CourseAnalytics({ course }: { course: Course }) {
   const velocity = baselineCph > 0 && actualCph > 0 ? actualCph / baselineCph : 0;
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-      <div className="rounded-2xl border border-border-subtle bg-surface-card p-5">
+      <div className="ws-bento p-5">
         <h4 className="text-sm font-semibold mb-3">Study Time Distribution</h4>
         <p className="text-[11px] text-text-tertiary mb-3">Estimated minutes per module, from the generated outline</p>
         <div className="space-y-2">
@@ -819,7 +836,7 @@ function CourseAnalytics({ course }: { course: Course }) {
           ))}
         </div>
       </div>
-      <div className="rounded-2xl border border-border-subtle bg-surface-card p-5">
+      <div className="ws-bento p-5">
         <h4 className="text-sm font-semibold mb-3">Retention Predictions</h4>
         <div className="space-y-2">
           {course.topics.filter(t => t.mastery > 0).slice(0, 5).map(topic => {
@@ -838,7 +855,7 @@ function CourseAnalytics({ course }: { course: Course }) {
           })}
         </div>
       </div>
-      <div className="rounded-2xl border border-border-subtle bg-surface-card p-5 sm:col-span-2">
+      <div className="ws-bento p-5 sm:col-span-2">
         <h4 className="text-sm font-semibold mb-3">Concept Coverage &amp; Pace</h4>
         <p className="text-xs text-text-secondary mb-4">Mastered concepts relative to the {totalConcepts} concepts extracted from your material</p>
         {masteredConcepts > 0 ? (

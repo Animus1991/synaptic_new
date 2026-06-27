@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-// Concept graph visual component
+import { conceptTypeGlyph } from '../../lib/conceptTypeIcons';
 
 interface ConceptNode {
   id: string;
@@ -33,7 +33,10 @@ const getMasteryColor = (m: number) => {
 };
 
 const typeIcons: Record<string, string> = {
-  concept: '💡', formula: '📐', definition: '📖', theory: '🧠',
+  concept: conceptTypeGlyph('concept'),
+  formula: conceptTypeGlyph('formula'),
+  definition: conceptTypeGlyph('definition'),
+  theory: conceptTypeGlyph('theory'),
 };
 
 export function ConceptGraph({ nodes, edges, width = 700, height = 400 }: ConceptGraphProps) {
@@ -43,7 +46,7 @@ export function ConceptGraph({ nodes, edges, width = 700, height = 400 }: Concep
   const nodeMap = Object.fromEntries(nodes.map(n => [n.id, n]));
 
   return (
-    <div className="relative rounded-2xl border border-border-subtle bg-surface-card overflow-hidden" style={{ width: '100%', maxWidth: width }}>
+    <div className="relative ws-bento overflow-hidden" style={{ width: '100%', maxWidth: width }}>
       <svg width="100%" viewBox={`0 0 ${width} ${height}`} className="block">
         <defs>
           <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
@@ -115,8 +118,8 @@ export function ConceptGraph({ nodes, edges, width = 700, height = 400 }: Concep
               />
 
               {/* Icon */}
-              <text x={node.x} y={node.y - 3} textAnchor="middle" dominantBaseline="central" fontSize={14}>
-                {typeIcons[node.type] || '💡'}
+              <text x={node.x} y={node.y - 3} textAnchor="middle" dominantBaseline="central" fontSize={11} fill={color} fontWeight="600">
+                {typeIcons[node.type] || 'C'}
               </text>
 
               {/* Mastery text */}

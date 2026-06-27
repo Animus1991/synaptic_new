@@ -5,11 +5,7 @@ import { cn } from '../../utils/cn';
 
 /**
  * Shared page-level layout primitives for Synapse top-level views.
- *
- * These deepen the EXISTING token/design language (surface-*, border-*, text-*,
- * brand-*) — they do NOT introduce a new palette or component library. Use them
- * across Dashboard, Library, Tasks, Agent, Analytics, Teacher and Settings so the
- * chrome reads consistently and calmly across the whole app.
+ * Warm Sand bento surfaces + Lora headings (synaptic-refined alignment).
  */
 
 /** Outer page wrapper: consistent padding, max width handling and vertical rhythm. */
@@ -51,14 +47,14 @@ export function PageHeader({
   const content = (
     <div className={cn('flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between', className)}>
       <div className="min-w-0">
-        {eyebrow && <p className="ws-eyebrow mb-1.5 text-text-muted">{eyebrow}</p>}
+        {eyebrow && <p className="ws-eyebrow mb-1.5 text-brand-700">{eyebrow}</p>}
         <div className="flex items-center gap-3">
           {Icon && (
-            <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-brand-500/20 bg-brand-500/10 text-brand-300">
+            <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-brand-500/25 bg-brand-500/10 text-brand-600">
               <Icon className="h-5 w-5" />
             </span>
           )}
-          <h1 className="truncate text-2xl font-bold tracking-tight sm:text-3xl">{title}</h1>
+          <h1 className="ws-serif truncate text-2xl font-medium tracking-tight text-text-primary sm:text-3xl">{title}</h1>
         </div>
         {subtitle && <p className="mt-1.5 text-sm text-text-secondary sm:text-base">{subtitle}</p>}
       </div>
@@ -75,9 +71,9 @@ export function PageHeader({
 }
 
 const CARD_TONE = {
-  default: 'border-border-subtle bg-surface-card',
-  muted: 'border-border-subtle bg-surface-secondary/40',
-  brand: 'border-brand-500/20 bg-brand-500/5',
+  default: '',
+  muted: 'ws-bento-soft',
+  brand: 'border-brand-500/25 bg-brand-500/5',
   amber: 'border-accent-amber/20 bg-accent-amber/5',
   rose: 'border-accent-rose/20 bg-accent-rose/5',
   teal: 'border-accent-teal/25 bg-accent-teal/5',
@@ -91,7 +87,7 @@ const CARD_PAD = {
   lg: 'p-6',
 } as const;
 
-/** Surface card with consistent radius / border / padding and optional tone. */
+/** Bento surface card — Warm Sand editorial panel. */
 export function Card({
   children,
   className,
@@ -108,15 +104,56 @@ export function Card({
   return (
     <div
       className={cn(
-        'rounded-2xl border',
+        tone === 'default' ? 'ws-bento' : 'ws-bento rounded-[1.25rem] border',
         CARD_TONE[tone],
         CARD_PAD[padding],
-        interactive && 'cursor-pointer transition-colors hover:border-border-default',
+        interactive && 'cursor-pointer transition-colors hover:border-brand-500/35',
         className,
       )}
     >
       {children}
     </div>
+  );
+}
+
+/**
+ * Platform section chrome — mirrors workspace ToolFrame (header + body) for top-level pages.
+ */
+export function PlatformSection({
+  title,
+  icon: Icon,
+  iconClassName,
+  action,
+  children,
+  tone = 'default',
+  padding = 'md',
+  className,
+  headingSize = 'sm',
+}: {
+  title?: ReactNode;
+  icon?: LucideIcon;
+  iconClassName?: string;
+  action?: ReactNode;
+  children: ReactNode;
+  tone?: keyof typeof CARD_TONE;
+  padding?: keyof typeof CARD_PAD;
+  className?: string;
+  headingSize?: 'sm' | 'lg';
+}) {
+  return (
+    <Card tone={tone} padding={padding} className={className}>
+      {title && (
+        <SectionHeading
+          title={title}
+          icon={Icon}
+          iconClassName={iconClassName}
+          action={action}
+          size={headingSize}
+          className={padding === 'none' ? 'mb-0' : 'mb-4'}
+        />
+      )}
+      {children}
+    </Card>
   );
 }
 
@@ -141,10 +178,10 @@ export function SectionHeading({
       <h2
         className={cn(
           'flex items-center gap-2 font-semibold text-text-primary',
-          size === 'lg' ? 'text-lg' : 'text-sm',
+          size === 'lg' ? 'ws-serif text-lg font-medium' : 'text-sm',
         )}
       >
-        {Icon && <Icon className={cn('shrink-0', size === 'lg' ? 'h-5 w-5' : 'h-4 w-4', iconClassName ?? 'text-text-tertiary')} />}
+        {Icon && <Icon className={cn('shrink-0 text-brand-600', size === 'lg' ? 'h-5 w-5' : 'h-4 w-4', iconClassName)} />}
         {title}
       </h2>
       {action}
@@ -167,7 +204,7 @@ export function CardLink({
       type="button"
       onClick={onClick}
       className={cn(
-        'inline-flex shrink-0 items-center gap-1 text-sm font-medium text-brand-400 transition-colors hover:text-brand-300',
+        'inline-flex shrink-0 items-center gap-1 text-sm font-semibold text-brand-600 transition-colors hover:text-brand-700',
         className,
       )}
     >
@@ -191,13 +228,16 @@ export function StatTile({
   className?: string;
 }) {
   return (
-    <div className={cn('rounded-2xl border border-border-subtle bg-surface-card p-4', className)}>
+    <div className={cn('ws-bento p-4', className)}>
       <div className="flex items-center gap-2">
         {icon}
-        <span className="ws-caption text-text-tertiary">{label}</span>
+        <span className="ws-eyebrow text-brand-700">{label}</span>
       </div>
-      <p className="mt-2 text-xl font-bold tracking-tight">{value}</p>
+      <p className="mt-2 text-xl font-bold tracking-tight text-text-primary">{value}</p>
       {hint && <p className="ws-caption mt-0.5 text-text-muted">{hint}</p>}
     </div>
   );
 }
+
+/** Drop-in class bundle for legacy card divs migrating to bento. */
+export const platformBento = 'ws-bento';

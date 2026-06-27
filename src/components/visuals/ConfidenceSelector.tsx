@@ -1,4 +1,6 @@
 import { cn } from '../../utils/cn';
+import { HelpCircle, Gauge, CheckCircle2 } from '@/lib/lucide-shim';
+import type { LucideIcon } from '@/lib/lucide-shim';
 
 interface ConfidenceSelectorProps {
   value: number | null;
@@ -6,10 +8,10 @@ interface ConfidenceSelectorProps {
   required?: boolean;
 }
 
-const levels = [
-  { value: 25, label: 'Just guessing', emoji: '🤷', color: 'border-accent-rose/50 bg-accent-rose/5 text-accent-rose' },
-  { value: 60, label: 'Fairly sure', emoji: '🤔', color: 'border-accent-amber/50 bg-accent-amber/5 text-accent-amber' },
-  { value: 90, label: 'Certain', emoji: '😎', color: 'border-accent-emerald/50 bg-accent-emerald/5 text-accent-emerald' },
+const levels: { value: number; label: string; Icon: LucideIcon; color: string }[] = [
+  { value: 25, label: 'Just guessing', Icon: HelpCircle, color: 'border-accent-rose/50 bg-accent-rose/5 text-accent-rose' },
+  { value: 60, label: 'Fairly sure', Icon: Gauge, color: 'border-accent-amber/50 bg-accent-amber/5 text-accent-amber' },
+  { value: 90, label: 'Certain', Icon: CheckCircle2, color: 'border-accent-emerald/50 bg-accent-emerald/5 text-accent-emerald' },
 ];
 
 export function ConfidenceSelector({ value, onChange, required }: ConfidenceSelectorProps) {
@@ -32,7 +34,7 @@ export function ConfidenceSelector({ value, onChange, required }: ConfidenceSele
               value === l.value ? l.color : 'border-border-subtle text-text-tertiary hover:border-brand-500/20'
             )}
           >
-            <span className="block text-lg mb-0.5">{l.emoji}</span>
+            <l.Icon className="h-5 w-5 mx-auto mb-1" aria-hidden />
             {l.label}
           </button>
         ))}

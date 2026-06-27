@@ -138,7 +138,7 @@ import {
 } from '../../../lib/authClient';
 import type { StoredAnnotation } from '../../../lib/annotationStore';
 
-import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
+import { useState, useRef, useCallback, useEffect, useMemo, useDeferredValue } from 'react';
 import type { CommandItem } from '../CommandPalette';
 import type { MobileIntelTab } from '../WorkspaceMobileIntelligenceTabs';
 import {
@@ -263,18 +263,23 @@ export function useStudyWorkspace({
     return localFocus.term ? localFocus : workspaceFocus ?? {};
   }, [workspaceFocus, localFocus]);
 
+  // B5 — defer expensive workspace derivations while step/concept changes rapidly
+  const deferredStep = useDeferredValue(currentStep);
+  const deferredConcept = useDeferredValue(quizConcept);
+  const deferredFocusTerm = useDeferredValue(effectiveFocus?.term ?? '');
+
   const noteBundleOpts = useMemo(
     () => ({
       uploadedFiles,
       glossaryEntries,
       courses,
       courseId,
-      concept: quizConcept,
+      concept: deferredConcept,
       conceptBars,
       lang,
       learnerModel,
     }),
-    [uploadedFiles, glossaryEntries, courses, courseId, quizConcept, conceptBars, lang, learnerModel],
+    [uploadedFiles, glossaryEntries, courses, courseId, deferredConcept, conceptBars, lang, learnerModel],
   );
   const noteBundle = useWorkspaceNoteBundle(noteBundleOpts);
   const sourceIntelligence = noteBundle.sourceIntelligence;
@@ -430,8 +435,8 @@ export function useStudyWorkspace({
   }, [conceptBus, progressKey, conceptBars]);
 
   const conceptBusRows = useMemo(
-    () => buildConceptBusRows(conceptBus, effectiveFocus?.term ?? quizConcept),
-    [conceptBus, effectiveFocus?.term, quizConcept],
+    () => buildConceptBusRows(conceptBus, deferredFocusTerm || deferredConcept),
+    [conceptBus, deferredFocusTerm, deferredConcept],
   );
 
   const weakAreaSpots = useMemo(
@@ -683,17 +688,17 @@ export function useStudyWorkspace({
   const leitnerSession = useMemo(
     () => buildLeitnerSessionContent({
       text: noteBundle.sourceFullText,
-      concept: quizConcept,
+      concept: deferredConcept,
       glossary: scopedGlossary,
       lang,
-      sectionLabel: STEPS[currentStep]?.title,
+      sectionLabel: STEPS[deferredStep]?.title,
       hasSource: noteBundle.hasSource,
       spacingIntervals: learnerModel?.spacingIntervals ?? [],
       customCards: customLeitnerCards,
     }),
     [
-      noteBundle.sourceFullText, noteBundle.hasSource, quizConcept, scopedGlossary,
-      lang, STEPS, currentStep, learnerModel?.spacingIntervals, customLeitnerCards,
+      noteBundle.sourceFullText, noteBundle.hasSource, deferredConcept, scopedGlossary,
+      lang, STEPS, deferredStep, learnerModel?.spacingIntervals, customLeitnerCards,
     ],
   );
 

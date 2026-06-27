@@ -326,8 +326,10 @@ export function ArgumentMap({
               {lang === 'el' ? 'Ρώτα Agent' : 'Ask Agent'}
             </button>
           )}
-          <span className="text-[10px] text-text-muted">
-            {lang === 'el' ? 'Επεξεργασία · + υποστήριξη · 🛡 αντίθετο' : 'Edit · + support · 🛡 counter'}
+          <span className="text-[10px] text-text-muted inline-flex items-center gap-2">
+            {lang === 'el' ? 'Επεξεργασία · + υποστήριξη ·' : 'Edit · + support ·'}
+            <Shield className="w-3 h-3 inline" />
+            {lang === 'el' ? 'αντίθετο' : 'counter'}
           </span>
         </div>
       </div>

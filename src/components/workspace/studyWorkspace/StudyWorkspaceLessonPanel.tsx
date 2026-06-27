@@ -3,9 +3,8 @@ import { Panel, Separator } from 'react-resizable-panels';
 import { ChevronRight, PanelLeftClose, PanelLeftOpen } from '@/lib/lucide-shim';
 import { LessonContent } from '../LessonContent';
 import { recordQuizResponse } from '../../../lib/quizIrt';
-import { stepHeatDotClass } from '../../../lib/readerHeatmapStepSyncQA';
-import { displayWorkspaceStepTitle } from '../../../lib/workspaceContextModel';
 import { WorkspaceSourceStatusBar } from '../WorkspaceSourceStatusBar';
+import { WorkspaceStepRail } from '../WorkspaceStepRail';
 
 import type { StudyWorkspaceModel } from './useStudyWorkspace';
 
@@ -76,30 +75,15 @@ export function StudyWorkspaceLessonPanel({ model }: StudyWorkspaceLessonPanelPr
                         <button onClick={() => setLessonCollapsed(!lessonCollapsed)} className="p-1 rounded hover:bg-surface-hover text-text-muted shrink-0 mr-2">
                           {lessonCollapsed ? <PanelLeftOpen className="w-3.5 h-3.5" /> : <PanelLeftClose className="w-3.5 h-3.5" />}
                         </button>
-                        {STEPS.map((s, i) => (
-                          <button key={i} onClick={() => selectWorkspaceStep(i, { focusReader: true })}
-                            data-testid={`workspace-step-rail-${i}`}
-                            className={cn('flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-medium shrink-0 transition-all',
-                              currentStep === i ? 'bg-accent-cyan/15 text-accent-cyan' : i < currentStep ? 'text-accent-emerald hover:bg-surface-hover' : 'text-text-muted hover:text-text-secondary hover:bg-surface-hover')}>
-                            <span className={cn('w-4 h-4 rounded-full border text-[8px] flex items-center justify-center relative',
-                              currentStep === i ? 'border-accent-cyan text-accent-cyan bg-accent-cyan/10' : i < currentStep ? 'border-accent-emerald text-accent-emerald bg-accent-emerald/10' : 'border-text-muted/30')}>
-                              {i < currentStep ? '✓' : i + 1}
-                              {readerStepHeatLevels[i] && (
-                                <span
-                                  className={cn('absolute -top-0.5 -right-0.5 h-1.5 w-1.5 rounded-full ring-1 ring-surface-card', stepHeatDotClass(readerStepHeatLevels[i]!))}
-                                  data-testid={`workspace-step-heat-${i}`}
-                                  title={readerHeatSyncReport.steps[i]?.heatReasons.join(' · ')}
-                                />
-                              )}
-                            </span>
-                            <span className="hidden sm:inline">
-                              {(() => {
-                                const label = displayWorkspaceStepTitle(s.title, quizConcept, lang);
-                                return label.length > 16 ? `${label.slice(0, 14)}…` : label;
-                              })()}
-                            </span>
-                          </button>
-                        ))}
+                        <WorkspaceStepRail
+                          steps={STEPS}
+                          currentStep={currentStep}
+                          quizConcept={quizConcept}
+                          lang={lang}
+                          readerStepHeatLevels={readerStepHeatLevels}
+                          readerHeatSyncReport={readerHeatSyncReport}
+                          onSelectStep={selectWorkspaceStep}
+                        />
                       </div>
                     )}
       

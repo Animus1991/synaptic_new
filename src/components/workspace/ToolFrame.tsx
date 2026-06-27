@@ -30,7 +30,7 @@ export function ToolFrame({
   children,
 }: Props) {
   return (
-    <div className="flex h-full min-h-0 flex-col" data-testid="workspace-tool-frame" data-tool={activeTool}>
+    <div className="flex h-full min-h-0 flex-col ws-bento overflow-hidden" data-testid="workspace-tool-frame" data-tool={activeTool}>
       <WorkspaceToolHeader
         activeTool={activeTool}
         lang={lang}

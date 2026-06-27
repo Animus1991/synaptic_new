@@ -18,6 +18,9 @@ import { filterConceptNodes } from '../../lib/conceptGraphModel';
 import { WorkspaceEmptyState } from './WorkspaceEmptyState';
 import { WorkspaceSelectionActionBar } from './WorkspaceSelectionActionBar';
 import type { WorkspaceSelectionActionId, WorkspaceSelectionContext } from '../../lib/workspaceSelectionActions';
+import { ConceptTypeIcon } from '../ui/ConceptTypeIcon';
+import { conceptTypeGlyph } from '../../lib/conceptTypeIcons';
+import { Map, BookOpen, Pencil, FileText, X } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
 import {
   connectConceptMapCursors,
@@ -76,8 +79,6 @@ interface Props {
 
 const MASTERY_COLOR = (m: number) =>
   m >= 80 ? '#34d399' : m >= 60 ? '#fbbf24' : m >= 40 ? '#38bdf8' : m > 0 ? '#fb7185' : '#4d4870';
-
-const TYPE_EMOJI: Record<string, string> = { concept: '💡', formula: '📐', definition: '📖', theory: '🧠' };
 
 export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, emptyMessage, hasSource = false, onUpload, onFocusTerm, onSelectionAction, focusConcept, lensConcept, conceptLens, onConceptSelect, cursorSync }: Props) {
   const { t, lang } = useI18n();
@@ -280,11 +281,14 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
   }
 
   return (
-    <div className="relative rounded-2xl border border-border-subtle bg-surface-card overflow-hidden flex flex-col h-full">
+    <div className="relative ws-bento overflow-hidden flex flex-col h-full">
       {/* Toolbar */}
       <div className="flex items-center justify-between px-4 py-2 border-b border-border-subtle bg-surface-secondary/40 shrink-0">
         <div className="flex items-center gap-2">
-          <span className="text-xs font-semibold text-text-secondary">🗺 {t('conceptMap')}</span>
+          <span className="text-xs font-semibold text-text-secondary inline-flex items-center gap-1.5">
+            <Map className="w-3.5 h-3.5 text-brand-600" />
+            {t('conceptMap')}
+          </span>
           <span className="text-[10px] text-text-muted">{t('dragHint')}</span>
           <input
             type="search"
@@ -453,7 +457,7 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
                     strokeDasharray={`${(node.mastery / 100) * 2 * Math.PI * r} ${2 * Math.PI * r}`}
                     transform={`rotate(-90 ${node.x} ${node.y})`}
                   />
-                  <text x={node.x} y={node.y - 4} textAnchor="middle" dominantBaseline="central" fontSize={16}>{TYPE_EMOJI[node.type]}</text>
+                  <text x={node.x} y={node.y - 4} textAnchor="middle" dominantBaseline="central" fontSize={12} fill={MASTERY_COLOR(node.mastery)} fontWeight="600">{conceptTypeGlyph(node.type)}</text>
                   <text x={node.x} y={node.y + 15} textAnchor="middle" fontSize={9} fill={color} fontWeight="700">{node.mastery}%</text>
                   <text x={node.x} y={node.y + r + 14} textAnchor="middle" fontSize={11} fill={isSel ? '#f1f0f7' : '#a8a3c4'} fontWeight={isSel ? '600' : '400'}>
                     {node.label.length > 16 ? node.label.slice(0, 14) + '…' : node.label}
@@ -479,7 +483,7 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
       {selectedNode && !editingNote && (
         <div className="absolute bottom-0 left-0 right-0 glass-strong border-t border-border-subtle">
           <div className="flex items-center gap-3 p-3 pb-2">
-            <span className="text-lg">{TYPE_EMOJI[selectedNode.type]}</span>
+            <ConceptTypeIcon type={selectedNode.type} size="lg" />
             <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold">{selectedNode.label}</p>
               <p className="text-[10px] text-text-muted">{t('masteryLabel')} {selectedNode.mastery}% • {edges.filter(e => e.to === selectedNode.id).length} {t('prerequisites')}</p>
@@ -488,15 +492,16 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
               <button
                 type="button"
                 onClick={() => onFocusTerm(selectedNode.label)}
-                className="px-2.5 py-1.5 rounded-lg text-[10px] font-medium bg-accent-cyan/15 text-accent-cyan border border-accent-cyan/30 hover:bg-accent-cyan/25"
+                className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[10px] font-medium bg-accent-cyan/15 text-accent-cyan border border-accent-cyan/30 hover:bg-accent-cyan/25"
               >
-                📖 {t('cognitiveReader')}
+                <BookOpen className="w-3 h-3" />
+                {t('cognitiveReader')}
               </button>
             )}
-            <button onClick={() => startNote(selectedNode.id)} className="px-2.5 py-1.5 rounded-lg text-[10px] font-medium bg-brand-600/20 text-brand-300 border border-brand-500/30 hover:bg-brand-600/30">
-              {selectedNode.note ? `✏️ ${t('editNote')}` : `📝 ${t('addNote')}`}
+            <button onClick={() => startNote(selectedNode.id)} className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[10px] font-medium bg-brand-600/20 text-brand-600 border border-brand-500/30 hover:bg-brand-600/30">
+              {selectedNode.note ? <><Pencil className="w-3 h-3" /> {t('editNote')}</> : <><FileText className="w-3 h-3" /> {t('addNote')}</>}
             </button>
-            <button onClick={() => setSelected(null)} className="text-text-muted hover:text-text-secondary text-xs">✕</button>
+            <button onClick={() => setSelected(null)} className="text-text-muted hover:text-text-secondary" aria-label="Close"><X className="w-3.5 h-3.5" /></button>
           </div>
           {selectedNode.note && (
             <p className="px-3 pb-2 text-xs text-text-secondary bg-surface-hover/50 mx-3 rounded-lg p-2 mb-2">{selectedNode.note}</p>
@@ -524,7 +529,10 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
       {/* Note Editor */}
       {editingNote && (
         <div className="absolute bottom-0 left-0 right-0 p-3 glass-strong border-t border-border-subtle">
-          <p className="text-xs font-semibold mb-2">📝 {t('noteFor')} "{nodeMap[editingNote]?.label}"</p>
+          <p className="text-xs font-semibold mb-2 inline-flex items-center gap-1.5">
+            <FileText className="w-3.5 h-3.5 text-brand-600" />
+            {t('noteFor')} "{nodeMap[editingNote]?.label}"
+          </p>
           <textarea
             value={noteText} onChange={e => setNoteText(e.target.value)}
             placeholder={t('notePlaceholder')}

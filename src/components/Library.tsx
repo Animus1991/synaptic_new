@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Search, Upload, BookOpen, FileText, ChevronRight, ChevronDown,
-  Clock, BarChart3, Sparkles, Plus, Grid3X3, List, Loader2,
+  Clock, BarChart3, Sparkles, Grid3X3, List, Loader2,
   File, Image, Code, Presentation, Table2, AlertTriangle, Trash2, RefreshCw,
 } from '@/lib/lucide-shim';
 import type { Course, UploadedFile, UserSettings, Task, GlossaryEntry } from '../types';
@@ -18,6 +18,7 @@ import { courseDeleteStats } from '../lib/removeCourse';
 import { isDemoCourse } from '../lib/demoMode';
 import { CourseIcon } from './ui/CourseIcon';
 import { UiIcon } from './ui/UiIcon';
+import { PlatformEmptyState } from './ui/PlatformEmptyState';
 
 interface LibraryProps {
   courses: Course[];
@@ -216,7 +217,12 @@ export function Library({
             exit={{ opacity: 0 }}
           >
             {filteredCourses.length === 0 ? (
-              <EmptyState onUpload={onUpload} />
+              <PlatformEmptyState
+                title="No content yet"
+                description="Upload your first document and the AI will transform it into an interactive learning course."
+                actionLabel="Upload Material"
+                onAction={onUpload}
+              />
             ) : (
               <div className={cn(
                 viewMode === 'grid'
@@ -241,7 +247,12 @@ export function Library({
             exit={{ opacity: 0 }}
           >
             {uploadedFiles.length === 0 ? (
-              <EmptyState onUpload={onUpload} />
+              <PlatformEmptyState
+                title="No content yet"
+                description="Upload your first document and the AI will transform it into an interactive learning course."
+                actionLabel="Upload Material"
+                onAction={onUpload}
+              />
             ) : (
               <div className="space-y-2">
                 {uploadedFiles.map((file, i) => (
@@ -320,7 +331,7 @@ function CourseCard({
       transition={{ delay: index * 0.05 }}
       onClick={onClick}
       data-testid="library-course-card"
-      className="p-5 rounded-2xl border border-border-subtle bg-surface-card hover:border-brand-500/30 cursor-pointer transition-all group"
+      className="p-5 ws-bento hover:border-brand-500/35 cursor-pointer transition-all group"
     >
       <div className="flex items-start justify-between mb-4">
         <CourseIcon icon={course.icon} size="xl" colorClassName="text-brand-600" />
@@ -722,26 +733,5 @@ function FileItem({
       data-testid={`library-remove-dialog-${file.id}`}
     />
     </>
-  );
-}
-
-function EmptyState({ onUpload }: { onUpload: () => void }) {
-  return (
-    <div className="flex flex-col items-center justify-center py-20 text-center">
-      <div className="w-20 h-20 rounded-2xl bg-surface-card border border-border-subtle flex items-center justify-center mb-6">
-        <Plus className="w-8 h-8 text-text-muted" />
-      </div>
-      <h3 className="text-lg font-semibold mb-2">No content yet</h3>
-      <p className="text-text-secondary text-sm mb-6 max-w-sm">
-        Upload your first document and the AI will transform it into an interactive learning course.
-      </p>
-      <button
-        onClick={onUpload}
-        className="flex items-center gap-2 px-6 py-3 bg-brand-600 hover:bg-brand-500 text-white rounded-xl font-medium text-sm transition-all"
-      >
-        <Upload className="w-4 h-4" />
-        Upload Material
-      </button>
-    </div>
   );
 }

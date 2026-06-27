@@ -356,7 +356,11 @@ export function useAppStore() {
   const [activeTaskId, setActiveTaskId] = useState<string | null>(null);
   const [expandedTaskId, setExpandedTaskId] = useState<string | null>(null);
   const [appToast, setAppToast] = useState<{ id: number; message: string } | null>(null);
+  const [postUploadCourseId, setPostUploadCourseId] = useState<string | null>(null);
   const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const markPostUploadCourse = useCallback((courseId: string) => setPostUploadCourseId(courseId), []);
+  const clearPostUploadHighlight = useCallback(() => setPostUploadCourseId(null), []);
 
   const dismissAppToast = useCallback(() => {
     if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
@@ -1827,6 +1831,7 @@ export function useAppStore() {
     examPrepOpen, setExamPrepOpen,
     prerequisiteRepairOpen, setPrerequisiteRepairOpen,
     appToast, showAppToast, dismissAppToast,
+    postUploadCourseId, markPostUploadCourse, clearPostUploadHighlight,
   };
 }
 

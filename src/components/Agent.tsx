@@ -19,6 +19,8 @@ import { GoToSourceButton } from './GoToSourceButton';
 import { AgentContextBanner } from './AgentContextBanner';
 import { RichText } from './RichText';
 import { getAgentContent, type AgentUiCopy } from '../lib/agentContent';
+import { PlatformSection } from './ui/primitives';
+import { PlatformEmptyState } from './ui/PlatformEmptyState';
 
 interface AgentProps {
   messages: AgentMessage[];
@@ -235,14 +237,14 @@ export function Agent({
     <div className="flex flex-col h-[calc(100vh-56px)] lg:h-[calc(100vh-56px)]">
       {/* Agent Header */}
       <div className="px-4 sm:px-6 py-3 border-b border-border-subtle bg-surface-secondary/30">
-        <div className="flex items-center justify-between max-w-none w-full min-w-0">
+        <div className="flex items-center justify-between max-w-none w-full min-w-0 ws-bento-soft px-4 py-3">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-brand-500 to-accent-teal flex items-center justify-center">
+            <div className="w-9 h-9 rounded-xl bg-brand-600 flex items-center justify-center">
               <Sparkles className="w-5 h-5 text-white" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-sm font-semibold">{ui.title}</span>
+                <span className="ws-serif text-sm font-medium text-text-primary">{ui.title}</span>
                 <button
                   onClick={() => setShowModes(!showModes)}
                   className="flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium bg-surface-hover border border-border-subtle hover:border-brand-500/30 transition-all"
@@ -319,17 +321,17 @@ export function Agent({
             className="border-b border-border-subtle bg-surface-secondary/50 overflow-hidden"
           >
             <div className="max-w-none w-full min-w-0 px-4 sm:px-6 py-4">
-              <p className="text-xs text-text-tertiary font-medium uppercase tracking-wider mb-3">{ui.agentModeHeading}</p>
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
+              <PlatformSection title={ui.agentModeHeading} padding="none" tone="muted">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 pt-3">
                 {agentModes.map(m => (
                   <button
                     key={m.mode}
                     onClick={() => { onChangeMode(m.mode); setShowModes(false); }}
                     className={cn(
-                      'p-2.5 rounded-xl text-left transition-all border',
+                      'ws-bento-soft p-2.5 text-left transition-all',
                       mode === m.mode
-                        ? 'bg-brand-600/15 border-brand-500/30 text-brand-300'
-                        : 'border-border-subtle hover:border-brand-500/20 bg-surface-card'
+                        ? 'border-brand-500/35 text-brand-700'
+                        : 'hover:border-brand-500/25',
                     )}
                   >
                     <m.icon className={cn('w-4 h-4 mb-1', m.color)} />
@@ -338,6 +340,7 @@ export function Agent({
                   </button>
                 ))}
               </div>
+              </PlatformSection>
             </div>
           </motion.div>
         )}
@@ -346,6 +349,17 @@ export function Agent({
       {/* Messages */}
       <div className="flex-1 overflow-y-auto">
         <div className="max-w-none w-full min-w-0 px-4 sm:px-6 py-4 space-y-4">
+          {messages.length === 0 && !isThinking && (
+            <PlatformEmptyState
+              title={ui.title}
+              description={llmReady ? ui.inputPlaceholder : ui.offlineMode}
+              icon={Sparkles}
+              actionLabel={quickActions[0]}
+              onAction={() => handleQuickAction(quickActions[0])}
+              secondaryActionLabel={quickActions[1]}
+              onSecondaryAction={() => handleQuickAction(quickActions[1])}
+            />
+          )}
           {messages.map(msg => (
             <MessageBubble key={msg.id} message={msg} onGoToSource={onGoToSource} lang={lang} ui={ui} />
           ))}

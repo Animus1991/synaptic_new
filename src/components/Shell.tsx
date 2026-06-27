@@ -2,7 +2,7 @@ import { ReactNode } from 'react';
 import {
   BookOpen, CheckSquare, Robot as Bot, SquaresFour as LayoutDashboard, Gear as Settings,
   Sparkle as Sparkles, List as Menu, X, UploadSimple as Upload, Bell, MagnifyingGlass as Search, CaretRight as ChevronRight,
-  ChartBar as BarChart3, Sun, Moon, Users
+  ChartBar as BarChart3, Sun, Moon, Users, Fire as Flame
 } from '@phosphor-icons/react';
 import type { AppView, User, DashboardStats } from '../types';
 import { cn } from '../utils/cn';
@@ -218,7 +218,10 @@ export function Shell({ children, currentView, onNavigate, sidebarOpen, onToggle
                   {user.name.charAt(0)}
                 </div>
                 <div className="hidden sm:flex items-center gap-1">
-                  <span className="text-xs font-medium text-accent-amber">🔥 {stats.streak}</span>
+                  <span className="text-xs font-medium text-accent-amber inline-flex items-center gap-1">
+                    <Flame className="w-3.5 h-3.5" weight="fill" />
+                    {stats.streak}
+                  </span>
                   <ChevronRight className="w-3 h-3 text-text-tertiary" />
                 </div>
               </div>

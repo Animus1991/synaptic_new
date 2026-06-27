@@ -9,6 +9,7 @@ import { cn } from '../utils/cn';
 import { clearAllSessionData, downloadBackup, importSessionData } from '../lib/sessionBackup';
 import { authLogin, authRegister, pushRemoteLibrary, createCheckoutSession, type AuthSession } from '../lib/authClient';
 import { loadLibrarySync } from '../lib/libraryStorage';
+import { Page, PageHeader } from './ui/primitives';
 
 interface SettingsProps {
   settings: UserSettings;
@@ -86,11 +87,12 @@ export function Settings({
   };
 
   return (
-    <div className="p-4 sm:p-6 lg:px-8 pb-24 lg:pb-6 w-full min-w-0 space-y-6">
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-        <h1 className="text-2xl sm:text-3xl font-bold">Learning Preferences</h1>
-        <p className="text-text-secondary mt-1">Customize how Synapse teaches you. These are UI preferences — the adaptive engine also learns from your behavior.</p>
-      </motion.div>
+    <Page>
+      <PageHeader
+        title="Learning Preferences"
+        subtitle="Customize how Synapse teaches you. These are UI preferences — the adaptive engine also learns from your behavior."
+        icon={Brain}
+      />
 
       <div className="lg:grid lg:grid-cols-2 lg:gap-6 lg:items-start [&>*]:mb-6 lg:[&>*]:mb-0">
       {/* Teaching Style */}
@@ -497,21 +499,21 @@ export function Settings({
       </SettingsSection>
       </div>
 
-      <div className="p-4 rounded-xl bg-surface-card border border-border-subtle">
+      <div className="ws-bento-soft p-4">
         <p className="text-xs text-text-tertiary leading-relaxed flex items-start gap-2">
           <Zap className="w-4 h-4 text-brand-400 shrink-0 mt-0.5" />
           These are your UI preferences. The adaptive engine also learns from your behavior — response time, accuracy, confidence calibration, error patterns, help-seeking rate, and retention over time. It adjusts independently of these settings.
         </p>
       </div>
-    </div>
+    </Page>
   );
 }
 
 function SettingsSection({ title, icon, children, delay }: { title: string; icon: React.ReactNode; children: React.ReactNode; delay: number }) {
   return (
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay }}
-      className="rounded-2xl border border-border-subtle bg-surface-card p-5">
-      <h3 className="text-sm font-semibold flex items-center gap-2 mb-4">{icon}{title}</h3>
+      className="ws-bento p-5">
+      <h3 className="ws-serif text-sm font-medium flex items-center gap-2 mb-4 text-text-primary">{icon}{title}</h3>
       <div className="space-y-4">{children}</div>
     </motion.div>
   );

@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, RotateCcw, Copy, Check, PenSquare, LineChart, Sparkles, ShieldCheck, Loader2 } from '@/lib/lucide-shim';
+import { Plus, RotateCcw, Copy, Check, PenSquare, LineChart, Sparkles, ShieldCheck, Loader2, Calculator } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
 import { inferVariablesFromFormula, evaluateFormulaExpression, type FormulaVariable } from '../../lib/formulaSolver';
 import { loadScratchpadFormulas, saveScratchpadFormulas } from '../../lib/workspacePersistence';
@@ -514,22 +514,24 @@ function ScratchpadHeader({
           data-testid="scratchpad-tab-formulas"
           onClick={() => setPanel('formulas')}
           className={cn(
-            'px-2 py-1 rounded-md text-[10px] font-medium',
-            panel === 'formulas' ? 'bg-brand-600/20 text-brand-300' : 'text-text-muted',
+            'px-2 py-1 rounded-md text-[10px] font-medium inline-flex items-center gap-1',
+            panel === 'formulas' ? 'bg-brand-600/20 text-brand-600' : 'text-text-muted',
           )}
         >
-          📐 {lang === 'el' ? 'Τύποι' : 'Formulas'}
+          <Calculator className="w-3 h-3" />
+          {lang === 'el' ? 'Τύποι' : 'Formulas'}
         </button>
         <button
           type="button"
           data-testid="scratchpad-tab-notes"
           onClick={() => setPanel('notes')}
           className={cn(
-            'px-2 py-1 rounded-md text-[10px] font-medium',
-            panel === 'notes' ? 'bg-brand-600/20 text-brand-300' : 'text-text-muted',
+            'px-2 py-1 rounded-md text-[10px] font-medium inline-flex items-center gap-1',
+            panel === 'notes' ? 'bg-brand-600/20 text-brand-600' : 'text-text-muted',
           )}
         >
-          ✍ {lang === 'el' ? 'Σκέψη' : 'Thinking'}
+          <PenSquare className="w-3 h-3" />
+          {lang === 'el' ? 'Σκέψη' : 'Thinking'}
         </button>
       </div>
       {onAddCustom && panel === 'formulas' && (

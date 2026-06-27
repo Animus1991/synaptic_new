@@ -512,6 +512,7 @@ export default function App() {
         onUploadComplete={(course) => {
           closeUploadModal();
           setUploadIntent({ mode: 'new' });
+          store.markPostUploadCourse(course.id);
           store.openCourseReview(course);
         }}
         onProceed={() => {
@@ -622,6 +623,8 @@ export default function App() {
             onRemoveFile={store.removeUploadedFile}
             onRemoveCourse={store.removeCourse}
             tasks={store.tasks}
+            showPostUploadBanner={store.postUploadCourseId === selectedCourse.id}
+            onDismissPostUpload={store.clearPostUploadHighlight}
           />
         </Shell>
         {overlays}

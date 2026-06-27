@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import {
   X, Play, CheckCircle2, AlertTriangle, Lightbulb,
   ChevronRight, ArrowRight, Sparkles, RotateCcw,
-  Terminal, Eye, Gauge, Zap, Upload,
+  Terminal, Eye, EyeOff, Gauge, Zap, Upload, GraduationCap,
 } from '@/lib/lucide-shim';
 import { cn } from '../utils/cn';
 import { CodeEditor } from './CodeEditor';
@@ -263,8 +263,9 @@ export function PracticalLessonView({
             <div className="space-y-2">
               {exercise.hints.slice(0, hintLevel).map((hint, i) => (
                 <motion.div key={i} initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }}
-                  className="p-3 rounded-lg bg-accent-amber/5 border border-accent-amber/20 text-xs text-text-secondary">
-                  💡 {hint}
+                  className="p-3 rounded-lg bg-accent-amber/5 border border-accent-amber/20 text-xs text-text-secondary flex items-start gap-2">
+                  <Lightbulb className="w-3.5 h-3.5 text-accent-amber shrink-0 mt-0.5" />
+                  {hint}
                 </motion.div>
               ))}
               {hintLevel < exercise.hints.length && (
@@ -284,11 +285,12 @@ export function PracticalLessonView({
             )}
 
             <div className="flex flex-wrap gap-2">
-              <button type="button" onClick={() => setShowSolution(!showSolution)} className="px-3 py-1.5 rounded-lg text-[11px] font-medium border border-border-subtle hover:border-brand-500/30 text-text-secondary transition-all">
-                {showSolution ? '🙈 Hide solution' : '👀 Show solution'}
+              <button type="button" onClick={() => setShowSolution(!showSolution)} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-medium border border-border-subtle hover:border-brand-500/30 text-text-secondary transition-all">
+                {showSolution ? <><EyeOff className="w-3.5 h-3.5" /> Hide solution</> : <><Eye className="w-3.5 h-3.5" /> Show solution</>}
               </button>
-              <button type="button" onClick={onOpenAgent} className="px-3 py-1.5 rounded-lg text-[11px] font-medium border border-border-subtle hover:border-brand-500/30 text-text-secondary transition-all">
-                🔰 Explain like beginner
+              <button type="button" onClick={onOpenAgent} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-medium border border-border-subtle hover:border-brand-500/30 text-text-secondary transition-all">
+                <GraduationCap className="w-3.5 h-3.5 text-brand-600" />
+                Explain like beginner
               </button>
             </div>
           </div>
