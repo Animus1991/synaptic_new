@@ -17,6 +17,8 @@ import { teacherRouter } from './routes/teacher';
 import { ocrRouter } from './routes/ocr';
 import { transcribeRouter } from './routes/transcribe';
 import { chunkErrorsRouter } from './routes/chunkErrors';
+import { googleAuthRouter } from './routes/googleAuth';
+import { googleIntegrationsRouter } from './routes/googleIntegrations';
 
 export function createApp(): express.Application {
   const app = express();
@@ -44,11 +46,13 @@ export function createApp(): express.Application {
         refreshTokens: true,
         ocr: true,
         rateLimitRpm: config.rateLimitRpm,
+        googleOAuth: Boolean(config.googleClientId && config.googleClientSecret),
       },
     });
   });
 
   app.use('/auth', authRouter);
+  app.use('/auth', googleAuthRouter);
   app.use('/v1', rateLimit);
   app.use('/v1', usageRouter);
   app.use('/v1', libraryRouter);
@@ -61,6 +65,7 @@ export function createApp(): express.Application {
   app.use('/v1', ocrRouter);
   app.use('/v1', transcribeRouter);
   app.use('/v1', teacherRouter);
+  app.use('/v1', googleIntegrationsRouter);
   app.use('/v1', proxyRouter);
 
   app.use(chunkErrorsRouter);

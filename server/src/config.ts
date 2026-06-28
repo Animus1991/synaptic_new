@@ -31,6 +31,13 @@ export const config = {
   ocrMaxPages: num(process.env.OCR_MAX_PAGES, 15),
   /** Optional spaCy/Stanza NER microservice base URL (no trailing slash). */
   nerServiceUrl: process.env.NER_SERVICE_URL?.trim() || undefined,
+  /** Google OAuth (G-1) — Tasks + Meet + sign-in */
+  googleClientId: process.env.GOOGLE_CLIENT_ID?.trim() || undefined,
+  googleClientSecret: process.env.GOOGLE_CLIENT_SECRET?.trim() || undefined,
+  googleRedirectUri: (
+    process.env.GOOGLE_REDIRECT_URI
+    ?? `http://localhost:${num(process.env.PORT, 8787)}/auth/google/callback`
+  ).replace(/\/$/, ''),
 };
 
 export type Plan = 'free' | 'pro' | 'team';

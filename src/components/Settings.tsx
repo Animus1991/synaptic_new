@@ -8,6 +8,8 @@ import type { UserSettings } from '../types';
 import { cn } from '../utils/cn';
 import { clearAllSessionData, downloadBackup, importSessionData } from '../lib/sessionBackup';
 import { authLogin, authRegister, pushRemoteLibrary, createCheckoutSession, type AuthSession } from '../lib/authClient';
+import { GoogleIntegrationsPanel } from './GoogleIntegrationsPanel';
+import { googleAuthStartUrl } from '../lib/googleClient';
 import { loadLibrarySync } from '../lib/libraryStorage';
 import { Page, PageHeader } from './ui/primitives';
 
@@ -353,6 +355,20 @@ export function Settings({
           >
             Register
           </button>
+          <button
+            type="button"
+            className="px-4 py-2 rounded-xl text-sm font-medium border border-border-subtle inline-flex items-center gap-2"
+            data-testid="settings-google-sign-in"
+            onClick={() => {
+              window.location.href = googleAuthStartUrl(
+                settings,
+                'signin',
+                `${window.location.origin}/?view=settings`,
+              );
+            }}
+          >
+            Google
+          </button>
           {settings.authToken && (
             <button
               type="button"
@@ -432,6 +448,19 @@ export function Settings({
           <p className="text-xs text-text-secondary">Logged in: {settings.authEmail}</p>
         )}
         {authStatus && <p className="text-xs text-text-muted">{authStatus}</p>}
+      </SettingsSection>
+
+      <SettingsSection
+        title={settings.language === 'el' ? 'Google Workspace' : 'Google Workspace'}
+        icon={<KeyRound className="w-5 h-5 text-brand-400" />}
+        delay={0.32}
+      >
+        <GoogleIntegrationsPanel
+          settings={settings}
+          onUpdate={onUpdate}
+          onAuthComplete={(msg) => setAuthStatus(msg)}
+          lang={settings.language}
+        />
       </SettingsSection>
 
       {/* Interface */}

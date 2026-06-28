@@ -72,28 +72,28 @@ export function WorkspaceToolHeader({
 
   return (
     <div
-      className="shrink-0 border-b border-border-subtle bg-surface-card/70"
+      className="ws-tool-header shrink-0 border-b border-border-subtle bg-surface-card/70"
       data-testid="workspace-tool-header"
       data-tool={activeTool}
     >
-      {/* Always-visible title row — editorial academic, mobile-first */}
-      <div className="flex items-start gap-2.5 px-3 py-2.5 sm:gap-3 sm:px-4 sm:py-3">
-        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md ws-chip-brand sm:h-9 sm:w-9">
-          <Icon className="h-4 w-4 text-brand-800" aria-hidden />
+      {/* Always-visible title row — compact density (WS-4) */}
+      <div className="ws-tool-header-row flex items-start gap-2 sm:gap-2.5">
+        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md ws-chip-brand sm:h-8 sm:w-8">
+          <Icon className="h-3.5 w-3.5 text-brand-800" aria-hidden />
         </span>
         <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-            <h2 className="ws-display-title min-w-0 break-words text-[0.9375rem] leading-tight text-text-primary sm:text-[1.0625rem] sm:leading-snug sm:truncate">
+          <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5">
+            <h2 className="ws-display-title min-w-0 break-words text-[0.875rem] leading-tight text-text-primary sm:text-[1rem] sm:leading-snug sm:truncate">
               {name}
             </h2>
             {s20.readiness !== 'launch-ready' && (
-              <span className="ws-eyebrow ws-chip-warn rounded-sm px-1.5 py-0.5 text-[9px]">
+              <span className="ws-eyebrow ws-chip-warn rounded-sm px-1 py-0.5 text-[8px]">
                 {isEl ? 'βελτιώνεται' : 'polishing'}
               </span>
             )}
           </div>
           <p
-            className="mt-0.5 line-clamp-2 font-display text-[0.75rem] italic leading-snug text-text-secondary sm:mt-1 sm:line-clamp-1 sm:truncate sm:text-[0.8125rem]"
+            className="mt-0.5 line-clamp-2 font-display text-[0.6875rem] italic leading-snug text-text-secondary sm:line-clamp-1 sm:truncate sm:text-[0.75rem]"
             title={purpose}
           >
             {purpose}
@@ -106,15 +106,15 @@ export function WorkspaceToolHeader({
           aria-expanded={!collapsed}
           aria-label={isEl ? 'Οδηγός εργαλείου' : 'Tool guide'}
           className={cn(
-            'inline-flex shrink-0 items-center gap-1 rounded-md border px-2 py-1.5 text-[10px] transition-colors ws-eyebrow min-h-[36px] sm:gap-1.5 sm:px-2.5',
+            'inline-flex shrink-0 items-center gap-0.5 rounded-md border px-1.5 py-1 text-[9px] transition-colors ws-eyebrow min-h-[32px] sm:gap-1 sm:px-2',
             collapsed
               ? 'ws-chip-neutral hover:opacity-90'
               : 'ws-chip-brand',
           )}
         >
-          <HelpCircle className="h-3.5 w-3.5" aria-hidden />
+          <HelpCircle className="h-3 w-3" aria-hidden />
           <span className="hidden sm:inline">{isEl ? 'Οδηγός' : 'Guide'}</span>
-          {collapsed ? <ChevronRight className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+          {collapsed ? <ChevronRight className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
         </button>
       </div>
 
@@ -122,15 +122,15 @@ export function WorkspaceToolHeader({
 
       {/* Expandable guidance */}
       {!collapsed && (
-        <div className="space-y-2.5 px-3.5 pb-3" data-testid="workspace-tool-header-guide">
+        <div className="ws-tool-header-guide space-y-2" data-testid="workspace-tool-header-guide">
           {/* 3-step how-to */}
-          <ol className="flex flex-col gap-1.5 sm:flex-row sm:gap-2">
+          <ol className="flex flex-col gap-1 sm:flex-row sm:gap-1.5">
             {steps.map((step, i) => (
               <li
                 key={i}
-                className="flex flex-1 items-start gap-2 rounded-lg border border-border-subtle bg-surface-primary/40 px-2.5 py-2"
+                className="flex flex-1 items-start gap-1.5 rounded-lg border border-border-subtle bg-surface-primary/40 px-2 py-1.5"
               >
-                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-brand-500/20 text-[11px] font-bold text-brand-200">
+                <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-brand-500/20 text-[10px] font-bold text-brand-800">
                   {i + 1}
                 </span>
                 <span className="ws-caption text-text-secondary">{step}</span>
@@ -139,16 +139,16 @@ export function WorkspaceToolHeader({
           </ol>
 
           {/* Why it matters + outcome */}
-          <div className="flex flex-col gap-1.5 sm:flex-row sm:items-stretch">
-            <p className="ws-caption flex flex-1 items-start gap-2 rounded-lg bg-accent-cyan/8 px-2.5 py-2 text-text-secondary">
-              <Sparkles className="mt-0.5 h-3.5 w-3.5 shrink-0 text-accent-cyan" aria-hidden />
+          <div className="flex flex-col gap-1 sm:flex-row sm:items-stretch">
+            <p className="ws-caption flex flex-1 items-start gap-1.5 rounded-lg bg-accent-cyan/8 px-2 py-1.5 text-text-secondary">
+              <Sparkles className="mt-0.5 h-3 w-3 shrink-0 text-accent-cyan" aria-hidden />
               <span>
                 <span className="font-semibold text-text-primary">{isEl ? 'Γιατί: ' : 'Why: '}</span>
                 {why}
               </span>
             </p>
-            <p className="ws-caption flex flex-1 items-start gap-2 rounded-lg bg-brand-500/8 px-2.5 py-2 text-text-secondary">
-              <Target className="mt-0.5 h-3.5 w-3.5 shrink-0 text-brand-300" aria-hidden />
+            <p className="ws-caption flex flex-1 items-start gap-1.5 rounded-lg bg-brand-500/8 px-2 py-1.5 text-text-secondary">
+              <Target className="mt-0.5 h-3 w-3 shrink-0 text-brand-300" aria-hidden />
               <span>
                 <span className="font-semibold text-text-primary">{isEl ? 'Θα πάρεις: ' : "You'll get: "}</span>
                 {produces}
@@ -158,19 +158,19 @@ export function WorkspaceToolHeader({
 
           {/* Live context chips */}
           {hasSource && (concept || sourceName) && (
-            <div className="flex flex-wrap items-center gap-1.5">
+            <div className="flex flex-wrap items-center gap-1">
               {concept && (
                 <span
-                  className="ws-caption inline-flex items-center gap-1 rounded-full border border-border-subtle bg-surface-primary/50 px-2 py-0.5 text-text-secondary"
+                  className="ws-caption inline-flex items-center gap-0.5 rounded-full border border-border-subtle bg-surface-primary/50 px-1.5 py-0.5 text-text-secondary"
                   data-testid="workspace-tool-header-concept"
                 >
-                  <CircleDot className="h-3 w-3 text-brand-300" aria-hidden />
+                  <CircleDot className="h-2.5 w-2.5 text-brand-300" aria-hidden />
                   {isEl ? 'Εστίαση:' : 'Focus:'}{' '}
-                  <span className="max-w-[180px] truncate font-medium text-text-primary">{concept}</span>
+                  <span className="max-w-[160px] truncate font-medium text-text-primary">{concept}</span>
                 </span>
               )}
               {sourceName && (
-                <span className="ws-caption inline-flex max-w-[220px] items-center gap-1 truncate rounded-full border border-border-subtle bg-surface-primary/50 px-2 py-0.5 text-text-muted">
+                <span className="ws-caption inline-flex max-w-[200px] items-center gap-0.5 truncate rounded-full border border-border-subtle bg-surface-primary/50 px-1.5 py-0.5 text-text-muted">
                   {isEl ? 'Πηγή:' : 'Source:'} <span className="truncate">{sourceName}</span>
                 </span>
               )}
@@ -178,7 +178,7 @@ export function WorkspaceToolHeader({
           )}
 
           {/* Connected tools + source/agent shortcuts */}
-          <div className="flex flex-wrap items-center gap-1.5 border-t border-border-subtle/60 pt-2.5">
+          <div className="flex flex-wrap items-center gap-1 border-t border-border-subtle/60 pt-2">
             <span className="ws-eyebrow shrink-0 text-text-muted">
               {isEl ? 'Συνδέεται με' : 'Connects to'}
             </span>
