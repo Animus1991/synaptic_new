@@ -15,6 +15,7 @@ import {
   type GoogleConnectionStatus,
   type GoogleTask,
 } from '../lib/googleClient';
+import { useI18n } from '../lib/i18n';
 
 type Props = {
   settings: UserSettings;
@@ -27,9 +28,9 @@ export function GoogleIntegrationsPanel({
   settings,
   onUpdate,
   onAuthComplete,
-  lang = settings.language,
+  lang: _lang,
 }: Props) {
-  const isEl = lang === 'el';
+  const { t } = useI18n();
   const [status, setStatus] = useState<GoogleConnectionStatus | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -91,7 +92,7 @@ export function GoogleIntegrationsPanel({
 
     if (googleState === 'connected') {
       void refreshStatus().then(() => {
-        onAuthComplete?.(isEl ? 'Google συνδέθηκε (Tasks + Meet)' : 'Google connected (Tasks + Meet)');
+        onAuthComplete?.(t('googleConnectedToast'));
       });
       clearGoogleAuthQueryParams();
       return;
@@ -108,7 +109,7 @@ export function GoogleIntegrationsPanel({
           });
           await refreshStatus();
           onAuthComplete?.(
-            isEl ? `Σύνδεση Google ως ${session.email}` : `Signed in with Google as ${session.email}`,
+            t('googleSignedInAs').replace('{email}', session.email),
           );
         } catch (e) {
           setError(e instanceof Error ? e.message : 'Google sign-in failed');
@@ -117,7 +118,7 @@ export function GoogleIntegrationsPanel({
         }
       })();
     }
-  }, [isEl, onAuthComplete, onUpdate, refreshStatus, settings]);
+  }, [onAuthComplete, onUpdate, refreshStatus, settings, t]);
 
   const startGoogleSignIn = () => {
     window.location.href = googleAuthStartUrl(
@@ -129,7 +130,7 @@ export function GoogleIntegrationsPanel({
 
   const startGoogleConnect = () => {
     if (!settings.authToken) {
-      setError(isEl ? 'Συνδέσου πρώτα στον λογαριασμό Synapse' : 'Sign in to Synapse first');
+      setError(t('googleSignInSynapseFirst'));
       return;
     }
     window.location.href = googleConnectStartUrl(
@@ -185,9 +186,7 @@ export function GoogleIntegrationsPanel({
   return (
     <div className="space-y-4" data-testid="google-integrations-panel">
       <p className="text-xs text-text-secondary leading-relaxed">
-        {isEl
-          ? 'Σύνδεση Google για εργασίες μελέτης (Tasks) και βιντεοκλήσεις ομάδας (Meet). Απαιτεί ρύθμιση GOOGLE_CLIENT_ID στον server.'
-          : 'Connect Google for study tasks and group video calls (Meet). Requires GOOGLE_CLIENT_ID on the server.'}
+        {t('googleIntro')}
       </p>
 
       <div className="flex flex-wrap gap-2">
@@ -199,7 +198,7 @@ export function GoogleIntegrationsPanel({
             className="inline-flex items-center gap-2 rounded-xl border border-border-subtle bg-surface-card px-3 py-2 text-xs font-semibold text-text-primary hover:border-brand-500/30"
           >
             <Link2 className="h-3.5 w-3.5" />
-            {isEl ? 'Σύνδεση με Google' : 'Sign in with Google'}
+            {t('googleSignInWithGoogle')}
           </button>
         )}
         {settings.authToken && !status?.connected && (
@@ -210,13 +209,13 @@ export function GoogleIntegrationsPanel({
             className="inline-flex items-center gap-2 rounded-xl border border-brand-500/30 bg-brand-600/10 px-3 py-2 text-xs font-semibold text-brand-800"
           >
             <Link2 className="h-3.5 w-3.5" />
-            {isEl ? 'Σύνδεση Google (Tasks + Meet)' : 'Connect Google (Tasks + Meet)'}
+            {t('googleConnectTasksMeet')}
           </button>
         )}
         {status?.connected && (
           <>
             <span className="ws-chip-ok inline-flex items-center rounded-full px-2 py-1 text-[10px]">
-              {status.email ?? (isEl ? 'Συνδεδεμένο' : 'Connected')}
+              {status.email ?? t('googleConnected')}
             </span>
             <button
               type="button"
@@ -226,7 +225,7 @@ export function GoogleIntegrationsPanel({
               className="inline-flex items-center gap-1 rounded-lg border border-border-subtle px-2 py-1 text-[10px] text-text-muted hover:text-text-secondary"
             >
               <XCircle className="h-3 w-3" />
-              {isEl ? 'Αποσύνδεση' : 'Disconnect'}
+              {t('googleDisconnect')}
             </button>
           </>
         )}
@@ -236,7 +235,7 @@ export function GoogleIntegrationsPanel({
         <div className="rounded-xl border border-border-subtle bg-surface-primary/40 p-3 space-y-2">
           <div className="flex items-center gap-2 text-xs font-semibold text-text-primary">
             <Presentation className="h-4 w-4 text-brand-700" />
-            {isEl ? 'Ομαδική βιντεοκλήση (Meet)' : 'Group video (Meet)'}
+            {t('googleGroupVideoMeet')}
           </div>
           <button
             type="button"
@@ -245,7 +244,7 @@ export function GoogleIntegrationsPanel({
             onClick={() => void handleCreateMeet()}
             className="ws-empty-cta-primary text-xs"
           >
-            {isEl ? 'Δημιουργία Meet link' : 'Create Meet link'}
+            {t('googleCreateMeetLink')}
           </button>
           {meetUri && (
             <a
@@ -266,13 +265,13 @@ export function GoogleIntegrationsPanel({
         <div className="rounded-xl border border-border-subtle bg-surface-primary/40 p-3 space-y-2">
           <div className="flex items-center gap-2 text-xs font-semibold text-text-primary">
             <List className="h-4 w-4 text-brand-700" />
-            {isEl ? 'Google Tasks' : 'Google Tasks'}
+            {t('googleTasks')}
           </div>
           <div className="flex gap-2">
             <input
               value={taskDraft}
               onChange={(e) => setTaskDraft(e.target.value)}
-              placeholder={isEl ? 'Νέα εργασία μελέτης…' : 'New study task…'}
+              placeholder={t('googleNewStudyTaskPlaceholder')}
               className="flex-1 rounded-lg border border-border-subtle bg-surface-input px-2 py-1.5 text-xs"
               onKeyDown={(e) => e.key === 'Enter' && void handleCreateTask()}
             />
@@ -284,7 +283,7 @@ export function GoogleIntegrationsPanel({
               className="inline-flex items-center gap-1 rounded-lg border border-brand-500/30 px-2 py-1.5 text-xs font-semibold text-brand-800"
             >
               <Plus className="h-3.5 w-3.5" />
-              {isEl ? 'Προσθήκη' : 'Add'}
+              {t('googleAdd')}
             </button>
           </div>
           <ul className="max-h-40 space-y-1 overflow-y-auto text-[11px] text-text-secondary">
@@ -294,7 +293,7 @@ export function GoogleIntegrationsPanel({
               </li>
             ))}
             {tasks.length === 0 && !loading && (
-              <li className="text-text-muted">{isEl ? 'Καμία εργασία' : 'No tasks yet'}</li>
+              <li className="text-text-muted">{t('googleNoTasksYet')}</li>
             )}
           </ul>
         </div>
