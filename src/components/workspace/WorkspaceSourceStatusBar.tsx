@@ -5,6 +5,7 @@ import { CONTENT_PIPELINE_VERSION } from '../../lib/pipelineConstants';
 import { reuploadMigrationMessage } from '../../lib/pipelineMigration';
 import { lowSourceQualityMessage } from '../../lib/sourceQualityPrompt';
 import { hygieneFlagLabel } from '../../lib/textQualityMetrics';
+import { useI18n } from '../../lib/i18n';
 
 type Props = {
   lang: 'en' | 'el';
@@ -44,7 +45,7 @@ export function WorkspaceSourceStatusBar({
   className,
   defaultExpanded = true,
 }: Props) {
-  const isEl = lang === 'el';
+  const { t } = useI18n();
   const [expanded, setExpanded] = useState(defaultExpanded);
 
   if (!showMigration && !showQualityWarning) return null;
@@ -64,8 +65,6 @@ export function WorkspaceSourceStatusBar({
     || textHygieneFlags.includes('spaced-glyphs')
     || textHygieneFlags.includes('glued-words');
 
-  const collapsedHint = isEl ? 'Κλικ για λεπτομέρειες και ενέργειες' : 'Click for details and actions';
-
   return (
     <div
       className={cn(
@@ -81,13 +80,13 @@ export function WorkspaceSourceStatusBar({
         className="ws-source-alert-header"
         onClick={() => setExpanded((v) => !v)}
         aria-expanded={expanded}
-        title={!expanded ? collapsedHint : undefined}
+        title={!expanded ? t('sourceStatusCollapsedHint') : undefined}
         data-testid="source-status-toggle"
       >
         <AlertTriangle className="h-4 w-4 shrink-0 text-accent-amber" aria-hidden />
         <span className="ws-source-alert-header-text min-w-0 flex-1 text-left">
           <span className="block text-[11px] font-medium text-text-primary" data-testid="source-status-score">
-            {isEl ? 'Ποιότητα πηγής' : 'Source quality'}
+            {t('sourceQualityLabel')}
             {typeof score === 'number' && (
               <>
                 {' '}
@@ -95,7 +94,7 @@ export function WorkspaceSourceStatusBar({
                 {typeof sectionCount === 'number' && (
                   <span className="font-normal text-text-muted">
                     {' '}
-                    · <span className="ws-num">{sectionCount}</span> {isEl ? 'ενότητες' : 'sections'}
+                    · <span className="ws-num">{sectionCount}</span> {t('sourceSectionsWord')}
                   </span>
                 )}
               </>
@@ -104,8 +103,8 @@ export function WorkspaceSourceStatusBar({
           {!expanded && (
             <span className="mt-0.5 block truncate text-[10px] text-text-muted">
               {showMigration
-                ? (isEl ? 'Απαιτείται επανεπεξεργασία pipeline' : 'Pipeline reprocess recommended')
-                : (isEl ? 'Χαμηλή ποιότητα αναγνώρισης' : 'Low recognition quality')}
+                ? t('sourcePipelineReprocessRecommended')
+                : t('sourceLowRecognitionQuality')}
             </span>
           )}
         </span>
@@ -130,11 +129,11 @@ export function WorkspaceSourceStatusBar({
                 className="ws-chip-neutral rounded-sm px-1.5 py-0.5 font-mono normal-case tracking-normal text-[10px]"
                 data-testid="source-status-hygiene"
               >
-                {isEl ? 'Υγιεινότητα' : 'Hygiene'}{' '}
+                {t('sourceHygiene')}{' '}
                 <span className="ws-num text-text-primary">{textHygieneScore ?? '—'}</span>
                 {typeof textCorruptionScore === 'number' && (
                   <span className="ml-1 text-text-muted">
-                    · {isEl ? 'διαφθορά' : 'corruption'}{' '}
+                    · {t('sourceCorruption')}{' '}
                     <span className="ws-num">{textCorruptionScore}</span>
                   </span>
                 )}
@@ -144,7 +143,7 @@ export function WorkspaceSourceStatusBar({
               <span
                 className="ws-chip-brand rounded-sm px-1.5 py-0.5 font-mono normal-case tracking-normal text-[10px]"
                 data-testid="source-status-spell-gate"
-                title={isEl ? 'Spell-gate (SymSpell + λεξικό)' : 'Spell-gate (SymSpell + lexicon)'}
+                title={t('sourceSpellGateTitle')}
               >
                 spell-gate
               </span>
@@ -175,7 +174,7 @@ export function WorkspaceSourceStatusBar({
                 data-testid="source-status-inspect"
               >
                 <FileSearch className="h-3 w-3" aria-hidden />
-                {isEl ? 'Προεπισκόπηση' : 'Preview'}
+                {t('preview')}
               </button>
             )}
             {onReprocess && (
@@ -187,9 +186,7 @@ export function WorkspaceSourceStatusBar({
                 data-testid="source-status-reprocess"
               >
                 <Cpu className={cn('h-3 w-3', reprocessing && 'animate-pulse')} aria-hidden />
-                {reprocessing
-                  ? (isEl ? 'Επεξεργασία…' : 'Processing…')
-                  : (isEl ? 'Επανεπεξεργασία' : 'Reprocess')}
+                {reprocessing ? t('sourceReprocessing') : t('sourceReprocess')}
               </button>
             )}
             {onReupload && (
@@ -200,7 +197,7 @@ export function WorkspaceSourceStatusBar({
                 data-testid="source-status-reupload"
               >
                 <RefreshCw className="h-3 w-3" aria-hidden />
-                {isEl ? 'Ανέβασμα ξανά' : 'Re-upload'}
+                {t('sourceReupload')}
               </button>
             )}
             {onContinue && (
@@ -210,7 +207,7 @@ export function WorkspaceSourceStatusBar({
                 className="ws-source-action-btn ws-source-action-btn-ghost"
                 data-testid="source-status-continue"
               >
-                {isEl ? 'Συνέχεια' : 'Continue'}
+                {t('continue')}
               </button>
             )}
           </div>

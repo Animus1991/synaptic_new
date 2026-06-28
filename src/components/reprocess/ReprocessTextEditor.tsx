@@ -18,6 +18,7 @@ import {
   normalizeSectionText,
   sectionHasManualEdits,
 } from '../../lib/reprocessEditorSections';
+import { useI18n } from '../../lib/i18n';
 
 type Props = {
   sections: ReprocessEditorSection[];
@@ -38,8 +39,8 @@ function countWords(text: string): number {
   return trimmed.split(/\s+/).length;
 }
 
-export function ReprocessTextEditor({ sections, lang, onChange, initialSectionIndex = 0 }: Props) {
-  const isEl = lang === 'el';
+export function ReprocessTextEditor({ sections, onChange, initialSectionIndex = 0 }: Props) {
+  const { t } = useI18n();
   const [activeIndex, setActiveIndex] = useState(() =>
     Math.min(Math.max(initialSectionIndex, 0), Math.max(sections.length - 1, 0)),
   );
@@ -53,6 +54,7 @@ export function ReprocessTextEditor({ sections, lang, onChange, initialSectionIn
   const active = sections[activeIndex];
   const manualEdits = countManualEdits(sections);
   const heightPx = PANE_HEIGHTS[paneHeight];
+  const sectionLabel = (index: number) => `${t('reprocessSectionSingular')} ${index + 1}`;
 
   const updateSection = useCallback(
     (index: number, patch: Partial<ReprocessEditorSection>) => {
@@ -131,11 +133,11 @@ export function ReprocessTextEditor({ sections, lang, onChange, initialSectionIn
     <div className="space-y-3" data-testid="reprocess-text-editor">
       <div className="flex flex-wrap items-center gap-2 rounded-xl border border-border-subtle bg-surface-primary/50 px-3 py-2">
         <span className="text-[10px] font-medium text-text-muted">
-          {isEl ? 'Ενότητα' : 'Section'} {activeIndex + 1}/{sections.length}
+          {t('reprocessSectionSingular')} {activeIndex + 1}/{sections.length}
         </span>
         {manualEdits > 0 && (
           <span className="rounded-full bg-brand-600/15 px-2 py-0.5 text-[9px] font-medium text-brand-700">
-            {manualEdits} {isEl ? 'χειροκίνητες αλλαγές' : 'manual edits'}
+            {manualEdits} {t('reprocessManualEdits')}
           </span>
         )}
         <div className="ml-auto flex flex-wrap items-center gap-1.5">
@@ -148,16 +150,16 @@ export function ReprocessTextEditor({ sections, lang, onChange, initialSectionIn
                 ? 'border-brand-600/40 bg-brand-600/10 text-brand-800'
                 : 'border-border-subtle text-text-muted hover:bg-surface-hover',
             )}
-            title={isEl ? 'Συγχρονισμός κύλισης πριν/μετά' : 'Sync before/after scroll'}
+            title={t('reprocessSyncScrollTitle')}
           >
             <ArrowDownUp className="mr-1 inline h-3 w-3" />
-            {isEl ? 'Sync scroll' : 'Sync scroll'}
+            {t('reprocessSyncScroll')}
           </button>
           <button
             type="button"
             onClick={cyclePaneHeight}
             className="rounded-md border border-border-subtle px-2 py-1 text-[9px] text-text-muted hover:bg-surface-hover"
-            title={isEl ? 'Μεγέθυνση/σμίκρυνση περιοχής κειμένου' : 'Expand/shrink text panes'}
+            title={t('reprocessPaneResizeTitle')}
             data-testid="reprocess-pane-resize"
           >
             {paneHeight === 'tall' ? (
@@ -167,10 +169,10 @@ export function ReprocessTextEditor({ sections, lang, onChange, initialSectionIn
             )}
             <span className="ml-1 hidden sm:inline">
               {paneHeight === 'compact'
-                ? (isEl ? 'Μεγέθυνση' : 'Expand')
+                ? t('reprocessExpand')
                 : paneHeight === 'expanded'
-                  ? (isEl ? 'Μεγαλύτερο' : 'Taller')
-                  : (isEl ? 'Σμίκρυνση' : 'Shrink')}
+                  ? t('reprocessTaller')
+                  : t('reprocessShrink')}
             </span>
           </button>
         </div>
@@ -180,7 +182,7 @@ export function ReprocessTextEditor({ sections, lang, onChange, initialSectionIn
         <nav
           ref={sectionListRef}
           className="hidden w-36 shrink-0 flex-col gap-1 overflow-y-auto rounded-xl border border-border-subtle bg-surface-primary/40 p-2 sm:flex max-h-[420px]"
-          aria-label={isEl ? 'Ενότητες κειμένου' : 'Text sections'}
+          aria-label={t('reprocessTextSectionsAria')}
         >
           {sections.map((section, i) => (
             <button
@@ -197,7 +199,7 @@ export function ReprocessTextEditor({ sections, lang, onChange, initialSectionIn
               )}
               title={section.heading}
             >
-              <span className="line-clamp-2">{section.heading || `${isEl ? 'Ενότητα' : 'Section'} ${i + 1}`}</span>
+              <span className="line-clamp-2">{section.heading || sectionLabel(i)}</span>
             </button>
           ))}
         </nav>
@@ -205,7 +207,7 @@ export function ReprocessTextEditor({ sections, lang, onChange, initialSectionIn
         <div className="min-w-0 flex-1 space-y-3">
           <div className="flex items-center justify-between gap-2">
             <h3 className="truncate text-xs font-semibold text-text-primary" title={active.heading}>
-              {active.heading || `${isEl ? 'Ενότητα' : 'Section'} ${activeIndex + 1}`}
+              {active.heading || sectionLabel(activeIndex)}
             </h3>
             <div className="flex items-center gap-1 shrink-0">
               <button
@@ -213,7 +215,7 @@ export function ReprocessTextEditor({ sections, lang, onChange, initialSectionIn
                 disabled={activeIndex === 0}
                 onClick={() => goToSection(activeIndex - 1)}
                 className="rounded-md p-1 text-text-muted hover:bg-surface-hover disabled:opacity-40"
-                aria-label={isEl ? 'Προηγούμενη ενότητα' : 'Previous section'}
+                aria-label={t('reprocessPrevSection')}
               >
                 <ArrowLeft className="h-4 w-4" />
               </button>
@@ -222,7 +224,7 @@ export function ReprocessTextEditor({ sections, lang, onChange, initialSectionIn
                 disabled={activeIndex >= sections.length - 1}
                 onClick={() => goToSection(activeIndex + 1)}
                 className="rounded-md p-1 text-text-muted hover:bg-surface-hover disabled:opacity-40"
-                aria-label={isEl ? 'Επόμενη ενότητα' : 'Next section'}
+                aria-label={t('reprocessNextSection')}
               >
                 <ChevronRight className="h-4 w-4" />
               </button>
@@ -233,13 +235,13 @@ export function ReprocessTextEditor({ sections, lang, onChange, initialSectionIn
             <div>
               <div className="mb-1.5 flex items-center justify-between">
                 <p className="text-[10px] font-semibold text-accent-rose">
-                  {isEl ? 'Reader — πριν (μόνο ανάγνωση)' : 'Reader — before (read-only)'}
+                  {t('reprocessReaderBeforeReadonly')}
                 </p>
                 <button
                   type="button"
                   onClick={() => beforeRef.current?.scrollTo({ top: 0, behavior: 'smooth' })}
                   className="rounded p-0.5 text-text-muted hover:bg-surface-hover"
-                  title={isEl ? 'Κορυφή' : 'Scroll to top'}
+                  title={t('reprocessScrollTop')}
                 >
                   <ChevronUp className="h-3 w-3" />
                 </button>
@@ -254,21 +256,21 @@ export function ReprocessTextEditor({ sections, lang, onChange, initialSectionIn
                 {active.beforeText || '—'}
               </div>
               <p className="mt-1 text-[9px] text-text-muted">
-                {countWords(active.beforeText)} {isEl ? 'λέξεις' : 'words'}
+                {countWords(active.beforeText)} {t('words')}
               </p>
             </div>
 
             <div>
               <div className="mb-1.5 flex items-center justify-between gap-2">
                 <p className="text-[10px] font-semibold text-accent-emerald">
-                  {isEl ? 'Reader — μετά (επεξεργασία)' : 'Reader — after (editable)'}
+                  {t('reprocessReaderAfterEditable')}
                 </p>
                 <div className="flex items-center gap-0.5">
                   <button
                     type="button"
                     onClick={() => afterRef.current?.scrollTo({ top: 0, behavior: 'smooth' })}
                     className="rounded p-0.5 text-text-muted hover:bg-surface-hover"
-                    title={isEl ? 'Κορυφή' : 'Scroll to top'}
+                    title={t('reprocessScrollTop')}
                   >
                     <ChevronUp className="h-3 w-3" />
                   </button>
@@ -279,7 +281,7 @@ export function ReprocessTextEditor({ sections, lang, onChange, initialSectionIn
                       if (el) el.scrollTop = el.scrollHeight;
                     }}
                     className="rounded p-0.5 text-text-muted hover:bg-surface-hover"
-                    title={isEl ? 'Τέλος' : 'Scroll to bottom'}
+                    title={t('reprocessScrollBottom')}
                   >
                     <ChevronDown className="h-3 w-3" />
                   </button>
@@ -299,13 +301,13 @@ export function ReprocessTextEditor({ sections, lang, onChange, initialSectionIn
                     : 'border-accent-emerald/30 focus:border-accent-emerald/50',
                 )}
                 data-testid="reprocess-after-editor"
-                aria-label={isEl ? 'Επεξεργασία κειμένου ενότητας' : 'Edit section text'}
+                aria-label={t('reprocessEditSectionAria')}
               />
               <div className="mt-1 flex flex-wrap items-center gap-2">
                 <p className="text-[9px] text-text-muted">
-                  {countWords(active.editedText)} {isEl ? 'λέξεις' : 'words'}
+                  {countWords(active.editedText)} {t('words')}
                   {sectionHasManualEdits(active) && (
-                    <span className="ml-1 text-brand-700">· {isEl ? 'τροποποιημένο' : 'modified'}</span>
+                    <span className="ml-1 text-brand-700">· {t('reprocessModified')}</span>
                   )}
                 </p>
                 <div className="ml-auto flex flex-wrap gap-1">
@@ -317,7 +319,7 @@ export function ReprocessTextEditor({ sections, lang, onChange, initialSectionIn
                     className="inline-flex items-center gap-1 rounded-md border border-border-subtle px-2 py-0.5 text-[9px] text-text-secondary hover:bg-surface-hover"
                   >
                     <Sparkles className="h-3 w-3" />
-                    {isEl ? 'Κανονικοποίηση' : 'Normalize'}
+                    {t('reprocessNormalize')}
                   </button>
                   <button
                     type="button"
@@ -325,18 +327,14 @@ export function ReprocessTextEditor({ sections, lang, onChange, initialSectionIn
                     className="inline-flex items-center gap-1 rounded-md border border-border-subtle px-2 py-0.5 text-[9px] text-text-muted hover:bg-surface-hover"
                   >
                     <RotateCcw className="h-3 w-3" />
-                    {isEl ? 'Επαναφορά pipeline' : 'Reset pipeline'}
+                    {t('reprocessResetPipeline')}
                   </button>
                 </div>
               </div>
             </div>
           </div>
 
-          <p className="text-[9px] text-text-muted">
-            {isEl
-              ? 'Alt+↑/↓ για προηγούμενη/επόμενη ενότητα · κύλιση συγχρονίζεται όταν είναι ενεργό το Sync scroll.'
-              : 'Alt+↑/↓ previous/next section · scroll syncs when Sync scroll is on.'}
-          </p>
+          <p className="text-[9px] text-text-muted">{t('reprocessKeyboardHint')}</p>
         </div>
       </div>
     </div>
