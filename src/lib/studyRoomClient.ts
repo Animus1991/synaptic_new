@@ -59,6 +59,14 @@ function isNetworkError(err: unknown): boolean {
   return err instanceof TypeError || (err instanceof Error && /failed to fetch|network/i.test(err.message));
 }
 
+function shouldFallbackHttp(status: number): boolean {
+  return status === 404 || status >= 500;
+}
+
+function useLocalFallback(): void {
+  preferLocal = true;
+}
+
 export async function parseApiError(res: Response): Promise<string> {
   const text = await res.text();
   try {
@@ -109,12 +117,18 @@ export async function createStudyRoom(
       method: 'POST',
       body: JSON.stringify({ courseId, name }),
     });
-    if (!res.ok) throw new Error(await parseApiError(res));
+    if (!res.ok) {
+      if (shouldFallbackHttp(res.status)) {
+        useLocalFallback();
+        return { ...localCreateRoom(courseId, name), localOnly: true };
+      }
+      throw new Error(await parseApiError(res));
+    }
     preferLocal = false;
     return (await res.json()) as StudyRoomSnapshot;
   } catch (err) {
     if (isNetworkError(err)) {
-      preferLocal = true;
+      useLocalFallback();
       return { ...localCreateRoom(courseId, name), localOnly: true };
     }
     throw err;
@@ -137,11 +151,19 @@ export async function joinStudyRoom(
       method: 'POST',
       body: JSON.stringify({ displayName, memberId }),
     });
-    if (!res.ok) throw new Error(await parseApiError(res));
+    if (!res.ok) {
+      if (shouldFallbackHttp(res.status)) {
+        useLocalFallback();
+        const result = localJoin(roomId, displayName, memberId);
+        if (!result) throw new Error('Room not found');
+        return { room: { ...result.room, localOnly: true }, memberId: result.memberId };
+      }
+      throw new Error(await parseApiError(res));
+    }
     return (await res.json()) as { room: StudyRoomSnapshot; memberId: string };
   } catch (err) {
     if (isNetworkError(err)) {
-      preferLocal = true;
+      useLocalFallback();
       const result = localJoin(roomId, displayName, memberId);
       if (!result) throw new Error('Room not found');
       return { room: { ...result.room, localOnly: true }, memberId: result.memberId };
@@ -175,12 +197,22 @@ export async function joinStudyRoomByInvite(
   }
   try {
     const lookup = await apiFetch(`/v1/study-rooms/invite/${encodeURIComponent(inviteCode)}`, settings);
-    if (!lookup.ok) throw new Error(await parseApiError(lookup));
+    if (!lookup.ok) {
+      if (shouldFallbackHttp(lookup.status)) {
+        useLocalFallback();
+        const room = localGetByInvite(inviteCode);
+        if (!room) throw new Error('Room not found');
+        const result = localJoin(room.id, displayName, memberId);
+        if (!result) throw new Error('Room not found');
+        return { room: { ...result.room, localOnly: true }, memberId: result.memberId };
+      }
+      throw new Error(await parseApiError(lookup));
+    }
     const room = (await lookup.json()) as StudyRoomSnapshot;
     return joinStudyRoom(room.id, displayName, settings, memberId);
   } catch (err) {
     if (isNetworkError(err)) {
-      preferLocal = true;
+      useLocalFallback();
       const room = localGetByInvite(inviteCode);
       if (!room) throw new Error('Room not found');
       const result = localJoin(room.id, displayName, memberId);
@@ -207,11 +239,19 @@ export async function updateStudyRoomPresence(
       method: 'POST',
       body: JSON.stringify({ memberId, ...patch }),
     });
-    if (!res.ok) throw new Error(await parseApiError(res));
+    if (!res.ok) {
+      if (shouldFallbackHttp(res.status)) {
+        useLocalFallback();
+        const room = localPresence(roomId, memberId, patch);
+        if (!room) throw new Error('Room or member not found');
+        return { ...room, localOnly: true };
+      }
+      throw new Error(await parseApiError(res));
+    }
     return (await res.json()) as StudyRoomSnapshot;
   } catch (err) {
     if (isNetworkError(err)) {
-      preferLocal = true;
+      useLocalFallback();
       const room = localPresence(roomId, memberId, patch);
       if (!room) throw new Error('Room or member not found');
       return { ...room, localOnly: true };

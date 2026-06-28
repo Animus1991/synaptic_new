@@ -411,7 +411,7 @@ export function StudyWhiteboard({
   };
 
   return (
-    <div className="flex h-full flex-col lg:flex-row min-w-0">
+    <div className="flex h-full min-h-0 flex-col overflow-hidden lg:flex-row min-w-0">
       {(referenceFormulas.length > 0 || referenceExcerpt || scratchpadImport) && (
         <aside className="shrink-0 border-b lg:border-b-0 lg:border-r border-border-subtle lg:w-64 overflow-y-auto p-3 space-y-3">
           {scratchpadImport && (

@@ -294,7 +294,7 @@ export function GoogleIntegrationsPanel({
               </li>
             ))}
             {tasks.length === 0 && !loading && (
-              <li className="text-text-muted italic">{isEl ? 'Καμία εργασία' : 'No tasks yet'}</li>
+              <li className="text-text-muted">{isEl ? 'Καμία εργασία' : 'No tasks yet'}</li>
             )}
           </ul>
         </div>

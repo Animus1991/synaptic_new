@@ -22,6 +22,7 @@ import { ConceptTypeIcon } from '../ui/ConceptTypeIcon';
 import { conceptTypeGlyph } from '../../lib/conceptTypeIcons';
 import { Map, BookOpen, Pencil, FileText, X } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
+import { bandColorVar, masteryColorForValue, accentHighlightVar } from '../../lib/masteryPalette';
 import {
   connectConceptMapCursors,
   notifyCursorStream,
@@ -77,8 +78,7 @@ interface Props {
   cursorSync?: { courseId: string; conceptKey: string; baseUrl: string };
 }
 
-const MASTERY_COLOR = (m: number) =>
-  m >= 80 ? '#34d399' : m >= 60 ? '#fbbf24' : m >= 40 ? '#38bdf8' : m > 0 ? '#fb7185' : '#4d4870';
+const MASTERY_COLOR = (m: number) => (m > 0 ? masteryColorForValue(m) : 'var(--color-text-muted)');
 
 export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, emptyMessage, hasSource = false, onUpload, onFocusTerm, onSelectionAction, focusConcept, lensConcept, conceptLens, onConceptSelect, cursorSync }: Props) {
   const { t, lang } = useI18n();
@@ -418,7 +418,7 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
                 <g key={i}>
                   <line
                     x1={from.x} y1={from.y} x2={to.x} y2={to.y}
-                    stroke={lit ? '#818cf8' : '#2a2252'} strokeWidth={lit ? 2.5 : 1.5}
+                    stroke={lit ? accentHighlightVar() : 'var(--color-border-subtle)'} strokeWidth={lit ? 2.5 : 1.5}
                     strokeDasharray={dash} markerEnd="url(#dm-arrow)"
                   />
                   <text
@@ -449,7 +449,7 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
                   className="cursor-move"
                 >
                   {lensHit && !isSel && (
-                    <circle cx={node.x} cy={node.y} r={r + 6} fill="none" stroke="#22d3ee" strokeWidth={1.5} opacity={0.45} data-testid="concept-map-lens-highlight" />
+                    <circle cx={node.x} cy={node.y} r={r + 6} fill="none" stroke="var(--palette-cyan)" strokeWidth={1.5} opacity={0.45} data-testid="concept-map-lens-highlight" />
                   )}
                   {isSel && <circle cx={node.x} cy={node.y} r={r + 8} fill="none" stroke={color} strokeWidth={2} opacity={0.35} />}
                   <circle cx={node.x} cy={node.y} r={r} fill="#0f0a1e" stroke={color} strokeWidth={isSel ? 3 : 2} />
@@ -463,7 +463,7 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
                   <text x={node.x} y={node.y + r + 14} textAnchor="middle" fontSize={11} fill={isSel ? '#f1f0f7' : '#a8a3c4'} fontWeight={isSel ? '600' : '400'}>
                     {node.label.length > 16 ? node.label.slice(0, 14) + '…' : node.label}
                   </text>
-                  {node.note && <circle cx={node.x + r - 4} cy={node.y - r + 4} r={5} fill="#fbbf24" />}
+                  {node.note && <circle cx={node.x + r - 4} cy={node.y - r + 4} r={5} fill="var(--palette-amber)" />}
                 </g>
               );
             })}
@@ -472,9 +472,9 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
               .filter((c) => c.clientId !== clientId.current)
               .map((c) => (
                 <g key={c.clientId} data-testid="concept-map-remote-cursor">
-                  <circle cx={c.x} cy={c.y} r={8} fill="#22d3ee" opacity={0.35} />
-                  <circle cx={c.x} cy={c.y} r={4} fill="#22d3ee" />
-                  <text x={c.x + 10} y={c.y - 6} fontSize={9} fill="#22d3ee">{c.label.slice(0, 12)}</text>
+                  <circle cx={c.x} cy={c.y} r={8} fill="var(--palette-cyan)" opacity={0.35} />
+                  <circle cx={c.x} cy={c.y} r={4} fill="var(--palette-cyan)" />
+                  <text x={c.x + 10} y={c.y - 6} fontSize={9} fill="var(--palette-cyan)">{c.label.slice(0, 12)}</text>
                 </g>
               ))}
           </g>
@@ -549,9 +549,9 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
 
       {/* Legend */}
       <div className="flex items-center justify-center gap-3 py-2 border-t border-border-subtle bg-surface-secondary/30 shrink-0">
-        {[{ c: '#34d399', l: t('strong') }, { c: '#fbbf24', l: t('proficient') }, { c: '#38bdf8', l: t('developing') }, { c: '#fb7185', l: t('weakLabel') }].map(b => (
-          <span key={b.l} className="flex items-center gap-1 text-[9px] text-text-muted">
-            <span className="w-2 h-2 rounded-full" style={{ backgroundColor: b.c }} />{b.l}
+        {([['strong', t('strong')], ['proficient', t('proficient')], ['developing', t('developing')], ['weak', t('weakLabel')]] as const).map(([band, l]) => (
+          <span key={band} className="flex items-center gap-1 text-[9px] text-text-muted">
+            <span className="w-2 h-2 rounded-full" style={{ backgroundColor: bandColorVar(band) }} />{l}
           </span>
         ))}
         <span className="text-[9px] text-text-muted ml-2">→ {t('prerequisite')}</span>

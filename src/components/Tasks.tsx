@@ -14,6 +14,7 @@ import { filterTasksForSession, startButtonLabel, type SessionType } from '../li
 import { ErrorNotebook } from './visuals/ErrorNotebook';
 import { CourseIcon } from './ui/CourseIcon';
 import { Page, PageHeader, PlatformSection } from './ui/primitives';
+import { resolveCourseColor } from '../lib/masteryPalette';
 import { PlatformEmptyState } from './ui/PlatformEmptyState';
 
 interface TasksProps {
@@ -32,18 +33,18 @@ interface TasksProps {
 type TaskFilter = 'all' | 'learn' | 'review' | 'practice' | 'exam' | 'fix' | 'completed';
 
 const taskTypeConfig: Record<TaskType, { icon: typeof BookOpen; color: string; label: string }> = {
-  lesson: { icon: BookOpen, color: 'text-brand-400', label: 'Lesson' },
+  lesson: { icon: BookOpen, color: 'text-brand-600', label: 'Lesson' },
   quiz: { icon: Brain, color: 'text-accent-cyan', label: 'Quiz' },
-  review: { icon: RotateCcw, color: 'text-accent-amber', label: 'Review' },
+  review: { icon: RotateCcw, color: 'text-accent-violet', label: 'Review' },
   practice: { icon: Code, color: 'text-accent-teal', label: 'Practice' },
   'exam-prep': { icon: GraduationCap, color: 'text-accent-rose', label: 'Exam Prep' },
   flashcards: { icon: Sparkles, color: 'text-accent-emerald', label: 'Flashcards' },
   'mistake-retry': { icon: AlertTriangle, color: 'text-accent-orange', label: 'Retry Mistakes' },
-  'concept-check': { icon: Lightbulb, color: 'text-accent-cyan', label: 'Concept Check' },
-  'deep-dive': { icon: MessageSquare, color: 'text-brand-300', label: 'Deep Dive' },
+  'concept-check': { icon: Lightbulb, color: 'text-accent-amber', label: 'Concept Check' },
+  'deep-dive': { icon: MessageSquare, color: 'text-accent-cyan', label: 'Deep Dive' },
   'timed-test': { icon: Timer, color: 'text-accent-rose', label: 'Timed Test' },
-  'self-explanation': { icon: MessageSquare, color: 'text-brand-200', label: 'Self-Explain' },
-  comparison: { icon: GitCompare, color: 'text-accent-cyan', label: 'Compare' },
+  'self-explanation': { icon: MessageSquare, color: 'text-accent-violet', label: 'Self-Explain' },
+  comparison: { icon: GitCompare, color: 'text-accent-teal', label: 'Compare' },
   'prerequisite-repair': { icon: ArrowDownRight, color: 'text-accent-orange', label: 'Prereq Repair' },
   'oral-exam': { icon: Mic, color: 'text-accent-rose', label: 'Oral Exam' },
 };
@@ -237,7 +238,7 @@ export function Tasks({ tasks, onComplete, onReviewRating, onStartTask, onStartS
                   <button onClick={e => { e.stopPropagation(); if (!isCompleted) onComplete(task.id); }} className="shrink-0">
                     {isCompleted ? <CheckCircle2 className="w-5 h-5 text-accent-emerald" /> : <Circle className="w-5 h-5 text-text-muted hover:text-brand-400 transition-colors" />}
                   </button>
-                  <div className="w-1 h-8 rounded-full shrink-0" style={{ backgroundColor: task.courseColor }} />
+                  <div className="w-1 h-8 rounded-full shrink-0" style={{ backgroundColor: resolveCourseColor(task.courseColor) }} />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-0.5">
                       <CourseIcon icon={task.courseIcon} size="sm" colorClassName="text-brand-500 shrink-0" />

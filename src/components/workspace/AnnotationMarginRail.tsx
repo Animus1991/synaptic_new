@@ -67,7 +67,7 @@ export function AnnotationMarginRail({
 
   return (
     <aside
-      className="ws-margin-rail"
+      className="ws-margin-rail h-full min-h-0 self-stretch"
       data-expanded={expanded}
       data-testid="annotation-margin-rail"
       aria-label={isEl ? 'Πίνακας σημειώσεων' : 'Annotations panel'}
@@ -83,7 +83,7 @@ export function AnnotationMarginRail({
       </button>
 
       {expanded && (
-        <div className="flex min-h-0 flex-1 flex-col overflow-y-auto px-1.5 pb-1.5">
+        <div className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain px-1.5 pb-1.5">
           <div className="mb-1 flex items-center justify-between px-0.5">
             <p className="ws-eyebrow text-text-muted">{visibleAnnotations.length} {countLabel}</p>
             {onExportJson && visibleAnnotations.length > 0 && (
@@ -149,7 +149,7 @@ export function AnnotationMarginRail({
                     </button>
                   </div>
 
-                  <p className="line-clamp-2 italic text-text-muted">
+                  <p className="line-clamp-2 ws-excerpt text-text-muted">
                     {(lines[ann.lineStart] ?? '').trim().slice(0, 72)}
                   </p>
 

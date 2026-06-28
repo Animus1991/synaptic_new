@@ -1490,6 +1490,31 @@ export function useAppStore() {
     }
   }, [courses, uploadedFiles, glossaryEntries, tasks, selectedCourse, learnerModel, dashboardStats, user, betaMastery, firstAttemptKeys, openMistakes, activities, persistLibrary, persist, showAppToast]);
 
+  const saveCourseExtractedText = useCallback((courseId: string, text: string) => {
+    const trimmed = text.trim();
+    if (trimmed.length < 40) {
+      const lang = user.settings.language === 'el' ? 'el' : 'en';
+      showAppToast(
+        lang === 'el'
+          ? 'Το κείμενο είναι πολύ σύντομο για αποθήκευση.'
+          : 'Text is too short to save.',
+      );
+      return false;
+    }
+    const linked = uploadedFiles.filter(
+      (f) => f.courseId === courseId && (f.extractedText?.trim().length ?? 0) > 0,
+    );
+    if (linked.length === 0) return false;
+
+    const primary = linked[0];
+    const nextFiles = uploadedFiles.map((f) =>
+      f.id === primary.id ? { ...f, extractedText: trimmed } : f,
+    );
+    setUploadedFiles(nextFiles);
+    persistLibrary(nextFiles, glossaryEntries, courses.filter((c) => !MOCK_COURSE_IDS.has(c.id)));
+    return true;
+  }, [uploadedFiles, glossaryEntries, courses, persistLibrary, user.settings.language, showAppToast]);
+
   const removeUploadedFile = useCallback((fileId: string) => {
     const result = removeUploadedFileFromLibrary(fileId, uploadedFiles, courses);
     if (!result.removed) {
@@ -1829,7 +1854,7 @@ export function useAppStore() {
     workspaceCourseSplit, exitWorkspaceCourseSplit,
     dashboardNextAction,
     uploadedFiles, glossaryEntries, isUploading, isReprocessing, simulateUpload, processUpload,
-    reprocessCourseMaterial, removeUploadedFile, removeCourse,
+    reprocessCourseMaterial, saveCourseExtractedText, removeUploadedFile, removeCourse,
     pullLibraryFromServer, pullSessionFromServer, pushSessionToServer, syncAccountOnLogin,
     queueConceptBusSync, flushConceptBusSync,
     refreshAuthPlan, logStudyMinutes,

@@ -315,7 +315,7 @@ export function StudyTimer({
             <circle cx="50" cy="50" r="42" fill="none" stroke="var(--viz-track)" strokeWidth="6" />
             <circle
               cx="50" cy="50" r="42" fill="none"
-              stroke={mode === 'exam' ? '#fbbf24' : (phase === 'work' ? '#818cf8' : '#34d399')}
+              stroke={mode === 'exam' ? 'var(--palette-amber)' : (phase === 'work' ? 'var(--palette-purple)' : 'var(--mastery-strong)')}
               strokeWidth="6"
               strokeDasharray={`${pct * 2.64} 264`}
               strokeLinecap="round"

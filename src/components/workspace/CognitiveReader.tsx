@@ -64,7 +64,9 @@ import { ReaderStepHeatSyncStrip } from './ReaderStepHeatSyncStrip';
 
 type ReaderHeatmapMode = 'off' | 'learning' | 'complexity';
 
-const ANN_COLORS = ['#818cf8', '#fbbf24', '#34d399', '#fb7185', '#22d3ee'];
+import { ANNOTATION_PALETTE } from '../../lib/masteryPalette';
+
+const ANN_COLORS = [...ANNOTATION_PALETTE];
 
 interface Props {
   text?: string;
@@ -169,7 +171,7 @@ export function CognitiveReader({
   );
   const [pendingNote, setPendingNote] = useState<{ start: number; end: number; excerpt: string } | null>(null);
   const [noteDraft, setNoteDraft] = useState('');
-  const [activeColor, setActiveColor] = useState(ANN_COLORS[0]!);
+  const [activeColor, setActiveColor] = useState<string>(ANN_COLORS[0]!);
   const [showMargin, setShowMargin] = useState(true);
   const [glossaryPopover, setGlossaryPopover] = useState<{ term: string; definition: string } | null>(null);
   const markRef = useRef<HTMLElement>(null);
@@ -1089,7 +1091,7 @@ export function CognitiveReader({
           className="flex shrink-0 items-center gap-2 ws-info-strip border-b px-3 py-1.5"
           data-testid="reader-selection-ask-agent"
         >
-          <span className="flex-1 truncate text-[10px] italic text-text-secondary">
+          <span className="ws-excerpt flex-1 truncate">
             "{textSelection.slice(0, 72)}{textSelection.length > 72 ? '…' : ''}"
           </span>
           <button
@@ -1129,7 +1131,7 @@ export function CognitiveReader({
             handleTextMouseUp();
             captureReaderSelection();
           }}
-          className={cn('flex-1 overflow-y-auto bg-surface-primary p-6', dyslexia && 'font-sans', annotateMode && 'select-text')}
+          className={cn('min-h-0 flex-1 overflow-y-auto bg-surface-primary p-6', dyslexia && 'font-sans', annotateMode && 'select-text')}
         >
           {renderHighlightedBody()}
         </div>
@@ -1138,7 +1140,7 @@ export function CognitiveReader({
             <div
               ref={sourceScrollRef}
               onScroll={onSourceScroll}
-              className="overflow-y-auto border-r border-border-subtle/60 bg-surface-primary p-4 md:p-6"
+              className="min-h-0 overflow-y-auto border-r border-border-subtle/60 bg-surface-primary p-4 md:p-6"
             >
               <p className="sticky top-0 z-10 mb-2 bg-surface-primary/90 py-1 text-[10px] font-semibold text-text-muted backdrop-blur-sm">
                 {lang === 'el' ? 'Πηγή' : 'Source'}
@@ -1168,7 +1170,7 @@ export function CognitiveReader({
             <div
               ref={companionScrollRef}
               onScroll={onCompanionScroll}
-              className="overflow-y-auto bg-surface-secondary/40 p-4 md:p-6"
+              className="min-h-0 overflow-y-auto bg-surface-secondary/40 p-4 md:p-6"
             >
               <p className="sticky top-0 z-10 mb-2 bg-surface-primary/90 py-1 text-[10px] font-semibold text-brand-800 backdrop-blur-sm">
                 {translationMode === 'full'
@@ -1208,7 +1210,7 @@ export function CognitiveReader({
             handleTextMouseUp();
             captureReaderSelection();
           }}
-          className={cn('relative flex-1 overflow-y-auto bg-surface-primary p-6', dyslexia && 'font-sans', annotateMode && 'select-text')}
+          className={cn('relative min-h-0 flex-1 overflow-y-auto bg-surface-primary p-6', dyslexia && 'font-sans', annotateMode && 'select-text')}
         >
           {overlayRegions.length > 0 && (
             <div
@@ -1264,7 +1266,7 @@ export function CognitiveReader({
                 <button type="button" onClick={() => removeAnnotation(ann.id)} className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 text-text-muted">
                   <X className="w-3 h-3" />
                 </button>
-                <p className="text-text-secondary line-clamp-2 italic">
+                <p className="ws-excerpt line-clamp-2">
                   "{text.slice(ann.charStart, ann.charEnd).slice(0, 60)}{ann.charEnd - ann.charStart > 60 ? '…' : ''}"
                 </p>
                 {ann.note && <p className="text-text-primary mt-1">{ann.note}</p>}
@@ -1279,7 +1281,7 @@ export function CognitiveReader({
 
       {pendingNote && (
         <div className="shrink-0 border-t border-border-subtle bg-surface-card p-3 space-y-2">
-          <p className="text-[10px] text-text-muted">{lang === 'el' ? 'Επιλεγμένο:' : 'Selected:'} <span className="italic text-text-secondary">"{pendingNote.excerpt.slice(0, 80)}"</span></p>
+          <p className="text-[10px] text-text-muted">{lang === 'el' ? 'Επιλεγμένο:' : 'Selected:'} <span className="ws-excerpt">"{pendingNote.excerpt.slice(0, 80)}"</span></p>
           <input
             value={noteDraft}
             onChange={(e) => setNoteDraft(e.target.value)}

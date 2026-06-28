@@ -1,277 +1,773 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+
+import { createPortal } from 'react-dom';
+
 import { AnimatePresence, motion } from 'framer-motion';
-import { ArrowRight, CheckCircle2, Cpu, X } from '@/lib/lucide-shim';
+
+import { ArrowRight, CheckCircle2, Cpu, Maximize2, Minimize2, X } from '@/lib/lucide-shim';
+
 import { cn } from '../utils/cn';
+
 import type { ReprocessPreview } from '../lib/reprocessPreview';
 
+import { countManualEdits, mergeReprocessSections } from '../lib/reprocessEditorSections';
+
+import { ReprocessTextEditor, useReprocessEditorState } from './reprocess/ReprocessTextEditor';
+
+
+
 type Props = {
+
   open: boolean;
+
   onClose: () => void;
+
   preview: ReprocessPreview | null;
+
   lang: 'en' | 'el';
+
   applying?: boolean;
+
   applied?: boolean;
-  onApply?: () => void;
+
+  onApply?: (editedText?: string) => void;
+
 };
 
+
+
+type EditorTab = 'overview' | 'edit';
+
+
+
 function StepRailPreview({
+
   titles,
+
   lang,
+
   side,
+
+  onSelectIndex,
+
 }: {
+
   titles: ReprocessPreview['beforeStepTitles'];
+
   lang: 'en' | 'el';
+
   side: 'before' | 'after';
+
+  onSelectIndex?: (index: number) => void;
+
 }) {
+
   const isEl = lang === 'el';
+
   if (titles.length === 0) {
+
     return (
-      <p className="text-[10px] text-text-muted italic">
+
+      <p className="text-[10px] text-text-muted">
+
         {isEl ? 'Δεν εντοπίστηκαν βήματα.' : 'No steps detected.'}
+
       </p>
+
     );
+
   }
 
+
+
   return (
+
     <div className="flex flex-wrap gap-1" data-testid={`reprocess-steps-${side}`}>
+
       {titles.map((step, i) => (
-        <span
+
+        <button
+
           key={`${side}-${i}-${step.title}`}
+
+          type="button"
+
+          onClick={() => onSelectIndex?.(i)}
+
           className={cn(
-            'inline-flex max-w-[160px] truncate rounded-full border px-2 py-0.5 text-[9px]',
+
+            'inline-flex max-w-[160px] truncate rounded-full border px-2 py-0.5 text-[9px] transition-colors',
+
+            onSelectIndex && 'hover:ring-1 hover:ring-brand-500/30 cursor-pointer',
+
             step.garbage
+
               ? 'border-accent-rose/40 bg-accent-rose/10 text-accent-rose'
+
               : side === 'after'
+
                 ? 'border-accent-emerald/35 bg-accent-emerald/10 text-accent-emerald'
+
                 : 'border-white/10 bg-surface-card/60 text-text-secondary',
+
           )}
+
           title={step.title}
+
         >
+
           {step.title.length > 22 ? `${step.title.slice(0, 20)}…` : step.title}
-        </span>
+
+        </button>
+
       ))}
+
     </div>
+
   );
+
 }
+
+
 
 export function ReprocessPreviewModal({
+
   open,
+
   onClose,
+
   preview,
+
   lang,
+
   applying = false,
+
   applied = false,
+
   onApply,
+
 }: Props) {
+
   const isEl = lang === 'el';
+
   const cancelRef = useRef<HTMLButtonElement>(null);
 
+  const [tab, setTab] = useState<EditorTab>('edit');
+
+  const [fullscreen, setFullscreen] = useState(false);
+
+  const [editorFocusIndex, setEditorFocusIndex] = useState(0);
+
+
+
+  const initialSections = useMemo(
+
+    () => preview?.sections ?? [],
+
+    [preview?.sections],
+
+  );
+
+  const [sections, setSections] = useReprocessEditorState(initialSections);
+
+  const manualEdits = countManualEdits(sections);
+
+
+
   useEffect(() => {
+
     if (!open) return;
+
+    setTab('edit');
+
+    setFullscreen(false);
+
+    setEditorFocusIndex(0);
+
     cancelRef.current?.focus();
+
     const onKey = (e: KeyboardEvent) => {
+
       if (e.key === 'Escape' && !applying) onClose();
+
     };
+
     window.addEventListener('keydown', onKey);
+
     return () => window.removeEventListener('keydown', onKey);
+
   }, [open, applying, onClose]);
 
-  return (
+
+
+  const handleApplyClick = () => {
+
+    if (!onApply) return;
+
+    const merged = manualEdits > 0 ? mergeReprocessSections(sections) : undefined;
+
+    onApply(merged);
+
+  };
+
+
+
+  const openEditorAtSection = (index: number) => {
+
+    setEditorFocusIndex(index);
+
+    setTab('edit');
+
+  };
+
+
+
+  return typeof document !== 'undefined'
+
+    ? createPortal(
+
     <AnimatePresence>
+
       {open && (
+
         <div
-          className="fixed inset-0 z-[220] flex items-end sm:items-center justify-center p-4"
+
+          className={cn(
+
+            'fixed inset-0 z-[260] flex justify-center p-4',
+
+            fullscreen ? 'items-stretch' : 'items-end sm:items-center',
+
+          )}
+
           role="presentation"
+
         >
+
           <motion.button
+
             type="button"
+
             aria-label={isEl ? 'Κλείσιμο' : 'Close'}
+
             className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+
             initial={{ opacity: 0 }}
+
             animate={{ opacity: 1 }}
+
             exit={{ opacity: 0 }}
+
             onClick={() => !applying && onClose()}
+
           />
+
           <motion.div
+
             role="dialog"
+
             aria-modal="true"
+
             aria-labelledby="reprocess-preview-title"
+
             data-testid="reprocess-preview-modal"
+
             initial={{ opacity: 0, y: 24, scale: 0.98 }}
+
             animate={{ opacity: 1, y: 0, scale: 1 }}
+
             exit={{ opacity: 0, y: 16, scale: 0.98 }}
-            className="relative z-10 flex max-h-[90vh] w-full max-w-3xl flex-col overflow-hidden rounded-2xl border border-border-subtle bg-surface-card shadow-2xl"
-          >
-            <div className="flex items-start justify-between gap-3 border-b border-border-subtle px-5 py-4">
-              <div>
-                <h2 id="reprocess-preview-title" className="text-base font-semibold text-text-primary">
-                  {isEl ? 'Προεπισκόπηση επανεπεξεργασίας' : 'Reprocess preview'}
-                </h2>
-                <p className="mt-1 text-xs text-text-muted">
-                  {isEl
-                    ? 'Δες τι θα αλλάξει στο Reader και στο step rail πριν εφαρμόσεις.'
-                    : 'See Reader and step-rail changes before you apply.'}
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={onClose}
-                disabled={applying}
-                className="rounded-lg p-1.5 text-text-muted hover:bg-surface-hover hover:text-text-primary disabled:opacity-50"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </div>
 
-            {!preview ? (
-              <div className="p-8 text-center text-sm text-text-muted">
-                {isEl
-                  ? 'Δεν βρέθηκε αποθηκευμένο κείμενο για προεπισκόπηση.'
-                  : 'No stored text available for preview.'}
-              </div>
-            ) : applied ? (
-              <div className="space-y-4 p-6" data-testid="reprocess-preview-success">
-                <div className="flex items-start gap-3 rounded-xl border border-accent-emerald/30 bg-accent-emerald/10 p-4">
-                  <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-accent-emerald" />
-                  <div>
-                    <p className="text-sm font-semibold text-accent-emerald">
-                      {isEl ? 'Η επανεπεξεργασία ολοκληρώθηκε' : 'Reprocess applied'}
-                    </p>
-                    <p className="mt-1 text-xs text-text-secondary">
-                      {isEl
-                        ? `Reader και step rail ενημερώθηκαν. Νέα ποιότητα: ${preview.afterScore}/100 · pipeline v${preview.pipelineVersionAfter}.`
-                        : `Reader and step rail updated. New quality: ${preview.afterScore}/100 · pipeline v${preview.pipelineVersionAfter}.`}
-                    </p>
-                  </div>
-                </div>
-                <div>
-                  <p className="mb-2 text-[10px] font-medium text-text-muted">
-                    {isEl ? 'Νέα βήματα μαθήματος' : 'Updated lesson steps'}
-                  </p>
-                  <StepRailPreview titles={preview.afterStepTitles} lang={lang} side="after" />
-                </div>
-              </div>
-            ) : (
-              <div className="flex-1 overflow-y-auto p-5 space-y-5">
-                <div
-                  className="flex flex-wrap items-center gap-3 rounded-xl border border-border-subtle bg-surface-primary/40 px-4 py-3"
-                  data-testid="reprocess-preview-scores"
-                >
-                  <div className="text-center">
-                    <p className="text-[10px] text-text-muted">{isEl ? 'Πριν' : 'Before'}</p>
-                    <p className="text-2xl font-bold text-accent-rose">{preview.beforeScore}</p>
-                  </div>
-                  <ArrowRight className="h-4 w-4 text-text-muted" />
-                  <div className="text-center">
-                    <p className="text-[10px] text-text-muted">{isEl ? 'Μετά' : 'After'}</p>
-                    <p className="text-2xl font-bold text-accent-emerald">{preview.afterScore}</p>
-                  </div>
-                  <div className="ml-auto text-right text-[10px] text-text-muted">
-                    <p>
-                      {isEl ? 'Ενότητες' : 'Sections'}: {preview.sectionCountBefore} → {preview.sectionCountAfter}
-                    </p>
-                    <p>
-                      {isEl ? 'Topics' : 'Topics'}: {preview.topicCountBefore} → {preview.topicCountAfter}
-                    </p>
-                    {preview.scoreDelta !== 0 && (
-                      <p className={cn('font-semibold', preview.scoreDelta > 0 ? 'text-accent-emerald' : 'text-accent-rose')}>
-                        {preview.scoreDelta > 0 ? '+' : ''}{preview.scoreDelta} {isEl ? 'βαθμοί' : 'points'}
-                      </p>
-                    )}
-                  </div>
-                </div>
+            className={cn(
 
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div>
-                    <p className="mb-2 text-[10px] font-semibold text-accent-rose">
-                      {isEl ? 'Reader — πριν' : 'Reader — before'}
-                    </p>
-                    <pre
-                      className="max-h-40 overflow-auto rounded-xl border border-accent-rose/20 bg-surface-primary/60 p-3 text-[10px] leading-relaxed text-text-secondary whitespace-pre-wrap font-mono"
-                      data-testid="reprocess-snippet-before"
-                    >
-                      {preview.beforeSnippet || '—'}
-                    </pre>
-                  </div>
-                  <div>
-                    <p className="mb-2 text-[10px] font-semibold text-accent-emerald">
-                      {isEl ? 'Reader — μετά' : 'Reader — after'}
-                    </p>
-                    <pre
-                      className="max-h-40 overflow-auto rounded-xl border border-accent-emerald/25 bg-surface-primary/60 p-3 text-[10px] leading-relaxed text-text-secondary whitespace-pre-wrap font-mono"
-                      data-testid="reprocess-snippet-after"
-                    >
-                      {preview.afterSnippet || '—'}
-                    </pre>
-                  </div>
-                </div>
+              'relative z-10 flex flex-col overflow-hidden rounded-2xl border border-border-subtle bg-surface-card shadow-2xl',
 
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div>
-                    <p className="mb-2 text-[10px] font-semibold text-text-muted">
-                      {isEl ? 'Step rail — πριν' : 'Step rail — before'}
-                    </p>
-                    <StepRailPreview titles={preview.beforeStepTitles} lang={lang} side="before" />
-                  </div>
-                  <div>
-                    <p className="mb-2 text-[10px] font-semibold text-text-muted">
-                      {isEl ? 'Step rail — μετά' : 'Step rail — after'}
-                    </p>
-                    <StepRailPreview titles={preview.afterStepTitles} lang={lang} side="after" />
-                  </div>
-                </div>
+              fullscreen
 
-                {!preview.hasMaterialChanges && (
-                  <p className="rounded-lg border border-accent-amber/30 bg-accent-amber/8 px-3 py-2 text-[10px] text-accent-amber">
-                    {isEl
-                      ? 'Η προεπισκόπηση δείχνει μικρή ή καμία αλλαγή — ίσως χρειάζεται re-upload αρχείου.'
-                      : 'Preview shows little or no change — you may need to re-upload the source file.'}
-                  </p>
-                )}
-              </div>
+                ? 'h-[96vh] w-[min(96vw,1400px)]'
+
+                : 'max-h-[90vh] w-full max-w-5xl',
+
             )}
 
-            <div className="flex flex-wrap justify-end gap-2 border-t border-border-subtle px-5 py-4">
-              {applied ? (
+          >
+
+            <div className="flex items-start justify-between gap-3 border-b border-border-subtle px-5 py-4">
+
+              <div>
+
+                <h2 id="reprocess-preview-title" className="text-base font-semibold text-text-primary">
+
+                  {isEl ? 'Προεπισκόπηση επανεπεξεργασίας' : 'Reprocess preview'}
+
+                </h2>
+
+                <p className="mt-1 text-xs text-text-muted">
+
+                  {isEl
+
+                    ? 'Επεξεργάσου το κείμενο ανά ενότητα/διαφάνεια πριν εφαρμόσεις.'
+
+                    : 'Edit text section-by-section before you apply.'}
+
+                </p>
+
+              </div>
+
+              <div className="flex items-center gap-1">
+
                 <button
+
                   type="button"
-                  onClick={onClose}
-                  className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-500"
-                  data-testid="reprocess-preview-done"
+
+                  onClick={() => setFullscreen((v) => !v)}
+
+                  disabled={applying}
+
+                  className="rounded-lg p-1.5 text-text-muted hover:bg-surface-hover hover:text-text-primary disabled:opacity-50"
+
+                  aria-label={fullscreen ? (isEl ? 'Έξοδος πλήρους οθόνης' : 'Exit fullscreen') : (isEl ? 'Πλήρης οθόνη' : 'Fullscreen')}
+
                 >
-                  {isEl ? 'Έτοιμο' : 'Done'}
+
+                  {fullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+
                 </button>
-              ) : (
-                <>
-                  <button
-                    ref={cancelRef}
-                    type="button"
-                    onClick={onClose}
-                    disabled={applying}
-                    className="rounded-lg border border-border-subtle px-4 py-2 text-sm text-text-secondary hover:bg-surface-hover disabled:opacity-50"
-                  >
-                    {isEl ? 'Ακύρωση' : 'Cancel'}
-                  </button>
-                  {onApply && (
-                    <button
-                      type="button"
-                      onClick={onApply}
-                      disabled={applying || !preview}
-                      data-testid="reprocess-preview-apply"
-                      className="inline-flex items-center gap-2 rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-500 disabled:opacity-60"
-                    >
-                      <Cpu className={cn('h-4 w-4', applying && 'animate-pulse')} />
-                      {applying
-                        ? (isEl ? 'Εφαρμογή…' : 'Applying…')
-                        : (isEl ? 'Εφαρμογή επανεπεξεργασίας' : 'Apply reprocess')}
-                    </button>
-                  )}
-                </>
-              )}
+
+                <button
+
+                  type="button"
+
+                  onClick={onClose}
+
+                  disabled={applying}
+
+                  className="rounded-lg p-1.5 text-text-muted hover:bg-surface-hover hover:text-text-primary disabled:opacity-50"
+
+                >
+
+                  <X className="h-4 w-4" />
+
+                </button>
+
+              </div>
+
             </div>
+
+
+
+            {!preview ? (
+
+              <div className="p-8 text-center text-sm text-text-muted">
+
+                {isEl
+
+                  ? 'Δεν βρέθηκε αποθηκευμένο κείμενο για προεπισκόπηση.'
+
+                  : 'No stored text available for preview.'}
+
+              </div>
+
+            ) : applied ? (
+
+              <div className="space-y-4 p-6" data-testid="reprocess-preview-success">
+
+                <div className="flex items-start gap-3 rounded-xl border border-accent-emerald/30 bg-accent-emerald/10 p-4">
+
+                  <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-accent-emerald" />
+
+                  <div>
+
+                    <p className="text-sm font-semibold text-accent-emerald">
+
+                      {isEl ? 'Η επανεπεξεργασία ολοκληρώθηκε' : 'Reprocess applied'}
+
+                    </p>
+
+                    <p className="mt-1 text-xs text-text-secondary">
+
+                      {isEl
+
+                        ? `Reader και step rail ενημερώθηκαν. Νέα ποιότητα: ${preview.afterScore}/100 · pipeline v${preview.pipelineVersionAfter}.`
+
+                        : `Reader and step rail updated. New quality: ${preview.afterScore}/100 · pipeline v${preview.pipelineVersionAfter}.`}
+
+                    </p>
+
+                  </div>
+
+                </div>
+
+                <div>
+
+                  <p className="mb-2 text-[10px] font-medium text-text-muted">
+
+                    {isEl ? 'Νέα βήματα μαθήματος' : 'Updated lesson steps'}
+
+                  </p>
+
+                  <StepRailPreview titles={preview.afterStepTitles} lang={lang} side="after" />
+
+                </div>
+
+              </div>
+
+            ) : (
+
+              <>
+
+                <div className="flex gap-1 border-b border-border-subtle px-5 pt-2">
+
+                  {(['edit', 'overview'] as const).map((id) => (
+
+                    <button
+
+                      key={id}
+
+                      type="button"
+
+                      onClick={() => setTab(id)}
+
+                      className={cn(
+
+                        'rounded-t-lg px-3 py-2 text-xs font-medium transition-colors',
+
+                        tab === id
+
+                          ? 'bg-surface-primary text-text-primary border border-border-subtle border-b-transparent -mb-px'
+
+                          : 'text-text-muted hover:text-text-secondary',
+
+                      )}
+
+                    >
+
+                      {id === 'edit'
+
+                        ? (isEl ? 'Επεξεργασία κειμένου' : 'Text editor')
+
+                        : (isEl ? 'Σύνοψη' : 'Overview')}
+
+                      {id === 'edit' && manualEdits > 0 && (
+
+                        <span className="ml-1.5 rounded-full bg-brand-600/20 px-1.5 text-[9px] text-brand-800">
+
+                          {manualEdits}
+
+                        </span>
+
+                      )}
+
+                    </button>
+
+                  ))}
+
+                </div>
+
+
+
+                <div className="flex-1 overflow-y-auto p-5 space-y-5">
+
+                  <div
+
+                    className="flex flex-wrap items-center gap-3 rounded-xl border border-border-subtle bg-surface-primary/40 px-4 py-3"
+
+                    data-testid="reprocess-preview-scores"
+
+                  >
+
+                    <div className="text-center">
+
+                      <p className="text-[10px] text-text-muted">{isEl ? 'Πριν' : 'Before'}</p>
+
+                      <p className="text-2xl font-bold text-accent-rose">{preview.beforeScore}</p>
+
+                    </div>
+
+                    <ArrowRight className="h-4 w-4 text-text-muted" />
+
+                    <div className="text-center">
+
+                      <p className="text-[10px] text-text-muted">{isEl ? 'Μετά' : 'After'}</p>
+
+                      <p className="text-2xl font-bold text-accent-emerald">{preview.afterScore}</p>
+
+                    </div>
+
+                    <div className="ml-auto text-right text-[10px] text-text-muted">
+
+                      <p>
+
+                        {isEl ? 'Ενότητες' : 'Sections'}: {preview.sectionCountBefore} → {preview.sectionCountAfter}
+
+                      </p>
+
+                      <p>
+
+                        {isEl ? 'Topics' : 'Topics'}: {preview.topicCountBefore} → {preview.topicCountAfter}
+
+                      </p>
+
+                      {preview.scoreDelta !== 0 && (
+
+                        <p className={cn('font-semibold', preview.scoreDelta > 0 ? 'text-accent-emerald' : 'text-accent-rose')}>
+
+                          {preview.scoreDelta > 0 ? '+' : ''}{preview.scoreDelta} {isEl ? 'βαθμοί' : 'points'}
+
+                        </p>
+
+                      )}
+
+                    </div>
+
+                  </div>
+
+
+
+                  {tab === 'edit' ? (
+
+                    <ReprocessTextEditor
+
+                      key={`editor-${editorFocusIndex}`}
+
+                      sections={sections}
+
+                      lang={lang}
+
+                      onChange={setSections}
+
+                      initialSectionIndex={editorFocusIndex}
+
+                    />
+
+                  ) : (
+
+                    <>
+
+                      <div className="grid gap-4 sm:grid-cols-2">
+
+                        <div>
+
+                          <p className="mb-2 text-[10px] font-semibold text-accent-rose">
+
+                            {isEl ? 'Reader — πριν' : 'Reader — before'}
+
+                          </p>
+
+                          <pre
+
+                            className="max-h-40 overflow-auto rounded-xl border border-accent-rose/20 bg-surface-primary/60 p-3 text-[10px] leading-relaxed text-text-secondary whitespace-pre-wrap font-mono"
+
+                            data-testid="reprocess-snippet-before"
+
+                          >
+
+                            {preview.beforeSnippet || '—'}
+
+                          </pre>
+
+                        </div>
+
+                        <div>
+
+                          <p className="mb-2 text-[10px] font-semibold text-accent-emerald">
+
+                            {isEl ? 'Reader — μετά' : 'Reader — after'}
+
+                          </p>
+
+                          <pre
+
+                            className="max-h-40 overflow-auto rounded-xl border border-accent-emerald/25 bg-surface-primary/60 p-3 text-[10px] leading-relaxed text-text-secondary whitespace-pre-wrap font-mono"
+
+                            data-testid="reprocess-snippet-after"
+
+                          >
+
+                            {preview.afterSnippet || '—'}
+
+                          </pre>
+
+                        </div>
+
+                      </div>
+
+
+
+                      <div className="grid gap-4 sm:grid-cols-2">
+
+                        <div>
+
+                          <p className="mb-2 text-[10px] font-semibold text-text-muted">
+
+                            {isEl ? 'Step rail — πριν' : 'Step rail — before'}
+
+                          </p>
+
+                          <StepRailPreview titles={preview.beforeStepTitles} lang={lang} side="before" />
+
+                        </div>
+
+                        <div>
+
+                          <p className="mb-2 text-[10px] font-semibold text-text-muted">
+
+                            {isEl ? 'Step rail — μετά' : 'Step rail — after'}
+
+                          </p>
+
+                          <StepRailPreview
+
+                            titles={preview.afterStepTitles}
+
+                            lang={lang}
+
+                            side="after"
+
+                            onSelectIndex={openEditorAtSection}
+
+                          />
+
+                        </div>
+
+                      </div>
+
+                    </>
+
+                  )}
+
+
+
+                  {!preview.hasMaterialChanges && tab === 'overview' && (
+
+                    <p className="rounded-lg border border-accent-amber/30 bg-accent-amber/8 px-3 py-2 text-[10px] text-accent-amber">
+
+                      {isEl
+
+                        ? 'Η προεπισκόπηση δείχνει μικρή ή καμία αλλαγή — ίσως χρειάζεται re-upload αρχείου.'
+
+                        : 'Preview shows little or no change — you may need to re-upload the source file.'}
+
+                    </p>
+
+                  )}
+
+                </div>
+
+              </>
+
+            )}
+
+
+
+            <div className="flex flex-wrap items-center justify-between gap-2 border-t border-border-subtle px-5 py-4">
+
+              {!applied && preview && manualEdits > 0 && (
+
+                <p className="text-[10px] text-brand-700">
+
+                  {isEl
+
+                    ? `${manualEdits} ενότητες με χειροκίνητες αλλαγές θα αποθηκευτούν πριν την επανεπεξεργασία.`
+
+                    : `${manualEdits} manually edited section(s) will be saved before reprocess.`}
+
+                </p>
+
+              )}
+
+              <div className="ml-auto flex flex-wrap justify-end gap-2">
+
+                {applied ? (
+
+                  <button
+
+                    type="button"
+
+                    onClick={onClose}
+
+                    className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-500"
+
+                    data-testid="reprocess-preview-done"
+
+                  >
+
+                    {isEl ? 'Έτοιμο' : 'Done'}
+
+                  </button>
+
+                ) : (
+
+                  <>
+
+                    <button
+
+                      ref={cancelRef}
+
+                      type="button"
+
+                      onClick={onClose}
+
+                      disabled={applying}
+
+                      className="rounded-lg border border-border-subtle px-4 py-2 text-sm text-text-secondary hover:bg-surface-hover disabled:opacity-50"
+
+                    >
+
+                      {isEl ? 'Ακύρωση' : 'Cancel'}
+
+                    </button>
+
+                    {onApply && (
+
+                      <button
+
+                        type="button"
+
+                        onClick={handleApplyClick}
+
+                        disabled={applying || !preview}
+
+                        data-testid="reprocess-preview-apply"
+
+                        className="inline-flex items-center gap-2 rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-500 disabled:opacity-60"
+
+                      >
+
+                        <Cpu className={cn('h-4 w-4', applying && 'animate-pulse')} />
+
+                        {applying
+
+                          ? (isEl ? 'Εφαρμογή…' : 'Applying…')
+
+                          : (isEl ? 'Εφαρμογή επανεπεξεργασίας' : 'Apply reprocess')}
+
+                      </button>
+
+                    )}
+
+                  </>
+
+                )}
+
+              </div>
+
+            </div>
+
           </motion.div>
+
         </div>
+
       )}
-    </AnimatePresence>
-  );
+
+    </AnimatePresence>,
+
+    document.body,
+
+  )
+
+    : null;
+
 }
+
+

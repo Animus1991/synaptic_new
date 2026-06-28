@@ -66,7 +66,7 @@ export function WorkspaceQuiz({ quizDef, lang, irt, irtResponseCount = 0, onComp
           >
             <p className="text-text-secondary">{copy.readinessLabel}</p>
             <p>{copy.difficultyLabel} · {copy.probabilityLabel}</p>
-            {copy.hint && <p className="text-text-muted italic">{copy.hint}</p>}
+            {copy.hint && <p className="ws-caption text-text-muted">{copy.hint}</p>}
           </div>
           );
         })()}

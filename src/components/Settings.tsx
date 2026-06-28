@@ -467,7 +467,8 @@ export function Settings({
       <SettingsSection title="Interface" icon={<Palette className="w-5 h-5 text-brand-300" />} delay={0.35}>
         <ToggleRow label="Theme" options={[
           { value: 'dark', label: 'Dark' },
-          { value: 'light', label: 'Light' },
+          { value: 'light', label: 'Light (Warm Sand)' },
+          { value: 'spectrum', label: 'Spectrum' },
           { value: 'system', label: 'System' },
         ]} value={settings.theme} onChange={v => onUpdate({ theme: v as UserSettings['theme'] })} />
         <ToggleRow label="Language" options={[

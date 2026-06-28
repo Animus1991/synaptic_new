@@ -13,6 +13,7 @@ import { OutlinePreviewPanel } from './OutlinePreviewPanel';
 import { ConfirmDialog } from './ui/ConfirmDialog';
 import { buildDeleteFileCascadeCopy } from '../lib/deleteFileCascadeCopy';
 import { buildDeleteCourseCascadeCopy } from '../lib/deleteCourseCascadeCopy';
+import { resolveCourseColor } from '../lib/masteryPalette';
 import { countFilesForCourse } from '../lib/deleteCascade';
 import { countGeneratedTasksForCourse } from '../lib/pipelineReprocess';
 import { courseDeleteStats } from '../lib/removeCourse';
@@ -384,7 +385,7 @@ function CourseCard({
         <div className="w-full bg-surface-hover rounded-full h-1.5">
           <div
             className="h-1.5 rounded-full transition-all duration-700"
-            style={{ width: `${progress}%`, backgroundColor: course.color }}
+            style={{ width: `${progress}%`, backgroundColor: resolveCourseColor(course.color) }}
           />
         </div>
       )}
@@ -503,7 +504,7 @@ function CourseListItem({
           <div className="w-full bg-surface-hover rounded-full h-1.5">
             <div
               className="h-1.5 rounded-full transition-all"
-              style={{ width: `${progress}%`, backgroundColor: course.color }}
+              style={{ width: `${progress}%`, backgroundColor: resolveCourseColor(course.color) }}
             />
           </div>
         </div>

@@ -108,7 +108,7 @@ export function AnnotationRemapPanel({
                     </span>
                   )}
                 </div>
-                <p className="text-[10px] text-text-muted italic line-clamp-2">
+                <p className="text-[10px] text-text-muted line-clamp-2">
                   {currentPreview || (isEl ? '(χωρίς απόσπασμα)' : '(no excerpt)')}
                 </p>
                 {edgeHint && (

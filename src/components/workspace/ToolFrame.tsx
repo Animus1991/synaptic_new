@@ -30,7 +30,7 @@ export function ToolFrame({
   children,
 }: Props) {
   return (
-    <div className="flex h-full min-h-0 flex-col ws-bento overflow-hidden" data-testid="workspace-tool-frame" data-tool={activeTool}>
+    <div className="flex h-full min-h-0 flex-1 flex-col ws-bento overflow-hidden" data-testid="workspace-tool-frame" data-tool={activeTool}>
       <WorkspaceToolHeader
         activeTool={activeTool}
         lang={lang}
@@ -46,7 +46,7 @@ export function ToolFrame({
           {crossLinkBar}
         </div>
       )}
-      <div className="relative min-h-0 flex-1 overflow-hidden">{children}</div>
+      <div className="ws-tool-body relative flex min-h-0 flex-1 flex-col overflow-hidden">{children}</div>
     </div>
   );
 }

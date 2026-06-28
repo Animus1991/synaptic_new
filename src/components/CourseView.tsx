@@ -23,6 +23,7 @@ import { buildDeleteFileCascadeCopy } from '../lib/deleteFileCascadeCopy';
 import { buildDeleteCourseCascadeCopy } from '../lib/deleteCourseCascadeCopy';
 import { countFilesForCourse } from '../lib/deleteCascade';
 import { countGeneratedTasksForCourse } from '../lib/pipelineReprocess';
+import { MASTERY_VAR, resolveCourseColor } from '../lib/masteryPalette';
 import { courseDeleteStats } from '../lib/removeCourse';
 import { isDemoCourse } from '../lib/demoMode';
 import { PostUploadBanner } from './ui/PostUploadBanner';
@@ -40,6 +41,7 @@ interface CourseViewProps {
   onOpenAgent: () => void;
   onUploadMore?: () => void;
   onReprocessMaterial?: () => boolean | void;
+  onSaveCourseExtractedText?: (courseId: string, text: string) => boolean;
   reprocessingMaterial?: boolean;
   onRemoveFile?: (fileId: string) => void;
   onRemoveCourse?: (courseId: string) => boolean;
@@ -68,6 +70,7 @@ export function CourseView({
   onOpenAgent,
   onUploadMore,
   onReprocessMaterial,
+  onSaveCourseExtractedText,
   reprocessingMaterial = false,
   onRemoveFile,
   onRemoveCourse,
@@ -127,7 +130,10 @@ export function CourseView({
     });
   }, [course.id, course.title, uploadedFiles, tasks, glossaryEntries, lang]);
 
-  const handleApplyReprocess = () => {
+  const handleApplyReprocess = (editedText?: string) => {
+    if (editedText && onSaveCourseExtractedText) {
+      onSaveCourseExtractedText(course.id, editedText);
+    }
     if (!onReprocessMaterial) return;
     const ok = onReprocessMaterial();
     if (ok !== false) setReprocessApplied(true);
@@ -341,7 +347,7 @@ export function CourseView({
         <div className="w-full bg-surface-hover rounded-full h-3">
           <div
             className="h-3 rounded-full transition-all duration-700"
-            style={{ width: `${progress}%`, backgroundColor: course.color }}
+            style={{ width: `${progress}%`, backgroundColor: resolveCourseColor(course.color) }}
           />
         </div>
         <div className="flex justify-between mt-2 text-xs text-text-tertiary">
@@ -448,6 +454,7 @@ function TopicCard({ topic, index, courseColor, course, onGoToSource, onStart }:
   onStart: () => void;
 }) {
   const [expanded, setExpanded] = useState(false);
+  const accent = resolveCourseColor(courseColor);
   const hasDetail = (topic.objectives?.length ?? 0) > 0 || (topic.keyConcepts?.length ?? 0) > 0;
   return (
     <motion.div
@@ -470,8 +477,8 @@ function TopicCard({ topic, index, courseColor, course, onGoToSource, onStart }:
               <CheckCircle2 className="w-5 h-5 text-accent-emerald" />
             </div>
           ) : topic.mastery > 0 ? (
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: courseColor + '15' }}>
-              <Circle className="w-5 h-5" style={{ color: courseColor }} />
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: `color-mix(in srgb, ${accent} 14%, transparent)` }}>
+              <Circle className="w-5 h-5" style={{ color: accent }} />
             </div>
           ) : (
             <div className="w-10 h-10 rounded-xl bg-surface-hover flex items-center justify-center">
@@ -519,7 +526,7 @@ function TopicCard({ topic, index, courseColor, course, onGoToSource, onStart }:
                     className="h-1.5 rounded-full transition-all"
                     style={{
                       width: `${topic.mastery}%`,
-                      backgroundColor: topic.mastery >= 80 ? '#34d399' : courseColor
+                      backgroundColor: topic.mastery >= 80 ? MASTERY_VAR.strong : accent
                     }}
                   />
                 </div>

@@ -182,11 +182,22 @@ export function StudyRoomPanel(props: Props) {
                   </li>
                 ))}
               </ul>
-              <button type="button" onClick={() => setShowVideo((v) => !v)} className="ws-chrome-btn text-xs">
-                <Video className="h-3.5 w-3.5" />
-                {showVideo ? (isEl ? 'Απόκρυψη βίντεο' : 'Hide video') : (isEl ? 'Εμφάνιση βίντεο' : 'Show video')}
-              </button>
-              {showVideo && <JitsiMeetEmbed roomName={room.jitsiRoom} lang={lang} />}
+              <div className="space-y-2">
+                <p className="ws-field-label">{isEl ? 'Βιντεοκλήση' : 'Video call'}</p>
+                {showVideo ? (
+                  <JitsiMeetEmbed roomName={room.jitsiRoom} lang={lang} />
+                ) : (
+                  <button type="button" onClick={() => setShowVideo(true)} className="ws-empty-cta-secondary w-full justify-center gap-2">
+                    <Video className="h-3.5 w-3.5" />
+                    {isEl ? 'Εμφάνιση βίντεο' : 'Show video'}
+                  </button>
+                )}
+                {showVideo && (
+                  <button type="button" onClick={() => setShowVideo(false)} className="ws-chrome-btn text-[10px]">
+                    {isEl ? 'Απόκρυψη βίντεο' : 'Hide video'}
+                  </button>
+                )}
+              </div>
               <button type="button" onClick={handleLeave} className="ws-empty-cta-secondary w-full justify-center gap-2">
                 <LogOut className="h-3.5 w-3.5" />
                 {isEl ? 'Αποχώρηση' : 'Leave room'}

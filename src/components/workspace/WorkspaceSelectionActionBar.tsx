@@ -42,7 +42,7 @@ export function WorkspaceSelectionActionBar({
       aria-label={lang === 'el' ? 'Ενέργειες επιλογής' : 'Selection actions'}
     >
       <div className="flex items-center gap-2 min-w-0">
-        <span className="flex-1 truncate text-[10px] italic text-text-secondary" title={excerpt}>
+        <span className="ws-excerpt flex-1 truncate" title={excerpt}>
           &ldquo;{preview}&rdquo;
         </span>
         <button

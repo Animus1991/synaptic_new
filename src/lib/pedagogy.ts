@@ -1,4 +1,5 @@
 import type { LearnerModel, SkillNode, ConfidencePoint } from '../types';
+import { bandColorVar } from './masteryPalette';
 
 export type MasteryBand = 'strong' | 'proficient' | 'developing' | 'weak';
 export type CalibrationDirection = 'overconfident' | 'calibrated' | 'underconfident';
@@ -32,12 +33,7 @@ export function masteryBand(mastery: number): MasteryBand {
 }
 
 export function bandColor(band: MasteryBand): string {
-  switch (band) {
-    case 'strong': return '#34d399';
-    case 'proficient': return '#fbbf24';
-    case 'developing': return '#22d3ee';
-    case 'weak': return '#fb7185';
-  }
+  return bandColorVar(band);
 }
 
 /** Beta posterior mean α / (α + β) */

@@ -84,6 +84,8 @@ describe.sequential('reprocessPreview', () => {
     expect(preview!.afterStepTitles.length).toBeGreaterThan(0);
     expect(preview!.hasMaterialChanges).toBe(true);
     expect(preview!.beforeSnippet).not.toBe(preview!.afterSnippet);
+    expect(preview!.sections.length).toBeGreaterThan(0);
+    expect(preview!.beforeFullText.length).toBeGreaterThan(0);
   });
 
   it('returns null when no stored text', () => {

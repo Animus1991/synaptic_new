@@ -6,7 +6,9 @@ import type { AnnotationCategory } from '../../lib/annotationStore';
 import type { UiIconId } from '../../lib/uiIconRegistry';
 import { UiIcon } from '../ui/UiIcon';
 
-const COLORS = ['#818cf8', '#fbbf24', '#34d399', '#fb7185', '#22d3ee'];
+import { ANNOTATION_PALETTE } from '../../lib/masteryPalette';
+
+const COLORS = [...ANNOTATION_PALETTE];
 
 const SEMANTIC_CATEGORIES: {
   cat: AnnotationCategory;

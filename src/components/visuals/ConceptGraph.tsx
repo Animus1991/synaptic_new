@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
+import { bandColorVar, masteryColorForValue, accentHighlightVar } from '../../lib/masteryPalette';
+import type { MasteryBand } from '../../lib/pedagogy';
 import { conceptTypeGlyph } from '../../lib/conceptTypeIcons';
 
 interface ConceptNode {
@@ -24,13 +26,7 @@ interface ConceptGraphProps {
   height?: number;
 }
 
-const getMasteryColor = (m: number) => {
-  if (m >= 80) return '#34d399';
-  if (m >= 60) return '#fbbf24';
-  if (m >= 40) return '#38bdf8';
-  if (m > 0) return '#fb7185';
-  return '#4d4870';
-};
+const getMasteryColor = (m: number) => (m > 0 ? masteryColorForValue(m) : 'var(--color-text-muted)');
 
 const typeIcons: Record<string, string> = {
   concept: conceptTypeGlyph('concept'),
@@ -50,7 +46,7 @@ export function ConceptGraph({ nodes, edges, width = 700, height = 400 }: Concep
       <svg width="100%" viewBox={`0 0 ${width} ${height}`} className="block">
         <defs>
           <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
-            <polygon points="0 0, 8 3, 0 6" fill="#4d4870" />
+            <polygon points="0 0, 8 3, 0 6" fill="var(--color-text-muted)" />
           </marker>
           <filter id="glow">
             <feGaussianBlur stdDeviation="3" result="blur" />
@@ -71,7 +67,7 @@ export function ConceptGraph({ nodes, edges, width = 700, height = 400 }: Concep
             <motion.line
               key={i}
               x1={from.x} y1={from.y} x2={to.x} y2={to.y}
-              stroke={isHighlighted ? '#818cf8' : '#2a2252'}
+              stroke={isHighlighted ? accentHighlightVar() : 'var(--color-border-subtle)'}
               strokeWidth={isHighlighted ? 2 : 1}
               strokeDasharray={dashArray}
               markerEnd="url(#arrowhead)"
@@ -106,7 +102,7 @@ export function ConceptGraph({ nodes, edges, width = 700, height = 400 }: Concep
               )}
 
               {/* Background circle */}
-              <circle cx={node.x} cy={node.y} r={r} fill="#1a1333" stroke={color} strokeWidth={2.5} />
+              <circle cx={node.x} cy={node.y} r={r} fill="var(--viz-node-fill)" stroke={color} strokeWidth={2.5} />
 
               {/* Mastery arc */}
               <circle
@@ -131,7 +127,7 @@ export function ConceptGraph({ nodes, edges, width = 700, height = 400 }: Concep
               <text
                 x={node.x} y={node.y + r + 16}
                 textAnchor="middle" fontSize={10}
-                fill={isHovered || isSelected ? '#f1f0f7' : '#a8a3c4'}
+                fill={isHovered || isSelected ? 'var(--color-text-primary)' : 'var(--color-text-tertiary)'}
                 fontWeight={isHovered ? '600' : '400'}
               >
                 {node.label.length > 18 ? node.label.slice(0, 16) + '…' : node.label}
@@ -143,15 +139,17 @@ export function ConceptGraph({ nodes, edges, width = 700, height = 400 }: Concep
 
       {/* Legend */}
       <div className="flex items-center justify-center gap-4 py-3 border-t border-border-subtle">
-        {[
-          { color: '#34d399', label: 'Strong ≥80%' },
-          { color: '#fbbf24', label: 'Proficient ≥60%' },
-          { color: '#38bdf8', label: 'Developing ≥40%' },
-          { color: '#fb7185', label: 'Weak <40%' },
-        ].map(b => (
-          <span key={b.label} className="flex items-center gap-1.5 text-[9px] text-text-muted">
-            <span className="w-2 h-2 rounded-full" style={{ backgroundColor: b.color }} />
-            {b.label}
+        {(
+          [
+            ['strong', 'Strong ≥80%'],
+            ['proficient', 'Proficient ≥60%'],
+            ['developing', 'Developing ≥40%'],
+            ['weak', 'Weak <40%'],
+          ] as [MasteryBand, string][]
+        ).map(([band, label]) => (
+          <span key={label} className="flex items-center gap-1.5 text-[9px] text-text-muted">
+            <span className="w-2 h-2 rounded-full" style={{ backgroundColor: bandColorVar(band) }} />
+            {label}
           </span>
         ))}
       </div>

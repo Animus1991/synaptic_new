@@ -5,6 +5,7 @@
 
 import type { Course, UploadedFile } from '../types';
 import { buildReaderSegments, readerSegmentsToStepSections } from './readerDocumentLayout';
+import { buildReprocessEditorSections, type ReprocessEditorSection } from './reprocessEditorSections';
 import { buildWorkspaceStepsFromNotes, fallbackWorkspaceSteps } from './noteContentExtractors';
 import { CONTENT_PIPELINE_VERSION } from './pipelineConstants';
 import { normalizeDocumentText } from './textSegmentation';
@@ -22,6 +23,9 @@ export type ReprocessPreview = {
   scoreDelta: number;
   beforeSnippet: string;
   afterSnippet: string;
+  beforeFullText: string;
+  afterFullText: string;
+  sections: ReprocessEditorSection[];
   beforeStepTitles: ReprocessPreviewStepTitle[];
   afterStepTitles: ReprocessPreviewStepTitle[];
   topicCountBefore: number;
@@ -134,6 +138,7 @@ export function buildReprocessPreview(
 
   const beforeSnippet = extractReaderPreviewSnippet(beforeText);
   const afterSnippet = extractReaderPreviewSnippet(afterText);
+  const sections = buildReprocessEditorSections(beforeText, afterText, lang);
   const garbageBefore = countGarbageTitles(beforeStepTitles);
   const garbageAfter = countGarbageTitles(afterStepTitles);
 
@@ -143,6 +148,9 @@ export function buildReprocessPreview(
     scoreDelta: afterScore - beforeScore,
     beforeSnippet,
     afterSnippet,
+    beforeFullText: beforeText,
+    afterFullText: afterText,
+    sections,
     beforeStepTitles,
     afterStepTitles,
     topicCountBefore: course.topics.length,
@@ -156,5 +164,53 @@ export function buildReprocessPreview(
       || garbageAfter < garbageBefore
       || afterOutline.outline.topics.length !== course.topics.length,
     warnings: afterOutline.warnings.slice(0, 3),
+  };
+}
+
+/** Resolve a course record for reprocess preview — falls back to file-backed stub. */
+export function resolveReprocessCourse(
+  courses: Course[],
+  courseIdHint: string | undefined,
+  uploadedFiles: UploadedFile[],
+  courseName?: string,
+): Course | null {
+  const fileCourseId = uploadedFiles.find(
+    (f) => f.courseId && (f.extractedText?.trim().length ?? 0) > 40,
+  )?.courseId;
+  const id = courseIdHint ?? fileCourseId;
+  if (!id) return null;
+
+  const found = courses.find((c) => c.id === id);
+  if (found) return found;
+
+  const linked = uploadedFiles.filter(
+    (f) => f.courseId === id && (f.extractedText?.trim().length ?? 0) > 40,
+  );
+  if (linked.length === 0) return null;
+
+  const pipelineVersion = linked[0]?.pipelineVersion;
+  return {
+    id,
+    title: courseName?.trim() || linked[0]?.name || 'Course',
+    description: '',
+    subject: '',
+    color: '#8b7355',
+    icon: 'book',
+    totalLessons: 0,
+    completedLessons: 0,
+    mastery: 0,
+    difficulty: 'mixed',
+    topics: [],
+    createdAt: new Date().toISOString(),
+    estimatedHours: 0,
+    sourceFiles: linked.map((f) => f.name),
+    status: 'ready',
+    sourceMode: 'strict',
+    conceptCount: 0,
+    glossaryCount: 0,
+    exerciseCount: 0,
+    pipelineMeta: pipelineVersion
+      ? { version: pipelineVersion, generatedAt: new Date().toISOString(), outlineSource: 'fallback' }
+      : undefined,
   };
 }

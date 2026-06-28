@@ -33,11 +33,14 @@ interface Props {
   embedded?: boolean;
 }
 
-const BAND = (v: number, t: (k: I18nKey) => string) =>
-  v >= 80 ? { label: t('strong'), color: '#34d399' }
-  : v >= 60 ? { label: t('proficient'), color: '#fbbf24' }
-  : v >= 40 ? { label: t('developing'), color: '#38bdf8' }
-  : { label: t('weakLabel'), color: '#fb7185' };
+import { bandColorVar } from '../../lib/masteryPalette';
+import { masteryBand } from '../../lib/pedagogy';
+
+const BAND = (v: number, t: (k: I18nKey) => string) => {
+  const band = masteryBand(v);
+  const keys = { strong: 'strong', proficient: 'proficient', developing: 'developing', weak: 'weakLabel' } as const satisfies Record<typeof band, I18nKey>;
+  return { label: t(keys[band]), color: bandColorVar(band) };
+};
 
 export function MiniDashboard({
   readiness,
@@ -122,7 +125,7 @@ export function MiniDashboard({
                 {/* Mini readiness ring */}
                 <div className="flex items-center gap-3">
                   <svg width={size} height={size} className="-rotate-90 shrink-0">
-                    <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="#1e1740" strokeWidth={sw} />
+                    <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--viz-track)" strokeWidth={sw} />
                     <circle cx={size / 2} cy={size / 2} r={r} fill="none"
                       stroke={band.color} strokeWidth={sw} strokeDasharray={c} strokeDashoffset={offset}
                       strokeLinecap="round" className="transition-all duration-700" />

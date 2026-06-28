@@ -23,7 +23,7 @@ export function StudyWorkspaceMainLayout({ model }: StudyWorkspaceMainLayoutProp
           studyRoomOpen={studyRoomOpen}
         />
       )}
-      <Group orientation={isMobile ? 'vertical' : 'horizontal'} className="flex-1 w-full h-full">
+      <Group orientation={isMobile ? 'vertical' : 'horizontal'} className="flex-1 min-h-0 w-full h-full">
         <StudyWorkspaceLessonPanel model={model} />
         <StudyWorkspaceToolSurface model={model} />
       </Group>

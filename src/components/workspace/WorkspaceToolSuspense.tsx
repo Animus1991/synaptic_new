@@ -26,7 +26,7 @@ export function WorkspaceToolSuspense({ tool, lang, children }: Props) {
         </div>
       )}
     >
-      {children}
+      <div className="flex h-full min-h-0 flex-col">{children}</div>
     </Suspense>
   );
 }

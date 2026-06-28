@@ -140,7 +140,7 @@ export function GroundedLessonContent({
         <RichText text={body} />
       </div>
       {stepKey === 'practice' && (
-        <p className="text-xs text-text-muted italic">
+        <p className="text-xs text-text-muted">
           {lang === 'el'
             ? 'Σκέψου δυνατά πριν προχωρήσεις — η εξάσκηση βασίζεται στις σημειώσεις σου.'
             : 'Think through this before continuing — practice is tied to your notes.'}

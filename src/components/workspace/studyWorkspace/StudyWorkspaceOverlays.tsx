@@ -229,7 +229,7 @@ export function StudyWorkspaceOverlays({ model }: StudyWorkspaceOverlaysProps) {
             )}
       
       
-            {linkedCourse && (
+            {reprocessWizardOpen && (
               <ReprocessPreviewModal
                 open={reprocessWizardOpen}
                 onClose={() => setReprocessWizardOpen(false)}

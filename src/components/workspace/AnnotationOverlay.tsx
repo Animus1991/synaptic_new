@@ -111,7 +111,7 @@ export function AnnotationOverlay({
   const lang = langProp ?? i18nLang;
   const [annotations, setAnnotations] = useState<StoredAnnotation[]>(() => loadAnnotations(fileKey));
   const [tool, setTool] = useState<'highlight' | 'comment' | 'pin'>('highlight');
-  const [activeColor, setActiveColor] = useState(ANNOTATION_COLORS[0]!);
+  const [activeColor, setActiveColor] = useState<string>(ANNOTATION_COLORS[0]!);
   const [newComment, setNewComment] = useState('');
   const [tagDraft, setTagDraft] = useState('');
   const [addingAt, setAddingAt] = useState<number | null>(null);
@@ -125,6 +125,8 @@ export function AnnotationOverlay({
   const [reviewLineHighlight, setReviewLineHighlight] = useState<number | null>(null);
   const [remapToast, setRemapToast] = useState<string | null>(null);
   const contentRef = useRef<HTMLDivElement>(null);
+  const scrollIdleTimerRef = useRef<number | undefined>(undefined);
+  const [scrollActive, setScrollActive] = useState(false);
 
   useEffect(() => {
     const loaded = loadAnnotations(fileKey).map((a) =>
@@ -141,7 +143,7 @@ export function AnnotationOverlay({
     if (focusTerm) setTagDraft(focusTerm);
   }, [focusTerm]);
 
-  const lines = sourceText.split('\n');
+  const lines = useMemo(() => sourceText.split('\n'), [sourceText]);
 
   const taggedTerms = useMemo(() => {
     const terms = new Set<string>();
@@ -195,9 +197,21 @@ export function AnnotationOverlay({
 
   const scrollToLine = useCallback((lineIndex: number) => {
     setReviewLineHighlight(lineIndex);
-    const el = contentRef.current?.children[lineIndex] as HTMLElement | undefined;
-    el?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    const container = contentRef.current;
+    if (!container) return;
+    const el = container.querySelector(`[data-line-index="${lineIndex}"]`) as HTMLElement | null;
+    if (!el) return;
+    const targetTop = el.offsetTop - (container.clientHeight - el.offsetHeight) / 2;
+    container.scrollTo({ top: Math.max(0, targetTop), behavior: 'smooth' });
   }, []);
+
+  const handleSourceScroll = useCallback(() => {
+    setScrollActive(true);
+    window.clearTimeout(scrollIdleTimerRef.current);
+    scrollIdleTimerRef.current = window.setTimeout(() => setScrollActive(false), 140);
+  }, []);
+
+  useEffect(() => () => window.clearTimeout(scrollIdleTimerRef.current), []);
 
   const notifyRemap = useCallback((count: number) => {
     if (count > 0) onRemapComplete?.(count);
@@ -308,10 +322,13 @@ export function AnnotationOverlay({
 
   const removeAnnotation = (id: string) => setAnnotations((prev) => prev.filter((a) => a.id !== id));
 
-  const highlightedLines = new Set<number>();
-  visibleAnnotations.filter((a) => a.type === 'highlight').forEach((a) => {
-    for (let i = a.lineStart; i <= a.lineEnd; i++) highlightedLines.add(i);
-  });
+  const highlightedLines = useMemo(() => {
+    const set = new Set<number>();
+    visibleAnnotations.filter((a) => a.type === 'highlight').forEach((a) => {
+      for (let i = a.lineStart; i <= a.lineEnd; i++) set.add(i);
+    });
+    return set;
+  }, [visibleAnnotations]);
 
   const exportMd = () => {
     downloadBlob(`annotations-${fileKey}.md`, exportAnnotationsMarkdown(sourceName, lines, annotations), 'text/markdown');
@@ -333,7 +350,7 @@ export function AnnotationOverlay({
   }
 
   return (
-    <div className="relative flex h-full flex-col overflow-hidden rounded-xl border border-border-subtle bg-surface-card sm:rounded-2xl" data-testid="annotation-overlay">
+    <div className="relative flex h-full min-h-0 flex-col overflow-hidden bg-surface-card" data-testid="annotation-overlay">
       <AnnotationToolbar
         lang={lang}
         sourceName={sourceName}
@@ -481,7 +498,12 @@ export function AnnotationOverlay({
       <div className="flex min-h-0 flex-1 overflow-hidden">
         <div
           ref={contentRef}
-          className="relative flex-1 overflow-y-auto p-2.5 font-mono text-[12px] leading-[20px] text-text-secondary sm:p-3 sm:text-[13px] sm:leading-[21px]"
+          onScroll={handleSourceScroll}
+          className={cn(
+            'ws-annotation-source-scroll relative min-h-0 flex-1 overflow-y-auto overscroll-contain p-2.5 font-mono text-[12px] leading-[20px] text-text-secondary sm:p-3 sm:text-[13px] sm:leading-[21px]',
+            scrollActive && 'ws-annotation-source-scroll--active',
+          )}
+          data-testid="annotation-source-scroll"
         >
           {lines.map((line, i) => {
             const isHighlighted = highlightedLines.has(i);
@@ -503,7 +525,7 @@ export function AnnotationOverlay({
                 tabIndex={0}
                 onKeyDown={(e) => e.key === 'Enter' && addAnnotation(i)}
                 className={cn(
-                  'px-2 rounded cursor-pointer transition-colors hover:bg-surface-hover/50 relative group',
+                  'ws-annotation-line px-2 rounded cursor-pointer hover:bg-surface-hover/50 relative group',
                   isHighlighted && 'bg-brand-500/10 border-l-2 border-brand-500',
                   termHit && !isHighlighted && 'bg-accent-cyan/8 border-l-2 border-accent-cyan/40',
                   isReviewTarget && 'ring-1 ring-accent-amber/60 bg-accent-amber/10',
@@ -519,7 +541,7 @@ export function AnnotationOverlay({
                   <button
                     type="button"
                     onClick={(e) => { e.stopPropagation(); onOpenInReader(line.trim()); }}
-                    className="absolute right-1 top-0.5 opacity-0 group-hover:opacity-100 p-0.5 rounded text-brand-800 hover:bg-surface-hover"
+                    className="absolute right-1 top-0.5 hidden p-0.5 rounded text-brand-800 hover:bg-surface-hover [@media(hover:hover)]:group-hover:block"
                     title={lang === 'el' ? 'Άνοιγμα στον αναγνώστη' : 'Open in reader'}
                   >
                     <BookOpen className="w-3 h-3" />
@@ -552,7 +574,11 @@ export function AnnotationOverlay({
           visibleAnnotations={visibleAnnotations}
           lines={lines}
           selectedAnnId={selectedAnnId}
-          onSelectAnn={setSelectedAnnId}
+          onSelectAnn={(id) => {
+            setSelectedAnnId(id);
+            const ann = visibleAnnotations.find((a) => a.id === id);
+            if (ann) scrollToLine(ann.lineStart);
+          }}
           onRemoveAnn={removeAnnotation}
           countLabel={t('annotations')}
           onExportJson={annotations.length > 0 ? exportJson : undefined}

@@ -62,7 +62,7 @@ import {
 } from '../../../lib/workspaceSelectionActions';
 import { buildReaderSegments } from '../../../lib/readerDocumentLayout';
 import { shouldShowCourseQualityBanner } from '../../../lib/courseQualityBanner';
-import { buildReprocessPreview } from '../../../lib/reprocessPreview';
+import { buildReprocessPreview, resolveReprocessCourse } from '../../../lib/reprocessPreview';
 import { isLowSourceQuality } from '../../../lib/sourceQualityPrompt';
 import {
   isWorkspaceQuizStep,
@@ -170,6 +170,7 @@ export function useStudyWorkspace({
   onUpload,
   onReuploadMaterial,
   onReprocessMaterial,
+  onSaveCourseExtractedText,
   reprocessingMaterial = false,
   onQuizAttempt,
   onLeitnerRate,
@@ -293,6 +294,13 @@ export function useStudyWorkspace({
   const noteBundle = useWorkspaceNoteBundle(noteBundleOpts);
   const sourceIntelligence = noteBundle.sourceIntelligence;
 
+  /** Full source slice for annotations — stable across concept/focus changes (unlike reader excerpt). */
+  const annotationStableSource = useMemo(() => {
+    const full = noteBundle.sourceFullText?.trim();
+    if (full) return full.slice(0, 16000);
+    return noteBundle.annotationText;
+  }, [noteBundle.sourceFullText, noteBundle.fileKey, noteBundle.annotationText]);
+
   const toolEmptyMessage = useCallback(
     (tool: WorkspaceEmptyTool) =>
       workspaceToolEmptyMessage({
@@ -335,13 +343,21 @@ export function useStudyWorkspace({
     }
     prevReprocessingRef.current = reprocessingMaterial;
   }, [reprocessingMaterial]);
-  const handleReuploadMaterial = onReuploadMaterial ?? onUpload;
+  const handleReuploadMaterial = useCallback(() => {
+    const fn = onReuploadMaterial ?? onUpload;
+    fn?.();
+  }, [onReuploadMaterial, onUpload]);
+
+  const reprocessCourse = useMemo(
+    () => resolveReprocessCourse(courses, effectiveCourseId, uploadedFiles, courseName ?? linkedCourse?.title),
+    [courses, effectiveCourseId, uploadedFiles, courseName, linkedCourse?.title],
+  );
   const qualityBannerDecision = useMemo(() => {
     if (linkedCourse) {
       return shouldShowCourseQualityBanner({
         course: linkedCourse,
         uploadedFiles,
-        hasReuploadHandler: Boolean(handleReuploadMaterial),
+        hasReuploadHandler: Boolean(onReuploadMaterial ?? onUpload),
       });
     }
     const score = sourceIntelligence?.score ?? null;
@@ -416,15 +432,18 @@ export function useStudyWorkspace({
   }, []);
 
   const reprocessPreview = useMemo(() => {
-    if (!reprocessWizardOpen || !linkedCourse) return null;
-    return buildReprocessPreview(linkedCourse, uploadedFiles, lang, quizConcept);
-  }, [reprocessWizardOpen, linkedCourse, uploadedFiles, lang, quizConcept]);
+    if (!reprocessWizardOpen || !reprocessCourse) return null;
+    return buildReprocessPreview(reprocessCourse, uploadedFiles, lang, quizConcept);
+  }, [reprocessWizardOpen, reprocessCourse, uploadedFiles, lang, quizConcept]);
 
-  const handleApplyReprocess = useCallback(() => {
+  const handleApplyReprocess = useCallback((editedText?: string) => {
+    if (editedText && onSaveCourseExtractedText && effectiveCourseId) {
+      onSaveCourseExtractedText(effectiveCourseId, editedText);
+    }
     if (!onReprocessMaterial) return;
     const ok = onReprocessMaterial();
     if (ok !== false) setReprocessApplied(true);
-  }, [onReprocessMaterial]);
+  }, [onReprocessMaterial, onSaveCourseExtractedText, effectiveCourseId]);
 
   const scopedGlossary = useMemo(
     () => (effectiveCourseId
@@ -776,7 +795,9 @@ export function useStudyWorkspace({
     const step = STEPS[i];
     if (opts?.focusReader && noteBundle.hasSource && step && !isWorkspaceQuizStep(step)) {
       setActiveTool('reader');
-      if (layout === 'focus-lesson') setLayout(isMobile ? 'focus-tool' : 'split');
+      if (layout === 'focus-lesson' || layout === 'focus-tool') {
+        setLayout(isMobile ? 'focus-tool' : 'split');
+      }
     }
   }, [STEPS, noteBundle.hasSource, layout, isMobile]);
 
@@ -1686,6 +1707,7 @@ export function useStudyWorkspace({
     taskId,
     onUpload,
     onReprocessMaterial,
+    onSaveCourseExtractedText,
     reprocessingMaterial,
     onQuizAttempt,
     onLeitnerRate,
@@ -1745,7 +1767,9 @@ export function useStudyWorkspace({
     reprocessApplied,
     conceptBus,
     effectiveFocus,
+    deferredFocusTerm,
     noteBundle,
+    annotationStableSource,
     sourceIntelligence,
     toolEmptyMessage,
     handleToolUpload,

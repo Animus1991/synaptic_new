@@ -10,7 +10,7 @@ interface Props {
 }
 
 export function ThemeToggle({ preference, onChange, className }: Props) {
-  const [resolved, setResolved] = useState<'dark' | 'light'>(() =>
+  const [resolved, setResolved] = useState<'dark' | 'light' | 'spectrum'>(() =>
     resolveTheme(preference ?? loadThemePreference()),
   );
 
@@ -30,7 +30,7 @@ export function ThemeToggle({ preference, onChange, className }: Props) {
       type="button"
       onClick={toggle}
       className={className ?? 'p-2 rounded-lg hover:bg-surface-hover transition-colors'}
-      title={resolved === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
+      title={resolved === 'light' ? 'Switch to dark mode' : resolved === 'spectrum' ? 'Switch to light mode' : 'Switch to light mode'}
     >
       {resolved === 'light' ? (
         <Moon className="w-5 h-5 text-text-secondary" />

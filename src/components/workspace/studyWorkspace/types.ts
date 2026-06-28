@@ -30,6 +30,7 @@ export interface StudyWorkspaceProps {
   onUpload?: () => void;
   onReuploadMaterial?: () => void;
   onReprocessMaterial?: () => boolean | void;
+  onSaveCourseExtractedText?: (courseId: string, text: string) => boolean;
   reprocessingMaterial?: boolean;
   onQuizAttempt?: (concept: string, correct: boolean, confidence: number, stepKey?: string) => void;
   onLeitnerRate?: (concept: string, rating: FsrsRating) => void;

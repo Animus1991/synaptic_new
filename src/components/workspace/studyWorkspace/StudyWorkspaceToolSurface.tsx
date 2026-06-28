@@ -71,7 +71,9 @@ export function StudyWorkspaceToolSurface({ model }: StudyWorkspaceToolSurfacePr
     setStepMarks,
     conceptBus,
     effectiveFocus,
+    deferredFocusTerm,
     noteBundle,
+    annotationStableSource,
     toolEmptyMessage,
     handleToolUpload,
     linkedCourse,
@@ -148,7 +150,7 @@ export function StudyWorkspaceToolSurface({ model }: StudyWorkspaceToolSurfacePr
                     id="tool-panel"
                     defaultSize={layout === 'focus-tool' ? 100 : 65}
                     minSize={25}
-                    className="flex flex-col bg-surface-primary"
+                    className="flex h-full min-h-0 flex-col overflow-hidden bg-surface-primary"
                   >
                     {!chromeHidden && (
                       <WorkspaceToolStrip
@@ -172,7 +174,7 @@ export function StudyWorkspaceToolSurface({ model }: StudyWorkspaceToolSurfacePr
                       onOpenReader={handleCrossLinkReader}
                       onAskAgent={handleCrossLinkAgent}
                     >
-                      <div className="flex-1 relative overflow-hidden min-h-0">
+                      <div className="relative flex h-full min-h-0 flex-col overflow-hidden">
                       {!isMobile && (
                       <ConceptLensPanel
                         placement="overlay"
@@ -531,7 +533,7 @@ export function StudyWorkspaceToolSurface({ model }: StudyWorkspaceToolSurfacePr
                       {activeTool === 'annotations' && (
                         <WorkspaceToolSuspense tool="annotations" lang={lang}>
                         <LazyAnnotationOverlay
-                          sourceText={noteBundle.annotationText}
+                          sourceText={annotationStableSource}
                           sourceName={noteBundle.sourceName}
                           fileKey={noteBundle.fileKey}
                           emptyMessage={toolEmptyMessage('annotations')}
@@ -543,7 +545,7 @@ export function StudyWorkspaceToolSurface({ model }: StudyWorkspaceToolSurfacePr
                           }}
                           onSelectionAction={handleWorkspaceSelectionAction}
                           concept={quizConcept}
-                          focusTerm={effectiveFocus?.term}
+                          focusTerm={deferredFocusTerm || undefined}
                           onOpenInReader={(query) => openReaderAtSearch(query, 'annotations')}
                           pipelineVersion={noteBundle.pipelineVersion}
                           sectionLabel={STEPS[currentStep]?.title}

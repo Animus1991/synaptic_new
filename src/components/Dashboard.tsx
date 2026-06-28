@@ -23,6 +23,7 @@ import { workspaceLiveIsStale } from '../lib/workspaceStoreSpine';
 import { nextActionLabel } from '../lib/nextActionEngine';
 import type { Lang } from '../lib/i18n';
 import type { DashboardNextAction } from '../lib/dashboardNextAction';
+import { courseRingColor, resolveCourseColor, accentHighlightVar } from '../lib/masteryPalette';
 import { workspaceEntryPrefetchHandlers } from '../lib/workspaceEntryPrefetch';
 import { greetingForTime, dashboardSubtitle } from '../lib/greeting';
 import { useI18n } from '../lib/i18n';
@@ -304,10 +305,10 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
               <ReadinessRing value={learnerModel.overallMastery} sublabel="Derived from graded first-attempts only — never from self-reported skill." />
               <div className="flex-1 space-y-4">
                 <SignalBars signals={[
-                  { label: 'Accuracy', value: Math.round(learnerModel.retentionRate * 100), icon: 'target', color: '#166534', detail: 'Correct first-attempt rate' },
-                  { label: 'Self-Reliance', value: Math.round((1 - learnerModel.helpSeekingRate) * 100), icon: 'strength', color: '#704818', detail: 'Solved without hints' },
-                  { label: 'Practice Volume', value: Math.min(100, Math.round(learnerModel.totalSessions * 2.1)), icon: 'chart', color: '#0f766e', detail: `${learnerModel.totalSessions} sessions completed` },
-                  { label: 'Retrieval Strength', value: Math.round(learnerModel.retrievalPerformance * 100), icon: 'brain', color: '#92400e', detail: 'Recall without prompts' },
+                  { label: 'Accuracy', value: Math.round(learnerModel.retentionRate * 100), icon: 'target', color: 'var(--palette-green)', detail: 'Correct first-attempt rate' },
+                  { label: 'Self-Reliance', value: Math.round((1 - learnerModel.helpSeekingRate) * 100), icon: 'strength', color: 'var(--color-brand-600)', detail: 'Solved without hints' },
+                  { label: 'Practice Volume', value: Math.min(100, Math.round(learnerModel.totalSessions * 2.1)), icon: 'chart', color: 'var(--palette-teal)', detail: `${learnerModel.totalSessions} sessions completed` },
+                  { label: 'Retrieval Strength', value: Math.round(learnerModel.retrievalPerformance * 100), icon: 'brain', color: 'var(--palette-amber)', detail: 'Recall without prompts' },
                 ]} />
               </div>
             </div>
@@ -351,7 +352,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                   onClick={() => onStartTask?.(task.id)}
                   className="flex items-center gap-3 p-3 rounded-xl hover:bg-surface-hover transition-all cursor-pointer group">
                   <CourseIcon icon={task.courseIcon} size="sm" colorClassName="text-brand-500 shrink-0" />
-                  <div className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: task.courseColor }} />
+                  <div className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: resolveCourseColor(task.courseColor) }} />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium truncate group-hover:text-brand-300 transition-colors">{task.title}</p>
                     <p className="text-xs text-text-tertiary mt-0.5">{task.courseName} · {task.estimatedMinutes}m</p>
@@ -410,7 +411,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                     <span>{course.conceptCount} concepts</span>
                   </div>
                   <div className="w-full bg-surface-hover rounded-full h-1.5">
-                    <div className="h-1.5 rounded-full transition-all duration-500" style={{ width: `${(course.completedLessons / course.totalLessons) * 100}%`, backgroundColor: course.color }} />
+                    <div className="h-1.5 rounded-full transition-all duration-500" style={{ width: `${(course.completedLessons / course.totalLessons) * 100}%`, backgroundColor: resolveCourseColor(course.color) }} />
                   </div>
                 </MotionSection>
               ))}
@@ -427,7 +428,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
             <div className="flex items-end gap-1.5 h-24">
               {stats.masteryTrend.map((val, i) => (
                 <div key={i} className="flex-1 flex flex-col items-center gap-1">
-                  <div className="w-full rounded-t-sm transition-all duration-500" style={{ height: `${val * 1.2}%`, backgroundColor: i === stats.masteryTrend.length - 1 ? '#818cf8' : 'var(--viz-track)' }} />
+                  <div className="w-full rounded-t-sm transition-all duration-500" style={{ height: `${val * 1.2}%`, backgroundColor: i === stats.masteryTrend.length - 1 ? accentHighlightVar() : 'var(--viz-track)' }} />
                   <span className="text-[9px] text-text-muted">{['M', 'T', 'W', 'T', 'F', 'S', 'S'][i]}</span>
                 </div>
               ))}
@@ -631,10 +632,11 @@ function MasteryRing({ mastery, size }: { mastery: number; size: number }) {
   const r = (size - 4) / 2;
   const c = 2 * Math.PI * r;
   const offset = c - (mastery / 100) * c;
+  const stroke = courseRingColor(mastery);
   return (
     <svg width={size} height={size} className="-rotate-90">
       <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--viz-track)" strokeWidth={3} />
-      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={mastery >= 80 ? '#34d399' : mastery >= 50 ? '#818cf8' : '#fb7185'} strokeWidth={3} strokeDasharray={c} strokeDashoffset={offset} strokeLinecap="round" className="mastery-ring" />
+      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={stroke} strokeWidth={3} strokeDasharray={c} strokeDashoffset={offset} strokeLinecap="round" className="mastery-ring" />
       <text x={size / 2} y={size / 2} textAnchor="middle" dominantBaseline="central" className="fill-text-primary text-[9px] font-bold rotate-90 origin-center">{mastery}%</text>
     </svg>
   );

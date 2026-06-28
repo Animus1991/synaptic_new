@@ -13,6 +13,7 @@ import {
   weeklyMasteryFromActivities,
 } from '../lib/retentionAnalytics';
 import { CalibrationChip } from './visuals/CalibrationChip';
+import { resolveCourseColor } from '../lib/masteryPalette';
 import { CourseIcon } from './ui/CourseIcon';
 import { cn } from '../utils/cn';
 import { ReadinessRing } from './visuals/ReadinessRing';
@@ -304,7 +305,7 @@ function OverviewTab({
               <CourseIcon icon={course.icon} size="md" colorClassName="text-brand-600 shrink-0" />
               <span className="text-sm text-text-secondary w-36 truncate">{course.title}</span>
               <div className="flex-1 bg-surface-hover rounded-full h-2.5">
-                <div className="h-2.5 rounded-full transition-all" style={{ width: `${course.mastery}%`, backgroundColor: course.color }} />
+                <div className="h-2.5 rounded-full transition-all" style={{ width: `${course.mastery}%`, backgroundColor: resolveCourseColor(course.color) }} />
               </div>
               <span className="text-xs font-medium w-10 text-right">{course.mastery}%</span>
             </div>

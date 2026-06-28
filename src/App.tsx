@@ -298,9 +298,14 @@ export default function App() {
           openUploadModal(id ? { mode: 'extend', targetCourseId: id } : undefined);
         }}
         onReprocessMaterial={() => {
-          const id = store.activeTask?.courseId ?? store.selectedCourse?.id;
-          if (id) store.reprocessCourseMaterial(id);
+          const id =
+            store.activeTask?.courseId
+            ?? store.selectedCourse?.id
+            ?? store.uploadedFiles.find((f) => f.courseId)?.courseId;
+          if (!id) return false;
+          return store.reprocessCourseMaterial(id);
         }}
+        onSaveCourseExtractedText={(courseId, text) => store.saveCourseExtractedText(courseId, text)}
         reprocessingMaterial={store.isReprocessing}
         sourceHighlight={store.sourceHighlight}
         openSourceAt={store.openSourceAt}
@@ -445,6 +450,7 @@ export default function App() {
                   onOpenAgent={() => store.navigate('agent')}
                   onUploadMore={() => openUploadModal({ mode: 'extend', targetCourseId: store.selectedCourse!.id })}
                   onReprocessMaterial={() => store.reprocessCourseMaterial(store.selectedCourse!.id)}
+                  onSaveCourseExtractedText={(courseId, text) => store.saveCourseExtractedText(courseId, text)}
                   reprocessingMaterial={store.isReprocessing}
                   onRemoveFile={store.removeUploadedFile}
                   onRemoveCourse={store.removeCourse}
@@ -665,6 +671,7 @@ export default function App() {
             onOpenAgent={() => store.navigate('agent')}
             onUploadMore={() => openUploadModal({ mode: 'extend', targetCourseId: selectedCourse.id })}
             onReprocessMaterial={() => store.reprocessCourseMaterial(selectedCourse.id)}
+            onSaveCourseExtractedText={(courseId, text) => store.saveCourseExtractedText(courseId, text)}
             reprocessingMaterial={store.isReprocessing}
             onRemoveFile={store.removeUploadedFile}
             onRemoveCourse={store.removeCourse}

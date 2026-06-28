@@ -93,7 +93,7 @@ export function WorkspaceToolHeader({
             )}
           </div>
           <p
-            className="mt-0.5 line-clamp-2 font-display text-[0.6875rem] italic leading-snug text-text-secondary sm:line-clamp-1 sm:truncate sm:text-[0.75rem]"
+            className="ws-purpose-line mt-0.5 line-clamp-2 leading-snug sm:line-clamp-1 sm:truncate"
             title={purpose}
           >
             {purpose}
