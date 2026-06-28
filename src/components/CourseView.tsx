@@ -532,6 +532,7 @@ function TopicCard({ topic, index, courseColor, course, onGoToSource, onStart }:
               </div>
               <button
                 onClick={onStart}
+                aria-label={`Start lesson: ${topic.title}`}
                 className="p-2 rounded-lg hover:bg-surface-hover transition-colors"
               >
                 <ChevronRight className="w-5 h-5 text-text-tertiary" />

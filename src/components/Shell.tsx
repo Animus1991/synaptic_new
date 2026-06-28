@@ -11,6 +11,7 @@ import { resolveTheme, themeToggleTarget } from '../lib/theme';
 import type { WorkspaceLiveSync } from '../lib/workspaceStoreSpine';
 import { workspaceLiveIsStale } from '../lib/workspaceStoreSpine';
 import { workspaceEntryPrefetchHandlers } from '../lib/workspaceEntryPrefetch';
+import { PlatformSkipLinks } from './PlatformSkipLinks';
 
 interface ShellProps {
   children: ReactNode;
@@ -109,8 +110,13 @@ export function Shell({
 
   return (
     <div className="min-h-screen bg-surface-primary flex">
+      <PlatformSkipLinks />
       {/* Desktop Sidebar */}
-      <aside className="hidden lg:flex flex-col w-64 border-r border-border-subtle bg-surface-secondary/50 fixed inset-y-0 left-0 z-30">
+      <aside
+        id="platform-sidebar-nav"
+        tabIndex={-1}
+        className="hidden lg:flex flex-col w-64 border-r border-border-subtle bg-surface-secondary/50 fixed inset-y-0 left-0 z-30"
+      >
         <div className="p-4 border-b border-border-subtle">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg platform-brand-icon flex items-center justify-center">
@@ -249,6 +255,7 @@ export function Shell({
               <button
                 onClick={() => onToggleSidebar(true)}
                 className="lg:hidden p-1.5 rounded-lg hover:bg-surface-hover"
+                aria-label={t('openMenu')}
               >
                 <Menu className="w-5 h-5 text-text-secondary" />
               </button>
@@ -282,6 +289,7 @@ export function Shell({
               <button
                 onClick={onOpenNotifications}
                 className="relative p-2 rounded-lg hover:bg-surface-hover transition-colors"
+                aria-label={t('notifications')}
               >
                 <Bell className="w-5 h-5 text-text-secondary" />
                 {notificationCount > 0 && (
@@ -328,12 +336,17 @@ export function Shell({
         </header>
 
         {/* Page content */}
-        <main className="flex-1">
+        <main id="platform-main" data-testid="platform-main" tabIndex={-1} className="flex-1 outline-none">
           {children}
         </main>
 
         {/* Mobile bottom nav */}
-        <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-30 glass-strong border-t border-border-subtle">
+        <nav
+          id="platform-mobile-nav"
+          data-testid="platform-mobile-nav"
+          tabIndex={-1}
+          className="lg:hidden fixed bottom-0 left-0 right-0 z-30 glass-strong border-t border-border-subtle outline-none"
+        >
           <div className="flex items-center justify-around h-16 px-1">
             {mobileNavItems.map((item) => {
               const active = item.kind === 'workspace'
@@ -344,8 +357,11 @@ export function Shell({
                 <button
                   key={key}
                   type="button"
-                  {...(item.kind === 'view' ? navButtonProps(item.view) : {
-                    'data-testid': 'mobile-nav-workspace',
+                  {...(item.kind === 'view' ? {
+                    'data-testid': `nav-mobile-${item.view}`,
+                    'data-tour': `nav-${item.view}`,
+                  } : {
+                    'data-testid': 'nav-mobile-workspace',
                     'data-tour': 'mobile-nav-workspace',
                   })}
                   onClick={() => {

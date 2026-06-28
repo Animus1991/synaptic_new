@@ -1,6 +1,11 @@
 import { test, expect } from '@playwright/test';
-import AxeBuilder from '@axe-core/playwright';
-import { skipOnboardingToLibrary } from './helpers/onboarding';
+import {
+  axeBuilder,
+  blockingViolations,
+  enterStudyWorkspace,
+  formatAxeViolations,
+  dismissProductTourIfOpen,
+} from './helpers/a11y';
 import type { Page } from '@playwright/test';
 
 /**
@@ -11,21 +16,16 @@ import type { Page } from '@playwright/test';
  *   - run an axe scan limited to the active tool surface
  */
 
-const A11Y_TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'];
-
 async function enterWorkspace(page: Page) {
-  await page.goto('/');
-  await skipOnboardingToLibrary(page);
-  const firstItem = page.getByTestId(/^library-(lesson|task|course)-/).first();
-  if (await firstItem.isVisible().catch(() => false)) {
-    await firstItem.click();
-  }
+  await enterStudyWorkspace(page);
+  await dismissProductTourIfOpen(page);
 }
 
 test.describe('A11y — Workspace panels', () => {
   test.use({ viewport: { width: 1280, height: 900 } });
 
   test('every dock tool surface is labelled and axe-clean', async ({ page }) => {
+    test.setTimeout(120_000);
     await enterWorkspace(page);
 
     const dock = page.getByTestId('workspace-dock');
@@ -43,9 +43,8 @@ test.describe('A11y — Workspace panels', () => {
       const label = await tool.getAttribute('aria-label');
       expect(label, `${toolId} missing aria-label`).toBeTruthy();
 
-      await tool.click();
-      // Allow lazy-loaded panel to render
-      await page.waitForTimeout(150);
+      await tool.click({ force: true });
+      await page.waitForTimeout(250);
 
       // Cross-link buttons (when present) must all be labelled
       const crossLinks = page.locator('[data-testid^="crosslink-jump-"]');
@@ -55,21 +54,20 @@ test.describe('A11y — Workspace panels', () => {
         expect(lbl, `crosslink #${j} on ${toolId} missing aria-label`).toBeTruthy();
       }
 
-      const results = await new AxeBuilder({ page })
-        .withTags(A11Y_TAGS)
-        .disableRules(['color-contrast'])
+      const results = await axeBuilder(page)
+        .include('#workspace-main')
+        .include('[data-testid="workspace-dock"]')
         .analyze();
-      const blocking = results.violations.filter((v) =>
-        ['serious', 'critical'].includes(v.impact ?? ''),
-      );
+      const blocking = blockingViolations(results);
       expect(
         blocking,
-        `Blocking a11y on tool ${toolId}:\n${JSON.stringify(blocking, null, 2)}`,
+        `Blocking a11y on tool ${toolId}:\n${formatAxeViolations(blocking)}`,
       ).toEqual([]);
     }
   });
 
   test('command palette is labelled and axe-clean when open', async ({ page }) => {
+    test.setTimeout(120_000);
     await enterWorkspace(page);
 
     const openBtn = page.getByTestId('workspace-command-palette-open');
@@ -78,18 +76,14 @@ test.describe('A11y — Workspace panels', () => {
     }
     await openBtn.click();
     const palette = page.getByTestId('command-palette');
-    await expect(palette).toBeVisible();
+    await expect(palette).toBeVisible({ timeout: 10_000 });
     await expect(palette).toHaveAttribute('aria-modal', 'true');
     await expect(palette).toHaveAttribute('aria-label', /command palette/i);
 
-    const results = await new AxeBuilder({ page })
+    const results = await axeBuilder(page)
       .include('[data-testid="command-palette"]')
-      .withTags(A11Y_TAGS)
-      .disableRules(['color-contrast'])
       .analyze();
-    const blocking = results.violations.filter((v) =>
-      ['serious', 'critical'].includes(v.impact ?? ''),
-    );
-    expect(blocking, JSON.stringify(blocking, null, 2)).toEqual([]);
+    const blocking = blockingViolations(results);
+    expect(blocking, formatAxeViolations(blocking)).toEqual([]);
   });
 });

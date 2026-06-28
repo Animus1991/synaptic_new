@@ -359,7 +359,7 @@ function CourseCard({
             </button>
           )}
           {isGenerating ? (
-          <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-accent-amber/10 text-accent-amber text-xs font-medium">
+          <div className="platform-status-pill platform-status-pill--generating flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium">
             <Loader2 className="w-3 h-3 animate-spin" />
             Generating
           </div>
@@ -371,7 +371,7 @@ function CourseCard({
         </div>
       </div>
 
-      <h3 className="font-semibold mb-1 group-hover:text-brand-300 transition-colors" data-testid="library-course-title">{course.title}</h3>
+      <h3 className="font-semibold mb-1 text-text-primary group-hover:text-brand-700 transition-colors" data-testid="library-course-title">{course.title}</h3>
       <p className="text-xs text-text-tertiary mb-4 line-clamp-2">{course.description}</p>
       {quality && !isGenerating && (
         <div className="mb-3 flex items-center justify-between gap-2">
@@ -421,18 +421,19 @@ function CourseCard({
       <div className="mt-3 flex items-center justify-between">
         <div className="flex flex-wrap gap-1">
           {course.sourceFiles.slice(0, 2).map(f => (
-            <span key={f} className="text-[10px] text-text-muted px-1.5 py-0.5 rounded bg-surface-hover truncate max-w-[100px]">
+            <span key={f} className="platform-meta-chip px-1.5 py-0.5 rounded truncate max-w-[100px]">
               {f}
             </span>
           ))}
           {course.sourceFiles.length > 2 && (
-            <span className="text-[10px] text-text-muted px-1.5 py-0.5 rounded bg-surface-hover">
+            <span className="platform-meta-chip px-1.5 py-0.5 rounded">
               +{course.sourceFiles.length - 2}
             </span>
           )}
         </div>
-        <span className={cn('inline-flex items-center gap-1 text-[9px] px-1.5 py-0.5 rounded-full font-medium',
-          course.sourceMode === 'strict' ? 'bg-accent-emerald/10 text-accent-emerald' : course.sourceMode === 'enriched' ? 'bg-brand-500/10 text-brand-600' : 'bg-surface-hover text-text-muted'
+        <span className={cn(
+          'platform-source-badge inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full font-medium',
+          course.sourceMode === 'strict' ? 'platform-source-badge--strict' : course.sourceMode === 'enriched' ? 'platform-source-badge--enriched' : 'platform-source-badge--notes',
         )}>
           <UiIcon id={course.sourceMode === 'strict' ? 'lock' : course.sourceMode === 'enriched' ? 'sparkle' : 'notes'} size="xs" />
           {course.sourceMode === 'strict' ? 'Strict' : course.sourceMode === 'enriched' ? 'Enriched' : 'Notes'}

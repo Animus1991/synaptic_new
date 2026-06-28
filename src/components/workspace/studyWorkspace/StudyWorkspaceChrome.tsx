@@ -67,14 +67,16 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
 
   return (
     <>
-            {/* Skip link for keyboard users — visible on focus only */}
-            <a
-              href="#workspace-main"
-              className="skip-to-content"
-              data-testid="workspace-skip-link"
-            >
-              {t('wsSkipToMain')}
-            </a>
+            {/* Skip links — visible on focus only */}
+            <nav className="skip-links" aria-label={t('skipLinksAria')}>
+              <a
+                href="#workspace-main"
+                className="skip-to-content"
+                data-testid="workspace-skip-link"
+              >
+                {t('wsSkipToMain')}
+              </a>
+            </nav>
       
             {/* ============================================================ */}
             {/* MOBILE COMPACT CHROME — Bento integrated flow                */}

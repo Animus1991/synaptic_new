@@ -10,5 +10,5 @@ export async function skipOnboardingToLibrary(page: Page) {
   await page.getByTestId('onboarding-next').click();
   await page.getByTestId('onboarding-next').click();
   await page.getByTestId('onboarding-skip-explore').click();
-  await expect(page.getByTestId('nav-library')).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByTestId('platform-main')).toBeVisible({ timeout: 15_000 });
 }

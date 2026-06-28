@@ -522,6 +522,11 @@ export function AnnotationOverlay({
                 role="button"
                 tabIndex={0}
                 onKeyDown={(e) => e.key === 'Enter' && addAnnotation(i)}
+                aria-label={
+                  isEmpty
+                    ? t('annoBlankLine').replace('{line}', String(i + 1))
+                    : undefined
+                }
                 className={cn(
                   'ws-annotation-line px-2 rounded cursor-pointer hover:bg-surface-hover/50 relative group',
                   isHighlighted && 'bg-brand-500/10 border-l-2 border-brand-500',
@@ -541,6 +546,7 @@ export function AnnotationOverlay({
                     onClick={(e) => { e.stopPropagation(); onOpenInReader(line.trim()); }}
                     className="absolute right-1 top-0.5 hidden p-0.5 rounded text-brand-800 hover:bg-surface-hover [@media(hover:hover)]:group-hover:block"
                     title={t('panelOpenReader')}
+                    aria-label={t('panelOpenReader')}
                   >
                     <BookOpen className="w-3 h-3" />
                   </button>

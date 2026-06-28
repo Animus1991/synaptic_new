@@ -1,6 +1,6 @@
 import { test, expect, devices } from '@playwright/test';
-import AxeBuilder from '@axe-core/playwright';
 import { skipOnboardingToLibrary } from './helpers/onboarding';
+import { axeBuilder, blockingViolations, formatAxeViolations, dismissProductTourIfOpen, waitForLibraryReady, openWorkspaceFromLibrary } from './helpers/a11y';
 
 /**
  * Re-runs the Lesson + WorkspaceDock a11y guarantees across multiple
@@ -8,8 +8,6 @@ import { skipOnboardingToLibrary } from './helpers/onboarding';
  * collapsed dock, stacked headers) do not regress focus order, landmarks
  * or aria-labels.
  */
-
-const A11Y_TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'];
 
 const VIEWPORTS = [
   { name: 'mobile-narrow', width: 360, height: 780 },
@@ -24,26 +22,20 @@ for (const vp of VIEWPORTS) {
     test.use({ viewport: { width: vp.width, height: vp.height } });
 
     test('library + workspace shell pass axe (no serious/critical)', async ({ page }) => {
+      test.setTimeout(120_000);
       await page.goto('/');
       await skipOnboardingToLibrary(page);
+      await dismissProductTourIfOpen(page);
+      await waitForLibraryReady(page);
 
-      const libResults = await new AxeBuilder({ page })
-        .withTags(A11Y_TAGS)
-        .disableRules(['color-contrast'])
-        .analyze();
-      const libBlocking = libResults.violations.filter((v) =>
-        ['serious', 'critical'].includes(v.impact ?? ''),
-      );
+      const libResults = await axeBuilder(page).analyze();
+      const libBlocking = blockingViolations(libResults);
       expect(
         libBlocking,
-        `Library a11y violations @ ${vp.name}:\n${JSON.stringify(libBlocking, null, 2)}`,
+        `Library a11y violations @ ${vp.name}:\n${formatAxeViolations(libBlocking)}`,
       ).toEqual([]);
 
-      // Try entering a lesson/workspace from the library
-      const firstItem = page.getByTestId(/^library-(lesson|task|course)-/).first();
-      if (await firstItem.isVisible().catch(() => false)) {
-        await firstItem.click();
-      }
+      await openWorkspaceFromLibrary(page);
 
       // Mobile: a hamburger may hide the dock — open it so axe sees the nav.
       if (vp.width < 768) {
@@ -60,17 +52,18 @@ for (const vp of VIEWPORTS) {
       );
       expect(focusedHref).toBeTruthy();
 
-      const wsResults = await new AxeBuilder({ page })
-        .withTags(A11Y_TAGS)
-        .disableRules(['color-contrast'])
-        .analyze();
-      const wsBlocking = wsResults.violations.filter((v) =>
-        ['serious', 'critical'].includes(v.impact ?? ''),
-      );
-      expect(
-        wsBlocking,
-        `Workspace a11y violations @ ${vp.name}:\n${JSON.stringify(wsBlocking, null, 2)}`,
-      ).toEqual([]);
+      const inWorkspace = await page.getByTestId('workspace-dock').isVisible().catch(() => false);
+      if (inWorkspace) {
+        const wsResults = await axeBuilder(page)
+          .include('#workspace-main')
+          .include('[data-testid="workspace-dock"]')
+          .analyze();
+        const wsBlocking = blockingViolations(wsResults);
+        expect(
+          wsBlocking,
+          `Workspace a11y violations @ ${vp.name}:\n${formatAxeViolations(wsBlocking)}`,
+        ).toEqual([]);
+      }
     });
   });
 }

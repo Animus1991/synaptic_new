@@ -47,7 +47,7 @@ export function PageHeader({
   const content = (
     <div className={cn('flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between', className)}>
       <div className="min-w-0">
-        {eyebrow && <p className="ws-eyebrow mb-1.5 text-brand-700">{eyebrow}</p>}
+        {eyebrow && <p className="ws-eyebrow mb-1.5 text-text-secondary">{eyebrow}</p>}
         <div className="flex items-center gap-3">
           {Icon && (
             <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-brand-500/25 bg-brand-500/10 text-brand-600">
@@ -231,7 +231,7 @@ export function StatTile({
     <div className={cn('ws-bento p-4', className)}>
       <div className="flex items-center gap-2">
         {icon}
-        <span className="ws-eyebrow text-brand-700">{label}</span>
+        <span className="ws-eyebrow text-text-secondary">{label}</span>
       </div>
       <p className="mt-2 text-xl font-bold tracking-tight text-text-primary">{value}</p>
       {hint && <p className="ws-caption mt-0.5 text-text-muted">{hint}</p>}

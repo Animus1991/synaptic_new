@@ -48,7 +48,7 @@ export function WorkspaceDock({ activeTool, onSelectTool, availableTools, lang =
   return (
     <nav
       className={cn(
-        'flex flex-col shrink-0 border-r border-border-subtle bg-surface-card overflow-y-auto hide-scrollbar transition-[width] duration-200',
+        'flex flex-col shrink-0 border-r border-border-subtle bg-surface-card overflow-y-auto hide-scrollbar transition-[width] duration-200 outline-none',
         expanded ? 'w-52' : 'w-16',
       )}
       data-testid="workspace-dock"

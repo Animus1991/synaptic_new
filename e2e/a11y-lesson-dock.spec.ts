@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
-import AxeBuilder from '@axe-core/playwright';
 import { skipOnboardingToLibrary } from './helpers/onboarding';
+import { axeBuilder, blockingViolations, formatAxeViolations, dismissProductTourIfOpen, waitForLibraryReady } from './helpers/a11y';
 
 /**
  * Automated accessibility audits for the Lesson view and the desktop
@@ -11,10 +11,10 @@ import { skipOnboardingToLibrary } from './helpers/onboarding';
  *  - landmarks and aria-current attributes are present
  */
 
-const A11Y_TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'];
-
 async function openFirstLessonFromLibrary(page) {
   await skipOnboardingToLibrary(page);
+  await dismissProductTourIfOpen(page);
+  await waitForLibraryReady(page);
   const firstLesson = page.getByTestId(/^library-(lesson|task|course)-/).first();
   if (await firstLesson.isVisible().catch(() => false)) {
     await firstLesson.click();
@@ -51,17 +51,12 @@ test.describe('Accessibility — Lesson view', () => {
       await expect(stepNav.locator('[aria-current="step"]')).toHaveCount(1);
     }
 
-    const results = await new AxeBuilder({ page })
-      .withTags(A11Y_TAGS)
-      .disableRules(['color-contrast']) // dark-theme tokens audited separately
-      .analyze();
+    const results = await axeBuilder(page).analyze();
 
-    const blocking = results.violations.filter((v) =>
-      ['serious', 'critical'].includes(v.impact ?? ''),
-    );
+    const blocking = blockingViolations(results);
     expect(
       blocking,
-      `Blocking a11y violations:\n${JSON.stringify(blocking, null, 2)}`,
+      `Blocking a11y violations:\n${formatAxeViolations(blocking)}`,
     ).toEqual([]);
   });
 });
@@ -101,18 +96,14 @@ test.describe('Accessibility — Workspace dock (desktop)', () => {
     await tools.nth(Math.min(1, count - 1)).focus();
     await page.keyboard.press('Enter');
 
-    const results = await new AxeBuilder({ page })
+    const results = await axeBuilder(page)
       .include('[data-testid="workspace-dock"]')
-      .withTags(A11Y_TAGS)
-      .disableRules(['color-contrast'])
       .analyze();
 
-    const blocking = results.violations.filter((v) =>
-      ['serious', 'critical'].includes(v.impact ?? ''),
-    );
+    const blocking = blockingViolations(results);
     expect(
       blocking,
-      `Blocking a11y violations in dock:\n${JSON.stringify(blocking, null, 2)}`,
+      `Blocking a11y violations in dock:\n${formatAxeViolations(blocking)}`,
     ).toEqual([]);
   });
 });

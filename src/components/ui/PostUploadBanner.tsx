@@ -22,7 +22,7 @@ export function PostUploadBanner({ courseTitle, onOpenWorkspace, onViewCourse, o
       role="status"
     >
       <div className="flex-1 min-w-0">
-        <p className="ws-eyebrow text-brand-700 mb-1">{t('postUploadCourseReady')}</p>
+        <p className="ws-eyebrow text-text-secondary mb-1">{t('postUploadCourseReady')}</p>
         <p className="text-sm font-semibold text-text-primary truncate">{courseTitle}</p>
         <p className="text-xs text-text-secondary mt-1">{t('postUploadHint')}</p>
       </div>

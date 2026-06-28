@@ -148,6 +148,7 @@ export function ConceptLensPanel({
             onClick={onToggleExpand}
             className="ml-0.5 shrink-0 rounded p-0.5 text-text-muted hover:text-text-primary"
             aria-expanded={expanded}
+            aria-label={expanded ? t('collapse') : t('expand')}
             data-testid="concept-lens-expand"
           >
             {expanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
