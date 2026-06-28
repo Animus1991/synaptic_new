@@ -37,6 +37,9 @@ import { StudyWorkspaceLazy } from './components/workspace/StudyWorkspaceLazy';
 import { prefetchWorkspaceEntry } from './lib/workspaceEntryPrefetch';
 import { preloadCriticalChunks } from './lib/preloadCriticalChunks';
 import { lazyWithRetry } from './lib/lazyWithRetry';
+import { ProductTour } from './components/ProductTour';
+import { useProductTour } from './hooks/useProductTour';
+import { isProductTourComplete } from './lib/productTour';
 
 const Agent = lazyWithRetry(() => import('./components/Agent').then((m) => ({ default: m.Agent })), 'agent');
 const Analytics = lazyWithRetry(() => import('./components/Analytics').then((m) => ({ default: m.Analytics })), 'analytics');
@@ -82,6 +85,7 @@ export default function App() {
   const { open: paletteOpen, toggle: togglePalette, close: closePalette } = useCommandPalette();
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [uploadIntent, setUploadIntent] = useState<{ mode: 'new' | 'extend'; targetCourseId?: string }>({ mode: 'new' });
+  const [productTourOpen, setProductTourOpen] = useState(false);
 
   const closeLessonView = () => {
     store.setActiveLessonView(false);
@@ -110,7 +114,6 @@ export default function App() {
   };
 
   const openWorkspace = useCallback(() => {
-    prefetchWorkspaceEntry();
     if (store.currentView === 'landing' || store.currentView === 'onboarding') {
       store.navigate('dashboard');
     }
@@ -118,16 +121,14 @@ export default function App() {
   }, [store]);
 
   const openWorkspaceForConcept = useCallback((concept?: string) => {
-    prefetchWorkspaceEntry();
     if (store.currentView === 'landing' || store.currentView === 'onboarding') {
       store.navigate('dashboard');
     }
     store.openStudyWorkspaceForConcept(concept);
   }, [store]);
 
-  /** Course / library Continue — preload chunk then open workspace. */
+  /** Course / library Continue — store marks TTI + prefetches chunk. */
   const openCourseWorkspace = useCallback((topicTitle?: string) => {
-    prefetchWorkspaceEntry();
     if (topicTitle?.trim()) {
       store.openStudyWorkspaceForConcept(topicTitle.trim());
       return;
@@ -136,7 +137,6 @@ export default function App() {
   }, [store]);
 
   const openExamTimerWorkspace = useCallback(() => {
-    prefetchWorkspaceEntry();
     if (store.currentView === 'landing' || store.currentView === 'onboarding') {
       store.navigate('dashboard');
     }
@@ -162,7 +162,35 @@ export default function App() {
       return;
     }
     store.completeOnboarding(rest);
+    window.setTimeout(() => setProductTourOpen(true), 400);
   }, [store]);
+
+  const replayProductTour = useCallback(() => {
+    setProductTourOpen(false);
+    store.navigate('dashboard');
+    window.setTimeout(() => setProductTourOpen(true), 100);
+  }, [store]);
+
+  const productTour = useProductTour({
+    open: productTourOpen && !store.studyWorkspaceOpen,
+    currentView: store.currentView,
+    onNavigate: store.navigate,
+    onClose: () => setProductTourOpen(false),
+  });
+
+  useEffect(() => {
+    if (
+      !store.user.onboardingComplete
+      || store.currentView !== 'dashboard'
+      || store.studyWorkspaceOpen
+      || isProductTourComplete()
+      || productTourOpen
+    ) {
+      return;
+    }
+    const timer = window.setTimeout(() => setProductTourOpen(true), 900);
+    return () => window.clearTimeout(timer);
+  }, [store.user.onboardingComplete, store.currentView, store.studyWorkspaceOpen, productTourOpen]);
 
   const demoDeepLinkFired = useRef(false);
   const viewDeepLinkFired = useRef(false);
@@ -344,6 +372,9 @@ export default function App() {
         : store.selectedCourse
         ? { course: store.selectedCourse.title }
         : undefined,
+    workspaceLive: store.workspaceLive,
+    onOpenWorkspace: openWorkspace,
+    studyWorkspaceOpen: store.studyWorkspaceOpen,
   };
 
   const handleContentSelect = (hit: ContentSearchHit) => {
@@ -378,6 +409,16 @@ export default function App() {
         onClose={() => setNotificationsOpen(false)}
         activities={store.activities}
       />
+      {productTourOpen && !store.studyWorkspaceOpen && (
+        <ProductTour
+          step={productTour.step}
+          stepIndex={productTour.stepIndex}
+          totalSteps={productTour.totalSteps}
+          ready={productTour.ready}
+          onNext={productTour.next}
+          onSkip={productTour.skip}
+        />
+      )}
       {store.activeLessonView && (
         <LazyOverlay>
         <LessonView
@@ -434,7 +475,7 @@ export default function App() {
                 <button
                   type="button"
                   onClick={store.exitWorkspaceCourseSplit}
-                  className="text-[10px] font-medium text-text-secondary hover:text-brand-700 transition-colors shrink-0"
+                  className="type-micro font-medium text-text-secondary hover:text-brand-700 transition-colors shrink-0"
                 >
                   {store.user.settings.language === 'el' ? 'Πλήρες workspace' : 'Full workspace'}
                 </button>
@@ -798,6 +839,7 @@ export default function App() {
               onPushSession={store.pushSessionToServer}
               onSyncAccount={store.syncAccountOnLogin}
               onRefreshPlan={store.refreshAuthPlan}
+              onReplayProductTour={replayProductTour}
             />
           )}
         </motion.div>

@@ -2,15 +2,15 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   CheckCircle2, Circle, Clock, Zap, AlertTriangle, RotateCcw,
-  Brain, Target, BookOpen, Timer, ChevronDown, Play, Flame,
-  GraduationCap, Lightbulb, Code, MessageSquare, Sparkles,
-  Mic, ArrowDownRight, GitCompare, Shield, Calendar
+  Brain, Target, ChevronDown, Play, Flame,
+  Shield, Calendar
 } from '@/lib/lucide-shim';
 import type { Task, TaskType, MistakeRecord } from '../types';
 import { cn } from '../utils/cn';
 import { buildStudyPlanBlocks } from '../lib/pedagogy';
 import type { FsrsRating } from '../lib/pedagogy';
 import { filterTasksForSession, startButtonLabel, type SessionType } from '../lib/taskFlows';
+import { TaskActionIcon } from './ui/TaskActionIcon';
 import { ErrorNotebook } from './visuals/ErrorNotebook';
 import { CourseIcon } from './ui/CourseIcon';
 import { Page, PageHeader, PlatformSection } from './ui/primitives';
@@ -32,21 +32,21 @@ interface TasksProps {
 
 type TaskFilter = 'all' | 'learn' | 'review' | 'practice' | 'exam' | 'fix' | 'completed';
 
-const taskTypeConfig: Record<TaskType, { icon: typeof BookOpen; color: string; label: string }> = {
-  lesson: { icon: BookOpen, color: 'text-brand-600', label: 'Lesson' },
-  quiz: { icon: Brain, color: 'text-accent-cyan', label: 'Quiz' },
-  review: { icon: RotateCcw, color: 'text-accent-violet', label: 'Review' },
-  practice: { icon: Code, color: 'text-accent-teal', label: 'Practice' },
-  'exam-prep': { icon: GraduationCap, color: 'text-accent-rose', label: 'Exam Prep' },
-  flashcards: { icon: Sparkles, color: 'text-accent-emerald', label: 'Flashcards' },
-  'mistake-retry': { icon: AlertTriangle, color: 'text-accent-orange', label: 'Retry Mistakes' },
-  'concept-check': { icon: Lightbulb, color: 'text-accent-amber', label: 'Concept Check' },
-  'deep-dive': { icon: MessageSquare, color: 'text-accent-cyan', label: 'Deep Dive' },
-  'timed-test': { icon: Timer, color: 'text-accent-rose', label: 'Timed Test' },
-  'self-explanation': { icon: MessageSquare, color: 'text-accent-violet', label: 'Self-Explain' },
-  comparison: { icon: GitCompare, color: 'text-accent-teal', label: 'Compare' },
-  'prerequisite-repair': { icon: ArrowDownRight, color: 'text-accent-orange', label: 'Prereq Repair' },
-  'oral-exam': { icon: Mic, color: 'text-accent-rose', label: 'Oral Exam' },
+const TASK_TYPE_LABEL: Record<TaskType, string> = {
+  lesson: 'Lesson',
+  quiz: 'Quiz',
+  review: 'Review',
+  practice: 'Practice',
+  'exam-prep': 'Exam Prep',
+  flashcards: 'Flashcards',
+  'mistake-retry': 'Retry Mistakes',
+  'concept-check': 'Concept Check',
+  'deep-dive': 'Deep Dive',
+  'timed-test': 'Timed Test',
+  'self-explanation': 'Self-Explain',
+  comparison: 'Compare',
+  'prerequisite-repair': 'Prereq Repair',
+  'oral-exam': 'Oral Exam',
 };
 
 const sessionTypes: { type: SessionType; label: string; desc: string; minutes: number; icon: typeof Play }[] = [
@@ -227,7 +227,6 @@ export function Tasks({ tasks, onComplete, onReviewRating, onStartTask, onStartS
       <div className="space-y-2">
         <AnimatePresence>
           {filteredTasks.map((task, i) => {
-            const config = taskTypeConfig[task.type];
             const isExpanded = expandedTask === task.id;
             const isCompleted = task.status === 'completed';
             return (
@@ -242,8 +241,8 @@ export function Tasks({ tasks, onComplete, onReviewRating, onStartTask, onStartS
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-0.5">
                       <CourseIcon icon={task.courseIcon} size="sm" colorClassName="text-brand-500 shrink-0" />
-                      <config.icon className={cn('w-3.5 h-3.5 shrink-0', config.color)} />
-                      <span className="text-[10px] font-medium text-text-tertiary">{config.label}</span>
+                      <TaskActionIcon taskType={task.type} size="xs" />
+                      <span className="type-micro font-medium text-text-tertiary">{TASK_TYPE_LABEL[task.type]}</span>
                     </div>
                     <p className={cn('text-sm font-medium truncate', isCompleted && 'line-through text-text-tertiary')}>{task.title}</p>
                   </div>

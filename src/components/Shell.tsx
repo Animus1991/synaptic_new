@@ -2,12 +2,15 @@ import { ReactNode } from 'react';
 import {
   BookOpen, CheckSquare, Robot as Bot, SquaresFour as LayoutDashboard, Gear as Settings,
   Sparkle as Sparkles, List as Menu, X, UploadSimple as Upload, Bell, MagnifyingGlass as Search, CaretRight as ChevronRight,
-  ChartBar as BarChart3, Sun, Moon, Users, Fire as Flame
+  ChartBar as BarChart3, Sun, Moon, Users, Fire as Flame, SquaresFour as Layout,
 } from '@phosphor-icons/react';
 import type { AppView, User, DashboardStats, UserSettings } from '../types';
 import { cn } from '../utils/cn';
 import { useI18n, type I18nKey } from '../lib/i18n';
 import { resolveTheme, themeToggleTarget } from '../lib/theme';
+import type { WorkspaceLiveSync } from '../lib/workspaceStoreSpine';
+import { workspaceLiveIsStale } from '../lib/workspaceStoreSpine';
+import { workspaceEntryPrefetchHandlers } from '../lib/workspaceEntryPrefetch';
 
 interface ShellProps {
   children: ReactNode;
@@ -24,7 +27,14 @@ interface ShellProps {
   onOpenNotifications?: () => void;
   notificationCount?: number;
   breadcrumb?: { course?: string; lesson?: string };
+  workspaceLive?: WorkspaceLiveSync | null;
+  onOpenWorkspace?: () => void;
+  studyWorkspaceOpen?: boolean;
 }
+
+type MobileNavItem =
+  | { kind: 'view'; view: AppView; icon: typeof BookOpen; labelKey: I18nKey }
+  | { kind: 'workspace'; icon: typeof Layout; labelKey: I18nKey };
 
 const navViews: { view: AppView; icon: typeof BookOpen; labelKey: I18nKey }[] = [
   { view: 'dashboard', icon: LayoutDashboard, labelKey: 'dashboard' },
@@ -36,6 +46,16 @@ const navViews: { view: AppView; icon: typeof BookOpen; labelKey: I18nKey }[] = 
   { view: 'settings', icon: Settings, labelKey: 'settings' },
 ];
 
+function buildMobileNavItems(showWorkspace: boolean): MobileNavItem[] {
+  const core: MobileNavItem[] = navViews.slice(0, 4).map((item) => ({ kind: 'view' as const, ...item }));
+  const items: MobileNavItem[] = [...core];
+  if (showWorkspace) {
+    items.push({ kind: 'workspace', icon: Layout, labelKey: 'navStudyWorkspace' });
+  }
+  items.push({ kind: 'view', view: 'settings', icon: Settings, labelKey: 'settings' });
+  return items;
+}
+
 const shellNavClass = (active: boolean) =>
   cn(
     'w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all border',
@@ -44,8 +64,36 @@ const shellNavClass = (active: boolean) =>
       : 'border-transparent text-text-secondary hover:text-text-primary hover:bg-surface-hover',
   );
 
-export function Shell({ children, currentView, onNavigate, sidebarOpen, onToggleSidebar, user, stats, onUpload, theme = 'dark', onToggleTheme, onOpenSearch, onOpenNotifications, notificationCount = 0, breadcrumb }: ShellProps) {
+export function Shell({
+  children,
+  currentView,
+  onNavigate,
+  sidebarOpen,
+  onToggleSidebar,
+  user,
+  stats,
+  onUpload,
+  theme = 'dark',
+  onToggleTheme,
+  onOpenSearch,
+  onOpenNotifications,
+  notificationCount = 0,
+  breadcrumb,
+  workspaceLive = null,
+  onOpenWorkspace,
+  studyWorkspaceOpen = false,
+}: ShellProps) {
   const { t } = useI18n();
+  const showMobileWorkspaceNav = Boolean(
+    workspaceLive && !workspaceLiveIsStale(workspaceLive) && onOpenWorkspace,
+  );
+  const mobileNavItems = buildMobileNavItems(showMobileWorkspaceNav);
+
+  const navButtonProps = (view: AppView) => ({
+    'data-testid': `nav-${view}`,
+    'data-tour': `nav-${view}`,
+  });
+
   return (
     <div className="min-h-screen bg-surface-primary flex">
       {/* Desktop Sidebar */}
@@ -63,7 +111,7 @@ export function Shell({ children, currentView, onNavigate, sidebarOpen, onToggle
           {navViews.map(item => (
             <button
               key={item.view}
-              data-testid={`nav-${item.view}`}
+              {...navButtonProps(item.view)}
               onClick={() => onNavigate(item.view)}
               className={shellNavClass(currentView === item.view)}
             >
@@ -122,6 +170,7 @@ export function Shell({ children, currentView, onNavigate, sidebarOpen, onToggle
               {navViews.map(item => (
                 <button
                   key={item.view}
+                  {...navButtonProps(item.view)}
                   onClick={() => onNavigate(item.view)}
                   className={shellNavClass(currentView === item.view)}
                 >
@@ -243,22 +292,39 @@ export function Shell({ children, currentView, onNavigate, sidebarOpen, onToggle
 
         {/* Mobile bottom nav */}
         <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-30 glass-strong border-t border-border-subtle">
-          <div className="flex items-center justify-around h-16 px-2">
-            {[...navViews.slice(0, 4), { view: 'settings' as AppView, icon: Settings, labelKey: 'settings' as I18nKey }].map(item => (
-              <button
-                key={item.view}
-                onClick={() => onNavigate(item.view)}
-                className={cn(
-                  'flex flex-col items-center gap-1 p-2 rounded-xl transition-all min-w-[60px]',
-                  currentView === item.view
-                    ? 'platform-nav-mobile-active'
-                    : 'text-text-tertiary'
-                )}
-              >
-                <item.icon className="w-5 h-5" />
-                <span className="text-[10px] font-medium">{t(item.labelKey)}</span>
-              </button>
-            ))}
+          <div className="flex items-center justify-around h-16 px-1">
+            {mobileNavItems.map((item) => {
+              const active = item.kind === 'workspace'
+                ? studyWorkspaceOpen
+                : currentView === item.view;
+              const key = item.kind === 'workspace' ? 'workspace' : item.view;
+              return (
+                <button
+                  key={key}
+                  type="button"
+                  {...(item.kind === 'view' ? navButtonProps(item.view) : {
+                    'data-testid': 'mobile-nav-workspace',
+                    'data-tour': 'mobile-nav-workspace',
+                  })}
+                  onClick={() => {
+                    if (item.kind === 'workspace') {
+                      onOpenWorkspace?.();
+                      return;
+                    }
+                    onNavigate(item.view);
+                  }}
+                  {...(item.kind === 'workspace' ? workspaceEntryPrefetchHandlers() : {})}
+                  className={cn(
+                    'flex flex-col items-center gap-1 p-1.5 rounded-xl transition-all min-w-[52px] max-w-[72px]',
+                    active ? 'platform-nav-mobile-active' : 'text-text-tertiary',
+                    item.kind === 'workspace' && !active && 'text-brand-600',
+                  )}
+                >
+                  <item.icon className="w-5 h-5 shrink-0" />
+                  <span className="type-micro font-medium truncate w-full text-center">{t(item.labelKey)}</span>
+                </button>
+              );
+            })}
           </div>
         </nav>
       </div>

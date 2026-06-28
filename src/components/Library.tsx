@@ -98,7 +98,7 @@ export function Library({
           : 'Uploaded documents and generated courses.'}
         icon={BookOpen}
         actions={
-          <PrimaryCTA onClick={onUpload} data-testid="library-upload" className="whitespace-nowrap">
+          <PrimaryCTA onClick={onUpload} data-testid="library-upload" data-tour="library-upload" className="whitespace-nowrap">
             <Upload className="w-4 h-4" aria-hidden="true" />
             {userLanguage === 'el' ? 'Ανέβασμα' : 'Upload'}
           </PrimaryCTA>

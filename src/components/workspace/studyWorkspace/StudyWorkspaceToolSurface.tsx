@@ -47,6 +47,7 @@ export function StudyWorkspaceToolSurface({ model }: StudyWorkspaceToolSurfacePr
     lang,
     progressKey,
     activeTool,
+    intelReady,
     isMobile,
     layout,
     currentStep,
@@ -624,7 +625,7 @@ export function StudyWorkspaceToolSurface({ model }: StudyWorkspaceToolSurfacePr
           }}
         >
           {intelTab === 'discover' && (
-            <WorkspaceIdleMount enabled>
+            <WorkspaceIdleMount enabled={intelReady}>
               <WorkspaceToolSuspense tool="discover" lang={lang}>
                 <LazyWorkspaceDiscoverabilityPanel
                   summary={discoverabilitySummary}
@@ -648,7 +649,7 @@ export function StudyWorkspaceToolSurface({ model }: StudyWorkspaceToolSurfacePr
             </WorkspaceIdleMount>
           )}
           {intelTab === 'concept-bus' && (
-            <WorkspaceIdleMount enabled>
+            <WorkspaceIdleMount enabled={intelReady}>
               <WorkspaceToolSuspense tool="concept-bus" lang={lang}>
                 <LazyConceptBusPanel
                   rows={conceptBusRows}
@@ -669,7 +670,7 @@ export function StudyWorkspaceToolSurface({ model }: StudyWorkspaceToolSurfacePr
             </WorkspaceIdleMount>
           )}
           {intelTab === 'weak-areas' && (
-            <WorkspaceIdleMount enabled>
+            <WorkspaceIdleMount enabled={intelReady}>
               <WorkspaceToolSuspense tool="weak-areas" lang={lang}>
                 <LazyWeakAreasFocusRail
                   spots={weakAreaSpots}

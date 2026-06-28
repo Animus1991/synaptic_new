@@ -10,7 +10,7 @@ import { buildLessonSteps } from '../lib/lessonContent';
 import { isMcQuiz } from '../lib/lessonTypes';
 import { getLessonProgress, saveLessonProgress } from '../lib/lessonProgress';
 import { useI18n } from '../lib/i18n';
-import { buildWorkspaceNoteBundle } from '../lib/workspaceNoteContent';
+import { useWorkspaceNoteBundle } from '../lib/useWorkspaceNoteBundle';
 import { generateLessonPanels, canGenerateGroundedLesson } from '../lib/lessonGenerator';
 import type { WorkspacePanel } from '../lib/workspaceLessonPanels';
 import type { Course, GlossaryEntry, UploadedFile, UserSettings } from '../types';
@@ -59,18 +59,15 @@ export function LessonView({
   const { t, lang } = useI18n();
   const lessonKey = taskId ? `lesson:${taskId}` : `lesson:${quizConcept.replace(/\s+/g, '-').toLowerCase()}`;
 
-  const noteBundle = useMemo(
-    () => buildWorkspaceNoteBundle({
-      uploadedFiles,
-      glossaryEntries,
-      courses,
-      courseId,
-      concept: quizConcept,
-      conceptBars: [],
-      lang,
-    }),
-    [uploadedFiles, glossaryEntries, courses, courseId, quizConcept, lang],
-  );
+  const noteBundle = useWorkspaceNoteBundle({
+    uploadedFiles,
+    glossaryEntries,
+    courses,
+    courseId,
+    concept: quizConcept,
+    conceptBars: [],
+    lang,
+  });
 
   const dynamicSteps = useMemo(() => {
     if (!noteBundle.hasSource) {

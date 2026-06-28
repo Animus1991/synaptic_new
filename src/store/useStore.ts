@@ -23,6 +23,8 @@ import { loadJson, saveJson } from '../lib/persistence';
 import { t } from '../lib/i18n';
 import { hydrateLibrary, loadLibrarySync, saveLibrarySync } from '../lib/libraryStorage';
 import { mergeLibraries, remoteLibraryToPersisted } from '../lib/librarySync';
+import { markWorkspaceContinue } from '../lib/workspacePerf';
+import { prefetchWorkspaceEntry } from '../lib/workspaceEntryPrefetch';
 import { fetchYoutubeTranscript } from '../lib/youtubeTranscript';
 import { fetchRemoteLibrary, fetchRemoteSession, pushRemoteSession, authMe } from '../lib/authClient';
 import {
@@ -290,6 +292,8 @@ export function useAppStore() {
   }, []);
 
   const openStudyWorkspace = useCallback((opts?: { keepTask?: boolean }) => {
+    markWorkspaceContinue();
+    prefetchWorkspaceEntry();
     cancelPendingWorkspaceClose();
     closeCompetingTaskOverlays('workspace');
 
@@ -305,6 +309,8 @@ export function useAppStore() {
   }, [cancelPendingWorkspaceClose, closeCompetingTaskOverlays]);
 
   const openStudyWorkspaceForConcept = useCallback((concept?: string) => {
+    markWorkspaceContinue();
+    prefetchWorkspaceEntry();
     cancelPendingWorkspaceClose();
     closeCompetingTaskOverlays('workspace');
     setActiveTaskId(null);
@@ -319,6 +325,8 @@ export function useAppStore() {
   }, [cancelPendingWorkspaceClose, closeCompetingTaskOverlays]);
 
   const openStudyWorkspaceForExamCountdown = useCallback(() => {
+    markWorkspaceContinue();
+    prefetchWorkspaceEntry();
     cancelPendingWorkspaceClose();
     closeCompetingTaskOverlays('workspace');
     setActiveTaskId(null);

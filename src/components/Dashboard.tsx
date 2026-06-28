@@ -23,6 +23,7 @@ import { workspaceLiveIsStale } from '../lib/workspaceStoreSpine';
 import { nextActionLabel } from '../lib/nextActionEngine';
 import type { Lang } from '../lib/i18n';
 import type { DashboardNextAction } from '../lib/dashboardNextAction';
+import { TaskActionIcon } from './ui/TaskActionIcon';
 import { courseRingColor, resolveCourseColor, accentHighlightVar } from '../lib/masteryPalette';
 import { workspaceEntryPrefetchHandlers } from '../lib/workspaceEntryPrefetch';
 import { greetingForTime, dashboardSubtitle } from '../lib/greeting';
@@ -116,6 +117,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
               <button
                 type="button"
                 onClick={onUpload}
+                data-tour="dashboard-upload"
                 className="flex items-center justify-center gap-2 px-8 py-3.5 bg-gradient-to-r from-brand-600 to-brand-500 text-white rounded-xl font-semibold text-sm hover:from-brand-500 hover:to-brand-400 transition-all"
               >
                 <Upload className="w-4 h-4" />
@@ -162,6 +164,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                 type="button"
                 onClick={onOpenWorkspace}
                 aria-busy={workspaceBooting}
+                data-tour="dashboard-workspace-cta"
                 {...workspaceEntryPrefetchHandlers()}
                 className={cn(
                   'flex items-center gap-2 px-4 py-2.5 border border-brand-500/40 text-brand-700 rounded-xl font-medium text-sm hover:bg-brand-600/10 transition-all whitespace-nowrap',
@@ -244,7 +247,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
       )}
 
       {showWorkspaceResume && (
-        <MotionSection initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+        <MotionSection initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} data-tour="dashboard-resume">
           <PlatformSection
             tone="brand"
             title={t('dashboardResumeTitle')}
@@ -369,6 +372,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                   onClick={() => onStartTask?.(task.id)}
                   className="flex items-center gap-3 p-3 rounded-xl hover:bg-surface-hover transition-all cursor-pointer group">
                   <CourseIcon icon={task.courseIcon} size="sm" colorClassName="text-brand-500 shrink-0" />
+                  <TaskActionIcon task={task} size="xs" />
                   <div className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: resolveCourseColor(task.courseColor) }} />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium truncate group-hover:text-brand-300 transition-colors">{task.title}</p>

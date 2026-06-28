@@ -32,6 +32,11 @@ import {
   buildFallbackQuizFromPassage,
   isGenericStudyConcept,
 } from './workspaceContentFallback';
+import {
+  gatherAnalyzedTextCacheKey,
+  getCachedGatheredText,
+  setCachedGatheredText,
+} from './gatherAnalyzedTextCache';
 
 /* ------------------------------------------------------------------ *
  * Source gathering & relevance
@@ -42,6 +47,10 @@ export function gatherAnalyzedText(files: UploadedFile[], courseId?: string): {
   fileNames: string[];
   hasSource: boolean;
 } {
+  const cacheKey = gatherAnalyzedTextCacheKey(files, courseId);
+  const cached = getCachedGatheredText(cacheKey);
+  if (cached) return cached;
+
   const relevant = files.filter((f) => {
     if (f.status !== 'analyzed' && f.status !== 'processing') return false;
     const body = f.extractedText?.trim();
@@ -50,11 +59,13 @@ export function gatherAnalyzedText(files: UploadedFile[], courseId?: string): {
     return true;
   });
   const text = relevant.map((f) => f.extractedText!.trim()).join('\n\n');
-  return {
+  const result = {
     text,
     fileNames: relevant.map((f) => f.name),
     hasSource: text.length >= 80,
   };
+  setCachedGatheredText(cacheKey, result);
+  return result;
 }
 
 function conceptWords(concept: string): string[] {

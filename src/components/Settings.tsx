@@ -12,6 +12,8 @@ import { GoogleIntegrationsPanel } from './GoogleIntegrationsPanel';
 import { googleAuthStartUrl } from '../lib/googleClient';
 import { loadLibrarySync } from '../lib/libraryStorage';
 import { Page, PageHeader } from './ui/primitives';
+import { WorkspaceTTIPanel } from './WorkspaceTTIPanel';
+import { useI18n } from '../lib/i18n';
 
 interface SettingsProps {
   settings: UserSettings;
@@ -21,6 +23,7 @@ interface SettingsProps {
   onPushSession?: () => Promise<unknown>;
   onSyncAccount?: () => Promise<unknown>;
   onRefreshPlan?: () => Promise<unknown>;
+  onReplayProductTour?: () => void;
 }
 
 export function Settings({
@@ -31,7 +34,9 @@ export function Settings({
   onPushSession,
   onSyncAccount,
   onRefreshPlan,
+  onReplayProductTour,
 }: SettingsProps) {
+  const { t } = useI18n();
   const [backupStatus, setBackupStatus] = useState<string | null>(null);
   const [authEmail, setAuthEmail] = useState(settings.authEmail ?? '');
   const [authPassword, setAuthPassword] = useState('');
@@ -525,6 +530,24 @@ export function Settings({
         />
         {backupStatus && (
           <p className="text-xs text-text-secondary px-1">{backupStatus}</p>
+        )}
+      </SettingsSection>
+
+      <SettingsSection title="Developer" icon={<Gauge className="w-5 h-5 text-accent-amber" />} delay={0.39}>
+        <p className="text-xs text-text-secondary">Study Workspace load timings — open a course, then review.</p>
+        <WorkspaceTTIPanel />
+        {onReplayProductTour && (
+          <div className="pt-2 border-t border-border-subtle">
+            <p className="text-xs text-text-secondary mb-2">{t('tourReplayHint')}</p>
+            <button
+              type="button"
+              onClick={onReplayProductTour}
+              data-testid="settings-replay-product-tour"
+              className="px-3 py-2 rounded-lg text-xs font-medium border border-border-subtle hover:bg-surface-hover transition-colors"
+            >
+              {t('tourReplay')}
+            </button>
+          </div>
         )}
       </SettingsSection>
       </div>

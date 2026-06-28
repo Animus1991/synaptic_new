@@ -1,6 +1,7 @@
 import { useEffect, useState, type ComponentProps } from 'react';
 import { WorkspaceBootShell } from './WorkspaceBootShell';
 import { loadStudyWorkspaceModule } from '../../lib/studyWorkspaceChunk';
+import { markWorkspaceModuleLoaded } from '../../lib/workspacePerf';
 
 type StudyWorkspaceProps = ComponentProps<
   (typeof import('./StudyWorkspace'))['StudyWorkspace']
@@ -30,7 +31,10 @@ export function StudyWorkspaceLazy({
     setLoadError(null);
     loadStudyWorkspaceModule()
       .then((mod) => {
-        if (!cancelled) setStudyWorkspace(() => mod.StudyWorkspace);
+        if (!cancelled) {
+          markWorkspaceModuleLoaded();
+          setStudyWorkspace(() => mod.StudyWorkspace);
+        }
       })
       .catch((err: unknown) => {
         if (!cancelled) {

@@ -1,42 +1,40 @@
-import { WorkspaceProvider } from './WorkspaceProvider';
-import { WorkspaceEmptyActionsProvider } from './WorkspaceEmptyActionsContext';
-import { cn } from '../../utils/cn';
-import { useStudyWorkspace } from './studyWorkspace/useStudyWorkspace';
-import { StudyWorkspaceChrome } from './studyWorkspace/StudyWorkspaceChrome';
-import { StudyWorkspaceMainLayout } from './studyWorkspace/StudyWorkspaceMainLayout';
-import { StudyWorkspaceOverlays } from './studyWorkspace/StudyWorkspaceOverlays';
+import { useEffect, useState, type ComponentType } from 'react';
 import type { StudyWorkspaceProps } from './studyWorkspace/types';
+import { WorkspaceBootShell } from './WorkspaceBootShell';
+import { markWorkspaceShellPaint } from '../../lib/workspacePerf';
+import { loadStudyWorkspaceBodyModule } from '../../lib/studyWorkspaceBodyChunk';
 
 export type { StudyWorkspaceProps } from './studyWorkspace/types';
 
+/**
+ * Thin shell — paints immediately; heavy body (useStudyWorkspace graph) loads in a second chunk.
+ */
 export function StudyWorkspace(props: StudyWorkspaceProps) {
-  const model = useStudyWorkspace(props);
+  const [Body, setBody] = useState<ComponentType<StudyWorkspaceProps> | null>(null);
+  const lang = props.userSettings?.language === 'el' ? 'el' : 'en';
 
-  return (
-    <WorkspaceProvider
-      progressKey={model.progressKey}
-      lang={model.lang}
-      courseId={model.effectiveCourseId}
-      hasSource={model.noteBundle.hasSource}
-      pipelineVersion={model.noteBundle.pipelineVersion}
-    >
-      <WorkspaceEmptyActionsProvider resolve={model.resolveEmptyActions}>
-      <div
-        data-ws-theme="warm"
-        className={cn(
-          model.agentSplit
-            ? 'relative h-full w-full bg-surface-primary flex flex-col'
-            : 'fixed inset-0 z-50 bg-surface-primary flex flex-col',
-          model.isMobile && !model.chromeHidden && 'pb-20',
-        )}
-        data-testid="study-workspace"
-        data-grounded={model.noteBundle.hasSource ? 'true' : 'false'}
-      >
-        <StudyWorkspaceChrome model={model} />
-        <StudyWorkspaceMainLayout model={model} />
-        <StudyWorkspaceOverlays model={model} />
-      </div>
-      </WorkspaceEmptyActionsProvider>
-    </WorkspaceProvider>
-  );
+  useEffect(() => {
+    markWorkspaceShellPaint();
+    let cancelled = false;
+    loadStudyWorkspaceBodyModule()
+      .then((mod) => {
+        if (!cancelled) setBody(() => mod.StudyWorkspaceBody);
+      })
+      .catch(() => undefined);
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  if (!Body) {
+    return (
+      <WorkspaceBootShell
+        compact={props.agentSplit}
+        onClose={props.onClose}
+        lang={lang}
+      />
+    );
+  }
+
+  return <Body {...props} />;
 }

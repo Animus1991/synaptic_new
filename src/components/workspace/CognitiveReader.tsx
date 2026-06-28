@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useCallback, useMemo } from 'react';
-import { Sparkles, Type, Volume2, Highlighter, Download, StickyNote, X, Languages, BookOpen, AlertTriangle } from 'lucide-react';
+import { Sparkles, Type, Volume2, Highlighter, Download, StickyNote, X, Languages, BookOpen, AlertTriangle } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
 import { repairDisplayPipeline } from '../../lib/documentTextPipeline';
 import { useI18n } from '../../lib/i18n';

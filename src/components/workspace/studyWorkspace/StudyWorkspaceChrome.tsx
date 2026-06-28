@@ -62,6 +62,7 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
     conceptLensView,
     openReaderAtConceptSection,
     handleConceptLensAction,
+    intelReady,
   } = model;
 
   return (
@@ -115,11 +116,11 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
                     </div>
                   </div>
                   <div className="space-y-1">
-                    <p className="ws-eyebrow text-[10px] text-brand-800 font-semibold truncate">
+                    <p className="ws-eyebrow type-micro text-brand-800 font-semibold truncate">
                       {courseName ?? linkedCourse?.title ?? t('courseEyebrow')}
                     </p>
                     <h1
-                      className="ws-serif text-[22px] leading-tight text-text-primary truncate"
+                      className="ws-serif type-display-sm text-text-primary truncate"
                       data-testid="workspace-header-title"
                     >
                       {displayWorkspaceStepTitle(STEPS[currentStep]?.title ?? quizConcept, quizConcept, lang)}
@@ -132,10 +133,10 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
                   <div className="ws-bento-soft p-3 flex items-center justify-between gap-2">
                     <div className="flex items-center gap-2 min-w-0">
                       <div className="flex -space-x-1 shrink-0" aria-hidden>
-                        <div className="w-6 h-6 rounded-full bg-brand-600 border-2 border-surface-secondary flex items-center justify-center text-[10px] text-white font-semibold">
+                        <div className="w-6 h-6 rounded-full bg-brand-600 border-2 border-surface-secondary flex items-center justify-center type-micro text-white font-semibold">
                           {Math.min(currentStep + 1, STEPS.length || 1)}
                         </div>
-                        <div className="w-6 h-6 rounded-full bg-brand-400 border-2 border-surface-secondary flex items-center justify-center text-[10px] text-white font-semibold">
+                        <div className="w-6 h-6 rounded-full bg-brand-400 border-2 border-surface-secondary flex items-center justify-center type-micro text-white font-semibold">
                           {STEPS.length || 7}
                         </div>
                       </div>
@@ -155,19 +156,21 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
                         type="button"
                         onClick={() => setIntelTab((tb: MobileIntelTab | null) => (tb === 'weak-areas' ? null : 'weak-areas'))}
                         aria-pressed={intelTab === 'weak-areas'}
-                        className="ws-pill"
+                        className={cn('ws-pill', !intelReady && 'animate-pulse')}
                         data-active={intelTab === 'weak-areas' || undefined}
+                        data-hydrating={!intelReady || undefined}
                       >
-                        {t('weakLabel')} ({weakAreaSpots.length})
+                        {t('weakLabel')} ({intelReady ? weakAreaSpots.length : '…'})
                       </button>
                       <button
                         type="button"
                         onClick={() => setIntelTab((tb: MobileIntelTab | null) => (tb === 'concept-bus' ? null : 'concept-bus'))}
                         aria-pressed={intelTab === 'concept-bus'}
-                        className="ws-pill"
+                        className={cn('ws-pill', !intelReady && 'animate-pulse')}
                         data-active={intelTab === 'concept-bus' || undefined}
+                        data-hydrating={!intelReady || undefined}
                       >
-                        {t('wsConceptsLabel')} ({conceptBusRows.length})
+                        {t('wsConceptsLabel')} ({intelReady ? conceptBusRows.length : '…'})
                       </button>
                     </div>
                   </div>
@@ -233,12 +236,12 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
                         {courseName ?? linkedCourse?.title ?? taskTitle ?? quizConcept}
                       </h1>
                       {(courseName || linkedCourse?.title) && taskTitle && taskTitle !== (courseName ?? linkedCourse?.title) && (
-                        <span className="hidden sm:inline-block px-2 py-0.5 rounded-md border border-border-subtle bg-surface-hover text-[10px] font-medium text-text-secondary shrink-0 truncate max-w-[140px]">
+                        <span className="hidden sm:inline-block px-2 py-0.5 rounded-md border border-border-subtle bg-surface-hover type-micro font-medium text-text-secondary shrink-0 truncate max-w-[140px]">
                           {taskTitle}
                         </span>
                       )}
                     </div>
-                    <p className="text-[10px] text-text-muted truncate mt-0.5" data-testid="workspace-header-subtitle">
+                    <p className="type-micro text-text-muted truncate mt-0.5" data-testid="workspace-header-subtitle">
                       {displayWorkspaceStepTitle(STEPS[currentStep]?.title ?? quizConcept, quizConcept, lang)}
                       {' · '}
                       {workspaceToolLabel(activeTool, lang)}
@@ -253,7 +256,7 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
                       onClick={() => setShowPalette(true)}
                       data-testid="workspace-command-palette-open"
                       title={t('wsCommandPalette')}
-                      className="hidden sm:inline-flex items-center gap-1 px-2 py-1 rounded-lg border border-border-subtle bg-surface-card hover:bg-surface-hover text-[10px] font-mono text-text-secondary hover:text-text-primary shrink-0 transition-colors"
+                      className="hidden sm:inline-flex items-center gap-1 px-2 py-1 rounded-lg border border-border-subtle bg-surface-card hover:bg-surface-hover type-micro font-mono text-text-secondary hover:text-text-primary shrink-0 transition-colors"
                     >
                       ⌘K
                     </button>
@@ -270,7 +273,7 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
                   <button onClick={() => setLayout(layout === 'zen' ? 'split' : 'zen')} className="p-1.5 rounded-lg hover:bg-surface-hover text-text-secondary hover:text-text-primary transition-colors shrink-0" title={layout === 'zen' ? t('wsExitFocus') : t('wsToggleLayout')}>
                     {layout === 'zen' ? <Minimize2 className="w-4 h-4 text-brand-800" /> : <Maximize2 className="w-4 h-4" />}
                   </button>
-                  <button onClick={handleOpenAgent} className="flex items-center gap-1 px-2.5 py-1.5 rounded-full text-[10px] font-medium border border-border-subtle bg-surface-card hover:border-brand-200 hover:bg-surface-hover text-text-secondary hover:text-text-primary shrink-0 transition-colors">
+                  <button onClick={handleOpenAgent} className="flex items-center gap-1 px-2.5 py-1.5 rounded-full type-micro font-medium border border-border-subtle bg-surface-card hover:border-brand-200 hover:bg-surface-hover text-text-secondary hover:text-text-primary shrink-0 transition-colors">
                     <Sparkles className="w-3.5 h-3.5 text-brand-800" /> {t('agentBtn')}
                   </button>
                 </div>

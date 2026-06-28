@@ -56,7 +56,7 @@ export function WorkspaceToolStrip({
         onClick={() => onSelectTool(id)}
         title={lang === 'el' ? labelEl : label}
         className={cn(
-          'inline-flex shrink-0 items-center gap-1 rounded-lg border px-2 py-1 text-[10px] font-medium transition-colors',
+          'inline-flex shrink-0 items-center gap-1 rounded-lg border px-2 py-1 type-micro font-medium transition-colors',
           active
             ? 'border-brand-400/45 bg-brand-100/80 text-brand-800 font-semibold'
             : 'border-transparent text-text-muted hover:border-border-subtle hover:bg-surface-hover hover:text-text-secondary',
@@ -86,7 +86,7 @@ export function WorkspaceToolStrip({
             onClick={() => setMoreOpen((v) => !v)}
             data-testid="workspace-tool-more"
             className={cn(
-              'inline-flex items-center gap-0.5 rounded-lg border px-2 py-1 text-[10px] font-medium transition-colors',
+              'inline-flex items-center gap-0.5 rounded-lg border px-2 py-1 type-micro font-medium transition-colors',
               secondaryActive || moreOpen
                 ? 'border-brand-400/45 bg-brand-100/80 text-brand-800 font-semibold'
                 : 'border-transparent text-text-muted hover:bg-surface-hover hover:text-text-secondary',
@@ -109,7 +109,7 @@ export function WorkspaceToolStrip({
                     setMoreOpen(false);
                   }}
                   className={cn(
-                    'flex w-full items-center gap-2 px-3 py-1.5 text-left text-[10px] hover:bg-surface-hover',
+                    'flex w-full items-center gap-2 px-3 py-1.5 text-left type-micro hover:bg-surface-hover',
                     activeTool === id ? 'bg-brand-100/80 text-brand-800 font-semibold' : 'text-text-secondary',
                   )}
                 >

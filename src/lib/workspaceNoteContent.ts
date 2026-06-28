@@ -276,13 +276,26 @@ export type BuildWorkspaceNoteBundleOpts = {
   conceptBars: { concept: string; mastery: number }[];
   lang: Lang;
   learnerModel?: LearnerModel;
-  /** Skip PMI co-occurrence + BM25 excerpt for faster first paint. */
+  /** Skip PMI/BM25 + heavy extractors for faster first paint. */
   lightweight?: boolean;
 };
 
-export function buildWorkspaceNoteBundle(opts: BuildWorkspaceNoteBundleOpts): WorkspaceNoteBundle {
-  const { uploadedFiles, glossaryEntries, courses, courseId, concept, conceptBars, lang, learnerModel, lightweight = false } = opts;
+/** Pre-gathered inputs — one text blob for shell + worker (avoids duplicate gather / clone). */
+export type WorkspaceNoteGathered = {
+  text: string;
+  fileNames: string[];
+  hasSource: boolean;
+  linkedCourseId?: string;
+  course?: Course;
+  scopedGlossary: GlossaryEntry[];
+  topics: Topic[];
+  matchingTopic?: Topic;
+  pipelineVersion?: string;
+  emptyMessage: string;
+};
 
+export function gatherWorkspaceNoteInputs(opts: BuildWorkspaceNoteBundleOpts): WorkspaceNoteGathered {
+  const { uploadedFiles, glossaryEntries, courses, courseId, concept, lang } = opts;
   const { text, fileNames, hasSource } = gatherAnalyzedText(uploadedFiles, courseId);
   const linkedCourseId =
     courseId ?? uploadedFiles.find((f) => f.extractedText?.trim() && f.courseId)?.courseId;
@@ -291,54 +304,114 @@ export function buildWorkspaceNoteBundle(opts: BuildWorkspaceNoteBundleOpts): Wo
     (g) => linkedCourseId && g.courseId === linkedCourseId,
   );
   const topics = course?.topics ?? [];
-  const matchingTopic = findMatchingTopic(topics, concept);
+  const linkedFile = uploadedFiles.find(
+    (f) => f.courseId === linkedCourseId && (f.extractedText?.trim().length ?? 0) > 0,
+  );
+  return {
+    text,
+    fileNames,
+    hasSource,
+    linkedCourseId,
+    course,
+    scopedGlossary,
+    topics,
+    matchingTopic: findMatchingTopic(topics, concept),
+    pipelineVersion: linkedFile?.pipelineVersion ?? course?.pipelineMeta?.version,
+    emptyMessage: workspaceNoSourceMessage(lang),
+  };
+}
 
-  const emptyMessage = workspaceNoSourceMessage(lang);
+/**
+ * Instant metadata-only gather — skips joining large extractedText blobs (1C defer path).
+ */
+export function buildPendingWorkspaceNoteGathered(opts: BuildWorkspaceNoteBundleOpts): WorkspaceNoteGathered {
+  const { uploadedFiles, glossaryEntries, courses, courseId, concept, lang } = opts;
+  const linkedCourseId =
+    courseId ?? uploadedFiles.find((f) => f.extractedText?.trim() && f.courseId)?.courseId;
+  const course = linkedCourseId ? courses.find((c) => c.id === linkedCourseId) : undefined;
+  const scopedGlossary = glossaryEntries.filter(
+    (g) => linkedCourseId && g.courseId === linkedCourseId,
+  );
+  const topics = course?.topics ?? [];
+  const linkedFile = uploadedFiles.find(
+    (f) => f.courseId === linkedCourseId && (f.extractedText?.trim().length ?? 0) > 0,
+  );
+  const hasLikelySource = uploadedFiles.some((f) => {
+    if (f.status !== 'analyzed' && f.status !== 'processing') return false;
+    const body = f.extractedText?.trim();
+    if (!body || body.length < 80) return false;
+    if (courseId && f.courseId && f.courseId !== courseId) return false;
+    return true;
+  });
+  return {
+    text: '',
+    fileNames: linkedFile ? [linkedFile.name] : [],
+    hasSource: hasLikelySource,
+    linkedCourseId,
+    course,
+    scopedGlossary,
+    topics,
+    matchingTopic: findMatchingTopic(topics, concept),
+    pipelineVersion: linkedFile?.pipelineVersion ?? course?.pipelineMeta?.version,
+    emptyMessage: workspaceNoSourceMessage(lang),
+  };
+}
+
+function emptyWorkspaceNoteBundle(concept: string, lang: Lang, emptyMessage: string): WorkspaceNoteBundle {
+  return {
+    hasSource: false,
+    sourceName: '',
+    fileKey: 'no-source',
+    sourceFullText: '',
+    readerText: '',
+    annotationText: '',
+    conceptMap: { nodes: [], edges: [] },
+    leitnerCards: [],
+    compareRows: [],
+    formulas: [],
+    debateTree: null,
+    feynmanOutline: [
+      t('feynmanNoSourceOutline1', lang).replace('{concept}', concept),
+      t('feynmanNoSourceOutline2', lang),
+    ],
+    feynmanGaps: [t('feynmanNoSourceGap', lang)],
+    feynmanGapTerms: [],
+    feynmanPlaceholder: t('feynmanNoSourcePlaceholder', lang).replace('{concept}', concept),
+    workspaceSteps: null,
+    quiz: null,
+    economicsSandbox: false,
+    numericCues: [],
+    sandboxInsight: '',
+    matchingTopic: undefined,
+    courseTitle: undefined,
+    emptyMessage,
+    sourceIntelligence: null,
+    documentStructure: null,
+    pipelineVersion: undefined,
+  };
+}
+
+/** Build bundle from pre-gathered text (shell on main thread, full bundle in worker). */
+export function buildWorkspaceNoteBundleFromGathered(
+  gathered: WorkspaceNoteGathered,
+  opts: Pick<BuildWorkspaceNoteBundleOpts, 'concept' | 'conceptBars' | 'lang' | 'learnerModel'>,
+  lightweight = false,
+): WorkspaceNoteBundle {
+  const { concept, conceptBars, lang, learnerModel } = opts;
+  const {
+    text, fileNames, hasSource, course, topics, matchingTopic, scopedGlossary,
+    pipelineVersion, emptyMessage, linkedCourseId,
+  } = gathered;
 
   if (!hasSource) {
-    return {
-      hasSource: false,
-      sourceName: '',
-      fileKey: 'no-source',
-      sourceFullText: '',
-      readerText: '',
-      annotationText: '',
-      conceptMap: { nodes: [], edges: [] },
-      leitnerCards: [],
-      compareRows: [],
-      formulas: [],
-      debateTree: null,
-      feynmanOutline: [
-        t('feynmanNoSourceOutline1', lang).replace('{concept}', concept),
-        t('feynmanNoSourceOutline2', lang),
-      ],
-      feynmanGaps: [t('feynmanNoSourceGap', lang)],
-      feynmanGapTerms: [],
-      feynmanPlaceholder: t('feynmanNoSourcePlaceholder', lang).replace('{concept}', concept),
-      workspaceSteps: null,
-      quiz: null,
-      economicsSandbox: false,
-      numericCues: [],
-      sandboxInsight: '',
-      matchingTopic: undefined,
-      courseTitle: undefined,
-      emptyMessage,
-      sourceIntelligence: null,
-      documentStructure: null,
-      pipelineVersion: undefined,
-    };
+    return emptyWorkspaceNoteBundle(concept, lang, emptyMessage);
   }
 
-  const documentStructure = lightweight ? null : analyzeDocumentStructure(text, lang);
   const sourceFullText = text;
   const readerText = lightweight ? text.slice(0, 12000) : relevantExcerpt(text, concept, 12000);
   const annotationText = lightweight ? text.slice(0, 16000) : relevantExcerpt(text, concept, 16000);
   const sourceName = fileNames.join(', ') || course?.title || 'Your notes';
-  const fileKey = fileNames[0] ?? courseId ?? 'notes';
-  const linkedFile = uploadedFiles.find(
-    (f) => f.courseId === linkedCourseId && (f.extractedText?.trim().length ?? 0) > 0,
-  );
-  const pipelineVersion = linkedFile?.pipelineVersion ?? course?.pipelineMeta?.version;
+  const fileKey = fileNames[0] ?? linkedCourseId ?? 'notes';
 
   const conceptMap = buildConceptMapFromCourse(
     topics,
@@ -347,14 +420,47 @@ export function buildWorkspaceNoteBundle(opts: BuildWorkspaceNoteBundleOpts): Wo
     concept,
     lightweight ? undefined : text,
   );
+
+  if (lightweight) {
+    return {
+      hasSource: true,
+      sourceName,
+      fileKey,
+      sourceFullText,
+      readerText,
+      annotationText,
+      conceptMap,
+      leitnerCards: [],
+      compareRows: [],
+      formulas: [],
+      debateTree: null,
+      feynmanOutline: matchingTopic
+        ? [matchingTopic.title, matchingTopic.description ?? ''].filter(Boolean)
+        : [concept],
+      feynmanGaps: [],
+      feynmanGapTerms: [],
+      feynmanPlaceholder: t('feynmanExplainPlaceholder', lang).replace('{concept}', concept),
+      workspaceSteps: null,
+      quiz: null,
+      economicsSandbox: false,
+      numericCues: [],
+      sandboxInsight: '',
+      matchingTopic,
+      courseTitle: course?.title,
+      emptyMessage,
+      sourceIntelligence: null,
+      documentStructure: null,
+      pipelineVersion,
+    };
+  }
+
+  const documentStructure = analyzeDocumentStructure(text, lang);
   const leitnerFromNotes = buildFlashcards(text, concept, scopedGlossary, lang);
   const compareRows = extractComparisons(text, concept, scopedGlossary);
   const formulas = extractFormulas(text, concept);
   const workspaceSteps = buildWorkspaceStepsFromNotes(text, concept, lang);
   const quiz = buildQuizFromNotes(text, concept, scopedGlossary, lang);
-  const sourceIntelligence = lightweight
-    ? null
-    : buildWorkspaceSourceIntelligence({
+  const sourceIntelligence = buildWorkspaceSourceIntelligence({
     text,
     concept,
     glossary: scopedGlossary,
@@ -368,7 +474,6 @@ export function buildWorkspaceNoteBundle(opts: BuildWorkspaceNoteBundleOpts): Wo
     documentStructure,
   });
 
-  // Merge FSRS spacing cards that match the concept, but only if they exist in learner model.
   const spacingCards = (learnerModel?.spacingIntervals ?? [])
     .filter((s) => s.concept.toLowerCase().includes(concept.toLowerCase().slice(0, 5))
       || concept.toLowerCase().includes(s.concept.toLowerCase().slice(0, 5)))
@@ -410,4 +515,9 @@ export function buildWorkspaceNoteBundle(opts: BuildWorkspaceNoteBundleOpts): Wo
     documentStructure,
     pipelineVersion,
   };
+}
+
+export function buildWorkspaceNoteBundle(opts: BuildWorkspaceNoteBundleOpts): WorkspaceNoteBundle {
+  const gathered = gatherWorkspaceNoteInputs(opts);
+  return buildWorkspaceNoteBundleFromGathered(gathered, opts, opts.lightweight ?? false);
 }

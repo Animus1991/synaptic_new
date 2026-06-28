@@ -140,6 +140,18 @@ import {
 } from '../../../lib/authClient';
 import type { StoredAnnotation } from '../../../lib/annotationStore';
 import { preloadPrimaryWorkspaceTools, preloadWorkspaceToolChunks } from '../../../lib/preloadWorkspaceToolChunks';
+import { useWorkspaceIntelHydration } from '../../../lib/useWorkspaceIntelHydration';
+import { markWorkspaceIntelReady } from '../../../lib/workspacePerf';
+import {
+  workspaceIntelActive,
+  EMPTY_CONCEPT_BUS_INSIGHTS,
+  EMPTY_READER_HEAT_SYNC,
+  EMPTY_READER_ACTIVE_STEP_SYNC,
+  EMPTY_LEITNER_SESSION,
+  EMPTY_QUIZ_SESSION,
+  stubConceptLensView,
+  stubWorkspaceCorrelation,
+} from '../../../lib/workspaceIntelStubs';
 
 import { useState, useRef, useCallback, useEffect, useMemo, useDeferredValue } from 'react';
 import type { CommandItem } from '../CommandPalette';
@@ -190,7 +202,12 @@ export function useStudyWorkspace({
   onConsumeWorkspaceOpenTool,
 }: StudyWorkspaceProps) {
   const { t, lang } = useI18n();
+  const intelReady = useWorkspaceIntelHydration();
   const progressKey = taskId ? `task:${taskId}` : `concept:${quizConcept}`;
+
+  useEffect(() => {
+    if (intelReady) markWorkspaceIntelReady();
+  }, [intelReady]);
 
   const [activeTool, setActiveTool] = useState<WorkspaceTool>(initialTool);
   // Initialize from current viewport so mobile users land directly on the lesson
@@ -377,6 +394,7 @@ export function useStudyWorkspace({
   const showLowQualityBanner = qualityBannerDecision.show;
 
   const sourceTextHygiene = useMemo(() => {
+    if (!intelReady) return null;
     const fromCourse = linkedCourse?.sourceQuality?.metrics;
     if (fromCourse?.textHygieneScore != null || fromCourse?.textCorruptionScore != null) {
       return {
@@ -393,7 +411,7 @@ export function useStudyWorkspace({
       corruptionScore: report.corruptionScore,
       flags: report.flags,
     };
-  }, [linkedCourse?.sourceQuality?.metrics, noteBundle.sourceFullText]);
+  }, [intelReady, linkedCourse?.sourceQuality?.metrics, noteBundle.sourceFullText]);
 
   /** Report a real cross-tool concept interaction via unified learning event path (§2.2). */
   const noteConceptActivity = useCallback(
@@ -459,27 +477,32 @@ export function useStudyWorkspace({
   );
 
   const conceptBusInsights = useMemo(() => {
+    if (!intelReady) return EMPTY_CONCEPT_BUS_INSIGHTS;
     const all: ConceptBusMap = { ...(loadAllConceptBuses() as ConceptBusMap), [progressKey]: conceptBus };
     return collectConceptBusInsights(all, (c) => resolveConceptMastery(c, conceptBars));
-  }, [conceptBus, progressKey, conceptBars]);
+  }, [intelReady, conceptBus, progressKey, conceptBars]);
 
   const conceptBusRows = useMemo(
-    () => buildConceptBusRows(conceptBus, deferredFocusTerm || deferredConcept),
-    [conceptBus, deferredFocusTerm, deferredConcept],
+    () => (intelReady
+      ? buildConceptBusRows(conceptBus, deferredFocusTerm || deferredConcept)
+      : []),
+    [intelReady, conceptBus, deferredFocusTerm, deferredConcept],
   );
 
   const weakAreaSpots = useMemo(
-    () => enrichWeakSpotsWithReasons(
-      selectWeakConcepts(learnerModel, conceptBusInsights, conceptBus, courseName),
-      conceptBus,
-      lang,
-    ),
-    [learnerModel, conceptBusInsights, conceptBus, courseName, lang],
+    () => (intelReady
+      ? enrichWeakSpotsWithReasons(
+        selectWeakConcepts(learnerModel, conceptBusInsights, conceptBus, courseName),
+        conceptBus,
+        lang,
+      )
+      : []),
+    [intelReady, learnerModel, conceptBusInsights, conceptBus, courseName, lang],
   );
 
   const spacedStepsDue = useMemo(
-    () => countSpacedStepReviewsDue(loadAllStepSchedules()),
-    [currentStep, progressKey],
+    () => (intelReady ? countSpacedStepReviewsDue(loadAllStepSchedules()) : 0),
+    [intelReady, currentStep, progressKey],
   );
 
   const quizIrtState = useMemo(
@@ -710,86 +733,104 @@ export function useStudyWorkspace({
   }, [noteBundle.hasSource, noteBundle.workspaceSteps, quizConcept, lang]);
 
   const masteryOrderedSteps = useMemo(() => {
+    if (!intelReady) return rawSteps;
     if (!noteBundle.hasSource || rawSteps.length <= 2) return rawSteps;
     return orderStepsByMastery(rawSteps, quizConcept, conceptMastery, conceptBars);
-  }, [rawSteps, noteBundle.hasSource, quizConcept, conceptMastery, conceptBars]);
+  }, [intelReady, rawSteps, noteBundle.hasSource, quizConcept, conceptMastery, conceptBars]);
 
-  const stepSchedule = useMemo(() => loadStepSchedule(progressKey), [progressKey]);
+  const stepSchedule = useMemo(
+    () => (intelReady ? loadStepSchedule(progressKey) : {}),
+    [intelReady, progressKey],
+  );
 
   const { steps: STEPS, dueIndices: dueStepIndices } = useMemo(() => {
+    if (!intelReady) {
+      return { steps: rawSteps, dueIndices: [] as number[] };
+    }
     if (!noteBundle.hasSource || masteryOrderedSteps.length <= 2) {
       return { steps: masteryOrderedSteps, dueIndices: [] as number[] };
     }
     return applySpacedStepBoost(masteryOrderedSteps, stepSchedule);
-  }, [masteryOrderedSteps, stepSchedule, noteBundle.hasSource]);
+  }, [intelReady, masteryOrderedSteps, stepSchedule, noteBundle.hasSource, rawSteps]);
 
   useEffect(() => {
     sectionTitleRef.current = STEPS[currentStep]?.title;
   }, [STEPS, currentStep]);
 
   const leitnerSession = useMemo(
-    () => buildLeitnerSessionContent({
-      text: noteBundle.sourceFullText,
-      concept: deferredConcept,
-      glossary: scopedGlossary,
-      lang,
-      sectionLabel: STEPS[deferredStep]?.title,
-      hasSource: noteBundle.hasSource,
-      spacingIntervals: learnerModel?.spacingIntervals ?? [],
-      customCards: customLeitnerCards,
-    }),
+    () => {
+      if (!workspaceIntelActive(intelReady, activeTool, 'leitner')) return EMPTY_LEITNER_SESSION;
+      return buildLeitnerSessionContent({
+        text: noteBundle.sourceFullText,
+        concept: deferredConcept,
+        glossary: scopedGlossary,
+        lang,
+        sectionLabel: STEPS[deferredStep]?.title,
+        hasSource: noteBundle.hasSource,
+        spacingIntervals: learnerModel?.spacingIntervals ?? [],
+        customCards: customLeitnerCards,
+      });
+    },
     [
-      noteBundle.sourceFullText, noteBundle.hasSource, deferredConcept, scopedGlossary,
+      intelReady, activeTool, noteBundle.sourceFullText, noteBundle.hasSource, deferredConcept, scopedGlossary,
       lang, STEPS, deferredStep, learnerModel?.spacingIntervals, customLeitnerCards,
     ],
   );
 
   const leitnerDueCount = useMemo(() => {
+    if (!intelReady && activeTool !== 'leitner' && activeTool !== 'dashboard') return 0;
     if (!noteBundle.hasSource || leitnerSession.cards.length === 0) return 0;
     return orderDeckByDueQueue(
       leitnerSession.cards,
       learnerModel?.spacingIntervals ?? [],
       quizConcept,
     ).dueCount;
-  }, [leitnerSession.cards, noteBundle.hasSource, learnerModel?.spacingIntervals, quizConcept]);
+  }, [intelReady, activeTool, leitnerSession.cards, noteBundle.hasSource, learnerModel?.spacingIntervals, quizConcept]);
 
   const readerStepToSegmentIndex = useMemo(() => {
+    if (!intelReady && activeTool !== 'reader') return {};
     const source = noteBundle.sourceFullText?.trim();
     if (!source || !noteBundle.hasSource) return {};
     return buildStepToSegmentMap(STEPS, source);
-  }, [noteBundle.sourceFullText, noteBundle.hasSource, STEPS]);
+  }, [intelReady, activeTool, noteBundle.sourceFullText, noteBundle.hasSource, STEPS]);
 
   const readerStepSegmentIndex = useMemo(() => {
+    if (!intelReady && activeTool !== 'reader') return null;
     if (readerStepToSegmentIndex[currentStep] != null) return readerStepToSegmentIndex[currentStep]!;
     const source = noteBundle.sourceFullText?.trim();
     if (!source || !noteBundle.hasSource) return null;
     return resolveStepToReaderSegment(currentStep, STEPS, source);
-  }, [readerStepToSegmentIndex, currentStep, noteBundle.sourceFullText, noteBundle.hasSource, STEPS]);
+  }, [intelReady, activeTool, readerStepToSegmentIndex, currentStep, noteBundle.sourceFullText, noteBundle.hasSource, STEPS]);
 
   const readerHeatSyncReport = useMemo(
-    () => auditReaderHeatmapStepSync({
-      steps: STEPS,
-      sourceText: noteBundle.sourceFullText ?? '',
-      conceptBus,
-      primaryConcept: quizConcept,
-      stepMarks,
-      currentStep,
-    }),
-    [STEPS, noteBundle.sourceFullText, conceptBus, quizConcept, stepMarks, currentStep],
+    () => (intelReady
+      ? auditReaderHeatmapStepSync({
+        steps: STEPS,
+        sourceText: noteBundle.sourceFullText ?? '',
+        conceptBus,
+        primaryConcept: quizConcept,
+        stepMarks,
+        currentStep,
+      })
+      : EMPTY_READER_HEAT_SYNC),
+    [intelReady, STEPS, noteBundle.sourceFullText, conceptBus, quizConcept, stepMarks, currentStep],
   );
 
   const readerActiveStepSync = useMemo(
-    () => activeStepHeatSyncSummary(readerHeatSyncReport, currentStep),
-    [readerHeatSyncReport, currentStep],
+    () => (intelReady
+      ? activeStepHeatSyncSummary(readerHeatSyncReport, currentStep)
+      : EMPTY_READER_ACTIVE_STEP_SYNC),
+    [intelReady, readerHeatSyncReport, currentStep],
   );
 
   const readerStepHeatLevels = useMemo(() => {
+    if (!intelReady) return {};
     const levels: Record<number, ReaderHeatmapLevel> = {};
     for (const row of readerHeatSyncReport.steps) {
       if (row.heatLevel !== 'none') levels[row.stepIndex] = row.heatLevel;
     }
     return levels;
-  }, [readerHeatSyncReport]);
+  }, [intelReady, readerHeatSyncReport]);
 
   const selectWorkspaceStep = useCallback((i: number, opts?: { focusReader?: boolean }) => {
     setCurrentStep(i);
@@ -1066,29 +1107,53 @@ export function useStudyWorkspace({
   }, [progressKey, notes]);
 
   const workspaceCorrelation = useMemo(
-    () => buildWorkspaceCorrelation({
-      progressKey,
-      concept: quizConcept,
-      conceptMastery,
-      courseId: effectiveCourseId,
-      focusTerm: effectiveFocus?.term,
-      stepIndex: currentStep,
-      stepCount: STEPS.length,
-      currentStep: STEPS[currentStep],
-      glossaryCount: scopedGlossary.length,
-      compareRowCount: noteBundle.compareRows.length,
-      dueStepIndices,
-      annotationSyncVersion,
-      leitnerDueCount,
-      timerExamTarget: timerExamTarget ?? undefined,
-      quizAbility: quizIrtState.ability,
-      quizTargetDifficulty: targetQuizDifficulty(quizIrtState.ability, conceptMastery),
-      sandboxTopSensitivityCue,
-    }),
-    [progressKey, quizConcept, conceptMastery, effectiveCourseId, effectiveFocus?.term, currentStep, STEPS, scopedGlossary.length, noteBundle.compareRows.length, dueStepIndices, annotationSyncVersion, leitnerDueCount, timerExamTarget, quizIrtState.ability, sandboxTopSensitivityCue],
+    () => {
+      if (!intelReady) {
+        return stubWorkspaceCorrelation({
+          progressKey,
+          concept: quizConcept,
+          conceptMastery,
+          courseId: effectiveCourseId,
+          focusTerm: effectiveFocus?.term,
+          stepIndex: currentStep,
+          stepCount: STEPS.length,
+          glossaryCount: scopedGlossary.length,
+          compareRowCount: noteBundle.compareRows.length,
+          annotationSyncVersion,
+          quizAbility: quizIrtState.ability,
+        });
+      }
+      return buildWorkspaceCorrelation({
+        progressKey,
+        concept: quizConcept,
+        conceptMastery,
+        courseId: effectiveCourseId,
+        focusTerm: effectiveFocus?.term,
+        stepIndex: currentStep,
+        stepCount: STEPS.length,
+        currentStep: STEPS[currentStep],
+        glossaryCount: scopedGlossary.length,
+        compareRowCount: noteBundle.compareRows.length,
+        dueStepIndices,
+        annotationSyncVersion,
+        leitnerDueCount,
+        timerExamTarget: timerExamTarget ?? undefined,
+        quizAbility: quizIrtState.ability,
+        quizTargetDifficulty: targetQuizDifficulty(quizIrtState.ability, conceptMastery),
+        sandboxTopSensitivityCue,
+      });
+    },
+    [intelReady, progressKey, quizConcept, conceptMastery, effectiveCourseId, effectiveFocus?.term, currentStep, STEPS, scopedGlossary.length, noteBundle.compareRows.length, dueStepIndices, annotationSyncVersion, leitnerDueCount, timerExamTarget, quizIrtState.ability, sandboxTopSensitivityCue],
   );
 
   const quizDef = useMemo(() => {
+    if (!workspaceIntelActive(intelReady, activeTool, 'quiz')) {
+      return {
+        question: t('wsQuizUploadPrompt').replace('{concept}', quizConcept),
+        options: ['- - -', '- - -', '- - -', '- - -'],
+        correctIndex: 0,
+      };
+    }
     if (noteBundle.hasSource) {
       const adaptive = buildAdaptiveQuizFromNotes(
         noteBundle.annotationText,
@@ -1106,36 +1171,43 @@ export function useStudyWorkspace({
       options: ['- - -', '- - -', '- - -', '- - -'],
       correctIndex: 0,
     };
-  }, [noteBundle.hasSource, noteBundle.annotationText, noteBundle.quiz, quizConcept, scopedGlossary, lang, quizIrtState.ability, conceptMastery]);
+  }, [intelReady, activeTool, noteBundle.hasSource, noteBundle.annotationText, noteBundle.quiz, quizConcept, scopedGlossary, lang, quizIrtState.ability, conceptMastery, t]);
 
   const quizIrtDisplay = useMemo(() => {
+    if (!workspaceIntelActive(intelReady, activeTool, 'quiz')) return undefined;
     if (!noteBundle.hasSource) return undefined;
     return buildQuizIrtDisplay(quizDef, quizConcept, quizIrtState.ability, conceptMastery);
-  }, [noteBundle.hasSource, quizDef, quizConcept, quizIrtState.ability, conceptMastery]);
+  }, [intelReady, activeTool, noteBundle.hasSource, quizDef, quizConcept, quizIrtState.ability, conceptMastery]);
 
   const quizSession = useMemo(
-    () => buildQuizSessionContent({
-      text: noteBundle.annotationText,
-      concept: quizConcept,
-      glossary: scopedGlossary,
-      lang,
-      ability: quizIrtState.ability,
-      mastery: conceptMastery,
-      sectionLabel: STEPS[currentStep]?.title,
-      hasSource: noteBundle.hasSource,
-      count: 3,
-    }),
+    () => {
+      if (!workspaceIntelActive(intelReady, activeTool, 'quiz')) {
+        return EMPTY_QUIZ_SESSION;
+      }
+      return buildQuizSessionContent({
+        text: noteBundle.annotationText,
+        concept: quizConcept,
+        glossary: scopedGlossary,
+        lang,
+        ability: quizIrtState.ability,
+        mastery: conceptMastery,
+        sectionLabel: STEPS[currentStep]?.title,
+        hasSource: noteBundle.hasSource,
+        count: 3,
+      });
+    },
     [
-      noteBundle.hasSource, noteBundle.annotationText, quizConcept, scopedGlossary,
+      intelReady, activeTool, noteBundle.hasSource, noteBundle.annotationText, quizConcept, scopedGlossary,
       lang, quizIrtState.ability, conceptMastery, STEPS, currentStep,
     ],
   );
 
   const quizSessionIrt = useMemo(() => {
+    if (!workspaceIntelActive(intelReady, activeTool, 'quiz')) return undefined;
     const first = quizSession.items[0];
     if (!first || !noteBundle.hasSource) return undefined;
     return buildQuizIrtDisplay(first.quiz, quizConcept, quizIrtState.ability, conceptMastery);
-  }, [quizSession.items, noteBundle.hasSource, quizConcept, quizIrtState.ability, conceptMastery]);
+  }, [intelReady, activeTool, quizSession.items, noteBundle.hasSource, quizConcept, quizIrtState.ability, conceptMastery]);
 
   const discoverabilityActions = useMemo(() => ({
     'open-reader-focus': () => openReaderForTerm(effectiveFocus?.term ?? quizConcept, 'reader'),
@@ -1166,6 +1238,12 @@ export function useStudyWorkspace({
   }, [userSettings, effectiveCourseId, quizConcept]);
 
   const conceptNodes = useMemo(() => {
+    if (!workspaceIntelActive(intelReady, activeTool, 'concept-map')) {
+      const fallback = quizConcept
+        ? [{ id: '1', label: quizConcept, type: 'concept' as const, x: 200, y: 150, mastery: 0 }]
+        : [];
+      return fallback;
+    }
     const base = noteBundle.conceptMap.nodes;
     const fallback = base.length === 0 && quizConcept
       ? [{ id: '1', label: quizConcept, type: 'concept' as const, x: 200, y: 150, mastery: 0 }]
@@ -1173,13 +1251,16 @@ export function useStudyWorkspace({
     const saved = loadConceptMapGraph(progressKey);
     const merged = mergeConceptMapGraph(fallback, noteBundle.conceptMap.edges, saved);
     return loadConceptMapPositions(merged.nodes, progressKey);
-  }, [noteBundle.conceptMap.nodes, noteBundle.conceptMap.edges, quizConcept, progressKey]);
+  }, [intelReady, activeTool, noteBundle.conceptMap.nodes, noteBundle.conceptMap.edges, quizConcept, progressKey]);
 
   const conceptEdges = useMemo(() => {
+    if (!workspaceIntelActive(intelReady, activeTool, 'concept-map')) {
+      return noteBundle.conceptMap.edges;
+    }
     const saved = loadConceptMapGraph(progressKey);
     const merged = mergeConceptMapGraph(noteBundle.conceptMap.nodes, noteBundle.conceptMap.edges, saved);
     return merged.edges;
-  }, [noteBundle.conceptMap.nodes, noteBundle.conceptMap.edges, progressKey]);
+  }, [intelReady, activeTool, noteBundle.conceptMap.nodes, noteBundle.conceptMap.edges, progressKey]);
 
   const workspaceContext = useMemo(
     () => selectWorkspaceContext({
@@ -1283,15 +1364,27 @@ export function useStudyWorkspace({
   );
 
   const discoverabilitySummary = useMemo(
-    () => buildDiscoverabilitySummary(
-      noteBundle.hasSource,
-      sourceIntelligence,
-      workspaceCorrelation,
-      activeTool,
-      lang,
-      nextActionRecommendation,
-    ),
-    [noteBundle.hasSource, sourceIntelligence, workspaceCorrelation, activeTool, lang, nextActionRecommendation],
+    () => {
+      if (!intelReady) {
+        return buildDiscoverabilitySummary(
+          noteBundle.hasSource,
+          null,
+          workspaceCorrelation,
+          activeTool,
+          lang,
+          null,
+        );
+      }
+      return buildDiscoverabilitySummary(
+        noteBundle.hasSource,
+        sourceIntelligence,
+        workspaceCorrelation,
+        activeTool,
+        lang,
+        nextActionRecommendation,
+      );
+    },
+    [intelReady, noteBundle.hasSource, sourceIntelligence, workspaceCorrelation, activeTool, lang, nextActionRecommendation],
   );
 
   useEffect(() => {
@@ -1356,116 +1449,213 @@ export function useStudyWorkspace({
   }, [nextActionRecommendation, openReprocessWizard, handleLearningAction]);
 
   const feynmanSession = useMemo(
-    () => buildFeynmanSessionContent({
-      concept: quizConcept,
-      text: noteBundle.sourceFullText,
-      lang,
-      topic: noteBundle.matchingTopic,
-      glossary: scopedGlossary,
-      sectionLabel: STEPS[currentStep]?.title,
-      hasSource: noteBundle.hasSource,
-    }),
+    () => {
+      if (!workspaceIntelActive(intelReady, activeTool, 'feynman')) {
+        return buildFeynmanSessionContent({
+          concept: quizConcept,
+          text: '',
+          lang,
+          glossary: scopedGlossary,
+          hasSource: false,
+        });
+      }
+      return buildFeynmanSessionContent({
+        concept: quizConcept,
+        text: noteBundle.sourceFullText,
+        lang,
+        topic: noteBundle.matchingTopic,
+        glossary: scopedGlossary,
+        sectionLabel: STEPS[currentStep]?.title,
+        hasSource: noteBundle.hasSource,
+      });
+    },
     [
-      quizConcept, noteBundle.sourceFullText, noteBundle.matchingTopic,
+      intelReady, activeTool, quizConcept, noteBundle.sourceFullText, noteBundle.matchingTopic,
       noteBundle.hasSource, scopedGlossary, lang, STEPS, currentStep,
     ],
   );
 
   const compareSession = useMemo(
-    () => buildCompareSessionContent({
-      concept: quizConcept,
-      text: noteBundle.sourceFullText,
-      glossary: scopedGlossary,
-      sectionLabel: STEPS[currentStep]?.title,
-      hasSource: noteBundle.hasSource,
-      lang,
-    }),
+    () => {
+      if (!workspaceIntelActive(intelReady, activeTool, 'compare')) {
+        return buildCompareSessionContent({
+          concept: quizConcept,
+          text: '',
+          glossary: scopedGlossary,
+          hasSource: false,
+          lang,
+        });
+      }
+      return buildCompareSessionContent({
+        concept: quizConcept,
+        text: noteBundle.sourceFullText,
+        glossary: scopedGlossary,
+        sectionLabel: STEPS[currentStep]?.title,
+        hasSource: noteBundle.hasSource,
+        lang,
+      });
+    },
     [
-      quizConcept, noteBundle.sourceFullText, noteBundle.hasSource,
+      intelReady, activeTool, quizConcept, noteBundle.sourceFullText, noteBundle.hasSource,
       scopedGlossary, STEPS, currentStep, lang,
     ],
   );
 
   const debateSession = useMemo(
-    () => buildDebateSessionContent({
-      concept: quizConcept,
-      text: noteBundle.sourceFullText,
-      sectionLabel: STEPS[currentStep]?.title,
-      hasSource: noteBundle.hasSource,
-    }),
-    [quizConcept, noteBundle.sourceFullText, noteBundle.hasSource, STEPS, currentStep],
+    () => {
+      if (!workspaceIntelActive(intelReady, activeTool, 'debate')) {
+        return buildDebateSessionContent({
+          concept: quizConcept,
+          text: '',
+          hasSource: false,
+        });
+      }
+      return buildDebateSessionContent({
+        concept: quizConcept,
+        text: noteBundle.sourceFullText,
+        sectionLabel: STEPS[currentStep]?.title,
+        hasSource: noteBundle.hasSource,
+      });
+    },
+    [intelReady, activeTool, quizConcept, noteBundle.sourceFullText, noteBundle.hasSource, STEPS, currentStep],
   );
 
   const simulatorSession = useMemo(
-    () => buildSimulatorSessionContent({
-      concept: quizConcept,
-      text: noteBundle.sourceFullText,
-      lang,
-      sectionLabel: STEPS[currentStep]?.title,
-      hasSource: noteBundle.hasSource,
-      scopeKey: progressKey,
-      conceptMastery: workspaceCorrelation.conceptMastery,
-      daysToExam: workspaceDaysToExam,
-    }),
-    [quizConcept, noteBundle.sourceFullText, noteBundle.hasSource, lang, STEPS, currentStep, progressKey, workspaceCorrelation.conceptMastery, workspaceDaysToExam],
+    () => {
+      if (!workspaceIntelActive(intelReady, activeTool, 'simulator')) {
+        return buildSimulatorSessionContent({
+          concept: quizConcept,
+          text: '',
+          lang,
+          hasSource: false,
+          scopeKey: progressKey,
+          conceptMastery: workspaceCorrelation.conceptMastery,
+          daysToExam: workspaceDaysToExam,
+        });
+      }
+      return buildSimulatorSessionContent({
+        concept: quizConcept,
+        text: noteBundle.sourceFullText,
+        lang,
+        sectionLabel: STEPS[currentStep]?.title,
+        hasSource: noteBundle.hasSource,
+        scopeKey: progressKey,
+        conceptMastery: workspaceCorrelation.conceptMastery,
+        daysToExam: workspaceDaysToExam,
+      });
+    },
+    [intelReady, activeTool, quizConcept, noteBundle.sourceFullText, noteBundle.hasSource, lang, STEPS, currentStep, progressKey, workspaceCorrelation.conceptMastery, workspaceDaysToExam],
   );
 
   const whiteboardSession = useMemo(
-    () => buildWhiteboardSessionContent({
-      concept: quizConcept,
-      text: noteBundle.sourceFullText,
-      lang,
-      sectionLabel: STEPS[currentStep]?.title,
-      hasSource: noteBundle.hasSource,
-    }),
-    [quizConcept, noteBundle.sourceFullText, noteBundle.hasSource, lang, STEPS, currentStep],
+    () => {
+      if (!workspaceIntelActive(intelReady, activeTool, 'whiteboard')) {
+        return buildWhiteboardSessionContent({
+          concept: quizConcept,
+          text: '',
+          lang,
+          hasSource: false,
+        });
+      }
+      return buildWhiteboardSessionContent({
+        concept: quizConcept,
+        text: noteBundle.sourceFullText,
+        lang,
+        sectionLabel: STEPS[currentStep]?.title,
+        hasSource: noteBundle.hasSource,
+      });
+    },
+    [intelReady, activeTool, quizConcept, noteBundle.sourceFullText, noteBundle.hasSource, lang, STEPS, currentStep],
   );
 
   const timerSession = useMemo(
-    () => buildTimerSessionContent({
-      concept: quizConcept,
-      stepLabel: STEPS[currentStep]?.title,
-      stepIndex: currentStep,
-      sectionLabel: STEPS[currentStep]?.title,
-      lang,
-      hasSource: noteBundle.hasSource,
-      conceptMastery: workspaceCorrelation.conceptMastery,
-      scopeKey: progressKey,
-      leitnerDueCount,
-      settingsExamDate: userSettings?.examDate,
-      courseExamDate: linkedCourse?.examDate,
-    }),
+    () => {
+      if (!workspaceIntelActive(intelReady, activeTool, 'timer')) {
+        return buildTimerSessionContent({
+          concept: quizConcept,
+          stepLabel: STEPS[currentStep]?.title,
+          stepIndex: currentStep,
+          lang,
+          hasSource: noteBundle.hasSource,
+          conceptMastery: workspaceCorrelation.conceptMastery,
+          scopeKey: progressKey,
+          leitnerDueCount: 0,
+        });
+      }
+      return buildTimerSessionContent({
+        concept: quizConcept,
+        stepLabel: STEPS[currentStep]?.title,
+        stepIndex: currentStep,
+        sectionLabel: STEPS[currentStep]?.title,
+        lang,
+        hasSource: noteBundle.hasSource,
+        conceptMastery: workspaceCorrelation.conceptMastery,
+        scopeKey: progressKey,
+        leitnerDueCount,
+        settingsExamDate: userSettings?.examDate,
+        courseExamDate: linkedCourse?.examDate,
+      });
+    },
     [
-      quizConcept, STEPS, currentStep, lang, noteBundle.hasSource,
+      intelReady, activeTool, quizConcept, STEPS, currentStep, lang, noteBundle.hasSource,
       workspaceCorrelation.conceptMastery, progressKey, leitnerDueCount,
       userSettings?.examDate, linkedCourse?.examDate,
     ],
   );
 
   const dashboardSession = useMemo(
-    () => buildDashboardSessionContent({
-      concept: quizConcept,
-      sectionLabel: STEPS[currentStep]?.title,
-      hasSource: noteBundle.hasSource,
-      conceptMastery,
-      weakSpotCount: weakAreaSpots.length,
-      leitnerDueCount,
-      reviewsDue: dashboardStats.reviewsDue + spacedStepsDue,
-      conceptBus,
-    }),
+    () => {
+      if (!workspaceIntelActive(intelReady, activeTool, 'dashboard')) {
+        return buildDashboardSessionContent({
+          concept: quizConcept,
+          hasSource: noteBundle.hasSource,
+          conceptMastery,
+          weakSpotCount: 0,
+          leitnerDueCount: 0,
+          reviewsDue: dashboardStats.reviewsDue,
+          conceptBus,
+        });
+      }
+      return buildDashboardSessionContent({
+        concept: quizConcept,
+        sectionLabel: STEPS[currentStep]?.title,
+        hasSource: noteBundle.hasSource,
+        conceptMastery,
+        weakSpotCount: weakAreaSpots.length,
+        leitnerDueCount,
+        reviewsDue: dashboardStats.reviewsDue + spacedStepsDue,
+        conceptBus,
+      });
+    },
     [
-      quizConcept, STEPS, currentStep, noteBundle.hasSource, conceptMastery,
+      intelReady, activeTool, quizConcept, STEPS, currentStep, noteBundle.hasSource, conceptMastery,
       weakAreaSpots.length, leitnerDueCount, dashboardStats.reviewsDue,
       spacedStepsDue, conceptBus,
     ],
   );
 
   const dashboardWeakSpotsDetail = useMemo(
-    () => buildDashboardWeakSpots(weakAreaSpots, conceptBus, lang),
-    [weakAreaSpots, conceptBus, lang],
+    () => (intelReady ? buildDashboardWeakSpots(weakAreaSpots, conceptBus, lang) : []),
+    [intelReady, weakAreaSpots, conceptBus, lang],
   );
 
   const dashboardMiniProps = useMemo(() => {
+    if (!workspaceIntelActive(intelReady, activeTool, 'dashboard')) {
+      return {
+        readiness: Math.round(conceptMastery),
+        streak: dashboardStats.streak,
+        reviewsDue: dashboardStats.reviewsDue,
+        studyTimeToday: dashboardStats.studyTimeToday ?? 0,
+        studyTimeWeek: dashboardStats.studyTimeWeek ?? 0,
+        recentStudyDays: [] as number[],
+        weakSpots: [] as { concept: string; mastery: number; course: string }[],
+        weakSpotsDetail: [],
+        nextActions: [] as { label: string; type: string; minutes: number; xp: number; taskId?: string }[],
+        conceptsMastered: 0,
+        totalConcepts: 0,
+        toolActivity: buildToolActivityBreakdown(conceptBus),
+      };
+    }
     const enrichedWeak = dashboardWeakSpotsDetail.map((s) => ({
       concept: s.concept,
       mastery: s.mastery,
@@ -1501,7 +1691,7 @@ export function useStudyWorkspace({
       weakSpotsDetail: dashboardWeakSpotsDetail,
     };
   }, [
-    learnerModel, dashboardStats, tasks, onStartTask, courseName,
+    intelReady, activeTool, learnerModel, dashboardStats, tasks, onStartTask, courseName,
     conceptBusInsights, spacedStepsDue, conceptBus, conceptMastery,
     dashboardWeakSpotsDetail,
   ]);
@@ -1509,21 +1699,23 @@ export function useStudyWorkspace({
   const activeConceptLabel = effectiveFocus?.term ?? quizConcept;
 
   const conceptLensView = useMemo(
-    () => buildConceptLensView({
-      concept: activeConceptLabel,
-      hasSource: noteBundle.hasSource,
-      nodes: noteBundle.conceptMap.nodes,
-      edges: noteBundle.conceptMap.edges,
-      glossary: scopedGlossary,
-      topics: linkedCourse?.topics ?? [],
-      steps: STEPS,
-      conceptBars,
-      busState: conceptBus,
-      weakSpots: weakAreaSpots,
-      sourceText: noteBundle.sourceFullText,
-    }),
+    () => (intelReady
+      ? buildConceptLensView({
+        concept: activeConceptLabel,
+        hasSource: noteBundle.hasSource,
+        nodes: noteBundle.conceptMap.nodes,
+        edges: noteBundle.conceptMap.edges,
+        glossary: scopedGlossary,
+        topics: linkedCourse?.topics ?? [],
+        steps: STEPS,
+        conceptBars,
+        busState: conceptBus,
+        weakSpots: weakAreaSpots,
+        sourceText: noteBundle.sourceFullText,
+      })
+      : stubConceptLensView(activeConceptLabel)),
     [
-      activeConceptLabel, noteBundle, scopedGlossary, linkedCourse, STEPS,
+      intelReady, activeConceptLabel, noteBundle, scopedGlossary, linkedCourse, STEPS,
       conceptBars, conceptBus, weakAreaSpots,
     ],
   );
@@ -1723,6 +1915,7 @@ export function useStudyWorkspace({
     t,
     lang,
     progressKey,
+    intelReady,
     activeTool,
     isMobile,
     layout,

@@ -4,11 +4,13 @@ import type { AppView, Course, GlossaryEntry, Task, UploadedFile } from '../type
 import { cn } from '../utils/cn';
 import { useI18n, type I18nKey } from '../lib/i18n';
 import { searchUploadedContent, type ContentSearchHit } from '../lib/globalContentSearch';
+import { getTaskActionVisual } from '../lib/taskActionIcons';
+import type { LucideIcon } from '@/lib/lucide-shim';
 
 export type CommandAction =
   | { type: 'navigate'; view: AppView; label: string; icon: typeof Search }
   | { type: 'workspace'; label: string; icon: typeof LayoutGrid }
-  | { type: 'task'; taskId: string; label: string; icon: typeof Play }
+  | { type: 'task'; taskId: string; label: string; icon: LucideIcon }
   | { type: 'session'; session: '10min' | '25min' | 'review'; label: string; icon: typeof Play }
   | { type: 'content'; hit: ContentSearchHit; label: string; sublabel?: string; icon: typeof BookOpen };
 
@@ -87,7 +89,12 @@ export function CommandPalette({
   const taskActions: CommandAction[] = tasks
     .filter((task) => task.status === 'pending' && (task.title.toLowerCase().includes(q) || task.courseName.toLowerCase().includes(q)))
     .slice(0, 6)
-    .map((task) => ({ type: 'task', taskId: task.id, label: task.title, icon: Play }));
+    .map((task) => ({
+      type: 'task' as const,
+      taskId: task.id,
+      label: task.title,
+      icon: getTaskActionVisual(task).icon,
+    }));
 
   const sessionActions: CommandAction[] = [
     { type: 'session' as const, session: '10min' as const, label: t('sessionQuickSprint'), icon: Play },

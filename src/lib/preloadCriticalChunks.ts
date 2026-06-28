@@ -9,6 +9,8 @@
 
 import { importWithRetry } from './lazyWithRetry';
 import { preloadStudyWorkspace } from './studyWorkspaceChunk';
+import { preloadStudyWorkspaceBody } from './studyWorkspaceBodyChunk';
+import { warmWorkspaceWorker } from './workspaceWorkerClient';
 
 interface PrefetchEntry {
   flow: string;
@@ -30,8 +32,10 @@ export function preloadCriticalChunks(): void {
   if (started || typeof window === 'undefined') return;
   started = true;
 
-  // Workspace first — biggest single chunk, highest blast radius.
+  warmWorkspaceWorker();
+  // Workspace shell + body — split chunks, prefetch both early.
   preloadStudyWorkspace();
+  preloadStudyWorkspaceBody();
 
   // Schedule the rest with small staggering so we don't saturate the network
   // while the user is still loading visible content.

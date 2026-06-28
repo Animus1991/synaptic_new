@@ -61,6 +61,23 @@
   --font-sans: 'Inter', 'Noto Sans', 'Noto Sans Greek', ui-sans-serif, system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, monospace;
   --font-display: 'Playfair Display', 'Noto Serif', ui-serif, Georgia, serif;
+
+  /* Package 2 — shared type scale (platform + workspace) */
+  --type-micro: 0.625rem;
+  --type-caption: 0.6875rem;
+  --type-body-sm: 0.75rem;
+  --type-meta: 0.8125rem;
+  --type-body: 0.875rem;
+  --type-title: 1.125rem;
+  --type-display-sm: 1.375rem;
+  --type-display: 1.5rem;
+  --leading-micro: 1rem;
+  --leading-caption: 1rem;
+  --leading-body-sm: 1.25rem;
+  --leading-body: 1.375rem;
+  --leading-title: 1.4;
+  --leading-display-sm: 1.25;
+  --leading-display: 1.2;
 }
 
 /* Light theme — Warm Sand (F1–F4: harmonized earth palette) */
@@ -486,23 +503,23 @@ body {
 /* Study Workspace type scale (editorial academic) — sentence case labels */
 .ws-eyebrow {
   font-family: var(--font-mono);
-  font-size: 0.6875rem;
-  line-height: 1rem;
+  font-size: var(--type-caption);
+  line-height: var(--leading-caption);
   font-weight: 600;
   letter-spacing: 0.01em;
   text-transform: none;
 }
 
 .ws-caption {
-  font-size: 0.75rem;
-  line-height: 1rem;
+  font-size: var(--type-body-sm);
+  line-height: var(--leading-micro);
 }
 
 /* UI subtitles — sans, upright, easy to scan (tool purpose lines, hints) */
 .ws-purpose-line {
   font-family: var(--font-sans);
-  font-size: 0.75rem;
-  line-height: 1.25rem;
+  font-size: var(--type-body-sm);
+  line-height: var(--leading-body-sm);
   font-style: normal;
   font-weight: 400;
   color: var(--color-text-muted);
@@ -510,32 +527,69 @@ body {
 
 .ws-excerpt {
   font-family: var(--font-sans);
-  font-size: 0.625rem;
-  line-height: 1rem;
+  font-size: var(--type-micro);
+  line-height: var(--leading-micro);
   font-style: normal;
   color: var(--color-text-secondary);
 }
 
 .ws-meta {
-  font-size: 0.8125rem;
-  line-height: 1.125rem;
+  font-size: var(--type-meta);
+  line-height: var(--leading-body-sm);
 }
 
 .ws-body {
-  font-size: 0.875rem;
-  line-height: 1.375rem;
+  font-size: var(--type-body);
+  line-height: var(--leading-body);
 }
 
 .ws-title {
   font-family: var(--font-display);
-  font-size: 1.125rem;
-  line-height: 1.4;
+  font-size: var(--type-title);
+  line-height: var(--leading-title);
   font-weight: 600;
   letter-spacing: -0.01em;
 }
 
 .ws-display-title {
   font-family: var(--font-display);
+  font-size: var(--type-display-sm);
+  line-height: var(--leading-display-sm);
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+
+/* Platform shell type scale — prefer these over text-[10px] / text-[11px] */
+.type-micro {
+  font-size: var(--type-micro);
+  line-height: var(--leading-micro);
+}
+
+.type-caption {
+  font-size: var(--type-caption);
+  line-height: var(--leading-body-sm);
+}
+
+.type-body-sm {
+  font-size: var(--type-body-sm);
+  line-height: var(--leading-body-sm);
+}
+
+.type-body {
+  font-size: var(--type-body);
+  line-height: var(--leading-body);
+}
+
+.type-title {
+  font-size: var(--type-title);
+  line-height: var(--leading-title);
+  font-weight: 600;
+}
+
+.type-display-sm {
+  font-family: var(--font-display);
+  font-size: var(--type-display-sm);
+  line-height: var(--leading-display-sm);
   font-weight: 600;
   letter-spacing: -0.015em;
 }
