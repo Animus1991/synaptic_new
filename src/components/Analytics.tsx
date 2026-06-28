@@ -160,7 +160,7 @@ export function Analytics({
       </motion.div>
 
       {/* Tabs */}
-      <div className="flex items-center gap-6 border-b border-border-subtle" role="tablist" aria-label="Analytics sections">
+      <div className="flex items-center gap-6 border-b border-border-subtle" role="tablist" aria-label={t('analyticsTabListAria')}>
         {([
           { key: 'overview' as AnalyticsTab, label: t('analyticsTabOverview'), icon: BarChart3 },
           { key: 'mastery' as AnalyticsTab, label: t('analyticsTabMastery'), icon: Brain },

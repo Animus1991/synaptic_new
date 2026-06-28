@@ -11,7 +11,7 @@ import { WorkspaceIdleMount } from '../WorkspaceIdleMount';
 import { WorkspaceToolSuspense } from '../WorkspaceToolSuspense';
 import { mergeReaderHighlight } from '../../../lib/workspaceFocus';
 import { activityFor } from '../../../lib/workspaceConceptBus';
-import { saveConceptMapPositions } from '../../../lib/workspacePersistence';
+import { saveConceptMapPositions, saveConceptMapGraph } from '../../../lib/workspacePersistence';
 import { recordQuizResponse } from '../../../lib/quizIrt';
 import { conceptSignalForAnnotationCategory } from '../../../lib/annotationAnchor';
 import { appendScratchpadAnnotation } from '../../../lib/scratchpadEntryStore';
@@ -196,6 +196,7 @@ export function StudyWorkspaceToolSurface({ model }: StudyWorkspaceToolSurfacePr
                         <LazyDraggableConceptMap
                           initialNodes={conceptNodes}
                           initialEdges={conceptEdges}
+                          onGraphUpdate={(graph) => saveConceptMapGraph(progressKey, graph)}
                           onNodeUpdate={(nodes) => saveConceptMapPositions(nodes, progressKey)}
                           emptyMessage={toolEmptyMessage('concept-map')}
                           onUpload={handleToolUpload}

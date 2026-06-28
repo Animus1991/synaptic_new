@@ -802,7 +802,7 @@ export function CognitiveReader({
             )}
           >
             <Highlighter className="w-3 h-3" />
-            {lang === 'el' ? 'Σημείωση' : 'Annotate'}
+            {t('readerAnnotate')}
           </button>
           {annotations.length > 0 && (
             <>
@@ -819,9 +819,9 @@ export function CognitiveReader({
             </>
           )}
           <button type="button" onClick={() => setDyslexia(!dyslexia)} className={cn('rounded-lg border px-2 py-1 text-[10px] font-medium', dyslexia ? 'ws-chip-brand' : 'ws-tool-toggle')}>
-            {lang === 'el' ? 'Δυσλεξία' : 'Dyslexia'}
+            {t('readerDyslexia')}
           </button>
-          <button type="button" onClick={speakSelection} className="rounded-lg border border-transparent p-1 text-text-muted hover:text-brand-800" title="Read aloud">
+          <button type="button" onClick={speakSelection} className="rounded-lg border border-transparent p-1 text-text-muted hover:text-brand-800" title={t('readerReadAloud')}>
             <Volume2 className="w-3.5 h-3.5" />
           </button>
           <button
@@ -833,7 +833,7 @@ export function CognitiveReader({
               ttsActiveIndex !== null ? 'ws-chip-brand' : 'ws-tool-toggle',
             )}
           >
-            {lang === 'el' ? 'Ανάγνωση' : 'Read all'}
+            {t('readerReadAll')}
           </button>
           <button
             type="button"
@@ -841,7 +841,7 @@ export function CognitiveReader({
             onClick={() => setFullSource(!fullSource)}
             className={cn('rounded-lg border px-2 py-1 text-[10px]', fullSource ? 'border-brand-500/30 bg-brand-600/15 text-brand-800' : 'ws-tool-toggle')}
           >
-            {fullSource ? (lang === 'el' ? 'Πλήρες' : 'Full') : (lang === 'el' ? 'Απόσπασμα' : 'Excerpt')}
+            {fullSource ? t('readerFull') : t('readerExcerpt')}
           </button>
           {text.trim().length > 0 && (
             <button
@@ -969,7 +969,7 @@ export function CognitiveReader({
           <div className="min-w-0">
             <p className="text-[11px] font-semibold text-brand-800">{glossaryPopover.term}</p>
             <p className="text-[10px] text-text-secondary mt-0.5">
-              {glossaryPopover.definition || (lang === 'el' ? 'Δεν υπάρχει ορισμός στο γλωσσάρι.' : 'No glossary definition.')}
+              {glossaryPopover.definition || t('readerNoGlossaryDef')}
             </p>
           </div>
           <div className="flex shrink-0 gap-1.5">

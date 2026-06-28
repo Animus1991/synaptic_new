@@ -20,9 +20,10 @@ import { WorkspaceSelectionActionBar } from './WorkspaceSelectionActionBar';
 import type { WorkspaceSelectionActionId, WorkspaceSelectionContext } from '../../lib/workspaceSelectionActions';
 import { ConceptTypeIcon } from '../ui/ConceptTypeIcon';
 import { conceptTypeGlyph } from '../../lib/conceptTypeIcons';
-import { Map, BookOpen, Pencil, FileText, X } from '@/lib/lucide-shim';
+import { Map, BookOpen, Pencil, FileText, X, Plus, Trash2, Link2 } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
 import { bandColorVar, masteryColorForValue, accentHighlightVar } from '../../lib/masteryPalette';
+import { edgeKey, newCustomNodeId } from '../../lib/conceptMapGraph';
 import {
   connectConceptMapCursors,
   notifyCursorStream,
@@ -62,6 +63,8 @@ interface Props {
   initialNodes: DragNode[];
   initialEdges: DragEdge[];
   onNodeUpdate?: (nodes: DragNode[]) => void;
+  /** Persist nodes + edges after structural edits (Wave B). */
+  onGraphUpdate?: (graph: { nodes: DragNode[]; edges: DragEdge[] }) => void;
   emptyMessage?: string;
   hasSource?: boolean;
   onUpload?: () => void;
@@ -80,12 +83,15 @@ interface Props {
 
 const MASTERY_COLOR = (m: number) => (m > 0 ? masteryColorForValue(m) : 'var(--color-text-muted)');
 
-export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, emptyMessage, hasSource = false, onUpload, onFocusTerm, onSelectionAction, focusConcept, lensConcept, conceptLens, onConceptSelect, cursorSync }: Props) {
+export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, onGraphUpdate, emptyMessage, hasSource = false, onUpload, onFocusTerm, onSelectionAction, focusConcept, lensConcept, conceptLens, onConceptSelect, cursorSync }: Props) {
   const { t, lang } = useI18n();
   const [nodes, setNodes] = useState<DragNode[]>(initialNodes);
-  const [edges] = useState<DragEdge[]>(initialEdges);
+  const [edges, setEdges] = useState<DragEdge[]>(initialEdges);
   const [selected, setSelected] = useState<string | null>(null);
   const [editingNote, setEditingNote] = useState<string | null>(null);
+  const [editingLabel, setEditingLabel] = useState<string | null>(null);
+  const [labelDraft, setLabelDraft] = useState('');
+  const [connectFrom, setConnectFrom] = useState<string | null>(null);
   const [noteText, setNoteText] = useState('');
   const [zoom, setZoom] = useState(1);
   const [pan, setPan] = useState({ x: 0, y: 0 });
@@ -112,6 +118,11 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
   const lastCursorPost = useRef(0);
 
   const nodeMap = Object.fromEntries(nodes.map(n => [n.id, n]));
+
+  const publishGraph = useCallback((nextNodes: DragNode[], nextEdges: DragEdge[]) => {
+    onNodeUpdate?.(nextNodes);
+    onGraphUpdate?.({ nodes: nextNodes, edges: nextEdges });
+  }, [onNodeUpdate, onGraphUpdate]);
 
   const publishCursor = useCallback((nodeId: string, x: number, y: number, label: string) => {
     if (!cursorSync) return;
@@ -151,6 +162,20 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
 
   const handlePointerDown = useCallback((e: React.PointerEvent, nodeId: string) => {
     e.stopPropagation();
+    if (connectFrom) {
+      if (connectFrom !== nodeId) {
+        const candidate: DragEdge = { from: connectFrom, to: nodeId, relation: 'prerequisite' };
+        const key = edgeKey(candidate);
+        setEdges((prev) => {
+          if (prev.some((edge) => edgeKey(edge) === key)) return prev;
+          const next = [...prev, candidate];
+          publishGraph(nodes, next);
+          return next;
+        });
+      }
+      setConnectFrom(null);
+      return;
+    }
     e.currentTarget.setPointerCapture(e.pointerId);
     dragging.current = nodeId;
     const pt = toSvg(e.clientX, e.clientY);
@@ -158,7 +183,7 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
     dragOffset.current = { x: pt.x - node.x, y: pt.y - node.y };
     setSelected(nodeId);
     if (node) onConceptSelect?.(node.label);
-  }, [toSvg, nodeMap, onConceptSelect]);
+  }, [toSvg, nodeMap, onConceptSelect, connectFrom, nodes, publishGraph]);
 
   const handlePointerMove = useCallback((e: React.PointerEvent) => {
     if (dragging.current) {
@@ -184,12 +209,12 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
     if (dragging.current) {
       dragging.current = null;
       setNodes((prev) => {
-        onNodeUpdate?.(prev);
+        publishGraph(prev, edges);
         return prev;
       });
     }
     setIsPanning(false);
-  }, [onNodeUpdate]);
+  }, [onNodeUpdate, edges, publishGraph]);
 
   const handleBgPointerDown = useCallback((e: React.PointerEvent) => {
     if (dragging.current) return;
@@ -211,8 +236,52 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
 
   const saveNote = () => {
     if (!editingNote) return;
-    setNodes(prev => prev.map(n => n.id === editingNote ? { ...n, note: noteText } : n));
+    setNodes(prev => {
+      const next = prev.map(n => n.id === editingNote ? { ...n, note: noteText } : n);
+      publishGraph(next, edges);
+      return next;
+    });
     setEditingNote(null);
+  };
+
+  const addNode = () => {
+    const id = newCustomNodeId();
+    const label = t('conceptMapNewNodeLabel');
+    const cx = 320 - pan.x / zoom;
+    const cy = 200 - pan.y / zoom;
+    setNodes((prev) => {
+      const next = [...prev, { id, label, type: 'concept' as const, x: cx, y: cy, mastery: 0 }];
+      publishGraph(next, edges);
+      return next;
+    });
+    setSelected(id);
+    setEditingLabel(id);
+    setLabelDraft(label);
+  };
+
+  const deleteSelectedNode = () => {
+    if (!selected) return;
+    const nextNodes = nodes.filter((n) => n.id !== selected);
+    const nextEdges = edges.filter((e) => e.from !== selected && e.to !== selected);
+    setNodes(nextNodes);
+    setEdges(nextEdges);
+    publishGraph(nextNodes, nextEdges);
+    setSelected(null);
+    setEditingLabel(null);
+    setConnectFrom(null);
+  };
+
+  const saveLabel = () => {
+    if (!editingLabel || !labelDraft.trim()) {
+      setEditingLabel(null);
+      return;
+    }
+    setNodes((prev) => {
+      const next = prev.map((n) => n.id === editingLabel ? { ...n, label: labelDraft.trim() } : n);
+      publishGraph(next, edges);
+      return next;
+    });
+    setEditingLabel(null);
   };
 
   const runForceLayout = useCallback(() => {
@@ -233,7 +302,7 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
         return pos ? { ...n, x: pos.x, y: pos.y } : n;
       });
       setNodes(merged);
-      onNodeUpdate?.(merged);
+      publishGraph(merged, edges);
       setLayoutRunning(false);
       setZoom(1);
       setPan({ x: 0, y: 0 });
@@ -243,7 +312,7 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
     } else {
       apply();
     }
-  }, [nodes, edges, focusConcept, lensConcept, onNodeUpdate]);
+  }, [nodes, edges, focusConcept, lensConcept, publishGraph]);
 
   const layerMap = useMemo(() => assignConceptLayers(nodes, edges), [nodes, edges]);
   const layerGroups = useMemo(() => groupNodesByLayer(nodes, layerMap, lang), [nodes, layerMap, lang]);
@@ -260,13 +329,14 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
     setActiveLayerDepth(null);
     const laid = computeHierarchicalLayout(nodes, edges, { width: 640, height: 400 }) as DragNode[];
     setNodes(laid);
-    onNodeUpdate?.(laid);
+    publishGraph(laid, edges);
     setLayoutRunning(false);
     setZoom(1);
     setPan({ x: 0, y: 0 });
-  }, [nodes, edges, onNodeUpdate]);
+  }, [nodes, edges, publishGraph]);
 
   useEffect(() => { setNodes(initialNodes); }, [initialNodes]);
+  useEffect(() => { setEdges(initialEdges); }, [initialEdges]);
 
   const selectedNode = selected ? nodeMap[selected] : null;
 
@@ -295,12 +365,39 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
             type="search"
             value={filterQuery}
             onChange={(e) => setFilterQuery(e.target.value)}
-            placeholder={lang === 'el' ? 'Αναζήτηση εννοιών…' : 'Filter concepts…'}
+            placeholder={t('conceptMapFilterPlaceholder')}
             className="ml-2 w-32 rounded border border-border-subtle bg-surface-card px-2 py-0.5 text-[10px] text-text-secondary placeholder:text-text-muted focus:border-accent-cyan/40 focus:outline-none"
             data-testid="concept-map-filter"
           />
         </div>
         <div className="flex items-center gap-1.5">
+          <button
+            type="button"
+            data-testid="concept-map-add-node"
+            onClick={addNode}
+            className="inline-flex items-center gap-1 px-2 py-1 rounded text-[10px] font-medium bg-brand-600/15 text-brand-700 border border-brand-500/30 hover:bg-brand-600/25"
+            title={t('conceptMapAddNode')}
+          >
+            <Plus className="w-3 h-3" />
+            {t('conceptMapAddNode')}
+          </button>
+          <button
+            type="button"
+            data-testid="concept-map-connect"
+            onClick={() => {
+              if (connectFrom) setConnectFrom(null);
+              else if (selected) setConnectFrom(selected);
+            }}
+            disabled={!selected && !connectFrom}
+            className={cn(
+              'inline-flex items-center gap-1 px-2 py-1 rounded text-[10px] font-medium border',
+              connectFrom ? 'border-accent-cyan/40 bg-accent-cyan/15 text-brand-800' : 'border-border-subtle text-text-muted hover:text-text-secondary',
+            )}
+            title={t('conceptMapConnectHint')}
+          >
+            <Link2 className="w-3 h-3" />
+            {t('conceptMapConnect')}
+          </button>
           <button onClick={() => setZoom(z => Math.min(2.5, z + 0.2))} className="w-6 h-6 rounded bg-surface-hover text-text-secondary text-xs flex items-center justify-center hover:bg-surface-active">+</button>
           <span className="text-[10px] text-text-muted w-10 text-center">{Math.round(zoom * 100)}%</span>
           <button onClick={() => setZoom(z => Math.max(0.3, z - 0.2))} className="w-6 h-6 rounded bg-surface-hover text-text-secondary text-xs flex items-center justify-center hover:bg-surface-active">−</button>
@@ -312,7 +409,7 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
             onClick={runHierarchyLayout}
             className="ml-1 px-2 py-1 rounded text-[10px] text-accent-emerald hover:text-accent-emerald/80 bg-accent-emerald/10 border border-accent-emerald/30 disabled:opacity-40"
           >
-            {layoutRunning && hierarchyMode ? '…' : (lang === 'el' ? 'Ιεραρχία' : 'Layers')}
+            {layoutRunning && hierarchyMode ? '…' : t('conceptMapHierarchy')}
           </button>
           <button
             type="button"
@@ -321,7 +418,7 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
             onClick={runForceLayout}
             className="ml-1 px-2 py-1 rounded text-[10px] text-brand-800 hover:opacity-80 bg-accent-cyan/10 border border-accent-cyan/30 disabled:opacity-40"
           >
-            {layoutRunning ? '…' : (lang === 'el' ? 'Δύναμη' : 'Force')}
+            {layoutRunning ? '…' : t('conceptMapForce')}
           </button>
           <button
             type="button"
@@ -354,7 +451,7 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
 
       {layerGroups.length > 1 && (
         <div className="flex flex-wrap items-center gap-1.5 px-4 py-1.5 border-b border-border-subtle bg-surface-secondary/20 shrink-0" data-testid="concept-map-layers">
-          <span className="text-[9px] font-semibold text-text-muted">{lang === 'el' ? 'Επίπεδα' : 'Layers'}</span>
+          <span className="text-[9px] font-semibold text-text-muted">{t('conceptMapLayersLabel')}</span>
           <button
             type="button"
             onClick={() => setActiveLayerDepth(null)}
@@ -363,7 +460,7 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
               activeLayerDepth === null ? 'border-brand-500/40 bg-brand-600/15 text-brand-800' : 'border-border-subtle text-text-muted',
             )}
           >
-            {lang === 'el' ? 'Όλα' : 'All'}
+            {t('conceptMapAll')}
           </button>
           {layerGroups.map((g) => (
             <button
@@ -481,7 +578,13 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
         </svg>
       </div>
 
-      {selectedNode && !editingNote && (
+      {connectFrom && (
+        <div className="shrink-0 border-b border-accent-cyan/25 bg-accent-cyan/10 px-4 py-1.5 text-[10px] text-brand-800" data-testid="concept-map-connect-hint">
+          {t('conceptMapConnectHint')}
+        </div>
+      )}
+
+      {selectedNode && !editingNote && !editingLabel && (
         <div className="absolute bottom-0 left-0 right-0 glass-strong border-t border-border-subtle">
           <div className="flex items-center gap-3 p-3 pb-2">
             <ConceptTypeIcon type={selectedNode.type} size="lg" />
@@ -501,6 +604,24 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
             )}
             <button onClick={() => startNote(selectedNode.id)} className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[10px] font-medium bg-brand-600/20 text-brand-600 border border-brand-500/30 hover:bg-brand-600/30">
               {selectedNode.note ? <><Pencil className="w-3 h-3" /> {t('editNote')}</> : <><FileText className="w-3 h-3" /> {t('addNote')}</>}
+            </button>
+            <button
+              type="button"
+              data-testid="concept-map-rename-node"
+              onClick={() => { setEditingLabel(selectedNode.id); setLabelDraft(selectedNode.label); }}
+              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[10px] font-medium border border-border-subtle text-text-secondary hover:text-text-primary"
+            >
+              <Pencil className="w-3 h-3" />
+              {t('conceptMapRename')}
+            </button>
+            <button
+              type="button"
+              data-testid="concept-map-delete-node"
+              onClick={deleteSelectedNode}
+              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[10px] font-medium border border-accent-rose/30 bg-accent-rose/10 text-accent-rose hover:bg-accent-rose/15"
+            >
+              <Trash2 className="w-3 h-3" />
+              {t('conceptMapDeleteNode')}
             </button>
             <button onClick={() => setSelected(null)} className="text-text-muted hover:text-text-secondary" aria-label="Close"><X className="w-3.5 h-3.5" /></button>
           </div>
@@ -524,6 +645,23 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
               data-testid="concept-map-selection-actions"
             />
           )}
+        </div>
+      )}
+
+      {editingLabel && (
+        <div className="absolute bottom-0 left-0 right-0 p-3 glass-strong border-t border-border-subtle">
+          <p className="text-xs font-semibold mb-2">{t('conceptMapRename')}</p>
+          <input
+            value={labelDraft}
+            onChange={(e) => setLabelDraft(e.target.value)}
+            className="w-full px-3 py-2 rounded-lg bg-surface-input border border-border-subtle text-sm text-text-primary focus:outline-none focus:border-brand-500/50"
+            autoFocus
+            onKeyDown={(e) => { if (e.key === 'Enter') saveLabel(); if (e.key === 'Escape') setEditingLabel(null); }}
+          />
+          <div className="flex justify-end gap-2 mt-2">
+            <button onClick={() => setEditingLabel(null)} className="px-3 py-1 text-xs text-text-muted hover:text-text-secondary">{t('cancel')}</button>
+            <button onClick={saveLabel} className="px-3 py-1.5 text-xs font-medium bg-brand-600 text-white rounded-lg hover:bg-brand-500">{t('save')}</button>
+          </div>
         </div>
       )}
 

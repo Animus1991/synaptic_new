@@ -8,7 +8,8 @@ import {
   workspaceToolEmptyMessage,
   type WorkspaceEmptyTool,
 } from '../../../lib/workspaceEmptyState';
-import { loadWorkspaceStep, saveWorkspaceStep, loadWorkspaceNotes, saveWorkspaceNotes, loadConceptBus, saveConceptBus, loadAllConceptBuses } from '../../../lib/workspacePersistence';
+import { loadWorkspaceStep, saveWorkspaceStep, loadWorkspaceNotes, saveWorkspaceNotes, loadConceptBus, saveConceptBus, loadAllConceptBuses, loadConceptMapGraph, loadConceptMapPositions } from '../../../lib/workspacePersistence';
+import { mergeConceptMapGraph } from '../../../lib/conceptMapGraph';
 import { buildMiniDashboardProps } from '../../../lib/workspaceData';
 import { collectConceptBusInsights, countSpacedStepReviewsDue, type ConceptBusMap } from '../../../lib/conceptBusSync';
 import { loadAllStepSchedules } from '../../../lib/spacedStepSchedule';
@@ -1168,13 +1169,19 @@ export function useStudyWorkspace({
 
   const conceptNodes = useMemo(() => {
     const base = noteBundle.conceptMap.nodes;
-    if (base.length === 0 && quizConcept) {
-      return [{ id: '1', label: quizConcept, type: 'concept' as const, x: 200, y: 150, mastery: 0 }];
-    }
-    return base;
-  }, [noteBundle.conceptMap.nodes, quizConcept]);
+    const fallback = base.length === 0 && quizConcept
+      ? [{ id: '1', label: quizConcept, type: 'concept' as const, x: 200, y: 150, mastery: 0 }]
+      : base;
+    const saved = loadConceptMapGraph(progressKey);
+    const merged = mergeConceptMapGraph(fallback, noteBundle.conceptMap.edges, saved);
+    return loadConceptMapPositions(merged.nodes, progressKey);
+  }, [noteBundle.conceptMap.nodes, noteBundle.conceptMap.edges, quizConcept, progressKey]);
 
-  const conceptEdges = noteBundle.conceptMap.edges;
+  const conceptEdges = useMemo(() => {
+    const saved = loadConceptMapGraph(progressKey);
+    const merged = mergeConceptMapGraph(noteBundle.conceptMap.nodes, noteBundle.conceptMap.edges, saved);
+    return merged.edges;
+  }, [noteBundle.conceptMap.nodes, noteBundle.conceptMap.edges, progressKey]);
 
   const workspaceContext = useMemo(
     () => selectWorkspaceContext({

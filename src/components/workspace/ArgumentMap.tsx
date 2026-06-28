@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { GitCommit, Plus, Pencil, BookOpen, Shield, Sparkles } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
+import { useI18n, type I18nKey } from '../../lib/i18n';
 import { suggestCounterArguments } from '../../lib/debateCounterArgs';
 import { buildRebuttalGraph } from '../../lib/debateRebuttalGraph';
 import { auditDebateRebuttalPersistence } from '../../lib/debateRebuttalGraphPersistQA';
@@ -33,11 +34,11 @@ const NODE_COLORS: Record<ArgNodeType, { bg: string; border: string; text: strin
   refutation: { bg: '#4c1d2e', border: '#fb7185', text: '#ffe4e6' },
 };
 
-const TYPE_LABELS: Record<ArgNodeType, string> = {
-  claim: 'Claim',
-  premise: 'Premise',
-  support: 'Support',
-  refutation: 'Refutation',
+const TYPE_LABEL_KEYS: Record<ArgNodeType, I18nKey> = {
+  claim: 'argumentClaim',
+  premise: 'argumentPremise',
+  support: 'argumentSupport',
+  refutation: 'argumentRefutation',
 };
 
 function updateNodeText(node: ArgNode, id: string, text: string): ArgNode {
@@ -98,6 +99,7 @@ export function ArgumentMap({
   selectedClaim,
   onRebuttalPersisted,
 }: Props) {
+  const { t } = useI18n();
   const seedFingerprint = useMemo(() => debateSeedFingerprint(tree ?? null), [tree]);
 
   const [root, setRoot] = useState<ArgNode | null>(() => {
@@ -300,7 +302,7 @@ export function ArgumentMap({
             className="absolute -top-2 rounded-full border bg-surface-primary px-2 py-0.5 text-[9px] font-bold"
             style={{ borderColor: colorStyle.border, color: colorStyle.border }}
           >
-            {TYPE_LABELS[node.type]}
+            {t(TYPE_LABEL_KEYS[node.type])}
           </div>
         </motion.div>
         {node.children && node.expanded && node.children.map(renderNodes)}

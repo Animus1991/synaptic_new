@@ -34,11 +34,9 @@ const RUBRIC_GAP_KEYS: Record<Exclude<RubricDimension, 'accuracy'>, I18nKey> = {
   structure: 'feynmanGapStructure',
 };
 
-function rubricGapHint(dim: RubricDimension, concept: string, t: (k: I18nKey) => string, lang: 'en' | 'el'): string {
+function rubricGapHint(dim: RubricDimension, concept: string, t: (k: I18nKey) => string): string {
   if (dim === 'accuracy') {
-    return lang === 'el'
-      ? `Χρησιμοποίησε ακριβείς όρους για «${concept}» από τις σημειώσεις.`
-      : `Use precise terms for «${concept}» from your notes.`;
+    return t('feynmanGapAccuracy').replace('{concept}', concept);
   }
   return t(RUBRIC_GAP_KEYS[dim]);
 }
@@ -467,7 +465,7 @@ export function FeynmanCheck({
                 {rubric.weak.map((dim) => (
                   <div key={dim} className="rounded-lg border border-border-subtle bg-surface-primary/50 p-2.5 text-[11px] leading-5 text-text-secondary">
                     <p className="font-medium text-text-primary">{t(RUBRIC_LABEL_KEYS[dim])}</p>
-                    <p className="mt-0.5">{gapHints?.[0] ?? rubricGapHint(dim, concept, t, lang)}</p>
+                    <p className="mt-0.5">{gapHints?.[0] ?? rubricGapHint(dim, concept, t)}</p>
                     <div className="mt-2 flex flex-wrap gap-2">
                       {(onAskAgentWithPrompt ?? onAskAgent ?? onOpenAgent) && (
                         <button
