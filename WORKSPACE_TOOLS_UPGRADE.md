@@ -3,7 +3,7 @@
 > **Σκοπός:** Πλήρης, υπερ-λεπτομερής κατάσταση και σχεδιασμός για κάθε εργαλείο του Study Workspace,
 > ξεχωριστά και σε διασύνδεση. Συμπληρωματικό προς `workspaceToolCrossLinks.ts`, `WORKSPACE_UPGRADE_PLAN.md`, `FUNCTION_CATALOG.md`.
 >
-> **Pipeline:** `CONTENT_PIPELINE_VERSION = 2.4.0` · **Tests baseline:** 350+ (μετά από αυτό το κύμα)
+> **Pipeline:** `CONTENT_PIPELINE_VERSION = 2.5.x` · **Tests baseline:** 696+ unit test files · **i18n:** ~68% (see `I18N.md`)
 
 ---
 
@@ -41,7 +41,8 @@
 - Section action bar: Study / Ask Agent per section
 - Selection bar: Ask Agent με excerpt (≤600 chars)
 - OCR overlay + **OcrCorrectionPanel** (editable line repair MVP)
-- Bionic / dyslexia / focus modes, paragraph TTS + scroll-follow
+- Bionic / dyslexia / focus modes, paragraph TTS + scroll-follow (`readerTts.ts`)
+- **Glossary popover:** click underlined term; **Define** (primary) + **Find in text** (Wave B)
 - Bilingual side-by-side + paragraph-aligned sync scroll
 - Full-source toggle, translation (glossary + optional LLM)
 - Low source-quality banner (<50) στο workspace + CourseView
@@ -60,7 +61,7 @@
 ### Κενά / επόμενο
 - [ ] Reprocess/re-upload για παλιά PPTX/PDF (garbled Greek pre-2.4) — runtime `greekTextRepair` + `utf8MojibakeRepair` mitigate display; source reprocess still recommended
 - [x] Component DOM tests — partial: `WorkspaceMobileToolDrawer.test.tsx` (`@testing-library/react`)
-- [ ] Inline glossary popover on hover
+- [ ] Inline glossary popover on **hover** (click + Define popover shipped Wave B)
 
 ---
 
@@ -109,16 +110,21 @@
 
 ### Τρέχουσα κατάσταση ✅
 - Force-directed layout + hierarchical layers (prerequisite depth filter)
-- Mastery coloring, drag, PNG export
+- Mastery coloring, drag, zoom, PNG export
+- **Editing (Wave B):** add / rename / delete node; connect edges; **delete edge**; **cycle relation** (prerequisite → related → contrasts); **undo** (30 snapshots)
+- **Persistence:** full graph (nodes + edges) scoped per task via `conceptMapGraph.ts` + `workspacePersistence.ts`
 - Node click → Reader (`onOpenInReader`) + Concept Bus `mapped`
 - Cross-link bar → Feynman, Compare, Leitner
+- Collaborative cursor sync (SSE) when proxy + course configured
 
 ### Αρχεία
-`ConceptMapCanvas.tsx`, `conceptMapForceLayout.ts`, `conceptMapHierarchy.ts`
+`DraggableConceptMap.tsx`, `conceptMapGraph.ts`, `conceptMapForceLayout.ts`, `conceptMapHierarchy.ts`, `workspacePersistence.ts`
 
 ### Κενά
-- [ ] Collaborative cursor sync (partial lib exists)
-- [ ] Edge labels from co-occurrence scores
+- [ ] Redo stack (undo only; no redo)
+- [ ] Edge labels from co-occurrence PMI scores
+- [ ] Keyboard a11y + screen-reader tree for canvas
+- [ ] CRDT multi-user graph editing
 
 ---
 
@@ -145,7 +151,7 @@
 ### Τρέχουσα κατάσταση ✅
 - Rows από tables + glossary dimensions
 - Focus-term column priority (`workspaceCorrelation`)
-- CSV export, sortable columns
+- **Sortable columns**, **diff mode**, **CSV export** (Wave 7 / W8)
 - Row click → Reader search
 
 ### Αρχεία

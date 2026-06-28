@@ -5,7 +5,32 @@ client and server are versioned together.
 
 ## [Unreleased]
 
+### Changed
+
+- **Wave 0 lite (Jun 2026)** — doc reconciliation after Wave A/B:
+  - `ROADMAP.md` — rebaselined to ~87% product readiness; Wave A/B shipped tables; Wave C1 gaps.
+  - `I18N.md` — ~68% coverage, Wave A/B shipped list, 57-file Wave C1 backlog (P1–P4).
+  - `STUDY_WORKSPACE.md` — concept map editing, reader Define/TTS, graph persistence key.
+  - `WORKSPACE_TOOLS_UPGRADE.md` — Reader Define, concept map §4, compare sort/diff/CSV baseline.
+
 ### Added
+
+- **Wave B completion (Jun 2026, `63c7b0e`)** — i18n sweep + concept map edge editing + reader Define:
+  - i18n keys for command palette, study room, reprocess wizard, Feynman outline (`feynmanOutline.ts`).
+  - Concept map: delete edge, cycle relation type (prerequisite/related/contrasts), undo stack.
+  - Reader glossary popover: explicit **Define** button + **Find in text** secondary action.
+
+- **Wave B partial (Jun 2026, `220c7e9`)** — concept map editing foundation, workspace i18n, graph persistence:
+  - Add/rename/delete node, connect prerequisite edges in `DraggableConceptMap.tsx`.
+  - `conceptMapGraph.ts` + scoped persistence in `workspacePersistence.ts`.
+  - i18n: Compare, ArgumentMap, CognitiveReader toolbar, Feynman rubric, Analytics aria.
+
+- **Wave A (Jun 2026, `b535971`)** — themes + design system closure:
+  - Fix Spectrum theme not applying globally (Warm Sand scoping).
+  - Theme cycle: dark → light → spectrum.
+  - `PrimaryCTA` / `SecondaryCTA` design-system primitives.
+  - Post-upload banner (`PostUploadBanner`) on Dashboard + Library.
+  - Dashboard greeting i18n; WCAG contrast on light + spectrum palettes.
 
 - **synaptic-refined merge (Jun 2026)** — port from `Animus1991/synaptic-refined@main` (`ef06b0a`):
   - Chunk resilience: `lazyWithRetry`, `chunkErrorReporter`, `preloadCriticalChunks`, stale-chunk reload.

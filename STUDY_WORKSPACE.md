@@ -1,4 +1,4 @@
-# Study Workspace
+﻿# Study Workspace
 
 Eleven note-grounded tools assembled by `buildWorkspaceNoteBundle()`. The
 workspace is the primary surface for studying a single concept — a left
@@ -18,7 +18,7 @@ enabled.
 
 | Tab | Module | Input | Output |
 | --- | ------ | ----- | ------ |
-| Concept map | `buildConceptMapFromCourse` | topics, glossary, **PMI co-occurrence over sentence windows** | nodes + prerequisite + related edges (citations recorded) |
+| Concept map | `DraggableConceptMap` + `buildConceptMapFromCourse` | topics, glossary, **PMI co-occurrence**; user edits persisted | nodes + edges (prerequisite / related / contrasts); add/rename/delete node; connect/delete edge; cycle relation; undo |
 | Sandbox | `notesSupportEconomicsSandbox` / `sandboxInsightFromNotes` | concept-relevant excerpt | sliders + insight summarized via biased TextRank |
 | Leitner | `buildFlashcards` | glossary, definitions, summarized excerpts | flashcard deck; **FSRS-4 ratings → store** via `submitLeitnerRating` |
 | Compare | `extractComparisons` | Markdown tables → "X vs Y" patterns → glossary fallback | three-tier comparison rows |
@@ -26,7 +26,7 @@ enabled.
 | Feynman | `buildFeynmanOutline` + `feynmanRubric` | topic objectives, keyphrases, glossary | outline + gap hints + offline rubric (subject-agnostic) |
 | Timer | `StudyTimer` | — | session minutes logged to activity stream |
 | Debate | `buildDebateTreeFromNotes` | sentence scoring on claim/support/refute axes | argument tree with separate support / counter subtrees |
-| Reader | `relevantExcerpt` + **`documentStructure`** + **`readerDocumentLayout`** | concept-scored BM25 excerpt; **`sourceFullText`** full document | structured `<h3>` sections, `<p>` paragraphs, `<ul>` lists (enumerated syllabus rows, multi-line items); adaptive PDF line-wrap reconstruction; section nav chips |
+| Reader | `relevantExcerpt` + **`documentStructure`** + **`readerDocumentLayout`** | concept-scored BM25 excerpt; **`sourceFullText`** | structured sections, KaTeX math, bibliography; **TTS** (`readerTts.ts` read aloud + scroll-follow); **glossary popover** with **Define** + Find in text; bionic/dyslexia/focus modes; OCR correction panel |
 | Scratchpad | `extractFormulas` + `formulaSolver` | formulas in notes | generic shunting-yard solver (sin/cos/log/sqrt/etc.), per-task persistence |
 | Source | annotations panel | `annotationText` | per-file highlights (local) |
 
@@ -35,15 +35,15 @@ enabled.
 Every grounded workspace session now computes a `sourceIntelligence` report in
 `workspaceNoteContent.ts` and renders it above the lesson pane.
 
-- **Inputs** β€” top BM25 passages (`topRelevantChunks`), concept relevance,
+- **Inputs** — top BM25 passages (`topRelevantChunks`), concept relevance,
   explicit definitions, glossary overlap, worked examples, extracted formulas,
   comparison rows, concept-map size, step count, quiz availability,
   **`documentStructure`** (section kind, count, heading previews).
-- **Output** β€” `score` (0β€“100), `band` (`weak` / `moderate` / `strong`),
+- **Output** — `score` (0–100), `band` (`weak` / `moderate` / `strong`),
   `bestTool`, a human-readable reason, strengths, gaps, and next-action hints.
-- **Recommendation logic** β€” tool scoring is capped per signal family so a
+- **Recommendation logic** — tool scoring is capped per signal family so a
   large comparison table cannot drown out formulas/practice or terminology.
-- **UX effect** β€” the user sees whether the current concept is truly
+- **UX effect** — the user sees whether the current concept is truly
   well-grounded, what is missing from the notes, detected **section chips**
   (conversation / FAQ / slides / headings), and can jump straight into the
   recommended tool via `SourceIntelligenceCard`.
@@ -90,7 +90,8 @@ All workspace state is scoped per task (`workspace:${taskId}`):
 | --- | ------ |
 | `synapse:workspace-progress` | current step index (`saveWorkspaceStep`) |
 | `synapse:workspace-notes` | per-task scratch notes (`loadWorkspaceNotes`) |
-| `synapse:concept-map-positions` | per-task concept-map node coordinates |
+| `synapse:concept-map-positions` | per-task concept-map node coordinates (legacy) |
+| `synapse:concept-map-graph` | per-task concept-map nodes + edges (`conceptMapGraph.ts`, Wave B) |
 | `synapse:whiteboard-strokes` | per-task whiteboard strokes (legacy `synapse.whiteboard.v1` migrated automatically) |
 | `synapse:scratchpad-formulas` | per-task scratchpad formulas, variables, steps |
 | `debate-{progressKey}` | argument-map node positions |
@@ -109,9 +110,10 @@ See `PERSISTENCE.md` for the full key list.
 | `N` | Toggle session notes panel |
 | `?` | Show the keyboard-shortcuts overlay |
 
-The command palette (`src/components/workspace/CommandPalette.tsx`) groups
-every action into Tools / Layout / Session and supports type-to-filter
-(token-AND match across label + group + hint).
+The command palette (`useStudyWorkspace.ts` → `CommandPalette.tsx`) groups
+actions into Tools / Document / Search / Collaboration / Navigate (i18n via
+`i18n.ts`, Wave B) and supports type-to-filter (token-AND match across label +
+group + hint).
 
 ## Mobile
 
@@ -158,6 +160,29 @@ features stay harmonized (not isolated silos).
 | **W7** | Quiz IRT, sandbox sensitivity heatmap, LaTeX stamps, compare diff+CSV, command palette macros |
 | **W8** | Multi-item quiz session + confidence rating; Feynman voice + auto-gap; debate rebuttal graph; concept-map collaborative cursors (SSE); reader OCR overlay |
 | **Launch Wave 7** | SW-07 nextAction toolbar sync; SW-P1-02 mobile drawer; SW-P1-04 reader↔step; UTF-8 mojibake repair; Noto Greek typography (`552d0ef`) |
+| **Wave A** | Spectrum global theme, theme cycle, design-system CTAs, post-upload banner, greeting i18n |
+| **Wave B** | Concept map edit + undo + graph persistence; palette/study room/reprocess/Feynman i18n; reader Define button |
+
+## Concept map editing (Wave B)
+
+`DraggableConceptMap.tsx` supports interactive graph editing when source is loaded:
+
+- **Nodes:** add, rename, delete (incident edges removed)
+- **Edges:** connect (pick source → target, default prerequisite); click edge to select; **delete edge**; **cycle relation** (prerequisite → related → contrasts)
+- **Undo:** stack of up to 30 snapshots (toolbar button)
+- **Persistence:** full graph saved per task via `saveConceptMapGraph` / `loadConceptMapGraph`
+- **Export:** PNG via `exportConceptMapPng`
+
+Keyboard/a11y paths for canvas tools remain open (see `EXHAUSTIVE_PRODUCT_SCALE_BLUEPRINT.md` §5.6).
+
+## Reader glossary (Wave B)
+
+Click an underlined glossary term to open the popover. Actions:
+
+- **Define** (`readerDefine`) — primary; shows term + glossary definition
+- **Find in text** (`readerFocusInText`) — scroll/focus term in reader body (when `onTermFocus` wired)
+
+TTS: toolbar **Read aloud** / **Read all** uses Web Speech API (`readerTts.ts`) with paragraph highlight sync.
 
 ## Roadmap / next scale work
 
