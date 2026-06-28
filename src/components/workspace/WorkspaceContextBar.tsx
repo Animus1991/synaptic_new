@@ -3,6 +3,7 @@ import { cn } from '../../utils/cn';
 import type { WorkspaceContextBreadcrumb } from '../../lib/workspaceContextModel';
 import type { WorkspaceSourceIntelligence } from '../../lib/workspaceNoteContent';
 import { WorkspaceStudyRoomTrigger } from './WorkspaceStudyRoomTrigger';
+import { useI18n } from '../../lib/i18n';
 
 type Props = {
   context: WorkspaceContextBreadcrumb;
@@ -62,7 +63,7 @@ export function WorkspaceContextBar({
   studyRoomOpen = false,
   className,
 }: Props) {
-  const isEl = lang === 'el';
+  const { t } = useI18n();
   const score = sourceQuality ?? sourceIntelligence?.score ?? null;
   const band = typeof score === 'number' ? qualityBand(score) : null;
 
@@ -91,7 +92,7 @@ export function WorkspaceContextBar({
           data-testid="context-bar-quality-chip"
           aria-pressed={intelSheetOpen}
         >
-          {isEl ? 'Πηγή' : 'Source'} <span className="ws-num">{score}</span>
+          {t('toolSource')} <span className="ws-num">{score}</span>
           {showMigration && <span className="ml-1 opacity-80">↑</span>}
         </button>
       )}
@@ -122,7 +123,7 @@ export function WorkspaceContextBar({
           data-testid="context-bar-next-action"
         >
           <Sparkles className="h-3 w-3" aria-hidden />
-          {nextActionLabel ?? (isEl ? 'Επόμενο' : 'Next')}
+          {nextActionLabel ?? t('next')}
         </button>
       )}
 
@@ -139,7 +140,7 @@ export function WorkspaceContextBar({
           )}
           data-testid="context-bar-weak-chip"
         >
-          {isEl ? 'Αδύναμα' : 'Weak'} <span className="ws-num">({weakCount})</span>
+          {t('weak')} <span className="ws-num">({weakCount})</span>
         </button>
       )}
 
@@ -156,7 +157,7 @@ export function WorkspaceContextBar({
           )}
           data-testid="context-bar-concepts-chip"
         >
-          {isEl ? 'Έννοιες' : 'Concepts'}
+          {t('contextConceptsLabel')}
           {conceptCount > 0 ? <span className="ws-num"> ({conceptCount})</span> : null}
         </button>
       )}
@@ -166,7 +167,7 @@ export function WorkspaceContextBar({
           type="button"
           onClick={onOpenIntelSheet}
           aria-pressed={intelSheetOpen}
-          aria-label={isEl ? 'Λεπτομέρειες πηγής και intelligence' : 'Source & intelligence details'}
+          aria-label={t('contextIntelDetailsAria')}
           className={cn(
             'ml-auto shrink-0 rounded-full border p-1 transition-colors',
             intelSheetOpen

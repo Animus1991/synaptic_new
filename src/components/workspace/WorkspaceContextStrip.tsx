@@ -1,5 +1,6 @@
 import { AlertTriangle } from '@/lib/lucide-shim';
 import type { WorkspaceContextBreadcrumb } from '../../lib/workspaceContextModel';
+import { useI18n } from '../../lib/i18n';
 
 type Props = {
   context: WorkspaceContextBreadcrumb;
@@ -18,7 +19,7 @@ type Props = {
 
 export function WorkspaceContextStrip({
   context,
-  lang,
+  lang: _lang,
   sourceQuality,
   onNextAction,
   onWeakAreas,
@@ -30,7 +31,7 @@ export function WorkspaceContextStrip({
   weakPanelOpen = false,
   conceptBusOpen = false,
 }: Props) {
-  const isEl = lang === 'el';
+  const { t } = useI18n();
 
   return (
     <div
@@ -74,7 +75,7 @@ export function WorkspaceContextStrip({
           {context.toolDescription}
           {typeof sourceQuality === 'number' && (
             <span className="ml-2 ws-chip-warn inline-flex rounded-full px-1.5 py-px text-[9px]">
-              · {isEl ? 'Ποιότητα' : 'Quality'} {sourceQuality}/100
+              · {t('contextQualityLabel')} {sourceQuality}/100
             </span>
           )}
         </p>
@@ -87,7 +88,7 @@ export function WorkspaceContextStrip({
             className="ws-eyebrow ws-chip-brand inline-flex shrink-0 items-center gap-1 rounded-md px-2 py-1 text-[10px] hover:opacity-90"
             data-testid="workspace-next-action"
           >
-            {nextActionLabelProp ?? (isEl ? 'Επόμενο' : 'Next')}
+            {nextActionLabelProp ?? t('next')}
           </button>
         )}
         {weakCount > 0 && onWeakAreas && (
@@ -100,7 +101,7 @@ export function WorkspaceContextStrip({
             }`}
             data-testid="workspace-weak-areas-toggle"
           >
-            {isEl ? 'Αδύναμα' : 'Weak'} <span className="ws-num">({weakCount})</span>
+            {t('weak')} <span className="ws-num">({weakCount})</span>
           </button>
         )}
         {onConceptBus && (
@@ -113,7 +114,7 @@ export function WorkspaceContextStrip({
             }`}
             data-testid="workspace-concept-bus-toggle"
           >
-            {isEl ? 'Έννοιες' : 'Concepts'} {conceptCount > 0 ? <span className="ws-num">({conceptCount})</span> : ''}
+            {t('contextConceptsLabel')} {conceptCount > 0 ? <span className="ws-num">({conceptCount})</span> : ''}
           </button>
         )}
       </div>

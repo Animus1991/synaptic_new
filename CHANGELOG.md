@@ -7,6 +7,8 @@ client and server are versioned together.
 
 ### Changed
 
+- **Wave C1 batch 3 (Jun 2026)** — i18n migration: `WorkspaceContextBar`, `WorkspaceContextStrip` (+3 keys; reuses `next`, `weak`, `toolSource`).
+
 - **Wave C1 batch 2 (Jun 2026)** — i18n migration: `WorkspaceToolHeader`, `WorkspaceSourceStatusBar`, `ReprocessTextEditor` (+41 keys).
 
 - **Wave C1 batch 1 (Jun 2026)** — i18n migration: `Dashboard.tsx`, `PostUploadBanner.tsx` (14 keys in `i18n.ts`; removed inline `isEl`).
