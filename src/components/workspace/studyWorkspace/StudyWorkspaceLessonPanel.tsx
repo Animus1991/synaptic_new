@@ -65,7 +65,6 @@ export function StudyWorkspaceLessonPanel({ model }: StudyWorkspaceLessonPanelPr
 
   const lessonPanelRef = usePanelRef();
   const ignorePanelSyncRef = useRef(false);
-  const isEl = lang === 'el';
   const showSourceAlert = (showLowQualityBanner || showReuploadHint) && sourceQualityScore != null;
   const canRailCollapse = layout === 'split';
 
@@ -103,8 +102,8 @@ export function StudyWorkspaceLessonPanel({ model }: StudyWorkspaceLessonPanelPr
     setLessonCollapsed((collapsed) => !collapsed);
   };
 
-  const expandLabel = isEl ? 'Επέκταση πίνακα μαθήματος' : 'Expand lesson panel';
-  const collapseLabel = isEl ? 'Σύμπτυξη πίνακα μαθήματος' : 'Collapse lesson panel';
+  const expandLabel = t('wsLessonExpandPanel');
+  const collapseLabel = t('wsLessonCollapsePanel');
   const showExpandedContent = canRailCollapse ? !lessonCollapsed : true;
 
   return (

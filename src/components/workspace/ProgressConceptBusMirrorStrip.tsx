@@ -1,10 +1,11 @@
 ﻿import { Download } from '@/lib/lucide-shim';
+import { t, type Lang } from '../../lib/i18n';
 import type { ProgressConceptBusMirrorReport } from '../../lib/progressConceptBusMirrorQA';
 import { WorkspaceQaStatusStrip } from './WorkspaceQaStatusStrip';
 
 type Props = {
   report: ProgressConceptBusMirrorReport;
-  lang: 'en' | 'el';
+  lang: Lang;
   onExportHtml?: () => void;
 };
 
@@ -29,7 +30,7 @@ export function ProgressConceptBusMirrorStrip({ report, lang, onExportHtml }: Pr
             </button>
           )}
           {!report.ok && (
-            <span className="shrink-0 text-[10px] opacity-90">{lang === 'el' ? 'έλεγχος' : 'check'}</span>
+            <span className="shrink-0 text-[10px] opacity-90">{t('checkLabel', lang)}</span>
           )}
         </>
       }

@@ -6,6 +6,7 @@ import {
   serializeAgentWorkspaceContextJson,
   type AgentWorkspaceContext,
 } from '../lib/agentWorkspaceContext';
+import { useI18n } from '../lib/i18n';
 
 type Props = {
   context: AgentWorkspaceContext | null | undefined;
@@ -15,6 +16,7 @@ type Props = {
 
 /** Visible workspace handoff strip in the Agent panel (Prompt 3). */
 export function AgentContextBanner({ context, lang, className }: Props) {
+  const { t } = useI18n();
   const banner = buildAgentContextBanner(context, lang);
   const [jsonOpen, setJsonOpen] = useState(false);
   if (!banner) return null;
@@ -56,7 +58,7 @@ export function AgentContextBanner({ context, lang, className }: Props) {
                 aria-expanded={jsonOpen}
               >
                 {jsonOpen ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
-                {lang === 'el' ? 'JSON context' : 'JSON context'}
+                {t('agentJsonContext')}
               </button>
               {jsonOpen && (
                 <pre

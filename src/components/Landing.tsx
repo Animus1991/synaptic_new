@@ -24,7 +24,7 @@ const serif: React.CSSProperties = { fontFamily: 'var(--font-display)' };
 const mono: React.CSSProperties = { fontFamily: 'var(--font-mono)' };
 
 export function Landing({ onGetStarted, onSeeDemo }: LandingProps) {
-  const { lang } = useI18n();
+  const { t, lang } = useI18n();
   const content = getLandingContent(lang);
 
   return (
@@ -131,9 +131,7 @@ export function Landing({ onGetStarted, onSeeDemo }: LandingProps) {
               className="mt-6 text-xs text-text-muted"
               style={mono}
             >
-              {lang === 'el'
-                ? '// Demo: Μάθημα Οικονομικών — χωρίς upload'
-                : '// Demo uses preloaded Economics notes — no upload needed'}
+              {t('landingDemoHint')}
             </motion.p>
           )}
 
@@ -161,7 +159,7 @@ export function Landing({ onGetStarted, onSeeDemo }: LandingProps) {
             >
               <div className="rounded-2xl border border-border-subtle bg-surface-card/50 p-6 2xl:p-8 backdrop-blur-sm">
                 <p className="text-xs font-semibold text-brand-700 mb-4" style={mono}>
-                  {lang === 'el' ? 'Για ποιον;' : 'Built for'}
+                  {t('landingBuiltFor')}
                 </p>
                 <div className="grid grid-cols-1 gap-2.5">
                   {content.userTypes.map((ut, i) => {
@@ -308,7 +306,7 @@ export function Landing({ onGetStarted, onSeeDemo }: LandingProps) {
               <h2
                 className="text-xs font-semibold text-brand-700 mb-5"
               >
-                {lang === 'el' ? 'Διαφοροποίηση' : 'Differentiation'}
+                {t('landingDifferentiation')}
               </h2>
               <h3
                 className="text-[1.28rem] sm:text-[1.07rem] md:text-[1.187rem] lg:text-[1.615rem] font-bold text-text-primary leading-[1.15] mb-4"

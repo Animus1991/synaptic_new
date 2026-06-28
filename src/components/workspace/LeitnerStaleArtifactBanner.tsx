@@ -5,6 +5,7 @@ import {
   type LeitnerStaleBannerPlacement,
 } from '../../lib/leitnerStaleArtifactUX';
 import { WorkspacePanelWarnStrip } from './WorkspacePanelWarnStrip';
+import { useI18n } from '../../lib/i18n';
 
 type Props = {
   lang: 'en' | 'el';
@@ -13,7 +14,7 @@ type Props = {
 };
 
 export function LeitnerStaleArtifactBanner({ lang, placement, onDismiss }: Props) {
-  const isEl = lang === 'el';
+  const { t } = useI18n();
   const compact = placement === 'deck-sticky';
   const copy = leitnerStaleBannerCopy(lang, compact);
 
@@ -36,7 +37,7 @@ export function LeitnerStaleArtifactBanner({ lang, placement, onDismiss }: Props
           )}
           data-testid={`artifact-stale-dismiss-leitner${compact ? '-mobile' : ''}`}
         >
-          {isEl ? 'Εντάξει, συνέχεια' : 'Got it'}
+          {t('gotItContinue')}
         </button>
       }
     >

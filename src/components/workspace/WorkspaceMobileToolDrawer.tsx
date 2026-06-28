@@ -2,6 +2,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { X } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
 import type { WorkspaceToolId } from '../../lib/taskFlows';
+import { t, type Lang } from '../../lib/i18n';
 import {
   WORKSPACE_TOOL_GROUPS,
   WORKSPACE_TOOLS,
@@ -14,7 +15,7 @@ interface Props {
   activeTool: WorkspaceToolId;
   availableTools: WorkspaceToolId[];
   onSelectTool: (tool: WorkspaceToolId) => void;
-  lang: 'en' | 'el';
+  lang: Lang;
 }
 
 export function WorkspaceMobileToolDrawer({
@@ -25,8 +26,6 @@ export function WorkspaceMobileToolDrawer({
   onSelectTool,
   lang,
 }: Props) {
-  const el = lang === 'el';
-
   const handleSelect = (tool: WorkspaceToolId) => {
     onSelectTool(tool);
     onClose();
@@ -38,7 +37,7 @@ export function WorkspaceMobileToolDrawer({
         <div className="fixed inset-0 z-[150] lg:hidden" role="presentation">
           <motion.button
             type="button"
-            aria-label={el ? 'Κλείσιμο' : 'Close'}
+            aria-label={t('close', lang)}
             className="absolute inset-0 bg-black/50 backdrop-blur-[2px]"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -48,7 +47,7 @@ export function WorkspaceMobileToolDrawer({
           <motion.div
             role="dialog"
             aria-modal="true"
-            aria-label={el ? 'Εργαλεία μελέτης' : 'Study tools'}
+            aria-label={t('wsStudyToolsAria', lang)}
             data-testid="workspace-mobile-tool-drawer"
             initial={{ y: '100%' }}
             animate={{ y: 0 }}
@@ -68,16 +67,16 @@ export function WorkspaceMobileToolDrawer({
             </div>
             <div className="flex items-center justify-between border-b border-border-subtle px-4 pb-3 pt-1">
               <div className="min-w-0">
-                <p className="ws-eyebrow text-text-muted">{el ? 'Εργαλεία μελέτης' : 'Study tools'}</p>
+                <p className="ws-eyebrow text-text-muted">{t('wsStudyToolsAria', lang)}</p>
                 <p className="mt-0.5 truncate text-[12px] text-text-secondary">
-                  {el ? 'Τρέχον:' : 'Current:'}{' '}
+                  {t('wsCurrentColon', lang)}{' '}
                   <span className="text-text-primary font-medium">{workspaceToolLabel(activeTool, lang)}</span>
                 </p>
               </div>
               <button
                 type="button"
                 onClick={onClose}
-                aria-label={el ? 'Κλείσιμο' : 'Close'}
+                aria-label={t('close', lang)}
                 className="rounded-md p-2 text-text-muted hover:bg-surface-hover min-h-[40px] min-w-[40px] inline-flex items-center justify-center"
               >
                 <X className="h-4 w-4" />
@@ -90,7 +89,7 @@ export function WorkspaceMobileToolDrawer({
                 return (
                   <div key={group.label}>
                     <p className="mb-2 px-1 ws-eyebrow text-text-muted">
-                      {el ? group.labelEl : group.label}
+                      {lang === 'el' ? group.labelEl : group.label}
                     </p>
                     <div className="grid grid-cols-1 gap-2 xs:grid-cols-2">
                       {toolsInGroup.map((toolId) => {
@@ -114,10 +113,10 @@ export function WorkspaceMobileToolDrawer({
                             <Icon className={cn('h-4 w-4 shrink-0 mt-0.5', active ? 'text-brand-700' : 'text-text-muted')} aria-hidden />
                             <span className="min-w-0 flex-1">
                               <span className="block text-[13px] font-semibold leading-tight truncate">
-                                {el ? meta.labelEl : meta.label}
+                                {lang === 'el' ? meta.labelEl : meta.label}
                               </span>
                               <span className="mt-0.5 block text-[11px] leading-snug text-text-muted line-clamp-2">
-                                {el ? meta.descEl : meta.desc}
+                                {lang === 'el' ? meta.descEl : meta.desc}
                               </span>
                             </span>
                           </button>

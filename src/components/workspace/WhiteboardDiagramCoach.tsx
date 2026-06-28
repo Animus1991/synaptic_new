@@ -5,6 +5,7 @@ import type { DiagramCoachPlan, DiagramCoachStep } from '../../lib/whiteboardDia
 import type { WhiteboardBlueprintCoverageReport } from '../../lib/whiteboardBlueprintCoverageQA';
 import { blueprintKindLabel } from '../../lib/whiteboardBlueprintCoverageQA';
 import { WhiteboardBlueprintCoverageStrip } from './WhiteboardBlueprintCoverageStrip';
+import { useI18n } from '../../lib/i18n';
 
 type Props = {
   plan: DiagramCoachPlan;
@@ -25,7 +26,7 @@ export function WhiteboardDiagramCoach({
 }: Props) {
   const [expanded, setExpanded] = useState(true);
   const [activeStepId, setActiveStepId] = useState<string | null>(plan.steps[0]?.id ?? null);
-  const isEl = lang === 'el';
+  const { t } = useI18n();
 
   const activeStep = plan.steps.find((s) => s.id === activeStepId) ?? null;
 
@@ -47,7 +48,7 @@ export function WhiteboardDiagramCoach({
         <div className="flex items-center gap-2 min-w-0">
           <LayoutTemplate className="w-3.5 h-3.5 text-brand-700 shrink-0" />
           <span className="text-[11px] font-semibold text-text-secondary truncate">
-            {isEl ? 'Diagram coach' : 'Diagram coach'}
+            {t('wbDiagramCoach')}
             {' · '}
             {blueprintKindLabel(plan.kind, lang)}
           </span>
@@ -61,7 +62,7 @@ export function WhiteboardDiagramCoach({
           <p className="text-[10px] text-text-muted leading-relaxed">{plan.summary}</p>
           {plan.weakFocus && (
             <p className="text-[10px] text-accent-amber" data-testid="whiteboard-coach-weak-focus">
-              {isEl ? 'Εστίαση:' : 'Focus:'} {plan.weakFocus}
+              {t('focusColon')} {plan.weakFocus}
             </p>
           )}
 
@@ -73,7 +74,7 @@ export function WhiteboardDiagramCoach({
               className="inline-flex items-center gap-1 ws-chip-brand rounded-lg border px-2 py-1 text-[10px] font-medium hover:bg-brand-600/15"
             >
               <PenLine className="w-3 h-3" />
-              {isEl ? 'Ετικέτες στον πίνακα' : 'Insert labels'}
+              {t('wbInsertLabels')}
             </button>
             <button
               type="button"
@@ -82,7 +83,7 @@ export function WhiteboardDiagramCoach({
               className="inline-flex items-center gap-1 ws-chip-brand rounded-lg border px-2 py-1 text-[10px] font-medium hover:opacity-90"
             >
               <Sparkles className="w-3 h-3" />
-              {isEl ? 'Agent οδηγός' : 'Agent guide'}
+              {t('wbAgentGuide')}
             </button>
             <button
               type="button"
@@ -91,7 +92,7 @@ export function WhiteboardDiagramCoach({
               className="inline-flex items-center gap-1 rounded-lg border border-border-subtle px-2 py-1 text-[10px] text-text-muted hover:text-text-secondary"
             >
               <Bot className="w-3 h-3" />
-              {isEl ? 'Κριτική σκίτσου' : 'Critique sketch'}
+              {t('wbCritiqueSketch')}
             </button>
           </div>
 
@@ -137,7 +138,7 @@ export function WhiteboardDiagramCoach({
                   onClick={() => onInsertLabels([activeStep.boardLabel!])}
                   className="rounded-lg border border-border-subtle px-2 py-0.5 text-[9px] text-text-muted hover:text-brand-800"
                 >
-                  {isEl ? 'Ετικέτα' : 'Label'}: {activeStep.boardLabel}
+                  {t('wbLabel')}: {activeStep.boardLabel}
                 </button>
               )}
               <button
@@ -147,7 +148,7 @@ export function WhiteboardDiagramCoach({
                 className="inline-flex items-center gap-1 rounded-lg border border-accent-cyan/25 px-2 py-0.5 text-[9px] text-brand-800 hover:bg-accent-cyan/10"
               >
                 <Sparkles className="w-3 h-3" />
-                {isEl ? `Agent βήμα ${activeStep.order}` : `Agent step ${activeStep.order}`}
+                {t('wbAgentStep').replace('{order}', String(activeStep.order))}
               </button>
             </div>
           )}

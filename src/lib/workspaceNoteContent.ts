@@ -3,7 +3,7 @@
  * When no uploaded source exists, tools receive empty payloads — never demo data.
  */
 
-import type { Lang } from './i18n';
+import { t, type I18nKey, type Lang } from './i18n';
 import type { QuizDef } from './domainContent';
 import type { Course, GlossaryEntry, LearnerModel, Topic, UploadedFile } from '../types';
 import type { WorkspaceToolId } from './taskFlows';
@@ -166,113 +166,59 @@ export function buildWorkspaceSourceIntelligence(opts: {
   const strengths: string[] = [];
   if (passageCount >= 3) {
     strengths.push(
-      lang === 'el'
-        ? `Ισχυρή τεκμηρίωση της έννοιας σε ${passageCount} σχετικά αποσπάσματα.`
-        : `Strong evidence for the concept across ${passageCount} relevant source passages.`,
+      t('srcIntelStrengthPassages', lang).replace('{passageCount}', String(passageCount)),
     );
   }
   if (sectionCount >= 2) {
     const structLabel = structure?.labels[0];
     strengths.push(
-      lang === 'el'
-        ? `Το υλικό έχει καθαρή δομή με ${sectionCount} ενότητες${structLabel ? ` (${structLabel})` : ''}.`
-        : `The material has clear structure with ${sectionCount} sections${structLabel ? ` (${structLabel})` : ''}.`,
+      t('srcIntelStrengthStructure', lang)
+        .replace('{sectionCount}', String(sectionCount))
+        .replace('{structSuffix}', structLabel ? ` (${structLabel})` : ''),
     );
   }
   if (definitionCount + glossaryCount >= 4) {
-    strengths.push(
-      lang === 'el'
-        ? 'Υπάρχει αρκετή ορολογία για ποιοτικά quiz, flashcards και explanations.'
-        : 'There is enough terminology to support high-quality quizzes, flashcards, and explanations.',
-    );
+    strengths.push(t('srcIntelStrengthTerminology', lang));
   }
   if (workedExampleCount + formulaCount >= 2) {
-    strengths.push(
-      lang === 'el'
-        ? 'Ανιχνεύτηκαν παραδείγματα ή τύποι που υποστηρίζουν ουσιαστική practice.'
-        : 'Examples or formulas were detected, which supports meaningful practice.',
-    );
+    strengths.push(t('srcIntelStrengthExamples', lang));
   }
   if (comparisonCount >= 2) {
-    strengths.push(
-      lang === 'el'
-        ? 'Το περιεχόμενο περιλαμβάνει συγκρίσεις που βοηθούν βαθύτερη κατανόηση.'
-        : 'The content contains comparisons that support deeper understanding.',
-    );
+    strengths.push(t('srcIntelStrengthComparisons', lang));
   }
 
   const gaps: string[] = [];
   if (passageCount < 2) {
-    gaps.push(
-      lang === 'el'
-        ? 'Η έννοια εμφανίζεται σε λίγα ισχυρά αποσπάσματα, άρα το grounding παραμένει εύθραυστο.'
-        : 'The concept appears in too few strong passages, so grounding remains fragile.',
-    );
+    gaps.push(t('srcIntelGapPassages', lang));
   }
   if (sectionCount < 2) {
-    gaps.push(
-      lang === 'el'
-        ? 'Οι σημειώσεις έχουν ασθενή δομή, οπότε τα lesson steps βασίζονται περισσότερο σε heuristics.'
-        : 'The notes have weak structure, so lesson steps rely more heavily on heuristics.',
-    );
+    gaps.push(t('srcIntelGapStructure', lang));
   }
   if (definitionCount + glossaryCount < 2) {
-    gaps.push(
-      lang === 'el'
-        ? 'Υπάρχουν λίγοι ρητοί ορισμοί ή glossary anchors για την έννοια.'
-        : 'There are too few explicit definitions or glossary anchors for this concept.',
-    );
+    gaps.push(t('srcIntelGapDefinitions', lang));
   }
   if (workedExampleCount + formulaCount === 0) {
-    gaps.push(
-      lang === 'el'
-        ? 'Δεν εντοπίστηκαν λυμένα παραδείγματα ή υπολογιστικά στοιχεία για practice.'
-        : 'No worked examples or computational cues were detected for practice.',
-    );
+    gaps.push(t('srcIntelGapWorkedExamples', lang));
   }
   if (comparisonCount === 0 && conceptNodeCount < 4) {
-    gaps.push(
-      lang === 'el'
-        ? 'Η σχεσιακή κάλυψη της έννοιας είναι περιορισμένη και το concept graph παραμένει ρηχό.'
-        : 'Relational coverage is limited, so the concept graph stays shallow.',
-    );
+    gaps.push(t('srcIntelGapRelational', lang));
   }
 
   const nextActions: string[] = [];
   if (passageCount < 2) {
-    nextActions.push(
-      lang === 'el'
-        ? 'Ανέβασε ακόμη μία διάλεξη, chapter ή set σημειώσεων ειδικά για αυτή την έννοια.'
-        : 'Upload one more lecture, chapter, or note set focused on this concept.',
-    );
+    nextActions.push(t('srcIntelActionUploadMore', lang));
   }
   if (sectionCount < 2) {
-    nextActions.push(
-      lang === 'el'
-        ? 'Πρόσθεσε υλικό με headings ή καθαρές ενότητες ώστε το course flow να γίνει πιο αξιόπιστο.'
-        : 'Add material with headings or clear sections so the course flow becomes more reliable.',
-    );
+    nextActions.push(t('srcIntelActionHeadings', lang));
   }
   if (definitionCount + glossaryCount < 2) {
-    nextActions.push(
-      lang === 'el'
-        ? 'Συνδύασε lecture notes με slides ή glossary-heavy υλικό για πιο καθαρούς ορισμούς.'
-        : 'Combine lecture notes with slides or glossary-heavy material for clearer definitions.',
-    );
+    nextActions.push(t('srcIntelActionGlossary', lang));
   }
   if (workedExampleCount + formulaCount === 0) {
-    nextActions.push(
-      lang === 'el'
-        ? 'Πρόσθεσε λυμένες ασκήσεις, παραδείγματα ή problem sets για ισχυρότερη practice generation.'
-        : 'Add solved exercises, examples, or problem sets for stronger practice generation.',
-    );
+    nextActions.push(t('srcIntelActionPractice', lang));
   }
   if (comparisonCount === 0 && conceptNodeCount < 4) {
-    nextActions.push(
-      lang === 'el'
-        ? 'Ανέβασε υλικό που συγκρίνει έννοιες ή δείχνει σχέσεις prerequisite/contrast.'
-        : 'Upload material that compares concepts or makes prerequisite/contrast relations explicit.',
-    );
+    nextActions.push(t('srcIntelActionCompare', lang));
   }
 
   const toolScores: Array<{ tool: WorkspaceToolId; score: number }> = [
@@ -286,33 +232,16 @@ export function buildWorkspaceSourceIntelligence(opts: {
   ];
   toolScores.sort((a, b) => b.score - a.score);
   const bestTool = toolScores[0]?.tool ?? 'reader';
-  const bestToolReason = bestTool === 'scratchpad'
-    ? (lang === 'el'
-      ? 'Οι σημειώσεις περιέχουν τύπους ή υπολογιστικά μοτίβα που αξίζει να δουλευτούν ενεργά.'
-      : 'The notes contain formulas or computational patterns worth working through actively.')
-    : bestTool === 'compare'
-      ? (lang === 'el'
-        ? 'Το υλικό έχει αρκετές συγκρίσεις για να ξεκαθαρίσεις ομοιότητες και διαφορές.'
-        : 'The material contains enough comparisons to clarify similarities and differences.')
-      : bestTool === 'leitner'
-        ? (lang === 'el'
-          ? 'Η έννοια υποστηρίζεται από αρκετή ορολογία για αποδοτικό retrieval practice.'
-          : 'The concept is supported by enough terminology for efficient retrieval practice.')
-        : bestTool === 'concept-map'
-          ? (lang === 'el'
-            ? 'Υπάρχουν αρκετοί σχετικοί κόμβοι και σχέσεις για εννοιολογική χαρτογράφηση.'
-            : 'There are enough related nodes and relations for concept mapping.')
-          : bestTool === 'whiteboard'
-            ? (lang === 'el'
-              ? 'Η έννοια ταιριάζει σε worked examples και οπτική επίλυση βήμα-βήμα.'
-              : 'This concept benefits from worked examples and visual step-by-step solving.')
-            : bestTool === 'feynman'
-              ? (lang === 'el'
-                ? 'Το υλικό προσφέρεται για self-explanation και έλεγχο κατανόησης.'
-                : 'The material is well-suited to self-explanation and understanding checks.')
-              : (lang === 'el'
-                ? 'Τα πιο ισχυρά αποσπάσματα βρίσκονται στον reader και δίνουν το καλύτερο grounded context.'
-                : 'The strongest grounded context is in the reader excerpts.');
+  const bestToolReasonKeys: Partial<Record<WorkspaceToolId, I18nKey>> = {
+    scratchpad: 'bestToolReasonScratchpad',
+    compare: 'bestToolReasonCompare',
+    leitner: 'bestToolReasonLeitner',
+    'concept-map': 'bestToolReasonConceptMap',
+    reader: 'bestToolReasonReader',
+    whiteboard: 'bestToolReasonWhiteboard',
+    feynman: 'bestToolReasonFeynman',
+  };
+  const bestToolReason = t(bestToolReasonKeys[bestTool] ?? 'bestToolReasonReader', lang);
 
   return {
     score,
@@ -379,17 +308,13 @@ export function buildWorkspaceNoteBundle(opts: BuildWorkspaceNoteBundleOpts): Wo
       compareRows: [],
       formulas: [],
       debateTree: null,
-      feynmanOutline: lang === 'el'
-        ? [`Ανέβασε τις σημειώσεις σου για το «${concept}»`, 'Μετά εξήγησε με δικά σου λόγια μόνο από το υλικό σου']
-        : [`Upload your notes for «${concept}»`, 'Then explain in your own words using only your material'],
-      feynmanGaps: lang === 'el'
-        ? ['Χωρίς ανεβασμένο υλικό δεν μπορούμε να ελέγξουμε ακρίβεια — ανέβασε πρώτα τις σημειώσεις.']
-        : ['Without uploaded material we cannot verify accuracy — upload your notes first.'],
+      feynmanOutline: [
+        t('feynmanNoSourceOutline1', lang).replace('{concept}', concept),
+        t('feynmanNoSourceOutline2', lang),
+      ],
+      feynmanGaps: [t('feynmanNoSourceGap', lang)],
       feynmanGapTerms: [],
-      feynmanPlaceholder:
-        lang === 'el'
-          ? `Εξήγησε το «${concept}» — ανέβασε πρώτα τις σημειώσεις σου για στοχευμένη ανατροφοδότηση.`
-          : `Explain «${concept}» — upload your notes first for targeted feedback.`,
+      feynmanPlaceholder: t('feynmanNoSourcePlaceholder', lang).replace('{concept}', concept),
       workspaceSteps: null,
       quiz: null,
       economicsSandbox: false,
@@ -450,7 +375,7 @@ export function buildWorkspaceNoteBundle(opts: BuildWorkspaceNoteBundleOpts): Wo
     .map((s) => ({
       front: s.concept,
       back: scopedGlossary.find((g) => g.term.toLowerCase().includes(s.concept.toLowerCase().slice(0, 6)))?.definition
-        ?? (lang === 'el' ? `Επόμενη επανάληψη σε ${Math.round(s.interval)} ημέρες` : `Next review in ${Math.round(s.interval)} days`),
+        ?? t('nextReviewInDays', lang).replace('{days}', String(Math.round(s.interval))),
     }));
 
   const leitnerCards = [...spacingCards, ...leitnerFromNotes].filter(
@@ -472,10 +397,7 @@ export function buildWorkspaceNoteBundle(opts: BuildWorkspaceNoteBundleOpts): Wo
     feynmanOutline: buildFeynmanOutline(matchingTopic, text, concept, lang),
     feynmanGaps: buildFeynmanGaps(scopedGlossary, concept, lang),
     feynmanGapTerms: buildFeynmanGapTerms(scopedGlossary, concept),
-    feynmanPlaceholder:
-      lang === 'el'
-        ? `Εξήγησε το «${concept}» με απλά λόγια, βασιζόμενος/η μόνο στις σημειώσεις σου…`
-        : `Explain «${concept}» simply, using only your uploaded notes…`,
+    feynmanPlaceholder: t('feynmanExplainPlaceholder', lang).replace('{concept}', concept),
     workspaceSteps: workspaceSteps ?? fallbackWorkspaceSteps(concept, lang),
     quiz,
     economicsSandbox: notesSupportSandbox(text, concept, formulas),

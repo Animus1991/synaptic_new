@@ -4,6 +4,7 @@
  */
 
 import type { Course, UploadedFile } from '../types';
+import { t, type Lang } from './i18n';
 import { buildReaderSegments, readerSegmentsToStepSections } from './readerDocumentLayout';
 import { buildReprocessEditorSections, type ReprocessEditorSection } from './reprocessEditorSections';
 import { buildWorkspaceStepsFromNotes, fallbackWorkspaceSteps } from './noteContentExtractors';
@@ -76,12 +77,12 @@ function resolvePreviewConcept(course: Course, conceptHint?: string): string {
   return course.title.trim() || 'Introduction';
 }
 
-function previewRawStepTitles(text: string, lang: 'en' | 'el'): ReprocessPreviewStepTitle[] {
+function previewRawStepTitles(text: string, lang: Lang): ReprocessPreviewStepTitle[] {
   const sections = readerSegmentsToStepSections(buildReaderSegments(text), lang);
   if (sections.length >= 2) {
     return sections.slice(0, 8).map((section) => {
       const title = (section.heading ?? section.text.split('\n')[0] ?? '').trim().slice(0, 42);
-      return { title: title || (lang === 'el' ? 'Ενότητα' : 'Section'), garbage: isGarbageStepTitle(title) };
+      return { title: title || t('reprocessSectionSingular', lang), garbage: isGarbageStepTitle(title) };
     });
   }
   const fallback = text.split('\n').map((l) => l.trim()).filter(Boolean).slice(0, 4);

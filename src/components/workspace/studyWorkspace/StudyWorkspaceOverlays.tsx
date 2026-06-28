@@ -21,6 +21,7 @@ export function StudyWorkspaceOverlays({ model }: StudyWorkspaceOverlaysProps) {
     onReprocessMaterial,
     reprocessingMaterial,
     lang,
+    t,
     activeTool,
     isMobile,
     layout,
@@ -92,19 +93,19 @@ export function StudyWorkspaceOverlays({ model }: StudyWorkspaceOverlaysProps) {
                     <div className="flex items-center justify-between px-4 py-3 border-b border-white/8">
                       <div className="flex items-center gap-2">
                         <StickyNote className="w-4 h-4 text-brand-800" />
-                        <span className="text-sm font-semibold">{lang === 'el' ? 'Σημειώσεις συνεδρίας' : 'Session notes'}</span>
+                        <span className="text-sm font-semibold">{t('paletteSessionNotes')}</span>
                       </div>
                       <button onClick={() => setShowNotes(false)} className="p-1.5 rounded-lg hover:bg-white/10 text-text-muted"><X className="w-4 h-4" /></button>
                     </div>
                     <textarea
                       value={notes}
                       onChange={(e) => setNotes(e.target.value)}
-                      placeholder={lang === 'el' ? 'Κράτα σημειώσεις καθώς μελετάς… (αποθηκεύονται τοπικά)' : 'Jot notes as you study… (saved locally)'}
+                      placeholder={t('wsOverlayNotesPlaceholder')}
                       className="flex-1 w-full resize-none bg-transparent px-4 py-3 text-sm leading-relaxed text-text-primary focus:outline-none"
                     />
                     <div className="flex items-center justify-between px-4 py-2 border-t border-white/8 text-[10px] text-text-muted">
-                      <span>{lang === 'el' ? 'Αυτόματη αποθήκευση' : 'Auto-saved'}</span>
-                      <span>{notes.trim().split(/\s+/).filter(Boolean).length} {lang === 'el' ? 'λέξεις' : 'words'}</span>
+                      <span>{t('wsOverlayAutoSaved')}</span>
+                      <span>{notes.trim().split(/\s+/).filter(Boolean).length} {t('words')}</span>
                     </div>
                   </motion.div>
                 </>
@@ -167,7 +168,7 @@ export function StudyWorkspaceOverlays({ model }: StudyWorkspaceOverlaysProps) {
               open={showPalette}
               onClose={() => setShowPalette(false)}
               items={paletteItems}
-              placeholder={lang === 'el' ? 'Εργαλείο, αναζήτηση ή ενέργεια…' : 'Type a tool, search, or action…'}
+              placeholder={t('wsOverlayPalettePlaceholder')}
             />
       
             <WorkspaceKeyboardHelp
@@ -190,7 +191,7 @@ export function StudyWorkspaceOverlays({ model }: StudyWorkspaceOverlaysProps) {
                 className="fixed bottom-3 left-1/2 -translate-x-1/2 z-[120] w-[88%] max-w-[420px] ws-fab flex items-center justify-between gap-2 px-3 py-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] lg:hidden"
                 data-testid="workspace-mobile-tool-bar"
                 role="navigation"
-                aria-label={lang === 'el' ? 'Επιλογή εργαλείου' : 'Tool picker'}
+                aria-label={t('wsOverlayToolPicker')}
               >
                 <div className="flex items-center gap-2 pl-2 min-w-0 flex-1">
                   <div
@@ -211,7 +212,7 @@ export function StudyWorkspaceOverlays({ model }: StudyWorkspaceOverlaysProps) {
                     data-testid="workspace-mobile-next-action"
                     aria-label={nextActionLabel(nextActionRecommendation.primary, lang)}
                   >
-                    {lang === 'el' ? 'Επόμενο' : 'Next'}
+                    {t('next')}
                   </button>
                 )}
                 <button
@@ -220,7 +221,7 @@ export function StudyWorkspaceOverlays({ model }: StudyWorkspaceOverlaysProps) {
                   data-testid="workspace-mobile-tools-open"
                   aria-haspopup="dialog"
                   aria-expanded={mobileToolDrawerOpen}
-                  aria-label={lang === 'el' ? `Εργαλεία — τρέχον: ${workspaceToolLabel(activeTool, lang)}` : `Tools — current: ${workspaceToolLabel(activeTool, lang)}`}
+                  aria-label={t('wsOverlayToolsCurrent').replace('{tool}', workspaceToolLabel(activeTool, lang))}
                   className="w-10 h-10 rounded-full bg-[#faf8f5] text-brand-700 flex items-center justify-center shadow-inner shrink-0 hover:bg-white transition-colors min-h-[40px] min-w-[40px]"
                 >
                   <LayoutGrid className="h-5 w-5" aria-hidden />

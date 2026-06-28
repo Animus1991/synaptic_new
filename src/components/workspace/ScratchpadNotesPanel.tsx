@@ -13,6 +13,7 @@ import {
   createScratchpadEntry,
   buildFlashcardFromEntry,
 } from '../../lib/scratchpadEntryStore';
+import { useI18n } from '../../lib/i18n';
 
 interface Props {
   scopeKey: string;
@@ -51,6 +52,7 @@ export function ScratchpadNotesPanel({
   onConvertToAnnotation,
   onAskAgent,
 }: Props) {
+  const { t } = useI18n();
   const [entries, setEntries] = useState<ScratchpadEntry[]>(() => loadScratchpadEntries(scopeKey));
   const [mode, setMode] = useState<ScratchpadMode>('free');
   const [draft, setDraft] = useState(draftProp ?? '');
@@ -98,23 +100,13 @@ export function ScratchpadNotesPanel({
   const selected = entries.find((e) => e.id === selectedId);
 
   const modePlaceholder = (m: ScratchpadMode): string => {
-    if (lang === 'el') {
-      switch (m) {
-        case 'self-explanation': return 'Εξήγησε με δικά σου λόγια…';
-        case 'problem-attempt': return 'Δοκίμασε να λύσεις το πρόβλημα…';
-        case 'confusion-log': return 'Τι σε μπερδεύει;';
-        case 'exam-draft': return 'Πρόχειρη απάντηση εξέτασης…';
-        case 'summary': return 'Σύνοψη ενότητας…';
-        default: return 'Γράψε τις σκέψεις σου…';
-      }
-    }
     switch (m) {
-      case 'self-explanation': return 'Explain in your own words…';
-      case 'problem-attempt': return 'Work through the problem…';
-      case 'confusion-log': return 'What is confusing?';
-      case 'exam-draft': return 'Draft exam answer…';
-      case 'summary': return 'Section summary…';
-      default: return 'Write your thinking…';
+      case 'self-explanation': return t('scratchPhSelfExplain');
+      case 'problem-attempt': return t('scratchPhProblem');
+      case 'confusion-log': return t('scratchPhConfusion');
+      case 'exam-draft': return t('scratchPhExamDraft');
+      case 'summary': return t('scratchPhSummary');
+      default: return t('scratchPhDefault');
     }
   };
 
@@ -122,7 +114,7 @@ export function ScratchpadNotesPanel({
     <div className="flex flex-col h-full" data-testid="scratchpad-notes-panel">
       {(sectionLabel || concept) && (
         <div className="px-4 py-1.5 border-b border-border-subtle bg-surface-primary/30 text-[10px] text-text-muted shrink-0">
-          {lang === 'el' ? 'Συνδεδεμένο με' : 'Attached to'}
+          {t('scratchAttachedTo')}
           {sectionLabel && <span className="ml-1 font-medium text-brand-800">{sectionLabel}</span>}
           {concept && sectionLabel !== concept && <span className="ml-1 text-brand-800">· {concept}</span>}
         </div>
@@ -165,8 +157,8 @@ export function ScratchpadNotesPanel({
           >
             <Save className="w-3.5 h-3.5" />
             {savedFlash
-              ? (lang === 'el' ? 'Αποθηκεύτηκε!' : 'Saved!')
-              : (lang === 'el' ? 'Αποθήκευση' : 'Save entry')}
+              ? (t('scratchSaved'))
+              : (t('scratchSaveEntry'))}
           </button>
           {onAskAgent && draft.trim() && (
             <button
@@ -183,7 +175,7 @@ export function ScratchpadNotesPanel({
         {entries.length > 0 && (
           <div className="pt-2 space-y-1.5">
             <p className="text-[10px] font-semibold text-text-muted">
-              {lang === 'el' ? 'Αποθηκευμένες' : 'Saved'} ({entries.length})
+              {t('scratchSavedEntries')} ({entries.length})
             </p>
             <AnimatePresence>
               {entries.map((entry) => (
@@ -209,7 +201,7 @@ export function ScratchpadNotesPanel({
                         type="button"
                         onClick={(e) => { e.stopPropagation(); toggleResolved(entry.id); }}
                         className="text-text-muted hover:text-accent-emerald"
-                        title={lang === 'el' ? 'Επιλύθηκε' : 'Resolved'}
+                        title={t('scratchResolved')}
                       >
                         {entry.resolved ? <CheckCircle2 className="w-3.5 h-3.5 text-accent-emerald" /> : <Circle className="w-3.5 h-3.5" />}
                       </button>
@@ -233,7 +225,7 @@ export function ScratchpadNotesPanel({
                           className="flex items-center gap-1 text-[9px] text-accent-amber hover:text-accent-amber/80"
                         >
                           <Layers className="w-3 h-3" />
-                          {lang === 'el' ? '→ Κάρτα' : '→ Flashcard'}
+                          {t('scratchToFlashcard')}
                         </button>
                       )}
                       {onConvertToAnnotation && (
@@ -244,7 +236,7 @@ export function ScratchpadNotesPanel({
                           className="flex items-center gap-1 text-[9px] text-brand-800 hover:opacity-80"
                         >
                           <Highlighter className="w-3 h-3" />
-                          {lang === 'el' ? '→ Σχόλιο' : '→ Annotation'}
+                          {t('scratchToAnnotation')}
                         </button>
                       )}
                       {onAskAgent && (
@@ -268,7 +260,7 @@ export function ScratchpadNotesPanel({
 
       {selected && (
         <div className="px-3 py-1 border-t border-border-subtle text-[9px] text-text-muted shrink-0">
-          {lang === 'el' ? 'Επιλεγμένη καταχώρηση' : 'Selected entry'} · {selected.updatedAt.slice(0, 10)}
+          {t('scratchSelectedEntry')} · {selected.updatedAt.slice(0, 10)}
         </div>
       )}
     </div>

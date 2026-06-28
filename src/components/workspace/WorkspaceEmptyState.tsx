@@ -30,7 +30,7 @@ export function WorkspaceEmptyState({
   actions: actionsOverride,
   compact = false,
 }: Props) {
-  const { t, lang } = useI18n();
+  const { t } = useI18n();
   const contextActionsRaw = useWorkspaceEmptyActions(tool ?? 'reader');
   const contextActions = tool ? contextActionsRaw : [];
   const legacySecondary: WorkspaceEmptyAction[] = onSecondary && secondaryLabel
@@ -66,7 +66,7 @@ export function WorkspaceEmptyState({
               className="ws-empty-cta-primary"
             >
               <Upload className="w-4 h-4" aria-hidden />
-              {lang === 'el' ? 'Ανέβασμα υλικού' : t('uploadMaterial')}
+              {t('uploadMaterial')}
             </button>
           )}
           {actions.map((action) => (

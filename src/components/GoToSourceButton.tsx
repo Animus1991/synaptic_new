@@ -1,5 +1,6 @@
 import { MapPin } from '@/lib/lucide-shim';
 import { cn } from '../utils/cn';
+import { useI18n } from '../lib/i18n';
 
 interface Props {
   onClick: () => void;
@@ -8,8 +9,9 @@ interface Props {
   lang?: 'en' | 'el';
 }
 
-export function GoToSourceButton({ onClick, label, className, lang = 'en' }: Props) {
-  const text = label ?? (lang === 'el' ? 'Πήγαινε στη πηγή' : 'Go to source');
+export function GoToSourceButton({ onClick, label, className }: Props) {
+  const { t } = useI18n();
+  const text = label ?? t('goToSource');
   return (
     <button
       type="button"

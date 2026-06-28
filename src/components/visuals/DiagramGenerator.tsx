@@ -11,6 +11,7 @@ import {
   isDiffHighlight,
   rowDiffScores,
 } from '../../lib/compareDiff';
+import { t as translate, type Lang } from '../../lib/i18n';
 
 /* --- Flowchart Diagram --- */
 interface FlowNode { id: string; label: string; type: 'start' | 'step' | 'decision' | 'end' }
@@ -172,7 +173,7 @@ export function ComparisonTable({
               diffMode ? 'border-accent-amber/40 bg-accent-amber/10 text-accent-amber' : 'border-border-subtle text-text-muted',
             )}
           >
-            {lang === 'el' ? 'Διαφορές' : 'Diff'}
+            {translate('compareDiff', lang as Lang)}
           </button>
           <button
             type="button"

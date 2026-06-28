@@ -2,7 +2,7 @@
  * Wave 6.8m — QA spine for Progress export ↔ Concept Bus mirror parity.
  */
 
-import type { Lang } from './i18n';
+import { t, type Lang } from './i18n';
 import type { ConceptBusRow } from './conceptBusPanelModel';
 import type { ToolActivityCount } from './conceptBusPanelModel';
 import type { DashboardWeakSpot } from './dashboardWeakSpotsModel';
@@ -151,25 +151,21 @@ export function formatProgressConceptBusMirrorBanner(input: {
   hasNextAction: boolean;
   ok: boolean;
 }): string | null {
-  const isEl = input.lang === 'el';
+  const lang = input.lang;
   if (input.rowCount === 0 && input.weakSpotCount === 0) {
-    return isEl
-      ? 'Export συνεδρίας · Concept Bus κενό — μελέτησε εργαλεία για mirror.'
-      : 'Session export · Concept Bus empty — use tools to populate mirror.';
+    return t('qaExportBusEmpty', lang);
   }
 
-  const busNote = isEl
-    ? `${input.rowCount} έννοιες στο bus`
-    : `${input.rowCount} bus concept${input.rowCount === 1 ? '' : 's'}`;
+  const busNote = input.rowCount === 1
+    ? t('qaExportBusConceptOne', lang)
+    : t('qaExportBusConceptMany', lang).replace('{count}', String(input.rowCount));
   const feynmanNote = input.feynmanCount > 0
-    ? (isEl ? ` · Feynman ×${input.feynmanCount}` : ` · Feynman ×${input.feynmanCount}`)
+    ? t('qaExportFeynmanNote', lang).replace('{count}', String(input.feynmanCount))
     : '';
   const weakNote = input.weakSpotCount > 0
-    ? (isEl ? ` · ${input.weakSpotCount} αδύναμα` : ` · ${input.weakSpotCount} weak`)
+    ? t('qaExportWeakNote', lang).replace('{count}', String(input.weakSpotCount))
     : '';
-  const nextNote = input.hasNextAction
-    ? (isEl ? ' · next action' : ' · next action')
-    : '';
+  const nextNote = input.hasNextAction ? t('qaExportNextActionNote', lang) : '';
 
-  return `${isEl ? 'Session export' : 'Session export'} · ${busNote}${feynmanNote}${weakNote}${nextNote}${input.ok ? '' : (isEl ? ' · έλεγχος' : ' · check')}`;
+  return `${t('qaExportSessionPrefix', lang)} · ${busNote}${feynmanNote}${weakNote}${nextNote}${input.ok ? '' : t('qaExportCheckNote', lang)}`;
 }

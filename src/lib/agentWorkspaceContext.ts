@@ -1,3 +1,4 @@
+import { t } from './i18n';
 import type { WorkspaceToolId } from './taskFlows';
 import { CONTENT_PIPELINE_VERSION } from './pipelineConstants';
 import { displayWorkspaceStepTitle, isLowConfidenceStepTitle } from './workspaceContextModel';
@@ -53,22 +54,13 @@ export function formatAgentWorkspaceContextLine(
   const course = ctx.courseName?.trim();
   const concept = ctx.concept?.trim();
   if (!step && !course && !concept) return undefined;
-  if (lang === 'el') {
-    const bits = [
-      course && `μάθημα «${course}»`,
-      step && `ενότητα «${step}»`,
-      concept && `έννοια ${concept}`,
-      ctx.stepIndex != null && `βήμα ${ctx.stepIndex + 1}`,
-    ].filter(Boolean);
-    return bits.length ? `Context χώρου μελέτης: ${bits.join(' · ')}.` : undefined;
-  }
   const bits = [
-    course && `course "${course}"`,
-    step && `section "${step}"`,
-    concept && `concept ${concept}`,
-    ctx.stepIndex != null && `step ${ctx.stepIndex + 1}`,
-  ].filter(Boolean);
-  return bits.length ? `Study workspace context: ${bits.join(' · ')}.` : undefined;
+    course && t('agentCtxBitCourse', lang).replace('{name}', course),
+    step && t('agentCtxBitSection', lang).replace('{name}', step),
+    concept && t('agentCtxBitConcept', lang).replace('{name}', concept),
+    ctx.stepIndex != null && t('agentCtxBitStep', lang).replace('{n}', String(ctx.stepIndex + 1)),
+  ].filter(Boolean) as string[];
+  return bits.length ? t('agentCtxLine', lang).replace('{bits}', bits.join(' · ')) : undefined;
 }
 
 export function buildAgentWorkspaceContext(opts: {
@@ -166,9 +158,7 @@ export function buildAgentContextSystemBlock(
   const json = serializeAgentWorkspaceContextJson(ctx);
   if (!line && !json) return undefined;
   const jsonBlock = json
-    ? (lang === 'el'
-      ? `\n\nContext χώρου μελέτης (JSON):\n\`\`\`json\n${json}\n\`\`\``
-      : `\n\nStudy workspace context (JSON):\n\`\`\`json\n${json}\n\`\`\``)
+    ? t('agentCtxJsonBlock', lang).replace('{json}', json)
     : '';
   return `${line ?? ''}${jsonBlock}`.trim() || undefined;
 }
@@ -179,42 +169,35 @@ export function buildAgentContextBanner(
   lang: 'en' | 'el',
 ): AgentContextBannerView | null {
   if (!ctx) return null;
-  const isEl = lang === 'el';
-  const section = ctx.stepTitle?.trim();
+    const section = ctx.stepTitle?.trim();
   const tool = ctx.activeToolLabel?.trim();
   if (!section && !tool && ctx.stepIndex == null) return null;
 
   const stepPart = ctx.stepIndex != null && ctx.stepCount
-    ? (isEl ? `Βήμα ${ctx.stepIndex + 1}/${ctx.stepCount}` : `Step ${ctx.stepIndex + 1}/${ctx.stepCount}`)
+    ? t('agentStepProgress', lang).replace('{current}', String(ctx.stepIndex + 1)).replace('{total}', String(ctx.stepCount))
     : null;
 
   const bits = [
     section,
     stepPart,
     tool,
-    typeof ctx.sourceQuality === 'number' ? (isEl ? `Ποιότητα ${ctx.sourceQuality}/100` : `Quality ${ctx.sourceQuality}/100`) : null,
+    typeof ctx.sourceQuality === 'number' ? t('agentQualityScore', lang).replace('{score}', String(ctx.sourceQuality)) : null,
     ctx.oldPipeline
-      ? (isEl ? `Παλαιό pipeline (v${ctx.pipelineVersion ?? '?'})` : `Old pipeline (v${ctx.pipelineVersion ?? '?'})`)
+      ? t('agentOldPipeline', lang).replace('{version}', String(ctx.pipelineVersion ?? '?'))
       : null,
   ].filter(Boolean);
 
   let caution: string | undefined;
   if (ctx.oldPipeline || (typeof ctx.sourceQuality === 'number' && ctx.sourceQuality < 50)) {
-    caution = isEl
-      ? 'Οι απαντήσεις μπορεί να επηρεάζονται από χαμηλή ποιότητα εξαγωγής — προτίμησε επανεπεξεργασία.'
-      : 'Answers may be affected by low extraction quality — consider reprocessing first.';
+    caution = t('agentCautionLowQuality', lang);
   } else if (ctx.lowConfidenceSection) {
-    caution = isEl
-      ? 'Ο τίτλος ενότητας φαίνεται αναξιόπιστος — επιβεβαίωσε στο Reader.'
-      : 'Section title looks unreliable — verify in the Reader.';
+    caution = t('agentCautionUnreliableSection', lang);
   }
 
-  const groundingNote = isEl
-    ? 'Λειτουργία: απάντηση από πηγή όπου είναι δυνατόν, με AI συμπλήρωση όταν λείπει υλικό.'
-    : 'Mode: source-grounded answers where possible, AI enrichment when material is missing.';
+  const groundingNote = t('agentGroundingNote', lang);
 
   return {
-    heading: isEl ? 'Context:' : 'Context:',
+    heading: t('agentContextHeading', lang),
     line: bits.join(' · '),
     caution,
     groundingNote,

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useI18n } from '../lib/i18n';
 import type { UserSettings } from '../types';
 import type { WorkspaceToolId } from '../lib/taskFlows';
 import {
@@ -28,7 +29,7 @@ type Args = {
 
 export function useStudyRoomSession({
   open,
-  lang,
+  lang: _lang,
   courseId,
   courseName,
   activeTool,
@@ -36,7 +37,7 @@ export function useStudyRoomSession({
   userSettings,
   onFollowSharedTool,
 }: Args) {
-  const isEl = lang === 'el';
+  const { t } = useI18n();
   const [room, setRoom] = useState<StudyRoomSnapshot | null>(null);
   const [memberId, setMemberId] = useState<string | null>(null);
   const [displayName, setDisplayName] = useState(() => localStorage.getItem('synapse-display-name') ?? '');
@@ -115,7 +116,7 @@ export function useStudyRoomSession({
 
   const handleCreate = async () => {
     if (!displayName.trim()) {
-      setError(isEl ? 'Βάλε όνομα εμφάνισης.' : 'Enter a display name.');
+      setError(t('studyRoomEnterDisplayName'));
       return;
     }
     setBusy(true);
@@ -138,7 +139,7 @@ export function useStudyRoomSession({
 
   const handleJoin = async () => {
     if (!inviteInput.trim() || !displayName.trim()) {
-      setError(isEl ? 'Κωδικός πρόσκλησης και όνομα απαιτούνται.' : 'Invite code and display name required.');
+      setError(t('studyRoomInviteRequired'));
       return;
     }
     setBusy(true);

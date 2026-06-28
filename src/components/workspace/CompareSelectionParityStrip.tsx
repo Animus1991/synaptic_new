@@ -1,32 +1,35 @@
 import type { CompareReaderSelectionParityReport } from '../../lib/compareReaderSelectionParityQA';
 import { WorkspaceQaStatusStrip } from './WorkspaceQaStatusStrip';
+import { useI18n } from '../../lib/i18n';
 
 type Props = {
   report: CompareReaderSelectionParityReport;
-  lang: 'en' | 'el';
 };
 
-export function CompareSelectionParityStrip({ report, lang }: Props) {
+export function CompareSelectionParityStrip({ report }: Props) {
   if (report.rowCount === 0) return null;
 
-  const isEl = lang === 'el';
+  const { t } = useI18n();
   const contractIssues = report.issues.filter((i) => i.code !== 'ocr-noisy-row');
+  const ocrLabel = report.ocrRiskRowCount > 0
+    ? (report.ocrRiskRowCount === 1
+      ? t('stripOcrRowOne')
+      : t('stripOcrRows').replace('{count}', String(report.ocrRiskRowCount)))
+    : null;
 
   return (
     <WorkspaceQaStatusStrip ok={report.ok} testId="compare-selection-parity-strip">
-      {report.bannerSummary ?? (isEl ? 'Σύγκριση με Reader' : 'Reader parity')}
-      {report.ocrRiskRowCount > 0 && (
+      {report.bannerSummary ?? (t('stripReaderParity'))}
+      {ocrLabel && (
         <span className="opacity-90">
           {' · '}
-          {isEl
-            ? `${report.ocrRiskRowCount} σειρ${report.ocrRiskRowCount === 1 ? 'ά' : 'ές'} OCR`
-            : `${report.ocrRiskRowCount} OCR row${report.ocrRiskRowCount === 1 ? '' : 's'}`}
+          {ocrLabel}
         </span>
       )}
       {!report.ok && contractIssues.length > 0 && (
         <span className="opacity-90">
           {' · '}
-          {isEl ? `${contractIssues.length} θέμα(τα)` : `${contractIssues.length} issue(s)`}
+          {t('stripIssueCount').replace('{count}', String(contractIssues.length))}
         </span>
       )}
     </WorkspaceQaStatusStrip>

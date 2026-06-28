@@ -1,6 +1,7 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { Keyboard, X } from '@/lib/lucide-shim';
 import { workspaceShortcutGroups } from '../../lib/workspaceKeyboardShortcuts';
+import { useI18n } from '../../lib/i18n';
 
 type Props = {
   open: boolean;
@@ -10,7 +11,7 @@ type Props = {
 
 /** Keyboard shortcut help overlay — `?` in Study Workspace (SW-P3-08). */
 export function WorkspaceKeyboardHelp({ open, onClose, lang }: Props) {
-  const isEl = lang === 'el';
+  const { t } = useI18n();
   const groups = workspaceShortcutGroups(lang);
 
   return (
@@ -24,7 +25,7 @@ export function WorkspaceKeyboardHelp({ open, onClose, lang }: Props) {
           onClick={onClose}
           role="dialog"
           aria-modal="true"
-          aria-label={isEl ? 'Συντομεύσεις πληκτρολογίου' : 'Keyboard shortcuts'}
+          aria-label={t('keyboardShortcuts')}
           data-testid="workspace-keyboard-help"
         >
           <motion.div
@@ -38,14 +39,14 @@ export function WorkspaceKeyboardHelp({ open, onClose, lang }: Props) {
               <div className="flex items-center gap-2">
                 <Keyboard className="h-4 w-4 text-brand-800" />
                 <h2 className="text-sm font-semibold text-text-primary">
-                  {isEl ? 'Συντομεύσεις πληκτρολογίου' : 'Keyboard shortcuts'}
+                  {t('keyboardShortcuts')}
                 </h2>
               </div>
               <button
                 type="button"
                 onClick={onClose}
                 className="rounded-lg p-1 text-text-muted hover:bg-surface-hover hover:text-text-secondary"
-                aria-label={isEl ? 'Κλείσιμο' : 'Close'}
+                aria-label={t('close')}
               >
                 <X className="h-4 w-4" />
               </button>
@@ -64,7 +65,7 @@ export function WorkspaceKeyboardHelp({ open, onClose, lang }: Props) {
                         className="flex items-center justify-between gap-3 rounded-lg px-2 py-1.5 text-sm"
                       >
                         <span className="text-text-secondary">
-                          {isEl ? item.labelEl : item.labelEn}
+                          {lang === 'el' ? item.labelEl : item.labelEn}
                         </span>
                         <kbd className="shrink-0 rounded border border-border-subtle bg-surface-input px-1.5 py-0.5 font-mono text-[10px] text-text-muted">
                           {item.keys}
@@ -77,7 +78,7 @@ export function WorkspaceKeyboardHelp({ open, onClose, lang }: Props) {
             </div>
 
             <div className="border-t border-border-subtle px-4 py-2 text-[10px] text-text-muted">
-              {isEl ? 'Esc κλείσιμο · ? εναλλαγή βοήθειας' : 'Esc close · ? toggle help'}
+              {t('keyboardHelpFooter')}
             </div>
           </motion.div>
         </motion.div>

@@ -1,6 +1,7 @@
 import { ChevronDown, ChevronUp, Link2, Sparkles } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
 import type { Lang } from '../../lib/i18n';
+import { useI18n } from '../../lib/i18n';
 import type { DiscoverabilityActionId } from '../../lib/workspaceDiscoverability';
 import { buildDiscoverabilitySummary } from '../../lib/workspaceDiscoverability';
 import { nextActionLabel } from '../../lib/nextActionEngine';
@@ -52,8 +53,8 @@ export function WorkspaceDiscoverabilityPanel({
   hasSource = true,
   emptyActions = [],
 }: Props) {
+  const { t } = useI18n();
   const { chips, toolGuide, grounded, headline, subline, recommendedTool, nextAction } = summary;
-  const isEl = lang === 'el';
   const secondaryActions = nextAction && onLearningAction
     ? getLearningActions(lang).filter((a) => nextAction.secondary.includes(a.id))
     : [];
@@ -100,7 +101,7 @@ export function WorkspaceDiscoverabilityPanel({
           {nextAction && onRunNextAction && (
             <div data-testid="discoverability-next-action">
               <p className="text-[10px] font-semibold text-brand-500 mb-1.5">
-                {isEl ? 'Επόμενη ενέργεια' : 'Next action'}
+                {t('nextAction')}
               </p>
               <button
                 type="button"
@@ -168,7 +169,7 @@ export function WorkspaceDiscoverabilityPanel({
                 className="inline-flex items-center gap-1 rounded-lg border border-accent-cyan/40 bg-accent-cyan/12 px-2.5 py-1 text-[10px] font-medium text-brand-800 hover:bg-accent-cyan/20"
               >
                 <Sparkles className="w-3 h-3" />
-                {lang === 'el' ? 'Προτεινόμενο εργαλείο' : 'Recommended tool'}
+                {t('discoverRecommendedTool')}
               </button>
             )}
             {toolGuide.quickActionIds.map((id) => {

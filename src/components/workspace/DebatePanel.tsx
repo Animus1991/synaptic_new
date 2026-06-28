@@ -9,6 +9,7 @@ import type {
   WorkspaceSelectionActionId,
   WorkspaceSelectionContext,
 } from '../../lib/workspaceSelectionActions';
+import { useI18n } from '../../lib/i18n';
 
 type Props = {
   session: DebateSessionContent;
@@ -39,7 +40,7 @@ export function DebatePanel({
 }: Props) {
   const [filterQuery, setFilterQuery] = useState('');
   const [selectedClaim, setSelectedClaim] = useState<string | null>(null);
-  const isEl = lang === 'el';
+  const { t } = useI18n();
 
   const filterMatches = useMemo(() => {
     if (!session.seedTree || !filterQuery.trim()) return [];
@@ -70,7 +71,7 @@ export function DebatePanel({
     return (
       <WorkspaceEmptyState
         tool="debate"
-        message={emptyMessage ?? (isEl ? 'Ανέβασε σημειώσεις για συζήτηση.' : 'Upload notes to debate.')}
+        message={emptyMessage ?? (t('panelEmptyDebate'))}
         hasSource={false}
         onUpload={onUpload}
       />
@@ -82,7 +83,7 @@ export function DebatePanel({
       <div className="shrink-0 border-b border-border-subtle px-4 py-3">
         {session.sectionLabel && (
           <p className="mb-2 ws-eyebrow text-text-muted" data-testid="debate-section-label">
-            <span>{isEl ? 'Ενότητα' : 'Section'}</span>
+            <span>{t('wsSectionLabel')}</span>
             <span className="ml-2 normal-case tracking-normal text-text-secondary font-sans text-[11px]">
               {session.sectionLabel}
             </span>
@@ -97,12 +98,8 @@ export function DebatePanel({
             <AlertTriangle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
             <p className="leading-relaxed">
               {session.passageGrounded
-                ? (isEl
-                  ? 'Το δέντρο επιχειρημάτων προέρχεται από το απόσπασμα (generic concept) — Reprocess για πιο πλούσια δομή.'
-                  : 'Argument tree is passage-grounded (generic concept) — Reprocess for richer structure.')
-                : (isEl
-                  ? 'Αδύναμη εξαγωγή — δοκίμασε Reprocess ή ξεκίνα χειροκίνητα.'
-                  : 'Weak extraction — try Reprocess or start manually.')}
+                ? t('panelPassageGroundedDebate')
+                : t('panelWeakExtractionDebate')}
             </p>
           </div>
         )}
@@ -114,14 +111,14 @@ export function DebatePanel({
               type="search"
               value={filterQuery}
               onChange={(e) => setFilterQuery(e.target.value)}
-              placeholder={isEl ? 'Αναζήτηση επιχειρημάτων…' : 'Search claims…'}
-              aria-label={isEl ? 'Αναζήτηση επιχειρημάτων' : 'Search claims'}
+              placeholder={t('panelSearchClaims')}
+              aria-label={t('panelSearchClaimsAria')}
               className="w-full rounded-md border border-border-subtle bg-surface-card py-1.5 pl-8 pr-2 text-[12px] text-text-secondary placeholder:text-text-muted focus:border-brand-400/60 focus:outline-none focus:ring-1 focus:ring-brand-400/30"
               data-testid="debate-filter"
             />
           </div>
           <span className="ws-eyebrow text-text-muted">
-            <span className="ws-num">{session.nodeCount}</span> {isEl ? 'κόμβοι' : 'nodes'}
+            <span className="ws-num">{session.nodeCount}</span> {t('panelNodes')}
           </span>
           {onOpenInReader && (
             <button
@@ -131,7 +128,7 @@ export function DebatePanel({
               data-testid="debate-open-reader"
             >
               <BookOpen className="w-3 h-3" aria-hidden />
-              {isEl ? 'Πηγή' : 'Reader'}
+              {t('panelReaderSource')}
             </button>
           )}
         </div>

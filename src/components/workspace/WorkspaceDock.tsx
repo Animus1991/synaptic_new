@@ -9,6 +9,7 @@ import {
   workspaceToolDescription,
 } from '../../lib/workspaceToolRegistry';
 import { loadJson, saveJson } from '../../lib/persistence';
+import { useI18n } from '../../lib/i18n';
 import { WorkspaceStudyRoomTrigger } from './WorkspaceStudyRoomTrigger';
 
 interface Props {
@@ -29,7 +30,7 @@ const EXPAND_KEY = 'workspace-dock-expanded';
  * grouped list. Replaces the redundant top WorkspaceToolStrip on desktop.
  */
 export function WorkspaceDock({ activeTool, onSelectTool, availableTools, lang = 'en', onOpenStudyRoom, studyRoomOpen = false }: Props) {
-  const isEl = lang === 'el';
+  const { t } = useI18n();
   const [expanded, setExpanded] = useState<boolean>(() => loadJson<boolean>(EXPAND_KEY, true));
 
   const toggleExpanded = () => {
@@ -51,28 +52,20 @@ export function WorkspaceDock({ activeTool, onSelectTool, availableTools, lang =
         expanded ? 'w-52' : 'w-16',
       )}
       data-testid="workspace-dock"
-      aria-label={isEl ? 'Εργαλεία μελέτης' : 'Study tools'}
+      aria-label={t('wsStudyToolsAria')}
     >
       <button
         type="button"
         onClick={toggleExpanded}
         data-testid="workspace-dock-toggle"
         aria-expanded={expanded}
-        title={
-          expanded
-            ? isEl
-              ? 'Σύμπτυξη εργαλειοθήκης'
-              : 'Collapse tools'
-            : isEl
-              ? 'Ανάπτυξη εργαλειοθήκης'
-              : 'Expand tools'
-        }
+        title={expanded ? t('wsDockCollapse') : t('wsDockExpand')}
         className={cn(
           'flex items-center shrink-0 border-b border-border-subtle/60 px-3 py-2.5 text-text-muted transition-colors hover:bg-surface-hover hover:text-text-secondary',
           expanded ? 'justify-between' : 'justify-center',
         )}
       >
-        {expanded && <span className="ws-eyebrow">{isEl ? 'Εργαλεία' : 'Tools'}</span>}
+        {expanded && <span className="ws-eyebrow">{t('wsToolsLabel')}</span>}
         {expanded ? <PanelLeftClose className="h-4 w-4" /> : <PanelLeftOpen className="h-4 w-4" />}
       </button>
 
@@ -89,7 +82,7 @@ export function WorkspaceDock({ activeTool, onSelectTool, availableTools, lang =
             >
               {expanded && (
                 <span className="ws-eyebrow px-3 pb-1 pt-1 text-text-muted">
-                  {isEl ? group.labelEl : group.label}
+                  {lang === 'el' ? group.labelEl : group.label}
                 </span>
               )}
               {groupTools.map(({ id, icon: Icon }) => {

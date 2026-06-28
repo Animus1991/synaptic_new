@@ -3,7 +3,7 @@
  * Every function operates only on user-uploaded material — no demo templates.
  */
 
-import type { Lang } from './i18n';
+import { t, type Lang } from './i18n';
 import type { QuizDef } from './domainContent';
 import type { GlossaryEntry, Topic, UploadedFile } from '../types';
 import {
@@ -403,7 +403,7 @@ export function buildFlashcards(
     const hit = words.find((w) => s.toLowerCase().includes(w));
     if (hit) {
       add(
-        lang === 'el' ? `Τι ισχύει για «${hit}»;` : `What is true about «${hit}»?`,
+        t('flashcardWhatIsTrue', lang).replace('{term}', hit),
         s,
       );
     }
@@ -567,15 +567,12 @@ function buildMcQuizFromNotes(
     const correct = g.term;
     const distractors = rankDistractorTerms(glossary, correct, 3);
     while (distractors.length < 3) {
-      distractors.push(lang === 'el' ? 'Άσχετος όρος' : 'Unrelated term');
+      distractors.push(t('quizUnrelatedTerm', lang));
     }
     const options = [correct, ...distractors.slice(0, 3)];
     const shuffled = seededShuffle(options, seedFromString(`${concept}|${correct}`));
     return {
-      question:
-        lang === 'el'
-          ? `Συμπλήρωσε τον όρο: ${blanked.slice(0, 120)}`
-          : `Fill in the term: ${blanked.slice(0, 120)}`,
+      question: t('quizFillInTerm', lang).replace('{blanked}', blanked.slice(0, 120)),
       options: shuffled,
       correctIndex: Math.max(0, shuffled.indexOf(correct)),
     };
@@ -584,10 +581,7 @@ function buildMcQuizFromNotes(
   if (sentences.length === 0) return null;
 
   const correct = sentences.sort((a, b) => b.length - a.length)[0]!;
-  const question =
-    lang === 'el'
-      ? `Ποια πρόταση από τις σημειώσεις σου περιγράφει σωστά το «${concept}»;`
-      : `Which statement from your notes best describes «${concept}»?`;
+  const question = t('quizBestStatement', lang).replace('{concept}', concept);
 
   const distractors: string[] = [];
   const otherDefs = glossary
@@ -600,9 +594,7 @@ function buildMcQuizFromNotes(
   distractors.push(...nearSentences);
 
   while (distractors.length < 3) {
-    distractors.push(
-      lang === 'el' ? 'Δεν αναφέρεται στις σημειώσεις σου' : 'Not stated in your uploaded notes',
-    );
+    distractors.push(t('quizNotInNotes', lang));
   }
 
   const correctClipped = correct.slice(0, 140);
@@ -637,9 +629,7 @@ function buildMatchingQuizFromGlossary(
 
   return {
     kind: 'matching',
-    question: lang === 'el'
-      ? `Αντιστοίχισε τους όρους με τους ορισμούς από τις σημειώσεις σου για «${concept}».`
-      : `Match each term to its definition from your notes on «${concept}».`,
+    question: t('quizMatchTerms', lang).replace('{concept}', concept),
     left,
     right: newRight,
     pairs,
@@ -663,9 +653,7 @@ function buildOrderingQuizFromNotes(
 
   return {
     kind: 'ordering',
-    question: lang === 'el'
-      ? `Βάλε τις προτάσεις από τις σημειώσεις σου στη σωστή λογική σειρά για «${concept}».`
-      : `Put these sentences from your notes in the correct logical order for «${concept}».`,
+    question: t('quizOrderSentences', lang).replace('{concept}', concept),
     items: shuffledItems,
     correctOrder,
   };
@@ -684,11 +672,9 @@ function buildShortAnswerQuizFromGlossary(
 
   return {
     kind: 'short-answer',
-    question: lang === 'el'
-      ? `Ποιος όρος περιγράφεται: «${hit.g.definition.slice(0, 140)}»;`
-      : `Which term is defined as: «${hit.g.definition.slice(0, 140)}»?`,
+    question: t('quizWhichTermDefined', lang).replace('{definition}', hit.g.definition.slice(0, 140)),
     acceptedAnswers: [hit.g.term, hit.g.term.toLowerCase()],
-    hint: lang === 'el' ? 'Απάντησε με τον όρο από τις σημειώσεις σου.' : 'Answer with the term from your notes.',
+    hint: t('quizShortAnswerHint', lang),
   };
 }
 
@@ -876,12 +862,12 @@ export function fallbackWorkspaceSteps(
 ): { title: string; type: string }[] {
   return [
     {
-      title: concept.trim() || (lang === 'el' ? 'Μελέτη' : 'Study'),
-      type: lang === 'el' ? 'Κύρια έννοια' : 'Core Concept',
+      title: concept.trim() || t('studyLabel', lang),
+      type: t('coreConcept', lang),
     },
     {
-      title: lang === 'el' ? 'Έλεγχος Γνώσεων' : 'Knowledge Check',
-      type: lang === 'el' ? 'Κουίζ' : 'Quiz',
+      title: t('knowledgeCheck', lang),
+      type: t('quiz', lang),
     },
   ];
 }
@@ -895,8 +881,8 @@ export function buildWorkspaceStepsFromNotes(
   const segmentSections = readerSegmentsToStepSections(buildReaderSegments(text), lang);
   const types = lang === 'el' ? STEP_TYPES_EL : STEP_TYPES_EN;
   const quizStep = {
-    title: lang === 'el' ? 'Έλεγχος Γνώσεων' : 'Knowledge Check',
-    type: lang === 'el' ? 'Κουίζ' : 'Quiz',
+    title: t('knowledgeCheck', lang),
+    type: t('quiz', lang),
   };
 
   const structuredSections = segmentSections.length >= 2
@@ -914,8 +900,8 @@ export function buildWorkspaceStepsFromNotes(
     );
     if (examples.length > 0 && steps.length < 5 && !hasPracticeLikeTitle) {
       steps.push({
-        title: (lang === 'el' ? 'Παράδειγμα: ' : 'Example: ') + examples[0]!.slice(0, 32) + '…',
-        type: lang === 'el' ? 'Εξάσκηση' : 'Practice',
+        title: t('examplePrefix', lang) + examples[0]!.slice(0, 32) + '…',
+        type: t('practice', lang),
       });
     }
     if (steps.length >= 2) return [...steps, quizStep];
@@ -930,8 +916,8 @@ export function buildWorkspaceStepsFromNotes(
       type: types[Math.min(i, types.length - 2)] ?? types[0]!,
     }));
     steps.push({
-      title: lang === 'el' ? 'Εργαζόμενο Παράδειγμα' : 'Worked Example',
-      type: lang === 'el' ? 'Εξάσκηση' : 'Practice',
+      title: t('workedExample', lang),
+      type: t('practice', lang),
     });
     return [...steps, quizStep];
   }
@@ -1308,29 +1294,26 @@ export function buildFeynmanOutline(
   }
   if (topicMatchesConcept && topic?.keyConcepts?.length) {
     return topic.keyConcepts.map((c) =>
-      lang === 'el' ? `Εξήγησε: ${c}` : `Explain: ${c}`,
+      t('feynmanExplainItem', lang).replace('{item}', c),
     );
   }
   const phrases = rankKeyphrases(relevantExcerpt(text, concept, 8000), 4)
     .map((k) => titleCasePhrase(k.phrase));
   if (phrases.length > 0) {
-    return phrases.map((p) => (lang === 'el' ? `Κάλυψε: ${p}` : `Cover: ${p}`));
+    return phrases.map((p) => t('feynmanCoverItem', lang).replace('{item}', p));
   }
-  return lang === 'el'
-    ? [`Εξήγησε το «${concept}» με δικά σου λόγια`, 'Δώσε ένα παράδειγμα από τις σημειώσεις σου']
-    : [`Explain «${concept}» in your own words`, 'Give an example from your notes'];
+  return [
+    t('feynmanFallbackOutline1', lang).replace('{concept}', concept),
+    t('feynmanFallbackOutline2', lang),
+  ];
 }
 
 export function buildFeynmanGaps(glossary: GlossaryEntry[], concept: string, lang: Lang): string[] {
   const terms = buildFeynmanGapTerms(glossary, concept);
   if (terms.length === 0) {
-    return lang === 'el'
-      ? [`Χρησιμοποίησε ακριβείς όροι από τις σημειώσεις για το «${concept}».`]
-      : [`Use precise terms from your notes for «${concept}».`];
+    return [t('feynmanGapAccuracy', lang).replace('{concept}', concept)];
   }
-  return lang === 'el'
-    ? [`Να συμπεριλάβεις: ${terms.join(', ')}.`]
-    : [`Include these terms from your material: ${terms.join(', ')}.`];
+  return [t('feynmanIncludeTerms', lang).replace('{terms}', terms.join(', '))];
 }
 
 export function buildFeynmanGapTerms(glossary: GlossaryEntry[], concept: string): string[] {
@@ -1357,7 +1340,5 @@ export function sandboxInsightFromNotes(text: string, concept: string, lang: Lan
   const excerpt = relevantExcerpt(text, concept, 4000);
   const summary = extractiveSummary(excerpt, 1, { biasTerms: [concept] })[0];
   if (summary) return summary.slice(0, 280);
-  return lang === 'el'
-    ? `Ρύθμισε τις παραμέτρους και σύνδεσέ τες με το «${concept}» όπως περιγράφεται στις σημειώσεις σου.`
-    : `Adjust parameters and relate them to «${concept}» as described in your notes.`;
+  return t('sandboxAdjustParams', lang).replace('{concept}', concept);
 }

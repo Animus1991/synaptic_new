@@ -130,7 +130,7 @@ export function ComparePanel({
         </WorkspacePanelWarnStrip>
       )}
 
-      <CompareSelectionParityStrip report={parityReport} lang={lang} />
+      <CompareSelectionParityStrip report={parityReport} />
 
       <div className="mb-3 flex items-center gap-2">
         <div className="relative flex-1 max-w-xs">

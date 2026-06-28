@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { ChevronDown, ChevronUp, Sparkles } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
 import type { Lang } from '../../lib/i18n';
+import { useI18n } from '../../lib/i18n';
 import { getLearningActions, type LearningActionId } from '../../lib/workspaceLearningActions';
 import {
   nextActionLabel,
@@ -25,7 +26,7 @@ export function WorkspaceLearningActionBar({
   confusing?: boolean;
   defaultExpanded?: boolean;
 }) {
-  const isEl = lang === 'el';
+  const { t } = useI18n();
   const [expanded, setExpanded] = useState(defaultExpanded);
   const allActions = getLearningActions(lang);
   const isReprocess = recommendation?.primary === 'reprocess';
@@ -53,7 +54,7 @@ export function WorkspaceLearningActionBar({
         data-testid="learning-actions-toggle"
       >
         <span className="ws-eyebrow text-[10px] text-text-muted">
-          {isEl ? 'Επόμενη ενέργεια' : 'Next action'}
+          {t('nextAction')}
         </span>
         {expanded ? (
           <ChevronUp className="h-3.5 w-3.5 shrink-0 text-text-muted" />
@@ -119,7 +120,7 @@ export function WorkspaceLearningActionBar({
             </>
           ) : (
             <p className="text-[10px] text-text-muted">
-              {isEl ? 'Ανέβασε υλικό για προτάσεις μελέτης.' : 'Upload material to get study suggestions.'}
+              {t('uploadForSuggestions')}
             </p>
           )}
         </>

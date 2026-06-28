@@ -74,13 +74,13 @@ export function LessonView({
 
   const dynamicSteps = useMemo(() => {
     if (!noteBundle.hasSource) {
-      return [{ key: 'hook' as const, label: lang === 'el' ? 'Ανέβασμα' : 'Upload' }];
+      return [{ key: 'hook' as const, label: t('lessonViewUpload') }];
     }
     return buildLessonSteps(settings);
   }, [noteBundle.hasSource, settings, lang]);
 
   const quizDef = noteBundle.quiz ?? {
-    question: lang === 'el' ? 'Ανέβασε σημειώσεις για κουίζ.' : 'Upload notes to generate a quiz.',
+    question: t('lessonViewUploadForQuiz'),
     options: ['—', '—', '—', '—'],
     correctIndex: 0,
   };
@@ -136,8 +136,8 @@ export function LessonView({
 
   const lessonTitle = taskTitle ?? quizConcept;
   const lessonCourse = noteBundle.hasSource
-    ? (courseName ?? noteBundle.courseTitle ?? (lang === 'el' ? 'Το μάθημά σου' : 'Your course'))
-    : (lang === 'el' ? 'Ανέβασε σημειώσεις' : 'Upload your notes');
+    ? (courseName ?? noteBundle.courseTitle ?? t('lessonViewYourCourse'))
+    : t('lessonViewUploadNotes');
 
   const step = dynamicSteps[currentStep] ?? dynamicSteps[0]!;
   const progress = ((currentStep + 1) / dynamicSteps.length) * 100;
@@ -167,7 +167,7 @@ export function LessonView({
 
   const panelForStep = genPanels?.[currentStep] ?? null;
 
-  const stepCountLabel = lang === 'el' ? 'Βήμα' : 'Step';
+  const stepCountLabel = t('lessonViewStep');
 
   return (
     <div
@@ -177,7 +177,7 @@ export function LessonView({
       aria-label={lessonTitle}
     >
       <a href="#lesson-main" className="skip-to-content">
-        {lang === 'el' ? 'Μετάβαση στο περιεχόμενο' : 'Skip to content'}
+        {t('lessonViewSkipToContent')}
       </a>
 
       <header className="flex items-center justify-between gap-3 px-4 sm:px-6 py-3 border-b border-border-subtle bg-surface-secondary/40">
@@ -185,7 +185,7 @@ export function LessonView({
           <button
             type="button"
             onClick={onClose}
-            aria-label={lang === 'el' ? 'Κλείσιμο μαθήματος' : 'Close lesson'}
+            aria-label={t('lessonViewCloseLesson')}
             className="p-2 -ml-1 rounded-md hover:bg-surface-hover shrink-0 min-h-9 min-w-9 inline-flex items-center justify-center"
           >
             <X className="w-5 h-5 text-text-secondary" />
@@ -195,7 +195,7 @@ export function LessonView({
               {lessonCourse}
               {noteBundle.hasSource && (
                 <span className="ml-1.5 text-accent-emerald normal-case tracking-normal">
-                  · {lang === 'el' ? 'από τις σημειώσεις σου' : 'from your notes'}
+                  · {t('lessonViewFromYourNotes')}
                 </span>
               )}
             </p>
@@ -227,13 +227,13 @@ export function LessonView({
         aria-valuenow={Math.round(progress)}
         aria-valuemin={0}
         aria-valuemax={100}
-        aria-label={lang === 'el' ? 'Πρόοδος μαθήματος' : 'Lesson progress'}
+        aria-label={t('lessonViewProgressAria')}
       >
         <div className="h-full bg-brand-500 transition-all duration-500" style={{ width: `${progress}%` }} />
       </div>
 
       <nav
-        aria-label={lang === 'el' ? 'Βήματα μαθήματος' : 'Lesson steps'}
+        aria-label={t('lessonViewStepsAria')}
         className="flex items-center gap-1 px-4 sm:px-6 py-2 overflow-x-auto scrollbar-none border-b border-border-subtle/60 bg-surface-secondary/20"
       >
         {dynamicSteps.map((s, i) => {
@@ -363,7 +363,7 @@ export function LessonView({
               onClick={onStartNextTask}
               className="w-full py-2.5 rounded-md text-sm font-medium border border-brand-500/30 text-brand-200 hover:bg-brand-600/10 transition-colors min-h-11"
             >
-              {lang === 'el' ? 'Επόμενη εργασία →' : 'Next task →'}
+              {t('lessonViewNextTask')}
             </button>
           </div>
         )}

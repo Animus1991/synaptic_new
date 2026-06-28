@@ -252,23 +252,21 @@ export function FeynmanCheck({
 
         {sectionLabel && (
           <p className="mb-2 text-[10px] text-text-muted" data-testid="feynman-section-label">
-            {lang === 'el' ? 'Ενότητα:' : 'Section:'}{' '}
+            {t('feynmanSectionColon')}{' '}
             <span className="text-text-secondary">{sectionLabel}</span>
           </p>
         )}
 
         {weakExtraction && (
           <WorkspacePanelWarnStrip testId="feynman-weak-extraction">
-            {lang === 'el'
-              ? 'Αδύναμη εξαγωγή εννοιών — το outline βασίζεται στο απόσπασμα. Δοκίμασε Reprocess για καλύτερα αποτελέσματα.'
-              : 'Weak concept extraction — outline is passage-grounded. Try Reprocess for richer structure.'}
+            {t('panelPassageGroundedFeynman')}
           </WorkspacePanelWarnStrip>
         )}
 
         {keyTerms.length > 0 && (
           <div className="mb-3 flex flex-wrap gap-1.5" data-testid="feynman-key-terms">
             <span className="text-[10px] text-text-muted w-full">
-              {lang === 'el' ? 'Όροι από το υλικό:' : 'Terms from your material:'}
+              {t('feynmanTermsFromMaterial')}
             </span>
             {keyTerms.map((kt) => (
               <button
@@ -312,7 +310,7 @@ export function FeynmanCheck({
                   )}
                 >
                   {voiceActive ? <MicOff className="w-3.5 h-3.5" /> : <Mic className="w-3.5 h-3.5" />}
-                  {lang === 'el' ? 'Φωνή' : 'Voice'}
+                  {t('feynmanVoice')}
                 </button>
                 <button
                   type="button"
@@ -331,7 +329,7 @@ export function FeynmanCheck({
                     className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium border border-accent-cyan/30 bg-accent-cyan/10 text-brand-800 hover:opacity-90"
                   >
                     <Sparkles className="w-3.5 h-3.5" />
-                    {lang === 'el' ? 'Ρώτα Agent' : 'Ask Agent'}
+                    {t('askAgentShort')}
                   </button>
                 )}
                 <button
@@ -339,18 +337,18 @@ export function FeynmanCheck({
                   data-testid="feynman-export-rubric"
                   disabled={!rubric}
                   onClick={() => exportRubric('download')}
-                  title={lang === 'el' ? 'Κατέβασε αναφορά αξιολόγησης' : 'Download rubric report'}
+                  title={t('feynmanDownloadRubricReport')}
                   className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium ws-chip-brand border hover:bg-brand-600/20 disabled:opacity-40"
                 >
                   <Download className="w-3.5 h-3.5" />
-                  {lang === 'el' ? 'Εξαγωγή' : 'Export report'}
+                  {t('feynmanExportReport')}
                 </button>
                 <button
                   type="button"
                   data-testid="feynman-print-rubric"
                   disabled={!rubric}
                   onClick={() => exportRubric('print')}
-                  title={lang === 'el' ? 'Εκτύπωση / PDF' : 'Print / save as PDF'}
+                  title={t('dashPrintPdf')}
                   className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium border border-border-subtle text-text-muted hover:text-text-secondary disabled:opacity-40"
                 >
                   <Printer className="w-3.5 h-3.5" />
@@ -387,7 +385,7 @@ export function FeynmanCheck({
             {autoGaps.length > 0 && (
               <WorkspacePanelWarnStrip layout="box" testId="feynman-auto-gaps" className="mb-0">
                 <p className="mb-2 text-[10px] font-semibold">
-                  {lang === 'el' ? 'Αυτόματα κενά (rubric)' : 'Auto-detected gaps'}
+                  {t('feynmanAutoGaps')}
                 </p>
                 <ul className="space-y-2">
                   {autoGaps.slice(0, 3).map((g) => (
@@ -417,17 +415,17 @@ export function FeynmanCheck({
                       type="button"
                       data-testid="feynman-rubric-export-download"
                       onClick={() => exportRubric('download')}
-                      title={lang === 'el' ? 'Κατέβασε αναφορά' : 'Download report'}
+                      title={t('feynmanDownloadReport')}
                       className="inline-flex items-center gap-1 rounded-md border ws-chip-brand rounded-md px-2 py-0.5 text-[10px] font-medium hover:bg-brand-600/20"
                     >
                       <Download className="w-3 h-3" />
-                      {lang === 'el' ? 'Εξαγωγή' : 'Export'}
+                      {t('exportLabel')}
                     </button>
                     <button
                       type="button"
                       data-testid="feynman-rubric-export-print"
                       onClick={() => exportRubric('print')}
-                      title={lang === 'el' ? 'PDF' : 'Print / PDF'}
+                      title={t('dashPrintPdf')}
                       className="inline-flex items-center gap-1 rounded-md border border-border-subtle px-2 py-0.5 text-[10px] font-medium text-text-muted hover:text-text-secondary"
                     >
                       <Printer className="w-3 h-3" />
@@ -471,7 +469,7 @@ export function FeynmanCheck({
                           className="inline-flex items-center gap-1 ws-chip-brand rounded-lg border px-2 py-1 text-[10px] font-medium hover:opacity-90"
                         >
                           <Sparkles className="w-3 h-3" />
-                          {lang === 'el' ? `Agent → ${t(RUBRIC_LABEL_KEYS[dim])}` : `Agent → fix ${t(RUBRIC_LABEL_KEYS[dim])}`}
+                          {t('feynmanAgentFixDim').replace('{dim}', t(RUBRIC_LABEL_KEYS[dim]))}
                         </button>
                       )}
                       {onOpenInReader && (
@@ -481,13 +479,13 @@ export function FeynmanCheck({
                           className="flex items-center gap-1 text-[10px] font-medium text-brand-800 hover:opacity-80"
                         >
                           <BookOpen className="w-3 h-3" />
-                          {lang === 'el' ? 'Άνοιγμα στον αναγνώστη' : 'Read in source'}
+                          {t('feynmanReadInSource')}
                         </button>
                       )}
                       {onFocusConcept && (
                         <button type="button" onClick={() => onFocusConcept('concept-map')}
                           className="text-[10px] font-medium text-brand-700 hover:text-brand-800">
-                          {lang === 'el' ? 'Χάρτης εννοιών →' : 'Concept map →'}
+                          {t('feynmanConceptMapArrow')}
                         </button>
                       )}
                     </div>

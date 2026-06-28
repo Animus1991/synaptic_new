@@ -3,6 +3,7 @@
  * Sections mirror Reader / step-rail slides so users can edit one slide at a time.
  */
 
+import { t, type Lang } from './i18n';
 import { buildReaderSegments, readerSegmentsToStepSections } from './readerDocumentLayout';
 import { normalizeDocumentText } from './textSegmentation';
 
@@ -20,12 +21,12 @@ export type ReprocessEditorSection = {
 export function buildReprocessEditorSections(
   beforeText: string,
   afterText: string,
-  lang: 'en' | 'el',
+  lang: Lang,
 ): ReprocessEditorSection[] {
   const beforeSections = readerSegmentsToStepSections(buildReaderSegments(beforeText), lang);
   const afterSections = readerSegmentsToStepSections(buildReaderSegments(afterText), lang);
   const count = Math.max(beforeSections.length, afterSections.length, 1);
-  const fallbackHeading = lang === 'el' ? 'Ενότητα' : 'Section';
+  const fallbackHeading = t('reprocessSectionSingular', lang);
 
   const sections: ReprocessEditorSection[] = [];
   for (let i = 0; i < count; i += 1) {

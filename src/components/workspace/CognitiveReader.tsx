@@ -636,9 +636,7 @@ export function CognitiveReader({
                 {seg.content}
                 {suspicious && (
                   <span className="ml-2 block text-[10px] font-normal normal-case tracking-normal text-accent-amber/80">
-                    {lang === 'el'
-                      ? 'Πιθανό σφάλμα εξαγωγής — επαλήθευσε με την πρωτότυπη πηγή'
-                      : 'Possible extraction error — verify against your source'}
+                    {t('readerExtractionError')}
                   </span>
                 )}
               </h3>
@@ -860,14 +858,14 @@ export function CognitiveReader({
                   ? 'ws-chip-brand'
                   : 'ws-tool-toggle',
               )}
-              title={lang === 'el' ? 'Δίγλωσση προβολή' : 'Side-by-side translation'}
+              title={t('readerSideBySideTitle')}
             >
               <Languages className="w-3 h-3" />
               {translationMode === 'off'
-                ? (lang === 'el' ? 'Μετάφραση' : 'Translate')
+                ? t('readerTranslate')
                 : translationMode === 'glossary'
-                  ? (lang === 'el' ? 'Γλωσσάρι' : 'Glossary')
-                  : (lang === 'el' ? 'Πλήρης' : 'Full')}
+                  ? t('readerGlossaryMode')
+                  : t('readerFull')}
               {translating && '…'}
             </button>
           )}
@@ -884,7 +882,7 @@ export function CognitiveReader({
                 ocrOverlayOn ? 'border-accent-amber/30 bg-accent-amber/15 text-accent-amber' : 'ws-tool-toggle',
               )}
             >
-              {lang === 'el' ? 'OCR overlay' : 'OCR overlay'}
+              {t('readerOcrOverlay')}
             </button>
           )}
           <button
@@ -902,14 +900,14 @@ export function CognitiveReader({
             )}
             title={
               heatmapMode === 'learning'
-                ? (lang === 'el' ? 'Heatmap αδυναμιών (Concept Bus)' : 'Weak-area heatmap (Concept Bus)')
+                ? t('readerHeatmapWeakTitle')
                 : heatmapMode === 'complexity'
-                  ? (lang === 'el' ? 'Heatmap πυκνότητας όρων' : 'Term density heatmap')
-                  : (lang === 'el' ? 'Heatmap μελέτης' : 'Study heatmap')
+                  ? t('readerHeatmapTermTitle')
+                  : t('readerHeatmapStudyTitle')
             }
           >
             {heatmapMode === 'learning'
-              ? (lang === 'el' ? 'Αδυναμίες' : 'Weak spots')
+              ? t('readerWeakSpotsLabel')
               : heatmapMode === 'complexity'
                 ? t('heatmap')
                 : t('heatmap')}
@@ -940,9 +938,9 @@ export function CognitiveReader({
           <div className="flex items-start gap-2">
             <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-accent-amber" />
             <p className="text-[11px] text-accent-amber">
-              {lang === 'el'
-                ? `${suspiciousSegments.length} ενότητ${suspiciousSegments.length === 1 ? 'α' : 'ες'} με πιθανό σφάλμα OCR/εξαγωγής — μην τις χρησιμοποιείς ως αυθεντικές χωρίς επαλήθευση.`
-                : `${suspiciousSegments.length} section${suspiciousSegments.length === 1 ? '' : 's'} may contain OCR/extraction errors — do not treat as authoritative without verification.`}
+              {suspiciousSegments.length === 1
+                ? t('readerSuspiciousOne')
+                : t('readerSuspiciousMany').replace('{count}', String(suspiciousSegments.length))}
             </p>
           </div>
           <div className="flex flex-wrap gap-1.5 pl-6" data-testid="reader-suspicious-jumps">
@@ -1008,11 +1006,11 @@ export function CognitiveReader({
 
       {annotateMode && (
         <div className="flex shrink-0 items-center gap-2 border-b border-border-subtle bg-surface-secondary/40 px-4 py-1.5">
-          <span className="text-[10px] text-text-muted">{lang === 'el' ? 'Χρώμα:' : 'Color:'}</span>
+          <span className="text-[10px] text-text-muted">{t('readerColorColon')}</span>
           {ANN_COLORS.map((c) => (
             <button key={c} type="button" onClick={() => setActiveColor(c)} className={cn('h-4 w-4 rounded-full border-2', activeColor === c ? 'border-white' : 'border-transparent')} style={{ backgroundColor: c }} />
           ))}
-          <span className="text-[10px] text-text-muted ml-2">{lang === 'el' ? 'Επίλεξε κείμενο για σημείωση' : 'Select text to annotate'}</span>
+          <span className="text-[10px] text-text-muted ml-2">{t('readerSelectToAnnotate')}</span>
         </div>
       )}
 
@@ -1068,7 +1066,7 @@ export function CognitiveReader({
               className="inline-flex items-center gap-1 ws-chip-brand rounded-lg border px-2 py-1 text-[10px] font-medium hover:bg-brand-600/15"
             >
               <BookOpen className="h-3 w-3" />
-              {lang === 'el' ? 'Μελέτη' : 'Study'}
+              {t('readerSectionStudy')}
             </button>
           )}
           {onSectionAskAgent && (
@@ -1079,7 +1077,7 @@ export function CognitiveReader({
               className="inline-flex items-center gap-1 ws-chip-brand rounded-lg border px-2 py-1 text-[10px] font-medium hover:opacity-90"
             >
               <Sparkles className="h-3 w-3" />
-              {lang === 'el' ? 'Ρώτα Agent' : 'Ask Agent'}
+              {t('readerAskAgentBtn')}
             </button>
           )}
         </div>
@@ -1109,13 +1107,13 @@ export function CognitiveReader({
             className="shrink-0 inline-flex items-center gap-1 rounded-lg border border-accent-cyan/40 bg-accent-cyan/15 px-2 py-1 text-[10px] font-medium text-brand-800"
           >
             <Sparkles className="h-3 w-3" />
-            {lang === 'el' ? 'Agent' : 'Ask Agent'}
+            {t('readerAskAgentChip')}
           </button>
           <button
             type="button"
             onClick={dismissTextSelection}
             className="shrink-0 rounded p-1 text-text-muted hover:text-text-primary"
-            aria-label={lang === 'el' ? 'Κλείσιμο' : 'Dismiss'}
+            aria-label={t('readerDismiss')}
           >
             <X className="h-3 w-3" />
           </button>
@@ -1152,7 +1150,7 @@ export function CognitiveReader({
               className="min-h-0 overflow-y-auto border-r border-border-subtle/60 bg-surface-primary p-4 md:p-6"
             >
               <p className="sticky top-0 z-10 mb-2 bg-surface-primary/90 py-1 text-[10px] font-semibold text-text-muted backdrop-blur-sm">
-                {lang === 'el' ? 'Πηγή' : 'Source'}
+                {t('toolSource')}
               </p>
               <div className="space-y-4">
                 {bilingual.map((pair, i) => (
@@ -1183,8 +1181,8 @@ export function CognitiveReader({
             >
               <p className="sticky top-0 z-10 mb-2 bg-surface-primary/90 py-1 text-[10px] font-semibold text-brand-800 backdrop-blur-sm">
                 {translationMode === 'full'
-                  ? (lang === 'el' ? 'Μετάφραση' : 'Translation')
-                  : (lang === 'el' ? 'Γλωσσάρι / ορισμοί' : 'Glossary companion')}
+                  ? t('readerTranslationCol')
+                  : t('readerGlossaryCompanion')}
               </p>
               <div className="space-y-4">
                 {bilingual.map((pair, i) => (
@@ -1252,16 +1250,14 @@ export function CognitiveReader({
             <div className="mx-auto mt-6 flex max-w-xl items-start gap-2 rounded-lg border border-accent-rose/20 bg-accent-rose/5 p-3 text-xs text-accent-rose" data-testid="reader-learning-heatmap-legend">
               <Sparkles className="w-4 h-4 shrink-0" />
               <span>
-                {lang === 'el'
-                  ? 'Κόκκινο/πορτοκαλί = πραγματικές αδυναμίες από Concept Bus (λάθη κουίζ, μπερδευτικά, δύσκολες κάρτες).'
-                  : 'Rose/amber = real weak spots from Concept Bus (quiz mistakes, confusing marks, hard cards).'}
+                {t('readerLearningHeatLegend')}
               </span>
             </div>
           )}
           {heatmapMode === 'complexity' && !highlight && (
             <div className="mx-auto mt-6 flex max-w-xl items-start gap-2 rounded-lg border border-accent-amber/20 bg-accent-amber/5 p-3 text-xs text-accent-amber">
               <Sparkles className="w-4 h-4 shrink-0" />
-              <span>{lang === 'el' ? 'Πυκνή ορολογία — άνοιξε χάρτη ή πρόσθεσε σημείωση.' : 'Dense terminology — open concept map or add a note.'}</span>
+              <span>{t('readerDenseTermHint')}</span>
             </div>
           )}
         </div>
@@ -1269,7 +1265,7 @@ export function CognitiveReader({
 
         {showMargin && annotations.length > 0 && (
           <aside className="hidden sm:block w-44 shrink-0 border-l border-border-subtle overflow-y-auto p-2 space-y-2 bg-surface-card/50">
-            <p className="text-[10px] font-semibold text-text-muted px-1">{lang === 'el' ? 'Περιθώρια' : 'Margin'}</p>
+            <p className="text-[10px] font-semibold text-text-muted px-1">{t('readerMargin')}</p>
             {annotations.map((ann) => (
               <div key={ann.id} className="rounded-lg border border-border-subtle p-2 text-[10px] group relative" style={{ borderLeftColor: ann.color, borderLeftWidth: 3 }}>
                 <button type="button" onClick={() => removeAnnotation(ann.id)} className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 text-text-muted">
@@ -1290,17 +1286,17 @@ export function CognitiveReader({
 
       {pendingNote && (
         <div className="shrink-0 border-t border-border-subtle bg-surface-card p-3 space-y-2">
-          <p className="text-[10px] text-text-muted">{lang === 'el' ? 'Επιλεγμένο:' : 'Selected:'} <span className="ws-excerpt">"{pendingNote.excerpt.slice(0, 80)}"</span></p>
+          <p className="text-[10px] text-text-muted">{t('readerSelectedColon')} <span className="ws-excerpt">"{pendingNote.excerpt.slice(0, 80)}"</span></p>
           <input
             value={noteDraft}
             onChange={(e) => setNoteDraft(e.target.value)}
-            placeholder={lang === 'el' ? 'Προαιρετική σημείωση…' : 'Optional margin note…'}
+            placeholder={t('readerOptionalMarginNote')}
             className="w-full px-3 py-1.5 rounded-lg bg-surface-input border border-border-subtle text-xs"
             onKeyDown={(e) => e.key === 'Enter' && confirmAnnotation()}
           />
           <div className="flex gap-2 justify-end">
             <button type="button" onClick={() => setPendingNote(null)} className="text-xs text-text-muted">{t('cancel')}</button>
-            <button type="button" onClick={confirmAnnotation} className="text-xs font-medium text-brand-800">{lang === 'el' ? 'Αποθήκευση' : 'Save'}</button>
+            <button type="button" onClick={confirmAnnotation} className="text-xs font-medium text-brand-800">{t('save')}</button>
           </div>
         </div>
       )}

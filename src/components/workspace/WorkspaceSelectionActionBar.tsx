@@ -1,6 +1,6 @@
 import { X } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
-import type { Lang } from '../../lib/i18n';
+import { t, type Lang } from '../../lib/i18n';
 import type { WorkspaceToolId } from '../../lib/taskFlows';
 import {
   getSelectionActionDefs,
@@ -39,7 +39,7 @@ export function WorkspaceSelectionActionBar({
       )}
       data-testid={testId}
       role="toolbar"
-      aria-label={lang === 'el' ? 'Ενέργειες επιλογής' : 'Selection actions'}
+      aria-label={t('selectionActionsAria', lang)}
     >
       <div className="flex items-center gap-2 min-w-0">
         <span className="ws-excerpt flex-1 truncate" title={excerpt}>
@@ -49,7 +49,7 @@ export function WorkspaceSelectionActionBar({
           type="button"
           onClick={onDismiss}
           className="shrink-0 rounded p-1 text-text-muted hover:text-text-primary"
-          aria-label={lang === 'el' ? 'Κλείσιμο' : 'Dismiss'}
+          aria-label={t('selectionDismissAria', lang)}
         >
           <X className="h-3 w-3" />
         </button>

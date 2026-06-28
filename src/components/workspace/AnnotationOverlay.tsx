@@ -226,7 +226,7 @@ export function AnnotationOverlay({
     });
     scrollToLine(lineIndex);
     notifyRemap(1);
-    setRemapToast(lang === 'el' ? 'Anchor επανασυνδέθηκε' : 'Anchor remapped');
+    setRemapToast(t('annoAnchorRemapped'));
     setRemapReviewId(null);
   }, [lang, lines, notifyRemap, pipelineVersion, scrollToLine]);
 
@@ -236,9 +236,9 @@ export function AnnotationOverlay({
     notifyRemap(result.remapped);
     if (result.remapped > 0) {
       setRemapToast(
-        lang === 'el'
-          ? `${result.remapped} αυτόματα · ${result.stillFlagged} ακόμα`
-          : `${result.remapped} auto-fixed · ${result.stillFlagged} remaining`,
+        t('annoAutoRemapSummary')
+          .replace('{remapped}', String(result.remapped))
+          .replace('{remaining}', String(result.stillFlagged)),
       );
     }
     if (result.stillFlagged === 0) {
@@ -385,7 +385,7 @@ export function AnnotationOverlay({
                 className="ws-chip-ok inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[9px] font-semibold"
               >
                 <Wand2 className="h-3 w-3" />
-                {lang === 'el' ? 'Αυτόματο' : 'Auto-remap'}
+                {t('annoAutoRemap')}
               </button>
               <button
                 type="button"
@@ -393,14 +393,12 @@ export function AnnotationOverlay({
                 onClick={openRemapReview}
                 className="ws-chip-warn rounded-md px-2 py-0.5 text-[9px] font-semibold"
               >
-                {lang === 'el' ? 'Επανέλεγχος' : 'Review flagged'}
+                {t('annoReviewFlaggedBtn')}
               </button>
             </div>
           )}
         >
-          {lang === 'el'
-            ? `${needsReviewCount} σημειώσεις χρειάζονται επανέλεγχο — το κείμενο άλλαξε μετά την επανεπεξεργασία.`
-            : `${needsReviewCount} annotation(s) need review — source text changed after reprocess.`}
+          {t('annoNeedsReviewBanner').replace('{count}', String(needsReviewCount))}
           {remapEdgeBanner && (
             <span className="ml-1 opacity-80" data-testid="annotation-remap-edge-summary">
               ({remapEdgeBanner})
@@ -457,7 +455,7 @@ export function AnnotationOverlay({
               !filterTerm ? 'ws-chip-brand' : 'text-text-muted',
             )}
           >
-            {lang === 'el' ? 'Όλα' : 'All'}
+            {t('annoFilterAll')}
           </button>
           {taggedTerms.map((term) => (
             <button
@@ -489,7 +487,7 @@ export function AnnotationOverlay({
           <input
             value={tagDraft}
             onChange={(e) => setTagDraft(e.target.value)}
-            placeholder={lang === 'el' ? 'Ετικέτα…' : 'Tag…'}
+            placeholder={t('annoTagPlaceholder')}
             className="ml-auto w-16 shrink-0 rounded border border-border-subtle bg-surface-input px-1 py-0.5 text-[8px] sm:w-20"
           />
         </div>
@@ -542,7 +540,7 @@ export function AnnotationOverlay({
                     type="button"
                     onClick={(e) => { e.stopPropagation(); onOpenInReader(line.trim()); }}
                     className="absolute right-1 top-0.5 hidden p-0.5 rounded text-brand-800 hover:bg-surface-hover [@media(hover:hover)]:group-hover:block"
-                    title={lang === 'el' ? 'Άνοιγμα στον αναγνώστη' : 'Open in reader'}
+                    title={t('panelOpenReader')}
                   >
                     <BookOpen className="w-3 h-3" />
                   </button>
@@ -613,7 +611,7 @@ export function AnnotationOverlay({
                 value={newComment}
                 onChange={(e) => setNewComment(e.target.value)}
                 autoFocus
-                placeholder={lang === 'el' ? 'Σημείωση περιθωρίου…' : 'Margin note…'}
+                placeholder={t('annoMarginNotePlaceholder')}
                 onKeyDown={(e) => e.key === 'Enter' && confirmComment()}
                 className="flex-1 px-3 py-2 rounded-lg bg-surface-input border border-border-subtle text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-brand-500/50"
               />

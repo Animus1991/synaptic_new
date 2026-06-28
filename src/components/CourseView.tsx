@@ -89,7 +89,7 @@ export function CourseView({
       return false;
     }
   });
-  const { lang } = useI18n();
+  const { lang, t } = useI18n();
   const progress = (course.completedLessons / Math.max(course.totalLessons, 1)) * 100;
   const quality = course.sourceQuality;
   const needsSourceUpgrade = Boolean(quality && (quality.needsMoreMaterial || quality.outlineAdjusted));
@@ -157,7 +157,7 @@ export function CourseView({
       </button>
 
       <PageHeader
-        eyebrow={lang === 'el' ? 'Μάθημα' : 'Course'}
+        eyebrow={t('courseEyebrow')}
         title={<span data-testid="course-title">{course.title}</span>}
         subtitle={
           <>
@@ -192,10 +192,10 @@ export function CourseView({
                 onClick={() => setRemoveCourseOpen(true)}
                 data-testid="course-delete"
                 className="flex items-center gap-2 px-3 py-2.5 border border-accent-rose/30 hover:bg-accent-rose/10 rounded-xl text-sm font-medium text-accent-rose transition-all"
-                aria-label={lang === 'el' ? 'Διαγραφή μαθήματος' : 'Delete course'}
+                aria-label={t('deleteCourseAria')}
               >
                 <Trash2 className="w-4 h-4" />
-                <span className="hidden sm:inline">{lang === 'el' ? 'Διαγραφή' : 'Delete'}</span>
+                <span className="hidden sm:inline">{t('deleteLabel')}</span>
               </button>
             )}
             {needsSourceUpgrade && onUploadMore && (
@@ -430,8 +430,8 @@ export function CourseView({
           open={removeCourseOpen}
           title={deleteCourseCopy.title}
           description={deleteCourseCopy.description}
-          confirmLabel={lang === 'el' ? 'Διαγραφή' : 'Delete'}
-          cancelLabel={lang === 'el' ? 'Ακύρωση' : 'Cancel'}
+          confirmLabel={t('deleteLabel')}
+          cancelLabel={t('cancel')}
           destructive
           onConfirm={() => {
             onRemoveCourse?.(course.id);
@@ -651,7 +651,7 @@ function SourceFiles({
   reprocessingMaterial?: boolean;
   lang: 'en' | 'el';
 }) {
-  const el = lang === 'el';
+  const { t } = useI18n();
   const provenanceCount = course.conceptSpans?.length ?? 0;
   const [pendingRemove, setPendingRemove] = useState<UploadedFile | null>(null);
   const generatedTaskCount = countGeneratedTasksForCourse(tasks, course.id);
@@ -688,7 +688,7 @@ function SourceFiles({
         <div className="flex items-center justify-between gap-3 mb-4 flex-wrap">
           <h3 className="font-semibold flex items-center gap-2">
             <FileText className="w-5 h-5 text-brand-400" />
-            {el ? 'Αρχεία πηγής' : 'Source Files'}
+            {t('courseSourceFiles')}
           </h3>
           {onReprocessMaterial && uploadedFiles.length > 0 && (
             <button
@@ -699,7 +699,7 @@ function SourceFiles({
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-brand-500/30 text-xs font-medium text-brand-300 hover:bg-brand-500/10 disabled:opacity-60"
             >
               <RefreshCw className={cn('w-3.5 h-3.5', reprocessingMaterial && 'animate-spin')} />
-              {el ? 'Επανεπεξεργασία κειμένου' : 'Reprocess stored text'}
+              {t('courseReprocessStoredText')}
             </button>
           )}
         </div>
@@ -719,14 +719,14 @@ function SourceFiles({
               {'ingestMethod' in file && file.ingestMethod && (
                 <span className="text-[10px] text-text-muted">{file.ingestMethod}</span>
               )}
-              <span className="text-xs text-text-muted">{el ? 'Αναλυμένο' : 'Analyzed'}</span>
+              <span className="text-xs text-text-muted">{t('courseAnalyzed')}</span>
               {file.id && onRemoveFile && (
                 <button
                   type="button"
                   onClick={() => confirmRemove(file)}
                   data-testid={`remove-source-${file.id}`}
                   className="p-1.5 rounded-lg border border-accent-rose/30 text-accent-rose hover:bg-accent-rose/10 transition-colors"
-                  title={el ? 'Αφαίρεση αρχείου' : 'Remove file'}
+                  title={t('removeFileTitle')}
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>
@@ -804,8 +804,8 @@ function SourceFiles({
       }}
       title={removeTitle}
       description={removeDescription}
-      confirmLabel={el ? 'Αφαίρεση' : 'Remove'}
-      cancelLabel={el ? 'Ακύρωση' : 'Cancel'}
+      confirmLabel={t('removeLabel')}
+      cancelLabel={t('cancel')}
       destructive
       data-testid="course-remove-source-dialog"
     />

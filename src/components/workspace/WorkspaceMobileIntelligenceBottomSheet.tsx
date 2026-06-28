@@ -6,6 +6,7 @@ import {
   WorkspaceMobileIntelligenceTabs,
   type MobileIntelTab,
 } from './WorkspaceMobileIntelligenceTabs';
+import { useI18n } from '../../lib/i18n';
 
 type Props = {
   active: MobileIntelTab | null;
@@ -25,7 +26,7 @@ export function WorkspaceMobileIntelligenceBottomSheet({
   children,
   className,
 }: Props) {
-  const isEl = lang === 'el';
+  const { t } = useI18n();
 
   const handleTab = (tab: MobileIntelTab) => {
     onChange(active === tab ? null : tab);
@@ -37,7 +38,7 @@ export function WorkspaceMobileIntelligenceBottomSheet({
         {active && (
           <motion.button
             type="button"
-            aria-label={isEl ? 'Κλείσιμο πίνακα' : 'Close panel'}
+            aria-label={t('closePanel')}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -66,20 +67,20 @@ export function WorkspaceMobileIntelligenceBottomSheet({
               className="ws-bento rounded-b-none border-b-0 max-h-[min(70vh,28rem)] flex flex-col shadow-[0_-12px_40px_rgba(42,31,18,0.18)]"
               role="dialog"
               aria-modal="true"
-              aria-label={isEl ? 'Πληροφορίες μάθησης' : 'Learning intelligence'}
+              aria-label={t('learningIntelAria')}
             >
               <div className="flex items-center justify-center py-2 shrink-0">
                 <span className="h-1 w-10 rounded-full bg-border-subtle" aria-hidden />
               </div>
               <div className="flex items-center justify-between px-3 pb-2 shrink-0">
                 <p className="text-xs font-semibold text-brand-800">
-                  {isEl ? 'Νοητική εικόνα' : 'Study intelligence'}
+                  {t('studyIntelligence')}
                 </p>
                 <button
                   type="button"
                   onClick={() => onChange(null)}
                   className="p-1.5 rounded-lg text-text-muted hover:text-text-primary"
-                  aria-label={isEl ? 'Κλείσιμο' : 'Close'}
+                  aria-label={t('close')}
                 >
                   <X className="w-4 h-4" />
                 </button>

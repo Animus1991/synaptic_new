@@ -2,6 +2,7 @@ import { useMemo, useState, type KeyboardEvent } from 'react';
 import { cn } from '../../utils/cn';
 import { isMcQuiz, type QuizDef } from '../../lib/lessonTypes';
 import type { Lang } from '../../lib/i18n';
+import { useI18n } from '../../lib/i18n';
 import type { QuizIrtDisplay } from '../../lib/quizIrt';
 import { formatQuizIrtForLearner } from '../../lib/quizIrt';
 
@@ -38,6 +39,7 @@ function normalizeAnswer(s: string): string {
 }
 
 export function WorkspaceQuiz({ quizDef, lang, irt, irtResponseCount = 0, onComplete, onQuestionSelect }: Props) {
+  const { t } = useI18n();
   const [mcAnswer, setMcAnswer] = useState<number | null>(null);
   const [shortText, setShortText] = useState('');
   const [shortChecked, setShortChecked] = useState<boolean | null>(null);
@@ -96,9 +98,7 @@ export function WorkspaceQuiz({ quizDef, lang, irt, irtResponseCount = 0, onComp
         ))}
         {mcAnswer !== null && (
           <p className={cn('text-xs mt-2', passed ? 'text-accent-emerald' : 'text-accent-rose')}>
-            {passed
-              ? (lang === 'el' ? '✓ Σωστά — μπορείς να συνεχίσεις' : '✓ Correct — you can continue')
-              : (lang === 'el' ? '✗ Δες ξανά το υλικό σου' : '✗ Review your material')}
+            {passed ? t('quizWkCorrectContinue') : t('quizWkReviewMaterial')}
           </p>
         )}
       </div>
@@ -131,7 +131,7 @@ export function WorkspaceQuiz({ quizDef, lang, irt, irtResponseCount = 0, onComp
           value={shortText}
           onChange={(e) => { setShortText(e.target.value); setShortChecked(null); }}
           className="w-full rounded-lg border border-border-subtle bg-surface-primary px-3 py-2 text-sm"
-          placeholder={lang === 'el' ? 'Η απάντησή σου…' : 'Your answer…'}
+          placeholder={t('quizWkYourAnswer')}
         />
         <button
           type="button"
@@ -139,13 +139,11 @@ export function WorkspaceQuiz({ quizDef, lang, irt, irtResponseCount = 0, onComp
           disabled={!shortText.trim()}
           className="px-4 py-2 rounded-lg bg-brand-600 text-white text-sm disabled:opacity-40"
         >
-          {lang === 'el' ? 'Έλεγχος' : 'Check'}
+          {t('quizWkCheck')}
         </button>
         {shortChecked !== null && (
           <p className={cn('text-xs', shortChecked ? 'text-accent-emerald' : 'text-accent-rose')}>
-            {shortChecked
-              ? (lang === 'el' ? '✓ Σωστά' : '✓ Correct')
-              : (lang === 'el' ? '✗ Δοκίμασε ξανά' : '✗ Try again')}
+            {shortChecked ? t('quizWkCorrectShort') : t('quizWkTryAgain')}
           </p>
         )}
       </div>
@@ -181,11 +179,11 @@ export function WorkspaceQuiz({ quizDef, lang, irt, irtResponseCount = 0, onComp
           ))}
         </ul>
         <button type="button" onClick={checkOrder} className="px-4 py-2 rounded-lg bg-brand-600 text-white text-sm">
-          {lang === 'el' ? 'Έλεγχος σειράς' : 'Check order'}
+          {t('quizWkCheckOrder')}
         </button>
         {orderChecked !== null && (
           <p className={cn('text-xs', orderChecked ? 'text-accent-emerald' : 'text-accent-rose')}>
-            {orderChecked ? '✓' : '✗'} {lang === 'el' ? (orderChecked ? 'Σωστή σειρά' : 'Λάθος σειρά') : (orderChecked ? 'Correct order' : 'Wrong order')}
+            {orderChecked ? '✓' : '✗'} {orderChecked ? t('quizWkCorrectOrder') : t('quizWkWrongOrder')}
           </p>
         )}
       </div>
@@ -220,7 +218,7 @@ export function WorkspaceQuiz({ quizDef, lang, irt, irtResponseCount = 0, onComp
                 }}
                 className="flex-1 rounded-lg border border-border-subtle bg-surface-primary px-2 py-2 text-sm"
               >
-                <option value="">{lang === 'el' ? '— επίλεξε —' : '— select —'}</option>
+                <option value="">{t('quizWkSelectOption')}</option>
                 {shuffledRight.map(({ label, orig }) => (
                   <option key={orig} value={orig}>{label}</option>
                 ))}
@@ -234,11 +232,11 @@ export function WorkspaceQuiz({ quizDef, lang, irt, irtResponseCount = 0, onComp
           disabled={Object.keys(matches).length < match.left.length}
           className="px-4 py-2 rounded-lg bg-brand-600 text-white text-sm disabled:opacity-40"
         >
-          {lang === 'el' ? 'Έλεγχος αντιστοιχίσεων' : 'Check matches'}
+          {t('quizWkCheckMatches')}
         </button>
         {matchChecked !== null && (
           <p className={cn('text-xs', matchChecked ? 'text-accent-emerald' : 'text-accent-rose')}>
-            {matchChecked ? '✓' : '✗'} {lang === 'el' ? (matchChecked ? 'Σωστά' : 'Λάθος') : (matchChecked ? 'Correct' : 'Incorrect')}
+            {matchChecked ? '✓' : '✗'} {matchChecked ? t('quizWkMatchCorrect') : t('quizWkMatchIncorrect')}
           </p>
         )}
       </div>

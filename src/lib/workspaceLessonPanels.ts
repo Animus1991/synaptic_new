@@ -1,4 +1,4 @@
-import type { Lang } from './i18n';
+import { t, type Lang } from './i18n';
 
 export type WorkspacePanelBlock =
   | { kind: 'paragraph'; text: string; emphasis?: string }
@@ -16,33 +16,30 @@ export type WorkspacePanel = {
 };
 
 function genericPanels(concept: string, lang: Lang): WorkspacePanel[] {
-  const isEl = lang === 'el';
-  return [
+    return [
     {
-      badge: isEl ? 'Βασική Έννοια' : 'Core Concept',
+      badge: t('lessonBadgeCoreConcept', lang),
       title: concept,
       blocks: [
         {
           kind: 'paragraph',
-          text: isEl
-            ? `Η έννοια «${concept}» είναι κεντρική για αυτή τη συνεδρία. Ξεκίνα με τον βασικό ορισμό από το υλικό σου.`
-            : `${concept} is central to this session. Start with the core definition from your material.`,
+          text: t('lessonTextCentralConcept', lang).replace('{concept}', concept),
         },
-        { kind: 'callout', title: isEl ? '💡 Υπόδειξη' : '💡 Tip', text: isEl ? 'Χρησιμοποίησε τον Feynman Check.' : 'Use the Feynman Check to verify understanding.', variant: 'tip' },
+        { kind: 'callout', title: t('lessonTipTitle', lang), text: t('lessonTipFeynman', lang), variant: 'tip' },
       ],
     },
     {
-      badge: isEl ? 'Εμβάθυνση' : 'Deep Dive',
-      title: isEl ? 'Μηχανισμός' : 'Mechanism',
+      badge: t('lessonBadgeDeepDive', lang),
+      title: t('lessonTitleMechanism', lang),
       blocks: [
-        { kind: 'paragraph', text: isEl ? 'Ποιες μεταβλητές συνδέονται;' : 'What variables connect in your notes?' },
+        { kind: 'paragraph', text: t('lessonTextVariables', lang) },
       ],
     },
     {
-      badge: isEl ? 'Εξάσκηση' : 'Practice',
-      title: isEl ? 'Εργασία' : 'Worked Task',
+      badge: t('lessonBadgePractice', lang),
+      title: t('lessonTitleWorkedTask', lang),
       blocks: [
-        { kind: 'paragraph', text: isEl ? 'Εφάρμοσε την έννοια από τις σημειώσεις σου.' : 'Apply the concept using your uploaded notes.' },
+        { kind: 'paragraph', text: t('lessonTextApplyConcept', lang) },
       ],
     },
   ];
@@ -55,25 +52,14 @@ export function getWorkspaceLessonPanel(step: number, concept: string, lang: Lan
 }
 
 export function feynmanOutlineForConcept(concept: string, lang: Lang): string[] {
-  if (lang === 'el') {
-    return [
-      `Ποια είναι η βασική ιδέα του «${concept}»;`,
-      'Γιατί έχει σημασία;',
-      'Ποια είναι μια συνηθισμένη παρανόηση;',
-      'Δώσε ένα παράδειγμα από τις σημειώσεις σου.',
-    ];
-  }
   return [
-    `What is the core idea of ${concept}?`,
-    'Why does it matter?',
-    'What is a common misconception?',
-    'Give one example from your notes.',
+    t('feynmanOutline1', lang).replace('{concept}', concept),
+    t('feynmanOutline2', lang),
+    t('feynmanOutline3', lang),
+    t('feynmanOutline4', lang),
   ];
 }
 
 export function feynmanPlaceholderForConcept(concept: string, lang: Lang): string {
-  if (lang === 'el') {
-    return `Εξήγησε την έννοια «${concept}» με δικά σου λόγια, βασιζόμενος/η στις σημειώσεις σου…`;
-  }
-  return `Explain ${concept} in your own words, using your uploaded notes…`;
+  return t('feynmanExplainPlaceholder', lang).replace('{concept}', concept);
 }

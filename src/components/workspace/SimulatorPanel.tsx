@@ -10,6 +10,7 @@ import { InteractiveSimulator } from './InteractiveSimulator';
 import { ArtifactStaleBanner } from './ArtifactStaleBanner';
 import { WorkspacePanelWarnStrip } from './WorkspacePanelWarnStrip';
 import { SimulatorTimerPresetSyncStrip } from './SimulatorTimerPresetSyncStrip';
+import { useI18n } from '../../lib/i18n';
 
 type Props = {
   session: SimulatorSessionContent;
@@ -43,7 +44,7 @@ export function SimulatorPanel({
   scopeKey = '',
 }: Props) {
   const [filterQuery, setFilterQuery] = useState('');
-  const isEl = lang === 'el';
+  const { t } = useI18n();
 
   const syncReport = useMemo(
     () => auditSimulatorTimerPresetSync({
@@ -63,7 +64,7 @@ export function SimulatorPanel({
     return (
       <WorkspaceEmptyState
         tool="simulator"
-        message={emptyMessage ?? (isEl ? 'Ανέβασε σημειώσεις για προσομοίωση.' : 'Upload notes to simulate.')}
+        message={emptyMessage ?? (t('panelEmptySimulator'))}
         hasSource={false}
         onUpload={onUpload}
       />
@@ -75,9 +76,7 @@ export function SimulatorPanel({
       <div className="p-4" data-testid="simulator-panel-empty">
         <WorkspaceEmptyState
           tool="simulator"
-          message={emptyMessage ?? (isEl
-            ? 'Δεν βρέθηκαν αριθμητικές παράμετροι — δοκίμασε Reprocess ή ανέβασε πίνακες/δείκτες.'
-            : 'No numeric parameters found — try Reprocess or upload tables/indicators.')}
+          message={emptyMessage ?? t('panelEmptySimulatorNoParams')}
           hasSource
           onUpload={onUpload}
         />
@@ -95,7 +94,7 @@ export function SimulatorPanel({
       <div className="shrink-0 border-b border-border-subtle px-4 py-3">
         {session.sectionLabel && (
           <p className="mb-2 text-[10px] text-text-muted" data-testid="simulator-section-label">
-            {isEl ? 'Ενότητα:' : 'Section:'}{' '}
+            {t('wsSectionColon')}{' '}
             <span className="text-text-secondary">{session.sectionLabel}</span>
           </p>
         )}
@@ -107,12 +106,8 @@ export function SimulatorPanel({
         {(session.weakExtraction || session.passageGrounded) && (
           <WorkspacePanelWarnStrip testId="simulator-weak-extraction">
             {session.passageGrounded
-              ? (isEl
-                ? 'Οι παράμετροι προέρχονται από το απόσπασμα (generic concept) — Reprocess για πιο πλούσια δομή.'
-                : 'Parameters are passage-grounded (generic concept) — Reprocess for richer structure.')
-              : (isEl
-                ? 'Αδύναμη εξαγωγή — λίγοι αριθμοί στο υλικό. Δοκίμασε Reprocess.'
-                : 'Weak extraction — sparse numerics in material. Try Reprocess.')}
+              ? t('panelPassageGroundedSimulator')
+              : t('panelWeakExtractionSimulator')}
           </WorkspacePanelWarnStrip>
         )}
 
@@ -126,16 +121,16 @@ export function SimulatorPanel({
                 type="search"
                 value={filterQuery}
                 onChange={(e) => setFilterQuery(e.target.value)}
-                placeholder={isEl ? 'Αναζήτηση παραμέτρων…' : 'Search parameters…'}
+                placeholder={t('panelSearchParameters')}
                 className="w-full rounded-lg border border-border-subtle bg-surface-card py-1.5 pl-7 pr-2 text-[11px] text-text-secondary placeholder:text-text-muted focus:border-accent-cyan/40 focus:outline-none"
                 data-testid="simulator-filter"
               />
             </div>
           )}
           <span className="text-[10px] text-text-muted">
-            {session.numericCues.length} {isEl ? 'παράμετροι' : 'parameters'}
+            {session.numericCues.length} {t('panelParameters')}
             {session.economicsMode && (
-              <> · {isEl ? 'οικονομική λειτουργία' : 'econ mode'}</>
+              <> · {t('panelEconMode')}</>
             )}
           </span>
           {onStartTimedPractice && (
@@ -146,7 +141,7 @@ export function SimulatorPanel({
               className="ws-eyebrow ws-chip-warn inline-flex items-center gap-1 rounded-lg px-2 py-1 text-[10px] font-medium hover:opacity-90"
             >
               <Timer className="w-3 h-3" />
-              {isEl ? 'Χρονομέτρηση' : 'Timed block'} · {examPracticeLabel(session.suggestedExamPractice, lang)}
+              {t('panelTimedBlock')} · {examPracticeLabel(session.suggestedExamPractice, lang)}
             </button>
           )}
           {onOpenInReader && (

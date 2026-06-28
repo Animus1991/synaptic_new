@@ -16,6 +16,7 @@ import type {
   WorkspaceSelectionActionId,
   WorkspaceSelectionContext,
 } from '../../lib/workspaceSelectionActions';
+import { useI18n } from '../../lib/i18n';
 
 type Props = {
   session: QuizSessionContent;
@@ -56,7 +57,7 @@ export function QuizPanel({
 }: Props) {
   const [filterQuery, setFilterQuery] = useState('');
   const [selectedPassage, setSelectedPassage] = useState<{ text: string; term: string } | null>(null);
-  const isEl = lang === 'el';
+  const { t } = useI18n();
 
   const selectPassage = useCallback((text: string, term?: string) => {
     if (!onSelectionAction) return;
@@ -106,7 +107,7 @@ export function QuizPanel({
     return (
       <WorkspaceEmptyState
         tool="quiz"
-        message={emptyMessage ?? (isEl ? 'Ανέβασε σημειώσεις για κουίζ.' : 'Upload notes to quiz.')}
+        message={emptyMessage ?? (t('panelEmptyQuiz'))}
         hasSource={false}
         onUpload={onUpload}
       />
@@ -118,9 +119,7 @@ export function QuizPanel({
       <div className="p-4" data-testid="quiz-panel-empty">
         <WorkspaceEmptyState
           tool="quiz"
-          message={emptyMessage ?? (isEl
-            ? 'Δεν δημιουργήθηκαν ερωτήσεις — δοκίμασε Reprocess ή ανέβασε πιο δομημένες σημειώσεις.'
-            : 'No questions generated — try Reprocess or upload more structured notes.')}
+          message={emptyMessage ?? t('panelEmptyQuizNoItems')}
           hasSource
           onUpload={onUpload}
         />
@@ -132,7 +131,7 @@ export function QuizPanel({
     <div className="flex h-full flex-col overflow-hidden p-4" data-testid="quiz-panel">
       {session.sectionLabel && (
         <p className="mb-2 text-[10px] text-text-muted" data-testid="quiz-section-label">
-          {isEl ? 'Ενότητα:' : 'Section:'}{' '}
+          {t('wsSectionColon')}{' '}
           <span className="text-text-secondary">{session.sectionLabel}</span>
         </p>
       )}
@@ -146,12 +145,8 @@ export function QuizPanel({
       {(session.weakExtraction || session.passageGrounded) && (
         <WorkspacePanelWarnStrip testId="quiz-weak-extraction">
           {session.passageGrounded
-            ? (isEl
-              ? 'Οι ερωτήσεις προέρχονται από το απόσπασμα (generic concept) — Reprocess για πιο πλούσια δομή.'
-              : 'Questions are passage-grounded (generic concept) — Reprocess for richer structure.')
-            : (isEl
-              ? 'Αδύναμη εξαγωγή — λίγοι όροι γλωσσαρίου. Δοκίμασε Reprocess.'
-              : 'Weak extraction — sparse glossary. Try Reprocess.')}
+            ? t('panelPassageGroundedQuiz')
+            : t('panelWeakExtractionQuiz')}
         </WorkspacePanelWarnStrip>
       )}
 
@@ -162,13 +157,13 @@ export function QuizPanel({
             type="search"
             value={filterQuery}
             onChange={(e) => setFilterQuery(e.target.value)}
-            placeholder={isEl ? 'Αναζήτηση ερωτήσεων…' : 'Search questions…'}
+            placeholder={t('panelSearchQuestions')}
             className="w-full rounded-lg border border-border-subtle bg-surface-card py-1.5 pl-7 pr-2 text-[11px] text-text-secondary placeholder:text-text-muted focus:border-accent-cyan/40 focus:outline-none"
             data-testid="quiz-filter"
           />
         </div>
         <span className="text-[10px] text-text-muted">
-          {session.items.length} {isEl ? 'ερωτήσεις' : 'questions'}
+          {session.items.length} {t('panelQuestions')}
         </span>
         {onOpenInReader && (
           <button

@@ -157,7 +157,7 @@ export function PracticalLessonView({
     onClose();
   };
 
-  const lessonTitle = taskTitle ?? (lang === 'el' ? `Εξάσκηση: ${quizConcept}` : `Practice: ${quizConcept}`);
+  const lessonTitle = taskTitle ?? t('practiceTitleColon').replace('{concept}', quizConcept);
   const lessonCourse = courseName ? `${courseName} · Practice` : 'Practice';
   const allDone = completedCount >= exercises.length;
 
@@ -178,19 +178,17 @@ export function PracticalLessonView({
         <div className="flex-1 flex flex-col items-center justify-center p-8 text-center max-w-lg mx-auto">
           <Upload className="w-12 h-12 text-brand-400 mb-4" />
           <h2 className="text-lg font-semibold mb-2">
-            {lang === 'el' ? 'Ανέβασε σημειώσεις για εξάσκηση' : 'Upload notes to practice'}
+            {t('uploadNotesPractice')}
           </h2>
           <p className="text-sm text-text-secondary mb-6">
-            {lang === 'el'
-              ? 'Οι ασκήσεις παράγονται από παραδείγματα, τύπους και κώδικα στις δικές σου σημειώσεις — όχι από demo templates.'
-              : 'Exercises are generated from worked examples, formulas, and code in your notes — not demo templates.'}
+            {t('practiceFromNotesBody')}
           </p>
           <button
             type="button"
             onClick={onUpload}
             className="px-5 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-sm font-medium"
           >
-            {lang === 'el' ? 'Ανέβασμα υλικού' : 'Upload material'}
+            {t('uploadMaterialBtn')}
           </button>
         </div>
       </div>
@@ -224,7 +222,7 @@ export function PracticalLessonView({
           <div className="p-5 space-y-5">
             <div>
               <span className="text-xs text-accent-teal font-medium">
-                {hasNoteSource ? (lang === 'el' ? 'Από τις σημειώσεις σου' : 'From your notes') : 'Exercise'}
+                {hasNoteSource ? t('wbFromNotes') : t('exercise')}
               </span>
               <h2 className="text-xl font-bold mt-1">{exercise.title}</h2>
               <p className="text-[10px] text-text-muted mt-1">{t('exercise')} {exerciseIdx + 1} {t('of')} {exercises.length}</p>

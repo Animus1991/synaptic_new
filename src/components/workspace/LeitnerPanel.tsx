@@ -7,6 +7,7 @@ import { filterLeitnerCards } from '../../lib/leitnerSessionModel';
 import { WorkspaceEmptyState } from './WorkspaceEmptyState';
 import { LeitnerBox } from './LeitnerBox';
 import { LeitnerStaleArtifactBanner } from './LeitnerStaleArtifactBanner';
+import { useI18n } from '../../lib/i18n';
 
 type Props = {
   session: LeitnerSessionContent;
@@ -40,7 +41,7 @@ export function LeitnerPanel({
   onAcknowledgeStale,
 }: Props) {
   const [filterQuery, setFilterQuery] = useState('');
-  const isEl = lang === 'el';
+  const { t } = useI18n();
 
   const filterMatches = useMemo(
     () => filterLeitnerCards(session.cards, filterQuery),
@@ -51,7 +52,7 @@ export function LeitnerPanel({
     return (
       <WorkspaceEmptyState
         tool="leitner"
-        message={emptyMessage ?? (isEl ? 'Ανέβασε σημειώσεις για κάρτες.' : 'Upload notes for flashcards.')}
+        message={emptyMessage ?? (t('panelEmptyLeitner'))}
         hasSource={false}
         onUpload={onUpload}
       />
@@ -63,9 +64,7 @@ export function LeitnerPanel({
       <div className="p-4" data-testid="leitner-panel-empty">
         <WorkspaceEmptyState
         tool="leitner"
-          message={emptyMessage ?? (isEl
-            ? 'Δεν δημιουργήθηκαν κάρτες — δοκίμασε Reprocess ή πρόσθεσε όρους στο γλωσσάρι.'
-            : 'No flashcards generated — try Reprocess or add glossary terms.')}
+          message={emptyMessage ?? t('panelEmptyLeitnerNoCards')}
           hasSource
           onUpload={onUpload}
         />
@@ -78,7 +77,7 @@ export function LeitnerPanel({
       <div className="shrink-0 border-b border-border-subtle px-4 py-3">
         {session.sectionLabel && (
           <p className="mb-2 text-[10px] text-text-muted" data-testid="leitner-section-label">
-            {isEl ? 'Ενότητα:' : 'Section:'}{' '}
+            {t('wsSectionColon')}{' '}
             <span className="text-text-secondary">{session.sectionLabel}</span>
           </p>
         )}
@@ -99,12 +98,8 @@ export function LeitnerPanel({
             <AlertTriangle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
             <p>
               {session.passageGrounded
-                ? (isEl
-                  ? 'Οι κάρτες προέρχονται από το απόσπασμα (generic concept) — Reprocess για πιο πλούσιο γλωσσάρι.'
-                  : 'Cards are passage-grounded (generic concept) — Reprocess for richer glossary.')
-                : (isEl
-                  ? 'Αδύναμη εξαγωγή — λίγοι όροι γλωσσαρίου. Δοκίμασε Reprocess.'
-                  : 'Weak extraction — sparse glossary. Try Reprocess.')}
+                ? t('panelPassageGroundedLeitner')
+                : t('panelWeakExtractionLeitner')}
             </p>
           </div>
         )}
@@ -116,13 +111,13 @@ export function LeitnerPanel({
               type="search"
               value={filterQuery}
               onChange={(e) => setFilterQuery(e.target.value)}
-              placeholder={isEl ? 'Αναζήτηση καρτών…' : 'Search cards…'}
+              placeholder={t('panelSearchCards')}
               className="w-full rounded-lg border border-border-subtle bg-surface-card py-1.5 pl-7 pr-2 text-[11px] text-text-secondary placeholder:text-text-muted focus:border-accent-cyan/40 focus:outline-none"
               data-testid="leitner-filter"
             />
           </div>
           <span className="text-[10px] text-text-muted">
-            {session.cards.length} {isEl ? 'κάρτες' : 'cards'}
+            {session.cards.length} {t('panelCards')}
           </span>
           {onOpenInReader && (
             <button

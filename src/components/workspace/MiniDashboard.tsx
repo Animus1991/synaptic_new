@@ -174,7 +174,7 @@ export function MiniDashboard({
                     data-testid="progress-tool-activity"
                   >
                     <p className="text-[8px] text-text-muted mb-1.5">
-                      {lang === 'el' ? 'Εργαλεία συνεδρίας' : 'Session tools'}
+                      {t('exportSessionTools')}
                     </p>
                     <div className="flex flex-wrap gap-1">
                       {toolActivity.slice(0, 8).map(({ tool, count }) => {

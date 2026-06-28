@@ -18,6 +18,7 @@ import { validateScratchpadStepsWithSympy } from '../../lib/sympyScratchpadRunne
 import type { ScratchpadSympyValidationResult } from '../../lib/scratchpadSympyValidation';
 import { auditScratchpadSympyChain, scratchpadSympyEdgeLabel } from '../../lib/scratchpadSympyChainEdgeCasesQA';
 import { ScratchpadSympyChainStrip } from './ScratchpadSympyChainStrip';
+import { useI18n } from '../../lib/i18n';
 
 interface Variable { symbol: string; value: string; unit: string }
 interface SavedFormula { id: string; name: string; formula: string; variables: Variable[] }
@@ -76,6 +77,7 @@ export function FormulaScratchpad({
   onConvertToAnnotation,
   onAskAgentAboutNote,
 }: Props) {
+  const { t } = useI18n();
   const scope = scopeKey ?? '__global';
   const [panel, setPanel] = useState<'formulas' | 'notes'>('formulas');
   const persisted = loadScratchpadFormulas<PersistedScratch>(scope);
@@ -220,7 +222,6 @@ export function FormulaScratchpad({
         <ScratchpadHeader
           panel={panel}
           setPanel={setPanel}
-          lang={lang}
           onAddCustom={hasSource ? addCustom : undefined}
         />
         {panel === 'notes' ? (
@@ -243,7 +244,7 @@ export function FormulaScratchpad({
             message={emptyMessage ?? 'Upload notes to extract formulas from your material, or add a custom formula.'}
             hasSource={hasSource}
             onUpload={onUpload}
-            secondaryLabel={hasSource ? (lang === 'el' ? 'Προσαρμοσμένος τύπος' : 'Add custom formula') : undefined}
+            secondaryLabel={hasSource ? t('scratchAddCustomFormula') : undefined}
             onSecondary={hasSource ? addCustom : undefined}
           />
         )}
@@ -256,7 +257,6 @@ export function FormulaScratchpad({
       <ScratchpadHeader
         panel={panel}
         setPanel={setPanel}
-        lang={lang}
         onAddCustom={panel === 'formulas' ? addCustom : undefined}
       />
 
@@ -318,7 +318,7 @@ export function FormulaScratchpad({
               {/* Actions */}
               <div className="flex items-center gap-2">
                 <button onClick={compute} className="flex-1 py-2.5 bg-brand-600 hover:bg-brand-500 text-white rounded-xl text-xs font-semibold transition-all">
-                  {lang === 'el' ? 'Υπολογισμός βημάτων' : 'Compute Step-by-Step'}
+                  {t('scratchComputeSteps')}
                 </button>
                 {plotSpec && (
                   <button
@@ -331,7 +331,7 @@ export function FormulaScratchpad({
                     )}
                   >
                     <LineChart className="w-3.5 h-3.5" />
-                    {lang === 'el' ? 'Γράφημα' : 'Plot'}
+                    {t('scratchPlot')}
                   </button>
                 )}
                 {onAskAgent && activeFormula && (
@@ -349,11 +349,11 @@ export function FormulaScratchpad({
                   <button
                     type="button"
                     onClick={sendToWhiteboard}
-                    title={lang === 'el' ? 'Άνοιγμα στον πίνακα' : 'Open on whiteboard'}
+                    title={t('scratchOpenWhiteboard')}
                     className="flex items-center gap-1 px-3 py-2.5 rounded-xl border border-accent-cyan/30 bg-accent-cyan/10 text-brand-800 text-xs font-medium hover:bg-accent-cyan/20"
                   >
                     <PenSquare className="w-3.5 h-3.5" />
-                    <span className="hidden sm:inline">{lang === 'el' ? 'Πίνακας' : 'Board'}</span>
+                    <span className="hidden sm:inline">{t('scratchBoard')}</span>
                   </button>
                 )}
                 <button onClick={() => {
@@ -409,7 +409,7 @@ export function FormulaScratchpad({
               >
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <p className="text-[10px] font-semibold text-text-muted">
-                    {lang === 'el' ? 'Βήματα παραγωγής (SymPy)' : 'Derivation steps (SymPy)'}
+                    {t('scratchDerivationSteps')}
                   </p>
                   <button
                     type="button"
@@ -421,7 +421,7 @@ export function FormulaScratchpad({
                     {sympyLoading
                       ? <Loader2 className="w-3 h-3 animate-spin" />
                       : <ShieldCheck className="w-3 h-3" />}
-                    {lang === 'el' ? 'Επικύρωση' : 'Validate'}
+                    {t('scratchValidate')}
                   </button>
                 </div>
                 {sympyChainReport && (
@@ -435,9 +435,7 @@ export function FormulaScratchpad({
                     setSympyValidation(null);
                   }}
                   rows={4}
-                  placeholder={lang === 'el'
-                    ? 'Ένα βήμα ανά γραμμή — π.χ. m*x + b'
-                    : 'One step per line — e.g. m*x + b'}
+                  placeholder={t('scratchDerivationPlaceholder')}
                   className="w-full rounded-lg border border-border-subtle bg-surface-input px-3 py-2 text-xs font-mono text-text-secondary placeholder:text-text-muted focus:border-brand-500/40 focus:outline-none"
                 />
                 {sympyValidation && (
@@ -448,12 +446,12 @@ export function FormulaScratchpad({
                     )}
                     >
                       {sympyValidation.engine === 'sympy'
-                        ? (lang === 'el' ? 'SymPy' : 'SymPy')
-                        : (lang === 'el' ? 'Αριθμητικό fallback' : 'Numeric fallback')}
+                        ? t('scratchEngineSympy')
+                        : t('scratchEngineNumericFallback')}
                       {' · '}
                       {sympyValidation.ok
-                        ? (lang === 'el' ? 'Έγκυρη αλυσίδα' : 'Valid chain')
-                        : (lang === 'el' ? 'Χρειάζεται διόρθωση' : 'Needs fix')}
+                        ? t('scratchValidChain')
+                        : t('scratchNeedsFix')}
                     </p>
                     {sympyValidation.simplifiedTarget && (
                       <p className="text-[9px] text-text-muted font-mono truncate">
@@ -499,14 +497,13 @@ export function FormulaScratchpad({
 function ScratchpadHeader({
   panel,
   setPanel,
-  lang,
   onAddCustom,
 }: {
   panel: 'formulas' | 'notes';
   setPanel: (p: 'formulas' | 'notes') => void;
-  lang: 'en' | 'el';
   onAddCustom?: () => void;
 }) {
+  const { t } = useI18n();
   return (
     <div className="flex items-center justify-between px-4 py-2 border-b border-border-subtle bg-surface-secondary/40 shrink-0 gap-2">
       <div className="flex gap-1">
@@ -520,7 +517,7 @@ function ScratchpadHeader({
           )}
         >
           <Calculator className="w-3 h-3" />
-          {lang === 'el' ? 'Τύποι' : 'Formulas'}
+          {t('scratchFormulasTab')}
         </button>
         <button
           type="button"
@@ -532,12 +529,12 @@ function ScratchpadHeader({
           )}
         >
           <PenSquare className="w-3 h-3" />
-          {lang === 'el' ? 'Σκέψη' : 'Thinking'}
+          {t('scratchThinkingTab')}
         </button>
       </div>
       {onAddCustom && panel === 'formulas' && (
         <button onClick={onAddCustom} className="flex items-center gap-1 px-2 py-1 rounded-md text-[10px] text-text-muted hover:text-text-secondary bg-surface-hover">
-          <Plus className="w-3 h-3" /> {lang === 'el' ? 'Προσθήκη' : 'Add Custom'}
+          <Plus className="w-3 h-3" /> {t('scratchAddCustom')}
         </button>
       )}
     </div>

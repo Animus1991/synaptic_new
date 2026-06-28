@@ -1,10 +1,11 @@
 import { Suspense, type ReactNode } from 'react';
 import type { WorkspaceToolId } from '../../lib/taskFlows';
+import { t, type Lang } from '../../lib/i18n';
 import { workspaceToolLabel } from '../../lib/workspaceToolRegistry';
 
 type Props = {
   tool: WorkspaceToolId | 'discover' | 'concept-bus' | 'weak-areas';
-  lang: 'en' | 'el';
+  lang: Lang;
   children: ReactNode;
 };
 
@@ -22,7 +23,7 @@ export function WorkspaceToolSuspense({ tool, lang, children }: Props) {
           role="status"
           aria-live="polite"
         >
-          {lang === 'el' ? `Φόρτωση ${label}…` : `Loading ${label}…`}
+          {t('loadingTool', lang).replace('{label}', label)}
         </div>
       )}
     >

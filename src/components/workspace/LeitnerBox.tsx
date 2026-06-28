@@ -272,7 +272,7 @@ export function LeitnerBox({
 
           >
 
-            {dueCount} {lang === 'el' ? 'λόγω ουράς' : 'due'}
+            {dueCount} {t('leitnerDueBadge')}
 
           </span>
 
@@ -285,7 +285,7 @@ export function LeitnerBox({
             onClick={onOpenQuiz}
             className="ml-auto flex items-center gap-1 text-[10px] font-medium text-brand-800 hover:opacity-80 border border-accent-cyan/30 rounded-lg px-2 py-0.5 mr-1"
           >
-            {lang === 'el' ? 'Κουίζ' : 'Quiz'}
+            {t('quiz')}
           </button>
         )}
 
@@ -301,7 +301,7 @@ export function LeitnerBox({
 
             className="ml-auto flex items-center gap-1 text-[10px] font-medium text-brand-700 hover:text-brand-800 border border-brand-500/30 rounded-lg px-2 py-0.5"
 
-            title={lang === 'el' ? 'Εξαγωγή Anki' : 'Export Anki'}
+            title={t('leitnerExportAnki')}
 
           >
 
@@ -321,7 +321,7 @@ export function LeitnerBox({
 
         <p className="text-[9px] font-semibold text-text-muted mb-1">
 
-          {lang === 'el' ? 'Ουρά επανάληψης (7ημ)' : 'Due queue (7d)'}
+          {t('leitnerDueQueue7d')}
 
         </p>
 
@@ -415,13 +415,13 @@ export function LeitnerBox({
           onClick={() => onQuizCard(card.front)}
           className="mt-2 w-full rounded-lg border border-accent-cyan/30 bg-accent-cyan/10 py-1.5 text-[10px] font-medium text-brand-800 hover:opacity-90"
         >
-          {lang === 'el' ? 'Κουίζ αυτής της κάρτας →' : 'Quiz this card →'}
+          {t('leitnerQuizThisCard')}
         </button>
       )}
 
       {flipped && !finished && (
 
-        <p className="mt-2 text-center text-[10px] text-text-muted">Space · 1–4 {lang === 'el' ? 'αξιολόγηση' : 'rate'}</p>
+        <p className="mt-2 text-center text-[10px] text-text-muted">Space · 1–4 {t('leitnerRateKeyboard')}</p>
 
       )}
 

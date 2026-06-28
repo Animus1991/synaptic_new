@@ -11,6 +11,7 @@ import type {
 } from '../../lib/workspaceSelectionActions';
 import { WorkspaceSelectionActionBar } from './WorkspaceSelectionActionBar';
 import { SEMANTIC_CATEGORIES } from './AnnotationToolbar';
+import { useI18n } from '../../lib/i18n';
 
 function categoryLabel(cat: AnnotationCategory, lang: 'en' | 'el'): string {
   const row = SEMANTIC_CATEGORIES.find((c) => c.cat === cat);
@@ -63,21 +64,21 @@ export function AnnotationMarginRail({
   onSelectionAction,
   askAgentLabel,
 }: Props) {
-  const isEl = lang === 'el';
+  const { t } = useI18n();
 
   return (
     <aside
       className="ws-margin-rail h-full min-h-0 self-stretch"
       data-expanded={expanded}
       data-testid="annotation-margin-rail"
-      aria-label={isEl ? 'Πίνακας σημειώσεων' : 'Annotations panel'}
+      aria-label={t('annoPanelAria')}
     >
       <button
         type="button"
         onClick={onToggleExpanded}
         className="flex w-full shrink-0 items-center justify-center py-1.5 text-text-muted hover:text-text-secondary"
         aria-expanded={expanded}
-        aria-label={expanded ? (isEl ? 'Σύμπτυξη' : 'Collapse') : (isEl ? 'Ανάπτυξη' : 'Expand')}
+        aria-label={expanded ? t('collapse') : t('expand')}
       >
         {expanded ? <ChevronDown className="h-3 w-3 rotate-90" /> : <ChevronUp className="h-3 w-3 rotate-90" />}
       </button>
@@ -143,7 +144,7 @@ export function AnnotationMarginRail({
                         if (selectedAnnId === ann.id) onSelectAnn(null);
                       }}
                       className="text-text-muted hover:text-accent-rose"
-                      aria-label={isEl ? 'Διαγραφή' : 'Delete'}
+                      aria-label={t('deleteLabel')}
                     >
                       <Trash2 className="h-2.5 w-2.5" />
                     </button>
@@ -154,7 +155,7 @@ export function AnnotationMarginRail({
                   </p>
 
                   {ann.id.startsWith('shared-') && (
-                    <span className="text-[7px] text-accent-amber">{isEl ? 'διδάσκαλος' : 'teacher'}</span>
+                    <span className="text-[7px] text-accent-amber">{t('annoTeacherFull')}</span>
                   )}
 
                   <div className="mt-0.5 flex flex-wrap gap-0.5">
@@ -183,8 +184,8 @@ export function AnnotationMarginRail({
                     {ann.anchorStatus && ann.anchorStatus !== 'ok' && (
                       <span className="rounded bg-accent-amber/15 px-1 py-px text-[7px] text-accent-amber">
                         {ann.anchorStatus === 'legacy'
-                          ? (isEl ? 'παλιό' : 'legacy')
-                          : (isEl ? 'έλεγχος' : 'review')}
+                          ? t('annoLegacy')
+                          : t('annoReview')}
                       </span>
                     )}
                   </div>
@@ -205,7 +206,7 @@ export function AnnotationMarginRail({
                         className="inline-flex items-center gap-0.5 text-[8px] font-medium text-brand-800 hover:underline"
                       >
                         <BookOpen className="h-2.5 w-2.5" />
-                        {isEl ? 'Αναγν.' : 'Reader'}
+                        {t('annoReaderShort')}
                       </button>
                     )}
                     {!ann.id.startsWith('shared-') && authToken && courseId && onPublishShared && (
@@ -217,7 +218,7 @@ export function AnnotationMarginRail({
                         }}
                         className="text-[8px] font-medium text-accent-amber hover:underline"
                       >
-                        {isEl ? 'Κοιν.' : 'Share'}
+                        {t('shareShort')}
                       </button>
                     )}
                     {(ann.type === 'highlight' || ann.type === 'pin') && onAskAgent && (

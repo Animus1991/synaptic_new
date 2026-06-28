@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { Maximize2, Minimize2, ExternalLink, PictureInPicture } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
 import { jitsiMeetUrl } from '../../lib/studyRoomClient';
+import { useI18n } from '../../lib/i18n';
 
 type Props = {
   roomName: string;
@@ -15,8 +16,8 @@ type Layout = 'inline' | 'float' | 'popup';
 const POPUP_FEATURES = 'popup=yes,width=980,height=640,resizable=yes,scrollbars=no,menubar=no,toolbar=no';
 
 /** Jitsi embed with inline, fullscreen, floating, and pop-out window modes. */
-export function JitsiMeetEmbed({ roomName, lang = 'en', className }: Props) {
-  const isEl = lang === 'el';
+export function JitsiMeetEmbed({ roomName, lang: _lang = 'en', className }: Props) {
+  const { t } = useI18n();
   const meetUrl = `${jitsiMeetUrl(roomName)}&interfaceConfig.SHOW_JITSI_WATERMARK=false`;
   const [layout, setLayout] = useState<Layout>('inline');
   const [popupOpen, setPopupOpen] = useState(false);
@@ -112,30 +113,30 @@ export function JitsiMeetEmbed({ roomName, lang = 'en', className }: Props) {
   };
 
   const toolbar = (
-    <div className="ws-jitsi-toolbar" role="toolbar" aria-label={isEl ? 'Βιντεοκλήση' : 'Video controls'}>
-      <button type="button" className="ws-jitsi-tool-btn" onClick={() => void toggleFullscreen()} title={isEl ? 'Πλήρης οθόνη' : 'Fullscreen'}>
+    <div className="ws-jitsi-toolbar" role="toolbar" aria-label={t('jitsiVideoControls')}>
+      <button type="button" className="ws-jitsi-tool-btn" onClick={() => void toggleFullscreen()} title={t('jitsiFullscreen')}>
         {isFullscreen ? <Minimize2 className="h-3.5 w-3.5" /> : <Maximize2 className="h-3.5 w-3.5" />}
-        <span className="hidden sm:inline">{isEl ? 'Οθόνη' : 'Full'}</span>
+        <span className="hidden sm:inline">{t('jitsiFullShort')}</span>
       </button>
-      <button type="button" className="ws-jitsi-tool-btn" onClick={openPopup} title={isEl ? 'Ξεχωριστό παράθυρο' : 'Pop-out window'}>
+      <button type="button" className="ws-jitsi-tool-btn" onClick={openPopup} title={t('jitsiPopOutWindow')}>
         <ExternalLink className="h-3.5 w-3.5" />
-        <span className="hidden sm:inline">{isEl ? 'Pop-up' : 'Pop-up'}</span>
+        <span className="hidden sm:inline">{t('jitsiPopUp')}</span>
       </button>
       <button
         type="button"
         className={cn('ws-jitsi-tool-btn', layout === 'float' && 'ws-jitsi-tool-btn-active')}
         onClick={toggleFloat}
-        title={isEl ? 'Αναδυόμενο πάνελ (μετακίνηση/resize)' : 'Floating panel (move/resize)'}
+        title={t('jitsiFloatingPanel')}
       >
         <PictureInPicture className="h-3.5 w-3.5" />
-        <span className="hidden sm:inline">{isEl ? 'Float' : 'Float'}</span>
+        <span className="hidden sm:inline">{t('jitsiFloat')}</span>
       </button>
     </div>
   );
 
   const iframe = (frameClass?: string) => (
     <iframe
-      title={isEl ? 'Ομαδική βιντεοκλήση' : 'Group video call'}
+      title={t('jitsiGroupVideoCall')}
       src={layout === 'popup' ? undefined : meetUrl}
       allow="camera; microphone; fullscreen; display-capture; autoplay"
       className={cn('w-full flex-1 min-h-[10rem] border-0 bg-surface-primary', frameClass)}
@@ -147,14 +148,14 @@ export function JitsiMeetEmbed({ roomName, lang = 'en', className }: Props) {
       <div className={cn('ws-jitsi-inline', className)} data-ws-theme="warm" data-testid="jitsi-meet-embed">
         {toolbar}
         <div className="ws-jitsi-popup-hint mt-2 rounded-lg border border-border-subtle bg-surface-card px-3 py-2 text-xs text-text-secondary">
-          {isEl ? 'Η βιντεοκλήση τρέχει σε ξεχωριστό παράθυρο.' : 'Video is running in a separate window.'}
+          {t('jitsiVideoSeparateWindow')}
           {' '}
           <button type="button" className="ws-link-action" onClick={focusPopup}>
-            {isEl ? 'Εστίαση παραθύρου' : 'Focus window'}
+            {t('jitsiFocusWindow')}
           </button>
           {' · '}
           <button type="button" className="ws-link-action" onClick={returnInline}>
-            {isEl ? 'Επιστροφή εδώ' : 'Return here'}
+            {t('jitsiReturnHere')}
           </button>
         </div>
       </div>
@@ -176,12 +177,12 @@ export function JitsiMeetEmbed({ roomName, lang = 'en', className }: Props) {
         onPointerUp={onDragEnd}
         onPointerCancel={onDragEnd}
       >
-        <span className="text-[11px] font-semibold truncate">{isEl ? 'Βιντεοκλήση' : 'Video call'}</span>
+        <span className="text-[11px] font-semibold truncate">{t('jitsiVideoCall')}</span>
         <div className="flex items-center gap-0.5 shrink-0">
-          <button type="button" className="ws-jitsi-tool-btn p-1" onClick={() => void toggleFullscreen()} aria-label={isEl ? 'Πλήρης οθόνη' : 'Fullscreen'}>
+          <button type="button" className="ws-jitsi-tool-btn p-1" onClick={() => void toggleFullscreen()} aria-label={t('jitsiFullscreen')}>
             <Maximize2 className="h-3.5 w-3.5" />
           </button>
-          <button type="button" className="ws-jitsi-tool-btn p-1" onClick={() => setLayout('inline')} aria-label={isEl ? 'Κλείσιμο float' : 'Close float'}>
+          <button type="button" className="ws-jitsi-tool-btn p-1" onClick={() => setLayout('inline')} aria-label={t('jitsiCloseFloat')}>
             <Minimize2 className="h-3.5 w-3.5" />
           </button>
         </div>
@@ -201,9 +202,7 @@ export function JitsiMeetEmbed({ roomName, lang = 'en', className }: Props) {
         {toolbar}
         {popupBlocked && (
           <p className="mt-1.5 text-[10px] text-semantic-danger">
-            {isEl
-              ? 'Ο browser μπλόκαρε το pop-up — επίτρεψε pop-ups για αυτόν τον ιστότοπο.'
-              : 'Browser blocked the pop-up — allow pop-ups for this site.'}
+            {t('jitsiPopupBlocked')}
           </p>
         )}
         {layout !== 'float' && (
@@ -213,7 +212,7 @@ export function JitsiMeetEmbed({ roomName, lang = 'en', className }: Props) {
         )}
         {layout === 'float' && (
           <p className="mt-2 text-[10px] text-text-muted">
-            {isEl ? 'Το βίντεο είναι σε αναδυόμενο πάνελ — σύρε την κεφαλίδα, άλλαξε μέγεθος από τη γωνία.' : 'Video is in a floating panel — drag the header, resize from the corner.'}
+            {t('jitsiFloatingPanelHint')}
           </p>
         )}
       </div>

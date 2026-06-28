@@ -3,6 +3,7 @@ import type { UploadOutlinePreview } from '../lib/uploadOutlinePreview';
 import type { DocumentStructureKind } from '../lib/documentStructureReport';
 import { cn } from '../utils/cn';
 import { formatSectionFallbackLabel } from '../lib/sectionLabel';
+import { useI18n } from '../lib/i18n';
 
 const KIND_BADGE: Record<DocumentStructureKind, string> = {
   conversation: 'Chat / Q&A',
@@ -43,8 +44,8 @@ export function OutlinePreviewPanel({
   editedTopicTitles?: string[];
   onTopicTitleChange?: (index: number, title: string) => void;
 }) {
-  const isEl = language === 'el';
-  const kindBadge = isEl ? KIND_BADGE_EL : KIND_BADGE;
+  const { t } = useI18n();
+  const kindBadge = language === 'el' ? KIND_BADGE_EL : KIND_BADGE;
 
   if (loading) {
     return (
@@ -54,7 +55,7 @@ export function OutlinePreviewPanel({
       >
         <div className="flex items-center gap-2 text-sm text-text-secondary">
           <Loader2 className="w-4 h-4 animate-spin text-brand-400" />
-          {isEl ? 'Ανάλυση δομής και προεπισκόπηση outline…' : 'Analyzing structure and building outline preview…'}
+          {t('outlineAnalyzing')}
         </div>
       </div>
     );
@@ -98,7 +99,7 @@ export function OutlinePreviewPanel({
           <div className="flex items-center gap-2 flex-wrap">
             <span className="inline-flex items-center gap-1 rounded-full px-2 py-1 text-[10px] font-semibold bg-brand-500/15 text-brand-300">
               <ListTree className="w-3 h-3" />
-              {isEl ? 'Προεπισκόπηση outline' : 'Outline preview'}
+              {t('outlinePreview')}
             </span>
             <span className={cn('text-[11px] font-semibold', bandColor)}>
               {quality.score}/100 · {quality.band}
@@ -122,7 +123,7 @@ export function OutlinePreviewPanel({
         </div>
         <div className="text-right shrink-0">
           <p className="text-[10px] text-text-tertiary">
-            {isEl ? 'Προτεινόμενα modules' : 'Proposed modules'}
+            {t('outlineProposedModules')}
           </p>
           <p className="text-lg font-bold text-text-primary">{outline.topics.length}</p>
         </div>
@@ -178,7 +179,7 @@ export function OutlinePreviewPanel({
         })}
         {outline.topics.length > topicLimit && (
           <li className="text-[10px] text-text-muted pl-7">
-            +{outline.topics.length - topicLimit} {isEl ? 'ακόμη' : 'more'}
+            +{outline.topics.length - topicLimit} {t('outlineMore')}
           </li>
         )}
       </ol>

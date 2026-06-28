@@ -1,5 +1,6 @@
 import { BookOpen } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
+import { t, type Lang } from '../../lib/i18n';
 
 export function FrontMatterCard({
   title,
@@ -8,11 +9,11 @@ export function FrontMatterCard({
 }: {
   title?: string;
   items: string[];
-  lang: 'en' | 'el';
+  lang: Lang;
 }) {
   if (items.length === 0) return null;
 
-  const heading = title ?? (lang === 'el' ? 'Στοιχεία μαθήματος' : 'Course information');
+  const heading = title ?? t('courseInfo', lang);
 
   return (
     <div

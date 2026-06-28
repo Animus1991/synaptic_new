@@ -1,8 +1,9 @@
 import type { StalePracticeTool } from '../../lib/artifactStaleness';
+import { t, type Lang } from '../../lib/i18n';
 import { WorkspacePanelWarnStrip } from './WorkspacePanelWarnStrip';
 
 type Props = {
-  lang: 'en' | 'el';
+  lang: Lang;
   tool: StalePracticeTool;
   onDismiss: () => void;
 };
@@ -15,7 +16,6 @@ const TOOL_LABEL: Record<StalePracticeTool, { en: string; el: string }> = {
 
 /** Visible stale flag after source reprocess (§11). */
 export function ArtifactStaleBanner({ lang, tool, onDismiss }: Props) {
-  const isEl = lang === 'el';
   const label = TOOL_LABEL[tool][lang];
 
   return (
@@ -29,14 +29,12 @@ export function ArtifactStaleBanner({ lang, tool, onDismiss }: Props) {
           className="ws-empty-cta-secondary shrink-0 self-end px-2.5 py-1 text-[10px] sm:self-auto"
           data-testid={`artifact-stale-dismiss-${tool}`}
         >
-          {isEl ? 'Εντάξει, συνέχεια' : 'Got it'}
+          {t('gotItContinue', lang)}
         </button>
       }
     >
       <p className="text-[11px] leading-relaxed">
-        {isEl
-          ? `Η πηγή επανεπεξεργάστηκε — οι ${label} μπορεί να βασίζονται σε παλιό υλικό.`
-          : `Source was reprocessed — ${label} may be based on outdated material.`}
+        {t('artifactStaleMessage', lang).replace('{label}', label)}
       </p>
     </WorkspacePanelWarnStrip>
   );

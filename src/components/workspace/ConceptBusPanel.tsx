@@ -8,6 +8,7 @@ import {
 import type { ConceptLensView } from '../../lib/conceptGraphModel';
 import type { WorkspaceToolId } from '../../lib/taskFlows';
 import type { ConceptSignal } from '../../lib/workspaceConceptBus';
+import { useI18n } from '../../lib/i18n';
 
 const TOOL_LABELS: Record<WorkspaceToolId, { en: string; el: string }> = {
   'concept-map': { en: 'Map', el: 'Χάρτης' },
@@ -73,7 +74,7 @@ export function ConceptBusPanel({
   onUpload,
   onReprocess,
 }: Props) {
-  const isEl = lang === 'el';
+  const { t } = useI18n();
   const engagedCount = rows.length;
 
   return (
@@ -90,14 +91,12 @@ export function ConceptBusPanel({
           <GitBranch className="w-3.5 h-3.5 text-brand-700 shrink-0" />
           <div className="min-w-0">
             <p className="text-[11px] font-semibold text-text-primary truncate">
-              {isEl ? 'Concept Bus · όρος ↔ εργαλείο' : 'Concept Bus · term ↔ tool activity'}
+              {t('busTitle')}
             </p>
             <p className="text-[10px] text-text-tertiary truncate">
               {engagedCount === 0
-                ? (isEl ? 'Δεν υπάρχει ακόμη cross-tool δραστηριότητα' : 'No cross-tool activity yet')
-                : (isEl
-                  ? `${engagedCount} όροι με πραγματική δραστηριότητα αυτή τη συνεδρία`
-                  : `${engagedCount} terms with real activity this session`)}
+                ? (t('busNoActivity'))
+                : (t('busTermsActive').replace('{count}', String(engagedCount)))}
             </p>
           </div>
         </div>
@@ -107,13 +106,11 @@ export function ConceptBusPanel({
       {rows.length === 0 && (
         <div className="px-3 pb-3" data-testid="concept-bus-empty">
           <p className="text-[10px] text-text-tertiary">
-            {isEl
-              ? 'Μελέτησε με Reader, Quiz ή Feynman — οι όροι θα εμφανιστούν εδώ με cross-tool δραστηριότητα.'
-              : 'Study with Reader, Quiz, or Feynman — terms will appear here with cross-tool activity.'}
+            {t('busEmptyHint')}
           </p>
           {activeLens?.emptyReason === 'weak-extraction' && (
             <p className="mt-1 inline-flex rounded-full px-2 py-0.5 text-[10px] ws-chip-warn">
-              {isEl ? 'Αδύναμη εξαγωγή — δοκίμασε Reprocess.' : 'Weak extraction — try Reprocess.'}
+              {t('busWeakExtraction')}
             </p>
           )}
           <div className="mt-2 flex flex-wrap gap-1.5">
@@ -124,7 +121,7 @@ export function ConceptBusPanel({
                 className="ws-empty-cta-primary text-[10px] px-2.5 py-1"
                 data-testid="concept-bus-empty-upload"
               >
-                {isEl ? 'Ανέβασμα υλικού' : 'Upload material'}
+                {t('busUploadMaterial')}
               </button>
             )}
             {hasSource && (
@@ -135,7 +132,7 @@ export function ConceptBusPanel({
                   className="ws-empty-cta-primary text-[10px] px-2.5 py-1"
                   data-testid="concept-bus-empty-reader"
                 >
-                  {isEl ? 'Άνοιγμα Reader' : 'Open Reader'}
+                  {t('panelOpenReader')}
                 </button>
                 <button
                   type="button"
@@ -162,7 +159,7 @@ export function ConceptBusPanel({
                 className="ws-empty-cta-secondary text-[10px] px-2.5 py-1"
                 data-testid="concept-bus-empty-reprocess"
               >
-                {isEl ? 'Reprocess υλικού' : 'Reprocess material'}
+                {t('busReprocessMaterial')}
               </button>
             )}
           </div>
@@ -222,7 +219,7 @@ export function ConceptBusPanel({
                   className="mt-1 text-[9px] text-brand-800 hover:underline"
                   data-testid="concept-bus-reader-link"
                 >
-                  {isEl ? 'Άνοιγμα στο Reader' : 'Open in Reader'} · {activeLens.sourceSections[0]}
+                  {t('busOpenInReader')} · {activeLens.sourceSections[0]}
                 </button>
               )}
             </div>
@@ -284,7 +281,7 @@ export function ConceptBusPanel({
               {onRemediate && (row.struggling || row.signals.some((s) => s === 'quiz-wrong' || s === 'leitner-hard' || s === 'annotated-confusing')) && (
                 <div className="mt-1.5 flex flex-wrap gap-1" data-testid={`concept-bus-remediation-${row.key}`}>
                   <span className="w-full text-[8px] font-medium text-text-muted">
-                    {isEl ? 'Επόμενο βήμα' : 'Next step'}
+                    {t('busNextStep')}
                   </span>
                   {buildConceptRemediationMatrix(row, lang).map((action) => (
                     <button

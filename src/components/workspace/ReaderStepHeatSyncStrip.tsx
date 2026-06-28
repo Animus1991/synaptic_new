@@ -2,6 +2,7 @@ import { Link2, Flame } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
 import type { ReaderStepHeatSyncSummary } from '../../lib/readerHeatmapStepSyncQA';
 import { stepHeatDotClass } from '../../lib/readerHeatmapStepSyncQA';
+import { useI18n } from '../../lib/i18n';
 
 type Props = {
   summary: ReaderStepHeatSyncSummary | null;
@@ -9,9 +10,9 @@ type Props = {
   onJumpToSegment?: () => void;
 };
 
-export function ReaderStepHeatSyncStrip({ summary, lang, onJumpToSegment }: Props) {
+export function ReaderStepHeatSyncStrip({ summary, lang: _lang, onJumpToSegment }: Props) {
   if (!summary) return null;
-  const isEl = lang === 'el';
+  const { t } = useI18n();
 
   return (
     <div
@@ -21,11 +22,11 @@ export function ReaderStepHeatSyncStrip({ summary, lang, onJumpToSegment }: Prop
       <Link2 className="h-3.5 w-3.5 shrink-0 text-brand-800" aria-hidden />
       <div className="min-w-0 flex-1 text-[10px] leading-snug text-text-secondary">
         <span className="font-medium text-text-primary">
-          {isEl ? 'Βήμα' : 'Step'} {summary.stepIndex + 1}:
+          {t('heatStep')} {summary.stepIndex + 1}:
         </span>{' '}
         {summary.synced
           ? (summary.segmentLabel ?? summary.stepTitle)
-          : (isEl ? 'χωρίς αντιστοίχιση στο Reader' : 'not linked to Reader section')}
+          : (t('heatNotLinked'))}
       </div>
       {summary.heatLevel !== 'none' && (
         <span
@@ -48,7 +49,7 @@ export function ReaderStepHeatSyncStrip({ summary, lang, onJumpToSegment }: Prop
           onClick={onJumpToSegment}
           className="shrink-0 rounded border border-accent-cyan/30 px-2 py-0.5 text-[9px] font-medium text-brand-800 hover:bg-accent-cyan/10"
         >
-          {isEl ? 'Μετάβαση' : 'Jump'}
+          {t('jump')}
         </button>
       )}
       {summary.synced && summary.heatLevel !== 'none' && (

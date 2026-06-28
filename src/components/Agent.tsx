@@ -19,6 +19,7 @@ import { GoToSourceButton } from './GoToSourceButton';
 import { AgentContextBanner } from './AgentContextBanner';
 import { RichText } from './RichText';
 import { getAgentContent, type AgentUiCopy } from '../lib/agentContent';
+import { useI18n } from '../lib/i18n';
 import { PlatformSection } from './ui/primitives';
 import { PlatformEmptyState } from './ui/PlatformEmptyState';
 
@@ -83,6 +84,7 @@ export function Agent({
   onConsumeAutoSend,
   workspaceContext,
 }: AgentProps) {
+  const { t } = useI18n();
   const [input, setInput] = useState('');
   const [showModes, setShowModes] = useState(false);
   const [showQuickActions, setShowQuickActions] = useState(true);
@@ -274,7 +276,7 @@ export function Agent({
             </select>
             <button
               type="button"
-              aria-label={lang === 'el' ? 'Ρυθμίσεις πηγών' : 'Source settings'}
+              aria-label={t('agentSourceSettings')}
               className="p-1.5 rounded-lg hover:bg-surface-hover text-text-tertiary"
             >
               <Settings2 className="w-4 h-4" aria-hidden="true" />
@@ -419,14 +421,14 @@ export function Agent({
               <div className="absolute right-2 bottom-2 flex items-center gap-1">
                 <button
                   type="button"
-                  aria-label={lang === 'el' ? 'Αναζήτηση στις πηγές' : 'Search sources'}
+                  aria-label={t('agentSearchSources')}
                   className="p-1.5 rounded-lg hover:bg-surface-hover text-text-muted"
                 >
                   <Search className="w-4 h-4" aria-hidden="true" />
                 </button>
                 <button
                   type="button"
-                  aria-label={lang === 'el' ? 'Επισύναψη αρχείου' : 'Attach file'}
+                  aria-label={t('agentAttachFile')}
                   className="p-1.5 rounded-lg hover:bg-surface-hover text-text-muted"
                 >
                   <FileText className="w-4 h-4" aria-hidden="true" />
@@ -437,7 +439,7 @@ export function Agent({
               type="button"
               onClick={() => void handleSend()}
               disabled={!input.trim() || isThinking}
-              aria-label={lang === 'el' ? 'Αποστολή μηνύματος' : 'Send message'}
+              aria-label={t('agentSendMessage')}
               className={cn(
                 'p-3 rounded-xl transition-all shrink-0',
                 input.trim() && !isThinking

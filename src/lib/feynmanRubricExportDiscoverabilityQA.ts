@@ -4,7 +4,7 @@
  * discoverability guides + progress mirror stay aligned.
  */
 
-import type { Lang } from './i18n';
+import { t, type Lang } from './i18n';
 import type { RubricScores } from './feynmanRubric';
 import { buildToolFeatureGuide } from './workspaceDiscoverability';
 
@@ -108,30 +108,25 @@ export function formatFeynmanRubricExportBanner(input: {
   coachEnhancesExport: boolean;
   wordsUntilRubric: number;
 }): string | null {
-  const isEl = input.lang === 'el';
+  const lang = input.lang;
 
   if (input.draftWordCount === 0) {
-    return isEl
-      ? 'Γράψε την εξήγησή σου — μετά ξεκλειδώνεται η εξαγωγή rubric (HTML/PDF).'
-      : 'Write your explanation — rubric export (HTML/PDF) unlocks next.';
+    return t('qaFeynmanWriteFirst', lang);
   }
 
   if (!input.rubricReady && input.wordsUntilRubric > 0) {
-    return isEl
-      ? `Ακόμα ${input.wordsUntilRubric} λέξ${input.wordsUntilRubric === 1 ? 'η' : 'εις'} για rubric + εξαγωγή αναφοράς.`
-      : `${input.wordsUntilRubric} more word${input.wordsUntilRubric === 1 ? '' : 's'} to unlock rubric + report export.`;
+    const wordsKey = input.wordsUntilRubric === 1 ? 'qaFeynmanWordsOne' : 'qaFeynmanWordsMany';
+    return input.wordsUntilRubric === 1
+      ? t(wordsKey, lang)
+      : t(wordsKey, lang).replace('{count}', String(input.wordsUntilRubric));
   }
 
   if (input.exportReady && input.overallScore !== null) {
-    const scoreNote = isEl
-      ? `Μέσος όρος rubric ${input.overallScore}%`
-      : `Rubric avg ${input.overallScore}%`;
-    const exportNote = isEl
-      ? ' · Εξαγωγή HTML ή PDF παρακάτω'
-      : ' · Export HTML or PDF below';
+    const scoreNote = t('qaFeynmanRubricAvg', lang).replace('{score}', String(input.overallScore));
+    const exportNote = t('qaFeynmanExportBelow', lang);
     const coachNote = input.coachEnhancesExport
-      ? (isEl ? ' · Coach συμπεριλαμβάνεται' : ' · Coach included')
-      : (isEl ? ' · Πάρε Coach για πλήρη αναφορά' : ' · Get Coach for full report');
+      ? t('qaFeynmanCoachIncluded', lang)
+      : t('qaFeynmanGetCoach', lang);
     return `${scoreNote}${exportNote}${coachNote}`;
   }
 

@@ -59,7 +59,7 @@ export function GroundedLessonContent({
             onClick={onUpload}
             className="mt-2 px-4 py-2.5 rounded-xl text-sm font-medium bg-gradient-to-r from-brand-600 to-brand-500 text-white hover:from-brand-500 hover:to-brand-400 transition-all"
           >
-            {lang === 'el' ? 'Ανέβασμα Υλικού' : 'Upload Material'}
+            {t('uploadMaterial')}
           </button>
         )}
       </div>
@@ -110,7 +110,7 @@ export function GroundedLessonContent({
           <span className="text-xs text-brand-400 font-medium">{generatedPanel.badge}</span>
           <span className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-accent-emerald/10 text-accent-emerald font-medium">
             <Sparkles className="w-3 h-3" />
-            {lang === 'el' ? 'Από τις πηγές σου' : 'From your sources'}
+            {t('wbFromSources')}
           </span>
         </div>
         <h2 className="text-2xl font-bold">{generatedPanel.title}</h2>
@@ -141,20 +141,18 @@ export function GroundedLessonContent({
       </div>
       {stepKey === 'practice' && (
         <p className="text-xs text-text-muted">
-          {lang === 'el'
-            ? 'Σκέψου δυνατά πριν προχωρήσεις — η εξάσκηση βασίζεται στις σημειώσεις σου.'
-            : 'Think through this before continuing — practice is tied to your notes.'}
+          {t('lessonPracticeHint')}
         </p>
       )}
       {sourceName && (
         <p className="text-[10px] text-text-muted flex items-center gap-1.5 pt-2 border-t border-border-subtle">
-          {lang === 'el' ? 'Πηγή' : 'Source'}: {sourceName}
+          {t('sourceColon')} {sourceName}
         </p>
       )}
       {genStatus === 'loading' && (
         <span className="inline-flex items-center gap-1 text-[10px] px-2 py-1 rounded-full bg-brand-500/10 text-brand-300 animate-pulse">
           <Sparkles className="w-3 h-3" />
-          {lang === 'el' ? 'Δημιουργία από τις πηγές σου…' : 'Generating from your sources…'}
+          {t('generatingFromSources')}
         </span>
       )}
     </div>

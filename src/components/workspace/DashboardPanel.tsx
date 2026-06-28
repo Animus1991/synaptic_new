@@ -27,6 +27,7 @@ import { WorkspacePanelWarnStrip } from './WorkspacePanelWarnStrip';
 import { WorkspaceEmptyState } from './WorkspaceEmptyState';
 import { MiniDashboard } from './MiniDashboard';
 import type { ToolActivityCount } from '../../lib/conceptBusPanelModel';
+import { useI18n } from '../../lib/i18n';
 
 type MiniDashboardProps = {
   readiness: number;
@@ -79,7 +80,7 @@ export function DashboardPanel({
   conceptBusRows = [],
 }: Props) {
   const [filterQuery, setFilterQuery] = useState('');
-  const isEl = lang === 'el';
+  const { t } = useI18n();
 
   const exportPayload = useMemo(
     () => buildProgressSessionExportPayload({
@@ -161,7 +162,7 @@ export function DashboardPanel({
     return (
       <WorkspaceEmptyState
         tool="dashboard"
-        message={emptyMessage ?? (isEl ? 'Ανέβασε σημειώσεις για εξατομικευμένη πρόοδο.' : 'Upload notes for personalized progress.')}
+        message={emptyMessage ?? (t('panelEmptyDashboard'))}
         hasSource={false}
         onUpload={onUpload}
       />
@@ -177,7 +178,7 @@ export function DashboardPanel({
       <div className="shrink-0 border-b border-border-subtle px-4 py-3">
         {session.sectionLabel && (
           <p className="mb-2 text-[10px] text-text-muted" data-testid="dashboard-section-label">
-            {isEl ? 'Ενότητα:' : 'Section:'}{' '}
+            {t('wsSectionColon')}{' '}
             <span className="text-text-secondary">{session.sectionLabel}</span>
           </p>
         )}
@@ -185,12 +186,8 @@ export function DashboardPanel({
         {(session.weakExtraction || session.passageGrounded) && (
           <WorkspacePanelWarnStrip testId="dashboard-weak-extraction">
             {session.passageGrounded
-              ? (isEl
-                ? 'Τα weak spots δένονται σε generic concept — επίλεξε πιο συγκεκριμένο βήμα.'
-                : 'Weak spots are tied to a generic concept — pick a more specific step.')
-              : (isEl
-                ? 'Γενική έννοια — η πρόοδος είναι λιγότερο ακριβής μέχρι Reprocess.'
-                : 'Generic concept — progress tracking is less precise until Reprocess.')}
+              ? t('panelPassageGroundedDashboard')
+              : t('panelWeakExtractionDashboard')}
           </WorkspacePanelWarnStrip>
         )}
 
@@ -203,12 +200,12 @@ export function DashboardPanel({
         <div className="mb-2 flex flex-wrap items-center gap-2">
           {session.weakSpotCount > 0 && (
             <span className="rounded-full border border-accent-rose/30 bg-accent-rose/10 px-2 py-0.5 text-[9px] font-medium text-accent-rose">
-              {session.weakSpotCount} {isEl ? 'αδύναμα' : 'weak'}
+              {session.weakSpotCount} {t('panelWeakCount')}
             </span>
           )}
           {session.toolActivityCount > 0 && (
             <span className="text-[10px] text-text-muted">
-              {session.engagedToolCount} {isEl ? 'εργαλεία' : 'tools'} · {session.toolActivityCount} {isEl ? 'ενέργειες' : 'actions'}
+              {session.engagedToolCount} {t('panelTools')} · {session.toolActivityCount} {t('panelActions')}
             </span>
           )}
           {session.suggestFocusTool && suggestLabel && onOpenSuggestedTool && (
@@ -219,7 +216,7 @@ export function DashboardPanel({
               data-testid="dashboard-suggest-tool"
             >
               <Target className="w-3 h-3" />
-              {isEl ? 'Επόμενο:' : 'Next:'} {suggestLabel}
+              {t('dashboardNextColon')} {suggestLabel}
             </button>
           )}
           {onOpenInReader && (
@@ -237,7 +234,7 @@ export function DashboardPanel({
             <button
               type="button"
               onClick={handleExportHtml}
-              title={isEl ? 'Λήψη HTML αναφοράς' : 'Download HTML report'}
+              title={t('dashDownloadHtml')}
               className="inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[9px] text-text-secondary hover:bg-white/[0.06] hover:text-brand-800"
               data-testid="dashboard-export-html"
             >
@@ -247,7 +244,7 @@ export function DashboardPanel({
             <button
               type="button"
               onClick={handlePrintPdf}
-              title={isEl ? 'Εκτύπωση / PDF' : 'Print / Save as PDF'}
+              title={t('dashPrintPdf')}
               className="inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[9px] text-text-secondary hover:bg-white/[0.06] hover:text-brand-800"
               data-testid="dashboard-export-pdf"
             >
@@ -257,7 +254,7 @@ export function DashboardPanel({
             <button
               type="button"
               onClick={handleExportJson}
-              title={isEl ? 'Εξαγωγή JSON συνεδρίας' : 'Session JSON export'}
+              title={t('dashSessionJson')}
               className="inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[9px] text-text-secondary hover:bg-white/[0.06] hover:text-brand-800"
               data-testid="dashboard-export-json"
             >
@@ -273,7 +270,7 @@ export function DashboardPanel({
               type="search"
               value={filterQuery}
               onChange={(e) => setFilterQuery(e.target.value)}
-              placeholder={isEl ? 'Φίλτρο weak spots / εργαλείων…' : 'Filter weak spots / tools…'}
+              placeholder={t('dashFilterPlaceholder')}
               className="w-full rounded-lg border border-border-subtle bg-surface-card py-1.5 pl-7 pr-2 text-[11px] text-text-secondary placeholder:text-text-muted focus:border-accent-cyan/40 focus:outline-none"
               data-testid="dashboard-filter"
             />

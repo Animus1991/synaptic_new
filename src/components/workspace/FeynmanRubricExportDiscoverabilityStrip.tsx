@@ -1,6 +1,7 @@
 ﻿import { CheckCircle2, Download, FileText, Printer } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
 import type { FeynmanRubricExportDiscoverabilityReport } from '../../lib/feynmanRubricExportDiscoverabilityQA';
+import { useI18n } from '../../lib/i18n';
 
 type Props = {
   report: FeynmanRubricExportDiscoverabilityReport;
@@ -12,12 +13,12 @@ type Props = {
 
 export function FeynmanRubricExportDiscoverabilityStrip({
   report,
-  lang,
+  lang: _lang,
   onExportDownload,
   onExportPrint,
   onOpenDashboard,
 }: Props) {
-  const isEl = lang === 'el';
+  const { t } = useI18n();
   if (!report.bannerSummary) return null;
 
   const ready = report.exportReady;
@@ -49,7 +50,7 @@ export function FeynmanRubricExportDiscoverabilityStrip({
               className="ws-chip-brand inline-flex items-center gap-1 rounded-lg px-2 py-1 text-[10px] font-medium hover:opacity-90"
             >
               <Download className="h-3 w-3" />
-              {isEl ? 'HTML' : 'HTML'}
+              HTML
             </button>
           )}
           {onExportPrint && (
@@ -70,7 +71,7 @@ export function FeynmanRubricExportDiscoverabilityStrip({
               onClick={onOpenDashboard}
               className="inline-flex items-center gap-1 rounded-lg border border-border-subtle px-2 py-1 text-[10px] font-medium text-text-secondary hover:text-text-primary"
             >
-              {isEl ? 'Dashboard export' : 'Dashboard export'}
+              {t('stripDashboardExport')}
             </button>
           )}
         </div>

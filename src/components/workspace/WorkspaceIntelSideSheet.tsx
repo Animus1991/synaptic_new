@@ -17,6 +17,7 @@ import type { LearningActionId } from '../../lib/workspaceLearningActions';
 import type { ConceptRemediationId } from '../../lib/conceptBusRemediation';
 import type { ConceptLensView } from '../../lib/conceptGraphModel';
 import type { WorkspaceEmptyAction } from '../../lib/workspaceEmptyState';
+import { useI18n } from '../../lib/i18n';
 
 type Props = {
   open: boolean;
@@ -75,7 +76,7 @@ export function WorkspaceIntelSideSheet({
   discoverEmptyActions = [],
   weakAreasEmptyActions = [],
 }: Props) {
-  const isEl = lang === 'el';
+  const { t } = useI18n();
 
   return (
     <AnimatePresence>
@@ -101,12 +102,12 @@ export function WorkspaceIntelSideSheet({
             }
             role="dialog"
             aria-modal
-            aria-label={isEl ? 'Intelligence πηγής' : 'Source intelligence'}
+            aria-label={t('sourceIntelAria')}
             data-testid="workspace-intel-side-sheet"
           >
             <div className="flex items-center justify-between border-b border-border-subtle px-4 py-3 shrink-0">
               <span className="text-sm font-semibold">
-                {isEl ? 'Intelligence & πηγή' : 'Source & intelligence'}
+                {t('sourceIntelTitle')}
               </span>
               <button type="button" onClick={onClose} className="rounded-lg p-1.5 hover:bg-surface-hover text-text-muted">
                 <X className="h-4 w-4" />

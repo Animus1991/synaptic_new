@@ -7,6 +7,7 @@ import type { UiIconId } from '../../lib/uiIconRegistry';
 import { UiIcon } from '../ui/UiIcon';
 
 import { ANNOTATION_PALETTE } from '../../lib/masteryPalette';
+import { useI18n } from '../../lib/i18n';
 
 const COLORS = [...ANNOTATION_PALETTE];
 
@@ -63,7 +64,7 @@ export function AnnotationToolbar({
   commentLabel,
   pinLabel,
 }: Props) {
-  const isEl = lang === 'el';
+  const { t } = useI18n();
   const tools: { id: Tool; icon: typeof Highlighter; label: string }[] = [
     { id: 'highlight', icon: Highlighter, label: highlightLabel },
     { id: 'comment', icon: MessageSquare, label: commentLabel },
@@ -77,16 +78,16 @@ export function AnnotationToolbar({
         <span className="ws-eyebrow shrink-0 text-text-secondary">{sourceViewerLabel}</span>
         {sharedCount > 0 && (
           <span className="ws-chip-warn rounded px-1 py-0.5 text-[8px]">
-            {sharedCount} {isEl ? 'διδασκ.' : 'teacher'}
+            {sharedCount} {t('annoTeacherShort')}
           </span>
         )}
         {syncLive && (
           <span
             data-testid="annotation-sync-live"
             className="ws-chip-ok rounded px-1 py-0.5 text-[8px]"
-            title={isEl ? `Συγχρονισμός v${syncVersion}` : `Sync v${syncVersion}`}
+            title={t('annoSyncVersion').replace('{version}', String(syncVersion))}
           >
-            {syncMode === 'stream' ? 'Stream' : (isEl ? 'Ζωντανά' : 'Live')}
+            {syncMode === 'stream' ? t('annoStream') : t('annoLive')}
           </span>
         )}
         {sourceName && (
@@ -99,8 +100,8 @@ export function AnnotationToolbar({
             type="button"
             onClick={onExportMd}
             className="ws-panel-tool-btn shrink-0 text-text-muted hover:text-brand-700"
-            title={isEl ? 'Εξαγωγή' : 'Export'}
-            aria-label={isEl ? 'Εξαγωγή' : 'Export'}
+            title={t('exportLabel')}
+            aria-label={t('exportLabel')}
           >
             <Download className="h-3 w-3" />
           </button>
@@ -132,7 +133,7 @@ export function AnnotationToolbar({
               key={c}
               type="button"
               onClick={() => onColorChange(c)}
-              aria-label={isEl ? 'Χρώμα επισήμανσης' : 'Highlight color'}
+              aria-label={t('annoHighlightColor')}
               aria-pressed={activeColor === c}
               className={cn(
                 'h-3 w-3 rounded-full border transition-transform',
@@ -151,7 +152,7 @@ export function AnnotationToolbar({
             className="ws-panel-tool-btn"
             aria-pressed={activeCategory === 'general'}
           >
-            {isEl ? 'Γενικό' : 'General'}
+            {t('annoGeneral')}
           </button>
           {SEMANTIC_CATEGORIES.map(({ cat, iconId, labelEn, labelEl }) => (
             <button
@@ -168,7 +169,7 @@ export function AnnotationToolbar({
               aria-pressed={activeCategory === cat}
             >
               <UiIcon id={iconId} size="xs" />
-              <span className="hidden md:inline">{isEl ? labelEl : labelEn}</span>
+              <span className="hidden md:inline">{lang === 'el' ? labelEl : labelEn}</span>
             </button>
           ))}
         </div>

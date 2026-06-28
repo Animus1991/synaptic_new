@@ -147,7 +147,7 @@ export function ArgumentMap({
     const seed: ArgNode = {
       id: 'root',
       type: 'claim',
-      text: concept?.trim() || (lang === 'el' ? 'Κύριο επιχείρημα' : 'Main claim'),
+      text: concept?.trim() || t('debateMainClaim'),
       x: 320,
       y: 200,
       expanded: true,
@@ -165,7 +165,7 @@ export function ArgumentMap({
         message={emptyMessage ?? 'Upload notes to build a debate tree from claims in your material.'}
         hasSource={hasSource}
         onUpload={onUpload}
-        secondaryLabel={hasSource ? (lang === 'el' ? 'Ξεκίνα συζήτηση' : 'Start debate tree') : undefined}
+        secondaryLabel={hasSource ? t('debateStartTree') : undefined}
         onSecondary={hasSource ? startDebate : undefined}
       />
     );
@@ -185,7 +185,7 @@ export function ArgumentMap({
   const addNode = (parentId: string, type: ArgNodeType = 'support', text?: string) => {
     const id = `n-${Date.now()}`;
     const label = text ?? (type === 'refutation'
-      ? (lang === 'el' ? 'Αντίθετο επιχείρημα' : 'Counter-argument')
+      ? t('debateCounterArgument')
       : 'New argument point');
     const child: ArgNode = {
       id,
@@ -273,7 +273,7 @@ export function ArgumentMap({
                 {onOpenInReader && node.text.trim().length > 8 && (
                   <button
                     type="button"
-                    title={lang === 'el' ? 'Άνοιγμα στον αναγνώστη' : 'Read in source'}
+                    title={t('feynmanReadInSource')}
                     onClick={() => onOpenInReader(node.text)}
                     className="p-1 rounded bg-surface-primary/80 border border-border-subtle text-brand-800"
                   >
@@ -289,7 +289,7 @@ export function ArgumentMap({
                 <button
                   type="button"
                   data-testid="debate-add-counter"
-                  title={lang === 'el' ? 'Αντίθετο από σημειώσεις' : 'Counter from notes'}
+                  title={t('debateCounterFromNotes')}
                   onClick={() => addCounterFromNotes(node.id)}
                   className="p-1 rounded bg-surface-primary/80 border border-accent-rose/40 text-accent-rose"
                 >
@@ -326,19 +326,19 @@ export function ArgumentMap({
               className="inline-flex items-center gap-1 ws-chip-brand rounded-lg border px-2 py-1 text-[10px] font-medium hover:opacity-90"
             >
               <Sparkles className="w-3 h-3" />
-              {lang === 'el' ? 'Ρώτα Agent' : 'Ask Agent'}
+              {t('askAgentShort')}
             </button>
           )}
           <span className="text-[10px] text-text-muted inline-flex items-center gap-2">
-            {lang === 'el' ? 'Επεξεργασία · + υποστήριξη ·' : 'Edit · + support ·'}
+            {t('debateEditSupport')}
             <Shield className="w-3 h-3 inline" />
-            {lang === 'el' ? 'αντίθετο' : 'counter'}
+            {t('debateCounterLabel')}
           </span>
         </div>
       </div>
       {counterSuggestions.length > 0 && (
         <div className="shrink-0 border-b border-border-subtle bg-accent-rose/5 px-4 py-2 text-[10px] text-text-secondary">
-          <span className="font-semibold text-accent-rose">{lang === 'el' ? 'Προτεινόμενα αντίθετα:' : 'Suggested counters:'}</span>
+          <span className="font-semibold text-accent-rose">{t('debateSuggestedCounters')}</span>
           {' '}
           {counterSuggestions.map((s, i) => (
             <button
@@ -358,7 +358,7 @@ export function ArgumentMap({
         data-testid="debate-rebuttal-graph"
       >
         <p className="text-[10px] font-semibold text-text-muted mb-2">
-          {lang === 'el' ? 'Rebuttal graph' : 'Rebuttal graph'} · {rebuttalGraph.edges.length} {lang === 'el' ? 'συνδέσεις' : 'edges'}
+          {t('debateRebuttalGraph')} · {rebuttalGraph.edges.length} {t('debateEdges')}
         </p>
         <div className="flex flex-wrap gap-1.5 max-h-20 overflow-y-auto">
           {rebuttalGraph.edges.map((e, i) => (

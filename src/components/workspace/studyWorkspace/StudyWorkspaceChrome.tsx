@@ -72,7 +72,7 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
               className="skip-to-content"
               data-testid="workspace-skip-link"
             >
-              {lang === 'el' ? 'Παράκαμψη στο κύριο περιεχόμενο' : 'Skip to main content'}
+              {t('wsSkipToMain')}
             </a>
       
             {/* ============================================================ */}
@@ -84,7 +84,7 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
                   <div className="flex items-center justify-between mb-3">
                     <button
                       onClick={onClose}
-                      aria-label={lang === 'el' ? 'Κλείσιμο' : 'Close'}
+                      aria-label={t('close')}
                       className="p-2 -ml-2 rounded-full hover:bg-surface-hover text-text-secondary hover:text-text-primary transition-colors min-h-[40px] min-w-[40px] flex items-center justify-center"
                     >
                       <X className="w-5 h-5" />
@@ -99,7 +99,7 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
                       />
                       <button
                         onClick={() => setShowNotes((v) => !v)}
-                        aria-label={lang === 'el' ? 'Σημειώσεις' : 'Session notes'}
+                        aria-label={t('paletteSessionNotes')}
                         aria-pressed={showNotes}
                         className="p-2 rounded-full bg-surface-secondary hover:bg-surface-hover text-text-secondary transition-colors min-h-[40px] min-w-[40px] flex items-center justify-center"
                       >
@@ -116,7 +116,7 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
                   </div>
                   <div className="space-y-1">
                     <p className="ws-eyebrow text-[10px] text-brand-800 font-semibold truncate">
-                      {courseName ?? linkedCourse?.title ?? (lang === 'el' ? 'Μάθημα' : 'Course')}
+                      {courseName ?? linkedCourse?.title ?? t('courseEyebrow')}
                     </p>
                     <h1
                       className="ws-serif text-[22px] leading-tight text-text-primary truncate"
@@ -140,13 +140,15 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
                         </div>
                       </div>
                       <span className="text-xs font-semibold text-text-secondary truncate">
-                        {lang === 'el' ? `Βήμα ${Math.min(currentStep + 1, STEPS.length || 1)} από ${STEPS.length || 7}` : `Step ${Math.min(currentStep + 1, STEPS.length || 1)} of ${STEPS.length || 7}`}
+                        {t('wsStepOf')
+                          .replace('{current}', String(Math.min(currentStep + 1, STEPS.length || 1)))
+                          .replace('{total}', String(STEPS.length || 7))}
                       </span>
                     </div>
                     <div className="flex items-center gap-1 shrink-0">
                       {typeof sourceQualityScore === 'number' && (
                         <span className="ws-pill" data-testid="workspace-mobile-source-quality">
-                          {sourceQualityScore}% {lang === 'el' ? 'πηγή' : 'source'}
+                          {sourceQualityScore}% {t('wsSourceShort')}
                         </span>
                       )}
                       <button
@@ -156,7 +158,7 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
                         className="ws-pill"
                         data-active={intelTab === 'weak-areas' || undefined}
                       >
-                        {lang === 'el' ? 'Αδύνατα' : 'Weak'} ({weakAreaSpots.length})
+                        {t('weakLabel')} ({weakAreaSpots.length})
                       </button>
                       <button
                         type="button"
@@ -165,7 +167,7 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
                         className="ws-pill"
                         data-active={intelTab === 'concept-bus' || undefined}
                       >
-                        {lang === 'el' ? 'Έννοιες' : 'Concepts'} ({conceptBusRows.length})
+                        {t('wsConceptsLabel')} ({conceptBusRows.length})
                       </button>
                     </div>
                   </div>
@@ -222,7 +224,7 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
             {!chromeHidden && !isMobile && (
               <div className="relative z-10 flex items-center justify-between gap-2 px-3 py-2 border-b border-border-subtle bg-surface-secondary/85 backdrop-blur-xl shrink-0">
                 <div className="flex items-center gap-3 min-w-0">
-                  <button onClick={onClose} title={lang === 'el' ? 'Κλείσιμο χώρου μελέτης' : 'Close workspace'} aria-label={lang === 'el' ? 'Κλείσιμο' : 'Close'} className="p-1.5 rounded-lg hover:bg-surface-hover text-text-secondary hover:text-text-primary transition-colors shrink-0">
+                  <button onClick={onClose} title={t('wsCloseWorkspace')} aria-label={t('close')} className="p-1.5 rounded-lg hover:bg-surface-hover text-text-secondary hover:text-text-primary transition-colors shrink-0">
                     <X className="w-4 h-4" />
                   </button>
                   <div className="min-w-0">
@@ -250,7 +252,7 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
                       type="button"
                       onClick={() => setShowPalette(true)}
                       data-testid="workspace-command-palette-open"
-                      title={lang === 'el' ? 'Παλέτα εντολών (⌘K)' : 'Command palette (⌘K)'}
+                      title={t('wsCommandPalette')}
                       className="hidden sm:inline-flex items-center gap-1 px-2 py-1 rounded-lg border border-border-subtle bg-surface-card hover:bg-surface-hover text-[10px] font-mono text-text-secondary hover:text-text-primary shrink-0 transition-colors"
                     >
                       ⌘K
@@ -262,10 +264,10 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
                     onClick={() => setStudyRoomOpen((v) => !v)}
                     variant="chrome"
                   />
-                  <button onClick={() => setShowNotes((v) => !v)} className={cn('ws-chrome-btn p-1.5 shrink-0', showNotes && 'ws-chrome-btn-active')} title={lang === 'el' ? 'Σημειώσεις' : 'Session notes'} aria-pressed={showNotes}>
+                  <button onClick={() => setShowNotes((v) => !v)} className={cn('ws-chrome-btn p-1.5 shrink-0', showNotes && 'ws-chrome-btn-active')} title={t('paletteSessionNotes')} aria-pressed={showNotes}>
                     <StickyNote className="w-4 h-4" />
                   </button>
-                  <button onClick={() => setLayout(layout === 'zen' ? 'split' : 'zen')} className="p-1.5 rounded-lg hover:bg-surface-hover text-text-secondary hover:text-text-primary transition-colors shrink-0" title={layout === 'zen' ? (lang === 'el' ? 'Έξοδος εστίασης (Z)' : 'Exit focus (Z)') : (lang === 'el' ? 'Εναλλαγή διάταξης (S)' : 'Toggle layout (S)')}>
+                  <button onClick={() => setLayout(layout === 'zen' ? 'split' : 'zen')} className="p-1.5 rounded-lg hover:bg-surface-hover text-text-secondary hover:text-text-primary transition-colors shrink-0" title={layout === 'zen' ? t('wsExitFocus') : t('wsToggleLayout')}>
                     {layout === 'zen' ? <Minimize2 className="w-4 h-4 text-brand-800" /> : <Maximize2 className="w-4 h-4" />}
                   </button>
                   <button onClick={handleOpenAgent} className="flex items-center gap-1 px-2.5 py-1.5 rounded-full text-[10px] font-medium border border-border-subtle bg-surface-card hover:border-brand-200 hover:bg-surface-hover text-text-secondary hover:text-text-primary shrink-0 transition-colors">

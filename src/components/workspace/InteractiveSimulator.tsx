@@ -141,14 +141,12 @@ export function InteractiveSimulator({
               {t('parametricSandbox')}
             </span>
             <span className="rounded border border-brand-500/30 bg-brand-500/10 px-2 py-0.5 text-[10px] text-brand-800">
-              {lang === 'el' ? 'Από σημειώσεις' : 'From notes'}
+              {t('fromNotesBadge')}
             </span>
           </div>
           <div className="flex-1 overflow-y-auto p-4 space-y-4">
             <p className="text-xs text-text-tertiary">
-              {lang === 'el'
-                ? 'Ρύθμισε τιμές που εμφανίζονται στο υλικό σου και παρατήρησε τη μεταβολή.'
-                : 'Adjust values found in your material and observe the relative change.'}
+              {t('sandboxAdjustHint')}
             </p>
             {numericCues.map((cue) => (
               <div key={cue.id} className="rounded-xl border border-border-subtle bg-surface-card p-4">
@@ -177,7 +175,7 @@ export function InteractiveSimulator({
                 />
                 <div className="flex justify-between text-[9px] text-text-muted mt-1">
                   <span>{cue.min}</span>
-                  <span>{lang === 'el' ? 'βάση' : 'baseline'}: {cue.baseline}</span>
+                  <span>{t('baselineLabel')}: {cue.baseline}</span>
                   <span>{cue.max}</span>
                 </div>
               </div>
@@ -189,7 +187,7 @@ export function InteractiveSimulator({
             {sensitivityCells.length > 0 && (
               <div className="rounded-xl border border-border-subtle bg-surface-card p-3" data-testid="sandbox-sensitivity-heatmap">
                 <p className="mb-2 text-[10px] font-semibold text-text-muted">
-                  {lang === 'el' ? 'Ευαισθησία παραμέτρων' : 'Parameter sensitivity'}
+                  {t('paramSensitivity')}
                 </p>
                 <div className="space-y-2">
                   {sensitivityCells.map((cell) => (
@@ -369,7 +367,7 @@ export function InteractiveSimulator({
 
         <div className="mt-4 w-full max-w-sm rounded-xl border border-border-subtle bg-surface-card p-3" data-testid="sandbox-sensitivity-heatmap">
           <p className="mb-2 text-[10px] font-semibold text-text-muted">
-            {lang === 'el' ? 'Ευαισθησία P*' : 'P* sensitivity'}
+            {t('pStarSensitivity')}
           </p>
           <div className="grid grid-cols-2 gap-2">
             {['demand', 'supply'].map((axis) => {

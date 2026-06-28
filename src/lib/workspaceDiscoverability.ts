@@ -1,4 +1,4 @@
-import type { Lang } from './i18n';
+import { t, type Lang } from './i18n';
 import type { WorkspaceToolId } from './taskFlows';
 import type { WorkspaceCorrelation } from './workspaceCorrelation';
 import type { WorkspaceSourceIntelligence } from './workspaceNoteContent';
@@ -269,10 +269,8 @@ export function buildDiscoverabilitySummary(
   if (!hasSource) {
     return {
       grounded: false,
-      headline: lang === 'el' ? 'Ανέβασε σημειώσεις για πλήρη εργαλεία' : 'Upload notes to unlock all tools',
-      subline: lang === 'el'
-        ? 'Χωρίς πηγή (>80 χαρακτήρες) τα εργαλεία μένουν κενά — όχι demo.'
-        : 'Without source text (80+ chars) tools stay empty — no demo filler.',
+      headline: t('discoverUploadHeadline', lang),
+      subline: t('discoverUploadSubline', lang),
       chips,
       toolGuide: baseGuide,
       recommendedTool: null,
@@ -280,12 +278,11 @@ export function buildDiscoverabilitySummary(
     };
   }
 
-  const headline = lang === 'el'
-    ? `Grounded workspace · σκορ πηγών ${sourceIntel?.score ?? '—'}/100`
-    : `Grounded workspace · source score ${sourceIntel?.score ?? '—'}/100`;
+  const headline = t('discoverGroundedHeadline', lang)
+    .replace('{score}', String(sourceIntel?.score ?? '—'));
 
   const fallbackSubline = sourceIntel?.bestToolReason
-    ?? (lang === 'el' ? 'Όλα τα εργαλεία συνδέονται μέσω correlation bus.' : 'All tools share the correlation bus.');
+    ?? t('discoverCorrelationBusFallback', lang);
 
   const synced = applyNextActionToDiscoverability({
     nextAction,

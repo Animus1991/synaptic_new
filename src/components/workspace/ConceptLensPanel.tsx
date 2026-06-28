@@ -8,6 +8,7 @@ import {
   type ConceptActivity,
 } from '../../lib/workspaceConceptBus';
 import type { WorkspaceToolId } from '../../lib/taskFlows';
+import { useI18n } from '../../lib/i18n';
 
 const TOOL_LABELS: Record<WorkspaceToolId, { en: string; el: string }> = {
   'concept-map': { en: 'Map', el: 'Χάρτης' },
@@ -65,7 +66,7 @@ export function ConceptLensPanel({
   onAction,
   onOpenReaderSection,
 }: Props) {
-  const isEl = lang === 'el';
+  const { t } = useI18n();
   const label = lens.activeConcept?.trim();
   if (!label) return null;
 
@@ -94,7 +95,7 @@ export function ConceptLensPanel({
         <button
           type="button"
           onClick={() => onFocus(label)}
-          title={isEl ? 'Εστίαση σε όλα τα εργαλεία' : 'Focus across all tools'}
+          title={t('lensFocusAllTools')}
           className={cn(
             'text-[11px] font-semibold truncate text-text-primary hover:text-brand-800 transition-colors',
             isStrip ? 'max-w-[min(200px,40vw)]' : 'max-w-[140px]',
@@ -105,7 +106,7 @@ export function ConceptLensPanel({
 
         <div
           className="flex items-center gap-0.5 shrink-0"
-          title={`${Math.round(engagement * 100)}% ${isEl ? 'διασύνδεση' : 'cross-tool engagement'}`}
+          title={`${Math.round(engagement * 100)}% ${t('lensCrossToolEngagement')}`}
         >
           {[0, 1, 2, 3].map((i) => (
             <span
@@ -164,9 +165,7 @@ export function ConceptLensPanel({
         >
           {lens.emptyReason === 'weak-extraction' && (
             <p className="text-[10px] text-accent-amber">
-              {isEl
-                ? 'Αδύναμη εξαγωγή εννοιών — δοκίμασε Reprocess ή ανέβασε καλύτερο υλικό.'
-                : 'Weak concept extraction — try Reprocess or upload clearer material.'}
+              {t('lensWeakConceptExtraction')}
             </p>
           )}
 
@@ -194,17 +193,17 @@ export function ConceptLensPanel({
           )}
 
           <ConceptRefRow
-            title={isEl ? 'Προαπαιτούμενα' : 'Prerequisites'}
+            title={t('lensPrerequisitesTitle')}
             refs={lens.prerequisites}
             onSelect={onFocus}
           />
           <ConceptRefRow
-            title={isEl ? 'Σχετικές' : 'Related'}
+            title={t('lensRelatedTitle')}
             refs={lens.related}
             onSelect={onFocus}
           />
           <ConceptRefRow
-            title={isEl ? 'Επόμενες' : 'Follow-up'}
+            title={t('lensFollowUpTitle')}
             refs={lens.followUp}
             onSelect={onFocus}
           />
@@ -212,7 +211,7 @@ export function ConceptLensPanel({
           {lens.toolHits.length > 0 && (
             <div className="flex flex-wrap gap-1">
               <span className="text-[9px] text-text-muted w-full">
-                {isEl ? 'Δραστηριότητα εργαλείων' : 'Tool activity'}
+                {t('lensToolActivity')}
               </span>
               {lens.toolHits.map(({ tool, count }) => (
                 <span

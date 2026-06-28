@@ -2,7 +2,7 @@
  * Wave 6.8i — QA spine for Compare §13.5 selection parity with Reader.
  */
 
-import type { Lang } from './i18n';
+import { t, type Lang } from './i18n';
 import type { CompareRow } from './compareSessionModel';
 import { isSuspiciousStudyFragment } from './confidenceGating';
 import { normalizeBilingualExtractedText } from './bilingualOcrEnsemble';
@@ -172,19 +172,13 @@ export function formatCompareParityBanner(input: {
   lang: Lang;
 }): string | null {
   if (input.rowCount === 0) return null;
-  const isEl = input.lang === 'el';
+  const lang = input.lang;
   const parts = [
-    isEl
-      ? `Επιλογή κειμένου · ${input.selectionActionCount} ενέργειες`
-      : `Text selection · ${input.selectionActionCount} actions`,
-    isEl ? `${input.rowCount} σειρές` : `${input.rowCount} rows`,
+    t('qaCompareSelActions', lang).replace('{count}', String(input.selectionActionCount)),
+    t('qaCompareRows', lang).replace('{count}', String(input.rowCount)),
   ];
   if (input.ocrRiskRowCount > 0) {
-    parts.push(
-      isEl
-        ? `${input.ocrRiskRowCount} OCR risk`
-        : `${input.ocrRiskRowCount} OCR risk`,
-    );
+    parts.push(t('qaCompareOcrRisk', lang).replace('{count}', String(input.ocrRiskRowCount)));
   }
   return parts.join(' · ');
 }

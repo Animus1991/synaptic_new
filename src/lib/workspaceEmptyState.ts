@@ -1,4 +1,4 @@
-import type { Lang } from './i18n';
+import { t, type Lang } from './i18n';
 import type { WorkspaceToolId } from './taskFlows';
 import { WORKSPACE_TOOL_CROSS_LINKS } from './workspaceToolCrossLinks';
 
@@ -22,9 +22,7 @@ export type WorkspaceEmptyTool =
   | 'weak-areas';
 
 export function workspaceNoSourceMessage(lang: Lang): string {
-  return lang === 'el'
-    ? 'Ανέβασε σημειώσεις για να εμφανιστεί εξατομικευμένο περιεχόμενο από το δικό σου υλικό.'
-    : 'Upload your notes to see personalized content from your own material.';
+  return t('workspaceNoSource', lang);
 }
 
 const NO_EXTRACT: Record<WorkspaceEmptyTool, { en: (concept?: string) => string; el: (concept?: string) => string }> = {
@@ -222,13 +220,11 @@ export function buildWorkspaceEmptyActions(opts: {
   onSwitchTool?: (tool: WorkspaceToolId) => void;
 }): WorkspaceEmptyAction[] {
   const { tool, hasSource, lang, onUpload, onReprocess, onSwitchTool } = opts;
-  const isEl = lang === 'el';
-
   if (!hasSource) {
     if (!onUpload) return [];
     return [{
       id: 'upload',
-      label: isEl ? 'Ανέβασμα υλικού' : 'Upload material',
+      label: t('busUploadMaterial', lang),
       onClick: onUpload,
       primary: true,
     }];
@@ -238,18 +234,18 @@ export function buildWorkspaceEmptyActions(opts: {
     return [
       {
         id: 'switch-tool',
-        label: isEl ? 'Έλεγχος γνώσεων (Quiz)' : 'Knowledge check (Quiz)',
+        label: t('emptyActionQuizCheck', lang),
         onClick: () => onSwitchTool('quiz'),
         primary: true,
       },
       {
         id: 'switch-tool',
-        label: isEl ? 'Κάρτες Leitner' : 'Leitner flashcards',
+        label: t('emptyActionLeitner', lang),
         onClick: () => onSwitchTool('leitner'),
       },
       {
         id: 'switch-tool',
-        label: isEl ? 'Άνοιγμα Reader' : 'Open Reader',
+        label: t('panelOpenReader', lang),
         onClick: () => onSwitchTool('reader'),
       },
     ];
@@ -259,13 +255,13 @@ export function buildWorkspaceEmptyActions(opts: {
     return [
       {
         id: 'switch-tool',
-        label: isEl ? 'Άνοιγμα Reader' : 'Open Reader',
+        label: t('panelOpenReader', lang),
         onClick: () => onSwitchTool('reader'),
         primary: true,
       },
       {
         id: 'switch-tool',
-        label: isEl ? 'Χάρτης εννοιών' : 'Concept map',
+        label: t('emptyActionConceptMap', lang),
         onClick: () => onSwitchTool('concept-map'),
       },
     ];
@@ -276,7 +272,7 @@ export function buildWorkspaceEmptyActions(opts: {
   if (onReprocess && REPROCESS_ELIGIBLE.has(tool)) {
     actions.push({
       id: 'reprocess',
-      label: isEl ? 'Reprocess υλικού' : 'Reprocess material',
+      label: t('busReprocessMaterial', lang),
       onClick: onReprocess,
       primary: actions.length === 0,
     });
@@ -287,7 +283,7 @@ export function buildWorkspaceEmptyActions(opts: {
   if (related && onSwitchTool) {
     actions.push({
       id: 'switch-tool',
-      label: isEl ? related.labelEl : related.labelEn,
+      label: lang === 'el' ? related.labelEl : related.labelEn,
       onClick: () => onSwitchTool(related.tool),
     });
   }

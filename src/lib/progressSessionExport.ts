@@ -3,7 +3,7 @@
  * Shares spine data: weak spots, tool activity, next actions, workspace recommendation.
  */
 
-import type { Lang } from './i18n';
+import { t, type Lang } from './i18n';
 import type { ToolActivityCount } from './conceptBusPanelModel';
 import type { DashboardWeakSpot } from './dashboardWeakSpotsModel';
 import type { DashboardSessionContent } from './dashboardSessionModel';
@@ -59,10 +59,10 @@ export type ProgressSessionExportPayload = {
 };
 
 function readinessBand(readiness: number, lang: Lang): string {
-  if (readiness >= 80) return lang === 'el' ? 'Ισχυρό' : 'Strong';
-  if (readiness >= 60) return lang === 'el' ? 'Επαρκές' : 'Proficient';
-  if (readiness >= 40) return lang === 'el' ? 'Αναπτυσσόμενο' : 'Developing';
-  return lang === 'el' ? 'Αδύναμο' : 'Weak';
+  if (readiness >= 80) return t('exportReadinessStrong', lang);
+  if (readiness >= 60) return t('exportReadinessProficient', lang);
+  if (readiness >= 40) return t('exportReadinessDeveloping', lang);
+  return t('exportReadinessWeak', lang);
 }
 
 function escapeHtml(s: string): string {
@@ -184,29 +184,28 @@ export function buildProgressSessionHtml(payload: ProgressSessionExportPayload):
     workspaceNextAction,
     session,
   } = payload;
-  const isEl = lang === 'el';
-  const title = isEl ? 'Αναφορά προόδου συνεδρίας' : 'Study session progress report';
+  const title = t('exportReportTitle', lang);
   const band = readinessBand(readiness, lang);
 
   const statsRows = [
-    [isEl ? 'Ετοιμότητα εξετάσεων' : 'Exam readiness', `${readiness}% (${band})`],
-    [isEl ? 'Έννοιες' : 'Concepts', `${conceptsMastered}/${totalConcepts}`],
-    [isEl ? 'Σειρά ημερών' : 'Streak', `${streak}d`],
-    [isEl ? 'Ληξιπρόθεσμα' : 'Due reviews', String(reviewsDue)],
-    [isEl ? 'Μελέτη σήμερα' : 'Study today', `${studyTimeToday}m`],
-    [isEl ? 'Μελέτη εβδομάδας' : 'Study this week', `${studyTimeWeek}m`],
-    [isEl ? 'Εργαλεία συνεδρίας' : 'Session tools', String(session.engagedToolCount)],
-    [isEl ? 'Ενέργειες εργαλείων' : 'Tool actions', String(session.toolActivityCount)],
+    [t('exportExamReadiness', lang), `${readiness}% (${band})`],
+    [t('exportConcepts', lang), `${conceptsMastered}/${totalConcepts}`],
+    [t('exportStreak', lang), `${streak}d`],
+    [t('exportDueReviews', lang), String(reviewsDue)],
+    [t('exportStudyToday', lang), `${studyTimeToday}m`],
+    [t('exportStudyWeek', lang), `${studyTimeWeek}m`],
+    [t('exportSessionTools', lang), String(session.engagedToolCount)],
+    [t('exportToolActions', lang), String(session.toolActivityCount)],
   ].map(([k, v]) => `<tr><th>${escapeHtml(k)}</th><td>${escapeHtml(v)}</td></tr>`).join('');
 
   const weakBlock = weakSpots.length === 0
-    ? `<p>${isEl ? 'Καμία αδύναμη έννοια.' : 'No weak concepts.'}</p>`
+    ? `<p>${t('exportNoWeakConcepts', lang)}</p>`
     : `<table><thead><tr>
-        <th>${isEl ? 'Έννοια' : 'Concept'}</th>
-        <th>${isEl ? 'Μάθημα' : 'Course'}</th>
-        <th>${isEl ? 'Εξοικείωση' : 'Mastery'}</th>
-        <th>${isEl ? 'Λόγοι' : 'Reasons'}</th>
-        <th>${isEl ? 'Επανόρθωση' : 'Remediation'}</th>
+        <th>${t('exportColConcept', lang)}</th>
+        <th>${t('exportColCourse', lang)}</th>
+        <th>${t('exportColMastery', lang)}</th>
+        <th>${t('exportColReasons', lang)}</th>
+        <th>${t('exportColRemediation', lang)}</th>
       </tr></thead><tbody>${weakSpots.map((w) => `
         <tr>
           <td>${escapeHtml(w.concept)}</td>
@@ -217,44 +216,44 @@ export function buildProgressSessionHtml(payload: ProgressSessionExportPayload):
         </tr>`).join('')}</tbody></table>`;
 
   const toolBlock = toolActivity.length === 0
-    ? `<p>${isEl ? 'Δεν καταγράφηκαν εργαλεία.' : 'No tool activity recorded.'}</p>`
+    ? `<p>${t('exportNoToolActivity', lang)}</p>`
     : `<ul>${toolActivity.map((row) =>
       `<li>${escapeHtml(workspaceToolLabel(row.tool as WorkspaceToolId, lang))} ×${row.count}</li>`,
     ).join('')}</ul>`;
 
   const busBlock = conceptBusSnapshot.length === 0
-    ? `<p>${isEl ? 'Concept Bus κενό — δεν καταγράφηκαν συσχετίσεις εννοιών.' : 'Concept Bus empty — no concept correlations recorded.'}</p>`
+    ? `<p>${t('exportConceptBusEmpty', lang)}</p>`
     : `<table><thead><tr>
-        <th>${isEl ? 'Έννοια' : 'Concept'}</th>
-        <th>${isEl ? 'Εργαλεία' : 'Tools'}</th>
-        <th>${isEl ? 'Engagement' : 'Engagement'}</th>
-        <th>${isEl ? 'Κατάσταση' : 'Status'}</th>
+        <th>${t('exportColConcept', lang)}</th>
+        <th>${t('exportColTools', lang)}</th>
+        <th>${t('exportColEngagement', lang)}</th>
+        <th>${t('exportColStatus', lang)}</th>
       </tr></thead><tbody>${conceptBusSnapshot.map((row) => {
         const status = row.struggling
-          ? (isEl ? 'Αδύναμο' : 'Struggling')
+          ? t('exportStatusStruggling', lang)
           : row.confident
-            ? (isEl ? 'Ισχυρό' : 'Confident')
+            ? t('exportStatusConfident', lang)
             : '—';
         return `<tr>
           <td>${escapeHtml(row.concept)}${row.isFocus ? ' ★' : ''}</td>
-          <td>${row.tools.map((t) => escapeHtml(workspaceToolLabel(t as WorkspaceToolId, lang))).join(', ') || '—'}</td>
+          <td>${row.tools.map((toolId) => escapeHtml(workspaceToolLabel(toolId as WorkspaceToolId, lang))).join(', ') || '—'}</td>
           <td>${row.engagement}</td>
           <td>${escapeHtml(status)}</td>
         </tr>`;
       }).join('')}</tbody></table>`;
 
   const feynmanBlock = feynmanActivityCount > 0
-    ? `<p class="meta">${isEl ? 'Feynman ενέργειες' : 'Feynman actions'}: ${feynmanActivityCount}</p>`
+    ? `<p class="meta">${t('exportFeynmanActions', lang)}: ${feynmanActivityCount}</p>`
     : '';
 
   const taskBlock = nextActions.length === 0
-    ? `<p>${isEl ? 'Δεν υπάρχουν εργασίες.' : 'No scheduled tasks.'}</p>`
+    ? `<p>${t('exportNoTasks', lang)}</p>`
     : `<ul>${nextActions.map((a) =>
       `<li><strong>${escapeHtml(a.label)}</strong> — ${a.minutes}m${a.xp != null ? ` · +${a.xp} XP` : ''}</li>`,
     ).join('')}</ul>`;
 
   const nextActionBlock = workspaceNextAction
-    ? `<section><h2>${isEl ? 'Επόμενη ενέργεια workspace' : 'Workspace next action'}</h2>
+    ? `<section><h2>${t('exportWorkspaceNextAction', lang)}</h2>
        <p><strong>${escapeHtml(workspaceNextAction.primary)}</strong></p>
        <p>${escapeHtml(workspaceNextAction.reason)}</p></section>`
     : '';
@@ -275,27 +274,27 @@ export function buildProgressSessionHtml(payload: ProgressSessionExportPayload):
 </style></head><body>
 <h1>${title}</h1>
 <p class="meta">
-  <strong>${isEl ? 'Έννοια' : 'Concept'}:</strong> ${escapeHtml(concept)}
-  ${courseName ? ` · <strong>${isEl ? 'Μάθημα' : 'Course'}:</strong> ${escapeHtml(courseName)}` : ''}
-  ${sectionLabel ? ` · <strong>${isEl ? 'Ενότητα' : 'Section'}:</strong> ${escapeHtml(sectionLabel)}` : ''}
+  <strong>${t('exportLabelConcept', lang)}:</strong> ${escapeHtml(concept)}
+  ${courseName ? ` · <strong>${t('exportLabelCourse', lang)}:</strong> ${escapeHtml(courseName)}` : ''}
+  ${sectionLabel ? ` · <strong>${t('exportLabelSection', lang)}:</strong> ${escapeHtml(sectionLabel)}` : ''}
 </p>
-<p class="meta">${isEl ? 'Εξαγωγή' : 'Exported'}: ${generatedAt.slice(0, 19).replace('T', ' ')} UTC</p>
-${suggestTool ? `<p class="meta">${isEl ? 'Προτεινόμενο εργαλείο' : 'Suggested tool'}: ${escapeHtml(suggestTool)}</p>` : ''}
+<p class="meta">${t('exportLabelExported', lang)}: ${generatedAt.slice(0, 19).replace('T', ' ')} UTC</p>
+${suggestTool ? `<p class="meta">${t('exportSuggestedTool', lang)}: ${escapeHtml(suggestTool)}</p>` : ''}
 
-<h2>${isEl ? 'Σύνοψη' : 'Summary'}</h2>
+<h2>${t('exportSummary', lang)}</h2>
 <table><tbody>${statsRows}</tbody></table>
 
-<h2>${isEl ? 'Αδύναμα σημεία' : 'Weak spots'}</h2>
+<h2>${t('exportWeakSpots', lang)}</h2>
 ${weakBlock}
 
-<h2>${isEl ? 'Εργαλεία συνεδρίας' : 'Session tool activity'}</h2>
+<h2>${t('exportSessionToolActivity', lang)}</h2>
 ${toolBlock}
 ${feynmanBlock}
 
-<h2>${isEl ? 'Concept Bus (mirror)' : 'Concept Bus mirror'}</h2>
+<h2>${t('exportConceptBusMirror', lang)}</h2>
 ${busBlock}
 
-<h2>${isEl ? 'Επόμενες εργασίες' : 'Next tasks'}</h2>
+<h2>${t('exportNextTasks', lang)}</h2>
 ${taskBlock}
 ${nextActionBlock}
 

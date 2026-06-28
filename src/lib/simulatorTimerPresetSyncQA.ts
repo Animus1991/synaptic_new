@@ -2,7 +2,7 @@
  * Wave 6.8j — QA spine for Simulator ↔ Timer exam preset sync.
  */
 
-import type { Lang } from './i18n';
+import { t, type Lang } from './i18n';
 import type { TimerPresetKey } from './timerSessionModel';
 import {
   EXAM_PRACTICE_PRESETS,
@@ -123,13 +123,13 @@ export function formatSimulatorTimerSyncBanner(input: {
   scenario: SimulatorScenarioId | null;
   lang: Lang;
 }): string | null {
-  const isEl = input.lang === 'el';
+  const lang = input.lang;
   const parts = [
-    isEl ? `Timer · ${input.linkedTimerPreset}` : `Timer · ${input.linkedTimerPreset}`,
+    t('qaTimerPresetLabel', lang).replace('{preset}', input.linkedTimerPreset),
     input.examPractice,
   ];
   if (input.scenario) {
-    parts.push(isEl ? `σενάριο ${input.scenario}` : `scenario ${input.scenario}`);
+    parts.push(t('qaScenarioLabel', lang).replace('{id}', input.scenario));
   }
   return parts.join(' · ');
 }

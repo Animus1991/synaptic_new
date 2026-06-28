@@ -1,8 +1,8 @@
+import { t, type Lang } from './i18n';
 /**
  * Wave 6.5 — Whiteboard diagram coach: blueprint + sketch steps grounded in notes & Concept Bus.
  */
 
-import type { Lang } from './i18n';
 import type { ExtractedFormula } from './noteContentExtractors';
 
 export type DiagramBlueprintKind =
@@ -106,8 +106,7 @@ function buildStepsForKind(
   nodes: string[],
   lang: Lang,
 ): DiagramCoachStep[] {
-  const isEl = lang === 'el';
-  const center = concept.trim() || (isEl ? 'Έννοια' : 'Concept');
+    const center = concept.trim() || t('wbcConceptFallback', lang);
   const satellites = nodes.filter((n) => n.toLowerCase() !== center.toLowerCase()).slice(0, 5);
 
   if (kind === 'formula-web') {
@@ -116,54 +115,54 @@ function buildStepsForKind(
       {
         id: 'fw-1',
         order: 1,
-        label: isEl ? 'Κεντρικός τύπος' : 'Central formula',
-        hint: isEl ? 'Γράψε τον κύριο τύπο στο κέντρο.' : 'Write the main formula in the center.',
+        label: t('wbcCentralFormula', lang),
+        hint: t('wbcHintCentralFormula', lang),
         toolHint: 'text',
         boardLabel: labels[0],
       },
       {
         id: 'fw-2',
         order: 2,
-        label: isEl ? 'Μεταβλητές' : 'Variables',
-        hint: isEl ? 'Πρόσθεσε ετικέτες για κάθε σύμβολο.' : 'Add labels for each symbol.',
+        label: t('wbcVariables', lang),
+        hint: t('wbcHintVariables', lang),
         toolHint: 'text',
         boardLabel: labels[1],
       },
       {
         id: 'fw-3',
         order: 3,
-        label: isEl ? 'Συνδέσεις' : 'Links',
-        hint: isEl ? 'Βέλη μεταξύ σχετικών τύπων.' : 'Arrows between related formulas.',
+        label: t('wbcLinks', lang),
+        hint: t('wbcHintLinks', lang),
         toolHint: 'arrow',
       },
     ];
   }
 
   if (kind === 'compare-contrast') {
-    const a = satellites[0] ?? (isEl ? 'Α' : 'A');
-    const b = satellites[1] ?? (isEl ? 'Β' : 'B');
+    const a = satellites[0] ?? 'A';
+    const b = satellites[1] ?? 'B';
     return [
       {
         id: 'cc-1',
         order: 1,
-        label: isEl ? 'Δύο κουτιά' : 'Two boxes',
-        hint: isEl ? `Αριστερά «${a}», δεξιά «${b}».` : `Left "${a}", right "${b}".`,
+        label: t('wbcTwoBoxes', lang),
+        hint: t('wbcHintTwoBoxes', lang).replace('{a}', a).replace('{b}', b),
         toolHint: 'rect',
         boardLabel: a,
       },
       {
         id: 'cc-2',
         order: 2,
-        label: isEl ? 'Ομοιότητες' : 'Similarities',
-        hint: isEl ? 'Γέφυρα ή λίστα στη μέση.' : 'Bridge or list in the middle.',
+        label: t('wbcSimilarities', lang),
+        hint: t('wbcHintSimilarities', lang),
         toolHint: 'line',
         boardLabel: center,
       },
       {
         id: 'cc-3',
         order: 3,
-        label: isEl ? 'Διαφορές' : 'Differences',
-        hint: isEl ? 'Βέλη προς χαρακτηριστικά κάθε πλευράς.' : 'Arrows to traits on each side.',
+        label: t('wbcDifferences', lang),
+        hint: t('wbcHintDifferences', lang),
         toolHint: 'arrow',
         boardLabel: b,
       },
@@ -175,8 +174,8 @@ function buildStepsForKind(
       {
         id: 'cm-1',
         order: 1,
-        label: isEl ? 'Κέντρο' : 'Center',
-        hint: isEl ? `Κύκλος ή κουτί με «${center}».` : `Circle or box for "${center}".`,
+        label: t('wbcCenter', lang),
+        hint: t('wbcHintCenter', lang).replace('{center}', center),
         toolHint: 'ellipse',
         boardLabel: center,
       },
@@ -185,8 +184,8 @@ function buildStepsForKind(
       steps.push({
         id: `cm-${i + 2}`,
         order: i + 2,
-        label: isEl ? `Δορυφόρος ${i + 1}` : `Satellite ${i + 1}`,
-        hint: isEl ? `Σύνδεσε «${sat}» με βέλος.` : `Link "${sat}" with an arrow.`,
+        label: t('wbcSatellite', lang).replace('{n}', String(i + 1)),
+        hint: t('wbcHintSatellite', lang).replace('{sat}', sat),
         toolHint: 'arrow',
         boardLabel: sat,
       });
@@ -199,8 +198,8 @@ function buildStepsForKind(
       {
         id: 'pc-1',
         order: 1,
-        label: isEl ? 'Έναρξη' : 'Start',
-        hint: isEl ? 'Πρώτο βήμα της διαδικασίας.' : 'First step of the process.',
+        label: t('wbcStart', lang),
+        hint: t('wbcHintStart', lang),
         toolHint: 'rect',
         boardLabel: satellites[0] ?? center,
       },
@@ -209,8 +208,8 @@ function buildStepsForKind(
       steps.push({
         id: `pc-${i + 2}`,
         order: i + 2,
-        label: isEl ? `Βήμα ${i + 2}` : `Step ${i + 2}`,
-        hint: isEl ? 'Βέλος στο επόμενο στάδιο.' : 'Arrow to the next stage.',
+        label: t('wbcStepN', lang).replace('{n}', String(i + 2)),
+        hint: t('wbcHintNextStage', lang),
         toolHint: 'arrow',
         boardLabel: sat,
       });
@@ -218,8 +217,8 @@ function buildStepsForKind(
     steps.push({
       id: 'pc-end',
       order: steps.length + 1,
-      label: isEl ? 'Κλείσιμο κύκλου' : 'Close the loop',
-      hint: isEl ? 'Προαιρετικό βέλος πίσω στην αρχή.' : 'Optional arrow back to the start.',
+      label: t('wbcCloseLoop', lang),
+      hint: t('wbcHintCloseLoop', lang),
       toolHint: 'arrow',
     });
     return steps;
@@ -230,32 +229,32 @@ function buildStepsForKind(
     {
       id: 'cf-1',
       order: 1,
-      label: isEl ? 'Αιτίες' : 'Causes',
-      hint: isEl ? '1–2 κουτιά αριστερά με οδηγούς όρους.' : '1–2 boxes on the left with drivers.',
+      label: t('wbcCauses', lang),
+      hint: t('wbcHintCauses', lang),
       toolHint: 'rect',
       boardLabel: satellites[0],
     },
     {
       id: 'cf-2',
       order: 2,
-      label: isEl ? 'Κεντρική έννοια' : 'Core concept',
-      hint: isEl ? `Κεντρικό κουτί «${center}».` : `Central box "${center}".`,
+      label: t('wbcCoreConcept', lang),
+      hint: t('wbcHintCoreBox', lang).replace('{center}', center),
       toolHint: 'rect',
       boardLabel: center,
     },
     {
       id: 'cf-3',
       order: 3,
-      label: isEl ? 'Αποτελέσματα' : 'Effects',
-      hint: isEl ? 'Βέλη προς δεξιά — τι προκαλεί;' : 'Arrows to the right — what does it cause?',
+      label: t('wbcEffects', lang),
+      hint: t('wbcHintEffects', lang),
       toolHint: 'arrow',
       boardLabel: satellites[1],
     },
     {
       id: 'cf-4',
       order: 4,
-      label: isEl ? 'Ετικέτες' : 'Labels',
-      hint: isEl ? 'Σύντομες λέξεις-κλειδιά από το απόσπασμα.' : 'Short keywords from the excerpt.',
+      label: t('wbcLabels', lang),
+      hint: t('wbcHintLabels', lang),
       toolHint: 'text',
       boardLabel: satellites[2],
     },

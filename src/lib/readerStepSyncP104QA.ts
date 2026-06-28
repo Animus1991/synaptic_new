@@ -2,7 +2,7 @@
  * Wave 7 / SW-P1-04 — Reader ↔ lesson-rail bidirectional sync QA spine.
  */
 
-import type { Lang } from './i18n';
+import { t, type Lang } from './i18n';
 import type { WorkspaceStepRef } from './readerStepSync';
 import {
   applyReaderSectionNav,
@@ -118,15 +118,13 @@ export function auditReaderStepSyncP104(input: {
     });
   }
 
-  const isEl = input.lang === 'el';
+  const lang = input.lang;
   const ok = issues.length === 0;
   const bannerSummary = ok
-    ? (isEl
-      ? `Συγχρονισμός Reader ↔ βήματα · ${linkedStepCount}/${steps.length} βήματα`
-      : `Reader ↔ step sync · ${linkedStepCount}/${steps.length} steps linked`)
-    : (isEl
-      ? 'Συγχρονισμός Reader ↔ βήματα — χρειάζεται έλεγχος'
-      : 'Reader ↔ step sync — needs attention');
+    ? t('qaReaderSyncOk', lang)
+      .replace('{linked}', String(linkedStepCount))
+      .replace('{total}', String(steps.length))
+    : t('qaReaderSyncFail', lang);
 
   return {
     ok,

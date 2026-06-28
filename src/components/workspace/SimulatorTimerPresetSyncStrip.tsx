@@ -1,14 +1,15 @@
 import { CheckCircle2, AlertTriangle } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
 import type { SimulatorTimerPresetSyncReport } from '../../lib/simulatorTimerPresetSyncQA';
+import { useI18n } from '../../lib/i18n';
 
 type Props = {
   report: SimulatorTimerPresetSyncReport;
   lang: 'en' | 'el';
 };
 
-export function SimulatorTimerPresetSyncStrip({ report, lang }: Props) {
-  const isEl = lang === 'el';
+export function SimulatorTimerPresetSyncStrip({ report, lang: _lang }: Props) {
+  const { t } = useI18n();
   const Icon = report.ok ? CheckCircle2 : AlertTriangle;
 
   return (
@@ -22,11 +23,11 @@ export function SimulatorTimerPresetSyncStrip({ report, lang }: Props) {
       <Icon className="h-3.5 w-3.5 shrink-0" aria-hidden />
       <p className="min-w-0 flex-1 leading-snug">
         {report.bannerSummary
-          ?? (isEl ? 'Simulator ↔ Timer sync' : 'Simulator ↔ Timer sync')}
+          ?? (t('stripSimTimerSync'))}
         {!report.syncOk && (
           <span className="opacity-90">
             {' · '}
-            {isEl ? 'έλεγχος preset' : 'preset check'}
+            {t('stripPresetCheck')}
           </span>
         )}
       </p>

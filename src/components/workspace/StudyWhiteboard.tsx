@@ -18,6 +18,7 @@ import {
 import { FormulaLatexPreview } from './FormulaLatexPreview';
 import { buildLatexStampLibrary, stampToInsertText, type LatexStamp } from '../../lib/whiteboardLatexStamps';
 import { layoutCoachNodePositions } from '../../lib/whiteboardDiagramCoach';
+import { useI18n } from '../../lib/i18n';
 
 type Tool = 'pen' | 'marker' | 'highlighter' | 'eraser' | 'line' | 'rect' | 'ellipse' | 'arrow' | 'ruler' | 'text';
 type Point = { x: number; y: number };
@@ -67,6 +68,7 @@ export function StudyWhiteboard({
   labelInsertKey?: number;
   labelInsertPayload?: string[];
 }) {
+  const { t } = useI18n();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [tool, setTool] = useState<Tool>('pen');
@@ -228,7 +230,7 @@ export function StudyWhiteboard({
     if (activeLayerLocked) return;
     if (tool === 'text') {
       const p = pos(e);
-      const text = window.prompt(lang === 'el' ? 'Κείμενο:' : 'Enter text:');
+      const text = window.prompt(t('wbEnterText'));
       if (text?.trim()) {
         appendStroke({
           layerId: doc.activeLayerId,
@@ -387,7 +389,7 @@ export function StudyWhiteboard({
         ...d.layers,
         {
           id,
-          name: lang === 'el' ? `Επίπεδο ${d.layers.length + 1}` : `Layer ${d.layers.length + 1}`,
+          name: t('wbLayerN').replace('{n}', String(d.layers.length + 1)),
           visible: true,
           locked: false,
         },
@@ -419,7 +421,7 @@ export function StudyWhiteboard({
               <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-1.5 text-xs font-semibold text-brand-800">
                   <Calculator className="w-3.5 h-3.5" />
-                  {lang === 'el' ? 'Από scratchpad' : 'From scratchpad'}
+                  {t('wbFromScratchpad')}
                 </div>
                 <button type="button" onClick={onDismissScratchpadImport} className="text-text-muted hover:text-text-secondary">
                   <X className="w-3.5 h-3.5" />
@@ -448,13 +450,13 @@ export function StudyWhiteboard({
                 onClick={insertScratchpadImport}
                 className="w-full py-1.5 rounded-lg text-[10px] font-semibold bg-brand-600 text-white hover:bg-brand-500"
               >
-                {lang === 'el' ? 'Εισαγωγή στον πίνακα' : 'Insert on board'}
+                {t('wbInsertOnBoard')}
               </button>
             </div>
           )}
           <div className="flex items-center gap-1.5 text-xs font-semibold text-text-secondary">
             <BookOpen className="w-3.5 h-3.5 text-brand-700" />
-            {lang === 'el' ? 'Από τις σημειώσεις' : 'From your notes'}
+            {t('wbFromNotes')}
           </div>
           {referenceFormulas.map((f) => (
             <div key={f.id} className="p-2 rounded-lg bg-surface-card border border-border-subtle">
@@ -468,7 +470,7 @@ export function StudyWhiteboard({
                 onClick={() => insertFormulaLabel(f.name, f.formula)}
                 className="mt-2 text-[9px] font-medium text-brand-700 hover:text-brand-800"
               >
-                {lang === 'el' ? 'Εισαγωγή →' : 'Insert on board →'}
+                {t('wbInsertOnBoardArrow')}
               </button>
             </div>
           ))}
@@ -482,7 +484,7 @@ export function StudyWhiteboard({
       <div className="shrink-0 border-b border-border-subtle px-3 py-2">
         <h3 className="text-sm font-semibold">Study Whiteboard</h3>
         <p className="text-[10px] text-text-tertiary">
-          {lang === 'el' ? 'Σκίτσα, επίπεδα, αποθήκευση τοπικά.' : 'Sketch diagrams, layers, save to this device.'}
+          {t('wbHintLocalSave')}
         </p>
       </div>
 
@@ -513,7 +515,7 @@ export function StudyWhiteboard({
             'rounded-lg p-1.5',
             showLayers ? 'bg-brand-600/20 text-brand-800' : 'text-text-muted hover:bg-surface-hover',
           )}
-          title={lang === 'el' ? 'Επίπεδα' : 'Layers'}
+          title={t('wbLayers')}
         >
           <Layers className="w-3.5 h-3.5" />
         </button>
@@ -525,14 +527,14 @@ export function StudyWhiteboard({
             'rounded-lg px-2 py-1.5 text-[10px] font-medium',
             showStamps ? 'bg-accent-cyan/20 text-brand-800' : 'text-text-muted hover:bg-surface-hover',
           )}
-          title={lang === 'el' ? 'LaTeX stamps' : 'LaTeX stamps'}
+          title={t('wbLatexStamps')}
         >
           <Calculator className="w-3.5 h-3.5 inline" />
           <span className="hidden sm:inline ml-1">LaTeX</span>
         </button>
         <button type="button" onClick={undo} disabled={doc.strokes.length === 0} className="rounded-lg p-1.5 text-text-muted hover:bg-surface-hover disabled:opacity-40 disabled:cursor-not-allowed"><Undo2 className="w-3.5 h-3.5" /></button>
         <button type="button" onClick={redo} disabled={redoStack.length === 0} className="rounded-lg p-1.5 text-text-muted hover:bg-surface-hover disabled:opacity-40 disabled:cursor-not-allowed"><Redo2 className="w-3.5 h-3.5" /></button>
-        <button type="button" onClick={clearActiveLayer} className="rounded-lg p-1.5 text-text-muted hover:bg-surface-hover" title={lang === 'el' ? 'Καθαρισμός ενεργού επιπέδου' : 'Clear active layer'}><Trash2 className="w-3.5 h-3.5" /></button>
+        <button type="button" onClick={clearActiveLayer} className="rounded-lg p-1.5 text-text-muted hover:bg-surface-hover" title={t('wbClearActiveLayer')}><Trash2 className="w-3.5 h-3.5" /></button>
         <button type="button" onClick={save} className="rounded-lg p-1.5 text-text-muted hover:bg-surface-hover"><Save className="w-3.5 h-3.5" /></button>
         <button
           type="button"
@@ -541,13 +543,13 @@ export function StudyWhiteboard({
             if (canvasRef.current) downloadWhiteboardPng(canvasRef.current, `whiteboard-${scopeKey ?? 'board'}`);
           }}
           className="rounded-lg p-1.5 text-text-muted hover:bg-surface-hover"
-          title={lang === 'el' ? 'Εξαγωγή PNG' : 'Export PNG'}
+          title={t('wbExportPng')}
         >
           <Download className="w-3.5 h-3.5" />
         </button>
-        {savedMsg && <span className="text-[10px] text-accent-emerald">{lang === 'el' ? 'Αποθηκεύτηκε' : 'Saved'}</span>}
+        {savedMsg && <span className="text-[10px] text-accent-emerald">{t('wbSaved')}</span>}
         {activeLayerLocked && (
-          <span className="text-[10px] text-accent-amber">{lang === 'el' ? 'Επίπεδο κλειδωμένο' : 'Layer locked'}</span>
+          <span className="text-[10px] text-accent-amber">{t('wbLayerLocked')}</span>
         )}
       </div>
 
@@ -576,7 +578,7 @@ export function StudyWhiteboard({
           data-testid="whiteboard-layers"
         >
           <span className="text-text-tertiary font-semibold">
-            {lang === 'el' ? 'Επίπεδα' : 'Layers'}
+            {t('wbLayers')}
           </span>
           {doc.layers.map((layer) => {
             const active = layer.id === doc.activeLayerId;
@@ -614,7 +616,7 @@ export function StudyWhiteboard({
             className="inline-flex items-center gap-1 rounded-lg border border-dashed border-border-subtle px-2 py-1 text-text-muted hover:border-brand-500/30 hover:text-brand-800"
           >
             <Plus className="w-3 h-3" />
-            {lang === 'el' ? 'Νέο' : 'Add'}
+            {t('wbAddLayer')}
           </button>
         </div>
       )}

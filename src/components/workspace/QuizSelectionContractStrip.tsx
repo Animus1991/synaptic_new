@@ -1,4 +1,5 @@
 import type { QuizSelectionRemediationReport } from '../../lib/quizSelectionRemediationQA';
+import { useI18n } from '../../lib/i18n';
 import { WorkspaceQaStatusStrip } from './WorkspaceQaStatusStrip';
 
 type Props = {
@@ -6,20 +7,27 @@ type Props = {
   lang: 'en' | 'el';
 };
 
-export function QuizSelectionContractStrip({ report, lang }: Props) {
-  const isEl = lang === 'el';
+function buildMessage(
+  report: QuizSelectionRemediationReport,
+  t: (key: import('../../lib/i18n').I18nKey) => string,
+): string {
+  if (report.ok) {
+    const remediation = report.wrongItemCount > 0
+      ? t('quizSelRemediationMistakes').replace('{count}', String(report.wrongItemCount))
+      : t('quizSelRemediationReady');
+    return t('quizSelContractOk')
+      .replace('{actions}', String(report.selectionActionCount))
+      .replace('{remediation}', remediation);
+  }
+  return t('quizSelContractFail').replace('{count}', String(report.issues.length));
+}
 
-  const message = report.ok
-    ? (isEl
-      ? `Επιλογή κειμένου · ${report.selectionActionCount} ενέργειες · ${report.wrongItemCount > 0 ? `διόρθωση (${report.wrongItemCount} λάθη)` : 'διόρθωση έτοιμη'}`
-      : `Text selection · ${report.selectionActionCount} actions · ${report.wrongItemCount > 0 ? `remediation (${report.wrongItemCount} mistakes)` : 'remediation ready'}`)
-    : (isEl
-      ? `Επιλογή κειμένου · ${report.issues.length} θέμα(τα) ελέγχου`
-      : `Text selection · ${report.issues.length} check issue(s)`);
+export function QuizSelectionContractStrip({ report, lang: _lang }: Props) {
+  const { t } = useI18n();
 
   return (
     <WorkspaceQaStatusStrip ok={report.ok} testId="quiz-selection-contract-strip">
-      {message}
+      {buildMessage(report, t)}
     </WorkspaceQaStatusStrip>
   );
 }

@@ -1,5 +1,6 @@
 import { Library } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
+import { t, type Lang } from '../../lib/i18n';
 
 export function BibliographyBlock({
   title,
@@ -8,11 +9,11 @@ export function BibliographyBlock({
 }: {
   title?: string;
   items: string[];
-  lang: 'en' | 'el';
+  lang: Lang;
 }) {
   if (items.length === 0) return null;
 
-  const heading = title ?? (lang === 'el' ? 'Βιβλιογραφία' : 'References');
+  const heading = title ?? t('referencesHeading', lang);
 
   return (
     <div

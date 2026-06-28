@@ -2,7 +2,7 @@
  * Wave 6.8f — QA spine for Scratchpad SymPy derivation chain edge cases.
  */
 
-import type { Lang } from './i18n';
+import { t, type Lang } from './i18n';
 import type { FormulaVariable } from './formulaSolver';
 import {
   buildSympyValidationPayload,
@@ -218,22 +218,22 @@ export function formatScratchpadSympyChainBanner(input: {
 }): string | null {
   if (input.parseableCount === 0 && input.warningCount === 0) return null;
   const parts: string[] = [];
-  const isEl = input.lang === 'el';
+  const lang = input.lang;
 
   if (input.parseableCount > 0) {
-    parts.push(isEl ? `${input.parseableCount} βήματα` : `${input.parseableCount} steps`);
+    parts.push(t('qaBannerSteps', lang).replace('{count}', String(input.parseableCount)));
   }
   if (input.unitStrippedCount > 0) {
-    parts.push(isEl ? `${input.unitStrippedCount} μονάδες` : `${input.unitStrippedCount} units stripped`);
+    parts.push(t('qaSympyUnitsStripped', lang).replace('{count}', String(input.unitStrippedCount)));
   }
   if (input.missingSubstitutionCount > 0) {
-    parts.push(isEl ? `${input.missingSubstitutionCount} vars` : `${input.missingSubstitutionCount} missing vars`);
+    parts.push(t('qaSympyMissingVars', lang).replace('{count}', String(input.missingSubstitutionCount)));
   }
   if (input.invalidStepCount > 0) {
-    parts.push(isEl ? `${input.invalidStepCount} λάθη` : `${input.invalidStepCount} invalid`);
+    parts.push(t('qaSympyInvalidSteps', lang).replace('{count}', String(input.invalidStepCount)));
   }
   if (input.engine === 'unavailable' && input.parseableCount > 0) {
-    parts.push(isEl ? 'numeric fallback' : 'numeric fallback');
+    parts.push(t('qaSympyNumericFallback', lang));
   }
   return parts.length > 0 ? parts.join(' · ') : null;
 }

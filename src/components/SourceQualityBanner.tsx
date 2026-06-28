@@ -2,6 +2,7 @@ import { AlertTriangle, Cpu, FileSearch, RefreshCw, X } from '@/lib/lucide-shim'
 import { useState } from 'react';
 import { cn } from '../utils/cn';
 import { lowSourceQualityMessage } from '../lib/sourceQualityPrompt';
+import { useI18n } from '../lib/i18n';
 
 type Props = {
   score: number;
@@ -44,6 +45,7 @@ export function SourceQualityBanner({
   className,
   dismissKey,
 }: Props) {
+  const { t } = useI18n();
   const storageKey = dismissKey ?? `synapse-low-quality-dismissed:${Math.round(score)}`;
   const [dismissed, setDismissed] = useState(() => isDismissed(storageKey));
 
@@ -81,9 +83,7 @@ export function SourceQualityBanner({
               )}
             >
               <Cpu className={compact ? 'h-3 w-3' : 'h-3.5 w-3.5'} />
-              {reprocessing
-                ? (lang === 'el' ? 'Επεξεργασία…' : 'Reprocessing…')
-                : (lang === 'el' ? 'Επανεπεξεργασία κειμένου' : 'Reprocess stored text')}
+              {reprocessing ? t('sourceReprocessing') : t('courseReprocessStoredText')}
             </button>
           )}
           {onReupload && (
@@ -97,7 +97,7 @@ export function SourceQualityBanner({
               )}
             >
               <RefreshCw className={compact ? 'h-3 w-3' : 'h-3.5 w-3.5'} />
-              {lang === 'el' ? 'Ανέβασμα ξανά' : 'Re-upload'}
+              {t('sourceReupload')}
             </button>
           )}
           {onInspectExtraction && (
@@ -111,7 +111,7 @@ export function SourceQualityBanner({
               )}
             >
               <FileSearch className={compact ? 'h-3 w-3' : 'h-3.5 w-3.5'} />
-              {lang === 'el' ? 'Έλεγχος εξαγωγής' : 'Inspect extraction'}
+              {t('sqInspectExtraction')}
             </button>
           )}
           <button
@@ -123,7 +123,7 @@ export function SourceQualityBanner({
               compact ? 'px-2 py-1 text-[10px]' : 'px-3 py-1.5 text-xs',
             )}
           >
-            {lang === 'el' ? 'Συνέχεια ούτως ή άλλως' : 'Continue anyway'}
+            {t('sqContinueAnyway')}
           </button>
         </div>
       </div>
@@ -131,7 +131,7 @@ export function SourceQualityBanner({
         type="button"
         onClick={handleDismiss}
         className="shrink-0 rounded-lg p-1 text-text-muted hover:bg-surface-hover hover:text-text-primary"
-        aria-label={lang === 'el' ? 'Απόκρυψη' : 'Dismiss'}
+        aria-label={t('dismissLabel')}
       >
         <X className={compact ? 'h-3.5 w-3.5' : 'h-4 w-4'} />
       </button>

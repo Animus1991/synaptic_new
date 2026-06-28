@@ -6,6 +6,7 @@ import {
   isReuploadHintDismissed,
   reuploadMigrationMessage,
 } from '../lib/pipelineMigration';
+import { useI18n } from '../lib/i18n';
 
 export function ReuploadMigrationBanner({
   courseId,
@@ -24,6 +25,7 @@ export function ReuploadMigrationBanner({
   compact?: boolean;
   className?: string;
 }) {
+  const { t } = useI18n();
   const [dismissed, setDismissed] = useState(() => isReuploadHintDismissed(courseId));
   if (dismissed) return null;
 
@@ -57,9 +59,7 @@ export function ReuploadMigrationBanner({
               data-testid="reprocess-migration-action"
             >
               <Cpu className={compact ? 'h-3 w-3' : 'h-3.5 w-3.5'} />
-              {reprocessing
-                ? (lang === 'el' ? 'Επεξεργασία…' : 'Reprocessing…')
-                : (lang === 'el' ? 'Επανεπεξεργασία κειμένου' : 'Reprocess stored text')}
+              {reprocessing ? t('sourceReprocessing') : t('courseReprocessStoredText')}
             </button>
           )}
           <button
@@ -72,7 +72,7 @@ export function ReuploadMigrationBanner({
             data-testid="reupload-migration-action"
           >
             <RefreshCw className={compact ? 'h-3 w-3' : 'h-3.5 w-3.5'} />
-            {lang === 'el' ? 'Ανέβασμα ξανά' : 'Re-upload files'}
+            {t('reuploadFiles')}
           </button>
         </div>
       </div>
@@ -80,7 +80,7 @@ export function ReuploadMigrationBanner({
         type="button"
         onClick={dismiss}
         className="shrink-0 rounded-lg p-1 text-text-muted hover:bg-surface-hover hover:text-text-primary"
-        aria-label={lang === 'el' ? 'Απόκρυψη' : 'Dismiss'}
+        aria-label={t('dismissLabel')}
       >
         <X className={compact ? 'h-3.5 w-3.5' : 'h-4 w-4'} />
       </button>

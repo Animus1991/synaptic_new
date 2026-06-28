@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { ChevronDown } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
 import type { WorkspaceToolId } from '../../lib/taskFlows';
+import { t, type Lang } from '../../lib/i18n';
 import {
   PRIMARY_WORKSPACE_TOOLS,
   SECONDARY_WORKSPACE_TOOLS,
@@ -12,7 +13,7 @@ interface Props {
   activeTool: WorkspaceToolId;
   availableTools: WorkspaceToolId[];
   onSelectTool: (tool: WorkspaceToolId) => void;
-  lang: 'en' | 'el';
+  lang: Lang;
   className?: string;
 }
 
@@ -23,7 +24,6 @@ export function WorkspaceToolStrip({
   lang,
   className,
 }: Props) {
-  const el = lang === 'el';
   const [moreOpen, setMoreOpen] = useState(false);
   const moreRef = useRef<HTMLDivElement>(null);
 
@@ -54,7 +54,7 @@ export function WorkspaceToolStrip({
         aria-selected={active}
         data-testid={`workspace-tool-${id}`}
         onClick={() => onSelectTool(id)}
-        title={el ? labelEl : label}
+        title={lang === 'el' ? labelEl : label}
         className={cn(
           'inline-flex shrink-0 items-center gap-1 rounded-lg border px-2 py-1 text-[10px] font-medium transition-colors',
           active
@@ -63,7 +63,7 @@ export function WorkspaceToolStrip({
         )}
       >
         <Icon className="h-3.5 w-3.5" />
-        <span className="hidden sm:inline">{el ? labelEl : label}</span>
+        <span className="hidden sm:inline">{lang === 'el' ? labelEl : label}</span>
       </button>
     );
   };
@@ -76,7 +76,7 @@ export function WorkspaceToolStrip({
       )}
       data-testid="workspace-tool-strip"
       role="tablist"
-      aria-label={el ? 'Εργαλεία μελέτης' : 'Study tools'}
+      aria-label={t('wsStudyToolsAria', lang)}
     >
       {primary.map(({ id, icon: Icon, label, labelEl }) => renderTab(id, label, labelEl, Icon))}
       {secondary.length > 0 && (
@@ -92,7 +92,7 @@ export function WorkspaceToolStrip({
                 : 'border-transparent text-text-muted hover:bg-surface-hover hover:text-text-secondary',
             )}
           >
-            {el ? 'Περισσότερα' : 'More'}
+            {t('wsMore', lang)}
             <ChevronDown className={cn('h-3 w-3 transition-transform', moreOpen && 'rotate-180')} />
           </button>
           {moreOpen && (
@@ -114,7 +114,7 @@ export function WorkspaceToolStrip({
                   )}
                 >
                   <Icon className="h-3.5 w-3.5 shrink-0" />
-                  {el ? labelEl : label}
+                  {lang === 'el' ? labelEl : label}
                 </button>
               ))}
             </div>

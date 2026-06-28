@@ -2,7 +2,7 @@
  * Wave 6.8k — QA spine for Timer exam countdown ↔ dashboard parity.
  */
 
-import type { Lang } from './i18n';
+import { t, type Lang } from './i18n';
 import { loadExamTarget, saveExamTarget } from './workspacePersistence';
 import { selectDashboardNextAction } from './dashboardNextAction';
 import type { DashboardStats, LearnerModel, Task } from '../types';
@@ -169,19 +169,19 @@ export function formatTimerExamCountdownBanner(input: {
   lang: Lang;
 }): string | null {
   if (input.dashboardDays === null && input.timerDays === null) return null;
-  const isEl = input.lang === 'el';
+  const lang = input.lang;
   const days = input.dashboardDays ?? input.timerDays;
   if (days === null) return null;
 
   const countdown = days === 0
-    ? (isEl ? 'εξέταση σήμερα' : 'exam today')
-    : (isEl ? `${days} ημ. μέχρι εξέταση` : `${days}d to exam`);
+    ? t('qaExamToday', lang)
+    : t('panelDaysToExam', lang).replace('{days}', String(days));
 
   const syncNote = input.synced
-    ? (isEl ? ' · συγχρονίστηκε' : ' · synced')
+    ? t('qaSyncedNote', lang)
     : (input.dashboardDays !== null && input.timerDays !== null && input.dashboardDays === input.timerDays
-      ? (isEl ? ' · Dashboard ↔ Timer' : ' · Dashboard ↔ Timer')
+      ? t('qaDashboardTimerNote', lang)
       : '');
 
-  return `${isEl ? 'Αντίστροφη' : 'Countdown'} · ${countdown}${syncNote}`;
+  return `${t('qaCountdownTitle', lang)} · ${countdown}${syncNote}`;
 }

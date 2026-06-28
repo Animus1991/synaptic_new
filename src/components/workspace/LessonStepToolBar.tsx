@@ -5,6 +5,7 @@ import { stepToolActionLabel, type WorkspaceStep } from '../../lib/workspaceStep
 import { buildLessonStepToolbarTools } from '../../lib/lessonStepToolbarNextActionSync';
 import { buildLessonStepUnifiedActions } from '../../lib/lessonStepUnifiedActions';
 import type { NextActionRecommendation } from '../../lib/nextActionEngine';
+import { useI18n } from '../../lib/i18n';
 import type { LearningActionId } from '../../lib/workspaceLearningActions';
 
 const ACTION_ICONS: Record<LearningActionId, typeof BookOpen> = {
@@ -54,6 +55,7 @@ export function LessonStepToolBar({
   nextActionRecommendation?: NextActionRecommendation | null;
   sourceBestTool?: WorkspaceToolId | null;
 }) {
+  const { t } = useI18n();
   const { tools, recommendedTool } = buildLessonStepToolbarTools({
     step,
     stepIndex,
@@ -69,7 +71,7 @@ export function LessonStepToolBar({
       {onLearningAction && (
         <div className="flex flex-wrap items-center gap-1.5" data-testid="lesson-step-unified-actions">
           <span className="text-[9px] font-semibold text-text-muted w-full sm:w-auto">
-            {lang === 'el' ? 'Ενέργειες βήματος' : 'Step actions'}
+            {t('stepActions')}
           </span>
           {unifiedActions.map((action) => {
             const Icon = ACTION_ICONS[action.id];
@@ -97,7 +99,7 @@ export function LessonStepToolBar({
       )}
       <div className="flex flex-wrap items-center gap-1.5">
         <span className="text-[9px] font-semibold text-text-muted w-full sm:w-auto">
-          {lang === 'el' ? 'Άνοιγμα εργαλείου' : 'Open tool'}
+          {t('openTool')}
         </span>
       {tools.map((tool) => {
         const Icon = TOOL_ICONS[tool];
@@ -123,7 +125,7 @@ export function LessonStepToolBar({
             {stepToolActionLabel(tool, lang)}
             {isRecommended && (
               <span className="rounded bg-accent-emerald/15 px-1 text-[8px] font-semibold">
-                {lang === 'el' ? 'Επόμενο' : 'Next'}
+                {t('next')}
               </span>
             )}
           </button>

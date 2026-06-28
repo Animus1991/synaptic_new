@@ -111,13 +111,13 @@ export const WORKSPACE_KEYBOARD_SHORTCUTS: WorkspaceShortcutDef[] = [
 ];
 
 export function workspaceShortcutGroups(lang: 'en' | 'el'): { group: string; items: WorkspaceShortcutDef[] }[] {
-  const isEl = lang === 'el';
+  
   const order = ['General', 'Navigation', 'Tools', 'Layout', 'Session'];
   const elOrder = ['Γενικά', 'Πλοήγηση', 'Εργαλεία', 'Διάταξη', 'Συνεδρία'];
-  const labels = isEl ? elOrder : order;
+  const labels = lang === 'el' ? elOrder : order;
   const map = new Map<string, WorkspaceShortcutDef[]>();
   for (const def of WORKSPACE_KEYBOARD_SHORTCUTS) {
-    const g = isEl ? def.groupEl : def.groupEn;
+    const g = lang === 'el' ? def.groupEl : def.groupEn;
     if (!map.has(g)) map.set(g, []);
     map.get(g)!.push(def);
   }

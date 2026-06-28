@@ -16,6 +16,7 @@ import {
   quizWrongAnswerHint,
 } from '../../lib/quizSelectionRemediationQA';
 import { WorkspaceQuiz } from './WorkspaceQuiz';
+import { useI18n } from '../../lib/i18n';
 
 type Props = {
   scopeKey: string;
@@ -55,6 +56,7 @@ export function WorkspaceQuizSession({
   onClearSelection,
   onQuestionSelect,
 }: Props) {
+  const { t } = useI18n();
   const [session, setSession] = useState<QuizSessionState>(() => {
     const prev = loadQuizSession(scopeKey, concept);
     if (prev && prev.items.length === items.length) return prev;
@@ -99,7 +101,7 @@ export function WorkspaceQuizSession({
   if (items.length === 0) {
     return (
       <p className="text-sm text-text-muted">
-        {lang === 'el' ? 'Δεν δημιουργήθηκαν ερωτήσεις από τις σημειώσεις.' : 'No questions generated from your notes.'}
+        {t('quizSessNoQuestions')}
       </p>
     );
   }
@@ -122,9 +124,9 @@ export function WorkspaceQuizSession({
             data-testid="quiz-session-wrong-review"
           >
             <p className="text-[10px] font-medium text-accent-rose">
-              {lang === 'el'
-                ? `${wrongSummaries.length} λάθος/η — επανόρθωση`
-                : `${wrongSummaries.length} mistake(s) — review`}
+              {wrongSummaries.length === 1
+                ? t('quizSessMistakesReviewOne')
+                : t('quizSessMistakesReviewMany').replace('{count}', String(wrongSummaries.length))}
             </p>
             <ul className="space-y-2">
               {wrongSummaries.map((w) => {
@@ -142,7 +144,7 @@ export function WorkspaceQuizSession({
                         onClick={() => onRemediateWrong('make-card', item)}
                         className="rounded border border-brand-500/30 bg-brand-600/10 px-2 py-0.5 text-[9px] text-brand-800"
                       >
-                        {lang === 'el' ? 'Κάρτα' : 'Card'}
+                        {t('quizSessCard')}
                       </button>
                       <button
                         type="button"
@@ -159,7 +161,7 @@ export function WorkspaceQuizSession({
                           onClick={() => onOpenQuestionInReader(w.question)}
                           className="rounded border border-white/10 px-2 py-0.5 text-[9px] text-text-secondary hover:text-brand-800"
                         >
-                          {lang === 'el' ? 'Reader' : 'Reader'}
+                          {t('toolReader')}
                         </button>
                       )}
                     </div>
@@ -178,7 +180,7 @@ export function WorkspaceQuizSession({
               onClick={onOpenFlashcards}
               className="rounded-lg border border-brand-500/30 bg-brand-600/10 px-3 py-1.5 text-[10px] font-medium text-brand-800"
             >
-              {lang === 'el' ? 'Κάρτες επανάληψης' : 'Review flashcards'}
+              {t('quizSessReviewFlashcards')}
             </button>
           )}
           {accuracy < 70 && onOpenFeynman && (
@@ -188,7 +190,7 @@ export function WorkspaceQuizSession({
               onClick={onOpenFeynman}
               className="rounded-lg border border-accent-cyan/30 bg-accent-cyan/10 px-3 py-1.5 text-[10px] font-medium text-brand-800"
             >
-              {lang === 'el' ? 'Feynman — εξήγησε απλά' : 'Feynman — explain simply'}
+              {t('quizSessFeynmanExplain')}
             </button>
           )}
           {onOpenReader && (
@@ -198,7 +200,7 @@ export function WorkspaceQuizSession({
               onClick={onOpenReader}
               className="rounded-lg border border-white/10 px-3 py-1.5 text-[10px] font-medium text-text-secondary hover:text-brand-800"
             >
-              {lang === 'el' ? 'Επιστροφή στο Reader' : 'Back to Reader'}
+              {t('quizSessBackToReader')}
             </button>
           )}
         </div>
@@ -212,7 +214,7 @@ export function WorkspaceQuizSession({
     <div className="space-y-4" data-testid="quiz-session">
       <div className="flex items-center justify-between text-[10px] text-text-muted">
         <span>
-          {lang === 'el' ? 'Ερώτηση' : 'Question'} {session.currentIndex + 1}/{session.items.length}
+          {t('quizSessQuestionLabel')} {session.currentIndex + 1}/{session.items.length}
         </span>
         <span data-testid="quiz-session-progress">
           {Math.round((session.currentIndex / session.items.length) * 100)}%
@@ -231,9 +233,7 @@ export function WorkspaceQuizSession({
       ) : (
         <div className="space-y-3">
           <p className={cn('text-xs', lastCorrect ? 'text-accent-emerald' : 'text-accent-rose')}>
-            {lastCorrect
-              ? (lang === 'el' ? '✓ Σωστά — βαθμολόγησε την εμπιστοσύνη σου' : '✓ Correct — rate your confidence')
-              : (lang === 'el' ? '✗ Δες ξανά — βαθμολόγησε την εμπιστοσύνη σου' : '✗ Review — rate your confidence')}
+            {lastCorrect ? t('quizSessCorrectConfidence') : t('quizSessReviewConfidence')}
           </p>
           {lastCorrect === false && (
             <div
@@ -241,7 +241,7 @@ export function WorkspaceQuizSession({
               data-testid="quiz-wrong-remediation"
             >
               <p className="text-[10px] font-medium text-accent-rose">
-                {lang === 'el' ? 'Επανόρθωση λάθους' : 'Fix this mistake'}
+                {t('quizSessFixMistake')}
               </p>
               <p className="text-[10px] text-text-secondary" data-testid="quiz-wrong-answer-hint">
                 {quizWrongAnswerHint(current, concept, lang)}
@@ -254,7 +254,7 @@ export function WorkspaceQuizSession({
                     onClick={() => onRemediateWrong('make-card', current)}
                     className="rounded-lg border border-brand-500/30 bg-brand-600/10 px-3 py-1.5 text-[10px] font-medium text-brand-800 hover:bg-brand-600/20"
                   >
-                    {lang === 'el' ? 'Κάρτα από το λάθος' : 'Make card from mistake'}
+                    {t('quizSessMakeCardFromMistake')}
                   </button>
                   <button
                     type="button"
@@ -262,7 +262,7 @@ export function WorkspaceQuizSession({
                     onClick={() => onRemediateWrong('feynman', current)}
                     className="rounded-lg border border-accent-cyan/30 bg-accent-cyan/10 px-3 py-1.5 text-[10px] font-medium text-brand-800 hover:opacity-90"
                   >
-                    {lang === 'el' ? 'Feynman — εξήγησε απλά' : 'Feynman — explain simply'}
+                    {t('quizSessFeynmanExplain')}
                   </button>
                   {onOpenQuestionInReader && (
                     <button
@@ -271,7 +271,7 @@ export function WorkspaceQuizSession({
                       onClick={() => onOpenQuestionInReader(quizItemQuestion(current))}
                       className="rounded-lg border border-white/10 px-3 py-1.5 text-[10px] font-medium text-text-secondary hover:border-brand-600/35 hover:text-brand-800"
                     >
-                      {lang === 'el' ? 'Άνοιγμα στο Reader' : 'Open in Reader'}
+                      {t('panelOpenReader')}
                     </button>
                   )}
                 </div>
@@ -280,7 +280,7 @@ export function WorkspaceQuizSession({
           )}
           <div className="rounded-xl border border-border-subtle bg-surface-primary/50 p-3" data-testid="quiz-confidence-rating">
             <p className="text-[10px] font-medium text-text-muted mb-2">
-              {lang === 'el' ? 'Εμπιστοσύνη (1–5)' : 'Confidence (1–5)'}
+              {t('quizSessConfidenceScale')}
             </p>
             <div className="flex gap-1">
               {[1, 2, 3, 4, 5].map((n) => (
@@ -305,9 +305,7 @@ export function WorkspaceQuizSession({
             onClick={confirmAndAdvance}
             className="px-4 py-2 rounded-lg bg-brand-600 text-white text-sm"
           >
-            {session.currentIndex + 1 >= session.items.length
-              ? (lang === 'el' ? 'Ολοκλήρωση συνεδρίας' : 'Finish session')
-              : (lang === 'el' ? 'Επόμενη ερώτηση' : 'Next question')}
+            {session.currentIndex + 1 >= session.items.length ? t('quizSessFinishSession') : t('quizSessNextQuestion')}
           </button>
         </div>
       )}

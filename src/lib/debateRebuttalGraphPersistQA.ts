@@ -2,7 +2,7 @@
  * Wave 6.8h — QA spine for Debate rebuttal graph ↔ tree persistence.
  */
 
-import type { Lang } from './i18n';
+import { t, type Lang } from './i18n';
 import type { ArgNode } from '../components/workspace/ArgumentMap';
 import {
   countUserRebuttals,
@@ -205,19 +205,19 @@ export function formatDebatePersistBanner(input: {
   seedChanged: boolean;
   lang: Lang;
 }): string | null {
-  const isEl = input.lang === 'el';
+  const lang = input.lang;
   const parts: string[] = [];
   if (input.graphEdgeCount > 0) {
-    parts.push(isEl ? `${input.graphEdgeCount} συνδέσεις` : `${input.graphEdgeCount} edges`);
+    parts.push(t('qaDebateEdges', lang).replace('{count}', String(input.graphEdgeCount)));
   }
   if (input.userRebuttalCount > 0) {
-    parts.push(isEl ? `${input.userRebuttalCount} rebuttals` : `${input.userRebuttalCount} rebuttals`);
+    parts.push(t('qaDebateRebuttals', lang).replace('{count}', String(input.userRebuttalCount)));
   }
   if (input.seedChanged) {
-    parts.push(isEl ? 'seed ενημερώθηκε' : 'seed refreshed');
+    parts.push(t('qaDebateSeedRefreshed', lang));
   }
   if (input.graphSyncOk && input.graphEdgeCount > 0) {
-    parts.push(isEl ? 'graph OK' : 'graph OK');
+    parts.push(t('qaDebateGraphOk', lang));
   }
   return parts.length > 0 ? parts.join(' · ') : null;
 }

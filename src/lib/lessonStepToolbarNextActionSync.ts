@@ -4,6 +4,7 @@
 
 import type { WorkspaceToolId } from './taskFlows';
 import type { NextActionRecommendation } from './nextActionEngine';
+import { t, type Lang } from './i18n';
 import { recommendedToolFromNextAction } from './discoverabilityNextActionSync';
 import {
   recommendToolsForStep,
@@ -68,12 +69,12 @@ export function buildLessonStepToolbarTools(opts: {
 
 export function lessonStepToolbarBanner(
   report: LessonStepToolbarReport,
-  lang: 'en' | 'el',
+  lang: Lang,
 ): string | null {
   if (!report.recommendedTool) return null;
-  const isEl = lang === 'el';
-  const label = isEl ? 'Επόμενο εργαλείο' : 'Next tool';
+  const label = t('lessonStepNextTool', lang);
+  const synced = t('lessonStepSynced', lang);
   return report.alignedWithNextAction
     ? `${label} · ${report.recommendedTool}`
-    : `${label} · ${report.recommendedTool} (${isEl ? 'συγχρονισμένο' : 'synced'})`;
+    : `${label} · ${report.recommendedTool} (${synced})`;
 }

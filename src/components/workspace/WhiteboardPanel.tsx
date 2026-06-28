@@ -13,6 +13,7 @@ import { auditWhiteboardBlueprintCoverage } from '../../lib/whiteboardBlueprintC
 import { WorkspaceEmptyState } from './WorkspaceEmptyState';
 import { StudyWhiteboard } from './StudyWhiteboard';
 import { WhiteboardDiagramCoach } from './WhiteboardDiagramCoach';
+import { useI18n } from '../../lib/i18n';
 
 type Props = {
   session: WhiteboardSessionContent;
@@ -50,7 +51,7 @@ export function WhiteboardPanel({
   const [filterQuery, setFilterQuery] = useState('');
   const [labelInsertKey, setLabelInsertKey] = useState(0);
   const [labelInsertPayload, setLabelInsertPayload] = useState<string[]>([]);
-  const isEl = lang === 'el';
+  const { t } = useI18n();
 
   const filterMatches = useMemo(
     () => filterWhiteboardFormulas(session.formulas, filterQuery),
@@ -102,9 +103,9 @@ export function WhiteboardPanel({
   ) => {
     if (!onAskAgent) return;
     const sketchDescription = intent === 'critique'
-      ? (isEl
-        ? `Σκίτσο για ${coachPlan.title} — βήματα: ${coachPlan.steps.map((s) => s.label).join(', ')}`
-        : `Sketch for ${coachPlan.title} — steps: ${coachPlan.steps.map((s) => s.label).join(', ')}`)
+      ? t('wbSketchForCoach')
+        .replace('{title}', coachPlan.title)
+        .replace('{steps}', coachPlan.steps.map((s) => s.label).join(', '))
       : undefined;
     const prompt = buildWhiteboardDiagramAgentPrompt(coachPlan, lang, intent, {
       step,
@@ -112,13 +113,13 @@ export function WhiteboardPanel({
       referenceExcerpt: session.referenceExcerpt,
     });
     onAskAgent(prompt, intent);
-  }, [coachPlan, isEl, lang, onAskAgent, session.referenceExcerpt]);
+  }, [coachPlan, t, lang, onAskAgent, session.referenceExcerpt]);
 
   if (!session.hasSource) {
     return (
       <WorkspaceEmptyState
         tool="whiteboard"
-        message={emptyMessage ?? (isEl ? 'Ανέβασε σημειώσεις για τον πίνακα.' : 'Upload notes for the whiteboard.')}
+        message={emptyMessage ?? (t('panelEmptyWhiteboard'))}
         hasSource={false}
         onUpload={onUpload}
       />
@@ -130,7 +131,7 @@ export function WhiteboardPanel({
       <div className="shrink-0 border-b border-border-subtle px-4 py-3">
         {session.sectionLabel && (
           <p className="mb-2 ws-eyebrow text-text-muted" data-testid="whiteboard-section-label">
-            <span>{isEl ? 'Ενότητα' : 'Section'}</span>
+            <span>{t('wsSectionLabel')}</span>
             <span className="ml-2 normal-case tracking-normal text-text-secondary font-sans text-[11px]">
               {session.sectionLabel}
             </span>
@@ -145,12 +146,8 @@ export function WhiteboardPanel({
             <AlertTriangle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
             <p className="leading-relaxed">
               {session.passageGrounded
-                ? (isEl
-                  ? 'Τύποι/απόσπασμα από το κείμενο (generic concept) — Reprocess για πιο πλούσια δομή.'
-                  : 'Formulas/excerpt are passage-grounded (generic concept) — Reprocess for richer structure.')
-                : (isEl
-                  ? 'Αδύναμη εξαγωγή τύπων — μπορείς να σχεδιάσεις χειροκίνητα ή δοκίμασε Reprocess.'
-                  : 'Weak formula extraction — sketch manually or try Reprocess.')}
+                ? t('panelPassageGroundedWhiteboard')
+                : t('panelWeakExtractionWhiteboard')}
             </p>
           </div>
         )}
@@ -163,15 +160,15 @@ export function WhiteboardPanel({
                 type="search"
                 value={filterQuery}
                 onChange={(e) => setFilterQuery(e.target.value)}
-                placeholder={isEl ? 'Αναζήτηση τύπων…' : 'Search formulas…'}
-                aria-label={isEl ? 'Αναζήτηση τύπων' : 'Search formulas'}
+                placeholder={t('panelSearchFormulas')}
+                aria-label={t('panelSearchFormulasAria')}
                 className="w-full rounded-md border border-border-subtle bg-surface-card py-1.5 pl-8 pr-2 text-[12px] text-text-secondary placeholder:text-text-muted focus:border-brand-400/60 focus:outline-none focus:ring-1 focus:ring-brand-400/30"
                 data-testid="whiteboard-filter"
               />
             </div>
           )}
           <span className="ws-eyebrow text-text-muted">
-            <span className="ws-num">{session.formulas.length}</span> {isEl ? 'τύποι' : 'formulas'}
+            <span className="ws-num">{session.formulas.length}</span> {t('panelFormulas')}
             {session.stampCount > 0 && (
               <> · <span className="ws-num">{session.stampCount}</span> LaTeX</>
             )}
@@ -184,7 +181,7 @@ export function WhiteboardPanel({
               data-testid="whiteboard-open-reader"
             >
               <BookOpen className="w-3 h-3" aria-hidden />
-              {isEl ? 'Πηγή' : 'Reader'}
+              {t('panelReaderSource')}
             </button>
           )}
         </div>

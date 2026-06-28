@@ -1,6 +1,7 @@
 import { Lightbulb } from '@/lib/lucide-shim';
 import type { WorkspaceToolId } from '../../lib/taskFlows';
 import { toolLearnerProblem, toolLaunchBlockers, getToolS20 } from '../../lib/workspaceToolS20Spine';
+import { useI18n } from '../../lib/i18n';
 
 type Props = {
   activeTool: WorkspaceToolId;
@@ -9,7 +10,7 @@ type Props = {
 
 export function WorkspaceToolPurposeHint({ activeTool, lang }: Props) {
   const record = getToolS20(activeTool);
-  const isEl = lang === 'el';
+  const { t } = useI18n();
   const blockers = toolLaunchBlockers(activeTool);
 
   return (
@@ -20,12 +21,12 @@ export function WorkspaceToolPurposeHint({ activeTool, lang }: Props) {
       <Lightbulb className="mt-0.5 h-3.5 w-3.5 shrink-0 text-accent-amber" aria-hidden />
       <p className="min-w-0 text-[10px] leading-snug text-text-secondary">
         <span className="font-medium text-text-primary">
-          {isEl ? 'Γιατί τώρα:' : 'Why now:'}
+          {t('whyNowColon')}
         </span>{' '}
         {toolLearnerProblem(activeTool, lang)}
         {blockers.length > 0 && record.readiness === 'needs-polish' && (
           <span className="ml-1 text-text-muted">
-            ({isEl ? 'βελτιώνεται' : 'polish in progress'})
+            ({t('toolPolishing')})
           </span>
         )}
       </p>

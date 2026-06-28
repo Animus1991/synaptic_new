@@ -13,6 +13,7 @@ import {
   PAGE_BREAK_MARKER,
 } from './textSegmentation';
 import { detectReadingSections } from './sectionMerger';
+import { t, type Lang } from './i18n';
 import type { ExtractedTable } from './tableExtract';
 import {
   detectBibliographyItems,
@@ -413,9 +414,9 @@ function segmentPlainText(seg: ReaderSegment): string {
  */
 export function readerSegmentsToStepSections(
   segments: ReaderSegment[],
-  lang: 'en' | 'el' = 'en',
+  lang: Lang = 'en',
 ): { heading?: string; text: string }[] {
-  const courseInfoLabel = lang === 'el' ? 'Στοιχεία Μαθήματος' : 'Course information';
+  const courseInfoLabel = t('courseInfo', lang);
   const steps: { heading?: string; text: string }[] = [];
   let current: { heading?: string; parts: string[] } | null = null;
 

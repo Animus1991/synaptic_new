@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { X } from '@/lib/lucide-shim';
+import { t, type Lang } from '../../lib/i18n';
 
 /** Instant visual feedback while StudyWorkspace chunk loads. */
 export function WorkspaceBootShell({
@@ -11,21 +12,19 @@ export function WorkspaceBootShell({
 }: {
   compact?: boolean;
   onClose?: () => void;
-  lang?: 'en' | 'el';
+  lang?: Lang;
   error?: string;
   onRetry?: () => void;
 }) {
-  const label = lang === 'el' ? '\u03a6\u03cc\u03c1\u03c4\u03c9\u03c3\u03b7 \u03c7\u03ce\u03c1\u03bf\u03c5 \u03bc\u03b5\u03bb\u03ad\u03c4\u03b7\u03c2' : 'Loading study workspace';
-  const closeLabel = lang === 'el' ? '\u039a\u03bb\u03b5\u03af\u03c3\u03b9\u03bc\u03bf' : 'Close';
-  const slowHint = lang === 'el'
-    ? '\u0391\u03c5\u03c4\u03cc \u03bc\u03c0\u03bf\u03c1\u03b5\u03af \u03bd\u03b1 \u03b4\u03b9\u03b1\u03c1\u03ba\u03ad\u03c3\u03b5\u03b9 \u03bc\u03b5\u03c1\u03b9\u03ba\u03ac \u03b4\u03b5\u03c5\u03c4\u03b5\u03c1\u03cc\u03bb\u03b5\u03c0\u03c4\u03b1 \u03c4\u03b7\u03bd \u03c0\u03c1\u03ce\u03c4\u03b7 \u03c6\u03cc\u03c1\u03c4\u03c9\u03c3\u03b7.'
-    : 'First load can take a few seconds while tools initialize.';
+  const label = t('bootShellLoading', lang);
+  const closeLabel = t('close', lang);
+  const slowHint = t('bootShellSlowHint', lang);
   const [showSlowHint, setShowSlowHint] = useState(false);
 
   useEffect(() => {
     if (error) return;
-    const t = window.setTimeout(() => setShowSlowHint(true), 8000);
-    return () => window.clearTimeout(t);
+    const timer = window.setTimeout(() => setShowSlowHint(true), 8000);
+    return () => window.clearTimeout(timer);
   }, [error]);
 
   return (
@@ -70,7 +69,7 @@ export function WorkspaceBootShell({
             {error ? (
               <>
                 <p className="relative z-10 text-sm font-semibold text-red-400">
-                  {lang === 'el' ? '\u0391\u03c0\u03bf\u03c4\u03c5\u03c7\u03af\u03b1 \u03c6\u03cc\u03c1\u03c4\u03c9\u03c3\u03b7\u03c2 \u03c7\u03ce\u03c1\u03bf\u03c5 \u03bc\u03b5\u03bb\u03ad\u03c4\u03b7\u03c2' : 'Failed to load study workspace'}
+                  {t('bootShellFailed', lang)}
                 </p>
                 <p className="relative z-10 max-w-md text-xs font-mono text-text-muted break-all">{error}</p>
                 <div className="relative z-10 flex flex-wrap items-center justify-center gap-2 pt-1">
@@ -80,7 +79,7 @@ export function WorkspaceBootShell({
                       onClick={onRetry}
                       className="rounded-md border border-brand-500/40 bg-brand-600/15 px-3 py-1.5 text-xs font-medium text-brand-200 hover:bg-brand-600/25"
                     >
-                      {lang === 'el' ? '\u0394\u03bf\u03ba\u03b9\u03bc\u03ac\u03c3\u03c4\u03b5 \u03be\u03b1\u03bd\u03ac' : 'Try again'}
+                      {t('tryAgain', lang)}
                     </button>
                   )}
                   <button
@@ -91,7 +90,7 @@ export function WorkspaceBootShell({
                     }}
                     className="rounded-md border border-border-subtle px-3 py-1.5 text-xs font-medium text-text-secondary hover:bg-surface-hover"
                   >
-                    {lang === 'el' ? '\u0395\u03c0\u03b1\u03bd\u03b1\u03c6\u03cc\u03c1\u03c4\u03c9\u03c3\u03b7' : 'Reload'}
+                    {t('reloadPage', lang)}
                   </button>
                 </div>
               </>

@@ -7,6 +7,7 @@ import {
   remapEdgeCaseHint,
   remapEdgeCaseLabel,
 } from '../../lib/annotationRemapEdgeCasesQA';
+import { useI18n } from '../../lib/i18n';
 
 type Props = {
   entries: AnnotationRemapEntry[];
@@ -33,7 +34,7 @@ export function AnnotationRemapPanel({
   onAutoRemap,
   onClose,
 }: Props) {
-  const isEl = lang === 'el';
+  const { t } = useI18n();
 
   if (entries.length === 0) return null;
 
@@ -44,7 +45,7 @@ export function AnnotationRemapPanel({
     >
       <div className="sticky top-0 z-10 flex flex-wrap items-center justify-between gap-2 border-b border-border-subtle bg-surface-card px-4 py-2">
         <p className="text-[11px] font-semibold text-accent-amber">
-          {isEl ? 'Επανασύνδεση anchors' : 'Anchor remap'}
+          {t('annoAnchorRemap')}
           {' · '}
           {entries.length}
         </p>
@@ -56,14 +57,14 @@ export function AnnotationRemapPanel({
             className="inline-flex items-center gap-1 rounded-lg border border-accent-emerald/30 bg-accent-emerald/10 px-2 py-1 text-[10px] font-medium text-accent-emerald hover:bg-accent-emerald/15"
           >
             <Wand2 className="w-3 h-3" />
-            {isEl ? 'Αυτόματο remap' : 'Auto-remap'}
+            {t('annoAutoRemap')}
           </button>
           <button
             type="button"
             onClick={onClose}
             className="rounded-lg border border-border-subtle px-2 py-1 text-[10px] text-text-muted hover:text-text-secondary"
           >
-            {isEl ? 'Κλείσιμο' : 'Close'}
+            {t('close')}
           </button>
         </div>
       </div>
@@ -96,8 +97,8 @@ export function AnnotationRemapPanel({
                   <span className="text-[10px] font-medium text-text-secondary capitalize">{ann.type}</span>
                   <span className="text-[9px] rounded-full border border-accent-amber/30 px-1.5 py-0.5 text-accent-amber">
                     {isLegacy
-                      ? (isEl ? 'παλιό' : 'legacy')
-                      : (isEl ? 'επανέλεγχο' : 'needs review')}
+                      ? t('annoLegacy')
+                      : t('annoNeedsReview')}
                   </span>
                   {edgeKind && (
                     <span
@@ -109,7 +110,7 @@ export function AnnotationRemapPanel({
                   )}
                 </div>
                 <p className="text-[10px] text-text-muted line-clamp-2">
-                  {currentPreview || (isEl ? '(χωρίς απόσπασμα)' : '(no excerpt)')}
+                  {currentPreview || t('annoNoExcerpt')}
                 </p>
                 {edgeHint && (
                   <p className="mt-1 text-[9px] text-text-secondary">{edgeHint}</p>
@@ -126,16 +127,14 @@ export function AnnotationRemapPanel({
                       className="flex w-full items-center gap-1.5 rounded-lg border border-brand-500/30 bg-brand-600/10 px-2 py-1.5 text-[10px] text-brand-800 hover:bg-brand-600/15"
                     >
                       <Check className="w-3 h-3" />
-                      {isEl
-                        ? `Επιβεβαίωση στη γραμμή ${ann.lineStart + 1}`
-                        : `Confirm at line ${ann.lineStart + 1}`}
+                      {t('annoConfirmAtLine').replace('{line}', String(ann.lineStart + 1))}
                     </button>
                   )}
 
                   {candidates.length > 0 ? (
                     <div className="space-y-1">
                       <p className="text-[9px] font-semibold text-text-muted">
-                        {isEl ? 'Προτεινόμενες γραμμές' : 'Suggested lines'}
+                        {t('annoSuggestedLines')}
                       </p>
                       {candidates.map((c) => (
                         <button
@@ -159,9 +158,7 @@ export function AnnotationRemapPanel({
                     </div>
                   ) : (
                     <p className="text-[10px] text-accent-rose">
-                      {isEl
-                        ? 'Δεν βρέθηκε αντιστοιχία — διάλεξε γραμμή στο κείμενο ή διέγραψε.'
-                        : 'No match found — pick a line in the source or delete.'}
+                      {t('annoNoMatchFound')}
                     </p>
                   )}
 
@@ -171,7 +168,7 @@ export function AnnotationRemapPanel({
                     className="inline-flex items-center gap-1 text-[10px] text-accent-rose hover:underline"
                   >
                     <Trash2 className="w-3 h-3" />
-                    {isEl ? 'Διαγραφή σημείωσης' : 'Delete annotation'}
+                    {t('annoDeleteAnnotation')}
                   </button>
                 </div>
               )}

@@ -1,5 +1,6 @@
 import { Users } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
+import { useI18n } from '../../lib/i18n';
 
 type Props = {
   lang: 'en' | 'el';
@@ -12,15 +13,15 @@ type Props = {
 
 /** Discoverable study-room entry — sand + brand only; label always visible. */
 export function WorkspaceStudyRoomTrigger({
-  lang,
+  lang: _lang,
   open = false,
   onClick,
   variant = 'chip',
   compact = false,
   className,
 }: Props) {
-  const isEl = lang === 'el';
-  const label = isEl ? 'Ομαδική' : 'Together';
+  const { t } = useI18n();
+  const label = t('studyTogetherShort');
 
   if (variant === 'chrome') {
     return (
@@ -28,7 +29,7 @@ export function WorkspaceStudyRoomTrigger({
         type="button"
         onClick={onClick}
         aria-pressed={open}
-        aria-label={isEl ? 'Ομαδική μελέτη' : 'Study together'}
+        aria-label={t('studyRoomTitle')}
         data-testid="workspace-study-room-open"
         className={cn('ws-chrome-btn', open && 'ws-chrome-btn-active', className)}
       >
@@ -43,7 +44,7 @@ export function WorkspaceStudyRoomTrigger({
       type="button"
       onClick={onClick}
       aria-pressed={open}
-      aria-label={isEl ? 'Ομαδική μελέτη' : 'Study together'}
+      aria-label={t('studyRoomTitle')}
       data-testid="workspace-study-room-open"
       className={cn(
         'ws-eyebrow shrink-0 inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px]',

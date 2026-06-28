@@ -701,8 +701,8 @@ export function useStudyWorkspace({
   const rawSteps = useMemo(() => {
     if (!noteBundle.hasSource) {
       return [{
-        title: lang === 'el' ? 'Ανέβασμα σημειώσεων' : 'Upload your notes',
-        type: lang === 'el' ? 'Αρχική' : 'Intro',
+        title: t('lessonViewUploadNotes'),
+        type: t('wsStepTypeIntro'),
       }];
     }
     const steps = noteBundle.workspaceSteps ?? [];
@@ -1102,9 +1102,7 @@ export function useStudyWorkspace({
       if (noteBundle.quiz) return noteBundle.quiz;
     }
     return {
-      question: lang === 'el'
-        ? `Ανέβασε σημειώσεις για να δημιουργηθεί κουίζ από το δικό σου υλικό για «${quizConcept}».`
-        : `Upload notes to generate a quiz from your material for "${quizConcept}".`,
+      question: t('wsQuizUploadPrompt').replace('{concept}', quizConcept),
       options: ['- - -', '- - -', '- - -', '- - -'],
       correctIndex: 0,
     };

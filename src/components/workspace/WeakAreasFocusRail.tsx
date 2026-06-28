@@ -1,5 +1,6 @@
 import { AlertTriangle, ChevronDown, ChevronUp } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
+import { t, type Lang } from '../../lib/i18n';
 import type { WeakSpotWithReasons } from '../../lib/weakAreaReasons';
 import { isWeakSpotFocused } from '../../lib/workspaceWeakAreas';
 import type { WorkspaceEmptyAction } from '../../lib/workspaceEmptyState';
@@ -17,15 +18,13 @@ export function WeakAreasFocusRail({
 }: {
   spots: WeakSpotWithReasons[];
   focusTerm?: string;
-  lang: 'en' | 'el';
+  lang: Lang;
   expanded: boolean;
   onToggle: () => void;
   onFocusWeakSpot: (concept: string) => void;
   emptyMessage?: string;
   emptyActions?: WorkspaceEmptyAction[];
 }) {
-  const isEl = lang === 'el';
-
   if (spots.length === 0) {
     return (
       <div className="shrink-0 border-b border-border-subtle/80 bg-surface-card/40" data-testid="workspace-weak-areas-rail">
@@ -34,9 +33,7 @@ export function WeakAreasFocusRail({
           tool="weak-areas"
           message={
             emptyMessage
-            ?? (isEl
-              ? 'Δεν υπάρχουν αδύναμα σημεία — ολοκλήρωσε quiz ή βαθμολόγησε κάρτες για προφίλ mastery.'
-              : 'No weak spots yet — complete a quiz or rate flashcards to build your mastery profile.')
+            ?? t('weakAreasEmpty', lang)
           }
           hasSource
           actions={emptyActions}
@@ -59,7 +56,7 @@ export function WeakAreasFocusRail({
         <div className="flex items-center gap-2 min-w-0">
           <AlertTriangle className="h-3.5 w-3.5 shrink-0 opacity-80" aria-hidden />
           <p className="text-[11px] font-semibold text-text-primary truncate">
-            {isEl ? 'Αδύναμα σημεία' : 'Weak areas'}
+            {t('weakAreasTitle', lang)}
             <span className="ml-1.5 font-normal text-text-tertiary">({spots.length})</span>
           </p>
         </div>
@@ -126,7 +123,7 @@ export function WeakAreasFocusRail({
                   </div>
                 ) : (
                   <p className="mt-1 text-[9px] text-text-muted">
-                    {isEl ? 'Χαμηλό mastery — χρειάζεται επανάληψη' : 'Low mastery — needs review'}
+                    {t('lowMasteryReview', lang)}
                   </p>
                 )}
               </div>

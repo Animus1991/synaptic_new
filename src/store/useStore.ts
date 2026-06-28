@@ -20,6 +20,7 @@ import {
 import { ECON_CONCEPT_EDGES } from '../data/conceptGraph';
 import { edgesFromCourses } from '../lib/conceptEdges';
 import { loadJson, saveJson } from '../lib/persistence';
+import { t } from '../lib/i18n';
 import { hydrateLibrary, loadLibrarySync, saveLibrarySync } from '../lib/libraryStorage';
 import { mergeLibraries, remoteLibraryToPersisted } from '../lib/librarySync';
 import { fetchYoutubeTranscript } from '../lib/youtubeTranscript';
@@ -1419,11 +1420,7 @@ export function useAppStore() {
       const result = runCourseReprocess(courseId, courses, uploadedFiles);
       if (!result) {
         const lang = user.settings.language === 'el' ? 'el' : 'en';
-        showAppToast(
-          lang === 'el'
-            ? 'Δεν βρέθηκε αποθηκευμένο κείμενο για επανεπεξεργασία.'
-            : 'No stored extracted text found to reprocess.',
-        );
+        showAppToast(t('toastNoStoredText', lang));
         return false;
       }
       const nextCourses = courses.map((c) => (c.id === courseId ? result.course : c));
@@ -1463,26 +1460,18 @@ export function useAppStore() {
       markCourseArtifactsStale(courseId, CONTENT_PIPELINE_VERSION);
       const lang = user.settings.language === 'el' ? 'el' : 'en';
       const reviewHint = annotationsFlagged > 0
-        ? (lang === 'el'
-          ? ` ${annotationsFlagged} σημειώσεις χρειάζονται επανέλεγχο.`
-          : ` ${annotationsFlagged} annotation(s) need review.`)
+        ? t('toastAnnotationsReview', lang).replace('{count}', String(annotationsFlagged))
         : '';
       const taskHint = taskDelta && taskDelta.addedGenerated > 0
-        ? (lang === 'el'
-          ? ` ${taskDelta.addedGenerated} νέες εργασίες (${taskDelta.removedGenerated} παλιές αντικαταστάθηκαν).`
-          : ` ${taskDelta.addedGenerated} new tasks (${taskDelta.removedGenerated} stale replaced).`)
+        ? t('toastNewTasks', lang)
+          .replace('{added}', String(taskDelta.addedGenerated))
+          .replace('{removed}', String(taskDelta.removedGenerated))
         : '';
-      const staleHint = lang === 'el'
-        ? ' Κουίζ, κάρτες και προσομοίωση σημειώθηκαν ως παρωχημένα.'
-        : ' Quiz, flashcards, and simulator flagged as outdated.';
+      const staleHint = t('toastArtifactsStale', lang);
       showAppToast(
         (result.tasksRegenerated
-          ? (lang === 'el'
-            ? 'Αναγνώριση, γλωσσάρι και εργασίες ενημερώθηκαν από το αποθηκευμένο κείμενο.'
-            : 'Recognition, glossary, and tasks refreshed from stored text.')
-          : (lang === 'el'
-            ? 'Η αναγνώριση ενημερώθηκε από το αποθηκευμένο κείμενο.'
-            : 'Recognition refreshed from stored text.')) + taskHint + staleHint + reviewHint,
+          ? t('toastReprocessFull', lang)
+          : t('toastReprocessRecognition', lang)) + taskHint + staleHint + reviewHint,
       );
       return true;
     } finally {
@@ -1494,11 +1483,7 @@ export function useAppStore() {
     const trimmed = text.trim();
     if (trimmed.length < 40) {
       const lang = user.settings.language === 'el' ? 'el' : 'en';
-      showAppToast(
-        lang === 'el'
-          ? 'Το κείμενο είναι πολύ σύντομο για αποθήκευση.'
-          : 'Text is too short to save.',
-      );
+      showAppToast(t('toastTextTooShort', lang));
       return false;
     }
     const linked = uploadedFiles.filter(
@@ -1519,7 +1504,7 @@ export function useAppStore() {
     const result = removeUploadedFileFromLibrary(fileId, uploadedFiles, courses);
     if (!result.removed) {
       const lang = user.settings.language === 'el' ? 'el' : 'en';
-      showAppToast(lang === 'el' ? 'Το αρχείο δεν βρέθηκε.' : 'File not found.');
+      showAppToast(t('toastFileNotFound', lang));
       return false;
     }
     const removedCourseId = uploadedFiles.find((f) => f.id === fileId)?.courseId;
@@ -1556,12 +1541,12 @@ export function useAppStore() {
       clearQuizSessions();
     }
     const cascadeNote = result.courseFullyOrphaned
-      ? (lang === 'el' ? ' Αφαιρέθηκαν και οι εργασίες του μαθήματος.' : ' Course tasks were removed too.')
+      ? t('toastCourseTasksRemoved', lang)
       : '';
     showAppToast(
       (result.reprocessed
-        ? (lang === 'el' ? 'Αφαιρέθηκε · επανεπεξεργασία υπόλοιπων πηγών.' : 'Removed · reprocessed remaining sources.')
-        : (lang === 'el' ? 'Το αρχείο αφαιρέθηκε.' : 'File removed.')) + cascadeNote,
+        ? t('toastFileRemovedReprocessed', lang)
+        : t('toastFileRemoved', lang)) + cascadeNote,
     );
     return true;
   }, [uploadedFiles, courses, glossaryEntries, tasks, selectedCourse, learnerModel, dashboardStats, user, betaMastery, firstAttemptKeys, openMistakes, activities, persistLibrary, persist, showAppToast]);
@@ -1571,9 +1556,9 @@ export function useAppStore() {
     const lang = user.settings.language === 'el' ? 'el' : 'en';
     if (!result.removed) {
       if (result.reason === 'demo') {
-        showAppToast(lang === 'el' ? 'Τα demo μαθήματα δεν διαγράφονται.' : 'Demo courses cannot be deleted.');
+        showAppToast(t('toastDemoCourseNoDelete', lang));
       } else {
-        showAppToast(lang === 'el' ? 'Το μάθημα δεν βρέθηκε.' : 'Course not found.');
+        showAppToast(t('toastCourseNotFound', lang));
       }
       return false;
     }
@@ -1593,11 +1578,7 @@ export function useAppStore() {
       setSelectedCourse(null);
       navigate('library');
     }
-    showAppToast(
-      lang === 'el'
-        ? 'Το μάθημα και οι πηγές του αφαιρέθηκαν.'
-        : 'Course and its sources were removed.',
-    );
+    showAppToast(t('toastCourseRemoved', lang));
     return true;
   }, [
     courses, uploadedFiles, glossaryEntries, tasks, selectedCourse, learnerModel, dashboardStats,

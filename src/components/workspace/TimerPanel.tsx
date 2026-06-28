@@ -10,6 +10,7 @@ import { WorkspaceEmptyState } from './WorkspaceEmptyState';
 import { StudyTimer } from './StudyTimer';
 import { TimerExamCountdownDashboardStrip } from './TimerExamCountdownDashboardStrip';
 import { WorkspacePanelWarnStrip } from './WorkspacePanelWarnStrip';
+import { useI18n } from '../../lib/i18n';
 
 type Props = {
   session: TimerSessionContent;
@@ -55,7 +56,7 @@ export function TimerPanel({
   courseExamDate,
 }: Props) {
   const [filterQuery, setFilterQuery] = useState('');
-  const isEl = lang === 'el';
+  const { t } = useI18n();
 
   const countdownReport = useMemo(
     () => auditTimerExamCountdownDashboard({
@@ -76,7 +77,7 @@ export function TimerPanel({
     return (
       <WorkspaceEmptyState
         tool="timer"
-        message={emptyMessage ?? (isEl ? 'Ανέβασε σημειώσεις για χρονόμετρο μελέτης.' : 'Upload notes to use the study timer.')}
+        message={emptyMessage ?? (t('panelEmptyTimer'))}
         hasSource={false}
         onUpload={onUpload}
       />
@@ -88,20 +89,14 @@ export function TimerPanel({
       <div className="shrink-0 border-b border-border-subtle px-4 py-3">
         {session.sectionLabel && (
           <p className="mb-2 text-[10px] text-text-muted" data-testid="timer-section-label">
-            {isEl ? 'Ενότητα:' : 'Section:'}{' '}
+            {t('wsSectionColon')}{' '}
             <span className="text-text-secondary">{session.sectionLabel}</span>
           </p>
         )}
 
         {(session.weakExtraction || session.passageGrounded) && (
           <WorkspacePanelWarnStrip testId="timer-weak-extraction">
-            {session.passageGrounded
-              ? (isEl
-                ? 'Η συνεδρία δένεται σε generic concept — επίλεξε πιο συγκεκριμένο βήμα για καλύτερο tracking.'
-                : 'Session is tied to a generic concept — pick a specific step for better tracking.')
-              : (isEl
-                ? 'Γενική έννοια — δοκίμασε Reprocess ή άλλαξε βήμα.'
-                : 'Generic concept — try Reprocess or switch step.')}
+            {session.passageGrounded ? t('panelTimerGenericTracking') : t('panelTimerGenericWeak')}
           </WorkspacePanelWarnStrip>
         )}
 
@@ -122,14 +117,12 @@ export function TimerPanel({
           </span>
           {session.daysToExam !== null && (
             <span className="text-[10px] text-text-muted">
-              {isEl
-                ? `${session.daysToExam} ημ. μέχρι εξέταση`
-                : `${session.daysToExam}d to exam`}
+              {t('panelDaysToExam').replace('{days}', String(session.daysToExam))}
             </span>
           )}
           {session.recentSessionCount > 0 && (
             <span className="text-[10px] text-text-muted">
-              {session.recentSessionCount} {isEl ? 'συνεδρίες' : 'sessions'}
+              {session.recentSessionCount} {t('panelSessions')}
             </span>
           )}
           {session.suggestBreakTool === 'leitner' && onOpenBreakTool && (
@@ -140,7 +133,7 @@ export function TimerPanel({
               data-testid="timer-break-leitner"
             >
               <Layers className="w-3 h-3" />
-              {isEl ? 'Διάλειμμα → Κάρτες' : 'Break → Flashcards'}
+              {t('panelBreakToFlashcards')}
             </button>
           )}
           {onOpenInReader && (
@@ -163,7 +156,7 @@ export function TimerPanel({
               type="search"
               value={filterQuery}
               onChange={(e) => setFilterQuery(e.target.value)}
-              placeholder={isEl ? 'Αναζήτηση συνεδριών…' : 'Search sessions…'}
+              placeholder={t('panelSearchSessions')}
               className="w-full rounded-lg border border-border-subtle bg-surface-card py-1.5 pl-7 pr-2 text-[11px] text-text-secondary placeholder:text-text-muted focus:border-accent-cyan/40 focus:outline-none"
               data-testid="timer-filter"
             />
