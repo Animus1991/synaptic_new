@@ -3,7 +3,7 @@ import type { AppView, Course, AgentMessage, AgentMode, UploadedFile, UserSettin
 import { createActivity } from '../lib/activityLog';
 import { SEED_ACTIVITIES } from '../demo/activityDemo';
 import { mockUser, mockCourses, mockTasks, mockLearnerModel, mockDashboardStats, mockAgentMessages } from '../demo/mockData';
-import { loadThemePreference, applyTheme } from '../lib/theme';
+import { loadThemePreference, applyTheme, cycleTheme } from '../lib/theme';
 import { ECON_CONCEPT_IMPORTANCE } from '../data/conceptGraph';
 import {
   betaMean,
@@ -985,7 +985,7 @@ export function useAppStore() {
 
   const toggleTheme = useCallback(() => {
     setUser((prev) => {
-      const nextTheme = prev.settings.theme === 'light' ? 'dark' : 'light';
+      const nextTheme = cycleTheme(prev.settings.theme);
       applyTheme(nextTheme);
       return { ...prev, settings: { ...prev.settings, theme: nextTheme } };
     });

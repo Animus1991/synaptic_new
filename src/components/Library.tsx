@@ -21,7 +21,8 @@ import { isDemoCourse } from '../lib/demoMode';
 import { CourseIcon } from './ui/CourseIcon';
 import { UiIcon } from './ui/UiIcon';
 import { PlatformEmptyState } from './ui/PlatformEmptyState';
-import { Page, PageHeader } from './ui/primitives';
+import { PostUploadBanner } from './ui/PostUploadBanner';
+import { Page, PageHeader, PrimaryCTA } from './ui/primitives';
 
 interface LibraryProps {
   courses: Course[];
@@ -35,6 +36,9 @@ interface LibraryProps {
   userSettings?: UserSettings;
   tasks?: Task[];
   glossaryEntries?: GlossaryEntry[];
+  postUploadCourseId?: string | null;
+  onOpenWorkspace?: () => void;
+  onDismissPostUpload?: () => void;
 }
 
 type LibraryTab = 'courses' | 'files';
@@ -63,8 +67,14 @@ export function Library({
   userSettings,
   tasks = [],
   glossaryEntries = [],
+  postUploadCourseId = null,
+  onOpenWorkspace,
+  onDismissPostUpload,
 }: LibraryProps) {
   const userLanguage = userSettings?.language === 'el' ? 'el' : 'en';
+  const postUploadCourse = postUploadCourseId
+    ? courses.find((c) => c.id === postUploadCourseId) ?? null
+    : null;
   const [tab, setTab] = useState<LibraryTab>('courses');
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
   const [search, setSearch] = useState('');
@@ -88,16 +98,29 @@ export function Library({
           : 'Uploaded documents and generated courses.'}
         icon={BookOpen}
         actions={
-          <button
-            onClick={onUpload}
-            data-testid="library-upload"
-            className="inline-flex items-center gap-2 px-5 py-2.5 bg-brand-700 hover:bg-brand-800 text-white rounded-xl text-sm font-semibold transition-colors whitespace-nowrap"
-          >
+          <PrimaryCTA onClick={onUpload} data-testid="library-upload" className="whitespace-nowrap">
             <Upload className="w-4 h-4" aria-hidden="true" />
             {userLanguage === 'el' ? 'Ανέβασμα' : 'Upload'}
-          </button>
+          </PrimaryCTA>
         }
       />
+
+      {postUploadCourse && onOpenWorkspace && (
+        <PostUploadBanner
+          courseTitle={postUploadCourse.title}
+          lang={userLanguage}
+          onOpenWorkspace={() => {
+            onSelectCourse(postUploadCourse);
+            onDismissPostUpload?.();
+            onOpenWorkspace();
+          }}
+          onViewCourse={() => {
+            onSelectCourse(postUploadCourse);
+            onDismissPostUpload?.();
+          }}
+          onDismiss={() => onDismissPostUpload?.()}
+        />
+      )}
 
       {/* Tabs */}
       <div className="flex items-center gap-6 border-b border-border-subtle">

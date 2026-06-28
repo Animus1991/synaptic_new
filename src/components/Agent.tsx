@@ -567,7 +567,7 @@ function MessageBubble({
       <div className={cn(
         'max-w-[85%] sm:max-w-[75%] rounded-2xl px-4 py-3 text-sm leading-relaxed',
         isUser
-          ? 'bg-brand-600 text-white rounded-tr-md'
+          ? 'agent-user-bubble text-white rounded-tr-md'
           : 'bg-surface-card border border-border-subtle rounded-tl-md'
       )}>
         <div>

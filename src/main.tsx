@@ -25,13 +25,6 @@ void initSentry();
 
 initThemeEarly();
 
-// Apply the warm-bento editorial theme globally (was workspace-scoped only).
-// Every page inherits the calmer Warm Sand tokens + Lora/Nunito Sans.
-if (typeof document !== 'undefined') {
-  document.documentElement.setAttribute('data-ws-theme', 'warm');
-}
-
-
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <ErrorBoundary>

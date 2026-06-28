@@ -12,6 +12,7 @@ import {
   retentionCurveFromActivities,
   weeklyMasteryFromActivities,
 } from '../lib/retentionAnalytics';
+import { CalibrationCompareBar } from './visuals/CalibrationCompareBar';
 import { CalibrationChip } from './visuals/CalibrationChip';
 import { resolveCourseColor } from '../lib/masteryPalette';
 import { CourseIcon } from './ui/CourseIcon';
@@ -278,14 +279,12 @@ function OverviewTab({
               <div key={i} className="flex items-center gap-3">
                 <span className="text-xs text-text-secondary w-28 truncate">{point.concept}</span>
                 <div className="flex-1 flex items-center gap-2">
-                  <div className="flex-1 relative h-6 bg-surface-hover rounded-lg overflow-hidden">
-                    <div className="absolute inset-y-0 left-0 bg-brand-500/30 rounded-lg" style={{ width: `${point.predicted * 100}%` }} />
-                    <div className="absolute inset-y-0 left-0 bg-accent-emerald/40 rounded-lg" style={{ width: `${point.actual * 100}%` }} />
-                    <div className="absolute inset-0 flex items-center justify-between px-2 text-[10px] font-medium">
-                      <span className="text-brand-300">{t('analyticsCalibrationYou')}: {Math.round(point.predicted * 100)}%</span>
-                      <span className="text-accent-emerald">{t('analyticsCalibrationActual')}: {Math.round(point.actual * 100)}%</span>
-                    </div>
-                  </div>
+                  <CalibrationCompareBar
+                    predictedPct={point.predicted * 100}
+                    actualPct={point.actual * 100}
+                    youLabel={`${t('analyticsCalibrationYou')}: ${Math.round(point.predicted * 100)}%`}
+                    actualLabel={`${t('analyticsCalibrationActual')}: ${Math.round(point.actual * 100)}%`}
+                  />
                 </div>
                 <span className={cn('text-[10px] font-medium w-20 text-right', gap > 0.2 ? (overconfident ? 'text-accent-rose' : 'text-accent-amber') : 'text-accent-emerald')}>
                   {gap > 0.2 ? (overconfident ? `⚠ ${t('analyticsOverconfident')}` : `↑ ${t('analyticsUnderconfident')}`) : `✓ ${t('analyticsCalibrated')}`}
@@ -307,7 +306,7 @@ function OverviewTab({
               <div className="flex-1 bg-surface-hover rounded-full h-2.5">
                 <div className="h-2.5 rounded-full transition-all" style={{ width: `${course.mastery}%`, backgroundColor: resolveCourseColor(course.color) }} />
               </div>
-              <span className="text-xs font-medium w-10 text-right">{course.mastery}%</span>
+              <span className="text-xs font-semibold text-text-primary w-10 text-right tabular-nums">{course.mastery}%</span>
             </div>
           ))}
         </div>

@@ -14,10 +14,10 @@
             ? (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark')
             : pref;
           document.documentElement.setAttribute('data-theme', resolved);
-          document.documentElement.style.colorScheme = resolved === 'light' ? 'light' : 'dark';
+          document.documentElement.style.colorScheme = (resolved === 'light' || resolved === 'spectrum') ? 'light' : 'dark';
           var meta = document.querySelector('meta[name="theme-color"]');
           if (meta) {
-            meta.content = resolved === 'light' ? '#faf8f5' : resolved === 'spectrum' ? '#131028' : '#0f0a1e';
+            meta.content = resolved === 'light' ? '#faf8f5' : resolved === 'spectrum' ? '#f7f5ff' : '#0f0a1e';
           }
         } catch (e) {}
       })();

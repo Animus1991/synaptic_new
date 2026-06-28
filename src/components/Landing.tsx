@@ -28,7 +28,7 @@ export function Landing({ onGetStarted, onSeeDemo }: LandingProps) {
   const content = getLandingContent(lang);
 
   return (
-    <div className="min-h-screen w-full bg-surface-primary text-text-primary overflow-x-hidden" data-ws-theme="warm">
+    <div className="min-h-screen w-full bg-surface-primary text-text-primary overflow-x-hidden">
       {/* Navbar */}
       <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border-subtle bg-surface-primary/80 backdrop-blur-xl">
         <div className={LANDING_SHELL}>

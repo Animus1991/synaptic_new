@@ -7,6 +7,7 @@ import {
 import type { AppView, User, DashboardStats, UserSettings } from '../types';
 import { cn } from '../utils/cn';
 import { useI18n, type I18nKey } from '../lib/i18n';
+import { resolveTheme, themeToggleTarget } from '../lib/theme';
 
 interface ShellProps {
   children: ReactNode;
@@ -46,7 +47,7 @@ const shellNavClass = (active: boolean) =>
 export function Shell({ children, currentView, onNavigate, sidebarOpen, onToggleSidebar, user, stats, onUpload, theme = 'dark', onToggleTheme, onOpenSearch, onOpenNotifications, notificationCount = 0, breadcrumb }: ShellProps) {
   const { t } = useI18n();
   return (
-    <div className="min-h-screen bg-surface-primary flex" data-ws-theme="warm">
+    <div className="min-h-screen bg-surface-primary flex">
       {/* Desktop Sidebar */}
       <aside className="hidden lg:flex flex-col w-64 border-r border-border-subtle bg-surface-secondary/50 fixed inset-y-0 left-0 z-30">
         <div className="p-4 border-b border-border-subtle">
@@ -197,19 +198,27 @@ export function Shell({ children, currentView, onNavigate, sidebarOpen, onToggle
                 )}
               </button>
 
-              {onToggleTheme && (
-                <button
-                  onClick={onToggleTheme}
-                  className="p-2 rounded-lg hover:bg-surface-hover transition-colors"
-                  title={theme === 'light' ? t('switchDark') : t('switchLight')}
-                >
-                  {theme === 'light' ? (
-                    <Moon className="w-5 h-5 text-text-secondary" />
-                  ) : (
-                    <Sun className="w-5 h-5 text-text-secondary" />
-                  )}
-                </button>
-              )}
+              {onToggleTheme && (() => {
+                const resolved = resolveTheme(theme ?? 'dark');
+                const target = themeToggleTarget(resolved);
+                const labelKey: I18nKey = target === 'light' ? 'switchLight' : target === 'spectrum' ? 'switchSpectrum' : 'switchDark';
+                return (
+                  <button
+                    onClick={onToggleTheme}
+                    className="p-2 rounded-lg hover:bg-surface-hover transition-colors"
+                    title={t(labelKey)}
+                    aria-label={t(labelKey)}
+                  >
+                    {target === 'light' ? (
+                      <Sun className="w-5 h-5 text-text-secondary" />
+                    ) : target === 'spectrum' ? (
+                      <Sparkles className="w-5 h-5 text-text-secondary" />
+                    ) : (
+                      <Moon className="w-5 h-5 text-text-secondary" />
+                    )}
+                  </button>
+                );
+              })()}
 
               <div className="flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-surface-hover cursor-pointer transition-colors">
                 <div className="w-7 h-7 rounded-full platform-brand-icon flex items-center justify-center text-xs font-bold">

@@ -718,6 +718,12 @@ export default function App() {
               workspaceLive={store.workspaceLive}
               dashboardNextAction={store.dashboardNextAction}
               lang={store.user.settings.language}
+              postUploadCourse={
+                store.postUploadCourseId
+                  ? store.courses.find((c) => c.id === store.postUploadCourseId) ?? null
+                  : null
+              }
+              onDismissPostUpload={store.clearPostUploadHighlight}
             />
           )}
           {store.currentView === 'library' && (
@@ -733,6 +739,9 @@ export default function App() {
               userSettings={store.user.settings}
               tasks={store.tasks}
               glossaryEntries={store.glossaryEntries}
+              postUploadCourseId={store.postUploadCourseId}
+              onOpenWorkspace={openCourseWorkspace}
+              onDismissPostUpload={store.clearPostUploadHighlight}
             />
           )}
           {store.currentView === 'tasks' && (

@@ -1,6 +1,7 @@
 import { Play, BookOpen, X } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
 import { workspaceEntryPrefetchHandlers } from '../../lib/workspaceEntryPrefetch';
+import { PrimaryCTA, SecondaryCTA } from './primitives';
 
 type Props = {
   courseTitle: string;
@@ -30,24 +31,18 @@ export function PostUploadBanner({ courseTitle, lang = 'en', onOpenWorkspace, on
         </p>
       </div>
       <div className="flex flex-wrap items-center gap-2 shrink-0">
-        <button
-          type="button"
+        <PrimaryCTA
           onClick={onOpenWorkspace}
           data-testid="post-upload-open-workspace"
           {...workspaceEntryPrefetchHandlers()}
-          className="inline-flex items-center gap-2 px-4 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-sm font-semibold transition-colors"
         >
           <Play className="w-4 h-4" />
           {isEl ? 'Άνοιγμα Workspace' : 'Open Workspace'}
-        </button>
-        <button
-          type="button"
-          onClick={onViewCourse ?? onDismiss}
-          className="inline-flex items-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-medium platform-pill transition-colors"
-        >
+        </PrimaryCTA>
+        <SecondaryCTA onClick={onViewCourse ?? onDismiss}>
           <BookOpen className="w-3.5 h-3.5" />
           {isEl ? 'Περιήγηση modules' : 'Browse modules'}
-        </button>
+        </SecondaryCTA>
         <button type="button" onClick={onDismiss} aria-label={isEl ? 'Κλείσιμο' : 'Dismiss'} className="p-2 rounded-lg text-text-muted hover:text-text-secondary">
           <X className="w-4 h-4" />
         </button>

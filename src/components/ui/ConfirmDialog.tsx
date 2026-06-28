@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { AlertTriangle, X } from '@/lib/lucide-shim';
-import { cn } from '../../utils/cn';
+import { PrimaryCTA, SecondaryCTA } from './primitives';
 
 export interface ConfirmDialogProps {
   open: boolean;
@@ -95,30 +95,22 @@ export function ConfirmDialog({
               </button>
             </div>
             <div className="flex flex-col-reverse gap-2 border-t border-border-subtle p-4 sm:flex-row sm:justify-end">
-              <button
+              <SecondaryCTA
                 ref={cancelRef}
-                type="button"
                 onClick={onClose}
                 disabled={confirming}
                 data-testid={`${testId}-cancel`}
-                className="rounded-xl border border-border-subtle px-4 py-2.5 text-sm font-medium text-text-secondary hover:bg-surface-hover disabled:opacity-60"
               >
                 {cancelLabel}
-              </button>
-              <button
-                type="button"
+              </SecondaryCTA>
+              <PrimaryCTA
                 onClick={onConfirm}
                 disabled={confirming}
                 data-testid={`${testId}-confirm`}
-                className={cn(
-                  'rounded-xl px-4 py-2.5 text-sm font-semibold disabled:opacity-60',
-                  destructive
-                    ? 'bg-accent-rose text-white hover:bg-accent-rose/90'
-                    : 'bg-brand-600 text-white hover:bg-brand-500',
-                )}
+                className={destructive ? 'bg-accent-rose hover:bg-accent-rose/90' : undefined}
               >
                 {confirmLabel}
-              </button>
+              </PrimaryCTA>
             </div>
           </motion.div>
         </div>

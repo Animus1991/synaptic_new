@@ -62,7 +62,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
   };
 
   return (
-    <div className="min-h-screen bg-surface-primary flex flex-col" data-ws-theme="warm">
+    <div className="min-h-screen bg-surface-primary flex flex-col">
       {/* Progress */}
       <div className="h-1 bg-surface-hover">
         <div className="h-1 bg-brand-700 transition-all duration-500" style={{ width: `${progress}%` }} />

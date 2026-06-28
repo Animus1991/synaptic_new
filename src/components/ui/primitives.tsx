@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import { ReactNode, forwardRef, type ButtonHTMLAttributes } from 'react';
 import { motion } from 'framer-motion';
 import type { LucideIcon } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
@@ -241,3 +241,48 @@ export function StatTile({
 
 /** Drop-in class bundle for legacy card divs migrating to bento. */
 export const platformBento = 'ws-bento';
+
+/** Primary call-to-action — solid brand fill, WCAG-friendly white label. */
+export const PrimaryCTA = forwardRef<
+  HTMLButtonElement,
+  ButtonHTMLAttributes<HTMLButtonElement> & { size?: 'sm' | 'md' }
+>(function PrimaryCTA({ children, className, size = 'md', ...props }, ref) {
+  return (
+    <button
+      ref={ref}
+      type="button"
+      className={cn(
+        'inline-flex items-center justify-center gap-2 rounded-xl font-semibold text-white transition-colors',
+        'bg-brand-600 hover:bg-brand-700 disabled:opacity-60 disabled:pointer-events-none',
+        size === 'sm' ? 'px-4 py-2 text-xs' : 'px-5 py-2.5 text-sm',
+        className,
+      )}
+      {...props}
+    >
+      {children}
+    </button>
+  );
+});
+
+/** Secondary call-to-action — bordered pill for non-destructive alternate actions. */
+export const SecondaryCTA = forwardRef<
+  HTMLButtonElement,
+  ButtonHTMLAttributes<HTMLButtonElement> & { size?: 'sm' | 'md' }
+>(function SecondaryCTA({ children, className, size = 'md', ...props }, ref) {
+  return (
+    <button
+      ref={ref}
+      type="button"
+      className={cn(
+        'inline-flex items-center justify-center gap-2 rounded-xl font-medium transition-colors platform-pill',
+        'border border-border-subtle text-text-secondary hover:border-brand-500/35 hover:text-brand-700',
+        'disabled:opacity-60 disabled:pointer-events-none',
+        size === 'sm' ? 'px-3 py-2 text-xs' : 'px-4 py-2.5 text-sm',
+        className,
+      )}
+      {...props}
+    >
+      {children}
+    </button>
+  );
+});

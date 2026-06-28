@@ -27,7 +27,8 @@ import { courseRingColor, resolveCourseColor, accentHighlightVar } from '../lib/
 import { workspaceEntryPrefetchHandlers } from '../lib/workspaceEntryPrefetch';
 import { greetingForTime, dashboardSubtitle } from '../lib/greeting';
 import { useI18n } from '../lib/i18n';
-import { Page, PageHeader, PlatformSection } from './ui/primitives';
+import { Page, PageHeader, PlatformSection, PrimaryCTA } from './ui/primitives';
+import { PostUploadBanner } from './ui/PostUploadBanner';
 import { Layout as LucideLayout } from '@/lib/lucide-shim';
 
 interface DashboardProps {
@@ -58,9 +59,12 @@ interface DashboardProps {
   workspaceBooting?: boolean;
   dashboardNextAction?: DashboardNextAction | null;
   lang?: Lang;
+  /** Fresh upload highlight — show workspace CTA on dashboard */
+  postUploadCourse?: Course | null;
+  onDismissPostUpload?: () => void;
 }
 
-export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onSelectCourse, onOpenWorkspace, onOpenExamTimer, onUpload, onExploreDemo, prerequisiteRepairs = [], calibration, conceptMastery = [], activities = [], masteryDelta = 0, daysToExam = null, antiPassiveAlert = false, onStartTask, onStartSession, onResolveMisconception, onFocusWeakArea, workspaceLive = null, workspaceBooting = false, dashboardNextAction = null, lang = 'en' }: DashboardProps) {
+export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onSelectCourse, onOpenWorkspace, onOpenExamTimer, onUpload, onExploreDemo, prerequisiteRepairs = [], calibration, conceptMastery = [], activities = [], masteryDelta = 0, daysToExam = null, antiPassiveAlert = false, onStartTask, onStartSession, onResolveMisconception, onFocusWeakArea, workspaceLive = null, workspaceBooting = false, dashboardNextAction = null, lang = 'en', postUploadCourse = null, onDismissPostUpload }: DashboardProps) {
   const { t } = useI18n();
   const pendingTasks = tasks.filter(t => t.status === 'pending');
   const criticalTasks = pendingTasks.filter(t => t.priority === 'critical' || t.priority === 'high');
@@ -172,12 +176,31 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                 <Layout className="w-4 h-4" /> {t('navStudyWorkspace')}
               </button>
             )}
-            <button onClick={() => onStartSession?.('25min') ?? onNavigate('tasks')} className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-brand-600 to-brand-500 text-white rounded-xl font-medium text-sm hover:from-brand-500 hover:to-brand-400 transition-all whitespace-nowrap">
-              <Play className="w-4 h-4" /> Start session
-            </button>
+            <PrimaryCTA onClick={() => onStartSession?.('25min') ?? onNavigate('tasks')} className="whitespace-nowrap bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-500 hover:to-brand-400 font-medium">
+              <Play className="w-4 h-4" /> {t('startSession')}
+            </PrimaryCTA>
           </>
         }
       />
+
+      {postUploadCourse && (
+        <MotionSection initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
+          <PostUploadBanner
+            courseTitle={postUploadCourse.title}
+            lang={lang}
+            onOpenWorkspace={() => {
+              onSelectCourse(postUploadCourse);
+              onDismissPostUpload?.();
+              onOpenWorkspace?.();
+            }}
+            onViewCourse={() => {
+              onSelectCourse(postUploadCourse);
+              onDismissPostUpload?.();
+            }}
+            onDismiss={() => onDismissPostUpload?.()}
+          />
+        </MotionSection>
+      )}
 
       {/* Stats Row */}
       <MotionSection initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="grid grid-cols-2 sm:grid-cols-5 gap-3">

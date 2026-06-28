@@ -1,6 +1,7 @@
 import type { LucideIcon } from '@/lib/lucide-shim';
 import { Upload } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
+import { PrimaryCTA, SecondaryCTA } from './primitives';
 
 type Props = {
   title: string;
@@ -33,23 +34,15 @@ export function PlatformEmptyState({
       <p className="text-sm text-text-secondary mb-6 max-w-md">{description}</p>
       <div className="flex flex-wrap items-center justify-center gap-3">
         {actionLabel && onAction && (
-          <button
-            type="button"
-            onClick={onAction}
-            className="inline-flex items-center gap-2 px-6 py-3 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-semibold text-sm transition-colors"
-          >
+          <PrimaryCTA onClick={onAction}>
             <Upload className="w-4 h-4" />
             {actionLabel}
-          </button>
+          </PrimaryCTA>
         )}
         {secondaryActionLabel && onSecondaryAction && (
-          <button
-            type="button"
-            onClick={onSecondaryAction}
-            className="inline-flex items-center gap-2 px-5 py-3 border border-border-subtle rounded-xl text-sm font-medium text-text-secondary hover:border-brand-500/35 hover:text-brand-700 transition-colors"
-          >
+          <SecondaryCTA onClick={onSecondaryAction}>
             {secondaryActionLabel}
-          </button>
+          </SecondaryCTA>
         )}
       </div>
     </div>
