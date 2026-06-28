@@ -7,7 +7,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowRight, CheckCircle2, Cpu, Maximize2, Minimize2, X } from '@/lib/lucide-shim';
 
 import { cn } from '../utils/cn';
-
+import { t, type Lang } from '../lib/i18n';
 import type { ReprocessPreview } from '../lib/reprocessPreview';
 
 import { countManualEdits, mergeReprocessSections } from '../lib/reprocessEditorSections';
@@ -24,7 +24,7 @@ type Props = {
 
   preview: ReprocessPreview | null;
 
-  lang: 'en' | 'el';
+  lang: Lang;
 
   applying?: boolean;
 
@@ -54,7 +54,7 @@ function StepRailPreview({
 
   titles: ReprocessPreview['beforeStepTitles'];
 
-  lang: 'en' | 'el';
+  lang: Lang;
 
   side: 'before' | 'after';
 
@@ -62,7 +62,7 @@ function StepRailPreview({
 
 }) {
 
-  const isEl = lang === 'el';
+  const tr = (key: Parameters<typeof t>[0]) => t(key, lang);
 
   if (titles.length === 0) {
 
@@ -70,7 +70,7 @@ function StepRailPreview({
 
       <p className="text-[10px] text-text-muted">
 
-        {isEl ? 'Δεν εντοπίστηκαν βήματα.' : 'No steps detected.'}
+        {tr('reprocessNoSteps')}
 
       </p>
 
@@ -148,7 +148,7 @@ export function ReprocessPreviewModal({
 
 }: Props) {
 
-  const isEl = lang === 'el';
+  const tr = (key: Parameters<typeof t>[0]) => t(key, lang);
 
   const cancelRef = useRef<HTMLButtonElement>(null);
 
@@ -248,7 +248,7 @@ export function ReprocessPreviewModal({
 
             type="button"
 
-            aria-label={isEl ? 'Κλείσιμο' : 'Close'}
+            aria-label={tr('close')}
 
             className="absolute inset-0 bg-black/60 backdrop-blur-sm"
 
@@ -298,17 +298,13 @@ export function ReprocessPreviewModal({
 
                 <h2 id="reprocess-preview-title" className="text-base font-semibold text-text-primary">
 
-                  {isEl ? 'Προεπισκόπηση επανεπεξεργασίας' : 'Reprocess preview'}
+                  {tr('reprocessTitle')}
 
                 </h2>
 
                 <p className="mt-1 text-xs text-text-muted">
 
-                  {isEl
-
-                    ? 'Επεξεργάσου το κείμενο ανά ενότητα/διαφάνεια πριν εφαρμόσεις.'
-
-                    : 'Edit text section-by-section before you apply.'}
+                  {tr('reprocessSubtitle')}
 
                 </p>
 
@@ -326,7 +322,7 @@ export function ReprocessPreviewModal({
 
                   className="rounded-lg p-1.5 text-text-muted hover:bg-surface-hover hover:text-text-primary disabled:opacity-50"
 
-                  aria-label={fullscreen ? (isEl ? 'Έξοδος πλήρους οθόνης' : 'Exit fullscreen') : (isEl ? 'Πλήρης οθόνη' : 'Fullscreen')}
+                  aria-label={fullscreen ? tr('reprocessExitFullscreen') : tr('reprocessFullscreen')}
 
                 >
 
@@ -360,11 +356,7 @@ export function ReprocessPreviewModal({
 
               <div className="p-8 text-center text-sm text-text-muted">
 
-                {isEl
-
-                  ? 'Δεν βρέθηκε αποθηκευμένο κείμενο για προεπισκόπηση.'
-
-                  : 'No stored text available for preview.'}
+                {tr('reprocessNoPreview')}
 
               </div>
 
@@ -380,17 +372,15 @@ export function ReprocessPreviewModal({
 
                     <p className="text-sm font-semibold text-accent-emerald">
 
-                      {isEl ? 'Η επανεπεξεργασία ολοκληρώθηκε' : 'Reprocess applied'}
+                      {tr('reprocessApplied')}
 
                     </p>
 
                     <p className="mt-1 text-xs text-text-secondary">
 
-                      {isEl
-
-                        ? `Reader και step rail ενημερώθηκαν. Νέα ποιότητα: ${preview.afterScore}/100 · pipeline v${preview.pipelineVersionAfter}.`
-
-                        : `Reader and step rail updated. New quality: ${preview.afterScore}/100 · pipeline v${preview.pipelineVersionAfter}.`}
+                      {tr('reprocessAppliedDetail')
+                        .replace('{score}', String(preview.afterScore))
+                        .replace('{version}', String(preview.pipelineVersionAfter))}
 
                     </p>
 
@@ -402,7 +392,7 @@ export function ReprocessPreviewModal({
 
                   <p className="mb-2 text-[10px] font-medium text-text-muted">
 
-                    {isEl ? 'Νέα βήματα μαθήματος' : 'Updated lesson steps'}
+                    {tr('reprocessUpdatedSteps')}
 
                   </p>
 
@@ -442,11 +432,7 @@ export function ReprocessPreviewModal({
 
                     >
 
-                      {id === 'edit'
-
-                        ? (isEl ? 'Επεξεργασία κειμένου' : 'Text editor')
-
-                        : (isEl ? 'Σύνοψη' : 'Overview')}
+                      {id === 'edit' ? tr('reprocessTextEditor') : tr('reprocessOverview')}
 
                       {id === 'edit' && manualEdits > 0 && (
 
@@ -478,7 +464,7 @@ export function ReprocessPreviewModal({
 
                     <div className="text-center">
 
-                      <p className="text-[10px] text-text-muted">{isEl ? 'Πριν' : 'Before'}</p>
+                      <p className="text-[10px] text-text-muted">{tr('reprocessBefore')}</p>
 
                       <p className="text-2xl font-bold text-accent-rose">{preview.beforeScore}</p>
 
@@ -488,7 +474,7 @@ export function ReprocessPreviewModal({
 
                     <div className="text-center">
 
-                      <p className="text-[10px] text-text-muted">{isEl ? 'Μετά' : 'After'}</p>
+                      <p className="text-[10px] text-text-muted">{tr('reprocessAfter')}</p>
 
                       <p className="text-2xl font-bold text-accent-emerald">{preview.afterScore}</p>
 
@@ -498,13 +484,13 @@ export function ReprocessPreviewModal({
 
                       <p>
 
-                        {isEl ? 'Ενότητες' : 'Sections'}: {preview.sectionCountBefore} → {preview.sectionCountAfter}
+                        {tr('reprocessSections')}: {preview.sectionCountBefore} → {preview.sectionCountAfter}
 
                       </p>
 
                       <p>
 
-                        {isEl ? 'Topics' : 'Topics'}: {preview.topicCountBefore} → {preview.topicCountAfter}
+                        {tr('reprocessTopics')}: {preview.topicCountBefore} → {preview.topicCountAfter}
 
                       </p>
 
@@ -512,7 +498,7 @@ export function ReprocessPreviewModal({
 
                         <p className={cn('font-semibold', preview.scoreDelta > 0 ? 'text-accent-emerald' : 'text-accent-rose')}>
 
-                          {preview.scoreDelta > 0 ? '+' : ''}{preview.scoreDelta} {isEl ? 'βαθμοί' : 'points'}
+                          {preview.scoreDelta > 0 ? '+' : ''}{preview.scoreDelta} {tr('reprocessPoints')}
 
                         </p>
 
@@ -550,7 +536,7 @@ export function ReprocessPreviewModal({
 
                           <p className="mb-2 text-[10px] font-semibold text-accent-rose">
 
-                            {isEl ? 'Reader — πριν' : 'Reader — before'}
+                            {tr('reprocessReaderBefore')}
 
                           </p>
 
@@ -572,7 +558,7 @@ export function ReprocessPreviewModal({
 
                           <p className="mb-2 text-[10px] font-semibold text-accent-emerald">
 
-                            {isEl ? 'Reader — μετά' : 'Reader — after'}
+                            {tr('reprocessReaderAfter')}
 
                           </p>
 
@@ -600,7 +586,7 @@ export function ReprocessPreviewModal({
 
                           <p className="mb-2 text-[10px] font-semibold text-text-muted">
 
-                            {isEl ? 'Step rail — πριν' : 'Step rail — before'}
+                            {tr('reprocessStepRailBefore')}
 
                           </p>
 
@@ -612,7 +598,7 @@ export function ReprocessPreviewModal({
 
                           <p className="mb-2 text-[10px] font-semibold text-text-muted">
 
-                            {isEl ? 'Step rail — μετά' : 'Step rail — after'}
+                            {tr('reprocessStepRailAfter')}
 
                           </p>
 
@@ -642,11 +628,7 @@ export function ReprocessPreviewModal({
 
                     <p className="rounded-lg border border-accent-amber/30 bg-accent-amber/8 px-3 py-2 text-[10px] text-accent-amber">
 
-                      {isEl
-
-                        ? 'Η προεπισκόπηση δείχνει μικρή ή καμία αλλαγή — ίσως χρειάζεται re-upload αρχείου.'
-
-                        : 'Preview shows little or no change — you may need to re-upload the source file.'}
+                      {tr('reprocessLittleChange')}
 
                     </p>
 
@@ -666,11 +648,7 @@ export function ReprocessPreviewModal({
 
                 <p className="text-[10px] text-brand-700">
 
-                  {isEl
-
-                    ? `${manualEdits} ενότητες με χειροκίνητες αλλαγές θα αποθηκευτούν πριν την επανεπεξεργασία.`
-
-                    : `${manualEdits} manually edited section(s) will be saved before reprocess.`}
+                  {tr('reprocessManualEditsFooter').replace('{count}', String(manualEdits))}
 
                 </p>
 
@@ -692,7 +670,7 @@ export function ReprocessPreviewModal({
 
                   >
 
-                    {isEl ? 'Έτοιμο' : 'Done'}
+                    {tr('reprocessDone')}
 
                   </button>
 
@@ -714,7 +692,7 @@ export function ReprocessPreviewModal({
 
                     >
 
-                      {isEl ? 'Ακύρωση' : 'Cancel'}
+                      {tr('cancel')}
 
                     </button>
 
@@ -738,9 +716,8 @@ export function ReprocessPreviewModal({
 
                         {applying
 
-                          ? (isEl ? 'Εφαρμογή…' : 'Applying…')
-
-                          : (isEl ? 'Εφαρμογή επανεπεξεργασίας' : 'Apply reprocess')}
+                          ? tr('reprocessApplying')
+                          : tr('reprocessApply')}
 
                       </button>
 

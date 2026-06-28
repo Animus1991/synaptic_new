@@ -12,6 +12,7 @@ import { WorkspaceEmptyState } from './WorkspaceEmptyState';
 import type { FeynmanKeyTerm } from '../../lib/feynmanSessionModel';
 import { saveFeynmanDraft } from '../../lib/feynmanDraftStore';
 import { buildFeynmanWeakDimensionPrompt } from '../../lib/feynmanAgentPrompts';
+import { feynmanDefaultOutline, feynmanExplainPlaceholder } from '../../lib/feynmanOutline';
 import {
   buildFeynmanRubricHtml,
   downloadFeynmanRubricReport,
@@ -40,11 +41,6 @@ function rubricGapHint(dim: RubricDimension, concept: string, t: (k: I18nKey) =>
   }
   return t(RUBRIC_GAP_KEYS[dim]);
 }
-
-const DEFAULT_OUTLINE = (concept: string, lang: 'en' | 'el') =>
-  lang === 'el'
-    ? [`Ποια είναι η βασική ιδέα του «${concept}»;`, 'Γιατί έχει σημασία;', 'Ποια παρανόηση να αποφύγεις;', 'Παράδειγμα από τις σημειώσεις σου.']
-    : [`What is the core idea of ${concept}?`, 'Why does it matter?', 'What misconception to avoid?', 'One example from your notes.'];
 
 function gapSearchTerm(dim: RubricDimension, concept: string, gapTerms: string[]): string {
   switch (dim) {
@@ -127,12 +123,8 @@ export function FeynmanCheck({
   const voiceStopRef = useRef<(() => void) | null>(null);
   const [coachLoading, setCoachLoading] = useState(false);
   const wordCount = text.trim().split(/\s+/).filter(Boolean).length;
-  const outline = outlineProp ?? DEFAULT_OUTLINE(concept, lang);
-  const placeholder = placeholderProp ?? (
-    lang === 'el'
-      ? `Εξήγησε την έννοια «${concept}» με δικά σου λόγια, βασιζόμενος/η στις σημειώσεις σου…`
-      : `Explain ${concept} in your own words, using your uploaded notes…`
-  );
+  const outline = outlineProp ?? feynmanDefaultOutline(concept, lang);
+  const placeholder = placeholderProp ?? feynmanExplainPlaceholder(concept, lang);
   const rubric = useMemo(() => {
     if (wordCount < 8) return null;
     const scores = computeRubric(text, wordCount, {

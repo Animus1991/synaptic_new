@@ -1202,27 +1202,26 @@ export function useStudyWorkspace({
   );
 
   const paletteItems = useMemo<CommandItem[]>(() => {
-    const el = lang === 'el';
     const toolItems: CommandItem[] = AVAILABLE_TOOLS.map((tool) => ({
       id: `tool-${tool}`,
-      label: `${el ? 'Άνοιγμα' : 'Open'}: ${workspaceToolLabel(tool, el ? 'el' : 'en')}`,
-      group: el ? 'Εργαλεία' : 'Tools',
+      label: t('paletteOpenTool').replace('{tool}', workspaceToolLabel(tool, lang)),
+      group: t('paletteGroupTools'),
       run: () => openWorkspaceTool(tool),
     }));
     const docActions: CommandItem[] = [];
     if (onReprocessMaterial && linkedCourse) {
       docActions.push({
         id: 'reprocess-preview',
-        label: el ? 'Προεπισκόπηση επανεπεξεργασίας' : 'Preview reprocess',
-        group: el ? 'Έγγραφο' : 'Document',
+        label: t('paletteReprocessPreview'),
+        group: t('paletteGroupDocument'),
         run: () => openReprocessWizard(),
       });
     }
     if (showReuploadHint || showLowQualityBanner) {
       docActions.push({
         id: 'source-quality',
-        label: el ? 'Έλεγχος ποιότητας πηγής' : 'View source quality',
-        group: el ? 'Έγγραφο' : 'Document',
+        label: t('paletteSourceQuality'),
+        group: t('paletteGroupDocument'),
         run: () => openReprocessWizard(),
       });
     }
@@ -1231,30 +1230,30 @@ export function useStudyWorkspace({
       ...toolItems,
       {
         id: 'search-concept',
-        label: el ? `Αναζήτηση «${quizConcept}» στις πηγές` : `Find "${quizConcept}" in sources`,
-        group: el ? 'Αναζήτηση' : 'Search',
+        label: t('paletteFindConcept').replace('{concept}', quizConcept),
+        group: t('paletteGroupSearch'),
         run: () => openReaderAtSearch(quizConcept, 'reader'),
       },
       {
         id: 'toggle-study-room',
-        label: el ? 'Ομαδική μελέτη' : 'Study together',
-        group: el ? 'Συνεργασία' : 'Collaboration',
+        label: t('paletteStudyTogether'),
+        group: t('paletteGroupCollaboration'),
         run: () => setStudyRoomOpen((v) => !v),
       },
       {
         id: 'toggle-notes',
-        label: el ? 'Σημειώσεις συνεδρίας' : 'Session notes',
-        group: el ? 'Πλοήγηση' : 'Navigate',
+        label: t('paletteSessionNotes'),
+        group: t('paletteGroupNavigate'),
         run: () => setShowNotes((v) => !v),
       },
       {
         id: 'toggle-zen',
-        label: el ? 'Εναλλαγή Zen' : 'Toggle Zen mode',
-        group: el ? 'Πλοήγηση' : 'Navigate',
+        label: t('paletteToggleZen'),
+        group: t('paletteGroupNavigate'),
         run: () => setLayout((l) => (l === 'zen' ? 'split' : 'zen')),
       },
     ];
-  }, [lang, quizConcept, openWorkspaceTool, openReaderAtSearch, onReprocessMaterial, linkedCourse, showReuploadHint, showLowQualityBanner, openReprocessWizard, setStudyRoomOpen]);
+  }, [t, lang, quizConcept, openWorkspaceTool, openReaderAtSearch, onReprocessMaterial, linkedCourse, showReuploadHint, showLowQualityBanner, openReprocessWizard, setStudyRoomOpen]);
 
   useEffect(() => {
     if (layout === 'zen') {

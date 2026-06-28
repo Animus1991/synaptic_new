@@ -20,7 +20,7 @@ import { WorkspaceSelectionActionBar } from './WorkspaceSelectionActionBar';
 import type { WorkspaceSelectionActionId, WorkspaceSelectionContext } from '../../lib/workspaceSelectionActions';
 import { ConceptTypeIcon } from '../ui/ConceptTypeIcon';
 import { conceptTypeGlyph } from '../../lib/conceptTypeIcons';
-import { Map, BookOpen, Pencil, FileText, X, Plus, Trash2, Link2 } from '@/lib/lucide-shim';
+import { Map, BookOpen, Pencil, FileText, X, Plus, Trash2, Link2, Undo2 } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
 import { bandColorVar, masteryColorForValue, accentHighlightVar } from '../../lib/masteryPalette';
 import { edgeKey, newCustomNodeId } from '../../lib/conceptMapGraph';
@@ -52,6 +52,15 @@ const RELATION_LABEL: Record<DragEdge['relation'], string> = {
   related: '~',
   contrasts: '≠',
 };
+
+type GraphSnapshot = { nodes: DragNode[]; edges: DragEdge[] };
+
+const RELATION_ORDER: DragEdge['relation'][] = ['prerequisite', 'related', 'contrasts'];
+
+function nextRelation(r: DragEdge['relation']): DragEdge['relation'] {
+  const i = RELATION_ORDER.indexOf(r);
+  return RELATION_ORDER[(i + 1) % RELATION_ORDER.length];
+}
 
 function nodeMasteryOpacity(mastery: number): number {
   if (mastery < 40) return 0.48;
@@ -92,6 +101,9 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
   const [editingLabel, setEditingLabel] = useState<string | null>(null);
   const [labelDraft, setLabelDraft] = useState('');
   const [connectFrom, setConnectFrom] = useState<string | null>(null);
+  const [selectedEdgeKey, setSelectedEdgeKey] = useState<string | null>(null);
+  const [canUndo, setCanUndo] = useState(false);
+  const undoStack = useRef<GraphSnapshot[]>([]);
   const [noteText, setNoteText] = useState('');
   const [zoom, setZoom] = useState(1);
   const [pan, setPan] = useState({ x: 0, y: 0 });
@@ -123,6 +135,27 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
     onNodeUpdate?.(nextNodes);
     onGraphUpdate?.({ nodes: nextNodes, edges: nextEdges });
   }, [onNodeUpdate, onGraphUpdate]);
+
+  const pushHistory = useCallback(() => {
+    undoStack.current.push({
+      nodes: structuredClone(nodes),
+      edges: structuredClone(edges),
+    });
+    if (undoStack.current.length > 30) undoStack.current.shift();
+    setCanUndo(true);
+  }, [nodes, edges]);
+
+  const undo = useCallback(() => {
+    const prev = undoStack.current.pop();
+    if (!prev) return;
+    setCanUndo(undoStack.current.length > 0);
+    setNodes(prev.nodes);
+    setEdges(prev.edges);
+    publishGraph(prev.nodes, prev.edges);
+    setSelected(null);
+    setSelectedEdgeKey(null);
+    setConnectFrom(null);
+  }, [publishGraph]);
 
   const publishCursor = useCallback((nodeId: string, x: number, y: number, label: string) => {
     if (!cursorSync) return;
@@ -166,12 +199,12 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
       if (connectFrom !== nodeId) {
         const candidate: DragEdge = { from: connectFrom, to: nodeId, relation: 'prerequisite' };
         const key = edgeKey(candidate);
-        setEdges((prev) => {
-          if (prev.some((edge) => edgeKey(edge) === key)) return prev;
-          const next = [...prev, candidate];
+        if (!edges.some((edge) => edgeKey(edge) === key)) {
+          pushHistory();
+          const next = [...edges, candidate];
+          setEdges(next);
           publishGraph(nodes, next);
-          return next;
-        });
+        }
       }
       setConnectFrom(null);
       return;
@@ -182,8 +215,9 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
     const node = nodeMap[nodeId];
     dragOffset.current = { x: pt.x - node.x, y: pt.y - node.y };
     setSelected(nodeId);
+    setSelectedEdgeKey(null);
     if (node) onConceptSelect?.(node.label);
-  }, [toSvg, nodeMap, onConceptSelect, connectFrom, nodes, publishGraph]);
+  }, [toSvg, nodeMap, onConceptSelect, connectFrom, nodes, edges, publishGraph, pushHistory]);
 
   const handlePointerMove = useCallback((e: React.PointerEvent) => {
     if (dragging.current) {
@@ -221,6 +255,7 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
     setIsPanning(true);
     panStart.current = { x: e.clientX, y: e.clientY, px: pan.x, py: pan.y };
     setSelected(null);
+    setSelectedEdgeKey(null);
     setEditingNote(null);
   }, [pan]);
 
@@ -236,6 +271,7 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
 
   const saveNote = () => {
     if (!editingNote) return;
+    pushHistory();
     setNodes(prev => {
       const next = prev.map(n => n.id === editingNote ? { ...n, note: noteText } : n);
       publishGraph(next, edges);
@@ -245,6 +281,7 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
   };
 
   const addNode = () => {
+    pushHistory();
     const id = newCustomNodeId();
     const label = t('conceptMapNewNodeLabel');
     const cx = 320 - pan.x / zoom;
@@ -261,6 +298,7 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
 
   const deleteSelectedNode = () => {
     if (!selected) return;
+    pushHistory();
     const nextNodes = nodes.filter((n) => n.id !== selected);
     const nextEdges = edges.filter((e) => e.from !== selected && e.to !== selected);
     setNodes(nextNodes);
@@ -276,6 +314,7 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
       setEditingLabel(null);
       return;
     }
+    pushHistory();
     setNodes((prev) => {
       const next = prev.map((n) => n.id === editingLabel ? { ...n, label: labelDraft.trim() } : n);
       publishGraph(next, edges);
@@ -339,6 +378,39 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
   useEffect(() => { setEdges(initialEdges); }, [initialEdges]);
 
   const selectedNode = selected ? nodeMap[selected] : null;
+  const selectedEdge = useMemo(
+    () => (selectedEdgeKey ? edges.find((e) => edgeKey(e) === selectedEdgeKey) ?? null : null),
+    [edges, selectedEdgeKey],
+  );
+
+  const relationLabel = useCallback((relation: DragEdge['relation']) => {
+    if (relation === 'prerequisite') return t('conceptMapRelationPrerequisite');
+    if (relation === 'related') return t('conceptMapRelationRelated');
+    return t('conceptMapRelationContrasts');
+  }, [t]);
+
+  const deleteSelectedEdge = useCallback(() => {
+    if (!selectedEdgeKey) return;
+    pushHistory();
+    setEdges((prev) => {
+      const next = prev.filter((e) => edgeKey(e) !== selectedEdgeKey);
+      publishGraph(nodes, next);
+      return next;
+    });
+    setSelectedEdgeKey(null);
+  }, [selectedEdgeKey, nodes, publishGraph, pushHistory]);
+
+  const cycleSelectedEdgeRelation = useCallback(() => {
+    if (!selectedEdgeKey) return;
+    pushHistory();
+    setEdges((prev) => {
+      const next = prev.map((e) =>
+        edgeKey(e) === selectedEdgeKey ? { ...e, relation: nextRelation(e.relation) } : e,
+      );
+      publishGraph(nodes, next);
+      return next;
+    });
+  }, [selectedEdgeKey, nodes, publishGraph, pushHistory]);
 
   if (initialNodes.length === 0) {
     return (
@@ -397,6 +469,17 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
           >
             <Link2 className="w-3 h-3" />
             {t('conceptMapConnect')}
+          </button>
+          <button
+            type="button"
+            data-testid="concept-map-undo"
+            disabled={!canUndo}
+            onClick={undo}
+            className="inline-flex items-center gap-1 px-2 py-1 rounded text-[10px] font-medium border border-border-subtle text-text-muted hover:text-text-secondary disabled:opacity-40"
+            title={t('conceptMapUndo')}
+          >
+            <Undo2 className="w-3 h-3" />
+            {t('conceptMapUndo')}
           </button>
           <button onClick={() => setZoom(z => Math.min(2.5, z + 0.2))} className="w-6 h-6 rounded bg-surface-hover text-text-secondary text-xs flex items-center justify-center hover:bg-surface-active">+</button>
           <span className="text-[10px] text-text-muted w-10 text-center">{Math.round(zoom * 100)}%</span>
@@ -498,7 +581,7 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
             </defs>
 
             {/* Edges */}
-            {edges.map((edge, i) => {
+            {edges.map((edge) => {
               const from = nodeMap[edge.from];
               const to = nodeMap[edge.to];
               if (!from || !to) return null;
@@ -507,24 +590,44 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
                 const toLayer = layerMap.get(edge.to) ?? 0;
                 if (fromLayer !== activeLayerDepth && toLayer !== activeLayerDepth) return null;
               }
+              const ek = edgeKey(edge);
               const lit = selected === edge.from || selected === edge.to;
+              const isEdgeSel = selectedEdgeKey === ek;
               const dash = edge.relation === 'contrasts' ? '8,4' : edge.relation === 'related' ? '4,4' : 'none';
               const midX = (from.x + to.x) / 2;
               const midY = (from.y + to.y) / 2;
               return (
-                <g key={i}>
+                <g
+                  key={ek}
+                  data-testid="concept-map-edge"
+                  className="cursor-pointer"
+                  onPointerDown={(e) => {
+                    e.stopPropagation();
+                    setSelectedEdgeKey(ek);
+                    setSelected(null);
+                    setConnectFrom(null);
+                  }}
+                >
                   <line
                     x1={from.x} y1={from.y} x2={to.x} y2={to.y}
-                    stroke={lit ? accentHighlightVar() : 'var(--color-border-subtle)'} strokeWidth={lit ? 2.5 : 1.5}
+                    stroke="transparent" strokeWidth={14}
+                    pointerEvents="stroke"
+                  />
+                  <line
+                    x1={from.x} y1={from.y} x2={to.x} y2={to.y}
+                    stroke={isEdgeSel ? accentHighlightVar() : lit ? accentHighlightVar() : 'var(--color-border-subtle)'}
+                    strokeWidth={isEdgeSel ? 3 : lit ? 2.5 : 1.5}
                     strokeDasharray={dash} markerEnd="url(#dm-arrow)"
+                    pointerEvents="none"
                   />
                   <text
                     x={midX}
                     y={midY - 4}
                     textAnchor="middle"
                     fontSize={9}
-                    fill={lit ? '#a5b4fc' : '#6b6494'}
+                    fill={isEdgeSel ? '#a5b4fc' : lit ? '#a5b4fc' : '#6b6494'}
                     data-testid="concept-map-edge-label"
+                    pointerEvents="none"
                   >
                     {RELATION_LABEL[edge.relation]}
                   </text>
@@ -584,7 +687,38 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
         </div>
       )}
 
-      {selectedNode && !editingNote && !editingLabel && (
+      {selectedEdge && !editingNote && !editingLabel && (
+        <div className="absolute bottom-0 left-0 right-0 glass-strong border-t border-border-subtle" data-testid="concept-map-edge-panel">
+          <div className="flex items-center gap-3 p-3 pb-2">
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold truncate">
+                {nodeMap[selectedEdge.from]?.label} → {nodeMap[selectedEdge.to]?.label}
+              </p>
+              <p className="text-[10px] text-text-muted">{relationLabel(selectedEdge.relation)}</p>
+            </div>
+            <button
+              type="button"
+              data-testid="concept-map-cycle-relation"
+              onClick={cycleSelectedEdgeRelation}
+              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[10px] font-medium border border-border-subtle text-text-secondary hover:text-text-primary"
+            >
+              {t('conceptMapChangeRelation')}
+            </button>
+            <button
+              type="button"
+              data-testid="concept-map-delete-edge"
+              onClick={deleteSelectedEdge}
+              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[10px] font-medium border border-accent-rose/30 bg-accent-rose/10 text-accent-rose hover:bg-accent-rose/15"
+            >
+              <Trash2 className="w-3 h-3" />
+              {t('conceptMapDeleteEdge')}
+            </button>
+            <button onClick={() => setSelectedEdgeKey(null)} className="text-text-muted hover:text-text-secondary" aria-label={t('close')}><X className="w-3.5 h-3.5" /></button>
+          </div>
+        </div>
+      )}
+
+      {selectedNode && !selectedEdge && !editingNote && !editingLabel && (
         <div className="absolute bottom-0 left-0 right-0 glass-strong border-t border-border-subtle">
           <div className="flex items-center gap-3 p-3 pb-2">
             <ConceptTypeIcon type={selectedNode.type} size="lg" />

@@ -973,23 +973,32 @@ export function CognitiveReader({
             </p>
           </div>
           <div className="flex shrink-0 gap-1.5">
+            <button
+              type="button"
+              data-testid="reader-define-btn"
+              aria-pressed="true"
+              className="rounded-lg border border-brand-500/40 bg-brand-600/20 px-2 py-1 text-[9px] font-medium text-brand-800"
+            >
+              {t('readerDefine')}
+            </button>
             {onTermFocus && (
               <button
                 type="button"
+                data-testid="reader-focus-in-text"
                 onClick={() => {
                   onTermFocus(glossaryPopover.term);
                   setGlossaryPopover(null);
                 }}
                 className="rounded-lg border border-brand-500/30 bg-brand-600/10 px-2 py-1 text-[9px] font-medium text-brand-800"
               >
-                {lang === 'el' ? 'Εστίαση' : 'Focus'}
+                {t('readerFocusInText')}
               </button>
             )}
             <button
               type="button"
               onClick={() => setGlossaryPopover(null)}
               className="rounded p-1 text-text-muted hover:text-text-primary"
-              aria-label={lang === 'el' ? 'Κλείσιμο' : 'Dismiss'}
+              aria-label={t('close')}
             >
               <X className="h-3 w-3" />
             </button>
