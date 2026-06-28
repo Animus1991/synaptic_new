@@ -7,6 +7,8 @@ client and server are versioned together.
 
 ### Changed
 
+- **Wave C1 batch 1 (Jun 2026)** — i18n migration: `Dashboard.tsx`, `PostUploadBanner.tsx` (14 keys in `i18n.ts`; removed inline `isEl`).
+
 - **Wave 0 lite (Jun 2026)** — doc reconciliation after Wave A/B:
   - `ROADMAP.md` — rebaselined to ~87% product readiness; Wave A/B shipped tables; Wave C1 gaps.
   - `I18N.md` — ~68% coverage, Wave A/B shipped list, 57-file Wave C1 backlog (P1–P4).

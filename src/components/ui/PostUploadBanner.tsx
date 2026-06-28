@@ -1,11 +1,11 @@
 import { Play, BookOpen, X } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
 import { workspaceEntryPrefetchHandlers } from '../../lib/workspaceEntryPrefetch';
+import { useI18n } from '../../lib/i18n';
 import { PrimaryCTA, SecondaryCTA } from './primitives';
 
 type Props = {
   courseTitle: string;
-  lang?: 'en' | 'el';
   onOpenWorkspace: () => void;
   onViewCourse?: () => void;
   onDismiss: () => void;
@@ -13,8 +13,8 @@ type Props = {
 };
 
 /** Post-upload CTA strip — open workspace or explore course (PLATFORM_UI_UX §2.3). */
-export function PostUploadBanner({ courseTitle, lang = 'en', onOpenWorkspace, onViewCourse, onDismiss, className }: Props) {
-  const isEl = lang === 'el';
+export function PostUploadBanner({ courseTitle, onOpenWorkspace, onViewCourse, onDismiss, className }: Props) {
+  const { t } = useI18n();
   return (
     <div
       className={cn('ws-bento-soft p-4 flex flex-col sm:flex-row sm:items-center gap-4 border-brand-500/30', className)}
@@ -22,13 +22,9 @@ export function PostUploadBanner({ courseTitle, lang = 'en', onOpenWorkspace, on
       role="status"
     >
       <div className="flex-1 min-w-0">
-        <p className="ws-eyebrow text-brand-700 mb-1">{isEl ? 'Το μάθημα είναι έτοιμο' : 'Course ready'}</p>
+        <p className="ws-eyebrow text-brand-700 mb-1">{t('postUploadCourseReady')}</p>
         <p className="text-sm font-semibold text-text-primary truncate">{courseTitle}</p>
-        <p className="text-xs text-text-secondary mt-1">
-          {isEl
-            ? 'Άνοιξε το Study Workspace για διαδραστική μελέτη ή εξερεύνησε τα modules.'
-            : 'Open Study Workspace to start learning interactively, or browse modules first.'}
-        </p>
+        <p className="text-xs text-text-secondary mt-1">{t('postUploadHint')}</p>
       </div>
       <div className="flex flex-wrap items-center gap-2 shrink-0">
         <PrimaryCTA
@@ -37,13 +33,13 @@ export function PostUploadBanner({ courseTitle, lang = 'en', onOpenWorkspace, on
           {...workspaceEntryPrefetchHandlers()}
         >
           <Play className="w-4 h-4" />
-          {isEl ? 'Άνοιγμα Workspace' : 'Open Workspace'}
+          {t('postUploadOpenWorkspace')}
         </PrimaryCTA>
         <SecondaryCTA onClick={onViewCourse ?? onDismiss}>
           <BookOpen className="w-3.5 h-3.5" />
-          {isEl ? 'Περιήγηση modules' : 'Browse modules'}
+          {t('postUploadBrowseModules')}
         </SecondaryCTA>
-        <button type="button" onClick={onDismiss} aria-label={isEl ? 'Κλείσιμο' : 'Dismiss'} className="p-2 rounded-lg text-text-muted hover:text-text-secondary">
+        <button type="button" onClick={onDismiss} aria-label={t('close')} className="p-2 rounded-lg text-text-muted hover:text-text-secondary">
           <X className="w-4 h-4" />
         </button>
       </div>

@@ -234,7 +234,6 @@ export function CourseView({
       {showPostUploadBanner && (
         <PostUploadBanner
           courseTitle={course.title}
-          lang={lang}
           onOpenWorkspace={() => {
             onDismissPostUpload?.();
             onStartLesson();

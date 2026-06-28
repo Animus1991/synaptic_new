@@ -108,7 +108,6 @@ export function Library({
       {postUploadCourse && onOpenWorkspace && (
         <PostUploadBanner
           courseTitle={postUploadCourse.title}
-          lang={userLanguage}
           onOpenWorkspace={() => {
             onSelectCourse(postUploadCourse);
             onDismissPostUpload?.();

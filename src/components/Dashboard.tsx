@@ -72,7 +72,6 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
   const examTask = findPendingTask(tasks, (t) => t.type === 'exam-prep');
   const firstReviewTask = findPendingTask(tasks, (t) => t.isSpacedRepetition && t.status === 'pending');
   const showWorkspaceResume = workspaceLive && !workspaceLiveIsStale(workspaceLive);
-  const isEl = lang === 'el';
   const isEmpty = courses.length === 0;
 
   const handleDashboardNextAction = () => {
@@ -106,12 +105,10 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
         <MotionSection initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-2xl">
           <div className="text-center mb-8">
             <h1 className="text-2xl sm:text-3xl font-bold text-text-primary mb-2">
-              {isEl ? 'Καλώς ήρθες στο Synapse' : 'Welcome to Synapse'}
+              {t('welcomeToSynapse')}
             </h1>
             <p className="text-text-secondary text-sm sm:text-base max-w-md mx-auto">
-              {isEl
-                ? 'Ανέβασε σημειώσεις ή δοκίμασε το demo για να ανοίξεις τον χώρο μελέτης.'
-                : 'Upload your notes or try the demo to open the study workspace.'}
+              {t('dashboardEmptyHint')}
             </p>
           </div>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
@@ -122,7 +119,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                 className="flex items-center justify-center gap-2 px-8 py-3.5 bg-gradient-to-r from-brand-600 to-brand-500 text-white rounded-xl font-semibold text-sm hover:from-brand-500 hover:to-brand-400 transition-all"
               >
                 <Upload className="w-4 h-4" />
-                {isEl ? 'Ανέβασε Υλικό' : 'Upload Material'}
+                {t('uploadMaterial')}
               </button>
             )}
             {onExploreDemo && (
@@ -132,15 +129,13 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                 className="flex items-center justify-center gap-2 px-8 py-3.5 border border-brand-500/40 bg-brand-500/5 hover:bg-brand-500/10 text-brand-300 rounded-xl font-semibold text-sm transition-all"
               >
                 <Sparkles className="w-4 h-4" />
-                {isEl ? 'Εξερεύνησε Demo' : 'Explore Demo'}
+                {t('exploreDemo')}
               </button>
             )}
           </div>
           {onExploreDemo && (
             <p className="text-center text-xs text-text-muted mt-3">
-              {isEl
-                ? 'Demo: Μάθημα Οικονομικών — δεν χρειάζεται upload'
-                : 'Demo uses preloaded Economics notes — no upload needed'}
+              {t('dashboardDemoFootnote')}
             </p>
           )}
         </MotionSection>
@@ -151,10 +146,10 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
   return (
     <Page>
       <PageHeader
-        eyebrow={isEl ? 'Πίνακας μάθησης' : 'Dashboard'}
+        eyebrow={t('dashboardEyebrow')}
         title={
           <>
-            <span className="sr-only">{isEl ? 'Πίνακας Μάθησης — ' : 'Learning Dashboard — '}</span>
+            <span className="sr-only">{t('dashboardSrPrefix')}</span>
             {greetingForTime(lang)}!
             <Hand className="inline-block w-7 h-7 text-brand-600 shrink-0 ml-2 align-middle" aria-hidden />
           </>
@@ -187,7 +182,6 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
         <MotionSection initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
           <PostUploadBanner
             courseTitle={postUploadCourse.title}
-            lang={lang}
             onOpenWorkspace={() => {
               onSelectCourse(postUploadCourse);
               onDismissPostUpload?.();
@@ -253,7 +247,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
         <MotionSection initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
           <PlatformSection
             tone="brand"
-            title={isEl ? 'Συνέχισε από εκεί που σταμάτησες' : 'Resume where you left off'}
+            title={t('dashboardResumeTitle')}
             icon={LucideLayout}
             iconClassName="text-brand-600"
             action={
@@ -264,7 +258,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                 {...workspaceEntryPrefetchHandlers()}
                 className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold bg-brand-700 text-white hover:bg-brand-800 transition-all shrink-0"
               >
-                {isEl ? 'Συνέχεια' : 'Resume'} <ArrowRight className="w-3 h-3" />
+                {t('resume')} <ArrowRight className="w-3 h-3" />
               </button>
             }
           >
@@ -287,7 +281,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
             </p>
             {workspaceLive.nextAction && (
               <p className="text-xs text-text-tertiary mt-2 line-clamp-2">
-                {isEl ? 'Επόμενο:' : 'Next:'}{' '}
+                {t('dashboardNextColon')}{' '}
                 <span className="text-brand-700 font-medium">
                   {nextActionLabel(workspaceLive.nextAction.primary, lang)}
                 </span>
@@ -304,7 +298,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
             <Lightbulb className="w-5 h-5 text-brand-700 shrink-0 mt-0.5" />
             <div className="min-w-0">
               <p className="platform-banner-title text-sm font-semibold">
-                {isEl ? 'Προτεινόμενο επόμενο βήμα' : 'Suggested next step'}
+                {t('dashboardSuggestedNext')}
               </p>
               <p className="text-xs text-text-secondary mt-0.5 line-clamp-2">{dashboardNextAction.reason}</p>
             </div>
