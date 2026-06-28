@@ -280,7 +280,7 @@ export function FormulaScratchpad({
             {formulas.map(f => (
               <button key={f.id} onClick={() => selectFormula(f.id)}
                 className={cn('w-full text-left px-3 py-2 text-xs transition-all',
-                  active === f.id ? 'bg-brand-600/15 text-brand-300 border-l-2 border-brand-500' : 'text-text-secondary hover:bg-surface-hover')}>
+                  active === f.id ? 'bg-brand-600/15 text-brand-800 border-l-2 border-brand-500' : 'text-text-secondary hover:bg-surface-hover')}>
                 {f.name}
               </button>
             ))}
@@ -303,7 +303,7 @@ export function FormulaScratchpad({
                 <p className="text-[10px] text-text-muted font-medium">Variables</p>
                 {vars.map((v, i) => (
                   <div key={i} className="flex items-center gap-2">
-                    <span className="font-mono font-bold text-brand-400 text-sm w-12 shrink-0 text-right">{v.symbol}</span>
+                    <span className="font-mono font-bold text-brand-700 text-sm w-12 shrink-0 text-right">{v.symbol}</span>
                     <span className="text-text-muted text-xs">=</span>
                     <input
                       type="text" value={v.value} onChange={e => updateVar(i, e.target.value)}
@@ -327,7 +327,7 @@ export function FormulaScratchpad({
                     onClick={() => setShowGraph((v) => !v)}
                     className={cn(
                       'flex items-center gap-1 px-3 py-2.5 rounded-xl border text-xs font-medium',
-                      showGraph ? 'border-accent-cyan/40 bg-accent-cyan/15 text-accent-cyan' : 'border-border-subtle text-text-muted',
+                      showGraph ? 'ws-chip-brand' : 'border-border-subtle text-text-muted',
                     )}
                   >
                     <LineChart className="w-3.5 h-3.5" />
@@ -339,7 +339,7 @@ export function FormulaScratchpad({
                     type="button"
                     data-testid="scratchpad-ask-agent"
                     onClick={() => onAskAgent(`${activeFormula.name}: ${activeFormula.formula}`)}
-                    className="flex items-center gap-1 px-3 py-2.5 rounded-xl border border-accent-cyan/30 bg-accent-cyan/10 text-accent-cyan text-xs font-medium hover:bg-accent-cyan/20"
+                    className="flex items-center gap-1 px-3 py-2.5 rounded-xl border border-accent-cyan/30 bg-accent-cyan/10 text-brand-800 text-xs font-medium hover:bg-accent-cyan/20"
                   >
                     <Sparkles className="w-3.5 h-3.5" />
                     Agent
@@ -350,7 +350,7 @@ export function FormulaScratchpad({
                     type="button"
                     onClick={sendToWhiteboard}
                     title={lang === 'el' ? 'Άνοιγμα στον πίνακα' : 'Open on whiteboard'}
-                    className="flex items-center gap-1 px-3 py-2.5 rounded-xl border border-accent-cyan/30 bg-accent-cyan/10 text-accent-cyan text-xs font-medium hover:bg-accent-cyan/20"
+                    className="flex items-center gap-1 px-3 py-2.5 rounded-xl border border-accent-cyan/30 bg-accent-cyan/10 text-brand-800 text-xs font-medium hover:bg-accent-cyan/20"
                   >
                     <PenSquare className="w-3.5 h-3.5" />
                     <span className="hidden sm:inline">{lang === 'el' ? 'Πίνακας' : 'Board'}</span>

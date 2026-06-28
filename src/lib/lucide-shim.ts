@@ -129,6 +129,8 @@ export {
   TextT as Type,
   ArrowCounterClockwise as Undo2,
   LockOpen as Unlock,
+  SignOut as LogOut,
+  VideoCamera as Video,
   UploadSimple as Upload,
   Users,
   SpeakerHigh as Volume2,

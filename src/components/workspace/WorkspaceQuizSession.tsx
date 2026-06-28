@@ -114,7 +114,7 @@ export function WorkspaceQuizSession({
         <p className="text-sm font-semibold text-accent-emerald">{summary.headline}</p>
         <p className="text-xs text-text-secondary" data-testid="quiz-session-summary-detail">{summary.detail}</p>
         {summary.suggestion && (
-          <p className="text-[10px] text-brand-300" data-testid="quiz-session-summary-suggestion">{summary.suggestion}</p>
+          <p className="text-[10px] text-brand-800" data-testid="quiz-session-summary-suggestion">{summary.suggestion}</p>
         )}
         {wrongSummaries.length > 0 && (
           <div
@@ -140,7 +140,7 @@ export function WorkspaceQuizSession({
                         type="button"
                         data-testid={`quiz-review-make-card-${w.itemId}`}
                         onClick={() => onRemediateWrong('make-card', item)}
-                        className="rounded border border-brand-500/30 bg-brand-600/10 px-2 py-0.5 text-[9px] text-brand-300"
+                        className="rounded border border-brand-500/30 bg-brand-600/10 px-2 py-0.5 text-[9px] text-brand-800"
                       >
                         {lang === 'el' ? 'Κάρτα' : 'Card'}
                       </button>
@@ -148,7 +148,7 @@ export function WorkspaceQuizSession({
                         type="button"
                         data-testid={`quiz-review-feynman-${w.itemId}`}
                         onClick={() => onRemediateWrong('feynman', item)}
-                        className="rounded border border-accent-cyan/30 bg-accent-cyan/10 px-2 py-0.5 text-[9px] text-accent-cyan"
+                        className="rounded border border-accent-cyan/30 bg-accent-cyan/10 px-2 py-0.5 text-[9px] text-brand-800"
                       >
                         Feynman
                       </button>
@@ -157,7 +157,7 @@ export function WorkspaceQuizSession({
                           type="button"
                           data-testid={`quiz-review-reader-${w.itemId}`}
                           onClick={() => onOpenQuestionInReader(w.question)}
-                          className="rounded border border-white/10 px-2 py-0.5 text-[9px] text-text-secondary hover:text-accent-cyan"
+                          className="rounded border border-white/10 px-2 py-0.5 text-[9px] text-text-secondary hover:text-brand-800"
                         >
                           {lang === 'el' ? 'Reader' : 'Reader'}
                         </button>
@@ -176,7 +176,7 @@ export function WorkspaceQuizSession({
               type="button"
               data-testid="quiz-open-flashcards"
               onClick={onOpenFlashcards}
-              className="rounded-lg border border-brand-500/30 bg-brand-600/10 px-3 py-1.5 text-[10px] font-medium text-brand-300"
+              className="rounded-lg border border-brand-500/30 bg-brand-600/10 px-3 py-1.5 text-[10px] font-medium text-brand-800"
             >
               {lang === 'el' ? 'Κάρτες επανάληψης' : 'Review flashcards'}
             </button>
@@ -186,7 +186,7 @@ export function WorkspaceQuizSession({
               type="button"
               data-testid="quiz-open-feynman"
               onClick={onOpenFeynman}
-              className="rounded-lg border border-accent-cyan/30 bg-accent-cyan/10 px-3 py-1.5 text-[10px] font-medium text-accent-cyan"
+              className="rounded-lg border border-accent-cyan/30 bg-accent-cyan/10 px-3 py-1.5 text-[10px] font-medium text-brand-800"
             >
               {lang === 'el' ? 'Feynman — εξήγησε απλά' : 'Feynman — explain simply'}
             </button>
@@ -196,7 +196,7 @@ export function WorkspaceQuizSession({
               type="button"
               data-testid="quiz-open-reader"
               onClick={onOpenReader}
-              className="rounded-lg border border-white/10 px-3 py-1.5 text-[10px] font-medium text-text-secondary hover:text-brand-200"
+              className="rounded-lg border border-white/10 px-3 py-1.5 text-[10px] font-medium text-text-secondary hover:text-brand-800"
             >
               {lang === 'el' ? 'Επιστροφή στο Reader' : 'Back to Reader'}
             </button>
@@ -252,7 +252,7 @@ export function WorkspaceQuizSession({
                     type="button"
                     data-testid="quiz-remediate-make-card"
                     onClick={() => onRemediateWrong('make-card', current)}
-                    className="rounded-lg border border-brand-500/30 bg-brand-600/10 px-3 py-1.5 text-[10px] font-medium text-brand-300 hover:bg-brand-600/20"
+                    className="rounded-lg border border-brand-500/30 bg-brand-600/10 px-3 py-1.5 text-[10px] font-medium text-brand-800 hover:bg-brand-600/20"
                   >
                     {lang === 'el' ? 'Κάρτα από το λάθος' : 'Make card from mistake'}
                   </button>
@@ -260,7 +260,7 @@ export function WorkspaceQuizSession({
                     type="button"
                     data-testid="quiz-remediate-feynman"
                     onClick={() => onRemediateWrong('feynman', current)}
-                    className="rounded-lg border border-accent-cyan/30 bg-accent-cyan/10 px-3 py-1.5 text-[10px] font-medium text-accent-cyan hover:bg-accent-cyan/15"
+                    className="rounded-lg border border-accent-cyan/30 bg-accent-cyan/10 px-3 py-1.5 text-[10px] font-medium text-brand-800 hover:opacity-90"
                   >
                     {lang === 'el' ? 'Feynman — εξήγησε απλά' : 'Feynman — explain simply'}
                   </button>
@@ -269,7 +269,7 @@ export function WorkspaceQuizSession({
                       type="button"
                       data-testid="quiz-remediate-reader"
                       onClick={() => onOpenQuestionInReader(quizItemQuestion(current))}
-                      className="rounded-lg border border-white/10 px-3 py-1.5 text-[10px] font-medium text-text-secondary hover:border-accent-cyan/35 hover:text-accent-cyan"
+                      className="rounded-lg border border-white/10 px-3 py-1.5 text-[10px] font-medium text-text-secondary hover:border-brand-600/35 hover:text-brand-800"
                     >
                       {lang === 'el' ? 'Άνοιγμα στο Reader' : 'Open in Reader'}
                     </button>

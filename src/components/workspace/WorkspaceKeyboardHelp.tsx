@@ -36,7 +36,7 @@ export function WorkspaceKeyboardHelp({ open, onClose, lang }: Props) {
           >
             <div className="flex items-center justify-between border-b border-border-subtle px-4 py-3">
               <div className="flex items-center gap-2">
-                <Keyboard className="h-4 w-4 text-accent-cyan" />
+                <Keyboard className="h-4 w-4 text-brand-800" />
                 <h2 className="text-sm font-semibold text-text-primary">
                   {isEl ? 'Συντομεύσεις πληκτρολογίου' : 'Keyboard shortcuts'}
                 </h2>

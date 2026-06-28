@@ -2,6 +2,7 @@ import { HelpCircle, Sparkles } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
 import type { WorkspaceContextBreadcrumb } from '../../lib/workspaceContextModel';
 import type { WorkspaceSourceIntelligence } from '../../lib/workspaceNoteContent';
+import { WorkspaceStudyRoomTrigger } from './WorkspaceStudyRoomTrigger';
 
 type Props = {
   context: WorkspaceContextBreadcrumb;
@@ -21,6 +22,8 @@ type Props = {
   onOpenIntelSheet?: () => void;
   intelSheetOpen?: boolean;
   showMigration?: boolean;
+  onOpenStudyRoom?: () => void;
+  studyRoomOpen?: boolean;
   className?: string;
 };
 
@@ -55,6 +58,8 @@ export function WorkspaceContextBar({
   onOpenIntelSheet,
   intelSheetOpen = false,
   showMigration = false,
+  onOpenStudyRoom,
+  studyRoomOpen = false,
   className,
 }: Props) {
   const isEl = lang === 'el';
@@ -89,6 +94,14 @@ export function WorkspaceContextBar({
           {isEl ? 'Πηγή' : 'Source'} <span className="ws-num">{score}</span>
           {showMigration && <span className="ml-1 opacity-80">↑</span>}
         </button>
+      )}
+
+      {onOpenStudyRoom && (
+        <WorkspaceStudyRoomTrigger
+          lang={lang}
+          open={studyRoomOpen}
+          onClick={onOpenStudyRoom}
+        />
       )}
 
       {focusConcept && (

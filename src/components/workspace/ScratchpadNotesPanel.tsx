@@ -124,7 +124,7 @@ export function ScratchpadNotesPanel({
         <div className="px-4 py-1.5 border-b border-border-subtle bg-surface-primary/30 text-[10px] text-text-muted shrink-0">
           {lang === 'el' ? 'Συνδεδεμένο με' : 'Attached to'}
           {sectionLabel && <span className="ml-1 font-medium text-brand-800">{sectionLabel}</span>}
-          {concept && sectionLabel !== concept && <span className="ml-1 text-accent-cyan">· {concept}</span>}
+          {concept && sectionLabel !== concept && <span className="ml-1 text-brand-800">· {concept}</span>}
         </div>
       )}
 
@@ -138,7 +138,7 @@ export function ScratchpadNotesPanel({
             className={cn(
               'px-2 py-0.5 rounded text-[9px] font-medium border transition-all',
               mode === m
-                ? 'border-brand-400/50 bg-brand-500/15 text-brand-300'
+                ? 'border-brand-400/50 bg-brand-500/15 text-brand-800'
                 : 'border-transparent text-text-muted hover:text-text-secondary',
             )}
           >
@@ -172,7 +172,7 @@ export function ScratchpadNotesPanel({
             <button
               type="button"
               onClick={() => onAskAgent(draft, mode)}
-              className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-accent-cyan/30 bg-accent-cyan/10 text-accent-cyan text-xs"
+              className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-accent-cyan/30 bg-accent-cyan/10 text-brand-800 text-xs"
             >
               <Sparkles className="w-3.5 h-3.5" />
               Agent
@@ -200,7 +200,7 @@ export function ScratchpadNotesPanel({
                   onClick={() => setSelectedId(selectedId === entry.id ? null : entry.id)}
                 >
                   <div className="flex items-center justify-between gap-2 mb-1">
-                    <span className="text-[9px] text-brand-300 font-medium">
+                    <span className="text-[9px] text-brand-800 font-medium">
                       {SCRATCHPAD_MODE_LABELS[entry.mode][lang]}
                       {entry.sectionLabel && <span className="text-text-muted ml-1">· {entry.sectionLabel}</span>}
                     </span>
@@ -241,7 +241,7 @@ export function ScratchpadNotesPanel({
                           type="button"
                           data-testid="scratchpad-to-annotation"
                           onClick={() => onConvertToAnnotation(entry)}
-                          className="flex items-center gap-1 text-[9px] text-accent-cyan hover:text-accent-cyan/80"
+                          className="flex items-center gap-1 text-[9px] text-brand-800 hover:opacity-80"
                         >
                           <Highlighter className="w-3 h-3" />
                           {lang === 'el' ? '→ Σχόλιο' : '→ Annotation'}
@@ -251,7 +251,7 @@ export function ScratchpadNotesPanel({
                         <button
                           type="button"
                           onClick={() => onAskAgent(entry.body, entry.mode)}
-                          className="flex items-center gap-1 text-[9px] text-brand-400"
+                          className="flex items-center gap-1 text-[9px] text-brand-700"
                         >
                           <Sparkles className="w-3 h-3" />
                           Agent

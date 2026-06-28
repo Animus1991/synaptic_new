@@ -25,14 +25,14 @@ export function SourceIntelligenceCard({
 }) {
   const structure = report.documentStructure;
   const bandColor =
-    report.band === 'strong' ? 'text-accent-emerald' : report.band === 'moderate' ? 'text-accent-cyan' : 'text-accent-amber';
+    report.band === 'strong' ? 'text-accent-emerald' : report.band === 'moderate' ? 'text-brand-800' : 'text-accent-amber';
 
   return (
     <div className="mb-4 rounded-2xl border p-4 shadow-[0_18px_60px_rgba(15,23,42,0.16)] border-accent-cyan/25 bg-accent-cyan/6">
       <div className="flex items-start justify-between gap-3 flex-wrap">
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="inline-flex items-center rounded-full px-2 py-1 text-[10px] font-semibold bg-accent-cyan/12 text-accent-cyan">
+            <span className="inline-flex items-center rounded-full px-2 py-1 text-[10px] font-semibold bg-accent-cyan/12 text-brand-800">
               Source Intelligence
             </span>
             <span className={`text-[11px] font-semibold ${bandColor}`}>
@@ -74,7 +74,7 @@ export function SourceIntelligenceCard({
             onClick={onOpenRecommendedTool}
             className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.06] px-3 py-1.5 text-[11px] font-medium text-text-secondary hover:border-accent-cyan/40 hover:text-text-primary transition-colors"
           >
-            <Sparkles className="w-3.5 h-3.5 text-accent-cyan" />
+            <Sparkles className="w-3.5 h-3.5 text-brand-800" />
             Open {toolLabel}
           </button>
         </div>

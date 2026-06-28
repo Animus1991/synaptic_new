@@ -304,10 +304,10 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
               <ReadinessRing value={learnerModel.overallMastery} sublabel="Derived from graded first-attempts only — never from self-reported skill." />
               <div className="flex-1 space-y-4">
                 <SignalBars signals={[
-                  { label: 'Accuracy', value: Math.round(learnerModel.retentionRate * 100), icon: 'target', color: '#34d399', detail: 'Correct first-attempt rate' },
-                  { label: 'Self-Reliance', value: Math.round((1 - learnerModel.helpSeekingRate) * 100), icon: 'strength', color: '#818cf8', detail: 'Solved without hints' },
-                  { label: 'Practice Volume', value: Math.min(100, Math.round(learnerModel.totalSessions * 2.1)), icon: 'chart', color: '#22d3ee', detail: `${learnerModel.totalSessions} sessions completed` },
-                  { label: 'Retrieval Strength', value: Math.round(learnerModel.retrievalPerformance * 100), icon: 'brain', color: '#fbbf24', detail: 'Recall without prompts' },
+                  { label: 'Accuracy', value: Math.round(learnerModel.retentionRate * 100), icon: 'target', color: '#166534', detail: 'Correct first-attempt rate' },
+                  { label: 'Self-Reliance', value: Math.round((1 - learnerModel.helpSeekingRate) * 100), icon: 'strength', color: '#704818', detail: 'Solved without hints' },
+                  { label: 'Practice Volume', value: Math.min(100, Math.round(learnerModel.totalSessions * 2.1)), icon: 'chart', color: '#0f766e', detail: `${learnerModel.totalSessions} sessions completed` },
+                  { label: 'Retrieval Strength', value: Math.round(learnerModel.retrievalPerformance * 100), icon: 'brain', color: '#92400e', detail: 'Recall without prompts' },
                 ]} />
               </div>
             </div>

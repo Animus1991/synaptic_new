@@ -30,7 +30,7 @@ export function FormulaLatexPreview({
 
   if (!html) {
     return (
-      <code className={cn('text-sm font-mono text-brand-300', className)}>{formula}</code>
+      <code className={cn('text-sm font-mono text-brand-800', className)}>{formula}</code>
     );
   }
 

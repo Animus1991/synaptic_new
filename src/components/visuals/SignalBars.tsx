@@ -40,7 +40,11 @@ export function SignalBars({ signals }: SignalBarsProps) {
               transition={{ duration: 1, delay: 0.3 + i * 0.1, ease: 'easeOut' }}
             />
             {[25, 50, 75].map(mark => (
-              <div key={mark} className="absolute inset-y-0" style={{ left: `${mark}%`, width: 1, backgroundColor: '#1a1333' }} />
+              <div
+                key={mark}
+                className="absolute inset-y-0 w-px bg-border-subtle/60"
+                style={{ left: `${mark}%` }}
+              />
             ))}
           </div>
           {s.detail && <p className="text-[9px] text-text-muted mt-0.5">{s.detail}</p>}

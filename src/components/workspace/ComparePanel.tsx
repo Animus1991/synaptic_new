@@ -158,7 +158,7 @@ export function ComparePanel({
           <button
             type="button"
             onClick={() => onOpenInReader(concept)}
-            className="inline-flex items-center gap-1 rounded-lg border border-white/10 px-2 py-1 text-[10px] text-text-secondary hover:border-accent-cyan/35 hover:text-accent-cyan"
+            className="inline-flex items-center gap-1 rounded-lg border border-white/10 px-2 py-1 text-[10px] text-text-secondary hover:border-brand-600/35 hover:text-brand-800"
             data-testid="compare-open-reader"
           >
             <BookOpen className="w-3 h-3" />
@@ -175,7 +175,7 @@ export function ComparePanel({
             term: selectedRow[0],
             text: buildCompareSelectionContext(selectedRow, concept, session.sectionLabel).text,
           })}
-          className="mb-2 inline-flex items-center gap-1 rounded-lg border border-accent-cyan/30 bg-accent-cyan/10 px-3 py-1.5 text-[10px] font-medium text-accent-cyan hover:bg-accent-cyan/15"
+          className="mb-2 inline-flex items-center gap-1 rounded-lg border border-accent-cyan/30 bg-accent-cyan/10 px-3 py-1.5 text-[10px] font-medium text-brand-800 hover:opacity-90"
         >
           {isEl ? 'Εξήγησε τη διαφορά (Agent)' : 'Explain difference (Agent)'}
         </button>

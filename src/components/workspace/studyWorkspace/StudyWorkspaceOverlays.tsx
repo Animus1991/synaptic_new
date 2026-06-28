@@ -4,6 +4,7 @@ import { workspaceToolLabel } from '../../../lib/workspaceToolRegistry';
 import { WorkspaceCommandPaletteMount } from '../WorkspaceCommandPaletteMount';
 import { ReprocessPreviewModal } from '../../ReprocessPreviewModal';
 import { WorkspaceIntelSideSheet } from '../WorkspaceIntelSideSheet';
+import { StudyRoomPanel } from '../StudyRoomPanel';
 import { WorkspaceKeyboardHelp } from '../WorkspaceKeyboardHelp';
 import { WorkspaceMobileToolDrawer } from '../WorkspaceMobileToolDrawer';
 import { nextActionLabel } from '../../../lib/nextActionEngine';
@@ -36,6 +37,8 @@ export function StudyWorkspaceOverlays({ model }: StudyWorkspaceOverlaysProps) {
     setNotes,
     intelSheetOpen,
     setIntelSheetOpen,
+    studyRoomOpen,
+    setStudyRoomOpen,
     stepMarks,
     mobileToolDrawerOpen,
     setMobileToolDrawerOpen,
@@ -63,6 +66,11 @@ export function StudyWorkspaceOverlays({ model }: StudyWorkspaceOverlaysProps) {
     openReaderAtConceptSection,
     handleConceptBusRemediation,
     resolveEmptyActions,
+    userSettings,
+    effectiveCourseId,
+    progressKey,
+    courseName,
+    quizConcept,
   } = model;
 
   return (
@@ -83,7 +91,7 @@ export function StudyWorkspaceOverlays({ model }: StudyWorkspaceOverlaysProps) {
                   >
                     <div className="flex items-center justify-between px-4 py-3 border-b border-white/8">
                       <div className="flex items-center gap-2">
-                        <StickyNote className="w-4 h-4 text-accent-cyan" />
+                        <StickyNote className="w-4 h-4 text-brand-800" />
                         <span className="text-sm font-semibold">{lang === 'el' ? 'Σημειώσεις συνεδρίας' : 'Session notes'}</span>
                       </div>
                       <button onClick={() => setShowNotes(false)} className="p-1.5 rounded-lg hover:bg-white/10 text-text-muted"><X className="w-4 h-4" /></button>
@@ -141,6 +149,18 @@ export function StudyWorkspaceOverlays({ model }: StudyWorkspaceOverlaysProps) {
               hasSource={noteBundle.hasSource}
               discoverEmptyActions={resolveEmptyActions('discover')}
               weakAreasEmptyActions={resolveEmptyActions('weak-areas')}
+            />
+      
+            <StudyRoomPanel
+              open={studyRoomOpen}
+              onClose={() => setStudyRoomOpen(false)}
+              lang={lang}
+              courseId={effectiveCourseId ?? progressKey}
+              courseName={courseName ?? linkedCourse?.title}
+              activeTool={activeTool}
+              focusConcept={effectiveFocus?.term ?? quizConcept}
+              userSettings={userSettings}
+              onFollowSharedTool={(tool) => openWorkspaceTool(tool as WorkspaceTool)}
             />
       
             <WorkspaceCommandPaletteMount

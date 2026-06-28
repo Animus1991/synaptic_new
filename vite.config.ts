@@ -79,6 +79,11 @@ export default defineConfig({
   },
   plugins: [react(), tailwindcss(), chunkErrorsDevPlugin(), workspaceEntryManifestPlugin()],
   server: {
+    proxy: {
+      '/v1': { target: 'http://localhost:8787', changeOrigin: true },
+      '/auth': { target: 'http://localhost:8787', changeOrigin: true },
+      '/health': { target: 'http://localhost:8787', changeOrigin: true },
+    },
     warmup: {
       clientFiles: [
         "./src/components/workspace/StudyWorkspace.tsx",

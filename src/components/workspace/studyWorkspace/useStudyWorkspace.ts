@@ -236,6 +236,7 @@ export function useStudyWorkspace({
   /** Single open intelligence panel (tabs on all breakpoints). null = collapsed. */
   const [intelTab, setIntelTab] = useState<MobileIntelTab | null>(null);
   const [intelSheetOpen, setIntelSheetOpen] = useState(false);
+  const [studyRoomOpen, setStudyRoomOpen] = useState(false);
   const [conceptLensExpanded, setConceptLensExpanded] = useState(false);
   const [stepMarks, setStepMarks] = useState<Record<number, 'understood' | 'confusing'>>({});
   const [mobileToolDrawerOpen, setMobileToolDrawerOpen] = useState(false);
@@ -1207,6 +1208,12 @@ export function useStudyWorkspace({
         run: () => openReaderAtSearch(quizConcept, 'reader'),
       },
       {
+        id: 'toggle-study-room',
+        label: el ? 'Ομαδική μελέτη' : 'Study together',
+        group: el ? 'Συνεργασία' : 'Collaboration',
+        run: () => setStudyRoomOpen((v) => !v),
+      },
+      {
         id: 'toggle-notes',
         label: el ? 'Σημειώσεις συνεδρίας' : 'Session notes',
         group: el ? 'Πλοήγηση' : 'Navigate',
@@ -1219,7 +1226,7 @@ export function useStudyWorkspace({
         run: () => setLayout((l) => (l === 'zen' ? 'split' : 'zen')),
       },
     ];
-  }, [lang, quizConcept, openWorkspaceTool, openReaderAtSearch, onReprocessMaterial, linkedCourse, showReuploadHint, showLowQualityBanner, openReprocessWizard]);
+  }, [lang, quizConcept, openWorkspaceTool, openReaderAtSearch, onReprocessMaterial, linkedCourse, showReuploadHint, showLowQualityBanner, openReprocessWizard, setStudyRoomOpen]);
 
   useEffect(() => {
     if (layout === 'zen') {
@@ -1725,6 +1732,8 @@ export function useStudyWorkspace({
     setIntelTab,
     intelSheetOpen,
     setIntelSheetOpen,
+    studyRoomOpen,
+    setStudyRoomOpen,
     conceptLensExpanded,
     setConceptLensExpanded,
     stepMarks,

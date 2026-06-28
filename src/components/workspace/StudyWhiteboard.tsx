@@ -417,7 +417,7 @@ export function StudyWhiteboard({
           {scratchpadImport && (
             <div className="p-3 rounded-xl border border-accent-cyan/30 bg-accent-cyan/5 space-y-2">
               <div className="flex items-center justify-between gap-2">
-                <div className="flex items-center gap-1.5 text-xs font-semibold text-accent-cyan">
+                <div className="flex items-center gap-1.5 text-xs font-semibold text-brand-800">
                   <Calculator className="w-3.5 h-3.5" />
                   {lang === 'el' ? 'Από scratchpad' : 'From scratchpad'}
                 </div>
@@ -425,7 +425,7 @@ export function StudyWhiteboard({
                   <X className="w-3.5 h-3.5" />
                 </button>
               </div>
-              <p className="text-[10px] font-medium text-brand-300">{scratchpadImport.name}</p>
+              <p className="text-[10px] font-medium text-brand-800">{scratchpadImport.name}</p>
               <div className="rounded-lg bg-surface-primary/60 p-2 overflow-x-auto">
                 <FormulaLatexPreview formula={scratchpadImport.formula} />
               </div>
@@ -453,12 +453,12 @@ export function StudyWhiteboard({
             </div>
           )}
           <div className="flex items-center gap-1.5 text-xs font-semibold text-text-secondary">
-            <BookOpen className="w-3.5 h-3.5 text-brand-400" />
+            <BookOpen className="w-3.5 h-3.5 text-brand-700" />
             {lang === 'el' ? 'Από τις σημειώσεις' : 'From your notes'}
           </div>
           {referenceFormulas.map((f) => (
             <div key={f.id} className="p-2 rounded-lg bg-surface-card border border-border-subtle">
-              <p className="text-[10px] font-medium text-brand-300 truncate">{f.name}</p>
+              <p className="text-[10px] font-medium text-brand-800 truncate">{f.name}</p>
               <div className="mt-1 overflow-x-auto">
                 <FormulaLatexPreview formula={f.formula} display={false} />
               </div>
@@ -466,7 +466,7 @@ export function StudyWhiteboard({
               <button
                 type="button"
                 onClick={() => insertFormulaLabel(f.name, f.formula)}
-                className="mt-2 text-[9px] font-medium text-brand-400 hover:text-brand-300"
+                className="mt-2 text-[9px] font-medium text-brand-700 hover:text-brand-800"
               >
                 {lang === 'el' ? 'Εισαγωγή →' : 'Insert on board →'}
               </button>
@@ -496,7 +496,7 @@ export function StudyWhiteboard({
             onClick={() => setTool(id)}
             className={cn(
               'flex items-center gap-1 rounded-lg px-2 py-1.5 text-[10px] font-medium transition-colors',
-              tool === id ? 'bg-brand-600/20 text-brand-300' : 'text-text-muted hover:bg-surface-hover',
+              tool === id ? 'bg-brand-600/20 text-brand-800' : 'text-text-muted hover:bg-surface-hover',
               activeLayerLocked && 'opacity-40 cursor-not-allowed',
             )}
           >
@@ -511,7 +511,7 @@ export function StudyWhiteboard({
           onClick={() => setShowLayers((v) => !v)}
           className={cn(
             'rounded-lg p-1.5',
-            showLayers ? 'bg-brand-600/20 text-brand-300' : 'text-text-muted hover:bg-surface-hover',
+            showLayers ? 'bg-brand-600/20 text-brand-800' : 'text-text-muted hover:bg-surface-hover',
           )}
           title={lang === 'el' ? 'Επίπεδα' : 'Layers'}
         >
@@ -523,7 +523,7 @@ export function StudyWhiteboard({
           onClick={() => setShowStamps((v) => !v)}
           className={cn(
             'rounded-lg px-2 py-1.5 text-[10px] font-medium',
-            showStamps ? 'bg-accent-cyan/20 text-accent-cyan' : 'text-text-muted hover:bg-surface-hover',
+            showStamps ? 'bg-accent-cyan/20 text-brand-800' : 'text-text-muted hover:bg-surface-hover',
           )}
           title={lang === 'el' ? 'LaTeX stamps' : 'LaTeX stamps'}
         >
@@ -561,7 +561,7 @@ export function StudyWhiteboard({
               key={stamp.id}
               type="button"
               onClick={() => insertLatexStamp(stamp)}
-              className="rounded-lg border border-border-subtle bg-surface-card px-2 py-1 text-[9px] text-text-secondary hover:border-accent-cyan/40 hover:text-accent-cyan"
+              className="rounded-lg border border-border-subtle bg-surface-card px-2 py-1 text-[9px] text-text-secondary hover:border-accent-cyan/40 hover:text-brand-800"
               title={stamp.latex}
             >
               {stamp.label}
@@ -593,7 +593,7 @@ export function StudyWhiteboard({
                   type="button"
                   data-testid={`whiteboard-layer-${layer.id}`}
                   onClick={() => setDoc((d) => ({ ...d, activeLayerId: layer.id }))}
-                  className="font-medium text-text-secondary hover:text-brand-300"
+                  className="font-medium text-text-secondary hover:text-brand-800"
                 >
                   {layer.name}
                   <span className="ml-1 text-text-muted">({strokeCount})</span>
@@ -611,7 +611,7 @@ export function StudyWhiteboard({
             type="button"
             data-testid="whiteboard-layer-add"
             onClick={addLayer}
-            className="inline-flex items-center gap-1 rounded-lg border border-dashed border-border-subtle px-2 py-1 text-text-muted hover:border-brand-500/30 hover:text-brand-300"
+            className="inline-flex items-center gap-1 rounded-lg border border-dashed border-border-subtle px-2 py-1 text-text-muted hover:border-brand-500/30 hover:text-brand-800"
           >
             <Plus className="w-3 h-3" />
             {lang === 'el' ? 'Νέο' : 'Add'}

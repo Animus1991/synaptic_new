@@ -186,7 +186,7 @@ export function StudyTimer({
             type="button"
             data-testid="timer-mode-pomodoro"
             onClick={() => { setMode('pomodoro'); setRunning(false); reset(); }}
-            className={cn('px-2 py-1', mode === 'pomodoro' ? 'bg-brand-600/20 text-brand-300' : 'text-text-muted')}
+            className={cn('px-2 py-1', mode === 'pomodoro' ? 'bg-brand-600/20 text-brand-800' : 'text-text-muted')}
           >
             Pomodoro
           </button>
@@ -204,10 +204,10 @@ export function StudyTimer({
 
       {concept && (
         <div className="mb-4 flex items-start gap-2 rounded-lg border border-border-subtle bg-surface-primary/50 px-3 py-2">
-          <BookOpen className="w-3.5 h-3.5 text-brand-400 shrink-0 mt-0.5" />
+          <BookOpen className="w-3.5 h-3.5 text-brand-700 shrink-0 mt-0.5" />
           <div className="min-w-0 flex-1">
             <p className="text-[10px] text-text-muted">{lang === 'el' ? 'Συνεδρία' : 'Session'}</p>
-            <p className="text-xs font-medium text-brand-300 truncate">{sessionLabel}</p>
+            <p className="text-xs font-medium text-brand-800 truncate">{sessionLabel}</p>
             {conceptMastery !== undefined && (
               <p className="text-[9px] text-text-muted mt-0.5">
                 {lang === 'el' ? 'Κατάκτηση' : 'Mastery'}: {conceptMastery}%
@@ -232,7 +232,7 @@ export function StudyTimer({
                 }}
                 className={cn(
                   'px-2.5 py-1 rounded-lg text-[10px] font-medium border transition-all',
-                  presetIdx === i && !examPracticeId ? 'border-brand-500/40 text-brand-300 bg-brand-600/10' : 'border-border-subtle text-text-muted',
+                  presetIdx === i && !examPracticeId ? 'border-brand-500/40 text-brand-800 bg-brand-600/10' : 'border-border-subtle text-text-muted',
                 )}
               >
                 {t(p.key)}
@@ -271,7 +271,7 @@ export function StudyTimer({
                 type="button"
                 data-testid="timer-open-simulator"
                 onClick={onOpenSimulator}
-                className="mt-2 text-[10px] text-accent-cyan hover:underline"
+                className="mt-2 text-[10px] text-brand-800 hover:underline"
               >
                 {lang === 'el' ? 'Άνοιγμα Simulator για το σενάριο' : 'Open Simulator for this scenario'}
               </button>
@@ -323,7 +323,7 @@ export function StudyTimer({
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center">
             <span className="text-2xl font-bold font-mono">{timeDisplay}</span>
-            <span className={cn('text-[10px] font-medium mt-1', mode === 'exam' ? 'text-accent-amber' : phase === 'work' ? 'text-brand-400' : 'text-accent-emerald')}>
+            <span className={cn('text-[10px] font-medium mt-1', mode === 'exam' ? 'text-accent-amber' : phase === 'work' ? 'text-brand-700' : 'text-accent-emerald')}>
               {mode === 'exam' ? (lang === 'el' ? 'Αντίστροφη' : 'Countdown') : (phase === 'work' ? t('focus') : t('break'))}
             </span>
           </div>
@@ -360,7 +360,7 @@ export function StudyTimer({
                 `sessions-${scopeKey}`,
                 buildStudySessionsIcs(recentSessions, lang),
               )}
-              className="inline-flex items-center gap-1 text-[9px] text-brand-400 hover:text-brand-300"
+              className="inline-flex items-center gap-1 text-[9px] text-brand-700 hover:text-brand-800"
             >
               <Calendar className="w-3 h-3" />
               .ics

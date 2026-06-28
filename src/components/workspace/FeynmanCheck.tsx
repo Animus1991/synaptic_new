@@ -247,7 +247,7 @@ export function FeynmanCheck({
     <div className="flex h-full flex-col overflow-hidden" data-testid="feynman-check">
       <div className="flex-1 overflow-y-auto p-4">
         <h3 className="mb-1 text-sm font-semibold flex items-center gap-2">
-          <Sparkles className="w-4 h-4 text-brand-400" />
+          <Sparkles className="w-4 h-4 text-brand-700" />
           {t('feynmanCheck')} — {concept}
         </h3>
         <p className="mb-3 text-xs text-text-tertiary">{t('feynmanHint')}</p>
@@ -286,7 +286,7 @@ export function FeynmanCheck({
                 type="button"
                 title={kt.definition}
                 onClick={() => onOpenInReader?.(kt.term)}
-                className="rounded-full border border-white/10 bg-white/[0.04] px-2 py-0.5 text-[10px] text-text-secondary hover:border-accent-cyan/35 hover:text-accent-cyan"
+                className="rounded-full border border-white/10 bg-white/[0.04] px-2 py-0.5 text-[10px] text-text-secondary hover:border-brand-600/35 hover:text-brand-800"
               >
                 {kt.term}
               </button>
@@ -328,7 +328,7 @@ export function FeynmanCheck({
                   type="button"
                   disabled={!rubric || coachLoading}
                   onClick={() => void requestCoach()}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-brand-600/20 text-brand-300 border border-brand-500/30 hover:bg-brand-600/30 disabled:opacity-50"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium ws-chip-brand border hover:bg-brand-600/30 disabled:opacity-50"
                 >
                   {coachLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Bot className="w-3.5 h-3.5" />}
                   {coachLoading ? t('coachThinking') : t('getCoachFeedback')}
@@ -338,7 +338,7 @@ export function FeynmanCheck({
                     type="button"
                     data-testid="feynman-ask-agent"
                     onClick={onAskAgent ?? onOpenAgent}
-                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium border border-accent-cyan/30 bg-accent-cyan/10 text-accent-cyan hover:bg-accent-cyan/15"
+                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium border border-accent-cyan/30 bg-accent-cyan/10 text-brand-800 hover:opacity-90"
                   >
                     <Sparkles className="w-3.5 h-3.5" />
                     {lang === 'el' ? 'Ρώτα Agent' : 'Ask Agent'}
@@ -350,7 +350,7 @@ export function FeynmanCheck({
                   disabled={!rubric}
                   onClick={() => exportRubric('download')}
                   title={lang === 'el' ? 'Κατέβασε αναφορά αξιολόγησης' : 'Download rubric report'}
-                  className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium border border-brand-500/30 bg-brand-600/10 text-brand-300 hover:bg-brand-600/20 disabled:opacity-40"
+                  className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium ws-chip-brand border hover:bg-brand-600/20 disabled:opacity-40"
                 >
                   <Download className="w-3.5 h-3.5" />
                   {lang === 'el' ? 'Εξαγωγή' : 'Export report'}
@@ -373,7 +373,7 @@ export function FeynmanCheck({
           <div className="space-y-3">
             {coachFeedback && (
               <div className="rounded-xl border border-brand-500/30 bg-brand-500/5 p-3 space-y-2">
-                <p className="text-xs font-semibold text-brand-300">{coachFeedback.headline}</p>
+                <p className="text-xs font-semibold text-brand-800">{coachFeedback.headline}</p>
                 <p className="text-[10px] text-text-muted">{coachEngineLabel}</p>
                 <div>
                   <p className="text-[10px] font-semibold text-accent-emerald mb-1">Strengths</p>
@@ -390,7 +390,7 @@ export function FeynmanCheck({
                 {coachFeedback.rewrite && (
                   <p className="text-[11px] text-text-secondary whitespace-pre-wrap border-t border-border-subtle pt-2">{coachFeedback.rewrite}</p>
                 )}
-                <p className="text-[10px] text-brand-400 font-medium">{coachFeedback.nextStep}</p>
+                <p className="text-[10px] text-brand-700 font-medium">{coachFeedback.nextStep}</p>
               </div>
             )}
 
@@ -428,7 +428,7 @@ export function FeynmanCheck({
                       data-testid="feynman-rubric-export-download"
                       onClick={() => exportRubric('download')}
                       title={lang === 'el' ? 'Κατέβασε αναφορά' : 'Download report'}
-                      className="inline-flex items-center gap-1 rounded-md border border-brand-500/30 bg-brand-600/10 px-2 py-0.5 text-[10px] font-medium text-brand-300 hover:bg-brand-600/20"
+                      className="inline-flex items-center gap-1 rounded-md border ws-chip-brand rounded-md px-2 py-0.5 text-[10px] font-medium hover:bg-brand-600/20"
                     >
                       <Download className="w-3 h-3" />
                       {lang === 'el' ? 'Εξαγωγή' : 'Export'}
@@ -450,7 +450,7 @@ export function FeynmanCheck({
                     <div key={dim}>
                       <div className="mb-0.5 flex justify-between text-[10px]">
                         <span>{t(RUBRIC_LABEL_KEYS[dim])}</span>
-                        <span className="font-mono text-brand-300">{rubric.scores[dim]}%</span>
+                        <span className="font-mono text-brand-800">{rubric.scores[dim]}%</span>
                       </div>
                       <div className="h-1.5 overflow-hidden rounded-full bg-surface-hover">
                         <div className="h-full rounded-full bg-brand-500 transition-all" style={{ width: `${rubric.scores[dim]}%` }} />
@@ -478,7 +478,7 @@ export function FeynmanCheck({
                             if (onAskAgentWithPrompt) onAskAgentWithPrompt(prompt);
                             else (onAskAgent ?? onOpenAgent)?.();
                           }}
-                          className="inline-flex items-center gap-1 rounded-lg border border-accent-cyan/30 bg-accent-cyan/10 px-2 py-1 text-[10px] font-medium text-accent-cyan hover:bg-accent-cyan/15"
+                          className="inline-flex items-center gap-1 ws-chip-brand rounded-lg border px-2 py-1 text-[10px] font-medium hover:opacity-90"
                         >
                           <Sparkles className="w-3 h-3" />
                           {lang === 'el' ? `Agent → ${t(RUBRIC_LABEL_KEYS[dim])}` : `Agent → fix ${t(RUBRIC_LABEL_KEYS[dim])}`}
@@ -488,7 +488,7 @@ export function FeynmanCheck({
                         <button
                           type="button"
                           onClick={() => onOpenInReader(gapSearchTerm(dim, concept, gapTerms))}
-                          className="flex items-center gap-1 text-[10px] font-medium text-accent-cyan hover:text-accent-cyan/80"
+                          className="flex items-center gap-1 text-[10px] font-medium text-brand-800 hover:opacity-80"
                         >
                           <BookOpen className="w-3 h-3" />
                           {lang === 'el' ? 'Άνοιγμα στον αναγνώστη' : 'Read in source'}
@@ -496,7 +496,7 @@ export function FeynmanCheck({
                       )}
                       {onFocusConcept && (
                         <button type="button" onClick={() => onFocusConcept('concept-map')}
-                          className="text-[10px] font-medium text-brand-400 hover:text-brand-300">
+                          className="text-[10px] font-medium text-brand-700 hover:text-brand-800">
                           {lang === 'el' ? 'Χάρτης εννοιών →' : 'Concept map →'}
                         </button>
                       )}

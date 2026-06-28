@@ -319,7 +319,7 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
             data-testid="concept-map-force-layout"
             disabled={layoutRunning || nodes.length < 2}
             onClick={runForceLayout}
-            className="ml-1 px-2 py-1 rounded text-[10px] text-accent-cyan hover:text-accent-cyan/80 bg-accent-cyan/10 border border-accent-cyan/30 disabled:opacity-40"
+            className="ml-1 px-2 py-1 rounded text-[10px] text-brand-800 hover:opacity-80 bg-accent-cyan/10 border border-accent-cyan/30 disabled:opacity-40"
           >
             {layoutRunning ? '…' : (lang === 'el' ? 'Δύναμη' : 'Force')}
           </button>
@@ -336,7 +336,7 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
                 setExporting(false);
               }
             }}
-            className="ml-1 px-2 py-1 rounded text-[10px] text-brand-300 hover:text-brand-200 bg-brand-600/15 border border-brand-500/30 disabled:opacity-40"
+            className="ml-1 px-2 py-1 rounded text-[10px] text-brand-800 hover:text-brand-800 bg-brand-600/15 border border-brand-500/30 disabled:opacity-40"
           >
             {exporting ? '…' : 'PNG'}
           </button>
@@ -360,7 +360,7 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
             onClick={() => setActiveLayerDepth(null)}
             className={cn(
               'rounded-full px-2 py-0.5 text-[9px] font-medium border',
-              activeLayerDepth === null ? 'border-brand-500/40 bg-brand-600/15 text-brand-300' : 'border-border-subtle text-text-muted',
+              activeLayerDepth === null ? 'border-brand-500/40 bg-brand-600/15 text-brand-800' : 'border-border-subtle text-text-muted',
             )}
           >
             {lang === 'el' ? 'Όλα' : 'All'}
@@ -493,7 +493,7 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
               <button
                 type="button"
                 onClick={() => onFocusTerm(selectedNode.label)}
-                className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[10px] font-medium bg-accent-cyan/15 text-accent-cyan border border-accent-cyan/30 hover:bg-accent-cyan/25"
+                className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[10px] font-medium bg-accent-cyan/15 text-brand-800 border border-accent-cyan/30 hover:bg-accent-cyan/25"
               >
                 <BookOpen className="w-3 h-3" />
                 {t('cognitiveReader')}

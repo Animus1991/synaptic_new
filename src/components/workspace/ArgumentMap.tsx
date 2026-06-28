@@ -273,7 +273,7 @@ export function ArgumentMap({
                     type="button"
                     title={lang === 'el' ? 'Άνοιγμα στον αναγνώστη' : 'Read in source'}
                     onClick={() => onOpenInReader(node.text)}
-                    className="p-1 rounded bg-surface-primary/80 border border-border-subtle text-accent-cyan"
+                    className="p-1 rounded bg-surface-primary/80 border border-border-subtle text-brand-800"
                   >
                     <BookOpen className="w-3 h-3" />
                   </button>
@@ -312,7 +312,7 @@ export function ArgumentMap({
     <div className="flex h-full flex-col overflow-hidden">
       <div className="flex shrink-0 items-center justify-between border-b border-border-subtle bg-surface-card px-4 py-2.5">
         <span className="flex items-center gap-2 text-sm font-semibold">
-          <GitCommit className="w-4 h-4 text-accent-cyan" />
+          <GitCommit className="w-4 h-4 text-brand-800" />
           Debate Tree{concept ? ` — ${concept}` : ''}
         </span>
         <div className="flex items-center gap-2">
@@ -321,7 +321,7 @@ export function ArgumentMap({
               type="button"
               data-testid="debate-ask-agent"
               onClick={() => onAskAgent(root.text)}
-              className="inline-flex items-center gap-1 rounded-lg border border-accent-cyan/30 bg-accent-cyan/10 px-2 py-1 text-[10px] font-medium text-accent-cyan hover:bg-accent-cyan/15"
+              className="inline-flex items-center gap-1 ws-chip-brand rounded-lg border px-2 py-1 text-[10px] font-medium hover:opacity-90"
             >
               <Sparkles className="w-3 h-3" />
               {lang === 'el' ? 'Ρώτα Agent' : 'Ask Agent'}

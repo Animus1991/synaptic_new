@@ -5,6 +5,7 @@ import {
 import { workspaceToolLabel } from '../../../lib/workspaceToolRegistry';
 import { displayWorkspaceStepTitle } from '../../../lib/workspaceContextModel';
 import { WorkspaceContextBar } from '../WorkspaceContextBar';
+import { WorkspaceStudyRoomTrigger } from '../WorkspaceStudyRoomTrigger';
 import { ConceptLensPanel } from '../ConceptLensPanel';
 
 import { activityFor } from '../../../lib/workspaceConceptBus';
@@ -37,6 +38,8 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
     setIntelTab,
     intelSheetOpen,
     setIntelSheetOpen,
+    studyRoomOpen,
+    setStudyRoomOpen,
     conceptLensExpanded,
     setConceptLensExpanded,
     conceptBus,
@@ -87,6 +90,13 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
                       <X className="w-5 h-5" />
                     </button>
                     <div className="flex gap-2">
+                      <WorkspaceStudyRoomTrigger
+                        lang={lang}
+                        open={studyRoomOpen}
+                        onClick={() => setStudyRoomOpen((v) => !v)}
+                        variant="chrome"
+                        className="p-2 rounded-full bg-surface-secondary hover:bg-surface-hover min-h-[40px] min-w-[40px] sm:min-h-0 sm:min-w-0 sm:rounded-lg sm:bg-transparent"
+                      />
                       <button
                         onClick={() => setShowNotes((v) => !v)}
                         aria-label={lang === 'el' ? 'Σημειώσεις' : 'Session notes'}
@@ -246,14 +256,20 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
                       ⌘K
                     </button>
                   )}
-                  <button onClick={() => setShowNotes((v) => !v)} className="p-1.5 rounded-lg hover:bg-surface-hover text-text-secondary hover:text-text-primary transition-colors shrink-0" title={lang === 'el' ? 'Σημειώσεις' : 'Session notes'}>
-                    <StickyNote className={cn('w-4 h-4', showNotes && 'text-accent-cyan')} />
+                  <WorkspaceStudyRoomTrigger
+                    lang={lang}
+                    open={studyRoomOpen}
+                    onClick={() => setStudyRoomOpen((v) => !v)}
+                    variant="chrome"
+                  />
+                  <button onClick={() => setShowNotes((v) => !v)} className={cn('ws-chrome-btn p-1.5 shrink-0', showNotes && 'ws-chrome-btn-active')} title={lang === 'el' ? 'Σημειώσεις' : 'Session notes'} aria-pressed={showNotes}>
+                    <StickyNote className="w-4 h-4" />
                   </button>
                   <button onClick={() => setLayout(layout === 'zen' ? 'split' : 'zen')} className="p-1.5 rounded-lg hover:bg-surface-hover text-text-secondary hover:text-text-primary transition-colors shrink-0" title={layout === 'zen' ? (lang === 'el' ? 'Έξοδος εστίασης (Z)' : 'Exit focus (Z)') : (lang === 'el' ? 'Εναλλαγή διάταξης (S)' : 'Toggle layout (S)')}>
-                    {layout === 'zen' ? <Minimize2 className="w-4 h-4 text-accent-cyan" /> : <Maximize2 className="w-4 h-4" />}
+                    {layout === 'zen' ? <Minimize2 className="w-4 h-4 text-brand-800" /> : <Maximize2 className="w-4 h-4" />}
                   </button>
-                  <button onClick={handleOpenAgent} className="flex items-center gap-1 px-2.5 py-1.5 rounded-full text-[10px] font-medium border border-border-subtle bg-surface-card hover:border-accent-cyan/40 hover:bg-surface-hover text-text-secondary hover:text-text-primary shrink-0 transition-colors">
-                    <Sparkles className="w-3.5 h-3.5 text-accent-cyan" /> {t('agentBtn')}
+                  <button onClick={handleOpenAgent} className="flex items-center gap-1 px-2.5 py-1.5 rounded-full text-[10px] font-medium border border-border-subtle bg-surface-card hover:border-brand-200 hover:bg-surface-hover text-text-secondary hover:text-text-primary shrink-0 transition-colors">
+                    <Sparkles className="w-3.5 h-3.5 text-brand-800" /> {t('agentBtn')}
                   </button>
                 </div>
               </div>
@@ -291,6 +307,8 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
                 onOpenIntelSheet={() => setIntelSheetOpen((v) => !v)}
                 intelSheetOpen={intelSheetOpen}
                 showMigration={showReuploadHint}
+                onOpenStudyRoom={() => setStudyRoomOpen((v) => !v)}
+                studyRoomOpen={studyRoomOpen}
               />
             )}
     </>

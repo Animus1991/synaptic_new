@@ -9,12 +9,15 @@ import {
   workspaceToolDescription,
 } from '../../lib/workspaceToolRegistry';
 import { loadJson, saveJson } from '../../lib/persistence';
+import { WorkspaceStudyRoomTrigger } from './WorkspaceStudyRoomTrigger';
 
 interface Props {
   activeTool: WorkspaceToolId;
   onSelectTool: (tool: WorkspaceToolId) => void;
   availableTools?: WorkspaceToolId[];
   lang?: 'en' | 'el';
+  onOpenStudyRoom?: () => void;
+  studyRoomOpen?: boolean;
 }
 
 const EXPAND_KEY = 'workspace-dock-expanded';
@@ -25,7 +28,7 @@ const EXPAND_KEY = 'workspace-dock-expanded';
  * Collapsible: a calm icon-only rail by default, expandable to a labeled,
  * grouped list. Replaces the redundant top WorkspaceToolStrip on desktop.
  */
-export function WorkspaceDock({ activeTool, onSelectTool, availableTools, lang = 'en' }: Props) {
+export function WorkspaceDock({ activeTool, onSelectTool, availableTools, lang = 'en', onOpenStudyRoom, studyRoomOpen = false }: Props) {
   const isEl = lang === 'el';
   const [expanded, setExpanded] = useState<boolean>(() => loadJson<boolean>(EXPAND_KEY, true));
 
@@ -130,6 +133,19 @@ export function WorkspaceDock({ activeTool, onSelectTool, availableTools, lang =
           );
         })}
       </div>
+
+      {onOpenStudyRoom && (
+        <div className="mt-auto border-t border-border-subtle/60 p-2">
+          <WorkspaceStudyRoomTrigger
+            lang={lang}
+            open={studyRoomOpen}
+            onClick={onOpenStudyRoom}
+            variant="chip"
+            compact={!expanded}
+            className={cn('w-full justify-center', !expanded && 'px-1.5')}
+          />
+        </div>
+      )}
     </nav>
   );
 }

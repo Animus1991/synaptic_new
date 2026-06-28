@@ -109,7 +109,7 @@ export function TimerPanel({
 
         <div className="mb-2 flex flex-wrap items-center gap-2">
           <span
-            className="rounded-full border border-brand-500/30 bg-brand-600/10 px-2 py-0.5 text-[9px] font-medium text-brand-300"
+            className="rounded-full border border-brand-500/30 bg-brand-600/10 px-2 py-0.5 text-[9px] font-medium text-brand-800"
             data-testid="timer-suggested-preset"
           >
             {PRESET_LABELS[session.suggestedPreset][lang]}
@@ -147,7 +147,7 @@ export function TimerPanel({
             <button
               type="button"
               onClick={() => onOpenInReader(concept)}
-              className="ml-auto inline-flex items-center gap-1 rounded-lg border border-white/10 px-2 py-1 text-[10px] text-text-secondary hover:border-accent-cyan/35 hover:text-accent-cyan"
+              className="ml-auto inline-flex items-center gap-1 rounded-lg border border-white/10 px-2 py-1 text-[10px] text-text-secondary hover:border-brand-600/35 hover:text-brand-800"
               data-testid="timer-open-reader"
             >
               <BookOpen className="w-3 h-3" />
@@ -175,7 +175,7 @@ export function TimerPanel({
             {filterMatches.slice(0, 4).map((log, i) => (
               <span
                 key={`${log.at}-${i}`}
-                className="rounded-full border border-accent-cyan/25 bg-accent-cyan/8 px-2 py-0.5 text-[9px] text-accent-cyan"
+                className="rounded-full border border-accent-cyan/25 bg-accent-cyan/8 px-2 py-0.5 text-[9px] text-brand-800"
               >
                 {log.label.slice(0, 40)}{log.label.length > 40 ? '…' : ''} · {log.minutes}m
               </span>

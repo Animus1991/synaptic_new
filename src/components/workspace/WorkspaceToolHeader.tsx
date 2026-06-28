@@ -140,15 +140,15 @@ export function WorkspaceToolHeader({
 
           {/* Why it matters + outcome */}
           <div className="flex flex-col gap-1 sm:flex-row sm:items-stretch">
-            <p className="ws-caption flex flex-1 items-start gap-1.5 rounded-lg bg-accent-cyan/8 px-2 py-1.5 text-text-secondary">
-              <Sparkles className="mt-0.5 h-3 w-3 shrink-0 text-accent-cyan" aria-hidden />
+            <p className="ws-caption flex flex-1 items-start gap-1.5 rounded-lg ws-info-strip px-2 py-1.5 text-text-secondary">
+              <Sparkles className="mt-0.5 h-3 w-3 shrink-0 text-brand-800" aria-hidden />
               <span>
                 <span className="font-semibold text-text-primary">{isEl ? 'Γιατί: ' : 'Why: '}</span>
                 {why}
               </span>
             </p>
             <p className="ws-caption flex flex-1 items-start gap-1.5 rounded-lg bg-brand-500/8 px-2 py-1.5 text-text-secondary">
-              <Target className="mt-0.5 h-3 w-3 shrink-0 text-brand-300" aria-hidden />
+              <Target className="mt-0.5 h-3 w-3 shrink-0 text-brand-800" aria-hidden />
               <span>
                 <span className="font-semibold text-text-primary">{isEl ? 'Θα πάρεις: ' : "You'll get: "}</span>
                 {produces}
@@ -164,7 +164,7 @@ export function WorkspaceToolHeader({
                   className="ws-caption inline-flex items-center gap-0.5 rounded-full border border-border-subtle bg-surface-primary/50 px-1.5 py-0.5 text-text-secondary"
                   data-testid="workspace-tool-header-concept"
                 >
-                  <CircleDot className="h-2.5 w-2.5 text-brand-300" aria-hidden />
+                  <CircleDot className="h-2.5 w-2.5 text-brand-800" aria-hidden />
                   {isEl ? 'Εστίαση:' : 'Focus:'}{' '}
                   <span className="max-w-[160px] truncate font-medium text-text-primary">{concept}</span>
                 </span>
@@ -189,7 +189,7 @@ export function WorkspaceToolHeader({
                 onClick={() => onJumpTool?.(link.tool)}
                 disabled={!onJumpTool}
                 data-testid={i === 0 ? 'workspace-tool-header-next' : `crosslink-jump-${link.tool}`}
-                className="ws-caption inline-flex items-center gap-1 rounded-full border border-border-subtle bg-surface-card/80 px-2.5 py-1 font-medium text-text-secondary transition-colors hover:border-brand-500/30 hover:text-brand-200 disabled:opacity-50"
+                className="ws-caption inline-flex items-center gap-1 rounded-full border border-border-subtle bg-surface-card/80 px-2.5 py-1 font-medium text-text-secondary transition-colors hover:border-brand-500/30 hover:text-brand-800 disabled:opacity-50"
               >
                 {isEl ? link.labelEl : link.labelEn}
                 <ArrowRight className="h-3 w-3 opacity-50" />
@@ -201,7 +201,7 @@ export function WorkspaceToolHeader({
                 type="button"
                 data-testid="crosslink-open-reader"
                 onClick={onOpenReader}
-                className="ws-caption inline-flex items-center gap-1.5 rounded-lg border border-border-subtle px-2.5 py-1 text-text-secondary transition-colors hover:border-brand-400/40 hover:text-brand-200"
+                className="ws-caption inline-flex items-center gap-1.5 rounded-lg border border-border-subtle px-2.5 py-1 text-text-secondary transition-colors hover:border-brand-400/40 hover:text-brand-800"
               >
                 <BookOpen className="h-3.5 w-3.5" />
                 {isEl ? 'Πηγή' : 'Source'}
@@ -212,7 +212,7 @@ export function WorkspaceToolHeader({
                 type="button"
                 data-testid="crosslink-ask-agent"
                 onClick={onAskAgent}
-                className="ws-caption inline-flex items-center gap-1.5 rounded-lg border border-accent-cyan/30 bg-accent-cyan/10 px-2.5 py-1 text-accent-cyan transition-colors hover:bg-accent-cyan/15"
+                className="ws-caption ws-chip-brand inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 transition-colors hover:opacity-90"
               >
                 <Sparkles className="h-3.5 w-3.5" />
                 {isEl ? 'Ρώτα τον Agent' : 'Ask Agent'}

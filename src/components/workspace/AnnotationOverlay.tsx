@@ -519,14 +519,14 @@ export function AnnotationOverlay({
                   <button
                     type="button"
                     onClick={(e) => { e.stopPropagation(); onOpenInReader(line.trim()); }}
-                    className="absolute right-1 top-0.5 opacity-0 group-hover:opacity-100 p-0.5 rounded text-accent-cyan hover:bg-surface-hover"
+                    className="absolute right-1 top-0.5 opacity-0 group-hover:opacity-100 p-0.5 rounded text-brand-800 hover:bg-surface-hover"
                     title={lang === 'el' ? 'Άνοιγμα στον αναγνώστη' : 'Open in reader'}
                   >
                     <BookOpen className="w-3 h-3" />
                   </button>
                 )}
                 {lineAnns.some((a) => a.focusTerm) && (
-                  <span className="ml-1 text-[8px] text-brand-400 opacity-80">
+                  <span className="ml-1 text-[8px] text-brand-700 opacity-80">
                     #{lineAnns.find((a) => a.focusTerm)?.focusTerm}
                   </span>
                 )}
@@ -537,7 +537,7 @@ export function AnnotationOverlay({
                 )}
                 {lineAnns.some((a) => a.category === 'exam-relevant') && (
                   <span className="ml-1 inline-flex" title={categoryLabel('exam-relevant', lang)}>
-                    <FileText className="w-2.5 h-2.5 text-accent-cyan" aria-hidden />
+                    <FileText className="w-2.5 h-2.5 text-brand-800" aria-hidden />
                   </span>
                 )}
               </div>
@@ -580,7 +580,7 @@ export function AnnotationOverlay({
             <p className="text-xs font-semibold mb-2 inline-flex items-center gap-1.5">
               <MessageSquare className="w-3.5 h-3.5 text-brand-500" />
               {t('addComment')} (line {addingAt + 1})
-              {tagDraft && <span className="text-brand-300 font-normal ml-1">· #{tagDraft}</span>}
+              {tagDraft && <span className="text-brand-800 font-normal ml-1">· #{tagDraft}</span>}
             </p>
             <div className="flex gap-2">
               <input

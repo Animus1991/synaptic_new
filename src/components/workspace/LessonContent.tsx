@@ -134,7 +134,7 @@ export function LessonContent({
     return (
       <div className="space-y-4">
         {learningBar}
-        <span className="text-[10px] text-accent-cyan font-semibold">{t('quiz')}</span>
+        <span className="text-[10px] text-brand-800 font-semibold">{t('quiz')}</span>
         <h2 className="text-xl font-bold">{t('knowledgeCheck')}</h2>
         <div className="p-3 rounded-xl bg-surface-card border border-border-subtle">
           {quizSessionItems && quizSessionItems.length > 0 && quizSessionScopeKey ? (
@@ -166,7 +166,7 @@ export function LessonContent({
     return (
       <div className="space-y-4">
         {learningBar}
-        <span className="text-[10px] text-accent-cyan font-semibold">
+        <span className="text-[10px] text-brand-800 font-semibold">
           {lang === 'el' ? 'Από τις σημειώσεις σου' : 'From your notes'}
         </span>
         <h2 className="text-xl font-bold">{stepTitle ?? concept}</h2>
@@ -190,7 +190,7 @@ export function LessonContent({
           />
         )}
         {genStatus === 'loading' && (
-          <span className="inline-flex items-center gap-1 text-[9px] px-1.5 py-0.5 rounded bg-brand-500/10 text-brand-300 font-medium animate-pulse">
+          <span className="inline-flex items-center gap-1 text-[9px] px-1.5 py-0.5 rounded bg-brand-500/10 text-brand-800 font-medium animate-pulse">
             <Sparkles className="w-2.5 h-2.5" /> {lang === 'el' ? 'Δημιουργία από τις πηγές σου…' : 'Generating from your sources…'}
           </span>
         )}

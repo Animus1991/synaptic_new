@@ -10,7 +10,7 @@ interface StudyWorkspaceMainLayoutProps {
 }
 
 export function StudyWorkspaceMainLayout({ model }: StudyWorkspaceMainLayoutProps) {
-  const { chromeHidden, isMobile, activeTool, openWorkspaceTool, lang } = model;
+  const { chromeHidden, isMobile, activeTool, openWorkspaceTool, lang, studyRoomOpen, setStudyRoomOpen } = model;
   return (
     <div className="relative z-10 flex-1 flex overflow-hidden" id="workspace-main" role="main" tabIndex={-1}>
       {!chromeHidden && !isMobile && (
@@ -19,6 +19,8 @@ export function StudyWorkspaceMainLayout({ model }: StudyWorkspaceMainLayoutProp
           onSelectTool={openWorkspaceTool}
           availableTools={AVAILABLE_TOOLS}
           lang={lang}
+          onOpenStudyRoom={() => setStudyRoomOpen((v) => !v)}
+          studyRoomOpen={studyRoomOpen}
         />
       )}
       <Group orientation={isMobile ? 'vertical' : 'horizontal'} className="flex-1 w-full h-full">

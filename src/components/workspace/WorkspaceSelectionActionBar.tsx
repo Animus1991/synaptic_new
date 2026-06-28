@@ -34,7 +34,7 @@ export function WorkspaceSelectionActionBar({
   return (
     <div
       className={cn(
-        'flex shrink-0 flex-col gap-1.5 border-b border-accent-cyan/20 bg-accent-cyan/5 px-3 py-2',
+        'flex shrink-0 flex-col gap-1.5 ws-info-strip border-b px-3 py-2',
         className,
       )}
       data-testid={testId}
@@ -65,8 +65,8 @@ export function WorkspaceSelectionActionBar({
             className={cn(
               'inline-flex items-center rounded-lg border px-2 py-0.5 text-[10px] font-medium transition-colors',
               action.id === 'ask-agent'
-                ? 'border-accent-cyan/40 bg-accent-cyan/15 text-accent-cyan hover:bg-accent-cyan/20'
-                : 'border-white/10 bg-surface-card/80 text-text-secondary hover:border-brand-500/30 hover:text-brand-200',
+                ? 'ws-chip-brand hover:bg-accent-cyan/20'
+                : 'border-white/10 bg-surface-card/80 text-text-secondary hover:border-brand-500/30 hover:text-brand-800',
             )}
           >
             {action.label}

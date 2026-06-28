@@ -128,7 +128,7 @@ export function LeitnerPanel({
             <button
               type="button"
               onClick={() => onOpenInReader(concept)}
-              className="inline-flex items-center gap-1 rounded-lg border border-white/10 px-2 py-1 text-[10px] text-text-secondary hover:border-accent-cyan/35 hover:text-accent-cyan"
+              className="inline-flex items-center gap-1 rounded-lg border border-white/10 px-2 py-1 text-[10px] text-text-secondary hover:border-brand-600/35 hover:text-brand-800"
               data-testid="leitner-open-reader"
             >
               <BookOpen className="w-3 h-3" />
@@ -144,7 +144,7 @@ export function LeitnerPanel({
                 key={card.front}
                 type="button"
                 onClick={() => onOpenInReader?.(card.front)}
-                className="rounded-full border border-accent-cyan/25 bg-accent-cyan/8 px-2 py-0.5 text-[9px] text-accent-cyan hover:bg-accent-cyan/15"
+                className="rounded-full border border-accent-cyan/25 bg-accent-cyan/8 px-2 py-0.5 text-[9px] text-brand-800 hover:opacity-90"
               >
                 {card.front.slice(0, 48)}{card.front.length > 48 ? '…' : ''}
               </button>

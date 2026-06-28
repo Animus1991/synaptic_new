@@ -283,7 +283,7 @@ export function LeitnerBox({
             type="button"
             data-testid="leitner-open-quiz"
             onClick={onOpenQuiz}
-            className="ml-auto flex items-center gap-1 text-[10px] font-medium text-accent-cyan hover:text-accent-cyan/80 border border-accent-cyan/30 rounded-lg px-2 py-0.5 mr-1"
+            className="ml-auto flex items-center gap-1 text-[10px] font-medium text-brand-800 hover:opacity-80 border border-accent-cyan/30 rounded-lg px-2 py-0.5 mr-1"
           >
             {lang === 'el' ? 'Κουίζ' : 'Quiz'}
           </button>
@@ -299,7 +299,7 @@ export function LeitnerBox({
 
             onClick={() => downloadAnkiDeck(deck, `Synapse — ${concept || 'deck'}`, `synapse-${concept || 'deck'}`, concept ? [concept] : [])}
 
-            className="ml-auto flex items-center gap-1 text-[10px] font-medium text-brand-400 hover:text-brand-300 border border-brand-500/30 rounded-lg px-2 py-0.5"
+            className="ml-auto flex items-center gap-1 text-[10px] font-medium text-brand-700 hover:text-brand-800 border border-brand-500/30 rounded-lg px-2 py-0.5"
 
             title={lang === 'el' ? 'Εξαγωγή Anki' : 'Export Anki'}
 
@@ -384,7 +384,7 @@ export function LeitnerBox({
         <p className="text-[10px] text-text-muted mb-2">{flipped ? t('answer') : t('question')}</p>
         {card?.source && (
           <span
-            className="mb-2 inline-block rounded-full border border-brand-500/25 bg-brand-600/10 px-2 py-0.5 text-[9px] font-medium text-brand-300"
+            className="mb-2 inline-block rounded-full border border-brand-500/25 bg-brand-600/10 px-2 py-0.5 text-[9px] font-medium text-brand-800"
             data-testid="leitner-card-source"
           >
             {leitnerCardSourceLabel(card.source, lang)}
@@ -413,7 +413,7 @@ export function LeitnerBox({
           type="button"
           data-testid="leitner-quiz-this-card"
           onClick={() => onQuizCard(card.front)}
-          className="mt-2 w-full rounded-lg border border-accent-cyan/30 bg-accent-cyan/10 py-1.5 text-[10px] font-medium text-accent-cyan hover:bg-accent-cyan/15"
+          className="mt-2 w-full rounded-lg border border-accent-cyan/30 bg-accent-cyan/10 py-1.5 text-[10px] font-medium text-brand-800 hover:opacity-90"
         >
           {lang === 'el' ? 'Κουίζ αυτής της κάρτας →' : 'Quiz this card →'}
         </button>

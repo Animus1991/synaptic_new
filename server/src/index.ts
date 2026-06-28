@@ -19,6 +19,8 @@ import { transcribeRouter } from './routes/transcribe';
 import { chunkErrorsRouter } from './routes/chunkErrors';
 import { googleAuthRouter } from './routes/googleAuth';
 import { googleIntegrationsRouter } from './routes/googleIntegrations';
+import { studyRoomsRouter } from './routes/studyRooms';
+import { bootstrapStudyRoomsFromPg } from './store/studyRoomPgStore';
 
 export function createApp(): express.Application {
   const app = express();
@@ -47,6 +49,7 @@ export function createApp(): express.Application {
         ocr: true,
         rateLimitRpm: config.rateLimitRpm,
         googleOAuth: Boolean(config.googleClientId && config.googleClientSecret),
+        studyRooms: true,
       },
     });
   });
@@ -66,6 +69,7 @@ export function createApp(): express.Application {
   app.use('/v1', transcribeRouter);
   app.use('/v1', teacherRouter);
   app.use('/v1', googleIntegrationsRouter);
+  app.use('/v1', studyRoomsRouter);
   app.use('/v1', proxyRouter);
 
   app.use(chunkErrorsRouter);
@@ -81,6 +85,7 @@ export async function startServer(): Promise<void> {
   if (config.databaseUrl && config.runMigrationsOnStart) {
     await runMigrations(config.databaseUrl);
   }
+  await bootstrapStudyRoomsFromPg(config.databaseUrl);
 
   app.listen(config.port, () => {
     console.log(`[synapse-proxy] listening on http://localhost:${config.port}`);

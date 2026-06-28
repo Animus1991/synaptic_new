@@ -137,10 +137,10 @@ export function InteractiveSimulator({
         <div className="flex h-full flex-col overflow-hidden">
           <div className="flex items-center justify-between border-b border-border-subtle bg-surface-card px-4 py-2.5 shrink-0">
             <span className="flex items-center gap-2 text-sm font-semibold">
-              <SlidersHorizontal className="w-4 h-4 text-brand-400" />
+              <SlidersHorizontal className="w-4 h-4 text-brand-700" />
               {t('parametricSandbox')}
             </span>
-            <span className="rounded border border-brand-500/30 bg-brand-500/10 px-2 py-0.5 text-[10px] text-brand-300">
+            <span className="rounded border border-brand-500/30 bg-brand-500/10 px-2 py-0.5 text-[10px] text-brand-800">
               {lang === 'el' ? 'Από σημειώσεις' : 'From notes'}
             </span>
           </div>
@@ -154,7 +154,7 @@ export function InteractiveSimulator({
               <div key={cue.id} className="rounded-xl border border-border-subtle bg-surface-card p-4">
                 <div className="mb-2 flex justify-between items-start gap-2">
                   <div>
-                    <p className="text-xs font-semibold text-brand-300">{cue.label}</p>
+                    <p className="text-xs font-semibold text-brand-800">{cue.label}</p>
                     <p className="text-[10px] text-text-muted mt-0.5 line-clamp-2">{cue.context}</p>
                   </div>
                   <span className="font-mono text-sm text-text-secondary shrink-0">
@@ -217,7 +217,7 @@ export function InteractiveSimulator({
       <div className="flex h-full flex-col overflow-hidden">
         <div className="flex items-center justify-between border-b border-border-subtle bg-surface-card px-4 py-2.5 shrink-0">
           <span className="flex items-center gap-2 text-sm font-semibold">
-            <SlidersHorizontal className="w-4 h-4 text-brand-400" />
+            <SlidersHorizontal className="w-4 h-4 text-brand-700" />
             {t('parametricSandbox')}
           </span>
         </div>
@@ -242,7 +242,7 @@ export function InteractiveSimulator({
     <div className="flex h-full flex-col overflow-hidden">
       <div className="flex items-center justify-between border-b border-border-subtle bg-surface-card px-4 py-2.5 shrink-0">
         <span className="flex items-center gap-2 text-sm font-semibold">
-          <SlidersHorizontal className="w-4 h-4 text-brand-400" />
+          <SlidersHorizontal className="w-4 h-4 text-brand-700" />
           {t('parametricSandbox')}
         </span>
         <span className="rounded border border-accent-teal/35 bg-accent-teal/15 px-2.5 py-1 text-xs text-accent-teal">
@@ -310,14 +310,14 @@ export function InteractiveSimulator({
             <span className="h-3.5 w-3.5 rounded-sm border border-accent-emerald bg-accent-emerald/25" />
             {t('consumerSurplus')}
           </span>
-          <span className="flex items-center gap-1.5 text-brand-300">
+          <span className="flex items-center gap-1.5 text-brand-800">
             <span className="h-3.5 w-3.5 rounded-sm border border-brand-400 bg-brand-500/25" />
             {t('producerSurplus')}
           </span>
         </div>
 
         <div className="mb-3 w-full max-w-sm rounded-xl border border-border-subtle bg-surface-primary/50 p-3">
-          <p className="mb-1 text-[11px] font-semibold text-brand-300">{t('equilibriumFormulas')}</p>
+          <p className="mb-1 text-[11px] font-semibold text-brand-800">{t('equilibriumFormulas')}</p>
           <p className="font-mono text-sm text-text-secondary">P* = (100 + ΔD − ΔS) / 2</p>
           <p className="font-mono text-sm text-text-secondary">Q* = P* + ΔS</p>
         </div>
@@ -332,7 +332,7 @@ export function InteractiveSimulator({
           </div>
           <div>
             <div className="mb-2 flex justify-between">
-              <label className="text-xs font-semibold text-brand-300">{t('supplyShock')}</label>
+              <label className="text-xs font-semibold text-brand-800">{t('supplyShock')}</label>
               <span className="font-mono text-xs text-text-tertiary">{supplyShift > 0 ? '+' : ''}{supplyShift}</span>
             </div>
             <input type="range" min={-40} max={40} value={supplyShift} onChange={(e) => { setSupplyShift(Number(e.target.value)); onEngage?.(); }} className="w-full" style={{ accentColor: '#818cf8' }} />
