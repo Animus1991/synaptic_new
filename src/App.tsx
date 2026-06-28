@@ -4,6 +4,7 @@ import { useAppStore } from './store/useStore';
 import { applyTheme, watchSystemTheme } from './lib/theme';
 import { I18nContext, t as translate, type I18nKey } from './lib/i18n';
 import { getTaskConcept, getWorkspaceTool, getMistakesForTask, getExamDurationSeconds, findPendingTask } from './lib/taskFlows';
+import { executeDashboardNextAction } from './lib/dashboardNextAction';
 import {
   buildTaskFlowContext,
   resolveExamQuestions,
@@ -144,6 +145,25 @@ export default function App() {
   }, [store]);
 
   const hasCourses = visibleCourses(store.courses, store.user.settings).length > 0;
+
+  const runDashboardNextAction = useCallback(() => {
+    const action = store.dashboardNextAction;
+    if (!action) return;
+    if (action.kind === 'review-due') {
+      const firstReviewTask = findPendingTask(store.tasks, (t) => t.isSpacedRepetition && t.status === 'pending');
+      if (firstReviewTask) store.startTask(firstReviewTask.id);
+      else store.openTasksWithFilter('review');
+      return;
+    }
+    executeDashboardNextAction(action, {
+      onStartTask: store.startTask,
+      onNavigateTasks: () => store.openTasksWithFilter('review'),
+      onOpenExamTimer: openExamTimerWorkspace,
+      onOpenWorkspace: openWorkspace,
+      onFocusWeakArea: openWorkspaceForConcept,
+      onStartSession: () => store.startSession('25min'),
+    });
+  }, [store, openExamTimerWorkspace, openWorkspace, openWorkspaceForConcept]);
 
   const handleSeeDemo = useCallback(() => {
     store.closeStudyWorkspace();
@@ -403,6 +423,8 @@ export default function App() {
         onStartSession={store.startSession}
         onContentSelect={handleContentSelect}
         onOpenWorkspace={openWorkspace}
+        dashboardNextAction={store.dashboardNextAction}
+        onDashboardNextAction={runDashboardNextAction}
       />
       <NotificationsPanel
         open={notificationsOpen}
@@ -765,6 +787,7 @@ export default function App() {
                   : null
               }
               onDismissPostUpload={store.clearPostUploadHighlight}
+              onOpenTasksReview={() => store.openTasksWithFilter('review')}
             />
           )}
           {store.currentView === 'library' && (
@@ -797,6 +820,8 @@ export default function App() {
               onExpandedTaskChange={store.setExpandedTaskId}
               openMistakes={store.pedagogyMetrics.openMistakes}
               onResolveMistake={store.resolveMistake}
+              filterPreset={store.tasksFilterPreset}
+              onFilterPresetConsumed={store.clearTasksFilterPreset}
             />
           )}
           {store.currentView === 'agent' && !agentSplitActive && (

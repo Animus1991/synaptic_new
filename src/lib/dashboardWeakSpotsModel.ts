@@ -10,12 +10,41 @@ import {
   type ConceptRemediationAction,
 } from './conceptBusRemediation';
 import type { WeakSpotWithReasons } from './weakAreaReasons';
+import { enrichWeakSpotsWithReasons } from './weakAreaReasons';
+import type { WeakSpotRef } from './workspaceWeakAreas';
+import { mergeConceptBusState, type ConceptBusMap } from './conceptBusSync';
+import { loadAllConceptBuses } from './workspacePersistence';
 import { activityFor, type ConceptBusState } from './workspaceConceptBus';
 import { normalizeFocusTerm } from './workspaceFocus';
 
 export type DashboardWeakSpot = WeakSpotWithReasons & {
   remediation: ConceptRemediationAction[];
 };
+
+export function mergeStoredConceptBuses(maps: ConceptBusMap): ConceptBusState {
+  let merged: ConceptBusState = {};
+  for (const bus of Object.values(maps)) {
+    if (bus && typeof bus === 'object') {
+      merged = mergeConceptBusState(merged, bus);
+    }
+  }
+  return merged;
+}
+
+export function buildDashboardWeakSpotCards(
+  weakAreas: Array<{ concept: string; mastery: number }>,
+  lang: Lang,
+): WeakSpotWithReasons[] {
+  const stored = loadAllConceptBuses() as ConceptBusMap;
+  const bus = mergeStoredConceptBuses(stored);
+  const spots: WeakSpotRef[] = weakAreas.slice(0, 3).map((area) => ({
+    concept: area.concept,
+    mastery: area.mastery,
+    course: '',
+    source: 'model',
+  }));
+  return enrichWeakSpotsWithReasons(spots, bus, lang);
+}
 
 function rowForConcept(bus: ConceptBusState, concept: string): ConceptBusRow | null {
   const activity = activityFor(bus, concept);

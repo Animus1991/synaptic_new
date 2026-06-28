@@ -28,9 +28,11 @@ interface TasksProps {
   onExpandedTaskChange?: (taskId: string | null) => void;
   openMistakes?: MistakeRecord[];
   onResolveMistake?: (id: string) => void;
+  filterPreset?: TaskFilter | null;
+  onFilterPresetConsumed?: () => void;
 }
 
-type TaskFilter = 'all' | 'learn' | 'review' | 'practice' | 'exam' | 'fix' | 'completed';
+export type TaskFilter = 'all' | 'learn' | 'review' | 'practice' | 'exam' | 'fix' | 'completed';
 
 const TASK_TYPE_LABEL: Record<TaskType, string> = {
   lesson: 'Lesson',
@@ -57,7 +59,7 @@ const sessionTypes: { type: SessionType; label: string; desc: string; minutes: n
   { type: 'review', label: 'Spaced Review', desc: 'Due spaced repetitions', minutes: 15, icon: RotateCcw },
 ];
 
-export function Tasks({ tasks, onComplete, onReviewRating, onStartTask, onStartSession, daysToExam = null, expandedTaskId = null, onExpandedTaskChange, openMistakes = [], onResolveMistake }: TasksProps) {
+export function Tasks({ tasks, onComplete, onReviewRating, onStartTask, onStartSession, daysToExam = null, expandedTaskId = null, onExpandedTaskChange, openMistakes = [], onResolveMistake, filterPreset = null, onFilterPresetConsumed }: TasksProps) {
   const [filter, setFilter] = useState<TaskFilter>('all');
   const [showSessions, setShowSessions] = useState(false);
   const [localExpanded, setLocalExpanded] = useState<string | null>(null);
@@ -70,6 +72,12 @@ export function Tasks({ tasks, onComplete, onReviewRating, onStartTask, onStartS
   useEffect(() => {
     if (expandedTaskId) setLocalExpanded(expandedTaskId);
   }, [expandedTaskId]);
+
+  useEffect(() => {
+    if (!filterPreset) return;
+    setFilter(filterPreset);
+    onFilterPresetConsumed?.();
+  }, [filterPreset, onFilterPresetConsumed]);
 
   const studyPlan = buildStudyPlanBlocks(tasks);
 

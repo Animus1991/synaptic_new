@@ -31,6 +31,9 @@ import { useI18n } from '../lib/i18n';
 import { Page, PageHeader, PlatformSection, PrimaryCTA } from './ui/primitives';
 import { PostUploadBanner } from './ui/PostUploadBanner';
 import { Layout as LucideLayout } from '@/lib/lucide-shim';
+import { useMemo } from 'react';
+import { buildDashboardWeakSpotCards } from '../lib/dashboardWeakSpotsModel';
+import { executeDashboardNextAction } from '../lib/dashboardNextAction';
 
 interface DashboardProps {
   stats: DashboardStats;
@@ -63,9 +66,10 @@ interface DashboardProps {
   /** Fresh upload highlight — show workspace CTA on dashboard */
   postUploadCourse?: Course | null;
   onDismissPostUpload?: () => void;
+  onOpenTasksReview?: () => void;
 }
 
-export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onSelectCourse, onOpenWorkspace, onOpenExamTimer, onUpload, onExploreDemo, prerequisiteRepairs = [], calibration, conceptMastery = [], activities = [], masteryDelta = 0, daysToExam = null, antiPassiveAlert = false, onStartTask, onStartSession, onResolveMisconception, onFocusWeakArea, workspaceLive = null, workspaceBooting = false, dashboardNextAction = null, lang = 'en', postUploadCourse = null, onDismissPostUpload }: DashboardProps) {
+export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onSelectCourse, onOpenWorkspace, onOpenExamTimer, onUpload, onExploreDemo, prerequisiteRepairs = [], calibration, conceptMastery = [], activities = [], masteryDelta = 0, daysToExam = null, antiPassiveAlert = false, onStartTask, onStartSession, onResolveMisconception, onFocusWeakArea, workspaceLive = null, workspaceBooting = false, dashboardNextAction = null, lang = 'en', postUploadCourse = null, onDismissPostUpload, onOpenTasksReview }: DashboardProps) {
   const { t } = useI18n();
   const pendingTasks = tasks.filter(t => t.status === 'pending');
   const criticalTasks = pendingTasks.filter(t => t.priority === 'critical' || t.priority === 'high');
@@ -74,30 +78,28 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
   const firstReviewTask = findPendingTask(tasks, (t) => t.isSpacedRepetition && t.status === 'pending');
   const showWorkspaceResume = workspaceLive && !workspaceLiveIsStale(workspaceLive);
   const isEmpty = courses.length === 0;
+  const weakSpotsWithReasons = useMemo(
+    () => buildDashboardWeakSpotCards(learnerModel.weakAreas, lang),
+    [learnerModel.weakAreas, lang],
+  );
+
+  const nextActionHandlers = {
+    onStartTask,
+    onNavigateTasks: onOpenTasksReview ?? (() => onNavigate('tasks')),
+    onOpenExamTimer,
+    onOpenWorkspace,
+    onFocusWeakArea,
+    onStartSession: () => onStartSession?.('25min') ?? onNavigate('tasks'),
+  };
 
   const handleDashboardNextAction = () => {
     if (!dashboardNextAction) return;
-    switch (dashboardNextAction.kind) {
-      case 'critical-task':
-        if (dashboardNextAction.taskId) onStartTask?.(dashboardNextAction.taskId);
-        else onNavigate('tasks');
-        break;
-      case 'review-due':
-        if (firstReviewTask) onStartTask?.(firstReviewTask.id);
-        else onStartSession?.('25min') ?? onNavigate('tasks');
-        break;
-      case 'exam-prep':
-        if (dashboardNextAction.taskId) onStartTask?.(dashboardNextAction.taskId);
-        else onOpenExamTimer?.() ?? onOpenWorkspace?.();
-        break;
-      case 'weak-area':
-        if (dashboardNextAction.concept) onFocusWeakArea?.(dashboardNextAction.concept);
-        else onOpenWorkspace?.();
-        break;
-      case 'start-session':
-        onStartSession?.('25min') ?? onNavigate('tasks');
-        break;
+    if (dashboardNextAction.kind === 'review-due') {
+      if (firstReviewTask) onStartTask?.(firstReviewTask.id);
+      else onOpenTasksReview?.() ?? onNavigate('tasks');
+      return;
     }
+    executeDashboardNextAction(dashboardNextAction, nextActionHandlers);
   };
 
   if (isEmpty) {
@@ -203,7 +205,13 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
       <MotionSection initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="grid grid-cols-2 sm:grid-cols-5 gap-3">
         <StatCard icon={<Flame className="w-5 h-5 text-accent-amber" />} label="Streak" value={`${stats.streak} days`} />
         <StatCard icon={<Zap className="w-5 h-5 text-brand-400" />} label="Today's XP" value={`${stats.todayXP}`} />
-        <StatCard icon={<Target className="w-5 h-5 text-accent-teal" />} label="Reviews Due" value={`${stats.reviewsDue}`} />
+        <StatCard
+          icon={<Target className="w-5 h-5 text-accent-teal" />}
+          label="Reviews Due"
+          value={`${stats.reviewsDue}`}
+          onClick={stats.reviewsDue > 0 ? () => (onOpenTasksReview ? onOpenTasksReview() : onNavigate('tasks')) : undefined}
+          data-testid="dashboard-stat-reviews-due"
+        />
         <StatCard icon={<Brain className="w-5 h-5 text-accent-cyan" />} label="Concepts Mastered" value={`${stats.conceptsMastered}/${stats.totalConcepts}`} />
         <StatCard icon={<Clock className="w-5 h-5 text-accent-emerald" />} label="Study Today" value={`${stats.studyTimeToday}m`} />
       </MotionSection>
@@ -466,7 +474,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
           <div className="ws-bento p-5">
             <h3 className="text-sm font-semibold flex items-center gap-2 mb-4"><Brain className="w-4 h-4 text-accent-rose" />Weak Areas</h3>
             <div className="space-y-3">
-              {learnerModel.weakAreas.slice(0, 3).map(area => (
+              {weakSpotsWithReasons.map((area) => (
                 <button
                   key={area.concept}
                   type="button"
@@ -481,10 +489,13 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                   }}
                   className="w-full space-y-1.5 text-left hover:bg-surface-hover rounded-lg p-1 -m-1 transition-all group"
                 >
-                  <div className="flex justify-between items-center">
-                    <span className="text-xs font-medium group-hover:text-brand-300 transition-colors">{area.concept}</span>
-                    <span className="text-xs text-text-tertiary">{area.mastery}%</span>
+                  <div className="flex justify-between items-center gap-2">
+                    <span className="text-xs font-medium group-hover:text-brand-300 transition-colors truncate">{area.concept}</span>
+                    <span className="text-xs text-text-tertiary shrink-0">{area.mastery}%</span>
                   </div>
+                  {area.reasons[0] && (
+                    <p className="type-caption text-text-tertiary line-clamp-1">{area.reasons[0].label}</p>
+                  )}
                   <div className="w-full bg-surface-hover rounded-full h-1.5">
                     <div className="h-1.5 rounded-full bg-accent-rose transition-all" style={{ width: `${Math.max(area.mastery, 3)}%` }} />
                   </div>
@@ -640,9 +651,36 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
   );
 }
 
-function StatCard({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
+function StatCard({
+  icon,
+  label,
+  value,
+  onClick,
+  ...rest
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+  onClick?: () => void;
+} & React.ComponentPropsWithoutRef<'div'>) {
+  const clickable = Boolean(onClick);
   return (
-    <div className="p-4 rounded-xl border border-border-subtle bg-surface-card">
+    <div
+      {...rest}
+      role={clickable ? 'button' : undefined}
+      tabIndex={clickable ? 0 : undefined}
+      onClick={onClick}
+      onKeyDown={clickable ? (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onClick?.();
+        }
+      } : undefined}
+      className={cn(
+        'p-4 rounded-xl border border-border-subtle bg-surface-card',
+        clickable && 'cursor-pointer hover:border-brand-500/30 hover:bg-surface-hover transition-colors',
+      )}
+    >
       <div className="flex items-center gap-2 mb-2">{icon}<span className="text-xs text-text-tertiary font-medium">{label}</span></div>
       <p className="text-xl font-bold">{value}</p>
     </div>

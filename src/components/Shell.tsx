@@ -64,6 +64,16 @@ const shellNavClass = (active: boolean) =>
       : 'border-transparent text-text-secondary hover:text-text-primary hover:bg-surface-hover',
   );
 
+const NAV_SUBTITLES: Partial<Record<AppView, I18nKey>> = {
+  dashboard: 'navSubtitleDashboard',
+  library: 'navSubtitleLibrary',
+  tasks: 'navSubtitleTasks',
+  agent: 'navSubtitleAgent',
+  analytics: 'navSubtitleAnalytics',
+  teacher: 'navSubtitleTeacher',
+  settings: 'navSubtitleSettings',
+};
+
 export function Shell({
   children,
   currentView,
@@ -87,6 +97,9 @@ export function Shell({
   const showMobileWorkspaceNav = Boolean(
     workspaceLive && !workspaceLiveIsStale(workspaceLive) && onOpenWorkspace,
   );
+  const showDesktopWorkspaceNav = Boolean(
+    onOpenWorkspace && (studyWorkspaceOpen || showMobileWorkspaceNav),
+  );
   const mobileNavItems = buildMobileNavItems(showMobileWorkspaceNav);
 
   const navButtonProps = (view: AppView) => ({
@@ -108,22 +121,50 @@ export function Shell({
         </div>
 
         <nav className="flex-1 p-3 space-y-1">
-          {navViews.map(item => (
-            <button
-              key={item.view}
-              {...navButtonProps(item.view)}
-              onClick={() => onNavigate(item.view)}
-              className={shellNavClass(currentView === item.view)}
-            >
-              <item.icon className="w-5 h-5" />
-              {t(item.labelKey)}
-              {item.view === 'tasks' && stats.reviewsDue > 0 && (
-                <span className="ml-auto text-xs ws-chip-danger px-2 py-0.5 rounded-full font-semibold">
-                  {stats.reviewsDue}
-                </span>
-              )}
-            </button>
-          ))}
+          {navViews.map((item) => {
+            const insertWorkspaceAfter = item.view === 'agent';
+            return (
+              <div key={item.view}>
+                <button
+                  {...navButtonProps(item.view)}
+                  onClick={() => onNavigate(item.view)}
+                  title={NAV_SUBTITLES[item.view] ? t(NAV_SUBTITLES[item.view]!) : undefined}
+                  className={shellNavClass(currentView === item.view && !studyWorkspaceOpen)}
+                >
+                  <item.icon className="w-5 h-5 shrink-0" />
+                  <span className="flex-1 text-left truncate">{t(item.labelKey)}</span>
+                  {item.view === 'tasks' && stats.reviewsDue > 0 && (
+                    <span className="ml-auto text-xs ws-chip-danger px-2 py-0.5 rounded-full font-semibold">
+                      {stats.reviewsDue}
+                    </span>
+                  )}
+                </button>
+                {insertWorkspaceAfter && showDesktopWorkspaceNav && (
+                  <button
+                    type="button"
+                    data-testid="nav-workspace"
+                    data-tour="nav-workspace"
+                    onClick={() => onOpenWorkspace?.()}
+                    {...workspaceEntryPrefetchHandlers()}
+                    title={t('navSubtitleWorkspace')}
+                    className={cn(shellNavClass(studyWorkspaceOpen), 'mt-1')}
+                  >
+                    <Layout className="w-5 h-5 shrink-0" />
+                    <span className="flex-1 text-left truncate">{t('navStudyWorkspace')}</span>
+                    {studyWorkspaceOpen ? (
+                      <span className="ml-auto type-micro ws-chip-brand px-2 py-0.5 rounded-full font-semibold whitespace-nowrap">
+                        {t('navContinuingHere')}
+                      </span>
+                    ) : workspaceLive?.snapshot.toolLabel ? (
+                      <span className="ml-auto type-micro ws-chip-neutral px-2 py-0.5 rounded-full font-semibold truncate max-w-[5.5rem]">
+                        {workspaceLive.snapshot.toolLabel}
+                      </span>
+                    ) : null}
+                  </button>
+                )}
+              </div>
+            );
+          })}
         </nav>
 
         <div className="p-3">
@@ -167,12 +208,13 @@ export function Shell({
             </div>
 
             <nav className="flex-1 p-3 space-y-1">
-              {navViews.map(item => (
+              {navViews.map((item) => (
                 <button
                   key={item.view}
                   {...navButtonProps(item.view)}
                   onClick={() => onNavigate(item.view)}
-                  className={shellNavClass(currentView === item.view)}
+                  title={NAV_SUBTITLES[item.view] ? t(NAV_SUBTITLES[item.view]!) : undefined}
+                  className={shellNavClass(currentView === item.view && !studyWorkspaceOpen)}
                 >
                   <item.icon className="w-5 h-5" />
                   {t(item.labelKey)}

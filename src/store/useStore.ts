@@ -64,6 +64,7 @@ import {
   tasksAfterFileRemoval,
 } from '../lib/deleteCascade';
 import { emitAnalyticsLearningEvent } from '../lib/emitLearningEvent';
+import type { TaskFilter } from '../components/Tasks';
 import { selectDashboardNextAction } from '../lib/dashboardNextAction';
 import { formatUploadSuccessToast, summarizeUploadStructure } from '../lib/uploadStructureSummary';
 import type { BetaMastery } from '../lib/pedagogy';
@@ -366,6 +367,7 @@ export function useAppStore() {
   const [activeSessionType, setActiveSessionType] = useState<SessionType | null>(null);
   const [activeTaskId, setActiveTaskId] = useState<string | null>(null);
   const [expandedTaskId, setExpandedTaskId] = useState<string | null>(null);
+  const [tasksFilterPreset, setTasksFilterPreset] = useState<TaskFilter | null>(null);
   const [appToast, setAppToast] = useState<{ id: number; message: string } | null>(null);
   const [postUploadCourseId, setPostUploadCourseId] = useState<string | null>(null);
   const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -491,6 +493,17 @@ export function useAppStore() {
       setWorkspaceAgentSplit(false);
     }
     window.scrollTo(0, 0);
+  }, []);
+
+  const openTasksWithFilter = useCallback((filter: TaskFilter) => {
+    setTasksFilterPreset(filter);
+    setCurrentView('tasks');
+    setSidebarOpen(false);
+    window.scrollTo(0, 0);
+  }, []);
+
+  const clearTasksFilterPreset = useCallback(() => {
+    setTasksFilterPreset(null);
   }, []);
 
   const openCourseReview = useCallback((course: Course) => {
@@ -1832,6 +1845,7 @@ export function useAppStore() {
     startTask, startSession, endSession,
     sessionQueue, sessionTotal, activeSessionType,
     activeTask, activeTaskId, setActiveTaskId, expandedTaskId, setExpandedTaskId,
+    tasksFilterPreset, openTasksWithFilter, clearTasksFilterPreset,
     learnerModel, dashboardStats, pedagogyMetrics, dashboardExtras, activities,
     recordConfidence, recordQuizAttempt,
     openMistakes, resolveMistake, resolveMisconception, completeOnboarding, enableDemoContent,

@@ -108,3 +108,38 @@ export function selectDashboardNextAction(opts: {
 
   return null;
 }
+
+export type DashboardNextActionHandlers = {
+  onStartTask?: (taskId: string) => void;
+  onNavigateTasks?: () => void;
+  onOpenExamTimer?: () => void;
+  onOpenWorkspace?: () => void;
+  onFocusWeakArea?: (concept: string) => void;
+  onStartSession?: () => void;
+};
+
+export function executeDashboardNextAction(
+  action: DashboardNextAction,
+  handlers: DashboardNextActionHandlers,
+): void {
+  switch (action.kind) {
+    case 'critical-task':
+      if (action.taskId) handlers.onStartTask?.(action.taskId);
+      else handlers.onNavigateTasks?.();
+      break;
+    case 'review-due':
+      handlers.onNavigateTasks?.();
+      break;
+    case 'exam-prep':
+      if (action.taskId) handlers.onStartTask?.(action.taskId);
+      else handlers.onOpenExamTimer?.() ?? handlers.onOpenWorkspace?.();
+      break;
+    case 'weak-area':
+      if (action.concept) handlers.onFocusWeakArea?.(action.concept);
+      else handlers.onOpenWorkspace?.();
+      break;
+    case 'start-session':
+      handlers.onStartSession?.() ?? handlers.onNavigateTasks?.();
+      break;
+  }
+}

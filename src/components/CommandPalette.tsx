@@ -6,10 +6,12 @@ import { useI18n, type I18nKey } from '../lib/i18n';
 import { searchUploadedContent, type ContentSearchHit } from '../lib/globalContentSearch';
 import { getTaskActionVisual } from '../lib/taskActionIcons';
 import type { LucideIcon } from '@/lib/lucide-shim';
+import type { DashboardNextAction } from '../lib/dashboardNextAction';
 
 export type CommandAction =
   | { type: 'navigate'; view: AppView; label: string; icon: typeof Search }
   | { type: 'workspace'; label: string; icon: typeof LayoutGrid }
+  | { type: 'next-action'; label: string; sublabel?: string; icon: typeof Play }
   | { type: 'task'; taskId: string; label: string; icon: LucideIcon }
   | { type: 'session'; session: '10min' | '25min' | 'review'; label: string; icon: typeof Play }
   | { type: 'content'; hit: ContentSearchHit; label: string; sublabel?: string; icon: typeof BookOpen };
@@ -26,6 +28,8 @@ interface Props {
   onStartSession: (session: '10min' | '25min' | 'review') => void;
   onContentSelect: (hit: ContentSearchHit) => void;
   onOpenWorkspace?: () => void;
+  dashboardNextAction?: DashboardNextAction | null;
+  onDashboardNextAction?: () => void;
 }
 
 const NAV: { view: AppView; labelKey: I18nKey; icon: typeof LayoutDashboard }[] = [
@@ -57,6 +61,8 @@ export function CommandPalette({
   onStartSession,
   onContentSelect,
   onOpenWorkspace,
+  dashboardNextAction = null,
+  onDashboardNextAction,
 }: Props) {
   const { t } = useI18n();
   const [query, setQuery] = useState('');
@@ -114,11 +120,22 @@ export function CommandPalette({
     ? [{ type: 'workspace' as const, label: t('navStudyWorkspace'), icon: LayoutGrid }].filter((a) => a.label.toLowerCase().includes(q))
     : [];
 
-  const actions = [...workspaceAction, ...contentActions, ...navActions, ...taskActions, ...sessionActions];
+  const nextActionCommands: CommandAction[] =
+    dashboardNextAction && onDashboardNextAction && !q.trim()
+      ? [{
+          type: 'next-action' as const,
+          label: dashboardNextAction.label,
+          sublabel: dashboardNextAction.reason,
+          icon: Play,
+        }]
+      : [];
+
+  const actions = [...nextActionCommands, ...workspaceAction, ...contentActions, ...navActions, ...taskActions, ...sessionActions];
 
   const run = (a: CommandAction) => {
     if (a.type === 'navigate') onNavigate(a.view);
     if (a.type === 'workspace') onOpenWorkspace?.();
+    if (a.type === 'next-action') onDashboardNextAction?.();
     if (a.type === 'task') onStartTask(a.taskId);
     if (a.type === 'session') onStartSession(a.session);
     if (a.type === 'content') onContentSelect(a.hit);
@@ -147,7 +164,7 @@ export function CommandPalette({
           ) : actions.map((a, i) => (
             <button
               key={`${a.type}-${i}`}
-              data-testid={a.type === 'content' ? `command-content-${a.hit.kind}` : undefined}
+              data-testid={a.type === 'content' ? `command-content-${a.hit.kind}` : a.type === 'next-action' ? 'command-next-action' : undefined}
               onClick={() => run(a)}
               className={cn(
                 'w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-sm',
@@ -158,6 +175,9 @@ export function CommandPalette({
               <span className="min-w-0 flex-1">
                 <span className="block truncate">{a.label}</span>
                 {a.type === 'content' && a.sublabel && (
+                  <span className="block truncate text-[10px] text-text-muted">{a.sublabel}</span>
+                )}
+                {a.type === 'next-action' && a.sublabel && (
                   <span className="block truncate text-[10px] text-text-muted">{a.sublabel}</span>
                 )}
               </span>
