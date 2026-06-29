@@ -323,17 +323,17 @@ export function InteractiveSimulator({
         <div className="w-full max-w-sm space-y-4 rounded-xl border border-border-subtle bg-surface-card p-4">
           <div>
             <div className="mb-2 flex justify-between">
-              <label className="text-xs font-semibold text-accent-emerald">{t('demandShock')}</label>
+              <label htmlFor="sim-demand-shift" className="text-xs font-semibold text-accent-emerald">{t('demandShock')}</label>
               <span className="font-mono text-xs text-text-tertiary">{demandShift > 0 ? '+' : ''}{demandShift}</span>
             </div>
-            <input type="range" min={-40} max={40} value={demandShift} onChange={(e) => { setDemandShift(Number(e.target.value)); onEngage?.(); }} className="w-full" style={{ accentColor: '#34d399' }} />
+            <input id="sim-demand-shift" type="range" min={-40} max={40} value={demandShift} onChange={(e) => { setDemandShift(Number(e.target.value)); onEngage?.(); }} className="w-full" style={{ accentColor: '#34d399' }} />
           </div>
           <div>
             <div className="mb-2 flex justify-between">
-              <label className="text-xs font-semibold text-brand-800">{t('supplyShock')}</label>
+              <label htmlFor="sim-supply-shift" className="text-xs font-semibold text-brand-800">{t('supplyShock')}</label>
               <span className="font-mono text-xs text-text-tertiary">{supplyShift > 0 ? '+' : ''}{supplyShift}</span>
             </div>
-            <input type="range" min={-40} max={40} value={supplyShift} onChange={(e) => { setSupplyShift(Number(e.target.value)); onEngage?.(); }} className="w-full" style={{ accentColor: '#818cf8' }} />
+            <input id="sim-supply-shift" type="range" min={-40} max={40} value={supplyShift} onChange={(e) => { setSupplyShift(Number(e.target.value)); onEngage?.(); }} className="w-full" style={{ accentColor: '#818cf8' }} />
           </div>
           <div className="flex items-center justify-between border-t border-border-subtle pt-3 font-mono text-sm">
             <span>P* = <strong>{eqP.toFixed(1)}</strong></span>

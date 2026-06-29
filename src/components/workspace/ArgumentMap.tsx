@@ -233,6 +233,7 @@ export function ArgumentMap({
 
   const renderNodes = (node: ArgNode): React.ReactNode => {
     const colorStyle = NODE_COLORS[node.type];
+    const typeLabel = t(TYPE_LABEL_KEYS[node.type]);
     const isEditing = editingId === node.id;
     const isSelected = Boolean(selectedClaim && node.text === selectedClaim);
     return (
@@ -255,6 +256,7 @@ export function ArgumentMap({
               onChange={(e) => setDraft(e.target.value)}
               onBlur={saveEdit}
               autoFocus
+              aria-label={`${t('debateEditNode')} — ${typeLabel}`}
               className="w-full h-14 bg-transparent text-xs resize-none outline-none text-center"
             />
           ) : (
@@ -273,36 +275,50 @@ export function ArgumentMap({
                 {onOpenInReader && node.text.trim().length > 8 && (
                   <button
                     type="button"
-                    title={t('feynmanReadInSource')}
+                    aria-label={t('feynmanReadInSource')}
                     onClick={() => onOpenInReader(node.text)}
-                    className="p-1 rounded bg-surface-primary/80 border border-border-subtle text-brand-800"
+                    className="p-1 rounded bg-surface-primary/80 border border-border-subtle text-text-primary"
                   >
-                    <BookOpen className="w-3 h-3" />
+                    <BookOpen className="w-3 h-3" aria-hidden />
                   </button>
                 )}
-                <button type="button" onClick={() => startEdit(node)} className="p-1 rounded bg-surface-primary/80 border border-border-subtle">
-                  <Pencil className="w-3 h-3" />
+                <button
+                  type="button"
+                  aria-label={`${t('debateEditNode')} — ${typeLabel}`}
+                  onClick={() => startEdit(node)}
+                  className="p-1 rounded bg-surface-primary/80 border border-border-subtle text-text-primary"
+                >
+                  <Pencil className="w-3 h-3" aria-hidden />
                 </button>
-                <button type="button" onClick={() => addNode(node.id, 'support')} className="p-1 rounded bg-surface-primary/80 border border-border-subtle">
-                  <Plus className="w-3 h-3" />
+                <button
+                  type="button"
+                  aria-label={t('debateAddSupport')}
+                  onClick={() => addNode(node.id, 'support')}
+                  className="p-1 rounded bg-surface-primary/80 border border-border-subtle text-text-primary"
+                >
+                  <Plus className="w-3 h-3" aria-hidden />
                 </button>
                 <button
                   type="button"
                   data-testid="debate-add-counter"
-                  title={t('debateCounterFromNotes')}
+                  aria-label={t('debateCounterFromNotes')}
                   onClick={() => addCounterFromNotes(node.id)}
                   className="p-1 rounded bg-surface-primary/80 border border-accent-rose/40 text-accent-rose"
                 >
-                  <Shield className="w-3 h-3" />
+                  <Shield className="w-3 h-3" aria-hidden />
                 </button>
               </div>
             </>
           )}
           <div
-            className="absolute -top-2 rounded-full border bg-surface-primary px-2 py-0.5 text-[9px] font-bold"
-            style={{ borderColor: colorStyle.border, color: colorStyle.border }}
+            className="absolute -top-2 z-10 rounded-full border px-2 py-0.5 type-caption font-semibold shadow-[0_0_0_2px_var(--color-surface-primary)]"
+            style={{
+              backgroundColor: colorStyle.bg,
+              borderColor: colorStyle.border,
+              color: '#f8fafc',
+            }}
           >
-            {t(TYPE_LABEL_KEYS[node.type])}
+            {typeLabel}
           </div>
         </motion.div>
         {node.children && node.expanded && node.children.map(renderNodes)}

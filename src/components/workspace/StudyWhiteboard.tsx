@@ -423,8 +423,13 @@ export function StudyWhiteboard({
                   <Calculator className="w-3.5 h-3.5" />
                   {t('wbFromScratchpad')}
                 </div>
-                <button type="button" onClick={onDismissScratchpadImport} className="text-text-muted hover:text-text-secondary">
-                  <X className="w-3.5 h-3.5" />
+                <button
+                  type="button"
+                  aria-label={t('wbDismissScratchpad')}
+                  onClick={onDismissScratchpadImport}
+                  className="text-text-muted hover:text-text-secondary"
+                >
+                  <X className="w-3.5 h-3.5" aria-hidden />
                 </button>
               </div>
               <p className="text-[10px] font-medium text-brand-800">{scratchpadImport.name}</p>
@@ -493,7 +498,8 @@ export function StudyWhiteboard({
           <button
             key={id}
             type="button"
-            title={label}
+            aria-label={label}
+            aria-pressed={tool === id}
             disabled={activeLayerLocked}
             onClick={() => setTool(id)}
             className={cn(
@@ -502,7 +508,7 @@ export function StudyWhiteboard({
               activeLayerLocked && 'opacity-40 cursor-not-allowed',
             )}
           >
-            <Icon className="w-3.5 h-3.5" />
+            <Icon className="w-3.5 h-3.5" aria-hidden />
             <span className="hidden sm:inline">{label}</span>
           </button>
         ))}
@@ -510,42 +516,74 @@ export function StudyWhiteboard({
         <button
           type="button"
           data-testid="whiteboard-layers-toggle"
+          aria-label={t('wbToggleLayersPanel')}
+          aria-pressed={showLayers}
           onClick={() => setShowLayers((v) => !v)}
           className={cn(
             'rounded-lg p-1.5',
             showLayers ? 'bg-brand-600/20 text-brand-800' : 'text-text-muted hover:bg-surface-hover',
           )}
-          title={t('wbLayers')}
         >
-          <Layers className="w-3.5 h-3.5" />
+          <Layers className="w-3.5 h-3.5" aria-hidden />
         </button>
         <button
           type="button"
           data-testid="whiteboard-latex-stamps"
+          aria-label={t('wbToggleLatexPanel')}
+          aria-pressed={showStamps}
           onClick={() => setShowStamps((v) => !v)}
           className={cn(
             'rounded-lg px-2 py-1.5 text-[10px] font-medium',
             showStamps ? 'bg-accent-cyan/20 text-brand-800' : 'text-text-muted hover:bg-surface-hover',
           )}
-          title={t('wbLatexStamps')}
         >
-          <Calculator className="w-3.5 h-3.5 inline" />
+          <Calculator className="w-3.5 h-3.5 inline" aria-hidden />
           <span className="hidden sm:inline ml-1">LaTeX</span>
         </button>
-        <button type="button" onClick={undo} disabled={doc.strokes.length === 0} className="rounded-lg p-1.5 text-text-muted hover:bg-surface-hover disabled:opacity-40 disabled:cursor-not-allowed"><Undo2 className="w-3.5 h-3.5" /></button>
-        <button type="button" onClick={redo} disabled={redoStack.length === 0} className="rounded-lg p-1.5 text-text-muted hover:bg-surface-hover disabled:opacity-40 disabled:cursor-not-allowed"><Redo2 className="w-3.5 h-3.5" /></button>
-        <button type="button" onClick={clearActiveLayer} className="rounded-lg p-1.5 text-text-muted hover:bg-surface-hover" title={t('wbClearActiveLayer')}><Trash2 className="w-3.5 h-3.5" /></button>
-        <button type="button" onClick={save} className="rounded-lg p-1.5 text-text-muted hover:bg-surface-hover"><Save className="w-3.5 h-3.5" /></button>
+        <button
+          type="button"
+          aria-label={t('wbUndo')}
+          onClick={undo}
+          disabled={doc.strokes.length === 0}
+          className="rounded-lg p-1.5 text-text-muted hover:bg-surface-hover disabled:opacity-40 disabled:cursor-not-allowed"
+        >
+          <Undo2 className="w-3.5 h-3.5" aria-hidden />
+        </button>
+        <button
+          type="button"
+          aria-label={t('wbRedo')}
+          onClick={redo}
+          disabled={redoStack.length === 0}
+          className="rounded-lg p-1.5 text-text-muted hover:bg-surface-hover disabled:opacity-40 disabled:cursor-not-allowed"
+        >
+          <Redo2 className="w-3.5 h-3.5" aria-hidden />
+        </button>
+        <button
+          type="button"
+          aria-label={t('wbClearActiveLayer')}
+          onClick={clearActiveLayer}
+          className="rounded-lg p-1.5 text-text-muted hover:bg-surface-hover"
+        >
+          <Trash2 className="w-3.5 h-3.5" aria-hidden />
+        </button>
+        <button
+          type="button"
+          aria-label={t('wbSaveBoard')}
+          onClick={save}
+          className="rounded-lg p-1.5 text-text-muted hover:bg-surface-hover"
+        >
+          <Save className="w-3.5 h-3.5" aria-hidden />
+        </button>
         <button
           type="button"
           data-testid="whiteboard-export-png"
+          aria-label={t('wbExportPng')}
           onClick={() => {
             if (canvasRef.current) downloadWhiteboardPng(canvasRef.current, `whiteboard-${scopeKey ?? 'board'}`);
           }}
           className="rounded-lg p-1.5 text-text-muted hover:bg-surface-hover"
-          title={t('wbExportPng')}
         >
-          <Download className="w-3.5 h-3.5" />
+          <Download className="w-3.5 h-3.5" aria-hidden />
         </button>
         {savedMsg && <span className="text-[10px] text-accent-emerald">{t('wbSaved')}</span>}
         {activeLayerLocked && (
@@ -562,9 +600,9 @@ export function StudyWhiteboard({
             <button
               key={stamp.id}
               type="button"
+              aria-label={t('wbInsertStamp').replace('{label}', stamp.label)}
               onClick={() => insertLatexStamp(stamp)}
               className="rounded-lg border border-border-subtle bg-surface-card px-2 py-1 text-[9px] text-text-secondary hover:border-accent-cyan/40 hover:text-brand-800"
-              title={stamp.latex}
             >
               {stamp.label}
             </button>
@@ -594,17 +632,33 @@ export function StudyWhiteboard({
                 <button
                   type="button"
                   data-testid={`whiteboard-layer-${layer.id}`}
+                  aria-label={t('wbActivateLayer').replace('{name}', layer.name)}
+                  aria-current={active ? 'true' : undefined}
                   onClick={() => setDoc((d) => ({ ...d, activeLayerId: layer.id }))}
                   className="font-medium text-text-secondary hover:text-brand-800"
                 >
                   {layer.name}
                   <span className="ml-1 text-text-muted">({strokeCount})</span>
                 </button>
-                <button type="button" onClick={() => toggleLayerVisibility(layer.id)} className="text-text-muted hover:text-text-secondary">
-                  {layer.visible ? <Eye className="w-3 h-3" /> : <EyeOff className="w-3 h-3" />}
+                <button
+                  type="button"
+                  aria-label={layer.visible
+                    ? t('wbHideLayer').replace('{name}', layer.name)
+                    : t('wbShowLayer').replace('{name}', layer.name)}
+                  onClick={() => toggleLayerVisibility(layer.id)}
+                  className="text-text-muted hover:text-text-secondary"
+                >
+                  {layer.visible ? <Eye className="w-3 h-3" aria-hidden /> : <EyeOff className="w-3 h-3" aria-hidden />}
                 </button>
-                <button type="button" onClick={() => toggleLayerLock(layer.id)} className="text-text-muted hover:text-text-secondary">
-                  {layer.locked ? <Lock className="w-3 h-3 text-accent-amber" /> : <Unlock className="w-3 h-3" />}
+                <button
+                  type="button"
+                  aria-label={layer.locked
+                    ? t('wbUnlockLayer').replace('{name}', layer.name)
+                    : t('wbLockLayer').replace('{name}', layer.name)}
+                  onClick={() => toggleLayerLock(layer.id)}
+                  className="text-text-muted hover:text-text-secondary"
+                >
+                  {layer.locked ? <Lock className="w-3 h-3 text-accent-amber" aria-hidden /> : <Unlock className="w-3 h-3" aria-hidden />}
                 </button>
               </div>
             );
@@ -627,13 +681,23 @@ export function StudyWhiteboard({
           <button
             key={c}
             type="button"
+            aria-label={`${t('wbSelectColor')} ${c}`}
+            aria-pressed={color === c}
             onClick={() => setColor(c)}
             className={cn('h-5 w-5 rounded-full border-2', color === c ? 'border-brand-400' : 'border-transparent')}
             style={{ backgroundColor: c }}
           />
         ))}
-        <span className="ml-2 text-text-tertiary">Width</span>
-        <input type="range" min={1} max={12} value={width} onChange={(e) => setWidth(Number(e.target.value))} className="w-24" />
+        <label htmlFor="wb-stroke-width" className="ml-2 text-text-tertiary">{t('wbStrokeWidth')}</label>
+        <input
+          id="wb-stroke-width"
+          type="range"
+          min={1}
+          max={12}
+          value={width}
+          onChange={(e) => setWidth(Number(e.target.value))}
+          className="w-24"
+        />
       </div>
 
       <div ref={containerRef} className="relative min-h-0 flex-1 p-2">

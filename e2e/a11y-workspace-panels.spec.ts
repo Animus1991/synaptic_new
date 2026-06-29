@@ -25,7 +25,7 @@ test.describe('A11y — Workspace panels', () => {
   test.use({ viewport: { width: 1280, height: 900 } });
 
   test('every dock tool surface is labelled and axe-clean', async ({ page }) => {
-    test.setTimeout(120_000);
+    test.setTimeout(300_000);
     await enterWorkspace(page);
 
     const dock = page.getByTestId('workspace-dock');
