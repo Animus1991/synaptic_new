@@ -4,8 +4,6 @@ import "./index.css";
 import "@fontsource/playfair-display/400.css";
 import "@fontsource/playfair-display/700.css";
 import "@fontsource/playfair-display/700-italic.css";
-import "@fontsource/jetbrains-mono/400.css";
-import "@fontsource/jetbrains-mono/500.css";
 import "@fontsource/lora/400.css";
 import "@fontsource/lora/500.css";
 import "@fontsource/lora/600.css";
@@ -30,7 +28,7 @@ createRoot(document.getElementById("root")!).render(
     <ErrorBoundary>
       <MotionConfig reducedMotion="user">
         <LazyMotion features={domAnimation}>
-          <IconContext.Provider value={{ weight: "thin", mirrored: false }}>
+          <IconContext.Provider value={{ weight: "regular", mirrored: false }}>
             <App />
           </IconContext.Provider>
         </LazyMotion>

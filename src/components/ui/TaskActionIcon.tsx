@@ -17,7 +17,7 @@ type Props = {
   className?: string;
 };
 
-/** Phosphor thin icon for a task row or palette entry. */
+/** Phosphor regular icon for a task row or palette entry. */
 export function TaskActionIcon({ task, taskType, size = 'xs', className }: Props) {
   const visual = task
     ? getTaskActionVisual(task)

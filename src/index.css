@@ -59,8 +59,38 @@
   --palette-orange: #e09858;
 
   --font-sans: 'Inter', 'Noto Sans', 'Noto Sans Greek', ui-sans-serif, system-ui, sans-serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  /* Tabular numerals reuse sans — no third loaded family (Package 2). */
+  --font-mono: var(--font-sans);
   --font-display: 'Playfair Display', 'Noto Serif', ui-serif, Georgia, serif;
+
+  /* Package 2 — spacing scale (4px base) */
+  --space-0: 0;
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+
+  /* Package 2 — corner radii */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-panel: 1.25rem;
+  --radius-pill: 9999px;
+
+  /* Package 2 — elevation (hairline → modal) */
+  --elev-0: none;
+  --elev-1: 0 1px 0 color-mix(in srgb, var(--color-border-subtle) 55%, transparent);
+  --elev-2: 0 4px 24px color-mix(in srgb, #0a0a0c 8%, transparent);
+  --elev-3: 0 12px 28px -10px color-mix(in srgb, #0a0a0c 22%, transparent),
+            0 2px 6px color-mix(in srgb, #0a0a0c 10%, transparent);
+  --elev-4: 0 16px 48px color-mix(in srgb, #0a0a0c 20%, transparent);
+  --elev-drawer: -8px 0 32px color-mix(in srgb, #0a0a0c 14%, transparent);
 
   /* Package 2 — shared type scale (platform + workspace) */
   --type-micro: 0.625rem;
@@ -151,6 +181,14 @@
   --color-accent-violet: var(--palette-purple);
 
   --font-sans: 'Nunito Sans', system-ui, -apple-system, sans-serif;
+  --font-display: 'Lora', Georgia, serif;
+
+  --elev-1: 0 1px 0 color-mix(in srgb, var(--color-border-subtle) 45%, transparent);
+  --elev-2: 0 4px 24px color-mix(in srgb, #1f160c 6%, transparent);
+  --elev-3: 0 12px 28px -10px color-mix(in srgb, #1f160c 18%, transparent),
+            0 2px 6px color-mix(in srgb, #1f160c 8%, transparent);
+  --elev-4: 0 16px 48px color-mix(in srgb, #1f160c 18%, transparent);
+  --elev-drawer: -8px 0 32px color-mix(in srgb, #1f160c 12%, transparent);
 
   color-scheme: light;
 }
@@ -264,8 +302,7 @@
 [data-theme="light"] .ws-fab {
   background: var(--color-brand-fill-600);
   color: #faf8f5;
-  box-shadow: 0 12px 28px -10px rgba(80, 58, 34, 0.35),
-              0 2px 6px rgba(80, 58, 34, 0.14);
+  box-shadow: var(--elev-3);
 }
 [data-theme="light"] .ws-pill[data-active="true"] {
   background: var(--color-brand-fill-600);
@@ -448,8 +485,7 @@
 [data-theme="spectrum"] .ws-fab {
   background: linear-gradient(135deg, var(--color-brand-600), var(--palette-purple));
   color: #ffffff;
-  box-shadow: 0 12px 28px -10px rgba(123, 97, 255, 0.4),
-              0 2px 6px rgba(123, 97, 255, 0.18);
+  box-shadow: var(--elev-3);
 }
 [data-theme="spectrum"] .bg-accent-rose\/15 {
   background-color: color-mix(in srgb, var(--palette-rose) 14%, transparent);
@@ -502,11 +538,11 @@ body {
 
 /* Study Workspace type scale (editorial academic) — sentence case labels */
 .ws-eyebrow {
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   font-size: var(--type-caption);
   line-height: var(--leading-caption);
   font-weight: 600;
-  letter-spacing: 0.01em;
+  letter-spacing: 0.02em;
   text-transform: none;
 }
 
@@ -595,9 +631,39 @@ body {
 }
 
 .ws-num {
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   font-variant-numeric: tabular-nums;
 }
+
+/* Package 2 — two-font policy: sans (UI/body) + display (headings) per theme */
+.ws-serif {
+  font-family: var(--font-display);
+  font-weight: 500;
+  letter-spacing: -0.005em;
+}
+
+/* Tabular UI labels — sans alignment, no third webfont */
+.font-mono {
+  font-family: var(--font-sans);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Raw source / code — system monospace stack only */
+.ws-source-code {
+  font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, monospace;
+}
+
+/* Package 2 — spacing / elevation / radius utilities */
+.elev-0 { box-shadow: var(--elev-0); }
+.elev-1 { box-shadow: var(--elev-1); }
+.elev-2 { box-shadow: var(--elev-2); }
+.elev-3 { box-shadow: var(--elev-3); }
+.elev-4 { box-shadow: var(--elev-4); }
+.elev-drawer { box-shadow: var(--elev-drawer); }
+.rounded-panel { border-radius: var(--radius-panel); }
+.space-stack-sm > * + * { margin-top: var(--space-4); }
+.space-stack-md > * + * { margin-top: var(--space-6); }
+.space-stack-lg > * + * { margin-top: var(--space-8); }
 
 /* Reader long-form: Greek + Latin mixed academic text */
 .reader-prose {
@@ -638,7 +704,7 @@ body {
 [data-theme="light"] .glass-strong {
   background: rgba(255, 255, 255, 0.92);
   border: 1px solid rgba(201, 184, 150, 0.65);
-  box-shadow: 0 4px 24px rgba(31, 22, 12, 0.06);
+  box-shadow: var(--elev-2);
 }
 
 .gradient-text {
@@ -998,14 +1064,14 @@ input[type="range"]::-webkit-slider-thumb {
 [data-theme="light"] [data-ws-theme="warm"] h2,
 [data-theme="light"] [data-ws-theme="warm"] h3,
 [data-theme="light"] [data-ws-theme="warm"] .ws-serif {
-  font-family: 'Lora', Georgia, serif;
+  font-family: var(--font-display);
   font-weight: 500;
   letter-spacing: -0.005em;
 }
 [data-theme="light"] [data-ws-theme="warm"] .ws-eyebrow,
 [data-theme="light"] [data-ws-theme="warm"] .ws-title,
 [data-theme="light"] [data-ws-theme="warm"] .ws-num {
-  font-family: 'Nunito Sans', system-ui, sans-serif;
+  font-family: var(--font-sans);
   letter-spacing: 0.01em;
 }
 
@@ -1013,13 +1079,13 @@ input[type="range"]::-webkit-slider-thumb {
 .ws-bento {
   background: var(--color-surface-card);
   border: 1px solid var(--color-border-subtle);
-  border-radius: 1.25rem;
-  box-shadow: 0 1px 0 rgba(139, 115, 85, 0.04);
+  border-radius: var(--radius-panel);
+  box-shadow: var(--elev-1);
 }
 .ws-bento-soft {
   background: var(--color-surface-secondary);
   border: 1px solid color-mix(in srgb, var(--color-brand-400) 28%, transparent);
-  border-radius: 1.25rem;
+  border-radius: var(--radius-panel);
 }
 /* Tool body: bounded height so inner overflow-y-auto regions can scroll */
 .ws-tool-body {
@@ -1053,8 +1119,7 @@ input[type="range"]::-webkit-slider-thumb {
   background: var(--color-brand-600);
   color: #faf8f5;
   border-radius: 1.75rem;
-  box-shadow: 0 12px 28px -10px rgba(61, 47, 31, 0.45),
-              0 2px 6px rgba(61, 47, 31, 0.18);
+  box-shadow: var(--elev-3);
 }
 .ws-fab button { color: inherit; }
 
@@ -1248,7 +1313,7 @@ input[type="range"]::-webkit-slider-thumb {
   border-radius: 0.375rem;
   border: 1px solid var(--color-border-subtle);
   background: var(--color-surface-card);
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   font-size: 0.625rem;
   font-weight: 600;
   letter-spacing: 0.01em;

@@ -104,7 +104,7 @@ export function Card({
   return (
     <div
       className={cn(
-        tone === 'default' ? 'ws-bento' : 'ws-bento rounded-[1.25rem] border',
+        tone === 'default' ? 'ws-bento' : 'ws-bento rounded-panel border',
         CARD_TONE[tone],
         CARD_PAD[padding],
         interactive && 'cursor-pointer transition-colors hover:border-brand-500/35',

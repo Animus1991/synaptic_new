@@ -1,12 +1,12 @@
 /**
  * Lucide → Phosphor shim.
  *
- * Re-exports Phosphor (thin) icon components under the lucide-react names
+ * Re-exports Phosphor (regular) icon components under the lucide-react names
  * already used across the codebase. This lets us swap visual style globally
  * without touching ~95 component files. Sizing via Tailwind classes
  * (w-4 h-4, etc.) keeps working because Phosphor SVGs honour CSS width/height.
  *
- * Global thin weight is applied via <IconContext.Provider> in main.tsx.
+ * Global regular weight is applied via <IconContext.Provider> in main.tsx.
  */
 export {
   Pulse as Activity,
