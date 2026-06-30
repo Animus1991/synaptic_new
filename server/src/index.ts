@@ -24,6 +24,7 @@ import { accountRouter } from './routes/account';
 import { studyRoomsRouter } from './routes/studyRooms';
 import { bootstrapStudyRoomsFromPg } from './store/studyRoomPgStore';
 import { initVectorIndexQueue } from './jobs/vectorIndexQueue';
+import { startStudyRoomCollab } from './collab/studyRoomCollab';
 
 export function createApp(): express.Application {
   const app = express();
@@ -54,6 +55,8 @@ export function createApp(): express.Application {
         googleOAuth: Boolean(config.googleClientId && config.googleClientSecret),
         studyRooms: true,
         vectorIndexQueue: Boolean(config.redisUrl),
+        collab: true,
+        collabWebSocketUrl: `ws://localhost:${config.collabPort}`,
       },
     });
   });
@@ -102,6 +105,9 @@ export async function startServer(): Promise<void> {
     }
     if (config.redisUrl) {
       console.log('[synapse-proxy] vector index queue: BullMQ (Redis)');
+    }
+    if (process.env.NODE_ENV !== 'test') {
+      startStudyRoomCollab(config.collabPort);
     }
   });
 }

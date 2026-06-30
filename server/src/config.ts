@@ -40,6 +40,8 @@ export const config = {
     process.env.GOOGLE_REDIRECT_URI
     ?? `http://localhost:${num(process.env.PORT, 8787)}/auth/google/callback`
   ).replace(/\/$/, ''),
+  /** WebSocket port for Yjs/Hocuspocus study-room collab (defaults to HTTP port + 1). */
+  collabPort: num(process.env.COLLAB_PORT, num(process.env.PORT, 8787) + 1),
 };
 
 export type Plan = 'free' | 'pro' | 'team';

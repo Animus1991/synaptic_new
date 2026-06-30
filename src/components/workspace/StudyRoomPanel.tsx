@@ -7,6 +7,8 @@ import { workspaceToolLabel } from '../../lib/workspaceToolRegistry';
 import { t, type Lang } from '../../lib/i18n';
 import { useStudyRoomSession } from '../../hooks/useStudyRoomSession';
 import { JitsiMeetEmbed } from './JitsiMeetEmbed';
+import { StudyRoomSharedNotes } from './StudyRoomSharedNotes';
+import { resolveCollabWebSocketUrl } from '../../lib/studyRoomCollab';
 
 type Props = {
   open: boolean;
@@ -181,6 +183,13 @@ export function StudyRoomPanel(props: Props) {
                   </li>
                 ))}
               </ul>
+              <StudyRoomSharedNotes
+                lang={lang}
+                roomId={room.id}
+                inviteCode={room.inviteCode}
+                wsUrl={resolveCollabWebSocketUrl(props.userSettings, apiStatus?.collabWebSocketUrl)}
+                localOnly={room.localOnly}
+              />
               <div className="space-y-2">
                 <p className="ws-field-label">{tr('studyRoomVideoCall')}</p>
                 {showVideo ? (

@@ -36,6 +36,8 @@ export type StudyRoomApiStatus = {
   ok: boolean;
   studyRooms?: boolean;
   localFallback?: boolean;
+  collab?: boolean;
+  collabWebSocketUrl?: string;
 };
 
 let preferLocal = false;
@@ -84,9 +86,17 @@ export async function checkStudyRoomApi(settings?: UserSettings): Promise<StudyR
   try {
     const res = await fetch(apiUrl('/health', settings));
     if (!res.ok) return { ok: false, localFallback: true };
-    const data = (await res.json()) as { ok?: boolean; features?: { studyRooms?: boolean } };
+    const data = (await res.json()) as {
+      ok?: boolean;
+      features?: { studyRooms?: boolean; collab?: boolean; collabWebSocketUrl?: string };
+    };
     preferLocal = false;
-    return { ok: Boolean(data.ok), studyRooms: data.features?.studyRooms !== false };
+    return {
+      ok: Boolean(data.ok),
+      studyRooms: data.features?.studyRooms !== false,
+      collab: data.features?.collab === true,
+      collabWebSocketUrl: data.features?.collabWebSocketUrl,
+    };
   } catch {
     preferLocal = true;
     return { ok: false, localFallback: true };
