@@ -256,3 +256,13 @@ export async function updatePasswordAsync(accountId: string, password: string): 
   account.passwordHash = passwordHash;
   return true;
 }
+
+export async function deleteAccountAsync(accountId: string): Promise<boolean> {
+  if (accountId === 'anonymous') return false;
+  if (pgRepo) return pgRepo.deleteAccount(accountId);
+  const account = accounts.get(accountId);
+  if (!account) return false;
+  accounts.delete(accountId);
+  byEmail.delete(account.email);
+  return true;
+}

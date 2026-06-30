@@ -6,6 +6,7 @@ export type GoogleConnectionStatus = {
   scopes: string[];
   hasTasks: boolean;
   hasMeet: boolean;
+  hasCalendar: boolean;
 };
 
 export type GoogleTaskList = {
@@ -150,6 +151,71 @@ export async function createGoogleMeetSpace(
   });
   if (!res.ok) throw new Error(await res.text());
   return (await res.json()) as GoogleMeetSpace;
+}
+
+export type GoogleCalendarEventResult = {
+  eventId?: string;
+  htmlLink?: string;
+};
+
+export type GoogleCalendarUpsertPayload = {
+  title: string;
+  description?: string;
+  startIso: string;
+  endIso: string;
+  timeZone?: string;
+  eventId?: string;
+  sourceId?: string;
+};
+
+export async function upsertCalendarEvent(
+  token: string,
+  settings: UserSettings,
+  payload: GoogleCalendarUpsertPayload,
+): Promise<GoogleCalendarEventResult> {
+  const res = await fetch(`${proxyBase(settings)}/v1/google/calendar/events`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return (await res.json()) as GoogleCalendarEventResult;
+}
+
+export async function listCalendarEvents(
+  token: string,
+  settings: UserSettings,
+  opts?: { timeMin?: string; timeMax?: string },
+): Promise<unknown[]> {
+  const params = new URLSearchParams();
+  if (opts?.timeMin) params.set('timeMin', opts.timeMin);
+  if (opts?.timeMax) params.set('timeMax', opts.timeMax);
+  const qs = params.toString();
+  const res = await fetch(
+    `${proxyBase(settings)}/v1/google/calendar/events${qs ? `?${qs}` : ''}`,
+    { headers: { Authorization: `Bearer ${token}` } },
+  );
+  if (!res.ok) throw new Error(await res.text());
+  const data = (await res.json()) as { events?: unknown[] };
+  return data.events ?? [];
+}
+
+export async function deleteCalendarEvent(
+  token: string,
+  settings: UserSettings,
+  eventId: string,
+): Promise<void> {
+  const res = await fetch(
+    `${proxyBase(settings)}/v1/google/calendar/events/${encodeURIComponent(eventId)}`,
+    {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${token}` },
+    },
+  );
+  if (!res.ok) throw new Error(await res.text());
 }
 
 /** Strip Google OAuth query params after handling redirect. */

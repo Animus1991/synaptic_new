@@ -9,6 +9,7 @@ const { Pool } = pg;
 export interface LibraryRepository {
   getLibrary(accountId: string): Promise<StoredLibrary>;
   saveLibrary(accountId: string, data: Omit<StoredLibrary, 'updatedAt'>): Promise<StoredLibrary>;
+  deleteLibrary(accountId: string): Promise<void>;
 }
 
 export function createPostgresLibraryRepo(databaseUrl: string): LibraryRepository {
@@ -48,6 +49,10 @@ export function createPostgresLibraryRepo(databaseUrl: string): LibraryRepositor
       );
       return { ...data, updatedAt };
     },
+
+    async deleteLibrary(accountId: string): Promise<void> {
+      await pool.query('DELETE FROM account_libraries WHERE account_id = $1', [accountId]);
+    },
   };
 }
 
@@ -60,6 +65,7 @@ export function createLibraryRepo(databaseUrl: string | undefined): LibraryRepos
 export interface SessionRepository {
   getSession(accountId: string): Promise<StoredSession>;
   saveSession(accountId: string, data: Omit<StoredSession, 'updatedAt'>): Promise<StoredSession>;
+  deleteSession(accountId: string): Promise<void>;
 }
 
 export function createPostgresSessionRepo(databaseUrl: string): SessionRepository {
@@ -105,6 +111,10 @@ export function createPostgresSessionRepo(databaseUrl: string): SessionRepositor
       );
       return { ...data, updatedAt };
     },
+
+    async deleteSession(accountId: string): Promise<void> {
+      await pool.query('DELETE FROM account_sessions WHERE account_id = $1', [accountId]);
+    },
   };
 }
 
@@ -121,6 +131,7 @@ export interface AccountRepository {
   setPlan(accountId: string, plan: Plan, stripeCustomerId?: string): Promise<Account | undefined>;
   saveUsage(accountId: string, usage: UsageWindow): Promise<void>;
   updatePassword(accountId: string, passwordHash: string, salt: string): Promise<boolean>;
+  deleteAccount(accountId: string): Promise<boolean>;
   accountStats(): Promise<{ total: number; byPlan: Record<Plan, number> }>;
 }
 
@@ -225,6 +236,25 @@ export function createPostgresAccountRepo(databaseUrl: string): AccountRepositor
         [accountId, passwordHash, salt],
       );
       return (res.rowCount ?? 0) > 0;
+    },
+
+    async deleteAccount(accountId: string): Promise<boolean> {
+      const client = await pool.connect();
+      try {
+        await client.query('BEGIN');
+        await client.query('DELETE FROM library_chunks WHERE account_id = $1', [accountId]);
+        await client.query('DELETE FROM account_libraries WHERE account_id = $1', [accountId]);
+        await client.query('DELETE FROM account_sessions WHERE account_id = $1', [accountId]);
+        await client.query('DELETE FROM auth_tokens WHERE account_id = $1', [accountId]);
+        const res = await client.query('DELETE FROM accounts WHERE id = $1', [accountId]);
+        await client.query('COMMIT');
+        return (res.rowCount ?? 0) > 0;
+      } catch (err) {
+        await client.query('ROLLBACK');
+        throw err;
+      } finally {
+        client.release();
+      }
     },
 
     async accountStats(): Promise<{ total: number; byPlan: Record<Plan, number> }> {

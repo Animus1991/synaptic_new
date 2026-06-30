@@ -97,10 +97,11 @@ export function googleStatusForAccount(accountId: string): {
   scopes: string[];
   hasTasks: boolean;
   hasMeet: boolean;
+  hasCalendar: boolean;
 } {
   const rec = byAccount.get(accountId);
   if (!rec) {
-    return { connected: false, scopes: [], hasTasks: false, hasMeet: false };
+    return { connected: false, scopes: [], hasTasks: false, hasMeet: false, hasCalendar: false };
   }
   return {
     connected: true,
@@ -108,6 +109,7 @@ export function googleStatusForAccount(accountId: string): {
     scopes: rec.scopes,
     hasTasks: rec.scopes.includes('https://www.googleapis.com/auth/tasks'),
     hasMeet: rec.scopes.includes('https://www.googleapis.com/auth/meetings.space.created'),
+    hasCalendar: rec.scopes.includes('https://www.googleapis.com/auth/calendar.events'),
   };
 }
 

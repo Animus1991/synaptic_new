@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Presentation, List, Link2, XCircle, Plus, ArrowRight } from '@/lib/lucide-shim';
-import type { UserSettings } from '../types';
+import { Presentation, List, Link2, XCircle, Plus, ArrowRight, Calendar } from '@/lib/lucide-shim';
+import type { Task, UserSettings } from '../types';
 import {
   clearGoogleAuthQueryParams,
   completeGoogleAuth,
@@ -15,12 +15,15 @@ import {
   type GoogleConnectionStatus,
   type GoogleTask,
 } from '../lib/googleClient';
+import { syncTasksToGoogleCalendar, type TaskCalendarSyncUpdate } from '../lib/taskCalendarSync';
 import { useI18n } from '../lib/i18n';
 
 type Props = {
   settings: UserSettings;
   onUpdate: (partial: Partial<UserSettings>) => void;
   onAuthComplete?: (message: string) => void;
+  synapseTasks?: Task[];
+  onCalendarSync?: (updates: TaskCalendarSyncUpdate[]) => void;
   lang?: 'en' | 'el';
 };
 
@@ -28,6 +31,8 @@ export function GoogleIntegrationsPanel({
   settings,
   onUpdate,
   onAuthComplete,
+  synapseTasks = [],
+  onCalendarSync,
   lang: _lang,
 }: Props) {
   const { t } = useI18n();
@@ -48,7 +53,7 @@ export function GoogleIntegrationsPanel({
       const s = await fetchGoogleStatus(settings.authToken, settings);
       setStatus(s);
     } catch (e) {
-      setStatus({ connected: false, scopes: [], hasTasks: false, hasMeet: false });
+      setStatus({ connected: false, scopes: [], hasTasks: false, hasMeet: false, hasCalendar: false });
       setError(e instanceof Error ? e.message : 'Status failed');
     }
   }, [settings]);
@@ -145,7 +150,7 @@ export function GoogleIntegrationsPanel({
     setLoading(true);
     try {
       await disconnectGoogle(settings.authToken, settings);
-      setStatus({ connected: false, scopes: [], hasTasks: false, hasMeet: false });
+      setStatus({ connected: false, scopes: [], hasTasks: false, hasMeet: false, hasCalendar: false });
       setTasks([]);
       setMeetUri(null);
     } catch (e) {
@@ -178,6 +183,26 @@ export function GoogleIntegrationsPanel({
       setError(null);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Meet create failed');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCalendarSync = async (onlySpacedRepetition: boolean) => {
+    if (!settings.authToken) return;
+    setLoading(true);
+    try {
+      const updates = await syncTasksToGoogleCalendar(
+        settings.authToken,
+        settings,
+        synapseTasks,
+        { onlySpacedRepetition },
+      );
+      onCalendarSync?.(updates);
+      onAuthComplete?.(t('googleCalendarSynced').replace('{count}', String(updates.length)));
+      setError(null);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : t('googleCalendarSyncFailed'));
     } finally {
       setLoading(false);
     }
@@ -230,6 +255,36 @@ export function GoogleIntegrationsPanel({
           </>
         )}
       </div>
+
+      {status?.connected && status.hasCalendar && (
+        <div className="rounded-xl border border-border-subtle bg-surface-primary/40 p-3 space-y-2">
+          <div className="flex items-center gap-2 text-xs font-semibold text-text-primary">
+            <Calendar className="h-4 w-4 text-brand-700" />
+            {t('googleCalendar')}
+          </div>
+          <p className="text-[11px] text-text-muted">{t('googleCalendarIntro')}</p>
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              data-testid="google-calendar-sync-reviews"
+              disabled={loading}
+              onClick={() => void handleCalendarSync(true)}
+              className="ws-empty-cta-primary text-xs"
+            >
+              {t('googleSyncDueReviews')}
+            </button>
+            <button
+              type="button"
+              data-testid="google-calendar-sync-all"
+              disabled={loading}
+              onClick={() => void handleCalendarSync(false)}
+              className="inline-flex items-center gap-1 rounded-lg border border-border-subtle px-2 py-1.5 text-xs text-text-secondary hover:border-brand-500/30"
+            >
+              {t('googleSyncAllScheduled')}
+            </button>
+          </div>
+        </div>
+      )}
 
       {status?.connected && status.hasMeet && (
         <div className="rounded-xl border border-border-subtle bg-surface-primary/40 p-3 space-y-2">

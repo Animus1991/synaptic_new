@@ -27,13 +27,13 @@ test.describe('Platform skip links — desktop', () => {
 test.describe('Platform skip links — mobile', () => {
   test.use({ viewport: { width: 390, height: 844 } });
 
-  test('skip-to-nav targets bottom nav', async ({ page }) => {
+  test('skip-to-main targets main content on mobile', async ({ page }) => {
     await page.goto('/');
     await skipOnboardingToLibrary(page);
 
-    await page.getByTestId('platform-skip-nav-mobile').evaluate((el: HTMLAnchorElement) => el.click());
+    await page.getByTestId('platform-skip-main').evaluate((el: HTMLAnchorElement) => el.click());
     const focusedId = await page.evaluate(() => document.activeElement?.id);
-    expect(focusedId).toBe('platform-mobile-nav');
+    expect(focusedId).toBe('platform-main');
   });
 });
 

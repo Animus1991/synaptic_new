@@ -12,6 +12,7 @@ export const GOOGLE_SCOPES_INTEGRATIONS = [
   ...GOOGLE_SCOPES_SIGNIN,
   'https://www.googleapis.com/auth/tasks',
   'https://www.googleapis.com/auth/meetings.space.created',
+  'https://www.googleapis.com/auth/calendar.events',
 ];
 
 export type GoogleOAuthMode = 'signin' | 'connect';

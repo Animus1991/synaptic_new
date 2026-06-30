@@ -62,3 +62,11 @@ export async function saveSessionAsync(
   if (pgRepo) return pgRepo.saveSession(accountId, data);
   return saveSession(accountId, data);
 }
+
+export async function deleteSessionAsync(accountId: string): Promise<void> {
+  if (pgRepo) {
+    await pgRepo.deleteSession(accountId);
+    return;
+  }
+  memory.delete(accountId);
+}

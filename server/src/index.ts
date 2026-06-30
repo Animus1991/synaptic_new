@@ -19,6 +19,8 @@ import { transcribeRouter } from './routes/transcribe';
 import { chunkErrorsRouter } from './routes/chunkErrors';
 import { googleAuthRouter } from './routes/googleAuth';
 import { googleIntegrationsRouter } from './routes/googleIntegrations';
+import { googleCalendarRouter } from './routes/googleCalendar';
+import { accountRouter } from './routes/account';
 import { studyRoomsRouter } from './routes/studyRooms';
 import { bootstrapStudyRoomsFromPg } from './store/studyRoomPgStore';
 import { initVectorIndexQueue } from './jobs/vectorIndexQueue';
@@ -71,6 +73,8 @@ export function createApp(): express.Application {
   app.use('/v1', transcribeRouter);
   app.use('/v1', teacherRouter);
   app.use('/v1', googleIntegrationsRouter);
+  app.use('/v1', googleCalendarRouter);
+  app.use('/v1', accountRouter);
   app.use('/v1', studyRoomsRouter);
   app.use('/v1', proxyRouter);
 

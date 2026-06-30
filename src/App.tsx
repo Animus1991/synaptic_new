@@ -868,6 +868,8 @@ export default function App() {
               onSyncAccount={store.syncAccountOnLogin}
               onRefreshPlan={store.refreshAuthPlan}
               onReplayProductTour={replayProductTour}
+              tasks={store.tasks}
+              onApplyCalendarSync={store.applyTaskCalendarSync}
             />
           )}
         </motion.div>

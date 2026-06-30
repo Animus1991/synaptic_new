@@ -6,6 +6,7 @@ describe('googleOAuth', () => {
     const scopes = scopesForMode('connect');
     expect(scopes).toContain('https://www.googleapis.com/auth/tasks');
     expect(scopes).toContain('https://www.googleapis.com/auth/meetings.space.created');
+    expect(scopes).toContain('https://www.googleapis.com/auth/calendar.events');
   });
 
   it('hasGoogleScope detects tasks scope', () => {

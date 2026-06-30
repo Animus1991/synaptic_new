@@ -48,6 +48,7 @@ import { recognizeCourse } from '../lib/recognitionWorkerClient';
 import { buildConceptSpans, type SourceHighlight } from '../lib/conceptProvenance';
 import { enrichCourseWithCrossLinks } from '../lib/crossDocumentLink';
 import { applyFsrsToSpacing } from '../lib/adaptiveScheduler';
+import type { TaskCalendarSyncUpdate } from '../lib/taskCalendarSync';
 import type { WorkspaceFocus } from '../lib/workspaceFocus';
 import { CONTENT_PIPELINE_VERSION } from '../lib/pipelineConstants';
 import {
@@ -1809,12 +1810,31 @@ export function useAppStore() {
     [workspaceLive, agentWorkspaceContext],
   );
 
+  const applyTaskCalendarSync = useCallback((updates: TaskCalendarSyncUpdate[]) => {
+    if (updates.length === 0) return;
+    setTasks((prev) => {
+      const byId = new Map(updates.map((u) => [u.taskId, u]));
+      const next = prev.map((t) => {
+        const u = byId.get(t.id);
+        if (!u) return t;
+        return {
+          ...t,
+          googleCalendarEventId: u.googleCalendarEventId,
+          calendarSyncedAt: u.calendarSyncedAt,
+        };
+      });
+      persist(learnerModel, dashboardStats, next, user.xp, betaMastery, firstAttemptKeys, openMistakes, activities, user.settings);
+      return next;
+    });
+  }, [persist, learnerModel, dashboardStats, user.xp, user.settings, betaMastery, firstAttemptKeys, openMistakes, activities]);
+
   return {
     currentView, navigate, openCourseReview,
     sidebarOpen, setSidebarOpen,
     user, updateSettings, toggleTheme,
     courses, selectedCourse, setSelectedCourse,
     tasks, completeTask, completeTaskAndAdvance, submitReviewRating, submitReviewAndAdvance, submitLeitnerRating,
+    applyTaskCalendarSync,
     startTask, startSession, endSession,
     sessionQueue, sessionTotal, activeSessionType,
     activeTask, activeTaskId, setActiveTaskId, expandedTaskId, setExpandedTaskId,

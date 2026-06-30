@@ -226,6 +226,8 @@ export interface Task {
   isSpacedRepetition: boolean;
   masteryBefore?: number;
   retentionPrediction?: number;
+  googleCalendarEventId?: string;
+  calendarSyncedAt?: string;
   tags: string[];
   category: 'learn' | 'review' | 'practice' | 'exam' | 'fix';
 }

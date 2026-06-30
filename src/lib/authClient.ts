@@ -461,3 +461,27 @@ export async function publishTeacherAnnotation(
   if (!res.ok) return null;
   return res.json() as Promise<SharedAnnotationDto>;
 }
+
+export async function authExportAccount(token: string, settings: UserSettings): Promise<Blob> {
+  const res = await fetch(`${proxyBase(settings)}/v1/account/export`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return res.blob();
+}
+
+export async function authDeleteAccount(
+  token: string,
+  settings: UserSettings,
+  confirmEmail: string,
+): Promise<void> {
+  const res = await fetch(`${proxyBase(settings)}/v1/account`, {
+    method: 'DELETE',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ confirmEmail }),
+  });
+  if (!res.ok) throw new Error(await res.text());
+}

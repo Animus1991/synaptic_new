@@ -292,4 +292,52 @@ describe('server integration sweep', () => {
       .expect(200);
     expect(dash.body.account.plan).toBe('pro');
   });
+
+  it('GET /v1/account/export returns account data for signed-in user', async () => {
+    const reg = await request(app)
+      .post('/auth/register')
+      .send({ email: 'export@example.com', password: 'password123' })
+      .expect(201);
+
+    const res = await request(app)
+      .get('/v1/account/export')
+      .set('Authorization', `Bearer ${reg.body.token}`)
+      .expect(200);
+
+    expect(res.headers['content-type']).toContain('application/json');
+    const payload = JSON.parse(res.text);
+    expect(payload.account.email).toBe('export@example.com');
+    expect(payload.version).toBe('1');
+  });
+
+  it('DELETE /v1/account removes account when confirmEmail matches', async () => {
+    const reg = await request(app)
+      .post('/auth/register')
+      .send({ email: 'delete@example.com', password: 'password123' })
+      .expect(201);
+
+    await request(app)
+      .delete('/v1/account')
+      .set('Authorization', `Bearer ${reg.body.token}`)
+      .send({ confirmEmail: 'delete@example.com' })
+      .expect(200);
+
+    await request(app)
+      .get('/auth/me')
+      .set('Authorization', `Bearer ${reg.body.token}`)
+      .expect(401);
+  });
+
+  it('DELETE /v1/account rejects wrong confirmEmail', async () => {
+    const reg = await request(app)
+      .post('/auth/register')
+      .send({ email: 'nodelete@example.com', password: 'password123' })
+      .expect(201);
+
+    await request(app)
+      .delete('/v1/account')
+      .set('Authorization', `Bearer ${reg.body.token}`)
+      .send({ confirmEmail: 'wrong@example.com' })
+      .expect(400);
+  });
 });

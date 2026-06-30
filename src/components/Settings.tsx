@@ -4,16 +4,18 @@ import {
   Brain, BookOpen, Target, Zap,
   Gauge, Shield, Calendar, Palette, Database, KeyRound
 } from '@/lib/lucide-shim';
-import type { UserSettings } from '../types';
+import type { UserSettings, Task } from '../types';
 import { cn } from '../utils/cn';
 import { clearAllSessionData, downloadBackup, importSessionData } from '../lib/sessionBackup';
-import { authLogin, authRegister, pushRemoteLibrary, createCheckoutSession, type AuthSession } from '../lib/authClient';
+import { authLogin, authRegister, pushRemoteLibrary, createCheckoutSession, authExportAccount, authDeleteAccount, type AuthSession } from '../lib/authClient';
 import { GoogleIntegrationsPanel } from './GoogleIntegrationsPanel';
 import { googleAuthStartUrl } from '../lib/googleClient';
 import { loadLibrarySync } from '../lib/libraryStorage';
 import { Page, PageHeader } from './ui/primitives';
 import { WorkspaceTTIPanel } from './WorkspaceTTIPanel';
 import { useI18n } from '../lib/i18n';
+
+import { type TaskCalendarSyncUpdate } from '../lib/taskCalendarSync';
 
 interface SettingsProps {
   settings: UserSettings;
@@ -24,6 +26,8 @@ interface SettingsProps {
   onSyncAccount?: () => Promise<unknown>;
   onRefreshPlan?: () => Promise<unknown>;
   onReplayProductTour?: () => void;
+  tasks?: Task[];
+  onApplyCalendarSync?: (updates: TaskCalendarSyncUpdate[]) => void;
 }
 
 export function Settings({
@@ -35,12 +39,15 @@ export function Settings({
   onSyncAccount,
   onRefreshPlan,
   onReplayProductTour,
+  tasks = [],
+  onApplyCalendarSync,
 }: SettingsProps) {
   const { t } = useI18n();
   const [backupStatus, setBackupStatus] = useState<string | null>(null);
   const [authEmail, setAuthEmail] = useState(settings.authEmail ?? '');
   const [authPassword, setAuthPassword] = useState('');
   const [authStatus, setAuthStatus] = useState<string | null>(null);
+  const [deleteConfirmEmail, setDeleteConfirmEmail] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleImport = async (file: File) => {
@@ -452,6 +459,74 @@ export function Settings({
         {settings.authEmail && (
           <p className="text-xs text-text-secondary">Logged in: {settings.authEmail}</p>
         )}
+        {settings.authToken && (
+          <div className="mt-3 pt-3 border-t border-border-subtle space-y-2">
+            <p className="text-xs font-semibold text-text-primary">{t('gdprExportData')}</p>
+            <p className="text-[11px] text-text-muted">{t('gdprExportHint')}</p>
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                data-testid="gdpr-export-account"
+                className="px-3 py-2 rounded-xl text-xs font-medium border border-border-subtle text-text-secondary hover:border-brand-500/30"
+                onClick={async () => {
+                  if (!settings.authToken) return;
+                  try {
+                    const blob = await authExportAccount(settings.authToken, settings);
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `synapse-export-${new Date().toISOString().slice(0, 10)}.json`;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                    setAuthStatus(t('gdprExportSuccess'));
+                  } catch (e) {
+                    setAuthStatus(e instanceof Error ? e.message : 'Export failed');
+                  }
+                }}
+              >
+                {t('gdprExportData')}
+              </button>
+            </div>
+            <p className="text-[11px] text-text-muted pt-1">{t('gdprDeleteHint')}</p>
+            <label className="text-[11px] text-text-secondary block">{t('gdprDeleteConfirm')}</label>
+            <input
+              type="email"
+              value={deleteConfirmEmail}
+              onChange={(e) => setDeleteConfirmEmail(e.target.value)}
+              placeholder={settings.authEmail ?? 'email@example.com'}
+              className="w-full px-3 py-2 rounded-xl bg-surface-input border border-border-subtle text-sm"
+            />
+            <button
+              type="button"
+              data-testid="gdpr-delete-account"
+              disabled={!deleteConfirmEmail.trim()}
+              className="px-3 py-2 rounded-xl text-xs font-medium border border-accent-rose/30 text-accent-rose hover:bg-accent-rose/10 disabled:opacity-50"
+              onClick={async () => {
+                if (!settings.authToken || !settings.authEmail) return;
+                if (deleteConfirmEmail.trim().toLowerCase() !== settings.authEmail.toLowerCase()) {
+                  setAuthStatus(t('gdprDeleteConfirm'));
+                  return;
+                }
+                if (!window.confirm(t('gdprDeleteHint'))) return;
+                try {
+                  await authDeleteAccount(settings.authToken, settings, deleteConfirmEmail.trim());
+                  onUpdate({
+                    authToken: undefined,
+                    authEmail: undefined,
+                    authPlan: undefined,
+                  });
+                  clearAllSessionData();
+                  setDeleteConfirmEmail('');
+                  setAuthStatus(t('gdprDeleteSuccess'));
+                } catch (e) {
+                  setAuthStatus(e instanceof Error ? e.message : 'Delete failed');
+                }
+              }}
+            >
+              {t('gdprDeleteAccount')}
+            </button>
+          </div>
+        )}
         {authStatus && <p className="text-xs text-text-muted">{authStatus}</p>}
       </SettingsSection>
 
@@ -464,6 +539,8 @@ export function Settings({
           settings={settings}
           onUpdate={onUpdate}
           onAuthComplete={(msg) => setAuthStatus(msg)}
+          synapseTasks={tasks}
+          onCalendarSync={onApplyCalendarSync}
           lang={settings.language}
         />
       </SettingsSection>

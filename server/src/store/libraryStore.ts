@@ -44,3 +44,11 @@ export async function saveLibraryAsync(
   if (pgRepo) return pgRepo.saveLibrary(accountId, data);
   return saveLibrary(accountId, data);
 }
+
+export async function deleteLibraryAsync(accountId: string): Promise<void> {
+  if (pgRepo) {
+    await pgRepo.deleteLibrary(accountId);
+    return;
+  }
+  memory.delete(accountId);
+}
