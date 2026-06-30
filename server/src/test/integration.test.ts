@@ -200,6 +200,59 @@ describe('server integration sweep', () => {
     expect(res.body.publishing.annotationCount).toBe(0);
   });
 
+  it('teacher class roster APIs create class and manage enrollments', async () => {
+    const reg = await request(app)
+      .post('/auth/register')
+      .send({ email: 'roster@example.com', password: 'password123' })
+      .expect(201);
+    const token = reg.body.token as string;
+
+    const empty = await request(app)
+      .get('/v1/teacher/classes')
+      .set('Authorization', `Bearer ${token}`)
+      .expect(200);
+    expect(empty.body.classes).toEqual([]);
+
+    const created = await request(app)
+      .post('/v1/teacher/classes')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ name: 'Micro 101' })
+      .expect(201);
+    expect(created.body.name).toBe('Micro 101');
+
+    const listed = await request(app)
+      .get('/v1/teacher/classes')
+      .set('Authorization', `Bearer ${token}`)
+      .expect(200);
+    expect(listed.body.classes).toHaveLength(1);
+    expect(listed.body.classes[0].studentCount).toBe(0);
+
+    const classId = created.body.id as string;
+    const enrolled = await request(app)
+      .post(`/v1/teacher/classes/${classId}/roster`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({ email: 'student@school.edu', displayName: 'Alex' })
+      .expect(201);
+    expect(enrolled.body.studentEmail).toBe('student@school.edu');
+
+    const roster = await request(app)
+      .get(`/v1/teacher/classes/${classId}/roster`)
+      .set('Authorization', `Bearer ${token}`)
+      .expect(200);
+    expect(roster.body.roster).toHaveLength(1);
+
+    await request(app)
+      .delete(`/v1/teacher/classes/${classId}/roster/${enrolled.body.id}`)
+      .set('Authorization', `Bearer ${token}`)
+      .expect(204);
+
+    const afterRemove = await request(app)
+      .get(`/v1/teacher/classes/${classId}/roster`)
+      .set('Authorization', `Bearer ${token}`)
+      .expect(200);
+    expect(afterRemove.body.roster).toHaveLength(0);
+  });
+
   it('POST /v1/billing/webhook deduplicates Stripe event ids', async () => {
     const reg = await request(app)
       .post('/auth/register')

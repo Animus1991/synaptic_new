@@ -5,7 +5,15 @@ import {
   Shield, Sparkles, Users, Zap, BookMarked, PenLine,
 } from '@/lib/lucide-shim';
 import type { ActivityItem, Course, LearnerModel, UserSettings } from '../types';
-import { fetchTeacherDashboard } from '../lib/authClient';
+import {
+  addClassEnrollment as apiAddEnrollment,
+  createTeacherClass,
+  fetchClassRoster,
+  fetchTeacherClasses,
+  fetchTeacherDashboard,
+  removeClassEnrollment as apiRemoveEnrollment,
+} from '../lib/authClient';
+import type { ClassEnrollmentRow, TeacherClassRow } from '../lib/teacherClassTypes';
 import { listLearningEvents, countLearningEventsByType } from '../lib/learningEvents';
 import type { TeacherDashboardResponse } from '../lib/teacherDashboardTypes';
 import { getTeacherContent } from '../lib/teacherContent';
@@ -35,6 +43,13 @@ export function TeacherDashboard({
   const [data, setData] = useState<TeacherDashboardResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [classes, setClasses] = useState<TeacherClassRow[]>([]);
+  const [selectedClassId, setSelectedClassId] = useState<string | null>(null);
+  const [roster, setRoster] = useState<ClassEnrollmentRow[]>([]);
+  const [classNameInput, setClassNameInput] = useState('');
+  const [studentEmail, setStudentEmail] = useState('');
+  const [studentName, setStudentName] = useState('');
+  const [classBusy, setClassBusy] = useState(false);
   const localEvents = countLearningEventsByType();
   const recentEvents = listLearningEvents(8);
   const locale = localeTag(lang);
@@ -44,13 +59,23 @@ export function TeacherDashboard({
     if (!settings.authToken?.trim()) {
       setError(ui.signInRequired);
       setData(null);
+      setClasses([]);
+      setRoster([]);
       return;
     }
     setLoading(true);
     setError(null);
     try {
-      const json = await fetchTeacherDashboard(settings.authToken, settings);
+      const [json, classJson] = await Promise.all([
+        fetchTeacherDashboard(settings.authToken, settings),
+        fetchTeacherClasses(settings.authToken, settings),
+      ]);
       setData(json);
+      setClasses(classJson.classes);
+      if (classJson.classes.length === 0) {
+        setSelectedClassId(null);
+        setRoster([]);
+      }
     } catch (err) {
       setError((err as Error).message);
       setData(null);
@@ -62,6 +87,82 @@ export function TeacherDashboard({
   useEffect(() => {
     void load();
   }, [load]);
+
+  useEffect(() => {
+    if (classes.length === 0) return;
+    setSelectedClassId((prev) => (prev && classes.some((c) => c.id === prev) ? prev : classes[0]!.id));
+  }, [classes]);
+
+  const loadRoster = useCallback(async (classId: string) => {
+    if (!settings.authToken?.trim()) return;
+    const rosterJson = await fetchClassRoster(settings.authToken, settings, classId);
+    setRoster(rosterJson.roster);
+  }, [settings.authToken, settings]);
+
+  useEffect(() => {
+    if (!settings.authToken?.trim() || !selectedClassId) {
+      setRoster([]);
+      return;
+    }
+    void loadRoster(selectedClassId).catch((err: Error) => setError(err.message));
+  }, [settings.authToken, selectedClassId, loadRoster]);
+
+  const handleCreateClass = async () => {
+    if (!settings.authToken?.trim() || !classNameInput.trim()) return;
+    setClassBusy(true);
+    try {
+      const created = await createTeacherClass(settings.authToken, settings, {
+        name: classNameInput.trim(),
+      });
+      setClassNameInput('');
+      setClasses((prev) => [created, ...prev]);
+      setSelectedClassId(created.id);
+      setRoster([]);
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setClassBusy(false);
+    }
+  };
+
+  const handleSelectClass = (classId: string) => {
+    setSelectedClassId(classId);
+  };
+
+  const handleAddStudent = async () => {
+    if (!settings.authToken?.trim() || !selectedClassId || !studentEmail.trim()) return;
+    setClassBusy(true);
+    try {
+      await apiAddEnrollment(settings.authToken, settings, selectedClassId, {
+        email: studentEmail.trim(),
+        displayName: studentName.trim() || undefined,
+      });
+      setStudentEmail('');
+      setStudentName('');
+      await loadRoster(selectedClassId);
+      const classJson = await fetchTeacherClasses(settings.authToken, settings);
+      setClasses(classJson.classes);
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setClassBusy(false);
+    }
+  };
+
+  const handleRemoveStudent = async (enrollmentId: string) => {
+    if (!settings.authToken?.trim() || !selectedClassId) return;
+    setClassBusy(true);
+    try {
+      await apiRemoveEnrollment(settings.authToken, settings, selectedClassId, enrollmentId);
+      await loadRoster(selectedClassId);
+      const classJson = await fetchTeacherClasses(settings.authToken, settings);
+      setClasses(classJson.classes);
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setClassBusy(false);
+    }
+  };
 
   const usagePct = data
     ? Math.min(100, Math.round(((data.usage.promptTokens + data.usage.completionTokens) / Math.max(1, data.usage.quota)) * 100))
@@ -107,6 +208,136 @@ export function TeacherDashboard({
       >
         {ui.cohortRoadmap}
       </div>
+
+      {settings.authToken && (
+        <div
+          className="rounded-2xl border border-border-subtle bg-surface-card p-5 space-y-4"
+          data-testid="teacher-class-rosters"
+        >
+          <div>
+            <h2 className="font-semibold flex items-center gap-2">
+              <Users className="w-4 h-4 text-brand-400" />
+              {ui.classRosters}
+            </h2>
+            <p className="text-xs text-text-muted mt-1">{ui.classRostersHint}</p>
+          </div>
+
+          <div className="flex flex-wrap gap-2 items-end">
+            <input
+              type="text"
+              value={classNameInput}
+              onChange={(e) => setClassNameInput(e.target.value)}
+              placeholder={ui.classNamePlaceholder}
+              data-testid="teacher-class-name"
+              className="flex-1 min-w-[140px] px-3 py-2 rounded-xl border border-border-subtle bg-surface-primary text-sm"
+            />
+            <button
+              type="button"
+              onClick={() => void handleCreateClass()}
+              disabled={classBusy || !classNameInput.trim()}
+              data-testid="teacher-create-class"
+              className="px-3 py-2 rounded-xl bg-brand-600 text-white text-sm font-medium disabled:opacity-50"
+            >
+              {ui.createClass}
+            </button>
+          </div>
+
+          {classes.length === 0 ? (
+            <p className="text-xs text-text-muted">{ui.noClasses}</p>
+          ) : (
+            <div className="flex flex-wrap gap-2">
+              {classes.map((cls) => (
+                <button
+                  key={cls.id}
+                  type="button"
+                  data-testid={`teacher-class-tab-${cls.id}`}
+                  onClick={() => handleSelectClass(cls.id)}
+                  className={cn(
+                    'px-3 py-1.5 rounded-lg text-xs border transition-colors',
+                    selectedClassId === cls.id
+                      ? 'border-brand-500/40 bg-brand-500/10 text-brand-300'
+                      : 'border-border-subtle hover:border-brand-500/20',
+                  )}
+                >
+                  {cls.name}
+                  <span className="ml-1.5 text-text-muted">({cls.studentCount ?? 0})</span>
+                </button>
+              ))}
+            </div>
+          )}
+
+          {selectedClassId && (
+            <div className="space-y-3 pt-2 border-t border-border-subtle">
+              <div className="flex flex-wrap gap-2 items-end">
+                <input
+                  type="email"
+                  value={studentEmail}
+                  onChange={(e) => setStudentEmail(e.target.value)}
+                  placeholder={ui.studentEmailPlaceholder}
+                  data-testid="teacher-student-email"
+                  className="flex-1 min-w-[160px] px-3 py-2 rounded-xl border border-border-subtle bg-surface-primary text-sm"
+                />
+                <input
+                  type="text"
+                  value={studentName}
+                  onChange={(e) => setStudentName(e.target.value)}
+                  placeholder={ui.studentNamePlaceholder}
+                  data-testid="teacher-student-name"
+                  className="flex-1 min-w-[140px] px-3 py-2 rounded-xl border border-border-subtle bg-surface-primary text-sm"
+                />
+                <button
+                  type="button"
+                  onClick={() => void handleAddStudent()}
+                  disabled={classBusy || !studentEmail.trim()}
+                  data-testid="teacher-add-student"
+                  className="px-3 py-2 rounded-xl border border-brand-500/30 text-brand-300 text-sm font-medium disabled:opacity-50"
+                >
+                  {ui.addStudent}
+                </button>
+              </div>
+
+              {roster.length === 0 ? (
+                <p className="text-xs text-text-muted">{ui.noStudents}</p>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-xs">
+                    <thead>
+                      <tr className="text-text-muted border-b border-border-subtle">
+                        <th className="text-left py-2 pr-3">{ui.colStudent}</th>
+                        <th className="text-left py-2 pr-3">{ui.colEmail}</th>
+                        <th className="text-left py-2 pr-3">{ui.colMastery}</th>
+                        <th className="text-left py-2 pr-3">{ui.colEnrolled}</th>
+                        <th className="text-right py-2" />
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {roster.map((row) => (
+                        <tr key={row.id} className="border-b border-border-subtle/50" data-testid={`teacher-roster-row-${row.id}`}>
+                          <td className="py-2 pr-3">{row.displayName ?? '—'}</td>
+                          <td className="py-2 pr-3">{row.studentEmail}</td>
+                          <td className="py-2 pr-3">{row.mastery != null ? `${row.mastery}%` : '—'}</td>
+                          <td className="py-2 pr-3 text-text-muted">{formatShortDate(row.enrolledAt, lang)}</td>
+                          <td className="py-2 text-right">
+                            <button
+                              type="button"
+                              onClick={() => void handleRemoveStudent(row.id)}
+                              disabled={classBusy}
+                              data-testid={`teacher-remove-student-${row.id}`}
+                              className="text-accent-rose hover:underline"
+                            >
+                              {ui.removeStudent}
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
 
       {loading && !data && (
         <div className="rounded-2xl border border-border-subtle bg-surface-card p-8 text-center text-sm text-text-muted">

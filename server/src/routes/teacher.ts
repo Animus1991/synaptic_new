@@ -9,6 +9,14 @@ import {
   summarizeTeacherPublishing,
   type SharedAnnotation,
 } from '../store/sharedAnnotationStore';
+import {
+  addClassEnrollment,
+  createTeacherClass,
+  getTeacherClass,
+  listClassRoster,
+  listTeacherClasses,
+  removeClassEnrollment,
+} from '../store/classStore';
 import { notifyAnnotationStream, registerAnnotationStream } from './annotationStream';
 import { registerConceptMapCursorStream } from './conceptMapStream';
 
@@ -142,4 +150,81 @@ teacherRouter.get('/teacher/dashboard', async (req, res) => {
     },
     syncedAt: new Date().toISOString(),
   });
+});
+
+/** GET /v1/teacher/classes — instructor classes (in-memory dev store). */
+teacherRouter.get('/teacher/classes', (req, res) => {
+  const account = req.account!;
+  const rows = listTeacherClasses(account.id).map((c) => ({
+    ...c,
+    studentCount: listClassRoster(c.id).length,
+  }));
+  res.json({ classes: rows });
+});
+
+/** POST /v1/teacher/classes — create a class roster bucket. */
+teacherRouter.post('/teacher/classes', (req, res) => {
+  const account = req.account!;
+  const body = req.body as { name?: string; courseId?: string };
+  if (!body.name?.trim()) {
+    res.status(400).json({ error: 'name required' });
+    return;
+  }
+  const created = createTeacherClass(account.id, {
+    name: body.name.trim(),
+    courseId: body.courseId?.trim(),
+  });
+  res.status(201).json(created);
+});
+
+/** GET /v1/teacher/classes/:classId/roster */
+teacherRouter.get('/teacher/classes/:classId/roster', (req, res) => {
+  const account = req.account!;
+  const cls = getTeacherClass(req.params.classId, account.id);
+  if (!cls) {
+    res.status(404).json({ error: 'class not found' });
+    return;
+  }
+  res.json({ class: cls, roster: listClassRoster(cls.id) });
+});
+
+/** POST /v1/teacher/classes/:classId/roster — enroll student by email. */
+teacherRouter.post('/teacher/classes/:classId/roster', (req, res) => {
+  const account = req.account!;
+  const cls = getTeacherClass(req.params.classId, account.id);
+  if (!cls) {
+    res.status(404).json({ error: 'class not found' });
+    return;
+  }
+  const body = req.body as { email?: string; displayName?: string; mastery?: number };
+  if (!body.email?.trim()) {
+    res.status(400).json({ error: 'email required' });
+    return;
+  }
+  const row = addClassEnrollment(cls.id, {
+    email: body.email,
+    displayName: body.displayName,
+    mastery: body.mastery,
+  });
+  if (!row) {
+    res.status(400).json({ error: 'invalid enrollment' });
+    return;
+  }
+  res.status(201).json(row);
+});
+
+/** DELETE /v1/teacher/classes/:classId/roster/:enrollmentId */
+teacherRouter.delete('/teacher/classes/:classId/roster/:enrollmentId', (req, res) => {
+  const account = req.account!;
+  const cls = getTeacherClass(req.params.classId, account.id);
+  if (!cls) {
+    res.status(404).json({ error: 'class not found' });
+    return;
+  }
+  const ok = removeClassEnrollment(cls.id, req.params.enrollmentId);
+  if (!ok) {
+    res.status(404).json({ error: 'enrollment not found' });
+    return;
+  }
+  res.status(204).send();
 });

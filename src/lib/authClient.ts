@@ -1,6 +1,12 @@
 import type { UserSettings } from '../types';
 import type { OcrStoredRegion } from './readerOcrOverlay';
 import type { TeacherDashboardResponse } from './teacherDashboardTypes';
+import type {
+  ClassEnrollmentRow,
+  ClassRosterResponse,
+  TeacherClassRow,
+  TeacherClassesResponse,
+} from './teacherClassTypes';
 
 export type AuthSession = {
   token: string;
@@ -220,6 +226,77 @@ export async function fetchTeacherDashboard(token: string, settings: UserSetting
   });
   if (!res.ok) throw new Error(await res.text());
   return res.json() as Promise<TeacherDashboardResponse>;
+}
+
+export async function fetchTeacherClasses(token: string, settings: UserSettings) {
+  const res = await fetch(`${proxyBase(settings)}/v1/teacher/classes`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json() as Promise<TeacherClassesResponse>;
+}
+
+export async function createTeacherClass(
+  token: string,
+  settings: UserSettings,
+  payload: { name: string; courseId?: string },
+): Promise<TeacherClassRow> {
+  const res = await fetch(`${proxyBase(settings)}/v1/teacher/classes`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json() as Promise<TeacherClassRow>;
+}
+
+export async function fetchClassRoster(
+  token: string,
+  settings: UserSettings,
+  classId: string,
+): Promise<ClassRosterResponse> {
+  const res = await fetch(`${proxyBase(settings)}/v1/teacher/classes/${classId}/roster`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json() as Promise<ClassRosterResponse>;
+}
+
+export async function addClassEnrollment(
+  token: string,
+  settings: UserSettings,
+  classId: string,
+  payload: { email: string; displayName?: string; mastery?: number },
+): Promise<ClassEnrollmentRow> {
+  const res = await fetch(`${proxyBase(settings)}/v1/teacher/classes/${classId}/roster`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json() as Promise<ClassEnrollmentRow>;
+}
+
+export async function removeClassEnrollment(
+  token: string,
+  settings: UserSettings,
+  classId: string,
+  enrollmentId: string,
+): Promise<void> {
+  const res = await fetch(
+    `${proxyBase(settings)}/v1/teacher/classes/${classId}/roster/${enrollmentId}`,
+    {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${token}` },
+    },
+  );
+  if (!res.ok) throw new Error(await res.text());
 }
 
 export async function ocrPages(

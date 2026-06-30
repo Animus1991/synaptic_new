@@ -46,6 +46,20 @@ export type TeacherContent = {
   syncFooter: string;
   loading: string;
   planLabel: string;
+  classRosters: string;
+  classRostersHint: string;
+  createClass: string;
+  classNamePlaceholder: string;
+  addStudent: string;
+  studentEmailPlaceholder: string;
+  studentNamePlaceholder: string;
+  colStudent: string;
+  colEmail: string;
+  colEnrolled: string;
+  removeStudent: string;
+  noClasses: string;
+  noStudents: string;
+  selectClass: string;
 };
 
 const EN: TeacherContent = {
@@ -55,7 +69,7 @@ const EN: TeacherContent = {
   signInRequired: 'Sign in required for the teacher dashboard.',
   signInHint: 'Sign in via Settings → Proxy account to load server usage, quotas, and synced library stats.',
   openSettingsCta: 'Open Settings to sign in',
-  cohortRoadmap: 'Student roster, assignments, and cohort analytics are on the roadmap — this dashboard shows your synced library and publishing today.',
+  cohortRoadmap: 'Manage class rosters below. Assignments and cohort analytics are on the roadmap.',
   lastSynced: 'Last synced',
   courses: 'Courses',
   coursesInLibrary: 'in library',
@@ -94,6 +108,21 @@ const EN: TeacherContent = {
   syncFooter: 'Live data from GET /v1/teacher/dashboard',
   loading: 'Loading dashboard…',
   planLabel: 'plan',
+  classRosters: 'Class rosters',
+  classRostersHint: 'Create a class bucket and enroll students by email (dev in-memory store).',
+  createClass: 'Create class',
+  classNamePlaceholder: 'Class name',
+  addStudent: 'Add student',
+  studentEmailPlaceholder: 'student@school.edu',
+  studentNamePlaceholder: 'Display name (optional)',
+  colStudent: 'Student',
+  colEmail: 'Email',
+  colMastery: 'Mastery',
+  colEnrolled: 'Enrolled',
+  removeStudent: 'Remove',
+  noClasses: 'No classes yet — create one to start a roster.',
+  noStudents: 'No students enrolled in this class.',
+  selectClass: 'Select a class',
 };
 
 const EL: TeacherContent = {
@@ -103,7 +132,7 @@ const EL: TeacherContent = {
   signInRequired: 'Σύνδεση απαιτείται για τον πίνακα εκπαιδευτή.',
   signInHint: 'Συνδέσου στο proxy από τις Ρυθμίσεις για χρήση, quotas και βιβλιοθήκη server-side.',
   openSettingsCta: 'Άνοιγμα Ρυθμίσεων για σύνδεση',
-  cohortRoadmap: 'Κατάλογος μαθητών, αναθέσεις και cohort analytics έρχονται σύντομα — σήμερα βλέπεις συγχρονισμένη βιβλιοθήκη και δημοσιεύσεις.',
+  cohortRoadmap: 'Διαχειρίσου καταλόγους τάξεων παρακάτω. Αναθέσεις και cohort analytics έρχονται σύντομα.',
   lastSynced: 'Τελευταίος συγχρονισμός',
   courses: 'Μαθήματα',
   coursesInLibrary: 'στη βιβλιοθήκη',
@@ -142,6 +171,21 @@ const EL: TeacherContent = {
   syncFooter: 'Ζωντανά δεδομένα από GET /v1/teacher/dashboard',
   loading: 'Φόρτωση πίνακα…',
   planLabel: 'πλάνο',
+  classRosters: 'Κατάλογοι τάξεων',
+  classRostersHint: 'Δημιούργησε τάξη και πρόσθεσε μαθητές με email (dev in-memory store).',
+  createClass: 'Νέα τάξη',
+  classNamePlaceholder: 'Όνομα τάξης',
+  addStudent: 'Προσθήκη μαθητή',
+  studentEmailPlaceholder: 'mathitis@school.edu',
+  studentNamePlaceholder: 'Όνομα (προαιρετικό)',
+  colStudent: 'Μαθητής',
+  colEmail: 'Email',
+  colMastery: 'Επίδοση',
+  colEnrolled: 'Εγγραφή',
+  removeStudent: 'Αφαίρεση',
+  noClasses: 'Δεν υπάρχουν τάξεις — δημιούργησε μία για κατάλογο.',
+  noStudents: 'Δεν υπάρχουν μαθητές σε αυτή την τάξη.',
+  selectClass: 'Επίλεξε τάξη',
 };
 
 export function getTeacherContent(lang: Lang): TeacherContent {
