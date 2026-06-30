@@ -17,6 +17,7 @@ interface OnboardingProps {
     dailyGoalMinutes?: number;
     examDate?: string;
     openUpload?: boolean;
+    openTeacher?: boolean;
     displayName?: string;
     exploreDemoMode?: boolean;
   }) => void;
@@ -52,6 +53,8 @@ export function Onboarding({ onComplete }: OnboardingProps) {
   const toggleGoal = (id: string) => {
     setSelectedGoals(prev => prev.includes(id) ? prev.filter(g => g !== id) : [...prev, id]);
   };
+
+  const isTeacherRole = selectedRole === 'tutor';
 
   const roleIcons: Record<string, typeof GraduationCap> = {
     university: GraduationCap,
@@ -193,9 +196,26 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                   {content.uploadBody}
                 </p>
                 <p className="text-xs text-brand-700/90 max-w-md mx-auto rounded-xl border border-brand-500/20 bg-brand-500/5 px-4 py-3">
-                  {content.uploadWorkspaceHint}
+                  {isTeacherRole ? content.teacherUploadHint : content.uploadWorkspaceHint}
                 </p>
                 <div className="flex flex-col gap-3">
+                  {isTeacherRole && (
+                    <button
+                      type="button"
+                      data-testid="onboarding-open-teacher"
+                      onClick={() => onComplete({
+                        role: selectedRole ?? undefined,
+                        goals: selectedGoals,
+                        dailyGoalMinutes: dailyTime,
+                        examDate: examDate || undefined,
+                        openTeacher: true,
+                        displayName: displayName.trim() || undefined,
+                      })}
+                      className="inline-flex items-center justify-center gap-2 px-8 py-3 rounded-xl font-medium border border-brand-500/30 bg-brand-600/10 text-brand-800 hover:bg-brand-600/20 transition-all"
+                    >
+                      <Users className="w-4 h-4" /> {content.teacherDashboardCta}
+                    </button>
+                  )}
                   <button onClick={() => onComplete({
                     role: selectedRole ?? undefined,
                     goals: selectedGoals,

@@ -24,6 +24,8 @@ export type OnboardingContent = {
   uploadTitle: string;
   uploadBody: string;
   uploadWorkspaceHint: string;
+  teacherUploadHint: string;
+  teacherDashboardCta: string;
   uploadCta: string;
   skipExplore: string;
   back: string;
@@ -53,6 +55,8 @@ const EN: OnboardingContent = {
   uploadTitle: "You're All Set!",
   uploadBody: 'Upload your first document to generate an interactive course, or explore the dashboard first.',
   uploadWorkspaceHint: 'After upload, open the course and tap Continue to enter the study workspace.',
+  teacherUploadHint: 'As a teacher, publish annotations from the workspace Reader and track courses, usage, and publishing from the Teacher dashboard.',
+  teacherDashboardCta: 'Open Teacher Dashboard',
   uploadCta: 'Upload My First Material',
   skipExplore: 'Skip — explore the demo first',
   back: 'Back',
@@ -95,6 +99,8 @@ const EL: OnboardingContent = {
   uploadTitle: 'Όλα έτοιμα!',
   uploadBody: 'Ανέβασε το πρώτο σου έγγραφο για διαδραστικό μάθημα ή εξερεύνησε πρώτα τον πίνακα.',
   uploadWorkspaceHint: 'Μετά το upload, άνοιξε το μάθημα και πάτα Continue για τον χώρο μελέτης.',
+  teacherUploadHint: 'Ως εκπαιδευτής, δημοσίευσε σχόλια από τον Reader στο workspace και παρακολούθησε μαθήματα, χρήση LLM και δημοσιεύσεις από τον πίνακα Teacher.',
+  teacherDashboardCta: 'Άνοιγμα πίνακα Teacher',
   uploadCta: 'Ανέβασμα Πρώτου Υλικού',
   skipExplore: 'Παράλειψη — εξερεύνησε πρώτα το demo',
   back: 'Πίσω',

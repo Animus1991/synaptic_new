@@ -19,6 +19,7 @@ interface Props {
   activities?: ActivityItem[];
   learnerModel?: LearnerModel;
   onOpenCourse?: (courseId: string) => void;
+  onOpenSettings?: () => void;
 }
 
 export function TeacherDashboard({
@@ -28,6 +29,7 @@ export function TeacherDashboard({
   activities = [],
   learnerModel,
   onOpenCourse,
+  onOpenSettings,
 }: Props) {
   const ui = getTeacherContent(lang);
   const [data, setData] = useState<TeacherDashboardResponse | null>(null);
@@ -98,6 +100,13 @@ export function TeacherDashboard({
           {error}
         </div>
       )}
+
+      <div
+        className="rounded-xl border border-border-subtle bg-surface-card/60 px-4 py-3 text-xs text-text-secondary"
+        data-testid="teacher-cohort-roadmap"
+      >
+        {ui.cohortRoadmap}
+      </div>
 
       {loading && !data && (
         <div className="rounded-2xl border border-border-subtle bg-surface-card p-8 text-center text-sm text-text-muted">
@@ -286,9 +295,21 @@ export function TeacherDashboard({
       </div>
 
       {!settings.authToken && (
-        <div className="rounded-xl border border-border-subtle bg-surface-hover/40 p-4 text-sm text-text-secondary flex gap-3">
+        <div className="rounded-xl border border-border-subtle bg-surface-hover/40 p-4 text-sm text-text-secondary flex gap-3 items-start">
           <Shield className="w-5 h-5 text-brand-400 shrink-0" />
-          <p>{ui.signInHint}</p>
+          <div className="space-y-2">
+            <p>{ui.signInHint}</p>
+            {onOpenSettings && (
+              <button
+                type="button"
+                data-testid="teacher-open-settings"
+                onClick={onOpenSettings}
+                className="text-xs font-medium text-brand-700 hover:text-brand-800"
+              >
+                {ui.openSettingsCta}
+              </button>
+            )}
+          </div>
         </div>
       )}
 

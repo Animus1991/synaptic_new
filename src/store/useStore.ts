@@ -1717,8 +1717,10 @@ export function useAppStore() {
     dailyGoalMinutes?: number;
     examDate?: string;
     openUpload?: boolean;
+    openTeacher?: boolean;
     displayName?: string;
   }) => {
+    const isTeacher = data.role === 'tutor' || data.openTeacher;
     setUser((prev) => {
       const nextSettings: UserSettings = {
         ...prev.settings,
@@ -1730,6 +1732,7 @@ export function useAppStore() {
         ...prev,
         name: trimmedName || prev.name,
         segment: (data.role as typeof prev.segment) ?? prev.segment,
+        role: isTeacher ? ('teacher' as const) : prev.role,
         onboardingComplete: true,
         settings: nextSettings,
       };
@@ -1737,7 +1740,7 @@ export function useAppStore() {
       return next;
     });
     if (data.openUpload) setShowUploadModal(true);
-    navigate('dashboard');
+    navigate(isTeacher ? 'teacher' : 'dashboard');
   }, [learnerModel, dashboardStats, tasks, betaMastery, firstAttemptKeys, openMistakes, activities, persist, navigate]);
 
   const enableDemoContent = useCallback(() => {

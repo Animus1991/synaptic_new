@@ -182,7 +182,9 @@ export default function App() {
       return;
     }
     store.completeOnboarding(rest);
-    window.setTimeout(() => setProductTourOpen(true), 400);
+    if (rest.role !== 'tutor' && !rest.openTeacher) {
+      window.setTimeout(() => setProductTourOpen(true), 400);
+    }
   }, [store]);
 
   const replayProductTour = useCallback(() => {
@@ -852,6 +854,7 @@ export default function App() {
                 const course = store.courses.find((c) => c.id === id);
                 if (course) store.openCourseReview(course);
               }}
+              onOpenSettings={() => store.navigate('settings')}
             />
             </LazyOverlay>
           )}

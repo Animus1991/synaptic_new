@@ -6,6 +6,8 @@ export type TeacherContent = {
   refresh: string;
   signInRequired: string;
   signInHint: string;
+  openSettingsCta: string;
+  cohortRoadmap: string;
   lastSynced: string;
   courses: string;
   coursesInLibrary: string;
@@ -52,6 +54,8 @@ const EN: TeacherContent = {
   refresh: 'Refresh',
   signInRequired: 'Sign in required for the teacher dashboard.',
   signInHint: 'Sign in via Settings → Proxy account to load server usage, quotas, and synced library stats.',
+  openSettingsCta: 'Open Settings to sign in',
+  cohortRoadmap: 'Student roster, assignments, and cohort analytics are on the roadmap — this dashboard shows your synced library and publishing today.',
   lastSynced: 'Last synced',
   courses: 'Courses',
   coursesInLibrary: 'in library',
@@ -98,6 +102,8 @@ const EL: TeacherContent = {
   refresh: 'Ανανέωση',
   signInRequired: 'Σύνδεση απαιτείται για τον πίνακα εκπαιδευτή.',
   signInHint: 'Συνδέσου στο proxy από τις Ρυθμίσεις για χρήση, quotas και βιβλιοθήκη server-side.',
+  openSettingsCta: 'Άνοιγμα Ρυθμίσεων για σύνδεση',
+  cohortRoadmap: 'Κατάλογος μαθητών, αναθέσεις και cohort analytics έρχονται σύντομα — σήμερα βλέπεις συγχρονισμένη βιβλιοθήκη και δημοσιεύσεις.',
   lastSynced: 'Τελευταίος συγχρονισμός',
   courses: 'Μαθήματα',
   coursesInLibrary: 'στη βιβλιοθήκη',
