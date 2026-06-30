@@ -210,6 +210,7 @@ export function Agent({
         groundingCoverage: grounding?.coverage,
         groundingFaithfulness: grounding?.faithfulness,
         ungroundedClaims: grounding?.ungroundedClaims,
+        groundingClaims: grounding?.claimDetails,
       },
     });
     setIsThinking(false);
@@ -624,7 +625,43 @@ function MessageBubble({
           </p>
         )}
 
-        {message.metadata?.ungroundedClaims && message.metadata.ungroundedClaims.length > 0 && (
+        {(message.metadata?.groundingClaims?.length ?? 0) > 0 && (
+          <div
+            className="mt-2 rounded-lg border border-border-subtle bg-surface-primary/40 px-2.5 py-2 space-y-2"
+            data-testid="agent-grounding-claims"
+          >
+            {message.metadata.groundingClaims!.map((detail) => (
+              <div
+                key={detail.claim.slice(0, 64)}
+                className={cn(
+                  'rounded-md border px-2 py-1.5 text-[10px]',
+                  detail.grounded
+                    ? 'border-accent-emerald/25 bg-accent-emerald/5 text-text-secondary'
+                    : 'border-accent-amber/30 bg-accent-amber/5 text-text-secondary',
+                )}
+              >
+                <p className="leading-snug">{detail.claim}</p>
+                <div className="mt-1 flex items-center justify-between gap-2">
+                  <span className={cn('font-mono', detail.grounded ? 'text-accent-emerald' : 'text-accent-amber')}>
+                    {Math.round(detail.score * 100)}%
+                  </span>
+                  {detail.source && onGoToSource && (
+                    <button
+                      type="button"
+                      className="text-brand-700 hover:text-brand-800 font-medium shrink-0"
+                      onClick={() => onGoToSource(detail.source!)}
+                    >
+                      {ui.viewSourceForClaim}
+                    </button>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {message.metadata?.ungroundedClaims && message.metadata.ungroundedClaims.length > 0
+          && !(message.metadata.groundingClaims?.length) && (
           <div
             className="mt-2 rounded-lg border border-accent-amber/25 bg-accent-amber/5 px-2.5 py-2"
             data-testid="agent-ungrounded-claims"

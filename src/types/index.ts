@@ -393,6 +393,13 @@ export interface AgentMessage {
     groundingFaithfulness?: number;
     /** Sentences that failed span verification. */
     ungroundedClaims?: string[];
+    /** Per-claim grounding with optional source spans for click-to-source. */
+    groundingClaims?: Array<{
+      claim: string;
+      grounded: boolean;
+      score: number;
+      source?: { fileId: string; charStart: number; charEnd: number };
+    }>;
   };
 }
 

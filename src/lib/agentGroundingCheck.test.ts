@@ -22,6 +22,8 @@ describe('checkAgentGrounding', () => {
     expect(report.faithfulness).toBeGreaterThan(0);
     expect(report.verified).toBe(true);
     expect(report.ungroundedClaims).toHaveLength(0);
+    expect(report.claimDetails.length).toBeGreaterThan(0);
+    expect(report.claimDetails.every((c) => c.grounded)).toBe(true);
   });
 
   it('flags ungrounded factual claims in strict mode', () => {
@@ -30,6 +32,7 @@ describe('checkAgentGrounding', () => {
     const report = checkAgentGrounding(content, [cite], { strict: true });
     expect(report.ungroundedClaims.length).toBeGreaterThan(0);
     expect(report.verified).toBe(false);
+    expect(report.claimDetails.some((c) => !c.grounded)).toBe(true);
   });
 
   it('fails strict mode without citations', () => {

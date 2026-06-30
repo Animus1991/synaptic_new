@@ -1,6 +1,14 @@
 import type { MessageCitation } from '../types';
 import { verifyAnswer } from './grounding';
 import { verifyGrounding as verifyCitationOverlap } from './groundingVerifier';
+import { resolveSourceHighlight } from './groundingCitationMap';
+
+export type GroundedClaimDetail = {
+  claim: string;
+  grounded: boolean;
+  score: number;
+  source?: { fileId: string; charStart: number; charEnd: number };
+};
 
 export type AgentGroundingReport = {
   verified: boolean;
@@ -9,6 +17,7 @@ export type AgentGroundingReport = {
   groundedRatio: number;
   unattributedCount: number;
   ungroundedClaims: string[];
+  claimDetails: GroundedClaimDetail[];
 };
 
 function citationsToSourceText(citations: MessageCitation[]): string {
@@ -33,6 +42,7 @@ export function checkAgentGrounding(
     groundedRatio: 0,
     unattributedCount: 0,
     ungroundedClaims: [],
+    claimDetails: [],
   };
 
   if (!content.trim()) return empty;
@@ -43,9 +53,16 @@ export function checkAgentGrounding(
   const overlap = verifyCitationOverlap(content, citations, { strict });
   const span = verifyAnswer(content, citationsToSourceText(citations));
 
-  const ungroundedClaims = span.checks
-    .filter((c) => !c.grounded && c.claim.trim().length > 20)
-    .map((c) => c.claim.trim());
+  const claimDetails: GroundedClaimDetail[] = span.checks
+    .filter((c) => c.claim.trim().length > 20)
+    .map((check) => ({
+      claim: check.claim.trim(),
+      grounded: check.grounded,
+      score: check.score,
+      source: resolveSourceHighlight(citations, check),
+    }));
+
+  const ungroundedClaims = claimDetails.filter((c) => !c.grounded).map((c) => c.claim);
 
   const verified = strict
     ? overlap.verified && span.strictPass && ungroundedClaims.length === 0
@@ -58,5 +75,6 @@ export function checkAgentGrounding(
     groundedRatio: span.groundedRatio,
     unattributedCount: overlap.unattributedCount,
     ungroundedClaims,
+    claimDetails,
   };
 }
