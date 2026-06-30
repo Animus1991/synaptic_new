@@ -2,7 +2,6 @@ import type { UploadedFile, UserSettings } from '../types';
 import { ragQuery, ragSearch, type GlobalRagHit } from './authClient';
 import { retrieveSources, retrieveAndRerank, formatCitation, type Citation, type RetrievalResult, type RetrievedChunk } from './rag';
 import { embedTexts, isLlmAvailable } from './llmClient';
-import { localEmbedder } from './localEmbedder';
 
 function isServerProxyConfigured(settings?: UserSettings): boolean {
   return !!(settings?.llmProxyUrl?.trim() || settings?.authProxyBase?.trim());
@@ -131,23 +130,6 @@ function embeddingReranker(settings?: UserSettings) {
   };
 }
 
-function localEmbeddingReranker() {
-  return async (query: string, hits: RetrievedChunk[]): Promise<RetrievedChunk[]> => {
-    if (hits.length === 0 || !localEmbedder.ready) return hits;
-    const texts = [query, ...hits.map((h) => h.chunk.text.slice(0, 800))];
-    const emb = await localEmbedder.embed(texts);
-    if (!emb || emb.length !== texts.length) return hits;
-    const q = emb[0]!;
-    const maxLex = Math.max(...hits.map((h) => h.score), 1e-9);
-    return hits
-      .map((h, i) => ({
-        chunk: h.chunk,
-        score: 0.5 * (h.score / maxLex) + 0.5 * Math.max(0, cosine(q, emb[i + 1]!)),
-      }))
-      .sort((a, b) => b.score - a.score);
-  };
-}
-
 /**
  * Backward-compatible excerpt builder. Now backed by BM25 retrieval instead of
  * a naive `indexOf` slice: returns the most relevant chunks for `concept`,
@@ -212,13 +194,8 @@ export async function retrieveForQueryHybrid(
     return retrieveAndRerank(files, query, rerankOpts, serverRagReranker(settings));
   }
 
-  // Prefer local offline embedder; fall back to LLM endpoint; otherwise lexical only.
-  const reranker = localEmbedder.ready
-    ? localEmbeddingReranker()
-    : isLlmAvailable(settings)
-      ? embeddingReranker(settings)
-      : undefined;
-
+  // Offline-only: OpenAI-compatible embedder when configured; otherwise lexical BM25.
+  const reranker = isLlmAvailable(settings) ? embeddingReranker(settings) : undefined;
   return retrieveAndRerank(files, query, rerankOpts, reranker);
 }
 

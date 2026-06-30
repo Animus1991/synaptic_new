@@ -26,6 +26,8 @@ import { isLectureHeadingText } from './sectionMerger';
 import { buildCorpusFromChunks, chunkText, retrieve, tokenize, type SourceChunk } from './rag';
 import { extractTables, tableToComparisonRows } from './tableExtract';
 import { targetQuizDifficulty } from './quizIrt';
+import { resolveContentCitation } from './contentCitation';
+import type { ContentCitation } from './contentCitation';
 import {
   buildFallbackComparisons,
   buildFallbackDebateTree,
@@ -373,17 +375,24 @@ export function extractComparisons(
  * Flashcards (Leitner)
  * ------------------------------------------------------------------ */
 
+export type Flashcard = {
+  front: string;
+  back: string;
+  citation?: ContentCitation;
+};
+
 export function buildFlashcards(
   text: string,
   concept: string,
   glossary: GlossaryEntry[],
   lang: Lang,
-): { front: string; back: string }[] {
+  sourceFiles: UploadedFile[] = [],
+): Flashcard[] {
   const excerpt = relevantExcerpt(text, concept, 12000);
-  const cards: { front: string; back: string }[] = [];
+  const cards: Flashcard[] = [];
   const seen = new Set<string>();
 
-  const add = (front: string, back: string) => {
+  const add = (front: string, back: string, anchor?: string) => {
     const f = front.trim();
     const b = back.trim();
     if (f.length < 2 || b.length < 8) return;
@@ -391,7 +400,10 @@ export function buildFlashcards(
     const k = normalizeConcept(f);
     if (seen.has(k)) return;
     seen.add(k);
-    cards.push({ front: f, back: b.slice(0, 280) });
+    const citation = sourceFiles.length > 0
+      ? resolveContentCitation(sourceFiles, anchor ?? b) ?? undefined
+      : undefined;
+    cards.push({ front: f, back: b.slice(0, 280), ...(citation ? { citation } : {}) });
   };
 
   const scopedGlossary = glossary.filter(

@@ -6,9 +6,10 @@
  * Embeddings are cached by a stable content hash so repeated calls over the
  * same corpus are deterministic and fast.
  *
- * The model loads once and is shared across the application. If the model
- * fails to load (e.g. in Node/Vitest without a compatible runtime), the embedder
- * returns `null` and callers must fall back to lexical retrieval.
+ * The model loads once and is shared across the application. Hybrid RAG
+ * (`retrieveForQueryHybrid`) no longer uses this embedder — server pgvector
+ * (1536d) is the canonical retrieval space when a proxy is configured.
+ * If the model fails to load, the embedder returns `null`.
  */
 
 export interface LocalEmbedder {

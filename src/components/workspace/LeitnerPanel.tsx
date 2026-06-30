@@ -157,6 +157,7 @@ export function LeitnerPanel({
           onRate={onRate}
           onOpenQuiz={onOpenQuiz}
           onQuizCard={onQuizCard}
+          onOpenInReader={onOpenInReader}
           hasSource={session.hasSource}
           artifactStale={artifactStale}
           onAcknowledgeStale={onAcknowledgeStale}

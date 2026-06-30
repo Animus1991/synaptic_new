@@ -17,6 +17,7 @@ import {
 } from '../../lib/quizSelectionRemediationQA';
 import { WorkspaceQuiz } from './WorkspaceQuiz';
 import { useI18n } from '../../lib/i18n';
+import { SourceCitationChip } from './SourceCitationChip';
 
 type Props = {
   scopeKey: string;
@@ -220,6 +221,13 @@ export function WorkspaceQuizSession({
           {Math.round((session.currentIndex / session.items.length) * 100)}%
         </span>
       </div>
+
+      {current.sourceCitation && onOpenQuestionInReader && (
+        <SourceCitationChip
+          citation={current.sourceCitation}
+          onOpenInReader={onOpenQuestionInReader}
+        />
+      )}
 
       {lastCorrect === null ? (
         <WorkspaceQuiz

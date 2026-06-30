@@ -131,6 +131,8 @@ export interface Course {
   sourceQuality?: CourseSourceQuality;
   /** Typed concept graph + prerequisite DAG powering ordering and locking. */
   conceptGraph?: import('../lib/conceptGraph').ConceptGraph;
+  /** Other courses sharing concepts with this material (cross-document links). */
+  linkedCourseIds?: string[];
   /** Pipeline lineage for reproducibility. */
   pipelineMeta?: {
     version: string;

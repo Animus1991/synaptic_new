@@ -20,6 +20,7 @@ import { saveDeckState, syncDeckState } from '../../lib/leitnerDeckSync';
 
 import { WorkspaceEmptyState } from './WorkspaceEmptyState';
 import { LeitnerStaleArtifactBanner } from './LeitnerStaleArtifactBanner';
+import { SourceCitationChip } from './SourceCitationChip';
 
 
 
@@ -48,6 +49,7 @@ interface LeitnerBoxProps {
   onUpload?: () => void;
   onOpenQuiz?: () => void;
   onQuizCard?: (front: string) => void;
+  onOpenInReader?: (query: string) => void;
   artifactStale?: boolean;
   onAcknowledgeStale?: () => void;
   lang?: 'en' | 'el';
@@ -77,6 +79,7 @@ export function LeitnerBox({
 
   onOpenQuiz,
   onQuizCard,
+  onOpenInReader,
   artifactStale = false,
   onAcknowledgeStale,
   lang: langProp,
@@ -389,6 +392,13 @@ export function LeitnerBox({
           >
             {leitnerCardSourceLabel(card.source, lang)}
           </span>
+        )}
+        {card?.citation && (
+          <SourceCitationChip
+            citation={card.citation}
+            onOpenInReader={onOpenInReader}
+            className="mb-2"
+          />
         )}
         <p className="text-sm font-medium leading-relaxed">{flipped ? card!.back : card!.front}</p>
 

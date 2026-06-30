@@ -4,7 +4,8 @@
  */
 
 import type { Lang } from './i18n';
-import type { GlossaryEntry, SpacingData } from '../types';
+import type { GlossaryEntry, SpacingData, UploadedFile } from '../types';
+import type { ContentCitation } from './contentCitation';
 import type { CustomLeitnerCard } from './leitnerCustomCards';
 import { buildFlashcards } from './noteContentExtractors';
 import { isGenericStudyConcept } from './workspaceContentFallback';
@@ -14,6 +15,7 @@ export type LeitnerCard = {
   front: string;
   back: string;
   source?: CustomLeitnerCard['source'];
+  citation?: ContentCitation;
 };
 
 export type LeitnerSessionContent = {
@@ -32,7 +34,12 @@ export function mergeLeitnerCards(...sources: LeitnerCard[][]): LeitnerCard[] {
       if (!key) continue;
       const prev = seen.get(key);
       if (prev) {
-        seen.set(key, { ...prev, ...card, source: card.source ?? prev.source });
+        seen.set(key, {
+          ...prev,
+          ...card,
+          source: card.source ?? prev.source,
+          citation: card.citation ?? prev.citation,
+        });
       } else {
         seen.set(key, card);
       }
@@ -82,6 +89,7 @@ export function buildLeitnerSessionContent(opts: {
   hasSource: boolean;
   spacingIntervals?: SpacingData[];
   customCards?: LeitnerCard[];
+  sourceFiles?: UploadedFile[];
 }): LeitnerSessionContent {
   const {
     text,
@@ -92,6 +100,7 @@ export function buildLeitnerSessionContent(opts: {
     hasSource,
     spacingIntervals = [],
     customCards = [],
+    sourceFiles = [],
   } = opts;
 
   if (!hasSource) {
@@ -104,7 +113,7 @@ export function buildLeitnerSessionContent(opts: {
     };
   }
 
-  const fromNotes = buildFlashcards(text, concept, glossary, lang);
+  const fromNotes = buildFlashcards(text, concept, glossary, lang, sourceFiles);
   const fromSpacing = buildSpacingLeitnerCards(spacingIntervals, concept, glossary, lang);
   const cards = filterLeitnerCardsByConfidence(mergeLeitnerCards(fromSpacing, fromNotes, customCards));
   const generic = isGenericStudyConcept(concept);

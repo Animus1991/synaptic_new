@@ -1,14 +1,31 @@
 import type { Lang } from './i18n';
 import type { QuizDef } from './lessonTypes';
-import type { GlossaryEntry } from '../types';
+import { isMcQuiz } from './lessonTypes';
+import type { GlossaryEntry, UploadedFile } from '../types';
 import { buildAdaptiveQuizFromNotes } from './noteContentExtractors';
 import { buildFallbackQuizFromPassage } from './workspaceContentFallback';
+import { resolveContentCitation } from './contentCitation';
+import type { ContentCitation } from './contentCitation';
 import { loadJson, saveJson } from './persistence';
 
 export type QuizSessionItem = {
   id: string;
   quiz: QuizDef;
+  sourceCitation?: ContentCitation;
 };
+
+function quizCitationAnchor(quiz: QuizDef): string {
+  if (isMcQuiz(quiz)) return quiz.options[quiz.correctIndex] ?? quiz.question;
+  if (quiz.kind === 'short-answer') return quiz.acceptedAnswers[0] ?? quiz.question;
+  if (quiz.kind === 'ordering') return quiz.items[0] ?? quiz.question;
+  return quiz.left[0] ?? quiz.question;
+}
+
+function attachQuizCitation(item: QuizSessionItem, files: UploadedFile[]): QuizSessionItem {
+  if (files.length === 0) return item;
+  const citation = resolveContentCitation(files, quizCitationAnchor(item.quiz));
+  return citation ? { ...item, sourceCitation: citation } : item;
+}
 
 export type QuizSessionState = {
   scopeKey: string;
@@ -30,6 +47,7 @@ export function buildQuizSession(
   ability: number,
   mastery: number,
   count = 3,
+  sourceFiles: UploadedFile[] = [],
 ): QuizSessionItem[] {
   const items: QuizSessionItem[] = [];
   const seen = new Set<string>();
@@ -41,7 +59,7 @@ export function buildQuizSession(
         const key = JSON.stringify(fb).slice(0, 120);
         if (!seen.has(key)) {
           seen.add(key);
-          items.push({ id: `q-${items.length}`, quiz: fb });
+          items.push(attachQuizCitation({ id: `q-${items.length}`, quiz: fb }, sourceFiles));
         }
       }
       continue;
@@ -49,7 +67,7 @@ export function buildQuizSession(
     const key = JSON.stringify(q).slice(0, 120);
     if (seen.has(key)) continue;
     seen.add(key);
-    items.push({ id: `q-${items.length}`, quiz: q });
+    items.push(attachQuizCitation({ id: `q-${items.length}`, quiz: q }, sourceFiles));
     if (items.length >= count) break;
   }
   return items;

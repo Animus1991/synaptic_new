@@ -12,7 +12,6 @@ import {
   computePrerequisiteRepairs,
   computeReviewInterval,
   deriveInsights,
-  fsrsIntervalDays,
   updateBetaMastery,
   updateSkillMastery,
   type FsrsRating,
@@ -47,6 +46,8 @@ import { settingsToAgentMode } from '../lib/settingsEffects';
 import { readTextFromFiles, uploadedFileMeta, extractFileContent, type UploadPayload } from '../lib/uploadPipeline';
 import { recognizeCourse } from '../lib/recognitionWorkerClient';
 import { buildConceptSpans, type SourceHighlight } from '../lib/conceptProvenance';
+import { enrichCourseWithCrossLinks } from '../lib/crossDocumentLink';
+import { applyFsrsToSpacing } from '../lib/adaptiveScheduler';
 import type { WorkspaceFocus } from '../lib/workspaceFocus';
 import { CONTENT_PIPELINE_VERSION } from '../lib/pipelineConstants';
 import {
@@ -607,16 +608,14 @@ export function useAppStore() {
 
       const concept = getTaskConcept(task);
       const spacing = learnerModel.spacingIntervals.find((s) => s.concept.toLowerCase().includes(concept.toLowerCase().slice(0, 6)));
-      const stability = spacing?.stability ?? 0.5;
-      const reviewCount = spacing?.reviewCount ?? 0;
-      const days = fsrsIntervalDays(stability, rating, reviewCount);
+      const fsrsUpdated = applyFsrsToSpacing(spacing, concept, rating);
 
       const updated = prev.map((t) =>
         t.id === taskId
           ? {
               ...t,
               status: 'completed' as const,
-              scheduledFor: new Date(Date.now() + days * 86400000).toISOString(),
+              scheduledFor: fsrsUpdated.nextReview,
             }
           : t,
       );
@@ -643,27 +642,9 @@ export function useAppStore() {
 
         const nextSpacing = nextLm.spacingIntervals.some((s) => s.concept === concept)
           ? nextLm.spacingIntervals.map((s) =>
-              s.concept === concept
-                ? {
-                    ...s,
-                    interval: days,
-                    reviewCount: s.reviewCount + 1,
-                    nextReview: new Date(Date.now() + days * 86400000).toISOString(),
-                    stability: rating === 'again' ? Math.max(0.1, s.stability - 0.15) : Math.min(1, s.stability + 0.1),
-                  }
-                : s,
+              s.concept === concept ? fsrsUpdated : s,
             )
-          : [
-              ...nextLm.spacingIntervals,
-              {
-                concept,
-                interval: days,
-                nextReview: new Date(Date.now() + days * 86400000).toISOString(),
-                stability: rating === 'again' ? 0.3 : 0.55,
-                difficulty: 0.5,
-                reviewCount: 1,
-              },
-            ];
+          : [...nextLm.spacingIntervals, fsrsUpdated];
 
         let next: LearnerModel = {
           ...nextLm,
@@ -715,9 +696,7 @@ export function useAppStore() {
       s.concept.toLowerCase().includes(concept.toLowerCase().slice(0, 6))
       || concept.toLowerCase().includes(s.concept.toLowerCase().slice(0, 6)),
     );
-    const stability = spacing?.stability ?? 0.5;
-    const reviewCount = spacing?.reviewCount ?? 0;
-    const days = fsrsIntervalDays(stability, rating, reviewCount);
+    const fsrsUpdated = applyFsrsToSpacing(spacing, concept, rating);
     const correct = rating !== 'again';
     const confidence = fsrsRatingToConfidence(rating);
 
@@ -741,27 +720,9 @@ export function useAppStore() {
 
       const nextSpacing = nextLm.spacingIntervals.some((s) => s.concept === concept)
         ? nextLm.spacingIntervals.map((s) =>
-            s.concept === concept
-              ? {
-                  ...s,
-                  interval: days,
-                  reviewCount: s.reviewCount + 1,
-                  nextReview: new Date(Date.now() + days * 86400000).toISOString(),
-                  stability: rating === 'again' ? Math.max(0.1, s.stability - 0.15) : Math.min(1, s.stability + 0.1),
-                }
-              : s,
+            s.concept === concept ? fsrsUpdated : s,
           )
-        : [
-            ...nextLm.spacingIntervals,
-            {
-              concept,
-              interval: days,
-              nextReview: new Date(Date.now() + days * 86400000).toISOString(),
-              stability: rating === 'again' ? 0.3 : 0.55,
-              difficulty: 0.5,
-              reviewCount: 1,
-            },
-          ];
+        : [...nextLm.spacingIntervals, fsrsUpdated];
 
       let next: LearnerModel = {
         ...nextLm,
@@ -1402,6 +1363,13 @@ export function useAppStore() {
         },
       };
     }
+
+    course = await enrichCourseWithCrossLinks(
+      course,
+      text,
+      courses.filter((c) => !MOCK_COURSE_IDS.has(c.id)),
+      uploadedFiles,
+    );
 
     const nextFiles = [...uploadedFiles, ...withCourse];
 

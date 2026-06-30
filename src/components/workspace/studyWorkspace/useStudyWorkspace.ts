@@ -757,6 +757,11 @@ export function useStudyWorkspace({
     sectionTitleRef.current = STEPS[currentStep]?.title;
   }, [STEPS, currentStep]);
 
+  const courseSourceFiles = useMemo(
+    () => uploadedFiles.filter((f) => f.courseId === effectiveCourseId),
+    [uploadedFiles, effectiveCourseId],
+  );
+
   const leitnerSession = useMemo(
     () => {
       if (!workspaceIntelActive(intelReady, activeTool, 'leitner')) return EMPTY_LEITNER_SESSION;
@@ -769,11 +774,12 @@ export function useStudyWorkspace({
         hasSource: noteBundle.hasSource,
         spacingIntervals: learnerModel?.spacingIntervals ?? [],
         customCards: customLeitnerCards,
+        sourceFiles: courseSourceFiles,
       });
     },
     [
       intelReady, activeTool, noteBundle.sourceFullText, noteBundle.hasSource, deferredConcept, scopedGlossary,
-      lang, STEPS, deferredStep, learnerModel?.spacingIntervals, customLeitnerCards,
+      lang, STEPS, deferredStep, learnerModel?.spacingIntervals, customLeitnerCards, courseSourceFiles,
     ],
   );
 
@@ -1194,11 +1200,12 @@ export function useStudyWorkspace({
         sectionLabel: STEPS[currentStep]?.title,
         hasSource: noteBundle.hasSource,
         count: 3,
+        sourceFiles: courseSourceFiles,
       });
     },
     [
       intelReady, activeTool, noteBundle.hasSource, noteBundle.annotationText, quizConcept, scopedGlossary,
-      lang, quizIrtState.ability, conceptMastery, STEPS, currentStep,
+      lang, quizIrtState.ability, conceptMastery, STEPS, currentStep, courseSourceFiles,
     ],
   );
 
