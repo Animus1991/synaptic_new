@@ -2,10 +2,58 @@ import { Router } from 'express';
 import { authenticate } from '../middleware/auth';
 import { enforceQuota } from '../middleware/usage';
 import { addUsageAsync } from '../store/accounts';
-import { retrieveTopK } from '../lib/ragServer';
+import { retrieveTopK, searchGlobalLibrary } from '../lib/ragServer';
+import { indexLibraryVectors } from '../lib/libraryVectorIndex';
+import type { StoredLibrary } from '../store/libraryStore';
 
 export const ragRouter = Router();
 ragRouter.use(authenticate, enforceQuota);
+
+/** POST /v1/rag/search — global semantic search over indexed library chunks. */
+ragRouter.post('/rag/search', async (req, res) => {
+  const account = req.account!;
+  const body = req.body as { query?: string; topK?: number; courseId?: string };
+  const query = typeof body.query === 'string' ? body.query.trim() : '';
+  const topK = typeof body.topK === 'number' ? Math.min(20, Math.max(1, body.topK)) : 5;
+
+  if (!query) {
+    res.status(400).json({ error: 'query required' });
+    return;
+  }
+
+  try {
+    const { hits, indexedChunks } = await searchGlobalLibrary(account.id, query, {
+      topK,
+      courseId: typeof body.courseId === 'string' ? body.courseId : undefined,
+    });
+    const estTokens = Math.ceil(query.length / 4);
+    await addUsageAsync(account, estTokens, 0);
+    res.json({
+      results: hits,
+      indexedChunks,
+      global: true,
+    });
+  } catch {
+    res.status(502).json({ error: 'Global RAG search failed' });
+  }
+});
+
+/** POST /v1/rag/index — rebuild vector index from synced library payload. */
+ragRouter.post('/rag/index', async (req, res) => {
+  const account = req.account!;
+  const body = req.body as Partial<StoredLibrary>;
+  try {
+    const count = await indexLibraryVectors(account.id, {
+      uploadedFiles: body.uploadedFiles ?? [],
+      glossaryEntries: body.glossaryEntries ?? [],
+      generatedCourses: body.generatedCourses ?? [],
+      updatedAt: new Date().toISOString(),
+    });
+    res.json({ indexedChunks: count });
+  } catch {
+    res.status(502).json({ error: 'Vector index rebuild failed' });
+  }
+});
 
 /** POST /v1/rag/query — semantic retrieval over client-supplied chunks. */
 ragRouter.post('/rag/query', async (req, res) => {

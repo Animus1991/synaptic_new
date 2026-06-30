@@ -1,11 +1,69 @@
 import type { UploadedFile, UserSettings } from '../types';
-import { ragQuery } from './authClient';
-import { retrieveSources, retrieveAndRerank, type Citation, type RetrievalResult, type RetrievedChunk } from './rag';
+import { ragQuery, ragSearch, type GlobalRagHit } from './authClient';
+import { retrieveSources, retrieveAndRerank, formatCitation, type Citation, type RetrievalResult, type RetrievedChunk } from './rag';
 import { embedTexts, isLlmAvailable } from './llmClient';
 import { localEmbedder } from './localEmbedder';
 
 function isServerProxyConfigured(settings?: UserSettings): boolean {
   return !!(settings?.llmProxyUrl?.trim() || settings?.authProxyBase?.trim());
+}
+
+function canUseGlobalRag(settings?: UserSettings): boolean {
+  return isServerProxyConfigured(settings) && !!settings?.authToken?.trim();
+}
+
+function globalHitToCitation(hit: GlobalRagHit): Citation {
+  const snippet = hit.text.length > 160 ? `${hit.text.slice(0, 157)}…` : hit.text;
+  const locator = hit.page ? `p.${hit.page}` : `¶${hit.id.split('#')[1] ?? '1'}`;
+  return {
+    chunkId: hit.id,
+    fileId: hit.fileId,
+    fileName: hit.fileName,
+    locator,
+    charStart: hit.charStart,
+    charEnd: hit.charEnd,
+    page: hit.page,
+    heading: hit.heading,
+    snippet,
+  };
+}
+
+function buildRetrievalFromGlobalHits(hits: GlobalRagHit[], maxChars: number): RetrievalResult {
+  const citations: Citation[] = [];
+  const blocks: string[] = [];
+  let used = 0;
+  for (const hit of hits) {
+    const citation = globalHitToCitation(hit);
+    const header = `[${formatCitation(citation)}]`;
+    const block = `${header}\n${hit.text}`;
+    if (used + block.length > maxChars && blocks.length > 0) break;
+    blocks.push(block);
+    citations.push(citation);
+    used += block.length;
+  }
+  return {
+    excerpt: blocks.length > 0 ? blocks.join('\n\n') : undefined,
+    citations,
+    grounded: blocks.length > 0,
+  };
+}
+
+async function retrieveViaGlobalSearch(
+  query: string,
+  settings: UserSettings,
+  opts: { concept?: string; courseId?: string; k?: number; maxChars?: number },
+): Promise<RetrievalResult | null> {
+  const fullQuery = [query, opts.concept].filter(Boolean).join(' ');
+  try {
+    const { results, indexedChunks } = await ragSearch(settings.authToken, settings, fullQuery, {
+      topK: opts.k ?? 4,
+      courseId: opts.courseId,
+    });
+    if (indexedChunks === 0 || results.length === 0) return null;
+    return buildRetrievalFromGlobalHits(results, opts.maxChars ?? MAX_EXCERPT);
+  } catch {
+    return null;
+  }
 }
 
 const MAX_EXCERPT = 3500;
@@ -144,6 +202,11 @@ export async function retrieveForQueryHybrid(
     k: opts.k ?? 4,
     maxChars: MAX_EXCERPT,
   };
+
+  if (settings && canUseGlobalRag(settings)) {
+    const global = await retrieveViaGlobalSearch(query, settings, rerankOpts);
+    if (global?.grounded) return global;
+  }
 
   if (settings && isServerProxyConfigured(settings)) {
     return retrieveAndRerank(files, query, rerankOpts, serverRagReranker(settings));

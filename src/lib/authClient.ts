@@ -341,6 +341,56 @@ export async function ragQuery(
   return res.json() as Promise<{ results: { id: string; text: string; score: number }[] }>;
 }
 
+export type GlobalRagHit = {
+  id: string;
+  text: string;
+  score: number;
+  fileId: string;
+  fileName: string;
+  charStart: number;
+  charEnd: number;
+  heading?: string;
+  page?: number;
+};
+
+export async function ragSearch(
+  token: string | undefined,
+  settings: UserSettings,
+  query: string,
+  opts: { topK?: number; courseId?: string } = {},
+): Promise<{ results: GlobalRagHit[]; indexedChunks: number; global: boolean }> {
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+  if (token?.trim()) headers.Authorization = `Bearer ${token.trim()}`;
+  const res = await fetch(`${proxyBase(settings)}/v1/rag/search`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({
+      query,
+      topK: opts.topK ?? 5,
+      courseId: opts.courseId,
+    }),
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json() as Promise<{ results: GlobalRagHit[]; indexedChunks: number; global: boolean }>;
+}
+
+export async function ragIndexLibrary(
+  token: string,
+  settings: UserSettings,
+  library: { uploadedFiles: unknown[]; glossaryEntries: unknown[]; generatedCourses: unknown[] },
+): Promise<{ indexedChunks: number }> {
+  const res = await fetch(`${proxyBase(settings)}/v1/rag/index`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(library),
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json() as Promise<{ indexedChunks: number }>;
+}
+
 export type SharedAnnotationDto = {
   id: string;
   courseId: string;
