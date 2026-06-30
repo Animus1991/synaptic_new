@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { authenticate } from '../middleware/auth';
 import { enforceQuota } from '../middleware/usage';
 import { addUsageAsync } from '../store/accounts';
-import { retrieveTopK, searchGlobalLibrary } from '../lib/ragServer';
+import { retrieveTopK, searchGlobalLibrary, searchGlobalLibraryGraph } from '../lib/ragServer';
 import { indexLibraryVectors } from '../lib/libraryVectorIndex';
 import type { StoredLibrary } from '../store/libraryStore';
 
@@ -12,9 +12,10 @@ ragRouter.use(authenticate, enforceQuota);
 /** POST /v1/rag/search — global semantic search over indexed library chunks. */
 ragRouter.post('/rag/search', async (req, res) => {
   const account = req.account!;
-  const body = req.body as { query?: string; topK?: number; courseId?: string };
+  const body = req.body as { query?: string; topK?: number; courseId?: string; graph?: boolean };
   const query = typeof body.query === 'string' ? body.query.trim() : '';
   const topK = typeof body.topK === 'number' ? Math.min(20, Math.max(1, body.topK)) : 5;
+  const useGraph = body.graph !== false;
 
   if (!query) {
     res.status(400).json({ error: 'query required' });
@@ -22,16 +23,18 @@ ragRouter.post('/rag/search', async (req, res) => {
   }
 
   try {
-    const { hits, indexedChunks } = await searchGlobalLibrary(account.id, query, {
-      topK,
-      courseId: typeof body.courseId === 'string' ? body.courseId : undefined,
-    });
+    const courseId = typeof body.courseId === 'string' ? body.courseId : undefined;
+    const result = useGraph
+      ? await searchGlobalLibraryGraph(account.id, query, { topK, courseId })
+      : await searchGlobalLibrary(account.id, query, { topK, courseId });
+    const { hits, indexedChunks } = result;
     const estTokens = Math.ceil(query.length / 4);
     await addUsageAsync(account, estTokens, 0);
     res.json({
       results: hits,
       indexedChunks,
       global: true,
+      graphRag: useGraph && 'graphExpanded' in result ? result.graphExpanded : false,
     });
   } catch {
     res.status(502).json({ error: 'Global RAG search failed' });

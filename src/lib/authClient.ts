@@ -351,14 +351,16 @@ export type GlobalRagHit = {
   charEnd: number;
   heading?: string;
   page?: number;
+  graphBoost?: number;
+  matchedConcepts?: string[];
 };
 
 export async function ragSearch(
   token: string | undefined,
   settings: UserSettings,
   query: string,
-  opts: { topK?: number; courseId?: string } = {},
-): Promise<{ results: GlobalRagHit[]; indexedChunks: number; global: boolean }> {
+  opts: { topK?: number; courseId?: string; graph?: boolean } = {},
+): Promise<{ results: GlobalRagHit[]; indexedChunks: number; global: boolean; graphRag?: boolean }> {
   const headers: Record<string, string> = { 'Content-Type': 'application/json' };
   if (token?.trim()) headers.Authorization = `Bearer ${token.trim()}`;
   const res = await fetch(`${proxyBase(settings)}/v1/rag/search`, {
@@ -368,10 +370,11 @@ export async function ragSearch(
       query,
       topK: opts.topK ?? 5,
       courseId: opts.courseId,
+      graph: opts.graph !== false,
     }),
   });
   if (!res.ok) throw new Error(await res.text());
-  return res.json() as Promise<{ results: GlobalRagHit[]; indexedChunks: number; global: boolean }>;
+  return res.json() as Promise<{ results: GlobalRagHit[]; indexedChunks: number; global: boolean; graphRag?: boolean }>;
 }
 
 export async function ragIndexLibrary(
