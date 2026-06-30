@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
+import { useState, useRef, useCallback, useEffect, useMemo, type KeyboardEvent } from 'react';
 import { useI18n } from '../../lib/i18n';
 import { exportConceptMapPng } from '../../lib/conceptMapExport';
 import { computeForceLayout, resolveFocusAnchorId } from '../../lib/conceptMapForceLayout';
@@ -24,11 +24,11 @@ import { Map, BookOpen, Pencil, FileText, X, Plus, Trash2, Link2, Undo2 } from '
 import { cn } from '../../utils/cn';
 import { bandColorVar, masteryColorForValue, accentHighlightVar } from '../../lib/masteryPalette';
 import { edgeKey, newCustomNodeId } from '../../lib/conceptMapGraph';
-import {
-  connectConceptMapCursors,
+import { connectConceptMapCursors,
   notifyCursorStream,
   type ConceptMapCursor,
 } from '../../lib/conceptMapCursorSync';
+import { nearestNodeInDirection, type CardinalDirection } from '../../lib/canvasKeyboardA11y';
 
 interface DragNode {
   id: string;
@@ -118,6 +118,8 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
   const dragging = useRef<string | null>(null);
   const dragOffset = useRef({ x: 0, y: 0 });
   const svgRef = useRef<SVGSVGElement>(null);
+  const canvasFocusRef = useRef<HTMLDivElement>(null);
+  const [liveAnnouncement, setLiveAnnouncement] = useState('');
   const clientId = useRef(
     typeof sessionStorage !== 'undefined'
       ? (sessionStorage.getItem('synapse.concept-map.clientId') ?? (() => {
@@ -389,6 +391,68 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
     return t('conceptMapRelationContrasts');
   }, [t]);
 
+  const focusNodeById = useCallback((nodeId: string) => {
+    const node = nodeMap[nodeId];
+    if (!node) return;
+    setSelected(nodeId);
+    setSelectedEdgeKey(null);
+    setConnectFrom(null);
+    setLiveAnnouncement(t('conceptMapNodeFocused').replace('{label}', node.label));
+    onConceptSelect?.(node.label);
+  }, [nodeMap, onConceptSelect, t]);
+
+  const handleCanvasKeyDown = useCallback((e: KeyboardEvent<HTMLDivElement>) => {
+    if (editingNote || editingLabel) return;
+    const navPoints = visibleNodes.map((n) => ({ id: n.id, x: n.x, y: n.y }));
+    if (navPoints.length === 0) return;
+
+    const dirMap: Record<string, CardinalDirection> = {
+      ArrowRight: 'right',
+      ArrowLeft: 'left',
+      ArrowDown: 'down',
+      ArrowUp: 'up',
+    };
+
+    if (dirMap[e.key]) {
+      e.preventDefault();
+      const nextId = nearestNodeInDirection(navPoints, selected, dirMap[e.key]!);
+      if (nextId) focusNodeById(nextId);
+      return;
+    }
+
+    if (e.key === 'Home') {
+      e.preventDefault();
+      focusNodeById(navPoints[0]!.id);
+      return;
+    }
+    if (e.key === 'End') {
+      e.preventDefault();
+      focusNodeById(navPoints[navPoints.length - 1]!.id);
+      return;
+    }
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      if (!selected) focusNodeById(navPoints[0]!.id);
+      return;
+    }
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      setSelected(null);
+      setSelectedEdgeKey(null);
+      setConnectFrom(null);
+      return;
+    }
+    if ((e.key === 'Delete' || e.key === 'Backspace') && selected && !connectFrom) {
+      e.preventDefault();
+      deleteSelectedNode();
+      return;
+    }
+    if ((e.key === 'c' || e.key === 'C') && selected) {
+      e.preventDefault();
+      setConnectFrom((prev) => (prev ? null : selected));
+    }
+  }, [connectFrom, deleteSelectedNode, editingLabel, editingNote, focusNodeById, selected, visibleNodes]);
+
   const deleteSelectedEdge = useCallback(() => {
     if (!selectedEdgeKey) return;
     pushHistory();
@@ -481,10 +545,31 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
             <Undo2 className="w-3 h-3" />
             {t('conceptMapUndo')}
           </button>
-          <button onClick={() => setZoom(z => Math.min(2.5, z + 0.2))} className="w-6 h-6 rounded bg-surface-hover text-text-secondary text-xs flex items-center justify-center hover:bg-surface-active">+</button>
-          <span className="text-[10px] text-text-muted w-10 text-center">{Math.round(zoom * 100)}%</span>
-          <button onClick={() => setZoom(z => Math.max(0.3, z - 0.2))} className="w-6 h-6 rounded bg-surface-hover text-text-secondary text-xs flex items-center justify-center hover:bg-surface-active">−</button>
-          <button onClick={() => { setZoom(1); setPan({ x: 0, y: 0 }); }} className="ml-1 px-2 py-1 rounded text-[10px] text-text-muted hover:text-text-secondary bg-surface-hover">{t('reset')}</button>
+          <button
+            type="button"
+            aria-label={t('conceptMapZoomIn')}
+            onClick={() => setZoom(z => Math.min(2.5, z + 0.2))}
+            className="w-6 h-6 rounded bg-surface-hover text-text-secondary text-xs flex items-center justify-center hover:bg-surface-active"
+          >
+            +
+          </button>
+          <span className="text-[10px] text-text-muted w-10 text-center" aria-live="polite">{Math.round(zoom * 100)}%</span>
+          <button
+            type="button"
+            aria-label={t('conceptMapZoomOut')}
+            onClick={() => setZoom(z => Math.max(0.3, z - 0.2))}
+            className="w-6 h-6 rounded bg-surface-hover text-text-secondary text-xs flex items-center justify-center hover:bg-surface-active"
+          >
+            −
+          </button>
+          <button
+            type="button"
+            aria-label={t('conceptMapResetView')}
+            onClick={() => { setZoom(1); setPan({ x: 0, y: 0 }); }}
+            className="ml-1 px-2 py-1 rounded text-[10px] text-text-muted hover:text-text-secondary bg-surface-hover"
+          >
+            {t('reset')}
+          </button>
           <button
             type="button"
             data-testid="concept-map-hierarchy-layout"
@@ -563,8 +648,42 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
         </div>
       )}
 
-      {/* Canvas */}
-      <div className="flex-1 overflow-hidden cursor-grab active:cursor-grabbing" onWheel={handleWheel} data-testid="concept-map-canvas">
+      {/* Screen-reader node tree (keyboard-focusable list) */}
+      <ul
+        role="tree"
+        aria-label={t('conceptMapNodeTree')}
+        data-testid="concept-map-node-tree"
+        className="sr-only"
+      >
+        {visibleNodes.map((node) => (
+          <li key={node.id} role="none">
+            <button
+              type="button"
+              id={`concept-map-node-${node.id}`}
+              role="treeitem"
+              aria-selected={selected === node.id}
+              tabIndex={selected === node.id || (!selected && visibleNodes[0]?.id === node.id) ? 0 : -1}
+              onClick={() => focusNodeById(node.id)}
+              onFocus={() => canvasFocusRef.current?.focus()}
+            >
+              {node.label} ({node.mastery}%)
+            </button>
+          </li>
+        ))}
+      </ul>
+
+      <div
+        ref={canvasFocusRef}
+        className="flex-1 overflow-hidden cursor-grab active:cursor-grabbing outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
+        onWheel={handleWheel}
+        data-testid="concept-map-canvas"
+        role="application"
+        tabIndex={0}
+        aria-label={t('conceptMapCanvasLabel')}
+        aria-activedescendant={selected ? `concept-map-node-${selected}` : undefined}
+        onKeyDown={handleCanvasKeyDown}
+      >
+        <span className="sr-only" aria-live="polite" aria-atomic="true">{liveAnnouncement}</span>
         <svg
           ref={svgRef}
           width="100%" height="100%"
@@ -647,6 +766,7 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
                   opacity={nodeMasteryOpacity(node.mastery)}
                   onPointerDown={e => handlePointerDown(e, node.id)}
                   className="cursor-move"
+                  aria-hidden
                 >
                   {lensHit && !isSel && (
                     <circle cx={node.x} cy={node.y} r={r + 6} fill="none" stroke="var(--palette-cyan)" strokeWidth={1.5} opacity={0.45} data-testid="concept-map-lens-highlight" />

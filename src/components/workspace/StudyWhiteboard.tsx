@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type KeyboardEvent } from 'react';
 import {
   ArrowRight, Circle, Eraser, Eye, EyeOff, Highlighter, Layers, Lock, Minus, Pen,
   Plus, Redo2, Ruler, Save, Square, Trash2, Type, Undo2, BookOpen, Calculator, X, Unlock, Download,
@@ -19,6 +19,7 @@ import { FormulaLatexPreview } from './FormulaLatexPreview';
 import { buildLatexStampLibrary, stampToInsertText, type LatexStamp } from '../../lib/whiteboardLatexStamps';
 import { layoutCoachNodePositions } from '../../lib/whiteboardDiagramCoach';
 import { useI18n } from '../../lib/i18n';
+import { cycleToolIndex } from '../../lib/canvasKeyboardA11y';
 
 type Tool = 'pen' | 'marker' | 'highlighter' | 'eraser' | 'line' | 'rect' | 'ellipse' | 'arrow' | 'ruler' | 'text';
 type Point = { x: number; y: number };
@@ -80,6 +81,7 @@ export function StudyWhiteboard({
   const [savedMsg, setSavedMsg] = useState(false);
   const [showLayers, setShowLayers] = useState(true);
   const [showStamps, setShowStamps] = useState(false);
+  const [liveAnnouncement, setLiveAnnouncement] = useState('');
   const drawing = useRef(false);
 
   const stampLibrary = useMemo(
@@ -412,6 +414,47 @@ export function StudyWhiteboard({
     }));
   };
 
+  const handleCanvasKeyDown = useCallback((e: KeyboardEvent<HTMLCanvasElement>) => {
+    if (activeLayerLocked) return;
+    const toolIdx = TOOL_DEFS.findIndex((td) => td.id === tool);
+
+    if (e.key === '[') {
+      e.preventDefault();
+      const next = cycleToolIndex(toolIdx, -1, TOOL_DEFS.length);
+      const nextTool = TOOL_DEFS[next]!;
+      setTool(nextTool.id);
+      setLiveAnnouncement(t('wbToolFocused').replace('{tool}', nextTool.label));
+      return;
+    }
+    if (e.key === ']') {
+      e.preventDefault();
+      const next = cycleToolIndex(toolIdx, 1, TOOL_DEFS.length);
+      const nextTool = TOOL_DEFS[next]!;
+      setTool(nextTool.id);
+      setLiveAnnouncement(t('wbToolFocused').replace('{tool}', nextTool.label));
+      return;
+    }
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z' && !e.shiftKey) {
+      e.preventDefault();
+      undo();
+      return;
+    }
+    if ((e.ctrlKey || e.metaKey) && (e.key.toLowerCase() === 'y' || (e.key.toLowerCase() === 'z' && e.shiftKey))) {
+      e.preventDefault();
+      redo();
+      return;
+    }
+    if (e.key === '+' || e.key === '=') {
+      e.preventDefault();
+      setWidth((w) => Math.min(12, w + 1));
+      return;
+    }
+    if (e.key === '-') {
+      e.preventDefault();
+      setWidth((w) => Math.max(1, w - 1));
+    }
+  }, [activeLayerLocked, redo, t, tool, undo]);
+
   return (
     <div className="flex h-full min-h-0 flex-col overflow-hidden lg:flex-row min-w-0">
       {(referenceFormulas.length > 0 || referenceExcerpt || scratchpadImport) && (
@@ -701,12 +744,18 @@ export function StudyWhiteboard({
       </div>
 
       <div ref={containerRef} className="relative min-h-0 flex-1 p-2">
+        <span className="sr-only" aria-live="polite" aria-atomic="true">{liveAnnouncement}</span>
         <canvas
           ref={canvasRef}
+          data-testid="whiteboard-canvas"
+          role="application"
+          tabIndex={0}
+          aria-label={t('wbCanvasLabel')}
           className={cn(
-            'touch-none rounded-xl border border-border-subtle w-full',
+            'touch-none rounded-xl border border-border-subtle w-full outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50',
             activeLayerLocked && 'cursor-not-allowed opacity-90',
           )}
+          onKeyDown={handleCanvasKeyDown}
           onPointerDown={onDown}
           onPointerMove={onMove}
           onPointerUp={onUp}

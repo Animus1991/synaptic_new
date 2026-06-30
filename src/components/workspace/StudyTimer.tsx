@@ -332,14 +332,23 @@ export function StudyTimer({
         {mode === 'pomodoro' && (
           <div className="flex gap-3">
             <button
+              type="button"
+              data-testid="timer-play-pause"
               onClick={() => setRunning(!running)}
+              aria-label={running ? t('pause') : t('start')}
               className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-sm font-medium"
             >
-              {running ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+              {running ? <Pause className="w-4 h-4" aria-hidden /> : <Play className="w-4 h-4" aria-hidden />}
               {running ? t('pause') : t('start')}
             </button>
-            <button onClick={reset} className="p-2.5 rounded-xl border border-border-subtle hover:bg-surface-hover text-text-secondary">
-              <RotateCcw className="w-4 h-4" />
+            <button
+              type="button"
+              data-testid="timer-reset"
+              onClick={reset}
+              aria-label={t('reset')}
+              className="p-2.5 rounded-xl border border-border-subtle hover:bg-surface-hover text-text-secondary"
+            >
+              <RotateCcw className="w-4 h-4" aria-hidden />
             </button>
           </div>
         )}
