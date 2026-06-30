@@ -1,52 +1,102 @@
+import { createHash } from 'node:crypto';
 import type { StoredLibrary } from '../store/libraryStore';
 import { chunkText } from './chunkText';
 import { embedTexts } from './embeddings';
 import { getVectorChunkStore, type IndexedChunk } from '../store/vectorChunkStore';
 
-type UploadedFileRow = {
+export type UploadedFileRow = {
   id?: string;
   name?: string;
   courseId?: string;
   extractedText?: string;
   status?: string;
   textOffloaded?: boolean;
+  ingestMethod?: string;
+  type?: string;
 };
 
-const indexing = new Map<string, Promise<number>>();
+export type IndexStats = {
+  indexedChunks: number;
+  embedded: number;
+  reused: number;
+  removed: number;
+};
 
-/** Rebuild the per-account vector index from synced library files. */
-export async function indexLibraryVectors(accountId: string, library: StoredLibrary): Promise<number> {
+const indexing = new Map<string, Promise<IndexStats>>();
+
+function fileTextHash(text: string): string {
+  return createHash('sha256').update(text).digest('hex').slice(0, 16);
+}
+
+export function buildDesiredChunks(library: StoredLibrary): {
+  chunks: IndexedChunk[];
+  activeFileIds: string[];
+} {
+  const files = (library.uploadedFiles ?? []) as UploadedFileRow[];
+  const chunks: IndexedChunk[] = [];
+  const activeFileIds: string[] = [];
+
+  for (const file of files) {
+    const text = typeof file.extractedText === 'string' ? file.extractedText.trim() : '';
+    if (!text || file.status === 'failed') continue;
+    const fileId = String(file.id ?? file.name ?? 'file');
+    const fileName = String(file.name ?? fileId);
+    activeFileIds.push(fileId);
+    for (const chunk of chunkText(text, fileId, fileName)) {
+      chunks.push({ ...chunk, courseId: file.courseId });
+    }
+  }
+
+  return { chunks, activeFileIds };
+}
+
+/** Incremental vector index: embed only changed chunks (content_hash diff). */
+export async function indexLibraryVectors(accountId: string, library: StoredLibrary): Promise<IndexStats> {
   const prev = indexing.get(accountId);
   if (prev) await prev.catch(() => undefined);
 
-  const job = (async () => {
-    const files = (library.uploadedFiles ?? []) as UploadedFileRow[];
-    const indexed: IndexedChunk[] = [];
+  const job = (async (): Promise<IndexStats> => {
+    const store = getVectorChunkStore();
+    const { chunks: desired, activeFileIds } = buildDesiredChunks(library);
 
-    for (const file of files) {
-      const text = typeof file.extractedText === 'string' ? file.extractedText.trim() : '';
-      if (!text || file.status === 'failed') continue;
-      const fileId = String(file.id ?? file.name ?? 'file');
-      const fileName = String(file.name ?? fileId);
-      for (const chunk of chunkText(text, fileId, fileName)) {
-        indexed.push({ ...chunk, courseId: file.courseId });
+    if (desired.length === 0) {
+      const removed = await store.syncAccountChunks(accountId, [], { activeFileIds: [] });
+      return { indexedChunks: 0, embedded: 0, reused: 0, removed: removed.removed };
+    }
+
+    const existing = await store.getChunkMeta(accountId);
+    const toEmbed: IndexedChunk[] = [];
+    const merged: IndexedChunk[] = [];
+    let reused = 0;
+
+    for (const chunk of desired) {
+      const prevMeta = existing.get(chunk.id);
+      if (prevMeta && prevMeta.contentHash === chunk.contentHash && prevMeta.embedding?.length) {
+        merged.push({ ...chunk, embedding: prevMeta.embedding });
+        reused += 1;
+      } else {
+        toEmbed.push(chunk);
       }
     }
 
-    if (indexed.length === 0) {
-      await getVectorChunkStore().replaceAccountChunks(accountId, []);
-      return 0;
+    if (toEmbed.length > 0) {
+      const vectors = await embedTexts(toEmbed.map((c) => c.text));
+      if (vectors) {
+        toEmbed.forEach((chunk, i) => {
+          merged.push({ ...chunk, embedding: vectors[i] });
+        });
+      } else {
+        merged.push(...toEmbed);
+      }
     }
 
-    const vectors = await embedTexts(indexed.map((c) => c.text));
-    if (vectors) {
-      indexed.forEach((chunk, i) => {
-        chunk.embedding = vectors[i];
-      });
-    }
-
-    await getVectorChunkStore().replaceAccountChunks(accountId, indexed);
-    return indexed.length;
+    const { removed } = await store.syncAccountChunks(accountId, merged, { activeFileIds });
+    return {
+      indexedChunks: merged.length,
+      embedded: toEmbed.length,
+      reused,
+      removed,
+    };
   })();
 
   indexing.set(accountId, job);
@@ -62,3 +112,45 @@ export function scheduleLibraryVectorIndex(accountId: string, library: StoredLib
     console.warn('[vector-index] failed for account', accountId, err);
   });
 }
+
+/** Re-index a single audio/transcript file without touching other indexed files. */
+export async function indexTranscriptText(
+  accountId: string,
+  file: { id: string; name: string; courseId?: string; extractedText: string },
+): Promise<IndexStats> {
+  const store = getVectorChunkStore();
+  const text = file.extractedText.trim();
+  if (!text) return { indexedChunks: 0, embedded: 0, reused: 0, removed: 0 };
+
+  const desired = chunkText(text, file.id, file.name).map((c) => ({ ...c, courseId: file.courseId }));
+  const existing = await store.getChunkMeta(accountId);
+  const toEmbed: IndexedChunk[] = [];
+  const merged: IndexedChunk[] = [];
+  let reused = 0;
+
+  for (const chunk of desired) {
+    const prevMeta = existing.get(chunk.id);
+    if (prevMeta && prevMeta.contentHash === chunk.contentHash && prevMeta.embedding?.length) {
+      merged.push({ ...chunk, embedding: prevMeta.embedding });
+      reused += 1;
+    } else {
+      toEmbed.push(chunk);
+    }
+  }
+
+  if (toEmbed.length > 0) {
+    const vectors = await embedTexts(toEmbed.map((c) => c.text));
+    if (vectors) {
+      toEmbed.forEach((chunk, i) => {
+        merged.push({ ...chunk, embedding: vectors[i] });
+      });
+    } else {
+      merged.push(...toEmbed);
+    }
+  }
+
+  const { removed } = await store.syncFileChunks(accountId, file.id, merged);
+  return { indexedChunks: merged.length, embedded: toEmbed.length, reused, removed };
+}
+
+export { fileTextHash };

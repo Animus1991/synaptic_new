@@ -22,6 +22,7 @@ import { edgesFromCourses } from '../lib/conceptEdges';
 import { loadJson, saveJson } from '../lib/persistence';
 import { t } from '../lib/i18n';
 import { hydrateLibrary, loadLibrarySync, saveLibrarySync } from '../lib/libraryStorage';
+import { scheduleLibraryRemoteSync } from '../lib/libraryRemoteSync';
 import { mergeLibraries, remoteLibraryToPersisted } from '../lib/librarySync';
 import { markWorkspaceContinue } from '../lib/workspacePerf';
 import { prefetchWorkspaceEntry } from '../lib/workspaceEntryPrefetch';
@@ -397,7 +398,8 @@ export function useAppStore() {
       glossaryEntries: glossary,
       generatedCourses: allCourses.filter((c) => !MOCK_COURSE_IDS.has(c.id)),
     });
-  }, []);
+    scheduleLibraryRemoteSync(user.settings);
+  }, [user.settings]);
 
   useEffect(() => {
     void hydrateLibrary({

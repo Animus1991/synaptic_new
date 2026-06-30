@@ -21,6 +21,7 @@ import { googleAuthRouter } from './routes/googleAuth';
 import { googleIntegrationsRouter } from './routes/googleIntegrations';
 import { studyRoomsRouter } from './routes/studyRooms';
 import { bootstrapStudyRoomsFromPg } from './store/studyRoomPgStore';
+import { initVectorIndexQueue } from './jobs/vectorIndexQueue';
 
 export function createApp(): express.Application {
   const app = express();
@@ -50,6 +51,7 @@ export function createApp(): express.Application {
         rateLimitRpm: config.rateLimitRpm,
         googleOAuth: Boolean(config.googleClientId && config.googleClientSecret),
         studyRooms: true,
+        vectorIndexQueue: Boolean(config.redisUrl),
       },
     });
   });
@@ -86,12 +88,16 @@ export async function startServer(): Promise<void> {
     await runMigrations(config.databaseUrl);
   }
   await bootstrapStudyRoomsFromPg(config.databaseUrl);
+  initVectorIndexQueue();
 
   app.listen(config.port, () => {
     console.log(`[synapse-proxy] listening on http://localhost:${config.port}`);
     console.log(`[synapse-proxy] upstream: ${config.upstreamBaseUrl} · anonymous: ${config.allowAnonymous}`);
     if (config.databaseUrl) {
       console.log(`[synapse-proxy] database: connected · migrations-on-start: ${config.runMigrationsOnStart}`);
+    }
+    if (config.redisUrl) {
+      console.log('[synapse-proxy] vector index queue: BullMQ (Redis)');
     }
   });
 }

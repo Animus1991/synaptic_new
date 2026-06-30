@@ -10,6 +10,7 @@ import type { UserSettings } from '../types';
 import { importChatGptExportFile, isChatGptExportFile, isLikelyChatGptExportJson } from './chatGptImport';
 
 import { extractWithOcrFallback, isImageOnlyPdf, isImageUpload } from './ocrExtract';
+import { extractAudioVideoTranscript, isAudioVideoFile } from './youtubeTranscript';
 
 // Vite resolves this to a stable public URL in dev + production builds.
 
@@ -41,7 +42,7 @@ export type FileExtractResult = {
 
   ocrUsed?: boolean;
 
-  ingestMethod?: 'text-layer' | 'ocr-client' | 'ocr-server' | 'ocr-ensemble' | 'chatgpt-export';
+  ingestMethod?: 'text-layer' | 'ocr-client' | 'ocr-server' | 'ocr-ensemble' | 'chatgpt-export' | 'transcript';
 
   ocrRegions?: import('./readerOcrOverlay').OcrStoredRegion[];
 
@@ -301,7 +302,17 @@ export async function extractTextFromFile(file: File, settings?: UserSettings): 
 
   }
 
-
+  if (isAudioVideoFile(file)) {
+    const transcript = await extractAudioVideoTranscript(file, {
+      authProxyBase: settings?.llmProxyUrl?.replace(/\/v1\/?$/, ''),
+      llmProxyUrl: settings?.llmProxyUrl,
+      authToken: settings?.authToken,
+    });
+    if (transcript?.text) {
+      return { text: transcript.text, ingestMethod: 'transcript' };
+    }
+    return { text: '' };
+  }
 
   const ext = file.name.split('.').pop()?.toLowerCase();
 

@@ -43,13 +43,13 @@ ragRouter.post('/rag/index', async (req, res) => {
   const account = req.account!;
   const body = req.body as Partial<StoredLibrary>;
   try {
-    const count = await indexLibraryVectors(account.id, {
+    const stats = await indexLibraryVectors(account.id, {
       uploadedFiles: body.uploadedFiles ?? [],
       glossaryEntries: body.glossaryEntries ?? [],
       generatedCourses: body.generatedCourses ?? [],
       updatedAt: new Date().toISOString(),
     });
-    res.json({ indexedChunks: count });
+    res.json(stats);
   } catch {
     res.status(502).json({ error: 'Vector index rebuild failed' });
   }

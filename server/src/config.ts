@@ -13,6 +13,8 @@ export const config = {
   allowedOrigins: (process.env.ALLOWED_ORIGINS ?? '*').split(',').map((s) => s.trim()).filter(Boolean),
   allowAnonymous: (process.env.ALLOW_ANONYMOUS ?? 'true') !== 'false',
   databaseUrl: process.env.DATABASE_URL?.trim() || undefined,
+  /** Optional Redis URL for BullMQ vector indexing (falls back to inline when unset). */
+  redisUrl: process.env.REDIS_URL?.trim() || undefined,
   /** Run node-pg-migrate on server boot when DATABASE_URL is set. Set false in multi-instance prod. */
   runMigrationsOnStart: (process.env.RUN_MIGRATIONS_ON_START ?? 'true') !== 'false',
   clientAppUrl: (process.env.CLIENT_APP_URL ?? 'http://localhost:5173').replace(/\/$/, ''),

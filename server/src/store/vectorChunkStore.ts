@@ -22,8 +22,25 @@ export type VectorSearchHit = {
   page?: number;
 };
 
+export type ChunkMeta = {
+  contentHash: string;
+  embedding?: number[];
+};
+
+export type SyncResult = {
+  upserted: number;
+  removed: number;
+};
+
 export interface VectorChunkStore {
   replaceAccountChunks(accountId: string, chunks: IndexedChunk[]): Promise<void>;
+  syncAccountChunks(
+    accountId: string,
+    chunks: IndexedChunk[],
+    opts: { activeFileIds: string[] },
+  ): Promise<SyncResult>;
+  syncFileChunks(accountId: string, fileId: string, chunks: IndexedChunk[]): Promise<SyncResult>;
+  getChunkMeta(accountId: string): Promise<Map<string, ChunkMeta>>;
   search(
     accountId: string,
     queryEmbedding: number[],
@@ -52,6 +69,42 @@ class MemoryVectorChunkStore implements VectorChunkStore {
 
   async replaceAccountChunks(accountId: string, chunks: IndexedChunk[]): Promise<void> {
     this.rows.set(accountId, chunks);
+  }
+
+  async getChunkMeta(accountId: string): Promise<Map<string, ChunkMeta>> {
+    const meta = new Map<string, ChunkMeta>();
+    for (const row of this.rows.get(accountId) ?? []) {
+      meta.set(row.id, { contentHash: row.contentHash, embedding: row.embedding });
+    }
+    return meta;
+  }
+
+  async syncAccountChunks(
+    accountId: string,
+    chunks: IndexedChunk[],
+    opts: { activeFileIds: string[] },
+  ): Promise<SyncResult> {
+    const activeFiles = new Set(opts.activeFileIds);
+    const desiredIds = new Set(chunks.map((c) => c.id));
+    const before = this.rows.get(accountId) ?? [];
+    const removed = before.filter((c) => !activeFiles.has(c.fileId) || !desiredIds.has(c.id)).length;
+    const retained = before.filter(
+      (c) => activeFiles.has(c.fileId) && desiredIds.has(c.id) && !chunks.some((n) => n.id === c.id),
+    );
+    const byId = new Map(retained.map((c) => [c.id, c]));
+    for (const chunk of chunks) byId.set(chunk.id, chunk);
+    this.rows.set(accountId, [...byId.values()]);
+    return { upserted: chunks.length, removed };
+  }
+
+  async syncFileChunks(accountId: string, fileId: string, chunks: IndexedChunk[]): Promise<SyncResult> {
+    const before = this.rows.get(accountId) ?? [];
+    const desiredIds = new Set(chunks.map((c) => c.id));
+    const removed = before.filter((c) => c.fileId === fileId && !desiredIds.has(c.id)).length;
+    const pool = before.filter((c) => c.fileId !== fileId);
+    pool.push(...chunks);
+    this.rows.set(accountId, pool);
+    return { upserted: chunks.length, removed };
   }
 
   async search(
@@ -111,42 +164,131 @@ class PostgresVectorChunkStore implements VectorChunkStore {
   }
 
   async replaceAccountChunks(accountId: string, chunks: IndexedChunk[]): Promise<void> {
-    if (!(await this.ensurePgvector())) return;
+    await this.syncAccountChunks(accountId, chunks, {
+      activeFileIds: [...new Set(chunks.map((c) => c.fileId))],
+    });
+  }
+
+  async getChunkMeta(accountId: string): Promise<Map<string, ChunkMeta>> {
+    const meta = new Map<string, ChunkMeta>();
+    if (!(await this.ensurePgvector())) return meta;
+    const res = await this.pool.query<{ chunk_id: string; content_hash: string; embedding: string | null }>(
+      `SELECT chunk_id, content_hash, embedding::text AS embedding
+       FROM library_chunks WHERE account_id = $1`,
+      [accountId],
+    );
+    for (const row of res.rows) {
+      let embedding: number[] | undefined;
+      if (row.embedding) {
+        embedding = row.embedding
+          .replace(/[\[\]]/g, '')
+          .split(',')
+          .map((n) => Number(n.trim()))
+          .filter((n) => Number.isFinite(n));
+      }
+      meta.set(row.chunk_id, { contentHash: row.content_hash, embedding });
+    }
+    return meta;
+  }
+
+  private async upsertChunk(client: pg.PoolClient, accountId: string, chunk: IndexedChunk): Promise<void> {
+    const embeddingSql = chunk.embedding ? `[${chunk.embedding.join(',')}]` : null;
+    await client.query(
+      `INSERT INTO library_chunks (
+        account_id, chunk_id, file_id, file_name, course_id, content_hash,
+        text, heading, page, char_start, char_end, embedding, tsv, updated_at
+      ) VALUES (
+        $1, $2, $3, $4, $5, $6,
+        $7, $8, $9, $10, $11, $12::vector, to_tsvector('simple', $7), NOW()
+      )
+      ON CONFLICT (account_id, chunk_id) DO UPDATE SET
+        file_id = EXCLUDED.file_id,
+        file_name = EXCLUDED.file_name,
+        course_id = EXCLUDED.course_id,
+        content_hash = EXCLUDED.content_hash,
+        text = EXCLUDED.text,
+        heading = EXCLUDED.heading,
+        page = EXCLUDED.page,
+        char_start = EXCLUDED.char_start,
+        char_end = EXCLUDED.char_end,
+        embedding = EXCLUDED.embedding,
+        tsv = EXCLUDED.tsv,
+        updated_at = NOW()`,
+      [
+        accountId,
+        chunk.id,
+        chunk.fileId,
+        chunk.fileName,
+        chunk.courseId ?? null,
+        chunk.contentHash,
+        chunk.text,
+        chunk.heading ?? null,
+        chunk.page ?? null,
+        chunk.charStart,
+        chunk.charEnd,
+        embeddingSql,
+      ],
+    );
+  }
+
+  async syncAccountChunks(
+    accountId: string,
+    chunks: IndexedChunk[],
+    opts: { activeFileIds: string[] },
+  ): Promise<SyncResult> {
+    if (!(await this.ensurePgvector())) return { upserted: 0, removed: 0 };
     const client = await this.pool.connect();
     try {
       await client.query('BEGIN');
-      await client.query('DELETE FROM library_chunks WHERE account_id = $1', [accountId]);
+      const del = await client.query<{ count: string }>(
+        `WITH deleted AS (
+          DELETE FROM library_chunks
+          WHERE account_id = $1
+            AND (
+              NOT (file_id = ANY($2::text[]))
+              OR NOT (chunk_id = ANY($3::text[]))
+            )
+          RETURNING 1
+        ) SELECT COUNT(*)::text AS count FROM deleted`,
+        [accountId, opts.activeFileIds, chunks.map((c) => c.id)],
+      );
+      const removed = Number(del.rows[0]?.count ?? 0);
       for (const chunk of chunks) {
-        const embeddingSql = chunk.embedding
-          ? `[${chunk.embedding.join(',')}]`
-          : null;
-        await client.query(
-          `INSERT INTO library_chunks (
-            account_id, chunk_id, file_id, file_name, course_id, content_hash,
-            text, heading, page, char_start, char_end, embedding, tsv, updated_at
-          ) VALUES (
-            $1, $2, $3, $4, $5, $6,
-            $7, $8, $9, $10, $11, $12::vector, to_tsvector('simple', $7), NOW()
-          )`,
-          [
-            accountId,
-            chunk.id,
-            chunk.fileId,
-            chunk.fileName,
-            chunk.courseId ?? null,
-            chunk.contentHash,
-            chunk.text,
-            chunk.heading ?? null,
-            chunk.page ?? null,
-            chunk.charStart,
-            chunk.charEnd,
-            embeddingSql,
-          ],
-        );
+        await this.upsertChunk(client, accountId, chunk);
       }
       await client.query('COMMIT');
+      return { upserted: chunks.length, removed };
     } catch {
       await client.query('ROLLBACK');
+      return { upserted: 0, removed: 0 };
+    } finally {
+      client.release();
+    }
+  }
+
+  async syncFileChunks(accountId: string, fileId: string, chunks: IndexedChunk[]): Promise<SyncResult> {
+    if (!(await this.ensurePgvector())) return { upserted: 0, removed: 0 };
+    const client = await this.pool.connect();
+    try {
+      await client.query('BEGIN');
+      const del = await client.query<{ count: string }>(
+        `WITH deleted AS (
+          DELETE FROM library_chunks
+          WHERE account_id = $1 AND file_id = $2
+            AND NOT (chunk_id = ANY($3::text[]))
+          RETURNING 1
+        ) SELECT COUNT(*)::text AS count FROM deleted`,
+        [accountId, fileId, chunks.map((c) => c.id)],
+      );
+      const removed = Number(del.rows[0]?.count ?? 0);
+      for (const chunk of chunks) {
+        await this.upsertChunk(client, accountId, chunk);
+      }
+      await client.query('COMMIT');
+      return { upserted: chunks.length, removed };
+    } catch {
+      await client.query('ROLLBACK');
+      return { upserted: 0, removed: 0 };
     } finally {
       client.release();
     }
@@ -250,6 +392,19 @@ export function getVectorChunkStore(): VectorChunkStore {
       replaceAccountChunks: async (accountId, chunks) => {
         await memoryStore.replaceAccountChunks(accountId, chunks);
         await postgresStore!.replaceAccountChunks(accountId, chunks);
+      },
+      syncAccountChunks: async (accountId, chunks, opts) => {
+        await memoryStore.syncAccountChunks(accountId, chunks, opts);
+        return postgresStore!.syncAccountChunks(accountId, chunks, opts);
+      },
+      syncFileChunks: async (accountId, fileId, chunks) => {
+        await memoryStore.syncFileChunks(accountId, fileId, chunks);
+        return postgresStore!.syncFileChunks(accountId, fileId, chunks);
+      },
+      getChunkMeta: async (accountId) => {
+        const pgMeta = await postgresStore!.getChunkMeta(accountId);
+        if (pgMeta.size > 0) return pgMeta;
+        return memoryStore.getChunkMeta(accountId);
       },
       search: async (accountId, queryEmbedding, opts) => {
         const pgHits = await postgresStore!.search(accountId, queryEmbedding, opts);

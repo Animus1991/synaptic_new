@@ -1,7 +1,7 @@
 import { Router, type Request, type Response } from 'express';
 import { authenticate } from '../middleware/auth';
 import { getLibraryAsync, saveLibraryAsync, type StoredLibrary } from '../store/libraryStore';
-import { scheduleLibraryVectorIndex } from '../lib/libraryVectorIndex';
+import { enqueueLibraryVectorIndex } from '../jobs/vectorIndexQueue';
 
 export const libraryRouter = Router();
 
@@ -23,7 +23,7 @@ libraryRouter.put('/library', authenticate, async (req: Request, res: Response) 
       glossaryEntries: body.glossaryEntries ?? [],
       generatedCourses: body.generatedCourses ?? [],
     });
-    scheduleLibraryVectorIndex(accountId, saved);
+    enqueueLibraryVectorIndex(accountId, saved);
     res.json(saved);
   } catch (e) {
     res.status(500).json({ error: e instanceof Error ? e.message : 'Library save failed' });

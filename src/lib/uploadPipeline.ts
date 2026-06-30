@@ -246,6 +246,8 @@ function inferFileType(name: string): UploadedFile['type'] {
     case 'json': case 'zip': return 'txt';
     case 'csv': return 'csv';
     case 'py': case 'js': case 'ts': return 'code';
+    case 'mp3': case 'wav': case 'm4a': case 'ogg': case 'flac': case 'aac': return 'audio';
+    case 'mp4': case 'webm': case 'mov': case 'mkv': case 'ogv': return 'video';
     default: return 'pdf';
   }
 }
