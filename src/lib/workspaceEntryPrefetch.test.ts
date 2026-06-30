@@ -15,6 +15,10 @@ vi.mock('./workspaceWorkerClient', () => ({
   warmWorkspaceWorker: vi.fn(),
 }));
 
+vi.mock('./studyWorkspaceBodyChunk', () => ({
+  loadStudyWorkspaceBodyModule: vi.fn(() => Promise.resolve({})),
+}));
+
 vi.mock('./workspaceChunkLinkPrefetch', () => ({
   injectWorkspaceEntryLinkPrefetch: vi.fn(),
 }));

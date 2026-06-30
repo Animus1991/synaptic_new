@@ -1,7 +1,7 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { Keyboard, X } from '@/lib/lucide-shim';
 import { workspaceShortcutGroups } from '../../lib/workspaceKeyboardShortcuts';
-import { useI18n } from '../../lib/i18n';
+import { t } from '../../lib/i18n';
 
 type Props = {
   open: boolean;
@@ -11,7 +11,6 @@ type Props = {
 
 /** Keyboard shortcut help overlay — `?` in Study Workspace (SW-P3-08). */
 export function WorkspaceKeyboardHelp({ open, onClose, lang }: Props) {
-  const { t } = useI18n();
   const groups = workspaceShortcutGroups(lang);
 
   return (
@@ -25,7 +24,7 @@ export function WorkspaceKeyboardHelp({ open, onClose, lang }: Props) {
           onClick={onClose}
           role="dialog"
           aria-modal="true"
-          aria-label={t('keyboardShortcuts')}
+          aria-label={t('keyboardShortcuts', lang)}
           data-testid="workspace-keyboard-help"
         >
           <motion.div
@@ -39,14 +38,14 @@ export function WorkspaceKeyboardHelp({ open, onClose, lang }: Props) {
               <div className="flex items-center gap-2">
                 <Keyboard className="h-4 w-4 text-brand-800" />
                 <h2 className="text-sm font-semibold text-text-primary">
-                  {t('keyboardShortcuts')}
+                  {t('keyboardShortcuts', lang)}
                 </h2>
               </div>
               <button
                 type="button"
                 onClick={onClose}
                 className="rounded-lg p-1 text-text-muted hover:bg-surface-hover hover:text-text-secondary"
-                aria-label={t('close')}
+                aria-label={t('close', lang)}
               >
                 <X className="h-4 w-4" />
               </button>
@@ -78,7 +77,7 @@ export function WorkspaceKeyboardHelp({ open, onClose, lang }: Props) {
             </div>
 
             <div className="border-t border-border-subtle px-4 py-2 text-[10px] text-text-muted">
-              {t('keyboardHelpFooter')}
+              {t('keyboardHelpFooter', lang)}
             </div>
           </motion.div>
         </motion.div>

@@ -630,7 +630,7 @@ function MessageBubble({
             className="mt-2 rounded-lg border border-border-subtle bg-surface-primary/40 px-2.5 py-2 space-y-2"
             data-testid="agent-grounding-claims"
           >
-            {message.metadata.groundingClaims!.map((detail) => (
+            {message.metadata!.groundingClaims!.map((detail) => (
               <div
                 key={detail.claim.slice(0, 64)}
                 className={cn(

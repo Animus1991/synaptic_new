@@ -1,4 +1,5 @@
-import { describe, expect, it, beforeEach } from 'vitest';
+/** @vitest-environment jsdom */
+import { describe, expect, it, beforeEach, vi } from 'vitest';
 import {
   PRODUCT_TOUR_STEPS,
   clearProductTourComplete,
@@ -8,13 +9,30 @@ import {
   markProductTourComplete,
 } from './productTour';
 
+function installLocalStorageMock(): void {
+  const store = new Map<string, string>();
+  vi.stubGlobal('localStorage', {
+    getItem: (key: string) => store.get(key) ?? null,
+    setItem: (key: string, value: string) => {
+      store.set(key, value);
+    },
+    removeItem: (key: string) => {
+      store.delete(key);
+    },
+    clear: () => {
+      store.clear();
+    },
+    get length() {
+      return store.size;
+    },
+    key: (index: number) => [...store.keys()][index] ?? null,
+  });
+}
+
 describe('productTour', () => {
   beforeEach(() => {
-    try {
-      clearProductTourComplete();
-    } catch {
-      /* node env */
-    }
+    installLocalStorageMock();
+    clearProductTourComplete();
   });
 
   it('starts incomplete and persists completion', () => {
