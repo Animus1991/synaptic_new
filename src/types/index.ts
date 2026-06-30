@@ -389,6 +389,10 @@ export interface AgentMessage {
     /** Post-hoc citation overlap check (strict / notes-only). */
     groundingVerified?: boolean;
     groundingCoverage?: number;
+    /** Span-level faithfulness score from grounding.ts (0–1). */
+    groundingFaithfulness?: number;
+    /** Sentences that failed span verification. */
+    ungroundedClaims?: string[];
   };
 }
 

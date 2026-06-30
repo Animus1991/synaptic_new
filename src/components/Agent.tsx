@@ -12,7 +12,7 @@ import { streamAgentReply, isLlmAvailable } from '../lib/llmClient';
 import { buildSourceExcerpt, retrieveForQueryHybrid } from '../lib/sourceContext';
 import { buildAgentRetrievalQuery, buildAgentContextSystemBlock, type AgentWorkspaceContext } from '../lib/agentWorkspaceContext';
 import { spanFromCitation } from '../lib/conceptProvenance';
-import { verifyGrounding } from '../lib/groundingVerifier';
+import { checkAgentGrounding } from '../lib/agentGroundingCheck';
 import { emitAnalyticsLearningEvent } from '../lib/emitLearningEvent';
 import { formatCitation } from '../lib/rag';
 import { GoToSourceButton } from './GoToSourceButton';
@@ -185,13 +185,15 @@ export function Agent({
     const strictGrounding =
       settings?.sourceMode === 'strict' || settings?.sourceMode === 'notes-only';
     const grounding = strictGrounding
-      ? verifyGrounding(content, retrieval.citations, { strict: true })
+      ? checkAgentGrounding(content, retrieval.citations, { strict: true })
       : null;
     if (grounding) {
       emitAnalyticsLearningEvent('grounding_checked', {
         verified: grounding.verified,
         coverage: Math.round(grounding.coverage * 100) / 100,
+        faithfulness: Math.round(grounding.faithfulness * 100) / 100,
         unattributed: grounding.unattributedCount,
+        ungrounded: grounding.ungroundedClaims.length,
       });
     }
 
@@ -206,6 +208,8 @@ export function Agent({
         inferenceUsed: usedLlm,
         groundingVerified: grounding?.verified,
         groundingCoverage: grounding?.coverage,
+        groundingFaithfulness: grounding?.faithfulness,
+        ungroundedClaims: grounding?.ungroundedClaims,
       },
     });
     setIsThinking(false);
@@ -595,6 +599,21 @@ function MessageBubble({
           </div>
         ) : null}
 
+        {message.metadata?.groundingFaithfulness !== undefined && (
+          <p
+            className={cn(
+              'mt-1.5 text-[10px]',
+              message.metadata.groundingVerified ? 'text-accent-emerald' : 'text-text-muted',
+            )}
+            data-testid="agent-faithfulness-score"
+          >
+            {ui.faithfulnessScore.replace(
+              '{pct}',
+              String(Math.round(message.metadata.groundingFaithfulness * 100)),
+            )}
+          </p>
+        )}
+
         {message.metadata?.groundingVerified === true && (
           <p className="mt-1.5 text-[10px] text-accent-emerald">{ui.groundingVerified}</p>
         )}
@@ -603,6 +622,29 @@ function MessageBubble({
             <AlertTriangle className="w-3 h-3" />
             {ui.groundingWarning}
           </p>
+        )}
+
+        {message.metadata?.ungroundedClaims && message.metadata.ungroundedClaims.length > 0 && (
+          <div
+            className="mt-2 rounded-lg border border-accent-amber/25 bg-accent-amber/5 px-2.5 py-2"
+            data-testid="agent-ungrounded-claims"
+          >
+            <p className="text-[10px] font-medium text-accent-amber mb-1">{ui.ungroundedClaimsHeading}</p>
+            <ul className="space-y-1 text-[10px] text-text-secondary list-disc pl-4">
+              {message.metadata.ungroundedClaims.slice(0, 3).map((claim) => (
+                <li key={claim.slice(0, 48)}>{claim}</li>
+              ))}
+            </ul>
+            {onGoToSource && message.citations?.[0] && (
+              <button
+                type="button"
+                className="mt-2 text-[10px] text-brand-700 hover:text-brand-800 font-medium"
+                onClick={() => onGoToSource(spanFromCitation(message.citations![0]!))}
+              >
+                {ui.citationToggle}
+              </button>
+            )}
+          </div>
         )}
 
         {message.confidence !== undefined && message.confidence < 0.8 && (

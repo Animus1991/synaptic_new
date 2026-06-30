@@ -26,6 +26,8 @@ export type AgentUiCopy = {
   citationToggle: string;
   groundingVerified: string;
   groundingWarning: string;
+  faithfulnessScore: string;
+  ungroundedClaimsHeading: string;
   lowConfidence: string;
   badgeSourceGrounded: string;
   badgeAiInference: string;
@@ -87,6 +89,8 @@ const EN: AgentContent = {
     citationToggle: 'show me where this came from',
     groundingVerified: '✓ Source grounding verified',
     groundingWarning: 'Review citations — some claims may lack source overlap',
+    faithfulnessScore: 'Faithfulness: {pct}%',
+    ungroundedClaimsHeading: 'Not fully grounded in your sources:',
     lowConfidence: 'Lower confidence — verify with source',
     badgeSourceGrounded: '📖 Source-grounded',
     badgeAiInference: '🧠 AI inference',
@@ -143,6 +147,8 @@ const EL: AgentContent = {
     citationToggle: 'δείξε μου από πού προήλθε',
     groundingVerified: '✓ Επαλήθευση πηγής επιτυχής',
     groundingWarning: 'Έλεγξε τις παραπομπές — κάποιοι ισχυρισμοί μπορεί να μην ταιριάζουν με πηγή',
+    faithfulnessScore: 'Πιστότητα πηγής: {pct}%',
+    ungroundedClaimsHeading: 'Δεν τεκμηριώνονται πλήρως από τις πηγές σου:',
     lowConfidence: 'Χαμηλότερη εμπιστοσύνη — επαλήθευσε με την πηγή',
     badgeSourceGrounded: '📖 Με βάση πηγές',
     badgeAiInference: '🧠 AI inference',
