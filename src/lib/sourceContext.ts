@@ -27,7 +27,11 @@ function globalHitToCitation(hit: GlobalRagHit): Citation {
   };
 }
 
-function buildRetrievalFromGlobalHits(hits: GlobalRagHit[], maxChars: number): RetrievalResult {
+function buildRetrievalFromGlobalHits(
+  hits: GlobalRagHit[],
+  maxChars: number,
+  meta?: { graphRag?: boolean },
+): RetrievalResult {
   const citations: Citation[] = [];
   const blocks: string[] = [];
   let used = 0;
@@ -44,6 +48,8 @@ function buildRetrievalFromGlobalHits(hits: GlobalRagHit[], maxChars: number): R
     excerpt: blocks.length > 0 ? blocks.join('\n\n') : undefined,
     citations,
     grounded: blocks.length > 0,
+    globalRag: true,
+    graphRag: meta?.graphRag,
   };
 }
 
@@ -54,12 +60,12 @@ async function retrieveViaGlobalSearch(
 ): Promise<RetrievalResult | null> {
   const fullQuery = [query, opts.concept].filter(Boolean).join(' ');
   try {
-    const { results, indexedChunks } = await ragSearch(settings.authToken, settings, fullQuery, {
+    const { results, indexedChunks, graphRag } = await ragSearch(settings.authToken, settings, fullQuery, {
       topK: opts.k ?? 4,
       courseId: opts.courseId,
     });
     if (indexedChunks === 0 || results.length === 0) return null;
-    return buildRetrievalFromGlobalHits(results, opts.maxChars ?? MAX_EXCERPT);
+    return buildRetrievalFromGlobalHits(results, opts.maxChars ?? MAX_EXCERPT, { graphRag });
   } catch {
     return null;
   }
@@ -176,8 +182,12 @@ export async function retrieveForQueryHybrid(
   files: UploadedFile[],
   query: string,
   settings?: UserSettings,
-  opts: { concept?: string; courseId?: string; k?: number } = {},
+  opts: { concept?: string; courseId?: string; fileIds?: string[]; k?: number } = {},
 ): Promise<RetrievalResult> {
+  const scopedFiles =
+    opts.fileIds?.length
+      ? files.filter((f) => opts.fileIds!.includes(f.id))
+      : files;
   const rerankOpts = {
     concept: opts.concept,
     courseId: opts.courseId,
@@ -191,12 +201,14 @@ export async function retrieveForQueryHybrid(
   }
 
   if (settings && isServerProxyConfigured(settings)) {
-    return retrieveAndRerank(files, query, rerankOpts, serverRagReranker(settings));
+    const local = await retrieveAndRerank(scopedFiles, query, rerankOpts, serverRagReranker(settings));
+    return { ...local, globalRag: false };
   }
 
   // Offline-only: OpenAI-compatible embedder when configured; otherwise lexical BM25.
   const reranker = isLlmAvailable(settings) ? embeddingReranker(settings) : undefined;
-  return retrieveAndRerank(files, query, rerankOpts, reranker);
+  const local = await retrieveAndRerank(scopedFiles, query, rerankOpts, reranker);
+  return { ...local, globalRag: false };
 }
 
 export function shouldGroundInSources(settings?: UserSettings): boolean {

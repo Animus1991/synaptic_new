@@ -232,6 +232,7 @@ export async function streamAgentReply(
     sourceExcerpt?: string;
   } | undefined,
   onDelta: (fullText: string) => void,
+  history: ChatMessage[] = [],
 ): Promise<{ content: string; usedLlm: boolean; sourceGrounded: boolean }> {
   const sourceGrounded = !!context?.sourceExcerpt;
   if (!isLlmAvailable(settings)) {
@@ -245,6 +246,7 @@ export async function streamAgentReply(
     const content = await streamChatCompletion(
       [
         { role: 'system', content: system },
+        ...history,
         { role: 'user', content: input },
       ],
       settings,
@@ -268,6 +270,7 @@ export async function generateAgentReply(
     courses?: string[];
     sourceExcerpt?: string;
   },
+  history: ChatMessage[] = [],
 ): Promise<{ content: string; usedLlm: boolean; sourceGrounded: boolean }> {
   const sourceGrounded = !!context?.sourceExcerpt;
   if (!isLlmAvailable(settings)) {
@@ -280,6 +283,7 @@ export async function generateAgentReply(
     const content = await chatCompletion(
       [
         { role: 'system', content: system },
+        ...history,
         { role: 'user', content: input },
       ],
       settings,

@@ -404,6 +404,14 @@ export interface AgentMessage {
       score: number;
       source?: { fileId: string; charStart: number; charEnd: number };
     }>;
+    /** Retrieval came from server global index vs local BM25/hybrid. */
+    globalRag?: boolean;
+    /** GraphRAG concept boosting was used on the server. */
+    graphRag?: boolean;
+    /** Agent slash command that triggered this turn, if any. */
+    agentCommand?: 'quiz' | 'explain' | 'compare' | 'summarize';
+    /** Low-confidence retrieval — agent should clarify before answering. */
+    lowRetrieval?: boolean;
   };
 }
 

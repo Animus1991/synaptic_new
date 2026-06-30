@@ -33,6 +33,14 @@ export type AgentUiCopy = {
   badgeSourceGrounded: string;
   badgeAiInference: string;
   badgeEnrichment: string;
+  badgeGlobalRag: string;
+  badgeGraphRag: string;
+  badgeLocalRag: string;
+  badgeLowRetrieval: string;
+  pinnedFileLabel: string;
+  sourceSettingsTitle: string;
+  attachFileTitle: string;
+  noAnalyzedFiles: string;
 };
 
 export type AgentContent = {
@@ -97,6 +105,14 @@ const EN: AgentContent = {
     badgeSourceGrounded: '📖 Source-grounded',
     badgeAiInference: '🧠 AI inference',
     badgeEnrichment: '✨ External enrichment',
+    badgeGlobalRag: '🌐 Server RAG',
+    badgeGraphRag: '🕸 GraphRAG',
+    badgeLocalRag: '💻 Local retrieval',
+    badgeLowRetrieval: '❓ Clarify sources',
+    pinnedFileLabel: 'Pinned',
+    sourceSettingsTitle: 'Source context',
+    attachFileTitle: 'Pin a file',
+    noAnalyzedFiles: 'No analyzed files yet',
   },
 };
 
@@ -156,6 +172,14 @@ const EL: AgentContent = {
     badgeSourceGrounded: '📖 Με βάση πηγές',
     badgeAiInference: '🧠 AI inference',
     badgeEnrichment: '✨ Εξωτερικό enrichment',
+    badgeGlobalRag: '🌐 Server RAG',
+    badgeGraphRag: '🕸 GraphRAG',
+    badgeLocalRag: '💻 Τοπική ανάκτηση',
+    badgeLowRetrieval: '❓ Διευκρίνισε πηγές',
+    pinnedFileLabel: 'Καρφιτσωμένο',
+    sourceSettingsTitle: 'Περιεχόμενο πηγής',
+    attachFileTitle: 'Καρφίτσωμα αρχείου',
+    noAnalyzedFiles: 'Δεν υπάρχουν αναλυμένα αρχεία',
   },
 };
 

@@ -10,6 +10,12 @@ import type { AgentMessage, AgentMode, Course, UserSettings, UploadedFile, Messa
 import { cn } from '../utils/cn';
 import { streamAgentReply, isLlmAvailable } from '../lib/llmClient';
 import { buildSourceExcerpt, retrieveForQueryHybrid } from '../lib/sourceContext';
+import { buildAgentChatHistory } from '../lib/agentConversation';
+import {
+  parseAgentCommand,
+  buildNoAnswerHintPrompt,
+  buildLowRetrievalClarification,
+} from '../lib/agentCommands';
 import { buildAgentRetrievalQuery, buildAgentContextSystemBlock, type AgentWorkspaceContext } from '../lib/agentWorkspaceContext';
 import { spanFromCitation } from '../lib/conceptProvenance';
 import { checkAgentGrounding } from '../lib/agentGroundingCheck';
@@ -90,7 +96,11 @@ export function Agent({
   const [showQuickActions, setShowQuickActions] = useState(true);
   const [selectedSource, setSelectedSource] = useState<string>('all');
   const [attachSource, setAttachSource] = useState(true);
+  const [pinnedFileId, setPinnedFileId] = useState<string | null>(null);
+  const [showSourceSettings, setShowSourceSettings] = useState(false);
+  const [showAttachPicker, setShowAttachPicker] = useState(false);
   const [isThinking, setIsThinking] = useState(false);
+  const sourceSelectRef = useRef<HTMLSelectElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const llmReady = isLlmAvailable(settings);
@@ -104,9 +114,18 @@ export function Agent({
     [agentContent],
   );
   const { quickActions, ui } = agentContent;
+  const analyzedFiles = useMemo(
+    () => uploadedFiles.filter((f) => f.status === 'analyzed' && f.extractedText?.trim()),
+    [uploadedFiles],
+  );
+  const scopedFiles = useMemo(() => {
+    if (pinnedFileId) return analyzedFiles.filter((f) => f.id === pinnedFileId);
+    if (selectedSource !== 'all') return analyzedFiles.filter((f) => f.courseId === selectedSource);
+    return analyzedFiles;
+  }, [analyzedFiles, pinnedFileId, selectedSource]);
   const sourceExcerpt = attachSource
     ? buildSourceExcerpt(
-        uploadedFiles,
+        scopedFiles,
         workspaceContext?.concept ?? activeTaskConcept,
         workspaceContext?.courseId ?? (selectedSource === 'all' ? undefined : selectedSource),
       )
@@ -119,21 +138,31 @@ export function Agent({
   const handleSendRef = useRef<(overrideText?: string) => Promise<void>>(async () => {});
 
   const handleSend = async (overrideText?: string) => {
-    const text = (overrideText ?? input).trim();
-    if (!text || isThinking) return;
+    const rawText = (overrideText ?? input).trim();
+    if (!rawText || isThinking) return;
+
+    const parsedCommand = parseAgentCommand(rawText, lang);
+    const llmInput = parsedCommand?.expandedPrompt ?? rawText;
+    const chatHistory = buildAgentChatHistory(messages);
+
     const msg: AgentMessage = {
       id: `msg-${Date.now()}`,
       role: 'user',
-      content: text,
+      content: rawText,
       timestamp: new Date().toISOString(),
       type: 'text',
     };
     onSendMessage(msg);
     setInput('');
     setShowQuickActions(false);
+    setShowAttachPicker(false);
+    setShowSourceSettings(false);
     setIsThinking(true);
 
-    const retrievalQuery = buildAgentRetrievalQuery(text, workspaceContext ?? undefined);
+    const retrievalQuery = buildAgentRetrievalQuery(
+      parsedCommand?.args || llmInput,
+      workspaceContext ?? undefined,
+    );
     const ragConcept = workspaceContext?.concept ?? activeTaskConcept;
     const ragCourseId =
       workspaceContext?.courseId ?? (selectedSource === 'all' ? undefined : selectedSource);
@@ -142,11 +171,19 @@ export function Agent({
       ? await retrieveForQueryHybrid(uploadedFiles, retrievalQuery, settings, {
           concept: ragConcept,
           courseId: ragCourseId,
+          fileIds: pinnedFileId ? [pinnedFileId] : undefined,
         })
       : { excerpt: undefined, citations: [], grounded: false };
 
     const queryExcerpt = retrieval.excerpt ?? sourceExcerpt;
     const contextBlock = buildAgentContextSystemBlock(workspaceContext, lang);
+    const lowRetrieval = attachSource && !retrieval.grounded;
+    const lowRetrievalHint = lowRetrieval ? buildLowRetrievalClarification(lang) : '';
+    const composedInput = [
+      contextBlock,
+      lowRetrievalHint,
+      llmInput,
+    ].filter(Boolean).join('\n\n');
 
     const streamId = `msg-${Date.now() + 1}`;
     onSendMessage({
@@ -160,13 +197,17 @@ export function Agent({
         sourceGrounded: retrieval.grounded || (mode !== 'motivation' && !!queryExcerpt),
         enrichmentUsed: false,
         inferenceUsed: llmReady,
+        globalRag: retrieval.globalRag,
+        graphRag: retrieval.graphRag,
+        lowRetrieval,
+        agentCommand: parsedCommand?.command,
       },
     });
 
     setIsThinking(false);
 
     const { content, usedLlm, sourceGrounded } = await streamAgentReply(
-      contextBlock ? `${contextBlock}\n\n${text}` : text,
+      composedInput,
       mode,
       settings,
       {
@@ -176,6 +217,7 @@ export function Agent({
         sourceExcerpt: queryExcerpt,
       },
       (full) => onUpdateMessage(streamId, { content: full }),
+      chatHistory,
     );
 
     const citationLine = retrieval.citations.length > 0
@@ -206,6 +248,10 @@ export function Agent({
         sourceGrounded: retrieval.grounded || sourceGrounded || (mode !== 'motivation' && !!queryExcerpt),
         enrichmentUsed: settings?.sourceMode === 'enriched' && !retrieval.grounded,
         inferenceUsed: usedLlm,
+        globalRag: retrieval.globalRag,
+        graphRag: retrieval.graphRag,
+        lowRetrieval,
+        agentCommand: parsedCommand?.command,
         groundingVerified: grounding?.verified,
         groundingCoverage: grounding?.coverage,
         groundingFaithfulness: grounding?.faithfulness,
@@ -238,6 +284,31 @@ export function Agent({
     void handleSend(action);
   };
 
+  const handleSearchSources = () => {
+    setAttachSource(true);
+    setShowAttachPicker(false);
+    setShowSourceSettings(false);
+    inputRef.current?.focus();
+    sourceSelectRef.current?.focus();
+  };
+
+  const handlePinFile = (fileId: string) => {
+    const file = analyzedFiles.find((f) => f.id === fileId);
+    setPinnedFileId(fileId);
+    setAttachSource(true);
+    if (file?.courseId) setSelectedSource(file.courseId);
+    setShowAttachPicker(false);
+    inputRef.current?.focus();
+  };
+
+  const handleClearPinnedFile = () => {
+    setPinnedFileId(null);
+  };
+
+  const handleNoAnswerHint = () => {
+    void handleSend(buildNoAnswerHintPrompt(lang));
+  };
+
   const currentMode = agentModes.find(m => m.mode === mode)!;
 
   return (
@@ -268,10 +339,14 @@ export function Agent({
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 relative">
             <select
+              ref={sourceSelectRef}
               value={selectedSource}
-              onChange={e => setSelectedSource(e.target.value)}
+              onChange={e => {
+                setSelectedSource(e.target.value);
+                setPinnedFileId(null);
+              }}
               className="text-xs bg-surface-input border border-border-subtle rounded-lg px-2 py-1.5 text-text-secondary focus:outline-none focus:border-brand-500/50"
             >
               <option value="all">{ui.allSources}</option>
@@ -279,13 +354,50 @@ export function Agent({
                 <option key={c.id} value={c.id}>{c.title}</option>
               ))}
             </select>
+            {pinnedFileId && (
+              <span className="text-[10px] text-brand-300 truncate max-w-[120px]">
+                {ui.pinnedFileLabel}: {analyzedFiles.find((f) => f.id === pinnedFileId)?.name ?? '…'}
+              </span>
+            )}
             <button
               type="button"
               aria-label={t('agentSourceSettings')}
-              className="p-1.5 rounded-lg hover:bg-surface-hover text-text-tertiary"
+              aria-expanded={showSourceSettings}
+              onClick={() => {
+                setShowSourceSettings((v) => !v);
+                setShowAttachPicker(false);
+              }}
+              className={cn(
+                'p-1.5 rounded-lg hover:bg-surface-hover text-text-tertiary',
+                showSourceSettings && 'bg-surface-hover text-brand-300',
+              )}
             >
               <Settings2 className="w-4 h-4" aria-hidden="true" />
             </button>
+            {showSourceSettings && (
+              <div className="absolute right-0 top-full mt-1 z-20 w-56 rounded-xl border border-border-subtle bg-surface-card shadow-lg p-3 text-xs space-y-2">
+                <p className="font-medium text-text-secondary">{ui.sourceSettingsTitle}</p>
+                <button
+                  type="button"
+                  onClick={() => setAttachSource((v) => !v)}
+                  className="w-full text-left px-2 py-1.5 rounded-lg hover:bg-surface-hover text-text-secondary"
+                >
+                  {attachSource ? ui.sourceOn : ui.sourceOff}
+                </button>
+                {pinnedFileId && (
+                  <button
+                    type="button"
+                    onClick={handleClearPinnedFile}
+                    className="w-full text-left px-2 py-1.5 rounded-lg hover:bg-surface-hover text-text-tertiary"
+                  >
+                    {ui.pinnedFileLabel}: ✕
+                  </button>
+                )}
+                <p className="text-[10px] text-text-muted">
+                  {settings?.sourceMode ?? 'strict'}
+                </p>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -427,17 +539,53 @@ export function Agent({
                 <button
                   type="button"
                   aria-label={t('agentSearchSources')}
-                  className="p-1.5 rounded-lg hover:bg-surface-hover text-text-muted"
+                  onClick={handleSearchSources}
+                  className={cn(
+                    'p-1.5 rounded-lg hover:bg-surface-hover text-text-muted',
+                    attachSource && 'text-brand-400',
+                  )}
                 >
                   <Search className="w-4 h-4" aria-hidden="true" />
                 </button>
-                <button
-                  type="button"
-                  aria-label={t('agentAttachFile')}
-                  className="p-1.5 rounded-lg hover:bg-surface-hover text-text-muted"
-                >
-                  <FileText className="w-4 h-4" aria-hidden="true" />
-                </button>
+                <div className="relative">
+                  <button
+                    type="button"
+                    aria-label={t('agentAttachFile')}
+                    aria-expanded={showAttachPicker}
+                    onClick={() => {
+                      setShowAttachPicker((v) => !v);
+                      setShowSourceSettings(false);
+                    }}
+                    className={cn(
+                      'p-1.5 rounded-lg hover:bg-surface-hover text-text-muted',
+                      pinnedFileId && 'text-brand-400',
+                    )}
+                  >
+                    <FileText className="w-4 h-4" aria-hidden="true" />
+                  </button>
+                  {showAttachPicker && (
+                    <div className="absolute right-0 bottom-full mb-1 z-20 w-64 max-h-48 overflow-y-auto rounded-xl border border-border-subtle bg-surface-card shadow-lg p-2 text-xs">
+                      <p className="px-2 py-1 font-medium text-text-secondary">{ui.attachFileTitle}</p>
+                      {analyzedFiles.length === 0 ? (
+                        <p className="px-2 py-2 text-text-muted">{ui.noAnalyzedFiles}</p>
+                      ) : (
+                        analyzedFiles.map((file) => (
+                          <button
+                            key={file.id}
+                            type="button"
+                            onClick={() => handlePinFile(file.id)}
+                            className={cn(
+                              'w-full text-left px-2 py-1.5 rounded-lg hover:bg-surface-hover truncate',
+                              pinnedFileId === file.id ? 'text-brand-300 bg-brand-500/10' : 'text-text-secondary',
+                            )}
+                          >
+                            {file.name}
+                          </button>
+                        ))
+                      )}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
             <button
@@ -465,7 +613,12 @@ export function Agent({
               <span>•</span>
               <span>{currentMode.label} {ui.modeSuffix}</span>
               <span>•</span>
-              <button className="text-brand-400 hover:text-brand-300 transition-colors">
+              <button
+                type="button"
+                onClick={handleNoAnswerHint}
+                disabled={isThinking}
+                className="text-brand-400 hover:text-brand-300 transition-colors disabled:opacity-50"
+              >
                 {ui.noAnswerHint}
               </button>
               <span>•</span>
@@ -702,6 +855,18 @@ function MessageBubble({
             )}
             {message.metadata.enrichmentUsed && (
               <span className="text-[9px] px-1.5 py-0.5 rounded bg-accent-amber/10 text-accent-amber font-medium">{ui.badgeEnrichment}</span>
+            )}
+            {message.metadata.globalRag && (
+              <span className="text-[9px] px-1.5 py-0.5 rounded bg-accent-cyan/10 text-accent-cyan font-medium">{ui.badgeGlobalRag}</span>
+            )}
+            {message.metadata.graphRag && (
+              <span className="text-[9px] px-1.5 py-0.5 rounded bg-brand-500/10 text-brand-200 font-medium">{ui.badgeGraphRag}</span>
+            )}
+            {message.metadata.globalRag === false && message.metadata.sourceGrounded && (
+              <span className="text-[9px] px-1.5 py-0.5 rounded bg-surface-hover text-text-muted font-medium">{ui.badgeLocalRag}</span>
+            )}
+            {message.metadata.lowRetrieval && (
+              <span className="text-[9px] px-1.5 py-0.5 rounded bg-accent-rose/10 text-accent-rose font-medium">{ui.badgeLowRetrieval}</span>
             )}
           </div>
         )}
