@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import {
   Brain, TrendingUp, Clock, Target, AlertTriangle, BarChart3,
   Zap, Calendar, CheckCircle2, XCircle, Lightbulb,
-  Activity, Shield, Eye, HelpCircle
+  Activity, Shield, Eye, HelpCircle, FlaskConical, Download
 } from '@/lib/lucide-shim';
 import type { LearnerModel, DashboardStats, Course, ActivityItem } from '../types';
 import { computeCalibration, type PrerequisiteRepair } from '../lib/pedagogy';
@@ -22,6 +22,13 @@ import { RetentionCurve } from './visuals/DiagramGenerator';
 import { ConceptGraph } from './visuals/ConceptGraph';
 import { useI18n, type I18nKey } from '../lib/i18n';
 import { formatHeatmapDayTooltip } from '../lib/localeFormat';
+import { readAllLearningEvents } from '../lib/learningEvents';
+import {
+  computeResearchMetrics,
+  buildResearchExport,
+  downloadResearchExport,
+} from '../lib/researchAnalytics';
+import { inferBehaviorFromActivities } from '../lib/behaviorInference';
 
 interface AnalyticsProps {
   learnerModel: LearnerModel;
@@ -31,7 +38,7 @@ interface AnalyticsProps {
   prerequisiteRepairs?: PrerequisiteRepair[];
 }
 
-type AnalyticsTab = 'overview' | 'mastery' | 'behavior' | 'insights';
+type AnalyticsTab = 'overview' | 'mastery' | 'behavior' | 'insights' | 'research';
 
 const WEEKDAY_KEYS: I18nKey[] = [
   'analyticsWeekMon', 'analyticsWeekTue', 'analyticsWeekWed', 'analyticsWeekThu',
@@ -166,6 +173,7 @@ export function Analytics({
           { key: 'mastery' as AnalyticsTab, label: t('analyticsTabMastery'), icon: Brain },
           { key: 'behavior' as AnalyticsTab, label: t('analyticsTabBehavior'), icon: Activity },
           { key: 'insights' as AnalyticsTab, label: t('analyticsTabInsights'), icon: Lightbulb },
+          { key: 'research' as AnalyticsTab, label: t('analyticsTabResearch'), icon: FlaskConical },
         ]).map(tabDef => (
           <button key={tabDef.key} type="button" role="tab" aria-selected={tab === tabDef.key} onClick={() => setTab(tabDef.key)}
             className={cn('pb-3 text-sm font-medium transition-all border-b-2 flex items-center gap-1.5',
@@ -181,9 +189,12 @@ export function Analytics({
         <OverviewTab learnerModel={learnerModel} stats={stats} courses={courses} activities={activities} />
       )}
       {tab === 'mastery' && <MasteryTab learnerModel={learnerModel} courses={courses} />}
-      {tab === 'behavior' && <BehaviorTab learnerModel={learnerModel} />}
+      {tab === 'behavior' && <BehaviorTab learnerModel={learnerModel} activities={activities} />}
       {tab === 'insights' && (
         <InsightsTab learnerModel={learnerModel} activities={activities} repairs={prerequisiteRepairs} />
+      )}
+      {tab === 'research' && (
+        <ResearchTab learnerModel={learnerModel} activities={activities} courses={courses} />
       )}
     </div>
   );
@@ -383,18 +394,31 @@ function MasteryTab({ learnerModel, courses }: { learnerModel: LearnerModel; cou
   );
 }
 
-function BehaviorTab({ learnerModel }: { learnerModel: LearnerModel }) {
+function BehaviorTab({
+  learnerModel,
+  activities,
+}: {
+  learnerModel: LearnerModel;
+  activities: ActivityItem[];
+}) {
   const { t } = useI18n();
+  const inference = inferBehaviorFromActivities(activities, readAllLearningEvents());
   const modelVars: { labelKey: I18nKey; value: string }[] = [
     { labelKey: 'analyticsRetrievalPerformance', value: `${Math.round(learnerModel.retrievalPerformance * 100)}%` },
     { labelKey: 'analyticsTransferAbility', value: `${Math.round(learnerModel.transferAbility * 100)}%` },
     { labelKey: 'analyticsCognitiveLoadPref', value: learnerModel.cognitiveLoadPreference },
-    { labelKey: 'analyticsBestStudyTime', value: learnerModel.bestTimeOfDay },
+    { labelKey: 'analyticsBestStudyTime', value: learnerModel.bestTimeOfDay || '—' },
     { labelKey: 'analyticsLearningVelocity', value: `${learnerModel.learningVelocity}×` },
     { labelKey: 'analyticsStreakDays', value: `${learnerModel.streakDays}` },
   ];
   return (
     <div className="space-y-6">
+      {inference.inferenceConfidence === 'low' && (
+        <p className="text-xs text-accent-amber">{t('analyticsBehaviorLowConfidence')}</p>
+      )}
+      {inference.inferenceConfidence !== 'low' && (
+        <p className="text-xs text-text-tertiary">{t('analyticsBehaviorInferred')}</p>
+      )}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <MetricCard icon={<Clock className="w-5 h-5 text-text-tertiary" />} label={t('analyticsAvgSession')} value={`${learnerModel.averageSessionLength}m`} sub={t('analyticsAvgSessionSub')} />
         <MetricCard icon={<Target className="w-5 h-5 text-text-tertiary" />} label={t('analyticsConfidence')} value={`${Math.round(learnerModel.averageConfidence * 100)}%`} sub={t('analyticsConfidenceSub')} />
@@ -478,6 +502,112 @@ function InsightsTab({
             <p>{t('analyticsRecommendationsEmpty')}</p>
           )}
         </div>
+      </motion.div>
+    </div>
+  );
+}
+
+function ResearchTab({
+  learnerModel,
+  activities,
+  courses,
+}: {
+  learnerModel: LearnerModel;
+  activities: ActivityItem[];
+  courses: Course[];
+}) {
+  const { t } = useI18n();
+  const events = readAllLearningEvents();
+  const metrics = computeResearchMetrics(learnerModel, activities, events);
+  const hasData = metrics.bktConcepts.length > 0 || metrics.sampleActivities >= 3;
+
+  const handleExport = () => {
+    const manifest = buildResearchExport(learnerModel, activities, events, courses);
+    downloadResearchExport(manifest);
+  };
+
+  return (
+    <div className="space-y-6">
+      <p className="text-sm text-text-secondary">{t('analyticsResearchSubtitle')}</p>
+
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <MetricCard
+          icon={<Target className="w-5 h-5 text-text-tertiary" />}
+          label={t('analyticsResearchBrier')}
+          value={metrics.brierScore != null ? metrics.brierScore.toFixed(3) : '—'}
+          sub={t('analyticsConfidenceHint').slice(0, 40)}
+        />
+        <MetricCard
+          icon={<Eye className="w-5 h-5 text-text-tertiary" />}
+          label={t('analyticsResearchEce')}
+          value={metrics.expectedCalibrationError != null ? metrics.expectedCalibrationError.toFixed(3) : '—'}
+          sub={t('analyticsCalibrated')}
+        />
+        <MetricCard
+          icon={<Clock className="w-5 h-5 text-text-tertiary" />}
+          label={t('analyticsResearchSpacing')}
+          value={`${Math.round(metrics.spacingDensity * 100)}%`}
+          sub={t('analyticsSevenDayRecall')}
+        />
+        <MetricCard
+          icon={<Brain className="w-5 h-5 text-text-tertiary" />}
+          label={t('analyticsResearchInterleaving')}
+          value={`${Math.round(metrics.interleavingRatio * 100)}%`}
+          sub={t('analyticsVsBaseline')}
+        />
+      </div>
+
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="ws-bento p-5">
+        <h3 className="text-sm font-semibold flex items-center gap-2 mb-1">
+          <FlaskConical className="w-4 h-4 text-brand-400" />
+          {t('analyticsResearchBktTitle')}
+        </h3>
+        <p className="text-xs text-text-tertiary mb-4">{t('analyticsResearchBktHint')}</p>
+        {!hasData ? (
+          <p className="text-sm text-text-secondary">{t('analyticsResearchEmpty')}</p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs">
+              <thead>
+                <tr className="text-text-muted border-b border-border-subtle">
+                  <th className="text-left py-2 pr-3">{t('analyticsResearchConcept')}</th>
+                  <th className="text-right py-2 px-3">{t('analyticsResearchAttempts')}</th>
+                  <th className="text-right py-2 pl-3">{t('analyticsResearchPLearned')}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {metrics.bktConcepts.map((row) => (
+                  <tr key={row.concept} className="border-b border-border-subtle/50">
+                    <td className="py-2 pr-3 text-text-secondary truncate max-w-[200px]">{row.concept}</td>
+                    <td className="py-2 px-3 text-right tabular-nums">{row.attempts}</td>
+                    <td className="py-2 pl-3 text-right tabular-nums">{Math.round(row.pLearned * 100)}%</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+        <p className="text-[10px] text-text-muted mt-3">
+          {t('analyticsResearchSample')}: {metrics.sampleActivities} activities · {metrics.sampleEvents} events
+        </p>
+      </motion.div>
+
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="ws-bento p-5">
+        <h3 className="text-sm font-semibold mb-4">{t('analyticsResearchForgetting')}</h3>
+        <RetentionCurve dataPoints={metrics.forgettingCurve} />
+      </motion.div>
+
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="ws-bento p-5">
+        <h3 className="text-sm font-semibold mb-2">{t('analyticsResearchExport')}</h3>
+        <p className="text-xs text-text-tertiary mb-4">{t('analyticsResearchExportHint')}</p>
+        <button
+          type="button"
+          onClick={handleExport}
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium bg-brand-600 hover:bg-brand-500 text-white transition-all"
+        >
+          <Download className="w-4 h-4" />
+          {t('analyticsResearchExport')}
+        </button>
       </motion.div>
     </div>
   );

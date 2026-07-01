@@ -82,6 +82,8 @@ import {
 import { mockUploadedFiles, mockGlossaryEntries } from '../demo/mockSource';
 import { buildInitialUser, applyAuthIdentity, levelFromXp } from '../lib/identity';
 import { createEmptyLearnerModel, EMPTY_DASHBOARD_STATS } from '../lib/emptyLearnerState';
+import { applyBehaviorInference, inferBehaviorFromActivities } from '../lib/behaviorInference';
+import { readAllLearningEvents } from '../lib/learningEvents';
 import { mergeCourseTasks } from '../lib/taskGenerator';
 import { syncLearnerHeatmap, computeStreakFromHeatmap } from '../lib/activityAnalytics';
 import { computeRetentionRate, weeklyMasteryFromActivities } from '../lib/retentionAnalytics';
@@ -455,6 +457,7 @@ export function useAppStore() {
     beta: BetaMastery[],
     keys: Set<string>,
     _mistakes: MistakeRecord[],
+    activityLog: ActivityItem[] = activities,
   ): LearnerModel => {
     const masteryMap = masteryMapFromSkills(lm, courses, shouldShowDemo(user.settings));
     const courseEdges = edgesFromCourses(courses);
@@ -467,15 +470,28 @@ export function useAppStore() {
     const fallbackAccuracy = lm.confidenceCalibration.length > 0
       ? lm.confidenceCalibration.reduce((s, p) => s + p.actual, 0) / lm.confidenceCalibration.length
       : lm.retentionRate;
-    const selfReliance = 1 - lm.helpSeekingRate;
+
+    const behavior = inferBehaviorFromActivities(
+      activityLog,
+      readAllLearningEvents(),
+      courses,
+    );
+    const withBehavior = applyBehaviorInference(lm, behavior);
+    const selfReliance = 1 - withBehavior.helpSeekingRate;
     const readiness = computeExamReadiness(beta, fallbackAccuracy, selfReliance, firstCount);
 
     return {
-      ...lm,
+      ...withBehavior,
       overallMastery: readiness,
-      interactionInsights: deriveInsights(lm, repairs, calibration),
+      retentionRate: withBehavior.retrievalPerformance || lm.retentionRate,
+      interactionInsights: deriveInsights(withBehavior, repairs, calibration),
     };
-  }, [courses, user.settings]);
+  }, [courses, user.settings, activities]);
+
+  useEffect(() => {
+    setLearnerModel((lm) => recomputeLearnerMetrics(lm, betaMastery, firstAttemptKeys, openMistakes, activities));
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- recompute when activity log changes
+  }, [activities.length, activities[0]?.id]);
 
   const navigate = useCallback((view: AppView) => {
     if (view === 'course' || view === 'library') {

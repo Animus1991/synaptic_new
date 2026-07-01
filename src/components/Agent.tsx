@@ -153,6 +153,10 @@ export function Agent({
       type: 'text',
     };
     onSendMessage(msg);
+    emitAnalyticsLearningEvent('agent_message', {
+      isHint: rawText.includes("Don't give me") || rawText.includes('Μη μου δώσεις') || /hint|βοήθ/i.test(rawText),
+      command: parsedCommand?.command ?? '',
+    });
     setInput('');
     setShowQuickActions(false);
     setShowAttachPicker(false);
