@@ -142,6 +142,29 @@ sink — one course model, two sources.
 > Tests: `src/lib/contentAnalysis.test.ts` covers segmentation, normalization,
 > phrase extraction, and the end-to-end outline.
 
+### 2.9 DocumentModel substrate (`documentModel.ts`, Sprint 8)
+
+The canonical structured representation of an uploaded source, built offline
+and persisted as `documentModelSnapshot` on each `UploadedFile`:
+
+- **Sections + spans** — hierarchical layout with discourse roles (`intro`,
+  `body`, `example`, …) and sentence-level offsets for grounding.
+- **Entities** — concepts (RAKE+TextRank), definitions, acronyms, formulas.
+- **Blocks v2** — typed layout blocks (`heading`, `paragraph`, `list`, `code`,
+  `equation`) for Reader/eval consumers.
+- **Relations v2** — typed edges (`defines`, `example-of`, `part-of`,
+  `contrasts-with`) mined from definitions, example sections, and contrast cues.
+- **Offline embeddings** — `localEmbedder.ts` (Transformers.js MiniLM in main
+  thread or dedicated worker) optionally clusters sections; labels stored in
+  `recognitionMeta.sectionClusterLabels`.
+- **Workers** — `src/workers/recognition.worker.ts` builds DocumentModel
+  off-thread; `recognitionWorker.ts` (course outline) remains separate.
+- **Upload wire** — `recognizeDocumentModelsForUpload()` in `uploadPipeline.ts`
+  runs in parallel with course generation; Library shows `RecognitionReportPanel`.
+
+> Tests: `src/lib/documentModel.test.ts`, `src/eval/evalHarness.ts` (gold
+> fixtures + `baseline.json` regression gate in CI).
+
 ### 2.8 Named-entity & terminology extraction (`entityExtract.ts`)
 
 - Rule-based mining of definitions, acronyms (`X (ABC)`), and proper-noun

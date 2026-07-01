@@ -19,7 +19,9 @@ import {
 } from '../lib/contentAnalysis';
 import { extractFormulas } from '../lib/noteContentExtractors';
 import { analyzeCourseSourceQuality } from '../lib/courseSourceQuality';
+import { buildDocumentModelFromText } from '../lib/documentModel';
 import type { GeneratedOutline } from '../lib/courseGenerator';
+import baseline from './baseline.json';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -53,7 +55,7 @@ function loadFixture(name: string): { text: string; gold: GoldAnnotation } {
 function normalize(s: string): string {
   return s
     .toLowerCase()
-    .replace(/[^a-z0-9]/g, ' ')
+    .replace(/[^a-z0-9\u0370-\u03ff]/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();
 }
@@ -167,37 +169,86 @@ export function evaluateFixture(name: string): EvalResult {
 
 export interface EvalReport {
   results: EvalResult[];
+  documentModelResults: EvalResult[];
   averageConceptRecall: number;
   averageConceptPrecision: number;
   averageDefinitionRecall: number;
   averageFormulaRecall: number;
+  averageDocumentModelConceptRecall: number;
   qualityBands: Record<string, number>;
   pass: boolean;
+  passChecks: {
+    averageConceptRecall: boolean;
+    perFixtureConceptRecall: boolean;
+    documentModelConceptRecall: boolean;
+    definitionRecall: boolean;
+  };
 }
 
-export function evaluateAll(fixtures: string[]): EvalReport {
+export const EVAL_FIXTURES: string[] = baseline.fixtures;
+
+export function evaluateDocumentModelFixture(name: string): EvalResult {
+  const { text, gold } = loadFixture(name);
+  const doc = buildDocumentModelFromText(text, { fileName: name, language: name.includes('-el') ? 'el' : 'en' });
+  const foundConcepts = doc.entities.filter((e) => e.type === 'concept').map((e) => e.label);
+  const foundDefs = doc.entities.filter((e) => e.type === 'definition').map((e) => e.label);
+  const foundFormulas = doc.formulas.map((f) => f.formula);
+
+  const errors: string[] = [];
+  if (gold.expectedSubject && doc.subject !== gold.expectedSubject) {
+    errors.push(`Subject mismatch: expected ${gold.expectedSubject}, got ${doc.subject}`);
+  }
+
+  return {
+    fixture: `${name} (DocumentModel)`,
+    conceptRecall: computeRecall(gold.expectedConcepts, foundConcepts),
+    conceptPrecision: computePrecision(gold.expectedConcepts, foundConcepts),
+    definitionRecall: computeRecall(gold.expectedDefinitions, foundDefs),
+    formulaRecall: computeRecall(gold.expectedFormulas, foundFormulas),
+    sourceQualityBand: doc.quality.conceptCount >= 4 ? 'strong' : doc.quality.conceptCount >= 2 ? 'moderate' : 'weak',
+    topicCount: doc.sections.length,
+    detectedSubject: doc.subject,
+    errors,
+  };
+}
+
+export function evaluateAll(fixtures: string[] = EVAL_FIXTURES): EvalReport {
   const results = fixtures.map(evaluateFixture);
+  const documentModelResults = fixtures.map(evaluateDocumentModelFixture);
   const averageConceptRecall = results.reduce((s, r) => s + r.conceptRecall, 0) / results.length;
   const averageConceptPrecision = results.reduce((s, r) => s + r.conceptPrecision, 0) / results.length;
   const averageDefinitionRecall = results.reduce((s, r) => s + r.definitionRecall, 0) / results.length;
   const averageFormulaRecall = results.reduce((s, r) => s + r.formulaRecall, 0) / results.length;
+  const averageDocumentModelConceptRecall =
+    documentModelResults.reduce((s, r) => s + r.conceptRecall, 0) / documentModelResults.length;
   const qualityBands: Record<string, number> = {};
   for (const r of results) {
     qualityBands[r.sourceQualityBand] = (qualityBands[r.sourceQualityBand] ?? 0) + 1;
   }
 
+  const t = baseline.thresholds;
+  const passChecks = {
+    averageConceptRecall: averageConceptRecall >= t.averageConceptRecall,
+    perFixtureConceptRecall: results.every((r) => r.conceptRecall >= t.perFixtureConceptRecall),
+    documentModelConceptRecall: averageDocumentModelConceptRecall >= t.documentModelConceptRecall,
+    definitionRecall: averageDefinitionRecall >= (t.definitionRecall ?? 0),
+  };
   const pass =
-    averageConceptRecall >= 0.6
-    && results.every((r) => r.conceptRecall >= 0.6);
+    passChecks.averageConceptRecall
+    && passChecks.perFixtureConceptRecall
+    && passChecks.documentModelConceptRecall;
 
   return {
     results,
+    documentModelResults,
     averageConceptRecall,
     averageConceptPrecision,
     averageDefinitionRecall,
     averageFormulaRecall,
+    averageDocumentModelConceptRecall,
     qualityBands,
     pass,
+    passChecks,
   };
 }
 
@@ -217,5 +268,6 @@ export function printReport(report: EvalReport): void {
   console.log(`  concept precision: ${(report.averageConceptPrecision * 100).toFixed(1)}%`);
   console.log(`  definition recall: ${(report.averageDefinitionRecall * 100).toFixed(1)}%`);
   console.log(`  formula recall: ${(report.averageFormulaRecall * 100).toFixed(1)}%`);
+  console.log(`  DocumentModel concept recall: ${(report.averageDocumentModelConceptRecall * 100).toFixed(1)}%`);
   console.log(`  PASS: ${report.pass}`);
 }

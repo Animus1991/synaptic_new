@@ -1,6 +1,7 @@
 # Roadmap & Gap Analysis
 
-**Status baseline:** June 2026 — post Wave A/B (themes, i18n sweep, concept map editing), Wave 8B-beta pipeline v2.5.x, study rooms, reader TTS, compare interactivity, E2E/a11y in CI.
+**Status baseline:** July 2026 — post Sprint 8 (DocumentModel substrate), S7 PWA,
+S6 teacher assignments, S5 behavior inference.
 
 This document separates **done**, **partial**, and **missing** against the product goal: *note-grounded adaptive learning at product scale, not MVP/demo-first.*
 
@@ -10,22 +11,34 @@ This document separates **done**, **partial**, and **missing** against the produ
 
 | Layer | Completion | Notes |
 | ----- | ---------- | ----- |
-| Content engine (offline v2) | **~90%** | RAKE+TextRank, sections, prerequisites, BM25 unified, PMI co-occurrence edges |
-| Upload to course pipeline | **~90%** | PDF/DOCX/PPTX/TXT/MD/CSV + YouTube + OCR; source-quality scoring |
-| Study Workspace (11 tools) | **~91%** | Note-grounded, mobile drawer, Agent handoff; concept map edit + graph persistence (Wave B) |
+| Content engine (offline v2) | **~92%** | DocumentModel v2 substrate wired on upload (S8) |
+| Upload to course pipeline | **~92%** | Parallel DocumentModel + course recognition workers |
+| Study Workspace (11 tools) | **~91%** | Note-grounded, mobile drawer, Agent handoff |
 | Lesson surfaces | **~80%** | LessonView + PracticalLessonView note/LLM-grounded |
 | Tasks & pedagogy | **~80%** | Generated tasks, FSRS to store, Beta-Bernoulli mastery |
-| Analytics & Dashboard | **~75%** | Mastery map from real learnerModel + courses |
+| Analytics & Dashboard | **~78%** | Behavior inference + Research tab (S5) |
 | RAG / Agent | **~85%** | BM25 + hybrid embedding rerank; workspace context on handoff |
-| Client persistence | **~85%** | localStorage + IndexedDB; concept-map graph scoped per task |
+| Client persistence | **~85%** | localStorage + IndexedDB; DocumentModel snapshots on files |
 | Auth and full sync | **~80%** | JWT, library + session pull/push |
 | Phase 6 server | **~75%** (dev) | Express proxy + auth + sync + OCR/RAG; not production-hardened |
-| Documentation | **~88%** | Core MD set rebaselined (Wave 0 lite); see EXHAUSTIVE_PRODUCT_SCALE_BLUEPRINT.md |
-| Tests & CI | **~90%** | Vitest 696+ tests; Playwright 14 E2E specs + a11y/visual/perf in CI |
-| i18n | **~68%** | Shell + Wave A/B surfaces; ~57 files still use inline isEl (see I18N.md) |
-| UI/UX / themes | **~88%** | Warm Sand + Spectrum global themes, design-system CTAs (Wave A) |
+| Documentation | **~90%** | S8 truth pass + doc-lint capability assertions |
+| Tests & CI | **~91%** | Vitest + eval gold-set gate (`npm run eval`) in CI |
+| i18n | **~82%** | Wave C Settings/Tasks shipped (S7); component lint allowlist empty |
+| UI/UX / themes | **~88%** | Warm Sand + Spectrum global themes, PWA shell (S7) |
 
-**Overall product-scale readiness: ~87%** — past MVP; remaining work is depth (DocumentModel, pgvector, full i18n, teacher class UI, tool depth) rather than core workflow gaps.
+**Overall product-scale readiness: ~88%** — DocumentModel substrate unblocks quality
+gates, grounding eval expansion, and teacher cohort insights (S9–S10).
+
+---
+
+## Sprint 5–8 — shipped (synaptic_new)
+
+| Sprint | Commit | Scope |
+| ------ | ------ | ----- |
+| S5 | `42c5450` | Behavior inference, Research tab, agent learning events |
+| S6 | `3c5eddb` | Yjs Postgres, teacher assignments, calendar 2-way |
+| S7 | `2ecdbf3` | i18n Wave C (Settings/Tasks), PWA offline shell |
+| S8 | `65197ac` | DocumentModel v2, recognition worker, upload wire, Library report |
 
 ---
 
@@ -80,7 +93,7 @@ Re-upload / reprocess: courses analyzed before v2.4.0 keep stored extractedText.
 | Main path | Multi-column PDF, table/math blocks, scanned PDF OCR | ~80-100% shipped |
 | 8B-beta | Layered text repair v2.5.x, hygiene scoring, Varian fixes | shipped |
 | 8B-alpha | Math OCR zones | not started |
-| 8B-gamma | Layout-aware DocumentModel | future epic |
+| 8B-gamma | Layout-aware DocumentModel | **partial** — v2 blocks/relations + upload wire (S8); PDF layout blocks future |
 
 ---
 
@@ -90,24 +103,22 @@ See I18N.md, STUDY_WORKSPACE.md, WORKSPACE_TOOLS_UPGRADE.md, and EXHAUSTIVE_PROD
 
 | Area | Open work |
 | ---- | --------- |
-| i18n | **Wave C1** — migrate ~57 files from inline isEl to 	(); P1: ReprocessTextEditor, WorkspaceSourceStatusBar, GoogleIntegrationsPanel, Dashboard |
-| a11y | Canvas tools keyboard path; focus traps in modals |
-| Backend | pgvector RAG, Redis/BullMQ, teacher class UI beyond basic TeacherDashboard |
-| Algorithms | DocumentModel, math OCR, offline embeddings, Whisperer |
-| Tools | Whiteboard pro, debate edit, Leitner card types, sub-line annotations |
+| Pedagogy | Unified adaptive scheduler (FSRS × mastery × exam pacing) — S9 |
+| i18n | Residual lib/helpers; new S8 strings in RecognitionReportPanel |
+| Backend | pgvector default path, Redis/BullMQ production, teacher gradebook — S10 |
+| Algorithms | Math OCR, layout-aware PDF blocks, grounding eval expansion |
+| Tools | Whiteboard pro, sub-line annotations, Leitner card types — S9 |
 
 ---
 
 ## Built gates
 
-- 
-pm run typecheck — 0 errors
-- 
-pm test — Vitest 696+ tests
-- 
-pm run test:e2e — 14 specs in CI
-- 
-pm run test:a11y — axe gate in CI
+- `npm run typecheck` — 0 errors
+- `npm test` — Vitest unit tests
+- `npm run eval` — recognition gold-set regression (`baseline.json`)
+- `npm run doc-lint` — links + D9 guard + capability assertions
+- `npm run test:e2e` — Playwright specs in CI
+- `npm run test:a11y` — axe gate in CI
 
 ---
 

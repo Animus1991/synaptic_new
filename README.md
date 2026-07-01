@@ -26,6 +26,7 @@ Open [http://localhost:5173](http://localhost:5173).
 | `npm run typecheck` | Client `tsc --noEmit` |
 | `npm run typecheck:all` | Client + server typecheck |
 | `npm test` | Vitest unit tests |
+| `npm run eval` | Recognition gold-set regression (`src/eval`, `baseline.json`) |
 | `npm run test:watch` | Vitest in watch mode |
 | `npm run test:e2e` | Playwright (auto-spawns dev server) |
 | `npm run build` | Typecheck + Vite production build (code-split chunks) |
@@ -64,7 +65,9 @@ full endpoint contract.
    when the overlay is on.
 3. **Course review** opens first after generation so the learner can inspect
    source quality, warnings, module density, and “needs more material”
-   diagnostics before entering the workspace.
+   diagnostics before entering the workspace. **Library → Files** shows a
+   **Recognition report** (sections, concepts, definitions, relations) from the
+   persisted DocumentModel snapshot.
 4. **Tasks** are generated from the final quality-adjusted course outline
    (lessons, review, practice, exam prep).
 5. **Study Workspace** and **LessonView** ground all 11 tools in uploaded

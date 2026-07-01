@@ -35,8 +35,20 @@ flowchart LR
 | `courseSourceQuality.ts` | Course-level source quality scoring, warnings, recommended topic budget, adaptive outline compaction |
 | `courseGenerator.ts` | LLM outline when proxy/API available |
 | `taskGenerator.ts` | Tasks from generated course topics |
+| `documentModelWorkerClient.ts` | Off-thread DocumentModel build (`recognition.worker.ts`) |
+| `documentModelSnapshot.ts` | Compact persistence on `UploadedFile` (text omitted; rehydrate from `extractedText`) |
 
 Upload path: **UploadModal → `processUpload`** (not `simulateUpload`).
+
+### Recognition workers (Sprint 8)
+
+| Worker | File | Role |
+| ------ | ---- | ---- |
+| Course outline | `src/lib/recognitionWorker.ts` | LLM + outline synthesis off main thread |
+| DocumentModel substrate | `src/workers/recognition.worker.ts` | `buildDocumentModel` + optional offline embed clustering |
+
+Client preloads both workers via `preloadCriticalChunks.ts` (`warmDocumentModelWorker`).
+
 
 ## Reader recognition pipeline (v2.2.0)
 

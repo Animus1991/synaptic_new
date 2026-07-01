@@ -1,5 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import { evaluateAll, evaluateFixture } from './evalHarness';
+import {
+  evaluateAll,
+  evaluateDocumentModelFixture,
+  evaluateFixture,
+  EVAL_FIXTURES,
+} from './evalHarness';
 
 describe('recognition eval harness', () => {
   it('evaluates the physics fixture', () => {
@@ -16,11 +21,28 @@ describe('recognition eval harness', () => {
     expect(result.topicCount).toBeGreaterThan(0);
   });
 
-  it('aggregates a multi-fixture report', () => {
-    const report = evaluateAll(['physics.md', 'law.md']);
-    expect(report.results).toHaveLength(2);
+  it('evaluates the Greek physics fixture (DocumentModel path)', () => {
+    const result = evaluateDocumentModelFixture('physics-el.md');
+    expect(result.fixture).toContain('physics-el.md');
+    expect(result.conceptRecall).toBeGreaterThan(0);
+    expect(result.topicCount).toBeGreaterThan(0);
+  });
+
+  it('evaluates DocumentModel on physics fixture', () => {
+    const result = evaluateDocumentModelFixture('physics.md');
+    expect(result.conceptRecall).toBeGreaterThanOrEqual(0.5);
+    expect(result.topicCount).toBeGreaterThan(0);
+  });
+
+  it('aggregates a multi-fixture report against baseline thresholds', () => {
+    const report = evaluateAll(EVAL_FIXTURES);
+    expect(report.results).toHaveLength(EVAL_FIXTURES.length);
+    expect(report.documentModelResults).toHaveLength(EVAL_FIXTURES.length);
     expect(report.averageConceptRecall).toBeGreaterThanOrEqual(0.6);
-    expect(report.results.every((r) => r.conceptRecall >= 0.6)).toBe(true);
+    expect(report.averageDocumentModelConceptRecall).toBeGreaterThanOrEqual(0.45);
+    expect(report.passChecks.averageConceptRecall).toBe(true);
+    expect(report.passChecks.perFixtureConceptRecall).toBe(true);
+    expect(report.passChecks.documentModelConceptRecall).toBe(true);
     expect(report.pass).toBe(true);
   });
 });

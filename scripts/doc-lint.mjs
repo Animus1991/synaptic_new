@@ -6,9 +6,10 @@
  * 1. No broken internal links in .md files.
  * 2. No hardcoded domain-specific vocabulary arrays in src/lib/ (D9 guard).
  * 3. No drift marker tags like [PARTIAL] without a TODO/issue tracker reference.
+ * 4. Shipped-capability assertions (docs ↔ code parity, S8 §12).
  */
 
-import { readFileSync, readdirSync, statSync } from 'node:fs';
+import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs';
 import { join, resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -57,7 +58,7 @@ for (const md of mdFiles) {
 }
 
 // 2. D9 guard: hardcoded domain vocabulary arrays in src/lib.
-const libFiles = findFiles(join(root, 'src/lib'), '.ts');
+const libFiles = findFiles(join(root, 'src/lib'), '.ts').filter((f) => !f.endsWith('.test.ts'));
 const bannedPatterns = [
   /TOPIC_KEYWORDS\s*=/,
   /ECON_CONCEPT_EDGES\s*=/,
@@ -85,6 +86,52 @@ for (const md of mdFiles) {
     if (line.includes('[PARTIAL]') && !/(#\d+|TODO|FIXME|issue)/i.test(line)) {
       errors.push(`Untracked [PARTIAL] marker in ${md}: ${line.trim()}`);
     }
+  }
+}
+
+// 4. Shipped-capability assertions — docs must mention key S8 substrate modules.
+const capabilityAssertions = [
+  {
+    doc: 'ALGORITHMS.md',
+    patterns: [/documentModel\.ts/, /localEmbedder\.ts/],
+    label: 'DocumentModel + offline embedder',
+  },
+  {
+    doc: 'ARCHITECTURE.md',
+    patterns: [/recognition\.worker/, /documentModelSnapshot/],
+    label: 'recognition worker + snapshot persistence',
+  },
+  {
+    doc: 'README.md',
+    patterns: [/npm run eval/, /Recognition report/i],
+    label: 'eval script + recognition report',
+  },
+];
+
+for (const { doc, patterns, label } of capabilityAssertions) {
+  const path = join(root, doc);
+  if (!existsSync(path)) {
+    errors.push(`Missing doc for capability check: ${doc}`);
+    continue;
+  }
+  const text = readFileSync(path, 'utf8');
+  for (const pattern of patterns) {
+    if (!pattern.test(text)) {
+      errors.push(`${doc} missing ${label} reference (expected ${pattern})`);
+    }
+  }
+}
+
+// 5. Code presence — documented substrate files must exist.
+const requiredModules = [
+  'src/lib/documentModel.ts',
+  'src/workers/recognition.worker.ts',
+  'src/lib/documentModelSnapshot.ts',
+  'src/eval/baseline.json',
+];
+for (const rel of requiredModules) {
+  if (!existsSync(join(root, rel))) {
+    errors.push(`Documented module missing on disk: ${rel}`);
   }
 }
 

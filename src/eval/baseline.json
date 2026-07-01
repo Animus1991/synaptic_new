@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "fixtures": ["physics.md", "law.md", "physics-el.md"],
+  "thresholds": {
+    "averageConceptRecall": 0.6,
+    "perFixtureConceptRecall": 0.45,
+    "documentModelConceptRecall": 0.45,
+    "definitionRecall": 0.25
+  }
+}

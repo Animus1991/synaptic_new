@@ -5,6 +5,20 @@ client and server are versioned together.
 
 ## [Unreleased]
 
+### Added
+
+- **Sprint 8 (Jul 2026, `65197ac`)** — DocumentModel substrate + upload wire:
+  - `documentModel.ts` v2: blocks, relations, recognition meta.
+  - `recognition.worker.ts` + `documentModelWorkerClient.ts` (off-thread build).
+  - `localEmbedder.ts` worker-safe + preload; parallel upload recognition.
+  - `documentModelSnapshot` persistence; Library **Recognition report** UI.
+- **Sprint 8 Track A (docs + eval)** — doc reconciliation, doc-lint capability
+  assertions, EL eval fixture (`physics-el.md`), `baseline.json` CI gate.
+- **Sprint 7 (`2ecdbf3`)** — i18n Wave C (Settings/Tasks), PWA offline shell.
+- **Sprint 6 (`3c5eddb`)** — Yjs Postgres persistence, teacher assignments,
+  calendar 2-way sync.
+- **Sprint 5 (`42c5450`)** — Behavior inference, Research tab, agent learning events.
+
 ### Changed
 
 - **Wave C2 batch 18 (Jun 2026)** — lib i18n: `deleteCourseCascadeCopy.ts`, `workspaceDiscoverability.ts`, `noteContentExtractors.ts` (+32 keys `deleteCourse*`, `discover*`, `quiz*`, `feynman*`, `studyLabel`, `examplePrefix`, `sandboxAdjustParams`; reuse `knowledgeCheck`, `quiz`, `practice`, `coreConcept`, `workedExample`, `feynmanGapAccuracy`). Intentional struct picks kept for `STEP_TYPES_EL/EN` and `TOOL_GUIDES_EL/EN`.
