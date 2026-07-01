@@ -6,15 +6,21 @@
  * Embeddings are cached by a stable content hash so repeated calls over the
  * same corpus are deterministic and fast.
  *
- * The model loads once and is shared across the application. Hybrid RAG
- * (`retrieveForQueryHybrid`) no longer uses this embedder — server pgvector
- * (1536d) is the canonical retrieval space when a proxy is configured.
+ * Works on the main thread and in dedicated Web Workers (`importScripts` probe).
+ * Hybrid RAG (`retrieveForQueryHybrid`) no longer uses this embedder — server
+ * pgvector (1536d) is the canonical retrieval space when a proxy is configured.
  * If the model fails to load, the embedder returns `null`.
  */
 
 export interface LocalEmbedder {
   embed(texts: string[]): Promise<number[][] | null>;
   ready: boolean;
+}
+
+/** True when Transformers.js can run (browser main thread or dedicated worker). */
+export function isEmbeddingRuntime(): boolean {
+  if (typeof globalThis === 'undefined') return false;
+  return typeof window !== 'undefined' || typeof importScripts === 'function';
 }
 
 /** Stable content hash for the embedding cache (browser + Web Worker compatible). */
@@ -40,20 +46,19 @@ interface Pipeline {
   (texts: string[], options: { pooling: 'mean'; normalize: true }): Promise<{ data: number[]; dims: number[] }>;
 }
 
-const MODEL_NAME = 'Xenova/all-MiniLM-L6-v2';
+export const LOCAL_EMBEDDER_MODEL = 'Xenova/all-MiniLM-L6-v2';
 const MAX_BATCH = 32;
 
 let pipelinePromise: Promise<Pipeline | null> | null = null;
 const cache = new Map<string, number[]>();
 
 async function loadPipeline(): Promise<Pipeline | null> {
-  if (typeof window === 'undefined') {
-    // Transformers.js expects Web APIs; skip in Node/Vitest.
+  if (!isEmbeddingRuntime()) {
     return null;
   }
   try {
     const { pipeline } = await import('@huggingface/transformers');
-    return (await pipeline('feature-extraction', MODEL_NAME, {
+    return (await pipeline('feature-extraction', LOCAL_EMBEDDER_MODEL, {
       dtype: 'q8',
     })) as Pipeline;
   } catch (err) {
@@ -67,8 +72,13 @@ function getPipeline(): Promise<Pipeline | null> {
   return pipelinePromise;
 }
 
+/** Eagerly load the embedding model (call from app boot or worker preload). */
+export async function preloadLocalEmbedder(): Promise<boolean> {
+  const pipe = await getPipeline();
+  return pipe !== null;
+}
+
 function flattenEmbedding(data: number[], dims: number[]): number[] {
-  // The pipeline returns a flat TypedArray; reshape if needed.
   if (dims.length === 1) return Array.from(data);
   const expected = dims.reduce((a, b) => a * b, 1);
   if (expected !== data.length) return Array.from(data);
@@ -78,7 +88,7 @@ function flattenEmbedding(data: number[], dims: number[]): number[] {
 /** Create a deterministic, offline embedder backed by Transformers.js. */
 export function createLocalEmbedder(): LocalEmbedder {
   return {
-    ready: typeof window !== 'undefined',
+    ready: isEmbeddingRuntime(),
     async embed(texts: string[]): Promise<number[][] | null> {
       if (texts.length === 0) return [];
       const pipe = await getPipeline();

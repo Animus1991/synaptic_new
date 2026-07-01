@@ -10,6 +10,7 @@ import { cn } from '../utils/cn';
 import { prefetchWorkspaceEntry, workspaceEntryPrefetchHandlers } from '../lib/workspaceEntryPrefetch';
 import { buildMaterialOutlinePreview } from '../lib/uploadOutlinePreview';
 import { OutlinePreviewPanel } from './OutlinePreviewPanel';
+import { RecognitionReportPanel } from './RecognitionReportPanel';
 import { ConfirmDialog } from './ui/ConfirmDialog';
 import { buildDeleteFileCascadeCopy } from '../lib/deleteFileCascadeCopy';
 import { buildDeleteCourseCascadeCopy } from '../lib/deleteCourseCascadeCopy';
@@ -373,6 +374,14 @@ function CourseCard({
 
       <h3 className="font-semibold mb-1 text-text-primary group-hover:text-brand-700 transition-colors" data-testid="library-course-title">{course.title}</h3>
       <p className="text-xs text-text-tertiary mb-4 line-clamp-2">{course.description}</p>
+      {course.recognitionSummary && !isGenerating && (
+        <p className="text-[10px] text-text-muted mb-2">
+          {userLanguage === 'el' ? 'Αναγνώριση' : 'Recognition'}:{' '}
+          {course.recognitionSummary.conceptCount} {userLanguage === 'el' ? 'έννοιες' : 'concepts'}
+          {' · '}
+          {course.recognitionSummary.sectionCount} {userLanguage === 'el' ? 'ενότητες' : 'sections'}
+        </p>
+      )}
       {quality && !isGenerating && (
         <div className="mb-3 flex items-center justify-between gap-2">
           <span className={cn('inline-flex items-center gap-1 rounded-full border px-2 py-1 text-[10px] font-medium', qualityTone)}>
@@ -597,7 +606,8 @@ function FileItem({
     if (!file.extractedText?.trim() || file.status !== 'analyzed') return null;
     return buildMaterialOutlinePreview(file.extractedText, [file.name], userSettings);
   }, [file.extractedText, file.name, file.status, userSettings]);
-  const canExpand = Boolean(outlinePreview);
+  const recognitionSnapshot = file.documentModelSnapshot;
+  const canExpand = Boolean(outlinePreview || recognitionSnapshot);
   const canReprocess = Boolean(file.courseId && onReprocessCourse && file.status === 'analyzed');
 
   const confirmRemove = () => {
@@ -651,6 +661,9 @@ function FileItem({
             {course && <> · {course.title}</>}
             {outlinePreview && (
               <> · {outlinePreview.outline.topics.length} {el ? 'ενότητες' : 'modules'}</>
+            )}
+            {recognitionSnapshot && (
+              <> · {recognitionSnapshot.quality.conceptCount} {el ? 'έννοιες' : 'concepts'}</>
             )}
           </p>
           {file.pipelineVersion && (
@@ -715,18 +728,27 @@ function FileItem({
         </div>
       </div>
       <AnimatePresence>
-        {expanded && outlinePreview && (
+        {expanded && (outlinePreview || recognitionSnapshot) && (
           <motion.div
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            className="px-3 pb-3"
+            className="px-3 pb-3 space-y-3"
           >
-            <OutlinePreviewPanel
-              preview={outlinePreview}
-              compact
-              language={userLanguage}
-            />
+            {recognitionSnapshot && (
+              <RecognitionReportPanel
+                snapshot={recognitionSnapshot}
+                compact
+                language={userLanguage}
+              />
+            )}
+            {outlinePreview && (
+              <OutlinePreviewPanel
+                preview={outlinePreview}
+                compact
+                language={userLanguage}
+              />
+            )}
           </motion.div>
         )}
       </AnimatePresence>

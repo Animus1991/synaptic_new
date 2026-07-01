@@ -43,7 +43,14 @@ import { createDebouncedConceptBusPusher } from '../lib/conceptBusSessionSync';
 import { mergeAgentWorkspaceContext, type WorkspaceLiveSync } from '../lib/workspaceStoreSpine';
 import { filterTasksForSession, getTaskAction, getTaskConcept, getAgentMode, type SessionType, type WorkspaceToolId } from '../lib/taskFlows';
 import { settingsToAgentMode } from '../lib/settingsEffects';
-import { readTextFromFiles, uploadedFileMeta, extractFileContent, type UploadPayload } from '../lib/uploadPipeline';
+import {
+  readTextFromFiles,
+  uploadedFileMeta,
+  extractFileContent,
+  recognizeDocumentModelsForUpload,
+  attachDocumentSnapshots,
+  type UploadPayload,
+} from '../lib/uploadPipeline';
 import { recognizeCourse } from '../lib/recognitionWorkerClient';
 import { buildConceptSpans, type SourceHighlight } from '../lib/conceptProvenance';
 import { enrichCourseWithCrossLinks } from '../lib/crossDocumentLink';
@@ -1321,6 +1328,9 @@ export function useAppStore() {
       editedOutline: payload.editedOutline,
     };
 
+    const lang = user.settings.language === 'el' ? 'el' : 'en';
+    const documentRecognitionPromise = recognizeDocumentModelsForUpload(newFiles, text, lang);
+
     const result = await recognizeCourse({
       text,
       fileNames,
@@ -1368,11 +1378,17 @@ export function useAppStore() {
       });
     }
 
+    const documentRecognition = await documentRecognitionPromise;
+    const withRecognition = attachDocumentSnapshots(withCourse, documentRecognition);
+    if (documentRecognition.courseSummary) {
+      course = { ...course, recognitionSummary: documentRecognition.courseSummary };
+    }
+
     const conceptLabels = [...new Set(course.topics.flatMap((t) => t.keyConcepts ?? [t.title]))];
-    if (conceptLabels.length > 0 && withCourse.some((f) => (f.extractedText?.trim().length ?? 0) > 40)) {
+    if (conceptLabels.length > 0 && withRecognition.some((f) => (f.extractedText?.trim().length ?? 0) > 40)) {
       course = {
         ...course,
-        conceptSpans: buildConceptSpans(withCourse, conceptLabels, course.id),
+        conceptSpans: buildConceptSpans(withRecognition, conceptLabels, course.id),
         pipelineMeta: course.pipelineMeta ?? {
           version: CONTENT_PIPELINE_VERSION,
           generatedAt: new Date().toISOString(),
@@ -1388,7 +1404,7 @@ export function useAppStore() {
       uploadedFiles,
     );
 
-    const nextFiles = [...uploadedFiles, ...withCourse];
+    const nextFiles = [...uploadedFiles, ...withRecognition];
 
     const generatedOnly = [
       ...courses.filter((c) => !MOCK_COURSE_IDS.has(c.id) && c.id !== course.id),
@@ -1413,9 +1429,8 @@ export function useAppStore() {
     }, { courseId: course.id });
     const nextActs = logActivity(createActivity('upload', actLabel));
     persist(nextLmMetrics, dashboardStats, nextTasks, user.xp, nextBeta, firstAttemptKeys, openMistakes, nextActs, user.settings);
-    setSelectedCourse(course);
-    const lang = user.settings.language === 'el' ? 'el' : 'en';
-    showAppToast(formatUploadSuccessToast(summarizeUploadStructure(text, lang), lang));
+      setSelectedCourse(course);
+      showAppToast(formatUploadSuccessToast(summarizeUploadStructure(text, lang), lang));
     return course;
     } finally {
       setIsUploading(false);

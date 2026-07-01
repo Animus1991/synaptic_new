@@ -5,6 +5,14 @@ import type { GeneratedOutline } from './courseGenerator';
 import { buildGlossaryEntriesFromOutline } from './courseMerge';
 import { CONTENT_PIPELINE_VERSION } from './pipelineConstants';
 import { DEFAULT_COURSE_ICON_ID } from './uiIconRegistry';
+import { buildDocumentModelInWorker } from './documentModelWorkerClient';
+import {
+  mergeRecognitionSummaries,
+  recognitionSummaryFromSnapshot,
+  toDocumentModelSnapshot,
+  type DocumentModelSnapshot,
+  type RecognitionSummary,
+} from './documentModelSnapshot';
 
 /**
  * Derive candidate topic titles from the material itself — subject-agnostic.
@@ -250,4 +258,75 @@ function inferFileType(name: string): UploadedFile['type'] {
     case 'mp4': case 'webm': case 'mov': case 'mkv': case 'ogv': return 'video';
     default: return 'pdf';
   }
+}
+
+export type DocumentRecognitionResult = {
+  byFileId: Map<string, DocumentModelSnapshot>;
+  courseSummary?: RecognitionSummary;
+};
+
+/**
+ * Build DocumentModel snapshots for each uploaded file (off-thread when available)
+ * plus an optional combined-course summary from merged source text.
+ */
+export async function recognizeDocumentModelsForUpload(
+  files: UploadedFile[],
+  combinedText: string,
+  language: 'en' | 'el' = 'en',
+): Promise<DocumentRecognitionResult> {
+  const byFileId = new Map<string, DocumentModelSnapshot>();
+  const summaries: RecognitionSummary[] = [];
+
+  const buildOne = async (file: UploadedFile, text: string) => {
+    const trimmed = text.trim();
+    if (trimmed.length < 40) return;
+    const model = await buildDocumentModelInWorker({
+      text: trimmed,
+      file: {
+        id: file.id,
+        name: file.name,
+        type: file.type,
+        size: file.size,
+        detectedLanguage: file.detectedLanguage ?? language,
+      },
+      options: { language: file.detectedLanguage ?? language },
+    });
+    const snapshot = toDocumentModelSnapshot(model);
+    byFileId.set(file.id, snapshot);
+    summaries.push(recognitionSummaryFromSnapshot(snapshot));
+  };
+
+  await Promise.all(
+    files.map((file) => buildOne(file, file.extractedText?.trim() ? file.extractedText : combinedText)),
+  );
+
+  if (combinedText.trim().length >= 80 && files.length > 1) {
+    const combinedModel = await buildDocumentModelInWorker({
+      text: combinedText,
+      file: {
+        id: `combined-${files[0]?.id ?? 'upload'}`,
+        name: files.map((f) => f.name).join(' + '),
+        type: 'txt',
+        size: combinedText.length,
+        detectedLanguage: language,
+      },
+      options: { language },
+    });
+    summaries.push(recognitionSummaryFromSnapshot(toDocumentModelSnapshot(combinedModel)));
+  }
+
+  return {
+    byFileId,
+    courseSummary: mergeRecognitionSummaries(summaries),
+  };
+}
+
+export function attachDocumentSnapshots(
+  files: UploadedFile[],
+  recognition: DocumentRecognitionResult,
+): UploadedFile[] {
+  return files.map((file) => {
+    const snapshot = recognition.byFileId.get(file.id);
+    return snapshot ? { ...file, documentModelSnapshot: snapshot } : file;
+  });
 }

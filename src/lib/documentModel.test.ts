@@ -64,4 +64,21 @@ describe('documentModel', () => {
     expect(root.role).toBe('intro');
     expect(child?.role).toBe('body');
   });
+
+  it('builds typed blocks and relations (v2)', () => {
+    const doc = buildDocumentModelFromText(sample);
+    expect(doc.blocks.length).toBeGreaterThan(0);
+    expect(doc.blocks.some((b) => b.type === 'heading')).toBe(true);
+    expect(doc.blocks.some((b) => b.type === 'paragraph' || b.type === 'equation')).toBe(true);
+    expect(doc.quality.blockCount).toBe(doc.blocks.length);
+    expect(doc.quality.relationCount).toBe(doc.relations.length);
+  });
+
+  it('mines example-of relations from example sections', () => {
+    const doc = buildDocumentModelFromText(sample);
+    const exampleSection = doc.sections.find((s) => s.role === 'example');
+    if (exampleSection) {
+      expect(doc.relations.some((r) => r.type === 'example-of')).toBe(true);
+    }
+  });
 });

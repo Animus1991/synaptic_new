@@ -11,6 +11,7 @@ import { importWithRetry } from './lazyWithRetry';
 import { preloadStudyWorkspace } from './studyWorkspaceChunk';
 import { preloadStudyWorkspaceBody } from './studyWorkspaceBodyChunk';
 import { warmWorkspaceWorker } from './workspaceWorkerClient';
+import { warmDocumentModelWorker } from './documentModelWorkerClient';
 
 interface PrefetchEntry {
   flow: string;
@@ -33,6 +34,7 @@ export function preloadCriticalChunks(): void {
   started = true;
 
   warmWorkspaceWorker();
+  warmDocumentModelWorker();
   // Workspace shell + body — split chunks, prefetch both early.
   preloadStudyWorkspace();
   preloadStudyWorkspaceBody();

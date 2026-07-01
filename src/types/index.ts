@@ -72,6 +72,8 @@ export interface UploadedFile {
   pipelineVersion?: string;
   /** Server OCR word bounding boxes (percent of page), when available. */
   ocrRegions?: import('../lib/readerOcrOverlay').OcrStoredRegion[];
+  /** S8 DocumentModel recognition snapshot (text omitted — use extractedText). */
+  documentModelSnapshot?: import('../lib/documentModelSnapshot').DocumentModelSnapshot;
 }
 
 export type FileType = 'pdf' | 'docx' | 'pptx' | 'txt' | 'md' | 'image' | 'csv' | 'code' | 'youtube' | 'audio';
@@ -139,6 +141,8 @@ export interface Course {
     generatedAt: string;
     outlineSource: 'llm' | 'embedding' | 'lexical' | 'fallback' | 'extend';
   };
+  /** Aggregated DocumentModel recognition metrics (S8). */
+  recognitionSummary?: import('../lib/documentModelSnapshot').RecognitionSummary;
 }
 
 /** Maps a course concept to a precise span in uploaded source material. */

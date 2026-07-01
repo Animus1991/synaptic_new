@@ -75,6 +75,49 @@ export interface DocumentQuality {
   conceptCount: number;
   acronymCount: number;
   averageSentenceLength: number;
+  blockCount: number;
+  relationCount: number;
+}
+
+/** Typed layout block (v2 substrate for layout-aware tools and eval). */
+export type DocumentBlockType =
+  | 'heading'
+  | 'paragraph'
+  | 'list'
+  | 'code'
+  | 'equation'
+  | 'caption';
+
+export interface DocumentBlock {
+  id: string;
+  type: DocumentBlockType;
+  text: string;
+  charStart: number;
+  charEnd: number;
+  sectionId: string | null;
+}
+
+/** Typed semantic edge between entities (v2). */
+export type DocumentRelationType =
+  | 'defines'
+  | 'example-of'
+  | 'part-of'
+  | 'relates'
+  | 'contrasts-with';
+
+export interface DocumentRelation {
+  id: string;
+  type: DocumentRelationType;
+  sourceEntityId: string;
+  targetEntityId: string;
+  evidenceSpanIds: string[];
+  confidence: number;
+}
+
+/** Optional enrichment from off-thread embedding clustering (recognition worker). */
+export interface DocumentRecognitionMeta {
+  sectionClusterLabels?: number[];
+  embeddingModel?: string;
 }
 
 export interface DocumentModel {
@@ -89,14 +132,178 @@ export interface DocumentModel {
   spans: DocumentSpan[];
   entities: DocumentEntity[];
   formulas: DocumentFormula[];
+  blocks: DocumentBlock[];
+  relations: DocumentRelation[];
   chunks: SourceChunk[];
   quality: DocumentQuality;
+  recognitionMeta?: DocumentRecognitionMeta;
   /** ISO timestamp of model creation. */
   createdAt: string;
 }
 
 export interface BuildDocumentModelOptions {
   language?: string;
+  recognitionMeta?: DocumentRecognitionMeta;
+}
+
+/** Build typed layout blocks from sections and formulas. */
+export function buildDocumentBlocks(
+  sections: DocumentSection[],
+  formulas: DocumentFormula[],
+  fullText: string,
+): DocumentBlock[] {
+  const blocks: DocumentBlock[] = [];
+  let blockIndex = 0;
+
+  const pushBlock = (
+    type: DocumentBlockType,
+    text: string,
+    charStart: number,
+    sectionId: string | null,
+  ) => {
+    const trimmed = text.trim();
+    if (!trimmed) return;
+    blocks.push({
+      id: makeId('blk', blockIndex++),
+      type,
+      text: trimmed,
+      charStart,
+      charEnd: charStart + trimmed.length,
+      sectionId,
+    });
+  };
+
+  for (const section of sections) {
+    if (section.heading) {
+      const headingStart = fullText.indexOf(section.heading, section.charStart);
+      pushBlock(
+        'heading',
+        section.heading,
+        headingStart >= 0 ? headingStart : section.charStart,
+        section.id,
+      );
+    }
+
+    const paragraphs = section.text.split(/\n{2,}/).map((p) => p.trim()).filter(Boolean);
+    if (paragraphs.length === 0 && section.text.trim()) {
+      paragraphs.push(section.text.trim());
+    }
+
+    let searchFrom = section.charStart;
+    for (const para of paragraphs) {
+      const idx = fullText.indexOf(para, searchFrom);
+      const start = idx >= 0 ? idx : section.charStart;
+      const isList = /^(\s*[-*•]\s+|\s*\d+[.)]\s+)/m.test(para);
+      const isCode = para.startsWith('```') || /^ {4}\S/m.test(para);
+      pushBlock(isCode ? 'code' : isList ? 'list' : 'paragraph', para, start, section.id);
+      searchFrom = start + para.length;
+    }
+  }
+
+  for (const formula of formulas) {
+    const idx = fullText.indexOf(formula.formula);
+    if (idx >= 0) {
+      pushBlock('equation', formula.formula, idx, null);
+    }
+  }
+
+  return blocks;
+}
+
+/** Mine typed relations from entities, sections, and formulas. */
+export function buildDocumentRelations(
+  entities: DocumentEntity[],
+  formulas: DocumentFormula[],
+  sections: DocumentSection[],
+  spans: DocumentSpan[],
+): DocumentRelation[] {
+  const relations: DocumentRelation[] = [];
+  let relIndex = 0;
+
+  const entityByKey = new Map(entities.map((e) => [e.key, e]));
+  const spanById = new Map(spans.map((s) => [s.id, s]));
+
+  const addRelation = (
+    type: DocumentRelationType,
+    source: DocumentEntity,
+    target: DocumentEntity,
+    evidenceSpanIds: string[],
+    confidence: number,
+  ) => {
+    relations.push({
+      id: makeId('rel', relIndex++),
+      type,
+      sourceEntityId: source.id,
+      targetEntityId: target.id,
+      evidenceSpanIds,
+      confidence,
+    });
+  };
+
+  for (const def of entities.filter((e) => e.type === 'definition')) {
+    const concept = entityByKey.get(def.key) ?? entities.find(
+      (e) => e.type === 'concept' && def.spanIds.some((sid) => e.spanIds.includes(sid)),
+    );
+    if (concept) {
+      addRelation('defines', concept, def, [...new Set([...concept.spanIds, ...def.spanIds])], 0.85);
+    }
+  }
+
+  for (const section of sections.filter((s) => s.role === 'example')) {
+    const parent = section.parentId
+      ? sections.find((s) => s.id === section.parentId)
+      : sections[section.index - 1];
+    const parentHeading = parent?.heading?.trim();
+    if (!parentHeading) continue;
+    const parentConcept = entities.find(
+      (e) => e.type === 'concept' && normalizeEntityKey(e.label) === normalizeEntityKey(parentHeading),
+    );
+    if (!parentConcept) continue;
+    const exampleConcepts = entities.filter(
+      (e) =>
+        e.type === 'concept' &&
+        e.id !== parentConcept.id &&
+        section.sentenceIds.some((sid) => e.spanIds.includes(sid)),
+    );
+    for (const ex of exampleConcepts.slice(0, 3)) {
+      addRelation('example-of', ex, parentConcept, section.sentenceIds, 0.7);
+    }
+  }
+
+  for (const formula of formulas) {
+    const formulaEntity = entities.find(
+      (e) => e.type === 'concept' && formula.spanIds.some((sid) => e.spanIds.includes(sid)),
+    );
+    const section = sections.find(
+      (s) => formula.spanIds.some((sid) => {
+        const span = spanById.get(sid);
+        return span && span.sectionIndex === s.index;
+      }),
+    );
+    if (formulaEntity && section?.heading) {
+      const sectionConcept = entities.find(
+        (e) =>
+          e.type === 'concept' &&
+          normalizeEntityKey(e.label) === normalizeEntityKey(section.heading!),
+      );
+      if (sectionConcept) {
+        addRelation('part-of', formulaEntity, sectionConcept, formula.spanIds, 0.75);
+      }
+    }
+  }
+
+  const contrastPattern = /\b(however|but|whereas|unlike|in contrast)\b/i;
+  for (const span of spans) {
+    if (!contrastPattern.test(span.text)) continue;
+    const mentioned = entities.filter(
+      (e) => e.type === 'concept' && span.text.toLowerCase().includes(e.label.toLowerCase()),
+    );
+    if (mentioned.length >= 2) {
+      addRelation('contrasts-with', mentioned[0]!, mentioned[1]!, [span.id], 0.6);
+    }
+  }
+
+  return relations;
 }
 
 function makeId(prefix: string, index: number): string {
@@ -120,7 +327,7 @@ export function buildDocumentModel(
   text: string,
   options: BuildDocumentModelOptions = {},
 ): DocumentModel {
-  const { language = file.detectedLanguage ?? 'en' } = options;
+  const { language = file.detectedLanguage ?? 'en', recognitionMeta } = options;
   const normalized = text.replace(/\r\n/g, '\n');
   const sections: DocumentSection[] = [];
   const spans: DocumentSpan[] = [];
@@ -259,6 +466,9 @@ export function buildDocumentModel(
   const averageSentenceLength =
     spans.length > 0 ? words.length / spans.length : 0;
 
+  const blocks = buildDocumentBlocks(sections, formulas, normalized);
+  const relations = buildDocumentRelations(entities, formulas, sections, spans);
+
   const quality: DocumentQuality = {
     wordCount: words.length,
     sectionCount: sections.length,
@@ -268,6 +478,8 @@ export function buildDocumentModel(
     conceptCount: conceptEntities.length,
     acronymCount: entities.filter((e) => e.type === 'acronym').length,
     averageSentenceLength,
+    blockCount: blocks.length,
+    relationCount: relations.length,
   };
 
   return {
@@ -282,8 +494,11 @@ export function buildDocumentModel(
     spans,
     entities,
     formulas,
+    blocks,
+    relations,
     chunks,
     quality,
+    recognitionMeta,
     createdAt: new Date().toISOString(),
   };
 }
