@@ -10,7 +10,6 @@ import {
 import { WorkspaceIdleMount } from '../WorkspaceIdleMount';
 import { WorkspaceToolSuspense } from '../WorkspaceToolSuspense';
 import { mergeReaderHighlight } from '../../../lib/workspaceFocus';
-import { activityFor } from '../../../lib/workspaceConceptBus';
 import { saveConceptMapPositions, saveConceptMapGraph } from '../../../lib/workspacePersistence';
 import { recordQuizResponse } from '../../../lib/quizIrt';
 import { conceptSignalForAnnotationCategory } from '../../../lib/annotationAnchor';
@@ -25,7 +24,6 @@ import { buildCompareDifferencePrompt } from '../../../lib/compareExplainDiffere
 import { saveLastSimulatorScenario, saveExamPracticePreset } from '../../../lib/workspacePersistence';
 import { examPracticePresetForScenario, type SimulatorScenarioId } from '../../../lib/examPracticePresets';
 import { loadFeynmanDraft } from '../../../lib/feynmanDraftStore';
-import { ConceptLensPanel } from '../ConceptLensPanel';
 import { WorkspaceMobileIntelligenceBottomSheet } from '../WorkspaceMobileIntelligenceBottomSheet';
 import { AVAILABLE_TOOLS, type WorkspaceTool } from './types';
 
@@ -66,8 +64,6 @@ export function StudyWorkspaceToolSurface({ model }: StudyWorkspaceToolSurfacePr
     setPendingExamPractice,
     intelTab,
     setIntelTab,
-    conceptLensExpanded,
-    setConceptLensExpanded,
     stepMarks,
     setStepMarks,
     conceptBus,
@@ -176,22 +172,6 @@ export function StudyWorkspaceToolSurface({ model }: StudyWorkspaceToolSurfacePr
                       onAskAgent={handleCrossLinkAgent}
                     >
                       <div className="relative flex h-full min-h-0 flex-col overflow-hidden">
-                      {!isMobile && (
-                      <ConceptLensPanel
-                        placement="overlay"
-                        lens={conceptLensView}
-                        activity={activityFor(conceptBus, activeConceptLabel)}
-                        activeTool={activeTool}
-                        expanded={conceptLensExpanded}
-                        onToggleExpand={() => setConceptLensExpanded((v) => !v)}
-                        onJumpTool={(tool) => openWorkspaceTool(tool)}
-                        onFocus={(term) => focusOnTerm(term, activeTool)}
-                        onAction={handleConceptLensAction}
-                        onOpenReaderSection={openReaderAtConceptSection}
-                        lang={lang}
-                      />
-                      )}
-      
                       {activeTool === 'concept-map' && (
                         <WorkspaceToolSuspense tool="concept-map" lang={lang}>
                         <LazyDraggableConceptMap

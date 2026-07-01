@@ -6,9 +6,7 @@ import { workspaceToolLabel } from '../../../lib/workspaceToolRegistry';
 import { displayWorkspaceStepTitle } from '../../../lib/workspaceContextModel';
 import { WorkspaceContextBar } from '../WorkspaceContextBar';
 import { WorkspaceStudyRoomTrigger } from '../WorkspaceStudyRoomTrigger';
-import { ConceptLensPanel } from '../ConceptLensPanel';
-
-import { activityFor } from '../../../lib/workspaceConceptBus';
+import { ConceptLensChromeStrip } from '../ConceptLensChromeStrip';
 import { nextActionLabel } from '../../../lib/nextActionEngine';
 import type { MobileIntelTab } from '../WorkspaceMobileIntelligenceTabs';
 import type { StudyWorkspaceModel } from './useStudyWorkspace';
@@ -178,48 +176,21 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
                   </div>
                 </div>
       
-                {/* Concept ribbon — only when there's an active lens */}
-                {conceptLensView.activeConcept && (
-                  <div className="ws-ribbon px-4 py-1 flex gap-2 overflow-x-auto shrink-0" role="list">
-                    <button
-                      type="button"
-                      role="listitem"
-                      className="whitespace-nowrap px-3 py-1.5 rounded-lg bg-brand-600 text-white text-xs font-medium"
-                      onClick={() => setConceptLensExpanded((v) => !v)}
-                      aria-expanded={conceptLensExpanded}
-                    >
-                      {activeConceptLabel ?? conceptLensView.activeConcept}
-                    </button>
-                    {conceptLensView.related?.slice(0, 4).map((c) => (
-                      <button
-                        key={c.label}
-                        type="button"
-                        role="listitem"
-                        className="whitespace-nowrap px-3 py-1.5 rounded-lg bg-surface-secondary text-text-secondary text-xs font-medium hover:bg-surface-hover"
-                        onClick={() => focusOnTerm(c.label, activeTool)}
-                      >
-                        {c.label}
-                      </button>
-                    ))}
-                  </div>
-                )}
-      
-                {/* Expanded concept lens panel — kept, but only when user expands */}
-                {conceptLensView.activeConcept && conceptLensExpanded && (
-                  <ConceptLensPanel
-                    placement="strip"
-                    lens={conceptLensView}
-                    activity={activityFor(conceptBus, activeConceptLabel)}
-                    activeTool={activeTool}
-                    expanded={conceptLensExpanded}
-                    onToggleExpand={() => setConceptLensExpanded((v) => !v)}
-                    onJumpTool={(tool) => openWorkspaceTool(tool)}
-                    onFocus={(term) => focusOnTerm(term, activeTool)}
-                    onAction={handleConceptLensAction}
-                    onOpenReaderSection={openReaderAtConceptSection}
-                    lang={lang}
-                  />
-                )}
+                {/* Concept ribbon — inline chrome, not over tool content */}
+                <ConceptLensChromeStrip
+                  conceptLensView={conceptLensView}
+                  activeConceptLabel={activeConceptLabel}
+                  activeStepTitle={STEPS[currentStep]?.title}
+                  conceptLensExpanded={conceptLensExpanded}
+                  onToggleExpand={() => setConceptLensExpanded((v) => !v)}
+                  conceptBus={conceptBus}
+                  activeTool={activeTool}
+                  lang={lang}
+                  onFocus={(term) => focusOnTerm(term, activeTool)}
+                  onJumpTool={openWorkspaceTool}
+                  onAction={handleConceptLensAction}
+                  onOpenReaderSection={openReaderAtConceptSection}
+                />
               </>
             )}
       
@@ -316,6 +287,24 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
                 showMigration={showReuploadHint}
                 onOpenStudyRoom={() => setStudyRoomOpen((v) => !v)}
                 studyRoomOpen={studyRoomOpen}
+              />
+            )}
+
+            {!chromeHidden && !isMobile && (
+              <ConceptLensChromeStrip
+                conceptLensView={conceptLensView}
+                activeConceptLabel={activeConceptLabel}
+                activeStepTitle={STEPS[currentStep]?.title}
+                conceptLensExpanded={conceptLensExpanded}
+                onToggleExpand={() => setConceptLensExpanded((v) => !v)}
+                conceptBus={conceptBus}
+                activeTool={activeTool}
+                lang={lang}
+                onFocus={(term) => focusOnTerm(term, activeTool)}
+                onJumpTool={openWorkspaceTool}
+                onAction={handleConceptLensAction}
+                onOpenReaderSection={openReaderAtConceptSection}
+                className="border-b border-border-subtle/60 bg-surface-primary/40"
               />
             )}
     </>
