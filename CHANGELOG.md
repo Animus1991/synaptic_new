@@ -7,7 +7,7 @@ client and server are versioned together.
 
 ### Added
 
-- **Stage 3 quality gates (`da6e42b`)** — `QUALITY_STAGE=3`; span ratio 95%, source text 90%,
+- **Stage 3 quality gates (`a5e3c4b`)** — `QUALITY_STAGE=3`; span ratio 95%, source text 90%,
   eval faithfulness 0.95 (`qualityThresholds.ts`, `baseline.json`, grounding fixtures).
 - **Doc reconciliation (Jul 2026, `8134462`)** — canonical [`PRODUCT_SCALE_STATUS.md`](PRODUCT_SCALE_STATUS.md)
   synced with shipped S5–S9 truth; `ROADMAP.md` rebaselined to ~89%; this changelog

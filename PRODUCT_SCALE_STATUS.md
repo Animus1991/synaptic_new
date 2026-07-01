@@ -1,6 +1,6 @@
 # Product-scale status (canonical snapshot)
 
-**Last reconciled:** 2026-07-01 — aligned with `synaptic_new/main` through `da6e42b`.
+**Last reconciled:** 2026-07-01 — aligned with `synaptic_new/main` through `a5e3c4b`.
 
 This file is the **single shipped-truth status doc**. Use it for readiness reviews,
 sprint close-outs, and investor/contributor snapshots.
@@ -59,7 +59,7 @@ shipped. Remaining gaps: sub-line annotations, production backend, math OCR.
 | `b324969` | Whiteboard SVG export alongside PNG |
 | `8134462` | Doc reconciliation — `PRODUCT_SCALE_STATUS.md` + ROADMAP/CHANGELOG sync |
 | `daf5acd` | Leitner card types (term/definition/cloze/formula/mistake) |
-| *(latest)* | Stage 3 quality gates — span 95%, faithfulness 0.95, eval baseline |
+| `da6e42b` | Stage 3 quality gates — span 95%, faithfulness 0.95, eval baseline |
 
 ### Sprint 5–8 (prior)
 
