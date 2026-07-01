@@ -1,5 +1,7 @@
 import type { LearnerModel, SkillNode, ConfidencePoint } from '../types';
+import type { Lang } from './i18n';
 import { bandColorVar } from './masteryPalette';
+import { studyPlanBlockLabel } from './tasksContent';
 
 export type MasteryBand = 'strong' | 'proficient' | 'developing' | 'weak';
 export type CalibrationDirection = 'overconfident' | 'calibrated' | 'underconfident';
@@ -193,14 +195,17 @@ export function deriveInsights(
 }
 
 /** Study plan blocks (LearnAI-style daily queue) */
-export function buildStudyPlanBlocks(tasks: {
-  category: string;
-  status: string;
-  priority: string;
-  title: string;
-  estimatedMinutes: number;
-  isSpacedRepetition?: boolean;
-}[]): { label: string; minutes: number; items: string[] }[] {
+export function buildStudyPlanBlocks(
+  tasks: {
+    category: string;
+    status: string;
+    priority: string;
+    title: string;
+    estimatedMinutes: number;
+    isSpacedRepetition?: boolean;
+  }[],
+  lang: Lang,
+): { label: string; minutes: number; items: string[] }[] {
   const pending = tasks.filter((t) => t.status === 'pending');
   const mistakes = pending.filter((t) => t.category === 'fix').slice(0, 2);
   const reviews = pending.filter((t) => t.isSpacedRepetition).slice(0, 3);
@@ -208,21 +213,21 @@ export function buildStudyPlanBlocks(tasks: {
   const blocks: { label: string; minutes: number; items: string[] }[] = [];
   if (mistakes.length) {
     blocks.push({
-      label: 'Retry mistakes',
+      label: studyPlanBlockLabel('mistakes', lang),
       minutes: mistakes.reduce((s, t) => s + t.estimatedMinutes, 0),
       items: mistakes.map((t) => t.title),
     });
   }
   if (reviews.length) {
     blocks.push({
-      label: 'Spaced reviews',
+      label: studyPlanBlockLabel('reviews', lang),
       minutes: reviews.reduce((s, t) => s + t.estimatedMinutes, 0),
       items: reviews.map((t) => t.title),
     });
   }
   if (weak.length) {
     blocks.push({
-      label: 'Weak concepts',
+      label: studyPlanBlockLabel('weak', lang),
       minutes: weak.reduce((s, t) => s + t.estimatedMinutes, 0),
       items: weak.map((t) => t.title),
     });

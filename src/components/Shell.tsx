@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+﻿import { ReactNode } from 'react';
 import {
   BookOpen, CheckSquare, Robot as Bot, SquaresFour as LayoutDashboard, Gear as Settings,
   Sparkle as Sparkles, List as Menu, X, UploadSimple as Upload, Bell, MagnifyingGlass as Search, CaretRight as ChevronRight,
@@ -12,6 +12,7 @@ import type { WorkspaceLiveSync } from '../lib/workspaceStoreSpine';
 import { workspaceLiveIsStale } from '../lib/workspaceStoreSpine';
 import { workspaceEntryPrefetchHandlers } from '../lib/workspaceEntryPrefetch';
 import { PlatformSkipLinks } from './PlatformSkipLinks';
+import { OfflineShellBanner } from './OfflineShellBanner';
 
 interface ShellProps {
   children: ReactNode;
@@ -190,7 +191,7 @@ export function Shell({
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium truncate">{user.name}</p>
-              <p className="text-xs text-text-tertiary">Level {user.level} · {user.xp} XP</p>
+              <p className="text-xs text-text-tertiary">Level {user.level} Β· {user.xp} XP</p>
             </div>
           </div>
         </div>
@@ -265,7 +266,7 @@ export function Shell({
                     <span className="text-text-secondary font-medium">{breadcrumb.course}</span>
                     {breadcrumb.lesson && (
                       <>
-                        <span>•</span>
+                        <span>β€Ά</span>
                         <span className="truncate max-w-[200px]">{breadcrumb.lesson}</span>
                       </>
                     )}
@@ -283,7 +284,7 @@ export function Shell({
               >
                 <Search className="w-4 h-4" />
                 <span>{t('search')}</span>
-                <kbd className="text-xs bg-surface-hover px-1.5 py-0.5 rounded border border-border-subtle ml-4">⌘K</kbd>
+                <kbd className="text-xs bg-surface-hover px-1.5 py-0.5 rounded border border-border-subtle ml-4">βK</kbd>
               </button>
 
               <button
@@ -334,6 +335,8 @@ export function Shell({
             </div>
           </div>
         </header>
+        <OfflineShellBanner />
+
 
         {/* Page content */}
         <main id="platform-main" data-testid="platform-main" tabIndex={-1} className="flex-1 outline-none">

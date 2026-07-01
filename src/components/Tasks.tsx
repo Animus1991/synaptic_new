@@ -1,15 +1,22 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  CheckCircle2, Circle, Clock, Zap, AlertTriangle, RotateCcw,
-  Brain, Target, ChevronDown, Play, Flame,
-  Shield, Calendar
+  CheckCircle2, Circle, Clock, AlertTriangle, RotateCcw,
+  Shield, Calendar, ChevronDown, Play,
 } from '@/lib/lucide-shim';
-import type { Task, TaskType, MistakeRecord } from '../types';
+import type { Task, MistakeRecord } from '../types';
+import type { Lang } from '../lib/i18n';
 import { cn } from '../utils/cn';
 import { buildStudyPlanBlocks } from '../lib/pedagogy';
 import type { FsrsRating } from '../lib/pedagogy';
 import { filterTasksForSession, startButtonLabel, type SessionType } from '../lib/taskFlows';
+import {
+  getTasksContent,
+  getTaskTypeLabel,
+  getSessionTypes,
+  taskFilterLabel,
+  type TaskFilter,
+} from '../lib/tasksContent';
 import { TaskActionIcon } from './ui/TaskActionIcon';
 import { ErrorNotebook } from './visuals/ErrorNotebook';
 import { CourseIcon } from './ui/CourseIcon';
@@ -17,8 +24,11 @@ import { Page, PageHeader, PlatformSection } from './ui/primitives';
 import { resolveCourseColor } from '../lib/masteryPalette';
 import { PlatformEmptyState } from './ui/PlatformEmptyState';
 
+export type { TaskFilter } from '../lib/tasksContent';
+
 interface TasksProps {
   tasks: Task[];
+  lang: Lang;
   onComplete: (taskId: string) => void;
   onReviewRating?: (taskId: string, rating: FsrsRating) => void;
   onStartTask?: (taskId: string) => void;
@@ -32,34 +42,23 @@ interface TasksProps {
   onFilterPresetConsumed?: () => void;
 }
 
-export type TaskFilter = 'all' | 'learn' | 'review' | 'practice' | 'exam' | 'fix' | 'completed';
-
-const TASK_TYPE_LABEL: Record<TaskType, string> = {
-  lesson: 'Lesson',
-  quiz: 'Quiz',
-  review: 'Review',
-  practice: 'Practice',
-  'exam-prep': 'Exam Prep',
-  flashcards: 'Flashcards',
-  'mistake-retry': 'Retry Mistakes',
-  'concept-check': 'Concept Check',
-  'deep-dive': 'Deep Dive',
-  'timed-test': 'Timed Test',
-  'self-explanation': 'Self-Explain',
-  comparison: 'Compare',
-  'prerequisite-repair': 'Prereq Repair',
-  'oral-exam': 'Oral Exam',
-};
-
-const sessionTypes: { type: SessionType; label: string; desc: string; minutes: number; icon: typeof Play }[] = [
-  { type: '10min', label: 'Quick Sprint', desc: 'Fast review & flashcards', minutes: 10, icon: Zap },
-  { type: '25min', label: 'Focused Session', desc: 'Deep learning & practice', minutes: 25, icon: Target },
-  { type: '50min', label: 'Deep Session', desc: 'Complex topics & exercises', minutes: 50, icon: Brain },
-  { type: 'cram', label: 'Exam Cram', desc: 'Priority exam material', minutes: 60, icon: Flame },
-  { type: 'review', label: 'Spaced Review', desc: 'Due spaced repetitions', minutes: 15, icon: RotateCcw },
-];
-
-export function Tasks({ tasks, onComplete, onReviewRating, onStartTask, onStartSession, daysToExam = null, expandedTaskId = null, onExpandedTaskChange, openMistakes = [], onResolveMistake, filterPreset = null, onFilterPresetConsumed }: TasksProps) {
+export function Tasks({
+  tasks,
+  lang,
+  onComplete,
+  onReviewRating,
+  onStartTask,
+  onStartSession,
+  daysToExam = null,
+  expandedTaskId = null,
+  onExpandedTaskChange,
+  openMistakes = [],
+  onResolveMistake,
+  filterPreset = null,
+  onFilterPresetConsumed,
+}: TasksProps) {
+  const c = getTasksContent(lang);
+  const sessionTypes = getSessionTypes(lang);
   const [filter, setFilter] = useState<TaskFilter>('all');
   const [showSessions, setShowSessions] = useState(false);
   const [localExpanded, setLocalExpanded] = useState<string | null>(null);
@@ -79,7 +78,7 @@ export function Tasks({ tasks, onComplete, onReviewRating, onStartTask, onStartS
     onFilterPresetConsumed?.();
   }, [filterPreset, onFilterPresetConsumed]);
 
-  const studyPlan = buildStudyPlanBlocks(tasks);
+  const studyPlan = buildStudyPlanBlocks(tasks, lang);
 
   const filteredTasks = tasks.filter(t => {
     if (filter === 'completed') return t.status === 'completed';
@@ -103,22 +102,28 @@ export function Tasks({ tasks, onComplete, onReviewRating, onStartTask, onStartS
     completed: completedCount,
   };
 
+  const fsrsRatings: { rating: FsrsRating; label: string; color: string }[] = [
+    { rating: 'again', label: c.fsrsAgain, color: 'bg-accent-rose/15 text-accent-rose border-accent-rose/30' },
+    { rating: 'hard', label: c.fsrsHard, color: 'bg-accent-orange/15 text-accent-orange border-accent-orange/30' },
+    { rating: 'good', label: c.fsrsGood, color: 'bg-accent-amber/15 text-accent-amber border-accent-amber/30' },
+    { rating: 'easy', label: c.fsrsEasy, color: 'bg-accent-emerald/15 text-accent-emerald border-accent-emerald/30' },
+  ];
+
   return (
     <Page>
       <PageHeader
-        title="Tasks"
-        subtitle={`${pendingCount} pending · ${completedCount} done · ${totalXP} XP available`}
+        title={c.pageTitle}
+        subtitle={c.formatSubtitle(pendingCount, completedCount, totalXP)}
         icon={CheckCircle2}
         actions={
           <button onClick={() => setShowSessions(!showSessions)} className="flex items-center gap-2 px-5 py-2.5 ws-fab rounded-xl font-semibold text-sm transition-colors">
             <Play className="w-4 h-4" />
-            Start Session
+            {c.startSession}
             <ChevronDown className={cn('w-4 h-4 transition-transform', showSessions && 'rotate-180')} />
           </button>
         }
       />
 
-      {/* Session Picker */}
       <AnimatePresence>
         {showSessions && (
           <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
@@ -140,7 +145,7 @@ export function Tasks({ tasks, onComplete, onReviewRating, onStartTask, onStartS
                   <s.icon className="w-5 h-5 text-brand-400 mb-2 group-hover:scale-110 transition-transform" />
                   <p className="text-sm font-semibold">{s.label}</p>
                   <p className="text-xs text-text-tertiary mt-0.5">{s.desc}</p>
-                  <p className="text-xs text-brand-400 mt-2">{s.minutes} min · {sessionTasks.length} task{sessionTasks.length === 1 ? '' : 's'}</p>
+                  <p className="text-xs text-brand-400 mt-2">{c.sessionTaskCount(s.minutes, sessionTasks.length)}</p>
                 </button>
               );})}
             </div>
@@ -148,9 +153,8 @@ export function Tasks({ tasks, onComplete, onReviewRating, onStartTask, onStartS
         )}
       </AnimatePresence>
 
-      {/* Daily study plan */}
       {studyPlan.length > 0 && filter !== 'completed' && (
-        <PlatformSection title="Today's study plan" icon={Calendar} iconClassName="text-brand-600">
+        <PlatformSection title={c.studyPlanTitle} icon={Calendar} iconClassName="text-brand-600">
           <div className="space-y-3">
             {studyPlan.map((block) => (
               <div key={block.label} className="ws-bento-soft p-3">
@@ -169,14 +173,12 @@ export function Tasks({ tasks, onComplete, onReviewRating, onStartTask, onStartS
         </PlatformSection>
       )}
 
-      {/* Error notebook */}
       {openMistakes.length > 0 && filter !== 'completed' && (
         <ErrorNotebook mistakes={openMistakes} onResolve={onResolveMistake} />
       )}
 
-      {/* Danger Zone */}
       {dangerTasks.length > 0 && filter !== 'completed' && (
-        <PlatformSection title="Danger Zone — Needs Immediate Attention" icon={Shield} tone="default" className="platform-banner-danger">
+        <PlatformSection title={c.dangerZoneTitle} icon={Shield} tone="default" className="platform-banner-danger">
           <div className="space-y-2">
             {dangerTasks.slice(0, 3).map(task => (
               <button
@@ -196,42 +198,40 @@ export function Tasks({ tasks, onComplete, onReviewRating, onStartTask, onStartS
         {reviewCount > 0 && (
           <div className="flex items-center gap-2 px-4 py-2 rounded-xl ws-chip-warn text-sm shrink-0">
             <RotateCcw className="w-4 h-4 shrink-0" />
-            <span>{reviewCount} reviews due</span>
+            <span>{c.reviewsDue(reviewCount)}</span>
           </div>
         )}
         <div className="flex items-center gap-2 px-4 py-2 rounded-xl ws-chip-neutral text-sm shrink-0">
           <Clock className="w-4 h-4 text-text-tertiary" />
-          <span className="text-text-secondary">~{Math.round(tasks.filter(t => t.status === 'pending').reduce((s, t) => s + t.estimatedMinutes, 0))} min total</span>
+          <span className="text-text-secondary">{c.totalMinutes(Math.round(tasks.filter(t => t.status === 'pending').reduce((s, t) => s + t.estimatedMinutes, 0)))}</span>
         </div>
         {daysToExam !== null ? (
           <div className="flex items-center gap-2 px-4 py-2 rounded-xl ws-chip-danger text-sm shrink-0">
             <Calendar className="w-4 h-4 shrink-0" />
             <span>
-              {daysToExam === 0 ? 'Exam today' : `Exam in ${daysToExam} day${daysToExam === 1 ? '' : 's'}`}
+              {daysToExam === 0 ? c.examToday : c.examInDays(daysToExam)}
             </span>
           </div>
         ) : (
           <div className="flex items-center gap-2 px-4 py-2 rounded-xl ws-chip-neutral text-sm shrink-0">
             <Calendar className="w-4 h-4 shrink-0" />
-            <span className="text-text-secondary">No exam date set</span>
+            <span className="text-text-secondary">{c.noExamDate}</span>
           </div>
         )}
       </div>
 
-      {/* Filters */}
       <div className="flex items-center gap-2 overflow-x-auto hide-scrollbar">
         {(['all', 'learn', 'review', 'practice', 'fix', 'exam', 'completed'] as TaskFilter[]).map(f => (
           <button key={f} onClick={() => setFilter(f)} className={cn(
-            'platform-pill px-3 py-1.5 rounded-lg text-xs transition-all capitalize shrink-0 flex items-center gap-1.5 border',
+            'platform-pill px-3 py-1.5 rounded-lg text-xs transition-all shrink-0 flex items-center gap-1.5 border',
             filter === f ? 'platform-pill-active' : '',
           )}>
-            {f}
+            {taskFilterLabel(f, lang)}
             {filterCounts[f] > 0 && <span className="text-[10px] opacity-60">({filterCounts[f]})</span>}
           </button>
         ))}
       </div>
 
-      {/* Task List */}
       <div className="space-y-2">
         <AnimatePresence>
           {filteredTasks.map((task, i) => {
@@ -250,7 +250,7 @@ export function Tasks({ tasks, onComplete, onReviewRating, onStartTask, onStartS
                     <div className="flex items-center gap-2 mb-0.5">
                       <CourseIcon icon={task.courseIcon} size="sm" colorClassName="text-brand-500 shrink-0" />
                       <TaskActionIcon taskType={task.type} size="xs" />
-                      <span className="type-micro font-medium text-text-tertiary">{TASK_TYPE_LABEL[task.type]}</span>
+                      <span className="type-micro font-medium text-text-tertiary">{getTaskTypeLabel(task.type, lang)}</span>
                     </div>
                     <p className={cn('text-sm font-medium truncate', isCompleted && 'line-through text-text-tertiary')}>{task.title}</p>
                   </div>
@@ -272,21 +272,16 @@ export function Tasks({ tasks, onComplete, onReviewRating, onStartTask, onStartS
                         <div className="flex items-center gap-3 flex-wrap">
                           <span className="text-xs text-text-tertiary flex items-center gap-1"><Clock className="w-3 h-3" />{task.estimatedMinutes} min</span>
                           <span className="text-xs text-text-tertiary">{task.courseName}</span>
-                          {task.isSpacedRepetition && <span className="text-xs text-accent-amber flex items-center gap-1"><RotateCcw className="w-3 h-3" />Spaced repetition</span>}
+                          {task.isSpacedRepetition && <span className="text-xs text-accent-amber flex items-center gap-1"><RotateCcw className="w-3 h-3" />{c.spacedRepetition}</span>}
                           {task.retentionPrediction !== undefined && task.retentionPrediction < 0.8 && (
-                            <span className="text-xs text-accent-rose flex items-center gap-1"><AlertTriangle className="w-3 h-3" />Retention: {Math.round(task.retentionPrediction * 100)}%</span>
+                            <span className="text-xs text-accent-rose flex items-center gap-1"><AlertTriangle className="w-3 h-3" />{c.retention(Math.round(task.retentionPrediction * 100))}</span>
                           )}
                         </div>
                         {!isCompleted && task.isSpacedRepetition && task.category === 'review' && onReviewRating ? (
                           <div className="mt-3">
-                            <p className="text-xs text-text-tertiary mb-2">How well did you recall this?</p>
+                            <p className="text-xs text-text-tertiary mb-2">{c.recallPrompt}</p>
                             <div className="flex flex-wrap gap-2">
-                              {([
-                                { rating: 'again' as FsrsRating, label: 'Again', color: 'bg-accent-rose/15 text-accent-rose border-accent-rose/30' },
-                                { rating: 'hard' as FsrsRating, label: 'Hard', color: 'bg-accent-orange/15 text-accent-orange border-accent-orange/30' },
-                                { rating: 'good' as FsrsRating, label: 'Good', color: 'bg-accent-amber/15 text-accent-amber border-accent-amber/30' },
-                                { rating: 'easy' as FsrsRating, label: 'Easy', color: 'bg-accent-emerald/15 text-accent-emerald border-accent-emerald/30' },
-                              ]).map(({ rating, label, color }) => (
+                              {fsrsRatings.map(({ rating, label, color }) => (
                                 <button
                                   key={rating}
                                   onClick={() => onReviewRating(task.id, rating)}
@@ -302,7 +297,7 @@ export function Tasks({ tasks, onComplete, onReviewRating, onStartTask, onStartS
                             onClick={() => (onStartTask ? onStartTask(task.id) : onComplete(task.id))}
                             className="mt-3 px-4 py-2 bg-brand-600 hover:bg-brand-500 text-white rounded-lg text-sm font-medium transition-all"
                           >
-                            {startButtonLabel(task)}
+                            {startButtonLabel(task, lang)}
                           </button>
                         )}
                       </div>
@@ -315,10 +310,10 @@ export function Tasks({ tasks, onComplete, onReviewRating, onStartTask, onStartS
         </AnimatePresence>
         {filteredTasks.length === 0 && (
           <PlatformEmptyState
-            title="All done!"
-            description="No tasks match this filter. Try another category or start a focused session."
+            title={c.emptyTitle}
+            description={c.emptyDescription}
             icon={CheckCircle2}
-            actionLabel={filter !== 'all' ? 'Show all tasks' : undefined}
+            actionLabel={filter !== 'all' ? c.showAllTasks : undefined}
             onAction={filter !== 'all' ? () => setFilter('all') : undefined}
           />
         )}

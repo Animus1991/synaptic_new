@@ -4,6 +4,7 @@
 
 import type { DashboardStats, LearnerModel, Task } from '../types';
 import type { Lang } from './i18n';
+import { t } from './i18n';
 import { findPendingTask } from './taskFlows';
 import type { WorkspaceLiveSync } from './workspaceStoreSpine';
 import { workspaceLiveIsStale } from './workspaceStoreSpine';
@@ -23,6 +24,12 @@ export type DashboardNextAction = {
   taskId?: string;
 };
 
+function examCountdownReason(lang: Lang, daysToExam: number): string {
+  if (daysToExam === 0) return t('dashboardActionExamToday', lang);
+  if (daysToExam === 1) return t('dashboardActionDaysUntilExamOne', lang);
+  return t('dashboardActionDaysUntilExam', lang).replace('{days}', String(daysToExam));
+}
+
 export function selectDashboardNextAction(opts: {
   lang: Lang;
   learnerModel: LearnerModel;
@@ -32,7 +39,6 @@ export function selectDashboardNextAction(opts: {
   daysToExam?: number | null;
 }): DashboardNextAction | null {
   const { lang, learnerModel, tasks, stats, workspaceLive, daysToExam = null } = opts;
-  const isEl = lang === 'el';
 
   if (workspaceLive && !workspaceLiveIsStale(workspaceLive) && workspaceLive.nextAction) {
     return null;
@@ -42,24 +48,20 @@ export function selectDashboardNextAction(opts: {
     const examTask = findPendingTask(tasks, (t) => t.type === 'exam-prep');
     return {
       kind: 'exam-prep',
-      label: isEl ? 'Προετοιμασία εξέτασης' : 'Exam prep',
-      reason: daysToExam === 0
-        ? (isEl ? 'Η εξέταση είναι σήμερα — τελευταία προετοιμασία' : 'Exam is today — final prep')
-        : (isEl
-          ? `${daysToExam} ημέρ${daysToExam === 1 ? 'α' : 'ες'} μέχρι την εξέταση`
-          : `${daysToExam} day${daysToExam === 1 ? '' : 's'} until exam`),
+      label: t('dashboardActionExamPrep', lang),
+      reason: examCountdownReason(lang, daysToExam),
       taskId: examTask?.id,
     };
   }
 
   const critical = tasks.find(
-    (t) => t.status === 'pending' && (t.priority === 'critical' || t.priority === 'high'),
+    (task) => task.status === 'pending' && (task.priority === 'critical' || task.priority === 'high'),
   );
   if (critical) {
     return {
       kind: 'critical-task',
-      label: isEl ? 'Έναρξη προτεραιότητας' : 'Start priority task',
-      reason: isEl ? `Εκκρεμεί: ${critical.title}` : `Pending: ${critical.title}`,
+      label: t('dashboardActionStartPriority', lang),
+      reason: t('dashboardActionPending', lang).replace('{title}', critical.title),
       taskId: critical.id,
     };
   }
@@ -67,10 +69,8 @@ export function selectDashboardNextAction(opts: {
   if (stats.reviewsDue > 0) {
     return {
       kind: 'review-due',
-      label: isEl ? 'Επανάληψη' : 'Reviews due',
-      reason: isEl
-        ? `${stats.reviewsDue} επαναλήψεις για σήμερα`
-        : `${stats.reviewsDue} reviews due today`,
+      label: t('dashboardActionReviewsDue', lang),
+      reason: t('dashboardActionReviewsDueToday', lang).replace('{count}', String(stats.reviewsDue)),
     };
   }
 
@@ -78,10 +78,10 @@ export function selectDashboardNextAction(opts: {
   if (weakest && weakest.mastery < 60) {
     return {
       kind: 'weak-area',
-      label: isEl ? 'Εστίαση αδύναμης έννοιας' : 'Focus weak concept',
-      reason: isEl
-        ? `«${weakest.concept}» — ${weakest.mastery}% κατάκτηση`
-        : `"${weakest.concept}" — ${weakest.mastery}% mastery`,
+      label: t('dashboardActionFocusWeak', lang),
+      reason: t('dashboardActionWeakMastery', lang)
+        .replace('{concept}', weakest.concept)
+        .replace('{mastery}', String(weakest.mastery)),
       concept: weakest.concept,
     };
   }
@@ -90,7 +90,7 @@ export function selectDashboardNextAction(opts: {
   if (openMisconception) {
     return {
       kind: 'weak-area',
-      label: isEl ? 'Διόρθωση παρανόησης' : 'Fix misconception',
+      label: t('dashboardActionFixMisconception', lang),
       reason: openMisconception.description,
       concept: openMisconception.concept,
     };
@@ -99,10 +99,8 @@ export function selectDashboardNextAction(opts: {
   if (learnerModel.totalSessions === 0) {
     return {
       kind: 'start-session',
-      label: isEl ? 'Ξεκίνα συνεδρία' : 'Start a session',
-      reason: isEl
-        ? 'Ξεκίνα με μια σύντομη συγκεντρωμένη συνεδρία μελέτης'
-        : 'Begin with a short focused study session',
+      label: t('dashboardActionStartSession', lang),
+      reason: t('dashboardActionStartSessionReason', lang),
     };
   }
 

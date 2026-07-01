@@ -3,6 +3,7 @@ import { fileURLToPath } from "url";
 import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
 import { defineConfig, type Plugin } from "vite";
+import { VitePWA } from "vite-plugin-pwa";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -77,7 +78,46 @@ export default defineConfig({
   define: {
     __APP_VERSION__: JSON.stringify(process.env.APP_VERSION || process.env.VERCEL_GIT_COMMIT_SHA || `dev-${Date.now()}`),
   },
-  plugins: [react(), tailwindcss(), chunkErrorsDevPlugin(), workspaceEntryManifestPlugin()],
+  plugins: [
+    react(),
+    tailwindcss(),
+    chunkErrorsDevPlugin(),
+    workspaceEntryManifestPlugin(),
+    VitePWA({
+      registerType: "autoUpdate",
+      manifest: {
+        name: "Synapse",
+        short_name: "Synapse",
+        theme_color: "#0f0a1e",
+        icons: [
+          {
+            src: "/favicon.svg",
+            sizes: "any",
+            type: "image/svg+xml",
+            purpose: "any",
+          },
+        ],
+      },
+      workbox: {
+        globPatterns: ["**/*.{js,css,html,svg}"],
+        globIgnores: ["**/pyodide/**"],
+        navigateFallback: "index.html",
+        runtimeCaching: [
+          {
+            urlPattern: /^\/pyodide\/.*/i,
+            handler: "CacheFirst",
+            options: {
+              cacheName: "pyodide-runtime",
+              expiration: {
+                maxEntries: 64,
+                maxAgeSeconds: 60 * 60 * 24 * 30,
+              },
+            },
+          },
+        ],
+      },
+    }),
+  ],
   server: {
     proxy: {
       '/v1': { target: 'http://localhost:8787', changeOrigin: true },

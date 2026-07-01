@@ -5,6 +5,8 @@
 import { detectDocumentPrimaryLang } from './paragraphLangDetect';
 import { isKnownWord } from './spellLexicon';
 import { sanitizeUnicode } from './textSanitizer';
+import type { Lang } from './i18n';
+import { t, type I18nKey } from './i18n';
 
 const GREEK = /\p{Script=Greek}/u;
 const LATIN = /[A-Za-z]/;
@@ -83,17 +85,17 @@ export function analyzeTextHygiene(rawText: string): TextHygieneReport {
   };
 }
 
-const HYGIENE_FLAG_LABELS: Record<string, { en: string; el: string }> = {
-  'spaced-glyphs': { en: 'Spaced glyphs', el: 'Διασπαρμένα γράμματα' },
-  'glued-words': { en: 'Glued words', el: 'Κολλημένες λέξεις' },
-  'unknown-tokens': { en: 'Unknown tokens', el: 'Άγνωστες λέξεις' },
-  'pua-or-icons': { en: 'Icon/PUA chars', el: 'Εικονίδια/PUA' },
-  'replacement-chars': { en: 'Replacement chars', el: 'Χαρακτήρες �' },
+const HYGIENE_FLAG_KEYS: Record<string, I18nKey> = {
+  'spaced-glyphs': 'hygieneSpacedGlyphs',
+  'glued-words': 'hygieneGluedWords',
+  'unknown-tokens': 'hygieneUnknownTokens',
+  'pua-or-icons': 'hygienePuaOrIcons',
+  'replacement-chars': 'hygieneReplacementChars',
 };
 
-export function hygieneFlagLabel(flag: string, lang: 'en' | 'el'): string {
-  const entry = HYGIENE_FLAG_LABELS[flag];
-  if (entry) return lang === 'el' ? entry.el : entry.en;
+export function hygieneFlagLabel(flag: string, lang: Lang): string {
+  const key = HYGIENE_FLAG_KEYS[flag];
+  if (key) return t(key, lang);
   return flag.replace(/-/g, ' ');
 }
 

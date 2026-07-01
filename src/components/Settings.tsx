@@ -14,6 +14,7 @@ import { loadLibrarySync } from '../lib/libraryStorage';
 import { Page, PageHeader } from './ui/primitives';
 import { WorkspaceTTIPanel } from './WorkspaceTTIPanel';
 import { useI18n } from '../lib/i18n';
+import { getSettingsContent } from '../lib/settingsContent';
 
 import { type TaskCalendarSyncUpdate } from '../lib/taskCalendarSync';
 
@@ -43,6 +44,7 @@ export function Settings({
   onApplyCalendarSync,
 }: SettingsProps) {
   const { t } = useI18n();
+  const c = getSettingsContent(settings.language);
   const [backupStatus, setBackupStatus] = useState<string | null>(null);
   const [authEmail, setAuthEmail] = useState(settings.authEmail ?? '');
   const [authPassword, setAuthPassword] = useState('');
@@ -54,7 +56,7 @@ export function Settings({
     const text = await file.text();
     const result = importSessionData(text);
     if (result.ok) {
-      setBackupStatus(`Imported ${result.keysImported} saved items. Reload to apply everywhere.`);
+      setBackupStatus(c.formatImported(result.keysImported));
     } else {
       setBackupStatus(result.error);
     }
@@ -73,18 +75,18 @@ export function Settings({
     });
     if (onSyncAccount) {
       await onSyncAccount();
-      setAuthStatus(`${label} ${session.email} — library & progress synced`);
+      setAuthStatus(c.formatAuthStatusSynced(label, session.email));
       return;
     }
     if (onPullLibrary) await onPullLibrary();
     if (onPullSession) await onPullSession();
     if (onPushSession) await onPushSession();
-    setAuthStatus(`${label} ${session.email}`);
+    setAuthStatus(c.formatAuthStatus(label, session.email));
   };
 
   const startCheckout = async (plan: 'pro' | 'team') => {
     if (!settings.authToken) {
-      setAuthStatus('Sign in before upgrading');
+      setAuthStatus(c.signInBeforeUpgrade);
       return;
     }
     try {
@@ -94,112 +96,57 @@ export function Settings({
         cancelUrl: `${origin}/?billing=cancel`,
       });
       if (url) window.location.href = url;
-      else setAuthStatus('Checkout URL missing — check Stripe configuration');
+      else setAuthStatus(c.checkoutUrlMissing);
     } catch (e) {
-      setAuthStatus(e instanceof Error ? e.message : 'Checkout failed');
+      setAuthStatus(e instanceof Error ? e.message : c.checkoutFailed);
     }
   };
 
   return (
     <Page>
       <PageHeader
-        title="Learning Preferences"
-        subtitle="Customize how Synapse teaches you. These are UI preferences — the adaptive engine also learns from your behavior."
+        title={c.pageTitle}
+        subtitle={c.pageSubtitle}
         icon={Brain}
       />
 
       <div className="lg:grid lg:grid-cols-2 lg:gap-6 lg:items-start [&>*]:mb-6 lg:[&>*]:mb-0">
-      {/* Teaching Style */}
-      <SettingsSection title="Teaching Approach" icon={<Brain className="w-5 h-5 text-brand-400" />} delay={0.05}>
-        <ToggleRow label="Teaching style" options={[
-          { value: 'socratic', label: 'Socratic' },
-          { value: 'direct', label: 'Direct' },
-          { value: 'mixed', label: 'Mixed' },
-        ]} value={settings.teachingStyle} onChange={v => onUpdate({ teachingStyle: v as UserSettings['teachingStyle'] })} />
-        <ToggleRow label="Explanation depth" options={[
-          { value: 'beginner', label: 'Beginner' },
-          { value: 'intermediate', label: 'Intermediate' },
-          { value: 'advanced', label: 'Advanced' },
-          { value: 'expert', label: 'Expert' },
-        ]} value={settings.explanationDepth} onChange={v => onUpdate({ explanationDepth: v as UserSettings['explanationDepth'] })} />
-        <ToggleRow label="Feedback tone" options={[
-          { value: 'gentle', label: 'Gentle' },
-          { value: 'balanced', label: 'Balanced' },
-          { value: 'strict', label: 'Strict' },
-        ]} value={settings.feedbackTone} onChange={v => onUpdate({ feedbackTone: v as UserSettings['feedbackTone'] })} />
+      <SettingsSection title={c.sectionTeachingApproach} icon={<Brain className="w-5 h-5 text-brand-400" />} delay={0.05}>
+        <ToggleRow label={c.labelTeachingStyle} options={c.teachingStyleOptions} value={settings.teachingStyle} onChange={v => onUpdate({ teachingStyle: v as UserSettings['teachingStyle'] })} />
+        <ToggleRow label={c.labelExplanationDepth} options={c.explanationDepthOptions} value={settings.explanationDepth} onChange={v => onUpdate({ explanationDepth: v as UserSettings['explanationDepth'] })} />
+        <ToggleRow label={c.labelFeedbackTone} options={c.feedbackToneOptions} value={settings.feedbackTone} onChange={v => onUpdate({ feedbackTone: v as UserSettings['feedbackTone'] })} />
       </SettingsSection>
 
-      {/* Content Balance */}
-      <SettingsSection title="Content Balance" icon={<BookOpen className="w-5 h-5 text-accent-teal" />} delay={0.1}>
-        <SliderRow label="Theory vs Practice" leftLabel="More theory" rightLabel="More practice" value={settings.theoryVsPractice} onChange={v => onUpdate({ theoryVsPractice: v })} />
-        <ToggleRow label="Question frequency" options={[
-          { value: 'minimal', label: 'Fewer' },
-          { value: 'moderate', label: 'Moderate' },
-          { value: 'frequent', label: 'Frequent' },
-        ]} value={settings.questionFrequency} onChange={v => onUpdate({ questionFrequency: v as UserSettings['questionFrequency'] })} />
-        <ToggleRow label="Example density" options={[
-          { value: 'fewer', label: 'Fewer' },
-          { value: 'moderate', label: 'Moderate' },
-          { value: 'many', label: 'Many' },
-        ]} value={settings.exampleDensity} onChange={v => onUpdate({ exampleDensity: v as UserSettings['exampleDensity'] })} />
-        <ToggleRow label="Diagram frequency" options={[
-          { value: 'minimal', label: 'Minimal' },
-          { value: 'moderate', label: 'Moderate' },
-          { value: 'rich', label: 'Rich' },
-        ]} value={settings.diagramFrequency} onChange={v => onUpdate({ diagramFrequency: v as UserSettings['diagramFrequency'] })} />
+      <SettingsSection title={c.sectionContentBalance} icon={<BookOpen className="w-5 h-5 text-accent-teal" />} delay={0.1}>
+        <SliderRow label={c.labelTheoryVsPractice} leftLabel={c.theoryVsPracticeLeft} rightLabel={c.theoryVsPracticeRight} value={settings.theoryVsPractice} onChange={v => onUpdate({ theoryVsPractice: v })} />
+        <ToggleRow label={c.labelQuestionFrequency} options={c.questionFrequencyOptions} value={settings.questionFrequency} onChange={v => onUpdate({ questionFrequency: v as UserSettings['questionFrequency'] })} />
+        <ToggleRow label={c.labelExampleDensity} options={c.exampleDensityOptions} value={settings.exampleDensity} onChange={v => onUpdate({ exampleDensity: v as UserSettings['exampleDensity'] })} />
+        <ToggleRow label={c.labelDiagramFrequency} options={c.diagramFrequencyOptions} value={settings.diagramFrequency} onChange={v => onUpdate({ diagramFrequency: v as UserSettings['diagramFrequency'] })} />
       </SettingsSection>
 
-      {/* Pacing & Difficulty */}
-      <SettingsSection title="Pacing & Difficulty" icon={<Gauge className="w-5 h-5 text-accent-amber" />} delay={0.15}>
-        <ToggleRow label="Pacing" options={[
-          { value: 'slow', label: 'Slow' },
-          { value: 'moderate', label: 'Moderate' },
-          { value: 'fast', label: 'Fast' },
-        ]} value={settings.pacing} onChange={v => onUpdate({ pacing: v as UserSettings['pacing'] })} />
-        <ToggleRow label="Challenge level" options={[
-          { value: 'low-stress', label: 'Low Stress' },
-          { value: 'balanced', label: 'Balanced' },
-          { value: 'high-challenge', label: 'High Challenge' },
-        ]} value={settings.challengeLevel} onChange={v => onUpdate({ challengeLevel: v as UserSettings['challengeLevel'] })} />
-        <ToggleRow label="Lesson length" options={[
-          { value: 'short', label: 'Short (5-10m)' },
-          { value: 'medium', label: 'Medium (15-20m)' },
-          { value: 'long', label: 'Long (25-40m)' },
-        ]} value={settings.lessonLength} onChange={v => onUpdate({ lessonLength: v as UserSettings['lessonLength'] })} />
-        <SliderRow label="Mastery threshold" leftLabel="60%" rightLabel="100%" value={settings.masteryThreshold} onChange={v => onUpdate({ masteryThreshold: v })} min={60} max={100} />
+      <SettingsSection title={c.sectionPacingDifficulty} icon={<Gauge className="w-5 h-5 text-accent-amber" />} delay={0.15}>
+        <ToggleRow label={c.labelPacing} options={c.pacingOptions} value={settings.pacing} onChange={v => onUpdate({ pacing: v as UserSettings['pacing'] })} />
+        <ToggleRow label={c.labelChallengeLevel} options={c.challengeLevelOptions} value={settings.challengeLevel} onChange={v => onUpdate({ challengeLevel: v as UserSettings['challengeLevel'] })} />
+        <ToggleRow label={c.labelLessonLength} options={c.lessonLengthOptions} value={settings.lessonLength} onChange={v => onUpdate({ lessonLength: v as UserSettings['lessonLength'] })} />
+        <SliderRow label={c.labelMasteryThreshold} leftLabel="60%" rightLabel="100%" value={settings.masteryThreshold} onChange={v => onUpdate({ masteryThreshold: v })} min={60} max={100} />
       </SettingsSection>
 
-      {/* Practice & Revision */}
-      <SettingsSection title="Practice & Revision" icon={<Target className="w-5 h-5 text-accent-cyan" />} delay={0.2}>
-        <ToggleRow label="Practice intensity" options={[
-          { value: 'light', label: 'Light' },
-          { value: 'moderate', label: 'Moderate' },
-          { value: 'intense', label: 'Intense' },
-        ]} value={settings.practiceIntensity} onChange={v => onUpdate({ practiceIntensity: v as UserSettings['practiceIntensity'] })} />
-        <ToggleRow label="Revision loops" options={[
-          { value: 'fewer', label: 'Fewer' },
-          { value: 'moderate', label: 'Moderate' },
-          { value: 'more', label: 'More' },
-        ]} value={settings.revisionLoops} onChange={v => onUpdate({ revisionLoops: v as UserSettings['revisionLoops'] })} />
+      <SettingsSection title={c.sectionPracticeRevision} icon={<Target className="w-5 h-5 text-accent-cyan" />} delay={0.2}>
+        <ToggleRow label={c.labelPracticeIntensity} options={c.practiceIntensityOptions} value={settings.practiceIntensity} onChange={v => onUpdate({ practiceIntensity: v as UserSettings['practiceIntensity'] })} />
+        <ToggleRow label={c.labelRevisionLoops} options={c.revisionLoopsOptions} value={settings.revisionLoops} onChange={v => onUpdate({ revisionLoops: v as UserSettings['revisionLoops'] })} />
       </SettingsSection>
 
-      {/* Source & Privacy */}
-      <SettingsSection title="Source & Content Mode" icon={<Shield className="w-5 h-5 text-accent-emerald" />} delay={0.25}>
-        <ToggleRow label="Source mode" options={[
-          { value: 'strict', label: 'Strict (Notes Only)' },
-          { value: 'enriched', label: 'Notes + Enrichment' },
-          { value: 'notes-only', label: 'Notes Structure Only' },
-        ]} value={settings.sourceMode} onChange={v => onUpdate({ sourceMode: v as UserSettings['sourceMode'] })} />
+      <SettingsSection title={c.sectionSourceContent} icon={<Shield className="w-5 h-5 text-accent-emerald" />} delay={0.25}>
+        <ToggleRow label={c.labelSourceMode} options={c.sourceModeOptions} value={settings.sourceMode} onChange={v => onUpdate({ sourceMode: v as UserSettings['sourceMode'] })} />
         <p className="text-xs text-text-muted mt-1 px-1">
-          Strict mode only uses your uploaded material. Enriched mode adds trusted external explanations.
+          {c.sourceModeHint}
         </p>
       </SettingsSection>
 
-      {/* Study Goals */}
-      <SettingsSection title="Study Goals" icon={<Calendar className="w-5 h-5 text-accent-rose" />} delay={0.3}>
+      <SettingsSection title={c.sectionStudyGoals} icon={<Calendar className="w-5 h-5 text-accent-rose" />} delay={0.3}>
         <div className="space-y-3">
           <div>
-            <label className="text-sm text-text-secondary block mb-1">Daily study goal</label>
+            <label className="text-sm text-text-secondary block mb-1">{c.labelDailyStudyGoal}</label>
             <div className="flex items-center gap-3">
               {[15, 30, 45, 60, 90].map(m => (
                 <button key={m} onClick={() => onUpdate({ dailyGoalMinutes: m })}
@@ -210,27 +157,26 @@ export function Settings({
             </div>
           </div>
           <div>
-            <label className="text-sm text-text-secondary block mb-1">Exam date</label>
+            <label className="text-sm text-text-secondary block mb-1">{c.labelExamDate}</label>
             <input type="date" value={settings.examDate || ''} onChange={e => onUpdate({ examDate: e.target.value })}
               className="px-4 py-2 rounded-xl bg-surface-input border border-border-subtle text-sm text-text-primary focus:outline-none focus:border-brand-500/50" />
           </div>
         </div>
       </SettingsSection>
 
-      {/* AI / LLM */}
-      <SettingsSection title="AI & LLM" icon={<Brain className="w-5 h-5 text-brand-400" />} delay={0.32}>
+      <SettingsSection title={c.sectionAiLlm} icon={<Brain className="w-5 h-5 text-brand-400" />} delay={0.32}>
         <div>
-          <label className="text-xs text-text-secondary block mb-2">OpenAI API key (stored locally in browser)</label>
+          <label className="text-xs text-text-secondary block mb-2">{c.labelOpenAiKey}</label>
           <input
             type="password"
             value={settings.openaiApiKey ?? ''}
             onChange={(e) => onUpdate({ openaiApiKey: e.target.value || undefined })}
-            placeholder="sk-… or set VITE_OPENAI_API_KEY at build time"
+            placeholder={c.placeholderOpenAiKey}
             className="w-full px-4 py-2 rounded-xl bg-surface-input border border-border-subtle text-sm text-text-primary focus:outline-none focus:border-brand-500/50"
           />
         </div>
         <div>
-          <label className="text-xs text-text-secondary block mb-2">Model</label>
+          <label className="text-xs text-text-secondary block mb-2">{c.labelModel}</label>
           <input
             type="text"
             value={settings.llmModel ?? 'gpt-4o-mini'}
@@ -239,40 +185,37 @@ export function Settings({
           />
         </div>
         <div>
-          <label className="text-xs text-text-secondary block mb-2">API base URL (optional, for OpenAI-compatible proxies)</label>
+          <label className="text-xs text-text-secondary block mb-2">{c.labelApiBaseUrl}</label>
           <input
             type="url"
             value={settings.llmBaseUrl ?? ''}
             onChange={(e) => onUpdate({ llmBaseUrl: e.target.value || undefined })}
-            placeholder="https://api.openai.com/v1"
+            placeholder={c.placeholderApiBaseUrl}
             className="w-full px-4 py-2 rounded-xl bg-surface-input border border-border-subtle text-sm text-text-primary focus:outline-none focus:border-brand-500/50"
           />
         </div>
         <div>
-          <label className="text-xs text-text-secondary block mb-2">Managed proxy URL (keeps the API key off the browser)</label>
+          <label className="text-xs text-text-secondary block mb-2">{c.labelManagedProxyUrl}</label>
           <input
             type="url"
             value={settings.llmProxyUrl ?? ''}
             onChange={(e) => onUpdate({ llmProxyUrl: e.target.value || undefined })}
-            placeholder="https://your-proxy.example.com/v1"
+            placeholder={c.placeholderManagedProxyUrl}
             className="w-full px-4 py-2 rounded-xl bg-surface-input border border-border-subtle text-sm text-text-primary focus:outline-none focus:border-brand-500/50"
           />
-          <p className="text-[11px] text-text-muted mt-1.5">When set, chat & embeddings route here with no browser key — the proxy injects the secret server-side and can meter managed (paid) usage.</p>
+          <p className="text-[11px] text-text-muted mt-1.5">{c.managedProxyHint}</p>
         </div>
-        <ToggleRow label="Use LLM for Agent & Feynman" options={[
-          { value: 'true', label: 'Enabled' },
-          { value: 'false', label: 'Offline only' },
-        ]} value={settings.useLlm !== false ? 'true' : 'false'} onChange={v => onUpdate({ useLlm: v === 'true' })} />
+        <ToggleRow label={c.labelUseLlm} options={c.useLlmOptions} value={settings.useLlm !== false ? 'true' : 'false'} onChange={v => onUpdate({ useLlm: v === 'true' })} />
         <p className="text-xs text-text-muted mt-1 px-1">
-          Without a key, Agent and Feynman use offline templates. Keys never leave your browser except to your chosen API endpoint.
+          {c.llmOfflineHint}
         </p>
       </SettingsSection>
 
-      <SettingsSection title="Account & Sync" icon={<KeyRound className="w-5 h-5 text-accent-teal" />} delay={0.34}>
+      <SettingsSection title={c.sectionAccountSync} icon={<KeyRound className="w-5 h-5 text-accent-teal" />} delay={0.34}>
         {settings.authToken && (
           <div className="flex flex-wrap items-center gap-2 mb-3">
             <span className="text-xs px-2 py-1 rounded-lg bg-surface-hover border border-border-subtle">
-              Plan: <strong className="text-brand-300">{settings.authPlan ?? 'free'}</strong>
+              {c.planLabel} <strong className="text-brand-300">{settings.authPlan ?? 'free'}</strong>
             </span>
             {(settings.authPlan ?? 'free') === 'free' && (
               <>
@@ -282,7 +225,7 @@ export function Settings({
                   className="px-3 py-1.5 rounded-lg text-xs font-medium bg-brand-600 text-white"
                   onClick={() => void startCheckout('pro')}
                 >
-                  Upgrade to Pro
+                  {c.upgradePro}
                 </button>
                 <button
                   type="button"
@@ -290,7 +233,7 @@ export function Settings({
                   className="px-3 py-1.5 rounded-lg text-xs font-medium border border-brand-500/40 text-brand-300"
                   onClick={() => void startCheckout('team')}
                 >
-                  Upgrade to Team
+                  {c.upgradeTeam}
                 </button>
               </>
             )}
@@ -301,24 +244,24 @@ export function Settings({
                 onClick={async () => {
                   try {
                     await onRefreshPlan();
-                    setAuthStatus('Plan refreshed from server');
+                    setAuthStatus(c.planRefreshed);
                   } catch (e) {
-                    setAuthStatus(e instanceof Error ? e.message : 'Refresh failed');
+                    setAuthStatus(e instanceof Error ? e.message : c.refreshFailed);
                   }
                 }}
               >
-                Refresh plan
+                {c.refreshPlan}
               </button>
             )}
           </div>
         )}
         <div>
-          <label className="text-xs text-text-secondary block mb-2">Proxy base URL (auth + library sync)</label>
+          <label className="text-xs text-text-secondary block mb-2">{c.labelProxyBaseUrl}</label>
           <input
             type="url"
             value={settings.authProxyBase ?? settings.llmProxyUrl?.replace(/\/v1\/?$/, '') ?? ''}
             onChange={(e) => onUpdate({ authProxyBase: e.target.value || undefined })}
-            placeholder="http://localhost:8787"
+            placeholder={c.placeholderProxyBaseUrl}
             className="w-full px-4 py-2 rounded-xl bg-surface-input border border-border-subtle text-sm"
           />
         </div>
@@ -327,14 +270,14 @@ export function Settings({
             type="email"
             value={authEmail}
             onChange={(e) => setAuthEmail(e.target.value)}
-            placeholder="Email"
+            placeholder={c.placeholderEmail}
             className="px-4 py-2 rounded-xl bg-surface-input border border-border-subtle text-sm"
           />
           <input
             type="password"
             value={authPassword}
             onChange={(e) => setAuthPassword(e.target.value)}
-            placeholder="Password"
+            placeholder={c.placeholderPassword}
             className="px-4 py-2 rounded-xl bg-surface-input border border-border-subtle text-sm"
           />
         </div>
@@ -345,13 +288,13 @@ export function Settings({
             onClick={async () => {
               try {
                 const session = await authLogin(authEmail, authPassword, settings);
-                await finishAuth(session, 'Signed in as');
+                await finishAuth(session, c.signedInAs);
               } catch (e) {
-                setAuthStatus(e instanceof Error ? e.message : 'Login failed');
+                setAuthStatus(e instanceof Error ? e.message : c.loginFailed);
               }
             }}
           >
-            Sign in
+            {c.signIn}
           </button>
           <button
             type="button"
@@ -359,13 +302,13 @@ export function Settings({
             onClick={async () => {
               try {
                 const session = await authRegister(authEmail, authPassword, settings);
-                await finishAuth(session, 'Registered');
+                await finishAuth(session, c.registeredAs);
               } catch (e) {
-                setAuthStatus(e instanceof Error ? e.message : 'Register failed');
+                setAuthStatus(e instanceof Error ? e.message : c.registerFailed);
               }
             }}
           >
-            Register
+            {c.register}
           </button>
           <button
             type="button"
@@ -379,7 +322,7 @@ export function Settings({
               );
             }}
           >
-            Google
+            {c.google}
           </button>
           {settings.authToken && (
             <button
@@ -387,7 +330,7 @@ export function Settings({
               className="px-4 py-2 rounded-xl text-sm font-medium border border-border-subtle"
               onClick={() => onUpdate({ authToken: undefined, authEmail: undefined, authPlan: undefined })}
             >
-              Sign out
+              {c.signOut}
             </button>
           )}
           {settings.authToken && onPullLibrary && (
@@ -397,13 +340,13 @@ export function Settings({
               onClick={async () => {
                 try {
                   await onPullLibrary();
-                  setAuthStatus('Library pulled from server');
+                  setAuthStatus(c.libraryPulled);
                 } catch (e) {
-                  setAuthStatus(e instanceof Error ? e.message : 'Pull failed');
+                  setAuthStatus(e instanceof Error ? e.message : c.pullFailed);
                 }
               }}
             >
-              Pull library
+              {c.pullLibrary}
             </button>
           )}
           {settings.authToken && (
@@ -414,13 +357,13 @@ export function Settings({
                 try {
                   const lib = loadLibrarySync();
                   await pushRemoteLibrary(settings.authToken!, settings, lib);
-                  setAuthStatus('Library synced to server');
+                  setAuthStatus(c.librarySynced);
                 } catch (e) {
-                  setAuthStatus(e instanceof Error ? e.message : 'Sync failed');
+                  setAuthStatus(e instanceof Error ? e.message : c.syncFailed);
                 }
               }}
             >
-              Push library
+              {c.pushLibrary}
             </button>
           )}
           {settings.authToken && onPullSession && (
@@ -430,13 +373,13 @@ export function Settings({
               onClick={async () => {
                 try {
                   await onPullSession();
-                  setAuthStatus('Progress pulled from server');
+                  setAuthStatus(c.progressPulled);
                 } catch (e) {
-                  setAuthStatus(e instanceof Error ? e.message : 'Session pull failed');
+                  setAuthStatus(e instanceof Error ? e.message : c.sessionPullFailed);
                 }
               }}
             >
-              Pull progress
+              {c.pullProgress}
             </button>
           )}
           {settings.authToken && onPushSession && (
@@ -446,18 +389,18 @@ export function Settings({
               onClick={async () => {
                 try {
                   await onPushSession();
-                  setAuthStatus('Progress synced to server');
+                  setAuthStatus(c.progressSynced);
                 } catch (e) {
-                  setAuthStatus(e instanceof Error ? e.message : 'Session push failed');
+                  setAuthStatus(e instanceof Error ? e.message : c.sessionPushFailed);
                 }
               }}
             >
-              Push progress
+              {c.pushProgress}
             </button>
           )}
         </div>
         {settings.authEmail && (
-          <p className="text-xs text-text-secondary">Logged in: {settings.authEmail}</p>
+          <p className="text-xs text-text-secondary">{c.loggedIn} {settings.authEmail}</p>
         )}
         {settings.authToken && (
           <div className="mt-3 pt-3 border-t border-border-subtle space-y-2">
@@ -480,7 +423,7 @@ export function Settings({
                     URL.revokeObjectURL(url);
                     setAuthStatus(t('gdprExportSuccess'));
                   } catch (e) {
-                    setAuthStatus(e instanceof Error ? e.message : 'Export failed');
+                    setAuthStatus(e instanceof Error ? e.message : c.exportFailed);
                   }
                 }}
               >
@@ -519,7 +462,7 @@ export function Settings({
                   setDeleteConfirmEmail('');
                   setAuthStatus(t('gdprDeleteSuccess'));
                 } catch (e) {
-                  setAuthStatus(e instanceof Error ? e.message : 'Delete failed');
+                  setAuthStatus(e instanceof Error ? e.message : c.deleteFailed);
                 }
               }}
             >
@@ -531,7 +474,7 @@ export function Settings({
       </SettingsSection>
 
       <SettingsSection
-        title={settings.language === 'el' ? 'Google Workspace' : 'Google Workspace'}
+        title={c.sectionGoogleWorkspace}
         icon={<KeyRound className="w-5 h-5 text-brand-400" />}
         delay={0.32}
       >
@@ -545,53 +488,40 @@ export function Settings({
         />
       </SettingsSection>
 
-      {/* Interface */}
-      <SettingsSection title="Interface" icon={<Palette className="w-5 h-5 text-brand-300" />} delay={0.35}>
-        <ToggleRow label="Theme" options={[
-          { value: 'dark', label: 'Dark' },
-          { value: 'light', label: 'Light (Warm Sand)' },
-          { value: 'spectrum', label: 'Spectrum' },
-          { value: 'system', label: 'System' },
-        ]} value={settings.theme} onChange={v => onUpdate({ theme: v as UserSettings['theme'] })} />
-        <ToggleRow label="Language" options={[
-          { value: 'en', label: 'English' },
-          { value: 'el', label: 'Ελληνικά' },
-        ]} value={settings.language} onChange={v => onUpdate({ language: v as UserSettings['language'] })} />
+      <SettingsSection title={c.sectionInterface} icon={<Palette className="w-5 h-5 text-brand-300" />} delay={0.35}>
+        <ToggleRow label={c.labelTheme} options={c.themeOptions} value={settings.theme} onChange={v => onUpdate({ theme: v as UserSettings['theme'] })} />
+        <ToggleRow label={c.labelLanguage} options={c.languageOptions} value={settings.language} onChange={v => onUpdate({ language: v as UserSettings['language'] })} />
       </SettingsSection>
 
-      {/* Data management */}
-      <SettingsSection title="Data & Progress" icon={<Database className="w-5 h-5 text-accent-cyan" />} delay={0.38}>
-        <ToggleRow label="Demo showcase content" options={[
-          { value: 'off', label: 'Hidden' },
-          { value: 'on', label: 'Show demo' },
-        ]} value={settings.showDemoContent ? 'on' : 'off'} onChange={v => onUpdate({ showDemoContent: v === 'on' })} />
-        <p className="text-[11px] text-text-muted">When hidden, only courses and tasks from your uploaded notes appear. Reload after toggling.</p>
+      <SettingsSection title={c.sectionDataProgress} icon={<Database className="w-5 h-5 text-accent-cyan" />} delay={0.38}>
+        <ToggleRow label={c.labelDemoContent} options={c.demoContentOptions} value={settings.showDemoContent ? 'on' : 'off'} onChange={v => onUpdate({ showDemoContent: v === 'on' })} />
+        <p className="text-[11px] text-text-muted">{c.demoContentHint}</p>
         <div className="flex flex-wrap gap-2">
           <button
             type="button"
-            onClick={() => { downloadBackup(); setBackupStatus('Backup downloaded.'); }}
+            onClick={() => { downloadBackup(); setBackupStatus(c.backupDownloaded); }}
             className="px-3 py-2 rounded-xl text-xs font-medium bg-brand-600/20 text-brand-300 border border-brand-500/30 hover:bg-brand-600/30"
           >
-            Export backup
+            {c.exportBackup}
           </button>
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
             className="px-3 py-2 rounded-xl text-xs font-medium border border-border-subtle text-text-secondary hover:border-brand-500/30"
           >
-            Import backup
+            {c.importBackup}
           </button>
           <button
             type="button"
             onClick={() => {
-              if (window.confirm('Clear all Synapse local data? This cannot be undone.')) {
+              if (window.confirm(c.clearConfirm)) {
                 const n = clearAllSessionData();
-                setBackupStatus(`Cleared ${n} stored items. Reload recommended.`);
+                setBackupStatus(c.formatCleared(n));
               }
             }}
             className="px-3 py-2 rounded-xl text-xs font-medium border border-accent-rose/30 text-accent-rose hover:bg-accent-rose/10"
           >
-            Clear local data
+            {c.clearLocalData}
           </button>
         </div>
         <input
@@ -610,8 +540,8 @@ export function Settings({
         )}
       </SettingsSection>
 
-      <SettingsSection title="Developer" icon={<Gauge className="w-5 h-5 text-accent-amber" />} delay={0.39}>
-        <p className="text-xs text-text-secondary">Study Workspace load timings — open a course, then review.</p>
+      <SettingsSection title={c.sectionDeveloper} icon={<Gauge className="w-5 h-5 text-accent-amber" />} delay={0.39}>
+        <p className="text-xs text-text-secondary">{c.developerHint}</p>
         <WorkspaceTTIPanel />
         {onReplayProductTour && (
           <div className="pt-2 border-t border-border-subtle">
@@ -632,7 +562,7 @@ export function Settings({
       <div className="ws-bento-soft p-4">
         <p className="text-xs text-text-tertiary leading-relaxed flex items-start gap-2">
           <Zap className="w-4 h-4 text-brand-400 shrink-0 mt-0.5" />
-          These are your UI preferences. The adaptive engine also learns from your behavior — response time, accuracy, confidence calibration, error patterns, help-seeking rate, and retention over time. It adjusts independently of these settings.
+          {c.footerNote}
         </p>
       </div>
     </Page>

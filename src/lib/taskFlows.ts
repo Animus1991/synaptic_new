@@ -1,4 +1,6 @@
 import type { Task, AgentMode, MistakeRecord } from '../types';
+import type { Lang } from './i18n';
+import { getTasksContent } from './tasksContent';
 import { isSameConcept } from './skillNodes';
 
 export type TaskAction = 'lesson' | 'practical' | 'workspace' | 'agent' | 'tasks-review' | 'tasks-fix' | 'tasks-prereq' | 'exam-prep';
@@ -169,19 +171,20 @@ export function sessionLabel(session: SessionType): string {
   return labels[session];
 }
 
-export function startButtonLabel(task: Task): string {
+export function startButtonLabel(task: Task, lang: Lang): string {
+  const c = getTasksContent(lang);
   const action = getTaskAction(task);
   switch (action) {
-    case 'practical': return 'Start Practice';
-    case 'workspace': return 'Open Workspace';
-    case 'agent': return 'Open Agent';
-    case 'tasks-review': return 'Start Review';
-    case 'tasks-fix': return 'Retry Mistakes';
-    case 'tasks-prereq': return 'Start Repair';
-    case 'exam-prep': return 'Start Exam Prep';
+    case 'practical': return c.startPractice;
+    case 'workspace': return c.openWorkspace;
+    case 'agent': return c.openAgent;
+    case 'tasks-review': return c.startReview;
+    case 'tasks-fix': return c.retryMistakes;
+    case 'tasks-prereq': return c.startRepair;
+    case 'exam-prep': return c.startExamPrep;
     default:
-      if (task.type === 'quiz' || task.type === 'concept-check') return 'Take Quiz';
-      if (task.type === 'exam-prep') return 'Start Exam Prep';
-      return 'Start Lesson';
+      if (task.type === 'quiz' || task.type === 'concept-check') return c.takeQuiz;
+      if (task.type === 'exam-prep') return c.startExamPrep;
+      return c.startLesson;
   }
 }

@@ -813,6 +813,7 @@ export default function App() {
           {store.currentView === 'tasks' && (
             <Tasks
               tasks={store.tasks}
+              lang={store.user.settings.language}
               onComplete={store.completeTask}
               onReviewRating={store.submitReviewRating}
               onStartTask={store.startTask}
