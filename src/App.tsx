@@ -825,6 +825,7 @@ export default function App() {
               onResolveMistake={store.resolveMistake}
               filterPreset={store.tasksFilterPreset}
               onFilterPresetConsumed={store.clearTasksFilterPreset}
+              studyPlan={store.dailyPlan.studyPlanBlocks}
             />
           )}
           {store.currentView === 'agent' && !agentSplitActive && (

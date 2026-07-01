@@ -8,6 +8,7 @@ import type { Task, MistakeRecord } from '../types';
 import type { Lang } from '../lib/i18n';
 import { cn } from '../utils/cn';
 import { buildStudyPlanBlocks } from '../lib/pedagogy';
+import type { StudyPlanBlock } from '../lib/unifiedAdaptiveScheduler';
 import type { FsrsRating } from '../lib/pedagogy';
 import { filterTasksForSession, startButtonLabel, type SessionType } from '../lib/taskFlows';
 import {
@@ -40,6 +41,7 @@ interface TasksProps {
   onResolveMistake?: (id: string) => void;
   filterPreset?: TaskFilter | null;
   onFilterPresetConsumed?: () => void;
+  studyPlan?: StudyPlanBlock[];
 }
 
 export function Tasks({
@@ -56,6 +58,7 @@ export function Tasks({
   onResolveMistake,
   filterPreset = null,
   onFilterPresetConsumed,
+  studyPlan,
 }: TasksProps) {
   const c = getTasksContent(lang);
   const sessionTypes = getSessionTypes(lang);
@@ -78,7 +81,7 @@ export function Tasks({
     onFilterPresetConsumed?.();
   }, [filterPreset, onFilterPresetConsumed]);
 
-  const studyPlan = buildStudyPlanBlocks(tasks, lang);
+  const studyPlanBlocks = studyPlan ?? buildStudyPlanBlocks(tasks, lang);
 
   const filteredTasks = tasks.filter(t => {
     if (filter === 'completed') return t.status === 'completed';
@@ -153,10 +156,10 @@ export function Tasks({
         )}
       </AnimatePresence>
 
-      {studyPlan.length > 0 && filter !== 'completed' && (
+      {studyPlanBlocks.length > 0 && filter !== 'completed' && (
         <PlatformSection title={c.studyPlanTitle} icon={Calendar} iconClassName="text-brand-600">
           <div className="space-y-3">
-            {studyPlan.map((block) => (
+            {studyPlanBlocks.map((block) => (
               <div key={block.label} className="ws-bento-soft p-3">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-xs font-semibold text-text-primary">{block.label}</span>

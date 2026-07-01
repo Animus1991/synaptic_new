@@ -1,5 +1,6 @@
 /**
  * Contextual next-best-action for the study workspace (Prompt 7).
+ * Workspace branch of unifiedAdaptiveScheduler.recommendDailyPlan().
  */
 
 import type { Lang } from './i18n';

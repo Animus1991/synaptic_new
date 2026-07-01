@@ -76,6 +76,7 @@ import {
 import { emitAnalyticsLearningEvent } from '../lib/emitLearningEvent';
 import type { TaskFilter } from '../components/Tasks';
 import { selectDashboardNextAction } from '../lib/dashboardNextAction';
+import { recommendDailyPlan } from '../lib/unifiedAdaptiveScheduler';
 import { formatUploadSuccessToast, summarizeUploadStructure } from '../lib/uploadStructureSummary';
 import type { BetaMastery } from '../lib/pedagogy';
 import {
@@ -1825,12 +1826,26 @@ export function useAppStore() {
     () => selectDashboardNextAction({
       lang: user.settings.language,
       learnerModel,
+      betaMastery,
       tasks,
       stats: dashboardStats,
       workspaceLive,
       daysToExam: dashboardExtras.daysToExam,
     }),
-    [user.settings.language, learnerModel, tasks, dashboardStats, workspaceLive, dashboardExtras.daysToExam],
+    [user.settings.language, learnerModel, betaMastery, tasks, dashboardStats, workspaceLive, dashboardExtras.daysToExam],
+  );
+
+  const dailyPlan = useMemo(
+    () => recommendDailyPlan({
+      lang: user.settings.language,
+      learnerModel,
+      betaMastery,
+      tasks,
+      stats: dashboardStats,
+      daysToExam: dashboardExtras.daysToExam,
+      workspaceLive,
+    }),
+    [user.settings.language, learnerModel, betaMastery, tasks, dashboardStats, dashboardExtras.daysToExam, workspaceLive],
   );
 
   const agentContextForView = useMemo(
@@ -1880,6 +1895,7 @@ export function useAppStore() {
     workspaceAgentSplit, setWorkspaceAgentSplit, exitWorkspaceAgentSplit,
     workspaceCourseSplit, exitWorkspaceCourseSplit,
     dashboardNextAction,
+    dailyPlan,
     uploadedFiles, glossaryEntries, isUploading, isReprocessing, simulateUpload, processUpload,
     reprocessCourseMaterial, saveCourseExtractedText, removeUploadedFile, removeCourse,
     pullLibraryFromServer, pullSessionFromServer, pushSessionToServer, syncAccountOnLogin,

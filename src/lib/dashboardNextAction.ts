@@ -1,13 +1,13 @@
 /**
  * Dashboard next-action projection when no active workspace session (§2.3).
+ * Delegates scoring to unifiedAdaptiveScheduler.recommendDailyPlan().
  */
 
 import type { DashboardStats, LearnerModel, Task } from '../types';
 import type { Lang } from './i18n';
-import { t } from './i18n';
-import { findPendingTask } from './taskFlows';
+import type { BetaMastery } from './pedagogy';
+import { recommendDailyPlan } from './unifiedAdaptiveScheduler';
 import type { WorkspaceLiveSync } from './workspaceStoreSpine';
-import { workspaceLiveIsStale } from './workspaceStoreSpine';
 
 export type DashboardNextActionKind =
   | 'weak-area'
@@ -24,87 +24,24 @@ export type DashboardNextAction = {
   taskId?: string;
 };
 
-function examCountdownReason(lang: Lang, daysToExam: number): string {
-  if (daysToExam === 0) return t('dashboardActionExamToday', lang);
-  if (daysToExam === 1) return t('dashboardActionDaysUntilExamOne', lang);
-  return t('dashboardActionDaysUntilExam', lang).replace('{days}', String(daysToExam));
-}
-
 export function selectDashboardNextAction(opts: {
   lang: Lang;
   learnerModel: LearnerModel;
+  betaMastery?: BetaMastery[];
   tasks: Task[];
   stats: DashboardStats;
   workspaceLive?: WorkspaceLiveSync | null;
   daysToExam?: number | null;
 }): DashboardNextAction | null {
-  const { lang, learnerModel, tasks, stats, workspaceLive, daysToExam = null } = opts;
-
-  if (workspaceLive && !workspaceLiveIsStale(workspaceLive) && workspaceLive.nextAction) {
-    return null;
-  }
-
-  if (daysToExam !== null && daysToExam <= 14) {
-    const examTask = findPendingTask(tasks, (t) => t.type === 'exam-prep');
-    return {
-      kind: 'exam-prep',
-      label: t('dashboardActionExamPrep', lang),
-      reason: examCountdownReason(lang, daysToExam),
-      taskId: examTask?.id,
-    };
-  }
-
-  const critical = tasks.find(
-    (task) => task.status === 'pending' && (task.priority === 'critical' || task.priority === 'high'),
-  );
-  if (critical) {
-    return {
-      kind: 'critical-task',
-      label: t('dashboardActionStartPriority', lang),
-      reason: t('dashboardActionPending', lang).replace('{title}', critical.title),
-      taskId: critical.id,
-    };
-  }
-
-  if (stats.reviewsDue > 0) {
-    return {
-      kind: 'review-due',
-      label: t('dashboardActionReviewsDue', lang),
-      reason: t('dashboardActionReviewsDueToday', lang).replace('{count}', String(stats.reviewsDue)),
-    };
-  }
-
-  const weakest = [...learnerModel.weakAreas].sort((a, b) => a.mastery - b.mastery)[0];
-  if (weakest && weakest.mastery < 60) {
-    return {
-      kind: 'weak-area',
-      label: t('dashboardActionFocusWeak', lang),
-      reason: t('dashboardActionWeakMastery', lang)
-        .replace('{concept}', weakest.concept)
-        .replace('{mastery}', String(weakest.mastery)),
-      concept: weakest.concept,
-    };
-  }
-
-  const openMisconception = learnerModel.misconceptions.find((m) => !m.corrected);
-  if (openMisconception) {
-    return {
-      kind: 'weak-area',
-      label: t('dashboardActionFixMisconception', lang),
-      reason: openMisconception.description,
-      concept: openMisconception.concept,
-    };
-  }
-
-  if (learnerModel.totalSessions === 0) {
-    return {
-      kind: 'start-session',
-      label: t('dashboardActionStartSession', lang),
-      reason: t('dashboardActionStartSessionReason', lang),
-    };
-  }
-
-  return null;
+  return recommendDailyPlan({
+    lang: opts.lang,
+    learnerModel: opts.learnerModel,
+    betaMastery: opts.betaMastery ?? [],
+    tasks: opts.tasks,
+    stats: opts.stats,
+    workspaceLive: opts.workspaceLive,
+    daysToExam: opts.daysToExam ?? null,
+  }).dashboardAction;
 }
 
 export type DashboardNextActionHandlers = {
