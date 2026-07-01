@@ -14,7 +14,8 @@ import { buildMiniDashboardProps } from '../../../lib/workspaceData';
 import { collectConceptBusInsights, countSpacedStepReviewsDue, type ConceptBusMap } from '../../../lib/conceptBusSync';
 import { loadAllStepSchedules } from '../../../lib/spacedStepSchedule';
 import { useI18n } from '../../../lib/i18n';
-import { findConceptSpan, resolveReaderText, type SourceHighlight } from '../../../lib/conceptProvenance';
+import { resolveReaderText, type SourceHighlight } from '../../../lib/conceptProvenance';
+import { resolveWorkspaceStepExcerpt } from '../../../lib/stepGroundedExcerpt';
 import { findTextSpanInFiles } from '../../../lib/findTextSpanInSource';
 import type { WorkspaceFocus } from '../../../lib/workspaceFocus';
 import {
@@ -319,16 +320,6 @@ export function useStudyWorkspace({
     return noteBundle.annotationText;
   }, [noteBundle.sourceFullText, noteBundle.fileKey, noteBundle.annotationText]);
 
-  const toolEmptyMessage = useCallback(
-    (tool: WorkspaceEmptyTool) =>
-      workspaceToolEmptyMessage({
-        tool,
-        hasSource: noteBundle.hasSource,
-        lang,
-        concept: quizConcept,
-      }),
-    [noteBundle.hasSource, lang, quizConcept],
-  );
   const handleToolUpload = workspaceEmptyUploadHandler(noteBundle.hasSource, onUpload);
 
   const linkedCourse = useMemo(
@@ -508,11 +499,6 @@ export function useStudyWorkspace({
   const quizIrtState = useMemo(
     () => loadQuizIrt(progressKey),
     [progressKey, quizIrtRevision],
-  );
-
-  const readerText = useMemo(
-    () => resolveReaderText(uploadedFiles, sourceHighlight, noteBundle.readerText),
-    [uploadedFiles, sourceHighlight, noteBundle.readerText],
   );
 
   const readerOcrRegions = useMemo(
@@ -752,6 +738,42 @@ export function useStudyWorkspace({
     }
     return applySpacedStepBoost(masteryOrderedSteps, stepSchedule);
   }, [intelReady, masteryOrderedSteps, stepSchedule, noteBundle.hasSource, rawSteps]);
+
+  const bundleReaderText = useMemo(
+    () => resolveReaderText(uploadedFiles, sourceHighlight, noteBundle.readerText),
+    [uploadedFiles, sourceHighlight, noteBundle.readerText],
+  );
+
+  const stepFocusedExcerpt = useMemo(() => {
+    const full = noteBundle.sourceFullText?.trim();
+    if (!full || !noteBundle.hasSource) return bundleReaderText;
+    const step = STEPS[currentStep];
+    if (!step || isWorkspaceQuizStep(step)) return bundleReaderText;
+    const excerpt = resolveWorkspaceStepExcerpt(full, step.title, quizConcept);
+    return excerpt || bundleReaderText || full.slice(0, 12000);
+  }, [
+    noteBundle.sourceFullText,
+    noteBundle.hasSource,
+    noteBundle.readerText,
+    bundleReaderText,
+    STEPS,
+    currentStep,
+    quizConcept,
+  ]);
+
+  const readerText = stepFocusedExcerpt;
+  const lessonStepExcerpt = stepFocusedExcerpt;
+
+  const toolEmptyMessage = useCallback(
+    (tool: WorkspaceEmptyTool) =>
+      workspaceToolEmptyMessage({
+        tool,
+        hasSource: noteBundle.hasSource,
+        lang,
+        concept: STEPS[currentStep]?.title ?? quizConcept,
+      }),
+    [noteBundle.hasSource, lang, quizConcept, STEPS, currentStep],
+  );
 
   useEffect(() => {
     sectionTitleRef.current = STEPS[currentStep]?.title;
@@ -1997,6 +2019,7 @@ export function useStudyWorkspace({
     spacedStepsDue,
     quizIrtState,
     readerText,
+    lessonStepExcerpt,
     readerOcrRegions,
     focusOnTerm,
     openReaderForTerm,

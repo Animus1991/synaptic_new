@@ -37,6 +37,7 @@ export function StudyWorkspaceLessonPanel({ model }: StudyWorkspaceLessonPanelPr
     setQuizIrtRevision,
     stepMarks,
     noteBundle,
+    lessonStepExcerpt,
     sourceIntelligence,
     toolEmptyMessage,
     handleToolUpload,
@@ -185,7 +186,7 @@ export function StudyWorkspaceLessonPanel({ model }: StudyWorkspaceLessonPanelPr
                       quizDef={quizDef}
                       quizPassed={quizPassed}
                       genStatus={genStatus}
-                      noteExcerpt={noteBundle.readerText}
+                      noteExcerpt={lessonStepExcerpt}
                       hasSource={noteBundle.hasSource}
                       emptyMessage={toolEmptyMessage('lesson')}
                       onUpload={handleToolUpload}
