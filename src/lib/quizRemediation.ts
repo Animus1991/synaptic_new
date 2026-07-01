@@ -27,12 +27,13 @@ export function quizCorrectAnswerText(quiz: QuizDef, fallback: string): string {
 export function buildQuizMistakeFlashcard(
   item: QuizSessionItem,
   concept: string,
-): { front: string; back: string } {
+): { front: string; back: string; cardType: 'mistake' } {
   const question = quizItemQuestion(item);
   const answer = quizCorrectAnswerText(item.quiz, concept);
   return {
     front: question.trim().slice(0, 120) || concept,
     back: answer.trim().slice(0, 200) || concept,
+    cardType: 'mistake',
   };
 }
 

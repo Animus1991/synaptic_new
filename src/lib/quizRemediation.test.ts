@@ -23,6 +23,7 @@ describe('quizRemediation', () => {
 
   it('builds mistake flashcard from wrong MC item', () => {
     const card = buildQuizMistakeFlashcard(mcItem, 'Elasticity');
+    expect(card.cardType).toBe('mistake');
     expect(card.front).toContain('elasticity');
     expect(card.back).toBe('Price sensitivity');
   });

@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { leitnerCardSourceLabel } from './leitnerCardSources';
+import { leitnerCardTypeLabel } from './leitnerCardTypes';
 import { buildQuizSessionSummaryCopy } from './quizSessionSummaryCopy';
 import { buildCompareDifferencePrompt } from './compareExplainDifference';
 import { buildFeynmanWeakDimensionPrompt } from './feynmanAgentPrompts';
@@ -10,6 +11,13 @@ describe('leitnerCardSources', () => {
   it('labels quiz-mistake cards', () => {
     expect(leitnerCardSourceLabel('quiz-mistake', 'en')).toBe('Quiz mistake');
     expect(leitnerCardSourceLabel('quiz-mistake', 'el')).toContain('κουίζ');
+  });
+});
+
+describe('leitnerCardTypes', () => {
+  it('labels mistake cards', () => {
+    expect(leitnerCardTypeLabel('mistake', 'en')).toBe('Mistake');
+    expect(leitnerCardTypeLabel('mistake', 'el')).toBe('Λάθος');
   });
 });
 

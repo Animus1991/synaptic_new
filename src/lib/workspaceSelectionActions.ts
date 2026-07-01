@@ -99,10 +99,14 @@ export function buildSelectionFlashcard(
   text: string,
   concept: string,
   glossaryDefinition?: string,
-): { front: string; back: string } {
+): { front: string; back: string; cardType: 'definition' | 'term' } {
   const front = text.trim().slice(0, 120);
   const back = glossaryDefinition?.trim() || concept;
-  return { front, back };
+  return {
+    front,
+    back,
+    cardType: glossaryDefinition?.trim() ? 'definition' : 'term',
+  };
 }
 
 export function selectionExcerptPreview(text: string, max = 72): string {

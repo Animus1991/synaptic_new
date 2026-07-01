@@ -35,6 +35,7 @@ describe('workspaceSelectionActions', () => {
 
   it('builds flashcard front/back', () => {
     const card = buildSelectionFlashcard('Elasticity measures responsiveness', 'Elasticity', 'Price sensitivity');
+    expect(card.cardType).toBe('definition');
     expect(card.front).toContain('Elasticity');
     expect(card.back).toBe('Price sensitivity');
   });

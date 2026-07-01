@@ -3,7 +3,13 @@ import { AlertTriangle, BookOpen, Search } from '@/lib/lucide-shim';
 import type { FsrsRating } from '../../lib/pedagogy';
 import type { SpacingData } from '../../types';
 import type { LeitnerSessionContent } from '../../lib/leitnerSessionModel';
-import { filterLeitnerCards } from '../../lib/leitnerSessionModel';
+import { filterLeitnerCards, filterLeitnerCardsByType } from '../../lib/leitnerSessionModel';
+import {
+  countLeitnerCardsByType,
+  LEITNER_CARD_TYPES,
+  leitnerCardTypeLabel,
+  type LeitnerCardType,
+} from '../../lib/leitnerCardTypes';
 import { WorkspaceEmptyState } from './WorkspaceEmptyState';
 import { LeitnerBox } from './LeitnerBox';
 import { LeitnerStaleArtifactBanner } from './LeitnerStaleArtifactBanner';
@@ -41,7 +47,18 @@ export function LeitnerPanel({
   onAcknowledgeStale,
 }: Props) {
   const [filterQuery, setFilterQuery] = useState('');
+  const [typeFilter, setTypeFilter] = useState<LeitnerCardType | 'all'>('all');
   const { t } = useI18n();
+
+  const typeCounts = useMemo(
+    () => countLeitnerCardsByType(session.cards),
+    [session.cards],
+  );
+
+  const visibleCards = useMemo(() => {
+    const byType = filterLeitnerCardsByType(session.cards, typeFilter);
+    return filterLeitnerCards(byType, filterQuery);
+  }, [session.cards, typeFilter, filterQuery]);
 
   const filterMatches = useMemo(
     () => filterLeitnerCards(session.cards, filterQuery),
@@ -117,7 +134,7 @@ export function LeitnerPanel({
             />
           </div>
           <span className="text-[10px] text-text-muted">
-            {session.cards.length} {t('panelCards')}
+            {visibleCards.length}/{session.cards.length} {t('panelCards')}
           </span>
           {onOpenInReader && (
             <button
@@ -130,6 +147,39 @@ export function LeitnerPanel({
               Reader
             </button>
           )}
+        </div>
+
+        <div className="mt-2 flex flex-wrap gap-1.5" data-testid="leitner-type-filter">
+          <button
+            type="button"
+            onClick={() => setTypeFilter('all')}
+            className={`rounded-full border px-2 py-0.5 text-[9px] font-medium transition-colors ${
+              typeFilter === 'all'
+                ? 'border-accent-cyan/40 bg-accent-cyan/15 text-brand-800'
+                : 'border-border-subtle text-text-muted hover:text-text-secondary'
+            }`}
+          >
+            {t('leitnerCardTypeAll')} ({session.cards.length})
+          </button>
+          {LEITNER_CARD_TYPES.map((type) => {
+            const count = typeCounts[type];
+            if (count === 0) return null;
+            return (
+              <button
+                key={type}
+                type="button"
+                onClick={() => setTypeFilter(type)}
+                className={`rounded-full border px-2 py-0.5 text-[9px] font-medium transition-colors ${
+                  typeFilter === type
+                    ? 'border-brand-500/40 bg-brand-600/12 text-brand-800'
+                    : 'border-border-subtle text-text-muted hover:text-text-secondary'
+                }`}
+                data-testid={`leitner-type-${type}`}
+              >
+                {leitnerCardTypeLabel(type, lang)} ({count})
+              </button>
+            );
+          })}
         </div>
 
         {filterQuery.trim() && filterMatches.length > 0 && (
@@ -149,9 +199,14 @@ export function LeitnerPanel({
       </div>
 
       <div className="flex-1 min-h-0 overflow-y-auto">
+        {visibleCards.length === 0 ? (
+          <div className="p-4 text-center text-[11px] text-text-muted" data-testid="leitner-type-empty">
+            {t('panelEmptyLeitnerNoCards')}
+          </div>
+        ) : (
         <LeitnerBox
           concept={concept}
-          cards={session.cards}
+          cards={visibleCards}
           scopeKey={scopeKey}
           spacingIntervals={spacingIntervals}
           onRate={onRate}
@@ -163,6 +218,7 @@ export function LeitnerPanel({
           onAcknowledgeStale={onAcknowledgeStale}
           lang={lang}
         />
+        )}
       </div>
     </div>
   );

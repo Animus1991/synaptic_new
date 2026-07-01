@@ -14,6 +14,7 @@ import { downloadAnkiDeck } from '../../lib/ankiExport';
 
 import { buildDueHeatmap } from '../../lib/leitnerDueHeatmap';
 import { leitnerCardSourceLabel } from '../../lib/leitnerCardSources';
+import { inferLeitnerCardType, leitnerCardTypeLabel } from '../../lib/leitnerCardTypes';
 import type { LeitnerCard } from '../../lib/leitnerSessionModel';
 
 import { saveDeckState, syncDeckState } from '../../lib/leitnerDeckSync';
@@ -385,14 +386,24 @@ export function LeitnerBox({
       >
 
         <p className="text-[10px] text-text-muted mb-2">{flipped ? t('answer') : t('question')}</p>
-        {card?.source && (
-          <span
-            className="mb-2 inline-block rounded-full border border-brand-500/25 bg-brand-600/10 px-2 py-0.5 text-[9px] font-medium text-brand-800"
-            data-testid="leitner-card-source"
-          >
-            {leitnerCardSourceLabel(card.source, lang)}
-          </span>
-        )}
+        <div className="mb-2 flex flex-wrap items-center gap-1.5">
+          {card && (
+            <span
+              className="inline-block rounded-full border border-accent-cyan/25 bg-accent-cyan/10 px-2 py-0.5 text-[9px] font-medium text-brand-800"
+              data-testid="leitner-card-type"
+            >
+              {leitnerCardTypeLabel(inferLeitnerCardType(card), lang)}
+            </span>
+          )}
+          {card?.source && (
+            <span
+              className="inline-block rounded-full border border-brand-500/25 bg-brand-600/10 px-2 py-0.5 text-[9px] font-medium text-brand-800"
+              data-testid="leitner-card-source"
+            >
+              {leitnerCardSourceLabel(card.source, lang)}
+            </span>
+          )}
+        </div>
         {card?.citation && (
           <SourceCitationChip
             citation={card.citation}

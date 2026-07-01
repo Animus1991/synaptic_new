@@ -7,6 +7,11 @@ import type { Lang } from './i18n';
 import type { GlossaryEntry, SpacingData, UploadedFile } from '../types';
 import type { ContentCitation } from './contentCitation';
 import type { CustomLeitnerCard } from './leitnerCustomCards';
+import {
+  inferLeitnerCardType,
+  type LeitnerCardType,
+  withLeitnerCardType,
+} from './leitnerCardTypes';
 import { buildFlashcards } from './noteContentExtractors';
 import { isGenericStudyConcept } from './workspaceContentFallback';
 import { filterLeitnerCardsByConfidence } from './confidenceGating';
@@ -15,6 +20,7 @@ export type LeitnerCard = {
   front: string;
   back: string;
   source?: CustomLeitnerCard['source'];
+  cardType?: LeitnerCardType;
   citation?: ContentCitation;
 };
 
@@ -34,14 +40,15 @@ export function mergeLeitnerCards(...sources: LeitnerCard[][]): LeitnerCard[] {
       if (!key) continue;
       const prev = seen.get(key);
       if (prev) {
-        seen.set(key, {
+        seen.set(key, withLeitnerCardType({
           ...prev,
           ...card,
           source: card.source ?? prev.source,
+          cardType: card.cardType ?? prev.cardType,
           citation: card.citation ?? prev.citation,
-        });
+        }));
       } else {
-        seen.set(key, card);
+        seen.set(key, withLeitnerCardType(card));
       }
     }
   }
@@ -78,6 +85,14 @@ export function filterLeitnerCards(cards: LeitnerCard[], query: string): Leitner
   return cards.filter(
     (card) => card.front.toLowerCase().includes(q) || card.back.toLowerCase().includes(q),
   );
+}
+
+export function filterLeitnerCardsByType(
+  cards: LeitnerCard[],
+  type: LeitnerCardType | 'all',
+): LeitnerCard[] {
+  if (type === 'all') return cards;
+  return cards.filter((card) => inferLeitnerCardType(card) === type);
 }
 
 export function buildLeitnerSessionContent(opts: {
