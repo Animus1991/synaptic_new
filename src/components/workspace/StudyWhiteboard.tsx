@@ -3,7 +3,7 @@ import {
   ArrowRight, Circle, Eraser, Eye, EyeOff, Highlighter, Layers, Lock, Minus, Pen,
   Plus, Redo2, Ruler, Save, Square, Trash2, Type, Undo2, BookOpen, Calculator, X, Unlock, Download,
 } from '@/lib/lucide-shim';
-import { downloadWhiteboardPng } from '../../lib/whiteboardExport';
+import { buildWhiteboardSvg, downloadWhiteboardPng, downloadWhiteboardSvg } from '../../lib/whiteboardExport';
 import { cn } from '../../utils/cn';
 import type { ExtractedFormula } from '../../lib/noteContentExtractors';
 import type { ScratchpadExport } from '../../lib/workspaceScratchpadBridge';
@@ -298,6 +298,24 @@ export function StudyWhiteboard({
     }));
     setRedoStack([]);
     setDraft(null);
+  };
+
+  const exportFilename = `whiteboard-${scopeKey ?? 'board'}`;
+
+  const exportPng = () => {
+    if (canvasRef.current) downloadWhiteboardPng(canvasRef.current, exportFilename);
+  };
+
+  const exportSvg = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const bg = getComputedStyle(document.documentElement).getPropertyValue('--viz-canvas-bg').trim() || '#0f172a';
+    const svg = buildWhiteboardSvg(doc, {
+      width: canvas.clientWidth,
+      height: canvas.clientHeight,
+      background: bg,
+    });
+    downloadWhiteboardSvg(svg, exportFilename);
   };
 
   const save = () => {
@@ -621,12 +639,19 @@ export function StudyWhiteboard({
           type="button"
           data-testid="whiteboard-export-png"
           aria-label={t('wbExportPng')}
-          onClick={() => {
-            if (canvasRef.current) downloadWhiteboardPng(canvasRef.current, `whiteboard-${scopeKey ?? 'board'}`);
-          }}
+          onClick={exportPng}
           className="rounded-lg p-1.5 text-text-muted hover:bg-surface-hover"
         >
           <Download className="w-3.5 h-3.5" aria-hidden />
+        </button>
+        <button
+          type="button"
+          data-testid="whiteboard-export-svg"
+          aria-label={t('wbExportSvg')}
+          onClick={exportSvg}
+          className="rounded-lg px-1.5 py-1 text-[9px] font-medium text-text-muted hover:bg-surface-hover"
+        >
+          SVG
         </button>
         {savedMsg && <span className="text-[10px] text-accent-emerald">{t('wbSaved')}</span>}
         {activeLayerLocked && (
