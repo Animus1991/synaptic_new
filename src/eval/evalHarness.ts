@@ -273,12 +273,18 @@ export function evaluateGroundingCase(testCase: GroundingEvalCase): GroundingEva
 
 export function evaluateGroundingFaithfulness(): {
   results: GroundingEvalCaseResult[];
+  /** Average faithfulness across expectVerified (positive-only) cases. */
   averageFaithfulness: number;
+  /** Average across all cases including negative detection fixtures. */
+  averageFaithfulnessAll: number;
   passRate: number;
   pass: boolean;
 } {
   const results = loadGroundingCases().map(evaluateGroundingCase);
+  const positive = results.filter((r) => r.expectVerified);
   const averageFaithfulness =
+    positive.reduce((s, r) => s + r.faithfulness, 0) / Math.max(positive.length, 1);
+  const averageFaithfulnessAll =
     results.reduce((s, r) => s + r.faithfulness, 0) / Math.max(results.length, 1);
   const passRate = results.filter((r) => r.pass).length / Math.max(results.length, 1);
   const t = baseline.thresholds as typeof baseline.thresholds & {
@@ -288,7 +294,7 @@ export function evaluateGroundingFaithfulness(): {
   const pass =
     averageFaithfulness >= (t.groundingFaithfulnessMin ?? EVAL_GROUNDING_FAITHFULNESS_MIN)
     && passRate >= (t.groundingCasePassRate ?? 1);
-  return { results, averageFaithfulness, passRate, pass };
+  return { results, averageFaithfulness, averageFaithfulnessAll, passRate, pass };
 }
 
 export const EVAL_FIXTURES: string[] = baseline.fixtures;

@@ -44,8 +44,9 @@ describe('grounding eval gate', () => {
 
   it('evaluates gold grounding cases from fixtures', () => {
     const evalReport = evaluateGroundingFaithfulness();
-    expect(evalReport.results.length).toBeGreaterThanOrEqual(4);
+    expect(evalReport.results.length).toBeGreaterThanOrEqual(6);
     expect(evalReport.passRate).toBe(1);
+    expect(evalReport.averageFaithfulness).toBeGreaterThanOrEqual(0.75);
     expect(evalReport.pass).toBe(true);
   });
 
