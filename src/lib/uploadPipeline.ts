@@ -13,6 +13,8 @@ import {
   type DocumentModelSnapshot,
   type RecognitionSummary,
 } from './documentModelSnapshot';
+import { applyQualityGatesToCourse } from './courseQualityGates';
+import { buildOutlinePreviewFromCourse } from './courseSourceQuality';
 
 /**
  * Derive candidate topic titles from the material itself — subject-agnostic.
@@ -72,7 +74,7 @@ export function buildCourseFromUpload(
   const topicLimit = sourceQuality ? Math.min(6, Math.max(1, sourceQuality.finalTopicCount)) : 6;
   const topics = (rawTopics.length > 0 ? rawTopics : [title]).slice(0, topicLimit);
 
-  return {
+  const draft: Course = {
     id: `c-upload-${Date.now()}`,
     title,
     description: qualityAwareDescription(
@@ -105,7 +107,7 @@ export function buildCourseFromUpload(
       ...payload.files.map((f) => f.name),
       ...(payload.youtubeUrl ? [payload.youtubeUrl] : []),
     ],
-    status: 'ready',
+    status: 'generating',
     sourceMode: payload.sourceMode,
     conceptCount: topics.length * 4,
     glossaryCount: topics.length * 2,
@@ -113,6 +115,8 @@ export function buildCourseFromUpload(
     examDate: payload.examDate,
     ...(sourceQuality ? { sourceQuality } : {}),
   };
+  const outlinePreview = buildOutlinePreviewFromCourse(draft);
+  return applyQualityGatesToCourse(draft, outlinePreview, sourceText);
 }
 
 const COURSE_COLORS = ['#818cf8', '#22d3ee', '#2dd4bf', '#fb923c', '#f472b6', '#a78bfa'];
@@ -183,7 +187,7 @@ export function buildCourseFromOutline(
       ...payload.files.map((f) => f.name),
       ...(payload.youtubeUrl ? [payload.youtubeUrl] : []),
     ],
-    status: 'ready',
+    status: 'generating',
     sourceMode: payload.sourceMode,
     conceptCount: totalConcepts,
     glossaryCount: glossary.length,
@@ -192,7 +196,11 @@ export function buildCourseFromOutline(
     ...(sourceQuality ? { sourceQuality } : {}),
   };
 
-  return { course, glossary };
+  const sourceText = payload.analyzedText ?? payload.pastedContent ?? '';
+  return {
+    course: applyQualityGatesToCourse(course, outline, sourceText),
+    glossary,
+  };
 }
 
 export async function readTextFromFiles(files: File[], settings?: UserSettings): Promise<string> {

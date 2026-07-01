@@ -5,6 +5,7 @@ import { repairDisplayPipeline } from '../../lib/documentTextPipeline';
 import { useI18n } from '../../lib/i18n';
 import type { SourceHighlight } from '../../lib/conceptProvenance';
 import { normalizeFocusTerm } from '../../lib/workspaceFocus';
+import { resolveFocusScrollTarget } from '../../lib/workspaceFocusNavigation';
 import {
   exportReaderAnnotationsJson,
   exportReaderAnnotationsMarkdown,
@@ -20,7 +21,7 @@ import { FrontMatterCard } from './FrontMatterCard';
 import { BibliographyBlock } from './BibliographyBlock';
 import { FormulaLatexPreview } from './FormulaLatexPreview';
 import { RichText } from '../RichText';
-import type { GlossaryEntry, UserSettings } from '../../types';
+import type { GlossaryEntry, UserSettings, Course } from '../../types';
 import {
   buildGlossaryCompanionColumns,
   loadCachedTranslations,
@@ -104,6 +105,7 @@ interface Props {
   stepToSegmentIndex?: Record<number, number>;
   /** Wave 6.8a — active lesson step ↔ reader segment ↔ heat sync */
   stepHeatSync?: ReaderStepHeatSyncSummary | null;
+  course?: Course | null;
 }
 
 function getTextOffset(root: HTMLElement, targetNode: Node, offset: number): number {
@@ -156,6 +158,7 @@ export function CognitiveReader({
   stepTitles,
   stepToSegmentIndex,
   stepHeatSync,
+  course = null,
 }: Props) {
   const { t } = useI18n();
   const [bionic, setBionic] = useState(false);
@@ -477,10 +480,14 @@ export function CognitiveReader({
   useEffect(() => () => { ttsRef.current?.stop(); }, []);
 
   useEffect(() => {
-    if (translationMode === 'off' || bilingual.length === 0 || !focusTerm) return;
-    const idx = paragraphIndexForTerm(bilingual.map((p) => p.source), focusTerm);
-    if (idx >= 0) scrollToParagraph(idx);
-  }, [focusTerm, translationMode, bilingual, scrollToParagraph]);
+    if (!focusTerm) return;
+    const paragraphs =
+      translationMode !== 'off' && bilingual.length > 0
+        ? bilingual.map((p) => p.source)
+        : paragraphChunks.map((p) => p.paragraph);
+    const target = resolveFocusScrollTarget(paragraphs, focusTerm, course);
+    if (target && target.paragraphIndex >= 0) scrollToParagraph(target.paragraphIndex);
+  }, [focusTerm, translationMode, bilingual, paragraphChunks, course, scrollToParagraph]);
 
   const renderAnnotatedSlice = (slice: string, rangeStart: number, keyPrefix: string) => {
     const segments = segmentAnnotatedRange(displayText, annotations, rangeStart, rangeStart + slice.length);

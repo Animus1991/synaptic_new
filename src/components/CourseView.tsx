@@ -28,6 +28,7 @@ import { courseDeleteStats } from '../lib/removeCourse';
 import { isDemoCourse } from '../lib/demoMode';
 import { PostUploadBanner } from './ui/PostUploadBanner';
 import { Page, PageHeader } from './ui/primitives';
+import { QualityReportPanel } from './QualityReportPanel';
 
 interface CourseViewProps {
   course: Course;
@@ -330,6 +331,10 @@ export function CourseView({
             </p>
           )}
         </motion.div>
+      )}
+
+      {course.qualityReport && (
+        <QualityReportPanel report={course.qualityReport} lang={lang} className="max-w-[1600px] mx-auto" />
       )}
 
       {/* Progress bar */}

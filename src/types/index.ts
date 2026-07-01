@@ -122,7 +122,7 @@ export interface Course {
   examDate?: string;
   estimatedHours: number;
   sourceFiles: string[];
-  status: 'generating' | 'ready' | 'in-progress' | 'completed';
+  status: 'generating' | 'ready' | 'needs_review' | 'in-progress' | 'completed';
   sourceMode: 'strict' | 'enriched' | 'notes-only';
   conceptCount: number;
   glossaryCount: number;
@@ -143,6 +143,8 @@ export interface Course {
   };
   /** Aggregated DocumentModel recognition metrics (S8). */
   recognitionSummary?: import('../lib/documentModelSnapshot').RecognitionSummary;
+  /** §5.B7 automated quality rubric (S9). */
+  qualityReport?: import('../lib/courseQualityGates').CourseQualityReport;
 }
 
 /** Maps a course concept to a precise span in uploaded source material. */

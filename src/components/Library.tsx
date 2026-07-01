@@ -24,6 +24,7 @@ import { UiIcon } from './ui/UiIcon';
 import { PlatformEmptyState } from './ui/PlatformEmptyState';
 import { PostUploadBanner } from './ui/PostUploadBanner';
 import { Page, PageHeader, PrimaryCTA } from './ui/primitives';
+import { t } from '../lib/i18n';
 
 interface LibraryProps {
   courses: Course[];
@@ -320,6 +321,7 @@ function CourseCard({
 
   const progress = (course.completedLessons / Math.max(course.totalLessons, 1)) * 100;
   const isGenerating = course.status === 'generating';
+  const needsReview = course.status === 'needs_review';
   const quality = course.sourceQuality;
   const qualityTone = quality?.band === 'strong'
     ? 'bg-accent-emerald/10 text-accent-emerald border-accent-emerald/20'
@@ -363,6 +365,11 @@ function CourseCard({
           <div className="platform-status-pill platform-status-pill--generating flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium">
             <Loader2 className="w-3 h-3 animate-spin" />
             Generating
+          </div>
+        ) : needsReview ? (
+          <div className="flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-semibold border border-accent-amber/30 bg-accent-amber/10 text-accent-amber">
+            <AlertTriangle className="w-3 h-3" />
+            {t('courseNeedsReviewBadge', userLanguage ?? 'en')}
           </div>
         ) : (
           <div className="text-xs text-text-tertiary font-medium capitalize px-2 py-1 rounded-full border border-border-subtle">

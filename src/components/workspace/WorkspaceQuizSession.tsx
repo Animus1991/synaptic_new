@@ -11,6 +11,9 @@ import {
 } from '../../lib/quizSession';
 import { buildQuizSessionSummaryCopy } from '../../lib/quizSessionSummaryCopy';
 import { quizItemQuestion } from '../../lib/quizSessionModel';
+import type { Course } from '../../types';
+import { buildGroundedQuizFeedback } from '../../lib/quizGroundedFeedback';
+import { quizCorrectAnswerText } from '../../lib/quizRemediation';
 import {
   buildQuizWrongItemSummaries,
   quizWrongAnswerHint,
@@ -37,6 +40,7 @@ type Props = {
   onSelectPassage?: (text: string, term?: string) => void;
   onClearSelection?: () => void;
   onQuestionSelect?: (question: string) => void;
+  course?: Course | null;
 };
 
 export function WorkspaceQuizSession({
@@ -56,6 +60,7 @@ export function WorkspaceQuizSession({
   onSelectPassage,
   onClearSelection,
   onQuestionSelect,
+  course = null,
 }: Props) {
   const { t } = useI18n();
   const [session, setSession] = useState<QuizSessionState>(() => {
@@ -77,6 +82,15 @@ export function WorkspaceQuizSession({
   }, [scopeKey, concept, items]);
 
   const current = session.items[session.currentIndex];
+  const groundedFeedback =
+    lastCorrect === false && current
+      ? buildGroundedQuizFeedback(
+        course,
+        concept,
+        quizCorrectAnswerText(current.quiz, concept),
+        lang,
+      )
+      : null;
   const done = Boolean(session.completedAt) || session.currentIndex >= session.items.length;
 
   const confirmAndAdvance = () => {
@@ -254,6 +268,11 @@ export function WorkspaceQuizSession({
               <p className="text-[10px] text-text-secondary" data-testid="quiz-wrong-answer-hint">
                 {quizWrongAnswerHint(current, concept, lang)}
               </p>
+              {groundedFeedback && (
+                <p className="text-[10px] text-text-secondary italic" data-testid="quiz-grounded-feedback">
+                  {groundedFeedback.message}
+                </p>
+              )}
               {onRemediateWrong && (
                 <div className="flex flex-wrap gap-2">
                   <button
