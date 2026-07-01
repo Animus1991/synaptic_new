@@ -7,6 +7,29 @@ client and server are versioned together.
 
 ### Added
 
+- **Doc reconciliation (Jul 2026)** — canonical [`PRODUCT_SCALE_STATUS.md`](PRODUCT_SCALE_STATUS.md)
+  synced with shipped S5–S9 truth; `ROADMAP.md` rebaselined to ~89%; this changelog
+  updated for Sprint 9 deliverables.
+- **S9 — Leitner card types (`daf5acd`)** — `term` / `definition` / `cloze` /
+  `formula` / `mistake` with auto-inference, EN+EL labels, type filter chips in
+  `LeitnerPanel`, quiz-mistake remediation wiring (`leitnerCardTypes.ts`).
+- **S9 — whiteboard SVG export (`b324969`)** — `buildWhiteboardSvg`,
+  `downloadWhiteboardSvg` alongside PNG (`whiteboardExport.ts`).
+- **S9-PR4 — quiz grounded focus (`a36037e`)** — `QuizPanel` grounded feedback →
+  focus bus; `focusOnTerm` resolves concept spans.
+- **S9-PR4 — concept lens chrome (`f1bc86b`)** — minimal ribbon; lens moved to workspace chrome.
+- **S9-PR5 — grounding consolidation (`d13fad6`)** — five modules →
+  `src/lib/grounding/` single public API (`spanVerification`, `citationOverlap`,
+  `citationMap`, `agentGrounding`, `faithfulnessGate`).
+- **S9 — quality gates Stage 1–2 (`a7a862b`, `ec543a3`)** — central
+  `qualityThresholds.ts`; PASS 68→75, span 55%→70%, eval faithfulness 0.58→0.75.
+- **S9-PR3 — grounding faithfulness gate (`72854ff`)** — lessons + agent.
+- **S9-PR2 — course quality gates (`5afb18e`)** — workspace pro polish.
+- **S9-PR1 — unified adaptive scheduler (`171475b`)** — dashboard + workspace actions merge.
+- **Fix — lesson/reader step-grounded excerpt (`2ad7ad5`)** — resolves “No content matched”.
+
+### Added (prior unreleased)
+
 - **Sprint 8 (Jul 2026, `65197ac`)** — DocumentModel substrate + upload wire:
   - `documentModel.ts` v2: blocks, relations, recognition meta.
   - `recognition.worker.ts` + `documentModelWorkerClient.ts` (off-thread build).

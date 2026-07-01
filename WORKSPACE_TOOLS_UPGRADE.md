@@ -204,12 +204,15 @@
 - Deck sync + due heatmap, Anki export
 - **Header chip → Quiz** (`onOpenQuiz`)
 - Concept Bus: `leitner-easy` / `leitner-hard`
+- **Card types** — `term` / `definition` / `cloze` / `formula` / `mistake` with
+  auto-inference, EN+EL badges, type filter chips (`leitnerCardTypes.ts`)
+- Quiz wrong-answer remediation → `mistake` cards (`quizRemediation.ts`)
 
 ### Αρχεία
-`LeitnerBox.tsx`, `leitnerDeckSync.ts`, `leitnerDueHeatmap.ts`, `ankiExport.ts`
+`LeitnerBox.tsx`, `LeitnerPanel.tsx`, `leitnerCardTypes.ts`, `leitnerDeckSync.ts`,
+`leitnerDueHeatmap.ts`, `ankiExport.ts`
 
 ### Κενά
-- [ ] Bidirectional card generation from quiz wrong items
 - [ ] Cross-device deck sync via server
 
 ---
@@ -236,12 +239,12 @@
 - Layers v2 (`WhiteboardDocument`), scratchpad import
 - KaTeX stamps, reference excerpt sidebar
 - Concept Bus: `noted` on engage
+- **PNG + SVG export** (`whiteboardExport.ts`)
 
 ### Αρχεία
-`StudyWhiteboard.tsx`, `whiteboardLayers.ts`, `whiteboardLatexStamps.ts`
+`StudyWhiteboard.tsx`, `whiteboardLayers.ts`, `whiteboardLatexStamps.ts`, `whiteboardExport.ts`
 
 ### Κενά
-- [ ] PNG/SVG export
 - [ ] Agent: explain diagram in natural language
 
 ---

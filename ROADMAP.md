@@ -1,7 +1,7 @@
 # Roadmap & Gap Analysis
 
-**Status baseline:** July 2026 — post Sprint 8 (DocumentModel substrate), S7 PWA,
-S6 teacher assignments, S5 behavior inference.
+**Status baseline:** July 2026 — post Sprint 9 (grounding, quality gates, workspace polish).
+**Canonical snapshot:** [`PRODUCT_SCALE_STATUS.md`](PRODUCT_SCALE_STATUS.md)
 
 This document separates **done**, **partial**, and **missing** against the product goal: *note-grounded adaptive learning at product scale, not MVP/demo-first.*
 
@@ -11,42 +11,43 @@ This document separates **done**, **partial**, and **missing** against the produ
 
 | Layer | Completion | Notes |
 | ----- | ---------- | ----- |
-| Content engine (offline v2) | **~92%** | DocumentModel v2 substrate wired on upload (S8) |
-| Upload to course pipeline | **~92%** | Parallel DocumentModel + course recognition workers |
-| Study Workspace (11 tools) | **~91%** | Note-grounded, mobile drawer, Agent handoff |
-| Lesson surfaces | **~80%** | LessonView + PracticalLessonView note/LLM-grounded |
-| Tasks & pedagogy | **~80%** | Generated tasks, FSRS to store, Beta-Bernoulli mastery |
+| Content engine (offline v2) | **~93%** | DocumentModel v2 substrate wired on upload (S8) |
+| Upload to course pipeline | **~93%** | Stage 1–2 quality gates (S9); parallel recognition workers |
+| Study Workspace (11 tools) | **~92%** | Leitner card types; whiteboard PNG+SVG export |
+| Lesson surfaces | **~82%** | Step-grounded excerpts; concept lens; faithfulness gate |
+| Tasks & pedagogy | **~83%** | Unified adaptive scheduler (S9-PR1); FSRS + mastery |
 | Analytics & Dashboard | **~78%** | Behavior inference + Research tab (S5) |
-| RAG / Agent | **~85%** | BM25 + hybrid embedding rerank; workspace context on handoff |
-| Client persistence | **~85%** | localStorage + IndexedDB; DocumentModel snapshots on files |
+| RAG / Agent | **~87%** | Unified grounding module; BM25 + hybrid rerank |
+| Client persistence | **~86%** | localStorage + IndexedDB; DocumentModel snapshots |
 | Auth and full sync | **~80%** | JWT, library + session pull/push |
 | Phase 6 server | **~75%** (dev) | Express proxy + auth + sync + OCR/RAG; not production-hardened |
-| Documentation | **~90%** | S8 truth pass + doc-lint capability assertions |
-| Tests & CI | **~91%** | Vitest + eval gold-set gate (`npm run eval`) in CI |
-| i18n | **~82%** | Wave C Settings/Tasks shipped (S7); component lint allowlist empty |
+| Documentation | **~92%** | `PRODUCT_SCALE_STATUS.md` + doc-lint capability assertions |
+| Tests & CI | **~92%** | Vitest + eval gold-set gate (`npm run eval`) in CI |
+| i18n | **~83%** | Wave C Settings/Tasks shipped (S7); component lint allowlist empty |
 | UI/UX / themes | **~88%** | Warm Sand + Spectrum global themes, PWA shell (S7) |
 
-**Overall product-scale readiness: ~88%** — DocumentModel substrate unblocks quality
-gates, grounding eval expansion, and teacher cohort insights (S9–S10).
+**Overall product-scale readiness: ~89%** — S9 grounding consolidation and staged gates
+unblock Stage 3 eval expansion and teacher cohort insights (S10).
 
 ---
 
-## Sprint 5–8 — shipped (synaptic_new)
+## Sprint 5–9 — shipped (synaptic_new)
 
-| Sprint | Commit | Scope |
-| ------ | ------ | ----- |
+| Sprint | Commit(s) | Scope |
+| ------ | --------- | ----- |
 | S5 | `42c5450` | Behavior inference, Research tab, agent learning events |
 | S6 | `3c5eddb` | Yjs Postgres, teacher assignments, calendar 2-way |
 | S7 | `2ecdbf3` | i18n Wave C (Settings/Tasks), PWA offline shell |
 | S8 | `65197ac` | DocumentModel v2, recognition worker, upload wire, Library report |
+| S9 | `171475b`…`daf5acd` | Adaptive scheduler, quality gates, grounding module, quiz focus, Leitner types, whiteboard SVG — see [`PRODUCT_SCALE_STATUS.md`](PRODUCT_SCALE_STATUS.md) |
 
 ---
 
-## Wave A — shipped (535971, Jun 2026)
+## Wave A — shipped (`b535971`, Jun 2026)
 
 | Deliverable | Key files |
 | ----------- | --------- |
-| Spectrum theme applies globally (Warm Sand scoping fix) | 	heme.ts, index.css |
+| Spectrum theme applies globally (Warm Sand scoping fix) | `theme.ts`, `index.css` |
 | Theme cycle dark / light / spectrum | ThemeToggle.tsx |
 | Design-system CTAs | PrimaryCTA.tsx, SecondaryCTA.tsx |
 | Post-upload banner on Dashboard + Library | PostUploadBanner.tsx |
@@ -55,11 +56,11 @@ gates, grounding eval expansion, and teacher cohort insights (S9–S10).
 
 ---
 
-## Wave B — shipped (220c7e9, 63c7b0e, Jun 2026)
+## Wave B — shipped (`220c7e9`, `63c7b0e`, Jun 2026)
 
 | Deliverable | Key files |
 | ----------- | --------- |
-| i18n: command palette, study room, reprocess wizard, Feynman outline | i18n.ts, useStudyWorkspace.ts, StudyRoomPanel.tsx, ReprocessPreviewModal.tsx, eynmanOutline.ts |
+| i18n: command palette, study room, reprocess wizard, Feynman outline | i18n.ts, useStudyWorkspace.ts, StudyRoomPanel.tsx, ReprocessPreviewModal.tsx, `feynmanOutline.ts` |
 | i18n: compare, argument map, reader toolbar, Feynman rubric, analytics aria | ComparePanel.tsx, ArgumentMap.tsx, CognitiveReader.tsx, FeynmanCheck.tsx |
 | Concept map: add/rename/delete node, connect edges | DraggableConceptMap.tsx |
 | Concept map: delete edge, cycle relation, undo stack (30 snapshots) | DraggableConceptMap.tsx |
@@ -74,12 +75,10 @@ gates, grounding eval expansion, and teacher cohort insights (S9–S10).
 | ---------- | ------ | ------ |
 | Column-major multi-column PDF reading order | pdfExtract.ts | done |
 | Layered text repair pipeline v2.5.x | documentTextPipeline.ts | done |
-| Greek OCR repair + Varian fixtures | greekTextRepair.ts, arianCh31Fixtures.ts | done |
-| Reader TTS read aloud + scroll-follow | 
-eaderTts.ts, CognitiveReader.tsx | done |
-| Reader OCR line correction (local) | 
-eaderOcrCorrectionStore.ts, OcrCorrectionPanel.tsx | MVP |
-| Agent auto-send + workspace RAG context | gentWorkspaceContext.ts, Agent.tsx | done |
+| Greek OCR repair + Varian fixtures | greekTextRepair.ts, `varianCh31Fixtures.ts` | done |
+| Reader TTS read aloud + scroll-follow | `readerTts.ts`, CognitiveReader.tsx | done |
+| Reader OCR line correction (local) | `readerOcrCorrectionStore.ts`, OcrCorrectionPanel.tsx | MVP |
+| Agent auto-send + workspace RAG context | `agentWorkspaceContext.ts`, Agent.tsx | done |
 | Mobile intelligence tabs | WorkspaceMobileIntelligenceTabs.tsx | done |
 
 Re-upload / reprocess: courses analyzed before v2.4.0 keep stored extractedText. Use re-upload for full Reader layout, or reprocess when pipelineVersion < 2.4.0.
@@ -103,11 +102,12 @@ See I18N.md, STUDY_WORKSPACE.md, WORKSPACE_TOOLS_UPGRADE.md, and EXHAUSTIVE_PROD
 
 | Area | Open work |
 | ---- | --------- |
-| Pedagogy | Unified adaptive scheduler (FSRS × mastery × exam pacing) — S9 |
-| i18n | Residual lib/helpers; new S8 strings in RecognitionReportPanel |
-| Backend | pgvector default path, Redis/BullMQ production, teacher gradebook — S10 |
-| Algorithms | Math OCR, layout-aware PDF blocks, grounding eval expansion |
-| Tools | Whiteboard pro, sub-line annotations, Leitner card types — S9 |
+| Quality | **Stage 3 gates** — span 95%, faithfulness 0.95 eval expansion |
+| Annotations | **Sub-line span annotations** (line-level only today) |
+| Backend | pgvector default path, Redis/BullMQ production, teacher gradebook UI — S10 |
+| Algorithms | Math OCR, layout-aware PDF blocks |
+| Tools | Whiteboard agent “explain diagram”; Leitner server deck sync |
+| i18n | Residual lib/helpers; Recognition report strings |
 
 ---
 
@@ -124,6 +124,6 @@ See I18N.md, STUDY_WORKSPACE.md, WORKSPACE_TOOLS_UPGRADE.md, and EXHAUSTIVE_PROD
 
 ## Doc maintenance
 
-Update ARCHITECTURE.md, STUDY_WORKSPACE.md, WORKSPACE_TOOLS_UPGRADE.md, I18N.md, CHANGELOG.md, and this file when behavior changes.
+Update ARCHITECTURE.md, STUDY_WORKSPACE.md, WORKSPACE_TOOLS_UPGRADE.md, I18N.md, CHANGELOG.md, **PRODUCT_SCALE_STATUS.md**, and this file when behavior changes.
 
 See also: I18N.md, STUDY_WORKSPACE.md, EXHAUSTIVE_PRODUCT_SCALE_BLUEPRINT.md.

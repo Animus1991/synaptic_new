@@ -127,8 +127,8 @@ Session backup exports all `synapse:*` keys from Settings. Full key list in
 - [`SECURITY.md`](SECURITY.md) — threat model + production checklist.
 - [`TESTING.md`](TESTING.md) — Vitest + Playwright + smoke checklist.
 - [`I18N.md`](I18N.md) — EL/EN coverage.
-- [`ROADMAP.md`](ROADMAP.md) / [`CHANGELOG.md`](CHANGELOG.md) — direction +
-  history.
+- [`PRODUCT_SCALE_STATUS.md`](PRODUCT_SCALE_STATUS.md) — canonical shipped-truth snapshot (~89%).
+- [`ROADMAP.md`](ROADMAP.md) / [`CHANGELOG.md`](CHANGELOG.md) — direction + history.
 - [`CONTRIBUTING.md`](CONTRIBUTING.md) — how to add features safely.
 
 ## Project structure
