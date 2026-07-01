@@ -401,6 +401,8 @@ export interface AgentMessage {
     groundingCoverage?: number;
     /** Span-level faithfulness score from grounding.ts (0–1). */
     groundingFaithfulness?: number;
+    /** Strict-mode span gate outcome (S9). */
+    groundingGatePassed?: boolean;
     /** Sentences that failed span verification. */
     ungroundedClaims?: string[];
     /** Per-claim grounding with optional source spans for click-to-source. */

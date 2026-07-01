@@ -18,7 +18,7 @@ import {
 } from '../lib/agentCommands';
 import { buildAgentRetrievalQuery, buildAgentContextSystemBlock, type AgentWorkspaceContext } from '../lib/agentWorkspaceContext';
 import { spanFromCitation } from '../lib/conceptProvenance';
-import { checkAgentGrounding } from '../lib/agentGroundingCheck';
+import { applyAgentGroundingGate } from '../lib/groundingFaithfulnessGate';
 import { emitAnalyticsLearningEvent } from '../lib/emitLearningEvent';
 import { formatCitation } from '../lib/rag';
 import { GoToSourceButton } from './GoToSourceButton';
@@ -230,9 +230,12 @@ export function Agent({
 
     const strictGrounding =
       settings?.sourceMode === 'strict' || settings?.sourceMode === 'notes-only';
-    const grounding = strictGrounding
-      ? checkAgentGrounding(content, retrieval.citations, { strict: true })
-      : null;
+    const lang = settings?.language === 'el' ? 'el' : 'en';
+    const gated = applyAgentGroundingGate(content, retrieval.citations, {
+      strict: strictGrounding,
+      lang,
+    });
+    const grounding = gated.report;
     if (grounding) {
       emitAnalyticsLearningEvent('grounding_checked', {
         verified: grounding.verified,
@@ -240,11 +243,12 @@ export function Agent({
         faithfulness: Math.round(grounding.faithfulness * 100) / 100,
         unattributed: grounding.unattributedCount,
         ungrounded: grounding.ungroundedClaims.length,
+        gatePassed: gated.gatePassed,
       });
     }
 
     onUpdateMessage(streamId, {
-      content,
+      content: gated.content,
       isStreaming: false,
       sourceReference: citationLine,
       citations: retrieval.citations,
@@ -259,6 +263,7 @@ export function Agent({
         groundingVerified: grounding?.verified,
         groundingCoverage: grounding?.coverage,
         groundingFaithfulness: grounding?.faithfulness,
+        groundingGatePassed: gated.gatePassed,
         ungroundedClaims: grounding?.ungroundedClaims,
         groundingClaims: grounding?.claimDetails,
       },

@@ -5,6 +5,8 @@
     "averageConceptRecall": 0.6,
     "perFixtureConceptRecall": 0.45,
     "documentModelConceptRecall": 0.45,
-    "definitionRecall": 0.25
+    "definitionRecall": 0.25,
+    "groundingFaithfulnessMin": 0.5,
+    "groundingCasePassRate": 1
   }
 }

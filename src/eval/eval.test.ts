@@ -43,6 +43,9 @@ describe('recognition eval harness', () => {
     expect(report.passChecks.averageConceptRecall).toBe(true);
     expect(report.passChecks.perFixtureConceptRecall).toBe(true);
     expect(report.passChecks.documentModelConceptRecall).toBe(true);
+    expect(report.passChecks.groundingFaithfulness).toBe(true);
+    expect(report.passChecks.groundingCasePassRate).toBe(true);
+    expect(report.groundingResults.length).toBeGreaterThan(0);
     expect(report.pass).toBe(true);
-  });
+  }, 20_000);
 });

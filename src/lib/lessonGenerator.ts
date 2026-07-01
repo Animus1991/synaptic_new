@@ -16,6 +16,7 @@ import type { UploadedFile, UserSettings } from '../types';
 import { chatCompletion, isLlmAvailable } from './llmClient';
 import { retrieveSources, formatCitation } from './rag';
 import { parseJsonLoose } from './courseGenerator';
+import { verifyLessonPanelsFaithfulness } from './groundingFaithfulnessGate';
 import type { WorkspacePanel, WorkspacePanelBlock } from './workspaceLessonPanels';
 
 interface RawBlock {
@@ -190,7 +191,13 @@ Write the lesson panels now as specified.`;
     );
     const parsed = parseJsonLoose<{ panels?: RawPanel[] }>(raw);
     if (!parsed) return null;
-    return normalizePanels(parsed, sourceLine);
+    const panels = normalizePanels(parsed, sourceLine);
+    if (!panels) return null;
+
+    const faithfulness = verifyLessonPanelsFaithfulness(panels, retrieval.excerpt, strict);
+    if (strict && !faithfulness.verified) return null;
+
+    return panels;
   } catch {
     return null;
   }

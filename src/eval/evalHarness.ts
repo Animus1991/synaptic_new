@@ -20,6 +20,12 @@ import {
 import { extractFormulas } from '../lib/noteContentExtractors';
 import { analyzeCourseSourceQuality } from '../lib/courseSourceQuality';
 import { buildDocumentModelFromText } from '../lib/documentModel';
+import {
+  verifyAgentFaithfulness,
+  verifyLessonPanelsFaithfulness,
+} from '../lib/groundingFaithfulnessGate';
+import type { WorkspacePanel } from '../lib/workspaceLessonPanels';
+import type { MessageCitation } from '../types';
 import type { GeneratedOutline } from '../lib/courseGenerator';
 import baseline from './baseline.json';
 
@@ -170,11 +176,13 @@ export function evaluateFixture(name: string): EvalResult {
 export interface EvalReport {
   results: EvalResult[];
   documentModelResults: EvalResult[];
+  groundingResults: GroundingEvalCaseResult[];
   averageConceptRecall: number;
   averageConceptPrecision: number;
   averageDefinitionRecall: number;
   averageFormulaRecall: number;
   averageDocumentModelConceptRecall: number;
+  averageGroundingFaithfulness: number;
   qualityBands: Record<string, number>;
   pass: boolean;
   passChecks: {
@@ -182,7 +190,104 @@ export interface EvalReport {
     perFixtureConceptRecall: boolean;
     documentModelConceptRecall: boolean;
     definitionRecall: boolean;
+    groundingFaithfulness: boolean;
+    groundingCasePassRate: boolean;
   };
+}
+
+export interface GroundingEvalCase {
+  id: string;
+  source: string;
+  content?: string;
+  kind: 'agent' | 'lesson';
+  strict: boolean;
+  expectVerified: boolean;
+  minFaithfulness: number;
+  panels?: WorkspacePanel[];
+}
+
+export interface GroundingEvalCaseResult {
+  id: string;
+  kind: 'agent' | 'lesson';
+  faithfulness: number;
+  verified: boolean;
+  expectVerified: boolean;
+  pass: boolean;
+  errors: string[];
+}
+
+function loadGroundingCases(): GroundingEvalCase[] {
+  const raw = JSON.parse(
+    readFileSync(join(__dirname, 'fixtures', 'grounding-cases.json'), 'utf8'),
+  ) as { cases: GroundingEvalCase[] };
+  return raw.cases;
+}
+
+function citationFromSource(source: string): MessageCitation {
+  return {
+    chunkId: 'eval#0',
+    fileId: 'eval-file',
+    fileName: 'eval.txt',
+    locator: '¶1',
+    charStart: 0,
+    charEnd: source.length,
+    snippet: source,
+  };
+}
+
+export function evaluateGroundingCase(testCase: GroundingEvalCase): GroundingEvalCaseResult {
+  const errors: string[] = [];
+  let faithfulness = 0;
+  let verified = false;
+
+  if (testCase.kind === 'agent') {
+    const content = testCase.content ?? '';
+    const report = verifyAgentFaithfulness(content, [citationFromSource(testCase.source)], testCase.strict);
+    faithfulness = report.faithfulness;
+    verified = report.verified;
+  } else {
+    const panels = testCase.panels ?? [];
+    const report = verifyLessonPanelsFaithfulness(panels, testCase.source, testCase.strict);
+    faithfulness = report.faithfulness;
+    verified = report.verified;
+  }
+
+  if (testCase.expectVerified && faithfulness < testCase.minFaithfulness) {
+    errors.push(`faithfulness ${faithfulness.toFixed(2)} < ${testCase.minFaithfulness}`);
+  }
+  if (verified !== testCase.expectVerified) {
+    errors.push(`verified=${verified}, expected ${testCase.expectVerified}`);
+  }
+
+  return {
+    id: testCase.id,
+    kind: testCase.kind,
+    faithfulness,
+    verified,
+    expectVerified: testCase.expectVerified,
+    pass: errors.length === 0,
+    errors,
+  };
+}
+
+export function evaluateGroundingFaithfulness(): {
+  results: GroundingEvalCaseResult[];
+  averageFaithfulness: number;
+  passRate: number;
+  pass: boolean;
+} {
+  const results = loadGroundingCases().map(evaluateGroundingCase);
+  const averageFaithfulness =
+    results.reduce((s, r) => s + r.faithfulness, 0) / Math.max(results.length, 1);
+  const passRate = results.filter((r) => r.pass).length / Math.max(results.length, 1);
+  const t = baseline.thresholds as typeof baseline.thresholds & {
+    groundingFaithfulnessMin?: number;
+    groundingCasePassRate?: number;
+  };
+  const pass =
+    averageFaithfulness >= (t.groundingFaithfulnessMin ?? 0.5)
+    && passRate >= (t.groundingCasePassRate ?? 1);
+  return { results, averageFaithfulness, passRate, pass };
 }
 
 export const EVAL_FIXTURES: string[] = baseline.fixtures;
@@ -215,6 +320,7 @@ export function evaluateDocumentModelFixture(name: string): EvalResult {
 export function evaluateAll(fixtures: string[] = EVAL_FIXTURES): EvalReport {
   const results = fixtures.map(evaluateFixture);
   const documentModelResults = fixtures.map(evaluateDocumentModelFixture);
+  const groundingEval = evaluateGroundingFaithfulness();
   const averageConceptRecall = results.reduce((s, r) => s + r.conceptRecall, 0) / results.length;
   const averageConceptPrecision = results.reduce((s, r) => s + r.conceptPrecision, 0) / results.length;
   const averageDefinitionRecall = results.reduce((s, r) => s + r.definitionRecall, 0) / results.length;
@@ -226,26 +332,35 @@ export function evaluateAll(fixtures: string[] = EVAL_FIXTURES): EvalReport {
     qualityBands[r.sourceQualityBand] = (qualityBands[r.sourceQualityBand] ?? 0) + 1;
   }
 
-  const t = baseline.thresholds;
+  const t = baseline.thresholds as typeof baseline.thresholds & {
+    groundingFaithfulnessMin?: number;
+    groundingCasePassRate?: number;
+  };
   const passChecks = {
     averageConceptRecall: averageConceptRecall >= t.averageConceptRecall,
     perFixtureConceptRecall: results.every((r) => r.conceptRecall >= t.perFixtureConceptRecall),
     documentModelConceptRecall: averageDocumentModelConceptRecall >= t.documentModelConceptRecall,
     definitionRecall: averageDefinitionRecall >= (t.definitionRecall ?? 0),
+    groundingFaithfulness: groundingEval.averageFaithfulness >= (t.groundingFaithfulnessMin ?? 0.5),
+    groundingCasePassRate: groundingEval.passRate >= (t.groundingCasePassRate ?? 1),
   };
   const pass =
     passChecks.averageConceptRecall
     && passChecks.perFixtureConceptRecall
-    && passChecks.documentModelConceptRecall;
+    && passChecks.documentModelConceptRecall
+    && passChecks.groundingFaithfulness
+    && passChecks.groundingCasePassRate;
 
   return {
     results,
     documentModelResults,
+    groundingResults: groundingEval.results,
     averageConceptRecall,
     averageConceptPrecision,
     averageDefinitionRecall,
     averageFormulaRecall,
     averageDocumentModelConceptRecall,
+    averageGroundingFaithfulness: groundingEval.averageFaithfulness,
     qualityBands,
     pass,
     passChecks,
@@ -269,5 +384,9 @@ export function printReport(report: EvalReport): void {
   console.log(`  definition recall: ${(report.averageDefinitionRecall * 100).toFixed(1)}%`);
   console.log(`  formula recall: ${(report.averageFormulaRecall * 100).toFixed(1)}%`);
   console.log(`  DocumentModel concept recall: ${(report.averageDocumentModelConceptRecall * 100).toFixed(1)}%`);
+  console.log(`  Grounding faithfulness: ${(report.averageGroundingFaithfulness * 100).toFixed(1)}%`);
+  for (const g of report.groundingResults) {
+    console.log(`  grounding ${g.id}: faithfulness ${(g.faithfulness * 100).toFixed(1)}% pass=${g.pass}`);
+  }
   console.log(`  PASS: ${report.pass}`);
 }

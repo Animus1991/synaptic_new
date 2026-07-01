@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { checkAgentGrounding } from '../lib/agentGroundingCheck';
+import {
+  evaluateGroundingCase,
+  evaluateGroundingFaithfulness,
+} from './evalHarness';
 import type { MessageCitation } from '../types';
 
 const cite: MessageCitation = {
@@ -36,5 +40,32 @@ describe('grounding eval gate', () => {
       'Price elasticity of demand measures responsiveness. Markets can also experience supply shocks.';
     const report = checkAgentGrounding(content, [cite], { strict: false });
     expect(report.faithfulness).toBeGreaterThanOrEqual(0.35);
+  });
+
+  it('evaluates gold grounding cases from fixtures', () => {
+    const evalReport = evaluateGroundingFaithfulness();
+    expect(evalReport.results.length).toBeGreaterThanOrEqual(4);
+    expect(evalReport.passRate).toBe(1);
+    expect(evalReport.pass).toBe(true);
+  });
+
+  it('lesson fixture rejects hallucinated panels', () => {
+    const result = evaluateGroundingCase({
+      id: 'test-hallucination',
+      source: 'Supply and demand determine market equilibrium.',
+      kind: 'lesson',
+      strict: true,
+      expectVerified: false,
+      minFaithfulness: 0.5,
+      panels: [
+        {
+          badge: 'Core',
+          title: 'Bad claim',
+          blocks: [{ kind: 'paragraph', text: 'Einstein proved tariffs are always zero in 1920.' }],
+        },
+      ],
+    });
+    expect(result.pass).toBe(true);
+    expect(result.verified).toBe(false);
   });
 });
