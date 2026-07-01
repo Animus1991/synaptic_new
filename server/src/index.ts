@@ -107,7 +107,7 @@ export async function startServer(): Promise<void> {
       console.log('[synapse-proxy] vector index queue: BullMQ (Redis)');
     }
     if (process.env.NODE_ENV !== 'test') {
-      startStudyRoomCollab(config.collabPort);
+      startStudyRoomCollab(config.collabPort, config.databaseUrl);
     }
   });
 }

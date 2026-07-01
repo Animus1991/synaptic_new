@@ -2,6 +2,8 @@ import type { UserSettings } from '../types';
 import type { OcrStoredRegion } from './readerOcrOverlay';
 import type { TeacherDashboardResponse } from './teacherDashboardTypes';
 import type {
+  AssignmentRow,
+  AssignmentsResponse,
   ClassEnrollmentRow,
   ClassRosterResponse,
   TeacherClassRow,
@@ -291,6 +293,52 @@ export async function removeClassEnrollment(
 ): Promise<void> {
   const res = await fetch(
     `${proxyBase(settings)}/v1/teacher/classes/${classId}/roster/${enrollmentId}`,
+    {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${token}` },
+    },
+  );
+  if (!res.ok) throw new Error(await res.text());
+}
+
+export async function fetchClassAssignments(
+  token: string,
+  settings: UserSettings,
+  classId: string,
+): Promise<AssignmentsResponse> {
+  const res = await fetch(`${proxyBase(settings)}/v1/teacher/classes/${classId}/assignments`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json() as Promise<AssignmentsResponse>;
+}
+
+export async function createClassAssignment(
+  token: string,
+  settings: UserSettings,
+  classId: string,
+  payload: { title: string; description?: string; dueAt?: string; courseId?: string },
+): Promise<AssignmentRow> {
+  const res = await fetch(`${proxyBase(settings)}/v1/teacher/classes/${classId}/assignments`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json() as Promise<AssignmentRow>;
+}
+
+export async function removeClassAssignment(
+  token: string,
+  settings: UserSettings,
+  classId: string,
+  assignmentId: string,
+): Promise<void> {
+  const res = await fetch(
+    `${proxyBase(settings)}/v1/teacher/classes/${classId}/assignments/${assignmentId}`,
     {
       method: 'DELETE',
       headers: { Authorization: `Bearer ${token}` },

@@ -60,6 +60,14 @@ export type TeacherContent = {
   noClasses: string;
   noStudents: string;
   selectClass: string;
+  assignments: string;
+  assignmentsHint: string;
+  assignmentTitlePlaceholder: string;
+  assignmentDuePlaceholder: string;
+  createAssignment: string;
+  colDue: string;
+  removeAssignment: string;
+  noAssignments: string;
 };
 
 const EN: TeacherContent = {
@@ -69,7 +77,7 @@ const EN: TeacherContent = {
   signInRequired: 'Sign in required for the teacher dashboard.',
   signInHint: 'Sign in via Settings → Proxy account to load server usage, quotas, and synced library stats.',
   openSettingsCta: 'Open Settings to sign in',
-  cohortRoadmap: 'Manage class rosters below. Assignments and cohort analytics are on the roadmap.',
+  cohortRoadmap: 'Manage class rosters and assignments below. Cohort analytics are on the roadmap.',
   lastSynced: 'Last synced',
   courses: 'Courses',
   coursesInLibrary: 'in library',
@@ -122,6 +130,14 @@ const EN: TeacherContent = {
   noClasses: 'No classes yet — create one to start a roster.',
   noStudents: 'No students enrolled in this class.',
   selectClass: 'Select a class',
+  assignments: 'Assignments',
+  assignmentsHint: 'Set titles and due dates for this class. Stored on the teacher server (in-memory dev store).',
+  assignmentTitlePlaceholder: 'Assignment title',
+  assignmentDuePlaceholder: 'Due date (YYYY-MM-DD)',
+  createAssignment: 'Create assignment',
+  colDue: 'Due',
+  removeAssignment: 'Remove',
+  noAssignments: 'No assignments for this class yet.',
 };
 
 const EL: TeacherContent = {
@@ -131,7 +147,7 @@ const EL: TeacherContent = {
   signInRequired: 'Σύνδεση απαιτείται για τον πίνακα εκπαιδευτή.',
   signInHint: 'Συνδέσου στο proxy από τις Ρυθμίσεις για χρήση, quotas και βιβλιοθήκη server-side.',
   openSettingsCta: 'Άνοιγμα Ρυθμίσεων για σύνδεση',
-  cohortRoadmap: 'Διαχειρίσου καταλόγους τάξεων παρακάτω. Αναθέσεις και cohort analytics έρχονται σύντομα.',
+  cohortRoadmap: 'Διαχειρίσου καταλόγους τάξεων και αναθέσεις παρακάτω. Cohort analytics έρχονται σύντομα.',
   lastSynced: 'Τελευταίος συγχρονισμός',
   courses: 'Μαθήματα',
   coursesInLibrary: 'στη βιβλιοθήκη',
@@ -184,6 +200,14 @@ const EL: TeacherContent = {
   noClasses: 'Δεν υπάρχουν τάξεις — δημιούργησε μία για κατάλογο.',
   noStudents: 'Δεν υπάρχουν μαθητές σε αυτή την τάξη.',
   selectClass: 'Επίλεξε τάξη',
+  assignments: 'Αναθέσεις',
+  assignmentsHint: 'Τίτλοι και deadlines για την τάξη (teacher server, in-memory dev store).',
+  assignmentTitlePlaceholder: 'Τίτλος ανάθεσης',
+  assignmentDuePlaceholder: 'Προθεσμία (YYYY-MM-DD)',
+  createAssignment: 'Νέα ανάθεση',
+  colDue: 'Προθεσμία',
+  removeAssignment: 'Αφαίρεση',
+  noAssignments: 'Δεν υπάρχουν αναθέσεις για αυτή την τάξη.',
 };
 
 export function getTeacherContent(lang: Lang): TeacherContent {

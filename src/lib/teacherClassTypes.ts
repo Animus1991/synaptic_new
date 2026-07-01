@@ -25,3 +25,18 @@ export type ClassRosterResponse = {
   class: TeacherClassRow;
   roster: ClassEnrollmentRow[];
 };
+
+export type AssignmentRow = {
+  id: string;
+  classId: string;
+  title: string;
+  description?: string;
+  dueAt?: string;
+  courseId?: string;
+  createdAt: string;
+};
+
+export type AssignmentsResponse = {
+  classId: string;
+  assignments: AssignmentRow[];
+};

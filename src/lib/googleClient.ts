@@ -27,6 +27,14 @@ export type GoogleMeetSpace = {
   name?: string;
 };
 
+export type CalendarEventLite = {
+  id: string;
+  summary?: string;
+  start?: { dateTime?: string; date?: string };
+  end?: { dateTime?: string; date?: string };
+  htmlLink?: string;
+};
+
 function proxyBase(settings: UserSettings): string {
   return (settings.authProxyBase ?? settings.llmProxyUrl ?? 'http://localhost:8787')
     .replace(/\/v1\/?$/, '')
@@ -189,7 +197,7 @@ export async function listCalendarEvents(
   token: string,
   settings: UserSettings,
   opts?: { timeMin?: string; timeMax?: string },
-): Promise<unknown[]> {
+): Promise<CalendarEventLite[]> {
   const params = new URLSearchParams();
   if (opts?.timeMin) params.set('timeMin', opts.timeMin);
   if (opts?.timeMax) params.set('timeMax', opts.timeMax);
@@ -199,7 +207,7 @@ export async function listCalendarEvents(
     { headers: { Authorization: `Bearer ${token}` } },
   );
   if (!res.ok) throw new Error(await res.text());
-  const data = (await res.json()) as { events?: unknown[] };
+  const data = (await res.json()) as { events?: CalendarEventLite[] };
   return data.events ?? [];
 }
 

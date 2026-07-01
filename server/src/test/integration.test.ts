@@ -253,6 +253,52 @@ describe('server integration sweep', () => {
     expect(afterRemove.body.roster).toHaveLength(0);
   });
 
+  it('teacher class assignment APIs create list and delete assignments', async () => {
+    const reg = await request(app)
+      .post('/auth/register')
+      .send({ email: 'assign@example.com', password: 'password123' })
+      .expect(201);
+    const token = reg.body.token as string;
+
+    const created = await request(app)
+      .post('/v1/teacher/classes')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ name: 'History 201' })
+      .expect(201);
+    const classId = created.body.id as string;
+
+    const empty = await request(app)
+      .get(`/v1/teacher/classes/${classId}/assignments`)
+      .set('Authorization', `Bearer ${token}`)
+      .expect(200);
+    expect(empty.body.assignments).toEqual([]);
+
+    const assignment = await request(app)
+      .post(`/v1/teacher/classes/${classId}/assignments`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({ title: 'Essay draft', dueAt: '2026-08-15' })
+      .expect(201);
+    expect(assignment.body.title).toBe('Essay draft');
+    expect(assignment.body.dueAt).toBe('2026-08-15');
+
+    const listed = await request(app)
+      .get(`/v1/teacher/classes/${classId}/assignments`)
+      .set('Authorization', `Bearer ${token}`)
+      .expect(200);
+    expect(listed.body.assignments).toHaveLength(1);
+
+    await request(app)
+      .delete(`/v1/teacher/classes/${classId}/assignments/${assignment.body.id}`)
+      .set('Authorization', `Bearer ${token}`)
+      .expect(204);
+
+    const afterDelete = await request(app)
+      .get(`/v1/teacher/classes/${classId}/assignments`)
+      .set('Authorization', `Bearer ${token}`)
+      .expect(200);
+    expect(afterDelete.body.assignments).toHaveLength(0);
+  });
+
   it('POST /v1/billing/webhook deduplicates Stripe event ids', async () => {
     const reg = await request(app)
       .post('/auth/register')

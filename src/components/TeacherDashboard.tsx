@@ -8,12 +8,15 @@ import type { ActivityItem, Course, LearnerModel, UserSettings } from '../types'
 import {
   addClassEnrollment as apiAddEnrollment,
   createTeacherClass,
+  createClassAssignment as apiCreateAssignment,
+  fetchClassAssignments,
   fetchClassRoster,
   fetchTeacherClasses,
   fetchTeacherDashboard,
+  removeClassAssignment as apiRemoveAssignment,
   removeClassEnrollment as apiRemoveEnrollment,
 } from '../lib/authClient';
-import type { ClassEnrollmentRow, TeacherClassRow } from '../lib/teacherClassTypes';
+import type { AssignmentRow, ClassEnrollmentRow, TeacherClassRow } from '../lib/teacherClassTypes';
 import { listLearningEvents, countLearningEventsByType } from '../lib/learningEvents';
 import type { TeacherDashboardResponse } from '../lib/teacherDashboardTypes';
 import { getTeacherContent } from '../lib/teacherContent';
@@ -49,6 +52,9 @@ export function TeacherDashboard({
   const [classNameInput, setClassNameInput] = useState('');
   const [studentEmail, setStudentEmail] = useState('');
   const [studentName, setStudentName] = useState('');
+  const [assignments, setAssignments] = useState<AssignmentRow[]>([]);
+  const [assignmentTitle, setAssignmentTitle] = useState('');
+  const [assignmentDue, setAssignmentDue] = useState('');
   const [classBusy, setClassBusy] = useState(false);
   const localEvents = countLearningEventsByType();
   const recentEvents = listLearningEvents(8);
@@ -99,13 +105,21 @@ export function TeacherDashboard({
     setRoster(rosterJson.roster);
   }, [settings.authToken, settings]);
 
+  const loadAssignments = useCallback(async (classId: string) => {
+    if (!settings.authToken?.trim()) return;
+    const json = await fetchClassAssignments(settings.authToken, settings, classId);
+    setAssignments(json.assignments);
+  }, [settings.authToken, settings]);
+
   useEffect(() => {
     if (!settings.authToken?.trim() || !selectedClassId) {
       setRoster([]);
+      setAssignments([]);
       return;
     }
     void loadRoster(selectedClassId).catch((err: Error) => setError(err.message));
-  }, [settings.authToken, selectedClassId, loadRoster]);
+    void loadAssignments(selectedClassId).catch((err: Error) => setError(err.message));
+  }, [settings.authToken, selectedClassId, loadRoster, loadAssignments]);
 
   const handleCreateClass = async () => {
     if (!settings.authToken?.trim() || !classNameInput.trim()) return;
@@ -157,6 +171,37 @@ export function TeacherDashboard({
       await loadRoster(selectedClassId);
       const classJson = await fetchTeacherClasses(settings.authToken, settings);
       setClasses(classJson.classes);
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setClassBusy(false);
+    }
+  };
+
+  const handleCreateAssignment = async () => {
+    if (!settings.authToken?.trim() || !selectedClassId || !assignmentTitle.trim()) return;
+    setClassBusy(true);
+    try {
+      await apiCreateAssignment(settings.authToken, settings, selectedClassId, {
+        title: assignmentTitle.trim(),
+        dueAt: assignmentDue.trim() || undefined,
+      });
+      setAssignmentTitle('');
+      setAssignmentDue('');
+      await loadAssignments(selectedClassId);
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setClassBusy(false);
+    }
+  };
+
+  const handleRemoveAssignment = async (assignmentId: string) => {
+    if (!settings.authToken?.trim() || !selectedClassId) return;
+    setClassBusy(true);
+    try {
+      await apiRemoveAssignment(settings.authToken, settings, selectedClassId, assignmentId);
+      await loadAssignments(selectedClassId);
     } catch (err) {
       setError((err as Error).message);
     } finally {
@@ -334,6 +379,74 @@ export function TeacherDashboard({
                   </table>
                 </div>
               )}
+
+              <div className="space-y-3 pt-4 border-t border-border-subtle" data-testid="teacher-assignments">
+                <h3 className="text-sm font-semibold">{ui.assignments}</h3>
+                <p className="text-[11px] text-text-muted">{ui.assignmentsHint}</p>
+                <div className="flex flex-wrap gap-2 items-end">
+                  <input
+                    type="text"
+                    value={assignmentTitle}
+                    onChange={(e) => setAssignmentTitle(e.target.value)}
+                    placeholder={ui.assignmentTitlePlaceholder}
+                    data-testid="teacher-assignment-title"
+                    className="flex-1 min-w-[160px] px-3 py-2 rounded-xl border border-border-subtle bg-surface-primary text-sm"
+                  />
+                  <input
+                    type="date"
+                    value={assignmentDue}
+                    onChange={(e) => setAssignmentDue(e.target.value)}
+                    placeholder={ui.assignmentDuePlaceholder}
+                    data-testid="teacher-assignment-due"
+                    className="px-3 py-2 rounded-xl border border-border-subtle bg-surface-primary text-sm"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => void handleCreateAssignment()}
+                    disabled={classBusy || !assignmentTitle.trim()}
+                    data-testid="teacher-create-assignment"
+                    className="px-3 py-2 rounded-xl bg-brand-600 text-white text-sm font-medium disabled:opacity-50"
+                  >
+                    {ui.createAssignment}
+                  </button>
+                </div>
+                {assignments.length === 0 ? (
+                  <p className="text-xs text-text-muted">{ui.noAssignments}</p>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-xs">
+                      <thead>
+                        <tr className="text-text-muted border-b border-border-subtle">
+                          <th className="text-left py-2 pr-3">{ui.colTitle}</th>
+                          <th className="text-left py-2 pr-3">{ui.colDue}</th>
+                          <th className="text-right py-2" />
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {assignments.map((row) => (
+                          <tr key={row.id} className="border-b border-border-subtle/50" data-testid={`teacher-assignment-row-${row.id}`}>
+                            <td className="py-2 pr-3 font-medium">{row.title}</td>
+                            <td className="py-2 pr-3 text-text-muted">
+                              {row.dueAt ? formatShortDate(row.dueAt, lang) : '—'}
+                            </td>
+                            <td className="py-2 text-right">
+                              <button
+                                type="button"
+                                onClick={() => void handleRemoveAssignment(row.id)}
+                                disabled={classBusy}
+                                data-testid={`teacher-remove-assignment-${row.id}`}
+                                className="text-accent-rose hover:underline"
+                              >
+                                {ui.removeAssignment}
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
             </div>
           )}
         </div>

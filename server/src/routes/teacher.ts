@@ -17,6 +17,12 @@ import {
   listTeacherClasses,
   removeClassEnrollment,
 } from '../store/classStore';
+import {
+  createClassAssignment,
+  listClassAssignments,
+  removeClassAssignment,
+  updateClassAssignment,
+} from '../store/assignmentStore';
 import { notifyAnnotationStream, registerAnnotationStream } from './annotationStream';
 import { registerConceptMapCursorStream } from './conceptMapStream';
 
@@ -224,6 +230,72 @@ teacherRouter.delete('/teacher/classes/:classId/roster/:enrollmentId', (req, res
   const ok = removeClassEnrollment(cls.id, req.params.enrollmentId);
   if (!ok) {
     res.status(404).json({ error: 'enrollment not found' });
+    return;
+  }
+  res.status(204).send();
+});
+
+/** GET /v1/teacher/classes/:classId/assignments */
+teacherRouter.get('/teacher/classes/:classId/assignments', (req, res) => {
+  const account = req.account!;
+  const cls = getTeacherClass(req.params.classId, account.id);
+  if (!cls) {
+    res.status(404).json({ error: 'class not found' });
+    return;
+  }
+  res.json({ classId: cls.id, assignments: listClassAssignments(cls.id) });
+});
+
+/** POST /v1/teacher/classes/:classId/assignments */
+teacherRouter.post('/teacher/classes/:classId/assignments', (req, res) => {
+  const account = req.account!;
+  const cls = getTeacherClass(req.params.classId, account.id);
+  if (!cls) {
+    res.status(404).json({ error: 'class not found' });
+    return;
+  }
+  const body = req.body as { title?: string; description?: string; dueAt?: string; courseId?: string };
+  if (!body.title?.trim()) {
+    res.status(400).json({ error: 'title required' });
+    return;
+  }
+  const created = createClassAssignment(cls.id, {
+    title: body.title,
+    description: body.description,
+    dueAt: body.dueAt,
+    courseId: body.courseId,
+  });
+  res.status(201).json(created);
+});
+
+/** PATCH /v1/teacher/classes/:classId/assignments/:assignmentId */
+teacherRouter.patch('/teacher/classes/:classId/assignments/:assignmentId', (req, res) => {
+  const account = req.account!;
+  const cls = getTeacherClass(req.params.classId, account.id);
+  if (!cls) {
+    res.status(404).json({ error: 'class not found' });
+    return;
+  }
+  const body = req.body as { title?: string; description?: string; dueAt?: string; courseId?: string };
+  const updated = updateClassAssignment(cls.id, req.params.assignmentId, body);
+  if (!updated) {
+    res.status(404).json({ error: 'assignment not found' });
+    return;
+  }
+  res.json(updated);
+});
+
+/** DELETE /v1/teacher/classes/:classId/assignments/:assignmentId */
+teacherRouter.delete('/teacher/classes/:classId/assignments/:assignmentId', (req, res) => {
+  const account = req.account!;
+  const cls = getTeacherClass(req.params.classId, account.id);
+  if (!cls) {
+    res.status(404).json({ error: 'class not found' });
+    return;
+  }
+  const ok = removeClassAssignment(cls.id, req.params.assignmentId);
+  if (!ok) {
+    res.status(404).json({ error: 'assignment not found' });
     return;
   }
   res.status(204).send();

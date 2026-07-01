@@ -6,17 +6,21 @@ import {
   completeGoogleAuth,
   createGoogleMeetSpace,
   createGoogleTask,
+  deleteCalendarEvent,
   disconnectGoogle,
   fetchGoogleStatus,
   googleAuthStartUrl,
   googleConnectStartUrl,
+  listCalendarEvents,
   listGoogleTaskLists,
   listGoogleTasks,
+  type CalendarEventLite,
   type GoogleConnectionStatus,
   type GoogleTask,
 } from '../lib/googleClient';
 import { syncTasksToGoogleCalendar, type TaskCalendarSyncUpdate } from '../lib/taskCalendarSync';
 import { useI18n } from '../lib/i18n';
+import { formatDateTime, localeTag } from '../lib/localeFormat';
 
 type Props = {
   settings: UserSettings;
@@ -33,13 +37,14 @@ export function GoogleIntegrationsPanel({
   onAuthComplete,
   synapseTasks = [],
   onCalendarSync,
-  lang: _lang,
+  lang = 'en',
 }: Props) {
   const { t } = useI18n();
   const [status, setStatus] = useState<GoogleConnectionStatus | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [tasks, setTasks] = useState<GoogleTask[]>([]);
+  const [calendarEvents, setCalendarEvents] = useState<CalendarEventLite[]>([]);
   const [taskDraft, setTaskDraft] = useState('');
   const [meetUri, setMeetUri] = useState<string | null>(null);
   const [listId, setListId] = useState('@default');
@@ -75,6 +80,20 @@ export function GoogleIntegrationsPanel({
     }
   }, [settings, status?.hasTasks]);
 
+  const loadCalendarEvents = useCallback(async () => {
+    if (!settings.authToken || !status?.hasCalendar) return;
+    setLoading(true);
+    try {
+      const events = await listCalendarEvents(settings.authToken, settings);
+      setCalendarEvents(events.filter((ev) => Boolean(ev.id)));
+      setError(null);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Calendar load failed');
+    } finally {
+      setLoading(false);
+    }
+  }, [settings, status?.hasCalendar]);
+
   useEffect(() => {
     void refreshStatus();
   }, [refreshStatus]);
@@ -82,6 +101,16 @@ export function GoogleIntegrationsPanel({
   useEffect(() => {
     if (status?.connected && status.hasTasks) void loadTasks();
   }, [status?.connected, status?.hasTasks, loadTasks]);
+
+  useEffect(() => {
+    if (status?.connected && status.hasCalendar) void loadCalendarEvents();
+  }, [status?.connected, status?.hasCalendar, loadCalendarEvents]);
+
+  const formatEventWhen = (ev: CalendarEventLite): string => {
+    const raw = ev.start?.dateTime ?? ev.start?.date;
+    if (!raw) return '—';
+    return formatDateTime(raw, localeTag(lang));
+  };
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -152,6 +181,7 @@ export function GoogleIntegrationsPanel({
       await disconnectGoogle(settings.authToken, settings);
       setStatus({ connected: false, scopes: [], hasTasks: false, hasMeet: false, hasCalendar: false });
       setTasks([]);
+      setCalendarEvents([]);
       setMeetUri(null);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Disconnect failed');
@@ -200,9 +230,24 @@ export function GoogleIntegrationsPanel({
       );
       onCalendarSync?.(updates);
       onAuthComplete?.(t('googleCalendarSynced').replace('{count}', String(updates.length)));
+      await loadCalendarEvents();
       setError(null);
     } catch (e) {
       setError(e instanceof Error ? e.message : t('googleCalendarSyncFailed'));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteCalendarEvent = async (eventId: string) => {
+    if (!settings.authToken) return;
+    setLoading(true);
+    try {
+      await deleteCalendarEvent(settings.authToken, settings, eventId);
+      await loadCalendarEvents();
+      setError(null);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Delete event failed');
     } finally {
       setLoading(false);
     }
@@ -282,6 +327,46 @@ export function GoogleIntegrationsPanel({
             >
               {t('googleSyncAllScheduled')}
             </button>
+            <button
+              type="button"
+              data-testid="google-calendar-refresh"
+              disabled={loading}
+              onClick={() => void loadCalendarEvents()}
+              className="inline-flex items-center gap-1 rounded-lg border border-border-subtle px-2 py-1.5 text-xs text-text-secondary hover:border-brand-500/30"
+            >
+              {t('googleRefreshCalendar')}
+            </button>
+          </div>
+          <div className="space-y-1 pt-2 border-t border-border-subtle/60">
+            <p className="text-[10px] font-semibold text-text-muted uppercase tracking-wide">
+              {t('googleUpcomingEvents')}
+            </p>
+            <ul className="max-h-40 space-y-1 overflow-y-auto text-[11px] text-text-secondary" data-testid="google-calendar-events">
+              {calendarEvents.map((ev) => (
+                <li
+                  key={ev.id}
+                  className="flex items-start justify-between gap-2 rounded bg-surface-card/60 px-2 py-1"
+                  data-testid={`google-calendar-event-${ev.id}`}
+                >
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate font-medium text-text-primary">{ev.summary ?? ev.id}</p>
+                    <p className="text-[10px] text-text-muted">{formatEventWhen(ev)}</p>
+                  </div>
+                  <button
+                    type="button"
+                    disabled={loading}
+                    onClick={() => void handleDeleteCalendarEvent(ev.id)}
+                    data-testid={`google-calendar-delete-${ev.id}`}
+                    className="shrink-0 text-[10px] text-accent-rose hover:underline"
+                  >
+                    {t('googleDeleteEvent')}
+                  </button>
+                </li>
+              ))}
+              {calendarEvents.length === 0 && !loading && (
+                <li className="text-text-muted">{t('googleNoEvents')}</li>
+              )}
+            </ul>
           </div>
         </div>
       )}
