@@ -1,13 +1,8 @@
-import type { MessageCitation } from '../types';
+/**
+ * Citation token-overlap grounding for Agent answers (no LLM).
+ */
 
-export type GroundingReport = {
-  /** Fraction of substantive sentences with citation overlap (0–1). */
-  coverage: number;
-  /** Sentences that look factual but lack citation overlap. */
-  unattributedCount: number;
-  /** Passes strict grounding bar when citations exist and coverage is adequate. */
-  verified: boolean;
-};
+import type { CitationOverlapReport, MessageCitation } from './types';
 
 const SENTENCE_RE = /[^.!?…\n]+[.!?…]?/g;
 
@@ -32,15 +27,11 @@ function isSubstantive(sentence: string): boolean {
   return words >= 6;
 }
 
-/**
- * Lightweight post-generation grounding check for strict / notes-only modes.
- * Does not call an LLM — uses token overlap between answer sentences and citations.
- */
-export function verifyGrounding(
+export function verifyCitationOverlap(
   content: string,
   citations: MessageCitation[],
   opts: { strict?: boolean; minCoverage?: number } = {},
-): GroundingReport {
+): CitationOverlapReport {
   const strict = opts.strict ?? true;
   const minCoverage = opts.minCoverage ?? 0.35;
 

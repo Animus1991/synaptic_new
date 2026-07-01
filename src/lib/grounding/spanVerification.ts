@@ -1,42 +1,9 @@
 /**
- * Grounding verification layer.
- *
- * Checks generated claims against source text to ensure citations are faithful.
- * Verifies numeric values and entity mentions are present in the source,
- * and computes an overall faithfulness score. In strict mode, claims without
- * grounding evidence are flagged as unverified.
+ * Span-level grounding: numeric, entity, and phrase verification against source text.
  */
 
-import { splitSentences } from './contentAnalysis';
-
-export interface GroundingSpan {
-  type: 'number' | 'entity' | 'phrase';
-  value: string;
-  /** Character offset where the value was found in the source, or -1 if not found. */
-  charStart: number;
-  charEnd: number;
-  /** Confidence that this grounding is correct. */
-  confidence: number;
-}
-
-export interface GroundingCheck {
-  claim: string;
-  spans: GroundingSpan[];
-  /** Overall faithfulness score for this claim (0-1). */
-  score: number;
-  /** True when every verifiable span is grounded in the source. */
-  grounded: boolean;
-}
-
-export interface GroundingResult {
-  checks: GroundingCheck[];
-  /** Aggregate faithfulness score across all claims. */
-  faithfulness: number;
-  /** Fraction of claims that are fully grounded. */
-  groundedRatio: number;
-  /** Strict mode: all claims must be grounded. */
-  strictPass: boolean;
-}
+import { splitSentences } from '../contentAnalysis';
+import type { GroundingCheck, GroundingResult, GroundingSpan, VerifyGroundingOptions } from './types';
 
 function normalizeNumber(value: string): string {
   return value
@@ -61,7 +28,6 @@ function findNumberInText(value: string, text: string): GroundingSpan | null {
     };
   }
 
-  // Loose match: same numeric value regardless of formatting.
   const numMatch = normalized.match(/^\d+(?:\.\d+)?/);
   if (numMatch) {
     const numValue = parseFloat(numMatch[0]);
@@ -97,7 +63,6 @@ function findEntityInText(value: string, text: string): GroundingSpan | null {
     };
   }
 
-  // Try matching individual words for multi-word entities.
   const words = lowerValue.split(/\s+/).filter((w) => w.length > 3);
   if (words.length >= 2) {
     for (const word of words) {
@@ -135,19 +100,16 @@ function findPhraseInText(value: string, text: string): GroundingSpan | null {
 function extractVerifiableSpans(claim: string): GroundingSpan[] {
   const spans: GroundingSpan[] = [];
 
-  // Numbers with optional units.
   for (const m of claim.matchAll(/\b\d{1,3}(?:,\d{3})*(?:\.\d+)?\s*(?:%|percent|kg|km|m|cm|mm|ms|s|h|°C|°F|m²|m³)?\b/gi)) {
     spans.push({ type: 'number', value: m[0]!, charStart: -1, charEnd: -1, confidence: 0 });
   }
 
-  // Capitalized entities (potential named entities / proper nouns).
   for (const m of claim.matchAll(/\b[A-Z][a-zA-Z]+(?:\s+[A-Z][a-zA-Z]+){0,3}\b/g)) {
     const value = m[0]!;
     if (value.length < 4) continue;
     spans.push({ type: 'entity', value, charStart: -1, charEnd: -1, confidence: 0 });
   }
 
-  // Quoted phrases.
   for (const m of claim.matchAll(/"([^"]{4,80})"/g)) {
     spans.push({ type: 'phrase', value: m[1]!, charStart: -1, charEnd: -1, confidence: 0 });
   }
@@ -182,14 +144,6 @@ function verifyClaim(claim: string, sourceText: string): GroundingCheck {
   return { claim, spans: verified, score, grounded: score >= 0.95 };
 }
 
-export interface VerifyGroundingOptions {
-  strict?: boolean;
-  minScore?: number;
-}
-
-/**
- * Verify a list of generated claims against the original source text.
- */
 export function verifyGrounding(
   claims: string[],
   sourceText: string,
@@ -217,16 +171,10 @@ export function verifyGrounding(
   };
 }
 
-/**
- * Verify grounding of a single generated sentence.
- */
 export function verifySentence(sentence: string, sourceText: string): GroundingCheck {
   return verifyClaim(sentence, sourceText);
 }
 
-/**
- * Split a generated answer into claim-sized sentences and verify each.
- */
 export function verifyAnswer(answer: string, sourceText: string): GroundingResult {
   const claims = splitSentences(answer);
   return verifyGrounding(claims, sourceText);

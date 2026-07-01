@@ -16,7 +16,7 @@ import type { UploadedFile, UserSettings } from '../types';
 import { chatCompletion, isLlmAvailable } from './llmClient';
 import { retrieveSources, formatCitation } from './rag';
 import { parseJsonLoose } from './courseGenerator';
-import { verifyLessonPanelsFaithfulness } from './groundingFaithfulnessGate';
+import { verifyLessonPanelsFaithfulness } from './grounding';
 import type { WorkspacePanel, WorkspacePanelBlock } from './workspaceLessonPanels';
 
 interface RawBlock {

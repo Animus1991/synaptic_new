@@ -1,11 +1,4 @@
-import type { MessageCitation } from '../types';
-import type { GroundingCheck } from './grounding';
-
-export type SourceHighlight = {
-  fileId: string;
-  charStart: number;
-  charEnd: number;
-};
+import type { GroundingCheck, MessageCitation, SourceHighlight } from './types';
 
 export function buildCombinedCitationText(citations: MessageCitation[]): string {
   return citations
@@ -13,7 +6,6 @@ export function buildCombinedCitationText(citations: MessageCitation[]): string 
     .join('\n\n');
 }
 
-/** Map a character offset in combined citation text to a file span. */
 export function mapCombinedOffsetToCitation(
   citations: MessageCitation[],
   charStart: number,
@@ -43,7 +35,6 @@ export function mapCombinedOffsetToCitation(
   return { fileId: first.fileId, charStart: first.charStart, charEnd: first.charEnd };
 }
 
-/** Resolve click-to-source highlight for a grounding check. */
 export function resolveSourceHighlight(
   citations: MessageCitation[],
   check: GroundingCheck,

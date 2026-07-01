@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { checkAgentGrounding } from '../lib/agentGroundingCheck';
+import { checkAgentGrounding } from '../lib/grounding';
 import {
   evaluateGroundingCase,
   evaluateGroundingFaithfulness,

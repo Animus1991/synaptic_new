@@ -18,7 +18,7 @@ import {
 } from '../lib/agentCommands';
 import { buildAgentRetrievalQuery, buildAgentContextSystemBlock, type AgentWorkspaceContext } from '../lib/agentWorkspaceContext';
 import { spanFromCitation } from '../lib/conceptProvenance';
-import { applyAgentGroundingGate } from '../lib/groundingFaithfulnessGate';
+import { applyAgentGroundingGate } from '../lib/grounding';
 import { emitAnalyticsLearningEvent } from '../lib/emitLearningEvent';
 import { formatCitation } from '../lib/rag';
 import { GoToSourceButton } from './GoToSourceButton';

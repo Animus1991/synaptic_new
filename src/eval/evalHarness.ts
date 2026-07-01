@@ -23,7 +23,7 @@ import { buildDocumentModelFromText } from '../lib/documentModel';
 import {
   verifyAgentFaithfulness,
   verifyLessonPanelsFaithfulness,
-} from '../lib/groundingFaithfulnessGate';
+} from '../lib/grounding';
 import type { WorkspacePanel } from '../lib/workspaceLessonPanels';
 import type { MessageCitation } from '../types';
 import type { GeneratedOutline } from '../lib/courseGenerator';

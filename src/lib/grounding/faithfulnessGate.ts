@@ -1,19 +1,11 @@
 /**
- * S9 — Unified span-level grounding faithfulness gate for lessons + Agent.
+ * Unified faithfulness gate for lesson panels and Agent responses.
  */
 
-import type { MessageCitation } from '../types';
-import { checkAgentGrounding, type AgentGroundingReport } from './agentGroundingCheck';
-import { verifyGrounding } from './grounding';
-import type { WorkspacePanel, WorkspacePanelBlock } from './workspaceLessonPanels';
-
-export type GroundingFaithfulnessReport = {
-  faithfulness: number;
-  groundedRatio: number;
-  strictPass: boolean;
-  verified: boolean;
-  ungroundedClaims: string[];
-};
+import type { WorkspacePanel, WorkspacePanelBlock } from '../workspaceLessonPanels';
+import type { AgentGroundingReport, GroundingFaithfulnessReport, MessageCitation } from './types';
+import { checkAgentGrounding } from './agentGrounding';
+import { verifyGrounding } from './spanVerification';
 
 export const DEFAULT_MIN_FAITHFULNESS = 0.5;
 export const STRICT_MIN_FAITHFULNESS = 0.95;
@@ -38,7 +30,6 @@ function blockClaims(block: WorkspacePanelBlock): string[] {
   }
 }
 
-/** Collect verifiable claim strings from lesson panels (excludes source citation blocks). */
 export function extractPanelClaims(panels: WorkspacePanel[]): string[] {
   const claims: string[] = [];
   for (const panel of panels) {

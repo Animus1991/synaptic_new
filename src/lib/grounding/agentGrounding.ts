@@ -1,30 +1,7 @@
-import type { MessageCitation } from '../types';
-import { verifyAnswer } from './grounding';
-import { verifyGrounding as verifyCitationOverlap } from './groundingVerifier';
-import { resolveSourceHighlight } from './groundingCitationMap';
-
-export type GroundedClaimDetail = {
-  claim: string;
-  grounded: boolean;
-  score: number;
-  source?: { fileId: string; charStart: number; charEnd: number };
-};
-
-export type AgentGroundingReport = {
-  verified: boolean;
-  coverage: number;
-  faithfulness: number;
-  groundedRatio: number;
-  unattributedCount: number;
-  ungroundedClaims: string[];
-  claimDetails: GroundedClaimDetail[];
-};
-
-function citationsToSourceText(citations: MessageCitation[]): string {
-  return citations
-    .map((c) => [c.heading, c.snippet].filter(Boolean).join(' '))
-    .join('\n\n');
-}
+import type { AgentGroundingReport, GroundedClaimDetail, MessageCitation } from './types';
+import { buildCombinedCitationText, resolveSourceHighlight } from './citationMap';
+import { verifyCitationOverlap } from './citationOverlap';
+import { verifyAnswer } from './spanVerification';
 
 /**
  * Combined Agent grounding: citation token overlap + span-level faithfulness.
@@ -51,7 +28,7 @@ export function checkAgentGrounding(
   }
 
   const overlap = verifyCitationOverlap(content, citations, { strict });
-  const span = verifyAnswer(content, citationsToSourceText(citations));
+  const span = verifyAnswer(content, buildCombinedCitationText(citations));
 
   const claimDetails: GroundedClaimDetail[] = span.checks
     .filter((c) => c.claim.trim().length > 20)
