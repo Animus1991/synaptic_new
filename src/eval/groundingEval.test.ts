@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { checkAgentGrounding } from '../lib/grounding';
+import { EVAL_GROUNDING_FAITHFULNESS_MIN } from '../lib/qualityThresholds';
 import {
   evaluateGroundingCase,
   evaluateGroundingFaithfulness,
@@ -46,7 +47,7 @@ describe('grounding eval gate', () => {
     const evalReport = evaluateGroundingFaithfulness();
     expect(evalReport.results.length).toBeGreaterThanOrEqual(6);
     expect(evalReport.passRate).toBe(1);
-    expect(evalReport.averageFaithfulness).toBeGreaterThanOrEqual(0.75);
+    expect(evalReport.averageFaithfulness).toBeGreaterThanOrEqual(EVAL_GROUNDING_FAITHFULNESS_MIN);
     expect(evalReport.pass).toBe(true);
   });
 

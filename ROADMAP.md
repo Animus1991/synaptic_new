@@ -26,8 +26,8 @@ This document separates **done**, **partial**, and **missing** against the produ
 | i18n | **~83%** | Wave C Settings/Tasks shipped (S7); component lint allowlist empty |
 | UI/UX / themes | **~88%** | Warm Sand + Spectrum global themes, PWA shell (S7) |
 
-**Overall product-scale readiness: ~89%** — S9 grounding consolidation and staged gates
-unblock Stage 3 eval expansion and teacher cohort insights (S10).
+**Overall product-scale readiness: ~90%** — Stage 3 quality gates complete; next:
+sub-line annotations and production backend (S10).
 
 ---
 
@@ -102,7 +102,7 @@ See I18N.md, STUDY_WORKSPACE.md, WORKSPACE_TOOLS_UPGRADE.md, and EXHAUSTIVE_PROD
 
 | Area | Open work |
 | ---- | --------- |
-| Quality | **Stage 3 gates** — span 95%, faithfulness 0.95 eval expansion |
+| Quality | Sub-line span annotations |
 | Annotations | **Sub-line span annotations** (line-level only today) |
 | Backend | pgvector default path, Redis/BullMQ production, teacher gradebook UI — S10 |
 | Algorithms | Math OCR, layout-aware PDF blocks |

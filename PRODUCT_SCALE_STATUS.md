@@ -1,6 +1,6 @@
 # Product-scale status (canonical snapshot)
 
-**Last reconciled:** 2026-07-01 — aligned with `synaptic_new/main` through `daf5acd`.
+**Last reconciled:** 2026-07-01 — aligned with `synaptic_new/main` through `da6e42b`.
 
 This file is the **single shipped-truth status doc**. Use it for readiness reviews,
 sprint close-outs, and investor/contributor snapshots.
@@ -16,10 +16,8 @@ sprint close-outs, and investor/contributor snapshots.
 
 ## Overall readiness
 
-**~89% product-scale** — note-grounded Study Workspace at product depth; S9
-grounding consolidation, staged quality gates, and workspace tool polish largely
-shipped. Remaining gaps are sub-line annotations, Stage 3 gates, production
-backend hardening, and residual i18n.
+**~90% product-scale** — S9 grounding consolidation and **Stage 3 quality gates**
+shipped. Remaining gaps: sub-line annotations, production backend, math OCR.
 
 ---
 
@@ -28,17 +26,17 @@ backend hardening, and residual i18n.
 | Layer | % | Shipped truth (Jul 2026) |
 | ----- | - | ------------------------ |
 | Content engine (offline v2) | **~93%** | DocumentModel v2 + recognition worker (S8) |
-| Upload → course pipeline | **~93%** | Parallel DocumentModel + course recognition; Stage 1–2 quality gates (S9) |
+| Upload → course pipeline | **~94%** | Stage 3 quality gates — span 95%, source text 90% |
 | Study Workspace (11 tools) | **~92%** | Note-grounded tools; Leitner card types; whiteboard PNG+SVG export |
 | Lesson surfaces | **~82%** | Step-grounded excerpts; concept lens chrome; grounding faithfulness gate |
 | Tasks & pedagogy | **~83%** | Unified adaptive scheduler (S9-PR1); FSRS + Beta-Bernoulli mastery |
 | Analytics & Dashboard | **~78%** | Behavior inference + Research tab (S5) |
-| RAG / Agent | **~87%** | BM25 + hybrid rerank; unified `src/lib/grounding/`; agent faithfulness gate |
+| RAG / Agent | **~88%** | Unified grounding; Stage 3 faithfulness 0.95 eval gate |
 | Client persistence | **~86%** | localStorage + IndexedDB; DocumentModel snapshots |
 | Auth & sync | **~80%** | JWT, library + session pull/push |
 | Phase 6 server (dev) | **~75%** | Express proxy + OCR/RAG; not production-hardened |
 | Documentation | **~92%** | This reconciliation pass + doc-lint capability assertions |
-| Tests & CI | **~92%** | Vitest + `npm run eval` gold-set gate (30/30 at Stage 2) |
+| Tests & CI | **~93%** | Vitest + `npm run eval` gold-set gate (Stage 3: 30/30) |
 | i18n | **~83%** | Wave C Settings/Tasks (S7); component lint allowlist empty |
 | UI/UX / themes | **~88%** | Warm Sand + Spectrum; PWA shell (S7) |
 
@@ -59,7 +57,9 @@ backend hardening, and residual i18n.
 | `2ad7ad5` | Fix lesson ↔ reader step-grounded excerpt matching |
 | `956a4b6` | Workspace boot latency — parallel reader/body prefetch |
 | `b324969` | Whiteboard SVG export alongside PNG |
+| `8134462` | Doc reconciliation — `PRODUCT_SCALE_STATUS.md` + ROADMAP/CHANGELOG sync |
 | `daf5acd` | Leitner card types (term/definition/cloze/formula/mistake) |
+| *(latest)* | Stage 3 quality gates — span 95%, faithfulness 0.95, eval baseline |
 
 ### Sprint 5–8 (prior)
 
@@ -80,7 +80,7 @@ backend hardening, and residual i18n.
 | Whiteboard | PNG + SVG export (`whiteboardExport.ts`) | Agent “explain diagram” |
 | Quiz | Grounded feedback → focus bus; remediate wrong → Leitner card | — |
 | Annotations | Line-level stored annotations | **Sub-line** span annotations |
-| Grounding | Unified module; Stage 1–2 eval gates | **Stage 3** (span 95%, faithfulness 0.95) |
+| Grounding | Unified module; **Stage 3** eval gates (span 95%, faithfulness 0.95) | — |
 | Reader | TTS, OCR correction MVP, step sync | Math OCR zones (8B-alpha) |
 
 ---
@@ -91,19 +91,20 @@ backend hardening, and residual i18n.
 | ----- | ---- | ---------- | ------------------- | ------ |
 | 1 | 68 | 55% | 0.58 (positive-only avg) | ✅ shipped |
 | 2 | 75 | 70% | 0.75 | ✅ shipped |
-| 3 | TBD | 95% | 0.95 | 🔲 planned |
+| 3 | 75 | 95% | 0.95 | ✅ shipped |
 
-Eval harness: `npm run eval` — 30/30 at Stage 2 baseline.
+Eval harness: `npm run eval` — 30/30 at Stage 3 baseline.
 
 ---
 
 ## Priority gaps (next)
 
-1. **Stage 3 quality gates** — span 95% + faithfulness 0.95
-2. **Sub-line annotations** — span-level highlights beyond line storage
-3. **Production backend** — Redis/BullMQ, pgvector default, teacher gradebook UI
-4. **Math OCR** — layout-aware PDF math zones (8B-alpha)
-5. **i18n residual** — new S8/S9 strings (Recognition report, Leitner types done)
+1. **Sub-line annotations** — span-level highlights beyond line storage
+2. **Production backend** — Redis/BullMQ, pgvector default, teacher gradebook UI
+3. **Math OCR** — layout-aware PDF math zones (8B-alpha)
+4. **Leitner server sync** — cross-device deck persistence
+5. **Whiteboard agent explain** — natural-language diagram explanation
+6. **i18n residual** — Recognition report strings
 
 ---
 

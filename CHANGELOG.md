@@ -7,7 +7,9 @@ client and server are versioned together.
 
 ### Added
 
-- **Doc reconciliation (Jul 2026)** — canonical [`PRODUCT_SCALE_STATUS.md`](PRODUCT_SCALE_STATUS.md)
+- **Stage 3 quality gates (`da6e42b`)** — `QUALITY_STAGE=3`; span ratio 95%, source text 90%,
+  eval faithfulness 0.95 (`qualityThresholds.ts`, `baseline.json`, grounding fixtures).
+- **Doc reconciliation (Jul 2026, `8134462`)** — canonical [`PRODUCT_SCALE_STATUS.md`](PRODUCT_SCALE_STATUS.md)
   synced with shipped S5–S9 truth; `ROADMAP.md` rebaselined to ~89%; this changelog
   updated for Sprint 9 deliverables.
 - **S9 — Leitner card types (`daf5acd`)** — `term` / `definition` / `cloze` /
