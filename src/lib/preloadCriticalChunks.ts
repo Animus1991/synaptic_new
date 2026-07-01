@@ -10,6 +10,7 @@
 import { importWithRetry } from './lazyWithRetry';
 import { preloadStudyWorkspace } from './studyWorkspaceChunk';
 import { preloadStudyWorkspaceBody } from './studyWorkspaceBodyChunk';
+import { preloadReaderModule } from './cognitiveReaderChunk';
 import { warmWorkspaceWorker } from './workspaceWorkerClient';
 import { warmDocumentModelWorker } from './documentModelWorkerClient';
 
@@ -35,9 +36,10 @@ export function preloadCriticalChunks(): void {
 
   warmWorkspaceWorker();
   warmDocumentModelWorker();
-  // Workspace shell + body — split chunks, prefetch both early.
+  // Workspace shell + body + default reader tool — split chunks, prefetch all early.
   preloadStudyWorkspace();
   preloadStudyWorkspaceBody();
+  preloadReaderModule();
 
   // Schedule the rest with small staggering so we don't saturate the network
   // while the user is still loading visible content.

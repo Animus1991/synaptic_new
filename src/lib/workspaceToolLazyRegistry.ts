@@ -4,9 +4,10 @@
  */
 
 import { lazyWithRetry } from './lazyWithRetry';
+import { loadReaderModule } from './cognitiveReaderChunk';
 
 export const LazyCognitiveReader = lazyWithRetry(
-  () => import('../components/workspace/CognitiveReader').then((m) => ({ default: m.CognitiveReader })),
+  () => loadReaderModule().then((m) => ({ default: m.CognitiveReader })),
   'workspace-tool-reader',
 );
 

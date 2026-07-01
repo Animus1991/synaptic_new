@@ -1,6 +1,8 @@
 import { useEffect, useState, type ComponentProps } from 'react';
 import { WorkspaceBootShell } from './WorkspaceBootShell';
 import { loadStudyWorkspaceModule } from '../../lib/studyWorkspaceChunk';
+import { loadStudyWorkspaceBodyModule } from '../../lib/studyWorkspaceBodyChunk';
+import { preloadReaderModule } from '../../lib/cognitiveReaderChunk';
 import { markWorkspaceModuleLoaded } from '../../lib/workspacePerf';
 
 type StudyWorkspaceProps = ComponentProps<
@@ -29,6 +31,9 @@ export function StudyWorkspaceLazy({
   useEffect(() => {
     let cancelled = false;
     setLoadError(null);
+    // Body + reader prefetch in parallel with shell — avoids a second boot shell + tool skeleton.
+    preloadReaderModule();
+    void loadStudyWorkspaceBodyModule().catch(() => undefined);
     loadStudyWorkspaceModule()
       .then((mod) => {
         if (!cancelled) {

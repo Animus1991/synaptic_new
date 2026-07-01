@@ -3,6 +3,7 @@ import type { StudyWorkspaceProps } from './studyWorkspace/types';
 import { WorkspaceBootShell } from './WorkspaceBootShell';
 import { markWorkspaceShellPaint } from '../../lib/workspacePerf';
 import { loadStudyWorkspaceBodyModule } from '../../lib/studyWorkspaceBodyChunk';
+import { preloadReaderModule } from '../../lib/cognitiveReaderChunk';
 
 export type { StudyWorkspaceProps } from './studyWorkspace/types';
 
@@ -15,6 +16,7 @@ export function StudyWorkspace(props: StudyWorkspaceProps) {
 
   useEffect(() => {
     markWorkspaceShellPaint();
+    preloadReaderModule();
     let cancelled = false;
     loadStudyWorkspaceBodyModule()
       .then((mod) => {
