@@ -7,8 +7,10 @@ import type { AgentGroundingReport, GroundingFaithfulnessReport, MessageCitation
 import { checkAgentGrounding } from './agentGrounding';
 import { verifyGrounding } from './spanVerification';
 
-export const DEFAULT_MIN_FAITHFULNESS = 0.5;
-export const STRICT_MIN_FAITHFULNESS = 0.95;
+import {
+  DEFAULT_MIN_FAITHFULNESS,
+  STRICT_MIN_FAITHFULNESS,
+} from '../qualityThresholds';
 
 function blockClaims(block: WorkspacePanelBlock): string[] {
   switch (block.kind) {

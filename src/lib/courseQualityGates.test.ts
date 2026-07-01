@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { evaluateCourseQuality, resolveCourseStatus } from './courseQualityGates';
+import { COURSE_PASS_THRESHOLD } from './qualityThresholds';
 import type { GeneratedOutline } from './courseGenerator';
 
 const STRONG_OUTLINE: GeneratedOutline = {
@@ -47,7 +48,7 @@ describe('evaluateCourseQuality', () => {
     const source = 'Supply and demand determine equilibrium. Elasticity measures price sensitivity. Inelastic demand barely changes with price.';
     const report = evaluateCourseQuality({ outline: STRONG_OUTLINE, sourceText: source });
     expect(report.passes).toBe(true);
-    expect(report.overallScore).toBeGreaterThanOrEqual(58);
+    expect(report.overallScore).toBeGreaterThanOrEqual(COURSE_PASS_THRESHOLD);
     expect(resolveCourseStatus(report)).toBe('ready');
   });
 

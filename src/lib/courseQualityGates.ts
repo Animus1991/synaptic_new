@@ -5,6 +5,12 @@
 import type { ConceptSpan, Course, CourseSourceQuality } from '../types';
 import type { GeneratedOutline } from './courseGenerator';
 import { normalizeConcept } from './contentAnalysis';
+import {
+  COURSE_PASS_THRESHOLD,
+  GROUNDING_SOURCE_QUALITY_MIN,
+  GROUNDING_SOURCE_TEXT_RATIO_MIN,
+  GROUNDING_SPAN_RATIO_MIN,
+} from './qualityThresholds';
 
 export type QualityGateId =
   | 'coverage'
@@ -29,7 +35,7 @@ export type CourseQualityReport = {
   recommendations: string[];
 };
 
-const PASS_THRESHOLD = 58;
+const PASS_THRESHOLD = COURSE_PASS_THRESHOLD;
 const CRITICAL_GATES: QualityGateId[] = ['coverage', 'grounding'];
 
 function clampScore(n: number): number {
@@ -83,7 +89,7 @@ function gateGrounding(
     const score = clampScore(ratio * 100);
     return {
       id: 'grounding',
-      pass: ratio >= 0.35,
+      pass: ratio >= GROUNDING_SPAN_RATIO_MIN,
       score,
       detail: `${Math.round(ratio * 100)}% of concepts have source spans`,
     };
@@ -95,7 +101,7 @@ function gateGrounding(
     const score = clampScore(ratio * 95);
     return {
       id: 'grounding',
-      pass: ratio >= 0.4,
+      pass: ratio >= GROUNDING_SOURCE_TEXT_RATIO_MIN,
       score,
       detail: `${Math.round(ratio * 100)}% of concepts found in source text`,
     };
@@ -105,7 +111,7 @@ function gateGrounding(
   const score = clampScore(sq * 0.85);
   return {
     id: 'grounding',
-    pass: sq >= 42,
+    pass: sq >= GROUNDING_SOURCE_QUALITY_MIN,
     score,
     detail: sq > 0 ? `Source quality signal ${sq}/100` : 'No source grounding signal',
   };

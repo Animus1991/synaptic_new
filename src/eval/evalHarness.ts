@@ -28,6 +28,7 @@ import type { WorkspacePanel } from '../lib/workspaceLessonPanels';
 import type { MessageCitation } from '../types';
 import type { GeneratedOutline } from '../lib/courseGenerator';
 import baseline from './baseline.json';
+import { EVAL_GROUNDING_FAITHFULNESS_MIN } from '../lib/qualityThresholds';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -285,7 +286,7 @@ export function evaluateGroundingFaithfulness(): {
     groundingCasePassRate?: number;
   };
   const pass =
-    averageFaithfulness >= (t.groundingFaithfulnessMin ?? 0.5)
+    averageFaithfulness >= (t.groundingFaithfulnessMin ?? EVAL_GROUNDING_FAITHFULNESS_MIN)
     && passRate >= (t.groundingCasePassRate ?? 1);
   return { results, averageFaithfulness, passRate, pass };
 }
@@ -341,7 +342,7 @@ export function evaluateAll(fixtures: string[] = EVAL_FIXTURES): EvalReport {
     perFixtureConceptRecall: results.every((r) => r.conceptRecall >= t.perFixtureConceptRecall),
     documentModelConceptRecall: averageDocumentModelConceptRecall >= t.documentModelConceptRecall,
     definitionRecall: averageDefinitionRecall >= (t.definitionRecall ?? 0),
-    groundingFaithfulness: groundingEval.averageFaithfulness >= (t.groundingFaithfulnessMin ?? 0.5),
+    groundingFaithfulness: groundingEval.averageFaithfulness >= (t.groundingFaithfulnessMin ?? EVAL_GROUNDING_FAITHFULNESS_MIN),
     groundingCasePassRate: groundingEval.passRate >= (t.groundingCasePassRate ?? 1),
   };
   const pass =

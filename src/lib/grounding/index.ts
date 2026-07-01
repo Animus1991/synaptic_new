@@ -26,6 +26,8 @@ export { checkAgentGrounding } from './agentGrounding';
 export {
   DEFAULT_MIN_FAITHFULNESS,
   STRICT_MIN_FAITHFULNESS,
+} from '../qualityThresholds';
+export {
   extractPanelClaims,
   passesGroundingFaithfulnessGate,
   verifyLessonPanelsFaithfulness,

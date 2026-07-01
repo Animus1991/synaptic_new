@@ -1,7 +1,4 @@
-/**
- * Citation token-overlap grounding for Agent answers (no LLM).
- */
-
+import { CITATION_OVERLAP_MIN_COVERAGE } from '../qualityThresholds';
 import type { CitationOverlapReport, MessageCitation } from './types';
 
 const SENTENCE_RE = /[^.!?…\n]+[.!?…]?/g;
@@ -33,7 +30,7 @@ export function verifyCitationOverlap(
   opts: { strict?: boolean; minCoverage?: number } = {},
 ): CitationOverlapReport {
   const strict = opts.strict ?? true;
-  const minCoverage = opts.minCoverage ?? 0.35;
+  const minCoverage = opts.minCoverage ?? CITATION_OVERLAP_MIN_COVERAGE;
 
   if (!content.trim()) {
     return { coverage: 0, unattributedCount: 0, verified: !strict };
