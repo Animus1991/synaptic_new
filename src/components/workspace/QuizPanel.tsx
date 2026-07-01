@@ -16,6 +16,8 @@ import type {
   WorkspaceSelectionActionId,
   WorkspaceSelectionContext,
 } from '../../lib/workspaceSelectionActions';
+import type { Course } from '../../types';
+import type { GroundedQuizFeedback } from '../../lib/quizGroundedFeedback';
 import { useI18n } from '../../lib/i18n';
 
 type Props = {
@@ -23,6 +25,7 @@ type Props = {
   concept: string;
   lang: 'en' | 'el';
   scopeKey: string;
+  course?: Course | null;
   irt?: QuizIrtDisplay;
   irtResponseCount?: number;
   emptyMessage?: string;
@@ -33,6 +36,7 @@ type Props = {
   onOpenInReader?: (query: string) => void;
   onRemediateWrong?: (kind: 'make-card' | 'feynman', item: QuizSessionItem) => void;
   onSelectionAction?: (action: WorkspaceSelectionActionId, ctx: WorkspaceSelectionContext) => void;
+  onGroundedFeedbackFocus?: (feedback: GroundedQuizFeedback) => void;
   artifactStale?: boolean;
   onAcknowledgeStale?: () => void;
 };
@@ -52,6 +56,8 @@ export function QuizPanel({
   onOpenInReader,
   onRemediateWrong,
   onSelectionAction,
+  onGroundedFeedbackFocus,
+  course = null,
   artifactStale = false,
   onAcknowledgeStale,
 }: Props) {
@@ -227,6 +233,8 @@ export function QuizPanel({
           onSelectPassage={onSelectionAction ? selectPassage : undefined}
           onClearSelection={() => setSelectedPassage(null)}
           onQuestionSelect={onSelectionAction ? (question) => selectPassage(question, concept) : undefined}
+          course={course}
+          onGroundedFeedbackFocus={onGroundedFeedbackFocus}
         />
       </div>
     </div>

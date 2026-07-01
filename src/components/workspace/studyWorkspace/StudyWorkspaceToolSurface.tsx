@@ -88,6 +88,7 @@ export function StudyWorkspaceToolSurface({ model }: StudyWorkspaceToolSurfacePr
     sendScratchpadToWhiteboard,
     openWorkspaceTool,
     openReaderAtSearch,
+    syncQuizGroundedFocus,
     handlePublishAnnotation,
     STEPS,
     leitnerSession,
@@ -560,6 +561,7 @@ export function StudyWorkspaceToolSurface({ model }: StudyWorkspaceToolSurfacePr
                           concept={quizConcept}
                           lang={lang}
                           scopeKey={progressKey}
+                          course={linkedCourse}
                           irt={quizSessionIrt}
                           irtResponseCount={quizIrtState.responses}
                           emptyMessage={toolEmptyMessage('quiz')}
@@ -585,6 +587,7 @@ export function StudyWorkspaceToolSurface({ model }: StudyWorkspaceToolSurfacePr
                           onRemediateWrong={handleQuizRemediateWrong}
                           onSelectionAction={handleWorkspaceSelectionAction}
                           onOpenInReader={(query) => openReaderAtSearch(query, 'quiz')}
+                          onGroundedFeedbackFocus={syncQuizGroundedFocus}
                           artifactStale={quizArtifactStale}
                           onAcknowledgeStale={() => acknowledgePracticeStale('quiz')}
                         />

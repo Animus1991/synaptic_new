@@ -14,7 +14,8 @@ import { buildMiniDashboardProps } from '../../../lib/workspaceData';
 import { collectConceptBusInsights, countSpacedStepReviewsDue, type ConceptBusMap } from '../../../lib/conceptBusSync';
 import { loadAllStepSchedules } from '../../../lib/spacedStepSchedule';
 import { useI18n } from '../../../lib/i18n';
-import { resolveReaderText, type SourceHighlight } from '../../../lib/conceptProvenance';
+import { resolveReaderText, findConceptSpan, type SourceHighlight } from '../../../lib/conceptProvenance';
+import { highlightFromQuizFeedback, type GroundedQuizFeedback } from '../../../lib/quizGroundedFeedback';
 import { resolveWorkspaceStepExcerpt } from '../../../lib/stepGroundedExcerpt';
 import { findTextSpanInFiles } from '../../../lib/findTextSpanInSource';
 import type { WorkspaceFocus } from '../../../lib/workspaceFocus';
@@ -509,8 +510,25 @@ export function useStudyWorkspace({
   );
 
   const focusOnTerm = useCallback((term: string, origin?: WorkspaceTool) => {
-    internalSetFocus({ term, originTool: origin });
-  }, [internalSetFocus]);
+    const span = linkedCourse ? findConceptSpan(linkedCourse, term) : undefined;
+    internalSetFocus({
+      term,
+      originTool: origin,
+      highlight: span
+        ? { fileId: span.fileId, charStart: span.charStart, charEnd: span.charEnd }
+        : undefined,
+    });
+  }, [internalSetFocus, linkedCourse]);
+
+  const syncQuizGroundedFocus = useCallback((feedback: GroundedQuizFeedback) => {
+    const highlight = highlightFromQuizFeedback(feedback);
+    internalSetFocus({
+      term: quizConcept,
+      highlight,
+      originTool: 'quiz',
+    });
+    if (highlight) openSourceAt?.(highlight);
+  }, [internalSetFocus, quizConcept, openSourceAt]);
 
   const openReaderForTerm = useCallback((term: string, origin?: WorkspaceTool) => {
     focusOnTerm(term, origin);
@@ -2026,6 +2044,7 @@ export function useStudyWorkspace({
     sendScratchpadToWhiteboard,
     openWorkspaceTool,
     openReaderAtSearch,
+    syncQuizGroundedFocus,
     handlePublishAnnotation,
     timerExamTarget,
     workspaceDaysToExam,

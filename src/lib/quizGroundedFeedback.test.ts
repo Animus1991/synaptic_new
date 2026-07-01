@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buildGroundedQuizFeedback } from './quizGroundedFeedback';
+import { buildGroundedQuizFeedback, highlightFromQuizFeedback } from './quizGroundedFeedback';
 import type { Course } from '../types';
 
 const course: Course = {
@@ -38,7 +38,15 @@ const course: Course = {
 describe('buildGroundedQuizFeedback', () => {
   it('returns source excerpt when span exists', () => {
     const fb = buildGroundedQuizFeedback(course, 'Elasticity', 'Elasticity', 'en');
-    expect(fb?.sourceExcerpt).toContain('price sensitivity');
+    expect(fb.sourceExcerpt).toContain('price sensitivity');
+    expect(fb.fileId).toBe('f1');
+  });
+
+  it('builds highlight from feedback', () => {
+    const fb = buildGroundedQuizFeedback(course, 'Elasticity', 'Elasticity', 'en');
+    const highlight = highlightFromQuizFeedback(fb);
+    expect(highlight?.fileId).toBe('f1');
+    expect(highlight!.charStart).toBe(10);
   });
 
   it('returns generic message without course', () => {

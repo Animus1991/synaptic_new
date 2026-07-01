@@ -9,9 +9,28 @@ import type { Lang } from './i18n';
 export type GroundedQuizFeedback = {
   message: string;
   sourceExcerpt?: string;
+  fileId?: string;
   charStart?: number;
   charEnd?: number;
 };
+
+export function highlightFromQuizFeedback(
+  feedback: GroundedQuizFeedback,
+): { fileId: string; charStart: number; charEnd: number } | null {
+  if (
+    feedback.fileId
+    && feedback.charStart != null
+    && feedback.charEnd != null
+    && feedback.charEnd > feedback.charStart
+  ) {
+    return {
+      fileId: feedback.fileId,
+      charStart: feedback.charStart,
+      charEnd: feedback.charEnd,
+    };
+  }
+  return null;
+}
 
 export function buildGroundedQuizFeedback(
   course: Course | null | undefined,
@@ -35,6 +54,7 @@ export function buildGroundedQuizFeedback(
         ? `Από τις σημειώσεις σου: «${excerpt.slice(0, 160)}»`
         : `From your notes: "${excerpt.slice(0, 160)}"`,
     sourceExcerpt: excerpt,
+    fileId: span.fileId,
     charStart: span.charStart,
     charEnd: span.charEnd,
   };

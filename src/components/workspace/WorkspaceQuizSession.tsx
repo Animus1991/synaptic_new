@@ -12,7 +12,7 @@ import {
 import { buildQuizSessionSummaryCopy } from '../../lib/quizSessionSummaryCopy';
 import { quizItemQuestion } from '../../lib/quizSessionModel';
 import type { Course } from '../../types';
-import { buildGroundedQuizFeedback } from '../../lib/quizGroundedFeedback';
+import { buildGroundedQuizFeedback, type GroundedQuizFeedback } from '../../lib/quizGroundedFeedback';
 import { quizCorrectAnswerText } from '../../lib/quizRemediation';
 import {
   buildQuizWrongItemSummaries,
@@ -41,6 +41,7 @@ type Props = {
   onClearSelection?: () => void;
   onQuestionSelect?: (question: string) => void;
   course?: Course | null;
+  onGroundedFeedbackFocus?: (feedback: GroundedQuizFeedback) => void;
 };
 
 export function WorkspaceQuizSession({
@@ -61,6 +62,7 @@ export function WorkspaceQuizSession({
   onClearSelection,
   onQuestionSelect,
   course = null,
+  onGroundedFeedbackFocus,
 }: Props) {
   const { t } = useI18n();
   const [session, setSession] = useState<QuizSessionState>(() => {
@@ -112,6 +114,11 @@ export function WorkspaceQuizSession({
     if (lastCorrect !== false || !current || !onSelectPassage) return;
     onSelectPassage(quizItemQuestion(current), concept);
   }, [lastCorrect, current, concept, onSelectPassage]);
+
+  useEffect(() => {
+    if (lastCorrect !== false || !groundedFeedback || !onGroundedFeedbackFocus) return;
+    onGroundedFeedbackFocus(groundedFeedback);
+  }, [lastCorrect, groundedFeedback, onGroundedFeedbackFocus]);
 
   if (items.length === 0) {
     return (
@@ -269,9 +276,21 @@ export function WorkspaceQuizSession({
                 {quizWrongAnswerHint(current, concept, lang)}
               </p>
               {groundedFeedback && (
-                <p className="text-[10px] text-text-secondary italic" data-testid="quiz-grounded-feedback">
-                  {groundedFeedback.message}
-                </p>
+                <div className="space-y-1.5" data-testid="quiz-grounded-feedback">
+                  <p className="text-[10px] text-text-secondary italic">
+                    {groundedFeedback.message}
+                  </p>
+                  {groundedFeedback.sourceExcerpt && onOpenQuestionInReader && (
+                    <button
+                      type="button"
+                      data-testid="quiz-grounded-open-reader"
+                      onClick={() => onOpenQuestionInReader(groundedFeedback.sourceExcerpt ?? concept)}
+                      className="inline-flex items-center gap-1 rounded-full border border-brand-500/30 bg-brand-500/10 px-2 py-0.5 text-[9px] font-medium text-brand-800 hover:opacity-90"
+                    >
+                      {t('quizGroundedViewSource')}
+                    </button>
+                  )}
+                </div>
               )}
               {onRemediateWrong && (
                 <div className="flex flex-wrap gap-2">
