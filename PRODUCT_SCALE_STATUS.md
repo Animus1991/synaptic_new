@@ -1,6 +1,6 @@
 # Product-scale status (canonical snapshot)
 
-**Last reconciled:** 2026-07-01 — aligned with `synaptic_new/main` through `a5e3c4b`.
+**Last reconciled:** 2026-07-01 — aligned with `synaptic_new/main` through `0688f68`.
 
 This file is the **single shipped-truth status doc**. Use it for readiness reviews,
 sprint close-outs, and investor/contributor snapshots.
