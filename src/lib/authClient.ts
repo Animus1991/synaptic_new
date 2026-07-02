@@ -144,6 +144,7 @@ export type RemoteSession = {
   userSettings: unknown;
   conceptBuses?: Record<string, unknown>;
   stepSchedules?: Record<string, unknown>;
+  leitnerDeckStates?: Record<string, unknown>;
   updatedAt: string;
 };
 

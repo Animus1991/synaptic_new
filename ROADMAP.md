@@ -13,13 +13,13 @@ This document separates **done**, **partial**, and **missing** against the produ
 | ----- | ---------- | ----- |
 | Content engine (offline v2) | **~93%** | DocumentModel v2 substrate wired on upload (S8) |
 | Upload to course pipeline | **~93%** | Stage 1–2 quality gates (S9); parallel recognition workers |
-| Study Workspace (11 tools) | **~92%** | Leitner card types; whiteboard PNG+SVG export |
+| Study Workspace (11 tools) | **~94%** | Leitner card types + deck sync; whiteboard agent explain diagram |
 | Lesson surfaces | **~82%** | Step-grounded excerpts; concept lens; faithfulness gate |
 | Tasks & pedagogy | **~83%** | Unified adaptive scheduler (S9-PR1); FSRS + mastery |
 | Analytics & Dashboard | **~78%** | Behavior inference + Research tab (S5) |
 | RAG / Agent | **~87%** | Unified grounding module; BM25 + hybrid rerank |
 | Client persistence | **~86%** | localStorage + IndexedDB; DocumentModel snapshots |
-| Auth and full sync | **~80%** | JWT, library + session pull/push |
+| Auth and full sync | **~82%** | JWT, library + session pull/push; Leitner deck state in `/v1/session` |
 | Phase 6 server | **~75%** (dev) | Express proxy + auth + sync + OCR/RAG; not production-hardened |
 | Documentation | **~92%** | `PRODUCT_SCALE_STATUS.md` + doc-lint capability assertions |
 | Tests & CI | **~92%** | Vitest + eval gold-set gate (`npm run eval`) in CI |
@@ -102,11 +102,8 @@ See I18N.md, STUDY_WORKSPACE.md, WORKSPACE_TOOLS_UPGRADE.md, and EXHAUSTIVE_PROD
 
 | Area | Open work |
 | ---- | --------- |
-| Annotations | Sub-line span annotations |
-| Annotations | **Sub-line span annotations** (line-level only today) |
 | Backend | pgvector default path, Redis/BullMQ production, teacher gradebook UI — S10 |
 | Algorithms | Math OCR, layout-aware PDF blocks |
-| Tools | Whiteboard agent “explain diagram”; Leitner server deck sync |
 | i18n | Residual lib/helpers; Recognition report strings |
 
 ---

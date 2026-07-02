@@ -46,6 +46,7 @@ interface LeitnerBoxProps {
   emptyMessage?: string;
 
   hasSource?: boolean;
+  onSessionDirty?: () => void;
 
   onUpload?: () => void;
   onOpenQuiz?: () => void;
@@ -75,6 +76,7 @@ export function LeitnerBox({
   emptyMessage,
 
   hasSource = false,
+  onSessionDirty,
 
   onUpload,
 
@@ -116,8 +118,9 @@ export function LeitnerBox({
     setDueCount(synced.dueCount);
 
     setBoxCounts(synced.boxCounts ?? [0, 0, 0, 0]);
+    onSessionDirty?.();
 
-  }, [cards, spacingIntervals, concept, scopeKey]);
+  }, [cards, spacingIntervals, concept, scopeKey, onSessionDirty]);
 
 
 
@@ -148,8 +151,9 @@ export function LeitnerBox({
       cardOrder: deck.map((c) => c.front),
 
     });
+    onSessionDirty?.();
 
-  }, [scopeKey, deck]);
+  }, [scopeKey, deck, onSessionDirty]);
 
 
 

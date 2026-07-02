@@ -16,6 +16,8 @@ export type StoredSession = {
   conceptBuses?: Record<string, unknown>;
   /** Workspace spaced step schedules (scope → stepIndex → entry). */
   stepSchedules?: Record<string, unknown>;
+  /** Scoped Leitner deck progress (scope → deck state). */
+  leitnerDeckStates?: Record<string, unknown>;
   updatedAt: string;
 };
 
@@ -32,6 +34,7 @@ const emptySession = (): StoredSession => ({
   openMistakes: [],
   activities: [],
   userSettings: null,
+  leitnerDeckStates: {},
   updatedAt: new Date().toISOString(),
 });
 

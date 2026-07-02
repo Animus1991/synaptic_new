@@ -203,6 +203,7 @@
 ### Τρέχουσα κατάσταση ✅
 - FSRS ratings (Again/Hard/Good/Easy), keyboard 1–4
 - Deck sync + due heatmap, Anki export
+- **Cross-device deck sync** — persisted in account `/v1/session` payload (`leitnerDeckStates`)
 - **Header chip → Quiz** (`onOpenQuiz`)
 - Concept Bus: `leitner-easy` / `leitner-hard`
 - **Card types** — `term` / `definition` / `cloze` / `formula` / `mistake` with
@@ -214,7 +215,7 @@
 `leitnerDueHeatmap.ts`, `ankiExport.ts`
 
 ### Κενά
-- [ ] Cross-device deck sync via server
+- —
 
 ---
 
@@ -241,12 +242,13 @@
 - KaTeX stamps, reference excerpt sidebar
 - Concept Bus: `noted` on engage
 - **PNG + SVG export** (`whiteboardExport.ts`)
+- **Agent explain diagram** — serializes canvas strokes (`describeWhiteboardDocument`) and opens Agent with `diagram-explain` intent (`whiteboardDiagramCoach.ts`)
 
 ### Αρχεία
-`StudyWhiteboard.tsx`, `whiteboardLayers.ts`, `whiteboardLatexStamps.ts`, `whiteboardExport.ts`
+`StudyWhiteboard.tsx`, `WhiteboardPanel.tsx`, `whiteboardLayers.ts`, `whiteboardDiagramCoach.ts`, `whiteboardLatexStamps.ts`, `whiteboardExport.ts`
 
 ### Κενά
-- [ ] Agent: explain diagram in natural language
+- —
 
 ---
 

@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type KeyboardEvent } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type KeyboardEvent, type MutableRefObject } from 'react';
 import {
-  ArrowRight, Circle, Eraser, Eye, EyeOff, Highlighter, Layers, Lock, Minus, Pen,
+  ArrowRight, Bot, Circle, Eraser, Eye, EyeOff, Highlighter, Layers, Lock, Minus, Pen,
   Plus, Redo2, Ruler, Save, Square, Trash2, Type, Undo2, BookOpen, Calculator, X, Unlock, Download,
 } from '@/lib/lucide-shim';
 import { buildWhiteboardSvg, downloadWhiteboardPng, downloadWhiteboardSvg } from '../../lib/whiteboardExport';
@@ -17,7 +17,13 @@ import {
 } from '../../lib/whiteboardLayers';
 import { FormulaLatexPreview } from './FormulaLatexPreview';
 import { buildLatexStampLibrary, stampToInsertText, type LatexStamp } from '../../lib/whiteboardLatexStamps';
-import { layoutCoachNodePositions } from '../../lib/whiteboardDiagramCoach';
+import {
+  buildWhiteboardDiagramAgentPrompt,
+  describeWhiteboardDocument,
+  layoutCoachNodePositions,
+  type DiagramCoachPlan,
+  type WhiteboardDiagramAgentIntent,
+} from '../../lib/whiteboardDiagramCoach';
 import { useI18n } from '../../lib/i18n';
 import { cycleToolIndex } from '../../lib/canvasKeyboardA11y';
 
@@ -58,6 +64,9 @@ export function StudyWhiteboard({
   lang = 'en',
   labelInsertKey = 0,
   labelInsertPayload = [],
+  coachPlan,
+  onAskAgent,
+  sketchDescriptionRef,
 }: {
   referenceFormulas?: ExtractedFormula[];
   referenceExcerpt?: string;
@@ -68,6 +77,9 @@ export function StudyWhiteboard({
   lang?: 'en' | 'el';
   labelInsertKey?: number;
   labelInsertPayload?: string[];
+  coachPlan?: DiagramCoachPlan;
+  onAskAgent?: (prompt: string, intent: WhiteboardDiagramAgentIntent) => void;
+  sketchDescriptionRef?: MutableRefObject<string>;
 }) {
   const { t } = useI18n();
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -90,6 +102,25 @@ export function StudyWhiteboard({
   );
 
   const activeLayerLocked = isLayerLocked(doc, doc.activeLayerId);
+
+  const sketchDescription = useMemo(
+    () => describeWhiteboardDocument(doc, lang),
+    [doc, lang],
+  );
+
+  useEffect(() => {
+    if (sketchDescriptionRef) sketchDescriptionRef.current = sketchDescription;
+  }, [sketchDescription, sketchDescriptionRef]);
+
+  const handleExplainDiagram = useCallback(() => {
+    if (!onAskAgent || !coachPlan) return;
+    const prompt = buildWhiteboardDiagramAgentPrompt(coachPlan, lang, 'explain', {
+      sketchDescription,
+      referenceExcerpt: referenceExcerpt,
+    });
+    onAskAgent(prompt, 'explain');
+    onEngage?.();
+  }, [coachPlan, lang, onAskAgent, onEngage, referenceExcerpt, sketchDescription]);
 
   const redraw = useCallback((list: LayeredStroke[], current?: LayeredStroke | null) => {
     const canvas = canvasRef.current;
@@ -653,6 +684,19 @@ export function StudyWhiteboard({
         >
           SVG
         </button>
+        {onAskAgent && coachPlan && (
+          <button
+            type="button"
+            data-testid="whiteboard-explain-diagram"
+            aria-label={t('wbExplainDiagram')}
+            disabled={doc.strokes.length === 0}
+            onClick={handleExplainDiagram}
+            className="inline-flex items-center gap-1 rounded-lg border border-accent-cyan/30 px-2 py-1 text-[9px] font-medium text-brand-800 hover:bg-accent-cyan/10 disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            <Bot className="w-3 h-3" aria-hidden />
+            <span className="hidden sm:inline">{t('wbExplainDiagram')}</span>
+          </button>
+        )}
         {savedMsg && <span className="text-[10px] text-accent-emerald">{t('wbSaved')}</span>}
         {activeLayerLocked && (
           <span className="text-[10px] text-accent-amber">{t('wbLayerLocked')}</span>

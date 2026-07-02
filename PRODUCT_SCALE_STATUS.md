@@ -1,6 +1,6 @@
 # Product-scale status (canonical snapshot)
 
-**Last reconciled:** 2026-07-01 — aligned with `synaptic_new/main` through `0688f68`.
+**Last reconciled:** 2026-07-02 — aligned with `synaptic_new/main` through the latest mainline sync.
 
 This file is the **single shipped-truth status doc**. Use it for readiness reviews,
 sprint close-outs, and investor/contributor snapshots.
@@ -17,7 +17,7 @@ sprint close-outs, and investor/contributor snapshots.
 ## Overall readiness
 
 **~90% product-scale** — S9 grounding consolidation and **Stage 3 quality gates**
-shipped. Remaining gaps: sub-line annotations, production backend, math OCR.
+shipped. Remaining gaps: math OCR, production backend.
 
 ---
 
@@ -27,7 +27,7 @@ shipped. Remaining gaps: sub-line annotations, production backend, math OCR.
 | ----- | - | ------------------------ |
 | Content engine (offline v2) | **~93%** | DocumentModel v2 + recognition worker (S8) |
 | Upload → course pipeline | **~94%** | Stage 3 quality gates — span 95%, source text 90% |
-| Study Workspace (11 tools) | **~92%** | Note-grounded tools; Leitner card types; whiteboard PNG+SVG export |
+| Study Workspace (11 tools) | **~94%** | Note-grounded tools; Leitner card types + deck sync; whiteboard agent explain |
 | Lesson surfaces | **~82%** | Step-grounded excerpts; concept lens chrome; grounding faithfulness gate |
 | Tasks & pedagogy | **~83%** | Unified adaptive scheduler (S9-PR1); FSRS + Beta-Bernoulli mastery |
 | Analytics & Dashboard | **~78%** | Behavior inference + Research tab (S5) |
@@ -60,6 +60,7 @@ shipped. Remaining gaps: sub-line annotations, production backend, math OCR.
 | `8134462` | Doc reconciliation — `PRODUCT_SCALE_STATUS.md` + ROADMAP/CHANGELOG sync |
 | `daf5acd` | Leitner card types (term/definition/cloze/formula/mistake) |
 | `a5e3c4b` | Stage 3 quality gates — span 95%, faithfulness 0.95, eval baseline |
+| `0688f68` | Sub-line span annotations (`charStart`/`charEnd`, `annotationSpan.ts`) |
 
 ### Sprint 5–8 (prior)
 
@@ -76,8 +77,8 @@ shipped. Remaining gaps: sub-line annotations, production backend, math OCR.
 
 | Tool | Shipped (recent) | Still open |
 | ---- | ---------------- | ---------- |
-| Leitner | Card types + filter chips; quiz-mistake → `mistake` type; source badges | Server deck sync |
-| Whiteboard | PNG + SVG export (`whiteboardExport.ts`) | Agent “explain diagram” |
+| Leitner | Card types + filter chips; quiz-mistake → `mistake` type; source badges; **cross-device deck sync via `/v1/session`** | — |
+| Whiteboard | PNG + SVG export; **agent explain diagram** (`describeWhiteboardDocument` → `diagram-explain`) | — |
 | Quiz | Grounded feedback → focus bus; remediate wrong → Leitner card | — |
 | Annotations | **Sub-line span highlights** (`charStart`/`charEnd`); line-level legacy | — |
 | Grounding | Unified module; **Stage 3** eval gates (span 95%, faithfulness 0.95) | — |
@@ -99,11 +100,9 @@ Eval harness: `npm run eval` — 30/30 at Stage 3 baseline.
 
 ## Priority gaps (next)
 
-1. **Leitner server sync** — cross-device deck persistence
-2. **Whiteboard agent explain** — natural-language diagram explanation
-3. **Math OCR** — layout-aware PDF math zones (8B-alpha)
-4. **Production backend** — Redis/BullMQ, pgvector default, teacher gradebook UI
-5. **i18n residual** — Recognition report strings
+1. **Math OCR** — layout-aware PDF math zones (8B-alpha)
+2. **Production backend** — Redis/BullMQ, pgvector default, teacher gradebook UI
+3. **i18n residual** — Recognition report strings
 
 ---
 

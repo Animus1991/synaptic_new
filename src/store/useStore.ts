@@ -39,6 +39,7 @@ import {
 } from '../lib/conceptBusSync';
 import { loadAllConceptBuses, replaceAllConceptBuses } from '../lib/workspacePersistence';
 import { loadAllStepSchedules, replaceAllStepSchedules } from '../lib/spacedStepSchedule';
+import { loadAllDeckStates, replaceAllDeckStates } from '../lib/leitnerDeckSync';
 import { createDebouncedConceptBusPusher } from '../lib/conceptBusSessionSync';
 import { mergeAgentWorkspaceContext, type WorkspaceLiveSync } from '../lib/workspaceStoreSpine';
 import { filterTasksForSession, getTaskAction, getTaskConcept, getAgentMode, type SessionType, type WorkspaceToolId } from '../lib/taskFlows';
@@ -1072,6 +1073,7 @@ export function useAppStore() {
   const applyRemoteSession = useCallback((merged: ReturnType<typeof mergeSessions>) => {
     if (merged.conceptBuses) replaceAllConceptBuses(merged.conceptBuses);
     if (merged.stepSchedules) replaceAllStepSchedules(merged.stepSchedules);
+    if (merged.leitnerDeckStates) replaceAllDeckStates(merged.leitnerDeckStates);
 
     const nextTasks = stripDemoFromTasks(merged.tasks as typeof tasks);
     const nextKeys = new Set(merged.firstAttemptKeys);
@@ -1144,6 +1146,7 @@ export function useAppStore() {
       userSettings: user.settings,
       conceptBuses: loadAllConceptBuses() as import('../lib/conceptBusSync').ConceptBusMap,
       stepSchedules: loadAllStepSchedules(),
+      leitnerDeckStates: loadAllDeckStates(),
       ...local,
     });
     return pushRemoteSession(token, user.settings, payload);

@@ -11,14 +11,26 @@ export type LeitnerDeckState = {
 
 const DECK_KEY = 'leitner-deck-state';
 
+export function loadAllDeckStates(): Record<string, LeitnerDeckState> {
+  return loadJson<Record<string, LeitnerDeckState>>(DECK_KEY, {});
+}
+
 export function loadDeckState(scopeKey: string): LeitnerDeckState | null {
-  return loadJson<Record<string, LeitnerDeckState>>(DECK_KEY, {})[scopeKey] ?? null;
+  return loadAllDeckStates()[scopeKey] ?? null;
+}
+
+export function saveAllDeckStates(items: Record<string, LeitnerDeckState>): void {
+  saveJson(DECK_KEY, items);
 }
 
 export function saveDeckState(scopeKey: string, state: LeitnerDeckState): void {
-  const all = loadJson<Record<string, LeitnerDeckState>>(DECK_KEY, {});
+  const all = loadAllDeckStates();
   all[scopeKey] = state;
-  saveJson(DECK_KEY, all);
+  saveAllDeckStates(all);
+}
+
+export function replaceAllDeckStates(items: Record<string, LeitnerDeckState>): void {
+  saveAllDeckStates(items);
 }
 
 export type DueCard = {

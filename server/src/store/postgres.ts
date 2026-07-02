@@ -81,6 +81,7 @@ export function createPostgresSessionRepo(databaseUrl: string): SessionRepositor
     openMistakes: [],
     activities: [],
     userSettings: null,
+    leitnerDeckStates: {},
     updatedAt: new Date().toISOString(),
   });
 

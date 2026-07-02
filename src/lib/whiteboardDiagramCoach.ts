@@ -4,6 +4,8 @@ import { t, type Lang } from './i18n';
  */
 
 import type { ExtractedFormula } from './noteContentExtractors';
+import type { WhiteboardDocument } from './whiteboardLayers';
+import { visibleStrokes } from './whiteboardLayers';
 
 export type DiagramBlueprintKind =
   | 'concept-map'
@@ -336,7 +338,86 @@ export function layoutCoachNodePositions(count: number, originX = 56, originY = 
   return positions;
 }
 
-export type WhiteboardDiagramAgentIntent = 'guide' | 'step' | 'critique';
+const STROKE_KIND_EN: Record<string, string> = {
+  pen: 'freehand',
+  marker: 'marker stroke',
+  highlighter: 'highlight',
+  line: 'line',
+  rect: 'rectangle',
+  ellipse: 'ellipse',
+  arrow: 'arrow',
+  ruler: 'measured line',
+  text: 'text',
+};
+
+const STROKE_KIND_EL: Record<string, string> = {
+  pen: 'ελεύθερο σκίτσο',
+  marker: 'μαρκαδόρος',
+  highlighter: 'επισήμανση',
+  line: 'γραμμή',
+  rect: 'ορθογώνιο',
+  ellipse: 'έλλειψη',
+  arrow: 'βέλος',
+  ruler: 'μετρημένη γραμμή',
+  text: 'κείμενο',
+};
+
+/** Serialize visible canvas strokes into a compact agent-readable sketch description. */
+export function describeWhiteboardDocument(
+  doc: WhiteboardDocument,
+  lang: Lang = 'en',
+  maxStrokes = 24,
+): string {
+  const strokes = visibleStrokes(doc).filter((s) => s.tool !== 'eraser');
+  if (strokes.length === 0) return '';
+
+  const layerNames = new Map(doc.layers.map((l) => [l.id, l.name]));
+  const kindLabels = lang === 'el' ? STROKE_KIND_EL : STROKE_KIND_EN;
+  const lines: string[] = [];
+
+  for (const stroke of strokes.slice(0, maxStrokes)) {
+    const layer = layerNames.get(stroke.layerId) ?? stroke.layerId;
+    if (stroke.tool === 'text' && stroke.text) {
+      const p = stroke.points[0];
+      lines.push(
+        `[${layer}] ${kindLabels.text ?? 'text'} "${stroke.text.slice(0, 80)}" @ (${Math.round(p?.x ?? 0)},${Math.round(p?.y ?? 0)})`,
+      );
+      continue;
+    }
+    const p0 = stroke.points[0];
+    const p1 = stroke.points[stroke.points.length - 1];
+    if (!p0) continue;
+    const kind = kindLabels[stroke.tool] ?? stroke.tool;
+    if (['line', 'arrow', 'ruler', 'rect', 'ellipse'].includes(stroke.tool) && p1) {
+      if (stroke.tool === 'rect' || stroke.tool === 'ellipse') {
+        const w = Math.abs(p1.x - p0.x);
+        const h = Math.abs(p1.y - p0.y);
+        lines.push(
+          `[${layer}] ${kind} @ (${Math.round(Math.min(p0.x, p1.x))},${Math.round(Math.min(p0.y, p1.y))}) ${Math.round(w)}×${Math.round(h)}`,
+        );
+      } else {
+        lines.push(
+          `[${layer}] ${kind} (${Math.round(p0.x)},${Math.round(p0.y)}) → (${Math.round(p1.x)},${Math.round(p1.y)})`,
+        );
+      }
+    } else {
+      lines.push(
+        `[${layer}] ${kind} ${stroke.points.length} pts (${Math.round(p0.x)},${Math.round(p0.y)}) → (${Math.round(p1?.x ?? p0.x)},${Math.round(p1?.y ?? p0.y)})`,
+      );
+    }
+  }
+
+  if (strokes.length > maxStrokes) {
+    lines.push(
+      lang === 'el'
+        ? `…και ${strokes.length - maxStrokes} ακόμα στοιχεία`
+        : `…and ${strokes.length - maxStrokes} more elements`,
+    );
+  }
+  return lines.join('\n');
+}
+
+export type WhiteboardDiagramAgentIntent = 'guide' | 'step' | 'critique' | 'explain';
 
 export function buildWhiteboardDiagramAgentPrompt(
   plan: DiagramCoachPlan,
@@ -348,6 +429,28 @@ export function buildWhiteboardDiagramAgentPrompt(
   const stepList = plan.steps
     .map((s) => `${s.order}. ${s.label}: ${s.hint}`)
     .join('\n');
+
+  if (intent === 'explain') {
+    const desc = (opts?.sketchDescription ?? '').trim().slice(0, 800);
+    if (lang === 'el') {
+      return [
+        `Εξήγησε το διάγραμμά μου για «${plan.title}»:`,
+        plan.summary,
+        desc ? `\nΠεριγραφή σκίτσου:\n${desc}` : '\n(Ο πίνακας είναι κενός — πες μου τι θα έπρεπε να σχεδιάσω.)',
+        excerpt ? `\nΑπόσπασμα σημειώσεων:\n«${excerpt}»` : '',
+        '',
+        'Τι δείχνει το διάγραμμα; Είναι σωστό σχετικά με τις σημειώσεις; Τι είναι ασαφές ή λείπει;',
+      ].filter(Boolean).join('\n');
+    }
+    return [
+      `Explain my diagram for "${plan.title}":`,
+      plan.summary,
+      desc ? `\nSketch description:\n${desc}` : '\n(The board is empty — tell me what I should draw.)',
+      excerpt ? `\nNotes excerpt:\n"${excerpt}"` : '',
+      '',
+      'What does this diagram show? Is it correct relative to my notes? What is unclear or missing?',
+    ].filter(Boolean).join('\n');
+  }
 
   if (intent === 'critique' && opts?.sketchDescription?.trim()) {
     const desc = opts.sketchDescription.trim().slice(0, 600);

@@ -27,6 +27,7 @@ type Props = {
   onOpenQuiz?: () => void;
   onQuizCard?: (front: string) => void;
   onOpenInReader?: (query: string) => void;
+  onSessionDirty?: () => void;
   artifactStale?: boolean;
   onAcknowledgeStale?: () => void;
 };
@@ -43,6 +44,7 @@ export function LeitnerPanel({
   onOpenQuiz,
   onQuizCard,
   onOpenInReader,
+  onSessionDirty,
   artifactStale = false,
   onAcknowledgeStale,
 }: Props) {
@@ -209,6 +211,7 @@ export function LeitnerPanel({
           cards={visibleCards}
           scopeKey={scopeKey}
           spacingIntervals={spacingIntervals}
+          onSessionDirty={onSessionDirty}
           onRate={onRate}
           onOpenQuiz={onOpenQuiz}
           onQuizCard={onQuizCard}

@@ -46,5 +46,6 @@ describe('workspaceToolAgentPrompts', () => {
   it('uses socratic for whiteboard diagram coach intents', () => {
     expect(resolveToolAgentMode('whiteboard', 'diagram-coach')).toBe('socratic');
     expect(resolveToolAgentMode('whiteboard', 'diagram-critique')).toBe('socratic');
+    expect(resolveToolAgentMode('whiteboard', 'diagram-explain')).toBe('socratic');
   });
 });

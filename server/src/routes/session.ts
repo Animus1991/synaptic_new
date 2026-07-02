@@ -27,6 +27,7 @@ sessionRouter.put('/session', authenticate, async (req: Request, res: Response) 
       userSettings: body.userSettings ?? null,
       conceptBuses: body.conceptBuses ?? {},
       stepSchedules: body.stepSchedules ?? {},
+      leitnerDeckStates: body.leitnerDeckStates ?? {},
     });
     res.json(saved);
   } catch (e) {

@@ -7,6 +7,13 @@ client and server are versioned together.
 
 ### Added
 
+- **Whiteboard agent explain** — toolbar action serializes visible canvas strokes
+  (`describeWhiteboardDocument`) and opens the workspace Agent with a grounded
+  `diagram-explain` prompt; critique now prefers live sketch description when present.
+- **Leitner server sync** — cross-device deck persistence now rides the existing
+  account session channel (`leitnerDeckStates` in `/v1/session`), and Leitner
+  progress changes queue the same debounced authenticated sync used by other
+  workspace state.
 - **Sub-line span annotations (`0688f68`)** — `charStart`/`charEnd` on `StoredAnnotation`, select-to-highlight in `AnnotationOverlay` (`annotationSpan.ts`).
 - **Stage 3 quality gates (`a5e3c4b`)** — `QUALITY_STAGE=3`; span ratio 95%, source text 90%,
   eval faithfulness 0.95 (`qualityThresholds.ts`, `baseline.json`, grounding fixtures).

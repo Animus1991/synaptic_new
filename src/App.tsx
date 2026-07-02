@@ -361,6 +361,7 @@ export default function App() {
         openSourceAt={store.openSourceAt}
         clearSourceHighlight={store.clearSourceHighlight}
         onConceptBusDirty={store.queueConceptBusSync}
+        onSessionDirty={store.queueConceptBusSync}
         workspaceFocus={store.workspaceFocus ?? undefined}
         setWorkspaceFocus={store.setWorkspaceFocus}
         workspaceOpenTool={store.workspaceOpenTool}

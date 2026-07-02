@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { AlertTriangle, BookOpen, Search } from '@/lib/lucide-shim';
 import type { ScratchpadExport } from '../../lib/workspaceScratchpadBridge';
 import type { WhiteboardSessionContent } from '../../lib/whiteboardSessionModel';
@@ -51,6 +51,7 @@ export function WhiteboardPanel({
   const [filterQuery, setFilterQuery] = useState('');
   const [labelInsertKey, setLabelInsertKey] = useState(0);
   const [labelInsertPayload, setLabelInsertPayload] = useState<string[]>([]);
+  const sketchDescriptionRef = useRef('');
   const { t } = useI18n();
 
   const filterMatches = useMemo(
@@ -102,11 +103,12 @@ export function WhiteboardPanel({
     step?: DiagramCoachStep,
   ) => {
     if (!onAskAgent) return;
+    const canvasSketch = sketchDescriptionRef.current.trim();
     const sketchDescription = intent === 'critique'
-      ? t('wbSketchForCoach')
+      ? (canvasSketch || t('wbSketchForCoach')
         .replace('{title}', coachPlan.title)
-        .replace('{steps}', coachPlan.steps.map((s) => s.label).join(', '))
-      : undefined;
+        .replace('{steps}', coachPlan.steps.map((s) => s.label).join(', ')))
+      : canvasSketch || undefined;
     const prompt = buildWhiteboardDiagramAgentPrompt(coachPlan, lang, intent, {
       step,
       sketchDescription,
@@ -221,6 +223,9 @@ export function WhiteboardPanel({
           lang={lang}
           labelInsertKey={labelInsertKey}
           labelInsertPayload={labelInsertPayload}
+          coachPlan={coachPlan}
+          onAskAgent={onAskAgent}
+          sketchDescriptionRef={sketchDescriptionRef}
         />
       </div>
     </div>

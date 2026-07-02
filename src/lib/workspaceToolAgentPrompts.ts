@@ -21,6 +21,7 @@ export type ToolAgentIntent =
   | 'scratchpad-note'
   | 'diagram-coach'
   | 'diagram-critique'
+  | 'diagram-explain'
   | 'remediation';
 
 /** Default Agent mode when opening from each workspace tool. */
@@ -60,7 +61,7 @@ export function resolveToolAgentMode(
   if (intent === 'formula' || intent === 'scratchpad-note') return 'math-tutor';
   if (intent === 'compare-row') return 'exam-coach';
   if (intent === 'annotation') return 'direct';
-  if (intent === 'diagram-coach' || intent === 'diagram-critique') return 'socratic';
+  if (intent === 'diagram-coach' || intent === 'diagram-critique' || intent === 'diagram-explain') return 'socratic';
   if (intent === 'selection') {
     return SELECTION_MODES[tool] ?? TOOL_AGENT_MODES[tool];
   }

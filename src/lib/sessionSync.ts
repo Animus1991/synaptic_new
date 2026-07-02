@@ -8,10 +8,12 @@ import type {
 import type { BetaMastery } from './pedagogy';
 import { loadJson } from './persistence';
 import type { ConceptBusMap, StepScheduleMap } from './conceptBusSync';
+import type { LeitnerDeckState } from './leitnerDeckSync';
 import {
   mergeAllConceptBuses,
   mergeAllStepSchedules,
 } from './conceptBusSync';
+import { loadAllDeckStates } from './leitnerDeckSync';
 import { loadAllConceptBuses } from './workspacePersistence';
 import { loadAllStepSchedules } from './spacedStepSchedule';
 
@@ -31,6 +33,8 @@ export type LocalSession = {
   conceptBuses?: ConceptBusMap;
   /** Scoped lesson step spaced schedules — synced via /v1/session. */
   stepSchedules?: StepScheduleMap;
+  /** Scoped Leitner deck progress for cross-device persistence. */
+  leitnerDeckStates?: Record<string, LeitnerDeckState>;
 };
 
 export function loadLocalSession(): Partial<LocalSession> {
@@ -53,6 +57,8 @@ export function mergeSessions(local: Partial<LocalSession>, remote: Partial<Loca
   const remoteBuses = (remote.conceptBuses ?? {}) as ConceptBusMap;
   const localSchedules = local.stepSchedules ?? loadAllStepSchedules();
   const remoteSchedules = remote.stepSchedules ?? {};
+  const localDeckStates = local.leitnerDeckStates ?? loadAllDeckStates();
+  const remoteDeckStates = remote.leitnerDeckStates ?? {};
 
   return {
     learnerModel: pick(local.learnerModel, remote.learnerModel) as LearnerModel,
@@ -66,6 +72,9 @@ export function mergeSessions(local: Partial<LocalSession>, remote: Partial<Loca
     userSettings: pick(local.userSettings, remote.userSettings) as UserSettings,
     conceptBuses: mergeAllConceptBuses(localBuses, remoteBuses),
     stepSchedules: mergeAllStepSchedules(localSchedules, remoteSchedules),
+    leitnerDeckStates: preferRemote
+      ? { ...localDeckStates, ...remoteDeckStates }
+      : { ...remoteDeckStates, ...localDeckStates },
   };
 }
 
@@ -82,6 +91,7 @@ export function localSessionToRemote(session: Partial<LocalSession>): Omit<Local
     userSettings: session.userSettings as UserSettings,
     conceptBuses: (session.conceptBuses ?? loadAllConceptBuses()) as ConceptBusMap,
     stepSchedules: session.stepSchedules ?? loadAllStepSchedules(),
+    leitnerDeckStates: session.leitnerDeckStates ?? loadAllDeckStates(),
   };
 }
 
@@ -97,6 +107,7 @@ export function remoteSessionToLocal(remote: {
   userSettings?: unknown;
   conceptBuses?: Record<string, unknown>;
   stepSchedules?: Record<string, unknown>;
+  leitnerDeckStates?: Record<string, LeitnerDeckState>;
   updatedAt?: string;
 }): Partial<LocalSession> & { updatedAt?: string } {
   return {
@@ -111,6 +122,7 @@ export function remoteSessionToLocal(remote: {
     userSettings: remote.userSettings as UserSettings | undefined,
     conceptBuses: remote.conceptBuses as ConceptBusMap | undefined,
     stepSchedules: remote.stepSchedules as StepScheduleMap | undefined,
+    leitnerDeckStates: remote.leitnerDeckStates,
     updatedAt: remote.updatedAt,
   };
 }

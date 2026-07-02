@@ -41,6 +41,7 @@ export function StudyWorkspaceToolSurface({ model }: StudyWorkspaceToolSurfacePr
     onLeitnerRate,
     onLogStudyMinutes,
     onStartTask,
+    onSessionDirty,
     userSettings,
     lang,
     progressKey,
@@ -320,7 +321,9 @@ export function StudyWorkspaceToolSurface({ model }: StudyWorkspaceToolSurfacePr
                           onAskAgent={(prompt, intent) => {
                             const agentIntent: ToolAgentIntent = intent === 'critique'
                               ? 'diagram-critique'
-                              : 'diagram-coach';
+                              : intent === 'explain'
+                                ? 'diagram-explain'
+                                : 'diagram-coach';
                             openAgentForTool('whiteboard', prompt, agentIntent);
                             noteConceptActivity(quizConcept, 'whiteboard', 'noted');
                           }}
@@ -358,6 +361,7 @@ export function StudyWorkspaceToolSurface({ model }: StudyWorkspaceToolSurfacePr
                           concept={quizConcept}
                           lang={lang}
                           scopeKey={`${progressKey}:${quizConcept}`}
+                          onSessionDirty={onSessionDirty}
                           spacingIntervals={learnerModel?.spacingIntervals ?? []}
                           emptyMessage={toolEmptyMessage('leitner')}
                           onUpload={handleToolUpload}

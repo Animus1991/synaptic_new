@@ -44,6 +44,7 @@ export interface StudyWorkspaceProps {
   workspaceFocus?: WorkspaceFocus | null;
   setWorkspaceFocus?: (f: WorkspaceFocus | null) => void;
   onConceptBusDirty?: () => void;
+  onSessionDirty?: () => void;
   onWorkspaceLiveSync?: (live: WorkspaceLiveSync) => void;
   agentSplit?: boolean;
   workspaceOpenTool?: WorkspaceToolId | null;
