@@ -133,7 +133,7 @@ function initTasks(
   tasks = stripDemoFromTasks(tasks);
   for (const course of generatedCourses) {
     if (course.status !== 'generating') {
-      tasks = mergeCourseTasks(tasks, course);
+      tasks = mergeCourseTasks(tasks, course, settings.language);
     }
   }
   return tasks;
@@ -1037,7 +1037,7 @@ export function useAppStore() {
     let nextTasks = stripDemoFromTasks(tasks);
     for (const course of merged.generatedCourses) {
       if (course.status !== 'generating') {
-        nextTasks = mergeCourseTasks(nextTasks, course);
+        nextTasks = mergeCourseTasks(nextTasks, course, user.settings.language);
       }
     }
     setTasks(nextTasks);
@@ -1416,7 +1416,7 @@ export function useAppStore() {
       course,
     ];
     const nextCourses = initialCourses(generatedOnly, user.settings, mockCourses);
-    const nextTasks = mergeCourseTasks(stripDemoFromTasks(tasks), course);
+    const nextTasks = mergeCourseTasks(stripDemoFromTasks(tasks), course, user.settings.language);
     const nextBeta = mergeBetaFromCourse(betaMastery, course);
     const nextLm = mergeSkillNodesFromCourse(learnerModel, course);
     const nextLmMetrics = recomputeLearnerMetrics(nextLm, nextBeta, firstAttemptKeys, openMistakes);
@@ -1457,7 +1457,7 @@ export function useAppStore() {
       let nextTasks = tasks;
       let taskDelta: ReturnType<typeof summarizeReprocessTaskDelta> | null = null;
       if (result.tasksRegenerated) {
-        nextTasks = regenerateTasksAfterReprocess(tasks, result.course);
+        nextTasks = regenerateTasksAfterReprocess(tasks, result.course, user.settings.language);
         taskDelta = summarizeReprocessTaskDelta(
           tasks,
           nextTasks,

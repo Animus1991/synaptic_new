@@ -48,6 +48,16 @@ export type TasksContent = {
   startExamPrep: string;
   takeQuiz: string;
   startLesson: string;
+  generatedLessonTitle: (topic: string) => string;
+  generatedWorkspaceTitle: (concept: string) => string;
+  generatedReviewTitle: (topic: string) => string;
+  generatedExamPrepTitle: (courseTitle: string) => string;
+  generatedLessonDesc: (topic: string) => string;
+  generatedWorkspaceDesc: string;
+  generatedReviewDesc: (topic: string) => string;
+  generatedExamPrepDesc: string;
+  courseScopeLabel: (courseName: string) => string;
+  showAllCourses: string;
 };
 
 const EN: TasksContent = {
@@ -84,6 +94,16 @@ const EN: TasksContent = {
   startExamPrep: 'Start Exam Prep',
   takeQuiz: 'Take Quiz',
   startLesson: 'Start Lesson',
+  generatedLessonTitle: (topic) => `Lesson: ${topic}`,
+  generatedWorkspaceTitle: (concept) => `Study Workspace: ${concept}`,
+  generatedReviewTitle: (topic) => `Review: ${topic}`,
+  generatedExamPrepTitle: (courseTitle) => `Exam prep: ${courseTitle}`,
+  generatedLessonDesc: (topic) => `Study ${topic} from your uploaded material.`,
+  generatedWorkspaceDesc: 'Interactive study — concept map, flashcards, and recall from your notes.',
+  generatedReviewDesc: (topic) => `Spaced recall for concepts in ${topic}.`,
+  generatedExamPrepDesc: 'Review all topics before your exam.',
+  courseScopeLabel: (courseName) => `Showing tasks for ${courseName}`,
+  showAllCourses: 'Show all courses',
 };
 
 const EL: TasksContent = {
@@ -120,6 +140,16 @@ const EL: TasksContent = {
   startExamPrep: 'Έναρξη Προετοιμασίας',
   takeQuiz: 'Κουίζ',
   startLesson: 'Έναρξη Μαθήματος',
+  generatedLessonTitle: (topic) => `Μάθημα: ${topic}`,
+  generatedWorkspaceTitle: (concept) => `Study Workspace: ${concept}`,
+  generatedReviewTitle: (topic) => `Επανάληψη: ${topic}`,
+  generatedExamPrepTitle: (courseTitle) => `Προετοιμασία εξέτασης: ${courseTitle}`,
+  generatedLessonDesc: (topic) => `Μελέτη ${topic} από το ανεβασμένο υλικό σου.`,
+  generatedWorkspaceDesc: 'Διαδραστική μελέτη — concept map, flashcards και ανάκληση από τις σημειώσεις σου.',
+  generatedReviewDesc: (topic) => `Διαστηματική ανάκληση για έννοιες στο ${topic}.`,
+  generatedExamPrepDesc: 'Επανάληψη όλων των θεμάτων πριν την εξέταση.',
+  courseScopeLabel: (courseName) => `Εργασίες για ${courseName}`,
+  showAllCourses: 'Εμφάνιση όλων των μαθημάτων',
 };
 
 const TASK_TYPE_LABELS: Record<Lang, Record<TaskType, string>> = {

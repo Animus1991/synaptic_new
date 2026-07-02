@@ -1621,9 +1621,10 @@ export function useStudyWorkspace({
         lang,
         sectionLabel: STEPS[currentStep]?.title,
         hasSource: noteBundle.hasSource,
+        preExtractedFormulas: noteBundle.formulas,
       });
     },
-    [intelReady, activeTool, quizConcept, noteBundle.sourceFullText, noteBundle.hasSource, lang, STEPS, currentStep],
+    [intelReady, activeTool, quizConcept, noteBundle.sourceFullText, noteBundle.hasSource, noteBundle.formulas, lang, STEPS, currentStep],
   );
 
   const timerSession = useMemo(

@@ -52,4 +52,21 @@ describe('whiteboardSessionModel', () => {
     expect(filterWhiteboardFormulas(formulas, 'MC')).toHaveLength(1);
     expect(filterWhiteboardFormulas(formulas, '')).toEqual(formulas);
   });
+
+  it('falls back to pre-extracted formulas when live extraction is empty', () => {
+    const preExtracted: ExtractedFormula[] = [
+      { id: 'f1', name: 'Demand law', formula: 'Qd = f(P)' },
+    ];
+    const session = buildWhiteboardSessionContent({
+      concept: 'Elasticity',
+      text: 'No inline formulas in this excerpt.',
+      lang: 'en',
+      hasSource: true,
+      preExtractedFormulas: preExtracted,
+    });
+
+    expect(session.formulas).toEqual(preExtracted);
+    expect(session.weakExtraction).toBe(false);
+    expect(session.hasReferenceContent).toBe(true);
+  });
 });

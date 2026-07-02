@@ -25,6 +25,8 @@ type Props = {
   showMigration?: boolean;
   onOpenStudyRoom?: () => void;
   studyRoomOpen?: boolean;
+  /** When Together is already in the workspace header, hide the duplicate chip here. */
+  studyRoomInHeader?: boolean;
   className?: string;
 };
 
@@ -61,6 +63,7 @@ export function WorkspaceContextBar({
   showMigration = false,
   onOpenStudyRoom,
   studyRoomOpen = false,
+  studyRoomInHeader = false,
   className,
 }: Props) {
   const { t } = useI18n();
@@ -97,7 +100,7 @@ export function WorkspaceContextBar({
         </button>
       )}
 
-      {onOpenStudyRoom && (
+      {onOpenStudyRoom && !studyRoomInHeader && (
         <WorkspaceStudyRoomTrigger
           lang={lang}
           open={studyRoomOpen}

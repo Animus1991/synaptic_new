@@ -162,7 +162,7 @@ export function Shell({
                     className={cn(shellNavClass(studyWorkspaceOpen), 'mt-1')}
                   >
                     <Layout className="w-5 h-5 shrink-0" />
-                    <span className="flex-1 text-left truncate">{t('navStudyWorkspace')}</span>
+                    <span className="flex-1 text-left truncate" title={t('navStudyWorkspace')}>{t('navStudyWorkspace')}</span>
                     {studyWorkspaceOpen ? (
                       <span className="ml-auto type-micro ws-chip-brand px-2 py-0.5 rounded-full font-semibold whitespace-nowrap">
                         {t('navContinuingHere')}

@@ -200,6 +200,15 @@ export function Analytics({
   );
 }
 
+function countMeaningfulLearningActivities(activities: ActivityItem[]): number {
+  return activities.filter((a) =>
+    a.type === 'quiz_passed'
+    || a.type === 'quiz_failed'
+    || a.type === 'review_done'
+    || a.type === 'task_complete',
+  ).length;
+}
+
 function OverviewTab({
   learnerModel,
   stats,
@@ -212,7 +221,11 @@ function OverviewTab({
   activities: ActivityItem[];
 }) {
   const { t, lang } = useI18n();
-  const calibration = computeCalibration(learnerModel.confidenceCalibration);
+  const meaningfulActivityCount = countMeaningfulLearningActivities(activities);
+  const hasConfidenceMetrics = meaningfulActivityCount >= 3;
+  const calibration = hasConfidenceMetrics
+    ? computeCalibration(learnerModel.confidenceCalibration)
+    : null;
   const retentionPoints = retentionCurveFromActivities(activities);
   const weekly = learnerModel.weeklyMastery.some((v) => v > 0)
     ? learnerModel.weeklyMastery
@@ -227,9 +240,16 @@ function OverviewTab({
       )}
       {/* Readiness Ring + Retention Curve */}
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-        <div className="ws-bento p-6 flex items-center justify-center">
-          <ReadinessRing value={learnerModel.overallMastery} size={200} sublabel={t('analyticsReadinessSublabel')} />
-        </div>
+        {hasConfidenceMetrics ? (
+          <div className="ws-bento p-6 flex items-center justify-center">
+            <ReadinessRing value={learnerModel.overallMastery} size={200} sublabel={t('analyticsReadinessSublabel')} />
+          </div>
+        ) : (
+          <div className="ws-bento p-6 flex flex-col items-center justify-center text-center text-sm text-text-muted min-h-[200px]">
+            <Target className="w-8 h-8 text-text-tertiary mb-2" />
+            <p>{t('analyticsResearchEmpty')}</p>
+          </div>
+        )}
         {hasRetentionData ? (
           <RetentionCurve dataPoints={retentionPoints} />
         ) : (

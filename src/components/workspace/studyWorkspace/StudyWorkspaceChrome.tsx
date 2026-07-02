@@ -287,6 +287,7 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
                 showMigration={showReuploadHint}
                 onOpenStudyRoom={() => setStudyRoomOpen((v) => !v)}
                 studyRoomOpen={studyRoomOpen}
+                studyRoomInHeader
               />
             )}
 

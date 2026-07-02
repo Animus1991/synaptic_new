@@ -42,6 +42,8 @@ interface TasksProps {
   filterPreset?: TaskFilter | null;
   onFilterPresetConsumed?: () => void;
   studyPlan?: StudyPlanBlock[];
+  focusCourseId?: string | null;
+  focusCourseName?: string | null;
 }
 
 export function Tasks({
@@ -59,11 +61,14 @@ export function Tasks({
   filterPreset = null,
   onFilterPresetConsumed,
   studyPlan,
+  focusCourseId = null,
+  focusCourseName = null,
 }: TasksProps) {
   const c = getTasksContent(lang);
   const sessionTypes = getSessionTypes(lang);
   const [filter, setFilter] = useState<TaskFilter>('all');
   const [showSessions, setShowSessions] = useState(false);
+  const [showAllCourses, setShowAllCourses] = useState(false);
   const [localExpanded, setLocalExpanded] = useState<string | null>(null);
   const expandedTask = expandedTaskId ?? localExpanded;
   const setExpandedTask = (id: string | null) => {
@@ -81,27 +86,36 @@ export function Tasks({
     onFilterPresetConsumed?.();
   }, [filterPreset, onFilterPresetConsumed]);
 
-  const studyPlanBlocks = studyPlan ?? buildStudyPlanBlocks(tasks, lang);
+  useEffect(() => {
+    if (focusCourseId) setShowAllCourses(false);
+  }, [focusCourseId]);
 
-  const filteredTasks = tasks.filter(t => {
+  const courseScoped = focusCourseId && !showAllCourses;
+  const visibleTasks = courseScoped
+    ? tasks.filter((t) => t.courseId === focusCourseId)
+    : tasks;
+
+  const studyPlanBlocks = studyPlan ?? buildStudyPlanBlocks(visibleTasks, lang);
+
+  const filteredTasks = visibleTasks.filter(t => {
     if (filter === 'completed') return t.status === 'completed';
     if (filter === 'all') return true;
     return t.category === filter && t.status !== 'completed';
   });
 
-  const pendingCount = tasks.filter(t => t.status === 'pending').length;
-  const completedCount = tasks.filter(t => t.status === 'completed').length;
-  const reviewCount = tasks.filter(t => t.isSpacedRepetition && t.status === 'pending').length;
-  const totalXP = tasks.filter(t => t.status === 'pending').reduce((sum, t) => sum + t.xpReward, 0);
-  const dangerTasks = tasks.filter(t => t.status === 'pending' && (t.priority === 'critical' || (t.type === 'prerequisite-repair')));
+  const pendingCount = visibleTasks.filter(t => t.status === 'pending').length;
+  const completedCount = visibleTasks.filter(t => t.status === 'completed').length;
+  const reviewCount = visibleTasks.filter(t => t.isSpacedRepetition && t.status === 'pending').length;
+  const totalXP = visibleTasks.filter(t => t.status === 'pending').reduce((sum, t) => sum + t.xpReward, 0);
+  const dangerTasks = visibleTasks.filter(t => t.status === 'pending' && (t.priority === 'critical' || (t.type === 'prerequisite-repair')));
 
   const filterCounts: Record<TaskFilter, number> = {
-    all: tasks.length,
-    learn: tasks.filter(t => t.category === 'learn' && t.status !== 'completed').length,
-    review: tasks.filter(t => t.category === 'review' && t.status !== 'completed').length,
-    practice: tasks.filter(t => t.category === 'practice' && t.status !== 'completed').length,
-    exam: tasks.filter(t => t.category === 'exam' && t.status !== 'completed').length,
-    fix: tasks.filter(t => t.category === 'fix' && t.status !== 'completed').length,
+    all: visibleTasks.length,
+    learn: visibleTasks.filter(t => t.category === 'learn' && t.status !== 'completed').length,
+    review: visibleTasks.filter(t => t.category === 'review' && t.status !== 'completed').length,
+    practice: visibleTasks.filter(t => t.category === 'practice' && t.status !== 'completed').length,
+    exam: visibleTasks.filter(t => t.category === 'exam' && t.status !== 'completed').length,
+    fix: visibleTasks.filter(t => t.category === 'fix' && t.status !== 'completed').length,
     completed: completedCount,
   };
 
@@ -127,12 +141,29 @@ export function Tasks({
         }
       />
 
+      {focusCourseId && focusCourseName && (
+        <div className="flex flex-wrap items-center gap-2 pb-2">
+          {courseScoped && (
+            <span className="text-xs text-text-secondary">
+              {c.courseScopeLabel(focusCourseName)}
+            </span>
+          )}
+          <button
+            type="button"
+            onClick={() => setShowAllCourses((v) => !v)}
+            className="text-xs font-medium text-brand-700 hover:text-brand-600 underline-offset-2 hover:underline"
+          >
+            {courseScoped ? c.showAllCourses : c.courseScopeLabel(focusCourseName)}
+          </button>
+        </div>
+      )}
+
       <AnimatePresence>
         {showSessions && (
           <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 pb-4">
               {sessionTypes.map(s => {
-                const sessionTasks = filterTasksForSession(tasks, s.type);
+                const sessionTasks = filterTasksForSession(visibleTasks, s.type);
                 return (
                 <button
                   key={s.type}
@@ -206,7 +237,7 @@ export function Tasks({
         )}
         <div className="flex items-center gap-2 px-4 py-2 rounded-xl ws-chip-neutral text-sm shrink-0">
           <Clock className="w-4 h-4 text-text-tertiary" />
-          <span className="text-text-secondary">{c.totalMinutes(Math.round(tasks.filter(t => t.status === 'pending').reduce((s, t) => s + t.estimatedMinutes, 0)))}</span>
+          <span className="text-text-secondary">{c.totalMinutes(Math.round(visibleTasks.filter(t => t.status === 'pending').reduce((s, t) => s + t.estimatedMinutes, 0)))}</span>
         </div>
         {daysToExam !== null ? (
           <div className="flex items-center gap-2 px-4 py-2 rounded-xl ws-chip-danger text-sm shrink-0">

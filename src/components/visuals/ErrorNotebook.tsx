@@ -1,4 +1,4 @@
-import { BookX, CheckCircle2 } from '@/lib/lucide-shim';
+import { BookX, CheckSquare } from '@/lib/lucide-shim';
 import type { MistakeRecord } from '../../types';
 
 interface Props {
@@ -32,10 +32,11 @@ export function ErrorNotebook({ mistakes, onResolve }: Props) {
               {onResolve && (
                 <button
                   onClick={() => onResolve(m.id)}
-                  className="shrink-0 p-1.5 rounded-lg border border-transparent hover:border-border-subtle text-accent-emerald transition-colors"
+                  className="shrink-0 p-1.5 rounded-lg border border-border-subtle hover:border-brand-300 bg-surface-card hover:bg-surface-hover text-text-secondary hover:text-brand-700 transition-colors"
                   title="Mark resolved"
+                  aria-label="Mark resolved"
                 >
-                  <CheckCircle2 className="w-4 h-4" />
+                  <CheckSquare className="w-4 h-4" />
                 </button>
               )}
             </div>

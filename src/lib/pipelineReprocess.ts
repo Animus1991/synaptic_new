@@ -11,6 +11,7 @@ import { normalizeDocumentText } from './textSegmentation';
 import { buildMaterialOutlinePreview } from './uploadOutlinePreview';
 import { mergeOutlineIntoCourse, buildGlossaryEntriesFromOutline, replaceCourseGlossary } from './courseMerge';
 import { generatedTaskPrefix, isGeneratedCourseTask, mergeCourseTasks } from './taskGenerator';
+import type { Lang } from './i18n';
 import type { Course, GlossaryEntry, Task, UploadedFile } from '../types';
 
 export type ReprocessTaskDelta = {
@@ -49,8 +50,8 @@ export function topicsChangedAfterReprocess(before: Course, after: Course): bool
   return topicsFingerprint(before) !== topicsFingerprint(after);
 }
 
-export function regenerateTasksAfterReprocess(tasks: Task[], course: Course): Task[] {
-  return mergeCourseTasks(tasks, course);
+export function regenerateTasksAfterReprocess(tasks: Task[], course: Course, lang: Lang = 'en'): Task[] {
+  return mergeCourseTasks(tasks, course, lang);
 }
 
 export function regenerateGlossaryAfterReprocess(

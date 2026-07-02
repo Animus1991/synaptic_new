@@ -1,4 +1,5 @@
 import type { UploadedFile, GlossaryEntry } from '../types';
+import { CONTENT_PIPELINE_VERSION } from '../lib/pipelineConstants';
 
 /**
  * In-memory demo source material. Seeded only when demo content is enabled so the
@@ -61,7 +62,7 @@ export const mockUploadedFiles: UploadedFile[] = [
     courseId: 'c1',
     detectedLanguage: 'en',
     ingestMethod: 'text-layer',
-    pipelineVersion: '2.4.0',
+    pipelineVersion: CONTENT_PIPELINE_VERSION,
     pageCount: 6,
     extractedTopics: [
       'Supply & Demand',
@@ -84,7 +85,7 @@ export const mockUploadedFiles: UploadedFile[] = [
     courseId: 'c2',
     detectedLanguage: 'en',
     ingestMethod: 'text-layer',
-    pipelineVersion: '2.4.0',
+    pipelineVersion: CONTENT_PIPELINE_VERSION,
     pageCount: 4,
     extractedTopics: ['NumPy Arrays', 'Pandas DataFrames', 'Data Visualization', 'Machine Learning Intro'],
     extractedText: PY_TEXT,
@@ -100,7 +101,7 @@ export const mockUploadedFiles: UploadedFile[] = [
     courseId: 'c3',
     detectedLanguage: 'en',
     ingestMethod: 'text-layer',
-    pipelineVersion: '2.4.0',
+    pipelineVersion: CONTENT_PIPELINE_VERSION,
     pageCount: 4,
     extractedTopics: ['What is Philosophy?', 'Epistemology', 'Ethics', 'Philosophy of Mind'],
     extractedText: PHIL_TEXT,

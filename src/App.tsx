@@ -815,6 +815,8 @@ export default function App() {
             <Tasks
               tasks={store.tasks}
               lang={store.user.settings.language}
+              focusCourseId={store.selectedCourse?.id}
+              focusCourseName={store.selectedCourse?.title}
               onComplete={store.completeTask}
               onReviewRating={store.submitReviewRating}
               onStartTask={store.startTask}
