@@ -10,6 +10,7 @@ import { getLearningActions } from '../../lib/workspaceLearningActions';
 import type { WorkspaceEmptyAction } from '../../lib/workspaceEmptyState';
 import { workspaceToolEmptyMessage } from '../../lib/workspaceEmptyState';
 import { WorkspaceEmptyState } from './WorkspaceEmptyState';
+import { commandPaletteBadge } from '../../lib/workspaceKeyboardShortcuts';
 
 type DiscoverabilitySummary = ReturnType<typeof buildDiscoverabilitySummary>;
 type ActionHandlers = Partial<Record<DiscoverabilityActionId, () => void>>;
@@ -20,7 +21,7 @@ const ACTION_LABELS: Record<DiscoverabilityActionId, { en: string; el: string }>
   'open-leitner-due': { en: 'Review due cards', el: 'Ληξιπρόθεσμα Leitner' },
   'jump-quiz': { en: 'Knowledge check', el: 'Έλεγχος γνώσεων' },
   'open-compare': { en: 'Open compare', el: 'Άνοιγμα σύγκρισης' },
-  'open-command-palette': { en: 'Command palette ⌘K', el: 'Παλέτα εντολών ⌘K' },
+  'open-command-palette': { en: 'Command palette', el: 'Παλέτα εντολών' },
   'jump-spaced-step': { en: 'Next spaced step', el: 'Επόμενο spaced βήμα' },
 };
 
@@ -55,6 +56,10 @@ export function WorkspaceDiscoverabilityPanel({
 }: Props) {
   const { t } = useI18n();
   const { chips, toolGuide, grounded, headline, subline, recommendedTool, nextAction } = summary;
+  const actionLabelFor = (id: DiscoverabilityActionId) =>
+    id === 'open-command-palette'
+      ? `${ACTION_LABELS[id][lang]} (${commandPaletteBadge()})`
+      : ACTION_LABELS[id][lang];
   const secondaryActions = nextAction && onLearningAction
     ? getLearningActions(lang).filter((a) => nextAction.secondary.includes(a.id))
     : [];
@@ -175,7 +180,7 @@ export function WorkspaceDiscoverabilityPanel({
             {toolGuide.quickActionIds.map((id) => {
               const run = actions[id];
               if (!run) return null;
-              const label = ACTION_LABELS[id][lang];
+              const label = actionLabelFor(id);
               return (
                 <button
                   key={id}
@@ -195,7 +200,7 @@ export function WorkspaceDiscoverabilityPanel({
                 onClick={actions['open-command-palette']}
                 className="rounded-lg border border-white/10 bg-white/[0.04] px-2.5 py-1 text-[10px] font-medium text-text-secondary hover:text-text-primary"
               >
-                {ACTION_LABELS['open-command-palette'][lang]}
+                {actionLabelFor('open-command-palette')}
               </button>
             )}
           </div>

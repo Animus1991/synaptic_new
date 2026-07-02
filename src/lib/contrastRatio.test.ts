@@ -3,7 +3,7 @@ import { AA_NORMAL, contrastRatio } from './contrastRatio';
 
 /** Design-token pairs audited in Package 5 — must meet WCAG AA for body text. */
 const TOKEN_PAIRS = [
-  { name: 'dark tertiary on secondary', fg: '#9494a8', bg: '#111114' },
+  { name: 'dark tertiary on secondary', fg: '#9494a8', bg: '#131317' },
   { name: 'dark muted on primary', fg: '#858599', bg: '#0a0a0c' },
   { name: 'dark secondary on primary', fg: '#b4b4c0', bg: '#0a0a0c' },
   { name: 'warm tertiary on secondary', fg: '#5c4528', bg: '#f4f0e9' },

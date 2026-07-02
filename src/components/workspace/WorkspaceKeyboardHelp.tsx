@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { Keyboard, X } from '@/lib/lucide-shim';
-import { workspaceShortcutGroups } from '../../lib/workspaceKeyboardShortcuts';
+import { workspaceShortcutGroups, displayShortcutKeys } from '../../lib/workspaceKeyboardShortcuts';
 import { t } from '../../lib/i18n';
 
 type Props = {
@@ -67,7 +67,7 @@ export function WorkspaceKeyboardHelp({ open, onClose, lang }: Props) {
                           {lang === 'el' ? item.labelEl : item.labelEn}
                         </span>
                         <kbd className="shrink-0 rounded border border-border-subtle bg-surface-input px-1.5 py-0.5 font-mono text-[10px] text-text-muted">
-                          {item.keys}
+                          {displayShortcutKeys(item.keys)}
                         </kbd>
                       </li>
                     ))}

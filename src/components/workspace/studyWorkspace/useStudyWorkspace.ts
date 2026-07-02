@@ -1209,6 +1209,7 @@ export function useStudyWorkspace({
         question: t('wsQuizUploadPrompt').replace('{concept}', quizConcept),
         options: ['- - -', '- - -', '- - -', '- - -'],
         correctIndex: 0,
+        placeholder: true,
       };
     }
     if (noteBundle.hasSource) {
@@ -1227,6 +1228,7 @@ export function useStudyWorkspace({
       question: t('wsQuizUploadPrompt').replace('{concept}', quizConcept),
       options: ['- - -', '- - -', '- - -', '- - -'],
       correctIndex: 0,
+      placeholder: true,
     };
   }, [intelReady, activeTool, noteBundle.hasSource, noteBundle.annotationText, noteBundle.quiz, quizConcept, scopedGlossary, lang, quizIrtState.ability, conceptMastery, t]);
 

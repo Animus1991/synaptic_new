@@ -2,6 +2,45 @@
  * Study Workspace keyboard shortcuts — definitions + resolver (SW-P3-08).
  */
 
+/**
+ * True on macOS / iOS / iPadOS. Used to pick platform-correct modifier labels:
+ * only Apple platforms have a ⌘ key, and U+2318 has no glyph in the app's
+ * loaded fonts on Windows/Linux — where it previously rendered as garbled
+ * text in the chrome shortcut badge. SSR/test-safe (guards `navigator`).
+ */
+export function isApplePlatform(): boolean {
+  if (typeof navigator === 'undefined') return false;
+  const nav = navigator as Navigator & { userAgentData?: { platform?: string } };
+  const src = (nav.userAgentData?.platform || nav.platform || nav.userAgent || '').toLowerCase();
+  return /mac|iphone|ipad|ipod/.test(src);
+}
+
+/** Modifier symbol for the command palette: "⌘" on Apple, "Ctrl" elsewhere. */
+export function commandModifierLabel(): string {
+  return isApplePlatform() ? '⌘' : 'Ctrl';
+}
+
+/** Compact palette badge: "⌘K" on Apple, "Ctrl K" elsewhere. */
+export function commandPaletteBadge(): string {
+  return isApplePlatform() ? '⌘K' : 'Ctrl K';
+}
+
+/**
+ * Collapse a dual "⌘X / Ctrl+X" shortcut string to the platform-appropriate
+ * half, so Windows/Linux never render the Mac-only ⌘ glyph (no font glyph →
+ * garbled). Non-dual strings are returned unchanged.
+ */
+export function displayShortcutKeys(keys: string): string {
+  if (keys.includes('⌘') && /ctrl/i.test(keys)) {
+    const parts = keys.split('/').map((s) => s.trim());
+    const pick = isApplePlatform()
+      ? parts.find((p) => p.includes('⌘'))
+      : parts.find((p) => !p.includes('⌘'));
+    return pick ?? keys;
+  }
+  return keys;
+}
+
 export type WorkspaceShortcutAction =
   | 'close-overlay'
   | 'open-palette'

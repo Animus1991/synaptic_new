@@ -1,4 +1,5 @@
 import { useMemo, useState, type KeyboardEvent } from 'react';
+import { HelpCircle } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
 import { isMcQuiz, type QuizDef } from '../../lib/lessonTypes';
 import type { Lang } from '../../lib/i18n';
@@ -56,6 +57,18 @@ export function WorkspaceQuiz({ quizDef, lang, irt, irtResponseCount = 0, onComp
   }, [quizDef]);
 
   if (isMcQuiz(quizDef)) {
+    if (quizDef.placeholder) {
+      return (
+        <div
+          className="rounded-xl border border-dashed border-border-default bg-surface-card/50 px-4 py-6 text-center"
+          data-testid="workspace-quiz-empty"
+        >
+          <HelpCircle className="mx-auto mb-2 h-6 w-6 text-brand-400" aria-hidden />
+          <p className="text-sm font-medium text-text-secondary">{quizDef.question}</p>
+          <p className="mx-auto mt-1.5 max-w-xs text-xs text-text-muted">{t('wsQuizEmptyHint')}</p>
+        </div>
+      );
+    }
     const passed = mcAnswer !== null && mcAnswer === quizDef.correctIndex;
     return (
       <div className="space-y-3" data-testid="workspace-quiz">

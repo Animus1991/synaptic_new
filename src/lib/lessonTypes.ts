@@ -21,6 +21,9 @@ export type QuizDef =
       question: string;
       options: string[];
       correctIndex: number;
+      /** When true, this is an upload/reprocess-gated empty state, not a real
+       *  question — renderers show an actionable prompt instead of fake options. */
+      placeholder?: boolean;
     }
   | {
       kind: 'short-answer';
@@ -87,6 +90,7 @@ export function genericQuizPlaceholder(concept: string, lang: Lang): QuizDef {
       ? ['Θα δημιουργηθεί από το υλικό σου', '—', '—', '—']
       : ['Will be generated from your material', '—', '—', '—'],
     correctIndex: 0,
+    placeholder: true,
   };
 }
 

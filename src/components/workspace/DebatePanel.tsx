@@ -78,6 +78,19 @@ export function DebatePanel({
     );
   }
 
+  if (!session.seedTree) {
+    return (
+      <div className="p-4" data-testid="debate-panel-empty">
+        <WorkspaceEmptyState
+          tool="debate"
+          message={emptyMessage ?? t('panelEmptyDebate')}
+          hasSource
+          onUpload={onUpload}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="flex h-full flex-col overflow-hidden" data-testid="debate-panel">
       <div className="shrink-0 border-b border-border-subtle px-4 py-3">

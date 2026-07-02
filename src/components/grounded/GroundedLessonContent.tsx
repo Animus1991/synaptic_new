@@ -72,31 +72,40 @@ export function GroundedLessonContent({
         <span className="text-xs text-brand-400 font-medium">{t('quiz')}</span>
         <h2 className="text-2xl font-bold">{t('knowledgeCheck')}</h2>
         <div className="p-4 rounded-xl bg-surface-card border border-border-subtle">
-          <p className="text-sm mb-3">{quizDef.question}</p>
-          {quizDef.options.map((opt, i) => (
-            <button
-              key={i}
-              type="button"
-              onClick={() => onQuizSelect(i)}
-              className={cn(
-                'w-full text-left p-3 rounded-lg border text-sm mb-2 transition-all flex items-center gap-2',
-                quizAnswer === i
-                  ? i === quizDef.correctIndex
-                    ? 'border-accent-emerald/50 bg-accent-emerald/10 text-accent-emerald'
-                    : 'border-accent-rose/50 bg-accent-rose/10 text-accent-rose'
-                  : 'border-border-subtle hover:border-brand-500/30',
+          {quizDef.placeholder ? (
+            <div className="py-3 text-center">
+              <p className="text-sm font-medium text-text-secondary">{quizDef.question}</p>
+              <p className="mx-auto mt-1.5 max-w-xs text-xs text-text-muted">{t('wsQuizEmptyHint')}</p>
+            </div>
+          ) : (
+            <>
+              <p className="text-sm mb-3">{quizDef.question}</p>
+              {quizDef.options.map((opt, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  onClick={() => onQuizSelect(i)}
+                  className={cn(
+                    'w-full text-left p-3 rounded-lg border text-sm mb-2 transition-all flex items-center gap-2',
+                    quizAnswer === i
+                      ? i === quizDef.correctIndex
+                        ? 'border-accent-emerald/50 bg-accent-emerald/10 text-accent-emerald'
+                        : 'border-accent-rose/50 bg-accent-rose/10 text-accent-rose'
+                      : 'border-border-subtle hover:border-brand-500/30',
+                  )}
+                >
+                  <span className="w-6 h-6 rounded-full border border-current text-xs flex items-center justify-center shrink-0">
+                    {String.fromCharCode(65 + i)}
+                  </span>
+                  {opt}
+                </button>
+              ))}
+              {quizAnswer !== null && (
+                <p className={cn('text-xs mt-2', quizPassed ? 'text-accent-emerald' : 'text-accent-rose')}>
+                  {quizPassed ? `✓ ${t('canFinish')}` : `✗ ${t('reviewMaterial')}`}
+                </p>
               )}
-            >
-              <span className="w-6 h-6 rounded-full border border-current text-xs flex items-center justify-center shrink-0">
-                {String.fromCharCode(65 + i)}
-              </span>
-              {opt}
-            </button>
-          ))}
-          {quizAnswer !== null && (
-            <p className={cn('text-xs mt-2', quizPassed ? 'text-accent-emerald' : 'text-accent-rose')}>
-              {quizPassed ? `✓ ${t('canFinish')}` : `✗ ${t('reviewMaterial')}`}
-            </p>
+            </>
           )}
         </div>
       </div>

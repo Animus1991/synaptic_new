@@ -8,6 +8,7 @@ import { WorkspaceContextBar } from '../WorkspaceContextBar';
 import { WorkspaceStudyRoomTrigger } from '../WorkspaceStudyRoomTrigger';
 import { ConceptLensChromeStrip } from '../ConceptLensChromeStrip';
 import { nextActionLabel } from '../../../lib/nextActionEngine';
+import { commandPaletteBadge } from '../../../lib/workspaceKeyboardShortcuts';
 import type { MobileIntelTab } from '../WorkspaceMobileIntelligenceTabs';
 import type { StudyWorkspaceModel } from './useStudyWorkspace';
 
@@ -228,10 +229,10 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
                       type="button"
                       onClick={() => setShowPalette(true)}
                       data-testid="workspace-command-palette-open"
-                      title={t('wsCommandPalette')}
+                      title={`${t('wsCommandPalette')} (${commandPaletteBadge()})`}
                       className="hidden sm:inline-flex items-center gap-1 px-2 py-1 rounded-lg border border-border-subtle bg-surface-card hover:bg-surface-hover type-micro font-mono text-text-secondary hover:text-text-primary shrink-0 transition-colors"
                     >
-                      ⌘K
+                      {commandPaletteBadge()}
                     </button>
                   )}
                   <WorkspaceStudyRoomTrigger

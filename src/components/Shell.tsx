@@ -14,6 +14,7 @@ import { workspaceLiveIsStale } from '../lib/workspaceStoreSpine';
 import { workspaceEntryPrefetchHandlers } from '../lib/workspaceEntryPrefetch';
 import { PlatformSkipLinks } from './PlatformSkipLinks';
 import { OfflineShellBanner } from './OfflineShellBanner';
+import { commandPaletteBadge } from '../lib/workspaceKeyboardShortcuts';
 
 interface ShellProps {
   children: ReactNode;
@@ -274,7 +275,7 @@ export function Shell({
                     <span className="text-text-secondary font-medium">{breadcrumb.course}</span>
                     {breadcrumb.lesson && (
                       <>
-                        <span>β€Ά</span>
+                        <span aria-hidden="true">›</span>
                         <span className="truncate max-w-[200px]">{breadcrumb.lesson}</span>
                       </>
                     )}
@@ -292,7 +293,12 @@ export function Shell({
               >
                 <Search className="w-4 h-4" />
                 <span>{t('search')}</span>
-                <kbd className="text-xs bg-surface-hover px-1.5 py-0.5 rounded border border-border-subtle ml-4">βK</kbd>
+                <kbd
+                  className="text-xs bg-surface-hover px-1.5 py-0.5 rounded border border-border-subtle ml-4 font-mono"
+                  data-testid="shell-search-shortcut"
+                >
+                  {commandPaletteBadge()}
+                </kbd>
               </button>
 
               <button
