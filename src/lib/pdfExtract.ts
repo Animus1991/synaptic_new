@@ -11,6 +11,9 @@ import { importChatGptExportFile, isChatGptExportFile, isLikelyChatGptExportJson
 
 import { extractWithOcrFallback, isImageOnlyPdf, isImageUpload } from './ocrExtract';
 import { extractAudioVideoTranscript, isAudioVideoFile } from './youtubeTranscript';
+import { detectMathZonesFromPage, type PdfMathZone } from './pdfMathZones';
+import { repairPdfMathZones } from './mathOcrClient';
+import { extractLayoutBlocksFromPages, type PdfLayoutBlockInput } from './pdfLayoutBlocks';
 
 // Vite resolves this to a stable public URL in dev + production builds.
 
@@ -30,6 +33,12 @@ export type PdfExtractResult = {
 
   ocrRegions?: FileExtractResult['ocrRegions'];
 
+  mathZones?: PdfMathZone[];
+
+  mathOcrUsed?: boolean;
+
+  layoutBlocks?: PdfLayoutBlockInput[];
+
 };
 
 
@@ -45,6 +54,12 @@ export type FileExtractResult = {
   ingestMethod?: 'text-layer' | 'ocr-client' | 'ocr-server' | 'ocr-ensemble' | 'chatgpt-export' | 'transcript';
 
   ocrRegions?: import('./readerOcrOverlay').OcrStoredRegion[];
+
+  mathZones?: PdfMathZone[];
+
+  mathOcrUsed?: boolean;
+
+  layoutBlocks?: PdfLayoutBlockInput[];
 
 };
 
@@ -174,6 +189,14 @@ export async function extractTextFromPdf(file: File, settings?: UserSettings): P
 
   const parts: string[] = [];
   const pageCharCounts: number[] = [];
+  const allMathZones: PdfMathZone[] = [];
+  const pageLayoutInputs: {
+    items: unknown[];
+    styles: Record<string, { fontFamily?: string }> | undefined;
+    pageHeight: number;
+    pageText: string;
+    pageIndex: number;
+  }[] = [];
 
 
 
@@ -186,6 +209,23 @@ export async function extractTextFromPdf(file: File, settings?: UserSettings): P
     const pageText = layoutAwareTextFromItems(content.items, viewport.width);
     parts.push(pageText);
     pageCharCounts.push(pageText.replace(/\s+/g, '').length);
+
+    const styles = content.styles as Record<string, { fontFamily?: string }> | undefined;
+    pageLayoutInputs.push({
+      items: content.items,
+      styles,
+      pageHeight: viewport.height,
+      pageText,
+      pageIndex: i - 1,
+    });
+    const pageZones = detectMathZonesFromPage(
+      content.items,
+      styles,
+      viewport.width,
+      viewport.height,
+      i - 1,
+    );
+    allMathZones.push(...pageZones);
 
   }
 
@@ -204,9 +244,17 @@ export async function extractTextFromPdf(file: File, settings?: UserSettings): P
     };
   }
 
+  const mathRepair = await repairPdfMathZones(file, parts, allMathZones, settings);
+
+  const repairedPages = pageLayoutInputs.map((page, idx) => ({
+    ...page,
+    pageText: mathRepair.pageTexts[idx] ?? page.pageText,
+  }));
+  const layoutBlocks = extractLayoutBlocksFromPages(repairedPages);
+
   const textLayer = {
 
-    text: parts.join('\n\f\n'),
+    text: mathRepair.pageTexts.join('\n\f\n'),
 
     pageCount,
 
@@ -227,6 +275,12 @@ export async function extractTextFromPdf(file: File, settings?: UserSettings): P
     ingestMethod: withOcr.ingestMethod ?? (withOcr.ocrUsed ? 'ocr-client' : 'text-layer'),
 
     ocrRegions: withOcr.ocrRegions,
+
+    mathZones: mathRepair.zones,
+
+    mathOcrUsed: mathRepair.mathOcrUsed,
+
+    layoutBlocks: withOcr.ocrUsed ? undefined : layoutBlocks,
 
   };
 
@@ -325,6 +379,9 @@ export async function extractTextFromFile(file: File, settings?: UserSettings): 
       ocrUsed: pdf.ocrUsed,
       ingestMethod: pdf.ingestMethod,
       ocrRegions: pdf.ocrRegions,
+      mathZones: pdf.mathZones,
+      mathOcrUsed: pdf.mathOcrUsed,
+      layoutBlocks: pdf.layoutBlocks,
     };
 
   }

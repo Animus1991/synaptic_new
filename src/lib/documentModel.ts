@@ -20,6 +20,7 @@ import {
 } from './contentAnalysis';
 import { extractFormulas } from './noteContentExtractors';
 import { chunkText, type SourceChunk } from './rag';
+import type { PdfLayoutBlockInput } from './pdfLayoutBlocks';
 
 export interface DocumentSpan {
   id: string;
@@ -144,6 +145,8 @@ export interface DocumentModel {
 export interface BuildDocumentModelOptions {
   language?: string;
   recognitionMeta?: DocumentRecognitionMeta;
+  /** Geometry-derived PDF blocks (8B-gamma); preferred over heuristic blocks when set. */
+  pdfLayoutBlocks?: PdfLayoutBlockInput[];
 }
 
 /** Build typed layout blocks from sections and formulas. */
@@ -208,6 +211,30 @@ export function buildDocumentBlocks(
   }
 
   return blocks;
+}
+
+/** Map PDF geometry blocks to DocumentBlock with section overlap. */
+export function documentBlocksFromPdfLayout(
+  pdfBlocks: PdfLayoutBlockInput[],
+  sections: DocumentSection[],
+): DocumentBlock[] {
+  const findSectionId = (charStart: number): string | null => {
+    for (const section of sections) {
+      if (charStart >= section.charStart && charStart < section.charEnd) {
+        return section.id;
+      }
+    }
+    return sections[0]?.id ?? null;
+  };
+
+  return pdfBlocks.map((block, index) => ({
+    id: makeId('blk', index),
+    type: block.type,
+    text: block.text.trim(),
+    charStart: block.charStart,
+    charEnd: block.charEnd,
+    sectionId: findSectionId(block.charStart),
+  })).filter((b) => b.text.length > 0);
 }
 
 /** Mine typed relations from entities, sections, and formulas. */
@@ -466,7 +493,10 @@ export function buildDocumentModel(
   const averageSentenceLength =
     spans.length > 0 ? words.length / spans.length : 0;
 
-  const blocks = buildDocumentBlocks(sections, formulas, normalized);
+  const blocks =
+    options.pdfLayoutBlocks && options.pdfLayoutBlocks.length > 0
+      ? documentBlocksFromPdfLayout(options.pdfLayoutBlocks, sections)
+      : buildDocumentBlocks(sections, formulas, normalized);
   const relations = buildDocumentRelations(entities, formulas, sections, spans);
 
   const quality: DocumentQuality = {

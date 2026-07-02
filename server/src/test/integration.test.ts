@@ -50,6 +50,8 @@ describe('server integration sweep', () => {
   it('GET /health returns ok', async () => {
     const res = await request(app).get('/health').expect(200);
     expect(res.body.ok).toBe(true);
+    expect(res.body.production).toBeDefined();
+    expect(res.body.features.rateLimitBackend).toMatch(/redis|memory/);
   });
 
   it('POST /auth/register creates an account', async () => {
@@ -297,6 +299,56 @@ describe('server integration sweep', () => {
       .set('Authorization', `Bearer ${token}`)
       .expect(200);
     expect(afterDelete.body.assignments).toHaveLength(0);
+  });
+
+  it('GET/PATCH /v1/teacher/classes/:id/gradebook stores scores', async () => {
+    const reg = await request(app)
+      .post('/auth/register')
+      .send({ email: 'gradebook@example.com', password: 'password123' })
+      .expect(201);
+    const token = reg.body.token as string;
+
+    const cls = await request(app)
+      .post('/v1/teacher/classes')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ name: 'Calculus A' })
+      .expect(201);
+    const classId = cls.body.id as string;
+
+    const enrolled = await request(app)
+      .post(`/v1/teacher/classes/${classId}/roster`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({ email: 'student@school.edu', displayName: 'Alex' })
+      .expect(201);
+
+    const assignment = await request(app)
+      .post(`/v1/teacher/classes/${classId}/assignments`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({ title: 'Quiz 1' })
+      .expect(201);
+
+    const empty = await request(app)
+      .get(`/v1/teacher/classes/${classId}/gradebook`)
+      .set('Authorization', `Bearer ${token}`)
+      .expect(200);
+    expect(empty.body.cells).toHaveLength(0);
+
+    const patched = await request(app)
+      .patch(`/v1/teacher/classes/${classId}/gradebook`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        enrollmentId: enrolled.body.id,
+        assignmentId: assignment.body.id,
+        score: 92,
+      })
+      .expect(200);
+    expect(patched.body.score).toBe(92);
+
+    const book = await request(app)
+      .get(`/v1/teacher/classes/${classId}/gradebook`)
+      .set('Authorization', `Bearer ${token}`)
+      .expect(200);
+    expect(book.body.cells).toHaveLength(1);
   });
 
   it('POST /v1/billing/webhook deduplicates Stripe event ids', async () => {

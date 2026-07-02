@@ -1,0 +1,51 @@
+# Production-shaped local stack: Postgres (pgvector) + Redis + API proxy.
+# Usage: docker compose up --build
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_USER: synapse
+      POSTGRES_PASSWORD: synapse
+      POSTGRES_DB: synapse
+    ports:
+      - '5432:5432'
+    volumes:
+      - synapse_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U synapse -d synapse']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - '6379:6379'
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  api:
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+    ports:
+      - '8787:8787'
+    environment:
+      PORT: '8787'
+      DATABASE_URL: postgres://synapse:synapse@postgres:5432/synapse
+      REDIS_URL: redis://redis:6379
+      RUN_MIGRATIONS_ON_START: 'true'
+      ALLOWED_ORIGINS: http://localhost:5173,http://localhost:4173
+      JWT_SECRET: change-me-in-production
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+volumes:
+  synapse_pgdata:

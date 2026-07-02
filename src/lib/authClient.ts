@@ -6,6 +6,8 @@ import type {
   AssignmentsResponse,
   ClassEnrollmentRow,
   ClassRosterResponse,
+  GradebookCellRow,
+  GradebookResponse,
   TeacherClassRow,
   TeacherClassesResponse,
 } from './teacherClassTypes';
@@ -346,6 +348,57 @@ export async function removeClassAssignment(
     },
   );
   if (!res.ok) throw new Error(await res.text());
+}
+
+export async function fetchClassGradebook(
+  token: string,
+  settings: UserSettings,
+  classId: string,
+): Promise<GradebookResponse> {
+  const res = await fetch(`${proxyBase(settings)}/v1/teacher/classes/${classId}/gradebook`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json() as Promise<GradebookResponse>;
+}
+
+export async function updateGradebookCell(
+  token: string,
+  settings: UserSettings,
+  classId: string,
+  payload: {
+    enrollmentId: string;
+    assignmentId: string;
+    status?: GradebookCellRow['status'];
+    score?: number;
+  },
+): Promise<GradebookCellRow> {
+  const res = await fetch(`${proxyBase(settings)}/v1/teacher/classes/${classId}/gradebook`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json() as Promise<GradebookCellRow>;
+}
+
+export async function ocrMathRegions(
+  token: string | undefined,
+  settings: UserSettings,
+  regions: string[],
+) {
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+  if (token?.trim()) headers.Authorization = `Bearer ${token.trim()}`;
+  const res = await fetch(`${proxyBase(settings)}/v1/ocr/math`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({ regions }),
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json() as Promise<{ latex: string[]; modelsUsed?: string[]; ocrUsed: boolean }>;
 }
 
 export async function ocrPages(

@@ -10,19 +10,26 @@ import {
   type SharedAnnotation,
 } from '../store/sharedAnnotationStore';
 import {
-  addClassEnrollment,
-  createTeacherClass,
-  getTeacherClass,
-  listClassRoster,
-  listTeacherClasses,
-  removeClassEnrollment,
+  addClassEnrollmentAsync,
+  createTeacherClassAsync,
+  getTeacherClassAsync,
+  listClassRosterAsync,
+  listTeacherClassesAsync,
+  removeClassEnrollmentAsync,
+  rosterCountAsync,
 } from '../store/classStore';
 import {
-  createClassAssignment,
-  listClassAssignments,
-  removeClassAssignment,
-  updateClassAssignment,
+  createClassAssignmentAsync,
+  listClassAssignmentsAsync,
+  removeClassAssignmentAsync,
+  updateClassAssignmentAsync,
 } from '../store/assignmentStore';
+import {
+  getGradebookAsync,
+  removeGradebookCellsForAssignmentAsync,
+  removeGradebookCellsForEnrollmentAsync,
+  upsertGradebookCellAsync,
+} from '../store/gradebookStore';
 import { notifyAnnotationStream, registerAnnotationStream } from './annotationStream';
 import { registerConceptMapCursorStream } from './conceptMapStream';
 
@@ -158,25 +165,28 @@ teacherRouter.get('/teacher/dashboard', async (req, res) => {
   });
 });
 
-/** GET /v1/teacher/classes — instructor classes (in-memory dev store). */
-teacherRouter.get('/teacher/classes', (req, res) => {
+/** GET /v1/teacher/classes — instructor classes (Postgres when DATABASE_URL set). */
+teacherRouter.get('/teacher/classes', async (req, res) => {
   const account = req.account!;
-  const rows = listTeacherClasses(account.id).map((c) => ({
-    ...c,
-    studentCount: listClassRoster(c.id).length,
-  }));
+  const classes = await listTeacherClassesAsync(account.id);
+  const rows = await Promise.all(
+    classes.map(async (c) => ({
+      ...c,
+      studentCount: await rosterCountAsync(c.id),
+    })),
+  );
   res.json({ classes: rows });
 });
 
 /** POST /v1/teacher/classes — create a class roster bucket. */
-teacherRouter.post('/teacher/classes', (req, res) => {
+teacherRouter.post('/teacher/classes', async (req, res) => {
   const account = req.account!;
   const body = req.body as { name?: string; courseId?: string };
   if (!body.name?.trim()) {
     res.status(400).json({ error: 'name required' });
     return;
   }
-  const created = createTeacherClass(account.id, {
+  const created = await createTeacherClassAsync(account.id, {
     name: body.name.trim(),
     courseId: body.courseId?.trim(),
   });
@@ -184,20 +194,21 @@ teacherRouter.post('/teacher/classes', (req, res) => {
 });
 
 /** GET /v1/teacher/classes/:classId/roster */
-teacherRouter.get('/teacher/classes/:classId/roster', (req, res) => {
+teacherRouter.get('/teacher/classes/:classId/roster', async (req, res) => {
   const account = req.account!;
-  const cls = getTeacherClass(req.params.classId, account.id);
+  const cls = await getTeacherClassAsync(req.params.classId, account.id);
   if (!cls) {
     res.status(404).json({ error: 'class not found' });
     return;
   }
-  res.json({ class: cls, roster: listClassRoster(cls.id) });
+  const roster = await listClassRosterAsync(cls.id);
+  res.json({ class: cls, roster });
 });
 
 /** POST /v1/teacher/classes/:classId/roster — enroll student by email. */
-teacherRouter.post('/teacher/classes/:classId/roster', (req, res) => {
+teacherRouter.post('/teacher/classes/:classId/roster', async (req, res) => {
   const account = req.account!;
-  const cls = getTeacherClass(req.params.classId, account.id);
+  const cls = await getTeacherClassAsync(req.params.classId, account.id);
   if (!cls) {
     res.status(404).json({ error: 'class not found' });
     return;
@@ -207,7 +218,7 @@ teacherRouter.post('/teacher/classes/:classId/roster', (req, res) => {
     res.status(400).json({ error: 'email required' });
     return;
   }
-  const row = addClassEnrollment(cls.id, {
+  const row = await addClassEnrollmentAsync(cls.id, {
     email: body.email,
     displayName: body.displayName,
     mastery: body.mastery,
@@ -220,36 +231,38 @@ teacherRouter.post('/teacher/classes/:classId/roster', (req, res) => {
 });
 
 /** DELETE /v1/teacher/classes/:classId/roster/:enrollmentId */
-teacherRouter.delete('/teacher/classes/:classId/roster/:enrollmentId', (req, res) => {
+teacherRouter.delete('/teacher/classes/:classId/roster/:enrollmentId', async (req, res) => {
   const account = req.account!;
-  const cls = getTeacherClass(req.params.classId, account.id);
+  const cls = await getTeacherClassAsync(req.params.classId, account.id);
   if (!cls) {
     res.status(404).json({ error: 'class not found' });
     return;
   }
-  const ok = removeClassEnrollment(cls.id, req.params.enrollmentId);
+  const ok = await removeClassEnrollmentAsync(cls.id, req.params.enrollmentId);
   if (!ok) {
     res.status(404).json({ error: 'enrollment not found' });
     return;
   }
+  await removeGradebookCellsForEnrollmentAsync(cls.id, req.params.enrollmentId);
   res.status(204).send();
 });
 
 /** GET /v1/teacher/classes/:classId/assignments */
-teacherRouter.get('/teacher/classes/:classId/assignments', (req, res) => {
+teacherRouter.get('/teacher/classes/:classId/assignments', async (req, res) => {
   const account = req.account!;
-  const cls = getTeacherClass(req.params.classId, account.id);
+  const cls = await getTeacherClassAsync(req.params.classId, account.id);
   if (!cls) {
     res.status(404).json({ error: 'class not found' });
     return;
   }
-  res.json({ classId: cls.id, assignments: listClassAssignments(cls.id) });
+  const assignments = await listClassAssignmentsAsync(cls.id);
+  res.json({ classId: cls.id, assignments });
 });
 
 /** POST /v1/teacher/classes/:classId/assignments */
-teacherRouter.post('/teacher/classes/:classId/assignments', (req, res) => {
+teacherRouter.post('/teacher/classes/:classId/assignments', async (req, res) => {
   const account = req.account!;
-  const cls = getTeacherClass(req.params.classId, account.id);
+  const cls = await getTeacherClassAsync(req.params.classId, account.id);
   if (!cls) {
     res.status(404).json({ error: 'class not found' });
     return;
@@ -259,7 +272,7 @@ teacherRouter.post('/teacher/classes/:classId/assignments', (req, res) => {
     res.status(400).json({ error: 'title required' });
     return;
   }
-  const created = createClassAssignment(cls.id, {
+  const created = await createClassAssignmentAsync(cls.id, {
     title: body.title,
     description: body.description,
     dueAt: body.dueAt,
@@ -269,15 +282,15 @@ teacherRouter.post('/teacher/classes/:classId/assignments', (req, res) => {
 });
 
 /** PATCH /v1/teacher/classes/:classId/assignments/:assignmentId */
-teacherRouter.patch('/teacher/classes/:classId/assignments/:assignmentId', (req, res) => {
+teacherRouter.patch('/teacher/classes/:classId/assignments/:assignmentId', async (req, res) => {
   const account = req.account!;
-  const cls = getTeacherClass(req.params.classId, account.id);
+  const cls = await getTeacherClassAsync(req.params.classId, account.id);
   if (!cls) {
     res.status(404).json({ error: 'class not found' });
     return;
   }
   const body = req.body as { title?: string; description?: string; dueAt?: string; courseId?: string };
-  const updated = updateClassAssignment(cls.id, req.params.assignmentId, body);
+  const updated = await updateClassAssignmentAsync(cls.id, req.params.assignmentId, body);
   if (!updated) {
     res.status(404).json({ error: 'assignment not found' });
     return;
@@ -286,17 +299,78 @@ teacherRouter.patch('/teacher/classes/:classId/assignments/:assignmentId', (req,
 });
 
 /** DELETE /v1/teacher/classes/:classId/assignments/:assignmentId */
-teacherRouter.delete('/teacher/classes/:classId/assignments/:assignmentId', (req, res) => {
+teacherRouter.delete('/teacher/classes/:classId/assignments/:assignmentId', async (req, res) => {
   const account = req.account!;
-  const cls = getTeacherClass(req.params.classId, account.id);
+  const cls = await getTeacherClassAsync(req.params.classId, account.id);
   if (!cls) {
     res.status(404).json({ error: 'class not found' });
     return;
   }
-  const ok = removeClassAssignment(cls.id, req.params.assignmentId);
+  const ok = await removeClassAssignmentAsync(cls.id, req.params.assignmentId);
   if (!ok) {
     res.status(404).json({ error: 'assignment not found' });
     return;
   }
+  await removeGradebookCellsForAssignmentAsync(cls.id, req.params.assignmentId);
   res.status(204).send();
+});
+
+/** GET /v1/teacher/classes/:classId/gradebook — student × assignment score matrix. */
+teacherRouter.get('/teacher/classes/:classId/gradebook', async (req, res) => {
+  const account = req.account!;
+  const cls = await getTeacherClassAsync(req.params.classId, account.id);
+  if (!cls) {
+    res.status(404).json({ error: 'class not found' });
+    return;
+  }
+  const [roster, assignments, gradebook] = await Promise.all([
+    listClassRosterAsync(cls.id),
+    listClassAssignmentsAsync(cls.id),
+    getGradebookAsync(cls.id),
+  ]);
+  res.json({
+    classId: cls.id,
+    roster,
+    assignments,
+    cells: gradebook.cells,
+  });
+});
+
+/** PATCH /v1/teacher/classes/:classId/gradebook — upsert a grade cell. */
+teacherRouter.patch('/teacher/classes/:classId/gradebook', async (req, res) => {
+  const account = req.account!;
+  const cls = await getTeacherClassAsync(req.params.classId, account.id);
+  if (!cls) {
+    res.status(404).json({ error: 'class not found' });
+    return;
+  }
+  const body = req.body as {
+    enrollmentId?: string;
+    assignmentId?: string;
+    status?: 'pending' | 'submitted' | 'graded';
+    score?: number;
+  };
+  if (!body.enrollmentId?.trim() || !body.assignmentId?.trim()) {
+    res.status(400).json({ error: 'enrollmentId and assignmentId required' });
+    return;
+  }
+  const [roster, assignments] = await Promise.all([
+    listClassRosterAsync(cls.id),
+    listClassAssignmentsAsync(cls.id),
+  ]);
+  if (!roster.some((r) => r.id === body.enrollmentId)) {
+    res.status(404).json({ error: 'enrollment not found' });
+    return;
+  }
+  if (!assignments.some((a) => a.id === body.assignmentId)) {
+    res.status(404).json({ error: 'assignment not found' });
+    return;
+  }
+  const cell = await upsertGradebookCellAsync(cls.id, {
+    enrollmentId: body.enrollmentId,
+    assignmentId: body.assignmentId,
+    status: body.status,
+    score: body.score,
+  });
+  res.json(cell);
 });

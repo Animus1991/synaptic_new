@@ -1,3 +1,6 @@
+import { config } from '../config';
+import { createTeacherRepo } from './teacherPostgres';
+
 export type TeacherClass = {
   id: string;
   teacherAccountId: string;
@@ -18,21 +21,33 @@ export type ClassEnrollment = {
 
 const classes = new Map<string, TeacherClass>();
 const enrollments = new Map<string, ClassEnrollment[]>();
+const pgRepo = createTeacherRepo(config.databaseUrl);
 
 function rosterKey(classId: string): string {
   return classId;
 }
 
 export function listTeacherClasses(teacherAccountId: string): TeacherClass[] {
+  if (pgRepo) {
+    throw new Error('Use listTeacherClassesAsync when DATABASE_URL is configured');
+  }
   return [...classes.values()]
     .filter((c) => c.teacherAccountId === teacherAccountId)
     .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+}
+
+export async function listTeacherClassesAsync(teacherAccountId: string): Promise<TeacherClass[]> {
+  if (pgRepo) return pgRepo.listTeacherClasses(teacherAccountId);
+  return listTeacherClasses(teacherAccountId);
 }
 
 export function createTeacherClass(
   teacherAccountId: string,
   payload: { name: string; courseId?: string },
 ): TeacherClass {
+  if (pgRepo) {
+    throw new Error('Use createTeacherClassAsync when DATABASE_URL is configured');
+  }
   const id = `cls_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
   const row: TeacherClass = {
     id,
@@ -46,20 +61,55 @@ export function createTeacherClass(
   return row;
 }
 
+export async function createTeacherClassAsync(
+  teacherAccountId: string,
+  payload: { name: string; courseId?: string },
+): Promise<TeacherClass> {
+  if (pgRepo) return pgRepo.createTeacherClass(teacherAccountId, payload);
+  return createTeacherClass(teacherAccountId, payload);
+}
+
 export function getTeacherClass(classId: string, teacherAccountId: string): TeacherClass | null {
+  if (pgRepo) {
+    throw new Error('Use getTeacherClassAsync when DATABASE_URL is configured');
+  }
   const row = classes.get(classId);
   if (!row || row.teacherAccountId !== teacherAccountId) return null;
   return row;
 }
 
+export async function getTeacherClassAsync(
+  classId: string,
+  teacherAccountId: string,
+): Promise<TeacherClass | null> {
+  if (pgRepo) return pgRepo.getTeacherClass(classId, teacherAccountId);
+  return getTeacherClass(classId, teacherAccountId);
+}
+
 export function listClassRoster(classId: string): ClassEnrollment[] {
+  if (pgRepo) {
+    throw new Error('Use listClassRosterAsync when DATABASE_URL is configured');
+  }
   return enrollments.get(rosterKey(classId)) ?? [];
+}
+
+export async function listClassRosterAsync(classId: string): Promise<ClassEnrollment[]> {
+  if (pgRepo) return pgRepo.listClassRoster(classId);
+  return listClassRoster(classId);
+}
+
+export async function rosterCountAsync(classId: string): Promise<number> {
+  if (pgRepo) return pgRepo.rosterCount(classId);
+  return listClassRoster(classId).length;
 }
 
 export function addClassEnrollment(
   classId: string,
   payload: { email: string; displayName?: string; mastery?: number },
 ): ClassEnrollment | null {
+  if (pgRepo) {
+    throw new Error('Use addClassEnrollmentAsync when DATABASE_URL is configured');
+  }
   const email = payload.email.trim().toLowerCase();
   if (!email) return null;
   const roster = enrollments.get(rosterKey(classId)) ?? [];
@@ -80,12 +130,31 @@ export function addClassEnrollment(
   return row;
 }
 
+export async function addClassEnrollmentAsync(
+  classId: string,
+  payload: { email: string; displayName?: string; mastery?: number },
+): Promise<ClassEnrollment | null> {
+  if (pgRepo) return pgRepo.addClassEnrollment(classId, payload);
+  return addClassEnrollment(classId, payload);
+}
+
 export function removeClassEnrollment(classId: string, enrollmentId: string): boolean {
+  if (pgRepo) {
+    throw new Error('Use removeClassEnrollmentAsync when DATABASE_URL is configured');
+  }
   const roster = enrollments.get(rosterKey(classId)) ?? [];
   const next = roster.filter((e) => e.id !== enrollmentId);
   if (next.length === roster.length) return false;
   enrollments.set(rosterKey(classId), next);
   return true;
+}
+
+export async function removeClassEnrollmentAsync(
+  classId: string,
+  enrollmentId: string,
+): Promise<boolean> {
+  if (pgRepo) return pgRepo.removeClassEnrollment(classId, enrollmentId);
+  return removeClassEnrollment(classId, enrollmentId);
 }
 
 /** Test helper */

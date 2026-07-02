@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { authenticate } from '../middleware/auth';
+import { ocrMathBase64Regions } from '../lib/mathOcrServer';
 import { ocrBase64Pages } from '../lib/ocrServer';
 
 export const ocrRouter = Router();
@@ -29,5 +30,21 @@ ocrRouter.post('/ocr/pages', async (req, res) => {
     });
   } catch {
     res.status(502).json({ error: 'OCR processing failed' });
+  }
+});
+
+/** POST /v1/ocr/math — formula crop OCR (base64 JPEG regions) → LaTeX-ish strings. */
+ocrRouter.post('/ocr/math', async (req, res) => {
+  const body = req.body as { regions?: string[] };
+  const regions = Array.isArray(body.regions) ? body.regions : [];
+  if (regions.length === 0) {
+    res.status(400).json({ error: 'regions required (base64 JPEG array)' });
+    return;
+  }
+  try {
+    const { latex, modelsUsed } = await ocrMathBase64Regions(regions);
+    res.json({ latex, modelsUsed, ocrUsed: true });
+  } catch {
+    res.status(502).json({ error: 'Math OCR processing failed' });
   }
 });

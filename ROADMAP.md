@@ -20,7 +20,7 @@ This document separates **done**, **partial**, and **missing** against the produ
 | RAG / Agent | **~87%** | Unified grounding module; BM25 + hybrid rerank |
 | Client persistence | **~86%** | localStorage + IndexedDB; DocumentModel snapshots |
 | Auth and full sync | **~82%** | JWT, library + session pull/push; Leitner deck state in `/v1/session` |
-| Phase 6 server | **~75%** (dev) | Express proxy + auth + sync + OCR/RAG; not production-hardened |
+| Phase 6 server | **~88%** (dev) | Docker compose, Redis rate limit, pgvector RAG probe, gradebook |
 | Documentation | **~92%** | `PRODUCT_SCALE_STATUS.md` + doc-lint capability assertions |
 | Tests & CI | **~92%** | Vitest + eval gold-set gate (`npm run eval`) in CI |
 | i18n | **~83%** | Wave C Settings/Tasks shipped (S7); component lint allowlist empty |
@@ -91,8 +91,8 @@ Re-upload / reprocess: courses analyzed before v2.4.0 keep stored extractedText.
 | ----- | ----- | ------ |
 | Main path | Multi-column PDF, table/math blocks, scanned PDF OCR | ~80-100% shipped |
 | 8B-beta | Layered text repair v2.5.x, hygiene scoring, Varian fixes | shipped |
-| 8B-alpha | Math OCR zones | not started |
-| 8B-gamma | Layout-aware DocumentModel | **partial** — v2 blocks/relations + upload wire (S8); PDF layout blocks future |
+| 8B-alpha | Math OCR zones | **shipped** — `pdfMathZones.ts`, `/v1/ocr/math`, PDF ingest repair |
+| 8B-gamma | Layout-aware DocumentModel | **shipped** — `pdfLayoutBlocks.ts` geometry blocks → DocumentModel |
 
 ---
 
@@ -102,8 +102,6 @@ See I18N.md, STUDY_WORKSPACE.md, WORKSPACE_TOOLS_UPGRADE.md, and EXHAUSTIVE_PROD
 
 | Area | Open work |
 | ---- | --------- |
-| Backend | pgvector default path, Redis/BullMQ production, teacher gradebook UI — S10 |
-| Algorithms | Math OCR, layout-aware PDF blocks |
 | i18n | Residual lib/helpers; Recognition report strings |
 
 ---

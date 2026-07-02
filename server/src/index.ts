@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import { config } from './config';
 import { runMigrations } from './db/migrate';
+import { getProductionProbeStatus } from './lib/productionProbe';
 import { rateLimit } from './middleware/rateLimit';
 import { authRouter } from './routes/auth';
 import { proxyRouter } from './routes/proxy';
@@ -39,12 +40,14 @@ export function createApp(): express.Application {
   app.post('/v1/billing/webhook', express.raw({ type: 'application/json' }), billingWebhookHandler);
   app.use(express.json({ limit: '15mb' }));
 
-  app.get('/health', (_req, res) => {
+  app.get('/health', async (_req, res) => {
+    const production = await getProductionProbeStatus();
     res.json({
       ok: true,
       upstream: config.upstreamBaseUrl,
       anonymous: config.allowAnonymous,
-      database: Boolean(config.databaseUrl),
+      database: production.database,
+      production,
       features: {
         embeddings: Boolean(config.upstreamApiKey),
         rag: Boolean(config.upstreamApiKey),
@@ -52,9 +55,11 @@ export function createApp(): express.Application {
         refreshTokens: true,
         ocr: true,
         rateLimitRpm: config.rateLimitRpm,
+        rateLimitBackend: production.redis ? 'redis' : 'memory',
         googleOAuth: Boolean(config.googleClientId && config.googleClientSecret),
         studyRooms: true,
-        vectorIndexQueue: Boolean(config.redisUrl),
+        vectorIndexQueue: production.vectorIndexQueue,
+        pgvectorRag: production.pgvector,
         collab: true,
         collabWebSocketUrl: `ws://localhost:${config.collabPort}`,
       },
@@ -96,6 +101,14 @@ export async function startServer(): Promise<void> {
   }
   await bootstrapStudyRoomsFromPg(config.databaseUrl);
   initVectorIndexQueue();
+
+  const production = await getProductionProbeStatus();
+  if (production.database) {
+    console.log(`[synapse-proxy] pgvector RAG: ${production.pgvector ? 'ready' : 'unavailable'}`);
+  }
+  if (production.redis) {
+    console.log('[synapse-proxy] Redis: connected (rate limit + BullMQ)');
+  }
 
   app.listen(config.port, () => {
     console.log(`[synapse-proxy] listening on http://localhost:${config.port}`);

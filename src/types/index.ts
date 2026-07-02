@@ -74,6 +74,8 @@ export interface UploadedFile {
   ocrRegions?: import('../lib/readerOcrOverlay').OcrStoredRegion[];
   /** S8 DocumentModel recognition snapshot (text omitted — use extractedText). */
   documentModelSnapshot?: import('../lib/documentModelSnapshot').DocumentModelSnapshot;
+  /** Geometry-derived PDF layout blocks (8B-gamma); used during recognition. */
+  pdfLayoutBlocks?: import('../lib/pdfLayoutBlocks').PdfLayoutBlockInput[];
 }
 
 export type FileType = 'pdf' | 'docx' | 'pptx' | 'txt' | 'md' | 'image' | 'csv' | 'code' | 'youtube' | 'audio';

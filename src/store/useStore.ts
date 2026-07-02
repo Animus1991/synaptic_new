@@ -1261,6 +1261,7 @@ export function useAppStore() {
             ocrUsed: extracted.ocrUsed,
             ingestMethod: extracted.ingestMethod ?? (extracted.ocrUsed ? 'ocr-client' : 'text-layer'),
             ocrRegions: extracted.ocrRegions,
+            pdfLayoutBlocks: extracted.layoutBlocks,
           }),
         );
         if (extracted.ocrUsed) {

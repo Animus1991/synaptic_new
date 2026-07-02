@@ -7,6 +7,21 @@ client and server are versioned together.
 
 ### Added
 
+- **Teacher class Postgres persistence (S10)** — migration `1740000000006_teacher-classes.cjs`
+  (`teacher_classes`, `class_enrollments`, `class_assignments`, `gradebook_cells`);
+  `teacherPostgres.ts` repo + async store wrappers; teacher routes use Postgres when
+  `DATABASE_URL` is set (in-memory fallback for dev/tests).
+- **Layout-aware PDF blocks (8B-gamma)** — `pdfLayoutBlocks.ts` clusters PDF.js lines into
+  heading/paragraph/list/equation blocks with char offsets; wired through `pdfExtract.ts` →
+  `buildDocumentModel()` via `pdfLayoutBlocks` option.
+- **Production backend (S10)** — `docker-compose.yml` (Postgres pgvector + Redis + API),
+  Redis-backed distributed rate limiting, `/health` production probes (pgvector + Redis),
+  teacher **gradebook** matrix API (`GET/PATCH /v1/teacher/classes/:id/gradebook`) and
+  `TeacherDashboard` score grid.
+- **Math OCR zones (8B-alpha)** — layout-aware PDF math zone detection
+  (`pdfMathZones.ts`: font/symbol/lost text-layer heuristics), formula crop OCR via
+  `POST /v1/ocr/math`, and LaTeX injection into extracted text during PDF ingest
+  (`mathOcrRepair.ts`, `pdfExtract.ts`).
 - **Whiteboard agent explain** — toolbar action serializes visible canvas strokes
   (`describeWhiteboardDocument`) and opens the workspace Agent with a grounded
   `diagram-explain` prompt; critique now prefers live sketch description when present.

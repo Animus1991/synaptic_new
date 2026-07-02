@@ -155,8 +155,13 @@ class PostgresVectorChunkStore implements VectorChunkStore {
   private async ensurePgvector(): Promise<boolean> {
     if (this.pgvectorReady !== null) return this.pgvectorReady;
     try {
-      await this.pool.query('SELECT 1 FROM library_chunks LIMIT 1');
-      this.pgvectorReady = true;
+      const ext = await this.pool.query<{ ok: boolean }>(
+        `SELECT EXISTS(SELECT 1 FROM pg_extension WHERE extname = 'vector') AS ok`,
+      );
+      const table = await this.pool.query<{ ok: boolean }>(
+        `SELECT to_regclass('public.library_chunks') IS NOT NULL AS ok`,
+      );
+      this.pgvectorReady = Boolean(ext.rows[0]?.ok) && Boolean(table.rows[0]?.ok);
     } catch {
       this.pgvectorReady = false;
     }

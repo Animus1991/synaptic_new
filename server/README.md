@@ -32,6 +32,18 @@ For a full request/response contract, see [`../API.md`](../API.md).
 
 ## Quick start
 
+### Docker (production-shaped stack)
+
+From the repo root:
+
+```bash
+docker compose up --build
+```
+
+Starts Postgres (pgvector), Redis, and the API on port **8787**. Set `OPENAI_API_KEY` in your shell or a `.env` file beside `docker-compose.yml`.
+
+### Local dev
+
 ```bash
 cd server
 cp .env.example .env          # OPENAI_API_KEY + JWT_SECRET (required)
@@ -70,7 +82,8 @@ Common:
 | `ALLOWED_ORIGINS` | `*` | Comma-separated CORS origins |
 | `UPSTREAM_BASE_URL` | `https://api.openai.com/v1` | OpenAI-compatible base |
 | `ALLOW_ANONYMOUS` | `true` | When `false`, every `/v1/*` requires a JWT |
-| `DATABASE_URL` | – | Postgres connection (enables durable storage) |
+| `DATABASE_URL` | – | Postgres connection (enables durable storage + pgvector RAG) |
+| `REDIS_URL` | – | Redis for distributed rate limiting + BullMQ vector indexing |
 | `RUN_MIGRATIONS_ON_START` | `true` | Apply pending migrations on boot |
 | `FREE_MONTHLY_TOKEN_QUOTA` | `100000` | Free plan monthly token cap |
 | `PRO_MONTHLY_TOKEN_QUOTA` | `5000000` | Pro plan monthly token cap |

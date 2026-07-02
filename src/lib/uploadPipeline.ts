@@ -229,7 +229,7 @@ export function uploadedFileMeta(
   topics?: string[],
   extractedText?: string,
   pageCount?: number,
-  ingest?: Pick<UploadedFile, 'ocrUsed' | 'ingestMethod' | 'ocrRegions'>,
+  ingest?: Pick<UploadedFile, 'ocrUsed' | 'ingestMethod' | 'ocrRegions' | 'pdfLayoutBlocks'>,
 ): UploadedFile {
   return {
     id: `file-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
@@ -248,6 +248,7 @@ export function uploadedFileMeta(
     ...(ingest?.ocrUsed !== undefined ? { ocrUsed: ingest.ocrUsed } : {}),
     ...(ingest?.ingestMethod ? { ingestMethod: ingest.ingestMethod } : {}),
     ...(ingest?.ocrRegions?.length ? { ocrRegions: ingest.ocrRegions } : {}),
+    ...(ingest?.pdfLayoutBlocks?.length ? { pdfLayoutBlocks: ingest.pdfLayoutBlocks } : {}),
   };
 }
 
@@ -297,7 +298,10 @@ export async function recognizeDocumentModelsForUpload(
         size: file.size,
         detectedLanguage: file.detectedLanguage ?? language,
       },
-      options: { language: file.detectedLanguage ?? language },
+      options: {
+        language: file.detectedLanguage ?? language,
+        ...(file.pdfLayoutBlocks?.length ? { pdfLayoutBlocks: file.pdfLayoutBlocks } : {}),
+      },
     });
     const snapshot = toDocumentModelSnapshot(model);
     byFileId.set(file.id, snapshot);

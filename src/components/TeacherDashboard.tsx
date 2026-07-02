@@ -10,13 +10,15 @@ import {
   createTeacherClass,
   createClassAssignment as apiCreateAssignment,
   fetchClassAssignments,
+  fetchClassGradebook,
   fetchClassRoster,
   fetchTeacherClasses,
   fetchTeacherDashboard,
   removeClassAssignment as apiRemoveAssignment,
   removeClassEnrollment as apiRemoveEnrollment,
+  updateGradebookCell,
 } from '../lib/authClient';
-import type { AssignmentRow, ClassEnrollmentRow, TeacherClassRow } from '../lib/teacherClassTypes';
+import type { AssignmentRow, ClassEnrollmentRow, GradebookCellRow, TeacherClassRow } from '../lib/teacherClassTypes';
 import { listLearningEvents, countLearningEventsByType } from '../lib/learningEvents';
 import type { TeacherDashboardResponse } from '../lib/teacherDashboardTypes';
 import { getTeacherContent } from '../lib/teacherContent';
@@ -53,6 +55,7 @@ export function TeacherDashboard({
   const [studentEmail, setStudentEmail] = useState('');
   const [studentName, setStudentName] = useState('');
   const [assignments, setAssignments] = useState<AssignmentRow[]>([]);
+  const [gradebookCells, setGradebookCells] = useState<GradebookCellRow[]>([]);
   const [assignmentTitle, setAssignmentTitle] = useState('');
   const [assignmentDue, setAssignmentDue] = useState('');
   const [classBusy, setClassBusy] = useState(false);
@@ -111,15 +114,61 @@ export function TeacherDashboard({
     setAssignments(json.assignments);
   }, [settings.authToken, settings]);
 
+  const loadGradebook = useCallback(async (classId: string) => {
+    if (!settings.authToken?.trim()) return;
+    const json = await fetchClassGradebook(settings.authToken, settings, classId);
+    setGradebookCells(json.cells);
+  }, [settings.authToken, settings]);
+
+  const gradebookCellScore = useCallback(
+    (enrollmentId: string, assignmentId: string) =>
+      gradebookCells.find((c) => c.enrollmentId === enrollmentId && c.assignmentId === assignmentId)?.score,
+    [gradebookCells],
+  );
+
+  const handleGradebookScoreChange = async (
+    enrollmentId: string,
+    assignmentId: string,
+    raw: string,
+  ) => {
+    if (!settings.authToken?.trim() || !selectedClassId) return;
+    const trimmed = raw.trim();
+    if (!trimmed) return;
+    const score = Number(trimmed);
+    if (!Number.isFinite(score)) return;
+    setClassBusy(true);
+    try {
+      const cell = await updateGradebookCell(settings.authToken, settings, selectedClassId, {
+        enrollmentId,
+        assignmentId,
+        score,
+        status: 'graded',
+      });
+      setGradebookCells((prev) => {
+        const next = prev.filter(
+          (c) => !(c.enrollmentId === enrollmentId && c.assignmentId === assignmentId),
+        );
+        next.push(cell);
+        return next;
+      });
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setClassBusy(false);
+    }
+  };
+
   useEffect(() => {
     if (!settings.authToken?.trim() || !selectedClassId) {
       setRoster([]);
       setAssignments([]);
+      setGradebookCells([]);
       return;
     }
     void loadRoster(selectedClassId).catch((err: Error) => setError(err.message));
     void loadAssignments(selectedClassId).catch((err: Error) => setError(err.message));
-  }, [settings.authToken, selectedClassId, loadRoster, loadAssignments]);
+    void loadGradebook(selectedClassId).catch((err: Error) => setError(err.message));
+  }, [settings.authToken, selectedClassId, loadRoster, loadAssignments, loadGradebook]);
 
   const handleCreateClass = async () => {
     if (!settings.authToken?.trim() || !classNameInput.trim()) return;
@@ -440,6 +489,60 @@ export function TeacherDashboard({
                                 {ui.removeAssignment}
                               </button>
                             </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+
+              <div className="space-y-3 pt-4 border-t border-border-subtle" data-testid="teacher-gradebook">
+                <h3 className="text-sm font-semibold">{ui.gradebook}</h3>
+                <p className="text-[11px] text-text-muted">{ui.gradebookHint}</p>
+                {roster.length === 0 || assignments.length === 0 ? (
+                  <p className="text-xs text-text-muted">{ui.gradebookEmpty}</p>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-xs min-w-[480px]">
+                      <thead>
+                        <tr className="text-text-muted border-b border-border-subtle">
+                          <th className="text-left py-2 pr-3 sticky left-0 bg-surface-card">{ui.colStudent}</th>
+                          <th className="text-left py-2 pr-3">{ui.colOverallMastery}</th>
+                          {assignments.map((asg) => (
+                            <th key={asg.id} className="text-left py-2 pr-3 min-w-[72px]" title={asg.title}>
+                              {asg.title.length > 14 ? `${asg.title.slice(0, 14)}…` : asg.title}
+                            </th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {roster.map((student) => (
+                          <tr key={student.id} className="border-b border-border-subtle/50" data-testid={`teacher-gradebook-row-${student.id}`}>
+                            <td className="py-2 pr-3 sticky left-0 bg-surface-card font-medium">
+                              {student.displayName ?? student.studentEmail}
+                            </td>
+                            <td className="py-2 pr-3 text-text-muted">
+                              {student.mastery != null ? `${student.mastery}%` : '—'}
+                            </td>
+                            {assignments.map((asg) => {
+                              const score = gradebookCellScore(student.id, asg.id);
+                              return (
+                                <td key={asg.id} className="py-1 pr-2">
+                                  <input
+                                    type="number"
+                                    min={0}
+                                    max={100}
+                                    defaultValue={score ?? ''}
+                                    placeholder={ui.gradebookScorePlaceholder}
+                                    data-testid={`teacher-grade-${student.id}-${asg.id}`}
+                                    disabled={classBusy}
+                                    onBlur={(e) => void handleGradebookScoreChange(student.id, asg.id, e.target.value)}
+                                    className="w-14 px-2 py-1 rounded-lg border border-border-subtle bg-surface-primary text-center"
+                                  />
+                                </td>
+                              );
+                            })}
                           </tr>
                         ))}
                       </tbody>

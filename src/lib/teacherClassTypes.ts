@@ -40,3 +40,20 @@ export type AssignmentsResponse = {
   classId: string;
   assignments: AssignmentRow[];
 };
+
+export type GradebookCellStatus = 'pending' | 'submitted' | 'graded';
+
+export type GradebookCellRow = {
+  enrollmentId: string;
+  assignmentId: string;
+  status: GradebookCellStatus;
+  score?: number;
+  updatedAt: string;
+};
+
+export type GradebookResponse = {
+  classId: string;
+  roster: ClassEnrollmentRow[];
+  assignments: AssignmentRow[];
+  cells: GradebookCellRow[];
+};

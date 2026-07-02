@@ -16,8 +16,8 @@ sprint close-outs, and investor/contributor snapshots.
 
 ## Overall readiness
 
-**~90% product-scale** — S9 grounding consolidation and **Stage 3 quality gates**
-shipped. Remaining gaps: math OCR, production backend.
+**~92% product-scale** — S9 grounding consolidation and **Stage 3 quality gates**
+shipped. Remaining gaps: i18n residual strings.
 
 ---
 
@@ -25,7 +25,7 @@ shipped. Remaining gaps: math OCR, production backend.
 
 | Layer | % | Shipped truth (Jul 2026) |
 | ----- | - | ------------------------ |
-| Content engine (offline v2) | **~93%** | DocumentModel v2 + recognition worker (S8) |
+| Content engine (offline v2) | **~95%** | DocumentModel v2 + PDF layout blocks (8B-gamma) |
 | Upload → course pipeline | **~94%** | Stage 3 quality gates — span 95%, source text 90% |
 | Study Workspace (11 tools) | **~94%** | Note-grounded tools; Leitner card types + deck sync; whiteboard agent explain |
 | Lesson surfaces | **~82%** | Step-grounded excerpts; concept lens chrome; grounding faithfulness gate |
@@ -34,7 +34,7 @@ shipped. Remaining gaps: math OCR, production backend.
 | RAG / Agent | **~88%** | Unified grounding; Stage 3 faithfulness 0.95 eval gate |
 | Client persistence | **~86%** | localStorage + IndexedDB; DocumentModel snapshots |
 | Auth & sync | **~80%** | JWT, library + session pull/push |
-| Phase 6 server (dev) | **~75%** | Express proxy + OCR/RAG; not production-hardened |
+| Phase 6 server (dev) | **~92%** | Docker compose, Redis rate limit, pgvector probe, gradebook + class Postgres |
 | Documentation | **~92%** | This reconciliation pass + doc-lint capability assertions |
 | Tests & CI | **~93%** | Vitest + `npm run eval` gold-set gate (Stage 3: 30/30) |
 | i18n | **~83%** | Wave C Settings/Tasks (S7); component lint allowlist empty |
@@ -82,7 +82,7 @@ shipped. Remaining gaps: math OCR, production backend.
 | Quiz | Grounded feedback → focus bus; remediate wrong → Leitner card | — |
 | Annotations | **Sub-line span highlights** (`charStart`/`charEnd`); line-level legacy | — |
 | Grounding | Unified module; **Stage 3** eval gates (span 95%, faithfulness 0.95) | — |
-| Reader | TTS, OCR correction MVP, step sync | Math OCR zones (8B-alpha) |
+| Reader | TTS, OCR correction MVP, step sync, **math OCR zones (8B-alpha)** | per-word OCR bboxes |
 
 ---
 
@@ -100,9 +100,7 @@ Eval harness: `npm run eval` — 30/30 at Stage 3 baseline.
 
 ## Priority gaps (next)
 
-1. **Math OCR** — layout-aware PDF math zones (8B-alpha)
-2. **Production backend** — Redis/BullMQ, pgvector default, teacher gradebook UI
-3. **i18n residual** — Recognition report strings
+1. **i18n residual** — Recognition report strings
 
 ---
 

@@ -68,6 +68,11 @@ export type TeacherContent = {
   colDue: string;
   removeAssignment: string;
   noAssignments: string;
+  gradebook: string;
+  gradebookHint: string;
+  gradebookEmpty: string;
+  gradebookScorePlaceholder: string;
+  colOverallMastery: string;
 };
 
 const EN: TeacherContent = {
@@ -138,6 +143,11 @@ const EN: TeacherContent = {
   colDue: 'Due',
   removeAssignment: 'Remove',
   noAssignments: 'No assignments for this class yet.',
+  gradebook: 'Gradebook',
+  gradebookHint: 'Enter scores (0–100) per student and assignment. Saved to the teacher server.',
+  gradebookEmpty: 'Add students and assignments to use the gradebook matrix.',
+  gradebookScorePlaceholder: '—',
+  colOverallMastery: 'Overall',
 };
 
 const EL: TeacherContent = {
@@ -208,6 +218,11 @@ const EL: TeacherContent = {
   colDue: 'Προθεσμία',
   removeAssignment: 'Αφαίρεση',
   noAssignments: 'Δεν υπάρχουν αναθέσεις για αυτή την τάξη.',
+  gradebook: 'Βαθμολόγιο',
+  gradebookHint: 'Βαθμοί (0–100) ανά μαθητή και ανάθεση. Αποθηκεύονται στον teacher server.',
+  gradebookEmpty: 'Πρόσθεσε μαθητές και αναθέσεις για τον πίνακα βαθμολογίου.',
+  gradebookScorePlaceholder: '—',
+  colOverallMastery: 'Συνολική',
 };
 
 export function getTeacherContent(lang: Lang): TeacherContent {
