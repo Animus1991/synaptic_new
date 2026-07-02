@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import { Sparkles, Type, Volume2, Highlighter, Download, StickyNote, X, Languages, BookOpen, AlertTriangle } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
-import { repairDisplayPipeline } from '../../lib/documentTextPipeline';
+import { prepareWorkspaceDisplayText } from '../../lib/workspaceDisplayText';
+import { readerGreekOcrNeedsReview } from '../../lib/readerGreekDisplay';
 import { useI18n } from '../../lib/i18n';
 import type { SourceHighlight } from '../../lib/conceptProvenance';
 import { normalizeFocusTerm } from '../../lib/workspaceFocus';
@@ -38,7 +39,6 @@ import {
 import { speakParagraphs } from '../../lib/readerTts';
 import { buildOcrOverlayRegions, isLowConfidenceRegion, needsOcrOverlay } from '../../lib/readerOcrOverlay';
 import type { OcrStoredRegion } from '../../lib/readerOcrOverlay';
-import { applyOcrCorrectionsToText } from '../../lib/readerOcrCorrectionStore';
 import { OcrCorrectionPanel } from './OcrCorrectionPanel';
 import { isLlmAvailable } from '../../lib/llmClient';
 import {
@@ -188,10 +188,16 @@ export function CognitiveReader({
   const [activeSectionLabel, setActiveSectionLabel] = useState<string | null>(null);
   const [textSelection, setTextSelection] = useState<string | null>(null);
   const rawDisplayText = fullSource ? (sourceFullText?.trim() || text) : text;
+  const glossaryTerms = useMemo(() => glossary?.map((g) => g.term) ?? [], [glossary]);
   const displayText = useMemo(
-    () => repairDisplayPipeline(applyOcrCorrectionsToText(rawDisplayText ?? '', annotationScopeKey ?? '')),
-    [rawDisplayText, annotationScopeKey, ocrCorrectionRevision],
+    () => prepareWorkspaceDisplayText(
+      rawDisplayText ?? '',
+      annotationScopeKey ?? 'reader',
+      glossaryTerms,
+    ),
+    [rawDisplayText, annotationScopeKey, ocrCorrectionRevision, glossaryTerms],
   );
+  const greekOcrReview = useMemo(() => readerGreekOcrNeedsReview(displayText), [displayText]);
 
   useEffect(() => {
     setAnnotations(loadReaderAnnotations(annotationScopeKey));
@@ -934,6 +940,16 @@ export function CognitiveReader({
               : undefined
           }
         />
+      )}
+
+      {greekOcrReview && (
+        <div
+          className="flex shrink-0 items-start gap-2 border-b border-accent-amber/30 bg-accent-amber/10 px-4 py-2"
+          data-testid="reader-greek-ocr-banner"
+        >
+          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-accent-amber" aria-hidden />
+          <p className="text-[11px] text-accent-amber">{t('readerGreekOcrReview')}</p>
+        </div>
       )}
 
       {suspiciousSegments.length > 0 && (
