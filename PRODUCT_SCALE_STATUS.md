@@ -59,7 +59,7 @@ shipped. Remaining gaps: sub-line annotations, production backend, math OCR.
 | `b324969` | Whiteboard SVG export alongside PNG |
 | `8134462` | Doc reconciliation — `PRODUCT_SCALE_STATUS.md` + ROADMAP/CHANGELOG sync |
 | `daf5acd` | Leitner card types (term/definition/cloze/formula/mistake) |
-| `da6e42b` | Stage 3 quality gates — span 95%, faithfulness 0.95, eval baseline |
+| `a5e3c4b` | Stage 3 quality gates — span 95%, faithfulness 0.95, eval baseline |
 
 ### Sprint 5–8 (prior)
 
@@ -79,7 +79,7 @@ shipped. Remaining gaps: sub-line annotations, production backend, math OCR.
 | Leitner | Card types + filter chips; quiz-mistake → `mistake` type; source badges | Server deck sync |
 | Whiteboard | PNG + SVG export (`whiteboardExport.ts`) | Agent “explain diagram” |
 | Quiz | Grounded feedback → focus bus; remediate wrong → Leitner card | — |
-| Annotations | Line-level stored annotations | **Sub-line** span annotations |
+| Annotations | **Sub-line span highlights** (`charStart`/`charEnd`); line-level legacy | — |
 | Grounding | Unified module; **Stage 3** eval gates (span 95%, faithfulness 0.95) | — |
 | Reader | TTS, OCR correction MVP, step sync | Math OCR zones (8B-alpha) |
 
@@ -99,12 +99,11 @@ Eval harness: `npm run eval` — 30/30 at Stage 3 baseline.
 
 ## Priority gaps (next)
 
-1. **Sub-line annotations** — span-level highlights beyond line storage
-2. **Production backend** — Redis/BullMQ, pgvector default, teacher gradebook UI
+1. **Leitner server sync** — cross-device deck persistence
+2. **Whiteboard agent explain** — natural-language diagram explanation
 3. **Math OCR** — layout-aware PDF math zones (8B-alpha)
-4. **Leitner server sync** — cross-device deck persistence
-5. **Whiteboard agent explain** — natural-language diagram explanation
-6. **i18n residual** — Recognition report strings
+4. **Production backend** — Redis/BullMQ, pgvector default, teacher gradebook UI
+5. **i18n residual** — Recognition report strings
 
 ---
 

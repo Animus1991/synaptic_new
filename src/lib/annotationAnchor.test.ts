@@ -25,6 +25,15 @@ describe('annotationAnchor', () => {
     expect(anchor.pipelineVersion).toBe('2.4.0');
   });
 
+  it('builds anchor with span excerpt', () => {
+    const line = 'Price elasticity measures responsiveness.';
+    const anchor = buildAnnotationAnchor('notes.pdf', [line], 0, {
+      charStart: 6,
+      charEnd: 16,
+    });
+    expect(anchor.excerpt).toBe('elasticity');
+  });
+
   it('resolves line index from excerpt after text shift', () => {
     const newLines = ['Header', ...lines];
     expect(resolveAnnotationLineIndex('εμπορική πολιτική', newLines)).toBe(2);

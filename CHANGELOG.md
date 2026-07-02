@@ -7,6 +7,7 @@ client and server are versioned together.
 
 ### Added
 
+- **Sub-line span annotations** — `charStart`/`charEnd` on `StoredAnnotation`, select-to-highlight in `AnnotationOverlay` (`annotationSpan.ts`).
 - **Stage 3 quality gates (`a5e3c4b`)** — `QUALITY_STAGE=3`; span ratio 95%, source text 90%,
   eval faithfulness 0.95 (`qualityThresholds.ts`, `baseline.json`, grounding fixtures).
 - **Doc reconciliation (Jul 2026, `8134462`)** — canonical [`PRODUCT_SCALE_STATUS.md`](PRODUCT_SCALE_STATUS.md)

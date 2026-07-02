@@ -1,5 +1,6 @@
-import { loadJson, saveJson } from './persistence';
+import { hasStoredLineSpan, spanExcerptFromLine } from './annotationSpan';
 import { refreshAnnotationsAfterReprocess } from './annotationAnchor';
+import { loadJson, saveJson } from './persistence';
 
 export type AnnotationCategory =
   | 'general'
@@ -25,6 +26,10 @@ export type StoredAnnotation = {
   color: string;
   lineStart: number;
   lineEnd: number;
+  /** Line-local start offset for sub-line span highlights (inclusive). */
+  charStart?: number;
+  /** Line-local end offset for sub-line span highlights (exclusive). */
+  charEnd?: number;
   /** Optional glossary/concept tag linked to workspace focus. */
   focusTerm?: string;
   createdAt?: string;
@@ -79,9 +84,14 @@ export function exportAnnotationsMarkdown(
   const body = items
     .sort((a, b) => a.lineStart - b.lineStart)
     .map((ann) => {
-      const excerpt = (lines[ann.lineStart] ?? '').trim();
+      const line = lines[ann.lineStart] ?? '';
+      const excerpt = hasStoredLineSpan(ann)
+        ? spanExcerptFromLine(line, ann.charStart, ann.charEnd)
+        : line.trim();
       const parts = [
-        `## Line ${ann.lineStart + 1} · ${ann.type}${ann.category ? ` · ${ann.category}` : ''}`,
+        `## Line ${ann.lineStart + 1} · ${ann.type}${ann.category ? ` · ${ann.category}` : ''}${
+          hasStoredLineSpan(ann) ? ' · span' : ''
+        }`,
         excerpt ? `> ${excerpt}` : '',
         ann.focusTerm ? `**Term:** ${ann.focusTerm}` : '',
         ann.anchorStatus && ann.anchorStatus !== 'ok' ? `**Status:** ${ann.anchorStatus}` : '',

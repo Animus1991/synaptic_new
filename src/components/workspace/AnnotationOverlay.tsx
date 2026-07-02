@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
+import { useState, useRef, useCallback, useEffect, useMemo, type MouseEvent } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MessageSquare, Pin, X, Tag, Wand2, BookOpen, AlertTriangle, FileText } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
@@ -17,6 +17,11 @@ import {
   normalizeAnnotationAnchorStatus,
   type AnnotationCreatedPayload,
 } from '../../lib/annotationAnchor';
+import {
+  getSelectionOffsetsInElement,
+  hasStoredLineSpan,
+  segmentStoredLineSpans,
+} from '../../lib/annotationSpan';
 import type { SharedAnnotationDto } from '../../lib/authClient';
 import { termMatchesFocus } from '../../lib/workspaceFocus';
 import type {
@@ -267,12 +272,15 @@ export function AnnotationOverlay({
     lineIdx: number,
     text: string,
     type: StoredAnnotation['type'],
+    span?: { charStart: number; charEnd: number },
   ): StoredAnnotation => {
     const category = activeCategory === 'general' ? undefined : activeCategory;
     const anchor = buildAnnotationAnchor(fileKey, lines, lineIdx, {
       courseId,
       pipelineVersion,
       sectionLabel,
+      charStart: span?.charStart,
+      charEnd: span?.charEnd,
     });
     return {
       id: `ann-${Date.now()}`,
@@ -281,6 +289,8 @@ export function AnnotationOverlay({
       color: activeColor,
       lineStart: lineIdx,
       lineEnd: lineIdx,
+      charStart: span?.charStart,
+      charEnd: span?.charEnd,
       focusTerm: tagDraft.trim() || focusTerm || undefined,
       createdAt: new Date().toISOString(),
       category,
@@ -297,7 +307,7 @@ export function AnnotationOverlay({
     });
   }, [lines, onAnnotate]);
 
-  const addAnnotation = useCallback((lineIdx: number) => {
+  const addAnnotation = useCallback((lineIdx: number, span?: { charStart: number; charEnd: number }) => {
     if (remapPanelOpen && remapReviewId) {
       applyRemap(remapReviewId, lineIdx);
       return;
@@ -306,10 +316,32 @@ export function AnnotationOverlay({
       setAddingAt(lineIdx);
       return;
     }
-    const ann = buildNewAnnotation(lineIdx, tool === 'pin' ? t('pin') : '', tool);
+    const ann = buildNewAnnotation(
+      lineIdx,
+      tool === 'pin' ? t('pin') : '',
+      tool,
+      span,
+    );
     setAnnotations((prev) => [...prev, ann]);
     emitOnAnnotate(ann);
   }, [tool, t, buildNewAnnotation, emitOnAnnotate, remapPanelOpen, remapReviewId, applyRemap]);
+
+  const handleLineMouseUp = useCallback((lineIdx: number, e: MouseEvent<HTMLDivElement>) => {
+    if (remapPanelOpen && remapReviewId) {
+      addAnnotation(lineIdx);
+      return;
+    }
+    const textEl = e.currentTarget.querySelector('[data-annotation-line-text]') as HTMLElement | null;
+    if (tool === 'highlight' && textEl) {
+      const offsets = getSelectionOffsetsInElement(textEl);
+      if (offsets && offsets.end - offsets.start >= 1) {
+        addAnnotation(lineIdx, offsets);
+        window.getSelection()?.removeAllRanges();
+        return;
+      }
+    }
+    addAnnotation(lineIdx);
+  }, [addAnnotation, remapPanelOpen, remapReviewId, tool]);
 
   const confirmComment = () => {
     if (addingAt === null || !newComment.trim()) return;
@@ -324,11 +356,40 @@ export function AnnotationOverlay({
 
   const highlightedLines = useMemo(() => {
     const set = new Set<number>();
-    visibleAnnotations.filter((a) => a.type === 'highlight').forEach((a) => {
-      for (let i = a.lineStart; i <= a.lineEnd; i++) set.add(i);
-    });
+    visibleAnnotations
+      .filter((a) => a.type === 'highlight' && !hasStoredLineSpan(a))
+      .forEach((a) => {
+        for (let i = a.lineStart; i <= a.lineEnd; i++) set.add(i);
+      });
     return set;
   }, [visibleAnnotations]);
+
+  const renderLineText = useCallback((line: string, lineAnns: StoredAnnotation[]) => {
+    const spanHighlights = lineAnns
+      .filter((a) => a.type === 'highlight' && hasStoredLineSpan(a))
+      .map((a) => ({
+        id: a.id,
+        color: a.color,
+        charStart: a.charStart!,
+        charEnd: a.charEnd!,
+      }));
+    if (spanHighlights.length === 0) return line || '\u00A0';
+    const segments = segmentStoredLineSpans(line.length, spanHighlights);
+    return segments.map((seg, idx) => {
+      const text = line.slice(seg.start, seg.end) || '\u00A0';
+      if (!seg.color) return <span key={`${seg.start}-${idx}`}>{text}</span>;
+      return (
+        <mark
+          key={`${seg.annotationId ?? seg.start}-${idx}`}
+          data-testid="annotation-span-highlight"
+          className="rounded-sm px-0.5"
+          style={{ backgroundColor: `${seg.color}44` }}
+        >
+          {text}
+        </mark>
+      );
+    });
+  }, []);
 
   const exportMd = () => {
     downloadBlob(`annotations-${fileKey}.md`, exportAnnotationsMarkdown(sourceName, lines, annotations), 'text/markdown');
@@ -371,6 +432,12 @@ export function AnnotationOverlay({
         commentLabel={t('comment')}
         pinLabel={t('pin')}
       />
+
+      {tool === 'highlight' && (
+        <p className="shrink-0 border-b border-border-subtle px-3 py-1 text-[9px] text-text-muted" data-testid="annotation-span-hint">
+          {t('annoSelectSpan')}
+        </p>
+      )}
 
       {needsReviewCount > 0 && (
         <WorkspacePanelWarnStrip
@@ -518,7 +585,7 @@ export function AnnotationOverlay({
               <div
                 key={i}
                 data-line-index={i}
-                onClick={() => addAnnotation(i)}
+                onMouseUp={(e) => handleLineMouseUp(i, e)}
                 role="button"
                 tabIndex={0}
                 onKeyDown={(e) => e.key === 'Enter' && addAnnotation(i)}
@@ -539,7 +606,9 @@ export function AnnotationOverlay({
                 )}
               >
                 {pinHere && <Pin className="absolute -left-1 w-2.5 h-2.5 text-brand-500" aria-hidden />}
-                {line || '\u00A0'}
+                <span data-annotation-line-text className="whitespace-pre-wrap">
+                  {renderLineText(line, lineAnns)}
+                </span>
                 {onOpenInReader && line.trim().length > 8 && (
                   <button
                     type="button"

@@ -102,7 +102,7 @@ See I18N.md, STUDY_WORKSPACE.md, WORKSPACE_TOOLS_UPGRADE.md, and EXHAUSTIVE_PROD
 
 | Area | Open work |
 | ---- | --------- |
-| Quality | Sub-line span annotations |
+| Annotations | Sub-line span annotations |
 | Annotations | **Sub-line span annotations** (line-level only today) |
 | Backend | pgvector default path, Redis/BullMQ production, teacher gradebook UI — S10 |
 | Algorithms | Math OCR, layout-aware PDF blocks |

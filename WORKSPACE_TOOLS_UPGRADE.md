@@ -72,10 +72,11 @@
 - MD/JSON export, reader deep-links (`onOpenInReader`)
 - Shared teacher annotations (fetch + publish when proxy configured)
 - Realtime sync: SSE stream + poll fallback + `BroadcastChannel` + live badge
+- **Sub-line span highlights** — select text within a line (`charStart`/`charEnd` on `StoredAnnotation`)
 - **Agent handoff:** selected/highlighted text → auto-send prompt με section context
 
 ### Αρχεία
-`AnnotationOverlay.tsx`, `annotationStore.ts`, `readerAnnotationStore.ts`, `annotationRealtimeSync.ts`
+`AnnotationOverlay.tsx`, `annotationStore.ts`, `annotationSpan.ts`, `readerAnnotationStore.ts`, `annotationRealtimeSync.ts`
 
 ### Concept Bus
 `annotated` on highlight · `read` on jump to reader

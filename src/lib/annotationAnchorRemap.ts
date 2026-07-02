@@ -4,6 +4,7 @@
 
 import type { StoredAnnotation } from './annotationStore';
 import { resolveAnnotationLineIndex } from './annotationAnchor';
+import { hasStoredLineSpan, resolveSpanOffsetsInLine, spanExcerptFromLine } from './annotationSpan';
 
 export type RemapConfidence = 'high' | 'medium' | 'low';
 
@@ -157,18 +158,23 @@ export function remapAnnotationToLine(
   pipelineVersion?: string,
 ): StoredAnnotation {
   const safeIndex = clampRemapLineIndex(lineIndex, lines.length);
-  const lineText = (lines[safeIndex] ?? '').trim();
+  const lineRaw = lines[safeIndex] ?? '';
+  const lineText = lineRaw.trim();
   const lineEnd = resolveRemappedLineEnd(safeIndex, ann, lines.length);
+  const excerpt = ann.anchor?.excerpt ?? spanExcerptFromLine(lineRaw, ann.charStart, ann.charEnd);
+  const span = resolveSpanOffsetsInLine(lineRaw, excerpt);
   return {
     ...ann,
     lineStart: safeIndex,
     lineEnd,
+    charStart: span?.charStart,
+    charEnd: span?.charEnd,
     anchorStatus: 'ok',
     anchor: {
       fileKey: ann.anchor?.fileKey ?? '',
       courseId: ann.anchor?.courseId,
       sectionLabel: ann.anchor?.sectionLabel,
-      excerpt: lineText.slice(0, 240) || ann.anchor?.excerpt || '',
+      excerpt: excerpt || lineText.slice(0, 240),
       pipelineVersion: pipelineVersion ?? ann.anchor?.pipelineVersion,
     },
   };
