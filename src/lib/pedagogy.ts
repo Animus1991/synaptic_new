@@ -206,10 +206,18 @@ export function buildStudyPlanBlocks(
   }[],
   lang: Lang,
 ): { label: string; minutes: number; items: string[] }[] {
+  type PlanTask = (typeof tasks)[number];
   const pending = tasks.filter((t) => t.status === 'pending');
-  const mistakes = pending.filter((t) => t.category === 'fix').slice(0, 2);
-  const reviews = pending.filter((t) => t.isSpacedRepetition).slice(0, 3);
-  const weak = pending.filter((t) => t.category === 'learn' || t.priority === 'high').slice(0, 2);
+  // Each task appears in at most one block (no repeat between mistakes/reviews/weak).
+  const used = new Set<PlanTask>();
+  const take = (predicate: (t: PlanTask) => boolean, limit: number): PlanTask[] => {
+    const picked = pending.filter((t) => !used.has(t) && predicate(t)).slice(0, limit);
+    for (const t of picked) used.add(t);
+    return picked;
+  };
+  const mistakes = take((t) => t.category === 'fix', 2);
+  const reviews = take((t) => Boolean(t.isSpacedRepetition), 3);
+  const weak = take((t) => t.category === 'learn' || t.priority === 'high', 2);
   const blocks: { label: string; minutes: number; items: string[] }[] = [];
   if (mistakes.length) {
     blocks.push({

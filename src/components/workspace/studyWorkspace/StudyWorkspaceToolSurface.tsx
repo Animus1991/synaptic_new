@@ -131,7 +131,6 @@ export function StudyWorkspaceToolSurface({ model }: StudyWorkspaceToolSurfacePr
     openReaderAtConceptSection,
     handleConceptBusRemediation,
     openReprocessWizard,
-    handleConceptLensAction,
     quizArtifactStale,
     leitnerArtifactStale,
     simulatorArtifactStale,

@@ -230,7 +230,6 @@ export function Agent({
 
     const strictGrounding =
       settings?.sourceMode === 'strict' || settings?.sourceMode === 'notes-only';
-    const lang = settings?.language === 'el' ? 'el' : 'en';
     const gated = applyAgentGroundingGate(content, retrieval.citations, {
       strict: strictGrounding,
       lang,

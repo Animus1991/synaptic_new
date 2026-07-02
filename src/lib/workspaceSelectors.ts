@@ -5,7 +5,6 @@
 import type { WorkspaceToolId } from './taskFlows';
 import type { Lang } from './i18n';
 import type { ConceptBusInsight } from './conceptBusSync';
-import type { LearnerModel } from '../types';
 import { buildConceptBusRows, buildToolActivityBreakdown } from './conceptBusPanelModel';
 import type { ConceptBusState } from './workspaceConceptBus';
 import {

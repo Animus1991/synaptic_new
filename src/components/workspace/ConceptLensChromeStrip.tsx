@@ -45,7 +45,7 @@ export function ConceptLensChromeStrip({
   const conceptLabel = activeConceptLabel ?? conceptLensView.activeConcept;
   const stepMatchesConcept = conceptMatchesStepTitle(conceptLabel, activeStepTitle);
   const related = relatedConceptChips(conceptLensView.related, conceptLabel);
-  const activity = activityFor(conceptBus, activeConceptLabel);
+  const activity = activityFor(conceptBus, conceptLabel);
   const showPrimaryPill = !stepMatchesConcept;
 
   if (!showPrimaryPill && related.length === 0 && !conceptLensExpanded) {

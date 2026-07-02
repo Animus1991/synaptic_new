@@ -1848,8 +1848,9 @@ export function useAppStore() {
       stats: dashboardStats,
       daysToExam: dashboardExtras.daysToExam,
       workspaceLive,
+      activeCourseId: selectedCourse?.id ?? null,
     }),
-    [user.settings.language, learnerModel, betaMastery, tasks, dashboardStats, dashboardExtras.daysToExam, workspaceLive],
+    [user.settings.language, learnerModel, betaMastery, tasks, dashboardStats, dashboardExtras.daysToExam, workspaceLive, selectedCourse?.id],
   );
 
   const agentContextForView = useMemo(

@@ -335,7 +335,7 @@ export function AnnotationOverlay({
     if (tool === 'highlight' && textEl) {
       const offsets = getSelectionOffsetsInElement(textEl);
       if (offsets && offsets.end - offsets.start >= 1) {
-        addAnnotation(lineIdx, offsets);
+        addAnnotation(lineIdx, { charStart: offsets.start, charEnd: offsets.end });
         window.getSelection()?.removeAllRanges();
         return;
       }

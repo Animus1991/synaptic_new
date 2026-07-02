@@ -4,7 +4,7 @@
 
 import type { StoredAnnotation } from './annotationStore';
 import { resolveAnnotationLineIndex } from './annotationAnchor';
-import { hasStoredLineSpan, resolveSpanOffsetsInLine, spanExcerptFromLine } from './annotationSpan';
+import { resolveSpanOffsetsInLine, spanExcerptFromLine } from './annotationSpan';
 
 export type RemapConfidence = 'high' | 'medium' | 'low';
 

@@ -7,6 +7,7 @@ import {
 import type { AppView, User, DashboardStats, UserSettings } from '../types';
 import { cn } from '../utils/cn';
 import { useI18n, type I18nKey } from '../lib/i18n';
+import { getTasksContent } from '../lib/tasksContent';
 import { resolveTheme, themeToggleTarget } from '../lib/theme';
 import type { WorkspaceLiveSync } from '../lib/workspaceStoreSpine';
 import { workspaceLiveIsStale } from '../lib/workspaceStoreSpine';
@@ -95,7 +96,8 @@ export function Shell({
   onOpenWorkspace,
   studyWorkspaceOpen = false,
 }: ShellProps) {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
+  const tasksReviewBadgeHint = getTasksContent(lang).reviewsDue(stats.reviewsDue);
   const showMobileWorkspaceNav = Boolean(
     workspaceLive && !workspaceLiveIsStale(workspaceLive) && onOpenWorkspace,
   );
@@ -141,7 +143,10 @@ export function Shell({
                   <item.icon className="w-5 h-5 shrink-0" />
                   <span className="flex-1 text-left truncate">{t(item.labelKey)}</span>
                   {item.view === 'tasks' && stats.reviewsDue > 0 && (
-                    <span className="ml-auto text-xs ws-chip-danger px-2 py-0.5 rounded-full font-semibold">
+                    <span
+                      title={tasksReviewBadgeHint}
+                      className="ml-auto text-xs ws-chip-danger px-2 py-0.5 rounded-full font-semibold"
+                    >
                       {stats.reviewsDue}
                     </span>
                   )}
@@ -191,7 +196,7 @@ export function Shell({
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium truncate">{user.name}</p>
-              <p className="text-xs text-text-tertiary">Level {user.level} Β· {user.xp} XP</p>
+              <p className="text-xs text-text-tertiary">Level {user.level} · {user.xp} XP</p>
             </div>
           </div>
         </div>
@@ -226,7 +231,10 @@ export function Shell({
                   <item.icon className="w-5 h-5" />
                   {t(item.labelKey)}
                   {item.view === 'tasks' && stats.reviewsDue > 0 && (
-                    <span className="ml-auto text-xs ws-chip-danger px-2 py-0.5 rounded-full font-semibold">
+                    <span
+                      title={tasksReviewBadgeHint}
+                      className="ml-auto text-xs ws-chip-danger px-2 py-0.5 rounded-full font-semibold"
+                    >
                       {stats.reviewsDue}
                     </span>
                   )}

@@ -78,7 +78,7 @@ export interface UploadedFile {
   pdfLayoutBlocks?: import('../lib/pdfLayoutBlocks').PdfLayoutBlockInput[];
 }
 
-export type FileType = 'pdf' | 'docx' | 'pptx' | 'txt' | 'md' | 'image' | 'csv' | 'code' | 'youtube' | 'audio';
+export type FileType = 'pdf' | 'docx' | 'pptx' | 'txt' | 'md' | 'image' | 'csv' | 'code' | 'youtube' | 'audio' | 'video';
 
 export interface CourseSourceQuality {
   score: number;

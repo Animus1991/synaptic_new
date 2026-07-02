@@ -230,7 +230,14 @@ function OverviewTab({
         <div className="ws-bento p-6 flex items-center justify-center">
           <ReadinessRing value={learnerModel.overallMastery} size={200} sublabel={t('analyticsReadinessSublabel')} />
         </div>
-        <RetentionCurve dataPoints={hasRetentionData ? retentionPoints : [{ day: 0, retention: 100 }]} />
+        {hasRetentionData ? (
+          <RetentionCurve dataPoints={retentionPoints} />
+        ) : (
+          <div className="ws-bento p-6 flex flex-col items-center justify-center text-center text-sm text-text-muted min-h-[200px]">
+            <Activity className="w-8 h-8 text-text-tertiary mb-2" />
+            <p>{t('analyticsResearchEmpty')}</p>
+          </div>
+        )}
       </motion.div>
 
       {/* Metrics */}

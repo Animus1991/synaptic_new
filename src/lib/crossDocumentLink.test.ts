@@ -64,7 +64,7 @@ describe('crossDocumentLink', () => {
       size: 100,
       type: 'pdf',
       uploadedAt: new Date().toISOString(),
-      status: 'ready',
+      status: 'analyzed',
     };
 
     const enriched = await enrichCourseWithCrossLinks(

@@ -35,6 +35,20 @@ pandas builds on NumPy with two core structures: the Series (a labelled 1-D arra
 
 Matplotlib draws figures and axes; seaborn provides higher-level statistical plots. A scatter plot reveals relationships between two numeric variables, a histogram shows a distribution, and a box plot summarises spread and outliers. scikit-learn exposes a consistent estimator API: every model implements fit to learn from training data and predict to produce outputs, with a clean train/test split used to estimate generalisation.`;
 
+const PHIL_TEXT = `Intro to Philosophy — Lecture Transcript Excerpts
+
+1. What is Philosophy?
+Philosophy is the systematic study of fundamental questions about knowledge, reality, value, and mind, pursued through argument rather than empirical measurement alone. Its main branches are epistemology (the theory of knowledge), metaphysics (the study of what exists), ethics (the study of how we ought to act), and logic (the study of valid inference). Philosophical method centres on making claims explicit, examining the arguments that support them, and testing them with counterexamples and thought experiments.
+
+2. Epistemology
+The classical analysis defines knowledge as justified true belief: a subject knows a proposition when the proposition is true, the subject believes it, and the belief is justified. Gettier cases challenge this analysis by describing justified true beliefs that intuitively fail to be knowledge, because the justification and the truth are connected only by luck. Responses add conditions such as reliability (the belief is produced by a truth-conducive process) or safety (the belief could not easily have been false). Scepticism questions whether knowledge is possible at all; foundationalism answers that justification terminates in basic beliefs, while coherentism holds that beliefs are justified by their fit within a coherent system.
+
+3. Ethics
+Consequentialism judges actions by their outcomes: an action is right when it produces the best overall consequences, as in utilitarianism, which aims to maximise well-being. Deontology judges actions by rules and duties; Kant's categorical imperative requires acting only on maxims one could will as universal laws, and treating persons as ends rather than mere means. Virtue ethics shifts the question from actions to character, asking what a person with practical wisdom and virtues such as courage and honesty would do. Trolley-style dilemmas expose the tension between maximising good outcomes and respecting duties or rights.
+
+4. Philosophy of Mind
+The mind–body problem asks how mental states relate to physical states. Substance dualism holds that mind and body are distinct kinds of things, but struggles to explain their interaction. Physicalism holds that mental states are physical states; identity theory equates them with brain states, while functionalism defines them by their causal roles. The hard problem of consciousness asks why physical processing is accompanied by subjective experience at all, and qualia — the felt qualities of experience — are the standard test case for whether physicalist accounts are complete.`;
+
 export const mockUploadedFiles: UploadedFile[] = [
   {
     id: 'demo-file-c1',
@@ -75,6 +89,22 @@ export const mockUploadedFiles: UploadedFile[] = [
     extractedTopics: ['NumPy Arrays', 'Pandas DataFrames', 'Data Visualization', 'Machine Learning Intro'],
     extractedText: PY_TEXT,
   },
+  {
+    id: 'demo-file-c3',
+    name: 'Philosophy_Transcripts.pdf',
+    type: 'pdf',
+    size: 96_256,
+    uploadedAt: '2025-11-20T09:00:00.000Z',
+    status: 'analyzed',
+    progress: 100,
+    courseId: 'c3',
+    detectedLanguage: 'en',
+    ingestMethod: 'text-layer',
+    pipelineVersion: '2.4.0',
+    pageCount: 4,
+    extractedTopics: ['What is Philosophy?', 'Epistemology', 'Ethics', 'Philosophy of Mind'],
+    extractedText: PHIL_TEXT,
+  },
 ];
 
 export const mockGlossaryEntries: GlossaryEntry[] = [
@@ -86,4 +116,8 @@ export const mockGlossaryEntries: GlossaryEntry[] = [
   { term: 'Bertrand paradox', definition: 'In price competition with identical products, two firms drive price down to marginal cost, eliminating profit despite there being only two sellers.', source: 'Lecture_Notes_Micro.pdf', relatedConcepts: ['Oligopoly', 'Market Structures'], courseId: 'c1' },
   { term: 'Broadcasting', definition: 'NumPy rule that lets arrays of different shapes combine in arithmetic when trailing dimensions are equal or one of them is 1.', source: 'DS_Bootcamp_Slides.pptx', relatedConcepts: ['NumPy Arrays'], courseId: 'c2' },
   { term: 'Split–apply–combine', definition: 'The groupby pattern in pandas: split rows into groups, apply an aggregation to each, and combine the results into a new table.', source: 'DS_Bootcamp_Slides.pptx', relatedConcepts: ['Pandas DataFrames'], courseId: 'c2' },
+  { term: 'Justified true belief', definition: 'The classical analysis of knowledge: a subject knows a proposition when it is true, believed, and the belief is justified.', source: 'Philosophy_Transcripts.pdf', relatedConcepts: ['Epistemology', 'Gettier case'], courseId: 'c3' },
+  { term: 'Gettier case', definition: 'A scenario in which a belief is justified and true but intuitively fails to be knowledge because the justification and the truth are connected only by luck.', source: 'Philosophy_Transcripts.pdf', relatedConcepts: ['Epistemology', 'Justified true belief'], courseId: 'c3' },
+  { term: 'Categorical imperative', definition: "Kant's principle to act only on maxims one could will as universal laws, and to treat persons as ends rather than mere means.", source: 'Philosophy_Transcripts.pdf', relatedConcepts: ['Ethics', 'Deontology'], courseId: 'c3' },
+  { term: 'Qualia', definition: 'The felt, subjective qualities of experience — the standard test case for whether physicalist accounts of mind are complete.', source: 'Philosophy_Transcripts.pdf', relatedConcepts: ['Philosophy of Mind', 'Hard problem of consciousness'], courseId: 'c3' },
 ];

@@ -10,7 +10,7 @@ function item(
   str: string,
   x: number,
   y: number,
-  fontFamily: string,
+  _fontFamily: string,
   width = str.length * 6,
 ): unknown {
   return {

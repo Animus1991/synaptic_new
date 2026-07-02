@@ -508,7 +508,16 @@ export function ReprocessPreviewModal({
 
                   </div>
 
-
+                  {preview.warnings.length > 0 && (
+                    <ul
+                      className="space-y-1 rounded-lg border border-accent-amber/30 bg-accent-amber/8 px-3 py-2 text-[10px] text-accent-amber"
+                      data-testid="reprocess-preview-warnings"
+                    >
+                      {preview.warnings.map((warning) => (
+                        <li key={warning}>{warning}</li>
+                      ))}
+                    </ul>
+                  )}
 
                   {tab === 'edit' ? (
 
@@ -624,7 +633,7 @@ export function ReprocessPreviewModal({
 
 
 
-                  {!preview.hasMaterialChanges && tab === 'overview' && (
+                  {!preview.hasMaterialChanges && (
 
                     <p className="rounded-lg border border-accent-amber/30 bg-accent-amber/8 px-3 py-2 text-[10px] text-accent-amber">
 

@@ -64,9 +64,11 @@ export function TeacherDashboard({
   const locale = localeTag(lang);
   const localCourseIds = new Set(localCourses.map((c) => c.id));
 
+  const signedIn = Boolean(settings.authToken?.trim());
+
   const load = useCallback(async () => {
     if (!settings.authToken?.trim()) {
-      setError(ui.signInRequired);
+      setError(null);
       setData(null);
       setClasses([]);
       setRoster([]);
@@ -91,7 +93,7 @@ export function TeacherDashboard({
     } finally {
       setLoading(false);
     }
-  }, [settings.authToken, settings, ui.signInRequired]);
+  }, [settings.authToken, settings]);
 
   useEffect(() => {
     void load();
@@ -296,12 +298,34 @@ export function TeacherDashboard({
         </div>
       )}
 
-      <div
-        className="rounded-xl border border-border-subtle bg-surface-card/60 px-4 py-3 text-xs text-text-secondary"
-        data-testid="teacher-cohort-roadmap"
-      >
-        {ui.cohortRoadmap}
-      </div>
+      {signedIn && (
+        <div
+          className="rounded-xl border border-border-subtle bg-surface-card/60 px-4 py-3 text-xs text-text-secondary"
+          data-testid="teacher-cohort-roadmap"
+        >
+          {ui.cohortRoadmap}
+        </div>
+      )}
+
+      {!signedIn && (
+        <div className="rounded-2xl border border-border-subtle bg-surface-card p-6 text-sm text-text-secondary flex gap-3 items-start">
+          <Shield className="w-5 h-5 text-brand-400 shrink-0" />
+          <div className="space-y-2">
+            <p className="font-medium text-text-primary">{ui.signInRequired}</p>
+            <p>{ui.signInHint}</p>
+            {onOpenSettings && (
+              <button
+                type="button"
+                data-testid="teacher-open-settings"
+                onClick={onOpenSettings}
+                className="text-xs font-medium text-brand-700 hover:text-brand-800"
+              >
+                {ui.openSettingsCta}
+              </button>
+            )}
+          </div>
+        </div>
+      )}
 
       {settings.authToken && (
         <div
@@ -701,70 +725,56 @@ export function TeacherDashboard({
         </motion.div>
       )}
 
-      <div className="rounded-2xl border border-border-subtle bg-surface-card p-5">
-        <h2 className="font-semibold flex items-center gap-2 mb-1">
-          <BarChart3 className="w-4 h-4 text-brand-300" />
-          {ui.localSession}
-        </h2>
-        <p className="text-xs text-text-muted mb-4">{ui.localSessionHint}</p>
-        {learnerModel && (
-          <div className="flex flex-wrap gap-3 text-xs mb-4">
-            <span className="px-2.5 py-1 rounded-lg bg-brand-500/10 border border-brand-500/20 text-brand-300">
-              <strong>{learnerModel.streakDays}</strong> {ui.streakDays}
-            </span>
-            <span className="px-2.5 py-1 rounded-lg bg-surface-hover border border-border-subtle">
-              <strong>{studyHours}</strong> {ui.studyHours}
-            </span>
-            <span className="px-2.5 py-1 rounded-lg bg-surface-hover border border-border-subtle">
-              <strong>{activities.length}</strong> activities
-            </span>
-          </div>
-        )}
-        <h3 className="text-xs font-semibold text-text-tertiary mb-2">{ui.learningEvents}</h3>
-        <div className="flex flex-wrap gap-2 mb-4 text-xs">
-          {Object.entries(localEvents).map(([type, count]) => (
-            <span key={type} className="px-2 py-1 rounded-lg bg-surface-hover border border-border-subtle">
-              {type}: <strong>{count}</strong>
-            </span>
-          ))}
-          {Object.keys(localEvents).length === 0 && (
-            <span className="text-text-muted">{ui.noEvents}</span>
+      {signedIn && (
+        <div className="rounded-2xl border border-border-subtle bg-surface-card p-5">
+          <h2 className="font-semibold flex items-center gap-2 mb-1">
+            <BarChart3 className="w-4 h-4 text-brand-300" />
+            {ui.localSession}
+          </h2>
+          <p className="text-xs text-text-muted mb-4">{ui.localSessionHint}</p>
+          {learnerModel && (
+            <div className="flex flex-wrap gap-3 text-xs mb-4">
+              <span className="px-2.5 py-1 rounded-lg bg-brand-500/10 border border-brand-500/20 text-brand-300">
+                <strong>{learnerModel.streakDays}</strong> {ui.streakDays}
+              </span>
+              <span className="px-2.5 py-1 rounded-lg bg-surface-hover border border-border-subtle">
+                <strong>{studyHours}</strong> {ui.studyHours}
+              </span>
+              <span className="px-2.5 py-1 rounded-lg bg-surface-hover border border-border-subtle">
+                <strong>{activities.length}</strong>{' '}
+                {activities.length === 1 ? ui.activityOne : ui.activityMany}
+              </span>
+            </div>
           )}
-        </div>
-        <ul className="space-y-2 text-xs text-text-secondary">
-          {recentEvents.map((e) => (
-            <li key={e.id} className="flex justify-between gap-2 border-b border-border-subtle/50 pb-1">
-              <span className="font-medium text-text-primary">{e.type}</span>
-              <span className="text-text-muted shrink-0">{formatDateTime(e.timestamp, lang)}</span>
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      {!settings.authToken && (
-        <div className="rounded-xl border border-border-subtle bg-surface-hover/40 p-4 text-sm text-text-secondary flex gap-3 items-start">
-          <Shield className="w-5 h-5 text-brand-400 shrink-0" />
-          <div className="space-y-2">
-            <p>{ui.signInHint}</p>
-            {onOpenSettings && (
-              <button
-                type="button"
-                data-testid="teacher-open-settings"
-                onClick={onOpenSettings}
-                className="text-xs font-medium text-brand-700 hover:text-brand-800"
-              >
-                {ui.openSettingsCta}
-              </button>
+          <h3 className="text-xs font-semibold text-text-tertiary mb-2">{ui.learningEvents}</h3>
+          <div className="flex flex-wrap gap-2 mb-4 text-xs">
+            {Object.entries(localEvents).map(([type, count]) => (
+              <span key={type} className="px-2 py-1 rounded-lg bg-surface-hover border border-border-subtle">
+                {type}: <strong>{count}</strong>
+              </span>
+            ))}
+            {Object.keys(localEvents).length === 0 && (
+              <span className="text-text-muted">{ui.noEvents}</span>
             )}
           </div>
+          <ul className="space-y-2 text-xs text-text-secondary">
+            {recentEvents.map((e) => (
+              <li key={e.id} className="flex justify-between gap-2 border-b border-border-subtle/50 pb-1">
+                <span className="font-medium text-text-primary">{e.type}</span>
+                <span className="text-text-muted shrink-0">{formatDateTime(e.timestamp, lang)}</span>
+              </li>
+            ))}
+          </ul>
         </div>
       )}
 
-      <div className="text-[10px] text-text-muted flex items-center gap-1.5">
-        <Database className="w-3 h-3" />
-        <Sparkles className="w-3 h-3" />
-        {ui.syncFooter}
-      </div>
+      {import.meta.env.DEV && (
+        <div className="text-[10px] text-text-muted flex items-center gap-1.5">
+          <Database className="w-3 h-3" />
+          <Sparkles className="w-3 h-3" />
+          {ui.syncFooter}
+        </div>
+      )}
     </div>
   );
 }

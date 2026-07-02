@@ -236,11 +236,16 @@ export function buildAdaptiveStudyPlanBlocks(
     tasks.filter((t) => t.status === 'pending'),
     queue,
   );
-  const mistakes = pending.filter((t) => t.category === 'fix').slice(0, 2);
-  const reviews = pending.filter((t) => t.isSpacedRepetition).slice(0, 3);
-  const weak = pending
-    .filter((t) => t.category === 'learn' || t.priority === 'high')
-    .slice(0, 2);
+  // Each task appears in at most one block (no repeat between mistakes/reviews/weak).
+  const used = new Set<string>();
+  const take = (predicate: (t: Task) => boolean, limit: number): Task[] => {
+    const picked = pending.filter((t) => !used.has(t.id) && predicate(t)).slice(0, limit);
+    for (const t of picked) used.add(t.id);
+    return picked;
+  };
+  const mistakes = take((t) => t.category === 'fix', 2);
+  const reviews = take((t) => t.isSpacedRepetition, 3);
+  const weak = take((t) => t.category === 'learn' || t.priority === 'high', 2);
   const blocks: StudyPlanBlock[] = [];
   if (mistakes.length) {
     blocks.push({
@@ -352,6 +357,8 @@ export function recommendDailyPlan(opts: {
   daysToExam?: number | null;
   workspaceLive?: WorkspaceLiveSync | null;
   workspace?: WorkspaceActionOpts | null;
+  /** When set, study plan blocks only use tasks from this course (falls back to all courses if it has none). */
+  activeCourseId?: string | null;
   now?: Date;
 }): DailyPlanRecommendation {
   const {
@@ -363,6 +370,7 @@ export function recommendDailyPlan(opts: {
     daysToExam = null,
     workspaceLive = null,
     workspace = null,
+    activeCourseId = null,
     now,
   } = opts;
 
@@ -391,7 +399,14 @@ export function recommendDailyPlan(opts: {
     });
   }
 
-  const studyPlanBlocks = buildAdaptiveStudyPlanBlocks(tasks, lang, conceptQueue);
+  const courseTasks = activeCourseId
+    ? tasks.filter((t) => t.courseId === activeCourseId)
+    : tasks;
+  const studyPlanBlocks = buildAdaptiveStudyPlanBlocks(
+    courseTasks.some((t) => t.status === 'pending') ? courseTasks : tasks,
+    lang,
+    conceptQueue,
+  );
 
   return {
     conceptQueue,

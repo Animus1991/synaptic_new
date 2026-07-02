@@ -2,7 +2,7 @@
  * Workspace pro — focus bus navigation helpers (Reader scroll, concept span lookup).
  */
 
-import type { ConceptSpan, Course } from '../types';
+import type { Course } from '../types';
 import { findConceptSpan } from './conceptProvenance';
 import { paragraphIndexForTerm } from './readerBilingualSync';
 import { termMatchesFocus } from './workspaceFocus';

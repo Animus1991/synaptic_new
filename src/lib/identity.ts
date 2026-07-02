@@ -49,9 +49,12 @@ export function buildInitialUser(args: {
 }): User {
   const { settings, persistedXp, authEmail, streak } = args;
   if (shouldShowDemo(settings)) {
+    const demoXp = persistedXp ?? mockUser.xp;
     return {
       ...mockUser,
-      xp: persistedXp ?? mockUser.xp,
+      xp: demoXp,
+      level: levelFromXp(demoXp),
+      streak: streak ?? mockUser.streak,
       settings,
     };
   }

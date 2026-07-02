@@ -5,13 +5,11 @@ import { replaceAllStepSchedules } from './spacedStepSchedule';
 import { replaceAllConceptBuses } from './workspacePersistence';
 import type { UserSettings } from '../types';
 
-const settings: UserSettings = {
+const settings = {
   language: 'en',
-  llmMode: 'openai',
-  quizMode: 'mcq',
-  retentionDays: 7,
+  llmModel: 'gpt-4o-mini',
   theme: 'dark',
-};
+} as unknown as UserSettings;
 
 describe('sessionSync leitner deck states', () => {
   beforeEach(() => {

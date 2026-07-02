@@ -20,7 +20,10 @@ export interface LocalEmbedder {
 /** True when Transformers.js can run (browser main thread or dedicated worker). */
 export function isEmbeddingRuntime(): boolean {
   if (typeof globalThis === 'undefined') return false;
-  return typeof window !== 'undefined' || typeof importScripts === 'function';
+  return (
+    typeof window !== 'undefined'
+    || typeof (globalThis as { importScripts?: unknown }).importScripts === 'function'
+  );
 }
 
 /** Stable content hash for the embedding cache (browser + Web Worker compatible). */

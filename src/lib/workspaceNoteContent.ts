@@ -10,6 +10,7 @@ import type { WorkspaceToolId } from './taskFlows';
 import { extractDefinitions } from './contentAnalysis';
 import type { DebateNode, ConceptMapEdge, ConceptMapNode, ExtractedFormula } from './noteContentExtractors';
 import { workspaceNoSourceMessage } from './workspaceEmptyState';
+import { prepareWorkspaceDisplayText } from './workspaceDisplayText';
 import {
   buildConceptMapFromCourse,
   buildDebateTreeFromNotes,
@@ -407,18 +408,20 @@ export function buildWorkspaceNoteBundleFromGathered(
     return emptyWorkspaceNoteBundle(concept, lang, emptyMessage);
   }
 
-  const sourceFullText = text;
-  const readerText = lightweight ? text.slice(0, 12000) : relevantExcerpt(text, concept, 12000);
-  const annotationText = lightweight ? text.slice(0, 16000) : relevantExcerpt(text, concept, 16000);
   const sourceName = fileNames.join(', ') || course?.title || 'Your notes';
   const fileKey = fileNames[0] ?? linkedCourseId ?? 'notes';
+  const glossaryTerms = scopedGlossary.map((g) => g.term);
+  const workingText = prepareWorkspaceDisplayText(text, fileKey, glossaryTerms);
+  const sourceFullText = workingText;
+  const readerText = lightweight ? workingText.slice(0, 12000) : relevantExcerpt(workingText, concept, 12000);
+  const annotationText = lightweight ? workingText.slice(0, 16000) : relevantExcerpt(workingText, concept, 16000);
 
   const conceptMap = buildConceptMapFromCourse(
     topics,
     scopedGlossary,
     conceptBars,
     concept,
-    lightweight ? undefined : text,
+    lightweight ? undefined : workingText,
   );
 
   if (lightweight) {
@@ -454,14 +457,14 @@ export function buildWorkspaceNoteBundleFromGathered(
     };
   }
 
-  const documentStructure = analyzeDocumentStructure(text, lang);
-  const leitnerFromNotes = buildFlashcards(text, concept, scopedGlossary, lang);
-  const compareRows = extractComparisons(text, concept, scopedGlossary);
-  const formulas = extractFormulas(text, concept);
-  const workspaceSteps = buildWorkspaceStepsFromNotes(text, concept, lang);
-  const quiz = buildQuizFromNotes(text, concept, scopedGlossary, lang);
+  const documentStructure = analyzeDocumentStructure(workingText, lang);
+  const leitnerFromNotes = buildFlashcards(workingText, concept, scopedGlossary, lang);
+  const compareRows = extractComparisons(workingText, concept, scopedGlossary);
+  const formulas = extractFormulas(workingText, concept);
+  const workspaceSteps = buildWorkspaceStepsFromNotes(workingText, concept, lang);
+  const quiz = buildQuizFromNotes(workingText, concept, scopedGlossary, lang);
   const sourceIntelligence = buildWorkspaceSourceIntelligence({
-    text,
+    text: workingText,
     concept,
     glossary: scopedGlossary,
     matchingTopic,
@@ -498,16 +501,16 @@ export function buildWorkspaceNoteBundleFromGathered(
     leitnerCards,
     compareRows,
     formulas,
-    debateTree: buildDebateTreeFromNotes(text, concept),
-    feynmanOutline: buildFeynmanOutline(matchingTopic, text, concept, lang),
+    debateTree: buildDebateTreeFromNotes(workingText, concept),
+    feynmanOutline: buildFeynmanOutline(matchingTopic, workingText, concept, lang),
     feynmanGaps: buildFeynmanGaps(scopedGlossary, concept, lang),
     feynmanGapTerms: buildFeynmanGapTerms(scopedGlossary, concept),
     feynmanPlaceholder: t('feynmanExplainPlaceholder', lang).replace('{concept}', concept),
     workspaceSteps: workspaceSteps ?? fallbackWorkspaceSteps(concept, lang),
     quiz,
-    economicsSandbox: notesSupportSandbox(text, concept, formulas),
-    numericCues: extractNumericCues(text, concept),
-    sandboxInsight: sandboxInsightFromNotes(text, concept, lang),
+    economicsSandbox: notesSupportSandbox(workingText, concept, formulas),
+    numericCues: extractNumericCues(workingText, concept),
+    sandboxInsight: sandboxInsightFromNotes(workingText, concept, lang),
     matchingTopic,
     courseTitle: course?.title,
     emptyMessage,

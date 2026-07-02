@@ -1,4 +1,5 @@
 import type { UserSettings } from '../types';
+import type { LeitnerDeckState } from './leitnerDeckSync';
 import type { OcrStoredRegion } from './readerOcrOverlay';
 import type { TeacherDashboardResponse } from './teacherDashboardTypes';
 import type {
@@ -146,7 +147,7 @@ export type RemoteSession = {
   userSettings: unknown;
   conceptBuses?: Record<string, unknown>;
   stepSchedules?: Record<string, unknown>;
-  leitnerDeckStates?: Record<string, unknown>;
+  leitnerDeckStates?: Record<string, LeitnerDeckState>;
   updatedAt: string;
 };
 

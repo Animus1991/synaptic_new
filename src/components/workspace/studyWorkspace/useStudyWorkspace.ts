@@ -17,6 +17,7 @@ import { useI18n } from '../../../lib/i18n';
 import { resolveReaderText, findConceptSpan, type SourceHighlight } from '../../../lib/conceptProvenance';
 import { highlightFromQuizFeedback, type GroundedQuizFeedback } from '../../../lib/quizGroundedFeedback';
 import { resolveWorkspaceStepExcerpt } from '../../../lib/stepGroundedExcerpt';
+import { gateWorkspaceStepExcerpt } from '../../../lib/workspaceDisplayText';
 import { findTextSpanInFiles } from '../../../lib/findTextSpanInSource';
 import type { WorkspaceFocus } from '../../../lib/workspaceFocus';
 import {
@@ -767,9 +768,18 @@ export function useStudyWorkspace({
     const full = noteBundle.sourceFullText?.trim();
     if (!full || !noteBundle.hasSource) return bundleReaderText;
     const step = STEPS[currentStep];
-    if (!step || isWorkspaceQuizStep(step)) return bundleReaderText;
+    if (!step || isWorkspaceQuizStep(step)) {
+      return gateWorkspaceStepExcerpt(bundleReaderText, full, undefined, quizConcept)
+        || bundleReaderText
+        || full.slice(0, 12000);
+    }
     const excerpt = resolveWorkspaceStepExcerpt(full, step.title, quizConcept);
-    return excerpt || bundleReaderText || full.slice(0, 12000);
+    return gateWorkspaceStepExcerpt(
+      excerpt || bundleReaderText || full.slice(0, 12000),
+      full,
+      step.title,
+      quizConcept,
+    );
   }, [
     noteBundle.sourceFullText,
     noteBundle.hasSource,

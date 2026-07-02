@@ -32,7 +32,6 @@ import {
   type TranslationMode,
 } from '../../lib/readerTranslation';
 import {
-  paragraphIndexForTerm,
   scrollBothToParagraph,
   syncBilingualByParagraph,
 } from '../../lib/readerBilingualSync';

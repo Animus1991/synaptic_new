@@ -20,7 +20,7 @@ import {
 } from '../lib/googleClient';
 import { syncTasksToGoogleCalendar, type TaskCalendarSyncUpdate } from '../lib/taskCalendarSync';
 import { useI18n } from '../lib/i18n';
-import { formatDateTime, localeTag } from '../lib/localeFormat';
+import { formatDateTime } from '../lib/localeFormat';
 
 type Props = {
   settings: UserSettings;
@@ -109,7 +109,7 @@ export function GoogleIntegrationsPanel({
   const formatEventWhen = (ev: CalendarEventLite): string => {
     const raw = ev.start?.dateTime ?? ev.start?.date;
     if (!raw) return '—';
-    return formatDateTime(raw, localeTag(lang));
+    return formatDateTime(raw, lang);
   };
 
   useEffect(() => {

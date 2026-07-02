@@ -41,6 +41,8 @@ export type TeacherContent = {
   localSessionHint: string;
   streakDays: string;
   studyHours: string;
+  activityOne: string;
+  activityMany: string;
   learningEvents: string;
   noEvents: string;
   syncFooter: string;
@@ -116,6 +118,8 @@ const EN: TeacherContent = {
   localSessionHint: 'Local learning events and study stats (not yet multi-tenant cohort view).',
   streakDays: 'day streak',
   studyHours: 'study hours',
+  activityOne: 'activity',
+  activityMany: 'activities',
   learningEvents: 'Learning events',
   noEvents: 'No events yet.',
   syncFooter: 'Live data from GET /v1/teacher/dashboard',
@@ -191,6 +195,8 @@ const EL: TeacherContent = {
   localSessionHint: 'Τοπικά learning events και στατιστικά μελέτης (όχι ακόμα cohort πολλών χρηστών).',
   streakDays: 'ημέρες streak',
   studyHours: 'ώρες μελέτης',
+  activityOne: 'δραστηριότητα',
+  activityMany: 'δραστηριότητες',
   learningEvents: 'Learning events',
   noEvents: 'Κανένα event ακόμα.',
   syncFooter: 'Ζωντανά δεδομένα από GET /v1/teacher/dashboard',

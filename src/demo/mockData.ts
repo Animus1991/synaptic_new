@@ -24,7 +24,7 @@ export const DEMO_INITIAL_MISTAKES: MistakeRecord[] = [
   },
 ];
 
-const defaultSettings: UserSettings = {
+export const defaultSettings: UserSettings = {
   questionFrequency: 'moderate',
   explanationDepth: 'intermediate',
   practiceIntensity: 'moderate',
@@ -106,7 +106,7 @@ export const mockCourses: Course[] = [
       mkTopic('t15', 'Philosophy of Mind', 'Consciousness, dualism, physicalism', 0, ['t12', 't13'], 4, true, 50, 8),
     ],
     createdAt: '2025-12-01', lastStudied: '2026-01-10', estimatedHours: 12,
-    sourceFiles: ['Philosophy_Lectures.txt', 'Readings_Anthology.pdf'], status: 'in-progress',
+    sourceFiles: ['Philosophy_Transcripts.pdf', 'Readings_Anthology.pdf'], status: 'in-progress',
     sourceMode: 'strict', conceptCount: 33, glossaryCount: 28, exerciseCount: 40,
   },
   {

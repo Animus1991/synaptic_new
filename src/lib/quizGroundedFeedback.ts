@@ -40,7 +40,7 @@ export function buildGroundedQuizFeedback(
 ): GroundedQuizFeedback {
   const span: ConceptSpan | undefined = course ? findConceptSpan(course, concept) : undefined;
   const excerpt = span?.sentence?.trim();
-  if (!excerpt) {
+  if (!span || !excerpt) {
     return {
       message:
         lang === 'el'

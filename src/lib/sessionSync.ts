@@ -35,6 +35,8 @@ export type LocalSession = {
   stepSchedules?: StepScheduleMap;
   /** Scoped Leitner deck progress for cross-device persistence. */
   leitnerDeckStates?: Record<string, LeitnerDeckState>;
+  /** Snapshot timestamp used for remote-wins conflict resolution. */
+  updatedAt?: string;
 };
 
 export function loadLocalSession(): Partial<LocalSession> {
