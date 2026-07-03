@@ -1316,6 +1316,7 @@ export function useStudyWorkspace({
   }, [userSettings, effectiveCourseId, quizConcept]);
 
   const conceptNodes = useMemo(() => {
+    if (!noteBundle.hasSource) return [];
     if (!workspaceIntelActive(intelReady, activeTool, 'concept-map')) {
       const fallback = quizConcept
         ? [{ id: '1', label: quizConcept, type: 'concept' as const, x: 200, y: 150, mastery: 0 }]
@@ -1332,6 +1333,7 @@ export function useStudyWorkspace({
   }, [intelReady, activeTool, noteBundle.conceptMap.nodes, noteBundle.conceptMap.edges, quizConcept, progressKey]);
 
   const conceptEdges = useMemo(() => {
+    if (!noteBundle.hasSource) return [];
     if (!workspaceIntelActive(intelReady, activeTool, 'concept-map')) {
       return noteBundle.conceptMap.edges;
     }

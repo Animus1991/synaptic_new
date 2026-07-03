@@ -33,13 +33,24 @@ test.describe('Workspace selection → Agent handoff (Sprint C)', () => {
     const repaired = page.getByText(/πλεονεκτήματα|πλεονεκτηματα/i).first();
     await expect(repaired).toBeVisible({ timeout: 15_000 });
 
-    await repaired.evaluate((el) => {
+    const body = page.getByTestId('reader-structured-body');
+    await body.evaluate((el) => {
+      const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+      let target: Text | null = null;
+      while (walker.nextNode()) {
+        const node = walker.currentNode as Text;
+        if (/πλεονεκτ/i.test(node.textContent ?? '')) {
+          target = node;
+          break;
+        }
+      }
+      if (!target) return;
       const range = document.createRange();
-      range.selectNodeContents(el);
+      range.selectNodeContents(target);
       const sel = window.getSelection();
       sel?.removeAllRanges();
       sel?.addRange(range);
-      el.dispatchEvent(new Event('mouseup', { bubbles: true }));
+      el.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }));
     });
 
     await expect(page.getByTestId('reader-selection-actions')).toBeVisible({ timeout: 10_000 });

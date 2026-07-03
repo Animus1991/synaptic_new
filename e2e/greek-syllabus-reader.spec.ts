@@ -52,7 +52,7 @@ test.describe('Greek syllabus paste → workspace reader (P1)', () => {
     await expect(page.getByText(/βιβλιογραφία|krugman/i).first()).toBeVisible({ timeout: 15_000 });
     await expect(page.getByTestId('reader-greek-ocr-banner')).not.toBeVisible();
 
-    await page.getByTestId('workspace-tool-scratchpad').click();
+    await page.getByTestId('dock-tool-scratchpad').click();
     await expect(page.getByTestId('workspace-empty-state')).toHaveAttribute('data-has-source', 'true');
     await expect(page.getByTestId('workspace-empty-upload')).not.toBeVisible();
   });
