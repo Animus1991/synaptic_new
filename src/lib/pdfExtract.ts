@@ -39,6 +39,8 @@ export type PdfExtractResult = {
 
   layoutBlocks?: PdfLayoutBlockInput[];
 
+  ocrModelsUsed?: string[];
+
 };
 
 
@@ -51,7 +53,7 @@ export type FileExtractResult = {
 
   ocrUsed?: boolean;
 
-  ingestMethod?: 'text-layer' | 'ocr-client' | 'ocr-server' | 'ocr-ensemble' | 'chatgpt-export' | 'transcript';
+  ingestMethod?: 'text-layer' | 'ocr-client' | 'ocr-server' | 'ocr-ensemble' | 'ocr-vision' | 'chatgpt-export' | 'transcript';
 
   ocrRegions?: import('./readerOcrOverlay').OcrStoredRegion[];
 
@@ -60,6 +62,8 @@ export type FileExtractResult = {
   mathOcrUsed?: boolean;
 
   layoutBlocks?: PdfLayoutBlockInput[];
+
+  ocrModelsUsed?: string[];
 
 };
 
@@ -241,6 +245,7 @@ export async function extractTextFromPdf(file: File, settings?: UserSettings): P
       ocrUsed: ocr.ocrUsed,
       ingestMethod: ocr.ingestMethod ?? (ocr.ocrUsed ? 'ocr-client' : 'text-layer'),
       ocrRegions: ocr.ocrRegions,
+      ocrModelsUsed: ocr.ocrModelsUsed,
     };
   }
 
@@ -281,6 +286,8 @@ export async function extractTextFromPdf(file: File, settings?: UserSettings): P
     mathOcrUsed: mathRepair.mathOcrUsed,
 
     layoutBlocks: withOcr.ocrUsed ? undefined : layoutBlocks,
+
+    ocrModelsUsed: withOcr.ocrModelsUsed,
 
   };
 
@@ -352,6 +359,7 @@ export async function extractTextFromFile(file: File, settings?: UserSettings): 
       ocrUsed: ocr.ocrUsed,
       ingestMethod: ocr.ingestMethod ?? 'ocr-client',
       ocrRegions: ocr.ocrRegions,
+      ocrModelsUsed: ocr.ocrModelsUsed,
     };
 
   }
@@ -382,6 +390,7 @@ export async function extractTextFromFile(file: File, settings?: UserSettings): 
       mathZones: pdf.mathZones,
       mathOcrUsed: pdf.mathOcrUsed,
       layoutBlocks: pdf.layoutBlocks,
+      ocrModelsUsed: pdf.ocrModelsUsed,
     };
 
   }

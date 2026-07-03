@@ -84,6 +84,7 @@ export function StudyWorkspaceToolSurface({ model }: StudyWorkspaceToolSurfacePr
     quizIrtState,
     readerText,
     readerOcrRegions,
+    readerHandwritingRecognized,
     focusOnTerm,
     openReaderForTerm,
     sendScratchpadToWhiteboard,
@@ -223,6 +224,7 @@ export function StudyWorkspaceToolSurface({ model }: StudyWorkspaceToolSurfacePr
                           onSectionAskAgent={handleSectionAskAgent}
                           onSelectionAction={handleWorkspaceSelectionAction}
                           ocrRegions={readerOcrRegions}
+                          handwritingRecognized={readerHandwritingRecognized}
                           conceptBus={conceptBus}
                           stepMarks={stepMarks}
                           stepTitles={STEPS.map((s) => s.title)}

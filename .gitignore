@@ -1,6 +1,9 @@
 node_modules/
+ocr-server/node_modules/
+ocr-server/.env
 .tools/
 dist/
+test-results/
 public/pyodide/
 .github/perf/b11-prod-stretch-history.json
 *.log

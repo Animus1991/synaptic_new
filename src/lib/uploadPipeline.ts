@@ -229,7 +229,7 @@ export function uploadedFileMeta(
   topics?: string[],
   extractedText?: string,
   pageCount?: number,
-  ingest?: Pick<UploadedFile, 'ocrUsed' | 'ingestMethod' | 'ocrRegions' | 'pdfLayoutBlocks'>,
+  ingest?: Pick<UploadedFile, 'ocrUsed' | 'ingestMethod' | 'ocrRegions' | 'pdfLayoutBlocks' | 'ocrModelsUsed'>,
 ): UploadedFile {
   return {
     id: `file-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
@@ -248,6 +248,7 @@ export function uploadedFileMeta(
     ...(ingest?.ocrUsed !== undefined ? { ocrUsed: ingest.ocrUsed } : {}),
     ...(ingest?.ingestMethod ? { ingestMethod: ingest.ingestMethod } : {}),
     ...(ingest?.ocrRegions?.length ? { ocrRegions: ingest.ocrRegions } : {}),
+    ...(ingest?.ocrModelsUsed?.length ? { ocrModelsUsed: ingest.ocrModelsUsed } : {}),
     ...(ingest?.pdfLayoutBlocks?.length ? { pdfLayoutBlocks: ingest.pdfLayoutBlocks } : {}),
   };
 }

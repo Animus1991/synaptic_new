@@ -98,6 +98,8 @@ interface Props {
   onAskAgentAboutSelection?: (text: string, sectionLabel?: string) => void;
   /** Server OCR bounding boxes from upload, when available. */
   ocrRegions?: OcrStoredRegion[];
+  /** True when handwriting OCR (TrOCR) contributed to the extracted text. */
+  handwritingRecognized?: boolean;
   conceptBus?: ConceptBusState;
   stepMarks?: Record<number, 'understood' | 'confusing'>;
   stepTitles?: string[];
@@ -152,6 +154,7 @@ export function CognitiveReader({
   onSelectionAction,
   onAskAgentAboutSelection,
   ocrRegions,
+  handwritingRecognized = false,
   conceptBus,
   stepMarks,
   stepTitles,
@@ -940,6 +943,16 @@ export function CognitiveReader({
               : undefined
           }
         />
+      )}
+
+      {handwritingRecognized && (
+        <div
+          className="flex shrink-0 items-start gap-2 border-b border-accent-amber/30 bg-accent-amber/10 px-4 py-2"
+          data-testid="reader-handwriting-banner"
+        >
+          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-accent-amber" aria-hidden />
+          <p className="text-[11px] text-accent-amber">{t('readerHandwritingRecognized')}</p>
+        </div>
       )}
 
       {greekOcrReview && (

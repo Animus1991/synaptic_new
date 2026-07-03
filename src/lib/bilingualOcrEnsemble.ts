@@ -5,6 +5,7 @@
 
 import { repairGreekDocumentText } from './greekTextRepair';
 import { runDocumentTextPipeline } from './documentTextPipeline';
+import { recognizeHandwriting, shouldAttemptHandwritingOcr } from './handwritingOcr';
 
 export type OcrModelId =
   | 'text-layer'
@@ -14,7 +15,8 @@ export type OcrModelId =
   | 'greek-document-repair'
   | 'unicode-nfc'
   | 'latin-confusion-repair'
-  | 'mixed-script-boundary';
+  | 'mixed-script-boundary'
+  | 'trocr-handwritten';
 
 export const BILINGUAL_OCR_MODELS: OcrModelId[] = [
   'tesseract-eng+ell',
@@ -24,6 +26,7 @@ export const BILINGUAL_OCR_MODELS: OcrModelId[] = [
   'unicode-nfc',
   'latin-confusion-repair',
   'mixed-script-boundary',
+  'trocr-handwritten',
 ];
 
 export type OcrCandidate = {
@@ -161,28 +164,33 @@ const TESSERACT_LANGS: Array<{ modelId: OcrModelId; langs: string }> = [
 async function recognizeWithTesseractLang(
   source: File | HTMLCanvasElement,
   langs: string,
-): Promise<string> {
+): Promise<{ text: string; confidence: number | null }> {
   const { createWorker } = await import('tesseract.js');
   const worker = await createWorker(langs);
   try {
     const { data } = await worker.recognize(source);
-    return data.text.trim();
+    const confidence = typeof data.confidence === 'number' ? data.confidence : null;
+    return { text: data.text.trim(), confidence };
   } finally {
     await worker.terminate();
   }
 }
 
-/** Run all Tesseract language packs concurrently, then post-process each. */
+/**
+ * Run all Tesseract language packs concurrently, then post-process each. When the
+ * printed-OCR confidence is low (likely handwriting), also run a transformers.js
+ * TrOCR pass and add it as a candidate — the scoring merge keeps whichever wins.
+ */
 export async function runClientBilingualOcrEnsemble(
   source: File | HTMLCanvasElement,
 ): Promise<{ text: string; modelsUsed: OcrModelId[]; winningModel: OcrModelId }> {
   const rawResults = await Promise.all(
     TESSERACT_LANGS.map(async ({ modelId, langs }) => {
       try {
-        const text = await recognizeWithTesseractLang(source, langs);
-        return { modelId, text };
+        const { text, confidence } = await recognizeWithTesseractLang(source, langs);
+        return { modelId, text, confidence };
       } catch {
-        return { modelId, text: '' };
+        return { modelId, text: '', confidence: null };
       }
     }),
   );
@@ -191,6 +199,25 @@ export async function runClientBilingualOcrEnsemble(
   for (const { modelId, text } of rawResults) {
     if (!text) continue;
     candidates.push(...buildPostProcessCandidates(text, modelId));
+  }
+
+  const bestPrinted = mergeBilingualOcrCandidates(candidates).text;
+  const confidences = rawResults
+    .map((r) => r.confidence)
+    .filter((c): c is number => c !== null);
+  const meanConfidence = confidences.length
+    ? confidences.reduce((sum, c) => sum + c, 0) / confidences.length
+    : null;
+
+  if (shouldAttemptHandwritingOcr(bestPrinted, meanConfidence)) {
+    try {
+      const handwritten = await recognizeHandwriting(source);
+      if (handwritten) {
+        candidates.push(...buildPostProcessCandidates(handwritten, 'trocr-handwritten'));
+      }
+    } catch {
+      /* handwriting model unavailable — printed candidates stand */
+    }
   }
 
   const merged = mergeBilingualOcrCandidates(candidates);

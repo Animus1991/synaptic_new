@@ -41,6 +41,14 @@ export interface UserSettings {
   /** Managed/self-hosted LLM proxy URL (holds the key server-side). */
   llmProxyUrl?: string;
   useLlm?: boolean;
+  /**
+   * Use the configured vision-capable LLM (the user's own key/subscription) to
+   * transcribe scanned pages and handwriting. Dramatically improves Greek
+   * handwriting OCR. Defaults to enabled whenever an LLM is available.
+   */
+  useVisionOcr?: boolean;
+  /** Optional override model for vision OCR; defaults to llmModel or gpt-4o-mini. */
+  llmVisionModel?: string;
   /** Managed proxy auth token from /auth/login */
   authToken?: string;
   authEmail?: string;
@@ -67,11 +75,13 @@ export interface UploadedFile {
   /** True when OCR was applied to extract text (scanned PDF / image). */
   ocrUsed?: boolean;
   /** How text was obtained from this file. */
-  ingestMethod?: 'text-layer' | 'ocr-server' | 'ocr-client' | 'ocr-ensemble' | 'paste' | 'youtube' | 'transcript' | 'chatgpt-export';
+  ingestMethod?: 'text-layer' | 'ocr-server' | 'ocr-client' | 'ocr-ensemble' | 'ocr-vision' | 'paste' | 'youtube' | 'transcript' | 'chatgpt-export';
   /** Pipeline version that processed this file. */
   pipelineVersion?: string;
   /** Server OCR word bounding boxes (percent of page), when available. */
   ocrRegions?: import('../lib/readerOcrOverlay').OcrStoredRegion[];
+  /** OCR / repair models that contributed to extraction (e.g. 'trocr-handwritten'). */
+  ocrModelsUsed?: string[];
   /** S8 DocumentModel recognition snapshot (text omitted — use extractedText). */
   documentModelSnapshot?: import('../lib/documentModelSnapshot').DocumentModelSnapshot;
   /** Geometry-derived PDF layout blocks (8B-gamma); used during recognition. */

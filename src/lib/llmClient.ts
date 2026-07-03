@@ -104,6 +104,92 @@ export async function chatCompletion(
   return content;
 }
 
+/** modelsUsed tag emitted when a page is transcribed by the vision LLM. */
+export const VISION_OCR_MODEL_ID = 'vision-llm-ocr';
+/** modelsUsed tag emitted when the vision LLM transcribes handwriting. */
+export const VISION_OCR_HANDWRITING_MODEL_ID = 'vision-llm-handwriting';
+
+/** True when the user has a vision-capable LLM available and has not opted out. */
+export function isVisionOcrEnabled(settings?: UserSettings): boolean {
+  if (settings?.useVisionOcr === false) return false;
+  return isLlmAvailable(settings);
+}
+
+function visionModel(settings?: UserSettings): string {
+  return settings?.llmVisionModel?.trim() || settings?.llmModel?.trim() || DEFAULT_MODEL;
+}
+
+const VISION_OCR_SYSTEM = [
+  'You are an expert OCR and transcription engine specialized in Greek and English text, including messy cursive handwriting and low-quality scans.',
+  'Transcribe ALL text visible in the image as faithfully as possible.',
+  'Rules:',
+  '- Preserve the original language: Greek must stay Greek. Never translate or transliterate.',
+  '- Preserve every Greek diacritic/accent (τόνοι, διαλυτικά), punctuation, casing, and line breaks.',
+  '- Maintain natural reading order (top-to-bottom, left-to-right).',
+  '- Handwriting: read carefully. Where a token is genuinely illegible, infer the single most likely word from surrounding context so the passage stays coherent and grammatically correct. Do NOT emit gibberish, random glyphs, or placeholder symbols.',
+  '- Do NOT add explanations, notes, labels, translations, markdown, or commentary of any kind.',
+  '- Output ONLY the transcribed text.',
+].join('\n');
+
+function visionUserPrompt(lang?: 'en' | 'el' | 'auto', handwriting?: boolean): string {
+  const langHint = lang === 'el'
+    ? 'The page is primarily in Greek.'
+    : lang === 'en'
+      ? 'The page is primarily in English.'
+      : 'The page may be in Greek or English.';
+  const hwHint = handwriting
+    ? ' It contains handwritten text — transcribe the handwriting carefully.'
+    : '';
+  return `Transcribe every piece of text on this page. ${langHint}${hwHint}`;
+}
+
+/**
+ * Transcribe a single page image via the configured vision-capable LLM, reusing
+ * the user's own key/proxy/model (no extra service, no extra charge beyond their
+ * existing LLM usage). Returns the raw transcribed text.
+ *
+ * @param image Base64 string or a full `data:` URL of the page image.
+ */
+export async function transcribeImageWithVision(
+  image: string,
+  settings: UserSettings | undefined,
+  opts?: { lang?: 'en' | 'el' | 'auto'; handwriting?: boolean; maxTokens?: number },
+): Promise<string> {
+  if (!isLlmAvailable(settings)) throw new Error('No API key or proxy configured');
+
+  const dataUrl = image.startsWith('data:') ? image : `data:image/jpeg;base64,${image}`;
+
+  const res = await fetch(`${baseUrl(settings)}/chat/completions`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...authHeaders(settings) },
+    body: JSON.stringify({
+      model: visionModel(settings),
+      temperature: 0,
+      max_tokens: opts?.maxTokens ?? 4096,
+      messages: [
+        { role: 'system', content: VISION_OCR_SYSTEM },
+        {
+          role: 'user',
+          content: [
+            { type: 'text', text: visionUserPrompt(opts?.lang, opts?.handwriting) },
+            { type: 'image_url', image_url: { url: dataUrl } },
+          ],
+        },
+      ],
+    }),
+  });
+
+  if (!res.ok) {
+    const errBody = await res.text().catch(() => '');
+    throw new Error(`Vision OCR ${res.status}: ${errBody.slice(0, 200) || res.statusText}`);
+  }
+
+  const data = (await res.json()) as {
+    choices?: { message?: { content?: string } }[];
+  };
+  return data.choices?.[0]?.message?.content?.trim() ?? '';
+}
+
 export async function streamChatCompletion(
   messages: ChatMessage[],
   settings: UserSettings | undefined,

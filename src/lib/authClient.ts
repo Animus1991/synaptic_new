@@ -408,13 +408,14 @@ export async function ocrPages(
   pages: string[],
   pageCount?: number,
   languages = 'eng+ell',
+  mode: 'auto' | 'handwriting' | 'printed' = 'auto',
 ) {
   const headers: Record<string, string> = { 'Content-Type': 'application/json' };
   if (token?.trim()) headers.Authorization = `Bearer ${token.trim()}`;
   const res = await fetch(`${proxyBase(settings)}/v1/ocr/pages`, {
     method: 'POST',
     headers,
-    body: JSON.stringify({ pages, pageCount, languages }),
+    body: JSON.stringify({ pages, pageCount, languages, mode }),
   });
   if (!res.ok) throw new Error(await res.text());
   return res.json() as Promise<{
