@@ -126,7 +126,7 @@ to Tesseract and tags `modelsUsed` with `vision-fallback-error`.
 
 ## Configuration reference
 
-See [`.env.example`](./.env.example) for every option (port, CORS, auth token,
+See `.env.example` for every option (port, CORS, auth token,
 languages, page cap, vision settings, auto strategy).
 
 ## Security notes

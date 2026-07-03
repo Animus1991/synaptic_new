@@ -1,6 +1,6 @@
 # Product-scale status (canonical snapshot)
 
-**Last reconciled:** 2026-07-02 — aligned with `synaptic_new/main` through the latest mainline sync.
+**Last reconciled:** 2026-07-03 — aligned with `synaptic_new/main` through `20b4ff1` (P0 content trust, P1 Greek Reader, Vision OCR, Sprint C handoff).
 
 This file is the **single shipped-truth status doc**. Use it for readiness reviews,
 sprint close-outs, and investor/contributor snapshots.
@@ -16,8 +16,27 @@ sprint close-outs, and investor/contributor snapshots.
 
 ## Overall readiness
 
-**~92% product-scale** — S9 grounding consolidation and **Stage 3 quality gates**
-shipped. Remaining gaps: i18n residual strings.
+**~93% product-scale** — S9 grounding + Stage 3 gates shipped. **P0 content trust**,
+**P1 Greek Reader repair**, **Vision OCR pipeline**, and **Sprint C empty-state / Agent
+handoff** landed on `synaptic_new/main` (Jul 2026). Remaining gaps: per-word OCR bboxes,
+i18n residual (~17%), production multi-tenant scale.
+
+---
+
+## Sprint P0–P1 + OCR + C — shipped (`20b4ff1`)
+
+| Commit | Scope |
+| ------ | ----- |
+| `e32c0b6` | **P0** — upload-gated empty states; quiz `placeholder` (no fake `- - -`); debate `seedTree = null`; platform shortcuts (`Ctrl K` on Windows, breadcrumb `›`); migration affected-items list; dark elevation + WCAG brand text |
+| `ee24088` | **E2e** — no-demo onboarding → 8 tools show `workspace-empty-state[data-has-source="false"]` |
+| `a237ac2` | **P1 slice 1** — `readerGreekDisplay.ts` stale v2.2.0 repair; `prepareWorkspaceDisplayText` + glossary in Reader; `reader-greek-ocr-banner` |
+| `8d0bf7e` | **Vision OCR** — `transcribeImageWithVision`, TrOCR handwriting (`handwritingOcr.ts`), bilingual ensemble vision path, `useVisionOcr` setting, local `ocr-server/` (Tesseract + optional vision-LLM) |
+| `38fa960` | **Sprint C + P1 e2e** — `selectionExcerpt` in Agent context JSON; full empty-state audit (11 session models); e2e for 13 dock tools + Agent selection handoff |
+| `20b4ff1` | **P1 closure** — concept-map empty when `!hasSource`; Greek reader visual snapshot `reader-greek-v220-body.png`; agent-handoff + greek-syllabus e2e green |
+
+Regression gate (Jul 2026): `npm test`, `npm run eval` (30/30 Stage 3), key e2e specs
+including `greek-syllabus-reader.spec.ts`, `workspace-empty-tools.spec.ts`,
+`workspace-agent-handoff.spec.ts`.
 
 ---
 
@@ -27,18 +46,19 @@ shipped. Remaining gaps: i18n residual strings.
 | ----- | - | ------------------------ |
 | Content engine (offline v2) | **~95%** | DocumentModel v2 + PDF layout blocks (8B-gamma) |
 | Upload → course pipeline | **~94%** | Stage 3 quality gates — span 95%, source text 90% |
-| Study Workspace (11 tools) | **~94%** | Note-grounded tools; Leitner card types + deck sync; whiteboard agent explain |
+| Study Workspace (13 tools) | **~95%** | P0 empty-state contract; selection → Agent handoff; concept-map upload gate |
 | Lesson surfaces | **~82%** | Step-grounded excerpts; concept lens chrome; grounding faithfulness gate |
 | Tasks & pedagogy | **~83%** | Unified adaptive scheduler (S9-PR1); FSRS + Beta-Bernoulli mastery |
 | Analytics & Dashboard | **~78%** | Behavior inference + Research tab (S5) |
-| RAG / Agent | **~88%** | Unified grounding; Stage 3 faithfulness 0.95 eval gate |
+| RAG / Agent | **~90%** | Unified grounding; workspace context JSON + **selection excerpt handoff** |
+| Recognition / OCR | **~88%** | Greek repair v2.5.1; Vision LLM + TrOCR WIP path; local `ocr-server/` |
 | Client persistence | **~86%** | localStorage + IndexedDB; DocumentModel snapshots |
 | Auth & sync | **~80%** | JWT, library + session pull/push |
 | Phase 6 server (dev) | **~92%** | Docker compose, Redis rate limit, pgvector probe, gradebook + class Postgres |
-| Documentation | **~92%** | This reconciliation pass + doc-lint capability assertions |
-| Tests & CI | **~93%** | Vitest + `npm run eval` gold-set gate (Stage 3: 30/30) |
+| Documentation | **~93%** | This reconciliation pass (Jul 2026) |
+| Tests & CI | **~94%** | Vitest + eval gold-set; + Greek reader visual regression; empty-tool e2e |
 | i18n | **~83%** | Wave C Settings/Tasks (S7); component lint allowlist empty |
-| UI/UX / themes | **~88%** | Warm Sand + Spectrum; PWA shell (S7) |
+| UI/UX / themes | **~89%** | Warm Sand + Spectrum; platform shortcut badges (P0) |
 
 ---
 
@@ -79,10 +99,13 @@ shipped. Remaining gaps: i18n residual strings.
 | ---- | ---------------- | ---------- |
 | Leitner | Card types + filter chips; quiz-mistake → `mistake` type; source badges; **cross-device deck sync via `/v1/session`** | — |
 | Whiteboard | PNG + SVG export; **agent explain diagram** (`describeWhiteboardDocument` → `diagram-explain`) | — |
-| Quiz | Grounded feedback → focus bus; remediate wrong → Leitner card | — |
-| Annotations | **Sub-line span highlights** (`charStart`/`charEnd`); line-level legacy | — |
+| Reader | TTS, OCR overlay, **Greek v2.2.0 display repair**, suspicious + **Greek OCR review banners**, section actions, **visual regression baseline** | per-word OCR bboxes; real PDF upload e2e (paste path covered) |
+| Quiz | **Placeholder empty state** (no fake options); grounded feedback → focus bus | IRT calibration UI |
+| Debate | **Empty when no tree** (no single-node fallback) | Multi-turn grounded debate |
+| Concept map | **Upload-gated empty** (`!hasSource` → no fabricated node) | Prerequisite repair from concept bus |
+| Agent | BM25 + hybrid rerank; **selection excerpt in context JSON + retrieval query** | Server pgvector scale path |
 | Grounding | Unified module; **Stage 3** eval gates (span 95%, faithfulness 0.95) | — |
-| Reader | TTS, OCR correction MVP, step sync, **math OCR zones (8B-alpha)** | per-word OCR bboxes |
+| Annotations | Sub-line span highlights | Cross-tool highlight sync |
 
 ---
 
@@ -100,7 +123,20 @@ Eval harness: `npm run eval` — 30/30 at Stage 3 baseline.
 
 ## Priority gaps (next)
 
-1. **i18n residual** — Recognition report strings
+1. **Per-word OCR bboxes** — Reader overlay still line-level in places; vision engine returns text-only
+2. **i18n residual** — ~17% recognition report + landing/onboarding strings
+3. **Orphan delete cascade** — delete file → tasks/lessons cleanup (PROMPT_PACK_AUDIT)
+4. **Production scale** — multi-tenant isolation, OCR GPU queue, billing tiers
+5. **Mobile workspace polish** — tool drawer perf budget in CI
+
+### Shipped recently (no longer open)
+
+- ~~Platform shortcuts mojibake~~ → `commandPaletteBadge()` (P0)
+- ~~Fabricated quiz/debate empty content~~ → P0 + `toolEmptyStates.audit.test.ts`
+- ~~Reader Greek spaced letters (v2.2.0)~~ → `readerGreekDisplay.ts` + e2e + snapshot
+- ~~Vision OCR uncommitted WIP~~ → `8d0bf7e` + `ocr-server/`
+- ~~Reader selection → Agent handoff~~ → `selectionExcerpt` (Sprint C)
+- ~~Partial empty-state e2e (8 tools)~~ → 13 dock tools (Sprint C)
 
 ---
 

@@ -7,6 +7,28 @@ client and server are versioned together.
 
 ### Added
 
+- **P0 content trust + platform shortcuts (`e32c0b6`, Jul 2026)** — upload-gated
+  `WorkspaceEmptyState` for all study tools; quiz `placeholder: true` (no fabricated
+  `- - -` options); debate rejects single-node fallback trees; `commandPaletteBadge()`
+  shows `Ctrl K` on Windows (fixes Shell mojibake); breadcrumb `›`; migration
+  affected-items list in `WorkspaceSourceStatusBar`; dark elevation + WCAG brand text;
+  `toolEmptyStates.audit.test.ts` for Leitner, Compare, Debate, Simulator, Feynman.
+- **E2e empty workspace (`ee24088`)** — no-demo onboarding path; 8 tools assert
+  `workspace-empty-state[data-has-source="false"]`; regression guard against fake quiz UI.
+- **P1 Greek Reader repair (`a237ac2`, `20b4ff1`)** — `readerGreekDisplay.ts` repairs
+  stale v2.2.0 spaced Greek at display time; `prepareWorkspaceDisplayText` + glossary in
+  `CognitiveReader`; `reader-greek-ocr-banner` for residual OCR artifacts; visual
+  regression snapshot `reader-greek-v220-body.png`; `greek-syllabus-reader.spec.ts` green.
+- **Vision OCR + handwriting (`8d0bf7e`)** — `transcribeImageWithVision` in `llmClient.ts`;
+  TrOCR path via `handwritingOcr.ts` (transformers.js); bilingual ensemble vision fallback;
+  `useVisionOcr` setting; local **`ocr-server/`** (Tesseract + optional vision-LLM,
+  `POST /v1/ocr/pages` contract); unit tests in `visionOcr.test.ts`,
+  `handwritingOcr.test.ts`.
+- **Sprint C trust + Agent handoff (`38fa960`, `20b4ff1`)** — `selectionExcerpt` in
+  `AgentWorkspaceContext` JSON, banner, and BM25 retrieval query; Reader selection → Agent
+  e2e (`workspace-agent-handoff.spec.ts`); extended empty-state audit (quiz, whiteboard,
+  timer, dashboard, concept-map); e2e covers **13 dock tools** (`workspace-empty-tools.spec.ts`);
+  concept-map returns empty graph when `!hasSource`.
 - **Teacher class Postgres persistence (S10)** — migration `1740000000006_teacher-classes.cjs`
   (`teacher_classes`, `class_enrollments`, `class_assignments`, `gradebook_cells`);
   `teacherPostgres.ts` repo + async store wrappers; teacher routes use Postgres when
@@ -52,6 +74,11 @@ client and server are versioned together.
 - **S9-PR2 — course quality gates (`5afb18e`)** — workspace pro polish.
 - **S9-PR1 — unified adaptive scheduler (`171475b`)** — dashboard + workspace actions merge.
 - **Fix — lesson/reader step-grounded excerpt (`2ad7ad5`)** — resolves “No content matched”.
+
+### Changed
+
+- **Docs reconciliation (Jul 2026)** — `PRODUCT_SCALE_STATUS.md`, `ROADMAP.md`, this
+  changelog synced to shipped truth through `20b4ff1` on `synaptic_new/main`.
 
 ### Added (prior unreleased)
 

@@ -1,6 +1,6 @@
 # Roadmap & Gap Analysis
 
-**Status baseline:** July 2026 — post Sprint 9 (grounding, quality gates, workspace polish).
+**Status baseline:** July 2026 — post Sprint 9 + **P0/P1/OCR/Sprint C** closure (`20b4ff1`).
 **Canonical snapshot:** [`PRODUCT_SCALE_STATUS.md`](PRODUCT_SCALE_STATUS.md)
 
 This document separates **done**, **partial**, and **missing** against the product goal: *note-grounded adaptive learning at product scale, not MVP/demo-first.*
@@ -11,23 +11,37 @@ This document separates **done**, **partial**, and **missing** against the produ
 
 | Layer | Completion | Notes |
 | ----- | ---------- | ----- |
-| Content engine (offline v2) | **~93%** | DocumentModel v2 substrate wired on upload (S8) |
-| Upload to course pipeline | **~93%** | Stage 1–2 quality gates (S9); parallel recognition workers |
-| Study Workspace (11 tools) | **~94%** | Leitner card types + deck sync; whiteboard agent explain diagram |
+| Content engine (offline v2) | **~94%** | DocumentModel v2 + Vision OCR ingest path |
+| Upload to course pipeline | **~94%** | Stage 1–3 quality gates; pipeline v2.5.1 |
+| Study Workspace (13 tools) | **~95%** | P0 empty-state contract; Sprint C Agent handoff |
 | Lesson surfaces | **~82%** | Step-grounded excerpts; concept lens; faithfulness gate |
 | Tasks & pedagogy | **~83%** | Unified adaptive scheduler (S9-PR1); FSRS + mastery |
 | Analytics & Dashboard | **~78%** | Behavior inference + Research tab (S5) |
-| RAG / Agent | **~87%** | Unified grounding module; BM25 + hybrid rerank |
+| RAG / Agent | **~90%** | Workspace context JSON + selection excerpt handoff |
+| Recognition / OCR | **~88%** | Greek repair, Vision LLM, TrOCR, local ocr-server |
 | Client persistence | **~86%** | localStorage + IndexedDB; DocumentModel snapshots |
-| Auth and full sync | **~82%** | JWT, library + session pull/push; Leitner deck state in `/v1/session` |
-| Phase 6 server | **~88%** (dev) | Docker compose, Redis rate limit, pgvector RAG probe, gradebook |
-| Documentation | **~92%** | `PRODUCT_SCALE_STATUS.md` + doc-lint capability assertions |
-| Tests & CI | **~92%** | Vitest + eval gold-set gate (`npm run eval`) in CI |
-| i18n | **~83%** | Wave C Settings/Tasks shipped (S7); component lint allowlist empty |
-| UI/UX / themes | **~88%** | Warm Sand + Spectrum global themes, PWA shell (S7) |
+| Auth and full sync | **~82%** | JWT, library + session pull/push |
+| Phase 6 server | **~88%** (dev) | Docker compose, Redis, pgvector, gradebook |
+| Documentation | **~93%** | Reconciled Jul 2026 through `20b4ff1` |
+| Tests & CI | **~94%** | + Greek reader visual regression; 13-tool empty e2e |
+| i18n | **~83%** | Wave C Settings/Tasks (S7); ~17% residual |
+| UI/UX / themes | **~89%** | Platform shortcut badges; Warm Sand + Spectrum |
 
-**Overall product-scale readiness: ~90%** — Stage 3 quality gates complete; next:
-sub-line annotations and production backend (S10).
+**Overall product-scale readiness: ~93%** — P0 content trust, P1 Greek Reader, Vision OCR,
+and Sprint C handoff shipped. Next: per-word OCR bboxes, i18n 100%, production scale.
+
+---
+
+## Sprint P0–P1 + OCR + C — shipped (Jul 2026)
+
+| Commit | Scope |
+| ------ | ----- |
+| `e32c0b6` | P0 — empty states, shortcuts, debate/quiz trust, migration UX |
+| `ee24088` | E2e — workspace without upload → empty tools |
+| `a237ac2` | P1 — Greek reader display repair + OCR review banner |
+| `8d0bf7e` | Vision OCR + TrOCR + local ocr-server |
+| `38fa960` | Sprint C — Agent selection handoff + full empty-state audit |
+| `20b4ff1` | P1 closure — visual snapshot + concept-map empty fix |
 
 ---
 
