@@ -2,6 +2,7 @@ import { fallbackWorkspaceSteps } from '../../../lib/noteContentExtractors';
 import { workspaceToolLabel } from '../../../lib/workspaceToolRegistry';
 import { crossLinkAgentPrompt } from '../WorkspaceToolCrossLinkBar';
 import { useWorkspaceNoteBundle } from '../../../lib/useWorkspaceNoteBundle';
+import { usedHandwritingOcr } from '../../../lib/handwritingOcr';
 import {
   buildWorkspaceEmptyActions,
   workspaceEmptyUploadHandler,
@@ -511,6 +512,13 @@ export function useStudyWorkspace({
     [uploadedFiles, effectiveCourseId],
   );
 
+  const readerHandwritingRecognized = useMemo(
+    () => uploadedFiles.some(
+      (f) => f.courseId === effectiveCourseId && usedHandwritingOcr(f.ocrModelsUsed),
+    ),
+    [uploadedFiles, effectiveCourseId],
+  );
+
   const focusOnTerm = useCallback((term: string, origin?: WorkspaceTool) => {
     const span = linkedCourse ? findConceptSpan(linkedCourse, term) : undefined;
     internalSetFocus({
@@ -908,7 +916,11 @@ export function useStudyWorkspace({
     if (action.type === 'select-step') selectWorkspaceStep(action.stepIndex, { focusReader: true });
   }, [noteBundle.sourceFullText, STEPS, currentStep, selectWorkspaceStep]);
 
-  const buildFullAgentContext = useCallback((stepIndex?: number, sectionLabel?: string) => {
+  const buildFullAgentContext = useCallback((
+    stepIndex?: number,
+    sectionLabel?: string,
+    selectionExcerpt?: string,
+  ) => {
     const idx = stepIndex ?? currentStep;
     const step = STEPS[idx];
     return buildAgentWorkspaceContext({
@@ -924,10 +936,12 @@ export function useStudyWorkspace({
       sourceQuality: sourceQualityScore ?? null,
       oldPipeline: showReuploadHint,
       pipelineVersion: noteBundle.pipelineVersion,
+      handwrittenSource: readerHandwritingRecognized,
+      selectionExcerpt,
     });
   }, [
     currentStep, STEPS, effectiveCourseId, courseName, quizConcept, activeTool, lang,
-    sourceQualityScore, showReuploadHint, noteBundle.pipelineVersion,
+    sourceQualityScore, showReuploadHint, noteBundle.pipelineVersion, readerHandwritingRecognized,
   ]);
 
   const handleOpenAgent = useCallback(() => {
@@ -957,6 +971,7 @@ export function useStudyWorkspace({
     sectionLabel: string,
     mode: AgentMode,
     prompt: string,
+    selectionExcerpt?: string,
   ) => {
     const source = noteBundle.sourceFullText?.trim();
     let stepIdx = currentStep;
@@ -970,7 +985,7 @@ export function useStudyWorkspace({
         prompt,
         mode,
         autoSend: true,
-        context: buildFullAgentContext(stepIdx, sectionLabel),
+        context: buildFullAgentContext(stepIdx, sectionLabel, selectionExcerpt),
       });
     } else {
       onOpenAgent();
@@ -985,12 +1000,14 @@ export function useStudyWorkspace({
     prompt: string,
     intent: ToolAgentIntent = 'default',
     sectionLabel?: string,
+    selectionExcerpt?: string,
   ) => {
     const mode = resolveToolAgentMode(tool, intent);
     openAgentForSection(
       sectionLabel ?? STEPS[currentStep]?.title ?? quizConcept,
       mode,
       prompt,
+      selectionExcerpt,
     );
   }, [openAgentForSection, STEPS, currentStep, quizConcept]);
 
@@ -1035,6 +1052,7 @@ export function useStudyWorkspace({
           prompt,
           'selection',
           ctx.sectionLabel ?? STEPS[currentStep]?.title ?? term,
+          excerpt,
         );
         noteConceptActivity(term, ctx.originTool, 'read');
         break;
@@ -2054,6 +2072,7 @@ export function useStudyWorkspace({
     readerText,
     lessonStepExcerpt,
     readerOcrRegions,
+    readerHandwritingRecognized,
     focusOnTerm,
     openReaderForTerm,
     sendScratchpadToWhiteboard,

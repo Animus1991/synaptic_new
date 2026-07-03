@@ -21,6 +21,14 @@ describe('buildAgentRetrievalQuery', () => {
     expect(q).toContain('Lecture 3');
     expect(q).toContain('International Economics');
   });
+
+  it('includes selected passage excerpt when present', () => {
+    const q = buildAgentRetrievalQuery('Explain this', {
+      concept: 'trade',
+      selectionExcerpt: 'comparative advantage in beans',
+    });
+    expect(q).toContain('comparative advantage in beans');
+  });
 });
 
 describe('formatAgentWorkspaceContextLine', () => {
@@ -51,6 +59,45 @@ describe('buildAgentContextBanner', () => {
     expect(banner?.line).toContain('37/100');
     expect(banner?.caution).toBeTruthy();
     expect(banner?.contextJson?.stepTitle).toBe('Αγαθά Αναγκαία');
+  });
+
+  it('surfaces a handwriting caution and bit when source was handwritten', () => {
+    const banner = buildAgentContextBanner({
+      stepTitle: 'Notes page 2',
+      stepIndex: 1,
+      stepCount: 4,
+      activeToolLabel: 'Reader',
+      sourceQuality: 80,
+      handwrittenSource: true,
+    }, 'en');
+    expect(banner?.line).toContain('Handwritten source');
+    expect(banner?.caution).toContain('handwriting recognition');
+    expect(banner?.contextJson?.handwrittenSource).toBe(true);
+  });
+
+  it('prioritizes low-quality caution over handwriting caution', () => {
+    const banner = buildAgentContextBanner({
+      stepTitle: 'Notes',
+      stepIndex: 0,
+      stepCount: 3,
+      activeToolLabel: 'Reader',
+      sourceQuality: 30,
+      handwrittenSource: true,
+    }, 'en');
+    expect(banner?.caution).toContain('low extraction quality');
+  });
+
+  it('surfaces selection excerpt in banner and JSON handoff', () => {
+    const excerpt = 'Απόλυτα πλεονεκτήματα και διεθνές εμπόριο';
+    const banner = buildAgentContextBanner({
+      stepTitle: 'Lecture 2',
+      stepIndex: 1,
+      stepCount: 4,
+      activeToolLabel: 'Reader',
+      selectionExcerpt: excerpt,
+    }, 'en');
+    expect(banner?.line).toContain('Απόλυτα');
+    expect(banner?.contextJson?.selectionExcerpt).toBe(excerpt);
   });
 });
 

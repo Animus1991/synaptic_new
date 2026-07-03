@@ -11,6 +11,11 @@ const TOOL_EMPTY_CASES: { dockId: string; emptyTool: string }[] = [
   { dockId: 'feynman', emptyTool: 'feynman' },
   { dockId: 'whiteboard', emptyTool: 'whiteboard' },
   { dockId: 'reader', emptyTool: 'reader' },
+  { dockId: 'concept-map', emptyTool: 'concept-map' },
+  { dockId: 'scratchpad', emptyTool: 'scratchpad' },
+  { dockId: 'annotations', emptyTool: 'annotations' },
+  { dockId: 'timer', emptyTool: 'timer' },
+  { dockId: 'dashboard', emptyTool: 'dashboard' },
 ];
 
 function uploadGatedEmpty(page: import('@playwright/test').Page, tool: string) {

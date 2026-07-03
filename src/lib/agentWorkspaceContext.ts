@@ -3,6 +3,7 @@ import type { WorkspaceToolId } from './taskFlows';
 import { CONTENT_PIPELINE_VERSION } from './pipelineConstants';
 import { displayWorkspaceStepTitle, isLowConfidenceStepTitle } from './workspaceContextModel';
 import { workspaceToolLabel } from './workspaceToolRegistry';
+import { selectionExcerptPreview } from './workspaceSelectionActions';
 
 /** Workspace handoff context for Agent RAG + system grounding. */
 export type AgentWorkspaceContext = {
@@ -19,6 +20,10 @@ export type AgentWorkspaceContext = {
   oldPipeline?: boolean;
   pipelineVersion?: string;
   lowConfidenceSection?: boolean;
+  /** True when handwriting OCR (TrOCR) contributed to the source text. */
+  handwrittenSource?: boolean;
+  /** Passage the learner selected before opening Agent (selection handoff). */
+  selectionExcerpt?: string;
 };
 
 export type OpenAgentFromWorkspaceOpts = {
@@ -41,6 +46,7 @@ export function buildAgentRetrievalQuery(
   if (ctx?.stepTitle?.trim()) parts.push(ctx.stepTitle.trim());
   if (ctx?.courseName?.trim()) parts.push(ctx.courseName.trim());
   if (ctx?.stepType?.trim()) parts.push(ctx.stepType.trim());
+  if (ctx?.selectionExcerpt?.trim()) parts.push(ctx.selectionExcerpt.trim().slice(0, 240));
   return parts.filter(Boolean).join(' ');
 }
 
@@ -76,6 +82,8 @@ export function buildAgentWorkspaceContext(opts: {
   sourceQuality?: number | null;
   oldPipeline?: boolean;
   pipelineVersion?: string;
+  handwrittenSource?: boolean;
+  selectionExcerpt?: string;
 }): AgentWorkspaceContext {
   const rawTitle = opts.stepTitle?.trim() || opts.concept;
   return {
@@ -92,6 +100,8 @@ export function buildAgentWorkspaceContext(opts: {
     oldPipeline: opts.oldPipeline,
     pipelineVersion: opts.pipelineVersion ?? CONTENT_PIPELINE_VERSION,
     lowConfidenceSection: isLowConfidenceStepTitle(rawTitle, opts.concept),
+    handwrittenSource: opts.handwrittenSource,
+    selectionExcerpt: opts.selectionExcerpt?.trim() || undefined,
   };
 }
 
@@ -110,6 +120,8 @@ export type AgentWorkspaceContextJson = {
   oldPipeline?: boolean;
   pipelineVersion?: string;
   lowConfidenceSection?: boolean;
+  handwrittenSource?: boolean;
+  selectionExcerpt?: string;
 };
 
 export type AgentContextBannerView = {
@@ -139,6 +151,8 @@ export function toAgentWorkspaceContextJson(
   if (ctx.oldPipeline != null) out.oldPipeline = ctx.oldPipeline;
   if (ctx.pipelineVersion) out.pipelineVersion = ctx.pipelineVersion;
   if (ctx.lowConfidenceSection != null) out.lowConfidenceSection = ctx.lowConfidenceSection;
+  if (ctx.handwrittenSource != null) out.handwrittenSource = ctx.handwrittenSource;
+  if (ctx.selectionExcerpt) out.selectionExcerpt = ctx.selectionExcerpt;
   return Object.keys(out).length > 0 ? out : null;
 }
 
@@ -185,11 +199,17 @@ export function buildAgentContextBanner(
     ctx.oldPipeline
       ? t('agentOldPipeline', lang).replace('{version}', String(ctx.pipelineVersion ?? '?'))
       : null,
+    ctx.handwrittenSource ? t('agentHandwrittenSource', lang) : null,
+    ctx.selectionExcerpt
+      ? t('agentCtxBitSelection', lang).replace('{excerpt}', selectionExcerptPreview(ctx.selectionExcerpt))
+      : null,
   ].filter(Boolean);
 
   let caution: string | undefined;
   if (ctx.oldPipeline || (typeof ctx.sourceQuality === 'number' && ctx.sourceQuality < 50)) {
     caution = t('agentCautionLowQuality', lang);
+  } else if (ctx.handwrittenSource) {
+    caution = t('agentCautionHandwritten', lang);
   } else if (ctx.lowConfidenceSection) {
     caution = t('agentCautionUnreliableSection', lang);
   }
