@@ -26,6 +26,7 @@ import { countGeneratedTasksForCourse } from '../lib/pipelineReprocess';
 import { MASTERY_VAR, resolveCourseColor } from '../lib/masteryPalette';
 import { courseDeleteStats } from '../lib/removeCourse';
 import { isDemoCourse } from '../lib/demoMode';
+import { conceptGraphToCourseVisual, summarizeCourseGraph } from '../lib/courseConceptGraph';
 import { PostUploadBanner } from './ui/PostUploadBanner';
 import { Page, PageHeader } from './ui/primitives';
 import { QualityReportPanel } from './QualityReportPanel';
@@ -602,21 +603,27 @@ function TopicCard({ topic, index, courseColor, course, onGoToSource, onStart }:
 }
 
 function ConceptMap({ course }: { course: Course }) {
+  const { t } = useI18n();
   const topics = course.topics.filter(t => !t.isLocked);
-  // Generate graph nodes from topics
-  const graphNodes = topics.map((t, i) => ({
-    id: t.id, label: t.title, mastery: t.mastery,
-    type: 'concept' as const,
-    x: 100 + (i % 3) * 200, y: 80 + Math.floor(i / 3) * 140,
-  }));
-  const graphEdges = topics.flatMap(t => t.prerequisites.map(p => ({
-    from: p, to: t.id, relation: 'prerequisite' as const,
-  }))).filter(e => graphNodes.some(n => n.id === e.from));
+  const graphSummary = summarizeCourseGraph(course.conceptGraph);
+  const { nodes: graphNodes, edges: graphEdges } = conceptGraphToCourseVisual(course, topics);
 
   return (
     <div className="space-y-6">
+      {graphSummary.nodeCount > 0 && (
+        <p
+          className="text-xs text-text-secondary"
+          data-testid="course-knowledge-graph-meta"
+        >
+          {t('courseGraphMeta')
+            .replace('{nodes}', String(graphSummary.nodeCount))
+            .replace('{edges}', String(graphSummary.edgeCount))
+            .replace('{status}', graphSummary.valid ? t('courseGraphValid') : t('courseGraphInvalid'))}
+        </p>
+      )}
+
       {graphNodes.length > 0 && (
-        <ConceptGraph nodes={graphNodes} edges={graphEdges} width={640} height={Math.max(280, Math.ceil(topics.length / 3) * 140 + 80)} />
+        <ConceptGraph nodes={graphNodes} edges={graphEdges} width={640} height={Math.max(280, Math.ceil(graphNodes.length / 4) * 110 + 80)} />
       )}
 
       <ProgressTimeline

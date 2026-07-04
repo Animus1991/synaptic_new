@@ -12,6 +12,7 @@ const ACTION_ICONS: Record<LearningActionId, typeof BookOpen> = {
   'study-section': BookOpen,
   'test-me': CheckSquare,
   'explain-zero': Sparkles,
+  'feynman-explain': Sparkles,
   'ask-agent': MessageCircle,
   'flashcards': Layers,
   'mark-understood': CheckSquare,

@@ -47,6 +47,20 @@ describe('workspaceStoreSpine', () => {
     expect(merged?.sourceQuality).toBe(37);
   });
 
+  it('preserves graphRelation from handoff when live lacks it', () => {
+    const live = { courseId: 'c1', concept: 'Supply & Demand' };
+    const handoff = {
+      graphRelation: {
+        sourceLabel: 'Supply & Demand',
+        targetLabel: 'Elasticity',
+        relationType: 'prerequisite' as const,
+        weight: 0.9,
+      },
+    };
+    const merged = mergeAgentWorkspaceContext(live, handoff);
+    expect(merged?.graphRelation?.targetLabel).toBe('Elasticity');
+  });
+
   it('resolveAgent prefers pinned over live', () => {
     const live = createWorkspaceLiveSync({
       snapshot: baseSnapshot,

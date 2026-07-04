@@ -50,6 +50,7 @@ export function LeitnerPanel({
 }: Props) {
   const [filterQuery, setFilterQuery] = useState('');
   const [typeFilter, setTypeFilter] = useState<LeitnerCardType | 'all'>('all');
+  const [interleaved, setInterleaved] = useState(false);
   const { t } = useI18n();
 
   const typeCounts = useMemo(
@@ -149,6 +150,18 @@ export function LeitnerPanel({
               Reader
             </button>
           )}
+          <button
+            type="button"
+            onClick={() => setInterleaved((v) => !v)}
+            className={`rounded-lg border px-2 py-1 text-[10px] font-medium transition-colors ${
+              interleaved
+                ? 'border-accent-cyan/40 bg-accent-cyan/15 text-brand-800'
+                : 'border-border-subtle text-text-muted hover:text-text-secondary'
+            }`}
+            data-testid="leitner-interleave-toggle"
+          >
+            {t('leitnerInterleaveToggle')}
+          </button>
         </div>
 
         <div className="mt-2 flex flex-wrap gap-1.5" data-testid="leitner-type-filter">
@@ -220,6 +233,7 @@ export function LeitnerPanel({
           artifactStale={artifactStale}
           onAcknowledgeStale={onAcknowledgeStale}
           lang={lang}
+          interleaved={interleaved}
         />
         )}
       </div>

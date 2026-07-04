@@ -140,6 +140,7 @@ describe('recommendDailyPlan', () => {
   it('suggests weak area from concept queue when no workspace session', () => {
     const lm: LearnerModel = {
       ...mockLearnerModel,
+      spacingIntervals: [],
       weakAreas: [
         {
           concept: 'Elasticity',
@@ -198,6 +199,41 @@ describe('recommendDailyPlan', () => {
     });
     expect(plan.dashboardAction?.kind).toBe('exam-prep');
     expect(plan.examPacing.active).toBe(true);
+  });
+
+  it('suggests feynman for weak area after quiz fail streak', () => {
+    const lm: LearnerModel = {
+      ...mockLearnerModel,
+      spacingIntervals: [],
+      weakAreas: [
+        {
+          concept: 'Elasticity',
+          courseId: 'c1',
+          mastery: 32,
+          lastPracticed: '',
+          retentionPrediction: 0.3,
+          practiceCount: 2,
+          averageResponseTime: 4,
+          errorRate: 0.6,
+        },
+      ],
+    };
+    const activities = [
+      { id: '1', type: 'quiz_failed' as const, description: 'Missed quiz on Elasticity', timestamp: '2026-07-04T12:00:00Z' },
+      { id: '2', type: 'quiz_failed' as const, description: 'Missed quiz on Elasticity', timestamp: '2026-07-04T11:00:00Z' },
+      { id: '3', type: 'quiz_failed' as const, description: 'Missed quiz on Elasticity', timestamp: '2026-07-04T10:00:00Z' },
+    ];
+    const plan = recommendDailyPlan({
+      lang: 'en',
+      learnerModel: lm,
+      betaMastery: [{ concept: 'Elasticity', alpha: 2, beta: 7, firstAttempts: 2, importance: 1 }],
+      tasks: mockTasks.filter((t) => t.status === 'completed') as Task[],
+      stats: { ...mockDashboardStats, reviewsDue: 0 },
+      workspaceLive: null,
+      activities,
+    });
+    expect(plan.dashboardAction?.kind).toBe('weak-area');
+    expect(plan.dashboardAction?.workspaceTool).toBe('feynman');
   });
 
   it('returns workspace action when workspace opts provided', () => {

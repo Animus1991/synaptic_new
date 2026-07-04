@@ -65,6 +65,7 @@ import {
   type WorkspaceSelectionActionId,
   type WorkspaceSelectionContext,
 } from '../../../lib/workspaceSelectionActions';
+import { buildOcclusionCardFromSelection } from '../../../lib/readerOcclusionFromSelection';
 import { buildReaderSegments } from '../../../lib/readerDocumentLayout';
 import { shouldShowCourseQualityBanner } from '../../../lib/courseQualityBanner';
 import { buildReprocessPreview, resolveReprocessCourse } from '../../../lib/reprocessPreview';
@@ -122,6 +123,12 @@ import {
   type ToolAgentIntent,
 } from '../../../lib/workspaceToolAgentPrompts';
 import { buildConceptLensView, type ConceptLensAction } from '../../../lib/conceptGraphModel';
+import {
+  buildRelationExplainPrompt,
+  findGraphRelation,
+  mergeCourseGraphIntoConceptMap,
+} from '../../../lib/courseConceptGraph';
+import { withDemoCourseGraphs } from '../../../demo/demoConceptGraph';
 import { buildFeynmanSessionContent } from '../../../lib/feynmanSessionModel';
 import { buildCompareSessionContent } from '../../../lib/compareSessionModel';
 import { buildDebateSessionContent } from '../../../lib/debateSessionModel';
@@ -178,6 +185,7 @@ export function useStudyWorkspace({
   initialTool = 'reader',
   taskId,
   learnerModel,
+  activities = [],
   dashboardStats = { streak: 0, reviewsDue: 0, studyTimeToday: 0, studyTimeWeek: 0 },
   conceptBars = [],
   uploadedFiles = [],
@@ -322,10 +330,11 @@ export function useStudyWorkspace({
 
   const handleToolUpload = workspaceEmptyUploadHandler(noteBundle.hasSource, onUpload);
 
-  const linkedCourse = useMemo(
-    () => courses.find((c) => c.id === (courseId ?? uploadedFiles.find((f) => f.courseId)?.courseId)),
-    [courses, courseId, uploadedFiles],
-  );
+  const linkedCourse = useMemo(() => {
+    const course = courses.find((c) => c.id === (courseId ?? uploadedFiles.find((f) => f.courseId)?.courseId));
+    if (!course) return undefined;
+    return withDemoCourseGraphs([course])[0];
+  }, [courses, courseId, uploadedFiles]);
   const effectiveCourseId = courseId ?? linkedCourse?.id ?? uploadedFiles.find((f) => f.courseId)?.courseId;
   const [artifactStaleRevision, setArtifactStaleRevision] = useState(0);
   const acknowledgePracticeStale = useCallback((tool: StalePracticeTool) => {
@@ -1083,6 +1092,23 @@ export function useStudyWorkspace({
         openWorkspaceTool('leitner');
         break;
       }
+      case 'make-occlusion': {
+        const occlusionCard = buildOcclusionCardFromSelection(
+          courseSourceFiles,
+          excerpt,
+          lang,
+          noteBundle.sourceFullText,
+          noteBundle.sourceName,
+        );
+        if (!occlusionCard) break;
+        setCustomLeitnerCards(appendCustomLeitnerCard(progressKey, {
+          ...occlusionCard,
+          source: 'reader-occlusion',
+        }));
+        emitFocus('leitner', 'focus');
+        openWorkspaceTool('leitner');
+        break;
+      }
       case 'quiz':
         emitFocus('quiz', 'focus');
         openWorkspaceTool('quiz');
@@ -1107,6 +1133,7 @@ export function useStudyWorkspace({
   }, [
     quizConcept, scopedGlossary, focusOnTerm, noteConceptActivity, lang, STEPS, currentStep,
     openAgentForTool, progressKey, openWorkspaceTool, openReaderAtSearch, openReaderForTerm,
+    courseSourceFiles, noteBundle.sourceFullText, noteBundle.sourceName,
   ]);
 
   const handleQuizRemediateWrong = useCallback((
@@ -1458,10 +1485,12 @@ export function useStudyWorkspace({
       stepMark: stepMarks[currentStep],
       quizPassed,
       weakConceptCount: weakAreaSpots.length,
+      activeConcept: quizConcept,
+      activities,
     }),
     [
       lang, noteBundle.hasSource, sourceQualityScore, showReuploadHint, showLowQualityBanner,
-      currentStep, STEPS.length, stepMarks, quizPassed, weakAreaSpots.length,
+      currentStep, STEPS.length, stepMarks, quizPassed, weakAreaSpots.length, quizConcept, activities,
     ],
   );
 
@@ -1522,6 +1551,10 @@ export function useStudyWorkspace({
         openAgentForTool(activeTool, prompt, 'explain-zero');
         break;
       }
+      case 'feynman-explain':
+        openWorkspaceTool('feynman');
+        if (layout === 'focus-lesson') setLayout(isMobile ? 'focus-tool' : 'split');
+        break;
       case 'flashcards':
         openWorkspaceTool('leitner');
         break;
@@ -1801,13 +1834,22 @@ export function useStudyWorkspace({
 
   const activeConceptLabel = effectiveFocus?.term ?? quizConcept;
 
+  const conceptMapForLens = useMemo(
+    () => mergeCourseGraphIntoConceptMap(
+      noteBundle.conceptMap.nodes,
+      noteBundle.conceptMap.edges,
+      linkedCourse?.conceptGraph,
+    ),
+    [noteBundle.conceptMap.nodes, noteBundle.conceptMap.edges, linkedCourse?.conceptGraph],
+  );
+
   const conceptLensView = useMemo(
     () => (intelReady
       ? buildConceptLensView({
         concept: activeConceptLabel,
         hasSource: noteBundle.hasSource,
-        nodes: noteBundle.conceptMap.nodes,
-        edges: noteBundle.conceptMap.edges,
+        nodes: conceptMapForLens.nodes,
+        edges: conceptMapForLens.edges,
         glossary: scopedGlossary,
         topics: linkedCourse?.topics ?? [],
         steps: STEPS,
@@ -1818,7 +1860,7 @@ export function useStudyWorkspace({
       })
       : stubConceptLensView(activeConceptLabel)),
     [
-      intelReady, activeConceptLabel, noteBundle, scopedGlossary, linkedCourse, STEPS,
+      intelReady, activeConceptLabel, noteBundle, conceptMapForLens, scopedGlossary, linkedCourse, STEPS,
       conceptBars, conceptBus, weakAreaSpots,
     ],
   );
@@ -1910,6 +1952,33 @@ export function useStudyWorkspace({
   }, [
     openReaderAtConceptSection, handleLearningAction, openWorkspaceTool,
     noteConceptActivity, activeConceptLabel,
+  ]);
+
+  const handleExplainGraphRelation = useCallback((relatedLabel: string) => {
+    const graph = linkedCourse?.conceptGraph;
+    const rel = findGraphRelation(graph, activeConceptLabel, relatedLabel)
+      ?? findGraphRelation(graph, quizConcept, relatedLabel);
+    const prompt = rel
+      ? buildRelationExplainPrompt(rel, lang)
+      : t('agentRelationExplainFallback')
+        .replace('{active}', activeConceptLabel)
+        .replace('{related}', relatedLabel);
+    if (onOpenAgentWithPrompt) {
+      onOpenAgentWithPrompt({
+        prompt,
+        mode: 'deep-theory',
+        autoSend: true,
+        context: {
+          ...buildFullAgentContext(undefined, STEPS[currentStep]?.title),
+          ...(rel ? { graphRelation: rel } : {}),
+        },
+      });
+    } else {
+      onOpenAgent?.();
+    }
+  }, [
+    linkedCourse?.conceptGraph, activeConceptLabel, quizConcept, lang, t, onOpenAgentWithPrompt, onOpenAgent,
+    buildFullAgentContext, STEPS, currentStep,
   ]);
 
   const handleStepNext = () => {
@@ -2097,6 +2166,7 @@ export function useStudyWorkspace({
     lessonStepExcerpt,
     readerOcrRegions,
     readerHandwritingRecognized,
+    courseSourceFiles,
     focusOnTerm,
     openReaderForTerm,
     sendScratchpadToWhiteboard,
@@ -2158,6 +2228,7 @@ export function useStudyWorkspace({
     openReaderAtConceptSection,
     handleConceptBusRemediation,
     handleConceptLensAction,
+    handleExplainGraphRelation,
     handleStepNext,
     quizArtifactStale,
     leitnerArtifactStale,

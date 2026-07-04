@@ -8,6 +8,7 @@ import type { QuizSessionItem, QuizSessionState } from './quizSession';
 import { quizItemQuestion } from './quizSessionModel';
 import {
   getSelectionActionDefs,
+  READER_ONLY_SELECTION_ACTIONS,
   SELECTION_ACTION_ORDER,
   type WorkspaceSelectionContext,
 } from './workspaceSelectionActions';
@@ -132,7 +133,9 @@ export function auditQuizSelectionRemediation(input: {
     }
   }
 
-  const expectedCount = SELECTION_ACTION_ORDER.filter((id) => id !== 'quiz').length;
+  const expectedCount = SELECTION_ACTION_ORDER.filter(
+    (id) => id !== 'quiz' && !READER_ONLY_SELECTION_ACTIONS.has(id),
+  ).length;
   if (defs.length !== expectedCount) {
     issues.push({
       code: 'remediation-incomplete',

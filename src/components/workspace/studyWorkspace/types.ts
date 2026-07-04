@@ -1,5 +1,5 @@
 import type { WorkspaceToolId } from '../../../lib/taskFlows';
-import type { Course, GlossaryEntry, LearnerModel, Task, UploadedFile, UserSettings } from '../../../types';
+import type { Course, GlossaryEntry, LearnerModel, Task, UploadedFile, UserSettings, ActivityItem } from '../../../types';
 import type { WorkspaceFocus } from '../../../lib/workspaceFocus';
 import type { OpenAgentFromWorkspaceOpts } from '../../../lib/agentWorkspaceContext';
 import type { WorkspaceLiveSync } from '../../../lib/workspaceStoreSpine';
@@ -21,6 +21,7 @@ export interface StudyWorkspaceProps {
   initialTool?: WorkspaceTool;
   taskId?: string | null;
   learnerModel?: LearnerModel;
+  activities?: ActivityItem[];
   dashboardStats?: { streak: number; reviewsDue: number; studyTimeToday?: number; studyTimeWeek?: number };
   conceptBars?: { concept: string; mastery: number }[];
   uploadedFiles?: UploadedFile[];

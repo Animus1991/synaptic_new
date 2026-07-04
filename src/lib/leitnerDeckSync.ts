@@ -1,6 +1,7 @@
 import type { SpacingData } from '../types';
 import { loadJson, saveJson } from './persistence';
 import { conceptRelevanceScore } from './noteContentExtractors';
+import { interleaveLeitnerDeck } from './leitnerInterleaving';
 
 export type LeitnerDeckState = {
   index: number;
@@ -77,8 +78,10 @@ export function syncDeckState(
   cards: { front: string; back: string }[],
   spacingIntervals: SpacingData[],
   concept: string,
+  opts?: { interleaved?: boolean },
 ): { ordered: { front: string; back: string }[]; dueCount: number; resumedIndex: number; boxCounts: number[] } {
-  const { ordered, dueCount } = orderDeckByDueQueue(cards, spacingIntervals, concept);
+  let { ordered, dueCount } = orderDeckByDueQueue(cards, spacingIntervals, concept);
+  if (opts?.interleaved) ordered = interleaveLeitnerDeck(ordered);
   const prev = loadDeckState(scopeKey);
   const cardOrder = ordered.map((c) => c.front);
   const orderChanged = prev && prev.cardOrder.join('\0') !== cardOrder.join('\0');

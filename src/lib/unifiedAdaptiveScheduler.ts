@@ -3,10 +3,11 @@
  * Merges dashboard next-action and workspace next-action into recommendDailyPlan().
  */
 
-import type { DashboardStats, LearnerModel, SpacingData, Task } from '../types';
+import type { DashboardStats, LearnerModel, SpacingData, Task, ActivityItem } from '../types';
 import type { Lang } from './i18n';
 import { t } from './i18n';
 import { betaMean, type BetaMastery } from './pedagogy';
+import { recommendPracticeToolForConcept } from './adaptiveGapRouting';
 import { studyPlanBlockLabel } from './tasksContent';
 import { findPendingTask } from './taskFlows';
 import type { WorkspaceLiveSync } from './workspaceStoreSpine';
@@ -278,8 +279,9 @@ function selectDashboardAction(opts: {
   stats: DashboardStats;
   daysToExam: number | null;
   conceptQueue: ConceptScheduleItem[];
+  activities?: ActivityItem[];
 }): DashboardNextAction | null {
-  const { lang, learnerModel, tasks, stats, daysToExam, conceptQueue } = opts;
+  const { lang, learnerModel, tasks, stats, daysToExam, conceptQueue, activities = [] } = opts;
 
   if (daysToExam !== null && daysToExam <= 14) {
     const examTask = findPendingTask(tasks, (t) => t.type === 'exam-prep');
@@ -319,14 +321,21 @@ function selectDashboardAction(opts: {
   const weakConcept = queueWeak?.concept ?? skillWeak?.concept;
   const weakMastery = queueWeak?.mastery ?? skillWeak?.mastery;
   if (weakConcept != null && weakMastery != null && weakMastery < 60) {
+    const practiceTool = recommendPracticeToolForConcept(weakConcept, activities, 'quiz');
     return {
       kind: 'weak-area',
-      label: t('dashboardActionFocusWeak', lang),
-      reason: t('dashboardActionWeakMastery', lang)
-        .replace('{concept}', weakConcept)
-        .replace('{mastery}', String(weakMastery)),
+      label: practiceTool === 'feynman'
+        ? t('dashboardActionFeynmanGap', lang)
+        : t('dashboardActionFocusWeak', lang),
+      reason: practiceTool === 'feynman'
+        ? t('dashboardActionFeynmanGapReason', lang)
+            .replace('{concept}', weakConcept)
+            .replace('{count}', '3')
+        : t('dashboardActionWeakMastery', lang)
+            .replace('{concept}', weakConcept)
+            .replace('{mastery}', String(weakMastery)),
       concept: weakConcept,
-      workspaceTool: 'quiz',
+      workspaceTool: practiceTool,
     };
   }
 
@@ -364,6 +373,7 @@ export function recommendDailyPlan(opts: {
   workspace?: WorkspaceActionOpts | null;
   /** When set, study plan blocks only use tasks from this course (falls back to all courses if it has none). */
   activeCourseId?: string | null;
+  activities?: ActivityItem[];
   now?: Date;
 }): DailyPlanRecommendation {
   const {
@@ -376,6 +386,7 @@ export function recommendDailyPlan(opts: {
     workspaceLive = null,
     workspace = null,
     activeCourseId = null,
+    activities = [],
     now,
   } = opts;
 
@@ -401,6 +412,7 @@ export function recommendDailyPlan(opts: {
       stats,
       daysToExam,
       conceptQueue,
+      activities,
     });
   }
 

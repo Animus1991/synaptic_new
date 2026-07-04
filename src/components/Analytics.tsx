@@ -7,6 +7,7 @@ import {
 } from '@/lib/lucide-shim';
 import type { LearnerModel, DashboardStats, Course, ActivityItem } from '../types';
 import { computeCalibration, type PrerequisiteRepair } from '../lib/pedagogy';
+import { buildRetentionForecast, summarizeRetentionForecast } from '../lib/adaptiveScheduler';
 import {
   adaptiveRecommendations,
   retentionCurveFromActivities,
@@ -233,6 +234,8 @@ function OverviewTab({
   const hasRetentionData = activities.some(
     (a) => a.type === 'quiz_passed' || a.type === 'quiz_failed' || a.type === 'review_done',
   );
+  const fsrsSummary = summarizeRetentionForecast(learnerModel.spacingIntervals);
+  const fsrsForecast = buildRetentionForecast(learnerModel.spacingIntervals, 14);
   return (
     <div className="space-y-6">
       {calibration && (
@@ -267,6 +270,48 @@ function OverviewTab({
         <MetricCard icon={<Target className="w-5 h-5 text-accent-cyan" />} label={t('analyticsRetentionRate')} value={`${Math.round(learnerModel.retentionRate * 100)}%`} sub={t('analyticsSevenDayRecall')} />
         <MetricCard icon={<Zap className="w-5 h-5 text-accent-amber" />} label={t('analyticsLearningVelocity')} value={`${learnerModel.learningVelocity}×`} sub={t('analyticsVsBaseline')} />
       </motion.div>
+
+      {fsrsSummary.trackedConcepts > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.06 }}
+          className="ws-bento p-5"
+          data-testid="analytics-fsrs-forecast"
+        >
+          <h3 className="text-sm font-semibold flex items-center gap-2 mb-1">
+            <Brain className="w-4 h-4 text-accent-cyan" />
+            {t('analyticsFsrsForecastTitle')}
+          </h3>
+          <p className="text-[10px] text-text-muted mb-4">{t('analyticsFsrsForecastHint')}</p>
+          <div className="grid grid-cols-3 gap-3 mb-4">
+            <div className="rounded-xl border border-border-subtle bg-surface-card/40 px-3 py-2">
+              <p className="text-[10px] text-text-muted">{t('analyticsFsrsRetrievability')}</p>
+              <p className="text-lg font-semibold text-text-primary">
+                {Math.round(fsrsSummary.avgRetrievabilityToday * 100)}%
+              </p>
+            </div>
+            <div className="rounded-xl border border-border-subtle bg-surface-card/40 px-3 py-2">
+              <p className="text-[10px] text-text-muted">{t('analyticsFsrsDueWeek')}</p>
+              <p className="text-lg font-semibold text-text-primary">{fsrsSummary.dueNext7Days}</p>
+            </div>
+            <div className="rounded-xl border border-border-subtle bg-surface-card/40 px-3 py-2">
+              <p className="text-[10px] text-text-muted">{t('analyticsFsrsTracked')}</p>
+              <p className="text-lg font-semibold text-text-primary">{fsrsSummary.trackedConcepts}</p>
+            </div>
+          </div>
+          <div className="flex items-end gap-1 h-16">
+            {fsrsForecast.map((point) => (
+              <div
+                key={point.dayOffset}
+                className="flex-1 rounded-t bg-accent-cyan/80 min-h-[4px]"
+                style={{ height: `${Math.max(8, point.avgRetrievability * 100)}%` }}
+                title={`D+${point.dayOffset}: ${Math.round(point.avgRetrievability * 100)}%`}
+              />
+            ))}
+          </div>
+        </motion.div>
+      )}
 
       {/* Weekly mastery + Heatmap */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

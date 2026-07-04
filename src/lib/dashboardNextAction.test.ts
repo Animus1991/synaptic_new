@@ -47,6 +47,7 @@ describe('selectDashboardNextAction', () => {
   it('suggests weak area when no workspace session', () => {
     const lm: LearnerModel = {
       ...mockLearnerModel,
+      spacingIntervals: [],
       weakAreas: [
         {
           concept: 'Elasticity',

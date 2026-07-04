@@ -85,6 +85,7 @@ export function StudyWorkspaceToolSurface({ model }: StudyWorkspaceToolSurfacePr
     readerText,
     readerOcrRegions,
     readerHandwritingRecognized,
+    courseSourceFiles,
     focusOnTerm,
     openReaderForTerm,
     sendScratchpadToWhiteboard,
@@ -224,6 +225,7 @@ export function StudyWorkspaceToolSurface({ model }: StudyWorkspaceToolSurfacePr
                           onSectionAskAgent={handleSectionAskAgent}
                           onSelectionAction={handleWorkspaceSelectionAction}
                           ocrRegions={readerOcrRegions}
+                          ocrSourceFiles={courseSourceFiles}
                           handwritingRecognized={readerHandwritingRecognized}
                           conceptBus={conceptBus}
                           stepMarks={stepMarks}

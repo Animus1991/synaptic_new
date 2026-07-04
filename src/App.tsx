@@ -339,6 +339,7 @@ export default function App() {
         initialTool={workspaceTool}
         taskId={store.activeTaskId}
         learnerModel={store.learnerModel}
+        activities={store.activities}
         dashboardStats={store.dashboardStats}
         conceptBars={store.pedagogyMetrics.conceptBars}
         uploadedFiles={store.uploadedFiles}
@@ -798,6 +799,8 @@ export default function App() {
               dashboardNextAction={store.dashboardNextAction}
               smartCTAs={store.dashboardSmartCTAs}
               onRunSmartCTA={store.runDashboardSmartCTA}
+              proactiveAgentAlerts={store.proactiveAgentAlerts}
+              onRunProactiveAgentAlert={store.runProactiveAgentAlert}
               onOpenWorkspacePractice={store.openStudyWorkspaceForPractice}
               lang={store.user.settings.language}
               postUploadCourse={

@@ -22,6 +22,7 @@ import { saveDeckState, syncDeckState } from '../../lib/leitnerDeckSync';
 import { WorkspaceEmptyState } from './WorkspaceEmptyState';
 import { LeitnerStaleArtifactBanner } from './LeitnerStaleArtifactBanner';
 import { SourceCitationChip } from './SourceCitationChip';
+import { LeitnerOcclusionFace } from './LeitnerOcclusionFace';
 
 
 
@@ -55,6 +56,7 @@ interface LeitnerBoxProps {
   artifactStale?: boolean;
   onAcknowledgeStale?: () => void;
   lang?: 'en' | 'el';
+  interleaved?: boolean;
 }
 
 
@@ -86,6 +88,7 @@ export function LeitnerBox({
   artifactStale = false,
   onAcknowledgeStale,
   lang: langProp,
+  interleaved = false,
 }: LeitnerBoxProps) {
 
   const { t, lang: i18nLang } = useI18n();
@@ -109,7 +112,7 @@ export function LeitnerBox({
 
     if (cards.length === 0) return;
 
-    const synced = syncDeckState(scopeKey, cards, spacingIntervals, concept ?? '');
+    const synced = syncDeckState(scopeKey, cards, spacingIntervals, concept ?? '', { interleaved });
 
     setDeck(synced.ordered);
 
@@ -120,7 +123,7 @@ export function LeitnerBox({
     setBoxCounts(synced.boxCounts ?? [0, 0, 0, 0]);
     onSessionDirty?.();
 
-  }, [cards, spacingIntervals, concept, scopeKey, onSessionDirty]);
+  }, [cards, spacingIntervals, concept, scopeKey, onSessionDirty, interleaved]);
 
 
 
@@ -415,7 +418,11 @@ export function LeitnerBox({
             className="mb-2"
           />
         )}
-        <p className="text-sm font-medium leading-relaxed">{flipped ? card!.back : card!.front}</p>
+        {card?.occlusion ? (
+          <LeitnerOcclusionFace occlusion={card.occlusion} flipped={flipped} />
+        ) : (
+          <p className="text-sm font-medium leading-relaxed">{flipped ? card!.back : card!.front}</p>
+        )}
 
       </button>
 

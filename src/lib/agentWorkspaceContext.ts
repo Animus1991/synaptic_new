@@ -4,6 +4,9 @@ import { CONTENT_PIPELINE_VERSION } from './pipelineConstants';
 import { displayWorkspaceStepTitle, isLowConfidenceStepTitle } from './workspaceContextModel';
 import { workspaceToolLabel } from './workspaceToolRegistry';
 import { selectionExcerptPreview } from './workspaceSelectionActions';
+import { formatGraphRelationSystemBlock } from './courseConceptGraph';
+
+import type { GraphRelationContext } from './courseConceptGraph';
 
 /** Workspace handoff context for Agent RAG + system grounding. */
 export type AgentWorkspaceContext = {
@@ -24,6 +27,8 @@ export type AgentWorkspaceContext = {
   handwrittenSource?: boolean;
   /** Passage the learner selected before opening Agent (selection handoff). */
   selectionExcerpt?: string;
+  /** Sprint I — typed knowledge-graph relation for explain-relation prompts. */
+  graphRelation?: GraphRelationContext;
 };
 
 export type OpenAgentFromWorkspaceOpts = {
@@ -122,6 +127,7 @@ export type AgentWorkspaceContextJson = {
   lowConfidenceSection?: boolean;
   handwrittenSource?: boolean;
   selectionExcerpt?: string;
+  graphRelation?: import('./courseConceptGraph').GraphRelationContext;
 };
 
 export type AgentContextBannerView = {
@@ -153,6 +159,7 @@ export function toAgentWorkspaceContextJson(
   if (ctx.lowConfidenceSection != null) out.lowConfidenceSection = ctx.lowConfidenceSection;
   if (ctx.handwrittenSource != null) out.handwrittenSource = ctx.handwrittenSource;
   if (ctx.selectionExcerpt) out.selectionExcerpt = ctx.selectionExcerpt;
+  if (ctx.graphRelation) out.graphRelation = ctx.graphRelation;
   return Object.keys(out).length > 0 ? out : null;
 }
 
@@ -170,11 +177,14 @@ export function buildAgentContextSystemBlock(
 ): string | undefined {
   const line = formatAgentWorkspaceContextLine(ctx, lang);
   const json = serializeAgentWorkspaceContextJson(ctx);
-  if (!line && !json) return undefined;
+  const relationBlock = ctx?.graphRelation
+    ? formatGraphRelationSystemBlock(ctx.graphRelation, lang)
+    : '';
+  if (!line && !json && !relationBlock) return undefined;
   const jsonBlock = json
     ? t('agentCtxJsonBlock', lang).replace('{json}', json)
     : '';
-  return `${line ?? ''}${jsonBlock}`.trim() || undefined;
+  return `${line ?? ''}${relationBlock ? `\n\n${relationBlock}` : ''}${jsonBlock}`.trim() || undefined;
 }
 
 /** Structured banner for the Agent panel UI. */

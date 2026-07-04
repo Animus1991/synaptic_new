@@ -38,7 +38,9 @@ import { SyllabusCoverageWidget } from './examPrep/SyllabusCoverageWidget';
 import { ExamCalendarPanel } from './examPrep/ExamCalendarPanel';
 import { PostExamNextStepsPanel } from './examPrep/PostExamNextStepsPanel';
 import { DashboardSmartCTAStrip } from './examPrep/DashboardSmartCTAStrip';
+import { ProactiveAgentAlertStrip } from './agent/ProactiveAgentAlertStrip';
 import type { DashboardSmartCTA } from '../lib/examPrep/dashboardSmartCTAs';
+import type { ProactiveAgentAlert } from '../lib/proactiveAgentAlerts';
 import type { WorkspacePracticeLaunch } from '../lib/dashboardNextAction';
 import type { WorkspaceToolId } from '../lib/taskFlows';
 import { recommendToolForTopic } from '../lib/examPrep/coveragePracticeActions';
@@ -72,6 +74,8 @@ interface DashboardProps {
   dashboardNextAction?: DashboardNextAction | null;
   smartCTAs?: DashboardSmartCTA[];
   onRunSmartCTA?: (cta: DashboardSmartCTA) => void;
+  proactiveAgentAlerts?: ProactiveAgentAlert[];
+  onRunProactiveAgentAlert?: (alert: ProactiveAgentAlert) => void;
   onOpenWorkspacePractice?: (launch: WorkspacePracticeLaunch) => void;
   lang?: Lang;
   /** Fresh upload highlight — show workspace CTA on dashboard */
@@ -81,7 +85,7 @@ interface DashboardProps {
   settingsExamDate?: string;
 }
 
-export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onSelectCourse, onOpenWorkspace, onOpenExamTimer, onUpload, onExploreDemo, prerequisiteRepairs = [], calibration, conceptMastery = [], activities = [], masteryDelta = 0, daysToExam = null, antiPassiveAlert = false, onStartTask, onStartSession, onResolveMisconception, onFocusWeakArea, workspaceLive = null, workspaceBooting = false, dashboardNextAction = null, smartCTAs = [], onRunSmartCTA, onOpenWorkspacePractice, lang = 'en', postUploadCourse = null, onDismissPostUpload, onOpenTasksReview, settingsExamDate }: DashboardProps) {
+export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onSelectCourse, onOpenWorkspace, onOpenExamTimer, onUpload, onExploreDemo, prerequisiteRepairs = [], calibration, conceptMastery = [], activities = [], masteryDelta = 0, daysToExam = null, antiPassiveAlert = false, onStartTask, onStartSession, onResolveMisconception, onFocusWeakArea, workspaceLive = null, workspaceBooting = false, dashboardNextAction = null, smartCTAs = [], onRunSmartCTA, proactiveAgentAlerts = [], onRunProactiveAgentAlert, onOpenWorkspacePractice, lang = 'en', postUploadCourse = null, onDismissPostUpload, onOpenTasksReview, settingsExamDate }: DashboardProps) {
   const { t } = useI18n();
   const pendingTasks = tasks.filter(t => t.status === 'pending');
   const criticalTasks = pendingTasks.filter(t => t.priority === 'critical' || t.priority === 'high');
@@ -233,6 +237,10 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
         <DashboardSmartCTAStrip ctas={smartCTAs} onRun={onRunSmartCTA} />
       )}
 
+      {!isEmpty && proactiveAgentAlerts.length > 0 && onRunProactiveAgentAlert && (
+        <ProactiveAgentAlertStrip alerts={proactiveAgentAlerts} onRun={onRunProactiveAgentAlert} />
+      )}
+
       {!isEmpty && (
         <MotionSection initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.08 }}>
           <SyllabusCoverageWidget
@@ -241,7 +249,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
             onSelectCourse={onSelectCourse}
             onPracticeTopic={onOpenWorkspacePractice
               ? (topic, courseId) => {
-                  const tool: WorkspaceToolId = recommendToolForTopic(topic, stats, daysToExam);
+                  const tool: WorkspaceToolId = recommendToolForTopic(topic, stats, daysToExam, activities);
                   onOpenWorkspacePractice({
                     tool,
                     concept: topic.title,

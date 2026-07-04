@@ -19,6 +19,7 @@ type Props = {
   onFocus: (term: string) => void;
   onJumpTool: (tool: WorkspaceToolId) => void;
   onAction: (action: ConceptLensAction) => void;
+  onExplainRelation?: (relatedLabel: string) => void;
   onOpenReaderSection?: () => void;
   className?: string;
 };
@@ -36,6 +37,7 @@ export function ConceptLensChromeStrip({
   onFocus,
   onJumpTool,
   onAction,
+  onExplainRelation,
   onOpenReaderSection,
   className,
 }: Props) {
@@ -108,6 +110,7 @@ export function ConceptLensChromeStrip({
           onJumpTool={onJumpTool}
           onFocus={onFocus}
           onAction={onAction}
+          onExplainRelation={onExplainRelation}
           onOpenReaderSection={onOpenReaderSection}
           lang={lang}
         />

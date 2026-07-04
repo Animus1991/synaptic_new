@@ -44,6 +44,7 @@ import {
   ocrOverlayGranularity,
 } from '../../lib/readerOcrOverlay';
 import type { OcrStoredRegion } from '../../lib/readerOcrOverlay';
+import { canMakeOcclusionFromSelection } from '../../lib/readerOcclusionFromSelection';
 import { OcrCorrectionPanel } from './OcrCorrectionPanel';
 import { isLlmAvailable } from '../../lib/llmClient';
 import {
@@ -103,6 +104,8 @@ interface Props {
   onAskAgentAboutSelection?: (text: string, sectionLabel?: string) => void;
   /** Server OCR bounding boxes from upload, when available. */
   ocrRegions?: OcrStoredRegion[];
+  /** Course files with stored OCR regions for occlusion-from-selection. */
+  ocrSourceFiles?: import('../../types').UploadedFile[];
   /** True when handwriting OCR (TrOCR) contributed to the extracted text. */
   handwritingRecognized?: boolean;
   conceptBus?: ConceptBusState;
@@ -159,6 +162,7 @@ export function CognitiveReader({
   onSelectionAction,
   onAskAgentAboutSelection,
   ocrRegions,
+  ocrSourceFiles = [],
   handwritingRecognized = false,
   conceptBus,
   stepMarks,
@@ -476,6 +480,16 @@ export function CognitiveReader({
     textSelection, displayText, focusTerm, concept, activeSectionLabel,
     onSelectionAction, onAskAgentAboutSelection, dismissTextSelection,
   ]);
+
+  const occlusionSelectionAvailable = useMemo(() => {
+    if (!textSelection) return false;
+    return canMakeOcclusionFromSelection(
+      ocrSourceFiles,
+      textSelection,
+      displayText,
+      sourceName,
+    );
+  }, [textSelection, ocrSourceFiles, displayText, sourceName]);
 
   const readAllParagraphs = useCallback(() => {
     ttsRef.current?.stop();
@@ -1135,6 +1149,7 @@ export function CognitiveReader({
             originTool="reader"
             onAction={handleReaderSelectionAction}
             onDismiss={dismissTextSelection}
+            occlusionAvailable={occlusionSelectionAvailable}
             data-testid="reader-selection-actions"
           />
         ) : (

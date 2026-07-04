@@ -1,7 +1,7 @@
 import type { Lang } from './i18n';
 import type { CustomLeitnerCard } from './leitnerCustomCards';
 
-export type LeitnerCardType = 'term' | 'definition' | 'cloze' | 'formula' | 'mistake';
+export type LeitnerCardType = 'term' | 'definition' | 'cloze' | 'formula' | 'mistake' | 'occlusion';
 
 export const LEITNER_CARD_TYPES: LeitnerCardType[] = [
   'term',
@@ -9,6 +9,7 @@ export const LEITNER_CARD_TYPES: LeitnerCardType[] = [
   'cloze',
   'formula',
   'mistake',
+  'occlusion',
 ];
 
 type CardLike = Pick<CustomLeitnerCard, 'front' | 'back' | 'source' | 'cardType'>;
@@ -22,6 +23,7 @@ const EN: Record<LeitnerCardType, string> = {
   cloze: 'Cloze',
   formula: 'Formula',
   mistake: 'Mistake',
+  occlusion: 'Image occlusion',
 };
 
 const EL: Record<LeitnerCardType, string> = {
@@ -30,6 +32,7 @@ const EL: Record<LeitnerCardType, string> = {
   cloze: 'Κενό',
   formula: 'Τύπος',
   mistake: 'Λάθος',
+  occlusion: 'Απόκρυψη εικόνας',
 };
 
 export function leitnerCardTypeLabel(type: LeitnerCardType, lang: Lang): string {

@@ -15,6 +15,8 @@ import {
 import { buildFlashcards } from './noteContentExtractors';
 import { isGenericStudyConcept } from './workspaceContentFallback';
 import { filterLeitnerCardsByConfidence } from './confidenceGating';
+import { buildOcclusionCardsFromFiles } from './imageOcclusionCards';
+import type { ImageOcclusionPayload } from './imageOcclusionCards';
 
 export type LeitnerCard = {
   front: string;
@@ -22,6 +24,7 @@ export type LeitnerCard = {
   source?: CustomLeitnerCard['source'];
   cardType?: LeitnerCardType;
   citation?: ContentCitation;
+  occlusion?: ImageOcclusionPayload;
 };
 
 export type LeitnerSessionContent = {
@@ -46,6 +49,7 @@ export function mergeLeitnerCards(...sources: LeitnerCard[][]): LeitnerCard[] {
           source: card.source ?? prev.source,
           cardType: card.cardType ?? prev.cardType,
           citation: card.citation ?? prev.citation,
+          occlusion: card.occlusion ?? prev.occlusion,
         }));
       } else {
         seen.set(key, withLeitnerCardType(card));
@@ -130,7 +134,10 @@ export function buildLeitnerSessionContent(opts: {
 
   const fromNotes = buildFlashcards(text, concept, glossary, lang, sourceFiles);
   const fromSpacing = buildSpacingLeitnerCards(spacingIntervals, concept, glossary, lang);
-  const cards = filterLeitnerCardsByConfidence(mergeLeitnerCards(fromSpacing, fromNotes, customCards));
+  const fromOcclusion = buildOcclusionCardsFromFiles(sourceFiles, lang);
+  const cards = filterLeitnerCardsByConfidence(
+    mergeLeitnerCards(customCards, fromSpacing, fromNotes, fromOcclusion),
+  );
   const generic = isGenericStudyConcept(concept);
   const passageGrounded = generic && fromNotes.length > 0;
   const weakExtraction = generic || cards.length === 0 || glossary.length < 2;

@@ -15,6 +15,7 @@ type Props = {
   onAction: (action: WorkspaceSelectionActionId) => void;
   onDismiss: () => void;
   className?: string;
+  occlusionAvailable?: boolean;
   'data-testid'?: string;
 };
 
@@ -26,9 +27,10 @@ export function WorkspaceSelectionActionBar({
   onAction,
   onDismiss,
   className,
+  occlusionAvailable = false,
   'data-testid': testId = 'workspace-selection-actions',
 }: Props) {
-  const actions = getSelectionActionDefs(lang, originTool);
+  const actions = getSelectionActionDefs(lang, originTool, { occlusionAvailable });
   const preview = selectionExcerptPreview(excerpt);
 
   return (

@@ -3,7 +3,7 @@
  * Delegates scoring to unifiedAdaptiveScheduler.recommendDailyPlan().
  */
 
-import type { DashboardStats, LearnerModel, Task } from '../types';
+import type { DashboardStats, LearnerModel, Task, ActivityItem } from '../types';
 import type { Lang } from './i18n';
 import type { BetaMastery } from './pedagogy';
 import { recommendDailyPlan } from './unifiedAdaptiveScheduler';
@@ -39,6 +39,7 @@ export function selectDashboardNextAction(opts: {
   stats: DashboardStats;
   workspaceLive?: WorkspaceLiveSync | null;
   daysToExam?: number | null;
+  activities?: ActivityItem[];
 }): DashboardNextAction | null {
   return recommendDailyPlan({
     lang: opts.lang,
@@ -48,6 +49,7 @@ export function selectDashboardNextAction(opts: {
     stats: opts.stats,
     workspaceLive: opts.workspaceLive,
     daysToExam: opts.daysToExam ?? null,
+    activities: opts.activities ?? [],
   }).dashboardAction;
 }
 

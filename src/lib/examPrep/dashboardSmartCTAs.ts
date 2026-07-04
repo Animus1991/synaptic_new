@@ -41,6 +41,7 @@ export function buildDashboardSmartCTAs(opts: {
   snapshot: SyllabusCoverageSnapshot | null;
   stats: DashboardStats;
   daysToExam: number | null;
+  primaryCourseId?: string | null;
 }): DashboardSmartCTA[] {
   const ctas: DashboardSmartCTA[] = [];
   const seen = new Set<string>();
@@ -82,6 +83,7 @@ export function buildDashboardSmartCTAs(opts: {
       ),
       hint: t('dashboardSmartCtaReviewsHint', opts.lang),
       tool: 'leitner',
+      courseId: opts.primaryCourseId ?? opts.snapshot?.courseId,
     });
   }
 

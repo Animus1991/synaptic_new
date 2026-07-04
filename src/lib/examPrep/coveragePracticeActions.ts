@@ -1,6 +1,7 @@
-import type { DashboardStats } from '../../types';
+import type { DashboardStats, ActivityItem } from '../../types';
 import type { WorkspaceToolId } from '../taskFlows';
 import type { SyllabusCoverageSnapshot, TopicCoverageRow } from './syllabusCoverageTracker';
+import { recommendPracticeToolForConcept } from '../adaptiveGapRouting';
 
 export type CoveragePracticeTarget = {
   courseId: string;
@@ -24,20 +25,22 @@ export function recommendToolForTopic(
   topic: TopicCoverageRow,
   stats: DashboardStats,
   daysToExam: number | null,
+  activities: ActivityItem[] = [],
 ): WorkspaceToolId {
   if (daysToExam !== null && daysToExam <= 14) return 'simulator';
   if (stats.reviewsDue > 0 && topic.mastery < 70) return 'leitner';
-  return 'quiz';
+  return recommendPracticeToolForConcept(topic.title, activities, 'quiz');
 }
 
 export function buildCoveragePracticeTarget(
   snapshot: SyllabusCoverageSnapshot,
   stats: DashboardStats,
   daysToExam: number | null,
+  activities: ActivityItem[] = [],
 ): CoveragePracticeTarget | null {
   const topic = pickNextIncompleteTopic(snapshot);
   if (!topic) return null;
-  const tool = recommendToolForTopic(topic, stats, daysToExam);
+  const tool = recommendToolForTopic(topic, stats, daysToExam, activities);
   return {
     courseId: snapshot.courseId,
     topicId: topic.topicId,

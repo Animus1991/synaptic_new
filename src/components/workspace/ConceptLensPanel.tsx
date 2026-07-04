@@ -50,6 +50,7 @@ type Props = {
   onFocus: (term: string) => void;
   onJumpTool: (tool: WorkspaceToolId) => void;
   onAction: (action: ConceptLensAction) => void;
+  onExplainRelation?: (relatedLabel: string) => void;
   onOpenReaderSection?: () => void;
 };
 
@@ -64,6 +65,7 @@ export function ConceptLensPanel({
   onFocus,
   onJumpTool,
   onAction,
+  onExplainRelation,
   onOpenReaderSection,
 }: Props) {
   const { t } = useI18n();
@@ -197,16 +199,22 @@ export function ConceptLensPanel({
             title={t('lensPrerequisitesTitle')}
             refs={lens.prerequisites}
             onSelect={onFocus}
+            onExplainRelation={onExplainRelation}
+            explainLabel={t('lensExplainRelation')}
           />
           <ConceptRefRow
             title={t('lensRelatedTitle')}
             refs={lens.related}
             onSelect={onFocus}
+            onExplainRelation={onExplainRelation}
+            explainLabel={t('lensExplainRelation')}
           />
           <ConceptRefRow
             title={t('lensFollowUpTitle')}
             refs={lens.followUp}
             onSelect={onFocus}
+            onExplainRelation={onExplainRelation}
+            explainLabel={t('lensExplainRelation')}
           />
 
           {lens.toolHits.length > 0 && (
@@ -249,10 +257,14 @@ function ConceptRefRow({
   title,
   refs,
   onSelect,
+  onExplainRelation,
+  explainLabel,
 }: {
   title: string;
   refs: { label: string; mastery?: number }[];
   onSelect: (term: string) => void;
+  onExplainRelation?: (term: string) => void;
+  explainLabel?: string;
 }) {
   if (refs.length === 0) return null;
   return (
@@ -260,18 +272,30 @@ function ConceptRefRow({
       <p className="text-[9px] font-semibold text-text-muted mb-0.5">{title}</p>
       <div className="flex flex-wrap gap-1">
         {refs.map((ref) => (
-          <button
-            key={ref.label}
-            type="button"
-            onClick={() => onSelect(ref.label)}
-            className="rounded-full border border-white/10 bg-white/[0.04] px-2 py-0.5 text-[9px] text-text-secondary hover:border-brand-600/35 hover:text-brand-800 truncate max-w-[140px]"
-            data-testid={`concept-ref-${ref.label.slice(0, 12).toLowerCase().replace(/\s+/g, '-')}`}
-          >
-            {ref.label}
-            {ref.mastery != null && ref.mastery > 0 ? (
-              <span className="ml-1 opacity-60">{ref.mastery}%</span>
-            ) : null}
-          </button>
+          <span key={ref.label} className="inline-flex items-center gap-0.5">
+            <button
+              type="button"
+              onClick={() => onSelect(ref.label)}
+              className="rounded-full border border-white/10 bg-white/[0.04] px-2 py-0.5 text-[9px] text-text-secondary hover:border-brand-600/35 hover:text-brand-800 truncate max-w-[140px]"
+              data-testid={`concept-ref-${ref.label.slice(0, 12).toLowerCase().replace(/\s+/g, '-')}`}
+            >
+              {ref.label}
+              {ref.mastery != null && ref.mastery > 0 ? (
+                <span className="ml-1 opacity-60">{ref.mastery}%</span>
+              ) : null}
+            </button>
+            {onExplainRelation && explainLabel && (
+              <button
+                type="button"
+                onClick={() => onExplainRelation(ref.label)}
+                className="rounded-full border border-brand-500/25 bg-brand-600/8 px-1.5 py-0.5 text-[8px] font-medium text-brand-800 hover:bg-brand-600/15"
+                data-testid={`concept-ref-explain-${ref.label.slice(0, 12).toLowerCase().replace(/\s+/g, '-')}`}
+                title={explainLabel}
+              >
+                ?
+              </button>
+            )}
+          </span>
         ))}
       </div>
     </div>

@@ -26,10 +26,22 @@ async function dismissUploadModalIfOpen(page: Page) {
 }
 
 async function dismissProductTourIfOpen(page: Page) {
-  const skip = page.getByRole('button', { name: /skip tour|παράλειψη/i });
-  if (!(await skip.isVisible().catch(() => false))) return;
-  await skip.click();
-  await expect(skip).toBeHidden({ timeout: 5000 });
+  for (let step = 0; step < 8; step += 1) {
+    const overlay = page.getByTestId('product-tour-overlay');
+    if (!(await overlay.isVisible().catch(() => false))) return;
+    const skip = page.getByRole('button', { name: /skip|παράλειψη/i });
+    if (await skip.isVisible().catch(() => false)) {
+      await skip.click();
+    } else {
+      const next = page.getByTestId('product-tour-next');
+      if (await next.isVisible().catch(() => false)) {
+        await next.click();
+      } else {
+        await page.getByRole('button', { name: 'Close', exact: true }).click();
+      }
+    }
+    await page.waitForTimeout(400);
+  }
 }
 
 /** Close upload modal + product tour that block Shell interactions after onboarding. */

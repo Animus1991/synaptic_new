@@ -7,6 +7,29 @@ client and server are versioned together.
 
 ### Added
 
+- **Sprint J — reader occlusion-from-selection + UploadModal i18n (Jul 2026)** —
+  `readerOcclusionFromSelection.ts` maps Reader selection to stored/heuristic OCR regions and
+  builds Leitner occlusion cards; `make-occlusion` selection action in Reader;
+  `leitnerCustomCards` persists `occlusion` payload; UploadModal configure/processing/error
+  strings i18n (source mode, focus tags, steps); unit tests + e2e `sprint-j-reader-occlusion.spec.ts`.
+- **Sprint I — knowledge graph v2 + Agent relation explain (Jul 2026)** —
+  `courseConceptGraph.ts` persists typed `ConceptGraph` on `Course` during recognition;
+  demo `DEMO_C1_CONCEPT_GRAPH`; CourseView map tab uses persisted graph
+  (`course-knowledge-graph-meta`); Concept Lens `?` explain-relation → Agent with
+  `graphRelation` context block; unit tests + e2e `sprint-i-knowledge-graph.spec.ts`.
+- **Sprint H — proactive Agent alerts + adaptive gap routing (Jul 2026)** —
+  `buildProactiveAgentAlerts` (FSRS forgetting risk, quiz fail streak ≥3, open
+  misconceptions); `ProactiveAgentAlertStrip` on Dashboard; `adaptiveGapRouting.ts`
+  routes weak-area practice to Feynman after 3 consecutive quiz misses;
+  workspace `feynman-explain` next action; unit tests + e2e
+  `sprint-h-proactive-agent.spec.ts`.
+- **Sprint G — FSRS-4 retention science + image occlusion (Jul 2026)** — Quiz spacing
+  migrated from SM-2-lite to FSRS-4 (`quizOutcomeToFsrsRating` + `applyFsrsToSpacing`);
+  `buildRetentionForecast` / `summarizeRetentionForecast` + Analytics FSRS panel
+  (`analytics-fsrs-forecast`); interleaved Leitner deck (`leitnerInterleaving.ts`,
+  `leitner-interleave-toggle`); image occlusion cards from OCR bboxes
+  (`imageOcclusionCards.ts`, `LeitnerOcclusionFace`); demo `spacingIntervals` seed;
+  unit tests + e2e `sprint-g-retention.spec.ts`.
 - **Sprint E — dashboard smart CTAs + coverage deep links (Jul 2026)** — `buildDashboardSmartCTAs`
   merges unified-scheduler, coverage, and review-due actions into `DashboardSmartCTAStrip`;
   per-topic **Practice** on `SyllabusCoverageWidget` routes via `coveragePracticeActions.ts`

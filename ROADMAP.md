@@ -23,12 +23,24 @@ This document separates **done**, **partial**, and **missing** against the produ
 | Auth and full sync | **~82%** | JWT, library + session pull/push |
 | Phase 6 server | **~88%** (dev) | Docker compose, Redis, pgvector, gradebook |
 | Documentation | **~94%** | Reconciled Jul 2026 through Sprint B/D |
-| Tests & CI | **~96%** | 932 unit tests; Sprint E dashboard e2e |
-| i18n | **~90%** | UploadModal + RecognitionReportPanel; exam prep ~135 keys |
+| Tests & CI | **~98%** | 950+ unit tests; Sprint G/H e2e |
+| i18n | **~92%** | UploadModal configure/processing i18n; exam prep ~135 keys |
 | UI/UX / themes | **~89%** | Platform shortcut badges; Warm Sand + Spectrum |
 
-**Overall product-scale readiness: ~96%** — Sprint E shipped (smart CTAs, coverage deep links, e2e). Next: **Sprint G**
-(FSRS-4 + image occlusion).
+**Overall product-scale readiness: ~99%** — Sprint I (knowledge graph v2) and Sprint J
+(reader occlusion-from-selection, UploadModal i18n) shipped. Next: production multi-tenant scale.
+
+---
+
+## Sprint J — reader occlusion-from-selection + UploadModal i18n — shipped (Jul 2026)
+
+| Scope | Deliverable |
+| ----- | ----------- |
+| Occlusion UI | `readerOcclusionFromSelection.ts` — selection → OCR bbox → Leitner occlusion card |
+| Reader | `selection-action-make-occlusion` in selection bar when region matches |
+| Leitner | Custom cards persist `occlusion` payload (`reader-occlusion` source) |
+| UploadModal i18n | Source mode, focus tags, processing steps, error/footer — EN/EL (~30 keys) |
+| Tests | `readerOcclusionFromSelection.test.ts`, `sprint-j-reader-occlusion.spec.ts` |
 
 ---
 
@@ -42,6 +54,37 @@ This document separates **done**, **partial**, and **missing** against the produ
 | P4 | Simulator Exam prep sub-tab (patterns, algorithms, GLOSSA) + post-exam next steps |
 
 Key paths: `src/lib/examPrep/`, `src/components/examPrep/`, `ExamPrepPanel.tsx`, `LandingFAQ.tsx`.
+
+---
+
+## Sprint I — knowledge graph v2 + Agent relation explain — shipped (Jul 2026)
+
+| Scope | Deliverable |
+| ----- | ----------- |
+| Graph | `courseConceptGraph.ts` — persist `ConceptGraph` on Course at recognition |
+| Course UI | Typed graph on Concept Map tab; `course-knowledge-graph-meta` |
+| Agent | Concept Lens explain-relation → `graphRelation` in Agent context |
+| Tests | `courseConceptGraph.test.ts`, `sprint-i-knowledge-graph.spec.ts` |
+
+---
+
+## Sprint H — proactive Agent + adaptive gaps — shipped (Jul 2026)
+
+| Scope | Deliverable |
+| ----- | ----------- |
+| Alerts | `ProactiveAgentAlertStrip` — FSRS forgetting risk, quiz streak, misconceptions |
+| Routing | `adaptiveGapRouting.ts` — 3 fails → Feynman across dashboard/coverage/workspace |
+| Tests | `proactiveAgentAlerts.test.ts`, `adaptiveGapRouting.test.ts`, `sprint-h-proactive-agent.spec.ts` |
+
+---
+
+## Sprint G — FSRS-4 + image occlusion — shipped (Jul 2026)
+
+| Scope | Deliverable |
+| ----- | ----------- |
+| FSRS-4 | Quiz spacing migration; `buildRetentionForecast` + Analytics panel |
+| Leitner | Interleaved deck toggle; occlusion cards from OCR bboxes |
+| Tests | `adaptiveScheduler.retention.test.ts`, `leitnerInterleaving.test.ts`, `imageOcclusionCards.test.ts`, `sprint-g-retention.spec.ts` |
 
 ---
 
@@ -147,9 +190,10 @@ Re-upload / reprocess: courses analyzed before v2.4.0 keep stored extractedText.
 
 | Area | Open work |
 | ---- | --------- |
-| **Sprint G** | Full FSRS-4; image occlusion cards (Vision bbox → Leitner) |
-| i18n | UploadModal source mode / focus tags / processing steps; residual lib/helpers |
-| OCR | Browser Tesseract client → stored word regions |
+| **Sprint I** | ~~Knowledge graph v2 on Course; Agent relation explanations~~ → shipped Jul 2026 |
+| **Sprint J** | ~~Reader occlusion-from-selection; UploadModal configure i18n~~ → shipped Jul 2026 |
+| i18n | Residual lib/helpers outside UploadModal |
+| OCR | Browser Tesseract client → stored word regions (ingest path) |
 
 ---
 

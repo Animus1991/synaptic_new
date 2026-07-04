@@ -8,6 +8,7 @@ import { isSuspiciousStudyFragment } from './confidenceGating';
 import { normalizeBilingualExtractedText } from './bilingualOcrEnsemble';
 import {
   getSelectionActionDefs,
+  READER_ONLY_SELECTION_ACTIONS,
   SELECTION_ACTION_ORDER,
   type WorkspaceSelectionContext,
 } from './workspaceSelectionActions';
@@ -94,6 +95,7 @@ export function auditCompareReaderSelectionParity(input: {
   const readerIds = new Set(readerDefs.map((d) => d.id));
   for (const def of compareDefs) {
     if (def.id === 'open-reader') continue;
+    if (READER_ONLY_SELECTION_ACTIONS.has(def.id)) continue;
     if (!readerIds.has(def.id)) {
       issues.push({
         code: 'reader-action-gap',
@@ -102,7 +104,9 @@ export function auditCompareReaderSelectionParity(input: {
     }
   }
 
-  const expectedCompareCount = SELECTION_ACTION_ORDER.length;
+  const expectedCompareCount = SELECTION_ACTION_ORDER.filter(
+    (id) => !READER_ONLY_SELECTION_ACTIONS.has(id),
+  ).length;
   if (compareDefs.length !== expectedCompareCount) {
     issues.push({
       code: 'reader-action-gap',

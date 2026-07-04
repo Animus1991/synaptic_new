@@ -175,7 +175,32 @@ export const mockLearnerModel: LearnerModel = {
     { type: 'Confusing similar concepts', frequency: 5, concepts: ['monopoly vs oligopoly', 'nash vs dominant strategy'], suggestedRemedy: 'Comparison exercises and concept mapping', category: 'conceptual' },
     { type: 'Skipping intermediate steps', frequency: 4, concepts: ['profit maximization', 'derivatives'], suggestedRemedy: 'Use "show hidden steps" mode', category: 'procedural' },
   ],
-  spacingIntervals: [],
+  spacingIntervals: [
+    {
+      concept: 'Supply & Demand',
+      interval: 4,
+      nextReview: '2026-06-28T10:00:00.000Z',
+      stability: 1.2,
+      difficulty: 0.6,
+      reviewCount: 5,
+    },
+    {
+      concept: 'Elasticity',
+      interval: 2,
+      nextReview: '2026-07-06T10:00:00.000Z',
+      stability: 2.1,
+      difficulty: 0.55,
+      reviewCount: 3,
+    },
+    {
+      concept: 'Consumer Surplus',
+      interval: 7,
+      nextReview: '2026-07-10T10:00:00.000Z',
+      stability: 6.0,
+      difficulty: 0.35,
+      reviewCount: 8,
+    },
+  ],
   confidenceCalibration: [
     { predicted: 0.9, actual: 0.7, concept: 'Elasticity', timestamp: '2026-01-10' },
     { predicted: 0.6, actual: 0.8, concept: 'Supply & Demand', timestamp: '2026-01-12' },

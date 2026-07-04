@@ -10,7 +10,6 @@ import {
   computeCalibration,
   computeExamReadiness,
   computePrerequisiteRepairs,
-  computeReviewInterval,
   deriveInsights,
   updateBetaMastery,
   updateSkillMastery,
@@ -55,7 +54,7 @@ import {
 import { recognizeCourse } from '../lib/recognitionWorkerClient';
 import { buildConceptSpans, type SourceHighlight } from '../lib/conceptProvenance';
 import { enrichCourseWithCrossLinks } from '../lib/crossDocumentLink';
-import { applyFsrsToSpacing } from '../lib/adaptiveScheduler';
+import { applyFsrsToSpacing, quizOutcomeToFsrsRating } from '../lib/adaptiveScheduler';
 import type { TaskCalendarSyncUpdate } from '../lib/taskCalendarSync';
 import type { WorkspaceFocus } from '../lib/workspaceFocus';
 import { CONTENT_PIPELINE_VERSION } from '../lib/pipelineConstants';
@@ -84,6 +83,11 @@ import {
   type DashboardSmartCTA,
 } from '../lib/examPrep/dashboardSmartCTAs';
 import {
+  buildProactiveAgentAlerts,
+  proactiveAlertToWorkspaceLaunch,
+  type ProactiveAgentAlert,
+} from '../lib/proactiveAgentAlerts';
+import {
   buildSyllabusCoverageSnapshot,
   pickPrimaryCourseForCoverage,
 } from '../lib/examPrep/syllabusCoverageTracker';
@@ -98,6 +102,7 @@ import {
   stripDemoFromTasks,
 } from '../lib/demoMode';
 import { mockUploadedFiles, mockGlossaryEntries } from '../demo/mockSource';
+import { withDemoCourseGraphs } from '../demo/demoConceptGraph';
 import { buildInitialUser, applyAuthIdentity, levelFromXp } from '../lib/identity';
 import { createEmptyLearnerModel, EMPTY_DASHBOARD_STATS } from '../lib/emptyLearnerState';
 import { applyBehaviorInference, inferBehaviorFromActivities } from '../lib/behaviorInference';
@@ -910,29 +915,14 @@ export function useAppStore() {
       updatedSkill,
     );
 
+    const spacingRow = nextLm.spacingIntervals.find((s) => s.concept === updatedSkill.concept);
+    const fsrsRating = quizOutcomeToFsrsRating(correct, confidence);
+    const fsrsUpdated = applyFsrsToSpacing(spacingRow, updatedSkill.concept, fsrsRating);
     const spacing = nextLm.spacingIntervals.some((s) => s.concept === updatedSkill.concept)
       ? nextLm.spacingIntervals.map((s) =>
-          s.concept === updatedSkill.concept
-            ? {
-                ...s,
-                interval: computeReviewInterval(s.reviewCount + 1, confidence, correct),
-                reviewCount: s.reviewCount + 1,
-                nextReview: new Date(Date.now() + computeReviewInterval(s.reviewCount + 1, confidence, correct) * 86400000).toISOString(),
-                stability: correct ? Math.min(1, s.stability + 0.08) : Math.max(0.1, s.stability - 0.12),
-              }
-            : s,
+          s.concept === updatedSkill.concept ? fsrsUpdated : s,
         )
-      : [
-          ...nextLm.spacingIntervals,
-          {
-            concept: updatedSkill.concept,
-            interval: computeReviewInterval(1, confidence, correct),
-            nextReview: new Date(Date.now() + computeReviewInterval(1, confidence, correct) * 86400000).toISOString(),
-            stability: correct ? 0.55 : 0.3,
-            difficulty: 0.5,
-            reviewCount: 1,
-          },
-        ];
+      : [...nextLm.spacingIntervals, fsrsUpdated];
 
     let next: LearnerModel = {
       ...nextLm,
@@ -1811,7 +1801,8 @@ export function useAppStore() {
     setCourses((prev) => {
       const have = new Set(prev.map((c) => c.id));
       const add = mockCourses.filter((c) => !have.has(c.id));
-      return add.length ? [...add, ...prev] : prev;
+      const merged = add.length ? [...add, ...prev] : prev;
+      return withDemoCourseGraphs(merged);
     });
     setTasks((prev) => {
       const have = new Set(prev.map((t) => t.id));
@@ -1837,7 +1828,11 @@ export function useAppStore() {
       const add = mockGlossaryEntries.filter((g) => !have.has(`${g.courseId}::${g.term}`));
       return add.length ? [...add, ...prev] : prev;
     });
-    setSelectedCourse((prev) => prev ?? mockCourses[0] ?? null);
+    setSelectedCourse((prev) => {
+      if (prev) return prev;
+      const merged = withDemoCourseGraphs(mockCourses);
+      return merged[0] ?? null;
+    });
   }, [user.settings, activities, firstAttemptKeys, persist]);
 
   const dashboardExtras = useMemo(() => {
@@ -1878,8 +1873,9 @@ export function useAppStore() {
       stats: dashboardStats,
       workspaceLive,
       daysToExam: dashboardExtras.daysToExam,
+      activities,
     }),
-    [user.settings.language, learnerModel, betaMastery, tasks, dashboardStats, workspaceLive, dashboardExtras.daysToExam],
+    [user.settings.language, learnerModel, betaMastery, tasks, dashboardStats, workspaceLive, dashboardExtras.daysToExam, activities],
   );
 
   const dailyPlan = useMemo(
@@ -1892,8 +1888,9 @@ export function useAppStore() {
       daysToExam: dashboardExtras.daysToExam,
       workspaceLive,
       activeCourseId: selectedCourse?.id ?? null,
+      activities,
     }),
-    [user.settings.language, learnerModel, betaMastery, tasks, dashboardStats, dashboardExtras.daysToExam, workspaceLive, selectedCourse?.id],
+    [user.settings.language, learnerModel, betaMastery, tasks, dashboardStats, dashboardExtras.daysToExam, workspaceLive, selectedCourse?.id, activities],
   );
 
   const coverageSnapshot = useMemo(() => {
@@ -1908,9 +1905,33 @@ export function useAppStore() {
       snapshot: coverageSnapshot,
       stats: dashboardStats,
       daysToExam: dashboardExtras.daysToExam,
+      primaryCourseId: selectedCourse?.id ?? coverageSnapshot?.courseId ?? courses[0]?.id ?? null,
     }),
-    [user.settings.language, dashboardNextAction, coverageSnapshot, dashboardStats, dashboardExtras.daysToExam],
+    [user.settings.language, dashboardNextAction, coverageSnapshot, dashboardStats, dashboardExtras.daysToExam, selectedCourse?.id, courses],
   );
+
+  const proactiveAgentAlerts = useMemo(
+    () => buildProactiveAgentAlerts({
+      lang: user.settings.language,
+      learnerModel,
+      activities,
+    }),
+    [user.settings.language, learnerModel, activities],
+  );
+
+  const runProactiveAgentAlert = useCallback((alert: ProactiveAgentAlert) => {
+    if (alert.action.type === 'workspace') {
+      const launch = proactiveAlertToWorkspaceLaunch(alert);
+      if (launch) openStudyWorkspaceForPractice(launch);
+      return;
+    }
+    openAgentFromWorkspace({
+      mode: alert.action.mode,
+      prompt: alert.action.prompt,
+      autoSend: false,
+      context: { concept: alert.action.concept ?? alert.concept },
+    });
+  }, [openStudyWorkspaceForPractice, openAgentFromWorkspace]);
 
   const runDashboardSmartCTA = useCallback((cta: DashboardSmartCTA) => {
     openStudyWorkspaceForPractice(smartCTAToWorkspaceLaunch(cta));
@@ -1966,6 +1987,8 @@ export function useAppStore() {
     dailyPlan,
     dashboardSmartCTAs,
     runDashboardSmartCTA,
+    proactiveAgentAlerts,
+    runProactiveAgentAlert,
     coverageSnapshot,
     uploadedFiles, glossaryEntries, isUploading, isReprocessing, simulateUpload, processUpload,
     reprocessCourseMaterial, saveCourseExtractedText, removeUploadedFile, removeCourse,

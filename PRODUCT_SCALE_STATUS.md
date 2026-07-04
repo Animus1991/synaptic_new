@@ -1,6 +1,6 @@
 # Product-scale status (canonical snapshot)
 
-**Last reconciled:** 2026-07-04 — aligned with `synaptic_new/main` through **Sprint E** (dashboard smart CTAs + coverage deep links, Jul 2026).
+**Last reconciled:** 2026-07-05 — aligned through **Sprint J** (reader occlusion-from-selection + UploadModal i18n, Jul 2026).
 
 This file is the **single shipped-truth status doc**. Use it for readiness reviews,
 sprint close-outs, and investor/contributor snapshots.
@@ -16,11 +16,22 @@ sprint close-outs, and investor/contributor snapshots.
 
 ## Overall readiness
 
-**~96% product-scale** — S9 grounding + Stage 3 gates shipped. **P0 content trust**,
-**P1 Greek Reader repair**, **Vision OCR pipeline**, **Sprint C empty-state / Agent
-handoff**, **Sprint B/D**, **Phase 0 exam prep bundle**, and **Sprint E** (smart CTAs,
-coverage→tool deep links, e2e) landed locally (Jul 2026).
-Remaining gaps: UploadModal source-mode residual strings, production multi-tenant scale.
+**~99% product-scale** — … **Sprint I** (typed `ConceptGraph` on Course, Agent explain-relation), and
+**Sprint J** (reader occlusion-from-selection, UploadModal configure i18n) landed locally (Jul 2026).
+Remaining gaps: production multi-tenant scale, residual helper i18n.
+
+---
+
+## Sprint J — reader occlusion + UploadModal i18n — shipped (Jul 2026)
+
+| Scope | Deliverable |
+| ----- | ----------- |
+| **Occlusion from selection** | `readerOcclusionFromSelection.ts` — match selection to OCR bbox; `make-occlusion` action |
+| **Leitner persist** | Custom cards with `occlusion` payload + `reader-occlusion` source |
+| **UploadModal i18n** | Source mode, focus tags, processing steps, error/footer (~30 EN/EL keys) |
+| **Tests** | `readerOcclusionFromSelection.test.ts`, `sprint-j-reader-occlusion.spec.ts` |
+
+Regression gate: `npm test` 963/963; `npm run i18n-lint`; `npm run typecheck`; Sprint I + J e2e **4/4 green**.
 
 ---
 
@@ -53,7 +64,44 @@ including `greek-syllabus-reader.spec.ts`, `workspace-empty-tools.spec.ts`,
 
 Regression gate: `npm test` 926/926; `npm run i18n-lint`; `npm run typecheck`.
 
-**Next:** Sprint G — FSRS-4 + image occlusion cards.
+**Next:** production multi-tenant scale; residual helper i18n.
+
+---
+
+## Sprint I — knowledge graph v2 — shipped (Jul 2026)
+
+| Scope | Deliverable |
+| ----- | ----------- |
+| **Graph persist** | `attachConceptGraphToCourse` in recognition worker → `Course.conceptGraph` |
+| **Course UI** | `ConceptMap` tab uses typed graph + `course-knowledge-graph-meta` |
+| **Agent skill** | Concept Lens `?` → `buildRelationExplainPrompt` + `graphRelation` context |
+| **Tests** | `courseConceptGraph.test.ts` (8), `workspaceStoreSpine.test.ts` (`graphRelation` merge), `sprint-i-knowledge-graph.spec.ts` (2/2) |
+
+---
+
+## Sprint H — proactive Agent + adaptive gaps — shipped (Jul 2026)
+
+| Scope | Deliverable |
+| ----- | ----------- |
+| **Proactive alerts** | `proactiveAgentAlerts.ts` + `ProactiveAgentAlertStrip` — FSRS forgetting, quiz streak, misconceptions |
+| **Adaptive gap** | `adaptiveGapRouting.ts` — 3 quiz fails → Feynman (dashboard, coverage, workspace next action) |
+| **Tests** | Unit tests + e2e `sprint-h-proactive-agent.spec.ts` |
+
+Regression gate: `npm test`; `npm run typecheck`; `npm run i18n-lint`; Sprint H e2e green.
+
+---
+
+## Sprint G — FSRS-4 + image occlusion — shipped (Jul 2026)
+
+| Scope | Deliverable |
+| ----- | ----------- |
+| **FSRS-4 productization** | Quiz spacing via `quizOutcomeToFsrsRating` + `applyFsrsToSpacing`; retrievability forecast helpers in `adaptiveScheduler.ts` |
+| **Analytics panel** | `analytics-fsrs-forecast` — avg retrievability, due count, 14-day curve |
+| **Interleaved Leitner** | `leitnerInterleaving.ts` + `leitner-interleave-toggle` in `LeitnerPanel` |
+| **Image occlusion** | `imageOcclusionCards.ts` from `UploadedFile.ocrRegions`; `LeitnerOcclusionFace` card UI |
+| **Demo + tests** | Demo `spacingIntervals` seed; unit tests + e2e `sprint-g-retention.spec.ts` |
+
+Regression gate: `npm test`; `npm run typecheck`; `npm run i18n-lint`; Sprint G e2e green.
 
 ---
 
@@ -171,7 +219,7 @@ Eval harness: `npm run eval` — 30/30 at Stage 3 baseline.
 
 ## Priority gaps (next)
 
-1. **Sprint G — retention science** — full FSRS-4; image occlusion cards (Vision bbox → Leitner)
+1. **Knowledge graph v2** — persist typed `ConceptGraph` on Course; Agent “explain relation” skill
 2. **UploadModal residual i18n** — source mode labels, focus tags, processing steps
 3. **Orphan delete cascade** — delete file → tasks/lessons cleanup (PROMPT_PACK_AUDIT)
 4. **Production scale** — multi-tenant isolation, OCR GPU queue, billing tiers
@@ -179,6 +227,8 @@ Eval harness: `npm run eval` — 30/30 at Stage 3 baseline.
 
 ### Shipped recently (no longer open)
 
+- ~~Sprint H proactive Agent~~ → alert strip, adaptive gap → Feynman, workspace feynman-explain (Jul 2026)
+- ~~Sprint G FSRS + occlusion~~ → quiz FSRS-4, Analytics forecast, interleaved Leitner, OCR bbox cards (Jul 2026)
 - ~~Sprint E smart CTAs~~ → Dashboard CTA strip, coverage Practice deep links, workspace tool routing, e2e (Jul 2026)
 - ~~Phase 0 exam prep bundle~~ → coverage tracker, landing FAQ, exam calendar, Take a breath, Simulator Exam prep tab, quiz provenance, post-exam next steps (Jul 2026)
 - ~~Per-word OCR bboxes~~ → `readerOcrOverlay.ts` word heuristic + `reader-ocr-word-*` testids (Sprint B)

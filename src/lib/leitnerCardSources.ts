@@ -6,6 +6,7 @@ type CardSource = NonNullable<CustomLeitnerCard['source']>;
 const EN: Record<CardSource, string> = {
   scratchpad: 'Scratchpad',
   'reader-selection': 'Reader',
+  'reader-occlusion': 'Reader occlusion',
   'concept-map': 'Concept map',
   'quiz-mistake': 'Quiz mistake',
   'quiz-selection': 'Quiz',
@@ -16,6 +17,7 @@ const EN: Record<CardSource, string> = {
 const EL: Record<CardSource, string> = {
   scratchpad: 'Πρόχειρο',
   'reader-selection': 'Reader',
+  'reader-occlusion': 'Απόκρυψη Reader',
   'concept-map': 'Χάρτης',
   'quiz-mistake': 'Λάθος κουίζ',
   'quiz-selection': 'Κουίζ',

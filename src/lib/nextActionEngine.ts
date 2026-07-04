@@ -4,8 +4,10 @@
  */
 
 import type { Lang } from './i18n';
+import type { ActivityItem } from '../types';
 import type { LearningActionId } from './workspaceLearningActions';
 import { getLearningActions } from './workspaceLearningActions';
+import { shouldRouteAdaptiveGapToFeynman } from './adaptiveGapRouting';
 
 export type NextActionId = LearningActionId | 'reprocess';
 
@@ -26,6 +28,8 @@ export function recommendNextAction(opts: {
   stepMark?: 'understood' | 'confusing';
   quizPassed: boolean;
   weakConceptCount: number;
+  activeConcept?: string;
+  activities?: ActivityItem[];
 }): NextActionRecommendation | null {
   const {
     lang,
@@ -38,6 +42,8 @@ export function recommendNextAction(opts: {
     stepMark,
     quizPassed,
     weakConceptCount,
+    activeConcept = '',
+    activities = [],
   } = opts;
 
   const isEl = lang === 'el';
@@ -91,6 +97,19 @@ export function recommendNextAction(opts: {
   }
 
   const onQuizStep = stepCount > 0 && stepIndex >= stepCount - 1;
+  const gapToFeynman = activeConcept
+    ? shouldRouteAdaptiveGapToFeynman(activeConcept, activities)
+    : false;
+
+  if (gapToFeynman && !quizPassed) {
+    return {
+      primary: 'feynman-explain',
+      reason: isEl
+        ? `3 αποτυχίες στο quiz για «${activeConcept}» — δοκίμασε Feynman εξήγηση.`
+        : `Three quiz misses on "${activeConcept}" — try a Feynman explanation.`,
+      secondary: secondary('explain-zero', 'ask-agent', 'flashcards'),
+    };
+  }
 
   if (onQuizStep && !quizPassed) {
     return {

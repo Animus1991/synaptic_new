@@ -51,6 +51,7 @@ export function mergeAgentWorkspaceContext(
     lowConfidenceSection: handoff.lowConfidenceSection ?? live.lowConfidenceSection,
     handwrittenSource: handoff.handwrittenSource ?? live.handwrittenSource,
     selectionExcerpt: handoff.selectionExcerpt ?? live.selectionExcerpt,
+    graphRelation: handoff.graphRelation ?? live.graphRelation,
   };
 }
 

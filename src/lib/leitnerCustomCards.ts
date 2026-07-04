@@ -1,11 +1,13 @@
 import { withLeitnerCardType, type LeitnerCardType } from './leitnerCardTypes';
+import type { ImageOcclusionPayload } from './imageOcclusionCards';
 import { loadJson, saveJson } from './persistence';
 
 export type CustomLeitnerCard = {
   front: string;
   back: string;
-  source?: 'scratchpad' | 'reader-selection' | 'concept-map' | 'quiz-mistake' | 'quiz-selection' | 'compare' | 'debate';
+  source?: 'scratchpad' | 'reader-selection' | 'reader-occlusion' | 'concept-map' | 'quiz-mistake' | 'quiz-selection' | 'compare' | 'debate';
   cardType?: LeitnerCardType;
+  occlusion?: ImageOcclusionPayload;
 };
 
 const KEY = 'leitner-custom-cards';

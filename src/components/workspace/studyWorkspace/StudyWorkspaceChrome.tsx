@@ -61,6 +61,7 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
     conceptLensView,
     openReaderAtConceptSection,
     handleConceptLensAction,
+    handleExplainGraphRelation,
     intelReady,
   } = model;
 
@@ -190,6 +191,7 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
                   onFocus={(term) => focusOnTerm(term, activeTool)}
                   onJumpTool={openWorkspaceTool}
                   onAction={handleConceptLensAction}
+                  onExplainRelation={handleExplainGraphRelation}
                   onOpenReaderSection={openReaderAtConceptSection}
                 />
               </>
@@ -305,6 +307,7 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
                 onFocus={(term) => focusOnTerm(term, activeTool)}
                 onJumpTool={openWorkspaceTool}
                 onAction={handleConceptLensAction}
+                onExplainRelation={handleExplainGraphRelation}
                 onOpenReaderSection={openReaderAtConceptSection}
                 className="border-b border-border-subtle/60 bg-surface-primary/40"
               />
