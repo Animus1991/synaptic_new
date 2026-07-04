@@ -27,8 +27,20 @@ This document separates **done**, **partial**, and **missing** against the produ
 | i18n | **~92%** | UploadModal configure/processing i18n; exam prep ~135 keys |
 | UI/UX / themes | **~89%** | Platform shortcut badges; Warm Sand + Spectrum |
 
-**Overall product-scale readiness: ~99%** — Sprint I (knowledge graph v2) and Sprint J
-(reader occlusion-from-selection, UploadModal i18n) shipped. Next: production multi-tenant scale.
+**Overall product-scale readiness: ~99%** — Sprint I–K shipped (Jul 2026).
+Next: production multi-tenant scale.
+
+---
+
+## Sprint K — lib helper i18n — shipped (Jul 2026)
+
+| Scope | Deliverable |
+| ----- | ----------- |
+| **Selection actions** | `workspaceSelectionActions.ts` → `t()` for 9 action labels/hints + agent prompt |
+| **Leitner helpers** | `leitnerCardSources.ts`, `leitnerCardTypes.ts`, `imageOcclusionCards.ts` |
+| **Graph prompts** | `buildRelationExplainPrompt` in `courseConceptGraph.ts` |
+| **i18n keys** | +38 EN/EL keys (`selectionAction*`, `leitnerCard*`, `agentRelationExplain*`) |
+| **Tests** | Extended unit tests; e2e `sprint-k-helper-i18n.spec.ts` |
 
 ---
 
@@ -192,7 +204,8 @@ Re-upload / reprocess: courses analyzed before v2.4.0 keep stored extractedText.
 | ---- | --------- |
 | **Sprint I** | ~~Knowledge graph v2 on Course; Agent relation explanations~~ → shipped Jul 2026 |
 | **Sprint J** | ~~Reader occlusion-from-selection; UploadModal configure i18n~~ → shipped Jul 2026 |
-| i18n | Residual lib/helpers outside UploadModal |
+| **Sprint K** | ~~Residual lib/helper i18n (selection, Leitner, occlusion, graph prompts)~~ → shipped Jul 2026 |
+| i18n | `textQualityMetrics.ts` struct pick (low priority) |
 | OCR | Browser Tesseract client → stored word regions (ingest path) |
 
 ---

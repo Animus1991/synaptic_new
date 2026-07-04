@@ -1,6 +1,6 @@
 # Product-scale status (canonical snapshot)
 
-**Last reconciled:** 2026-07-05 — aligned through **Sprint J** (reader occlusion-from-selection + UploadModal i18n, Jul 2026).
+**Last reconciled:** 2026-07-05 — aligned through **Sprint K** (lib helper i18n, Jul 2026).
 
 This file is the **single shipped-truth status doc**. Use it for readiness reviews,
 sprint close-outs, and investor/contributor snapshots.
@@ -16,9 +16,23 @@ sprint close-outs, and investor/contributor snapshots.
 
 ## Overall readiness
 
-**~99% product-scale** — … **Sprint I** (typed `ConceptGraph` on Course, Agent explain-relation), and
-**Sprint J** (reader occlusion-from-selection, UploadModal configure i18n) landed locally (Jul 2026).
-Remaining gaps: production multi-tenant scale, residual helper i18n.
+**~99% product-scale** — … **Sprint J** (reader occlusion-from-selection, UploadModal configure i18n), and
+**Sprint K** (residual lib helper i18n) landed (Jul 2026).
+Remaining gaps: production multi-tenant scale.
+
+---
+
+## Sprint K — lib helper i18n — shipped (Jul 2026)
+
+| Scope | Deliverable |
+| ----- | ----------- |
+| **Selection actions** | `workspaceSelectionActions.ts` — 9 labels/hints + `selectionAgentPrompt` via `t()` |
+| **Leitner helpers** | `leitnerCardSources.ts`, `leitnerCardTypes.ts`, `imageOcclusionCards.ts` |
+| **Graph prompts** | `buildRelationExplainPrompt` → `agentRelationExplain*` keys |
+| **i18n keys** | +38 EN/EL keys in `i18n.ts` |
+| **Tests** | Unit tests extended; `sprint-k-helper-i18n.spec.ts` |
+
+Regression gate: `npm test`; `npm run i18n-lint`; `npm run typecheck`; Sprint K e2e.
 
 ---
 
@@ -64,7 +78,7 @@ including `greek-syllabus-reader.spec.ts`, `workspace-empty-tools.spec.ts`,
 
 Regression gate: `npm test` 926/926; `npm run i18n-lint`; `npm run typecheck`.
 
-**Next:** production multi-tenant scale; residual helper i18n.
+**Next:** production multi-tenant scale.
 
 ---
 

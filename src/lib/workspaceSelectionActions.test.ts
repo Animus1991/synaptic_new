@@ -32,6 +32,12 @@ describe('workspaceSelectionActions', () => {
     expect(defs.some((d) => d.id === 'open-reader')).toBe(true);
   });
 
+  it('returns Greek labels when lang is el', () => {
+    const defs = getSelectionActionDefs('el', 'concept-map');
+    expect(defs.find((d) => d.id === 'annotate')?.label).toBe('Επισήμανση');
+    expect(defs.find((d) => d.id === 'ask-agent')?.label).toBe('Ρώτα Agent');
+  });
+
   it('builds bilingual agent prompts', () => {
     const en = buildSelectionAgentPrompt('Supply shifts right', 'Market equilibrium', 'Supply', 'en');
     expect(en).toContain('Supply shifts right');

@@ -190,19 +190,15 @@ export function buildRelationExplainPrompt(
 ): string {
   const relation = relationTypeLabel(ctx.relationType, lang);
   const evidence = ctx.evidence?.trim();
-  if (lang === 'el') {
-    return [
-      `Εξήγησε πώς σχετίζεται το «${ctx.sourceLabel}» με το «${ctx.targetLabel}».`,
-      `Τύπος σχέσης στο γράφημα γνώσης: ${relation}.`,
-      evidence ? `Απόσπασμα από το υλικό: «${evidence}»` : '',
-      'Χρησιμοποίησε μόνο το υλικό του μαθήματος — μην εφευρίσκεις γεγονότα.',
-    ].filter(Boolean).join('\n');
-  }
   return [
-    `Explain how "${ctx.sourceLabel}" relates to "${ctx.targetLabel}".`,
-    `Knowledge-graph relation type: ${relation}.`,
-    evidence ? `Evidence from the source material: "${evidence}"` : '',
-    'Ground your answer in the course material only — do not invent facts.',
+    t('agentRelationExplainIntro', lang)
+      .replace('{source}', ctx.sourceLabel)
+      .replace('{target}', ctx.targetLabel),
+    t('agentRelationExplainTypeLine', lang).replace('{relation}', relation),
+    evidence
+      ? t('agentRelationExplainEvidenceLine', lang).replace('{evidence}', evidence)
+      : '',
+    t('agentRelationExplainGrounding', lang),
   ].filter(Boolean).join('\n');
 }
 

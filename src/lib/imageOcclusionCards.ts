@@ -1,5 +1,5 @@
 import type { UploadedFile } from '../types';
-import type { Lang } from './i18n';
+import { t, type Lang } from './i18n';
 import type { OcrStoredRegion } from './readerOcrOverlay';
 import type { LeitnerCard } from './leitnerSessionModel';
 
@@ -46,9 +46,7 @@ export function buildOcclusionCardFromRegion(
 ): LeitnerCard {
   const label = region.text.trim();
   return {
-    front: lang === 'el'
-      ? `Τι δείχνει η ετικέτα; (${file.name})`
-      : `What label is hidden? (${file.name})`,
+    front: t('leitnerOcclusionCardFront', lang).replace('{fileName}', file.name),
     back: label,
     cardType: 'occlusion',
     occlusion: {

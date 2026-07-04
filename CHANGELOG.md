@@ -7,6 +7,11 @@ client and server are versioned together.
 
 ### Added
 
+- **Sprint K — lib helper i18n (Jul 2026)** —
+  Wave C2 batch 19: migrate residual G–J lib helpers to central `i18n.ts`
+  (`workspaceSelectionActions`, `leitnerCardSources`, `leitnerCardTypes`,
+  `imageOcclusionCards`, `buildRelationExplainPrompt`); +38 EN/EL keys;
+  unit + e2e `sprint-k-helper-i18n.spec.ts`.
 - **Sprint J — reader occlusion-from-selection + UploadModal i18n (Jul 2026)** —
   `readerOcclusionFromSelection.ts` maps Reader selection to stored/heuristic OCR regions and
   builds Leitner occlusion cards; `make-occlusion` selection action in Reader;

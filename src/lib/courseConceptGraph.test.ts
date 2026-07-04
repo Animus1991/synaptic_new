@@ -58,6 +58,13 @@ describe('courseConceptGraph', () => {
     expect(prompt).toContain('Elasticity measures responsiveness');
   });
 
+  it('buildRelationExplainPrompt uses Greek copy when lang is el', () => {
+    const rel = findGraphRelation(sampleGraph, 'Elasticity', 'Supply & Demand')!;
+    const prompt = buildRelationExplainPrompt(rel, 'el');
+    expect(prompt).toContain('Εξήγησε');
+    expect(prompt).toContain('γράφημα γνώσης');
+  });
+
   it('mergeCourseGraphIntoConceptMap adds graph nodes and edges', () => {
     const baseNodes: ConceptMapNode[] = [{
       id: 'n0', label: 'Supply & Demand', mastery: 80, type: 'concept', x: 0, y: 0,
