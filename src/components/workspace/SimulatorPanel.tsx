@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { BookOpen, Search, Timer } from '@/lib/lucide-shim';
 import type { SimulatorSessionContent } from '../../lib/simulatorSessionModel';
 import { filterNumericCues } from '../../lib/simulatorSessionModel';
@@ -30,6 +30,7 @@ type Props = {
   artifactStale?: boolean;
   onAcknowledgeStale?: () => void;
   scopeKey?: string;
+  initialMainTab?: MainTab;
 };
 
 export function SimulatorPanel({
@@ -46,10 +47,15 @@ export function SimulatorPanel({
   artifactStale = false,
   onAcknowledgeStale,
   scopeKey = '',
+  initialMainTab,
 }: Props) {
   const [filterQuery, setFilterQuery] = useState('');
-  const [mainTab, setMainTab] = useState<MainTab>('simulator');
+  const [mainTab, setMainTab] = useState<MainTab>(initialMainTab ?? 'simulator');
   const { t } = useI18n();
+
+  useEffect(() => {
+    if (initialMainTab) setMainTab(initialMainTab);
+  }, [initialMainTab]);
 
   const tabBar = (
     <div className="shrink-0 flex gap-1 border-b border-border-subtle px-4 py-2" data-testid="simulator-main-tabs">

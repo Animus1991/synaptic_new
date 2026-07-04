@@ -69,6 +69,7 @@ describe('selectDashboardNextAction', () => {
     });
     expect(action?.kind).toBe('weak-area');
     expect(action?.concept).toBe('Elasticity');
+    expect(action?.workspaceTool).toBe('quiz');
   });
 
   it('suggests critical task over weak area', () => {
@@ -101,5 +102,7 @@ describe('selectDashboardNextAction', () => {
       daysToExam: 5,
     });
     expect(action?.kind).toBe('exam-prep');
+    expect(action?.workspaceTool).toBe('simulator');
+    expect(action?.simulatorTab).toBe('exam-prep');
   });
 });

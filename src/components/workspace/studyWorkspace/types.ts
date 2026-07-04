@@ -49,6 +49,8 @@ export interface StudyWorkspaceProps {
   agentSplit?: boolean;
   workspaceOpenTool?: WorkspaceToolId | null;
   onConsumeWorkspaceOpenTool?: () => void;
+  workspaceOpenSimulatorTab?: 'simulator' | 'exam-prep' | null;
+  onConsumeWorkspaceOpenSimulatorTab?: () => void;
 }
 
 export const AVAILABLE_TOOLS: WorkspaceTool[] = [

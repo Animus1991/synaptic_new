@@ -205,6 +205,8 @@ export function useStudyWorkspace({
   agentSplit = false,
   workspaceOpenTool = null,
   onConsumeWorkspaceOpenTool,
+  workspaceOpenSimulatorTab = null,
+  onConsumeWorkspaceOpenSimulatorTab,
 }: StudyWorkspaceProps) {
   const { t, lang } = useI18n();
   const intelReady = useWorkspaceIntelHydration();
@@ -238,12 +240,6 @@ export function useStudyWorkspace({
   useEffect(() => {
     setCustomLeitnerCards(loadCustomLeitnerCards(progressKey));
   }, [progressKey]);
-
-  useEffect(() => {
-    if (!workspaceOpenTool) return;
-    setActiveTool(workspaceOpenTool);
-    onConsumeWorkspaceOpenTool?.();
-  }, [workspaceOpenTool, onConsumeWorkspaceOpenTool]);
 
   useEffect(() => {
     preloadPrimaryWorkspaceTools();
@@ -553,10 +549,24 @@ export function useStudyWorkspace({
     if (layout === 'focus-lesson') setLayout(isMobile ? 'focus-tool' : 'split');
   }, [layout, isMobile, noteConceptActivity, quizConcept]);
 
+  const [simulatorMainTab, setSimulatorMainTab] = useState<'simulator' | 'exam-prep' | undefined>();
+
   const openWorkspaceTool = useCallback((tool: WorkspaceTool) => {
     setActiveTool(tool);
     if (layout === 'focus-lesson') setLayout(isMobile ? 'focus-tool' : 'split');
   }, [layout, isMobile]);
+
+  useEffect(() => {
+    if (!workspaceOpenTool) return;
+    openWorkspaceTool(workspaceOpenTool);
+    onConsumeWorkspaceOpenTool?.();
+  }, [workspaceOpenTool, onConsumeWorkspaceOpenTool, openWorkspaceTool]);
+
+  useEffect(() => {
+    if (!workspaceOpenSimulatorTab) return;
+    setSimulatorMainTab(workspaceOpenSimulatorTab);
+    onConsumeWorkspaceOpenSimulatorTab?.();
+  }, [workspaceOpenSimulatorTab, onConsumeWorkspaceOpenSimulatorTab]);
 
   const resolveEmptyActions = useCallback(
     (tool: WorkspaceEmptyTool) =>
@@ -1154,13 +1164,25 @@ export function useStudyWorkspace({
   ]);
 
   useEffect(() => {
-    if (!workspaceFocus?.term) return;
-    setLocalFocus(workspaceFocus);
-    setActiveTool('reader');
-    const source = noteBundle.sourceFullText?.trim();
-    const stepIdx = resolveWorkspaceStepForConcept(workspaceFocus.term, STEPS, source);
-    if (stepIdx != null && stepIdx >= 0) setCurrentStep(stepIdx);
-  }, [workspaceFocus?.term]); // eslint-disable-line react-hooks/exhaustive-deps -- open-from-dashboard focus
+    if (!workspaceFocus) return;
+    const hasTerm = Boolean(workspaceFocus.term);
+    const hasPracticeTool = Boolean(workspaceFocus.preferredTool);
+    if (!hasTerm && !hasPracticeTool) return;
+
+    if (hasTerm) {
+      setLocalFocus(workspaceFocus);
+      const source = noteBundle.sourceFullText?.trim();
+      const stepIdx = resolveWorkspaceStepForConcept(workspaceFocus.term!, STEPS, source);
+      if (stepIdx != null && stepIdx >= 0) setCurrentStep(stepIdx);
+    }
+
+    if (workspaceFocus.preferredTool) {
+      openWorkspaceTool(workspaceFocus.preferredTool);
+      if (workspaceFocus.simulatorTab) setSimulatorMainTab(workspaceFocus.simulatorTab);
+    } else if (hasTerm) {
+      setActiveTool('reader');
+    }
+  }, [workspaceFocus?.term, workspaceFocus?.preferredTool, workspaceFocus?.simulatorTab]); // eslint-disable-line react-hooks/exhaustive-deps -- open-from-dashboard focus
 
   useEffect(() => {
     saveWorkspaceStep(progressKey, currentStep);
@@ -2126,6 +2148,7 @@ export function useStudyWorkspace({
     compareSession,
     debateSession,
     simulatorSession,
+    simulatorMainTab,
     whiteboardSession,
     timerSession,
     dashboardSession,

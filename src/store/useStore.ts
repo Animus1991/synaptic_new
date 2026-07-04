@@ -76,8 +76,17 @@ import {
 } from '../lib/deleteCascade';
 import { emitAnalyticsLearningEvent } from '../lib/emitLearningEvent';
 import type { TaskFilter } from '../components/Tasks';
-import { selectDashboardNextAction } from '../lib/dashboardNextAction';
+import { selectDashboardNextAction, type WorkspacePracticeLaunch } from '../lib/dashboardNextAction';
 import { recommendDailyPlan } from '../lib/unifiedAdaptiveScheduler';
+import {
+  buildDashboardSmartCTAs,
+  smartCTAToWorkspaceLaunch,
+  type DashboardSmartCTA,
+} from '../lib/examPrep/dashboardSmartCTAs';
+import {
+  buildSyllabusCoverageSnapshot,
+  pickPrimaryCourseForCoverage,
+} from '../lib/examPrep/syllabusCoverageTracker';
 import { formatUploadSuccessToast, summarizeUploadStructure } from '../lib/uploadStructureSummary';
 import type { BetaMastery } from '../lib/pedagogy';
 import {
@@ -279,6 +288,7 @@ export function useAppStore() {
   const studyWorkspaceOpenRef = useRef(false);
   /** One-shot tool focus when opening workspace from dashboard exam countdown. */
   const [workspaceOpenTool, setWorkspaceOpenTool] = useState<WorkspaceToolId | null>(null);
+  const [workspaceOpenSimulatorTab, setWorkspaceOpenSimulatorTab] = useState<'simulator' | 'exam-prep' | null>(null);
   const studyConceptOverrideRef = useRef<string | null>(null);
   /** Bumped on open to cancel an in-flight async close (flush) that would otherwise race. */
   const workspaceCloseGenRef = useRef(0);
@@ -348,13 +358,45 @@ export function useAppStore() {
     setStudyConceptOverride(null);
     setWorkspaceFocus(null);
     setWorkspaceAgentSplit(false);
+    setWorkspaceOpenSimulatorTab(null);
     setWorkspaceOpenTool('timer');
     studyWorkspaceOpenRef.current = true;
     setStudyWorkspaceOpen(true);
   }, [cancelPendingWorkspaceClose, closeCompetingTaskOverlays]);
 
+  const openStudyWorkspaceForPractice = useCallback((launch: WorkspacePracticeLaunch) => {
+    markWorkspaceContinue();
+    prefetchWorkspaceEntry();
+    cancelPendingWorkspaceClose();
+    closeCompetingTaskOverlays('workspace');
+    setActiveTaskId(null);
+
+    if (launch.courseId) {
+      const course = courses.find((c) => c.id === launch.courseId);
+      if (course) setSelectedCourse(course);
+    }
+
+    const trimmed = launch.concept?.trim() || null;
+    setStudyConceptOverride(trimmed);
+    setWorkspaceFocus({
+      ...(trimmed ? { term: trimmed } : {}),
+      originTool: 'dashboard',
+      preferredTool: launch.tool,
+      ...(launch.simulatorTab ? { simulatorTab: launch.simulatorTab } : {}),
+    });
+    setWorkspaceOpenTool(launch.tool);
+    setWorkspaceOpenSimulatorTab(launch.simulatorTab ?? null);
+    setWorkspaceAgentSplit(false);
+    studyWorkspaceOpenRef.current = true;
+    setStudyWorkspaceOpen(true);
+  }, [cancelPendingWorkspaceClose, closeCompetingTaskOverlays, courses]);
+
   const consumeWorkspaceOpenTool = useCallback(() => {
     setWorkspaceOpenTool(null);
+  }, []);
+
+  const consumeWorkspaceOpenSimulatorTab = useCallback(() => {
+    setWorkspaceOpenSimulatorTab(null);
   }, []);
 
   const [sourceHighlight, setSourceHighlight] = useState<SourceHighlight | null>(null);
@@ -1854,6 +1896,26 @@ export function useAppStore() {
     [user.settings.language, learnerModel, betaMastery, tasks, dashboardStats, dashboardExtras.daysToExam, workspaceLive, selectedCourse?.id],
   );
 
+  const coverageSnapshot = useMemo(() => {
+    const primary = pickPrimaryCourseForCoverage(courses);
+    return primary ? buildSyllabusCoverageSnapshot(primary, user.settings.examDate) : null;
+  }, [courses, user.settings.examDate]);
+
+  const dashboardSmartCTAs = useMemo(
+    () => buildDashboardSmartCTAs({
+      lang: user.settings.language,
+      dashboardAction: dashboardNextAction,
+      snapshot: coverageSnapshot,
+      stats: dashboardStats,
+      daysToExam: dashboardExtras.daysToExam,
+    }),
+    [user.settings.language, dashboardNextAction, coverageSnapshot, dashboardStats, dashboardExtras.daysToExam],
+  );
+
+  const runDashboardSmartCTA = useCallback((cta: DashboardSmartCTA) => {
+    openStudyWorkspaceForPractice(smartCTAToWorkspaceLaunch(cta));
+  }, [openStudyWorkspaceForPractice]);
+
   const agentContextForView = useMemo(
     () => mergeAgentWorkspaceContext(
       workspaceLive?.agentContext,
@@ -1902,6 +1964,9 @@ export function useAppStore() {
     workspaceCourseSplit, exitWorkspaceCourseSplit,
     dashboardNextAction,
     dailyPlan,
+    dashboardSmartCTAs,
+    runDashboardSmartCTA,
+    coverageSnapshot,
     uploadedFiles, glossaryEntries, isUploading, isReprocessing, simulateUpload, processUpload,
     reprocessCourseMaterial, saveCourseExtractedText, removeUploadedFile, removeCourse,
     pullLibraryFromServer, pullSessionFromServer, pushSessionToServer, syncAccountOnLogin,
@@ -1913,7 +1978,9 @@ export function useAppStore() {
     studyWorkspaceOpen, setStudyWorkspaceOpen,
     openStudyWorkspace, closeStudyWorkspace,
     studyConceptOverride, openStudyWorkspaceForConcept, openStudyWorkspaceForExamCountdown,
+    openStudyWorkspaceForPractice,
     workspaceOpenTool, consumeWorkspaceOpenTool,
+    workspaceOpenSimulatorTab, consumeWorkspaceOpenSimulatorTab,
     workspaceFocus, setWorkspaceFocus,
     sourceHighlight, openSourceAt, clearSourceHighlight: () => setSourceHighlight(null),
     reviewSessionOpen, setReviewSessionOpen,

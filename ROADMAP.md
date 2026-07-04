@@ -1,6 +1,6 @@
 # Roadmap & Gap Analysis
 
-**Status baseline:** July 2026 — post Sprint 9 + **P0/P1/OCR/Sprint C/B/D** + **Phase 0 exam prep bundle**.
+**Status baseline:** July 2026 — post Sprint 9 + **P0/P1/OCR/Sprint C/B/D** + **Phase 0 exam prep bundle** + **Sprint E**.
 **Canonical snapshot:** [`PRODUCT_SCALE_STATUS.md`](PRODUCT_SCALE_STATUS.md)
 
 This document separates **done**, **partial**, and **missing** against the product goal: *note-grounded adaptive learning at product scale, not MVP/demo-first.*
@@ -23,12 +23,12 @@ This document separates **done**, **partial**, and **missing** against the produ
 | Auth and full sync | **~82%** | JWT, library + session pull/push |
 | Phase 6 server | **~88%** (dev) | Docker compose, Redis, pgvector, gradebook |
 | Documentation | **~94%** | Reconciled Jul 2026 through Sprint B/D |
-| Tests & CI | **~95%** | 926 unit tests; exam prep e2e smoke |
+| Tests & CI | **~96%** | 932 unit tests; Sprint E dashboard e2e |
 | i18n | **~90%** | UploadModal + RecognitionReportPanel; exam prep ~135 keys |
 | UI/UX / themes | **~89%** | Platform shortcut badges; Warm Sand + Spectrum |
 
-**Overall product-scale readiness: ~95%** — Phase 0 exam prep bundle shipped. Next: **Sprint E**
-(Dashboard smart CTAs, coverage→tool linkage), then **Sprint G** (FSRS-4 + image occlusion).
+**Overall product-scale readiness: ~96%** — Sprint E shipped (smart CTAs, coverage deep links, e2e). Next: **Sprint G**
+(FSRS-4 + image occlusion).
 
 ---
 
@@ -42,6 +42,17 @@ This document separates **done**, **partial**, and **missing** against the produ
 | P4 | Simulator Exam prep sub-tab (patterns, algorithms, GLOSSA) + post-exam next steps |
 
 Key paths: `src/lib/examPrep/`, `src/components/examPrep/`, `ExamPrepPanel.tsx`, `LandingFAQ.tsx`.
+
+---
+
+## Sprint E — dashboard smart CTAs — shipped (Jul 2026)
+
+| Scope | Deliverable |
+| ----- | ----------- |
+| Smart CTAs | `DashboardSmartCTAStrip` — scheduler + coverage + review-due (max 3) |
+| Deep links | Coverage Practice → quiz / Leitner / Simulator exam-prep via `openStudyWorkspaceForPractice` |
+| Routing fix | `WorkspaceFocus.preferredTool` prevents dashboard focus from forcing Reader |
+| Tests | `sprint-e-dashboard.spec.ts` (3/3); 6 unit tests in `src/lib/examPrep/` |
 
 ---
 
@@ -136,7 +147,6 @@ Re-upload / reprocess: courses analyzed before v2.4.0 keep stored extractedText.
 
 | Area | Open work |
 | ---- | --------- |
-| **Sprint E** | Dashboard smart CTAs from scheduler; coverage→quiz/Leitner deep links; exam prep e2e in CI |
 | **Sprint G** | Full FSRS-4; image occlusion cards (Vision bbox → Leitner) |
 | i18n | UploadModal source mode / focus tags / processing steps; residual lib/helpers |
 | OCR | Browser Tesseract client → stored word regions |

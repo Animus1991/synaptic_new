@@ -429,6 +429,7 @@ export function StudyWorkspaceToolSurface({ model }: StudyWorkspaceToolSurfacePr
                           artifactStale={simulatorArtifactStale}
                           onAcknowledgeStale={() => acknowledgePracticeStale('simulator')}
                           scopeKey={progressKey}
+                          initialMainTab={model.simulatorMainTab}
                         />
                         </WorkspaceToolSuspense>
                       )}

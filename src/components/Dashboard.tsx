@@ -37,6 +37,11 @@ import { executeDashboardNextAction } from '../lib/dashboardNextAction';
 import { SyllabusCoverageWidget } from './examPrep/SyllabusCoverageWidget';
 import { ExamCalendarPanel } from './examPrep/ExamCalendarPanel';
 import { PostExamNextStepsPanel } from './examPrep/PostExamNextStepsPanel';
+import { DashboardSmartCTAStrip } from './examPrep/DashboardSmartCTAStrip';
+import type { DashboardSmartCTA } from '../lib/examPrep/dashboardSmartCTAs';
+import type { WorkspacePracticeLaunch } from '../lib/dashboardNextAction';
+import type { WorkspaceToolId } from '../lib/taskFlows';
+import { recommendToolForTopic } from '../lib/examPrep/coveragePracticeActions';
 
 interface DashboardProps {
   stats: DashboardStats;
@@ -65,6 +70,9 @@ interface DashboardProps {
   workspaceLive?: WorkspaceLiveSync | null;
   workspaceBooting?: boolean;
   dashboardNextAction?: DashboardNextAction | null;
+  smartCTAs?: DashboardSmartCTA[];
+  onRunSmartCTA?: (cta: DashboardSmartCTA) => void;
+  onOpenWorkspacePractice?: (launch: WorkspacePracticeLaunch) => void;
   lang?: Lang;
   /** Fresh upload highlight — show workspace CTA on dashboard */
   postUploadCourse?: Course | null;
@@ -73,7 +81,7 @@ interface DashboardProps {
   settingsExamDate?: string;
 }
 
-export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onSelectCourse, onOpenWorkspace, onOpenExamTimer, onUpload, onExploreDemo, prerequisiteRepairs = [], calibration, conceptMastery = [], activities = [], masteryDelta = 0, daysToExam = null, antiPassiveAlert = false, onStartTask, onStartSession, onResolveMisconception, onFocusWeakArea, workspaceLive = null, workspaceBooting = false, dashboardNextAction = null, lang = 'en', postUploadCourse = null, onDismissPostUpload, onOpenTasksReview, settingsExamDate }: DashboardProps) {
+export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onSelectCourse, onOpenWorkspace, onOpenExamTimer, onUpload, onExploreDemo, prerequisiteRepairs = [], calibration, conceptMastery = [], activities = [], masteryDelta = 0, daysToExam = null, antiPassiveAlert = false, onStartTask, onStartSession, onResolveMisconception, onFocusWeakArea, workspaceLive = null, workspaceBooting = false, dashboardNextAction = null, smartCTAs = [], onRunSmartCTA, onOpenWorkspacePractice, lang = 'en', postUploadCourse = null, onDismissPostUpload, onOpenTasksReview, settingsExamDate }: DashboardProps) {
   const { t } = useI18n();
   const pendingTasks = tasks.filter(t => t.status === 'pending');
   const criticalTasks = pendingTasks.filter(t => t.priority === 'critical' || t.priority === 'high');
@@ -94,6 +102,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
     onOpenWorkspace,
     onFocusWeakArea,
     onStartSession: () => onStartSession?.('25min') ?? onNavigate('tasks'),
+    onOpenWorkspacePractice,
   };
 
   const handleDashboardNextAction = () => {
@@ -220,12 +229,27 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
         <StatCard icon={<Clock className="w-5 h-5 text-accent-emerald" />} label="Study Today" value={`${stats.studyTimeToday}m`} />
       </MotionSection>
 
+      {!isEmpty && smartCTAs.length > 0 && onRunSmartCTA && (
+        <DashboardSmartCTAStrip ctas={smartCTAs} onRun={onRunSmartCTA} />
+      )}
+
       {!isEmpty && (
         <MotionSection initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.08 }}>
           <SyllabusCoverageWidget
             courses={courses}
             settingsExamDate={settingsExamDate}
             onSelectCourse={onSelectCourse}
+            onPracticeTopic={onOpenWorkspacePractice
+              ? (topic, courseId) => {
+                  const tool: WorkspaceToolId = recommendToolForTopic(topic, stats, daysToExam);
+                  onOpenWorkspacePractice({
+                    tool,
+                    concept: topic.title,
+                    courseId,
+                    simulatorTab: tool === 'simulator' ? 'exam-prep' : undefined,
+                  });
+                }
+              : undefined}
           />
         </MotionSection>
       )}
@@ -337,6 +361,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
           </div>
           <button
             onClick={handleDashboardNextAction}
+            data-testid="dashboard-next-action"
             className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-medium ws-empty-cta-secondary shrink-0"
           >
             {dashboardNextAction.label} <ArrowRight className="w-3 h-3" />

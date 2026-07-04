@@ -288,6 +288,8 @@ function selectDashboardAction(opts: {
       label: t('dashboardActionExamPrep', lang),
       reason: examCountdownReason(lang, daysToExam),
       taskId: examTask?.id,
+      workspaceTool: 'simulator',
+      simulatorTab: 'exam-prep',
     };
   }
 
@@ -308,6 +310,7 @@ function selectDashboardAction(opts: {
       kind: 'review-due',
       label: t('dashboardActionReviewsDue', lang),
       reason: t('dashboardActionReviewsDueToday', lang).replace('{count}', String(stats.reviewsDue)),
+      workspaceTool: 'leitner',
     };
   }
 
@@ -323,6 +326,7 @@ function selectDashboardAction(opts: {
         .replace('{concept}', weakConcept)
         .replace('{mastery}', String(weakMastery)),
       concept: weakConcept,
+      workspaceTool: 'quiz',
     };
   }
 
@@ -333,6 +337,7 @@ function selectDashboardAction(opts: {
       label: t('dashboardActionFixMisconception', lang),
       reason: openMisconception.description,
       concept: openMisconception.concept,
+      workspaceTool: 'quiz',
     };
   }
 

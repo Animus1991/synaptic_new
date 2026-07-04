@@ -157,7 +157,10 @@ export default function App() {
     if (action.kind === 'review-due') {
       const firstReviewTask = findPendingTask(store.tasks, (t) => t.isSpacedRepetition && t.status === 'pending');
       if (firstReviewTask) store.startTask(firstReviewTask.id);
-      else store.openTasksWithFilter('review');
+      else executeDashboardNextAction(action, {
+        onNavigateTasks: () => store.openTasksWithFilter('review'),
+        onOpenWorkspacePractice: store.openStudyWorkspaceForPractice,
+      });
       return;
     }
     executeDashboardNextAction(action, {
@@ -167,6 +170,7 @@ export default function App() {
       onOpenWorkspace: openWorkspace,
       onFocusWeakArea: openWorkspaceForConcept,
       onStartSession: () => store.startSession('25min'),
+      onOpenWorkspacePractice: store.openStudyWorkspaceForPractice,
     });
   }, [store, openExamTimerWorkspace, openWorkspace, openWorkspaceForConcept]);
 
@@ -371,6 +375,8 @@ export default function App() {
         setWorkspaceFocus={store.setWorkspaceFocus}
         workspaceOpenTool={store.workspaceOpenTool}
         onConsumeWorkspaceOpenTool={store.consumeWorkspaceOpenTool}
+        workspaceOpenSimulatorTab={store.workspaceOpenSimulatorTab}
+        onConsumeWorkspaceOpenSimulatorTab={store.consumeWorkspaceOpenSimulatorTab}
       />
     </ErrorBoundary>
   );
@@ -790,6 +796,9 @@ export default function App() {
               onExploreDemo={!hasCourses ? handleSeeDemo : undefined}
               workspaceLive={store.workspaceLive}
               dashboardNextAction={store.dashboardNextAction}
+              smartCTAs={store.dashboardSmartCTAs}
+              onRunSmartCTA={store.runDashboardSmartCTA}
+              onOpenWorkspacePractice={store.openStudyWorkspaceForPractice}
               lang={store.user.settings.language}
               postUploadCourse={
                 store.postUploadCourseId

@@ -7,6 +7,14 @@ client and server are versioned together.
 
 ### Added
 
+- **Sprint E — dashboard smart CTAs + coverage deep links (Jul 2026)** — `buildDashboardSmartCTAs`
+  merges unified-scheduler, coverage, and review-due actions into `DashboardSmartCTAStrip`;
+  per-topic **Practice** on `SyllabusCoverageWidget` routes via `coveragePracticeActions.ts`
+  (quiz / Leitner / Simulator exam-prep by mastery, reviews, and exam window);
+  `openStudyWorkspaceForPractice` + `WorkspaceFocus.preferredTool` preserve tool/tab deep links
+  (fixes dashboard focus bus forcing Reader); `SimulatorPanel.initialMainTab` for exam-prep tab;
+  scheduler actions carry `workspaceTool` + `simulatorTab`; 6 unit tests; e2e
+  `sprint-e-dashboard.spec.ts` (3/3 green).
 - **Phase 0 — exam prep bundle (Jul 2026)** — Ten exam-prep patterns (UX only, no third-party
   content): syllabus coverage tracker + countdown on Dashboard (`syllabusCoverageTracker.ts`,
   `SyllabusCoverageWidget.tsx`); landing FAQ (`LandingFAQ.tsx`); exam calendar feed with

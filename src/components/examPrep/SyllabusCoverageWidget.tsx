@@ -4,6 +4,7 @@ import type { Course } from '../../types';
 import {
   buildSyllabusCoverageSnapshot,
   pickPrimaryCourseForCoverage,
+  type TopicCoverageRow,
 } from '../../lib/examPrep/syllabusCoverageTracker';
 import { useI18n } from '../../lib/i18n';
 import { cn } from '../../utils/cn';
@@ -12,10 +13,18 @@ import { PlatformSection } from '../ui/primitives';
 type Props = {
   courses: Course[];
   settingsExamDate?: string;
+  daysToExam?: number | null;
+  reviewsDue?: number;
   onSelectCourse?: (course: Course) => void;
+  onPracticeTopic?: (topic: TopicCoverageRow, courseId: string) => void;
 };
 
-export function SyllabusCoverageWidget({ courses, settingsExamDate, onSelectCourse }: Props) {
+export function SyllabusCoverageWidget({
+  courses,
+  settingsExamDate,
+  onSelectCourse,
+  onPracticeTopic,
+}: Props) {
   const { t } = useI18n();
   const primary = useMemo(() => pickPrimaryCourseForCoverage(courses), [courses]);
   const snapshot = useMemo(
@@ -80,12 +89,22 @@ export function SyllabusCoverageWidget({ courses, settingsExamDate, onSelectCour
               key={topic.topicId}
               className="flex items-center justify-between gap-2 text-[11px] rounded-lg px-2 py-1.5 bg-surface-card/50"
             >
-              <span className={cn('truncate', topic.isComplete && 'text-accent-emerald')}>
+              <span className={cn('truncate min-w-0', topic.isComplete && 'text-accent-emerald')}>
                 {topic.title}
               </span>
-              <span className="shrink-0 text-text-muted flex items-center gap-1">
+              <span className="shrink-0 text-text-muted flex items-center gap-1.5">
                 {topic.isComplete && <CheckCircle2 className="w-3 h-3 text-accent-emerald" />}
-                {topic.completedLessons}/{topic.totalLessons}
+                <span>{topic.completedLessons}/{topic.totalLessons}</span>
+                {!topic.isComplete && onPracticeTopic && primary && (
+                  <button
+                    type="button"
+                    data-testid={`coverage-practice-${topic.topicId}`}
+                    onClick={() => onPracticeTopic(topic, snapshot.courseId)}
+                    className="text-brand-700 font-medium hover:underline"
+                  >
+                    {t('coveragePracticeTopic')}
+                  </button>
+                )}
               </span>
             </li>
           ))}
