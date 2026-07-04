@@ -50,6 +50,14 @@ test.describe('Greek syllabus paste → workspace reader (P1)', () => {
     await expect(page.getByText(/α π ό λ υ τ α/i)).not.toBeVisible();
     await expect(page.getByText(/πλεονεκτήματα|πλεονεκτηματα/i).first()).toBeVisible({ timeout: 15_000 });
     await expect(page.getByText(/βιβλιογραφία|krugman/i).first()).toBeVisible({ timeout: 15_000 });
+
+    await page.getByTestId('dock-tool-reader').click();
+    await expect(page.getByTestId('reader-structured-body')).toBeVisible({ timeout: 15_000 });
+    await expect(
+      page.getByTestId('reader-table-segment').first()
+        .or(page.getByText(/Inflation/i).first())
+        .or(page.getByText(/Indicator/i).first()),
+    ).toBeVisible({ timeout: 15_000 });
     await expect(page.getByTestId('reader-greek-ocr-banner')).not.toBeVisible();
 
     await page.getByTestId('dock-tool-scratchpad').click();

@@ -7,6 +7,15 @@ client and server are versioned together.
 
 ### Added
 
+- **Sprint B — word-level OCR overlay + PDF e2e (Jul 2026)** — `readerOcrOverlay.ts`
+  word-level heuristic + `splitStoredRegionIntoWords`; `data-testid="reader-ocr-word-{i}"`
+  and `data-ocr-granularity` on Reader overlay; `e2e/fixtures/greek-syllabus-min.pdf` +
+  generator script; `upload-file-input` testid; `greek-pdf-upload.spec.ts` (binary PDF →
+  outline → workspace → reader).
+- **Sprint D — i18n, Teacher, mobile e2e (Jul 2026)** — 24 EN/EL keys for UploadModal
+  (header, drop zone, errors) and RecognitionReportPanel; `greek-syllabus-reader.spec.ts`
+  table/indicator assertion; `teacher-dashboard.spec.ts` offline smoke;
+  `mobile-workspace-drawer.spec.ts` @ 390×844.
 - **P0 content trust + platform shortcuts (`e32c0b6`, Jul 2026)** — upload-gated
   `WorkspaceEmptyState` for all study tools; quiz `placeholder: true` (no fabricated
   `- - -` options); debate rejects single-node fallback trees; `commandPaletteBadge()`
@@ -77,6 +86,9 @@ client and server are versioned together.
 
 ### Changed
 
+- **Docs reconciliation (Jul 2026, Sprint B/D)** — `PRODUCT_SCALE_STATUS.md`, `ROADMAP.md`,
+  this changelog updated for word-level OCR overlay, PDF upload e2e, i18n
+  UploadModal/RecognitionReport, Teacher + mobile e2e closure.
 - **Docs reconciliation (Jul 2026)** — `PRODUCT_SCALE_STATUS.md`, `ROADMAP.md`, this
   changelog synced to shipped truth through `20b4ff1` on `synaptic_new/main`.
 

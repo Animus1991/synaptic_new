@@ -37,7 +37,12 @@ import {
   syncBilingualByParagraph,
 } from '../../lib/readerBilingualSync';
 import { speakParagraphs } from '../../lib/readerTts';
-import { buildOcrOverlayRegions, isLowConfidenceRegion, needsOcrOverlay } from '../../lib/readerOcrOverlay';
+import {
+  buildOcrOverlayRegions,
+  isLowConfidenceRegion,
+  needsOcrOverlay,
+  ocrOverlayGranularity,
+} from '../../lib/readerOcrOverlay';
 import type { OcrStoredRegion } from '../../lib/readerOcrOverlay';
 import { OcrCorrectionPanel } from './OcrCorrectionPanel';
 import { isLlmAvailable } from '../../lib/llmClient';
@@ -330,6 +335,10 @@ export function CognitiveReader({
   const overlayRegions = useMemo(
     () => (ocrOverlayOn && ocrCandidate ? buildOcrOverlayRegions(text, 0, ocrRegions) : []),
     [ocrOverlayOn, ocrCandidate, text, ocrRegions],
+  );
+  const overlayGranularity = useMemo(
+    () => (ocrCandidate ? ocrOverlayGranularity(text, ocrRegions) : 'block'),
+    [ocrCandidate, text, ocrRegions],
   );
 
   useEffect(() => {
@@ -1258,11 +1267,14 @@ export function CognitiveReader({
             <div
               className="pointer-events-none absolute inset-0 z-10"
               data-testid="reader-ocr-overlay"
+              data-ocr-granularity={overlayGranularity}
               aria-hidden
             >
-              {overlayRegions.map((r) => (
+              {overlayRegions.map((r, i) => (
                 <div
                   key={r.id}
+                  data-testid={`reader-ocr-word-${i}`}
+                  data-ocr-confidence={Math.round(r.confidence * 100)}
                   className={cn(
                     'absolute rounded border',
                     isLowConfidenceRegion(r.confidence)

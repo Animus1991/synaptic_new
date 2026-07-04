@@ -1,12 +1,13 @@
 import type { DocumentModelSnapshot, RecognitionSummary } from '../lib/documentModelSnapshot';
 import { recognitionSummaryFromSnapshot } from '../lib/documentModelSnapshot';
+import { t, type Lang } from '../lib/i18n';
 import { cn } from '../utils/cn';
 
 type RecognitionReportPanelProps = {
   snapshot?: DocumentModelSnapshot;
   summary?: RecognitionSummary;
   compact?: boolean;
-  language?: 'en' | 'el';
+  language?: Lang;
 };
 
 function Metric({
@@ -30,7 +31,6 @@ export function RecognitionReportPanel({
   compact = false,
   language = 'en',
 }: RecognitionReportPanelProps) {
-  const el = language === 'el';
   const summary = summaryProp ?? (snapshot ? recognitionSummaryFromSnapshot(snapshot) : undefined);
   if (!summary) return null;
 
@@ -54,35 +54,35 @@ export function RecognitionReportPanel({
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="text-xs font-semibold text-brand-300">
-            {el ? 'Αναφορά αναγνώρισης' : 'Recognition report'}
+            {t('recognitionReportTitle', language)}
           </p>
           <p className="text-[11px] text-text-muted mt-0.5">
             {summary.subject}
             {summary.hasEmbeddingClusters && (
               <span className="ml-2 text-accent-emerald">
-                · {el ? 'offline clusters' : 'offline clusters'}
+                · {t('recognitionReportOfflineClusters', language)}
               </span>
             )}
           </p>
         </div>
         <span className="text-[10px] text-text-muted shrink-0">
-          {new Date(summary.createdAt).toLocaleDateString(el ? 'el-GR' : 'en-US')}
+          {new Date(summary.createdAt).toLocaleDateString(language === 'el' ? 'el-GR' : 'en-US')}
         </span>
       </div>
 
       <div className={cn('grid gap-2', compact ? 'grid-cols-3' : 'grid-cols-4 sm:grid-cols-6')}>
-        <Metric label={el ? 'Ενότητες' : 'Sections'} value={summary.sectionCount} />
-        <Metric label={el ? 'Έννοιες' : 'Concepts'} value={summary.conceptCount} />
-        <Metric label={el ? 'Ορισμοί' : 'Definitions'} value={summary.definitionCount} />
-        <Metric label={el ? 'Τύποι' : 'Formulas'} value={summary.formulaCount} />
-        <Metric label={el ? 'Σχέσεις' : 'Relations'} value={summary.relationCount} />
-        <Metric label={el ? 'Blocks' : 'Blocks'} value={summary.blockCount} />
+        <Metric label={t('recognitionMetricSections', language)} value={summary.sectionCount} />
+        <Metric label={t('recognitionMetricConcepts', language)} value={summary.conceptCount} />
+        <Metric label={t('recognitionMetricDefinitions', language)} value={summary.definitionCount} />
+        <Metric label={t('recognitionMetricFormulas', language)} value={summary.formulaCount} />
+        <Metric label={t('recognitionMetricRelations', language)} value={summary.relationCount} />
+        <Metric label={t('recognitionMetricBlocks', language)} value={summary.blockCount} />
       </div>
 
       {topConcepts.length > 0 && (
         <div>
           <p className="text-[10px] uppercase tracking-wide text-text-muted mb-1.5">
-            {el ? 'Κύριες έννοιες' : 'Key concepts'}
+            {t('recognitionKeyConcepts', language)}
           </p>
           <div className="flex flex-wrap gap-1">
             {topConcepts.map((c) => (
@@ -99,7 +99,7 @@ export function RecognitionReportPanel({
 
       {relationTypes.length > 0 && !compact && (
         <p className="text-[11px] text-text-muted">
-          {el ? 'Τύποι σχέσεων: ' : 'Relation types: '}
+          {t('recognitionRelationTypes', language)}{' '}
           {relationTypes.join(', ')}
         </p>
       )}

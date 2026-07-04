@@ -15,6 +15,7 @@ import { OutlinePreviewPanel } from './OutlinePreviewPanel';
 import { applyEditedTopicTitles, outlineTopicsWereEdited } from '../lib/outlineTopicEdit';
 import { UiIcon } from './ui/UiIcon';
 import type { UiIconId } from '../lib/uiIconRegistry';
+import { t } from '../lib/i18n';
 
 interface UploadModalProps {
   isOpen: boolean;
@@ -157,16 +158,12 @@ export function UploadModal({
           setEditedTopicTitles(result.outline.topics.map((t) => t.title));
         }
         if (!result) {
-          setPreviewError(
-            previewLang === 'el'
-              ? 'Δεν βρέθηκε αρκετό κείμενο για προεπισκόπηση outline.'
-              : 'Not enough text to preview the course outline.',
-          );
+          setPreviewError(t('uploadPreviewTooShort', previewLang));
         }
       })
       .catch((err) => {
         if (cancelled) return;
-        setPreviewError(err instanceof Error ? err.message : 'Outline preview failed.');
+        setPreviewError(err instanceof Error ? err.message : t('uploadPreviewFailed', previewLang));
       })
       .finally(() => {
         if (!cancelled) setPreviewLoading(false);
@@ -208,7 +205,7 @@ export function UploadModal({
       onProceed();
       onClose();
     } catch (err) {
-      setProcessingError(err instanceof Error ? err.message : 'Upload failed. Please try again.');
+      setProcessingError(err instanceof Error ? err.message : t('uploadFailed', previewLang));
       setStep('error');
     }
   };
@@ -236,12 +233,12 @@ export function UploadModal({
           {/* Header */}
           <div className="flex items-center justify-between p-5 border-b border-border-subtle">
             <div>
-              <h2 className="text-lg font-bold">Upload Learning Material</h2>
+              <h2 className="text-lg font-bold">{t('uploadModalTitle', previewLang)}</h2>
               <p className="text-sm text-text-secondary mt-0.5">
-                {step === 'upload' && 'Drop your files or paste content'}
-                {step === 'configure' && 'Configure your course generation'}
-                {step === 'processing' && 'Analyzing your material…'}
-                {step === 'error' && 'Something went wrong'}
+                {step === 'upload' && t('uploadModalStepUpload', previewLang)}
+                {step === 'configure' && t('uploadModalStepConfigure', previewLang)}
+                {step === 'processing' && t('uploadModalStepProcessing', previewLang)}
+                {step === 'error' && t('uploadModalStepError', previewLang)}
               </p>
             </div>
             <button onClick={onClose} className="p-2 rounded-lg hover:bg-surface-hover">
@@ -270,6 +267,7 @@ export function UploadModal({
                     ref={fileInputRef}
                     type="file"
                     multiple
+                    data-testid="upload-file-input"
                     onChange={handleFileSelect}
                     className="hidden"
                     accept=".pdf,.docx,.doc,.pptx,.ppt,.txt,.md,.csv,.py,.js,.ts,.r,.sql,.jpg,.jpeg,.png,.gif,.webp,.json,.zip"
@@ -279,10 +277,10 @@ export function UploadModal({
                     dragActive ? 'text-brand-400' : 'text-text-muted'
                   )} />
                   <p className="text-sm font-medium mb-1">
-                    {dragActive ? 'Drop files here' : 'Click to upload or drag and drop'}
+                    {dragActive ? t('uploadDropActive', previewLang) : t('uploadDropIdle', previewLang)}
                   </p>
                   <p className="text-xs text-text-tertiary">
-                    PDF, DOCX, PPTX, TXT, MD, ChatGPT export (JSON/ZIP), Images, Code, CSV
+                    {t('uploadFormatsHint', previewLang)}
                   </p>
                 </div>
 
@@ -299,7 +297,9 @@ export function UploadModal({
                 {/* Selected files */}
                 {files.length > 0 && (
                   <div className="space-y-2">
-                    <p className="text-xs text-text-tertiary font-medium">{files.length} file(s) selected</p>
+                    <p className="text-xs text-text-tertiary font-medium">
+                      {t('uploadFilesSelected', previewLang).replace('{count}', String(files.length))}
+                    </p>
                     {files.map((file, i) => {
                       const isChatGpt = /\.(json|zip)$/i.test(file.name);
                       return (
@@ -332,7 +332,7 @@ export function UploadModal({
                     data-testid="upload-paste"
                     value={pastedContent}
                     onChange={e => setPastedContent(e.target.value)}
-                    placeholder="Paste your notes, text, or any learning material here..."
+                    placeholder={t('uploadPastePlaceholder', previewLang)}
                     rows={4}
                     className="w-full px-4 py-3 rounded-xl bg-surface-input border border-border-subtle text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-brand-500/50 resize-none"
                   />
@@ -554,7 +554,7 @@ export function UploadModal({
                     : 'bg-gradient-to-r from-brand-600 to-brand-500 text-white hover:from-brand-500 hover:to-brand-400'
                 )}
               >
-                {step === 'upload' ? 'Continue' : 'Generate Course'}
+                {step === 'upload' ? t('continue', previewLang) : t('uploadGenerateCourse', previewLang)}
                 <ArrowRight className="w-4 h-4" />
               </button>
             </div>

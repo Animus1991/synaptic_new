@@ -1,6 +1,6 @@
 # Roadmap & Gap Analysis
 
-**Status baseline:** July 2026 — post Sprint 9 + **P0/P1/OCR/Sprint C** closure (`20b4ff1`).
+**Status baseline:** July 2026 — post Sprint 9 + **P0/P1/OCR/Sprint C/B/D** closure.
 **Canonical snapshot:** [`PRODUCT_SCALE_STATUS.md`](PRODUCT_SCALE_STATUS.md)
 
 This document separates **done**, **partial**, and **missing** against the product goal: *note-grounded adaptive learning at product scale, not MVP/demo-first.*
@@ -18,17 +18,17 @@ This document separates **done**, **partial**, and **missing** against the produ
 | Tasks & pedagogy | **~83%** | Unified adaptive scheduler (S9-PR1); FSRS + mastery |
 | Analytics & Dashboard | **~78%** | Behavior inference + Research tab (S5) |
 | RAG / Agent | **~90%** | Workspace context JSON + selection excerpt handoff |
-| Recognition / OCR | **~88%** | Greek repair, Vision LLM, TrOCR, local ocr-server |
+| Recognition / OCR | **~92%** | Word-level overlay bboxes; Greek repair, Vision LLM, TrOCR, ocr-server |
 | Client persistence | **~86%** | localStorage + IndexedDB; DocumentModel snapshots |
 | Auth and full sync | **~82%** | JWT, library + session pull/push |
 | Phase 6 server | **~88%** (dev) | Docker compose, Redis, pgvector, gradebook |
-| Documentation | **~93%** | Reconciled Jul 2026 through `20b4ff1` |
-| Tests & CI | **~94%** | + Greek reader visual regression; 13-tool empty e2e |
-| i18n | **~83%** | Wave C Settings/Tasks (S7); ~17% residual |
+| Documentation | **~94%** | Reconciled Jul 2026 through Sprint B/D |
+| Tests & CI | **~95%** | + PDF upload, Teacher, mobile drawer e2e; 919 unit tests |
+| i18n | **~88%** | UploadModal + RecognitionReportPanel; UploadModal source-mode residual |
 | UI/UX / themes | **~89%** | Platform shortcut badges; Warm Sand + Spectrum |
 
-**Overall product-scale readiness: ~93%** — P0 content trust, P1 Greek Reader, Vision OCR,
-and Sprint C handoff shipped. Next: per-word OCR bboxes, i18n 100%, production scale.
+**Overall product-scale readiness: ~94%** — P0–C plus Sprint B/D shipped. Next: UploadModal
+residual i18n, browser OCR word regions, production scale.
 
 ---
 
@@ -42,6 +42,15 @@ and Sprint C handoff shipped. Next: per-word OCR bboxes, i18n 100%, production s
 | `8d0bf7e` | Vision OCR + TrOCR + local ocr-server |
 | `38fa960` | Sprint C — Agent selection handoff + full empty-state audit |
 | `20b4ff1` | P1 closure — visual snapshot + concept-map empty fix |
+
+---
+
+## Sprint B + D — shipped (Jul 2026)
+
+| Scope | Deliverable |
+| ----- | ----------- |
+| Sprint B | Word-level OCR overlay (`readerOcrOverlay.ts`, `reader-ocr-word-*` testids); real PDF upload e2e (`greek-pdf-upload.spec.ts`, `greek-syllabus-min.pdf`) |
+| Sprint D | i18n UploadModal + RecognitionReportPanel (24 keys); table reader e2e; `teacher-dashboard.spec.ts`; `mobile-workspace-drawer.spec.ts` |
 
 ---
 
@@ -116,7 +125,8 @@ See I18N.md, STUDY_WORKSPACE.md, WORKSPACE_TOOLS_UPGRADE.md, and EXHAUSTIVE_PROD
 
 | Area | Open work |
 | ---- | --------- |
-| i18n | Residual lib/helpers; Recognition report strings |
+| i18n | UploadModal source mode / focus tags / processing steps; residual lib/helpers |
+| OCR | Browser Tesseract client → stored word regions |
 
 ---
 

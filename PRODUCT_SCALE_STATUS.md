@@ -1,6 +1,6 @@
 # Product-scale status (canonical snapshot)
 
-**Last reconciled:** 2026-07-03 — aligned with `synaptic_new/main` through `20b4ff1` (P0 content trust, P1 Greek Reader, Vision OCR, Sprint C handoff).
+**Last reconciled:** 2026-07-04 — aligned with `synaptic_new/main` through Sprint B/D closure (word-level OCR overlay, PDF upload e2e, i18n UploadModal/RecognitionReport, Teacher + mobile e2e).
 
 This file is the **single shipped-truth status doc**. Use it for readiness reviews,
 sprint close-outs, and investor/contributor snapshots.
@@ -16,10 +16,11 @@ sprint close-outs, and investor/contributor snapshots.
 
 ## Overall readiness
 
-**~93% product-scale** — S9 grounding + Stage 3 gates shipped. **P0 content trust**,
-**P1 Greek Reader repair**, **Vision OCR pipeline**, and **Sprint C empty-state / Agent
-handoff** landed on `synaptic_new/main` (Jul 2026). Remaining gaps: per-word OCR bboxes,
-i18n residual (~17%), production multi-tenant scale.
+**~94% product-scale** — S9 grounding + Stage 3 gates shipped. **P0 content trust**,
+**P1 Greek Reader repair**, **Vision OCR pipeline**, **Sprint C empty-state / Agent
+handoff**, and **Sprint B/D** (word-level OCR overlay, real PDF upload e2e, i18n
+UploadModal/RecognitionReport, Teacher + mobile e2e) landed on `synaptic_new/main` (Jul 2026).
+Remaining gaps: UploadModal source-mode residual strings, production multi-tenant scale.
 
 ---
 
@@ -40,6 +41,22 @@ including `greek-syllabus-reader.spec.ts`, `workspace-empty-tools.spec.ts`,
 
 ---
 
+## Sprint B + D — shipped (Jul 2026)
+
+| Scope | Deliverable |
+| ----- | ----------- |
+| **Sprint B — OCR bboxes** | Word-level heuristic + stored-region split in `readerOcrOverlay.ts`; `data-testid="reader-ocr-word-{i}"` + `data-ocr-granularity` in Reader overlay; 5 unit tests |
+| **Sprint B — PDF e2e** | `e2e/fixtures/greek-syllabus-min.pdf` + generator; `upload-file-input` testid; `greek-pdf-upload.spec.ts` (file input → outline → workspace → reader) |
+| **Sprint D — i18n** | 24 EN/EL keys for UploadModal drop zone/header/errors + RecognitionReportPanel; `npm run i18n-lint` pass |
+| **Sprint D — Reader e2e** | `greek-syllabus-reader.spec.ts` table segment / indicator fallback assertion |
+| **Sprint D — Teacher MVP e2e** | `teacher-dashboard.spec.ts` offline sign-in smoke |
+| **Sprint D — Mobile polish e2e** | `mobile-workspace-drawer.spec.ts` @ 390×844 — bottom nav, drawer, tool switch |
+
+Regression gate: `npm test` 919/919; `npm run i18n-lint`; e2e green for
+`greek-pdf-upload`, `teacher-dashboard`, `mobile-workspace-drawer`, `greek-syllabus-reader`.
+
+---
+
 ## Layer completion
 
 | Layer | % | Shipped truth (Jul 2026) |
@@ -51,13 +68,13 @@ including `greek-syllabus-reader.spec.ts`, `workspace-empty-tools.spec.ts`,
 | Tasks & pedagogy | **~83%** | Unified adaptive scheduler (S9-PR1); FSRS + Beta-Bernoulli mastery |
 | Analytics & Dashboard | **~78%** | Behavior inference + Research tab (S5) |
 | RAG / Agent | **~90%** | Unified grounding; workspace context JSON + **selection excerpt handoff** |
-| Recognition / OCR | **~88%** | Greek repair v2.5.1; Vision LLM + TrOCR WIP path; local `ocr-server/` |
+| Recognition / OCR | **~92%** | Word-level overlay bboxes; Greek repair v2.5.1; Vision LLM + TrOCR; local `ocr-server/` |
 | Client persistence | **~86%** | localStorage + IndexedDB; DocumentModel snapshots |
 | Auth & sync | **~80%** | JWT, library + session pull/push |
 | Phase 6 server (dev) | **~92%** | Docker compose, Redis rate limit, pgvector probe, gradebook + class Postgres |
 | Documentation | **~93%** | This reconciliation pass (Jul 2026) |
-| Tests & CI | **~94%** | Vitest + eval gold-set; + Greek reader visual regression; empty-tool e2e |
-| i18n | **~83%** | Wave C Settings/Tasks (S7); component lint allowlist empty |
+| Tests & CI | **~95%** | Vitest 919; + PDF upload, Teacher, mobile drawer e2e; Greek reader visual regression |
+| i18n | **~88%** | UploadModal + RecognitionReportPanel keys; component lint allowlist empty |
 | UI/UX / themes | **~89%** | Warm Sand + Spectrum; platform shortcut badges (P0) |
 
 ---
@@ -99,7 +116,7 @@ including `greek-syllabus-reader.spec.ts`, `workspace-empty-tools.spec.ts`,
 | ---- | ---------------- | ---------- |
 | Leitner | Card types + filter chips; quiz-mistake → `mistake` type; source badges; **cross-device deck sync via `/v1/session`** | — |
 | Whiteboard | PNG + SVG export; **agent explain diagram** (`describeWhiteboardDocument` → `diagram-explain`) | — |
-| Reader | TTS, OCR overlay, **Greek v2.2.0 display repair**, suspicious + **Greek OCR review banners**, section actions, **visual regression baseline** | per-word OCR bboxes; real PDF upload e2e (paste path covered) |
+| Reader | TTS, OCR overlay, **word-level OCR bboxes**, **Greek v2.2.0 display repair**, suspicious + **Greek OCR review banners**, section actions, **visual regression baseline**, **real PDF upload e2e** | browser Tesseract word regions; math segment dedicated e2e |
 | Quiz | **Placeholder empty state** (no fake options); grounded feedback → focus bus | IRT calibration UI |
 | Debate | **Empty when no tree** (no single-node fallback) | Multi-turn grounded debate |
 | Concept map | **Upload-gated empty** (`!hasSource` → no fabricated node) | Prerequisite repair from concept bus |
@@ -123,13 +140,19 @@ Eval harness: `npm run eval` — 30/30 at Stage 3 baseline.
 
 ## Priority gaps (next)
 
-1. **Per-word OCR bboxes** — Reader overlay still line-level in places; vision engine returns text-only
-2. **i18n residual** — ~17% recognition report + landing/onboarding strings
-3. **Orphan delete cascade** — delete file → tasks/lessons cleanup (PROMPT_PACK_AUDIT)
-4. **Production scale** — multi-tenant isolation, OCR GPU queue, billing tiers
-5. **Mobile workspace polish** — tool drawer perf budget in CI
+1. **UploadModal residual i18n** — source mode labels, focus tags, processing steps
+2. **Orphan delete cascade** — delete file → tasks/lessons cleanup (PROMPT_PACK_AUDIT)
+3. **Production scale** — multi-tenant isolation, OCR GPU queue, billing tiers
+4. **Browser OCR word regions** — wire Tesseract client path to stored word boxes
 
 ### Shipped recently (no longer open)
+
+- ~~Per-word OCR bboxes~~ → `readerOcrOverlay.ts` word heuristic + `reader-ocr-word-*` testids (Sprint B)
+- ~~Real PDF upload e2e~~ → `greek-pdf-upload.spec.ts` + `greek-syllabus-min.pdf` (Sprint B)
+- ~~Recognition report i18n~~ → `RecognitionReportPanel.tsx` + i18n keys (Sprint D)
+- ~~UploadModal drop zone i18n~~ → header, drop zone, errors (Sprint D)
+- ~~Teacher MVP e2e~~ → `teacher-dashboard.spec.ts` (Sprint D)
+- ~~Mobile workspace drawer e2e~~ → `mobile-workspace-drawer.spec.ts` (Sprint D)
 
 - ~~Platform shortcuts mojibake~~ → `commandPaletteBadge()` (P0)
 - ~~Fabricated quiz/debate empty content~~ → P0 + `toolEmptyStates.audit.test.ts`
