@@ -8,6 +8,7 @@ import {
 import { ThemeToggle } from './ThemeToggle';
 import { useI18n } from '../lib/i18n';
 import { getLandingContent } from '../lib/landingContent';
+import { LandingFAQ } from './LandingFAQ';
 
 interface LandingProps {
   onGetStarted: () => void;
@@ -363,6 +364,8 @@ export function Landing({ onGetStarted, onSeeDemo }: LandingProps) {
           </div>
         </div>
       </section>
+
+      <LandingFAQ />
 
       {/* CTA */}
       <section className={`${LANDING_SHELL} py-24 border-t border-border-subtle`}>

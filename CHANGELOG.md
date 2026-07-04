@@ -7,6 +7,16 @@ client and server are versioned together.
 
 ### Added
 
+- **Phase 0 — exam prep bundle (Jul 2026)** — Ten exam-prep patterns (UX only, no third-party
+  content): syllabus coverage tracker + countdown on Dashboard (`syllabusCoverageTracker.ts`,
+  `SyllabusCoverageWidget.tsx`); landing FAQ (`LandingFAQ.tsx`); exam calendar feed with
+  General/Panhellenic filters (`examCalendarFeed.ts`, `ExamCalendarPanel.tsx`); Take a breath
+  wellness modal wired to Shell nav + StudyTimer pomodoro (`takeBreath.ts`, `TakeBreathModal.tsx`);
+  Simulator **Exam prep** sub-tab (`ExamPrepPanel.tsx`) with methodology pattern cards,
+  algorithm stepper model, GLOSSA interpreter sandbox, and Theme G/D exercise archetypes;
+  quiz provenance tags from past-paper hints (`quizProvenance.ts`, `WorkspaceQuizSession.tsx`);
+  post-exam next-steps explorer (`postExamNextSteps.ts`, `PostExamNextStepsPanel.tsx`); ~135 EN/EL
+  i18n keys; unit tests in `src/lib/examPrep/*.test.ts`; e2e smoke `technotes-features.spec.ts`.
 - **Sprint B — word-level OCR overlay + PDF e2e (Jul 2026)** — `readerOcrOverlay.ts`
   word-level heuristic + `splitStoredRegionIntoWords`; `data-testid="reader-ocr-word-{i}"`
   and `data-ocr-granularity` on Reader overlay; `e2e/fixtures/greek-syllabus-min.pdf` +

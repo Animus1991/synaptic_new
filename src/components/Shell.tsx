@@ -2,7 +2,7 @@
 import {
   BookOpen, CheckSquare, Robot as Bot, SquaresFour as LayoutDashboard, Gear as Settings,
   Sparkle as Sparkles, List as Menu, X, UploadSimple as Upload, Bell, MagnifyingGlass as Search, CaretRight as ChevronRight,
-  ChartBar as BarChart3, Sun, Moon, Users, Fire as Flame, SquaresFour as Layout,
+  ChartBar as BarChart3, Sun, Moon, Users,   Fire as Flame, SquaresFour as Layout, Wind,
 } from '@phosphor-icons/react';
 import type { AppView, User, DashboardStats, UserSettings } from '../types';
 import { cn } from '../utils/cn';
@@ -34,6 +34,7 @@ interface ShellProps {
   workspaceLive?: WorkspaceLiveSync | null;
   onOpenWorkspace?: () => void;
   studyWorkspaceOpen?: boolean;
+  onTakeBreath?: () => void;
 }
 
 type MobileNavItem =
@@ -96,6 +97,7 @@ export function Shell({
   workspaceLive = null,
   onOpenWorkspace,
   studyWorkspaceOpen = false,
+  onTakeBreath,
 }: ShellProps) {
   const { t, lang } = useI18n();
   const tasksReviewBadgeHint = getTasksContent(lang).reviewsDue(stats.reviewsDue);
@@ -131,6 +133,17 @@ export function Shell({
         </div>
 
         <nav className="flex-1 p-3 space-y-1">
+          {onTakeBreath && (
+            <button
+              type="button"
+              onClick={onTakeBreath}
+              data-testid="nav-take-breath"
+              className={cn(shellNavClass(false), 'mb-1')}
+            >
+              <Wind className="w-5 h-5 shrink-0" />
+              <span className="flex-1 text-left truncate">{t('wellnessTakeBreath')}</span>
+            </button>
+          )}
           {navViews.map((item) => {
             const insertWorkspaceAfter = item.view === 'agent';
             return (
@@ -221,6 +234,17 @@ export function Shell({
             </div>
 
             <nav className="flex-1 p-3 space-y-1">
+              {onTakeBreath && (
+                <button
+                  type="button"
+                  onClick={() => { onTakeBreath(); onToggleSidebar(false); }}
+                  data-testid="nav-mobile-take-breath"
+                  className={cn(shellNavClass(false), 'mb-1')}
+                >
+                  <Wind className="w-5 h-5" />
+                  {t('wellnessTakeBreath')}
+                </button>
+              )}
               {navViews.map((item) => (
                 <button
                   key={item.view}
@@ -287,6 +311,30 @@ export function Shell({
             </div>
 
             <div className="flex items-center gap-2">
+              {onTakeBreath && (
+                <>
+                  <button
+                    type="button"
+                    onClick={onTakeBreath}
+                    data-testid="header-take-breath"
+                    className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border-subtle text-xs text-text-secondary hover:border-brand-500/30 hover:text-brand-800 transition-colors"
+                    title={t('wellnessBreathTitle')}
+                  >
+                    <Wind className="w-4 h-4" />
+                    {t('wellnessTakeBreath')}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={onTakeBreath}
+                    data-testid="header-take-breath-mobile"
+                    className="sm:hidden p-2 rounded-lg hover:bg-surface-hover transition-colors"
+                    aria-label={t('wellnessTakeBreath')}
+                    title={t('wellnessBreathTitle')}
+                  >
+                    <Wind className="w-5 h-5 text-text-secondary" />
+                  </button>
+                </>
+              )}
               <button
                 onClick={onOpenSearch}
                 className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface-input border border-border-subtle text-sm text-text-tertiary hover:border-brand-500/30 transition-colors"

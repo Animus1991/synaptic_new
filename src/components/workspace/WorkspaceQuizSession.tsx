@@ -21,6 +21,7 @@ import {
 import { WorkspaceQuiz } from './WorkspaceQuiz';
 import { useI18n } from '../../lib/i18n';
 import { SourceCitationChip } from './SourceCitationChip';
+import { provenanceLabelKey } from '../../lib/examPrep/quizProvenance';
 
 type Props = {
   scopeKey: string;
@@ -248,6 +249,15 @@ export function WorkspaceQuizSession({
           citation={current.sourceCitation}
           onOpenInReader={onOpenQuestionInReader}
         />
+      )}
+
+      {current.provenance && (
+        <span
+          className="inline-flex rounded-full border border-brand-500/25 bg-brand-600/10 px-2 py-0.5 text-[9px] font-medium text-brand-800"
+          data-testid="quiz-provenance-badge"
+        >
+          {t(provenanceLabelKey(current.provenance) as never)}
+        </span>
       )}
 
       {lastCorrect === null ? (

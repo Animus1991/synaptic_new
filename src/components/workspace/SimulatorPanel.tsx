@@ -11,6 +11,10 @@ import { ArtifactStaleBanner } from './ArtifactStaleBanner';
 import { WorkspacePanelWarnStrip } from './WorkspacePanelWarnStrip';
 import { SimulatorTimerPresetSyncStrip } from './SimulatorTimerPresetSyncStrip';
 import { useI18n } from '../../lib/i18n';
+import { ExamPrepPanel } from './ExamPrepPanel';
+import { cn } from '../../utils/cn';
+
+type MainTab = 'simulator' | 'exam-prep';
 
 type Props = {
   session: SimulatorSessionContent;
@@ -44,7 +48,44 @@ export function SimulatorPanel({
   scopeKey = '',
 }: Props) {
   const [filterQuery, setFilterQuery] = useState('');
+  const [mainTab, setMainTab] = useState<MainTab>('simulator');
   const { t } = useI18n();
+
+  const tabBar = (
+    <div className="shrink-0 flex gap-1 border-b border-border-subtle px-4 py-2" data-testid="simulator-main-tabs">
+      <button
+        type="button"
+        data-testid="simulator-tab-simulator"
+        onClick={() => setMainTab('simulator')}
+        className={cn(
+          'rounded-lg px-3 py-1.5 text-[11px] font-medium',
+          mainTab === 'simulator' ? 'bg-brand-600/15 text-brand-800' : 'text-text-secondary hover:bg-surface-hover',
+        )}
+      >
+        {t('toolSimulator')}
+      </button>
+      <button
+        type="button"
+        data-testid="simulator-tab-exam-prep"
+        onClick={() => setMainTab('exam-prep')}
+        className={cn(
+          'rounded-lg px-3 py-1.5 text-[11px] font-medium',
+          mainTab === 'exam-prep' ? 'bg-brand-600/15 text-brand-800' : 'text-text-secondary hover:bg-surface-hover',
+        )}
+      >
+        {t('examPrepPanelTitle')}
+      </button>
+    </div>
+  );
+
+  if (mainTab === 'exam-prep') {
+    return (
+      <div className="flex h-full flex-col overflow-hidden" data-testid="simulator-panel">
+        {tabBar}
+        <ExamPrepPanel />
+      </div>
+    );
+  }
 
   const syncReport = useMemo(
     () => auditSimulatorTimerPresetSync({
@@ -62,18 +103,23 @@ export function SimulatorPanel({
 
   if (!session.hasSource) {
     return (
-      <WorkspaceEmptyState
-        tool="simulator"
-        message={emptyMessage ?? (t('panelEmptySimulator'))}
-        hasSource={false}
-        onUpload={onUpload}
-      />
+      <div className="flex h-full flex-col overflow-hidden" data-testid="simulator-panel">
+        {tabBar}
+        <WorkspaceEmptyState
+          tool="simulator"
+          message={emptyMessage ?? (t('panelEmptySimulator'))}
+          hasSource={false}
+          onUpload={onUpload}
+        />
+      </div>
     );
   }
 
   if (!session.hasActionableContent) {
     return (
-      <div className="p-4" data-testid="simulator-panel-empty">
+      <div className="flex h-full flex-col overflow-hidden" data-testid="simulator-panel">
+        {tabBar}
+        <div className="p-4 flex-1 overflow-y-auto" data-testid="simulator-panel-empty">
         <WorkspaceEmptyState
           tool="simulator"
           message={emptyMessage ?? t('panelEmptySimulatorNoParams')}
@@ -85,12 +131,15 @@ export function SimulatorPanel({
             {session.sandboxInsight}
           </div>
         )}
+        </div>
       </div>
     );
   }
 
   return (
     <div className="flex h-full flex-col overflow-hidden" data-testid="simulator-panel">
+      {tabBar}
+      <div className="flex-1 flex flex-col overflow-hidden min-h-0">
       <div className="shrink-0 border-b border-border-subtle px-4 py-3">
         {session.sectionLabel && (
           <p className="mb-2 text-[10px] text-text-muted" data-testid="simulator-section-label">
@@ -186,6 +235,7 @@ export function SimulatorPanel({
           onScenarioSelect={onScenarioSelect}
           initialScenarioId={session.lastSimulatorScenario}
         />
+      </div>
       </div>
     </div>
   );

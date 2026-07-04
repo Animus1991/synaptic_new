@@ -8,10 +8,14 @@ import { resolveContentCitation } from './contentCitation';
 import type { ContentCitation } from './contentCitation';
 import { loadJson, saveJson } from './persistence';
 
+import type { QuizProvenance } from './examPrep/quizProvenance';
+import { inferQuizProvenance } from './examPrep/quizProvenance';
+
 export type QuizSessionItem = {
   id: string;
   quiz: QuizDef;
   sourceCitation?: ContentCitation;
+  provenance?: QuizProvenance;
 };
 
 function quizCitationAnchor(quiz: QuizDef): string {
@@ -21,11 +25,18 @@ function quizCitationAnchor(quiz: QuizDef): string {
   return quiz.left[0] ?? quiz.question;
 }
 
-function attachQuizCitation(item: QuizSessionItem, files: UploadedFile[]): QuizSessionItem {
-  if (files.length === 0) return item;
-  const citation = resolveContentCitation(files, quizCitationAnchor(item.quiz));
-  return citation ? { ...item, sourceCitation: citation } : item;
+function attachQuizCitation(item: QuizSessionItem, files: UploadedFile[], sourceText?: string): QuizSessionItem {
+  let next = { ...item };
+  if (files.length > 0) {
+    const citation = resolveContentCitation(files, quizCitationAnchor(item.quiz));
+    if (citation) next = { ...next, sourceCitation: citation };
+  }
+  const primaryFile = files[0];
+  const provenance = inferQuizProvenance(primaryFile?.name, sourceText ?? primaryFile?.extractedText);
+  return { ...next, provenance };
 }
+
+export { provenanceLabelKey } from './examPrep/quizProvenance';
 
 export type QuizSessionState = {
   scopeKey: string;
@@ -59,7 +70,7 @@ export function buildQuizSession(
         const key = JSON.stringify(fb).slice(0, 120);
         if (!seen.has(key)) {
           seen.add(key);
-          items.push(attachQuizCitation({ id: `q-${items.length}`, quiz: fb }, sourceFiles));
+          items.push(attachQuizCitation({ id: `q-${items.length}`, quiz: fb }, sourceFiles, text));
         }
       }
       continue;
@@ -67,7 +78,7 @@ export function buildQuizSession(
     const key = JSON.stringify(q).slice(0, 120);
     if (seen.has(key)) continue;
     seen.add(key);
-    items.push(attachQuizCitation({ id: `q-${items.length}`, quiz: q }, sourceFiles));
+    items.push(attachQuizCitation({ id: `q-${items.length}`, quiz: q }, sourceFiles, text));
     if (items.length >= count) break;
   }
   return items;

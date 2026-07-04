@@ -41,6 +41,8 @@ import { lazyWithRetry } from './lib/lazyWithRetry';
 import { ProductTour } from './components/ProductTour';
 import { useProductTour } from './hooks/useProductTour';
 import { isProductTourComplete } from './lib/productTour';
+import { TakeBreathModal } from './components/examPrep/TakeBreathModal';
+import { subscribeTakeBreathPrompt } from './lib/examPrep/takeBreathEvents';
 
 const Agent = lazyWithRetry(() => import('./components/Agent').then((m) => ({ default: m.Agent })), 'agent');
 const Analytics = lazyWithRetry(() => import('./components/Analytics').then((m) => ({ default: m.Analytics })), 'analytics');
@@ -87,6 +89,7 @@ export default function App() {
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [uploadIntent, setUploadIntent] = useState<{ mode: 'new' | 'extend'; targetCourseId?: string }>({ mode: 'new' });
   const [productTourOpen, setProductTourOpen] = useState(false);
+  const [takeBreathOpen, setTakeBreathOpen] = useState(false);
 
   const closeLessonView = () => {
     store.setActiveLessonView(false);
@@ -145,6 +148,8 @@ export default function App() {
   }, [store]);
 
   const hasCourses = visibleCourses(store.courses, store.user.settings).length > 0;
+
+  useEffect(() => subscribeTakeBreathPrompt(() => setTakeBreathOpen(true)), []);
 
   const runDashboardNextAction = useCallback(() => {
     const action = store.dashboardNextAction;
@@ -398,6 +403,7 @@ export default function App() {
     workspaceLive: store.workspaceLive,
     onOpenWorkspace: openWorkspace,
     studyWorkspaceOpen: store.studyWorkspaceOpen,
+    onTakeBreath: () => setTakeBreathOpen(true),
   };
 
   const handleContentSelect = (hit: ContentSearchHit) => {
@@ -434,6 +440,7 @@ export default function App() {
         onClose={() => setNotificationsOpen(false)}
         activities={store.activities}
       />
+      <TakeBreathModal open={takeBreathOpen} onClose={() => setTakeBreathOpen(false)} />
       {productTourOpen && !store.studyWorkspaceOpen && (
         <ProductTour
           step={productTour.step}
@@ -791,6 +798,7 @@ export default function App() {
               }
               onDismissPostUpload={store.clearPostUploadHighlight}
               onOpenTasksReview={() => store.openTasksWithFilter('review')}
+              settingsExamDate={store.user.settings.examDate}
             />
           )}
           {store.currentView === 'library' && (

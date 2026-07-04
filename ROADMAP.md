@@ -1,6 +1,6 @@
 # Roadmap & Gap Analysis
 
-**Status baseline:** July 2026 — post Sprint 9 + **P0/P1/OCR/Sprint C/B/D** closure.
+**Status baseline:** July 2026 — post Sprint 9 + **P0/P1/OCR/Sprint C/B/D** + **Phase 0 exam prep bundle**.
 **Canonical snapshot:** [`PRODUCT_SCALE_STATUS.md`](PRODUCT_SCALE_STATUS.md)
 
 This document separates **done**, **partial**, and **missing** against the product goal: *note-grounded adaptive learning at product scale, not MVP/demo-first.*
@@ -16,19 +16,32 @@ This document separates **done**, **partial**, and **missing** against the produ
 | Study Workspace (13 tools) | **~95%** | P0 empty-state contract; Sprint C Agent handoff |
 | Lesson surfaces | **~82%** | Step-grounded excerpts; concept lens; faithfulness gate |
 | Tasks & pedagogy | **~83%** | Unified adaptive scheduler (S9-PR1); FSRS + mastery |
-| Analytics & Dashboard | **~78%** | Behavior inference + Research tab (S5) |
+| Analytics & Dashboard | **~80%** | Behavior inference + Research tab; exam calendar + coverage + post-exam panels |
 | RAG / Agent | **~90%** | Workspace context JSON + selection excerpt handoff |
 | Recognition / OCR | **~92%** | Word-level overlay bboxes; Greek repair, Vision LLM, TrOCR, ocr-server |
 | Client persistence | **~86%** | localStorage + IndexedDB; DocumentModel snapshots |
 | Auth and full sync | **~82%** | JWT, library + session pull/push |
 | Phase 6 server | **~88%** (dev) | Docker compose, Redis, pgvector, gradebook |
 | Documentation | **~94%** | Reconciled Jul 2026 through Sprint B/D |
-| Tests & CI | **~95%** | + PDF upload, Teacher, mobile drawer e2e; 919 unit tests |
-| i18n | **~88%** | UploadModal + RecognitionReportPanel; UploadModal source-mode residual |
+| Tests & CI | **~95%** | 926 unit tests; exam prep e2e smoke |
+| i18n | **~90%** | UploadModal + RecognitionReportPanel; exam prep ~135 keys |
 | UI/UX / themes | **~89%** | Platform shortcut badges; Warm Sand + Spectrum |
 
-**Overall product-scale readiness: ~94%** — P0–C plus Sprint B/D shipped. Next: UploadModal
-residual i18n, browser OCR word regions, production scale.
+**Overall product-scale readiness: ~95%** — Phase 0 exam prep bundle shipped. Next: **Sprint E**
+(Dashboard smart CTAs, coverage→tool linkage), then **Sprint G** (FSRS-4 + image occlusion).
+
+---
+
+## Phase 0 — exam prep bundle — shipped (Jul 2026)
+
+| Scope | Deliverable |
+| ----- | ----------- |
+| P1 | Syllabus coverage tracker + landing FAQ |
+| P2 | Exam calendar feed + Take a breath wellness |
+| P3 | Quiz provenance tags + exercise archetypes (Theme G/D) |
+| P4 | Simulator Exam prep sub-tab (patterns, algorithms, GLOSSA) + post-exam next steps |
+
+Key paths: `src/lib/examPrep/`, `src/components/examPrep/`, `ExamPrepPanel.tsx`, `LandingFAQ.tsx`.
 
 ---
 
@@ -121,10 +134,10 @@ Re-upload / reprocess: courses analyzed before v2.4.0 keep stored extractedText.
 
 ## Remaining gaps (priority order)
 
-See I18N.md, STUDY_WORKSPACE.md, WORKSPACE_TOOLS_UPGRADE.md, and EXHAUSTIVE_PRODUCT_SCALE_BLUEPRINT.md for detail.
-
 | Area | Open work |
 | ---- | --------- |
+| **Sprint E** | Dashboard smart CTAs from scheduler; coverage→quiz/Leitner deep links; exam prep e2e in CI |
+| **Sprint G** | Full FSRS-4; image occlusion cards (Vision bbox → Leitner) |
 | i18n | UploadModal source mode / focus tags / processing steps; residual lib/helpers |
 | OCR | Browser Tesseract client → stored word regions |
 

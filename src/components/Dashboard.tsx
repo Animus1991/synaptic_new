@@ -34,6 +34,9 @@ import { Layout as LucideLayout } from '@/lib/lucide-shim';
 import { useMemo } from 'react';
 import { buildDashboardWeakSpotCards } from '../lib/dashboardWeakSpotsModel';
 import { executeDashboardNextAction } from '../lib/dashboardNextAction';
+import { SyllabusCoverageWidget } from './examPrep/SyllabusCoverageWidget';
+import { ExamCalendarPanel } from './examPrep/ExamCalendarPanel';
+import { PostExamNextStepsPanel } from './examPrep/PostExamNextStepsPanel';
 
 interface DashboardProps {
   stats: DashboardStats;
@@ -67,9 +70,10 @@ interface DashboardProps {
   postUploadCourse?: Course | null;
   onDismissPostUpload?: () => void;
   onOpenTasksReview?: () => void;
+  settingsExamDate?: string;
 }
 
-export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onSelectCourse, onOpenWorkspace, onOpenExamTimer, onUpload, onExploreDemo, prerequisiteRepairs = [], calibration, conceptMastery = [], activities = [], masteryDelta = 0, daysToExam = null, antiPassiveAlert = false, onStartTask, onStartSession, onResolveMisconception, onFocusWeakArea, workspaceLive = null, workspaceBooting = false, dashboardNextAction = null, lang = 'en', postUploadCourse = null, onDismissPostUpload, onOpenTasksReview }: DashboardProps) {
+export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onSelectCourse, onOpenWorkspace, onOpenExamTimer, onUpload, onExploreDemo, prerequisiteRepairs = [], calibration, conceptMastery = [], activities = [], masteryDelta = 0, daysToExam = null, antiPassiveAlert = false, onStartTask, onStartSession, onResolveMisconception, onFocusWeakArea, workspaceLive = null, workspaceBooting = false, dashboardNextAction = null, lang = 'en', postUploadCourse = null, onDismissPostUpload, onOpenTasksReview, settingsExamDate }: DashboardProps) {
   const { t } = useI18n();
   const pendingTasks = tasks.filter(t => t.status === 'pending');
   const criticalTasks = pendingTasks.filter(t => t.priority === 'critical' || t.priority === 'high');
@@ -215,6 +219,23 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
         <StatCard icon={<Brain className="w-5 h-5 text-accent-cyan" />} label="Concepts Mastered" value={`${stats.conceptsMastered}/${stats.totalConcepts}`} />
         <StatCard icon={<Clock className="w-5 h-5 text-accent-emerald" />} label="Study Today" value={`${stats.studyTimeToday}m`} />
       </MotionSection>
+
+      {!isEmpty && (
+        <MotionSection initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.08 }}>
+          <SyllabusCoverageWidget
+            courses={courses}
+            settingsExamDate={settingsExamDate}
+            onSelectCourse={onSelectCourse}
+          />
+        </MotionSection>
+      )}
+
+      {!isEmpty && (
+        <MotionSection initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.09 }} className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+          <ExamCalendarPanel />
+          <PostExamNextStepsPanel examDate={settingsExamDate ?? courses.find((c) => c.examDate)?.examDate} />
+        </MotionSection>
+      )}
 
       {/* Exam countdown */}
       {daysToExam !== null && (

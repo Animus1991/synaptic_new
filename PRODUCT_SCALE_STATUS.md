@@ -1,6 +1,6 @@
 # Product-scale status (canonical snapshot)
 
-**Last reconciled:** 2026-07-04 — aligned with `synaptic_new/main` through Sprint B/D closure (word-level OCR overlay, PDF upload e2e, i18n UploadModal/RecognitionReport, Teacher + mobile e2e).
+**Last reconciled:** 2026-07-04 — aligned with `synaptic_new/main` through **Phase 0 exam prep bundle** (Technotes-inspired UX patterns, Jul 2026).
 
 This file is the **single shipped-truth status doc**. Use it for readiness reviews,
 sprint close-outs, and investor/contributor snapshots.
@@ -16,11 +16,13 @@ sprint close-outs, and investor/contributor snapshots.
 
 ## Overall readiness
 
-**~94% product-scale** — S9 grounding + Stage 3 gates shipped. **P0 content trust**,
+**~95% product-scale** — S9 grounding + Stage 3 gates shipped. **P0 content trust**,
 **P1 Greek Reader repair**, **Vision OCR pipeline**, **Sprint C empty-state / Agent
-handoff**, and **Sprint B/D** (word-level OCR overlay, real PDF upload e2e, i18n
-UploadModal/RecognitionReport, Teacher + mobile e2e) landed on `synaptic_new/main` (Jul 2026).
-Remaining gaps: UploadModal source-mode residual strings, production multi-tenant scale.
+handoff**, **Sprint B/D**, and **Phase 0 exam prep bundle** (coverage tracker, landing FAQ,
+exam calendar, wellness breath, Simulator Exam prep tab, quiz provenance, post-exam next
+steps) landed on `synaptic_new/main` (Jul 2026).
+Remaining gaps: Dashboard smart CTAs (Sprint E), UploadModal source-mode residual strings,
+production multi-tenant scale.
 
 ---
 
@@ -38,6 +40,22 @@ Remaining gaps: UploadModal source-mode residual strings, production multi-tenan
 Regression gate (Jul 2026): `npm test`, `npm run eval` (30/30 Stage 3), key e2e specs
 including `greek-syllabus-reader.spec.ts`, `workspace-empty-tools.spec.ts`,
 `workspace-agent-handoff.spec.ts`.
+
+---
+
+## Phase 0 — exam prep bundle — shipped (Jul 2026)
+
+| Scope | Deliverable |
+| ----- | ----------- |
+| **P1 — coverage + FAQ** | `syllabusCoverageTracker.ts` + `SyllabusCoverageWidget.tsx` on Dashboard (topics, %, countdown); `LandingFAQ.tsx` on Landing (6 Q&A) |
+| **P2 — calendar + wellness** | `examCalendarFeed.ts` + `ExamCalendarPanel.tsx` (General/Panhellenic filters); Take a breath modal in Shell + StudyTimer pomodoro (`takeBreath.ts`, `TakeBreathModal.tsx`) |
+| **P3 — quiz + exercises** | Quiz provenance tags (`quizProvenance.ts`, `WorkspaceQuizSession.tsx`); Theme G/D exercise archetypes (`exerciseArchetypes.ts`) |
+| **P4 — Simulator sub-tab** | `ExamPrepPanel.tsx` inside Simulator: methodology patterns, algorithm stepper, GLOSSA sandbox; post-exam next steps on Dashboard |
+| **i18n + tests** | ~135 EN/EL keys; 7 unit tests in `src/lib/examPrep/*.test.ts`; e2e `technotes-features.spec.ts` |
+
+Regression gate: `npm test` 926/926; `npm run i18n-lint`; `npm run typecheck`.
+
+**Next:** Sprint E — productize exam features (Dashboard smart CTAs, coverage→tool deep links, e2e CI).
 
 ---
 
@@ -66,15 +84,15 @@ Regression gate: `npm test` 919/919; `npm run i18n-lint`; e2e green for
 | Study Workspace (13 tools) | **~95%** | P0 empty-state contract; selection → Agent handoff; concept-map upload gate |
 | Lesson surfaces | **~82%** | Step-grounded excerpts; concept lens chrome; grounding faithfulness gate |
 | Tasks & pedagogy | **~83%** | Unified adaptive scheduler (S9-PR1); FSRS + Beta-Bernoulli mastery |
-| Analytics & Dashboard | **~78%** | Behavior inference + Research tab (S5) |
+| Analytics & Dashboard | **~80%** | Behavior inference + Research tab (S5); exam calendar + coverage + post-exam panels |
 | RAG / Agent | **~90%** | Unified grounding; workspace context JSON + **selection excerpt handoff** |
 | Recognition / OCR | **~92%** | Word-level overlay bboxes; Greek repair v2.5.1; Vision LLM + TrOCR; local `ocr-server/` |
 | Client persistence | **~86%** | localStorage + IndexedDB; DocumentModel snapshots |
 | Auth & sync | **~80%** | JWT, library + session pull/push |
 | Phase 6 server (dev) | **~92%** | Docker compose, Redis rate limit, pgvector probe, gradebook + class Postgres |
 | Documentation | **~93%** | This reconciliation pass (Jul 2026) |
-| Tests & CI | **~95%** | Vitest 919; + PDF upload, Teacher, mobile drawer e2e; Greek reader visual regression |
-| i18n | **~88%** | UploadModal + RecognitionReportPanel keys; component lint allowlist empty |
+| Tests & CI | **~95%** | Vitest 926; + exam prep unit tests; `technotes-features.spec.ts` e2e smoke |
+| i18n | **~90%** | UploadModal + RecognitionReportPanel keys; exam prep ~135 keys; component lint allowlist empty |
 | UI/UX / themes | **~89%** | Warm Sand + Spectrum; platform shortcut badges (P0) |
 
 ---
@@ -123,6 +141,8 @@ Regression gate: `npm test` 919/919; `npm run i18n-lint`; e2e green for
 | Agent | BM25 + hybrid rerank; **selection excerpt in context JSON + retrieval query** | Server pgvector scale path |
 | Grounding | Unified module; **Stage 3** eval gates (span 95%, faithfulness 0.95) | — |
 | Annotations | Sub-line span highlights | Cross-tool highlight sync |
+| Simulator | **Exam prep sub-tab** — methodology patterns, algorithm stepper, GLOSSA sandbox, exercise archetypes | Sprint E scheduler-driven CTAs |
+| Dashboard | **Coverage tracker**, exam calendar, post-exam next steps | Smart CTAs from unified scheduler (Sprint E) |
 
 ---
 
@@ -140,13 +160,16 @@ Eval harness: `npm run eval` — 30/30 at Stage 3 baseline.
 
 ## Priority gaps (next)
 
-1. **UploadModal residual i18n** — source mode labels, focus tags, processing steps
-2. **Orphan delete cascade** — delete file → tasks/lessons cleanup (PROMPT_PACK_AUDIT)
-3. **Production scale** — multi-tenant isolation, OCR GPU queue, billing tiers
-4. **Browser OCR word regions** — wire Tesseract client path to stored word boxes
+1. **Sprint E — productize exam prep** — Dashboard smart CTAs from scheduler; coverage→quiz/Leitner deep links; exam prep e2e in CI
+2. **Sprint G — retention science** — full FSRS-4; image occlusion cards (Vision bbox → Leitner)
+3. **UploadModal residual i18n** — source mode labels, focus tags, processing steps
+4. **Orphan delete cascade** — delete file → tasks/lessons cleanup (PROMPT_PACK_AUDIT)
+5. **Production scale** — multi-tenant isolation, OCR GPU queue, billing tiers
+6. **Browser OCR word regions** — wire Tesseract client path to stored word boxes
 
 ### Shipped recently (no longer open)
 
+- ~~Phase 0 exam prep bundle~~ → coverage tracker, landing FAQ, exam calendar, Take a breath, Simulator Exam prep tab, quiz provenance, post-exam next steps (Jul 2026)
 - ~~Per-word OCR bboxes~~ → `readerOcrOverlay.ts` word heuristic + `reader-ocr-word-*` testids (Sprint B)
 - ~~Real PDF upload e2e~~ → `greek-pdf-upload.spec.ts` + `greek-syllabus-min.pdf` (Sprint B)
 - ~~Recognition report i18n~~ → `RecognitionReportPanel.tsx` + i18n keys (Sprint D)

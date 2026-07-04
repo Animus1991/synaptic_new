@@ -20,6 +20,7 @@ import {
   type ExamPracticePresetId,
 } from '../../lib/examPracticePresets';
 import { saveExamPracticePreset } from '../../lib/workspacePersistence';
+import { emitTakeBreathPrompt } from '../../lib/examPrep/takeBreathEvents';
 
 const PRESET_DEFS = [
   { key: 'focus25' as const, work: 25 * 60, break: 5 * 60 },
@@ -151,6 +152,7 @@ export function StudyTimer({
             appendTimerSession(scopeKey, log);
             setRecentSessions(loadTimerSessions(scopeKey));
             onCompleteRef.current?.(mins, sessionLabel);
+            emitTakeBreathPrompt();
           }
           setPhase(nextPhase);
           return nextPhase === 'work' ? workDurationSeconds : preset.break;
