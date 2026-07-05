@@ -57,6 +57,10 @@ export type ProductionProbeStatus = {
     ltiRosterSync: boolean;
     samlAutoProvision: boolean;
   };
+  /** Sprint L10 — AI delight parity. */
+  l10Enterprise: {
+    multiSpeakerPodcast: boolean;
+  };
 };
 
 let cachedPgvector: boolean | null = null;
@@ -133,6 +137,9 @@ export async function getProductionProbeStatus(): Promise<ProductionProbeStatus>
       assignmentDiscussion: true,
       ltiRosterSync: true,
       samlAutoProvision: true,
+    },
+    l10Enterprise: {
+      multiSpeakerPodcast: true,
     },
   };
 }

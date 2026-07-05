@@ -37,17 +37,21 @@ audioRouter.post('/audio/study-guide', async (req, res) => {
 });
 
 /**
- * POST /v1/audio/tts — neural TTS for a script section (returns audio/mpeg).
- * Body: { text, lang?: 'en'|'el' }
+ * POST /v1/audio/tts — neural TTS for a script turn (returns audio/mpeg).
+ * Body: { text, lang?: 'en'|'el', speaker?: 'host'|'expert' }
  */
 audioRouter.post('/audio/tts', async (req, res) => {
-  const body = req.body as { text?: string; lang?: 'en' | 'el' };
+  const body = req.body as { text?: string; lang?: 'en' | 'el'; speaker?: 'host' | 'expert' };
   if (!body.text?.trim()) {
     res.status(400).json({ error: 'text required' });
     return;
   }
+  const speaker = body.speaker === 'expert' ? 'expert' : body.speaker === 'host' ? 'host' : undefined;
   try {
-    const buf = await synthesizeStudyGuideAudio(body.text, body.lang === 'el' ? 'el' : 'en');
+    const buf = await synthesizeStudyGuideAudio(body.text, {
+      lang: body.lang === 'el' ? 'el' : 'en',
+      speaker,
+    });
     res.setHeader('Content-Type', 'audio/mpeg');
     res.setHeader('Cache-Control', 'private, max-age=3600');
     res.send(Buffer.from(buf));

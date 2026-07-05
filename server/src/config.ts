@@ -73,6 +73,10 @@ export const config = {
     : 'student') as 'org_admin' | 'teacher' | 'student',
   /** OpenAI TTS voice for neural audio study guide (alloy, nova, etc.). */
   audioTtsVoice: process.env.AUDIO_TTS_VOICE?.trim() || 'nova',
+  /** L10-1 — multi-speaker podcast Host voice. */
+  audioTtsHostVoice: process.env.AUDIO_TTS_VOICE_HOST?.trim() || process.env.AUDIO_TTS_VOICE?.trim() || 'nova',
+  /** L10-1 — multi-speaker podcast Expert voice. */
+  audioTtsExpertVoice: process.env.AUDIO_TTS_VOICE_EXPERT?.trim() || 'onyx',
 };
 
 export type Plan = 'free' | 'pro' | 'team';

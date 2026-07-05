@@ -45,7 +45,19 @@ Regression gate: `cd server && npm test` (includes `auditLogExport.test.ts`).
 | **L9-4 LTI roster sync** | Deep link → teacher dashboard; `POST /v1/lti/classes/:id/context-link` + `roster-sync` (NRPS or stub) |
 | **L9-5 SAML auto-provision** | JIT account + org membership on ACS; `POST /v1/auth/saml/complete` |
 
-Regression gate: `cd server && npm test` (announcement integration sweep).
+Regression gate: `cd server && npm test` (SAML + LTI integration sweep).
+
+---
+
+## Sprint L10 — AI delight — in progress (Jul 2026)
+
+| Scope | Deliverable |
+| ----- | ----------- |
+| **L10-1 multi-speaker podcast** | Host/Expert dialogue turns + dual TTS voices (`nova`/`onyx`); speaker badge on CourseView button |
+| **L10-2 video chaptering** | Not started |
+| **L10-3 cross-library synthesis UI** | Not started |
+| **L10-4 pgvector progress UI** | Not started |
+| **L10-5 quiz IRT polish** | Not started |
 
 ---
 

@@ -837,6 +837,8 @@ describe('server integration sweep', () => {
     expect(health.body.features.l9Enterprise.assignmentDiscussion).toBe(true);
     expect(health.body.features.l9Enterprise.ltiRosterSync).toBe(true);
     expect(health.body.features.l9Enterprise.samlAutoProvision).toBe(true);
+    expect(health.body.features.l10Enterprise).toBeDefined();
+    expect(health.body.features.l10Enterprise.multiSpeakerPodcast).toBe(true);
 
     const auditExport = await request(app)
       .get(`/v1/orgs/${orgId}/audit-logs/export?format=csv`)

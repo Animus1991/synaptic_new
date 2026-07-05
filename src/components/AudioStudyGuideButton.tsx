@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Volume2, Square } from '@/lib/lucide-shim';
 import type { Course, UserSettings } from '../types';
 import { playAudioStudyGuide } from '../lib/audioStudyGuide';
-import { playNeuralStudyGuide } from '../lib/audioPodcastClient';
+import { playNeuralStudyGuide, podcastSpeakerLabel, type PodcastSpeaker } from '../lib/audioPodcastClient';
 import { cn } from '../utils/cn';
 
 type Props = {
@@ -16,6 +16,7 @@ export function AudioStudyGuideButton({ course, lang, settings, className }: Pro
   const [playing, setPlaying] = useState(false);
   const [neural, setNeural] = useState(false);
   const [sectionTitle, setSectionTitle] = useState<string | null>(null);
+  const [activeSpeaker, setActiveSpeaker] = useState<PodcastSpeaker | null>(null);
   const [controller, setController] = useState<{ stop: () => void } | null>(null);
 
   const stopPlayback = () => {
@@ -23,12 +24,14 @@ export function AudioStudyGuideButton({ course, lang, settings, className }: Pro
     setPlaying(false);
     setNeural(false);
     setSectionTitle(null);
+    setActiveSpeaker(null);
     setController(null);
   };
 
   const startBrowserTts = () => {
     const ctrl = playAudioStudyGuide(course, lang, (_idx, title) => {
       setSectionTitle(title);
+      setActiveSpeaker(null);
     });
     if (!ctrl) return;
     setController(ctrl);
@@ -55,7 +58,10 @@ export function AudioStudyGuideButton({ course, lang, settings, className }: Pro
         })),
         lang,
       },
-      (_idx, title) => setSectionTitle(title),
+      (event) => {
+        setSectionTitle(event.sectionTitle);
+        setActiveSpeaker(event.speaker);
+      },
       () => {
         stopPlayback();
         startBrowserTts();
@@ -83,12 +89,12 @@ export function AudioStudyGuideButton({ course, lang, settings, className }: Pro
         ? neural
           ? 'Διακοπή podcast'
           : 'Διακοπή οδηγού'
-        : 'Audio podcast μελέτης'
+        : 'Podcast μελέτης (2 φωνές)'
       : playing
         ? neural
           ? 'Stop podcast'
           : 'Stop guide'
-        : 'Audio study podcast';
+        : 'Study podcast (2 voices)';
 
   return (
     <div className={cn('flex flex-col gap-1', className)}>
@@ -110,8 +116,25 @@ export function AudioStudyGuideButton({ course, lang, settings, className }: Pro
         )}
         {label}
       </button>
-      {sectionTitle && playing && (
-        <span className="text-[10px] text-text-muted truncate max-w-xs">{sectionTitle}</span>
+      {playing && (sectionTitle || activeSpeaker) && (
+        <div className="flex flex-wrap items-center gap-1.5 max-w-xs">
+          {neural && activeSpeaker && (
+            <span
+              className={cn(
+                'text-[10px] font-medium px-1.5 py-0.5 rounded-md',
+                activeSpeaker === 'host'
+                  ? 'bg-accent/15 text-accent'
+                  : 'bg-accent-emerald/15 text-accent-emerald',
+              )}
+              data-testid="podcast-speaker-badge"
+            >
+              {podcastSpeakerLabel(activeSpeaker, lang)}
+            </span>
+          )}
+          {sectionTitle && (
+            <span className="text-[10px] text-text-muted truncate">{sectionTitle}</span>
+          )}
+        </div>
       )}
     </div>
   );
