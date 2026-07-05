@@ -3,6 +3,12 @@ import type { StoredLibrary } from '../store/libraryStore';
 import { chunkText } from './chunkText';
 import { embedTexts } from './embeddings';
 import { getVectorChunkStore, type IndexedChunk } from '../store/vectorChunkStore';
+import {
+  markVectorIndexBatchProgress,
+  markVectorIndexComplete,
+  markVectorIndexFailed,
+  markVectorIndexProcessing,
+} from './vectorIndexProgress';
 
 export type UploadedFileRow = {
   id?: string;
@@ -23,6 +29,31 @@ export type IndexStats = {
 };
 
 const indexing = new Map<string, Promise<IndexStats>>();
+const EMBED_BATCH = 16;
+
+async function embedChunksInBatches(
+  accountId: string,
+  toEmbed: IndexedChunk[],
+  reused: number,
+  targetChunks: number,
+): Promise<IndexedChunk[]> {
+  const merged: IndexedChunk[] = [];
+  let embedded = 0;
+  for (let i = 0; i < toEmbed.length; i += EMBED_BATCH) {
+    const batch = toEmbed.slice(i, i + EMBED_BATCH);
+    const vectors = await embedTexts(batch.map((c) => c.text));
+    if (vectors) {
+      batch.forEach((chunk, j) => {
+        merged.push({ ...chunk, embedding: vectors[j] });
+      });
+    } else {
+      merged.push(...batch);
+    }
+    embedded += batch.length;
+    markVectorIndexBatchProgress(accountId, { embedded, reused, targetChunks });
+  }
+  return merged;
+}
 
 function fileTextHash(text: string): string {
   return createHash('sha256').update(text).digest('hex').slice(0, 16);
@@ -58,10 +89,13 @@ export async function indexLibraryVectors(accountId: string, library: StoredLibr
   const job = (async (): Promise<IndexStats> => {
     const store = getVectorChunkStore();
     const { chunks: desired, activeFileIds } = buildDesiredChunks(library);
+    markVectorIndexProcessing(accountId, desired.length);
 
     if (desired.length === 0) {
       const removed = await store.syncAccountChunks(accountId, [], { activeFileIds: [] });
-      return { indexedChunks: 0, embedded: 0, reused: 0, removed: removed.removed };
+      const stats = { indexedChunks: 0, embedded: 0, reused: 0, removed: removed.removed };
+      markVectorIndexComplete(accountId, stats);
+      return stats;
     }
 
     const existing = await store.getChunkMeta(accountId);
@@ -79,29 +113,29 @@ export async function indexLibraryVectors(accountId: string, library: StoredLibr
       }
     }
 
+    markVectorIndexBatchProgress(accountId, { embedded: 0, reused, targetChunks: desired.length });
+
     if (toEmbed.length > 0) {
-      const vectors = await embedTexts(toEmbed.map((c) => c.text));
-      if (vectors) {
-        toEmbed.forEach((chunk, i) => {
-          merged.push({ ...chunk, embedding: vectors[i] });
-        });
-      } else {
-        merged.push(...toEmbed);
-      }
+      merged.push(...(await embedChunksInBatches(accountId, toEmbed, reused, desired.length)));
     }
 
     const { removed } = await store.syncAccountChunks(accountId, merged, { activeFileIds });
-    return {
+    const stats = {
       indexedChunks: merged.length,
       embedded: toEmbed.length,
       reused,
       removed,
     };
+    markVectorIndexComplete(accountId, stats);
+    return stats;
   })();
 
   indexing.set(accountId, job);
   try {
     return await job;
+  } catch (e) {
+    markVectorIndexFailed(accountId, e instanceof Error ? e.message : 'Vector index failed');
+    throw e;
   } finally {
     if (indexing.get(accountId) === job) indexing.delete(accountId);
   }

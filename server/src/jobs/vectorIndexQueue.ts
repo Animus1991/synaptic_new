@@ -1,6 +1,7 @@
 import { Queue, Worker } from 'bullmq';
 import { config } from '../config';
 import { indexLibraryVectors, scheduleLibraryVectorIndex } from '../lib/libraryVectorIndex';
+import { markVectorIndexQueued } from '../lib/vectorIndexProgress';
 import type { StoredLibrary } from '../store/libraryStore';
 
 let queue: Queue | null = null;
@@ -30,6 +31,7 @@ export function initVectorIndexQueue(): void {
 }
 
 export function enqueueLibraryVectorIndex(accountId: string, library: StoredLibrary): void {
+  markVectorIndexQueued(accountId);
   if (!queue) {
     scheduleLibraryVectorIndex(accountId, library);
     return;

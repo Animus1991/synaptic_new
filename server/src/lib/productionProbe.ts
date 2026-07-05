@@ -61,6 +61,7 @@ export type ProductionProbeStatus = {
   l10Enterprise: {
     multiSpeakerPodcast: boolean;
     videoChaptering: boolean;
+    ragIndexProgress: boolean;
   };
 };
 
@@ -142,6 +143,7 @@ export async function getProductionProbeStatus(): Promise<ProductionProbeStatus>
     l10Enterprise: {
       multiSpeakerPodcast: true,
       videoChaptering: true,
+      ragIndexProgress: true,
     },
   };
 }

@@ -15,6 +15,7 @@ import { Page, PageHeader } from './ui/primitives';
 import { WorkspaceTTIPanel } from './WorkspaceTTIPanel';
 import { useI18n } from '../lib/i18n';
 import { getSettingsContent } from '../lib/settingsContent';
+import { RagIndexProgressBanner } from './RagIndexProgressBanner';
 
 import { type TaskCalendarSyncUpdate } from '../lib/taskCalendarSync';
 
@@ -401,6 +402,14 @@ export function Settings({
         </div>
         {settings.authEmail && (
           <p className="text-xs text-text-secondary">{c.loggedIn} {settings.authEmail}</p>
+        )}
+        {settings.authToken && (
+          <RagIndexProgressBanner
+            settings={settings}
+            lang={settings.language === 'el' ? 'el' : 'en'}
+            variant="panel"
+            className="mt-3"
+          />
         )}
         {settings.authToken && (
           <div className="mt-3 pt-3 border-t border-border-subtle space-y-2">

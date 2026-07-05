@@ -6,6 +6,7 @@ import { retrieveTopK, searchGlobalLibrary, searchGlobalLibraryGraph } from '../
 import { indexLibraryVectors } from '../lib/libraryVectorIndex';
 import { synthesizeFromLibraryAsync } from '../lib/ragSynthesize';
 import { getVectorChunkStore } from '../store/vectorChunkStore';
+import { getVectorIndexProgress } from '../lib/vectorIndexProgress';
 import type { StoredLibrary } from '../store/libraryStore';
 
 export const ragRouter = Router();
@@ -94,15 +95,24 @@ ragRouter.post('/rag/query', async (req, res) => {
   }
 });
 
-/** GET /v1/rag/status — indexed chunk count and pgvector readiness. */
+/** GET /v1/rag/status — indexed chunk count, pgvector readiness, and indexing progress. */
 ragRouter.get('/rag/status', async (req, res) => {
   const account = req.account!;
   const store = getVectorChunkStore();
   const indexedChunks = await store.count(account.id);
+  const indexing = getVectorIndexProgress(account.id);
   res.json({
     indexedChunks,
     global: true,
     ready: indexedChunks > 0,
+    indexing: {
+      status: indexing.status,
+      progress: indexing.progress,
+      targetChunks: indexing.targetChunks,
+      embedded: indexing.embedded,
+      reused: indexing.reused,
+      error: indexing.error,
+    },
     checkedAt: new Date().toISOString(),
   });
 });

@@ -25,6 +25,7 @@ import { PlatformEmptyState } from './ui/PlatformEmptyState';
 import { PostUploadBanner } from './ui/PostUploadBanner';
 import { Page, PageHeader, PrimaryCTA } from './ui/primitives';
 import { t } from '../lib/i18n';
+import { RagIndexProgressBanner } from './RagIndexProgressBanner';
 
 interface LibraryProps {
   courses: Course[];
@@ -105,6 +106,13 @@ export function Library({
             {userLanguage === 'el' ? 'Ανέβασμα' : 'Upload'}
           </PrimaryCTA>
         }
+      />
+
+      <RagIndexProgressBanner
+        settings={userSettings}
+        lang={userLanguage}
+        variant="banner"
+        className="mb-4"
       />
 
       {postUploadCourse && onOpenWorkspace && (

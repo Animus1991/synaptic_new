@@ -821,6 +821,9 @@ describe('server integration sweep', () => {
       .set('Authorization', `Bearer ${adminToken}`)
       .expect(200);
     expect(typeof ragStatus.body.indexedChunks).toBe('number');
+    expect(ragStatus.body.indexing).toBeDefined();
+    expect(typeof ragStatus.body.indexing.status).toBe('string');
+    expect(typeof ragStatus.body.indexing.progress).toBe('number');
 
     const health = await request(app).get('/health').expect(200);
     expect(health.body.features.l4Enterprise).toBeDefined();
@@ -840,6 +843,7 @@ describe('server integration sweep', () => {
     expect(health.body.features.l10Enterprise).toBeDefined();
     expect(health.body.features.l10Enterprise.multiSpeakerPodcast).toBe(true);
     expect(health.body.features.l10Enterprise.videoChaptering).toBe(true);
+    expect(health.body.features.l10Enterprise.ragIndexProgress).toBe(true);
 
     const auditExport = await request(app)
       .get(`/v1/orgs/${orgId}/audit-logs/export?format=csv`)

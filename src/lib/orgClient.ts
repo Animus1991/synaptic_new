@@ -212,12 +212,27 @@ export async function ragSynthesize(
   return (await res.json()) as { synthesis: string; sources: unknown[]; courseIds: string[] };
 }
 
-export async function fetchRagStatus(token: string, settings: UserSettings) {
+export type RagIndexingStatus = {
+  status: 'idle' | 'queued' | 'processing' | 'completed' | 'failed';
+  progress: number;
+  targetChunks: number;
+  embedded: number;
+  reused: number;
+  error?: string;
+};
+
+export type RagStatusResponse = {
+  indexedChunks: number;
+  ready: boolean;
+  indexing: RagIndexingStatus;
+};
+
+export async function fetchRagStatus(token: string, settings: UserSettings): Promise<RagStatusResponse> {
   const res = await fetch(`${proxyBase(settings)}/v1/rag/status`, {
     headers: authHeaders(token),
   });
   if (!res.ok) throw new Error(await res.text());
-  return (await res.json()) as { indexedChunks: number; ready: boolean };
+  return (await res.json()) as RagStatusResponse;
 }
 
 export function gradebookExportUrl(settings: UserSettings, classId: string, token: string): string {
