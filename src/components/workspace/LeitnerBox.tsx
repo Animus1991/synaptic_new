@@ -10,11 +10,12 @@ import type { SpacingData } from '../../types';
 
 import { useI18n } from '../../lib/i18n';
 
-import { downloadAnkiDeck } from '../../lib/ankiExport';
+import { downloadAnkiDeck, downloadAnkiDeckApkg } from '../../lib/ankiExport';
 import { buildAnkiSchedulingTags, matchSpacingForCard, mergeCardTags } from '../../lib/ankiScheduling';
 import { runPluginHook } from '../../lib/pluginApi';
 
 import { buildDueHeatmap } from '../../lib/leitnerDueHeatmap';
+import { buildFsrsDueQueue, findDeckIndexForConcept } from '../../lib/leitnerDueQueue';
 import { leitnerCardSourceLabel } from '../../lib/leitnerCardSources';
 import { inferLeitnerCardType, leitnerCardTypeLabel } from '../../lib/leitnerCardTypes';
 import { readAnkiFile } from '../../lib/ankiImport';
@@ -24,6 +25,7 @@ import { saveDeckState, syncDeckState } from '../../lib/leitnerDeckSync';
 
 import { WorkspaceEmptyState } from './WorkspaceEmptyState';
 import { LeitnerStaleArtifactBanner } from './LeitnerStaleArtifactBanner';
+import { LeitnerDueQueuePanel } from './LeitnerDueQueuePanel';
 import { SourceCitationChip } from './SourceCitationChip';
 import { LeitnerOcclusionFace } from './LeitnerOcclusionFace';
 
@@ -108,18 +110,28 @@ export function LeitnerBox({
   const [dueCount, setDueCount] = useState(0);
 
   const [finished, setFinished] = useState(false);
+  const [importError, setImportError] = useState<string | null>(null);
   const importRef = useRef<HTMLInputElement>(null);
 
   const handleAnkiImport = useCallback(async (file: File) => {
-    const parsed = await readAnkiFile(file);
-    const imported: LeitnerCard[] = parsed.map((c) => ({ front: c.front, back: c.back }));
-    setDeck((prev) => mergeLeitnerCards(prev, imported));
-    setIndex(0);
-    setFinished(false);
-    onSessionDirty?.();
-  }, [onSessionDirty]);
+    setImportError(null);
+    try {
+      const parsed = await readAnkiFile(file);
+      if (parsed.length === 0) {
+        setImportError(lang === 'el' ? 'Δεν βρέθηκαν κάρτες στο αρχείο.' : 'No cards found in file.');
+        return;
+      }
+      const imported: LeitnerCard[] = parsed.map((c) => ({ front: c.front, back: c.back }));
+      setDeck((prev) => mergeLeitnerCards(prev, imported));
+      setIndex(0);
+      setFinished(false);
+      onSessionDirty?.();
+    } catch (err) {
+      setImportError(err instanceof Error ? err.message : String(err));
+    }
+  }, [onSessionDirty, lang]);
 
-  const handleAnkiExport = useCallback(async () => {
+  const buildAnkiExportCards = useCallback(async () => {
     let exportCards = deck.map((card) => {
       const spacing = matchSpacingForCard(card.front, spacingIntervals ?? []);
       const tags = spacing
@@ -128,13 +140,27 @@ export function LeitnerBox({
       return { front: card.front, back: card.back, tags };
     });
     exportCards = (await runPluginHook('leitner:beforeExport', exportCards)) as typeof exportCards;
+    return exportCards;
+  }, [deck, spacingIntervals, concept]);
+
+  const handleAnkiExportTsv = useCallback(async () => {
+    const exportCards = await buildAnkiExportCards();
     downloadAnkiDeck(
       exportCards,
       `Synapse — ${concept || 'deck'}`,
       `synapse-${concept || 'deck'}`,
       concept ? [concept, 'synapse:fsrs'] : ['synapse:fsrs'],
     );
-  }, [deck, spacingIntervals, concept]);
+  }, [buildAnkiExportCards, concept]);
+
+  const handleAnkiExportApkg = useCallback(async () => {
+    const exportCards = await buildAnkiExportCards();
+    await downloadAnkiDeckApkg(
+      exportCards,
+      `Synapse — ${concept || 'deck'}`,
+      `synapse-${concept || 'deck'}`,
+    );
+  }, [buildAnkiExportCards, concept]);
 
 
 
@@ -158,12 +184,23 @@ export function LeitnerBox({
 
 
   const heatmap = useMemo(
-
     () => buildDueHeatmap(spacingIntervals, concept ?? '', 7, new Date(), lang),
-
     [spacingIntervals, concept, lang],
-
   );
+
+  const dueQueue = useMemo(
+    () => buildFsrsDueQueue(spacingIntervals, deck, concept ?? '', new Date()),
+    [spacingIntervals, deck, concept],
+  );
+
+  const handleDueQueueSelect = useCallback((itemConcept: string) => {
+    const idx = findDeckIndexForConcept(deck, itemConcept);
+    if (idx >= 0) {
+      setIndex(idx);
+      setFlipped(false);
+      setFinished(false);
+    }
+  }, [deck]);
 
 
 
@@ -331,33 +368,40 @@ export function LeitnerBox({
         )}
 
         {deck.length > 0 && (
-
-          <button
-
-            type="button"
-
-            data-testid="leitner-export-anki"
-
-            onClick={() => void handleAnkiExport()}
-
-            className="flex items-center gap-1 text-[10px] font-medium text-brand-700 hover:text-brand-800 border border-brand-500/30 rounded-lg px-2 py-0.5"
-
-            title={t('leitnerExportAnki')}
-
-          >
-
-            <Download className="w-3 h-3" />
-
-            Anki
-
-          </button>
-
+          <details className="relative group">
+            <summary
+              className="flex items-center gap-1 text-[10px] font-medium text-brand-700 hover:text-brand-800 border border-brand-500/30 rounded-lg px-2 py-0.5 cursor-pointer list-none [&::-webkit-details-marker]:hidden"
+              title={t('leitnerExportAnki')}
+              data-testid="leitner-export-anki"
+            >
+              <Download className="w-3 h-3" />
+              Anki
+            </summary>
+            <div className="absolute right-0 top-full z-20 mt-1 min-w-[7rem] rounded-lg border border-border-subtle bg-surface-elevated shadow-lg py-1">
+              <button
+                type="button"
+                data-testid="leitner-export-anki-apkg"
+                onClick={() => void handleAnkiExportApkg()}
+                className="block w-full text-left px-2 py-1 text-[10px] font-medium text-text-primary hover:bg-surface-muted"
+              >
+                {t('leitnerExportAnkiApkg')}
+              </button>
+              <button
+                type="button"
+                data-testid="leitner-export-anki-tsv"
+                onClick={() => void handleAnkiExportTsv()}
+                className="block w-full text-left px-2 py-1 text-[10px] font-medium text-text-secondary hover:bg-surface-muted"
+              >
+                {t('leitnerExportAnkiTsv')}
+              </button>
+            </div>
+          </details>
         )}
 
         <input
           ref={importRef}
           type="file"
-          accept=".txt,.tsv,text/plain"
+          accept=".txt,.tsv,.apkg,text/plain,application/octet-stream"
           className="hidden"
           data-testid="leitner-import-anki-input"
           onChange={(e) => {
@@ -371,11 +415,17 @@ export function LeitnerBox({
           data-testid="leitner-import-anki"
           onClick={() => importRef.current?.click()}
           className="flex items-center gap-1 text-[10px] font-medium text-text-secondary hover:text-text-primary border border-border-subtle rounded-lg px-2 py-0.5"
-          title={lang === 'el' ? 'Εισαγωγή Anki TSV' : 'Import Anki TSV'}
+          title={t('leitnerImportAnki')}
         >
           <Upload className="w-3 h-3" />
           {lang === 'el' ? 'Εισαγωγή' : 'Import'}
         </button>
+
+        {importError && (
+          <span className="text-[9px] text-red-500 max-w-[12rem] truncate" title={importError}>
+            {importError}
+          </span>
+        )}
 
       </h3>
 
@@ -417,7 +467,7 @@ export function LeitnerBox({
 
       </div>
 
-
+      <LeitnerDueQueuePanel items={dueQueue} onSelect={handleDueQueueSelect} lang={lang} />
 
       <div className="grid grid-cols-4 gap-2 mb-4">
 

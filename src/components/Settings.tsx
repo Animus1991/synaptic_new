@@ -16,6 +16,7 @@ import { WorkspaceTTIPanel } from './WorkspaceTTIPanel';
 import { useI18n } from '../lib/i18n';
 import { getSettingsContent } from '../lib/settingsContent';
 import { RagIndexProgressBanner } from './RagIndexProgressBanner';
+import { PluginMarketplacePanel } from './PluginMarketplacePanel';
 
 import { type TaskCalendarSyncUpdate } from '../lib/taskCalendarSync';
 
@@ -135,6 +136,10 @@ export function Settings({
       <SettingsSection title={c.sectionPracticeRevision} icon={<Target className="w-5 h-5 text-accent-cyan" />} delay={0.2}>
         <ToggleRow label={c.labelPracticeIntensity} options={c.practiceIntensityOptions} value={settings.practiceIntensity} onChange={v => onUpdate({ practiceIntensity: v as UserSettings['practiceIntensity'] })} />
         <ToggleRow label={c.labelRevisionLoops} options={c.revisionLoopsOptions} value={settings.revisionLoops} onChange={v => onUpdate({ revisionLoops: v as UserSettings['revisionLoops'] })} />
+      </SettingsSection>
+
+      <SettingsSection title={t('pluginMarketplaceTitle')} icon={<Zap className="w-5 h-5 text-brand-400" />} delay={0.22}>
+        <PluginMarketplacePanel />
       </SettingsSection>
 
       <SettingsSection title={c.sectionSourceContent} icon={<Shield className="w-5 h-5 text-accent-emerald" />} delay={0.25}>

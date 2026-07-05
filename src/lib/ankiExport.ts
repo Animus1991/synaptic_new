@@ -1,3 +1,5 @@
+import { downloadAnkiApkgDeck } from './ankiApkg';
+
 /** Export flashcards as Anki-importable TSV (UTF-8). */
 export type AnkiExportCard = {
   front: string;
@@ -42,4 +44,12 @@ export function downloadAnkiDeck(
   a.download = filename.endsWith('.txt') ? filename : `${filename}.txt`;
   a.click();
   URL.revokeObjectURL(url);
+}
+
+export async function downloadAnkiDeckApkg(
+  cards: AnkiExportCard[],
+  deckName: string,
+  filename: string,
+) {
+  await downloadAnkiApkgDeck(cards, deckName, filename);
 }

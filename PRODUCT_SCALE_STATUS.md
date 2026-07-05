@@ -59,6 +59,21 @@ Regression gate: `cd server && npm test` (SAML + LTI integration sweep).
 | **L10-4 pgvector progress UI** | BullMQ indexing progress on `GET /v1/rag/status` + progress bar in Library & Settings |
 | **L10-5 quiz IRT polish** | Confidence bands on quiz IRT badge (session + per-question) |
 
+Regression gate: `npm test`; `npm run typecheck`.
+
+---
+
+## Sprint L11 — pedagogy & ecosystem — shipped (Jul 2026)
+
+| Scope | Deliverable |
+| ----- | ----------- |
+| **L11-1 Anki .apkg** | Client-side `ankiApkg.ts` parse/build (sql.js) + Leitner import/export menu |
+| **L11-2 FSRS due queue UI** | `LeitnerDueQueuePanel` — collapsible FSRS queue with retrievability + jump-to-card |
+| **L11-3 Plugin marketplace v1** | Settings marketplace + reference plugins (`fsrs-tags`, `export-watermark`, `agent-preface`) |
+| **L11-4 Cohort mastery heatmaps** | `topicMasteryHeatmap` on org analytics + `CohortTopicMasteryHeatmap` in TeacherDashboard |
+
+Regression gate: `npm test`; `cd server && npm test`; `npm run typecheck`.
+
 ---
 
 ## Sprint L7 — student org UI & SAML crypto — shipped (Jul 2026)

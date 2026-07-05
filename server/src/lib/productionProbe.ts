@@ -65,6 +65,13 @@ export type ProductionProbeStatus = {
     crossLibrarySynthesis: boolean;
     quizIrtConfidenceBands: boolean;
   };
+  /** Sprint L11 — pedagogy & ecosystem (Anki maturity). */
+  l11Enterprise: {
+    ankiApkgImportExport: boolean;
+    fsrsDueQueuePanel: boolean;
+    pluginMarketplace: boolean;
+    cohortTopicMasteryHeatmap: boolean;
+  };
 };
 
 let cachedPgvector: boolean | null = null;
@@ -148,6 +155,12 @@ export async function getProductionProbeStatus(): Promise<ProductionProbeStatus>
       ragIndexProgress: true,
       crossLibrarySynthesis: true,
       quizIrtConfidenceBands: true,
+    },
+    l11Enterprise: {
+      ankiApkgImportExport: true,
+      fsrsDueQueuePanel: true,
+      pluginMarketplace: true,
+      cohortTopicMasteryHeatmap: true,
     },
   };
 }

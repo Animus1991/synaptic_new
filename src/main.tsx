@@ -13,6 +13,7 @@ import "@fontsource/nunito-sans/700.css";
 import App from "./App";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { initThemeEarly } from "./lib/theme";
+import { initPluginMarketplace } from './lib/pluginMarketplace';
 import { clearChunkReloadFlags } from "./lib/lazyWithRetry";
 import { initSentry } from "./lib/sentryInit";
 import { IconContext } from "@phosphor-icons/react";
@@ -22,6 +23,7 @@ clearChunkReloadFlags();
 void initSentry();
 
 initThemeEarly();
+initPluginMarketplace();
 
 if (import.meta.env.PROD) {
   void import('virtual:pwa-register').then(({ registerSW }) => {

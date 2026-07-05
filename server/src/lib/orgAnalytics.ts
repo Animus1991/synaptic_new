@@ -1,3 +1,4 @@
+import { buildTopicMasteryHeatmap, type CohortTopicMasteryHeatmap } from './topicMasteryHeatmap';
 import {
   listClassRosterAsync,
   listOrgClassesAsync,
@@ -96,6 +97,7 @@ export type OrgAnalyticsSnapshot = {
   completionRate: number | null;
   classes: OrgClassAnalytics[];
   cohortHeatmap: CohortClassHeatmap[];
+  topicMasteryHeatmap: CohortTopicMasteryHeatmap[];
   generatedAt: string;
 };
 
@@ -103,6 +105,7 @@ export async function computeOrgAnalyticsAsync(orgId: string): Promise<OrgAnalyt
   const classes = await listOrgClassesAsync(orgId);
   const classRows: OrgClassAnalytics[] = [];
   const cohortHeatmap: CohortClassHeatmap[] = [];
+  const topicMasteryHeatmap: CohortTopicMasteryHeatmap[] = [];
   let totalStudents = 0;
   let totalAssignments = 0;
   let masterySum = 0;
@@ -163,6 +166,7 @@ export async function computeOrgAnalyticsAsync(orgId: string): Promise<OrgAnalyt
     });
 
     cohortHeatmap.push(buildClassHeatmap(cls.id, cls.name, gradebook));
+    topicMasteryHeatmap.push(buildTopicMasteryHeatmap(cls.id, cls.name, assignments, gradebook));
   }
 
   return {
@@ -175,6 +179,7 @@ export async function computeOrgAnalyticsAsync(orgId: string): Promise<OrgAnalyt
     completionRate: totalCells > 0 ? gradedCells / totalCells : null,
     classes: classRows,
     cohortHeatmap,
+    topicMasteryHeatmap,
     generatedAt: new Date().toISOString(),
   };
 }

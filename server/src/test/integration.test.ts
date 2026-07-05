@@ -854,6 +854,11 @@ describe('server integration sweep', () => {
     expect(health.body.features.l10Enterprise.ragIndexProgress).toBe(true);
     expect(health.body.features.l10Enterprise.crossLibrarySynthesis).toBe(true);
     expect(health.body.features.l10Enterprise.quizIrtConfidenceBands).toBe(true);
+    expect(health.body.features.l11Enterprise).toBeDefined();
+    expect(health.body.features.l11Enterprise.ankiApkgImportExport).toBe(true);
+    expect(health.body.features.l11Enterprise.fsrsDueQueuePanel).toBe(true);
+    expect(health.body.features.l11Enterprise.pluginMarketplace).toBe(true);
+    expect(health.body.features.l11Enterprise.cohortTopicMasteryHeatmap).toBe(true);
 
     const auditExport = await request(app)
       .get(`/v1/orgs/${orgId}/audit-logs/export?format=csv`)

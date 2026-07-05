@@ -40,6 +40,17 @@ export type OrgAnalytics = {
       avgScore: number | null;
     }[];
   }[];
+  topicMasteryHeatmap?: {
+    classId: string;
+    className: string;
+    topics: {
+      topicId: string;
+      topicLabel: string;
+      avgScore: number | null;
+      gradedCount: number;
+      masteryLevel: number;
+    }[];
+  }[];
   generatedAt: string;
 };
 
