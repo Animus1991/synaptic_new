@@ -130,6 +130,63 @@ export type QuizIrtLearnerCopy = {
   hint: string;
 };
 
+export type QuizIrtConfidenceTier = 'unknown' | 'low' | 'medium' | 'high';
+
+export type QuizIrtConfidenceBand = {
+  pointPct: number;
+  lowPct: number;
+  highPct: number;
+  tier: QuizIrtConfidenceTier;
+  bandLabel: string;
+  rangeLabel: string;
+};
+
+/** Visual confidence band for pass probability — narrows as responses accumulate. */
+export function buildQuizIrtConfidenceBand(
+  irt: QuizIrtDisplay,
+  responseCount: number,
+  lang: 'en' | 'el',
+): QuizIrtConfidenceBand {
+  const isEl = lang === 'el';
+  const pointPct = Math.round(irt.passProbability * 100);
+  const margin =
+    responseCount === 0 ? 25 : responseCount < 3 ? 18 : responseCount < 8 ? 12 : 8;
+  const lowPct = Math.max(0, pointPct - margin);
+  const highPct = Math.min(100, pointPct + margin);
+
+  const tier: QuizIrtConfidenceTier =
+    responseCount === 0
+      ? 'unknown'
+      : pointPct < 40
+        ? 'low'
+        : pointPct < 70
+          ? 'medium'
+          : 'high';
+
+  const bandLabel =
+    tier === 'unknown'
+      ? isEl
+        ? 'Εκτιμώμενο εύρος (βαθμονόμηση…)'
+        : 'Estimated range (calibrating…)'
+      : tier === 'low'
+        ? isEl
+          ? 'Χαμηλή πιθανότητα επιτυχίας'
+          : 'Low success likelihood'
+        : tier === 'medium'
+          ? isEl
+            ? 'Μέτρια πιθανότητα επιτυχίας'
+            : 'Moderate success likelihood'
+          : isEl
+            ? 'Υψηλή πιθανότητα επιτυχίας'
+            : 'High success likelihood';
+
+  const rangeLabel = isEl
+    ? `${lowPct}–${highPct}% εκτιμώμενη επιτυχία`
+    : `${lowPct}–${highPct}% estimated success`;
+
+  return { pointPct, lowPct, highPct, tier, bandLabel, rangeLabel };
+}
+
 /** User-facing quiz metrics — replaces raw θ/b/P (Prompt 5). */
 export function formatQuizIrtForLearner(
   irt: QuizIrtDisplay,

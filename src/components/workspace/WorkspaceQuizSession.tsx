@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { cn } from '../../utils/cn';
 import type { QuizIrtDisplay } from '../../lib/quizIrt';
+import { QuizIrtBadge } from './QuizIrtBadge';
 import type { QuizSessionItem, QuizSessionState } from '../../lib/quizSession';
 import {
   initQuizSession,
@@ -138,6 +139,9 @@ export function WorkspaceQuizSession({
       <div className="space-y-3" data-testid="quiz-session-complete">
         <p className="text-sm font-semibold text-accent-emerald">{summary.headline}</p>
         <p className="text-xs text-text-secondary" data-testid="quiz-session-summary-detail">{summary.detail}</p>
+        {irt && (
+          <QuizIrtBadge irt={irt} lang={lang} responseCount={irtResponseCount} />
+        )}
         {summary.suggestion && (
           <p className="text-[10px] text-brand-800" data-testid="quiz-session-summary-suggestion">{summary.suggestion}</p>
         )}
@@ -243,6 +247,10 @@ export function WorkspaceQuizSession({
           {Math.round((session.currentIndex / session.items.length) * 100)}%
         </span>
       </div>
+
+      {irt && (
+        <QuizIrtBadge irt={irt} lang={lang} responseCount={irtResponseCount} compact />
+      )}
 
       {current.sourceCitation && onOpenQuestionInReader && (
         <SourceCitationChip

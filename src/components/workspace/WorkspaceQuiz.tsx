@@ -5,7 +5,7 @@ import { isMcQuiz, type QuizDef } from '../../lib/lessonTypes';
 import type { Lang } from '../../lib/i18n';
 import { useI18n } from '../../lib/i18n';
 import type { QuizIrtDisplay } from '../../lib/quizIrt';
-import { formatQuizIrtForLearner } from '../../lib/quizIrt';
+import { QuizIrtBadge } from './QuizIrtBadge';
 
 type Props = {
   quizDef: QuizDef;
@@ -72,19 +72,7 @@ export function WorkspaceQuiz({ quizDef, lang, irt, irtResponseCount = 0, onComp
     const passed = mcAnswer !== null && mcAnswer === quizDef.correctIndex;
     return (
       <div className="space-y-3" data-testid="workspace-quiz">
-        {irt && (() => {
-          const copy = formatQuizIrtForLearner(irt, lang, irtResponseCount);
-          return (
-          <div
-            className="rounded-lg border border-border-subtle bg-surface-primary/40 px-2.5 py-1.5 text-[10px] text-text-muted space-y-0.5"
-            data-testid="quiz-irt-badge"
-          >
-            <p className="text-text-secondary">{copy.readinessLabel}</p>
-            <p>{copy.difficultyLabel} · {copy.probabilityLabel}</p>
-            {copy.hint && <p className="ws-caption text-text-muted">{copy.hint}</p>}
-          </div>
-          );
-        })()}
+        {irt && <QuizIrtBadge irt={irt} lang={lang} responseCount={irtResponseCount} />}
         <p {...questionProps(quizDef.question, onQuestionSelect)}>{quizDef.question}</p>
         {quizDef.options.map((opt, i) => (
           <button
@@ -129,14 +117,7 @@ export function WorkspaceQuiz({ quizDef, lang, irt, irtResponseCount = 0, onComp
     };
     return (
       <div className="space-y-3" data-testid="workspace-quiz">
-        {irt && (() => {
-          const copy = formatQuizIrtForLearner(irt, lang, irtResponseCount);
-          return (
-          <div className="text-[10px] text-text-muted space-y-0.5" data-testid="quiz-irt-badge">
-            <p>{copy.readinessLabel} · {copy.probabilityLabel}</p>
-          </div>
-          );
-        })()}
+        {irt && <QuizIrtBadge irt={irt} lang={lang} responseCount={irtResponseCount} compact />}
         <p {...questionProps(sa.question, onQuestionSelect)}>{sa.question}</p>
         {sa.hint && <p className="text-xs text-text-muted">{sa.hint}</p>}
         <input

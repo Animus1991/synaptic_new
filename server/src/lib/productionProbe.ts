@@ -63,6 +63,7 @@ export type ProductionProbeStatus = {
     videoChaptering: boolean;
     ragIndexProgress: boolean;
     crossLibrarySynthesis: boolean;
+    quizIrtConfidenceBands: boolean;
   };
 };
 
@@ -146,6 +147,7 @@ export async function getProductionProbeStatus(): Promise<ProductionProbeStatus>
       videoChaptering: true,
       ragIndexProgress: true,
       crossLibrarySynthesis: true,
+      quizIrtConfidenceBands: true,
     },
   };
 }

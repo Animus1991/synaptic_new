@@ -49,7 +49,7 @@ Regression gate: `cd server && npm test` (SAML + LTI integration sweep).
 
 ---
 
-## Sprint L10 — AI delight — in progress (Jul 2026)
+## Sprint L10 — AI delight — shipped (Jul 2026)
 
 | Scope | Deliverable |
 | ----- | ----------- |
@@ -57,7 +57,7 @@ Regression gate: `cd server && npm test` (SAML + LTI integration sweep).
 | **L10-2 video chaptering** | Whisper `verbose_json` segments → chapter nav in CourseView media panel |
 | **L10-3 cross-library synthesis UI** | Library synthesis panel + Agent citations from `POST /v1/rag/synthesize` |
 | **L10-4 pgvector progress UI** | BullMQ indexing progress on `GET /v1/rag/status` + progress bar in Library & Settings |
-| **L10-5 quiz IRT polish** | Not started |
+| **L10-5 quiz IRT polish** | Confidence bands on quiz IRT badge (session + per-question) |
 
 ---
 
