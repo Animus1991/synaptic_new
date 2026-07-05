@@ -2,9 +2,15 @@ import { Router } from 'express';
 import { authenticate } from '../middleware/auth';
 import {
   listStudentClassesAsync,
+  getStudentEnrollmentAsync,
 } from '../store/classStore';
 import { listClassAssignmentsAsync } from '../store/assignmentStore';
 import { listStudentAnnouncementsAsync } from '../store/announcementStore';
+import {
+  createAssignmentDiscussionPostAsync,
+  listAssignmentDiscussionAsync,
+  removeAssignmentDiscussionPostAsync,
+} from '../store/discussionStore';
 import { getGradebookAsync } from '../store/gradebookStore';
 import { listOrgsForAccountAsync, getOrgMembershipAsync } from '../store/orgStore';
 import { computeStudentDashboardAsync } from '../lib/studentDashboard';
@@ -63,3 +69,89 @@ studentRouter.get('/student/announcements', async (req, res) => {
   }
   res.json({ email: account.email, announcements });
 });
+
+/** GET /v1/student/classes/:classId/assignments/:assignmentId/discussion */
+studentRouter.get(
+  '/student/classes/:classId/assignments/:assignmentId/discussion',
+  async (req, res) => {
+    const account = req.account!;
+    const enrollment = await getStudentEnrollmentAsync(req.params.classId, account.email);
+    if (!enrollment) {
+      res.status(404).json({ error: 'class not found' });
+      return;
+    }
+    const assignments = await listClassAssignmentsAsync(req.params.classId);
+    if (!assignments.some((a) => a.id === req.params.assignmentId)) {
+      res.status(404).json({ error: 'assignment not found' });
+      return;
+    }
+    const posts = await listAssignmentDiscussionAsync(req.params.classId, req.params.assignmentId);
+    res.json({
+      classId: req.params.classId,
+      assignmentId: req.params.assignmentId,
+      posts,
+    });
+  },
+);
+
+/** POST /v1/student/classes/:classId/assignments/:assignmentId/discussion */
+studentRouter.post(
+  '/student/classes/:classId/assignments/:assignmentId/discussion',
+  async (req, res) => {
+    const account = req.account!;
+    const enrollment = await getStudentEnrollmentAsync(req.params.classId, account.email);
+    if (!enrollment) {
+      res.status(404).json({ error: 'class not found' });
+      return;
+    }
+    const assignments = await listClassAssignmentsAsync(req.params.classId);
+    if (!assignments.some((a) => a.id === req.params.assignmentId)) {
+      res.status(404).json({ error: 'assignment not found' });
+      return;
+    }
+    const body = req.body as { body?: string };
+    if (!body.body?.trim()) {
+      res.status(400).json({ error: 'body required' });
+      return;
+    }
+    const created = await createAssignmentDiscussionPostAsync(
+      req.params.classId,
+      req.params.assignmentId,
+      {
+        authorAccountId: account.id,
+        authorRole: 'student',
+        body: body.body,
+      },
+    );
+    res.status(201).json(created);
+  },
+);
+
+/** DELETE /v1/student/classes/:classId/assignments/:assignmentId/discussion/:postId */
+studentRouter.delete(
+  '/student/classes/:classId/assignments/:assignmentId/discussion/:postId',
+  async (req, res) => {
+    const account = req.account!;
+    const enrollment = await getStudentEnrollmentAsync(req.params.classId, account.email);
+    if (!enrollment) {
+      res.status(404).json({ error: 'class not found' });
+      return;
+    }
+    const posts = await listAssignmentDiscussionAsync(req.params.classId, req.params.assignmentId);
+    const post = posts.find((p) => p.id === req.params.postId);
+    if (!post) {
+      res.status(404).json({ error: 'post not found' });
+      return;
+    }
+    if (post.authorAccountId !== account.id) {
+      res.status(403).json({ error: 'forbidden' });
+      return;
+    }
+    await removeAssignmentDiscussionPostAsync(
+      req.params.classId,
+      req.params.assignmentId,
+      req.params.postId,
+    );
+    res.status(204).send();
+  },
+);

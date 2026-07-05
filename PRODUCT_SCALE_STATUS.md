@@ -41,7 +41,7 @@ Regression gate: `cd server && npm test` (includes `auditLogExport.test.ts`).
 | ----- | ----------- |
 | **L9-1 student calendar** | `StudentOrgCalendarPanel` — class due dates + exam feed; filters All / Class work / Exams |
 | **L9-2 class announcements** | Teacher `GET/POST/DELETE /v1/teacher/classes/:id/announcements`; student `GET /v1/student/announcements`; collapsible feed in `StudentOrgView` |
-| **L9-3 discussion threads** | Not started — per-assignment Q&A stub |
+| **L9-3 discussion threads** | Per-assignment Q&A stub — teacher/student `.../assignments/:id/discussion`; `AssignmentDiscussionThread` inline expand |
 | **L9-4 LTI roster sync** | Not started |
 | **L9-5 SAML auto-provision** | Not started |
 

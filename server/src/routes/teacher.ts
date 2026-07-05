@@ -30,6 +30,11 @@ import {
   removeClassAnnouncementAsync,
 } from '../store/announcementStore';
 import {
+  createAssignmentDiscussionPostAsync,
+  listAssignmentDiscussionAsync,
+  removeAssignmentDiscussionPostAsync,
+} from '../store/discussionStore';
+import {
   getGradebookAsync,
   removeGradebookCellsForAssignmentAsync,
   removeGradebookCellsForEnrollmentAsync,
@@ -370,6 +375,86 @@ teacherRouter.delete(
     const ok = await removeClassAnnouncementAsync(owned.class.id, req.params.announcementId);
     if (!ok) {
       res.status(404).json({ error: 'announcement not found' });
+      return;
+    }
+    res.status(204).send();
+  },
+);
+
+/** GET /v1/teacher/classes/:classId/assignments/:assignmentId/discussion */
+teacherRouter.get(
+  '/teacher/classes/:classId/assignments/:assignmentId/discussion',
+  async (req, res) => {
+    const account = req.account!;
+    const owned = await requireTeacherClass(req.params.classId, account.id);
+    if (!owned.ok) {
+      res.status(owned.status).json({ error: owned.error });
+      return;
+    }
+    const assignments = await listClassAssignmentsAsync(owned.class.id);
+    if (!assignments.some((a) => a.id === req.params.assignmentId)) {
+      res.status(404).json({ error: 'assignment not found' });
+      return;
+    }
+    const posts = await listAssignmentDiscussionAsync(owned.class.id, req.params.assignmentId);
+    res.json({
+      classId: owned.class.id,
+      assignmentId: req.params.assignmentId,
+      posts,
+    });
+  },
+);
+
+/** POST /v1/teacher/classes/:classId/assignments/:assignmentId/discussion */
+teacherRouter.post(
+  '/teacher/classes/:classId/assignments/:assignmentId/discussion',
+  async (req, res) => {
+    const account = req.account!;
+    const owned = await requireTeacherClass(req.params.classId, account.id);
+    if (!owned.ok) {
+      res.status(owned.status).json({ error: owned.error });
+      return;
+    }
+    const assignments = await listClassAssignmentsAsync(owned.class.id);
+    if (!assignments.some((a) => a.id === req.params.assignmentId)) {
+      res.status(404).json({ error: 'assignment not found' });
+      return;
+    }
+    const body = req.body as { body?: string };
+    if (!body.body?.trim()) {
+      res.status(400).json({ error: 'body required' });
+      return;
+    }
+    const created = await createAssignmentDiscussionPostAsync(
+      owned.class.id,
+      req.params.assignmentId,
+      {
+        authorAccountId: account.id,
+        authorRole: 'teacher',
+        body: body.body,
+      },
+    );
+    res.status(201).json(created);
+  },
+);
+
+/** DELETE /v1/teacher/classes/:classId/assignments/:assignmentId/discussion/:postId */
+teacherRouter.delete(
+  '/teacher/classes/:classId/assignments/:assignmentId/discussion/:postId',
+  async (req, res) => {
+    const account = req.account!;
+    const owned = await requireTeacherClass(req.params.classId, account.id);
+    if (!owned.ok) {
+      res.status(owned.status).json({ error: owned.error });
+      return;
+    }
+    const ok = await removeAssignmentDiscussionPostAsync(
+      owned.class.id,
+      req.params.assignmentId,
+      req.params.postId,
+    );
+    if (!ok) {
+      res.status(404).json({ error: 'post not found' });
       return;
     }
     res.status(204).send();

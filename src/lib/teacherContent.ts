@@ -77,6 +77,14 @@ export type TeacherContent = {
   createAnnouncement: string;
   removeAnnouncement: string;
   noAnnouncements: string;
+  discussionToggle: string;
+  discussionHint: string;
+  discussionPlaceholder: string;
+  discussionPost: string;
+  discussionEmpty: string;
+  discussionRoleTeacher: string;
+  discussionRoleStudent: string;
+  removeDiscussionPost: string;
   gradebook: string;
   gradebookHint: string;
   gradebookEmpty: string;
@@ -170,6 +178,14 @@ const EN: TeacherContent = {
   createAnnouncement: 'Post announcement',
   removeAnnouncement: 'Remove',
   noAnnouncements: 'No announcements for this class yet.',
+  discussionToggle: 'Q&A',
+  discussionHint: 'Per-assignment questions and answers',
+  discussionPlaceholder: 'Reply to the class…',
+  discussionPost: 'Post',
+  discussionEmpty: 'No questions yet.',
+  discussionRoleTeacher: 'Teacher',
+  discussionRoleStudent: 'Student',
+  removeDiscussionPost: 'Remove',
   gradebook: 'Gradebook',
   gradebookHint: 'Enter scores (0–100) per student and assignment. Saved to the teacher server.',
   gradebookEmpty: 'Add students and assignments to use the gradebook matrix.',
@@ -263,6 +279,14 @@ const EL: TeacherContent = {
   createAnnouncement: 'Δημοσίευση',
   removeAnnouncement: 'Αφαίρεση',
   noAnnouncements: 'Δεν υπάρχουν ανακοινώσεις για αυτή την τάξη.',
+  discussionToggle: 'Q&A',
+  discussionHint: 'Ερωτήσεις και απαντήσεις ανά εργασία',
+  discussionPlaceholder: 'Απάντηση στην τάξη…',
+  discussionPost: 'Αποστολή',
+  discussionEmpty: 'Δεν υπάρχουν ερωτήσεις ακόμα.',
+  discussionRoleTeacher: 'Εκπαιδευτής',
+  discussionRoleStudent: 'Μαθητής',
+  removeDiscussionPost: 'Αφαίρεση',
   gradebook: 'Βαθμολόγιο',
   gradebookHint: 'Βαθμοί (0–100) ανά μαθητή και ανάθεση. Αποθηκεύονται στον teacher server.',
   gradebookEmpty: 'Πρόσθεσε μαθητές και αναθέσεις για τον πίνακα βαθμολογίου.',

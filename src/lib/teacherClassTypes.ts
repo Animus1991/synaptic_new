@@ -64,6 +64,22 @@ export type StudentAnnouncementsResponse = {
   announcements: StudentAnnouncementRow[];
 };
 
+export type DiscussionPostRow = {
+  id: string;
+  classId: string;
+  assignmentId: string;
+  authorAccountId: string;
+  authorRole: 'teacher' | 'student';
+  body: string;
+  createdAt: string;
+};
+
+export type AssignmentDiscussionResponse = {
+  classId: string;
+  assignmentId: string;
+  posts: DiscussionPostRow[];
+};
+
 export type GradebookCellStatus = 'pending' | 'submitted' | 'graded';
 
 export type GradebookCellRow = {

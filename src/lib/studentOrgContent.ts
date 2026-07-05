@@ -43,6 +43,13 @@ export type StudentOrgContent = {
   announcementsHint: string;
   announcementsFilterAll: string;
   announcementsEmpty: string;
+  discussionToggle: string;
+  discussionHint: string;
+  discussionPlaceholder: string;
+  discussionPost: string;
+  discussionEmpty: string;
+  discussionRoleTeacher: string;
+  discussionRoleStudent: string;
 };
 
 const EN: StudentOrgContent = {
@@ -88,6 +95,13 @@ const EN: StudentOrgContent = {
   announcementsHint: 'Updates from your teachers across enrolled classes.',
   announcementsFilterAll: 'All classes',
   announcementsEmpty: 'No announcements yet.',
+  discussionToggle: 'Q&A',
+  discussionHint: 'Ask your teacher about this assignment',
+  discussionPlaceholder: 'Your question…',
+  discussionPost: 'Ask',
+  discussionEmpty: 'No messages yet.',
+  discussionRoleTeacher: 'Teacher',
+  discussionRoleStudent: 'You',
 };
 
 const EL: StudentOrgContent = {
@@ -133,6 +147,13 @@ const EL: StudentOrgContent = {
   announcementsHint: 'Ενημερώσεις από τους εκπαιδευτές στις τάξεις σου.',
   announcementsFilterAll: 'Όλες οι τάξεις',
   announcementsEmpty: 'Δεν υπάρχουν ανακοινώσεις ακόμα.',
+  discussionToggle: 'Q&A',
+  discussionHint: 'Ρώτα τον εκπαιδευτή για αυτή την εργασία',
+  discussionPlaceholder: 'Η ερώτησή σου…',
+  discussionPost: 'Αποστολή',
+  discussionEmpty: 'Δεν υπάρχουν μηνύματα ακόμα.',
+  discussionRoleTeacher: 'Εκπαιδευτής',
+  discussionRoleStudent: 'Εσύ',
 };
 
 export function getStudentOrgContent(lang: Lang): StudentOrgContent {

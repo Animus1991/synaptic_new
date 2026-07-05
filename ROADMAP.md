@@ -38,7 +38,7 @@ Remaining: App Store binaries, SOC2/DPA deployment docs, brand/GTM. L8 audit exp
 | -------- | --- | ----------- |
 | **P1** | Student calendar | `StudentOrgCalendarPanel` — merged class due dates + exam milestones |
 | **P1** | Class announcements | Teacher compose + student merged feed (`/v1/student/announcements`) |
-| **P2** | Discussion threads | Per-assignment Q&A stub |
+| **P2** | Discussion threads | Per-assignment Q&A — `AssignmentDiscussionThread` inline expand |
 | **P2** | LTI roster sync | Deep link roster import |
 | **P2** | SAML auto-provision | JIT org membership on ACS |
 

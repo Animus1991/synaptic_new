@@ -1,6 +1,7 @@
 import pg from 'pg';
 import type { ClassAnnouncement } from './announcementStore';
 import type { ClassAssignment } from './assignmentStore';
+import type { AssignmentDiscussionPost, DiscussionAuthorRole } from './discussionStore';
 import type { TeacherClass, ClassEnrollment } from './classStore';
 import type { GradebookCell, GradebookCellStatus, GradebookSnapshot } from './gradebookStore';
 
@@ -51,6 +52,17 @@ export interface TeacherRepository {
     payload: { title: string; body: string; authorAccountId: string },
   ): Promise<ClassAnnouncement>;
   removeClassAnnouncement(classId: string, announcementId: string): Promise<boolean>;
+  listAssignmentDiscussion(classId: string, assignmentId: string): Promise<AssignmentDiscussionPost[]>;
+  createAssignmentDiscussionPost(
+    classId: string,
+    assignmentId: string,
+    payload: { authorAccountId: string; authorRole: DiscussionAuthorRole; body: string },
+  ): Promise<AssignmentDiscussionPost>;
+  removeAssignmentDiscussionPost(
+    classId: string,
+    assignmentId: string,
+    postId: string,
+  ): Promise<boolean>;
   listStudentEnrollments(studentEmail: string): Promise<
     { enrollment: ClassEnrollment; class: TeacherClass }[]
   >;
@@ -108,6 +120,26 @@ function rowToAnnouncement(row: {
     title: row.title,
     body: row.body,
     authorAccountId: row.author_account_id,
+    createdAt: row.created_at.toISOString(),
+  };
+}
+
+function rowToDiscussionPost(row: {
+  id: string;
+  class_id: string;
+  assignment_id: string;
+  author_account_id: string;
+  author_role: string;
+  body: string;
+  created_at: Date;
+}): AssignmentDiscussionPost {
+  return {
+    id: row.id,
+    classId: row.class_id,
+    assignmentId: row.assignment_id,
+    authorAccountId: row.author_account_id,
+    authorRole: row.author_role as DiscussionAuthorRole,
+    body: row.body,
     createdAt: row.created_at.toISOString(),
   };
 }
@@ -544,6 +576,72 @@ export function createPostgresTeacherRepo(databaseUrl: string): TeacherRepositor
       const res = await pool.query(
         'DELETE FROM class_announcements WHERE class_id = $1 AND id = $2',
         [classId, announcementId],
+      );
+      return (res.rowCount ?? 0) > 0;
+    },
+
+    async listAssignmentDiscussion(
+      classId: string,
+      assignmentId: string,
+    ): Promise<AssignmentDiscussionPost[]> {
+      const res = await pool.query<{
+        id: string;
+        class_id: string;
+        assignment_id: string;
+        author_account_id: string;
+        author_role: string;
+        body: string;
+        created_at: Date;
+      }>(
+        `SELECT id, class_id, assignment_id, author_account_id, author_role, body, created_at
+         FROM assignment_discussion_posts
+         WHERE class_id = $1 AND assignment_id = $2
+         ORDER BY created_at ASC`,
+        [classId, assignmentId],
+      );
+      return res.rows.map(rowToDiscussionPost);
+    },
+
+    async createAssignmentDiscussionPost(
+      classId: string,
+      assignmentId: string,
+      payload: { authorAccountId: string; authorRole: DiscussionAuthorRole; body: string },
+    ): Promise<AssignmentDiscussionPost> {
+      const id = `disc_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+      const createdAt = new Date().toISOString();
+      await pool.query(
+        `INSERT INTO assignment_discussion_posts
+           (id, class_id, assignment_id, author_account_id, author_role, body, created_at)
+         VALUES ($1, $2, $3, $4, $5, $6, $7::timestamptz)`,
+        [
+          id,
+          classId,
+          assignmentId,
+          payload.authorAccountId,
+          payload.authorRole,
+          payload.body.trim(),
+          createdAt,
+        ],
+      );
+      return {
+        id,
+        classId,
+        assignmentId,
+        authorAccountId: payload.authorAccountId,
+        authorRole: payload.authorRole,
+        body: payload.body.trim(),
+        createdAt,
+      };
+    },
+
+    async removeAssignmentDiscussionPost(
+      classId: string,
+      assignmentId: string,
+      postId: string,
+    ): Promise<boolean> {
+      const res = await pool.query(
+        'DELETE FROM assignment_discussion_posts WHERE class_id = $1 AND assignment_id = $2 AND id = $3',
+        [classId, assignmentId, postId],
       );
       return (res.rowCount ?? 0) > 0;
     },

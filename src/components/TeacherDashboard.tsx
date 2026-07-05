@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, Fragment } from 'react';
 import { motion } from 'framer-motion';
 import {
   BarChart3, BookOpen, Cpu, Database, FileText, Layers, RefreshCw,
@@ -27,6 +27,7 @@ import type { TeacherDashboardResponse } from '../lib/teacherDashboardTypes';
 import { getTeacherContent } from '../lib/teacherContent';
 import { fetchOrgs, fetchOrgAnalytics, downloadGradebookCsv, ltiPassbackClassGrades, type OrgAnalytics } from '../lib/orgClient';
 import { CohortHeatmap } from './CohortHeatmap';
+import { AssignmentDiscussionThread } from './AssignmentDiscussionThread';
 import { formatDateTime, formatShortDate, localeTag } from '../lib/localeFormat';
 import { cn } from '../utils/cn';
 
@@ -67,6 +68,7 @@ export function TeacherDashboard({
   const [assignmentDue, setAssignmentDue] = useState('');
   const [announcementTitle, setAnnouncementTitle] = useState('');
   const [announcementBody, setAnnouncementBody] = useState('');
+  const [expandedDiscussionId, setExpandedDiscussionId] = useState<string | null>(null);
   const [classBusy, setClassBusy] = useState(false);
   const [orgAnalytics, setOrgAnalytics] = useState<OrgAnalytics | null>(null);
   const localEvents = countLearningEventsByType();
@@ -326,6 +328,16 @@ export function TeacherDashboard({
     ? Math.min(100, Math.round(((data.usage.promptTokens + data.usage.completionTokens) / Math.max(1, data.usage.quota)) * 100))
     : 0;
   const studyHours = learnerModel ? Math.round(learnerModel.totalStudyTime / 60) : 0;
+  const discussionUi = {
+    toggle: ui.discussionToggle,
+    hint: ui.discussionHint,
+    placeholder: ui.discussionPlaceholder,
+    post: ui.discussionPost,
+    empty: ui.discussionEmpty,
+    roleTeacher: ui.discussionRoleTeacher,
+    roleStudent: ui.discussionRoleStudent,
+    remove: ui.removeDiscussionPost,
+  };
 
   return (
     <div className="p-4 sm:p-6 lg:px-8 pb-24 space-y-6 max-w-5xl mx-auto" data-testid="teacher-dashboard">
@@ -653,23 +665,55 @@ export function TeacherDashboard({
                       </thead>
                       <tbody>
                         {assignments.map((row) => (
-                          <tr key={row.id} className="border-b border-border-subtle/50" data-testid={`teacher-assignment-row-${row.id}`}>
-                            <td className="py-2 pr-3 font-medium">{row.title}</td>
-                            <td className="py-2 pr-3 text-text-muted">
-                              {row.dueAt ? formatShortDate(row.dueAt, lang) : '—'}
-                            </td>
-                            <td className="py-2 text-right">
-                              <button
-                                type="button"
-                                onClick={() => void handleRemoveAssignment(row.id)}
-                                disabled={classBusy}
-                                data-testid={`teacher-remove-assignment-${row.id}`}
-                                className="text-accent-rose hover:underline"
-                              >
-                                {ui.removeAssignment}
-                              </button>
-                            </td>
-                          </tr>
+                          <Fragment key={row.id}>
+                            <tr className="border-b border-border-subtle/50" data-testid={`teacher-assignment-row-${row.id}`}>
+                              <td className="py-2 pr-3 font-medium">{row.title}</td>
+                              <td className="py-2 pr-3 text-text-muted">
+                                {row.dueAt ? formatShortDate(row.dueAt, lang) : '—'}
+                              </td>
+                              <td className="py-2 text-right space-x-2">
+                                {selectedClassId && (
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      setExpandedDiscussionId((prev) => (prev === row.id ? null : row.id))
+                                    }
+                                    data-testid={`teacher-discussion-toggle-${row.id}`}
+                                    className="text-accent hover:underline text-[10px]"
+                                  >
+                                    {ui.discussionToggle}
+                                  </button>
+                                )}
+                                <button
+                                  type="button"
+                                  onClick={() => void handleRemoveAssignment(row.id)}
+                                  disabled={classBusy}
+                                  data-testid={`teacher-remove-assignment-${row.id}`}
+                                  className="text-accent-rose hover:underline"
+                                >
+                                  {ui.removeAssignment}
+                                </button>
+                              </td>
+                            </tr>
+                            {expandedDiscussionId === row.id && selectedClassId && (
+                              <tr>
+                                <td colSpan={3} className="pb-3">
+                                  <AssignmentDiscussionThread
+                                    classId={selectedClassId}
+                                    assignmentId={row.id}
+                                    assignmentTitle={row.title}
+                                    settings={settings}
+                                    lang={lang}
+                                    role="teacher"
+                                    ui={discussionUi}
+                                    hideToggle
+                                    open
+                                    onToggle={() => setExpandedDiscussionId(null)}
+                                  />
+                                </td>
+                              </tr>
+                            )}
+                          </Fragment>
                         ))}
                       </tbody>
                     </table>

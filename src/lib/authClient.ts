@@ -5,10 +5,12 @@ import type { TeacherDashboardResponse } from './teacherDashboardTypes';
 import type {
   AnnouncementRow,
   AnnouncementsResponse,
+  AssignmentDiscussionResponse,
   AssignmentRow,
   AssignmentsResponse,
   ClassEnrollmentRow,
   ClassRosterResponse,
+  DiscussionPostRow,
   GradebookCellRow,
   GradebookResponse,
   TeacherClassRow,
@@ -391,6 +393,59 @@ export async function removeClassAnnouncement(
 ): Promise<void> {
   const res = await fetch(
     `${proxyBase(settings)}/v1/teacher/classes/${classId}/announcements/${announcementId}`,
+    {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${token}` },
+    },
+  );
+  if (!res.ok) throw new Error(await res.text());
+}
+
+export async function fetchAssignmentDiscussion(
+  token: string,
+  settings: UserSettings,
+  classId: string,
+  assignmentId: string,
+): Promise<AssignmentDiscussionResponse> {
+  const res = await fetch(
+    `${proxyBase(settings)}/v1/teacher/classes/${classId}/assignments/${assignmentId}/discussion`,
+    { headers: { Authorization: `Bearer ${token}` } },
+  );
+  if (!res.ok) throw new Error(await res.text());
+  return res.json() as Promise<AssignmentDiscussionResponse>;
+}
+
+export async function postAssignmentDiscussion(
+  token: string,
+  settings: UserSettings,
+  classId: string,
+  assignmentId: string,
+  body: string,
+): Promise<DiscussionPostRow> {
+  const res = await fetch(
+    `${proxyBase(settings)}/v1/teacher/classes/${classId}/assignments/${assignmentId}/discussion`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ body }),
+    },
+  );
+  if (!res.ok) throw new Error(await res.text());
+  return res.json() as Promise<DiscussionPostRow>;
+}
+
+export async function deleteAssignmentDiscussionPost(
+  token: string,
+  settings: UserSettings,
+  classId: string,
+  assignmentId: string,
+  postId: string,
+): Promise<void> {
+  const res = await fetch(
+    `${proxyBase(settings)}/v1/teacher/classes/${classId}/assignments/${assignmentId}/discussion/${postId}`,
     {
       method: 'DELETE',
       headers: { Authorization: `Bearer ${token}` },

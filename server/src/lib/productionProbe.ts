@@ -53,6 +53,7 @@ export type ProductionProbeStatus = {
   l9Enterprise: {
     classAnnouncements: boolean;
     studentOrgCalendar: boolean;
+    assignmentDiscussion: boolean;
   };
 };
 
@@ -127,6 +128,7 @@ export async function getProductionProbeStatus(): Promise<ProductionProbeStatus>
     l9Enterprise: {
       classAnnouncements: true,
       studentOrgCalendar: true,
+      assignmentDiscussion: true,
     },
   };
 }

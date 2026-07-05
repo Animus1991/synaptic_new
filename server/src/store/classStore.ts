@@ -196,6 +196,14 @@ export async function listStudentClassesAsync(studentEmail: string): Promise<Stu
   return rows.sort((a, b) => b.enrollment.enrolledAt.localeCompare(a.enrollment.enrolledAt));
 }
 
+export async function getStudentEnrollmentAsync(
+  classId: string,
+  studentEmail: string,
+): Promise<ClassEnrollment | null> {
+  const rows = await listStudentClassesAsync(studentEmail);
+  return rows.find((r) => r.class.id === classId)?.enrollment ?? null;
+}
+
 /** Test helper */
 export function resetClassStore(): void {
   classes.clear();

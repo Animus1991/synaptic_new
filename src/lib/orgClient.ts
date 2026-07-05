@@ -129,6 +129,74 @@ export async function fetchStudentAnnouncements(
   };
 }
 
+export async function fetchStudentAssignmentDiscussion(
+  token: string,
+  settings: UserSettings,
+  classId: string,
+  assignmentId: string,
+) {
+  const res = await fetch(
+    `${proxyBase(settings)}/v1/student/classes/${classId}/assignments/${assignmentId}/discussion`,
+    { headers: authHeaders(token) },
+  );
+  if (!res.ok) throw new Error(await res.text());
+  return (await res.json()) as {
+    classId: string;
+    assignmentId: string;
+    posts: {
+      id: string;
+      classId: string;
+      assignmentId: string;
+      authorAccountId: string;
+      authorRole: 'teacher' | 'student';
+      body: string;
+      createdAt: string;
+    }[];
+  };
+}
+
+export async function postStudentAssignmentDiscussion(
+  token: string,
+  settings: UserSettings,
+  classId: string,
+  assignmentId: string,
+  body: string,
+) {
+  const res = await fetch(
+    `${proxyBase(settings)}/v1/student/classes/${classId}/assignments/${assignmentId}/discussion`,
+    {
+      method: 'POST',
+      headers: {
+        ...authHeaders(token),
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ body }),
+    },
+  );
+  if (!res.ok) throw new Error(await res.text());
+  return (await res.json()) as {
+    id: string;
+    authorAccountId: string;
+    authorRole: 'teacher' | 'student';
+    body: string;
+    createdAt: string;
+  };
+}
+
+export async function deleteStudentAssignmentDiscussionPost(
+  token: string,
+  settings: UserSettings,
+  classId: string,
+  assignmentId: string,
+  postId: string,
+) {
+  const res = await fetch(
+    `${proxyBase(settings)}/v1/student/classes/${classId}/assignments/${assignmentId}/discussion/${postId}`,
+    { method: 'DELETE', headers: authHeaders(token) },
+  );
+  if (!res.ok) throw new Error(await res.text());
+}
+
 export async function ragSynthesize(
   token: string,
   settings: UserSettings,

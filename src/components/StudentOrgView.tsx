@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState, Fragment } from 'react';
 import { motion } from 'framer-motion';
 import { BookOpen, Building2, RefreshCw, GraduationCap, SlidersHorizontal } from '@/lib/lucide-shim';
 import type { UserSettings } from '../types';
@@ -10,6 +10,7 @@ import { StudentOrgSummary } from './StudentOrgSummary';
 import { StudentUpcomingPanel } from './StudentUpcomingPanel';
 import { StudentOrgCalendarPanel } from './StudentOrgCalendarPanel';
 import { StudentOrgAnnouncementsPanel } from './StudentOrgAnnouncementsPanel';
+import { AssignmentDiscussionThread } from './AssignmentDiscussionThread';
 import type { StudentAssignmentDue } from '../lib/studentOrgCalendar';
 import { formatShortDate } from '../lib/localeFormat';
 import { cn } from '../utils/cn';
@@ -48,6 +49,7 @@ export function StudentOrgView({
     Awaited<ReturnType<typeof fetchStudentAnnouncements>>['announcements']
   >([]);
   const [orgFilter, setOrgFilter] = useState<string>('all');
+  const [expandedDiscussionKey, setExpandedDiscussionKey] = useState<string | null>(null);
   const signedIn = Boolean(settings.authToken?.trim());
 
   const load = useCallback(async () => {
@@ -138,6 +140,17 @@ export function StudentOrgView({
     const classIds = new Set(filteredClasses.map((row) => row.class.id));
     return announcements.filter((a) => classIds.has(a.classId));
   }, [announcements, orgFilter, filteredClasses]);
+
+  const discussionUi = {
+    toggle: ui.discussionToggle,
+    hint: ui.discussionHint,
+    placeholder: ui.discussionPlaceholder,
+    post: ui.discussionPost,
+    empty: ui.discussionEmpty,
+    roleTeacher: ui.discussionRoleTeacher,
+    roleStudent: ui.discussionRoleStudent,
+    remove: '',
+  };
 
   if (!signedIn) {
     return (
@@ -312,28 +325,62 @@ export function StudentOrgView({
                               (u) => u.assignmentId === a.id && u.classId === row.class.id,
                             );
                             const status = up?.status ?? (cell?.score != null ? 'graded' : 'pending');
+                            const discussionKey = `${row.class.id}:${a.id}`;
+                            const discussionOpen = expandedDiscussionKey === discussionKey;
                             return (
-                              <tr key={a.id} className="border-b border-border/30 last:border-0">
-                                <td className="p-2 text-text-secondary">{a.title}</td>
-                                <td className="p-2 text-text-muted whitespace-nowrap">
-                                  {a.dueAt ? formatShortDate(a.dueAt, lang) : '—'}
-                                </td>
-                                <td className="p-2 text-right">
-                                  <span className="inline-flex items-center gap-2 justify-end">
-                                    {cell?.score != null && (
-                                      <span className="font-medium">{cell.score}%</span>
-                                    )}
-                                    <span
-                                      className={cn(
-                                        'text-[10px] px-1.5 py-0.5 rounded-full',
-                                        statusToneClass[assignmentStatusTone(status)],
+                              <Fragment key={a.id}>
+                                <tr className="border-b border-border/30 last:border-0">
+                                  <td className="p-2 text-text-secondary">{a.title}</td>
+                                  <td className="p-2 text-text-muted whitespace-nowrap">
+                                    {a.dueAt ? formatShortDate(a.dueAt, lang) : '—'}
+                                  </td>
+                                  <td className="p-2 text-right">
+                                    <span className="inline-flex items-center gap-2 justify-end flex-wrap">
+                                      <button
+                                        type="button"
+                                        onClick={() =>
+                                          setExpandedDiscussionKey((prev) =>
+                                            prev === discussionKey ? null : discussionKey,
+                                          )
+                                        }
+                                        data-testid={`student-discussion-toggle-${a.id}`}
+                                        className="text-[10px] text-accent hover:underline"
+                                      >
+                                        {ui.discussionToggle}
+                                      </button>
+                                      {cell?.score != null && (
+                                        <span className="font-medium">{cell.score}%</span>
                                       )}
-                                    >
-                                      {assignmentStatusLabel(status, lang)}
+                                      <span
+                                        className={cn(
+                                          'text-[10px] px-1.5 py-0.5 rounded-full',
+                                          statusToneClass[assignmentStatusTone(status)],
+                                        )}
+                                      >
+                                        {assignmentStatusLabel(status, lang)}
+                                      </span>
                                     </span>
-                                  </span>
-                                </td>
-                              </tr>
+                                  </td>
+                                </tr>
+                                {discussionOpen && (
+                                  <tr>
+                                    <td colSpan={3} className="px-2 pb-3">
+                                      <AssignmentDiscussionThread
+                                        classId={row.class.id}
+                                        assignmentId={a.id}
+                                        assignmentTitle={a.title}
+                                        settings={settings}
+                                        lang={lang}
+                                        role="student"
+                                        ui={discussionUi}
+                                        hideToggle
+                                        open
+                                        onToggle={() => setExpandedDiscussionKey(null)}
+                                      />
+                                    </td>
+                                  </tr>
+                                )}
+                              </Fragment>
                             );
                           })}
                         </tbody>
