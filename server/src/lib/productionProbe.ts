@@ -16,13 +16,14 @@ export type ProductionProbeStatus = {
     distributed: boolean;
     requireRedis: boolean;
   };
-  /** Sprint L1 — teacher class APIs scoped by teacher_account_id. */
+  /** Org-level RBAC (institution → classes → members). */
   tenantIsolation: {
     teacherClassScoped: true;
     postgresAccountScoped: boolean;
-    orgRbac: false;
+    orgRbac: true;
   };
 };
+
 let cachedPgvector: boolean | null = null;
 
 /** True when pgvector extension and library_chunks table are available. */
@@ -66,7 +67,7 @@ export async function getProductionProbeStatus(): Promise<ProductionProbeStatus>
     tenantIsolation: {
       teacherClassScoped: true,
       postgresAccountScoped: database,
-      orgRbac: false,
+      orgRbac: true,
     },
   };
 }

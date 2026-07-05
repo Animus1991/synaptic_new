@@ -1,6 +1,6 @@
 # Product-scale status (canonical snapshot)
 
-**Last reconciled:** 2026-07-05 — aligned through **Sprint L2** (Redis rate limits, Jul 2026).
+**Last reconciled:** 2026-07-05 — aligned through **Sprint L3** (org RBAC, Jul 2026).
 
 This file is the **single shipped-truth status doc**. Use it for readiness reviews,
 sprint close-outs, and investor/contributor snapshots.
@@ -18,8 +18,22 @@ sprint close-outs, and investor/contributor snapshots.
 
 **~99% product-scale** — … **Sprint J** (reader occlusion-from-selection, UploadModal configure i18n),
 **Sprint K** (residual lib helper i18n), **Sprint L1** (server tenant isolation + health probe), and
-**Sprint L2** (Redis-backed distributed rate limits) landed (Jul 2026).
-Remaining gaps: org RBAC (Sprint L3+).
+**Sprint L2** (Redis-backed distributed rate limits), and **Sprint L3** (org RBAC) landed (Jul 2026).
+Remaining gaps: pgvector RAG at scale, student role UI surfaces.
+
+---
+
+## Sprint L3 — org RBAC — shipped (Jul 2026)
+
+| Scope | Deliverable |
+| ----- | ----------- |
+| **Institutions** | `POST/GET /v1/orgs`, members API, org-scoped class creation |
+| **RBAC** | `middleware/rbac.ts` — `org_admin`, `teacher`, `student` roles |
+| **Class guard** | Org admin can read/manage any class in org via `requireTeacherClass` |
+| **Schema** | Migration `1740000000007_organizations`; `teacher_classes.org_id` |
+| **Health** | `multiTenant.orgRbac: true` |
+
+Regression gate: `cd server && npm test`.
 
 ---
 
@@ -105,7 +119,7 @@ including `greek-syllabus-reader.spec.ts`, `workspace-empty-tools.spec.ts`,
 
 Regression gate: `npm test` 926/926; `npm run i18n-lint`; `npm run typecheck`.
 
-**Next:** org RBAC (institution → classes → students).
+**Next:** pgvector RAG at scale + student-facing org surfaces.
 
 ---
 

@@ -4,6 +4,7 @@ import { createTeacherRepo } from './teacherPostgres';
 export type TeacherClass = {
   id: string;
   teacherAccountId: string;
+  orgId?: string;
   name: string;
   courseId?: string;
   createdAt: string;
@@ -43,7 +44,7 @@ export async function listTeacherClassesAsync(teacherAccountId: string): Promise
 
 export function createTeacherClass(
   teacherAccountId: string,
-  payload: { name: string; courseId?: string },
+  payload: { name: string; courseId?: string; orgId?: string },
 ): TeacherClass {
   if (pgRepo) {
     throw new Error('Use createTeacherClassAsync when DATABASE_URL is configured');
@@ -52,6 +53,7 @@ export function createTeacherClass(
   const row: TeacherClass = {
     id,
     teacherAccountId,
+    orgId: payload.orgId?.trim() || undefined,
     name: payload.name.trim() || 'Untitled class',
     courseId: payload.courseId?.trim() || undefined,
     createdAt: new Date().toISOString(),
@@ -63,10 +65,29 @@ export function createTeacherClass(
 
 export async function createTeacherClassAsync(
   teacherAccountId: string,
-  payload: { name: string; courseId?: string },
+  payload: { name: string; courseId?: string; orgId?: string },
 ): Promise<TeacherClass> {
   if (pgRepo) return pgRepo.createTeacherClass(teacherAccountId, payload);
   return createTeacherClass(teacherAccountId, payload);
+}
+
+export function getClassById(classId: string): TeacherClass | null {
+  if (pgRepo) {
+    throw new Error('Use getClassByIdAsync when DATABASE_URL is configured');
+  }
+  return classes.get(classId) ?? null;
+}
+
+export async function getClassByIdAsync(classId: string): Promise<TeacherClass | null> {
+  if (pgRepo) return pgRepo.getClassById(classId);
+  return getClassById(classId);
+}
+
+export async function listOrgClassesAsync(orgId: string): Promise<TeacherClass[]> {
+  if (pgRepo) return pgRepo.listOrgClasses(orgId);
+  return [...classes.values()]
+    .filter((c) => c.orgId === orgId)
+    .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 }
 
 export function getTeacherClass(classId: string, teacherAccountId: string): TeacherClass | null {

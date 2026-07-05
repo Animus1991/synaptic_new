@@ -5,17 +5,19 @@ import {
   getTeacherClass,
   resetClassStore,
 } from '../store/classStore';
+import { addOrgMemberAsync, createOrganizationAsync, resetOrgStore } from '../store/orgStore';
 
 describe('tenantGuard', () => {
   beforeEach(() => {
     resetClassStore();
+    resetOrgStore();
   });
 
-  it('getTenantIsolationStatus reflects database flag', () => {
+  it('getTenantIsolationStatus reflects database flag and org RBAC', () => {
     expect(getTenantIsolationStatus(false).postgresAccountScoped).toBe(false);
     expect(getTenantIsolationStatus(true).postgresAccountScoped).toBe(true);
     expect(getTenantIsolationStatus(true).teacherClassScoped).toBe(true);
-    expect(getTenantIsolationStatus(true).orgRbac).toBe(false);
+    expect(getTenantIsolationStatus(true).orgRbac).toBe(true);
   });
 
   it('requireTeacherClass returns class for owner', async () => {
@@ -34,5 +36,21 @@ describe('tenantGuard', () => {
       expect(guard.error).toBe('class not found');
     }
     expect(getTeacherClass(cls.id, 'acct_b')).toBeNull();
+  });
+
+  it('requireTeacherClass allows org_admin access to org class they do not own', async () => {
+    const org = await createOrganizationAsync('West High', 'admin_acct');
+    await addOrgMemberAsync(org.id, 'teacher_acct', 'teacher');
+    const cls = createTeacherClass('teacher_acct', { name: 'Bio 101', orgId: org.id });
+
+    const teacherGuard = await requireTeacherClass(cls.id, 'teacher_acct');
+    expect(teacherGuard.ok).toBe(true);
+
+    const adminGuard = await requireTeacherClass(cls.id, 'admin_acct');
+    expect(adminGuard.ok).toBe(true);
+    if (adminGuard.ok) expect(adminGuard.class.orgId).toBe(org.id);
+
+    const outsiderGuard = await requireTeacherClass(cls.id, 'random_acct');
+    expect(outsiderGuard.ok).toBe(false);
   });
 });

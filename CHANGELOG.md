@@ -7,6 +7,10 @@ client and server are versioned together.
 
 ### Added
 
+- **Sprint L3 — org RBAC (Jul 2026)** —
+  Organizations + memberships (`org_admin`/`teacher`/`student`); `/v1/orgs/*` routes;
+  org admin cross-class access via extended `requireTeacherClass`; migration
+  `1740000000007_organizations`; unit + integration tests.
 - **Sprint L2 — Redis-backed rate limits (Jul 2026)** —
   `rateLimitStore.ts` with atomic Redis Lua counter; `RATE_LIMIT_REQUIRE_REDIS`
   fail-closed when `REDIS_URL` set; `/health` exposes `rateLimitDistributed`;

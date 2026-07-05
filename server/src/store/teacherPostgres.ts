@@ -9,9 +9,11 @@ export interface TeacherRepository {
   listTeacherClasses(teacherAccountId: string): Promise<TeacherClass[]>;
   createTeacherClass(
     teacherAccountId: string,
-    payload: { name: string; courseId?: string },
+    payload: { name: string; courseId?: string; orgId?: string },
   ): Promise<TeacherClass>;
   getTeacherClass(classId: string, teacherAccountId: string): Promise<TeacherClass | null>;
+  getClassById(classId: string): Promise<TeacherClass | null>;
+  listOrgClasses(orgId: string): Promise<TeacherClass[]>;
   rosterCount(classId: string): Promise<number>;
   listClassRoster(classId: string): Promise<ClassEnrollment[]>;
   addClassEnrollment(
@@ -47,6 +49,7 @@ export interface TeacherRepository {
 function rowToClass(row: {
   id: string;
   teacher_account_id: string;
+  org_id: string | null;
   name: string;
   course_id: string | null;
   created_at: Date;
@@ -54,6 +57,7 @@ function rowToClass(row: {
   return {
     id: row.id,
     teacherAccountId: row.teacher_account_id,
+    orgId: row.org_id ?? undefined,
     name: row.name,
     courseId: row.course_id ?? undefined,
     createdAt: row.created_at.toISOString(),
@@ -124,11 +128,12 @@ export function createPostgresTeacherRepo(databaseUrl: string): TeacherRepositor
       const res = await pool.query<{
         id: string;
         teacher_account_id: string;
+        org_id: string | null;
         name: string;
         course_id: string | null;
         created_at: Date;
       }>(
-        `SELECT id, teacher_account_id, name, course_id, created_at
+        `SELECT id, teacher_account_id, org_id, name, course_id, created_at
          FROM teacher_classes
          WHERE teacher_account_id = $1
          ORDER BY created_at DESC`,
@@ -139,16 +144,17 @@ export function createPostgresTeacherRepo(databaseUrl: string): TeacherRepositor
 
     async createTeacherClass(
       teacherAccountId: string,
-      payload: { name: string; courseId?: string },
+      payload: { name: string; courseId?: string; orgId?: string },
     ): Promise<TeacherClass> {
       const id = `cls_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
       const createdAt = new Date().toISOString();
       await pool.query(
-        `INSERT INTO teacher_classes (id, teacher_account_id, name, course_id, created_at)
-         VALUES ($1, $2, $3, $4, $5::timestamptz)`,
+        `INSERT INTO teacher_classes (id, teacher_account_id, org_id, name, course_id, created_at)
+         VALUES ($1, $2, $3, $4, $5, $6::timestamptz)`,
         [
           id,
           teacherAccountId,
+          payload.orgId?.trim() || null,
           payload.name.trim() || 'Untitled class',
           payload.courseId?.trim() || null,
           createdAt,
@@ -157,21 +163,56 @@ export function createPostgresTeacherRepo(databaseUrl: string): TeacherRepositor
       return {
         id,
         teacherAccountId,
+        orgId: payload.orgId?.trim() || undefined,
         name: payload.name.trim() || 'Untitled class',
         courseId: payload.courseId?.trim() || undefined,
         createdAt,
       };
     },
 
-    async getTeacherClass(classId: string, teacherAccountId: string): Promise<TeacherClass | null> {
+    async getClassById(classId: string): Promise<TeacherClass | null> {
       const res = await pool.query<{
         id: string;
         teacher_account_id: string;
+        org_id: string | null;
         name: string;
         course_id: string | null;
         created_at: Date;
       }>(
-        `SELECT id, teacher_account_id, name, course_id, created_at
+        `SELECT id, teacher_account_id, org_id, name, course_id, created_at
+         FROM teacher_classes WHERE id = $1`,
+        [classId],
+      );
+      if (res.rowCount === 0) return null;
+      return rowToClass(res.rows[0]!);
+    },
+
+    async listOrgClasses(orgId: string): Promise<TeacherClass[]> {
+      const res = await pool.query<{
+        id: string;
+        teacher_account_id: string;
+        org_id: string | null;
+        name: string;
+        course_id: string | null;
+        created_at: Date;
+      }>(
+        `SELECT id, teacher_account_id, org_id, name, course_id, created_at
+         FROM teacher_classes WHERE org_id = $1 ORDER BY created_at DESC`,
+        [orgId],
+      );
+      return res.rows.map(rowToClass);
+    },
+
+    async getTeacherClass(classId: string, teacherAccountId: string): Promise<TeacherClass | null> {
+      const res = await pool.query<{
+        id: string;
+        teacher_account_id: string;
+        org_id: string | null;
+        name: string;
+        course_id: string | null;
+        created_at: Date;
+      }>(
+        `SELECT id, teacher_account_id, org_id, name, course_id, created_at
          FROM teacher_classes
          WHERE id = $1 AND teacher_account_id = $2`,
         [classId, teacherAccountId],

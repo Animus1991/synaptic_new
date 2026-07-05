@@ -57,7 +57,7 @@ describe('server integration sweep', () => {
     expect(typeof res.body.features.rateLimitDistributed).toBe('boolean');
     expect(res.body.multiTenant).toBeDefined();
     expect(res.body.multiTenant.teacherClassScoped).toBe(true);
-    expect(res.body.multiTenant.orgRbac).toBe(false);
+    expect(res.body.multiTenant.orgRbac).toBe(true);
     expect(typeof res.body.multiTenant.postgresAccountScoped).toBe('boolean');
   });
 
@@ -435,6 +435,71 @@ describe('server integration sweep', () => {
       .set('Authorization', `Bearer ${tokenA}`)
       .expect(200);
     expect(ownerRoster.body.roster).toHaveLength(1);
+  });
+
+  it('org RBAC: admin accesses teacher class roster; outsider gets 404', async () => {
+    const adminReg = await request(app)
+      .post('/auth/register')
+      .send({ email: 'orgadmin@example.com', password: 'password123' })
+      .expect(201);
+    const adminToken = adminReg.body.token as string;
+
+    const teacherReg = await request(app)
+      .post('/auth/register')
+      .send({ email: 'orgteacher@example.com', password: 'password123' })
+      .expect(201);
+    const teacherToken = teacherReg.body.token as string;
+    const teacherAccountId = teacherReg.body.account.id as string;
+
+    const outsiderReg = await request(app)
+      .post('/auth/register')
+      .send({ email: 'outsider@example.com', password: 'password123' })
+      .expect(201);
+    const outsiderToken = outsiderReg.body.token as string;
+
+    const org = await request(app)
+      .post('/v1/orgs')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({ name: 'Pilot School' })
+      .expect(201);
+    const orgId = org.body.id as string;
+
+    await request(app)
+      .post(`/v1/orgs/${orgId}/members`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({ accountId: teacherAccountId, role: 'teacher' })
+      .expect(201);
+
+    const cls = await request(app)
+      .post(`/v1/orgs/${orgId}/classes`)
+      .set('Authorization', `Bearer ${teacherToken}`)
+      .send({ name: 'Physics 101' })
+      .expect(201);
+    const classId = cls.body.id as string;
+
+    await request(app)
+      .post(`/v1/teacher/classes/${classId}/roster`)
+      .set('Authorization', `Bearer ${teacherToken}`)
+      .send({ email: 'student@school.edu', displayName: 'Sam' })
+      .expect(201);
+
+    const adminRoster = await request(app)
+      .get(`/v1/teacher/classes/${classId}/roster`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .expect(200);
+    expect(adminRoster.body.roster).toHaveLength(1);
+
+    await request(app)
+      .get(`/v1/teacher/classes/${classId}/roster`)
+      .set('Authorization', `Bearer ${outsiderToken}`)
+      .expect(404, { error: 'class not found' });
+
+    const orgClasses = await request(app)
+      .get(`/v1/orgs/${orgId}/classes`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .expect(200);
+    expect(orgClasses.body.classes).toHaveLength(1);
+    expect(orgClasses.body.classes[0].name).toBe('Physics 101');
   });
 
   it('POST /v1/billing/webhook deduplicates Stripe event ids', async () => {

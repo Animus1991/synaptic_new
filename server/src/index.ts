@@ -15,6 +15,7 @@ import { adminRouter } from './routes/admin';
 import { nlpRouter } from './routes/nlp';
 import { ragRouter } from './routes/rag';
 import { teacherRouter } from './routes/teacher';
+import { orgRouter } from './routes/org';
 import { ocrRouter } from './routes/ocr';
 import { transcribeRouter } from './routes/transcribe';
 import { chunkErrorsRouter } from './routes/chunkErrors';
@@ -83,6 +84,7 @@ export function createApp(): express.Application {
   app.use('/v1', ocrRouter);
   app.use('/v1', transcribeRouter);
   app.use('/v1', teacherRouter);
+  app.use('/v1', orgRouter);
   app.use('/v1', googleIntegrationsRouter);
   app.use('/v1', googleCalendarRouter);
   app.use('/v1', accountRouter);

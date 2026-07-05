@@ -1,25 +1,26 @@
 /**
- * Sprint L1 — teacher class tenant isolation.
- * All class-scoped teacher routes must resolve ownership via requireTeacherClass().
+ * Sprint L1/L3 — teacher class tenant isolation + org RBAC.
+ * All class-scoped teacher routes must resolve access via requireTeacherClass().
  */
 
 import type { TeacherClass } from '../store/classStore';
-import { getTeacherClassAsync } from '../store/classStore';
+import { getClassByIdAsync } from '../store/classStore';
+import { isOrgAdminAsync } from '../store/orgStore';
 
 export type TenantIsolationStatus = {
   /** Class roster/assignments/gradebook gated by teacher_account_id. */
   teacherClassScoped: true;
   /** Postgres library/session rows scoped by account id when DATABASE_URL set. */
   postgresAccountScoped: boolean;
-  /** Org-level RBAC (institution → classes) — future Sprint L2+. */
-  orgRbac: false;
+  /** Org-level RBAC (institution → classes → members). */
+  orgRbac: true;
 };
 
 export function getTenantIsolationStatus(databaseConfigured: boolean): TenantIsolationStatus {
   return {
     teacherClassScoped: true,
     postgresAccountScoped: databaseConfigured,
-    orgRbac: false,
+    orgRbac: true,
   };
 }
 
@@ -27,14 +28,20 @@ export type TeacherClassGuard =
   | { ok: true; class: TeacherClass }
   | { ok: false; status: 404; error: 'class not found' };
 
-/** Returns owned class or a 404 guard result — never leaks another teacher's class id. */
+/** Class owner or org_admin of the class org may access — never leaks cross-tenant ids. */
 export async function requireTeacherClass(
   classId: string,
-  teacherAccountId: string,
+  accountId: string,
 ): Promise<TeacherClassGuard> {
-  const cls = await getTeacherClassAsync(classId, teacherAccountId);
+  const cls = await getClassByIdAsync(classId);
   if (!cls) {
     return { ok: false, status: 404, error: 'class not found' };
   }
-  return { ok: true, class: cls };
+  if (cls.teacherAccountId === accountId) {
+    return { ok: true, class: cls };
+  }
+  if (cls.orgId && (await isOrgAdminAsync(cls.orgId, accountId))) {
+    return { ok: true, class: cls };
+  }
+  return { ok: false, status: 404, error: 'class not found' };
 }
