@@ -18,6 +18,8 @@ import {
 } from '../lib/ltiGradePassback';
 import { verifyLtiIdToken } from '../lib/ltiJwtVerify';
 import { buildSamlAcsRedirect, parseSamlAcsResponse } from '../lib/samlAcs';
+import { provisionSamlUser } from '../lib/samlAutoProvision';
+import { consumeAuthCompletion } from '../store/googleTokenStore';
 import { resolveLtiNrpsBearer } from '../lib/ltiAgsOAuth';
 import {
   fetchNrpsMembers,
@@ -214,15 +216,41 @@ ltiRouter.get('/auth/saml/metadata', (req, res) => {
 });
 
 /** POST /v1/auth/saml/acs — SAML Assertion Consumer Service (enterprise SSO). */
-ltiRouter.post('/auth/saml/acs', (req, res) => {
+ltiRouter.post('/auth/saml/acs', async (req, res) => {
   const body = req.body as { SAMLResponse?: string; RelayState?: string };
   const parsed = parseSamlAcsResponse(body);
   if (!parsed.ok) {
     res.status(400).json({ error: parsed.error });
     return;
   }
-  const redirectUrl = buildSamlAcsRedirect(parsed.email, body.RelayState);
-  res.redirect(302, redirectUrl);
+  try {
+    const provision = await provisionSamlUser(parsed);
+    const redirectUrl = buildSamlAcsRedirect(parsed.email, body.RelayState, {
+      authCode: provision.authCode,
+      orgId: provision.orgId,
+      provisioned: provision.created || provision.membershipAdded,
+    });
+    res.redirect(302, redirectUrl);
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : 'SAML auto-provision failed';
+    res.status(500).json({ error: msg });
+  }
+});
+
+/** POST /v1/auth/saml/complete — exchange one-time SAML auth code for JWT session. */
+ltiRouter.post('/auth/saml/complete', async (req, res) => {
+  const code = typeof req.body?.code === 'string' ? req.body.code : '';
+  const completion = consumeAuthCompletion(code);
+  if (!completion) {
+    res.status(401).json({ error: 'Invalid or expired SAML auth code' });
+    return;
+  }
+  res.json({
+    token: completion.token,
+    accessToken: completion.token,
+    refreshToken: completion.refreshToken,
+    account: { email: completion.email, plan: completion.plan },
+  });
 });
 
 /** POST /v1/lti/line-items — map Synapse assignment to platform AGS line item URL. */

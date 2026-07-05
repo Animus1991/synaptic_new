@@ -497,6 +497,56 @@ describe('server integration sweep', () => {
     expect(roster.body.roster[0].studentEmail).toBe('nrps.student@school.edu');
   });
 
+  it('SAML ACS auto-provisions account and org membership', async () => {
+    const admin = await request(app)
+      .post('/auth/register')
+      .send({ email: 'saml-admin@example.com', password: 'password123' })
+      .expect(201);
+    const adminToken = admin.body.token as string;
+
+    const org = await request(app)
+      .post('/v1/orgs')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({ name: 'SAML Academy' })
+      .expect(201);
+    const orgId = org.body.id as string;
+
+    const samlXml = Buffer.from(
+      `<saml:Assertion xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion">
+        <saml:Subject><saml:NameID>saml-jit@school.edu</saml:NameID></saml:Subject>
+        <saml:AttributeStatement>
+          <saml:Attribute Name="orgId"><saml:AttributeValue>${orgId}</saml:AttributeValue></saml:Attribute>
+          <saml:Attribute Name="role"><saml:AttributeValue>student</saml:AttributeValue></saml:Attribute>
+        </saml:AttributeStatement>
+        <Signature/>
+      </saml:Assertion>`,
+      'utf8',
+    ).toString('base64');
+
+    const acs = await request(app)
+      .post('/v1/auth/saml/acs')
+      .type('form')
+      .send({ SAMLResponse: samlXml })
+      .expect(302);
+    const location = acs.headers.location as string;
+    expect(location).toContain('saml_auth_code=');
+    const authCode = new URL(location).searchParams.get('saml_auth_code');
+    expect(authCode).toBeTruthy();
+
+    const session = await request(app)
+      .post('/v1/auth/saml/complete')
+      .send({ code: authCode })
+      .expect(200);
+    const samlToken = session.body.token as string;
+    expect(session.body.account.email).toBe('saml-jit@school.edu');
+
+    const orgs = await request(app)
+      .get('/v1/student/orgs')
+      .set('Authorization', `Bearer ${samlToken}`)
+      .expect(200);
+    expect(orgs.body.orgs.some((row: { org: { id: string } }) => row.org.id === orgId)).toBe(true);
+  });
+
   it('GET/PATCH /v1/teacher/classes/:id/gradebook stores scores', async () => {
     const reg = await request(app)
       .post('/auth/register')
@@ -786,6 +836,7 @@ describe('server integration sweep', () => {
     expect(health.body.features.l9Enterprise.classAnnouncements).toBe(true);
     expect(health.body.features.l9Enterprise.assignmentDiscussion).toBe(true);
     expect(health.body.features.l9Enterprise.ltiRosterSync).toBe(true);
+    expect(health.body.features.l9Enterprise.samlAutoProvision).toBe(true);
 
     const auditExport = await request(app)
       .get(`/v1/orgs/${orgId}/audit-logs/export?format=csv`)

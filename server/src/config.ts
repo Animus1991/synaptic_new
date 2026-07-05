@@ -65,6 +65,12 @@ export const config = {
   samlEntityId: process.env.SAML_ENTITY_ID?.trim() || undefined,
   /** Optional IdP X.509 cert PEM for SAML ACS signature validation pilot. */
   samlIdpCert: process.env.SAML_IDP_CERT?.replace(/\\n/g, '\n').trim() || undefined,
+  /** Default org for SAML JIT membership when assertion lacks orgId attribute. */
+  samlOrgId: process.env.SAML_ORG_ID?.trim() || undefined,
+  /** Default org role for SAML JIT membership (student | teacher | org_admin). */
+  samlDefaultRole: (['org_admin', 'teacher', 'student'].includes(process.env.SAML_DEFAULT_ROLE?.trim() ?? '')
+    ? process.env.SAML_DEFAULT_ROLE!.trim()
+    : 'student') as 'org_admin' | 'teacher' | 'student',
   /** OpenAI TTS voice for neural audio study guide (alloy, nova, etc.). */
   audioTtsVoice: process.env.AUDIO_TTS_VOICE?.trim() || 'nova',
 };

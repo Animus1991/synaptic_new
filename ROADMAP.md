@@ -40,7 +40,7 @@ Remaining: App Store binaries, SOC2/DPA deployment docs, brand/GTM. L8 audit exp
 | **P1** | Class announcements | Teacher compose + student merged feed (`/v1/student/announcements`) |
 | **P2** | Discussion threads | Per-assignment Q&A — `AssignmentDiscussionThread` inline expand |
 | **P2** | LTI roster sync | Deep link → teacher; NRPS import via `/v1/lti/classes/:id/roster-sync` |
-| **P2** | SAML auto-provision | JIT org membership on ACS |
+| **P2** | SAML auto-provision | JIT account + org membership on ACS; auth code → JWT |
 
 ---
 

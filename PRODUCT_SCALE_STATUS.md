@@ -43,7 +43,7 @@ Regression gate: `cd server && npm test` (includes `auditLogExport.test.ts`).
 | **L9-2 class announcements** | Teacher `GET/POST/DELETE /v1/teacher/classes/:id/announcements`; student `GET /v1/student/announcements`; collapsible feed in `StudentOrgView` |
 | **L9-3 discussion threads** | Per-assignment Q&A stub — teacher/student `.../assignments/:id/discussion`; `AssignmentDiscussionThread` inline expand |
 | **L9-4 LTI roster sync** | Deep link → teacher dashboard; `POST /v1/lti/classes/:id/context-link` + `roster-sync` (NRPS or stub) |
-| **L9-5 SAML auto-provision** | Not started |
+| **L9-5 SAML auto-provision** | JIT account + org membership on ACS; `POST /v1/auth/saml/complete` |
 
 Regression gate: `cd server && npm test` (announcement integration sweep).
 

@@ -730,13 +730,30 @@ export default function App() {
     if (params.get('saml') !== '1' || samlDeepLinkFired.current) return;
     samlDeepLinkFired.current = true;
     const email = params.get('saml_email');
-    if (email) setSamlEmailHint(email);
-    store.navigate('student-org');
-    params.delete('saml');
-    params.delete('saml_email');
-    params.delete('relay_state');
-    const qs = params.toString();
-    window.history.replaceState({}, '', qs ? `${window.location.pathname}?${qs}` : window.location.pathname);
+    const authCode = params.get('saml_auth_code');
+
+    void (async () => {
+      if (authCode) {
+        try {
+          const { completeSamlAuth } = await import('./lib/orgClient');
+          const session = await completeSamlAuth(authCode, store.user.settings);
+          store.updateSettings({
+            authToken: session.token,
+            authEmail: session.email,
+            authPlan: (session.plan as typeof store.user.settings.authPlan) ?? 'free',
+          });
+        } catch {
+          /* fall back to email hint only */
+        }
+      }
+      if (email) setSamlEmailHint(email);
+      store.navigate('student-org');
+      for (const key of ['saml', 'saml_email', 'saml_auth_code', 'saml_org', 'saml_provisioned', 'relay_state']) {
+        params.delete(key);
+      }
+      const qs = params.toString();
+      window.history.replaceState({}, '', qs ? `${window.location.pathname}?${qs}` : window.location.pathname);
+    })();
   }, [store]);
 
   useEffect(() => {
