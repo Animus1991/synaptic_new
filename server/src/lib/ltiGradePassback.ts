@@ -1,5 +1,5 @@
 import { randomUUID } from 'crypto';
-import { config } from '../config';
+import { resolveLtiAgsBearer } from './ltiAgsOAuth';
 
 /** IMS LTI Assignment and Grade Services (AGS) score payload. */
 export type LtiAgsScore = {
@@ -93,7 +93,7 @@ export async function submitLtiGradePassback(opts: {
     return record;
   }
 
-  const token = config.ltiAgsToken?.trim();
+  const token = await resolveLtiAgsBearer();
   if (!token) {
     record.status = 'stub_queued';
     passbackLog.unshift(record);

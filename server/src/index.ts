@@ -17,6 +17,7 @@ import { ragRouter } from './routes/rag';
 import { teacherRouter } from './routes/teacher';
 import { orgRouter } from './routes/org';
 import { ltiRouter } from './routes/lti';
+import { audioRouter } from './routes/audio';
 import { studentRouter } from './routes/student';
 import { ocrRouter } from './routes/ocr';
 import { transcribeRouter } from './routes/transcribe';
@@ -44,6 +45,7 @@ export function createApp(): express.Application {
 
   app.post('/v1/billing/webhook', express.raw({ type: 'application/json' }), billingWebhookHandler);
   app.use(express.json({ limit: '15mb' }));
+  app.use(express.urlencoded({ extended: false, limit: '2mb' }));
 
   app.get('/health', async (_req, res) => {
     const production = await getProductionProbeStatus();
@@ -71,6 +73,7 @@ export function createApp(): express.Application {
         collab: true,
         collabWebSocketUrl: `ws://localhost:${config.collabPort}`,
         l4Enterprise: production.l4Enterprise,
+        l6Enterprise: production.l6Enterprise,
       },
     });
   });
@@ -92,6 +95,7 @@ export function createApp(): express.Application {
   app.use('/v1', teacherRouter);
   app.use('/v1', orgRouter);
   app.use('/v1', ltiRouter);
+  app.use('/v1', audioRouter);
   app.use('/v1', studentRouter);
   app.use('/v1', googleIntegrationsRouter);
   app.use('/v1', googleCalendarRouter);

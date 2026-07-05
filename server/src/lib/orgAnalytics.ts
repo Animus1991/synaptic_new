@@ -6,6 +6,73 @@ import {
 import { listClassAssignmentsAsync } from '../store/assignmentStore';
 import { getGradebookAsync } from '../store/gradebookStore';
 
+const HEATMAP_DAYS = 14;
+
+function isoDate(d: Date): string {
+  return d.toISOString().slice(0, 10);
+}
+
+function lastNDates(n: number): string[] {
+  const out: string[] = [];
+  const now = new Date();
+  for (let i = n - 1; i >= 0; i -= 1) {
+    const d = new Date(now);
+    d.setUTCDate(d.getUTCDate() - i);
+    out.push(isoDate(d));
+  }
+  return out;
+}
+
+function buildClassHeatmap(
+  classId: string,
+  className: string,
+  gradebook: Awaited<ReturnType<typeof getGradebookAsync>>,
+): CohortClassHeatmap {
+  const dates = lastNDates(HEATMAP_DAYS);
+  const byDate = new Map<string, { scores: number[]; students: Set<string> }>();
+  for (const date of dates) byDate.set(date, { scores: [], students: new Set() });
+
+  for (const cell of gradebook.cells) {
+    if (cell.status !== 'graded' || cell.score == null) continue;
+    const day = cell.updatedAt.slice(0, 10);
+    const bucket = byDate.get(day);
+    if (!bucket) continue;
+    bucket.scores.push(cell.score);
+    bucket.students.add(cell.enrollmentId);
+  }
+
+  return {
+    classId,
+    className,
+    days: dates.map((date) => {
+      const bucket = byDate.get(date)!;
+      const avgScore =
+        bucket.scores.length > 0
+          ? bucket.scores.reduce((s, v) => s + v, 0) / bucket.scores.length
+          : null;
+      return {
+        date,
+        gradedCount: bucket.scores.length,
+        activeStudents: bucket.students.size,
+        avgScore,
+      };
+    }),
+  };
+}
+
+export type CohortHeatmapDay = {
+  date: string;
+  gradedCount: number;
+  activeStudents: number;
+  avgScore: number | null;
+};
+
+export type CohortClassHeatmap = {
+  classId: string;
+  className: string;
+  days: CohortHeatmapDay[];
+};
+
 export type OrgClassAnalytics = {
   classId: string;
   name: string;
@@ -28,12 +95,14 @@ export type OrgAnalyticsSnapshot = {
   avgScore: number | null;
   completionRate: number | null;
   classes: OrgClassAnalytics[];
+  cohortHeatmap: CohortClassHeatmap[];
   generatedAt: string;
 };
 
 export async function computeOrgAnalyticsAsync(orgId: string): Promise<OrgAnalyticsSnapshot> {
   const classes = await listOrgClassesAsync(orgId);
   const classRows: OrgClassAnalytics[] = [];
+  const cohortHeatmap: CohortClassHeatmap[] = [];
   let totalStudents = 0;
   let totalAssignments = 0;
   let masterySum = 0;
@@ -92,6 +161,8 @@ export async function computeOrgAnalyticsAsync(orgId: string): Promise<OrgAnalyt
       totalCells: classTotal,
       completionRate: classTotal > 0 ? classGraded / classTotal : null,
     });
+
+    cohortHeatmap.push(buildClassHeatmap(cls.id, cls.name, gradebook));
   }
 
   return {
@@ -103,6 +174,7 @@ export async function computeOrgAnalyticsAsync(orgId: string): Promise<OrgAnalyt
     avgScore: scoreCount > 0 ? scoreSum / scoreCount : null,
     completionRate: totalCells > 0 ? gradedCells / totalCells : null,
     classes: classRows,
+    cohortHeatmap,
     generatedAt: new Date().toISOString(),
   };
 }

@@ -21,5 +21,7 @@ describe('computeOrgAnalyticsAsync', () => {
     expect(snap.classCount).toBe(1);
     expect(snap.totalStudents).toBe(2);
     expect(snap.avgMastery).toBe(70);
+    expect(snap.cohortHeatmap).toHaveLength(1);
+    expect(snap.cohortHeatmap[0]!.days).toHaveLength(14);
   });
 });

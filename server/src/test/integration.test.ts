@@ -587,6 +587,18 @@ describe('server integration sweep', () => {
     expect(health.body.features.l4Enterprise).toBeDefined();
     expect(health.body.features.l4Enterprise.orgAnalytics).toBe(true);
     expect(health.body.features.l4Enterprise.ltiGradePassback).toBe(true);
+    expect(health.body.features.l6Enterprise).toBeDefined();
+    expect(health.body.features.l6Enterprise.cohortHeatmap).toBe(true);
+
+    const samlXml = Buffer.from(
+      '<saml:Assertion xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion"><saml:Subject><saml:NameID>saml@test.edu</saml:NameID></saml:Subject><Signature/></saml:Assertion>',
+      'utf8',
+    ).toString('base64');
+    await request(app)
+      .post('/v1/auth/saml/acs')
+      .type('form')
+      .send({ SAMLResponse: samlXml })
+      .expect(302);
   });
 
   it('POST /v1/billing/webhook deduplicates Stripe event ids', async () => {

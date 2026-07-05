@@ -23,6 +23,7 @@ import { listLearningEvents, countLearningEventsByType } from '../lib/learningEv
 import type { TeacherDashboardResponse } from '../lib/teacherDashboardTypes';
 import { getTeacherContent } from '../lib/teacherContent';
 import { fetchOrgs, fetchOrgAnalytics, downloadGradebookCsv, ltiPassbackClassGrades, type OrgAnalytics } from '../lib/orgClient';
+import { CohortHeatmap } from './CohortHeatmap';
 import { formatDateTime, formatShortDate, localeTag } from '../lib/localeFormat';
 import { cn } from '../utils/cn';
 
@@ -319,7 +320,8 @@ export function TeacherDashboard({
         >
           <p>{ui.cohortRoadmap}</p>
           {orgAnalytics ? (
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2 border-t border-border-subtle/50" data-testid="teacher-cohort-analytics">
+            <>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2 border-t border-border-subtle/50" data-testid="teacher-cohort-analytics">
               <div>
                 <p className="text-[10px] text-text-muted">{ui.cohortStudents}</p>
                 <p className="text-sm font-semibold text-text-primary">{orgAnalytics.totalStudents}</p>
@@ -342,7 +344,9 @@ export function TeacherDashboard({
                   {orgAnalytics.avgScore != null ? `${Math.round(orgAnalytics.avgScore)}%` : '—'}
                 </p>
               </div>
-            </div>
+              </div>
+              <CohortHeatmap analytics={orgAnalytics} lang={lang} />
+            </>
           ) : (
             <p className="text-[10px] text-text-muted">{ui.noOrgAnalytics}</p>
           )}

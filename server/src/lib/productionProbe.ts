@@ -31,6 +31,14 @@ export type ProductionProbeStatus = {
     transcribeQueue: boolean;
     orgAnalytics: true;
   };
+  /** Sprint L6 — production LTI, neural podcast, cohort heatmaps. */
+  l6Enterprise: {
+    ltiJwtValidation: boolean;
+    samlAcs: boolean;
+    ltiAgsOAuth: boolean;
+    neuralAudioPodcast: boolean;
+    cohortHeatmap: boolean;
+  };
 };
 
 let cachedPgvector: boolean | null = null;
@@ -85,6 +93,13 @@ export async function getProductionProbeStatus(): Promise<ProductionProbeStatus>
       samlMetadata: Boolean(config.samlEntityId),
       transcribeQueue: redis,
       orgAnalytics: true,
+    },
+    l6Enterprise: {
+      ltiJwtValidation: Boolean(process.env.LTI_PLATFORM_JWKS_URL?.trim()),
+      samlAcs: Boolean(config.samlEntityId),
+      ltiAgsOAuth: Boolean(config.ltiAgsTokenUrl && config.ltiAgsClientSecret),
+      neuralAudioPodcast: Boolean(config.upstreamApiKey),
+      cohortHeatmap: true,
     },
   };
 }

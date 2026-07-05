@@ -224,7 +224,7 @@ export function CourseView({
               <Sparkles className="w-4 h-4 text-brand-600" />
               Ask agent
             </button>
-            <AudioStudyGuideButton course={course} lang={lang} />
+            <AudioStudyGuideButton course={course} lang={lang} settings={userSettings} />
             <StudyGuideExportButton course={course} glossaryEntries={glossaryEntries} lang={lang} />
             <button
               type="button"

@@ -57,8 +57,16 @@ export const config = {
   ltiPublicKey: process.env.LTI_PUBLIC_KEY?.replace(/\\n/g, '\n').trim() || undefined,
   /** OAuth2 bearer for LTI AGS grade passback to platform line items. */
   ltiAgsToken: process.env.LTI_AGS_TOKEN?.trim() || undefined,
+  /** Canvas/Moodle OAuth token URL for live AGS passback (client_credentials). */
+  ltiAgsTokenUrl: process.env.LTI_AGS_TOKEN_URL?.trim() || undefined,
+  ltiAgsClientId: process.env.LTI_AGS_CLIENT_ID?.trim() || undefined,
+  ltiAgsClientSecret: process.env.LTI_AGS_CLIENT_SECRET?.trim() || undefined,
   /** SAML SP entity ID for enterprise SSO metadata (/v1/auth/saml/metadata). */
   samlEntityId: process.env.SAML_ENTITY_ID?.trim() || undefined,
+  /** Optional IdP X.509 cert PEM for SAML ACS signature validation pilot. */
+  samlIdpCert: process.env.SAML_IDP_CERT?.replace(/\\n/g, '\n').trim() || undefined,
+  /** OpenAI TTS voice for neural audio study guide (alloy, nova, etc.). */
+  audioTtsVoice: process.env.AUDIO_TTS_VOICE?.trim() || 'nova',
 };
 
 export type Plan = 'free' | 'pro' | 'team';

@@ -27,12 +27,24 @@ This document separates **done**, **partial**, and **missing** against the produ
 | i18n | **~92%** | UploadModal configure/processing i18n; exam prep ~135 keys |
 | UI/UX / themes | **~89%** | Platform shortcut badges; Warm Sand + Spectrum |
 
-**Overall product-scale readiness: ~99%** — Sprint I–L5 shipped (Jul 2026).
-Remaining: App Store binaries, full SAML ACS, neural podcast, brand/GTM.
+**Overall product-scale readiness: ~99%** — Sprint I–L6 shipped (Jul 2026).
+Remaining: App Store binaries, full SAML XML signature validation, brand/GTM.
 
 ---
 
-## Sprint L5 — client parity & distribution — shipped (Jul 2026)
+## Sprint L6 — production enterprise & delight — shipped (Jul 2026)
+
+| Priority | Gap | Deliverable |
+| -------- | --- | ----------- |
+| **P0** | Production LTI JWT | `ltiJwtVerify.ts` — platform JWKS validation on `/v1/lti/launch` |
+| **P0** | SAML ACS | `samlAcs.ts` — parse SAMLResponse, redirect with `saml_email` |
+| **P0** | Live Canvas AGS | `ltiAgsOAuth.ts` — client_credentials token + `resolveLtiAgsBearer` |
+| **P1** | Neural audio podcast | `audioStudyGuideServer.ts` + `/v1/audio/study-guide`, `/v1/audio/tts` |
+| **P1** | Cohort heatmaps | `cohortHeatmap` in `orgAnalytics` + `CohortHeatmap.tsx` in TeacherDashboard |
+| **P1** | FERPA audit path | Existing `audit_logs` + org audit route (SOC2 path = deployment) |
+| **—** | Brand / GTM | Not code — marketing backlog |
+
+---
 
 | Priority | Gap | Deliverable |
 | -------- | --- | ----------- |

@@ -30,6 +30,16 @@ export type OrgAnalytics = {
     avgScore: number | null;
     completionRate: number | null;
   }[];
+  cohortHeatmap?: {
+    classId: string;
+    className: string;
+    days: {
+      date: string;
+      gradedCount: number;
+      activeStudents: number;
+      avgScore: number | null;
+    }[];
+  }[];
   generatedAt: string;
 };
 

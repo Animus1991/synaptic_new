@@ -16,6 +16,8 @@ import {
   registerLtiLineItem,
   submitLtiGradePassback,
 } from '../lib/ltiGradePassback';
+import { verifyLtiIdToken } from '../lib/ltiJwtVerify';
+import { buildSamlAcsRedirect, parseSamlAcsResponse } from '../lib/samlAcs';
 import { requireTeacherClass } from '../lib/tenantGuard';
 import { getGradebookAsync } from '../store/gradebookStore';
 import { listClassRosterAsync } from '../store/classStore';
@@ -131,18 +133,48 @@ ltiRouter.post('/lti/login', (req, res) => {
   res.redirect(302, url);
 });
 
-/** POST /v1/lti/launch — receive platform id_token (form_post). */
-ltiRouter.post('/lti/launch', (req, res) => {
+/** POST /v1/lti/launch — receive platform id_token (form_post) with JWT validation. */
+ltiRouter.post('/lti/launch', async (req, res) => {
   const body = req.body as { id_token?: string; state?: string };
   const state = body.state ?? '';
   const pending = pendingStates.get(state);
-  if (pending && pending.expires < Date.now()) pendingStates.delete(state);
+  if (pending && pending.expires < Date.now()) {
+    pendingStates.delete(state);
+  }
+  const nonce = pending?.nonce;
 
   const redirect = new URL(config.clientAppUrl);
   redirect.pathname = '/';
   redirect.searchParams.set('lti', '1');
   if (state) redirect.searchParams.set('lti_state', state);
-  if (body.id_token) redirect.searchParams.set('lti_token_present', '1');
+
+  if (!body.id_token?.trim()) {
+    redirect.searchParams.set('lti_error', 'missing_id_token');
+    res.redirect(302, redirect.toString());
+    return;
+  }
+
+  const verified = await verifyLtiIdToken(body.id_token, {
+    orgId: pending?.orgId,
+    expectedNonce: nonce,
+  });
+
+  if (!verified.ok) {
+    redirect.searchParams.set('lti_error', verified.error.slice(0, 120));
+    res.redirect(302, redirect.toString());
+    return;
+  }
+
+  const claims = verified.claims;
+  redirect.searchParams.set('lti_verified', '1');
+  if (claims.sub) redirect.searchParams.set('lti_sub', claims.sub);
+  if (claims.email) redirect.searchParams.set('lti_email', String(claims.email));
+  const roles = claims['https://purl.imsglobal.org/spec/lti/claim/roles'];
+  if (Array.isArray(roles) && roles[0]) redirect.searchParams.set('lti_role', roles[0]);
+  const ctx = claims['https://purl.imsglobal.org/spec/lti/claim/context'];
+  if (ctx?.id) redirect.searchParams.set('lti_context', ctx.id);
+
+  if (pending) pendingStates.delete(state);
   res.redirect(302, redirect.toString());
 });
 
@@ -155,12 +187,16 @@ ltiRouter.get('/auth/saml/metadata', (req, res) => {
   res.type('application/xml').send(samlSpMetadata(serverBase(req)));
 });
 
-/** POST /v1/auth/saml/acs — ACS stub; production IdP wiring is deployment-specific. */
-ltiRouter.post('/auth/saml/acs', (_req, res) => {
-  res.status(501).json({
-    error: 'SAML ACS requires IdP-specific certificate validation — contact Synapse for enterprise setup',
-    docs: 'Configure SAML_ENTITY_ID and wire your IdP to /v1/auth/saml/metadata',
-  });
+/** POST /v1/auth/saml/acs — SAML Assertion Consumer Service (enterprise SSO). */
+ltiRouter.post('/auth/saml/acs', (req, res) => {
+  const body = req.body as { SAMLResponse?: string; RelayState?: string };
+  const parsed = parseSamlAcsResponse(body);
+  if (!parsed.ok) {
+    res.status(400).json({ error: parsed.error });
+    return;
+  }
+  const redirectUrl = buildSamlAcsRedirect(parsed.email, body.RelayState);
+  res.redirect(302, redirectUrl);
 });
 
 /** POST /v1/lti/line-items — map Synapse assignment to platform AGS line item URL. */
