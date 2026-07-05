@@ -1,0 +1,1 @@
+Initial App Store release — Capacitor companion for the Synapse web app. Includes student org dashboard, study workspace, and optional institution sign-in via SAML/LTI when configured by your school.

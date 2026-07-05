@@ -45,6 +45,10 @@ export type ProductionProbeStatus = {
     studentOrgDashboard: boolean;
     studentOrgUi: boolean;
   };
+  /** Sprint L8 — distribution & trust. */
+  l8Enterprise: {
+    auditExport: boolean;
+  };
 };
 
 let cachedPgvector: boolean | null = null;
@@ -111,6 +115,9 @@ export async function getProductionProbeStatus(): Promise<ProductionProbeStatus>
       samlXmlSignature: Boolean(config.samlIdpCert),
       studentOrgDashboard: true,
       studentOrgUi: true,
+    },
+    l8Enterprise: {
+      auditExport: true,
     },
   };
 }

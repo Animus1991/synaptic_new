@@ -1,0 +1,6 @@
+# Optional — run `bundle exec fastlane match appstore` after configuring git storage.
+git_url(ENV.fetch('MATCH_GIT_URL', 'git@github.com:YOUR_ORG/synapse-ios-signing.git'))
+storage_mode('git')
+type('appstore')
+app_identifier(['com.synapse.learning'])
+readonly(ENV.fetch('MATCH_READONLY', 'true') == 'true')

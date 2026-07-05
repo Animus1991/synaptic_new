@@ -1,6 +1,6 @@
 # Product-scale status (canonical snapshot)
 
-**Last reconciled:** 2026-07-05 — aligned through **Sprint L3** (org RBAC, Jul 2026).
+**Last reconciled:** 2026-07-06 — aligned through **Sprint L7** (student org UI + SAML crypto, Jul 2026).
 
 This file is the **single shipped-truth status doc**. Use it for readiness reviews,
 sprint close-outs, and investor/contributor snapshots.
@@ -16,10 +16,85 @@ sprint close-outs, and investor/contributor snapshots.
 
 ## Overall readiness
 
-**~99% product-scale** — … **Sprint J** (reader occlusion-from-selection, UploadModal configure i18n),
-**Sprint K** (residual lib helper i18n), **Sprint L1** (server tenant isolation + health probe), and
-**Sprint L2** (Redis-backed distributed rate limits), and **Sprint L3** (org RBAC) landed (Jul 2026).
-Remaining gaps: pgvector RAG at scale, student role UI surfaces.
+**~99% product-scale** — Sprint I–**L7** shipped (Jul 2026).
+Remaining gaps: App Store signed builds, SOC2/DPA deployment docs, brand/GTM (see `L8_KICKOFF.md`).
+
+---
+
+## Sprint L8 — distribution & trust — in progress (Jul 2026)
+
+| Scope | Deliverable |
+| ----- | ----------- |
+| **L8-2 audit export** | `GET /v1/orgs/:orgId/audit-logs/export?format=csv\|json` — SOC2/FERPA audit bundle |
+| **L8-2 compliance docs** | `docs/compliance/{DATA_MAP,RETENTION,DPA_TEMPLATE}.md` + `docs/legal/PRIVACY_POLICY.md` |
+| **L8-1 mobile scaffold** | `mobile/fastlane/*`, store metadata, npm `mobile:*` scripts |
+| **L8-4 STATUS sync** | This file + competitive matrix canvas reconciled through L7 |
+| **L8-3 Brand/GTM** | Not code — marketing backlog |
+
+Regression gate: `cd server && npm test` (includes `auditLogExport.test.ts`).
+
+---
+
+## Sprint L7 — student org UI & SAML crypto — shipped (Jul 2026)
+
+| Scope | Deliverable |
+| ----- | ----------- |
+| **Student dashboard** | `GET /v1/student/dashboard` + `StudentOrgSummary` + `StudentUpcomingPanel` |
+| **SAML XML signature** | `samlXmlVerify.ts` — `xml-crypto` + `SAML_IDP_CERT` fingerprint verify |
+| **SAML deep link** | App `?saml=1&saml_email=` → `student-org` view |
+| **Assignment UX** | graded/submitted/pending/overdue badges + completion bars |
+| **Health** | `features.l7Enterprise.studentOrgDashboard`, `samlXmlSignature` |
+
+Regression gate: `cd server && npm test`; Sprint L7 e2e green.
+
+---
+
+## Sprint L6 — production enterprise & delight — shipped (Jul 2026)
+
+| Scope | Deliverable |
+| ----- | ----------- |
+| **Production LTI JWT** | `ltiJwtVerify.ts` — platform JWKS on `/v1/lti/launch` |
+| **SAML ACS** | `samlAcs.ts` — parse SAMLResponse, redirect with `saml_email` |
+| **Live Canvas AGS** | `ltiAgsOAuth.ts` — client_credentials + `resolveLtiAgsBearer` |
+| **Neural audio podcast** | `audioStudyGuideServer.ts` + `/v1/audio/study-guide`, `/v1/audio/tts` |
+| **Cohort heatmaps** | `cohortHeatmap` in `orgAnalytics` + `CohortHeatmap.tsx` |
+| **FERPA audit path** | `audit_logs` + `GET /v1/orgs/:orgId/audit-logs` |
+
+Regression gate: `cd server && npm test`.
+
+---
+
+## Sprint L5 — mobile & competitive polish — shipped (Jul 2026)
+
+| Scope | Deliverable |
+| ----- | ----------- |
+| **Native mobile** | `@capacitor/ios`, `@capacitor/android`, `cap:sync` scripts |
+| **LTI grade passback** | `ltiGradePassback.ts` + `/v1/lti/grade-passback` AGS stub |
+| **Study guide export** | `studyGuideExport.ts` + `StudyGuideExportButton` |
+| **Multi-doc synthesis** | Agent quick action → `POST /v1/rag/synthesize` |
+| **Video summarization UX** | `VideoSummarizeButton` + transcribe poll + LLM summary |
+| **Anki FSRS scheduling** | `ankiScheduling.ts` — interval/due tags on TSV export |
+| **Plugin scaffold** | `pluginApi.ts` registry + Leitner export hook |
+
+Regression gate: `npm test`; `npm run typecheck`.
+
+---
+
+## Sprint L4 — competitive gap closure — shipped (Jul 2026)
+
+| Scope | Deliverable |
+| ----- | ----------- |
+| **Student org UI** | `StudentOrgView` + `/v1/student/classes`, Shell nav `student-org` |
+| **LTI / SAML pilot** | `/v1/lti/*` (JWKS, config, login, launch), `/v1/auth/saml/metadata` |
+| **Cohort analytics** | `GET /v1/orgs/:orgId/analytics` + TeacherDashboard widgets |
+| **FERPA audit** | `audit_logs` migration + middleware + org audit route |
+| **Anki ecosystem** | `ankiImport.ts` + Leitner import/export TSV |
+| **Audio study guide** | `audioStudyGuide.ts` + `AudioStudyGuideButton` on CourseView |
+| **pgvector RAG scale** | `GET /v1/rag/status`, `POST /v1/rag/synthesize` |
+| **Video summarization** | Async `POST /v1/transcribe/jobs` + BullMQ/in-memory queue |
+| **Mobile distribution** | PWA manifest (`standalone`); `capacitor.config.ts` scaffold |
+
+Regression gate: `cd server && npm test`; Sprint L4 integration sweep green.
 
 ---
 
@@ -274,11 +349,11 @@ Eval harness: `npm run eval` — 30/30 at Stage 3 baseline.
 
 ## Priority gaps (next)
 
-1. **Knowledge graph v2** — persist typed `ConceptGraph` on Course; Agent “explain relation” skill
-2. **UploadModal residual i18n** — source mode labels, focus tags, processing steps
-3. **Orphan delete cascade** — delete file → tasks/lessons cleanup (PROMPT_PACK_AUDIT)
-4. **Production scale** — multi-tenant isolation, OCR GPU queue, billing tiers
-5. **Browser OCR word regions** — wire Tesseract client path to stored word boxes
+1. **L8-1 App Store submission** — Apple/Google accounts, screenshots, signed builds, live privacy URL
+2. **L8-2 legal review** — counsel sign-off on DPA template + hosted privacy policy
+3. **L8-3 Brand/GTM** — landing, demo video, institution one-pager
+4. **L9 institution depth** — student calendar, announcements, LTI roster sync, SAML auto-provision
+5. **L10 pgvector at scale** — background indexing job + progress UI
 
 ### Shipped recently (no longer open)
 

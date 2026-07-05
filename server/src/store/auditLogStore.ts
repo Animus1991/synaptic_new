@@ -31,9 +31,10 @@ export async function appendAuditLogAsync(entry: Omit<AuditLogEntry, 'id' | 'cre
 
 export async function listAuditLogsForOrgAsync(
   orgId: string,
-  opts: { limit?: number; since?: string } = {},
+  opts: { limit?: number; since?: string; maxCap?: number } = {},
 ): Promise<AuditLogEntry[]> {
-  const limit = Math.min(200, Math.max(1, opts.limit ?? 50));
+  const cap = opts.maxCap ?? 200;
+  const limit = Math.min(cap, Math.max(1, opts.limit ?? 50));
   if (pgRepo) return pgRepo.listForOrg(orgId, { limit, since: opts.since });
   let rows = memory.filter((e) => e.orgId === orgId);
   if (opts.since) {

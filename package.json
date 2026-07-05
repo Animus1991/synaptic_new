@@ -32,6 +32,11 @@
     "cap:android": "npx cap open android",
     "cap:add:ios": "npx cap add ios",
     "cap:add:android": "npx cap add android",
+    "mobile:ios:sync": "cd mobile && bundle exec fastlane ios sync",
+    "mobile:ios:beta": "cd mobile && bundle exec fastlane ios beta",
+    "mobile:ios:metadata": "cd mobile && bundle exec fastlane ios metadata",
+    "mobile:android:beta": "cd mobile && bundle exec fastlane android beta",
+    "mobile:android:build": "cd mobile && bundle exec fastlane android build",
     "preview": "vite preview",
     "postinstall": "node scripts/copy-pyodide.mjs"
   },

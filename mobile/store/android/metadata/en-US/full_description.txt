@@ -1,0 +1,11 @@
+Synapse turns your notes, PDFs, and syllabi into an adaptive study workspace.
+
+• 13 grounded study tools — reader, quiz, Leitner, concept map, simulator, and more
+• AI agent with source citations from your library
+• Spaced repetition (FSRS) and exam prep panels
+• Student org dashboard with assignments and due dates
+• Institution features: gradebook, cohort analytics, LTI/SAML (when configured)
+
+Upload materials, study offline-friendly in the companion app, and sync when signed in. Built for individual learners and schools that need FERPA-oriented audit trails.
+
+Privacy policy: https://synapse.example.com/legal/privacy

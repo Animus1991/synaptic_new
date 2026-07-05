@@ -28,7 +28,18 @@ This document separates **done**, **partial**, and **missing** against the produ
 | UI/UX / themes | **~89%** | Platform shortcut badges; Warm Sand + Spectrum |
 
 **Overall product-scale readiness: ~99%** — Sprint I–L7 shipped (Jul 2026).
-Remaining: App Store binaries, SOC2/DPA deployment, brand/GTM.
+Remaining: App Store binaries, SOC2/DPA deployment docs, brand/GTM. L8 audit export shipped.
+
+---
+
+## Sprint L8 — distribution & trust — in progress (Jul 2026)
+
+| Priority | Gap | Deliverable |
+| -------- | --- | ----------- |
+| **P1** | SOC2 audit export | `GET /v1/orgs/:orgId/audit-logs/export?format=csv\|json` |
+| **P2** | App Store pipeline | Fastlane scaffold — see `L8_KICKOFF.md` |
+| **P0** | Brand / GTM | Not code — marketing backlog |
+| **—** | STATUS sync | `PRODUCT_SCALE_STATUS.md` + competitive matrix through L7 |
 
 ---
 

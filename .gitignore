@@ -2,6 +2,12 @@ node_modules/
 ocr-server/node_modules/
 ocr-server/.env
 server/.env
+mobile/fastlane/.env
+mobile/fastlane/play-store-credentials.json
+mobile/fastlane/report.xml
+mobile/build/
+mobile/keystore/
+android/gradle.properties
 .tools/
 dist/
 test-results/

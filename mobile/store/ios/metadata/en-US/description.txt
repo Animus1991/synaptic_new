@@ -1,0 +1,5 @@
+Synapse turns your notes, PDFs, and syllabi into an adaptive study workspace — 13 grounded tools, spaced repetition, and an AI agent that cites your sources.
+
+Upload course materials and get OCR-backed reading, quizzes, flashcards, concept maps, and exam prep in one shell. Teachers and institutions get gradebook, cohort analytics, LTI/SAML sign-in, and FERPA-oriented audit logs.
+
+Built for students and schools that want Canvas-grade institution features without leaving their own materials behind.

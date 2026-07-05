@@ -1,0 +1,141 @@
+# frozen_string_literal: true
+
+# Run from repo root: npm run mobile:ios:beta
+# Or from mobile/: bundle exec fastlane ios beta
+
+default_platform(:ios)
+
+REPO_ROOT = File.expand_path('../..', __dir__)
+IOS_WORKSPACE = File.join(REPO_ROOT, 'ios/App/App.xcworkspace')
+IOS_SCHEME = 'App'
+ANDROID_DIR = File.join(REPO_ROOT, 'android')
+IOS_METADATA = File.join(REPO_ROOT, 'mobile/store/ios/metadata')
+ANDROID_METADATA = File.join(REPO_ROOT, 'mobile/store/android/metadata')
+PLAY_JSON_KEY = File.join(__dir__, 'play-store-credentials.json')
+
+def cap_sync
+  Dir.chdir(REPO_ROOT) do
+    sh('npm', 'run', 'cap:sync')
+  end
+end
+
+platform :ios do
+  desc 'Sync web assets into Capacitor iOS shell'
+  lane :sync do
+    cap_sync
+  end
+
+  desc 'Upload App Store metadata only (no binary)'
+  lane :metadata do
+    deliver(
+      app_identifier: ENV.fetch('IOS_APP_IDENTIFIER', 'com.synapse.learning'),
+      metadata_path: IOS_METADATA,
+      skip_binary_upload: true,
+      skip_screenshots: true,
+      force: true,
+    )
+  end
+
+  desc 'Build release IPA locally (no upload)'
+  lane :build do
+    cap_sync
+    build_app(
+      workspace: IOS_WORKSPACE,
+      scheme: IOS_SCHEME,
+      export_method: 'app-store',
+      output_directory: File.join(REPO_ROOT, 'mobile/build/ios'),
+      clean: true,
+    )
+  end
+
+  desc 'Build and upload TestFlight internal beta'
+  lane :beta do
+    cap_sync
+    build_app(
+      workspace: IOS_WORKSPACE,
+      scheme: IOS_SCHEME,
+      export_method: 'app-store',
+      output_directory: File.join(REPO_ROOT, 'mobile/build/ios'),
+      clean: true,
+    )
+    upload_to_testflight(
+      skip_waiting_for_build_processing: true,
+      distribute_external: false,
+    )
+  end
+
+  desc 'Submit App Store release (requires screenshots in mobile/store/ios/screenshots/)'
+  lane :release do
+    cap_sync
+    build_app(
+      workspace: IOS_WORKSPACE,
+      scheme: IOS_SCHEME,
+      export_method: 'app-store',
+      output_directory: File.join(REPO_ROOT, 'mobile/build/ios'),
+      clean: true,
+    )
+    upload_to_app_store(
+      metadata_path: IOS_METADATA,
+      screenshots_path: File.join(REPO_ROOT, 'mobile/store/ios/screenshots'),
+      submit_for_review: false,
+      force: true,
+      skip_metadata: false,
+      skip_screenshots: !Dir.exist?(File.join(REPO_ROOT, 'mobile/store/ios/screenshots')),
+    )
+  end
+end
+
+platform :android do
+  desc 'Sync web assets into Capacitor Android shell'
+  lane :sync do
+    cap_sync
+  end
+
+  desc 'Build release AAB locally (configure signing in android/gradle.properties)'
+  lane :build do
+    cap_sync
+    gradle(
+      project_dir: ANDROID_DIR,
+      task: 'bundle',
+      build_type: 'Release',
+    )
+  end
+
+  desc 'Upload to Play Console internal testing track'
+  lane :beta do
+    cap_sync
+    gradle(
+      project_dir: ANDROID_DIR,
+      task: 'bundle',
+      build_type: 'Release',
+    )
+    upload_to_play_store(
+      track: 'internal',
+      aab: File.join(ANDROID_DIR, 'app/build/outputs/bundle/release/app-release.aab'),
+      json_key: PLAY_JSON_KEY,
+      metadata_path: ANDROID_METADATA,
+      skip_upload_metadata: false,
+      skip_upload_images: true,
+      skip_upload_screenshots: true,
+    )
+  end
+
+  desc 'Promote internal build to production (manual promotion in Play Console recommended first)'
+  lane :release do
+    cap_sync
+    gradle(
+      project_dir: ANDROID_DIR,
+      task: 'bundle',
+      build_type: 'Release',
+    )
+    upload_to_play_store(
+      track: 'production',
+      aab: File.join(ANDROID_DIR, 'app/build/outputs/bundle/release/app-release.aab'),
+      json_key: PLAY_JSON_KEY,
+      metadata_path: ANDROID_METADATA,
+      skip_upload_metadata: false,
+      skip_upload_images: true,
+      skip_upload_screenshots: true,
+    )
+  end
+end

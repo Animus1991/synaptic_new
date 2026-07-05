@@ -17,6 +17,7 @@ import {
   type OrgRole,
 } from '../store/orgStore';
 import { computeOrgAnalyticsAsync } from '../lib/orgAnalytics';
+import { auditLogsToCsv, auditLogsToJson } from '../lib/auditLogExport';
 import { listAuditLogsForOrgAsync } from '../store/auditLogStore';
 
 export const orgRouter = Router();
@@ -121,6 +122,25 @@ orgRouter.post('/orgs/:orgId/classes', requireOrgMember, async (req, res) => {
 orgRouter.get('/orgs/:orgId/analytics', requireOrgRole('org_admin'), async (req, res) => {
   const analytics = await computeOrgAnalyticsAsync(req.params.orgId);
   res.json(analytics);
+});
+
+/** GET /v1/orgs/:orgId/audit-logs/export — SOC2/FERPA audit bundle (org_admin). */
+orgRouter.get('/orgs/:orgId/audit-logs/export', requireOrgRole('org_admin'), async (req, res) => {
+  const since = req.query.since ? String(req.query.since) : undefined;
+  const limit = req.query.limit ? Number(req.query.limit) : 1000;
+  const format = String(req.query.format ?? 'csv').toLowerCase();
+  if (!['csv', 'json'].includes(format)) {
+    res.status(400).json({ error: 'format must be csv or json' });
+    return;
+  }
+  const logs = await listAuditLogsForOrgAsync(req.params.orgId, { since, limit, maxCap: 5000 });
+  const filename = `audit-${req.params.orgId}.${format}`;
+  res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+  if (format === 'json') {
+    res.type('application/json').send(auditLogsToJson(req.params.orgId, logs));
+    return;
+  }
+  res.type('text/csv; charset=utf-8').send(auditLogsToCsv(logs));
 });
 
 /** GET /v1/orgs/:orgId/audit-logs — FERPA audit trail (org_admin). */

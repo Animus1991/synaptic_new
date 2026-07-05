@@ -591,6 +591,15 @@ describe('server integration sweep', () => {
     expect(health.body.features.l6Enterprise.cohortHeatmap).toBe(true);
     expect(health.body.features.l7Enterprise).toBeDefined();
     expect(health.body.features.l7Enterprise.studentOrgDashboard).toBe(true);
+    expect(health.body.features.l8Enterprise).toBeDefined();
+    expect(health.body.features.l8Enterprise.auditExport).toBe(true);
+
+    const auditExport = await request(app)
+      .get(`/v1/orgs/${orgId}/audit-logs/export?format=csv`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .expect(200);
+    expect(auditExport.headers['content-type']).toMatch(/text\/csv/);
+    expect(auditExport.text).toContain('id,createdAt');
 
     const studentDash = await request(app)
       .get('/v1/student/dashboard')
