@@ -825,6 +825,14 @@ describe('server integration sweep', () => {
     expect(typeof ragStatus.body.indexing.status).toBe('string');
     expect(typeof ragStatus.body.indexing.progress).toBe('number');
 
+    const ragSynth = await request(app)
+      .post('/v1/rag/synthesize')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({ query: 'Summarize my library themes', lang: 'en' })
+      .expect(200);
+    expect(typeof ragSynth.body.synthesis).toBe('string');
+    expect(Array.isArray(ragSynth.body.sources)).toBe(true);
+
     const health = await request(app).get('/health').expect(200);
     expect(health.body.features.l4Enterprise).toBeDefined();
     expect(health.body.features.l4Enterprise.orgAnalytics).toBe(true);
@@ -844,6 +852,7 @@ describe('server integration sweep', () => {
     expect(health.body.features.l10Enterprise.multiSpeakerPodcast).toBe(true);
     expect(health.body.features.l10Enterprise.videoChaptering).toBe(true);
     expect(health.body.features.l10Enterprise.ragIndexProgress).toBe(true);
+    expect(health.body.features.l10Enterprise.crossLibrarySynthesis).toBe(true);
 
     const auditExport = await request(app)
       .get(`/v1/orgs/${orgId}/audit-logs/export?format=csv`)

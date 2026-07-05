@@ -26,6 +26,7 @@ import { PostUploadBanner } from './ui/PostUploadBanner';
 import { Page, PageHeader, PrimaryCTA } from './ui/primitives';
 import { t } from '../lib/i18n';
 import { RagIndexProgressBanner } from './RagIndexProgressBanner';
+import { CrossLibrarySynthesisPanel } from './CrossLibrarySynthesisPanel';
 
 interface LibraryProps {
   courses: Course[];
@@ -112,6 +113,13 @@ export function Library({
         settings={userSettings}
         lang={userLanguage}
         variant="banner"
+        className="mb-4"
+      />
+
+      <CrossLibrarySynthesisPanel
+        courses={courses}
+        settings={userSettings}
+        lang={userLanguage}
         className="mb-4"
       />
 

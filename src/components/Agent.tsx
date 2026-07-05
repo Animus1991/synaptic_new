@@ -160,7 +160,7 @@ export function Agent({
           lang === 'el'
             ? 'Σύνθεσε τα κύρια θέματα και τις σχέσεις μεταξύ των εγγράφων της βιβλιοθήκης μου.'
             : 'Synthesize the main themes and connections across my library documents.';
-        const { synthesis, sourceCount } = await runMultiDocSynthesize(
+        const { synthesis, sourceCount, citations } = await runMultiDocSynthesize(
           settings.authToken!,
           settings,
           query,
@@ -173,6 +173,7 @@ export function Agent({
           content: synthesis,
           timestamp: new Date().toISOString(),
           type: 'text',
+          citations,
           metadata: {
             sourceGrounded: sourceCount > 0,
             globalRag: true,

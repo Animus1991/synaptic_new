@@ -2,9 +2,21 @@ import { config } from '../config';
 import { searchGlobalLibraryGraph } from './ragServer';
 import { upstreamFetch } from './upstream';
 
+export type RagSynthesisSource = {
+  id: string;
+  text: string;
+  score: number;
+  fileId: string;
+  fileName: string;
+  charStart: number;
+  charEnd: number;
+  heading?: string;
+  page?: number;
+};
+
 export type RagSynthesisResult = {
   synthesis: string;
-  sources: { id: string; text: string; score: number; fileId: string }[];
+  sources: RagSynthesisSource[];
   courseIds: string[];
   indexedChunks: number;
 };
@@ -32,11 +44,16 @@ export async function synthesizeFromLibraryAsync(
     filtered = hits;
   }
 
-  const sources = filtered.slice(0, topK).map((h) => ({
+  const sources: RagSynthesisSource[] = filtered.slice(0, topK).map((h) => ({
     id: h.id,
     text: h.text.slice(0, 600),
     score: h.score,
     fileId: h.fileId,
+    fileName: h.fileName,
+    charStart: h.charStart,
+    charEnd: h.charEnd,
+    heading: h.heading,
+    page: h.page,
   }));
 
   const courseIds = opts.courseIds ?? [];

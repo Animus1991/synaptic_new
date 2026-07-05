@@ -62,6 +62,7 @@ export type ProductionProbeStatus = {
     multiSpeakerPodcast: boolean;
     videoChaptering: boolean;
     ragIndexProgress: boolean;
+    crossLibrarySynthesis: boolean;
   };
 };
 
@@ -144,6 +145,7 @@ export async function getProductionProbeStatus(): Promise<ProductionProbeStatus>
       multiSpeakerPodcast: true,
       videoChaptering: true,
       ragIndexProgress: true,
+      crossLibrarySynthesis: true,
     },
   };
 }

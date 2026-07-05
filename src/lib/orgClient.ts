@@ -197,19 +197,38 @@ export async function deleteStudentAssignmentDiscussionPost(
   if (!res.ok) throw new Error(await res.text());
 }
 
+export type RagSynthesisSource = {
+  id: string;
+  text: string;
+  score: number;
+  fileId: string;
+  fileName: string;
+  charStart: number;
+  charEnd: number;
+  heading?: string;
+  page?: number;
+};
+
+export type RagSynthesisResponse = {
+  synthesis: string;
+  sources: RagSynthesisSource[];
+  courseIds: string[];
+  indexedChunks: number;
+};
+
 export async function ragSynthesize(
   token: string,
   settings: UserSettings,
   query: string,
   opts?: { courseIds?: string[]; lang?: 'en' | 'el' },
-) {
+): Promise<RagSynthesisResponse> {
   const res = await fetch(`${proxyBase(settings)}/v1/rag/synthesize`, {
     method: 'POST',
     headers: authHeaders(token),
     body: JSON.stringify({ query, ...opts }),
   });
   if (!res.ok) throw new Error(await res.text());
-  return (await res.json()) as { synthesis: string; sources: unknown[]; courseIds: string[] };
+  return (await res.json()) as RagSynthesisResponse;
 }
 
 export type RagIndexingStatus = {
