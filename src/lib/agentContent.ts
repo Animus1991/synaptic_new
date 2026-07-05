@@ -74,6 +74,7 @@ const EN: AgentContent = {
     'What are common mistakes here?',
     'Create flashcards for this topic',
     'Simulate an exam question',
+    'Synthesize across my library',
   ],
   ui: {
     title: 'Synapse Agent',
@@ -141,6 +142,7 @@ const EL: AgentContent = {
     'Ποια είναι τα συνηθισμένα λάθη εδώ;',
     'Φτιάξε flashcards για αυτό το θέμα',
     'Προσομοίωσε ερώτηση εξετάσεων',
+    'Σύνθεση σε όλη τη βιβλιοθήκη',
   ],
   ui: {
     title: 'Synapse Agent',

@@ -27,8 +27,23 @@ This document separates **done**, **partial**, and **missing** against the produ
 | i18n | **~92%** | UploadModal configure/processing i18n; exam prep ~135 keys |
 | UI/UX / themes | **~89%** | Platform shortcut badges; Warm Sand + Spectrum |
 
-**Overall product-scale readiness: ~99%** — Sprint I–L4 shipped (Jul 2026).
-Remaining: native store apps (Capacitor sync), full SAML ACS, brand/GTM.
+**Overall product-scale readiness: ~99%** — Sprint I–L5 shipped (Jul 2026).
+Remaining: App Store binaries, full SAML ACS, neural podcast, brand/GTM.
+
+---
+
+## Sprint L5 — client parity & distribution — shipped (Jul 2026)
+
+| Priority | Gap | Deliverable |
+| -------- | --- | ----------- |
+| **P1** | Study guide export | `studyGuideExport.ts` + `StudyGuideExportButton` on CourseView |
+| **P1** | Multi-doc synthesis UI | Agent quick action → `POST /v1/rag/synthesize` |
+| **P2** | Video summarization UX | `VideoSummarizeButton` + `transcribeClient` poll + LLM summary |
+| **P2** | Anki FSRS scheduling | `ankiScheduling.ts` — interval/due tags on TSV export |
+| **P2** | Plugin ecosystem scaffold | `pluginApi.ts` registry + Leitner export hook |
+| **P0** | Native mobile packages | `@capacitor/ios`, `@capacitor/android`, `cap:sync` scripts |
+| **P1** | LTI grade passback | `ltiGradePassback.ts` + `/v1/lti/grade-passback` AGS stub |
+| **—** | Brand / GTM | Not code — marketing backlog |
 
 ---
 

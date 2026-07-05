@@ -538,6 +538,7 @@ export default function App() {
                   tasks={store.tasks}
                   showPostUploadBanner={store.postUploadCourseId === store.selectedCourse!.id}
                   onDismissPostUpload={store.clearPostUploadHighlight}
+                  userSettings={store.user.settings}
                 />
               </div>
             </div>
@@ -759,6 +760,7 @@ export default function App() {
             tasks={store.tasks}
             showPostUploadBanner={store.postUploadCourseId === selectedCourse.id}
             onDismissPostUpload={store.clearPostUploadHighlight}
+            userSettings={store.user.settings}
           />
         </Shell>
         {overlays}

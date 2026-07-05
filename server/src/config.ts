@@ -55,6 +55,8 @@ export const config = {
   ltiPlatformIssuer: process.env.LTI_PLATFORM_ISSUER?.trim() || undefined,
   ltiPrivateKey: process.env.LTI_PRIVATE_KEY?.replace(/\\n/g, '\n').trim() || undefined,
   ltiPublicKey: process.env.LTI_PUBLIC_KEY?.replace(/\\n/g, '\n').trim() || undefined,
+  /** OAuth2 bearer for LTI AGS grade passback to platform line items. */
+  ltiAgsToken: process.env.LTI_AGS_TOKEN?.trim() || undefined,
   /** SAML SP entity ID for enterprise SSO metadata (/v1/auth/saml/metadata). */
   samlEntityId: process.env.SAML_ENTITY_ID?.trim() || undefined,
 };

@@ -11,6 +11,8 @@ import type { SpacingData } from '../../types';
 import { useI18n } from '../../lib/i18n';
 
 import { downloadAnkiDeck } from '../../lib/ankiExport';
+import { buildAnkiSchedulingTags, matchSpacingForCard, mergeCardTags } from '../../lib/ankiScheduling';
+import { runPluginHook } from '../../lib/pluginApi';
 
 import { buildDueHeatmap } from '../../lib/leitnerDueHeatmap';
 import { leitnerCardSourceLabel } from '../../lib/leitnerCardSources';
@@ -116,6 +118,23 @@ export function LeitnerBox({
     setFinished(false);
     onSessionDirty?.();
   }, [onSessionDirty]);
+
+  const handleAnkiExport = useCallback(async () => {
+    let exportCards = deck.map((card) => {
+      const spacing = matchSpacingForCard(card.front, spacingIntervals ?? []);
+      const tags = spacing
+        ? mergeCardTags(concept ? [concept] : [], buildAnkiSchedulingTags(spacing))
+        : (concept ? [concept] : []);
+      return { front: card.front, back: card.back, tags };
+    });
+    exportCards = (await runPluginHook('leitner:beforeExport', exportCards)) as typeof exportCards;
+    downloadAnkiDeck(
+      exportCards,
+      `Synapse — ${concept || 'deck'}`,
+      `synapse-${concept || 'deck'}`,
+      concept ? [concept, 'synapse:fsrs'] : ['synapse:fsrs'],
+    );
+  }, [deck, spacingIntervals, concept]);
 
 
 
@@ -319,7 +338,7 @@ export function LeitnerBox({
 
             data-testid="leitner-export-anki"
 
-            onClick={() => downloadAnkiDeck(deck, `Synapse — ${concept || 'deck'}`, `synapse-${concept || 'deck'}`, concept ? [concept] : [])}
+            onClick={() => void handleAnkiExport()}
 
             className="flex items-center gap-1 text-[10px] font-medium text-brand-700 hover:text-brand-800 border border-brand-500/30 rounded-lg px-2 py-0.5"
 

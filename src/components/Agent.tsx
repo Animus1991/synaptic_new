@@ -17,6 +17,7 @@ import {
   buildLowRetrievalClarification,
 } from '../lib/agentCommands';
 import { buildAgentRetrievalQuery, buildAgentContextSystemBlock, type AgentWorkspaceContext } from '../lib/agentWorkspaceContext';
+import { isMultiDocSynthesizeAction, runMultiDocSynthesize } from '../lib/agentMultiDocSynthesize';
 import { spanFromCitation } from '../lib/conceptProvenance';
 import { applyAgentGroundingGate } from '../lib/grounding';
 import { emitAnalyticsLearningEvent } from '../lib/emitLearningEvent';
@@ -140,6 +141,60 @@ export function Agent({
   const handleSend = async (overrideText?: string) => {
     const rawText = (overrideText ?? input).trim();
     if (!rawText || isThinking) return;
+
+    if (settings?.authToken?.trim() && isMultiDocSynthesizeAction(rawText, lang)) {
+      const msg: AgentMessage = {
+        id: `msg-${Date.now()}`,
+        role: 'user',
+        content: rawText,
+        timestamp: new Date().toISOString(),
+        type: 'text',
+      };
+      onSendMessage(msg);
+      setInput('');
+      setShowQuickActions(false);
+      setIsThinking(true);
+      const courseIds = selectedSource !== 'all' ? [selectedSource] : courses.map((c) => c.id);
+      try {
+        const query =
+          lang === 'el'
+            ? 'Σύνθεσε τα κύρια θέματα και τις σχέσεις μεταξύ των εγγράφων της βιβλιοθήκης μου.'
+            : 'Synthesize the main themes and connections across my library documents.';
+        const { synthesis, sourceCount } = await runMultiDocSynthesize(
+          settings.authToken!,
+          settings,
+          query,
+          lang,
+          courseIds.length ? courseIds : undefined,
+        );
+        onSendMessage({
+          id: `msg-${Date.now() + 1}`,
+          role: 'agent',
+          content: synthesis,
+          timestamp: new Date().toISOString(),
+          type: 'text',
+          metadata: {
+            sourceGrounded: sourceCount > 0,
+            globalRag: true,
+            enrichmentUsed: false,
+            inferenceUsed: true,
+          },
+        });
+      } catch (e) {
+        onSendMessage({
+          id: `msg-${Date.now() + 1}`,
+          role: 'agent',
+          content: lang === 'el'
+            ? `Η σύνθεση απέτυχε: ${e instanceof Error ? e.message : 'σφάλμα'}`
+            : `Synthesis failed: ${e instanceof Error ? e.message : 'error'}`,
+          timestamp: new Date().toISOString(),
+          type: 'text',
+        });
+      } finally {
+        setIsThinking(false);
+      }
+      return;
+    }
 
     const parsedCommand = parseAgentCommand(rawText, lang);
     const llmInput = parsedCommand?.expandedPrompt ?? rawText;

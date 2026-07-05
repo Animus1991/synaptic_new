@@ -6,7 +6,7 @@ import {
   Lock, CheckCircle2, Circle, ChevronRight, Brain, Target,
   AlertTriangle, Sparkles, Play, MapPin, Network, Upload, Trash2, RefreshCw
 } from '@/lib/lucide-shim';
-import type { Course, Topic, UploadedFile, GlossaryEntry, Task } from '../types';
+import type { Course, Topic, UploadedFile, GlossaryEntry, Task, UserSettings } from '../types';
 import { cn } from '../utils/cn';
 import { ConceptGraph } from './visuals/ConceptGraph';
 import { ProgressTimeline } from './visuals/DiagramGenerator';
@@ -29,6 +29,8 @@ import { isDemoCourse } from '../lib/demoMode';
 import { conceptGraphToCourseVisual, summarizeCourseGraph } from '../lib/courseConceptGraph';
 import { PostUploadBanner } from './ui/PostUploadBanner';
 import { AudioStudyGuideButton } from './AudioStudyGuideButton';
+import { StudyGuideExportButton } from './StudyGuideExportButton';
+import { VideoSummarizeButton } from './VideoSummarizeButton';
 import { Page, PageHeader } from './ui/primitives';
 import { QualityReportPanel } from './QualityReportPanel';
 
@@ -51,6 +53,7 @@ interface CourseViewProps {
   tasks?: Task[];
   showPostUploadBanner?: boolean;
   onDismissPostUpload?: () => void;
+  userSettings?: UserSettings;
 }
 
 /** Real per-topic lesson count: explicit lessons if present, else derived from
@@ -80,6 +83,7 @@ export function CourseView({
   tasks = [],
   showPostUploadBanner = false,
   onDismissPostUpload,
+  userSettings,
 }: CourseViewProps) {
   const [tab, setTab] = useState<CourseTab>('path');
   const [reprocessWizardOpen, setReprocessWizardOpen] = useState(false);
@@ -221,6 +225,7 @@ export function CourseView({
               Ask agent
             </button>
             <AudioStudyGuideButton course={course} lang={lang} />
+            <StudyGuideExportButton course={course} glossaryEntries={glossaryEntries} lang={lang} />
             <button
               type="button"
               onClick={() => onStartLesson()}
@@ -420,6 +425,7 @@ export function CourseView({
           onReprocessMaterial={onReprocessMaterial ? openReprocessWizard : undefined}
           reprocessingMaterial={reprocessingMaterial}
           lang={lang}
+          userSettings={userSettings}
         />
       )}
       {tab === 'analytics' && <CourseAnalytics course={course} />}
@@ -655,6 +661,7 @@ function SourceFiles({
   onReprocessMaterial,
   reprocessingMaterial = false,
   lang,
+  userSettings,
 }: {
   course: Course;
   uploadedFiles: UploadedFile[];
@@ -665,6 +672,7 @@ function SourceFiles({
   onReprocessMaterial?: () => void;
   reprocessingMaterial?: boolean;
   lang: 'en' | 'el';
+  userSettings?: UserSettings;
 }) {
   const { t } = useI18n();
   const provenanceCount = course.conceptSpans?.length ?? 0;
@@ -735,6 +743,9 @@ function SourceFiles({
                 <span className="text-[10px] text-text-muted">{file.ingestMethod}</span>
               )}
               <span className="text-xs text-text-muted">{t('courseAnalyzed')}</span>
+              {file.id && (
+                <VideoSummarizeButton file={file} settings={userSettings} lang={lang} />
+              )}
               {file.id && onRemoveFile && (
                 <button
                   type="button"

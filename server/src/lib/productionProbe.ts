@@ -26,6 +26,7 @@ export type ProductionProbeStatus = {
   l4Enterprise: {
     auditLogs: boolean;
     lti: boolean;
+    ltiGradePassback: boolean;
     samlMetadata: boolean;
     transcribeQueue: boolean;
     orgAnalytics: true;
@@ -80,6 +81,7 @@ export async function getProductionProbeStatus(): Promise<ProductionProbeStatus>
     l4Enterprise: {
       auditLogs: database,
       lti: Boolean(config.ltiClientId || config.ltiPlatformAuthUrl),
+      ltiGradePassback: true,
       samlMetadata: Boolean(config.samlEntityId),
       transcribeQueue: redis,
       orgAnalytics: true,

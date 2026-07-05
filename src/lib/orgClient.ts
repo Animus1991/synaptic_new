@@ -135,3 +135,46 @@ export async function downloadGradebookCsv(
   if (!res.ok) throw new Error(await res.text());
   return res.blob();
 }
+
+export async function ltiGradePassback(
+  token: string,
+  settings: UserSettings,
+  payload: {
+    classId: string;
+    assignmentId: string;
+    enrollmentId: string;
+    ltiUserId?: string;
+    lineItemUrl?: string;
+  },
+) {
+  const res = await fetch(`${proxyBase(settings)}/v1/lti/grade-passback`, {
+    method: 'POST',
+    headers: authHeaders(token),
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return (await res.json()) as { id: string; status: string; payload: { scoreGiven: number } };
+}
+
+/** Push all graded cells in class to LTI AGS (stub queue when platform token absent). */
+export async function ltiPassbackClassGrades(
+  token: string,
+  settings: UserSettings,
+  classId: string,
+  cells: { enrollmentId: string; assignmentId: string; score?: number }[],
+  roster: { id: string; studentEmail: string }[],
+): Promise<number> {
+  let count = 0;
+  for (const cell of cells) {
+    if (cell.score == null) continue;
+    const student = roster.find((r) => r.id === cell.enrollmentId);
+    await ltiGradePassback(token, settings, {
+      classId,
+      assignmentId: cell.assignmentId,
+      enrollmentId: cell.enrollmentId,
+      ltiUserId: student?.studentEmail,
+    });
+    count += 1;
+  }
+  return count;
+}

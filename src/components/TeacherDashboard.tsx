@@ -22,7 +22,7 @@ import type { AssignmentRow, ClassEnrollmentRow, GradebookCellRow, TeacherClassR
 import { listLearningEvents, countLearningEventsByType } from '../lib/learningEvents';
 import type { TeacherDashboardResponse } from '../lib/teacherDashboardTypes';
 import { getTeacherContent } from '../lib/teacherContent';
-import { fetchOrgs, fetchOrgAnalytics, downloadGradebookCsv, type OrgAnalytics } from '../lib/orgClient';
+import { fetchOrgs, fetchOrgAnalytics, downloadGradebookCsv, ltiPassbackClassGrades, type OrgAnalytics } from '../lib/orgClient';
 import { formatDateTime, formatShortDate, localeTag } from '../lib/localeFormat';
 import { cn } from '../utils/cn';
 
@@ -57,6 +57,7 @@ export function TeacherDashboard({
   const [studentName, setStudentName] = useState('');
   const [assignments, setAssignments] = useState<AssignmentRow[]>([]);
   const [gradebookCells, setGradebookCells] = useState<GradebookCellRow[]>([]);
+  const [ltiPassbackMsg, setLtiPassbackMsg] = useState<string | null>(null);
   const [assignmentTitle, setAssignmentTitle] = useState('');
   const [assignmentDue, setAssignmentDue] = useState('');
   const [classBusy, setClassBusy] = useState(false);
@@ -566,26 +567,49 @@ export function TeacherDashboard({
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <h3 className="text-sm font-semibold">{ui.gradebook}</h3>
                   {selectedClassId && settings.authToken && (
-                    <button
-                      type="button"
-                      data-testid="teacher-export-gradebook"
-                      className="text-xs text-brand-700 hover:underline"
-                      onClick={() => {
-                        void downloadGradebookCsv(settings.authToken!, settings, selectedClassId).then((blob) => {
-                          const url = URL.createObjectURL(blob);
-                          const a = document.createElement('a');
-                          a.href = url;
-                          a.download = `gradebook-${selectedClassId}.csv`;
-                          a.click();
-                          URL.revokeObjectURL(url);
-                        });
-                      }}
-                    >
-                      {ui.exportGradebookCsv}
-                    </button>
+                    <div className="flex items-center gap-3">
+                      <button
+                        type="button"
+                        data-testid="teacher-export-gradebook"
+                        className="text-xs text-brand-700 hover:underline"
+                        onClick={() => {
+                          void downloadGradebookCsv(settings.authToken!, settings, selectedClassId).then((blob) => {
+                            const url = URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = `gradebook-${selectedClassId}.csv`;
+                            a.click();
+                            URL.revokeObjectURL(url);
+                          });
+                        }}
+                      >
+                        {ui.exportGradebookCsv}
+                      </button>
+                      <button
+                        type="button"
+                        data-testid="teacher-lti-passback"
+                        className="text-xs text-accent-cyan hover:underline"
+                        onClick={() => {
+                          void ltiPassbackClassGrades(
+                            settings.authToken!,
+                            settings,
+                            selectedClassId,
+                            gradebookCells,
+                            roster,
+                          ).then((n) => {
+                            setLtiPassbackMsg(n > 0 ? `${ui.ltiPassbackDone} (${n})` : ui.gradebookEmpty);
+                          }).catch(() => setLtiPassbackMsg(null));
+                        }}
+                      >
+                        {ui.ltiPassbackGrades}
+                      </button>
+                    </div>
                   )}
                 </div>
                 <p className="text-[11px] text-text-muted">{ui.gradebookHint}</p>
+                {ltiPassbackMsg && (
+                  <p className="text-[10px] text-accent-cyan" data-testid="teacher-lti-passback-msg">{ltiPassbackMsg}</p>
+                )}
                 {roster.length === 0 || assignments.length === 0 ? (
                   <p className="text-xs text-text-muted">{ui.gradebookEmpty}</p>
                 ) : (

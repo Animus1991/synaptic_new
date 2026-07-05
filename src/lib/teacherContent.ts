@@ -81,6 +81,8 @@ export type TeacherContent = {
   cohortAvgMastery: string;
   cohortAvgScore: string;
   exportGradebookCsv: string;
+  ltiPassbackGrades: string;
+  ltiPassbackDone: string;
   noOrgAnalytics: string;
 };
 
@@ -165,6 +167,8 @@ const EN: TeacherContent = {
   cohortAvgMastery: 'Avg mastery',
   cohortAvgScore: 'Avg score',
   exportGradebookCsv: 'Export CSV',
+  ltiPassbackGrades: 'LTI passback',
+  ltiPassbackDone: 'Grades queued for LMS',
   noOrgAnalytics: 'Create an organization (org_admin) to view cohort analytics.',
 };
 
@@ -249,6 +253,8 @@ const EL: TeacherContent = {
   cohortAvgMastery: 'Μ.Ο. επίδοσης',
   cohortAvgScore: 'Μ.Ο. βαθμού',
   exportGradebookCsv: 'Εξαγωγή CSV',
+  ltiPassbackGrades: 'LTI passback',
+  ltiPassbackDone: 'Βαθμοί στην ουρά LMS',
   noOrgAnalytics: 'Δημιούργησε οργανισμό (org_admin) για cohort analytics.',
 };
 

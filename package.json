@@ -27,10 +27,18 @@
     "build": "npm run typecheck:all && vite build",
     "build:fast": "vite build",
     "build:dev": "vite build --mode development",
+    "cap:sync": "npm run build:fast && npx cap sync",
+    "cap:ios": "npx cap open ios",
+    "cap:android": "npx cap open android",
+    "cap:add:ios": "npx cap add ios",
+    "cap:add:android": "npx cap add android",
     "preview": "vite preview",
     "postinstall": "node scripts/copy-pyodide.mjs"
   },
   "dependencies": {
+    "@capacitor/android": "^7.4.2",
+    "@capacitor/core": "^7.4.2",
+    "@capacitor/ios": "^7.4.2",
     "@codemirror/lang-python": "^6.2.1",
     "@fontsource/jetbrains-mono": "^5.2.8",
     "@fontsource/lora": "^5.2.8",
@@ -59,6 +67,7 @@
     "yjs": "^13.6.31"
   },
   "devDependencies": {
+    "@capacitor/cli": "^7.4.2",
     "@axe-core/playwright": "^4.12.1",
     "@playwright/test": "^1.52.0",
     "@tailwindcss/vite": "4.1.17",

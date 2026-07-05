@@ -551,6 +551,32 @@ describe('server integration sweep', () => {
     const jwks = await request(app).get('/v1/lti/jwks').expect(200);
     expect(Array.isArray(jwks.body.keys)).toBe(true);
 
+    await request(app)
+      .post('/v1/teacher/classes/' + classId + '/assignments')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({ title: 'LTI Assignment' })
+      .expect(201)
+      .then(async (asgRes) => {
+        const assignmentId = asgRes.body.id as string;
+        const roster = await request(app)
+          .get(`/v1/teacher/classes/${classId}/roster`)
+          .set('Authorization', `Bearer ${adminToken}`)
+          .expect(200);
+        const enrollmentId = roster.body.roster[0]!.id as string;
+        await request(app)
+          .patch(`/v1/teacher/classes/${classId}/gradebook`)
+          .set('Authorization', `Bearer ${adminToken}`)
+          .send({ enrollmentId, assignmentId, score: 92, status: 'graded' })
+          .expect(200);
+        const passback = await request(app)
+          .post('/v1/lti/grade-passback')
+          .set('Authorization', `Bearer ${adminToken}`)
+          .send({ classId, assignmentId, enrollmentId, ltiUserId: 'canvas-user-1' })
+          .expect(202);
+        expect(passback.body.status).toBe('stub_queued');
+        expect(passback.body.payload.scoreGiven).toBe(92);
+      });
+
     const ragStatus = await request(app)
       .get('/v1/rag/status')
       .set('Authorization', `Bearer ${adminToken}`)
@@ -560,6 +586,7 @@ describe('server integration sweep', () => {
     const health = await request(app).get('/health').expect(200);
     expect(health.body.features.l4Enterprise).toBeDefined();
     expect(health.body.features.l4Enterprise.orgAnalytics).toBe(true);
+    expect(health.body.features.l4Enterprise.ltiGradePassback).toBe(true);
   });
 
   it('POST /v1/billing/webhook deduplicates Stripe event ids', async () => {
