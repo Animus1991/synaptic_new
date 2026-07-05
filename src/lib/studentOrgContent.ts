@@ -31,6 +31,14 @@ export type StudentOrgContent = {
   upcomingTitle: string;
   upcomingHint: string;
   assignmentsCount: string;
+  calendarTitle: string;
+  calendarHint: string;
+  calendarFilterAll: string;
+  calendarFilterAssignments: string;
+  calendarFilterExams: string;
+  calendarKindAssignment: string;
+  calendarKindExam: string;
+  calendarEmpty: string;
 };
 
 const EN: StudentOrgContent = {
@@ -64,6 +72,14 @@ const EN: StudentOrgContent = {
   upcomingTitle: 'Upcoming & overdue',
   upcomingHint: 'Assignments due in the next 7 days or past due.',
   assignmentsCount: 'assignments',
+  calendarTitle: 'Calendar',
+  calendarHint: 'Class due dates merged with national exam milestones.',
+  calendarFilterAll: 'All',
+  calendarFilterAssignments: 'Class work',
+  calendarFilterExams: 'Exams',
+  calendarKindAssignment: 'Assignment',
+  calendarKindExam: 'Exam',
+  calendarEmpty: 'No calendar entries in this view.',
 };
 
 const EL: StudentOrgContent = {
@@ -97,6 +113,14 @@ const EL: StudentOrgContent = {
   upcomingTitle: 'Επερχόμενα & εκπρόθεσμα',
   upcomingHint: 'Εργασίες με προθεσμία τις επόμενες 7 ημέρες ή εκπρόθεσμες.',
   assignmentsCount: 'εργασίες',
+  calendarTitle: 'Ημερολόγιο',
+  calendarHint: 'Προθεσμίες τάξης μαζί με εξεταστικές ημερομηνίες.',
+  calendarFilterAll: 'Όλα',
+  calendarFilterAssignments: 'Εργασίες',
+  calendarFilterExams: 'Εξετάσεις',
+  calendarKindAssignment: 'Εργασία',
+  calendarKindExam: 'Εξετάση',
+  calendarEmpty: 'Δεν υπάρχουν εγγραφές σε αυτή την προβολή.',
 };
 
 export function getStudentOrgContent(lang: Lang): StudentOrgContent {

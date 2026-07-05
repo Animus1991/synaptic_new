@@ -8,6 +8,8 @@ import { fetchStudentDashboard, type StudentDashboard } from '../lib/studentDash
 import { assignmentStatusLabel, assignmentStatusTone } from '../lib/studentOrgModel';
 import { StudentOrgSummary } from './StudentOrgSummary';
 import { StudentUpcomingPanel } from './StudentUpcomingPanel';
+import { StudentOrgCalendarPanel } from './StudentOrgCalendarPanel';
+import type { StudentAssignmentDue } from '../lib/studentOrgCalendar';
 import { formatShortDate } from '../lib/localeFormat';
 import { cn } from '../utils/cn';
 
@@ -84,6 +86,41 @@ export function StudentOrgView({
     return map;
   }, [dashboard]);
 
+  const calendarAssignments = useMemo((): StudentAssignmentDue[] => {
+    const now = Date.now();
+    const rows: StudentAssignmentDue[] = [];
+    for (const row of filteredClasses) {
+      for (const assignment of row.assignments) {
+        if (!assignment.dueAt) continue;
+        const cell = row.gradeCells.find((c) => c.assignmentId === assignment.id);
+        const upcoming = dashboard?.upcoming.find(
+          (u) => u.assignmentId === assignment.id && u.classId === row.class.id,
+        );
+        let status: StudentAssignmentDue['status'] =
+          upcoming?.status ??
+          (cell?.score != null || cell?.status === 'graded'
+            ? 'graded'
+            : cell?.status === 'submitted'
+              ? 'submitted'
+              : 'pending');
+        if (status === 'pending') {
+          const dueMs = Date.parse(assignment.dueAt);
+          if (Number.isFinite(dueMs) && dueMs < now) status = 'overdue';
+        }
+        rows.push({
+          assignmentId: assignment.id,
+          classId: row.class.id,
+          className: row.class.name,
+          title: assignment.title,
+          dueAt: assignment.dueAt,
+          status,
+          score: cell?.score ?? upcoming?.score,
+        });
+      }
+    }
+    return rows;
+  }, [filteredClasses, dashboard]);
+
   if (!signedIn) {
     return (
       <div className="max-w-3xl mx-auto p-6 space-y-4" data-testid="student-org-signin">
@@ -143,6 +180,8 @@ export function StudentOrgView({
       {dashboard && (
         <StudentUpcomingPanel upcoming={dashboard.upcoming} ui={ui} lang={lang} />
       )}
+
+      <StudentOrgCalendarPanel assignments={calendarAssignments} ui={ui} lang={lang} />
 
       <section className="space-y-3">
         <div className="flex flex-wrap items-center justify-between gap-3">
