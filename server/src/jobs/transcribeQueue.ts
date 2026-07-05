@@ -1,5 +1,11 @@
 import { Queue, Worker } from 'bullmq';
 import { config } from '../config';
+import {
+  buildVideoChapters,
+  parseWhisperVerboseJson,
+  type VideoChapter,
+  type WhisperSegment,
+} from '../lib/videoChapters';
 
 export type TranscribeJobStatus = 'queued' | 'processing' | 'completed' | 'failed';
 
@@ -10,6 +16,8 @@ export type TranscribeJob = {
   language?: string;
   filename?: string;
   resultText?: string;
+  segments?: WhisperSegment[];
+  chapters?: VideoChapter[];
   error?: string;
   createdAt: string;
   completedAt?: string;
@@ -35,7 +43,7 @@ async function transcribeBuffer(
   buffer: Buffer,
   filename: string,
   language?: string,
-): Promise<{ text: string; language?: string }> {
+): Promise<{ text: string; language?: string; segments: WhisperSegment[]; chapters: VideoChapter[] }> {
   if (!config.upstreamApiKey) {
     throw new Error('Transcription service not configured');
   }
@@ -43,7 +51,7 @@ async function transcribeBuffer(
   const blob = new Blob([buffer], { type: 'application/octet-stream' });
   form.append('file', blob, filename);
   form.append('model', 'whisper-1');
-  form.append('response_format', 'json');
+  form.append('response_format', 'verbose_json');
   if (language) form.append('language', language);
 
   const upstreamRes = await fetch(`${config.upstreamBaseUrl}/audio/transcriptions`, {
@@ -55,8 +63,15 @@ async function transcribeBuffer(
     const err = await upstreamRes.text().catch(() => 'Transcription failed');
     throw new Error(err);
   }
-  const data = (await upstreamRes.json()) as { text?: string; language?: string };
-  return { text: data.text?.trim() ?? '', language: data.language };
+  const data = await upstreamRes.json();
+  const parsed = parseWhisperVerboseJson(data);
+  const chapters = buildVideoChapters(parsed.segments);
+  return {
+    text: parsed.text,
+    language: (data as { language?: string }).language,
+    segments: parsed.segments,
+    chapters,
+  };
 }
 
 async function runJob(jobId: string, payload: JobPayload): Promise<void> {
@@ -69,6 +84,8 @@ async function runJob(jobId: string, payload: JobPayload): Promise<void> {
     const result = await transcribeBuffer(buffer, payload.filename, payload.language);
     row.status = 'completed';
     row.resultText = result.text;
+    row.segments = result.segments;
+    row.chapters = result.chapters;
     row.language = result.language ?? payload.language;
     row.completedAt = new Date().toISOString();
   } catch (e) {

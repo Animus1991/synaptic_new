@@ -54,7 +54,7 @@ Regression gate: `cd server && npm test` (SAML + LTI integration sweep).
 | Scope | Deliverable |
 | ----- | ----------- |
 | **L10-1 multi-speaker podcast** | Host/Expert dialogue turns + dual TTS voices (`nova`/`onyx`); speaker badge on CourseView button |
-| **L10-2 video chaptering** | Not started |
+| **L10-2 video chaptering** | Whisper `verbose_json` segments → chapter nav in CourseView media panel |
 | **L10-3 cross-library synthesis UI** | Not started |
 | **L10-4 pgvector progress UI** | Not started |
 | **L10-5 quiz IRT polish** | Not started |

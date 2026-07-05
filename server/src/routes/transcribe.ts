@@ -131,6 +131,8 @@ transcribeRouter.get('/transcribe/jobs/:jobId', authenticate, (req, res) => {
     jobId: job.id,
     status: job.status,
     text: job.resultText,
+    segments: job.segments,
+    chapters: job.chapters,
     language: job.language,
     error: job.error,
     createdAt: job.createdAt,

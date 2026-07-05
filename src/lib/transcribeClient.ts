@@ -8,10 +8,26 @@ function proxyBase(settings: UserSettings): string {
 
 export type TranscribeJobStatus = 'queued' | 'processing' | 'completed' | 'failed';
 
+export type WhisperSegment = {
+  start: number;
+  end: number;
+  text: string;
+};
+
+export type VideoChapter = {
+  index: number;
+  title: string;
+  startSec: number;
+  endSec: number;
+  preview: string;
+};
+
 export type TranscribeJobResponse = {
   jobId: string;
   status: TranscribeJobStatus;
   text?: string;
+  segments?: WhisperSegment[];
+  chapters?: VideoChapter[];
   language?: string;
   error?: string;
   createdAt?: string;

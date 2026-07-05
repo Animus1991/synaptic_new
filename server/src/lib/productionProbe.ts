@@ -60,6 +60,7 @@ export type ProductionProbeStatus = {
   /** Sprint L10 — AI delight parity. */
   l10Enterprise: {
     multiSpeakerPodcast: boolean;
+    videoChaptering: boolean;
   };
 };
 
@@ -140,6 +141,7 @@ export async function getProductionProbeStatus(): Promise<ProductionProbeStatus>
     },
     l10Enterprise: {
       multiSpeakerPodcast: true,
+      videoChaptering: true,
     },
   };
 }
