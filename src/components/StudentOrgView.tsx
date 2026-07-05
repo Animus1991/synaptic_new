@@ -4,7 +4,7 @@ import { BookOpen, Building2, RefreshCw, GraduationCap } from '@/lib/lucide-shim
 import type { UserSettings } from '../types';
 import { getStudentOrgContent } from '../lib/studentOrgContent';
 import { fetchStudentClasses, fetchStudentOrgs } from '../lib/orgClient';
-import { formatShortDate, localeTag } from '../lib/localeFormat';
+import { formatShortDate } from '../lib/localeFormat';
 import { cn } from '../utils/cn';
 
 interface Props {
@@ -27,7 +27,6 @@ export function StudentOrgView({
     Awaited<ReturnType<typeof fetchStudentClasses>>['classes']
   >([]);
   const [orgs, setOrgs] = useState<Awaited<ReturnType<typeof fetchStudentOrgs>>['orgs']>([]);
-  const locale = localeTag(lang);
   const signedIn = Boolean(settings.authToken?.trim());
 
   const load = useCallback(async () => {
@@ -146,7 +145,7 @@ export function StudentOrgView({
                           <span>{a.title}</span>
                           <span className="text-text-muted shrink-0">
                             {cell?.score != null ? `${cell.score}%` : cell?.status ?? '—'}
-                            {a.dueAt ? ` · ${formatShortDate(a.dueAt, locale)}` : ''}
+                            {a.dueAt ? ` · ${formatShortDate(a.dueAt, lang)}` : ''}
                           </span>
                         </li>
                       );

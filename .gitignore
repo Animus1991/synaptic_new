@@ -1,6 +1,7 @@
 node_modules/
 ocr-server/node_modules/
 ocr-server/.env
+server/.env
 .tools/
 dist/
 test-results/

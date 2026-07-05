@@ -20,7 +20,7 @@ export async function getRedisClient(): Promise<RedisLike | null> {
     const redis = new Redis(config.redisUrl, { maxRetriesPerRequest: 1, lazyConnect: true });
     await redis.connect();
     await redis.ping();
-    client = redis;
+    client = redis as unknown as RedisLike;
     return client;
   } catch {
     connectFailed = true;

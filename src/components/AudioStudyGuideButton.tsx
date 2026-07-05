@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Headphones, Square } from '@/lib/lucide-shim';
+import { Volume2, Square } from '@/lib/lucide-shim';
 import type { Course } from '../types';
 import { playAudioStudyGuide } from '../lib/audioStudyGuide';
 import { cn } from '../utils/cn';
@@ -49,7 +49,7 @@ export function AudioStudyGuideButton({ course, lang, className }: Props) {
             : 'border-border hover:bg-surface-hover text-text-secondary',
         )}
       >
-        {playing ? <Square className="w-4 h-4" /> : <Headphones className="w-4 h-4" />}
+        {playing ? <Square className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
         {label}
       </button>
       {sectionTitle && playing && (
