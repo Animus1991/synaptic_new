@@ -94,7 +94,11 @@ export function ltiToolConfig(baseUrl: string): Record<string, unknown> {
     target_link_uri: `${baseUrl}/v1/lti/launch`,
     oidc_initiation_url: `${baseUrl}/v1/lti/login`,
     public_jwk_url: `${baseUrl}/v1/lti/jwks`,
-    scopes: ['openid', 'https://purl.imsglobal.org/spec/lti-ags/scope/score'],
+    scopes: [
+      'openid',
+      'https://purl.imsglobal.org/spec/lti-ags/scope/score',
+      'https://purl.imsglobal.org/spec/lti-nrps/scope/contextmembership.readonly',
+    ],
     extensions: {
       'https://canvas.instructure.com/lti/tool_configuration': {
         domain: new URL(baseUrl).host,

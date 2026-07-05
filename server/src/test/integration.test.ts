@@ -452,6 +452,51 @@ describe('server integration sweep', () => {
     expect(afterDelete.body.posts).toHaveLength(1);
   });
 
+  it('LTI context link and stub roster sync enroll learners', async () => {
+    const teacher = await request(app)
+      .post('/auth/register')
+      .send({ email: 'lti-roster@example.com', password: 'password123' })
+      .expect(201);
+    const token = teacher.body.token as string;
+
+    const created = await request(app)
+      .post('/v1/teacher/classes')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ name: 'LTI Linked Class' })
+      .expect(201);
+    const classId = created.body.id as string;
+
+    const linked = await request(app)
+      .post(`/v1/lti/classes/${classId}/context-link`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({ ltiContextId: 'canvas-course-42', contextTitle: 'Intro Biology' })
+      .expect(201);
+    expect(linked.body.link.ltiContextId).toBe('canvas-course-42');
+
+    const synced = await request(app)
+      .post(`/v1/lti/classes/${classId}/roster-sync`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        members: [
+          {
+            userId: 'canvas-u1',
+            email: 'nrps.student@school.edu',
+            displayName: 'NRPS Student',
+            roles: ['Learner'],
+          },
+        ],
+      })
+      .expect(200);
+    expect(synced.body.added).toBe(1);
+
+    const roster = await request(app)
+      .get(`/v1/teacher/classes/${classId}/roster`)
+      .set('Authorization', `Bearer ${token}`)
+      .expect(200);
+    expect(roster.body.roster).toHaveLength(1);
+    expect(roster.body.roster[0].studentEmail).toBe('nrps.student@school.edu');
+  });
+
   it('GET/PATCH /v1/teacher/classes/:id/gradebook stores scores', async () => {
     const reg = await request(app)
       .post('/auth/register')
@@ -740,6 +785,7 @@ describe('server integration sweep', () => {
     expect(health.body.features.l9Enterprise).toBeDefined();
     expect(health.body.features.l9Enterprise.classAnnouncements).toBe(true);
     expect(health.body.features.l9Enterprise.assignmentDiscussion).toBe(true);
+    expect(health.body.features.l9Enterprise.ltiRosterSync).toBe(true);
 
     const auditExport = await request(app)
       .get(`/v1/orgs/${orgId}/audit-logs/export?format=csv`)

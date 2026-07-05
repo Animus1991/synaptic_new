@@ -42,7 +42,7 @@ Regression gate: `cd server && npm test` (includes `auditLogExport.test.ts`).
 | **L9-1 student calendar** | `StudentOrgCalendarPanel` — class due dates + exam feed; filters All / Class work / Exams |
 | **L9-2 class announcements** | Teacher `GET/POST/DELETE /v1/teacher/classes/:id/announcements`; student `GET /v1/student/announcements`; collapsible feed in `StudentOrgView` |
 | **L9-3 discussion threads** | Per-assignment Q&A stub — teacher/student `.../assignments/:id/discussion`; `AssignmentDiscussionThread` inline expand |
-| **L9-4 LTI roster sync** | Not started |
+| **L9-4 LTI roster sync** | Deep link → teacher dashboard; `POST /v1/lti/classes/:id/context-link` + `roster-sync` (NRPS or stub) |
 | **L9-5 SAML auto-provision** | Not started |
 
 Regression gate: `cd server && npm test` (announcement integration sweep).
@@ -366,7 +366,7 @@ Eval harness: `npm run eval` — 30/30 at Stage 3 baseline.
 1. **L8-1 App Store submission** — Apple/Google accounts, screenshots, signed builds, live privacy URL
 2. **L8-2 legal review** — counsel sign-off on DPA template + hosted privacy policy
 3. **L8-3 Brand/GTM** — landing, demo video, institution one-pager
-4. **L9 institution depth** — ~~student calendar~~, ~~announcements~~, LTI roster sync, SAML auto-provision
+4. **L9 institution depth** — ~~student calendar~~, ~~announcements~~, ~~LTI roster sync~~, SAML auto-provision
 5. **L10 pgvector at scale** — background indexing job + progress UI
 
 ### Shipped recently (no longer open)

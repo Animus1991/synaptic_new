@@ -17,6 +17,10 @@ export type LtiLaunchClaims = {
   'https://purl.imsglobal.org/spec/lti/claim/deployment_id'?: string;
   'https://purl.imsglobal.org/spec/lti/claim/roles'?: string[];
   'https://purl.imsglobal.org/spec/lti/claim/context'?: { id?: string; label?: string; title?: string };
+  'https://purl.imsglobal.org/spec/lti-nrps/claim/namesroleservice'?: {
+    context_memberships_url?: string;
+    service_versions?: string[];
+  };
   [key: string]: unknown;
 };
 

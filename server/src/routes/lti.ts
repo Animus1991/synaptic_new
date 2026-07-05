@@ -18,6 +18,18 @@ import {
 } from '../lib/ltiGradePassback';
 import { verifyLtiIdToken } from '../lib/ltiJwtVerify';
 import { buildSamlAcsRedirect, parseSamlAcsResponse } from '../lib/samlAcs';
+import { resolveLtiNrpsBearer } from '../lib/ltiAgsOAuth';
+import {
+  fetchNrpsMembers,
+  getClassIdForLtiContext,
+  getLtiContextLink,
+  getLtiLaunchSession,
+  linkLtiContextToClass,
+  isLearnerRole,
+  saveLtiLaunchSession,
+  syncLtiMembersToClass,
+  type LtiNrpsMember,
+} from '../lib/ltiRosterSync';
 import { requireTeacherClass } from '../lib/tenantGuard';
 import { getGradebookAsync } from '../store/gradebookStore';
 import { listClassRosterAsync } from '../store/classStore';
@@ -173,6 +185,20 @@ ltiRouter.post('/lti/launch', async (req, res) => {
   if (Array.isArray(roles) && roles[0]) redirect.searchParams.set('lti_role', roles[0]);
   const ctx = claims['https://purl.imsglobal.org/spec/lti/claim/context'];
   if (ctx?.id) redirect.searchParams.set('lti_context', ctx.id);
+  if (ctx?.title) redirect.searchParams.set('lti_context_title', ctx.title);
+
+  const nrps = claims['https://purl.imsglobal.org/spec/lti-nrps/claim/namesroleservice'];
+  if (ctx?.id) {
+    saveLtiLaunchSession({
+      ltiContextId: ctx.id,
+      contextTitle: ctx.title ?? ctx.label,
+      nrpsUrl: nrps?.context_memberships_url,
+      ltiSub: claims.sub,
+      email: claims.email ? String(claims.email) : undefined,
+    });
+    const linkedClassId = getClassIdForLtiContext(ctx.id);
+    if (linkedClassId) redirect.searchParams.set('lti_linked_class', linkedClassId);
+  }
 
   if (pending) pendingStates.delete(state);
   res.redirect(302, redirect.toString());
@@ -308,4 +334,138 @@ ltiRouter.get('/lti/grade-passback', authenticate, async (req, res) => {
     return;
   }
   res.json({ classId, records: listLtiPassbackLog(classId) });
+});
+
+/** GET /v1/lti/launch-context/:ltiContextId — NRPS session from recent LTI launch. */
+ltiRouter.get('/lti/launch-context/:ltiContextId', authenticate, (req, res) => {
+  const session = getLtiLaunchSession(req.params.ltiContextId);
+  if (!session) {
+    res.status(404).json({ error: 'launch context not found or expired' });
+    return;
+  }
+  const linkedClassId = getClassIdForLtiContext(session.ltiContextId);
+  res.json({
+    ltiContextId: session.ltiContextId,
+    contextTitle: session.contextTitle,
+    hasNrpsUrl: Boolean(session.nrpsUrl),
+    linkedClassId,
+  });
+});
+
+/** GET /v1/lti/classes/:classId/context-link — LTI context linked to teacher class. */
+ltiRouter.get('/lti/classes/:classId/context-link', authenticate, async (req, res) => {
+  const owned = await requireTeacherClass(req.params.classId, req.account!.id);
+  if (!owned.ok) {
+    res.status(owned.status).json({ error: owned.error });
+    return;
+  }
+  const link = getLtiContextLink(owned.class.id);
+  if (!link) {
+    res.status(404).json({ error: 'no LTI context linked' });
+    return;
+  }
+  res.json({ link });
+});
+
+/** POST /v1/lti/classes/:classId/context-link — map Canvas course context to Synapse class. */
+ltiRouter.post('/lti/classes/:classId/context-link', authenticate, async (req, res) => {
+  const owned = await requireTeacherClass(req.params.classId, req.account!.id);
+  if (!owned.ok) {
+    res.status(owned.status).json({ error: owned.error });
+    return;
+  }
+  const body = req.body as { ltiContextId?: string; contextTitle?: string; nrpsUrl?: string };
+  if (!body.ltiContextId?.trim()) {
+    res.status(400).json({ error: 'ltiContextId required' });
+    return;
+  }
+  const link = linkLtiContextToClass(owned.class.id, {
+    ltiContextId: body.ltiContextId,
+    contextTitle: body.contextTitle,
+    nrpsUrl: body.nrpsUrl,
+  });
+  await appendAuditLogAsync({
+    orgId: owned.class.orgId,
+    accountId: req.account!.id,
+    action: 'lti.context.link',
+    resource: owned.class.id,
+    metadata: { ltiContextId: link.ltiContextId },
+  });
+  res.status(201).json({ link });
+});
+
+/** POST /v1/lti/classes/:classId/roster-sync — import LMS roster (NRPS or stub members). */
+ltiRouter.post('/lti/classes/:classId/roster-sync', authenticate, async (req, res) => {
+  const owned = await requireTeacherClass(req.params.classId, req.account!.id);
+  if (!owned.ok) {
+    res.status(owned.status).json({ error: owned.error });
+    return;
+  }
+  const body = req.body as {
+    members?: Array<{ userId?: string; email?: string; displayName?: string; roles?: string[] }>;
+    ltiContextId?: string;
+    useStub?: boolean;
+  };
+
+  let link = getLtiContextLink(owned.class.id);
+  if (!link && body.ltiContextId?.trim()) {
+    link = linkLtiContextToClass(owned.class.id, { ltiContextId: body.ltiContextId });
+  }
+  if (!link) {
+    res.status(400).json({ error: 'link an LTI context first or pass ltiContextId' });
+    return;
+  }
+
+  let members: LtiNrpsMember[] = [];
+  let source: 'nrps' | 'stub' = 'stub';
+
+  if (Array.isArray(body.members) && body.members.length > 0) {
+    members = body.members
+      .map((m) => ({
+        userId: m.userId?.trim() || m.email?.trim() || '',
+        email: (m.email?.trim() || `${m.userId?.trim()}@lti.local`).toLowerCase(),
+        displayName: m.displayName?.trim(),
+        roles: Array.isArray(m.roles) ? m.roles.map(String) : ['Learner'],
+      }))
+      .filter((m) => m.userId && m.email && isLearnerRole(m.roles));
+    source = 'stub';
+  } else {
+    const nrpsUrl = link.nrpsUrl || getLtiLaunchSession(link.ltiContextId)?.nrpsUrl;
+    if (!nrpsUrl) {
+      if (body.useStub) {
+        members = [
+          {
+            userId: 'lti-stub-1',
+            email: 'lti.learner1@school.edu',
+            displayName: 'LTI Learner 1',
+            roles: ['Learner'],
+          },
+          {
+            userId: 'lti-stub-2',
+            email: 'lti.learner2@school.edu',
+            displayName: 'LTI Learner 2',
+            roles: ['Learner'],
+          },
+        ];
+        source = 'stub';
+      } else {
+        res.status(400).json({ error: 'NRPS URL unavailable — pass members[] or useStub for demo sync' });
+        return;
+      }
+    } else {
+      const bearer = await resolveLtiNrpsBearer();
+      members = await fetchNrpsMembers(nrpsUrl, bearer);
+      source = 'nrps';
+    }
+  }
+
+  const result = await syncLtiMembersToClass(owned.class.id, members, source, link.ltiContextId);
+  await appendAuditLogAsync({
+    orgId: owned.class.orgId,
+    accountId: req.account!.id,
+    action: 'lti.roster.sync',
+    resource: owned.class.id,
+    metadata: { added: result.added, total: result.total, source: result.source },
+  });
+  res.json(result);
 });

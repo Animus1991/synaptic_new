@@ -25,7 +25,7 @@ import type { AnnouncementRow, AssignmentRow, ClassEnrollmentRow, GradebookCellR
 import { listLearningEvents, countLearningEventsByType } from '../lib/learningEvents';
 import type { TeacherDashboardResponse } from '../lib/teacherDashboardTypes';
 import { getTeacherContent } from '../lib/teacherContent';
-import { fetchOrgs, fetchOrgAnalytics, downloadGradebookCsv, ltiPassbackClassGrades, type OrgAnalytics } from '../lib/orgClient';
+import { fetchOrgs, fetchOrgAnalytics, downloadGradebookCsv, linkLtiClassContext, ltiPassbackClassGrades, syncLtiClassRoster, type OrgAnalytics } from '../lib/orgClient';
 import { CohortHeatmap } from './CohortHeatmap';
 import { AssignmentDiscussionThread } from './AssignmentDiscussionThread';
 import { formatDateTime, formatShortDate, localeTag } from '../lib/localeFormat';
@@ -37,6 +37,12 @@ interface Props {
   localCourses?: Course[];
   activities?: ActivityItem[];
   learnerModel?: LearnerModel;
+  ltiLaunchHint?: {
+    contextId: string;
+    contextTitle?: string;
+    email?: string;
+    linkedClassId?: string;
+  } | null;
   onOpenCourse?: (courseId: string) => void;
   onOpenSettings?: () => void;
 }
@@ -47,6 +53,7 @@ export function TeacherDashboard({
   localCourses = [],
   activities = [],
   learnerModel,
+  ltiLaunchHint = null,
   onOpenCourse,
   onOpenSettings,
 }: Props) {
@@ -69,6 +76,9 @@ export function TeacherDashboard({
   const [announcementTitle, setAnnouncementTitle] = useState('');
   const [announcementBody, setAnnouncementBody] = useState('');
   const [expandedDiscussionId, setExpandedDiscussionId] = useState<string | null>(null);
+  const [ltiContextInput, setLtiContextInput] = useState('');
+  const [ltiRosterOpen, setLtiRosterOpen] = useState(false);
+  const [ltiRosterMsg, setLtiRosterMsg] = useState<string | null>(null);
   const [classBusy, setClassBusy] = useState(false);
   const [orgAnalytics, setOrgAnalytics] = useState<OrgAnalytics | null>(null);
   const localEvents = countLearningEventsByType();
@@ -126,6 +136,15 @@ export function TeacherDashboard({
     if (classes.length === 0) return;
     setSelectedClassId((prev) => (prev && classes.some((c) => c.id === prev) ? prev : classes[0]!.id));
   }, [classes]);
+
+  useEffect(() => {
+    if (!ltiLaunchHint?.contextId) return;
+    setLtiContextInput(ltiLaunchHint.contextId);
+    setLtiRosterOpen(true);
+    if (ltiLaunchHint.linkedClassId) {
+      setSelectedClassId(ltiLaunchHint.linkedClassId);
+    }
+  }, [ltiLaunchHint]);
 
   const loadRoster = useCallback(async (classId: string) => {
     if (!settings.authToken?.trim()) return;
@@ -317,6 +336,43 @@ export function TeacherDashboard({
     try {
       await apiRemoveAnnouncement(settings.authToken, settings, selectedClassId, announcementId);
       await loadAnnouncements(selectedClassId);
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setClassBusy(false);
+    }
+  };
+
+  const handleLinkLtiContext = async () => {
+    if (!settings.authToken?.trim() || !selectedClassId || !ltiContextInput.trim()) return;
+    setClassBusy(true);
+    setLtiRosterMsg(null);
+    try {
+      await linkLtiClassContext(settings.authToken, settings, selectedClassId, {
+        ltiContextId: ltiContextInput.trim(),
+        contextTitle: ltiLaunchHint?.contextTitle,
+      });
+      setLtiRosterMsg(ui.ltiRosterLinked);
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setClassBusy(false);
+    }
+  };
+
+  const handleSyncLtiRoster = async () => {
+    if (!settings.authToken?.trim() || !selectedClassId) return;
+    setClassBusy(true);
+    setLtiRosterMsg(null);
+    try {
+      const result = await syncLtiClassRoster(settings.authToken, settings, selectedClassId, {
+        ltiContextId: ltiContextInput.trim() || undefined,
+        useStub: Boolean(ltiLaunchHint),
+      });
+      await loadRoster(selectedClassId);
+      const classJson = await fetchTeacherClasses(settings.authToken, settings);
+      setClasses(classJson.classes);
+      setLtiRosterMsg(`${ui.ltiRosterSyncDone}: +${result.added} (${result.source})`);
     } catch (err) {
       setError((err as Error).message);
     } finally {
@@ -557,6 +613,62 @@ export function TeacherDashboard({
                   </table>
                 </div>
               )}
+
+              <div className="pt-4 border-t border-border-subtle" data-testid="teacher-lti-roster">
+                <button
+                  type="button"
+                  className="w-full flex items-center justify-between text-sm font-semibold"
+                  onClick={() => setLtiRosterOpen((v) => !v)}
+                >
+                  <span>{ui.ltiRosterTitle}</span>
+                  <span className="text-[10px] text-text-muted">{ltiRosterOpen ? '−' : '+'}</span>
+                </button>
+                {ltiRosterOpen && (
+                  <div className="mt-3 space-y-2">
+                    {ltiLaunchHint && (
+                      <p className="text-[11px] text-accent-cyan border border-accent-cyan/30 rounded-lg px-3 py-2">
+                        {ui.ltiLaunchWelcome}
+                        {ltiLaunchHint.contextTitle ? ` — ${ltiLaunchHint.contextTitle}` : ''}
+                        {ltiLaunchHint.contextId ? ` (${ltiLaunchHint.contextId})` : ''}
+                      </p>
+                    )}
+                    <p className="text-[11px] text-text-muted">{ui.ltiRosterHint}</p>
+                    <div className="flex flex-wrap gap-2 items-end">
+                      <input
+                        type="text"
+                        value={ltiContextInput}
+                        onChange={(e) => setLtiContextInput(e.target.value)}
+                        placeholder={ui.ltiRosterContextPlaceholder}
+                        data-testid="teacher-lti-context-id"
+                        className="flex-1 min-w-[180px] px-3 py-2 rounded-xl border border-border-subtle bg-surface-primary text-sm"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => void handleLinkLtiContext()}
+                        disabled={classBusy || !ltiContextInput.trim()}
+                        data-testid="teacher-lti-link-context"
+                        className="px-3 py-2 rounded-xl border border-brand-500/30 text-brand-300 text-sm"
+                      >
+                        {ui.ltiRosterLink}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => void handleSyncLtiRoster()}
+                        disabled={classBusy || !ltiContextInput.trim()}
+                        data-testid="teacher-lti-roster-sync"
+                        className="px-3 py-2 rounded-xl bg-brand-600 text-white text-sm font-medium disabled:opacity-50"
+                      >
+                        {ui.ltiRosterSync}
+                      </button>
+                    </div>
+                    {ltiRosterMsg && (
+                      <p className="text-[10px] text-accent-cyan" data-testid="teacher-lti-roster-msg">
+                        {ltiRosterMsg}
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
 
               <div className="space-y-3 pt-4 border-t border-border-subtle" data-testid="teacher-announcements">
                 <h3 className="text-sm font-semibold">{ui.announcements}</h3>

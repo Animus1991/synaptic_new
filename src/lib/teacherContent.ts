@@ -85,6 +85,14 @@ export type TeacherContent = {
   discussionRoleTeacher: string;
   discussionRoleStudent: string;
   removeDiscussionPost: string;
+  ltiRosterTitle: string;
+  ltiRosterHint: string;
+  ltiRosterContextPlaceholder: string;
+  ltiRosterLink: string;
+  ltiRosterSync: string;
+  ltiRosterLinked: string;
+  ltiRosterSyncDone: string;
+  ltiLaunchWelcome: string;
   gradebook: string;
   gradebookHint: string;
   gradebookEmpty: string;
@@ -186,6 +194,14 @@ const EN: TeacherContent = {
   discussionRoleTeacher: 'Teacher',
   discussionRoleStudent: 'Student',
   removeDiscussionPost: 'Remove',
+  ltiRosterTitle: 'LTI roster sync',
+  ltiRosterHint: 'Link a Canvas course context, then import learners via NRPS (or demo stub after LTI launch).',
+  ltiRosterContextPlaceholder: 'LTI context ID (Canvas course)',
+  ltiRosterLink: 'Link context',
+  ltiRosterSync: 'Sync roster',
+  ltiRosterLinked: 'LTI context linked to this class.',
+  ltiRosterSyncDone: 'Roster synced',
+  ltiLaunchWelcome: 'Signed in via LTI deep link',
   gradebook: 'Gradebook',
   gradebookHint: 'Enter scores (0–100) per student and assignment. Saved to the teacher server.',
   gradebookEmpty: 'Add students and assignments to use the gradebook matrix.',
@@ -287,6 +303,14 @@ const EL: TeacherContent = {
   discussionRoleTeacher: 'Εκπαιδευτής',
   discussionRoleStudent: 'Μαθητής',
   removeDiscussionPost: 'Αφαίρεση',
+  ltiRosterTitle: 'LTI roster sync',
+  ltiRosterHint: 'Σύνδεσε Canvas context και εισαγωγή μαθητών μέσω NRPS (ή demo stub μετά από LTI launch).',
+  ltiRosterContextPlaceholder: 'LTI context ID (Canvas course)',
+  ltiRosterLink: 'Σύνδεση context',
+  ltiRosterSync: 'Συγχρονισμός roster',
+  ltiRosterLinked: 'Το LTI context συνδέθηκε με αυτή την τάξη.',
+  ltiRosterSyncDone: 'Roster συγχρονίστηκε',
+  ltiLaunchWelcome: 'Σύνδεση μέσω LTI deep link',
   gradebook: 'Βαθμολόγιο',
   gradebookHint: 'Βαθμοί (0–100) ανά μαθητή και ανάθεση. Αποθηκεύονται στον teacher server.',
   gradebookEmpty: 'Πρόσθεσε μαθητές και αναθέσεις για τον πίνακα βαθμολογίου.',

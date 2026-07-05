@@ -227,7 +227,14 @@ export default function App() {
   const demoDeepLinkFired = useRef(false);
   const viewDeepLinkFired = useRef(false);
   const samlDeepLinkFired = useRef(false);
+  const ltiDeepLinkFired = useRef(false);
   const [samlEmailHint, setSamlEmailHint] = useState<string | null>(null);
+  const [ltiLaunchHint, setLtiLaunchHint] = useState<{
+    contextId: string;
+    contextTitle?: string;
+    email?: string;
+    linkedClassId?: string;
+  } | null>(null);
 
   const closeReviewSession = () => {
     store.setReviewSessionOpen(false);
@@ -732,6 +739,38 @@ export default function App() {
     window.history.replaceState({}, '', qs ? `${window.location.pathname}?${qs}` : window.location.pathname);
   }, [store]);
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('lti') !== '1' || ltiDeepLinkFired.current) return;
+    ltiDeepLinkFired.current = true;
+    const contextId = params.get('lti_context');
+    if (params.get('lti_verified') === '1' && contextId) {
+      setLtiLaunchHint({
+        contextId,
+        contextTitle: params.get('lti_context_title') ?? undefined,
+        email: params.get('lti_email') ?? undefined,
+        linkedClassId: params.get('lti_linked_class') ?? undefined,
+      });
+      store.navigate('teacher');
+    }
+    for (const key of [
+      'lti',
+      'lti_verified',
+      'lti_sub',
+      'lti_email',
+      'lti_role',
+      'lti_context',
+      'lti_context_title',
+      'lti_linked_class',
+      'lti_state',
+      'lti_error',
+    ]) {
+      params.delete(key);
+    }
+    const qs = params.toString();
+    window.history.replaceState({}, '', qs ? `${window.location.pathname}?${qs}` : window.location.pathname);
+  }, [store]);
+
   // Landing page
   if (store.currentView === 'landing') {
     return (
@@ -894,6 +933,7 @@ export default function App() {
               localCourses={store.courses}
               activities={store.activities}
               learnerModel={store.learnerModel}
+              ltiLaunchHint={ltiLaunchHint}
               onOpenCourse={(id) => {
                 const course = store.courses.find((c) => c.id === id);
                 if (course) store.openCourseReview(course);

@@ -54,6 +54,7 @@ export type ProductionProbeStatus = {
     classAnnouncements: boolean;
     studentOrgCalendar: boolean;
     assignmentDiscussion: boolean;
+    ltiRosterSync: boolean;
   };
 };
 
@@ -129,6 +130,7 @@ export async function getProductionProbeStatus(): Promise<ProductionProbeStatus>
       classAnnouncements: true,
       studentOrgCalendar: true,
       assignmentDiscussion: true,
+      ltiRosterSync: true,
     },
   };
 }

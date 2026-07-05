@@ -279,3 +279,70 @@ export async function ltiPassbackClassGrades(
   }
   return count;
 }
+
+export async function fetchLtiLaunchContext(
+  token: string,
+  settings: UserSettings,
+  ltiContextId: string,
+) {
+  const res = await fetch(
+    `${proxyBase(settings)}/v1/lti/launch-context/${encodeURIComponent(ltiContextId)}`,
+    { headers: authHeaders(token) },
+  );
+  if (!res.ok) throw new Error(await res.text());
+  return (await res.json()) as {
+    ltiContextId: string;
+    contextTitle?: string;
+    hasNrpsUrl: boolean;
+    linkedClassId?: string;
+  };
+}
+
+export async function linkLtiClassContext(
+  token: string,
+  settings: UserSettings,
+  classId: string,
+  payload: { ltiContextId: string; contextTitle?: string; nrpsUrl?: string },
+) {
+  const res = await fetch(`${proxyBase(settings)}/v1/lti/classes/${classId}/context-link`, {
+    method: 'POST',
+    headers: authHeaders(token),
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return (await res.json()) as {
+    link: {
+      classId: string;
+      ltiContextId: string;
+      contextTitle?: string;
+      linkedAt: string;
+    };
+  };
+}
+
+export async function syncLtiClassRoster(
+  token: string,
+  settings: UserSettings,
+  classId: string,
+  payload?: {
+    ltiContextId?: string;
+    members?: Array<{ userId?: string; email?: string; displayName?: string; roles?: string[] }>;
+    useStub?: boolean;
+  },
+) {
+  const res = await fetch(`${proxyBase(settings)}/v1/lti/classes/${classId}/roster-sync`, {
+    method: 'POST',
+    headers: authHeaders(token),
+    body: JSON.stringify(payload ?? {}),
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return (await res.json()) as {
+    classId: string;
+    ltiContextId: string;
+    added: number;
+    skipped: number;
+    total: number;
+    syncedAt: string;
+    source: 'nrps' | 'stub';
+  };
+}
