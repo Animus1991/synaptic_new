@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { SPACED_ABSOLUTE_ADVANTAGE } from './greekOcrFixtures';
-import { analyzeTextHygiene, textLayerLooksCorrupted } from './textQualityMetrics';
+import { analyzeTextHygiene, hygieneFlagLabel, textLayerLooksCorrupted } from './textQualityMetrics';
 import { runDocumentTextPipeline } from './documentTextPipeline';
 
 describe('textQualityMetrics', () => {
@@ -15,5 +15,11 @@ describe('textQualityMetrics', () => {
     const repaired = runDocumentTextPipeline(SPACED_ABSOLUTE_ADVANTAGE).text;
     const after = analyzeTextHygiene(repaired);
     expect(after.corruptionScore).toBeLessThan(analyzeTextHygiene(SPACED_ABSOLUTE_ADVANTAGE).corruptionScore);
+  });
+
+  it('labels hygiene flags in EN and EL', () => {
+    expect(hygieneFlagLabel('spaced-glyphs', 'en')).toBe('Spaced glyphs');
+    expect(hygieneFlagLabel('spaced-glyphs', 'el')).toContain('γράμματα');
+    expect(hygieneFlagLabel('unknown-flag', 'en')).toBe('unknown flag');
   });
 });

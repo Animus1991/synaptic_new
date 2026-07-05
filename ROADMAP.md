@@ -205,7 +205,8 @@ Re-upload / reprocess: courses analyzed before v2.4.0 keep stored extractedText.
 | **Sprint I** | ~~Knowledge graph v2 on Course; Agent relation explanations~~ → shipped Jul 2026 |
 | **Sprint J** | ~~Reader occlusion-from-selection; UploadModal configure i18n~~ → shipped Jul 2026 |
 | **Sprint K** | ~~Residual lib/helper i18n (selection, Leitner, occlusion, graph prompts)~~ → shipped Jul 2026 |
-| i18n | `textQualityMetrics.ts` struct pick (low priority) |
+| **Production scale (L+)** | Multi-tenant isolation, Redis rate limits, org RBAC, pgvector RAG at scale |
+| i18n | Wave C2 lib UI migration **complete** (intentional struct/LLM picks documented in `I18N.md`) |
 | OCR | Browser Tesseract client → stored word regions (ingest path) |
 
 ---
