@@ -9,6 +9,12 @@ export type ProductionProbeStatus = {
   pgvector: boolean;
   redis: boolean;
   vectorIndexQueue: boolean;
+  /** Sprint L1 — teacher class APIs scoped by teacher_account_id. */
+  tenantIsolation: {
+    teacherClassScoped: true;
+    postgresAccountScoped: boolean;
+    orgRbac: false;
+  };
 };
 
 let cachedPgvector: boolean | null = null;
@@ -50,5 +56,10 @@ export async function getProductionProbeStatus(): Promise<ProductionProbeStatus>
     pgvector,
     redis,
     vectorIndexQueue: redis,
+    tenantIsolation: {
+      teacherClassScoped: true,
+      postgresAccountScoped: database,
+      orgRbac: false,
+    },
   };
 }

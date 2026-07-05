@@ -52,6 +52,10 @@ describe('server integration sweep', () => {
     expect(res.body.ok).toBe(true);
     expect(res.body.production).toBeDefined();
     expect(res.body.features.rateLimitBackend).toMatch(/redis|memory/);
+    expect(res.body.multiTenant).toBeDefined();
+    expect(res.body.multiTenant.teacherClassScoped).toBe(true);
+    expect(res.body.multiTenant.orgRbac).toBe(false);
+    expect(typeof res.body.multiTenant.postgresAccountScoped).toBe('boolean');
   });
 
   it('POST /auth/register creates an account', async () => {
@@ -349,6 +353,85 @@ describe('server integration sweep', () => {
       .set('Authorization', `Bearer ${token}`)
       .expect(200);
     expect(book.body.cells).toHaveLength(1);
+  });
+
+  it('teacher B cannot access teacher A class roster, assignments, or gradebook (404)', async () => {
+    const teacherA = await request(app)
+      .post('/auth/register')
+      .send({ email: 'tenant_a@example.com', password: 'password123' })
+      .expect(201);
+    const tokenA = teacherA.body.token as string;
+
+    const teacherB = await request(app)
+      .post('/auth/register')
+      .send({ email: 'tenant_b@example.com', password: 'password123' })
+      .expect(201);
+    const tokenB = teacherB.body.token as string;
+
+    const cls = await request(app)
+      .post('/v1/teacher/classes')
+      .set('Authorization', `Bearer ${tokenA}`)
+      .send({ name: 'Tenant A Secret Class' })
+      .expect(201);
+    const classId = cls.body.id as string;
+
+    await request(app)
+      .post(`/v1/teacher/classes/${classId}/roster`)
+      .set('Authorization', `Bearer ${tokenA}`)
+      .send({ email: 'student@school.edu', displayName: 'Sam' })
+      .expect(201);
+
+    const assignment = await request(app)
+      .post(`/v1/teacher/classes/${classId}/assignments`)
+      .set('Authorization', `Bearer ${tokenA}`)
+      .send({ title: 'Private quiz' })
+      .expect(201);
+
+    const notFound = { error: 'class not found' };
+
+    await request(app)
+      .get(`/v1/teacher/classes/${classId}/roster`)
+      .set('Authorization', `Bearer ${tokenB}`)
+      .expect(404, notFound);
+
+    await request(app)
+      .post(`/v1/teacher/classes/${classId}/roster`)
+      .set('Authorization', `Bearer ${tokenB}`)
+      .send({ email: 'intruder@school.edu' })
+      .expect(404, notFound);
+
+    await request(app)
+      .get(`/v1/teacher/classes/${classId}/assignments`)
+      .set('Authorization', `Bearer ${tokenB}`)
+      .expect(404, notFound);
+
+    await request(app)
+      .post(`/v1/teacher/classes/${classId}/assignments`)
+      .set('Authorization', `Bearer ${tokenB}`)
+      .send({ title: 'Injected assignment' })
+      .expect(404, notFound);
+
+    await request(app)
+      .delete(`/v1/teacher/classes/${classId}/assignments/${assignment.body.id}`)
+      .set('Authorization', `Bearer ${tokenB}`)
+      .expect(404, notFound);
+
+    await request(app)
+      .get(`/v1/teacher/classes/${classId}/gradebook`)
+      .set('Authorization', `Bearer ${tokenB}`)
+      .expect(404, notFound);
+
+    await request(app)
+      .patch(`/v1/teacher/classes/${classId}/gradebook`)
+      .set('Authorization', `Bearer ${tokenB}`)
+      .send({ enrollmentId: 'fake', assignmentId: assignment.body.id, score: 100 })
+      .expect(404, notFound);
+
+    const ownerRoster = await request(app)
+      .get(`/v1/teacher/classes/${classId}/roster`)
+      .set('Authorization', `Bearer ${tokenA}`)
+      .expect(200);
+    expect(ownerRoster.body.roster).toHaveLength(1);
   });
 
   it('POST /v1/billing/webhook deduplicates Stripe event ids', async () => {

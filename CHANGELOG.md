@@ -7,6 +7,9 @@ client and server are versioned together.
 
 ### Added
 
+- **Sprint L1 — server tenant isolation + health probe (Jul 2026)** —
+  `tenantGuard.ts` centralizes `requireTeacherClass()` for roster/assignments/gradebook routes;
+  `GET /health` exposes `multiTenant` isolation flags; unit + integration tests for cross-teacher 404.
 - **Sprint K — lib helper i18n (Jul 2026)** —
   Wave C2 batch 19: migrate residual G–J lib helpers to central `i18n.ts`
   (`workspaceSelectionActions`, `leitnerCardSources`, `leitnerCardTypes`,

@@ -27,8 +27,19 @@ This document separates **done**, **partial**, and **missing** against the produ
 | i18n | **~92%** | UploadModal configure/processing i18n; exam prep ~135 keys |
 | UI/UX / themes | **~89%** | Platform shortcut badges; Warm Sand + Spectrum |
 
-**Overall product-scale readiness: ~99%** — Sprint I–K shipped (Jul 2026).
-Next: production multi-tenant scale.
+**Overall product-scale readiness: ~99%** — Sprint I–L1 shipped (Jul 2026).
+Next: Sprint L2 (Redis-backed rate limits) + org RBAC.
+
+---
+
+## Sprint L1 — server tenant isolation + health probe — shipped (Jul 2026)
+
+| Scope | Deliverable |
+| ----- | ----------- |
+| **Tenant guard** | `tenantGuard.ts` — `requireTeacherClass()` for class-scoped routes |
+| **Teacher routes** | Roster, assignments, gradebook gated via guard (404, no cross-tenant leak) |
+| **Health probe** | `GET /health` exposes `multiTenant` (`teacherClassScoped`, `postgresAccountScoped`, `orgRbac`) |
+| **Tests** | `tenantGuard.test.ts`, `classStore.test.ts`, integration cross-tenant sweep |
 
 ---
 
@@ -205,7 +216,8 @@ Re-upload / reprocess: courses analyzed before v2.4.0 keep stored extractedText.
 | **Sprint I** | ~~Knowledge graph v2 on Course; Agent relation explanations~~ → shipped Jul 2026 |
 | **Sprint J** | ~~Reader occlusion-from-selection; UploadModal configure i18n~~ → shipped Jul 2026 |
 | **Sprint K** | ~~Residual lib/helper i18n (selection, Leitner, occlusion, graph prompts)~~ → shipped Jul 2026 |
-| **Production scale (L+)** | Multi-tenant isolation, Redis rate limits, org RBAC, pgvector RAG at scale |
+| **Sprint L1** | ~~Server tenant isolation + health probe + tests~~ → shipped Jul 2026 |
+| **Production scale (L2+)** | Redis rate limits, org RBAC, pgvector RAG at scale |
 | i18n | Wave C2 lib UI migration **complete** (intentional struct/LLM picks documented in `I18N.md`) |
 | OCR | Browser Tesseract client → stored word regions (ingest path) |
 

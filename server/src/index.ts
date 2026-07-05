@@ -48,6 +48,7 @@ export function createApp(): express.Application {
       anonymous: config.allowAnonymous,
       database: production.database,
       production,
+      multiTenant: production.tenantIsolation,
       features: {
         embeddings: Boolean(config.upstreamApiKey),
         rag: Boolean(config.upstreamApiKey),

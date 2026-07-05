@@ -1,6 +1,6 @@
 # Product-scale status (canonical snapshot)
 
-**Last reconciled:** 2026-07-05 — aligned through **Sprint K** (lib helper i18n, Jul 2026).
+**Last reconciled:** 2026-07-05 — aligned through **Sprint L1** (server tenant isolation, Jul 2026).
 
 This file is the **single shipped-truth status doc**. Use it for readiness reviews,
 sprint close-outs, and investor/contributor snapshots.
@@ -16,9 +16,22 @@ sprint close-outs, and investor/contributor snapshots.
 
 ## Overall readiness
 
-**~99% product-scale** — … **Sprint J** (reader occlusion-from-selection, UploadModal configure i18n), and
-**Sprint K** (residual lib helper i18n) landed (Jul 2026).
-Remaining gaps: production multi-tenant scale.
+**~99% product-scale** — … **Sprint J** (reader occlusion-from-selection, UploadModal configure i18n),
+**Sprint K** (residual lib helper i18n), and **Sprint L1** (server tenant isolation + health probe) landed (Jul 2026).
+Remaining gaps: Sprint L2 Redis rate limits, org RBAC.
+
+---
+
+## Sprint L1 — server tenant isolation — shipped (Jul 2026)
+
+| Scope | Deliverable |
+| ----- | ----------- |
+| **Tenant guard** | `requireTeacherClass()` — class-scoped teacher APIs return 404 for non-owners |
+| **Routes** | Roster, assignments, gradebook refactored through guard |
+| **Health** | `/health` → `multiTenant.teacherClassScoped`, `postgresAccountScoped`, `orgRbac: false` |
+| **Tests** | `tenantGuard.test.ts`, `classStore.test.ts`, integration cross-tenant sweep |
+
+Regression gate: `cd server && npm test`.
 
 ---
 
@@ -78,7 +91,7 @@ including `greek-syllabus-reader.spec.ts`, `workspace-empty-tools.spec.ts`,
 
 Regression gate: `npm test` 926/926; `npm run i18n-lint`; `npm run typecheck`.
 
-**Next:** production multi-tenant scale.
+**Next:** Sprint L2 — Redis-backed rate limits (multi-replica scale).
 
 ---
 

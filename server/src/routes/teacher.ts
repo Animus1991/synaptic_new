@@ -12,12 +12,12 @@ import {
 import {
   addClassEnrollmentAsync,
   createTeacherClassAsync,
-  getTeacherClassAsync,
   listClassRosterAsync,
   listTeacherClassesAsync,
   removeClassEnrollmentAsync,
   rosterCountAsync,
 } from '../store/classStore';
+import { requireTeacherClass } from '../lib/tenantGuard';
 import {
   createClassAssignmentAsync,
   listClassAssignmentsAsync,
@@ -196,21 +196,21 @@ teacherRouter.post('/teacher/classes', async (req, res) => {
 /** GET /v1/teacher/classes/:classId/roster */
 teacherRouter.get('/teacher/classes/:classId/roster', async (req, res) => {
   const account = req.account!;
-  const cls = await getTeacherClassAsync(req.params.classId, account.id);
-  if (!cls) {
-    res.status(404).json({ error: 'class not found' });
+  const owned = await requireTeacherClass(req.params.classId, account.id);
+  if (!owned.ok) {
+    res.status(owned.status).json({ error: owned.error });
     return;
   }
-  const roster = await listClassRosterAsync(cls.id);
-  res.json({ class: cls, roster });
+  const roster = await listClassRosterAsync(owned.class.id);
+  res.json({ class: owned.class, roster });
 });
 
 /** POST /v1/teacher/classes/:classId/roster — enroll student by email. */
 teacherRouter.post('/teacher/classes/:classId/roster', async (req, res) => {
   const account = req.account!;
-  const cls = await getTeacherClassAsync(req.params.classId, account.id);
-  if (!cls) {
-    res.status(404).json({ error: 'class not found' });
+  const owned = await requireTeacherClass(req.params.classId, account.id);
+  if (!owned.ok) {
+    res.status(owned.status).json({ error: owned.error });
     return;
   }
   const body = req.body as { email?: string; displayName?: string; mastery?: number };
@@ -218,7 +218,7 @@ teacherRouter.post('/teacher/classes/:classId/roster', async (req, res) => {
     res.status(400).json({ error: 'email required' });
     return;
   }
-  const row = await addClassEnrollmentAsync(cls.id, {
+  const row = await addClassEnrollmentAsync(owned.class.id, {
     email: body.email,
     displayName: body.displayName,
     mastery: body.mastery,
@@ -233,38 +233,38 @@ teacherRouter.post('/teacher/classes/:classId/roster', async (req, res) => {
 /** DELETE /v1/teacher/classes/:classId/roster/:enrollmentId */
 teacherRouter.delete('/teacher/classes/:classId/roster/:enrollmentId', async (req, res) => {
   const account = req.account!;
-  const cls = await getTeacherClassAsync(req.params.classId, account.id);
-  if (!cls) {
-    res.status(404).json({ error: 'class not found' });
+  const owned = await requireTeacherClass(req.params.classId, account.id);
+  if (!owned.ok) {
+    res.status(owned.status).json({ error: owned.error });
     return;
   }
-  const ok = await removeClassEnrollmentAsync(cls.id, req.params.enrollmentId);
+  const ok = await removeClassEnrollmentAsync(owned.class.id, req.params.enrollmentId);
   if (!ok) {
     res.status(404).json({ error: 'enrollment not found' });
     return;
   }
-  await removeGradebookCellsForEnrollmentAsync(cls.id, req.params.enrollmentId);
+  await removeGradebookCellsForEnrollmentAsync(owned.class.id, req.params.enrollmentId);
   res.status(204).send();
 });
 
 /** GET /v1/teacher/classes/:classId/assignments */
 teacherRouter.get('/teacher/classes/:classId/assignments', async (req, res) => {
   const account = req.account!;
-  const cls = await getTeacherClassAsync(req.params.classId, account.id);
-  if (!cls) {
-    res.status(404).json({ error: 'class not found' });
+  const owned = await requireTeacherClass(req.params.classId, account.id);
+  if (!owned.ok) {
+    res.status(owned.status).json({ error: owned.error });
     return;
   }
-  const assignments = await listClassAssignmentsAsync(cls.id);
-  res.json({ classId: cls.id, assignments });
+  const assignments = await listClassAssignmentsAsync(owned.class.id);
+  res.json({ classId: owned.class.id, assignments });
 });
 
 /** POST /v1/teacher/classes/:classId/assignments */
 teacherRouter.post('/teacher/classes/:classId/assignments', async (req, res) => {
   const account = req.account!;
-  const cls = await getTeacherClassAsync(req.params.classId, account.id);
-  if (!cls) {
-    res.status(404).json({ error: 'class not found' });
+  const owned = await requireTeacherClass(req.params.classId, account.id);
+  if (!owned.ok) {
+    res.status(owned.status).json({ error: owned.error });
     return;
   }
   const body = req.body as { title?: string; description?: string; dueAt?: string; courseId?: string };
@@ -272,7 +272,7 @@ teacherRouter.post('/teacher/classes/:classId/assignments', async (req, res) => 
     res.status(400).json({ error: 'title required' });
     return;
   }
-  const created = await createClassAssignmentAsync(cls.id, {
+  const created = await createClassAssignmentAsync(owned.class.id, {
     title: body.title,
     description: body.description,
     dueAt: body.dueAt,
@@ -284,13 +284,13 @@ teacherRouter.post('/teacher/classes/:classId/assignments', async (req, res) => 
 /** PATCH /v1/teacher/classes/:classId/assignments/:assignmentId */
 teacherRouter.patch('/teacher/classes/:classId/assignments/:assignmentId', async (req, res) => {
   const account = req.account!;
-  const cls = await getTeacherClassAsync(req.params.classId, account.id);
-  if (!cls) {
-    res.status(404).json({ error: 'class not found' });
+  const owned = await requireTeacherClass(req.params.classId, account.id);
+  if (!owned.ok) {
+    res.status(owned.status).json({ error: owned.error });
     return;
   }
   const body = req.body as { title?: string; description?: string; dueAt?: string; courseId?: string };
-  const updated = await updateClassAssignmentAsync(cls.id, req.params.assignmentId, body);
+  const updated = await updateClassAssignmentAsync(owned.class.id, req.params.assignmentId, body);
   if (!updated) {
     res.status(404).json({ error: 'assignment not found' });
     return;
@@ -301,35 +301,35 @@ teacherRouter.patch('/teacher/classes/:classId/assignments/:assignmentId', async
 /** DELETE /v1/teacher/classes/:classId/assignments/:assignmentId */
 teacherRouter.delete('/teacher/classes/:classId/assignments/:assignmentId', async (req, res) => {
   const account = req.account!;
-  const cls = await getTeacherClassAsync(req.params.classId, account.id);
-  if (!cls) {
-    res.status(404).json({ error: 'class not found' });
+  const owned = await requireTeacherClass(req.params.classId, account.id);
+  if (!owned.ok) {
+    res.status(owned.status).json({ error: owned.error });
     return;
   }
-  const ok = await removeClassAssignmentAsync(cls.id, req.params.assignmentId);
+  const ok = await removeClassAssignmentAsync(owned.class.id, req.params.assignmentId);
   if (!ok) {
     res.status(404).json({ error: 'assignment not found' });
     return;
   }
-  await removeGradebookCellsForAssignmentAsync(cls.id, req.params.assignmentId);
+  await removeGradebookCellsForAssignmentAsync(owned.class.id, req.params.assignmentId);
   res.status(204).send();
 });
 
 /** GET /v1/teacher/classes/:classId/gradebook — student × assignment score matrix. */
 teacherRouter.get('/teacher/classes/:classId/gradebook', async (req, res) => {
   const account = req.account!;
-  const cls = await getTeacherClassAsync(req.params.classId, account.id);
-  if (!cls) {
-    res.status(404).json({ error: 'class not found' });
+  const owned = await requireTeacherClass(req.params.classId, account.id);
+  if (!owned.ok) {
+    res.status(owned.status).json({ error: owned.error });
     return;
   }
   const [roster, assignments, gradebook] = await Promise.all([
-    listClassRosterAsync(cls.id),
-    listClassAssignmentsAsync(cls.id),
-    getGradebookAsync(cls.id),
+    listClassRosterAsync(owned.class.id),
+    listClassAssignmentsAsync(owned.class.id),
+    getGradebookAsync(owned.class.id),
   ]);
   res.json({
-    classId: cls.id,
+    classId: owned.class.id,
     roster,
     assignments,
     cells: gradebook.cells,
@@ -339,9 +339,9 @@ teacherRouter.get('/teacher/classes/:classId/gradebook', async (req, res) => {
 /** PATCH /v1/teacher/classes/:classId/gradebook — upsert a grade cell. */
 teacherRouter.patch('/teacher/classes/:classId/gradebook', async (req, res) => {
   const account = req.account!;
-  const cls = await getTeacherClassAsync(req.params.classId, account.id);
-  if (!cls) {
-    res.status(404).json({ error: 'class not found' });
+  const owned = await requireTeacherClass(req.params.classId, account.id);
+  if (!owned.ok) {
+    res.status(owned.status).json({ error: owned.error });
     return;
   }
   const body = req.body as {
@@ -355,8 +355,8 @@ teacherRouter.patch('/teacher/classes/:classId/gradebook', async (req, res) => {
     return;
   }
   const [roster, assignments] = await Promise.all([
-    listClassRosterAsync(cls.id),
-    listClassAssignmentsAsync(cls.id),
+    listClassRosterAsync(owned.class.id),
+    listClassAssignmentsAsync(owned.class.id),
   ]);
   if (!roster.some((r) => r.id === body.enrollmentId)) {
     res.status(404).json({ error: 'enrollment not found' });
@@ -366,7 +366,7 @@ teacherRouter.patch('/teacher/classes/:classId/gradebook', async (req, res) => {
     res.status(404).json({ error: 'assignment not found' });
     return;
   }
-  const cell = await upsertGradebookCellAsync(cls.id, {
+  const cell = await upsertGradebookCellAsync(owned.class.id, {
     enrollmentId: body.enrollmentId,
     assignmentId: body.assignmentId,
     status: body.status,
