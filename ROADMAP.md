@@ -27,8 +27,20 @@ This document separates **done**, **partial**, and **missing** against the produ
 | i18n | **~92%** | UploadModal configure/processing i18n; exam prep ~135 keys |
 | UI/UX / themes | **~89%** | Platform shortcut badges; Warm Sand + Spectrum |
 
-**Overall product-scale readiness: ~99%** — Sprint I–L6 shipped (Jul 2026).
-Remaining: App Store binaries, full SAML XML signature validation, brand/GTM.
+**Overall product-scale readiness: ~99%** — Sprint I–L7 shipped (Jul 2026).
+Remaining: App Store binaries, SOC2/DPA deployment, brand/GTM.
+
+---
+
+## Sprint L7 — student org UI & SAML crypto — shipped (Jul 2026)
+
+| Priority | Gap | Deliverable |
+| -------- | --- | ----------- |
+| **P0** | Student org UI (Canvas parity) | `GET /v1/student/dashboard` + summary/upcoming panels + org filter |
+| **P0** | SAML XML signature | `samlXmlVerify.ts` — `xml-crypto` + `SAML_IDP_CERT` fingerprint verify |
+| **P1** | SAML SSO deep link | App `?saml=1&saml_email=` → `student-org` view |
+| **P1** | Assignment status UX | graded/submitted/pending/overdue badges + completion bars |
+| **—** | Brand / GTM | Not code — marketing backlog |
 
 ---
 

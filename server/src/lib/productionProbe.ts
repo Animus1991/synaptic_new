@@ -39,6 +39,12 @@ export type ProductionProbeStatus = {
     neuralAudioPodcast: boolean;
     cohortHeatmap: boolean;
   };
+  /** Sprint L7 — student org UI + SAML crypto. */
+  l7Enterprise: {
+    samlXmlSignature: boolean;
+    studentOrgDashboard: boolean;
+    studentOrgUi: boolean;
+  };
 };
 
 let cachedPgvector: boolean | null = null;
@@ -100,6 +106,11 @@ export async function getProductionProbeStatus(): Promise<ProductionProbeStatus>
       ltiAgsOAuth: Boolean(config.ltiAgsTokenUrl && config.ltiAgsClientSecret),
       neuralAudioPodcast: Boolean(config.upstreamApiKey),
       cohortHeatmap: true,
+    },
+    l7Enterprise: {
+      samlXmlSignature: Boolean(config.samlIdpCert),
+      studentOrgDashboard: true,
+      studentOrgUi: true,
     },
   };
 }

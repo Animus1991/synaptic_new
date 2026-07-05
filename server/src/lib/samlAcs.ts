@@ -1,4 +1,5 @@
 import { config } from '../config';
+import { verifySamlXmlSignature } from './samlXmlVerify';
 
 export type SamlAcsResult =
   | { ok: true; email: string; nameId?: string; sessionIndex?: string }
@@ -44,12 +45,9 @@ export function parseSamlAcsResponse(body: {
   const xml = decodeSamlXml(samlResponse);
   if (!xml) return { ok: false, error: 'Invalid SAMLResponse encoding' };
 
-  if (config.samlIdpCert?.trim()) {
-    const certMarker = 'BEGIN CERTIFICATE';
-    if (!xml.includes(certMarker) && !xml.includes('Signature')) {
-      return { ok: false, error: 'SAML response missing signature — IdP cert validation required' };
-    }
-  }
+  const idpCert = config.samlIdpCert?.trim() ?? '';
+  const sigCheck = verifySamlXmlSignature(xml, idpCert);
+  if (!sigCheck.ok) return { ok: false, error: sigCheck.error };
 
   const nameId =
     extractXmlValue(xml, 'NameID') ??

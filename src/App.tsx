@@ -226,6 +226,8 @@ export default function App() {
 
   const demoDeepLinkFired = useRef(false);
   const viewDeepLinkFired = useRef(false);
+  const samlDeepLinkFired = useRef(false);
+  const [samlEmailHint, setSamlEmailHint] = useState<string | null>(null);
 
   const closeReviewSession = () => {
     store.setReviewSessionOpen(false);
@@ -716,6 +718,20 @@ export default function App() {
     store.navigate(view as AppView);
   }, [hasCourses, store]);
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('saml') !== '1' || samlDeepLinkFired.current) return;
+    samlDeepLinkFired.current = true;
+    const email = params.get('saml_email');
+    if (email) setSamlEmailHint(email);
+    store.navigate('student-org');
+    params.delete('saml');
+    params.delete('saml_email');
+    params.delete('relay_state');
+    const qs = params.toString();
+    window.history.replaceState({}, '', qs ? `${window.location.pathname}?${qs}` : window.location.pathname);
+  }, [store]);
+
   // Landing page
   if (store.currentView === 'landing') {
     return (
@@ -891,6 +907,7 @@ export default function App() {
             <StudentOrgView
               settings={store.user.settings}
               lang={store.user.settings.language}
+              samlEmailHint={samlEmailHint}
               onOpenCourse={(id) => {
                 const course = store.courses.find((c) => c.id === id);
                 if (course) store.openCourseReview(course);

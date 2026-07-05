@@ -74,6 +74,7 @@ export function createApp(): express.Application {
         collabWebSocketUrl: `ws://localhost:${config.collabPort}`,
         l4Enterprise: production.l4Enterprise,
         l6Enterprise: production.l6Enterprise,
+        l7Enterprise: production.l7Enterprise,
       },
     });
   });

@@ -589,6 +589,14 @@ describe('server integration sweep', () => {
     expect(health.body.features.l4Enterprise.ltiGradePassback).toBe(true);
     expect(health.body.features.l6Enterprise).toBeDefined();
     expect(health.body.features.l6Enterprise.cohortHeatmap).toBe(true);
+    expect(health.body.features.l7Enterprise).toBeDefined();
+    expect(health.body.features.l7Enterprise.studentOrgDashboard).toBe(true);
+
+    const studentDash = await request(app)
+      .get('/v1/student/dashboard')
+      .set('Authorization', `Bearer ${studentToken}`)
+      .expect(200);
+    expect(typeof studentDash.body.classCount).toBe('number');
 
     const samlXml = Buffer.from(
       '<saml:Assertion xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion"><saml:Subject><saml:NameID>saml@test.edu</saml:NameID></saml:Subject><Signature/></saml:Assertion>',

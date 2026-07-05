@@ -6,6 +6,7 @@ import {
 import { listClassAssignmentsAsync } from '../store/assignmentStore';
 import { getGradebookAsync } from '../store/gradebookStore';
 import { listOrgsForAccountAsync, getOrgMembershipAsync } from '../store/orgStore';
+import { computeStudentDashboardAsync } from '../lib/studentDashboard';
 
 export const studentRouter = Router();
 
@@ -42,4 +43,11 @@ studentRouter.get('/student/orgs', async (req, res) => {
     }),
   );
   res.json({ orgs: rows });
+});
+
+/** GET /v1/student/dashboard — Canvas-style student org summary (classes, grades, upcoming). */
+studentRouter.get('/student/dashboard', async (req, res) => {
+  const account = req.account!;
+  const snapshot = await computeStudentDashboardAsync(account.id, account.email);
+  res.json(snapshot);
 });
