@@ -22,6 +22,7 @@ import type { AssignmentRow, ClassEnrollmentRow, GradebookCellRow, TeacherClassR
 import { listLearningEvents, countLearningEventsByType } from '../lib/learningEvents';
 import type { TeacherDashboardResponse } from '../lib/teacherDashboardTypes';
 import { getTeacherContent } from '../lib/teacherContent';
+import { fetchOrgs, fetchOrgAnalytics, downloadGradebookCsv, type OrgAnalytics } from '../lib/orgClient';
 import { formatDateTime, formatShortDate, localeTag } from '../lib/localeFormat';
 import { cn } from '../utils/cn';
 
@@ -59,6 +60,7 @@ export function TeacherDashboard({
   const [assignmentTitle, setAssignmentTitle] = useState('');
   const [assignmentDue, setAssignmentDue] = useState('');
   const [classBusy, setClassBusy] = useState(false);
+  const [orgAnalytics, setOrgAnalytics] = useState<OrgAnalytics | null>(null);
   const localEvents = countLearningEventsByType();
   const recentEvents = listLearningEvents(8);
   const locale = localeTag(lang);
@@ -86,6 +88,17 @@ export function TeacherDashboard({
       if (classJson.classes.length === 0) {
         setSelectedClassId(null);
         setRoster([]);
+      }
+      try {
+        const orgJson = await fetchOrgs(settings.authToken, settings);
+        if (orgJson.orgs[0]) {
+          const analytics = await fetchOrgAnalytics(settings.authToken, settings, orgJson.orgs[0]!.id);
+          setOrgAnalytics(analytics);
+        } else {
+          setOrgAnalytics(null);
+        }
+      } catch {
+        setOrgAnalytics(null);
       }
     } catch (err) {
       setError((err as Error).message);
@@ -300,10 +313,38 @@ export function TeacherDashboard({
 
       {signedIn && (
         <div
-          className="rounded-xl border border-border-subtle bg-surface-card/60 px-4 py-3 text-xs text-text-secondary"
+          className="rounded-xl border border-border-subtle bg-surface-card/60 px-4 py-3 text-xs text-text-secondary space-y-2"
           data-testid="teacher-cohort-roadmap"
         >
-          {ui.cohortRoadmap}
+          <p>{ui.cohortRoadmap}</p>
+          {orgAnalytics ? (
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2 border-t border-border-subtle/50" data-testid="teacher-cohort-analytics">
+              <div>
+                <p className="text-[10px] text-text-muted">{ui.cohortStudents}</p>
+                <p className="text-sm font-semibold text-text-primary">{orgAnalytics.totalStudents}</p>
+              </div>
+              <div>
+                <p className="text-[10px] text-text-muted">{ui.cohortCompletion}</p>
+                <p className="text-sm font-semibold text-text-primary">
+                  {orgAnalytics.completionRate != null ? `${Math.round(orgAnalytics.completionRate * 100)}%` : '—'}
+                </p>
+              </div>
+              <div>
+                <p className="text-[10px] text-text-muted">{ui.cohortAvgMastery}</p>
+                <p className="text-sm font-semibold text-text-primary">
+                  {orgAnalytics.avgMastery != null ? `${Math.round(orgAnalytics.avgMastery)}%` : '—'}
+                </p>
+              </div>
+              <div>
+                <p className="text-[10px] text-text-muted">{ui.cohortAvgScore}</p>
+                <p className="text-sm font-semibold text-text-primary">
+                  {orgAnalytics.avgScore != null ? `${Math.round(orgAnalytics.avgScore)}%` : '—'}
+                </p>
+              </div>
+            </div>
+          ) : (
+            <p className="text-[10px] text-text-muted">{ui.noOrgAnalytics}</p>
+          )}
         </div>
       )}
 
@@ -522,7 +563,28 @@ export function TeacherDashboard({
               </div>
 
               <div className="space-y-3 pt-4 border-t border-border-subtle" data-testid="teacher-gradebook">
-                <h3 className="text-sm font-semibold">{ui.gradebook}</h3>
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <h3 className="text-sm font-semibold">{ui.gradebook}</h3>
+                  {selectedClassId && settings.authToken && (
+                    <button
+                      type="button"
+                      data-testid="teacher-export-gradebook"
+                      className="text-xs text-brand-700 hover:underline"
+                      onClick={() => {
+                        void downloadGradebookCsv(settings.authToken!, settings, selectedClassId).then((blob) => {
+                          const url = URL.createObjectURL(blob);
+                          const a = document.createElement('a');
+                          a.href = url;
+                          a.download = `gradebook-${selectedClassId}.csv`;
+                          a.click();
+                          URL.revokeObjectURL(url);
+                        });
+                      }}
+                    >
+                      {ui.exportGradebookCsv}
+                    </button>
+                  )}
+                </div>
                 <p className="text-[11px] text-text-muted">{ui.gradebookHint}</p>
                 {roster.length === 0 || assignments.length === 0 ? (
                   <p className="text-xs text-text-muted">{ui.gradebookEmpty}</p>

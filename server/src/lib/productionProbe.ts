@@ -22,6 +22,14 @@ export type ProductionProbeStatus = {
     postgresAccountScoped: boolean;
     orgRbac: true;
   };
+  /** Sprint L4 — enterprise gap closure (LTI, audit, async jobs). */
+  l4Enterprise: {
+    auditLogs: boolean;
+    lti: boolean;
+    samlMetadata: boolean;
+    transcribeQueue: boolean;
+    orgAnalytics: true;
+  };
 };
 
 let cachedPgvector: boolean | null = null;
@@ -68,6 +76,13 @@ export async function getProductionProbeStatus(): Promise<ProductionProbeStatus>
       teacherClassScoped: true,
       postgresAccountScoped: database,
       orgRbac: true,
+    },
+    l4Enterprise: {
+      auditLogs: database,
+      lti: Boolean(config.ltiClientId || config.ltiPlatformAuthUrl),
+      samlMetadata: Boolean(config.samlEntityId),
+      transcribeQueue: redis,
+      orgAnalytics: true,
     },
   };
 }

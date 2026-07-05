@@ -28,6 +28,7 @@ import { courseDeleteStats } from '../lib/removeCourse';
 import { isDemoCourse } from '../lib/demoMode';
 import { conceptGraphToCourseVisual, summarizeCourseGraph } from '../lib/courseConceptGraph';
 import { PostUploadBanner } from './ui/PostUploadBanner';
+import { AudioStudyGuideButton } from './AudioStudyGuideButton';
 import { Page, PageHeader } from './ui/primitives';
 import { QualityReportPanel } from './QualityReportPanel';
 
@@ -219,6 +220,7 @@ export function CourseView({
               <Sparkles className="w-4 h-4 text-brand-600" />
               Ask agent
             </button>
+            <AudioStudyGuideButton course={course} lang={lang} />
             <button
               type="button"
               onClick={() => onStartLesson()}

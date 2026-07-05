@@ -47,6 +47,7 @@ import { subscribeTakeBreathPrompt } from './lib/examPrep/takeBreathEvents';
 const Agent = lazyWithRetry(() => import('./components/Agent').then((m) => ({ default: m.Agent })), 'agent');
 const Analytics = lazyWithRetry(() => import('./components/Analytics').then((m) => ({ default: m.Analytics })), 'analytics');
 const TeacherDashboard = lazyWithRetry(() => import('./components/TeacherDashboard').then((m) => ({ default: m.TeacherDashboard })), 'teacher');
+const StudentOrgView = lazyWithRetry(() => import('./components/StudentOrgView').then((m) => ({ default: m.StudentOrgView })), 'student-org');
 const LessonView = lazyWithRetry(() => import('./components/LessonView').then((m) => ({ default: m.LessonView })), 'lesson');
 const PracticalLessonView = lazyWithRetry(() => import('./components/PracticalLessonView').then((m) => ({ default: m.PracticalLessonView })), 'practical-lesson');
 const ReviewSessionView = lazyWithRetry(() => import('./components/ReviewSessionView').then((m) => ({ default: m.ReviewSessionView })), 'review-session');
@@ -707,7 +708,7 @@ export default function App() {
     const params = new URLSearchParams(window.location.search);
     const view = params.get('view');
     if (!view || viewDeepLinkFired.current) return;
-    const allowed: AppView[] = ['dashboard', 'library', 'tasks', 'agent', 'analytics', 'teacher', 'settings'];
+    const allowed: AppView[] = ['dashboard', 'library', 'tasks', 'agent', 'analytics', 'teacher', 'student-org', 'settings'];
     if (!allowed.includes(view as AppView)) return;
     viewDeepLinkFired.current = true;
     if (!hasCourses) store.enableDemoContent();
@@ -875,6 +876,19 @@ export default function App() {
               localCourses={store.courses}
               activities={store.activities}
               learnerModel={store.learnerModel}
+              onOpenCourse={(id) => {
+                const course = store.courses.find((c) => c.id === id);
+                if (course) store.openCourseReview(course);
+              }}
+              onOpenSettings={() => store.navigate('settings')}
+            />
+            </LazyOverlay>
+          )}
+          {store.currentView === 'student-org' && (
+            <LazyOverlay>
+            <StudentOrgView
+              settings={store.user.settings}
+              lang={store.user.settings.language}
               onOpenCourse={(id) => {
                 const course = store.courses.find((c) => c.id === id);
                 if (course) store.openCourseReview(course);

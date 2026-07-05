@@ -16,6 +16,8 @@ import { nlpRouter } from './routes/nlp';
 import { ragRouter } from './routes/rag';
 import { teacherRouter } from './routes/teacher';
 import { orgRouter } from './routes/org';
+import { ltiRouter } from './routes/lti';
+import { studentRouter } from './routes/student';
 import { ocrRouter } from './routes/ocr';
 import { transcribeRouter } from './routes/transcribe';
 import { chunkErrorsRouter } from './routes/chunkErrors';
@@ -26,6 +28,8 @@ import { accountRouter } from './routes/account';
 import { studyRoomsRouter } from './routes/studyRooms';
 import { bootstrapStudyRoomsFromPg } from './store/studyRoomPgStore';
 import { initVectorIndexQueue } from './jobs/vectorIndexQueue';
+import { initTranscribeQueue } from './jobs/transcribeQueue';
+import { auditLogMiddleware } from './middleware/auditLog';
 import { startStudyRoomCollab } from './collab/studyRoomCollab';
 
 export function createApp(): express.Application {
@@ -66,6 +70,7 @@ export function createApp(): express.Application {
         pgvectorRag: production.pgvector,
         collab: true,
         collabWebSocketUrl: `ws://localhost:${config.collabPort}`,
+        l4Enterprise: production.l4Enterprise,
       },
     });
   });
@@ -73,6 +78,7 @@ export function createApp(): express.Application {
   app.use('/auth', authRouter);
   app.use('/auth', googleAuthRouter);
   app.use('/v1', rateLimit);
+  app.use('/v1', auditLogMiddleware);
   app.use('/v1', usageRouter);
   app.use('/v1', libraryRouter);
   app.use('/v1', sessionRouter);
@@ -85,6 +91,8 @@ export function createApp(): express.Application {
   app.use('/v1', transcribeRouter);
   app.use('/v1', teacherRouter);
   app.use('/v1', orgRouter);
+  app.use('/v1', ltiRouter);
+  app.use('/v1', studentRouter);
   app.use('/v1', googleIntegrationsRouter);
   app.use('/v1', googleCalendarRouter);
   app.use('/v1', accountRouter);
@@ -106,6 +114,7 @@ export async function startServer(): Promise<void> {
   }
   await bootstrapStudyRoomsFromPg(config.databaseUrl);
   initVectorIndexQueue();
+  initTranscribeQueue();
 
   const production = await getProductionProbeStatus();
   if (production.database) {

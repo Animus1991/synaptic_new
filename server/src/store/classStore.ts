@@ -178,6 +178,24 @@ export async function removeClassEnrollmentAsync(
   return removeClassEnrollment(classId, enrollmentId);
 }
 
+export type StudentClassRow = {
+  enrollment: ClassEnrollment;
+  class: TeacherClass;
+};
+
+export async function listStudentClassesAsync(studentEmail: string): Promise<StudentClassRow[]> {
+  const email = studentEmail.trim().toLowerCase();
+  if (!email) return [];
+  if (pgRepo) return pgRepo.listStudentEnrollments(email);
+  const rows: StudentClassRow[] = [];
+  for (const cls of classes.values()) {
+    const roster = enrollments.get(rosterKey(cls.id)) ?? [];
+    const enr = roster.find((e) => e.studentEmail === email);
+    if (enr) rows.push({ enrollment: enr, class: cls });
+  }
+  return rows.sort((a, b) => b.enrollment.enrolledAt.localeCompare(a.enrollment.enrolledAt));
+}
+
 /** Test helper */
 export function resetClassStore(): void {
   classes.clear();

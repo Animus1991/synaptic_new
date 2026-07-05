@@ -49,6 +49,14 @@ export const config = {
   ).replace(/\/$/, ''),
   /** WebSocket port for Yjs/Hocuspocus study-room collab (defaults to HTTP port + 1). */
   collabPort: num(process.env.COLLAB_PORT, num(process.env.PORT, 8787) + 1),
+  /** LTI 1.3 pilot — institutional LMS integration (Canvas, Moodle, etc.). */
+  ltiClientId: process.env.LTI_CLIENT_ID?.trim() || undefined,
+  ltiPlatformAuthUrl: process.env.LTI_PLATFORM_AUTH_URL?.trim() || undefined,
+  ltiPlatformIssuer: process.env.LTI_PLATFORM_ISSUER?.trim() || undefined,
+  ltiPrivateKey: process.env.LTI_PRIVATE_KEY?.replace(/\\n/g, '\n').trim() || undefined,
+  ltiPublicKey: process.env.LTI_PUBLIC_KEY?.replace(/\\n/g, '\n').trim() || undefined,
+  /** SAML SP entity ID for enterprise SSO metadata (/v1/auth/saml/metadata). */
+  samlEntityId: process.env.SAML_ENTITY_ID?.trim() || undefined,
 };
 
 export type Plan = 'free' | 'pro' | 'team';

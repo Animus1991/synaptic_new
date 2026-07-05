@@ -4,6 +4,8 @@ import { enforceQuota } from '../middleware/usage';
 import { addUsageAsync } from '../store/accounts';
 import { retrieveTopK, searchGlobalLibrary, searchGlobalLibraryGraph } from '../lib/ragServer';
 import { indexLibraryVectors } from '../lib/libraryVectorIndex';
+import { synthesizeFromLibraryAsync } from '../lib/ragSynthesize';
+import { getVectorChunkStore } from '../store/vectorChunkStore';
 import type { StoredLibrary } from '../store/libraryStore';
 
 export const ragRouter = Router();
@@ -89,5 +91,46 @@ ragRouter.post('/rag/query', async (req, res) => {
     res.json({ results });
   } catch {
     res.status(502).json({ error: 'RAG retrieval failed' });
+  }
+});
+
+/** GET /v1/rag/status — indexed chunk count and pgvector readiness. */
+ragRouter.get('/rag/status', async (req, res) => {
+  const account = req.account!;
+  const store = getVectorChunkStore();
+  const indexedChunks = await store.count(account.id);
+  res.json({
+    indexedChunks,
+    global: true,
+    ready: indexedChunks > 0,
+    checkedAt: new Date().toISOString(),
+  });
+});
+
+/** POST /v1/rag/synthesize — cross-library multi-doc synthesis (NotebookLM parity). */
+ragRouter.post('/rag/synthesize', async (req, res) => {
+  const account = req.account!;
+  const body = req.body as {
+    query?: string;
+    topK?: number;
+    courseIds?: string[];
+    lang?: 'en' | 'el';
+  };
+  const query = typeof body.query === 'string' ? body.query.trim() : '';
+  if (!query) {
+    res.status(400).json({ error: 'query required' });
+    return;
+  }
+  try {
+    const result = await synthesizeFromLibraryAsync(account.id, query, {
+      topK: body.topK,
+      courseIds: body.courseIds,
+      lang: body.lang,
+    });
+    const estTokens = Math.ceil((query.length + result.synthesis.length) / 4);
+    await addUsageAsync(account, estTokens, estTokens);
+    res.json(result);
+  } catch {
+    res.status(502).json({ error: 'RAG synthesis failed' });
   }
 });

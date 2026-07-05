@@ -1,6 +1,7 @@
 import { Router, type Request, type Response } from 'express';
 import { authenticate } from '../middleware/auth';
 import { config } from '../config';
+import { enqueueTranscribeJob, getTranscribeJob } from '../jobs/transcribeQueue';
 
 export const transcribeRouter = Router();
 
@@ -91,4 +92,48 @@ transcribeRouter.post('/transcribe', authenticate, async (req: Request, res: Res
   } catch (e) {
     res.status(500).json({ error: e instanceof Error ? e.message : 'Transcription failed' });
   }
+});
+
+/** POST /v1/transcribe/jobs — async Whisper job (StudyFetch-style video summarization pipeline). */
+transcribeRouter.post('/transcribe/jobs', authenticate, async (req, res) => {
+  const account = req.account!;
+  const body = req.body as {
+    audioBase64?: string;
+    filename?: string;
+    language?: string;
+  };
+  if (!body.audioBase64?.trim()) {
+    res.status(400).json({ error: 'audioBase64 required' });
+    return;
+  }
+  if (!config.upstreamApiKey) {
+    res.status(503).json({ error: 'Transcription service not configured' });
+    return;
+  }
+  const job = enqueueTranscribeJob({
+    accountId: account.id,
+    audioBase64: body.audioBase64.trim(),
+    filename: body.filename?.trim() || 'audio.mp3',
+    language: body.language?.trim(),
+  });
+  res.status(202).json({ jobId: job.id, status: job.status, createdAt: job.createdAt });
+});
+
+/** GET /v1/transcribe/jobs/:jobId — poll async transcription status. */
+transcribeRouter.get('/transcribe/jobs/:jobId', authenticate, (req, res) => {
+  const account = req.account!;
+  const job = getTranscribeJob(req.params.jobId, account.id);
+  if (!job) {
+    res.status(404).json({ error: 'job not found' });
+    return;
+  }
+  res.json({
+    jobId: job.id,
+    status: job.status,
+    text: job.resultText,
+    language: job.language,
+    error: job.error,
+    createdAt: job.createdAt,
+    completedAt: job.completedAt,
+  });
 });

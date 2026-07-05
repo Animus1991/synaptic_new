@@ -2,7 +2,7 @@
 import {
   BookOpen, CheckSquare, Robot as Bot, SquaresFour as LayoutDashboard, Gear as Settings,
   Sparkle as Sparkles, List as Menu, X, UploadSimple as Upload, Bell, MagnifyingGlass as Search, CaretRight as ChevronRight,
-  ChartBar as BarChart3, Sun, Moon, Users,   Fire as Flame, SquaresFour as Layout, Wind,
+  ChartBar as BarChart3, Sun, Moon, Users,   Fire as Flame, SquaresFour as Layout, Wind, GraduationCap,
 } from '@phosphor-icons/react';
 import type { AppView, User, DashboardStats, UserSettings } from '../types';
 import { cn } from '../utils/cn';
@@ -48,6 +48,7 @@ const navViews: { view: AppView; icon: typeof BookOpen; labelKey: I18nKey }[] = 
   { view: 'agent', icon: Bot, labelKey: 'agent' },
   { view: 'analytics', icon: BarChart3, labelKey: 'analytics' },
   { view: 'teacher', icon: Users, labelKey: 'teacher' },
+  { view: 'student-org', icon: GraduationCap, labelKey: 'studentOrg' },
   { view: 'settings', icon: Settings, labelKey: 'settings' },
 ];
 
@@ -76,6 +77,7 @@ const NAV_SUBTITLES: Partial<Record<AppView, I18nKey>> = {
   agent: 'navSubtitleAgent',
   analytics: 'navSubtitleAnalytics',
   teacher: 'navSubtitleTeacher',
+  'student-org': 'navSubtitleStudentOrg',
   settings: 'navSubtitleSettings',
 };
 

@@ -502,6 +502,66 @@ describe('server integration sweep', () => {
     expect(orgClasses.body.classes[0].name).toBe('Physics 101');
   });
 
+  it('Sprint L4: org analytics, student classes, LTI jwks, rag status', async () => {
+    const admin = await request(app)
+      .post('/auth/register')
+      .send({ email: 'l4admin@example.com', password: 'password123' })
+      .expect(201);
+    const adminToken = admin.body.token as string;
+
+    const student = await request(app)
+      .post('/auth/register')
+      .send({ email: 'l4student@example.com', password: 'password123' })
+      .expect(201);
+    const studentToken = student.body.token as string;
+
+    const org = await request(app)
+      .post('/v1/orgs')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({ name: 'L4 Academy' })
+      .expect(201);
+    const orgId = org.body.id as string;
+
+    const orgClass = await request(app)
+      .post(`/v1/orgs/${orgId}/classes`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({ name: 'Bio 101' })
+      .expect(201);
+    const classId = orgClass.body.id as string;
+
+    await request(app)
+      .post(`/v1/teacher/classes/${classId}/roster`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({ email: 'l4student@example.com', displayName: 'Student L4' })
+      .expect(201);
+
+    const analytics = await request(app)
+      .get(`/v1/orgs/${orgId}/analytics`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .expect(200);
+    expect(analytics.body.orgId).toBe(orgId);
+    expect(analytics.body.totalStudents).toBeGreaterThanOrEqual(1);
+
+    const studentClasses = await request(app)
+      .get('/v1/student/classes')
+      .set('Authorization', `Bearer ${studentToken}`)
+      .expect(200);
+    expect(studentClasses.body.classes.length).toBeGreaterThanOrEqual(1);
+
+    const jwks = await request(app).get('/v1/lti/jwks').expect(200);
+    expect(Array.isArray(jwks.body.keys)).toBe(true);
+
+    const ragStatus = await request(app)
+      .get('/v1/rag/status')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .expect(200);
+    expect(typeof ragStatus.body.indexedChunks).toBe('number');
+
+    const health = await request(app).get('/health').expect(200);
+    expect(health.body.features.l4Enterprise).toBeDefined();
+    expect(health.body.features.l4Enterprise.orgAnalytics).toBe(true);
+  });
+
   it('POST /v1/billing/webhook deduplicates Stripe event ids', async () => {
     const reg = await request(app)
       .post('/auth/register')

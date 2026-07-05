@@ -44,6 +44,9 @@ export interface TeacherRepository {
   ): Promise<GradebookCell>;
   removeGradebookCellsForEnrollment(classId: string, enrollmentId: string): Promise<void>;
   removeGradebookCellsForAssignment(classId: string, assignmentId: string): Promise<void>;
+  listStudentEnrollments(studentEmail: string): Promise<
+    { enrollment: ClassEnrollment; class: TeacherClass }[]
+  >;
 }
 
 function rowToClass(row: {
@@ -463,6 +466,53 @@ export function createPostgresTeacherRepo(databaseUrl: string): TeacherRepositor
         'DELETE FROM gradebook_cells WHERE class_id = $1 AND assignment_id = $2',
         [classId, assignmentId],
       );
+    },
+
+    async listStudentEnrollments(studentEmail: string) {
+      const email = studentEmail.trim().toLowerCase();
+      const res = await pool.query<{
+        enr_id: string;
+        class_id: string;
+        student_email: string;
+        display_name: string | null;
+        mastery: number | null;
+        last_active: Date | null;
+        enrolled_at: Date;
+        tc_id: string;
+        teacher_account_id: string;
+        org_id: string | null;
+        name: string;
+        course_id: string | null;
+        created_at: Date;
+      }>(
+        `SELECT e.id AS enr_id, e.class_id, e.student_email, e.display_name, e.mastery,
+                e.last_active, e.enrolled_at,
+                c.id AS tc_id, c.teacher_account_id, c.org_id, c.name, c.course_id, c.created_at
+         FROM class_enrollments e
+         JOIN teacher_classes c ON c.id = e.class_id
+         WHERE LOWER(e.student_email) = $1
+         ORDER BY e.enrolled_at DESC`,
+        [email],
+      );
+      return res.rows.map((row) => ({
+        enrollment: {
+          id: row.enr_id,
+          classId: row.class_id,
+          studentEmail: row.student_email,
+          displayName: row.display_name ?? undefined,
+          mastery: row.mastery ?? undefined,
+          lastActive: row.last_active?.toISOString(),
+          enrolledAt: row.enrolled_at.toISOString(),
+        },
+        class: rowToClass({
+          id: row.tc_id,
+          teacher_account_id: row.teacher_account_id,
+          org_id: row.org_id,
+          name: row.name,
+          course_id: row.course_id,
+          created_at: row.created_at,
+        }),
+      }));
     },
   };
 }

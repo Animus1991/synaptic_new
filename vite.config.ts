@@ -88,13 +88,24 @@ export default defineConfig({
       manifest: {
         name: "Synapse",
         short_name: "Synapse",
+        description: "AI study workspace — offline-first ingest, FSRS, institution RBAC",
         theme_color: "#0f0a1e",
+        background_color: "#0f0a1e",
+        display: "standalone",
+        orientation: "portrait-primary",
+        start_url: "/",
         icons: [
           {
             src: "/favicon.svg",
             sizes: "any",
             type: "image/svg+xml",
             purpose: "any",
+          },
+          {
+            src: "/favicon.svg",
+            sizes: "512x512",
+            type: "image/svg+xml",
+            purpose: "maskable",
           },
         ],
       },

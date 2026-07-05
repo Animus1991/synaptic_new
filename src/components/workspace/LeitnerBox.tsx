@@ -1,6 +1,6 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 
-import { Layers, RotateCcw, Download } from '@/lib/lucide-shim';
+import { Layers, RotateCcw, Download, Upload } from '@/lib/lucide-shim';
 
 import { cn } from '../../utils/cn';
 
@@ -15,7 +15,8 @@ import { downloadAnkiDeck } from '../../lib/ankiExport';
 import { buildDueHeatmap } from '../../lib/leitnerDueHeatmap';
 import { leitnerCardSourceLabel } from '../../lib/leitnerCardSources';
 import { inferLeitnerCardType, leitnerCardTypeLabel } from '../../lib/leitnerCardTypes';
-import type { LeitnerCard } from '../../lib/leitnerSessionModel';
+import { readAnkiFile } from '../../lib/ankiImport';
+import { mergeLeitnerCards, type LeitnerCard } from '../../lib/leitnerSessionModel';
 
 import { saveDeckState, syncDeckState } from '../../lib/leitnerDeckSync';
 
@@ -105,6 +106,16 @@ export function LeitnerBox({
   const [dueCount, setDueCount] = useState(0);
 
   const [finished, setFinished] = useState(false);
+  const importRef = useRef<HTMLInputElement>(null);
+
+  const handleAnkiImport = useCallback(async (file: File) => {
+    const parsed = await readAnkiFile(file);
+    const imported: LeitnerCard[] = parsed.map((c) => ({ front: c.front, back: c.back }));
+    setDeck((prev) => mergeLeitnerCards(prev, imported));
+    setIndex(0);
+    setFinished(false);
+    onSessionDirty?.();
+  }, [onSessionDirty]);
 
 
 
@@ -310,7 +321,7 @@ export function LeitnerBox({
 
             onClick={() => downloadAnkiDeck(deck, `Synapse — ${concept || 'deck'}`, `synapse-${concept || 'deck'}`, concept ? [concept] : [])}
 
-            className="ml-auto flex items-center gap-1 text-[10px] font-medium text-brand-700 hover:text-brand-800 border border-brand-500/30 rounded-lg px-2 py-0.5"
+            className="flex items-center gap-1 text-[10px] font-medium text-brand-700 hover:text-brand-800 border border-brand-500/30 rounded-lg px-2 py-0.5"
 
             title={t('leitnerExportAnki')}
 
@@ -323,6 +334,29 @@ export function LeitnerBox({
           </button>
 
         )}
+
+        <input
+          ref={importRef}
+          type="file"
+          accept=".txt,.tsv,text/plain"
+          className="hidden"
+          data-testid="leitner-import-anki-input"
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            if (file) void handleAnkiImport(file);
+            e.target.value = '';
+          }}
+        />
+        <button
+          type="button"
+          data-testid="leitner-import-anki"
+          onClick={() => importRef.current?.click()}
+          className="flex items-center gap-1 text-[10px] font-medium text-text-secondary hover:text-text-primary border border-border-subtle rounded-lg px-2 py-0.5"
+          title={lang === 'el' ? 'Εισαγωγή Anki TSV' : 'Import Anki TSV'}
+        >
+          <Upload className="w-3 h-3" />
+          {lang === 'el' ? 'Εισαγωγή' : 'Import'}
+        </button>
 
       </h3>
 

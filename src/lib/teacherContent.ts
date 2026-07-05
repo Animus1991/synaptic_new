@@ -75,6 +75,13 @@ export type TeacherContent = {
   gradebookEmpty: string;
   gradebookScorePlaceholder: string;
   colOverallMastery: string;
+  cohortAnalytics: string;
+  cohortStudents: string;
+  cohortCompletion: string;
+  cohortAvgMastery: string;
+  cohortAvgScore: string;
+  exportGradebookCsv: string;
+  noOrgAnalytics: string;
 };
 
 const EN: TeacherContent = {
@@ -84,7 +91,7 @@ const EN: TeacherContent = {
   signInRequired: 'Sign in required for the teacher dashboard.',
   signInHint: 'Sign in via Settings → Proxy account to load server usage, quotas, and synced library stats.',
   openSettingsCta: 'Open Settings to sign in',
-  cohortRoadmap: 'Manage class rosters and assignments below. Cohort analytics are on the roadmap.',
+  cohortRoadmap: 'Manage class rosters and assignments below. Cohort analytics load when you belong to an organization.',
   lastSynced: 'Last synced',
   courses: 'Courses',
   coursesInLibrary: 'in library',
@@ -152,6 +159,13 @@ const EN: TeacherContent = {
   gradebookEmpty: 'Add students and assignments to use the gradebook matrix.',
   gradebookScorePlaceholder: '—',
   colOverallMastery: 'Overall',
+  cohortAnalytics: 'Cohort analytics',
+  cohortStudents: 'Students',
+  cohortCompletion: 'Completion',
+  cohortAvgMastery: 'Avg mastery',
+  cohortAvgScore: 'Avg score',
+  exportGradebookCsv: 'Export CSV',
+  noOrgAnalytics: 'Create an organization (org_admin) to view cohort analytics.',
 };
 
 const EL: TeacherContent = {
@@ -161,7 +175,7 @@ const EL: TeacherContent = {
   signInRequired: 'Σύνδεση απαιτείται για τον πίνακα εκπαιδευτή.',
   signInHint: 'Συνδέσου στο proxy από τις Ρυθμίσεις για χρήση, quotas και βιβλιοθήκη server-side.',
   openSettingsCta: 'Άνοιγμα Ρυθμίσεων για σύνδεση',
-  cohortRoadmap: 'Διαχειρίσου καταλόγους τάξεων και αναθέσεις παρακάτω. Cohort analytics έρχονται σύντομα.',
+  cohortRoadmap: 'Διαχειρίσου καταλόγους τάξεων και αναθέσεις παρακάτω. Cohort analytics φορτώνονται όταν ανήκεις σε οργανισμό.',
   lastSynced: 'Τελευταίος συγχρονισμός',
   courses: 'Μαθήματα',
   coursesInLibrary: 'στη βιβλιοθήκη',
@@ -229,6 +243,13 @@ const EL: TeacherContent = {
   gradebookEmpty: 'Πρόσθεσε μαθητές και αναθέσεις για τον πίνακα βαθμολογίου.',
   gradebookScorePlaceholder: '—',
   colOverallMastery: 'Συνολική',
+  cohortAnalytics: 'Cohort analytics',
+  cohortStudents: 'Μαθητές',
+  cohortCompletion: 'Ολοκλήρωση',
+  cohortAvgMastery: 'Μ.Ο. επίδοσης',
+  cohortAvgScore: 'Μ.Ο. βαθμού',
+  exportGradebookCsv: 'Εξαγωγή CSV',
+  noOrgAnalytics: 'Δημιούργησε οργανισμό (org_admin) για cohort analytics.',
 };
 
 export function getTeacherContent(lang: Lang): TeacherContent {

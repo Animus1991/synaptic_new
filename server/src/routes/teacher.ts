@@ -374,3 +374,42 @@ teacherRouter.patch('/teacher/classes/:classId/gradebook', async (req, res) => {
   });
   res.json(cell);
 });
+
+/** GET /v1/teacher/classes/:classId/gradebook/export.csv — grade export for LMS import. */
+teacherRouter.get('/teacher/classes/:classId/gradebook/export.csv', async (req, res) => {
+  const account = req.account!;
+  const owned = await requireTeacherClass(req.params.classId, account.id);
+  if (!owned.ok) {
+    res.status(owned.status).json({ error: owned.error });
+    return;
+  }
+  const [roster, assignments, gradebook] = await Promise.all([
+    listClassRosterAsync(owned.class.id),
+    listClassAssignmentsAsync(owned.class.id),
+    getGradebookAsync(owned.class.id),
+  ]);
+  const header = ['Student', 'Email', ...assignments.map((a) => a.title), 'Overall Mastery'];
+  const lines = [header.map((h) => `"${h.replace(/"/g, '""')}"`).join(',')];
+  for (const student of roster) {
+    const cols = [
+      student.displayName ?? student.studentEmail,
+      student.studentEmail,
+      ...assignments.map((a) => {
+        const cell = gradebook.cells.find(
+          (c) => c.enrollmentId === student.id && c.assignmentId === a.id,
+        );
+        if (cell?.score != null) return String(cell.score);
+        return cell?.status ?? '';
+      }),
+      student.mastery != null ? String(student.mastery) : '',
+    ];
+    lines.push(cols.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(','));
+  }
+  const csv = lines.join('\n');
+  res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+  res.setHeader(
+    'Content-Disposition',
+    `attachment; filename="gradebook-${owned.class.id}.csv"`,
+  );
+  res.send(`\uFEFF${csv}`);
+});

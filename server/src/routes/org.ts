@@ -16,6 +16,8 @@ import {
   listOrgsForAccountAsync,
   type OrgRole,
 } from '../store/orgStore';
+import { computeOrgAnalyticsAsync } from '../lib/orgAnalytics';
+import { listAuditLogsForOrgAsync } from '../store/auditLogStore';
 
 export const orgRouter = Router();
 
@@ -113,4 +115,18 @@ orgRouter.post('/orgs/:orgId/classes', requireOrgMember, async (req, res) => {
     orgId: req.params.orgId,
   });
   res.status(201).json(created);
+});
+
+/** GET /v1/orgs/:orgId/analytics — cohort analytics (org_admin). */
+orgRouter.get('/orgs/:orgId/analytics', requireOrgRole('org_admin'), async (req, res) => {
+  const analytics = await computeOrgAnalyticsAsync(req.params.orgId);
+  res.json(analytics);
+});
+
+/** GET /v1/orgs/:orgId/audit-logs — FERPA audit trail (org_admin). */
+orgRouter.get('/orgs/:orgId/audit-logs', requireOrgRole('org_admin'), async (req, res) => {
+  const since = req.query.since ? String(req.query.since) : undefined;
+  const limit = req.query.limit ? Number(req.query.limit) : 50;
+  const logs = await listAuditLogsForOrgAsync(req.params.orgId, { since, limit });
+  res.json({ orgId: req.params.orgId, logs });
 });

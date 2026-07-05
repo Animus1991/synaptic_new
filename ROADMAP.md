@@ -27,8 +27,26 @@ This document separates **done**, **partial**, and **missing** against the produ
 | i18n | **~92%** | UploadModal configure/processing i18n; exam prep ~135 keys |
 | UI/UX / themes | **~89%** | Platform shortcut badges; Warm Sand + Spectrum |
 
-**Overall product-scale readiness: ~99%** — Sprint I–L3 shipped (Jul 2026).
-Next: pgvector RAG at scale + student role surfaces.
+**Overall product-scale readiness: ~99%** — Sprint I–L4 shipped (Jul 2026).
+Remaining: native store apps (Capacitor sync), full SAML ACS, brand/GTM.
+
+---
+
+## Sprint L4 — competitive gap closure — shipped (Jul 2026)
+
+| Priority | Gap | Deliverable |
+| -------- | --- | ----------- |
+| **P0** | Student org UI | `StudentOrgView` + `/v1/student/classes`, Shell nav `student-org` |
+| **P0** | LTI / SAML pilot | `/v1/lti/*` (JWKS, config, login, launch), `/v1/auth/saml/metadata` |
+| **P1** | Cohort analytics | `GET /v1/orgs/:orgId/analytics` + TeacherDashboard widgets |
+| **P1** | FERPA audit | `audit_logs` migration + middleware + `GET /v1/orgs/:orgId/audit-logs` |
+| **P1** | Anki ecosystem | `ankiImport.ts` + Leitner import/export TSV |
+| **P1** | Audio study guide | `audioStudyGuide.ts` + `AudioStudyGuideButton` on CourseView |
+| **P2** | pgvector RAG scale | `GET /v1/rag/status`, `POST /v1/rag/synthesize` (multi-doc) |
+| **P2** | Video summarization | Async `POST /v1/transcribe/jobs` + BullMQ/in-memory queue |
+| **P2** | Teacher polish | Gradebook CSV export; org client; cohort cards |
+| **P2** | Mobile distribution | PWA manifest (`standalone`); `capacitor.config.ts` scaffold |
+| **—** | Brand / GTM | Not code — marketing backlog |
 
 ---
 
