@@ -27,8 +27,19 @@ This document separates **done**, **partial**, and **missing** against the produ
 | i18n | **~92%** | UploadModal configure/processing i18n; exam prep ~135 keys |
 | UI/UX / themes | **~89%** | Platform shortcut badges; Warm Sand + Spectrum |
 
-**Overall product-scale readiness: ~99%** — Sprint I–L1 shipped (Jul 2026).
-Next: Sprint L2 (Redis-backed rate limits) + org RBAC.
+**Overall product-scale readiness: ~99%** — Sprint I–L2 shipped (Jul 2026).
+Next: org RBAC (Sprint L3+).
+
+---
+
+## Sprint L2 — Redis-backed rate limits — shipped (Jul 2026)
+
+| Scope | Deliverable |
+| ----- | ----------- |
+| **Rate limit store** | `rateLimitStore.ts` — atomic Redis Lua INCR+EXPIRE; memory fallback for dev |
+| **Multi-replica** | `RATE_LIMIT_REQUIRE_REDIS` defaults true when `REDIS_URL` set — no silent per-replica fallback |
+| **Health probe** | `/health` → `production.rateLimit` + `features.rateLimitDistributed` |
+| **Tests** | `rateLimitStore.test.ts`, `rateLimit.integration.test.ts` (429 + health) |
 
 ---
 
@@ -217,7 +228,8 @@ Re-upload / reprocess: courses analyzed before v2.4.0 keep stored extractedText.
 | **Sprint J** | ~~Reader occlusion-from-selection; UploadModal configure i18n~~ → shipped Jul 2026 |
 | **Sprint K** | ~~Residual lib/helper i18n (selection, Leitner, occlusion, graph prompts)~~ → shipped Jul 2026 |
 | **Sprint L1** | ~~Server tenant isolation + health probe + tests~~ → shipped Jul 2026 |
-| **Production scale (L2+)** | Redis rate limits, org RBAC, pgvector RAG at scale |
+| **Sprint L2** | ~~Redis-backed distributed rate limits + require-Redis mode~~ → shipped Jul 2026 |
+| **Production scale (L3+)** | Org RBAC, pgvector RAG at scale |
 | i18n | Wave C2 lib UI migration **complete** (intentional struct/LLM picks documented in `I18N.md`) |
 | OCR | Browser Tesseract client → stored word regions (ingest path) |
 

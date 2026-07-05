@@ -56,7 +56,9 @@ export function createApp(): express.Application {
         refreshTokens: true,
         ocr: true,
         rateLimitRpm: config.rateLimitRpm,
-        rateLimitBackend: production.redis ? 'redis' : 'memory',
+        rateLimitBackend: production.rateLimit.backend,
+        rateLimitDistributed: production.rateLimit.distributed,
+        rateLimitRequireRedis: production.rateLimit.requireRedis,
         googleOAuth: Boolean(config.googleClientId && config.googleClientSecret),
         studyRooms: true,
         vectorIndexQueue: production.vectorIndexQueue,
@@ -109,6 +111,10 @@ export async function startServer(): Promise<void> {
   }
   if (production.redis) {
     console.log('[synapse-proxy] Redis: connected (rate limit + BullMQ)');
+  } else if (config.redisUrl && config.rateLimitRequireRedis) {
+    console.warn(
+      '[synapse-proxy] REDIS_URL is set but Redis is unreachable — rate limiting will return 503 until Redis is available',
+    );
   }
 
   app.listen(config.port, () => {

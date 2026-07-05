@@ -1,5 +1,6 @@
 import pg from 'pg';
 import { config } from '../config';
+import { getRateLimitStatus } from './rateLimitStore';
 import { probeRedis } from './redisClient';
 
 const { Pool } = pg;
@@ -9,6 +10,12 @@ export type ProductionProbeStatus = {
   pgvector: boolean;
   redis: boolean;
   vectorIndexQueue: boolean;
+  /** Sprint L2 — distributed rate limiting across API replicas. */
+  rateLimit: {
+    backend: 'redis' | 'memory';
+    distributed: boolean;
+    requireRedis: boolean;
+  };
   /** Sprint L1 — teacher class APIs scoped by teacher_account_id. */
   tenantIsolation: {
     teacherClassScoped: true;
@@ -16,7 +23,6 @@ export type ProductionProbeStatus = {
     orgRbac: false;
   };
 };
-
 let cachedPgvector: boolean | null = null;
 
 /** True when pgvector extension and library_chunks table are available. */
@@ -56,6 +62,7 @@ export async function getProductionProbeStatus(): Promise<ProductionProbeStatus>
     pgvector,
     redis,
     vectorIndexQueue: redis,
+    rateLimit: getRateLimitStatus(redis),
     tenantIsolation: {
       teacherClassScoped: true,
       postgresAccountScoped: database,

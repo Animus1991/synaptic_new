@@ -1,6 +1,6 @@
 # Product-scale status (canonical snapshot)
 
-**Last reconciled:** 2026-07-05 — aligned through **Sprint L1** (server tenant isolation, Jul 2026).
+**Last reconciled:** 2026-07-05 — aligned through **Sprint L2** (Redis rate limits, Jul 2026).
 
 This file is the **single shipped-truth status doc**. Use it for readiness reviews,
 sprint close-outs, and investor/contributor snapshots.
@@ -17,8 +17,22 @@ sprint close-outs, and investor/contributor snapshots.
 ## Overall readiness
 
 **~99% product-scale** — … **Sprint J** (reader occlusion-from-selection, UploadModal configure i18n),
-**Sprint K** (residual lib helper i18n), and **Sprint L1** (server tenant isolation + health probe) landed (Jul 2026).
-Remaining gaps: Sprint L2 Redis rate limits, org RBAC.
+**Sprint K** (residual lib helper i18n), **Sprint L1** (server tenant isolation + health probe), and
+**Sprint L2** (Redis-backed distributed rate limits) landed (Jul 2026).
+Remaining gaps: org RBAC (Sprint L3+).
+
+---
+
+## Sprint L2 — Redis-backed rate limits — shipped (Jul 2026)
+
+| Scope | Deliverable |
+| ----- | ----------- |
+| **Distributed store** | `rateLimitStore.ts` — Redis Lua INCR+EXPIRE shared across replicas |
+| **Fail-closed prod** | `RATE_LIMIT_REQUIRE_REDIS` (default on when `REDIS_URL` set) — 503 if Redis down |
+| **Health** | `production.rateLimit.distributed`, `features.rateLimitDistributed` on `/health` |
+| **Tests** | `rateLimitStore.test.ts` (6), `rateLimit.integration.test.ts` (429 sweep) |
+
+Regression gate: `cd server && npm test`.
 
 ---
 
@@ -91,7 +105,7 @@ including `greek-syllabus-reader.spec.ts`, `workspace-empty-tools.spec.ts`,
 
 Regression gate: `npm test` 926/926; `npm run i18n-lint`; `npm run typecheck`.
 
-**Next:** Sprint L2 — Redis-backed rate limits (multi-replica scale).
+**Next:** org RBAC (institution → classes → students).
 
 ---
 

@@ -3,6 +3,7 @@ import { config } from '../config';
 type RedisLike = {
   incr(key: string): Promise<number>;
   expire(key: string, seconds: number): Promise<number>;
+  eval(script: string, numKeys: number, ...args: string[]): Promise<number>;
   ping(): Promise<string>;
   quit(): Promise<string>;
 };

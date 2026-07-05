@@ -7,6 +7,10 @@ client and server are versioned together.
 
 ### Added
 
+- **Sprint L2 — Redis-backed rate limits (Jul 2026)** —
+  `rateLimitStore.ts` with atomic Redis Lua counter; `RATE_LIMIT_REQUIRE_REDIS`
+  fail-closed when `REDIS_URL` set; `/health` exposes `rateLimitDistributed`;
+  unit + integration tests for 429 and health probe.
 - **Sprint L1 — server tenant isolation + health probe (Jul 2026)** —
   `tenantGuard.ts` centralizes `requireTeacherClass()` for roster/assignments/gradebook routes;
   `GET /health` exposes `multiTenant` isolation flags; unit + integration tests for cross-teacher 404.

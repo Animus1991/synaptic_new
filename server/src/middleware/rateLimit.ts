@@ -1,10 +1,6 @@
 import type { NextFunction, Request, Response } from 'express';
 import { config } from '../config';
-import { getRedisClient } from '../lib/redisClient';
-
-type Bucket = { count: number; resetAt: number };
-
-const memoryBuckets = new Map<string, Bucket>();
+import { checkRateLimit, resetRateLimitStoreForTests } from '../lib/rateLimitStore';
 
 function bucketKey(req: Request): string {
   const account = req.account?.id ?? 'anon';
@@ -12,46 +8,9 @@ function bucketKey(req: Request): string {
   return `${account}:${ip}`;
 }
 
-function memoryRateLimit(key: string, limit: number, windowMs: number): { allowed: boolean; retrySec: number } {
-  const now = Date.now();
-  let bucket = memoryBuckets.get(key);
-  if (!bucket || bucket.resetAt <= now) {
-    bucket = { count: 0, resetAt: now + windowMs };
-    memoryBuckets.set(key, bucket);
-  }
-  bucket.count += 1;
-  if (bucket.count > limit) {
-    return { allowed: false, retrySec: Math.ceil((bucket.resetAt - now) / 1000) };
-  }
-  return { allowed: true, retrySec: 0 };
-}
-
-async function redisRateLimit(
-  key: string,
-  limit: number,
-  windowMs: number,
-): Promise<{ allowed: boolean; retrySec: number } | null> {
-  const redis = await getRedisClient();
-  if (!redis) return null;
-  const windowKey = Math.floor(Date.now() / windowMs);
-  const redisKey = `rl:${key}:${windowKey}`;
-  try {
-    const count = await redis.incr(redisKey);
-    if (count === 1) {
-      await redis.expire(redisKey, Math.ceil(windowMs / 1000));
-    }
-    if (count > limit) {
-      return { allowed: false, retrySec: Math.ceil(windowMs / 1000) };
-    }
-    return { allowed: true, retrySec: 0 };
-  } catch {
-    return null;
-  }
-}
-
 /**
  * Sliding-window rate limiter (requests per minute).
- * Uses Redis when REDIS_URL is configured; falls back to in-process buckets.
+ * Uses Redis when REDIS_URL is configured; in-process buckets for single-node dev.
  */
 export function rateLimit(req: Request, res: Response, next: NextFunction): void {
   const limit = config.rateLimitRpm;
@@ -59,10 +18,17 @@ export function rateLimit(req: Request, res: Response, next: NextFunction): void
   const key = bucketKey(req);
 
   void (async () => {
-    const redisResult = await redisRateLimit(key, limit, windowMs);
-    const result = redisResult ?? memoryRateLimit(key, limit, windowMs);
+    const result = await checkRateLimit(key, limit, windowMs);
+    if (result.backend === 'unavailable') {
+      res.status(503).json({
+        error: 'Rate limit store unavailable',
+        hint: 'Configure REDIS_URL or set RATE_LIMIT_REQUIRE_REDIS=false for single-node dev',
+      });
+      return;
+    }
     if (!result.allowed) {
       res.setHeader('Retry-After', String(result.retrySec));
+      res.setHeader('X-RateLimit-Backend', result.backend);
       res.status(429).json({ error: 'Rate limit exceeded', retryAfterSeconds: result.retrySec });
       return;
     }
@@ -70,7 +36,7 @@ export function rateLimit(req: Request, res: Response, next: NextFunction): void
   })().catch(next);
 }
 
-/** Test helper */
+/** Test helper — re-export for existing integration tests. */
 export function resetRateLimitBucketsForTests(): void {
-  memoryBuckets.clear();
+  resetRateLimitStoreForTests();
 }

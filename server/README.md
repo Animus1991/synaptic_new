@@ -84,6 +84,8 @@ Common:
 | `ALLOW_ANONYMOUS` | `true` | When `false`, every `/v1/*` requires a JWT |
 | `DATABASE_URL` | – | Postgres connection (enables durable storage + pgvector RAG) |
 | `REDIS_URL` | – | Redis for distributed rate limiting + BullMQ vector indexing |
+| `RATE_LIMIT_RPM` | `120` | Per-account/IP requests per minute on `/v1/*` |
+| `RATE_LIMIT_REQUIRE_REDIS` | `true` when `REDIS_URL` set | Fail closed (503) if Redis unreachable; set `false` for single-node dev with Redis URL |
 | `RUN_MIGRATIONS_ON_START` | `true` | Apply pending migrations on boot |
 | `FREE_MONTHLY_TOKEN_QUOTA` | `100000` | Free plan monthly token cap |
 | `PRO_MONTHLY_TOKEN_QUOTA` | `5000000` | Pro plan monthly token cap |

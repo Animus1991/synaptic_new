@@ -52,6 +52,9 @@ describe('server integration sweep', () => {
     expect(res.body.ok).toBe(true);
     expect(res.body.production).toBeDefined();
     expect(res.body.features.rateLimitBackend).toMatch(/redis|memory/);
+    expect(res.body.production.rateLimit).toBeDefined();
+    expect(typeof res.body.production.rateLimit.distributed).toBe('boolean');
+    expect(typeof res.body.features.rateLimitDistributed).toBe('boolean');
     expect(res.body.multiTenant).toBeDefined();
     expect(res.body.multiTenant.teacherClassScoped).toBe(true);
     expect(res.body.multiTenant.orgRbac).toBe(false);
