@@ -1,4 +1,5 @@
 import pg from 'pg';
+import type { ClassAnnouncement } from './announcementStore';
 import type { ClassAssignment } from './assignmentStore';
 import type { TeacherClass, ClassEnrollment } from './classStore';
 import type { GradebookCell, GradebookCellStatus, GradebookSnapshot } from './gradebookStore';
@@ -44,6 +45,12 @@ export interface TeacherRepository {
   ): Promise<GradebookCell>;
   removeGradebookCellsForEnrollment(classId: string, enrollmentId: string): Promise<void>;
   removeGradebookCellsForAssignment(classId: string, assignmentId: string): Promise<void>;
+  listClassAnnouncements(classId: string): Promise<ClassAnnouncement[]>;
+  createClassAnnouncement(
+    classId: string,
+    payload: { title: string; body: string; authorAccountId: string },
+  ): Promise<ClassAnnouncement>;
+  removeClassAnnouncement(classId: string, announcementId: string): Promise<boolean>;
   listStudentEnrollments(studentEmail: string): Promise<
     { enrollment: ClassEnrollment; class: TeacherClass }[]
   >;
@@ -84,6 +91,24 @@ function rowToEnrollment(row: {
     mastery: row.mastery ?? undefined,
     lastActive: row.last_active?.toISOString(),
     enrolledAt: row.enrolled_at.toISOString(),
+  };
+}
+
+function rowToAnnouncement(row: {
+  id: string;
+  class_id: string;
+  author_account_id: string;
+  title: string;
+  body: string;
+  created_at: Date;
+}): ClassAnnouncement {
+  return {
+    id: row.id,
+    classId: row.class_id,
+    title: row.title,
+    body: row.body,
+    authorAccountId: row.author_account_id,
+    createdAt: row.created_at.toISOString(),
   };
 }
 
@@ -466,6 +491,61 @@ export function createPostgresTeacherRepo(databaseUrl: string): TeacherRepositor
         'DELETE FROM gradebook_cells WHERE class_id = $1 AND assignment_id = $2',
         [classId, assignmentId],
       );
+    },
+
+    async listClassAnnouncements(classId: string): Promise<ClassAnnouncement[]> {
+      const res = await pool.query<{
+        id: string;
+        class_id: string;
+        author_account_id: string;
+        title: string;
+        body: string;
+        created_at: Date;
+      }>(
+        `SELECT id, class_id, author_account_id, title, body, created_at
+         FROM class_announcements
+         WHERE class_id = $1
+         ORDER BY created_at DESC`,
+        [classId],
+      );
+      return res.rows.map(rowToAnnouncement);
+    },
+
+    async createClassAnnouncement(
+      classId: string,
+      payload: { title: string; body: string; authorAccountId: string },
+    ): Promise<ClassAnnouncement> {
+      const id = `ann_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+      const createdAt = new Date().toISOString();
+      await pool.query(
+        `INSERT INTO class_announcements
+           (id, class_id, author_account_id, title, body, created_at)
+         VALUES ($1, $2, $3, $4, $5, $6::timestamptz)`,
+        [
+          id,
+          classId,
+          payload.authorAccountId,
+          payload.title.trim() || 'Announcement',
+          payload.body.trim(),
+          createdAt,
+        ],
+      );
+      return {
+        id,
+        classId,
+        title: payload.title.trim() || 'Announcement',
+        body: payload.body.trim(),
+        authorAccountId: payload.authorAccountId,
+        createdAt,
+      };
+    },
+
+    async removeClassAnnouncement(classId: string, announcementId: string): Promise<boolean> {
+      const res = await pool.query(
+        'DELETE FROM class_announcements WHERE class_id = $1 AND id = $2',
+        [classId, announcementId],
+      );
+      return (res.rowCount ?? 0) > 0;
     },
 
     async listStudentEnrollments(studentEmail: string) {

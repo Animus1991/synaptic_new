@@ -106,6 +106,29 @@ export async function fetchStudentOrgs(token: string, settings: UserSettings) {
   };
 }
 
+export async function fetchStudentAnnouncements(
+  token: string,
+  settings: UserSettings,
+  opts?: { classId?: string },
+) {
+  const url = new URL(`${proxyBase(settings)}/v1/student/announcements`);
+  if (opts?.classId) url.searchParams.set('classId', opts.classId);
+  const res = await fetch(url.toString(), { headers: authHeaders(token) });
+  if (!res.ok) throw new Error(await res.text());
+  return (await res.json()) as {
+    email: string;
+    announcements: {
+      id: string;
+      classId: string;
+      className: string;
+      title: string;
+      body: string;
+      authorAccountId: string;
+      createdAt: string;
+    }[];
+  };
+}
+
 export async function ragSynthesize(
   token: string,
   settings: UserSettings,

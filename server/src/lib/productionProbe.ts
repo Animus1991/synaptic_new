@@ -49,6 +49,11 @@ export type ProductionProbeStatus = {
   l8Enterprise: {
     auditExport: boolean;
   };
+  /** Sprint L9 — institution depth. */
+  l9Enterprise: {
+    classAnnouncements: boolean;
+    studentOrgCalendar: boolean;
+  };
 };
 
 let cachedPgvector: boolean | null = null;
@@ -118,6 +123,10 @@ export async function getProductionProbeStatus(): Promise<ProductionProbeStatus>
     },
     l8Enterprise: {
       auditExport: true,
+    },
+    l9Enterprise: {
+      classAnnouncements: true,
+      studentOrgCalendar: true,
     },
   };
 }

@@ -39,6 +39,10 @@ export type StudentOrgContent = {
   calendarKindAssignment: string;
   calendarKindExam: string;
   calendarEmpty: string;
+  announcementsTitle: string;
+  announcementsHint: string;
+  announcementsFilterAll: string;
+  announcementsEmpty: string;
 };
 
 const EN: StudentOrgContent = {
@@ -80,6 +84,10 @@ const EN: StudentOrgContent = {
   calendarKindAssignment: 'Assignment',
   calendarKindExam: 'Exam',
   calendarEmpty: 'No calendar entries in this view.',
+  announcementsTitle: 'Announcements',
+  announcementsHint: 'Updates from your teachers across enrolled classes.',
+  announcementsFilterAll: 'All classes',
+  announcementsEmpty: 'No announcements yet.',
 };
 
 const EL: StudentOrgContent = {
@@ -121,6 +129,10 @@ const EL: StudentOrgContent = {
   calendarKindAssignment: 'Εργασία',
   calendarKindExam: 'Εξετάση',
   calendarEmpty: 'Δεν υπάρχουν εγγραφές σε αυτή την προβολή.',
+  announcementsTitle: 'Ανακοινώσεις',
+  announcementsHint: 'Ενημερώσεις από τους εκπαιδευτές στις τάξεις σου.',
+  announcementsFilterAll: 'Όλες οι τάξεις',
+  announcementsEmpty: 'Δεν υπάρχουν ανακοινώσεις ακόμα.',
 };
 
 export function getStudentOrgContent(lang: Lang): StudentOrgContent {

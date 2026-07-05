@@ -70,6 +70,13 @@ export type TeacherContent = {
   colDue: string;
   removeAssignment: string;
   noAssignments: string;
+  announcements: string;
+  announcementsHint: string;
+  announcementTitlePlaceholder: string;
+  announcementBodyPlaceholder: string;
+  createAnnouncement: string;
+  removeAnnouncement: string;
+  noAnnouncements: string;
   gradebook: string;
   gradebookHint: string;
   gradebookEmpty: string;
@@ -156,6 +163,13 @@ const EN: TeacherContent = {
   colDue: 'Due',
   removeAssignment: 'Remove',
   noAssignments: 'No assignments for this class yet.',
+  announcements: 'Announcements',
+  announcementsHint: 'Post updates to enrolled students — shown in their institution feed.',
+  announcementTitlePlaceholder: 'Announcement title',
+  announcementBodyPlaceholder: 'Message to the class…',
+  createAnnouncement: 'Post announcement',
+  removeAnnouncement: 'Remove',
+  noAnnouncements: 'No announcements for this class yet.',
   gradebook: 'Gradebook',
   gradebookHint: 'Enter scores (0–100) per student and assignment. Saved to the teacher server.',
   gradebookEmpty: 'Add students and assignments to use the gradebook matrix.',
@@ -242,6 +256,13 @@ const EL: TeacherContent = {
   colDue: 'Προθεσμία',
   removeAssignment: 'Αφαίρεση',
   noAssignments: 'Δεν υπάρχουν αναθέσεις για αυτή την τάξη.',
+  announcements: 'Ανακοινώσεις',
+  announcementsHint: 'Δημοσίευσε ενημερώσεις για τους εγγεγραμμένους μαθητές — εμφανίζονται στο institution feed.',
+  announcementTitlePlaceholder: 'Τίτλος ανακοίνωσης',
+  announcementBodyPlaceholder: 'Μήνυμα προς την τάξη…',
+  createAnnouncement: 'Δημοσίευση',
+  removeAnnouncement: 'Αφαίρεση',
+  noAnnouncements: 'Δεν υπάρχουν ανακοινώσεις για αυτή την τάξη.',
   gradebook: 'Βαθμολόγιο',
   gradebookHint: 'Βαθμοί (0–100) ανά μαθητή και ανάθεση. Αποθηκεύονται στον teacher server.',
   gradebookEmpty: 'Πρόσθεσε μαθητές και αναθέσεις για τον πίνακα βαθμολογίου.',

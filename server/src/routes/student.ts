@@ -4,6 +4,7 @@ import {
   listStudentClassesAsync,
 } from '../store/classStore';
 import { listClassAssignmentsAsync } from '../store/assignmentStore';
+import { listStudentAnnouncementsAsync } from '../store/announcementStore';
 import { getGradebookAsync } from '../store/gradebookStore';
 import { listOrgsForAccountAsync, getOrgMembershipAsync } from '../store/orgStore';
 import { computeStudentDashboardAsync } from '../lib/studentDashboard';
@@ -50,4 +51,15 @@ studentRouter.get('/student/dashboard', async (req, res) => {
   const account = req.account!;
   const snapshot = await computeStudentDashboardAsync(account.id, account.email);
   res.json(snapshot);
+});
+
+/** GET /v1/student/announcements — merged feed across enrolled classes. */
+studentRouter.get('/student/announcements', async (req, res) => {
+  const account = req.account!;
+  const classId = typeof req.query.classId === 'string' ? req.query.classId.trim() : '';
+  let announcements = await listStudentAnnouncementsAsync(account.email);
+  if (classId) {
+    announcements = announcements.filter((a) => a.classId === classId);
+  }
+  res.json({ email: account.email, announcements });
 });

@@ -3,12 +3,13 @@ import { motion } from 'framer-motion';
 import { BookOpen, Building2, RefreshCw, GraduationCap, SlidersHorizontal } from '@/lib/lucide-shim';
 import type { UserSettings } from '../types';
 import { getStudentOrgContent } from '../lib/studentOrgContent';
-import { fetchStudentClasses, fetchStudentOrgs } from '../lib/orgClient';
+import { fetchStudentClasses, fetchStudentOrgs, fetchStudentAnnouncements } from '../lib/orgClient';
 import { fetchStudentDashboard, type StudentDashboard } from '../lib/studentDashboardClient';
 import { assignmentStatusLabel, assignmentStatusTone } from '../lib/studentOrgModel';
 import { StudentOrgSummary } from './StudentOrgSummary';
 import { StudentUpcomingPanel } from './StudentUpcomingPanel';
 import { StudentOrgCalendarPanel } from './StudentOrgCalendarPanel';
+import { StudentOrgAnnouncementsPanel } from './StudentOrgAnnouncementsPanel';
 import type { StudentAssignmentDue } from '../lib/studentOrgCalendar';
 import { formatShortDate } from '../lib/localeFormat';
 import { cn } from '../utils/cn';
@@ -43,6 +44,9 @@ export function StudentOrgView({
     Awaited<ReturnType<typeof fetchStudentClasses>>['classes']
   >([]);
   const [orgs, setOrgs] = useState<Awaited<ReturnType<typeof fetchStudentOrgs>>['orgs']>([]);
+  const [announcements, setAnnouncements] = useState<
+    Awaited<ReturnType<typeof fetchStudentAnnouncements>>['announcements']
+  >([]);
   const [orgFilter, setOrgFilter] = useState<string>('all');
   const signedIn = Boolean(settings.authToken?.trim());
 
@@ -50,6 +54,7 @@ export function StudentOrgView({
     if (!settings.authToken?.trim()) {
       setClasses([]);
       setOrgs([]);
+      setAnnouncements([]);
       setDashboard(null);
       setError(null);
       return;
@@ -57,14 +62,16 @@ export function StudentOrgView({
     setLoading(true);
     setError(null);
     try {
-      const [classJson, orgJson, dash] = await Promise.all([
+      const [classJson, orgJson, dash, annJson] = await Promise.all([
         fetchStudentClasses(settings.authToken, settings),
         fetchStudentOrgs(settings.authToken, settings),
         fetchStudentDashboard(settings.authToken, settings),
+        fetchStudentAnnouncements(settings.authToken, settings),
       ]);
       setClasses(classJson.classes);
       setOrgs(orgJson.orgs);
       setDashboard(dash);
+      setAnnouncements(annJson.announcements);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to load');
     } finally {
@@ -120,6 +127,17 @@ export function StudentOrgView({
     }
     return rows;
   }, [filteredClasses, dashboard]);
+
+  const announcementClassOptions = useMemo(
+    () => filteredClasses.map((row) => ({ id: row.class.id, name: row.class.name })),
+    [filteredClasses],
+  );
+
+  const filteredAnnouncements = useMemo(() => {
+    if (orgFilter === 'all') return announcements;
+    const classIds = new Set(filteredClasses.map((row) => row.class.id));
+    return announcements.filter((a) => classIds.has(a.classId));
+  }, [announcements, orgFilter, filteredClasses]);
 
   if (!signedIn) {
     return (
@@ -182,6 +200,13 @@ export function StudentOrgView({
       )}
 
       <StudentOrgCalendarPanel assignments={calendarAssignments} ui={ui} lang={lang} />
+
+      <StudentOrgAnnouncementsPanel
+        announcements={filteredAnnouncements}
+        classOptions={announcementClassOptions}
+        ui={ui}
+        lang={lang}
+      />
 
       <section className="space-y-3">
         <div className="flex flex-wrap items-center justify-between gap-3">

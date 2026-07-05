@@ -308,6 +308,78 @@ describe('server integration sweep', () => {
     expect(afterDelete.body.assignments).toHaveLength(0);
   });
 
+  it('teacher class announcement APIs create list delete and student feed', async () => {
+    const teacher = await request(app)
+      .post('/auth/register')
+      .send({ email: 'ann-teacher@example.com', password: 'password123' })
+      .expect(201);
+    const teacherToken = teacher.body.token as string;
+
+    const student = await request(app)
+      .post('/auth/register')
+      .send({ email: 'ann-student@example.com', password: 'password123' })
+      .expect(201);
+    const studentToken = student.body.token as string;
+
+    const created = await request(app)
+      .post('/v1/teacher/classes')
+      .set('Authorization', `Bearer ${teacherToken}`)
+      .send({ name: 'Announcements 101' })
+      .expect(201);
+    const classId = created.body.id as string;
+
+    await request(app)
+      .post(`/v1/teacher/classes/${classId}/roster`)
+      .set('Authorization', `Bearer ${teacherToken}`)
+      .send({ email: 'ann-student@example.com', displayName: 'Ann Student' })
+      .expect(201);
+
+    const empty = await request(app)
+      .get(`/v1/teacher/classes/${classId}/announcements`)
+      .set('Authorization', `Bearer ${teacherToken}`)
+      .expect(200);
+    expect(empty.body.announcements).toEqual([]);
+
+    const posted = await request(app)
+      .post(`/v1/teacher/classes/${classId}/announcements`)
+      .set('Authorization', `Bearer ${teacherToken}`)
+      .send({ title: 'Welcome', body: 'First day materials are posted.' })
+      .expect(201);
+    expect(posted.body.title).toBe('Welcome');
+    expect(posted.body.body).toBe('First day materials are posted.');
+
+    const listed = await request(app)
+      .get(`/v1/teacher/classes/${classId}/announcements`)
+      .set('Authorization', `Bearer ${teacherToken}`)
+      .expect(200);
+    expect(listed.body.announcements).toHaveLength(1);
+
+    const feed = await request(app)
+      .get('/v1/student/announcements')
+      .set('Authorization', `Bearer ${studentToken}`)
+      .expect(200);
+    expect(feed.body.announcements).toHaveLength(1);
+    expect(feed.body.announcements[0].className).toBe('Announcements 101');
+    expect(feed.body.announcements[0].title).toBe('Welcome');
+
+    const filtered = await request(app)
+      .get(`/v1/student/announcements?classId=${classId}`)
+      .set('Authorization', `Bearer ${studentToken}`)
+      .expect(200);
+    expect(filtered.body.announcements).toHaveLength(1);
+
+    await request(app)
+      .delete(`/v1/teacher/classes/${classId}/announcements/${posted.body.id}`)
+      .set('Authorization', `Bearer ${teacherToken}`)
+      .expect(204);
+
+    const afterDelete = await request(app)
+      .get('/v1/student/announcements')
+      .set('Authorization', `Bearer ${studentToken}`)
+      .expect(200);
+    expect(afterDelete.body.announcements).toHaveLength(0);
+  });
+
   it('GET/PATCH /v1/teacher/classes/:id/gradebook stores scores', async () => {
     const reg = await request(app)
       .post('/auth/register')
@@ -593,6 +665,8 @@ describe('server integration sweep', () => {
     expect(health.body.features.l7Enterprise.studentOrgDashboard).toBe(true);
     expect(health.body.features.l8Enterprise).toBeDefined();
     expect(health.body.features.l8Enterprise.auditExport).toBe(true);
+    expect(health.body.features.l9Enterprise).toBeDefined();
+    expect(health.body.features.l9Enterprise.classAnnouncements).toBe(true);
 
     const auditExport = await request(app)
       .get(`/v1/orgs/${orgId}/audit-logs/export?format=csv`)

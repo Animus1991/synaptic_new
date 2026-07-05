@@ -9,16 +9,19 @@ import {
   addClassEnrollment as apiAddEnrollment,
   createTeacherClass,
   createClassAssignment as apiCreateAssignment,
+  createClassAnnouncement as apiCreateAnnouncement,
+  fetchClassAnnouncements,
   fetchClassAssignments,
   fetchClassGradebook,
   fetchClassRoster,
   fetchTeacherClasses,
   fetchTeacherDashboard,
+  removeClassAnnouncement as apiRemoveAnnouncement,
   removeClassAssignment as apiRemoveAssignment,
   removeClassEnrollment as apiRemoveEnrollment,
   updateGradebookCell,
 } from '../lib/authClient';
-import type { AssignmentRow, ClassEnrollmentRow, GradebookCellRow, TeacherClassRow } from '../lib/teacherClassTypes';
+import type { AnnouncementRow, AssignmentRow, ClassEnrollmentRow, GradebookCellRow, TeacherClassRow } from '../lib/teacherClassTypes';
 import { listLearningEvents, countLearningEventsByType } from '../lib/learningEvents';
 import type { TeacherDashboardResponse } from '../lib/teacherDashboardTypes';
 import { getTeacherContent } from '../lib/teacherContent';
@@ -57,10 +60,13 @@ export function TeacherDashboard({
   const [studentEmail, setStudentEmail] = useState('');
   const [studentName, setStudentName] = useState('');
   const [assignments, setAssignments] = useState<AssignmentRow[]>([]);
+  const [announcements, setAnnouncements] = useState<AnnouncementRow[]>([]);
   const [gradebookCells, setGradebookCells] = useState<GradebookCellRow[]>([]);
   const [ltiPassbackMsg, setLtiPassbackMsg] = useState<string | null>(null);
   const [assignmentTitle, setAssignmentTitle] = useState('');
   const [assignmentDue, setAssignmentDue] = useState('');
+  const [announcementTitle, setAnnouncementTitle] = useState('');
+  const [announcementBody, setAnnouncementBody] = useState('');
   const [classBusy, setClassBusy] = useState(false);
   const [orgAnalytics, setOrgAnalytics] = useState<OrgAnalytics | null>(null);
   const localEvents = countLearningEventsByType();
@@ -131,6 +137,12 @@ export function TeacherDashboard({
     setAssignments(json.assignments);
   }, [settings.authToken, settings]);
 
+  const loadAnnouncements = useCallback(async (classId: string) => {
+    if (!settings.authToken?.trim()) return;
+    const json = await fetchClassAnnouncements(settings.authToken, settings, classId);
+    setAnnouncements(json.announcements);
+  }, [settings.authToken, settings]);
+
   const loadGradebook = useCallback(async (classId: string) => {
     if (!settings.authToken?.trim()) return;
     const json = await fetchClassGradebook(settings.authToken, settings, classId);
@@ -179,13 +191,15 @@ export function TeacherDashboard({
     if (!settings.authToken?.trim() || !selectedClassId) {
       setRoster([]);
       setAssignments([]);
+      setAnnouncements([]);
       setGradebookCells([]);
       return;
     }
     void loadRoster(selectedClassId).catch((err: Error) => setError(err.message));
     void loadAssignments(selectedClassId).catch((err: Error) => setError(err.message));
+    void loadAnnouncements(selectedClassId).catch((err: Error) => setError(err.message));
     void loadGradebook(selectedClassId).catch((err: Error) => setError(err.message));
-  }, [settings.authToken, selectedClassId, loadRoster, loadAssignments, loadGradebook]);
+  }, [settings.authToken, selectedClassId, loadRoster, loadAssignments, loadAnnouncements, loadGradebook]);
 
   const handleCreateClass = async () => {
     if (!settings.authToken?.trim() || !classNameInput.trim()) return;
@@ -268,6 +282,39 @@ export function TeacherDashboard({
     try {
       await apiRemoveAssignment(settings.authToken, settings, selectedClassId, assignmentId);
       await loadAssignments(selectedClassId);
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setClassBusy(false);
+    }
+  };
+
+  const handleCreateAnnouncement = async () => {
+    if (!settings.authToken?.trim() || !selectedClassId || !announcementTitle.trim() || !announcementBody.trim()) {
+      return;
+    }
+    setClassBusy(true);
+    try {
+      await apiCreateAnnouncement(settings.authToken, settings, selectedClassId, {
+        title: announcementTitle.trim(),
+        body: announcementBody.trim(),
+      });
+      setAnnouncementTitle('');
+      setAnnouncementBody('');
+      await loadAnnouncements(selectedClassId);
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setClassBusy(false);
+    }
+  };
+
+  const handleRemoveAnnouncement = async (announcementId: string) => {
+    if (!settings.authToken?.trim() || !selectedClassId) return;
+    setClassBusy(true);
+    try {
+      await apiRemoveAnnouncement(settings.authToken, settings, selectedClassId, announcementId);
+      await loadAnnouncements(selectedClassId);
     } catch (err) {
       setError((err as Error).message);
     } finally {
@@ -498,6 +545,69 @@ export function TeacherDashboard({
                   </table>
                 </div>
               )}
+
+              <div className="space-y-3 pt-4 border-t border-border-subtle" data-testid="teacher-announcements">
+                <h3 className="text-sm font-semibold">{ui.announcements}</h3>
+                <p className="text-[11px] text-text-muted">{ui.announcementsHint}</p>
+                <div className="space-y-2">
+                  <input
+                    type="text"
+                    value={announcementTitle}
+                    onChange={(e) => setAnnouncementTitle(e.target.value)}
+                    placeholder={ui.announcementTitlePlaceholder}
+                    data-testid="teacher-announcement-title"
+                    className="w-full px-3 py-2 rounded-xl border border-border-subtle bg-surface-primary text-sm"
+                  />
+                  <textarea
+                    value={announcementBody}
+                    onChange={(e) => setAnnouncementBody(e.target.value)}
+                    placeholder={ui.announcementBodyPlaceholder}
+                    rows={3}
+                    data-testid="teacher-announcement-body"
+                    className="w-full px-3 py-2 rounded-xl border border-border-subtle bg-surface-primary text-sm resize-y min-h-[72px]"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => void handleCreateAnnouncement()}
+                    disabled={classBusy || !announcementTitle.trim() || !announcementBody.trim()}
+                    data-testid="teacher-create-announcement"
+                    className="px-3 py-2 rounded-xl bg-brand-600 text-white text-sm font-medium disabled:opacity-50"
+                  >
+                    {ui.createAnnouncement}
+                  </button>
+                </div>
+                {announcements.length === 0 ? (
+                  <p className="text-xs text-text-muted">{ui.noAnnouncements}</p>
+                ) : (
+                  <ul className="space-y-2">
+                    {announcements.map((row) => (
+                      <li
+                        key={row.id}
+                        className="rounded-xl border border-border-subtle/60 p-3 text-xs"
+                        data-testid={`teacher-announcement-row-${row.id}`}
+                      >
+                        <div className="flex flex-wrap items-start justify-between gap-2">
+                          <div className="min-w-0 space-y-1">
+                            <p className="font-medium">{row.title}</p>
+                            <p className="text-text-muted whitespace-pre-wrap">{row.body}</p>
+                            <p className="text-[10px] text-text-muted">
+                              {formatDateTime(row.createdAt, lang)}
+                            </p>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => void handleRemoveAnnouncement(row.id)}
+                            disabled={classBusy}
+                            className="text-accent-rose hover:underline shrink-0"
+                          >
+                            {ui.removeAnnouncement}
+                          </button>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
 
               <div className="space-y-3 pt-4 border-t border-border-subtle" data-testid="teacher-assignments">
                 <h3 className="text-sm font-semibold">{ui.assignments}</h3>

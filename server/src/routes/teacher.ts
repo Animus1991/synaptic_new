@@ -25,6 +25,11 @@ import {
   updateClassAssignmentAsync,
 } from '../store/assignmentStore';
 import {
+  createClassAnnouncementAsync,
+  listClassAnnouncementsAsync,
+  removeClassAnnouncementAsync,
+} from '../store/announcementStore';
+import {
   getGradebookAsync,
   removeGradebookCellsForAssignmentAsync,
   removeGradebookCellsForEnrollmentAsync,
@@ -314,6 +319,62 @@ teacherRouter.delete('/teacher/classes/:classId/assignments/:assignmentId', asyn
   await removeGradebookCellsForAssignmentAsync(owned.class.id, req.params.assignmentId);
   res.status(204).send();
 });
+
+/** GET /v1/teacher/classes/:classId/announcements */
+teacherRouter.get('/teacher/classes/:classId/announcements', async (req, res) => {
+  const account = req.account!;
+  const owned = await requireTeacherClass(req.params.classId, account.id);
+  if (!owned.ok) {
+    res.status(owned.status).json({ error: owned.error });
+    return;
+  }
+  const announcements = await listClassAnnouncementsAsync(owned.class.id);
+  res.json({ classId: owned.class.id, announcements });
+});
+
+/** POST /v1/teacher/classes/:classId/announcements */
+teacherRouter.post('/teacher/classes/:classId/announcements', async (req, res) => {
+  const account = req.account!;
+  const owned = await requireTeacherClass(req.params.classId, account.id);
+  if (!owned.ok) {
+    res.status(owned.status).json({ error: owned.error });
+    return;
+  }
+  const body = req.body as { title?: string; body?: string };
+  if (!body.title?.trim()) {
+    res.status(400).json({ error: 'title required' });
+    return;
+  }
+  if (!body.body?.trim()) {
+    res.status(400).json({ error: 'body required' });
+    return;
+  }
+  const created = await createClassAnnouncementAsync(owned.class.id, {
+    title: body.title,
+    body: body.body,
+    authorAccountId: account.id,
+  });
+  res.status(201).json(created);
+});
+
+/** DELETE /v1/teacher/classes/:classId/announcements/:announcementId */
+teacherRouter.delete(
+  '/teacher/classes/:classId/announcements/:announcementId',
+  async (req, res) => {
+    const account = req.account!;
+    const owned = await requireTeacherClass(req.params.classId, account.id);
+    if (!owned.ok) {
+      res.status(owned.status).json({ error: owned.error });
+      return;
+    }
+    const ok = await removeClassAnnouncementAsync(owned.class.id, req.params.announcementId);
+    if (!ok) {
+      res.status(404).json({ error: 'announcement not found' });
+      return;
+    }
+    res.status(204).send();
+  },
+);
 
 /** GET /v1/teacher/classes/:classId/gradebook — student × assignment score matrix. */
 teacherRouter.get('/teacher/classes/:classId/gradebook', async (req, res) => {
