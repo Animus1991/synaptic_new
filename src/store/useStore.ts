@@ -23,6 +23,12 @@ import { hydrateLibrary, loadLibrarySync, saveLibrarySync } from '../lib/library
 import { scheduleLibraryRemoteSync } from '../lib/libraryRemoteSync';
 import { mergeLibraries, remoteLibraryToPersisted } from '../lib/librarySync';
 import { markWorkspaceContinue } from '../lib/workspacePerf';
+import {
+  buildNotebookLmUploadedFile,
+  parseNotebookLmExport,
+  type NotebookLmImportResult,
+} from '../lib/notebooklmImport';
+import { notifySuccess, notifyWarning } from '../lib/notificationBus';
 import { prefetchWorkspaceEntry } from '../lib/workspaceEntryPrefetch';
 import { fetchYoutubeTranscript } from '../lib/youtubeTranscript';
 import { fetchRemoteLibrary, fetchRemoteSession, pushRemoteSession, authMe } from '../lib/authClient';
@@ -1561,6 +1567,32 @@ export function useAppStore() {
     return true;
   }, [uploadedFiles, glossaryEntries, courses, persistLibrary, user.settings.language, showAppToast]);
 
+  const importNotebookLm = useCallback((raw: string): NotebookLmImportResult | null => {
+    const parsed = parseNotebookLmExport(raw);
+    if (!parsed.markdown.trim() && parsed.quizCards.length === 0) {
+      const lang = user.settings.language === 'el' ? 'el' : 'en';
+      notifyWarning(
+        lang === 'el' ? 'Κενό περιεχόμενο' : 'Empty content',
+        lang === 'el' ? 'Επικόλλησε κείμενο από NotebookLM.' : 'Paste text from NotebookLM.',
+      );
+      return null;
+    }
+    const file = buildNotebookLmUploadedFile(parsed);
+    const nextFiles = [...uploadedFiles, file];
+    setUploadedFiles(nextFiles);
+    persistLibrary(nextFiles, glossaryEntries, courses.filter((c) => !MOCK_COURSE_IDS.has(c.id)));
+    const lang = user.settings.language === 'el' ? 'el' : 'en';
+    notifySuccess(
+      lang === 'el' ? 'Εισαγωγή NotebookLM' : 'NotebookLM import',
+      parsed.quizCards.length > 0
+        ? (lang === 'el'
+          ? `${parsed.title} · ${parsed.quizCards.length} κάρτες quiz`
+          : `${parsed.title} · ${parsed.quizCards.length} quiz cards`)
+        : parsed.title,
+    );
+    return parsed;
+  }, [uploadedFiles, glossaryEntries, courses, persistLibrary, user.settings.language]);
+
   const removeUploadedFile = useCallback((fileId: string) => {
     const result = removeUploadedFileFromLibrary(fileId, uploadedFiles, courses);
     if (!result.removed) {
@@ -1991,7 +2023,7 @@ export function useAppStore() {
     runProactiveAgentAlert,
     coverageSnapshot,
     uploadedFiles, glossaryEntries, isUploading, isReprocessing, simulateUpload, processUpload,
-    reprocessCourseMaterial, saveCourseExtractedText, removeUploadedFile, removeCourse,
+    reprocessCourseMaterial, saveCourseExtractedText, removeUploadedFile, importNotebookLm, removeCourse,
     pullLibraryFromServer, pullSessionFromServer, pushSessionToServer, syncAccountOnLogin,
     queueConceptBusSync, flushConceptBusSync,
     refreshAuthPlan, logStudyMinutes,

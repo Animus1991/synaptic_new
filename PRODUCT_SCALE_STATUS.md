@@ -90,6 +90,20 @@ Regression gate: `npm test`; `npm run test:e2e:perf`; `npx playwright test e2e/a
 
 ---
 
+## Sprint L13 — NotebookLM bridge — in progress (Jul 2026)
+
+| Scope | Deliverable | Status |
+| ----- | ----------- | ------ |
+| **L13-0 Strategy** | `docs/NOTEBOOKLM_BRIDGE.md` | **shipped** |
+| **L13-1 Import** | `notebooklmImport.ts` + Library `NotebookLmImportPanel` | **shipped** |
+| **L13-1 Consolidation** | Hide Agent nav + synthesis panel (`platformFocus.ts`) | **shipped** |
+| **L13-2 Deep link** | «Open in NotebookLM» on source cards | backlog |
+| **L13-3 Quiz → FSRS** | Studio Quiz → due deck one-click | backlog |
+
+Regression gate: `npm test -- src/lib/notebooklmImport.test.ts`; `cd server && npm test`; `npm run typecheck`.
+
+---
+
 ## Sprint L7 — student org UI & SAML crypto — shipped (Jul 2026)
 
 | Scope | Deliverable |

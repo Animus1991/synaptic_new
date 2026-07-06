@@ -80,6 +80,11 @@ export type ProductionProbeStatus = {
     a11yLiveRegions: boolean;
     workspacePerfBudget: boolean;
   };
+  /** Sprint L13 — NotebookLM bridge + learning OS focus. */
+  l13Enterprise: {
+    notebooklmImport: boolean;
+    platformFocusConsolidation: boolean;
+  };
 };
 
 let cachedPgvector: boolean | null = null;
@@ -176,6 +181,10 @@ export async function getProductionProbeStatus(): Promise<ProductionProbeStatus>
       offlineSyncQueue: true,
       a11yLiveRegions: true,
       workspacePerfBudget: true,
+    },
+    l13Enterprise: {
+      notebooklmImport: true,
+      platformFocusConsolidation: true,
     },
   };
 }

@@ -27,6 +27,9 @@ import { Page, PageHeader, PrimaryCTA } from './ui/primitives';
 import { t } from '../lib/i18n';
 import { RagIndexProgressBanner } from './RagIndexProgressBanner';
 import { CrossLibrarySynthesisPanel } from './CrossLibrarySynthesisPanel';
+import { NotebookLmImportPanel } from './NotebookLmImportPanel';
+import { showCrossLibrarySynthesis } from '../lib/platformFocus';
+import type { NotebookLmImportResult } from '../lib/notebooklmImport';
 
 interface LibraryProps {
   courses: Course[];
@@ -43,6 +46,7 @@ interface LibraryProps {
   postUploadCourseId?: string | null;
   onOpenWorkspace?: () => void;
   onDismissPostUpload?: () => void;
+  onImportNotebookLm?: (raw: string) => NotebookLmImportResult | null;
 }
 
 type LibraryTab = 'courses' | 'files';
@@ -74,6 +78,7 @@ export function Library({
   postUploadCourseId = null,
   onOpenWorkspace,
   onDismissPostUpload,
+  onImportNotebookLm,
 }: LibraryProps) {
   const userLanguage = userSettings?.language === 'el' ? 'el' : 'en';
   const postUploadCourse = postUploadCourseId
@@ -116,12 +121,22 @@ export function Library({
         className="mb-4"
       />
 
-      <CrossLibrarySynthesisPanel
-        courses={courses}
-        settings={userSettings}
-        lang={userLanguage}
-        className="mb-4"
-      />
+      {onImportNotebookLm && (
+        <NotebookLmImportPanel
+          lang={userLanguage}
+          onImport={onImportNotebookLm}
+          className="mb-4"
+        />
+      )}
+
+      {showCrossLibrarySynthesis() && (
+        <CrossLibrarySynthesisPanel
+          courses={courses}
+          settings={userSettings}
+          lang={userLanguage}
+          className="mb-4"
+        />
+      )}
 
       {postUploadCourse && onOpenWorkspace && (
         <PostUploadBanner

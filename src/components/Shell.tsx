@@ -15,6 +15,7 @@ import { workspaceEntryPrefetchHandlers } from '../lib/workspaceEntryPrefetch';
 import { PlatformSkipLinks } from './PlatformSkipLinks';
 import { OfflineShellBanner } from './OfflineShellBanner';
 import { commandPaletteBadge } from '../lib/workspaceKeyboardShortcuts';
+import { showStandaloneAgentNav } from '../lib/platformFocus';
 
 interface ShellProps {
   children: ReactNode;
@@ -41,7 +42,7 @@ type MobileNavItem =
   | { kind: 'view'; view: AppView; icon: typeof BookOpen; labelKey: I18nKey }
   | { kind: 'workspace'; icon: typeof Layout; labelKey: I18nKey };
 
-const navViews: { view: AppView; icon: typeof BookOpen; labelKey: I18nKey }[] = [
+const navViewsAll: { view: AppView; icon: typeof BookOpen; labelKey: I18nKey }[] = [
   { view: 'dashboard', icon: LayoutDashboard, labelKey: 'dashboard' },
   { view: 'library', icon: BookOpen, labelKey: 'library' },
   { view: 'tasks', icon: CheckSquare, labelKey: 'tasks' },
@@ -52,7 +53,12 @@ const navViews: { view: AppView; icon: typeof BookOpen; labelKey: I18nKey }[] = 
   { view: 'settings', icon: Settings, labelKey: 'settings' },
 ];
 
+function visibleNavViews() {
+  return navViewsAll.filter((item) => item.view !== 'agent' || showStandaloneAgentNav());
+}
+
 function buildMobileNavItems(showWorkspace: boolean): MobileNavItem[] {
+  const navViews = visibleNavViews();
   const core: MobileNavItem[] = navViews.slice(0, 4).map((item) => ({ kind: 'view' as const, ...item }));
   const items: MobileNavItem[] = [...core];
   if (showWorkspace) {
@@ -110,6 +116,7 @@ export function Shell({
     onOpenWorkspace && (studyWorkspaceOpen || showMobileWorkspaceNav),
   );
   const mobileNavItems = buildMobileNavItems(showMobileWorkspaceNav);
+  const navViews = visibleNavViews();
 
   const navButtonProps = (view: AppView) => ({
     'data-testid': `nav-${view}`,

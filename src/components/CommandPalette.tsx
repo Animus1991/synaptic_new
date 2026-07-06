@@ -5,6 +5,7 @@ import { cn } from '../utils/cn';
 import { useI18n, type I18nKey } from '../lib/i18n';
 import { searchUploadedContent, type ContentSearchHit } from '../lib/globalContentSearch';
 import { commandActionKey, loadRecentCommandKeys, recordRecentCommandKey } from '../lib/commandPaletteRecent';
+import { showStandaloneAgentNav } from '../lib/platformFocus';
 import { getTaskActionVisual } from '../lib/taskActionIcons';
 import type { LucideIcon } from '@/lib/lucide-shim';
 import type { DashboardNextAction } from '../lib/dashboardNextAction';
@@ -33,7 +34,7 @@ interface Props {
   onDashboardNextAction?: () => void;
 }
 
-const NAV: { view: AppView; labelKey: I18nKey; icon: typeof LayoutDashboard }[] = [
+const NAV_ALL: { view: AppView; labelKey: I18nKey; icon: typeof LayoutDashboard }[] = [
   { view: 'dashboard', labelKey: 'navDashboard', icon: LayoutDashboard },
   { view: 'library', labelKey: 'navLibrary', icon: BookOpen },
   { view: 'tasks', labelKey: 'navTasks', icon: CheckSquare },
@@ -42,6 +43,8 @@ const NAV: { view: AppView; labelKey: I18nKey; icon: typeof LayoutDashboard }[] 
   { view: 'teacher', labelKey: 'navTeacher', icon: Users },
   { view: 'settings', labelKey: 'navSettings', icon: Settings },
 ];
+
+const NAV = NAV_ALL.filter((item) => item.view !== 'agent' || showStandaloneAgentNav());
 
 const CONTENT_ICONS = {
   course: GraduationCap,

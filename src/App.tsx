@@ -906,6 +906,7 @@ export default function App() {
               postUploadCourseId={store.postUploadCourseId}
               onOpenWorkspace={openCourseWorkspace}
               onDismissPostUpload={store.clearPostUploadHighlight}
+              onImportNotebookLm={store.importNotebookLm}
             />
           )}
           {store.currentView === 'tasks' && (
