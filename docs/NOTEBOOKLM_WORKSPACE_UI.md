@@ -105,7 +105,7 @@ StudyWorkspaceBody
 
 ### Phase 1 completion
 - [ ] Pin active source in Sources list
-- [ ] PDF page-preview thumbnails → **[Sprint L17 design](./SPRINT_L17_PDF_SOURCE_THUMBNAILS.md)**
+- [ ] PDF page-preview thumbnails → **[Sprint L17](./SPRINT_L17_PDF_SOURCE_THUMBNAILS.md)** ✅
 
 ### Phase 2 completion
 - [ ] Auto-focus chat input on workspace open

@@ -229,7 +229,7 @@ export function uploadedFileMeta(
   topics?: string[],
   extractedText?: string,
   pageCount?: number,
-  ingest?: Pick<UploadedFile, 'ocrUsed' | 'ingestMethod' | 'ocrRegions' | 'pdfLayoutBlocks' | 'ocrModelsUsed'>,
+  ingest?: Pick<UploadedFile, 'ocrUsed' | 'ingestMethod' | 'ocrRegions' | 'pdfLayoutBlocks' | 'ocrModelsUsed' | 'thumbnailRef' | 'thumbnailStatus'>,
 ): UploadedFile {
   return {
     id: `file-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
@@ -250,6 +250,8 @@ export function uploadedFileMeta(
     ...(ingest?.ocrRegions?.length ? { ocrRegions: ingest.ocrRegions } : {}),
     ...(ingest?.ocrModelsUsed?.length ? { ocrModelsUsed: ingest.ocrModelsUsed } : {}),
     ...(ingest?.pdfLayoutBlocks?.length ? { pdfLayoutBlocks: ingest.pdfLayoutBlocks } : {}),
+    ...(ingest?.thumbnailRef ? { thumbnailRef: ingest.thumbnailRef } : {}),
+    ...(ingest?.thumbnailStatus ? { thumbnailStatus: ingest.thumbnailStatus } : {}),
   };
 }
 

@@ -118,7 +118,9 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
     key: string;
     label: string;
     meta?: string;
-    file?: Pick<UploadedFile, 'name' | 'type' | 'ingestMethod'>;
+    file?: Pick<UploadedFile, 'name' | 'type' | 'ingestMethod'> & Partial<
+      Pick<UploadedFile, 'id' | 'thumbnailRef' | 'thumbnailStatus'>
+    >;
   };
 
   const sourceRows: SourceRow[] = noteBundle.hasSource

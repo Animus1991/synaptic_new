@@ -1,6 +1,6 @@
 # Sprint L17 — PDF source page-preview thumbnails
 
-**Status:** Planned (next sprint after NotebookLM workspace Phases 1–5)  
+**Status:** Shipped (L17-1–6 + L17b worker/backfill)  
 **Depends on:** `sourceThumbnail.ts` typed chips (shipped), `NotebookSourceThumbnail.tsx`, client PDF ingest (`pdfExtract.ts`)  
 **North star:** NotebookLM-style source rows show a **real first-page preview**, not only a file-type icon.
 
@@ -284,16 +284,17 @@ Defer until multi-device library sync ships. Client-first L17 covers 95% of curr
 | **L17-3** | Hook into `extractTextFromPdf` + `uploadPipeline` / `uploadedFileMeta` | 1d |
 | **L17-4** | `NotebookSourceThumbnail` image mode + `useSourceThumbnailUrl` | 0.5d |
 | **L17-5** | Reprocess path + `thumbnailStatus` on `UploadedFile` | 0.5d |
-| **L17-6** | E2E: `e2e/source-thumbnail.spec.ts` — upload PDF fixture, assert `source-thumbnail-preview` visible | 1d |
-| **L17-7** | Docs + `productionProbe` flag `pdfThumbnails: true` | 0.25d |
+| **L17-6** | E2E: `e2e/source-thumbnail.spec.ts` | ✅ |
+| **L17-6** | Backfill: IDB `file-blobs` + idle `scheduleThumbnailBackfill` | ✅ |
+| **L17-7** | Docs + `productionProbe` flag `pdfThumbnails: true` | 🔲 optional |
 
 **Total:** ~5.75 dev-days
 
-### L17b stretch (if budgets fail or backfill required)
+### L17b stretch — shipped
 
-- Web Worker render
-- IDB `file-blobs` PDF cache + idle backfill
-- Image-as-thumbnail for `type: 'image'`
+- Web Worker render (`pdfThumbnail.worker.ts`, >50 pages or >5 MB)
+- IDB `file-blobs` PDF cache + idle backfill (`thumbnailBackfill.ts`)
+- Image-as-thumbnail for `type: 'image'` — still optional future
 
 ---
 
@@ -347,8 +348,8 @@ test('PDF upload shows page preview in notebook sources', async ({ page }) => {
 
 ```bash
 npm run typecheck
-npm test -- src/lib/pdfThumbnail.test.ts src/lib/sourceThumbnail.test.ts src/lib/indexedDbStorage.test.ts
-npx playwright test e2e/source-thumbnail.spec.ts e2e/notebook-workspace.spec.ts
+npm test -- src/lib/pdfThumbnail.test.ts src/lib/sourceThumbnailPersist.test.ts src/lib/thumbnailBackfill.test.ts
+npx playwright test e2e/source-thumbnail.spec.ts e2e/notebook-workspace.spec.ts e2e/notebook-workspace.spec.ts
 ```
 
 ---

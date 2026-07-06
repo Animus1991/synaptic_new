@@ -14,6 +14,11 @@ import { extractAudioVideoTranscript, isAudioVideoFile } from './youtubeTranscri
 import { detectMathZonesFromPage, type PdfMathZone } from './pdfMathZones';
 import { repairPdfMathZones } from './mathOcrClient';
 import { extractLayoutBlocksFromPages, type PdfLayoutBlockInput } from './pdfLayoutBlocks';
+import { renderPdfPageThumbnailFromDoc, type PdfCoverThumbnail } from './pdfThumbnail';
+import {
+  renderPdfCoverFromBytes,
+  shouldRenderThumbnailInWorker,
+} from './pdfThumbnailWorkerClient';
 
 // Vite resolves this to a stable public URL in dev + production builds.
 
@@ -41,6 +46,8 @@ export type PdfExtractResult = {
 
   ocrModelsUsed?: string[];
 
+  coverThumbnail?: PdfCoverThumbnail;
+
 };
 
 
@@ -64,6 +71,8 @@ export type FileExtractResult = {
   layoutBlocks?: PdfLayoutBlockInput[];
 
   ocrModelsUsed?: string[];
+
+  coverThumbnail?: PdfCoverThumbnail;
 
 };
 
@@ -191,6 +200,12 @@ export async function extractTextFromPdf(file: File, settings?: UserSettings): P
 
   const doc = await pdfjs.getDocument({ data }).promise;
 
+  const coverPromise = shouldRenderThumbnailInWorker(doc.numPages, file.size)
+    ? renderPdfCoverFromBytes(data, { pageCount: doc.numPages, fileSize: file.size }).catch(() => undefined)
+    : renderPdfPageThumbnailFromDoc(
+      doc as unknown as Parameters<typeof renderPdfPageThumbnailFromDoc>[0],
+    ).catch(() => undefined);
+
   const parts: string[] = [];
   const pageCharCounts: number[] = [];
   const allMathZones: PdfMathZone[] = [];
@@ -236,6 +251,7 @@ export async function extractTextFromPdf(file: File, settings?: UserSettings): P
 
 
   const pageCount = doc.numPages;
+  const coverThumbnail = await coverPromise;
 
   if (isImageOnlyPdf(pageCharCounts)) {
     const ocr = await extractWithOcrFallback(file, { text: '', pageCount }, settings);
@@ -246,6 +262,7 @@ export async function extractTextFromPdf(file: File, settings?: UserSettings): P
       ingestMethod: ocr.ingestMethod ?? (ocr.ocrUsed ? 'ocr-client' : 'text-layer'),
       ocrRegions: ocr.ocrRegions,
       ocrModelsUsed: ocr.ocrModelsUsed,
+      coverThumbnail,
     };
   }
 
@@ -288,6 +305,8 @@ export async function extractTextFromPdf(file: File, settings?: UserSettings): P
     layoutBlocks: withOcr.ocrUsed ? undefined : layoutBlocks,
 
     ocrModelsUsed: withOcr.ocrModelsUsed,
+
+    coverThumbnail,
 
   };
 
@@ -391,6 +410,7 @@ export async function extractTextFromFile(file: File, settings?: UserSettings): 
       mathOcrUsed: pdf.mathOcrUsed,
       layoutBlocks: pdf.layoutBlocks,
       ocrModelsUsed: pdf.ocrModelsUsed,
+      coverThumbnail: pdf.coverThumbnail,
     };
 
   }

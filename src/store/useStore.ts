@@ -86,7 +86,11 @@ import {
 import { reprocessCourseAnnotations } from '../lib/annotationStore';
 import { clearQuizSessions } from '../lib/quizSession';
 import { markCourseArtifactsStale, clearCourseArtifactsStale } from '../lib/artifactStaleness';
+import { persistCoverThumbnailOnFile } from '../lib/sourceThumbnailPersist';
+import { cacheSourceBlobOnIngest } from '../lib/sourceBlobCache';
+import { scheduleThumbnailBackfill } from '../lib/thumbnailBackfill';
 import { removeUploadedFileFromLibrary } from '../lib/removeUploadedFile';
+import { idbDeleteText, idbDeleteThumbnail, idbDeleteSourceBlob } from '../lib/indexedDbStorage';
 import { removeCourseFromLibrary } from '../lib/removeCourse';
 import {
   glossaryAfterCourseSourceRemoval,
@@ -501,6 +505,21 @@ export function useAppStore() {
     scheduleLibraryRemoteSync(user.settings);
   }, [user.settings]);
 
+  const applyThumbnailBackfill = useCallback((files: UploadedFile[]) => {
+    scheduleThumbnailBackfill(files, (patched) => {
+      setUploadedFiles((prev) => {
+        const byId = new Map(patched.map((p) => [p.id, p]));
+        const next = prev.map((f) => byId.get(f.id) ?? f);
+        persistLibrary(
+          next,
+          glossaryEntries,
+          courses.filter((c) => !MOCK_COURSE_IDS.has(c.id)),
+        );
+        return next;
+      });
+    });
+  }, [glossaryEntries, courses, persistLibrary]);
+
   useEffect(() => {
     void hydrateLibrary({
       uploadedFiles: library.uploadedFiles,
@@ -510,8 +529,9 @@ export function useAppStore() {
       if (hydrated.uploadedFiles.some((f, i) => f.extractedText !== library.uploadedFiles[i]?.extractedText)) {
         setUploadedFiles(initialUploadedFiles(hydrated.uploadedFiles, mergedSettings, mockUploadedFiles));
       }
+      applyThumbnailBackfill(hydrated.uploadedFiles);
     });
-  }, [library.uploadedFiles, library.glossaryEntries, library.generatedCourses, mergedSettings]);
+  }, [library.uploadedFiles, library.glossaryEntries, library.generatedCourses, mergedSettings, applyThumbnailBackfill]);
 
   const persist = useCallback((
     nextLearner: LearnerModel,
@@ -1337,15 +1357,22 @@ export function useAppStore() {
       for (const f of payload.files) {
         const extracted = await extractFileContent(f, user.settings);
         if (extracted.text.trim()) fileTexts.push(extracted.text);
-        newFiles.push(
-          uploadedFileMeta(f, undefined, undefined, extracted.text, extracted.pageCount, {
-            ocrUsed: extracted.ocrUsed,
-            ingestMethod: extracted.ingestMethod ?? (extracted.ocrUsed ? 'ocr-client' : 'text-layer'),
-            ocrRegions: extracted.ocrRegions,
-            ocrModelsUsed: extracted.ocrModelsUsed,
-            pdfLayoutBlocks: extracted.layoutBlocks,
-          }),
-        );
+        let meta = uploadedFileMeta(f, undefined, undefined, extracted.text, extracted.pageCount, {
+          ocrUsed: extracted.ocrUsed,
+          ingestMethod: extracted.ingestMethod ?? (extracted.ocrUsed ? 'ocr-client' : 'text-layer'),
+          ocrRegions: extracted.ocrRegions,
+          ocrModelsUsed: extracted.ocrModelsUsed,
+          pdfLayoutBlocks: extracted.layoutBlocks,
+        });
+        if (extracted.coverThumbnail && meta.type === 'pdf') {
+          meta = await persistCoverThumbnailOnFile(meta, extracted.coverThumbnail);
+        } else if (meta.type === 'pdf') {
+          meta = { ...meta, thumbnailStatus: 'failed' };
+        }
+        if (meta.type === 'pdf') {
+          void cacheSourceBlobOnIngest(f, meta.id);
+        }
+        newFiles.push(meta);
         if (extracted.ocrUsed) {
           emitAnalyticsLearningEvent('ocr_applied', { fileName: f.name, chars: extracted.text.length });
         }
@@ -1503,6 +1530,7 @@ export function useAppStore() {
     const nextLm = mergeSkillNodesFromCourse(learnerModel, course);
     const nextLmMetrics = recomputeLearnerMetrics(nextLm, nextBeta, firstAttemptKeys, openMistakes);
     setUploadedFiles(nextFiles);
+    applyThumbnailBackfill(nextFiles);
     setCourses(nextCourses);
     setTasks(nextTasks);
     setBetaMastery(nextBeta);
@@ -1522,7 +1550,7 @@ export function useAppStore() {
     } finally {
       setIsUploading(false);
     }
-  }, [courses, uploadedFiles, glossaryEntries, learnerModel, dashboardStats, tasks, user.xp, user.settings, betaMastery, firstAttemptKeys, openMistakes, persist, persistLibrary, logActivity, showAppToast]);
+  }, [courses, uploadedFiles, glossaryEntries, learnerModel, dashboardStats, tasks, user.xp, user.settings, betaMastery, firstAttemptKeys, openMistakes, persist, persistLibrary, logActivity, showAppToast, applyThumbnailBackfill]);
 
   const reprocessCourseMaterial = useCallback((courseId: string) => {
     setIsReprocessing(true);
@@ -1819,6 +1847,7 @@ export function useAppStore() {
   }, [uploadedFiles, user.settings.language, importNotebookLmQuizToFsrs]);
 
   const removeUploadedFile = useCallback((fileId: string) => {
+    const removed = uploadedFiles.find((f) => f.id === fileId);
     const result = removeUploadedFileFromLibrary(fileId, uploadedFiles, courses);
     if (!result.removed) {
       const lang = user.settings.language === 'el' ? 'el' : 'en';
@@ -1826,6 +1855,11 @@ export function useAppStore() {
       return false;
     }
     const removedCourseId = uploadedFiles.find((f) => f.id === fileId)?.courseId;
+    if (removed?.thumbnailRef?.storageKey) {
+      void idbDeleteThumbnail(removed.thumbnailRef.storageKey);
+    }
+    void idbDeleteSourceBlob(fileId);
+    void idbDeleteText(fileId);
     const nextGlossary = glossaryAfterCourseSourceRemoval(
       glossaryEntries,
       removedCourseId,

@@ -86,7 +86,20 @@ export interface UploadedFile {
   documentModelSnapshot?: import('../lib/documentModelSnapshot').DocumentModelSnapshot;
   /** Geometry-derived PDF layout blocks (8B-gamma); used during recognition. */
   pdfLayoutBlocks?: import('../lib/pdfLayoutBlocks').PdfLayoutBlockInput[];
+  /** Cover page preview metadata; blob in IndexedDB (`thumbnailRef.storageKey`). */
+  thumbnailRef?: SourceThumbnailRef;
+  thumbnailStatus?: 'pending' | 'ready' | 'failed' | 'unsupported';
 }
+
+export type SourceThumbnailRef = {
+  storageKey: string;
+  pageIndex: number;
+  width: number;
+  height: number;
+  format: 'webp' | 'png';
+  pipelineVersion: string;
+  generatedAt: string;
+};
 
 export type FileType = 'pdf' | 'docx' | 'pptx' | 'txt' | 'md' | 'image' | 'csv' | 'code' | 'youtube' | 'audio' | 'video';
 
