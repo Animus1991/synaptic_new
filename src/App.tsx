@@ -576,6 +576,7 @@ export default function App() {
                   showPostUploadBanner={store.postUploadCourseId === store.selectedCourse!.id}
                   onDismissPostUpload={store.clearPostUploadHighlight}
                   userSettings={store.user.settings}
+                  onImportAudioTranscript={store.importNotebookLmAudioForCourse}
                 />
               </div>
             </div>
@@ -861,6 +862,7 @@ export default function App() {
             showPostUploadBanner={store.postUploadCourseId === selectedCourse.id}
             onDismissPostUpload={store.clearPostUploadHighlight}
             userSettings={store.user.settings}
+            onImportAudioTranscript={store.importNotebookLmAudioForCourse}
           />
         </Shell>
         {overlays}

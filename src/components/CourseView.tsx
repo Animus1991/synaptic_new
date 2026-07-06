@@ -31,6 +31,7 @@ import { PostUploadBanner } from './ui/PostUploadBanner';
 import { AudioStudyGuideButton } from './AudioStudyGuideButton';
 import { StudyGuideExportButton } from './StudyGuideExportButton';
 import { VideoSummarizeButton } from './VideoSummarizeButton';
+import { CourseMediaPanel } from './CourseMediaPanel';
 import { Page, PageHeader } from './ui/primitives';
 import { QualityReportPanel } from './QualityReportPanel';
 
@@ -54,6 +55,7 @@ interface CourseViewProps {
   showPostUploadBanner?: boolean;
   onDismissPostUpload?: () => void;
   userSettings?: UserSettings;
+  onImportAudioTranscript?: (raw: string, courseId: string) => boolean;
 }
 
 /** Real per-topic lesson count: explicit lessons if present, else derived from
@@ -84,6 +86,7 @@ export function CourseView({
   showPostUploadBanner = false,
   onDismissPostUpload,
   userSettings,
+  onImportAudioTranscript,
 }: CourseViewProps) {
   const [tab, setTab] = useState<CourseTab>('path');
   const [reprocessWizardOpen, setReprocessWizardOpen] = useState(false);
@@ -426,6 +429,7 @@ export function CourseView({
           reprocessingMaterial={reprocessingMaterial}
           lang={lang}
           userSettings={userSettings}
+          onImportAudioTranscript={onImportAudioTranscript}
         />
       )}
       {tab === 'analytics' && <CourseAnalytics course={course} />}
@@ -662,6 +666,7 @@ function SourceFiles({
   reprocessingMaterial = false,
   lang,
   userSettings,
+  onImportAudioTranscript,
 }: {
   course: Course;
   uploadedFiles: UploadedFile[];
@@ -673,6 +678,7 @@ function SourceFiles({
   reprocessingMaterial?: boolean;
   lang: 'en' | 'el';
   userSettings?: UserSettings;
+  onImportAudioTranscript?: (raw: string, courseId: string) => boolean;
 }) {
   const { t } = useI18n();
   const provenanceCount = course.conceptSpans?.length ?? 0;
@@ -707,6 +713,15 @@ function SourceFiles({
   return (
     <>
     <div className="space-y-6">
+      {onImportAudioTranscript && (
+        <CourseMediaPanel
+          courseId={course.id}
+          courseTitle={course.title}
+          files={uploadedFiles}
+          lang={lang}
+          onImportTranscript={onImportAudioTranscript}
+        />
+      )}
       <div className="ws-bento p-6">
         <div className="flex items-center justify-between gap-3 mb-4 flex-wrap">
           <h3 className="font-semibold flex items-center gap-2">

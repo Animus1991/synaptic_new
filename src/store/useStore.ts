@@ -26,6 +26,7 @@ import { markWorkspaceContinue } from '../lib/workspacePerf';
 import {
   buildNotebookLmUploadedFile,
   parseNotebookLmExport,
+  buildNotebookLmAudioImportResult,
   type NotebookLmImportResult,
 } from '../lib/notebooklmImport';
 import {
@@ -1585,9 +1586,9 @@ export function useAppStore() {
     return true;
   }, [uploadedFiles, glossaryEntries, courses, persistLibrary, user.settings.language, showAppToast]);
 
-  const importNotebookLm = useCallback((raw: string): NotebookLmImportResult | null => {
+  const importNotebookLm = useCallback((raw: string, opts?: { courseId?: string }): NotebookLmImportResult | null => {
     const parsed = parseNotebookLmExport(raw);
-    if (!parsed.markdown.trim() && parsed.quizCards.length === 0 && parsed.chatTurns.length === 0) {
+    if (!parsed.markdown.trim() && parsed.quizCards.length === 0 && parsed.chatTurns.length === 0 && parsed.audioSegments.length === 0) {
       const lang = user.settings.language === 'el' ? 'el' : 'en';
       notifyWarning(
         lang === 'el' ? 'Κενό περιεχόμενο' : 'Empty content',
@@ -1595,7 +1596,7 @@ export function useAppStore() {
       );
       return null;
     }
-    const file = buildNotebookLmUploadedFile(parsed);
+    const file = buildNotebookLmUploadedFile(parsed, { courseId: opts?.courseId });
     const nextFiles = [...uploadedFiles, file];
     setUploadedFiles(nextFiles);
     persistLibrary(nextFiles, glossaryEntries, courses.filter((c) => !MOCK_COURSE_IDS.has(c.id)));
@@ -1606,13 +1607,42 @@ export function useAppStore() {
         ? (lang === 'el'
           ? `${parsed.title} · ${parsed.chatTurns.length} γύροι chat`
           : `${parsed.title} · ${parsed.chatTurns.length} chat turns`)
-        : parsed.quizCards.length > 0
+        : parsed.kind === 'audio-transcript'
           ? (lang === 'el'
-            ? `${parsed.title} · ${parsed.quizCards.length} κάρτες quiz`
-            : `${parsed.title} · ${parsed.quizCards.length} quiz cards`)
-          : parsed.title,
+            ? `${parsed.title} · ${parsed.audioSegments.length} κεφάλαια`
+            : `${parsed.title} · ${parsed.audioSegments.length} chapters`)
+          : parsed.quizCards.length > 0
+            ? (lang === 'el'
+              ? `${parsed.title} · ${parsed.quizCards.length} κάρτες quiz`
+              : `${parsed.title} · ${parsed.quizCards.length} quiz cards`)
+            : parsed.title,
     );
     return parsed;
+  }, [uploadedFiles, glossaryEntries, courses, persistLibrary, user.settings.language]);
+
+  const importNotebookLmAudioForCourse = useCallback((raw: string, courseId: string): boolean => {
+    const parsed = buildNotebookLmAudioImportResult(raw);
+    const lang = user.settings.language === 'el' ? 'el' : 'en';
+    if (!parsed) {
+      notifyWarning(
+        lang === 'el' ? 'Μη έγκυρο transcript' : 'Invalid transcript',
+        lang === 'el'
+          ? 'Επικόλλησε transcript από NotebookLM Studio Audio (με κεφάλαια ή χρονικές σημάνσεις).'
+          : 'Paste a NotebookLM Studio Audio transcript (chapters or timestamps).',
+      );
+      return false;
+    }
+    const file = buildNotebookLmUploadedFile(parsed, { courseId });
+    const nextFiles = [...uploadedFiles, file];
+    setUploadedFiles(nextFiles);
+    persistLibrary(nextFiles, glossaryEntries, courses.filter((c) => !MOCK_COURSE_IDS.has(c.id)));
+    notifySuccess(
+      lang === 'el' ? 'Audio transcript' : 'Audio transcript',
+      lang === 'el'
+        ? `${parsed.title} · ${parsed.audioSegments.length} κεφάλαια`
+        : `${parsed.title} · ${parsed.audioSegments.length} chapters`,
+    );
+    return true;
   }, [uploadedFiles, glossaryEntries, courses, persistLibrary, user.settings.language]);
 
   const importNotebookLmQuizToFsrs = useCallback((
@@ -2120,7 +2150,7 @@ export function useAppStore() {
     runProactiveAgentAlert,
     coverageSnapshot,
     uploadedFiles, glossaryEntries, isUploading, isReprocessing, simulateUpload, processUpload,
-    reprocessCourseMaterial, saveCourseExtractedText, removeUploadedFile, importNotebookLm, importNotebookLmQuizToFsrs, removeCourse,
+    reprocessCourseMaterial, saveCourseExtractedText, removeUploadedFile, importNotebookLm, importNotebookLmAudioForCourse, importNotebookLmQuizToFsrs, removeCourse,
     pullLibraryFromServer, pullSessionFromServer, pushSessionToServer, syncAccountOnLogin,
     queueConceptBusSync, flushConceptBusSync,
     refreshAuthPlan, logStudyMinutes,

@@ -1,8 +1,16 @@
 import type { UploadedFile } from '../types';
 import { CONTENT_PIPELINE_VERSION } from './pipelineConstants';
+import {
+  formatNotebookLmAudioMarkdown,
+  inferNotebookLmAudioTitle,
+  isNotebookLmAudioTranscript,
+  parseNotebookLmAudioFromMarkdown,
+  parseNotebookLmAudioTranscript,
+  type NotebookLmAudioSegment,
+} from './notebooklmAudioTranscript';
 import { detectConversationSections } from './textSegmentation';
 
-export type NotebookLmImportKind = 'study-guide' | 'quiz' | 'notes' | 'mixed' | 'chat';
+export type NotebookLmImportKind = 'study-guide' | 'quiz' | 'notes' | 'mixed' | 'chat' | 'audio-transcript';
 
 export type NotebookLmQuizCard = {
   front: string;
@@ -14,12 +22,15 @@ export type NotebookLmChatTurn = {
   text: string;
 };
 
+export type { NotebookLmAudioSegment };
+
 export type NotebookLmImportResult = {
   kind: NotebookLmImportKind;
   title: string;
   markdown: string;
   quizCards: NotebookLmQuizCard[];
   chatTurns: NotebookLmChatTurn[];
+  audioSegments: NotebookLmAudioSegment[];
 };
 
 const NLM_USER_SPEAKER = /^(user|you|human|χρήστης)\s*$/i;
@@ -152,10 +163,17 @@ export function parseNotebookLmExport(raw: string): NotebookLmImportResult {
   const quizCards = parseNotebookLmQuizCards(trimmed);
   const chatTurns = parseNotebookLmChatTranscript(trimmed);
   const isChat = isNotebookLmChatTranscript(trimmed, quizCards, chatTurns);
+  const audioSegments = parseNotebookLmAudioTranscript(trimmed);
+  const isAudio = isNotebookLmAudioTranscript(trimmed, audioSegments, {
+    isChat,
+    quizCardCount: quizCards.length,
+  });
 
   let title = inferTitle(trimmed, 'NotebookLM import');
   if (isChat && title === 'NotebookLM import') {
     title = inferChatTitle(chatTurns, 'NotebookLM chat');
+  } else if (isAudio && title === 'NotebookLM import') {
+    title = inferNotebookLmAudioTitle(trimmed, audioSegments);
   }
 
   let kind: NotebookLmImportKind = 'notes';
@@ -168,6 +186,7 @@ export function parseNotebookLmExport(raw: string): NotebookLmImportResult {
 
   if (isChat && quizCards.length > 0) kind = 'mixed';
   else if (isChat) kind = 'chat';
+  else if (isAudio) kind = 'audio-transcript';
   else if (quizCards.length > 0 && hasProse) kind = 'mixed';
   else if (quizCards.length > 0) kind = 'quiz';
   else if (lower.includes('study guide') || lower.includes('εγχειρίδιο') || /^#{1,2}\s/m.test(trimmed)) {
@@ -176,7 +195,9 @@ export function parseNotebookLmExport(raw: string): NotebookLmImportResult {
 
   const markdown = isChat
     ? formatNotebookLmChatMarkdown(chatTurns, title)
-    : trimmed;
+    : isAudio
+      ? formatNotebookLmAudioMarkdown(audioSegments, title)
+      : trimmed;
 
   return {
     kind,
@@ -184,20 +205,54 @@ export function parseNotebookLmExport(raw: string): NotebookLmImportResult {
     markdown,
     quizCards,
     chatTurns: isChat ? chatTurns : [],
+    audioSegments: isAudio ? audioSegments : [],
   };
 }
 
-export function buildNotebookLmUploadedFile(result: NotebookLmImportResult): UploadedFile {
+export function buildNotebookLmAudioImportResult(raw: string): NotebookLmImportResult | null {
+  const trimmed = raw.trim();
+  if (!trimmed) return null;
+  const audioSegments = parseNotebookLmAudioTranscript(trimmed);
+  if (audioSegments.length === 0) return null;
+  const title = inferNotebookLmAudioTitle(trimmed, audioSegments);
+  return {
+    kind: 'audio-transcript',
+    title,
+    markdown: formatNotebookLmAudioMarkdown(audioSegments, title),
+    quizCards: [],
+    chatTurns: [],
+    audioSegments,
+  };
+}
+
+export { parseNotebookLmAudioFromMarkdown };
+
+export function buildNotebookLmUploadedFile(
+  result: NotebookLmImportResult,
+  opts?: { courseId?: string },
+): UploadedFile {
   const text = result.markdown;
-  const defaultName = result.kind === 'chat' ? 'notebooklm-chat' : 'notebooklm-import';
+  const defaultName =
+    result.kind === 'chat'
+      ? 'notebooklm-chat'
+      : result.kind === 'audio-transcript'
+        ? 'notebooklm-audio'
+        : 'notebooklm-import';
   const safeName = result.title.replace(/[^\w\s-]/g, '').trim().slice(0, 60) || defaultName;
-  const ingestMethod = result.kind === 'chat' ? 'notebooklm-chat' : 'notebooklm-import';
+  const ingestMethod =
+    result.kind === 'chat'
+      ? 'notebooklm-chat'
+      : result.kind === 'audio-transcript'
+        ? 'notebooklm-audio-transcript'
+        : 'notebooklm-import';
   const topics =
     result.kind === 'chat'
       ? ['notebooklm-chat']
-      : result.quizCards.length > 0
-        ? ['notebooklm-quiz']
-        : ['notebooklm-notes'];
+      : result.kind === 'audio-transcript'
+        ? ['notebooklm-audio']
+        : result.quizCards.length > 0
+          ? ['notebooklm-quiz']
+          : ['notebooklm-notes'];
 
   return {
     id: `file-nlm-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
@@ -212,5 +267,6 @@ export function buildNotebookLmUploadedFile(result: NotebookLmImportResult): Upl
     ingestMethod,
     pipelineVersion: CONTENT_PIPELINE_VERSION,
     extractedTopics: topics,
+    ...(opts?.courseId ? { courseId: opts.courseId } : {}),
   };
 }

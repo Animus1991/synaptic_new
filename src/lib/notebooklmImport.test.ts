@@ -114,4 +114,18 @@ A: Second.`;
     expect(isNotebookLmChatTranscript(raw, quizCards, chatTurns)).toBe(false);
     expect(parseNotebookLmExport(raw).kind).toBe('quiz');
   });
+
+  it('detects audio transcript with timestamps', () => {
+    const raw = `[0:00] Introduction
+Welcome to the overview.
+
+[1:30] Key idea
+Elasticity measures responsiveness.`;
+
+    const result = parseNotebookLmExport(raw);
+    expect(result.kind).toBe('audio-transcript');
+    expect(result.audioSegments.length).toBeGreaterThanOrEqual(2);
+    const file = buildNotebookLmUploadedFile(result);
+    expect(file.ingestMethod).toBe('notebooklm-audio-transcript');
+  });
 });

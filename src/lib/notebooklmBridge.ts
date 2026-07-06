@@ -35,7 +35,7 @@ export async function openNotebookLm(opts?: NotebookLmOpenOptions): Promise<void
 }
 
 export function notebookLmSourceLabel(fileName: string, ingestMethod?: string): string {
-  if (ingestMethod === 'notebooklm-import' || ingestMethod === 'notebooklm-chat') {
+  if (ingestMethod === 'notebooklm-import' || ingestMethod === 'notebooklm-chat' || ingestMethod === 'notebooklm-audio-transcript') {
     return fileName.replace(/\.md$/i, '');
   }
   return fileName;

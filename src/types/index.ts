@@ -75,7 +75,7 @@ export interface UploadedFile {
   /** True when OCR was applied to extract text (scanned PDF / image). */
   ocrUsed?: boolean;
   /** How text was obtained from this file. */
-  ingestMethod?: 'text-layer' | 'ocr-server' | 'ocr-client' | 'ocr-ensemble' | 'ocr-vision' | 'paste' | 'youtube' | 'transcript' | 'chatgpt-export' | 'notebooklm-import' | 'notebooklm-chat';
+  ingestMethod?: 'text-layer' | 'ocr-server' | 'ocr-client' | 'ocr-ensemble' | 'ocr-vision' | 'paste' | 'youtube' | 'transcript' | 'chatgpt-export' | 'notebooklm-import' | 'notebooklm-chat' | 'notebooklm-audio-transcript';
   /** Pipeline version that processed this file. */
   pipelineVersion?: string;
   /** Server OCR word bounding boxes (percent of page), when available. */

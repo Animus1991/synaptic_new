@@ -45,6 +45,7 @@ describe('notebooklmFsrsImport', () => {
         { front: 'Q2', back: 'A2' },
       ],
       chatTurns: [],
+      audioSegments: [],
     };
     const prepared = prepareNotebookLmFsrsImport(result, []);
     expect(prepared.studyConcept).toBe('Stats quiz');

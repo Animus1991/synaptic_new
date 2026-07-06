@@ -32,7 +32,7 @@ NotebookLM has **no public API**. Integration is **file + workflow**:
 | Saved note / study guide (markdown) | Library `UploadedFile` (`ingestMethod: notebooklm-import`) | **L13-1** |
 | Studio Quiz (paste) | Parser → quiz cards → FSRS deck one-click / Anki TSV | **L13-3** / L13-1 |
 | Chat transcript (manual copy) | Parser → supplementary source (`ingestMethod: notebooklm-chat`) | **L13-4** |
-| Audio transcript | Course media panel | backlog |
+| Audio transcript | Course media panel (`CourseMediaPanel`, `notebooklm-audio-transcript`) | **L13-5** |
 
 **UI:** Library → **Import from NotebookLM** (paste or `.md` / `.txt`).
 
@@ -70,13 +70,14 @@ Re-enable via `VITE_SHOW_NOTEBOOKLM_PARITY=true` for power users / QA.
 | **L13-6** | `NotebookShellView` — 3-column Synapse-native shell |
 | **L13-3** | Studio Quiz → FSRS deck one-click (`notebooklmFsrsImport.ts`) |
 | **L13-4** | Chat transcript import (`notebooklm-chat` ingest + turn parser) |
+| **L13-5** | Audio transcript → Course media panel (`notebooklmAudioTranscript.ts`) |
 
 ---
 
 ## Regression gate
 
 ```bash
-npm test -- src/lib/notebooklmImport.test.ts src/lib/notebooklmFsrsImport.test.ts
+npm test -- src/lib/notebooklmImport.test.ts src/lib/notebooklmFsrsImport.test.ts src/lib/notebooklmAudioTranscript.test.ts
 npm run typecheck
 npx playwright test e2e/a11y-toast-aria-live.spec.ts
 ```

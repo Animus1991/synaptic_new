@@ -101,6 +101,7 @@ Regression gate: `npm test`; `npm run test:e2e:perf`; `npx playwright test e2e/a
 | **L13-6 Notebook Shell** | `NotebookShellView` 3-column layout | **shipped** |
 | **L13-3 Quiz → FSRS** | `notebooklmFsrsImport.ts` + one-click in import panel & Notebook Shell | **shipped** |
 | **L13-4 Chat import** | `notebooklm-chat` parser + Library panel hints | **shipped** |
+| **L13-5 Audio transcript** | `CourseMediaPanel` + `notebooklm-audio-transcript` | **shipped** |
 
 Regression gate: `npm test -- src/lib/notebooklmImport.test.ts`; `cd server && npm test`; `npm run typecheck`.
 

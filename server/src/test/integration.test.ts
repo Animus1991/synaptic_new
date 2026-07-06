@@ -868,6 +868,7 @@ describe('server integration sweep', () => {
     expect(health.body.features.l13Enterprise.notebookShellView).toBe(true);
     expect(health.body.features.l13Enterprise.notebooklmQuizFsrs).toBe(true);
     expect(health.body.features.l13Enterprise.notebooklmChatImport).toBe(true);
+    expect(health.body.features.l13Enterprise.notebooklmAudioTranscript).toBe(true);
 
     const auditExport = await request(app)
       .get(`/v1/orgs/${orgId}/audit-logs/export?format=csv`)

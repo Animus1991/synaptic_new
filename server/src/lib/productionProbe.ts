@@ -88,6 +88,7 @@ export type ProductionProbeStatus = {
     notebookShellView: boolean;
     notebooklmQuizFsrs: boolean;
     notebooklmChatImport: boolean;
+    notebooklmAudioTranscript: boolean;
   };
 };
 
@@ -193,6 +194,7 @@ export async function getProductionProbeStatus(): Promise<ProductionProbeStatus>
       notebookShellView: true,
       notebooklmQuizFsrs: true,
       notebooklmChatImport: true,
+      notebooklmAudioTranscript: true,
     },
   };
 }
