@@ -50,6 +50,10 @@ interface AgentProps {
   autoSendDraft?: boolean;
   onConsumeAutoSend?: () => void;
   workspaceContext?: AgentWorkspaceContext | null;
+  /** Compact panel for workspace center column (NotebookLM chat). */
+  embedded?: boolean;
+  /** Open the full-page Agent view (optional escape hatch). */
+  onOpenFullPage?: () => void;
 }
 
 const AGENT_MODE_META: { mode: AgentMode; icon: typeof Brain; color: string }[] = [
@@ -90,6 +94,8 @@ export function Agent({
   autoSendDraft,
   onConsumeAutoSend,
   workspaceContext,
+  embedded = false,
+  onOpenFullPage,
 }: AgentProps) {
   const { t } = useI18n();
   const [input, setInput] = useState('');
@@ -376,8 +382,15 @@ export function Agent({
   const currentMode = agentModes.find(m => m.mode === mode)!;
 
   return (
-    <div className="flex flex-col h-[calc(100vh-56px)] lg:h-[calc(100vh-56px)]">
+    <div
+      className={cn(
+        'flex flex-col min-h-0',
+        embedded ? 'h-full' : 'h-[calc(100vh-56px)] lg:h-[calc(100vh-56px)]',
+      )}
+      data-testid={embedded ? 'agent-embedded' : 'agent-page'}
+    >
       {/* Agent Header */}
+      {!embedded && (
       <div className="px-4 sm:px-6 py-3 border-b border-border-subtle bg-surface-secondary/30">
         <div className="flex items-center justify-between max-w-none w-full min-w-0 ws-bento-soft px-4 py-3">
           <div className="flex items-center gap-3">
@@ -465,10 +478,37 @@ export function Agent({
           </div>
         </div>
       </div>
+      )}
+
+      {embedded && (
+        <div className="flex items-center justify-between gap-2 border-b border-border-subtle px-3 py-2 shrink-0 bg-surface-secondary/20">
+          <button
+            type="button"
+            onClick={() => setShowModes(!showModes)}
+            className="flex items-center gap-1 rounded-md border border-border-subtle bg-surface-card px-2 py-1 text-xs font-medium text-text-secondary hover:border-brand-200 transition-colors"
+          >
+            <currentMode.icon className={cn('h-3 w-3', currentMode.color)} />
+            {currentMode.label}
+            <ChevronDown className={cn('h-3 w-3 transition-transform', showModes && 'rotate-180')} />
+          </button>
+          <div className="flex items-center gap-1">
+            {onOpenFullPage && (
+              <button
+                type="button"
+                onClick={onOpenFullPage}
+                className="type-micro font-medium text-text-muted hover:text-brand-700 px-2 py-1 rounded-md hover:bg-surface-hover transition-colors"
+                data-testid="agent-open-full-page"
+              >
+                {lang === 'el' ? 'Πλήρης προβολή' : 'Full view'}
+              </button>
+            )}
+          </div>
+        </div>
+      )}
 
       <AgentContextBanner context={workspaceContext} lang={lang} />
 
-      {activeTaskTitle && (
+      {activeTaskTitle && !embedded && (
         <div className="px-4 sm:px-6 py-2 border-b border-brand-500/20 bg-brand-500/5">
           <div className="max-w-none w-full min-w-0 flex items-center justify-between gap-3 flex-wrap">
             <div className="min-w-0">
@@ -533,6 +573,27 @@ export function Agent({
       <div className="flex-1 overflow-y-auto">
         <div className="max-w-none w-full min-w-0 px-4 sm:px-6 py-4 space-y-4">
           {messages.length === 0 && !isThinking && (
+            embedded ? (
+              <div className="py-8 text-center space-y-2">
+                <Sparkles className="w-6 h-6 mx-auto text-brand-600" aria-hidden />
+                <p className="text-sm font-medium text-text-primary">{ui.title}</p>
+                <p className="text-xs text-text-secondary px-4">
+                  {llmReady ? ui.inputPlaceholder : ui.offlineMode}
+                </p>
+                <div className="flex flex-wrap justify-center gap-2 pt-2">
+                  {quickActions.slice(0, 2).map((action) => (
+                    <button
+                      key={action}
+                      type="button"
+                      onClick={() => handleQuickAction(action)}
+                      className="rounded-full border border-border-subtle px-3 py-1 text-xs text-text-secondary hover:bg-surface-hover transition-colors"
+                    >
+                      {action}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ) : (
             <PlatformEmptyState
               title={ui.title}
               description={llmReady ? ui.inputPlaceholder : ui.offlineMode}
@@ -542,6 +603,7 @@ export function Agent({
               secondaryActionLabel={quickActions[1]}
               onSecondaryAction={() => handleQuickAction(quickActions[1])}
             />
+            )
           )}
           {messages.map(msg => (
             <MessageBubble key={msg.id} message={msg} onGoToSource={onGoToSource} lang={lang} ui={ui} />

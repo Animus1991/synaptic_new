@@ -25,6 +25,10 @@ export const config = {
   /** Run node-pg-migrate on server boot when DATABASE_URL is set. Set false in multi-instance prod. */
   runMigrationsOnStart: (process.env.RUN_MIGRATIONS_ON_START ?? 'true') !== 'false',
   clientAppUrl: (process.env.CLIENT_APP_URL ?? 'http://localhost:5173').replace(/\/$/, ''),
+  /** Public base URL of this server, used as the MCP OAuth issuer + resource id. */
+  mcpPublicUrl: (
+    process.env.MCP_PUBLIC_URL ?? `http://localhost:${num(process.env.PORT, 8787)}`
+  ).replace(/\/$/, ''),
   stripeSecretKey: process.env.STRIPE_SECRET_KEY?.trim() || undefined,
   stripeWebhookSecret: process.env.STRIPE_WEBHOOK_SECRET?.trim() || undefined,
   stripePricePro: process.env.STRIPE_PRICE_PRO?.trim() || undefined,

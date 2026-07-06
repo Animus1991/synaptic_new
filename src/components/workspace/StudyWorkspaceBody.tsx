@@ -5,6 +5,7 @@ import { cn } from '../../utils/cn';
 import { useStudyWorkspace } from './studyWorkspace/useStudyWorkspace';
 import { StudyWorkspaceChrome } from './studyWorkspace/StudyWorkspaceChrome';
 import { StudyWorkspaceMainLayout } from './studyWorkspace/StudyWorkspaceMainLayout';
+import { NotebookWorkspaceLayout } from './studyWorkspace/NotebookWorkspaceLayout';
 import { StudyWorkspaceOverlays } from './studyWorkspace/StudyWorkspaceOverlays';
 import type { StudyWorkspaceProps } from './studyWorkspace/types';
 import { markWorkspaceBodyReady } from '../../lib/workspacePerf';
@@ -40,7 +41,9 @@ export function StudyWorkspaceBody(props: StudyWorkspaceProps) {
         data-grounded={model.noteBundle.hasSource ? 'true' : 'false'}
       >
         <StudyWorkspaceChrome model={model} />
-        <StudyWorkspaceMainLayout model={model} />
+        {model.notebookMode && !model.isMobile
+          ? <NotebookWorkspaceLayout model={model} />
+          : <StudyWorkspaceMainLayout model={model} />}
         <StudyWorkspaceOverlays model={model} />
       </div>
       </WorkspaceEmptyActionsProvider>

@@ -10,6 +10,7 @@ import {
   type WorkspaceEmptyTool,
 } from '../../../lib/workspaceEmptyState';
 import { loadWorkspaceStep, saveWorkspaceStep, loadWorkspaceNotes, saveWorkspaceNotes, loadConceptBus, saveConceptBus, loadAllConceptBuses, loadConceptMapGraph, loadConceptMapPositions } from '../../../lib/workspacePersistence';
+import { loadJson, saveJson } from '../../../lib/persistence';
 import { mergeConceptMapGraph } from '../../../lib/conceptMapGraph';
 import { buildMiniDashboardProps } from '../../../lib/workspaceData';
 import { collectConceptBusInsights, countSpacedStepReviewsDue, type ConceptBusMap } from '../../../lib/conceptBusSync';
@@ -215,6 +216,7 @@ export function useStudyWorkspace({
   onConsumeWorkspaceOpenTool,
   workspaceOpenSimulatorTab = null,
   onConsumeWorkspaceOpenSimulatorTab,
+  renderCenterAgent,
 }: StudyWorkspaceProps) {
   const { t, lang } = useI18n();
   const intelReady = useWorkspaceIntelHydration();
@@ -238,6 +240,15 @@ export function useStudyWorkspace({
   const [genStatus] = useState<'idle' | 'loading' | 'ready' | 'fallback'>('idle');
   const [lessonCollapsed, setLessonCollapsed] = useState(false);
   const [chromeHidden, setChromeHidden] = useState(false);
+  // NotebookLM-style 3-panel view (Sources | Chat | Studio). Persisted per user,
+  // additive: the classic layout stays fully intact when this is off.
+  const [notebookMode, setNotebookModeState] = useState<boolean>(() =>
+    loadJson<boolean>('workspace-notebook-mode', true),
+  );
+  const setNotebookMode = useCallback((next: boolean) => {
+    setNotebookModeState(next);
+    saveJson('workspace-notebook-mode', next);
+  }, []);
   const [showPalette, setShowPalette] = useState(false);
   const [showShortcutHelp, setShowShortcutHelp] = useState(false);
   const [showNotes, setShowNotes] = useState(false);
@@ -2085,6 +2096,9 @@ export function useStudyWorkspace({
     userSettings,
     onSessionDirty,
     agentSplit,
+    notebookMode,
+    setNotebookMode,
+    renderCenterAgent,
     t,
     lang,
     progressKey,

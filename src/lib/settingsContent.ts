@@ -54,6 +54,9 @@ export type SettingsContent = {
   labelUseLlm: string;
   useLlmOptions: ToggleOption[];
   llmOfflineHint: string;
+  labelUseVisionOcr: string;
+  visionOcrOptions: ToggleOption[];
+  visionOcrHint: string;
   sectionAccountSync: string;
   planLabel: string;
   upgradePro: string;
@@ -224,6 +227,13 @@ const EN: SettingsContent = {
   ],
   llmOfflineHint:
     'Without a key, Agent and Feynman use offline templates. Keys never leave your browser except to your chosen API endpoint.',
+  labelUseVisionOcr: 'Vision OCR for Greek handwriting & scans',
+  visionOcrOptions: [
+    { value: 'true', label: 'Enabled' },
+    { value: 'false', label: 'Offline OCR only' },
+  ],
+  visionOcrHint:
+    'When enabled, scanned pages and handwritten Greek notes are transcribed by a vision-capable LLM (via your key or local OCR proxy) for far higher accuracy. Falls back to offline Tesseract when unavailable.',
   sectionAccountSync: 'Account & Sync',
   planLabel: 'Plan:',
   upgradePro: 'Upgrade to Pro',
@@ -407,6 +417,13 @@ const EL: SettingsContent = {
   ],
   llmOfflineHint:
     'Χωρίς key, Agent και Feynman χρησιμοποιούν offline templates. Τα keys δεν φεύγουν από τον browser εκτός από το API endpoint που επιλέγεις.',
+  labelUseVisionOcr: 'Vision OCR για ελληνικό χειρόγραφο & σαρώσεις',
+  visionOcrOptions: [
+    { value: 'true', label: 'Ενεργό' },
+    { value: 'false', label: 'Μόνο offline OCR' },
+  ],
+  visionOcrHint:
+    'Όταν είναι ενεργό, σαρωμένες σελίδες και χειρόγραφες ελληνικές σημειώσεις μεταγράφονται από vision LLM (μέσω του key σου ή του τοπικού OCR proxy) για πολύ μεγαλύτερη ακρίβεια. Επιστρέφει σε offline Tesseract όταν δεν είναι διαθέσιμο.',
   sectionAccountSync: 'Λογαριασμός & Συγχρονισμός',
   planLabel: 'Πλάνο:',
   upgradePro: 'Αναβάθμιση σε Pro',

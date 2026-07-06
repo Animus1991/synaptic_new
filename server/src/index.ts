@@ -27,6 +27,8 @@ import { googleIntegrationsRouter } from './routes/googleIntegrations';
 import { googleCalendarRouter } from './routes/googleCalendar';
 import { accountRouter } from './routes/account';
 import { studyRoomsRouter } from './routes/studyRooms';
+import { mcpRouter } from './mcp/router';
+import { oauthRouter, wellKnownRouter } from './mcp/oauth/router';
 import { bootstrapStudyRoomsFromPg } from './store/studyRoomPgStore';
 import { initVectorIndexQueue } from './jobs/vectorIndexQueue';
 import { initTranscribeQueue } from './jobs/transcribeQueue';
@@ -68,6 +70,8 @@ export function createApp(): express.Application {
         rateLimitRequireRedis: production.rateLimit.requireRedis,
         googleOAuth: Boolean(config.googleClientId && config.googleClientSecret),
         studyRooms: true,
+        mcp: true,
+        mcpOAuth: true,
         vectorIndexQueue: production.vectorIndexQueue,
         pgvectorRag: production.pgvector,
         collab: true,
@@ -112,6 +116,9 @@ export function createApp(): express.Application {
   app.use('/v1', accountRouter);
   app.use('/v1', studyRoomsRouter);
   app.use('/v1', proxyRouter);
+  app.use(wellKnownRouter);
+  app.use(oauthRouter);
+  app.use(mcpRouter);
 
   app.use(chunkErrorsRouter);
 

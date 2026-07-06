@@ -215,6 +215,10 @@ export function Settings({
         <p className="text-xs text-text-muted mt-1 px-1">
           {c.llmOfflineHint}
         </p>
+        <ToggleRow label={c.labelUseVisionOcr} options={c.visionOcrOptions} value={settings.useVisionOcr !== false ? 'true' : 'false'} onChange={v => onUpdate({ useVisionOcr: v === 'true' })} />
+        <p className="text-xs text-text-muted mt-1 px-1">
+          {c.visionOcrHint}
+        </p>
       </SettingsSection>
 
       <SettingsSection title={c.sectionAccountSync} icon={<KeyRound className="w-5 h-5 text-accent-teal" />} delay={0.34}>

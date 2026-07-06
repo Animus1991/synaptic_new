@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import type { WorkspaceToolId } from '../../../lib/taskFlows';
 import type { Course, GlossaryEntry, LearnerModel, Task, UploadedFile, UserSettings, ActivityItem } from '../../../types';
 import type { WorkspaceFocus } from '../../../lib/workspaceFocus';
@@ -52,6 +53,12 @@ export interface StudyWorkspaceProps {
   onConsumeWorkspaceOpenTool?: () => void;
   workspaceOpenSimulatorTab?: 'simulator' | 'exam-prep' | null;
   onConsumeWorkspaceOpenSimulatorTab?: () => void;
+  /**
+   * Optional render-prop for the embedded AI chat used by the NotebookLM-style
+   * layout's center panel. When provided, the notebook view renders this in the
+   * center column; otherwise it falls back to a launcher that opens the agent.
+   */
+  renderCenterAgent?: () => ReactNode;
 }
 
 export const AVAILABLE_TOOLS: WorkspaceTool[] = [

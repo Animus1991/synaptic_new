@@ -36,6 +36,8 @@ export type OpenAgentFromWorkspaceOpts = {
   mode?: import('../types').AgentMode;
   autoSend?: boolean;
   context?: AgentWorkspaceContext;
+  /** Leave workspace and open the full Agent page (default: stay in workspace chat panel). */
+  fullPage?: boolean;
 };
 
 /**

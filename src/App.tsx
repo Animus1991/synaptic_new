@@ -395,6 +395,21 @@ export default function App() {
         onConsumeWorkspaceOpenTool={store.consumeWorkspaceOpenTool}
         workspaceOpenSimulatorTab={store.workspaceOpenSimulatorTab}
         onConsumeWorkspaceOpenSimulatorTab={store.consumeWorkspaceOpenSimulatorTab}
+        renderCenterAgent={
+          store.workspaceInlineAgentOpen
+            ? () => (
+                <div className="h-full min-h-0 flex flex-col" data-testid="workspace-inline-agent">
+                  <LazyOverlay>
+                    <Agent
+                      {...agentPanelProps}
+                      embedded
+                      onOpenFullPage={() => store.openAgentFromWorkspace({ fullPage: true })}
+                    />
+                  </LazyOverlay>
+                </div>
+              )
+            : undefined
+        }
       />
     </ErrorBoundary>
   );

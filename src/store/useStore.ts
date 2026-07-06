@@ -309,6 +309,8 @@ export function useAppStore() {
   const [notebookShellCourseId, setNotebookShellCourseId] = useState<string | null>(null);
   /** Side-by-side workspace + Agent when navigating via sidebar while workspace is open. */
   const [workspaceAgentSplit, setWorkspaceAgentSplit] = useState(false);
+  /** Agent embedded in workspace center panel (NotebookLM chat column). */
+  const [workspaceInlineAgentOpen, setWorkspaceInlineAgentOpen] = useState(false);
   /** Side-by-side workspace + CourseView when opening a course while workspace stays open. */
   const [workspaceCourseSplit, setWorkspaceCourseSplit] = useState(false);
   const studyWorkspaceOpenRef = useRef(false);
@@ -355,6 +357,7 @@ export function useAppStore() {
     setStudyConceptOverride(null);
     setWorkspaceFocus(null);
     setWorkspaceAgentSplit(false);
+    setWorkspaceInlineAgentOpen(true);
     setNotebookShellCourseId(null);
     studyWorkspaceOpenRef.current = true;
     setStudyWorkspaceOpen(true);
@@ -383,6 +386,7 @@ export function useAppStore() {
     setStudyConceptOverride(trimmed);
     setWorkspaceFocus(trimmed ? { term: trimmed, originTool: 'dashboard' } : null);
     setWorkspaceAgentSplit(false);
+    setWorkspaceInlineAgentOpen(true);
     studyWorkspaceOpenRef.current = true;
     setStudyWorkspaceOpen(true);
   }, [cancelPendingWorkspaceClose, closeCompetingTaskOverlays]);
@@ -396,6 +400,7 @@ export function useAppStore() {
     setStudyConceptOverride(null);
     setWorkspaceFocus(null);
     setWorkspaceAgentSplit(false);
+    setWorkspaceInlineAgentOpen(true);
     setWorkspaceOpenSimulatorTab(null);
     setWorkspaceOpenTool('timer');
     studyWorkspaceOpenRef.current = true;
@@ -425,6 +430,7 @@ export function useAppStore() {
     setWorkspaceOpenTool(launch.tool);
     setWorkspaceOpenSimulatorTab(launch.simulatorTab ?? null);
     setWorkspaceAgentSplit(false);
+    setWorkspaceInlineAgentOpen(true);
     studyWorkspaceOpenRef.current = true;
     setStudyWorkspaceOpen(true);
   }, [cancelPendingWorkspaceClose, closeCompetingTaskOverlays, courses]);
@@ -449,6 +455,7 @@ export function useAppStore() {
     });
     setSourceHighlight(highlight);
     setWorkspaceAgentSplit(false);
+    setWorkspaceInlineAgentOpen(true);
     studyWorkspaceOpenRef.current = true;
     setStudyWorkspaceOpen(true);
   }, [cancelPendingWorkspaceClose, closeCompetingTaskOverlays]);
@@ -1005,7 +1012,15 @@ export function useAppStore() {
     setAgentDraftPrompt(opts?.prompt?.trim() || null);
     setAgentAutoSend(opts?.autoSend ?? false);
     setAgentWorkspaceContext(merged);
+
+    if (studyWorkspaceOpenRef.current && !opts?.fullPage) {
+      setWorkspaceInlineAgentOpen(true);
+      setWorkspaceAgentSplit(false);
+      return;
+    }
+
     setWorkspaceAgentSplit(false);
+    setWorkspaceInlineAgentOpen(false);
     studyWorkspaceOpenRef.current = false;
     setStudyWorkspaceOpen(false);
     navigate('agent');
@@ -1255,6 +1270,7 @@ export function useAppStore() {
     studyWorkspaceOpenRef.current = false;
     setStudyWorkspaceOpen(false);
     setWorkspaceAgentSplit(false);
+    setWorkspaceInlineAgentOpen(false);
     setWorkspaceCourseSplit(false);
     setActiveTaskId(null);
     void flushConceptBusSync().catch(() => {});
@@ -2223,6 +2239,7 @@ export function useAppStore() {
     agentWorkspaceContext, setAgentWorkspaceContext, openAgentFromWorkspace, agentContextForView,
     workspaceLive, syncWorkspaceLive, workspaceContext,
     workspaceAgentSplit, setWorkspaceAgentSplit, exitWorkspaceAgentSplit,
+    workspaceInlineAgentOpen, setWorkspaceInlineAgentOpen,
     workspaceCourseSplit, exitWorkspaceCourseSplit,
     dashboardNextAction,
     dailyPlan,
