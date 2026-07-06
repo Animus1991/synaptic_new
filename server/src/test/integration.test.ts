@@ -864,6 +864,8 @@ describe('server integration sweep', () => {
     expect(health.body.features.l12Enterprise.workspacePerfBudget).toBe(true);
     expect(health.body.features.l13Enterprise.notebooklmImport).toBe(true);
     expect(health.body.features.l13Enterprise.platformFocusConsolidation).toBe(true);
+    expect(health.body.features.l13Enterprise.notebooklmDeepLink).toBe(true);
+    expect(health.body.features.l13Enterprise.notebookShellView).toBe(true);
 
     const auditExport = await request(app)
       .get(`/v1/orgs/${orgId}/audit-logs/export?format=csv`)

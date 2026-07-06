@@ -36,6 +36,7 @@ import type { FsrsRating } from './lib/pedagogy';
 import { visibleCourses } from './lib/demoMode';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { StudyWorkspaceLazy } from './components/workspace/StudyWorkspaceLazy';
+import { NotebookShellView } from './components/NotebookShellView';
 import { prefetchWorkspaceEntry } from './lib/workspaceEntryPrefetch';
 import { preloadCriticalChunks } from './lib/preloadCriticalChunks';
 import { lazyWithRetry } from './lib/lazyWithRetry';
@@ -514,6 +515,22 @@ export default function App() {
         />
         </LazyOverlay>
       )}
+      {store.notebookShellCourseId && store.selectedCourse && (
+        <NotebookShellView
+          course={store.selectedCourse}
+          sources={store.uploadedFiles.filter((f) => f.courseId === store.selectedCourse!.id)}
+          lang={store.user.settings.language === 'el' ? 'el' : 'en'}
+          onClose={store.closeNotebookShell}
+          onOpenWorkspace={() => {
+            store.closeNotebookShell();
+            openCourseWorkspace();
+          }}
+          onOpenLibraryImport={() => {
+            store.closeNotebookShell();
+            store.navigate('library');
+          }}
+        />
+      )}
       {store.studyWorkspaceOpen && (
         courseSplitActive && store.selectedCourse ? (
           <div className="fixed inset-0 z-50 flex bg-surface-primary" data-testid="workspace-course-split">
@@ -907,6 +924,7 @@ export default function App() {
               onOpenWorkspace={openCourseWorkspace}
               onDismissPostUpload={store.clearPostUploadHighlight}
               onImportNotebookLm={store.importNotebookLm}
+              onOpenNotebookShell={store.openNotebookShell}
             />
           )}
           {store.currentView === 'tasks' && (

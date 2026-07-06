@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Search, Upload, BookOpen, FileText, ChevronRight, ChevronDown,
   Clock, BarChart3, Sparkles, Grid3X3, List, Loader2,
-  File, Image, Code, Presentation, Table2, AlertTriangle, Trash2, RefreshCw,
+  File, Image, Code, Presentation, Table2, AlertTriangle, Trash2, RefreshCw, ExternalLink,
 } from '@/lib/lucide-shim';
 import type { Course, UploadedFile, UserSettings, Task, GlossaryEntry } from '../types';
 import { cn } from '../utils/cn';
@@ -30,6 +30,7 @@ import { CrossLibrarySynthesisPanel } from './CrossLibrarySynthesisPanel';
 import { NotebookLmImportPanel } from './NotebookLmImportPanel';
 import { showCrossLibrarySynthesis } from '../lib/platformFocus';
 import type { NotebookLmImportResult } from '../lib/notebooklmImport';
+import { openNotebookLm, notebookLmSourceLabel } from '../lib/notebooklmBridge';
 
 interface LibraryProps {
   courses: Course[];
@@ -47,6 +48,7 @@ interface LibraryProps {
   onOpenWorkspace?: () => void;
   onDismissPostUpload?: () => void;
   onImportNotebookLm?: (raw: string) => NotebookLmImportResult | null;
+  onOpenNotebookShell?: (courseId: string) => void;
 }
 
 type LibraryTab = 'courses' | 'files';
@@ -79,6 +81,7 @@ export function Library({
   onOpenWorkspace,
   onDismissPostUpload,
   onImportNotebookLm,
+  onOpenNotebookShell,
 }: LibraryProps) {
   const userLanguage = userSettings?.language === 'el' ? 'el' : 'en';
   const postUploadCourse = postUploadCourseId
@@ -271,8 +274,8 @@ export function Library({
               )}>
                 {filteredCourses.map((course, i) => (
                   viewMode === 'grid'
-                    ? <CourseCard key={course.id} course={course} index={i} tasks={tasks} glossaryEntries={glossaryEntries} uploadedFiles={uploadedFiles} userLanguage={userLanguage} onClick={() => onSelectCourse(course)} onRemoveCourse={onRemoveCourse} />
-                    : <CourseListItem key={course.id} course={course} index={i} tasks={tasks} glossaryEntries={glossaryEntries} uploadedFiles={uploadedFiles} userLanguage={userLanguage} onClick={() => onSelectCourse(course)} onRemoveCourse={onRemoveCourse} />
+                    ? <CourseCard key={course.id} course={course} index={i} tasks={tasks} glossaryEntries={glossaryEntries} uploadedFiles={uploadedFiles} userLanguage={userLanguage} onClick={() => onSelectCourse(course)} onRemoveCourse={onRemoveCourse} onOpenNotebookShell={onOpenNotebookShell} />
+                    : <CourseListItem key={course.id} course={course} index={i} tasks={tasks} glossaryEntries={glossaryEntries} uploadedFiles={uploadedFiles} userLanguage={userLanguage} onClick={() => onSelectCourse(course)} onRemoveCourse={onRemoveCourse} onOpenNotebookShell={onOpenNotebookShell} />
                 ))}
               </div>
             )}
@@ -325,6 +328,7 @@ function CourseCard({
   index,
   onClick,
   onRemoveCourse,
+  onOpenNotebookShell,
   uploadedFiles,
   tasks = [],
   glossaryEntries = [],
@@ -334,6 +338,7 @@ function CourseCard({
   index: number;
   onClick: () => void;
   onRemoveCourse?: (courseId: string) => boolean;
+  onOpenNotebookShell?: (courseId: string) => void;
   uploadedFiles: UploadedFile[];
   tasks?: Task[];
   glossaryEntries?: GlossaryEntry[];
@@ -465,6 +470,21 @@ function CourseCard({
         </div>
       )}
 
+      {onOpenNotebookShell && !isGenerating && (
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            onOpenNotebookShell(course.id);
+          }}
+          data-testid={`library-notebook-shell-${course.id}`}
+          className="mt-3 w-full inline-flex items-center justify-center gap-1.5 rounded-lg border border-brand-500/30 bg-brand-500/5 px-2 py-1.5 text-[11px] font-medium text-brand-700 hover:bg-brand-500/10 transition-colors"
+        >
+          <BookOpen className="w-3.5 h-3.5" />
+          {userLanguage === 'el' ? 'Notebook Shell' : 'Notebook Shell'}
+        </button>
+      )}
+
       <div className="mt-3 flex items-center justify-between">
         <div className="flex flex-wrap gap-1">
           {course.sourceFiles.slice(0, 2).map(f => (
@@ -517,6 +537,7 @@ function CourseListItem({
   index,
   onClick,
   onRemoveCourse,
+  onOpenNotebookShell,
   uploadedFiles,
   tasks = [],
   glossaryEntries = [],
@@ -526,6 +547,7 @@ function CourseListItem({
   index: number;
   onClick: () => void;
   onRemoveCourse?: (courseId: string) => boolean;
+  onOpenNotebookShell?: (courseId: string) => void;
   uploadedFiles: UploadedFile[];
   tasks?: Task[];
   glossaryEntries?: GlossaryEntry[];
@@ -580,6 +602,17 @@ function CourseListItem({
         </div>
         <span className="text-sm font-medium w-12 text-right">{course.mastery}%</span>
       </div>
+      {onOpenNotebookShell && (
+        <button
+          type="button"
+          onClick={(e) => { e.stopPropagation(); onOpenNotebookShell(course.id); }}
+          data-testid={`library-notebook-shell-list-${course.id}`}
+          className="hidden sm:inline-flex items-center gap-1 rounded-lg border border-brand-500/30 px-2 py-1 text-[10px] font-medium text-brand-700 hover:bg-brand-500/10"
+        >
+          <BookOpen className="w-3 h-3" />
+          Shell
+        </button>
+      )}
       {canDelete && (
         <button
           type="button"
@@ -728,6 +761,20 @@ function FileItem({
               <Sparkles className="w-3 h-3" />
               {el ? 'Έτοιμο' : 'Ready'}
             </span>
+          )}
+          {file.status === 'analyzed' && (
+            <button
+              type="button"
+              onClick={() => void openNotebookLm({
+                sourceTitle: notebookLmSourceLabel(file.name, file.ingestMethod),
+                lang: userLanguage,
+              })}
+              data-testid={`library-open-nlm-${file.id}`}
+              className="p-1.5 rounded-lg border border-brand-500/30 text-brand-600 hover:bg-brand-500/10 transition-colors"
+              title={el ? 'Άνοιγμα στο NotebookLM' : 'Open in NotebookLM'}
+            >
+              <ExternalLink className="w-4 h-4" />
+            </button>
           )}
           {canReprocess && (
             <button

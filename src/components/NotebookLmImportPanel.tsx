@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
 import { BookOpen, ChevronDown, ChevronUp, Download, ExternalLink, Loader2 } from '@/lib/lucide-shim';
 import type { NotebookLmImportResult } from '../lib/notebooklmImport';
+import { openNotebookLm } from '../lib/notebooklmBridge';
 import { NOTEBOOKLM_URL } from '../lib/platformFocus';
 import { cn } from '../utils/cn';
 import { downloadAnkiDeck } from '../lib/ankiExport';
@@ -73,16 +74,18 @@ export function NotebookLmImportPanel({ lang, onImport, className }: Props) {
       {open && (
         <div className="px-3 pb-3 space-y-2 border-t border-brand-500/15 pt-2">
           <p className="text-[10px] text-text-secondary">{hint}</p>
-          <a
-            href={NOTEBOOKLM_URL}
-            target="_blank"
-            rel="noopener noreferrer"
+          <button
+            type="button"
+            onClick={() => void openNotebookLm({ lang })}
             className="inline-flex items-center gap-1 text-[10px] font-medium text-brand-700 dark:text-brand-300 hover:underline"
             data-testid="notebooklm-open-external"
           >
             <ExternalLink className="w-3 h-3" />
             {lang === 'el' ? 'Άνοιγμα NotebookLM' : 'Open NotebookLM'}
-          </a>
+          </button>
+          <p className="text-[10px] text-text-muted">
+            {NOTEBOOKLM_URL}
+          </p>
           <textarea
             value={text}
             onChange={(e) => setText(e.target.value)}

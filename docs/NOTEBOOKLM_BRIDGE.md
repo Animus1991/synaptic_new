@@ -66,10 +66,9 @@ Re-enable via `VITE_SHOW_NOTEBOOKLM_PARITY=true` for power users / QA.
 | Slice | Deliverable |
 | ----- | ----------- |
 | **L13-1** | `notebooklmImport.ts` + Library import panel |
-| **L13-2** | «Open in NotebookLM» on source cards + import wizard copy |
+| **L13-2** | `openNotebookLm()` + `@capacitor/browser` + per-source buttons |
+| **L13-6** | `NotebookShellView` — 3-column Synapse-native shell |
 | **L13-3** | Studio Quiz → FSRS deck one-click |
-| **L13-4** | Persona shells (self-learner vs teacher nav trim) |
-| **L13-5** | Health probe `features.l13Enterprise.notebooklmBridge` |
 
 ---
 
@@ -86,5 +85,5 @@ npx playwright test e2e/a11y-toast-aria-live.spec.ts
 ## References
 
 - `src/lib/notebooklmImport.ts` — parser + `UploadedFile` builder
-- `src/components/NotebookLmImportPanel.tsx` — Library UI
-- `src/lib/platformFocus.ts` — nav / parity feature flags
+- `src/lib/notebooklmBridge.ts` — deep link + in-app browser
+- `src/components/NotebookShellView.tsx` — 3-column shell

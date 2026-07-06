@@ -292,6 +292,8 @@ export function useAppStore() {
   const [activeLessonView, setActiveLessonView] = useState(false);
   const [practicalLessonView, setPracticalLessonView] = useState(false);
   const [studyWorkspaceOpen, setStudyWorkspaceOpen] = useState(false);
+  /** L13-6 — NotebookLM-style 3-column shell for a course. */
+  const [notebookShellCourseId, setNotebookShellCourseId] = useState<string | null>(null);
   /** Side-by-side workspace + Agent when navigating via sidebar while workspace is open. */
   const [workspaceAgentSplit, setWorkspaceAgentSplit] = useState(false);
   /** Side-by-side workspace + CourseView when opening a course while workspace stays open. */
@@ -340,9 +342,21 @@ export function useAppStore() {
     setStudyConceptOverride(null);
     setWorkspaceFocus(null);
     setWorkspaceAgentSplit(false);
+    setNotebookShellCourseId(null);
     studyWorkspaceOpenRef.current = true;
     setStudyWorkspaceOpen(true);
   }, [cancelPendingWorkspaceClose, closeCompetingTaskOverlays]);
+
+  const openNotebookShell = useCallback((courseId: string) => {
+    const course = courses.find((c) => c.id === courseId);
+    if (!course) return;
+    setSelectedCourse(course);
+    setNotebookShellCourseId(courseId);
+  }, [courses]);
+
+  const closeNotebookShell = useCallback(() => {
+    setNotebookShellCourseId(null);
+  }, []);
 
   const openStudyWorkspaceForConcept = useCallback((concept?: string) => {
     markWorkspaceContinue();
@@ -2032,6 +2046,7 @@ export function useAppStore() {
     practicalLessonView, setPracticalLessonView,
     studyWorkspaceOpen, setStudyWorkspaceOpen,
     openStudyWorkspace, closeStudyWorkspace,
+    notebookShellCourseId, openNotebookShell, closeNotebookShell,
     studyConceptOverride, openStudyWorkspaceForConcept, openStudyWorkspaceForExamCountdown,
     openStudyWorkspaceForPractice,
     workspaceOpenTool, consumeWorkspaceOpenTool,

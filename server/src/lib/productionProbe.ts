@@ -84,6 +84,8 @@ export type ProductionProbeStatus = {
   l13Enterprise: {
     notebooklmImport: boolean;
     platformFocusConsolidation: boolean;
+    notebooklmDeepLink: boolean;
+    notebookShellView: boolean;
   };
 };
 
@@ -185,6 +187,8 @@ export async function getProductionProbeStatus(): Promise<ProductionProbeStatus>
     l13Enterprise: {
       notebooklmImport: true,
       platformFocusConsolidation: true,
+      notebooklmDeepLink: true,
+      notebookShellView: true,
     },
   };
 }
