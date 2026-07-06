@@ -37,8 +37,8 @@ npx playwright test e2e/notebook-workspace.spec.ts e2e/source-thumbnail.spec.ts
 | P0-03 | E2E helper `openReaderInWorkspace` / `openToolInWorkspace` | **shipped** | 5 specs migrated |
 | P0-04 | L17-7 `features.l17Enterprise.pdfThumbnails` health probe | **shipped** | `productionProbe.ts` |
 | P0-05 | Create this living `GAP_AUDIT.md` | **shipped** | Jul 2026 |
-| P0-06 | Migrate remaining dock-only E2E specs | open | `quiz-workspace-flow`, `workspace-empty-tools`, a11y canvas specs |
-| P0-07 | L17 manual QA checklist (6 scenarios) | open | `SPRINT_L17_PDF_SOURCE_THUMBNAILS.md` |
+| P0-06 | Migrate remaining dock-only E2E specs | **shipped** | quiz-workspace, workspace-empty-tools, a11y-canvas |
+| P0-07 | L17 manual QA checklist (6 scenarios) | open | `SPRINT_L17_PDF_SOURCE_THUMBNAILS.md` — run in CI bake |
 
 ---
 
@@ -50,7 +50,7 @@ Surfaces from the default 3-panel layout (`notebookMode` ON).
 
 | ID | Item | Priority | Status | Acceptance |
 | -- | ---- | -------- | ------ | ---------- |
-| SRC-01 | Pin active source at top of list | P1 | open | Selected source stays visible while scrolling |
+| SRC-01 | Pin active source at top of list | P1 | **shipped** | Pin icon + reorder; first source default |
 | SRC-02 | Source guide (AI) — full grounding on active file | P1 | shipped | `source guide` in Sources column |
 | SRC-03 | Quality strip + reprocess CTA | P1 | shipped | Shows % + pipeline version warning |
 | SRC-04 | PDF page-preview thumbnail (L17) | P1 | shipped | `source-thumbnail-preview` or typed chip |
@@ -67,7 +67,7 @@ Surfaces from the default 3-panel layout (`notebookMode` ON).
 | CHAT-02 | Compact context chip (hover popover) | P1 | shipped | `AgentContextBanner compact` |
 | CHAT-03 | Socratic / grounded mode badges | P1 | shipped | Mode + source labels visible |
 | CHAT-04 | Citation chips → reader jump | P1 | shipped | Slide/page reference opens reader |
-| CHAT-05 | Auto-focus chat input on workspace open | P1 | open | Keyboard-ready within 200ms |
+| CHAT-05 | Auto-focus chat input on workspace open | P1 | **shipped** | `autoFocusInput` on embedded Agent |
 | CHAT-06 | Classic layout inline chat drawer | P2 | open | No redirect when `notebookMode` off |
 | CHAT-07 | «Πλήρης προβολή» full Agent page | P1 | shipped | `fullPage: true` only |
 
@@ -77,11 +77,11 @@ Surfaces from the default 3-panel layout (`notebookMode` ON).
 | -- | ---- | -------- | ------ | ---------- |
 | STU-01 | 12 tool cards + overlay surface | P0 | shipped | All tools reachable, zero removal |
 | STU-02 | Ask AI sparkle → pre-filled chat prompt | P1 | shipped | `buildToolDefaultAgentPrompt` |
-| STU-03 | Generation states (audio overview, mind map) | P1 | open | Loading / success / error per card |
-| STU-04 | Persistent «Ask AI» rail in tool overlay | P1 | open | Visible while tool open |
-| STU-05 | One-click «Φτιάξε κουίζ» Studio action | P1 | open | Opens quiz tool + generates session |
-| STU-06 | One-click «Mind map από πηγή» | P1 | open | Opens concept-map + graph from source |
-| STU-07 | Visual regression screenshot (notebook layout) | P1 | open | Playwright snapshot in CI |
+| STU-03 | Generation states (audio overview, mind map) | P1 | **shipped** | `data-generation-state` on quiz + concept-map cards |
+| STU-04 | Persistent «Ask AI» rail in tool overlay | P1 | **shipped** | `notebook-studio-ask-ai-rail` |
+| STU-05 | One-click «Φτιάξε κουίζ» Studio action | P1 | **shipped** | `studio-action-quiz-from-source` |
+| STU-06 | One-click «Mind map από πηγή» | P1 | **shipped** | `studio-action-mindmap-from-source` |
+| STU-07 | Visual regression screenshot (notebook layout) | P1 | **shipped** | `e2e/notebook-workspace.spec.ts` snapshot |
 | STU-08 | Mobile bottom tabs Sources \| Chat \| Studio | P1 | shipped | `notebook-mobile-tabs` |
 
 ---
@@ -195,9 +195,9 @@ Goal: every tool **fully functional for its learning purpose**, not demo stubs.
 
 | ID | Item | Priority | Status |
 | -- | ---- | -------- | ------ |
-| AI-01 | Studio generation states | P1 | open |
-| AI-02 | Persistent Ask AI rail in tool overlay | P1 | open |
-| AI-03 | One-click quiz / mindmap Studio actions | P1 | open |
+| AI-01 | Studio generation states | P1 | **shipped** | See STU-03 |
+| AI-02 | Persistent Ask AI rail in tool overlay | P1 | **shipped** | See STU-04 |
+| AI-03 | One-click quiz / mindmap Studio actions | P1 | **shipped** | See STU-05/06 |
 | AI-04 | Agent chips on Feynman / Compare / Debate | P2 | open |
 | AI-05 | `VITE_SHOW_NOTEBOOKLM_PARITY` default strategy | P2 | open |
 

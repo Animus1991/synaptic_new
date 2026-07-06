@@ -35,7 +35,17 @@ export async function openReaderInWorkspace(page: Page) {
   await expect(page.getByTestId('cognitive-reader')).toBeVisible({ timeout: 15_000 });
 }
 
-/** Open any workspace tool — notebook Studio cards or classic dock. */
+/** Switch to classic dock layout when notebook mode hides the tool dock. */
+export async function useClassicWorkspaceLayout(page: Page) {
+  const notebook = page.getByTestId('notebook-workspace-layout');
+  if (!(await notebook.isVisible().catch(() => false))) return;
+  await page.evaluate(() => {
+    localStorage.setItem('workspace-notebook-mode', JSON.stringify(false));
+  });
+  await page.reload();
+  await expect(page.getByTestId('study-workspace')).toBeVisible({ timeout: 45_000 });
+}
+
 export async function openToolInWorkspace(page: Page, toolId: WorkspaceDockToolId) {
   if (toolId === 'reader') {
     await openReaderInWorkspace(page);

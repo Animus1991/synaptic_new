@@ -52,6 +52,8 @@ interface AgentProps {
   workspaceContext?: AgentWorkspaceContext | null;
   /** Compact panel for workspace center column (NotebookLM chat). */
   embedded?: boolean;
+  /** Focus the chat input when embedded (workspace open). */
+  autoFocusInput?: boolean;
   /** Open the full-page Agent view (optional escape hatch). */
   onOpenFullPage?: () => void;
 }
@@ -95,6 +97,7 @@ export function Agent({
   onConsumeAutoSend,
   workspaceContext,
   embedded = false,
+  autoFocusInput = false,
   onOpenFullPage,
 }: AgentProps) {
   const { t } = useI18n();
@@ -141,6 +144,14 @@ export function Agent({
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  useEffect(() => {
+    if (!embedded || !autoFocusInput) return;
+    const frame = window.requestAnimationFrame(() => {
+      inputRef.current?.focus();
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [embedded, autoFocusInput]);
 
   const handleSendRef = useRef<(overrideText?: string) => Promise<void>>(async () => {});
 
@@ -648,6 +659,7 @@ export function Agent({
               <textarea
                 ref={inputRef}
                 value={input}
+                data-testid="agent-chat-input"
                 onChange={e => setInput(e.target.value)}
                 onKeyDown={e => {
                   if (e.key === 'Enter' && !e.shiftKey) {

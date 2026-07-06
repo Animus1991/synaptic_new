@@ -403,6 +403,7 @@ export default function App() {
                     <Agent
                       {...agentPanelProps}
                       embedded
+                      autoFocusInput
                       onOpenFullPage={() => store.openAgentFromWorkspace({ fullPage: true })}
                     />
                   </LazyOverlay>

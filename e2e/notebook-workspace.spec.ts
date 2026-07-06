@@ -13,7 +13,12 @@ async function openNotebookWorkspace(page: import('@playwright/test').Page) {
   await page.goto('/');
   await skipOnboardingToLibrary(page);
 
-  await page.getByTestId('nav-library').click();
+  const mobileLibrary = page.getByTestId('nav-mobile-library');
+  if (await mobileLibrary.isVisible().catch(() => false)) {
+    await mobileLibrary.click();
+  } else {
+    await page.getByTestId('nav-library').click();
+  }
   await page.getByTestId('library-upload').click();
   await page.getByTestId('upload-paste').fill(NOTES);
   await page.getByTestId('upload-continue').click();
@@ -60,6 +65,39 @@ test.describe('NotebookLM workspace layout', () => {
     await expect(page.getByTestId('study-workspace')).toBeVisible();
     await expect(page.getByTestId('agent-embedded')).toBeVisible();
     await expect(page.getByTestId('agent-page')).not.toBeVisible();
+  });
+
+  test('auto-focuses chat input when workspace opens', async ({ page }) => {
+    await openNotebookWorkspace(page);
+    const input = page.getByTestId('agent-chat-input');
+    await expect(input).toBeVisible({ timeout: 15_000 });
+    await expect(input).toBeFocused({ timeout: 5_000 });
+  });
+
+  test('pins active source at top of sources list', async ({ page }) => {
+    await openNotebookWorkspace(page);
+    const firstRow = page.locator('[data-testid^="notebook-source-row-"]').first();
+    await expect(firstRow).toBeVisible();
+    await expect(page.locator('[data-testid^="notebook-source-pinned-"]').first()).toBeVisible();
+  });
+
+  test('studio one-click quiz action opens tool and chat', async ({ page }) => {
+    await openNotebookWorkspace(page);
+    const action = page.getByTestId('studio-action-quiz-from-source');
+    await expect(action).toBeVisible();
+    await action.click();
+    await expect(page.getByTestId('agent-embedded')).toBeVisible();
+    await expect(page.getByTestId('notebook-studio-ask-ai-rail')).toBeVisible({ timeout: 15_000 });
+  });
+
+  test('desktop notebook layout visual regression', async ({ page }) => {
+    await openNotebookWorkspace(page);
+    const layout = page.getByTestId('notebook-workspace-layout');
+    await expect(layout).toBeVisible({ timeout: 15_000 });
+    await expect(layout).toHaveScreenshot('notebook-workspace-desktop.png', {
+      maxDiffPixelRatio: 0.04,
+      timeout: 15_000,
+    });
   });
 });
 

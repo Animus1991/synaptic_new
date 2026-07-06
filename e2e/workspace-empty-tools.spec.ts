@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { openStudyWorkspaceViaPalette, skipOnboardingNoDemo, skipOnboardingToLibrary } from './helpers/onboarding';
+import { openToolInWorkspace, useClassicWorkspaceLayout } from './helpers/workspace';
 
 /** Tools that must show upload-gated empty state — never fabricated rows, cards, etc. */
 const TOOL_EMPTY_CASES: { dockId: string; emptyTool: string }[] = [
@@ -45,9 +46,10 @@ test.describe('Workspace empty states without upload (P0)', () => {
 
     await openStudyWorkspaceViaPalette(page);
     await expect(page.locator('[data-testid="study-workspace"][data-grounded="false"]')).toBeVisible();
+    await useClassicWorkspaceLayout(page);
 
     for (const { dockId, emptyTool } of TOOL_EMPTY_CASES) {
-      await page.getByTestId(`dock-tool-${dockId}`).click();
+      await openToolInWorkspace(page, dockId as import('./helpers/workspace').WorkspaceDockToolId);
       await expect(uploadGatedEmpty(page, emptyTool)).toBeVisible({ timeout: 10_000 });
       // Regression guard: quiz must never show placeholder dash options or active session UI.
       await expect(page.getByText('- - -')).toHaveCount(0);

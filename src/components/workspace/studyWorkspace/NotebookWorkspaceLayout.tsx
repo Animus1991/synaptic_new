@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Group, Panel, Separator } from 'react-resizable-panels';
 import {
-  ChevronRight, FileText, LayoutGrid, MessageSquare, Plus, RefreshCw, Sparkles,
+  ChevronRight, FileText, LayoutGrid, MessageSquare, Pin, Plus, RefreshCw, Sparkles,
 } from '@/lib/lucide-shim';
 import { cn } from '../../../utils/cn';
 import {
@@ -19,6 +19,8 @@ import type { WorkspaceTool } from './types';
 interface NotebookWorkspaceLayoutProps {
   model: StudyWorkspaceModel;
 }
+
+type StudioGenState = 'idle' | 'running' | 'done' | 'error';
 
 type MobileTab = 'sources' | 'chat' | 'studio';
 
@@ -63,6 +65,8 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
 
   const [studioToolOpen, setStudioToolOpen] = useState(false);
   const [mobileTab, setMobileTab] = useState<MobileTab>('chat');
+  const [activeSourceKey, setActiveSourceKey] = useState<string | null>(null);
+  const [studioGen, setStudioGen] = useState<Partial<Record<string, StudioGenState>>>({});
   const concept = effectiveFocus?.term ?? quizConcept;
   const sectionTitle = STEPS[currentStep]?.title;
   const notebookTitle = courseName ?? linkedCourse?.title ?? quizConcept;
@@ -86,6 +90,27 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
       if (isMobile) setMobileTab('chat');
     },
     [lang, concept, sectionTitle, openStudioTool, openAgentForTool, isMobile],
+  );
+
+  const runStudioQuickAction = useCallback(
+    (actionId: 'quiz-from-source' | 'mindmap-from-source', tool: WorkspaceTool) => {
+      setStudioGen((prev) => ({ ...prev, [actionId]: 'running' }));
+      openStudioTool(tool);
+      const prompt =
+        actionId === 'quiz-from-source'
+          ? (lang === 'el'
+            ? `Φτιάξε ένα κουίζ με ερωτήσεις active recall από τις πηγές μου για «${concept ?? notebookTitle}».`
+            : `Create an active-recall quiz from my sources for "${concept ?? notebookTitle}".`)
+          : (lang === 'el'
+            ? `Δημιούργησε χάρτη εννοιών από τις πηγές μου για «${concept ?? notebookTitle}» με κεντρικές έννοιες και σχέσεις.`
+            : `Build a concept map from my sources for "${concept ?? notebookTitle}" with key concepts and relations.`);
+      openAgentForTool(tool, prompt);
+      if (isMobile) setMobileTab('chat');
+      window.setTimeout(() => {
+        setStudioGen((prev) => ({ ...prev, [actionId]: 'done' }));
+      }, 600);
+    },
+    [lang, concept, notebookTitle, openStudioTool, openAgentForTool, isMobile],
   );
 
   const openSourceGuide = useCallback(() => {
@@ -140,6 +165,22 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
     )
     : [];
 
+  const pinnedSourceKey = activeSourceKey ?? sourceRows[0]?.key ?? null;
+  const orderedSourceRows = pinnedSourceKey
+    ? [
+        ...sourceRows.filter((s) => s.key === pinnedSourceKey),
+        ...sourceRows.filter((s) => s.key !== pinnedSourceKey),
+      ]
+    : sourceRows;
+
+  const openSourceReader = useCallback(
+    (sourceKey: string) => {
+      setActiveSourceKey(sourceKey);
+      openStudioTool('reader');
+    },
+    [openStudioTool],
+  );
+
   const sourcesBody = (
     <div className="flex-1 min-h-0 overflow-y-auto p-2">
       {noteBundle.hasSource ? (
@@ -160,20 +201,33 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
           </button>
 
           <ul className="space-y-1.5" data-testid="notebook-source-list">
-            {sourceRows.map((source) => (
+            {orderedSourceRows.map((source) => {
+              const isPinned = source.key === pinnedSourceKey;
+              const isReaderActive = readerOpen && isPinned;
+              return (
               <li key={source.key}>
                 <button
                   type="button"
-                  onClick={() => openStudioTool('reader')}
-                  aria-current={readerOpen ? 'true' : undefined}
+                  onClick={() => openSourceReader(source.key)}
+                  aria-current={isReaderActive ? 'true' : undefined}
                   data-testid={`notebook-source-row-${source.key}`}
+                  data-pinned={isPinned ? 'true' : undefined}
                   className={cn(
                     'flex w-full items-center gap-2.5 rounded-xl px-2.5 py-2 text-left transition-colors',
-                    readerOpen
+                    isReaderActive
                       ? 'bg-brand-100/80 text-brand-800'
-                      : 'text-text-secondary hover:bg-surface-hover hover:text-text-primary',
+                      : isPinned
+                        ? 'bg-surface-secondary/80 text-text-primary ring-1 ring-brand-200/60'
+                        : 'text-text-secondary hover:bg-surface-hover hover:text-text-primary',
                   )}
                 >
+                  {isPinned && (
+                    <Pin
+                      className="h-3 w-3 shrink-0 text-brand-700"
+                      aria-hidden
+                      data-testid={`notebook-source-pinned-${source.key}`}
+                    />
+                  )}
                   <NotebookSourceThumbnail file={source.file} label={source.label} />
                   <span className="min-w-0 flex-1">
                     <span className="block truncate text-xs font-medium">{source.label}</span>
@@ -183,7 +237,8 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
                   </span>
                 </button>
               </li>
-            ))}
+              );
+            })}
           </ul>
         </>
       ) : (
@@ -257,15 +312,64 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
     </div>
   );
 
+  const studioQuickActions = noteBundle.hasSource ? (
+    <div className="flex flex-wrap gap-1.5 px-3 pt-3 pb-1 shrink-0" data-testid="notebook-studio-quick-actions">
+      <button
+        type="button"
+        data-testid="studio-action-quiz-from-source"
+        data-generation-state={studioGen['quiz-from-source'] ?? 'idle'}
+        disabled={studioGen['quiz-from-source'] === 'running'}
+        onClick={() => runStudioQuickAction('quiz-from-source', 'quiz')}
+        className="flex items-center gap-1 rounded-full border border-border-subtle bg-surface-secondary/60 px-2.5 py-1 type-micro font-medium text-text-secondary hover:border-brand-200 hover:text-brand-800 transition-colors disabled:opacity-60"
+      >
+        <Sparkles className="h-3 w-3" />
+        {studioGen['quiz-from-source'] === 'running'
+          ? tx('Δημιουργία…', 'Generating…')
+          : tx('Φτιάξε κουίζ', 'Create quiz')}
+      </button>
+      <button
+        type="button"
+        data-testid="studio-action-mindmap-from-source"
+        data-generation-state={studioGen['mindmap-from-source'] ?? 'idle'}
+        disabled={studioGen['mindmap-from-source'] === 'running'}
+        onClick={() => runStudioQuickAction('mindmap-from-source', 'concept-map')}
+        className="flex items-center gap-1 rounded-full border border-border-subtle bg-surface-secondary/60 px-2.5 py-1 type-micro font-medium text-text-secondary hover:border-brand-200 hover:text-brand-800 transition-colors disabled:opacity-60"
+      >
+        <Sparkles className="h-3 w-3" />
+        {studioGen['mindmap-from-source'] === 'running'
+          ? tx('Δημιουργία…', 'Generating…')
+          : tx('Mind map από πηγή', 'Mind map from source')}
+      </button>
+    </div>
+  ) : null;
+
+  const studioAskAiRail = (
+    <button
+      type="button"
+      onClick={() => askAiForTool(activeTool)}
+      title={tx('Ρώτα το AI', 'Ask AI')}
+      aria-label={tx('Ρώτα το AI για το ενεργό εργαλείο', 'Ask AI about the active tool')}
+      data-testid="notebook-studio-ask-ai-rail"
+      className="flex h-8 w-8 items-center justify-center rounded-lg text-brand-700 hover:bg-brand-100/80 transition-colors"
+    >
+      <Sparkles className="h-4 w-4" />
+    </button>
+  );
+
   const studioGrid = (
     <div className="flex-1 min-h-0 overflow-y-auto p-3">
+      {studioQuickActions}
       <div className="grid grid-cols-2 gap-2" data-testid="notebook-studio-grid">
-        {STUDIO_TOOLS.map(({ id, icon: Icon }) => (
+        {STUDIO_TOOLS.map(({ id, icon: Icon }) => {
+          const genKey = id === 'quiz' ? 'quiz-from-source' : id === 'concept-map' ? 'mindmap-from-source' : null;
+          const genState = genKey ? studioGen[genKey] : undefined;
+          return (
           <div key={id} className="relative">
             <button
               type="button"
               onClick={() => openStudioTool(id)}
               data-testid={`studio-card-${id}`}
+              data-generation-state={genState ?? 'idle'}
               title={workspaceToolDescription(id, lang)}
               className="flex w-full flex-col items-start gap-2 rounded-xl border border-border-subtle bg-surface-secondary/50 px-3 py-3 text-left hover:bg-surface-hover hover:border-brand-200 transition-colors min-h-[76px]"
             >
@@ -275,6 +379,12 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
               <span className="text-xs font-medium text-text-primary leading-tight">
                 {workspaceToolLabel(id, lang)}
               </span>
+              {genState === 'running' && (
+                <span className="type-micro text-brand-700">{tx('Δημιουργία…', 'Generating…')}</span>
+              )}
+              {genState === 'done' && (
+                <span className="type-micro text-accent-emerald">{tx('Έτοιμο', 'Ready')}</span>
+              )}
             </button>
             <button
               type="button"
@@ -287,7 +397,8 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
               <Sparkles className="h-3.5 w-3.5" />
             </button>
           </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
@@ -382,15 +493,18 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
           )}
         </div>
         {studioToolOpen ? (
-          <button
-            type="button"
-            onClick={() => setStudioToolOpen(false)}
-            data-testid="notebook-studio-rail-back"
-            className="mx-2 mb-1 flex items-center justify-center gap-1 rounded-lg border border-border-subtle bg-surface-card py-2 text-xs text-text-secondary"
-          >
-            <LayoutGrid className="h-4 w-4" />
-            {tx('Πίσω στο Studio', 'Back to Studio')}
-          </button>
+          <div className="flex shrink-0 flex-col gap-1 px-2 pb-1">
+            {studioAskAiRail}
+            <button
+              type="button"
+              onClick={() => setStudioToolOpen(false)}
+              data-testid="notebook-studio-rail-back"
+              className="flex items-center justify-center gap-1 rounded-lg border border-border-subtle bg-surface-card py-2 text-xs text-text-secondary"
+            >
+              <LayoutGrid className="h-4 w-4" />
+              {tx('Πίσω στο Studio', 'Back to Studio')}
+            </button>
+          </div>
         ) : mobileTabs}
       </div>
     );
@@ -467,6 +581,7 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
 
       {studioToolOpen && (
         <div className="flex w-10 shrink-0 flex-col items-center gap-2 border-l border-border-subtle bg-surface-card py-3">
+          {studioAskAiRail}
           <button
             type="button"
             onClick={() => setStudioToolOpen(false)}

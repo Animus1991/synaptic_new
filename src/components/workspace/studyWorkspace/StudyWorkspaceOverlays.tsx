@@ -28,6 +28,7 @@ export function StudyWorkspaceOverlays({ model }: StudyWorkspaceOverlaysProps) {
     setLayout,
     currentStep,
     chromeHidden,
+    notebookMode,
     showPalette,
     setShowPalette,
     showShortcutHelp,
@@ -186,7 +187,7 @@ export function StudyWorkspaceOverlays({ model }: StudyWorkspaceOverlaysProps) {
               lang={lang}
             />
       
-            {!chromeHidden && isMobile && (
+            {!chromeHidden && isMobile && !notebookMode && (
               <div
                 className="fixed bottom-3 left-1/2 -translate-x-1/2 z-[120] w-[88%] max-w-[420px] ws-fab flex items-center justify-between gap-2 px-3 py-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] lg:hidden"
                 data-testid="workspace-mobile-tool-bar"

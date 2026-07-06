@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { enterStudyWorkspace, dismissProductTourIfOpen } from './helpers/a11y';
+import { openToolInWorkspace } from './helpers/workspace';
 
 test.describe('A11y — Canvas keyboard surfaces', () => {
   test.use({ viewport: { width: 1280, height: 900 } });
@@ -10,10 +11,14 @@ test.describe('A11y — Canvas keyboard surfaces', () => {
     await dismissProductTourIfOpen(page);
 
     const conceptTool = page.getByTestId('dock-tool-concept-map');
-    if (!(await conceptTool.isVisible().catch(() => false))) {
+    const notebookLayout = page.getByTestId('notebook-workspace-layout');
+    if (await notebookLayout.isVisible().catch(() => false)) {
+      await openToolInWorkspace(page, 'concept-map');
+    } else if (await conceptTool.isVisible().catch(() => false)) {
+      await conceptTool.click({ force: true });
+    } else {
       test.skip(true, 'Concept map tool not available.');
     }
-    await conceptTool.click({ force: true });
 
     const canvas = page.getByTestId('concept-map-canvas');
     if (!(await canvas.isVisible().catch(() => false))) {
@@ -43,10 +48,14 @@ test.describe('A11y — Canvas keyboard surfaces', () => {
     await dismissProductTourIfOpen(page);
 
     const wbTool = page.getByTestId('dock-tool-whiteboard');
-    if (!(await wbTool.isVisible().catch(() => false))) {
+    const notebookLayout = page.getByTestId('notebook-workspace-layout');
+    if (await notebookLayout.isVisible().catch(() => false)) {
+      await openToolInWorkspace(page, 'whiteboard');
+    } else if (await wbTool.isVisible().catch(() => false)) {
+      await wbTool.click({ force: true });
+    } else {
       test.skip(true, 'Whiteboard tool not available.');
     }
-    await wbTool.click({ force: true });
 
     const canvas = page.getByTestId('whiteboard-canvas');
     await expect(canvas).toBeVisible({ timeout: 15_000 });

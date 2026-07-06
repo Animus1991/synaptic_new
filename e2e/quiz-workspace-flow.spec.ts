@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { skipOnboardingToLibrary } from './helpers/onboarding';
 import { completeQuizSession } from './helpers/quizSession';
+import { openToolInWorkspace } from './helpers/workspace';
 
 const NOTES = `
 # Microeconomics — Supply and Demand
@@ -41,7 +42,7 @@ test.describe('Quiz workspace flow (Phase D)', () => {
       timeout: 60_000,
     });
 
-    await page.getByTestId('dock-tool-quiz').click();
+    await openToolInWorkspace(page, 'quiz');
     await expect(page.getByTestId('quiz-panel')).toBeVisible({ timeout: 15_000 });
     await expect(page.getByTestId('quiz-panel-empty')).toHaveCount(0);
     await expect(page.getByTestId('quiz-session')).toBeVisible({ timeout: 15_000 });

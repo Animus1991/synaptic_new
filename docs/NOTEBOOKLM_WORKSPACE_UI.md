@@ -104,21 +104,21 @@ Tracked in **`docs/GAP_AUDIT.md`** — update that file when items ship.
 
 ### Phase 1 completion
 - [x] PDF page-preview thumbnails → Sprint L17 ✅
-- [ ] Pin active source in Sources list
+- [x] Pin active source in Sources list ✅ (P1)
 
 ### Phase 2 completion
-- [ ] Auto-focus chat input on workspace open
+- [x] Auto-focus chat input on workspace open ✅ (P1)
 - [ ] Classic layout: optional inline chat drawer (no redirect)
 
 ### Phase 3 completion
-- [ ] Studio card generation states (audio overview, mind map — Synapse-native)
-- [ ] Expanded tool overlay with persistent «Ask AI» rail
+- [x] Studio card generation states (quiz, mind map) ✅ (P1)
+- [x] Expanded tool overlay with persistent «Ask AI» rail ✅ (P1)
 
 ### Phase 4 — AI-assist everywhere
-- [ ] «Φτιάξε κουίζ» / «Mind map από πηγή» dedicated one-click Studio actions
+- [x] «Φτιάξε κουίζ» / «Mind map από πηγή» dedicated one-click Studio actions ✅ (P1)
 
 ### Phase 5 — polish
-- [ ] Visual regression screenshot for notebook layout
+- [x] Visual regression screenshot for notebook layout ✅ (P1)
 
 ---
 
