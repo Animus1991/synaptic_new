@@ -87,6 +87,7 @@ export type ProductionProbeStatus = {
     notebooklmDeepLink: boolean;
     notebookShellView: boolean;
     notebooklmQuizFsrs: boolean;
+    notebooklmChatImport: boolean;
   };
 };
 
@@ -191,6 +192,7 @@ export async function getProductionProbeStatus(): Promise<ProductionProbeStatus>
       notebooklmDeepLink: true,
       notebookShellView: true,
       notebooklmQuizFsrs: true,
+      notebooklmChatImport: true,
     },
   };
 }

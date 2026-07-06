@@ -134,7 +134,9 @@ export function NotebookShellView({
                 >
                   <p className="text-xs font-medium text-text-primary truncate">{file.name}</p>
                   <p className="text-[10px] text-text-muted mt-0.5">
-                    {file.ingestMethod === 'notebooklm-import' ? 'NotebookLM' : file.type.toUpperCase()}
+                    {file.ingestMethod === 'notebooklm-import' || file.ingestMethod === 'notebooklm-chat'
+                      ? 'NotebookLM'
+                      : file.type.toUpperCase()}
                   </p>
                 </button>
               </li>

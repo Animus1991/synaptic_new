@@ -25,8 +25,8 @@ export function NotebookLmImportPanel({ lang, onImport, onAddToFsrs, className }
   const title = lang === 'el' ? 'Εισαγωγή από NotebookLM' : 'Import from NotebookLM';
   const hint =
     lang === 'el'
-      ? 'Επικόλλησε σημείωμα, study guide ή Studio Quiz από το NotebookLM — δημιουργεί αρχείο στη βιβλιοθήκη.'
-      : 'Paste a saved note, study guide, or Studio Quiz from NotebookLM — adds a library source for course generation.';
+      ? 'Επικόλλησε σημείωμα, study guide, Studio Quiz ή chat transcript από το NotebookLM — δημιουργεί αρχείο στη βιβλιοθήκη.'
+      : 'Paste a saved note, study guide, Studio Quiz, or chat transcript from NotebookLM — adds a library source for course generation.';
 
   const handleImport = async (raw: string) => {
     if (!raw.trim()) return;
@@ -107,8 +107,8 @@ export function NotebookLmImportPanel({ lang, onImport, onAddToFsrs, className }
             rows={5}
             placeholder={
               lang === 'el'
-                ? 'Επικόλλησε markdown, study guide ή Q/A quiz…'
-                : 'Paste markdown, study guide, or Q/A quiz…'
+                ? 'Επικόλλησε markdown, study guide, Q/A quiz ή chat (User/NotebookLM)…'
+                : 'Paste markdown, study guide, Q/A quiz, or chat (User/NotebookLM)…'
             }
             className="w-full rounded-lg border border-border-subtle bg-surface-input px-2 py-1.5 text-xs text-text-primary placeholder:text-text-muted resize-y min-h-[80px]"
             data-testid="notebooklm-import-text"
@@ -149,6 +149,12 @@ export function NotebookLmImportPanel({ lang, onImport, onAddToFsrs, className }
                   <>
                     {' · '}
                     {lastResult.quizCards.length} {lang === 'el' ? 'κάρτες quiz' : 'quiz cards'}
+                  </>
+                )}
+                {lastResult.chatTurns.length > 0 && (
+                  <>
+                    {' · '}
+                    {lastResult.chatTurns.length} {lang === 'el' ? 'γύροι chat' : 'chat turns'}
                   </>
                 )}
               </p>

@@ -1587,7 +1587,7 @@ export function useAppStore() {
 
   const importNotebookLm = useCallback((raw: string): NotebookLmImportResult | null => {
     const parsed = parseNotebookLmExport(raw);
-    if (!parsed.markdown.trim() && parsed.quizCards.length === 0) {
+    if (!parsed.markdown.trim() && parsed.quizCards.length === 0 && parsed.chatTurns.length === 0) {
       const lang = user.settings.language === 'el' ? 'el' : 'en';
       notifyWarning(
         lang === 'el' ? 'Κενό περιεχόμενο' : 'Empty content',
@@ -1602,11 +1602,15 @@ export function useAppStore() {
     const lang = user.settings.language === 'el' ? 'el' : 'en';
     notifySuccess(
       lang === 'el' ? 'Εισαγωγή NotebookLM' : 'NotebookLM import',
-      parsed.quizCards.length > 0
+      parsed.kind === 'chat'
         ? (lang === 'el'
-          ? `${parsed.title} · ${parsed.quizCards.length} κάρτες quiz`
-          : `${parsed.title} · ${parsed.quizCards.length} quiz cards`)
-        : parsed.title,
+          ? `${parsed.title} · ${parsed.chatTurns.length} γύροι chat`
+          : `${parsed.title} · ${parsed.chatTurns.length} chat turns`)
+        : parsed.quizCards.length > 0
+          ? (lang === 'el'
+            ? `${parsed.title} · ${parsed.quizCards.length} κάρτες quiz`
+            : `${parsed.title} · ${parsed.quizCards.length} quiz cards`)
+          : parsed.title,
     );
     return parsed;
   }, [uploadedFiles, glossaryEntries, courses, persistLibrary, user.settings.language]);

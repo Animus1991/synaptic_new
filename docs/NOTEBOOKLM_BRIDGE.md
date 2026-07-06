@@ -31,7 +31,7 @@ NotebookLM has **no public API**. Integration is **file + workflow**:
 | ------------------- | ------------------- | --------- |
 | Saved note / study guide (markdown) | Library `UploadedFile` (`ingestMethod: notebooklm-import`) | **L13-1** |
 | Studio Quiz (paste) | Parser → quiz cards → FSRS deck one-click / Anki TSV | **L13-3** / L13-1 |
-| Chat transcript (manual copy) | Supplementary source text | L13-2 |
+| Chat transcript (manual copy) | Parser → supplementary source (`ingestMethod: notebooklm-chat`) | **L13-4** |
 | Audio transcript | Course media panel | backlog |
 
 **UI:** Library → **Import from NotebookLM** (paste or `.md` / `.txt`).
@@ -69,6 +69,7 @@ Re-enable via `VITE_SHOW_NOTEBOOKLM_PARITY=true` for power users / QA.
 | **L13-2** | `openNotebookLm()` + `@capacitor/browser` + per-source buttons |
 | **L13-6** | `NotebookShellView` — 3-column Synapse-native shell |
 | **L13-3** | Studio Quiz → FSRS deck one-click (`notebooklmFsrsImport.ts`) |
+| **L13-4** | Chat transcript import (`notebooklm-chat` ingest + turn parser) |
 
 ---
 
