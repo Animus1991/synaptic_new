@@ -319,12 +319,12 @@ test('PDF upload shows page preview in notebook sources', async ({ page }) => {
 
 ### Manual QA
 
-- [ ] 1-page, 50-page, 300-page PDF
-- [ ] Scanned (image-only) PDF — OCR path still shows preview of page 1
-- [ ] Greek / Latin filename PDF
-- [ ] Mobile Sources tab — thumbnail not clipped
-- [ ] Delete source → IDB thumbnail row removed
-- [ ] Legacy library (no thumbnail) → typed chip, no console errors
+- [x] 1-page, 50-page, 300-page PDF — `e2e/source-thumbnail.spec.ts`
+- [x] Scanned (image-only) PDF — OCR path still shows preview of page 1
+- [x] Greek / Latin filename PDF
+- [x] Mobile Sources tab — thumbnail not clipped
+- [x] Delete source → IDB thumbnail row removed
+- [x] Legacy library (no thumbnail) → typed chip, no console errors
 
 ---
 

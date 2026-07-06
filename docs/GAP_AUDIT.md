@@ -38,7 +38,7 @@ npx playwright test e2e/notebook-workspace.spec.ts e2e/source-thumbnail.spec.ts
 | P0-04 | L17-7 `features.l17Enterprise.pdfThumbnails` health probe | **shipped** | `productionProbe.ts` |
 | P0-05 | Create this living `GAP_AUDIT.md` | **shipped** | Jul 2026 |
 | P0-06 | Migrate remaining dock-only E2E specs | **shipped** | quiz-workspace, workspace-empty-tools, a11y-canvas |
-| P0-07 | L17 manual QA checklist (6 scenarios) | open | `SPRINT_L17_PDF_SOURCE_THUMBNAILS.md` — run in CI bake |
+| P0-07 | L17 manual QA checklist (6 scenarios) | **shipped** | `e2e/source-thumbnail.spec.ts` — 9 automated scenarios |
 
 ---
 
@@ -68,7 +68,7 @@ Surfaces from the default 3-panel layout (`notebookMode` ON).
 | CHAT-03 | Socratic / grounded mode badges | P1 | shipped | Mode + source labels visible |
 | CHAT-04 | Citation chips → reader jump | P1 | shipped | Slide/page reference opens reader |
 | CHAT-05 | Auto-focus chat input on workspace open | P1 | **shipped** | `autoFocusInput` on embedded Agent |
-| CHAT-06 | Classic layout inline chat drawer | P2 | open | No redirect when `notebookMode` off |
+| CHAT-06 | Classic layout inline chat drawer | P2 | **shipped** | `ClassicChatDrawer` — no redirect when `notebookMode` off |
 | CHAT-07 | «Πλήρης προβολή» full Agent page | P1 | shipped | `fullPage: true` only |
 
 ### Studio panel (`Studio` — 12 tools)
@@ -77,7 +77,7 @@ Surfaces from the default 3-panel layout (`notebookMode` ON).
 | -- | ---- | -------- | ------ | ---------- |
 | STU-01 | 12 tool cards + overlay surface | P0 | shipped | All tools reachable, zero removal |
 | STU-02 | Ask AI sparkle → pre-filled chat prompt | P1 | shipped | `buildToolDefaultAgentPrompt` |
-| STU-03 | Generation states (audio overview, mind map) | P1 | **shipped** | `data-generation-state` on quiz + concept-map cards |
+| STU-03 | Generation states (audio overview, mind map) | P1 | **shipped** | `studio-action-audio-overview` + quiz/mindmap `data-generation-state` |
 | STU-04 | Persistent «Ask AI» rail in tool overlay | P1 | **shipped** | `notebook-studio-ask-ai-rail` |
 | STU-05 | One-click «Φτιάξε κουίζ» Studio action | P1 | **shipped** | `studio-action-quiz-from-source` |
 | STU-06 | One-click «Mind map από πηγή» | P1 | **shipped** | `studio-action-mindmap-from-source` |

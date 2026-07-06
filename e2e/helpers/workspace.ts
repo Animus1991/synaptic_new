@@ -39,11 +39,24 @@ export async function openReaderInWorkspace(page: Page) {
 export async function useClassicWorkspaceLayout(page: Page) {
   const notebook = page.getByTestId('notebook-workspace-layout');
   if (!(await notebook.isVisible().catch(() => false))) return;
-  await page.evaluate(() => {
-    localStorage.setItem('workspace-notebook-mode', JSON.stringify(false));
-  });
-  await page.reload();
-  await expect(page.getByTestId('study-workspace')).toBeVisible({ timeout: 45_000 });
+
+  const chromeMenu = page.getByTestId('notebook-chrome-menu');
+  if (await chromeMenu.isVisible().catch(() => false)) {
+    await chromeMenu.click();
+    await page.getByRole('button', { name: /Classic view|Κλασική προβολή/i }).click({ force: true });
+  } else {
+    const toggle = page.getByTestId('workspace-notebook-toggle');
+    if (await toggle.isVisible().catch(() => false)) {
+      await toggle.click();
+    } else {
+      await page.evaluate(() => {
+        localStorage.setItem('synapse:workspace-notebook-mode', JSON.stringify(false));
+      });
+      await page.reload();
+      await expect(page.getByTestId('study-workspace')).toBeVisible({ timeout: 45_000 });
+    }
+  }
+  await expect(page.getByTestId('notebook-workspace-layout')).toHaveCount(0, { timeout: 15_000 });
 }
 
 export async function openToolInWorkspace(page: Page, toolId: WorkspaceDockToolId) {

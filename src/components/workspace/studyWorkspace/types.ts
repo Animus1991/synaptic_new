@@ -59,6 +59,8 @@ export interface StudyWorkspaceProps {
    * center column; otherwise it falls back to a launcher that opens the agent.
    */
   renderCenterAgent?: () => ReactNode;
+  /** Close inline agent panel/drawer without leaving workspace (classic + notebook). */
+  onCloseInlineAgent?: () => void;
 }
 
 export const AVAILABLE_TOOLS: WorkspaceTool[] = [

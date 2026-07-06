@@ -411,6 +411,7 @@ export default function App() {
               )
             : undefined
         }
+        onCloseInlineAgent={() => store.setWorkspaceInlineAgentOpen(false)}
       />
     </ErrorBoundary>
   );

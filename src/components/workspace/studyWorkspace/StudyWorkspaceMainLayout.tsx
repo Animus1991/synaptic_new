@@ -1,5 +1,6 @@
 import { Group } from 'react-resizable-panels';
 import { WorkspaceDock } from '../WorkspaceDock';
+import { ClassicChatDrawer } from './ClassicChatDrawer';
 import { StudyWorkspaceLessonPanel } from './StudyWorkspaceLessonPanel';
 import { StudyWorkspaceToolSurface } from './StudyWorkspaceToolSurface';
 import type { StudyWorkspaceModel } from './useStudyWorkspace';
@@ -26,7 +27,9 @@ export function StudyWorkspaceMainLayout({ model }: StudyWorkspaceMainLayoutProp
       <Group orientation={isMobile ? 'vertical' : 'horizontal'} className="flex-1 min-h-0 w-full h-full">
         <StudyWorkspaceLessonPanel model={model} />
         <StudyWorkspaceToolSurface model={model} />
+        {!isMobile && <ClassicChatDrawer model={model} />}
       </Group>
+      {isMobile && <ClassicChatDrawer model={model} />}
     </div>
   );
 }

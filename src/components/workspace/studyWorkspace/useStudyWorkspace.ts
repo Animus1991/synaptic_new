@@ -217,6 +217,7 @@ export function useStudyWorkspace({
   workspaceOpenSimulatorTab = null,
   onConsumeWorkspaceOpenSimulatorTab,
   renderCenterAgent,
+  onCloseInlineAgent,
 }: StudyWorkspaceProps) {
   const { t, lang } = useI18n();
   const intelReady = useWorkspaceIntelHydration();
@@ -2099,6 +2100,7 @@ export function useStudyWorkspace({
     notebookMode,
     setNotebookMode,
     renderCenterAgent,
+    onCloseInlineAgent,
     t,
     lang,
     progressKey,

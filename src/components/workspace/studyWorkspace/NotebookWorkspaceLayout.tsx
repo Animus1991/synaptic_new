@@ -13,6 +13,7 @@ import { buildToolDefaultAgentPrompt } from '../../../lib/workspaceToolAgentProm
 import type { UploadedFile } from '../../../types';
 import { StudyWorkspaceToolSurface } from './StudyWorkspaceToolSurface';
 import { NotebookSourceThumbnail } from './NotebookSourceThumbnail';
+import { NotebookStudioAudioOverview, type AudioOverviewGenState } from './NotebookStudioAudioOverview';
 import type { StudyWorkspaceModel } from './useStudyWorkspace';
 import type { WorkspaceTool } from './types';
 
@@ -53,6 +54,7 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
     openAgentForTool,
     handleOpenAgent,
     renderCenterAgent,
+    userSettings,
     sourceHighlight,
     currentStep,
     STEPS,
@@ -67,6 +69,7 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
   const [mobileTab, setMobileTab] = useState<MobileTab>('chat');
   const [activeSourceKey, setActiveSourceKey] = useState<string | null>(null);
   const [studioGen, setStudioGen] = useState<Partial<Record<string, StudioGenState>>>({});
+  const [audioOverviewGen, setAudioOverviewGen] = useState<AudioOverviewGenState>('idle');
   const concept = effectiveFocus?.term ?? quizConcept;
   const sectionTitle = STEPS[currentStep]?.title;
   const notebookTitle = courseName ?? linkedCourse?.title ?? quizConcept;
@@ -340,6 +343,15 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
           ? tx('Δημιουργία…', 'Generating…')
           : tx('Mind map από πηγή', 'Mind map from source')}
       </button>
+      {linkedCourse && (linkedCourse.topics?.length ?? 0) > 0 && (
+        <NotebookStudioAudioOverview
+          course={linkedCourse}
+          lang={lang}
+          userSettings={userSettings}
+          genState={audioOverviewGen}
+          onGenStateChange={setAudioOverviewGen}
+        />
+      )}
     </div>
   ) : null;
 
