@@ -130,22 +130,22 @@ Goal: every tool **fully functional for its learning purpose**, not demo stubs.
 | ID | Item | Priority | Status |
 | -- | ---- | -------- | ------ |
 | TOOL-FY-01 | Rubric, gap → reader jump | — | shipped |
-| TOOL-FY-02 | Dedicated «Open Quiz» chip post-rubric | P2 | open |
-| TOOL-FY-03 | Agent auto-send from weakest dimension | P2 | open |
+| TOOL-FY-02 | Dedicated «Open Quiz» chip post-rubric | P2 | **shipped** | P3 sprint |
+| TOOL-FY-03 | Agent auto-send from weakest dimension | P2 | **shipped** | `onAskAgentWithPrompt` + autoSend |
 | TOOL-CP-01 | Sortable columns, diff mode, CSV | — | shipped |
-| TOOL-CP-02 | Visual diff highlighting | P2 | open |
-| TOOL-CP-03 | Agent «Explain difference between X and Y» | P2 | open |
+| TOOL-CP-02 | Visual diff highlighting | P2 | **shipped** | `ComparisonTable` diff mode |
+| TOOL-CP-03 | Agent «Explain difference between X and Y» | P2 | **shipped** | `compare-explain-difference` |
 | TOOL-DB-01 | Grounded argument tree | — | shipped |
-| TOOL-DB-02 | User-added rebuttal nodes (persisted) | P2 | open |
-| TOOL-DB-03 | Agent Socratic challenge on claim | P2 | open |
+| TOOL-DB-02 | User-added rebuttal nodes (persisted) | P2 | **shipped** | `ArgumentMap` + IDB |
+| TOOL-DB-03 | Agent Socratic challenge on claim | P2 | **shipped** | `onAskAgent` + chips |
 
 ### Quiz · Leitner · Simulator · Whiteboard · Timer · Progress
 
 | ID | Item | Priority | Status |
 | -- | ---- | -------- | ------ |
 | TOOL-QZ-01 | Session flow, IRT, post-session CTAs | — | shipped |
-| TOOL-QZ-02 | Open Feynman on wrong-answer cluster | P2 | open |
-| TOOL-QZ-03 | Server-side attempt history | P2 | open |
+| TOOL-QZ-02 | Open Feynman on wrong-answer cluster | P2 | **shipped** | `quiz-review-feynman-cluster` |
+| TOOL-QZ-03 | Server-side attempt history | P2 | **shipped** | `/v1/session` `quizAttemptHistories` |
 | TOOL-LT-01 | FSRS, Anki export, cross-device deck sync | — | shipped |
 | TOOL-SM-01 | Sliders, sensitivity hints | — | shipped |
 | TOOL-SM-02 | Course-specific preset scenarios | P2 | open |
@@ -161,8 +161,8 @@ Goal: every tool **fully functional for its learning purpose**, not demo stubs.
 
 | ID | Item | Priority | Status |
 | -- | ---- | -------- | ------ |
-| XTL-01 | Glossary refresh on reprocess | P2 | open |
-| XTL-02 | Feynman / Compare / Debate dedicated Agent chips | P2 | open |
+| XTL-01 | Glossary refresh on reprocess | P2 | **shipped** | `regenerateGlossaryAfterReprocess` + stale bump |
+| XTL-02 | Feynman / Compare / Debate dedicated Agent chips | P2 | **shipped** | `WorkspaceToolAgentChipBar` |
 | XTL-03 | Expand `@testing-library/react` component tests | P2 | open |
 
 ---
@@ -198,7 +198,7 @@ Goal: every tool **fully functional for its learning purpose**, not demo stubs.
 | AI-01 | Studio generation states | P1 | **shipped** | See STU-03 |
 | AI-02 | Persistent Ask AI rail in tool overlay | P1 | **shipped** | See STU-04 |
 | AI-03 | One-click quiz / mindmap Studio actions | P1 | **shipped** | See STU-05/06 |
-| AI-04 | Agent chips on Feynman / Compare / Debate | P2 | open |
+| AI-04 | Agent chips on Feynman / Compare / Debate | P2 | **shipped** | See XTL-02 |
 | AI-05 | `VITE_SHOW_NOTEBOOKLM_PARITY` default strategy | P2 | open |
 
 ### 4. Collaboration depth
@@ -241,7 +241,7 @@ Goal: every tool **fully functional for its learning purpose**, not demo stubs.
 | Sprint | Focus | Key IDs |
 | ------ | ----- | ------- |
 | **P1** | Notebook polish | SRC-01, CHAT-05, STU-03–07 |
-| **P2** | Tool depth wave | TOOL-FY-02, TOOL-CP-03, TOOL-QZ-02/03, XTL-01/02 |
+| **P2** | Tool depth wave | TOOL-FY-02, TOOL-CP-03, TOOL-QZ-02/03, XTL-01/02 | **shipped** (P3 sprint Jul 2026) |
 | **P3** | Enterprise ops | OPS-01–03, COL-01, COL-05 |
 | **P4** | Distribution | OPS-04–06 (parallel) |
 | **P5** | Horizon | MD-02/03, COL-03, PLT-02 |

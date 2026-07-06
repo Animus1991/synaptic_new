@@ -3,6 +3,7 @@ import type { QuizSessionItem } from './quizSession';
 import {
   buildQuizMistakeFlashcard,
   buildQuizMistakeFeynmanPrompt,
+  buildQuizWrongClusterFeynmanPrompt,
   quizCorrectAnswerText,
 } from './quizRemediation';
 
@@ -33,5 +34,11 @@ describe('quizRemediation', () => {
     expect(en).toContain('Price sensitivity');
     const el = buildQuizMistakeFeynmanPrompt(mcItem, 'Elasticity', 'el');
     expect(el).toContain('Feynman');
+  });
+
+  it('builds cluster Feynman prompt for multiple wrong items', () => {
+    const en = buildQuizWrongClusterFeynmanPrompt([mcItem, mcItem], 'Elasticity', 'en');
+    expect(en).toContain('2 questions');
+    expect(en).toContain('Price sensitivity');
   });
 });

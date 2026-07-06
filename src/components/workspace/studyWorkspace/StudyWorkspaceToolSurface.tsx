@@ -1,6 +1,8 @@
+import { useMemo } from 'react';
 import { Panel } from 'react-resizable-panels';
 import { WorkspaceToolStrip } from '../WorkspaceToolStrip';
 import { ToolFrame } from '../ToolFrame';
+import { WorkspaceToolAgentChipBar } from '../WorkspaceToolAgentChipBar';
 import {
   LazyAnnotationOverlay, LazyComparePanel, LazyConceptBusPanel, LazyCognitiveReader,
   LazyDashboardPanel, LazyDebatePanel, LazyDraggableConceptMap, LazyFeynmanCheck, LazyFormulaScratchpad,
@@ -21,6 +23,7 @@ import {
   type ToolAgentIntent,
 } from '../../../lib/workspaceToolAgentPrompts';
 import { buildCompareDifferencePrompt } from '../../../lib/compareExplainDifference';
+import { hasDedicatedToolAgentChips } from '../../../lib/workspaceToolAgentChips';
 import { saveLastSimulatorScenario, saveExamPracticePreset } from '../../../lib/workspacePersistence';
 import { examPracticePresetForScenario, type SimulatorScenarioId } from '../../../lib/examPracticePresets';
 import { loadFeynmanDraft } from '../../../lib/feynmanDraftStore';
@@ -104,6 +107,9 @@ export function StudyWorkspaceToolSurface({ model }: StudyWorkspaceToolSurfacePr
     handleSectionAskAgent,
     handleWorkspaceSelectionAction,
     handleQuizRemediateWrong,
+    handleQuizRemediateWrongCluster,
+    handleQuizSessionComplete,
+    quizAttemptHistory,
     handleCrossLinkAgent,
     handleCrossLinkReader,
     focusWeakArea,
@@ -143,6 +149,18 @@ export function StudyWorkspaceToolSurface({ model }: StudyWorkspaceToolSurfacePr
     annotationSyncVersion,
   } = model;
 
+  const toolAgentChipBar = useMemo(() => {
+    if (!hasDedicatedToolAgentChips(activeTool)) return undefined;
+    return (
+      <WorkspaceToolAgentChipBar
+        tool={activeTool}
+        lang={lang}
+        concept={quizConcept}
+        onChip={(prompt, intent) => openAgentForTool(activeTool, prompt, intent)}
+      />
+    );
+  }, [activeTool, lang, quizConcept, openAgentForTool]);
+
   return (
     <>
                 {(layout === 'split' || layout === 'focus-tool') && (
@@ -173,6 +191,7 @@ export function StudyWorkspaceToolSurface({ model }: StudyWorkspaceToolSurfacePr
                       }}
                       onOpenReader={handleCrossLinkReader}
                       onAskAgent={handleCrossLinkAgent}
+                      crossLinkBar={toolAgentChipBar}
                     >
                       <div className="relative flex h-full min-h-0 flex-col overflow-hidden">
                       {activeTool === 'concept-map' && (
@@ -518,6 +537,7 @@ export function StudyWorkspaceToolSurface({ model }: StudyWorkspaceToolSurfacePr
                           onFocusConcept={() => openWorkspaceTool('concept-map')}
                           onOpenInReader={(query) => openReaderAtSearch(query, 'feynman')}
                           onOpenDashboard={() => openWorkspaceTool('dashboard')}
+                          onOpenQuiz={() => openWorkspaceTool('quiz')}
                         />
                         </WorkspaceToolSuspense>
                       )}
@@ -577,6 +597,7 @@ export function StudyWorkspaceToolSurface({ model }: StudyWorkspaceToolSurfacePr
                           onSessionComplete={(summary) => {
                             const correct = summary.accuracy >= 60;
                             setQuizPassed(correct);
+                            handleQuizSessionComplete(summary);
                             onQuizAttempt?.(quizConcept, correct, summary.meanConfidence);
                             noteConceptActivity(quizConcept, 'quiz', correct ? 'quiz-correct' : 'quiz-wrong');
                             if (noteBundle.hasSource) {
@@ -593,6 +614,8 @@ export function StudyWorkspaceToolSurface({ model }: StudyWorkspaceToolSurfacePr
                           onOpenFlashcards={() => openWorkspaceTool('leitner')}
                           onOpenFeynman={() => openWorkspaceTool('feynman')}
                           onRemediateWrong={handleQuizRemediateWrong}
+                          onRemediateWrongCluster={handleQuizRemediateWrongCluster}
+                          attemptHistory={quizAttemptHistory}
                           onSelectionAction={handleWorkspaceSelectionAction}
                           onOpenInReader={(query) => openReaderAtSearch(query, 'quiz')}
                           onGroundedFeedbackFocus={syncQuizGroundedFocus}

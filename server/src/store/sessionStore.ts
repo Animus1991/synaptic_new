@@ -18,6 +18,8 @@ export type StoredSession = {
   stepSchedules?: Record<string, unknown>;
   /** Scoped Leitner deck progress (scope → deck state). */
   leitnerDeckStates?: Record<string, unknown>;
+  /** Scoped quiz attempt history (scope → attempts). */
+  quizAttemptHistories?: Record<string, unknown>;
   updatedAt: string;
 };
 
@@ -35,6 +37,7 @@ const emptySession = (): StoredSession => ({
   activities: [],
   userSettings: null,
   leitnerDeckStates: {},
+  quizAttemptHistories: {},
   updatedAt: new Date().toISOString(),
 });
 

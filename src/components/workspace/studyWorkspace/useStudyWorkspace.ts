@@ -96,7 +96,12 @@ import type { QuizSessionItem } from '../../../lib/quizSession';
 import {
   buildQuizMistakeFlashcard,
   buildQuizMistakeFeynmanPrompt,
+  buildQuizWrongClusterFeynmanPrompt,
 } from '../../../lib/quizRemediation';
+import {
+  loadQuizAttemptHistory,
+  recordQuizAttemptHistory,
+} from '../../../lib/quizAttemptHistory';
 import { appendCustomLeitnerCard, loadCustomLeitnerCards } from '../../../lib/leitnerCustomCards';
 import {
   buildAgentPromptForSection,
@@ -349,6 +354,7 @@ export function useStudyWorkspace({
   }, [courses, courseId, uploadedFiles]);
   const effectiveCourseId = courseId ?? linkedCourse?.id ?? uploadedFiles.find((f) => f.courseId)?.courseId;
   const [artifactStaleRevision, setArtifactStaleRevision] = useState(0);
+  const [quizAttemptHistoryRevision, setQuizAttemptHistoryRevision] = useState(0);
   const acknowledgePracticeStale = useCallback((tool: StalePracticeTool) => {
     if (!effectiveCourseId) return;
     acknowledgeStaleTool(effectiveCourseId, tool);
@@ -1169,6 +1175,30 @@ export function useStudyWorkspace({
     quizConcept, noteConceptActivity, progressKey, openWorkspaceTool, lang,
     openAgentForTool,
   ]);
+
+  const handleQuizRemediateWrongCluster = useCallback((items: QuizSessionItem[]) => {
+    if (items.length === 0) return;
+    noteConceptActivity(quizConcept, 'quiz', 'quiz-wrong');
+    const prompt = buildQuizWrongClusterFeynmanPrompt(items, quizConcept, lang);
+    openAgentForTool('feynman', prompt, 'quiz-mistake');
+    openWorkspaceTool('feynman');
+  }, [quizConcept, noteConceptActivity, lang, openAgentForTool, openWorkspaceTool]);
+
+  const handleQuizSessionComplete = useCallback((
+    summary: { accuracy: number; meanConfidence: number; wrongCount: number; itemCount: number },
+  ) => {
+    recordQuizAttemptHistory(progressKey, quizConcept, summary);
+    setQuizAttemptHistoryRevision((n) => n + 1);
+  }, [progressKey, quizConcept]);
+
+  const quizAttemptHistory = useMemo(
+    () => loadQuizAttemptHistory(progressKey).map((r) => ({
+      accuracy: r.accuracy,
+      completedAt: r.completedAt,
+      wrongCount: r.wrongCount,
+    })),
+    [progressKey, quizAttemptHistoryRevision],
+  );
 
   const handleCrossLinkAgent = useCallback(() => {
     const prompt = crossLinkAgentPrompt(activeTool, lang, quizConcept);
@@ -2212,6 +2242,9 @@ export function useStudyWorkspace({
     handleSectionAskAgent,
     handleWorkspaceSelectionAction,
     handleQuizRemediateWrong,
+    handleQuizRemediateWrongCluster,
+    handleQuizSessionComplete,
+    quizAttemptHistory,
     handleCrossLinkAgent,
     handleCrossLinkReader,
     focusWeakArea,

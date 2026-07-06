@@ -89,6 +89,8 @@ interface Props {
   onExplanationSubmitted?: (draft: string, overallScore?: number) => void;
   /** Jump to Dashboard for full session export (Wave 6.8l discoverability). */
   onOpenDashboard?: () => void;
+  /** Open Quiz tool after rubric review (TOOL-FY-02). */
+  onOpenQuiz?: () => void;
 }
 export function FeynmanCheck({
   concept = 'Introduction',
@@ -115,6 +117,7 @@ export function FeynmanCheck({
   initialDraft = '',
   onExplanationSubmitted,
   onOpenDashboard,
+  onOpenQuiz,
 }: Props) {
   const { t, lang } = useI18n();
   const [text, setText] = useState(initialDraft);  const [coachFeedback, setCoachFeedback] = useState<CoachFeedback | null>(null);
@@ -451,7 +454,19 @@ export function FeynmanCheck({
 
             {rubric && rubric.weak.length > 0 && (
               <div className="space-y-2">
-                <p className="text-[10px] font-semibold text-text-muted">Gaps to fix</p>
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <p className="text-[10px] font-semibold text-text-muted">Gaps to fix</p>
+                  {onOpenQuiz && (
+                    <button
+                      type="button"
+                      data-testid="feynman-open-quiz"
+                      onClick={onOpenQuiz}
+                      className="inline-flex items-center gap-1 rounded-lg border border-brand-500/30 bg-brand-600/10 px-2 py-1 text-[10px] font-medium text-brand-800 hover:opacity-90"
+                    >
+                      {t('feynmanOpenQuiz')}
+                    </button>
+                  )}
+                </div>
                 {rubric.weak.map((dim) => (
                   <div key={dim} className="rounded-lg border border-border-subtle bg-surface-primary/50 p-2.5 text-[11px] leading-5 text-text-secondary">
                     <p className="font-medium text-text-primary">{t(RUBRIC_LABEL_KEYS[dim])}</p>

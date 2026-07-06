@@ -30,11 +30,18 @@ type Props = {
   irtResponseCount?: number;
   emptyMessage?: string;
   onUpload?: () => void;
-  onSessionComplete: (summary: { accuracy: number; meanConfidence: number }) => void;
+  onSessionComplete: (summary: {
+    accuracy: number;
+    meanConfidence: number;
+    wrongCount: number;
+    itemCount: number;
+  }) => void;
   onOpenFlashcards?: () => void;
   onOpenFeynman?: () => void;
   onOpenInReader?: (query: string) => void;
   onRemediateWrong?: (kind: 'make-card' | 'feynman', item: QuizSessionItem) => void;
+  onRemediateWrongCluster?: (items: QuizSessionItem[]) => void;
+  attemptHistory?: Array<{ accuracy: number; completedAt: string; wrongCount: number }>;
   onSelectionAction?: (action: WorkspaceSelectionActionId, ctx: WorkspaceSelectionContext) => void;
   onGroundedFeedbackFocus?: (feedback: GroundedQuizFeedback) => void;
   artifactStale?: boolean;
@@ -55,6 +62,8 @@ export function QuizPanel({
   onOpenFeynman,
   onOpenInReader,
   onRemediateWrong,
+  onRemediateWrongCluster,
+  attemptHistory,
   onSelectionAction,
   onGroundedFeedbackFocus,
   course = null,
@@ -230,6 +239,8 @@ export function QuizPanel({
           onOpenReader={onOpenInReader ? () => onOpenInReader(concept) : undefined}
           onOpenQuestionInReader={onOpenInReader}
           onRemediateWrong={onRemediateWrong}
+          onRemediateWrongCluster={onRemediateWrongCluster}
+          attemptHistory={attemptHistory}
           onSelectPassage={onSelectionAction ? selectPassage : undefined}
           onClearSelection={() => setSelectedPassage(null)}
           onQuestionSelect={onSelectionAction ? (question) => selectPassage(question, concept) : undefined}

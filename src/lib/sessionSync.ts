@@ -14,6 +14,11 @@ import {
   mergeAllStepSchedules,
 } from './conceptBusSync';
 import { loadAllDeckStates } from './leitnerDeckSync';
+import {
+  loadAllQuizAttemptHistories,
+  mergeQuizAttemptHistories,
+  type QuizAttemptRecord,
+} from './quizAttemptHistory';
 import { loadAllConceptBuses } from './workspacePersistence';
 import { loadAllStepSchedules } from './spacedStepSchedule';
 
@@ -35,6 +40,8 @@ export type LocalSession = {
   stepSchedules?: StepScheduleMap;
   /** Scoped Leitner deck progress for cross-device persistence. */
   leitnerDeckStates?: Record<string, LeitnerDeckState>;
+  /** Scoped quiz session attempt history (TOOL-QZ-03). */
+  quizAttemptHistories?: Record<string, QuizAttemptRecord[]>;
   /** Snapshot timestamp used for remote-wins conflict resolution. */
   updatedAt?: string;
 };
@@ -61,6 +68,8 @@ export function mergeSessions(local: Partial<LocalSession>, remote: Partial<Loca
   const remoteSchedules = remote.stepSchedules ?? {};
   const localDeckStates = local.leitnerDeckStates ?? loadAllDeckStates();
   const remoteDeckStates = remote.leitnerDeckStates ?? {};
+  const localQuizAttempts = local.quizAttemptHistories ?? loadAllQuizAttemptHistories();
+  const remoteQuizAttempts = remote.quizAttemptHistories ?? {};
 
   return {
     learnerModel: pick(local.learnerModel, remote.learnerModel) as LearnerModel,
@@ -77,6 +86,11 @@ export function mergeSessions(local: Partial<LocalSession>, remote: Partial<Loca
     leitnerDeckStates: preferRemote
       ? { ...localDeckStates, ...remoteDeckStates }
       : { ...remoteDeckStates, ...localDeckStates },
+    quizAttemptHistories: mergeQuizAttemptHistories(
+      localQuizAttempts,
+      remoteQuizAttempts,
+      preferRemote,
+    ),
   };
 }
 
@@ -94,6 +108,7 @@ export function localSessionToRemote(session: Partial<LocalSession>): Omit<Local
     conceptBuses: (session.conceptBuses ?? loadAllConceptBuses()) as ConceptBusMap,
     stepSchedules: session.stepSchedules ?? loadAllStepSchedules(),
     leitnerDeckStates: session.leitnerDeckStates ?? loadAllDeckStates(),
+    quizAttemptHistories: session.quizAttemptHistories ?? loadAllQuizAttemptHistories(),
   };
 }
 
@@ -110,6 +125,7 @@ export function remoteSessionToLocal(remote: {
   conceptBuses?: Record<string, unknown>;
   stepSchedules?: Record<string, unknown>;
   leitnerDeckStates?: Record<string, LeitnerDeckState>;
+  quizAttemptHistories?: Record<string, QuizAttemptRecord[]>;
   updatedAt?: string;
 }): Partial<LocalSession> & { updatedAt?: string } {
   return {
@@ -125,6 +141,7 @@ export function remoteSessionToLocal(remote: {
     conceptBuses: remote.conceptBuses as ConceptBusMap | undefined,
     stepSchedules: remote.stepSchedules as StepScheduleMap | undefined,
     leitnerDeckStates: remote.leitnerDeckStates,
+    quizAttemptHistories: remote.quizAttemptHistories,
     updatedAt: remote.updatedAt,
   };
 }

@@ -1,5 +1,6 @@
 import type { UserSettings } from '../types';
 import type { LeitnerDeckState } from './leitnerDeckSync';
+import type { QuizAttemptRecord } from './quizAttemptHistory';
 import type { OcrStoredRegion } from './readerOcrOverlay';
 import type { TeacherDashboardResponse } from './teacherDashboardTypes';
 import type {
@@ -152,6 +153,7 @@ export type RemoteSession = {
   conceptBuses?: Record<string, unknown>;
   stepSchedules?: Record<string, unknown>;
   leitnerDeckStates?: Record<string, LeitnerDeckState>;
+  quizAttemptHistories?: Record<string, QuizAttemptRecord[]>;
   updatedAt: string;
 };
 

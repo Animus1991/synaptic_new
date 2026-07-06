@@ -58,6 +58,7 @@ import {
 import { loadAllConceptBuses, replaceAllConceptBuses } from '../lib/workspacePersistence';
 import { loadAllStepSchedules, replaceAllStepSchedules } from '../lib/spacedStepSchedule';
 import { loadAllDeckStates, replaceAllDeckStates } from '../lib/leitnerDeckSync';
+import { loadAllQuizAttemptHistories, replaceAllQuizAttemptHistories } from '../lib/quizAttemptHistory';
 import { createDebouncedConceptBusPusher } from '../lib/conceptBusSessionSync';
 import { mergeAgentWorkspaceContext, type WorkspaceLiveSync } from '../lib/workspaceStoreSpine';
 import { filterTasksForSession, getTaskAction, getTaskConcept, getAgentMode, type SessionType, type WorkspaceToolId } from '../lib/taskFlows';
@@ -1174,6 +1175,7 @@ export function useAppStore() {
     if (merged.conceptBuses) replaceAllConceptBuses(merged.conceptBuses);
     if (merged.stepSchedules) replaceAllStepSchedules(merged.stepSchedules);
     if (merged.leitnerDeckStates) replaceAllDeckStates(merged.leitnerDeckStates);
+    if (merged.quizAttemptHistories) replaceAllQuizAttemptHistories(merged.quizAttemptHistories);
 
     const nextTasks = stripDemoFromTasks(merged.tasks as typeof tasks);
     const nextKeys = new Set(merged.firstAttemptKeys);
@@ -1247,6 +1249,7 @@ export function useAppStore() {
       conceptBuses: loadAllConceptBuses() as import('../lib/conceptBusSync').ConceptBusMap,
       stepSchedules: loadAllStepSchedules(),
       leitnerDeckStates: loadAllDeckStates(),
+      quizAttemptHistories: loadAllQuizAttemptHistories(),
       ...local,
     });
     return pushRemoteSession(token, user.settings, payload);

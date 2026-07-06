@@ -31,13 +31,21 @@ type Props = {
   lang: 'en' | 'el';
   irt?: QuizIrtDisplay;
   irtResponseCount?: number;
-  onSessionComplete: (summary: { accuracy: number; meanConfidence: number }) => void;
+  onSessionComplete: (summary: {
+    accuracy: number;
+    meanConfidence: number;
+    wrongCount: number;
+    itemCount: number;
+  }) => void;
   sectionLabel?: string;
   onOpenFlashcards?: () => void;
   onOpenFeynman?: () => void;
   onOpenReader?: () => void;
   onOpenQuestionInReader?: (query: string) => void;
   onRemediateWrong?: (kind: 'make-card' | 'feynman', item: QuizSessionItem) => void;
+  /** Open Feynman with combined prompt for all wrong answers (TOOL-QZ-02). */
+  onRemediateWrongCluster?: (items: QuizSessionItem[]) => void;
+  attemptHistory?: Array<{ accuracy: number; completedAt: string; wrongCount: number }>;
   /** §13.5 — select question/passage for unified action bar */
   onSelectPassage?: (text: string, term?: string) => void;
   onClearSelection?: () => void;
@@ -60,6 +68,8 @@ export function WorkspaceQuizSession({
   onOpenReader,
   onOpenQuestionInReader,
   onRemediateWrong,
+  onRemediateWrongCluster,
+  attemptHistory = [],
   onSelectPassage,
   onClearSelection,
   onQuestionSelect,
@@ -105,9 +115,12 @@ export function WorkspaceQuizSession({
     setConfidence(3);
     onClearSelection?.();
     if (next.completedAt) {
+      const wrongCount = next.correctFlags.filter((c) => c === false).length;
       onSessionComplete({
         accuracy: sessionAccuracy(next),
         meanConfidence: meanConfidence(next),
+        wrongCount,
+        itemCount: next.items.length,
       });
     }
   };
@@ -135,10 +148,16 @@ export function WorkspaceQuizSession({
     const confidence = meanConfidence(session);
     const summary = buildQuizSessionSummaryCopy(accuracy, confidence, lang);
     const wrongSummaries = buildQuizWrongItemSummaries(session, sectionLabel);
+    const wrongItems = session.items.filter((_item, i) => session.correctFlags[i] === false);
     return (
       <div className="space-y-3" data-testid="quiz-session-complete">
         <p className="text-sm font-semibold text-accent-emerald">{summary.headline}</p>
         <p className="text-xs text-text-secondary" data-testid="quiz-session-summary-detail">{summary.detail}</p>
+        {attemptHistory.length > 0 && (
+          <p className="text-[10px] text-text-muted" data-testid="quiz-attempt-history-hint">
+            {t('quizAttemptHistoryHint').replace('{count}', String(attemptHistory.length))}
+          </p>
+        )}
         {irt && (
           <QuizIrtBadge irt={irt} lang={lang} responseCount={irtResponseCount} />
         )}
@@ -155,6 +174,16 @@ export function WorkspaceQuizSession({
                 ? t('quizSessMistakesReviewOne')
                 : t('quizSessMistakesReviewMany').replace('{count}', String(wrongSummaries.length))}
             </p>
+            {wrongItems.length > 0 && onRemediateWrongCluster && (
+              <button
+                type="button"
+                data-testid="quiz-review-feynman-cluster"
+                onClick={() => onRemediateWrongCluster(wrongItems)}
+                className="mb-2 inline-flex items-center gap-1 rounded-lg border border-accent-cyan/30 bg-accent-cyan/10 px-2.5 py-1 text-[10px] font-medium text-brand-800 hover:opacity-90"
+              >
+                {t('quizSessFeynmanCluster')}
+              </button>
+            )}
             <ul className="space-y-2">
               {wrongSummaries.map((w) => {
                 const item = session.items.find((i) => i.id === w.itemId);
