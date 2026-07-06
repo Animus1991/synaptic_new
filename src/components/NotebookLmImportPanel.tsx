@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { BookOpen, ChevronDown, ChevronUp, Download, ExternalLink, Loader2 } from '@/lib/lucide-shim';
+import { BookOpen, Brain, ChevronDown, ChevronUp, Download, ExternalLink, Loader2 } from '@/lib/lucide-shim';
 import type { NotebookLmImportResult } from '../lib/notebooklmImport';
 import { openNotebookLm } from '../lib/notebooklmBridge';
 import { NOTEBOOKLM_URL } from '../lib/platformFocus';
@@ -9,14 +9,17 @@ import { downloadAnkiDeck } from '../lib/ankiExport';
 type Props = {
   lang: 'en' | 'el';
   onImport: (raw: string) => NotebookLmImportResult | null;
+  onAddToFsrs?: (result: NotebookLmImportResult) => { added: number } | null | void;
   className?: string;
 };
 
-export function NotebookLmImportPanel({ lang, onImport, className }: Props) {
+export function NotebookLmImportPanel({ lang, onImport, onAddToFsrs, className }: Props) {
   const [open, setOpen] = useState(false);
   const [text, setText] = useState('');
   const [busy, setBusy] = useState(false);
   const [lastResult, setLastResult] = useState<NotebookLmImportResult | null>(null);
+  const [fsrsBusy, setFsrsBusy] = useState(false);
+  const [lastFsrsAdded, setLastFsrsAdded] = useState<number | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const title = lang === 'el' ? 'Εισαγωγή από NotebookLM' : 'Import from NotebookLM';
@@ -32,6 +35,7 @@ export function NotebookLmImportPanel({ lang, onImport, className }: Props) {
       const result = onImport(raw);
       if (result) {
         setLastResult(result);
+        setLastFsrsAdded(null);
         setText('');
       }
     } finally {
@@ -54,6 +58,17 @@ export function NotebookLmImportPanel({ lang, onImport, className }: Props) {
       `notebooklm-${lastResult.title.slice(0, 24).replace(/\s+/g, '-')}`,
       ['synapse:notebooklm'],
     );
+  };
+
+  const handleAddToFsrs = async () => {
+    if (!lastResult?.quizCards.length || !onAddToFsrs) return;
+    setFsrsBusy(true);
+    try {
+      const outcome = onAddToFsrs(lastResult);
+      setLastFsrsAdded(outcome?.added ?? lastResult.quizCards.length);
+    } finally {
+      setFsrsBusy(false);
+    }
   };
 
   return (
@@ -138,15 +153,40 @@ export function NotebookLmImportPanel({ lang, onImport, className }: Props) {
                 )}
               </p>
               {lastResult.quizCards.length > 0 && (
-                <button
-                  type="button"
-                  onClick={downloadQuizTsv}
-                  className="inline-flex items-center gap-1 text-brand-700 dark:text-brand-300 font-medium hover:underline"
-                  data-testid="notebooklm-download-quiz-tsv"
-                >
-                  <Download className="w-3 h-3" />
-                  {lang === 'el' ? 'Λήψη Anki TSV' : 'Download Anki TSV'}
-                </button>
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                  {onAddToFsrs && (
+                    <button
+                      type="button"
+                      disabled={fsrsBusy}
+                      onClick={() => void handleAddToFsrs()}
+                      className="inline-flex items-center gap-1 text-brand-700 dark:text-brand-300 font-semibold hover:underline disabled:opacity-50"
+                      data-testid="notebooklm-add-fsrs-deck"
+                    >
+                      {fsrsBusy ? (
+                        <Loader2 className="w-3 h-3 animate-spin" />
+                      ) : (
+                        <Brain className="w-3 h-3" />
+                      )}
+                      {lang === 'el' ? 'Προσθήκη στο FSRS deck' : 'Add to FSRS deck'}
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    onClick={downloadQuizTsv}
+                    className="inline-flex items-center gap-1 text-brand-700 dark:text-brand-300 font-medium hover:underline"
+                    data-testid="notebooklm-download-quiz-tsv"
+                  >
+                    <Download className="w-3 h-3" />
+                    {lang === 'el' ? 'Λήψη Anki TSV' : 'Download Anki TSV'}
+                  </button>
+                </div>
+              )}
+              {lastFsrsAdded != null && (
+                <p className="text-[10px] text-accent-emerald font-medium" data-testid="notebooklm-fsrs-added-hint">
+                  {lang === 'el'
+                    ? 'Άνοιξε Leitner στο Workspace για review.'
+                    : 'Open Leitner in Workspace to review.'}
+                </p>
               )}
             </div>
           )}

@@ -48,6 +48,7 @@ interface LibraryProps {
   onOpenWorkspace?: () => void;
   onDismissPostUpload?: () => void;
   onImportNotebookLm?: (raw: string) => NotebookLmImportResult | null;
+  onAddNotebookLmToFsrs?: (result: NotebookLmImportResult) => void;
   onOpenNotebookShell?: (courseId: string) => void;
 }
 
@@ -81,6 +82,7 @@ export function Library({
   onOpenWorkspace,
   onDismissPostUpload,
   onImportNotebookLm,
+  onAddNotebookLmToFsrs,
   onOpenNotebookShell,
 }: LibraryProps) {
   const userLanguage = userSettings?.language === 'el' ? 'el' : 'en';
@@ -128,6 +130,7 @@ export function Library({
         <NotebookLmImportPanel
           lang={userLanguage}
           onImport={onImportNotebookLm}
+          onAddToFsrs={onAddNotebookLmToFsrs}
           className="mb-4"
         />
       )}

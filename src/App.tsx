@@ -37,6 +37,7 @@ import { visibleCourses } from './lib/demoMode';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { StudyWorkspaceLazy } from './components/workspace/StudyWorkspaceLazy';
 import { NotebookShellView } from './components/NotebookShellView';
+import { parseNotebookLmExport } from './lib/notebooklmImport';
 import { prefetchWorkspaceEntry } from './lib/workspaceEntryPrefetch';
 import { preloadCriticalChunks } from './lib/preloadCriticalChunks';
 import { lazyWithRetry } from './lib/lazyWithRetry';
@@ -529,6 +530,14 @@ export default function App() {
             store.closeNotebookShell();
             store.navigate('library');
           }}
+          onAddQuizToFsrs={() => {
+            const source = store.uploadedFiles.find(
+              (f) => f.courseId === store.selectedCourse!.id && f.extractedText?.trim(),
+            );
+            if (!source?.extractedText) return;
+            const parsed = parseNotebookLmExport(source.extractedText);
+            store.importNotebookLmQuizToFsrs(parsed, { courseId: store.selectedCourse!.id });
+          }}
         />
       )}
       {store.studyWorkspaceOpen && (
@@ -924,6 +933,7 @@ export default function App() {
               onOpenWorkspace={openCourseWorkspace}
               onDismissPostUpload={store.clearPostUploadHighlight}
               onImportNotebookLm={store.importNotebookLm}
+              onAddNotebookLmToFsrs={store.importNotebookLmQuizToFsrs}
               onOpenNotebookShell={store.openNotebookShell}
             />
           )}

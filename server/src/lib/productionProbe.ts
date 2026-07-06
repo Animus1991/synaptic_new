@@ -86,6 +86,7 @@ export type ProductionProbeStatus = {
     platformFocusConsolidation: boolean;
     notebooklmDeepLink: boolean;
     notebookShellView: boolean;
+    notebooklmQuizFsrs: boolean;
   };
 };
 
@@ -189,6 +190,7 @@ export async function getProductionProbeStatus(): Promise<ProductionProbeStatus>
       platformFocusConsolidation: true,
       notebooklmDeepLink: true,
       notebookShellView: true,
+      notebooklmQuizFsrs: true,
     },
   };
 }

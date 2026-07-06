@@ -28,6 +28,10 @@ import {
   parseNotebookLmExport,
   type NotebookLmImportResult,
 } from '../lib/notebooklmImport';
+import {
+  prepareNotebookLmFsrsImport,
+  type NotebookLmFsrsImportResult,
+} from '../lib/notebooklmFsrsImport';
 import { notifySuccess, notifyWarning } from '../lib/notificationBus';
 import { prefetchWorkspaceEntry } from '../lib/workspaceEntryPrefetch';
 import { fetchYoutubeTranscript } from '../lib/youtubeTranscript';
@@ -1607,6 +1611,81 @@ export function useAppStore() {
     return parsed;
   }, [uploadedFiles, glossaryEntries, courses, persistLibrary, user.settings.language]);
 
+  const importNotebookLmQuizToFsrs = useCallback((
+    result: NotebookLmImportResult,
+    opts?: { openWorkspace?: boolean; courseId?: string },
+  ): NotebookLmFsrsImportResult | null => {
+    if (result.quizCards.length === 0) {
+      const lang = user.settings.language === 'el' ? 'el' : 'en';
+      notifyWarning(
+        lang === 'el' ? 'Χωρίς κάρτες quiz' : 'No quiz cards',
+        lang === 'el' ? 'Επικόλλησε Studio Quiz από NotebookLM.' : 'Paste a Studio Quiz from NotebookLM.',
+      );
+      return null;
+    }
+
+    const prepared = prepareNotebookLmFsrsImport(result, learnerModel.spacingIntervals);
+    const lang = user.settings.language === 'el' ? 'el' : 'en';
+    const courseId =
+      opts?.courseId ??
+      selectedCourse?.id ??
+      courses.find((c) => !MOCK_COURSE_IDS.has(c.id))?.id;
+
+    setLearnerModel((lm) => {
+      const next: LearnerModel = {
+        ...lm,
+        spacingIntervals: prepared.spacing,
+      };
+      persist(next, dashboardStats, tasks, user.xp, betaMastery, firstAttemptKeys, openMistakes, activities, user.settings);
+      return next;
+    });
+
+    if (prepared.added === 0) {
+      notifyWarning(
+        lang === 'el' ? 'Ήδη στο deck' : 'Already in deck',
+        lang === 'el'
+          ? 'Οι κάρτες quiz υπάρχουν ήδη στο FSRS deck.'
+          : 'Quiz cards are already in your FSRS deck.',
+      );
+    } else {
+      notifySuccess(
+        lang === 'el' ? 'FSRS deck' : 'FSRS deck',
+        lang === 'el'
+          ? `${prepared.added} κάρτες · ${prepared.studyConcept}`
+          : `${prepared.added} cards · ${prepared.studyConcept}`,
+      );
+    }
+
+    if (opts?.openWorkspace !== false && prepared.added > 0) {
+      openStudyWorkspaceForPractice({
+        tool: 'leitner',
+        concept: prepared.studyConcept,
+        courseId,
+      });
+    }
+
+    return {
+      added: prepared.added,
+      skipped: prepared.skipped,
+      studyConcept: prepared.studyConcept,
+      scopeKey: prepared.scopeKey,
+    };
+  }, [
+    learnerModel.spacingIntervals,
+    selectedCourse?.id,
+    courses,
+    user.settings,
+    user.xp,
+    dashboardStats,
+    tasks,
+    betaMastery,
+    firstAttemptKeys,
+    openMistakes,
+    activities,
+    persist,
+    openStudyWorkspaceForPractice,
+  ]);
+
   const removeUploadedFile = useCallback((fileId: string) => {
     const result = removeUploadedFileFromLibrary(fileId, uploadedFiles, courses);
     if (!result.removed) {
@@ -2037,7 +2116,7 @@ export function useAppStore() {
     runProactiveAgentAlert,
     coverageSnapshot,
     uploadedFiles, glossaryEntries, isUploading, isReprocessing, simulateUpload, processUpload,
-    reprocessCourseMaterial, saveCourseExtractedText, removeUploadedFile, importNotebookLm, removeCourse,
+    reprocessCourseMaterial, saveCourseExtractedText, removeUploadedFile, importNotebookLm, importNotebookLmQuizToFsrs, removeCourse,
     pullLibraryFromServer, pullSessionFromServer, pushSessionToServer, syncAccountOnLogin,
     queueConceptBusSync, flushConceptBusSync,
     refreshAuthPlan, logStudyMinutes,

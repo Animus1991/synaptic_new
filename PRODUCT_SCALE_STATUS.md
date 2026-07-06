@@ -99,7 +99,7 @@ Regression gate: `npm test`; `npm run test:e2e:perf`; `npx playwright test e2e/a
 | **L13-1 Consolidation** | Hide Agent nav + synthesis panel (`platformFocus.ts`) | **shipped** |
 | **L13-2 Deep link** | `openNotebookLm()` + Capacitor Browser + per-source buttons | **shipped** |
 | **L13-6 Notebook Shell** | `NotebookShellView` 3-column layout | **shipped** |
-| **L13-3 Quiz → FSRS** | Studio Quiz → due deck one-click | backlog |
+| **L13-3 Quiz → FSRS** | `notebooklmFsrsImport.ts` + one-click in import panel & Notebook Shell | **shipped** |
 
 Regression gate: `npm test -- src/lib/notebooklmImport.test.ts`; `cd server && npm test`; `npm run typecheck`.
 

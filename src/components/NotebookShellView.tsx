@@ -1,7 +1,9 @@
 import { X, BookOpen, Sparkles, ExternalLink, Layers, Brain, BarChart3 } from '@/lib/lucide-shim';
+import { useMemo } from 'react';
 import type { Course, UploadedFile } from '../types';
 import { cn } from '../utils/cn';
 import { openNotebookLm, notebookLmSourceLabel } from '../lib/notebooklmBridge';
+import { parseNotebookLmExport } from '../lib/notebooklmImport';
 
 type Props = {
   course: Course;
@@ -10,6 +12,8 @@ type Props = {
   onClose: () => void;
   onOpenWorkspace: () => void;
   onOpenLibraryImport?: () => void;
+  onAddQuizToFsrs?: () => void;
+  quizCardCount?: number;
 };
 
 type StudioTile = {
@@ -29,11 +33,18 @@ export function NotebookShellView({
   onClose,
   onOpenWorkspace,
   onOpenLibraryImport,
+  onAddQuizToFsrs,
+  quizCardCount: quizCardCountProp,
 }: Props) {
   const el = lang === 'el';
   const primarySource = sources[0];
   const excerpt = primarySource?.extractedText?.trim().slice(0, 1200) ?? '';
   const topicLine = course.topics.slice(0, 4).map((t) => t.title).join(' · ');
+  const quizCardCount = useMemo(() => {
+    if (quizCardCountProp != null) return quizCardCountProp;
+    if (!primarySource?.extractedText?.trim()) return 0;
+    return parseNotebookLmExport(primarySource.extractedText).quizCards.length;
+  }, [primarySource?.extractedText, quizCardCountProp]);
 
   const tiles: StudioTile[] = [
     {
@@ -159,6 +170,17 @@ export function NotebookShellView({
                 <Sparkles className="w-4 h-4" />
                 {el ? 'Συνέχεια στο Workspace' : 'Continue in Workspace'}
               </button>
+              {quizCardCount > 0 && onAddQuizToFsrs && (
+                <button
+                  type="button"
+                  onClick={onAddQuizToFsrs}
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-accent-emerald/90 text-white text-sm font-medium"
+                  data-testid="notebook-shell-add-fsrs"
+                >
+                  <Brain className="w-4 h-4" />
+                  {el ? `FSRS deck (${quizCardCount})` : `FSRS deck (${quizCardCount})`}
+                </button>
+              )}
               <button
                 type="button"
                 onClick={() => void openNotebookLm({ sourceTitle: course.title, lang })}
