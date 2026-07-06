@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { skipOnboardingToLibrary } from './helpers/onboarding';
+import { openReaderInWorkspace } from './helpers/workspace';
 
 const GREEK_SYLLABUS = `
 ΔΙΑΛΕΞΗ 2 ΘΕΩΡΙΑ ΣΥΓΚΡΙΤΙΚΩΝ ΠΛΕΟΝΕΚΤΗΜΑΤΩΝ
@@ -20,8 +21,7 @@ async function openGreekReaderWorkspace(page: import('@playwright/test').Page) {
   await expect(page.getByTestId('course-generation-diagnostics')).toBeVisible({ timeout: 45_000 });
   await page.getByTestId('course-open-workspace').click();
   await expect(page.getByTestId('study-workspace')).toBeVisible({ timeout: 45_000 });
-  await page.getByTestId('dock-tool-reader').click();
-  await expect(page.getByTestId('cognitive-reader')).toBeVisible({ timeout: 15_000 });
+  await openReaderInWorkspace(page);
 }
 
 test.describe('Workspace selection → Agent handoff (Sprint C)', () => {

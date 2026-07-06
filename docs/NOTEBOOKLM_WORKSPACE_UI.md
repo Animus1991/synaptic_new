@@ -42,14 +42,17 @@ Synapse does **not** clone NotebookLM. We adopt its **calm 3-panel shell** while
 | **0** Toggle | `notebookMode` persisted (`workspace-notebook-mode`, default **on**) | ✅ |
 | **0** Header | Minimal chrome when `notebookMode` (`StudyWorkspaceChrome` ⋯ menu) | ✅ **this sprint** |
 | **1** Sources | Source list, add source, source guide (AI), quality/reprocess strip | ✅ |
-| **1** Thumbnails | File-type icons only | 🔲 |
-| **2** Chat center | Inline `Agent` via `renderCenterAgent` + `embedded` prop | ✅ **this sprint** |
-| **2** No redirect | `openAgentFromWorkspace` stays in workspace unless `fullPage: true` | ✅ **this sprint** |
+| **1** Thumbnails | Source list, add source, source guide (AI), quality/reprocess strip | ✅ |
+| **1** Thumbnails | Typed source chips (`sourceThumbnail.ts`) | ✅ |
+| **2** Chat center | Inline `Agent` via `renderCenterAgent` + `embedded` prop | ✅ |
+| **2** Context strip | Compact chip + hover popover (`AgentContextBanner compact`) | ✅ |
+| **2** No redirect | `openAgentFromWorkspace` stays in workspace unless `fullPage: true` | ✅ |
+| **2** Citation jump | `sourceHighlight` → reader overlay in notebook layout | ✅ |
 | **3** Studio | 12 tool cards + Ask AI sparkle; `StudyWorkspaceToolSurface` overlay | ✅ |
-| **4** AI-assist | `openAgentForTool` / `askAiForTool` per card | ✅ partial |
-| **5** Mobile | Notebook layout disabled on mobile; classic bento chrome | 🔲 |
+| **4** AI-assist | `buildToolDefaultAgentPrompt` per Studio sparkle | ✅ |
+| **5** Mobile | Bottom tabs Sources \| Chat \| Studio | ✅ |
 | **5** i18n | el/en in layout strings | ✅ partial |
-| **5** Tests | `data-testid` hooks present | 🔶 needs E2E |
+| **5** Tests | `e2e/notebook-workspace.spec.ts` | ✅ |
 
 ### Known gap (fixed this sprint)
 
@@ -101,12 +104,10 @@ StudyWorkspaceBody
 ## Phased rollout (remaining work)
 
 ### Phase 1 completion
-- [ ] Source thumbnails (PDF/page preview chips)
 - [ ] Pin active source in Sources list
-- [ ] Reader opens in Studio overlay with citation sync to chat
+- [ ] PDF page-preview thumbnails (requires render pipeline)
 
 ### Phase 2 completion
-- [ ] Citation chips in embedded chat jump to reader selection
 - [ ] Auto-focus chat input on workspace open
 - [ ] Classic layout: optional inline chat drawer (no redirect)
 
@@ -115,13 +116,10 @@ StudyWorkspaceBody
 - [ ] Expanded tool overlay with persistent «Ask AI» rail
 
 ### Phase 4 — AI-assist everywhere
-- [ ] Per-tool default prompts in `notebooklmBridgeCommands` style registry
-- [ ] «Φτιάξε κουίζ» / «Mind map από πηγή» one-click from Studio
+- [ ] «Φτιάξε κουίζ» / «Mind map από πηγή» dedicated one-click Studio actions
 
 ### Phase 5 — polish
-- [ ] Mobile: bottom sheet Sources | Chat | Studio tabs
-- [ ] Playwright: `notebook-workspace-layout`, `agent-embedded`, no redirect on chat click
-- [ ] `npm run typecheck` + visual regression screenshot
+- [ ] Visual regression screenshot for notebook layout
 
 ---
 
@@ -129,8 +127,8 @@ StudyWorkspaceBody
 
 ```bash
 npm run typecheck
-npm test -- src/lib/notebooklmBridgeCommands.test.ts
-npx playwright test e2e/a11y-toast-aria-live.spec.ts
+npm test -- src/lib/sourceThumbnail.test.ts src/lib/workspaceToolAgentPrompts.test.ts
+npx playwright test e2e/notebook-workspace.spec.ts
 ```
 
 Manual QA:

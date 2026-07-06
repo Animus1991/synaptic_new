@@ -35,13 +35,14 @@ export function StudyWorkspaceBody(props: StudyWorkspaceProps) {
           model.agentSplit
             ? 'relative h-full w-full bg-surface-primary flex flex-col'
             : 'fixed inset-0 z-50 bg-surface-primary flex flex-col',
-          model.isMobile && !model.chromeHidden && 'pb-20',
+          model.isMobile && !model.chromeHidden && !model.notebookMode && 'pb-20',
+          model.isMobile && model.notebookMode && !model.chromeHidden && 'pb-2',
         )}
         data-testid="study-workspace"
         data-grounded={model.noteBundle.hasSource ? 'true' : 'false'}
       >
         <StudyWorkspaceChrome model={model} />
-        {model.notebookMode && !model.isMobile
+        {model.notebookMode
           ? <NotebookWorkspaceLayout model={model} />
           : <StudyWorkspaceMainLayout model={model} />}
         <StudyWorkspaceOverlays model={model} />

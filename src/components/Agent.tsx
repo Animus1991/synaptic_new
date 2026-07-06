@@ -506,7 +506,7 @@ export function Agent({
         </div>
       )}
 
-      <AgentContextBanner context={workspaceContext} lang={lang} />
+      <AgentContextBanner context={workspaceContext} lang={lang} compact={embedded} />
 
       {activeTaskTitle && !embedded && (
         <div className="px-4 sm:px-6 py-2 border-b border-brand-500/20 bg-brand-500/5">
@@ -616,8 +616,8 @@ export function Agent({
           )}
           <div ref={messagesEndRef} />
 
-          {/* Quick Actions */}
-          {showQuickActions && messages.length <= 4 && (
+          {/* Quick Actions — collapsed in embedded chat to save vertical space */}
+          {showQuickActions && messages.length <= 4 && !embedded && (
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -641,7 +641,7 @@ export function Agent({
       </div>
 
       {/* Input Area */}
-      <div className="border-t border-border-subtle bg-surface-secondary/30 pb-20 lg:pb-0">
+      <div className={cn('border-t border-border-subtle bg-surface-secondary/30', embedded ? 'pb-2' : 'pb-20 lg:pb-0')}>
         <div className="max-w-none w-full min-w-0 px-4 sm:px-6 py-3">
           <div className="flex items-end gap-2">
             <div className="flex-1 relative">
@@ -730,6 +730,7 @@ export function Agent({
             </button>
           </div>
 
+          {!embedded && (
           <div className="flex items-center justify-between mt-2 flex-wrap gap-2">
             <div className="flex items-center gap-3 text-[10px] text-text-muted flex-wrap">
               <span className="flex items-center gap-1">
@@ -761,6 +762,7 @@ export function Agent({
             </div>
             <span className="text-[10px] text-text-muted">{ui.shiftEnter}</span>
           </div>
+          )}
         </div>
       </div>
     </div>
