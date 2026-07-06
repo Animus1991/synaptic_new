@@ -130,6 +130,17 @@ Regression gate: `npm test -- src/lib/notebooklmAudioFsrsImport.test.ts src/lib/
 
 ---
 
+## Sprint L16 — Teacher NLM visibility — shipped (Jul 2026)
+
+| Scope | Deliverable | Status |
+| ----- | ----------- | ------ |
+| **L16-1 Bridge analytics** | `notebooklmBridgeAnalytics.ts` — student library NLM counts | **shipped** |
+| **L16-2 Cohort heatmap** | `notebooklmBridgeHeatmap` in org analytics + `CohortNotebookLmHeatmap` | **shipped** |
+
+Regression gate: `cd server && npm test -- src/lib/notebooklmBridgeAnalytics.test.ts src/lib/orgAnalytics.test.ts`; `npm run typecheck`.
+
+---
+
 ## Sprint L7 — student org UI & SAML crypto — shipped (Jul 2026)
 
 | Scope | Deliverable |

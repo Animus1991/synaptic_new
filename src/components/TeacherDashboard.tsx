@@ -27,6 +27,7 @@ import type { TeacherDashboardResponse } from '../lib/teacherDashboardTypes';
 import { getTeacherContent } from '../lib/teacherContent';
 import { fetchOrgs, fetchOrgAnalytics, downloadGradebookCsv, linkLtiClassContext, ltiPassbackClassGrades, syncLtiClassRoster, type OrgAnalytics } from '../lib/orgClient';
 import { CohortHeatmap } from './CohortHeatmap';
+import { CohortNotebookLmHeatmap } from './CohortNotebookLmHeatmap';
 import { CohortTopicMasteryHeatmap } from './CohortTopicMasteryHeatmap';
 import { AssignmentDiscussionThread } from './AssignmentDiscussionThread';
 import { formatDateTime, formatShortDate, localeTag } from '../lib/localeFormat';
@@ -463,6 +464,7 @@ export function TeacherDashboard({
               </div>
               <CohortHeatmap analytics={orgAnalytics} lang={lang} />
               <CohortTopicMasteryHeatmap analytics={orgAnalytics} lang={lang} />
+              <CohortNotebookLmHeatmap analytics={orgAnalytics} lang={lang} />
             </>
           ) : (
             <p className="text-[10px] text-text-muted">{ui.noOrgAnalytics}</p>

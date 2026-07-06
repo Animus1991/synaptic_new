@@ -51,6 +51,22 @@ export type OrgAnalytics = {
       masteryLevel: number;
     }[];
   }[];
+  notebooklmBridgeHeatmap?: {
+    classId: string;
+    className: string;
+    students: {
+      enrollmentId: string;
+      studentLabel: string;
+      importCount: number;
+      chatCount: number;
+      audioCount: number;
+      totalCount: number;
+      adoptionLevel: number;
+    }[];
+    studentsWithImports: number;
+    totalImports: number;
+    artifactTotals: { import: number; chat: number; audio: number };
+  }[];
   generatedAt: string;
 };
 

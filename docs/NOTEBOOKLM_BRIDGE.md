@@ -1,6 +1,6 @@
 # NotebookLM bridge — product strategy
 
-**Status:** Sprint L14 shipped · Sprint L15 (Jul 2026)  
+**Status:** Sprint L14 shipped · Sprint L15 shipped · Sprint L16 (Jul 2026)  
 **North star:** *NotebookLM to understand · Synapse to retain and for teachers to see.*
 
 Synapse is a **learning OS**, not a NotebookLM clone. We do **not** compete on grounded chat, RAG quality, or Studio audio. We **bridge** NotebookLM exports into structured study, FSRS retention, and teacher visibility.
@@ -103,10 +103,22 @@ Re-enable via `VITE_SHOW_NOTEBOOKLM_PARITY=true` for power users / QA.
 
 ---
 
+## Sprint L16 — teacher visibility
+
+| Slice | Deliverable |
+| ----- | ----------- |
+| **L16-1** | `notebooklmBridgeAnalytics.ts` — per-student NLM counts from synced libraries |
+| **L16-2** | `notebooklmBridgeHeatmap` in org analytics API + `CohortNotebookLmHeatmap` in Teacher Dashboard |
+
+Teachers see which roster students imported NotebookLM artifacts (import / chat / audio) via the cohort heatmap on org analytics.
+
+---
+
 ## Regression gate
 
 ```bash
 npm test -- src/lib/notebooklmImport.test.ts src/lib/notebooklmFsrsImport.test.ts src/lib/notebooklmAudioTranscript.test.ts src/lib/notebooklmExport.test.ts src/lib/notebooklmAudioFsrsImport.test.ts src/lib/notebooklmBridgeCommands.test.ts
+cd server && npm test -- src/lib/notebooklmBridgeAnalytics.test.ts src/lib/orgAnalytics.test.ts
 npm run typecheck
 npx playwright test e2e/a11y-toast-aria-live.spec.ts
 ```
@@ -123,3 +135,4 @@ npx playwright test e2e/a11y-toast-aria-live.spec.ts
 - `src/components/NotebookShellView.tsx` — 3-column shell
 - `src/components/NotebookLmExportPanel.tsx` — Course Sources export UI
 - `src/components/CourseMediaPanel.tsx` — NLM transcript paste + Whisper upload
+- `src/components/CohortNotebookLmHeatmap.tsx` — teacher cohort NLM adoption heatmap

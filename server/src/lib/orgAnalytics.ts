@@ -1,3 +1,8 @@
+import {
+  buildNotebookLmCohortHeatmap,
+  resolveNotebookLmBridgeCellsAsync,
+  type CohortNotebookLmHeatmap,
+} from './notebooklmBridgeAnalytics';
 import { buildTopicMasteryHeatmap, type CohortTopicMasteryHeatmap } from './topicMasteryHeatmap';
 import {
   listClassRosterAsync,
@@ -98,6 +103,7 @@ export type OrgAnalyticsSnapshot = {
   classes: OrgClassAnalytics[];
   cohortHeatmap: CohortClassHeatmap[];
   topicMasteryHeatmap: CohortTopicMasteryHeatmap[];
+  notebooklmBridgeHeatmap: CohortNotebookLmHeatmap[];
   generatedAt: string;
 };
 
@@ -106,6 +112,7 @@ export async function computeOrgAnalyticsAsync(orgId: string): Promise<OrgAnalyt
   const classRows: OrgClassAnalytics[] = [];
   const cohortHeatmap: CohortClassHeatmap[] = [];
   const topicMasteryHeatmap: CohortTopicMasteryHeatmap[] = [];
+  const notebooklmBridgeHeatmap: CohortNotebookLmHeatmap[] = [];
   let totalStudents = 0;
   let totalAssignments = 0;
   let masterySum = 0;
@@ -167,6 +174,8 @@ export async function computeOrgAnalyticsAsync(orgId: string): Promise<OrgAnalyt
 
     cohortHeatmap.push(buildClassHeatmap(cls.id, cls.name, gradebook));
     topicMasteryHeatmap.push(buildTopicMasteryHeatmap(cls.id, cls.name, assignments, gradebook));
+    const bridgeCells = await resolveNotebookLmBridgeCellsAsync(roster, cls.courseId);
+    notebooklmBridgeHeatmap.push(buildNotebookLmCohortHeatmap(cls.id, cls.name, bridgeCells));
   }
 
   return {
@@ -180,6 +189,7 @@ export async function computeOrgAnalyticsAsync(orgId: string): Promise<OrgAnalyt
     classes: classRows,
     cohortHeatmap,
     topicMasteryHeatmap,
+    notebooklmBridgeHeatmap,
     generatedAt: new Date().toISOString(),
   };
 }

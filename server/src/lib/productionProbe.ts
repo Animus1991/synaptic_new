@@ -101,6 +101,11 @@ export type ProductionProbeStatus = {
     notebookShellExport: boolean;
     notebooklmBridgeCommands: boolean;
   };
+  /** Sprint L16 — teacher visibility for NLM bridge adoption. */
+  l16Enterprise: {
+    notebooklmCohortHeatmap: boolean;
+    teacherBridgeVisibility: boolean;
+  };
 };
 
 let cachedPgvector: boolean | null = null;
@@ -215,6 +220,10 @@ export async function getProductionProbeStatus(): Promise<ProductionProbeStatus>
       audioTranscriptFsrs: true,
       notebookShellExport: true,
       notebooklmBridgeCommands: true,
+    },
+    l16Enterprise: {
+      notebooklmCohortHeatmap: true,
+      teacherBridgeVisibility: true,
     },
   };
 }

@@ -780,6 +780,7 @@ describe('server integration sweep', () => {
       .expect(200);
     expect(analytics.body.orgId).toBe(orgId);
     expect(analytics.body.totalStudents).toBeGreaterThanOrEqual(1);
+    expect(Array.isArray(analytics.body.notebooklmBridgeHeatmap)).toBe(true);
 
     const studentClasses = await request(app)
       .get('/v1/student/classes')
@@ -876,6 +877,9 @@ describe('server integration sweep', () => {
     expect(health.body.features.l15Enterprise.audioTranscriptFsrs).toBe(true);
     expect(health.body.features.l15Enterprise.notebookShellExport).toBe(true);
     expect(health.body.features.l15Enterprise.notebooklmBridgeCommands).toBe(true);
+    expect(health.body.features.l16Enterprise).toBeDefined();
+    expect(health.body.features.l16Enterprise.notebooklmCohortHeatmap).toBe(true);
+    expect(health.body.features.l16Enterprise.teacherBridgeVisibility).toBe(true);
 
     const auditExport = await request(app)
       .get(`/v1/orgs/${orgId}/audit-logs/export?format=csv`)
