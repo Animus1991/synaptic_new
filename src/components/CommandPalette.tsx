@@ -1,11 +1,12 @@
 import { useEffect, useState, useCallback, useMemo } from 'react';
-import { Search, BookOpen, CheckSquare, Bot, LayoutDashboard, BarChart3, Settings, Play, Users, FileText, GraduationCap, LayoutGrid } from '@/lib/lucide-shim';
+import { Search, BookOpen, CheckSquare, Bot, LayoutDashboard, BarChart3, Settings, Play, Users, FileText, GraduationCap, LayoutGrid, ExternalLink } from '@/lib/lucide-shim';
 import type { AppView, Course, GlossaryEntry, Task, UploadedFile } from '../types';
 import { cn } from '../utils/cn';
 import { useI18n, type I18nKey } from '../lib/i18n';
 import { searchUploadedContent, type ContentSearchHit } from '../lib/globalContentSearch';
 import { commandActionKey, loadRecentCommandKeys, recordRecentCommandKey } from '../lib/commandPaletteRecent';
 import { showStandaloneAgentNav } from '../lib/platformFocus';
+import { buildNotebookLmBridgeCommands, type NotebookLmBridgeCommandId } from '../lib/notebooklmBridgeCommands';
 import { getTaskActionVisual } from '../lib/taskActionIcons';
 import type { LucideIcon } from '@/lib/lucide-shim';
 import type { DashboardNextAction } from '../lib/dashboardNextAction';
@@ -16,7 +17,8 @@ export type CommandAction =
   | { type: 'next-action'; label: string; sublabel?: string; icon: typeof Play }
   | { type: 'task'; taskId: string; label: string; icon: LucideIcon }
   | { type: 'session'; session: '10min' | '25min' | 'review'; label: string; icon: typeof Play }
-  | { type: 'content'; hit: ContentSearchHit; label: string; sublabel?: string; icon: typeof BookOpen };
+  | { type: 'content'; hit: ContentSearchHit; label: string; sublabel?: string; icon: typeof BookOpen }
+  | { type: 'nlm-bridge'; bridgeId: NotebookLmBridgeCommandId; label: string; sublabel?: string; icon: typeof ExternalLink };
 
 interface Props {
   open: boolean;
@@ -32,6 +34,8 @@ interface Props {
   onOpenWorkspace?: () => void;
   dashboardNextAction?: DashboardNextAction | null;
   onDashboardNextAction?: () => void;
+  hasSelectedCourse?: boolean;
+  onNotebookLmBridge?: (id: NotebookLmBridgeCommandId) => void;
 }
 
 const NAV_ALL: { view: AppView; labelKey: I18nKey; icon: typeof LayoutDashboard }[] = [
@@ -67,8 +71,10 @@ export function CommandPalette({
   onOpenWorkspace,
   dashboardNextAction = null,
   onDashboardNextAction,
+  hasSelectedCourse = false,
+  onNotebookLmBridge,
 }: Props) {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const [query, setQuery] = useState('');
 
   useEffect(() => {
@@ -134,7 +140,17 @@ export function CommandPalette({
         }]
       : [];
 
-  const actions = [...nextActionCommands, ...workspaceAction, ...contentActions, ...navActions, ...taskActions, ...sessionActions];
+  const bridgeActions: CommandAction[] = onNotebookLmBridge
+    ? buildNotebookLmBridgeCommands(query, lang, { hasCourse: hasSelectedCourse }).map((cmd) => ({
+        type: 'nlm-bridge' as const,
+        bridgeId: cmd.id,
+        label: cmd.label,
+        sublabel: cmd.hint,
+        icon: ExternalLink,
+      }))
+    : [];
+
+  const actions = [...nextActionCommands, ...bridgeActions, ...workspaceAction, ...contentActions, ...navActions, ...taskActions, ...sessionActions];
 
   const recentKeys = loadRecentCommandKeys();
   const orderedActions = (() => {
@@ -146,6 +162,7 @@ export function CommandPalette({
         view: a.type === 'navigate' ? a.view : undefined,
         taskId: a.type === 'task' ? a.taskId : undefined,
         session: a.type === 'session' ? a.session : undefined,
+        bridgeId: a.type === 'nlm-bridge' ? a.bridgeId : undefined,
       }) === key))
       .filter((a): a is CommandAction => !!a);
     const rest = actions.filter((a) => !recent.includes(a));
@@ -159,10 +176,12 @@ export function CommandPalette({
       view: a.type === 'navigate' ? a.view : undefined,
       taskId: a.type === 'task' ? a.taskId : undefined,
       session: a.type === 'session' ? a.session : undefined,
+      bridgeId: a.type === 'nlm-bridge' ? a.bridgeId : undefined,
     }));
     if (a.type === 'navigate') onNavigate(a.view);
     if (a.type === 'workspace') onOpenWorkspace?.();
     if (a.type === 'next-action') onDashboardNextAction?.();
+    if (a.type === 'nlm-bridge') onNotebookLmBridge?.(a.bridgeId);
     if (a.type === 'task') onStartTask(a.taskId);
     if (a.type === 'session') onStartSession(a.session);
     if (a.type === 'content') onContentSelect(a.hit);
@@ -209,6 +228,9 @@ export function CommandPalette({
                   <span className="block truncate text-[10px] text-text-muted">{a.sublabel}</span>
                 )}
                 {a.type === 'next-action' && a.sublabel && (
+                  <span className="block truncate text-[10px] text-text-muted">{a.sublabel}</span>
+                )}
+                {a.type === 'nlm-bridge' && a.sublabel && (
                   <span className="block truncate text-[10px] text-text-muted">{a.sublabel}</span>
                 )}
               </span>

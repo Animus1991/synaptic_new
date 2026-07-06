@@ -118,6 +118,18 @@ Regression gate: `npm test -- src/lib/notebooklmExport.test.ts src/lib/notebookl
 
 ---
 
+## Sprint L15 — Retention loop closure — shipped (Jul 2026)
+
+| Scope | Deliverable | Status |
+| ----- | ----------- | ------ |
+| **L15-1 Audio → FSRS** | `notebooklmAudioFsrsImport.ts` + Course media + Notebook Shell one-click | **shipped** |
+| **L15-2 Shell round-trip** | Export study guide / review pack tiles in `NotebookShellView` | **shipped** |
+| **L15-3 Bridge commands** | `notebooklmBridgeCommands.ts` in app command palette | **shipped** |
+
+Regression gate: `npm test -- src/lib/notebooklmAudioFsrsImport.test.ts src/lib/notebooklmBridgeCommands.test.ts`; `cd server && npm test`; `npm run typecheck`.
+
+---
+
 ## Sprint L7 — student org UI & SAML crypto — shipped (Jul 2026)
 
 | Scope | Deliverable |

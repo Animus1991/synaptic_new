@@ -25,11 +25,13 @@ export function commandActionKey(action: {
   view?: string;
   taskId?: string;
   session?: string;
+  bridgeId?: string;
 }): string {
   if (action.type === 'navigate' && action.view) return `nav:${action.view}`;
   if (action.type === 'task' && action.taskId) return `task:${action.taskId}`;
   if (action.type === 'session' && action.session) return `session:${action.session}`;
   if (action.type === 'workspace') return 'workspace';
   if (action.type === 'next-action') return 'next-action';
+  if (action.type === 'nlm-bridge' && action.bridgeId) return `nlm:${action.bridgeId}`;
   return `${action.type}:${action.label}`;
 }

@@ -95,6 +95,12 @@ export type ProductionProbeStatus = {
     notebooklmExport: boolean;
     courseMediaAudioUpload: boolean;
   };
+  /** Sprint L15 — retention loop closure (round-trip bridge). */
+  l15Enterprise: {
+    audioTranscriptFsrs: boolean;
+    notebookShellExport: boolean;
+    notebooklmBridgeCommands: boolean;
+  };
 };
 
 let cachedPgvector: boolean | null = null;
@@ -204,6 +210,11 @@ export async function getProductionProbeStatus(): Promise<ProductionProbeStatus>
     l14Enterprise: {
       notebooklmExport: true,
       courseMediaAudioUpload: true,
+    },
+    l15Enterprise: {
+      audioTranscriptFsrs: true,
+      notebookShellExport: true,
+      notebooklmBridgeCommands: true,
     },
   };
 }

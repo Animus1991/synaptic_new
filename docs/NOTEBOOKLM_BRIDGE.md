@@ -1,6 +1,6 @@
 # NotebookLM bridge — product strategy
 
-**Status:** Sprint L13 shipped · Sprint L14 (Jul 2026)  
+**Status:** Sprint L14 shipped · Sprint L15 (Jul 2026)  
 **North star:** *NotebookLM to understand · Synapse to retain and for teachers to see.*
 
 Synapse is a **learning OS**, not a NotebookLM clone. We do **not** compete on grounded chat, RAG quality, or Studio audio. We **bridge** NotebookLM exports into structured study, FSRS retention, and teacher visibility.
@@ -89,14 +89,24 @@ Re-enable via `VITE_SHOW_NOTEBOOKLM_PARITY=true` for power users / QA.
 | Slice | Deliverable |
 | ----- | ----------- |
 | **L14-1** | `notebooklmExport.ts` + `NotebookLmExportPanel` (study guide, review pack, FSRS due) |
-| **L14-2** | Course media audio upload → Whisper → transcript markdown |
+| **L14-2** | Course media audio upload → Whisper → transcript markdown | **shipped** |
+
+---
+
+## Sprint L15 roadmap — retention loop closure
+
+| Slice | Deliverable |
+| ----- | ----------- |
+| **L15-1** | Audio transcript chapters → FSRS one-click (`notebooklmAudioFsrsImport.ts`) |
+| **L15-2** | Notebook Shell export tiles + audio FSRS (round-trip hub) |
+| **L15-3** | Command palette NLM bridge commands (`notebooklmBridgeCommands.ts`) |
 
 ---
 
 ## Regression gate
 
 ```bash
-npm test -- src/lib/notebooklmImport.test.ts src/lib/notebooklmFsrsImport.test.ts src/lib/notebooklmAudioTranscript.test.ts src/lib/notebooklmExport.test.ts
+npm test -- src/lib/notebooklmImport.test.ts src/lib/notebooklmFsrsImport.test.ts src/lib/notebooklmAudioTranscript.test.ts src/lib/notebooklmExport.test.ts src/lib/notebooklmAudioFsrsImport.test.ts src/lib/notebooklmBridgeCommands.test.ts
 npm run typecheck
 npx playwright test e2e/a11y-toast-aria-live.spec.ts
 ```
@@ -108,6 +118,8 @@ npx playwright test e2e/a11y-toast-aria-live.spec.ts
 - `src/lib/notebooklmImport.ts` — parser + `UploadedFile` builder
 - `src/lib/notebooklmBridge.ts` — deep link + in-app browser
 - `src/lib/notebooklmExport.ts` — Synapse → NLM markdown export
+- `src/lib/notebooklmAudioFsrsImport.ts` — audio chapters → FSRS deck
+- `src/lib/notebooklmBridgeCommands.ts` — command palette bridge actions
 - `src/components/NotebookShellView.tsx` — 3-column shell
 - `src/components/NotebookLmExportPanel.tsx` — Course Sources export UI
 - `src/components/CourseMediaPanel.tsx` — NLM transcript paste + Whisper upload

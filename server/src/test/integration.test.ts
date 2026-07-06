@@ -872,6 +872,10 @@ describe('server integration sweep', () => {
     expect(health.body.features.l14Enterprise).toBeDefined();
     expect(health.body.features.l14Enterprise.notebooklmExport).toBe(true);
     expect(health.body.features.l14Enterprise.courseMediaAudioUpload).toBe(true);
+    expect(health.body.features.l15Enterprise).toBeDefined();
+    expect(health.body.features.l15Enterprise.audioTranscriptFsrs).toBe(true);
+    expect(health.body.features.l15Enterprise.notebookShellExport).toBe(true);
+    expect(health.body.features.l15Enterprise.notebooklmBridgeCommands).toBe(true);
 
     const auditExport = await request(app)
       .get(`/v1/orgs/${orgId}/audit-logs/export?format=csv`)

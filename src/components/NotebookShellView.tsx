@@ -1,18 +1,26 @@
-import { X, BookOpen, Sparkles, ExternalLink, Layers, Brain, BarChart3 } from '@/lib/lucide-shim';
-import { useMemo } from 'react';
-import type { Course, UploadedFile } from '../types';
+import { X, BookOpen, Sparkles, ExternalLink, Layers, Brain, BarChart3, Upload } from '@/lib/lucide-shim';
+import { useMemo, useState } from 'react';
+import type { Course, GlossaryEntry, LearnerModel, UploadedFile } from '../types';
 import { cn } from '../utils/cn';
 import { openNotebookLm, notebookLmSourceLabel } from '../lib/notebooklmBridge';
-import { parseNotebookLmExport } from '../lib/notebooklmImport';
+import { parseNotebookLmExport, parseNotebookLmAudioFromMarkdown } from '../lib/notebooklmImport';
+import {
+  buildNotebookLmExportPayload,
+  exportToNotebookLm,
+  type NotebookLmExportKind,
+} from '../lib/notebooklmExport';
 
 type Props = {
   course: Course;
   sources: UploadedFile[];
+  glossaryEntries?: GlossaryEntry[];
+  learnerModel?: LearnerModel;
   lang: 'en' | 'el';
   onClose: () => void;
   onOpenWorkspace: () => void;
   onOpenLibraryImport?: () => void;
   onAddQuizToFsrs?: () => void;
+  onAddAudioToFsrs?: (fileId: string) => void;
   quizCardCount?: number;
 };
 
@@ -29,14 +37,18 @@ type StudioTile = {
 export function NotebookShellView({
   course,
   sources,
+  glossaryEntries = [],
+  learnerModel,
   lang,
   onClose,
   onOpenWorkspace,
   onOpenLibraryImport,
   onAddQuizToFsrs,
+  onAddAudioToFsrs,
   quizCardCount: quizCardCountProp,
 }: Props) {
   const el = lang === 'el';
+  const [exportBusy, setExportBusy] = useState<NotebookLmExportKind | null>(null);
   const primarySource = sources[0];
   const excerpt = primarySource?.extractedText?.trim().slice(0, 1200) ?? '';
   const topicLine = course.topics.slice(0, 4).map((t) => t.title).join(' · ');
@@ -45,6 +57,35 @@ export function NotebookShellView({
     if (!primarySource?.extractedText?.trim()) return 0;
     return parseNotebookLmExport(primarySource.extractedText).quizCards.length;
   }, [primarySource?.extractedText, quizCardCountProp]);
+
+  const audioSource = useMemo(
+    () => sources.find(
+      (f) => f.ingestMethod === 'notebooklm-audio-transcript'
+        || (f.ingestMethod === 'transcript' && f.courseId === course.id),
+    ),
+    [sources, course.id],
+  );
+  const audioChapterCount = useMemo(
+    () => (audioSource?.extractedText
+      ? parseNotebookLmAudioFromMarkdown(audioSource.extractedText).length
+      : 0),
+    [audioSource?.extractedText],
+  );
+
+  const handleExport = async (kind: NotebookLmExportKind) => {
+    setExportBusy(kind);
+    try {
+      const payload = buildNotebookLmExportPayload(kind, {
+        course,
+        glossary: glossaryEntries,
+        learnerModel,
+        lang,
+      });
+      await exportToNotebookLm(payload, lang);
+    } finally {
+      setExportBusy(null);
+    }
+  };
 
   const tiles: StudioTile[] = [
     {
@@ -80,6 +121,22 @@ export function NotebookShellView({
       hint: el ? 'Leitner · Anki · due queue στο workspace' : 'Leitner · Anki · due queue in workspace',
       icon: Brain,
       onClick: onOpenWorkspace,
+    },
+    {
+      id: 'export-review',
+      label: el ? 'Export review pack' : 'Export review pack',
+      hint: el ? 'Synapse → NotebookLM markdown' : 'Synapse → NotebookLM markdown',
+      icon: Upload,
+      onClick: () => void handleExport('review-pack'),
+      testId: 'notebook-shell-export-review',
+    },
+    {
+      id: 'export-guide',
+      label: el ? 'Export study guide' : 'Export study guide',
+      hint: el ? 'Οδηγός + γλωσσάρι για NLM' : 'Study guide + glossary for NLM',
+      icon: Upload,
+      onClick: () => void handleExport('study-guide'),
+      testId: 'notebook-shell-export-guide',
     },
   ];
 
@@ -183,6 +240,19 @@ export function NotebookShellView({
                   {el ? `FSRS deck (${quizCardCount})` : `FSRS deck (${quizCardCount})`}
                 </button>
               )}
+              {audioChapterCount > 0 && audioSource?.id && onAddAudioToFsrs && (
+                <button
+                  type="button"
+                  onClick={() => onAddAudioToFsrs(audioSource.id!)}
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-accent-violet/90 text-white text-sm font-medium"
+                  data-testid="notebook-shell-add-audio-fsrs"
+                >
+                  <Brain className="w-4 h-4" />
+                  {el
+                    ? `Audio → FSRS (${audioChapterCount})`
+                    : `Audio → FSRS (${audioChapterCount})`}
+                </button>
+              )}
               <button
                 type="button"
                 onClick={() => void openNotebookLm({ sourceTitle: course.title, lang })}
@@ -211,6 +281,7 @@ export function NotebookShellView({
               <button
                 key={tile.id}
                 type="button"
+                disabled={exportBusy != null && tile.id.startsWith('export-')}
                 onClick={tile.onClick}
                 data-testid={tile.testId}
                 className={cn(

@@ -27,6 +27,7 @@ import {
   buildNotebookLmUploadedFile,
   parseNotebookLmExport,
   buildNotebookLmAudioImportResult,
+  parseNotebookLmAudioFromMarkdown,
   type NotebookLmImportResult,
 } from '../lib/notebooklmImport';
 import {
@@ -42,6 +43,7 @@ import {
   waitForTranscribeJob,
 } from '../lib/transcribeClient';
 import { whisperJobToAudioMarkdown } from '../lib/notebooklmAudioTranscript';
+import { buildAudioFsrsImportResult } from '../lib/notebooklmAudioFsrsImport';
 import { fetchRemoteLibrary, fetchRemoteSession, pushRemoteSession, authMe } from '../lib/authClient';
 import {
   loadLocalSession,
@@ -1771,6 +1773,35 @@ export function useAppStore() {
     openStudyWorkspaceForPractice,
   ]);
 
+  const importNotebookLmAudioToFsrs = useCallback((
+    fileId: string,
+    courseId?: string,
+  ): NotebookLmFsrsImportResult | null => {
+    const file = uploadedFiles.find((f) => f.id === fileId);
+    const lang = user.settings.language === 'el' ? 'el' : 'en';
+    if (!file?.extractedText?.trim()) {
+      notifyWarning(
+        lang === 'el' ? 'Χωρίς transcript' : 'No transcript',
+        lang === 'el' ? 'Επίλεξε audio transcript με κεφάλαια.' : 'Pick an audio transcript with chapters.',
+      );
+      return null;
+    }
+    const segments = parseNotebookLmAudioFromMarkdown(file.extractedText);
+    if (segments.length === 0) {
+      notifyWarning(
+        lang === 'el' ? 'Χωρίς κεφάλαια' : 'No chapters',
+        lang === 'el' ? 'Το transcript δεν έχει αναγνωρίσιμα κεφάλαια.' : 'Transcript has no parseable chapters.',
+      );
+      return null;
+    }
+    const title = file.name.replace(/\.md$/i, '').trim() || 'Audio transcript';
+    const result = buildAudioFsrsImportResult(title, segments);
+    return importNotebookLmQuizToFsrs(result, {
+      courseId: courseId ?? file.courseId,
+      openWorkspace: true,
+    });
+  }, [uploadedFiles, user.settings.language, importNotebookLmQuizToFsrs]);
+
   const removeUploadedFile = useCallback((fileId: string) => {
     const result = removeUploadedFileFromLibrary(fileId, uploadedFiles, courses);
     if (!result.removed) {
@@ -2201,7 +2232,7 @@ export function useAppStore() {
     runProactiveAgentAlert,
     coverageSnapshot,
     uploadedFiles, glossaryEntries, isUploading, isReprocessing, simulateUpload, processUpload,
-    reprocessCourseMaterial, saveCourseExtractedText, removeUploadedFile, importNotebookLm, importNotebookLmAudioForCourse, transcribeAudioForCourse, importNotebookLmQuizToFsrs, removeCourse,
+    reprocessCourseMaterial, saveCourseExtractedText, removeUploadedFile, importNotebookLm, importNotebookLmAudioForCourse, transcribeAudioForCourse, importNotebookLmQuizToFsrs, importNotebookLmAudioToFsrs, removeCourse,
     pullLibraryFromServer, pullSessionFromServer, pushSessionToServer, syncAccountOnLogin,
     queueConceptBusSync, flushConceptBusSync,
     refreshAuthPlan, logStudyMinutes,

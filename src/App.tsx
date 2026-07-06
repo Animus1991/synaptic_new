@@ -38,6 +38,10 @@ import { ErrorBoundary } from './components/ErrorBoundary';
 import { StudyWorkspaceLazy } from './components/workspace/StudyWorkspaceLazy';
 import { NotebookShellView } from './components/NotebookShellView';
 import { parseNotebookLmExport } from './lib/notebooklmImport';
+import {
+  buildNotebookLmExportPayload,
+  exportToNotebookLm,
+} from './lib/notebooklmExport';
 import { prefetchWorkspaceEntry } from './lib/workspaceEntryPrefetch';
 import { preloadCriticalChunks } from './lib/preloadCriticalChunks';
 import { lazyWithRetry } from './lib/lazyWithRetry';
@@ -454,6 +458,27 @@ export default function App() {
         onOpenWorkspace={openWorkspace}
         dashboardNextAction={store.dashboardNextAction}
         onDashboardNextAction={runDashboardNextAction}
+        hasSelectedCourse={Boolean(store.selectedCourse)}
+        onNotebookLmBridge={(id) => {
+          if (id === 'import') {
+            store.navigate('library');
+            return;
+          }
+          if (id === 'shell' && store.selectedCourse) {
+            store.openNotebookShell(store.selectedCourse.id);
+            return;
+          }
+          if (id === 'export-review' && store.selectedCourse) {
+            const lang = store.user.settings.language === 'el' ? 'el' : 'en';
+            const payload = buildNotebookLmExportPayload('review-pack', {
+              course: store.selectedCourse,
+              glossary: store.glossaryEntries.filter((g) => g.courseId === store.selectedCourse!.id),
+              learnerModel: store.learnerModel,
+              lang,
+            });
+            void exportToNotebookLm(payload, lang);
+          }
+        }}
       />
       <NotificationsPanel
         open={notificationsOpen}
@@ -520,6 +545,8 @@ export default function App() {
         <NotebookShellView
           course={store.selectedCourse}
           sources={store.uploadedFiles.filter((f) => f.courseId === store.selectedCourse!.id)}
+          glossaryEntries={store.glossaryEntries.filter((g) => g.courseId === store.selectedCourse!.id)}
+          learnerModel={store.learnerModel}
           lang={store.user.settings.language === 'el' ? 'el' : 'en'}
           onClose={store.closeNotebookShell}
           onOpenWorkspace={() => {
@@ -537,6 +564,9 @@ export default function App() {
             if (!source?.extractedText) return;
             const parsed = parseNotebookLmExport(source.extractedText);
             store.importNotebookLmQuizToFsrs(parsed, { courseId: store.selectedCourse!.id });
+          }}
+          onAddAudioToFsrs={(fileId) => {
+            store.importNotebookLmAudioToFsrs(fileId, store.selectedCourse!.id);
           }}
         />
       )}
@@ -578,6 +608,7 @@ export default function App() {
                   userSettings={store.user.settings}
                   onImportAudioTranscript={store.importNotebookLmAudioForCourse}
                   onUploadAudio={store.transcribeAudioForCourse}
+                  onAddAudioToFsrs={store.importNotebookLmAudioToFsrs}
                   learnerModel={store.learnerModel}
                 />
               </div>
@@ -866,6 +897,7 @@ export default function App() {
             userSettings={store.user.settings}
             onImportAudioTranscript={store.importNotebookLmAudioForCourse}
             onUploadAudio={store.transcribeAudioForCourse}
+            onAddAudioToFsrs={store.importNotebookLmAudioToFsrs}
             learnerModel={store.learnerModel}
           />
         </Shell>

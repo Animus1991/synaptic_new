@@ -1,5 +1,5 @@
 import { useMemo, useRef, useState } from 'react';
-import { Volume2, Loader2, ChevronDown, ChevronUp, ExternalLink, Upload } from '@/lib/lucide-shim';
+import { Volume2, Loader2, ChevronDown, ChevronUp, ExternalLink, Upload, Brain } from '@/lib/lucide-shim';
 import type { UploadedFile, UserSettings } from '../types';
 import { cn } from '../utils/cn';
 import { formatChapterTimestamp } from '../lib/videoChapters';
@@ -13,6 +13,7 @@ type Props = {
   lang: 'en' | 'el';
   onImportTranscript: (raw: string, courseId: string) => boolean;
   onUploadAudio?: (file: File, courseId: string) => Promise<boolean>;
+  onAddAudioToFsrs?: (fileId: string, courseId: string) => void;
   userSettings?: UserSettings;
   className?: string;
 };
@@ -24,6 +25,7 @@ export function CourseMediaPanel({
   lang,
   onImportTranscript,
   onUploadAudio,
+  onAddAudioToFsrs,
   userSettings,
   className,
 }: Props) {
@@ -198,6 +200,21 @@ export function CourseMediaPanel({
                   className="rounded-lg border border-border-subtle bg-surface-primary/60 overflow-hidden"
                   data-testid="course-media-chapters"
                 >
+                  {onAddAudioToFsrs && activeFile?.id && (
+                    <div className="px-2 py-2 border-b border-border-subtle/60">
+                      <button
+                        type="button"
+                        onClick={() => onAddAudioToFsrs(activeFile.id!, courseId)}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent-emerald/90 text-white text-xs font-medium"
+                        data-testid="course-media-add-audio-fsrs"
+                      >
+                        <Brain className="w-3.5 h-3.5" />
+                        {el
+                          ? `FSRS deck (${segments.length} κεφάλαια)`
+                          : `FSRS deck (${segments.length} chapters)`}
+                      </button>
+                    </div>
+                  )}
                   <ul className="max-h-40 overflow-y-auto divide-y divide-border-subtle/60">
                     {segments.map((segment) => (
                       <li key={segment.index}>

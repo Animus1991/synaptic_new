@@ -58,6 +58,7 @@ interface CourseViewProps {
   userSettings?: UserSettings;
   onImportAudioTranscript?: (raw: string, courseId: string) => boolean;
   onUploadAudio?: (file: File, courseId: string) => Promise<boolean>;
+  onAddAudioToFsrs?: (fileId: string, courseId: string) => void;
   learnerModel?: LearnerModel;
 }
 
@@ -91,6 +92,7 @@ export function CourseView({
   userSettings,
   onImportAudioTranscript,
   onUploadAudio,
+  onAddAudioToFsrs,
   learnerModel,
 }: CourseViewProps) {
   const [tab, setTab] = useState<CourseTab>('path');
@@ -436,6 +438,7 @@ export function CourseView({
           userSettings={userSettings}
           onImportAudioTranscript={onImportAudioTranscript}
           onUploadAudio={onUploadAudio}
+          onAddAudioToFsrs={onAddAudioToFsrs}
           learnerModel={learnerModel}
         />
       )}
@@ -675,6 +678,7 @@ function SourceFiles({
   userSettings,
   onImportAudioTranscript,
   onUploadAudio,
+  onAddAudioToFsrs,
   learnerModel,
 }: {
   course: Course;
@@ -689,6 +693,7 @@ function SourceFiles({
   userSettings?: UserSettings;
   onImportAudioTranscript?: (raw: string, courseId: string) => boolean;
   onUploadAudio?: (file: File, courseId: string) => Promise<boolean>;
+  onAddAudioToFsrs?: (fileId: string, courseId: string) => void;
   learnerModel?: LearnerModel;
 }) {
   const { t } = useI18n();
@@ -738,6 +743,7 @@ function SourceFiles({
           lang={lang}
           onImportTranscript={onImportAudioTranscript}
           onUploadAudio={onUploadAudio}
+          onAddAudioToFsrs={onAddAudioToFsrs}
           userSettings={userSettings}
         />
       )}
