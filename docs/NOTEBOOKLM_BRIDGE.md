@@ -1,6 +1,6 @@
 # NotebookLM bridge — product strategy
 
-**Status:** Sprint L13 (Jul 2026)  
+**Status:** Sprint L13 shipped · Sprint L14 (Jul 2026)  
 **North star:** *NotebookLM to understand · Synapse to retain and for teachers to see.*
 
 Synapse is a **learning OS**, not a NotebookLM clone. We do **not** compete on grounded chat, RAG quality, or Studio audio. We **bridge** NotebookLM exports into structured study, FSRS retention, and teacher visibility.
@@ -38,11 +38,21 @@ NotebookLM has **no public API**. Integration is **file + workflow**:
 
 ### Export (Synapse → NLM)
 
-| Synapse artifact | NotebookLM action |
-| ---------------- | ----------------- |
-| Course summary + glossary | Paste as new source in a notebook |
-| Weak-area report | New notebook «Review pack» |
-| FSRS due list | Checklist note (manual) |
+| Synapse artifact | NotebookLM action | L14 slice |
+| ---------------- | ----------------- | --------- |
+| Course summary + glossary | Paste as new source in a notebook | **L14-1** (`NotebookLmExportPanel`, study guide) |
+| Weak-area report | New notebook «Review pack» | **L14-1** (review pack export) |
+| FSRS due list | Checklist note | **L14-1** (FSRS due checklist) |
+
+**UI:** Course → **Sources** tab → **Export → NotebookLM** (clipboard + `.md` download + deep link).
+
+### Course audio upload (Whisper)
+
+| Source | Synapse destination | L14 slice |
+| ------ | ------------------- | --------- |
+| `.mp3` / `.m4a` / `.wav` upload | Whisper → timestamped markdown in Course media panel | **L14-2** |
+
+**UI:** Course → **Sources** → **Course media** → **Upload audio** (requires sign-in + transcribe queue).
 
 ### Deep link
 
@@ -70,14 +80,23 @@ Re-enable via `VITE_SHOW_NOTEBOOKLM_PARITY=true` for power users / QA.
 | **L13-6** | `NotebookShellView` — 3-column Synapse-native shell |
 | **L13-3** | Studio Quiz → FSRS deck one-click (`notebooklmFsrsImport.ts`) |
 | **L13-4** | Chat transcript import (`notebooklm-chat` ingest + turn parser) |
-| **L13-5** | Audio transcript → Course media panel (`notebooklmAudioTranscript.ts`) |
+| **L13-5** | Audio transcript → Course media panel (`notebooklmAudioTranscript.ts`) | **shipped** |
+
+---
+
+## Sprint L14 roadmap
+
+| Slice | Deliverable |
+| ----- | ----------- |
+| **L14-1** | `notebooklmExport.ts` + `NotebookLmExportPanel` (study guide, review pack, FSRS due) |
+| **L14-2** | Course media audio upload → Whisper → transcript markdown |
 
 ---
 
 ## Regression gate
 
 ```bash
-npm test -- src/lib/notebooklmImport.test.ts src/lib/notebooklmFsrsImport.test.ts src/lib/notebooklmAudioTranscript.test.ts
+npm test -- src/lib/notebooklmImport.test.ts src/lib/notebooklmFsrsImport.test.ts src/lib/notebooklmAudioTranscript.test.ts src/lib/notebooklmExport.test.ts
 npm run typecheck
 npx playwright test e2e/a11y-toast-aria-live.spec.ts
 ```
@@ -88,4 +107,7 @@ npx playwright test e2e/a11y-toast-aria-live.spec.ts
 
 - `src/lib/notebooklmImport.ts` — parser + `UploadedFile` builder
 - `src/lib/notebooklmBridge.ts` — deep link + in-app browser
+- `src/lib/notebooklmExport.ts` — Synapse → NLM markdown export
 - `src/components/NotebookShellView.tsx` — 3-column shell
+- `src/components/NotebookLmExportPanel.tsx` — Course Sources export UI
+- `src/components/CourseMediaPanel.tsx` — NLM transcript paste + Whisper upload

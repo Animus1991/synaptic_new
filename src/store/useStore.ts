@@ -36,6 +36,12 @@ import {
 import { notifySuccess, notifyWarning } from '../lib/notificationBus';
 import { prefetchWorkspaceEntry } from '../lib/workspaceEntryPrefetch';
 import { fetchYoutubeTranscript } from '../lib/youtubeTranscript';
+import {
+  enqueueTranscribeJob,
+  fileToBase64,
+  waitForTranscribeJob,
+} from '../lib/transcribeClient';
+import { whisperJobToAudioMarkdown } from '../lib/notebooklmAudioTranscript';
 import { fetchRemoteLibrary, fetchRemoteSession, pushRemoteSession, authMe } from '../lib/authClient';
 import {
   loadLocalSession,
@@ -1645,6 +1651,51 @@ export function useAppStore() {
     return true;
   }, [uploadedFiles, glossaryEntries, courses, persistLibrary, user.settings.language]);
 
+  const transcribeAudioForCourse = useCallback(async (file: File, courseId: string): Promise<boolean> => {
+    const token = user.settings.authToken?.trim();
+    const lang = user.settings.language === 'el' ? 'el' : 'en';
+    if (!token) {
+      notifyWarning(
+        lang === 'el' ? 'Σύνδεση απαιτείται' : 'Sign-in required',
+        lang === 'el'
+          ? 'Για Whisper transcript χρειάζεσαι συνδεδεμένο λογαριασμό.'
+          : 'Whisper transcription requires a signed-in account.',
+      );
+      return false;
+    }
+    try {
+      const audioBase64 = await fileToBase64(file);
+      const { jobId } = await enqueueTranscribeJob(token, user.settings, audioBase64, {
+        filename: file.name,
+        language: user.settings.language === 'el' ? 'el' : undefined,
+      });
+      const job = await waitForTranscribeJob(token, user.settings, jobId);
+      if (job.status === 'failed') {
+        notifyWarning(
+          lang === 'el' ? 'Μεταγραφή απέτυχε' : 'Transcription failed',
+          job.error ?? (lang === 'el' ? 'Δοκίμασε ξανά.' : 'Try again.'),
+        );
+        return false;
+      }
+      const baseTitle = file.name.replace(/\.[^.]+$/, '');
+      const markdown = whisperJobToAudioMarkdown(job, baseTitle);
+      if (!markdown.trim()) {
+        notifyWarning(
+          lang === 'el' ? 'Κενό transcript' : 'Empty transcript',
+          lang === 'el' ? 'Ο Whisper δεν επέστρεψε κείμενο.' : 'Whisper returned no text.',
+        );
+        return false;
+      }
+      return importNotebookLmAudioForCourse(markdown, courseId);
+    } catch (err) {
+      notifyWarning(
+        lang === 'el' ? 'Μεταγραφή απέτυχε' : 'Transcription failed',
+        err instanceof Error ? err.message : String(err),
+      );
+      return false;
+    }
+  }, [user.settings, importNotebookLmAudioForCourse]);
+
   const importNotebookLmQuizToFsrs = useCallback((
     result: NotebookLmImportResult,
     opts?: { openWorkspace?: boolean; courseId?: string },
@@ -2150,7 +2201,7 @@ export function useAppStore() {
     runProactiveAgentAlert,
     coverageSnapshot,
     uploadedFiles, glossaryEntries, isUploading, isReprocessing, simulateUpload, processUpload,
-    reprocessCourseMaterial, saveCourseExtractedText, removeUploadedFile, importNotebookLm, importNotebookLmAudioForCourse, importNotebookLmQuizToFsrs, removeCourse,
+    reprocessCourseMaterial, saveCourseExtractedText, removeUploadedFile, importNotebookLm, importNotebookLmAudioForCourse, transcribeAudioForCourse, importNotebookLmQuizToFsrs, removeCourse,
     pullLibraryFromServer, pullSessionFromServer, pushSessionToServer, syncAccountOnLogin,
     queueConceptBusSync, flushConceptBusSync,
     refreshAuthPlan, logStudyMinutes,

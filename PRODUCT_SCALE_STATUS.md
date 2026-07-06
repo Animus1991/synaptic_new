@@ -90,7 +90,7 @@ Regression gate: `npm test`; `npm run test:e2e:perf`; `npx playwright test e2e/a
 
 ---
 
-## Sprint L13 — NotebookLM bridge — in progress (Jul 2026)
+## Sprint L13 — NotebookLM bridge — shipped (Jul 2026)
 
 | Scope | Deliverable | Status |
 | ----- | ----------- | ------ |
@@ -104,6 +104,17 @@ Regression gate: `npm test`; `npm run test:e2e:perf`; `npx playwright test e2e/a
 | **L13-5 Audio transcript** | `CourseMediaPanel` + `notebooklm-audio-transcript` | **shipped** |
 
 Regression gate: `npm test -- src/lib/notebooklmImport.test.ts`; `cd server && npm test`; `npm run typecheck`.
+
+---
+
+## Sprint L14 — Synapse → NotebookLM export — shipped (Jul 2026)
+
+| Scope | Deliverable | Status |
+| ----- | ----------- | ------ |
+| **L14-1 Export panel** | `notebooklmExport.ts` + `NotebookLmExportPanel` in Course Sources | **shipped** |
+| **L14-2 Audio upload** | Whisper via `transcribeClient` + `CourseMediaPanel` file input | **shipped** |
+
+Regression gate: `npm test -- src/lib/notebooklmExport.test.ts src/lib/notebooklmAudioTranscript.test.ts`; `cd server && npm test`; `npm run typecheck`.
 
 ---
 

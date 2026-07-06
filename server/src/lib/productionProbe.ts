@@ -90,6 +90,11 @@ export type ProductionProbeStatus = {
     notebooklmChatImport: boolean;
     notebooklmAudioTranscript: boolean;
   };
+  /** Sprint L14 — Synapse → NotebookLM export + course audio upload. */
+  l14Enterprise: {
+    notebooklmExport: boolean;
+    courseMediaAudioUpload: boolean;
+  };
 };
 
 let cachedPgvector: boolean | null = null;
@@ -195,6 +200,10 @@ export async function getProductionProbeStatus(): Promise<ProductionProbeStatus>
       notebooklmQuizFsrs: true,
       notebooklmChatImport: true,
       notebooklmAudioTranscript: true,
+    },
+    l14Enterprise: {
+      notebooklmExport: true,
+      courseMediaAudioUpload: true,
     },
   };
 }

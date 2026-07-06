@@ -6,7 +6,7 @@ import {
   Lock, CheckCircle2, Circle, ChevronRight, Brain, Target,
   AlertTriangle, Sparkles, Play, MapPin, Network, Upload, Trash2, RefreshCw
 } from '@/lib/lucide-shim';
-import type { Course, Topic, UploadedFile, GlossaryEntry, Task, UserSettings } from '../types';
+import type { Course, Topic, UploadedFile, GlossaryEntry, Task, UserSettings, LearnerModel } from '../types';
 import { cn } from '../utils/cn';
 import { ConceptGraph } from './visuals/ConceptGraph';
 import { ProgressTimeline } from './visuals/DiagramGenerator';
@@ -32,6 +32,7 @@ import { AudioStudyGuideButton } from './AudioStudyGuideButton';
 import { StudyGuideExportButton } from './StudyGuideExportButton';
 import { VideoSummarizeButton } from './VideoSummarizeButton';
 import { CourseMediaPanel } from './CourseMediaPanel';
+import { NotebookLmExportPanel } from './NotebookLmExportPanel';
 import { Page, PageHeader } from './ui/primitives';
 import { QualityReportPanel } from './QualityReportPanel';
 
@@ -56,6 +57,8 @@ interface CourseViewProps {
   onDismissPostUpload?: () => void;
   userSettings?: UserSettings;
   onImportAudioTranscript?: (raw: string, courseId: string) => boolean;
+  onUploadAudio?: (file: File, courseId: string) => Promise<boolean>;
+  learnerModel?: LearnerModel;
 }
 
 /** Real per-topic lesson count: explicit lessons if present, else derived from
@@ -87,6 +90,8 @@ export function CourseView({
   onDismissPostUpload,
   userSettings,
   onImportAudioTranscript,
+  onUploadAudio,
+  learnerModel,
 }: CourseViewProps) {
   const [tab, setTab] = useState<CourseTab>('path');
   const [reprocessWizardOpen, setReprocessWizardOpen] = useState(false);
@@ -430,6 +435,8 @@ export function CourseView({
           lang={lang}
           userSettings={userSettings}
           onImportAudioTranscript={onImportAudioTranscript}
+          onUploadAudio={onUploadAudio}
+          learnerModel={learnerModel}
         />
       )}
       {tab === 'analytics' && <CourseAnalytics course={course} />}
@@ -667,6 +674,8 @@ function SourceFiles({
   lang,
   userSettings,
   onImportAudioTranscript,
+  onUploadAudio,
+  learnerModel,
 }: {
   course: Course;
   uploadedFiles: UploadedFile[];
@@ -679,6 +688,8 @@ function SourceFiles({
   lang: 'en' | 'el';
   userSettings?: UserSettings;
   onImportAudioTranscript?: (raw: string, courseId: string) => boolean;
+  onUploadAudio?: (file: File, courseId: string) => Promise<boolean>;
+  learnerModel?: LearnerModel;
 }) {
   const { t } = useI18n();
   const provenanceCount = course.conceptSpans?.length ?? 0;
@@ -713,6 +724,12 @@ function SourceFiles({
   return (
     <>
     <div className="space-y-6">
+      <NotebookLmExportPanel
+        course={course}
+        glossaryEntries={glossaryEntries}
+        learnerModel={learnerModel}
+        lang={lang}
+      />
       {onImportAudioTranscript && (
         <CourseMediaPanel
           courseId={course.id}
@@ -720,6 +737,8 @@ function SourceFiles({
           files={uploadedFiles}
           lang={lang}
           onImportTranscript={onImportAudioTranscript}
+          onUploadAudio={onUploadAudio}
+          userSettings={userSettings}
         />
       )}
       <div className="ws-bento p-6">

@@ -1,6 +1,6 @@
-import { useMemo, useState } from 'react';
-import { Volume2, Loader2, ChevronDown, ChevronUp, ExternalLink } from '@/lib/lucide-shim';
-import type { UploadedFile } from '../types';
+import { useMemo, useRef, useState } from 'react';
+import { Volume2, Loader2, ChevronDown, ChevronUp, ExternalLink, Upload } from '@/lib/lucide-shim';
+import type { UploadedFile, UserSettings } from '../types';
 import { cn } from '../utils/cn';
 import { formatChapterTimestamp } from '../lib/videoChapters';
 import { parseNotebookLmAudioFromMarkdown } from '../lib/notebooklmImport';
@@ -12,6 +12,8 @@ type Props = {
   files: UploadedFile[];
   lang: 'en' | 'el';
   onImportTranscript: (raw: string, courseId: string) => boolean;
+  onUploadAudio?: (file: File, courseId: string) => Promise<boolean>;
+  userSettings?: UserSettings;
   className?: string;
 };
 
@@ -21,19 +23,28 @@ export function CourseMediaPanel({
   files,
   lang,
   onImportTranscript,
+  onUploadAudio,
+  userSettings,
   className,
 }: Props) {
   const el = lang === 'el';
   const [open, setOpen] = useState(true);
   const [text, setText] = useState('');
   const [busy, setBusy] = useState(false);
+  const [uploadBusy, setUploadBusy] = useState(false);
+  const audioInputRef = useRef<HTMLInputElement>(null);
   const [activeFileId, setActiveFileId] = useState<string | null>(null);
   const [activeSegment, setActiveSegment] = useState<number | null>(null);
 
   const audioFiles = useMemo(
-    () => files.filter((f) => f.ingestMethod === 'notebooklm-audio-transcript'),
-    [files],
+    () => files.filter((f) =>
+      f.ingestMethod === 'notebooklm-audio-transcript'
+      || (f.ingestMethod === 'transcript' && f.courseId === courseId),
+    ),
+    [files, courseId],
   );
+
+  const canUploadAudio = Boolean(onUploadAudio && userSettings?.authToken?.trim());
 
   const activeFile = audioFiles.find((f) => f.id === activeFileId) ?? audioFiles[0] ?? null;
   const segments = useMemo(
@@ -49,6 +60,16 @@ export function CourseMediaPanel({
       if (ok) setText('');
     } finally {
       setBusy(false);
+    }
+  };
+
+  const handleAudioFile = async (file: File | undefined) => {
+    if (!file || !onUploadAudio) return;
+    setUploadBusy(true);
+    try {
+      await onUploadAudio(file, courseId);
+    } finally {
+      setUploadBusy(false);
     }
   };
 
@@ -106,6 +127,45 @@ export function CourseMediaPanel({
           >
             {busy ? <Loader2 className="w-3.5 h-3.5 animate-spin inline" /> : el ? 'Εισαγωγή transcript' : 'Import transcript'}
           </button>
+
+          {onUploadAudio && (
+            <div className="pt-2 border-t border-border-subtle/60 space-y-2">
+              <p className="text-[10px] text-text-secondary">
+                {el
+                  ? 'Ή ανέβασε αρχείο ήχου — Whisper transcript στο media panel (απαιτείται σύνδεση).'
+                  : 'Or upload an audio file — Whisper transcript lands in this panel (sign-in required).'}
+              </p>
+              <input
+                ref={audioInputRef}
+                type="file"
+                accept="audio/*,.mp3,.m4a,.wav,.ogg,.webm"
+                className="hidden"
+                data-testid="course-media-audio-input"
+                onChange={(e) => {
+                  const picked = e.target.files?.[0];
+                  if (picked) void handleAudioFile(picked);
+                  e.target.value = '';
+                }}
+              />
+              <button
+                type="button"
+                disabled={uploadBusy || !canUploadAudio}
+                onClick={() => audioInputRef.current?.click()}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-accent-violet/30 text-xs font-medium text-accent-violet hover:bg-accent-violet/10 disabled:opacity-50"
+                data-testid="course-media-upload-audio"
+                title={canUploadAudio ? undefined : el ? 'Σύνδεση απαιτείται' : 'Sign-in required'}
+              >
+                {uploadBusy ? (
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                ) : (
+                  <Upload className="w-3.5 h-3.5" />
+                )}
+                {uploadBusy
+                  ? el ? 'Μεταγραφή…' : 'Transcribing…'
+                  : el ? 'Ανέβασμα ήχου' : 'Upload audio'}
+              </button>
+            </div>
+          )}
 
           {audioFiles.length > 0 && (
             <div className="space-y-2 pt-1 border-t border-border-subtle/60">

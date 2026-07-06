@@ -4,6 +4,7 @@ import {
   inferNotebookLmAudioTitle,
   isNotebookLmAudioTranscript,
   parseNotebookLmAudioTranscript,
+  whisperJobToAudioMarkdown,
 } from './notebooklmAudioTranscript';
 
 describe('notebooklmAudioTranscript', () => {
@@ -57,5 +58,21 @@ Wrap-up points.`;
     const raw = `# Audio overview\n\n[0:00] Start\nBody.`;
     const segments = parseNotebookLmAudioTranscript(raw);
     expect(inferNotebookLmAudioTitle(raw, segments)).toBe('Audio overview');
+  });
+
+  it('converts Whisper job chapters to timestamped markdown', () => {
+    const md = whisperJobToAudioMarkdown(
+      {
+        chapters: [
+          { title: 'Intro', startSec: 0, preview: 'Welcome listeners.' },
+          { title: 'Deep dive', startSec: 90, preview: 'More detail here.' },
+        ],
+      },
+      'Lecture 3',
+    );
+    expect(md).toContain('# Lecture 3');
+    expect(md).toContain('### [0:00] Intro');
+    expect(md).toContain('### [1:30] Deep dive');
+    expect(md).toContain('Welcome listeners.');
   });
 });

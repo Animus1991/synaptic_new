@@ -577,6 +577,8 @@ export default function App() {
                   onDismissPostUpload={store.clearPostUploadHighlight}
                   userSettings={store.user.settings}
                   onImportAudioTranscript={store.importNotebookLmAudioForCourse}
+                  onUploadAudio={store.transcribeAudioForCourse}
+                  learnerModel={store.learnerModel}
                 />
               </div>
             </div>
@@ -863,6 +865,8 @@ export default function App() {
             onDismissPostUpload={store.clearPostUploadHighlight}
             userSettings={store.user.settings}
             onImportAudioTranscript={store.importNotebookLmAudioForCourse}
+            onUploadAudio={store.transcribeAudioForCourse}
+            learnerModel={store.learnerModel}
           />
         </Shell>
         {overlays}

@@ -158,3 +158,48 @@ export function parseNotebookLmAudioFromMarkdown(markdown: string): NotebookLmAu
   if (fromStored.length > 0) return fromStored;
   return [];
 }
+
+type WhisperSegmentLike = { start: number; end: number; text: string };
+type WhisperChapterLike = { title: string; startSec: number; preview: string };
+
+/** Convert Whisper job output to timestamped markdown for Course media panel. */
+export function whisperJobToAudioMarkdown(
+  job: {
+    text?: string;
+    segments?: WhisperSegmentLike[];
+    chapters?: WhisperChapterLike[];
+  },
+  title?: string,
+): string {
+  if (job.chapters?.length) {
+    const segments: NotebookLmAudioSegment[] = job.chapters.map((c, index) => ({
+      index,
+      title: c.title,
+      startSec: c.startSec,
+      text: c.preview.trim(),
+    }));
+    return formatNotebookLmAudioMarkdown(segments, title);
+  }
+
+  if (job.segments?.length) {
+    const segments: NotebookLmAudioSegment[] = job.segments
+      .filter((s) => s.text.trim())
+      .map((s, index) => ({
+        index,
+        title: `Segment ${index + 1}`,
+        startSec: Math.floor(s.start),
+        text: s.text.trim(),
+      }));
+    if (segments.length >= 2) {
+      return formatNotebookLmAudioMarkdown(segments, title);
+    }
+  }
+
+  const plain = job.text?.trim() ?? '';
+  if (!plain) return '';
+  return formatNotebookLmAudioMarkdown(
+    [{ index: 0, title: title ?? 'Transcript', startSec: null, text: plain }],
+    title,
+  );
+}
+
