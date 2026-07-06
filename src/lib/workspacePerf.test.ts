@@ -1,5 +1,6 @@
 import { describe, expect, it, beforeEach } from 'vitest';
 import {
+  evaluateWorkspacePerfBudget,
   getWorkspaceTTIMetrics,
   markWorkspaceContinue,
   markWorkspaceModuleLoaded,
@@ -9,6 +10,7 @@ import {
   markNoteBundleWorkerReady,
   markWorkspaceIntelReady,
   resetWorkspacePerfForTests,
+  WORKSPACE_INTERACTIVE_BUDGET_MS,
 } from './workspacePerf';
 
 describe('workspacePerf TTI marks', () => {
@@ -35,5 +37,13 @@ describe('workspacePerf TTI marks', () => {
     expect(m.workerPath).toBe('worker');
     expect(m.hasSourceIntel).toBe(true);
     expect(m.textChars).toBe(12_000);
+  });
+
+  it('evaluates perf budget from body ready mark', () => {
+    markWorkspaceContinue();
+    markWorkspaceBodyReady();
+    const budget = evaluateWorkspacePerfBudget(getWorkspaceTTIMetrics(), WORKSPACE_INTERACTIVE_BUDGET_MS);
+    expect(budget.interactiveMs).toBeTypeOf('number');
+    expect(budget.withinBudget).toBe(true);
   });
 });

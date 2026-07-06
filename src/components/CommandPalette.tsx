@@ -4,6 +4,7 @@ import type { AppView, Course, GlossaryEntry, Task, UploadedFile } from '../type
 import { cn } from '../utils/cn';
 import { useI18n, type I18nKey } from '../lib/i18n';
 import { searchUploadedContent, type ContentSearchHit } from '../lib/globalContentSearch';
+import { commandActionKey, loadRecentCommandKeys, recordRecentCommandKey } from '../lib/commandPaletteRecent';
 import { getTaskActionVisual } from '../lib/taskActionIcons';
 import type { LucideIcon } from '@/lib/lucide-shim';
 import type { DashboardNextAction } from '../lib/dashboardNextAction';
@@ -132,7 +133,30 @@ export function CommandPalette({
 
   const actions = [...nextActionCommands, ...workspaceAction, ...contentActions, ...navActions, ...taskActions, ...sessionActions];
 
+  const recentKeys = loadRecentCommandKeys();
+  const orderedActions = (() => {
+    if (q.trim()) return actions;
+    const recent = recentKeys
+      .map((key) => actions.find((a) => commandActionKey({
+        type: a.type,
+        label: a.label,
+        view: a.type === 'navigate' ? a.view : undefined,
+        taskId: a.type === 'task' ? a.taskId : undefined,
+        session: a.type === 'session' ? a.session : undefined,
+      }) === key))
+      .filter((a): a is CommandAction => !!a);
+    const rest = actions.filter((a) => !recent.includes(a));
+    return [...recent, ...rest];
+  })();
+
   const run = (a: CommandAction) => {
+    recordRecentCommandKey(commandActionKey({
+      type: a.type,
+      label: a.label,
+      view: a.type === 'navigate' ? a.view : undefined,
+      taskId: a.type === 'task' ? a.taskId : undefined,
+      session: a.type === 'session' ? a.session : undefined,
+    }));
     if (a.type === 'navigate') onNavigate(a.view);
     if (a.type === 'workspace') onOpenWorkspace?.();
     if (a.type === 'next-action') onDashboardNextAction?.();
@@ -154,14 +178,18 @@ export function CommandPalette({
             onChange={(e) => setQuery(e.target.value)}
             placeholder={t('searchPages')}
             data-testid="command-palette-input"
+            role="combobox"
+            aria-expanded="true"
+            aria-controls="command-palette-list"
+            aria-autocomplete="list"
             className="flex-1 bg-transparent text-sm outline-none placeholder:text-text-muted"
           />
           <kbd className="text-[10px] px-1.5 py-0.5 rounded border border-border-subtle text-text-muted">ESC</kbd>
         </div>
-        <div className="max-h-72 overflow-y-auto p-2">
-          {actions.length === 0 ? (
+        <div id="command-palette-list" role="listbox" className="max-h-72 overflow-y-auto p-2">
+          {orderedActions.length === 0 ? (
             <p className="text-xs text-text-muted text-center py-6">{t('noMatches')}</p>
-          ) : actions.map((a, i) => (
+          ) : orderedActions.map((a, i) => (
             <button
               key={`${a.type}-${i}`}
               data-testid={a.type === 'content' ? `command-content-${a.hit.kind}` : a.type === 'next-action' ? 'command-next-action' : undefined}

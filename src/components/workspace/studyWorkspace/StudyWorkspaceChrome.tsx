@@ -1,6 +1,6 @@
 import { cn } from '../../../utils/cn';
 import {
-  X, Maximize2, Minimize2, Sparkles, StickyNote,
+  X, Maximize2, Minimize2, Sparkles, StickyNote, Search,
 } from '@/lib/lucide-shim';
 import { workspaceToolLabel } from '../../../lib/workspaceToolRegistry';
 import { displayWorkspaceStepTitle } from '../../../lib/workspaceContextModel';
@@ -93,6 +93,17 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
                       <X className="w-5 h-5" />
                     </button>
                     <div className="flex gap-2">
+                      {layout !== 'zen' && (
+                        <button
+                          type="button"
+                          onClick={() => setShowPalette(true)}
+                          data-testid="workspace-command-palette-fab"
+                          aria-label={t('wsCommandPalette')}
+                          className="p-2 rounded-full bg-brand-600 hover:bg-brand-700 text-white transition-colors min-h-[40px] min-w-[40px] flex items-center justify-center shadow-md"
+                        >
+                          <Search className="w-4 h-4" />
+                        </button>
+                      )}
                       <WorkspaceStudyRoomTrigger
                         lang={lang}
                         open={studyRoomOpen}

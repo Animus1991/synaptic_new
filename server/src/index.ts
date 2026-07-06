@@ -79,6 +79,7 @@ export function createApp(): express.Application {
         l9Enterprise: production.l9Enterprise,
         l10Enterprise: production.l10Enterprise,
         l11Enterprise: production.l11Enterprise,
+        l12Enterprise: production.l12Enterprise,
       },
     });
   });

@@ -76,6 +76,20 @@ Regression gate: `npm test`; `cd server && npm test`; `npm run typecheck`.
 
 ---
 
+## Sprint L12 — platform polish — shipped (Jul 2026)
+
+| Scope | Deliverable | Status |
+| ----- | ----------- | ------ |
+| **L12-1 Command palette** | App + workspace recent commands (`commandPaletteRecent.ts`); mobile FAB trigger | **shipped** |
+| **L12-2 Notification bus** | Wired to RAG index, plugin enable, Anki import + `NotificationToastStack` | **shipped** |
+| **L12-3 Mobile offline sync** | `offlineSyncQueue.ts` + `@capacitor/network` native listener | **shipped** |
+| **L12-4 A11y** | `e2e/a11y-toast-aria-live.spec.ts` — polite/assertive live regions | **shipped** |
+| **L12-5 Perf budget** | `evaluateWorkspacePerfBudget()` in Settings `WorkspaceTTIPanel` | **shipped** |
+
+Regression gate: `npm test`; `npm run test:e2e:perf`; `npx playwright test e2e/a11y-toast-aria-live.spec.ts`; `npm run typecheck`.
+
+---
+
 ## Sprint L7 — student org UI & SAML crypto — shipped (Jul 2026)
 
 | Scope | Deliverable |

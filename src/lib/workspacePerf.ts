@@ -17,6 +17,15 @@ export type WorkspaceTTIMetrics = {
   hasSourceIntel?: boolean;
 };
 
+export type WorkspacePerfBudget = {
+  interactiveMs: number;
+  budgetMs: number;
+  withinBudget: boolean;
+};
+
+/** B11/L12 — default Continue → interactive budget (matches dev e2e gate). */
+export const WORKSPACE_INTERACTIVE_BUDGET_MS = 12_000;
+
 const marks = {
   continueAt: 0,
   moduleAt: 0,
@@ -113,6 +122,23 @@ export function getWorkspaceTTIMetrics(): WorkspaceTTIMetrics {
     workerPath: marks.workerPath,
     textChars: marks.textChars || undefined,
     hasSourceIntel: marks.hasSourceIntel || undefined,
+  };
+}
+
+/** Evaluate interactive TTI against budget (body ready or intel ready). */
+export function evaluateWorkspacePerfBudget(
+  metrics: WorkspaceTTIMetrics = getWorkspaceTTIMetrics(),
+  budgetMs = WORKSPACE_INTERACTIVE_BUDGET_MS,
+): WorkspacePerfBudget {
+  const interactiveMs =
+    metrics.bodyMs != null ? metrics.bodyMs
+    : metrics.intelMs != null ? metrics.intelMs
+    : metrics.shellMs != null ? metrics.shellMs
+    : metrics.continueMs ?? 0;
+  return {
+    interactiveMs,
+    budgetMs,
+    withinBudget: interactiveMs >= 0 && interactiveMs <= budgetMs,
   };
 }
 

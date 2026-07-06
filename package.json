@@ -44,6 +44,7 @@
     "@capacitor/android": "^7.4.2",
     "@capacitor/core": "^7.4.2",
     "@capacitor/ios": "^7.4.2",
+    "@capacitor/network": "^7.0.4",
     "@codemirror/lang-python": "^6.2.1",
     "@fontsource/jetbrains-mono": "^5.2.8",
     "@fontsource/lora": "^5.2.8",

@@ -2,6 +2,11 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, X } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
+import {
+  loadRecentCommandKeys,
+  recordRecentCommandKey,
+  workspaceCommandKey,
+} from '../../lib/commandPaletteRecent';
 
 export interface CommandItem {
   id: string;
@@ -47,14 +52,31 @@ export function CommandPalette({ open, onClose, items, placeholder }: Props) {
     return;
   }, [open]);
 
+  const recentKeys = loadRecentCommandKeys();
+
+  const orderedItems = useMemo(() => {
+    if (query.trim()) return items;
+    const recent = recentKeys
+      .map((key) => items.find((it) => workspaceCommandKey(it.id) === key))
+      .filter((it): it is CommandItem => !!it);
+    const rest = items.filter((it) => !recent.some((r) => r.id === it.id));
+    return [...recent, ...rest];
+  }, [items, query, recentKeys]);
+
   const filtered = useMemo(() => {
-    if (!query.trim()) return items;
+    if (!query.trim()) return orderedItems;
     const tokens = query.toLowerCase().split(/\s+/).filter(Boolean);
-    return items.filter((it) => {
+    return orderedItems.filter((it) => {
       const hay = `${it.label} ${it.group ?? ''} ${it.hint ?? ''}`.toLowerCase();
       return tokens.every((t) => hay.includes(t));
     });
-  }, [query, items]);
+  }, [query, orderedItems]);
+
+  const runItem = (item: CommandItem) => {
+    recordRecentCommandKey(workspaceCommandKey(item.id));
+    item.run();
+    onClose();
+  };
 
   // Group filtered items but preserve the input order within each group.
   const grouped = useMemo(() => {
@@ -86,8 +108,7 @@ export function CommandPalette({ open, onClose, items, placeholder }: Props) {
       e.preventDefault();
       const item = flat[active];
       if (item) {
-        item.run();
-        onClose();
+        runItem(item);
       }
     } else if (e.key === 'Escape') {
       e.preventDefault();
@@ -160,10 +181,7 @@ export function CommandPalette({ open, onClose, items, placeholder }: Props) {
                           key={it.id}
                           type="button"
                           onMouseEnter={() => setActive(idx)}
-                          onClick={() => {
-                            it.run();
-                            onClose();
-                          }}
+                          onClick={() => runItem(it)}
                           className={cn(
                             'flex w-full items-center justify-between gap-2 rounded-lg px-2 py-1.5 text-left text-sm transition-colors',
                             isActive

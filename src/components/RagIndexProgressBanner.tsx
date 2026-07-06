@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { notifyError, notifySuccess } from '../lib/notificationBus';
 import { Database, Loader2, AlertTriangle } from '@/lib/lucide-shim';
 import { fetchRagStatus, type RagStatusResponse } from '../lib/orgClient';
 import type { UserSettings } from '../types';
@@ -23,6 +24,7 @@ export function RagIndexProgressBanner({
 }: Props) {
   const token = settings?.authToken?.trim();
   const [status, setStatus] = useState<RagStatusResponse | null>(null);
+  const wasIndexingRef = useRef(false);
 
   useEffect(() => {
     if (!token || !settings) {
@@ -51,6 +53,27 @@ export function RagIndexProgressBanner({
       if (timer) clearTimeout(timer);
     };
   }, [token, settings]);
+
+  useEffect(() => {
+    if (!status) return;
+    const active = isIndexingActive(status);
+    if (wasIndexingRef.current && !active) {
+      if (status.indexing.status === 'failed') {
+        notifyError(
+          lang === 'el' ? 'Αποτυχία ευρετηρίου RAG' : 'RAG indexing failed',
+          status.indexing.error ?? undefined,
+        );
+      } else {
+        notifySuccess(
+          lang === 'el' ? 'Ευρετήριο RAG έτοιμο' : 'RAG index ready',
+          lang === 'el'
+            ? `${status.indexedChunks} chunks διαθέσιμα για αναζήτηση`
+            : `${status.indexedChunks} chunks ready for search`,
+        );
+      }
+    }
+    wasIndexingRef.current = active;
+  }, [status, lang]);
 
   if (!token || !status) return null;
 

@@ -1,5 +1,11 @@
 import { useEffect, useState } from 'react';
-import { getWorkspaceTTIMetrics, type WorkspaceTTIMetrics } from '../lib/workspacePerf';
+import { cn } from '../utils/cn';
+import {
+  evaluateWorkspacePerfBudget,
+  getWorkspaceTTIMetrics,
+  WORKSPACE_INTERACTIVE_BUDGET_MS,
+  type WorkspaceTTIMetrics,
+} from '../lib/workspacePerf';
 
 const WORKER_PATH_LABEL: Record<WorkspaceTTIMetrics['workerPath'], string> = {
   worker: 'Worker (off-thread)',
@@ -35,6 +41,8 @@ export function WorkspaceTTIPanel() {
 
   const workerOk = metrics.workerPath === 'worker';
   const intelFromWorker = metrics.hasSourceIntel === true;
+  const budget = evaluateWorkspacePerfBudget(metrics);
+  const hasInteractive = budget.interactiveMs > 0 || metrics.continueMs != null;
 
   return (
     <div
@@ -68,6 +76,24 @@ export function WorkspaceTTIPanel() {
         <div className="flex justify-between gap-4 text-xs pt-1 border-t border-border-subtle/60">
           <span className="text-text-secondary">Source chars</span>
           <span className="font-mono text-text-primary tabular-nums">{metrics.textChars.toLocaleString()}</span>
+        </div>
+      )}
+      {hasInteractive && (
+        <div
+          className="flex justify-between gap-4 text-xs pt-1 border-t border-border-subtle/60"
+          data-testid="workspace-tti-budget"
+        >
+          <span className="text-text-secondary">
+            Interactive budget ({WORKSPACE_INTERACTIVE_BUDGET_MS.toLocaleString()} ms)
+          </span>
+          <span
+            className={cn(
+              'font-mono tabular-nums font-medium',
+              budget.withinBudget ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400',
+            )}
+          >
+            {budget.interactiveMs} ms {budget.withinBudget ? '✓' : 'over'}
+          </span>
         </div>
       )}
     </div>

@@ -3,6 +3,8 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { WifiSlash, CheckCircle } from '@phosphor-icons/react';
 import { useI18n } from '../lib/i18n';
 import { useOnlineStatus } from '../hooks/useOnlineStatus';
+import { useAppStore } from '../store/useStore';
+import { flushOfflineSyncQueue, getOfflineSyncQueue } from '../lib/offlineSyncQueue';
 import { cn } from '../utils/cn';
 
 const BACK_ONLINE_MS = 3200;
@@ -11,6 +13,9 @@ const BACK_ONLINE_MS = 3200;
 export function OfflineShellBanner() {
   const { t } = useI18n();
   const online = useOnlineStatus();
+  const { user } = useAppStore();
+  const settings = user.settings;
+  const pendingSync = getOfflineSyncQueue().length;
   const [showBackOnline, setShowBackOnline] = useState(false);
   const wasOfflineRef = useRef(false);
 
@@ -23,9 +28,10 @@ export function OfflineShellBanner() {
     if (!wasOfflineRef.current) return;
     wasOfflineRef.current = false;
     setShowBackOnline(true);
+    void flushOfflineSyncQueue(settings, true);
     const id = window.setTimeout(() => setShowBackOnline(false), BACK_ONLINE_MS);
     return () => window.clearTimeout(id);
-  }, [online]);
+  }, [online, settings]);
 
   return (
     <>
@@ -43,6 +49,11 @@ export function OfflineShellBanner() {
             <div className="min-w-0">
               <p className="text-sm font-medium text-text-primary">{t('pwaOfflineTitle')}</p>
               <p className="text-xs text-text-secondary mt-0.5">{t('pwaOfflineHint')}</p>
+              {pendingSync > 0 && (
+                <p className="text-xs text-accent-amber mt-1" data-testid="offline-sync-pending">
+                  {t('offlineSyncPending').replace('{count}', String(pendingSync))}
+                </p>
+              )}
             </div>
           </div>
         </div>

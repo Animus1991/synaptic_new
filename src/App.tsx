@@ -16,6 +16,7 @@ import { AppCommandPaletteMount, useCommandPalette } from './components/CommandP
 import { persistWorkspaceV2CanaryFromUrl, reportWorkspaceCanaryCohort } from './lib/workspaceFeatureFlags';
 import type { ContentSearchHit } from './lib/globalContentSearch';
 import { NotificationsPanel } from './components/NotificationsPanel';
+import { NotificationToastStack } from './components/NotificationToastStack';
 import { MistakeRetryView } from './components/MistakeRetryView';
 import { ExamPrepView } from './components/ExamPrepView';
 import { PrerequisiteRepairView } from './components/PrerequisiteRepairView';
@@ -457,6 +458,7 @@ export default function App() {
         onClose={() => setNotificationsOpen(false)}
         activities={store.activities}
       />
+      <NotificationToastStack />
       <TakeBreathModal open={takeBreathOpen} onClose={() => setTakeBreathOpen(false)} />
       {productTourOpen && !store.studyWorkspaceOpen && (
         <ProductTour

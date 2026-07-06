@@ -19,6 +19,7 @@ import { buildFsrsDueQueue, findDeckIndexForConcept } from '../../lib/leitnerDue
 import { leitnerCardSourceLabel } from '../../lib/leitnerCardSources';
 import { inferLeitnerCardType, leitnerCardTypeLabel } from '../../lib/leitnerCardTypes';
 import { readAnkiFile } from '../../lib/ankiImport';
+import { notifyError, notifySuccess, notifyWarning } from '../../lib/notificationBus';
 import { mergeLeitnerCards, type LeitnerCard } from '../../lib/leitnerSessionModel';
 
 import { saveDeckState, syncDeckState } from '../../lib/leitnerDeckSync';
@@ -118,7 +119,9 @@ export function LeitnerBox({
     try {
       const parsed = await readAnkiFile(file);
       if (parsed.length === 0) {
-        setImportError(lang === 'el' ? 'Δεν βρέθηκαν κάρτες στο αρχείο.' : 'No cards found in file.');
+        const msg = lang === 'el' ? 'Δεν βρέθηκαν κάρτες στο αρχείο.' : 'No cards found in file.';
+        setImportError(msg);
+        notifyWarning(lang === 'el' ? 'Κενό αρχείο Anki' : 'Empty Anki file', msg);
         return;
       }
       const imported: LeitnerCard[] = parsed.map((c) => ({ front: c.front, back: c.back }));
@@ -126,8 +129,16 @@ export function LeitnerBox({
       setIndex(0);
       setFinished(false);
       onSessionDirty?.();
+      notifySuccess(
+        lang === 'el' ? 'Εισαγωγή Anki' : 'Anki import complete',
+        lang === 'el'
+          ? `${parsed.length} κάρτε${parsed.length === 1 ? 'α' : 'ες'} προστέθηκαν`
+          : `${parsed.length} card${parsed.length === 1 ? '' : 's'} added`,
+      );
     } catch (err) {
-      setImportError(err instanceof Error ? err.message : String(err));
+      const msg = err instanceof Error ? err.message : String(err);
+      setImportError(msg);
+      notifyError(lang === 'el' ? 'Αποτυχία εισαγωγής Anki' : 'Anki import failed', msg);
     }
   }, [onSessionDirty, lang]);
 

@@ -859,6 +859,9 @@ describe('server integration sweep', () => {
     expect(health.body.features.l11Enterprise.fsrsDueQueuePanel).toBe(true);
     expect(health.body.features.l11Enterprise.pluginMarketplace).toBe(true);
     expect(health.body.features.l11Enterprise.cohortTopicMasteryHeatmap).toBe(true);
+    expect(health.body.features.l12Enterprise).toBeDefined();
+    expect(health.body.features.l12Enterprise.notificationBus).toBe(true);
+    expect(health.body.features.l12Enterprise.workspacePerfBudget).toBe(true);
 
     const auditExport = await request(app)
       .get(`/v1/orgs/${orgId}/audit-logs/export?format=csv`)

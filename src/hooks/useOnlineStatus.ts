@@ -1,4 +1,5 @@
 ﻿import { useEffect, useState } from 'react';
+import { bindCapacitorNetworkStatus } from '../lib/capacitorNetwork';
 
 /** Tracks browser online/offline state via `navigator.onLine` and window events. */
 export function useOnlineStatus(): boolean {
@@ -11,9 +12,11 @@ export function useOnlineStatus(): boolean {
     const onOffline = () => setOnline(false);
     window.addEventListener('online', onOnline);
     window.addEventListener('offline', onOffline);
+    const unbindCap = bindCapacitorNetworkStatus(setOnline);
     return () => {
       window.removeEventListener('online', onOnline);
       window.removeEventListener('offline', onOffline);
+      unbindCap();
     };
   }, []);
 

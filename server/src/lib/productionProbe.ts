@@ -72,6 +72,14 @@ export type ProductionProbeStatus = {
     pluginMarketplace: boolean;
     cohortTopicMasteryHeatmap: boolean;
   };
+  /** Sprint L12 — platform polish. */
+  l12Enterprise: {
+    notificationBus: boolean;
+    commandPaletteRecent: boolean;
+    offlineSyncQueue: boolean;
+    a11yLiveRegions: boolean;
+    workspacePerfBudget: boolean;
+  };
 };
 
 let cachedPgvector: boolean | null = null;
@@ -161,6 +169,13 @@ export async function getProductionProbeStatus(): Promise<ProductionProbeStatus>
       fsrsDueQueuePanel: true,
       pluginMarketplace: true,
       cohortTopicMasteryHeatmap: true,
+    },
+    l12Enterprise: {
+      notificationBus: true,
+      commandPaletteRecent: true,
+      offlineSyncQueue: true,
+      a11yLiveRegions: true,
+      workspacePerfBudget: true,
     },
   };
 }

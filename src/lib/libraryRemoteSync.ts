@@ -1,6 +1,7 @@
 import type { UserSettings } from '../types';
 import { configuredProxyBase, pushRemoteLibrary } from './authClient';
 import { hydrateLibrary, loadLibrarySync } from './libraryStorage';
+import { handleLibrarySyncFailure } from './offlineSyncQueue';
 
 const DEBOUNCE_MS = 4000;
 
@@ -30,6 +31,7 @@ export async function flushLibraryRemoteSync(settings: UserSettings): Promise<vo
     await pushRemoteLibrary(token, settings, hydrated);
   } catch (err) {
     console.warn('[library-sync] auto push failed', err);
+    handleLibrarySyncFailure(settings, typeof navigator !== 'undefined' ? navigator.onLine : true);
   } finally {
     inFlight = false;
   }

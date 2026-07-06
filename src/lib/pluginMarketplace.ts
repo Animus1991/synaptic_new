@@ -1,3 +1,4 @@
+import { notifySuccess } from './notificationBus';
 import { loadJson, saveJson } from './persistence';
 import {
   listSynapsePlugins,
@@ -32,7 +33,11 @@ export function isPluginEnabled(id: string): boolean {
   return listSynapsePlugins().some((p) => p.id === id);
 }
 
-export function setPluginEnabled(id: string, enabled: boolean): void {
+export function setPluginEnabled(
+  id: string,
+  enabled: boolean,
+  opts?: { silent?: boolean },
+): void {
   const plugin = catalog.get(id);
   if (!plugin) return;
   const ids = loadEnabledIds();
@@ -44,6 +49,12 @@ export function setPluginEnabled(id: string, enabled: boolean): void {
     unregisterSynapsePlugin(id);
   }
   saveEnabledIds(ids);
+  if (!opts?.silent) {
+    notifySuccess(
+      enabled ? `${plugin.name} enabled` : `${plugin.name} disabled`,
+      enabled ? 'Plugin hooks are active in this session' : 'Plugin hooks removed',
+    );
+  }
 }
 
 /** Bootstrap catalog + restore enabled plugins from localStorage. */
@@ -61,7 +72,7 @@ export function initPluginMarketplace(): void {
 
   const enabled = loadEnabledIds();
   if (enabled.size === 0) {
-    setPluginEnabled('synapse.fsrs-tags', true);
+    setPluginEnabled('synapse.fsrs-tags', true, { silent: true });
     return;
   }
   for (const id of enabled) {
