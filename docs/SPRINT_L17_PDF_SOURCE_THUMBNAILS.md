@@ -286,7 +286,7 @@ Defer until multi-device library sync ships. Client-first L17 covers 95% of curr
 | **L17-5** | Reprocess path + `thumbnailStatus` on `UploadedFile` | 0.5d |
 | **L17-6** | E2E: `e2e/source-thumbnail.spec.ts` | ✅ |
 | **L17-6** | Backfill: IDB `file-blobs` + idle `scheduleThumbnailBackfill` | ✅ |
-| **L17-7** | Docs + `productionProbe` flag `pdfThumbnails: true` | 🔲 optional |
+| **L17-7** | Docs + `productionProbe` flag `pdfThumbnails: true` | ✅ |
 
 **Total:** ~5.75 dev-days
 

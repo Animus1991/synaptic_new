@@ -880,6 +880,11 @@ describe('server integration sweep', () => {
     expect(health.body.features.l16Enterprise).toBeDefined();
     expect(health.body.features.l16Enterprise.notebooklmCohortHeatmap).toBe(true);
     expect(health.body.features.l16Enterprise.teacherBridgeVisibility).toBe(true);
+    expect(health.body.features.l17Enterprise).toBeDefined();
+    expect(health.body.features.l17Enterprise.pdfThumbnails).toBe(true);
+    expect(health.body.features.l17Enterprise.notebookWorkspace).toBe(true);
+    expect(health.body.features.l17Enterprise.thumbnailBackfill).toBe(true);
+    expect(health.body.features.l17Enterprise.pdfThumbnailWorker).toBe(true);
 
     const auditExport = await request(app)
       .get(`/v1/orgs/${orgId}/audit-logs/export?format=csv`)

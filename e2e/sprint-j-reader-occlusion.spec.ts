@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { dismissBlockingShellOverlays, skipOnboardingToLibrary } from './helpers/onboarding';
 import { openWorkspaceFromLibrary } from './helpers/a11y';
+import { openReaderInWorkspace, openToolInWorkspace } from './helpers/workspace';
 
 test.describe('Sprint J — reader occlusion-from-selection + UploadModal i18n', () => {
   test.describe.configure({ timeout: 120_000 });
@@ -11,8 +12,7 @@ test.describe('Sprint J — reader occlusion-from-selection + UploadModal i18n',
     await skipOnboardingToLibrary(page);
     await dismissBlockingShellOverlays(page);
     await openWorkspaceFromLibrary(page);
-    await page.getByTestId('dock-tool-reader').click();
-    await expect(page.getByTestId('cognitive-reader')).toBeVisible({ timeout: 15_000 });
+    await openReaderInWorkspace(page);
 
     const body = page.getByTestId('reader-structured-body');
     await body.evaluate((el) => {
@@ -40,7 +40,7 @@ test.describe('Sprint J — reader occlusion-from-selection + UploadModal i18n',
       test.skip(true, 'No OCR/heuristic region match for demo reader selection');
     }
     await occlusionBtn.click();
-    await page.getByTestId('dock-tool-leitner').click();
+    await openToolInWorkspace(page, 'leitner');
     await expect(page.getByTestId('leitner-panel')).toBeVisible({ timeout: 15_000 });
     const occlusionFilter = page.getByTestId('leitner-type-occlusion');
     if (await occlusionFilter.isVisible()) {

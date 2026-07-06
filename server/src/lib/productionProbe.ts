@@ -106,6 +106,13 @@ export type ProductionProbeStatus = {
     notebooklmCohortHeatmap: boolean;
     teacherBridgeVisibility: boolean;
   };
+  /** Sprint L17 — PDF source page-preview thumbnails (client IDB). */
+  l17Enterprise: {
+    pdfThumbnails: boolean;
+    notebookWorkspace: boolean;
+    thumbnailBackfill: boolean;
+    pdfThumbnailWorker: boolean;
+  };
 };
 
 let cachedPgvector: boolean | null = null;
@@ -224,6 +231,12 @@ export async function getProductionProbeStatus(): Promise<ProductionProbeStatus>
     l16Enterprise: {
       notebooklmCohortHeatmap: true,
       teacherBridgeVisibility: true,
+    },
+    l17Enterprise: {
+      pdfThumbnails: true,
+      notebookWorkspace: true,
+      thumbnailBackfill: true,
+      pdfThumbnailWorker: true,
     },
   };
 }

@@ -1,6 +1,6 @@
 # Product-scale status (canonical snapshot)
 
-**Last reconciled:** 2026-07-06 — aligned through **Sprint L9-1** (student calendar) + **L9-2** (class announcements).
+**Last reconciled:** 2026-07-06 — aligned through **Sprint L17** (PDF thumbnails) + **NotebookLM workspace Phases 0–5** + **P0 doc/E2E reconciliation**.
 
 This file is the **single shipped-truth status doc**. Use it for readiness reviews,
 sprint close-outs, and investor/contributor snapshots.
@@ -8,6 +8,7 @@ sprint close-outs, and investor/contributor snapshots.
 | Doc | Role |
 | --- | ---- |
 | **`PRODUCT_SCALE_STATUS.md`** (this file) | What ships today + open gaps |
+| **`docs/GAP_AUDIT.md`** | Living gap register — prioritized backlog across all surfaces |
 | `ROADMAP.md` | Layer completion table + sprint tables |
 | `CHANGELOG.md` | Dated shipped history |
 | `PRODUCT_SCALE_PLAN.md` | Forward masterplan (workstreams, sequencing) |
@@ -138,6 +139,43 @@ Regression gate: `npm test -- src/lib/notebooklmAudioFsrsImport.test.ts src/lib/
 | **L16-2 Cohort heatmap** | `notebooklmBridgeHeatmap` in org analytics + `CohortNotebookLmHeatmap` | **shipped** |
 
 Regression gate: `cd server && npm test -- src/lib/notebooklmBridgeAnalytics.test.ts src/lib/orgAnalytics.test.ts`; `npm run typecheck`.
+
+---
+
+## Sprint L17 — PDF source page-preview thumbnails — shipped (Jul 2026)
+
+| Scope | Deliverable | Status |
+| ----- | ----------- | ------ |
+| **L17-1 Render pipeline** | `pdfThumbnail.ts` — pdfjs page-1 → WebP/PNG (max edge 144px) | **shipped** |
+| **L17-2 IDB persistence** | `file-thumbnails` store + `sourceThumbnailPersist.ts` | **shipped** |
+| **L17-3 Ingest hook** | Piggyback on `pdfExtract.ts` + `useStore` upload path | **shipped** |
+| **L17-4 UI** | `NotebookSourceThumbnail` + `useSourceThumbnailUrl` | **shipped** |
+| **L17-5 Reprocess** | `thumbnailStatus` on `UploadedFile`; delete on file remove | **shipped** |
+| **L17-6 E2E + backfill** | `e2e/source-thumbnail.spec.ts`; `thumbnailBackfill.ts` + `file-blobs` cache | **shipped** |
+| **L17-7 Health probe** | `/health` → `features.l17Enterprise.pdfThumbnails: true` | **shipped** |
+
+Regression gate: `npm test -- src/lib/pdfThumbnail.test.ts src/lib/sourceThumbnailPersist.test.ts src/lib/thumbnailBackfill.test.ts`; `npx playwright test e2e/source-thumbnail.spec.ts`; `cd server && npm test`.
+
+See: `docs/SPRINT_L17_PDF_SOURCE_THUMBNAILS.md`
+
+---
+
+## NotebookLM Study Workspace UI — Phases 0–5 shipped (Jul 2026)
+
+| Phase | Deliverable | Status |
+| ----- | ----------- | ------ |
+| **0** | `NotebookWorkspaceLayout` 3-panel + `notebookMode` default ON | **shipped** |
+| **1** | Sources list, source guide, quality/reprocess, L17 thumbnails | **shipped** |
+| **2** | Inline `Agent` embedded, compact context chip, citation jump | **shipped** |
+| **3** | Studio 12 tool cards + `StudyWorkspaceToolSurface` overlay | **shipped** |
+| **4** | `buildToolDefaultAgentPrompt` per Studio sparkle | **shipped** |
+| **5** | Mobile tabs Sources \| Chat \| Studio + E2E | **shipped** |
+
+**Remaining polish** (see `docs/GAP_AUDIT.md` §Notebook Workspace): pin active source, auto-focus chat, Studio generation states, Ask AI rail, one-click quiz/mindmap actions, visual regression.
+
+Regression gate: `npx playwright test e2e/notebook-workspace.spec.ts`; `npm run typecheck`.
+
+See: `docs/NOTEBOOKLM_WORKSPACE_UI.md`
 
 ---
 

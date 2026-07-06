@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { skipOnboardingToLibrary } from './helpers/onboarding';
+import { openReaderInWorkspace, openToolInWorkspace } from './helpers/workspace';
 
 const GREEK_SYLLABUS = `
 ΕΘΝΙΚΟ ΚΑΙ ΚΑΠΟΔΙΣΤΡΙΑΚΟ ΠΑΝΕΠΙΣΤΗΜΙΟ ΑΘΗΝΩΝ
@@ -51,7 +52,7 @@ test.describe('Greek syllabus paste → workspace reader (P1)', () => {
     await expect(page.getByText(/πλεονεκτήματα|πλεονεκτηματα/i).first()).toBeVisible({ timeout: 15_000 });
     await expect(page.getByText(/βιβλιογραφία|krugman/i).first()).toBeVisible({ timeout: 15_000 });
 
-    await page.getByTestId('dock-tool-reader').click();
+    await openReaderInWorkspace(page);
     await expect(page.getByTestId('reader-structured-body')).toBeVisible({ timeout: 15_000 });
     await expect(
       page.getByTestId('reader-table-segment').first()
@@ -60,7 +61,7 @@ test.describe('Greek syllabus paste → workspace reader (P1)', () => {
     ).toBeVisible({ timeout: 15_000 });
     await expect(page.getByTestId('reader-greek-ocr-banner')).not.toBeVisible();
 
-    await page.getByTestId('dock-tool-scratchpad').click();
+    await openToolInWorkspace(page, 'scratchpad');
     await expect(page.getByTestId('workspace-empty-state')).toHaveAttribute('data-has-source', 'true');
     await expect(page.getByTestId('workspace-empty-upload')).not.toBeVisible();
   });
@@ -78,7 +79,7 @@ test.describe('Greek syllabus paste → workspace reader (P1)', () => {
     await expect(page.getByTestId('app-toast')).toBeVisible({ timeout: 45_000 });
     await page.getByTestId('course-open-workspace').click();
     await expect(page.getByTestId('study-workspace')).toBeVisible({ timeout: 45_000 });
-    await page.getByTestId('dock-tool-reader').click();
+    await openReaderInWorkspace(page);
 
     const body = page.getByTestId('reader-structured-body');
     await expect(body).toBeVisible({ timeout: 15_000 });

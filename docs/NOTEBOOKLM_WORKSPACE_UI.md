@@ -1,6 +1,6 @@
 # NotebookLM-style Study Workspace UI
 
-**Status:** Phase 0–3 partial · Phase 2 chat-inline **in progress (Jul 2026)**  
+**Status:** Phases 0–5 **shipped** (Jul 2026) · polish backlog in `docs/GAP_AUDIT.md`  
 **North star:** *NotebookLM to understand · Synapse to retain + teacher visibility*  
 **Reference:** [notebooklm.google.com](https://notebooklm.google.com/)
 
@@ -33,17 +33,17 @@ Synapse does **not** clone NotebookLM. We adopt its **calm 3-panel shell** while
 | 13 workspace tools in `workspaceToolRegistry.ts` | ✅ | All registered |
 | Virtualised StepRail, worker PMI/BM25 | ✅ | Classic layout |
 | Perf budget E2E | ✅ | |
+| Cross-page ContextBar sweep (Dashboard, Library, …) | 🔲 | See `STUDY_WORKSPACE_REARCHITECTURE_PLAN.md` Phase C |
 
-### NotebookLM 3-panel workspace — **partial (this initiative)**
+### NotebookLM 3-panel workspace — **shipped (Jul 2026)**
 
 | Phase | Deliverable | Status |
 |-------|-------------|--------|
 | **0** Skeleton | `NotebookWorkspaceLayout.tsx` — 3 resizable panels (`react-resizable-panels`) | ✅ |
 | **0** Toggle | `notebookMode` persisted (`workspace-notebook-mode`, default **on**) | ✅ |
-| **0** Header | Minimal chrome when `notebookMode` (`StudyWorkspaceChrome` ⋯ menu) | ✅ **this sprint** |
+| **0** Header | Minimal chrome when `notebookMode` (`StudyWorkspaceChrome` ⋯ menu) | ✅ |
 | **1** Sources | Source list, add source, source guide (AI), quality/reprocess strip | ✅ |
-| **1** Thumbnails | Source list, add source, source guide (AI), quality/reprocess strip | ✅ |
-| **1** Thumbnails | Typed source chips (`sourceThumbnail.ts`) | ✅ |
+| **1** Thumbnails | PDF page-preview (`SPRINT_L17`) + typed chip fallback | ✅ |
 | **2** Chat center | Inline `Agent` via `renderCenterAgent` + `embedded` prop | ✅ |
 | **2** Context strip | Compact chip + hover popover (`AgentContextBanner compact`) | ✅ |
 | **2** No redirect | `openAgentFromWorkspace` stays in workspace unless `fullPage: true` | ✅ |
@@ -53,11 +53,6 @@ Synapse does **not** clone NotebookLM. We adopt its **calm 3-panel shell** while
 | **5** Mobile | Bottom tabs Sources \| Chat \| Studio | ✅ |
 | **5** i18n | el/en in layout strings | ✅ partial |
 | **5** Tests | `e2e/notebook-workspace.spec.ts` | ✅ |
-
-### Known gap (fixed this sprint)
-
-**Before:** `openAgentFromWorkspace` closed workspace and `navigate('agent')` — chat button left the session.  
-**After:** `workspaceInlineAgentOpen` + `Agent embedded` in center panel; full page only via «Πλήρης προβολή» / `fullPage: true`.
 
 ---
 
@@ -82,6 +77,8 @@ From `workspaceToolRegistry.ts`:
 Classic layout: dock + command palette + lesson panel.  
 Notebook layout: Studio grid + overflow menu (⌘K, notes, study room, weak areas, classic view).
 
+Per-tool depth gaps: `WORKSPACE_TOOLS_UPGRADE.md` · living register: `docs/GAP_AUDIT.md`.
+
 ---
 
 ## Architecture
@@ -101,11 +98,13 @@ StudyWorkspaceBody
 
 ---
 
-## Phased rollout (remaining work)
+## Phased rollout (remaining polish)
+
+Tracked in **`docs/GAP_AUDIT.md`** — update that file when items ship.
 
 ### Phase 1 completion
+- [x] PDF page-preview thumbnails → Sprint L17 ✅
 - [ ] Pin active source in Sources list
-- [ ] PDF page-preview thumbnails → **[Sprint L17](./SPRINT_L17_PDF_SOURCE_THUMBNAILS.md)** ✅
 
 ### Phase 2 completion
 - [ ] Auto-focus chat input on workspace open
@@ -127,8 +126,8 @@ StudyWorkspaceBody
 
 ```bash
 npm run typecheck
-npm test -- src/lib/sourceThumbnail.test.ts src/lib/workspaceToolAgentPrompts.test.ts
-npx playwright test e2e/notebook-workspace.spec.ts
+npm test -- src/lib/sourceThumbnail.test.ts src/lib/workspaceToolAgentPrompts.test.ts src/lib/pdfThumbnail.test.ts src/lib/sourceThumbnailPersist.test.ts src/lib/thumbnailBackfill.test.ts
+npx playwright test e2e/notebook-workspace.spec.ts e2e/source-thumbnail.spec.ts
 ```
 
 Manual QA:
@@ -142,8 +141,9 @@ Manual QA:
 
 ## References
 
+- `docs/GAP_AUDIT.md` — canonical living gap register  
 - `docs/NOTEBOOKLM_BRIDGE.md` — import/export bridge strategy  
+- `docs/SPRINT_L17_PDF_SOURCE_THUMBNAILS.md` — thumbnail pipeline  
 - `SYNAPTIC_FULL_SCALE_MASTER_PLAN_V2.md` — Phase B workspace re-architecture  
 - `src/components/workspace/studyWorkspace/NotebookWorkspaceLayout.tsx`  
-- `src/components/workspace/studyWorkspace/StudyWorkspaceChrome.tsx`  
 - `src/lib/workspaceToolRegistry.ts`

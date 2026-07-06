@@ -2,6 +2,7 @@ import { test, expect } from '@playwright/test';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { skipOnboardingToLibrary } from './helpers/onboarding';
+import { openReaderInWorkspace } from './helpers/workspace';
 
 const FIXTURE_DIR = path.dirname(fileURLToPath(import.meta.url));
 const GREEK_PDF = path.join(FIXTURE_DIR, 'fixtures', 'greek-syllabus-min.pdf');
@@ -28,7 +29,7 @@ test.describe('Greek syllabus PDF upload → workspace reader (Sprint B)', () =>
     await page.getByTestId('course-open-workspace').click();
     await expect(page.getByTestId('study-workspace')).toBeVisible({ timeout: 45_000 });
 
-    await page.getByTestId('dock-tool-reader').click();
+    await openReaderInWorkspace(page);
     await expect(page.getByTestId('reader-structured-body')).toBeVisible({ timeout: 15_000 });
     await expect(page.getByText(/διεθν|οικονομ|πλεονεκ|Inflation|Krugman|Bibliography|International/i).first()).toBeVisible({ timeout: 15_000 });
   });

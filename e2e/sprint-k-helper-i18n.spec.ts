@@ -1,6 +1,7 @@
 import { test, expect, type Page } from '@playwright/test';
 import { dismissBlockingShellOverlays, skipOnboardingToLibrary } from './helpers/onboarding';
 import { openWorkspaceFromLibrary, waitForLibraryReady } from './helpers/a11y';
+import { openReaderInWorkspace, openToolInWorkspace } from './helpers/workspace';
 
 async function switchToGreekFromLibrary(page: Page) {
   await page.getByTestId('nav-settings').click();
@@ -19,7 +20,7 @@ test.describe('Sprint K — lib helper i18n', () => {
     await dismissBlockingShellOverlays(page);
     await switchToGreekFromLibrary(page);
     await openWorkspaceFromLibrary(page);
-    await page.getByTestId('dock-tool-leitner').click();
+    await openToolInWorkspace(page, 'leitner');
     await expect(page.getByTestId('leitner-panel')).toBeVisible({ timeout: 15_000 });
     await expect(page.getByTestId('leitner-type-filter')).toBeVisible();
     await expect(page.getByText('Όλοι οι τύποι')).toBeVisible();
@@ -37,8 +38,7 @@ test.describe('Sprint K — lib helper i18n', () => {
     await dismissBlockingShellOverlays(page);
     await switchToGreekFromLibrary(page);
     await openWorkspaceFromLibrary(page);
-    await page.getByTestId('dock-tool-reader').click();
-    await expect(page.getByTestId('cognitive-reader')).toBeVisible({ timeout: 15_000 });
+    await openReaderInWorkspace(page);
 
     const body = page.getByTestId('reader-structured-body');
     await body.evaluate((el) => {
