@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { useConceptMapCollab } from '../../../hooks/useConceptMapCollab';
 import { Panel } from 'react-resizable-panels';
 import { WorkspaceToolStrip } from '../WorkspaceToolStrip';
 import { ToolFrame } from '../ToolFrame';
@@ -119,6 +120,7 @@ export function StudyWorkspaceToolSurface({ model }: StudyWorkspaceToolSurfacePr
     quizSessionIrt,
     discoverabilityActions,
     conceptMapCursorSync,
+    conceptMapCollabConfig,
     conceptNodes,
     conceptEdges,
     nextActionRecommendation,
@@ -148,6 +150,17 @@ export function StudyWorkspaceToolSurface({ model }: StudyWorkspaceToolSurfacePr
     setSandboxTopSensitivityCue,
     annotationSyncVersion,
   } = model;
+
+  const conceptMapSeedGraph = useMemo(
+    () => ({ nodes: conceptNodes, edges: conceptEdges }),
+    [conceptNodes, conceptEdges],
+  );
+
+  const conceptMapCrdt = useConceptMapCollab({
+    enabled: activeTool === 'concept-map' && layout === 'split',
+    config: conceptMapCollabConfig,
+    seedGraph: conceptMapSeedGraph,
+  });
 
   const toolAgentChipBar = useMemo(() => {
     if (!hasDedicatedToolAgentChips(activeTool)) return undefined;
@@ -214,6 +227,7 @@ export function StudyWorkspaceToolSurface({ model }: StudyWorkspaceToolSurfacePr
                           }}
                           onSelectionAction={handleWorkspaceSelectionAction}
                           cursorSync={layout === 'split' ? conceptMapCursorSync : undefined}
+                          crdt={conceptMapCrdt.active ? conceptMapCrdt : undefined}
                         />
                         </WorkspaceToolSuspense>
                       )}

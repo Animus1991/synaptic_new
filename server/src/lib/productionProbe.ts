@@ -126,6 +126,12 @@ export type ProductionProbeStatus = {
     readinessProbes: boolean;
     helmChart: boolean;
   };
+  /** Sprint L20 / COL-03 — Yjs CRDT multi-user concept map editing in study rooms. */
+  l20Enterprise: {
+    conceptMapCrdt: boolean;
+    conceptMapCollabWebSocket: boolean;
+    conceptMapStudyRoomAuth: boolean;
+  };
 };
 
 let cachedPgvector: boolean | null = null;
@@ -261,6 +267,11 @@ export async function getProductionProbeStatus(): Promise<ProductionProbeStatus>
       otlpExport: config.otelEnabled,
       readinessProbes: true,
       helmChart: true,
+    },
+    l20Enterprise: {
+      conceptMapCrdt: true,
+      conceptMapCollabWebSocket: true,
+      conceptMapStudyRoomAuth: true,
     },
   };
 }

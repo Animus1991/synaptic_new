@@ -123,7 +123,7 @@ Goal: every tool **fully functional for its learning purpose**, not demo stubs.
 | TOOL-CM-02 | Redo stack | P2 | open |
 | TOOL-CM-03 | PMI edge labels | P2 | open |
 | TOOL-CM-04 | Keyboard a11y + screen-reader tree | P2 | open |
-| TOOL-CM-05 | CRDT multi-user editing | P3 | open |
+| TOOL-CM-05 | CRDT multi-user editing | P3 | **shipped** | Yjs/Hocuspocus via study room |
 
 ### Feynman · Compare · Debate
 
@@ -207,7 +207,7 @@ Goal: every tool **fully functional for its learning purpose**, not demo stubs.
 | -- | ---- | -------- | ------ |
 | COL-01 | L9-3 assignment discussion threads (full Q&A) | P2 | shipped |
 | COL-02 | Annotation conflict resolution UI | P2 | open |
-| COL-03 | Concept map CRDT | P3 | open |
+| COL-03 | Concept map CRDT | P3 | **shipped** | `conceptMapCrdt.ts`, `useConceptMapCollab` |
 | COL-04 | Collaborative whiteboard shared state | P3 | open |
 | COL-05 | L9-4 LTI NRPS roster sync (not stub) | P2 | shipped |
 

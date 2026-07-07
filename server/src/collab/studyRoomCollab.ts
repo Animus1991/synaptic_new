@@ -1,5 +1,6 @@
 import { Server } from '@hocuspocus/server';
 import * as Y from 'yjs';
+import { resolveCollabRoomId } from './documentNames';
 import { getStudyRoom } from '../store/studyRoomStore';
 import { createStudyRoomDocPgRepo, persistStudyRoomDoc } from '../store/studyRoomDocPgStore';
 
@@ -7,13 +8,6 @@ const docSnapshots = new Map<string, Uint8Array>();
 
 export function studyRoomDocumentName(roomId: string): string {
   return `study-room-${roomId}`;
-}
-
-function parseRoomId(documentName: string): string | null {
-  const prefix = 'study-room-';
-  if (!documentName.startsWith(prefix)) return null;
-  const roomId = documentName.slice(prefix.length).trim();
-  return roomId || null;
 }
 
 /** Yjs persistence: in-memory cache + optional Postgres (study_room_docs). */
@@ -24,7 +18,7 @@ export function startStudyRoomCollab(port: number, databaseUrl?: string): Server
     port,
     quiet: true,
     async onAuthenticate({ documentName, token }) {
-      const roomId = parseRoomId(documentName);
+      const roomId = resolveCollabRoomId(documentName);
       if (!roomId) {
         throw new Error('Invalid document name');
       }

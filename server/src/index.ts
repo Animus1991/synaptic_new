@@ -110,6 +110,7 @@ export function createApp(): express.Application {
         l17Enterprise: production.l17Enterprise,
         l18Enterprise: production.l18Enterprise,
         l19Enterprise: production.l19Enterprise,
+        l20Enterprise: production.l20Enterprise,
       },
       telemetry: getTelemetryStatus(),
     });

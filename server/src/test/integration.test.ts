@@ -63,6 +63,8 @@ describe('server integration sweep', () => {
     expect(res.body.features.l19Enterprise).toBeDefined();
     expect(res.body.features.l19Enterprise.readinessProbes).toBe(true);
     expect(res.body.features.l19Enterprise.helmChart).toBe(true);
+    expect(res.body.features.l20Enterprise).toBeDefined();
+    expect(res.body.features.l20Enterprise.conceptMapCrdt).toBe(true);
   });
 
   it('GET /live returns ok for liveness probe', async () => {
@@ -1019,6 +1021,9 @@ describe('server integration sweep', () => {
     expect(health.body.features.l19Enterprise.openTelemetry).toBe(true);
     expect(health.body.features.l19Enterprise.readinessProbes).toBe(true);
     expect(health.body.features.l19Enterprise.helmChart).toBe(true);
+    expect(health.body.features.l20Enterprise).toBeDefined();
+    expect(health.body.features.l20Enterprise.conceptMapCrdt).toBe(true);
+    expect(health.body.features.l20Enterprise.conceptMapCollabWebSocket).toBe(true);
 
     const auditExport = await request(app)
       .get(`/v1/orgs/${orgId}/audit-logs/export?format=csv`)

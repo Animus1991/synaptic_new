@@ -116,6 +116,8 @@ import {
   selectWorkspaceContext,
 } from '../../../lib/workspaceSelectors';
 import { createWorkspaceLiveSync } from '../../../lib/workspaceStoreSpine';
+import { checkStudyRoomApi, loadStudyRoomSession } from '../../../lib/studyRoomClient';
+import { resolveCollabWebSocketUrl } from '../../../lib/studyRoomCollab';
 import { defaultEventConfidence } from '../../../lib/workspaceCorrelationEvents';
 import { emitWorkspaceConceptEvent } from '../../../lib/emitLearningEvent';
 import { buildConceptBusRows, buildToolActivityBreakdown } from '../../../lib/conceptBusPanelModel';
@@ -1406,6 +1408,33 @@ export function useStudyWorkspace({
     };
   }, [userSettings, effectiveCourseId, quizConcept]);
 
+  const [studyRoomSession, setStudyRoomSession] = useState(() => loadStudyRoomSession());
+  const [collabWsUrl, setCollabWsUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    const sync = () => setStudyRoomSession(loadStudyRoomSession());
+    sync();
+    window.addEventListener('synapse-study-room-session', sync);
+    return () => window.removeEventListener('synapse-study-room-session', sync);
+  }, []);
+
+  useEffect(() => {
+    if (!userSettings) return;
+    void checkStudyRoomApi(userSettings).then((status) => {
+      setCollabWsUrl(resolveCollabWebSocketUrl(userSettings, status.collabWebSocketUrl));
+    });
+  }, [userSettings]);
+
+  const conceptMapCollabConfig = useMemo(() => {
+    if (!studyRoomSession || studyRoomSession.localOnly || !collabWsUrl || !quizConcept) return undefined;
+    return {
+      roomId: studyRoomSession.roomId,
+      inviteCode: studyRoomSession.inviteCode,
+      wsUrl: collabWsUrl,
+      conceptKey: quizConcept,
+    };
+  }, [studyRoomSession, collabWsUrl, quizConcept]);
+
   const conceptNodes = useMemo(() => {
     if (!noteBundle.hasSource) return [];
     if (!workspaceIntelActive(intelReady, activeTool, 'concept-map')) {
@@ -2255,6 +2284,7 @@ export function useStudyWorkspace({
     quizSessionIrt,
     discoverabilityActions,
     conceptMapCursorSync,
+    conceptMapCollabConfig,
     conceptNodes,
     conceptEdges,
     workspaceContext,

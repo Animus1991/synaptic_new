@@ -332,7 +332,10 @@ export function loadStudyRoomSession(): LocalStudyRoomSession | null {
 export function saveStudyRoomSession(session: LocalStudyRoomSession | null): void {
   if (!session) {
     localStorage.removeItem(STORAGE_KEY);
-    return;
+  } else {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(session));
   }
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(session));
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new Event('synapse-study-room-session'));
+  }
 }

@@ -86,13 +86,21 @@ interface Props {
   lensConcept?: string;
   conceptLens?: ConceptLensView;
   onConceptSelect?: (label: string) => void;
-  /** Collaborative cursor sync (W8) — requires proxy + course. */
+  /** Collaborative cursor sync (SSE) when proxy + course configured. */
   cursorSync?: { courseId: string; conceptKey: string; baseUrl: string };
+  /** Yjs CRDT graph sync when joined to a study room with collab WebSocket. */
+  crdt?: {
+    nodes: DragNode[];
+    edges: DragEdge[];
+    synced: boolean;
+    connecting: boolean;
+    applyLocalGraph: (graph: { nodes: DragNode[]; edges: DragEdge[] }) => void;
+  };
 }
 
 const MASTERY_COLOR = (m: number) => (m > 0 ? masteryColorForValue(m) : 'var(--color-text-muted)');
 
-export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, onGraphUpdate, emptyMessage, hasSource = false, onUpload, onFocusTerm, onSelectionAction, focusConcept, lensConcept, conceptLens, onConceptSelect, cursorSync }: Props) {
+export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, onGraphUpdate, emptyMessage, hasSource = false, onUpload, onFocusTerm, onSelectionAction, focusConcept, lensConcept, conceptLens, onConceptSelect, cursorSync, crdt }: Props) {
   const { t, lang } = useI18n();
   const [nodes, setNodes] = useState<DragNode[]>(initialNodes);
   const [edges, setEdges] = useState<DragEdge[]>(initialEdges);
@@ -134,9 +142,18 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
   const nodeMap = Object.fromEntries(nodes.map(n => [n.id, n]));
 
   const publishGraph = useCallback((nextNodes: DragNode[], nextEdges: DragEdge[]) => {
+    if (crdt?.synced) {
+      crdt.applyLocalGraph({ nodes: nextNodes, edges: nextEdges });
+    }
     onNodeUpdate?.(nextNodes);
     onGraphUpdate?.({ nodes: nextNodes, edges: nextEdges });
-  }, [onNodeUpdate, onGraphUpdate]);
+  }, [onNodeUpdate, onGraphUpdate, crdt]);
+
+  useEffect(() => {
+    if (!crdt?.synced) return;
+    setNodes(crdt.nodes);
+    setEdges(crdt.edges);
+  }, [crdt?.synced, crdt?.nodes, crdt?.edges]);
 
   const pushHistory = useCallback(() => {
     undoStack.current.push({
@@ -605,6 +622,19 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
           >
             {exporting ? '…' : 'PNG'}
           </button>
+          {crdt && (
+            <span
+              className={cn(
+                'ml-2 rounded-full px-2 py-0.5 text-[9px] font-semibold border',
+                crdt.synced
+                  ? 'border-accent-emerald/40 bg-accent-emerald/10 text-accent-emerald'
+                  : 'border-border-subtle bg-surface-hover text-text-muted',
+              )}
+              data-testid="concept-map-crdt-status"
+            >
+              {crdt.synced ? t('conceptMapCollabSynced') : t('conceptMapCollabConnecting')}
+            </span>
+          )}
         </div>
       </div>
 
