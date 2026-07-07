@@ -231,7 +231,7 @@ Goal: every tool **fully functional for its learning purpose**, not demo stubs.
 | MCP-02 | Client reader for `mcpFlashcards` / `mcpAnnotations` | P2 | open |
 | MCP-03 | OAuth persistence in Postgres (multi-instance) | P2 | open |
 | PLT-01 | Cross-page UI sweep (`PLATFORM_UI_UX_MASTER_PLAN.md`) | P2 | open |
-| PLT-02 | OpenTelemetry + Helm IaC | P3 | open |
+| PLT-02 | OpenTelemetry + Helm IaC | P3 | **shipped** | `telemetry.ts`, `/live`/`/ready`, `server/helm/` |
 | PLT-03 | Offline embeddings (transformers.js) | P3 | open |
 
 ---

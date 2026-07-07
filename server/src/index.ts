@@ -3,6 +3,13 @@ import cors from 'cors';
 import { config } from './config';
 import { runMigrations } from './db/migrate';
 import { getProductionProbeStatus } from './lib/productionProbe';
+import { getReadinessStatus } from './lib/readiness';
+import {
+  getTelemetryStatus,
+  initTelemetry,
+  shutdownTelemetry,
+  telemetryMiddleware,
+} from './lib/telemetry';
 import { rateLimit } from './middleware/rateLimit';
 import { authRouter } from './routes/auth';
 import { proxyRouter } from './routes/proxy';
@@ -50,6 +57,16 @@ export function createApp(): express.Application {
   app.post('/v1/billing/webhook', express.raw({ type: 'application/json' }), billingWebhookHandler);
   app.use(express.json({ limit: '15mb' }));
   app.use(express.urlencoded({ extended: false, limit: '2mb' }));
+  app.use(telemetryMiddleware);
+
+  app.get('/live', (_req, res) => {
+    res.json({ ok: true });
+  });
+
+  app.get('/ready', async (_req, res) => {
+    const status = await getReadinessStatus();
+    res.status(status.ready ? 200 : 503).json(status);
+  });
 
   app.get('/health', async (_req, res) => {
     const production = await getProductionProbeStatus();
@@ -92,7 +109,9 @@ export function createApp(): express.Application {
         l16Enterprise: production.l16Enterprise,
         l17Enterprise: production.l17Enterprise,
         l18Enterprise: production.l18Enterprise,
+        l19Enterprise: production.l19Enterprise,
       },
+      telemetry: getTelemetryStatus(),
     });
   });
 
@@ -142,6 +161,7 @@ export async function startServer(): Promise<void> {
   initVectorIndexQueue();
   initTranscribeQueue();
   initRetentionCron();
+  await initTelemetry();
 
   const production = await getProductionProbeStatus();
   if (production.database) {
@@ -168,6 +188,16 @@ export async function startServer(): Promise<void> {
       startStudyRoomCollab(config.collabPort, config.databaseUrl);
     }
   });
+
+  if (process.env.NODE_ENV !== 'test') {
+    const shutdown = async (signal: string) => {
+      console.log(`[synapse-proxy] ${signal} received — shutting down`);
+      await shutdownTelemetry();
+      process.exit(0);
+    };
+    process.once('SIGTERM', () => { void shutdown('SIGTERM'); });
+    process.once('SIGINT', () => { void shutdown('SIGINT'); });
+  }
 }
 
 if (process.env.NODE_ENV !== 'test') {

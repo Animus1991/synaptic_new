@@ -119,6 +119,13 @@ export type ProductionProbeStatus = {
     thumbnailCdnImmutableCache: boolean;
     thumbnailQueryTokenAuth: boolean;
   };
+  /** Sprint L19 / PLT-02 — OpenTelemetry export + Kubernetes probes + Helm IaC. */
+  l19Enterprise: {
+    openTelemetry: boolean;
+    otlpExport: boolean;
+    readinessProbes: boolean;
+    helmChart: boolean;
+  };
 };
 
 let cachedPgvector: boolean | null = null;
@@ -248,6 +255,12 @@ export async function getProductionProbeStatus(): Promise<ProductionProbeStatus>
       thumbnailCdn: true,
       thumbnailCdnImmutableCache: true,
       thumbnailQueryTokenAuth: true,
+    },
+    l19Enterprise: {
+      openTelemetry: true,
+      otlpExport: config.otelEnabled,
+      readinessProbes: true,
+      helmChart: true,
     },
   };
 }

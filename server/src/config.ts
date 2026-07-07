@@ -75,7 +75,15 @@ export const config = {
   samlDefaultRole: (['org_admin', 'teacher', 'student'].includes(process.env.SAML_DEFAULT_ROLE?.trim() ?? '')
     ? process.env.SAML_DEFAULT_ROLE!.trim()
     : 'student') as 'org_admin' | 'teacher' | 'student',
-  /** OpenAI TTS voice for neural audio study guide (alloy, nova, etc.). */
+  /** OpenTelemetry service name for traces and metrics. */
+  otelServiceName: process.env.OTEL_SERVICE_NAME?.trim() || 'synapse-learning-api',
+  /** OTLP HTTP endpoint (e.g. http://otel-collector:4318). Enables export when set. */
+  otelExporterOtlpEndpoint: process.env.OTEL_EXPORTER_OTLP_ENDPOINT?.trim() || undefined,
+  /** Explicit OTEL toggle; defaults to true when OTLP endpoint is configured. */
+  otelEnabled:
+    process.env.OTEL_ENABLED === 'true'
+    || (!!process.env.OTEL_EXPORTER_OTLP_ENDPOINT?.trim() && process.env.OTEL_ENABLED !== 'false'),
+  /** Audio TTS voice for neural audio study guide (alloy, nova, etc.). */
   audioTtsVoice: process.env.AUDIO_TTS_VOICE?.trim() || 'nova',
   /** L10-1 — multi-speaker podcast Host voice. */
   audioTtsHostVoice: process.env.AUDIO_TTS_VOICE_HOST?.trim() || process.env.AUDIO_TTS_VOICE?.trim() || 'nova',

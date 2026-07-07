@@ -59,6 +59,23 @@ describe('server integration sweep', () => {
     expect(res.body.multiTenant.teacherClassScoped).toBe(true);
     expect(res.body.multiTenant.orgRbac).toBe(true);
     expect(typeof res.body.multiTenant.postgresAccountScoped).toBe('boolean');
+    expect(res.body.telemetry).toBeDefined();
+    expect(res.body.features.l19Enterprise).toBeDefined();
+    expect(res.body.features.l19Enterprise.readinessProbes).toBe(true);
+    expect(res.body.features.l19Enterprise.helmChart).toBe(true);
+  });
+
+  it('GET /live returns ok for liveness probe', async () => {
+    const res = await request(app).get('/live').expect(200);
+    expect(res.body.ok).toBe(true);
+  });
+
+  it('GET /ready returns readiness status', async () => {
+    const res = await request(app).get('/ready');
+    expect([200, 503]).toContain(res.status);
+    expect(typeof res.body.ready).toBe('boolean');
+    expect(res.body.checks).toBeDefined();
+    expect(res.body.checks.process).toBe(true);
   });
 
   it('POST /auth/register creates an account', async () => {
@@ -998,6 +1015,10 @@ describe('server integration sweep', () => {
     expect(health.body.features.l18Enterprise.thumbnailCdn).toBe(true);
     expect(health.body.features.l18Enterprise.thumbnailCdnImmutableCache).toBe(true);
     expect(health.body.features.l18Enterprise.thumbnailQueryTokenAuth).toBe(true);
+    expect(health.body.features.l19Enterprise).toBeDefined();
+    expect(health.body.features.l19Enterprise.openTelemetry).toBe(true);
+    expect(health.body.features.l19Enterprise.readinessProbes).toBe(true);
+    expect(health.body.features.l19Enterprise.helmChart).toBe(true);
 
     const auditExport = await request(app)
       .get(`/v1/orgs/${orgId}/audit-logs/export?format=csv`)
