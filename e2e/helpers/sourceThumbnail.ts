@@ -94,11 +94,45 @@ export async function seedPdfThumbnailInLibrary(page: Page): Promise<boolean> {
   });
 }
 
+async function openLibrary(page: Page) {
+  const desktopNav = page.getByTestId('nav-library');
+  const mobileNav = page.getByTestId('nav-mobile-library');
+  if (await desktopNav.isVisible().catch(() => false)) {
+    await desktopNav.click();
+  } else {
+    await mobileNav.click();
+  }
+}
+
+export async function closeNotebookWorkspace(page: Page) {
+  const chrome = page.getByTestId('notebook-workspace-chrome');
+  if (await chrome.isVisible().catch(() => false)) {
+    await chrome.getByRole('button', { name: 'Close', exact: true }).click();
+  } else {
+    await page.getByTestId('study-workspace').getByRole('button', { name: 'Close', exact: true }).click({ force: true });
+  }
+  await expect(page.getByTestId('study-workspace')).toHaveCount(0, { timeout: 15_000 });
+}
+
+export async function openCourseSourceFiles(page: Page, courseNameHint?: string) {
+  await openLibrary(page);
+  let card = page.getByTestId('library-course-card');
+  if (courseNameHint) {
+    card = card.filter({ hasText: courseNameHint });
+  } else {
+    card = card.last();
+  }
+  await expect(card).toBeVisible({ timeout: 15_000 });
+  await card.click();
+  await page.getByRole('button', { name: 'Source Files' }).click();
+  await expect(page.locator('[data-testid^="remove-source-"]').first()).toBeVisible({ timeout: 15_000 });
+}
+
 export async function uploadPdfAndOpenNotebookWorkspace(
   page: Page,
   pdfPath: string,
   displayName?: string,
-  opts?: { classicLayout?: boolean; courseReadyTimeoutMs?: number },
+  opts?: { classicLayout?: boolean; courseReadyTimeoutMs?: number; companionPaste?: string },
 ) {
   await page.goto('/');
   await skipOnboardingToLibrary(page);
@@ -116,6 +150,9 @@ export async function uploadPdfAndOpenNotebookWorkspace(
     await page.getByTestId('upload-file-input').setInputFiles(pdfPath);
     await expect(page.getByText(pathBasename(pdfPath))).toBeVisible();
   }
+  if (opts?.companionPaste) {
+    await page.getByTestId('upload-paste').fill(opts.companionPaste);
+  }
   await page.getByTestId('upload-continue').click();
   await expect(page.getByTestId('upload-outline-preview')).toBeVisible({ timeout: 20_000 });
   await page.getByTestId('upload-generate').click();
@@ -123,7 +160,11 @@ export async function uploadPdfAndOpenNotebookWorkspace(
   const courseReadyTimeout = opts?.courseReadyTimeoutMs ?? 60_000;
   await expect(openWorkspace).toBeVisible({ timeout: courseReadyTimeout });
   await dismissBlockingShellOverlays(page);
-  if (opts?.classicLayout) {
+  if (!opts?.classicLayout) {
+    await page.evaluate(() => {
+      localStorage.setItem('synapse:workspace-notebook-mode', JSON.stringify(true));
+    });
+  } else {
     await page.evaluate(() => {
       localStorage.setItem('synapse:workspace-notebook-mode', JSON.stringify(false));
     });
@@ -133,28 +174,33 @@ export async function uploadPdfAndOpenNotebookWorkspace(
   if (!opts?.classicLayout) {
     await expect(page.getByTestId('notebook-workspace-layout')).toBeVisible({ timeout: 15_000 });
   }
-  const closeCourseStatus = page.getByRole('button', { name: 'Close', exact: true });
-  if (await closeCourseStatus.isVisible().catch(() => false)) {
-    await closeCourseStatus.click();
-  }
 }
 
 function pathBasename(p: string) {
   return p.replace(/\\/g, '/').split('/').pop() ?? p;
 }
 
-export async function expectSourceThumbnailPreview(page: Page, timeoutMs = 90_000) {
+async function ensureNotebookSourcesTab(page: Page) {
   const mobileTabs = page.getByTestId('notebook-mobile-tabs');
   if (await mobileTabs.isVisible().catch(() => false)) {
     await page.getByTestId('notebook-tab-sources').click({ force: true });
   }
-  const preview = page.getByTestId('source-thumbnail-preview').first();
-  const chip = page.getByTestId('source-thumbnail-chip').first();
+}
+
+export async function expectSourceThumbnailPreview(page: Page, timeoutMs = 90_000) {
+  await ensureNotebookSourcesTab(page);
+  const firstRow = page.locator('[data-testid^="notebook-source-row-"]').first();
+  await expect(firstRow).toBeVisible({ timeout: 30_000 });
+
+  const preview = firstRow.getByTestId('source-thumbnail-preview');
+  const chip = firstRow.getByTestId('source-thumbnail-chip');
   await expect(preview.or(chip)).toBeVisible({ timeout: 15_000 });
 
   const waitForPreview = (timeout: number) => page.waitForFunction(
     () => {
-      const el = document.querySelector('[data-testid="source-thumbnail-preview"]') as HTMLImageElement | null;
+      const el = document.querySelector(
+        '[data-testid^="notebook-source-row-"] [data-testid="source-thumbnail-preview"]',
+      ) as HTMLImageElement | null;
       return Boolean(el && /^(blob:|data:)/.test(el.src));
     },
     undefined,
@@ -165,15 +211,20 @@ export async function expectSourceThumbnailPreview(page: Page, timeoutMs = 90_00
     await waitForPreview(Math.min(timeoutMs, 25_000));
   } catch {
     const seeded = await seedPdfThumbnailInLibrary(page);
-    if (!seeded) {
-      await waitForPreview(timeoutMs);
-    } else {
-      await waitForPreview(timeoutMs);
+    if (seeded) {
+      await page.evaluate(() => {
+        window.dispatchEvent(new Event('synapse:library-reload'));
+      });
+      await ensureNotebookSourcesTab(page);
     }
+    await waitForPreview(timeoutMs);
   }
 
-  await expect(preview).toHaveAttribute('src', /^(blob:|data:)/);
-  return preview;
+  const readyPreview = page.locator(
+    '[data-testid^="notebook-source-row-"] [data-testid="source-thumbnail-preview"]',
+  ).first();
+  await expect(readyPreview).toHaveAttribute('src', /^(blob:|data:)/);
+  return readyPreview;
 }
 
 export async function idbThumbnailKeys(page: Page): Promise<string[]> {

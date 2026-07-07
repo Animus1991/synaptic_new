@@ -3,8 +3,10 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { skipOnboardingToLibrary } from './helpers/onboarding';
 import {
+  closeNotebookWorkspace,
   expectSourceThumbnailPreview,
   idbThumbnailKeys,
+  openCourseSourceFiles,
   stripThumbnailsForLegacyChip,
   uploadPdfAndOpenNotebookWorkspace,
 } from './helpers/sourceThumbnail';
@@ -14,6 +16,8 @@ const GREEK_PDF = path.join(FIXTURE_DIR, 'fixtures', 'greek-syllabus-min.pdf');
 const PDF_50 = path.join(FIXTURE_DIR, 'fixtures', 'syllabus-50page.pdf');
 const PDF_300 = path.join(FIXTURE_DIR, 'fixtures', 'syllabus-300page.pdf');
 const PDF_SCANNED = path.join(FIXTURE_DIR, 'fixtures', 'scanned-1page.pdf');
+const SCANNED_COMPANION_PASTE =
+  'Scanned syllabus page one: supply, demand, equilibrium, elasticity, and microeconomics study notes for L17 thumbnail QA.';
 
 test.describe('PDF source page-preview thumbnails (Sprint L17 / P0-07)', () => {
   test.describe.configure({ timeout: 180_000 });
@@ -35,7 +39,10 @@ test.describe('PDF source page-preview thumbnails (Sprint L17 / P0-07)', () => {
 
   test('scanned image-only PDF shows page-1 preview', async ({ page }) => {
     test.slow();
-    await uploadPdfAndOpenNotebookWorkspace(page, PDF_SCANNED, undefined, { courseReadyTimeoutMs: 120_000 });
+    await uploadPdfAndOpenNotebookWorkspace(page, PDF_SCANNED, undefined, {
+      courseReadyTimeoutMs: 120_000,
+      companionPaste: SCANNED_COMPANION_PASTE,
+    });
     await expectSourceThumbnailPreview(page, 60_000);
   });
 
@@ -45,10 +52,10 @@ test.describe('PDF source page-preview thumbnails (Sprint L17 / P0-07)', () => {
   });
 
   test('mobile Sources tab — thumbnail is visible and not clipped', async ({ browser }) => {
+    test.slow();
     const context = await browser.newContext({ ...devices['iPhone 13'] });
     const page = await context.newPage();
     await uploadPdfAndOpenNotebookWorkspace(page, GREEK_PDF);
-    await page.getByTestId('notebook-tab-sources').click({ force: true });
     const preview = await expectSourceThumbnailPreview(page);
     const box = await preview.boundingBox();
     const row = page.locator('[data-testid^="notebook-source-row-"]').first();
@@ -70,11 +77,8 @@ test.describe('PDF source page-preview thumbnails (Sprint L17 / P0-07)', () => {
     const keysBefore = await idbThumbnailKeys(page);
     expect(keysBefore.length).toBeGreaterThan(0);
 
-    await page.getByTestId('study-workspace').getByRole('button', { name: 'Close', exact: true }).click({ force: true });
-    await expect(page.getByTestId('study-workspace')).toHaveCount(0, { timeout: 15_000 });
-    await page.getByTestId('nav-library').click();
-    const courseCard = page.locator('[data-testid^="course-card-"]').first();
-    await courseCard.click();
+    await closeNotebookWorkspace(page);
+    await openCourseSourceFiles(page, 'greek-syllabus');
     const removeBtn = page.locator('[data-testid^="remove-source-"]').first();
     const fileId = (await removeBtn.getAttribute('data-testid'))?.replace('remove-source-', '') ?? '';
     await removeBtn.click();

@@ -1475,19 +1475,23 @@ export function useAppStore() {
     let course = result.course;
     let nextGlossary = result.glossary;
     const topics = course.topics.map((t) => t.title);
-    const withCourse: UploadedFile[] = result.withCourse.length > 0
-      ? result.withCourse.map((meta, i) => ({
-        ...meta,
-        courseId: course.id,
-        extractedTopics: topics,
-        pipelineVersion: CONTENT_PIPELINE_VERSION,
-        extractedText: newFiles[i]?.extractedText?.trim()
-          ? newFiles[i]!.extractedText
-          : (newFiles.length === 1 ? text : meta.extractedText),
-        pageCount: newFiles[i]?.pageCount ?? meta.pageCount,
-        ocrUsed: newFiles[i]?.ocrUsed,
-        ingestMethod: newFiles[i]?.ingestMethod ?? (pasted ? 'paste' : undefined),
-      }))
+    const workerBacked: UploadedFile[] = result.withCourse.length > 0
+      ? result.withCourse.map((meta, i) => {
+        const ingested = newFiles[i];
+        return {
+          ...meta,
+          ...(ingested ?? {}),
+          courseId: course.id,
+          extractedTopics: topics,
+          pipelineVersion: CONTENT_PIPELINE_VERSION,
+          extractedText: ingested?.extractedText?.trim()
+            ? ingested.extractedText
+            : (newFiles.length === 1 ? text : meta.extractedText),
+          pageCount: ingested?.pageCount ?? meta.pageCount,
+          ocrUsed: ingested?.ocrUsed,
+          ingestMethod: ingested?.ingestMethod ?? (pasted ? 'paste' : undefined),
+        };
+      })
       : newFiles.map((f) => ({
         ...f,
         courseId: course.id,
@@ -1496,6 +1500,20 @@ export function useAppStore() {
         extractedText: f.extractedText?.trim() ? f.extractedText : text,
         ingestMethod: f.ingestMethod ?? (pasted ? 'paste' : undefined),
       }));
+    const withCourse: UploadedFile[] = [...workerBacked];
+    // Companion paste / extra ingest rows are not mirrored in the worker's withCourse array.
+    if (result.withCourse.length > 0 && newFiles.length > result.withCourse.length) {
+      withCourse.push(
+        ...newFiles.slice(result.withCourse.length).map((f) => ({
+          ...f,
+          courseId: course.id,
+          extractedTopics: topics,
+          pipelineVersion: CONTENT_PIPELINE_VERSION,
+          extractedText: f.extractedText?.trim() ? f.extractedText : text,
+          ingestMethod: f.ingestMethod ?? 'paste',
+        })),
+      );
+    }
     if (result.ytFile) {
       withCourse.push({
         ...result.ytFile,
