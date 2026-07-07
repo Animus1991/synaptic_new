@@ -92,8 +92,8 @@ export function RagIndexProgressBanner({
         data-testid="rag-index-idle"
       >
         {lang === 'el'
-          ? 'Δεν υπάρχουν ακόμα ευρετηριασμένα chunks για RAG.'
-          : 'No RAG chunks indexed yet — push your library to start.'}
+          ? 'Δεν υπάρχουν ακόμα ευρετηριασμένα chunks — συγχρόνισε τη βιβλιοθήκη σου για αναζήτηση σε όλες τις συσκευές.'
+          : 'No RAG chunks indexed yet — sync your library to search across devices.'}
       </div>
     );
   }

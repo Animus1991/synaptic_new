@@ -187,7 +187,7 @@ Goal: every tool **fully functional for its learning purpose**, not demo stubs.
 | -- | ---- | -------- | ------ |
 | MD-01 | Client PDF thumbnails (L17) | P1 | shipped |
 | MD-02 | Server-side thumbnail CDN (L19+) | P3 | open |
-| MD-03 | Server-side RAG index for cross-device retrieval | P2 | open |
+| MD-03 | Server-side RAG index for cross-device retrieval | P2 | shipped |
 | MD-04 | Leitner deck sync via `/v1/session` | P1 | shipped (partial) |
 | MD-05 | Image-as-thumbnail for `type: image` | P2 | open |
 

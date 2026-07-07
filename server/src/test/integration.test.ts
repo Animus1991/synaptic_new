@@ -883,6 +883,41 @@ describe('server integration sweep', () => {
         expect(passback.body.payload.scoreGiven).toBe(92);
       });
 
+    await request(app)
+      .put('/v1/library')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({
+        uploadedFiles: [{
+          id: 'f-rag',
+          name: 'econ.pdf',
+          extractedText:
+            'Price elasticity of demand measures how quantity demanded responds to price changes in competitive markets.\n\n'
+              .repeat(6),
+          status: 'analyzed',
+        }],
+        glossaryEntries: [],
+        generatedCourses: [],
+      })
+      .expect(200);
+
+    await request(app)
+      .get('/v1/library')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .expect(200);
+
+    let indexedChunks = 0;
+    for (let i = 0; i < 40 && indexedChunks === 0; i += 1) {
+      const statusProbe = await request(app)
+        .get('/v1/rag/status')
+        .set('Authorization', `Bearer ${adminToken}`)
+        .expect(200);
+      indexedChunks = statusProbe.body.indexedChunks as number;
+      if (indexedChunks === 0) {
+        await new Promise((resolve) => setTimeout(resolve, 50));
+      }
+    }
+    expect(indexedChunks).toBeGreaterThan(0);
+
     const ragStatus = await request(app)
       .get('/v1/rag/status')
       .set('Authorization', `Bearer ${adminToken}`)
@@ -891,6 +926,14 @@ describe('server integration sweep', () => {
     expect(ragStatus.body.indexing).toBeDefined();
     expect(typeof ragStatus.body.indexing.status).toBe('string');
     expect(typeof ragStatus.body.indexing.progress).toBe('number');
+
+    const crossDeviceSearch = await request(app)
+      .post('/v1/rag/search')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({ query: 'elasticity of demand', topK: 3 })
+      .expect(200);
+    expect(crossDeviceSearch.body.global).toBe(true);
+    expect(crossDeviceSearch.body.indexedChunks).toBeGreaterThan(0);
 
     const ragSynth = await request(app)
       .post('/v1/rag/synthesize')

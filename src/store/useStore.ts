@@ -45,6 +45,7 @@ import {
 import { whisperJobToAudioMarkdown } from '../lib/notebooklmAudioTranscript';
 import { buildAudioFsrsImportResult } from '../lib/notebooklmAudioFsrsImport';
 import { fetchRemoteLibrary, fetchRemoteSession, pushRemoteSession, authMe } from '../lib/authClient';
+import { ensureServerRagIndex } from '../lib/serverRagBootstrap';
 import {
   loadLocalSession,
   mergeSessions,
@@ -1181,6 +1182,10 @@ export function useAppStore() {
     const local = loadLibrarySync();
     const merged = mergeLibraries(local, remoteLibraryToPersisted(remote));
     applyRemoteLibrary(merged);
+    const indexPayload = await hydrateLibrary(remoteLibraryToPersisted(remote));
+    void ensureServerRagIndex(token, user.settings, indexPayload).catch(() => {
+      /* index rebuild is best-effort; RagIndexProgressBanner surfaces failures */
+    });
     return merged;
   }, [user.settings, applyRemoteLibrary]);
 
@@ -1356,10 +1361,15 @@ export function useAppStore() {
     const token = user.settings.authToken;
     if (!token || autoSessionSynced.current === token) return;
     autoSessionSynced.current = token;
-    void pullSessionFromServer().catch(() => {
-      autoSessionSynced.current = null;
-    });
-  }, [user.settings.authToken, pullSessionFromServer]);
+    void (async () => {
+      try {
+        await pullLibraryFromServer();
+        await pullSessionFromServer();
+      } catch {
+        autoSessionSynced.current = null;
+      }
+    })();
+  }, [user.settings.authToken, pullLibraryFromServer, pullSessionFromServer]);
 
   const processUpload = useCallback(async (payload: UploadPayload) => {
     setIsUploading(true);
