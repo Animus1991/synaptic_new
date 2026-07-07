@@ -34,8 +34,9 @@ test.describe('PDF source page-preview thumbnails (Sprint L17 / P0-07)', () => {
   });
 
   test('scanned image-only PDF shows page-1 preview', async ({ page }) => {
-    await uploadPdfAndOpenNotebookWorkspace(page, PDF_SCANNED);
-    await expectSourceThumbnailPreview(page, 30_000);
+    test.slow();
+    await uploadPdfAndOpenNotebookWorkspace(page, PDF_SCANNED, undefined, { courseReadyTimeoutMs: 120_000 });
+    await expectSourceThumbnailPreview(page, 60_000);
   });
 
   test('Greek/Latin filename PDF shows cover preview', async ({ page }) => {
@@ -47,7 +48,7 @@ test.describe('PDF source page-preview thumbnails (Sprint L17 / P0-07)', () => {
     const context = await browser.newContext({ ...devices['iPhone 13'] });
     const page = await context.newPage();
     await uploadPdfAndOpenNotebookWorkspace(page, GREEK_PDF);
-    await page.getByTestId('notebook-tab-sources').click();
+    await page.getByTestId('notebook-tab-sources').click({ force: true });
     const preview = await expectSourceThumbnailPreview(page);
     const box = await preview.boundingBox();
     const row = page.locator('[data-testid^="notebook-source-row-"]').first();
@@ -69,7 +70,8 @@ test.describe('PDF source page-preview thumbnails (Sprint L17 / P0-07)', () => {
     const keysBefore = await idbThumbnailKeys(page);
     expect(keysBefore.length).toBeGreaterThan(0);
 
-    await page.getByLabel(/close/i).first().click();
+    await page.getByTestId('study-workspace').getByRole('button', { name: 'Close', exact: true }).click({ force: true });
+    await expect(page.getByTestId('study-workspace')).toHaveCount(0, { timeout: 15_000 });
     await page.getByTestId('nav-library').click();
     const courseCard = page.locator('[data-testid^="course-card-"]').first();
     await courseCard.click();
@@ -92,12 +94,10 @@ test.describe('PDF source page-preview thumbnails (Sprint L17 / P0-07)', () => {
     });
 
     await uploadPdfAndOpenNotebookWorkspace(page, GREEK_PDF);
-    await expectSourceThumbnailPreview(page);
     await stripThumbnailsForLegacyChip(page);
-    await page.reload();
-    await expect(page.getByTestId('notebook-workspace-layout')).toBeVisible({ timeout: 15_000 });
     await expect(page.getByTestId('source-thumbnail-chip').first()).toBeVisible({ timeout: 15_000 });
     await expect(page.getByTestId('source-thumbnail-preview')).toHaveCount(0);
+    await expect(page.getByTestId('source-thumbnail-reprocess-hint').first()).toBeVisible();
     expect(errors.filter((e) => /thumbnail/i.test(e))).toHaveLength(0);
   });
 

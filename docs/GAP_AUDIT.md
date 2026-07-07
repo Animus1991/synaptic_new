@@ -54,7 +54,7 @@ Surfaces from the default 3-panel layout (`notebookMode` ON).
 | SRC-02 | Source guide (AI) — full grounding on active file | P1 | shipped | `source guide` in Sources column |
 | SRC-03 | Quality strip + reprocess CTA | P1 | shipped | Shows % + pipeline version warning |
 | SRC-04 | PDF page-preview thumbnail (L17) | P1 | shipped | `source-thumbnail-preview` or typed chip |
-| SRC-05 | Legacy PDF without blob → reprocess UX copy | P1 | open | «Επανεπεξεργασία για προεπισκόπηση» |
+| SRC-05 | Legacy PDF without blob → reprocess UX copy | P1 | **shipped** | Notebook source row hint + E2E (P2b) |
 | SRC-06 | Add source flow from Sources panel | P1 | shipped | Upload / paste in workspace |
 | SRC-07 | Citation jump from chat → reader highlight | P1 | shipped | `sourceHighlight` overlay |
 | SRC-08 | Multi-page thumbnail strip | P3 | open | Sprint L18 |

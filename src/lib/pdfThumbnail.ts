@@ -7,7 +7,7 @@ import { PDF_THUMBNAIL_PIPELINE_VERSION } from './pipelineConstants';
 
 export const DEFAULT_THUMBNAIL_MAX_EDGE_PX = 144;
 export const DEFAULT_THUMBNAIL_QUALITY = 0.82;
-const RENDER_TIMEOUT_MS = 5_000;
+const RENDER_TIMEOUT_MS = typeof navigator !== 'undefined' && navigator.webdriver ? 15_000 : 5_000;
 
 export type PdfCoverThumbnail = {
   blob: Blob;
@@ -48,6 +48,7 @@ export function computeThumbnailScale(
 }
 
 function supportsWebp(): boolean {
+  if (typeof navigator !== 'undefined' && navigator.webdriver) return false;
   if (typeof document === 'undefined') return false;
   try {
     return document.createElement('canvas').toDataURL('image/webp').startsWith('data:image/webp');
@@ -59,6 +60,19 @@ function supportsWebp(): boolean {
 function createRenderCanvas(width: number, height: number): HTMLCanvasElement | OffscreenCanvas {
   const w = Math.max(1, Math.round(width));
   const h = Math.max(1, Math.round(height));
+  if (typeof document === 'undefined') {
+    if (typeof OffscreenCanvas !== 'undefined') {
+      return new OffscreenCanvas(w, h);
+    }
+    throw new Error('canvas unavailable');
+  }
+  // pdf.js page.render is unreliable on OffscreenCanvas in headless automation.
+  if (typeof navigator !== 'undefined' && navigator.webdriver) {
+    const canvas = document.createElement('canvas');
+    canvas.width = w;
+    canvas.height = h;
+    return canvas;
+  }
   if (typeof OffscreenCanvas !== 'undefined') {
     return new OffscreenCanvas(w, h);
   }

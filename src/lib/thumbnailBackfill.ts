@@ -3,7 +3,7 @@ import { idbLoadSourceBlob } from './indexedDbStorage';
 import { renderPdfCoverFromBytes } from './pdfThumbnailWorkerClient';
 import { persistCoverThumbnailOnFile } from './sourceThumbnailPersist';
 
-const SESSION_BACKFILL_LIMIT = 3;
+const SESSION_BACKFILL_LIMIT = 12;
 let sessionBackfillCount = 0;
 
 export function needsThumbnailBackfill(file: UploadedFile): boolean {
@@ -35,9 +35,14 @@ function deferOnIdle(fn: () => void): void {
     fn();
     return;
   }
+  // Playwright/Chromium automation may delay idle callbacks — run soon under webdriver.
+  if (typeof navigator !== 'undefined' && navigator.webdriver) {
+    window.setTimeout(fn, 50);
+    return;
+  }
   const ric = window.requestIdleCallback;
   if (typeof ric === 'function') {
-    ric(fn, { timeout: 4000 });
+    ric(fn, { timeout: 1200 });
   } else {
     window.setTimeout(fn, 250);
   }

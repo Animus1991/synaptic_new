@@ -10,6 +10,7 @@ import {
   workspaceToolLabel,
 } from '../../../lib/workspaceToolRegistry';
 import { buildToolDefaultAgentPrompt } from '../../../lib/workspaceToolAgentPrompts';
+import { needsSourceThumbnailReprocessHint } from '../../../lib/sourceThumbnail';
 import type { UploadedFile } from '../../../types';
 import { StudyWorkspaceToolSurface } from './StudyWorkspaceToolSurface';
 import { NotebookSourceThumbnail } from './NotebookSourceThumbnail';
@@ -209,36 +210,53 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
               const isReaderActive = readerOpen && isPinned;
               return (
               <li key={source.key}>
-                <button
-                  type="button"
-                  onClick={() => openSourceReader(source.key)}
-                  aria-current={isReaderActive ? 'true' : undefined}
-                  data-testid={`notebook-source-row-${source.key}`}
-                  data-pinned={isPinned ? 'true' : undefined}
+                <div
                   className={cn(
-                    'flex w-full items-center gap-2.5 rounded-xl px-2.5 py-2 text-left transition-colors',
+                    'rounded-xl px-2.5 py-2 transition-colors',
                     isReaderActive
                       ? 'bg-brand-100/80 text-brand-800'
                       : isPinned
                         ? 'bg-surface-secondary/80 text-text-primary ring-1 ring-brand-200/60'
-                        : 'text-text-secondary hover:bg-surface-hover hover:text-text-primary',
+                        : 'text-text-secondary',
                   )}
                 >
-                  {isPinned && (
-                    <Pin
-                      className="h-3 w-3 shrink-0 text-brand-700"
-                      aria-hidden
-                      data-testid={`notebook-source-pinned-${source.key}`}
-                    />
-                  )}
-                  <NotebookSourceThumbnail file={source.file} label={source.label} />
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate text-xs font-medium">{source.label}</span>
-                    {source.meta && (
-                      <span className="block type-micro text-text-muted">{source.meta}</span>
+                  <button
+                    type="button"
+                    onClick={() => openSourceReader(source.key)}
+                    aria-current={isReaderActive ? 'true' : undefined}
+                    data-testid={`notebook-source-row-${source.key}`}
+                    data-pinned={isPinned ? 'true' : undefined}
+                    className={cn(
+                      'flex w-full items-center gap-2.5 text-left transition-colors',
+                      !isReaderActive && !isPinned && 'hover:text-text-primary',
                     )}
-                  </span>
-                </button>
+                  >
+                    {isPinned && (
+                      <Pin
+                        className="h-3 w-3 shrink-0 text-brand-700"
+                        aria-hidden
+                        data-testid={`notebook-source-pinned-${source.key}`}
+                      />
+                    )}
+                    <NotebookSourceThumbnail file={source.file} label={source.label} />
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-xs font-medium">{source.label}</span>
+                      {source.meta && (
+                        <span className="block type-micro text-text-muted">{source.meta}</span>
+                      )}
+                    </span>
+                  </button>
+                  {needsSourceThumbnailReprocessHint(source.file) && (
+                    <button
+                      type="button"
+                      onClick={() => openReprocessWizard()}
+                      data-testid="source-thumbnail-reprocess-hint"
+                      className="mt-0.5 ml-11 block type-micro font-medium text-brand-700 hover:text-brand-800 hover:underline text-left"
+                    >
+                      {tx('Επανεπεξεργασία για προεπισκόπηση', 'Reprocess for preview')}
+                    </button>
+                  )}
+                </div>
               </li>
               );
             })}

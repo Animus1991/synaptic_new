@@ -534,6 +534,19 @@ export function useAppStore() {
     });
   }, [library.uploadedFiles, library.glossaryEntries, library.generatedCourses, mergedSettings, applyThumbnailBackfill]);
 
+  useEffect(() => {
+    if (!import.meta.env.DEV || typeof window === 'undefined') return undefined;
+    const reloadFromDisk = () => {
+      const fresh = loadLibrarySync();
+      void hydrateLibrary(fresh).then((hydrated) => {
+        setUploadedFiles(initialUploadedFiles(hydrated.uploadedFiles, mergedSettings, mockUploadedFiles));
+        applyThumbnailBackfill(hydrated.uploadedFiles);
+      });
+    };
+    window.addEventListener('synapse:library-reload', reloadFromDisk);
+    return () => window.removeEventListener('synapse:library-reload', reloadFromDisk);
+  }, [mergedSettings, mockUploadedFiles, applyThumbnailBackfill]);
+
   const persist = useCallback((
     nextLearner: LearnerModel,
     nextStats: DashboardStats,

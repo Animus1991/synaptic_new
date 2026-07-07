@@ -14,6 +14,16 @@ export type SourceThumbnailVisual = {
 
 type SourceLike = Pick<UploadedFile, 'name' | 'type' | 'ingestMethod'>;
 
+type ThumbnailHintLike = Pick<UploadedFile, 'type' | 'thumbnailRef' | 'thumbnailStatus'>;
+
+/** PDF without a stored cover preview — user should reprocess to regenerate. */
+export function needsSourceThumbnailReprocessHint(file: ThumbnailHintLike | undefined): boolean {
+  if (!file || file.type !== 'pdf') return false;
+  if (file.thumbnailRef) return false;
+  if (file.thumbnailStatus === 'unsupported' || file.thumbnailStatus === 'pending') return false;
+  return true;
+}
+
 /** Deterministic visual chip for a library / course source row. */
 export function resolveSourceThumbnail(file: SourceLike): SourceThumbnailVisual {
   const ingest = file.ingestMethod;

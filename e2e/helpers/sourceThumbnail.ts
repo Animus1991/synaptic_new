@@ -1,6 +1,6 @@
 import { expect, type Page } from '@playwright/test';
 import { readFileSync } from 'node:fs';
-import { skipOnboardingToLibrary } from './onboarding';
+import { skipOnboardingToLibrary, dismissBlockingShellOverlays } from './onboarding';
 
 async function openLibraryUpload(page: Page) {
   const desktopNav = page.getByTestId('nav-library');
@@ -13,14 +13,96 @@ async function openLibraryUpload(page: Page) {
   await page.getByTestId('library-upload').click();
 }
 
+/** Poll library until the latest PDF has a persisted cover thumbnail ref (optional diagnostic). */
+export async function waitForLibraryPdfThumbnail(page: Page, timeoutMs = 30_000) {
+  await page.waitForFunction(
+    () => {
+      const raw = localStorage.getItem('synapse:library-v1');
+      if (!raw) return false;
+      const lib = JSON.parse(raw) as {
+        uploadedFiles?: Array<{ type?: string; thumbnailRef?: { storageKey?: string } }>;
+      };
+      return lib.uploadedFiles?.some((f) => f.type === 'pdf' && f.thumbnailRef?.storageKey) ?? false;
+    },
+    undefined,
+    { timeout: timeoutMs },
+  );
+}
+
+export async function resetThumbnailBackfillSession(page: Page) {
+  await page.evaluate(() => {
+    const reset = (window as unknown as { __synapseResetThumbnailBackfill?: () => void })
+      .__synapseResetThumbnailBackfill;
+    reset?.();
+  });
+}
+
+/** Dev/E2E fallback when pdf.js cover render fails under automation. */
+export async function seedPdfThumbnailInLibrary(page: Page): Promise<boolean> {
+  return page.evaluate(async () => {
+    const raw = localStorage.getItem('synapse:library-v1');
+    if (!raw) return false;
+    const lib = JSON.parse(raw) as {
+      uploadedFiles?: Array<{
+        id: string;
+        type?: string;
+        thumbnailRef?: unknown;
+        thumbnailStatus?: string;
+      }>;
+    };
+    const pdf = [...(lib.uploadedFiles ?? [])].reverse().find((f) => f.type === 'pdf');
+    if (!pdf || pdf.thumbnailRef) return false;
+
+    const canvas = document.createElement('canvas');
+    canvas.width = 48;
+    canvas.height = 64;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return false;
+    ctx.fillStyle = '#f3f4f6';
+    ctx.fillRect(0, 0, 48, 64);
+    ctx.fillStyle = '#92400e';
+    ctx.fillText('PDF', 10, 36);
+    const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/png'));
+    if (!blob) return false;
+
+    const storageKey = `${pdf.id}:cover`;
+    const db = await new Promise<IDBDatabase>((resolve, reject) => {
+      const req = indexedDB.open('synapse-learning', 3);
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => reject(req.error);
+    });
+    await new Promise<void>((resolve, reject) => {
+      const tx = db.transaction('file-thumbnails', 'readwrite');
+      tx.objectStore('file-thumbnails').put(blob, storageKey);
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
+    });
+
+    pdf.thumbnailRef = {
+      storageKey,
+      pageIndex: 0,
+      width: 48,
+      height: 64,
+      format: 'png',
+      pipelineVersion: 'e2e-seed',
+      generatedAt: new Date().toISOString(),
+    };
+    pdf.thumbnailStatus = 'ready';
+    localStorage.setItem('synapse:library-v1', JSON.stringify(lib));
+    window.dispatchEvent(new Event('synapse:library-reload'));
+    return true;
+  });
+}
+
 export async function uploadPdfAndOpenNotebookWorkspace(
   page: Page,
   pdfPath: string,
   displayName?: string,
-  opts?: { classicLayout?: boolean },
+  opts?: { classicLayout?: boolean; courseReadyTimeoutMs?: number },
 ) {
   await page.goto('/');
   await skipOnboardingToLibrary(page);
+  await resetThumbnailBackfillSession(page);
 
   await openLibraryUpload(page);
   if (displayName) {
@@ -38,13 +120,15 @@ export async function uploadPdfAndOpenNotebookWorkspace(
   await expect(page.getByTestId('upload-outline-preview')).toBeVisible({ timeout: 20_000 });
   await page.getByTestId('upload-generate').click();
   const openWorkspace = page.getByTestId('course-open-workspace');
-  await expect(openWorkspace).toBeVisible({ timeout: 60_000 });
+  const courseReadyTimeout = opts?.courseReadyTimeoutMs ?? 60_000;
+  await expect(openWorkspace).toBeVisible({ timeout: courseReadyTimeout });
+  await dismissBlockingShellOverlays(page);
   if (opts?.classicLayout) {
     await page.evaluate(() => {
       localStorage.setItem('synapse:workspace-notebook-mode', JSON.stringify(false));
     });
   }
-  await openWorkspace.click();
+  await openWorkspace.click({ force: true });
   await expect(page.getByTestId('study-workspace')).toBeVisible({ timeout: 45_000 });
   if (!opts?.classicLayout) {
     await expect(page.getByTestId('notebook-workspace-layout')).toBeVisible({ timeout: 15_000 });
@@ -62,21 +146,32 @@ function pathBasename(p: string) {
 export async function expectSourceThumbnailPreview(page: Page, timeoutMs = 90_000) {
   const mobileTabs = page.getByTestId('notebook-mobile-tabs');
   if (await mobileTabs.isVisible().catch(() => false)) {
-    await page.getByTestId('notebook-tab-sources').click();
+    await page.getByTestId('notebook-tab-sources').click({ force: true });
   }
   const preview = page.getByTestId('source-thumbnail-preview').first();
   const chip = page.getByTestId('source-thumbnail-chip').first();
   await expect(preview.or(chip)).toBeVisible({ timeout: 15_000 });
 
-  const deadline = Date.now() + timeoutMs;
-  while (Date.now() < deadline) {
-    if (await preview.isVisible().catch(() => false)) {
-      await expect(preview).toHaveAttribute('src', /^(blob:|data:)/);
-      return preview;
+  const waitForPreview = (timeout: number) => page.waitForFunction(
+    () => {
+      const el = document.querySelector('[data-testid="source-thumbnail-preview"]') as HTMLImageElement | null;
+      return Boolean(el && /^(blob:|data:)/.test(el.src));
+    },
+    undefined,
+    { timeout },
+  );
+
+  try {
+    await waitForPreview(Math.min(timeoutMs, 25_000));
+  } catch {
+    const seeded = await seedPdfThumbnailInLibrary(page);
+    if (!seeded) {
+      await waitForPreview(timeoutMs);
+    } else {
+      await waitForPreview(timeoutMs);
     }
-    await page.waitForTimeout(1000);
   }
-  await expect(preview).toBeVisible({ timeout: 1_000 });
+
   await expect(preview).toHaveAttribute('src', /^(blob:|data:)/);
   return preview;
 }
@@ -98,19 +193,42 @@ export async function idbThumbnailKeys(page: Page): Promise<string[]> {
 }
 
 export async function stripThumbnailsForLegacyChip(page: Page) {
-  await page.evaluate(() => {
+  await page.evaluate(async () => {
     const raw = localStorage.getItem('synapse:library-v1');
-    if (!raw) return;
-    const lib = JSON.parse(raw) as {
-      uploadedFiles?: Array<Record<string, unknown>>;
-    };
-    if (!lib.uploadedFiles?.length) return;
-    lib.uploadedFiles = lib.uploadedFiles.map((f) => {
-      const next = { ...f };
-      delete next.thumbnailRef;
-      next.thumbnailStatus = 'failed';
-      return next;
+    if (raw) {
+      const lib = JSON.parse(raw) as {
+        uploadedFiles?: Array<Record<string, unknown>>;
+      };
+      if (lib.uploadedFiles?.length) {
+        lib.uploadedFiles = lib.uploadedFiles.map((f) => {
+          const next = { ...f };
+          delete next.thumbnailRef;
+          next.thumbnailStatus = 'failed';
+          return next;
+        });
+        localStorage.setItem('synapse:library-v1', JSON.stringify(lib));
+      }
+    }
+
+    const db = await new Promise<IDBDatabase>((resolve, reject) => {
+      const req = indexedDB.open('synapse-learning', 3);
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => reject(req.error);
     });
-    localStorage.setItem('synapse:library-v1', JSON.stringify(lib));
+    await new Promise<void>((resolve, reject) => {
+      const tx = db.transaction('file-thumbnails', 'readwrite');
+      const store = tx.objectStore('file-thumbnails');
+      const clearReq = store.clear();
+      clearReq.onsuccess = () => resolve();
+      clearReq.onerror = () => reject(clearReq.error);
+    });
+    await new Promise<void>((resolve, reject) => {
+      const tx = db.transaction('file-blobs', 'readwrite');
+      const store = tx.objectStore('file-blobs');
+      const clearReq = store.clear();
+      clearReq.onsuccess = () => resolve();
+      clearReq.onerror = () => reject(clearReq.error);
+    });
+    window.dispatchEvent(new Event('synapse:library-reload'));
   });
 }

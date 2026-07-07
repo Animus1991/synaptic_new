@@ -1,24 +1,50 @@
-import { describe, it, expect } from 'vitest';
-import { resolveSourceThumbnail } from './sourceThumbnail';
+import { describe, expect, it } from 'vitest';
+import { needsSourceThumbnailReprocessHint, resolveSourceThumbnail } from './sourceThumbnail';
+
+describe('needsSourceThumbnailReprocessHint', () => {
+  it('shows hint for legacy PDF without thumbnailRef', () => {
+    expect(needsSourceThumbnailReprocessHint({
+      type: 'pdf',
+      thumbnailStatus: 'failed',
+    })).toBe(true);
+  });
+
+  it('hides hint when preview exists', () => {
+    expect(needsSourceThumbnailReprocessHint({
+      type: 'pdf',
+      thumbnailRef: {
+        storageKey: 'f1:cover',
+        pageIndex: 0,
+        width: 100,
+        height: 140,
+        format: 'webp',
+        pipelineVersion: '1.0.0',
+        generatedAt: '2026-01-01',
+      },
+    })).toBe(false);
+  });
+
+  it('hides hint while backfill is pending', () => {
+    expect(needsSourceThumbnailReprocessHint({
+      type: 'pdf',
+      thumbnailStatus: 'pending',
+    })).toBe(false);
+  });
+
+  it('hides hint for unsupported imports', () => {
+    expect(needsSourceThumbnailReprocessHint({
+      type: 'pdf',
+      thumbnailStatus: 'unsupported',
+    })).toBe(false);
+  });
+
+  it('skips non-PDF sources', () => {
+    expect(needsSourceThumbnailReprocessHint({ type: 'txt' })).toBe(false);
+  });
+});
 
 describe('resolveSourceThumbnail', () => {
-  it('maps notebooklm imports', () => {
-    const v = resolveSourceThumbnail({
-      name: 'guide.md',
-      type: 'md',
-      ingestMethod: 'notebooklm-import',
-    });
-    expect(v.kind).toBe('notebooklm');
-    expect(v.initials).toBe('NL');
-  });
-
-  it('maps pdf by extension', () => {
-    const v = resolveSourceThumbnail({ name: 'Lecture.pdf', type: 'txt' });
-    expect(v.kind).toBe('pdf');
-  });
-
-  it('maps youtube', () => {
-    const v = resolveSourceThumbnail({ name: 'vid', type: 'youtube' });
-    expect(v.kind).toBe('video');
+  it('maps PDF files to pdf kind', () => {
+    expect(resolveSourceThumbnail({ name: 'notes.pdf', type: 'pdf' }).kind).toBe('pdf');
   });
 });

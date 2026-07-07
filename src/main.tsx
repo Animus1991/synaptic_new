@@ -18,12 +18,18 @@ import { clearChunkReloadFlags } from "./lib/lazyWithRetry";
 import { initSentry } from "./lib/sentryInit";
 import { IconContext } from "@phosphor-icons/react";
 import { LazyMotion, MotionConfig, domAnimation } from "framer-motion";
+import { resetThumbnailBackfillSessionForTests } from "./lib/thumbnailBackfill";
 
 clearChunkReloadFlags();
 void initSentry();
 
 initThemeEarly();
 initPluginMarketplace();
+
+if (import.meta.env.DEV) {
+  (window as unknown as { __synapseResetThumbnailBackfill?: () => void }).__synapseResetThumbnailBackfill =
+    resetThumbnailBackfillSessionForTests;
+}
 
 if (import.meta.env.PROD) {
   void import('virtual:pwa-register').then(({ registerSW }) => {
