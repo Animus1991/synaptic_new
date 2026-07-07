@@ -46,6 +46,7 @@ import { whisperJobToAudioMarkdown } from '../lib/notebooklmAudioTranscript';
 import { buildAudioFsrsImportResult } from '../lib/notebooklmAudioFsrsImport';
 import { fetchRemoteLibrary, fetchRemoteSession, pushRemoteSession, authMe } from '../lib/authClient';
 import { ensureServerRagIndex } from '../lib/serverRagBootstrap';
+import { deleteRemoteThumbnail } from '../lib/thumbnailRemoteSync';
 import {
   loadLocalSession,
   mergeSessions,
@@ -507,20 +508,44 @@ export function useAppStore() {
     scheduleLibraryRemoteSync(user.settings);
   }, [user.settings]);
 
-  const applyThumbnailBackfill = useCallback((files: UploadedFile[]) => {
-    scheduleThumbnailBackfill(files, (patched) => {
-      setUploadedFiles((prev) => {
-        const byId = new Map(patched.map((p) => [p.id, p]));
-        const next = prev.map((f) => byId.get(f.id) ?? f);
-        persistLibrary(
-          next,
-          glossaryEntries,
-          courses.filter((c) => !MOCK_COURSE_IDS.has(c.id)),
-        );
-        return next;
-      });
+  const applyThumbnailCdnPatch = useCallback((
+    fileId: string,
+    patch: { cdnKey?: string; etag?: string },
+  ) => {
+    setUploadedFiles((prev) => {
+      const next = prev.map((f) =>
+        f.id === fileId && f.thumbnailRef
+          ? { ...f, thumbnailRef: { ...f.thumbnailRef, ...patch } }
+          : f,
+      );
+      persistLibrary(
+        next,
+        glossaryEntries,
+        courses.filter((c) => !MOCK_COURSE_IDS.has(c.id)),
+      );
+      return next;
     });
   }, [glossaryEntries, courses, persistLibrary]);
+
+  const applyThumbnailBackfill = useCallback((files: UploadedFile[]) => {
+    scheduleThumbnailBackfill(
+      files,
+      (patched) => {
+        setUploadedFiles((prev) => {
+          const byId = new Map(patched.map((p) => [p.id, p]));
+          const next = prev.map((f) => byId.get(f.id) ?? f);
+          persistLibrary(
+            next,
+            glossaryEntries,
+            courses.filter((c) => !MOCK_COURSE_IDS.has(c.id)),
+          );
+          return next;
+        });
+      },
+      user.settings,
+      applyThumbnailCdnPatch,
+    );
+  }, [glossaryEntries, courses, persistLibrary, user.settings, applyThumbnailCdnPatch]);
 
   useEffect(() => {
     void hydrateLibrary({
@@ -1391,7 +1416,12 @@ export function useAppStore() {
           pdfLayoutBlocks: extracted.layoutBlocks,
         });
         if (extracted.coverThumbnail && meta.type === 'pdf') {
-          meta = await persistCoverThumbnailOnFile(meta, extracted.coverThumbnail);
+          meta = await persistCoverThumbnailOnFile(
+            meta,
+            extracted.coverThumbnail,
+            user.settings,
+            applyThumbnailCdnPatch,
+          );
         } else if (meta.type === 'pdf') {
           meta = { ...meta, thumbnailStatus: 'failed' };
         }
@@ -1901,6 +1931,10 @@ export function useAppStore() {
     const removedCourseId = uploadedFiles.find((f) => f.id === fileId)?.courseId;
     if (removed?.thumbnailRef?.storageKey) {
       void idbDeleteThumbnail(removed.thumbnailRef.storageKey);
+    }
+    const token = user.settings.authToken;
+    if (token && removed?.thumbnailRef) {
+      void deleteRemoteThumbnail(token, user.settings, fileId);
     }
     void idbDeleteSourceBlob(fileId);
     void idbDeleteText(fileId);

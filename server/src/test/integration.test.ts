@@ -994,6 +994,10 @@ describe('server integration sweep', () => {
     expect(health.body.features.l17Enterprise.notebookWorkspace).toBe(true);
     expect(health.body.features.l17Enterprise.thumbnailBackfill).toBe(true);
     expect(health.body.features.l17Enterprise.pdfThumbnailWorker).toBe(true);
+    expect(health.body.features.l18Enterprise).toBeDefined();
+    expect(health.body.features.l18Enterprise.thumbnailCdn).toBe(true);
+    expect(health.body.features.l18Enterprise.thumbnailCdnImmutableCache).toBe(true);
+    expect(health.body.features.l18Enterprise.thumbnailQueryTokenAuth).toBe(true);
 
     const auditExport = await request(app)
       .get(`/v1/orgs/${orgId}/audit-logs/export?format=csv`)

@@ -8,6 +8,7 @@ import { authRouter } from './routes/auth';
 import { proxyRouter } from './routes/proxy';
 import { usageRouter } from './routes/usage';
 import { libraryRouter } from './routes/library';
+import { thumbnailsRouter } from './routes/thumbnails';
 import { sessionRouter } from './routes/session';
 import { youtubeRouter } from './routes/youtube';
 import { billingWebhookHandler, billingRouter } from './routes/billing';
@@ -90,6 +91,7 @@ export function createApp(): express.Application {
         l15Enterprise: production.l15Enterprise,
         l16Enterprise: production.l16Enterprise,
         l17Enterprise: production.l17Enterprise,
+        l18Enterprise: production.l18Enterprise,
       },
     });
   });
@@ -100,6 +102,7 @@ export function createApp(): express.Application {
   app.use('/v1', auditLogMiddleware);
   app.use('/v1', usageRouter);
   app.use('/v1', libraryRouter);
+  app.use('/v1', thumbnailsRouter);
   app.use('/v1', sessionRouter);
   app.use('/v1', youtubeRouter);
   app.use('/v1', billingRouter);

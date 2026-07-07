@@ -1,4 +1,4 @@
-import type { UploadedFile } from '../types';
+import type { SourceThumbnailRef, UploadedFile, UserSettings } from '../types';
 import { idbLoadSourceBlob } from './indexedDbStorage';
 import { renderPdfCoverFromBytes } from './pdfThumbnailWorkerClient';
 import { persistCoverThumbnailOnFile } from './sourceThumbnailPersist';
@@ -15,6 +15,8 @@ export function needsThumbnailBackfill(file: UploadedFile): boolean {
 
 export async function backfillFileThumbnailFromCache(
   file: UploadedFile,
+  settings?: UserSettings,
+  onCdnSynced?: (fileId: string, patch: Pick<SourceThumbnailRef, 'cdnKey' | 'etag'>) => void,
 ): Promise<UploadedFile | null> {
   const blob = await idbLoadSourceBlob(file.id);
   if (!blob) return null;
@@ -24,7 +26,7 @@ export async function backfillFileThumbnailFromCache(
       pageCount: file.pageCount ?? 1,
       fileSize: file.size,
     });
-    return persistCoverThumbnailOnFile(file, cover);
+    return persistCoverThumbnailOnFile(file, cover, settings, onCdnSynced);
   } catch {
     return { ...file, thumbnailStatus: 'failed' };
   }
@@ -55,6 +57,8 @@ function deferOnIdle(fn: () => void): void {
 export function scheduleThumbnailBackfill(
   files: UploadedFile[],
   onPatched: (patched: UploadedFile[]) => void,
+  settings?: UserSettings,
+  onCdnSynced?: (fileId: string, patch: Pick<SourceThumbnailRef, 'cdnKey' | 'etag'>) => void,
 ): void {
   if (typeof window === 'undefined') return;
   const candidates = files.filter(needsThumbnailBackfill);
@@ -66,7 +70,7 @@ export function scheduleThumbnailBackfill(
       for (const file of candidates) {
         if (sessionBackfillCount >= SESSION_BACKFILL_LIMIT) break;
         sessionBackfillCount += 1;
-        const next = await backfillFileThumbnailFromCache(file);
+        const next = await backfillFileThumbnailFromCache(file, settings, onCdnSynced);
         if (next?.thumbnailRef) patched.push(next);
       }
       if (patched.length > 0) onPatched(patched);

@@ -113,6 +113,12 @@ export type ProductionProbeStatus = {
     thumbnailBackfill: boolean;
     pdfThumbnailWorker: boolean;
   };
+  /** Sprint L18 / MD-02 — server-side thumbnail CDN for cross-device sync. */
+  l18Enterprise: {
+    thumbnailCdn: boolean;
+    thumbnailCdnImmutableCache: boolean;
+    thumbnailQueryTokenAuth: boolean;
+  };
 };
 
 let cachedPgvector: boolean | null = null;
@@ -237,6 +243,11 @@ export async function getProductionProbeStatus(): Promise<ProductionProbeStatus>
       notebookWorkspace: true,
       thumbnailBackfill: true,
       pdfThumbnailWorker: true,
+    },
+    l18Enterprise: {
+      thumbnailCdn: true,
+      thumbnailCdnImmutableCache: true,
+      thumbnailQueryTokenAuth: true,
     },
   };
 }

@@ -245,6 +245,7 @@ export function createPostgresAccountRepo(databaseUrl: string): AccountRepositor
       try {
         await client.query('BEGIN');
         await deleteAccountRetentionDataInTx(client, accountId);
+        await client.query('DELETE FROM library_thumbnails WHERE account_id = $1', [accountId]);
         await client.query('DELETE FROM library_chunks WHERE account_id = $1', [accountId]);
         await client.query('DELETE FROM account_libraries WHERE account_id = $1', [accountId]);
         await client.query('DELETE FROM account_sessions WHERE account_id = $1', [accountId]);

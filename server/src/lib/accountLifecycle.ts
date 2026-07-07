@@ -9,6 +9,7 @@ import { getSessionAsync, deleteSessionAsync } from '../store/sessionStore';
 import { deleteGoogleTokens, googleStatusForAccount } from '../store/googleTokenStore';
 import { revokeTokensForAccount } from '../store/tokenStore';
 import { getVectorChunkStore } from '../store/vectorChunkStore';
+import { deleteThumbnailsForAccount } from '../store/thumbnailStore';
 import { deleteAccountFromStore } from '../store/accountDelete';
 import { purgeAccountScopedRetentionData } from './retentionSweep';
 
@@ -68,6 +69,7 @@ export async function deleteAccountData(accountId: string): Promise<boolean> {
   if (!account) return false;
 
   await getVectorChunkStore().syncAccountChunks(accountId, [], { activeFileIds: [] });
+  await deleteThumbnailsForAccount(accountId);
   purgeAccountScopedRetentionData(accountId);
   deleteGoogleTokens(accountId);
   await revokeTokensForAccount(accountId);

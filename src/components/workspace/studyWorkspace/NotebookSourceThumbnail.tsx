@@ -1,5 +1,5 @@
 import { cn } from '../../../utils/cn';
-import type { UploadedFile } from '../../../types';
+import type { UploadedFile, UserSettings } from '../../../types';
 import { useSourceThumbnailUrl } from '../../../hooks/useSourceThumbnailUrl';
 import { resolveSourceThumbnail } from '../../../lib/sourceThumbnail';
 
@@ -11,13 +11,15 @@ type Props = {
   file?: SourceFileLike;
   label?: string;
   className?: string;
+  settings?: UserSettings;
 };
 
-export function NotebookSourceThumbnail({ file, label, className }: Props) {
+export function NotebookSourceThumbnail({ file, label, className, settings }: Props) {
   const previewUrl = useSourceThumbnailUrl(
     file?.id,
     file?.thumbnailRef,
     file?.thumbnailStatus,
+    settings,
   );
 
   if (previewUrl) {

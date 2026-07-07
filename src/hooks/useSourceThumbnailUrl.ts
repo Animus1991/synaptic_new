@@ -1,16 +1,28 @@
 import { useEffect, useState } from 'react';
-import type { SourceThumbnailRef } from '../types';
+import type { SourceThumbnailRef, UserSettings } from '../types';
 import { idbLoadThumbnail } from '../lib/indexedDbStorage';
+import { thumbnailCdnUrl, hasServerThumbnailCdn } from '../lib/thumbnailCdn';
 
-/** Resolve a blob URL for a source cover thumbnail stored in IndexedDB. */
+/** Resolve preview URL: server CDN when synced, else local IndexedDB blob. */
 export function useSourceThumbnailUrl(
   fileId: string | undefined,
   thumbnailRef: SourceThumbnailRef | undefined,
   thumbnailStatus?: string,
+  settings?: UserSettings,
 ): string | null {
   const [url, setUrl] = useState<string | null>(null);
 
+  const cdnUrl =
+    fileId && thumbnailRef && hasServerThumbnailCdn(thumbnailRef)
+      ? thumbnailCdnUrl(settings, fileId, thumbnailRef)
+      : null;
+
   useEffect(() => {
+    if (cdnUrl) {
+      setUrl(cdnUrl);
+      return undefined;
+    }
+
     if (!fileId || !thumbnailRef?.storageKey || thumbnailStatus === 'failed') {
       setUrl(null);
       return undefined;
@@ -30,7 +42,7 @@ export function useSourceThumbnailUrl(
       if (objectUrl) URL.revokeObjectURL(objectUrl);
       setUrl(null);
     };
-  }, [fileId, thumbnailRef?.storageKey, thumbnailStatus]);
+  }, [cdnUrl, fileId, thumbnailRef?.storageKey, thumbnailRef?.cdnKey, thumbnailRef?.etag, thumbnailStatus]);
 
   return url;
 }

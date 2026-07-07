@@ -48,6 +48,7 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
     showReuploadHint,
     showLowQualityBanner,
     reprocessingMaterial,
+    userSettings,
     openReprocessWizard,
     handleToolUpload,
     handleReuploadMaterial,
@@ -55,7 +56,6 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
     openAgentForTool,
     handleOpenAgent,
     renderCenterAgent,
-    userSettings,
     sourceHighlight,
     currentStep,
     STEPS,
@@ -238,7 +238,7 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
                         data-testid={`notebook-source-pinned-${source.key}`}
                       />
                     )}
-                    <NotebookSourceThumbnail file={source.file} label={source.label} />
+                    <NotebookSourceThumbnail file={source.file} label={source.label} settings={userSettings} />
                     <span className="min-w-0 flex-1">
                       <span className="block truncate text-xs font-medium">{source.label}</span>
                       {source.meta && (

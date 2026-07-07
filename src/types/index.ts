@@ -99,6 +99,10 @@ export type SourceThumbnailRef = {
   format: 'webp' | 'png';
   pipelineVersion: string;
   generatedAt: string;
+  /** L19+ server CDN key (file id) when synced for cross-device preview. */
+  cdnKey?: string;
+  /** ETag from server upload — cache-bust query param on CDN URL. */
+  etag?: string;
 };
 
 export type FileType = 'pdf' | 'docx' | 'pptx' | 'txt' | 'md' | 'image' | 'csv' | 'code' | 'youtube' | 'audio' | 'video';
