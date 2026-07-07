@@ -10,6 +10,7 @@ import {
   createAssignmentDiscussionPostAsync,
   listAssignmentDiscussionAsync,
   removeAssignmentDiscussionPostAsync,
+  validateDiscussionParentPostId,
 } from '../store/discussionStore';
 import { getGradebookAsync } from '../store/gradebookStore';
 import { listOrgsForAccountAsync, getOrgMembershipAsync } from '../store/orgStore';
@@ -109,10 +110,19 @@ studentRouter.post(
       res.status(404).json({ error: 'assignment not found' });
       return;
     }
-    const body = req.body as { body?: string };
+    const body = req.body as { body?: string; parentPostId?: string };
     if (!body.body?.trim()) {
       res.status(400).json({ error: 'body required' });
       return;
+    }
+    const existingPosts = await listAssignmentDiscussionAsync(req.params.classId, req.params.assignmentId);
+    const parentPostId = body.parentPostId?.trim();
+    if (parentPostId) {
+      const parentError = validateDiscussionParentPostId(existingPosts, parentPostId);
+      if (parentError) {
+        res.status(400).json({ error: parentError });
+        return;
+      }
     }
     const created = await createAssignmentDiscussionPostAsync(
       req.params.classId,
@@ -121,6 +131,7 @@ studentRouter.post(
         authorAccountId: account.id,
         authorRole: 'student',
         body: body.body,
+        parentPostId: parentPostId || undefined,
       },
     );
     res.status(201).json(created);

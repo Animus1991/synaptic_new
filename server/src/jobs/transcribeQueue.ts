@@ -82,6 +82,7 @@ async function runJob(jobId: string, payload: JobPayload): Promise<void> {
   try {
     const buffer = Buffer.from(payload.audioBase64, 'base64');
     const result = await transcribeBuffer(buffer, payload.filename, payload.language);
+    if (!memoryJobs.has(jobId)) return;
     row.status = 'completed';
     row.resultText = result.text;
     row.segments = result.segments;
@@ -89,11 +90,14 @@ async function runJob(jobId: string, payload: JobPayload): Promise<void> {
     row.language = result.language ?? payload.language;
     row.completedAt = new Date().toISOString();
   } catch (e) {
+    if (!memoryJobs.has(jobId)) return;
     row.status = 'failed';
     row.error = e instanceof Error ? e.message : 'Transcription failed';
     row.completedAt = new Date().toISOString();
   }
-  memoryJobs.set(jobId, row);
+  if (memoryJobs.has(jobId)) {
+    memoryJobs.set(jobId, row);
+  }
 }
 
 export function initTranscribeQueue(): void {
@@ -142,6 +146,33 @@ export function getTranscribeJob(jobId: string, accountId: string): TranscribeJo
   const row = memoryJobs.get(jobId);
   if (!row || row.accountId !== accountId) return null;
   return row;
+}
+
+function jobAgeTimestamp(row: TranscribeJob): number {
+  return Date.parse(row.completedAt ?? row.createdAt);
+}
+
+export function purgeMemoryTranscribeJobsBefore(cutoff: Date): number {
+  const cutoffMs = cutoff.getTime();
+  let removed = 0;
+  for (const [id, row] of memoryJobs) {
+    if (jobAgeTimestamp(row) < cutoffMs) {
+      memoryJobs.delete(id);
+      removed++;
+    }
+  }
+  return removed;
+}
+
+export function purgeMemoryTranscribeJobsForAccount(accountId: string): number {
+  let removed = 0;
+  for (const [id, row] of memoryJobs) {
+    if (row.accountId === accountId) {
+      memoryJobs.delete(id);
+      removed++;
+    }
+  }
+  return removed;
 }
 
 /** Test helper */

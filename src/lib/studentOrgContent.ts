@@ -50,6 +50,9 @@ export type StudentOrgContent = {
   discussionEmpty: string;
   discussionRoleTeacher: string;
   discussionRoleStudent: string;
+  discussionReply: string;
+  discussionAskPlaceholder: string;
+  discussionReplyPlaceholder: string;
 };
 
 const EN: StudentOrgContent = {
@@ -102,6 +105,9 @@ const EN: StudentOrgContent = {
   discussionEmpty: 'No messages yet.',
   discussionRoleTeacher: 'Teacher',
   discussionRoleStudent: 'You',
+  discussionReply: 'Reply',
+  discussionAskPlaceholder: 'Ask a question…',
+  discussionReplyPlaceholder: 'Write a reply…',
 };
 
 const EL: StudentOrgContent = {
@@ -154,6 +160,9 @@ const EL: StudentOrgContent = {
   discussionEmpty: 'Δεν υπάρχουν μηνύματα ακόμα.',
   discussionRoleTeacher: 'Εκπαιδευτής',
   discussionRoleStudent: 'Εσύ',
+  discussionReply: 'Απάντηση',
+  discussionAskPlaceholder: 'Κάνε μια ερώτηση…',
+  discussionReplyPlaceholder: 'Γράψε απάντηση…',
 };
 
 export function getStudentOrgContent(lang: Lang): StudentOrgContent {

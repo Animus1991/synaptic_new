@@ -173,9 +173,9 @@ Goal: every tool **fully functional for its learning purpose**, not demo stubs.
 
 | ID | Item | Priority | Status |
 | -- | ---- | -------- | ------ |
-| OPS-01 | Retention cron: purge `audit_logs` > 24mo | P1 | open |
-| OPS-02 | Retention cron: purge `transcribe_jobs` > 90d | P1 | open |
-| OPS-03 | Account deletion cascade job | P1 | open |
+| OPS-01 | Retention cron: purge `audit_logs` > 24mo | P1 | shipped |
+| OPS-02 | Retention cron: purge `transcribe_jobs` > 90d | P1 | shipped |
+| OPS-03 | Account deletion cascade job | P1 | shipped |
 | OPS-04 | Signed iOS/Android release builds (Fastlane) | P1 | open |
 | OPS-05 | Live privacy policy URL (not `synapse.example.com`) | P1 | open |
 | OPS-06 | Legal review + DPA counsel sign-off | P1 | open |
@@ -205,11 +205,11 @@ Goal: every tool **fully functional for its learning purpose**, not demo stubs.
 
 | ID | Item | Priority | Status |
 | -- | ---- | -------- | ------ |
-| COL-01 | L9-3 assignment discussion threads (full Q&A) | P2 | stub |
+| COL-01 | L9-3 assignment discussion threads (full Q&A) | P2 | shipped |
 | COL-02 | Annotation conflict resolution UI | P2 | open |
 | COL-03 | Concept map CRDT | P3 | open |
 | COL-04 | Collaborative whiteboard shared state | P3 | open |
-| COL-05 | L9-4 LTI NRPS roster sync (not stub) | P2 | stub |
+| COL-05 | L9-4 LTI NRPS roster sync (not stub) | P2 | shipped |
 
 ### 5. Doc/code single source of truth
 

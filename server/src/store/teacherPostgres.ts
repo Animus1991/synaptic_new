@@ -131,6 +131,7 @@ function rowToDiscussionPost(row: {
   author_account_id: string;
   author_role: string;
   body: string;
+  parent_post_id: string | null;
   created_at: Date;
 }): AssignmentDiscussionPost {
   return {
@@ -140,6 +141,7 @@ function rowToDiscussionPost(row: {
     authorAccountId: row.author_account_id,
     authorRole: row.author_role as DiscussionAuthorRole,
     body: row.body,
+    parentPostId: row.parent_post_id ?? undefined,
     createdAt: row.created_at.toISOString(),
   };
 }
@@ -591,9 +593,10 @@ export function createPostgresTeacherRepo(databaseUrl: string): TeacherRepositor
         author_account_id: string;
         author_role: string;
         body: string;
+        parent_post_id: string | null;
         created_at: Date;
       }>(
-        `SELECT id, class_id, assignment_id, author_account_id, author_role, body, created_at
+        `SELECT id, class_id, assignment_id, author_account_id, author_role, body, parent_post_id, created_at
          FROM assignment_discussion_posts
          WHERE class_id = $1 AND assignment_id = $2
          ORDER BY created_at ASC`,
@@ -605,14 +608,19 @@ export function createPostgresTeacherRepo(databaseUrl: string): TeacherRepositor
     async createAssignmentDiscussionPost(
       classId: string,
       assignmentId: string,
-      payload: { authorAccountId: string; authorRole: DiscussionAuthorRole; body: string },
+      payload: {
+        authorAccountId: string;
+        authorRole: DiscussionAuthorRole;
+        body: string;
+        parentPostId?: string;
+      },
     ): Promise<AssignmentDiscussionPost> {
       const id = `disc_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
       const createdAt = new Date().toISOString();
       await pool.query(
         `INSERT INTO assignment_discussion_posts
-           (id, class_id, assignment_id, author_account_id, author_role, body, created_at)
-         VALUES ($1, $2, $3, $4, $5, $6, $7::timestamptz)`,
+           (id, class_id, assignment_id, author_account_id, author_role, body, parent_post_id, created_at)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8::timestamptz)`,
         [
           id,
           classId,
@@ -620,6 +628,7 @@ export function createPostgresTeacherRepo(databaseUrl: string): TeacherRepositor
           payload.authorAccountId,
           payload.authorRole,
           payload.body.trim(),
+          payload.parentPostId ?? null,
           createdAt,
         ],
       );
@@ -630,6 +639,7 @@ export function createPostgresTeacherRepo(databaseUrl: string): TeacherRepositor
         authorAccountId: payload.authorAccountId,
         authorRole: payload.authorRole,
         body: payload.body.trim(),
+        parentPostId: payload.parentPostId,
         createdAt,
       };
     },

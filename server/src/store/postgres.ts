@@ -1,5 +1,6 @@
 import pg from 'pg';
 import type { Plan } from '../config';
+import { deleteAccountRetentionDataInTx } from './retentionPostgres';
 import type { Account, UsageWindow } from './accounts';
 import type { StoredLibrary } from './libraryStore';
 import type { StoredSession } from './sessionStore';
@@ -243,6 +244,7 @@ export function createPostgresAccountRepo(databaseUrl: string): AccountRepositor
       const client = await pool.connect();
       try {
         await client.query('BEGIN');
+        await deleteAccountRetentionDataInTx(client, accountId);
         await client.query('DELETE FROM library_chunks WHERE account_id = $1', [accountId]);
         await client.query('DELETE FROM account_libraries WHERE account_id = $1', [accountId]);
         await client.query('DELETE FROM account_sessions WHERE account_id = $1', [accountId]);

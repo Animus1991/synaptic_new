@@ -395,6 +395,9 @@ export function TeacherDashboard({
     roleTeacher: ui.discussionRoleTeacher,
     roleStudent: ui.discussionRoleStudent,
     remove: ui.removeDiscussionPost,
+    reply: ui.discussionReply,
+    askPlaceholder: ui.discussionAskPlaceholder,
+    replyPlaceholder: ui.discussionReplyPlaceholder,
   };
 
   return (

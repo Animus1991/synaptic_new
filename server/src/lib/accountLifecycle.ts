@@ -10,6 +10,7 @@ import { deleteGoogleTokens, googleStatusForAccount } from '../store/googleToken
 import { revokeTokensForAccount } from '../store/tokenStore';
 import { getVectorChunkStore } from '../store/vectorChunkStore';
 import { deleteAccountFromStore } from '../store/accountDelete';
+import { purgeAccountScopedRetentionData } from './retentionSweep';
 
 export type AccountExportPayload = {
   exportedAt: string;
@@ -67,6 +68,7 @@ export async function deleteAccountData(accountId: string): Promise<boolean> {
   if (!account) return false;
 
   await getVectorChunkStore().syncAccountChunks(accountId, [], { activeFileIds: [] });
+  purgeAccountScopedRetentionData(accountId);
   deleteGoogleTokens(accountId);
   await revokeTokensForAccount(accountId);
 

@@ -423,6 +423,7 @@ export async function postAssignmentDiscussion(
   classId: string,
   assignmentId: string,
   body: string,
+  parentPostId?: string,
 ): Promise<DiscussionPostRow> {
   const res = await fetch(
     `${proxyBase(settings)}/v1/teacher/classes/${classId}/assignments/${assignmentId}/discussion`,
@@ -432,7 +433,7 @@ export async function postAssignmentDiscussion(
         'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify({ body }),
+      body: JSON.stringify({ body, parentPostId }),
     },
   );
   if (!res.ok) throw new Error(await res.text());

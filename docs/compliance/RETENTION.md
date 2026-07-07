@@ -43,9 +43,9 @@ When notified of litigation or regulatory inquiry, suspend automated purge for a
 
 ## Implementation checklist
 
-- [ ] Cron: purge `audit_logs` older than 24 months (org-configurable in future)
-- [ ] Cron: purge completed `transcribe_jobs` > 90 days
-- [ ] Account deletion job: cascade library/session + anonymize audit `account_id` where retention requires log keep
+- [x] Cron: purge `audit_logs` older than 24 months (org-configurable in future)
+- [x] Cron: purge completed `transcribe_jobs` > 90 days
+- [x] Account deletion job: cascade library/session + anonymize audit `account_id` where retention requires log keep
 - [ ] Document backup restore access (break-glass, two-person rule)
 
 ---

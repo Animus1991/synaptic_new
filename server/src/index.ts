@@ -31,6 +31,7 @@ import { mcpRouter } from './mcp/router';
 import { oauthRouter, wellKnownRouter } from './mcp/oauth/router';
 import { bootstrapStudyRoomsFromPg } from './store/studyRoomPgStore';
 import { initVectorIndexQueue } from './jobs/vectorIndexQueue';
+import { initRetentionCron } from './jobs/retentionCron';
 import { initTranscribeQueue } from './jobs/transcribeQueue';
 import { auditLogMiddleware } from './middleware/auditLog';
 import { startStudyRoomCollab } from './collab/studyRoomCollab';
@@ -137,6 +138,7 @@ export async function startServer(): Promise<void> {
   await bootstrapStudyRoomsFromPg(config.databaseUrl);
   initVectorIndexQueue();
   initTranscribeQueue();
+  initRetentionCron();
 
   const production = await getProductionProbeStatus();
   if (production.database) {

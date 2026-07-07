@@ -46,6 +46,29 @@ export async function listAuditLogsForOrgAsync(
   return rows.slice(0, limit);
 }
 
+export function purgeMemoryAuditLogsBefore(cutoff: Date): number {
+  const cutoffMs = cutoff.getTime();
+  let removed = 0;
+  for (let i = memory.length - 1; i >= 0; i--) {
+    if (Date.parse(memory[i]!.createdAt) < cutoffMs) {
+      memory.splice(i, 1);
+      removed++;
+    }
+  }
+  return removed;
+}
+
+export function anonymizeMemoryAuditLogsForAccount(accountId: string): number {
+  let count = 0;
+  for (const entry of memory) {
+    if (entry.accountId === accountId) {
+      entry.accountId = undefined;
+      count++;
+    }
+  }
+  return count;
+}
+
 /** Test helper */
 export function resetAuditLogStore(): void {
   memory.length = 0;

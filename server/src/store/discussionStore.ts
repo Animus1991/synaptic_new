@@ -10,7 +10,15 @@ export type AssignmentDiscussionPost = {
   authorAccountId: string;
   authorRole: DiscussionAuthorRole;
   body: string;
+  parentPostId?: string;
   createdAt: string;
+};
+
+export type CreateDiscussionPostPayload = {
+  authorAccountId: string;
+  authorRole: DiscussionAuthorRole;
+  body: string;
+  parentPostId?: string;
 };
 
 const postsByThread = new Map<string, AssignmentDiscussionPost[]>();
@@ -18,6 +26,17 @@ const pgRepo = createTeacherRepo(config.databaseUrl);
 
 function threadKey(classId: string, assignmentId: string): string {
   return `${classId}:${assignmentId}`;
+}
+
+/** One-level threading: replies attach only to root posts. */
+export function validateDiscussionParentPostId(
+  posts: AssignmentDiscussionPost[],
+  parentPostId: string,
+): string | null {
+  const parent = posts.find((p) => p.id === parentPostId);
+  if (!parent) return 'parent post not found';
+  if (parent.parentPostId) return 'cannot reply to a reply';
+  return null;
 }
 
 export function listAssignmentDiscussion(
@@ -43,7 +62,7 @@ export async function listAssignmentDiscussionAsync(
 export function createAssignmentDiscussionPost(
   classId: string,
   assignmentId: string,
-  payload: { authorAccountId: string; authorRole: DiscussionAuthorRole; body: string },
+  payload: CreateDiscussionPostPayload,
 ): AssignmentDiscussionPost {
   if (pgRepo) {
     throw new Error('Use createAssignmentDiscussionPostAsync when DATABASE_URL is configured');
@@ -55,6 +74,7 @@ export function createAssignmentDiscussionPost(
     authorAccountId: payload.authorAccountId,
     authorRole: payload.authorRole,
     body: payload.body.trim(),
+    parentPostId: payload.parentPostId,
     createdAt: new Date().toISOString(),
   };
   const key = threadKey(classId, assignmentId);
@@ -67,7 +87,7 @@ export function createAssignmentDiscussionPost(
 export async function createAssignmentDiscussionPostAsync(
   classId: string,
   assignmentId: string,
-  payload: { authorAccountId: string; authorRole: DiscussionAuthorRole; body: string },
+  payload: CreateDiscussionPostPayload,
 ): Promise<AssignmentDiscussionPost> {
   if (pgRepo) return pgRepo.createAssignmentDiscussionPost(classId, assignmentId, payload);
   return createAssignmentDiscussionPost(classId, assignmentId, payload);
@@ -83,7 +103,11 @@ export function removeAssignmentDiscussionPost(
   }
   const key = threadKey(classId, assignmentId);
   const list = postsByThread.get(key) ?? [];
-  const next = list.filter((p) => p.id !== postId);
+  const toRemove = new Set<string>([postId]);
+  for (const post of list) {
+    if (post.parentPostId === postId) toRemove.add(post.id);
+  }
+  const next = list.filter((p) => !toRemove.has(p.id));
   if (next.length === list.length) return false;
   postsByThread.set(key, next);
   return true;

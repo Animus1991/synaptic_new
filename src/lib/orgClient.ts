@@ -177,6 +177,7 @@ export async function fetchStudentAssignmentDiscussion(
       authorAccountId: string;
       authorRole: 'teacher' | 'student';
       body: string;
+      parentPostId?: string;
       createdAt: string;
     }[];
   };
@@ -188,6 +189,7 @@ export async function postStudentAssignmentDiscussion(
   classId: string,
   assignmentId: string,
   body: string,
+  parentPostId?: string,
 ) {
   const res = await fetch(
     `${proxyBase(settings)}/v1/student/classes/${classId}/assignments/${assignmentId}/discussion`,
@@ -197,7 +199,7 @@ export async function postStudentAssignmentDiscussion(
         ...authHeaders(token),
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ body }),
+      body: JSON.stringify({ body, parentPostId }),
     },
   );
   if (!res.ok) throw new Error(await res.text());

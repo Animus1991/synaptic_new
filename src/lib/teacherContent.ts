@@ -85,6 +85,9 @@ export type TeacherContent = {
   discussionRoleTeacher: string;
   discussionRoleStudent: string;
   removeDiscussionPost: string;
+  discussionReply: string;
+  discussionAskPlaceholder: string;
+  discussionReplyPlaceholder: string;
   ltiRosterTitle: string;
   ltiRosterHint: string;
   ltiRosterContextPlaceholder: string;
@@ -194,6 +197,9 @@ const EN: TeacherContent = {
   discussionRoleTeacher: 'Teacher',
   discussionRoleStudent: 'Student',
   removeDiscussionPost: 'Remove',
+  discussionReply: 'Reply',
+  discussionAskPlaceholder: 'Ask a question…',
+  discussionReplyPlaceholder: 'Write a reply…',
   ltiRosterTitle: 'LTI roster sync',
   ltiRosterHint: 'Link a Canvas course context, then import learners via NRPS (or demo stub after LTI launch).',
   ltiRosterContextPlaceholder: 'LTI context ID (Canvas course)',
@@ -303,6 +309,9 @@ const EL: TeacherContent = {
   discussionRoleTeacher: 'Εκπαιδευτής',
   discussionRoleStudent: 'Μαθητής',
   removeDiscussionPost: 'Αφαίρεση',
+  discussionReply: 'Απάντηση',
+  discussionAskPlaceholder: 'Κάνε μια ερώτηση…',
+  discussionReplyPlaceholder: 'Γράψε απάντηση…',
   ltiRosterTitle: 'LTI roster sync',
   ltiRosterHint: 'Σύνδεσε Canvas context και εισαγωγή μαθητών μέσω NRPS (ή demo stub μετά από LTI launch).',
   ltiRosterContextPlaceholder: 'LTI context ID (Canvas course)',

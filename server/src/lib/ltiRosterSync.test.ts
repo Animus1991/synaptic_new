@@ -1,8 +1,10 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import {
   isLearnerRole,
   linkLtiContextToClass,
+  parseNrpsLinkNextUrl,
   parseNrpsMembers,
+  fetchNrpsMembers,
   resetLtiRosterSyncState,
   syncLtiMembersToClass,
 } from './ltiRosterSync';
@@ -83,5 +85,57 @@ describe('ltiRosterSync', () => {
   it('isLearnerRole accepts learner markers', () => {
     expect(isLearnerRole(['http://purl.imsglobal.org/vocab/lis/v2/membership#Learner'])).toBe(true);
     expect(isLearnerRole(['http://purl.imsglobal.org/vocab/lis/v2/membership#Instructor'])).toBe(false);
+  });
+
+  it('parseNrpsLinkNextUrl extracts rel=next URL', () => {
+    const next = parseNrpsLinkNextUrl(
+      '<https://lms.example/nrps?page=2>; rel="next", <https://lms.example/nrps?page=1>; rel="current"',
+    );
+    expect(next).toBe('https://lms.example/nrps?page=2');
+  });
+
+  it('fetchNrpsMembers paginates through Link rel=next', async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce({
+        ok: true,
+        headers: {
+          get: (name: string) =>
+            name.toLowerCase() === 'link' ? '<https://lms.example/nrps?page=2>; rel="next"' : null,
+        },
+        json: async () => ({
+          members: [
+            {
+              user_id: 'u1',
+              email: 'page1@school.edu',
+              roles: ['Learner'],
+              status: 'Active',
+            },
+          ],
+        }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        headers: { get: () => null },
+        json: async () => ({
+          members: [
+            {
+              user_id: 'u2',
+              email: 'page2@school.edu',
+              roles: ['Learner'],
+              status: 'Active',
+            },
+          ],
+        }),
+      });
+
+    const members = await fetchNrpsMembers(
+      'https://lms.example/nrps?page=1',
+      'bearer-token',
+      fetchMock as unknown as typeof fetch,
+    );
+    expect(members).toHaveLength(2);
+    expect(members.map((m) => m.email)).toEqual(['page1@school.edu', 'page2@school.edu']);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 });

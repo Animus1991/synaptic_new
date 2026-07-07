@@ -452,6 +452,72 @@ describe('server integration sweep', () => {
     expect(afterDelete.body.posts).toHaveLength(1);
   });
 
+  it('assignment discussion supports threaded replies on root posts', async () => {
+    const teacher = await request(app)
+      .post('/auth/register')
+      .send({ email: 'thread-teacher@example.com', password: 'password123' })
+      .expect(201);
+    const teacherToken = teacher.body.token as string;
+
+    const student = await request(app)
+      .post('/auth/register')
+      .send({ email: 'thread-student@example.com', password: 'password123' })
+      .expect(201);
+    const studentToken = student.body.token as string;
+
+    const created = await request(app)
+      .post('/v1/teacher/classes')
+      .set('Authorization', `Bearer ${teacherToken}`)
+      .send({ name: 'Threaded 101' })
+      .expect(201);
+    const classId = created.body.id as string;
+
+    await request(app)
+      .post(`/v1/teacher/classes/${classId}/roster`)
+      .set('Authorization', `Bearer ${teacherToken}`)
+      .send({ email: 'thread-student@example.com' })
+      .expect(201);
+
+    const assignment = await request(app)
+      .post(`/v1/teacher/classes/${classId}/assignments`)
+      .set('Authorization', `Bearer ${teacherToken}`)
+      .send({ title: 'Essay draft' })
+      .expect(201);
+    const assignmentId = assignment.body.id as string;
+
+    const question = await request(app)
+      .post(`/v1/student/classes/${classId}/assignments/${assignmentId}/discussion`)
+      .set('Authorization', `Bearer ${studentToken}`)
+      .send({ body: 'How long should the essay be?' })
+      .expect(201);
+
+    await request(app)
+      .post(`/v1/teacher/classes/${classId}/assignments/${assignmentId}/discussion`)
+      .set('Authorization', `Bearer ${teacherToken}`)
+      .send({ body: 'About 800 words.', parentPostId: question.body.id })
+      .expect(201);
+
+    const nestedReply = await request(app)
+      .post(`/v1/student/classes/${classId}/assignments/${assignmentId}/discussion`)
+      .set('Authorization', `Bearer ${studentToken}`)
+      .send({ body: 'Can I use bullet points?', parentPostId: question.body.id })
+      .expect(201);
+    expect(nestedReply.body.parentPostId).toBe(question.body.id);
+
+    await request(app)
+      .post(`/v1/student/classes/${classId}/assignments/${assignmentId}/discussion`)
+      .set('Authorization', `Bearer ${studentToken}`)
+      .send({ body: 'Nested reply', parentPostId: nestedReply.body.id })
+      .expect(400);
+
+    const listed = await request(app)
+      .get(`/v1/teacher/classes/${classId}/assignments/${assignmentId}/discussion`)
+      .set('Authorization', `Bearer ${teacherToken}`)
+      .expect(200);
+    expect(listed.body.posts).toHaveLength(3);
+    expect(listed.body.posts.filter((p: { parentPostId?: string }) => !p.parentPostId)).toHaveLength(1);
+  });
+
   it('LTI context link and stub roster sync enroll learners', async () => {
     const teacher = await request(app)
       .post('/auth/register')

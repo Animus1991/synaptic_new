@@ -150,6 +150,9 @@ export function StudentOrgView({
     roleTeacher: ui.discussionRoleTeacher,
     roleStudent: ui.discussionRoleStudent,
     remove: '',
+    reply: ui.discussionReply,
+    askPlaceholder: ui.discussionAskPlaceholder,
+    replyPlaceholder: ui.discussionReplyPlaceholder,
   };
 
   if (!signedIn) {

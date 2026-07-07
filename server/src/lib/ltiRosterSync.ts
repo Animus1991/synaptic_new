@@ -122,20 +122,62 @@ export function parseNrpsMembers(body: unknown): LtiNrpsMember[] {
   return rows;
 }
 
-export async function fetchNrpsMembers(
+/** Parse RFC 5988 Link header for rel="next". */
+export function parseNrpsLinkNextUrl(linkHeader: string | null): string | null {
+  if (!linkHeader) return null;
+  for (const part of linkHeader.split(',')) {
+    const section = part.trim();
+    if (!/rel=(["'])next\1/i.test(section)) continue;
+    const match = section.match(/<([^>]+)>/);
+    if (match?.[1]) return match[1];
+  }
+  return null;
+}
+
+type NrpsPageResult = {
+  members: LtiNrpsMember[];
+  nextUrl: string | null;
+};
+
+export async function fetchNrpsPage(
   nrpsUrl: string,
   bearerToken?: string,
-): Promise<LtiNrpsMember[]> {
+  fetchImpl: typeof fetch = fetch,
+): Promise<NrpsPageResult> {
   const headers: Record<string, string> = {
     Accept: 'application/vnd.ims.lis.v2.membershipcontainer+json',
   };
   if (bearerToken) headers.Authorization = `Bearer ${bearerToken}`;
-  const res = await fetch(nrpsUrl, { headers });
+  const res = await fetchImpl(nrpsUrl, { headers });
   if (!res.ok) {
     throw new Error(`NRPS fetch failed: ${res.status}`);
   }
   const body = (await res.json()) as unknown;
-  return parseNrpsMembers(body);
+  const linkHeader = res.headers.get('link') ?? res.headers.get('Link');
+  return {
+    members: parseNrpsMembers(body),
+    nextUrl: parseNrpsLinkNextUrl(linkHeader),
+  };
+}
+
+/** Fetch all NRPS pages when the platform paginates via Link rel="next". */
+export async function fetchNrpsMembers(
+  nrpsUrl: string,
+  bearerToken?: string,
+  fetchImpl: typeof fetch = fetch,
+): Promise<LtiNrpsMember[]> {
+  const byUserId = new Map<string, LtiNrpsMember>();
+  let url: string | null = nrpsUrl;
+
+  while (url) {
+    const page = await fetchNrpsPage(url, bearerToken, fetchImpl);
+    for (const member of page.members) {
+      byUserId.set(member.userId, member);
+    }
+    url = page.nextUrl;
+  }
+
+  return [...byUserId.values()];
 }
 
 export async function syncLtiMembersToClass(

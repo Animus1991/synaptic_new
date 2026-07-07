@@ -71,6 +71,7 @@ export type DiscussionPostRow = {
   authorAccountId: string;
   authorRole: 'teacher' | 'student';
   body: string;
+  parentPostId?: string;
   createdAt: string;
 };
 
