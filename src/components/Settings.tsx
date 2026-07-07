@@ -17,6 +17,7 @@ import { useI18n } from '../lib/i18n';
 import { getSettingsContent } from '../lib/settingsContent';
 import { RagIndexProgressBanner } from './RagIndexProgressBanner';
 import { PluginMarketplacePanel } from './PluginMarketplacePanel';
+import { privacyPolicyUrl } from '../lib/siteConfig';
 
 import { type TaskCalendarSyncUpdate } from '../lib/taskCalendarSync';
 
@@ -424,6 +425,17 @@ export function Settings({
           <div className="mt-3 pt-3 border-t border-border-subtle space-y-2">
             <p className="text-xs font-semibold text-text-primary">{t('gdprExportData')}</p>
             <p className="text-[11px] text-text-muted">{t('gdprExportHint')}</p>
+            <p className="text-[11px]">
+              <a
+                href={privacyPolicyUrl()}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-accent hover:underline"
+                data-testid="privacy-policy-link"
+              >
+                Privacy policy
+              </a>
+            </p>
             <div className="flex flex-wrap gap-2">
               <button
                 type="button"

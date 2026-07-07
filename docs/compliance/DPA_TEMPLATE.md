@@ -2,7 +2,7 @@
 
 **Synapse Learning — Institution DPA**  
 **Version:** L8 · July 2026  
-**Status:** Template — legal review required before execution
+**Status:** Template — legal review checklist in `docs/compliance/LEGAL_REVIEW_CHECKLIST.md`; counsel sign-off pending
 
 This Data Processing Agreement ("DPA") forms part of the agreement between **Synapse Learning** ("Processor") and **\[Institution Name\]** ("Controller") for use of the Synapse platform.
 

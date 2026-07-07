@@ -19,7 +19,38 @@ def cap_sync
   end
 end
 
+def ios_match_signing!(readonly: true)
+  git_url = ENV['MATCH_GIT_URL']&.strip
+  return if git_url.nil? || git_url.empty?
+
+  match(
+    type: 'appstore',
+    readonly: readonly,
+    app_identifier: ENV.fetch('IOS_APP_IDENTIFIER', 'com.synapse.learning'),
+  )
+end
+
+def android_release_signing!
+  props = File.join(ANDROID_DIR, 'gradle.properties')
+  required = %w[MYAPP_RELEASE_STORE_FILE MYAPP_RELEASE_STORE_PASSWORD MYAPP_RELEASE_KEY_ALIAS MYAPP_RELEASE_KEY_PASSWORD]
+  return if required.all? { |key| ENV[key]&.strip && !ENV[key].strip.empty? }
+
+  unless File.exist?(props)
+    UI.user_error!(
+      'Android release signing not configured. Copy mobile/android-signing.gradle.properties.example to android/gradle.properties or set MYAPP_RELEASE_* env vars.',
+    )
+  end
+  content = File.read(props)
+  missing = required.reject { |key| content.match?(/^#{key}=.+/) }
+  UI.user_error!("Missing Android signing keys in android/gradle.properties: #{missing.join(', ')}") unless missing.empty?
+end
+
 platform :ios do
+  desc 'Install/update App Store signing certificates (fastlane match)'
+  lane :certificates do
+    ios_match_signing!(readonly: false)
+  end
+
   desc 'Sync web assets into Capacitor iOS shell'
   lane :sync do
     cap_sync
@@ -36,9 +67,23 @@ platform :ios do
     )
   end
 
+  desc 'Build signed release IPA locally (no upload)'
+  lane :build_signed do
+    cap_sync
+    ios_match_signing!
+    build_app(
+      workspace: IOS_WORKSPACE,
+      scheme: IOS_SCHEME,
+      export_method: 'app-store',
+      output_directory: File.join(REPO_ROOT, 'mobile/build/ios'),
+      clean: true,
+    )
+  end
+
   desc 'Build release IPA locally (no upload)'
   lane :build do
     cap_sync
+    ios_match_signing! if ENV['MATCH_GIT_URL']&.strip && !ENV['MATCH_GIT_URL'].strip.empty?
     build_app(
       workspace: IOS_WORKSPACE,
       scheme: IOS_SCHEME,
@@ -51,6 +96,7 @@ platform :ios do
   desc 'Build and upload TestFlight internal beta'
   lane :beta do
     cap_sync
+    ios_match_signing!
     build_app(
       workspace: IOS_WORKSPACE,
       scheme: IOS_SCHEME,
@@ -67,6 +113,7 @@ platform :ios do
   desc 'Submit App Store release (requires screenshots in mobile/store/ios/screenshots/)'
   lane :release do
     cap_sync
+    ios_match_signing!
     build_app(
       workspace: IOS_WORKSPACE,
       scheme: IOS_SCHEME,
@@ -91,9 +138,21 @@ platform :android do
     cap_sync
   end
 
+  desc 'Build signed release AAB locally (configure signing in android/gradle.properties)'
+  lane :build_signed do
+    cap_sync
+    android_release_signing!
+    gradle(
+      project_dir: ANDROID_DIR,
+      task: 'bundle',
+      build_type: 'Release',
+    )
+  end
+
   desc 'Build release AAB locally (configure signing in android/gradle.properties)'
   lane :build do
     cap_sync
+    android_release_signing!
     gradle(
       project_dir: ANDROID_DIR,
       task: 'bundle',
@@ -104,6 +163,7 @@ platform :android do
   desc 'Upload to Play Console internal testing track'
   lane :beta do
     cap_sync
+    android_release_signing!
     gradle(
       project_dir: ANDROID_DIR,
       task: 'bundle',
@@ -123,6 +183,7 @@ platform :android do
   desc 'Promote internal build to production (manual promotion in Play Console recommended first)'
   lane :release do
     cap_sync
+    android_release_signing!
     gradle(
       project_dir: ANDROID_DIR,
       task: 'bundle',

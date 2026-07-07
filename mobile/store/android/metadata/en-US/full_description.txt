@@ -8,4 +8,4 @@ Synapse turns your notes, PDFs, and syllabi into an adaptive study workspace.
 
 Upload materials, study offline-friendly in the companion app, and sync when signed in. Built for individual learners and schools that need FERPA-oriented audit trails.
 
-Privacy policy: https://synapse.example.com/legal/privacy
+Privacy policy: https://app.synapse-learning.io/legal/privacy

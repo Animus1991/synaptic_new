@@ -176,9 +176,9 @@ Goal: every tool **fully functional for its learning purpose**, not demo stubs.
 | OPS-01 | Retention cron: purge `audit_logs` > 24mo | P1 | shipped |
 | OPS-02 | Retention cron: purge `transcribe_jobs` > 90d | P1 | shipped |
 | OPS-03 | Account deletion cascade job | P1 | shipped |
-| OPS-04 | Signed iOS/Android release builds (Fastlane) | P1 | open |
-| OPS-05 | Live privacy policy URL (not `synapse.example.com`) | P1 | open |
-| OPS-06 | Legal review + DPA counsel sign-off | P1 | open |
+| OPS-04 | Signed iOS/Android release builds (Fastlane) | P1 | shipped |
+| OPS-05 | Live privacy policy URL (not `synapse.example.com`) | P1 | shipped |
+| OPS-06 | Legal review + DPA counsel sign-off | P1 | ready |
 | OPS-07 | LTI grade passback — production AGS (not stub) | P2 | open |
 
 ### 2. Multi-device continuity

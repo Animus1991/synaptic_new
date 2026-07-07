@@ -2,10 +2,10 @@
 
 **Effective date:** 6 July 2026  
 **App:** Synapse (`com.synapse.learning`) — web, iOS, and Android companion  
-**Controller:** Synapse Learning — contact: privacy@synapse.example.com
+**Controller:** Synapse Learning — contact: privacy@synapse-learning.io
 
 > Host this document at a public HTTPS URL before App Store / Play Store submission.  
-> Update placeholder domains (`synapse.example.com`) to your production domain.
+> Canonical public URL is driven by `mobile/config/distribution.json`.
 
 ---
 
@@ -84,7 +84,7 @@ See `docs/compliance/RETENTION.md`. Summary:
 
 Depending on jurisdiction you may request access, correction, deletion, portability, or restriction. Institution students: contact your school administrator first; org admins can export audit logs from the admin API.
 
-Email privacy@synapse.example.com or use in-app Settings → Account.
+Email privacy@synapse-learning.io or use in-app Settings → Account.
 
 ---
 
@@ -118,4 +118,4 @@ We will post updates at this URL and bump the effective date. Material changes t
 ## 11. Contact
 
 **Synapse Learning**  
-privacy@synapse.example.com
+privacy@synapse-learning.io
