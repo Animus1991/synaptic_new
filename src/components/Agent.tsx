@@ -6,7 +6,8 @@ import {
   RotateCcw, Target, PenTool, Smile, Search, FileText,
   HelpCircle, Zap, Settings2
 } from '@/lib/lucide-shim';
-import type { AgentMessage, AgentMode, Course, UserSettings, UploadedFile, MessageCitation } from '../types';
+import type { AgentMessage, AgentMode, Course, UserSettings, UploadedFile, MessageCitation, SkillNode } from '../types';
+import type { DashboardNextAction } from '../lib/dashboardNextAction';
 import { cn } from '../utils/cn';
 import { streamAgentReply, isLlmAvailable } from '../lib/llmClient';
 import { buildSourceExcerpt, retrieveForQueryHybrid } from '../lib/sourceContext';
@@ -59,6 +60,8 @@ interface AgentProps {
   /** Open the full-page Agent view (optional escape hatch). */
   onOpenFullPage?: () => void;
   onChangeSourceMode?: (mode: UserSettings['sourceMode']) => void;
+  dashboardNextAction?: DashboardNextAction | null;
+  weakAreas?: SkillNode[];
 }
 
 const AGENT_MODE_META: { mode: AgentMode; icon: typeof Brain; color: string }[] = [
@@ -103,6 +106,8 @@ export function Agent({
   autoFocusInput = false,
   onOpenFullPage,
   onChangeSourceMode,
+  dashboardNextAction = null,
+  weakAreas = [],
 }: AgentProps) {
   const { t } = useI18n();
   const [input, setInput] = useState('');
@@ -127,7 +132,25 @@ export function Agent({
     })),
     [agentContent],
   );
-  const { quickActions, ui, sourceModes } = agentContent;
+  const { quickActions, contextualPrompts, ui, sourceModes } = agentContent;
+  const contextualSuggestions = useMemo(() => {
+    const suggestions: string[] = [];
+    if (dashboardNextAction) {
+      suggestions.push(contextualPrompts.fromNextAction(dashboardNextAction.label, dashboardNextAction.reason));
+    }
+    if (activeTaskTitle) {
+      suggestions.push(contextualPrompts.fromTask(activeTaskTitle));
+    }
+    const weakConcept = weakAreas[0]?.concept ?? dashboardNextAction?.concept;
+    if (weakConcept) {
+      suggestions.push(contextualPrompts.fromWeakArea(weakConcept));
+    }
+    for (const action of quickActions) {
+      if (suggestions.length >= 5) break;
+      if (!suggestions.includes(action)) suggestions.push(action);
+    }
+    return suggestions.slice(0, 5);
+  }, [dashboardNextAction, activeTaskTitle, weakAreas, quickActions, contextualPrompts]);
   const analyzedFiles = useMemo(
     () => uploadedFiles.filter((f) => f.status === 'analyzed' && f.extractedText?.trim()),
     [uploadedFiles],
@@ -663,7 +686,7 @@ export function Agent({
                   {llmReady ? ui.inputPlaceholder : ui.offlineMode}
                 </p>
                 <div className="flex flex-wrap justify-center gap-2 pt-2">
-                  {quickActions.slice(0, 2).map((action) => (
+                  {contextualSuggestions.slice(0, 2).map((action) => (
                     <button
                       key={action}
                       type="button"
@@ -676,15 +699,34 @@ export function Agent({
                 </div>
               </div>
             ) : (
-            <PlatformEmptyState
-              title={ui.title}
-              description={llmReady ? ui.inputPlaceholder : ui.offlineMode}
-              icon={Sparkles}
-              actionLabel={quickActions[0]}
-              onAction={() => handleQuickAction(quickActions[0])}
-              secondaryActionLabel={quickActions[1]}
-              onSecondaryAction={() => handleQuickAction(quickActions[1])}
-            />
+            <div className="py-8 space-y-4">
+              <PlatformEmptyState
+                title={ui.title}
+                description={llmReady ? ui.inputPlaceholder : ui.offlineMode}
+                icon={Sparkles}
+                actionLabel={contextualSuggestions[0]}
+                onAction={() => contextualSuggestions[0] && handleQuickAction(contextualSuggestions[0])}
+                secondaryActionLabel={contextualSuggestions[1]}
+                onSecondaryAction={() => contextualSuggestions[1] && handleQuickAction(contextualSuggestions[1])}
+              />
+              {contextualSuggestions.length > 0 && (
+                <div className="max-w-xl mx-auto">
+                  <p className="text-xs text-text-tertiary mb-3 text-center">{contextualPrompts.emptySuggestionsHeading}</p>
+                  <div className="flex flex-wrap justify-center gap-2">
+                    {contextualSuggestions.map((action) => (
+                      <button
+                        key={action}
+                        type="button"
+                        onClick={() => handleQuickAction(action)}
+                        className="rounded-full border border-border-subtle px-3 py-1.5 text-xs text-text-secondary hover:border-brand-500/30 hover:bg-surface-hover transition-colors text-left"
+                      >
+                        {action}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
             )
           )}
           {messages.map(msg => (
@@ -707,7 +749,7 @@ export function Agent({
             >
               <p className="text-xs text-text-tertiary mb-3">{ui.quickActionsHeading}</p>
               <div className="flex flex-wrap gap-2">
-                {quickActions.map(action => (
+                {contextualSuggestions.map(action => (
                   <button
                     key={action}
                     onClick={() => handleQuickAction(action)}

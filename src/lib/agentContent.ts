@@ -56,6 +56,12 @@ export type AgentContent = {
   modes: Record<AgentMode, AgentModeCopy>;
   sourceModes: AgentSourceModeOption[];
   quickActions: string[];
+  contextualPrompts: {
+    emptySuggestionsHeading: string;
+    fromNextAction: (label: string, reason: string) => string;
+    fromWeakArea: (concept: string) => string;
+    fromTask: (title: string) => string;
+  };
   ui: AgentUiCopy;
 };
 
@@ -91,6 +97,12 @@ const EN: AgentContent = {
     'Simulate an exam question',
     'Synthesize across my library',
   ],
+  contextualPrompts: {
+    emptySuggestionsHeading: 'Suggested starting points',
+    fromNextAction: (label, reason) => `Help me with my next step: ${label}. ${reason}`,
+    fromWeakArea: (concept) => `Explain why I keep missing ${concept} and how to fix it`,
+    fromTask: (title) => `Walk me through "${title}" step by step`,
+  },
   ui: {
     title: 'Synapse Agent',
     llmConnected: 'LLM connected · streaming',
@@ -170,6 +182,12 @@ const EL: AgentContent = {
     'Προσομοίωσε ερώτηση εξετάσεων',
     'Σύνθεση σε όλη τη βιβλιοθήκη',
   ],
+  contextualPrompts: {
+    emptySuggestionsHeading: 'Προτεινόμενα σημεία εκκίνησης',
+    fromNextAction: (label, reason) => `Βοήθησέ με στο επόμενο βήμα: ${label}. ${reason}`,
+    fromWeakArea: (concept) => `Εξήγησε γιατί κάνω συνεχώς λάθη στο ${concept} και πώς να το διορθώσω`,
+    fromTask: (title) => `Οδήγησέ με βήμα-βήμα στην "${title}"`,
+  },
   ui: {
     title: 'Synapse Agent',
     llmConnected: 'LLM συνδεδεμένο · streaming',

@@ -336,6 +336,8 @@ export default function App() {
     onConsumeAutoSend: () => store.setAgentAutoSend(false),
     workspaceContext: store.agentContextForView,
     onChangeSourceMode: (sourceMode: import('./types').UserSettings['sourceMode']) => store.updateSettings({ sourceMode }),
+    dashboardNextAction: store.dashboardNextAction,
+    weakAreas: store.learnerModel.weakAreas,
   };
 
   const studyWorkspaceElement = (
