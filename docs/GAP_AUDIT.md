@@ -231,7 +231,7 @@ Goal: every tool **fully functional for its learning purpose**, not demo stubs.
 | UX-02 | Sidebar Active Course Card + Quick Access strip | P1 | **shipped** | `Shell.tsx`, `shellUxContent.ts`, `index.css` tokens |
 | UX-03 | Note Analysis Pipeline (5 stages + algorithm transparency) | P1 | **shipped** | `NoteAnalysisView.tsx`, `noteAnalysisSnapshot.ts` |
 | UX-04 | Progress / confidence calibration / learner insights | P2 | **shipped** | `progressInsights.ts`, `ProgressInsightsSections.tsx`, `Analytics.tsx` |
-| UX-05 | Agent mode visual catalog + source mode toggle | P2 | open |
+| UX-05 | Agent mode visual catalog + source mode toggle | P2 | **shipped** | `AgentModeSidebar.tsx`, `agentCatalog.ts`, `Agent.tsx` |
 | UX-06 | Exam Simulator fullscreen flow | P2 | open |
 | UX-07 | Onboarding wizard (user type, goal, exam date) | P3 | open |
 | UX-08 | Live Engine transparency tool (client-side BM25/TextRank) | P3 | open |

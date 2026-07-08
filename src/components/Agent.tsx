@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Send, Sparkles, BookOpen, Brain, GraduationCap, MessageSquare,
-  Code, Lightbulb, AlertTriangle, Mic, Volume2, ChevronDown,
+  Code, Lightbulb, AlertTriangle, Mic, ChevronDown,
   RotateCcw, Target, PenTool, Smile, Search, FileText,
   HelpCircle, Zap, Settings2
 } from '@/lib/lucide-shim';
@@ -26,6 +26,8 @@ import { GoToSourceButton } from './GoToSourceButton';
 import { AgentContextBanner } from './AgentContextBanner';
 import { RichText } from './RichText';
 import { getAgentContent, type AgentUiCopy } from '../lib/agentContent';
+import { AGENT_MODE_VISUALS } from '../lib/agentCatalog';
+import { AgentModeCatalogGrid, AgentModeSidebar } from './agent/AgentModeSidebar';
 import { useI18n } from '../lib/i18n';
 import { PlatformSection } from './ui/primitives';
 import { PlatformEmptyState } from './ui/PlatformEmptyState';
@@ -56,6 +58,7 @@ interface AgentProps {
   autoFocusInput?: boolean;
   /** Open the full-page Agent view (optional escape hatch). */
   onOpenFullPage?: () => void;
+  onChangeSourceMode?: (mode: UserSettings['sourceMode']) => void;
 }
 
 const AGENT_MODE_META: { mode: AgentMode; icon: typeof Brain; color: string }[] = [
@@ -99,6 +102,7 @@ export function Agent({
   embedded = false,
   autoFocusInput = false,
   onOpenFullPage,
+  onChangeSourceMode,
 }: AgentProps) {
   const { t } = useI18n();
   const [input, setInput] = useState('');
@@ -123,7 +127,7 @@ export function Agent({
     })),
     [agentContent],
   );
-  const { quickActions, ui } = agentContent;
+  const { quickActions, ui, sourceModes } = agentContent;
   const analyzedFiles = useMemo(
     () => uploadedFiles.filter((f) => f.status === 'analyzed' && f.extractedText?.trim()),
     [uploadedFiles],
@@ -391,34 +395,67 @@ export function Agent({
   };
 
   const currentMode = agentModes.find(m => m.mode === mode)!;
+  const currentVisual = AGENT_MODE_VISUALS[mode];
+  const activeSourceMode = settings?.sourceMode ?? 'strict';
+  const activeSourceLabel = useMemo(() => {
+    if (pinnedFileId) {
+      return analyzedFiles.find((f) => f.id === pinnedFileId)?.name ?? ui.allSources;
+    }
+    if (selectedSource !== 'all') {
+      return courses.find((c) => c.id === selectedSource)?.title ?? ui.allSources;
+    }
+    return ui.allSources;
+  }, [pinnedFileId, selectedSource, analyzedFiles, courses, ui.allSources]);
 
   return (
     <div
       className={cn(
-        'flex flex-col min-h-0',
-        embedded ? 'h-full' : 'h-[calc(100vh-56px)] lg:h-[calc(100vh-56px)]',
+        'flex min-h-0',
+        embedded ? 'flex-col h-full' : 'h-[calc(100vh-56px)] lg:h-[calc(100vh-56px)]',
       )}
       data-testid={embedded ? 'agent-embedded' : 'agent-page'}
     >
+      {!embedded && (
+        <AgentModeSidebar
+          className="hidden lg:flex"
+          modes={agentModes}
+          selectedMode={mode}
+          onSelectMode={onChangeMode}
+          sourceMode={activeSourceMode}
+          onChangeSourceMode={onChangeSourceMode}
+          sourceModeOptions={sourceModes}
+          tutorModeHeading={ui.tutorModeHeading}
+          sourceModeHeading={ui.sourceModeHeading}
+        />
+      )}
+
+      <div className="flex flex-col flex-1 min-w-0 min-h-0">
       {/* Agent Header */}
       {!embedded && (
       <div className="px-4 sm:px-6 py-3 border-b border-border-subtle bg-surface-secondary/30">
         <div className="flex items-center justify-between max-w-none w-full min-w-0 ws-bento-soft px-4 py-3">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-brand-600 flex items-center justify-center">
-              <Sparkles className="w-5 h-5 text-white" />
+            <div
+              className="w-9 h-9 rounded-xl flex items-center justify-center"
+              style={{ backgroundColor: `${currentVisual.color}25` }}
+            >
+              <currentMode.icon className="w-5 h-5" style={{ color: currentVisual.color }} />
             </div>
             <div>
               <div className="flex items-center gap-2">
                 <span className="ws-serif text-sm font-medium text-text-primary">{ui.title}</span>
                 <button
                   onClick={() => setShowModes(!showModes)}
-                  className="flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium bg-surface-hover border border-border-subtle hover:border-brand-500/30 transition-all"
+                  className="lg:hidden flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium bg-surface-hover border border-border-subtle hover:border-brand-500/30 transition-all"
                 >
                   <currentMode.icon className={cn('w-3 h-3', currentMode.color)} />
                   {currentMode.label}
                   <ChevronDown className={cn('w-3 h-3 transition-transform', showModes && 'rotate-180')} />
                 </button>
+                <span className="hidden lg:inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium bg-surface-hover border border-border-subtle text-text-secondary">
+                  <currentMode.icon className={cn('w-3 h-3', currentMode.color)} />
+                  {currentMode.label}
+                </span>
               </div>
               <p className="text-xs text-text-tertiary">
                 {llmReady ? ui.llmConnected : ui.offlineMode}
@@ -463,7 +500,7 @@ export function Agent({
               <Settings2 className="w-4 h-4" aria-hidden="true" />
             </button>
             {showSourceSettings && (
-              <div className="absolute right-0 top-full mt-1 z-20 w-56 rounded-xl border border-border-subtle bg-surface-card shadow-lg p-3 text-xs space-y-2">
+              <div className="absolute right-0 top-full mt-1 z-20 w-64 rounded-xl border border-border-subtle bg-surface-card shadow-lg p-3 text-xs space-y-2">
                 <p className="font-medium text-text-secondary">{ui.sourceSettingsTitle}</p>
                 <button
                   type="button"
@@ -481,9 +518,26 @@ export function Agent({
                     {ui.pinnedFileLabel}: ✕
                   </button>
                 )}
-                <p className="text-[10px] text-text-muted">
-                  {settings?.sourceMode ?? 'strict'}
-                </p>
+                {onChangeSourceMode && (
+                  <div className="pt-2 border-t border-border-subtle space-y-1">
+                    <p className="text-[10px] font-medium text-text-tertiary uppercase tracking-wider px-1">
+                      {ui.sourceModeHeading}
+                    </p>
+                    {sourceModes.map((opt) => (
+                      <button
+                        key={opt.id}
+                        type="button"
+                        onClick={() => onChangeSourceMode(opt.id)}
+                        className={cn(
+                          'w-full text-left px-2 py-1.5 rounded-lg hover:bg-surface-hover',
+                          activeSourceMode === opt.id ? 'text-brand-300 bg-brand-500/10' : 'text-text-secondary',
+                        )}
+                      >
+                        {opt.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -545,36 +599,53 @@ export function Agent({
         </div>
       )}
 
-      {/* Mode Selector Dropdown */}
+      {/* Mode Selector Dropdown — mobile / embedded */}
       <AnimatePresence>
         {showModes && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="border-b border-border-subtle bg-surface-secondary/50 overflow-hidden"
+            className={cn(
+              'border-b border-border-subtle bg-surface-secondary/50 overflow-hidden',
+              !embedded && 'lg:hidden',
+            )}
           >
             <div className="max-w-none w-full min-w-0 px-4 sm:px-6 py-4">
               <PlatformSection title={ui.agentModeHeading} padding="none" tone="muted">
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 pt-3">
-                {agentModes.map(m => (
-                  <button
-                    key={m.mode}
-                    onClick={() => { onChangeMode(m.mode); setShowModes(false); }}
-                    className={cn(
-                      'ws-bento-soft p-2.5 text-left transition-all',
-                      mode === m.mode
-                        ? 'border-brand-500/35 text-brand-700'
-                        : 'hover:border-brand-500/25',
-                    )}
-                  >
-                    <m.icon className={cn('w-4 h-4 mb-1', m.color)} />
-                    <p className="text-xs font-medium">{m.label}</p>
-                    <p className="text-[10px] text-text-tertiary">{m.desc}</p>
-                  </button>
-                ))}
-              </div>
+                <div className="pt-3">
+                  <AgentModeCatalogGrid
+                    modes={agentModes}
+                    selectedMode={mode}
+                    onSelectMode={onChangeMode}
+                    onClose={() => setShowModes(false)}
+                  />
+                </div>
               </PlatformSection>
+              {onChangeSourceMode && (
+                <div className="mt-4 pt-4 border-t border-border-subtle">
+                  <p className="text-xs font-semibold text-text-tertiary uppercase tracking-wider mb-2">
+                    {ui.sourceModeHeading}
+                  </p>
+                  <div className="space-y-1">
+                    {sourceModes.map((opt) => (
+                      <button
+                        key={opt.id}
+                        type="button"
+                        onClick={() => onChangeSourceMode(opt.id)}
+                        className={cn(
+                          'w-full text-left px-3 py-2 rounded-xl text-xs transition-all',
+                          activeSourceMode === opt.id
+                            ? 'bg-brand-500/10 text-brand-300 border border-brand-500/25'
+                            : 'text-text-secondary hover:bg-surface-hover',
+                        )}
+                      >
+                        {opt.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </motion.div>
         )}
@@ -744,14 +815,11 @@ export function Agent({
 
           {!embedded && (
           <div className="flex items-center justify-between mt-2 flex-wrap gap-2">
-            <div className="flex items-center gap-3 text-[10px] text-text-muted flex-wrap">
-              <span className="flex items-center gap-1">
-                <Volume2 className="w-3 h-3" />
-                {ui.sourceGroundedBadge}
-              </span>
-              <span>•</span>
-              <span>{currentMode.label} {ui.modeSuffix}</span>
-              <span>•</span>
+            <p className="text-[10px] text-text-muted text-center w-full sm:text-left sm:w-auto">
+              {lang === 'el' ? 'Πηγή' : 'Source'}: {activeSourceLabel}
+              {' · '}
+              {ui.sourceModeFooter(activeSourceMode)}
+              {' · '}
               <button
                 type="button"
                 onClick={handleNoAnswerHint}
@@ -760,22 +828,13 @@ export function Agent({
               >
                 {ui.noAnswerHint}
               </button>
-              <span>•</span>
-              <button
-                type="button"
-                onClick={() => setAttachSource((v) => !v)}
-                className={cn(
-                  'text-text-muted hover:text-text-secondary transition-colors',
-                  attachSource && sourceExcerpt && 'text-brand-400',
-                )}
-              >
-                {attachSource ? ui.sourceOn : ui.sourceOff}
-              </button>
-            </div>
-            <span className="text-[10px] text-text-muted">{ui.shiftEnter}</span>
+              {' · '}
+              {ui.shiftEnter}
+            </p>
           </div>
           )}
         </div>
+      </div>
       </div>
     </div>
   );

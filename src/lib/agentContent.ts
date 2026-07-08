@@ -1,7 +1,13 @@
-import type { AgentMode } from '../types';
+import type { AgentMode, UserSettings } from '../types';
 import type { Lang } from './i18n';
 
 export type AgentModeCopy = { label: string; desc: string };
+
+export type AgentSourceModeOption = {
+  id: UserSettings['sourceMode'];
+  label: string;
+  desc: string;
+};
 
 export type AgentUiCopy = {
   title: string;
@@ -12,6 +18,8 @@ export type AgentUiCopy = {
   focus: string;
   completeTask: string;
   agentModeHeading: string;
+  tutorModeHeading: string;
+  sourceModeHeading: string;
   quickActionsHeading: string;
   thinking: string;
   inputPlaceholder: string;
@@ -41,10 +49,12 @@ export type AgentUiCopy = {
   sourceSettingsTitle: string;
   attachFileTitle: string;
   noAnalyzedFiles: string;
+  sourceModeFooter: (mode: UserSettings['sourceMode']) => string;
 };
 
 export type AgentContent = {
   modes: Record<AgentMode, AgentModeCopy>;
+  sourceModes: AgentSourceModeOption[];
   quickActions: string[];
   ui: AgentUiCopy;
 };
@@ -67,6 +77,11 @@ const EN: AgentContent = {
     'memory-coach': { label: 'Memory Coach', desc: 'Retrieval practice' },
     motivation: { label: 'Focus Coach', desc: 'Small actionable steps' },
   },
+  sourceModes: [
+    { id: 'strict', label: 'My Notes Only', desc: 'Strict source mode — no external knowledge' },
+    { id: 'enriched', label: 'Notes + Enrichment', desc: 'AI adds trusted context when helpful' },
+    { id: 'notes-only', label: 'Notes Structure Only', desc: 'Outline and headings from your uploads' },
+  ],
   quickActions: [
     'Explain this concept simply',
     'Give me a practice question',
@@ -85,6 +100,8 @@ const EN: AgentContent = {
     focus: 'Focus',
     completeTask: 'Complete task',
     agentModeHeading: 'Agent Mode',
+    tutorModeHeading: 'Tutor Mode',
+    sourceModeHeading: 'Source Mode',
     quickActionsHeading: 'Quick actions:',
     thinking: 'Thinking…',
     inputPlaceholder: 'Ask anything about your material...',
@@ -114,6 +131,10 @@ const EN: AgentContent = {
     sourceSettingsTitle: 'Source context',
     attachFileTitle: 'Pin a file',
     noAnalyzedFiles: 'No analyzed files yet',
+    sourceModeFooter: (mode) => {
+      if (mode === 'strict' || mode === 'notes-only') return 'Strict source mode';
+      return 'Notes + trusted enrichment';
+    },
   },
 };
 
@@ -135,6 +156,11 @@ const EL: AgentContent = {
     'memory-coach': { label: 'Memory Coach', desc: 'Εξάσκηση ανάκλησης' },
     motivation: { label: 'Focus Coach', desc: 'Μικρά πρακτικά βήματα' },
   },
+  sourceModes: [
+    { id: 'strict', label: 'Μόνο οι σημειώσεις μου', desc: 'Αυστηρή λειτουργία πηγής — χωρίς εξωτερική γνώση' },
+    { id: 'enriched', label: 'Σημειώσεις + Enrichment', desc: 'Το AI προσθέτει αξιόπιστο πλαίσιο όταν βοηθά' },
+    { id: 'notes-only', label: 'Μόνο δομή σημειώσεων', desc: 'Περίγραμμα και επικεφαλίδες από τα uploads σου' },
+  ],
   quickActions: [
     'Εξήγησε απλά αυτή την έννοια',
     'Δώσε μου μια ερώτηση εξάσκησης',
@@ -153,6 +179,8 @@ const EL: AgentContent = {
     focus: 'Εστίαση',
     completeTask: 'Ολοκλήρωση εργασίας',
     agentModeHeading: 'Λειτουργία Agent',
+    tutorModeHeading: 'Tutor Mode',
+    sourceModeHeading: 'Source Mode',
     quickActionsHeading: 'Γρήγορες ενέργειες:',
     thinking: 'Σκέφτομαι…',
     inputPlaceholder: 'Ρώτα οτιδήποτε για το υλικό σου...',
@@ -182,6 +210,10 @@ const EL: AgentContent = {
     sourceSettingsTitle: 'Περιεχόμενο πηγής',
     attachFileTitle: 'Καρφίτσωμα αρχείου',
     noAnalyzedFiles: 'Δεν υπάρχουν αναλυμένα αρχεία',
+    sourceModeFooter: (mode) => {
+      if (mode === 'strict' || mode === 'notes-only') return 'Αυστηρή λειτουργία πηγής';
+      return 'Σημειώσεις + αξιόπιστο enrichment';
+    },
   },
 };
 
