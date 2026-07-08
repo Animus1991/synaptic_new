@@ -1,5 +1,5 @@
 import { ReactNode, forwardRef, type ButtonHTMLAttributes } from 'react';
-import { motion } from 'framer-motion';
+import { motion, type HTMLMotionProps } from 'framer-motion';
 import type { LucideIcon } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
 
@@ -241,6 +241,88 @@ export function StatTile({
 
 /** Drop-in class bundle for legacy card divs migrating to bento. */
 export const platformBento = 'ws-bento';
+
+export type PlatformTabItem = {
+  key: string;
+  label: ReactNode;
+  icon?: LucideIcon;
+  testId?: string;
+};
+
+/** Shared platform tab bar — matches Tasks / Analytics / Course affordances. */
+export function TabBar({
+  tabs,
+  activeKey,
+  onChange,
+  ariaLabel,
+  className,
+}: {
+  tabs: PlatformTabItem[];
+  activeKey: string;
+  onChange: (key: string) => void;
+  ariaLabel?: string;
+  className?: string;
+}) {
+  return (
+    <div className={cn('ux-tab-bar', className)} role="tablist" aria-label={ariaLabel}>
+      {tabs.map((tab) => {
+        const Icon = tab.icon;
+        const active = activeKey === tab.key;
+        return (
+          <button
+            key={tab.key}
+            type="button"
+            role="tab"
+            aria-selected={active}
+            data-testid={tab.testId}
+            onClick={() => onChange(tab.key)}
+            className={cn('ux-tab', active && 'ux-tab-active')}
+          >
+            {Icon && <Icon className="h-3.5 w-3.5 shrink-0" aria-hidden />}
+            {Icon ? <span className="hidden sm:inline">{tab.label}</span> : tab.label}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+type AnimatedCardProps = {
+  children: ReactNode;
+  className?: string;
+  tone?: keyof typeof CARD_TONE;
+  padding?: keyof typeof CARD_PAD;
+  delay?: number;
+  animate?: boolean;
+} & Omit<HTMLMotionProps<'div'>, 'children'>;
+
+/** Card with standard platform entrance motion. */
+export function AnimatedCard({
+  children,
+  className,
+  tone = 'default',
+  padding = 'md',
+  delay = 0,
+  animate = true,
+  ...motionProps
+}: AnimatedCardProps) {
+  const card = (
+    <Card tone={tone} padding={padding} className={className}>
+      {children}
+    </Card>
+  );
+  if (!animate) return card;
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay, duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
+      {...motionProps}
+    >
+      {card}
+    </motion.div>
+  );
+}
 
 /** Primary call-to-action — solid brand fill, WCAG-friendly white label. */
 export const PrimaryCTA = forwardRef<
