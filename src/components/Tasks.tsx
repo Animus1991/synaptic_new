@@ -9,7 +9,7 @@ import type { Task, MistakeRecord, SkillNode, SpacingData } from '../types';
 import type { Lang } from '../lib/i18n';
 import { cn } from '../utils/cn';
 import type { FsrsRating } from '../lib/pedagogy';
-import { filterTasksForSession, type SessionType } from '../lib/taskFlows';
+import { filterTasksForSession, startButtonLabel, sessionLabel, type SessionType } from '../lib/taskFlows';
 import {
   getTasksContent,
   getSessionTypes,
@@ -46,6 +46,11 @@ interface TasksProps {
   onFocusWeakArea?: (concept: string) => void;
   onOpenAgent?: () => void;
   courseNameById?: Record<string, string>;
+  activeSessionType?: SessionType | null;
+  sessionCurrentIndex?: number;
+  sessionTotal?: number;
+  sessionQueueIds?: string[];
+  activeTaskId?: string | null;
 }
 
 function formatDueDate(iso: string | undefined, lang: Lang): string {
@@ -82,6 +87,11 @@ export function Tasks({
   onFocusWeakArea,
   onOpenAgent,
   courseNameById = {},
+  activeSessionType = null,
+  sessionCurrentIndex = 0,
+  sessionTotal = 0,
+  sessionQueueIds = [],
+  activeTaskId = null,
 }: TasksProps) {
   const c = getTasksContent(lang);
   const sessionTypes = getSessionTypes(lang);
@@ -111,6 +121,15 @@ export function Tasks({
   useEffect(() => {
     if (focusCourseId) setShowAllCourses(false);
   }, [focusCourseId]);
+
+  useEffect(() => {
+    if (activeSessionType) setSessionMode(activeSessionType);
+  }, [activeSessionType]);
+
+  const sessionActive = Boolean(activeSessionType && sessionTotal > 0);
+  const activeTask = activeTaskId ? tasks.find((t) => t.id === activeTaskId) ?? null : null;
+  const nextQueuedTaskId = sessionQueueIds.find((id) => id !== activeTaskId) ?? sessionQueueIds[1];
+  const nextQueuedTask = nextQueuedTaskId ? tasks.find((t) => t.id === nextQueuedTaskId) ?? null : null;
 
   const courseScoped = focusCourseId && !showAllCourses;
   const visibleTasks = courseScoped
@@ -175,6 +194,8 @@ export function Tasks({
         }
       />
 
+      <p className="text-sm text-text-secondary pb-1">{c.entryHint}</p>
+
       {focusCourseId && focusCourseName && (
         <div className="flex flex-wrap items-center gap-2 pb-1">
           {courseScoped && <span className="text-xs text-text-secondary">{c.courseScopeLabel(focusCourseName)}</span>}
@@ -204,6 +225,24 @@ export function Tasks({
           <div className="ux-progress-fill" style={{ width: `${progressPct}%` }} />
         </div>
       </div>
+
+      {sessionActive && activeSessionType && (
+        <div className="ux-card ux-chip-info border-brand-500/25 mb-3 p-3 space-y-1.5" data-testid="tasks-session-status">
+          <p className="text-xs font-semibold text-brand-300">
+            {c.sessionActiveBanner(sessionLabel(activeSessionType), sessionCurrentIndex, sessionTotal)}
+          </p>
+          {activeTask && (
+            <p className="text-sm text-text-primary truncate">
+              <span className="text-[10px] uppercase tracking-wide text-brand-400 mr-2">{c.sessionRunningNow}</span>
+              {activeTask.title}
+            </p>
+          )}
+          {nextQueuedTask && nextQueuedTask.id !== activeTaskId && (
+            <p className="text-xs text-text-tertiary truncate">{c.sessionUpNext(nextQueuedTask.title)}</p>
+          )}
+          <p className="text-[10px] text-text-muted">{c.sessionAutoAdvanceHint}</p>
+        </div>
+      )}
 
       {/* Session launchers */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 mb-4">
@@ -262,7 +301,8 @@ export function Tasks({
           ) : (
             todayTasks.map((task, i) => {
               const isExpanded = expandedTask === task.id;
-              const isInProgress = task.status === 'in-progress';
+              const isInProgress = task.status === 'in-progress' || task.id === activeTaskId;
+              const isRunningNow = task.id === activeTaskId && sessionActive;
               return (
                 <motion.div
                   key={task.id}
@@ -280,14 +320,17 @@ export function Tasks({
                       <Circle className="w-5 h-5 text-text-muted hover:text-brand-400" />
                     </button>
                     <div className="w-8 h-8 rounded-lg bg-brand-600/15 flex items-center justify-center shrink-0">
-                      <TaskActionIcon taskType={task.type} size="sm" />
+                      <TaskActionIcon task={task} size="sm" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-text-primary truncate">{task.title}</p>
-                      <div className="flex items-center gap-2 mt-0.5 text-xs text-text-tertiary">
+                      <div className="flex items-center gap-2 mt-0.5 text-xs text-text-tertiary flex-wrap">
                         <span>{task.courseName}</span>
                         <span>·</span>
                         <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{task.estimatedMinutes} min</span>
+                        {isRunningNow && (
+                          <span className="text-[10px] px-1.5 py-0.5 rounded-full ux-chip-info">{c.sessionRunningNow}</span>
+                        )}
                       </div>
                     </div>
                     <div className="flex items-center gap-2 shrink-0">
@@ -299,7 +342,7 @@ export function Tasks({
                         onClick={(e) => { e.stopPropagation(); onStartTask?.(task.id); }}
                         className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-brand-600/15 text-brand-400 text-xs font-medium hover:bg-brand-600/25"
                       >
-                        <Play className="w-3 h-3" /> Start
+                        <Play className="w-3 h-3" /> {startButtonLabel(task, lang)}
                       </button>
                     </div>
                   </div>

@@ -303,6 +303,10 @@ export default function App() {
   const sessionCurrentIndex = store.sessionTotal > 0
     ? store.sessionTotal - store.sessionQueue.length + 1
     : 0;
+  const sessionNextTaskId = store.sessionQueue.find((id) => id !== store.activeTaskId);
+  const sessionNextTask = sessionNextTaskId
+    ? store.tasks.find((t) => t.id === sessionNextTaskId) ?? null
+    : null;
 
   const nextPendingTask = findPendingTask(store.tasks, () => true);
   const agentSplitActive = store.studyWorkspaceOpen && store.workspaceAgentSplit && store.currentView === 'agent';
@@ -777,6 +781,9 @@ export default function App() {
       sessionType={store.activeSessionType}
       currentIndex={sessionCurrentIndex}
       total={store.sessionTotal}
+      currentTaskTitle={store.activeTask?.title}
+      nextTaskTitle={sessionNextTask?.title}
+      lang={store.user.settings.language}
       onEndSession={store.endSession}
     />
   ) : null;
@@ -1062,6 +1069,11 @@ export default function App() {
               onFocusWeakArea={openWorkspaceForConcept}
               onOpenAgent={() => store.navigate('agent')}
               courseNameById={Object.fromEntries(store.courses.map((c) => [c.id, c.title]))}
+              activeSessionType={store.activeSessionType}
+              sessionCurrentIndex={sessionCurrentIndex}
+              sessionTotal={store.sessionTotal}
+              sessionQueueIds={store.sessionQueue}
+              activeTaskId={store.activeTaskId}
             />
           )}
           {store.currentView === 'agent' && !agentSplitActive && (

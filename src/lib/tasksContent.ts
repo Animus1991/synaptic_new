@@ -82,6 +82,11 @@ export type TasksContent = {
   yesterday: string;
   highPriority: string;
   weakAreasEmpty: string;
+  entryHint: string;
+  sessionActiveBanner: (label: string, current: number, total: number) => string;
+  sessionRunningNow: string;
+  sessionUpNext: (title: string) => string;
+  sessionAutoAdvanceHint: string;
 };
 
 const EN: TasksContent = {
@@ -152,6 +157,11 @@ const EN: TasksContent = {
   yesterday: 'Yesterday',
   highPriority: 'High priority',
   weakAreasEmpty: 'No weak areas yet — complete quizzes to build your mastery profile.',
+  entryHint: 'Start or resume a task, or launch a focused session — the queue bar shows which task runs next.',
+  sessionActiveBanner: (label, current, total) => `${label} · Task ${current} of ${total}`,
+  sessionRunningNow: 'Running now',
+  sessionUpNext: (title) => `Up next: ${title}`,
+  sessionAutoAdvanceHint: 'Finish the current task to auto-advance to the next one in this session.',
 };
 
 const EL: TasksContent = {
@@ -222,6 +232,11 @@ const EL: TasksContent = {
   yesterday: 'Χθες',
   highPriority: 'Υψηλή προτεραιότητα',
   weakAreasEmpty: 'Δεν υπάρχουν αδύναμα σημεία — ολοκλήρωσε quiz για προφίλ mastery.',
+  entryHint: 'Ξεκίνα ή συνέχισε μια εργασία, ή εκκίνησε focused session — η ουρά δείχνει ποια εργασία τρέχει επόμενη.',
+  sessionActiveBanner: (label, current, total) => `${label} · Εργασία ${current} από ${total}`,
+  sessionRunningNow: 'Τρέχει τώρα',
+  sessionUpNext: (title) => `Επόμενο: ${title}`,
+  sessionAutoAdvanceHint: 'Ολοκλήρωσε την τρέχουσα εργασία για αυτόματη μετάβαση στην επόμενη της συνεδρίας.',
 };
 
 const TASK_TYPE_LABELS: Record<Lang, Record<TaskType, string>> = {

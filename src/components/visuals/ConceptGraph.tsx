@@ -24,6 +24,8 @@ interface ConceptGraphProps {
   edges: ConceptEdge[];
   width?: number;
   height?: number;
+  onOpenConcept?: (label: string) => void;
+  openConceptLabel?: string;
 }
 
 const getMasteryColor = (m: number) => (m > 0 ? masteryColorForValue(m) : 'var(--color-text-muted)');
@@ -35,7 +37,14 @@ const typeIcons: Record<string, string> = {
   theory: conceptTypeGlyph('theory'),
 };
 
-export function ConceptGraph({ nodes, edges, width = 700, height = 400 }: ConceptGraphProps) {
+export function ConceptGraph({
+  nodes,
+  edges,
+  width = 700,
+  height = 400,
+  onOpenConcept,
+  openConceptLabel = 'Study in workspace',
+}: ConceptGraphProps) {
   const [hoveredNode, setHoveredNode] = useState<string | null>(null);
   const [selectedNode, setSelectedNode] = useState<string | null>(null);
 
@@ -171,6 +180,15 @@ export function ConceptGraph({ nodes, edges, width = 700, height = 400 }: Concep
           <div className="text-text-muted">
             Prerequisites: {edges.filter(e => e.to === selectedNode && e.relation === 'prerequisite').map(e => nodeMap[e.from]?.label).filter(Boolean).join(', ') || 'None'}
           </div>
+          {onOpenConcept && (
+            <button
+              type="button"
+              onClick={() => onOpenConcept(nodeMap[selectedNode].label)}
+              className="mt-2 w-full rounded-lg bg-brand-600/15 px-3 py-1.5 text-[11px] font-medium text-brand-300 hover:bg-brand-600/25 transition-colors"
+            >
+              {openConceptLabel}
+            </button>
+          )}
         </motion.div>
       )}
     </div>

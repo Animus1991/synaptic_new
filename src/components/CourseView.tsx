@@ -72,6 +72,19 @@ function topicLessonCount(topic: Topic): number {
 
 type CourseTab = 'path' | 'map' | 'sources' | 'analytics';
 
+function buildSourcePreviewText(file: UploadedFile, course: Course): string | null {
+  if (file.extractedText?.trim()) {
+    const text = file.extractedText.replace(/\s+/g, ' ').trim();
+    return text.length > 160 ? `${text.slice(0, 157)}…` : text;
+  }
+  const span = course.conceptSpans?.find((s) => s.fileId === file.id && s.sentence?.trim());
+  if (span?.sentence) {
+    const sentence = span.sentence.replace(/\s+/g, ' ').trim();
+    return sentence.length > 160 ? `${sentence.slice(0, 157)}…` : sentence;
+  }
+  return null;
+}
+
 export function CourseView({
   course,
   uploadedFiles = [],
@@ -250,6 +263,8 @@ export function CourseView({
         }
       />
 
+      <p className="text-sm text-text-secondary">{t('courseEntryHint')}</p>
+
       {showPostUploadBanner && (
         <PostUploadBanner
           courseTitle={course.title}
@@ -348,6 +363,40 @@ export function CourseView({
               <span className="font-semibold text-text-primary">Best next upgrade:</span> {quality.nextActions[0]}
             </p>
           )}
+          <div className="mt-4 flex flex-wrap gap-2">
+            {quality.needsMoreMaterial && onUploadMore && (
+              <button
+                type="button"
+                onClick={onUploadMore}
+                data-testid="course-quality-upload-more"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-accent-amber/30 bg-accent-amber/10 text-xs font-medium text-accent-amber hover:bg-accent-amber/15"
+              >
+                <Upload className="w-3.5 h-3.5" />
+                {t('courseQualityActionUpload')}
+              </button>
+            )}
+            {onReprocessMaterial && (
+              <button
+                type="button"
+                onClick={openReprocessWizard}
+                disabled={reprocessingMaterial}
+                data-testid="course-quality-reprocess"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-brand-500/30 text-xs font-medium text-brand-300 hover:bg-brand-500/10 disabled:opacity-60"
+              >
+                <RefreshCw className={cn('w-3.5 h-3.5', reprocessingMaterial && 'animate-spin')} />
+                {t('courseQualityActionReprocess')}
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={() => onStartLesson()}
+              data-testid="course-quality-open-workspace"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand-600/15 text-xs font-medium text-brand-300 hover:bg-brand-600/25"
+            >
+              <Play className="w-3.5 h-3.5" />
+              {t('courseQualityActionWorkspace')}
+            </button>
+          </div>
         </motion.div>
       )}
 
@@ -423,7 +472,7 @@ export function CourseView({
         </div>
       )}
 
-      {tab === 'map' && <ConceptMap course={course} />}
+      {tab === 'map' && <ConceptMap course={course} onStartLesson={onStartLesson} />}
       {tab === 'sources' && (
         <SourceFiles
           course={course}
@@ -624,7 +673,7 @@ function TopicCard({ topic, index, courseColor, course, onGoToSource, onStart }:
   );
 }
 
-function ConceptMap({ course }: { course: Course }) {
+function ConceptMap({ course, onStartLesson }: { course: Course; onStartLesson: (topicTitle?: string) => void }) {
   const { t } = useI18n();
   const topics = course.topics.filter(t => !t.isLocked);
   const graphSummary = summarizeCourseGraph(course.conceptGraph);
@@ -645,7 +694,17 @@ function ConceptMap({ course }: { course: Course }) {
       )}
 
       {graphNodes.length > 0 && (
-        <ConceptGraph nodes={graphNodes} edges={graphEdges} width={640} height={Math.max(280, Math.ceil(graphNodes.length / 4) * 110 + 80)} />
+        <>
+          <p className="text-xs text-text-secondary">{t('courseConceptMapHint')}</p>
+          <ConceptGraph
+            nodes={graphNodes}
+            edges={graphEdges}
+            width={640}
+            height={Math.max(280, Math.ceil(graphNodes.length / 4) * 110 + 80)}
+            onOpenConcept={(label) => onStartLesson(label)}
+            openConceptLabel={t('courseConceptMapOpenWorkspace')}
+          />
+        </>
       )}
 
       <ProgressTimeline
@@ -767,13 +826,21 @@ function SourceFiles({
           )}
         </div>
         <div className="space-y-2">
-          {(uploadedFiles.length > 0 ? uploadedFiles : course.sourceFiles.map((name) => ({ name } as UploadedFile))).map((file, i) => (
-            <div key={file.id ?? i} className="flex items-center gap-3 p-3 rounded-xl bg-surface-primary/50 border border-border-subtle flex-wrap" data-testid={file.id ? `source-file-${file.id}` : undefined}>
-              <FileText className="w-5 h-5 text-text-tertiary shrink-0" />
+          {(uploadedFiles.length > 0 ? uploadedFiles : course.sourceFiles.map((name) => ({ name } as UploadedFile))).map((file, i) => {
+            const preview = file.id ? buildSourcePreviewText(file, course) : null;
+            return (
+            <div key={file.id ?? i} className="flex items-start gap-3 p-3 rounded-xl bg-surface-primary/50 border border-border-subtle flex-wrap" data-testid={file.id ? `source-file-${file.id}` : undefined}>
+              <FileText className="w-5 h-5 text-text-tertiary shrink-0 mt-0.5" />
               <div className="flex-1 min-w-0">
                 <span className="text-sm font-medium block truncate">{file.name}</span>
                 {'pipelineVersion' in file && file.pipelineVersion && (
                   <span className="text-[10px] text-text-muted">pipeline v{file.pipelineVersion}</span>
+                )}
+                {file.id && (
+                  <p className="mt-2 text-xs text-text-secondary leading-relaxed">
+                    <span className="font-medium text-text-primary">{t('courseSourcePreviewLabel')}: </span>
+                    {preview ?? t('courseSourcePreviewEmpty')}
+                  </p>
                 )}
               </div>
               {'ocrUsed' in file && file.ocrUsed && (
@@ -798,7 +865,8 @@ function SourceFiles({
                 </button>
               )}
             </div>
-          ))}
+            );
+          })}
         </div>
         {course.pipelineMeta && (
           <p className="mt-3 text-[10px] text-text-muted">
