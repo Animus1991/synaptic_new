@@ -17,6 +17,13 @@ export type NoteAnalysisContent = {
   extractedItems: string;
   detectedIssues: string;
   algorithmTransparency: string;
+  liveTransparencyTitle: string;
+  liveTransparencyHint: string;
+  liveTransparencyQueryLabel: string;
+  liveTransparencyQueryPlaceholder: string;
+  liveTransparencyRun: string;
+  liveTransparencyHits: string;
+  liveTransparencyNoHits: string;
   bm25Ranking: string;
   textRankSentences: string;
   keyphraseRankings: string;
@@ -63,6 +70,13 @@ const EN: NoteAnalysisContent = {
   extractedItems: 'Extracted items',
   detectedIssues: 'Detected issues',
   algorithmTransparency: 'See how BM25, TextRank, and keyphrase extraction work on your notes.',
+  liveTransparencyTitle: 'Live engine transparency',
+  liveTransparencyHint: 'Run a concept or query against your uploaded material and inspect live BM25 hits, TextRank summaries, and keyphrase signals.',
+  liveTransparencyQueryLabel: 'Concept or query',
+  liveTransparencyQueryPlaceholder: 'Try: price elasticity, demand curve, mitochondria...',
+  liveTransparencyRun: 'Run analysis',
+  liveTransparencyHits: 'Top grounded hits',
+  liveTransparencyNoHits: 'No lexical hits found for this query yet.',
   bm25Ranking: 'BM25 term ranking',
   textRankSentences: 'TextRank sentence scores',
   keyphraseRankings: 'Keyphrase rankings',
@@ -91,6 +105,13 @@ const EL: NoteAnalysisContent = {
   extractedItems: 'Εξαγόμενα στοιχεία',
   detectedIssues: 'Ανιχνευμένα θέματα',
   algorithmTransparency: 'Δες πώς λειτουργούν BM25, TextRank και εξαγωγή keyphrases στις σημειώσεις σου.',
+  liveTransparencyTitle: 'Live διαφάνεια engine',
+  liveTransparencyHint: 'Τρέξε μια έννοια ή ερώτημα πάνω στο ανεβασμένο υλικό και δες live BM25 hits, TextRank summaries και keyphrase signals.',
+  liveTransparencyQueryLabel: 'Έννοια ή ερώτημα',
+  liveTransparencyQueryPlaceholder: 'Δοκίμασε: price elasticity, demand curve, μιτοχόνδρια...',
+  liveTransparencyRun: 'Εκτέλεση ανάλυσης',
+  liveTransparencyHits: 'Κορυφαία grounded hits',
+  liveTransparencyNoHits: 'Δεν βρέθηκαν lexical hits για αυτό το query ακόμη.',
   bm25Ranking: 'Κατάταξη όρων BM25',
   textRankSentences: 'Βαθμολογίες προτάσεων TextRank',
   keyphraseRankings: 'Κατάταξη keyphrases',

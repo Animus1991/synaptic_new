@@ -74,7 +74,7 @@ function estimatePages(wordCount: number): number {
   return Math.max(1, Math.round(wordCount / 320));
 }
 
-function buildBm25Table(text: string, files: UploadedFile[], courseId: string): Bm25TermRow[] {
+export function buildBm25Table(text: string, files: UploadedFile[], courseId: string): Bm25TermRow[] {
   const corpus = getCorpus(files, courseId);
   const tokens = tokenize(text);
   const tfMap = new Map<string, number>();
@@ -96,7 +96,7 @@ function buildBm25Table(text: string, files: UploadedFile[], courseId: string): 
     .map((r, i) => ({ ...r, rank: i + 1 }));
 }
 
-function buildTextRankSentences(text: string, biasTerms: string[]): TextRankSentence[] {
+export function buildTextRankSentences(text: string, biasTerms: string[]): TextRankSentence[] {
   const summary = extractiveSummary(text, 3, { biasTerms, capSentences: 80 });
   const summarySet = new Set(summary.map((s) => s.trim()));
   const sentences = splitSentences(text).slice(0, 12);
@@ -236,4 +236,26 @@ export function retrieveTransparencyHits(
 ) {
   const corpus = getCorpus(files, courseId);
   return retrieve(query, corpus, k);
+}
+
+export function buildLiveTransparencyData(
+  files: UploadedFile[],
+  courseId: string,
+  query: string,
+  k = 4,
+) {
+  const courseFiles = files.filter((f) => f.courseId === courseId);
+  const text = combineCourseText(courseFiles);
+  const keyphrases = rankKeyphrases(text, 8).map((k) => ({ phrase: k.phrase, score: Math.round(k.score * 100) / 100 }));
+  const biasTerms = query.trim()
+    ? [query, ...keyphrases.map((k) => k.phrase).slice(0, 4)]
+    : keyphrases.map((k) => k.phrase);
+
+  return {
+    wordCount: text.split(/\s+/).filter(Boolean).length,
+    bm25Terms: text.length > 80 ? buildBm25Table(text, courseFiles, courseId) : [],
+    textRankSentences: text.length > 80 ? buildTextRankSentences(text, biasTerms) : [],
+    keyphrases,
+    hits: query.trim() ? retrieveTransparencyHits(courseFiles, courseId, query, k) : [],
+  };
 }

@@ -11,6 +11,7 @@ import { getNoteAnalysisContent, NOTE_ANALYSIS_STAGES } from '../lib/noteAnalysi
 import { ConceptGraph } from './visuals/ConceptGraph';
 import { Page, PageHeader } from './ui/primitives';
 import { workspaceEntryPrefetchHandlers } from '../lib/workspaceEntryPrefetch';
+import { LiveEngineTransparencyPanel } from './analysis/LiveEngineTransparencyPanel';
 
 const STAGE_ICONS: Record<NoteAnalysisStageId, typeof FileText> = {
   1: FileText,
@@ -171,6 +172,13 @@ export function NoteAnalysisView({
       {activeStage === 2.5 && (
         <div className="space-y-4">
           <p className="text-sm text-text-secondary">{c.algorithmTransparency}</p>
+
+          <LiveEngineTransparencyPanel
+            courseId={course.id}
+            files={files}
+            lang={lang}
+            defaultQuery={snapshot.keyphrases[0]?.phrase ?? course.title}
+          />
 
           {snapshot.bm25Terms.length > 0 && (
             <div className="ux-card overflow-x-auto">
