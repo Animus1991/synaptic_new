@@ -6,7 +6,7 @@ import { filterQuizItems, quizItemQuestion } from '../../lib/quizSessionModel';
 import type { QuizSessionItem } from '../../lib/quizSession';
 import { loadQuizSession } from '../../lib/quizSession';
 import { auditQuizSelectionRemediation } from '../../lib/quizSelectionRemediationQA';
-import { WorkspaceEmptyState } from './WorkspaceEmptyState';
+import { WorkspaceToolEmptyState } from './WorkspaceToolEmptyState';
 import { WorkspaceQuizSession } from './WorkspaceQuizSession';
 import { WorkspaceSelectionActionBar } from './WorkspaceSelectionActionBar';
 import { QuizSelectionContractStrip } from './QuizSelectionContractStrip';
@@ -120,9 +120,10 @@ export function QuizPanel({
 
   if (!session.hasSource) {
     return (
-      <WorkspaceEmptyState
+      <WorkspaceToolEmptyState
         tool="quiz"
-        message={emptyMessage ?? (t('panelEmptyQuiz'))}
+        concept={concept}
+        message={emptyMessage}
         hasSource={false}
         onUpload={onUpload}
       />
@@ -132,11 +133,11 @@ export function QuizPanel({
   if (session.items.length === 0) {
     return (
       <div className="p-4" data-testid="quiz-panel-empty">
-        <WorkspaceEmptyState
+        <WorkspaceToolEmptyState
           tool="quiz"
-          message={emptyMessage ?? t('panelEmptyQuizNoItems')}
+          concept={concept}
+          message={emptyMessage}
           hasSource
-          onUpload={onUpload}
         />
       </div>
     );

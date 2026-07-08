@@ -10,7 +10,7 @@ import {
   leitnerCardTypeLabel,
   type LeitnerCardType,
 } from '../../lib/leitnerCardTypes';
-import { WorkspaceEmptyState } from './WorkspaceEmptyState';
+import { WorkspaceToolEmptyState } from './WorkspaceToolEmptyState';
 import { LeitnerBox } from './LeitnerBox';
 import { LeitnerStaleArtifactBanner } from './LeitnerStaleArtifactBanner';
 import { useI18n } from '../../lib/i18n';
@@ -70,9 +70,10 @@ export function LeitnerPanel({
 
   if (!session.hasSource) {
     return (
-      <WorkspaceEmptyState
+      <WorkspaceToolEmptyState
         tool="leitner"
-        message={emptyMessage ?? (t('panelEmptyLeitner'))}
+        concept={concept}
+        message={emptyMessage}
         hasSource={false}
         onUpload={onUpload}
       />
@@ -82,11 +83,11 @@ export function LeitnerPanel({
   if (session.cards.length === 0) {
     return (
       <div className="p-4" data-testid="leitner-panel-empty">
-        <WorkspaceEmptyState
-        tool="leitner"
-          message={emptyMessage ?? t('panelEmptyLeitnerNoCards')}
+        <WorkspaceToolEmptyState
+          tool="leitner"
+          concept={concept}
+          message={emptyMessage}
           hasSource
-          onUpload={onUpload}
         />
       </div>
     );

@@ -16,7 +16,7 @@ import {
   type ReaderAnnotation,
 } from '../../lib/readerAnnotationStore';
 import { WorkspaceSelectionActionBar } from './WorkspaceSelectionActionBar';
-import { WorkspaceEmptyState } from './WorkspaceEmptyState';
+import { WorkspaceToolEmptyState } from './WorkspaceToolEmptyState';
 import type { WorkspaceSelectionActionId, WorkspaceSelectionContext } from '../../lib/workspaceSelectionActions';
 import { FrontMatterCard } from './FrontMatterCard';
 import { BibliographyBlock } from './BibliographyBlock';
@@ -604,10 +604,11 @@ export function CognitiveReader({
 
   if (!displayText.trim() && !text.trim()) {
     return (
-      <WorkspaceEmptyState
+      <WorkspaceToolEmptyState
         tool="reader"
-        message={emptyMessage ?? 'Upload notes to read your material with bionic and complexity highlighting.'}
-        hasSource={hasSource}
+        concept={concept}
+        message={emptyMessage}
+        hasSource={hasSource ?? false}
         onUpload={onUpload}
       />
     );

@@ -31,3 +31,4 @@ export {
   type WorkspaceEmptyTool,
   type WorkspaceEmptyView,
 } from '../../lib/workspaceEmptyState';
+export { WorkspaceToolEmptyState } from '../workspace/WorkspaceToolEmptyState';

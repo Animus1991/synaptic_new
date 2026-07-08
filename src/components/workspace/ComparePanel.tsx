@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { BookOpen, Search } from '@/lib/lucide-shim';
 import { ComparisonTable } from '../visuals/DiagramGenerator';
-import { WorkspaceEmptyState } from './WorkspaceEmptyState';
+import { WorkspaceToolEmptyState } from './WorkspaceToolEmptyState';
 import { WorkspaceSelectionActionBar } from './WorkspaceSelectionActionBar';
 import { CompareSelectionParityStrip } from './CompareSelectionParityStrip';
 import { WorkspacePanelWarnStrip } from './WorkspacePanelWarnStrip';
@@ -93,9 +93,10 @@ export function ComparePanel({
 
   if (!session.hasSource) {
     return (
-      <WorkspaceEmptyState
+      <WorkspaceToolEmptyState
         tool="compare"
-        message={emptyMessage ?? t('compareEmptyUpload')}
+        concept={concept}
+        message={emptyMessage}
         hasSource={false}
         onUpload={onUpload}
       />
@@ -105,11 +106,11 @@ export function ComparePanel({
   if (session.rows.length === 0) {
     return (
       <div className="p-4" data-testid="compare-panel-empty">
-        <WorkspaceEmptyState
-        tool="compare"
-          message={emptyMessage ?? t('compareEmptyNoRows')}
+        <WorkspaceToolEmptyState
+          tool="compare"
+          concept={concept}
+          message={emptyMessage}
           hasSource
-          onUpload={onUpload}
         />
       </div>
     );

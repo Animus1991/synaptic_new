@@ -24,7 +24,7 @@ import { mergeLeitnerCards, type LeitnerCard } from '../../lib/leitnerSessionMod
 
 import { saveDeckState, syncDeckState } from '../../lib/leitnerDeckSync';
 
-import { WorkspaceEmptyState } from './WorkspaceEmptyState';
+import { WorkspaceToolEmptyState } from './WorkspaceToolEmptyState';
 import { LeitnerStaleArtifactBanner } from './LeitnerStaleArtifactBanner';
 import { LeitnerDueQueuePanel } from './LeitnerDueQueuePanel';
 import { SourceCitationChip } from './SourceCitationChip';
@@ -316,15 +316,12 @@ export function LeitnerBox({
 
     return (
 
-      <WorkspaceEmptyState
+      <WorkspaceToolEmptyState
         tool="leitner"
-
-        message={emptyMessage ?? 'Upload notes to generate flashcards from your glossary and definitions.'}
-
-        hasSource={hasSource}
-
+        concept={concept}
+        message={emptyMessage}
+        hasSource={hasSource ?? false}
         onUpload={onUpload}
-
       />
 
     );
