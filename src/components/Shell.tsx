@@ -76,7 +76,7 @@ function buildMobileNavItems(showWorkspace: boolean): MobileNavItem[] {
 
 const shellNavClass = (active: boolean) =>
   cn(
-    'w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all border',
+    'w-full flex items-start gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all border',
     active
       ? 'platform-nav-active'
       : 'border-transparent text-text-secondary hover:text-text-primary hover:bg-surface-hover',
@@ -182,7 +182,14 @@ export function Shell({
                   className={shellNavClass(currentView === item.view && !studyWorkspaceOpen)}
                 >
                   <item.icon className="w-5 h-5 shrink-0" />
-                  <span className="flex-1 text-left truncate">{t(item.labelKey)}</span>
+                  <span className="flex-1 text-left min-w-0">
+                    <span className="block truncate">{t(item.labelKey)}</span>
+                    {NAV_SUBTITLES[item.view] && (
+                      <span className="block text-[11px] font-normal text-text-tertiary truncate mt-0.5">
+                        {t(NAV_SUBTITLES[item.view]!)}
+                      </span>
+                    )}
+                  </span>
                   {item.view === 'tasks' && stats.reviewsDue > 0 && (
                     <span
                       title={tasksReviewBadgeHint}
@@ -203,7 +210,12 @@ export function Shell({
                     className={cn(shellNavClass(studyWorkspaceOpen), 'mt-1')}
                   >
                     <Layout className="w-5 h-5 shrink-0" />
-                    <span className="flex-1 text-left truncate" title={t('navStudyWorkspace')}>{t('navStudyWorkspace')}</span>
+                    <span className="flex-1 text-left min-w-0">
+                      <span className="block truncate" title={t('navStudyWorkspace')}>{t('navStudyWorkspace')}</span>
+                      <span className="block text-[11px] font-normal text-text-tertiary truncate mt-0.5">
+                        {t('navSubtitleWorkspace')}
+                      </span>
+                    </span>
                     {studyWorkspaceOpen ? (
                       <span className="ml-auto type-micro ws-chip-brand px-2 py-0.5 rounded-full font-semibold whitespace-nowrap">
                         {t('navContinuingHere')}
@@ -346,7 +358,14 @@ export function Shell({
                   className={shellNavClass(currentView === item.view && !studyWorkspaceOpen)}
                 >
                   <item.icon className="w-5 h-5" />
-                  {t(item.labelKey)}
+                  <span className="flex-1 min-w-0 text-left">
+                    <span className="block truncate">{t(item.labelKey)}</span>
+                    {NAV_SUBTITLES[item.view] && (
+                      <span className="block text-[11px] font-normal text-text-tertiary truncate mt-0.5">
+                        {t(NAV_SUBTITLES[item.view]!)}
+                      </span>
+                    )}
+                  </span>
                   {item.view === 'tasks' && stats.reviewsDue > 0 && (
                     <span
                       title={tasksReviewBadgeHint}
@@ -534,9 +553,15 @@ export function Shell({
                     active ? 'platform-nav-mobile-active' : 'text-text-tertiary',
                     item.kind === 'workspace' && !active && 'text-brand-600',
                   )}
+                  title={item.kind === 'workspace' ? t('shellMobileWorkspaceHint') : undefined}
                 >
                   <item.icon className="w-5 h-5 shrink-0" />
                   <span className="type-micro font-medium truncate w-full text-center">{t(item.labelKey)}</span>
+                  {item.kind === 'workspace' && (
+                    <span className="type-micro text-[9px] text-text-tertiary truncate w-full text-center">
+                      {t('shellMobileWorkspaceHint')}
+                    </span>
+                  )}
                 </button>
               );
             })}

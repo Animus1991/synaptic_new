@@ -107,9 +107,7 @@ export function Library({
       <PageHeader
         eyebrow={userLanguage === 'el' ? 'Βιβλιοθήκη' : 'Library'}
         title={userLanguage === 'el' ? 'Το υλικό σου' : 'Your materials'}
-        subtitle={userLanguage === 'el'
-          ? 'Ανεβασμένα έγγραφα και δημιουργημένα μαθήματα.'
-          : 'Uploaded documents and generated courses.'}
+        subtitle={t('librarySubtitle', userLanguage)}
         icon={BookOpen}
         actions={
           <PrimaryCTA onClick={onUpload} data-testid="library-upload" data-tour="library-upload" className="whitespace-nowrap">
@@ -159,6 +157,10 @@ export function Library({
           onDismiss={() => onDismissPostUpload?.()}
         />
       )}
+
+      <div className="mb-4 rounded-xl border border-border-subtle bg-surface-card/50 px-4 py-3">
+        <p className="text-sm text-text-secondary">{t('libraryEntryHint', userLanguage)}</p>
+      </div>
 
       {/* Tabs */}
       <div className="flex items-center gap-6 border-b border-border-subtle">
@@ -264,10 +266,12 @@ export function Library({
           >
             {filteredCourses.length === 0 ? (
               <PlatformEmptyState
-                title="No content yet"
-                description="Upload your first document and the AI will transform it into an interactive learning course."
-                actionLabel="Upload Material"
+                title={t('libraryEmptyCoursesTitle', userLanguage)}
+                description={t('libraryEmptyCoursesDescription', userLanguage)}
+                actionLabel={userLanguage === 'el' ? 'Ανέβασμα υλικού' : 'Upload material'}
                 onAction={onUpload}
+                secondaryActionLabel={uploadedFiles.length > 0 ? (userLanguage === 'el' ? 'Δες αρχεία' : 'View files') : undefined}
+                onSecondaryAction={uploadedFiles.length > 0 ? () => setTab('files') : undefined}
               />
             ) : (
               <div className={cn(
@@ -294,10 +298,12 @@ export function Library({
           >
             {uploadedFiles.length === 0 ? (
               <PlatformEmptyState
-                title="No content yet"
-                description="Upload your first document and the AI will transform it into an interactive learning course."
-                actionLabel="Upload Material"
+                title={t('libraryEmptyFilesTitle', userLanguage)}
+                description={t('libraryEmptyFilesDescription', userLanguage)}
+                actionLabel={userLanguage === 'el' ? 'Ανέβασμα υλικού' : 'Upload material'}
                 onAction={onUpload}
+                secondaryActionLabel={userLanguage === 'el' ? 'Δες μαθήματα' : 'View courses'}
+                onSecondaryAction={() => setTab('courses')}
               />
             ) : (
               <div className="space-y-2">

@@ -78,6 +78,12 @@ const PROCESSING_STEPS: { labelKey: 'uploadProcessingStepStructure' | 'uploadPro
   { labelKey: 'uploadProcessingStepExercises', done: false },
 ];
 
+const FLOW_STAGES = [
+  { key: 'upload', labelKey: 'uploadStageInput', hintKey: 'uploadStageInputHint' },
+  { key: 'configure', labelKey: 'uploadStageOutline', hintKey: 'uploadStageOutlineHint' },
+  { key: 'processing', labelKey: 'uploadStageCourse', hintKey: 'uploadStageCourseHint' },
+] as const;
+
 export function UploadModal({
   isOpen,
   onClose,
@@ -243,6 +249,7 @@ export function UploadModal({
   };
 
   const hasContent = files.length > 0 || pastedContent.trim().length > 0 || youtubeUrl.trim().length > 0;
+  const activeFlowIndex = step === 'upload' ? 0 : step === 'configure' ? 1 : 2;
 
   if (!isOpen) return null;
 
@@ -276,6 +283,43 @@ export function UploadModal({
             <button onClick={onClose} className="p-2 rounded-lg hover:bg-surface-hover">
               <X className="w-5 h-5 text-text-secondary" />
             </button>
+          </div>
+
+          <div className="px-5 pt-4">
+            <div className="grid gap-2 sm:grid-cols-3">
+              {FLOW_STAGES.map((stage, index) => {
+                const isActive = activeFlowIndex === index;
+                const isDone = activeFlowIndex > index;
+                return (
+                  <div
+                    key={stage.key}
+                    className={cn(
+                      'rounded-xl border p-3 transition-colors',
+                      isActive
+                        ? 'border-brand-500/40 bg-brand-500/8'
+                        : isDone
+                          ? 'border-accent-emerald/25 bg-accent-emerald/8'
+                          : 'border-border-subtle bg-surface-card/50',
+                    )}
+                  >
+                    <div className="flex items-center gap-2 mb-1">
+                      <div className={cn(
+                        'grid h-6 w-6 place-items-center rounded-full text-[11px] font-semibold',
+                        isActive
+                          ? 'bg-brand-500 text-white'
+                          : isDone
+                            ? 'bg-accent-emerald text-white'
+                            : 'bg-surface-hover text-text-tertiary',
+                      )}>
+                        {isDone ? <CheckCircle2 className="w-3.5 h-3.5" /> : index + 1}
+                      </div>
+                      <p className="text-sm font-medium text-text-primary">{t(stage.labelKey, previewLang)}</p>
+                    </div>
+                    <p className="text-xs text-text-secondary">{t(stage.hintKey, previewLang)}</p>
+                  </div>
+                );
+              })}
+            </div>
           </div>
 
           {/* Content */}
@@ -370,6 +414,10 @@ export function UploadModal({
                   />
                 </div>
 
+                <div className="rounded-xl border border-border-subtle bg-surface-hover/40 p-3">
+                  <p className="text-xs text-text-secondary">{t('uploadNextStepHint', previewLang)}</p>
+                </div>
+
                 {/* YouTube URL */}
                 <div>
                   <label className="text-xs text-text-tertiary font-medium block mb-2">
@@ -390,6 +438,10 @@ export function UploadModal({
 
             {step === 'configure' && (
               <>
+                <div className="rounded-xl border border-brand-500/15 bg-brand-500/5 p-3">
+                  <p className="text-xs text-text-secondary">{t('uploadConfigureHint', previewLang)}</p>
+                </div>
+
                 <OutlinePreviewPanel
                   preview={outlinePreview}
                   loading={previewLoading}
@@ -540,6 +592,7 @@ export function UploadModal({
                 <p className="text-sm text-text-secondary mb-6 max-w-sm mx-auto">
                   {t('uploadProcessingBody', previewLang)}
                 </p>
+                <p className="text-xs text-text-tertiary mb-5">{t('uploadProcessingSummary', previewLang)}</p>
                 <div className="space-y-3 max-w-xs mx-auto text-left">
                   {PROCESSING_STEPS.map((stepItem, i) => (
                     <div key={i} className="flex items-center gap-2 text-sm">

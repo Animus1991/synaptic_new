@@ -94,6 +94,14 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
   const firstReviewTask = findPendingTask(tasks, (t) => t.isSpacedRepetition && t.status === 'pending');
   const showWorkspaceResume = workspaceLive && !workspaceLiveIsStale(workspaceLive);
   const isEmpty = courses.length === 0;
+  const workspaceSummaryBits = showWorkspaceResume
+    ? [
+        workspaceLive.snapshot.courseLabel ? `${t('dashboardResumeCourseLabel')}: ${workspaceLive.snapshot.courseLabel}` : null,
+        workspaceLive.snapshot.activeConcept ? `${t('dashboardResumeConceptLabel')}: ${workspaceLive.snapshot.activeConcept}` : null,
+        workspaceLive.snapshot.toolLabel ? `${t('dashboardResumeToolLabel')}: ${workspaceLive.snapshot.toolLabel}` : null,
+        workspaceLive.snapshot.stepLabel ? `${t('dashboardResumeStepLabel')}: ${workspaceLive.snapshot.stepLabel}` : null,
+      ].filter(Boolean)
+    : [];
   const weakSpotsWithReasons = useMemo(
     () => buildDashboardWeakSpotCards(learnerModel.weakAreas, lang),
     [learnerModel.weakAreas, lang],
@@ -200,6 +208,12 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
         }
       />
 
+      <MotionSection initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
+        <div className="rounded-xl border border-border-subtle bg-surface-card/50 px-4 py-3">
+          <p className="text-sm text-text-secondary">{t('dashboardWorkspaceEntryHint')}</p>
+        </div>
+      </MotionSection>
+
       {postUploadCourse && (
         <MotionSection initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
           <PostUploadBanner
@@ -220,17 +234,17 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
 
       {/* Stats Row */}
       <MotionSection initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="grid grid-cols-2 sm:grid-cols-5 gap-3">
-        <StatCard icon={<Flame className="w-5 h-5 text-accent-amber" />} label="Streak" value={`${stats.streak} days`} />
-        <StatCard icon={<Zap className="w-5 h-5 text-brand-400" />} label="Today's XP" value={`${stats.todayXP}`} />
+        <StatCard icon={<Flame className="w-5 h-5 text-accent-amber" />} label={t('dashboardStatStreak')} value={t('dashboardStatDaysSuffix').replace('{count}', String(stats.streak))} />
+        <StatCard icon={<Zap className="w-5 h-5 text-brand-400" />} label={t('dashboardStatTodayXp')} value={`${stats.todayXP}`} />
         <StatCard
           icon={<Target className="w-5 h-5 text-accent-teal" />}
-          label="Reviews Due"
+          label={t('dashboardStatReviewsDue')}
           value={`${stats.reviewsDue}`}
           onClick={stats.reviewsDue > 0 ? () => (onOpenTasksReview ? onOpenTasksReview() : onNavigate('tasks')) : undefined}
           data-testid="dashboard-stat-reviews-due"
         />
-        <StatCard icon={<Brain className="w-5 h-5 text-accent-cyan" />} label="Concepts Mastered" value={`${stats.conceptsMastered}/${stats.totalConcepts}`} />
-        <StatCard icon={<Clock className="w-5 h-5 text-accent-emerald" />} label="Study Today" value={`${stats.studyTimeToday}m`} />
+        <StatCard icon={<Brain className="w-5 h-5 text-accent-cyan" />} label={t('dashboardStatConceptsMastered')} value={`${stats.conceptsMastered}/${stats.totalConcepts}`} />
+        <StatCard icon={<Clock className="w-5 h-5 text-accent-emerald" />} label={t('dashboardStatStudyToday')} value={t('dashboardStatStudyMinutes').replace('{count}', String(stats.studyTimeToday))} />
       </MotionSection>
 
       {!isEmpty && smartCTAs.length > 0 && onRunSmartCTA && (
@@ -322,10 +336,11 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                 {...workspaceEntryPrefetchHandlers()}
                 className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold bg-brand-700 text-white hover:bg-brand-800 transition-all shrink-0"
               >
-                {t('resume')} <ArrowRight className="w-3 h-3" />
+                {t('dashboardResumeOpenWorkspace')} <ArrowRight className="w-3 h-3" />
               </button>
             }
           >
+            <p className="text-xs text-text-secondary mb-3">{t('dashboardResumeSubtitle')}</p>
             <div className="flex flex-wrap items-center gap-1.5">
               {workspaceLive.snapshot.toolLabel && (
                 <span className="ws-chip-brand rounded-full px-2 py-0.5 text-[10px] font-semibold">
@@ -338,11 +353,15 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                 </span>
               )}
             </div>
-            <p className="text-xs text-text-secondary truncate mt-2">
-              {[workspaceLive.snapshot.courseLabel, workspaceLive.snapshot.activeConcept, workspaceLive.snapshot.toolLabel, workspaceLive.snapshot.stepLabel]
-                .filter(Boolean)
-                .join(' · ')}
-            </p>
+            {workspaceSummaryBits.length > 0 && (
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {workspaceSummaryBits.map((bit) => (
+                  <span key={bit} className="ws-chip-neutral rounded-full px-2 py-0.5 text-[10px] font-semibold">
+                    {bit}
+                  </span>
+                ))}
+              </div>
+            )}
             {workspaceLive.nextAction && (
               <p className="text-xs text-text-tertiary mt-2 line-clamp-2">
                 {t('dashboardNextColon')}{' '}
@@ -364,6 +383,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
               <p className="platform-banner-title text-sm font-semibold">
                 {t('dashboardSuggestedNext')}
               </p>
+              <p className="text-[11px] text-text-tertiary mt-0.5">{t('dashboardSuggestedNextSubtitle')}</p>
               <p className="text-xs text-text-secondary mt-0.5 line-clamp-2">{dashboardNextAction.reason}</p>
             </div>
           </div>
