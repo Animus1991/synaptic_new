@@ -18,3 +18,16 @@ export { PlatformEmptyState, PlatformEmptyState as EmptyState } from './Platform
 export { StatusChip, type StatusChipVariant } from './StatusChip';
 export { ConfirmDialog, type ConfirmDialogProps } from './ConfirmDialog';
 export { PostUploadBanner } from './PostUploadBanner';
+
+/** Re-export workspace empty-state helpers for tool panels (§2.7). */
+export {
+  buildWorkspaceEmptyActions,
+  buildWorkspaceEmptyView,
+  workspaceEmptyTitle,
+  workspaceEmptyUploadHandler,
+  workspaceNoSourceMessage,
+  workspaceToolEmptyMessage,
+  type WorkspaceEmptyAction,
+  type WorkspaceEmptyTool,
+  type WorkspaceEmptyView,
+} from '../../lib/workspaceEmptyState';

@@ -25,6 +25,41 @@ export function workspaceNoSourceMessage(lang: Lang): string {
   return t('workspaceNoSource', lang);
 }
 
+export function workspaceEmptyTitle(opts: { hasSource: boolean; lang: Lang }): string {
+  return t(opts.hasSource ? 'workspaceEmptyTitleNoExtract' : 'workspaceEmptyTitleNoSource', opts.lang);
+}
+
+export type WorkspaceEmptyView = {
+  title: string;
+  message: string;
+  hasSource: boolean;
+  actions: WorkspaceEmptyAction[];
+};
+
+/** Full empty-state view model for a workspace tool (§2.7). */
+export function buildWorkspaceEmptyView(opts: {
+  tool: WorkspaceEmptyTool;
+  hasSource: boolean;
+  lang: Lang;
+  concept?: string;
+  onUpload?: () => void;
+  onReprocess?: () => void;
+  onSwitchTool?: (tool: WorkspaceToolId) => void;
+}): WorkspaceEmptyView {
+  const hasSource = opts.hasSource;
+  return {
+    title: workspaceEmptyTitle({ hasSource, lang: opts.lang }),
+    message: workspaceToolEmptyMessage({
+      tool: opts.tool,
+      hasSource,
+      lang: opts.lang,
+      concept: opts.concept,
+    }),
+    hasSource,
+    actions: buildWorkspaceEmptyActions(opts),
+  };
+}
+
 const NO_EXTRACT: Record<WorkspaceEmptyTool, { en: (concept?: string) => string; el: (concept?: string) => string }> = {
   reader: {
     en: (c) =>

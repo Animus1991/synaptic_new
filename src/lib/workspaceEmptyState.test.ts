@@ -1,6 +1,8 @@
 import { describe, expect, it, vi } from 'vitest';
 import {
   buildWorkspaceEmptyActions,
+  buildWorkspaceEmptyView,
+  workspaceEmptyTitle,
   workspaceEmptyUploadHandler,
   workspaceNoSourceMessage,
   workspaceToolEmptyMessage,
@@ -74,5 +76,18 @@ describe('workspaceEmptyState', () => {
     actions[1]?.onClick();
     expect(reprocess).toHaveBeenCalled();
     expect(switchTool).toHaveBeenCalled();
+  });
+
+  it('buildWorkspaceEmptyView bundles title, message, and actions', () => {
+    const view = buildWorkspaceEmptyView({
+      tool: 'reader',
+      hasSource: false,
+      lang: 'en',
+      onUpload: () => {},
+    });
+    expect(view.title).toBe(workspaceEmptyTitle({ hasSource: false, lang: 'en' }));
+    expect(view.message).toBe(workspaceNoSourceMessage('en'));
+    expect(view.actions).toHaveLength(1);
+    expect(view.actions[0]?.id).toBe('upload');
   });
 });
