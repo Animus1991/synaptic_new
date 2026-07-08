@@ -4,14 +4,17 @@ import type { UiIconId } from './uiIconRegistry';
 
 export type OnboardingRole = { id: string; label: string; desc: string };
 export type OnboardingGoal = { id: string; label: string; icon: UiIconId };
+export type OnboardingFeature = { title: string; desc: string };
 
 export type OnboardingContent = {
   welcomeTitle: string;
   welcomeBody: string;
+  welcomeFeatureTitle: string;
   nameLabel: string;
   nameOptional: string;
   namePlaceholder: string;
   letsGo: string;
+  skipSetup: string;
   roleTitle: string;
   roleSubtitle: string;
   goalsTitle: string;
@@ -20,6 +23,15 @@ export type OnboardingContent = {
   prefsSubtitle: string;
   dailyGoal: string;
   upcomingExam: string;
+  examDateHint: string;
+  summaryTitle: string;
+  summaryProfile: string;
+  summaryGoals: string;
+  summaryDailyGoal: string;
+  summaryExamDate: string;
+  noExamDate: string;
+  examOnlyHint: string;
+  beginLearning: string;
   adaptiveHint: string;
   uploadTitle: string;
   uploadBody: string;
@@ -30,6 +42,7 @@ export type OnboardingContent = {
   skipExplore: string;
   back: string;
   continueBtn: string;
+  features: OnboardingFeature[];
   roles: OnboardingRole[];
   goals: OnboardingGoal[];
 };
@@ -37,19 +50,30 @@ export type OnboardingContent = {
 const EN: OnboardingContent = {
   welcomeTitle: 'Welcome to Synapse',
   welcomeBody:
-    "Let's personalize your learning experience. This takes about 60 seconds. The adaptive engine will also learn from your behavior over time.",
+    'Upload your notes and Synapse turns them into an adaptive study system with grounded lessons, tasks, and agent help.',
+  welcomeFeatureTitle: 'What you unlock',
   nameLabel: 'What should we call you?',
   nameOptional: '(optional)',
   namePlaceholder: 'Your name',
   letsGo: "Let's Go",
+  skipSetup: 'Skip setup — go straight to Library',
   roleTitle: 'How will you use Synapse?',
-  roleSubtitle: 'This helps us set up the right defaults',
+  roleSubtitle: 'We will tune your defaults, task mix, and study surfaces around this',
   goalsTitle: 'What are your goals?',
-  goalsSubtitle: 'Select all that apply',
-  prefsTitle: 'Quick Preferences',
-  prefsSubtitle: 'You can change these anytime in settings',
+  goalsSubtitle: 'Select all that apply. The first one you pick will influence your default pacing most.',
+  prefsTitle: 'Set your study schedule',
+  prefsSubtitle: 'Daily goal and exam timing shape your planner, countdowns, and exam-prep suggestions',
   dailyGoal: 'Daily study goal',
   upcomingExam: 'Upcoming exam?',
+  examDateHint: 'Set an exam date to unlock countdown-driven planning and readiness tracking.',
+  summaryTitle: 'Your personalized setup',
+  summaryProfile: 'Profile',
+  summaryGoals: 'Goals',
+  summaryDailyGoal: 'Daily goal',
+  summaryExamDate: 'Exam date',
+  noExamDate: 'No exam date set',
+  examOnlyHint: 'Exam date is most useful when exam prep is one of your goals.',
+  beginLearning: 'Start learning',
   adaptiveHint:
     'The adaptive engine will also learn from your behavior — response time, accuracy, confidence, error patterns — to optimize your path automatically.',
   uploadTitle: "You're All Set!",
@@ -61,6 +85,12 @@ const EN: OnboardingContent = {
   skipExplore: 'Skip — explore the demo first',
   back: 'Back',
   continueBtn: 'Continue',
+  features: [
+    { title: 'Upload your notes', desc: 'PDFs, slides, scans, DOCX, and mixed study material.' },
+    { title: 'Grounded course generation', desc: 'Lessons, glossary, exercises, and tasks stay tied to your source material.' },
+    { title: 'Adaptive exam prep', desc: 'Daily planning, spaced review, and exam readiness respond to your behavior.' },
+    { title: '15-mode study agent', desc: 'Switch between Socratic, exam coach, deep theory, writing, coding, and more.' },
+  ],
   roles: [
     { id: 'university', label: 'University Student', desc: 'Exam preparation from lecture materials' },
     { id: 'highschool', label: 'High School Student', desc: 'Structured learning and exam prep' },
@@ -81,19 +111,30 @@ const EN: OnboardingContent = {
 const EL: OnboardingContent = {
   welcomeTitle: 'Καλώς ήρθες στο Synapse',
   welcomeBody:
-    'Ας εξατομικεύσουμε την εμπειρία μάθησης. Διαρκεί περίπου 60 δευτερόλεπτα. Το προσαρμοστικό σύστημα μαθαίνει και από τη συμπεριφορά σου με τον χρόνο.',
+    'Ανέβασε τις σημειώσεις σου και το Synapse τις μετατρέπει σε προσαρμοστικό σύστημα μελέτης με grounded μαθήματα, εργασίες και agent βοήθεια.',
+  welcomeFeatureTitle: 'Τι ξεκλειδώνεις',
   nameLabel: 'Πώς να σε αποκαλούμε;',
   nameOptional: '(προαιρετικό)',
   namePlaceholder: 'Το όνομά σου',
   letsGo: 'Πάμε',
+  skipSetup: 'Παράλειψη setup — μετάβαση στη Βιβλιοθήκη',
   roleTitle: 'Πώς θα χρησιμοποιήσεις το Synapse;',
-  roleSubtitle: 'Βοηθάει να ρυθμίσουμε τα σωστά defaults',
+  roleSubtitle: 'Θα ρυθμίσουμε τα κατάλληλα defaults, task mix και study surfaces γύρω από αυτό',
   goalsTitle: 'Ποιοι είναι οι στόχοι σου;',
-  goalsSubtitle: 'Επίλεξε όσα ισχύουν',
-  prefsTitle: 'Γρήγορες Προτιμήσεις',
-  prefsSubtitle: 'Μπορείς να τις αλλάξεις ανά πάσα στιγμή στις Ρυθμίσεις',
+  goalsSubtitle: 'Επίλεξε όσα ισχύουν. Ο πρώτος στόχος επηρεάζει περισσότερο το default pacing.',
+  prefsTitle: 'Όρισε το πρόγραμμα μελέτης σου',
+  prefsSubtitle: 'Ο ημερήσιος στόχος και η ημερομηνία εξέτασης επηρεάζουν planner, countdowns και exam-prep προτάσεις',
   dailyGoal: 'Ημερήσιος στόχος μελέτης',
   upcomingExam: 'Επερχόμενη εξέταση;',
+  examDateHint: 'Όρισε ημερομηνία εξέτασης για countdown-based planning και readiness tracking.',
+  summaryTitle: 'Η εξατομικευμένη ρύθμισή σου',
+  summaryProfile: 'Προφίλ',
+  summaryGoals: 'Στόχοι',
+  summaryDailyGoal: 'Ημερήσιος στόχος',
+  summaryExamDate: 'Ημερομηνία εξέτασης',
+  noExamDate: 'Δεν έχει οριστεί ημερομηνία',
+  examOnlyHint: 'Η ημερομηνία εξέτασης είναι πιο χρήσιμη όταν η προετοιμασία εξέτασης είναι βασικός στόχος.',
+  beginLearning: 'Ξεκίνα τη μάθηση',
   adaptiveHint:
     'Το προσαρμοστικό σύστημα μαθαίνει από τη συμπεριφορά σου — χρόνο απόκρισης, ακρίβεια, εμπιστοσύνη, μοτίβα λαθών — για να βελτιστοποιεί τη διαδρομή σου.',
   uploadTitle: 'Όλα έτοιμα!',
@@ -105,6 +146,12 @@ const EL: OnboardingContent = {
   skipExplore: 'Παράλειψη — εξερεύνησε πρώτα το demo',
   back: 'Πίσω',
   continueBtn: 'Συνέχεια',
+  features: [
+    { title: 'Ανέβασε τις σημειώσεις σου', desc: 'PDF, slides, scans, DOCX και μικτό υλικό μελέτης.' },
+    { title: 'Grounded δημιουργία μαθήματος', desc: 'Μαθήματα, glossary, ασκήσεις και tasks μένουν δεμένα με το υλικό σου.' },
+    { title: 'Προσαρμοστική προετοιμασία εξέτασης', desc: 'Daily planning, spaced review και exam readiness προσαρμόζονται στη συμπεριφορά σου.' },
+    { title: '15-mode study agent', desc: 'Socratic, exam coach, deep theory, writing, coding και άλλα modes.' },
+  ],
   roles: [
     { id: 'university', label: 'Φοιτητής Πανεπιστημίου', desc: 'Προετοιμασία εξετάσεων από διαλέξεις' },
     { id: 'highschool', label: 'Μαθητής Λυκείου', desc: 'Δομημένη μάθηση και εξετάσεις' },
