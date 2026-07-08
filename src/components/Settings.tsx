@@ -1,5 +1,4 @@
 import { useState, useRef } from 'react';
-import { motion } from 'framer-motion';
 import {
   Brain, BookOpen, Target, Zap,
   Gauge, Shield, Calendar, Palette, Database, KeyRound
@@ -11,7 +10,7 @@ import { authLogin, authRegister, pushRemoteLibrary, createCheckoutSession, auth
 import { GoogleIntegrationsPanel } from './GoogleIntegrationsPanel';
 import { googleAuthStartUrl } from '../lib/googleClient';
 import { loadLibrarySync } from '../lib/libraryStorage';
-import { Page, PageHeader } from './ui/primitives';
+import { Page, PageHeader, AnimatedCard } from './ui/primitives';
 import { WorkspaceTTIPanel } from './WorkspaceTTIPanel';
 import { useI18n } from '../lib/i18n';
 import { getSettingsContent } from '../lib/settingsContent';
@@ -589,7 +588,7 @@ export function Settings({
       </SettingsSection>
       </div>
 
-      <div className="ws-bento-soft p-4">
+      <div className="platform-panel-soft">
         <p className="text-xs text-text-tertiary leading-relaxed flex items-start gap-2">
           <Zap className="w-4 h-4 text-brand-400 shrink-0 mt-0.5" />
           {c.footerNote}
@@ -601,11 +600,10 @@ export function Settings({
 
 function SettingsSection({ title, icon, children, delay }: { title: string; icon: React.ReactNode; children: React.ReactNode; delay: number }) {
   return (
-    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay }}
-      className="ws-bento p-5">
+    <AnimatedCard delay={delay} padding="md">
       <h3 className="ws-serif text-sm font-medium flex items-center gap-2 mb-4 text-text-primary">{icon}{title}</h3>
       <div className="space-y-4">{children}</div>
-    </motion.div>
+    </AnimatedCard>
   );
 }
 

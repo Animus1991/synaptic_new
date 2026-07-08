@@ -1115,6 +1115,35 @@ input[type="range"]::-webkit-slider-thumb {
   border-radius: var(--radius-panel);
 }
 
+/* PLT-01C — platform panel utilities (ws-bento + standard spacing) */
+.platform-panel-md {
+  background: var(--color-surface-card);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-panel);
+  box-shadow: var(--elev-1);
+  padding: var(--space-5);
+}
+.platform-panel-lg {
+  background: var(--color-surface-card);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-panel);
+  box-shadow: var(--elev-1);
+  padding: var(--space-6);
+}
+.platform-panel-xl {
+  background: var(--color-surface-card);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-panel);
+  box-shadow: var(--elev-1);
+  padding: var(--space-8);
+}
+.platform-panel-soft {
+  background: var(--color-surface-secondary);
+  border: 1px solid color-mix(in srgb, var(--color-brand-400) 28%, transparent);
+  border-radius: var(--radius-panel);
+  padding: var(--space-4);
+}
+
 /* UX-A — FigmaSynaptic-inspired card + tab primitives (aligned with ws-bento elevation) */
 .ux-card {
   background: var(--color-surface-card);

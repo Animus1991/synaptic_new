@@ -18,6 +18,7 @@ import { CalibrationChip } from './visuals/CalibrationChip';
 import { resolveCourseColor } from '../lib/masteryPalette';
 import { CourseIcon } from './ui/CourseIcon';
 import { cn } from '../utils/cn';
+import { Page, PageHeader, TabBar } from './ui/primitives';
 import { ReadinessRing } from './visuals/ReadinessRing';
 import { RetentionCurve } from './visuals/DiagramGenerator';
 import { ConceptGraph } from './visuals/ConceptGraph';
@@ -175,30 +176,25 @@ export function Analytics({
   const { t } = useI18n();
 
   return (
-    <div className="p-4 sm:p-6 lg:px-8 pb-24 lg:pb-6 w-full min-w-0 space-y-6">
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-        <h1 className="text-2xl sm:text-3xl font-bold">{t('analyticsTitle')}</h1>
-        <p className="text-text-secondary mt-1">{t('analyticsSubtitle')}</p>
-      </motion.div>
+    <Page>
+      <PageHeader
+        title={t('analyticsTitle')}
+        subtitle={t('analyticsSubtitle')}
+        icon={BarChart3}
+      />
 
-      {/* Tabs */}
-      <div className="flex items-center gap-6 border-b border-border-subtle" role="tablist" aria-label={t('analyticsTabListAria')}>
-        {([
-          { key: 'overview' as AnalyticsTab, label: t('analyticsTabOverview'), icon: BarChart3 },
-          { key: 'mastery' as AnalyticsTab, label: t('analyticsTabMastery'), icon: Brain },
-          { key: 'behavior' as AnalyticsTab, label: t('analyticsTabBehavior'), icon: Activity },
-          { key: 'insights' as AnalyticsTab, label: t('analyticsTabInsights'), icon: Lightbulb },
-          { key: 'research' as AnalyticsTab, label: t('analyticsTabResearch'), icon: FlaskConical },
-        ]).map(tabDef => (
-          <button key={tabDef.key} type="button" role="tab" aria-selected={tab === tabDef.key} onClick={() => setTab(tabDef.key)}
-            className={cn('pb-3 text-sm font-medium transition-all border-b-2 flex items-center gap-1.5',
-              tab === tabDef.key ? 'text-brand-400 border-brand-400' : 'text-text-tertiary border-transparent hover:text-text-secondary'
-            )}>
-            <tabDef.icon className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">{tabDef.label}</span>
-          </button>
-        ))}
-      </div>
+      <TabBar
+        ariaLabel={t('analyticsTabListAria')}
+        activeKey={tab}
+        onChange={(key) => setTab(key as AnalyticsTab)}
+        tabs={[
+          { key: 'overview', label: t('analyticsTabOverview'), icon: BarChart3 },
+          { key: 'mastery', label: t('analyticsTabMastery'), icon: Brain },
+          { key: 'behavior', label: t('analyticsTabBehavior'), icon: Activity },
+          { key: 'insights', label: t('analyticsTabInsights'), icon: Lightbulb },
+          { key: 'research', label: t('analyticsTabResearch'), icon: FlaskConical },
+        ]}
+      />
 
       {tab === 'overview' && (
         <OverviewTab
@@ -222,7 +218,7 @@ export function Analytics({
       {tab === 'research' && (
         <ResearchTab learnerModel={learnerModel} activities={activities} courses={courses} />
       )}
-    </div>
+    </Page>
   );
 }
 
@@ -279,11 +275,11 @@ function OverviewTab({
       {/* Readiness Ring + Retention Curve */}
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="grid grid-cols-1 sm:grid-cols-2 gap-6">
         {hasConfidenceMetrics ? (
-          <div className="ws-bento p-6 flex items-center justify-center">
+          <div className="platform-panel-lg flex items-center justify-center">
             <ReadinessRing value={learnerModel.overallMastery} size={200} sublabel={t('analyticsReadinessSublabel')} />
           </div>
         ) : (
-          <div className="ws-bento p-6 flex flex-col items-center justify-center text-center text-sm text-text-muted min-h-[200px]">
+          <div className="platform-panel-lg flex flex-col items-center justify-center text-center text-sm text-text-muted min-h-[200px]">
             <Target className="w-8 h-8 text-text-tertiary mb-2" />
             <p>{t('analyticsResearchEmpty')}</p>
           </div>
@@ -291,7 +287,7 @@ function OverviewTab({
         {hasRetentionData ? (
           <RetentionCurve dataPoints={retentionPoints} />
         ) : (
-          <div className="ws-bento p-6 flex flex-col items-center justify-center text-center text-sm text-text-muted min-h-[200px]">
+          <div className="platform-panel-lg flex flex-col items-center justify-center text-center text-sm text-text-muted min-h-[200px]">
             <Activity className="w-8 h-8 text-text-tertiary mb-2" />
             <p>{t('analyticsResearchEmpty')}</p>
           </div>
@@ -303,7 +299,7 @@ function OverviewTab({
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.06 }}
-          className="ws-bento p-5"
+          className="platform-panel-md"
           data-testid="analytics-fsrs-forecast"
         >
           <h3 className="text-sm font-semibold flex items-center gap-2 mb-1">
@@ -342,7 +338,7 @@ function OverviewTab({
 
       {/* Weekly mastery + Heatmap */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="ws-bento p-5">
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="platform-panel-md">
           <h3 className="text-sm font-semibold flex items-center gap-2 mb-4"><TrendingUp className="w-4 h-4 text-accent-emerald" />{t('analyticsWeeklyTrend')}</h3>
           <div className="flex items-end gap-1.5 h-28">
             {weekly.map((val, i) => (
@@ -356,7 +352,7 @@ function OverviewTab({
         </motion.div>
 
         {/* Study Heatmap */}
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="ws-bento p-5">
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="platform-panel-md">
           <h3 className="text-sm font-semibold flex items-center gap-2 mb-4"><Calendar className="w-4 h-4 text-accent-teal" />{t('analyticsStudyHeatmap')}</h3>
           <div className="grid grid-cols-[repeat(13,1fr)] gap-[3px]">
             {learnerModel.heatmapData.slice(-91).map((day, i) => {
@@ -387,7 +383,7 @@ function OverviewTab({
         </motion.div>
       )}
 
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="ws-bento p-5">
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="platform-panel-md">
         <h3 className="text-sm font-semibold flex items-center gap-2 mb-4"><Eye className="w-4 h-4 text-accent-amber" />{t('analyticsConfidenceCalibration')}</h3>
         <p className="text-xs text-text-tertiary mb-4">{t('analyticsConfidenceHint')}</p>
         <div className="space-y-2">
@@ -415,7 +411,7 @@ function OverviewTab({
       </motion.div>
 
       {/* Course mastery */}
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }} className="ws-bento p-5">
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }} className="platform-panel-md">
         <h3 className="text-sm font-semibold mb-4">{t('analyticsCourseMastery')}</h3>
         <div className="space-y-3">
           {courses.filter(c => c.status !== 'generating').map(course => (
@@ -450,13 +446,13 @@ function MasteryTab({ learnerModel, courses }: { learnerModel: LearnerModel; cou
           />
         </motion.div>
       ) : (
-        <div className="ws-bento p-8 text-center text-sm text-text-secondary">
+        <div className="platform-panel-xl text-center text-sm text-text-secondary">
           {t('analyticsMasteryMapEmpty')}
         </div>
       )}
 
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="ws-bento p-5">
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="platform-panel-md">
         <h3 className="text-sm font-semibold flex items-center gap-2 mb-4"><CheckCircle2 className="w-4 h-4 text-accent-emerald" />{t('analyticsStrongAreas')}</h3>
         <div className="space-y-3">
           {learnerModel.strongAreas.map(a => (
@@ -464,7 +460,7 @@ function MasteryTab({ learnerModel, courses }: { learnerModel: LearnerModel; cou
           ))}
         </div>
       </motion.div>
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="ws-bento p-5">
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="platform-panel-md">
         <h3 className="text-sm font-semibold flex items-center gap-2 mb-4"><XCircle className="w-4 h-4 text-accent-rose" />{t('analyticsWeakAreas')}</h3>
         <div className="space-y-3">
           {learnerModel.weakAreas.map(a => (
@@ -480,7 +476,7 @@ function MasteryTab({ learnerModel, courses }: { learnerModel: LearnerModel; cou
           ))}
         </div>
       </motion.div>
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="ws-bento p-5">
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="platform-panel-md">
         <h3 className="text-sm font-semibold flex items-center gap-2 mb-4"><Brain className="w-4 h-4 text-accent-rose" />{t('analyticsActiveMisconceptions')}</h3>
         <div className="space-y-3">
           {learnerModel.misconceptions.map(m => (
@@ -542,7 +538,7 @@ function BehaviorTab({
         />
       </motion.div>
 
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="ws-bento p-5">
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="platform-panel-md">
         <h3 className="text-sm font-semibold flex items-center gap-2 mb-4"><AlertTriangle className="w-4 h-4 text-accent-orange" />{t('analyticsErrorPatterns')}</h3>
         <div className="space-y-3">
           {learnerModel.errorPatterns.map((p, i) => (
@@ -562,7 +558,7 @@ function BehaviorTab({
         </div>
       </motion.div>
 
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="ws-bento p-5">
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="platform-panel-md">
         <h3 className="text-sm font-semibold mb-4">{t('analyticsAdaptiveModelVars')}</h3>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
           {modelVars.map((item) => (
@@ -621,7 +617,7 @@ function InsightsTab({
         </div>
       </motion.div>
 
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="ws-bento p-5">
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="platform-panel-md">
         <h3 className="text-sm font-semibold mb-3">{t('analyticsAdaptiveRecommendations')}</h3>
         <div className="space-y-2 text-sm text-text-secondary">
           {tips.length > 0 ? tips.map((tip, i) => (
@@ -685,7 +681,7 @@ function ResearchTab({
         />
       </div>
 
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="ws-bento p-5">
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="platform-panel-md">
         <h3 className="text-sm font-semibold flex items-center gap-2 mb-1">
           <FlaskConical className="w-4 h-4 text-brand-400" />
           {t('analyticsResearchBktTitle')}
@@ -720,12 +716,12 @@ function ResearchTab({
         </p>
       </motion.div>
 
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="ws-bento p-5">
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="platform-panel-md">
         <h3 className="text-sm font-semibold mb-4">{t('analyticsResearchForgetting')}</h3>
         <RetentionCurve dataPoints={metrics.forgettingCurve} />
       </motion.div>
 
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="ws-bento p-5">
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="platform-panel-md">
         <h3 className="text-sm font-semibold mb-2">{t('analyticsResearchExport')}</h3>
         <p className="text-xs text-text-tertiary mb-4">{t('analyticsResearchExportHint')}</p>
         <button

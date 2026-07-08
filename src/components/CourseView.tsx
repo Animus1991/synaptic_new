@@ -33,7 +33,7 @@ import { StudyGuideExportButton } from './StudyGuideExportButton';
 import { VideoSummarizeButton } from './VideoSummarizeButton';
 import { CourseMediaPanel } from './CourseMediaPanel';
 import { NotebookLmExportPanel } from './NotebookLmExportPanel';
-import { Page, PageHeader } from './ui/primitives';
+import { Page, PageHeader, TabBar, PrimaryCTA, SecondaryCTA, AnimatedCard } from './ui/primitives';
 import { QualityReportPanel } from './QualityReportPanel';
 
 interface CourseViewProps {
@@ -239,26 +239,20 @@ export function CourseView({
                 Add material
               </button>
             )}
-            <button
-              type="button"
-              onClick={onOpenAgent}
-              className="flex items-center gap-2 px-4 py-2.5 border border-border-default hover:border-brand-500/30 rounded-xl text-sm font-medium transition-all"
-            >
+            <SecondaryCTA onClick={onOpenAgent} data-testid="course-ask-agent">
               <Sparkles className="w-4 h-4 text-brand-600" />
               Ask agent
-            </button>
+            </SecondaryCTA>
             <AudioStudyGuideButton course={course} lang={lang} settings={userSettings} />
             <StudyGuideExportButton course={course} glossaryEntries={glossaryEntries} lang={lang} />
-            <button
-              type="button"
+            <PrimaryCTA
               onClick={() => onStartLesson()}
               data-testid="course-open-workspace"
               {...workspaceEntryPrefetchHandlers()}
-              className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-brand-600 to-brand-500 text-white rounded-xl text-sm font-medium hover:from-brand-500 hover:to-brand-400 transition-all"
             >
               <Play className="w-4 h-4" />
               Continue
-            </button>
+            </PrimaryCTA>
           </div>
         }
       />
@@ -405,12 +399,7 @@ export function CourseView({
       )}
 
       {/* Progress bar */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.1 }}
-        className="ws-bento p-5"
-      >
+      <AnimatedCard delay={0.1}>
         <div className="flex items-center justify-between mb-3">
           <span className="text-sm font-medium">Course Progress</span>
           <span className="text-sm text-text-secondary">{course.completedLessons}/{course.totalLessons} lessons</span>
@@ -431,31 +420,18 @@ export function CourseView({
           <div className="text-center"><p className="text-lg font-bold">{course.exerciseCount}</p><p className="text-[10px] text-text-muted">Exercises</p></div>
           <div className="text-center"><p className="text-lg font-bold capitalize text-xs">{course.sourceMode}</p><p className="text-[10px] text-text-muted">Source Mode</p></div>
         </div>
-      </motion.div>
+      </AnimatedCard>
 
-      {/* Tabs */}
-      <div className="flex items-center gap-6 border-b border-border-subtle">
-        {[
-          { key: 'path' as CourseTab, label: 'Learning Path', icon: MapPin },
-          { key: 'map' as CourseTab, label: 'Concept Map', icon: Network },
-          { key: 'sources' as CourseTab, label: 'Source Files', icon: FileText },
-          { key: 'analytics' as CourseTab, label: 'Analytics', icon: BarChart3 },
-        ].map(t => (
-          <button
-            key={t.key}
-            onClick={() => setTab(t.key)}
-            className={cn(
-              'pb-3 text-sm font-medium transition-all border-b-2 flex items-center gap-1.5',
-              tab === t.key
-                ? 'text-brand-400 border-brand-400'
-                : 'text-text-tertiary border-transparent hover:text-text-secondary'
-            )}
-          >
-            <t.icon className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">{t.label}</span>
-          </button>
-        ))}
-      </div>
+      <TabBar
+        activeKey={tab}
+        onChange={(key) => setTab(key as CourseTab)}
+        tabs={[
+          { key: 'path', label: 'Learning Path', icon: MapPin },
+          { key: 'map', label: 'Concept Map', icon: Network },
+          { key: 'sources', label: 'Source Files', icon: FileText },
+          { key: 'analytics', label: 'Analytics', icon: BarChart3 },
+        ]}
+      />
 
       {/* Tab Content */}
       {tab === 'path' && (
@@ -717,7 +693,7 @@ function ConceptMap({ course, onStartLesson }: { course: Course; onStartLesson: 
         }))}
       />
 
-      <div className="ws-bento p-5 flex items-center justify-center">
+      <div className="platform-panel-md flex items-center justify-center">
         <ReadinessRing value={course.mastery} size={160} label="Course Readiness" sublabel="Based on weighted concept mastery across all topics" />
       </div>
     </div>
@@ -806,7 +782,7 @@ function SourceFiles({
           userSettings={userSettings}
         />
       )}
-      <div className="ws-bento p-6">
+      <div className="platform-panel-lg">
         <div className="flex items-center justify-between gap-3 mb-4 flex-wrap">
           <h3 className="font-semibold flex items-center gap-2">
             <FileText className="w-5 h-5 text-brand-400" />
@@ -876,7 +852,7 @@ function SourceFiles({
       </div>
 
       {glossaryEntries.length > 0 && (
-        <div className="ws-bento p-6">
+        <div className="platform-panel-lg">
           <h3 className="font-semibold mb-3 flex items-center gap-2">
             <BookOpen className="w-5 h-5 text-accent-emerald" />
             Glossary ({glossaryEntries.length})
@@ -913,7 +889,7 @@ function SourceFiles({
         </div>
       )}
 
-      <div className="ws-bento p-6">
+      <div className="platform-panel-lg">
         <div className="mt-0 p-4 rounded-xl bg-surface-hover/50 border border-border-subtle">
           <p className="text-xs text-text-tertiary mb-2 flex items-center gap-1.5">
             <AlertTriangle className="w-3.5 h-3.5 text-accent-amber" />
@@ -961,7 +937,7 @@ function CourseAnalytics({ course }: { course: Course }) {
   const velocity = baselineCph > 0 && actualCph > 0 ? actualCph / baselineCph : 0;
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-      <div className="ws-bento p-5">
+      <div className="platform-panel-md">
         <h4 className="text-sm font-semibold mb-3">Study Time Distribution</h4>
         <p className="text-[11px] text-text-tertiary mb-3">Estimated minutes per module, from the generated outline</p>
         <div className="space-y-2">
@@ -979,7 +955,7 @@ function CourseAnalytics({ course }: { course: Course }) {
           ))}
         </div>
       </div>
-      <div className="ws-bento p-5">
+      <div className="platform-panel-md">
         <h4 className="text-sm font-semibold mb-3">Retention Predictions</h4>
         <div className="space-y-2">
           {course.topics.filter(t => t.mastery > 0).slice(0, 5).map(topic => {
@@ -998,7 +974,7 @@ function CourseAnalytics({ course }: { course: Course }) {
           })}
         </div>
       </div>
-      <div className="ws-bento p-5 sm:col-span-2">
+      <div className="platform-panel-md sm:col-span-2">
         <h4 className="text-sm font-semibold mb-3">Concept Coverage &amp; Pace</h4>
         <p className="text-xs text-text-secondary mb-4">Mastered concepts relative to the {totalConcepts} concepts extracted from your material</p>
         {masteredConcepts > 0 ? (
