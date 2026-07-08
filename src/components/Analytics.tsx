@@ -30,6 +30,18 @@ import {
   downloadResearchExport,
 } from '../lib/researchAnalytics';
 import { inferBehaviorFromActivities } from '../lib/behaviorInference';
+import {
+  buildConfidenceBuckets,
+  buildLearnerInsights,
+  buildLearningRadar,
+  buildProgressKpis,
+} from '../lib/progressInsights';
+import {
+  ConfidenceBucketChart,
+  LearnerInsightCards,
+  LearningRadarChart,
+  ProgressKpiRow,
+} from './analytics/ProgressInsightsSections';
 
 interface AnalyticsProps {
   learnerModel: LearnerModel;
@@ -37,6 +49,7 @@ interface AnalyticsProps {
   courses: Course[];
   activities?: ActivityItem[];
   prerequisiteRepairs?: PrerequisiteRepair[];
+  daysToExam?: number | null;
 }
 
 type AnalyticsTab = 'overview' | 'mastery' | 'behavior' | 'insights' | 'research';
@@ -156,6 +169,7 @@ export function Analytics({
   courses,
   activities = [],
   prerequisiteRepairs = [],
+  daysToExam = null,
 }: AnalyticsProps) {
   const [tab, setTab] = useState<AnalyticsTab>('overview');
   const { t } = useI18n();
@@ -187,12 +201,23 @@ export function Analytics({
       </div>
 
       {tab === 'overview' && (
-        <OverviewTab learnerModel={learnerModel} stats={stats} courses={courses} activities={activities} />
+        <OverviewTab
+          learnerModel={learnerModel}
+          stats={stats}
+          courses={courses}
+          activities={activities}
+          daysToExam={daysToExam}
+        />
       )}
       {tab === 'mastery' && <MasteryTab learnerModel={learnerModel} courses={courses} />}
       {tab === 'behavior' && <BehaviorTab learnerModel={learnerModel} activities={activities} />}
       {tab === 'insights' && (
-        <InsightsTab learnerModel={learnerModel} activities={activities} repairs={prerequisiteRepairs} />
+        <InsightsTab
+          learnerModel={learnerModel}
+          activities={activities}
+          repairs={prerequisiteRepairs}
+          courses={courses}
+        />
       )}
       {tab === 'research' && (
         <ResearchTab learnerModel={learnerModel} activities={activities} courses={courses} />
@@ -215,11 +240,13 @@ function OverviewTab({
   stats,
   courses,
   activities,
+  daysToExam,
 }: {
   learnerModel: LearnerModel;
   stats: DashboardStats;
   courses: Course[];
   activities: ActivityItem[];
+  daysToExam: number | null;
 }) {
   const { t, lang } = useI18n();
   const meaningfulActivityCount = countMeaningfulLearningActivities(activities);
@@ -236,8 +263,16 @@ function OverviewTab({
   );
   const fsrsSummary = summarizeRetentionForecast(learnerModel.spacingIntervals);
   const fsrsForecast = buildRetentionForecast(learnerModel.spacingIntervals, 14);
+  const progressKpis = buildProgressKpis(learnerModel, stats, daysToExam, lang);
+  const confidenceBuckets = hasConfidenceMetrics
+    ? buildConfidenceBuckets(learnerModel, lang)
+    : [];
   return (
     <div className="space-y-6">
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+        <ProgressKpiRow kpis={progressKpis} />
+      </motion.div>
+
       {calibration && (
         <CalibrationChip score={calibration.score} direction={calibration.direction} />
       )}
@@ -261,14 +296,6 @@ function OverviewTab({
             <p>{t('analyticsResearchEmpty')}</p>
           </div>
         )}
-      </motion.div>
-
-      {/* Metrics */}
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <MetricCard icon={<Brain className="w-5 h-5 text-brand-400" />} label={t('analyticsOverallMastery')} value={`${learnerModel.overallMastery}%`} sub={`${stats.conceptsMastered}/${stats.totalConcepts} ${t('concepts')}`} />
-        <MetricCard icon={<Clock className="w-5 h-5 text-accent-teal" />} label={t('analyticsTotalStudyTime')} value={`${Math.round(learnerModel.totalStudyTime / 60)}h`} sub={`${learnerModel.totalSessions} ${t('analyticsSessions')}`} />
-        <MetricCard icon={<Target className="w-5 h-5 text-accent-cyan" />} label={t('analyticsRetentionRate')} value={`${Math.round(learnerModel.retentionRate * 100)}%`} sub={t('analyticsSevenDayRecall')} />
-        <MetricCard icon={<Zap className="w-5 h-5 text-accent-amber" />} label={t('analyticsLearningVelocity')} value={`${learnerModel.learningVelocity}×`} sub={t('analyticsVsBaseline')} />
       </motion.div>
 
       {fsrsSummary.trackedConcepts > 0 && (
@@ -351,6 +378,15 @@ function OverviewTab({
       </div>
 
       {/* Confidence Calibration */}
+      {hasConfidenceMetrics && confidenceBuckets.length > 0 && (
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.18 }}>
+          <ConfidenceBucketChart
+            buckets={confidenceBuckets}
+            title={lang === 'el' ? 'Calibration ανά επίπεδο εμπιστοσύνης' : 'Calibration by confidence level'}
+          />
+        </motion.div>
+      )}
+
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="ws-bento p-5">
         <h3 className="text-sm font-semibold flex items-center gap-2 mb-4"><Eye className="w-4 h-4 text-accent-amber" />{t('analyticsConfidenceCalibration')}</h3>
         <p className="text-xs text-text-tertiary mb-4">{t('analyticsConfidenceHint')}</p>
@@ -473,8 +509,9 @@ function BehaviorTab({
   learnerModel: LearnerModel;
   activities: ActivityItem[];
 }) {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const inference = inferBehaviorFromActivities(activities, readAllLearningEvents());
+  const radarDimensions = buildLearningRadar(learnerModel, lang);
   const modelVars: { labelKey: I18nKey; value: string }[] = [
     { labelKey: 'analyticsRetrievalPerformance', value: `${Math.round(learnerModel.retrievalPerformance * 100)}%` },
     { labelKey: 'analyticsTransferAbility', value: `${Math.round(learnerModel.transferAbility * 100)}%` },
@@ -497,6 +534,13 @@ function BehaviorTab({
         <MetricCard icon={<HelpCircle className="w-5 h-5 text-text-tertiary" />} label={t('analyticsHelpSeeking')} value={`${Math.round(learnerModel.helpSeekingRate * 100)}%`} sub={t('analyticsHelpSeekingSub')} />
         <MetricCard icon={<Shield className="w-5 h-5 text-text-tertiary" />} label={t('analyticsPersistence')} value={`${Math.round(learnerModel.persistenceScore * 100)}%`} sub={t('analyticsPersistenceSub')} />
       </div>
+
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}>
+        <LearningRadarChart
+          dimensions={radarDimensions}
+          title={lang === 'el' ? 'Προφίλ μάθησης' : 'Learning profile'}
+        />
+      </motion.div>
 
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="ws-bento p-5">
         <h3 className="text-sm font-semibold flex items-center gap-2 mb-4"><AlertTriangle className="w-4 h-4 text-accent-orange" />{t('analyticsErrorPatterns')}</h3>
@@ -540,16 +584,28 @@ function InsightsTab({
   learnerModel,
   activities,
   repairs,
+  courses,
 }: {
   learnerModel: LearnerModel;
   activities: ActivityItem[];
   repairs: PrerequisiteRepair[];
+  courses: Course[];
 }) {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const tips = adaptiveRecommendations(learnerModel, activities, repairs);
+  const profileInsights = buildLearnerInsights(learnerModel, activities, courses, lang);
   return (
     <div className="space-y-4">
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="rounded-2xl border border-brand-500/20 bg-brand-500/5 p-5">
+      {profileInsights.length > 0 && (
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+          <LearnerInsightCards
+            insights={profileInsights}
+            title={lang === 'el' ? 'Insights μαθητή' : 'Learner profile insights'}
+          />
+        </motion.div>
+      )}
+
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="rounded-2xl border border-brand-500/20 bg-brand-500/5 p-5">
         <h3 className="text-sm font-semibold flex items-center gap-2 mb-4"><Lightbulb className="w-4 h-4 text-brand-400" />{t('analyticsInsightsLearnedTitle')}</h3>
         <p className="text-xs text-text-tertiary mb-4">{t('analyticsInsightsLearnedHint')}</p>
         <div className="space-y-3">

@@ -1076,6 +1076,7 @@ export default function App() {
               courses={store.courses}
               activities={store.activities}
               prerequisiteRepairs={store.pedagogyMetrics.repairs}
+              daysToExam={store.dashboardExtras.daysToExam}
             />
             </LazyOverlay>
           )}

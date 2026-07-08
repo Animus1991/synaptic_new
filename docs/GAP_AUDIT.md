@@ -230,7 +230,7 @@ Goal: every tool **fully functional for its learning purpose**, not demo stubs.
 | UX-01 | Tasks Command Center (4 tabs + session launchers + daily progress) | P1 | **shipped** | `Tasks.tsx` refresh |
 | UX-02 | Sidebar Active Course Card + Quick Access strip | P1 | **shipped** | `Shell.tsx`, `shellUxContent.ts`, `index.css` tokens |
 | UX-03 | Note Analysis Pipeline (5 stages + algorithm transparency) | P1 | **shipped** | `NoteAnalysisView.tsx`, `noteAnalysisSnapshot.ts` |
-| UX-04 | Progress / confidence calibration / learner insights | P2 | open |
+| UX-04 | Progress / confidence calibration / learner insights | P2 | **shipped** | `progressInsights.ts`, `ProgressInsightsSections.tsx`, `Analytics.tsx` |
 | UX-05 | Agent mode visual catalog + source mode toggle | P2 | open |
 | UX-06 | Exam Simulator fullscreen flow | P2 | open |
 | UX-07 | Onboarding wizard (user type, goal, exam date) | P3 | open |
