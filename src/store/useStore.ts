@@ -478,10 +478,30 @@ export function useAppStore() {
   const [tasksFilterPreset, setTasksFilterPreset] = useState<TaskFilter | null>(null);
   const [appToast, setAppToast] = useState<{ id: number; message: string } | null>(null);
   const [postUploadCourseId, setPostUploadCourseId] = useState<string | null>(null);
+  const [noteAnalysisCourseId, setNoteAnalysisCourseId] = useState<string | null>(null);
   const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const markPostUploadCourse = useCallback((courseId: string) => setPostUploadCourseId(courseId), []);
   const clearPostUploadHighlight = useCallback(() => setPostUploadCourseId(null), []);
+
+  const openNoteAnalysis = useCallback((courseId?: string) => {
+    const id = courseId ?? selectedCourse?.id ?? courses[0]?.id;
+    if (!id) return false;
+    const course = courses.find((c) => c.id === id);
+    if (!course) return false;
+    setNoteAnalysisCourseId(id);
+    setSelectedCourse(course);
+    setCurrentView('note-analysis');
+    setSidebarOpen(false);
+    window.scrollTo(0, 0);
+    return true;
+  }, [courses, selectedCourse]);
+
+  const closeNoteAnalysis = useCallback(() => {
+    setNoteAnalysisCourseId(null);
+    setCurrentView('library');
+    setSidebarOpen(false);
+  }, []);
 
   const dismissAppToast = useCallback(() => {
     if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
@@ -2383,6 +2403,7 @@ export function useAppStore() {
     prerequisiteRepairOpen, setPrerequisiteRepairOpen,
     appToast, showAppToast, dismissAppToast,
     postUploadCourseId, markPostUploadCourse, clearPostUploadHighlight,
+    noteAnalysisCourseId, openNoteAnalysis, closeNoteAnalysis,
   };
 }
 

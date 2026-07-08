@@ -3,11 +3,13 @@ import {
   BookOpen, CheckSquare, Robot as Bot, SquaresFour as LayoutDashboard, Gear as Settings,
   Sparkle as Sparkles, List as Menu, X, UploadSimple as Upload, Bell, MagnifyingGlass as Search, CaretRight as ChevronRight,
   ChartBar as BarChart3, Sun, Moon, Users,   Fire as Flame, SquaresFour as Layout, Wind, GraduationCap,
+  TreeStructure as Network, Lightning as Zap, Clock,
 } from '@phosphor-icons/react';
 import type { AppView, User, DashboardStats, UserSettings } from '../types';
 import { cn } from '../utils/cn';
 import { useI18n, type I18nKey } from '../lib/i18n';
 import { getTasksContent } from '../lib/tasksContent';
+import { getShellUxContent } from '../lib/shellUxContent';
 import { resolveTheme, themeToggleTarget } from '../lib/theme';
 import type { WorkspaceLiveSync } from '../lib/workspaceStoreSpine';
 import { workspaceLiveIsStale } from '../lib/workspaceStoreSpine';
@@ -36,6 +38,10 @@ interface ShellProps {
   onOpenWorkspace?: () => void;
   studyWorkspaceOpen?: boolean;
   onTakeBreath?: () => void;
+  activeCourse?: { title: string; mastery: number; daysToExam: number | null } | null;
+  onContinueCourse?: () => void;
+  onQuickAccess?: (action: 'note-analysis' | 'upload' | 'workspace' | 'exam') => void;
+  hasCourses?: boolean;
 }
 
 type MobileNavItem =
@@ -76,6 +82,13 @@ const shellNavClass = (active: boolean) =>
       : 'border-transparent text-text-secondary hover:text-text-primary hover:bg-surface-hover',
   );
 
+const QUICK_ACCESS: { id: 'note-analysis' | 'upload' | 'workspace' | 'exam'; icon: typeof Network; color: string }[] = [
+  { id: 'note-analysis', icon: Network, color: '#818CF8' },
+  { id: 'upload', icon: Sparkles, color: '#34D399' },
+  { id: 'workspace', icon: BookOpen, color: '#60A5FA' },
+  { id: 'exam', icon: Zap, color: '#F87171' },
+];
+
 const NAV_SUBTITLES: Partial<Record<AppView, I18nKey>> = {
   dashboard: 'navSubtitleDashboard',
   library: 'navSubtitleLibrary',
@@ -106,8 +119,13 @@ export function Shell({
   onOpenWorkspace,
   studyWorkspaceOpen = false,
   onTakeBreath,
+  activeCourse = null,
+  onContinueCourse,
+  onQuickAccess,
+  hasCourses = false,
 }: ShellProps) {
   const { t, lang } = useI18n();
+  const shellUx = getShellUxContent(lang);
   const tasksReviewBadgeHint = getTasksContent(lang).reviewsDue(stats.reviewsDue);
   const showMobileWorkspaceNav = Boolean(
     workspaceLive && !workspaceLiveIsStale(workspaceLive) && onOpenWorkspace,
@@ -200,6 +218,71 @@ export function Shell({
               </div>
             );
           })}
+          {onQuickAccess && hasCourses && (
+            <>
+              <div className="pt-4 pb-2">
+                <p className="type-micro font-semibold text-text-tertiary uppercase tracking-wider px-2">
+                  {shellUx.quickAccessTitle}
+                </p>
+              </div>
+              {QUICK_ACCESS.map((item) => {
+                const quickLabel = item.id === 'note-analysis'
+                  ? shellUx.quickNoteAnalysis
+                  : item.id === 'upload'
+                    ? shellUx.quickUpload
+                    : item.id === 'workspace'
+                      ? shellUx.quickWorkspace
+                      : shellUx.quickExam;
+                return (
+                <button
+                  key={item.id}
+                  type="button"
+                  data-testid={`quick-access-${item.id}`}
+                  onClick={() => onQuickAccess(item.id)}
+                  className={cn(shellNavClass(false), 'py-2')}
+                >
+                  <span className="ux-quick-icon" style={{ backgroundColor: `${item.color}20` }}>
+                    <item.icon className="w-3 h-3" style={{ color: item.color }} />
+                  </span>
+                  <span className="text-xs truncate">{quickLabel}</span>
+                </button>
+              );})}
+            </>
+          )}
+          {activeCourse && onContinueCourse && (
+            <div className="mt-4 mx-1 p-3 rounded-xl border border-border-subtle bg-surface-hover/60" data-testid="active-course-card">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-5 h-5 rounded-md bg-brand-600/20 flex items-center justify-center shrink-0">
+                  <BookOpen className="w-3 h-3 text-brand-400" />
+                </div>
+                <p className="text-xs font-medium text-text-primary leading-tight truncate">{activeCourse.title}</p>
+              </div>
+              <div className="flex items-center gap-2 text-xs text-text-tertiary mb-1.5">
+                <Clock className="w-3 h-3" />
+                <span>
+                  {activeCourse.daysToExam === null
+                    ? shellUx.noExamDate
+                    : activeCourse.daysToExam === 0
+                      ? shellUx.examToday
+                      : shellUx.daysToExam(activeCourse.daysToExam)}
+                </span>
+              </div>
+              <div className="ux-progress-track">
+                <div className="ux-progress-fill" style={{ width: `${Math.min(100, activeCourse.mastery)}%` }} />
+              </div>
+              <div className="flex items-center justify-between mt-1.5">
+                <span className="text-xs text-text-tertiary">{shellUx.percentComplete(Math.round(activeCourse.mastery))}</span>
+                <button
+                  type="button"
+                  onClick={onContinueCourse}
+                  className="text-xs text-brand-400 hover:text-brand-300 flex items-center gap-1"
+                >
+                  {shellUx.continueCourse}
+                  <ChevronRight className="w-3 h-3" />
+                </button>
+              </div>
+            </div>
+          )}
         </nav>
 
         <div className="p-3">

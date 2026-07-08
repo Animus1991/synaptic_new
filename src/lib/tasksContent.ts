@@ -58,6 +58,30 @@ export type TasksContent = {
   generatedExamPrepDesc: string;
   courseScopeLabel: (courseName: string) => string;
   showAllCourses: string;
+  tabToday: string;
+  tabWeak: string;
+  tabReviews: string;
+  tabMistakes: string;
+  tasksComplete: (done: number, total: number) => string;
+  minRemaining: (min: number) => string;
+  dailyGoal: string;
+  studyNow: string;
+  askAi: string;
+  practiceOnly: string;
+  spacedReviewBanner: string;
+  mistakeBanner: string;
+  streakDays: (days: number) => string;
+  recentErrors: (count: number) => string;
+  dueLabel: (label: string) => string;
+  intervalLabel: (days: string) => string;
+  yourMistake: string;
+  correctUnderstanding: string;
+  deepExplanation: string;
+  similarPractice: string;
+  daysAgo: (days: number) => string;
+  yesterday: string;
+  highPriority: string;
+  weakAreasEmpty: string;
 };
 
 const EN: TasksContent = {
@@ -104,6 +128,30 @@ const EN: TasksContent = {
   generatedExamPrepDesc: 'Review all topics before your exam.',
   courseScopeLabel: (courseName) => `Showing tasks for ${courseName}`,
   showAllCourses: 'Show all courses',
+  tabToday: "Today's Plan",
+  tabWeak: 'Weak Areas',
+  tabReviews: 'Due Reviews',
+  tabMistakes: 'Retry Mistakes',
+  tasksComplete: (done, total) => `${done} of ${total} tasks complete`,
+  minRemaining: (min) => `Est. ${min} min remaining`,
+  dailyGoal: 'daily goal',
+  studyNow: 'Study Now',
+  askAi: 'Ask AI',
+  practiceOnly: 'Practice Only',
+  spacedReviewBanner: 'Spaced repetition schedule — review these concepts before they decay.',
+  mistakeBanner: 'These mistakes were flagged from recent quiz and practice answers. Retry until corrected.',
+  streakDays: (days) => `${days}-day streak`,
+  recentErrors: (count) => `${count} recent errors`,
+  dueLabel: (label) => `Due: ${label}`,
+  intervalLabel: (days) => `Interval: ${days}`,
+  yourMistake: 'Your mistake',
+  correctUnderstanding: 'Correct understanding',
+  deepExplanation: 'Deep explanation',
+  similarPractice: 'Similar practice',
+  daysAgo: (days) => `${days} days ago`,
+  yesterday: 'Yesterday',
+  highPriority: 'High priority',
+  weakAreasEmpty: 'No weak areas yet — complete quizzes to build your mastery profile.',
 };
 
 const EL: TasksContent = {
@@ -150,6 +198,30 @@ const EL: TasksContent = {
   generatedExamPrepDesc: 'Επανάληψη όλων των θεμάτων πριν την εξέταση.',
   courseScopeLabel: (courseName) => `Εργασίες για ${courseName}`,
   showAllCourses: 'Εμφάνιση όλων των μαθημάτων',
+  tabToday: 'Σημερινό πλάνο',
+  tabWeak: 'Αδύναμα σημεία',
+  tabReviews: 'Due επαναλήψεις',
+  tabMistakes: 'Επανάληψη λαθών',
+  tasksComplete: (done, total) => `${done} από ${total} εργασίες`,
+  minRemaining: (min) => `~${min} λεπτά απομένουν`,
+  dailyGoal: 'ημερήσιος στόχος',
+  studyNow: 'Μελέτη τώρα',
+  askAi: 'Ρώτα AI',
+  practiceOnly: 'Μόνο εξάσκηση',
+  spacedReviewBanner: 'Πρόγραμμα spaced repetition — επανάληψε πριν ξεχαστούν.',
+  mistakeBanner: 'Λάθη από πρόσφατα quiz/practice. Επανάληψε μέχρι διόρθωσης.',
+  streakDays: (days) => `${days} ημέρες streak`,
+  recentErrors: (count) => `${count} πρόσφατα λάθη`,
+  dueLabel: (label) => `Due: ${label}`,
+  intervalLabel: (days) => `Διάστημα: ${days}`,
+  yourMistake: 'Το λάθος σου',
+  correctUnderstanding: 'Σωστή κατανόηση',
+  deepExplanation: 'Εμβάθυνση',
+  similarPractice: 'Παρόμοια άσκηση',
+  daysAgo: (days) => `${days} ημέρες πριν`,
+  yesterday: 'Χθες',
+  highPriority: 'Υψηλή προτεραιότητα',
+  weakAreasEmpty: 'Δεν υπάρχουν αδύναμα σημεία — ολοκλήρωσε quiz για προφίλ mastery.',
 };
 
 const TASK_TYPE_LABELS: Record<Lang, Record<TaskType, string>> = {

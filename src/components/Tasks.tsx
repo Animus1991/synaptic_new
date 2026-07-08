@@ -1,31 +1,27 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  CheckCircle2, Circle, Clock, AlertTriangle, RotateCcw,
-  Shield, Calendar, ChevronDown, Play,
+  CheckCircle2, Circle, Clock, AlertTriangle, RotateCcw, Calendar,
+  Play, Flame, Brain, Target,
+  HelpCircle, XCircle, RefreshCw, ArrowDownRight, TrendingUp, Minus,
 } from '@/lib/lucide-shim';
-import type { Task, MistakeRecord } from '../types';
+import type { Task, MistakeRecord, SkillNode, SpacingData } from '../types';
 import type { Lang } from '../lib/i18n';
 import { cn } from '../utils/cn';
-import { buildStudyPlanBlocks } from '../lib/pedagogy';
-import type { StudyPlanBlock } from '../lib/unifiedAdaptiveScheduler';
 import type { FsrsRating } from '../lib/pedagogy';
-import { filterTasksForSession, startButtonLabel, type SessionType } from '../lib/taskFlows';
+import { filterTasksForSession, type SessionType } from '../lib/taskFlows';
 import {
   getTasksContent,
-  getTaskTypeLabel,
   getSessionTypes,
-  taskFilterLabel,
   type TaskFilter,
 } from '../lib/tasksContent';
 import { TaskActionIcon } from './ui/TaskActionIcon';
-import { ErrorNotebook } from './visuals/ErrorNotebook';
-import { CourseIcon } from './ui/CourseIcon';
-import { Page, PageHeader, PlatformSection } from './ui/primitives';
-import { resolveCourseColor } from '../lib/masteryPalette';
+import { Page, PageHeader } from './ui/primitives';
 import { PlatformEmptyState } from './ui/PlatformEmptyState';
 
 export type { TaskFilter } from '../lib/tasksContent';
+
+type CommandTab = 'today' | 'weak' | 'reviews' | 'mistakes';
 
 interface TasksProps {
   tasks: Task[];
@@ -41,9 +37,27 @@ interface TasksProps {
   onResolveMistake?: (id: string) => void;
   filterPreset?: TaskFilter | null;
   onFilterPresetConsumed?: () => void;
-  studyPlan?: StudyPlanBlock[];
+  studyPlan?: import('../lib/unifiedAdaptiveScheduler').StudyPlanBlock[];
   focusCourseId?: string | null;
   focusCourseName?: string | null;
+  weakAreas?: SkillNode[];
+  spacingReviews?: SpacingData[];
+  streak?: number;
+  onFocusWeakArea?: (concept: string) => void;
+  onOpenAgent?: () => void;
+  courseNameById?: Record<string, string>;
+}
+
+function formatDueDate(iso: string | undefined, lang: Lang): string {
+  if (!iso) return lang === 'el' ? 'Σύντομα' : 'Soon';
+  const diff = Math.ceil((new Date(iso).getTime() - Date.now()) / 86400000);
+  if (diff <= 0) return lang === 'el' ? 'Σήμερα' : 'Today';
+  if (diff === 1) return lang === 'el' ? 'Αύριο' : 'Tomorrow';
+  return lang === 'el' ? `Σε ${diff} ημέρες` : `In ${diff} days`;
+}
+
+function daysSince(iso: string): number {
+  return Math.max(0, Math.floor((Date.now() - new Date(iso).getTime()) / 86400000));
 }
 
 export function Tasks({
@@ -60,14 +74,19 @@ export function Tasks({
   onResolveMistake,
   filterPreset = null,
   onFilterPresetConsumed,
-  studyPlan,
   focusCourseId = null,
   focusCourseName = null,
+  weakAreas = [],
+  spacingReviews = [],
+  streak = 0,
+  onFocusWeakArea,
+  onOpenAgent,
+  courseNameById = {},
 }: TasksProps) {
   const c = getTasksContent(lang);
   const sessionTypes = getSessionTypes(lang);
-  const [filter, setFilter] = useState<TaskFilter>('all');
-  const [showSessions, setShowSessions] = useState(false);
+  const [tab, setTab] = useState<CommandTab>('today');
+  const [sessionMode, setSessionMode] = useState<SessionType | null>(null);
   const [showAllCourses, setShowAllCourses] = useState(false);
   const [localExpanded, setLocalExpanded] = useState<string | null>(null);
   const expandedTask = expandedTaskId ?? localExpanded;
@@ -82,7 +101,10 @@ export function Tasks({
 
   useEffect(() => {
     if (!filterPreset) return;
-    setFilter(filterPreset);
+    if (filterPreset === 'review') setTab('reviews');
+    else if (filterPreset === 'fix') setTab('mistakes');
+    else if (filterPreset === 'completed') setTab('today');
+    else setTab('today');
     onFilterPresetConsumed?.();
   }, [filterPreset, onFilterPresetConsumed]);
 
@@ -95,29 +117,23 @@ export function Tasks({
     ? tasks.filter((t) => t.courseId === focusCourseId)
     : tasks;
 
-  const studyPlanBlocks = studyPlan ?? buildStudyPlanBlocks(visibleTasks, lang);
+  const todayTasks = visibleTasks.filter((t) => t.status !== 'completed');
+  const doneCount = visibleTasks.filter((t) => t.status === 'completed').length;
+  const totalCount = visibleTasks.length;
+  const totalMin = todayTasks.reduce((s, t) => s + t.estimatedMinutes, 0);
+  const remainingMin = Math.round(totalMin * (1 - (totalCount ? doneCount / totalCount : 0)));
+  const progressPct = totalCount ? Math.round((doneCount / totalCount) * 100) : 0;
 
-  const filteredTasks = visibleTasks.filter(t => {
-    if (filter === 'completed') return t.status === 'completed';
-    if (filter === 'all') return true;
-    return t.category === filter && t.status !== 'completed';
-  });
-
-  const pendingCount = visibleTasks.filter(t => t.status === 'pending').length;
-  const completedCount = visibleTasks.filter(t => t.status === 'completed').length;
-  const reviewCount = visibleTasks.filter(t => t.isSpacedRepetition && t.status === 'pending').length;
-  const totalXP = visibleTasks.filter(t => t.status === 'pending').reduce((sum, t) => sum + t.xpReward, 0);
-  const dangerTasks = visibleTasks.filter(t => t.status === 'pending' && (t.priority === 'critical' || (t.type === 'prerequisite-repair')));
-
-  const filterCounts: Record<TaskFilter, number> = {
-    all: visibleTasks.length,
-    learn: visibleTasks.filter(t => t.category === 'learn' && t.status !== 'completed').length,
-    review: visibleTasks.filter(t => t.category === 'review' && t.status !== 'completed').length,
-    practice: visibleTasks.filter(t => t.category === 'practice' && t.status !== 'completed').length,
-    exam: visibleTasks.filter(t => t.category === 'exam' && t.status !== 'completed').length,
-    fix: visibleTasks.filter(t => t.category === 'fix' && t.status !== 'completed').length,
-    completed: completedCount,
-  };
+  const reviewTasks = visibleTasks.filter((t) => t.isSpacedRepetition && t.status === 'pending');
+  const scopedWeak = courseScoped
+    ? weakAreas.filter((w) => w.courseId === focusCourseId)
+    : weakAreas;
+  const scopedSpacing = courseScoped
+    ? spacingReviews.filter((s) => {
+        const task = tasks.find((t) => t.title.includes(s.concept) || t.description.includes(s.concept));
+        return !task || task.courseId === focusCourseId;
+      })
+    : spacingReviews;
 
   const fsrsRatings: { rating: FsrsRating; label: string; color: string }[] = [
     { rating: 'again', label: c.fsrsAgain, color: 'bg-accent-rose/15 text-accent-rose border-accent-rose/30' },
@@ -126,28 +142,42 @@ export function Tasks({
     { rating: 'easy', label: c.fsrsEasy, color: 'bg-accent-emerald/15 text-accent-emerald border-accent-emerald/30' },
   ];
 
+  const subtitle = useMemo(() => {
+    const dateStr = new Date().toLocaleDateString(lang === 'el' ? 'el-GR' : 'en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+    const examPart = daysToExam === null
+      ? ''
+      : daysToExam === 0
+        ? ` · ${c.examToday}`
+        : ` · ${c.examInDays(daysToExam)}`;
+    return `${dateStr}${examPart}`;
+  }, [lang, daysToExam, c]);
+
+  const tabs: { id: CommandTab; label: string; count: number }[] = [
+    { id: 'today', label: c.tabToday, count: todayTasks.length },
+    { id: 'weak', label: c.tabWeak, count: scopedWeak.length },
+    { id: 'reviews', label: c.tabReviews, count: reviewTasks.length || scopedSpacing.length },
+    { id: 'mistakes', label: c.tabMistakes, count: openMistakes.length },
+  ];
+
   return (
-    <Page>
+    <Page className="max-w-5xl">
       <PageHeader
         title={c.pageTitle}
-        subtitle={c.formatSubtitle(pendingCount, completedCount, totalXP)}
+        subtitle={subtitle}
         icon={CheckCircle2}
         actions={
-          <button onClick={() => setShowSessions(!showSessions)} className="flex items-center gap-2 px-5 py-2.5 ws-fab rounded-xl font-semibold text-sm transition-colors">
-            <Play className="w-4 h-4" />
-            {c.startSession}
-            <ChevronDown className={cn('w-4 h-4 transition-transform', showSessions && 'rotate-180')} />
-          </button>
+          streak > 0 ? (
+            <div className="flex items-center gap-2 text-sm text-text-secondary">
+              <Flame className="w-4 h-4 text-accent-amber" />
+              <span className="font-medium">{c.streakDays(streak)}</span>
+            </div>
+          ) : undefined
         }
       />
 
       {focusCourseId && focusCourseName && (
-        <div className="flex flex-wrap items-center gap-2 pb-2">
-          {courseScoped && (
-            <span className="text-xs text-text-secondary">
-              {c.courseScopeLabel(focusCourseName)}
-            </span>
-          )}
+        <div className="flex flex-wrap items-center gap-2 pb-1">
+          {courseScoped && <span className="text-xs text-text-secondary">{c.courseScopeLabel(focusCourseName)}</span>}
           <button
             type="button"
             onClick={() => setShowAllCourses((v) => !v)}
@@ -158,200 +188,278 @@ export function Tasks({
         </div>
       )}
 
-      <AnimatePresence>
-        {showSessions && (
-          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 pb-4">
-              {sessionTypes.map(s => {
-                const sessionTasks = filterTasksForSession(visibleTasks, s.type);
-                return (
-                <button
-                  key={s.type}
-                  onClick={() => { onStartSession?.(s.type); setShowSessions(false); }}
-                  disabled={sessionTasks.length === 0}
-                  className={cn(
-                    'ws-bento p-4 transition-all text-left group',
-                    sessionTasks.length === 0
-                      ? 'opacity-50 cursor-not-allowed'
-                      : 'hover:border-brand-500/35',
-                  )}
-                >
-                  <s.icon className="w-5 h-5 text-brand-400 mb-2 group-hover:scale-110 transition-transform" />
-                  <p className="text-sm font-semibold">{s.label}</p>
-                  <p className="text-xs text-text-tertiary mt-0.5">{s.desc}</p>
-                  <p className="text-xs text-brand-400 mt-2">{c.sessionTaskCount(s.minutes, sessionTasks.length)}</p>
-                </button>
-              );})}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {studyPlanBlocks.length > 0 && filter !== 'completed' && (
-        <PlatformSection title={c.studyPlanTitle} icon={Calendar} iconClassName="text-brand-600">
-          <div className="space-y-3">
-            {studyPlanBlocks.map((block) => (
-              <div key={block.label} className="ws-bento-soft p-3">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-semibold text-text-primary">{block.label}</span>
-                  <span className="text-[10px] text-text-tertiary">{block.minutes} min</span>
-                </div>
-                <ul className="space-y-1">
-                  {block.items.map((item) => (
-                    <li key={item} className="text-xs text-text-secondary truncate">· {item}</li>
-                  ))}
-                </ul>
-              </div>
-            ))}
+      {/* Daily progress */}
+      <div className="ux-card mb-2">
+        <div className="flex items-center justify-between mb-3">
+          <div>
+            <p className="text-sm font-semibold text-text-primary">{c.tasksComplete(doneCount, totalCount)}</p>
+            <p className="text-xs text-text-tertiary">{c.totalMinutes(totalMin)} · {c.minRemaining(remainingMin)}</p>
           </div>
-        </PlatformSection>
-      )}
-
-      {openMistakes.length > 0 && filter !== 'completed' && (
-        <ErrorNotebook mistakes={openMistakes} onResolve={onResolveMistake} />
-      )}
-
-      {dangerTasks.length > 0 && filter !== 'completed' && (
-        <PlatformSection title={c.dangerZoneTitle} icon={Shield} tone="default" className="platform-banner-danger">
-          <div className="space-y-2">
-            {dangerTasks.slice(0, 3).map(task => (
-              <button
-                key={task.id}
-                onClick={() => onStartTask?.(task.id)}
-                className="w-full flex items-center gap-3 text-sm text-left hover:bg-surface-hover rounded-lg p-1.5 -m-1.5 transition-all"
-              >
-                <span className="w-2 h-2 rounded-full bg-accent-rose animate-pulse shrink-0" />
-                <span className="flex-1 truncate text-text-primary">{task.title}</span>
-                <span className="text-xs ws-chip-danger px-2 py-0.5 rounded-full">{task.estimatedMinutes}m</span>
-              </button>
-            ))}
+          <div className="text-right">
+            <p className="text-2xl font-bold tabular-nums text-text-primary">{progressPct}%</p>
+            <p className="text-xs text-text-tertiary">{c.dailyGoal}</p>
           </div>
-        </PlatformSection>
-      )}
-      <div className="flex items-center gap-3 overflow-x-auto hide-scrollbar">
-        {reviewCount > 0 && (
-          <div className="flex items-center gap-2 px-4 py-2 rounded-xl ws-chip-warn text-sm shrink-0">
-            <RotateCcw className="w-4 h-4 shrink-0" />
-            <span>{c.reviewsDue(reviewCount)}</span>
-          </div>
-        )}
-        <div className="flex items-center gap-2 px-4 py-2 rounded-xl ws-chip-neutral text-sm shrink-0">
-          <Clock className="w-4 h-4 text-text-tertiary" />
-          <span className="text-text-secondary">{c.totalMinutes(Math.round(visibleTasks.filter(t => t.status === 'pending').reduce((s, t) => s + t.estimatedMinutes, 0)))}</span>
         </div>
-        {daysToExam !== null ? (
-          <div className="flex items-center gap-2 px-4 py-2 rounded-xl ws-chip-danger text-sm shrink-0">
-            <Calendar className="w-4 h-4 shrink-0" />
-            <span>
-              {daysToExam === 0 ? c.examToday : c.examInDays(daysToExam)}
-            </span>
-          </div>
-        ) : (
-          <div className="flex items-center gap-2 px-4 py-2 rounded-xl ws-chip-neutral text-sm shrink-0">
-            <Calendar className="w-4 h-4 shrink-0" />
-            <span className="text-text-secondary">{c.noExamDate}</span>
-          </div>
-        )}
+        <div className="ux-progress-track h-2">
+          <div className="ux-progress-fill" style={{ width: `${progressPct}%` }} />
+        </div>
       </div>
 
-      <div className="flex items-center gap-2 overflow-x-auto hide-scrollbar">
-        {(['all', 'learn', 'review', 'practice', 'fix', 'exam', 'completed'] as TaskFilter[]).map(f => (
-          <button key={f} onClick={() => setFilter(f)} className={cn(
-            'platform-pill px-3 py-1.5 rounded-lg text-xs transition-all shrink-0 flex items-center gap-1.5 border',
-            filter === f ? 'platform-pill-active' : '',
-          )}>
-            {taskFilterLabel(f, lang)}
-            {filterCounts[f] > 0 && <span className="text-[10px] opacity-60">({filterCounts[f]})</span>}
+      {/* Session launchers */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 mb-4">
+        {sessionTypes.map((s) => {
+          const sessionTasks = filterTasksForSession(visibleTasks, s.type);
+          const Icon = s.icon;
+          return (
+            <button
+              key={s.type}
+              type="button"
+              data-testid={`session-launcher-${s.type}`}
+              onClick={() => {
+                setSessionMode(s.type);
+                onStartSession?.(s.type);
+              }}
+              disabled={sessionTasks.length === 0}
+              className={cn(
+                'ux-card p-3 text-center transition-all',
+                sessionMode === s.type && 'border-brand-500/40 bg-brand-600/10',
+                sessionTasks.length === 0 && 'opacity-50 cursor-not-allowed',
+              )}
+            >
+              <Icon className="w-4 h-4 mx-auto mb-1 text-brand-400" />
+              <p className="text-xs font-medium text-text-primary">{s.label}</p>
+              <p className="text-[10px] text-text-tertiary mt-0.5">{s.desc}</p>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Tabs */}
+      <div className="ux-tab-bar">
+        {tabs.map((t) => (
+          <button
+            key={t.id}
+            type="button"
+            data-testid={`tasks-tab-${t.id}`}
+            onClick={() => setTab(t.id)}
+            className={cn('ux-tab', tab === t.id && 'ux-tab-active')}
+          >
+            {t.label}
+            {t.count > 0 && (
+              <span className={cn('text-[10px] px-1.5 py-0.5 rounded-full', tab === t.id ? 'ux-chip-info' : 'bg-surface-hover text-text-tertiary')}>
+                {t.count}
+              </span>
+            )}
           </button>
         ))}
       </div>
 
-      <div className="space-y-2">
-        <AnimatePresence>
-          {filteredTasks.map((task, i) => {
-            const isExpanded = expandedTask === task.id;
-            const isCompleted = task.status === 'completed';
-            return (
-              <motion.div key={task.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ delay: i * 0.03 }}
-                className={cn('ws-bento transition-all', isCompleted ? 'opacity-60' : '', task.priority === 'critical' && !isCompleted && 'border-accent-rose/30')}
-              >
-                <div className="flex items-center gap-3 p-4 cursor-pointer" onClick={() => setExpandedTask(isExpanded ? null : task.id)}>
-                  <button onClick={e => { e.stopPropagation(); if (!isCompleted) onComplete(task.id); }} className="shrink-0">
-                    {isCompleted ? <CheckCircle2 className="w-5 h-5 text-accent-emerald" /> : <Circle className="w-5 h-5 text-text-muted hover:text-brand-400 transition-colors" />}
-                  </button>
-                  <div className="w-1 h-8 rounded-full shrink-0" style={{ backgroundColor: resolveCourseColor(task.courseColor) }} />
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-0.5">
-                      <CourseIcon icon={task.courseIcon} size="sm" colorClassName="text-brand-500 shrink-0" />
-                      <TaskActionIcon taskType={task.type} size="xs" />
-                      <span className="type-micro font-medium text-text-tertiary">{getTaskTypeLabel(task.type, lang)}</span>
+      {/* Today's Plan */}
+      {tab === 'today' && (
+        <div className="space-y-2">
+          {todayTasks.length === 0 ? (
+            <PlatformEmptyState title={c.emptyTitle} description={c.emptyDescription} icon={CheckCircle2} />
+          ) : (
+            todayTasks.map((task, i) => {
+              const isExpanded = expandedTask === task.id;
+              const isInProgress = task.status === 'in-progress';
+              return (
+                <motion.div
+                  key={task.id}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.02 }}
+                  className={cn(
+                    'ux-card flex flex-col gap-0 p-0 overflow-hidden',
+                    isInProgress && 'border-brand-500/30 bg-brand-600/5',
+                    task.priority === 'critical' && 'border-accent-rose/30',
+                  )}
+                >
+                  <div className="flex items-center gap-3 p-4 cursor-pointer" onClick={() => setExpandedTask(isExpanded ? null : task.id)}>
+                    <button type="button" onClick={(e) => { e.stopPropagation(); onComplete(task.id); }} className="shrink-0">
+                      <Circle className="w-5 h-5 text-text-muted hover:text-brand-400" />
+                    </button>
+                    <div className="w-8 h-8 rounded-lg bg-brand-600/15 flex items-center justify-center shrink-0">
+                      <TaskActionIcon taskType={task.type} size="sm" />
                     </div>
-                    <p className={cn('text-sm font-medium truncate', isCompleted && 'line-through text-text-tertiary')}>{task.title}</p>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-text-primary truncate">{task.title}</p>
+                      <div className="flex items-center gap-2 mt-0.5 text-xs text-text-tertiary">
+                        <span>{task.courseName}</span>
+                        <span>·</span>
+                        <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{task.estimatedMinutes} min</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                      {task.priority === 'critical' && (
+                        <span className="text-[10px] px-2 py-0.5 rounded-full ux-chip-error">{c.highPriority}</span>
+                      )}
+                      <button
+                        type="button"
+                        onClick={(e) => { e.stopPropagation(); onStartTask?.(task.id); }}
+                        className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-brand-600/15 text-brand-400 text-xs font-medium hover:bg-brand-600/25"
+                      >
+                        <Play className="w-3 h-3" /> Start
+                      </button>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2 shrink-0">
-                    <span className="hidden sm:inline text-xs text-text-tertiary">{task.estimatedMinutes}m</span>
-                    <span className="text-xs text-accent-amber font-medium">+{task.xpReward}</span>
-                    {task.priority === 'critical' && <span className="w-2 h-2 rounded-full bg-accent-rose animate-pulse" />}
-                    <ChevronDown className={cn('w-4 h-4 text-text-muted transition-transform', isExpanded && 'rotate-180')} />
-                  </div>
-                </div>
-                <AnimatePresence>
-                  {isExpanded && (
-                    <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
-                      <div className="px-4 pb-4 ml-8 border-t border-border-subtle pt-3">
-                        <p className="text-sm text-text-secondary mb-3">{task.description}</p>
-                        <div className="flex flex-wrap gap-1.5 mb-3">
-                          {task.tags.map(tag => (<span key={tag} className="text-[10px] px-2 py-0.5 rounded-full bg-surface-hover text-text-tertiary">{tag}</span>))}
-                        </div>
-                        <div className="flex items-center gap-3 flex-wrap">
-                          <span className="text-xs text-text-tertiary flex items-center gap-1"><Clock className="w-3 h-3" />{task.estimatedMinutes} min</span>
-                          <span className="text-xs text-text-tertiary">{task.courseName}</span>
-                          {task.isSpacedRepetition && <span className="text-xs text-accent-amber flex items-center gap-1"><RotateCcw className="w-3 h-3" />{c.spacedRepetition}</span>}
-                          {task.retentionPrediction !== undefined && task.retentionPrediction < 0.8 && (
-                            <span className="text-xs text-accent-rose flex items-center gap-1"><AlertTriangle className="w-3 h-3" />{c.retention(Math.round(task.retentionPrediction * 100))}</span>
-                          )}
-                        </div>
-                        {!isCompleted && task.isSpacedRepetition && task.category === 'review' && onReviewRating ? (
-                          <div className="mt-3">
-                            <p className="text-xs text-text-tertiary mb-2">{c.recallPrompt}</p>
-                            <div className="flex flex-wrap gap-2">
+                  <AnimatePresence>
+                    {isExpanded && (
+                      <motion.div initial={{ height: 0 }} animate={{ height: 'auto' }} exit={{ height: 0 }} className="overflow-hidden border-t border-border-subtle">
+                        <div className="px-4 pb-4 pt-3 ml-11">
+                          <p className="text-sm text-text-secondary mb-2">{task.description}</p>
+                          {task.isSpacedRepetition && task.category === 'review' && onReviewRating && (
+                            <div className="flex flex-wrap gap-2 mt-2">
                               {fsrsRatings.map(({ rating, label, color }) => (
-                                <button
-                                  key={rating}
-                                  onClick={() => onReviewRating(task.id, rating)}
-                                  className={cn('px-3 py-1.5 rounded-lg text-xs font-medium border transition-all hover:opacity-90', color)}
-                                >
+                                <button key={rating} type="button" onClick={() => onReviewRating(task.id, rating)} className={cn('px-3 py-1.5 rounded-lg text-xs font-medium border', color)}>
                                   {label}
                                 </button>
                               ))}
                             </div>
-                          </div>
-                        ) : !isCompleted && (
-                          <button
-                            onClick={() => (onStartTask ? onStartTask(task.id) : onComplete(task.id))}
-                            className="mt-3 px-4 py-2 bg-brand-600 hover:bg-brand-500 text-white rounded-lg text-sm font-medium transition-all"
-                          >
-                            {startButtonLabel(task, lang)}
-                          </button>
-                        )}
+                          )}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </motion.div>
+              );
+            })
+          )}
+        </div>
+      )}
+
+      {/* Weak Areas */}
+      {tab === 'weak' && (
+        <div className="space-y-3">
+          {scopedWeak.length === 0 ? (
+            <PlatformEmptyState title={c.weakAreasEmpty} description={c.emptyDescription} icon={Target} />
+          ) : (
+            scopedWeak.map((area) => {
+              const errors = Math.round(area.errorRate * 10);
+              const TrendIcon = area.mastery < 30 ? ArrowDownRight : area.mastery > 50 ? TrendingUp : Minus;
+              return (
+                <div key={area.concept} className="ux-card">
+                  <div className="flex items-start justify-between mb-3">
+                    <div>
+                      <p className="text-sm font-semibold text-text-primary">{area.concept}</p>
+                      <p className="text-xs text-text-tertiary mt-0.5">
+                        {courseNameById[area.courseId] ?? area.courseId} · {c.recentErrors(errors)}
+                      </p>
+                    </div>
+                    <div className="text-right flex items-center gap-2">
+                      <TrendIcon className="w-4 h-4 text-accent-rose" />
+                      <div>
+                        <p className="text-lg font-bold tabular-nums text-accent-rose">{Math.round(area.mastery)}%</p>
+                        <p className="text-xs text-text-tertiary">mastery</p>
                       </div>
-                    </motion.div>
+                    </div>
+                  </div>
+                  <div className="ux-progress-track mb-3 h-1.5">
+                    <div className="h-full rounded-full bg-accent-rose/80" style={{ width: `${area.mastery}%` }} />
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    <button type="button" onClick={() => onFocusWeakArea?.(area.concept)} className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-brand-600/15 text-brand-400 text-xs font-medium">
+                      <Brain className="w-3 h-3" /> {c.studyNow}
+                    </button>
+                    {onOpenAgent && (
+                      <button type="button" onClick={onOpenAgent} className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-border-subtle text-xs text-text-secondary hover:text-text-primary">
+                        <HelpCircle className="w-3 h-3" /> {c.askAi}
+                      </button>
+                    )}
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </div>
+      )}
+
+      {/* Due Reviews */}
+      {tab === 'reviews' && (
+        <div className="space-y-3">
+          <div className="ux-card ux-chip-info border-brand-500/20 text-sm flex items-center gap-2 p-3">
+            <Calendar className="w-4 h-4 shrink-0" />
+            {c.spacedReviewBanner}
+          </div>
+          {(reviewTasks.length > 0 ? reviewTasks : []).map((task) => (
+            <div key={task.id} className="ux-card flex items-center gap-4">
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-text-primary">{task.title}</p>
+                <p className="text-xs text-text-tertiary mt-1">{task.courseName} · {task.estimatedMinutes} min</p>
+              </div>
+              <button type="button" onClick={() => onStartTask?.(task.id)} className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-brand-600/15 text-brand-400 text-xs font-medium shrink-0">
+                <Play className="w-3 h-3" /> {c.startReview}
+              </button>
+            </div>
+          ))}
+          {scopedSpacing.map((review) => (
+            <div key={review.concept} className="ux-card flex items-center gap-4">
+              <div className="flex-1">
+                <p className="text-sm font-medium text-text-primary">{review.concept}</p>
+                <p className="text-xs text-text-tertiary mt-1">
+                  {c.dueLabel(formatDueDate(review.nextReview, lang))} · {c.intervalLabel(`${review.interval}d`)}
+                </p>
+              </div>
+              <button type="button" onClick={() => onFocusWeakArea?.(review.concept)} className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-brand-600/15 text-brand-400 text-xs font-medium shrink-0">
+                <Play className="w-3 h-3" /> {c.startReview}
+              </button>
+            </div>
+          ))}
+          {reviewTasks.length === 0 && scopedSpacing.length === 0 && (
+            <PlatformEmptyState title={c.emptyTitle} description={c.emptyDescription} icon={RotateCcw} />
+          )}
+        </div>
+      )}
+
+      {/* Retry Mistakes */}
+      {tab === 'mistakes' && (
+        <div className="space-y-4">
+          <div className="ux-card border-accent-amber/30 bg-accent-amber/5 text-sm text-accent-amber flex items-center gap-2 p-3">
+            <AlertTriangle className="w-4 h-4 shrink-0" />
+            {c.mistakeBanner}
+          </div>
+          {openMistakes.length === 0 ? (
+            <PlatformEmptyState title={c.emptyTitle} description={c.emptyDescription} icon={CheckCircle2} />
+          ) : (
+            openMistakes.map((mistake) => {
+              const ago = daysSince(mistake.createdAt);
+              return (
+                <div key={mistake.id} className="ux-card space-y-3">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <p className="text-sm font-semibold text-text-primary">{mistake.concept}</p>
+                      <p className="text-xs text-text-tertiary">{ago <= 1 ? c.yesterday : c.daysAgo(ago)}</p>
+                    </div>
+                    <XCircle className="w-4 h-4 text-accent-rose shrink-0" />
+                  </div>
+                  {mistake.wrongAnswer && (
+                    <div className="p-3 rounded-xl border border-accent-rose/20 bg-accent-rose/5">
+                      <p className="text-xs font-medium text-accent-rose mb-1">{c.yourMistake}</p>
+                      <p className="text-xs text-text-secondary">{mistake.wrongAnswer || mistake.questionSummary}</p>
+                    </div>
                   )}
-                </AnimatePresence>
-              </motion.div>
-            );
-          })}
-        </AnimatePresence>
-        {filteredTasks.length === 0 && (
-          <PlatformEmptyState
-            title={c.emptyTitle}
-            description={c.emptyDescription}
-            icon={CheckCircle2}
-            actionLabel={filter !== 'all' ? c.showAllTasks : undefined}
-            onAction={filter !== 'all' ? () => setFilter('all') : undefined}
-          />
-        )}
-      </div>
+                  {mistake.correctAnswer && (
+                    <div className="p-3 rounded-xl border border-accent-emerald/20 bg-accent-emerald/5">
+                      <p className="text-xs font-medium text-accent-emerald mb-1">{c.correctUnderstanding}</p>
+                      <p className="text-xs text-text-secondary">{mistake.correctAnswer}</p>
+                    </div>
+                  )}
+                  <div className="flex flex-wrap gap-2">
+                    {onOpenAgent && (
+                      <button type="button" onClick={onOpenAgent} className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-brand-600/15 text-brand-400 text-xs font-medium">
+                        <Brain className="w-3 h-3" /> {c.deepExplanation}
+                      </button>
+                    )}
+                    <button type="button" onClick={() => onResolveMistake?.(mistake.id)} className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-border-subtle text-xs text-text-secondary hover:text-text-primary">
+                      <RefreshCw className="w-3 h-3" /> {c.similarPractice}
+                    </button>
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </div>
+      )}
     </Page>
   );
 }

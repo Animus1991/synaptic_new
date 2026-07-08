@@ -223,6 +223,21 @@ Goal: every tool **fully functional for its learning purpose**, not demo stubs.
 
 ---
 
+## FigmaSynaptic UX transfer (Wave C)
+
+| ID | Item | Priority | Status |
+| -- | ---- | -------- | ------ |
+| UX-01 | Tasks Command Center (4 tabs + session launchers + daily progress) | P1 | **shipped** | `Tasks.tsx` refresh |
+| UX-02 | Sidebar Active Course Card + Quick Access strip | P1 | **shipped** | `Shell.tsx`, `shellUxContent.ts`, `index.css` tokens |
+| UX-03 | Note Analysis Pipeline (5 stages + algorithm transparency) | P1 | **shipped** | `NoteAnalysisView.tsx`, `noteAnalysisSnapshot.ts` |
+| UX-04 | Progress / confidence calibration / learner insights | P2 | open |
+| UX-05 | Agent mode visual catalog + source mode toggle | P2 | open |
+| UX-06 | Exam Simulator fullscreen flow | P2 | open |
+| UX-07 | Onboarding wizard (user type, goal, exam date) | P3 | open |
+| UX-08 | Live Engine transparency tool (client-side BM25/TextRank) | P3 | open |
+
+---
+
 ## MCP & platform
 
 | ID | Item | Priority | Status |

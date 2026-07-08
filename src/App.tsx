@@ -27,6 +27,7 @@ import { Shell } from './components/Shell';
 import { Dashboard } from './components/Dashboard';
 import { Library } from './components/Library';
 import { Tasks } from './components/Tasks';
+import { NoteAnalysisView } from './components/NoteAnalysisView';
 import { CourseView } from './components/CourseView';
 import { Settings } from './components/Settings';
 import { UploadModal } from './components/UploadModal';
@@ -421,6 +422,8 @@ export default function App() {
     t: (key: I18nKey) => translate(key, store.user.settings.language),
   }), [store.user.settings.language]);
 
+  const shellActiveCourse = store.selectedCourse ?? visibleCourses(store.courses, store.user.settings)[0] ?? null;
+
   const shellProps = {
     currentView: store.currentView,
     onNavigate: store.navigate,
@@ -436,6 +439,8 @@ export default function App() {
     notificationCount: store.activities.length,
     breadcrumb: store.currentView === 'course' && store.selectedCourse
       ? { course: store.selectedCourse.title }
+      : store.currentView === 'note-analysis' && shellActiveCourse
+        ? { course: shellActiveCourse.title, lesson: 'Note Analysis' }
       : store.activeTask
         ? { course: store.activeTask.courseName, lesson: store.activeTask.title }
         : store.selectedCourse
@@ -445,6 +450,27 @@ export default function App() {
     onOpenWorkspace: openWorkspace,
     studyWorkspaceOpen: store.studyWorkspaceOpen,
     onTakeBreath: () => setTakeBreathOpen(true),
+    activeCourse: shellActiveCourse
+      ? {
+          title: shellActiveCourse.title,
+          mastery: shellActiveCourse.mastery,
+          daysToExam: store.dashboardExtras.daysToExam,
+        }
+      : null,
+    onContinueCourse: () => {
+      if (shellActiveCourse) store.openCourseReview(shellActiveCourse);
+      openCourseWorkspace();
+    },
+    hasCourses: visibleCourses(store.courses, store.user.settings).length > 0,
+    onQuickAccess: (action: 'note-analysis' | 'upload' | 'workspace' | 'exam') => {
+      if (action === 'note-analysis') store.openNoteAnalysis();
+      else if (action === 'upload') openUploadModal();
+      else if (action === 'workspace') openWorkspace();
+      else {
+        store.openTasksWithFilter('exam');
+        store.setExamPrepOpen(true);
+      }
+    },
   };
 
   const handleContentSelect = (hit: ContentSearchHit) => {
@@ -731,7 +757,7 @@ export default function App() {
           closeUploadModal();
           setUploadIntent({ mode: 'new' });
           store.markPostUploadCourse(course.id);
-          store.openCourseReview(course);
+          store.openNoteAnalysis(course.id);
         }}
         onProceed={() => {
           /* Navigation handled in onUploadComplete after successful upload */
@@ -992,6 +1018,25 @@ export default function App() {
               onOpenNotebookShell={store.openNotebookShell}
             />
           )}
+          {store.currentView === 'note-analysis' && (() => {
+            const analysisCourse = store.noteAnalysisCourseId
+              ? store.courses.find((c) => c.id === store.noteAnalysisCourseId) ?? shellActiveCourse
+              : shellActiveCourse;
+            if (!analysisCourse) return null;
+            return (
+              <NoteAnalysisView
+                course={analysisCourse}
+                files={store.uploadedFiles.filter((f) => f.courseId === analysisCourse.id)}
+                lang={store.user.settings.language}
+                onBack={store.closeNoteAnalysis}
+                onOpenCourse={() => store.openCourseReview(analysisCourse)}
+                onOpenWorkspace={() => {
+                  store.openCourseReview(analysisCourse);
+                  openCourseWorkspace();
+                }}
+              />
+            );
+          })()}
           {store.currentView === 'tasks' && (
             <Tasks
               tasks={store.tasks}
@@ -1010,6 +1055,12 @@ export default function App() {
               filterPreset={store.tasksFilterPreset}
               onFilterPresetConsumed={store.clearTasksFilterPreset}
               studyPlan={store.dailyPlan.studyPlanBlocks}
+              weakAreas={store.learnerModel.weakAreas}
+              spacingReviews={store.learnerModel.spacingIntervals}
+              streak={store.dashboardStats.streak}
+              onFocusWeakArea={openWorkspaceForConcept}
+              onOpenAgent={() => store.navigate('agent')}
+              courseNameById={Object.fromEntries(store.courses.map((c) => [c.id, c.title]))}
             />
           )}
           {store.currentView === 'agent' && !agentSplitActive && (
