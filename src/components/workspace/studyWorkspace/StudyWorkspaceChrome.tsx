@@ -1,12 +1,13 @@
 import { cn } from '../../../utils/cn';
 import {
-  X, Maximize2, Minimize2, Sparkles, StickyNote, Search, LayoutGrid, SlidersHorizontal,
+  X, Maximize2, Minimize2, Sparkles, StickyNote, Search, LayoutGrid, SlidersHorizontal, PanelLeftOpen,
 } from '@/lib/lucide-shim';
 import { workspaceToolLabel } from '../../../lib/workspaceToolRegistry';
 import { displayWorkspaceStepTitle } from '../../../lib/workspaceContextModel';
 import { WorkspaceContextBar } from '../WorkspaceContextBar';
 import { WorkspaceStudyRoomTrigger } from '../WorkspaceStudyRoomTrigger';
 import { ConceptLensChromeStrip } from '../ConceptLensChromeStrip';
+import { TheoryPracticeLensToggle } from '../TheoryPracticeLensToggle';
 import { nextActionLabel } from '../../../lib/nextActionEngine';
 import { commandPaletteBadge } from '../../../lib/workspaceKeyboardShortcuts';
 import type { MobileIntelTab } from '../WorkspaceMobileIntelligenceTabs';
@@ -66,6 +67,9 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
     handleConceptLensAction,
     handleExplainGraphRelation,
     intelReady,
+    pedagogyLens,
+    applyPedagogyLens,
+    enterSplitLesson,
   } = model;
 
   const [notebookMenuOpen, setNotebookMenuOpen] = useState(false);
@@ -300,6 +304,24 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
                 </div>
       
                 <div className="flex items-center gap-1.5 shrink-0">
+                  <TheoryPracticeLensToggle
+                    lens={pedagogyLens}
+                    onChange={applyPedagogyLens}
+                    lang={lang}
+                    className="hidden lg:inline-flex"
+                  />
+                  {layout !== 'zen' && (
+                    <button
+                      type="button"
+                      onClick={enterSplitLesson}
+                      data-testid="workspace-split-layout"
+                      data-tour="workspace-split-layout"
+                      title={t('wsSplitLesson')}
+                      className="hidden md:inline-flex items-center gap-1 p-1.5 rounded-lg border border-border-subtle bg-surface-card hover:bg-surface-hover text-text-secondary hover:text-text-primary shrink-0 transition-colors"
+                    >
+                      <PanelLeftOpen className="w-4 h-4" />
+                    </button>
+                  )}
                   {layout !== 'zen' && (
                     <button
                       type="button"

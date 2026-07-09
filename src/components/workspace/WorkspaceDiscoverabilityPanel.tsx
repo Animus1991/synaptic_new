@@ -68,6 +68,7 @@ export function WorkspaceDiscoverabilityPanel({
     <div
       className="shrink-0 border-b border-accent-cyan/20 bg-gradient-to-r from-accent-cyan/8 via-transparent to-brand-600/8"
       data-testid="workspace-discoverability"
+      data-tour="workspace-discoverability"
     >
       <button
         type="button"

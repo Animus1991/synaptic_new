@@ -33,6 +33,7 @@ export function StudyWorkspaceLessonPanel({ model }: StudyWorkspaceLessonPanelPr
     genStatus,
     lessonCollapsed,
     setLessonCollapsed,
+    pedagogyLens,
     chromeHidden,
     setQuizIrtRevision,
     stepMarks,
@@ -130,7 +131,10 @@ export function StudyWorkspaceLessonPanel({ model }: StudyWorkspaceLessonPanelPr
             {showExpandedContent ? (
               <>
                 {!chromeHidden && (
-                  <div className="flex items-center gap-1 border-b border-border-subtle shrink-0 bg-surface-card px-3 py-2 overflow-x-auto hide-scrollbar">
+                  <div
+                    className="flex items-center gap-1 border-b border-border-subtle shrink-0 bg-surface-card px-3 py-2 overflow-x-auto hide-scrollbar"
+                    data-tour="workspace-step-rail"
+                  >
                     {canRailCollapse && (
                       <button
                         type="button"
@@ -210,6 +214,7 @@ export function StudyWorkspaceLessonPanel({ model }: StudyWorkspaceLessonPanelPr
                       onSelectionAction={handleWorkspaceSelectionAction}
                       onRemediateWrong={handleQuizRemediateWrong}
                       sourceBestTool={sourceIntelligence?.bestTool ?? null}
+                      pedagogyLens={pedagogyLens}
                     />
                   </div>
 

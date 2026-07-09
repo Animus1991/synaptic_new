@@ -75,6 +75,7 @@ export function WorkspaceToolStrip({
         className,
       )}
       data-testid="workspace-tool-strip"
+      data-tour="workspace-tool-strip"
       role="tablist"
       aria-label={t('wsStudyToolsAria', lang)}
     >

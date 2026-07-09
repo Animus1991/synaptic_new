@@ -249,6 +249,7 @@ Goal: every tool **fully functional for its learning purpose**, not demo stubs.
 | OPT-A | Option-B Phase A aesthetic polish | P2 | **shipped** | `platformChrome` (SectionHeader, UxCallout, TrustBadgeRow, SessionLauncherCard, HeroGlow); Tasks danger zone + session cards; Dashboard callouts; Agent trust badges; **slice 2:** CourseView section headers + callouts; Workspace dashboard/discoverability next-action callouts |
 | OPT-B | Option-B Phase B analytics visuals | P2 | **shipped** | B1: Sankey + Waterfall · B2: Concept treemap + Learning timeline · B3: Standalone concept mastery heatmap (21-day matrix on Mastery tab) |
 | OPT-C | Option-B Blueprint theme | P2 | **shipped** | 4th theme `blueprint`; glass palette, floating orbs, inverted CTAs, analytics `blueprint-surface`; dark/light/spectrum unchanged |
+| WS-C | Workspace Phase C — pedagogy lens + split + tour | P2 | **shipped** | Theory/Practice/Balanced lens toggle; split lesson layout; lesson content emphasis; first-visit workspace `ProductTour` (7 steps) |
 | WS-01 | Workspace empty states (`§2.7`) — learning outcome + CTA per tool | P1 | **shipped** | `WorkspaceToolEmptyState` + `buildWorkspaceEmptyView`; all 16 tools wired; E2E `workspace-empty-tools.spec.ts` |
 | PLT-02 | OpenTelemetry + Helm IaC | P3 | **shipped** | `telemetry.ts`, `/live`/`/ready`, `server/helm/` |
 | PLT-03 | Offline embeddings (transformers.js) | P3 | open |

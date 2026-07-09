@@ -11,6 +11,12 @@ import {
 } from '../../../lib/workspaceEmptyState';
 import { loadWorkspaceStep, saveWorkspaceStep, loadWorkspaceNotes, saveWorkspaceNotes, loadConceptBus, saveConceptBus, loadAllConceptBuses, loadConceptMapGraph, loadConceptMapPositions } from '../../../lib/workspacePersistence';
 import { loadJson, saveJson } from '../../../lib/persistence';
+import {
+  defaultPedagogyLens,
+  recommendedToolForPedagogyLens,
+  type WorkspacePedagogyLens,
+} from '../../../lib/workspacePedagogyLens';
+import { isWorkspaceTourComplete } from '../../../lib/workspaceTour';
 import { mergeConceptMapGraph } from '../../../lib/conceptMapGraph';
 import { buildMiniDashboardProps } from '../../../lib/workspaceData';
 import { collectConceptBusInsights, countSpacedStepReviewsDue, type ConceptBusMap } from '../../../lib/conceptBusSync';
@@ -247,6 +253,10 @@ export function useStudyWorkspace({
   const [quizPassed, setQuizPassed] = useState(false);
   const [genStatus] = useState<'idle' | 'loading' | 'ready' | 'fallback'>('idle');
   const [lessonCollapsed, setLessonCollapsed] = useState(false);
+  const [pedagogyLens, setPedagogyLens] = useState<WorkspacePedagogyLens>(() =>
+    defaultPedagogyLens(userSettings?.theoryVsPractice ?? 50),
+  );
+  const [workspaceTourOpen, setWorkspaceTourOpen] = useState(false);
   const [chromeHidden, setChromeHidden] = useState(false);
   // NotebookLM-style 3-panel view (Sources | Chat | Studio). Persisted per user,
   // additive: the classic layout stays fully intact when this is off.
@@ -584,6 +594,37 @@ export function useStudyWorkspace({
     setActiveTool(tool);
     if (layout === 'focus-lesson') setLayout(isMobile ? 'focus-tool' : 'split');
   }, [layout, isMobile]);
+
+  const enterSplitLesson = useCallback(() => {
+    if (isMobile) {
+      setLayout('focus-tool');
+    } else {
+      setLayout('split');
+      setLessonCollapsed(false);
+    }
+  }, [isMobile]);
+
+  const applyPedagogyLens = useCallback((lens: WorkspacePedagogyLens) => {
+    setPedagogyLens(lens);
+    if (lens === 'practice') {
+      if (!isMobile) {
+        setLayout('split');
+        setLessonCollapsed(false);
+      }
+      openWorkspaceTool(recommendedToolForPedagogyLens('practice'));
+      return;
+    }
+    if (lens === 'theory') {
+      if (!isMobile) setLayout('focus-lesson');
+      openWorkspaceTool(recommendedToolForPedagogyLens('theory'));
+    }
+  }, [isMobile, openWorkspaceTool]);
+
+  useEffect(() => {
+    if (!noteBundle.hasSource || isWorkspaceTourComplete()) return;
+    const timer = window.setTimeout(() => setWorkspaceTourOpen(true), 900);
+    return () => window.clearTimeout(timer);
+  }, [noteBundle.hasSource]);
 
   useEffect(() => {
     if (!workspaceOpenTool) return;
@@ -2175,6 +2216,12 @@ export function useStudyWorkspace({
     genStatus,
     lessonCollapsed,
     setLessonCollapsed,
+    pedagogyLens,
+    setPedagogyLens,
+    applyPedagogyLens,
+    enterSplitLesson,
+    workspaceTourOpen,
+    setWorkspaceTourOpen,
     chromeHidden,
     showPalette,
     setShowPalette,

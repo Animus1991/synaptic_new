@@ -7,6 +7,9 @@ import { WorkspaceIntelSideSheet } from '../WorkspaceIntelSideSheet';
 import { StudyRoomPanel } from '../StudyRoomPanel';
 import { WorkspaceKeyboardHelp } from '../WorkspaceKeyboardHelp';
 import { WorkspaceMobileToolDrawer } from '../WorkspaceMobileToolDrawer';
+import { ProductTour } from '../../ProductTour';
+import { useWorkspaceTour } from '../../../hooks/useWorkspaceTour';
+import type { ProductTourStep } from '../../../lib/productTour';
 import { nextActionLabel } from '../../../lib/nextActionEngine';
 import { AVAILABLE_TOOLS, type WorkspaceTool } from './types';
 
@@ -73,7 +76,14 @@ export function StudyWorkspaceOverlays({ model }: StudyWorkspaceOverlaysProps) {
     progressKey,
     courseName,
     quizConcept,
+    workspaceTourOpen,
+    setWorkspaceTourOpen,
   } = model;
+
+  const workspaceTour = useWorkspaceTour({
+    open: workspaceTourOpen,
+    onClose: () => setWorkspaceTourOpen(false),
+  });
 
   return (
     <>
@@ -242,6 +252,15 @@ export function StudyWorkspaceOverlays({ model }: StudyWorkspaceOverlaysProps) {
                 onApply={onReprocessMaterial ? handleApplyReprocess : undefined}
               />
             )}
+
+            <ProductTour
+              step={workspaceTour.step as ProductTourStep | null}
+              stepIndex={workspaceTour.stepIndex}
+              totalSteps={workspaceTour.totalSteps}
+              ready={workspaceTour.ready}
+              onNext={workspaceTour.next}
+              onSkip={workspaceTour.skip}
+            />
     </>
   );
 }
