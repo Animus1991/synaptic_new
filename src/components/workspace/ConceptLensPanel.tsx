@@ -12,7 +12,7 @@ import { useI18n } from '../../lib/i18n';
 
 const TOOL_LABELS: Record<WorkspaceToolId, { en: string; el: string }> = {
   'concept-map': { en: 'Map', el: 'Χάρτης' },
-  reader: { en: 'Reader', el: 'Reader' },
+  reader: { en: 'Reader', el: 'Ανάγνωση' },
   leitner: { en: 'Leitner', el: 'Leitner' },
   quiz: { en: 'Quiz', el: 'Quiz' },
   feynman: { en: 'Feynman', el: 'Feynman' },

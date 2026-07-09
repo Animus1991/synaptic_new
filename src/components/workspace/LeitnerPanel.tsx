@@ -148,7 +148,7 @@ export function LeitnerPanel({
               data-testid="leitner-open-reader"
             >
               <BookOpen className="w-3 h-3" />
-              Reader
+              {t('cognitiveReader')}
             </button>
           )}
           <button
@@ -217,7 +217,7 @@ export function LeitnerPanel({
       <div className="flex-1 min-h-0 overflow-y-auto">
         {visibleCards.length === 0 ? (
           <div className="p-4 text-center text-[11px] text-text-muted" data-testid="leitner-type-empty">
-            {t('panelEmptyLeitnerNoCards')}
+            {t('leitnerFilterNoMatch')}
           </div>
         ) : (
         <LeitnerBox
