@@ -32,6 +32,7 @@ import { CohortTopicMasteryHeatmap } from './CohortTopicMasteryHeatmap';
 import { AssignmentDiscussionThread } from './AssignmentDiscussionThread';
 import { formatDateTime, formatShortDate, localeTag } from '../lib/localeFormat';
 import { cn } from '../utils/cn';
+import { UxShimmerPanel } from './ui/UxShimmerSkeleton';
 
 interface Props {
   settings: UserSettings;
@@ -943,8 +944,9 @@ export function TeacherDashboard({
       )}
 
       {loading && !data && (
-        <div className="ux-flow-panel p-8 text-center text-sm text-text-muted">
-          {ui.loading}
+        <div className="ux-flow-panel ux-shimmer-panel p-8" data-testid="teacher-dashboard-loading" role="status" aria-live="polite">
+          <UxShimmerPanel lines={5} />
+          <p className="mt-4 text-center text-sm text-text-muted">{ui.loading}</p>
         </div>
       )}
 

@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo, useCallback, useRef, Suspense, type ReactNode } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence } from 'framer-motion';
 import { useAppStore } from './store/useStore';
 import { applyTheme, watchSystemTheme } from './lib/theme';
 import { I18nContext, t as translate, type I18nKey } from './lib/i18n';
@@ -18,6 +18,8 @@ import type { ContentSearchHit } from './lib/globalContentSearch';
 import { NotificationsPanel } from './components/NotificationsPanel';
 import { NotificationToastStack } from './components/NotificationToastStack';
 import { BlueprintSvgDefs } from './components/ui/BlueprintSvgDefs';
+import { PlatformViewTransition } from './components/ui/PlatformViewTransition';
+import { PlatformLazyOverlaySkeleton } from './components/ui/UxShimmerSkeleton';
 import { MistakeRetryView } from './components/MistakeRetryView';
 import { ExamPrepView } from './components/ExamPrepView';
 import { PrerequisiteRepairView } from './components/PrerequisiteRepairView';
@@ -78,13 +80,7 @@ function LazyOverlay({
   onRecover?: () => void;
 }) {
   const resolvedFallback = fallback !== undefined ? fallback : (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-surface-primary/95 backdrop-blur-sm"
-      data-testid="lazy-overlay-loading"
-      data-flow={flow}
-    >
-      <p className="text-sm text-text-secondary">Loading…</p>
-    </div>
+    <PlatformLazyOverlaySkeleton flow={flow} />
   );
   return (
     <ErrorBoundary overlay onRecover={onRecover}>
@@ -970,7 +966,7 @@ export default function App() {
       <Shell {...shellProps}>
         {sessionBar}
         <AnimatePresence mode="wait">
-        <motion.div key={store.currentView} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}>
+        <PlatformViewTransition viewKey={store.currentView}>
           {store.currentView === 'dashboard' && (
             <Dashboard
               stats={store.dashboardStats}
@@ -1145,7 +1141,7 @@ export default function App() {
               onApplyCalendarSync={store.applyTaskCalendarSync}
             />
           )}
-        </motion.div>
+        </PlatformViewTransition>
       </AnimatePresence>
       </Shell>
       {overlays}

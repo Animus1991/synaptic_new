@@ -1,9 +1,10 @@
-import { Layers, ListTree, Loader2, AlertTriangle } from '@/lib/lucide-shim';
+import { Layers, ListTree, AlertTriangle } from '@/lib/lucide-shim';
 import type { UploadOutlinePreview } from '../lib/uploadOutlinePreview';
 import type { DocumentStructureKind } from '../lib/documentStructureReport';
 import { cn } from '../utils/cn';
 import { formatSectionFallbackLabel } from '../lib/sectionLabel';
 import { useI18n } from '../lib/i18n';
+import { UxShimmerPanel } from './ui/UxShimmerSkeleton';
 
 const KIND_BADGE: Record<DocumentStructureKind, string> = {
   conversation: 'Chat / Q&A',
@@ -51,12 +52,13 @@ export function OutlinePreviewPanel({
     return (
       <div
         data-testid="upload-outline-preview"
-        className="rounded-2xl border border-border-subtle bg-surface-card p-4"
+        className="ux-shimmer-panel rounded-2xl border border-border-subtle bg-surface-card p-4"
+        role="status"
+        aria-live="polite"
+        aria-label={t('outlineAnalyzing')}
       >
-        <div className="flex items-center gap-2 text-sm text-text-secondary">
-          <Loader2 className="w-4 h-4 animate-spin text-brand-400" />
-          {t('outlineAnalyzing')}
-        </div>
+        <UxShimmerPanel lines={4} />
+        <p className="mt-3 text-xs text-text-muted">{t('outlineAnalyzing')}</p>
       </div>
     );
   }

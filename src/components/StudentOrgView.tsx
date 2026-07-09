@@ -13,6 +13,7 @@ import { StudentOrgAnnouncementsPanel } from './StudentOrgAnnouncementsPanel';
 import { AssignmentDiscussionThread } from './AssignmentDiscussionThread';
 import type { StudentAssignmentDue } from '../lib/studentOrgCalendar';
 import { formatShortDate } from '../lib/localeFormat';
+import { UxShimmerPanel } from './ui/UxShimmerSkeleton';
 import { cn } from '../utils/cn';
 
 interface Props {
@@ -252,7 +253,10 @@ export function StudentOrgView({
         </div>
         <p className="text-sm text-text-muted">{ui.myClassesHint}</p>
         {loading && filteredClasses.length === 0 ? (
-          <p className="text-text-muted text-sm">{ui.loading}</p>
+          <div className="ux-shimmer-panel rounded-2xl border border-border-subtle bg-surface-card p-6" role="status" aria-live="polite">
+            <UxShimmerPanel lines={4} />
+            <p className="mt-3 text-sm text-text-muted">{ui.loading}</p>
+          </div>
         ) : filteredClasses.length === 0 ? (
           <p className="text-text-muted text-sm">{ui.noClasses}</p>
         ) : (
