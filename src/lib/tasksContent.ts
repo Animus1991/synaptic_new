@@ -62,6 +62,10 @@ export type TasksContent = {
   tabWeak: string;
   tabReviews: string;
   tabMistakes: string;
+  tabTodaySummary: string;
+  tabWeakSummary: string;
+  tabReviewsSummary: string;
+  tabMistakesSummary: string;
   tasksComplete: (done: number, total: number) => string;
   minRemaining: (min: number) => string;
   dailyGoal: string;
@@ -143,6 +147,10 @@ const EN: TasksContent = {
   tabWeak: 'Weak Areas',
   tabReviews: 'Due Reviews',
   tabMistakes: 'Retry Mistakes',
+  tabTodaySummary: 'Scheduled work and sessions for today',
+  tabWeakSummary: 'Low-mastery concepts that need another pass',
+  tabReviewsSummary: 'FSRS due cards and spacing intervals',
+  tabMistakesSummary: 'Open errors flagged from recent practice',
   tasksComplete: (done, total) => `${done} of ${total} tasks complete`,
   minRemaining: (min) => `Est. ${min} min remaining`,
   dailyGoal: 'daily goal',
@@ -227,6 +235,10 @@ const EL: TasksContent = {
   tabWeak: 'Αδύναμα σημεία',
   tabReviews: 'Due επαναλήψεις',
   tabMistakes: 'Επανάληψη λαθών',
+  tabTodaySummary: 'Προγραμματισμένες εργασίες και sessions για σήμερα',
+  tabWeakSummary: 'Έννοιες χαμηλού mastery που χρειάζονται επανάληψη',
+  tabReviewsSummary: 'Ληξιπρόθεσμες κάρτες FSRS και διαστήματα',
+  tabMistakesSummary: 'Ανοιχτά λάθη από πρόσφατη εξάσκηση',
   tasksComplete: (done, total) => `${done} από ${total} εργασίες`,
   minRemaining: (min) => `~${min} λεπτά απομένουν`,
   dailyGoal: 'ημερήσιος στόχος',

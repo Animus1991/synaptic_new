@@ -40,4 +40,5 @@ export {
   SessionLauncherCard,
   HeroGlow,
   HeaderLangPill,
+  DescriptiveStickyTabBar,
 } from './platformChrome';

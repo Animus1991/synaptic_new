@@ -168,6 +168,59 @@ export function HeroGlow({ children, className }: { children: ReactNode; classNa
   );
 }
 
+export type DescriptiveTabItem<T extends string = string> = {
+  id: T;
+  label: string;
+  summary: string;
+  count?: number;
+};
+
+/** Option-B sticky section tabs — title + summary per tab (progressive disclosure). */
+export function DescriptiveStickyTabBar<T extends string>({
+  items,
+  activeId,
+  onChange,
+  className,
+  testIdPrefix = 'descriptive-tab',
+}: {
+  items: DescriptiveTabItem<T>[];
+  activeId: T;
+  onChange: (id: T) => void;
+  className?: string;
+  testIdPrefix?: string;
+}) {
+  return (
+    <div
+      className={cn('descriptive-sticky-tabs', className)}
+      role="tablist"
+      aria-label="Section tabs"
+    >
+      {items.map((item) => {
+        const active = item.id === activeId;
+        return (
+          <button
+            key={item.id}
+            type="button"
+            role="tab"
+            aria-selected={active}
+            data-testid={`${testIdPrefix}-${item.id}`}
+            onClick={() => onChange(item.id)}
+            className={cn('descriptive-sticky-tab', active && 'descriptive-sticky-tab-active')}
+          >
+            <span className="descriptive-sticky-tab-label">{item.label}</span>
+            <span className="descriptive-sticky-tab-summary">{item.summary}</span>
+            {item.count != null && item.count > 0 && (
+              <span className="descriptive-sticky-tab-count" aria-hidden>
+                {item.count}
+              </span>
+            )}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
 /** Compact EN/ΕΛ toggle for shell header — Option-B segmented pill. */
 export function HeaderLangPill({
   lang,

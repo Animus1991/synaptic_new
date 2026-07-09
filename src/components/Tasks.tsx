@@ -18,7 +18,8 @@ import {
 import { TaskActionIcon } from './ui/TaskActionIcon';
 import { Page, PageHeader } from './ui/primitives';
 import { PlatformEmptyState } from './ui/PlatformEmptyState';
-import { HeroGlow, SectionHeader, SessionLauncherCard, UxCallout } from './ui/platformChrome';
+import { HeroGlow, SectionHeader, SessionLauncherCard, UxCallout, DescriptiveStickyTabBar } from './ui/platformChrome';
+import { BlueprintSurface } from './ui/BlueprintSurface';
 import { LeitnerDueQueuePanel } from './workspace/LeitnerDueQueuePanel';
 import { buildFsrsDueQueue } from '../lib/leitnerDueQueue';
 
@@ -171,11 +172,11 @@ export function Tasks({
     return `${dateStr}${examPart}`;
   }, [lang, daysToExam, c]);
 
-  const tabs: { id: CommandTab; label: string; count: number }[] = [
-    { id: 'today', label: c.tabToday, count: todayTasks.length },
-    { id: 'weak', label: c.tabWeak, count: scopedWeak.length },
-    { id: 'reviews', label: c.tabReviews, count: reviewTasks.length || fsrsQueue.length || scopedSpacing.length },
-    { id: 'mistakes', label: c.tabMistakes, count: openMistakes.length },
+  const tabs: { id: CommandTab; label: string; summary: string; count: number }[] = [
+    { id: 'today', label: c.tabToday, summary: c.tabTodaySummary, count: todayTasks.length },
+    { id: 'weak', label: c.tabWeak, summary: c.tabWeakSummary, count: scopedWeak.length },
+    { id: 'reviews', label: c.tabReviews, summary: c.tabReviewsSummary, count: reviewTasks.length || fsrsQueue.length || scopedSpacing.length },
+    { id: 'mistakes', label: c.tabMistakes, summary: c.tabMistakesSummary, count: openMistakes.length },
   ];
 
   return (
@@ -211,7 +212,7 @@ export function Tasks({
       )}
 
       {/* Daily progress */}
-      <div className="ux-card mb-2">
+      <BlueprintSurface hint className="mb-2 p-4">
         <div className="flex items-center justify-between mb-3">
           <div>
             <p className="text-sm font-semibold text-text-primary">{c.tasksComplete(doneCount, totalCount)}</p>
@@ -225,7 +226,7 @@ export function Tasks({
         <div className="ux-progress-track h-2">
           <div className="ux-progress-fill" style={{ width: `${progressPct}%` }} />
         </div>
-      </div>
+      </BlueprintSurface>
 
       {sessionActive && activeSessionType && (
         <div className="ux-card ux-chip-info border-brand-500/25 mb-3 p-3 space-y-1.5" data-testid="tasks-session-status">
@@ -291,24 +292,12 @@ export function Tasks({
       </div>
 
       {/* Tabs */}
-      <div className="ux-tab-bar">
-        {tabs.map((t) => (
-          <button
-            key={t.id}
-            type="button"
-            data-testid={`tasks-tab-${t.id}`}
-            onClick={() => setTab(t.id)}
-            className={cn('ux-tab', tab === t.id && 'ux-tab-active')}
-          >
-            {t.label}
-            {t.count > 0 && (
-              <span className={cn('text-[10px] px-1.5 py-0.5 rounded-full', tab === t.id ? 'ux-chip-info' : 'bg-surface-hover text-text-tertiary')}>
-                {t.count}
-              </span>
-            )}
-          </button>
-        ))}
-      </div>
+      <DescriptiveStickyTabBar
+        items={tabs}
+        activeId={tab}
+        onChange={setTab}
+        testIdPrefix="tasks-tab"
+      />
 
       {/* Today's Plan */}
       {tab === 'today' && (

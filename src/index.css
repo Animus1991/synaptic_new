@@ -927,6 +927,101 @@
   }
 }
 
+/* Option-B descriptive sticky tabs (Tasks Command Center pilot) */
+.descriptive-sticky-tabs {
+  position: sticky;
+  top: 3.5rem;
+  z-index: 12;
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  padding: 0.25rem 0 0.75rem;
+  margin-bottom: 0.75rem;
+  scrollbar-width: none;
+}
+.descriptive-sticky-tabs::-webkit-scrollbar {
+  display: none;
+}
+.descriptive-sticky-tab {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.2rem;
+  min-width: 9.5rem;
+  max-width: 13rem;
+  flex: 1 0 auto;
+  padding: 0.65rem 0.85rem;
+  border-radius: 1rem;
+  border: 1px solid var(--color-border-subtle);
+  background: color-mix(in srgb, var(--color-surface-card) 88%, transparent);
+  text-align: left;
+  transition:
+    border-color var(--motion-duration-ui) var(--motion-ease),
+    background-color var(--motion-duration-ui) var(--motion-ease),
+    box-shadow var(--motion-duration-ui) var(--motion-ease);
+}
+.descriptive-sticky-tab:hover {
+  border-color: color-mix(in srgb, var(--color-brand-500) 25%, var(--color-border-subtle));
+  background: var(--color-surface-hover);
+}
+.descriptive-sticky-tab-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  line-height: 1.2;
+}
+.descriptive-sticky-tab-summary {
+  font-size: 0.625rem;
+  line-height: 1.35;
+  color: var(--color-text-tertiary);
+}
+.descriptive-sticky-tab-count {
+  position: absolute;
+  top: 0.45rem;
+  right: 0.5rem;
+  min-width: 1.25rem;
+  padding: 0.1rem 0.35rem;
+  border-radius: 9999px;
+  font-size: 0.5625rem;
+  font-weight: 700;
+  text-align: center;
+  background: var(--color-surface-hover);
+  color: var(--color-text-secondary);
+}
+.descriptive-sticky-tab-active {
+  border-color: color-mix(in srgb, var(--color-brand-500) 35%, var(--color-border-subtle));
+  background: color-mix(in srgb, var(--color-brand-500) 8%, var(--color-surface-card));
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-brand-500) 12%, transparent);
+}
+.descriptive-sticky-tab-active .descriptive-sticky-tab-label {
+  color: var(--color-brand-700);
+}
+.descriptive-sticky-tab-active .descriptive-sticky-tab-count {
+  background: color-mix(in srgb, var(--color-brand-500) 15%, transparent);
+  color: var(--color-brand-700);
+}
+[data-theme="blueprint"] .descriptive-sticky-tab {
+  border-color: color-mix(in srgb, #ffffff 10%, transparent);
+  background: color-mix(in srgb, #ffffff 4%, var(--color-surface-primary));
+  backdrop-filter: blur(12px);
+}
+[data-theme="blueprint"] .descriptive-sticky-tab:hover {
+  border-color: color-mix(in srgb, var(--color-accent-cyan) 28%, transparent);
+}
+[data-theme="blueprint"] .descriptive-sticky-tab-active {
+  border-color: color-mix(in srgb, var(--color-accent-cyan) 40%, transparent);
+  background: color-mix(in srgb, var(--color-accent-cyan) 10%, var(--color-surface-primary));
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-accent-cyan) 18%, transparent);
+}
+[data-theme="blueprint"] .descriptive-sticky-tab-active .descriptive-sticky-tab-label {
+  color: var(--color-brand-300);
+}
+[data-theme="blueprint"] .descriptive-sticky-tab-active .descriptive-sticky-tab-count {
+  background: color-mix(in srgb, var(--color-accent-cyan) 18%, transparent);
+  color: var(--color-brand-300);
+}
+
 /* Option-B chart micro-interactions (theme-safe) */
 .treemap-block:hover {
   filter: brightness(1.15) saturate(1.2);
