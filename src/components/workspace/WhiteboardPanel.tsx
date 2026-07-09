@@ -10,7 +10,7 @@ import {
   type WhiteboardDiagramAgentIntent,
 } from '../../lib/whiteboardDiagramCoach';
 import { auditWhiteboardBlueprintCoverage } from '../../lib/whiteboardBlueprintCoverageQA';
-import { WorkspaceEmptyState } from './WorkspaceEmptyState';
+import { WorkspaceToolEmptyState } from './WorkspaceToolEmptyState';
 import { StudyWhiteboard } from './StudyWhiteboard';
 import { WhiteboardDiagramCoach } from './WhiteboardDiagramCoach';
 import { useI18n } from '../../lib/i18n';
@@ -119,9 +119,10 @@ export function WhiteboardPanel({
 
   if (!session.hasSource) {
     return (
-      <WorkspaceEmptyState
+      <WorkspaceToolEmptyState
         tool="whiteboard"
-        message={emptyMessage ?? (t('panelEmptyWhiteboard'))}
+        concept={concept}
+        message={emptyMessage}
         hasSource={false}
         onUpload={onUpload}
       />

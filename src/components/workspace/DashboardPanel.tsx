@@ -24,7 +24,7 @@ import { auditProgressConceptBusMirror } from '../../lib/progressConceptBusMirro
 import type { ConceptBusRow } from '../../lib/conceptBusPanelModel';
 import { ProgressConceptBusMirrorStrip } from './ProgressConceptBusMirrorStrip';
 import { WorkspacePanelWarnStrip } from './WorkspacePanelWarnStrip';
-import { WorkspaceEmptyState } from './WorkspaceEmptyState';
+import { WorkspaceToolEmptyState } from './WorkspaceToolEmptyState';
 import { MiniDashboard } from './MiniDashboard';
 import type { ToolActivityCount } from '../../lib/conceptBusPanelModel';
 import { useI18n } from '../../lib/i18n';
@@ -160,9 +160,10 @@ export function DashboardPanel({
 
   if (!session.hasSource) {
     return (
-      <WorkspaceEmptyState
+      <WorkspaceToolEmptyState
         tool="dashboard"
-        message={emptyMessage ?? (t('panelEmptyDashboard'))}
+        concept={concept}
+        message={emptyMessage}
         hasSource={false}
         onUpload={onUpload}
       />

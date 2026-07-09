@@ -1,6 +1,10 @@
 import { useMemo } from 'react';
 import { useI18n } from '../../lib/i18n';
-import { buildWorkspaceEmptyView, type WorkspaceEmptyTool } from '../../lib/workspaceEmptyState';
+import {
+  buildWorkspaceEmptyView,
+  type WorkspaceEmptyAction,
+  type WorkspaceEmptyTool,
+} from '../../lib/workspaceEmptyState';
 import { WorkspaceEmptyState } from './WorkspaceEmptyState';
 
 type Props = {
@@ -11,6 +15,11 @@ type Props = {
   message?: string;
   /** Legacy upload when no provider context (no-source only). */
   onUpload?: () => void;
+  /** Legacy single secondary — merged after context CTAs when both exist. */
+  secondaryLabel?: string;
+  onSecondary?: () => void;
+  /** Explicit actions override context (discover / weak-areas rails). */
+  actions?: WorkspaceEmptyAction[];
   compact?: boolean;
 };
 
@@ -21,6 +30,9 @@ export function WorkspaceToolEmptyState({
   concept,
   message,
   onUpload,
+  secondaryLabel,
+  onSecondary,
+  actions,
   compact,
 }: Props) {
   const { lang } = useI18n();
@@ -36,6 +48,9 @@ export function WorkspaceToolEmptyState({
       message={message ?? view.message}
       hasSource={hasSource}
       onUpload={hasSource ? undefined : onUpload}
+      secondaryLabel={secondaryLabel}
+      onSecondary={onSecondary}
+      actions={actions}
       compact={compact}
     />
   );

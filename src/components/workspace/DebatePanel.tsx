@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { AlertTriangle, BookOpen, Search } from '@/lib/lucide-shim';
 import { ArgumentMap } from './ArgumentMap';
-import { WorkspaceEmptyState } from './WorkspaceEmptyState';
+import { WorkspaceToolEmptyState } from './WorkspaceToolEmptyState';
 import { WorkspaceSelectionActionBar } from './WorkspaceSelectionActionBar';
 import type { DebateSessionContent } from '../../lib/debateSessionModel';
 import { collectDebateTexts, filterDebateTexts } from '../../lib/debateSessionModel';
@@ -69,9 +69,10 @@ export function DebatePanel({
 
   if (!session.hasSource) {
     return (
-      <WorkspaceEmptyState
+      <WorkspaceToolEmptyState
         tool="debate"
-        message={emptyMessage ?? (t('panelEmptyDebate'))}
+        concept={concept}
+        message={emptyMessage}
         hasSource={false}
         onUpload={onUpload}
       />
@@ -81,11 +82,11 @@ export function DebatePanel({
   if (!session.seedTree) {
     return (
       <div className="p-4" data-testid="debate-panel-empty">
-        <WorkspaceEmptyState
+        <WorkspaceToolEmptyState
           tool="debate"
-          message={emptyMessage ?? t('panelEmptyDebate')}
+          concept={concept}
+          message={emptyMessage}
           hasSource
-          onUpload={onUpload}
         />
       </div>
     );

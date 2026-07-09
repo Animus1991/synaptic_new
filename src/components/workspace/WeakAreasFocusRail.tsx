@@ -4,7 +4,7 @@ import { t, type Lang } from '../../lib/i18n';
 import type { WeakSpotWithReasons } from '../../lib/weakAreaReasons';
 import { isWeakSpotFocused } from '../../lib/workspaceWeakAreas';
 import type { WorkspaceEmptyAction } from '../../lib/workspaceEmptyState';
-import { WorkspaceEmptyState } from './WorkspaceEmptyState';
+import { WorkspaceToolEmptyState } from './WorkspaceToolEmptyState';
 
 export function WeakAreasFocusRail({
   spots,
@@ -28,13 +28,10 @@ export function WeakAreasFocusRail({
   if (spots.length === 0) {
     return (
       <div className="shrink-0 border-b border-border-subtle/80 bg-surface-card/40" data-testid="workspace-weak-areas-rail">
-        <WorkspaceEmptyState
+        <WorkspaceToolEmptyState
           compact
           tool="weak-areas"
-          message={
-            emptyMessage
-            ?? t('weakAreasEmpty', lang)
-          }
+          message={emptyMessage ?? t('weakAreasEmpty', lang)}
           hasSource
           actions={emptyActions}
         />

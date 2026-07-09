@@ -5,7 +5,7 @@ import { filterNumericCues } from '../../lib/simulatorSessionModel';
 import { examPracticeLabel } from '../../lib/examPracticePresets';
 import type { ExamPracticePresetId, SimulatorScenarioId } from '../../lib/examPracticePresets';
 import { auditSimulatorTimerPresetSync } from '../../lib/simulatorTimerPresetSyncQA';
-import { WorkspaceEmptyState } from './WorkspaceEmptyState';
+import { WorkspaceToolEmptyState } from './WorkspaceToolEmptyState';
 import { InteractiveSimulator } from './InteractiveSimulator';
 import { ArtifactStaleBanner } from './ArtifactStaleBanner';
 import { WorkspacePanelWarnStrip } from './WorkspacePanelWarnStrip';
@@ -111,9 +111,10 @@ export function SimulatorPanel({
     return (
       <div className="flex h-full flex-col overflow-hidden" data-testid="simulator-panel">
         {tabBar}
-        <WorkspaceEmptyState
+        <WorkspaceToolEmptyState
           tool="simulator"
-          message={emptyMessage ?? (t('panelEmptySimulator'))}
+          concept={concept}
+          message={emptyMessage}
           hasSource={false}
           onUpload={onUpload}
         />
@@ -126,11 +127,11 @@ export function SimulatorPanel({
       <div className="flex h-full flex-col overflow-hidden" data-testid="simulator-panel">
         {tabBar}
         <div className="p-4 flex-1 overflow-y-auto" data-testid="simulator-panel-empty">
-        <WorkspaceEmptyState
+        <WorkspaceToolEmptyState
           tool="simulator"
-          message={emptyMessage ?? t('panelEmptySimulatorNoParams')}
+          concept={concept}
+          message={emptyMessage}
           hasSource
-          onUpload={onUpload}
         />
         {session.sandboxInsight && (
           <div className="mt-4 rounded-xl border border-accent-cyan/25 bg-accent-cyan/5 p-3 text-[11px] text-text-secondary">

@@ -28,7 +28,7 @@ import type {
   WorkspaceSelectionActionId,
   WorkspaceSelectionContext,
 } from '../../lib/workspaceSelectionActions';
-import { WorkspaceEmptyState } from './WorkspaceEmptyState';
+import { WorkspaceToolEmptyState } from './WorkspaceToolEmptyState';
 import { AnnotationRemapPanel } from './AnnotationRemapPanel';
 import { AnnotationToolbar, ANNOTATION_COLORS, SEMANTIC_CATEGORIES } from './AnnotationToolbar';
 import { AnnotationMarginRail } from './AnnotationMarginRail';
@@ -401,10 +401,11 @@ export function AnnotationOverlay({
 
   if (!sourceText.trim()) {
     return (
-      <WorkspaceEmptyState
+      <WorkspaceToolEmptyState
         tool="annotations"
-        message={emptyMessage ?? 'Upload notes to annotate your own source material.'}
-        hasSource={hasSource}
+        concept={concept}
+        message={emptyMessage}
+        hasSource={hasSource ?? false}
         onUpload={onUpload}
       />
     );

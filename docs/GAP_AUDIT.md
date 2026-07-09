@@ -1,6 +1,6 @@
 # Gap audit — living register
 
-**Last reconciled:** 2026-07-06 (Sprint P0)  
+**Last reconciled:** 2026-07-09 (WS-01 §2.7)  
 **Canonical pair:** this file (open gaps) + `PRODUCT_SCALE_STATUS.md` (what ships)  
 **North star:** *NotebookLM to understand · Synapse to retain + teacher visibility*
 
@@ -246,6 +246,7 @@ Goal: every tool **fully functional for its learning purpose**, not demo stubs.
 | MCP-02 | Client reader for `mcpFlashcards` / `mcpAnnotations` | P2 | open |
 | MCP-03 | OAuth persistence in Postgres (multi-instance) | P2 | open |
 | PLT-01 | Cross-page UI sweep (`PLATFORM_UI_UX_MASTER_PLAN.md`) | P2 | **shipped** | PLT-01A entry flows · PLT-01B course/tasks/agent clarity · PLT-01C design-system sweep |
+| WS-01 | Workspace empty states (`§2.7`) — learning outcome + CTA per tool | P1 | **shipped** | `WorkspaceToolEmptyState` + `buildWorkspaceEmptyView`; all 16 tools wired; E2E `workspace-empty-tools.spec.ts` |
 | PLT-02 | OpenTelemetry + Helm IaC | P3 | **shipped** | `telemetry.ts`, `/live`/`/ready`, `server/helm/` |
 | PLT-03 | Offline embeddings (transformers.js) | P3 | open |
 

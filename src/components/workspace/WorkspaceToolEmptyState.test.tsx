@@ -53,4 +53,18 @@ describe('WorkspaceToolEmptyState — §2.7 high-traffic tools', () => {
     expect(screen.getByRole('status')).toBeTruthy();
     expect(screen.getByText(/Nothing to show in this tool yet/i)).toBeTruthy();
   });
+
+  it('merges legacy secondary with context reprocess actions', () => {
+    renderWithActions(
+      <WorkspaceToolEmptyState
+        tool="scratchpad"
+        hasSource
+        concept="Elasticity"
+        secondaryLabel="Add custom formula"
+        onSecondary={vi.fn()}
+      />,
+    );
+    expect(screen.getByTestId('workspace-empty-reprocess')).toBeTruthy();
+    expect(screen.getByText('Add custom formula')).toBeTruthy();
+  });
 });

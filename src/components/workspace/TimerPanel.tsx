@@ -6,7 +6,7 @@ import { examPracticeLabel } from '../../lib/examPracticePresets';
 import type { ExamPracticePresetId } from '../../lib/examPracticePresets';
 import { auditTimerExamCountdownDashboard } from '../../lib/timerExamCountdownDashboardQA';
 import { loadTimerSessions } from '../../lib/workspacePersistence';
-import { WorkspaceEmptyState } from './WorkspaceEmptyState';
+import { WorkspaceToolEmptyState } from './WorkspaceToolEmptyState';
 import { StudyTimer } from './StudyTimer';
 import { TimerExamCountdownDashboardStrip } from './TimerExamCountdownDashboardStrip';
 import { WorkspacePanelWarnStrip } from './WorkspacePanelWarnStrip';
@@ -75,9 +75,10 @@ export function TimerPanel({
 
   if (!session.hasSource) {
     return (
-      <WorkspaceEmptyState
+      <WorkspaceToolEmptyState
         tool="timer"
-        message={emptyMessage ?? (t('panelEmptyTimer'))}
+        concept={concept}
+        message={emptyMessage}
         hasSource={false}
         onUpload={onUpload}
       />

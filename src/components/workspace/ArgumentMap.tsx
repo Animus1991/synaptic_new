@@ -13,7 +13,7 @@ import {
   saveDebateTreeEnvelope,
 } from '../../lib/debateTreePersist';
 import { DebateRebuttalPersistStrip } from './DebateRebuttalPersistStrip';
-import { WorkspaceEmptyState } from './WorkspaceEmptyState';
+import { WorkspaceToolEmptyState } from './WorkspaceToolEmptyState';
 
 export type ArgNodeType = 'claim' | 'premise' | 'support' | 'refutation';
 
@@ -160,10 +160,11 @@ export function ArgumentMap({
 
   if (!root) {
     return (
-      <WorkspaceEmptyState
+      <WorkspaceToolEmptyState
         tool="debate"
-        message={emptyMessage ?? 'Upload notes to build a debate tree from claims in your material.'}
-        hasSource={hasSource}
+        concept={concept}
+        message={emptyMessage}
+        hasSource={hasSource ?? false}
         onUpload={onUpload}
         secondaryLabel={hasSource ? t('debateStartTree') : undefined}
         onSecondary={hasSource ? startDebate : undefined}

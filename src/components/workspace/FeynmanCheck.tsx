@@ -8,7 +8,7 @@ import type { CoachFeedback } from '../../lib/feynmanCoach';
 import { useI18n, type I18nKey } from '../../lib/i18n';
 import { cn } from '../../utils/cn';
 import type { UserSettings } from '../../types';
-import { WorkspaceEmptyState } from './WorkspaceEmptyState';
+import { WorkspaceToolEmptyState } from './WorkspaceToolEmptyState';
 import type { FeynmanKeyTerm } from '../../lib/feynmanSessionModel';
 import { saveFeynmanDraft } from '../../lib/feynmanDraftStore';
 import { buildFeynmanWeakDimensionPrompt } from '../../lib/feynmanAgentPrompts';
@@ -227,9 +227,10 @@ export function FeynmanCheck({
 
   if (!hasSource) {
     return (
-      <WorkspaceEmptyState
+      <WorkspaceToolEmptyState
         tool="feynman"
-        message={emptyMessage ?? placeholder}
+        concept={concept}
+        message={emptyMessage}
         hasSource={false}
         onUpload={onUpload}
       />

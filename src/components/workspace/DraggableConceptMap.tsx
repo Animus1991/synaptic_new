@@ -15,7 +15,7 @@ import {
   layerColor,
 } from '../../lib/conceptMapHierarchy';
 import { filterConceptNodes } from '../../lib/conceptGraphModel';
-import { WorkspaceEmptyState } from './WorkspaceEmptyState';
+import { WorkspaceToolEmptyState } from './WorkspaceToolEmptyState';
 import { WorkspaceSelectionActionBar } from './WorkspaceSelectionActionBar';
 import type { WorkspaceSelectionActionId, WorkspaceSelectionContext } from '../../lib/workspaceSelectionActions';
 import { ConceptTypeIcon } from '../ui/ConceptTypeIcon';
@@ -495,10 +495,11 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
 
   if (initialNodes.length === 0) {
     return (
-      <WorkspaceEmptyState
+      <WorkspaceToolEmptyState
         tool="concept-map"
-        message={emptyMessage ?? 'Upload notes to build a concept map from your course topics and glossary.'}
-        hasSource={hasSource}
+        concept={focusConcept}
+        message={emptyMessage}
+        hasSource={hasSource ?? false}
         onUpload={onUpload}
       />
     );

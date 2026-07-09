@@ -14,7 +14,7 @@ import {
   SIMULATOR_SCENARIO_PRESETS,
   type SimulatorScenarioId,
 } from '../../lib/examPracticePresets';
-import { WorkspaceEmptyState } from './WorkspaceEmptyState';
+import { WorkspaceToolEmptyState } from './WorkspaceToolEmptyState';
 
 const CHALLENGE_TARGET_P = 55;
 const CHALLENGE_TOLERANCE = 3;
@@ -220,10 +220,11 @@ export function InteractiveSimulator({
           </span>
         </div>
         <div className="flex flex-1 flex-col items-center justify-center p-6">
-          <WorkspaceEmptyState
-        tool="simulator"
-            message={emptyMessage ?? (insight || t('sandboxInsight'))}
-            hasSource={hasSource}
+          <WorkspaceToolEmptyState
+            tool="simulator"
+            concept={concept}
+            message={emptyMessage ?? insight ?? t('sandboxInsight')}
+            hasSource={hasSource ?? false}
             onUpload={onUpload}
           />
           {insight && (

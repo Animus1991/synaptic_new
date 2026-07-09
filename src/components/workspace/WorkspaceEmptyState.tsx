@@ -41,7 +41,12 @@ export function WorkspaceEmptyState({
   const legacySecondary: WorkspaceEmptyAction[] = onSecondary && secondaryLabel
     ? [{ id: 'switch-tool', label: secondaryLabel, onClick: onSecondary }]
     : [];
-  const actions: WorkspaceEmptyAction[] = actionsOverride ?? (contextActions.length > 0 ? contextActions : legacySecondary);
+  const contextOrLegacy = contextActions.length > 0 ? contextActions : legacySecondary;
+  const actions: WorkspaceEmptyAction[] = actionsOverride ?? (
+    contextActions.length > 0 && legacySecondary.length > 0
+      ? [...contextActions, ...legacySecondary]
+      : contextOrLegacy
+  );
   const showLegacyUpload = !hasSource && onUpload && actions.length === 0;
   const heading = title ?? workspaceEmptyTitle({ hasSource, lang });
   const Icon = hasSource ? FileSearch : Upload;

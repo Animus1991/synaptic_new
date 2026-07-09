@@ -11,7 +11,7 @@ import {
   sampleFormulaCurve,
 } from '../../lib/scratchpadGraph';
 import { FormulaLatexPreview } from './FormulaLatexPreview';
-import { WorkspaceEmptyState } from './WorkspaceEmptyState';
+import { WorkspaceToolEmptyState } from './WorkspaceToolEmptyState';
 import { ScratchpadNotesPanel } from './ScratchpadNotesPanel';
 import type { ScratchpadEntry, ScratchpadMode } from '../../lib/scratchpadEntryStore';
 import { validateScratchpadStepsWithSympy } from '../../lib/sympyScratchpadRunner';
@@ -239,10 +239,11 @@ export function FormulaScratchpad({
             onAskAgent={onAskAgentAboutNote}
           />
         ) : (
-          <WorkspaceEmptyState
-        tool="scratchpad"
-            message={emptyMessage ?? 'Upload notes to extract formulas from your material, or add a custom formula.'}
-            hasSource={hasSource}
+          <WorkspaceToolEmptyState
+            tool="scratchpad"
+            concept={concept}
+            message={emptyMessage}
+            hasSource={hasSource ?? false}
             onUpload={onUpload}
             secondaryLabel={hasSource ? t('scratchAddCustomFormula') : undefined}
             onSecondary={hasSource ? addCustom : undefined}

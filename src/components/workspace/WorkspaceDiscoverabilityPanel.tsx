@@ -8,8 +8,7 @@ import { nextActionLabel } from '../../lib/nextActionEngine';
 import type { LearningActionId } from '../../lib/workspaceLearningActions';
 import { getLearningActions } from '../../lib/workspaceLearningActions';
 import type { WorkspaceEmptyAction } from '../../lib/workspaceEmptyState';
-import { workspaceToolEmptyMessage } from '../../lib/workspaceEmptyState';
-import { WorkspaceEmptyState } from './WorkspaceEmptyState';
+import { WorkspaceToolEmptyState } from './WorkspaceToolEmptyState';
 import { commandPaletteBadge } from '../../lib/workspaceKeyboardShortcuts';
 
 type DiscoverabilitySummary = ReturnType<typeof buildDiscoverabilitySummary>;
@@ -207,10 +206,9 @@ export function WorkspaceDiscoverabilityPanel({
 
           {!grounded && (
             <div data-testid="discoverability-empty">
-              <WorkspaceEmptyState
+              <WorkspaceToolEmptyState
                 compact
                 tool="discover"
-                message={workspaceToolEmptyMessage({ tool: 'discover', hasSource, lang })}
                 hasSource={hasSource}
                 actions={emptyActions}
               />
