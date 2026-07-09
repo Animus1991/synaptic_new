@@ -254,6 +254,7 @@ Goal: every tool **fully functional for its learning purpose**, not demo stubs.
 | OPT-D1 | Option-B Wave D1 — blueprint micro-polish | P2 | **shipped** | Timeline pulse dots; blueprint toast skin; dashboard `gradient-text` subtitle; eyebrow `0.34em` |
 | OPT-D2 | Option-B Wave D2 — BlueprintSurface + glass nesting | P2 | **shipped** | `BlueprintSurface` component; `blueprint-surface-nest` / `hint`; header EN/ΕΛ pill; Leitner flip depth; Dashboard + split workspace nesting |
 | OPT-D3 | Option-B Wave D3 — descriptive tabs + bento glass | P2 | **shipped** | `DescriptiveStickyTabBar` on Tasks; tab summaries; all Dashboard `ws-bento` → `BlueprintSurface` |
+| OPT-D4 | Option-B Wave D4 — Library InfoStack + live preview + CourseView tabs | P2 | **shipped** | `InfoStack` on Library; `DashboardLivePreview`; `DescriptiveStickyTabBar` on Library + CourseView |
 | WS-01 | Workspace empty states (`§2.7`) — learning outcome + CTA per tool | P1 | **shipped** | `WorkspaceToolEmptyState` + `buildWorkspaceEmptyView`; all 16 tools wired; E2E `workspace-empty-tools.spec.ts` |
 | PLT-02 | OpenTelemetry + Helm IaC | P3 | **shipped** | `telemetry.ts`, `/live`/`/ready`, `server/helm/` |
 | PLT-03 | Offline embeddings (transformers.js) | P3 | open |

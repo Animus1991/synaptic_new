@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import {
   ArrowLeft, ArrowRight, BookOpen, Clock, BarChart3, Calendar, FileText,
   Lock, CheckCircle2, Circle, ChevronRight, Brain, Target,
-  AlertTriangle, Sparkles, Play, MapPin, Network, Upload, Trash2, RefreshCw, Lightbulb,
+  AlertTriangle, Sparkles, Play, MapPin, Upload, Trash2, RefreshCw, Lightbulb,
 } from '@/lib/lucide-shim';
 import type { Course, Topic, UploadedFile, GlossaryEntry, Task, UserSettings, LearnerModel } from '../types';
 import { cn } from '../utils/cn';
@@ -33,9 +33,9 @@ import { StudyGuideExportButton } from './StudyGuideExportButton';
 import { VideoSummarizeButton } from './VideoSummarizeButton';
 import { CourseMediaPanel } from './CourseMediaPanel';
 import { NotebookLmExportPanel } from './NotebookLmExportPanel';
-import { Page, PageHeader, TabBar, PrimaryCTA, SecondaryCTA, AnimatedCard } from './ui/primitives';
+import { Page, PageHeader, PrimaryCTA, SecondaryCTA, AnimatedCard } from './ui/primitives';
 import { QualityReportPanel } from './QualityReportPanel';
-import { SectionHeader, TrustBadgeRow, UxCallout } from './ui/platformChrome';
+import { SectionHeader, TrustBadgeRow, UxCallout, DescriptiveStickyTabBar } from './ui/platformChrome';
 
 interface CourseViewProps {
   course: Course;
@@ -122,6 +122,20 @@ export function CourseView({
   });
   const { lang, t } = useI18n();
   const progress = (course.completedLessons / Math.max(course.totalLessons, 1)) * 100;
+  const graphSummary = useMemo(() => summarizeCourseGraph(course.conceptGraph), [course.conceptGraph]);
+  const courseFileCount = useMemo(
+    () => uploadedFiles.filter((f) => f.courseId === course.id).length,
+    [uploadedFiles, course.id],
+  );
+  const courseTabs = useMemo(
+    () => [
+      { id: 'path' as const, label: t('courseTabPath'), summary: t('courseTabPathSummary'), count: course.topics.length },
+      { id: 'map' as const, label: t('courseTabMap'), summary: t('courseTabMapSummary'), count: graphSummary.nodeCount },
+      { id: 'sources' as const, label: t('courseTabSources'), summary: t('courseTabSourcesSummary'), count: courseFileCount },
+      { id: 'analytics' as const, label: t('courseTabAnalytics'), summary: t('courseTabAnalyticsSummary'), count: course.topics.length },
+    ],
+    [t, course.topics.length, graphSummary.nodeCount, courseFileCount],
+  );
   const quality = course.sourceQuality;
   const needsSourceUpgrade = Boolean(quality && (quality.needsMoreMaterial || quality.outlineAdjusted));
   const qualityBanner = shouldShowCourseQualityBanner({
@@ -464,15 +478,12 @@ export function CourseView({
         className="mt-2"
       />
 
-      <TabBar
-        activeKey={tab}
-        onChange={(key) => setTab(key as CourseTab)}
-        tabs={[
-          { key: 'path', label: 'Learning Path', icon: MapPin },
-          { key: 'map', label: 'Concept Map', icon: Network },
-          { key: 'sources', label: 'Source Files', icon: FileText },
-          { key: 'analytics', label: 'Analytics', icon: BarChart3 },
-        ]}
+      <DescriptiveStickyTabBar
+        items={courseTabs}
+        activeId={tab}
+        onChange={setTab}
+        testIdPrefix="course-tab"
+        className="mt-2"
       />
 
       {/* Tab Content */}

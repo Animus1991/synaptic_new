@@ -1022,6 +1022,168 @@
   color: var(--color-brand-300);
 }
 
+/* Option-B InfoStack — Library topic rhythm */
+.info-stack {
+  border-radius: 1.5rem;
+  border: 1px solid var(--color-border-subtle);
+  background: color-mix(in srgb, var(--color-surface-card) 72%, transparent);
+  padding: 1rem;
+}
+.info-stack-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+.info-stack-items {
+  margin-top: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.info-stack-item {
+  border-radius: 1rem;
+  border: 1px solid var(--color-border-subtle);
+  background: color-mix(in srgb, var(--color-surface-hover) 55%, transparent);
+  padding: 0.75rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--color-text-secondary);
+}
+.info-stack-secondary {
+  margin-top: 1rem;
+  border-top: 1px solid var(--color-border-subtle);
+  padding-top: 1rem;
+}
+.info-stack-secondary-eyebrow {
+  font-size: 0.6875rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+.info-stack-pills {
+  margin-top: 0.75rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.info-stack-pill {
+  border-radius: 9999px;
+  border: 1px solid var(--color-border-subtle);
+  background: color-mix(in srgb, var(--color-surface-hover) 45%, transparent);
+  padding: 0.25rem 0.75rem;
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+}
+[data-theme="blueprint"] .info-stack {
+  border-color: color-mix(in srgb, var(--color-accent-cyan) 12%, transparent);
+  background: color-mix(in srgb, var(--color-surface-card) 38%, transparent);
+}
+[data-theme="blueprint"] .info-stack-item {
+  border-color: color-mix(in srgb, var(--color-accent-cyan) 10%, transparent);
+  background: color-mix(in srgb, var(--color-surface-card) 28%, transparent);
+}
+[data-theme="blueprint"] .info-stack-pill {
+  border-color: color-mix(in srgb, var(--color-accent-cyan) 14%, transparent);
+}
+
+/* Option-B Dashboard live preview widget */
+.dashboard-live-preview {
+  position: relative;
+  overflow: hidden;
+}
+.dashboard-live-preview-topline {
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--color-brand-500) 55%, transparent),
+    transparent
+  );
+}
+.dashboard-live-preview-eyebrow {
+  font-size: 0.6875rem;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+.dashboard-live-preview-step {
+  display: flex;
+  gap: 1rem;
+  border-radius: 1rem;
+  border: 1px solid var(--color-border-subtle);
+  background: color-mix(in srgb, var(--color-surface-card) 55%, transparent);
+  padding: 1rem;
+  transition: border-color 0.25s ease, background 0.25s ease;
+}
+.dashboard-live-preview-step:hover {
+  border-color: color-mix(in srgb, var(--color-brand-500) 22%, transparent);
+}
+.dashboard-live-preview-rail {
+  display: flex;
+  width: 2.5rem;
+  flex-direction: column;
+  align-items: center;
+}
+.dashboard-live-preview-dot {
+  height: 0.75rem;
+  width: 0.75rem;
+  border-radius: 9999px;
+  background: color-mix(in srgb, var(--color-text-muted) 35%, transparent);
+}
+.dashboard-live-preview-dot-active {
+  background: var(--color-brand-500);
+  box-shadow: 0 0 22px color-mix(in srgb, var(--color-brand-400) 55%, transparent);
+}
+.dashboard-live-preview-line {
+  margin-top: 0.5rem;
+  height: 100%;
+  width: 1px;
+  flex: 1;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--color-text-muted) 25%, transparent),
+    transparent
+  );
+}
+.dashboard-live-preview-status {
+  font-size: 0.6875rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+.dashboard-live-preview-progress-track {
+  margin-top: 0.75rem;
+  height: 0.375rem;
+  overflow: hidden;
+  border-radius: 9999px;
+  background: color-mix(in srgb, var(--color-text-muted) 12%, transparent);
+}
+.dashboard-live-preview-progress-bar {
+  height: 100%;
+  border-radius: 9999px;
+  background: color-mix(in srgb, var(--color-text-muted) 28%, transparent);
+  transition: width 0.7s ease;
+}
+.dashboard-live-preview-progress-bar-active {
+  background: linear-gradient(
+    90deg,
+    var(--color-brand-400),
+    color-mix(in srgb, var(--color-accent-violet) 80%, var(--color-brand-400))
+  );
+}
+[data-theme="blueprint"] .dashboard-live-preview-step-active {
+  border-color: color-mix(in srgb, var(--color-accent-cyan) 22%, transparent);
+  background: color-mix(in srgb, var(--color-surface-card) 32%, transparent);
+}
+[data-theme="blueprint"] .dashboard-live-preview-dot-active {
+  background: var(--color-accent-cyan);
+  box-shadow: 0 0 22px color-mix(in srgb, var(--color-accent-cyan) 55%, transparent);
+}
+
 /* Option-B chart micro-interactions (theme-safe) */
 .treemap-block:hover {
   filter: brightness(1.15) saturate(1.2);

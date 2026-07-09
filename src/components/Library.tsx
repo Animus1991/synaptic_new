@@ -24,6 +24,8 @@ import { UiIcon } from './ui/UiIcon';
 import { PlatformEmptyState } from './ui/PlatformEmptyState';
 import { PostUploadBanner } from './ui/PostUploadBanner';
 import { Page, PageHeader, PrimaryCTA } from './ui/primitives';
+import { DescriptiveStickyTabBar, InfoStack } from './ui/platformChrome';
+import { BlueprintSurface } from './ui/BlueprintSurface';
 import { t } from '../lib/i18n';
 import { RagIndexProgressBanner } from './RagIndexProgressBanner';
 import { CrossLibrarySynthesisPanel } from './CrossLibrarySynthesisPanel';
@@ -102,6 +104,41 @@ export function Library({
     return true;
   });
 
+  const libraryInfo = useMemo(() => {
+    const topics: string[] = [];
+    const prereqSet = new Set<string>();
+    for (const course of filteredCourses) {
+      for (const topic of course.topics) {
+        if (topics.length < 4 && !topics.includes(topic.title)) topics.push(topic.title);
+        topic.prerequisites.forEach((p) => prereqSet.add(p));
+        (topic.keyConcepts ?? []).forEach((k) => prereqSet.add(k));
+      }
+    }
+    const glossaryTerms = [...new Set(glossaryEntries.map((g) => g.term).filter(Boolean))];
+    const examples = glossaryTerms.slice(0, 4);
+    const prerequisites = [...prereqSet].slice(0, 8);
+    const enrichments = [...new Set([...glossaryTerms.slice(4), ...prerequisites])].slice(0, 8);
+    return { topics, prerequisites, examples, enrichments };
+  }, [filteredCourses, glossaryEntries]);
+
+  const libraryTabs = useMemo(
+    () => [
+      {
+        id: 'courses' as const,
+        label: t('libraryTabCourses', userLanguage),
+        summary: t('libraryTabCoursesSummary', userLanguage),
+        count: courses.length,
+      },
+      {
+        id: 'files' as const,
+        label: t('libraryTabFiles', userLanguage),
+        summary: t('libraryTabFilesSummary', userLanguage),
+        count: uploadedFiles.length,
+      },
+    ],
+    [courses.length, uploadedFiles.length, userLanguage],
+  );
+
   return (
     <Page>
       <PageHeader
@@ -158,34 +195,17 @@ export function Library({
         />
       )}
 
-      <div className="mb-4 rounded-xl border border-border-subtle bg-surface-card/50 px-4 py-3">
+      <BlueprintSurface hint className="mb-4 px-4 py-3">
         <p className="text-sm text-text-secondary">{t('libraryEntryHint', userLanguage)}</p>
-      </div>
+      </BlueprintSurface>
 
-      {/* Tabs */}
-      <div className="flex items-center gap-6 border-b border-border-subtle">
-        {(['courses', 'files'] as LibraryTab[]).map(t => {
-          const labelEl = t === 'courses' ? 'Μαθήματα' : 'Αρχεία';
-          const labelEn = t === 'courses' ? 'Courses' : 'Files';
-          const count = t === 'courses' ? courses.length : uploadedFiles.length;
-          return (
-            <button
-              key={t}
-              onClick={() => setTab(t)}
-              className={cn(
-                'pb-3 text-sm font-medium transition-colors border-b-2 inline-flex items-center gap-2',
-                tab === t
-                  ? 'text-text-primary border-brand-500'
-                  : 'text-text-tertiary border-transparent hover:text-text-secondary',
-              )}
-              style={{ fontFamily: 'var(--font-mono)' }}
-            >
-              {userLanguage === 'el' ? labelEl : labelEn}
-              <span className="text-text-muted font-normal tabular-nums">{count}</span>
-            </button>
-          );
-        })}
-      </div>
+      <DescriptiveStickyTabBar
+        items={libraryTabs}
+        activeId={tab}
+        onChange={setTab}
+        testIdPrefix="library-tab"
+        className="mb-4"
+      />
 
       {/* Search & Filters */}
       <div className="flex flex-col sm:flex-row gap-3">
@@ -274,6 +294,23 @@ export function Library({
                 onSecondaryAction={uploadedFiles.length > 0 ? () => setTab('files') : undefined}
               />
             ) : (
+              <div className="space-y-4">
+                {!search && (libraryInfo.topics.length > 0 || libraryInfo.examples.length > 0) && (
+                  <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+                    <InfoStack
+                      title={t('libraryInfoStackTopicsTitle', userLanguage)}
+                      items={libraryInfo.topics}
+                      secondary={libraryInfo.prerequisites}
+                      secondaryLabel={t('libraryInfoStackSecondaryLabel', userLanguage)}
+                    />
+                    <InfoStack
+                      title={t('libraryInfoStackExamplesTitle', userLanguage)}
+                      items={libraryInfo.examples}
+                      secondary={libraryInfo.enrichments}
+                      secondaryLabel={t('libraryInfoStackSecondaryLabel', userLanguage)}
+                    />
+                  </div>
+                )}
               <div className={cn(
                 viewMode === 'grid'
                   ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4'
@@ -284,6 +321,7 @@ export function Library({
                     ? <CourseCard key={course.id} course={course} index={i} tasks={tasks} glossaryEntries={glossaryEntries} uploadedFiles={uploadedFiles} userLanguage={userLanguage} onClick={() => onSelectCourse(course)} onRemoveCourse={onRemoveCourse} onOpenNotebookShell={onOpenNotebookShell} />
                     : <CourseListItem key={course.id} course={course} index={i} tasks={tasks} glossaryEntries={glossaryEntries} uploadedFiles={uploadedFiles} userLanguage={userLanguage} onClick={() => onSelectCourse(course)} onRemoveCourse={onRemoveCourse} onOpenNotebookShell={onOpenNotebookShell} />
                 ))}
+              </div>
               </div>
             )}
           </motion.div>

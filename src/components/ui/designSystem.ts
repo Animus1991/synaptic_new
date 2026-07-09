@@ -41,4 +41,5 @@ export {
   HeroGlow,
   HeaderLangPill,
   DescriptiveStickyTabBar,
+  InfoStack,
 } from './platformChrome';

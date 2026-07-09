@@ -221,6 +221,49 @@ export function DescriptiveStickyTabBar<T extends string>({
   );
 }
 
+/** Nested topic / prerequisite rhythm — Option-B Library InfoStack. */
+export function InfoStack({
+  title,
+  items,
+  secondary,
+  secondaryLabel,
+  className,
+}: {
+  title: string;
+  items: string[];
+  secondary: string[];
+  secondaryLabel: string;
+  className?: string;
+}) {
+  if (items.length === 0 && secondary.length === 0) return null;
+  return (
+    <div className={cn('info-stack', className)}>
+      <div className="info-stack-title">{title}</div>
+      {items.length > 0 && (
+        <div className="info-stack-items">
+          {items.map((item) => (
+            <div key={item} className="info-stack-item">
+              {item}
+            </div>
+          ))}
+        </div>
+      )}
+      {secondary.length > 0 && (
+        <div className="info-stack-secondary">
+          <p className="info-stack-secondary-eyebrow">{secondaryLabel}</p>
+          <div className="info-stack-pills">
+            {secondary.map((item) => (
+              <span key={item} className="info-stack-pill">
+                {item}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 /** Compact EN/ΕΛ toggle for shell header — Option-B segmented pill. */
 export function HeaderLangPill({
   lang,

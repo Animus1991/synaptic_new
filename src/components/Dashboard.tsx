@@ -20,7 +20,6 @@ import type { SessionType } from '../lib/taskFlows';
 import { findPendingTask, findTaskForRepair, findTaskForConcept } from '../lib/taskFlows';
 import type { WorkspaceLiveSync } from '../lib/workspaceStoreSpine';
 import { workspaceLiveIsStale } from '../lib/workspaceStoreSpine';
-import { nextActionLabel } from '../lib/nextActionEngine';
 import type { Lang } from '../lib/i18n';
 import type { DashboardNextAction } from '../lib/dashboardNextAction';
 import { TaskActionIcon } from './ui/TaskActionIcon';
@@ -28,11 +27,11 @@ import { courseRingColor, resolveCourseColor, accentHighlightVar } from '../lib/
 import { workspaceEntryPrefetchHandlers } from '../lib/workspaceEntryPrefetch';
 import { greetingForTime, dashboardSubtitle } from '../lib/greeting';
 import { useI18n } from '../lib/i18n';
-import { Page, PageHeader, PlatformSection, PrimaryCTA } from './ui/primitives';
+import { Page, PageHeader, PrimaryCTA } from './ui/primitives';
 import { HeroGlow, UxCallout } from './ui/platformChrome';
 import { BlueprintSurface } from './ui/BlueprintSurface';
 import { PostUploadBanner } from './ui/PostUploadBanner';
-import { Layout as LucideLayout } from '@/lib/lucide-shim';
+import { DashboardLivePreview } from './DashboardLivePreview';
 import { useMemo } from 'react';
 import { buildDashboardWeakSpotCards } from '../lib/dashboardWeakSpotsModel';
 import { executeDashboardNextAction } from '../lib/dashboardNextAction';
@@ -98,14 +97,6 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
   const firstReviewTask = findPendingTask(tasks, (t) => t.isSpacedRepetition && t.status === 'pending');
   const showWorkspaceResume = workspaceLive && !workspaceLiveIsStale(workspaceLive);
   const isEmpty = courses.length === 0;
-  const workspaceSummaryBits = showWorkspaceResume
-    ? [
-        workspaceLive.snapshot.courseLabel ? `${t('dashboardResumeCourseLabel')}: ${workspaceLive.snapshot.courseLabel}` : null,
-        workspaceLive.snapshot.activeConcept ? `${t('dashboardResumeConceptLabel')}: ${workspaceLive.snapshot.activeConcept}` : null,
-        workspaceLive.snapshot.toolLabel ? `${t('dashboardResumeToolLabel')}: ${workspaceLive.snapshot.toolLabel}` : null,
-        workspaceLive.snapshot.stepLabel ? `${t('dashboardResumeStepLabel')}: ${workspaceLive.snapshot.stepLabel}` : null,
-      ].filter(Boolean)
-    : [];
   const weakSpotsWithReasons = useMemo(
     () => buildDashboardWeakSpotCards(learnerModel.weakAreas, lang),
     [learnerModel.weakAreas, lang],
@@ -335,56 +326,12 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
       )}
 
       {showWorkspaceResume && (
-        <MotionSection initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} data-tour="dashboard-resume">
-          <PlatformSection
-            tone="brand"
-            title={t('dashboardResumeTitle')}
-            icon={LucideLayout}
-            iconClassName="text-brand-600"
-            action={
-              <button
-                type="button"
-                onClick={() => onOpenWorkspace?.()}
-                data-testid="dashboard-resume-workspace"
-                {...workspaceEntryPrefetchHandlers()}
-                className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold bg-brand-700 text-white hover:bg-brand-800 transition-all shrink-0"
-              >
-                {t('dashboardResumeOpenWorkspace')} <ArrowRight className="w-3 h-3" />
-              </button>
-            }
-          >
-            <p className="text-xs text-text-secondary mb-3">{t('dashboardResumeSubtitle')}</p>
-            <div className="flex flex-wrap items-center gap-1.5">
-              {workspaceLive.snapshot.toolLabel && (
-                <span className="ws-chip-brand rounded-full px-2 py-0.5 text-[10px] font-semibold">
-                  {workspaceLive.snapshot.toolLabel}
-                </span>
-              )}
-              {workspaceLive.snapshot.activeConcept && (
-                <span className="ws-chip-neutral rounded-full px-2 py-0.5 text-[10px] font-semibold truncate max-w-[12rem]">
-                  {workspaceLive.snapshot.activeConcept}
-                </span>
-              )}
-            </div>
-            {workspaceSummaryBits.length > 0 && (
-              <div className="mt-2 flex flex-wrap gap-1.5">
-                {workspaceSummaryBits.map((bit) => (
-                  <span key={bit} className="ws-chip-neutral rounded-full px-2 py-0.5 text-[10px] font-semibold">
-                    {bit}
-                  </span>
-                ))}
-              </div>
-            )}
-            {workspaceLive.nextAction && (
-              <p className="text-xs text-text-tertiary mt-2 line-clamp-2">
-                {t('dashboardNextColon')}{' '}
-                <span className="text-brand-700 font-medium">
-                  {nextActionLabel(workspaceLive.nextAction.primary, lang)}
-                </span>
-                {' — '}{workspaceLive.nextAction.reason}
-              </p>
-            )}
-          </PlatformSection>
+        <MotionSection initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+          <DashboardLivePreview
+            live={workspaceLive}
+            lang={lang}
+            onOpenWorkspace={onOpenWorkspace}
+          />
         </MotionSection>
       )}
 
