@@ -1051,6 +1051,122 @@
   box-shadow: 0 16px 48px color-mix(in srgb, #000000 28%, transparent);
 }
 
+/* Option-B Wave E10 — decorative SourceFlow + RetentionSparkline boards */
+.source-flow-node-bg {
+  fill: color-mix(in srgb, var(--color-surface-card) 88%, transparent);
+  stroke: var(--color-border-subtle);
+  stroke-width: 1;
+}
+[data-theme="blueprint"] .source-flow-node-bg {
+  fill: color-mix(in srgb, #020617 82%, transparent);
+  stroke: color-mix(in srgb, #ffffff 12%, transparent);
+}
+.source-flow-node-label {
+  fill: var(--color-text-secondary);
+  font-size: 9px;
+  font-weight: 600;
+  font-family: var(--font-sans);
+}
+[data-theme="blueprint"] .source-flow-node-label {
+  fill: color-mix(in srgb, var(--color-accent-cyan) 75%, var(--color-text-primary));
+}
+@media (prefers-reduced-motion: no-preference) {
+  [data-theme="blueprint"] .source-flow-pipe {
+    animation: blueprint-flow-pulse 4s ease-in-out infinite;
+  }
+  [data-theme="blueprint"] .retention-sparkline-cell:hover {
+    border-color: color-mix(in srgb, var(--color-accent-cyan) 35%, transparent);
+    background: color-mix(in srgb, var(--color-accent-cyan) 6%, var(--color-surface-primary));
+  }
+  [data-theme="blueprint"] .retention-sparkline-cell:hover .retention-sparkline-stroke {
+    filter: drop-shadow(0 0 6px color-mix(in srgb, var(--color-accent-cyan) 45%, transparent));
+  }
+}
+@keyframes blueprint-flow-pulse {
+  0%,
+  100% {
+    opacity: 0.75;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* Option-B Wave E11 — Tier-B workspace tool internals (Reader / Scratchpad / Quiz) */
+[data-theme="blueprint"] .ux-tier-b-tool .workspace-glass-panel,
+[data-theme="blueprint"] .ux-tier-b-tool.ux-tier-b-shell {
+  position: relative;
+  overflow: hidden;
+  border-color: color-mix(in srgb, #ffffff 8%, transparent);
+  background: color-mix(in srgb, #ffffff 4%, var(--color-surface-primary));
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 12px 40px color-mix(in srgb, #000000 18%, transparent);
+}
+[data-theme="blueprint"] .ux-tier-b-tool .workspace-glass-panel::before,
+[data-theme="blueprint"] .ux-tier-b-tool.ux-tier-b-shell::before {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--color-accent-cyan) 45%, transparent),
+    transparent
+  );
+  pointer-events: none;
+}
+[data-theme="blueprint"] .ux-tier-b-tool :is(.ux-tier-b-toolbar, .ux-tier-b-nav) {
+  border-color: color-mix(in srgb, #ffffff 8%, transparent);
+  background: color-mix(in srgb, #020617 88%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+[data-theme="blueprint"] .ux-tier-b-tool :is(.ux-tier-b-segment, .ux-tier-b-panel) {
+  border-color: color-mix(in srgb, #ffffff 10%, transparent) !important;
+  background: color-mix(in srgb, #ffffff 4%, var(--color-surface-primary)) !important;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+[data-theme="blueprint"] .ux-tier-b-tool .ux-tier-b-sidebar {
+  border-color: color-mix(in srgb, #ffffff 8%, transparent);
+  background: color-mix(in srgb, #020617 92%, transparent);
+}
+[data-theme="blueprint"] .ux-tier-b-tool .ux-tier-b-input {
+  border-color: color-mix(in srgb, #ffffff 10%, transparent);
+  background: color-mix(in srgb, #ffffff 4%, var(--color-surface-primary));
+}
+[data-theme="blueprint"] .ux-tier-b-tool .ux-tier-b-input:focus {
+  outline: 2px solid color-mix(in srgb, var(--color-accent-cyan) 70%, transparent);
+  outline-offset: 1px;
+}
+[data-theme="blueprint"] .ux-tier-b-quiz .ux-quiz-option {
+  border-color: color-mix(in srgb, #ffffff 10%, transparent);
+  background: color-mix(in srgb, #ffffff 3%, var(--color-surface-primary));
+  transition:
+    border-color var(--motion-duration-ui) var(--motion-ease),
+    background-color var(--motion-duration-ui) var(--motion-ease);
+}
+@media (prefers-reduced-motion: no-preference) {
+  [data-theme="blueprint"] .ux-tier-b-quiz .ux-quiz-option:hover:not(:disabled) {
+    border-color: color-mix(in srgb, var(--color-accent-cyan) 35%, transparent);
+    background: color-mix(in srgb, var(--color-accent-cyan) 8%, transparent);
+  }
+}
+[data-theme="blueprint"] .ux-tier-b-quiz-session .ux-quiz-session-header {
+  padding: 0.375rem 0.625rem;
+  border-radius: 0.75rem;
+  border: 1px solid color-mix(in srgb, #ffffff 8%, transparent);
+  background: color-mix(in srgb, #020617 85%, transparent);
+}
+[data-theme="blueprint"] .ux-tier-b-scratchpad [data-testid="scratchpad-graph-panel"] path {
+  stroke: url(#blueprint-stroke-cve);
+  stroke-width: 2;
+  fill: none;
+}
+
 [data-theme="blueprint"] :is(button, a).bg-brand-600,
 [data-theme="blueprint"] :is(button, a).bg-brand-700 {
   background-color: #ffffff;

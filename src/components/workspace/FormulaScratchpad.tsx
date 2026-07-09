@@ -58,6 +58,9 @@ interface Props {
   onAskAgentAboutNote?: (text: string, mode: ScratchpadMode) => void;
 }
 
+const SCRATCHPAD_SHELL =
+  'ux-tier-b-tool ux-tier-b-scratchpad ux-tier-b-shell workspace-glass-panel flex flex-col h-full overflow-hidden';
+
 export function FormulaScratchpad({
   noteFormulas = [],
   emptyMessage,
@@ -218,7 +221,7 @@ export function FormulaScratchpad({
 
   if (formulas.length === 0) {
     return (
-      <div className="flex flex-col h-full rounded-2xl border border-border-subtle bg-surface-card overflow-hidden">
+      <div className={SCRATCHPAD_SHELL}>
         <ScratchpadHeader
           panel={panel}
           setPanel={setPanel}
@@ -254,7 +257,7 @@ export function FormulaScratchpad({
   }
 
   return (
-    <div className="flex flex-col h-full rounded-2xl border border-border-subtle bg-surface-card overflow-hidden">
+    <div className={SCRATCHPAD_SHELL}>
       <ScratchpadHeader
         panel={panel}
         setPanel={setPanel}
@@ -277,7 +280,7 @@ export function FormulaScratchpad({
         />
       ) : (
         <div className="flex flex-1 overflow-hidden min-h-0">
-          <div className="w-40 border-r border-border-subtle overflow-y-auto py-2 shrink-0">
+          <div className="ux-tier-b-sidebar w-40 border-r border-border-subtle overflow-y-auto py-2 shrink-0">
             {formulas.map(f => (
               <button key={f.id} onClick={() => selectFormula(f.id)}
                 className={cn('w-full text-left px-3 py-2 text-xs transition-all',
@@ -371,7 +374,7 @@ export function FormulaScratchpad({
 
               {showGraph && plotPath && plotSpec && (
                 <div
-                  className="rounded-xl border border-border-subtle bg-surface-primary/50 p-3"
+                  className="ux-tier-b-panel rounded-xl border border-border-subtle bg-surface-primary/50 p-3"
                   data-testid="scratchpad-graph-panel"
                 >
                   <p className="mb-2 text-[10px] font-semibold text-text-muted">
@@ -387,7 +390,7 @@ export function FormulaScratchpad({
               <AnimatePresence>
                 {steps.length > 0 && (
                   <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
-                    className="p-4 rounded-xl bg-surface-primary/60 border border-border-subtle space-y-2">
+                    className="ux-tier-b-panel p-4 rounded-xl bg-surface-primary/60 border border-border-subtle space-y-2">
                     <div className="flex items-center justify-between mb-1">
                       <span className="text-[10px] text-text-muted font-medium">Solution</span>
                       <button onClick={copyResult} className="flex items-center gap-1 text-[10px] text-text-muted hover:text-text-secondary">
@@ -405,7 +408,7 @@ export function FormulaScratchpad({
               </AnimatePresence>
 
               <div
-                className="rounded-xl border border-border-subtle bg-surface-primary/40 p-3 space-y-2"
+                className="ux-tier-b-panel rounded-xl border border-border-subtle bg-surface-primary/40 p-3 space-y-2"
                 data-testid="scratchpad-sympy-panel"
               >
                 <div className="flex flex-wrap items-center justify-between gap-2">
@@ -506,7 +509,7 @@ function ScratchpadHeader({
 }) {
   const { t } = useI18n();
   return (
-    <div className="flex items-center justify-between px-4 py-2 border-b border-border-subtle bg-surface-secondary/40 shrink-0 gap-2">
+    <div className="ux-tier-b-toolbar flex items-center justify-between px-4 py-2 border-b border-border-subtle bg-surface-secondary/40 shrink-0 gap-2">
       <div className="flex gap-1">
         <button
           type="button"

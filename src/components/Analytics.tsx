@@ -512,7 +512,12 @@ function OverviewTab({
       </motion.div>
 
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.28 }}>
-        <AnalyticsVisualLabPanel />
+        <AnalyticsVisualLabPanel
+          sankeyLinks={sankeyModel.links}
+          sankeyHasData={sankeyModel.hasData}
+          forecast={fsrsForecast}
+          skills={[...learnerModel.weakAreas, ...learnerModel.almostKnown, ...learnerModel.strongAreas]}
+        />
       </motion.div>
     </div>
   );

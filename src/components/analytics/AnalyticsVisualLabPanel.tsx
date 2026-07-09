@@ -1,34 +1,69 @@
 import { BlueprintSurface } from '../ui/BlueprintSurface';
 import { SectionHeader } from '../ui/platformChrome';
 import { useI18n } from '../../lib/i18n';
+import type { SankeyLink } from '../../lib/knowledgeFlowAnalytics';
+import type { RetentionForecastPoint } from '../../lib/adaptiveScheduler';
+import type { SkillNode } from '../../types';
+import { SourceFlowDiagram } from './SourceFlowDiagram';
+import { RetentionSparklineBoard } from './RetentionSparklineBoard';
 
-/** Decorative analytics well — prototype Visual Lab aesthetic wrapper (Wave E7). */
-export function AnalyticsVisualLabPanel() {
+type Props = {
+  sankeyLinks: SankeyLink[];
+  sankeyHasData: boolean;
+  forecast: RetentionForecastPoint[];
+  skills: SkillNode[];
+};
+
+/** Decorative analytics well — SourceFlow + RetentionSparkline boards (Wave E10). */
+export function AnalyticsVisualLabPanel({
+  sankeyLinks,
+  sankeyHasData,
+  forecast,
+  skills,
+}: Props) {
   const { t, lang } = useI18n();
-  const hint = lang === 'el'
-    ? 'Gradient strokes cyan → violet → emerald για diagram polish.'
-    : 'Cyan → violet → emerald gradient strokes for diagram polish.';
+  const sourceLabel = lang === 'el'
+    ? 'Διακοσμητικό διάγραμμα ροής πηγής προς mastery'
+    : 'Decorative source-to-mastery flow diagram';
+  const sparkLabel = lang === 'el'
+    ? 'Πίνακας sparkline διατήρησης'
+    : 'Retention sparkline board';
+  const emptyHint = lang === 'el'
+    ? 'Οι sparklines εμφανίζονται όταν υπάρχουν δεδομένα FSRS ή εννοιών.'
+    : 'Sparklines appear once FSRS or concept retention data is available.';
 
   return (
     <BlueprintSurface className="analytics-visual-lab p-5" data-testid="analytics-visual-lab">
       <SectionHeader
         eyebrow={lang === 'el' ? 'Οπτικό εργαστήριο' : 'Visual lab'}
         title={lang === 'el' ? 'Blueprint diagram rail' : 'Blueprint diagram rail'}
-        subtitle={hint}
+        subtitle={t('analyticsFlowSectionSubtitle')}
         animate={false}
       />
-      <div className="mt-4 rounded-2xl border border-border-subtle/60 bg-surface-primary/30 p-4">
-        <svg viewBox="0 0 320 72" className="w-full h-auto max-h-20" role="img" aria-label={hint}>
-          <path
-            className="blueprint-stroke-gradient"
-            d="M8 56 C 60 12, 100 12, 160 36 S 260 60, 312 20"
-            fill="none"
-            strokeWidth="3"
-            strokeLinecap="round"
+
+      <div className="mt-4 grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div className="rounded-2xl border border-border-subtle/60 bg-surface-primary/30 p-4">
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-text-muted mb-3">
+            {lang === 'el' ? 'Ροή πηγής' : 'Source flow'}
+          </p>
+          <SourceFlowDiagram
+            links={sankeyLinks}
+            hasData={sankeyHasData}
+            ariaLabel={sourceLabel}
           />
-          <circle cx="160" cy="36" r="5" className="blueprint-diagram-dot" />
-        </svg>
-        <p className="mt-2 text-xs text-text-muted">{t('analyticsFlowSectionSubtitle')}</p>
+        </div>
+
+        <div className="rounded-2xl border border-border-subtle/60 bg-surface-primary/30 p-4">
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-text-muted mb-3">
+            {lang === 'el' ? 'Διατήρηση' : 'Retention'}
+          </p>
+          <RetentionSparklineBoard
+            forecast={forecast}
+            skills={skills}
+            ariaLabel={sparkLabel}
+            emptyHint={emptyHint}
+          />
+        </div>
       </div>
     </BlueprintSurface>
   );

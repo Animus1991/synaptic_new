@@ -150,7 +150,7 @@ export function WorkspaceQuizSession({
     const wrongSummaries = buildQuizWrongItemSummaries(session, sectionLabel);
     const wrongItems = session.items.filter((_item, i) => session.correctFlags[i] === false);
     return (
-      <div className="space-y-3" data-testid="quiz-session-complete">
+      <div className="ux-tier-b-tool ux-tier-b-quiz-session space-y-3" data-testid="quiz-session-complete">
         <p className="text-sm font-semibold text-accent-emerald">{summary.headline}</p>
         <p className="text-xs text-text-secondary" data-testid="quiz-session-summary-detail">{summary.detail}</p>
         {attemptHistory.length > 0 && (
@@ -267,8 +267,8 @@ export function WorkspaceQuizSession({
   if (!current) return null;
 
   return (
-    <div className="space-y-4" data-testid="quiz-session">
-      <div className="flex items-center justify-between text-[10px] text-text-muted">
+    <div className="ux-tier-b-tool ux-tier-b-quiz-session space-y-4" data-testid="quiz-session">
+      <div className="ux-quiz-session-header flex items-center justify-between text-[10px] text-text-muted">
         <span>
           {t('quizSessQuestionLabel')} {session.currentIndex + 1}/{session.items.length}
         </span>
@@ -371,7 +371,7 @@ export function WorkspaceQuizSession({
               )}
             </div>
           )}
-          <div className="rounded-xl border border-border-subtle bg-surface-primary/50 p-3" data-testid="quiz-confidence-rating">
+          <div className="ux-tier-b-panel rounded-xl border border-border-subtle bg-surface-primary/50 p-3" data-testid="quiz-confidence-rating">
             <p className="text-[10px] font-medium text-text-muted mb-2">
               {t('quizSessConfidenceScale')}
             </p>

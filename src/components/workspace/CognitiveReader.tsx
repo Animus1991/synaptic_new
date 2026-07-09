@@ -711,7 +711,7 @@ export function CognitiveReader({
                 key={`seg-${i}`}
                 id={`reader-para-body-${idx}`}
                 className={cn(
-                  'space-y-1.5 rounded-lg border border-border-subtle/40 bg-surface-card/30 px-5 py-3 text-[15px] text-text-primary',
+                  'ux-tier-b-segment space-y-1.5 rounded-lg border border-border-subtle/40 bg-surface-card/30 px-5 py-3 text-[15px] text-text-primary',
                   seg.listOrdered ? 'list-decimal pl-8' : 'list-disc pl-5',
                 )}
               >
@@ -736,7 +736,7 @@ export function CognitiveReader({
               <div
                 key={`seg-${i}`}
                 id={`reader-seg-${i}`}
-                className="overflow-x-auto rounded-lg border border-border-subtle/50 bg-surface-card/40"
+                className="ux-tier-b-segment overflow-x-auto rounded-lg border border-border-subtle/50 bg-surface-card/40"
                 data-testid="reader-table-segment"
               >
                 {title && (
@@ -771,7 +771,7 @@ export function CognitiveReader({
               <div
                 key={`seg-${i}`}
                 id={`reader-para-body-${idx}`}
-                className="rounded-lg border border-border-subtle/40 bg-surface-card/30 px-4 py-3"
+                className="ux-tier-b-segment rounded-lg border border-border-subtle/40 bg-surface-card/30 px-4 py-3"
                 data-testid="reader-math-segment"
               >
                 <FormulaLatexPreview formula={seg.mathLatex} display />
@@ -820,8 +820,8 @@ export function CognitiveReader({
   };
 
   return (
-    <div className="flex h-full flex-col overflow-hidden" data-testid="cognitive-reader">
-      <div className="flex shrink-0 flex-wrap items-center justify-between gap-2 border-b border-border-subtle bg-surface-card px-4 py-2">
+    <div className="ux-tier-b-tool ux-tier-b-reader flex h-full flex-col overflow-hidden" data-testid="cognitive-reader">
+      <div className="ux-tier-b-toolbar flex shrink-0 flex-wrap items-center justify-between gap-2 border-b border-border-subtle bg-surface-card px-4 py-2">
         <span className="flex items-center gap-2 text-xs font-semibold">
           <Type className="w-3.5 h-3.5 text-brand-700" />
           {t('cognitiveReader')}
@@ -1075,7 +1075,7 @@ export function CognitiveReader({
 
       {sectionNav.length >= 2 && (
         <div
-          className="flex shrink-0 gap-1.5 overflow-x-auto border-b border-border-subtle bg-surface-secondary/40 px-3 py-2 hide-scrollbar"
+          className="ux-tier-b-nav flex shrink-0 gap-1.5 overflow-x-auto border-b border-border-subtle bg-surface-secondary/40 px-3 py-2 hide-scrollbar"
           data-testid="reader-section-nav"
         >
           <span className="shrink-0 self-center text-[9px] font-semibold text-text-muted">

@@ -264,6 +264,8 @@ Goal: every tool **fully functional for its learning purpose**, not demo stubs.
 | OPT-E7 | Option-B Wave E7 — diagram/chart micro-polish | P2 | **shipped** | `BlueprintSvgDefs` gradient strokes; `AnalyticsVisualLabPanel`; treemap/heatmap/waterfall blueprint hovers |
 | OPT-E8 | Option-B Wave E8 — Inter-only blueprint headings | P2 | **shipped** | Blueprint h1–h3 + `.ws-serif` → sans; `.ux-section-eyebrow` 0.34em; mega `.ux-card` radius |
 | OPT-E9 | Option-B Wave E9 — Settings/Onboarding/Teacher glass + blueprint default | P2 | **shipped** | `ux-flow-shell` / `ux-flow-panel` on Settings, Onboarding, Teacher; glass inputs + progress; `resolveInitialThemePreference()` → blueprint for new production users |
+| OPT-E10 | Option-B Wave E10 — decorative SVG boards | P2 | **shipped** | `SourceFlowDiagram` + `RetentionSparklineBoard` in Analytics Visual Lab; `decorativeSparklines` helpers; blueprint node/sparkline hovers |
+| OPT-E11 | Option-B Wave E11 — Tier-B tool internals glass | P2 | **shipped** | `ux-tier-b-tool` sweep on CognitiveReader, FormulaScratchpad, WorkspaceQuiz/Session; toolbar/nav/panel/option blueprint glass |
 | WS-01 | Workspace empty states (`§2.7`) — learning outcome + CTA per tool | P1 | **shipped** | `WorkspaceToolEmptyState` + `buildWorkspaceEmptyView`; all 16 tools wired; E2E `workspace-empty-tools.spec.ts` |
 | PLT-02 | OpenTelemetry + Helm IaC | P3 | **shipped** | `telemetry.ts`, `/live`/`/ready`, `server/helm/` |
 | PLT-03 | Offline embeddings (transformers.js) | P3 | open |
