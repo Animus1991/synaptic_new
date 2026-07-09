@@ -9,34 +9,13 @@ import {
 } from '../../lib/workspaceConceptBus';
 import type { WorkspaceToolId } from '../../lib/taskFlows';
 import { useI18n } from '../../lib/i18n';
+import {
+  CONCEPT_LENS_ACTION_LABELS,
+  WORKSPACE_TOOL_SHORT_LABELS,
+} from '../../lib/workspaceConceptPanelLabels';
 
-const TOOL_LABELS: Record<WorkspaceToolId, { en: string; el: string }> = {
-  'concept-map': { en: 'Map', el: 'Χάρτης' },
-  reader: { en: 'Reader', el: 'Ανάγνωση' },
-  leitner: { en: 'Leitner', el: 'Leitner' },
-  quiz: { en: 'Quiz', el: 'Quiz' },
-  feynman: { en: 'Feynman', el: 'Feynman' },
-  compare: { en: 'Compare', el: 'Σύγκριση' },
-  simulator: { en: 'Sandbox', el: 'Sandbox' },
-  scratchpad: { en: 'Scratch', el: 'Scratch' },
-  whiteboard: { en: 'Board', el: 'Πίνακας' },
-  debate: { en: 'Debate', el: 'Debate' },
-  timer: { en: 'Timer', el: 'Χρόνος' },
-  annotations: { en: 'Notes', el: 'Σχόλια' },
-  dashboard: { en: 'Stats', el: 'Στατιστ.' },
-};
-
-const ACTION_LABELS: Record<ConceptLensAction, { en: string; el: string }> = {
-  explain: { en: 'Explain', el: 'Εξήγηση' },
-  quiz: { en: 'Quiz', el: 'Quiz' },
-  flashcards: { en: 'Cards', el: 'Κάρτες' },
-  compare: { en: 'Compare', el: 'Σύγκριση' },
-  debate: { en: 'Debate', el: 'Debate' },
-  feynman: { en: 'Feynman', el: 'Feynman' },
-  'mark-confusing': { en: 'Confusing', el: 'Μπερδευτικό' },
-  'mark-mastered': { en: 'Mastered', el: 'Κατάλαβα' },
-  'open-reader': { en: 'Reader', el: 'Ανάγνωση' },
-};
+const TOOL_LABELS = WORKSPACE_TOOL_SHORT_LABELS;
+const ACTION_LABELS = CONCEPT_LENS_ACTION_LABELS;
 
 type Props = {
   lens: ConceptLensView;

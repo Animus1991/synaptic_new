@@ -3,6 +3,7 @@ import { describe, expect, it, vi, afterEach } from 'vitest';
 import { render, screen, cleanup } from '@testing-library/react';
 import { WorkspaceQuiz } from './WorkspaceQuiz';
 import type { QuizDef } from '../../lib/lessonTypes';
+import { workspaceToolEmptyMessage } from '../../lib/workspaceEmptyState';
 
 afterEach(() => cleanup());
 
@@ -10,7 +11,7 @@ describe('WorkspaceQuiz placeholder empty state', () => {
   it('renders an actionable empty state (no fake "- - -" options) when placeholder', () => {
     const quizDef: QuizDef = {
       kind: 'mc',
-      question: 'Upload notes to generate a quiz for "Intro".',
+      question: workspaceToolEmptyMessage({ tool: 'quiz', hasSource: false, lang: 'en', concept: 'Intro' }),
       options: ['- - -', '- - -', '- - -', '- - -'],
       correctIndex: 0,
       placeholder: true,

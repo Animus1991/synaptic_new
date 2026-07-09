@@ -7,40 +7,14 @@ import {
 } from '../../lib/conceptBusRemediation';
 import type { ConceptLensView } from '../../lib/conceptGraphModel';
 import type { WorkspaceToolId } from '../../lib/taskFlows';
-import type { ConceptSignal } from '../../lib/workspaceConceptBus';
 import { useI18n } from '../../lib/i18n';
+import {
+  CONCEPT_SIGNAL_SHORT_LABELS,
+  WORKSPACE_TOOL_SHORT_LABELS,
+} from '../../lib/workspaceConceptPanelLabels';
 
-const TOOL_LABELS: Record<WorkspaceToolId, { en: string; el: string }> = {
-  'concept-map': { en: 'Map', el: 'Χάρτης' },
-  reader: { en: 'Reader', el: 'Ανάγνωση' },
-  leitner: { en: 'Leitner', el: 'Leitner' },
-  quiz: { en: 'Quiz', el: 'Quiz' },
-  feynman: { en: 'Feynman', el: 'Feynman' },
-  compare: { en: 'Compare', el: 'Σύγκριση' },
-  simulator: { en: 'Sandbox', el: 'Sandbox' },
-  scratchpad: { en: 'Scratch', el: 'Scratch' },
-  whiteboard: { en: 'Board', el: 'Πίνακας' },
-  debate: { en: 'Debate', el: 'Debate' },
-  timer: { en: 'Timer', el: 'Χρόνος' },
-  annotations: { en: 'Notes', el: 'Σχόλια' },
-  dashboard: { en: 'Stats', el: 'Στατιστ.' },
-};
-
-const SIGNAL_LABELS: Record<ConceptSignal, { en: string; el: string }> = {
-  focus: { en: 'focus', el: 'εστίαση' },
-  read: { en: 'read', el: 'ανάγνωση' },
-  mapped: { en: 'mapped', el: 'χάρτης' },
-  noted: { en: 'noted', el: 'σημείωση' },
-  annotated: { en: 'highlight', el: 'highlight' },
-  explained: { en: 'explained', el: 'εξήγηση' },
-  simulated: { en: 'simulated', el: 'προσομοίωση' },
-  'quiz-correct': { en: 'quiz ✓', el: 'quiz ✓' },
-  'quiz-wrong': { en: 'quiz ✗', el: 'quiz ✗' },
-  'leitner-easy': { en: 'easy', el: 'εύκολο' },
-  'leitner-hard': { en: 'hard', el: 'δύσκολο' },
-  'annotated-confusing': { en: 'confusing', el: 'μπερδεμένο' },
-  'annotated-exam': { en: 'exam', el: 'εξέταση' },
-};
+const TOOL_LABELS = WORKSPACE_TOOL_SHORT_LABELS;
+const SIGNAL_LABELS = CONCEPT_SIGNAL_SHORT_LABELS;
 
 type Props = {
   rows: ConceptBusRow[];
