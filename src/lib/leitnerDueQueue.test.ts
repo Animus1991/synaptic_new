@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 
-import { buildFsrsDueQueue, findDeckIndexForConcept } from './leitnerDueQueue';
+import { buildFsrsDueQueue, buildGlobalFsrsDueQueue, findDeckIndexForConcept } from './leitnerDueQueue';
 import type { SpacingData } from '../types';
 
 const now = new Date('2026-07-06T12:00:00Z');
@@ -36,5 +36,18 @@ describe('buildFsrsDueQueue', () => {
       'entropy',
     );
     expect(idx).toBe(0);
+  });
+});
+
+describe('buildGlobalFsrsDueQueue', () => {
+  it('includes all concepts when no scope filter is applied', () => {
+    const queue = buildGlobalFsrsDueQueue(
+      [
+        spacing({ concept: 'Alpha', nextReview: '2026-07-01T00:00:00Z' }),
+        spacing({ concept: 'Beta', nextReview: '2026-07-08T00:00:00Z' }),
+      ],
+      now,
+    );
+    expect(queue.map((item) => item.concept)).toEqual(['Alpha', 'Beta']);
   });
 });

@@ -29,6 +29,16 @@ function findCardLabel(concept: string, cards: { front: string; back: string }[]
   return (match?.front ?? concept).slice(0, 52);
 }
 
+/** Global FSRS due queue across all tracked concepts (Dashboard / Tasks). */
+export function buildGlobalFsrsDueQueue(
+  spacingIntervals: SpacingData[],
+  now = new Date(),
+  horizonDays = 7,
+  limit = 16,
+): FsrsDueQueueItem[] {
+  return buildFsrsDueQueue(spacingIntervals, [], '', now, horizonDays, limit);
+}
+
 /** Ordered FSRS due queue: overdue first, then by due date and retrievability. */
 export function buildFsrsDueQueue(
   spacingIntervals: SpacingData[],

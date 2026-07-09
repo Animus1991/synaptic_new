@@ -19,6 +19,8 @@ import { TaskActionIcon } from './ui/TaskActionIcon';
 import { Page, PageHeader } from './ui/primitives';
 import { PlatformEmptyState } from './ui/PlatformEmptyState';
 import { HeroGlow, SectionHeader, SessionLauncherCard, UxCallout } from './ui/platformChrome';
+import { LeitnerDueQueuePanel } from './workspace/LeitnerDueQueuePanel';
+import { buildFsrsDueQueue } from '../lib/leitnerDueQueue';
 
 export type { TaskFilter } from '../lib/tasksContent';
 
@@ -52,14 +54,6 @@ interface TasksProps {
   sessionTotal?: number;
   sessionQueueIds?: string[];
   activeTaskId?: string | null;
-}
-
-function formatDueDate(iso: string | undefined, lang: Lang): string {
-  if (!iso) return lang === 'el' ? 'Σύντομα' : 'Soon';
-  const diff = Math.ceil((new Date(iso).getTime() - Date.now()) / 86400000);
-  if (diff <= 0) return lang === 'el' ? 'Σήμερα' : 'Today';
-  if (diff === 1) return lang === 'el' ? 'Αύριο' : 'Tomorrow';
-  return lang === 'el' ? `Σε ${diff} ημέρες` : `In ${diff} days`;
 }
 
 function daysSince(iso: string): number {
@@ -155,6 +149,11 @@ export function Tasks({
       })
     : spacingReviews;
 
+  const fsrsQueue = useMemo(
+    () => buildFsrsDueQueue(scopedSpacing, [], '', new Date(), 14, 20),
+    [scopedSpacing],
+  );
+
   const fsrsRatings: { rating: FsrsRating; label: string; color: string }[] = [
     { rating: 'again', label: c.fsrsAgain, color: 'bg-accent-rose/15 text-accent-rose border-accent-rose/30' },
     { rating: 'hard', label: c.fsrsHard, color: 'bg-accent-orange/15 text-accent-orange border-accent-orange/30' },
@@ -175,7 +174,7 @@ export function Tasks({
   const tabs: { id: CommandTab; label: string; count: number }[] = [
     { id: 'today', label: c.tabToday, count: todayTasks.length },
     { id: 'weak', label: c.tabWeak, count: scopedWeak.length },
-    { id: 'reviews', label: c.tabReviews, count: reviewTasks.length || scopedSpacing.length },
+    { id: 'reviews', label: c.tabReviews, count: reviewTasks.length || fsrsQueue.length || scopedSpacing.length },
     { id: 'mistakes', label: c.tabMistakes, count: openMistakes.length },
   ];
 
@@ -453,20 +452,14 @@ export function Tasks({
               </button>
             </div>
           ))}
-          {scopedSpacing.map((review) => (
-            <div key={review.concept} className="ux-card flex items-center gap-4">
-              <div className="flex-1">
-                <p className="text-sm font-medium text-text-primary">{review.concept}</p>
-                <p className="text-xs text-text-tertiary mt-1">
-                  {c.dueLabel(formatDueDate(review.nextReview, lang))} · {c.intervalLabel(`${review.interval}d`)}
-                </p>
-              </div>
-              <button type="button" onClick={() => onFocusWeakArea?.(review.concept)} className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-brand-600/15 text-brand-400 text-xs font-medium shrink-0">
-                <Play className="w-3 h-3" /> {c.startReview}
-              </button>
-            </div>
-          ))}
-          {reviewTasks.length === 0 && scopedSpacing.length === 0 && (
+          <LeitnerDueQueuePanel
+            items={fsrsQueue}
+            onSelect={onFocusWeakArea}
+            lang={lang}
+            defaultOpen
+            variant="card"
+          />
+          {reviewTasks.length === 0 && fsrsQueue.length === 0 && (
             <PlatformEmptyState title={c.emptyTitle} description={c.emptyDescription} icon={RotateCcw} />
           )}
         </div>

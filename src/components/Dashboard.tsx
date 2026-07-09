@@ -45,6 +45,8 @@ import type { ProactiveAgentAlert } from '../lib/proactiveAgentAlerts';
 import type { WorkspacePracticeLaunch } from '../lib/dashboardNextAction';
 import type { WorkspaceToolId } from '../lib/taskFlows';
 import { recommendToolForTopic } from '../lib/examPrep/coveragePracticeActions';
+import { buildGlobalFsrsDueQueue } from '../lib/leitnerDueQueue';
+import { LeitnerDueQueuePanel } from './workspace/LeitnerDueQueuePanel';
 
 interface DashboardProps {
   stats: DashboardStats;
@@ -106,6 +108,10 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
   const weakSpotsWithReasons = useMemo(
     () => buildDashboardWeakSpotCards(learnerModel.weakAreas, lang),
     [learnerModel.weakAreas, lang],
+  );
+  const fsrsDueQueue = useMemo(
+    () => buildGlobalFsrsDueQueue(learnerModel.spacingIntervals),
+    [learnerModel.spacingIntervals],
   );
 
   const nextActionHandlers = {
@@ -717,6 +723,16 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
               <div className="p-2 rounded-lg bg-surface-primary/50"><p className="text-lg font-bold">{Math.round(learnerModel.retentionRate * 100)}%</p><p className="text-[9px] text-text-muted">Retention</p></div>
               <div className="p-2 rounded-lg bg-surface-primary/50"><p className="text-lg font-bold">{learnerModel.streakDays}</p><p className="text-[9px] text-text-muted">Streak</p></div>
             </div>
+            {fsrsDueQueue.length > 0 && onFocusWeakArea && (
+              <LeitnerDueQueuePanel
+                items={fsrsDueQueue}
+                onSelect={onFocusWeakArea}
+                lang={lang}
+                defaultOpen
+                variant="card"
+                className="mt-3"
+              />
+            )}
           </div>
 
           {/* Activity Feed */}

@@ -7,7 +7,19 @@ import {
   listPluginCatalog,
   setPluginEnabled,
 } from '../lib/pluginMarketplace';
+import type { SynapsePlugin } from '../lib/pluginApi';
+import type { I18nKey } from '../lib/i18n';
 import { useI18n } from '../lib/i18n';
+import { UxCallout } from './ui/platformChrome';
+
+function pluginHookLabels(plugin: SynapsePlugin, t: (key: I18nKey) => string): string[] {
+  const hooks = Object.keys(plugin.hooks ?? {});
+  return hooks.map((hook) => {
+    if (hook === 'leitner:beforeExport') return t('pluginHookLeitnerExport');
+    if (hook === 'agent:beforeReply') return t('pluginHookAgentReply');
+    return hook;
+  });
+}
 
 export function PluginMarketplacePanel() {
   const { t } = useI18n();
@@ -21,12 +33,17 @@ export function PluginMarketplacePanel() {
 
   if (catalog.length === 0) return null;
 
+  const referencePlugins = catalog.filter((p) => p.id.startsWith('synapse.') && p.id !== 'synapse.demo');
+
   return (
-    <div className="space-y-2" data-testid="plugin-marketplace">
-      <p className="text-xs text-text-muted">{t('pluginMarketplaceHint')}</p>
+    <div className="space-y-3" data-testid="plugin-marketplace">
+      <UxCallout variant="info" title={t('pluginMarketplaceTitle')}>
+        {t('pluginMarketplaceHint')}
+      </UxCallout>
       <ul className="space-y-2">
-        {catalog.map((plugin) => {
+        {referencePlugins.map((plugin) => {
           const enabled = isPluginEnabled(plugin.id);
+          const hooks = pluginHookLabels(plugin, t);
           return (
             <li
               key={`${plugin.id}-${tick}`}
@@ -36,7 +53,19 @@ export function PluginMarketplacePanel() {
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-text-primary">{plugin.name}</p>
                 <p className="text-[11px] text-text-muted">{plugin.description ?? plugin.id}</p>
-                <p className="text-[10px] text-text-tertiary mt-0.5">v{plugin.version}</p>
+                <div className="mt-1.5 flex flex-wrap gap-1">
+                  {hooks.map((label) => (
+                    <span
+                      key={label}
+                      className="rounded-md border border-border-subtle bg-surface-card px-1.5 py-0.5 text-[9px] font-medium text-text-tertiary"
+                    >
+                      {label}
+                    </span>
+                  ))}
+                  <span className="rounded-md border border-border-subtle/60 px-1.5 py-0.5 text-[9px] text-text-muted">
+                    v{plugin.version}
+                  </span>
+                </div>
               </div>
               <button
                 type="button"
