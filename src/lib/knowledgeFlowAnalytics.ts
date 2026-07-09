@@ -383,3 +383,105 @@ export function buildLearningTimeline(
 
   return { events, hasData: events.length >= 2 };
 }
+
+// ── Concept mastery heatmap (concept × day matrix) ───────────────────────────
+
+const HEATMAP_WINDOW_DAYS = 21;
+const HEATMAP_MAX_CONCEPTS = 8;
+
+export type ConceptMasteryHeatmapModel = {
+  concepts: string[];
+  /** Days ago labels, oldest → today (0 = today). */
+  dayLabels: number[];
+  values: number[][];
+  hasData: boolean;
+};
+
+function daysAgoFromTimestamp(timestamp: string, now = Date.now()): number {
+  return Math.max(0, Math.floor((now - new Date(timestamp).getTime()) / 86_400_000));
+}
+
+function activityConceptDelta(type: ActivityType): number {
+  return ACTIVITY_DELTA[type]?.delta ?? 0;
+}
+
+function activityMatchesConcept(act: ActivityItem, concept: string): boolean {
+  const desc = act.description.toLowerCase();
+  const label = concept.toLowerCase();
+  if (desc.includes(label)) return true;
+  return label
+    .split(/\s+/)
+    .filter((w) => w.length >= 5)
+    .some((w) => desc.includes(w));
+}
+
+/** 21-day concept × day mastery matrix reconstructed from activity deltas. */
+export function buildConceptMasteryHeatmap(
+  activities: ActivityItem[],
+  courses: Course[],
+  learnerModel: LearnerModel,
+): ConceptMasteryHeatmapModel {
+  const treemap = buildConceptTreemap(courses, learnerModel);
+  let rows = treemap.blocks.slice(0, HEATMAP_MAX_CONCEPTS).map((b) => ({
+    label: b.label,
+    mastery: b.mastery,
+  }));
+
+  if (rows.length < 2) {
+    const skills = [
+      ...learnerModel.weakAreas,
+      ...learnerModel.almostKnown,
+      ...learnerModel.strongAreas,
+    ];
+    rows = skills.slice(0, HEATMAP_MAX_CONCEPTS).map((s) => ({
+      label: s.concept,
+      mastery: s.mastery,
+    }));
+  }
+
+  const dayLabels = Array.from({ length: HEATMAP_WINDOW_DAYS }, (_, i) => HEATMAP_WINDOW_DAYS - 1 - i);
+
+  if (rows.length < 2) {
+    return { concepts: [], dayLabels, values: [], hasData: false };
+  }
+
+  const concepts = rows.map((r) => r.label);
+  const currentByConcept = new Map(rows.map((r) => [r.label, r.mastery]));
+  const meaningful = activities.filter((a) => MEANINGFUL.includes(a.type));
+
+  const values: number[][] = [];
+  let touchedInWindow = false;
+
+  for (const concept of concepts) {
+    const dailyDelta = Array.from({ length: HEATMAP_WINDOW_DAYS }, () => 0);
+
+    for (const act of meaningful) {
+      const daysAgo = daysAgoFromTimestamp(act.timestamp);
+      if (daysAgo >= HEATMAP_WINDOW_DAYS) continue;
+      touchedInWindow = true;
+      const dayIdx = HEATMAP_WINDOW_DAYS - 1 - daysAgo;
+      const delta = activityConceptDelta(act.type);
+      const matched = concepts.filter((c) => activityMatchesConcept(act, c));
+      const targets = matched.length > 0 ? matched : concepts;
+      const share = delta / targets.length;
+      if (targets.includes(concept)) {
+        dailyDelta[dayIdx]! += share;
+      }
+    }
+
+    const totalDelta = dailyDelta.reduce((sum, d) => sum + d, 0);
+    const current = currentByConcept.get(concept) ?? 40;
+    let running = Math.max(5, Math.min(95, current - totalDelta));
+    const row: number[] = [];
+
+    for (let dayIdx = 0; dayIdx < HEATMAP_WINDOW_DAYS; dayIdx++) {
+      running = Math.min(100, Math.max(0, running + dailyDelta[dayIdx]!));
+      row.push(Math.round(running));
+    }
+    row[HEATMAP_WINDOW_DAYS - 1] = Math.round(current);
+    values.push(row);
+  }
+
+  const hasData = touchedInWindow && concepts.length >= 2;
+  return { concepts, dayLabels, values, hasData };
+}

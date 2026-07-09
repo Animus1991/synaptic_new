@@ -48,9 +48,11 @@ import {
   buildMasteryWaterfall,
   buildConceptTreemap,
   buildLearningTimeline,
+  buildConceptMasteryHeatmap,
 } from '../lib/knowledgeFlowAnalytics';
 import { KnowledgeFlowSankeyChart, MasteryWaterfallChart } from './analytics/KnowledgeFlowSankey';
 import { ConceptTreemapChart } from './analytics/ConceptTreemapChart';
+import { ConceptMasteryHeatmapChart } from './analytics/ConceptMasteryHeatmapChart';
 import { LearningTimelineChart } from './analytics/LearningTimelineChart';
 import { SectionHeader } from './ui/platformChrome';
 
@@ -215,7 +217,9 @@ export function Analytics({
           daysToExam={daysToExam}
         />
       )}
-      {tab === 'mastery' && <MasteryTab learnerModel={learnerModel} courses={courses} />}
+      {tab === 'mastery' && (
+        <MasteryTab learnerModel={learnerModel} courses={courses} activities={activities} />
+      )}
       {tab === 'behavior' && <BehaviorTab learnerModel={learnerModel} activities={activities} />}
       {tab === 'insights' && (
         <InsightsTab
@@ -509,9 +513,18 @@ function OverviewTab({
   );
 }
 
-function MasteryTab({ learnerModel, courses }: { learnerModel: LearnerModel; courses: Course[] }) {
+function MasteryTab({
+  learnerModel,
+  courses,
+  activities,
+}: {
+  learnerModel: LearnerModel;
+  courses: Course[];
+  activities: ActivityItem[];
+}) {
   const { t } = useI18n();
   const graph = buildMasteryGraph(learnerModel, courses);
+  const masteryHeatmap = buildConceptMasteryHeatmap(activities, courses, learnerModel);
   return (
     <div className="space-y-6">
       {/* Concept Graph */}
@@ -529,6 +542,36 @@ function MasteryTab({ learnerModel, courses }: { learnerModel: LearnerModel; cou
           {t('analyticsMasteryMapEmpty')}
         </div>
       )}
+
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.04 }}>
+        <ConceptMasteryHeatmapChart
+          model={masteryHeatmap}
+          title={t('analyticsMasteryHeatmapTitle')}
+          hint={t('analyticsMasteryHeatmapHint')}
+          emptyLabel={t('analyticsMasteryHeatmapEmpty')}
+          bandLabels={{
+            weak: t('analyticsMasteryBandWeak'),
+            developing: t('analyticsMasteryBandDeveloping'),
+            proficient: t('analyticsMasteryBandProficient'),
+            strong: t('analyticsMasteryBandStrong'),
+          }}
+          dayTooltip={(concept, daysAgo, mastery) => {
+            const day =
+              daysAgo === 0
+                ? t('analyticsMasteryHeatmapToday')
+                : t('analyticsMasteryHeatmapDayAgo').replace('{n}', String(daysAgo));
+            return t('analyticsMasteryHeatmapTooltip')
+              .replace('{concept}', concept)
+              .replace('{day}', day)
+              .replace('{pct}', String(mastery));
+          }}
+          formatDayLabel={(daysAgo) =>
+            daysAgo === 0
+              ? t('analyticsMasteryHeatmapToday')
+              : t('analyticsMasteryHeatmapDayAgo').replace('{n}', String(daysAgo))
+          }
+        />
+      </motion.div>
 
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="platform-panel-md">
