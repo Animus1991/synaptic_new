@@ -2,6 +2,33 @@ import type { UserSettings } from '../types';
 import { loadJson, saveJson } from './persistence';
 
 const THEME_KEY = 'theme-preference';
+const SESSION_KEY = 'session-v2';
+const LEGACY_SESSION_KEY = 'session-v1';
+
+/** Default for first-time production users (no saved preference). */
+export const DEFAULT_THEME_PREFERENCE: UserSettings['theme'] = 'blueprint';
+
+export function hasStoredThemePreference(): boolean {
+  try {
+    return localStorage.getItem(`synapse:${THEME_KEY}`) !== null;
+  } catch {
+    return false;
+  }
+}
+
+/** Theme on cold start before React — respects saved pref, demo dark, else blueprint. */
+export function resolveInitialThemePreference(): UserSettings['theme'] {
+  if (hasStoredThemePreference()) return loadThemePreference();
+  try {
+    const legacy = loadJson<{ userSettings?: Partial<UserSettings> }>(LEGACY_SESSION_KEY, {});
+    const current = loadJson<{ userSettings?: Partial<UserSettings> }>(SESSION_KEY, {});
+    const merged = { ...legacy.userSettings, ...current.userSettings };
+    if (merged.theme) return merged.theme;
+    return merged.showDemoContent === true ? 'dark' : DEFAULT_THEME_PREFERENCE;
+  } catch {
+    return DEFAULT_THEME_PREFERENCE;
+  }
+}
 
 export type ResolvedTheme = 'dark' | 'light' | 'spectrum' | 'blueprint';
 
@@ -42,7 +69,7 @@ export function applyTheme(preference: UserSettings['theme']): ResolvedTheme {
 }
 
 export function loadThemePreference(): UserSettings['theme'] {
-  return loadJson<UserSettings['theme']>(THEME_KEY, 'dark');
+  return loadJson<UserSettings['theme']>(THEME_KEY, DEFAULT_THEME_PREFERENCE);
 }
 
 const THEME_CYCLE: ResolvedTheme[] = ['dark', 'light', 'spectrum', 'blueprint'];
@@ -70,7 +97,7 @@ export function watchSystemTheme(onChange: () => void): () => void {
 
 /** Call once before React mount to avoid flash */
 export function initThemeEarly(): void {
-  const pref = loadThemePreference();
+  const pref = resolveInitialThemePreference();
   const resolved = pref === 'system'
     ? (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark')
     : pref;

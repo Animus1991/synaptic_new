@@ -90,9 +90,9 @@ export function Onboarding({ onComplete }: OnboardingProps) {
   };
 
   return (
-    <div className="min-h-screen bg-surface-primary flex flex-col">
+    <div className="min-h-screen bg-surface-primary flex flex-col ux-flow-shell ux-onboarding-shell">
       <div className="h-1 bg-surface-hover">
-        <div className="h-1 bg-brand-700 transition-all duration-500" style={{ width: `${progress}%` }} />
+        <div className="h-1 bg-brand-700 ux-flow-progress-fill transition-all duration-500" style={{ width: `${progress}%` }} />
       </div>
 
       <div className="flex-1 flex items-center justify-center p-4">

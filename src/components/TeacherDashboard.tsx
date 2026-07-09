@@ -401,7 +401,7 @@ export function TeacherDashboard({
   };
 
   return (
-    <div className="p-4 sm:p-6 lg:px-8 pb-24 space-y-6 max-w-5xl mx-auto" data-testid="teacher-dashboard">
+    <div className="ux-flow-shell p-4 sm:p-6 lg:px-8 pb-24 space-y-6 max-w-5xl mx-auto" data-testid="teacher-dashboard">
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
           <h1 className="text-2xl font-bold flex items-center gap-2">
@@ -435,7 +435,7 @@ export function TeacherDashboard({
 
       {signedIn && (
         <div
-          className="rounded-xl border border-border-subtle bg-surface-card/60 px-4 py-3 text-xs text-text-secondary space-y-2"
+          className="ux-flow-panel rounded-xl bg-surface-card/60 px-4 py-3 text-xs text-text-secondary space-y-2"
           data-testid="teacher-cohort-roadmap"
         >
           <p>{ui.cohortRoadmap}</p>
@@ -476,7 +476,7 @@ export function TeacherDashboard({
       )}
 
       {!signedIn && (
-        <div className="rounded-2xl border border-border-subtle bg-surface-card p-6 text-sm text-text-secondary flex gap-3 items-start">
+        <div className="ux-flow-panel p-6 text-sm text-text-secondary flex gap-3 items-start">
           <Shield className="w-5 h-5 text-brand-400 shrink-0" />
           <div className="space-y-2">
             <p className="font-medium text-text-primary">{ui.signInRequired}</p>
@@ -497,7 +497,7 @@ export function TeacherDashboard({
 
       {settings.authToken && (
         <div
-          className="rounded-2xl border border-border-subtle bg-surface-card p-5 space-y-4"
+          className="ux-flow-panel p-5 space-y-4"
           data-testid="teacher-class-rosters"
         >
           <div>
@@ -943,7 +943,7 @@ export function TeacherDashboard({
       )}
 
       {loading && !data && (
-        <div className="rounded-2xl border border-border-subtle bg-surface-card p-8 text-center text-sm text-text-muted">
+        <div className="ux-flow-panel p-8 text-center text-sm text-text-muted">
           {ui.loading}
         </div>
       )}
@@ -957,7 +957,7 @@ export function TeacherDashboard({
             <StatCard icon={BookMarked} label={ui.glossary} value={String(data.library.glossaryCount)} sub={ui.glossaryEntries} />
           </div>
 
-          <div className="rounded-2xl border border-border-subtle bg-surface-card p-5 space-y-4">
+          <div className="ux-flow-panel p-5 space-y-4">
             <div className="flex items-center justify-between flex-wrap gap-2">
               <h2 className="font-semibold flex items-center gap-2">
                 <Zap className="w-4 h-4 text-accent-amber" />
@@ -985,7 +985,7 @@ export function TeacherDashboard({
             </div>
           </div>
 
-          <div className="rounded-2xl border border-border-subtle bg-surface-card p-5">
+          <div className="ux-flow-panel p-5">
             <h2 className="font-semibold flex items-center gap-2 mb-1">
               <BookOpen className="w-4 h-4 text-brand-400" />
               {ui.courseRoster}
@@ -1039,7 +1039,7 @@ export function TeacherDashboard({
             )}
           </div>
 
-          <div className="rounded-2xl border border-border-subtle bg-surface-card p-5">
+          <div className="ux-flow-panel p-5">
             <h2 className="font-semibold flex items-center gap-2 mb-1">
               <PenLine className="w-4 h-4 text-accent-cyan" />
               {ui.publishing}
@@ -1072,7 +1072,7 @@ export function TeacherDashboard({
             )}
           </div>
 
-          <div className="rounded-2xl border border-border-subtle bg-surface-card p-5">
+          <div className="ux-flow-panel p-5">
             <h2 className="font-semibold flex items-center gap-2 mb-3">
               <Cpu className="w-4 h-4 text-accent-cyan" />
               {ui.serverCapabilities}
@@ -1089,7 +1089,7 @@ export function TeacherDashboard({
       )}
 
       {signedIn && (
-        <div className="rounded-2xl border border-border-subtle bg-surface-card p-5">
+        <div className="ux-flow-panel p-5">
           <h2 className="font-semibold flex items-center gap-2 mb-1">
             <BarChart3 className="w-4 h-4 text-brand-300" />
             {ui.localSession}
@@ -1154,7 +1154,7 @@ function StatCard({
   sub: string;
 }) {
   return (
-    <div className="rounded-2xl border border-border-subtle bg-surface-card p-4">
+    <div className="ux-flow-panel p-4">
       <Icon className="w-5 h-5 text-brand-400 mb-2" />
       <p className="text-2xl font-bold">{value}</p>
       <p className="text-xs text-text-muted">{label} · {sub}</p>

@@ -3,7 +3,7 @@ import type { AppView, Course, AgentMessage, AgentMode, UploadedFile, UserSettin
 import { createActivity } from '../lib/activityLog';
 import { SEED_ACTIVITIES } from '../demo/activityDemo';
 import { mockUser, mockCourses, mockTasks, mockLearnerModel, mockDashboardStats, mockAgentMessages } from '../demo/mockData';
-import { loadThemePreference, applyTheme, cycleTheme } from '../lib/theme';
+import { loadThemePreference, applyTheme, cycleTheme, resolveInitialThemePreference, hasStoredThemePreference } from '../lib/theme';
 import { ECON_CONCEPT_IMPORTANCE } from '../data/conceptGraph';
 import {
   betaMean,
@@ -234,7 +234,9 @@ export function useAppStore() {
     () => ({
       ...mockUser.settings,
       ...persisted.userSettings,
-      theme: loadThemePreference(),
+      theme: hasStoredThemePreference()
+        ? loadThemePreference()
+        : (persisted.userSettings?.theme ?? resolveInitialThemePreference()),
     }),
     [persisted.userSettings],
   );
@@ -2151,11 +2153,14 @@ export function useAppStore() {
   }) => {
     const isTeacher = data.role === 'tutor' || data.openTeacher;
     setUser((prev) => {
+      const seedBlueprint = !hasStoredThemePreference();
       const nextSettings: UserSettings = {
         ...prev.settings,
         dailyGoalMinutes: data.dailyGoalMinutes ?? prev.settings.dailyGoalMinutes,
         examDate: data.examDate || prev.settings.examDate,
+        ...(seedBlueprint ? { theme: 'blueprint' as const } : {}),
       };
+      if (seedBlueprint) applyTheme('blueprint');
       const trimmedName = (data.displayName ?? '').trim();
       const next = {
         ...prev,

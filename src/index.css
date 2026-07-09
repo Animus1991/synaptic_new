@@ -989,6 +989,68 @@
   color: color-mix(in srgb, var(--color-accent-cyan) 70%, var(--color-text-secondary));
 }
 
+/* Option-B Wave E9 — Settings / Onboarding / Teacher flow glass */
+.ux-flow-panel {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-panel);
+  border: 1px solid var(--color-border-subtle);
+  background: var(--color-surface-card);
+}
+[data-theme="blueprint"] .ux-flow-shell :is(
+    .platform-panel-soft,
+    .platform-panel-md,
+    .platform-panel-lg,
+    .platform-panel-xl,
+    .ux-flow-panel
+  ) {
+  border-radius: 1.875rem;
+  border-color: color-mix(in srgb, #ffffff 10%, transparent);
+  background: color-mix(in srgb, #020617 94%, transparent);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  box-shadow: 0 24px 90px color-mix(in srgb, #000000 35%, transparent);
+}
+[data-theme="blueprint"] .ux-flow-shell :is(.platform-panel-soft, .platform-panel-md, .platform-panel-lg, .platform-panel-xl, .ux-flow-panel)::before {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--color-accent-cyan) 60%, transparent),
+    transparent
+  );
+  pointer-events: none;
+}
+[data-theme="blueprint"] .ux-flow-shell :is(input, textarea, select).bg-surface-input {
+  border-radius: 0.75rem;
+  border-color: color-mix(in srgb, #ffffff 10%, transparent);
+  background: color-mix(in srgb, #ffffff 4%, var(--color-surface-primary));
+  color: var(--color-text-primary);
+}
+[data-theme="blueprint"] .ux-flow-shell :is(input, textarea, select).bg-surface-input:focus {
+  outline: 2px solid color-mix(in srgb, var(--color-accent-cyan) 80%, transparent);
+  outline-offset: 1px;
+}
+[data-theme="blueprint"] .ux-flow-shell .sticky.bg-surface-card {
+  background: color-mix(in srgb, #020617 96%, transparent);
+}
+[data-theme="blueprint"] .ux-onboarding-shell .ux-flow-progress-fill {
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--color-accent-cyan) 85%, #020617),
+    color-mix(in srgb, var(--color-brand-400) 70%, #020617)
+  );
+}
+[data-theme="blueprint"] .ux-onboarding-shell .platform-brand-icon {
+  border-color: color-mix(in srgb, var(--color-accent-cyan) 35%, transparent);
+  background: color-mix(in srgb, var(--color-accent-cyan) 8%, var(--color-surface-primary));
+  box-shadow: 0 16px 48px color-mix(in srgb, #000000 28%, transparent);
+}
+
 [data-theme="blueprint"] :is(button, a).bg-brand-600,
 [data-theme="blueprint"] :is(button, a).bg-brand-700 {
   background-color: #ffffff;

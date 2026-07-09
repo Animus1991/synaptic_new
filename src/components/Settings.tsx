@@ -105,7 +105,7 @@ export function Settings({
   };
 
   return (
-    <Page>
+    <Page className="ux-flow-shell">
       <PageHeader
         title={c.pageTitle}
         subtitle={c.pageSubtitle}
