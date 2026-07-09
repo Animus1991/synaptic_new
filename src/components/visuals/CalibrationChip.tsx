@@ -1,4 +1,5 @@
 import { cn } from '../../utils/cn';
+import { BlueprintSurface } from '../ui/BlueprintSurface';
 import type { CalibrationDirection } from '../../lib/pedagogy';
 
 interface Props {
@@ -27,7 +28,7 @@ const labels: Record<CalibrationDirection, { text: string; chip: string; hint: s
 export function CalibrationChip({ score, direction }: Props) {
   const meta = labels[direction];
   return (
-    <div className="ws-bento p-4">
+    <BlueprintSurface className="p-4">
       <div className="flex items-center justify-between gap-3">
         <span className={cn('text-xs px-2.5 py-1 rounded-full', meta.chip)}>
           {meta.text}
@@ -35,6 +36,6 @@ export function CalibrationChip({ score, direction }: Props) {
         <span className="text-lg font-bold text-text-primary ws-num">{score}/100</span>
       </div>
       <p className="text-xs text-text-secondary mt-2 leading-relaxed">{meta.hint}</p>
-    </div>
+    </BlueprintSurface>
   );
 }

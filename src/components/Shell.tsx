@@ -16,7 +16,7 @@ import { workspaceLiveIsStale } from '../lib/workspaceStoreSpine';
 import { workspaceEntryPrefetchHandlers } from '../lib/workspaceEntryPrefetch';
 import { PlatformSkipLinks } from './PlatformSkipLinks';
 import { OfflineShellBanner } from './OfflineShellBanner';
-import { HeaderLangPill } from './ui/platformChrome';
+import { HeaderLangPill, HeaderTrustBadgeRow, SynapseBrandGlyph } from './ui/platformChrome';
 import type { Lang } from '../lib/i18n';
 import { commandPaletteBadge } from '../lib/workspaceKeyboardShortcuts';
 import { showStandaloneAgentNav } from '../lib/platformFocus';
@@ -164,7 +164,7 @@ export function Shell({
         <div className="p-4 border-b border-border-subtle">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg platform-brand-icon flex items-center justify-center">
-              <Sparkles className="w-5 h-5" />
+              <SynapseBrandGlyph />
             </div>
             <span className="text-xl font-bold ws-serif">Synapse</span>
           </div>
@@ -339,7 +339,7 @@ export function Shell({
             <div className="p-4 border-b border-border-subtle flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 rounded-lg platform-brand-icon flex items-center justify-center">
-                  <Sparkles className="w-5 h-5" />
+                  <SynapseBrandGlyph />
                 </div>
                 <span className="text-xl font-bold ws-serif">Synapse</span>
               </div>
@@ -406,16 +406,16 @@ export function Shell({
       <div className="flex-1 lg:ml-64 min-h-screen flex flex-col">
         {/* Top bar */}
         <header className="sticky top-0 z-20 glass-strong border-b border-border-subtle">
-          <div className="flex items-center justify-between px-4 sm:px-6 h-14">
-            <div className="flex items-center gap-3">
+          <div className="flex items-center justify-between px-4 sm:px-6 h-14 gap-3">
+            <div className="flex items-center gap-3 min-w-0 flex-1">
               <button
                 onClick={() => onToggleSidebar(true)}
-                className="lg:hidden p-1.5 rounded-lg hover:bg-surface-hover"
+                className="lg:hidden p-1.5 rounded-lg hover:bg-surface-hover shrink-0"
                 aria-label={t('openMenu')}
               >
                 <Menu className="w-5 h-5 text-text-secondary" />
               </button>
-              <div className="hidden sm:flex items-center gap-1.5 text-sm text-text-tertiary">
+              <div className="hidden sm:flex items-center gap-1.5 text-sm text-text-tertiary min-w-0">
                 {breadcrumb?.course ? (
                   <>
                     <span className="text-text-secondary font-medium">{breadcrumb.course}</span>
@@ -430,9 +430,10 @@ export function Shell({
                   <span className="text-text-secondary font-medium capitalize">{currentView}</span>
                 )}
               </div>
+              <HeaderTrustBadgeRow lang={activeLang} className="hidden xl:flex shrink-0" />
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 shrink-0">
               {onLanguageChange && (
                 <HeaderLangPill
                   lang={activeLang}

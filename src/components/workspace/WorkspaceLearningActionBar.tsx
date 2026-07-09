@@ -8,6 +8,7 @@ import {
   nextActionLabel,
   type NextActionRecommendation,
 } from '../../lib/nextActionEngine';
+import { BlueprintSurface } from '../ui/BlueprintSurface';
 
 export function WorkspaceLearningActionBar({
   lang,
@@ -42,8 +43,9 @@ export function WorkspaceLearningActionBar({
     : allActions.filter((a) => !a.primary).slice(0, 3);
 
   return (
-    <div
-      className="ws-bento-soft space-y-2.5 p-2.5"
+    <BlueprintSurface
+      hint
+      className="space-y-2.5 p-2.5"
       data-testid="workspace-learning-actions"
     >
       <button
@@ -125,6 +127,6 @@ export function WorkspaceLearningActionBar({
           )}
         </>
       )}
-    </div>
+    </BlueprintSurface>
   );
 }

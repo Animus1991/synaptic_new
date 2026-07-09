@@ -7,6 +7,7 @@ import {
   type MobileIntelTab,
 } from './WorkspaceMobileIntelligenceTabs';
 import { useI18n } from '../../lib/i18n';
+import { BlueprintSurface } from '../ui/BlueprintSurface';
 
 type Props = {
   active: MobileIntelTab | null;
@@ -58,13 +59,14 @@ export function WorkspaceMobileIntelligenceBottomSheet({
       >
         <AnimatePresence>
           {active && (
-            <motion.div
+            <BlueprintSurface
+              as={motion.div}
               key={active}
               initial={{ y: '100%' }}
               animate={{ y: 0 }}
               exit={{ y: '100%' }}
               transition={{ type: 'spring', damping: 28, stiffness: 320 }}
-              className="ws-bento rounded-b-none border-b-0 max-h-[min(70vh,28rem)] flex flex-col shadow-[0_-12px_40px_rgba(42,31,18,0.18)]"
+              className="rounded-b-none border-b-0 max-h-[min(70vh,28rem)] flex flex-col shadow-[0_-12px_40px_rgba(42,31,18,0.18)]"
               role="dialog"
               aria-modal="true"
               aria-label={t('learningIntelAria')}
@@ -88,7 +90,7 @@ export function WorkspaceMobileIntelligenceBottomSheet({
               <div className="flex-1 overflow-y-auto overscroll-contain px-2 pb-4 min-h-0">
                 {children}
               </div>
-            </motion.div>
+            </BlueprintSurface>
           )}
         </AnimatePresence>
 

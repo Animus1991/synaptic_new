@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { bandColorVar, masteryColorForValue, accentHighlightVar } from '../../lib/masteryPalette';
 import type { MasteryBand } from '../../lib/pedagogy';
 import { conceptTypeGlyph } from '../../lib/conceptTypeIcons';
+import { BlueprintSurface } from '../ui/BlueprintSurface';
 
 interface ConceptNode {
   id: string;
@@ -51,7 +52,7 @@ export function ConceptGraph({
   const nodeMap = Object.fromEntries(nodes.map(n => [n.id, n]));
 
   return (
-    <div className="relative ws-bento overflow-hidden" style={{ width: '100%', maxWidth: width }}>
+    <BlueprintSurface className="relative overflow-hidden" style={{ width: '100%', maxWidth: width }}>
       <svg width="100%" viewBox={`0 0 ${width} ${height}`} className="block">
         <defs>
           <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
@@ -191,6 +192,6 @@ export function ConceptGraph({
           )}
         </motion.div>
       )}
-    </div>
+    </BlueprintSurface>
   );
 }

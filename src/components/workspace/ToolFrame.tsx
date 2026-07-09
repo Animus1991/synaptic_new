@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import type { WorkspaceToolId } from '../../lib/taskFlows';
 import { WorkspaceToolHeader } from './WorkspaceToolHeader';
+import { BlueprintSurface } from '../ui/BlueprintSurface';
 
 type Props = {
   activeTool: WorkspaceToolId;
@@ -30,7 +31,7 @@ export function ToolFrame({
   children,
 }: Props) {
   return (
-    <div className="flex h-full min-h-0 flex-1 flex-col ws-bento overflow-hidden" data-testid="workspace-tool-frame" data-tool={activeTool}>
+    <BlueprintSurface className="flex h-full min-h-0 flex-1 flex-col overflow-hidden" data-testid="workspace-tool-frame" data-tool={activeTool}>
       <WorkspaceToolHeader
         activeTool={activeTool}
         lang={lang}
@@ -47,6 +48,6 @@ export function ToolFrame({
         </div>
       )}
       <div className="ws-tool-body relative flex min-h-0 flex-1 flex-col overflow-hidden">{children}</div>
-    </div>
+    </BlueprintSurface>
   );
 }

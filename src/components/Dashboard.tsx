@@ -363,7 +363,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
         <MotionSection initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="lg:col-span-2 space-y-6">
 
           {/* Readiness Hero */}
-          <BlueprintSurface className="ws-bento p-6">
+          <BlueprintSurface className="p-6">
             <div className="flex flex-col sm:flex-row items-center gap-6">
               <ReadinessRing value={learnerModel.overallMastery} sublabel="Derived from graded first-attempts only — never from self-reported skill." />
               <div className="flex-1 space-y-4">
@@ -381,7 +381,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
           {(conceptMastery.length > 0 || prerequisiteRepairs.length > 0) && (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {conceptMastery.length > 0 && (
-                <BlueprintSurface className="ws-bento p-5">
+                <BlueprintSurface className="p-5">
                   <h3 className="text-sm font-semibold flex items-center gap-2 mb-4">
                     <Brain className="w-4 h-4 text-brand-400" />Concept Mastery
                   </h3>
@@ -402,7 +402,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
           )}
 
           {/* Priority tasks */}
-          <BlueprintSurface className="ws-bento p-5">
+          <BlueprintSurface className="p-5">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold ws-serif font-medium flex items-center gap-2">
                 <AlertTriangle className="w-5 h-5 text-accent-amber" /> Priority Tasks
@@ -455,7 +455,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
           )}
 
           {/* Active Courses */}
-          <BlueprintSurface className="ws-bento p-5">
+          <BlueprintSurface className="p-5">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold ws-serif font-medium flex items-center gap-2"><BookOpen className="w-5 h-5 text-brand-400" />Active Courses</h2>
               <button onClick={() => onNavigate('library')} className="text-sm text-brand-400 hover:text-brand-700 flex items-center gap-1">Library <ChevronRight className="w-4 h-4" /></button>
@@ -487,7 +487,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
         <MotionSection initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="space-y-6">
 
           {/* Mastery Trend */}
-          <BlueprintSurface className="ws-bento p-5">
+          <BlueprintSurface className="p-5">
             <h3 className="text-sm font-semibold flex items-center gap-2 mb-4"><TrendingUp className="w-4 h-4 text-accent-emerald" />Weekly Mastery</h3>
             <div className="flex items-end gap-1.5 h-24">
               {stats.masteryTrend.map((val, i) => (
@@ -506,7 +506,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
           </BlueprintSurface>
 
           {/* Weak Areas */}
-          <BlueprintSurface className="ws-bento p-5">
+          <BlueprintSurface className="p-5">
             <h3 className="text-sm font-semibold flex items-center gap-2 mb-4"><Brain className="w-4 h-4 text-accent-rose" />Weak Areas</h3>
             <div className="space-y-3">
               {weakSpotsWithReasons.map((area) => (
@@ -599,13 +599,13 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
           {calibration ? (
             <CalibrationChip score={calibration.score} direction={calibration.direction} />
           ) : (
-          <BlueprintSurface className="ws-bento p-5">
+          <BlueprintSurface className="p-5">
             <h3 className="text-sm font-semibold flex items-center gap-2 mb-3"><Eye className="w-4 h-4 text-accent-amber" />Confidence Check</h3>
             <p className="text-xs text-text-tertiary mb-2">Complete 5+ graded attempts to unlock calibration score.</p>
           </BlueprintSurface>
           )}
           {calibration && (
-          <BlueprintSurface className="ws-bento p-5">
+          <BlueprintSurface className="p-5">
             <h3 className="text-sm font-semibold flex items-center gap-2 mb-3"><Eye className="w-4 h-4 text-accent-amber" />Recent Calibration</h3>
             {learnerModel.confidenceCalibration.slice(0, 3).map((p, i) => {
               const overconfident = p.predicted > p.actual + 0.15;
@@ -636,7 +636,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
 
           {/* Misconceptions */}
           {learnerModel.misconceptions.length > 0 && (
-            <BlueprintSurface className="ws-bento p-5">
+            <BlueprintSurface className="p-5">
               <h3 className="text-sm font-semibold flex items-center gap-2 mb-3"><AlertTriangle className="w-4 h-4 text-accent-orange" />Active Misconceptions</h3>
               <div className="space-y-2">
                 {learnerModel.misconceptions.filter(m => !m.corrected).slice(0, 2).map(m => (
@@ -658,7 +658,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
           )}
 
           {/* Spaced Rep Info */}
-          <BlueprintSurface className="ws-bento p-5">
+          <BlueprintSurface className="p-5">
             <h3 className="text-sm font-semibold flex items-center gap-2 mb-2"><RotateCcw className="w-4 h-4 text-accent-teal" />Spaced Repetition</h3>
             <p className="text-xs text-text-tertiary">Reviews are scheduled based on your personal forgetting curve — not fixed intervals.</p>
             <div className="mt-3 grid grid-cols-3 gap-2 text-center">
@@ -686,7 +686,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
           </BlueprintSurface>
 
           {/* Activity Feed */}
-          <BlueprintSurface className="ws-bento p-5">
+          <BlueprintSurface className="p-5">
             <h3 className="text-sm font-semibold mb-3 flex items-center gap-2"><Zap className="w-4 h-4 text-brand-400" />Recent Activity</h3>
             <ActivityFeed activities={activities} maxItems={5} />
           </BlueprintSurface>

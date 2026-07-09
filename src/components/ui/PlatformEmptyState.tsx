@@ -2,6 +2,7 @@ import type { LucideIcon } from '@/lib/lucide-shim';
 import { Upload } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
 import { PrimaryCTA, SecondaryCTA } from './primitives';
+import { BlueprintSurface } from './BlueprintSurface';
 
 type Props = {
   title: string;
@@ -26,7 +27,7 @@ export function PlatformEmptyState({
   onSecondaryAction,
 }: Props) {
   return (
-    <div className={cn('ws-bento flex flex-col items-center justify-center py-16 px-6 text-center', className)} data-testid="platform-empty-state">
+    <BlueprintSurface className={cn('flex flex-col items-center justify-center py-16 px-6 text-center', className)} data-testid="platform-empty-state">
       <div className="grid h-16 w-16 place-items-center rounded-2xl border border-brand-500/20 bg-brand-500/10 mb-5">
         <Icon className="h-8 w-8 text-brand-600" aria-hidden />
       </div>
@@ -45,6 +46,6 @@ export function PlatformEmptyState({
           </SecondaryCTA>
         )}
       </div>
-    </div>
+    </BlueprintSurface>
   );
 }

@@ -2,6 +2,7 @@ import { ArrowRight, Sparkle as Sparkles } from '@phosphor-icons/react';
 import type { DashboardSmartCTA } from '../../lib/examPrep/dashboardSmartCTAs';
 import { useI18n } from '../../lib/i18n';
 import { MotionSection } from '../ui/MotionSection';
+import { BlueprintSurface } from '../ui/BlueprintSurface';
 
 type Props = {
   ctas: DashboardSmartCTA[];
@@ -19,7 +20,7 @@ export function DashboardSmartCTAStrip({ ctas, onRun }: Props) {
       transition={{ delay: 0.07 }}
       data-testid="dashboard-smart-cta-strip"
     >
-      <div className="ws-bento p-4 space-y-3">
+      <BlueprintSurface className="p-4 space-y-3">
         <div className="flex items-center gap-2">
           <Sparkles className="w-4 h-4 text-brand-600" />
           <p className="text-sm font-semibold text-text-primary">{t('dashboardSmartCtaTitle')}</p>
@@ -43,7 +44,7 @@ export function DashboardSmartCTAStrip({ ctas, onRun }: Props) {
             </button>
           ))}
         </div>
-      </div>
+      </BlueprintSurface>
     </MotionSection>
   );
 }

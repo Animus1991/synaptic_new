@@ -2,6 +2,7 @@ import { ReactNode, forwardRef, type ButtonHTMLAttributes } from 'react';
 import { motion, type HTMLMotionProps } from 'framer-motion';
 import type { LucideIcon } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
+import { BlueprintSurface } from './BlueprintSurface';
 
 /**
  * Shared page-level layout primitives for Synapse top-level views.
@@ -72,7 +73,7 @@ export function PageHeader({
 
 const CARD_TONE = {
   default: '',
-  muted: 'ws-bento-soft',
+  muted: '',
   brand: 'border-brand-500/25 bg-brand-500/5',
   amber: 'border-accent-amber/20 bg-accent-amber/5',
   rose: 'border-accent-rose/20 bg-accent-rose/5',
@@ -102,9 +103,10 @@ export function Card({
   interactive?: boolean;
 }) {
   return (
-    <div
+    <BlueprintSurface
+      hint={tone === 'muted'}
       className={cn(
-        tone === 'default' ? 'ws-bento' : 'ws-bento rounded-panel border',
+        tone !== 'default' && tone !== 'muted' && 'rounded-panel border',
         CARD_TONE[tone],
         CARD_PAD[padding],
         interactive && 'cursor-pointer transition-colors hover:border-brand-500/35',
@@ -112,7 +114,7 @@ export function Card({
       )}
     >
       {children}
-    </div>
+    </BlueprintSurface>
   );
 }
 
@@ -228,19 +230,19 @@ export function StatTile({
   className?: string;
 }) {
   return (
-    <div className={cn('ws-bento p-4', className)}>
+    <BlueprintSurface className={cn('p-4', className)}>
       <div className="flex items-center gap-2">
         {icon}
         <span className="ws-eyebrow text-text-secondary">{label}</span>
       </div>
       <p className="mt-2 text-xl font-bold tracking-tight text-text-primary">{value}</p>
       {hint && <p className="ws-caption mt-0.5 text-text-muted">{hint}</p>}
-    </div>
+    </BlueprintSurface>
   );
 }
 
-/** Drop-in class bundle for legacy card divs migrating to bento. */
-export const platformBento = 'ws-bento';
+/** Drop-in class bundle for legacy card divs migrating to blueprint glass. */
+export const platformBento = 'ux-card blueprint-surface';
 
 export type PlatformTabItem = {
   key: string;

@@ -4,6 +4,7 @@ import { X } from '@phosphor-icons/react';
 import { useI18n } from '../lib/i18n';
 import type { ProductTourStep } from '../lib/productTour';
 import { cn } from '../utils/cn';
+import { BlueprintSurface } from './ui/BlueprintSurface';
 
 interface ProductTourProps {
   step: ProductTourStep | null;
@@ -126,9 +127,9 @@ export function ProductTour({ step, stepIndex, totalSteps, ready, onNext, onSkip
         />
       )}
 
-      <div
+      <BlueprintSurface
         className={cn(
-          'fixed z-[10001] ws-bento border border-border-subtle shadow-2xl p-4',
+          'fixed z-[10001] border border-border-subtle shadow-2xl p-4',
           centered && 'w-[min(22rem,calc(100vw-2rem))]',
         )}
         style={style}
@@ -169,7 +170,7 @@ export function ProductTour({ step, stepIndex, totalSteps, ready, onNext, onSkip
             {isLast ? t('tourFinish') : t('next')}
           </button>
         </div>
-      </div>
+      </BlueprintSurface>
     </div>,
     document.body,
   );

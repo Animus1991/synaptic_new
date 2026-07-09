@@ -2,6 +2,7 @@ import { useMemo, useRef, useState } from 'react';
 import { Volume2, Loader2, ChevronDown, ChevronUp, ExternalLink, Upload, Brain } from '@/lib/lucide-shim';
 import type { UploadedFile, UserSettings } from '../types';
 import { cn } from '../utils/cn';
+import { BlueprintSurface } from './ui/BlueprintSurface';
 import { formatChapterTimestamp } from '../lib/videoChapters';
 import { parseNotebookLmAudioFromMarkdown } from '../lib/notebooklmImport';
 import { openNotebookLm } from '../lib/notebooklmBridge';
@@ -76,8 +77,8 @@ export function CourseMediaPanel({
   };
 
   return (
-    <div
-      className={cn('ws-bento p-4', className)}
+    <BlueprintSurface
+      className={cn('p-4', className)}
       data-testid="course-media-panel"
     >
       <button
@@ -248,6 +249,6 @@ export function CourseMediaPanel({
           )}
         </div>
       )}
-    </div>
+    </BlueprintSurface>
   );
 }

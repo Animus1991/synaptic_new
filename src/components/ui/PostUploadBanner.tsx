@@ -3,6 +3,7 @@ import { cn } from '../../utils/cn';
 import { workspaceEntryPrefetchHandlers } from '../../lib/workspaceEntryPrefetch';
 import { useI18n } from '../../lib/i18n';
 import { PrimaryCTA, SecondaryCTA } from './primitives';
+import { BlueprintSurface } from './BlueprintSurface';
 
 type Props = {
   courseTitle: string;
@@ -16,8 +17,9 @@ type Props = {
 export function PostUploadBanner({ courseTitle, onOpenWorkspace, onViewCourse, onDismiss, className }: Props) {
   const { t } = useI18n();
   return (
-    <div
-      className={cn('ws-bento-soft p-4 flex flex-col sm:flex-row sm:items-center gap-4 border-brand-500/30', className)}
+    <BlueprintSurface
+      hint
+      className={cn('p-4 flex flex-col sm:flex-row sm:items-center gap-4 border-brand-500/30', className)}
       data-testid="post-upload-banner"
       role="status"
     >
@@ -43,6 +45,6 @@ export function PostUploadBanner({ courseTitle, onOpenWorkspace, onViewCourse, o
           <X className="w-4 h-4" />
         </button>
       </div>
-    </div>
+    </BlueprintSurface>
   );
 }

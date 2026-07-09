@@ -255,6 +255,8 @@ Goal: every tool **fully functional for its learning purpose**, not demo stubs.
 | OPT-D2 | Option-B Wave D2 — BlueprintSurface + glass nesting | P2 | **shipped** | `BlueprintSurface` component; `blueprint-surface-nest` / `hint`; header EN/ΕΛ pill; Leitner flip depth; Dashboard + split workspace nesting |
 | OPT-D3 | Option-B Wave D3 — descriptive tabs + bento glass | P2 | **shipped** | `DescriptiveStickyTabBar` on Tasks; tab summaries; all Dashboard `ws-bento` → `BlueprintSurface` |
 | OPT-D4 | Option-B Wave D4 — Library InfoStack + live preview + CourseView tabs | P2 | **shipped** | `InfoStack` on Library; `DashboardLivePreview`; `DescriptiveStickyTabBar` on Library + CourseView |
+| OPT-E1 | Option-B Wave E1 — Shell trust badges + quick wins | P2 | **shipped** | `SynapseBrandGlyph`; `HeaderTrustBadgeRow` (source/PWA/offline); `MiniAlert`; Shell header wiring; blueprint scrollbar + trust badge CSS |
+| OPT-E3 | Option-B Wave E3 — ws-bento → BlueprintSurface sweep | P2 | **shipped** | Platform-wide glass parity: workspace tools, visuals, Agent, Library list/cards, `Card`/`StatTile` primitives, `ws-bento-soft` → `hint` |
 | WS-01 | Workspace empty states (`§2.7`) — learning outcome + CTA per tool | P1 | **shipped** | `WorkspaceToolEmptyState` + `buildWorkspaceEmptyView`; all 16 tools wired; E2E `workspace-empty-tools.spec.ts` |
 | PLT-02 | OpenTelemetry + Helm IaC | P3 | **shipped** | `telemetry.ts`, `/live`/`/ready`, `server/helm/` |
 | PLT-03 | Offline embeddings (transformers.js) | P3 | open |

@@ -24,7 +24,7 @@ import { UiIcon } from './ui/UiIcon';
 import { PlatformEmptyState } from './ui/PlatformEmptyState';
 import { PostUploadBanner } from './ui/PostUploadBanner';
 import { Page, PageHeader, PrimaryCTA } from './ui/primitives';
-import { DescriptiveStickyTabBar, InfoStack } from './ui/platformChrome';
+import { DescriptiveStickyTabBar, InfoStack, MiniAlert } from './ui/platformChrome';
 import { BlueprintSurface } from './ui/BlueprintSurface';
 import { t } from '../lib/i18n';
 import { RagIndexProgressBanner } from './RagIndexProgressBanner';
@@ -138,6 +138,12 @@ export function Library({
     ],
     [courses.length, uploadedFiles.length, userLanguage],
   );
+
+  const libraryQualityAlerts = useMemo(() => {
+    const needsMaterial = filteredCourses.some((c) => c.sourceQuality?.needsMoreMaterial);
+    const outlineAdjusted = filteredCourses.some((c) => c.sourceQuality?.outlineAdjusted);
+    return { needsMaterial, outlineAdjusted };
+  }, [filteredCourses]);
 
   return (
     <Page>
@@ -311,6 +317,24 @@ export function Library({
                     />
                   </div>
                 )}
+                {!search && (libraryQualityAlerts.needsMaterial || libraryQualityAlerts.outlineAdjusted) && (
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                    {libraryQualityAlerts.needsMaterial && (
+                      <MiniAlert
+                        tone="amber"
+                        title={t('libraryMiniAlertGapTitle', userLanguage)}
+                        body={t('libraryMiniAlertGapBody', userLanguage)}
+                      />
+                    )}
+                    {libraryQualityAlerts.outlineAdjusted && (
+                      <MiniAlert
+                        tone="violet"
+                        title={t('libraryMiniAlertContradictionTitle', userLanguage)}
+                        body={t('libraryMiniAlertContradictionBody', userLanguage)}
+                      />
+                    )}
+                  </div>
+                )}
               <div className={cn(
                 viewMode === 'grid'
                   ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4'
@@ -418,7 +442,8 @@ function CourseCard({
       : 'Needs more material';
 
   return (
-    <motion.div
+    <BlueprintSurface
+      as={motion.div}
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.05 }}
@@ -428,7 +453,7 @@ function CourseCard({
       }}
       data-testid="library-course-card"
       {...workspaceEntryPrefetchHandlers()}
-      className="p-5 ws-bento hover:border-brand-500/35 cursor-pointer transition-all group"
+      className="p-5 hover:border-brand-500/35 cursor-pointer transition-all group"
     >
       <div className="flex items-start justify-between mb-4">
         <CourseIcon icon={course.icon} size="xl" colorClassName="text-brand-600" />
@@ -575,7 +600,7 @@ function CourseCard({
           onClose={() => setRemoveDialogOpen(false)}
         />
       )}
-    </motion.div>
+    </BlueprintSurface>
   );
 }
 
@@ -615,13 +640,14 @@ function CourseListItem({
   const quality = course.sourceQuality;
 
   return (
-    <motion.div
+    <BlueprintSurface
+      as={motion.div}
       initial={{ opacity: 0, x: -10 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: index * 0.03 }}
       onClick={onClick}
       {...workspaceEntryPrefetchHandlers()}
-      className="flex items-center gap-4 p-4 rounded-xl border border-border-subtle bg-surface-card hover:border-brand-500/30 cursor-pointer transition-all group"
+      className="flex items-center gap-4 p-4 hover:border-brand-500/35 cursor-pointer transition-all group"
     >
       <CourseIcon icon={course.icon} size="lg" colorClassName="text-brand-600 shrink-0" />
       <div className="flex-1 min-w-0">
@@ -687,7 +713,7 @@ function CourseListItem({
           onClose={() => setRemoveDialogOpen(false)}
         />
       )}
-    </motion.div>
+    </BlueprintSurface>
   );
 }
 

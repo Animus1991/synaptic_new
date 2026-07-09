@@ -1,5 +1,6 @@
 import { BookX, CheckSquare } from '@/lib/lucide-shim';
 import type { MistakeRecord } from '../../types';
+import { BlueprintSurface } from '../ui/BlueprintSurface';
 
 interface Props {
   mistakes: MistakeRecord[];
@@ -10,7 +11,7 @@ export function ErrorNotebook({ mistakes, onResolve }: Props) {
   if (mistakes.length === 0) return null;
 
   return (
-    <div className="ws-bento p-5 platform-banner-danger">
+    <BlueprintSurface className="p-5 platform-banner-danger">
       <h3 className="text-sm font-semibold flex items-center gap-2 mb-4 platform-banner-title">
         <BookX className="w-4 h-4 shrink-0" />
         Error notebook — {mistakes.length} open mistake{mistakes.length !== 1 ? 's' : ''}
@@ -43,6 +44,6 @@ export function ErrorNotebook({ mistakes, onResolve }: Props) {
           </div>
         ))}
       </div>
-    </div>
+    </BlueprintSurface>
   );
 }

@@ -1,4 +1,5 @@
 import { cn } from '../../../utils/cn';
+import { BlueprintSurface } from '../../ui/BlueprintSurface';
 import {
   X, Maximize2, Minimize2, Sparkles, StickyNote, Search, LayoutGrid, SlidersHorizontal, PanelLeftOpen,
 } from '@/lib/lucide-shim';
@@ -161,7 +162,7 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
       
                 {/* Progressive disclosure: step + source quality in one row */}
                 <div className="px-4 py-2 shrink-0">
-                  <div className="ws-bento-soft p-3 flex items-center justify-between gap-2">
+                  <BlueprintSurface hint className="p-3 flex items-center justify-between gap-2">
                     <div className="flex items-center gap-2 min-w-0">
                       <div className="flex -space-x-1 shrink-0" aria-hidden>
                         <div className="w-6 h-6 rounded-full bg-brand-600 border-2 border-surface-secondary flex items-center justify-center type-micro text-white font-semibold">
@@ -204,7 +205,7 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
                         {t('wsConceptsLabel')} ({intelReady ? conceptBusRows.length : '…'})
                       </button>
                     </div>
-                  </div>
+                  </BlueprintSurface>
                 </div>
       
                 {/* Concept ribbon — inline chrome, not over tool content */}

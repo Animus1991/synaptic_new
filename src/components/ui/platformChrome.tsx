@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import type { LucideIcon } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
 import type { UserSettings } from '../../types';
-import type { Lang } from '../../lib/i18n';
+import { t, type Lang } from '../../lib/i18n';
 import { getAgentContent } from '../../lib/agentContent';
 
 export { BlueprintSurface } from './BlueprintSurface';
@@ -260,6 +260,51 @@ export function InfoStack({
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+/** Option-B three-bar brand glyph — cyan / violet / emerald. */
+export function SynapseBrandGlyph({ className }: { className?: string }) {
+  return (
+    <div className={cn('synapse-brand-glyph', className)} aria-hidden>
+      <span className="synapse-brand-glyph-bar synapse-brand-glyph-bar-cyan" />
+      <span className="synapse-brand-glyph-bar synapse-brand-glyph-bar-violet" />
+      <span className="synapse-brand-glyph-bar synapse-brand-glyph-bar-emerald" />
+    </div>
+  );
+}
+
+/** Shell header trust pills — Source grounded, PWA, offline reviews (Option-B). */
+export function HeaderTrustBadgeRow({ lang, className }: { lang: Lang; className?: string }) {
+  return (
+    <div
+      className={cn('header-trust-badges flex flex-wrap items-center gap-2', className)}
+      data-testid="header-trust-badges"
+    >
+      <span className="ux-trust-badge ux-trust-badge-grounded">{t('shellTrustBadgeSource', lang)}</span>
+      <span className="ux-trust-badge ux-trust-badge-pwa">{t('shellTrustBadgePwa', lang)}</span>
+      <span className="ux-trust-badge ux-trust-badge-offline">{t('shellTrustBadgeOffline', lang)}</span>
+    </div>
+  );
+}
+
+/** Compact paired alert — Option-B amber / violet MiniAlert. */
+export function MiniAlert({
+  title,
+  body,
+  tone,
+  className,
+}: {
+  title: string;
+  body: string;
+  tone: 'amber' | 'violet';
+  className?: string;
+}) {
+  return (
+    <div className={cn('mini-alert', tone === 'amber' ? 'mini-alert-amber' : 'mini-alert-violet', className)}>
+      <div className="text-sm font-semibold">{title}</div>
+      <div className="mt-2 text-sm leading-6">{body}</div>
     </div>
   );
 }

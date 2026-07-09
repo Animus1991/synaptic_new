@@ -42,4 +42,7 @@ export {
   HeaderLangPill,
   DescriptiveStickyTabBar,
   InfoStack,
+  MiniAlert,
+  SynapseBrandGlyph,
+  HeaderTrustBadgeRow,
 } from './platformChrome';

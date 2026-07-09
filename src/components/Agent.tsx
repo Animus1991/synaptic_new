@@ -33,6 +33,7 @@ import { useI18n } from '../lib/i18n';
 import { PlatformSection } from './ui/primitives';
 import { PlatformEmptyState } from './ui/PlatformEmptyState';
 import { TrustBadgeRow } from './ui/platformChrome';
+import { BlueprintSurface } from './ui/BlueprintSurface';
 
 interface AgentProps {
   messages: AgentMessage[];
@@ -457,7 +458,7 @@ export function Agent({
       {/* Agent Header */}
       {!embedded && (
       <div className="px-4 sm:px-6 py-3 border-b border-border-subtle bg-surface-secondary/30">
-        <div className="flex items-center justify-between max-w-none w-full min-w-0 ws-bento-soft px-4 py-3">
+        <BlueprintSurface hint className="flex items-center justify-between max-w-none w-full min-w-0 px-4 py-3">
           <div className="flex items-center gap-3">
             <div
               className="w-9 h-9 rounded-xl flex items-center justify-center"
@@ -566,7 +567,7 @@ export function Agent({
               </div>
             )}
           </div>
-        </div>
+        </BlueprintSurface>
       </div>
       )}
 

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { ExternalLink, Loader2 } from '@/lib/lucide-shim';
 import type { Course, GlossaryEntry, LearnerModel } from '../types';
 import { cn } from '../utils/cn';
+import { BlueprintSurface } from './ui/BlueprintSurface';
 import {
   buildNotebookLmExportPayload,
   exportToNotebookLm,
@@ -58,8 +59,8 @@ export function NotebookLmExportPanel({
   };
 
   return (
-    <div
-      className={cn('ws-bento p-4', className)}
+    <BlueprintSurface
+      className={cn('p-4', className)}
       data-testid="notebooklm-export-panel"
     >
       <p className="text-sm font-semibold text-text-primary mb-1">
@@ -94,6 +95,6 @@ export function NotebookLmExportPanel({
           {lastHint}
         </p>
       )}
-    </div>
+    </BlueprintSurface>
   );
 }

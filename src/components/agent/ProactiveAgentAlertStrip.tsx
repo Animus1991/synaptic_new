@@ -2,6 +2,7 @@ import { ArrowRight, Brain, Warning as AlertTriangle } from '@phosphor-icons/rea
 import type { ProactiveAgentAlert } from '../../lib/proactiveAgentAlerts';
 import { useI18n } from '../../lib/i18n';
 import { MotionSection } from '../ui/MotionSection';
+import { BlueprintSurface } from '../ui/BlueprintSurface';
 import { cn } from '../../utils/cn';
 
 type Props = {
@@ -26,7 +27,7 @@ export function ProactiveAgentAlertStrip({ alerts, onRun }: Props) {
       transition={{ delay: 0.06 }}
       data-testid="proactive-agent-alert-strip"
     >
-      <div className="ws-bento p-4 space-y-3 border border-accent-amber/20 bg-accent-amber/5">
+      <BlueprintSurface className="p-4 space-y-3 border border-accent-amber/20 bg-accent-amber/5">
         <div className="flex items-center gap-2">
           <AlertTriangle className="w-4 h-4 text-accent-amber" weight="fill" />
           <p className="text-sm font-semibold text-text-primary">{t('proactiveAlertStripTitle')}</p>
@@ -64,7 +65,7 @@ export function ProactiveAgentAlertStrip({ alerts, onRun }: Props) {
             );
           })}
         </div>
-      </div>
+      </BlueprintSurface>
     </MotionSection>
   );
 }

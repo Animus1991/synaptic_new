@@ -21,6 +21,7 @@ import type { WorkspaceSelectionActionId, WorkspaceSelectionContext } from '../.
 import { ConceptTypeIcon } from '../ui/ConceptTypeIcon';
 import { conceptTypeGlyph } from '../../lib/conceptTypeIcons';
 import { Map, BookOpen, Pencil, FileText, X, Plus, Trash2, Link2, Undo2 } from '@/lib/lucide-shim';
+import { BlueprintSurface } from '../ui/BlueprintSurface';
 import { cn } from '../../utils/cn';
 import { bandColorVar, masteryColorForValue, accentHighlightVar } from '../../lib/masteryPalette';
 import { edgeKey, newCustomNodeId } from '../../lib/conceptMapGraph';
@@ -506,7 +507,7 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
   }
 
   return (
-    <div className="relative ws-bento overflow-hidden flex flex-col h-full">
+    <BlueprintSurface className="relative overflow-hidden flex flex-col h-full">
       {/* Toolbar */}
       <div className="flex items-center justify-between px-4 py-2 border-b border-border-subtle bg-surface-secondary/40 shrink-0">
         <div className="flex items-center gap-2">
@@ -980,6 +981,6 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
         <span className="text-[9px] text-text-muted ml-2">→ {t('prerequisite')}</span>
         <span className="text-[9px] text-text-muted">┄ {t('related')}</span>
       </div>
-    </div>
+    </BlueprintSurface>
   );
 }
