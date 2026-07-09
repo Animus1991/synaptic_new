@@ -483,7 +483,7 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
             <>
               {mobileTab === 'sources' && (
                 <section
-                  className="flex h-full min-h-0 flex-col overflow-hidden rounded-2xl border border-border-subtle bg-surface-card"
+                  className="flex h-full min-h-0 flex-col overflow-hidden workspace-glass-panel rounded-2xl border border-border-subtle bg-surface-card"
                   data-testid="notebook-sources-panel"
                 >
                   <header className="flex items-center justify-between gap-2 border-b border-border-subtle px-4 py-3 shrink-0">
@@ -499,7 +499,7 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
               )}
               {mobileTab === 'chat' && (
                 <section
-                  className="flex h-full min-h-0 flex-col overflow-hidden rounded-2xl border border-border-subtle bg-surface-card"
+                  className="flex h-full min-h-0 flex-col overflow-hidden workspace-glass-panel rounded-2xl border border-border-subtle bg-surface-card"
                   data-testid="notebook-chat-panel"
                 >
                   <header className="border-b border-border-subtle px-4 py-3 shrink-0">
@@ -510,7 +510,7 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
               )}
               {mobileTab === 'studio' && (
                 <section
-                  className="flex h-full min-h-0 flex-col overflow-hidden rounded-2xl border border-border-subtle bg-surface-card"
+                  className="flex h-full min-h-0 flex-col overflow-hidden workspace-glass-panel rounded-2xl border border-border-subtle bg-surface-card"
                   data-testid="notebook-studio-panel"
                 >
                   <header className="border-b border-border-subtle px-4 py-3 shrink-0">
@@ -552,7 +552,7 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
       <Group orientation="horizontal" className="flex-1 min-h-0 w-full h-full p-2 gap-0">
         <Panel id="nb-sources" defaultSize={22} minSize={14} className="flex h-full min-h-0 flex-col overflow-hidden">
           <section
-            className="flex h-full min-h-0 flex-col overflow-hidden rounded-2xl border border-border-subtle bg-surface-card"
+            className="flex h-full min-h-0 flex-col overflow-hidden workspace-glass-panel rounded-2xl border border-border-subtle bg-surface-card"
             aria-label={tx('Πηγές', 'Sources')}
             data-testid="notebook-sources-panel"
           >
@@ -572,7 +572,7 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
 
         <Panel id="nb-chat" defaultSize={46} minSize={28} className="flex h-full min-h-0 flex-col overflow-hidden">
           <section
-            className="flex h-full min-h-0 flex-col overflow-hidden rounded-2xl border border-border-subtle bg-surface-card"
+            className="flex h-full min-h-0 flex-col overflow-hidden workspace-glass-panel rounded-2xl border border-border-subtle bg-surface-card"
             aria-label={tx('Συνομιλία', 'Chat')}
             data-testid="notebook-chat-panel"
           >
@@ -595,7 +595,7 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
         ) : (
           <Panel id="nb-studio" defaultSize={32} minSize={20} className="flex h-full min-h-0 flex-col overflow-hidden">
             <section
-              className="flex h-full min-h-0 flex-col overflow-hidden rounded-2xl border border-border-subtle bg-surface-card"
+              className="flex h-full min-h-0 flex-col overflow-hidden workspace-glass-panel rounded-2xl border border-border-subtle bg-surface-card"
               aria-label="Studio"
               data-testid="notebook-studio-panel"
             >

@@ -68,7 +68,7 @@ export function ConceptTreemapChart({
               type="button"
               onClick={() => setActiveId(isActive ? null : block.id)}
               className={cn(
-                'rounded-xl border p-3 text-left transition-all duration-200 min-w-[8rem]',
+                'rounded-xl border p-3 text-left transition-all duration-200 min-w-[8rem] treemap-block',
                 TONE_CLASS[block.tone],
                 isActive && 'ring-2 ring-brand-500/35 scale-[1.01]',
               )}

@@ -259,6 +259,10 @@ Goal: every tool **fully functional for its learning purpose**, not demo stubs.
 | OPT-E3 | Option-B Wave E3 — ws-bento → BlueprintSurface sweep | P2 | **shipped** | Platform-wide glass parity: workspace tools, visuals, Agent, Library list/cards, `Card`/`StatTile` primitives, `ws-bento-soft` → `hint` |
 | OPT-E2 | Option-B Wave E2 — blueprint CTA + motion + typography | P2 | **shipped** | `ux-primary-cta` / `ux-secondary-cta` inverted glass; `useBlueprintTheme` + prototype fadeUp in `MotionSection`; eyebrow 0.34em; sans headings on blueprint |
 | OPT-E4 | Option-B Wave E4 — agent bubbles + toast + chips | P2 | **shipped** | Cyan/glass `agent-message-bubble-*`; `ux-agent-chip` follow-ups; cyan glass toast stack + bottom-right `AppToastBanner`; proactive strip glass alignment |
+| OPT-E5 | Option-B Wave E5 — modal/form glass + library drop + tasks danger | P2 | **shipped** | `ux-modal-panel` on Confirm/Upload/Reprocess; `ux-upload-drop-zone` + `ux-library-drop-zone`; blueprint `ux-callout-danger` amber panel |
+| OPT-E6 | Option-B Wave E6 — workspace deep sweep | P2 | **shipped** | `workspace-glass-panel` Notebook + ClassicChatDrawer; blueprint `ux-workspace-tool-tab`; workspace main bg glass |
+| OPT-E7 | Option-B Wave E7 — diagram/chart micro-polish | P2 | **shipped** | `BlueprintSvgDefs` gradient strokes; `AnalyticsVisualLabPanel`; treemap/heatmap/waterfall blueprint hovers |
+| OPT-E8 | Option-B Wave E8 — Inter-only blueprint headings | P2 | **shipped** | Blueprint h1–h3 + `.ws-serif` → sans; `.ux-section-eyebrow` 0.34em; mega `.ux-card` radius |
 | WS-01 | Workspace empty states (`§2.7`) — learning outcome + CTA per tool | P1 | **shipped** | `WorkspaceToolEmptyState` + `buildWorkspaceEmptyView`; all 16 tools wired; E2E `workspace-empty-tools.spec.ts` |
 | PLT-02 | OpenTelemetry + Helm IaC | P3 | **shipped** | `telemetry.ts`, `/live`/`/ready`, `server/helm/` |
 | PLT-03 | Offline embeddings (transformers.js) | P3 | open |

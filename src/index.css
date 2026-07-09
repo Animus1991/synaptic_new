@@ -755,11 +755,6 @@
   font-weight: 600;
   color: color-mix(in srgb, var(--color-accent-cyan) 70%, var(--color-text-secondary));
 }
-[data-theme="blueprint"] :is(.ws-serif, .ux-section-header h2) {
-  font-family: var(--font-sans);
-  font-weight: 600;
-  letter-spacing: -0.025em;
-}
 @keyframes blueprintFadeUp {
   0% { opacity: 0; transform: translateY(12px); }
   100% { opacity: 1; transform: translateY(0); }
@@ -847,6 +842,151 @@
 }
 [data-theme="blueprint"] .app-toast-banner .text-accent-emerald {
   color: var(--color-accent-cyan);
+}
+
+/* Option-B Wave E5 — modal/form glass, library drop, tasks danger */
+.ux-modal-panel {
+  position: relative;
+  overflow: hidden;
+}
+[data-theme="blueprint"] .ux-modal-panel {
+  border-radius: 1.875rem;
+  border-color: color-mix(in srgb, #ffffff 10%, transparent);
+  background: color-mix(in srgb, #020617 94%, transparent);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  box-shadow: 0 24px 90px color-mix(in srgb, #000000 35%, transparent);
+}
+[data-theme="blueprint"] .ux-modal-panel::before {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--color-accent-cyan) 60%, transparent),
+    transparent
+  );
+  pointer-events: none;
+}
+[data-theme="blueprint"] .ux-modal-panel :is(input, textarea, select) {
+  border-radius: 0.75rem;
+  border-color: color-mix(in srgb, #ffffff 10%, transparent);
+  background: color-mix(in srgb, #ffffff 4%, var(--color-surface-primary));
+  color: var(--color-text-primary);
+}
+[data-theme="blueprint"] .ux-modal-panel :is(input, textarea, select):focus {
+  outline: 2px solid color-mix(in srgb, var(--color-accent-cyan) 80%, transparent);
+  outline-offset: 1px;
+}
+.ux-upload-drop-zone,
+.ux-library-drop-zone {
+  border-width: 2px;
+  border-style: dashed;
+  border-radius: 1.5rem;
+  transition:
+    border-color var(--motion-duration-ui) var(--motion-ease),
+    background-color var(--motion-duration-ui) var(--motion-ease);
+}
+[data-theme="blueprint"] .ux-upload-drop-zone,
+[data-theme="blueprint"] .ux-library-drop-zone {
+  border-color: color-mix(in srgb, var(--color-accent-cyan) 20%, transparent);
+  background: color-mix(in srgb, var(--color-accent-cyan) 5%, transparent);
+}
+[data-theme="blueprint"] .ux-upload-drop-zone[data-active="true"],
+[data-theme="blueprint"] .ux-library-drop-zone:hover {
+  border-color: color-mix(in srgb, var(--color-accent-cyan) 40%, transparent);
+  background: color-mix(in srgb, var(--color-accent-cyan) 10%, transparent);
+}
+[data-theme="blueprint"] .ux-callout-danger {
+  border-radius: 1.5rem;
+  border-color: color-mix(in srgb, var(--palette-amber) 15%, transparent);
+  background: color-mix(in srgb, var(--palette-amber) 8%, var(--color-surface-primary));
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+[data-theme="blueprint"] .ux-card {
+  border-radius: 1.875rem;
+  box-shadow: 0 24px 90px color-mix(in srgb, #000000 22%, transparent);
+}
+
+/* Option-B Wave E6 — workspace deep sweep (blueprint + warm workspace scope) */
+[data-theme="blueprint"] [data-ws-theme="warm"] .workspace-glass-panel {
+  border-color: color-mix(in srgb, #ffffff 8%, transparent);
+  background: color-mix(in srgb, #ffffff 4%, var(--color-surface-primary));
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 12px 40px color-mix(in srgb, #000000 18%, transparent);
+}
+[data-theme="blueprint"] [data-ws-theme="warm"] .workspace-glass-panel::before {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--color-accent-cyan) 45%, transparent),
+    transparent
+  );
+  pointer-events: none;
+}
+[data-theme="blueprint"] [data-ws-theme="warm"] .workspace-glass-panel {
+  position: relative;
+  overflow: hidden;
+}
+[data-theme="blueprint"] .ux-workspace-tool-tab[aria-selected="true"] {
+  border-color: color-mix(in srgb, var(--color-accent-cyan) 40%, transparent) !important;
+  background: color-mix(in srgb, var(--color-accent-cyan) 10%, transparent) !important;
+  color: #ecfeff !important;
+  border-radius: 1rem;
+}
+[data-theme="blueprint"] .ux-workspace-tool-tab {
+  border-radius: 1rem;
+}
+[data-theme="blueprint"] [data-ws-theme="warm"] #workspace-main .bg-surface-secondary\/60 {
+  background: color-mix(in srgb, #020617 88%, var(--color-surface-secondary));
+}
+
+/* Option-B Wave E7 — SVG gradient strokes + chart hovers */
+.blueprint-stroke-gradient {
+  stroke: url(#blueprint-stroke-cve);
+}
+[data-theme="blueprint"] .blueprint-diagram-dot {
+  fill: var(--color-accent-cyan);
+  filter: drop-shadow(0 0 8px color-mix(in srgb, var(--color-accent-cyan) 45%, transparent));
+}
+@media (prefers-reduced-motion: no-preference) {
+  [data-theme="blueprint"] .treemap-block:hover {
+    filter: brightness(1.18) saturate(1.25);
+    transform: scale(1.02);
+  }
+  [data-theme="blueprint"] .waterfall-bar:hover {
+    filter: brightness(1.25);
+    transform: scaleY(1.05);
+    transform-origin: bottom;
+  }
+  [data-theme="blueprint"] .heatmap-cell:hover {
+    filter: brightness(1.35);
+    z-index: 2;
+  }
+}
+
+/* Option-B Wave E8 — Inter-only headings on blueprint */
+[data-theme="blueprint"] :is(h1, h2, h3, .ws-serif, .type-display-sm, .ux-section-header h2) {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  letter-spacing: -0.025em;
+}
+[data-theme="blueprint"] .ux-section-eyebrow {
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: color-mix(in srgb, var(--color-accent-cyan) 70%, var(--color-text-secondary));
 }
 
 [data-theme="blueprint"] :is(button, a).bg-brand-600,

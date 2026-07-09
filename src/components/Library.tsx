@@ -290,6 +290,22 @@ export function Library({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           >
+            {!search && (
+              <button
+                type="button"
+                onClick={onUpload}
+                data-testid="library-drop-zone"
+                className="ux-library-drop-zone mb-4 flex w-full flex-col items-center gap-2 px-6 py-8 text-center text-text-secondary hover:text-text-primary transition-colors"
+              >
+                <Upload className="h-8 w-8 text-brand-600" aria-hidden />
+                <span className="text-sm font-medium">
+                  {userLanguage === 'el' ? 'Σύρε αρχεία εδώ ή κάνε κλικ για ανέβασμα' : 'Drop files here or click to upload'}
+                </span>
+                <span className="text-xs text-text-muted">
+                  {userLanguage === 'el' ? 'PDF, DOCX, PPTX, εικόνες, κώδικας' : 'PDF, DOCX, PPTX, images, code'}
+                </span>
+              </button>
+            )}
             {filteredCourses.length === 0 ? (
               <PlatformEmptyState
                 title={t('libraryEmptyCoursesTitle', userLanguage)}

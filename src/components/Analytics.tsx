@@ -54,6 +54,7 @@ import { KnowledgeFlowSankeyChart, MasteryWaterfallChart } from './analytics/Kno
 import { ConceptTreemapChart } from './analytics/ConceptTreemapChart';
 import { ConceptMasteryHeatmapChart } from './analytics/ConceptMasteryHeatmapChart';
 import { LearningTimelineChart } from './analytics/LearningTimelineChart';
+import { AnalyticsVisualLabPanel } from './analytics/AnalyticsVisualLabPanel';
 import { SectionHeader } from './ui/platformChrome';
 
 interface AnalyticsProps {
@@ -442,7 +443,7 @@ function OverviewTab({
               const intensity = day.minutes === 0 ? 0 : day.minutes < 15 ? 1 : day.minutes < 30 ? 2 : day.minutes < 60 ? 3 : 4;
               const colors = ['bg-surface-hover', 'bg-brand-900', 'bg-brand-700', 'bg-brand-500', 'bg-brand-400'];
               return (
-                <div key={i} className={cn('w-full aspect-square rounded-[2px]', colors[intensity])} title={formatHeatmapDayTooltip(day.date, day.minutes, lang)} />
+                <div key={i} className={cn('heatmap-cell w-full aspect-square rounded-[2px]', colors[intensity])} title={formatHeatmapDayTooltip(day.date, day.minutes, lang)} />
               );
             })}
           </div>
@@ -508,6 +509,10 @@ function OverviewTab({
             </div>
           ))}
         </div>
+      </motion.div>
+
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.28 }}>
+        <AnalyticsVisualLabPanel />
       </motion.div>
     </div>
   );

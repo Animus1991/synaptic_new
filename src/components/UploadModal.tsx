@@ -267,7 +267,7 @@ export function UploadModal({
           initial={{ opacity: 0, scale: 0.95, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
-          className="relative w-full max-w-2xl max-h-[90vh] rounded-2xl border border-border-subtle bg-surface-secondary overflow-y-auto"
+          className="relative w-full max-w-2xl max-h-[90vh] ux-modal-panel rounded-2xl border border-border-subtle bg-surface-secondary overflow-y-auto"
         >
           {/* Header */}
           <div className="flex items-center justify-between p-5 border-b border-border-subtle">
@@ -333,11 +333,12 @@ export function UploadModal({
                   onDrop={handleDrop}
                   onClick={() => fileInputRef.current?.click()}
                   className={cn(
-                    'border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer transition-all',
+                    'ux-upload-drop-zone border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer transition-all',
                     dragActive
                       ? 'border-brand-500 bg-brand-500/5'
                       : 'border-border-default hover:border-brand-500/50 hover:bg-surface-hover/50'
                   )}
+                  data-active={dragActive || undefined}
                 >
                   <input
                     ref={fileInputRef}

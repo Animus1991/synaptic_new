@@ -67,7 +67,7 @@ export function ConfirmDialog({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 16, scale: 0.98 }}
             transition={{ type: 'spring', damping: 26, stiffness: 320 }}
-            className="relative w-full max-w-md rounded-2xl border border-border-subtle bg-surface-card shadow-2xl"
+            className="relative w-full max-w-md ux-modal-panel rounded-2xl border border-border-subtle bg-surface-card shadow-2xl"
           >
             <div className="flex items-start gap-3 p-5 pb-3">
               {destructive && (

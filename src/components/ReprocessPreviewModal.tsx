@@ -280,7 +280,7 @@ export function ReprocessPreviewModal({
 
             className={cn(
 
-              'relative z-10 flex flex-col overflow-hidden rounded-2xl border border-border-subtle bg-surface-card shadow-2xl',
+              'relative z-10 flex flex-col overflow-hidden ux-modal-panel rounded-2xl border border-border-subtle bg-surface-card shadow-2xl',
 
               fullscreen
 

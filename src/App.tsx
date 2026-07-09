@@ -17,6 +17,7 @@ import { persistWorkspaceV2CanaryFromUrl, reportWorkspaceCanaryCohort } from './
 import type { ContentSearchHit } from './lib/globalContentSearch';
 import { NotificationsPanel } from './components/NotificationsPanel';
 import { NotificationToastStack } from './components/NotificationToastStack';
+import { BlueprintSvgDefs } from './components/ui/BlueprintSvgDefs';
 import { MistakeRetryView } from './components/MistakeRetryView';
 import { ExamPrepView } from './components/ExamPrepView';
 import { PrerequisiteRepairView } from './components/PrerequisiteRepairView';
@@ -497,6 +498,7 @@ export default function App() {
 
   const overlays = (
     <>
+      <BlueprintSvgDefs />
       <AppCommandPaletteMount
         open={paletteOpen}
         onClose={closePalette}
