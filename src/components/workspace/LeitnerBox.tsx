@@ -478,7 +478,6 @@ export function LeitnerBox({
       <LeitnerDueQueuePanel items={dueQueue} onSelect={handleDueQueueSelect} lang={lang} />
 
       <div className="grid grid-cols-4 gap-2 mb-4">
-
         {BOX_KEYS.map((key, i) => (
 
           <div key={key} className="p-2 rounded-lg bg-surface-primary/50 border border-border-subtle text-center">
@@ -495,11 +494,15 @@ export function LeitnerBox({
 
 
 
+      <div className="leitner-flip-stage flex-1 flex flex-col min-h-0">
       <button
 
         onClick={() => setFlipped(!flipped)}
 
-        className="flex-1 min-h-[140px] rounded-xl border border-brand-500/30 bg-brand-500/5 p-5 text-left hover:border-brand-500/50 transition-all"
+        className={cn(
+          'leitner-flip-card flex-1 min-h-[140px] rounded-xl border border-brand-500/30 bg-brand-500/5 p-5 text-left hover:border-brand-500/50 transition-all',
+          flipped && 'leitner-flip-card--flipped',
+        )}
 
       >
 
@@ -536,6 +539,7 @@ export function LeitnerBox({
         )}
 
       </button>
+      </div>
 
 
 

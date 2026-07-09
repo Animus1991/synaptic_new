@@ -16,6 +16,8 @@ import { workspaceLiveIsStale } from '../lib/workspaceStoreSpine';
 import { workspaceEntryPrefetchHandlers } from '../lib/workspaceEntryPrefetch';
 import { PlatformSkipLinks } from './PlatformSkipLinks';
 import { OfflineShellBanner } from './OfflineShellBanner';
+import { HeaderLangPill } from './ui/platformChrome';
+import type { Lang } from '../lib/i18n';
 import { commandPaletteBadge } from '../lib/workspaceKeyboardShortcuts';
 import { showStandaloneAgentNav } from '../lib/platformFocus';
 
@@ -42,6 +44,8 @@ interface ShellProps {
   onContinueCourse?: () => void;
   onQuickAccess?: (action: 'note-analysis' | 'upload' | 'workspace' | 'exam') => void;
   hasCourses?: boolean;
+  language?: Lang;
+  onLanguageChange?: (lang: Lang) => void;
 }
 
 type MobileNavItem =
@@ -123,8 +127,11 @@ export function Shell({
   onContinueCourse,
   onQuickAccess,
   hasCourses = false,
+  language,
+  onLanguageChange,
 }: ShellProps) {
   const { t, lang } = useI18n();
+  const activeLang = language ?? lang;
   const shellUx = getShellUxContent(lang);
   const tasksReviewBadgeHint = getTasksContent(lang).reviewsDue(stats.reviewsDue);
   const showMobileWorkspaceNav = Boolean(
@@ -426,6 +433,13 @@ export function Shell({
             </div>
 
             <div className="flex items-center gap-2">
+              {onLanguageChange && (
+                <HeaderLangPill
+                  lang={activeLang}
+                  onChange={onLanguageChange}
+                  className="hidden sm:inline-flex"
+                />
+              )}
               {onTakeBreath && (
                 <>
                   <button

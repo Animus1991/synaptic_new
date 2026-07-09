@@ -478,6 +478,8 @@ export default function App() {
         store.setExamPrepOpen(true);
       }
     },
+    language: (store.user.settings.language === 'el' ? 'el' : 'en') as 'en' | 'el',
+    onLanguageChange: (lang: 'en' | 'el') => store.updateSettings({ language: lang }),
   };
 
   const handleContentSelect = (hit: ContentSearchHit) => {

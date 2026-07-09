@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Calendar } from '@/lib/lucide-shim';
 import type { LearningTimelineEvent, TimelineEventType } from '../../lib/knowledgeFlowAnalytics';
 import { cn } from '../../utils/cn';
+import { BlueprintSurface } from '../ui/BlueprintSurface';
 
 const TYPE_STYLE: Record<TimelineEventType, { border: string; bg: string; text: string }> = {
   lesson: { border: 'border-accent-cyan/30', bg: 'bg-accent-cyan/10', text: 'text-text-primary' },
@@ -35,15 +36,18 @@ export function LearningTimelineChart({
 
   if (!hasData || events.length === 0) {
     return (
-      <div className="ux-card blueprint-surface flex flex-col items-center justify-center min-h-[220px] text-center" data-testid="learning-timeline-empty">
+      <BlueprintSurface
+        className="flex flex-col items-center justify-center min-h-[220px] text-center"
+        data-testid="learning-timeline-empty"
+      >
         <Calendar className="w-8 h-8 text-text-tertiary mb-2" />
         <p className="text-sm text-text-muted">{emptyLabel}</p>
-      </div>
+      </BlueprintSurface>
     );
   }
 
   return (
-    <div className="ux-card blueprint-surface" data-testid="learning-timeline">
+    <BlueprintSurface data-testid="learning-timeline">
       <h3 className="text-sm font-semibold text-text-primary mb-1 flex items-center gap-2">
         <Calendar className="w-4 h-4 text-brand-400" />
         {title}
@@ -59,7 +63,7 @@ export function LearningTimelineChart({
               <div key={event.id} className="relative mb-3 last:mb-0">
                 <span
                   className={cn(
-                    'absolute -left-[1.65rem] top-3 h-2.5 w-2.5 rounded-full border-2 border-surface-card',
+                    'timeline-dot absolute -left-[1.65rem] top-3 h-2.5 w-2.5 rounded-full border-2 border-surface-card',
                     event.delta >= 0 ? 'bg-accent-emerald' : 'bg-accent-rose',
                   )}
                   aria-hidden
@@ -118,6 +122,6 @@ export function LearningTimelineChart({
           })}
         </div>
       </div>
-    </div>
+    </BlueprintSurface>
   );
 }

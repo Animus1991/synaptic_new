@@ -30,6 +30,7 @@ import { greetingForTime, dashboardSubtitle } from '../lib/greeting';
 import { useI18n } from '../lib/i18n';
 import { Page, PageHeader, PlatformSection, PrimaryCTA } from './ui/primitives';
 import { HeroGlow, UxCallout } from './ui/platformChrome';
+import { BlueprintSurface } from './ui/BlueprintSurface';
 import { PostUploadBanner } from './ui/PostUploadBanner';
 import { Layout as LucideLayout } from '@/lib/lucide-shim';
 import { useMemo } from 'react';
@@ -191,7 +192,9 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
             <Hand className="inline-block w-7 h-7 text-brand-600 shrink-0 ml-2 align-middle" aria-hidden />
           </>
         }
-        subtitle={dashboardSubtitle(lang, criticalTasks.length, stats.streak)}
+        subtitle={
+          <span className="gradient-text">{dashboardSubtitle(lang, criticalTasks.length, stats.streak)}</span>
+        }
         actions={
           <>
             {onOpenWorkspace && (
@@ -217,9 +220,9 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
       />
 
       <MotionSection initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
-        <div className="rounded-xl border border-border-subtle bg-surface-card/50 px-4 py-3">
+        <BlueprintSurface nest className="px-4 py-3">
           <p className="text-sm text-text-secondary">{t('dashboardWorkspaceEntryHint')}</p>
-        </div>
+        </BlueprintSurface>
       </MotionSection>
 
       {postUploadCourse && (
@@ -413,7 +416,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
         <MotionSection initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="lg:col-span-2 space-y-6">
 
           {/* Readiness Hero */}
-          <div className="ws-bento p-6">
+          <BlueprintSurface className="ws-bento p-6">
             <div className="flex flex-col sm:flex-row items-center gap-6">
               <ReadinessRing value={learnerModel.overallMastery} sublabel="Derived from graded first-attempts only — never from self-reported skill." />
               <div className="flex-1 space-y-4">
@@ -425,7 +428,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                 ]} />
               </div>
             </div>
-          </div>
+          </BlueprintSurface>
 
           {/* Concept mastery + prerequisite repair */}
           {(conceptMastery.length > 0 || prerequisiteRepairs.length > 0) && (
@@ -752,16 +755,19 @@ function StatCard({
   label,
   value,
   onClick,
+  className,
   ...rest
 }: {
   icon: React.ReactNode;
   label: string;
   value: string;
   onClick?: () => void;
-} & React.ComponentPropsWithoutRef<'div'>) {
+  className?: string;
+} & Omit<React.ComponentPropsWithoutRef<'div'>, 'onClick' | 'className'>) {
   const clickable = Boolean(onClick);
   return (
-    <div
+    <BlueprintSurface
+      hint
       {...rest}
       role={clickable ? 'button' : undefined}
       tabIndex={clickable ? 0 : undefined}
@@ -773,13 +779,14 @@ function StatCard({
         }
       } : undefined}
       className={cn(
-        'p-4 rounded-xl border border-border-subtle bg-surface-card',
+        'p-4',
         clickable && 'cursor-pointer hover:border-brand-500/30 hover:bg-surface-hover transition-colors',
+        className,
       )}
     >
       <div className="flex items-center gap-2 mb-2">{icon}<span className="text-xs text-text-tertiary font-medium">{label}</span></div>
       <p className="text-xl font-bold">{value}</p>
-    </div>
+    </BlueprintSurface>
   );
 }
 

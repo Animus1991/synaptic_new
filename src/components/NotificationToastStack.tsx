@@ -9,10 +9,10 @@ import {
 } from '../lib/notificationBus';
 
 const LEVEL_STYLES: Record<AppNotification['level'], string> = {
-  info: 'border-brand-500/30 bg-surface-secondary/95',
-  success: 'border-accent-emerald/35 bg-surface-secondary/95',
-  warning: 'border-accent-amber/35 bg-surface-secondary/95',
-  error: 'border-red-500/40 bg-surface-secondary/95',
+  info: 'notification-toast-info border-brand-500/30 bg-surface-secondary/95',
+  success: 'notification-toast-success border-accent-emerald/35 bg-surface-secondary/95',
+  warning: 'notification-toast-warning border-accent-amber/35 bg-surface-secondary/95',
+  error: 'notification-toast-error border-red-500/40 bg-surface-secondary/95',
 };
 
 /** Ephemeral toast stack — L12 notification bus (aria-live for a11y). */
@@ -41,7 +41,7 @@ export function NotificationToastStack() {
             key={n.id}
             role="status"
             className={cn(
-              'pointer-events-auto rounded-xl border backdrop-blur px-3 py-2.5 shadow-lg',
+              'notification-toast pointer-events-auto rounded-xl border backdrop-blur px-3 py-2.5 shadow-lg',
               LEVEL_STYLES[n.level],
             )}
           >

@@ -6,6 +6,8 @@ import type { UserSettings } from '../../types';
 import type { Lang } from '../../lib/i18n';
 import { getAgentContent } from '../../lib/agentContent';
 
+export { BlueprintSurface } from './BlueprintSurface';
+
 /** In-page section chrome — Option-B eyebrow / title / subtitle (distinct from PageHeader). */
 export function SectionHeader({
   eyebrow,
@@ -162,6 +164,43 @@ export function HeroGlow({ children, className }: { children: ReactNode; classNa
     <div className={cn('platform-hero-glow', className)}>
       <div className="platform-hero-glow-orbs" aria-hidden />
       {children}
+    </div>
+  );
+}
+
+/** Compact EN/ΕΛ toggle for shell header — Option-B segmented pill. */
+export function HeaderLangPill({
+  lang,
+  onChange,
+  className,
+}: {
+  lang: Lang;
+  onChange: (lang: Lang) => void;
+  className?: string;
+}) {
+  return (
+    <div
+      className={cn('platform-lang-pill', className)}
+      role="group"
+      aria-label="Language"
+      data-testid="header-lang-pill"
+    >
+      <button
+        type="button"
+        className={cn('platform-lang-pill-btn', lang === 'en' && 'platform-lang-pill-btn-active')}
+        aria-pressed={lang === 'en'}
+        onClick={() => onChange('en')}
+      >
+        EN
+      </button>
+      <button
+        type="button"
+        className={cn('platform-lang-pill-btn', lang === 'el' && 'platform-lang-pill-btn-active')}
+        aria-pressed={lang === 'el'}
+        onClick={() => onChange('el')}
+      >
+        ΕΛ
+      </button>
     </div>
   );
 }

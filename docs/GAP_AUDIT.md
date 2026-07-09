@@ -251,6 +251,8 @@ Goal: every tool **fully functional for its learning purpose**, not demo stubs.
 | OPT-C | Option-B Blueprint theme | P2 | **shipped** | 4th theme `blueprint`; glass palette, floating orbs, inverted CTAs, analytics `blueprint-surface`; dark/light/spectrum unchanged |
 | WS-C | Workspace Phase C — pedagogy lens + split + tour | P2 | **shipped** | Theory/Practice/Balanced lens toggle; split lesson layout; lesson content emphasis; first-visit workspace `ProductTour` (7 steps) |
 | PLT-11 | L11 discoverability — FSRS due queue + plugin marketplace | P2 | **shipped** | `LeitnerDueQueuePanel` card variant on Dashboard + Tasks reviews; `buildGlobalFsrsDueQueue`; marketplace hook badges + `UxCallout` |
+| OPT-D1 | Option-B Wave D1 — blueprint micro-polish | P2 | **shipped** | Timeline pulse dots; blueprint toast skin; dashboard `gradient-text` subtitle; eyebrow `0.34em` |
+| OPT-D2 | Option-B Wave D2 — BlueprintSurface + glass nesting | P2 | **shipped** | `BlueprintSurface` component; `blueprint-surface-nest` / `hint`; header EN/ΕΛ pill; Leitner flip depth; Dashboard + split workspace nesting |
 | WS-01 | Workspace empty states (`§2.7`) — learning outcome + CTA per tool | P1 | **shipped** | `WorkspaceToolEmptyState` + `buildWorkspaceEmptyView`; all 16 tools wired; E2E `workspace-empty-tools.spec.ts` |
 | PLT-02 | OpenTelemetry + Helm IaC | P3 | **shipped** | `telemetry.ts`, `/live`/`/ready`, `server/helm/` |
 | PLT-03 | Offline embeddings (transformers.js) | P3 | open |

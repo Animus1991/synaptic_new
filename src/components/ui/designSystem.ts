@@ -32,3 +32,12 @@ export {
   type WorkspaceEmptyView,
 } from '../../lib/workspaceEmptyState';
 export { WorkspaceToolEmptyState } from '../workspace/WorkspaceToolEmptyState';
+export { BlueprintSurface } from './BlueprintSurface';
+export {
+  SectionHeader,
+  UxCallout,
+  TrustBadgeRow,
+  SessionLauncherCard,
+  HeroGlow,
+  HeaderLangPill,
+} from './platformChrome';

@@ -159,7 +159,12 @@ export function StudyWorkspaceLessonPanel({ model }: StudyWorkspaceLessonPanelPr
                   </div>
                 )}
 
-                <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-8 relative min-w-0">
+                <div
+                  className={cn(
+                    'flex-1 overflow-y-auto px-4 sm:px-6 py-8 relative min-w-0',
+                    layout === 'split' && 'm-3 blueprint-surface-nest',
+                  )}
+                >
                   {showSourceAlert && (
                     <WorkspaceSourceStatusBar
                       lang={lang}

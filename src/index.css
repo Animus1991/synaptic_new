@@ -682,7 +682,7 @@
 }
 [data-theme="blueprint"] .ux-section-eyebrow {
   color: color-mix(in srgb, var(--color-accent-cyan) 70%, var(--color-text-secondary));
-  letter-spacing: 0.32em;
+  letter-spacing: 0.34em;
 }
 [data-theme="blueprint"] .ux-session-card {
   border-color: color-mix(in srgb, #ffffff 10%, transparent);
@@ -799,6 +799,132 @@
     transparent
   );
   pointer-events: none;
+}
+
+/* Nested inner wells — split workspace lesson/tool panes */
+[data-theme="blueprint"] .blueprint-surface-nest {
+  border-radius: 1.5rem;
+  border-color: color-mix(in srgb, #ffffff 8%, transparent);
+  background: color-mix(in srgb, #ffffff 3.5%, var(--color-surface-primary));
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, #ffffff 6%, transparent),
+    0 12px 40px color-mix(in srgb, #000000 18%, transparent);
+}
+
+/* Optional subtle glass on dark when using BlueprintSurface without full blueprint theme */
+[data-theme="dark"] .blueprint-surface-hint {
+  border-color: color-mix(in srgb, var(--color-accent-cyan) 14%, var(--color-border-subtle));
+  background: color-mix(in srgb, var(--color-accent-cyan) 3%, var(--color-surface-card));
+}
+
+[data-theme="blueprint"] .ws-bento.blueprint-surface {
+  border-radius: 1.875rem;
+}
+
+/* Header EN/ΕΛ segmented pill (Option-B) */
+.platform-lang-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.125rem;
+  padding: 0.125rem;
+  border-radius: 9999px;
+  border: 1px solid var(--color-border-subtle);
+  background: color-mix(in srgb, var(--color-surface-primary) 80%, transparent);
+}
+[data-theme="blueprint"] .platform-lang-pill {
+  border-color: color-mix(in srgb, #ffffff 10%, transparent);
+  background: color-mix(in srgb, #ffffff 4%, var(--color-surface-primary));
+  backdrop-filter: blur(12px);
+}
+.platform-lang-pill-btn {
+  min-width: 2.25rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--color-text-tertiary);
+  transition:
+    color var(--motion-duration-ui) var(--motion-ease),
+    background-color var(--motion-duration-ui) var(--motion-ease),
+    box-shadow var(--motion-duration-ui) var(--motion-ease);
+}
+.platform-lang-pill-btn:hover {
+  color: var(--color-text-secondary);
+}
+.platform-lang-pill-btn-active,
+[data-theme="blueprint"] .platform-lang-pill-btn-active {
+  color: var(--color-text-primary);
+  background: color-mix(in srgb, var(--color-surface-hover) 90%, transparent);
+}
+[data-theme="blueprint"] .platform-lang-pill-btn-active {
+  color: #020617;
+  background: var(--color-accent-cyan);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-accent-cyan) 35%, transparent);
+}
+
+/* Blueprint toast skin (Option-B cyan glass) */
+[data-theme="blueprint"] .notification-toast {
+  border-radius: 1rem;
+  border-color: color-mix(in srgb, var(--color-accent-cyan) 30%, transparent);
+  background: color-mix(in srgb, #020617 92%, transparent);
+  box-shadow: 0 24px 60px color-mix(in srgb, #000000 35%, transparent);
+}
+[data-theme="blueprint"] .notification-toast-info {
+  border-color: color-mix(in srgb, var(--color-accent-cyan) 32%, transparent);
+}
+[data-theme="blueprint"] .notification-toast-success {
+  border-color: color-mix(in srgb, var(--color-accent-emerald) 35%, transparent);
+}
+[data-theme="blueprint"] .notification-toast-warning {
+  border-color: color-mix(in srgb, var(--palette-amber) 35%, transparent);
+}
+[data-theme="blueprint"] .notification-toast-error {
+  border-color: color-mix(in srgb, var(--palette-rose) 40%, transparent);
+}
+
+@keyframes blueprint-pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-accent-cyan) 0%, transparent);
+  }
+  50% {
+    box-shadow: 0 0 20px 4px color-mix(in srgb, var(--color-accent-cyan) 18%, transparent);
+  }
+}
+
+[data-theme="blueprint"] .timeline-dot {
+  position: relative;
+}
+@media (prefers-reduced-motion: no-preference) {
+  [data-theme="blueprint"] .timeline-dot::after {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: 9999px;
+    border: 2px solid color-mix(in srgb, var(--color-accent-cyan) 25%, transparent);
+    animation: blueprint-pulse-glow 2.4s ease-in-out infinite;
+    pointer-events: none;
+  }
+}
+
+/* Leitner card depth — blueprint theme */
+[data-theme="blueprint"] .leitner-flip-stage {
+  perspective: 800px;
+}
+[data-theme="blueprint"] .leitner-flip-card {
+  transition:
+    border-color var(--motion-duration-ui) var(--motion-ease),
+    box-shadow var(--motion-duration-ui) var(--motion-ease),
+    transform var(--motion-duration-ui) var(--motion-ease);
+}
+@media (prefers-reduced-motion: no-preference) {
+  [data-theme="blueprint"] .leitner-flip-card--flipped {
+    transform: rotateX(4deg) scale(1.01);
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-accent-cyan) 22%, transparent);
+    border-color: color-mix(in srgb, var(--color-accent-cyan) 40%, transparent);
+  }
 }
 
 /* Option-B chart micro-interactions (theme-safe) */

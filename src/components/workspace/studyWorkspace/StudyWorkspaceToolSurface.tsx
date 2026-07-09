@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { cn } from '../../../utils/cn';
 import { useConceptMapCollab } from '../../../hooks/useConceptMapCollab';
 import { Panel } from 'react-resizable-panels';
 import { WorkspaceToolStrip } from '../WorkspaceToolStrip';
@@ -206,7 +207,12 @@ export function StudyWorkspaceToolSurface({ model }: StudyWorkspaceToolSurfacePr
                       onAskAgent={handleCrossLinkAgent}
                       crossLinkBar={toolAgentChipBar}
                     >
-                      <div className="relative flex h-full min-h-0 flex-col overflow-hidden">
+                      <div
+                        className={cn(
+                          'relative flex h-full min-h-0 flex-col overflow-hidden',
+                          layout === 'split' && 'm-3 blueprint-surface-nest',
+                        )}
+                      >
                       {activeTool === 'concept-map' && (
                         <WorkspaceToolSuspense tool="concept-map" lang={lang}>
                         <LazyDraggableConceptMap
