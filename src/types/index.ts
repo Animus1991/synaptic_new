@@ -31,7 +31,7 @@ export interface UserSettings {
   challengeLevel: 'low-stress' | 'balanced' | 'high-challenge';
   sourceMode: 'strict' | 'enriched' | 'notes-only';
   language: 'en' | 'el';
-  theme: 'dark' | 'light' | 'system' | 'spectrum';
+  theme: 'dark' | 'light' | 'system' | 'spectrum' | 'blueprint';
   dailyGoalMinutes: number;
   examDate?: string;
   /** OpenAI-compatible API key (stored locally). Falls back to VITE_OPENAI_API_KEY. */

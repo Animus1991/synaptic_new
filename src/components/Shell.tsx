@@ -3,7 +3,7 @@ import {
   BookOpen, CheckSquare, Robot as Bot, SquaresFour as LayoutDashboard, Gear as Settings,
   Sparkle as Sparkles, List as Menu, X, UploadSimple as Upload, Bell, MagnifyingGlass as Search, CaretRight as ChevronRight,
   ChartBar as BarChart3, Sun, Moon, Users,   Fire as Flame, SquaresFour as Layout, Wind, GraduationCap,
-  TreeStructure as Network, Lightning as Zap, Clock,
+  TreeStructure as Network, Lightning as Zap, Clock, Stack as Layers,
 } from '@phosphor-icons/react';
 import type { AppView, User, DashboardStats, UserSettings } from '../types';
 import { cn } from '../utils/cn';
@@ -142,7 +142,11 @@ export function Shell({
   });
 
   return (
-    <div className="min-h-screen bg-surface-primary flex">
+    <div className="min-h-screen bg-surface-primary flex relative overflow-x-hidden">
+      <div className="platform-blueprint-orbs" aria-hidden="true">
+        <div className="platform-blueprint-orb platform-blueprint-orb-cyan" />
+        <div className="platform-blueprint-orb platform-blueprint-orb-violet" />
+      </div>
       <PlatformSkipLinks />
       {/* Desktop Sidebar */}
       <aside
@@ -474,7 +478,14 @@ export function Shell({
               {onToggleTheme && (() => {
                 const resolved = resolveTheme(theme ?? 'dark');
                 const target = themeToggleTarget(resolved);
-                const labelKey: I18nKey = target === 'light' ? 'switchLight' : target === 'spectrum' ? 'switchSpectrum' : 'switchDark';
+                const labelKey: I18nKey =
+                  target === 'light'
+                    ? 'switchLight'
+                    : target === 'spectrum'
+                      ? 'switchSpectrum'
+                      : target === 'blueprint'
+                        ? 'switchBlueprint'
+                        : 'switchDark';
                 return (
                   <button
                     onClick={onToggleTheme}
@@ -486,6 +497,8 @@ export function Shell({
                       <Sun className="w-5 h-5 text-text-secondary" />
                     ) : target === 'spectrum' ? (
                       <Sparkles className="w-5 h-5 text-text-secondary" />
+                    ) : target === 'blueprint' ? (
+                      <Layers className="w-5 h-5 text-text-secondary" />
                     ) : (
                       <Moon className="w-5 h-5 text-text-secondary" />
                     )}

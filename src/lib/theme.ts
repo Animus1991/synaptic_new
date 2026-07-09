@@ -3,7 +3,7 @@ import { loadJson, saveJson } from './persistence';
 
 const THEME_KEY = 'theme-preference';
 
-export type ResolvedTheme = 'dark' | 'light' | 'spectrum';
+export type ResolvedTheme = 'dark' | 'light' | 'spectrum' | 'blueprint';
 
 export function resolveTheme(preference: UserSettings['theme']): ResolvedTheme {
   if (preference === 'system') {
@@ -20,6 +20,7 @@ const THEME_META_COLORS: Record<ResolvedTheme, string> = {
   light: '#faf8f5',
   dark: '#0f0a1e',
   spectrum: '#f7f5ff',
+  blueprint: '#020617',
 };
 
 export function themeMetaColor(resolved: ResolvedTheme): string {
@@ -44,7 +45,7 @@ export function loadThemePreference(): UserSettings['theme'] {
   return loadJson<UserSettings['theme']>(THEME_KEY, 'dark');
 }
 
-const THEME_CYCLE: ResolvedTheme[] = ['dark', 'light', 'spectrum'];
+const THEME_CYCLE: ResolvedTheme[] = ['dark', 'light', 'spectrum', 'blueprint'];
 
 /** Header toggle: dark → light → spectrum → dark (explicit themes only). */
 export function cycleTheme(preference: UserSettings['theme']): ThemeToggleTarget {
@@ -53,7 +54,7 @@ export function cycleTheme(preference: UserSettings['theme']): ThemeToggleTarget
   return THEME_CYCLE[(idx + 1) % THEME_CYCLE.length];
 }
 
-export type ThemeToggleTarget = 'dark' | 'light' | 'spectrum';
+export type ThemeToggleTarget = 'dark' | 'light' | 'spectrum' | 'blueprint';
 
 export function themeToggleTarget(resolved: ResolvedTheme): ThemeToggleTarget {
   const idx = THEME_CYCLE.indexOf(resolved);

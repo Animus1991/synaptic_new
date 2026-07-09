@@ -87,6 +87,12 @@ export type TasksContent = {
   sessionRunningNow: string;
   sessionUpNext: (title: string) => string;
   sessionAutoAdvanceHint: string;
+  sessionSectionEyebrow: string;
+  sessionSectionTitle: string;
+  sessionSectionSubtitle: string;
+  dangerZoneBody: (days: number) => string;
+  dangerZoneRationale: string;
+  sessionDurationTag: (minutes: number) => string;
 };
 
 const EN: TasksContent = {
@@ -162,6 +168,15 @@ const EN: TasksContent = {
   sessionRunningNow: 'Running now',
   sessionUpNext: (title) => `Up next: ${title}`,
   sessionAutoAdvanceHint: 'Finish the current task to auto-advance to the next one in this session.',
+  sessionSectionEyebrow: 'Focused sessions',
+  sessionSectionTitle: 'Turn study into a queue of precise actions',
+  sessionSectionSubtitle: 'Pick a duration — the planner ranks tasks by exam proximity, mastery gap, and forgetting risk.',
+  dangerZoneBody: (days) =>
+    days === 0
+      ? 'Your exam is today. The scheduler is prioritizing weak concepts with the highest forgetting risk.'
+      : `Your exam is ${days} day${days === 1 ? '' : 's'} away. The scheduler is prioritizing weak concepts with the highest forgetting risk.`,
+  dangerZoneRationale: 'Tasks are ranked by exam proximity, mastery gap, confidence mismatch, and last retrieval time.',
+  sessionDurationTag: (minutes) => (minutes <= 10 ? 'Fast' : minutes <= 25 ? 'Medium' : minutes <= 50 ? 'Deep' : 'Intense'),
 };
 
 const EL: TasksContent = {
@@ -237,6 +252,15 @@ const EL: TasksContent = {
   sessionRunningNow: 'Τρέχει τώρα',
   sessionUpNext: (title) => `Επόμενο: ${title}`,
   sessionAutoAdvanceHint: 'Ολοκλήρωσε την τρέχουσα εργασία για αυτόματη μετάβαση στην επόμενη της συνεδρίας.',
+  sessionSectionEyebrow: 'Focused sessions',
+  sessionSectionTitle: 'Μετέτρεψε τη μελέτη σε ουρά ακριβών ενεργειών',
+  sessionSectionSubtitle: 'Διάλεξε διάρκεια — ο planner κατατάσσει tasks με βάση εγγύτητα εξέτασης, mastery gap και κίνδυνο λήθης.',
+  dangerZoneBody: (days) =>
+    days === 0
+      ? 'Η εξέτασή σου είναι σήμερα. Ο scheduler δίνει προτεραιότητα σε αδύναμες έννοιες με τον μεγαλύτερο κίνδυνο λήθης.'
+      : `Η εξέτασή σου είναι σε ${days} ${days === 1 ? 'ημέρα' : 'ημέρες'}. Ο scheduler δίνει προτεραιότητα σε αδύναμες έννοιες με τον μεγαλύτερο κίνδυνο λήθης.`,
+  dangerZoneRationale: 'Τα tasks κατατάσσονται με βάση εγγύτητα εξέτασης, mastery gap, confidence mismatch και τελευταία retrieval.',
+  sessionDurationTag: (minutes) => (minutes <= 10 ? 'Fast' : minutes <= 25 ? 'Medium' : minutes <= 50 ? 'Deep' : 'Intense'),
 };
 
 const TASK_TYPE_LABELS: Record<Lang, Record<TaskType, string>> = {

@@ -43,6 +43,16 @@ import {
   LearningRadarChart,
   ProgressKpiRow,
 } from './analytics/ProgressInsightsSections';
+import {
+  buildKnowledgeFlowSankey,
+  buildMasteryWaterfall,
+  buildConceptTreemap,
+  buildLearningTimeline,
+} from '../lib/knowledgeFlowAnalytics';
+import { KnowledgeFlowSankeyChart, MasteryWaterfallChart } from './analytics/KnowledgeFlowSankey';
+import { ConceptTreemapChart } from './analytics/ConceptTreemapChart';
+import { LearningTimelineChart } from './analytics/LearningTimelineChart';
+import { SectionHeader } from './ui/platformChrome';
 
 interface AnalyticsProps {
   learnerModel: LearnerModel;
@@ -263,10 +273,79 @@ function OverviewTab({
   const confidenceBuckets = hasConfidenceMetrics
     ? buildConfidenceBuckets(learnerModel, lang)
     : [];
+  const generatedCourseCount = courses.filter((c) => c.status !== 'generating').length;
+  const learningEvents = readAllLearningEvents();
+  const sankeyModel = buildKnowledgeFlowSankey(activities, learningEvents, learnerModel, generatedCourseCount);
+  const waterfallModel = buildMasteryWaterfall(activities, learnerModel, lang);
+  const treemapModel = buildConceptTreemap(courses, learnerModel);
+  const timelineModel = buildLearningTimeline(activities, lang);
   return (
     <div className="space-y-6">
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
         <ProgressKpiRow kpis={progressKpis} />
+      </motion.div>
+
+      <SectionHeader
+        eyebrow={t('analyticsFlowSectionEyebrow')}
+        title={t('analyticsFlowSectionTitle')}
+        subtitle={t('analyticsFlowSectionSubtitle')}
+      />
+
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.04 }}
+        className="grid grid-cols-1 xl:grid-cols-2 gap-6"
+      >
+        <KnowledgeFlowSankeyChart
+          links={sankeyModel.links}
+          hasData={sankeyModel.hasData}
+          title={t('analyticsSankeyTitle')}
+          hint={t('analyticsSankeyHint')}
+          emptyLabel={t('analyticsSankeyEmpty')}
+        />
+        <MasteryWaterfallChart
+          steps={waterfallModel.steps}
+          hasData={waterfallModel.hasData}
+          title={t('analyticsWaterfallTitle')}
+          hint={t('analyticsWaterfallHint')}
+          emptyLabel={t('analyticsWaterfallEmpty')}
+        />
+      </motion.div>
+
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.06 }}
+        className="grid grid-cols-1 xl:grid-cols-2 gap-6"
+      >
+        <ConceptTreemapChart
+          blocks={treemapModel.blocks}
+          totalWeight={treemapModel.totalWeight}
+          hasData={treemapModel.hasData}
+          lang={lang}
+          title={t('analyticsTreemapTitle')}
+          hint={t('analyticsTreemapHint')}
+          emptyLabel={t('analyticsTreemapEmpty')}
+          weightLabel={t('analyticsTreemapWeight')}
+          masteryLabel={t('analyticsTreemapMastery')}
+          prereqLabel={t('analyticsTreemapPrereqs')}
+        />
+        <LearningTimelineChart
+          events={timelineModel.events}
+          hasData={timelineModel.hasData}
+          title={t('analyticsTimelineTitle')}
+          hint={t('analyticsTimelineHint')}
+          emptyLabel={t('analyticsTimelineEmpty')}
+          deltaLabel={t('analyticsTimelineDelta')}
+          dayLabel={(daysAgo) =>
+            daysAgo === 0
+              ? t('analyticsTimelineDayToday')
+              : daysAgo === 1
+                ? t('analyticsTimelineDayAgoOne')
+                : t('analyticsTimelineDayAgoMany').replace('{n}', String(daysAgo))
+          }
+        />
       </motion.div>
 
       {calibration && (

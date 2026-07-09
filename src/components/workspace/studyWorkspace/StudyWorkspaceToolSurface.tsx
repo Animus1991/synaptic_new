@@ -386,6 +386,7 @@ export function StudyWorkspaceToolSurface({ model }: StudyWorkspaceToolSurfacePr
                           onRemediateWeakSpot={handleConceptBusRemediation}
                           courseName={courseName ?? linkedCourse?.title}
                           nextAction={nextActionRecommendation}
+                          onRunNextAction={runNextAction}
                           conceptBusRows={conceptBusRows}
                         />
                         </WorkspaceToolSuspense>

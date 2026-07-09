@@ -1,5 +1,5 @@
 import { useMemo, useState, useCallback } from 'react';
-import { BookOpen, Download, Printer, Search, Target } from '@/lib/lucide-shim';
+import { ArrowRight, BookOpen, Download, Lightbulb, Printer, Search, Target } from '@/lib/lucide-shim';
 import type { DashboardSessionContent } from '../../lib/dashboardSessionModel';
 import {
   filterDashboardToolActivity,
@@ -10,6 +10,7 @@ import type { WorkspaceToolId } from '../../lib/taskFlows';
 import type { ConceptRemediationId } from '../../lib/conceptBusRemediation';
 import type { DashboardWeakSpot } from '../../lib/dashboardWeakSpotsModel';
 import type { NextActionRecommendation } from '../../lib/nextActionEngine';
+import { nextActionLabel } from '../../lib/nextActionEngine';
 import {
   buildProgressSessionExportPayload,
   buildProgressSessionHtml,
@@ -23,6 +24,7 @@ import {
 import { auditProgressConceptBusMirror } from '../../lib/progressConceptBusMirrorQA';
 import type { ConceptBusRow } from '../../lib/conceptBusPanelModel';
 import { ProgressConceptBusMirrorStrip } from './ProgressConceptBusMirrorStrip';
+import { UxCallout } from '../ui/platformChrome';
 import { WorkspacePanelWarnStrip } from './WorkspacePanelWarnStrip';
 import { WorkspaceToolEmptyState } from './WorkspaceToolEmptyState';
 import { MiniDashboard } from './MiniDashboard';
@@ -59,6 +61,7 @@ type Props = {
   onRemediateWeakSpot?: (concept: string, action: ConceptRemediationId) => void;
   courseName?: string;
   nextAction?: NextActionRecommendation | null;
+  onRunNextAction?: () => void;
   conceptBusRows?: ConceptBusRow[];
 };
 
@@ -77,6 +80,7 @@ export function DashboardPanel({
   onRemediateWeakSpot,
   courseName,
   nextAction,
+  onRunNextAction,
   conceptBusRows = [],
 }: Props) {
   const [filterQuery, setFilterQuery] = useState('');
@@ -197,6 +201,29 @@ export function DashboardPanel({
           lang={lang}
           onExportHtml={handleExportHtml}
         />
+
+        {nextAction && onRunNextAction && (
+          <UxCallout
+            variant="next-action"
+            title={t('dashboardSuggestedNext')}
+            icon={<Lightbulb />}
+            testId="workspace-dashboard-next-action"
+            className="mb-3"
+            action={
+              <button
+                type="button"
+                onClick={onRunNextAction}
+                data-testid="workspace-dashboard-next-action-btn"
+                className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-medium ws-empty-cta-secondary shrink-0"
+              >
+                {nextActionLabel(nextAction.primary, lang)} <ArrowRight className="w-3 h-3" />
+              </button>
+            }
+          >
+            <p className="text-[11px] text-text-tertiary">{t('dashboardSuggestedNextSubtitle')}</p>
+            <p className="mt-1 text-xs line-clamp-2">{nextAction.reason}</p>
+          </UxCallout>
+        )}
 
         <div className="mb-2 flex flex-wrap items-center gap-2">
           {session.weakSpotCount > 0 && (

@@ -18,6 +18,7 @@ import {
 import { TaskActionIcon } from './ui/TaskActionIcon';
 import { Page, PageHeader } from './ui/primitives';
 import { PlatformEmptyState } from './ui/PlatformEmptyState';
+import { HeroGlow, SectionHeader, SessionLauncherCard, UxCallout } from './ui/platformChrome';
 
 export type { TaskFilter } from '../lib/tasksContent';
 
@@ -179,7 +180,8 @@ export function Tasks({
   ];
 
   return (
-    <Page className="max-w-5xl">
+    <HeroGlow>
+    <Page className="max-w-5xl ux-fade-up">
       <PageHeader
         title={c.pageTitle}
         subtitle={subtitle}
@@ -244,31 +246,47 @@ export function Tasks({
         </div>
       )}
 
+      {daysToExam !== null && daysToExam <= 14 && (
+        <UxCallout
+          variant="danger"
+          title={c.dangerZoneTitle}
+          icon={<AlertTriangle />}
+          testId="tasks-danger-zone"
+          className="mb-3"
+        >
+          <p>{c.dangerZoneBody(daysToExam)}</p>
+          <p className="mt-2 text-xs text-text-tertiary">{c.dangerZoneRationale}</p>
+        </UxCallout>
+      )}
+
+      <SectionHeader
+        eyebrow={c.sessionSectionEyebrow}
+        title={c.sessionSectionTitle}
+        subtitle={c.sessionSectionSubtitle}
+        className="mb-3"
+      />
+
       {/* Session launchers */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 mb-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3 mb-4">
         {sessionTypes.map((s) => {
           const sessionTasks = filterTasksForSession(visibleTasks, s.type);
           const Icon = s.icon;
           return (
-            <button
+            <SessionLauncherCard
               key={s.type}
-              type="button"
-              data-testid={`session-launcher-${s.type}`}
+              testId={`session-launcher-${s.type}`}
+              label={s.label}
+              desc={s.desc}
+              durationTag={c.sessionDurationTag(s.minutes)}
+              taskHint={sessionTasks.length > 0 ? c.sessionTaskCount(s.minutes, sessionTasks.length) : undefined}
+              icon={Icon}
+              active={sessionMode === s.type}
+              disabled={sessionTasks.length === 0}
               onClick={() => {
                 setSessionMode(s.type);
                 onStartSession?.(s.type);
               }}
-              disabled={sessionTasks.length === 0}
-              className={cn(
-                'ux-card p-3 text-center transition-all',
-                sessionMode === s.type && 'border-brand-500/40 bg-brand-600/10',
-                sessionTasks.length === 0 && 'opacity-50 cursor-not-allowed',
-              )}
-            >
-              <Icon className="w-4 h-4 mx-auto mb-1 text-brand-400" />
-              <p className="text-xs font-medium text-text-primary">{s.label}</p>
-              <p className="text-[10px] text-text-tertiary mt-0.5">{s.desc}</p>
-            </button>
+            />
           );
         })}
       </div>
@@ -504,5 +522,6 @@ export function Tasks({
         </div>
       )}
     </Page>
+    </HeroGlow>
   );
 }

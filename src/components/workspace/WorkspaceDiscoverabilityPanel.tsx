@@ -1,4 +1,4 @@
-import { ChevronDown, ChevronUp, Link2, Sparkles } from '@/lib/lucide-shim';
+import { ChevronDown, ChevronUp, Lightbulb, Link2, Sparkles, ArrowRight } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
 import type { Lang } from '../../lib/i18n';
 import { useI18n } from '../../lib/i18n';
@@ -9,6 +9,7 @@ import type { LearningActionId } from '../../lib/workspaceLearningActions';
 import { getLearningActions } from '../../lib/workspaceLearningActions';
 import type { WorkspaceEmptyAction } from '../../lib/workspaceEmptyState';
 import { WorkspaceToolEmptyState } from './WorkspaceToolEmptyState';
+import { UxCallout } from '../ui/platformChrome';
 import { commandPaletteBadge } from '../../lib/workspaceKeyboardShortcuts';
 
 type DiscoverabilitySummary = ReturnType<typeof buildDiscoverabilitySummary>;
@@ -104,22 +105,23 @@ export function WorkspaceDiscoverabilityPanel({
         <div className="px-3 pb-3 space-y-3 border-t border-white/6 pt-2">
           {nextAction && onRunNextAction && (
             <div data-testid="discoverability-next-action">
-              <p className="text-[10px] font-semibold text-brand-500 mb-1.5">
-                {t('nextAction')}
-              </p>
-              <button
-                type="button"
-                data-testid="discoverability-next-action-primary"
-                onClick={onRunNextAction}
-                className="w-full rounded-lg border border-brand-500/35 bg-brand-500/12 px-2.5 py-2 text-left transition-colors hover:bg-brand-500/18"
+              <UxCallout
+                variant="next-action"
+                title={t('nextAction')}
+                icon={<Lightbulb />}
+                action={
+                  <button
+                    type="button"
+                    data-testid="discoverability-next-action-primary"
+                    onClick={onRunNextAction}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-medium ws-empty-cta-secondary shrink-0"
+                  >
+                    {nextActionLabel(nextAction.primary, lang)} <ArrowRight className="w-3 h-3" />
+                  </button>
+                }
               >
-                <span className="block text-[11px] font-semibold text-brand-800">
-                  {nextActionLabel(nextAction.primary, lang)}
-                </span>
-                <span className="mt-0.5 block text-[10px] leading-relaxed text-text-muted">
-                  {nextAction.reason}
-                </span>
-              </button>
+                <span className="text-[10px] leading-relaxed text-text-muted">{nextAction.reason}</span>
+              </UxCallout>
               {secondaryActions.length > 0 && (
                 <div className="mt-1.5 flex flex-wrap gap-1" data-testid="discoverability-next-action-secondary">
                   {secondaryActions.map((action) => {

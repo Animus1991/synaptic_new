@@ -1,4 +1,4 @@
-import { Moon, Sun, Sparkles } from '@/lib/lucide-shim';
+import { Moon, Sun, Sparkles, Layers } from '@/lib/lucide-shim';
 import { useEffect, useState } from 'react';
 import {
   applyTheme,
@@ -23,11 +23,13 @@ const TARGET_LABEL: Record<ResolvedTheme, I18nKey> = {
   dark: 'switchDark',
   light: 'switchLight',
   spectrum: 'switchSpectrum',
+  blueprint: 'switchBlueprint',
 };
 
 function ThemeIcon({ target }: { target: ResolvedTheme }) {
   if (target === 'light') return <Sun className="w-5 h-5 text-text-secondary" />;
   if (target === 'spectrum') return <Sparkles className="w-5 h-5 text-text-secondary" />;
+  if (target === 'blueprint') return <Layers className="w-5 h-5 text-text-secondary" />;
   return <Moon className="w-5 h-5 text-text-secondary" />;
 }
 

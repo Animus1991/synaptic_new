@@ -2,9 +2,9 @@ import { useState, useMemo, useEffect } from 'react';
 import { prefetchWorkspaceEntry, workspaceEntryPrefetchHandlers } from '../lib/workspaceEntryPrefetch';
 import { motion } from 'framer-motion';
 import {
-  ArrowLeft, BookOpen, Clock, BarChart3, Calendar, FileText,
+  ArrowLeft, ArrowRight, BookOpen, Clock, BarChart3, Calendar, FileText,
   Lock, CheckCircle2, Circle, ChevronRight, Brain, Target,
-  AlertTriangle, Sparkles, Play, MapPin, Network, Upload, Trash2, RefreshCw
+  AlertTriangle, Sparkles, Play, MapPin, Network, Upload, Trash2, RefreshCw, Lightbulb,
 } from '@/lib/lucide-shim';
 import type { Course, Topic, UploadedFile, GlossaryEntry, Task, UserSettings, LearnerModel } from '../types';
 import { cn } from '../utils/cn';
@@ -35,6 +35,7 @@ import { CourseMediaPanel } from './CourseMediaPanel';
 import { NotebookLmExportPanel } from './NotebookLmExportPanel';
 import { Page, PageHeader, TabBar, PrimaryCTA, SecondaryCTA, AnimatedCard } from './ui/primitives';
 import { QualityReportPanel } from './QualityReportPanel';
+import { SectionHeader, TrustBadgeRow, UxCallout } from './ui/platformChrome';
 
 interface CourseViewProps {
   course: Course;
@@ -257,7 +258,41 @@ export function CourseView({
         }
       />
 
-      <p className="text-sm text-text-secondary">{t('courseEntryHint')}</p>
+      <UxCallout variant="info" title={t('courseSectionTitle')} icon={<MapPin className="text-brand-500" />} testId="course-entry-hint">
+        {t('courseEntryHint')}
+      </UxCallout>
+
+      {userSettings && (
+        <TrustBadgeRow sourceMode={userSettings.sourceMode} lang={lang} className="mt-3" />
+      )}
+
+      {quality?.band === 'strong' && !quality.needsMoreMaterial && (
+        <UxCallout variant="trust" title={t('courseTrustCalloutTitle')} icon={<Sparkles />} testId="course-trust-callout" className="mt-3">
+          {t('courseTrustCalloutBody')}
+        </UxCallout>
+      )}
+
+      {progress < 100 && (
+        <UxCallout
+          variant="next-action"
+          title={t('courseContinueCalloutTitle')}
+          icon={<Lightbulb />}
+          testId="course-continue-callout"
+          className="mt-3"
+          action={
+            <button
+              type="button"
+              onClick={() => onStartLesson()}
+              data-testid="course-continue-callout-action"
+              className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-medium ws-empty-cta-secondary shrink-0"
+            >
+              {t('courseContinueCalloutAction')} <ArrowRight className="w-3 h-3" />
+            </button>
+          }
+        >
+          {t('courseContinueCalloutBody').replace('{pct}', String(Math.round(progress)))}
+        </UxCallout>
+      )}
 
       {showPostUploadBanner && (
         <PostUploadBanner
@@ -422,6 +457,13 @@ export function CourseView({
         </div>
       </AnimatedCard>
 
+      <SectionHeader
+        eyebrow={t('courseSectionEyebrow')}
+        title={t('courseSectionTitle')}
+        subtitle={t('courseSectionSubtitle')}
+        className="mt-2"
+      />
+
       <TabBar
         activeKey={tab}
         onChange={(key) => setTab(key as CourseTab)}
@@ -436,6 +478,12 @@ export function CourseView({
       {/* Tab Content */}
       {tab === 'path' && (
         <div className="space-y-4">
+          <SectionHeader
+            eyebrow={t('coursePathSectionEyebrow')}
+            title={t('coursePathSectionTitle')}
+            subtitle={t('coursePathSectionSubtitle')}
+            animate={false}
+          />
           {course.topics.map((topic, i) => (
             <TopicCard key={topic.id} topic={topic} index={i} courseColor={course.color} course={course} onGoToSource={onGoToSource} onStart={() => onStartLesson(topic.title)} />
           ))}

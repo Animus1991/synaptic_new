@@ -29,6 +29,7 @@ import { workspaceEntryPrefetchHandlers } from '../lib/workspaceEntryPrefetch';
 import { greetingForTime, dashboardSubtitle } from '../lib/greeting';
 import { useI18n } from '../lib/i18n';
 import { Page, PageHeader, PlatformSection, PrimaryCTA } from './ui/primitives';
+import { HeroGlow, UxCallout } from './ui/platformChrome';
 import { PostUploadBanner } from './ui/PostUploadBanner';
 import { Layout as LucideLayout } from '@/lib/lucide-shim';
 import { useMemo } from 'react';
@@ -173,7 +174,8 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
   }
 
   return (
-    <Page>
+    <HeroGlow>
+    <Page className="ux-fade-up">
       <PageHeader
         eyebrow={t('dashboardEyebrow')}
         title={
@@ -285,22 +287,24 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
 
       {/* Exam countdown */}
       {daysToExam !== null && (
-        <MotionSection initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="platform-banner-danger p-4 rounded-2xl border flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <Calendar className="w-5 h-5 text-accent-rose shrink-0" />
-            <div>
-              <p className="platform-banner-title text-sm font-semibold">Exam Countdown</p>
-              <p className="text-xs text-text-secondary mt-0.5">
-                {daysToExam === 0 ? 'Exam is today — good luck!' : `${daysToExam} day${daysToExam === 1 ? '' : 's'} until your exam`}
-              </p>
-            </div>
-          </div>
-          <button
-            onClick={() => (examTask ? onStartTask?.(examTask.id) : onOpenExamTimer?.() ?? onOpenWorkspace?.())}
-            className="platform-link text-xs flex items-center gap-1 shrink-0"
+        <MotionSection initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+          <UxCallout
+            variant="danger"
+            title="Exam Countdown"
+            icon={<Calendar className="text-accent-amber" />}
+            testId="dashboard-exam-countdown"
+            action={
+              <button
+                type="button"
+                onClick={() => (examTask ? onStartTask?.(examTask.id) : onOpenExamTimer?.() ?? onOpenWorkspace?.())}
+                className="platform-link text-xs flex items-center gap-1 shrink-0"
+              >
+                {examTask ? 'Start exam prep' : 'Exam prep'} <ArrowRight className="w-3 h-3" />
+              </button>
+            }
           >
-            {examTask ? 'Start exam prep' : 'Exam prep'} <ArrowRight className="w-3 h-3" />
-          </button>
+            {daysToExam === 0 ? 'Exam is today — good luck!' : `${daysToExam} day${daysToExam === 1 ? '' : 's'} until your exam`}
+          </UxCallout>
         </MotionSection>
       )}
 
@@ -376,24 +380,25 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
       )}
 
       {!showWorkspaceResume && dashboardNextAction && (
-        <MotionSection initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="platform-banner-brand p-4 rounded-2xl border flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-start gap-3 min-w-0">
-            <Lightbulb className="w-5 h-5 text-brand-700 shrink-0 mt-0.5" />
-            <div className="min-w-0">
-              <p className="platform-banner-title text-sm font-semibold">
-                {t('dashboardSuggestedNext')}
-              </p>
-              <p className="text-[11px] text-text-tertiary mt-0.5">{t('dashboardSuggestedNextSubtitle')}</p>
-              <p className="text-xs text-text-secondary mt-0.5 line-clamp-2">{dashboardNextAction.reason}</p>
-            </div>
-          </div>
-          <button
-            onClick={handleDashboardNextAction}
-            data-testid="dashboard-next-action"
-            className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-medium ws-empty-cta-secondary shrink-0"
+        <MotionSection initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+          <UxCallout
+            variant="next-action"
+            title={t('dashboardSuggestedNext')}
+            icon={<Lightbulb />}
+            testId="dashboard-next-action"
+            action={
+              <button
+                type="button"
+                onClick={handleDashboardNextAction}
+                className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-medium ws-empty-cta-secondary shrink-0"
+              >
+                {dashboardNextAction.label} <ArrowRight className="w-3 h-3" />
+              </button>
+            }
           >
-            {dashboardNextAction.label} <ArrowRight className="w-3 h-3" />
-          </button>
+            <p className="text-[11px] text-text-tertiary">{t('dashboardSuggestedNextSubtitle')}</p>
+            <p className="mt-1 text-xs line-clamp-2">{dashboardNextAction.reason}</p>
+          </UxCallout>
         </MotionSection>
       )}
 
@@ -722,6 +727,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
         </MotionSection>
       </div>
     </Page>
+    </HeroGlow>
   );
 }
 

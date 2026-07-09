@@ -32,6 +32,7 @@ import { AgentModeCatalogGrid, AgentModeSidebar } from './agent/AgentModeSidebar
 import { useI18n } from '../lib/i18n';
 import { PlatformSection } from './ui/primitives';
 import { PlatformEmptyState } from './ui/PlatformEmptyState';
+import { TrustBadgeRow } from './ui/platformChrome';
 
 interface AgentProps {
   messages: AgentMessage[];
@@ -484,6 +485,7 @@ export function Agent({
                 {llmReady ? ui.llmConnected : ui.offlineMode}
                 {sourceExcerpt ? ui.sourceAttached : ''}
               </p>
+              <TrustBadgeRow sourceMode={activeSourceMode} lang={lang} className="mt-2" />
             </div>
           </div>
 
