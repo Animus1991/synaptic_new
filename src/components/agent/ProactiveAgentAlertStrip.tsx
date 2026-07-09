@@ -42,7 +42,7 @@ export function ProactiveAgentAlertStrip({ alerts, onRun }: Props) {
                 data-testid={`proactive-agent-alert-${alert.id}`}
                 onClick={() => onRun(alert)}
                 className={cn(
-                  'group flex items-start gap-3 rounded-xl border px-3 py-2.5 text-left transition-colors',
+                  'ux-proactive-alert-item group flex items-start gap-3 rounded-xl border px-3 py-2.5 text-left transition-colors',
                   alert.severity === 'urgent'
                     ? 'border-accent-rose/30 bg-accent-rose/5 hover:border-accent-rose/50'
                     : 'border-border-subtle bg-surface-card/50 hover:border-brand-500/40',

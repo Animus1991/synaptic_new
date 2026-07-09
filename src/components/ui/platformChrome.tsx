@@ -5,6 +5,7 @@ import { cn } from '../../utils/cn';
 import type { UserSettings } from '../../types';
 import { t, type Lang } from '../../lib/i18n';
 import { getAgentContent } from '../../lib/agentContent';
+import { BLUEPRINT_MOTION, useBlueprintTheme } from '../../lib/useBlueprintTheme';
 
 export { BlueprintSurface } from './BlueprintSurface';
 
@@ -22,6 +23,7 @@ export function SectionHeader({
   className?: string;
   animate?: boolean;
 }) {
+  const isBlueprint = useBlueprintTheme();
   const body = (
     <div className={cn('ux-section-header space-y-2', className)}>
       {eyebrow ? <p className="ux-section-eyebrow">{eyebrow}</p> : null}
@@ -30,8 +32,11 @@ export function SectionHeader({
     </div>
   );
   if (!animate) return body;
+  const motionProps = isBlueprint
+    ? { ...BLUEPRINT_MOTION, transition: { ...BLUEPRINT_MOTION.transition, delay: 0 } }
+    : { initial: { opacity: 0, y: 10 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.25 } };
   return (
-    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25 }}>
+    <motion.div {...motionProps}>
       {body}
     </motion.div>
   );

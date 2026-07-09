@@ -257,6 +257,8 @@ Goal: every tool **fully functional for its learning purpose**, not demo stubs.
 | OPT-D4 | Option-B Wave D4 — Library InfoStack + live preview + CourseView tabs | P2 | **shipped** | `InfoStack` on Library; `DashboardLivePreview`; `DescriptiveStickyTabBar` on Library + CourseView |
 | OPT-E1 | Option-B Wave E1 — Shell trust badges + quick wins | P2 | **shipped** | `SynapseBrandGlyph`; `HeaderTrustBadgeRow` (source/PWA/offline); `MiniAlert`; Shell header wiring; blueprint scrollbar + trust badge CSS |
 | OPT-E3 | Option-B Wave E3 — ws-bento → BlueprintSurface sweep | P2 | **shipped** | Platform-wide glass parity: workspace tools, visuals, Agent, Library list/cards, `Card`/`StatTile` primitives, `ws-bento-soft` → `hint` |
+| OPT-E2 | Option-B Wave E2 — blueprint CTA + motion + typography | P2 | **shipped** | `ux-primary-cta` / `ux-secondary-cta` inverted glass; `useBlueprintTheme` + prototype fadeUp in `MotionSection`; eyebrow 0.34em; sans headings on blueprint |
+| OPT-E4 | Option-B Wave E4 — agent bubbles + toast + chips | P2 | **shipped** | Cyan/glass `agent-message-bubble-*`; `ux-agent-chip` follow-ups; cyan glass toast stack + bottom-right `AppToastBanner`; proactive strip glass alignment |
 | WS-01 | Workspace empty states (`§2.7`) — learning outcome + CTA per tool | P1 | **shipped** | `WorkspaceToolEmptyState` + `buildWorkspaceEmptyView`; all 16 tools wired; E2E `workspace-empty-tools.spec.ts` |
 | PLT-02 | OpenTelemetry + Helm IaC | P3 | **shipped** | `telemetry.ts`, `/live`/`/ready`, `server/helm/` |
 | PLT-03 | Offline embeddings (transformers.js) | P3 | open |

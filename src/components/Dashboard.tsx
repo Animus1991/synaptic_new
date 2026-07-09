@@ -203,7 +203,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                 <Layout className="w-4 h-4" /> {t('navStudyWorkspace')}
               </button>
             )}
-            <PrimaryCTA onClick={() => onStartSession?.('25min') ?? onNavigate('tasks')} className="whitespace-nowrap bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-500 hover:to-brand-400 font-medium">
+            <PrimaryCTA onClick={() => onStartSession?.('25min') ?? onNavigate('tasks')} className="whitespace-nowrap">
               <Play className="w-4 h-4" /> {t('startSession')}
             </PrimaryCTA>
           </>

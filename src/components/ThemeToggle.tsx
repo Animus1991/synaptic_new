@@ -14,9 +14,12 @@ import type { I18nKey } from '../lib/i18n';
 interface Props {
   preference?: UserSettings['theme'];
   onChange?: (theme: UserSettings['theme']) => void;
+  /** When set, delegates cycling to the store (e.g. Shell / workspace header). */
+  onToggle?: () => void;
   className?: string;
   /** Optional i18n lookup for aria/title labels */
   t?: (key: I18nKey) => string;
+  'data-testid'?: string;
 }
 
 const TARGET_LABEL: Record<ResolvedTheme, I18nKey> = {
@@ -33,7 +36,7 @@ function ThemeIcon({ target }: { target: ResolvedTheme }) {
   return <Moon className="w-5 h-5 text-text-secondary" />;
 }
 
-export function ThemeToggle({ preference, onChange, className, t }: Props) {
+export function ThemeToggle({ preference, onChange, onToggle, className, t, 'data-testid': testId }: Props) {
   const pref = preference ?? loadThemePreference();
   const [resolved, setResolved] = useState<ResolvedTheme>(() => resolveTheme(pref));
 
@@ -42,6 +45,10 @@ export function ThemeToggle({ preference, onChange, className, t }: Props) {
   }, [preference]);
 
   const toggle = () => {
+    if (onToggle) {
+      onToggle();
+      return;
+    }
     const next = cycleTheme(pref);
     applyTheme(next);
     setResolved(resolveTheme(next));
@@ -58,6 +65,7 @@ export function ThemeToggle({ preference, onChange, className, t }: Props) {
       className={className ?? 'p-2 rounded-lg hover:bg-surface-hover transition-colors'}
       title={title}
       aria-label={title}
+      data-testid={testId}
     >
       <ThemeIcon target={target} />
     </button>

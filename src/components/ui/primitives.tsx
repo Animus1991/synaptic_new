@@ -3,6 +3,11 @@ import { motion, type HTMLMotionProps } from 'framer-motion';
 import type { LucideIcon } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
 import { BlueprintSurface } from './BlueprintSurface';
+import {
+  BLUEPRINT_MOTION,
+  blueprintStaggerDelay,
+  useBlueprintTheme,
+} from '../../lib/useBlueprintTheme';
 
 /**
  * Shared page-level layout primitives for Synapse top-level views.
@@ -45,6 +50,7 @@ export function PageHeader({
   className?: string;
   animate?: boolean;
 }) {
+  const isBlueprint = useBlueprintTheme();
   const content = (
     <div className={cn('flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between', className)}>
       <div className="min-w-0">
@@ -64,8 +70,11 @@ export function PageHeader({
   );
 
   if (!animate) return content;
+  const motionProps = isBlueprint
+    ? { ...BLUEPRINT_MOTION, transition: { ...BLUEPRINT_MOTION.transition, delay: 0 } }
+    : { initial: { opacity: 0, y: 10 }, animate: { opacity: 1, y: 0 } };
   return (
-    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+    <motion.div {...motionProps}>
       {content}
     </motion.div>
   );
@@ -308,17 +317,23 @@ export function AnimatedCard({
   animate = true,
   ...motionProps
 }: AnimatedCardProps) {
+  const isBlueprint = useBlueprintTheme();
   const card = (
     <Card tone={tone} padding={padding} className={className}>
       {children}
     </Card>
   );
   if (!animate) return card;
+  const motionInitial = isBlueprint ? BLUEPRINT_MOTION.initial : { opacity: 0, y: 10 };
+  const motionAnimate = isBlueprint ? BLUEPRINT_MOTION.animate : { opacity: 1, y: 0 };
+  const motionTransition = isBlueprint
+    ? { ...BLUEPRINT_MOTION.transition, delay: blueprintStaggerDelay(undefined, delay) }
+    : { delay, duration: 0.2, ease: [0.4, 0, 0.2, 1] as const };
   return (
     <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay, duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
+      initial={motionInitial}
+      animate={motionAnimate}
+      transition={motionTransition}
       {...motionProps}
     >
       {card}
@@ -336,7 +351,7 @@ export const PrimaryCTA = forwardRef<
       ref={ref}
       type="button"
       className={cn(
-        'inline-flex items-center justify-center gap-2 rounded-xl font-semibold text-white transition-colors',
+        'ux-primary-cta inline-flex items-center justify-center gap-2 rounded-xl font-semibold text-white transition-all duration-300',
         'bg-brand-600 hover:bg-brand-700 disabled:opacity-60 disabled:pointer-events-none',
         size === 'sm' ? 'px-4 py-2 text-xs' : 'px-5 py-2.5 text-sm',
         className,
@@ -358,7 +373,7 @@ export const SecondaryCTA = forwardRef<
       ref={ref}
       type="button"
       className={cn(
-        'inline-flex items-center justify-center gap-2 rounded-xl font-medium transition-colors platform-pill',
+        'ux-secondary-cta inline-flex items-center justify-center gap-2 rounded-xl font-medium transition-all duration-300 platform-pill',
         'border border-border-subtle text-text-secondary hover:border-brand-500/35 hover:text-brand-700',
         'disabled:opacity-60 disabled:pointer-events-none',
         size === 'sm' ? 'px-3 py-2 text-xs' : 'px-4 py-2.5 text-sm',

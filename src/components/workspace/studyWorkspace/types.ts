@@ -40,6 +40,7 @@ export interface StudyWorkspaceProps {
   onStartTask?: (taskId: string) => void;
   tasks?: Task[];
   userSettings?: UserSettings;
+  onToggleTheme?: () => void;
   openSourceAt?: (highlight: SourceHighlight) => void;
   clearSourceHighlight?: () => void;
   sourceHighlight?: SourceHighlight | null;

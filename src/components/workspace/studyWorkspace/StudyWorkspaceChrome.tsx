@@ -1,5 +1,6 @@
 import { cn } from '../../../utils/cn';
 import { BlueprintSurface } from '../../ui/BlueprintSurface';
+import { ThemeToggle } from '../../ThemeToggle';
 import {
   X, Maximize2, Minimize2, Sparkles, StickyNote, Search, LayoutGrid, SlidersHorizontal, PanelLeftOpen,
 } from '@/lib/lucide-shim';
@@ -73,7 +74,18 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
     enterSplitLesson,
   } = model;
 
+  const { userSettings, onToggleTheme } = model;
+
   const [notebookMenuOpen, setNotebookMenuOpen] = useState(false);
+
+  const themeToggle = onToggleTheme ? (
+    <ThemeToggle
+      preference={userSettings?.theme}
+      onToggle={onToggleTheme}
+      t={t}
+      data-testid="workspace-theme-toggle"
+    />
+  ) : null;
 
   return (
     <>
@@ -138,6 +150,11 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
                       >
                         <LayoutGrid className={cn('w-4 h-4', notebookMode && 'text-brand-600')} />
                       </button>
+                      {themeToggle && (
+                        <div className="[&>button]:p-2 [&>button]:rounded-full [&>button]:bg-surface-secondary [&>button]:hover:bg-surface-hover [&>button]:min-h-[40px] [&>button]:min-w-[40px] [&>button]:flex [&>button]:items-center [&>button]:justify-center">
+                          {themeToggle}
+                        </div>
+                      )}
                       <button
                         onClick={handleOpenAgent}
                         aria-label={t('agentBtn')}
@@ -251,7 +268,12 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
                     {courseName ?? linkedCourse?.title ?? taskTitle ?? quizConcept}
                   </h1>
                 </div>
-                <div className="relative shrink-0">
+                <div className="relative shrink-0 flex items-center gap-1">
+                  {themeToggle && (
+                    <div className="[&>button]:p-1.5 [&>button]:rounded-lg [&>button]:hover:bg-surface-hover">
+                      {themeToggle}
+                    </div>
+                  )}
                   <button
                     type="button"
                     onClick={() => setNotebookMenuOpen((v) => !v)}
@@ -269,6 +291,9 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
                       <button type="button" onClick={() => { setStudyRoomOpen((v) => !v); setNotebookMenuOpen(false); }} className="w-full text-left px-3 py-2 hover:bg-surface-hover text-text-secondary">{lang === 'el' ? 'Study room' : 'Study room'}</button>
                       <button type="button" onClick={() => { setIntelSheetOpen(true); setNotebookMenuOpen(false); }} className="w-full text-left px-3 py-2 hover:bg-surface-hover text-text-secondary">{lang === 'el' ? 'Αδύναμα σημεία & έννοιες' : 'Weak areas & concepts'}</button>
                       <button type="button" onClick={() => { setNotebookMode(false); setNotebookMenuOpen(false); }} className="w-full text-left px-3 py-2 hover:bg-surface-hover text-text-secondary">{lang === 'el' ? 'Κλασική προβολή' : 'Classic view'}</button>
+                      {onToggleTheme && (
+                        <button type="button" onClick={() => { onToggleTheme(); setNotebookMenuOpen(false); }} className="w-full text-left px-3 py-2 hover:bg-surface-hover text-text-secondary">{t('theme')}</button>
+                      )}
                       <button type="button" onClick={() => { handleOpenAgent(); setNotebookMenuOpen(false); }} className="w-full text-left px-3 py-2 hover:bg-surface-hover text-text-secondary">{t('agentBtn')}</button>
                     </div>
                   )}
@@ -355,6 +380,11 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
                   <button onClick={() => setLayout(layout === 'zen' ? 'split' : 'zen')} className="p-1.5 rounded-lg hover:bg-surface-hover text-text-secondary hover:text-text-primary transition-colors shrink-0" title={layout === 'zen' ? t('wsExitFocus') : t('wsToggleLayout')}>
                     {layout === 'zen' ? <Minimize2 className="w-4 h-4 text-brand-800" /> : <Maximize2 className="w-4 h-4" />}
                   </button>
+                  {themeToggle && (
+                    <div className="[&>button]:ws-chrome-btn [&>button]:p-1.5 [&>button]:shrink-0">
+                      {themeToggle}
+                    </div>
+                  )}
                   <button onClick={handleOpenAgent} className="flex items-center gap-1 px-2.5 py-1.5 rounded-full type-micro font-medium border border-border-subtle bg-surface-card hover:border-brand-200 hover:bg-surface-hover text-text-secondary hover:text-text-primary shrink-0 transition-colors">
                     <Sparkles className="w-3.5 h-3.5 text-brand-800" /> {t('agentBtn')}
                   </button>

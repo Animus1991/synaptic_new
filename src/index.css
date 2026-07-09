@@ -703,6 +703,152 @@
   background: color-mix(in srgb, var(--color-accent-emerald) 10%, transparent);
   color: var(--color-accent-emerald);
 }
+
+/* Option-B Wave E2 — inverted CTAs, glass secondary, typography, fadeUp motion */
+[data-theme="blueprint"] .ux-primary-cta {
+  border-radius: 1rem;
+  background-color: #ffffff !important;
+  background-image: none !important;
+  color: #020617;
+  font-weight: 600;
+  transition:
+    background-color var(--motion-duration-ui) var(--motion-ease),
+    transform var(--motion-duration-ui) var(--motion-ease),
+    box-shadow var(--motion-duration-ui) var(--motion-ease);
+}
+[data-theme="blueprint"] .ux-primary-cta:hover:not(:disabled) {
+  background-color: #ecfeff !important;
+  color: #020617;
+}
+@media (prefers-reduced-motion: no-preference) {
+  [data-theme="blueprint"] .ux-primary-cta:hover:not(:disabled) {
+    transform: translateY(-2px);
+  }
+}
+[data-theme="blueprint"] .ux-secondary-cta {
+  border-radius: 1rem;
+  border-color: color-mix(in srgb, #ffffff 10%, transparent);
+  background: color-mix(in srgb, #ffffff 5%, var(--color-surface-primary));
+  color: var(--color-text-primary);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition:
+    border-color var(--motion-duration-ui) var(--motion-ease),
+    background-color var(--motion-duration-ui) var(--motion-ease),
+    color var(--motion-duration-ui) var(--motion-ease),
+    transform var(--motion-duration-ui) var(--motion-ease);
+}
+[data-theme="blueprint"] .ux-secondary-cta:hover:not(:disabled) {
+  border-color: color-mix(in srgb, var(--color-accent-cyan) 40%, transparent);
+  background: color-mix(in srgb, #ffffff 10%, var(--color-surface-primary));
+  color: #ffffff;
+}
+@media (prefers-reduced-motion: no-preference) {
+  [data-theme="blueprint"] .ux-secondary-cta:hover:not(:disabled) {
+    transform: translateY(-2px);
+  }
+}
+[data-theme="blueprint"] .ws-eyebrow {
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: color-mix(in srgb, var(--color-accent-cyan) 70%, var(--color-text-secondary));
+}
+[data-theme="blueprint"] :is(.ws-serif, .ux-section-header h2) {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  letter-spacing: -0.025em;
+}
+@keyframes blueprintFadeUp {
+  0% { opacity: 0; transform: translateY(12px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: no-preference) {
+  [data-theme="blueprint"] .blueprint-fade-up {
+    animation: blueprintFadeUp 0.6s ease-out both;
+  }
+}
+
+/* Option-B Wave E4 — agent bubbles, follow-up chips, toast polish */
+.ux-agent-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  border-radius: 9999px;
+  border: 1px solid var(--color-border-subtle);
+  padding: 0.375rem 0.75rem;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  color: var(--color-text-secondary);
+  transition:
+    border-color var(--motion-duration-ui) var(--motion-ease),
+    background-color var(--motion-duration-ui) var(--motion-ease),
+    color var(--motion-duration-ui) var(--motion-ease);
+}
+.ux-agent-chip:hover {
+  border-color: color-mix(in srgb, var(--color-brand-500) 30%, transparent);
+  background: var(--color-surface-hover);
+}
+[data-theme="blueprint"] .agent-message-bubble-assistant {
+  border: 1px solid color-mix(in srgb, var(--color-accent-cyan) 20%, transparent);
+  background: color-mix(in srgb, var(--color-accent-cyan) 10%, transparent);
+  color: color-mix(in srgb, #ecfeff 92%, var(--color-text-primary));
+  border-radius: 1.5rem;
+}
+[data-theme="blueprint"] .agent-message-bubble-user {
+  border: 1px solid color-mix(in srgb, #ffffff 8%, transparent);
+  background: color-mix(in srgb, #ffffff 4%, var(--color-surface-primary)) !important;
+  color: var(--color-text-primary);
+  border-radius: 1.5rem;
+}
+[data-theme="blueprint"] .agent-message-bubble-user .agent-message-meta {
+  border-color: color-mix(in srgb, #ffffff 15%, transparent);
+  color: color-mix(in srgb, #ffffff 65%, var(--color-text-muted));
+}
+[data-theme="blueprint"] .agent-message-avatar {
+  border-radius: 0.75rem;
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--color-accent-cyan) 85%, #020617),
+    color-mix(in srgb, var(--color-accent-teal) 70%, #020617)
+  );
+  box-shadow: 0 0 16px color-mix(in srgb, var(--color-accent-cyan) 20%, transparent);
+}
+[data-theme="blueprint"] .ux-agent-chip {
+  border-color: color-mix(in srgb, #ffffff 10%, transparent);
+  background: color-mix(in srgb, #ffffff 4%, transparent);
+  color: color-mix(in srgb, #ffffff 88%, var(--color-text-secondary));
+}
+[data-theme="blueprint"] .ux-agent-chip:hover {
+  border-color: color-mix(in srgb, var(--color-accent-cyan) 35%, transparent);
+  background: color-mix(in srgb, var(--color-accent-cyan) 8%, transparent);
+  color: #ecfeff;
+}
+[data-theme="blueprint"] .ux-proactive-alert-item {
+  border-color: color-mix(in srgb, #ffffff 10%, transparent);
+  background: color-mix(in srgb, #ffffff 4%, var(--color-surface-primary));
+}
+[data-theme="blueprint"] .ux-proactive-alert-item:hover {
+  border-color: color-mix(in srgb, var(--color-accent-cyan) 30%, transparent);
+}
+[data-theme="blueprint"] .app-toast-shell {
+  left: auto;
+  right: 1.5rem;
+  transform: none;
+  max-width: 24rem;
+}
+[data-theme="blueprint"] .app-toast-banner {
+  border-color: color-mix(in srgb, var(--color-accent-cyan) 30%, transparent);
+  background: color-mix(in srgb, #020617 92%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 24px 60px color-mix(in srgb, #000000 35%, transparent);
+}
+[data-theme="blueprint"] .app-toast-banner .text-accent-emerald {
+  color: var(--color-accent-cyan);
+}
+
 [data-theme="blueprint"] :is(button, a).bg-brand-600,
 [data-theme="blueprint"] :is(button, a).bg-brand-700 {
   background-color: #ffffff;
@@ -951,7 +1097,15 @@
   border-radius: 1rem;
   border-color: color-mix(in srgb, var(--color-accent-cyan) 30%, transparent);
   background: color-mix(in srgb, #020617 92%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   box-shadow: 0 24px 60px color-mix(in srgb, #000000 35%, transparent);
+}
+[data-theme="blueprint"] .notification-toast .text-text-primary {
+  color: #ecfeff;
+}
+[data-theme="blueprint"] .notification-toast .text-text-secondary {
+  color: color-mix(in srgb, #ecfeff 70%, transparent);
 }
 [data-theme="blueprint"] .notification-toast-info {
   border-color: color-mix(in srgb, var(--color-accent-cyan) 32%, transparent);

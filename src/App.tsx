@@ -377,6 +377,7 @@ export default function App() {
         onLeitnerRate={(concept, rating) => store.submitLeitnerRating(concept, rating, store.activeTask?.courseId ?? store.selectedCourse?.id)}
         onLogStudyMinutes={store.logStudyMinutes}
         userSettings={store.user.settings}
+        onToggleTheme={store.toggleTheme}
         onUpload={() => openUploadModal()}
         onReuploadMaterial={() => {
           const id = store.activeTask?.courseId ?? store.selectedCourse?.id;

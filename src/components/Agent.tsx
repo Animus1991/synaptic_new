@@ -694,7 +694,7 @@ export function Agent({
                       key={action}
                       type="button"
                       onClick={() => handleQuickAction(action)}
-                      className="rounded-full border border-border-subtle px-3 py-1 text-xs text-text-secondary hover:bg-surface-hover transition-colors"
+                      className="ux-agent-chip"
                     >
                       {action}
                     </button>
@@ -721,7 +721,7 @@ export function Agent({
                         key={action}
                         type="button"
                         onClick={() => handleQuickAction(action)}
-                        className="rounded-full border border-border-subtle px-3 py-1.5 text-xs text-text-secondary hover:border-brand-500/30 hover:bg-surface-hover transition-colors text-left"
+                        className="ux-agent-chip text-left"
                       >
                         {action}
                       </button>
@@ -756,7 +756,7 @@ export function Agent({
                   <button
                     key={action}
                     onClick={() => handleQuickAction(action)}
-                    className="px-3 py-1.5 rounded-lg text-xs font-medium border border-border-subtle hover:border-brand-500/30 hover:bg-surface-hover text-text-secondary transition-all"
+                    className="ux-agent-chip font-medium"
                   >
                     {action}
                   </button>
@@ -963,16 +963,16 @@ function MessageBubble({
       className={cn('flex gap-3', isUser && 'flex-row-reverse')}
     >
       {!isUser && (
-        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-500 to-accent-teal flex items-center justify-center shrink-0 mt-1">
+        <div className="agent-message-avatar w-8 h-8 rounded-lg bg-gradient-to-br from-brand-500 to-accent-teal flex items-center justify-center shrink-0 mt-1">
           <Sparkles className="w-4 h-4 text-white" />
         </div>
       )}
 
       <div className={cn(
-        'max-w-[85%] sm:max-w-[75%] rounded-2xl px-4 py-3 text-sm leading-relaxed',
+        'agent-message-bubble max-w-[85%] sm:max-w-[75%] rounded-2xl px-4 py-3 text-sm leading-relaxed',
         isUser
-          ? 'agent-user-bubble text-white rounded-tr-md'
-          : 'bg-surface-card border border-border-subtle rounded-tl-md'
+          ? 'agent-message-bubble-user agent-user-bubble text-white rounded-tr-md'
+          : 'agent-message-bubble-assistant bg-surface-card border border-border-subtle rounded-tl-md',
       )}>
         <div>
           {isUser ? (
@@ -989,8 +989,8 @@ function MessageBubble({
           <CitationList citations={message.citations} onGoToSource={onGoToSource} lang={lang} ui={ui} />
         ) : message.sourceReference ? (
           <div className={cn(
-            'mt-2 pt-2 border-t flex items-center gap-1.5 text-xs',
-            isUser ? 'border-white/20 text-white/70' : 'border-border-subtle text-text-tertiary'
+            'agent-message-meta mt-2 pt-2 border-t flex items-center gap-1.5 text-xs',
+            isUser ? 'border-white/20 text-white/70' : 'border-border-subtle text-text-tertiary',
           )}>
             <FileText className="w-3 h-3" />
             {message.sourceReference}
