@@ -104,7 +104,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                   <Sparkles className="w-8 h-8" />
                 </div>
                 <div className="text-center space-y-3">
-                  <h1 className="text-3xl font-medium ws-serif">{content.welcomeTitle}</h1>
+                  <h1 className="text-2xl font-medium ws-serif">{content.welcomeTitle}</h1>
                   <p className="text-text-secondary leading-relaxed max-w-xl mx-auto">
                     {content.welcomeBody}
                   </p>
@@ -160,7 +160,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
             {step === 'role' && (
               <motion.div key="role" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-6">
                 <div className="text-center">
-                  <h2 className="text-2xl font-medium ws-serif">{content.roleTitle}</h2>
+                  <h2 className="text-xl font-medium ws-serif">{content.roleTitle}</h2>
                   <p className="text-text-secondary mt-1 text-sm">{content.roleSubtitle}</p>
                 </div>
                 <div className="space-y-2">
@@ -187,7 +187,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
             {step === 'goals' && (
               <motion.div key="goals" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-6">
                 <div className="text-center">
-                  <h2 className="text-2xl font-medium ws-serif">{content.goalsTitle}</h2>
+                  <h2 className="text-xl font-medium ws-serif">{content.goalsTitle}</h2>
                   <p className="text-text-secondary mt-1 text-sm">{content.goalsSubtitle}</p>
                 </div>
                 <div className="grid grid-cols-2 gap-2">
@@ -214,7 +214,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
             {step === 'schedule' && (
               <motion.div key="schedule" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-6">
                 <div className="text-center">
-                  <h2 className="text-2xl font-medium ws-serif">{content.prefsTitle}</h2>
+                  <h2 className="text-xl font-medium ws-serif">{content.prefsTitle}</h2>
                   <p className="text-text-secondary mt-1 text-sm">{content.prefsSubtitle}</p>
                 </div>
                 <div className="space-y-5">

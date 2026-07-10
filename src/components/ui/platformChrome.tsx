@@ -27,7 +27,7 @@ export function SectionHeader({
   const body = (
     <div className={cn('ux-section-header space-y-2', className)}>
       {eyebrow ? <p className="ux-section-eyebrow">{eyebrow}</p> : null}
-      <h2 className="text-xl font-semibold tracking-tight text-text-primary sm:text-2xl">{title}</h2>
+      <h2 className="font-semibold tracking-tight text-text-primary">{title}</h2>
       {subtitle ? <p className="max-w-2xl text-sm leading-6 text-text-secondary">{subtitle}</p> : null}
     </div>
   );

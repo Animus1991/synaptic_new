@@ -52,7 +52,7 @@ export function PageHeader({
 }) {
   const isBlueprint = useBlueprintTheme();
   const content = (
-    <div className={cn('flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between', className)}>
+    <div className={cn('ux-page-header flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between', className)}>
       <div className="min-w-0">
         {eyebrow && <p className="ws-eyebrow mb-1.5 text-text-secondary">{eyebrow}</p>}
         <div className="flex items-center gap-3">
@@ -61,9 +61,9 @@ export function PageHeader({
               <Icon className="h-5 w-5" />
             </span>
           )}
-          <h1 className="ws-serif truncate text-2xl font-medium tracking-tight text-text-primary sm:text-3xl">{title}</h1>
+          <h1 className="ws-serif truncate font-medium tracking-tight text-text-primary">{title}</h1>
         </div>
-        {subtitle && <p className="mt-1.5 text-sm text-text-secondary sm:text-base">{subtitle}</p>}
+        {subtitle && <div className="ux-page-subtitle mt-1.5 text-text-secondary">{subtitle}</div>}
       </div>
       {actions && <div className="flex shrink-0 items-center gap-2">{actions}</div>}
     </div>

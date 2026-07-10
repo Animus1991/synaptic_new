@@ -135,7 +135,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
       <div className="p-4 sm:p-6 lg:px-8 pb-24 lg:pb-6 w-full min-w-0 flex items-start justify-center pt-8 sm:pt-16">
         <MotionSection initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-2xl">
           <div className="text-center mb-8">
-            <h1 className="text-2xl sm:text-3xl font-bold text-text-primary mb-2">
+            <h1 className="text-xl sm:text-2xl font-bold text-text-primary mb-2">
               {t('welcomeToSynapse')}
             </h1>
             <p className="text-text-secondary text-sm sm:text-base max-w-md mx-auto">
@@ -523,7 +523,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
               ))}
             </div>
             <div className="mt-3 text-center">
-              <span className="text-2xl font-bold">{learnerModel.overallMastery}%</span>
+              <span className="ux-stat-value">{learnerModel.overallMastery}%</span>
               <span className={cn('text-xs ml-2', masteryDelta >= 0 ? 'text-accent-emerald' : 'text-accent-rose')}>
                 {masteryDelta >= 0 ? '+' : ''}{masteryDelta}% this week
               </span>

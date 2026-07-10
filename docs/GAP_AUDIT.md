@@ -273,6 +273,11 @@ Goal: every tool **fully functional for its learning purpose**, not demo stubs.
 | OPT-E16 | Option-B Wave E16 — Leitner FSRS box rail chrome | P2 | **shipped** | `LeitnerFsrsBoxRail`; xl sidebar layout in `LeitnerBox`; blueprint flip card radius + meter styling |
 | OPT-E17 | Option-B Wave E17 — Pomodoro timer visual chrome | P2 | **shipped** | `PomodoroRing`; `PomodoroSessionModeList`; xl ring + mode cards in `StudyTimer`; `ux-pomodoro-*` blueprint glass + cyan ring |
 | OPT-E18 | Option-B Wave E18 — Landing blueprint variant polish | P2 | **shipped** | `landing-page` semantic shell; blueprint hero orbs + glass frames; inverted CTAs; `SynapseBrandGlyph` + trust badges; Inter headings via `.landing-display` |
+| OPT-F1 | Wave F1 — Landing Cinobo clarity + type density | P2 | **shipped** | `--landing-type-*` tokens; `landing-hero-title` / `landing-section-title`; compact `landing-cta`; FAQ scale; `landingCtaMicrocopy` |
+| OPT-F2 | Wave F2 — Blueprint landing quiet luxury | P2 | **shipped** | Floating `.landing-hero-orbs`; blueprint trust line; hide feature corner dots; `--ux-radius-hero` glass panels |
+| OPT-F3 | Wave F3 — App chrome density | P2 | **shipped** | `ux-page-header` / `ux-section-header` / `ux-stat-value` scale down; blueprint `gradient-text` subtitle inherit |
+| OPT-OB-μ1 | Option-B micro — hero radius unification | P3 | **shipped** | `--ux-radius-hero: 2rem` on blueprint `ux-card` + `blueprint-surface` + live preview |
+| OPT-OB-μ3 | Option-B micro — landing orbs float | P3 | **shipped** | `platform-blueprint-float` on blueprint `.landing-hero-orbs` pseudo-elements |
 | WS-01 | Workspace empty states (`§2.7`) — learning outcome + CTA per tool | P1 | **shipped** | `WorkspaceToolEmptyState` + `buildWorkspaceEmptyView`; all 16 tools wired; E2E `workspace-empty-tools.spec.ts` |
 | PLT-02 | OpenTelemetry + Helm IaC | P3 | **shipped** | `telemetry.ts`, `/live`/`/ready`, `server/helm/` |
 | PLT-03 | Offline embeddings (transformers.js) | P3 | open |

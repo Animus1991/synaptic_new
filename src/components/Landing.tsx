@@ -27,9 +27,10 @@ const LANDING_SHELL = 'w-full px-5 sm:px-8 md:px-10 lg:px-14 xl:px-[clamp(2rem,5
 const mono: React.CSSProperties = { fontFamily: 'var(--font-mono)' };
 
 const PRIMARY_CTA =
-  'ux-primary-cta group flex items-center gap-3 px-[29px] py-[12.5px] rounded-[25px] bg-text-primary text-surface-primary text-sm font-semibold hover:bg-text-secondary transition-colors';
+  'landing-cta ux-primary-cta group bg-text-primary text-surface-primary hover:bg-text-secondary transition-colors';
 const SECONDARY_CTA =
-  'ux-secondary-cta group flex items-center gap-3 px-[29px] py-[12.5px] rounded-[25px] border border-border-default text-text-primary text-sm font-semibold hover:border-brand-500 hover:text-brand-700 transition-colors';
+  'landing-cta ux-secondary-cta group border border-border-default text-text-primary hover:border-brand-500 hover:text-brand-700 transition-colors';
+const LANDING_SECTION = `${LANDING_SHELL} landing-section`;
 
 export function Landing({ onGetStarted, onSeeDemo }: LandingProps) {
   const { t, lang } = useI18n();
@@ -60,10 +61,7 @@ export function Landing({ onGetStarted, onSeeDemo }: LandingProps) {
               <button
                 onClick={onGetStarted}
                 data-testid="landing-get-started"
-                className={cn(
-                  'px-5 py-2 rounded-[25px] bg-text-primary text-surface-primary text-sm font-semibold hover:bg-text-secondary transition-colors',
-                  'ux-primary-cta',
-                )}
+                className={cn('landing-cta ux-primary-cta bg-text-primary text-surface-primary hover:bg-text-secondary transition-colors')}
               >
                 {content.getStarted}
               </button>
@@ -100,7 +98,7 @@ export function Landing({ onGetStarted, onSeeDemo }: LandingProps) {
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.08 }}
-            className="landing-display text-[1.85rem] sm:text-[2.25rem] md:text-[2.75rem] lg:text-[3.25rem] xl:text-[3.75rem] 2xl:text-[4.25rem] font-bold tracking-tight leading-[1.05] mb-8 text-text-primary"
+            className="landing-display landing-hero-title tracking-tight mb-6 text-text-primary"
           >
             {content.heroTitle}{' '}
             <span className="text-brand-800">{content.heroHighlight}</span>
@@ -111,7 +109,7 @@ export function Landing({ onGetStarted, onSeeDemo }: LandingProps) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="max-w-none xl:max-w-[42rem] 2xl:max-w-[48rem] text-base sm:text-lg md:text-xl lg:text-[1.35rem] text-text-secondary font-light leading-relaxed mb-10 border-l border-border-default pl-5 sm:pl-8"
+            className="landing-hero-subtitle max-w-none xl:max-w-[42rem] 2xl:max-w-[48rem] text-text-secondary font-light mb-8 border-l border-border-default pl-5 sm:pl-8"
           >
             {content.heroSubtitle}
           </motion.p>
@@ -138,32 +136,38 @@ export function Landing({ onGetStarted, onSeeDemo }: LandingProps) {
             </button>
           </motion.div>
 
-
-          {onSeeDemo && (
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.6, delay: 0.45 }}
-              className="mt-6 text-xs text-text-muted"
-              style={mono}
-            >
-              {t('landingDemoHint')}
-            </motion.p>
-          )}
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.38 }}
+            className="landing-cta-microcopy"
+            style={mono}
+          >
+            {t('landingCtaMicrocopy')}
+            {onSeeDemo ? (
+              <>
+                {' · '}
+                {t('landingDemoHint')}
+              </>
+            ) : null}
+          </motion.p>
 
           {/* Trust indicators */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.6, delay: 0.5 }}
-            className="mt-14 flex flex-wrap gap-x-8 gap-y-3 text-text-tertiary text-sm"
+            className="landing-trust-row mt-10"
           >
+            <div className="landing-trust-items flex flex-wrap gap-x-8 gap-y-3 text-text-tertiary text-sm">
             {content.trust.map(item => (
               <span key={item} className="flex items-center gap-2">
                 <Check className="w-4 h-4 text-brand-400 landing-trust-check" />
                 {item}
               </span>
             ))}
+            </div>
+            <p className="landing-trust-line">{content.trust.join(' · ')}</p>
           </motion.div>
             </div>
 
@@ -224,7 +228,7 @@ export function Landing({ onGetStarted, onSeeDemo }: LandingProps) {
       </section>
 
       {/* How it works */}
-      <section className={`${LANDING_SHELL} py-24 border-t border-border-subtle`}>
+      <section className={`${LANDING_SECTION} border-t border-border-subtle`}>
         <div className="w-full">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">
             <div className="lg:col-span-4">
@@ -249,7 +253,7 @@ export function Landing({ onGetStarted, onSeeDemo }: LandingProps) {
                   className="group"
                 >
                   <div
-                    className="landing-display text-4xl sm:text-5xl text-brand-600/40 group-hover:text-brand-700 transition-colors mb-3 font-medium"
+                    className="landing-display landing-step-num text-brand-600/40 group-hover:text-brand-700 transition-colors mb-3 font-medium"
                   >
                     {step.num}
                   </div>
@@ -263,13 +267,13 @@ export function Landing({ onGetStarted, onSeeDemo }: LandingProps) {
       </section>
 
       {/* Features Grid — bordered editorial frame */}
-      <section className={`${LANDING_SHELL} py-24`}>
+      <section className={LANDING_SECTION}>
         <div className="w-full">
           <div className="landing-features-frame relative border border-border-default bg-surface-card/30 px-5 sm:px-8 md:px-12 py-12 sm:py-16 md:py-20">
-            <div className="absolute top-0 left-0 w-2 h-2 bg-brand-500" />
-            <div className="absolute top-0 right-0 w-2 h-2 bg-brand-500" />
-            <div className="absolute bottom-0 left-0 w-2 h-2 bg-brand-500" />
-            <div className="absolute bottom-0 right-0 w-2 h-2 bg-brand-500" />
+            <div className="absolute top-0 left-0 w-2 h-2 bg-brand-500 landing-features-corners" />
+            <div className="absolute top-0 right-0 w-2 h-2 bg-brand-500 landing-features-corners" />
+            <div className="absolute bottom-0 left-0 w-2 h-2 bg-brand-500 landing-features-corners" />
+            <div className="absolute bottom-0 right-0 w-2 h-2 bg-brand-500 landing-features-corners" />
 
             <div className="mb-16 max-w-none xl:max-w-3xl">
               <h2
@@ -278,7 +282,7 @@ export function Landing({ onGetStarted, onSeeDemo }: LandingProps) {
                 {content.featuresSectionTitle}
               </h2>
               <h3
-                className="landing-display text-[1.35rem] sm:text-lg md:text-xl lg:text-[1.7rem] font-bold text-text-primary leading-[1.15]"
+                className="landing-display landing-section-title text-text-primary"
               >
                 {content.featuresSectionSubtitle}
               </h3>
@@ -313,7 +317,7 @@ export function Landing({ onGetStarted, onSeeDemo }: LandingProps) {
       </section>
 
       {/* Differentiation */}
-      <section className={`${LANDING_SHELL} py-24 border-t border-border-subtle`}>
+      <section className={`${LANDING_SECTION} border-t border-border-subtle`}>
         <div className="w-full">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 mb-12">
             <div className="lg:col-span-5">
@@ -323,7 +327,7 @@ export function Landing({ onGetStarted, onSeeDemo }: LandingProps) {
                 {t('landingDifferentiation')}
               </h2>
               <h3
-                className="landing-display text-[1.28rem] sm:text-[1.07rem] md:text-[1.187rem] lg:text-[1.615rem] font-bold text-text-primary leading-[1.15] mb-4"
+                className="landing-display landing-section-title text-text-primary mb-4"
               >
                 {content.diffTitle}
               </h3>
@@ -355,7 +359,7 @@ export function Landing({ onGetStarted, onSeeDemo }: LandingProps) {
       </section>
 
       {/* Social Proof */}
-      <section className={`${LANDING_SHELL} py-24`}>
+      <section className={LANDING_SECTION}>
         <div className="w-full max-w-none xl:max-w-5xl">
           <div className="flex gap-1 mb-6">
             {[...Array(5)].map((_, i) => (
@@ -363,7 +367,7 @@ export function Landing({ onGetStarted, onSeeDemo }: LandingProps) {
             ))}
           </div>
           <blockquote
-            className="landing-display text-sm sm:text-base md:text-lg lg:text-xl font-normal text-text-primary mb-8 leading-snug"
+            className="landing-display text-sm sm:text-base font-normal text-text-primary mb-8 leading-snug"
           >
             "{content.testimonialQuote}"
           </blockquote>
@@ -379,17 +383,17 @@ export function Landing({ onGetStarted, onSeeDemo }: LandingProps) {
       <LandingFAQ />
 
       {/* CTA */}
-      <section className={`${LANDING_SHELL} py-24 border-t border-border-subtle`}>
+      <section className={`${LANDING_SECTION} border-t border-border-subtle`}>
         <div className="w-full">
           <div className="landing-cta-panel relative border border-border-default bg-surface-card/40 p-6 sm:p-12 md:p-16 xl:p-20 overflow-hidden">
             <div className="absolute -top-20 -right-20 w-96 h-96 bg-brand-500/[0.08] rounded-full blur-[120px]" />
             <div className="relative max-w-none xl:max-w-3xl 2xl:max-w-4xl">
               <h2
-                className="landing-display text-[1.28rem] sm:text-[1.187rem] md:text-[1.615rem] lg:text-[1.9rem] font-bold text-text-primary leading-[1.15] mb-6"
+                className="landing-display landing-section-title text-text-primary mb-4"
               >
                 {content.ctaTitle}
               </h2>
-              <p className="text-lg xl:text-xl text-text-secondary leading-relaxed mb-10 max-w-none xl:max-w-2xl">
+              <p className="landing-hero-subtitle text-text-secondary mb-8 max-w-none xl:max-w-2xl">
                 {content.ctaSubtitle}
               </p>
               <button

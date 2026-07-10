@@ -126,7 +126,7 @@ export function AnalyticsVisualLabPanel({
           <div className="mb-3 flex flex-wrap items-start justify-between gap-3">
             <div>
               <p className="dashboard-live-preview-eyebrow">{t('visualLabCurrentModeEyebrow')}</p>
-              <p className="mt-1 text-lg font-semibold text-text-primary">{t(active.titleKey)}</p>
+              <p className="mt-1 text-base font-semibold text-text-primary">{t(active.titleKey)}</p>
             </div>
             <span className="visual-lab-mode-badge">{t('visualLabDecorativeBadge')}</span>
           </div>

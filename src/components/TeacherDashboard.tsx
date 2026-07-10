@@ -1158,7 +1158,7 @@ function StatCard({
   return (
     <div className="ux-flow-panel p-4">
       <Icon className="w-5 h-5 text-brand-400 mb-2" />
-      <p className="text-2xl font-bold">{value}</p>
+      <p className="ux-stat-value">{value}</p>
       <p className="text-xs text-text-muted">{label} · {sub}</p>
     </div>
   );

@@ -17,13 +17,10 @@ export function LandingFAQ() {
 
   return (
     <section
-      className="w-full px-5 sm:px-8 md:px-10 lg:px-14 xl:px-[clamp(2rem,5vw,6rem)] 2xl:px-[clamp(2.5rem,6vw,7.5rem)] py-24 border-t border-border-subtle"
+      className="landing-section w-full px-5 sm:px-8 md:px-10 lg:px-14 xl:px-[clamp(2rem,5vw,6rem)] 2xl:px-[clamp(2.5rem,6vw,7.5rem)] border-t border-border-subtle"
       data-testid="landing-faq"
     >
-      <h2
-        className="text-[1.28rem] sm:text-[1.615rem] font-bold text-text-primary mb-8"
-        style={{ fontFamily: 'var(--font-display)' }}
-      >
+      <h2 className="landing-display landing-section-title text-text-primary mb-6">
         {t('landingFaqTitle')}
       </h2>
       <div className="max-w-3xl space-y-2">
