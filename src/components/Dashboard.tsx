@@ -34,6 +34,7 @@ import { PostUploadBanner } from './ui/PostUploadBanner';
 import { DashboardLivePreview } from './DashboardLivePreview';
 import { DashboardBuildPipelinePreview } from './DashboardBuildPipelinePreview';
 import { DashboardHeroSteps } from './DashboardHeroSteps';
+import { DashboardHeroLensChip } from './DashboardHeroLensChip';
 import { useBlueprintTheme } from '../lib/useBlueprintTheme';
 import { useMemo } from 'react';
 import { buildDashboardWeakSpotCards } from '../lib/dashboardWeakSpotsModel';
@@ -225,9 +226,11 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.04 }}
-          className="grid gap-6 xl:grid-cols-[1.05fr_0.95fr] xl:items-start"
+          className="space-y-4"
           data-testid="dashboard-hero-panel"
         >
+          <DashboardHeroLensChip lang={lang} />
+          <div className="grid gap-6 xl:grid-cols-[1.05fr_0.95fr] xl:items-start">
           <DashboardHeroSteps />
           {showWorkspaceResume && workspaceLive ? (
             <DashboardLivePreview
@@ -238,6 +241,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
           ) : (
             <DashboardBuildPipelinePreview />
           )}
+          </div>
         </MotionSection>
       )}
 

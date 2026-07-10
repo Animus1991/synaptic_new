@@ -91,6 +91,7 @@ export function AnalyticsVisualLabPanel({
   return (
     <BlueprintSurface className="analytics-visual-lab p-5" data-testid="analytics-visual-lab">
       <SectionHeader
+        className="visual-lab-panel-header"
         eyebrow={lang === 'el' ? 'Οπτικό εργαστήριο' : 'Visual lab'}
         title={lang === 'el' ? 'Blueprint diagram rail' : 'Blueprint diagram rail'}
         subtitle={t('analyticsFlowSectionSubtitle')}
@@ -123,10 +124,10 @@ export function AnalyticsVisualLabPanel({
 
       <div className="mt-5 grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
         <div className="visual-lab-board-well">
-          <div className="mb-3 flex flex-wrap items-start justify-between gap-3">
+          <div className="mb-3 flex flex-wrap items-start justify-between gap-3 visual-lab-board-head">
             <div>
               <p className="dashboard-live-preview-eyebrow">{t('visualLabCurrentModeEyebrow')}</p>
-              <p className="mt-1 text-base font-semibold text-text-primary">{t(active.titleKey)}</p>
+              <p className="dashboard-preview-title mt-1">{t(active.titleKey)}</p>
             </div>
             <span className="visual-lab-mode-badge">{t('visualLabDecorativeBadge')}</span>
           </div>

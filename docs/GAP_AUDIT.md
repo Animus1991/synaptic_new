@@ -278,6 +278,9 @@ Goal: every tool **fully functional for its learning purpose**, not demo stubs.
 | OPT-F3 | Wave F3 — App chrome density | P2 | **shipped** | `ux-page-header` / `ux-section-header` / `ux-stat-value` scale down; blueprint `gradient-text` subtitle inherit |
 | OPT-OB-μ1 | Option-B micro — hero radius unification | P3 | **shipped** | `--ux-radius-hero: 2rem` on blueprint `ux-card` + `blueprint-surface` + live preview |
 | OPT-OB-μ3 | Option-B micro — landing orbs float | P3 | **shipped** | `platform-blueprint-float` on blueprint `.landing-hero-orbs` pseudo-elements |
+| OPT-F4 | Wave F4 — Landing mid-page CTA strip | P2 | **shipped** | `.landing-mid-cta` between social proof and FAQ; hero CTA repeat; `landingMidCtaTitle` i18n |
+| OPT-OB-μ4 | Option-B micro — dashboard hero lens chip | P3 | **shipped** | `DashboardHeroLensChip` decorative pill on blueprint dashboard hero; no workspace wiring |
+| OPT-OB-μ8 | Option-B micro — Visual Lab heading alignment | P3 | **shipped** | `dashboard-preview-title` shared scale; `visual-lab-panel-header` + board head spacing |
 | WS-01 | Workspace empty states (`§2.7`) — learning outcome + CTA per tool | P1 | **shipped** | `WorkspaceToolEmptyState` + `buildWorkspaceEmptyView`; all 16 tools wired; E2E `workspace-empty-tools.spec.ts` |
 | PLT-02 | OpenTelemetry + Helm IaC | P3 | **shipped** | `telemetry.ts`, `/live`/`/ready`, `server/helm/` |
 | PLT-03 | Offline embeddings (transformers.js) | P3 | open |

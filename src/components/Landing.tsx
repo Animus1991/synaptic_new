@@ -380,6 +380,25 @@ export function Landing({ onGetStarted, onSeeDemo }: LandingProps) {
         </div>
       </section>
 
+      {/* Mid-page CTA — Cinobo rhythm repeat before FAQ */}
+      <section className={`${LANDING_SHELL} landing-section landing-section-compact border-y border-border-subtle`}>
+        <div className="landing-mid-cta w-full flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
+          <p className="landing-display landing-section-title text-text-primary max-w-xl">
+            {t('landingMidCtaTitle')}
+          </p>
+          <div className="flex flex-wrap gap-3 shrink-0">
+            <button onClick={onGetStarted} className={PRIMARY_CTA}>
+              {content.ctaPrimary}
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </button>
+            <button onClick={onSeeDemo ?? onGetStarted} className={SECONDARY_CTA}>
+              {content.ctaSecondary}
+              <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </button>
+          </div>
+        </div>
+      </section>
+
       <LandingFAQ />
 
       {/* CTA */}

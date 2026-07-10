@@ -96,7 +96,7 @@ export function DashboardLivePreview({
       <div className="mb-4 flex flex-wrap items-start justify-between gap-4">
         <div className="min-w-0">
           <p className="dashboard-live-preview-eyebrow">{t('dashboardLivePreviewEyebrow')}</p>
-          <h2 className="mt-2 text-xl font-semibold tracking-tight text-text-primary">{headline}</h2>
+          <h2 className="dashboard-preview-title mt-2">{headline}</h2>
           <p className="mt-1 text-sm text-text-secondary">{t('dashboardResumeSubtitle')}</p>
         </div>
         {onOpenWorkspace && (

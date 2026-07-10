@@ -31,7 +31,7 @@ export function DashboardBuildPipelinePreview({ className }: { className?: strin
       <div className="dashboard-live-preview-topline" aria-hidden />
       <div className="mb-4">
         <p className="dashboard-live-preview-eyebrow">{t('dashboardBuildPreviewEyebrow')}</p>
-        <h2 className="mt-2 text-xl font-semibold tracking-tight text-text-primary">
+        <h2 className="dashboard-preview-title mt-2">
           {t('dashboardBuildPreviewTitle')}
         </h2>
         <p className="mt-1 text-sm text-text-secondary">{t('dashboardBuildPreviewSubtitle')}</p>
