@@ -99,7 +99,7 @@ export function AnalyticsVisualLabPanel({
       />
 
       <div
-        className="visual-lab-mode-rail mt-5 flex gap-2 overflow-x-auto pb-1"
+        className="visual-lab-mode-rail visual-lab-mode-rail-lanes mt-5 flex overflow-x-auto pb-1"
         role="tablist"
         aria-label={lang === 'el' ? 'Λειτουργίες οπτικού εργαστηρίου' : 'Visual lab modes'}
       >

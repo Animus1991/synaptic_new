@@ -9,6 +9,8 @@ import { ThemeToggle } from './ThemeToggle';
 import { useI18n } from '../lib/i18n';
 import { getLandingContent } from '../lib/landingContent';
 import { LandingFAQ } from './LandingFAQ';
+import { LandingIntentChips } from './LandingIntentChips';
+import { LandingTrustStrip } from './LandingTrustStrip';
 import { HeaderTrustBadgeRow, SynapseBrandGlyph } from './ui/platformChrome';
 import { useBlueprintTheme } from '../lib/useBlueprintTheme';
 import { cn } from '../utils/cn';
@@ -88,8 +90,7 @@ export function Landing({ onGetStarted, onSeeDemo }: LandingProps) {
           >
             <div className="h-px w-12 bg-brand-500" />
             <span
-              className="landing-eyebrow text-xs font-medium text-brand-700 tracking-wide"
-              style={mono}
+              className="landing-eyebrow ux-semi-mono-eyebrow text-xs font-medium text-brand-700"
             >
               {content.badge}
             </span>
@@ -114,6 +115,14 @@ export function Landing({ onGetStarted, onSeeDemo }: LandingProps) {
           >
             {content.heroSubtitle}
           </motion.p>
+
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.26 }}
+          >
+            <LandingIntentChips className="mb-6" />
+          </motion.div>
 
           <motion.div
             initial={{ opacity: 0, y: 16 }}
@@ -278,7 +287,7 @@ export function Landing({ onGetStarted, onSeeDemo }: LandingProps) {
 
             <div className="mb-16 max-w-none xl:max-w-3xl">
               <h2
-                className="text-xs font-semibold text-brand-700 mb-5"
+                className="ux-semi-mono-eyebrow text-brand-700 mb-5"
               >
                 {content.featuresSectionTitle}
               </h2>
@@ -323,7 +332,7 @@ export function Landing({ onGetStarted, onSeeDemo }: LandingProps) {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 mb-12">
             <div className="lg:col-span-5">
               <h2
-                className="text-xs font-semibold text-brand-700 mb-5"
+                className="ux-semi-mono-eyebrow text-brand-700 mb-5"
               >
                 {t('landingDifferentiation')}
               </h2>
@@ -398,6 +407,10 @@ export function Landing({ onGetStarted, onSeeDemo }: LandingProps) {
             </button>
           </div>
         </div>
+      </section>
+
+      <section className={`${LANDING_SHELL} landing-section-compact pb-8`}>
+        <LandingTrustStrip />
       </section>
 
       <LandingFAQ />

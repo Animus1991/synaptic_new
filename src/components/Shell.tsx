@@ -80,7 +80,7 @@ function buildMobileNavItems(showWorkspace: boolean): MobileNavItem[] {
 
 const shellNavClass = (active: boolean) =>
   cn(
-    'w-full flex items-start gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all border',
+    'platform-nav-item relative w-full flex items-start gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all border',
     active
       ? 'platform-nav-active'
       : 'border-transparent text-text-secondary hover:text-text-primary hover:bg-surface-hover',
@@ -577,7 +577,7 @@ export function Shell({
                   }}
                   {...(item.kind === 'workspace' ? workspaceEntryPrefetchHandlers() : {})}
                   className={cn(
-                    'flex flex-col items-center gap-1 p-1.5 rounded-xl transition-all min-w-[52px] max-w-[72px]',
+                    'platform-nav-mobile-item relative flex flex-col items-center gap-1 p-1.5 rounded-xl transition-all min-w-[52px] max-w-[72px]',
                     active ? 'platform-nav-mobile-active' : 'text-text-tertiary',
                     item.kind === 'workspace' && !active && 'text-brand-600',
                   )}

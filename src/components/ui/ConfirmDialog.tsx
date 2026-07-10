@@ -1,7 +1,9 @@
 import { useEffect, useRef } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { AlertTriangle, X } from '@/lib/lucide-shim';
+import { useI18n } from '../../lib/i18n';
 import { PrimaryCTA, SecondaryCTA } from './primitives';
+import { ModalHeaderStack } from './ModalHeaderStack';
 
 export interface ConfirmDialogProps {
   open: boolean;
@@ -29,6 +31,7 @@ export function ConfirmDialog({
   confirming = false,
   'data-testid': testId = 'confirm-dialog',
 }: ConfirmDialogProps) {
+  const { t } = useI18n();
   const cancelRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
@@ -71,19 +74,19 @@ export function ConfirmDialog({
           >
             <div className="flex items-start gap-3 p-5 pb-3">
               {destructive && (
-                <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent-rose/15">
+                <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-accent-rose/25 bg-accent-rose/10">
                   <AlertTriangle className="h-4 w-4 text-accent-rose" aria-hidden />
                 </div>
               )}
-              <div className="min-w-0 flex-1">
-                <h2 id={`${testId}-title`} className="text-base font-semibold text-text-primary pr-6">
-                  {title}
-                </h2>
-                {description && (
-                  <p id={`${testId}-desc`} className="mt-2 text-sm text-text-secondary whitespace-pre-line">
-                    {description}
-                  </p>
-                )}
+              <div className="min-w-0 flex-1 pr-6">
+                <ModalHeaderStack
+                  eyebrow={t('confirmDialogEyebrow')}
+                  title={title}
+                  subtitle={description}
+                  titleClassName="text-base font-semibold"
+                  titleId={`${testId}-title`}
+                  subtitleId={description ? `${testId}-desc` : undefined}
+                />
               </div>
               <button
                 type="button"

@@ -329,6 +329,9 @@ Constraints for all OPT-R*: no typography/button/modal scale-up; no functional c
 | OPT-R3 | Wave R3 — Tasks Kanban visual columns + card frames | P2 | **shipped** | `TasksKanbanStatusStrip`; column counts; `tasks-kanban-card` status dots; list logic untouched |
 | OPT-R4 | Wave R4 — Agent describe-rail + preview frame chrome | P2 | **shipped** | `AgentFlowRail`; `ux-canvas-frame` on live preview, pipeline preview, Visual Lab board |
 | OPT-R5 | Wave R5 — OPT-H namespace + tracking tokens | P3 | **shipped** | `--surface-canvas` alias; namespace `--ux-tracking-*`; heading letter-spacing via tokens only |
+| OPT-R6 | Wave R6 — Landing intent chips + trust strip | P3 | **shipped** | `LandingIntentChips`; `LandingTrustStrip`; `ux-semi-mono-eyebrow` on landing labels |
+| OPT-R7 | Wave R7 — empty states + modal header stack | P3 | **shipped** | `platform-empty-state` border card; `ModalHeaderStack`; light `--focus-ring-color` on app-shell |
+| OPT-R8 | Wave R8 — nav accent indicator + Visual Lab lane dividers | P3 | **shipped** | Sidebar left accent bar; mobile underline; `visual-lab-mode-rail-lanes` column dividers |
 
 ### Replit study — explicit non-borrows
 

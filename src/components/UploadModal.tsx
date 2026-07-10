@@ -16,6 +16,7 @@ import { applyEditedTopicTitles, outlineTopicsWereEdited } from '../lib/outlineT
 import { UiIcon } from './ui/UiIcon';
 import type { UiIconId } from '../lib/uiIconRegistry';
 import { t } from '../lib/i18n';
+import { ModalHeaderStack } from './ui/ModalHeaderStack';
 
 interface UploadModalProps {
   isOpen: boolean;
@@ -270,17 +271,18 @@ export function UploadModal({
           className="relative w-full max-w-2xl max-h-[90vh] ux-modal-panel rounded-2xl border border-border-subtle bg-surface-secondary overflow-y-auto"
         >
           {/* Header */}
-          <div className="flex items-center justify-between p-5 border-b border-border-subtle">
-            <div>
-              <h2 className="text-lg font-bold">{t('uploadModalTitle', previewLang)}</h2>
-              <p className="text-sm text-text-secondary mt-0.5">
-                {step === 'upload' && t('uploadModalStepUpload', previewLang)}
-                {step === 'configure' && t('uploadModalStepConfigure', previewLang)}
-                {step === 'processing' && t('uploadModalStepProcessing', previewLang)}
-                {step === 'error' && t('uploadModalStepError', previewLang)}
-              </p>
-            </div>
-            <button onClick={onClose} className="p-2 rounded-lg hover:bg-surface-hover">
+          <div className="flex items-start justify-between gap-3 p-5 border-b border-border-subtle">
+            <ModalHeaderStack
+              eyebrow={t('uploadModalEyebrow', previewLang)}
+              title={t('uploadModalTitle', previewLang)}
+              subtitle={
+                step === 'upload' ? t('uploadModalStepUpload', previewLang)
+                : step === 'configure' ? t('uploadModalStepConfigure', previewLang)
+                : step === 'processing' ? t('uploadModalStepProcessing', previewLang)
+                : t('uploadModalStepError', previewLang)
+              }
+            />
+            <button onClick={onClose} className="p-2 rounded-lg hover:bg-surface-hover shrink-0">
               <X className="w-5 h-5 text-text-secondary" />
             </button>
           </div>

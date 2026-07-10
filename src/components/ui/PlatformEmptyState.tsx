@@ -27,8 +27,14 @@ export function PlatformEmptyState({
   onSecondaryAction,
 }: Props) {
   return (
-    <BlueprintSurface className={cn('flex flex-col items-center justify-center py-16 px-6 text-center', className)} data-testid="platform-empty-state">
-      <div className="grid h-16 w-16 place-items-center rounded-2xl border border-brand-500/20 bg-brand-500/10 mb-5">
+    <BlueprintSurface
+      className={cn(
+        'platform-empty-state flex flex-col items-center justify-center py-16 px-6 text-center border border-border-subtle bg-surface-card/60',
+        className,
+      )}
+      data-testid="platform-empty-state"
+    >
+      <div className="platform-empty-state-icon grid h-16 w-16 place-items-center rounded-2xl border border-border-subtle bg-surface-primary mb-5">
         <Icon className="h-8 w-8 text-brand-600" aria-hidden />
       </div>
       <h3 className="ws-serif text-lg font-medium text-text-primary mb-2">{title}</h3>
