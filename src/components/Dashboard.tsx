@@ -32,6 +32,9 @@ import { HeroGlow, UxCallout } from './ui/platformChrome';
 import { BlueprintSurface } from './ui/BlueprintSurface';
 import { PostUploadBanner } from './ui/PostUploadBanner';
 import { DashboardLivePreview } from './DashboardLivePreview';
+import { DashboardBuildPipelinePreview } from './DashboardBuildPipelinePreview';
+import { DashboardHeroSteps } from './DashboardHeroSteps';
+import { useBlueprintTheme } from '../lib/useBlueprintTheme';
 import { useMemo } from 'react';
 import { buildDashboardWeakSpotCards } from '../lib/dashboardWeakSpotsModel';
 import { executeDashboardNextAction } from '../lib/dashboardNextAction';
@@ -90,6 +93,7 @@ interface DashboardProps {
 
 export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onSelectCourse, onOpenWorkspace, onOpenExamTimer, onUpload, onExploreDemo, prerequisiteRepairs = [], calibration, conceptMastery = [], activities = [], masteryDelta = 0, daysToExam = null, antiPassiveAlert = false, onStartTask, onStartSession, onResolveMisconception, onFocusWeakArea, workspaceLive = null, workspaceBooting = false, dashboardNextAction = null, smartCTAs = [], onRunSmartCTA, proactiveAgentAlerts = [], onRunProactiveAgentAlert, onOpenWorkspacePractice, lang = 'en', postUploadCourse = null, onDismissPostUpload, onOpenTasksReview, settingsExamDate }: DashboardProps) {
   const { t } = useI18n();
+  const isBlueprint = useBlueprintTheme();
   const pendingTasks = tasks.filter(t => t.status === 'pending');
   const criticalTasks = pendingTasks.filter(t => t.priority === 'critical' || t.priority === 'high');
   const fixTasks = pendingTasks.filter(t => t.category === 'fix');
@@ -216,6 +220,27 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
         </BlueprintSurface>
       </MotionSection>
 
+      {isBlueprint && (
+        <MotionSection
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.04 }}
+          className="grid gap-6 xl:grid-cols-[1.05fr_0.95fr] xl:items-start"
+          data-testid="dashboard-hero-panel"
+        >
+          <DashboardHeroSteps />
+          {showWorkspaceResume && workspaceLive ? (
+            <DashboardLivePreview
+              live={workspaceLive}
+              lang={lang}
+              onOpenWorkspace={onOpenWorkspace}
+            />
+          ) : (
+            <DashboardBuildPipelinePreview />
+          )}
+        </MotionSection>
+      )}
+
       {postUploadCourse && (
         <MotionSection initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
           <PostUploadBanner
@@ -325,7 +350,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
         </MotionSection>
       )}
 
-      {showWorkspaceResume && (
+      {!isBlueprint && showWorkspaceResume && workspaceLive && (
         <MotionSection initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
           <DashboardLivePreview
             live={workspaceLive}

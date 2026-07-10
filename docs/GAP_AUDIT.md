@@ -267,6 +267,8 @@ Goal: every tool **fully functional for its learning purpose**, not demo stubs.
 | OPT-E10 | Option-B Wave E10 — decorative SVG boards | P2 | **shipped** | `SourceFlowDiagram` + `RetentionSparklineBoard` in Analytics Visual Lab; `decorativeSparklines` helpers; blueprint node/sparkline hovers |
 | OPT-E11 | Option-B Wave E11 — Tier-B tool internals glass | P2 | **shipped** | `ux-tier-b-tool` sweep on CognitiveReader, FormulaScratchpad, WorkspaceQuiz/Session; toolbar/nav/panel/option blueprint glass |
 | OPT-E12 | Option-B Wave E12 — route transitions + shimmer skeletons | P2 | **shipped** | `PlatformViewTransition` blueprint fadeUp; `UxShimmerSkeleton` on lazy overlay, tools, upload preview, teacher/student loading |
+| OPT-E13 | Option-B Wave E13 — hero live build preview + pipeline rail | P2 | **shipped** | `DashboardHeroSteps`; `DashboardBuildPipelinePreview`; `DashboardLivePreviewWatches`; blueprint xl hero grid on Dashboard |
+| OPT-E15 | Option-B Wave E15 — Color Coding System reference | P2 | **shipped** | `ColorCodingReferencePanel` + `colorCodingReference.ts` in Settings; semantic swatches via `--mastery-*` / `--palette-*`; 60-30-10 rule bar |
 | WS-01 | Workspace empty states (`§2.7`) — learning outcome + CTA per tool | P1 | **shipped** | `WorkspaceToolEmptyState` + `buildWorkspaceEmptyView`; all 16 tools wired; E2E `workspace-empty-tools.spec.ts` |
 | PLT-02 | OpenTelemetry + Helm IaC | P3 | **shipped** | `telemetry.ts`, `/live`/`/ready`, `server/helm/` |
 | PLT-03 | Offline embeddings (transformers.js) | P3 | open |

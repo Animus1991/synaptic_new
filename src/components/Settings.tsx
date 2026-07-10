@@ -17,6 +17,7 @@ import { getSettingsContent } from '../lib/settingsContent';
 import { RagIndexProgressBanner } from './RagIndexProgressBanner';
 import { PluginMarketplacePanel } from './PluginMarketplacePanel';
 import { privacyPolicyUrl } from '../lib/siteConfig';
+import { ColorCodingReferencePanel } from './ui/ColorCodingReferencePanel';
 
 import { type TaskCalendarSyncUpdate } from '../lib/taskCalendarSync';
 
@@ -521,6 +522,10 @@ export function Settings({
         <ToggleRow label={c.labelTheme} options={c.themeOptions} value={settings.theme} onChange={v => onUpdate({ theme: v as UserSettings['theme'] })} />
         <ToggleRow label={c.labelLanguage} options={c.languageOptions} value={settings.language} onChange={v => onUpdate({ language: v as UserSettings['language'] })} />
       </SettingsSection>
+
+      <div className="lg:col-span-2">
+        <ColorCodingReferencePanel />
+      </div>
 
       <SettingsSection title={c.sectionDataProgress} icon={<Database className="w-5 h-5 text-accent-cyan" />} delay={0.38}>
         <ToggleRow label={c.labelDemoContent} options={c.demoContentOptions} value={settings.showDemoContent ? 'on' : 'off'} onChange={v => onUpdate({ showDemoContent: v === 'on' })} />

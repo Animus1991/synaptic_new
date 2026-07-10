@@ -1198,6 +1198,80 @@
   }
 }
 
+/* Option-B Wave E13 — hero pipeline preview + watches footer */
+.dashboard-live-preview-watches {
+  border-radius: 1.5rem;
+  border: 1px solid var(--color-border-subtle);
+  background: color-mix(in srgb, var(--color-surface-card) 45%, transparent);
+  padding: 1rem;
+}
+[data-theme="blueprint"] .dashboard-live-preview-watches {
+  border-color: color-mix(in srgb, #ffffff 8%, transparent);
+  background: color-mix(in srgb, #020617 40%, transparent);
+}
+.dashboard-hero-step-card {
+  animation-fill-mode: both;
+}
+
+/* Option-B Wave E15 — semantic color reference panel */
+.ux-color-ref-card {
+  border-radius: 1.625rem;
+  border: 1px solid var(--color-border-subtle);
+  background: color-mix(in srgb, var(--color-surface-card) 55%, transparent);
+  padding: 1rem;
+}
+.ux-color-ref-swatch {
+  height: 2.5rem;
+  width: 2.5rem;
+  flex-shrink: 0;
+  border-radius: 1rem;
+  box-shadow: var(--elev-1, 0 8px 24px color-mix(in srgb, #000000 18%, transparent));
+}
+.ux-color-ref-rule {
+  border-radius: 1.5rem;
+  border: 1px solid var(--color-border-subtle);
+  background: color-mix(in srgb, var(--color-surface-secondary) 55%, transparent);
+  padding: 1rem;
+}
+.ux-color-ref-rule-bar {
+  display: flex;
+  height: 1.5rem;
+  overflow: hidden;
+  border-radius: 9999px;
+}
+.ux-color-ref-rule-seg {
+  display: block;
+  height: 100%;
+}
+.ux-color-ref-rule-bg {
+  width: 60%;
+  background: var(--color-surface-tertiary);
+}
+.ux-color-ref-rule-structure {
+  width: 30%;
+  background: color-mix(in srgb, var(--color-text-muted) 55%, var(--color-surface-tertiary));
+}
+.ux-color-ref-rule-cyan {
+  width: 5%;
+  background: var(--color-accent-cyan);
+}
+.ux-color-ref-rule-emerald {
+  width: 3%;
+  background: var(--color-accent-emerald);
+}
+.ux-color-ref-rule-rose {
+  width: 2%;
+  background: var(--color-accent-rose);
+}
+[data-theme="blueprint"] .ux-color-ref-card {
+  border-color: color-mix(in srgb, #ffffff 8%, transparent);
+  background: color-mix(in srgb, #ffffff 4%, #020617);
+}
+[data-theme="blueprint"] .ux-color-ref-rule {
+  border-color: color-mix(in srgb, #ffffff 8%, transparent);
+  background: color-mix(in srgb, #020617 35%, transparent);
+}
+
 [data-theme="blueprint"] :is(button, a).bg-brand-600,
 [data-theme="blueprint"] :is(button, a).bg-brand-700 {
   background-color: #ffffff;
