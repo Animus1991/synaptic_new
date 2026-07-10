@@ -19,6 +19,7 @@ import { TaskActionIcon } from './ui/TaskActionIcon';
 import { Page, PageHeader } from './ui/primitives';
 import { PlatformEmptyState } from './ui/PlatformEmptyState';
 import { HeroGlow, SectionHeader, SessionLauncherCard, UxCallout, DescriptiveStickyTabBar } from './ui/platformChrome';
+import { TasksKanbanStatusStrip, tasksKanbanCardStatus } from './TasksKanbanStatusStrip';
 import { BlueprintSurface } from './ui/BlueprintSurface';
 import { LeitnerDueQueuePanel } from './workspace/LeitnerDueQueuePanel';
 import { buildFsrsDueQueue } from '../lib/leitnerDueQueue';
@@ -302,6 +303,15 @@ export function Tasks({
       {/* Today's Plan */}
       {tab === 'today' && (
         <div className="space-y-2">
+          {todayTasks.length > 0 && (
+            <TasksKanbanStatusStrip
+              tasks={visibleTasks}
+              activeTaskId={activeTaskId}
+              sessionQueueIds={sessionQueueIds}
+              doneCount={doneCount}
+              className="mb-3"
+            />
+          )}
           {todayTasks.length === 0 ? (
             <PlatformEmptyState title={c.emptyTitle} description={c.emptyDescription} icon={CheckCircle2} />
           ) : (
@@ -309,6 +319,7 @@ export function Tasks({
               const isExpanded = expandedTask === task.id;
               const isInProgress = task.status === 'in-progress' || task.id === activeTaskId;
               const isRunningNow = task.id === activeTaskId && sessionActive;
+              const kanbanStatus = tasksKanbanCardStatus(task, activeTaskId);
               return (
                 <motion.div
                   key={task.id}
@@ -316,12 +327,14 @@ export function Tasks({
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.02 }}
                   className={cn(
-                    'ux-card flex flex-col gap-0 p-0 overflow-hidden',
+                    'tasks-kanban-card ux-card flex flex-col gap-0 p-0 overflow-hidden',
+                    `tasks-kanban-card-${kanbanStatus}`,
                     isInProgress && 'border-brand-500/30 bg-brand-600/5',
                     task.priority === 'critical' && 'border-accent-rose/30',
                   )}
                 >
                   <div className="flex items-center gap-3 p-4 cursor-pointer" onClick={() => setExpandedTask(isExpanded ? null : task.id)}>
+                    <span className={cn('tasks-kanban-status-dot shrink-0', `tasks-kanban-status-${kanbanStatus}`)} aria-hidden />
                     <button type="button" onClick={(e) => { e.stopPropagation(); onComplete(task.id); }} className="shrink-0">
                       <Circle className="w-5 h-5 text-text-muted hover:text-brand-400" />
                     </button>

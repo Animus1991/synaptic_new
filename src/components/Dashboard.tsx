@@ -368,6 +368,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
         <MotionSection initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
           <UxCallout
             variant="next-action"
+            className="ux-spark-panel"
             title={t('dashboardSuggestedNext')}
             icon={<Lightbulb />}
             testId="dashboard-next-action"
@@ -392,7 +393,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
         <MotionSection initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="lg:col-span-2 space-y-6">
 
           {/* Readiness Hero */}
-          <BlueprintSurface className="p-6">
+          <BlueprintSurface className="ux-calm-panel p-6">
             <div className="flex flex-col sm:flex-row items-center gap-6">
               <ReadinessRing value={learnerModel.overallMastery} sublabel="Derived from graded first-attempts only — never from self-reported skill." />
               <div className="flex-1 space-y-4">

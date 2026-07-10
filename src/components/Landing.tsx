@@ -61,9 +61,10 @@ export function Landing({ onGetStarted, onSeeDemo }: LandingProps) {
               <button
                 onClick={onGetStarted}
                 data-testid="landing-get-started"
-                className={cn('landing-cta ux-primary-cta bg-text-primary text-surface-primary hover:bg-text-secondary transition-colors')}
+                className={cn('landing-nav-cta landing-cta ux-primary-cta bg-text-primary text-surface-primary hover:bg-text-secondary transition-colors')}
               >
-                {content.getStarted}
+                <span className="sm:hidden">{t('landingNavCtaShort')}</span>
+                <span className="hidden sm:inline">{content.getStarted}</span>
               </button>
             </div>
           </div>
@@ -233,7 +234,7 @@ export function Landing({ onGetStarted, onSeeDemo }: LandingProps) {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">
             <div className="lg:col-span-4">
               <h2
-                className="text-base sm:text-lg md:text-xl font-semibold text-text-primary mb-6"
+                className="landing-display landing-section-title text-text-primary mb-6"
               >
                 {content.howItWorksTitle}
               </h2>
@@ -298,7 +299,7 @@ export function Landing({ onGetStarted, onSeeDemo }: LandingProps) {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true, margin: '-60px' }}
                     transition={{ duration: 0.5, delay: 0.06 * i }}
-                    className="space-y-4 group"
+                    className={cn('space-y-4 group', i === 0 && 'landing-spark-card')}
                   >
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-px bg-border-strong group-hover:bg-brand-500 transition-colors" />

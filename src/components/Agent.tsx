@@ -25,6 +25,7 @@ import { emitAnalyticsLearningEvent } from '../lib/emitLearningEvent';
 import { formatCitation } from '../lib/rag';
 import { GoToSourceButton } from './GoToSourceButton';
 import { AgentContextBanner } from './AgentContextBanner';
+import { AgentFlowRail } from './AgentFlowRail';
 import { RichText } from './RichText';
 import { getAgentContent, type AgentUiCopy } from '../lib/agentContent';
 import { AGENT_MODE_VISUALS } from '../lib/agentCatalog';
@@ -598,6 +599,14 @@ export function Agent({
       )}
 
       <AgentContextBanner context={workspaceContext} lang={lang} compact={embedded} />
+
+      {!embedded && (
+        <div className="px-4 sm:px-6 pt-3">
+          <AgentFlowRail
+            activeIndex={messages.length === 0 ? 0 : messages.length < 4 ? 1 : 2}
+          />
+        </div>
+      )}
 
       {activeTaskTitle && !embedded && (
         <div className="px-4 sm:px-6 py-2 border-b border-brand-500/20 bg-brand-500/5">

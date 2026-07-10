@@ -149,7 +149,7 @@ export function Shell({
   });
 
   return (
-    <div className="min-h-screen bg-surface-primary flex relative overflow-x-hidden">
+    <div className="app-shell min-h-screen bg-surface-primary flex relative overflow-x-hidden">
       <div className="platform-blueprint-orbs" aria-hidden="true">
         <div className="platform-blueprint-orb platform-blueprint-orb-cyan" />
         <div className="platform-blueprint-orb platform-blueprint-orb-violet" />

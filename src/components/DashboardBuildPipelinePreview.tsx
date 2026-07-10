@@ -25,7 +25,7 @@ export function DashboardBuildPipelinePreview({ className }: { className?: strin
 
   return (
     <BlueprintSurface
-      className={cn('dashboard-live-preview p-5', className)}
+      className={cn('dashboard-live-preview ux-canvas-frame p-5', className)}
       data-testid="dashboard-build-pipeline-preview"
     >
       <div className="dashboard-live-preview-topline" aria-hidden />

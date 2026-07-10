@@ -295,7 +295,7 @@ export function Library({
                 type="button"
                 onClick={onUpload}
                 data-testid="library-drop-zone"
-                className="ux-library-drop-zone mb-4 flex w-full flex-col items-center gap-2 px-6 py-8 text-center text-text-secondary hover:text-text-primary transition-colors"
+                className="ux-library-drop-zone ux-prompt-bar-surface mb-4 flex w-full flex-col items-center gap-2 px-6 py-8 text-center text-text-secondary hover:text-text-primary transition-colors"
               >
                 <Upload className="h-8 w-8 text-brand-600" aria-hidden />
                 <span className="text-sm font-medium">

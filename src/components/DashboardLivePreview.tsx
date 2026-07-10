@@ -88,7 +88,7 @@ export function DashboardLivePreview({
 
   return (
     <BlueprintSurface
-      className="dashboard-live-preview p-5"
+      className="dashboard-live-preview ux-canvas-frame p-5"
       data-tour="dashboard-resume"
       data-testid="dashboard-live-preview"
     >

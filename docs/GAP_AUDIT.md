@@ -1,6 +1,6 @@
 # Gap audit — living register
 
-**Last reconciled:** 2026-07-09 (WS-01 §2.7)  
+**Last reconciled:** 2026-07-10 (Replit aesthetic study + post-F4 register)  
 **Canonical pair:** this file (open gaps) + `PRODUCT_SCALE_STATUS.md` (what ships)  
 **North star:** *NotebookLM to understand · Synapse to retain + teacher visibility*
 
@@ -284,6 +284,55 @@ Goal: every tool **fully functional for its learning purpose**, not demo stubs.
 | WS-01 | Workspace empty states (`§2.7`) — learning outcome + CTA per tool | P1 | **shipped** | `WorkspaceToolEmptyState` + `buildWorkspaceEmptyView`; all 16 tools wired; E2E `workspace-empty-tools.spec.ts` |
 | PLT-02 | OpenTelemetry + Helm IaC | P3 | **shipped** | `telemetry.ts`, `/live`/`/ready`, `server/helm/` |
 | PLT-03 | Offline embeddings (transformers.js) | P3 | open |
+
+---
+
+## Aesthetic backlog — post Option-B / Cinobo / F4 (Jul 2026)
+
+**Option-B production parity:** ~100% (OPT-A → OPT-F4, OB-μ1/μ2/μ3/μ4/μ8 shipped). No hidden Option-B gaps remain — only frosting, architectural hygiene, or Replit-inspired clarity passes.
+
+### Wontfix (aesthetic)
+
+| ID | Status | Notes |
+| -- | ------ | ----- |
+| OPT-OB-μ5 | **wontfix** | Emoji Visual Lab tabs — prod uses Lucide + `visualLabModes` |
+| OPT-OB-μ6 | **wontfix** | 5-box Leitner — prod uses 4 FSRS buckets |
+| OPT-OB-μ7 | **wontfix** | Source annotation overlay — demo-only prototype |
+
+### Open — architectural hygiene (hypothetical)
+
+| ID | Item | Priority | Status | Notes |
+| -- | ---- | -------- | ------ | ----- |
+| OPT-G | Global app density tokens (`--type-hero`, `--btn-height`) | P3 | open | Cross-surface token unification; no size increase |
+| OPT-H | `marketing-page` vs `app-shell` CSS namespace split | P3 | open | Formalize `.landing-page` vs `.app-shell` tokens (Replit lesson) |
+| OPT-I | Unified `fadeUp` motion stagger | P3 | open | Single blueprint entrance curve across `MotionSection` |
+
+### Open — Cinobo micro (low ROI)
+
+| ID | Item | Priority | Status | Notes |
+| -- | ---- | -------- | ------ | ----- |
+| OPT-CIN-μ1 | Landing nav quieter on smaller breakpoints | P3 | **shipped** | See OPT-CIN-μ1 in Replit waves table |
+| OPT-CIN-μ2 | How-it-works title → `landing-section-title` | P3 | **shipped** | See OPT-CIN-μ2 in Replit waves table |
+
+### Open — Cinobo micro (low ROI)
+
+_All Cinobo micro items shipped (Jul 2026)._
+
+### Open — Replit-inspired clarity waves (aesthetic only)
+
+Constraints for all OPT-R*: no typography/button/modal scale-up; no functional changes; blueprint cyan identity preserved; no orange palette import.
+
+| ID | Item | Priority | Status | Notes |
+| -- | ---- | -------- | ------ | ----- |
+| OPT-R1 | Wave R1 — calm/spark rhythm + light border-over-shadow | P2 | **shipped** | `ux-spark-panel` / `ux-calm-panel`; light `platform-panel-*` + `ux-card` border-only; `landing-spark-card` |
+| OPT-R2 | Wave R2 — prompt-bar chrome + ghost pill polish | P2 | **shipped** | `ux-prompt-bar-surface` on upload/library; ghost pill radius on `ux-secondary-cta`; light prompt input |
+| OPT-R3 | Wave R3 — Tasks Kanban visual columns + card frames | P2 | **shipped** | `TasksKanbanStatusStrip`; column counts; `tasks-kanban-card` status dots; list logic untouched |
+| OPT-R4 | Wave R4 — Agent describe-rail + preview frame chrome | P2 | **shipped** | `AgentFlowRail`; `ux-canvas-frame` on live preview, pipeline preview, Visual Lab board |
+| OPT-R5 | Wave R5 — OPT-H namespace + tracking tokens | P3 | open | `--surface-canvas` alias; `letter-spacing` on existing heading sizes only |
+
+### Replit study — explicit non-borrows
+
+Do **not** port: `#ff3c00` orange, ABC Diatype, 48–69px displays, 40–60px marketing radii, 100px app pills, warm cream on blueprint, infinite canvas UX, Kanban backend, shadow-heavy elevation.
 
 ---
 

@@ -132,7 +132,7 @@ export function AnalyticsVisualLabPanel({
             <span className="visual-lab-mode-badge">{t('visualLabDecorativeBadge')}</span>
           </div>
           <p className="text-sm leading-6 text-text-secondary">{t(active.hintKey)}</p>
-          <div className="visual-lab-board-frame mt-4">
+          <div className="visual-lab-board-frame ux-canvas-frame mt-4">
             <VisualLabModeBoard
               mode={mode}
               sankeyLinks={sankeyLinks}

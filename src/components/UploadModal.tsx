@@ -333,7 +333,7 @@ export function UploadModal({
                   onDrop={handleDrop}
                   onClick={() => fileInputRef.current?.click()}
                   className={cn(
-                    'ux-upload-drop-zone border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer transition-all',
+                    'ux-upload-drop-zone ux-prompt-bar-surface border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer transition-all',
                     dragActive
                       ? 'border-brand-500 bg-brand-500/5'
                       : 'border-border-default hover:border-brand-500/50 hover:bg-surface-hover/50'
@@ -403,7 +403,7 @@ export function UploadModal({
                 )}
 
                 {/* Or paste content */}
-                <div>
+                <div className="ux-prompt-bar">
                   <label className="text-xs text-text-tertiary font-medium block mb-2">{t('uploadPasteLabel', previewLang)}</label>
                   <textarea
                     data-testid="upload-paste"
@@ -411,7 +411,7 @@ export function UploadModal({
                     onChange={e => setPastedContent(e.target.value)}
                     placeholder={t('uploadPastePlaceholder', previewLang)}
                     rows={4}
-                    className="w-full px-4 py-3 rounded-xl bg-surface-input border border-border-subtle text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-brand-500/50 resize-none"
+                    className="ux-prompt-bar-input w-full px-4 py-3 rounded-xl bg-surface-input border border-border-subtle text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-brand-500/50 resize-none"
                   />
                 </div>
 
