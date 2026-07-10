@@ -27,12 +27,10 @@ import { saveDeckState, syncDeckState } from '../../lib/leitnerDeckSync';
 import { WorkspaceToolEmptyState } from './WorkspaceToolEmptyState';
 import { LeitnerStaleArtifactBanner } from './LeitnerStaleArtifactBanner';
 import { LeitnerDueQueuePanel } from './LeitnerDueQueuePanel';
+import { LeitnerFsrsBoxRail } from './LeitnerFsrsBoxRail';
 import { SourceCitationChip } from './SourceCitationChip';
 import { LeitnerOcclusionFace } from './LeitnerOcclusionFace';
 
-
-
-const BOX_KEYS = ['leitnerAgain', 'leitnerHard', 'leitnerGood', 'leitnerEasy'] as const;
 
 
 
@@ -111,6 +109,7 @@ export function LeitnerBox({
   const [dueCount, setDueCount] = useState(0);
 
   const [finished, setFinished] = useState(false);
+  const [activeBoxIndex, setActiveBoxIndex] = useState<number | null>(null);
   const [importError, setImportError] = useState<string | null>(null);
   const importRef = useRef<HTMLInputElement>(null);
 
@@ -332,7 +331,7 @@ export function LeitnerBox({
 
   return (
 
-    <div className="flex flex-col h-full p-4">
+    <div className="flex flex-col h-full p-4 leitner-box-shell">
 
       {artifactStale && onAcknowledgeStale && (
         <LeitnerStaleArtifactBanner
@@ -342,7 +341,7 @@ export function LeitnerBox({
         />
       )}
 
-      <h3 className="text-sm font-semibold flex items-center gap-2 mb-2">
+      <h3 className="text-sm font-semibold flex items-center gap-2 mb-2 xl:col-span-2">
 
         <Layers className="w-4 h-4 text-accent-amber" />
 
@@ -437,9 +436,11 @@ export function LeitnerBox({
 
       </h3>
 
+      <div className="grid gap-4 xl:grid-cols-[280px_1fr] flex-1 min-h-0">
+        <aside className="leitner-box-sidebar space-y-3 min-h-0 overflow-y-auto">
+          <p className="text-sm leading-6 text-text-secondary">{t('leitnerBoxSidebarHint')}</p>
 
-
-      <div className="mb-3" data-testid="leitner-due-heatmap">
+      <div className="mb-1" data-testid="leitner-due-heatmap">
 
         <p className="text-[9px] font-semibold text-text-muted mb-1">
 
@@ -477,22 +478,15 @@ export function LeitnerBox({
 
       <LeitnerDueQueuePanel items={dueQueue} onSelect={handleDueQueueSelect} lang={lang} />
 
-      <div className="grid grid-cols-4 gap-2 mb-4">
-        {BOX_KEYS.map((key, i) => (
+      <LeitnerFsrsBoxRail
+        counts={boxCounts}
+        total={deck.length}
+        activeIndex={activeBoxIndex}
+        onSelect={setActiveBoxIndex}
+      />
+        </aside>
 
-          <div key={key} className="p-2 rounded-lg bg-surface-primary/50 border border-border-subtle text-center">
-
-            <p className="text-lg font-bold">{boxCounts[i]}</p>
-
-            <p className="text-[9px] text-text-muted">{t(key)}</p>
-
-          </div>
-
-        ))}
-
-      </div>
-
-
+        <div className="leitner-box-main flex flex-col min-h-0">
 
       <div className="leitner-flip-stage flex-1 flex flex-col min-h-0">
       <button
@@ -500,7 +494,7 @@ export function LeitnerBox({
         onClick={() => setFlipped(!flipped)}
 
         className={cn(
-          'leitner-flip-card flex-1 min-h-[140px] rounded-xl border border-brand-500/30 bg-brand-500/5 p-5 text-left hover:border-brand-500/50 transition-all',
+          'leitner-flip-card flex-1 min-h-[140px] p-5 text-left transition-all',
           flipped && 'leitner-flip-card--flipped',
         )}
 
@@ -645,6 +639,9 @@ export function LeitnerBox({
         <RotateCcw className="w-3 h-3" /> {t('resetDeck')}
 
       </button>
+
+        </div>
+      </div>
 
     </div>
 

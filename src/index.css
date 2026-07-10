@@ -1272,6 +1272,183 @@
   background: color-mix(in srgb, #020617 35%, transparent);
 }
 
+/* Option-B Wave E14 — Visual Lab 6-mode rail + decorative boards */
+.visual-lab-mode-tab {
+  min-width: 12.5rem;
+  flex-shrink: 0;
+  border-radius: 1rem;
+  border: 1px solid var(--color-border-subtle);
+  background: color-mix(in srgb, var(--color-surface-card) 55%, transparent);
+  padding: 0.75rem 1rem;
+  text-align: left;
+  transition:
+    border-color 0.25s ease,
+    background 0.25s ease,
+    box-shadow 0.25s ease;
+}
+.visual-lab-mode-tab:hover {
+  background: color-mix(in srgb, var(--color-surface-hover) 80%, transparent);
+}
+.visual-lab-mode-tab-active {
+  border-color: color-mix(in srgb, var(--color-brand-500) 35%, transparent);
+  background: color-mix(in srgb, var(--color-brand-500) 10%, transparent);
+}
+[data-theme="blueprint"] .visual-lab-mode-tab-active {
+  border-color: color-mix(in srgb, var(--color-accent-cyan) 35%, transparent);
+  background: color-mix(in srgb, var(--color-accent-cyan) 10%, transparent);
+  box-shadow: 0 0 24px color-mix(in srgb, var(--color-accent-cyan) 8%, transparent);
+}
+.visual-lab-board-well,
+.visual-lab-side-panel {
+  border-radius: 1.75rem;
+  border: 1px solid var(--color-border-subtle);
+  background: color-mix(in srgb, var(--color-surface-card) 45%, transparent);
+  padding: 1rem;
+}
+.visual-lab-board-frame {
+  border-radius: 1.5rem;
+  border: 1px solid var(--color-border-subtle);
+  background: color-mix(in srgb, var(--color-surface-primary) 35%, transparent);
+  padding: 0.75rem;
+}
+.visual-lab-mode-badge {
+  border-radius: 9999px;
+  border: 1px solid var(--color-border-subtle);
+  background: color-mix(in srgb, var(--color-surface-hover) 70%, transparent);
+  padding: 0.25rem 0.75rem;
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+}
+.visual-lab-mapping-tile {
+  border-radius: 1rem;
+  border: 1px solid var(--color-border-subtle);
+  background: color-mix(in srgb, var(--color-surface-card) 55%, transparent);
+  padding: 0.75rem;
+}
+.visual-lab-mapping-symbol {
+  display: flex;
+  height: 2.5rem;
+  width: 2.5rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 1rem;
+  border: 1px solid var(--color-border-subtle);
+  background: color-mix(in srgb, var(--color-surface-secondary) 70%, transparent);
+  font-size: 0.625rem;
+  font-weight: 700;
+  color: var(--color-brand-700);
+}
+.visual-lab-board-bg {
+  fill: color-mix(in srgb, var(--color-surface-primary) 25%, transparent);
+}
+.visual-lab-edge {
+  stroke: color-mix(in srgb, var(--color-text-primary) 15%, transparent);
+}
+.visual-lab-node-label {
+  fill: var(--color-text-secondary);
+  font-size: 9px;
+}
+.visual-lab-mastery-value {
+  fill: var(--color-text-primary);
+  font-size: 22px;
+  font-weight: 600;
+}
+.visual-lab-mastery-label {
+  fill: var(--color-text-muted);
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+.visual-lab-exam-node {
+  fill: color-mix(in srgb, var(--color-text-primary) 18%, transparent);
+}
+.visual-lab-exam-node-active {
+  fill: var(--color-accent-cyan);
+  filter: drop-shadow(0 0 12px color-mix(in srgb, var(--color-accent-cyan) 45%, transparent));
+}
+.visual-lab-formula-main {
+  fill: var(--color-text-primary);
+  font-size: 18px;
+  font-weight: 600;
+}
+.visual-lab-formula-chip {
+  fill: color-mix(in srgb, var(--color-surface-card) 70%, transparent);
+  stroke: color-mix(in srgb, var(--color-border-subtle) 100%, transparent);
+}
+.visual-lab-formula-chip-label {
+  fill: var(--color-text-secondary);
+  font-size: 10px;
+}
+
+/* Option-B Wave E16 — Leitner FSRS box rail + flip card chrome */
+.leitner-flip-card {
+  border-radius: 0.75rem;
+  border: 1px solid color-mix(in srgb, var(--color-brand-500) 30%, transparent);
+  background: color-mix(in srgb, var(--color-brand-500) 5%, transparent);
+}
+.leitner-flip-card:hover {
+  border-color: color-mix(in srgb, var(--color-brand-500) 50%, transparent);
+}
+.leitner-box-rail-item {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 0.75rem;
+  border-radius: 1rem;
+  border: 1px solid var(--color-border-subtle);
+  background: color-mix(in srgb, var(--color-surface-card) 55%, transparent);
+  padding: 0.75rem;
+  text-align: left;
+  transition:
+    border-color 0.25s ease,
+    background 0.25s ease,
+    box-shadow 0.25s ease;
+}
+.leitner-box-rail-item:hover {
+  border-color: color-mix(in srgb, var(--color-brand-500) 22%, transparent);
+}
+.leitner-box-rail-item-active {
+  border-color: color-mix(in srgb, var(--color-brand-500) 35%, transparent);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-brand-500) 12%, transparent);
+}
+.leitner-box-rail-dot {
+  height: 0.75rem;
+  width: 0.75rem;
+  flex-shrink: 0;
+  border-radius: 9999px;
+}
+.leitner-box-dot-again { background: var(--color-accent-rose); }
+.leitner-box-dot-hard { background: var(--color-accent-orange); }
+.leitner-box-dot-good { background: var(--color-accent-amber); }
+.leitner-box-dot-easy { background: var(--color-accent-emerald); }
+.leitner-box-rail-meter {
+  height: 0.375rem;
+  width: 3.5rem;
+  flex-shrink: 0;
+  overflow: hidden;
+  border-radius: 9999px;
+  background: color-mix(in srgb, var(--color-text-primary) 8%, transparent);
+}
+.leitner-box-rail-meter-fill {
+  display: block;
+  height: 100%;
+  border-radius: 9999px;
+  background: color-mix(in srgb, var(--color-text-primary) 40%, transparent);
+  transition: width 0.4s ease;
+}
+[data-theme="blueprint"] .leitner-flip-card {
+  border-radius: 1.625rem;
+  border-color: color-mix(in srgb, var(--color-accent-cyan) 25%, transparent);
+  background: color-mix(in srgb, var(--color-accent-cyan) 6%, transparent);
+}
+[data-theme="blueprint"] .leitner-box-rail-item-active {
+  border-color: color-mix(in srgb, var(--color-accent-cyan) 30%, transparent);
+  background: color-mix(in srgb, var(--color-accent-cyan) 8%, transparent);
+}
+[data-theme="blueprint"] .leitner-box-rail-meter-fill {
+  background: var(--color-accent-cyan);
+}
+
 [data-theme="blueprint"] :is(button, a).bg-brand-600,
 [data-theme="blueprint"] :is(button, a).bg-brand-700 {
   background-color: #ffffff;
