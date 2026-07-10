@@ -45,6 +45,7 @@
   --viz-track: #1f1f27;
   --viz-node-fill: #131318;
   --viz-canvas-bg: #0a0a0c;
+  --surface-canvas: var(--viz-canvas-bg);
   --viz-grid-line: #16161b;
 
   /* Mastery bands + spectrum palette (dark defaults — softened, still distinct) */
@@ -103,6 +104,20 @@
   --type-title: 1.125rem;
   --type-display-sm: 1.375rem;
   --type-display: 1.5rem;
+  --type-hero: clamp(1.75rem, 4vw, 3rem);
+  --type-hero-app: 1.25rem;
+  --type-hero-app-sm: 1.5rem;
+  --btn-height: 2.5rem;
+  --ux-motion-fade-y: 12px;
+  --ux-motion-fade-duration: 0.6s;
+  --ux-motion-fade-duration-fast: 0.35s;
+  --ux-motion-stagger-step: 0.09s;
+  --tracking-hero: -0.02em;
+  --tracking-hero-app: -0.015em;
+  --tracking-section: -0.015em;
+  --tracking-title: -0.01em;
+  --tracking-eyebrow: 0.34em;
+  --tracking-eyebrow-tight: 0.32em;
   --leading-micro: 1rem;
   --leading-caption: 1rem;
   --leading-body-sm: 1.25rem;
@@ -756,13 +771,14 @@
   font-weight: 600;
   color: color-mix(in srgb, var(--color-accent-cyan) 70%, var(--color-text-secondary));
 }
-@keyframes blueprintFadeUp {
-  0% { opacity: 0; transform: translateY(12px); }
+@keyframes uxFadeUp {
+  0% { opacity: 0; transform: translateY(var(--ux-motion-fade-y, 12px)); }
   100% { opacity: 1; transform: translateY(0); }
 }
 @media (prefers-reduced-motion: no-preference) {
+  .blueprint-fade-up,
   [data-theme="blueprint"] .blueprint-fade-up {
-    animation: blueprintFadeUp 0.6s ease-out both;
+    animation: uxFadeUp var(--ux-motion-fade-duration) cubic-bezier(0, 0, 0.2, 1) both;
   }
 }
 
@@ -1309,7 +1325,7 @@
 .visual-lab-board-frame {
   border-radius: 1.5rem;
   border: 1px solid var(--color-border-subtle);
-  background: color-mix(in srgb, var(--color-surface-primary) 35%, transparent);
+  background: color-mix(in srgb, var(--ux-surface-canvas, var(--surface-canvas)) 35%, transparent);
   padding: 0.75rem;
 }
 .visual-lab-mode-badge {
@@ -1711,18 +1727,50 @@
 }
 
 /* Option-B Wave F1 — Landing Cinobo clarity (type density tokens) */
+/* Wave G+H — global density tokens + marketing vs app-shell namespace */
+.app-shell {
+  --ux-namespace-surface: var(--color-surface-primary);
+  --ux-surface-canvas: var(--surface-canvas);
+  --ux-type-hero: var(--type-hero-app);
+  --ux-btn-height: var(--btn-height);
+  --ux-tracking-hero: var(--tracking-hero-app);
+  --ux-tracking-section: var(--tracking-section);
+  --ux-tracking-title: var(--tracking-title);
+  --ux-tracking-eyebrow: var(--tracking-eyebrow-tight);
+}
+@media (min-width: 640px) {
+  .app-shell {
+    --ux-type-hero: var(--type-hero-app-sm);
+  }
+}
+.app-shell :is(.ux-primary-cta, .ux-secondary-cta) {
+  min-height: var(--ux-btn-height);
+  box-sizing: border-box;
+}
 .landing-page {
-  --landing-type-hero: clamp(1.75rem, 4vw, 3rem);
+  --ux-namespace-surface: var(--color-surface-primary);
+  --ux-surface-canvas: var(--surface-canvas);
+  --ux-type-hero: var(--type-hero);
+  --ux-btn-height: var(--btn-height);
+  --ux-tracking-hero: var(--tracking-hero);
+  --ux-tracking-section: var(--tracking-section);
+  --ux-tracking-title: var(--tracking-title);
+  --ux-tracking-eyebrow: var(--tracking-eyebrow);
+  --landing-type-hero: var(--type-hero);
   --landing-type-section: clamp(1.125rem, 2vw, 1.25rem);
   --landing-type-body: 0.9375rem;
   --landing-btn-py: 0.625rem;
   --landing-section-py: clamp(4rem, 8vw, 5rem);
 }
+.landing-page .landing-cta {
+  min-height: var(--ux-btn-height);
+  box-sizing: border-box;
+}
 .landing-hero-title {
-  font-size: var(--landing-type-hero);
+  font-size: var(--ux-type-hero);
   font-weight: 700;
   line-height: 1.08;
-  letter-spacing: -0.02em;
+  letter-spacing: var(--ux-tracking-hero);
 }
 .landing-hero-subtitle {
   font-size: clamp(0.875rem, 1.6vw, 1.125rem);
@@ -1732,6 +1780,7 @@
   font-size: var(--landing-type-section);
   font-weight: 700;
   line-height: 1.2;
+  letter-spacing: var(--ux-tracking-section);
 }
 .landing-step-num {
   font-size: clamp(1.5rem, 3vw, 1.875rem);
@@ -1787,14 +1836,10 @@
 }
 
 /* Option-B Wave F3 — app chrome density (page-level headings only) */
-.ux-page-header h1 {
-  font-size: 1.25rem;
+.app-shell .ux-page-header h1 {
+  font-size: var(--ux-type-hero);
   line-height: 1.25;
-}
-@media (min-width: 640px) {
-  .ux-page-header h1 {
-    font-size: 1.5rem;
-  }
+  letter-spacing: var(--ux-tracking-hero);
 }
 .ux-page-subtitle {
   font-size: 0.875rem;
@@ -1806,7 +1851,7 @@
 .ux-section-header h2 {
   font-size: 1.125rem;
   line-height: 1.3;
-  letter-spacing: -0.015em;
+  letter-spacing: var(--ux-tracking-section, var(--tracking-section));
 }
 @media (min-width: 640px) {
   .ux-section-header h2 {
@@ -1817,7 +1862,7 @@
   font-size: 1.125rem;
   line-height: 1.3;
   font-weight: 600;
-  letter-spacing: -0.01em;
+  letter-spacing: var(--ux-tracking-title, var(--tracking-title));
   color: var(--text-primary);
 }
 @media (min-width: 640px) {
@@ -2547,7 +2592,7 @@
 }
 .dashboard-live-preview-eyebrow {
   font-size: 0.6875rem;
-  letter-spacing: 0.32em;
+  letter-spacing: var(--ux-tracking-eyebrow, var(--tracking-eyebrow-tight));
   text-transform: uppercase;
   color: var(--color-text-muted);
 }
@@ -2942,13 +2987,17 @@ body {
   mask-image: radial-gradient(circle at 50% 35%, black, transparent 82%);
 }
 
-@keyframes fadeUp {
-  0% { opacity: 0; transform: translateY(12px); }
+@keyframes uxFadeUp {
+  0% { opacity: 0; transform: translateY(var(--ux-motion-fade-y, 12px)); }
   100% { opacity: 1; transform: translateY(0); }
 }
 
 .animate-fade-up {
-  animation: fadeUp 0.35s ease-out both;
+  animation: uxFadeUp var(--ux-motion-fade-duration-fast) ease-out both;
+}
+
+.blueprint-motion-section {
+  --motion-section-stagger: var(--ux-motion-stagger-step);
 }
 
 .glow-cyan {

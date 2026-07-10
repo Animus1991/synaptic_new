@@ -19,14 +19,19 @@ export function useBlueprintTheme(): boolean {
   return isBlueprint;
 }
 
-/** Option-B entrance motion — prototype fadeUp (12px, 0.6s). */
+/** Option-B entrance motion — unified fadeUp (Wave G+I). */
 export const BLUEPRINT_MOTION = {
   initial: { opacity: 0, y: 12 },
   animate: { opacity: 1, y: 0 },
   transition: { duration: 0.6, ease: [0, 0, 0.2, 1] as const },
 };
 
+/** @deprecated Use BLUEPRINT_MOTION — kept for import stability. */
+export const UX_FADE_UP_MOTION = BLUEPRINT_MOTION;
+
+export const UX_MOTION_STAGGER_STEP = 0.09;
+
 export function blueprintStaggerDelay(staggerIndex?: number, baseDelay = 0): number {
   if (staggerIndex == null) return baseDelay;
-  return baseDelay + staggerIndex * 0.09;
+  return baseDelay + staggerIndex * UX_MOTION_STAGGER_STEP;
 }

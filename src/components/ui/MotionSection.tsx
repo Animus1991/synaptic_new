@@ -3,7 +3,6 @@ import type { CSSProperties, MouseEventHandler, ReactNode } from 'react';
 import {
   BLUEPRINT_MOTION,
   blueprintStaggerDelay,
-  useBlueprintTheme,
 } from '../../lib/useBlueprintTheme';
 import { useReducedMotion } from '../../lib/useReducedMotion';
 import { cn } from '../../utils/cn';
@@ -28,14 +27,14 @@ type Props = MotionOnly & {
   'data-testid'?: string;
 };
 
-/** Dashboard / platform section wrapper — blueprint fadeUp when Option-B theme is active. */
+/** Dashboard / platform section wrapper — unified fadeUp entrance (Wave G+I). */
 export function MotionSection({
   children,
   className,
   delay = 0,
   staggerIndex,
   variant,
-  initial = { opacity: 0, y: 10 },
+  initial = { opacity: 0, y: 12 },
   animate = { opacity: 1, y: 0 },
   transition,
   onClick,
@@ -45,20 +44,19 @@ export function MotionSection({
   'data-testid': dataTestId,
 }: Props) {
   const reduced = useReducedMotion();
-  const isBlueprint = useBlueprintTheme();
-  const useBlueprintMotion = (variant === 'blueprint' || (variant !== 'default' && isBlueprint)) && !reduced;
+  const useUnifiedMotion = variant !== 'default' && !reduced;
 
-  const resolvedInitial = useBlueprintMotion ? BLUEPRINT_MOTION.initial : initial;
-  const resolvedAnimate = useBlueprintMotion ? BLUEPRINT_MOTION.animate : animate;
+  const resolvedInitial = useUnifiedMotion ? BLUEPRINT_MOTION.initial : initial;
+  const resolvedAnimate = useUnifiedMotion ? BLUEPRINT_MOTION.animate : animate;
   const resolvedDelay = blueprintStaggerDelay(staggerIndex, delay);
   const resolvedTransition = transition ?? (
-    useBlueprintMotion
+    useUnifiedMotion
       ? { ...BLUEPRINT_MOTION.transition, delay: resolvedDelay }
-      : { delay: resolvedDelay }
+      : { duration: 0.6, ease: [0, 0, 0.2, 1], delay: resolvedDelay }
   );
 
   const htmlProps = {
-    className: cn(useBlueprintMotion && 'blueprint-motion-section', className),
+    className: cn(useUnifiedMotion && 'blueprint-motion-section', className),
     onClick,
     id,
     role,

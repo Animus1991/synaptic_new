@@ -303,9 +303,9 @@ Goal: every tool **fully functional for its learning purpose**, not demo stubs.
 
 | ID | Item | Priority | Status | Notes |
 | -- | ---- | -------- | ------ | ----- |
-| OPT-G | Global app density tokens (`--type-hero`, `--btn-height`) | P3 | open | Cross-surface token unification; no size increase |
-| OPT-H | `marketing-page` vs `app-shell` CSS namespace split | P3 | open | Formalize `.landing-page` vs `.app-shell` tokens (Replit lesson) |
-| OPT-I | Unified `fadeUp` motion stagger | P3 | open | Single blueprint entrance curve across `MotionSection` |
+| OPT-G | Global app density tokens (`--type-hero`, `--btn-height`) | P3 | **shipped** | `@theme` tokens; wired to landing hero, page headers, CTA min-height |
+| OPT-H | `marketing-page` vs `app-shell` CSS namespace split | P3 | **shipped** | `.landing-page` / `.app-shell` scoped `--ux-type-hero`, `--ux-btn-height`, `--ux-namespace-surface` |
+| OPT-I | Unified `fadeUp` motion stagger | P3 | **shipped** | `uxFadeUp` keyframe; `MotionSection` unified 12px/0.6s + `--ux-motion-stagger-step` |
 
 ### Open — Cinobo micro (low ROI)
 
@@ -328,7 +328,7 @@ Constraints for all OPT-R*: no typography/button/modal scale-up; no functional c
 | OPT-R2 | Wave R2 — prompt-bar chrome + ghost pill polish | P2 | **shipped** | `ux-prompt-bar-surface` on upload/library; ghost pill radius on `ux-secondary-cta`; light prompt input |
 | OPT-R3 | Wave R3 — Tasks Kanban visual columns + card frames | P2 | **shipped** | `TasksKanbanStatusStrip`; column counts; `tasks-kanban-card` status dots; list logic untouched |
 | OPT-R4 | Wave R4 — Agent describe-rail + preview frame chrome | P2 | **shipped** | `AgentFlowRail`; `ux-canvas-frame` on live preview, pipeline preview, Visual Lab board |
-| OPT-R5 | Wave R5 — OPT-H namespace + tracking tokens | P3 | open | `--surface-canvas` alias; `letter-spacing` on existing heading sizes only |
+| OPT-R5 | Wave R5 — OPT-H namespace + tracking tokens | P3 | **shipped** | `--surface-canvas` alias; namespace `--ux-tracking-*`; heading letter-spacing via tokens only |
 
 ### Replit study — explicit non-borrows
 
