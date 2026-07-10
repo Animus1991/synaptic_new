@@ -21,6 +21,8 @@ import {
 } from '../../lib/examPracticePresets';
 import { saveExamPracticePreset } from '../../lib/workspacePersistence';
 import { emitTakeBreathPrompt } from '../../lib/examPrep/takeBreathEvents';
+import { PomodoroRing } from './PomodoroRing';
+import { PomodoroSessionModeList } from './PomodoroSessionModeList';
 
 const PRESET_DEFS = [
   { key: 'focus25' as const, work: 25 * 60, break: 5 * 60 },
@@ -169,6 +171,15 @@ export function StudyTimer({
     setSecondsLeft(workDurationSeconds);
   };
 
+  const selectPreset = (index: number) => {
+    const next = PRESET_DEFS[index];
+    setPresetIdx(index);
+    setExamPracticeId(null);
+    setPhase('work');
+    setSecondsLeft(next.work);
+    setRunning(false);
+  };
+
   const h = Math.floor(displaySeconds / 3600);
   const m = Math.floor((displaySeconds % 3600) / 60);
   const s = displaySeconds % 60;
@@ -176,8 +187,11 @@ export function StudyTimer({
     ? `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
     : `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
 
+  const ringStrokeTone = mode === 'exam' ? 'exam' : phase === 'work' ? 'work' : 'break';
+  const ringPhaseLabel = mode === 'exam' ? t('timerCountdown') : (phase === 'work' ? t('focus') : t('break'));
+
   return (
-    <div className="flex flex-col h-full p-4" data-testid="study-timer">
+    <div className="ux-tier-b-tool ux-pomodoro-shell flex flex-col h-full p-4" data-testid="study-timer">
       <div className="flex items-center justify-between mb-2">
         <h3 className="text-sm font-semibold flex items-center gap-2">
           <Timer className="w-4 h-4 text-accent-teal" />
@@ -221,17 +235,12 @@ export function StudyTimer({
 
       {mode === 'pomodoro' && (
         <>
-          <div className="flex gap-2 mb-3 self-start flex-wrap">
+          <div className="ux-pomodoro-preset-pills flex gap-2 mb-3 self-start flex-wrap xl:hidden">
             {PRESET_DEFS.map((p, i) => (
               <button
                 key={p.key}
-                onClick={() => {
-                  setPresetIdx(i);
-                  setExamPracticeId(null);
-                  setPhase('work');
-                  setSecondsLeft(p.work);
-                  setRunning(false);
-                }}
+                type="button"
+                onClick={() => selectPreset(i)}
                 className={cn(
                   'px-2.5 py-1 rounded-lg text-[10px] font-medium border transition-all',
                   presetIdx === i && !examPracticeId ? 'border-brand-500/40 text-brand-800 bg-brand-600/10' : 'border-border-subtle text-text-muted',
@@ -311,49 +320,55 @@ export function StudyTimer({
         </div>
       )}
 
-      <div className="flex-1 flex flex-col items-center justify-center">
-        <div className="relative w-40 h-40 mb-6">
-          <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
-            <circle cx="50" cy="50" r="42" fill="none" stroke="var(--viz-track)" strokeWidth="6" />
-            <circle
-              cx="50" cy="50" r="42" fill="none"
-              stroke={mode === 'exam' ? 'var(--palette-amber)' : (phase === 'work' ? 'var(--palette-purple)' : 'var(--mastery-strong)')}
-              strokeWidth="6"
-              strokeDasharray={`${pct * 2.64} 264`}
-              strokeLinecap="round"
+      <div className="ux-pomodoro-stage flex-1 min-h-0">
+        <div className="ux-pomodoro-stage-inner flex flex-col xl:grid xl:grid-cols-[1fr_minmax(200px,260px)] xl:items-center xl:gap-8 h-full">
+          <div className="ux-pomodoro-ring-col flex flex-col items-center justify-center py-4">
+            <PomodoroRing
+              pct={pct}
+              timeDisplay={timeDisplay}
+              phaseLabel={ringPhaseLabel}
+              strokeTone={ringStrokeTone}
+              className="mb-6"
             />
-          </svg>
-          <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <span className="text-2xl font-bold font-mono">{timeDisplay}</span>
-            <span className={cn('text-[10px] font-medium mt-1', mode === 'exam' ? 'text-accent-amber' : phase === 'work' ? 'text-brand-700' : 'text-accent-emerald')}>
-              {mode === 'exam' ? t('timerCountdown') : (phase === 'work' ? t('focus') : t('break'))}
-            </span>
-          </div>
-        </div>
 
-        {mode === 'pomodoro' && (
-          <div className="flex gap-3">
-            <button
-              type="button"
-              data-testid="timer-play-pause"
-              onClick={() => setRunning(!running)}
-              aria-label={running ? t('pause') : t('start')}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-sm font-medium"
-            >
-              {running ? <Pause className="w-4 h-4" aria-hidden /> : <Play className="w-4 h-4" aria-hidden />}
-              {running ? t('pause') : t('start')}
-            </button>
-            <button
-              type="button"
-              data-testid="timer-reset"
-              onClick={reset}
-              aria-label={t('reset')}
-              className="p-2.5 rounded-xl border border-border-subtle hover:bg-surface-hover text-text-secondary"
-            >
-              <RotateCcw className="w-4 h-4" aria-hidden />
-            </button>
+            {mode === 'pomodoro' && (
+              <div className="ux-pomodoro-controls flex gap-3">
+                <button
+                  type="button"
+                  data-testid="timer-play-pause"
+                  onClick={() => setRunning(!running)}
+                  aria-label={running ? t('pause') : t('start')}
+                  className={cn(
+                    'ux-pomodoro-play-btn flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium',
+                    running ? 'ux-pomodoro-play-btn-pause' : 'ux-pomodoro-play-btn-start',
+                  )}
+                >
+                  {running ? <Pause className="w-4 h-4" aria-hidden /> : <Play className="w-4 h-4" aria-hidden />}
+                  {running ? t('pause') : t('start')}
+                </button>
+                <button
+                  type="button"
+                  data-testid="timer-reset"
+                  onClick={reset}
+                  aria-label={t('reset')}
+                  className="ux-pomodoro-reset-btn p-2.5 rounded-xl border border-border-subtle hover:bg-surface-hover text-text-secondary"
+                >
+                  <RotateCcw className="w-4 h-4" aria-hidden />
+                </button>
+              </div>
+            )}
           </div>
-        )}
+
+          {mode === 'pomodoro' && (
+            <PomodoroSessionModeList
+              presets={PRESET_DEFS}
+              activeIdx={presetIdx}
+              examPracticeActive={!!examPracticeId}
+              onSelect={selectPreset}
+              className="hidden xl:flex"
+            />
+          )}
+        </div>
       </div>
 
       {loggedWork > 0 && mode === 'pomodoro' && (

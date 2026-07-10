@@ -271,6 +271,8 @@ Goal: every tool **fully functional for its learning purpose**, not demo stubs.
 | OPT-E15 | Option-B Wave E15 — Color Coding System reference | P2 | **shipped** | `ColorCodingReferencePanel` + `colorCodingReference.ts` in Settings; semantic swatches via `--mastery-*` / `--palette-*`; 60-30-10 rule bar |
 | OPT-E14 | Option-B Wave E14 — Visual Lab 6-mode rail + decorative boards | P2 | **shipped** | `visualLabModes.ts`; mode tabs in `AnalyticsVisualLabPanel`; `VisualLabDecorativeBoards`; source mapping tiles |
 | OPT-E16 | Option-B Wave E16 — Leitner FSRS box rail chrome | P2 | **shipped** | `LeitnerFsrsBoxRail`; xl sidebar layout in `LeitnerBox`; blueprint flip card radius + meter styling |
+| OPT-E17 | Option-B Wave E17 — Pomodoro timer visual chrome | P2 | **shipped** | `PomodoroRing`; `PomodoroSessionModeList`; xl ring + mode cards in `StudyTimer`; `ux-pomodoro-*` blueprint glass + cyan ring |
+| OPT-E18 | Option-B Wave E18 — Landing blueprint variant polish | P2 | **shipped** | `landing-page` semantic shell; blueprint hero orbs + glass frames; inverted CTAs; `SynapseBrandGlyph` + trust badges; Inter headings via `.landing-display` |
 | WS-01 | Workspace empty states (`§2.7`) — learning outcome + CTA per tool | P1 | **shipped** | `WorkspaceToolEmptyState` + `buildWorkspaceEmptyView`; all 16 tools wired; E2E `workspace-empty-tools.spec.ts` |
 | PLT-02 | OpenTelemetry + Helm IaC | P3 | **shipped** | `telemetry.ts`, `/live`/`/ready`, `server/helm/` |
 | PLT-03 | Offline embeddings (transformers.js) | P3 | open |

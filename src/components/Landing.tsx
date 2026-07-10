@@ -9,6 +9,9 @@ import { ThemeToggle } from './ThemeToggle';
 import { useI18n } from '../lib/i18n';
 import { getLandingContent } from '../lib/landingContent';
 import { LandingFAQ } from './LandingFAQ';
+import { HeaderTrustBadgeRow, SynapseBrandGlyph } from './ui/platformChrome';
+import { useBlueprintTheme } from '../lib/useBlueprintTheme';
+import { cn } from '../utils/cn';
 
 interface LandingProps {
   onGetStarted: () => void;
@@ -21,34 +24,46 @@ const userTypeIcons = [GraduationCap, BookOpen, Sparkles, Users, Building2];
 /** Full-viewport horizontal padding — no artificial max-width column. */
 const LANDING_SHELL = 'w-full px-5 sm:px-8 md:px-10 lg:px-14 xl:px-[clamp(2rem,5vw,6rem)] 2xl:px-[clamp(2.5rem,6vw,7.5rem)]';
 
-const serif: React.CSSProperties = { fontFamily: 'var(--font-display)' };
 const mono: React.CSSProperties = { fontFamily: 'var(--font-mono)' };
+
+const PRIMARY_CTA =
+  'ux-primary-cta group flex items-center gap-3 px-[29px] py-[12.5px] rounded-[25px] bg-text-primary text-surface-primary text-sm font-semibold hover:bg-text-secondary transition-colors';
+const SECONDARY_CTA =
+  'ux-secondary-cta group flex items-center gap-3 px-[29px] py-[12.5px] rounded-[25px] border border-border-default text-text-primary text-sm font-semibold hover:border-brand-500 hover:text-brand-700 transition-colors';
 
 export function Landing({ onGetStarted, onSeeDemo }: LandingProps) {
   const { t, lang } = useI18n();
   const content = getLandingContent(lang);
+  const isBlueprint = useBlueprintTheme();
 
   return (
-    <div className="min-h-screen w-full bg-surface-primary text-text-primary overflow-x-hidden">
+    <div className="landing-page min-h-screen w-full bg-surface-primary text-text-primary overflow-x-hidden">
       {/* Navbar */}
-      <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border-subtle bg-surface-primary/80 backdrop-blur-xl">
+      <nav className="landing-nav fixed top-0 left-0 right-0 z-50 border-b border-border-subtle bg-surface-primary/80 backdrop-blur-xl">
         <div className={LANDING_SHELL}>
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-3">
-              <div className="h-px w-8 bg-brand-500" />
-              <span
-                className="text-lg tracking-tight"
-                style={serif}
-              >
+          <div className="flex items-center justify-between h-16 gap-4">
+            <div className="flex items-center gap-3 min-w-0">
+              {isBlueprint ? (
+                <SynapseBrandGlyph className="shrink-0" />
+              ) : (
+                <div className="h-px w-8 bg-brand-500 shrink-0" />
+              )}
+              <span className="landing-display text-lg tracking-tight truncate">
                 Synapse<span className="text-brand-500">.</span>
               </span>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 shrink-0">
+              {isBlueprint && (
+                <HeaderTrustBadgeRow lang={lang} className="hidden lg:flex mr-1" />
+              )}
               <ThemeToggle />
               <button
                 onClick={onGetStarted}
                 data-testid="landing-get-started"
-                className="px-5 py-2 rounded-[25px] bg-text-primary text-surface-primary text-sm font-semibold hover:bg-text-secondary transition-colors"
+                className={cn(
+                  'px-5 py-2 rounded-[25px] bg-text-primary text-surface-primary text-sm font-semibold hover:bg-text-secondary transition-colors',
+                  'ux-primary-cta',
+                )}
               >
                 {content.getStarted}
               </button>
@@ -59,8 +74,9 @@ export function Landing({ onGetStarted, onSeeDemo }: LandingProps) {
 
       {/* Hero */}
       <section className="relative pt-28 sm:pt-36 lg:pt-40 pb-16 lg:pb-24">
-        <div className="absolute -top-24 -left-32 w-[36rem] h-[36rem] bg-brand-500/[0.06] rounded-full blur-[140px] pointer-events-none" />
-        <div className="absolute top-40 right-0 w-[28rem] h-[28rem] bg-brand-700/[0.05] rounded-full blur-[140px] pointer-events-none" />
+        <div className="landing-hero-orbs" aria-hidden />
+        <div className="landing-default-orbs absolute -top-24 -left-32 w-[36rem] h-[36rem] bg-brand-500/[0.06] rounded-full blur-[140px] pointer-events-none" />
+        <div className="landing-default-orbs absolute top-40 right-0 w-[28rem] h-[28rem] bg-brand-700/[0.05] rounded-full blur-[140px] pointer-events-none" />
 
         <div className={`relative ${LANDING_SHELL}`}>
           <div className="grid grid-cols-1 xl:grid-cols-12 gap-10 xl:gap-14 2xl:gap-20 items-start">
@@ -73,7 +89,7 @@ export function Landing({ onGetStarted, onSeeDemo }: LandingProps) {
           >
             <div className="h-px w-12 bg-brand-500" />
             <span
-              className="text-xs font-medium text-brand-700 tracking-wide"
+              className="landing-eyebrow text-xs font-medium text-brand-700 tracking-wide"
               style={mono}
             >
               {content.badge}
@@ -84,8 +100,7 @@ export function Landing({ onGetStarted, onSeeDemo }: LandingProps) {
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.08 }}
-            className="text-[1.85rem] sm:text-[2.25rem] md:text-[2.75rem] lg:text-[3.25rem] xl:text-[3.75rem] 2xl:text-[4.25rem] font-bold tracking-tight leading-[1.05] mb-8 text-text-primary"
-            style={serif}
+            className="landing-display text-[1.85rem] sm:text-[2.25rem] md:text-[2.75rem] lg:text-[3.25rem] xl:text-[3.75rem] 2xl:text-[4.25rem] font-bold tracking-tight leading-[1.05] mb-8 text-text-primary"
           >
             {content.heroTitle}{' '}
             <span className="text-brand-800">{content.heroHighlight}</span>
@@ -109,14 +124,14 @@ export function Landing({ onGetStarted, onSeeDemo }: LandingProps) {
           >
             <button
               onClick={onGetStarted}
-              className="group flex items-center gap-3 px-[29px] py-[12.5px] rounded-[25px] bg-text-primary text-surface-primary text-sm font-semibold hover:bg-text-secondary transition-colors"
+              className={PRIMARY_CTA}
             >
               {content.ctaPrimary}
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </button>
             <button
               onClick={onSeeDemo ?? onGetStarted}
-              className="group flex items-center gap-3 px-[29px] py-[12.5px] rounded-[25px] border border-border-default text-text-primary text-sm font-semibold hover:border-brand-500 hover:text-brand-700 transition-colors"
+              className={SECONDARY_CTA}
             >
               {content.ctaSecondary}
               <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
@@ -145,7 +160,7 @@ export function Landing({ onGetStarted, onSeeDemo }: LandingProps) {
           >
             {content.trust.map(item => (
               <span key={item} className="flex items-center gap-2">
-                <Check className="w-4 h-4 text-brand-400" />
+                <Check className="w-4 h-4 text-brand-400 landing-trust-check" />
                 {item}
               </span>
             ))}
@@ -158,7 +173,7 @@ export function Landing({ onGetStarted, onSeeDemo }: LandingProps) {
               transition={{ duration: 0.6, delay: 0.35 }}
               className="xl:col-span-5 2xl:col-span-4 hidden xl:block"
             >
-              <div className="rounded-2xl border border-border-subtle bg-surface-card/50 p-6 2xl:p-8 backdrop-blur-sm">
+              <div className="landing-hero-card rounded-2xl border border-border-subtle bg-surface-card/50 p-6 2xl:p-8 backdrop-blur-sm">
                 <p className="text-xs font-semibold text-brand-700 mb-4" style={mono}>
                   {t('landingBuiltFor')}
                 </p>
@@ -234,8 +249,7 @@ export function Landing({ onGetStarted, onSeeDemo }: LandingProps) {
                   className="group"
                 >
                   <div
-                    className="text-4xl sm:text-5xl text-brand-600/40 group-hover:text-brand-700 transition-colors mb-3 font-medium"
-                    style={serif}
+                    className="landing-display text-4xl sm:text-5xl text-brand-600/40 group-hover:text-brand-700 transition-colors mb-3 font-medium"
                   >
                     {step.num}
                   </div>
@@ -251,7 +265,7 @@ export function Landing({ onGetStarted, onSeeDemo }: LandingProps) {
       {/* Features Grid — bordered editorial frame */}
       <section className={`${LANDING_SHELL} py-24`}>
         <div className="w-full">
-          <div className="relative border border-border-default bg-surface-card/30 px-5 sm:px-8 md:px-12 py-12 sm:py-16 md:py-20">
+          <div className="landing-features-frame relative border border-border-default bg-surface-card/30 px-5 sm:px-8 md:px-12 py-12 sm:py-16 md:py-20">
             <div className="absolute top-0 left-0 w-2 h-2 bg-brand-500" />
             <div className="absolute top-0 right-0 w-2 h-2 bg-brand-500" />
             <div className="absolute bottom-0 left-0 w-2 h-2 bg-brand-500" />
@@ -264,8 +278,7 @@ export function Landing({ onGetStarted, onSeeDemo }: LandingProps) {
                 {content.featuresSectionTitle}
               </h2>
               <h3
-                className="text-[1.35rem] sm:text-lg md:text-xl lg:text-[1.7rem] font-bold text-text-primary leading-[1.15]"
-                style={serif}
+                className="landing-display text-[1.35rem] sm:text-lg md:text-xl lg:text-[1.7rem] font-bold text-text-primary leading-[1.15]"
               >
                 {content.featuresSectionSubtitle}
               </h3>
@@ -310,8 +323,7 @@ export function Landing({ onGetStarted, onSeeDemo }: LandingProps) {
                 {t('landingDifferentiation')}
               </h2>
               <h3
-                className="text-[1.28rem] sm:text-[1.07rem] md:text-[1.187rem] lg:text-[1.615rem] font-bold text-text-primary leading-[1.15] mb-4"
-                style={serif}
+                className="landing-display text-[1.28rem] sm:text-[1.07rem] md:text-[1.187rem] lg:text-[1.615rem] font-bold text-text-primary leading-[1.15] mb-4"
               >
                 {content.diffTitle}
               </h3>
@@ -351,8 +363,7 @@ export function Landing({ onGetStarted, onSeeDemo }: LandingProps) {
             ))}
           </div>
           <blockquote
-            className="text-sm sm:text-base md:text-lg lg:text-xl font-normal text-text-primary mb-8 leading-snug"
-            style={serif}
+            className="landing-display text-sm sm:text-base md:text-lg lg:text-xl font-normal text-text-primary mb-8 leading-snug"
           >
             "{content.testimonialQuote}"
           </blockquote>
@@ -370,12 +381,11 @@ export function Landing({ onGetStarted, onSeeDemo }: LandingProps) {
       {/* CTA */}
       <section className={`${LANDING_SHELL} py-24 border-t border-border-subtle`}>
         <div className="w-full">
-          <div className="relative border border-border-default bg-surface-card/40 p-6 sm:p-12 md:p-16 xl:p-20 overflow-hidden">
+          <div className="landing-cta-panel relative border border-border-default bg-surface-card/40 p-6 sm:p-12 md:p-16 xl:p-20 overflow-hidden">
             <div className="absolute -top-20 -right-20 w-96 h-96 bg-brand-500/[0.08] rounded-full blur-[120px]" />
             <div className="relative max-w-none xl:max-w-3xl 2xl:max-w-4xl">
               <h2
-                className="text-[1.28rem] sm:text-[1.187rem] md:text-[1.615rem] lg:text-[1.9rem] font-bold text-text-primary leading-[1.15] mb-6"
-                style={serif}
+                className="landing-display text-[1.28rem] sm:text-[1.187rem] md:text-[1.615rem] lg:text-[1.9rem] font-bold text-text-primary leading-[1.15] mb-6"
               >
                 {content.ctaTitle}
               </h2>
@@ -384,7 +394,7 @@ export function Landing({ onGetStarted, onSeeDemo }: LandingProps) {
               </p>
               <button
                 onClick={onGetStarted}
-                className="group inline-flex items-center gap-3 px-[29px] py-[12.5px] rounded-[25px] bg-text-primary text-surface-primary text-sm font-semibold hover:bg-text-secondary transition-colors"
+                className={cn(PRIMARY_CTA, 'inline-flex')}
               >
                 {content.ctaButton}
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
@@ -400,7 +410,7 @@ export function Landing({ onGetStarted, onSeeDemo }: LandingProps) {
         <div className="w-full flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <div className="h-px w-6 bg-brand-500" />
-            <span className="text-sm tracking-tight text-text-secondary" style={serif}>
+            <span className="landing-display text-sm tracking-tight text-text-secondary">
               Synapse<span className="text-brand-500">.</span>
             </span>
           </div>
