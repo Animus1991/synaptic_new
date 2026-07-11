@@ -98,7 +98,7 @@ export function ExamPrepView({
     if (phase !== 'active') return;
     examQuestions.forEach((q, i) => {
       const correct = answers[i]?.answer === q.correctIndex;
-      onQuizAttempt?.(quizConcept, correct, 75);
+      onQuizAttempt?.(quizConcept, correct, correct ? 80 : 35);
     });
     setPhase(examMode === 'practice' ? 'review' : 'results');
     setShowExplanations(examMode === 'practice');
@@ -535,7 +535,7 @@ export function ExamPrepView({
               </p>
               <p className="text-sm text-text-secondary mt-1">
                 {score === examQuestions.length
-                  ? 'Excellent — ready for the real exam!'
+                  ? 'Perfect score on this practice set.'
                   : score >= Math.ceil(examQuestions.length / 2)
                     ? 'Solid attempt — review the flagged and missed questions.'
                     : 'Focus on fundamentals before exam day.'}

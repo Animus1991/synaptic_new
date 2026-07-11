@@ -110,9 +110,7 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
             : `Build a concept map from my sources for "${concept ?? notebookTitle}" with key concepts and relations.`);
       openAgentForTool(tool, prompt);
       if (isMobile) setMobileTab('chat');
-      window.setTimeout(() => {
-        setStudioGen((prev) => ({ ...prev, [actionId]: 'done' }));
-      }, 600);
+      setStudioGen((prev) => ({ ...prev, [actionId]: 'idle' }));
     },
     [lang, concept, notebookTitle, openStudioTool, openAgentForTool, isMobile],
   );

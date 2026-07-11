@@ -32,26 +32,25 @@ export function PrerequisiteRepairView({
 }: PrerequisiteRepairViewProps) {
   const [stepIndex, setStepIndex] = useState(0);
   const [checkpointAnswer, setCheckpointAnswer] = useState<number | null>(null);
-  const [checkpointDone, setCheckpointDone] = useState(false);
+  const [checkpointAnswered, setCheckpointAnswered] = useState(false);
 
-  const checkpointQuestion = checkpoint?.question
-    ?? `Quick check: What is the core idea of ${quizConcept}?`;
-  const checkpointOptions = checkpoint?.options ?? [
-    `The definition and key properties of ${quizConcept}`,
-    'An unrelated concept from another chapter',
-    'Only the formula with no assumptions',
-    'A graph with no interpretation',
-  ];
+  const hasAuthoritativeCheckpoint = Boolean(
+    checkpoint?.question?.trim() && checkpoint.options && checkpoint.options.length >= 2,
+  );
+  const checkpointQuestion = checkpoint?.question ?? '';
+  const checkpointOptions = checkpoint?.options ?? [];
   const checkpointCorrectIndex = checkpoint?.correctIndex ?? 0;
   const repairSteps = steps.length > 0 ? steps : [{ title: quizConcept, body: 'Review the foundational concept before continuing.' }];
   const isLastStep = stepIndex >= repairSteps.length - 1;
+  const checkpointPassed = hasAuthoritativeCheckpoint && checkpointAnswer === checkpointCorrectIndex;
+  const canComplete = hasAuthoritativeCheckpoint ? checkpointPassed : false;
   const sessionTitle = taskTitle ?? `Prerequisite Repair: ${quizConcept}`;
 
   const handleCheckpoint = (index: number) => {
     setCheckpointAnswer(index);
+    setCheckpointAnswered(true);
     const correct = index === checkpointCorrectIndex;
-    setCheckpointDone(true);
-    onQuizAttempt?.(quizConcept, correct, 70);
+    onQuizAttempt?.(quizConcept, correct, correct ? 70 : 40);
   };
 
   const handleComplete = () => {
@@ -103,14 +102,14 @@ export function PrerequisiteRepairView({
         </div>
 
         {isLastStep && (
+          hasAuthoritativeCheckpoint ? (
           <div className="p-5 rounded-xl bg-surface-card border border-border-subtle">
             <p className="text-sm font-medium mb-3">{checkpointQuestion}</p>
             <div className="space-y-2">
               {checkpointOptions.map((opt, i) => (
                 <button
                   key={i}
-                  onClick={() => !checkpointDone && handleCheckpoint(i)}
-                  disabled={checkpointDone}
+                  onClick={() => handleCheckpoint(i)}
                   className={cn(
                     'w-full text-left p-3 rounded-xl border text-sm transition-all',
                     checkpointAnswer === i
@@ -124,14 +123,28 @@ export function PrerequisiteRepairView({
                 </button>
               ))}
             </div>
-            {checkpointDone && (
-              <p className={cn('text-xs mt-3', checkpointAnswer === checkpointCorrectIndex ? 'text-accent-emerald' : 'text-accent-rose')}>
-                {checkpointAnswer === checkpointCorrectIndex
+            {checkpointAnswered && (
+              <p className={cn('text-xs mt-3', checkpointPassed ? 'text-accent-emerald' : 'text-accent-rose')}>
+                {checkpointPassed
                   ? '✓ Correct — you are ready to return to the dependent topic.'
-                  : '✗ Review the steps above before completing the repair.'}
+                  : '✗ Review the steps above and try again before completing the repair.'}
               </p>
             )}
           </div>
+          ) : (
+          <div className="p-5 rounded-xl bg-surface-card border border-border-subtle text-center">
+            <BookOpen className="w-8 h-8 text-text-muted mx-auto mb-2" />
+            <p className="text-sm text-text-secondary">No checkpoint could be built from your uploaded sources.</p>
+            <p className="text-xs text-text-tertiary mt-1 mb-3">Use the agent to verify understanding before completing this repair.</p>
+            <button
+              type="button"
+              onClick={onOpenAgent}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border border-border-subtle hover:border-brand-500/30"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-brand-400" /> Diagnose with Agent
+            </button>
+          </div>
+          )
         )}
       </div>
 
@@ -148,10 +161,10 @@ export function PrerequisiteRepairView({
           {isLastStep ? (
             <button
               onClick={handleComplete}
-              disabled={!checkpointDone}
+              disabled={!canComplete}
               className={cn(
                 'flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-medium transition-all',
-                checkpointDone
+                canComplete
                   ? 'bg-brand-600 hover:bg-brand-500 text-white'
                   : 'bg-surface-hover text-text-muted cursor-not-allowed',
               )}

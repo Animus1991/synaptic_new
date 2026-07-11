@@ -430,7 +430,7 @@ export function Settings({
                 href={privacyPolicyUrl()}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-accent hover:underline"
+                className="text-brand-600 hover:underline"
                 data-testid="privacy-policy-link"
               >
                 Privacy policy

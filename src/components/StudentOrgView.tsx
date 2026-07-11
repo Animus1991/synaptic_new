@@ -163,7 +163,7 @@ export function StudentOrgView({
         <p className="text-text-secondary">{ui.signInRequired}</p>
         <p className="text-sm text-text-muted">{ui.signInHint}</p>
         {samlEmailHint && (
-          <p className="text-sm text-accent border border-accent/30 rounded-xl px-3 py-2">
+          <p className="text-sm text-brand-600 border border-brand-500/30 rounded-xl px-3 py-2">
             SSO: {samlEmailHint}
           </p>
         )}
@@ -181,7 +181,7 @@ export function StudentOrgView({
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-semibold text-text-primary flex items-center gap-2">
-            <GraduationCap className="w-7 h-7 text-accent" />
+            <GraduationCap className="w-7 h-7 text-brand-600" />
             {ui.title}
           </h1>
           <p className="text-text-secondary mt-1">{ui.subtitle}</p>
@@ -191,7 +191,7 @@ export function StudentOrgView({
           onClick={() => void load()}
           disabled={loading}
           data-testid="student-org-refresh"
-          className="flex items-center gap-2 px-3 py-2 rounded-xl border border-border text-sm hover:bg-surface-hover"
+          className="flex items-center gap-2 px-3 py-2 rounded-xl border border-border-subtle text-sm hover:bg-surface-hover"
         >
           <RefreshCw className={cn('w-4 h-4', loading && 'animate-spin')} />
           {ui.refresh}
@@ -199,13 +199,13 @@ export function StudentOrgView({
       </div>
 
       {samlEmailHint && (
-        <div className="rounded-xl border border-accent/30 bg-accent/10 px-4 py-3 text-sm text-text-secondary">
+        <div className="rounded-xl border border-brand-500/30 bg-brand-500/10 px-4 py-3 text-sm text-text-secondary">
           {ui.samlWelcome} ({samlEmailHint})
         </div>
       )}
 
       {error && (
-        <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200" role="alert">
+        <div className="rounded-xl border border-accent-rose/30 bg-accent-rose/10 px-4 py-3 text-sm text-accent-rose" role="alert">
           {error}
         </div>
       )}
@@ -239,7 +239,7 @@ export function StudentOrgView({
                 value={orgFilter}
                 onChange={(e) => setOrgFilter(e.target.value)}
                 data-testid="student-org-filter"
-                className="rounded-lg border border-border bg-surface px-2 py-1 text-sm text-text-primary"
+                className="rounded-lg border border-border-subtle bg-surface-card px-2 py-1 text-sm text-text-primary"
               >
                 <option value="all">{ui.filterAllOrgs}</option>
                 {orgs.map(({ org }) => (
@@ -253,7 +253,7 @@ export function StudentOrgView({
         </div>
         <p className="text-sm text-text-muted">{ui.myClassesHint}</p>
         {loading && filteredClasses.length === 0 ? (
-          <div className="ux-shimmer-panel rounded-2xl border border-border-subtle bg-surface-card p-6" role="status" aria-live="polite">
+          <div className="ux-shimmer-panel rounded-panel border border-border-subtle bg-surface-card p-6" role="status" aria-live="polite">
             <UxShimmerPanel lines={4} />
             <p className="mt-3 text-sm text-text-muted">{ui.loading}</p>
           </div>
@@ -270,7 +270,7 @@ export function StudentOrgView({
                   key={row.class.id}
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="rounded-2xl border border-border bg-surface/60 p-4 space-y-3"
+                  className="rounded-panel border border-border-subtle bg-surface-card/60 p-4 space-y-3"
                   data-testid="student-class-card"
                 >
                   <div className="flex flex-wrap items-start justify-between gap-2">
@@ -297,7 +297,7 @@ export function StudentOrgView({
                         <div className="flex items-center gap-2 pt-1 max-w-xs">
                           <div className="flex-1 h-1.5 rounded-full bg-surface-hover overflow-hidden">
                             <div
-                              className="h-full bg-accent rounded-full"
+                              className="h-full bg-brand-500 rounded-full"
                               style={{ width: `${completionPct}%` }}
                             />
                           </div>
@@ -308,7 +308,7 @@ export function StudentOrgView({
                     {row.class.courseId && onOpenCourse && (
                       <button
                         type="button"
-                        className="text-sm text-accent hover:underline shrink-0"
+                        className="text-sm text-brand-600 hover:underline shrink-0"
                         onClick={() => onOpenCourse(row.class.courseId!)}
                       >
                         {ui.openCourse}
@@ -316,10 +316,10 @@ export function StudentOrgView({
                     )}
                   </div>
                   {row.assignments.length > 0 && (
-                    <div className="overflow-x-auto rounded-lg border border-border/60">
+                    <div className="overflow-x-auto rounded-lg border border-border-subtle/60">
                       <table className="w-full text-sm">
                         <thead>
-                          <tr className="text-left text-[10px] text-text-muted border-b border-border/50">
+                          <tr className="text-left text-[10px] text-text-muted border-b border-border-subtle/50">
                             <th className="p-2">{ui.colAssignments}</th>
                             <th className="p-2">{ui.colDue}</th>
                             <th className="p-2 text-right">Score</th>
@@ -336,7 +336,7 @@ export function StudentOrgView({
                             const discussionOpen = expandedDiscussionKey === discussionKey;
                             return (
                               <Fragment key={a.id}>
-                                <tr className="border-b border-border/30 last:border-0">
+                                <tr className="border-b border-border-subtle/30 last:border-0">
                                   <td className="p-2 text-text-secondary">{a.title}</td>
                                   <td className="p-2 text-text-muted whitespace-nowrap">
                                     {a.dueAt ? formatShortDate(a.dueAt, lang) : '—'}
@@ -351,7 +351,7 @@ export function StudentOrgView({
                                           )
                                         }
                                         data-testid={`student-discussion-toggle-${a.id}`}
-                                        className="text-[10px] text-accent hover:underline"
+                                        className="text-[10px] text-brand-600 hover:underline"
                                       >
                                         {ui.discussionToggle}
                                       </button>
@@ -409,17 +409,17 @@ export function StudentOrgView({
         {orgs.length === 0 ? (
           <p className="text-text-muted text-sm">{ui.noOrgs}</p>
         ) : (
-          <div className="overflow-x-auto rounded-xl border border-border">
+          <div className="overflow-x-auto rounded-xl border border-border-subtle">
             <table className="w-full text-sm" data-testid="student-org-table">
               <thead>
-                <tr className="border-b border-border text-text-muted text-left">
+                <tr className="border-b border-border-subtle text-text-muted text-left">
                   <th className="p-3">{ui.colOrg}</th>
                   <th className="p-3">{ui.colRole}</th>
                 </tr>
               </thead>
               <tbody>
                 {orgs.map(({ org, membership }) => (
-                  <tr key={org.id} className="border-b border-border/50">
+                  <tr key={org.id} className="border-b border-border-subtle/50">
                     <td className="p-3">{org.name}</td>
                     <td className="p-3 capitalize">{membership?.role ?? '—'}</td>
                   </tr>

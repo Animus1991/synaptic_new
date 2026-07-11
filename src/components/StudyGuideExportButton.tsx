@@ -19,7 +19,7 @@ export function StudyGuideExportButton({ course, glossaryEntries = [], lang, cla
       data-testid="study-guide-export-btn"
       onClick={() => downloadStudyGuideMarkdown(course, glossaryEntries, lang)}
       className={cn(
-        'inline-flex items-center gap-2 px-3 py-2 rounded-xl text-sm border border-border hover:bg-surface-hover text-text-secondary transition-colors',
+        'inline-flex items-center gap-2 px-3 py-2 rounded-xl text-sm border border-border-subtle hover:bg-surface-hover text-text-secondary transition-colors',
         className,
       )}
       title={label}

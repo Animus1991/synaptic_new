@@ -46,7 +46,7 @@ export function StudentOrgCalendarPanel({ assignments, ui, lang }: Props) {
   );
 
   return (
-    <section className="rounded-2xl border border-border bg-surface/40" data-testid="student-org-calendar">
+    <section className="rounded-panel border border-border-subtle bg-surface-card/40" data-testid="student-org-calendar">
       <button
         type="button"
         className="w-full flex items-center justify-between gap-3 px-4 py-3 text-left"
@@ -54,14 +54,14 @@ export function StudentOrgCalendarPanel({ assignments, ui, lang }: Props) {
         aria-expanded={open}
       >
         <span className="flex items-center gap-2 text-lg font-medium">
-          <Calendar className="w-5 h-5 text-accent" />
+          <Calendar className="w-5 h-5 text-brand-600" />
           {ui.calendarTitle}
         </span>
         <ChevronDown className={cn('w-5 h-5 text-text-muted transition-transform', open && 'rotate-180')} />
       </button>
 
       {open && (
-        <div className="px-4 pb-4 space-y-3 border-t border-border/50 pt-3">
+        <div className="px-4 pb-4 space-y-3 border-t border-border-subtle/50 pt-3">
           <p className="text-sm text-text-muted">{ui.calendarHint}</p>
 
           <div className="flex flex-wrap gap-2">
@@ -74,8 +74,8 @@ export function StudentOrgCalendarPanel({ assignments, ui, lang }: Props) {
                 className={cn(
                   'rounded-full px-3 py-1 text-[10px] font-medium border transition-colors',
                   filter === preset
-                    ? 'border-accent/40 bg-accent/10 text-accent'
-                    : 'border-border text-text-secondary hover:bg-surface-hover',
+                    ? 'border-brand-500/40 bg-brand-500/10 text-brand-600'
+                    : 'border-border-subtle text-text-secondary hover:bg-surface-hover',
                 )}
               >
                 {preset === 'all'
@@ -94,7 +94,7 @@ export function StudentOrgCalendarPanel({ assignments, ui, lang }: Props) {
               {entries.map((entry) => (
                 <li
                   key={entry.id}
-                  className="rounded-xl border border-border/60 bg-surface/60 p-3 text-sm"
+                  className="rounded-xl border border-border-subtle/60 bg-surface-card/60 p-3 text-sm"
                   data-testid={`student-calendar-entry-${entry.id}`}
                 >
                   <div className="flex flex-wrap items-start justify-between gap-2">
@@ -138,7 +138,7 @@ export function StudentOrgCalendarPanel({ assignments, ui, lang }: Props) {
                           href={entry.linkUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1 text-[10px] text-accent hover:underline"
+                          className="inline-flex items-center gap-1 text-[10px] text-brand-600 hover:underline"
                         >
                           {entry.linkLabel}
                           <ArrowRight className="w-3 h-3" />

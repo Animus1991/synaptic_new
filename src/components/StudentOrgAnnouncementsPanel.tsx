@@ -30,7 +30,7 @@ export function StudentOrgAnnouncementsPanel({ announcements, classOptions, ui, 
   }, [announcements, classFilter]);
 
   return (
-    <section className="rounded-2xl border border-border bg-surface/40" data-testid="student-org-announcements">
+    <section className="rounded-panel border border-border-subtle bg-surface-card/40" data-testid="student-org-announcements">
       <button
         type="button"
         className="w-full flex items-center justify-between gap-3 px-4 py-3 text-left"
@@ -38,14 +38,14 @@ export function StudentOrgAnnouncementsPanel({ announcements, classOptions, ui, 
         aria-expanded={open}
       >
         <span className="flex items-center gap-2 text-lg font-medium">
-          <FileText className="w-5 h-5 text-accent" />
+          <FileText className="w-5 h-5 text-brand-600" />
           {ui.announcementsTitle}
         </span>
         <ChevronDown className={cn('w-5 h-5 text-text-muted transition-transform', open && 'rotate-180')} />
       </button>
 
       {open && (
-        <div className="px-4 pb-4 space-y-3 border-t border-border/50 pt-3">
+        <div className="px-4 pb-4 space-y-3 border-t border-border-subtle/50 pt-3">
           <p className="text-sm text-text-muted">{ui.announcementsHint}</p>
 
           {classOptions.length > 1 && (
@@ -57,8 +57,8 @@ export function StudentOrgAnnouncementsPanel({ announcements, classOptions, ui, 
                 className={cn(
                   'rounded-full px-3 py-1 text-[10px] font-medium border transition-colors',
                   classFilter === 'all'
-                    ? 'border-accent/40 bg-accent/10 text-accent'
-                    : 'border-border text-text-secondary hover:bg-surface-hover',
+                    ? 'border-brand-500/40 bg-brand-500/10 text-brand-600'
+                    : 'border-border-subtle text-text-secondary hover:bg-surface-hover',
                 )}
               >
                 {ui.announcementsFilterAll}
@@ -72,8 +72,8 @@ export function StudentOrgAnnouncementsPanel({ announcements, classOptions, ui, 
                   className={cn(
                     'rounded-full px-3 py-1 text-[10px] font-medium border transition-colors truncate max-w-[160px]',
                     classFilter === cls.id
-                      ? 'border-accent/40 bg-accent/10 text-accent'
-                      : 'border-border text-text-secondary hover:bg-surface-hover',
+                      ? 'border-brand-500/40 bg-brand-500/10 text-brand-600'
+                      : 'border-border-subtle text-text-secondary hover:bg-surface-hover',
                   )}
                 >
                   {cls.name}
@@ -89,7 +89,7 @@ export function StudentOrgAnnouncementsPanel({ announcements, classOptions, ui, 
               {filtered.map((item) => (
                 <li
                   key={item.id}
-                  className="rounded-xl border border-border/60 bg-surface/60 p-3 text-sm"
+                  className="rounded-xl border border-border-subtle/60 bg-surface-card/60 p-3 text-sm"
                   data-testid={`student-announcement-${item.id}`}
                 >
                   <div className="flex flex-wrap items-start justify-between gap-2">

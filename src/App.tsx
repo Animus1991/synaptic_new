@@ -998,6 +998,7 @@ export default function App() {
               onRunProactiveAgentAlert={store.runProactiveAgentAlert}
               onOpenWorkspacePractice={store.openStudyWorkspaceForPractice}
               lang={store.user.settings.language}
+              theoryVsPractice={store.user.settings.theoryVsPractice}
               postUploadCourse={
                 store.postUploadCourseId
                   ? store.courses.find((c) => c.id === store.postUploadCourseId) ?? null
@@ -1027,6 +1028,7 @@ export default function App() {
               onImportNotebookLm={store.importNotebookLm}
               onAddNotebookLmToFsrs={store.importNotebookLmQuizToFsrs}
               onOpenNotebookShell={store.openNotebookShell}
+              onOpenConcept={openWorkspaceForConcept}
             />
           )}
           {store.currentView === 'note-analysis' && (() => {

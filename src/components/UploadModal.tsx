@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   X, Upload, FileText, Image, Code, Presentation,
   File, CheckCircle2, Sparkles, ArrowRight, Link2,
-  AlertCircle, MessageSquare
+  AlertCircle, MessageSquare, Loader2
 } from '@/lib/lucide-shim';
 import { cn } from '../utils/cn';
 
@@ -71,13 +71,13 @@ const SOURCE_MODES: { mode: SourceMode; labelKey: 'uploadSourceStrict' | 'upload
   { mode: 'notes-only', labelKey: 'uploadSourceNotesOnly', descKey: 'uploadSourceNotesOnlyDesc', icon: 'notes' },
 ];
 
-const PROCESSING_STEPS: { labelKey: 'uploadProcessingStepStructure' | 'uploadProcessingStepConcepts' | 'uploadProcessingStepQuality' | 'uploadProcessingStepDensity' | 'uploadProcessingStepExercises'; done: boolean }[] = [
-  { labelKey: 'uploadProcessingStepStructure', done: true },
-  { labelKey: 'uploadProcessingStepConcepts', done: true },
-  { labelKey: 'uploadProcessingStepQuality', done: false },
-  { labelKey: 'uploadProcessingStepDensity', done: false },
-  { labelKey: 'uploadProcessingStepExercises', done: false },
-];
+const PROCESSING_STEP_KEYS = [
+  'uploadProcessingStepStructure',
+  'uploadProcessingStepConcepts',
+  'uploadProcessingStepQuality',
+  'uploadProcessingStepDensity',
+  'uploadProcessingStepExercises',
+] as const;
 
 const FLOW_STAGES = [
   { key: 'upload', labelKey: 'uploadStageInput', hintKey: 'uploadStageInputHint' },
@@ -596,16 +596,12 @@ export function UploadModal({
                   {t('uploadProcessingBody', previewLang)}
                 </p>
                 <p className="text-xs text-text-tertiary mb-5">{t('uploadProcessingSummary', previewLang)}</p>
-                <div className="space-y-3 max-w-xs mx-auto text-left">
-                  {PROCESSING_STEPS.map((stepItem, i) => (
+                <div className="space-y-3 max-w-xs mx-auto text-left" role="status" aria-live="polite">
+                  {PROCESSING_STEP_KEYS.map((labelKey, i) => (
                     <div key={i} className="flex items-center gap-2 text-sm">
-                      {stepItem.done ? (
-                        <CheckCircle2 className="w-4 h-4 text-accent-emerald shrink-0" />
-                      ) : (
-                        <div className="w-4 h-4 rounded-full border-2 border-text-muted shrink-0" />
-                      )}
-                      <span className={stepItem.done ? 'text-text-primary' : 'text-text-tertiary'}>
-                        {t(stepItem.labelKey, previewLang)}
+                      <Loader2 className="w-4 h-4 text-brand-400 animate-spin shrink-0" aria-hidden />
+                      <span className="text-text-secondary">
+                        {t(labelKey, previewLang)}
                       </span>
                     </div>
                   ))}

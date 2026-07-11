@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 import {
   Upload, BookOpen, Brain, Zap, BarChart3, Target, Clock,
   Sparkles, ChevronRight, GraduationCap, Users, Building2,
-  ArrowRight, Check, Star, X
+  ArrowRight, Check, X
 } from '@/lib/lucide-shim';
 
 import { ThemeToggle } from './ThemeToggle';
@@ -368,26 +368,9 @@ export function Landing({ onGetStarted, onSeeDemo }: LandingProps) {
         </div>
       </section>
 
-      {/* Social Proof */}
+      {/* Trust strip — decorative learner segments (not verified customers) */}
       <section className={LANDING_SECTION}>
-        <div className="w-full max-w-none xl:max-w-5xl">
-          <div className="flex gap-1 mb-6">
-            {[...Array(5)].map((_, i) => (
-              <Star key={i} className="w-4 h-4 text-brand-400 fill-brand-400" />
-            ))}
-          </div>
-          <blockquote
-            className="landing-display text-sm sm:text-base font-normal text-text-primary mb-8 leading-snug"
-          >
-            "{content.testimonialQuote}"
-          </blockquote>
-          <div className="flex items-center gap-3">
-            <div className="h-px w-8 bg-brand-500" />
-            <span className="text-xs text-text-secondary" style={mono}>
-              {content.testimonialAuthor}
-            </span>
-          </div>
-        </div>
+        <LandingTrustStrip />
       </section>
 
       {/* Mid-page CTA — Cinobo rhythm repeat before FAQ */}
@@ -407,10 +390,6 @@ export function Landing({ onGetStarted, onSeeDemo }: LandingProps) {
             </button>
           </div>
         </div>
-      </section>
-
-      <section className={`${LANDING_SHELL} landing-section-compact pb-8`}>
-        <LandingTrustStrip />
       </section>
 
       <LandingFAQ />

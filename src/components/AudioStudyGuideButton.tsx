@@ -105,8 +105,8 @@ export function AudioStudyGuideButton({ course, lang, settings, className }: Pro
         className={cn(
           'inline-flex items-center gap-2 px-3 py-2 rounded-xl text-sm border transition-colors',
           playing
-            ? 'border-accent/50 bg-accent/10 text-accent'
-            : 'border-border hover:bg-surface-hover text-text-secondary',
+            ? 'border-brand-500/50 bg-brand-500/10 text-brand-600'
+            : 'border-border-subtle hover:bg-surface-hover text-text-secondary',
         )}
       >
         {playing ? (
@@ -123,7 +123,7 @@ export function AudioStudyGuideButton({ course, lang, settings, className }: Pro
               className={cn(
                 'text-[10px] font-medium px-1.5 py-0.5 rounded-md',
                 activeSpeaker === 'host'
-                  ? 'bg-accent/15 text-accent'
+                  ? 'bg-brand-500/15 text-brand-600'
                   : 'bg-accent-emerald/15 text-accent-emerald',
               )}
               data-testid="podcast-speaker-badge"

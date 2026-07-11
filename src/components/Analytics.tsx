@@ -600,7 +600,7 @@ function MasteryTab({
           ))}
         </div>
       </motion.div>
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="rounded-2xl border border-accent-amber/20 bg-accent-amber/5 p-5">
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="rounded-panel border border-accent-amber/20 bg-accent-amber/5 p-5">
         <h3 className="text-sm font-semibold flex items-center gap-2 mb-4"><AlertTriangle className="w-4 h-4 text-accent-amber" />{t('analyticsAlmostKnown')}</h3>
         <div className="space-y-3">
           {learnerModel.almostKnown.map(a => (
@@ -733,7 +733,7 @@ function InsightsTab({
         </motion.div>
       )}
 
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="rounded-2xl border border-brand-500/20 bg-brand-500/5 p-5">
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="rounded-panel border border-brand-500/20 bg-brand-500/5 p-5">
         <h3 className="text-sm font-semibold flex items-center gap-2 mb-4"><Lightbulb className="w-4 h-4 text-brand-400" />{t('analyticsInsightsLearnedTitle')}</h3>
         <p className="text-xs text-text-tertiary mb-4">{t('analyticsInsightsLearnedHint')}</p>
         <div className="space-y-3">

@@ -8,7 +8,6 @@ export async function skipOnboardingToLibrary(page: Page) {
   await page.getByTestId('onboarding-next').click();
   await page.getByRole('button', { name: 'Deeply understand material' }).click();
   await page.getByTestId('onboarding-next').click();
-  await page.getByTestId('onboarding-next').click();
   await page.getByTestId('onboarding-skip-explore').click();
   await expect(page.getByTestId('platform-main')).toBeVisible({ timeout: 15_000 });
 }
@@ -59,7 +58,6 @@ export async function skipOnboardingNoDemo(page: Page) {
   await page.getByRole('button', { name: 'Self-Learner' }).click();
   await page.getByTestId('onboarding-next').click();
   await page.getByRole('button', { name: 'Deeply understand material' }).click();
-  await page.getByTestId('onboarding-next').click();
   await page.getByTestId('onboarding-next').click();
   await page.getByRole('button', { name: /Upload My First Material|Ανέβασμα Πρώτου Υλικού/i }).click();
   await expect(page.getByTestId('platform-main')).toBeVisible({ timeout: 15_000 });

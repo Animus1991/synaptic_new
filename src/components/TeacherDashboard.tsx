@@ -799,7 +799,7 @@ export function TeacherDashboard({
                                       setExpandedDiscussionId((prev) => (prev === row.id ? null : row.id))
                                     }
                                     data-testid={`teacher-discussion-toggle-${row.id}`}
-                                    className="text-accent hover:underline text-[10px]"
+                                    className="text-brand-600 hover:underline text-[10px]"
                                   >
                                     {ui.discussionToggle}
                                   </button>

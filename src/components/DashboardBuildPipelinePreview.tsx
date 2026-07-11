@@ -21,7 +21,6 @@ const STEP_BODY_KEYS: Record<(typeof HERO_PIPELINE_STEP_IDS)[number], I18nKey> =
 /** Static ingest→adapt pipeline preview when no workspace resume (Option-B Wave E13). */
 export function DashboardBuildPipelinePreview({ className }: { className?: string }) {
   const { t } = useI18n();
-  const activeIndex = 1;
 
   return (
     <BlueprintSurface
@@ -38,41 +37,23 @@ export function DashboardBuildPipelinePreview({ className }: { className?: strin
       </div>
 
       <div className="space-y-3">
-        {HERO_PIPELINE_STEP_IDS.map((stepId, index) => {
-          const active = index === activeIndex;
-          const progress = index < activeIndex ? 100 : index === activeIndex ? 82 : 35;
-          return (
-            <div
-              key={stepId}
-              className={cn('dashboard-live-preview-step', active && 'dashboard-live-preview-step-active')}
-            >
-              <div className="dashboard-live-preview-rail" aria-hidden>
-                <span className={cn('dashboard-live-preview-dot', active && 'dashboard-live-preview-dot-active')} />
-                {index < HERO_PIPELINE_STEP_IDS.length - 1 ? (
-                  <span className="dashboard-live-preview-line" />
-                ) : null}
-              </div>
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center justify-between gap-3">
-                  <h3 className="text-sm font-semibold text-text-primary">{t(STEP_TITLE_KEYS[stepId])}</h3>
-                  <span className="dashboard-live-preview-status">
-                    {active ? t('dashboardLivePreviewActive') : t('dashboardLivePreviewQueued')}
-                  </span>
-                </div>
-                <p className="mt-2 text-sm leading-6 text-text-secondary">{t(STEP_BODY_KEYS[stepId])}</p>
-                <div className="dashboard-live-preview-progress-track" aria-hidden>
-                  <div
-                    className={cn(
-                      'dashboard-live-preview-progress-bar',
-                      active && 'dashboard-live-preview-progress-bar-active',
-                    )}
-                    style={{ width: `${progress}%` }}
-                  />
-                </div>
-              </div>
+        {HERO_PIPELINE_STEP_IDS.map((stepId, index) => (
+          <div key={stepId} className="dashboard-live-preview-step">
+            <div className="dashboard-live-preview-rail" aria-hidden>
+              <span className="dashboard-live-preview-dot" />
+              {index < HERO_PIPELINE_STEP_IDS.length - 1 ? (
+                <span className="dashboard-live-preview-line" />
+              ) : null}
             </div>
-          );
-        })}
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center justify-between gap-3">
+                <h3 className="text-sm font-semibold text-text-primary">{t(STEP_TITLE_KEYS[stepId])}</h3>
+                <span className="dashboard-live-preview-status">{t('dashboardPipelineStage')}</span>
+              </div>
+              <p className="mt-2 text-sm leading-6 text-text-secondary">{t(STEP_BODY_KEYS[stepId])}</p>
+            </div>
+          </div>
+        ))}
       </div>
 
       <DashboardLivePreviewWatches className="mt-5" />

@@ -76,7 +76,7 @@ function PostCard({
   return (
     <li className="space-y-2" data-testid={`discussion-thread-${post.id}`}>
       <div
-        className="rounded-lg border border-border/40 bg-surface/60 p-2"
+        className="rounded-lg border border-border-subtle/40 bg-surface-card/60 p-2"
         data-testid={`discussion-post-${post.id}`}
       >
         <div className="flex flex-wrap items-start justify-between gap-2">
@@ -103,7 +103,7 @@ function PostCard({
               type="button"
               onClick={() => onReply(post.id)}
               disabled={busy}
-              className="text-accent hover:underline text-[10px]"
+              className="text-brand-600 hover:underline text-[10px]"
               data-testid={`discussion-reply-${post.id}`}
             >
               {ui.reply}
@@ -123,11 +123,11 @@ function PostCard({
       </div>
 
       {replies.length > 0 && (
-        <ul className="ml-3 pl-3 border-l border-border/50 space-y-2">
+        <ul className="ml-3 pl-3 border-l border-border-subtle/50 space-y-2">
           {replies.map((reply) => (
             <li
               key={reply.id}
-              className="rounded-lg border border-border/30 bg-surface/50 p-2"
+              className="rounded-lg border border-border-subtle/30 bg-surface-card/50 p-2"
               data-testid={`discussion-post-${reply.id}`}
             >
               <div className="flex flex-wrap items-start justify-between gap-2">
@@ -175,7 +175,7 @@ function PostCard({
             placeholder={ui.replyPlaceholder}
             rows={2}
             data-testid={`assignment-discussion-reply-input-${post.id}`}
-            className="flex-1 min-w-[140px] px-2 py-1.5 rounded-lg border border-border bg-surface text-xs resize-y"
+            className="flex-1 min-w-[140px] px-2 py-1.5 rounded-lg border border-border-subtle bg-surface-card text-xs resize-y"
           />
           <button
             type="button"
@@ -190,7 +190,7 @@ function PostCard({
             type="button"
             onClick={onCancelReply}
             disabled={busy}
-            className="px-2 py-1.5 rounded-lg border border-border text-[10px]"
+            className="px-2 py-1.5 rounded-lg border border-border-subtle text-[10px]"
           >
             ×
           </button>
@@ -316,7 +316,7 @@ export function AssignmentDiscussionThread({
         <button
           type="button"
           onClick={onToggle}
-          className="inline-flex items-center gap-1 text-[10px] text-accent hover:underline"
+          className="inline-flex items-center gap-1 text-[10px] text-brand-600 hover:underline"
           data-testid={`assignment-discussion-toggle-${assignmentId}`}
         >
           <MessageSquare className="w-3 h-3" />
@@ -326,7 +326,7 @@ export function AssignmentDiscussionThread({
       )}
 
       {open && (
-        <div className="mt-2 rounded-xl border border-border/60 bg-surface/40 p-3 space-y-2 text-xs">
+        <div className="mt-2 rounded-xl border border-border-subtle/60 bg-surface-card/40 p-3 space-y-2 text-xs">
           <p className="text-[10px] text-text-muted">
             {ui.hint} — {assignmentTitle}
           </p>
@@ -363,14 +363,14 @@ export function AssignmentDiscussionThread({
               ))}
             </ul>
           )}
-          <div className="flex flex-wrap gap-2 items-end pt-1 border-t border-border/40">
+          <div className="flex flex-wrap gap-2 items-end pt-1 border-t border-border-subtle/40">
             <textarea
               value={rootDraft}
               onChange={(e) => setRootDraft(e.target.value)}
               placeholder={ui.askPlaceholder || ui.placeholder}
               rows={2}
               data-testid={`assignment-discussion-input-${assignmentId}`}
-              className="flex-1 min-w-[140px] px-2 py-1.5 rounded-lg border border-border bg-surface text-xs resize-y"
+              className="flex-1 min-w-[140px] px-2 py-1.5 rounded-lg border border-border-subtle bg-surface-card text-xs resize-y"
             />
             <button
               type="button"

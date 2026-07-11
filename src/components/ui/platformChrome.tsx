@@ -226,19 +226,29 @@ export function DescriptiveStickyTabBar<T extends string>({
   );
 }
 
-/** Nested topic / prerequisite rhythm — Option-B Library InfoStack. */
+/** Nested topic / prerequisite rhythm — Option-B Library InfoStack.
+ *  When onItemClick / onSecondaryClick are provided, entries render as
+ *  keyboard-accessible buttons that deep-link into the owning surface. */
 export function InfoStack({
   title,
   items,
   secondary,
   secondaryLabel,
   className,
+  onItemClick,
+  onSecondaryClick,
+  itemHint,
+  secondaryHint,
 }: {
   title: string;
   items: string[];
   secondary: string[];
   secondaryLabel: string;
   className?: string;
+  onItemClick?: (item: string) => void;
+  onSecondaryClick?: (item: string) => void;
+  itemHint?: string;
+  secondaryHint?: string;
 }) {
   if (items.length === 0 && secondary.length === 0) return null;
   return (
@@ -246,22 +256,46 @@ export function InfoStack({
       <div className="info-stack-title">{title}</div>
       {items.length > 0 && (
         <div className="info-stack-items">
-          {items.map((item) => (
-            <div key={item} className="info-stack-item">
-              {item}
-            </div>
-          ))}
+          {items.map((item) =>
+            onItemClick ? (
+              <button
+                key={item}
+                type="button"
+                onClick={() => onItemClick(item)}
+                title={itemHint}
+                className="info-stack-item info-stack-item--interactive"
+              >
+                {item}
+              </button>
+            ) : (
+              <div key={item} className="info-stack-item">
+                {item}
+              </div>
+            ),
+          )}
         </div>
       )}
       {secondary.length > 0 && (
         <div className="info-stack-secondary">
           <p className="info-stack-secondary-eyebrow">{secondaryLabel}</p>
           <div className="info-stack-pills">
-            {secondary.map((item) => (
-              <span key={item} className="info-stack-pill">
-                {item}
-              </span>
-            ))}
+            {secondary.map((item) =>
+              onSecondaryClick ? (
+                <button
+                  key={item}
+                  type="button"
+                  onClick={() => onSecondaryClick(item)}
+                  title={secondaryHint}
+                  className="info-stack-pill info-stack-pill--interactive"
+                >
+                  {item}
+                </button>
+              ) : (
+                <span key={item} className="info-stack-pill">
+                  {item}
+                </span>
+              ),
+            )}
           </div>
         </div>
       )}

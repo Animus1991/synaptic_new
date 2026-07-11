@@ -649,6 +649,19 @@
     radial-gradient(circle at 92% 10%, color-mix(in srgb, var(--color-accent-violet) 18%, transparent), transparent 38%);
 }
 
+/* Light/warm: turn the ambient glow into an intentional, tasteful hero wash
+   (top-anchored brand tint that fades downward) instead of a near-invisible empty band. */
+[data-theme="light"] .platform-hero-glow-orbs {
+  inset: -1.5rem -1rem auto;
+  height: 12rem;
+  opacity: 1;
+  background:
+    radial-gradient(130% 120% at 10% -15%, color-mix(in srgb, var(--color-brand-400) 22%, transparent), transparent 58%),
+    radial-gradient(130% 120% at 95% -15%, color-mix(in srgb, var(--color-accent-teal) 16%, transparent), transparent 52%);
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 42%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 0%, #000 42%, transparent 100%);
+}
+
 [data-theme="blueprint"] .platform-banner-warn {
   border-color: color-mix(in srgb, var(--palette-amber) 28%, var(--color-border-subtle));
   background: color-mix(in srgb, var(--palette-amber) 8%, var(--color-surface-primary));
@@ -2715,6 +2728,28 @@
   padding: 0.25rem 0.75rem;
   font-size: 0.75rem;
   color: var(--color-text-secondary);
+}
+/* Interactive variants — deep-link into the owning course / concept / glossary */
+.info-stack-item--interactive,
+.info-stack-pill--interactive {
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  transition: border-color 0.15s ease, background-color 0.15s ease, color 0.15s ease;
+}
+.info-stack-pill--interactive {
+  width: auto;
+}
+.info-stack-item--interactive:hover,
+.info-stack-pill--interactive:hover {
+  border-color: color-mix(in srgb, var(--color-brand-500) 45%, transparent);
+  background: color-mix(in srgb, var(--color-brand-500) 8%, transparent);
+  color: var(--color-brand-700);
+}
+.info-stack-item--interactive:focus-visible,
+.info-stack-pill--interactive:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--color-brand-500) 55%, transparent);
+  outline-offset: 2px;
 }
 [data-theme="blueprint"] .info-stack {
   border-color: color-mix(in srgb, var(--color-accent-cyan) 12%, transparent);

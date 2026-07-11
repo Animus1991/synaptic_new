@@ -141,15 +141,6 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
                       >
                         <StickyNote className={cn('w-4 h-4', showNotes && 'text-brand-600')} />
                       </button>
-                      <button
-                        onClick={() => setNotebookMode(!notebookMode)}
-                        aria-label={notebookMode ? (lang === 'el' ? 'Κλασική προβολή' : 'Classic view') : (lang === 'el' ? 'Προβολή NotebookLM' : 'NotebookLM view')}
-                        aria-pressed={notebookMode}
-                        data-testid="workspace-notebook-toggle"
-                        className="p-2 rounded-full bg-surface-secondary hover:bg-surface-hover text-text-secondary transition-colors min-h-[40px] min-w-[40px] flex items-center justify-center"
-                      >
-                        <LayoutGrid className={cn('w-4 h-4', notebookMode && 'text-brand-600')} />
-                      </button>
                       {themeToggle && (
                         <div className="[&>button]:p-2 [&>button]:rounded-full [&>button]:bg-surface-secondary [&>button]:hover:bg-surface-hover [&>button]:min-h-[40px] [&>button]:min-w-[40px] [&>button]:flex [&>button]:items-center [&>button]:justify-center">
                           {themeToggle}

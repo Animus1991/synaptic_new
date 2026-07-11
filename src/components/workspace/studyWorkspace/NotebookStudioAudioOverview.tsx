@@ -103,7 +103,7 @@ export function NotebookStudioAudioOverview({
       className={cn(
         'flex items-center gap-1 rounded-full border border-border-subtle bg-surface-secondary/60 px-2.5 py-1 type-micro font-medium transition-colors disabled:opacity-60',
         genState === 'playing'
-          ? 'border-accent/50 text-accent'
+          ? 'border-brand-500/50 text-brand-600'
           : 'text-text-secondary hover:border-brand-200 hover:text-brand-800',
         className,
       )}

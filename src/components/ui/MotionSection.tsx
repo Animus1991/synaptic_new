@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import type { CSSProperties, MouseEventHandler, ReactNode } from 'react';
+import type { CSSProperties, KeyboardEventHandler, MouseEventHandler, ReactNode } from 'react';
 import {
   BLUEPRINT_MOTION,
   blueprintStaggerDelay,
@@ -24,6 +24,8 @@ type Props = MotionOnly & {
   role?: string;
   style?: CSSProperties;
   onClick?: MouseEventHandler<HTMLDivElement>;
+  onKeyDown?: KeyboardEventHandler<HTMLDivElement>;
+  tabIndex?: number;
   'data-testid'?: string;
 };
 
@@ -38,6 +40,8 @@ export function MotionSection({
   animate = { opacity: 1, y: 0 },
   transition,
   onClick,
+  onKeyDown,
+  tabIndex,
   id,
   role,
   style,
@@ -58,6 +62,8 @@ export function MotionSection({
   const htmlProps = {
     className: cn(useUnifiedMotion && 'blueprint-motion-section', className),
     onClick,
+    onKeyDown,
+    tabIndex,
     id,
     role,
     style,

@@ -74,7 +74,7 @@ export function PracticalLessonView({
   const [hintLevel, setHintLevel] = useState(0);
   const [testsPassed, setTestsPassed] = useState<boolean | null>(null);
   const [showSolution, setShowSolution] = useState(false);
-  const [completedCount, setCompletedCount] = useState(0);
+  const [passedExerciseIds, setPassedExerciseIds] = useState<Set<number>>(() => new Set());
   const [pyodideStatus, setPyodideStatus] = useState<'idle' | 'loading' | 'ready' | 'error'>('idle');
 
   const isPythonExercise = useMemo(
@@ -134,7 +134,7 @@ export function PracticalLessonView({
       setOutput(result.output);
       if (result.passed) {
         onPracticeAttempt?.(quizConcept, true);
-        setCompletedCount((c) => Math.max(c, exerciseIdx + 1));
+        setPassedExerciseIds((prev) => new Set(prev).add(exerciseIdx));
       } else {
         onPracticeAttempt?.(quizConcept, false);
       }
@@ -145,21 +145,23 @@ export function PracticalLessonView({
     setOutput(passed ? `✓ ${t('allTestsPassed')}` : `✗ ${t('testsFailed')}`);
     if (passed) {
       onPracticeAttempt?.(quizConcept, true);
-      setCompletedCount((c) => Math.max(c, exerciseIdx + 1));
+      setPassedExerciseIds((prev) => new Set(prev).add(exerciseIdx));
     } else {
       onPracticeAttempt?.(quizConcept, false);
     }
   };
 
+  const passedCount = passedExerciseIds.size;
+
   const handleFinish = () => {
-    if (completedCount < exercises.length) return;
+    if (passedCount < exercises.length) return;
     onComplete?.();
     onClose();
   };
 
   const lessonTitle = taskTitle ?? t('practiceTitleColon').replace('{concept}', quizConcept);
   const lessonCourse = courseName ? `${courseName} · Practice` : 'Practice';
-  const allDone = completedCount >= exercises.length;
+  const allDone = exercises.length > 0 && passedCount >= exercises.length;
 
   if (!hasNoteSource && onUpload) {
     return (
@@ -243,10 +245,10 @@ export function PracticalLessonView({
                   onClick={() => loadExercise(i)}
                   className={cn(
                     'w-7 h-7 rounded-lg text-[10px] font-bold border',
-                    i === exerciseIdx ? 'border-brand-500 bg-brand-600/20 text-brand-300' : i < completedCount ? 'border-accent-emerald/40 text-accent-emerald' : 'border-border-subtle text-text-muted',
+                    i === exerciseIdx ? 'border-brand-500 bg-brand-600/20 text-brand-300' : passedExerciseIds.has(i) ? 'border-accent-emerald/40 text-accent-emerald' : 'border-border-subtle text-text-muted',
                   )}
                 >
-                  {i < completedCount ? '✓' : i + 1}
+                  {passedExerciseIds.has(i) ? '✓' : i + 1}
                 </button>
               ))}
             </div>
@@ -342,7 +344,7 @@ export function PracticalLessonView({
       <div className="border-t border-border-subtle bg-surface-secondary/50 px-4 py-3 w-full min-w-0">
         <div className="w-full flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <span className="text-xs text-text-muted">{completedCount}/{exercises.length} completed</span>
+            <span className="text-xs text-text-muted">{passedCount}/{exercises.length} completed</span>
             {testsPassed && <span className="text-xs text-accent-emerald flex items-center gap-1"><Zap className="w-3 h-3" /> Exercise passed</span>}
           </div>
           <div className="flex items-center gap-2">

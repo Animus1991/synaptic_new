@@ -19,6 +19,7 @@ import { countFilesForCourse } from '../lib/deleteCascade';
 import { countGeneratedTasksForCourse } from '../lib/pipelineReprocess';
 import { courseDeleteStats } from '../lib/removeCourse';
 import { isDemoCourse } from '../lib/demoMode';
+import { CONTENT_PIPELINE_VERSION } from '../lib/pipelineConstants';
 import { CourseIcon } from './ui/CourseIcon';
 import { UiIcon } from './ui/UiIcon';
 import { PlatformEmptyState } from './ui/PlatformEmptyState';
@@ -52,10 +53,12 @@ interface LibraryProps {
   onImportNotebookLm?: (raw: string) => NotebookLmImportResult | null;
   onAddNotebookLmToFsrs?: (result: NotebookLmImportResult) => void;
   onOpenNotebookShell?: (courseId: string) => void;
+  onOpenConcept?: (concept: string) => void;
 }
 
 type LibraryTab = 'courses' | 'files';
 type ViewMode = 'grid' | 'list';
+type LibraryFilter = 'all' | 'in-progress' | 'generating' | 'completed' | 'attention';
 
 const fileTypeIcons: Record<string, typeof FileText> = {
   pdf: FileText,
@@ -86,6 +89,7 @@ export function Library({
   onImportNotebookLm,
   onAddNotebookLmToFsrs,
   onOpenNotebookShell,
+  onOpenConcept,
 }: LibraryProps) {
   const userLanguage = userSettings?.language === 'el' ? 'el' : 'en';
   const postUploadCourse = postUploadCourseId
@@ -94,15 +98,63 @@ export function Library({
   const [tab, setTab] = useState<LibraryTab>('courses');
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
   const [search, setSearch] = useState('');
-  const [filter, setFilter] = useState<string>('all');
+  const [filter, setFilter] = useState<LibraryFilter>('all');
+  const [sortBy, setSortBy] = useState<'recent' | 'progress' | 'quality' | 'title'>('recent');
 
-  const filteredCourses = courses.filter(c => {
-    if (search && !c.title.toLowerCase().includes(search.toLowerCase())) return false;
-    if (filter === 'in-progress') return c.status === 'in-progress';
-    if (filter === 'completed') return c.status === 'completed';
-    if (filter === 'generating') return c.status === 'generating';
-    return true;
-  });
+  const filteredCourses = useMemo(() => {
+    const query = search.trim().toLowerCase();
+    const list = courses.filter((c) => {
+      if (query) {
+        const searchableText = [
+          c.title,
+          c.subject,
+          c.description,
+          ...c.topics.map((topic) => topic.title),
+          ...c.sourceFiles,
+        ].join(' ').toLowerCase();
+        if (!searchableText.includes(query)) return false;
+      }
+      if (filter === 'in-progress') return c.status === 'in-progress';
+      if (filter === 'completed') return c.status === 'completed';
+      if (filter === 'generating') return c.status === 'generating';
+      if (filter === 'attention') {
+        const { pendingTasks, dueReviews, isOldPipeline } = courseMetrics(c, tasks);
+        return Boolean(c.sourceQuality?.needsMoreMaterial)
+          || c.status === 'needs_review'
+          || isOldPipeline
+          || pendingTasks > 0
+          || dueReviews > 0;
+      }
+      return true;
+    });
+    return [...list].sort((a, b) => {
+      if (sortBy === 'title') return a.title.localeCompare(b.title);
+      if (sortBy === 'progress') return b.mastery - a.mastery;
+      if (sortBy === 'quality') return (b.sourceQuality?.score ?? 0) - (a.sourceQuality?.score ?? 0);
+      const at = new Date(a.lastStudied ?? a.createdAt ?? 0).getTime();
+      const bt = new Date(b.lastStudied ?? b.createdAt ?? 0).getTime();
+      return bt - at;
+    });
+  }, [courses, search, filter, sortBy, tasks]);
+
+  const filteredFiles = useMemo(() => {
+    const query = search.trim().toLowerCase();
+    if (!query) return uploadedFiles;
+    return uploadedFiles.filter((file) => {
+      const courseTitle = courses.find((course) => course.id === file.courseId)?.title ?? '';
+      return [file.name, file.type, courseTitle].some((value) => value.toLowerCase().includes(query));
+    });
+  }, [courses, search, uploadedFiles]);
+
+  const topicToCourse = useMemo(() => {
+    const map = new Map<string, Course>();
+    for (const course of courses) {
+      for (const topic of course.topics) {
+        if (!map.has(topic.title)) map.set(topic.title, course);
+      }
+    }
+    return map;
+  }, [courses]);
 
   const libraryInfo = useMemo(() => {
     const topics: string[] = [];
@@ -145,17 +197,28 @@ export function Library({
     return { needsMaterial, outlineAdjusted };
   }, [filteredCourses]);
 
+  const filterLabels = useMemo<Record<LibraryFilter, string>>(
+    () => ({
+      all: t('libFilterAll', userLanguage),
+      'in-progress': t('libFilterInProgress', userLanguage),
+      generating: t('libFilterGenerating', userLanguage),
+      completed: t('libFilterCompleted', userLanguage),
+      attention: t('libFilterAttention', userLanguage),
+    }),
+    [userLanguage],
+  );
+
   return (
     <Page>
       <PageHeader
-        eyebrow={userLanguage === 'el' ? 'Βιβλιοθήκη' : 'Library'}
-        title={userLanguage === 'el' ? 'Το υλικό σου' : 'Your materials'}
+        eyebrow={t('library', userLanguage)}
+        title={t('libraryPageTitle', userLanguage)}
         subtitle={t('librarySubtitle', userLanguage)}
         icon={BookOpen}
         actions={
           <PrimaryCTA onClick={onUpload} data-testid="library-upload" data-tour="library-upload" className="whitespace-nowrap">
             <Upload className="w-4 h-4" aria-hidden="true" />
-            {userLanguage === 'el' ? 'Ανέβασμα' : 'Upload'}
+            {t('libUpload', userLanguage)}
           </PrimaryCTA>
         }
       />
@@ -219,8 +282,8 @@ export function Library({
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-tertiary pointer-events-none" aria-hidden="true" />
           <input
             type="search"
-            placeholder={userLanguage === 'el' ? 'Αναζήτηση μαθημάτων, θεμάτων, αρχείων…' : 'Search courses, topics, or files…'}
-            aria-label={userLanguage === 'el' ? 'Αναζήτηση στη βιβλιοθήκη' : 'Search the library'}
+            placeholder={t('libSearchPlaceholder', userLanguage)}
+            aria-label={t('libSearchAria', userLanguage)}
             value={search}
             onChange={e => setSearch(e.target.value)}
             className="w-full pl-10 pr-10 py-2.5 rounded-md bg-surface-input border border-border-subtle text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500/40 transition-colors"
@@ -229,56 +292,67 @@ export function Library({
             <button
               type="button"
               onClick={() => setSearch('')}
-              aria-label={userLanguage === 'el' ? 'Καθαρισμός αναζήτησης' : 'Clear search'}
+              aria-label={t('libClearSearch', userLanguage)}
               className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded text-text-tertiary hover:text-text-primary hover:bg-surface-hover transition-colors"
             >
               <span aria-hidden="true" className="text-xs">✕</span>
             </button>
           )}
         </div>
-        <div className="flex items-center gap-2 flex-wrap">
-          {(['all', 'in-progress', 'generating', 'completed'] as const).map(f => {
-            const labelMap: Record<string, { en: string; el: string }> = {
-              all: { en: 'All', el: 'Όλα' },
-              'in-progress': { en: 'In progress', el: 'Σε εξέλιξη' },
-              generating: { en: 'Generating', el: 'Δημιουργία' },
-              completed: { en: 'Completed', el: 'Ολοκληρωμένα' },
-            };
-            const active = filter === f;
-            return (
+        {tab === 'courses' && (
+          <div className="flex items-center gap-2 flex-wrap">
+            {(['all', 'in-progress', 'generating', 'completed', 'attention'] as const).map(f => {
+              const active = filter === f;
+              return (
+                <button
+                  key={f}
+                  type="button"
+                  onClick={() => setFilter(f)}
+                  aria-pressed={active}
+                  className={cn(
+                    'platform-pill px-3 py-1.5 rounded-md text-xs transition-colors border',
+                    active ? 'platform-pill-active' : '',
+                    f === 'attention' && active ? 'border-accent-amber/50 bg-accent-amber/10 text-accent-amber' : '',
+                  )}
+                  style={{ fontFamily: 'var(--font-mono)' }}
+                >
+                  {filterLabels[f]}
+                </button>
+              );
+            })}
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
+              aria-label={t('libSortLabel', userLanguage)}
+              className="h-8 rounded-md border border-border-subtle bg-surface-input px-2 text-xs text-text-primary focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500/40"
+            >
+              <option value="recent">{t('libSortRecent', userLanguage)}</option>
+              <option value="progress">{t('libSortProgress', userLanguage)}</option>
+              <option value="quality">{t('libSortQuality', userLanguage)}</option>
+              <option value="title">{t('libSortTitle', userLanguage)}</option>
+            </select>
+            <div className="hidden sm:flex items-center border border-border-subtle rounded-md overflow-hidden">
               <button
-                key={f}
-                onClick={() => setFilter(f)}
-                aria-pressed={active}
-                className={cn(
-                  'platform-pill px-3 py-1.5 rounded-md text-xs transition-colors border',
-                  active ? 'platform-pill-active' : '',
-                )}
-                style={{ fontFamily: 'var(--font-mono)' }}
+                type="button"
+                onClick={() => setViewMode('grid')}
+                aria-label={t('libGridView', userLanguage)}
+                aria-pressed={viewMode === 'grid'}
+                className={cn('p-2', viewMode === 'grid' ? 'bg-surface-hover text-text-primary' : 'text-text-tertiary hover:text-text-secondary')}
               >
-                {labelMap[f][userLanguage]}
+                <Grid3X3 className="w-4 h-4" />
               </button>
-            );
-          })}
-          <div className="hidden sm:flex items-center border border-border-subtle rounded-md overflow-hidden">
-            <button
-              onClick={() => setViewMode('grid')}
-              aria-label={userLanguage === 'el' ? 'Πλέγμα' : 'Grid view'}
-              aria-pressed={viewMode === 'grid'}
-              className={cn('p-2', viewMode === 'grid' ? 'bg-surface-hover text-text-primary' : 'text-text-tertiary hover:text-text-secondary')}
-            >
-              <Grid3X3 className="w-4 h-4" />
-            </button>
-            <button
-              onClick={() => setViewMode('list')}
-              aria-label={userLanguage === 'el' ? 'Λίστα' : 'List view'}
-              aria-pressed={viewMode === 'list'}
-              className={cn('p-2 border-l border-border-subtle', viewMode === 'list' ? 'bg-surface-hover text-text-primary' : 'text-text-tertiary hover:text-text-secondary')}
-            >
-              <List className="w-4 h-4" />
-            </button>
+              <button
+                type="button"
+                onClick={() => setViewMode('list')}
+                aria-label={t('libListView', userLanguage)}
+                aria-pressed={viewMode === 'list'}
+                className={cn('p-2 border-l border-border-subtle', viewMode === 'list' ? 'bg-surface-hover text-text-primary' : 'text-text-tertiary hover:text-text-secondary')}
+              >
+                <List className="w-4 h-4" />
+              </button>
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Content */}
@@ -290,7 +364,7 @@ export function Library({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           >
-            {!search && (
+            {!search.trim() && (
               <button
                 type="button"
                 onClick={onUpload}
@@ -299,37 +373,48 @@ export function Library({
               >
                 <Upload className="h-8 w-8 text-brand-600" aria-hidden />
                 <span className="text-sm font-medium">
-                  {userLanguage === 'el' ? 'Σύρε αρχεία εδώ ή κάνε κλικ για ανέβασμα' : 'Drop files here or click to upload'}
+                  {t('libDropZoneTitle', userLanguage)}
                 </span>
                 <span className="text-xs text-text-muted">
-                  {userLanguage === 'el' ? 'PDF, DOCX, PPTX, εικόνες, κώδικας' : 'PDF, DOCX, PPTX, images, code'}
+                  {t('libDropZoneFormats', userLanguage)}
                 </span>
               </button>
             )}
             {filteredCourses.length === 0 ? (
               <PlatformEmptyState
-                title={t('libraryEmptyCoursesTitle', userLanguage)}
-                description={t('libraryEmptyCoursesDescription', userLanguage)}
-                actionLabel={userLanguage === 'el' ? 'Ανέβασμα υλικού' : 'Upload material'}
-                onAction={onUpload}
-                secondaryActionLabel={uploadedFiles.length > 0 ? (userLanguage === 'el' ? 'Δες αρχεία' : 'View files') : undefined}
-                onSecondaryAction={uploadedFiles.length > 0 ? () => setTab('files') : undefined}
+                title={search.trim() || filter !== 'all' ? t('libNoMatchingCoursesTitle', userLanguage) : t('libraryEmptyCoursesTitle', userLanguage)}
+                description={search.trim() || filter !== 'all' ? t('libNoMatchingCoursesDescription', userLanguage) : t('libraryEmptyCoursesDescription', userLanguage)}
+                actionLabel={search.trim() || filter !== 'all' ? undefined : t('libUploadMaterial', userLanguage)}
+                onAction={search.trim() || filter !== 'all' ? undefined : onUpload}
+                secondaryActionLabel={search.trim() || filter !== 'all' ? t('libResetFilters', userLanguage) : uploadedFiles.length > 0 ? t('libViewFiles', userLanguage) : undefined}
+                onSecondaryAction={search.trim() || filter !== 'all' ? () => { setSearch(''); setFilter('all'); } : uploadedFiles.length > 0 ? () => setTab('files') : undefined}
               />
             ) : (
               <div className="space-y-4">
-                {!search && (libraryInfo.topics.length > 0 || libraryInfo.examples.length > 0) && (
+                {!search.trim() && (libraryInfo.topics.length > 0 || libraryInfo.examples.length > 0) && (
                   <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
                     <InfoStack
                       title={t('libraryInfoStackTopicsTitle', userLanguage)}
                       items={libraryInfo.topics}
                       secondary={libraryInfo.prerequisites}
                       secondaryLabel={t('libraryInfoStackSecondaryLabel', userLanguage)}
+                      onItemClick={(topicTitle) => {
+                        const owning = topicToCourse.get(topicTitle);
+                        if (owning) onSelectCourse(owning);
+                      }}
+                      onSecondaryClick={onOpenConcept}
+                      itemHint={t('libTopicOpenHint', userLanguage)}
+                      secondaryHint={t('libConceptOpenHint', userLanguage)}
                     />
                     <InfoStack
                       title={t('libraryInfoStackExamplesTitle', userLanguage)}
                       items={libraryInfo.examples}
                       secondary={libraryInfo.enrichments}
                       secondaryLabel={t('libraryInfoStackSecondaryLabel', userLanguage)}
+                      onItemClick={onOpenConcept}
+                      onSecondaryClick={onOpenConcept}
+                      itemHint={t('libConceptOpenHint', userLanguage)}
+                      secondaryHint={t('libConceptOpenHint', userLanguage)}
                     />
                   </div>
                 )}
@@ -374,18 +459,18 @@ export function Library({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           >
-            {uploadedFiles.length === 0 ? (
+            {filteredFiles.length === 0 ? (
               <PlatformEmptyState
-                title={t('libraryEmptyFilesTitle', userLanguage)}
-                description={t('libraryEmptyFilesDescription', userLanguage)}
-                actionLabel={userLanguage === 'el' ? 'Ανέβασμα υλικού' : 'Upload material'}
-                onAction={onUpload}
-                secondaryActionLabel={userLanguage === 'el' ? 'Δες μαθήματα' : 'View courses'}
-                onSecondaryAction={() => setTab('courses')}
+                title={search.trim() ? t('libNoMatchingFilesTitle', userLanguage) : t('libraryEmptyFilesTitle', userLanguage)}
+                description={search.trim() ? t('libNoMatchingFilesDescription', userLanguage) : t('libraryEmptyFilesDescription', userLanguage)}
+                actionLabel={search.trim() ? undefined : t('libUploadMaterial', userLanguage)}
+                onAction={search.trim() ? undefined : onUpload}
+                secondaryActionLabel={search.trim() ? t('libClearSearch', userLanguage) : t('libViewCourses', userLanguage)}
+                onSecondaryAction={search.trim() ? () => setSearch('') : () => setTab('courses')}
               />
             ) : (
               <div className="space-y-2">
-                {uploadedFiles.map((file, i) => (
+                {filteredFiles.map((file, i) => (
                   <FileItem
                     key={file.id}
                     file={file}
@@ -408,6 +493,35 @@ export function Library({
       </AnimatePresence>
     </Page>
   );
+}
+
+function courseDifficultyLabel(difficulty: Course['difficulty'], lang: 'en' | 'el') {
+  const keyByDifficulty = {
+    beginner: 'libDifficultyBeginner',
+    intermediate: 'libDifficultyIntermediate',
+    advanced: 'libDifficultyAdvanced',
+    mixed: 'libDifficultyMixed',
+  } as const;
+  return t(keyByDifficulty[difficulty], lang);
+}
+
+function courseMetrics(course: Course, tasks: Task[]) {
+  const pendingTasks = tasks.filter(
+    (t) => t.courseId === course.id && t.status !== 'completed' && t.status !== 'skipped',
+  ).length;
+  const now = new Date();
+  const dueReviews = tasks.filter(
+    (t) =>
+      t.courseId === course.id &&
+      t.status === 'pending' &&
+      t.isSpacedRepetition &&
+      t.dueAt &&
+      new Date(t.dueAt) <= now,
+  ).length;
+  const isOldPipeline = Boolean(
+    course.pipelineMeta && course.pipelineMeta.version !== CONTENT_PIPELINE_VERSION,
+  );
+  return { pendingTasks, dueReviews, isOldPipeline };
 }
 
 function CourseCard({
@@ -446,16 +560,17 @@ function CourseCard({
   const isGenerating = course.status === 'generating';
   const needsReview = course.status === 'needs_review';
   const quality = course.sourceQuality;
+  const { pendingTasks, dueReviews, isOldPipeline } = courseMetrics(course, tasks);
   const qualityTone = quality?.band === 'strong'
     ? 'bg-accent-emerald/10 text-accent-emerald border-accent-emerald/20'
     : quality?.band === 'moderate'
       ? 'bg-accent-cyan/10 text-accent-cyan border-accent-cyan/20'
       : 'bg-accent-amber/10 text-accent-amber border-accent-amber/20';
   const qualityLabel = quality?.band === 'strong'
-    ? 'Strong source'
+    ? t('libSourceStrong', userLanguage)
     : quality?.band === 'moderate'
-      ? 'Moderate source'
-      : 'Needs more material';
+      ? t('libSourceModerate', userLanguage)
+      : t('libSourceNeedsMore', userLanguage);
 
   return (
     <BlueprintSurface
@@ -480,15 +595,24 @@ function CourseCard({
               onClick={(e) => { e.stopPropagation(); setRemoveDialogOpen(true); }}
               data-testid="library-course-delete"
               className="rounded-lg p-1.5 text-text-tertiary opacity-80 transition-all hover:bg-accent-rose/10 hover:text-accent-rose hover:opacity-100"
-              aria-label={userLanguage === 'el' ? 'Διαγραφή μαθήματος' : 'Delete course'}
+              aria-label={t('libDeleteCourseAria', userLanguage)}
             >
               <Trash2 className="w-4 h-4" />
             </button>
           )}
+          {isOldPipeline && !isGenerating && (
+            <div
+              className="flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-semibold border border-accent-amber/30 bg-accent-amber/10 text-accent-amber"
+              title={t('libOldPipelineHint', userLanguage)}
+            >
+              <RefreshCw className="w-3 h-3" />
+              {t('libOldPipeline', userLanguage)}
+            </div>
+          )}
           {isGenerating ? (
           <div className="platform-status-pill platform-status-pill--generating flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium">
             <Loader2 className="w-3 h-3 animate-spin" />
-            Generating
+            {t('libGenerating', userLanguage)}
           </div>
         ) : needsReview ? (
           <div className="flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-semibold border border-accent-amber/30 bg-accent-amber/10 text-accent-amber">
@@ -497,7 +621,7 @@ function CourseCard({
           </div>
         ) : (
           <div className="text-xs text-text-tertiary font-medium capitalize px-2 py-1 rounded-full border border-border-subtle">
-            {course.difficulty}
+            {courseDifficultyLabel(course.difficulty, userLanguage)}
           </div>
         )}
         </div>
@@ -507,10 +631,10 @@ function CourseCard({
       <p className="text-xs text-text-tertiary mb-4 line-clamp-2">{course.description}</p>
       {course.recognitionSummary && !isGenerating && (
         <p className="text-[10px] text-text-muted mb-2">
-          {userLanguage === 'el' ? 'Αναγνώριση' : 'Recognition'}:{' '}
-          {course.recognitionSummary.conceptCount} {userLanguage === 'el' ? 'έννοιες' : 'concepts'}
+          {t('recognitionReportTitle', userLanguage)}:{' '}
+          {course.recognitionSummary.conceptCount} {t('libConcepts', userLanguage)}
           {' · '}
-          {course.recognitionSummary.sectionCount} {userLanguage === 'el' ? 'ενότητες' : 'sections'}
+          {course.recognitionSummary.sectionCount} {t('recognitionMetricSections', userLanguage).toLowerCase()}
         </p>
       )}
       {quality && !isGenerating && (
@@ -524,14 +648,14 @@ function CourseCard({
       )}
       {quality?.needsMoreMaterial && !isGenerating && (
         <p className="mb-3 text-[11px] text-accent-amber line-clamp-2">
-          {quality.warnings[0] ?? 'Add more material to deepen grounding before intensive study.'}
+          {quality.warnings[0] ?? t('libNeedsMoreHint', userLanguage)}
         </p>
       )}
 
-      <div className="flex items-center gap-4 text-xs text-text-tertiary mb-3">
+      <div className="flex flex-wrap items-center gap-3 text-xs text-text-tertiary mb-3">
         <span className="flex items-center gap-1">
           <BookOpen className="w-3.5 h-3.5" />
-          {course.totalLessons} lessons
+          {course.totalLessons} {t('libLessons', userLanguage)}
         </span>
         <span className="flex items-center gap-1">
           <Clock className="w-3.5 h-3.5" />
@@ -541,6 +665,18 @@ function CourseCard({
           <BarChart3 className="w-3.5 h-3.5" />
           {course.mastery}%
         </span>
+        {!isGenerating && pendingTasks > 0 && (
+          <span className="flex items-center gap-1 text-accent-cyan" title={t('libCardTasks', userLanguage)}>
+            <List className="w-3.5 h-3.5" />
+            {pendingTasks}
+          </span>
+        )}
+        {!isGenerating && dueReviews > 0 && (
+          <span className="flex items-center gap-1 text-accent-amber" title={t('libCardReviews', userLanguage)}>
+            <Clock className="w-3.5 h-3.5" />
+            {dueReviews}
+          </span>
+        )}
       </div>
 
       {!isGenerating && (
@@ -569,7 +705,7 @@ function CourseCard({
           className="mt-3 w-full inline-flex items-center justify-center gap-1.5 rounded-lg border border-brand-500/30 bg-brand-500/5 px-2 py-1.5 text-[11px] font-medium text-brand-700 hover:bg-brand-500/10 transition-colors"
         >
           <BookOpen className="w-3.5 h-3.5" />
-          {userLanguage === 'el' ? 'Notebook Shell' : 'Notebook Shell'}
+          {t('libNotebookShell', userLanguage)}
         </button>
       )}
 
@@ -591,14 +727,14 @@ function CourseCard({
           course.sourceMode === 'strict' ? 'platform-source-badge--strict' : course.sourceMode === 'enriched' ? 'platform-source-badge--enriched' : 'platform-source-badge--notes',
         )}>
           <UiIcon id={course.sourceMode === 'strict' ? 'lock' : course.sourceMode === 'enriched' ? 'sparkle' : 'notes'} size="xs" />
-          {course.sourceMode === 'strict' ? 'Strict' : course.sourceMode === 'enriched' ? 'Enriched' : 'Notes'}
+          {course.sourceMode === 'strict' ? t('libSourceModeStrict', userLanguage) : course.sourceMode === 'enriched' ? t('libSourceModeEnriched', userLanguage) : t('libSourceModeNotes', userLanguage)}
         </span>
       </div>
       {course.conceptCount > 0 && (
         <div className="mt-2 flex items-center gap-3 text-[10px] text-text-muted">
-          <span>{course.conceptCount} concepts</span>
-          <span>{course.glossaryCount} terms</span>
-          <span>{course.exerciseCount} exercises</span>
+          <span>{course.conceptCount} {t('libConcepts', userLanguage)}</span>
+          <span>{course.glossaryCount} {t('libTerms', userLanguage)}</span>
+          <span>{course.exerciseCount} {t('libExercises', userLanguage)}</span>
         </div>
       )}
       {canDelete && (
@@ -606,8 +742,8 @@ function CourseCard({
           open={removeDialogOpen}
           title={deleteCopy.title}
           description={deleteCopy.description}
-          confirmLabel={userLanguage === 'el' ? 'Διαγραφή' : 'Delete'}
-          cancelLabel={userLanguage === 'el' ? 'Ακύρωση' : 'Cancel'}
+          confirmLabel={t('delete', userLanguage)}
+          cancelLabel={t('cancel', userLanguage)}
           destructive
           onConfirm={() => {
             onRemoveCourse?.(course.id);
@@ -654,6 +790,8 @@ function CourseListItem({
 
   const progress = (course.completedLessons / Math.max(course.totalLessons, 1)) * 100;
   const quality = course.sourceQuality;
+  const { pendingTasks, dueReviews, isOldPipeline } = courseMetrics(course, tasks);
+  const isGenerating = course.status === 'generating';
 
   return (
     <BlueprintSurface
@@ -667,16 +805,29 @@ function CourseListItem({
     >
       <CourseIcon icon={course.icon} size="lg" colorClassName="text-brand-600 shrink-0" />
       <div className="flex-1 min-w-0">
-        <h3 className="font-semibold text-sm group-hover:text-brand-300 transition-colors truncate">{course.title}</h3>
-        <p className="text-xs text-text-tertiary mt-0.5">{course.subject} · {course.totalLessons} lessons · {course.estimatedHours}h</p>
+        <div className="flex items-center gap-2">
+          <h3 className="font-semibold text-sm group-hover:text-brand-300 transition-colors truncate">{course.title}</h3>
+          {isOldPipeline && !isGenerating && (
+            <span
+              className="inline-flex items-center gap-1 rounded-full border border-accent-amber/30 bg-accent-amber/10 px-1.5 py-0.5 text-[10px] font-medium text-accent-amber"
+              title={t('libOldPipelineHint', userLanguage)}
+            >
+              <RefreshCw className="w-3 h-3" />
+              {t('libOldPipeline', userLanguage)}
+            </span>
+          )}
+        </div>
+        <p className="text-xs text-text-tertiary mt-0.5">{course.subject} · {course.totalLessons} {t('libLessons', userLanguage)} · {course.estimatedHours}h{pendingTasks > 0 ? ` · ${pendingTasks} ${t('libCardTasks', userLanguage)}` : ''}{dueReviews > 0 ? ` · ${dueReviews} ${t('libCardReviews', userLanguage)}` : ''}</p>
         {quality && (
           <p className={cn(
             'text-[11px] mt-1 truncate',
             quality.needsMoreMaterial ? 'text-accent-amber' : 'text-text-muted',
           )}>
             {quality.needsMoreMaterial
-              ? (quality.warnings[0] ?? 'Needs more material for stronger grounding.')
-              : `Source quality ${quality.score}/100 · ${quality.finalTopicCount} modules`}
+              ? (quality.warnings[0] ?? t('libNeedsMoreHint', userLanguage))
+              : t('libSourceQualityList', userLanguage)
+                  .replace('{score}', String(quality.score))
+                  .replace('{modules}', String(quality.finalTopicCount))}
           </p>
         )}
       </div>
@@ -699,7 +850,7 @@ function CourseListItem({
           className="hidden sm:inline-flex items-center gap-1 rounded-lg border border-brand-500/30 px-2 py-1 text-[10px] font-medium text-brand-700 hover:bg-brand-500/10"
         >
           <BookOpen className="w-3 h-3" />
-          Shell
+          {t('libNotebookShellShort', userLanguage)}
         </button>
       )}
       {canDelete && (
@@ -708,7 +859,7 @@ function CourseListItem({
           onClick={(e) => { e.stopPropagation(); setRemoveDialogOpen(true); }}
           data-testid="library-course-delete"
           className="rounded-lg p-1.5 text-text-tertiary opacity-80 transition-all hover:bg-accent-rose/10 hover:text-accent-rose hover:opacity-100"
-          aria-label={userLanguage === 'el' ? 'Διαγραφή μαθήματος' : 'Delete course'}
+          aria-label={t('libDeleteCourseAria', userLanguage)}
         >
           <Trash2 className="w-4 h-4" />
         </button>
@@ -719,8 +870,8 @@ function CourseListItem({
           open={removeDialogOpen}
           title={deleteCopy.title}
           description={deleteCopy.description}
-          confirmLabel={userLanguage === 'el' ? 'Διαγραφή' : 'Delete'}
-          cancelLabel={userLanguage === 'el' ? 'Ακύρωση' : 'Cancel'}
+          confirmLabel={t('delete', userLanguage)}
+          cancelLabel={t('cancel', userLanguage)}
           destructive
           onConfirm={() => {
             onRemoveCourse?.(course.id);
@@ -761,7 +912,6 @@ function FileItem({
   const Icon = fileTypeIcons[file.type] || FileText;
   const [expanded, setExpanded] = useState(false);
   const [removeDialogOpen, setRemoveDialogOpen] = useState(false);
-  const el = userLanguage === 'el';
   const outlinePreview = useMemo(() => {
     if (!file.extractedText?.trim() || file.status !== 'analyzed') return null;
     return buildMaterialOutlinePreview(file.extractedText, [file.name], userSettings);
@@ -820,14 +970,14 @@ function FileItem({
             {(file.size / 1024).toFixed(1)} KB · {file.type.toUpperCase()}
             {course && <> · {course.title}</>}
             {outlinePreview && (
-              <> · {outlinePreview.outline.topics.length} {el ? 'ενότητες' : 'modules'}</>
+              <> · {outlinePreview.outline.topics.length} {t('libModules', userLanguage)}</>
             )}
             {recognitionSnapshot && (
-              <> · {recognitionSnapshot.quality.conceptCount} {el ? 'έννοιες' : 'concepts'}</>
+              <> · {recognitionSnapshot.quality.conceptCount} {t('libConcepts', userLanguage)}</>
             )}
           </p>
           {file.pipelineVersion && (
-            <p className="text-[10px] text-text-muted mt-0.5">pipeline v{file.pipelineVersion}</p>
+            <p className="text-[10px] text-text-muted mt-0.5">{t('libPipelineVersion', userLanguage).replace('{version}', file.pipelineVersion)}</p>
           )}
         </div>
         <div className="shrink-0 flex items-center gap-2">
@@ -842,13 +992,13 @@ function FileItem({
           {file.status === 'processing' && (
             <span className="flex items-center gap-1 text-xs text-accent-amber">
               <Loader2 className="w-3 h-3 animate-spin" />
-              Analyzing
+              {t('libAnalyzing', userLanguage)}
             </span>
           )}
           {file.status === 'analyzed' && (
             <span className="flex items-center gap-1 text-xs text-accent-emerald">
               <Sparkles className="w-3 h-3" />
-              {el ? 'Έτοιμο' : 'Ready'}
+              {t('libReady', userLanguage)}
             </span>
           )}
           {file.status === 'analyzed' && (
@@ -860,7 +1010,7 @@ function FileItem({
               })}
               data-testid={`library-open-nlm-${file.id}`}
               className="p-1.5 rounded-lg border border-brand-500/30 text-brand-600 hover:bg-brand-500/10 transition-colors"
-              title={el ? 'Άνοιγμα στο NotebookLM' : 'Open in NotebookLM'}
+              title={t('libOpenNotebookLmTitle', userLanguage)}
             >
               <ExternalLink className="w-4 h-4" />
             </button>
@@ -872,7 +1022,7 @@ function FileItem({
               disabled={reprocessingMaterial}
               data-testid={`library-reprocess-${file.id}`}
               className="p-1.5 rounded-lg border border-brand-500/30 text-brand-300 hover:bg-brand-500/10 disabled:opacity-60 transition-colors"
-              title={el ? 'Επανεπεξεργασία κειμένου μαθήματος' : 'Reprocess course stored text'}
+              title={t('libReprocessTooltip', userLanguage)}
             >
               <RefreshCw className={cn('w-4 h-4', reprocessingMaterial && 'animate-spin')} />
             </button>
@@ -883,7 +1033,7 @@ function FileItem({
               onClick={confirmRemove}
               data-testid={`library-remove-${file.id}`}
               className="p-1.5 rounded-lg border border-accent-rose/30 text-accent-rose hover:bg-accent-rose/10 transition-colors"
-              title={el ? 'Αφαίρεση αρχείου' : 'Remove file'}
+              title={t('libRemoveFileTooltip', userLanguage)}
             >
               <Trash2 className="w-4 h-4" />
             </button>
@@ -894,7 +1044,7 @@ function FileItem({
               onClick={() => setExpanded((v) => !v)}
               className="p-1.5 rounded-lg hover:bg-surface-hover text-text-secondary"
               aria-expanded={expanded}
-              aria-label={expanded ? 'Hide outline preview' : 'Show outline preview'}
+              aria-label={expanded ? t('libHideOutline', userLanguage) : t('libShowOutline', userLanguage)}
             >
               <ChevronDown className={cn('w-4 h-4 transition-transform', expanded && 'rotate-180')} />
             </button>
@@ -936,8 +1086,8 @@ function FileItem({
       }}
       title={removeTitle}
       description={removeDescription}
-      confirmLabel={el ? 'Αφαίρεση' : 'Remove'}
-      cancelLabel={el ? 'Ακύρωση' : 'Cancel'}
+      confirmLabel={t('remove', userLanguage)}
+      cancelLabel={t('cancel', userLanguage)}
       destructive
       data-testid={`library-remove-dialog-${file.id}`}
     />

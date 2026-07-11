@@ -20,7 +20,7 @@ import type { SessionType } from '../lib/taskFlows';
 import { findPendingTask, findTaskForRepair, findTaskForConcept } from '../lib/taskFlows';
 import type { WorkspaceLiveSync } from '../lib/workspaceStoreSpine';
 import { workspaceLiveIsStale } from '../lib/workspaceStoreSpine';
-import type { Lang } from '../lib/i18n';
+import type { I18nKey, Lang } from '../lib/i18n';
 import type { DashboardNextAction } from '../lib/dashboardNextAction';
 import { TaskActionIcon } from './ui/TaskActionIcon';
 import { courseRingColor, resolveCourseColor, accentHighlightVar } from '../lib/masteryPalette';
@@ -51,6 +51,34 @@ import type { WorkspaceToolId } from '../lib/taskFlows';
 import { recommendToolForTopic } from '../lib/examPrep/coveragePracticeActions';
 import { buildGlobalFsrsDueQueue } from '../lib/leitnerDueQueue';
 import { LeitnerDueQueuePanel } from './workspace/LeitnerDueQueuePanel';
+
+const DASHBOARD_WEEKDAY_KEYS: I18nKey[] = [
+  'dashWeekdayMon',
+  'dashWeekdayTue',
+  'dashWeekdayWed',
+  'dashWeekdayThu',
+  'dashWeekdayFri',
+  'dashWeekdaySat',
+  'dashWeekdaySun',
+];
+
+function taskPriorityLabel(priority: Task['priority'], translate: (key: I18nKey) => string) {
+  const keys: Record<Task['priority'], I18nKey> = {
+    critical: 'dashPriorityCritical',
+    high: 'dashPriorityHigh',
+    medium: 'dashPriorityMedium',
+    low: 'dashPriorityLow',
+  };
+  return translate(keys[priority]);
+}
+
+function taskDurationLabel(minutes: number, translate: (key: I18nKey) => string) {
+  return translate('dashMinutesShort').replace('{count}', String(minutes));
+}
+
+function taskXpLabel(xp: number, translate: (key: I18nKey) => string) {
+  return translate('dashXpReward').replace('{count}', String(xp));
+}
 
 interface DashboardProps {
   stats: DashboardStats;
@@ -85,6 +113,7 @@ interface DashboardProps {
   onRunProactiveAgentAlert?: (alert: ProactiveAgentAlert) => void;
   onOpenWorkspacePractice?: (launch: WorkspacePracticeLaunch) => void;
   lang?: Lang;
+  theoryVsPractice?: number;
   /** Fresh upload highlight — show workspace CTA on dashboard */
   postUploadCourse?: Course | null;
   onDismissPostUpload?: () => void;
@@ -92,12 +121,13 @@ interface DashboardProps {
   settingsExamDate?: string;
 }
 
-export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onSelectCourse, onOpenWorkspace, onOpenExamTimer, onUpload, onExploreDemo, prerequisiteRepairs = [], calibration, conceptMastery = [], activities = [], masteryDelta = 0, daysToExam = null, antiPassiveAlert = false, onStartTask, onStartSession, onResolveMisconception, onFocusWeakArea, workspaceLive = null, workspaceBooting = false, dashboardNextAction = null, smartCTAs = [], onRunSmartCTA, proactiveAgentAlerts = [], onRunProactiveAgentAlert, onOpenWorkspacePractice, lang = 'en', postUploadCourse = null, onDismissPostUpload, onOpenTasksReview, settingsExamDate }: DashboardProps) {
+export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onSelectCourse, onOpenWorkspace, onOpenExamTimer, onUpload, onExploreDemo, prerequisiteRepairs = [], calibration, conceptMastery = [], activities = [], masteryDelta = 0, daysToExam = null, antiPassiveAlert = false, onStartTask, onStartSession, onResolveMisconception, onFocusWeakArea, workspaceLive = null, workspaceBooting = false, dashboardNextAction = null, smartCTAs = [], onRunSmartCTA, proactiveAgentAlerts = [], onRunProactiveAgentAlert, onOpenWorkspacePractice, lang = 'en', theoryVsPractice = 50, postUploadCourse = null, onDismissPostUpload, onOpenTasksReview, settingsExamDate }: DashboardProps) {
   const { t } = useI18n();
   const isBlueprint = useBlueprintTheme();
-  const pendingTasks = tasks.filter(t => t.status === 'pending');
+  const pendingTasks = tasks.filter(t => t.status === 'pending' || t.status === 'in-progress');
   const criticalTasks = pendingTasks.filter(t => t.priority === 'critical' || t.priority === 'high');
   const fixTasks = pendingTasks.filter(t => t.category === 'fix');
+  const unresolvedMisconceptions = learnerModel.misconceptions.filter((misconception) => !misconception.corrected);
   const examTask = findPendingTask(tasks, (t) => t.type === 'exam-prep');
   const firstReviewTask = findPendingTask(tasks, (t) => t.isSpacedRepetition && t.status === 'pending');
   const showWorkspaceResume = workspaceLive && !workspaceLiveIsStale(workspaceLive);
@@ -110,6 +140,9 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
     () => buildGlobalFsrsDueQueue(learnerModel.spacingIntervals),
     [learnerModel.spacingIntervals],
   );
+  const activeCourses = courses.filter((course) => course.status !== 'generating');
+  const masteryTrend = stats.masteryTrend.slice(-7);
+  const weekdayLabels = DASHBOARD_WEEKDAY_KEYS.map((key) => t(key));
 
   const nextActionHandlers = {
     onStartTask,
@@ -229,7 +262,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
           className="space-y-4"
           data-testid="dashboard-hero-panel"
         >
-          <DashboardHeroLensChip lang={lang} />
+          <DashboardHeroLensChip theoryVsPractice={theoryVsPractice} />
           <div className="grid gap-6 xl:grid-cols-[1.05fr_0.95fr] xl:items-start">
           <DashboardHeroSteps />
           {showWorkspaceResume && workspaceLive ? (
@@ -319,7 +352,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
         <MotionSection initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
           <UxCallout
             variant="danger"
-            title="Exam Countdown"
+            title={t('dashExamCountdown')}
             icon={<Calendar className="text-accent-amber" />}
             testId="dashboard-exam-countdown"
             action={
@@ -328,11 +361,11 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                 onClick={() => (examTask ? onStartTask?.(examTask.id) : onOpenExamTimer?.() ?? onOpenWorkspace?.())}
                 className="platform-link text-xs flex items-center gap-1 shrink-0"
               >
-                {examTask ? 'Start exam prep' : 'Exam prep'} <ArrowRight className="w-3 h-3" />
+                {examTask ? t('dashStartExamPrep') : t('dashExamPrep')} <ArrowRight className="w-3 h-3" />
               </button>
             }
           >
-            {daysToExam === 0 ? 'Exam is today — good luck!' : `${daysToExam} day${daysToExam === 1 ? '' : 's'} until your exam`}
+            {daysToExam === 0 ? t('dashExamToday') : (daysToExam === 1 ? t('dashDayUntilExam') : t('dashDaysUntilExam').replace('{count}', String(daysToExam)))}
           </UxCallout>
         </MotionSection>
       )}
@@ -342,13 +375,13 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
         <MotionSection initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="platform-banner-warn p-4 rounded-2xl border flex items-start gap-3">
           <Eye className="w-5 h-5 text-accent-amber shrink-0 mt-0.5" />
           <div>
-            <p className="platform-banner-title text-sm font-semibold">Active Recall Reminder</p>
-            <p className="text-xs text-text-secondary mt-0.5">You've been reading for a while without answering questions. Let's test what you remember!</p>
+            <p className="platform-banner-title text-sm font-semibold">{t('dashActiveRecallTitle')}</p>
+            <p className="text-xs text-text-secondary mt-0.5">{t('dashActiveRecallBody')}</p>
             <button
               onClick={() => (firstReviewTask ? onStartTask?.(firstReviewTask.id) : onNavigate('tasks'))}
               className="mt-2 platform-link text-xs flex items-center gap-1"
             >
-              Take a quick quiz <ArrowRight className="w-3 h-3" />
+              {t('dashTakeQuiz')} <ArrowRight className="w-3 h-3" />
             </button>
           </div>
         </MotionSection>
@@ -395,13 +428,13 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
           {/* Readiness Hero */}
           <BlueprintSurface className="ux-calm-panel p-6">
             <div className="flex flex-col sm:flex-row items-center gap-6">
-              <ReadinessRing value={learnerModel.overallMastery} sublabel="Derived from graded first-attempts only — never from self-reported skill." />
+              <ReadinessRing value={learnerModel.overallMastery} sublabel={t('dashReadinessSublabel')} />
               <div className="flex-1 space-y-4">
                 <SignalBars signals={[
-                  { label: 'Accuracy', value: Math.round(learnerModel.retentionRate * 100), icon: 'target', color: 'var(--palette-green)', detail: 'Correct first-attempt rate' },
-                  { label: 'Self-Reliance', value: Math.round((1 - learnerModel.helpSeekingRate) * 100), icon: 'strength', color: 'var(--color-brand-600)', detail: 'Solved without hints' },
-                  { label: 'Practice Volume', value: Math.min(100, Math.round(learnerModel.totalSessions * 2.1)), icon: 'chart', color: 'var(--palette-teal)', detail: `${learnerModel.totalSessions} sessions completed` },
-                  { label: 'Retrieval Strength', value: Math.round(learnerModel.retrievalPerformance * 100), icon: 'brain', color: 'var(--palette-amber)', detail: 'Recall without prompts' },
+                  { label: t('dashSignalAccuracy'), value: Math.round(learnerModel.retentionRate * 100), icon: 'target', color: 'var(--palette-green)', detail: t('dashSignalAccuracyDetail') },
+                  { label: t('dashSignalReliance'), value: Math.round((1 - learnerModel.helpSeekingRate) * 100), icon: 'strength', color: 'var(--color-brand-600)', detail: t('dashSignalRelianceDetail') },
+                  { label: t('dashSignalVolume'), value: Math.min(100, Math.round(learnerModel.totalSessions * 2.1)), icon: 'chart', color: 'var(--palette-teal)', detail: t('dashSignalVolumeDetail').replace('{count}', String(learnerModel.totalSessions)) },
+                  { label: t('dashSignalRetrieval'), value: Math.round(learnerModel.retrievalPerformance * 100), icon: 'brain', color: 'var(--palette-amber)', detail: t('dashSignalRetrievalDetail') },
                 ]} />
               </div>
             </div>
@@ -412,9 +445,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {conceptMastery.length > 0 && (
                 <BlueprintSurface className="p-5">
-                  <h3 className="text-sm font-semibold flex items-center gap-2 mb-4">
-                    <Brain className="w-4 h-4 text-brand-400" />Concept Mastery
-                  </h3>
+                  <SectionTitle icon={Brain} iconClassName="text-brand-400">{t('dashConceptMastery')}</SectionTitle>
                   <ConceptMasteryBars concepts={conceptMastery} />
                 </BlueprintSurface>
               )}
@@ -435,50 +466,59 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
           <BlueprintSurface className="p-5">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold ws-serif font-medium flex items-center gap-2">
-                <AlertTriangle className="w-5 h-5 text-accent-amber" /> Priority Tasks
+                <AlertTriangle className="w-5 h-5 text-accent-amber" /> {t('dashPriorityTasks')}
               </h2>
-              <button onClick={() => onNavigate('tasks')} className="text-sm text-brand-400 hover:text-brand-700 flex items-center gap-1">View all <ChevronRight className="w-4 h-4" /></button>
+              <button onClick={() => onNavigate('tasks')} className="text-sm text-brand-400 hover:text-brand-700 flex items-center gap-1">{t('dashViewAll')} <ChevronRight className="w-4 h-4" /></button>
             </div>
             <div className="space-y-2">
               {criticalTasks.slice(0, 5).map((task, i) => (
                 <MotionSection key={task.id} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.15 + i * 0.04 }}
                   onClick={() => onStartTask?.(task.id)}
-                  className="flex items-center gap-3 p-3 rounded-xl hover:bg-surface-hover transition-all cursor-pointer group">
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(event) => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                      event.preventDefault();
+                      onStartTask?.(task.id);
+                    }
+                  }}
+                  className="flex items-center gap-3 p-3 rounded-xl hover:bg-surface-hover transition-all cursor-pointer group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60">
                   <CourseIcon icon={task.courseIcon} size="sm" colorClassName="text-brand-500 shrink-0" />
                   <TaskActionIcon task={task} size="xs" />
                   <div className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: resolveCourseColor(task.courseColor) }} />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium truncate group-hover:text-brand-300 transition-colors">{task.title}</p>
-                    <p className="text-xs text-text-tertiary mt-0.5">{task.courseName} · {task.estimatedMinutes}m</p>
+                    <p className="text-xs text-text-tertiary mt-0.5">{task.courseName} · {taskDurationLabel(task.estimatedMinutes, t)}</p>
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
                     <span className={cn('text-xs font-medium px-2 py-0.5 rounded-full',
                       task.priority === 'critical' ? 'bg-accent-rose/15 text-accent-rose' : 'bg-accent-amber/15 text-accent-amber'
-                    )}>{task.priority}</span>
-                    <span className="text-xs text-accent-amber">+{task.xpReward}</span>
+                    )}>{taskPriorityLabel(task.priority, t)}</span>
+                    <span className="text-xs text-accent-amber">{taskXpLabel(task.xpReward, t)}</span>
                   </div>
                 </MotionSection>
               ))}
-              {criticalTasks.length === 0 && <p className="text-sm text-text-tertiary text-center py-6 flex items-center justify-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-accent-emerald" /> All caught up!</p>}
+              {criticalTasks.length === 0 && <p className="text-sm text-text-tertiary text-center py-6 flex items-center justify-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-accent-emerald" /> {t('dashAllCaughtUp')}</p>}
             </div>
           </BlueprintSurface>
 
           {/* Needs fixing */}
           {fixTasks.length > 0 && (
-            <div className="rounded-2xl border border-accent-orange/20 bg-accent-orange/5 p-5">
-              <h3 className="text-sm font-semibold flex items-center gap-2 mb-3"><Shield className="w-4 h-4 text-accent-orange" />Needs Fixing — Mistakes & Prerequisites</h3>
+            <div className="rounded-panel border border-accent-orange/20 bg-accent-orange/5 p-5">
+              <SectionTitle icon={Shield} iconClassName="text-accent-orange">{t('dashNeedsFixing')}</SectionTitle>
               <div className="space-y-2">
                 {fixTasks.slice(0, 3).map(task => (
-                  <div
+                  <button
+                    type="button"
                     key={task.id}
                     onClick={() => onStartTask?.(task.id)}
-                    className="flex items-center gap-3 p-2.5 rounded-lg bg-surface-card/50 hover:bg-surface-hover cursor-pointer transition-all group"
+                    className="w-full flex items-center gap-3 p-2.5 rounded-lg bg-surface-card/50 hover:bg-surface-hover cursor-pointer transition-all group text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60"
                   >
                     <CourseIcon icon={task.courseIcon} size="sm" colorClassName="text-brand-500 shrink-0" />
                     <span className="text-sm flex-1 truncate group-hover:text-brand-300 transition-colors">{task.title}</span>
-                    <span className="text-xs text-accent-orange">{task.estimatedMinutes}m</span>
+                    <span className="text-xs text-accent-orange">{taskDurationLabel(task.estimatedMinutes, t)}</span>
                     <ChevronRight className="w-3.5 h-3.5 text-text-muted group-hover:text-brand-400" />
-                  </div>
+                  </button>
                 ))}
               </div>
             </div>
@@ -487,29 +527,56 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
           {/* Active Courses */}
           <BlueprintSurface className="p-5">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold ws-serif font-medium flex items-center gap-2"><BookOpen className="w-5 h-5 text-brand-400" />Active Courses</h2>
-              <button onClick={() => onNavigate('library')} className="text-sm text-brand-400 hover:text-brand-700 flex items-center gap-1">Library <ChevronRight className="w-4 h-4" /></button>
+              <h2 className="text-lg font-semibold ws-serif font-medium flex items-center gap-2"><BookOpen className="w-5 h-5 text-brand-400" />{t('dashActiveCourses')}</h2>
+              <button onClick={() => onNavigate('library')} className="text-sm text-brand-400 hover:text-brand-700 flex items-center gap-1">{t('dashLibrary')} <ChevronRight className="w-4 h-4" /></button>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {courses.filter(c => c.status !== 'generating').map((course, i) => (
-                <MotionSection key={course.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 + i * 0.04 }}
-                  onClick={() => onSelectCourse(course)} className="p-4 rounded-xl border border-border-subtle hover:border-brand-500/30 bg-surface-primary/50 cursor-pointer transition-all group">
-                  <div className="flex items-start justify-between mb-3">
-                    <CourseIcon icon={course.icon} size="lg" colorClassName="text-brand-600" />
-                    <MasteryRing mastery={course.mastery} size={38} />
-                  </div>
-                  <h3 className="font-semibold text-sm mb-1 group-hover:text-brand-300 transition-colors">{course.title}</h3>
-                  <div className="flex items-center gap-2 text-xs text-text-tertiary mb-3">
-                    <span>{course.completedLessons}/{course.totalLessons} lessons</span>
-                    <span>·</span>
-                    <span>{course.conceptCount} concepts</span>
-                  </div>
-                  <div className="w-full bg-surface-hover rounded-full h-1.5">
-                    <div className="h-1.5 rounded-full transition-all duration-500" style={{ width: `${(course.completedLessons / course.totalLessons) * 100}%`, backgroundColor: resolveCourseColor(course.color) }} />
-                  </div>
-                </MotionSection>
-              ))}
-            </div>
+            {activeCourses.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {activeCourses.map((course, i) => (
+                  <MotionSection
+                    key={course.id}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2 + i * 0.04 }}
+                    onClick={() => onSelectCourse(course)}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(event) => {
+                      if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault();
+                        onSelectCourse(course);
+                      }
+                    }}
+                    className="p-4 rounded-xl border border-border-subtle hover:border-brand-500/30 bg-surface-primary/50 cursor-pointer transition-all group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60"
+                  >
+                    <div className="flex items-start justify-between mb-3">
+                      <CourseIcon icon={course.icon} size="lg" colorClassName="text-brand-600" />
+                      <MasteryRing mastery={course.mastery} size={38} />
+                    </div>
+                    <h3 className="font-semibold text-sm mb-1 group-hover:text-brand-300 transition-colors">{course.title}</h3>
+                    <div className="flex items-center gap-2 text-xs text-text-tertiary mb-3">
+                      <span>{t('dashLessonsCount').replace('{done}', String(course.completedLessons)).replace('{total}', String(course.totalLessons))}</span>
+                      <span>·</span>
+                      <span>{t('dashConceptsCount').replace('{count}', String(course.conceptCount))}</span>
+                    </div>
+                    <div className="w-full bg-surface-hover rounded-full h-1.5">
+                      <div className="h-1.5 rounded-full transition-all duration-500" style={{ width: `${Math.min(100, (course.completedLessons / Math.max(course.totalLessons, 1)) * 100)}%`, backgroundColor: resolveCourseColor(course.color) }} />
+                    </div>
+                  </MotionSection>
+                ))}
+              </div>
+            ) : (
+              <div className="rounded-xl border border-border-subtle bg-surface-primary/40 p-5 text-center">
+                <p className="text-sm text-text-secondary">{t('dashCoursesProcessing')}</p>
+                <button
+                  type="button"
+                  onClick={() => onNavigate('library')}
+                  className="mt-3 inline-flex items-center gap-1 text-xs text-brand-400 hover:text-brand-700"
+                >
+                  {t('dashLibrary')} <ChevronRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            )}
           </BlueprintSurface>
         </MotionSection>
 
@@ -518,28 +585,32 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
 
           {/* Mastery Trend */}
           <BlueprintSurface className="p-5">
-            <h3 className="text-sm font-semibold flex items-center gap-2 mb-4"><TrendingUp className="w-4 h-4 text-accent-emerald" />Weekly Mastery</h3>
-            <div className="flex items-end gap-1.5 h-24">
-              {stats.masteryTrend.map((val, i) => (
-                <div key={i} className="flex-1 flex flex-col items-center gap-1">
-                  <div className="w-full rounded-t-sm transition-all duration-500" style={{ height: `${val * 1.2}%`, backgroundColor: i === stats.masteryTrend.length - 1 ? accentHighlightVar() : 'var(--viz-track)' }} />
-                  <span className="text-[9px] text-text-muted">{['M', 'T', 'W', 'T', 'F', 'S', 'S'][i]}</span>
-                </div>
-              ))}
-            </div>
+            <SectionTitle icon={TrendingUp} iconClassName="text-accent-emerald">{t('dashWeeklyMastery')}</SectionTitle>
+            {masteryTrend.length > 0 ? (
+              <div className="flex items-end gap-1.5 h-24">
+                {masteryTrend.map((val, i) => (
+                  <div key={i} className="flex-1 flex flex-col items-center gap-1">
+                    <div className="w-full rounded-t-sm transition-all duration-500" style={{ height: `${Math.min(100, Math.max(4, val * 1.2))}%`, backgroundColor: i === masteryTrend.length - 1 ? accentHighlightVar() : 'var(--viz-track)' }} />
+                    <span className="text-[9px] text-text-muted">{weekdayLabels[i] ?? ''}</span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="py-8 text-center text-xs text-text-tertiary">{t('dashNoMasteryTrend')}</p>
+            )}
             <div className="mt-3 text-center">
               <span className="ux-stat-value">{learnerModel.overallMastery}%</span>
               <span className={cn('text-xs ml-2', masteryDelta >= 0 ? 'text-accent-emerald' : 'text-accent-rose')}>
-                {masteryDelta >= 0 ? '+' : ''}{masteryDelta}% this week
+                {masteryDelta >= 0 ? '+' : ''}{masteryDelta}% {t('dashThisWeek')}
               </span>
             </div>
           </BlueprintSurface>
 
           {/* Weak Areas */}
           <BlueprintSurface className="p-5">
-            <h3 className="text-sm font-semibold flex items-center gap-2 mb-4"><Brain className="w-4 h-4 text-accent-rose" />Weak Areas</h3>
+            <SectionTitle icon={Brain} iconClassName="text-accent-rose">{t('dashWeakAreas')}</SectionTitle>
             <div className="space-y-3">
-              {weakSpotsWithReasons.map((area) => (
+              {weakSpotsWithReasons.length > 0 ? weakSpotsWithReasons.map((area) => (
                 <button
                   key={area.concept}
                   type="button"
@@ -565,8 +636,11 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                     <div className="h-1.5 rounded-full bg-accent-rose transition-all" style={{ width: `${Math.max(area.mastery, 3)}%` }} />
                   </div>
                 </button>
-              ))}
+              )) : (
+                <p className="py-4 text-center text-xs text-text-tertiary">{t('dashNoWeakAreas')}</p>
+              )}
             </div>
+            {weakSpotsWithReasons.length > 0 && (
             <button
               onClick={() => {
                 const first = learnerModel.weakAreas[0];
@@ -575,15 +649,16 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
               }}
               className="mt-4 w-full text-xs text-brand-400 hover:text-brand-700 flex items-center justify-center gap-1"
             >
-              Practice weak areas <ArrowRight className="w-3 h-3" />
+              {t('dashPracticeWeak')} <ArrowRight className="w-3 h-3" />
             </button>
+            )}
           </BlueprintSurface>
 
           {/* Almost Known */}
           {learnerModel.almostKnown.length > 0 && (
-            <div className="rounded-2xl border border-accent-amber/20 bg-accent-amber/5 p-5">
-              <h3 className="text-sm font-semibold flex items-center gap-2 mb-3"><Lightbulb className="w-4 h-4 text-accent-amber" />Almost There!</h3>
-              <p className="text-xs text-text-tertiary mb-3">1-2 more practice sessions to master:</p>
+            <div className="rounded-panel border border-accent-amber/20 bg-accent-amber/5 p-5">
+              <SectionTitle icon={Lightbulb} iconClassName="text-accent-amber">{t('dashAlmostThere')}</SectionTitle>
+              <p className="text-xs text-text-tertiary mb-3">{t('dashAlmostThereHint')}</p>
               <div className="space-y-2">
                 {learnerModel.almostKnown.map(a => (
                   <div key={a.concept} className="flex items-center justify-between">
@@ -597,26 +672,26 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
 
           {/* Upcoming Exam */}
           {courses.some(c => c.examDate) && (
-            <div className="rounded-2xl border border-accent-rose/20 bg-accent-rose/5 p-5">
-              <h3 className="text-sm font-semibold flex items-center gap-2 mb-3"><Calendar className="w-4 h-4 text-accent-rose" />Upcoming Exam</h3>
+            <div className="rounded-panel border border-accent-rose/20 bg-accent-rose/5 p-5">
+              <SectionTitle icon={Calendar} iconClassName="text-accent-rose">{t('dashUpcomingExam')}</SectionTitle>
               {courses.filter(c => c.examDate).map(course => {
                 const daysLeft = Math.max(0, Math.ceil((new Date(course.examDate!).getTime() - Date.now()) / 86400000));
                 return (
                   <div key={course.id}>
                     <p className="text-sm font-medium">{course.title}</p>
-                    <p className="text-xs text-text-secondary mt-1">{daysLeft} days left · Mastery: {course.mastery}%</p>
+                    <p className="text-xs text-text-secondary mt-1">{t('dashDaysLeftMastery').replace('{days}', String(daysLeft)).replace('{mastery}', String(course.mastery))}</p>
                     <div className="mt-2 w-full bg-surface-hover rounded-full h-1.5">
                       <div className="h-1.5 rounded-full bg-accent-rose transition-all" style={{ width: `${course.mastery}%` }} />
                     </div>
                     {course.mastery < 70 && daysLeft < 30 && (
-                      <p className="text-[10px] text-accent-rose mt-2 flex items-center gap-1"><AlertTriangle className="w-3 h-3" />Below recommended mastery for exam</p>
+                      <p className="text-[10px] text-accent-rose mt-2 flex items-center gap-1"><AlertTriangle className="w-3 h-3" />{t('dashBelowMastery')}</p>
                     )}
                     {examTask && (
                       <button
                         onClick={() => onStartTask?.(examTask.id)}
                         className="mt-3 w-full py-2 rounded-lg text-xs font-medium bg-accent-rose/15 text-accent-rose hover:bg-accent-rose/25 transition-all"
                       >
-                        Start exam simulation
+                        {t('dashStartExamSim')}
                       </button>
                     )}
                   </div>
@@ -630,13 +705,13 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
             <CalibrationChip score={calibration.score} direction={calibration.direction} />
           ) : (
           <BlueprintSurface className="p-5">
-            <h3 className="text-sm font-semibold flex items-center gap-2 mb-3"><Eye className="w-4 h-4 text-accent-amber" />Confidence Check</h3>
-            <p className="text-xs text-text-tertiary mb-2">Complete 5+ graded attempts to unlock calibration score.</p>
+            <SectionTitle icon={Eye} iconClassName="text-accent-amber">{t('dashConfidenceCheck')}</SectionTitle>
+            <p className="text-xs text-text-tertiary mb-2">{t('dashConfidenceCheckHint')}</p>
           </BlueprintSurface>
           )}
           {calibration && (
           <BlueprintSurface className="p-5">
-            <h3 className="text-sm font-semibold flex items-center gap-2 mb-3"><Eye className="w-4 h-4 text-accent-amber" />Recent Calibration</h3>
+            <SectionTitle icon={Eye} iconClassName="text-accent-amber">{t('dashRecentCalibration')}</SectionTitle>
             {learnerModel.confidenceCalibration.slice(0, 3).map((p, i) => {
               const overconfident = p.predicted > p.actual + 0.15;
               return (
@@ -646,30 +721,35 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                     <div className="absolute h-1.5 rounded-full bg-brand-400" style={{ width: `${p.predicted * 100}%` }} />
                     <div className="absolute h-1.5 rounded-full bg-accent-emerald/60" style={{ width: `${p.actual * 100}%` }} />
                   </div>
-                  {overconfident && <span className="text-[9px] text-accent-rose">⚠</span>}
+                  {overconfident && (
+                    <AlertTriangle
+                      className="h-3 w-3 text-accent-rose"
+                      aria-label={t('dashOverconfidentPrediction')}
+                    />
+                  )}
                 </div>
               );
             })}
             <button onClick={() => onNavigate('analytics')} className="mt-2 w-full text-xs text-brand-400 hover:text-brand-700 flex items-center justify-center gap-1">
-              Full analytics <ArrowRight className="w-3 h-3" />
+              {t('dashFullAnalytics')} <ArrowRight className="w-3 h-3" />
             </button>
           </BlueprintSurface>
           )}
 
           {/* Learning Insight */}
           {learnerModel.interactionInsights.length > 0 && (
-            <div className="rounded-2xl border border-brand-500/20 bg-brand-500/5 p-5">
-              <h3 className="text-sm font-semibold flex items-center gap-2 mb-3"><Lightbulb className="w-4 h-4 text-brand-400" />Learning Insight</h3>
+            <div className="rounded-panel border border-brand-500/20 bg-brand-500/5 p-5">
+              <SectionTitle icon={Lightbulb} iconClassName="text-brand-400">{t('dashLearningInsight')}</SectionTitle>
               <p className="text-xs text-text-secondary leading-relaxed">{learnerModel.interactionInsights[0]}</p>
             </div>
           )}
 
           {/* Misconceptions */}
-          {learnerModel.misconceptions.length > 0 && (
+          {unresolvedMisconceptions.length > 0 && (
             <BlueprintSurface className="p-5">
-              <h3 className="text-sm font-semibold flex items-center gap-2 mb-3"><AlertTriangle className="w-4 h-4 text-accent-orange" />Active Misconceptions</h3>
+              <SectionTitle icon={AlertTriangle} iconClassName="text-accent-orange">{t('dashActiveMisconceptions')}</SectionTitle>
               <div className="space-y-2">
-                {learnerModel.misconceptions.filter(m => !m.corrected).slice(0, 2).map(m => (
+                {unresolvedMisconceptions.slice(0, 2).map(m => (
                   <div key={m.id} className="p-2.5 rounded-lg bg-accent-orange/5 border border-accent-orange/20 text-xs">
                     <p className="font-medium text-accent-orange">{m.concept}</p>
                     <p className="text-text-secondary mt-0.5">{m.description}</p>
@@ -678,7 +758,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                         onClick={() => onResolveMisconception(m.id)}
                         className="mt-2 platform-link text-[10px] flex items-center gap-1"
                       >
-                        <CheckCircle2 className="w-3 h-3" /> Mark as corrected
+                        <CheckCircle2 className="w-3 h-3" /> {t('dashMarkCorrected')}
                       </button>
                     )}
                   </div>
@@ -689,8 +769,8 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
 
           {/* Spaced Rep Info */}
           <BlueprintSurface className="p-5">
-            <h3 className="text-sm font-semibold flex items-center gap-2 mb-2"><RotateCcw className="w-4 h-4 text-accent-teal" />Spaced Repetition</h3>
-            <p className="text-xs text-text-tertiary">Reviews are scheduled based on your personal forgetting curve — not fixed intervals.</p>
+            <SectionTitle icon={RotateCcw} iconClassName="text-accent-teal">{t('dashSpacedRepetition')}</SectionTitle>
+            <p className="text-xs text-text-tertiary">{t('dashSpacedRepetitionHint')}</p>
             <div className="mt-3 grid grid-cols-3 gap-2 text-center">
               <button
                 type="button"
@@ -698,10 +778,10 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                 className="p-2 rounded-lg bg-surface-primary/50 hover:bg-surface-hover transition-all"
               >
                 <p className="text-lg font-bold text-accent-teal">{stats.reviewsDue}</p>
-                <p className="text-[9px] text-text-muted">Due today</p>
+                <p className="text-[9px] text-text-muted">{t('dashDueToday')}</p>
               </button>
-              <div className="p-2 rounded-lg bg-surface-primary/50"><p className="text-lg font-bold">{Math.round(learnerModel.retentionRate * 100)}%</p><p className="text-[9px] text-text-muted">Retention</p></div>
-              <div className="p-2 rounded-lg bg-surface-primary/50"><p className="text-lg font-bold">{learnerModel.streakDays}</p><p className="text-[9px] text-text-muted">Streak</p></div>
+              <div className="p-2 rounded-lg bg-surface-primary/50"><p className="text-lg font-bold">{Math.round(learnerModel.retentionRate * 100)}%</p><p className="text-[9px] text-text-muted">{t('dashRetention')}</p></div>
+              <div className="p-2 rounded-lg bg-surface-primary/50"><p className="text-lg font-bold">{learnerModel.streakDays}</p><p className="text-[9px] text-text-muted">{t('dashStreakShort')}</p></div>
             </div>
             {fsrsDueQueue.length > 0 && onFocusWeakArea && (
               <LeitnerDueQueuePanel
@@ -717,7 +797,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
 
           {/* Activity Feed */}
           <BlueprintSurface className="p-5">
-            <h3 className="text-sm font-semibold mb-3 flex items-center gap-2"><Zap className="w-4 h-4 text-brand-400" />Recent Activity</h3>
+            <SectionTitle icon={Zap} iconClassName="text-brand-400">{t('dashRecentActivity')}</SectionTitle>
             <ActivityFeed activities={activities} maxItems={5} />
           </BlueprintSurface>
         </MotionSection>
@@ -764,6 +844,26 @@ function StatCard({
       <div className="flex items-center gap-2 mb-2">{icon}<span className="text-xs text-text-tertiary font-medium">{label}</span></div>
       <p className="text-xl font-bold">{value}</p>
     </BlueprintSurface>
+  );
+}
+
+/** Unified sidebar section heading — consistent icon size, weight and rhythm (calm minimal). */
+function SectionTitle({
+  icon: Icon,
+  iconClassName,
+  children,
+  className,
+}: {
+  icon: React.ComponentType<{ className?: string }>;
+  iconClassName?: string;
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <h3 className={cn('mb-3 flex items-center gap-2 text-sm font-semibold text-text-primary', className)}>
+      <Icon className={cn('h-4 w-4 shrink-0', iconClassName)} />
+      {children}
+    </h3>
   );
 }
 

@@ -13,7 +13,7 @@ type Props = {
 const toneClass: Record<ReturnType<typeof assignmentStatusTone>, string> = {
   positive: 'bg-accent-emerald/15 text-accent-emerald border-accent-emerald/30',
   warning: 'bg-accent-amber/15 text-accent-amber border-accent-amber/30',
-  neutral: 'bg-surface-hover text-text-secondary border-border',
+  neutral: 'bg-surface-hover text-text-secondary border-border-subtle',
   negative: 'bg-accent-rose/15 text-accent-rose border-accent-rose/30',
 };
 
@@ -24,11 +24,11 @@ export function StudentUpcomingPanel({ upcoming, ui, lang }: Props) {
     <section className="space-y-3" data-testid="student-upcoming">
       <h2 className="text-lg font-medium">{ui.upcomingTitle}</h2>
       <p className="text-sm text-text-muted">{ui.upcomingHint}</p>
-      <ul className="rounded-xl border border-border divide-y divide-border/50 overflow-hidden">
+      <ul className="rounded-xl border border-border-subtle divide-y divide-border-subtle/50 overflow-hidden">
         {upcoming.map((row) => (
           <li
             key={`${row.classId}-${row.assignmentId}`}
-            className="flex flex-wrap items-center justify-between gap-2 px-4 py-3 bg-surface/40 text-sm"
+            className="flex flex-wrap items-center justify-between gap-2 px-4 py-3 bg-surface-card/40 text-sm"
           >
             <div className="min-w-0">
               <p className="font-medium text-text-primary truncate">{row.title}</p>
