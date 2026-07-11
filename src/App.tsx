@@ -13,6 +13,10 @@ import {
   resolveReviewCards,
 } from './lib/taskFlowContent';
 import { AppCommandPaletteMount, useCommandPalette } from './components/CommandPalette';
+import { NavAccessDenied } from './components/NavAccessDenied';
+import { canAccessShellView } from './lib/navCapabilities';
+import { buildShellBreadcrumb } from './lib/shellBreadcrumb';
+import type { GlobalQuickActionId } from './lib/globalActionRegistry';
 import { persistWorkspaceV2CanaryFromUrl, reportWorkspaceCanaryCohort } from './lib/workspaceFeatureFlags';
 import type { ContentSearchHit } from './lib/globalContentSearch';
 import { NotificationsPanel } from './components/NotificationsPanel';
@@ -190,14 +194,14 @@ export default function App() {
     data: Parameters<typeof store.completeOnboarding>[0] & { exploreDemoMode?: boolean },
   ) => {
     const { exploreDemoMode, ...rest } = data;
+    store.completeOnboarding(rest);
     if (exploreDemoMode) {
       store.closeStudyWorkspace();
       store.enableDemoContent();
       store.navigate('library');
       return;
     }
-    store.completeOnboarding(rest);
-    if (rest.role !== 'tutor' && !rest.openTeacher) {
+    if (rest.role !== 'tutor' && !rest.openTeacher && !rest.skipWizard) {
       window.setTimeout(() => setProductTourOpen(true), 400);
     }
   }, [store]);
@@ -255,6 +259,16 @@ export default function App() {
     store.setShowUploadModal(false);
     setUploadIntent({ mode: 'new' });
   };
+
+  const handleQuickAccess = useCallback((action: GlobalQuickActionId) => {
+    if (action === 'note-analysis') store.openNoteAnalysis();
+    else if (action === 'upload') openUploadModal();
+    else if (action === 'workspace') openWorkspace();
+    else {
+      store.openTasksWithFilter('exam');
+      store.setExamPrepOpen(true);
+    }
+  }, [store, openWorkspace]);
 
   const handleReviewRating = (rating: FsrsRating) => {
     if (store.activeTaskId) {
@@ -429,6 +443,18 @@ export default function App() {
 
   const shellActiveCourse = store.selectedCourse ?? visibleCourses(store.courses, store.user.settings)[0] ?? null;
 
+  const shellBreadcrumb = buildShellBreadcrumb({
+    currentView: store.currentView,
+    t: (key) => translate(key, store.user.settings.language),
+    courseTitle: store.currentView === 'course' && store.selectedCourse
+      ? store.selectedCourse.title
+      : store.currentView === 'note-analysis' && shellActiveCourse
+        ? shellActiveCourse.title
+        : store.selectedCourse?.title,
+    taskCourse: store.activeTask?.courseName,
+    taskTitle: store.activeTask?.title,
+  });
+
   const shellProps = {
     currentView: store.currentView,
     onNavigate: store.navigate,
@@ -441,16 +467,8 @@ export default function App() {
     onToggleTheme: store.toggleTheme,
     onOpenSearch: () => togglePalette(),
     onOpenNotifications: () => setNotificationsOpen(true),
-    notificationCount: store.activities.length,
-    breadcrumb: store.currentView === 'course' && store.selectedCourse
-      ? { course: store.selectedCourse.title }
-      : store.currentView === 'note-analysis' && shellActiveCourse
-        ? { course: shellActiveCourse.title, lesson: 'Note Analysis' }
-      : store.activeTask
-        ? { course: store.activeTask.courseName, lesson: store.activeTask.title }
-        : store.selectedCourse
-        ? { course: store.selectedCourse.title }
-        : undefined,
+    notificationCount: store.notificationUnreadCount,
+    breadcrumb: shellBreadcrumb,
     workspaceLive: store.workspaceLive,
     onOpenWorkspace: openWorkspace,
     studyWorkspaceOpen: store.studyWorkspaceOpen,
@@ -467,15 +485,7 @@ export default function App() {
       openCourseWorkspace();
     },
     hasCourses: visibleCourses(store.courses, store.user.settings).length > 0,
-    onQuickAccess: (action: 'note-analysis' | 'upload' | 'workspace' | 'exam') => {
-      if (action === 'note-analysis') store.openNoteAnalysis();
-      else if (action === 'upload') openUploadModal();
-      else if (action === 'workspace') openWorkspace();
-      else {
-        store.openTasksWithFilter('exam');
-        store.setExamPrepOpen(true);
-      }
-    },
+    onQuickAccess: handleQuickAccess,
     language: (store.user.settings.language === 'el' ? 'el' : 'en') as 'en' | 'el',
     onLanguageChange: (lang: 'en' | 'el') => store.updateSettings({ language: lang }),
   };
@@ -530,11 +540,19 @@ export default function App() {
             void exportToNotebookLm(payload, lang);
           }
         }}
+        user={store.user}
+        onQuickAction={handleQuickAccess}
       />
       <NotificationsPanel
         open={notificationsOpen}
         onClose={() => setNotificationsOpen(false)}
         activities={store.activities}
+        lastSeenAt={store.user.settings.notificationsLastSeenAt}
+        onMarkAllRead={store.markNotificationsRead}
+        onNavigate={store.navigate}
+        onOpenTasks={(filter) => {
+          if (filter) store.openTasksWithFilter(filter);
+        }}
       />
       <NotificationToastStack />
       <TakeBreathModal open={takeBreathOpen} onClose={() => setTakeBreathOpen(false)} />
@@ -838,7 +856,11 @@ export default function App() {
     if (!allowed.includes(view as AppView)) return;
     viewDeepLinkFired.current = true;
     if (!hasCourses) store.enableDemoContent();
-    store.navigate(view as AppView);
+    if (canAccessShellView(view as AppView, store.user)) {
+      store.navigate(view as AppView);
+    } else {
+      store.navigate('dashboard');
+    }
   }, [hasCourses, store]);
 
   useEffect(() => {
@@ -1099,6 +1121,7 @@ export default function App() {
             </LazyOverlay>
           )}
           {store.currentView === 'teacher' && (
+            canAccessShellView('teacher', store.user) ? (
             <LazyOverlay>
             <TeacherDashboard
               settings={store.user.settings}
@@ -1114,8 +1137,15 @@ export default function App() {
               onOpenSettings={() => store.navigate('settings')}
             />
             </LazyOverlay>
+            ) : (
+              <NavAccessDenied
+                onGoDashboard={() => store.navigate('dashboard')}
+                onOpenSettings={() => store.navigate('settings')}
+              />
+            )
           )}
           {store.currentView === 'student-org' && (
+            canAccessShellView('student-org', store.user) ? (
             <LazyOverlay>
             <StudentOrgView
               settings={store.user.settings}
@@ -1128,6 +1158,12 @@ export default function App() {
               onOpenSettings={() => store.navigate('settings')}
             />
             </LazyOverlay>
+            ) : (
+              <NavAccessDenied
+                onGoDashboard={() => store.navigate('dashboard')}
+                onOpenSettings={() => store.navigate('settings')}
+              />
+            )
           )}
           {store.currentView === 'settings' && (
             <Settings

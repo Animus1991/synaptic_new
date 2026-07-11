@@ -34,6 +34,8 @@ export interface UserSettings {
   theme: 'dark' | 'light' | 'system' | 'spectrum' | 'blueprint';
   dailyGoalMinutes: number;
   examDate?: string;
+  /** Goals selected during onboarding — drives defaults for pacing and task mix. */
+  learningGoals?: Array<'exam' | 'understand' | 'review' | 'practice' | 'organize' | 'explore'>;
   /** OpenAI-compatible API key (stored locally). Falls back to VITE_OPENAI_API_KEY. */
   openaiApiKey?: string;
   llmModel?: string;
@@ -57,6 +59,8 @@ export interface UserSettings {
   authPlan?: 'free' | 'pro' | 'team';
   /** When true, show seeded demo courses/tasks (MVP showcase). Default: false. */
   showDemoContent?: boolean;
+  /** ISO timestamp — activities after this count as unread notifications. */
+  notificationsLastSeenAt?: string;
 }
 
 export interface UploadedFile {

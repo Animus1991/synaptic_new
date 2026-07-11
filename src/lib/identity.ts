@@ -7,6 +7,7 @@
 import type { User, UserSettings } from '../types';
 import { shouldShowDemo } from './demoMode';
 import { mockUser } from '../demo/mockData';
+import type { PersistedUserProfile } from './userProfilePersist';
 
 const PRODUCTION_DEFAULT_NAME = 'Learner';
 
@@ -46,8 +47,9 @@ export function buildInitialUser(args: {
   persistedXp?: number;
   authEmail?: string;
   streak?: number;
+  persistedProfile?: PersistedUserProfile | null;
 }): User {
-  const { settings, persistedXp, authEmail, streak } = args;
+  const { settings, persistedXp, authEmail, streak, persistedProfile } = args;
   if (shouldShowDemo(settings)) {
     const demoXp = persistedXp ?? mockUser.xp;
     return {
@@ -60,7 +62,7 @@ export function buildInitialUser(args: {
   }
   const xp = Math.max(0, Math.floor(persistedXp ?? 0));
   const email = (authEmail ?? settings.authEmail ?? '').trim();
-  return {
+  const base: User = {
     id: 'u1',
     name: email ? nameFromEmail(email) : PRODUCTION_DEFAULT_NAME,
     email,
@@ -73,6 +75,16 @@ export function buildInitialUser(args: {
     onboardingComplete: false,
     settings,
   };
+  if (persistedProfile?.onboardingComplete) {
+    return {
+      ...base,
+      onboardingComplete: true,
+      name: persistedProfile.name || base.name,
+      segment: persistedProfile.segment ?? base.segment,
+      role: persistedProfile.role ?? base.role,
+    };
+  }
+  return base;
 }
 
 /** Update name from email after a successful auth event, only when the

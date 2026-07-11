@@ -14,7 +14,15 @@ export type OnboardingContent = {
   nameOptional: string;
   namePlaceholder: string;
   letsGo: string;
-  skipSetup: string;
+  continueWithoutUpload: string;
+  exploreDemoSandbox: string;
+  validationRoleRequired: string;
+  validationGoalRequired: string;
+  validationExamDateRequired: string;
+  validationExamDatePast: string;
+  teacherPreviewHint: string;
+  progressAria: string;
+  resumeDraftHint: string;
   roleTitle: string;
   roleSubtitle: string;
   goalsTitle: string;
@@ -39,7 +47,6 @@ export type OnboardingContent = {
   teacherUploadHint: string;
   teacherDashboardCta: string;
   uploadCta: string;
-  skipExplore: string;
   back: string;
   continueBtn: string;
   features: OnboardingFeature[];
@@ -56,7 +63,15 @@ const EN: OnboardingContent = {
   nameOptional: '(optional)',
   namePlaceholder: 'Your name',
   letsGo: "Let's Go",
-  skipSetup: 'Skip setup — go straight to Library',
+  continueWithoutUpload: 'Continue without upload',
+  exploreDemoSandbox: 'Explore demo sandbox',
+  validationRoleRequired: 'Choose how you will use Synapse to continue.',
+  validationGoalRequired: 'Select at least one goal to continue.',
+  validationExamDateRequired: 'Add an exam date when exam prep is one of your goals.',
+  validationExamDatePast: 'Exam date cannot be in the past.',
+  teacherPreviewHint: 'Teacher preview — full publishing requires a verified teacher account.',
+  progressAria: 'Onboarding step {current} of {total}',
+  resumeDraftHint: 'Continuing where you left off.',
   roleTitle: 'How will you use Synapse?',
   roleSubtitle: 'We will tune your defaults, task mix, and study surfaces around this',
   goalsTitle: 'What are your goals?',
@@ -82,7 +97,6 @@ const EN: OnboardingContent = {
   teacherUploadHint: 'As a teacher, publish annotations from the workspace Reader and track courses, usage, and publishing from the Teacher dashboard.',
   teacherDashboardCta: 'Open Teacher Dashboard',
   uploadCta: 'Upload My First Material',
-  skipExplore: 'Skip — explore the demo first',
   back: 'Back',
   continueBtn: 'Continue',
   features: [
@@ -117,7 +131,15 @@ const EL: OnboardingContent = {
   nameOptional: '(προαιρετικό)',
   namePlaceholder: 'Το όνομά σου',
   letsGo: 'Πάμε',
-  skipSetup: 'Παράλειψη setup — μετάβαση στη Βιβλιοθήκη',
+  continueWithoutUpload: 'Συνέχεια χωρίς upload',
+  exploreDemoSandbox: 'Δοκίμασε demo sandbox',
+  validationRoleRequired: 'Επίλεξε πώς θα χρησιμοποιήσεις το Synapse για να συνεχίσεις.',
+  validationGoalRequired: 'Επίλεξε τουλάχιστον έναν στόχο για να συνεχίσεις.',
+  validationExamDateRequired: 'Πρόσθεσε ημερομηνία εξέτασης όταν η προετοιμασία εξέτασης είναι στόχος σου.',
+  validationExamDatePast: 'Η ημερομηνία εξέτασης δεν μπορεί να είναι στο παρελθόν.',
+  teacherPreviewHint: 'Teacher preview — πλήρης δημοσίευση απαιτεί verified λογαριασμό εκπαιδευτή.',
+  progressAria: 'Βήμα onboarding {current} από {total}',
+  resumeDraftHint: 'Συνεχίζεις από εκεί που σταμάτησες.',
   roleTitle: 'Πώς θα χρησιμοποιήσεις το Synapse;',
   roleSubtitle: 'Θα ρυθμίσουμε τα κατάλληλα defaults, task mix και study surfaces γύρω από αυτό',
   goalsTitle: 'Ποιοι είναι οι στόχοι σου;',
@@ -143,7 +165,6 @@ const EL: OnboardingContent = {
   teacherUploadHint: 'Ως εκπαιδευτής, δημοσίευσε σχόλια από τον Reader στο workspace και παρακολούθησε μαθήματα, χρήση LLM και δημοσιεύσεις από τον πίνακα Teacher.',
   teacherDashboardCta: 'Άνοιγμα πίνακα Teacher',
   uploadCta: 'Ανέβασμα Πρώτου Υλικού',
-  skipExplore: 'Παράλειψη — εξερεύνησε πρώτα το demo',
   back: 'Πίσω',
   continueBtn: 'Συνέχεια',
   features: [

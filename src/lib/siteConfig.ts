@@ -10,6 +10,10 @@ export function privacyPolicyUrl(): string {
   return `${publicSiteUrl()}/legal/privacy`;
 }
 
+export function termsOfServiceUrl(): string {
+  return `${publicSiteUrl()}/legal/terms`;
+}
+
 export function supportEmail(): string {
   return import.meta.env.VITE_SUPPORT_EMAIL?.trim() || 'support@synapse-learning.io';
 }

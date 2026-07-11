@@ -26,8 +26,10 @@ export function commandActionKey(action: {
   taskId?: string;
   session?: string;
   bridgeId?: string;
+  quickActionId?: string;
 }): string {
   if (action.type === 'navigate' && action.view) return `nav:${action.view}`;
+  if (action.type === 'quick-action' && action.quickActionId) return `quick:${action.quickActionId}`;
   if (action.type === 'task' && action.taskId) return `task:${action.taskId}`;
   if (action.type === 'session' && action.session) return `session:${action.session}`;
   if (action.type === 'workspace') return 'workspace';

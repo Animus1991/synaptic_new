@@ -11,6 +11,7 @@ import { getLandingContent } from '../lib/landingContent';
 import { LandingFAQ } from './LandingFAQ';
 import { LandingIntentChips } from './LandingIntentChips';
 import { LandingTrustStrip } from './LandingTrustStrip';
+import { LandingFooter } from './LandingFooter';
 import { HeaderTrustBadgeRow, SynapseBrandGlyph } from './ui/platformChrome';
 import { useBlueprintTheme } from '../lib/useBlueprintTheme';
 import { cn } from '../utils/cn';
@@ -132,24 +133,33 @@ export function Landing({ onGetStarted, onSeeDemo }: LandingProps) {
           >
             <button
               onClick={onGetStarted}
+              data-testid="landing-get-started-primary"
               className={PRIMARY_CTA}
             >
               {content.ctaPrimary}
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </button>
-            <button
-              onClick={onSeeDemo ?? onGetStarted}
-              className={SECONDARY_CTA}
-            >
-              {content.ctaSecondary}
-              <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-            </button>
+            {onSeeDemo ? (
+              <button
+                onClick={onSeeDemo}
+                data-testid="landing-see-demo"
+                aria-describedby="landing-demo-sandbox-hint"
+                className={cn(SECONDARY_CTA, 'relative')}
+              >
+                {content.ctaSecondary}
+                <span className="landing-demo-sandbox-badge ml-1.5 rounded-full border border-brand-500/40 bg-brand-100/80 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-brand-800">
+                  {t('landingDemoSandboxBadge')}
+                </span>
+                <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </button>
+            ) : null}
           </motion.div>
 
           <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.6, delay: 0.38 }}
+            id="landing-demo-sandbox-hint"
             className="landing-cta-microcopy"
             style={mono}
           >
@@ -384,10 +394,20 @@ export function Landing({ onGetStarted, onSeeDemo }: LandingProps) {
               {content.ctaPrimary}
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </button>
-            <button onClick={onSeeDemo ?? onGetStarted} className={SECONDARY_CTA}>
-              {content.ctaSecondary}
-              <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-            </button>
+            {onSeeDemo ? (
+              <button
+                onClick={onSeeDemo}
+                data-testid="landing-see-demo-mid"
+                aria-describedby="landing-demo-sandbox-hint"
+                className={cn(SECONDARY_CTA, 'relative')}
+              >
+                {content.ctaSecondary}
+                <span className="landing-demo-sandbox-badge ml-1.5 rounded-full border border-brand-500/40 bg-brand-100/80 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-brand-800">
+                  {t('landingDemoSandboxBadge')}
+                </span>
+                <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </button>
+            ) : null}
           </div>
         </div>
       </section>
@@ -422,19 +442,9 @@ export function Landing({ onGetStarted, onSeeDemo }: LandingProps) {
       </section>
 
       {/* Footer */}
-      <footer className={`${LANDING_SHELL} py-12 border-t border-border-subtle`}>
-        <div className="w-full flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="h-px w-6 bg-brand-500" />
-            <span className="landing-display text-sm tracking-tight text-text-secondary">
-              Synapse<span className="text-brand-500">.</span>
-            </span>
-          </div>
-          <p className="text-xs text-text-muted" style={mono}>
-            {content.footerTagline}
-          </p>
-        </div>
-      </footer>
+      <div className={LANDING_SHELL}>
+        <LandingFooter tagline={content.footerTagline} />
+      </div>
     </div>
   );
 }

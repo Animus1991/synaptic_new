@@ -1,15 +1,17 @@
 import { useEffect, useState, useCallback, useMemo } from 'react';
-import { Search, BookOpen, CheckSquare, Bot, LayoutDashboard, BarChart3, Settings, Play, Users, FileText, GraduationCap, LayoutGrid, ExternalLink } from '@/lib/lucide-shim';
-import type { AppView, Course, GlossaryEntry, Task, UploadedFile } from '../types';
+import { Search, BookOpen, CheckSquare, Bot, LayoutDashboard, BarChart3, Settings, Play, Users, FileText, GraduationCap, LayoutGrid, ExternalLink, Network, Sparkles, Zap } from '@/lib/lucide-shim';
+import type { AppView, Course, GlossaryEntry, Task, UploadedFile, User } from '../types';
 import { cn } from '../utils/cn';
-import { useI18n, type I18nKey } from '../lib/i18n';
+import { useI18n } from '../lib/i18n';
 import { searchUploadedContent, type ContentSearchHit } from '../lib/globalContentSearch';
 import { commandActionKey, loadRecentCommandKeys, recordRecentCommandKey } from '../lib/commandPaletteRecent';
-import { showStandaloneAgentNav } from '../lib/platformFocus';
+import { paletteNavEntries } from '../lib/navCapabilities';
+import type { ShellNavView } from '../lib/navigationRegistry';
 import { buildNotebookLmBridgeCommands, type NotebookLmBridgeCommandId } from '../lib/notebooklmBridgeCommands';
 import { getTaskActionVisual } from '../lib/taskActionIcons';
 import type { LucideIcon } from '@/lib/lucide-shim';
 import type { DashboardNextAction } from '../lib/dashboardNextAction';
+import { paletteQuickActions, type GlobalQuickActionId } from '../lib/globalActionRegistry';
 
 export type CommandAction =
   | { type: 'navigate'; view: AppView; label: string; icon: typeof Search }
@@ -18,7 +20,8 @@ export type CommandAction =
   | { type: 'task'; taskId: string; label: string; icon: LucideIcon }
   | { type: 'session'; session: '10min' | '25min' | 'review'; label: string; icon: typeof Play }
   | { type: 'content'; hit: ContentSearchHit; label: string; sublabel?: string; icon: typeof BookOpen }
-  | { type: 'nlm-bridge'; bridgeId: NotebookLmBridgeCommandId; label: string; sublabel?: string; icon: typeof ExternalLink };
+  | { type: 'nlm-bridge'; bridgeId: NotebookLmBridgeCommandId; label: string; sublabel?: string; icon: typeof ExternalLink }
+  | { type: 'quick-action'; actionId: GlobalQuickActionId; label: string; icon: LucideIcon };
 
 interface Props {
   open: boolean;
@@ -36,19 +39,27 @@ interface Props {
   onDashboardNextAction?: () => void;
   hasSelectedCourse?: boolean;
   onNotebookLmBridge?: (id: NotebookLmBridgeCommandId) => void;
+  user: User;
+  onQuickAction?: (actionId: GlobalQuickActionId) => void;
 }
 
-const NAV_ALL: { view: AppView; labelKey: I18nKey; icon: typeof LayoutDashboard }[] = [
-  { view: 'dashboard', labelKey: 'navDashboard', icon: LayoutDashboard },
-  { view: 'library', labelKey: 'navLibrary', icon: BookOpen },
-  { view: 'tasks', labelKey: 'navTasks', icon: CheckSquare },
-  { view: 'agent', labelKey: 'navAgent', icon: Bot },
-  { view: 'analytics', labelKey: 'navAnalytics', icon: BarChart3 },
-  { view: 'teacher', labelKey: 'navTeacher', icon: Users },
-  { view: 'settings', labelKey: 'navSettings', icon: Settings },
-];
+const PALETTE_QUICK_ICONS: Record<GlobalQuickActionId, LucideIcon> = {
+  'note-analysis': Network,
+  upload: Sparkles,
+  workspace: BookOpen,
+  exam: Zap,
+};
 
-const NAV = NAV_ALL.filter((item) => item.view !== 'agent' || showStandaloneAgentNav());
+const PALETTE_NAV_ICONS: Record<ShellNavView, typeof LayoutDashboard> = {
+  dashboard: LayoutDashboard,
+  library: BookOpen,
+  tasks: CheckSquare,
+  agent: Bot,
+  analytics: BarChart3,
+  teacher: Users,
+  'student-org': GraduationCap,
+  settings: Settings,
+};
 
 const CONTENT_ICONS = {
   course: GraduationCap,
@@ -73,6 +84,8 @@ export function CommandPalette({
   onDashboardNextAction,
   hasSelectedCourse = false,
   onNotebookLmBridge,
+  user,
+  onQuickAction,
 }: Props) {
   const { t, lang } = useI18n();
   const [query, setQuery] = useState('');
@@ -98,9 +111,25 @@ export function CommandPalette({
   if (!open) return null;
 
   const q = query.toLowerCase();
-  const navActions: CommandAction[] = NAV
-    .filter((n) => t(n.labelKey).toLowerCase().includes(q))
-    .map((n) => ({ type: 'navigate', view: n.view, label: t(n.labelKey), icon: n.icon }));
+  const navActions: CommandAction[] = paletteNavEntries(user)
+    .filter((n) => t(n.paletteLabelKey).toLowerCase().includes(q))
+    .map((n) => ({
+      type: 'navigate',
+      view: n.view,
+      label: t(n.paletteLabelKey),
+      icon: PALETTE_NAV_ICONS[n.view],
+    }));
+
+  const quickActionCommands: CommandAction[] = onQuickAction
+    ? paletteQuickActions(hasSelectedCourse || courses.length > 0)
+        .filter((a) => t(a.labelKey).toLowerCase().includes(q))
+        .map((a) => ({
+          type: 'quick-action' as const,
+          actionId: a.id,
+          label: t(a.labelKey),
+          icon: PALETTE_QUICK_ICONS[a.id],
+        }))
+    : [];
 
   const taskActions: CommandAction[] = tasks
     .filter((task) => task.status === 'pending' && (task.title.toLowerCase().includes(q) || task.courseName.toLowerCase().includes(q)))
@@ -150,7 +179,7 @@ export function CommandPalette({
       }))
     : [];
 
-  const actions = [...nextActionCommands, ...bridgeActions, ...workspaceAction, ...contentActions, ...navActions, ...taskActions, ...sessionActions];
+  const actions = [...nextActionCommands, ...bridgeActions, ...quickActionCommands, ...workspaceAction, ...contentActions, ...navActions, ...taskActions, ...sessionActions];
 
   const recentKeys = loadRecentCommandKeys();
   const orderedActions = (() => {
@@ -163,6 +192,7 @@ export function CommandPalette({
         taskId: a.type === 'task' ? a.taskId : undefined,
         session: a.type === 'session' ? a.session : undefined,
         bridgeId: a.type === 'nlm-bridge' ? a.bridgeId : undefined,
+        quickActionId: a.type === 'quick-action' ? a.actionId : undefined,
       }) === key))
       .filter((a): a is CommandAction => !!a);
     const rest = actions.filter((a) => !recent.includes(a));
@@ -177,8 +207,10 @@ export function CommandPalette({
       taskId: a.type === 'task' ? a.taskId : undefined,
       session: a.type === 'session' ? a.session : undefined,
       bridgeId: a.type === 'nlm-bridge' ? a.bridgeId : undefined,
+      quickActionId: a.type === 'quick-action' ? a.actionId : undefined,
     }));
     if (a.type === 'navigate') onNavigate(a.view);
+    if (a.type === 'quick-action') onQuickAction?.(a.actionId);
     if (a.type === 'workspace') onOpenWorkspace?.();
     if (a.type === 'next-action') onDashboardNextAction?.();
     if (a.type === 'nlm-bridge') onNotebookLmBridge?.(a.bridgeId);
@@ -214,7 +246,15 @@ export function CommandPalette({
           ) : orderedActions.map((a, i) => (
             <button
               key={`${a.type}-${i}`}
-              data-testid={a.type === 'content' ? `command-content-${a.hit.kind}` : a.type === 'next-action' ? 'command-next-action' : undefined}
+              data-testid={
+                a.type === 'content'
+                  ? `command-content-${a.hit.kind}`
+                  : a.type === 'next-action'
+                    ? 'command-next-action'
+                    : a.type === 'quick-action'
+                      ? `command-quick-${a.actionId}`
+                      : undefined
+              }
               onClick={() => run(a)}
               className={cn(
                 'w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-sm',

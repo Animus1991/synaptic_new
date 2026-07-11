@@ -1,6 +1,7 @@
 import { useState, useCallback, useMemo, useRef, useEffect } from 'react';
 import type { AppView, Course, AgentMessage, AgentMode, UploadedFile, UserSettings, LearnerModel, DashboardStats, MistakeRecord, ActivityItem, GlossaryEntry } from '../types';
 import { createActivity } from '../lib/activityLog';
+import { countUnreadNotifications, notificationsReadWatermark } from '../lib/notificationState';
 import { SEED_ACTIVITIES } from '../demo/activityDemo';
 import { mockUser, mockCourses, mockTasks, mockLearnerModel, mockDashboardStats, mockAgentMessages } from '../demo/mockData';
 import { loadThemePreference, applyTheme, cycleTheme, resolveInitialThemePreference, hasStoredThemePreference } from '../lib/theme';
@@ -121,6 +122,7 @@ import { formatUploadSuccessToast, summarizeUploadStructure } from '../lib/uploa
 import type { BetaMastery } from '../lib/pedagogy';
 import {
   shouldShowDemo,
+  isDemoCourse,
   initialCourses,
   initialUploadedFiles,
   initialGlossary,
@@ -129,6 +131,17 @@ import {
 } from '../lib/demoMode';
 import { mockUploadedFiles, mockGlossaryEntries } from '../demo/mockSource';
 import { withDemoCourseGraphs } from '../demo/demoConceptGraph';
+import {
+  buildOnboardingUserPatch,
+  isOnboardingRoleId,
+  parseOnboardingGoals,
+  type OnboardingGoalId,
+  type OnboardingRoleId,
+} from '../lib/onboardingProfile';
+import { canAccessShellView, unauthorizedRedirectView } from '../lib/navCapabilities';
+import { isShellNavView } from '../lib/navigationRegistry';
+import { clearOnboardingDraft, loadOnboardingDraft, resolveInitialAppView } from '../lib/onboardingDraft';
+import { loadPersistedUserProfile, savePersistedUserProfile } from '../lib/userProfilePersist';
 import { buildInitialUser, applyAuthIdentity, levelFromXp } from '../lib/identity';
 import { createEmptyLearnerModel, EMPTY_DASHBOARD_STATS } from '../lib/emptyLearnerState';
 import { applyBehaviorInference, inferBehaviorFromActivities } from '../lib/behaviorInference';
@@ -229,6 +242,8 @@ function masteryMapFromSkills(lm: LearnerModel, courses: Course[], showDemo: boo
 
 export function useAppStore() {
   const persisted = useMemo(() => loadPersisted(), []);
+  const persistedProfile = useMemo(() => loadPersistedUserProfile(), []);
+  const onboardingDraft = useMemo(() => loadOnboardingDraft(), []);
   const library = useMemo(() => loadLibrarySync(), []);
   const mergedSettings = useMemo(
     () => ({
@@ -246,12 +261,15 @@ export function useAppStore() {
   );
 
   const [workspaceFocus, setWorkspaceFocus] = useState<WorkspaceFocus | null>(null);
-  const [currentView, setCurrentView] = useState<AppView>('landing');
+  const [currentView, setCurrentView] = useState<AppView>(() =>
+    resolveInitialAppView(Boolean(persistedProfile?.onboardingComplete), onboardingDraft),
+  );
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [user, setUser] = useState(() => buildInitialUser({
     settings: mergedSettings,
     persistedXp: persisted.xp,
     authEmail: mergedSettings.authEmail,
+    persistedProfile,
   }));
   const [courses, setCourses] = useState<Course[]>(
     () => initialCourses(library.generatedCourses, mergedSettings, mockCourses),
@@ -672,6 +690,12 @@ export function useAppStore() {
   }, [activities.length, activities[0]?.id]);
 
   const navigate = useCallback((view: AppView) => {
+    if (isShellNavView(view) && !canAccessShellView(view, user)) {
+      setCurrentView(unauthorizedRedirectView(view));
+      setSidebarOpen(false);
+      window.scrollTo(0, 0);
+      return;
+    }
     if (view === 'course' || view === 'library') {
       workspaceCloseGenRef.current += 1;
       studyWorkspaceOpenRef.current = false;
@@ -691,7 +715,7 @@ export function useAppStore() {
       setWorkspaceAgentSplit(false);
     }
     window.scrollTo(0, 0);
-  }, []);
+  }, [user]);
 
   const openTasksWithFilter = useCallback((filter: TaskFilter) => {
     setTasksFilterPreset(filter);
@@ -1175,6 +1199,24 @@ export function useAppStore() {
       return { ...prev, settings: nextSettings };
     });
   }, [learnerModel, dashboardStats, tasks, betaMastery, firstAttemptKeys, openMistakes, activities, persist]);
+
+  const notificationUnreadCount = useMemo(
+    () => countUnreadNotifications(activities, user.settings.notificationsLastSeenAt),
+    [activities, user.settings.notificationsLastSeenAt],
+  );
+
+  const markNotificationsRead = useCallback(() => {
+    updateSettings({ notificationsLastSeenAt: notificationsReadWatermark() });
+  }, [updateSettings]);
+
+  const notificationsBaselineInit = useRef(false);
+  useEffect(() => {
+    if (notificationsBaselineInit.current) return;
+    notificationsBaselineInit.current = true;
+    if (!user.settings.notificationsLastSeenAt) {
+      updateSettings({ notificationsLastSeenAt: notificationsReadWatermark() });
+    }
+  }, [user.settings.notificationsLastSeenAt, updateSettings]);
 
   const logStudyMinutes = useCallback((minutes: number, label = 'Focus session') => {
     if (minutes <= 0) return;
@@ -2150,31 +2192,46 @@ export function useAppStore() {
     openUpload?: boolean;
     openTeacher?: boolean;
     displayName?: string;
+    skipWizard?: boolean;
   }) => {
     const isTeacher = data.role === 'tutor' || data.openTeacher;
+    const parsedGoals = parseOnboardingGoals(data.goals ?? []);
+    const role: OnboardingRoleId = isOnboardingRoleId(data.role ?? '')
+      ? (data.role as OnboardingRoleId)
+      : 'selflearner';
+    const profile = {
+      role,
+      goals: parsedGoals.length > 0 ? parsedGoals : (['explore'] as OnboardingGoalId[]),
+      dailyGoalMinutes: data.dailyGoalMinutes ?? 30,
+      examDate: data.examDate,
+      displayName: data.displayName,
+    };
+
     setUser((prev) => {
       const seedBlueprint = !hasStoredThemePreference();
-      const nextSettings: UserSettings = {
-        ...prev.settings,
-        dailyGoalMinutes: data.dailyGoalMinutes ?? prev.settings.dailyGoalMinutes,
-        examDate: data.examDate || prev.settings.examDate,
+      const nextUser = buildOnboardingUserPatch(prev, profile, { openTeacher: data.openTeacher });
+      const nextSettings: typeof prev.settings = {
+        ...nextUser.settings,
         ...(seedBlueprint ? { theme: 'blueprint' as const } : {}),
       };
       if (seedBlueprint) applyTheme('blueprint');
-      const trimmedName = (data.displayName ?? '').trim();
-      const next = {
-        ...prev,
-        name: trimmedName || prev.name,
-        segment: (data.role as typeof prev.segment) ?? prev.segment,
-        role: isTeacher ? ('teacher' as const) : prev.role,
+      const finalUser = { ...nextUser, settings: nextSettings };
+      savePersistedUserProfile({
         onboardingComplete: true,
-        settings: nextSettings,
-      };
-      persist(learnerModel, dashboardStats, tasks, next.xp, betaMastery, firstAttemptKeys, openMistakes, activities, nextSettings);
-      return next;
+        name: finalUser.name,
+        segment: finalUser.segment,
+        role: finalUser.role,
+      });
+      clearOnboardingDraft();
+      persist(learnerModel, dashboardStats, tasks, finalUser.xp, betaMastery, firstAttemptKeys, openMistakes, activities, nextSettings);
+      return finalUser;
     });
     if (data.openUpload) setShowUploadModal(true);
-    navigate(isTeacher ? 'teacher' : 'dashboard');
+    if (data.skipWizard) {
+      navigate('library');
+    } else {
+      navigate(isTeacher ? 'teacher' : 'dashboard');
+    }
   }, [learnerModel, dashboardStats, tasks, betaMastery, firstAttemptKeys, openMistakes, activities, persist, navigate]);
 
   const enableDemoContent = useCallback(() => {
@@ -2190,6 +2247,13 @@ export function useAppStore() {
       const nextSettings = { ...prev.settings, showDemoContent: true };
       applyTheme(nextSettings.theme);
       persist(mockLearnerModel, mockDashboardStats, mockTasks, prev.xp, demoBeta, firstAttemptKeys, INITIAL_MISTAKES, activities, nextSettings);
+      savePersistedUserProfile({
+        onboardingComplete: true,
+        name: prev.name,
+        segment: prev.segment,
+        role: prev.role,
+      });
+      clearOnboardingDraft();
       return { ...prev, onboardingComplete: true, settings: nextSettings };
     });
     setCourses((prev) => {
@@ -2228,6 +2292,63 @@ export function useAppStore() {
       return merged[0] ?? null;
     });
   }, [user.settings, activities, firstAttemptKeys, persist]);
+
+  const exitDemoSandbox = useCallback(() => {
+    workspaceCloseGenRef.current += 1;
+    studyWorkspaceOpenRef.current = false;
+    setStudyWorkspaceOpen(false);
+    setWorkspaceAgentSplit(false);
+    setActiveTaskId(null);
+    setActiveLessonView(false);
+    setPracticalLessonView(false);
+
+    setCourses((prevCourses) => {
+      const nextCourses = prevCourses.filter((c) => !isDemoCourse(c.id));
+      setTasks((prevTasks) => {
+        const nextTasks = stripDemoFromTasks(prevTasks);
+        setUploadedFiles((prevFiles) => {
+          const nextFiles = stripDemoFiles(prevFiles);
+          setGlossaryEntries((prevGlossary) => {
+            const nextGlossary = prevGlossary.filter((g) => !isDemoCourse(g.courseId));
+            setOpenMistakes((prevMistakes) => {
+              const nextMistakes = prevMistakes.filter((m) => !isDemoCourse(m.courseId));
+              setSelectedCourse((prev) => (prev && isDemoCourse(prev.id) ? null : prev));
+              setUser((prevUser) => {
+                const nextSettings = { ...prevUser.settings, showDemoContent: false };
+                applyTheme(nextSettings.theme);
+                persist(
+                  learnerModel,
+                  dashboardStats,
+                  nextTasks,
+                  prevUser.xp,
+                  betaMastery,
+                  firstAttemptKeys,
+                  nextMistakes,
+                  activities,
+                  nextSettings,
+                );
+                return { ...prevUser, settings: nextSettings };
+              });
+              return nextMistakes;
+            });
+            return nextGlossary;
+          });
+          return nextFiles;
+        });
+        return nextTasks;
+      });
+      return nextCourses;
+    });
+    navigate('library');
+  }, [
+    navigate,
+    persist,
+    learnerModel,
+    dashboardStats,
+    betaMastery,
+    firstAttemptKeys,
+    activities,
+  ]);
 
   const dashboardExtras = useMemo(() => {
     const weekly = learnerModel.weeklyMastery;
@@ -2370,7 +2491,7 @@ export function useAppStore() {
     tasksFilterPreset, openTasksWithFilter, clearTasksFilterPreset,
     learnerModel, dashboardStats, pedagogyMetrics, dashboardExtras, activities,
     recordConfidence, recordQuizAttempt,
-    openMistakes, resolveMistake, resolveMisconception, completeOnboarding, enableDemoContent,
+    openMistakes, resolveMistake, resolveMisconception, completeOnboarding, enableDemoContent, exitDemoSandbox,
     agentMessages, addAgentMessage, updateAgentMessage, agentMode, setAgentMode, bindAgentToTask,
     agentDraftPrompt, setAgentDraftPrompt, agentAutoSend, setAgentAutoSend,
     agentWorkspaceContext, setAgentWorkspaceContext, openAgentFromWorkspace, agentContextForView,
@@ -2409,6 +2530,7 @@ export function useAppStore() {
     appToast, showAppToast, dismissAppToast,
     postUploadCourseId, markPostUploadCourse, clearPostUploadHighlight,
     noteAnalysisCourseId, openNoteAnalysis, closeNoteAnalysis,
+    notificationUnreadCount, markNotificationsRead,
   };
 }
 

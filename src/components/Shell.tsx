@@ -1,9 +1,9 @@
-﻿import { ReactNode } from 'react';
+﻿import { ReactNode, useEffect, useRef } from 'react';
 import {
   BookOpen, CheckSquare, Robot as Bot, SquaresFour as LayoutDashboard, Gear as Settings,
   Sparkle as Sparkles, List as Menu, X, UploadSimple as Upload, Bell, MagnifyingGlass as Search, CaretRight as ChevronRight,
   ChartBar as BarChart3, Sun, Moon, Users,   Fire as Flame, SquaresFour as Layout, Wind, GraduationCap,
-  TreeStructure as Network, Lightning as Zap, Clock, Stack as Layers,
+  TreeStructure as Network, Lightning as Zap, Clock, Stack as Layers, DotsThreeOutline,
 } from '@phosphor-icons/react';
 import type { AppView, User, DashboardStats, UserSettings } from '../types';
 import { cn } from '../utils/cn';
@@ -14,12 +14,20 @@ import { resolveTheme, themeToggleTarget } from '../lib/theme';
 import type { WorkspaceLiveSync } from '../lib/workspaceStoreSpine';
 import { workspaceLiveIsStale } from '../lib/workspaceStoreSpine';
 import { workspaceEntryPrefetchHandlers } from '../lib/workspaceEntryPrefetch';
+import { filterNavigationRegistry } from '../lib/navCapabilities';
+import {
+  mobileOverflowNav,
+  mobilePrimaryNav,
+  type NavRegistryEntry,
+  type ShellNavView,
+} from '../lib/navigationRegistry';
 import { PlatformSkipLinks } from './PlatformSkipLinks';
 import { OfflineShellBanner } from './OfflineShellBanner';
+import { DemoSandboxBanner } from './DemoSandboxBanner';
 import { HeaderLangPill, HeaderTrustBadgeRow, SynapseBrandGlyph } from './ui/platformChrome';
 import type { Lang } from '../lib/i18n';
 import { commandPaletteBadge } from '../lib/workspaceKeyboardShortcuts';
-import { showStandaloneAgentNav } from '../lib/platformFocus';
+import { quickAccessActions, type GlobalQuickActionId } from '../lib/globalActionRegistry';
 
 interface ShellProps {
   children: ReactNode;
@@ -35,46 +43,51 @@ interface ShellProps {
   onOpenSearch?: () => void;
   onOpenNotifications?: () => void;
   notificationCount?: number;
-  breadcrumb?: { course?: string; lesson?: string };
+  breadcrumb?: { course?: string; lesson?: string; viewLabel?: string };
   workspaceLive?: WorkspaceLiveSync | null;
   onOpenWorkspace?: () => void;
   studyWorkspaceOpen?: boolean;
   onTakeBreath?: () => void;
   activeCourse?: { title: string; mastery: number; daysToExam: number | null } | null;
   onContinueCourse?: () => void;
-  onQuickAccess?: (action: 'note-analysis' | 'upload' | 'workspace' | 'exam') => void;
+  onQuickAccess?: (action: GlobalQuickActionId) => void;
   hasCourses?: boolean;
   language?: Lang;
   onLanguageChange?: (lang: Lang) => void;
 }
 
-type MobileNavItem =
-  | { kind: 'view'; view: AppView; icon: typeof BookOpen; labelKey: I18nKey }
-  | { kind: 'workspace'; icon: typeof Layout; labelKey: I18nKey };
+type MobileBarItem =
+  | { kind: 'view'; entry: NavRegistryEntry; icon: typeof BookOpen }
+  | { kind: 'workspace'; icon: typeof Layout; labelKey: I18nKey }
+  | { kind: 'more'; icon: typeof DotsThreeOutline; labelKey: I18nKey };
 
-const navViewsAll: { view: AppView; icon: typeof BookOpen; labelKey: I18nKey }[] = [
-  { view: 'dashboard', icon: LayoutDashboard, labelKey: 'dashboard' },
-  { view: 'library', icon: BookOpen, labelKey: 'library' },
-  { view: 'tasks', icon: CheckSquare, labelKey: 'tasks' },
-  { view: 'agent', icon: Bot, labelKey: 'agent' },
-  { view: 'analytics', icon: BarChart3, labelKey: 'analytics' },
-  { view: 'teacher', icon: Users, labelKey: 'teacher' },
-  { view: 'student-org', icon: GraduationCap, labelKey: 'studentOrg' },
-  { view: 'settings', icon: Settings, labelKey: 'settings' },
-];
+const SHELL_NAV_ICONS: Record<ShellNavView, typeof BookOpen> = {
+  dashboard: LayoutDashboard,
+  library: BookOpen,
+  tasks: CheckSquare,
+  agent: Bot,
+  analytics: BarChart3,
+  teacher: Users,
+  'student-org': GraduationCap,
+  settings: Settings,
+};
 
-function visibleNavViews() {
-  return navViewsAll.filter((item) => item.view !== 'agent' || showStandaloneAgentNav());
-}
-
-function buildMobileNavItems(showWorkspace: boolean): MobileNavItem[] {
-  const navViews = visibleNavViews();
-  const core: MobileNavItem[] = navViews.slice(0, 4).map((item) => ({ kind: 'view' as const, ...item }));
-  const items: MobileNavItem[] = [...core];
+function buildMobileBarItems(
+  visible: NavRegistryEntry[],
+  showWorkspace: boolean,
+  hasOverflow: boolean,
+): MobileBarItem[] {
+  const items: MobileBarItem[] = mobilePrimaryNav(visible).map((entry) => ({
+    kind: 'view' as const,
+    entry,
+    icon: SHELL_NAV_ICONS[entry.view],
+  }));
   if (showWorkspace) {
     items.push({ kind: 'workspace', icon: Layout, labelKey: 'navStudyWorkspace' });
   }
-  items.push({ kind: 'view', view: 'settings', icon: Settings, labelKey: 'settings' });
+  if (hasOverflow) {
+    items.push({ kind: 'more', icon: DotsThreeOutline, labelKey: 'navMore' });
+  }
   return items;
 }
 
@@ -86,22 +99,11 @@ const shellNavClass = (active: boolean) =>
       : 'border-transparent text-text-secondary hover:text-text-primary hover:bg-surface-hover',
   );
 
-const QUICK_ACCESS: { id: 'note-analysis' | 'upload' | 'workspace' | 'exam'; icon: typeof Network; color: string }[] = [
-  { id: 'note-analysis', icon: Network, color: '#818CF8' },
-  { id: 'upload', icon: Sparkles, color: '#34D399' },
-  { id: 'workspace', icon: BookOpen, color: '#60A5FA' },
-  { id: 'exam', icon: Zap, color: '#F87171' },
-];
-
-const NAV_SUBTITLES: Partial<Record<AppView, I18nKey>> = {
-  dashboard: 'navSubtitleDashboard',
-  library: 'navSubtitleLibrary',
-  tasks: 'navSubtitleTasks',
-  agent: 'navSubtitleAgent',
-  analytics: 'navSubtitleAnalytics',
-  teacher: 'navSubtitleTeacher',
-  'student-org': 'navSubtitleStudentOrg',
-  settings: 'navSubtitleSettings',
+const QUICK_ACCESS_ICONS: Record<GlobalQuickActionId, { icon: typeof Network; color: string }> = {
+  'note-analysis': { icon: Network, color: '#818CF8' },
+  upload: { icon: Sparkles, color: '#34D399' },
+  workspace: { icon: BookOpen, color: '#60A5FA' },
+  exam: { icon: Zap, color: '#F87171' },
 };
 
 export function Shell({
@@ -140,8 +142,51 @@ export function Shell({
   const showDesktopWorkspaceNav = Boolean(
     onOpenWorkspace && (studyWorkspaceOpen || showMobileWorkspaceNav),
   );
-  const mobileNavItems = buildMobileNavItems(showMobileWorkspaceNav);
-  const navViews = visibleNavViews();
+  const navViews = filterNavigationRegistry(user);
+  const mobileNavItems = buildMobileBarItems(
+    navViews,
+    showMobileWorkspaceNav,
+    mobileOverflowNav(navViews).length > 0,
+  );
+  const quickActions = quickAccessActions(hasCourses);
+  const mobileDrawerRef = useRef<HTMLDivElement>(null);
+  const mobileMoreRef = useRef<HTMLButtonElement>(null);
+  const mobileMenuRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (!sidebarOpen) return;
+    const drawer = mobileDrawerRef.current;
+    const focusable = drawer?.querySelector<HTMLElement>(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+    );
+    focusable?.focus();
+
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        onToggleSidebar(false);
+        (mobileMoreRef.current ?? mobileMenuRef.current)?.focus();
+        return;
+      }
+      if (e.key !== 'Tab' || !drawer) return;
+      const nodes = drawer.querySelectorAll<HTMLElement>(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+      );
+      const list = Array.from(nodes).filter((el) => !el.hasAttribute('disabled'));
+      if (list.length === 0) return;
+      const first = list[0];
+      const last = list[list.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [sidebarOpen, onToggleSidebar]);
 
   const navButtonProps = (view: AppView) => ({
     'data-testid': `nav-${view}`,
@@ -183,21 +228,22 @@ export function Shell({
             </button>
           )}
           {navViews.map((item) => {
+            const NavIcon = SHELL_NAV_ICONS[item.view];
             const insertWorkspaceAfter = item.view === 'agent';
             return (
               <div key={item.view}>
                 <button
                   {...navButtonProps(item.view)}
                   onClick={() => onNavigate(item.view)}
-                  title={NAV_SUBTITLES[item.view] ? t(NAV_SUBTITLES[item.view]!) : undefined}
+                  title={item.subtitleKey ? t(item.subtitleKey) : undefined}
                   className={shellNavClass(currentView === item.view && !studyWorkspaceOpen)}
                 >
-                  <item.icon className="w-5 h-5 shrink-0" />
+                  <NavIcon className="w-5 h-5 shrink-0" />
                   <span className="flex-1 text-left min-w-0">
                     <span className="block truncate">{t(item.labelKey)}</span>
-                    {NAV_SUBTITLES[item.view] && (
+                    {item.subtitleKey && (
                       <span className="block text-[11px] font-normal text-text-tertiary truncate mt-0.5">
-                        {t(NAV_SUBTITLES[item.view]!)}
+                        {t(item.subtitleKey)}
                       </span>
                     )}
                   </span>
@@ -241,33 +287,27 @@ export function Shell({
               </div>
             );
           })}
-          {onQuickAccess && hasCourses && (
+          {onQuickAccess && quickActions.length > 0 && (
             <>
               <div className="pt-4 pb-2">
                 <p className="type-micro font-semibold text-text-tertiary uppercase tracking-wider px-2">
                   {shellUx.quickAccessTitle}
                 </p>
               </div>
-              {QUICK_ACCESS.map((item) => {
-                const quickLabel = item.id === 'note-analysis'
-                  ? shellUx.quickNoteAnalysis
-                  : item.id === 'upload'
-                    ? shellUx.quickUpload
-                    : item.id === 'workspace'
-                      ? shellUx.quickWorkspace
-                      : shellUx.quickExam;
+              {quickActions.map((action) => {
+                const visual = QUICK_ACCESS_ICONS[action.id];
                 return (
                 <button
-                  key={item.id}
+                  key={action.id}
                   type="button"
-                  data-testid={`quick-access-${item.id}`}
-                  onClick={() => onQuickAccess(item.id)}
+                  data-testid={`quick-access-${action.id}`}
+                  onClick={() => onQuickAccess(action.id)}
                   className={cn(shellNavClass(false), 'py-2')}
                 >
-                  <span className="ux-quick-icon" style={{ backgroundColor: `${item.color}20` }}>
-                    <item.icon className="w-3 h-3" style={{ color: item.color }} />
+                  <span className="ux-quick-icon" style={{ backgroundColor: `${visual.color}20` }}>
+                    <visual.icon className="w-3 h-3" style={{ color: visual.color }} />
                   </span>
-                  <span className="text-xs truncate">{quickLabel}</span>
+                  <span className="text-xs truncate">{t(action.labelKey)}</span>
                 </button>
               );})}
             </>
@@ -319,7 +359,12 @@ export function Shell({
         </div>
 
         <div className="p-3 border-t border-border-subtle">
-          <div className="flex items-center gap-3 px-2">
+          <button
+            type="button"
+            onClick={() => onNavigate('settings')}
+            data-testid="nav-profile-settings"
+            className="w-full flex items-center gap-3 px-2 rounded-lg hover:bg-surface-hover transition-colors text-left"
+          >
             <div className="w-9 h-9 rounded-full platform-brand-icon flex items-center justify-center text-sm font-bold">
               {user.name.charAt(0)}
             </div>
@@ -327,15 +372,22 @@ export function Shell({
               <p className="text-sm font-medium truncate">{user.name}</p>
               <p className="text-xs text-text-tertiary">Level {user.level} · {user.xp} XP</p>
             </div>
-          </div>
+          </button>
         </div>
       </aside>
 
       {/* Mobile sidebar overlay */}
       {sidebarOpen && (
         <div className="lg:hidden fixed inset-0 z-40">
-          <div className="absolute inset-0 bg-black/60" onClick={() => onToggleSidebar(false)} />
-          <div className="absolute inset-y-0 left-0 w-72 bg-surface-secondary border-r border-border-subtle flex flex-col">
+          <div className="absolute inset-0 bg-black/60" onClick={() => onToggleSidebar(false)} aria-hidden="true" />
+          <div
+            ref={mobileDrawerRef}
+            role="dialog"
+            aria-modal="true"
+            aria-label={t('navMobileMenuAria')}
+            className="absolute inset-y-0 left-0 w-72 bg-surface-secondary border-r border-border-subtle flex flex-col"
+            data-testid="nav-mobile-drawer"
+          >
             <div className="p-4 border-b border-border-subtle flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 rounded-lg platform-brand-icon flex items-center justify-center">
@@ -343,7 +395,12 @@ export function Shell({
                 </div>
                 <span className="text-xl font-bold ws-serif">Synapse</span>
               </div>
-              <button onClick={() => onToggleSidebar(false)} className="p-1.5 rounded-lg hover:bg-surface-hover">
+              <button
+                type="button"
+                onClick={() => onToggleSidebar(false)}
+                aria-label={t('close')}
+                className="p-1.5 rounded-lg hover:bg-surface-hover"
+              >
                 <X className="w-5 h-5 text-text-secondary" />
               </button>
             </div>
@@ -360,20 +417,22 @@ export function Shell({
                   {t('wellnessTakeBreath')}
                 </button>
               )}
-              {navViews.map((item) => (
+              {navViews.map((item) => {
+                const NavIcon = SHELL_NAV_ICONS[item.view];
+                return (
                 <button
                   key={item.view}
                   {...navButtonProps(item.view)}
-                  onClick={() => onNavigate(item.view)}
-                  title={NAV_SUBTITLES[item.view] ? t(NAV_SUBTITLES[item.view]!) : undefined}
+                  onClick={() => { onNavigate(item.view); onToggleSidebar(false); }}
+                  title={item.subtitleKey ? t(item.subtitleKey) : undefined}
                   className={shellNavClass(currentView === item.view && !studyWorkspaceOpen)}
                 >
-                  <item.icon className="w-5 h-5" />
+                  <NavIcon className="w-5 h-5" />
                   <span className="flex-1 min-w-0 text-left">
                     <span className="block truncate">{t(item.labelKey)}</span>
-                    {NAV_SUBTITLES[item.view] && (
+                    {item.subtitleKey && (
                       <span className="block text-[11px] font-normal text-text-tertiary truncate mt-0.5">
-                        {t(NAV_SUBTITLES[item.view]!)}
+                        {t(item.subtitleKey)}
                       </span>
                     )}
                   </span>
@@ -386,7 +445,7 @@ export function Shell({
                     </span>
                   )}
                 </button>
-              ))}
+              );})}
             </nav>
 
             <div className="p-3 border-t border-border-subtle">
@@ -410,12 +469,13 @@ export function Shell({
             <div className="flex items-center gap-3 min-w-0 flex-1">
               <button
                 onClick={() => onToggleSidebar(true)}
+                ref={mobileMenuRef}
                 className="lg:hidden p-1.5 rounded-lg hover:bg-surface-hover shrink-0"
                 aria-label={t('openMenu')}
               >
                 <Menu className="w-5 h-5 text-text-secondary" />
               </button>
-              <div className="hidden sm:flex items-center gap-1.5 text-sm text-text-tertiary min-w-0">
+              <div className="hidden sm:flex items-center gap-1.5 text-sm text-text-tertiary min-w-0" aria-current="page">
                 {breadcrumb?.course ? (
                   <>
                     <span className="text-text-secondary font-medium">{breadcrumb.course}</span>
@@ -427,7 +487,9 @@ export function Shell({
                     )}
                   </>
                 ) : (
-                  <span className="text-text-secondary font-medium capitalize">{currentView}</span>
+                  <span className="text-text-secondary font-medium">
+                    {breadcrumb?.viewLabel ?? currentView}
+                  </span>
                 )}
               </div>
               <HeaderTrustBadgeRow lang={activeLang} className="hidden xl:flex shrink-0" />
@@ -481,12 +543,21 @@ export function Shell({
 
               <button
                 onClick={onOpenNotifications}
+                data-testid="shell-notifications-bell"
+                data-unread-count={notificationCount > 0 ? String(notificationCount) : '0'}
                 className="relative p-2 rounded-lg hover:bg-surface-hover transition-colors"
-                aria-label={t('notifications')}
+                aria-label={
+                  notificationCount > 0
+                    ? `${t('notifications')} (${notificationCount})`
+                    : t('notifications')
+                }
               >
                 <Bell className="w-5 h-5 text-text-secondary" />
                 {notificationCount > 0 && (
-                  <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-accent-rose rounded-full" />
+                  <span
+                    className="absolute top-1.5 right-1.5 min-w-[8px] h-2 px-0.5 bg-accent-rose rounded-full"
+                    aria-hidden="true"
+                  />
                 )}
               </button>
 
@@ -521,7 +592,12 @@ export function Shell({
                 );
               })()}
 
-              <div className="flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-surface-hover cursor-pointer transition-colors">
+              <button
+                type="button"
+                onClick={() => onNavigate('settings')}
+                data-testid="header-profile-settings"
+                className="flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-surface-hover cursor-pointer transition-colors"
+              >
                 <div className="w-7 h-7 rounded-full platform-brand-icon flex items-center justify-center text-xs font-bold">
                   {user.name.charAt(0)}
                 </div>
@@ -532,11 +608,12 @@ export function Shell({
                   </span>
                   <ChevronRight className="w-3 h-3 text-text-tertiary" />
                 </div>
-              </div>
+              </button>
             </div>
           </div>
         </header>
         <OfflineShellBanner />
+        <DemoSandboxBanner />
 
 
         {/* Page content */}
@@ -555,25 +632,40 @@ export function Shell({
             {mobileNavItems.map((item) => {
               const active = item.kind === 'workspace'
                 ? studyWorkspaceOpen
-                : currentView === item.view;
-              const key = item.kind === 'workspace' ? 'workspace' : item.view;
+                : item.kind === 'view'
+                  ? currentView === item.entry.view
+                  : sidebarOpen;
+              const key = item.kind === 'workspace'
+                ? 'workspace'
+                : item.kind === 'more'
+                  ? 'more'
+                  : item.entry.view;
+              const Icon = item.kind === 'view' ? item.icon : item.icon;
               return (
                 <button
                   key={key}
                   type="button"
+                  ref={item.kind === 'more' ? mobileMoreRef : undefined}
                   {...(item.kind === 'view' ? {
-                    'data-testid': `nav-mobile-${item.view}`,
-                    'data-tour': `nav-${item.view}`,
-                  } : {
+                    'data-testid': `nav-mobile-${item.entry.view}`,
+                    'data-tour': `nav-${item.entry.view}`,
+                  } : item.kind === 'workspace' ? {
                     'data-testid': 'nav-mobile-workspace',
                     'data-tour': 'mobile-nav-workspace',
+                  } : {
+                    'data-testid': 'nav-mobile-more',
+                    'data-tour': 'nav-more',
                   })}
                   onClick={() => {
                     if (item.kind === 'workspace') {
                       onOpenWorkspace?.();
                       return;
                     }
-                    onNavigate(item.view);
+                    if (item.kind === 'more') {
+                      onToggleSidebar(true);
+                      return;
+                    }
+                    onNavigate(item.entry.view);
                   }}
                   {...(item.kind === 'workspace' ? workspaceEntryPrefetchHandlers() : {})}
                   className={cn(
@@ -583,8 +675,10 @@ export function Shell({
                   )}
                   title={item.kind === 'workspace' ? t('shellMobileWorkspaceHint') : undefined}
                 >
-                  <item.icon className="w-5 h-5 shrink-0" />
-                  <span className="type-micro font-medium truncate w-full text-center">{t(item.labelKey)}</span>
+                  <Icon className="w-5 h-5 shrink-0" />
+                  <span className="type-micro font-medium truncate w-full text-center">
+                    {item.kind === 'view' ? t(item.entry.labelKey) : t(item.labelKey)}
+                  </span>
                   {item.kind === 'workspace' && (
                     <span className="type-micro text-[9px] text-text-tertiary truncate w-full text-center">
                       {t('shellMobileWorkspaceHint')}

@@ -40,7 +40,7 @@ const LANDING: Record<Lang, LandingContent> = {
     heroSubtitle:
       'Upload your notes, PDFs, or slides. The AI builds a personalized interactive tutor-course — then discovers how you actually learn through your behavior, errors, and progress.',
     ctaPrimary: 'Start Learning Now',
-    ctaSecondary: 'See Demo',
+    ctaSecondary: 'Explore demo sandbox',
     getStarted: 'Get Started',
     trust: ['No credit card required', 'Works with any subject', 'Source-grounded AI'],
     features: [
@@ -93,7 +93,7 @@ const LANDING: Record<Lang, LandingContent> = {
     heroSubtitle:
       'Ανέβασε σημειώσεις, PDF ή διαφάνειες. Το AI δημιουργεί εξατομικευμένο διαδραστικό μάθημα — και μαθαίνει πώς μαθαίνεις εσύ από τη συμπεριφορά, τα λάθη και την πρόοδό σου.',
     ctaPrimary: 'Ξεκίνα Τώρα',
-    ctaSecondary: 'Δες Demo',
+    ctaSecondary: 'Δοκίμασε demo sandbox',
     getStarted: 'Ξεκίνα',
     trust: ['Χωρίς πιστωτική κάρτα', 'Για κάθε αντικείμενο', 'AI με βάση τις πηγές σου'],
     features: [

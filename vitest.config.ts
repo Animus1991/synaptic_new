@@ -17,6 +17,7 @@ export default defineConfig({
     include: ['src/**/*.test.ts', 'src/**/*.test.tsx'],
     environmentMatchGlobs: [
       ['src/**/*.test.tsx', 'jsdom'],
+      ['src/lib/onboardingDraft.test.ts', 'jsdom'],
     ],
   },
 });

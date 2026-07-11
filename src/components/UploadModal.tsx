@@ -269,6 +269,7 @@ export function UploadModal({
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
           className="relative w-full max-w-2xl max-h-[90vh] ux-modal-panel rounded-2xl border border-border-subtle bg-surface-secondary overflow-y-auto"
+          data-testid="upload-modal"
         >
           {/* Header */}
           <div className="flex items-start justify-between gap-3 p-5 border-b border-border-subtle">
