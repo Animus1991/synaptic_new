@@ -32,6 +32,17 @@ export type NoteAnalysisContent = {
   qualityAssurance: string;
   noIssues: string;
   generateCourse: string;
+  materialProcessingReadiness: string;
+  readinessInsufficient: string;
+  exploreDetails: string;
+  summarySourceHealth: string;
+  summaryStructure: string;
+  summaryNextStep: string;
+  qaInsufficientData: string;
+  actionUpload: string;
+  actionWorkspace: string;
+  actionCourse: string;
+  actionReprocess: string;
 };
 
 const STAGE_EN: Record<NoteAnalysisStageId, string> = {
@@ -83,8 +94,19 @@ const EN: NoteAnalysisContent = {
   knowledgeGraph: 'Concept knowledge graph',
   courseArchitecture: 'Generated course modules',
   qualityAssurance: 'Quality assurance metrics',
-  noIssues: 'No critical issues detected — material looks ready for course generation.',
+  noIssues: 'No critical issues detected — review the summary and choose your next step.',
   generateCourse: 'Continue to course',
+  materialProcessingReadiness: 'Material processing readiness',
+  readinessInsufficient: 'Insufficient data',
+  exploreDetails: 'Explore pipeline details',
+  summarySourceHealth: 'Source health',
+  summaryStructure: 'Extracted structure',
+  summaryNextStep: 'Recommended next step',
+  qaInsufficientData: 'Quality metrics appear only when the pipeline computed source quality or course rubric scores.',
+  actionUpload: 'Upload more material',
+  actionWorkspace: 'Open workspace',
+  actionCourse: 'View course',
+  actionReprocess: 'Reprocess sources',
 };
 
 const EL: NoteAnalysisContent = {
@@ -118,8 +140,19 @@ const EL: NoteAnalysisContent = {
   knowledgeGraph: 'Γράφημα εννοιών',
   courseArchitecture: 'Modules μαθήματος',
   qualityAssurance: 'Μετρικές ποιότητας',
-  noIssues: 'Δεν εντοπίστηκαν κρίσιμα θέματα — το υλικό φαίνεται έτοιμο.',
+  noIssues: 'Δεν εντοπίστηκαν κρίσιμα θέματα — δες την περίληψη και διάλεξε επόμενο βήμα.',
   generateCourse: 'Συνέχεια στο μάθημα',
+  materialProcessingReadiness: 'Material processing readiness',
+  readinessInsufficient: 'Ανεπαρκή δεδομένα',
+  exploreDetails: 'Λεπτομέρειες pipeline',
+  summarySourceHealth: 'Υγεία πηγής',
+  summaryStructure: 'Εξαγόμενη δομή',
+  summaryNextStep: 'Προτεινόμενο επόμενο βήμα',
+  qaInsufficientData: 'Μετρικές ποιότητας εμφανίζονται μόνο όταν το pipeline υπολόγισε source quality ή course rubric.',
+  actionUpload: 'Ανέβασε περισσότερο υλικό',
+  actionWorkspace: 'Άνοιγμα workspace',
+  actionCourse: 'Προβολή μαθήματος',
+  actionReprocess: 'Επανεπεξεργασία πηγών',
 };
 
 export function getNoteAnalysisContent(lang: Lang): NoteAnalysisContent {

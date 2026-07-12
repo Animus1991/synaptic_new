@@ -6,6 +6,18 @@
 import type { Course, UploadedFile } from '../types';
 import type { Lang } from './i18n';
 import {
+  buildNoteAnalysisSummary,
+  buildTruthfulQaMetrics,
+  computeMaterialProcessingReadiness,
+  formatDiagnosticCount,
+  resolveDiagnosticCount,
+  type DiagnosticCount,
+  type MaterialProcessingReadiness,
+  type NoteAnalysisAction,
+  type NoteAnalysisSummary,
+  type TruthfulQaMetric,
+} from './noteAnalysisDiagnostics';
+import {
   extractiveSummary,
   inferSubject,
   rankKeyphrases,
@@ -22,6 +34,7 @@ export type NoteAnalysisIssue = {
   detail: string;
   page?: string;
   recommendation: string;
+  action: NoteAnalysisAction;
 };
 
 export type Bm25TermRow = {
@@ -42,10 +55,17 @@ export type NoteAnalysisSnapshot = {
   courseTitle: string;
   subject: string;
   sourceQualityScore: number | null;
+  readiness: MaterialProcessingReadiness;
+  summary: NoteAnalysisSummary;
+  capabilities: {
+    algorithmTransparency: boolean;
+    formulasDetected: boolean;
+    qualityReport: boolean;
+  };
   fileCount: number;
   pageEstimate: number;
   wordCount: number;
-  extractedItems: { label: string; count: number }[];
+  extractedItems: { label: string; count: DiagnosticCount; displayValue: string }[];
   issues: NoteAnalysisIssue[];
   bm25Terms: Bm25TermRow[];
   textRankSentences: TextRankSentence[];
@@ -60,7 +80,7 @@ export type NoteAnalysisSnapshot = {
     concepts: number;
     lessons: string[];
   }[];
-  qaMetrics: { label: string; score: number; detail: string; invert?: boolean }[];
+  qaMetrics: TruthfulQaMetric[];
 };
 
 function combineCourseText(files: UploadedFile[]): string {
@@ -119,8 +139,9 @@ function issuesFromCourse(course: Course, lang: Lang): NoteAnalysisIssue[] {
         title: lang === 'el' ? 'Προειδοποίηση ποιότητας πηγής' : 'Source quality warning',
         detail: w,
         recommendation: lang === 'el'
-          ? 'Το AI θα προσαρμόσει το outline και θα προτείνει επιπλέον υλικό.'
-          : 'The AI will adjust the outline and suggest supplemental material.',
+          ? 'Πρόσθεσε υλικό ή επανεπεξεργάσου τις πηγές.'
+          : 'Add material or reprocess sources.',
+        action: sq.needsMoreMaterial ? 'upload' : 'reprocess',
       });
     }
   }
@@ -132,6 +153,7 @@ function issuesFromCourse(course: Course, lang: Lang): NoteAnalysisIssue[] {
         ? 'Το κείμενο είναι σύντομο για πλήρες adaptive course — προτείνεται επέκταση ή re-upload.'
         : 'Text is short for a full adaptive course — consider extending or re-uploading.',
       recommendation: lang === 'el' ? 'Ανέβασε επιπλέον σημειώσεις ή slides.' : 'Upload additional notes or slides.',
+      action: 'upload',
     });
   }
   const qr = course.qualityReport;
@@ -141,7 +163,8 @@ function issuesFromCourse(course: Course, lang: Lang): NoteAnalysisIssue[] {
         severity: 'warning',
         title: lang === 'el' ? 'Ποιότητα course' : 'Course quality',
         detail: w,
-        recommendation: qr.recommendations[0] ?? (lang === 'el' ? 'Θα διορθωθεί στη δημιουργία μαθήματος.' : 'Will be addressed during lesson generation.'),
+        recommendation: qr.recommendations[0] ?? (lang === 'el' ? 'Δες το course overview.' : 'Review the course overview.'),
+        action: 'course',
       });
     }
   }
@@ -155,37 +178,54 @@ export function buildNoteAnalysisSnapshot(
 ): NoteAnalysisSnapshot {
   const courseFiles = files.filter((f) => f.courseId === course.id);
   const text = combineCourseText(courseFiles);
+  const hasExtractedText = text.trim().length > 0;
   const metrics = course.sourceQuality?.metrics;
+  const metricsAvailable = Boolean(metrics);
   const wordCount = metrics?.wordCount ?? text.split(/\s+/).filter(Boolean).length;
-  const keyphrases = rankKeyphrases(text, 8).map((k) => ({ phrase: k.phrase, score: Math.round(k.score * 100) / 100 }));
+  const keyphrases = text.length > 80 ? rankKeyphrases(text, 8).map((k) => ({ phrase: k.phrase, score: Math.round(k.score * 100) / 100 })) : [];
   const biasTerms = keyphrases.map((k) => k.phrase);
   const visual = conceptGraphToCourseVisual(course);
-
+  const issues = issuesFromCourse(course, lang);
+  const readiness = computeMaterialProcessingReadiness(course, wordCount, hasExtractedText, lang);
+  const summary = buildNoteAnalysisSummary(
+    course,
+    readiness,
+    wordCount,
+    course.topics.length,
+    issues.map((i) => i.action),
+    lang,
+  );
+  const formulaCount = resolveDiagnosticCount(metrics?.formulaCount, metricsAvailable);
   const extractedItems = [
-    { label: lang === 'el' ? 'Έννοιες' : 'Concepts', count: course.conceptCount || visual.nodes.length },
-    { label: lang === 'el' ? 'Ορισμοί' : 'Definitions', count: metrics?.definitionCount ?? course.glossaryCount },
-    { label: lang === 'el' ? 'Τύποι' : 'Formulas', count: metrics?.formulaCount ?? 0 },
-    { label: lang === 'el' ? 'Παραδείγματα' : 'Worked examples', count: metrics?.workedExampleCount ?? 0 },
-    { label: lang === 'el' ? 'Ενότητες' : 'Sections', count: metrics?.sectionCount ?? course.topics.length },
-    { label: lang === 'el' ? 'Keyphrases' : 'Keyphrases', count: metrics?.keyphraseCount ?? keyphrases.length },
-  ];
+    { label: lang === 'el' ? 'Έννοιες' : 'Concepts', count: course.conceptCount > 0 ? { kind: 'known' as const, value: course.conceptCount } : { kind: 'unknown' as const } },
+    { label: lang === 'el' ? 'Ορισμοί' : 'Definitions', count: resolveDiagnosticCount(metrics?.definitionCount, metricsAvailable) },
+    { label: lang === 'el' ? 'Τύποι' : 'Formulas', count: formulaCount },
+    { label: lang === 'el' ? 'Παραδείγματα' : 'Worked examples', count: resolveDiagnosticCount(metrics?.workedExampleCount, metricsAvailable) },
+    { label: lang === 'el' ? 'Ενότητες' : 'Sections', count: resolveDiagnosticCount(metrics?.sectionCount ?? (course.topics.length > 0 ? course.topics.length : undefined), metricsAvailable || course.topics.length > 0) },
+    { label: lang === 'el' ? 'Keyphrases' : 'Keyphrases', count: keyphrases.length > 0 ? { kind: 'known' as const, value: keyphrases.length } : resolveDiagnosticCount(metrics?.keyphraseCount, metricsAvailable) },
+  ].map((item) => ({ ...item, displayValue: formatDiagnosticCount(item.count, lang) }));
 
-  const sqScore = course.sourceQuality?.score ?? null;
-  const coverage = sqScore ?? Math.min(96, 60 + Math.round(wordCount / 200));
-  const hallucinationRisk = sqScore != null ? Math.max(2, Math.round((100 - sqScore) / 8)) : 8;
-  const pedagogical = course.qualityReport?.overallScore ?? sqScore ?? 82;
+  const algorithmTransparency = text.length > 80;
+  const formulasDetected = formulaCount.kind === 'known' && formulaCount.value > 0;
 
   return {
     courseTitle: course.title,
-    subject: course.subject || inferSubject(text),
-    sourceQualityScore: sqScore,
+    subject: course.subject || (text.length > 40 ? inferSubject(text) : (lang === 'el' ? 'Άγνωστο' : 'Unknown')),
+    sourceQualityScore: course.sourceQuality?.score ?? null,
+    readiness,
+    summary,
+    capabilities: {
+      algorithmTransparency,
+      formulasDetected,
+      qualityReport: Boolean(course.qualityReport),
+    },
     fileCount: courseFiles.length,
     pageEstimate: estimatePages(wordCount),
     wordCount,
     extractedItems,
-    issues: issuesFromCourse(course, lang),
-    bm25Terms: text.length > 80 ? buildBm25Table(text, courseFiles, course.id) : [],
-    textRankSentences: text.length > 80 ? buildTextRankSentences(text, biasTerms) : [],
+    issues,
+    bm25Terms: algorithmTransparency ? buildBm25Table(text, courseFiles, course.id) : [],
+    textRankSentences: algorithmTransparency ? buildTextRankSentences(text, biasTerms) : [],
     keyphrases,
     graphNodes: visual.nodes,
     graphEdges: visual.edges,
@@ -199,31 +239,7 @@ export function buildNoteAnalysisSnapshot(
         ? t.lessons.map((l) => l.title)
         : (t.keyConcepts?.slice(0, 4) ?? [t.title]),
     })),
-    qaMetrics: [
-      {
-        label: lang === 'el' ? 'Κάλυψη πηγής' : 'Source Coverage',
-        score: coverage,
-        detail: lang === 'el' ? `${coverage}% του περιεχομένου βασίζεται στο ανεβασμένο υλικό` : `${coverage}% of content grounded in uploaded material`,
-      },
-      {
-        label: lang === 'el' ? 'Κίνδυνος hallucination' : 'Hallucination Risk',
-        score: hallucinationRisk,
-        detail: lang === 'el' ? 'Χαμηλού κινδύνου ισχυρίσεις — ελάχιστες χωρίς άμεση πηγή' : 'Low-risk claims flagged for review',
-        invert: true,
-      },
-      {
-        label: lang === 'el' ? 'Παιδαγωγική ποιότητα' : 'Pedagogical Quality',
-        score: pedagogical,
-        detail: lang === 'el' ? 'Outline ευθυγραμμισμένο με στόχους μάθησης' : 'Outline aligned with learning objectives',
-      },
-      {
-        label: lang === 'el' ? 'Κάλυψη εννοιών' : 'Concept Coverage',
-        score: Math.min(98, Math.round((visual.nodes.length / Math.max(course.conceptCount, 1)) * 90)),
-        detail: lang === 'el'
-          ? `${visual.nodes.length} έννοιες στο γράφημα / ${course.conceptCount} εξαγόμενες`
-          : `${visual.nodes.length} graph nodes / ${course.conceptCount} extracted`,
-      },
-    ],
+    qaMetrics: buildTruthfulQaMetrics(course, visual.nodes.length, lang),
   };
 }
 

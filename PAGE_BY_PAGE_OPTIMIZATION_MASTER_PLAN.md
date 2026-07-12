@@ -553,7 +553,7 @@ Post-upload diagnostic που εξηγεί **τι αναγνωρίστηκε, π
 
 ### 12.5 Status
 
-`Audit complete · Implementation pending`
+`B5 complete (2026-07-12)` — `noteAnalysisDiagnostics` (material processing readiness, unknown vs zero, truthful QA metrics), 3-panel summary + action links, gated algorithm transparency stage, E2E `e2e/note-analysis-b5.spec.ts`.
 
 ---
 
@@ -1855,5 +1855,5 @@ npm run build       # before any release claim
 - data/action/security/accessibility/performance contracts,
 - exact verification commands και continuous audit format.
 
-**Επόμενη επιτρεπτή ενέργεια:** **B5** (Note Analysis — truthful diagnostics + action links) κατά §29.3.
+**Επόμενη επιτρεπτή ενέργεια:** **B6** (Course page) κατά §29.3.
 

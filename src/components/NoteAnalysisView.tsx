@@ -8,6 +8,7 @@ import type { Lang } from '../lib/i18n';
 import { cn } from '../utils/cn';
 import { buildNoteAnalysisSnapshot, type NoteAnalysisStageId } from '../lib/noteAnalysisSnapshot';
 import { getNoteAnalysisContent, NOTE_ANALYSIS_STAGES } from '../lib/noteAnalysisContent';
+import type { NoteAnalysisAction } from '../lib/noteAnalysisDiagnostics';
 import { ConceptGraph } from './visuals/ConceptGraph';
 import { Page, PageHeader } from './ui/primitives';
 import { workspaceEntryPrefetchHandlers } from '../lib/workspaceEntryPrefetch';
@@ -29,6 +30,8 @@ type Props = {
   onBack: () => void;
   onOpenCourse: () => void;
   onOpenWorkspace: () => void;
+  onUpload?: () => void;
+  onReprocess?: () => void;
 };
 
 export function NoteAnalysisView({
@@ -38,12 +41,33 @@ export function NoteAnalysisView({
   onBack,
   onOpenCourse,
   onOpenWorkspace,
+  onUpload,
+  onReprocess,
 }: Props) {
   const c = getNoteAnalysisContent(lang);
   const snapshot = useMemo(() => buildNoteAnalysisSnapshot(course, files, lang), [course, files, lang]);
+  const visibleStages = useMemo(
+    () => NOTE_ANALYSIS_STAGES.filter((id) => id !== 2.5 || snapshot.capabilities.algorithmTransparency),
+    [snapshot.capabilities.algorithmTransparency],
+  );
+  const [showDetails, setShowDetails] = useState(false);
   const [activeStage, setActiveStage] = useState<NoteAnalysisStageId>(2);
   const [expandedIssue, setExpandedIssue] = useState<number | null>(0);
   const [expandedModule, setExpandedModule] = useState<string | null>(snapshot.modules[0]?.id ?? null);
+
+  const runIssueAction = (action: NoteAnalysisAction) => {
+    if (action === 'upload') onUpload?.();
+    else if (action === 'workspace') onOpenWorkspace();
+    else if (action === 'course') onOpenCourse();
+    else if (action === 'reprocess') onReprocess?.();
+  };
+
+  const actionLabel = (action: NoteAnalysisAction) => {
+    if (action === 'upload') return c.actionUpload;
+    if (action === 'workspace') return c.actionWorkspace;
+    if (action === 'reprocess') return c.actionReprocess;
+    return c.actionCourse;
+  };
 
   return (
     <Page className="max-w-6xl">
@@ -74,9 +98,63 @@ export function NoteAnalysisView({
         }
       />
 
+      <div className="grid gap-4 lg:grid-cols-3 mb-6" data-testid="note-analysis-summary">
+        <div className="ux-card">
+          <p className="text-xs font-semibold text-text-tertiary uppercase tracking-wide mb-2">{c.summarySourceHealth}</p>
+          <p className="text-base font-semibold text-text-primary">{snapshot.summary.sourceHealth}</p>
+          <p className="text-xs text-text-secondary mt-2">{snapshot.summary.sourceHealthDetail}</p>
+          <div className="mt-3 pt-3 border-t border-border-subtle">
+            <p className="text-xs text-text-tertiary">{c.materialProcessingReadiness}</p>
+            <p className="text-lg font-bold font-mono text-text-primary mt-1" data-testid="note-analysis-readiness">
+              {snapshot.readiness.score != null ? `${snapshot.readiness.score}%` : c.readinessInsufficient}
+            </p>
+            <p className="text-[11px] text-text-muted mt-1">{snapshot.readiness.explanation}</p>
+          </div>
+        </div>
+        <div className="ux-card">
+          <p className="text-xs font-semibold text-text-tertiary uppercase tracking-wide mb-2">{c.summaryStructure}</p>
+          <p className="text-base font-semibold text-text-primary">{snapshot.summary.structure}</p>
+          <p className="text-xs text-text-secondary mt-2">{snapshot.summary.structureDetail}</p>
+          <div className="mt-3 grid grid-cols-2 gap-2">
+            {snapshot.extractedItems.slice(0, 4).map((item) => (
+              <div key={item.label}>
+                <p className="text-[10px] text-text-muted">{item.label}</p>
+                <p className="text-sm font-semibold" data-testid={`note-analysis-metric-${item.label.toLowerCase().replace(/\s+/g, '-')}`}>
+                  {item.displayValue}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="ux-card flex flex-col">
+          <p className="text-xs font-semibold text-text-tertiary uppercase tracking-wide mb-2">{c.summaryNextStep}</p>
+          <p className="text-sm text-text-secondary flex-1">{snapshot.summary.nextStep}</p>
+          <button
+            type="button"
+            data-testid="note-analysis-next-action"
+            onClick={() => runIssueAction(snapshot.summary.nextStepAction)}
+            className="mt-3 self-start px-4 py-2 rounded-xl bg-brand-600 text-white text-sm font-medium hover:bg-brand-500"
+          >
+            {actionLabel(snapshot.summary.nextStepAction)}
+          </button>
+        </div>
+      </div>
+
+      <button
+        type="button"
+        className="mb-4 text-sm text-brand-400 hover:text-brand-300"
+        aria-expanded={showDetails}
+        data-testid="note-analysis-explore-details"
+        onClick={() => setShowDetails((v) => !v)}
+      >
+        {c.exploreDetails}
+      </button>
+
+      {showDetails && (
+      <>
       {/* Stage navigator */}
       <div className="flex flex-wrap gap-2 mb-6">
-        {NOTE_ANALYSIS_STAGES.map((stageId) => {
+        {visibleStages.map((stageId) => {
           const Icon = STAGE_ICONS[stageId];
           const active = activeStage === stageId;
           return (
@@ -124,7 +202,7 @@ export function NoteAnalysisView({
                   <Lightbulb className="w-4 h-4 text-brand-400" />
                 </div>
                 <div>
-                  <p className="text-lg font-bold text-text-primary">{item.count}</p>
+                  <p className="text-lg font-bold text-text-primary">{item.displayValue}</p>
                   <p className="text-xs text-text-tertiary">{item.label}</p>
                 </div>
               </div>
@@ -145,6 +223,7 @@ export function NoteAnalysisView({
                     <button
                       type="button"
                       className="w-full flex items-start gap-3 p-3 text-left hover:bg-surface-hover"
+                      aria-expanded={expandedIssue === i}
                       onClick={() => setExpandedIssue(expandedIssue === i ? null : i)}
                     >
                       <AlertTriangle className={cn('w-4 h-4 shrink-0 mt-0.5', issue.severity === 'error' ? 'text-accent-rose' : issue.severity === 'warning' ? 'text-accent-amber' : 'text-brand-400')} />
@@ -156,8 +235,16 @@ export function NoteAnalysisView({
                       </div>
                     </button>
                     {expandedIssue === i && (
-                      <div className="px-3 pb-3 text-xs text-brand-400 border-t border-border-subtle pt-2 mx-3">
-                        → {issue.recommendation}
+                      <div className="px-3 pb-3 border-t border-border-subtle pt-2 mx-3 space-y-2">
+                        <p className="text-xs text-text-secondary">{issue.recommendation}</p>
+                        <button
+                          type="button"
+                          data-testid={`note-analysis-issue-action-${i}`}
+                          onClick={() => runIssueAction(issue.action)}
+                          className="text-xs font-medium text-brand-400 hover:text-brand-300"
+                        >
+                          → {actionLabel(issue.action)}
+                        </button>
                       </div>
                     )}
                   </div>
@@ -290,23 +377,37 @@ export function NoteAnalysisView({
 
       {/* Stage 5 — Quality Assurance */}
       {activeStage === 5 && (
-        <div className="grid sm:grid-cols-2 gap-4">
-          {snapshot.qaMetrics.map((metric) => {
-            const displayScore = metric.invert ? 100 - metric.score : metric.score;
-            return (
-              <div key={metric.label} className="ux-card">
-                <div className="flex items-center justify-between mb-2">
-                  <p className="text-sm font-semibold text-text-primary">{metric.label}</p>
-                  <p className="text-xl font-bold font-mono text-text-primary">{displayScore}%</p>
-                </div>
-                <div className="ux-progress-track mb-2">
-                  <div className="ux-progress-fill" style={{ width: `${displayScore}%` }} />
-                </div>
-                <p className="text-xs text-text-tertiary">{metric.detail}</p>
-              </div>
-            );
-          })}
+        <div className="space-y-4">
+          {snapshot.qaMetrics.length === 0 ? (
+            <p className="text-sm text-text-secondary ux-card" data-testid="note-analysis-qa-empty">{c.qaInsufficientData}</p>
+          ) : (
+            <div className="grid sm:grid-cols-2 gap-4">
+              {snapshot.qaMetrics.map((metric) => {
+                const displayScore = metric.score == null
+                  ? null
+                  : (metric.invert ? 100 - metric.score : metric.score);
+                return (
+                  <div key={metric.id} className="ux-card" data-testid={`note-analysis-qa-${metric.id}`}>
+                    <div className="flex items-center justify-between mb-2">
+                      <p className="text-sm font-semibold text-text-primary">{metric.label}</p>
+                      {displayScore != null && (
+                        <p className="text-xl font-bold font-mono text-text-primary">{displayScore}%</p>
+                      )}
+                    </div>
+                    {displayScore != null && (
+                      <div className="ux-progress-track mb-2">
+                        <div className="ux-progress-fill" style={{ width: `${displayScore}%` }} />
+                      </div>
+                    )}
+                    <p className="text-xs text-text-tertiary">{metric.detail}</p>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
+      )}
+      </>
       )}
     </Page>
   );

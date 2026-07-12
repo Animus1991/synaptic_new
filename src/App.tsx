@@ -1074,6 +1074,12 @@ export default function App() {
                   store.openCourseReview(analysisCourse);
                   openCourseWorkspace();
                 }}
+                onUpload={() => {
+                  store.setShowUploadModal(true);
+                }}
+                onReprocess={() => {
+                  store.reprocessCourseMaterial(analysisCourse.id);
+                }}
               />
             );
           })()}
