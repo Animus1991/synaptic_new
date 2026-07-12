@@ -601,7 +601,7 @@ Course-level decision page: orientation, topic progression, source health, due w
 
 ### 13.6 Status
 
-`Audit complete · Implementation pending`
+`B6 complete (2026-07-12)` — `coursePageSelectors` (canonical progress/mastery/tasks/source health), shared Library metrics, tab persistence + keyboard a11y, confirm gates (`course-delete-confirm`, `course-file-delete-confirm`), E2E `e2e/course-page-b6.spec.ts`.
 
 ---
 
@@ -1855,5 +1855,5 @@ npm run build       # before any release claim
 - data/action/security/accessibility/performance contracts,
 - exact verification commands και continuous audit format.
 
-**Επόμενη επιτρεπτή ενέργεια:** **B6** (Course page) κατά §29.3.
+**Επόμενη επιτρεπτή ενέργεια:** **B7 / Stage C1** (Library final pass ή Tasks) κατά §29.3–29.4.
 

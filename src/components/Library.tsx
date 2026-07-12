@@ -19,7 +19,7 @@ import { countFilesForCourse } from '../lib/deleteCascade';
 import { countGeneratedTasksForCourse } from '../lib/pipelineReprocess';
 import { courseDeleteStats } from '../lib/removeCourse';
 import { isDemoCourse } from '../lib/demoMode';
-import { CONTENT_PIPELINE_VERSION } from '../lib/pipelineConstants';
+import { selectCourseTaskMetrics } from '../lib/coursePageSelectors';
 import { CourseIcon } from './ui/CourseIcon';
 import { UiIcon } from './ui/UiIcon';
 import { PlatformEmptyState } from './ui/PlatformEmptyState';
@@ -118,7 +118,7 @@ export function Library({
       if (filter === 'completed') return c.status === 'completed';
       if (filter === 'generating') return c.status === 'generating';
       if (filter === 'attention') {
-        const { pendingTasks, dueReviews, isOldPipeline } = courseMetrics(c, tasks);
+        const { pendingTasks, dueReviews, isStalePipeline: isOldPipeline } = selectCourseTaskMetrics(c, tasks);
         return Boolean(c.sourceQuality?.needsMoreMaterial)
           || c.status === 'needs_review'
           || isOldPipeline
@@ -505,25 +505,6 @@ function courseDifficultyLabel(difficulty: Course['difficulty'], lang: 'en' | 'e
   return t(keyByDifficulty[difficulty], lang);
 }
 
-function courseMetrics(course: Course, tasks: Task[]) {
-  const pendingTasks = tasks.filter(
-    (t) => t.courseId === course.id && t.status !== 'completed' && t.status !== 'skipped',
-  ).length;
-  const now = new Date();
-  const dueReviews = tasks.filter(
-    (t) =>
-      t.courseId === course.id &&
-      t.status === 'pending' &&
-      t.isSpacedRepetition &&
-      t.dueAt &&
-      new Date(t.dueAt) <= now,
-  ).length;
-  const isOldPipeline = Boolean(
-    course.pipelineMeta && course.pipelineMeta.version !== CONTENT_PIPELINE_VERSION,
-  );
-  return { pendingTasks, dueReviews, isOldPipeline };
-}
-
 function CourseCard({
   course,
   index,
@@ -560,7 +541,7 @@ function CourseCard({
   const isGenerating = course.status === 'generating';
   const needsReview = course.status === 'needs_review';
   const quality = course.sourceQuality;
-  const { pendingTasks, dueReviews, isOldPipeline } = courseMetrics(course, tasks);
+  const { pendingTasks, dueReviews, isStalePipeline: isOldPipeline } = selectCourseTaskMetrics(course, tasks);
   const qualityTone = quality?.band === 'strong'
     ? 'bg-accent-emerald/10 text-accent-emerald border-accent-emerald/20'
     : quality?.band === 'moderate'
@@ -790,7 +771,7 @@ function CourseListItem({
 
   const progress = (course.completedLessons / Math.max(course.totalLessons, 1)) * 100;
   const quality = course.sourceQuality;
-  const { pendingTasks, dueReviews, isOldPipeline } = courseMetrics(course, tasks);
+  const { pendingTasks, dueReviews, isStalePipeline: isOldPipeline } = selectCourseTaskMetrics(course, tasks);
   const isGenerating = course.status === 'generating';
 
   return (

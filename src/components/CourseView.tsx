@@ -25,6 +25,12 @@ import { countFilesForCourse } from '../lib/deleteCascade';
 import { countGeneratedTasksForCourse } from '../lib/pipelineReprocess';
 import { MASTERY_VAR, resolveCourseColor } from '../lib/masteryPalette';
 import { courseDeleteStats } from '../lib/removeCourse';
+import {
+  readPersistedCourseTab,
+  selectCoursePageStats,
+  writePersistedCourseTab,
+  type CourseTabId,
+} from '../lib/coursePageSelectors';
 import { isDemoCourse } from '../lib/demoMode';
 import { conceptGraphToCourseVisual, summarizeCourseGraph } from '../lib/courseConceptGraph';
 import { PostUploadBanner } from './ui/PostUploadBanner';
@@ -71,7 +77,7 @@ function topicLessonCount(topic: Topic): number {
   return Math.min(6, Math.max(2, Math.ceil(concepts / 2)));
 }
 
-type CourseTab = 'path' | 'map' | 'sources' | 'analytics';
+type CourseTab = CourseTabId;
 
 function buildSourcePreviewText(file: UploadedFile, course: Course): string | null {
   if (file.extractedText?.trim()) {
@@ -109,7 +115,7 @@ export function CourseView({
   onAddAudioToFsrs,
   learnerModel,
 }: CourseViewProps) {
-  const [tab, setTab] = useState<CourseTab>('path');
+  const [tab, setTab] = useState<CourseTab>(() => readPersistedCourseTab(course.id) ?? 'path');
   const [reprocessWizardOpen, setReprocessWizardOpen] = useState(false);
   const [reprocessApplied, setReprocessApplied] = useState(false);
   const [removeCourseOpen, setRemoveCourseOpen] = useState(false);
@@ -121,7 +127,8 @@ export function CourseView({
     }
   });
   const { lang, t } = useI18n();
-  const progress = (course.completedLessons / Math.max(course.totalLessons, 1)) * 100;
+  const pageStats = useMemo(() => selectCoursePageStats(course, tasks), [course, tasks]);
+  const progress = pageStats.progressPercent;
   const graphSummary = useMemo(() => summarizeCourseGraph(course.conceptGraph), [course.conceptGraph]);
   const courseFileCount = useMemo(
     () => uploadedFiles.filter((f) => f.courseId === course.id).length,
@@ -156,9 +163,19 @@ export function CourseView({
   };
 
   const openReprocessWizard = () => {
+    if (reprocessingMaterial) return;
     setReprocessApplied(false);
     setReprocessWizardOpen(true);
   };
+
+  useEffect(() => {
+    writePersistedCourseTab(course.id, tab);
+  }, [course.id, tab]);
+
+  useEffect(() => {
+    const persisted = readPersistedCourseTab(course.id);
+    if (persisted) setTab(persisted);
+  }, [course.id]);
 
   const reprocessPreview = useMemo(() => {
     if (!reprocessWizardOpen) return null;
@@ -216,9 +233,9 @@ export function CourseView({
                 <Clock className="w-3.5 h-3.5" />
                 {course.estimatedHours}h estimated
               </span>
-              <span className="flex items-center gap-1">
+              <span className="flex items-center gap-1" data-testid="course-stat-mastery">
                 <BarChart3 className="w-3.5 h-3.5" />
-                {course.mastery}% mastery
+                {pageStats.masteryPercent}% {t('courseStatMastery').toLowerCase()}
               </span>
               {course.examDate && (
                 <span className="flex items-center gap-1 text-accent-amber">
@@ -279,6 +296,36 @@ export function CourseView({
       {userSettings && (
         <TrustBadgeRow sourceMode={userSettings.sourceMode} lang={lang} className="mt-3" />
       )}
+
+      <div
+        className="mt-3 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2"
+        data-testid="course-page-stats"
+      >
+        <div className="rounded-xl border border-border-subtle bg-surface-primary/40 px-3 py-2" data-testid="course-stat-progress">
+          <p className="text-[10px] uppercase tracking-wide text-text-muted">{t('courseStatProgress')}</p>
+          <p className="mt-1 text-sm font-semibold">{pageStats.progressPercent}%</p>
+        </div>
+        <div className="rounded-xl border border-border-subtle bg-surface-primary/40 px-3 py-2" data-testid="course-stat-mastery-card">
+          <p className="text-[10px] uppercase tracking-wide text-text-muted">{t('courseStatMastery')}</p>
+          <p className="mt-1 text-sm font-semibold">{pageStats.masteryPercent}%</p>
+        </div>
+        <div className="rounded-xl border border-border-subtle bg-surface-primary/40 px-3 py-2" data-testid="course-stat-pending-tasks">
+          <p className="text-[10px] uppercase tracking-wide text-text-muted">{t('courseStatPendingTasks')}</p>
+          <p className="mt-1 text-sm font-semibold">{pageStats.pendingTasks}</p>
+        </div>
+        <div className="rounded-xl border border-border-subtle bg-surface-primary/40 px-3 py-2" data-testid="course-stat-due-reviews">
+          <p className="text-[10px] uppercase tracking-wide text-text-muted">{t('courseStatDueReviews')}</p>
+          <p className="mt-1 text-sm font-semibold">{pageStats.dueReviews}</p>
+        </div>
+        <div className="rounded-xl border border-border-subtle bg-surface-primary/40 px-3 py-2" data-testid="course-stat-source-quality">
+          <p className="text-[10px] uppercase tracking-wide text-text-muted">{t('courseStatSourceQuality')}</p>
+          <p className="mt-1 text-sm font-semibold">
+            {pageStats.sourceQualityScore != null
+              ? `${pageStats.sourceQualityScore}/100`
+              : t('courseStatSourceQualityUnknown')}
+          </p>
+        </div>
+      </div>
 
       {quality?.band === 'strong' && !quality.needsMoreMaterial && (
         <UxCallout variant="trust" title={t('courseTrustCalloutTitle')} icon={<Sparkles />} testId="course-trust-callout" className="mt-3">
@@ -483,12 +530,19 @@ export function CourseView({
         activeId={tab}
         onChange={setTab}
         testIdPrefix="course-tab"
+        panelIdPrefix="course-panel"
         className="mt-2"
       />
 
       {/* Tab Content */}
       {tab === 'path' && (
-        <div className="space-y-4">
+        <div
+          role="tabpanel"
+          id="course-panel-path"
+          data-testid="course-panel-path"
+          aria-labelledby="course-tab-path"
+          className="space-y-4"
+        >
           <SectionHeader
             eyebrow={t('coursePathSectionEyebrow')}
             title={t('coursePathSectionTitle')}
@@ -507,8 +561,13 @@ export function CourseView({
         </div>
       )}
 
-      {tab === 'map' && <ConceptMap course={course} onStartLesson={onStartLesson} />}
+      {tab === 'map' && (
+        <div role="tabpanel" id="course-panel-map" data-testid="course-panel-map" aria-labelledby="course-tab-map">
+          <ConceptMap course={course} masteryPercent={pageStats.masteryPercent} onStartLesson={onStartLesson} />
+        </div>
+      )}
       {tab === 'sources' && (
+        <div role="tabpanel" id="course-panel-sources" data-testid="course-panel-sources" aria-labelledby="course-tab-sources">
         <SourceFiles
           course={course}
           uploadedFiles={uploadedFiles}
@@ -525,8 +584,13 @@ export function CourseView({
           onAddAudioToFsrs={onAddAudioToFsrs}
           learnerModel={learnerModel}
         />
+        </div>
       )}
-      {tab === 'analytics' && <CourseAnalytics course={course} />}
+      {tab === 'analytics' && (
+        <div role="tabpanel" id="course-panel-analytics" data-testid="course-panel-analytics" aria-labelledby="course-tab-analytics">
+          <CourseAnalytics course={course} masteryPercent={pageStats.masteryPercent} />
+        </div>
+      )}
 
       <ReprocessPreviewModal
         open={reprocessWizardOpen}
@@ -545,6 +609,7 @@ export function CourseView({
           confirmLabel={t('deleteLabel')}
           cancelLabel={t('cancel')}
           destructive
+          data-testid="course-delete-confirm"
           onConfirm={() => {
             onRemoveCourse?.(course.id);
             setRemoveCourseOpen(false);
@@ -708,7 +773,15 @@ function TopicCard({ topic, index, courseColor, course, onGoToSource, onStart }:
   );
 }
 
-function ConceptMap({ course, onStartLesson }: { course: Course; onStartLesson: (topicTitle?: string) => void }) {
+function ConceptMap({
+  course,
+  masteryPercent,
+  onStartLesson,
+}: {
+  course: Course;
+  masteryPercent: number;
+  onStartLesson: (topicTitle?: string) => void;
+}) {
   const { t } = useI18n();
   const topics = course.topics.filter(t => !t.isLocked);
   const graphSummary = summarizeCourseGraph(course.conceptGraph);
@@ -752,8 +825,13 @@ function ConceptMap({ course, onStartLesson }: { course: Course; onStartLesson: 
         }))}
       />
 
-      <div className="platform-panel-md flex items-center justify-center">
-        <ReadinessRing value={course.mastery} size={160} label="Course Readiness" sublabel="Based on weighted concept mastery across all topics" />
+      <div className="platform-panel-md flex items-center justify-center" data-testid="course-mastery-ring">
+        <ReadinessRing
+          value={masteryPercent}
+          size={160}
+          label={t('analyticsCourseMastery')}
+          sublabel={t('courseMasterySublabel')}
+        />
       </div>
     </div>
   );
@@ -976,13 +1054,14 @@ function SourceFiles({
       confirmLabel={t('removeLabel')}
       cancelLabel={t('cancel')}
       destructive
-      data-testid="course-remove-source-dialog"
+      data-testid="course-file-delete-confirm"
     />
     </>
   );
 }
 
-function CourseAnalytics({ course }: { course: Course }) {
+function CourseAnalytics({ course, masteryPercent }: { course: Course; masteryPercent: number }) {
+  const { t } = useI18n();
   const maxMinutes = Math.max(...course.topics.map((t) => t.estimatedMinutes || 0), 1);
   const totalConcepts = course.topics.reduce((s, t) => s + (t.conceptCount || 0), 0);
   const masteredConcepts = course.topics.reduce(
@@ -996,6 +1075,11 @@ function CourseAnalytics({ course }: { course: Course }) {
   const velocity = baselineCph > 0 && actualCph > 0 ? actualCph / baselineCph : 0;
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div className="platform-panel-md sm:col-span-2" data-testid="course-analytics-mastery">
+        <p className="text-xs text-text-tertiary">{t('analyticsCourseMastery')}</p>
+        <p className="mt-1 text-2xl font-bold">{masteryPercent}%</p>
+        <p className="mt-1 text-[11px] text-text-muted">{t('courseMasterySublabel')}</p>
+      </div>
       <div className="platform-panel-md">
         <h4 className="text-sm font-semibold mb-3">Study Time Distribution</h4>
         <p className="text-[11px] text-text-tertiary mb-3">Estimated minutes per module, from the generated outline</p>

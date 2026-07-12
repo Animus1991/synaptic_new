@@ -1,4 +1,4 @@
-import { type ReactNode } from 'react';
+import { type KeyboardEvent, type ReactNode } from 'react';
 import { motion } from 'framer-motion';
 import type { LucideIcon } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
@@ -196,29 +196,64 @@ export function DescriptiveStickyTabBar<T extends string>({
   onChange,
   className,
   testIdPrefix = 'descriptive-tab',
+  panelIdPrefix,
 }: {
   items: DescriptiveTabItem<T>[];
   activeId: T;
   onChange: (id: T) => void;
   className?: string;
   testIdPrefix?: string;
+  /** When set, tabs expose `aria-controls` pointing at `{panelIdPrefix}-{id}` panels. */
+  panelIdPrefix?: string;
 }) {
+  const focusTabAt = (index: number) => {
+    const item = items[index];
+    if (!item) return;
+    onChange(item.id);
+    requestAnimationFrame(() => {
+      document.getElementById(`${testIdPrefix}-${item.id}`)?.focus();
+    });
+  };
+
+  const onTabKeyDown = (event: KeyboardEvent<HTMLButtonElement>, index: number) => {
+    if (items.length <= 1) return;
+    if (event.key === 'ArrowRight') {
+      event.preventDefault();
+      focusTabAt((index + 1) % items.length);
+    } else if (event.key === 'ArrowLeft') {
+      event.preventDefault();
+      focusTabAt((index - 1 + items.length) % items.length);
+    } else if (event.key === 'Home') {
+      event.preventDefault();
+      focusTabAt(0);
+    } else if (event.key === 'End') {
+      event.preventDefault();
+      focusTabAt(items.length - 1);
+    }
+  };
+
   return (
     <div
       className={cn('descriptive-sticky-tabs', className)}
       role="tablist"
       aria-label="Section tabs"
     >
-      {items.map((item) => {
+      {items.map((item, index) => {
         const active = item.id === activeId;
+        const tabId = `${testIdPrefix}-${item.id}`;
+        const panelId = panelIdPrefix ? `${panelIdPrefix}-${item.id}` : undefined;
         return (
           <button
             key={item.id}
+            id={tabId}
             type="button"
             role="tab"
             aria-selected={active}
-            data-testid={`${testIdPrefix}-${item.id}`}
+            aria-controls={panelId}
+            tabIndex={active ? 0 : -1}
+            data-testid={tabId}
             onClick={() => onChange(item.id)}
+            onKeyDown={(event) => onTabKeyDown(event, index)}
             className={cn('descriptive-sticky-tab', active && 'descriptive-sticky-tab-active')}
           >
             <span className="descriptive-sticky-tab-label">{item.label}</span>
