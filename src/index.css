@@ -3603,6 +3603,14 @@ input[type="range"]::-webkit-slider-thumb {
   z-index: 1;
 }
 
+/* Hub scroll targets — clear sticky shell header + demo banner */
+#dashboard-action-hub,
+#dashboard-hero-personal-dates,
+#dashboard-stat-reviews-due,
+#exam-calendar-panel {
+  scroll-margin-top: 7.5rem;
+}
+
 .ux-section-eyebrow {
   font-size: var(--type-caption);
   font-weight: 600;

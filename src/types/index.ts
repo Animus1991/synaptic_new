@@ -61,7 +61,17 @@ export interface UserSettings {
   showDemoContent?: boolean;
   /** ISO timestamp — activities after this count as unread notifications. */
   notificationsLastSeenAt?: string;
+  /** Optional dashboard hero wallpaper (local data URL). */
+  dashboardWallpaperDataUrl?: string;
+  /** User-defined study milestones shown in hero calendar. */
+  personalStudyDates?: PersonalStudyDate[];
 }
+
+export type PersonalStudyDate = {
+  id: string;
+  label: string;
+  date: string;
+};
 
 export interface UploadedFile {
   id: string;

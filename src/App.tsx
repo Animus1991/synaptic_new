@@ -1029,6 +1029,11 @@ export default function App() {
               onDismissPostUpload={store.clearPostUploadHighlight}
               onOpenTasksReview={() => store.openTasksWithFilter('review')}
               settingsExamDate={store.user.settings.examDate}
+              personalStudyDates={store.user.settings.personalStudyDates ?? []}
+              onExamDateChange={(examDate) => store.updateSettings({ examDate })}
+              onPersonalStudyDatesChange={(personalStudyDates) => store.updateSettings({ personalStudyDates })}
+              dashboardWallpaperDataUrl={store.user.settings.dashboardWallpaperDataUrl}
+              onDashboardWallpaperChange={(dataUrl) => store.updateSettings({ dashboardWallpaperDataUrl: dataUrl })}
             />
           )}
           {store.currentView === 'library' && (

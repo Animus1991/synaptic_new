@@ -1,0 +1,129 @@
+import type { PersonalStudyDate } from '../types';
+import { EXAM_CALENDAR_FEED, filterExamCalendar, type ExamCalendarEntry } from './examPrep/examCalendarFeed';
+
+export type DashboardHubActionId =
+  | 'calendar'
+  | 'upload'
+  | 'session'
+  | 'reviews'
+  | 'workspace'
+  | 'personal-dates'
+  | 'wallpaper';
+
+export type DashboardHubAction = {
+  id: DashboardHubActionId;
+  labelKey: import('./i18n').I18nKey;
+  hintKey: import('./i18n').I18nKey;
+  scrollTargetId?: string;
+  badge?: string;
+  disabled?: boolean;
+};
+
+/** Canonical carousel order — calendar is always first. */
+export function buildDashboardHubActions(opts: {
+  reviewsDue: number;
+  canWorkspace: boolean;
+  canUpload: boolean;
+}): DashboardHubAction[] {
+  const actions: DashboardHubAction[] = [
+    {
+      id: 'calendar',
+      labelKey: 'dashboardHeroCarouselCalendar',
+      hintKey: 'dashboardHeroCarouselCalendarHint',
+      scrollTargetId: 'exam-calendar-panel',
+    },
+  ];
+
+  if (opts.canUpload) {
+    actions.push({
+      id: 'upload',
+      labelKey: 'dashboardHeroCarouselUpload',
+      hintKey: 'dashboardHeroCarouselUploadHint',
+    });
+  }
+
+  actions.push({
+    id: 'session',
+    labelKey: 'dashboardHeroCarouselSession',
+    hintKey: 'dashboardHeroCarouselSessionHint',
+  });
+
+  actions.push({
+    id: 'reviews',
+    labelKey: 'dashboardHeroCarouselReviews',
+    hintKey: 'dashboardHeroCarouselReviewsHint',
+    badge: opts.reviewsDue > 0 ? String(opts.reviewsDue) : undefined,
+    scrollTargetId: 'dashboard-stat-reviews-due',
+  });
+
+  if (opts.canWorkspace) {
+    actions.push({
+      id: 'workspace',
+      labelKey: 'dashboardHeroCarouselWorkspace',
+      hintKey: 'dashboardHeroCarouselWorkspaceHint',
+    });
+  }
+
+  actions.push({
+    id: 'personal-dates',
+    labelKey: 'dashboardHeroCarouselPersonalDates',
+    hintKey: 'dashboardHeroCarouselPersonalDatesHint',
+    scrollTargetId: 'dashboard-hero-personal-dates',
+  });
+
+  actions.push({
+    id: 'wallpaper',
+    labelKey: 'dashboardHeroCarouselWallpaper',
+    hintKey: 'dashboardHeroCarouselWallpaperHint',
+    scrollTargetId: 'dashboard-action-hub',
+  });
+
+  return actions;
+}
+
+export type HubTimelineEntry =
+  | { kind: 'personal'; id: string; date: string; label: string }
+  | { kind: 'exam'; date: string }
+  | { kind: 'feed'; entry: ExamCalendarEntry };
+
+export function buildHubTimeline(
+  examDate: string | undefined,
+  personalStudyDates: PersonalStudyDate[],
+  now = Date.now(),
+): HubTimelineEntry[] {
+  const items: HubTimelineEntry[] = [];
+
+  if (examDate) {
+    items.push({ kind: 'exam', date: examDate });
+  }
+
+  for (const d of personalStudyDates) {
+    items.push({ kind: 'personal', id: d.id, date: d.date, label: d.label });
+  }
+
+  for (const entry of filterExamCalendar(EXAM_CALENDAR_FEED, 'all', now).slice(0, 6)) {
+    items.push({ kind: 'feed', entry });
+  }
+
+  return items.sort((a, b) => {
+    const da = a.kind === 'feed' ? a.entry.date : a.date;
+    const db = b.kind === 'feed' ? b.entry.date : b.date;
+    return new Date(da).getTime() - new Date(db).getTime();
+  });
+}
+
+export function newPersonalStudyDate(label: string, date: string): PersonalStudyDate {
+  return {
+    id: typeof crypto !== 'undefined' && crypto.randomUUID
+      ? crypto.randomUUID()
+      : `psd-${Date.now()}`,
+    label: label.trim(),
+    date,
+  };
+}
+
+export function daysUntil(isoDate: string, now = Date.now()): number | null {
+  const t = new Date(isoDate).getTime();
+  if (Number.isNaN(t)) return null;
+  return Math.ceil((t - now) / 86_400_000);
+}

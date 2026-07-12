@@ -17,6 +17,8 @@ import { UiIcon } from './ui/UiIcon';
 import type { UiIconId } from '../lib/uiIconRegistry';
 import { t } from '../lib/i18n';
 import { ModalHeaderStack } from './ui/ModalHeaderStack';
+import { validateUploadInput, createUploadJobId } from '../lib/uploadValidation';
+import type { I18nKey } from '../lib/i18n';
 
 interface UploadModalProps {
   isOpen: boolean;
@@ -112,7 +114,12 @@ export function UploadModal({
   const [editedTopicTitles, setEditedTopicTitles] = useState<string[]>([]);
   const [previewLoading, setPreviewLoading] = useState(false);
   const [previewError, setPreviewError] = useState<string | null>(null);
+  const [validationIssues, setValidationIssues] = useState<{ key: I18nKey; detail?: string }[]>([]);
+  const [closeConfirmOpen, setCloseConfirmOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [uploadJobId, setUploadJobId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
   const wasOpenRef = useRef(false);
   const previewLang = userSettings?.language === 'el' ? 'el' : 'en';
 
@@ -157,6 +164,7 @@ export function UploadModal({
     setYoutubeUrl('');
     setFocusTags([DEFAULT_UPLOAD_FOCUS]);
     setExamDate('');
+    setSourceMode(userSettings?.sourceMode ?? 'enriched');
     const nextUploadMode = resolveDefaultUploadMode();
     setUploadMode(nextUploadMode);
     setTargetCourseId(nextUploadMode === 'extend' ? (defaultTargetCourseId ?? '') : '');
@@ -165,7 +173,11 @@ export function UploadModal({
     setEditedTopicTitles([]);
     setPreviewLoading(false);
     setPreviewError(null);
-  }, [defaultTargetCourseId, resolveDefaultUploadMode]);
+    setValidationIssues([]);
+    setCloseConfirmOpen(false);
+    setIsSubmitting(false);
+    setUploadJobId(null);
+  }, [defaultTargetCourseId, resolveDefaultUploadMode, userSettings?.sourceMode]);
 
   useEffect(() => {
     if (isOpen && !wasOpenRef.current) {
@@ -173,6 +185,95 @@ export function UploadModal({
     }
     wasOpenRef.current = isOpen;
   }, [isOpen, resetForm]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        if (isSubmitting) {
+          e.preventDefault();
+          setCloseConfirmOpen(true);
+        } else {
+          onClose();
+        }
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    dialogRef.current?.focus();
+    return () => window.removeEventListener('keydown', onKey);
+  }, [isOpen, isSubmitting, onClose]);
+
+  const requestClose = () => {
+    if (isSubmitting) {
+      setCloseConfirmOpen(true);
+      return;
+    }
+    onClose();
+  };
+
+  const collectValidation = useCallback(() => {
+    const issues = validateUploadInput({
+      files,
+      pastedContent,
+      youtubeUrl,
+      uploadMode,
+      targetCourseId,
+      hasExtendTarget: extendableCourses.length > 0,
+    });
+    setValidationIssues(issues);
+    return issues;
+  }, [files, pastedContent, youtubeUrl, uploadMode, targetCourseId, extendableCourses.length]);
+
+  const goToConfigure = () => {
+    const issues = collectValidation();
+    if (issues.length > 0) return;
+    setStep('configure');
+  };
+
+  const handleProceed = async () => {
+    if (isSubmitting) return;
+    const issues = collectValidation();
+    if (issues.length > 0) return;
+
+    const editedOutline = outlinePreview && outlineTopicsWereEdited(outlinePreview.outline, editedTopicTitles)
+      ? applyEditedTopicTitles(outlinePreview.outline, editedTopicTitles)
+      : outlinePreview?.outline;
+
+    const payload: UploadPayload = {
+      files,
+      pastedContent: pastedContent.trim() || undefined,
+      youtubeUrl: youtubeUrl.trim() || undefined,
+      sourceMode,
+      focusTags: focusTags.map((key) => FOCUS_PIPELINE_LABELS[key]),
+      examDate: examDate || undefined,
+      uploadMode,
+      targetCourseId: uploadMode === 'extend' && targetCourseId ? targetCourseId : undefined,
+      editedOutline,
+    };
+    const jobId = createUploadJobId();
+    setUploadJobId(jobId);
+    setStep('processing');
+    setProcessingError(null);
+    setIsSubmitting(true);
+    try {
+      if (onProcessUpload) {
+        const result = await onProcessUpload(payload);
+        if (result && typeof result === 'object' && 'id' in result) {
+          onUploadComplete?.(result as Course);
+        }
+      } else if (files.length > 0) {
+        onUpload(files);
+      }
+      resetForm();
+      onProceed();
+      onClose();
+    } catch (err) {
+      setProcessingError(err instanceof Error ? err.message : t('uploadFailed', previewLang));
+      setStep('error');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   useEffect(() => {
     if (step !== 'configure') return;
@@ -194,7 +295,7 @@ export function UploadModal({
         if (cancelled) return;
         setOutlinePreview(result);
         if (result) {
-          setEditedTopicTitles(result.outline.topics.map((t) => t.title));
+          setEditedTopicTitles(result.outline.topics.map((topic) => topic.title));
         }
         if (!result) {
           setPreviewError(t('uploadPreviewTooShort', previewLang));
@@ -213,43 +314,6 @@ export function UploadModal({
     };
   }, [step, files, pastedContent, youtubeUrl, userSettings, previewLang]);
 
-  const handleProceed = async () => {
-    const editedOutline = outlinePreview && outlineTopicsWereEdited(outlinePreview.outline, editedTopicTitles)
-      ? applyEditedTopicTitles(outlinePreview.outline, editedTopicTitles)
-      : outlinePreview?.outline;
-
-    const payload: UploadPayload = {
-      files,
-      pastedContent: pastedContent.trim() || undefined,
-      youtubeUrl: youtubeUrl.trim() || undefined,
-      sourceMode,
-      focusTags: focusTags.map((key) => FOCUS_PIPELINE_LABELS[key]),
-      examDate: examDate || undefined,
-      uploadMode,
-      targetCourseId: uploadMode === 'extend' && targetCourseId ? targetCourseId : undefined,
-      editedOutline,
-    };
-    setStep('processing');
-    setProcessingError(null);
-    try {
-      if (onProcessUpload) {
-        const result = await onProcessUpload(payload);
-        if (result && typeof result === 'object' && 'id' in result) {
-          onUploadComplete?.(result as Course);
-        }
-      } else if (files.length > 0) {
-        onUpload(files);
-      }
-      resetForm();
-      onProceed();
-      onClose();
-    } catch (err) {
-      setProcessingError(err instanceof Error ? err.message : t('uploadFailed', previewLang));
-      setStep('error');
-    }
-  };
-
-  const hasContent = files.length > 0 || pastedContent.trim().length > 0 || youtubeUrl.trim().length > 0;
   const activeFlowIndex = step === 'upload' ? 0 : step === 'configure' ? 1 : 2;
 
   if (!isOpen) return null;
@@ -260,11 +324,16 @@ export function UploadModal({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 z-[100] flex items-center justify-center p-4"
+        className="fixed inset-0 z-[130] flex items-center justify-center p-4"
       >
-        <div className="absolute inset-0 bg-black/70" onClick={onClose} />
+        <div className="absolute inset-0 bg-black/70" onClick={requestClose} aria-hidden="true" />
 
         <motion.div
+          ref={dialogRef}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="upload-modal-title"
+          tabIndex={-1}
           initial={{ opacity: 0, scale: 0.95, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
@@ -276,6 +345,7 @@ export function UploadModal({
             <ModalHeaderStack
               eyebrow={t('uploadModalEyebrow', previewLang)}
               title={t('uploadModalTitle', previewLang)}
+              titleId="upload-modal-title"
               subtitle={
                 step === 'upload' ? t('uploadModalStepUpload', previewLang)
                 : step === 'configure' ? t('uploadModalStepConfigure', previewLang)
@@ -283,10 +353,38 @@ export function UploadModal({
                 : t('uploadModalStepError', previewLang)
               }
             />
-            <button onClick={onClose} className="p-2 rounded-lg hover:bg-surface-hover shrink-0">
+            <button type="button" onClick={requestClose} disabled={false} aria-label={t('close', previewLang)} className="p-2 rounded-lg hover:bg-surface-hover shrink-0">
               <X className="w-5 h-5 text-text-secondary" />
             </button>
           </div>
+
+          {closeConfirmOpen && (
+            <div className="mx-5 mt-4 rounded-xl border border-accent-amber/30 bg-accent-amber/10 p-4" data-testid="upload-close-confirm">
+              <p className="text-sm font-semibold">{t('uploadCloseWhileProcessingTitle', previewLang)}</p>
+              <p className="text-xs text-text-secondary mt-1">{t('uploadCloseWhileProcessingBody', previewLang)}</p>
+              <div className="mt-3 flex gap-2">
+                <button type="button" onClick={() => setCloseConfirmOpen(false)} className="px-3 py-1.5 text-xs rounded-lg border border-border-subtle">
+                  {t('uploadCancel', previewLang)}
+                </button>
+                <button type="button" onClick={() => { setCloseConfirmOpen(false); onClose(); }} className="px-3 py-1.5 text-xs rounded-lg bg-accent-rose/20 text-accent-rose">
+                  {t('uploadCloseConfirm', previewLang)}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {validationIssues.length > 0 && step === 'upload' && (
+            <div className="mx-5 mt-4 rounded-xl border border-accent-rose/30 bg-accent-rose/10 p-4" data-testid="upload-validation-errors" role="alert">
+              <p className="text-xs font-semibold mb-2">{t('uploadValidationSummary', previewLang)}</p>
+              <ul className="space-y-1 text-xs text-text-secondary">
+                {validationIssues.map((issue, i) => (
+                  <li key={`${issue.key}-${i}`}>
+                    {t(issue.key, previewLang)}{issue.detail ? `: ${issue.detail}` : ''}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
 
           <div className="px-5 pt-4">
             <div className="grid gap-2 sm:grid-cols-3">
@@ -382,8 +480,9 @@ export function UploadModal({
                     </p>
                     {files.map((file, i) => {
                       const isChatGpt = /\.(json|zip)$/i.test(file.name);
+                      const fileKey = `${file.name}-${file.size}-${file.lastModified}`;
                       return (
-                      <div key={i} className="flex items-center gap-3 p-3 rounded-xl bg-surface-card border border-border-subtle">
+                      <div key={fileKey} className="flex items-center gap-3 p-3 rounded-xl bg-surface-card border border-border-subtle">
                         {isChatGpt ? (
                           <MessageSquare className="w-4 h-4 text-brand-400 shrink-0" />
                         ) : (
@@ -597,6 +696,9 @@ export function UploadModal({
                   {t('uploadProcessingBody', previewLang)}
                 </p>
                 <p className="text-xs text-text-tertiary mb-5">{t('uploadProcessingSummary', previewLang)}</p>
+                {uploadJobId && (
+                  <p className="text-[10px] text-text-muted mb-3 font-mono" data-testid="upload-job-id">{uploadJobId.slice(0, 8)}</p>
+                )}
                 <div className="space-y-3 max-w-xs mx-auto text-left" role="status" aria-live="polite">
                   {PROCESSING_STEP_KEYS.map((labelKey, i) => (
                     <div key={i} className="flex items-center gap-2 text-sm">
@@ -615,18 +717,18 @@ export function UploadModal({
           {step !== 'processing' && step !== 'error' && (
             <div className="p-5 border-t border-border-subtle flex items-center justify-between">
               <button
-                onClick={step === 'configure' ? () => setStep('upload') : onClose}
+                onClick={step === 'configure' ? () => setStep('upload') : requestClose}
                 className="px-4 py-2 text-sm text-text-secondary hover:text-text-primary transition-colors"
               >
                 {step === 'configure' ? t('uploadBack', previewLang) : t('uploadCancel', previewLang)}
               </button>
               <button
                 data-testid={step === 'upload' ? 'upload-continue' : 'upload-generate'}
-                onClick={step === 'upload' ? () => setStep('configure') : handleProceed}
-                disabled={(step === 'upload' && !hasContent) || (step === 'configure' && uploadMode === 'extend' && !targetCourseId)}
+                onClick={step === 'upload' ? goToConfigure : handleProceed}
+                disabled={isSubmitting || (step === 'configure' && uploadMode === 'extend' && !targetCourseId)}
                 className={cn(
                   'flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium text-sm transition-all',
-                  (step === 'upload' && !hasContent) || (step === 'configure' && uploadMode === 'extend' && !targetCourseId)
+                  isSubmitting || (step === 'configure' && uploadMode === 'extend' && !targetCourseId)
                     ? 'bg-surface-hover text-text-muted cursor-not-allowed'
                     : 'bg-gradient-to-r from-brand-600 to-brand-500 text-white hover:from-brand-500 hover:to-brand-400'
                 )}

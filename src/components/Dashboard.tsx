@@ -5,7 +5,7 @@ import {
   Shield, Lightbulb, ArrowCounterClockwise as RotateCcw, Eye, SquaresFour as Layout, CheckCircle as CheckCircle2, UploadSimple as Upload, Sparkle as Sparkles,
   HandWaving as Hand,
 } from '@phosphor-icons/react';
-import type { Course, DashboardStats, LearnerModel, Task } from '../types';
+import type { Course, DashboardStats, LearnerModel, PersonalStudyDate, Task } from '../types';
 import { cn } from '../utils/cn';
 import { ReadinessRing } from './visuals/ReadinessRing';
 import { SignalBars } from './visuals/SignalBars';
@@ -27,14 +27,12 @@ import { courseRingColor, resolveCourseColor, accentHighlightVar } from '../lib/
 import { workspaceEntryPrefetchHandlers } from '../lib/workspaceEntryPrefetch';
 import { greetingForTime, dashboardSubtitle } from '../lib/greeting';
 import { useI18n } from '../lib/i18n';
-import { Page, PageHeader, PrimaryCTA } from './ui/primitives';
+import { Page, PrimaryCTA } from './ui/primitives';
 import { HeroGlow, UxCallout } from './ui/platformChrome';
 import { BlueprintSurface } from './ui/BlueprintSurface';
 import { PostUploadBanner } from './ui/PostUploadBanner';
 import { DashboardLivePreview } from './DashboardLivePreview';
-import { DashboardBuildPipelinePreview } from './DashboardBuildPipelinePreview';
-import { DashboardHeroSteps } from './DashboardHeroSteps';
-import { DashboardHeroLensChip } from './DashboardHeroLensChip';
+import { DashboardActionHub } from './DashboardActionHub';
 import { useBlueprintTheme } from '../lib/useBlueprintTheme';
 import { useMemo } from 'react';
 import { buildDashboardWeakSpotCards } from '../lib/dashboardWeakSpotsModel';
@@ -119,9 +117,14 @@ interface DashboardProps {
   onDismissPostUpload?: () => void;
   onOpenTasksReview?: () => void;
   settingsExamDate?: string;
+  personalStudyDates?: PersonalStudyDate[];
+  onExamDateChange?: (date: string | undefined) => void;
+  onPersonalStudyDatesChange?: (dates: PersonalStudyDate[]) => void;
+  dashboardWallpaperDataUrl?: string;
+  onDashboardWallpaperChange?: (dataUrl: string | undefined) => void;
 }
 
-export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onSelectCourse, onOpenWorkspace, onOpenExamTimer, onUpload, onExploreDemo, prerequisiteRepairs = [], calibration, conceptMastery = [], activities = [], masteryDelta = 0, daysToExam = null, antiPassiveAlert = false, onStartTask, onStartSession, onResolveMisconception, onFocusWeakArea, workspaceLive = null, workspaceBooting = false, dashboardNextAction = null, smartCTAs = [], onRunSmartCTA, proactiveAgentAlerts = [], onRunProactiveAgentAlert, onOpenWorkspacePractice, lang = 'en', theoryVsPractice = 50, postUploadCourse = null, onDismissPostUpload, onOpenTasksReview, settingsExamDate }: DashboardProps) {
+export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onSelectCourse, onOpenWorkspace, onOpenExamTimer, onUpload, onExploreDemo, prerequisiteRepairs = [], calibration, conceptMastery = [], activities = [], masteryDelta = 0, daysToExam = null, antiPassiveAlert = false, onStartTask, onStartSession, onResolveMisconception, onFocusWeakArea, workspaceLive = null, workspaceBooting = false, dashboardNextAction = null, smartCTAs = [], onRunSmartCTA, proactiveAgentAlerts = [], onRunProactiveAgentAlert, onOpenWorkspacePractice, lang = 'en', postUploadCourse = null, onDismissPostUpload, onOpenTasksReview, settingsExamDate, personalStudyDates = [], onExamDateChange, onPersonalStudyDatesChange, dashboardWallpaperDataUrl, onDashboardWallpaperChange }: DashboardProps) {
   const { t } = useI18n();
   const isBlueprint = useBlueprintTheme();
   const pendingTasks = tasks.filter(t => t.status === 'pending' || t.status === 'in-progress');
@@ -211,72 +214,64 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
 
   return (
     <HeroGlow>
-    <Page className="ux-fade-up">
-      <PageHeader
-        eyebrow={t('dashboardEyebrow')}
-        title={
-          <>
-            <span className="sr-only">{t('dashboardSrPrefix')}</span>
-            {greetingForTime(lang)}!
-            <Hand className="inline-block w-7 h-7 text-brand-600 shrink-0 ml-2 align-middle" aria-hidden />
-          </>
-        }
-        subtitle={
-          <span className="gradient-text">{dashboardSubtitle(lang, criticalTasks.length, stats.streak)}</span>
-        }
-        actions={
-          <>
-            {onOpenWorkspace && (
-              <button
-                type="button"
-                onClick={onOpenWorkspace}
-                aria-busy={workspaceBooting}
-                data-tour="dashboard-workspace-cta"
-                {...workspaceEntryPrefetchHandlers()}
-                className={cn(
-                  'flex items-center gap-2 px-4 py-2.5 border border-brand-500/40 text-brand-700 rounded-xl font-medium text-sm hover:bg-brand-600/10 transition-all whitespace-nowrap',
-                  workspaceBooting && 'opacity-70',
-                )}
-              >
-                <Layout className="w-4 h-4" /> {t('navStudyWorkspace')}
-              </button>
-            )}
-            <PrimaryCTA onClick={() => onStartSession?.('25min') ?? onNavigate('tasks')} className="whitespace-nowrap">
-              <Play className="w-4 h-4" /> {t('startSession')}
-            </PrimaryCTA>
-          </>
-        }
-      />
-
-      <MotionSection initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
-        <BlueprintSurface nest className="px-4 py-3">
-          <p className="text-sm text-text-secondary">{t('dashboardWorkspaceEntryHint')}</p>
-        </BlueprintSurface>
+    <Page className="ux-fade-up !pt-2 sm:!pt-3" gap="sm">
+      <MotionSection
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        data-testid="dashboard-hero-panel"
+      >
+        <DashboardActionHub
+          reviewsDue={stats.reviewsDue}
+          canWorkspace={Boolean(onOpenWorkspace)}
+          canUpload={Boolean(onUpload)}
+          daysToExam={daysToExam}
+          examDate={settingsExamDate}
+          personalStudyDates={personalStudyDates}
+          onExamDateChange={onExamDateChange}
+          onPersonalStudyDatesChange={onPersonalStudyDatesChange}
+          wallpaperDataUrl={dashboardWallpaperDataUrl}
+          onWallpaperChange={onDashboardWallpaperChange}
+          workspaceLive={showWorkspaceResume ? workspaceLive : null}
+          lang={lang}
+          onUpload={onUpload}
+          onStartSession={onStartSession}
+          onOpenTasksReview={onOpenTasksReview}
+          onOpenWorkspace={onOpenWorkspace}
+          greetingEyebrow={t('dashboardEyebrow')}
+          greetingTitle={
+            <>
+              <span className="sr-only">{t('dashboardSrPrefix')}</span>
+              {greetingForTime(lang)}!
+              <Hand className="inline-block w-7 h-7 text-brand-600 shrink-0 ml-2 align-middle" aria-hidden />
+            </>
+          }
+          greetingSubtitle={
+            <span className="gradient-text">{dashboardSubtitle(lang, criticalTasks.length, stats.streak)}</span>
+          }
+          headerActions={
+            <>
+              {onOpenWorkspace && (
+                <button
+                  type="button"
+                  onClick={onOpenWorkspace}
+                  aria-busy={workspaceBooting}
+                  data-tour="dashboard-workspace-cta"
+                  {...workspaceEntryPrefetchHandlers()}
+                  className={cn(
+                    'flex items-center gap-2 px-4 py-2.5 border border-brand-500/40 text-brand-700 rounded-xl font-medium text-sm hover:bg-brand-600/10 transition-all whitespace-nowrap',
+                    workspaceBooting && 'opacity-70',
+                  )}
+                >
+                  <Layout className="w-4 h-4" /> {t('navStudyWorkspace')}
+                </button>
+              )}
+              <PrimaryCTA onClick={() => onStartSession?.('25min') ?? onNavigate('tasks')} className="whitespace-nowrap">
+                <Play className="w-4 h-4" /> {t('startSession')}
+              </PrimaryCTA>
+            </>
+          }
+        />
       </MotionSection>
-
-      {isBlueprint && (
-        <MotionSection
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.04 }}
-          className="space-y-4"
-          data-testid="dashboard-hero-panel"
-        >
-          <DashboardHeroLensChip theoryVsPractice={theoryVsPractice} />
-          <div className="grid gap-6 xl:grid-cols-[1.05fr_0.95fr] xl:items-start">
-          <DashboardHeroSteps />
-          {showWorkspaceResume && workspaceLive ? (
-            <DashboardLivePreview
-              live={workspaceLive}
-              lang={lang}
-              onOpenWorkspace={onOpenWorkspace}
-            />
-          ) : (
-            <DashboardBuildPipelinePreview />
-          )}
-          </div>
-        </MotionSection>
-      )}
 
       {postUploadCourse && (
         <MotionSection initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
@@ -306,6 +301,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
           value={`${stats.reviewsDue}`}
           onClick={stats.reviewsDue > 0 ? () => (onOpenTasksReview ? onOpenTasksReview() : onNavigate('tasks')) : undefined}
           data-testid="dashboard-stat-reviews-due"
+          id="dashboard-stat-reviews-due"
         />
         <StatCard icon={<Brain className="w-5 h-5 text-accent-cyan" />} label={t('dashboardStatConceptsMastered')} value={`${stats.conceptsMastered}/${stats.totalConcepts}`} />
         <StatCard icon={<Clock className="w-5 h-5 text-accent-emerald" />} label={t('dashboardStatStudyToday')} value={t('dashboardStatStudyMinutes').replace('{count}', String(stats.studyTimeToday))} />

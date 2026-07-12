@@ -12,11 +12,11 @@ export function ExamCalendarPanel() {
   const entries = useMemo(() => filterExamCalendar(EXAM_CALENDAR_FEED, preset), [preset]);
 
   return (
+    <div id="exam-calendar-panel" data-testid="exam-calendar-panel">
     <PlatformSection
       tone="muted"
       title={t('examCalendarTitle')}
       icon={Calendar}
-      data-testid="exam-calendar-panel"
     >
       <div className="flex flex-wrap gap-2 mb-4">
         {(['all', 'general', 'panhellenic-informatics'] as const).map((p) => (
@@ -69,5 +69,6 @@ export function ExamCalendarPanel() {
         ))}
       </ul>
     </PlatformSection>
+    </div>
   );
 }
