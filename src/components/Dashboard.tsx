@@ -27,8 +27,8 @@ import { courseRingColor, resolveCourseColor, accentHighlightVar } from '../lib/
 import { workspaceEntryPrefetchHandlers } from '../lib/workspaceEntryPrefetch';
 import { greetingForTime, dashboardSubtitle } from '../lib/greeting';
 import { useI18n } from '../lib/i18n';
-import { Page, PrimaryCTA } from './ui/primitives';
-import { HeroGlow, UxCallout } from './ui/platformChrome';
+import { PrimaryCTA } from './ui/primitives';
+import { UxCallout } from './ui/platformChrome';
 import { BlueprintSurface } from './ui/BlueprintSurface';
 import { PostUploadBanner } from './ui/PostUploadBanner';
 import { DashboardLivePreview } from './DashboardLivePreview';
@@ -213,14 +213,14 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
   }
 
   return (
-    <HeroGlow>
-    <Page className="ux-fade-up !pt-2 sm:!pt-3" gap="sm">
+    <div className="w-full min-w-0 pb-24 lg:pb-8 ux-fade-up">
       <MotionSection
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         data-testid="dashboard-hero-panel"
       >
         <DashboardActionHub
+          flushTop
           reviewsDue={stats.reviewsDue}
           canWorkspace={Boolean(onOpenWorkspace)}
           canUpload={Boolean(onUpload)}
@@ -273,6 +273,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
         />
       </MotionSection>
 
+      <div className="px-4 sm:px-6 lg:px-8 space-y-4 sm:space-y-6">
       {postUploadCourse && (
         <MotionSection initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
           <PostUploadBanner
@@ -798,8 +799,8 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
           </BlueprintSurface>
         </MotionSection>
       </div>
-    </Page>
-    </HeroGlow>
+    </div>
+    </div>
   );
 }
 

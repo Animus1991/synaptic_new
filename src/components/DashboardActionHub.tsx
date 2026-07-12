@@ -51,6 +51,8 @@ interface Props {
   greetingTitle?: ReactNode;
   greetingSubtitle?: ReactNode;
   headerActions?: ReactNode;
+  /** Flush to shell top — no side/top gap under demo banner. */
+  flushTop?: boolean;
 }
 
 export function DashboardActionHub({
@@ -74,6 +76,7 @@ export function DashboardActionHub({
   greetingTitle,
   greetingSubtitle,
   headerActions,
+  flushTop = false,
 }: Props) {
   const { t } = useI18n();
   const carouselRef = useRef<HTMLDivElement>(null);
@@ -126,7 +129,12 @@ export function DashboardActionHub({
     <>
       <div
         id="dashboard-action-hub"
-        className="relative overflow-hidden rounded-2xl border border-border-subtle min-h-[min(36vh,18rem)]"
+        className={cn(
+          'relative overflow-hidden border border-border-subtle bg-surface-secondary/35',
+          flushTop
+            ? 'rounded-none border-x-0 border-t-0'
+            : 'rounded-2xl',
+        )}
         data-testid="dashboard-action-hub"
         data-tour="dashboard-hero-panel"
         style={

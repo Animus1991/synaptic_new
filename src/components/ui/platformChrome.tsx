@@ -164,10 +164,19 @@ export function SessionLauncherCard({
 }
 
 /** Subtle hero radial glow — Dashboard / Tasks page headers. */
-export function HeroGlow({ children, className }: { children: ReactNode; className?: string }) {
+export function HeroGlow({
+  children,
+  className,
+  /** When true, skip decorative orbs and top dead-space (hero band pages). */
+  flush,
+}: {
+  children: ReactNode;
+  className?: string;
+  flush?: boolean;
+}) {
   return (
-    <div className={cn('platform-hero-glow', className)}>
-      <div className="platform-hero-glow-orbs" aria-hidden />
+    <div className={cn('platform-hero-glow', flush && 'platform-hero-glow-flush', className)}>
+      {!flush && <div className="platform-hero-glow-orbs" aria-hidden />}
       {children}
     </div>
   );

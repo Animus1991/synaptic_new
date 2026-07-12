@@ -181,8 +181,8 @@ export function Tasks({
   ];
 
   return (
-    <HeroGlow>
-    <Page className="max-w-5xl ux-fade-up">
+    <HeroGlow flush>
+    <Page className="max-w-5xl ux-fade-up !pt-0" gap="sm">
       <PageHeader
         title={c.pageTitle}
         subtitle={subtitle}

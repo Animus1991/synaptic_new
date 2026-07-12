@@ -3590,13 +3590,16 @@ input[type="range"]::-webkit-slider-thumb {
 .platform-hero-glow-orbs {
   pointer-events: none;
   position: absolute;
-  inset: -2rem -1rem auto;
-  height: 14rem;
+  inset: 0 0 auto;
+  height: min(100%, 10rem);
   z-index: 0;
   background:
     radial-gradient(circle at 8% 20%, color-mix(in srgb, var(--color-accent-teal) 16%, transparent), transparent 42%),
     radial-gradient(circle at 92% 10%, color-mix(in srgb, var(--color-accent-violet) 12%, transparent), transparent 38%);
   opacity: 0.85;
+}
+.platform-hero-glow-flush .platform-hero-glow-orbs {
+  display: none;
 }
 .platform-hero-glow > * {
   position: relative;
