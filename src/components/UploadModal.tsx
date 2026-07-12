@@ -73,14 +73,6 @@ const SOURCE_MODES: { mode: SourceMode; labelKey: 'uploadSourceStrict' | 'upload
   { mode: 'notes-only', labelKey: 'uploadSourceNotesOnly', descKey: 'uploadSourceNotesOnlyDesc', icon: 'notes' },
 ];
 
-const PROCESSING_STEP_KEYS = [
-  'uploadProcessingStepStructure',
-  'uploadProcessingStepConcepts',
-  'uploadProcessingStepQuality',
-  'uploadProcessingStepDensity',
-  'uploadProcessingStepExercises',
-] as const;
-
 const FLOW_STAGES = [
   { key: 'upload', labelKey: 'uploadStageInput', hintKey: 'uploadStageInputHint' },
   { key: 'configure', labelKey: 'uploadStageOutline', hintKey: 'uploadStageOutlineHint' },
@@ -669,7 +661,7 @@ export function UploadModal({
             )}
 
             {step === 'error' && (
-              <div className="text-center py-8 space-y-4">
+              <div className="text-center py-8 space-y-4" data-testid="upload-error">
                 <AlertCircle className="w-12 h-12 text-accent-rose mx-auto" />
                 <h3 className="text-lg font-semibold">{t('uploadErrorTitle', previewLang)}</h3>
                 <p className="text-sm text-text-secondary max-w-md mx-auto">{processingError}</p>
@@ -699,15 +691,14 @@ export function UploadModal({
                 {uploadJobId && (
                   <p className="text-[10px] text-text-muted mb-3 font-mono" data-testid="upload-job-id">{uploadJobId.slice(0, 8)}</p>
                 )}
-                <div className="space-y-3 max-w-xs mx-auto text-left" role="status" aria-live="polite">
-                  {PROCESSING_STEP_KEYS.map((labelKey, i) => (
-                    <div key={i} className="flex items-center gap-2 text-sm">
-                      <Loader2 className="w-4 h-4 text-brand-400 animate-spin shrink-0" aria-hidden />
-                      <span className="text-text-secondary">
-                        {t(labelKey, previewLang)}
-                      </span>
-                    </div>
-                  ))}
+                <div
+                  className="flex items-center justify-center gap-2 text-sm text-text-secondary"
+                  role="status"
+                  aria-live="polite"
+                  data-testid="upload-processing-status"
+                >
+                  <Loader2 className="w-4 h-4 text-brand-400 animate-spin shrink-0" aria-hidden />
+                  <span>{t('uploadProcessingIndeterminate', previewLang)}</span>
                 </div>
               </div>
             )}

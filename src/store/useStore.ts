@@ -77,6 +77,11 @@ import {
 import { recognizeCourse } from '../lib/recognitionWorkerClient';
 import { buildConceptSpans, type SourceHighlight } from '../lib/conceptProvenance';
 import { enrichCourseWithCrossLinks } from '../lib/crossDocumentLink';
+import {
+  captureUploadSnapshot,
+  isUploadForceFailEnabled,
+  restoreUploadSnapshot,
+} from '../lib/uploadTransaction';
 import { applyFsrsToSpacing, quizOutcomeToFsrsRating } from '../lib/adaptiveScheduler';
 import type { TaskCalendarSyncUpdate } from '../lib/taskCalendarSync';
 import type { WorkspaceFocus } from '../lib/workspaceFocus';
@@ -1667,28 +1672,64 @@ export function useAppStore() {
     const nextBeta = mergeBetaFromCourse(betaMastery, course);
     const nextLm = mergeSkillNodesFromCourse(learnerModel, course);
     const nextLmMetrics = recomputeLearnerMetrics(nextLm, nextBeta, firstAttemptKeys, openMistakes);
-    setUploadedFiles(nextFiles);
-    applyThumbnailBackfill(nextFiles);
-    setCourses(nextCourses);
-    setTasks(nextTasks);
-    setBetaMastery(nextBeta);
-    setLearnerModel(nextLmMetrics);
-    persistLibrary(nextFiles, nextGlossary, nextCourses.filter((c) => !MOCK_COURSE_IDS.has(c.id)));
-    const actLabel = extendTarget ? `Extended course: ${course.title}` : `Created course: ${course.title}`;
-    emitAnalyticsLearningEvent('course_generated', {
-      topicCount: course.topics.length,
-      conceptCount: course.conceptCount,
-      pipelineVersion: CONTENT_PIPELINE_VERSION,
-    }, { courseId: course.id });
-    const nextActs = logActivity(createActivity('upload', actLabel));
-    persist(nextLmMetrics, dashboardStats, nextTasks, user.xp, nextBeta, firstAttemptKeys, openMistakes, nextActs, user.settings);
+
+    const uploadSnapshot = captureUploadSnapshot({
+      courses,
+      uploadedFiles,
+      glossaryEntries,
+      tasks,
+      betaMastery,
+      learnerModel,
+      activities,
+      dashboardStats,
+      selectedCourseId: selectedCourse?.id ?? null,
+    });
+
+    try {
+      if (isUploadForceFailEnabled()) {
+        throw new Error('Upload commit blocked (test hook)');
+      }
+
+      setUploadedFiles(nextFiles);
+      applyThumbnailBackfill(nextFiles);
+      setCourses(nextCourses);
+      setTasks(nextTasks);
+      setBetaMastery(nextBeta);
+      setGlossaryEntries(nextGlossary);
+      setLearnerModel(nextLmMetrics);
+
+      persistLibrary(nextFiles, nextGlossary, nextCourses.filter((c) => !MOCK_COURSE_IDS.has(c.id)));
+
+      const actLabel = extendTarget ? `Extended course: ${course.title}` : `Created course: ${course.title}`;
+      emitAnalyticsLearningEvent('course_generated', {
+        topicCount: course.topics.length,
+        conceptCount: course.conceptCount,
+        pipelineVersion: CONTENT_PIPELINE_VERSION,
+      }, { courseId: course.id });
+      const nextActs = logActivity(createActivity('upload', actLabel));
+      persist(nextLmMetrics, dashboardStats, nextTasks, user.xp, nextBeta, firstAttemptKeys, openMistakes, nextActs, user.settings);
+
       setSelectedCourse(course);
       showAppToast(formatUploadSuccessToast(summarizeUploadStructure(text, lang), lang));
-    return course;
+      return course;
+    } catch (commitErr) {
+      restoreUploadSnapshot(uploadSnapshot, {
+        setCourses,
+        setUploadedFiles,
+        setGlossaryEntries,
+        setTasks,
+        setBetaMastery,
+        setLearnerModel,
+        setActivities,
+        setDashboardStats,
+        setSelectedCourse,
+      });
+      throw commitErr;
+    }
     } finally {
       setIsUploading(false);
     }
-  }, [courses, uploadedFiles, glossaryEntries, learnerModel, dashboardStats, tasks, user.xp, user.settings, betaMastery, firstAttemptKeys, openMistakes, persist, persistLibrary, logActivity, showAppToast, applyThumbnailBackfill]);
+  }, [courses, uploadedFiles, glossaryEntries, learnerModel, dashboardStats, tasks, user.xp, user.settings, betaMastery, firstAttemptKeys, openMistakes, activities, selectedCourse, persist, persistLibrary, logActivity, showAppToast, applyThumbnailBackfill]);
 
   const reprocessCourseMaterial = useCallback((courseId: string) => {
     setIsReprocessing(true);
