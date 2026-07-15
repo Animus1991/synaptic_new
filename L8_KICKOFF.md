@@ -73,14 +73,18 @@ cp fastlane/.env.example fastlane/.env   # fill Apple / Play credentials
 
 ---
 
-## L8-3 Brand / GTM (non-code)
+## L8-3 Brand / GTM (docs shipped)
 
-- Landing page refresh + institution one-pager
-- Demo video (workspace + student-org + teacher heatmap)
+- [x] Institution one-pager — `docs/marketing/INSTITUTION_ONE_PAGER.md`
+- [x] Landing copy + demo script — `docs/marketing/LANDING_COPY.md`
+- [ ] Landing page refresh hosted at production URL
+- [ ] Demo video (workspace + student-org + teacher heatmap)
 - Parallel track — does not block L8-2 code
 
 ---
 
 ## L8-4 PRODUCT_SCALE_STATUS sync
 
-Reconcile `PRODUCT_SCALE_STATUS.md` through L7; canvas backlog updated in `synapse-competitive-matrix.canvas.tsx`.
+- [x] Reconcile `PRODUCT_SCALE_STATUS.md` through L17
+- [x] Canvas backlog updated in `synapse-competitive-matrix.canvas.tsx`
+- [x] TeacherDashboard audit export UI (`OrgAuditExportPanel`)

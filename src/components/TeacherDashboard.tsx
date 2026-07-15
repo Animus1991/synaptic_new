@@ -29,6 +29,7 @@ import { fetchOrgs, fetchOrgAnalytics, downloadGradebookCsv, linkLtiClassContext
 import { CohortHeatmap } from './CohortHeatmap';
 import { CohortNotebookLmHeatmap } from './CohortNotebookLmHeatmap';
 import { CohortTopicMasteryHeatmap } from './CohortTopicMasteryHeatmap';
+import { OrgAuditExportPanel } from './OrgAuditExportPanel';
 import { AssignmentDiscussionThread } from './AssignmentDiscussionThread';
 import { formatDateTime, formatShortDate, localeTag } from '../lib/localeFormat';
 import { cn } from '../utils/cn';
@@ -469,6 +470,7 @@ export function TeacherDashboard({
               <CohortHeatmap analytics={orgAnalytics} lang={lang} />
               <CohortTopicMasteryHeatmap analytics={orgAnalytics} lang={lang} />
               <CohortNotebookLmHeatmap analytics={orgAnalytics} lang={lang} />
+              <OrgAuditExportPanel orgId={orgAnalytics.orgId} settings={settings} lang={lang} />
             </>
           ) : (
             <p className="text-[10px] text-text-muted">{ui.noOrgAnalytics}</p>

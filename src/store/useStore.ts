@@ -1,5 +1,11 @@
 import { useState, useCallback, useMemo, useRef, useEffect } from 'react';
 import type { AppView, Course, AgentMessage, AgentMode, UploadedFile, UserSettings, LearnerModel, DashboardStats, MistakeRecord, ActivityItem, GlossaryEntry } from '../types';
+import {
+  applyDashboardStatsOnTaskComplete,
+  applyLearnerModelOnTaskComplete,
+  markTaskCompleted,
+  taskCompletionActivityLabel,
+} from '../lib/taskCompletionFanOut';
 import { createActivity } from '../lib/activityLog';
 import { countUnreadNotifications, notificationsReadWatermark } from '../lib/notificationState';
 import { SEED_ACTIVITIES } from '../demo/activityDemo';
@@ -157,7 +163,6 @@ import { computeRetentionRate, weeklyMasteryFromActivities } from '../lib/retent
 import {
   applySkillUpdate,
   ensureSkillNode,
-  findSkillForConcept,
   fsrsRatingToConfidence,
   mergeBetaFromCourse,
   mergeSkillNodesFromCourse,
@@ -777,42 +782,19 @@ export function useAppStore() {
 
   const completeTask = useCallback((taskId: string) => {
     setTasks((prev) => {
-      const task = prev.find((t) => t.id === taskId);
-      if (!task || task.status === 'completed') return prev;
-
-      const updated = prev.map((t) =>
-        t.id === taskId ? { ...t, status: 'completed' as const } : t,
-      );
+      const { nextTasks, task } = markTaskCompleted(prev, taskId);
+      if (!task) return prev;
 
       setLearnerModel((lm) => {
-        const concept = task.title.split('—')[0]?.trim() ?? task.title;
-        const match = findSkillForConcept(lm, concept);
-        const updatedSkill = match ? updateSkillMastery(match, true, 70) : null;
-
-        const nextWeak = updatedSkill
-          ? lm.weakAreas.map((s) => (s.concept === updatedSkill.concept ? updatedSkill : s))
-          : lm.weakAreas;
-
-        let next: LearnerModel = {
-          ...lm,
-          weakAreas: nextWeak,
-          totalSessions: lm.totalSessions + 1,
-          retrievalPerformance: Math.min(1, lm.retrievalPerformance + (task.isSpacedRepetition ? 0.03 : 0.01)),
-        };
+        let next = applyLearnerModelOnTaskComplete(lm, task);
         next = recomputeLearnerMetrics(next, betaMastery, firstAttemptKeys, openMistakes);
 
         setDashboardStats((stats) => {
-          const nextStats: DashboardStats = {
-            ...stats,
-            tasksCompleted: stats.tasksCompleted + 1,
-            todayXP: stats.todayXP + task.xpReward,
-            weeklyXP: stats.weeklyXP + task.xpReward,
-            reviewsDue: Math.max(0, stats.reviewsDue - (task.isSpacedRepetition ? 1 : 0)),
-          };
+          const nextStats = applyDashboardStatsOnTaskComplete(stats, task);
           setUser((u) => {
             const nextXp = u.xp + task.xpReward;
-            const nextActs = logActivity(createActivity('task_complete', `Completed: ${task.title}`, task.xpReward));
-            persist(next, nextStats, updated, nextXp, betaMastery, firstAttemptKeys, openMistakes, nextActs, u.settings);
+            const nextActs = logActivity(createActivity('task_complete', taskCompletionActivityLabel(task), task.xpReward));
+            persist(next, nextStats, nextTasks, nextXp, betaMastery, firstAttemptKeys, openMistakes, nextActs, u.settings);
             return { ...u, xp: nextXp, level: levelFromXp(nextXp) };
           });
           return nextStats;
@@ -821,7 +803,7 @@ export function useAppStore() {
         return next;
       });
 
-      return updated;
+      return nextTasks;
     });
   }, [persist, betaMastery, firstAttemptKeys, openMistakes, recomputeLearnerMetrics, logActivity, activities]);
 

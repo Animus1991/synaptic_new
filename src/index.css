@@ -920,6 +920,67 @@
     border-color var(--motion-duration-ui) var(--motion-ease),
     background-color var(--motion-duration-ui) var(--motion-ease);
 }
+.ux-library-drop-zone--compact {
+  border-radius: var(--radius-lg);
+  border-width: 1px;
+}
+.ux-stat-card {
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border-subtle);
+  background: color-mix(in srgb, var(--color-surface-primary) 40%, transparent);
+  padding: var(--space-3);
+}
+.ux-stat-card-label {
+  font-size: var(--type-micro);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+.ux-stat-card-value {
+  margin-top: var(--space-1);
+  font-size: var(--type-body);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  font-variant-numeric: tabular-nums;
+}
+.ux-disclosure {
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+  background: color-mix(in srgb, var(--color-surface-primary) 35%, transparent);
+}
+.ux-disclosure-summary {
+  cursor: pointer;
+  list-style: none;
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--type-caption);
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+.ux-disclosure-summary::-webkit-details-marker {
+  display: none;
+}
+.ux-disclosure-summary::before {
+  content: '▸';
+  display: inline-block;
+  margin-right: 0.5rem;
+  transition: transform 0.15s ease;
+}
+.ux-disclosure[open] .ux-disclosure-summary::before {
+  transform: rotate(90deg);
+}
+.ux-disclosure-body {
+  padding: 0 var(--space-4) var(--space-4);
+  border-top: 1px solid var(--color-border-subtle);
+}
+.ux-settings-nav {
+  background: color-mix(in srgb, var(--color-surface-canvas) 92%, transparent);
+  backdrop-filter: blur(8px);
+}
+[data-theme="light"] .descriptive-sticky-tab-summary {
+  color: var(--color-text-secondary);
+  font-size: var(--type-caption);
+}
 [data-theme="blueprint"] .ux-upload-drop-zone,
 [data-theme="blueprint"] .ux-library-drop-zone {
   border-color: color-mix(in srgb, var(--color-accent-cyan) 20%, transparent);
@@ -1759,6 +1820,12 @@
 .app-shell :is(.ux-primary-cta, .ux-secondary-cta) {
   min-height: var(--ux-btn-height);
   box-sizing: border-box;
+}
+.app-shell :is(.platform-pill, .ux-settings-nav .platform-pill) {
+  min-height: var(--ux-btn-height);
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
 }
 .landing-page {
   --ux-namespace-surface: var(--color-surface-primary);
@@ -4616,3 +4683,57 @@ body { font-feature-settings: "ss01", "cv11"; letter-spacing: -0.005em; }
   font-size: 0.6875rem; /* 10px → 11px */
 }
 
+/* ─── Focus Ring (cross-pollinated from ai_tutor_studio) ──────── */
+.focus-ring:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--color-brand-500) 50%, transparent);
+  outline-offset: 2px;
+  border-radius: inherit;
+}
+
+/* ─── Scrollbar hover (cross-pollinated from ai_tutor_studio) ─── */
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-muted);
+}
+
+/* ─── Stat Tile hover micro-interaction ──────────────────────── */
+.ux-stat-tile {
+  transition: transform 200ms cubic-bezier(0.4, 0, 0.2, 1), box-shadow 200ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+.ux-stat-tile:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--elev-2);
+}
+
+/* ─── Progress bar fill animation (from ai_tutor_studio) ───── */
+@keyframes progress-fill {
+  from { width: 0; }
+}
+
+/* ─── Glass card surface (from ai_tutor_studio) ────────────── */
+.glass-card {
+  background: color-mix(in srgb, var(--color-surface-card) 72%, transparent);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid color-mix(in srgb, var(--color-border-subtle) 55%, transparent);
+}
+
+/* ─── Shimmer loading skeleton (from ai_tutor_studio) ──────── */
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.ux-shimmer {
+  background: linear-gradient(90deg, var(--color-surface-hover) 25%, var(--color-surface-secondary) 50%, var(--color-surface-hover) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: 0.5rem;
+}
+
+/* ─── Card hover elevation (from ai_tutor_studio) ──────────── */
+.card-hover {
+  transition: transform 300ms cubic-bezier(0.4, 0, 0.2, 1), box-shadow 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+.card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--elev-3, 0 8px 24px rgba(0,0,0,.08));
+}

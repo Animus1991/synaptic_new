@@ -31,6 +31,7 @@ import {
   writePersistedCourseTab,
   type CourseTabId,
 } from '../lib/coursePageSelectors';
+import { syncCourseDeepLinkToUrl } from '../lib/courseDeepLink';
 import { isDemoCourse } from '../lib/demoMode';
 import { conceptGraphToCourseVisual, summarizeCourseGraph } from '../lib/courseConceptGraph';
 import { PostUploadBanner } from './ui/PostUploadBanner';
@@ -170,6 +171,7 @@ export function CourseView({
 
   useEffect(() => {
     writePersistedCourseTab(course.id, tab);
+    syncCourseDeepLinkToUrl(course.id, tab);
   }, [course.id, tab]);
 
   useEffect(() => {
@@ -301,25 +303,25 @@ export function CourseView({
         className="mt-3 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2"
         data-testid="course-page-stats"
       >
-        <div className="rounded-xl border border-border-subtle bg-surface-primary/40 px-3 py-2" data-testid="course-stat-progress">
-          <p className="text-[10px] uppercase tracking-wide text-text-muted">{t('courseStatProgress')}</p>
-          <p className="mt-1 text-sm font-semibold">{pageStats.progressPercent}%</p>
+        <div className="ux-stat-card" data-testid="course-stat-progress">
+          <p className="ux-stat-card-label">{t('courseStatProgress')}</p>
+          <p className="ux-stat-card-value">{pageStats.progressPercent}%</p>
         </div>
-        <div className="rounded-xl border border-border-subtle bg-surface-primary/40 px-3 py-2" data-testid="course-stat-mastery-card">
-          <p className="text-[10px] uppercase tracking-wide text-text-muted">{t('courseStatMastery')}</p>
-          <p className="mt-1 text-sm font-semibold">{pageStats.masteryPercent}%</p>
+        <div className="ux-stat-card" data-testid="course-stat-mastery-card">
+          <p className="ux-stat-card-label">{t('courseStatMastery')}</p>
+          <p className="ux-stat-card-value">{pageStats.masteryPercent}%</p>
         </div>
-        <div className="rounded-xl border border-border-subtle bg-surface-primary/40 px-3 py-2" data-testid="course-stat-pending-tasks">
-          <p className="text-[10px] uppercase tracking-wide text-text-muted">{t('courseStatPendingTasks')}</p>
-          <p className="mt-1 text-sm font-semibold">{pageStats.pendingTasks}</p>
+        <div className="ux-stat-card" data-testid="course-stat-pending-tasks">
+          <p className="ux-stat-card-label">{t('courseStatPendingTasks')}</p>
+          <p className="ux-stat-card-value">{pageStats.pendingTasks}</p>
         </div>
-        <div className="rounded-xl border border-border-subtle bg-surface-primary/40 px-3 py-2" data-testid="course-stat-due-reviews">
-          <p className="text-[10px] uppercase tracking-wide text-text-muted">{t('courseStatDueReviews')}</p>
-          <p className="mt-1 text-sm font-semibold">{pageStats.dueReviews}</p>
+        <div className="ux-stat-card" data-testid="course-stat-due-reviews">
+          <p className="ux-stat-card-label">{t('courseStatDueReviews')}</p>
+          <p className="ux-stat-card-value">{pageStats.dueReviews}</p>
         </div>
-        <div className="rounded-xl border border-border-subtle bg-surface-primary/40 px-3 py-2" data-testid="course-stat-source-quality">
-          <p className="text-[10px] uppercase tracking-wide text-text-muted">{t('courseStatSourceQuality')}</p>
-          <p className="mt-1 text-sm font-semibold">
+        <div className="ux-stat-card" data-testid="course-stat-source-quality">
+          <p className="ux-stat-card-label">{t('courseStatSourceQuality')}</p>
+          <p className="ux-stat-card-value">
             {pageStats.sourceQualityScore != null
               ? `${pageStats.sourceQualityScore}/100`
               : t('courseStatSourceQualityUnknown')}

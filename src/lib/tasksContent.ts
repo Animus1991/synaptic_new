@@ -94,6 +94,7 @@ export type TasksContent = {
   sessionSectionEyebrow: string;
   sessionSectionTitle: string;
   sessionSectionSubtitle: string;
+  sessionLaunchersToggle: string;
   dangerZoneBody: (days: number) => string;
   dangerZoneRationale: string;
   sessionDurationTag: (minutes: number) => string;
@@ -179,6 +180,7 @@ const EN: TasksContent = {
   sessionSectionEyebrow: 'Focused sessions',
   sessionSectionTitle: 'Turn study into a queue of precise actions',
   sessionSectionSubtitle: 'Pick a duration — the planner ranks tasks by exam proximity, mastery gap, and forgetting risk.',
+  sessionLaunchersToggle: 'Start a focused session',
   dangerZoneBody: (days) =>
     days === 0
       ? 'Your exam is today. The scheduler is prioritizing weak concepts with the highest forgetting risk.'
@@ -264,9 +266,10 @@ const EL: TasksContent = {
   sessionRunningNow: 'Τρέχει τώρα',
   sessionUpNext: (title) => `Επόμενο: ${title}`,
   sessionAutoAdvanceHint: 'Ολοκλήρωσε την τρέχουσα εργασία για αυτόματη μετάβαση στην επόμενη της συνεδρίας.',
-  sessionSectionEyebrow: 'Focused sessions',
+  sessionSectionEyebrow: 'Εστιασμένες συνεδρίες',
   sessionSectionTitle: 'Μετέτρεψε τη μελέτη σε ουρά ακριβών ενεργειών',
-  sessionSectionSubtitle: 'Διάλεξε διάρκεια — ο planner κατατάσσει tasks με βάση εγγύτητα εξέτασης, mastery gap και κίνδυνο λήθης.',
+  sessionSectionSubtitle: 'Διάλεξε διάρκεια — ο προγραμματιστής κατατάσσει εργασίες με βάση εγγύτητα εξέτασης, κενό κυριαρχίας και κίνδυνο λήθης.',
+  sessionLaunchersToggle: 'Έναρξη εστιασμένης συνεδρίας',
   dangerZoneBody: (days) =>
     days === 0
       ? 'Η εξέτασή σου είναι σήμερα. Ο scheduler δίνει προτεραιότητα σε αδύναμες έννοιες με τον μεγαλύτερο κίνδυνο λήθης.'

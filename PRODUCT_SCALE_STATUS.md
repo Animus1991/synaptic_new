@@ -17,22 +17,24 @@ sprint close-outs, and investor/contributor snapshots.
 
 ## Overall readiness
 
-**~99% product-scale** — Sprint I–**L7** shipped (Jul 2026).
-Remaining gaps: App Store signed builds, SOC2/DPA deployment docs, brand/GTM (see `L8_KICKOFF.md`).
+**~99% product-scale** — Sprint I–**L17** shipped (Jul 2026).
+Remaining **L8 deployment gaps:** App Store signed builds submission, legal review of DPA/privacy at production URL, brand/GTM hosting (see `L8_KICKOFF.md`, `docs/marketing/`).
 
 ---
 
-## Sprint L8 — distribution & trust — in progress (Jul 2026)
+## Sprint L8 — distribution & trust — code shipped (Jul 2026)
 
-| Scope | Deliverable |
-| ----- | ----------- |
-| **L8-2 audit export** | `GET /v1/orgs/:orgId/audit-logs/export?format=csv\|json` — SOC2/FERPA audit bundle |
-| **L8-2 compliance docs** | `docs/compliance/{DATA_MAP,RETENTION,DPA_TEMPLATE}.md` + `docs/legal/PRIVACY_POLICY.md` |
-| **L8-1 mobile scaffold** | `mobile/fastlane/*`, store metadata, npm `mobile:*` scripts |
-| **L8-4 STATUS sync** | This file + competitive matrix canvas reconciled through L7 |
-| **L8-3 Brand/GTM** | Not code — marketing backlog |
+| Scope | Deliverable | Status |
+| ----- | ----------- | ------ |
+| **L8-2 audit export** | `GET /v1/orgs/:orgId/audit-logs/export?format=csv\|json` + `OrgAuditExportPanel` in TeacherDashboard | **shipped** |
+| **L8-2 compliance docs** | `docs/compliance/{DATA_MAP,RETENTION,DPA_TEMPLATE}.md` + `docs/legal/PRIVACY_POLICY.md` | **shipped** |
+| **L8-1 mobile scaffold** | `mobile/fastlane/*`, store metadata, npm `mobile:*` scripts | **shipped** |
+| **L8-3 Brand/GTM** | `docs/marketing/{INSTITUTION_ONE_PAGER,LANDING_COPY}.md` | **shipped** (hosting pending) |
+| **L8-4 STATUS sync** | This file + competitive matrix canvas | **shipped** |
 
-Regression gate: `cd server && npm test` (includes `auditLogExport.test.ts`).
+**Deployment still open:** Apple/Google accounts, signed release builds, privacy URL live, store screenshots.
+
+Regression gate: `cd server && npm test` (includes `auditLogExport.test.ts`); client typecheck.
 
 ---
 

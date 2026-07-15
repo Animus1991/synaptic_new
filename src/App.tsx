@@ -15,6 +15,7 @@ import {
 import { AppCommandPaletteMount, useCommandPalette } from './components/CommandPalette';
 import { NavAccessDenied } from './components/NavAccessDenied';
 import { canAccessShellView } from './lib/navCapabilities';
+import { clearCourseDeepLinkParams, parseCourseDeepLink, seedCourseTabFromDeepLink } from './lib/courseDeepLink';
 import { buildShellBreadcrumb } from './lib/shellBreadcrumb';
 import type { GlobalQuickActionId } from './lib/globalActionRegistry';
 import { persistWorkspaceV2CanaryFromUrl, reportWorkspaceCanaryCohort } from './lib/workspaceFeatureFlags';
@@ -235,6 +236,7 @@ export default function App() {
 
   const demoDeepLinkFired = useRef(false);
   const viewDeepLinkFired = useRef(false);
+  const courseDeepLinkFired = useRef(false);
   const samlDeepLinkFired = useRef(false);
   const ltiDeepLinkFired = useRef(false);
   const [samlEmailHint, setSamlEmailHint] = useState<string | null>(null);
@@ -488,6 +490,7 @@ export default function App() {
     onQuickAccess: handleQuickAccess,
     language: (store.user.settings.language === 'el' ? 'el' : 'en') as 'en' | 'el',
     onLanguageChange: (lang: 'en' | 'el') => store.updateSettings({ language: lang }),
+    onPatchSettings: store.updateSettings,
   };
 
   const handleContentSelect = (hit: ContentSearchHit) => {
@@ -864,6 +867,21 @@ export default function App() {
   }, [hasCourses, store]);
 
   useEffect(() => {
+    const parsed = parseCourseDeepLink(window.location.search);
+    if (!parsed || courseDeepLinkFired.current) return;
+    if (store.courses.length === 0) return;
+    courseDeepLinkFired.current = true;
+    const course = store.courses.find((c) => c.id === parsed.courseId);
+    if (!course) {
+      store.navigate('library');
+      clearCourseDeepLinkParams();
+      return;
+    }
+    seedCourseTabFromDeepLink(parsed.courseId, parsed.tab);
+    store.openCourseReview(course);
+  }, [store.courses, store]);
+
+  useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get('saml') !== '1' || samlDeepLinkFired.current) return;
     samlDeepLinkFired.current = true;
@@ -958,7 +976,10 @@ export default function App() {
             uploadedFiles={store.uploadedFiles.filter((f) => f.courseId === selectedCourse.id)}
             glossaryEntries={store.glossaryEntries.filter((g) => g.courseId === selectedCourse.id)}
             onGoToSource={store.openSourceAt}
-            onBack={() => store.navigate('library')}
+            onBack={() => {
+              clearCourseDeepLinkParams();
+              store.navigate('library');
+            }}
             onStartLesson={(topicTitle?: string) => openCourseWorkspace(topicTitle)}
             onOpenAgent={() => store.navigate('agent')}
             onUploadMore={() => openUploadModal({ mode: 'extend', targetCourseId: selectedCourse.id })}

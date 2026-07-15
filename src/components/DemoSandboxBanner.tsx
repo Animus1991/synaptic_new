@@ -1,4 +1,5 @@
-import { FlaskConical, Upload, X } from '@/lib/lucide-shim';
+import { FlaskConical, Upload, X, LogIn } from '@/lib/lucide-shim';
+import { googleAuthStartUrl } from '../lib/googleClient';
 import { useI18n } from '../lib/i18n';
 import { shouldShowDemo } from '../lib/demoMode';
 import { useAppStore } from '../store/useStore';
@@ -31,6 +32,23 @@ export function DemoSandboxBanner() {
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-2 shrink-0">
+          {!user.settings.authToken && (
+            <button
+              type="button"
+              data-testid="demo-sandbox-google-sign-in"
+              onClick={() => {
+                window.location.href = googleAuthStartUrl(
+                  user.settings,
+                  'signin',
+                  `${window.location.origin}/?view=settings`,
+                );
+              }}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-brand-700 text-white hover:bg-brand-600 transition-colors"
+            >
+              <LogIn className="w-3.5 h-3.5" aria-hidden />
+              {t('demoSandboxGoogleSignIn')}
+            </button>
+          )}
           <button
             type="button"
             onClick={() => setShowUploadModal(true)}

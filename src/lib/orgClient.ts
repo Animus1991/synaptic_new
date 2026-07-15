@@ -107,6 +107,22 @@ export async function fetchOrgAuditLogs(
   return (await res.json()) as { orgId: string; logs: unknown[] };
 }
 
+/** L8-2 — SOC2/FERPA audit bundle download (org_admin). */
+export async function downloadAuditLogExport(
+  token: string,
+  settings: UserSettings,
+  orgId: string,
+  format: 'csv' | 'json' = 'csv',
+  since?: string,
+): Promise<Blob> {
+  const url = new URL(`${proxyBase(settings)}/v1/orgs/${orgId}/audit-logs/export`);
+  url.searchParams.set('format', format);
+  if (since) url.searchParams.set('since', since);
+  const res = await fetch(url.toString(), { headers: { Authorization: `Bearer ${token}` } });
+  if (!res.ok) throw new Error(await res.text());
+  return res.blob();
+}
+
 export async function fetchStudentClasses(token: string, settings: UserSettings) {
   const res = await fetch(`${proxyBase(settings)}/v1/student/classes`, {
     headers: authHeaders(token),

@@ -248,6 +248,11 @@ function topicWeight(conceptCount: number, estimatedMinutes: number): number {
   return Math.max(10, Math.round(conceptCount * 2.5 + estimatedMinutes / 4));
 }
 
+/** Hide auto-generated topic ids from user-facing analytics. */
+export function isDebugUiTopicLabel(label: string): boolean {
+  return /^ui-\d+/i.test(label.trim());
+}
+
 /** Treemap blocks from course topics, falling back to learner skill nodes. */
 export function buildConceptTreemap(
   courses: Course[],
@@ -258,6 +263,7 @@ export function buildConceptTreemap(
 
   for (const course of ready) {
     for (const topic of course.topics) {
+      if (isDebugUiTopicLabel(topic.title)) continue;
       fromTopics.push({
         id: `${course.id}-${topic.id}`,
         label: topic.title,
@@ -284,7 +290,7 @@ export function buildConceptTreemap(
       mastery: Math.round(s.mastery),
       tone: toneForMastery(s.mastery),
       prereqs: [],
-    }));
+    })).filter((b) => !isDebugUiTopicLabel(b.label));
   }
 
   blocks = [...blocks].sort((a, b) => b.value - a.value).slice(0, 12);

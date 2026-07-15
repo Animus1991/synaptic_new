@@ -131,6 +131,7 @@ export {
   LockOpen as Unlock,
   ArrowSquareOut as ExternalLink,
   PictureInPicture,
+  SignIn as LogIn,
   SignOut as LogOut,
   VideoCamera as Video,
   UploadSimple as Upload,

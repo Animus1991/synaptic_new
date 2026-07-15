@@ -34,6 +34,7 @@ import { NotebookLmImportPanel } from './NotebookLmImportPanel';
 import { showCrossLibrarySynthesis } from '../lib/platformFocus';
 import type { NotebookLmImportResult } from '../lib/notebooklmImport';
 import { openNotebookLm, notebookLmSourceLabel } from '../lib/notebooklmBridge';
+import { isDebugUiTopicLabel } from '../lib/knowledgeFlowAnalytics';
 
 interface LibraryProps {
   courses: Course[];
@@ -100,6 +101,23 @@ export function Library({
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState<LibraryFilter>('all');
   const [sortBy, setSortBy] = useState<'recent' | 'progress' | 'quality' | 'title'>('recent');
+  const [entryHintDismissed, setEntryHintDismissed] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    try {
+      return sessionStorage.getItem('synapse:library-hint-dismiss') === '1';
+    } catch {
+      return false;
+    }
+  });
+
+  const dismissEntryHint = () => {
+    try {
+      sessionStorage.setItem('synapse:library-hint-dismiss', '1');
+    } catch {
+      /* ignore */
+    }
+    setEntryHintDismissed(true);
+  };
 
   const filteredCourses = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -161,9 +179,10 @@ export function Library({
     const prereqSet = new Set<string>();
     for (const course of filteredCourses) {
       for (const topic of course.topics) {
+        if (isDebugUiTopicLabel(topic.title)) continue;
         if (topics.length < 4 && !topics.includes(topic.title)) topics.push(topic.title);
-        topic.prerequisites.forEach((p) => prereqSet.add(p));
-        (topic.keyConcepts ?? []).forEach((k) => prereqSet.add(k));
+        topic.prerequisites.filter((p) => !isDebugUiTopicLabel(p)).forEach((p) => prereqSet.add(p));
+        (topic.keyConcepts ?? []).filter((k) => !isDebugUiTopicLabel(k)).forEach((k) => prereqSet.add(k));
       }
     }
     const glossaryTerms = [...new Set(glossaryEntries.map((g) => g.term).filter(Boolean))];
@@ -264,9 +283,19 @@ export function Library({
         />
       )}
 
-      <BlueprintSurface hint className="mb-4 px-4 py-3">
-        <p className="text-sm text-text-secondary">{t('libraryEntryHint', userLanguage)}</p>
-      </BlueprintSurface>
+      {!entryHintDismissed && (
+        <BlueprintSurface hint className="mb-3 px-4 py-2.5 flex items-start justify-between gap-3">
+          <p className="text-sm text-text-secondary">{t('libraryEntryHint', userLanguage)}</p>
+          <button
+            type="button"
+            onClick={dismissEntryHint}
+            className="shrink-0 text-xs text-text-muted hover:text-text-secondary"
+            aria-label={t('close', userLanguage)}
+          >
+            ✕
+          </button>
+        </BlueprintSurface>
+      )}
 
       <DescriptiveStickyTabBar
         items={libraryTabs}
@@ -364,7 +393,7 @@ export function Library({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           >
-            {!search.trim() && (
+            {!search.trim() && filteredCourses.length === 0 && (
               <button
                 type="button"
                 onClick={onUpload}
@@ -391,6 +420,35 @@ export function Library({
               />
             ) : (
               <div className="space-y-4">
+                <div className={cn(
+                viewMode === 'grid'
+                  ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4'
+                  : 'space-y-3'
+              )}>
+                {filteredCourses.map((course, i) => (
+                  viewMode === 'grid'
+                    ? <CourseCard key={course.id} course={course} index={i} tasks={tasks} glossaryEntries={glossaryEntries} uploadedFiles={uploadedFiles} userLanguage={userLanguage} onClick={() => onSelectCourse(course)} onRemoveCourse={onRemoveCourse} onOpenNotebookShell={onOpenNotebookShell} />
+                    : <CourseListItem key={course.id} course={course} index={i} tasks={tasks} glossaryEntries={glossaryEntries} uploadedFiles={uploadedFiles} userLanguage={userLanguage} onClick={() => onSelectCourse(course)} onRemoveCourse={onRemoveCourse} onOpenNotebookShell={onOpenNotebookShell} />
+                ))}
+              </div>
+                {!search.trim() && (libraryQualityAlerts.needsMaterial || libraryQualityAlerts.outlineAdjusted) && (
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                    {libraryQualityAlerts.needsMaterial && (
+                      <MiniAlert
+                        tone="amber"
+                        title={t('libraryMiniAlertGapTitle', userLanguage)}
+                        body={t('libraryMiniAlertGapBody', userLanguage)}
+                      />
+                    )}
+                    {libraryQualityAlerts.outlineAdjusted && (
+                      <MiniAlert
+                        tone="violet"
+                        title={t('libraryMiniAlertContradictionTitle', userLanguage)}
+                        body={t('libraryMiniAlertContradictionBody', userLanguage)}
+                      />
+                    )}
+                  </div>
+                )}
                 {!search.trim() && (libraryInfo.topics.length > 0 || libraryInfo.examples.length > 0) && (
                   <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
                     <InfoStack
@@ -418,35 +476,17 @@ export function Library({
                     />
                   </div>
                 )}
-                {!search && (libraryQualityAlerts.needsMaterial || libraryQualityAlerts.outlineAdjusted) && (
-                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                    {libraryQualityAlerts.needsMaterial && (
-                      <MiniAlert
-                        tone="amber"
-                        title={t('libraryMiniAlertGapTitle', userLanguage)}
-                        body={t('libraryMiniAlertGapBody', userLanguage)}
-                      />
-                    )}
-                    {libraryQualityAlerts.outlineAdjusted && (
-                      <MiniAlert
-                        tone="violet"
-                        title={t('libraryMiniAlertContradictionTitle', userLanguage)}
-                        body={t('libraryMiniAlertContradictionBody', userLanguage)}
-                      />
-                    )}
-                  </div>
+                {!search.trim() && (
+                  <button
+                    type="button"
+                    onClick={onUpload}
+                    data-testid="library-drop-zone-compact"
+                    className="ux-library-drop-zone ux-library-drop-zone--compact ux-prompt-bar-surface flex w-full flex-row items-center justify-center gap-3 px-4 py-3 text-text-secondary hover:text-text-primary transition-colors"
+                  >
+                    <Upload className="h-5 w-5 text-brand-600 shrink-0" aria-hidden />
+                    <span className="text-sm font-medium">{t('libDropZoneCompactTitle', userLanguage)}</span>
+                  </button>
                 )}
-              <div className={cn(
-                viewMode === 'grid'
-                  ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4'
-                  : 'space-y-3'
-              )}>
-                {filteredCourses.map((course, i) => (
-                  viewMode === 'grid'
-                    ? <CourseCard key={course.id} course={course} index={i} tasks={tasks} glossaryEntries={glossaryEntries} uploadedFiles={uploadedFiles} userLanguage={userLanguage} onClick={() => onSelectCourse(course)} onRemoveCourse={onRemoveCourse} onOpenNotebookShell={onOpenNotebookShell} />
-                    : <CourseListItem key={course.id} course={course} index={i} tasks={tasks} glossaryEntries={glossaryEntries} uploadedFiles={uploadedFiles} userLanguage={userLanguage} onClick={() => onSelectCourse(course)} onRemoveCourse={onRemoveCourse} onOpenNotebookShell={onOpenNotebookShell} />
-                ))}
-              </div>
               </div>
             )}
           </motion.div>
@@ -721,6 +761,7 @@ function CourseCard({
       {canDelete && (
         <ConfirmDialog
           open={removeDialogOpen}
+          data-testid="library-course-delete-confirm"
           title={deleteCopy.title}
           description={deleteCopy.description}
           confirmLabel={t('delete', userLanguage)}
@@ -849,6 +890,7 @@ function CourseListItem({
       {canDelete && (
         <ConfirmDialog
           open={removeDialogOpen}
+          data-testid="library-course-delete-confirm"
           title={deleteCopy.title}
           description={deleteCopy.description}
           confirmLabel={t('delete', userLanguage)}

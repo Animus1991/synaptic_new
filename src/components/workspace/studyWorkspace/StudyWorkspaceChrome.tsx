@@ -8,6 +8,7 @@ import { workspaceToolLabel } from '../../../lib/workspaceToolRegistry';
 import { displayWorkspaceStepTitle } from '../../../lib/workspaceContextModel';
 import { WorkspaceContextBar } from '../WorkspaceContextBar';
 import { WorkspaceStudyRoomTrigger } from '../WorkspaceStudyRoomTrigger';
+import { CompactStudyTimer } from '../CompactStudyTimer';
 import { ConceptLensChromeStrip } from '../ConceptLensChromeStrip';
 import { TheoryPracticeLensToggle } from '../TheoryPracticeLensToggle';
 import { nextActionLabel } from '../../../lib/nextActionEngine';
@@ -356,6 +357,7 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
                     onClick={() => setStudyRoomOpen((v) => !v)}
                     variant="chrome"
                   />
+                  <CompactStudyTimer lang={lang} className="hidden lg:inline-flex" />
                   <button onClick={() => setShowNotes((v) => !v)} className={cn('ws-chrome-btn p-1.5 shrink-0', showNotes && 'ws-chrome-btn-active')} title={t('paletteSessionNotes')} aria-pressed={showNotes}>
                     <StickyNote className="w-4 h-4" />
                   </button>

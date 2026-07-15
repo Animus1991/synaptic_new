@@ -239,7 +239,7 @@ export function StatTile({
   className?: string;
 }) {
   return (
-    <BlueprintSurface className={cn('p-4', className)}>
+    <BlueprintSurface className={cn('p-4 ux-stat-tile', className)}>
       <div className="flex items-center gap-2">
         {icon}
         <span className="ws-eyebrow text-text-secondary">{label}</span>
@@ -353,7 +353,7 @@ export const PrimaryCTA = forwardRef<
       className={cn(
         'ux-primary-cta inline-flex items-center justify-center gap-2 rounded-xl font-semibold text-white transition-all duration-300',
         'bg-brand-600 hover:bg-brand-700 disabled:opacity-60 disabled:pointer-events-none',
-        size === 'sm' ? 'px-4 py-2 text-xs' : 'px-5 py-2.5 text-sm',
+        size === 'sm' ? 'px-4 py-2 text-xs min-h-[2rem]' : 'px-5 text-sm min-h-[var(--btn-height)]',
         className,
       )}
       {...props}
@@ -376,7 +376,7 @@ export const SecondaryCTA = forwardRef<
         'ux-secondary-cta inline-flex items-center justify-center gap-2 rounded-xl font-medium transition-all duration-300 platform-pill',
         'border border-border-subtle text-text-secondary hover:border-brand-500/35 hover:text-brand-700',
         'disabled:opacity-60 disabled:pointer-events-none',
-        size === 'sm' ? 'px-3 py-2 text-xs' : 'px-4 py-2.5 text-sm',
+        size === 'sm' ? 'px-3 py-2 text-xs min-h-[2rem]' : 'px-4 text-sm min-h-[var(--btn-height)]',
         className,
       )}
       {...props}

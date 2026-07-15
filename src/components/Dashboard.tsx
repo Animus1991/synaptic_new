@@ -17,7 +17,9 @@ import { CourseIcon } from './ui/CourseIcon';
 import type { PrerequisiteRepair } from '../lib/pedagogy';
 import type { CalibrationDirection } from '../lib/pedagogy';
 import type { SessionType } from '../lib/taskFlows';
-import { findPendingTask, findTaskForRepair, findTaskForConcept } from '../lib/taskFlows';
+import { findTaskForRepair, findTaskForConcept } from '../lib/taskFlows';
+import { selectCanonicalMastery } from '../lib/coursePageSelectors';
+import { selectDashboardPageViewModel } from '../lib/dashboardPageSelectors';
 import type { WorkspaceLiveSync } from '../lib/workspaceStoreSpine';
 import { workspaceLiveIsStale } from '../lib/workspaceStoreSpine';
 import type { I18nKey, Lang } from '../lib/i18n';
@@ -127,14 +129,19 @@ interface DashboardProps {
 export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onSelectCourse, onOpenWorkspace, onOpenExamTimer, onUpload, onExploreDemo, prerequisiteRepairs = [], calibration, conceptMastery = [], activities = [], masteryDelta = 0, daysToExam = null, antiPassiveAlert = false, onStartTask, onStartSession, onResolveMisconception, onFocusWeakArea, workspaceLive = null, workspaceBooting = false, dashboardNextAction = null, smartCTAs = [], onRunSmartCTA, proactiveAgentAlerts = [], onRunProactiveAgentAlert, onOpenWorkspacePractice, lang = 'en', postUploadCourse = null, onDismissPostUpload, onOpenTasksReview, settingsExamDate, personalStudyDates = [], onExamDateChange, onPersonalStudyDatesChange, dashboardWallpaperDataUrl, onDashboardWallpaperChange }: DashboardProps) {
   const { t } = useI18n();
   const isBlueprint = useBlueprintTheme();
-  const pendingTasks = tasks.filter(t => t.status === 'pending' || t.status === 'in-progress');
-  const criticalTasks = pendingTasks.filter(t => t.priority === 'critical' || t.priority === 'high');
-  const fixTasks = pendingTasks.filter(t => t.category === 'fix');
-  const unresolvedMisconceptions = learnerModel.misconceptions.filter((misconception) => !misconception.corrected);
-  const examTask = findPendingTask(tasks, (t) => t.type === 'exam-prep');
-  const firstReviewTask = findPendingTask(tasks, (t) => t.isSpacedRepetition && t.status === 'pending');
+  const pageView = useMemo(
+    () => selectDashboardPageViewModel({ stats, courses, tasks, learnerModel }),
+    [stats, courses, tasks, learnerModel],
+  );
+  const {
+    isEmpty,
+    activeCourses,
+    taskBuckets: { criticalTasks, fixTasks, firstReviewTask, examTask },
+    stats: pageStats,
+    masteryTrendLast7: masteryTrend,
+    unresolvedMisconceptions,
+  } = pageView;
   const showWorkspaceResume = workspaceLive && !workspaceLiveIsStale(workspaceLive);
-  const isEmpty = courses.length === 0;
   const weakSpotsWithReasons = useMemo(
     () => buildDashboardWeakSpotCards(learnerModel.weakAreas, lang),
     [learnerModel.weakAreas, lang],
@@ -143,8 +150,6 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
     () => buildGlobalFsrsDueQueue(learnerModel.spacingIntervals),
     [learnerModel.spacingIntervals],
   );
-  const activeCourses = courses.filter((course) => course.status !== 'generating');
-  const masteryTrend = stats.masteryTrend.slice(-7);
   const weekdayLabels = DASHBOARD_WEEKDAY_KEYS.map((key) => t(key));
 
   const nextActionHandlers = {
@@ -221,7 +226,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
       >
         <DashboardActionHub
           flushTop
-          reviewsDue={stats.reviewsDue}
+          reviewsDue={pageStats.reviewsDue}
           canWorkspace={Boolean(onOpenWorkspace)}
           canUpload={Boolean(onUpload)}
           daysToExam={daysToExam}
@@ -246,7 +251,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
             </>
           }
           greetingSubtitle={
-            <span className="gradient-text">{dashboardSubtitle(lang, criticalTasks.length, stats.streak)}</span>
+            <span className="gradient-text">{dashboardSubtitle(lang, pageStats.criticalTaskCount, pageStats.streak)}</span>
           }
           headerActions={
             <>
@@ -293,19 +298,19 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
       )}
 
       {/* Stats Row */}
-      <MotionSection initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="grid grid-cols-2 sm:grid-cols-5 gap-3">
-        <StatCard icon={<Flame className="w-5 h-5 text-accent-amber" />} label={t('dashboardStatStreak')} value={t('dashboardStatDaysSuffix').replace('{count}', String(stats.streak))} />
-        <StatCard icon={<Zap className="w-5 h-5 text-brand-400" />} label={t('dashboardStatTodayXp')} value={`${stats.todayXP}`} />
+      <MotionSection initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="grid grid-cols-2 sm:grid-cols-5 gap-3" data-testid="dashboard-page-stats">
+        <StatCard icon={<Flame className="w-5 h-5 text-accent-amber" />} label={t('dashboardStatStreak')} value={t('dashboardStatDaysSuffix').replace('{count}', String(pageStats.streak))} data-testid="dashboard-stat-streak" />
+        <StatCard icon={<Zap className="w-5 h-5 text-brand-400" />} label={t('dashboardStatTodayXp')} value={`${pageStats.todayXp}`} data-testid="dashboard-stat-today-xp" />
         <StatCard
           icon={<Target className="w-5 h-5 text-accent-teal" />}
           label={t('dashboardStatReviewsDue')}
-          value={`${stats.reviewsDue}`}
-          onClick={stats.reviewsDue > 0 ? () => (onOpenTasksReview ? onOpenTasksReview() : onNavigate('tasks')) : undefined}
+          value={`${pageStats.reviewsDue}`}
+          onClick={pageStats.reviewsDue > 0 ? () => (onOpenTasksReview ? onOpenTasksReview() : onNavigate('tasks')) : undefined}
           data-testid="dashboard-stat-reviews-due"
           id="dashboard-stat-reviews-due"
         />
-        <StatCard icon={<Brain className="w-5 h-5 text-accent-cyan" />} label={t('dashboardStatConceptsMastered')} value={`${stats.conceptsMastered}/${stats.totalConcepts}`} />
-        <StatCard icon={<Clock className="w-5 h-5 text-accent-emerald" />} label={t('dashboardStatStudyToday')} value={t('dashboardStatStudyMinutes').replace('{count}', String(stats.studyTimeToday))} />
+        <StatCard icon={<Brain className="w-5 h-5 text-accent-cyan" />} label={t('dashboardStatConceptsMastered')} value={`${pageStats.conceptsMastered}/${pageStats.totalConcepts}`} data-testid="dashboard-stat-concepts-mastered" />
+        <StatCard icon={<Clock className="w-5 h-5 text-accent-emerald" />} label={t('dashboardStatStudyToday')} value={t('dashboardStatStudyMinutes').replace('{count}', String(pageStats.studyMinutesToday))} data-testid="dashboard-stat-study-today" />
       </MotionSection>
 
       {!isEmpty && smartCTAs.length > 0 && onRunSmartCTA && (
@@ -418,7 +423,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
         </MotionSection>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         {/* Left column */}
         <MotionSection initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="lg:col-span-2 space-y-6">
 
@@ -529,7 +534,9 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
             </div>
             {activeCourses.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {activeCourses.map((course, i) => (
+                {activeCourses.map((course, i) => {
+                  const courseMastery = selectCanonicalMastery(course);
+                  return (
                   <MotionSection
                     key={course.id}
                     initial={{ opacity: 0, y: 10 }}
@@ -548,7 +555,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                   >
                     <div className="flex items-start justify-between mb-3">
                       <CourseIcon icon={course.icon} size="lg" colorClassName="text-brand-600" />
-                      <MasteryRing mastery={course.mastery} size={38} />
+                      <MasteryRing mastery={courseMastery} size={38} />
                     </div>
                     <h3 className="font-semibold text-sm mb-1 group-hover:text-brand-300 transition-colors">{course.title}</h3>
                     <div className="flex items-center gap-2 text-xs text-text-tertiary mb-3">
@@ -560,7 +567,8 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                       <div className="h-1.5 rounded-full transition-all duration-500" style={{ width: `${Math.min(100, (course.completedLessons / Math.max(course.totalLessons, 1)) * 100)}%`, backgroundColor: resolveCourseColor(course.color) }} />
                     </div>
                   </MotionSection>
-                ))}
+                  );
+                })}
               </div>
             ) : (
               <div className="rounded-xl border border-border-subtle bg-surface-primary/40 p-5 text-center">
@@ -673,14 +681,15 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
               <SectionTitle icon={Calendar} iconClassName="text-accent-rose">{t('dashUpcomingExam')}</SectionTitle>
               {courses.filter(c => c.examDate).map(course => {
                 const daysLeft = Math.max(0, Math.ceil((new Date(course.examDate!).getTime() - Date.now()) / 86400000));
+                const courseMastery = selectCanonicalMastery(course);
                 return (
                   <div key={course.id}>
                     <p className="text-sm font-medium">{course.title}</p>
-                    <p className="text-xs text-text-secondary mt-1">{t('dashDaysLeftMastery').replace('{days}', String(daysLeft)).replace('{mastery}', String(course.mastery))}</p>
+                    <p className="text-xs text-text-secondary mt-1">{t('dashDaysLeftMastery').replace('{days}', String(daysLeft)).replace('{mastery}', String(courseMastery))}</p>
                     <div className="mt-2 w-full bg-surface-hover rounded-full h-1.5">
-                      <div className="h-1.5 rounded-full bg-accent-rose transition-all" style={{ width: `${course.mastery}%` }} />
+                      <div className="h-1.5 rounded-full bg-accent-rose transition-all" style={{ width: `${courseMastery}%` }} />
                     </div>
-                    {course.mastery < 70 && daysLeft < 30 && (
+                    {courseMastery < 70 && daysLeft < 30 && (
                       <p className="text-[10px] text-accent-rose mt-2 flex items-center gap-1"><AlertTriangle className="w-3 h-3" />{t('dashBelowMastery')}</p>
                     )}
                     {examTask && (
@@ -833,7 +842,7 @@ function StatCard({
         }
       } : undefined}
       className={cn(
-        'p-4',
+        'p-4 card-hover',
         clickable && 'cursor-pointer hover:border-brand-500/30 hover:bg-surface-hover transition-colors',
         className,
       )}

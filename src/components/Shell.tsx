@@ -1,4 +1,5 @@
 ﻿import { ReactNode, useEffect, useRef } from 'react';
+import { motion } from 'framer-motion';
 import {
   BookOpen, CheckSquare, Robot as Bot, SquaresFour as LayoutDashboard, Gear as Settings,
   Sparkle as Sparkles, List as Menu, X, UploadSimple as Upload, Bell, MagnifyingGlass as Search, CaretRight as ChevronRight,
@@ -24,6 +25,7 @@ import {
 import { PlatformSkipLinks } from './PlatformSkipLinks';
 import { OfflineShellBanner } from './OfflineShellBanner';
 import { DemoSandboxBanner } from './DemoSandboxBanner';
+import { HeaderAccountAuth } from './HeaderAccountAuth';
 import { HeaderLangPill, HeaderTrustBadgeRow, SynapseBrandGlyph } from './ui/platformChrome';
 import type { Lang } from '../lib/i18n';
 import { commandPaletteBadge } from '../lib/workspaceKeyboardShortcuts';
@@ -54,6 +56,7 @@ interface ShellProps {
   hasCourses?: boolean;
   language?: Lang;
   onLanguageChange?: (lang: Lang) => void;
+  onPatchSettings?: (partial: Partial<UserSettings>) => void;
 }
 
 type MobileBarItem =
@@ -99,6 +102,18 @@ const shellNavClass = (active: boolean) =>
       : 'border-transparent text-text-secondary hover:text-text-primary hover:bg-surface-hover',
   );
 
+function NavActiveIndicator() {
+  return (
+    <motion.div
+      layoutId="synapseActiveNavIndicator"
+      className="absolute inset-0 rounded-xl platform-nav-active pointer-events-none"
+      initial={false}
+      transition={{ type: 'spring', stiffness: 400, damping: 32 }}
+      style={{ zIndex: 0 }}
+    />
+  );
+}
+
 const QUICK_ACCESS_ICONS: Record<GlobalQuickActionId, { icon: typeof Network; color: string }> = {
   'note-analysis': { icon: Network, color: '#818CF8' },
   upload: { icon: Sparkles, color: '#34D399' },
@@ -131,6 +146,7 @@ export function Shell({
   hasCourses = false,
   language,
   onLanguageChange,
+  onPatchSettings,
 }: ShellProps) {
   const { t, lang } = useI18n();
   const activeLang = language ?? lang;
@@ -238,8 +254,9 @@ export function Shell({
                   title={item.subtitleKey ? t(item.subtitleKey) : undefined}
                   className={shellNavClass(currentView === item.view && !studyWorkspaceOpen)}
                 >
-                  <NavIcon className="w-5 h-5 shrink-0" />
-                  <span className="flex-1 text-left min-w-0">
+                  {currentView === item.view && !studyWorkspaceOpen && <NavActiveIndicator />}
+                  <NavIcon className="w-5 h-5 shrink-0 relative z-[1]" />
+                  <span className="flex-1 text-left min-w-0 relative z-[1]">
                     <span className="block truncate">{t(item.labelKey)}</span>
                     {item.subtitleKey && (
                       <span className="block text-[11px] font-normal text-text-tertiary truncate mt-0.5">
@@ -591,6 +608,13 @@ export function Shell({
                   </button>
                 );
               })()}
+
+              {onPatchSettings && (
+                <HeaderAccountAuth
+                  settings={user.settings}
+                  onPatchSettings={onPatchSettings}
+                />
+              )}
 
               <button
                 type="button"

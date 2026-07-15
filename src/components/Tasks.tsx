@@ -247,52 +247,7 @@ export function Tasks({
         </div>
       )}
 
-      {daysToExam !== null && daysToExam <= 14 && (
-        <UxCallout
-          variant="danger"
-          title={c.dangerZoneTitle}
-          icon={<AlertTriangle />}
-          testId="tasks-danger-zone"
-          className="mb-3"
-        >
-          <p>{c.dangerZoneBody(daysToExam)}</p>
-          <p className="mt-2 text-xs text-text-tertiary">{c.dangerZoneRationale}</p>
-        </UxCallout>
-      )}
-
-      <SectionHeader
-        eyebrow={c.sessionSectionEyebrow}
-        title={c.sessionSectionTitle}
-        subtitle={c.sessionSectionSubtitle}
-        className="mb-3"
-      />
-
-      {/* Session launchers */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3 mb-4">
-        {sessionTypes.map((s) => {
-          const sessionTasks = filterTasksForSession(visibleTasks, s.type);
-          const Icon = s.icon;
-          return (
-            <SessionLauncherCard
-              key={s.type}
-              testId={`session-launcher-${s.type}`}
-              label={s.label}
-              desc={s.desc}
-              durationTag={c.sessionDurationTag(s.minutes)}
-              taskHint={sessionTasks.length > 0 ? c.sessionTaskCount(s.minutes, sessionTasks.length) : undefined}
-              icon={Icon}
-              active={sessionMode === s.type}
-              disabled={sessionTasks.length === 0}
-              onClick={() => {
-                setSessionMode(s.type);
-                onStartSession?.(s.type);
-              }}
-            />
-          );
-        })}
-      </div>
-
-      {/* Tabs */}
+      {/* Tabs — task list above fold; sessions collapse below */}
       <DescriptiveStickyTabBar
         items={tabs}
         activeId={tab}
@@ -303,6 +258,17 @@ export function Tasks({
       {/* Today's Plan */}
       {tab === 'today' && (
         <div className="space-y-2">
+          {daysToExam !== null && daysToExam <= 14 && (
+            <UxCallout
+              variant="danger"
+              title={c.dangerZoneTitle}
+              icon={<AlertTriangle />}
+              testId="tasks-danger-zone"
+              className="mb-1 py-2.5"
+            >
+              <p className="text-sm">{c.dangerZoneBody(daysToExam)}</p>
+            </UxCallout>
+          )}
           {todayTasks.length > 0 && (
             <TasksKanbanStatusStrip
               tasks={visibleTasks}
@@ -335,7 +301,7 @@ export function Tasks({
                 >
                   <div className="flex items-center gap-3 p-4 cursor-pointer" onClick={() => setExpandedTask(isExpanded ? null : task.id)}>
                     <span className={cn('tasks-kanban-status-dot shrink-0', `tasks-kanban-status-${kanbanStatus}`)} aria-hidden />
-                    <button type="button" onClick={(e) => { e.stopPropagation(); onComplete(task.id); }} className="shrink-0">
+                    <button type="button" onClick={(e) => { e.stopPropagation(); onComplete(task.id); }} className="shrink-0" data-testid={`task-complete-${task.id}`} aria-label={`Complete ${task.title}`}>
                       <Circle className="w-5 h-5 text-text-muted hover:text-brand-400" />
                     </button>
                     <div className="w-8 h-8 rounded-lg bg-brand-600/15 flex items-center justify-center shrink-0">
@@ -516,6 +482,44 @@ export function Tasks({
           )}
         </div>
       )}
+
+      <details
+        className="ux-disclosure mt-4"
+        open={todayTasks.length === 0 && !sessionActive}
+        data-testid="tasks-session-launchers"
+      >
+        <summary className="ux-disclosure-summary">{c.sessionLaunchersToggle}</summary>
+        <div className="ux-disclosure-body space-y-3">
+          <SectionHeader
+            eyebrow={c.sessionSectionEyebrow}
+            title={c.sessionSectionTitle}
+            subtitle={c.sessionSectionSubtitle}
+          />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3">
+            {sessionTypes.map((s) => {
+              const sessionTasks = filterTasksForSession(visibleTasks, s.type);
+              const Icon = s.icon;
+              return (
+                <SessionLauncherCard
+                  key={s.type}
+                  testId={`session-launcher-${s.type}`}
+                  label={s.label}
+                  desc={s.desc}
+                  durationTag={c.sessionDurationTag(s.minutes)}
+                  taskHint={sessionTasks.length > 0 ? c.sessionTaskCount(s.minutes, sessionTasks.length) : undefined}
+                  icon={Icon}
+                  active={sessionMode === s.type}
+                  disabled={sessionTasks.length === 0}
+                  onClick={() => {
+                    setSessionMode(s.type);
+                    onStartSession?.(s.type);
+                  }}
+                />
+              );
+            })}
+          </div>
+        </div>
+      </details>
     </Page>
     </HeroGlow>
   );

@@ -480,7 +480,7 @@ Daily decision hub: μία explainable Next Best Action, πραγματικές 
 
 ### 10.5 Status
 
-`Pass 1 complete · Final integration pass pending`
+`D1 selectors complete (2026-07-12)` — `dashboardPageSelectors.ts` canonical stat strip + task buckets, `Dashboard.tsx` wired via `selectDashboardPageViewModel`, course cards use `selectCanonicalMastery`, stat strip testids (`dashboard-page-stats`, `dashboard-stat-*`). Tests: `dashboardPageSelectors.test.ts`, `e2e/dashboard-d1-selectors.spec.ts` (active + empty matrix). Pass 1 integration fan-out: `tasks-completion-fanout.spec.ts`.
 
 ---
 
@@ -515,7 +515,9 @@ Authoritative owner του course/material lifecycle: find, inspect, continue, r
 
 ### 11.5 Status
 
-`Pass 1 complete · Lifecycle integration pass pending`
+`Pass 1 complete · C1-UI Waves UI-1–UI-4 complete` — §41; `e2e/library-lifecycle-c1.spec.ts` (upload, multi-course delete fan-out, course file delete, reprocess smoke).
+
+`C1 lifecycle fan-out complete (2026-07-12)` — multi-course isolation, course source file delete confirm, dashboard/library cross-check after delete.
 
 ## 12. PAGE 05 — Note Analysis
 
@@ -603,6 +605,8 @@ Course-level decision page: orientation, topic progression, source health, due w
 
 `B6 complete (2026-07-12)` — `coursePageSelectors` (canonical progress/mastery/tasks/source health), shared Library metrics, tab persistence + keyboard a11y, confirm gates (`course-delete-confirm`, `course-file-delete-confirm`), E2E `e2e/course-page-b6.spec.ts`.
 
+`C2 deep-link matrix complete (2026-07-12)` — `courseDeepLink.ts` (`?view=course&course=&tab=`), URL sync on tab change, E2E `e2e/course-deeplink-c2.spec.ts` (path/map/sources/analytics + reload + unknown course fallback).
+
 ---
 
 ## 14. PAGE 07 — Tasks
@@ -643,7 +647,7 @@ Course-level decision page: orientation, topic progression, source health, due w
 
 ### 14.5 Status
 
-`Audit complete · Implementation pending`
+`P0 fan-out complete (2026-07-12)` — `taskCompletionFanOut.ts` extracted from `completeTask` (tasks, dashboard stats, learner model, activity label), unit tests `taskCompletionFanOut.test.ts`, E2E `e2e/tasks-completion-fanout.spec.ts`, `task-complete-{id}` testids on Tasks page.
 
 ---
 
@@ -1842,6 +1846,62 @@ npm run build       # before any release claim
 
 ---
 
+## 41. UI Harmonization Audit & Execution (C1-UI)
+
+**Σκοπός:** Ενιαίος, καθαρός, μινιμαλιστικός Warm Sand shell — ίδια τυπογραφική κλίμακα, ίδιο component rhythm, ίδια πυκνότητα ανά viewport, χωρίς developer/debug leakage και χωρίς mixed EN/EL σε primary flows.
+
+**Βάση ελέγχου (2026-07-12 screenshots):** Library, Tasks, Analytics (5 tabs), Dashboard, Settings — EL locale, Warm Sand theme.
+
+### 41.1 Cross-cutting findings (P0–P2)
+
+| ID | Εύρημα | Σελίδες | Severity | Wave |
+|----|--------|---------|----------|------|
+| UI-01 | Υπερμεγέθης dropzone + entry hint πριν από primary content όταν υπάρχουν courses | Library | P0 | UI-1 |
+| UI-02 | InfoStack chips πάνω από course grid — cognitive noise | Library | P1 | UI-1 |
+| UI-03 | Descriptive tabs: summary 10px χαμηλό contrast σε light theme | Όλες | P1 | UI-1 |
+| UI-04 | Stat strips ad-hoc (Course) vs dashboard metrics — no shared `ux-stat-card` | Course, Dashboard | P1 | UI-1 |
+| UI-05 | Analytics treemap εμφανίζει `ui-*` debug topic ids | Analytics | P0 | UI-1 |
+| UI-06 | Tasks: session cards + danger zone πριν το κενό task list | Tasks | P1 | UI-2 |
+| UI-07 | Analytics: πολλαπλά tabs + Visual Lab = scroll fatigue | Analytics | P1 | UI-3 |
+| UI-08 | Dashboard: δεξιά στήλη overcrowded vs κενό κέντρο | Dashboard | P1 | UI-3 |
+| UI-09 | Settings: μεγάλο vertical scroll — section anchors | Settings | P2 | UI-4 |
+| UI-10 | Mixed EN/EL σε secondary labels (Learning Path, Analytics, uploads) | Course, Library, Tasks | P1 | UI-2 |
+| UI-11 | Modal/button heights inconsistent (`--btn-height` vs ad-hoc py) | Global | P1 | UI-2 |
+| UI-12 | Empty states not always visible below fold | Tasks, Analytics | P1 | UI-2 |
+
+### 41.2 Design contract (market baseline)
+
+- **Type scale:** `--type-micro` … `--type-hero-app` μόνο — όχι ad-hoc `text-[10px]` εκτός badges.
+- **Spacing:** 4px grid (`--space-*`) — section gaps `space-y-6` default στο `Page`.
+- **Buttons:** primary `--btn-height` 2.5rem · secondary 2.25rem · pill filters 2rem.
+- **Panels:** `platform-panel-md` padding `p-5` · cards `rounded-panel`.
+- **60-30-10:** max 3 emphatic accents ανά οθόνη (ήδη στο Settings color ref).
+- **Progressive disclosure:** secondary exploration (InfoStack, Visual Lab) κάτω από primary queue/content.
+- **a11y:** contrast ≥ WCAG AA για `--color-text-tertiary` σε light · focus rings σε tabs/modals.
+
+### 41.3 Execution waves
+
+| Wave | Scope | Exit evidence |
+|------|--------|---------------|
+| **UI-1** | Tokens + Library density + treemap filter + Course stat card | Library screenshot: courses above fold; no ui-* in treemap |
+| **UI-2** | Tasks density + i18n EL pass (Course/Library/Tasks tabs) + button harmonization | Tasks empty state visible; EL tabs pure |
+| **UI-3** | Analytics tab consolidation + Dashboard column balance | Analytics ≤2 scroll screens on laptop |
+| **UI-4** | Settings section nav + modal audit | Settings jump links; modal size matrix |
+
+### 41.4 Status
+
+`UI-1 complete (2026-07-12)` — §41 audit ledger, Library courses-first + compact upload CTA, dismissible entry hint, `ux-stat-card` tokens, treemap/InfoStack debug label filter, light-theme tab summary contrast.
+
+`UI-2 complete (2026-07-12)` — Tasks tabs before session launchers; collapsible `tasks-session-launchers`; compact danger zone on Today tab; pure EL course tabs + tasks session copy; `PrimaryCTA`/`SecondaryCTA`/`platform-pill` harmonized to `--btn-height`.
+
+`UI-3 complete (2026-07-12)` — Analytics Overview flow charts + Visual Lab in default-closed `ux-disclosure`; Dashboard main/sidebar grid `xl:grid-cols-3` (sidebar stacks on laptop).
+
+`UI-4 complete (2026-07-12)` — Settings sticky section nav (`settings-section-nav`) + anchor ids; modal size matrix: ConfirmDialog `max-w-md`, UploadModal `max-w-2xl`, ReprocessPreviewModal `max-w-5xl` (wizard), TakeBreathModal `max-w-md`.
+
+**Επόμενη επιτρεπτή ενέργεια:** **D1 P1** metric deep-links + **Tasks P1** task/review card normalization.
+
+---
+
 ## 39. Completion Statement
 
 Το παρόν σχέδιο λειτουργεί ως **single execution ledger** με ενσωματωμένο reconciliation (§40). Δεν χαρακτηρίζει το προϊόν launch-ready. Καταγράφει:
@@ -1855,5 +1915,5 @@ npm run build       # before any release claim
 - data/action/security/accessibility/performance contracts,
 - exact verification commands και continuous audit format.
 
-**Επόμενη επιτρεπτή ενέργεια:** **B7 / Stage C1** (Library final pass ή Tasks) κατά §29.3–29.4.
+**Επόμενη επιτρεπτή ενέργεια:** **C1** remaining lifecycle fan-out + **C2** Course deep-link matrix.
 

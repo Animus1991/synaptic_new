@@ -290,68 +290,73 @@ function OverviewTab({
         <ProgressKpiRow kpis={progressKpis} />
       </motion.div>
 
-      <SectionHeader
-        eyebrow={t('analyticsFlowSectionEyebrow')}
-        title={t('analyticsFlowSectionTitle')}
-        subtitle={t('analyticsFlowSectionSubtitle')}
-      />
+      <details className="ux-disclosure" data-testid="analytics-flow-disclosure">
+        <summary className="ux-disclosure-summary">{t('analyticsFlowDisclosure')}</summary>
+        <div className="ux-disclosure-body space-y-6">
+          <SectionHeader
+            eyebrow={t('analyticsFlowSectionEyebrow')}
+            title={t('analyticsFlowSectionTitle')}
+            subtitle={t('analyticsFlowSectionSubtitle')}
+          />
 
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.04 }}
-        className="grid grid-cols-1 xl:grid-cols-2 gap-6"
-      >
-        <KnowledgeFlowSankeyChart
-          links={sankeyModel.links}
-          hasData={sankeyModel.hasData}
-          title={t('analyticsSankeyTitle')}
-          hint={t('analyticsSankeyHint')}
-          emptyLabel={t('analyticsSankeyEmpty')}
-        />
-        <MasteryWaterfallChart
-          steps={waterfallModel.steps}
-          hasData={waterfallModel.hasData}
-          title={t('analyticsWaterfallTitle')}
-          hint={t('analyticsWaterfallHint')}
-          emptyLabel={t('analyticsWaterfallEmpty')}
-        />
-      </motion.div>
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.04 }}
+            className="grid grid-cols-1 xl:grid-cols-2 gap-6"
+          >
+            <KnowledgeFlowSankeyChart
+              links={sankeyModel.links}
+              hasData={sankeyModel.hasData}
+              title={t('analyticsSankeyTitle')}
+              hint={t('analyticsSankeyHint')}
+              emptyLabel={t('analyticsSankeyEmpty')}
+            />
+            <MasteryWaterfallChart
+              steps={waterfallModel.steps}
+              hasData={waterfallModel.hasData}
+              title={t('analyticsWaterfallTitle')}
+              hint={t('analyticsWaterfallHint')}
+              emptyLabel={t('analyticsWaterfallEmpty')}
+            />
+          </motion.div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.06 }}
-        className="grid grid-cols-1 xl:grid-cols-2 gap-6"
-      >
-        <ConceptTreemapChart
-          blocks={treemapModel.blocks}
-          totalWeight={treemapModel.totalWeight}
-          hasData={treemapModel.hasData}
-          lang={lang}
-          title={t('analyticsTreemapTitle')}
-          hint={t('analyticsTreemapHint')}
-          emptyLabel={t('analyticsTreemapEmpty')}
-          weightLabel={t('analyticsTreemapWeight')}
-          masteryLabel={t('analyticsTreemapMastery')}
-          prereqLabel={t('analyticsTreemapPrereqs')}
-        />
-        <LearningTimelineChart
-          events={timelineModel.events}
-          hasData={timelineModel.hasData}
-          title={t('analyticsTimelineTitle')}
-          hint={t('analyticsTimelineHint')}
-          emptyLabel={t('analyticsTimelineEmpty')}
-          deltaLabel={t('analyticsTimelineDelta')}
-          dayLabel={(daysAgo) =>
-            daysAgo === 0
-              ? t('analyticsTimelineDayToday')
-              : daysAgo === 1
-                ? t('analyticsTimelineDayAgoOne')
-                : t('analyticsTimelineDayAgoMany').replace('{n}', String(daysAgo))
-          }
-        />
-      </motion.div>
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.06 }}
+            className="grid grid-cols-1 xl:grid-cols-2 gap-6"
+          >
+            <ConceptTreemapChart
+              blocks={treemapModel.blocks}
+              totalWeight={treemapModel.totalWeight}
+              hasData={treemapModel.hasData}
+              lang={lang}
+              title={t('analyticsTreemapTitle')}
+              hint={t('analyticsTreemapHint')}
+              emptyLabel={t('analyticsTreemapEmpty')}
+              weightLabel={t('analyticsTreemapWeight')}
+              masteryLabel={t('analyticsTreemapMastery')}
+              prereqLabel={t('analyticsTreemapPrereqs')}
+            />
+            <LearningTimelineChart
+              events={timelineModel.events}
+              hasData={timelineModel.hasData}
+              title={t('analyticsTimelineTitle')}
+              hint={t('analyticsTimelineHint')}
+              emptyLabel={t('analyticsTimelineEmpty')}
+              deltaLabel={t('analyticsTimelineDelta')}
+              dayLabel={(daysAgo) =>
+                daysAgo === 0
+                  ? t('analyticsTimelineDayToday')
+                  : daysAgo === 1
+                    ? t('analyticsTimelineDayAgoOne')
+                    : t('analyticsTimelineDayAgoMany').replace('{n}', String(daysAgo))
+              }
+            />
+          </motion.div>
+        </div>
+      </details>
 
       {calibration && (
         <CalibrationChip score={calibration.score} direction={calibration.direction} />
@@ -511,14 +516,19 @@ function OverviewTab({
         </div>
       </motion.div>
 
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.28 }}>
-        <AnalyticsVisualLabPanel
-          sankeyLinks={sankeyModel.links}
-          sankeyHasData={sankeyModel.hasData}
-          forecast={fsrsForecast}
-          skills={[...learnerModel.weakAreas, ...learnerModel.almostKnown, ...learnerModel.strongAreas]}
-        />
-      </motion.div>
+      <details className="ux-disclosure" data-testid="analytics-visual-lab-disclosure">
+        <summary className="ux-disclosure-summary">{t('analyticsVisualLabDisclosure')}</summary>
+        <div className="ux-disclosure-body">
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.28 }}>
+            <AnalyticsVisualLabPanel
+              sankeyLinks={sankeyModel.links}
+              sankeyHasData={sankeyModel.hasData}
+              forecast={fsrsForecast}
+              skills={[...learnerModel.weakAreas, ...learnerModel.almostKnown, ...learnerModel.strongAreas]}
+            />
+          </motion.div>
+        </div>
+      </details>
     </div>
   );
 }

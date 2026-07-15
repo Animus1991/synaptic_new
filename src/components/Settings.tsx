@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useMemo } from 'react';
 import {
   Brain, BookOpen, Target, Zap,
   Gauge, Shield, Calendar, Palette, Database, KeyRound
@@ -105,6 +105,25 @@ export function Settings({
     }
   };
 
+  const settingsSections = useMemo(
+    () => [
+      { id: 'settings-teaching', label: c.sectionTeachingApproach },
+      { id: 'settings-content', label: c.sectionContentBalance },
+      { id: 'settings-pacing', label: c.sectionPacingDifficulty },
+      { id: 'settings-practice', label: c.sectionPracticeRevision },
+      { id: 'settings-plugins', label: t('pluginMarketplaceTitle') },
+      { id: 'settings-source', label: c.sectionSourceContent },
+      { id: 'settings-goals', label: c.sectionStudyGoals },
+      { id: 'settings-ai', label: c.sectionAiLlm },
+      { id: 'settings-account', label: c.sectionAccountSync },
+      { id: 'settings-google', label: c.sectionGoogleWorkspace },
+      { id: 'settings-interface', label: c.sectionInterface },
+      { id: 'settings-data', label: c.sectionDataProgress },
+      { id: 'settings-developer', label: c.sectionDeveloper },
+    ],
+    [c, t],
+  );
+
   return (
     <Page className="ux-flow-shell">
       <PageHeader
@@ -113,44 +132,60 @@ export function Settings({
         icon={Brain}
       />
 
+      <nav
+        className="ux-settings-nav sticky top-16 z-20 -mx-1 mb-4 flex gap-2 overflow-x-auto pb-2 pt-1"
+        aria-label={t('settingsSectionNav')}
+        data-testid="settings-section-nav"
+      >
+        {settingsSections.map((section) => (
+          <a
+            key={section.id}
+            href={`#${section.id}`}
+            className="platform-pill shrink-0 px-3 py-1.5 text-xs font-medium text-text-secondary hover:text-brand-700"
+          >
+            {section.label}
+          </a>
+        ))}
+      </nav>
+
       <div className="lg:grid lg:grid-cols-2 lg:gap-6 lg:items-start [&>*]:mb-6 lg:[&>*]:mb-0">
-      <SettingsSection title={c.sectionTeachingApproach} icon={<Brain className="w-5 h-5 text-brand-400" />} delay={0.05}>
+      <SettingsSection id="settings-teaching" title={c.sectionTeachingApproach} icon={<Brain className="w-5 h-5 text-brand-400" />} delay={0.05}>
         <ToggleRow label={c.labelTeachingStyle} options={c.teachingStyleOptions} value={settings.teachingStyle} onChange={v => onUpdate({ teachingStyle: v as UserSettings['teachingStyle'] })} />
         <ToggleRow label={c.labelExplanationDepth} options={c.explanationDepthOptions} value={settings.explanationDepth} onChange={v => onUpdate({ explanationDepth: v as UserSettings['explanationDepth'] })} />
         <ToggleRow label={c.labelFeedbackTone} options={c.feedbackToneOptions} value={settings.feedbackTone} onChange={v => onUpdate({ feedbackTone: v as UserSettings['feedbackTone'] })} />
       </SettingsSection>
 
-      <SettingsSection title={c.sectionContentBalance} icon={<BookOpen className="w-5 h-5 text-accent-teal" />} delay={0.1}>
+      <SettingsSection id="settings-content" title={c.sectionContentBalance} icon={<BookOpen className="w-5 h-5 text-accent-teal" />} delay={0.1}>
         <SliderRow label={c.labelTheoryVsPractice} leftLabel={c.theoryVsPracticeLeft} rightLabel={c.theoryVsPracticeRight} value={settings.theoryVsPractice} onChange={v => onUpdate({ theoryVsPractice: v })} />
         <ToggleRow label={c.labelQuestionFrequency} options={c.questionFrequencyOptions} value={settings.questionFrequency} onChange={v => onUpdate({ questionFrequency: v as UserSettings['questionFrequency'] })} />
         <ToggleRow label={c.labelExampleDensity} options={c.exampleDensityOptions} value={settings.exampleDensity} onChange={v => onUpdate({ exampleDensity: v as UserSettings['exampleDensity'] })} />
         <ToggleRow label={c.labelDiagramFrequency} options={c.diagramFrequencyOptions} value={settings.diagramFrequency} onChange={v => onUpdate({ diagramFrequency: v as UserSettings['diagramFrequency'] })} />
       </SettingsSection>
 
-      <SettingsSection title={c.sectionPacingDifficulty} icon={<Gauge className="w-5 h-5 text-accent-amber" />} delay={0.15}>
+      <SettingsSection id="settings-pacing" title={c.sectionPacingDifficulty} icon={<Gauge className="w-5 h-5 text-accent-amber" />} delay={0.15}>
         <ToggleRow label={c.labelPacing} options={c.pacingOptions} value={settings.pacing} onChange={v => onUpdate({ pacing: v as UserSettings['pacing'] })} />
         <ToggleRow label={c.labelChallengeLevel} options={c.challengeLevelOptions} value={settings.challengeLevel} onChange={v => onUpdate({ challengeLevel: v as UserSettings['challengeLevel'] })} />
         <ToggleRow label={c.labelLessonLength} options={c.lessonLengthOptions} value={settings.lessonLength} onChange={v => onUpdate({ lessonLength: v as UserSettings['lessonLength'] })} />
         <SliderRow label={c.labelMasteryThreshold} leftLabel="60%" rightLabel="100%" value={settings.masteryThreshold} onChange={v => onUpdate({ masteryThreshold: v })} min={60} max={100} />
       </SettingsSection>
 
-      <SettingsSection title={c.sectionPracticeRevision} icon={<Target className="w-5 h-5 text-accent-cyan" />} delay={0.2}>
+      <SettingsSection id="settings-practice" title={c.sectionPracticeRevision} icon={<Target className="w-5 h-5 text-accent-cyan" />} delay={0.2}>
         <ToggleRow label={c.labelPracticeIntensity} options={c.practiceIntensityOptions} value={settings.practiceIntensity} onChange={v => onUpdate({ practiceIntensity: v as UserSettings['practiceIntensity'] })} />
         <ToggleRow label={c.labelRevisionLoops} options={c.revisionLoopsOptions} value={settings.revisionLoops} onChange={v => onUpdate({ revisionLoops: v as UserSettings['revisionLoops'] })} />
       </SettingsSection>
 
-      <SettingsSection title={t('pluginMarketplaceTitle')} icon={<Zap className="w-5 h-5 text-brand-400" />} delay={0.22}>
+      <SettingsSection id="settings-plugins" title={t('pluginMarketplaceTitle')} icon={<Zap className="w-5 h-5 text-brand-400" />} delay={0.22}>
         <PluginMarketplacePanel />
       </SettingsSection>
 
-      <SettingsSection title={c.sectionSourceContent} icon={<Shield className="w-5 h-5 text-accent-emerald" />} delay={0.25}>
+      <SettingsSection id="settings-source" title={c.sectionSourceContent} icon={<Shield className="w-5 h-5 text-accent-emerald" />} delay={0.25}>
         <ToggleRow label={c.labelSourceMode} options={c.sourceModeOptions} value={settings.sourceMode} onChange={v => onUpdate({ sourceMode: v as UserSettings['sourceMode'] })} />
         <p className="text-xs text-text-muted mt-1 px-1">
           {c.sourceModeHint}
         </p>
       </SettingsSection>
 
-      <SettingsSection title={c.sectionStudyGoals} icon={<Calendar className="w-5 h-5 text-accent-rose" />} delay={0.3}>
+      <SettingsSection id="settings-goals" title={c.sectionStudyGoals} icon={<Calendar className="w-5 h-5 text-accent-rose" />} delay={0.3}>
         <div className="space-y-3">
           <div>
             <label className="text-sm text-text-secondary block mb-1">{c.labelDailyStudyGoal}</label>
@@ -171,7 +206,7 @@ export function Settings({
         </div>
       </SettingsSection>
 
-      <SettingsSection title={c.sectionAiLlm} icon={<Brain className="w-5 h-5 text-brand-400" />} delay={0.32}>
+      <SettingsSection id="settings-ai" title={c.sectionAiLlm} icon={<Brain className="w-5 h-5 text-brand-400" />} delay={0.32}>
         <div>
           <label className="text-xs text-text-secondary block mb-2">{c.labelOpenAiKey}</label>
           <input
@@ -222,7 +257,7 @@ export function Settings({
         </p>
       </SettingsSection>
 
-      <SettingsSection title={c.sectionAccountSync} icon={<KeyRound className="w-5 h-5 text-accent-teal" />} delay={0.34}>
+      <SettingsSection id="settings-account" title={c.sectionAccountSync} icon={<KeyRound className="w-5 h-5 text-accent-teal" />} delay={0.34}>
         {settings.authToken && (
           <div className="flex flex-wrap items-center gap-2 mb-3">
             <span className="text-xs px-2 py-1 rounded-lg bg-surface-hover border border-border-subtle">
@@ -504,6 +539,7 @@ export function Settings({
       </SettingsSection>
 
       <SettingsSection
+        id="settings-google"
         title={c.sectionGoogleWorkspace}
         icon={<KeyRound className="w-5 h-5 text-brand-400" />}
         delay={0.32}
@@ -518,7 +554,7 @@ export function Settings({
         />
       </SettingsSection>
 
-      <SettingsSection title={c.sectionInterface} icon={<Palette className="w-5 h-5 text-brand-300" />} delay={0.35}>
+      <SettingsSection id="settings-interface" title={c.sectionInterface} icon={<Palette className="w-5 h-5 text-brand-300" />} delay={0.35}>
         <ToggleRow label={c.labelTheme} options={c.themeOptions} value={settings.theme} onChange={v => onUpdate({ theme: v as UserSettings['theme'] })} />
         <ToggleRow label={c.labelLanguage} options={c.languageOptions} value={settings.language} onChange={v => onUpdate({ language: v as UserSettings['language'] })} />
       </SettingsSection>
@@ -527,7 +563,7 @@ export function Settings({
         <ColorCodingReferencePanel />
       </div>
 
-      <SettingsSection title={c.sectionDataProgress} icon={<Database className="w-5 h-5 text-accent-cyan" />} delay={0.38}>
+      <SettingsSection id="settings-data" title={c.sectionDataProgress} icon={<Database className="w-5 h-5 text-accent-cyan" />} delay={0.38}>
         <ToggleRow label={c.labelDemoContent} options={c.demoContentOptions} value={settings.showDemoContent ? 'on' : 'off'} onChange={v => onUpdate({ showDemoContent: v === 'on' })} />
         <p className="text-[11px] text-text-muted">{c.demoContentHint}</p>
         <div className="flex flex-wrap gap-2">
@@ -574,7 +610,7 @@ export function Settings({
         )}
       </SettingsSection>
 
-      <SettingsSection title={c.sectionDeveloper} icon={<Gauge className="w-5 h-5 text-accent-amber" />} delay={0.39}>
+      <SettingsSection id="settings-developer" title={c.sectionDeveloper} icon={<Gauge className="w-5 h-5 text-accent-amber" />} delay={0.39}>
         <p className="text-xs text-text-secondary">{c.developerHint}</p>
         <WorkspaceTTIPanel />
         {onReplayProductTour && (
@@ -603,9 +639,9 @@ export function Settings({
   );
 }
 
-function SettingsSection({ title, icon, children, delay }: { title: string; icon: React.ReactNode; children: React.ReactNode; delay: number }) {
+function SettingsSection({ id, title, icon, children, delay }: { id: string; title: string; icon: React.ReactNode; children: React.ReactNode; delay: number }) {
   return (
-    <AnimatedCard delay={delay} padding="md">
+    <AnimatedCard id={id} delay={delay} padding="md" className="scroll-mt-28">
       <h3 className="ws-serif text-sm font-medium flex items-center gap-2 mb-4 text-text-primary">{icon}{title}</h3>
       <div className="space-y-4">{children}</div>
     </AnimatedCard>
