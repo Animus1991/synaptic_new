@@ -1,5 +1,9 @@
 node_modules/
 ocr-server/node_modules/
+.env
+.env.*
+!.env.example
+!.env.*.example
 ocr-server/.env
 server/.env
 mobile/fastlane/.env

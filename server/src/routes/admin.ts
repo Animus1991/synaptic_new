@@ -11,11 +11,18 @@ function requireAdmin(req: Request, res: Response, next: NextFunction): void {
     next();
     return;
   }
-  if (!secret && req.account?.email !== 'anonymous@local') {
+  // Never treat arbitrary authenticated users as admin when ADMIN_SECRET is unset.
+  // Dev-only bypass: only when NODE_ENV is not production AND caller is non-anonymous.
+  const isProd = (process.env.NODE_ENV ?? 'development') === 'production';
+  if (!isProd && !secret && req.account?.email && req.account.email !== 'anonymous@local') {
     next();
     return;
   }
-  res.status(403).json({ error: 'Admin access denied' });
+  res.status(403).json({
+    error: isProd && !secret
+      ? 'Admin access denied — set ADMIN_SECRET in production'
+      : 'Admin access denied',
+  });
 }
 
 adminRouter.get('/admin/stats', authenticate, requireAdmin, async (_req: Request, res: Response) => {

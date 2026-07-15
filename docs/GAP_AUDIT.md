@@ -1,6 +1,6 @@
 # Gap audit — living register
 
-**Last reconciled:** 2026-07-10 (Replit aesthetic study + post-F4 register)  
+**Last reconciled:** 2026-07-15 (security Wave 0 + TOOL-CM-02 / TOOL-TM-02)  
 **Canonical pair:** this file (open gaps) + `PRODUCT_SCALE_STATUS.md` (what ships)  
 **North star:** *NotebookLM to understand · Synapse to retain + teacher visibility*
 
@@ -120,7 +120,7 @@ Goal: every tool **fully functional for its learning purpose**, not demo stubs.
 | ID | Item | Priority | Status |
 | -- | ---- | -------- | ------ |
 | TOOL-CM-01 | Edit graph, undo, PNG export, Reader jump | — | shipped |
-| TOOL-CM-02 | Redo stack | P2 | open |
+| TOOL-CM-02 | Redo stack | P2 | **shipped** | `redoStack` + `concept-map-redo` in `DraggableConceptMap` |
 | TOOL-CM-03 | PMI edge labels | P2 | open |
 | TOOL-CM-04 | Keyboard a11y + screen-reader tree | P2 | open |
 | TOOL-CM-05 | CRDT multi-user editing | P3 | **shipped** | Yjs/Hocuspocus via study room |
@@ -152,7 +152,7 @@ Goal: every tool **fully functional for its learning purpose**, not demo stubs.
 | TOOL-SM-03 | Graph export → Whiteboard | P2 | open |
 | TOOL-WB-01 | Layers, KaTeX, PNG/SVG, Agent diagram coach | — | shipped |
 | TOOL-TM-01 | Pomodoro, exam countdown, .ics | — | shipped |
-| TOOL-TM-02 | Auto-suggest Leitner on break | P2 | open |
+| TOOL-TM-02 | Auto-suggest Leitner on break | P2 | **shipped** | Break banner + `onOpenBreakTool` → Leitner |
 | TOOL-PR-01 | Readiness ring, tool activity breakdown | — | shipped |
 | TOOL-PR-02 | Per-tool time-on-tool (engagement timestamps) | P2 | open |
 | TOOL-PR-03 | Export progress report PDF | P2 | open |

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
-import { Timer, Play, Pause, RotateCcw, BookOpen, GraduationCap, Calendar } from '@/lib/lucide-shim';
+import { Timer, Play, Pause, RotateCcw, BookOpen, GraduationCap, Calendar, Layers } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
 import { useI18n } from '../../lib/i18n';
 import {
@@ -42,6 +42,8 @@ interface StudyTimerProps {
   suggestedExamPractice?: ExamPracticePresetId;
   onSessionComplete?: (minutes: number, label: string) => void;
   onOpenSimulator?: () => void;
+  /** TOOL-TM-02 — open Leitner (or other break tool) during Pomodoro break */
+  onOpenBreakTool?: () => void;
 }
 
 function defaultExamIso(): string {
@@ -61,12 +63,14 @@ export function StudyTimer({
   suggestedExamPractice,
   onSessionComplete,
   onOpenSimulator,
+  onOpenBreakTool,
 }: StudyTimerProps) {
   const { t, lang } = useI18n();
   const [mode, setMode] = useState<TimerMode>('pomodoro');
   const [presetIdx, setPresetIdx] = useState(0);
   const [examPracticeId, setExamPracticeId] = useState<ExamPracticePresetId | null>(null);
   const [phase, setPhase] = useState<'work' | 'break'>('work');
+  const [leitnerBreakDismissed, setLeitnerBreakDismissed] = useState(false);
   const [examTarget, setExamTarget] = useState(() => loadExamTarget(scopeKey) ?? defaultExamIso());
   const [examTick, setExamTick] = useState(0);
   const [secondsLeft, setSecondsLeft] = useState(PRESET_DEFS[0].work);
@@ -157,6 +161,7 @@ export function StudyTimer({
             emitTakeBreathPrompt();
           }
           setPhase(nextPhase);
+          if (nextPhase === 'break') setLeitnerBreakDismissed(false);
           return nextPhase === 'work' ? workDurationSeconds : preset.break;
         }
         return s - 1;
@@ -230,6 +235,32 @@ export function StudyTimer({
               </p>
             )}
           </div>
+        </div>
+      )}
+
+      {mode === 'pomodoro' && phase === 'break' && onOpenBreakTool && !leitnerBreakDismissed && (
+        <div
+          className="mb-3 flex items-center gap-2 rounded-lg border border-accent-cyan/30 bg-accent-cyan/10 px-3 py-2"
+          data-testid="timer-break-leitner-suggest"
+        >
+          <Layers className="w-3.5 h-3.5 text-accent-cyan shrink-0" />
+          <p className="flex-1 text-[11px] text-brand-800 min-w-0">{t('timerBreakLeitnerSuggest')}</p>
+          <button
+            type="button"
+            data-testid="timer-break-open-leitner"
+            onClick={onOpenBreakTool}
+            className="shrink-0 rounded-md border border-accent-cyan/40 bg-accent-cyan/15 px-2 py-1 text-[10px] font-semibold text-brand-800 hover:bg-accent-cyan/25"
+          >
+            {t('timerBreakOpenLeitner')}
+          </button>
+          <button
+            type="button"
+            aria-label={t('dismiss')}
+            onClick={() => setLeitnerBreakDismissed(true)}
+            className="shrink-0 text-[10px] text-text-muted hover:text-text-secondary px-1"
+          >
+            ×
+          </button>
         </div>
       )}
 

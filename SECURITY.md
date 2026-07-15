@@ -59,26 +59,31 @@ Before exposing Synapse to real learners:
 1. **TLS everywhere** — terminate at a reverse proxy (nginx, Caddy, cloud
    LB). Do not run the Node process bare on port 80.
 2. **Set every secret** — `OPENAI_API_KEY`, `JWT_SECRET` (≥32 random bytes),
-   `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `ADMIN_SECRET`,
-   `DATABASE_URL`.
+   `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `ADMIN_SECRET` (**required in
+   production** — admin routes reject all callers without it),
+   `DATABASE_URL`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` (for Google
+   Tools / Calendar / Tasks / Meet).
 3. **Pin CORS** — `ALLOWED_ORIGINS` must list only your real frontend
    origins; never `*` in production.
 4. **Disable anonymous** — `ALLOW_ANONYMOUS=false` for paid/managed tiers.
 5. **Verify webhook signatures** — set `STRIPE_WEBHOOK_SECRET` so
    `/v1/billing/webhook` rejects unsigned bodies.
-6. **Secure admin** — set `ADMIN_SECRET`; without it any authenticated
-   non-anonymous account is treated as admin (dev shortcut only).
-7. **Run migrations once** — set `RUN_MIGRATIONS_ON_START=false` in
+6. **Secure admin** — set `ADMIN_SECRET`. Without it, production returns
+   403 for all `/v1/admin/*` callers. Dev may allow non-anonymous accounts
+   only when `NODE_ENV !== production` and no secret is set.
+7. **Never commit `.env` / `.env.local`** — use `.env.example` /
+   `.env.local.example` only. Client Vite keys must stay empty templates.
+8. **Run migrations once** — set `RUN_MIGRATIONS_ON_START=false` in
    multi-replica deployments and call `npm run migrate` from CI.
-8. **Rotate `JWT_SECRET`** at least quarterly; force-logout on rotation.
-9. **Layer edge rate limiting on top of the built-in limiter** — the server
+9. **Rotate `JWT_SECRET`** at least quarterly; force-logout on rotation.
+10. **Layer edge rate limiting on top of the built-in limiter** — the server
    already enforces an in-process per-account/IP RPM cap on `/v1/*`, but
    production should add an edge/global limiter and move to a distributed
    store before multi-replica scale.
-10. **Structured logging + audit trail** for `/auth/*`, `/v1/billing/*`, and
+11. **Structured logging + audit trail** for `/auth/*`, `/v1/billing/*`, and
     `/v1/admin/*`. The current code uses `console.log`; pipe through your log
     aggregator.
-11. **Backups** — `pg_dump` the `accounts`, `account_libraries`, and
+12. **Backups** — `pg_dump` the `accounts`, `account_libraries`, and
     `account_sessions` tables on a schedule; the JSONB blobs are the
     learner's data.
 

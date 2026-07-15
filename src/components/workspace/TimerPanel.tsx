@@ -189,6 +189,7 @@ export function TimerPanel({
           suggestedExamPractice={activeExamPractice ?? session.suggestedExamPractice}
           onSessionComplete={onSessionComplete}
           onOpenSimulator={onOpenSimulator}
+          onOpenBreakTool={onOpenBreakTool}
         />
       </div>
     </div>

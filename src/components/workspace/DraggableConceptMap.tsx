@@ -20,7 +20,7 @@ import { WorkspaceSelectionActionBar } from './WorkspaceSelectionActionBar';
 import type { WorkspaceSelectionActionId, WorkspaceSelectionContext } from '../../lib/workspaceSelectionActions';
 import { ConceptTypeIcon } from '../ui/ConceptTypeIcon';
 import { conceptTypeGlyph } from '../../lib/conceptTypeIcons';
-import { Map, BookOpen, Pencil, FileText, X, Plus, Trash2, Link2, Undo2 } from '@/lib/lucide-shim';
+import { Map, BookOpen, Pencil, FileText, X, Plus, Trash2, Link2, Undo2, Redo2 } from '@/lib/lucide-shim';
 import { BlueprintSurface } from '../ui/BlueprintSurface';
 import { cn } from '../../utils/cn';
 import { bandColorVar, masteryColorForValue, accentHighlightVar } from '../../lib/masteryPalette';
@@ -112,7 +112,9 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
   const [connectFrom, setConnectFrom] = useState<string | null>(null);
   const [selectedEdgeKey, setSelectedEdgeKey] = useState<string | null>(null);
   const [canUndo, setCanUndo] = useState(false);
+  const [canRedo, setCanRedo] = useState(false);
   const undoStack = useRef<GraphSnapshot[]>([]);
+  const redoStack = useRef<GraphSnapshot[]>([]);
   const [noteText, setNoteText] = useState('');
   const [zoom, setZoom] = useState(1);
   const [pan, setPan] = useState({ x: 0, y: 0 });
@@ -162,20 +164,46 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
       edges: structuredClone(edges),
     });
     if (undoStack.current.length > 30) undoStack.current.shift();
+    redoStack.current = [];
     setCanUndo(true);
+    setCanRedo(false);
   }, [nodes, edges]);
 
   const undo = useCallback(() => {
     const prev = undoStack.current.pop();
     if (!prev) return;
+    redoStack.current.push({
+      nodes: structuredClone(nodes),
+      edges: structuredClone(edges),
+    });
+    if (redoStack.current.length > 30) redoStack.current.shift();
     setCanUndo(undoStack.current.length > 0);
+    setCanRedo(true);
     setNodes(prev.nodes);
     setEdges(prev.edges);
     publishGraph(prev.nodes, prev.edges);
     setSelected(null);
     setSelectedEdgeKey(null);
     setConnectFrom(null);
-  }, [publishGraph]);
+  }, [publishGraph, nodes, edges]);
+
+  const redo = useCallback(() => {
+    const next = redoStack.current.pop();
+    if (!next) return;
+    undoStack.current.push({
+      nodes: structuredClone(nodes),
+      edges: structuredClone(edges),
+    });
+    if (undoStack.current.length > 30) undoStack.current.shift();
+    setCanUndo(true);
+    setCanRedo(redoStack.current.length > 0);
+    setNodes(next.nodes);
+    setEdges(next.edges);
+    publishGraph(next.nodes, next.edges);
+    setSelected(null);
+    setSelectedEdgeKey(null);
+    setConnectFrom(null);
+  }, [publishGraph, nodes, edges]);
 
   const publishCursor = useCallback((nodeId: string, x: number, y: number, label: string) => {
     if (!cursorSync) return;
@@ -563,6 +591,17 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
           >
             <Undo2 className="w-3 h-3" />
             {t('conceptMapUndo')}
+          </button>
+          <button
+            type="button"
+            data-testid="concept-map-redo"
+            disabled={!canRedo}
+            onClick={redo}
+            className="inline-flex items-center gap-1 px-2 py-1 rounded text-[10px] font-medium border border-border-subtle text-text-muted hover:text-text-secondary disabled:opacity-40"
+            title={t('conceptMapRedo')}
+          >
+            <Redo2 className="w-3 h-3" />
+            {t('conceptMapRedo')}
           </button>
           <button
             type="button"
