@@ -230,8 +230,8 @@
 → Scratchpad, Whiteboard, Quiz
 
 ### Κενά
-- [ ] Course-specific preset scenarios
-- [ ] Graph output export to Whiteboard
+- [x] Course-specific preset scenarios (TOOL-SM-02 — economics + parametric packs)
+- [x] Graph output export to Whiteboard (TOOL-SM-03 — `buildSimulatorWhiteboardExport`)
 
 ---
 
@@ -282,8 +282,8 @@
 `MiniDashboard.tsx`, `workspaceData.ts`, `conceptBusPanelModel.ts`, `workspaceWeakAreas.ts`
 
 ### Κενά
-- [ ] Per-tool time-on-tool (requires engagement timestamps)
-- [ ] Export progress report PDF
+- [x] Per-tool time-on-tool (TOOL-PR-02 — `toolTimeTracker` + chip dwell labels)
+- [x] Export progress report PDF (TOOL-PR-03 — print HTML/PDF + dwell ms in export)
 
 ---
 

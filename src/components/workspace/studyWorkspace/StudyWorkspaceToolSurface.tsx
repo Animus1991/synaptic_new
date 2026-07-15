@@ -451,6 +451,7 @@ export function StudyWorkspaceToolSurface({ model }: StudyWorkspaceToolSurfacePr
                         <LazySimulatorPanel
                           session={simulatorSession}
                           concept={quizConcept}
+                          courseTitle={linkedCourse?.title}
                           lang={lang}
                           emptyMessage={toolEmptyMessage('simulator')}
                           onUpload={handleToolUpload}
@@ -467,6 +468,7 @@ export function StudyWorkspaceToolSurface({ model }: StudyWorkspaceToolSurfacePr
                             noteConceptActivity(quizConcept, 'timer', 'focus');
                             openWorkspaceTool('timer');
                           }}
+                          onSendToWhiteboard={sendScratchpadToWhiteboard}
                           onOpenInReader={(query) => openReaderAtSearch(query, 'simulator')}
                           artifactStale={simulatorArtifactStale}
                           onAcknowledgeStale={() => acknowledgePracticeStale('simulator')}

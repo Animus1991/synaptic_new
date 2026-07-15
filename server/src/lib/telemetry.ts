@@ -2,7 +2,7 @@ import type { NextFunction, Request, Response } from 'express';
 import { context, metrics, SpanStatusCode, trace } from '@opentelemetry/api';
 import { OTLPMetricExporter } from '@opentelemetry/exporter-metrics-otlp-http';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
-import { resourceFromAttributes } from '@opentelemetry/resources';
+import { Resource } from '@opentelemetry/resources';
 import { NodeSDK } from '@opentelemetry/sdk-node';
 import { PeriodicExportingMetricReader } from '@opentelemetry/sdk-metrics';
 import { ATTR_SERVICE_NAME } from '@opentelemetry/semantic-conventions';
@@ -45,7 +45,7 @@ export async function initTelemetry(): Promise<void> {
   const metricExporter = new OTLPMetricExporter({ url: `${endpoint}/v1/metrics` });
 
   sdk = new NodeSDK({
-    resource: resourceFromAttributes({
+    resource: new Resource({
       [ATTR_SERVICE_NAME]: config.otelServiceName,
     }),
     traceExporter,

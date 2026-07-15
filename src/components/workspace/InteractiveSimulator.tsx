@@ -1,6 +1,6 @@
 import { useMemo, useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowRight, SlidersHorizontal, Target, Zap } from '@/lib/lucide-shim';
+import { ArrowRight, PenLine, SlidersHorizontal, Target, Zap } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
 import { useI18n } from '../../lib/i18n';
 import type { NumericCue } from '../../lib/numericCues';
@@ -14,6 +14,12 @@ import {
   SIMULATOR_SCENARIO_PRESETS,
   type SimulatorScenarioId,
 } from '../../lib/examPracticePresets';
+import {
+  resolveCourseSimulatorPresets,
+  type ParametricScenarioId,
+} from '../../lib/simulatorCoursePresets';
+import { buildSimulatorWhiteboardExport } from '../../lib/simulatorWhiteboardBridge';
+import type { ScratchpadExport } from '../../lib/workspaceScratchpadBridge';
 import { WorkspaceToolEmptyState } from './WorkspaceToolEmptyState';
 
 const CHALLENGE_TARGET_P = 55;
@@ -24,6 +30,7 @@ interface Props {
   economicsMode?: boolean;
   numericCues?: NumericCue[];
   concept?: string;
+  courseTitle?: string;
   emptyMessage?: string;
   hasSource?: boolean;
   onUpload?: () => void;
@@ -32,6 +39,7 @@ interface Props {
   onEngage?: () => void;
   onScenarioSelect?: (scenarioId: SimulatorScenarioId) => void;
   initialScenarioId?: SimulatorScenarioId | null;
+  onSendToWhiteboard?: (payload: ScratchpadExport) => void;
 }
 
 export function InteractiveSimulator({
@@ -39,6 +47,7 @@ export function InteractiveSimulator({
   economicsMode = false,
   numericCues = [],
   concept = '',
+  courseTitle = '',
   emptyMessage,
   hasSource = false,
   onUpload,
@@ -47,6 +56,7 @@ export function InteractiveSimulator({
   onEngage,
   onScenarioSelect,
   initialScenarioId,
+  onSendToWhiteboard,
 }: Props) {
   const { t, lang: i18nLang } = useI18n();
   const lang = langProp ?? i18nLang;
@@ -58,10 +68,24 @@ export function InteractiveSimulator({
   const [cueValues, setCueValues] = useState<Record<string, number>>(() =>
     Object.fromEntries(numericCues.map((c) => [c.id, c.baseline])),
   );
+  const [activeParametricPreset, setActiveParametricPreset] = useState<ParametricScenarioId | null>(null);
+  const [activeEconScenario, setActiveEconScenario] = useState<SimulatorScenarioId | null>(
+    initialScenarioId ?? null,
+  );
 
   useEffect(() => {
     setCueValues(Object.fromEntries(numericCues.map((c) => [c.id, c.baseline])));
   }, [numericCues]);
+
+  const coursePresets = useMemo(
+    () => resolveCourseSimulatorPresets({
+      economicsMode,
+      numericCues,
+      courseTitle,
+      concept,
+    }),
+    [economicsMode, numericCues, courseTitle, concept],
+  );
 
   const genericInsight = useMemo(
     () => sandboxDeltaInsight(numericCues, cueValues, concept, lang),
@@ -120,15 +144,46 @@ export function InteractiveSimulator({
   const sP2 = 140;
   const sQ2 = sP2 + supplyShift;
 
-  const presetButtons = useMemo(() => SIMULATOR_SCENARIO_PRESETS, []);
-
   const applyScenario = (scenarioId: SimulatorScenarioId) => {
     const preset = SIMULATOR_SCENARIO_PRESETS.find((p) => p.id === scenarioId);
     if (!preset) return;
     setDemandShift(preset.demand);
     setSupplyShift(preset.supply);
+    setActiveEconScenario(scenarioId);
     onEngage?.();
     onScenarioSelect?.(scenarioId);
+  };
+
+  const applyParametricPreset = (presetId: ParametricScenarioId) => {
+    if (coursePresets.mode !== 'parametric') return;
+    const preset = coursePresets.scenarios.find((p) => p.id === presetId);
+    if (!preset) return;
+    setCueValues({ ...preset.values });
+    setActiveParametricPreset(presetId);
+    onEngage?.();
+  };
+
+  const sendGraphToWhiteboard = () => {
+    if (!onSendToWhiteboard) return;
+    const scenarioLabel = economicsMode && activeEconScenario
+      ? t(SIMULATOR_SCENARIO_PRESETS.find((p) => p.id === activeEconScenario)!.i18nKey)
+      : activeParametricPreset && coursePresets.mode === 'parametric'
+        ? (lang === 'el'
+          ? coursePresets.scenarios.find((p) => p.id === activeParametricPreset)?.labelEl
+          : coursePresets.scenarios.find((p) => p.id === activeParametricPreset)?.labelEn)
+        : undefined;
+    onSendToWhiteboard(buildSimulatorWhiteboardExport({
+      concept,
+      economicsMode,
+      demandShift,
+      supplyShift,
+      eqP,
+      eqQ,
+      cues: numericCues,
+      cueValues,
+      scenarioLabel,
+    }));
+    onEngage?.();
   };
 
   if (!economicsMode) {
@@ -148,6 +203,40 @@ export function InteractiveSimulator({
             <p className="text-xs text-text-tertiary">
               {t('sandboxAdjustHint')}
             </p>
+            {coursePresets.mode === 'parametric' && coursePresets.scenarios.length > 0 && (
+              <div data-testid="simulator-course-presets">
+                <p className="mb-1.5 text-xs font-medium text-text-tertiary">{t('presets')}</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {coursePresets.scenarios.map((p) => (
+                    <button
+                      key={p.id}
+                      type="button"
+                      data-testid={`simulator-parametric-preset-${p.id}`}
+                      onClick={() => applyParametricPreset(p.id)}
+                      className={cn(
+                        'rounded-full border px-2.5 py-1 text-xs transition-all',
+                        activeParametricPreset === p.id
+                          ? 'border-brand-500/40 bg-brand-600/10 text-brand-800'
+                          : 'border-border-subtle bg-surface-primary/50 hover:border-brand-500/40',
+                      )}
+                    >
+                      {lang === 'el' ? p.labelEl : p.labelEn}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+            {onSendToWhiteboard && (
+              <button
+                type="button"
+                data-testid="simulator-send-whiteboard"
+                onClick={sendGraphToWhiteboard}
+                className="inline-flex items-center gap-1.5 rounded-lg border border-brand-500/30 bg-brand-600/10 px-2.5 py-1.5 text-[10px] font-medium text-brand-800 hover:bg-brand-600/15"
+              >
+                <PenLine className="w-3 h-3" />
+                {t('scratchOpenWhiteboard')}
+              </button>
+            )}
             {numericCues.map((cue) => (
               <div key={cue.id} className="rounded-xl border border-border-subtle bg-surface-card p-4">
                 <div className="mb-2 flex justify-between items-start gap-2">
@@ -251,15 +340,33 @@ export function InteractiveSimulator({
 
       <div className="flex flex-1 flex-col items-center overflow-y-auto p-4">
         <div className="mb-3 w-full max-w-sm">
-          <p className="mb-1.5 text-xs font-medium text-text-tertiary">{t('presets')}</p>
-          <div className="flex flex-wrap gap-1.5">
-            {presetButtons.map((p) => (
+          <div className="mb-1.5 flex items-center justify-between gap-2">
+            <p className="text-xs font-medium text-text-tertiary">{t('presets')}</p>
+            {onSendToWhiteboard && (
+              <button
+                type="button"
+                data-testid="simulator-send-whiteboard"
+                onClick={sendGraphToWhiteboard}
+                className="inline-flex items-center gap-1 rounded-lg border border-brand-500/30 bg-brand-600/10 px-2 py-0.5 text-[9px] font-medium text-brand-800 hover:bg-brand-600/15"
+              >
+                <PenLine className="w-3 h-3" />
+                {t('scratchOpenWhiteboard')}
+              </button>
+            )}
+          </div>
+          <div className="flex flex-wrap gap-1.5" data-testid="simulator-course-presets">
+            {SIMULATOR_SCENARIO_PRESETS.map((p) => (
               <button
                 key={p.id}
                 type="button"
                 data-testid={`simulator-scenario-${p.id}`}
                 onClick={() => applyScenario(p.id)}
-                className="rounded-full border border-border-subtle bg-surface-primary/50 px-2.5 py-1 text-xs hover:border-brand-500/40 transition-all"
+                className={cn(
+                  'rounded-full border px-2.5 py-1 text-xs transition-all',
+                  activeEconScenario === p.id
+                    ? 'border-brand-500/40 bg-brand-600/10 text-brand-800'
+                    : 'border-border-subtle bg-surface-primary/50 hover:border-brand-500/40',
+                )}
               >
                 {t(p.i18nKey)}
               </button>

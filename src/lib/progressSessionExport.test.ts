@@ -41,7 +41,7 @@ describe('progressSessionExport', () => {
         reasons: [{ id: 'quiz-wrong', label: '2× quiz mistakes', severity: 'high' }],
         remediation: [{ id: 'quiz', label: 'Quiz', hint: 'Retest' }],
       }],
-      toolActivity: [{ tool: 'quiz', count: 2, lastAt: 1 }],
+      toolActivity: [{ tool: 'quiz', count: 2, lastAt: 1, ms: 90_000 }],
       nextActions: [{ label: 'Review tariffs', type: 'review', minutes: 15, xp: 20 }],
       session,
       nextAction: {
@@ -57,10 +57,12 @@ describe('progressSessionExport', () => {
     expect(html).toContain('2× quiz mistakes');
     expect(html).toContain('Test me');
     expect(html).toContain('Quiz ×2');
+    expect(html).toContain('· 2m');
     expect(html).toContain('Concept Bus mirror');
 
     const json = JSON.parse(buildProgressSessionJson(payload));
     expect(json.concept).toBe('Elasticity');
+    expect(json.toolActivity[0].ms).toBe(90_000);
     expect(json.weakSpots[0].remediation[0].id).toBe('quiz');
     expect(json.feynmanActivityCount).toBe(0);
     expect(Array.isArray(json.conceptBusSnapshot)).toBe(true);

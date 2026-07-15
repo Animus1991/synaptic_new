@@ -95,12 +95,12 @@ cd server && npm test
 | TOOL-CM-03 | PMI edge labels | **shipped** (2026-07-15) |
 | TOOL-CM-04 | Keyboard a11y + SR tree | **shipped** (2026-07-15) |
 | TOOL-RD-02 | Glossary popover (hover) | **shipped** (2026-07-15) |
-| TOOL-SM-02/03 | Simulator presets + graph→whiteboard | open |
-| TOOL-PR-02/03 | Time-on-tool + PDF progress export | open |
+| TOOL-SM-02/03 | Simulator presets + graph→whiteboard | **shipped** (2026-07-15) |
+| TOOL-PR-02/03 | Time-on-tool + PDF progress export | **shipped** (2026-07-15) |
 | MD-05 | Image-as-thumbnail | **shipped** (2026-07-15) |
 | XTL-03 | Expand RTL component tests | **shipped** (2026-07-15) |
 
-**Remaining Wave 2:** TOOL-SM-02/03, TOOL-PR-02/03.
+**Wave 2:** closed.
 
 ### Wave 3 — Collaboration & OCR depth
 
@@ -154,8 +154,9 @@ Mark older masters (`EXHAUSTIVE_*`, `STATE_OF_THE_ART_*`, duplicate upgrade plan
 | TOOL-TM-02 break→Leitner CTA | done |
 | SECURITY.md checklist update | done |
 | Wave 2: CM-03/04, RD-02, MD-05, XTL-03 | done |
+| Wave 2 remainder: SM-02/03, PR-02/03 | done |
 | Push to `synaptic_refined` + `synaptic_new` | pending commit |
-| Wave 2 remainder (SM-02/03, PR-02/03) + Waves 3–5 | scheduled — continue sprint-by-sprint without breaking Google paths |
+| Waves 3–5 | scheduled — continue sprint-by-sprint without breaking Google paths |
 
 ---
 

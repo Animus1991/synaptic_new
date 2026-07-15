@@ -1,6 +1,6 @@
 # Gap audit — living register
 
-**Last reconciled:** 2026-07-15 (Wave 2: CM-03/04, RD-02, MD-05, XTL-03)  
+**Last reconciled:** 2026-07-15 (Wave 2 closed: SM-02/03, PR-02/03)  
 **Canonical pair:** this file (open gaps) + `PRODUCT_SCALE_STATUS.md` (what ships)  
 **North star:** *NotebookLM to understand · Synapse to retain + teacher visibility*
 
@@ -148,14 +148,14 @@ Goal: every tool **fully functional for its learning purpose**, not demo stubs.
 | TOOL-QZ-03 | Server-side attempt history | P2 | **shipped** | `/v1/session` `quizAttemptHistories` |
 | TOOL-LT-01 | FSRS, Anki export, cross-device deck sync | — | shipped |
 | TOOL-SM-01 | Sliders, sensitivity hints | — | shipped |
-| TOOL-SM-02 | Course-specific preset scenarios | P2 | open |
-| TOOL-SM-03 | Graph export → Whiteboard | P2 | open |
+| TOOL-SM-02 | Course-specific preset scenarios | P2 | **shipped** | `simulatorCoursePresets` + UI chips |
+| TOOL-SM-03 | Graph export → Whiteboard | P2 | **shipped** | `simulatorWhiteboardBridge` + CTA |
 | TOOL-WB-01 | Layers, KaTeX, PNG/SVG, Agent diagram coach | — | shipped |
 | TOOL-TM-01 | Pomodoro, exam countdown, .ics | — | shipped |
 | TOOL-TM-02 | Auto-suggest Leitner on break | P2 | **shipped** | Break banner + `onOpenBreakTool` → Leitner |
 | TOOL-PR-01 | Readiness ring, tool activity breakdown | — | shipped |
-| TOOL-PR-02 | Per-tool time-on-tool (engagement timestamps) | P2 | open |
-| TOOL-PR-03 | Export progress report PDF | P2 | open |
+| TOOL-PR-02 | Per-tool time-on-tool (engagement timestamps) | P2 | **shipped** | `toolTimeTracker` + MiniDashboard chips |
+| TOOL-PR-03 | Export progress report PDF | P2 | **shipped** | print HTML/PDF + dwell ms in export |
 
 ### Cross-tool
 

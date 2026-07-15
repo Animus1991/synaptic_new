@@ -6,6 +6,7 @@ import { useI18n, type I18nKey } from '../../lib/i18n';
 import type { WorkspaceToolId } from '../../lib/taskFlows';
 import { workspaceToolLabel } from '../../lib/workspaceToolRegistry';
 import type { ToolActivityCount } from '../../lib/conceptBusPanelModel';
+import { formatToolTimeMinutes } from '../../lib/toolTimeTracker';
 import type { ConceptRemediationId } from '../../lib/conceptBusRemediation';
 import type { DashboardWeakSpot } from '../../lib/dashboardWeakSpotsModel';
 
@@ -177,11 +178,14 @@ export function MiniDashboard({
                       {t('exportSessionTools')}
                     </p>
                     <div className="flex flex-wrap gap-1">
-                      {toolActivity.slice(0, 8).map(({ tool, count }) => {
+                      {toolActivity.slice(0, 8).map(({ tool, count, ms }) => {
                         const chip = (
                           <>
                             {workspaceToolLabel(tool as WorkspaceToolId, lang)}
-                            <span className="text-text-muted">×{count}</span>
+                            <span className="text-text-muted">
+                              ×{count}
+                              {ms != null && ms > 0 ? ` · ${formatToolTimeMinutes(ms)}` : ''}
+                            </span>
                           </>
                         );
                         if (onOpenToolActivity) {

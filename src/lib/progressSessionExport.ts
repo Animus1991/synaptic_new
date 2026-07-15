@@ -12,6 +12,7 @@ import { nextActionLabel } from './nextActionEngine';
 import { workspaceToolLabel } from './workspaceToolRegistry';
 import type { WorkspaceToolId } from './taskFlows';
 import type { ConceptBusRow } from './conceptBusPanelModel';
+import { formatToolTimeMinutes } from './toolTimeTracker';
 
 export type ConceptBusExportSnapshot = {
   concept: string;
@@ -217,9 +218,10 @@ export function buildProgressSessionHtml(payload: ProgressSessionExportPayload):
 
   const toolBlock = toolActivity.length === 0
     ? `<p>${t('exportNoToolActivity', lang)}</p>`
-    : `<ul>${toolActivity.map((row) =>
-      `<li>${escapeHtml(workspaceToolLabel(row.tool as WorkspaceToolId, lang))} ×${row.count}</li>`,
-    ).join('')}</ul>`;
+    : `<ul>${toolActivity.map((row) => {
+      const time = row.ms != null && row.ms > 0 ? ` · ${formatToolTimeMinutes(row.ms)}` : '';
+      return `<li>${escapeHtml(workspaceToolLabel(row.tool as WorkspaceToolId, lang))} ×${row.count}${escapeHtml(time)}</li>`;
+    }).join('')}</ul>`;
 
   const busBlock = conceptBusSnapshot.length === 0
     ? `<p>${t('exportConceptBusEmpty', lang)}</p>`

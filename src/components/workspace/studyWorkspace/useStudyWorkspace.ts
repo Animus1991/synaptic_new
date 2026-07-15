@@ -126,7 +126,13 @@ import { checkStudyRoomApi, loadStudyRoomSession } from '../../../lib/studyRoomC
 import { resolveCollabWebSocketUrl } from '../../../lib/studyRoomCollab';
 import { defaultEventConfidence } from '../../../lib/workspaceCorrelationEvents';
 import { emitWorkspaceConceptEvent } from '../../../lib/emitLearningEvent';
-import { buildConceptBusRows, buildToolActivityBreakdown } from '../../../lib/conceptBusPanelModel';
+import { buildConceptBusRows, buildToolActivityBreakdown, attachToolTimeToActivity } from '../../../lib/conceptBusPanelModel';
+import {
+  createToolTimeState,
+  snapshotToolTimeMs,
+  switchToolTime,
+  type ToolTimeState,
+} from '../../../lib/toolTimeTracker';
 import type { ConceptRemediationId } from '../../../lib/conceptBusRemediation';
 import { enrichWeakSpotsWithReasons } from '../../../lib/weakAreaReasons';
 import { buildDashboardWeakSpots } from '../../../lib/dashboardWeakSpotsModel';
@@ -242,6 +248,13 @@ export function useStudyWorkspace({
   }, [intelReady]);
 
   const [activeTool, setActiveTool] = useState<WorkspaceTool>(initialTool);
+  const toolTimeRef = useRef<ToolTimeState>(createToolTimeState());
+  const [toolTimeEpoch, setToolTimeEpoch] = useState(0);
+
+  useEffect(() => {
+    toolTimeRef.current = switchToolTime(toolTimeRef.current, activeTool);
+    setToolTimeEpoch((n) => n + 1);
+  }, [activeTool]);
   // Initialize from current viewport so mobile users land directly on the lesson
   // panel instead of a crowded split layout where neither pane is usable.
   const [isMobile, setIsMobile] = useState(() =>
@@ -1889,6 +1902,9 @@ export function useStudyWorkspace({
   );
 
   const dashboardMiniProps = useMemo(() => {
+    const withTime = (rows: ReturnType<typeof buildToolActivityBreakdown>) =>
+      attachToolTimeToActivity(rows, snapshotToolTimeMs(toolTimeRef.current));
+
     if (!workspaceIntelActive(intelReady, activeTool, 'dashboard')) {
       return {
         readiness: Math.round(conceptMastery),
@@ -1902,7 +1918,7 @@ export function useStudyWorkspace({
         nextActions: [] as { label: string; type: string; minutes: number; xp: number; taskId?: string }[],
         conceptsMastered: 0,
         totalConcepts: 0,
-        toolActivity: buildToolActivityBreakdown(conceptBus),
+        toolActivity: withTime(buildToolActivityBreakdown(conceptBus)),
       };
     }
     const enrichedWeak = dashboardWeakSpotsDetail.map((s) => ({
@@ -1932,17 +1948,18 @@ export function useStudyWorkspace({
         nextActions: [] as { label: string; type: string; minutes: number; xp: number; taskId?: string }[],
         conceptsMastered: 0,
         totalConcepts: 0,
-        toolActivity: buildToolActivityBreakdown(conceptBus),
+        toolActivity: withTime(buildToolActivityBreakdown(conceptBus)),
       };
     return {
       ...base,
       weakSpots: enrichedWeak.length > 0 ? enrichedWeak : base.weakSpots,
       weakSpotsDetail: dashboardWeakSpotsDetail,
+      toolActivity: withTime(base.toolActivity ?? buildToolActivityBreakdown(conceptBus)),
     };
   }, [
     intelReady, activeTool, learnerModel, dashboardStats, tasks, onStartTask, courseName,
     conceptBusInsights, spacedStepsDue, conceptBus, conceptMastery,
-    dashboardWeakSpotsDetail,
+    dashboardWeakSpotsDetail, toolTimeEpoch,
   ]);
 
   const activeConceptLabel = effectiveFocus?.term ?? quizConcept;

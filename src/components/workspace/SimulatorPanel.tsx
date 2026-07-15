@@ -20,6 +20,7 @@ type Props = {
   session: SimulatorSessionContent;
   concept: string;
   lang: 'en' | 'el';
+  courseTitle?: string;
   emptyMessage?: string;
   onUpload?: () => void;
   onEngage?: () => void;
@@ -27,6 +28,7 @@ type Props = {
   onOpenInReader?: (query: string) => void;
   onScenarioSelect?: (scenarioId: SimulatorScenarioId) => void;
   onStartTimedPractice?: (presetId: ExamPracticePresetId) => void;
+  onSendToWhiteboard?: (payload: import('../../lib/workspaceScratchpadBridge').ScratchpadExport) => void;
   artifactStale?: boolean;
   onAcknowledgeStale?: () => void;
   scopeKey?: string;
@@ -37,6 +39,7 @@ export function SimulatorPanel({
   session,
   concept,
   lang,
+  courseTitle,
   emptyMessage,
   onUpload,
   onEngage,
@@ -44,6 +47,7 @@ export function SimulatorPanel({
   onOpenInReader,
   onScenarioSelect,
   onStartTimedPractice,
+  onSendToWhiteboard,
   artifactStale = false,
   onAcknowledgeStale,
   scopeKey = '',
@@ -232,6 +236,7 @@ export function SimulatorPanel({
       <div className="flex-1 min-h-0 overflow-hidden">
         <InteractiveSimulator
           concept={concept}
+          courseTitle={courseTitle}
           economicsMode={session.economicsMode}
           insight={session.sandboxInsight}
           numericCues={session.numericCues}
@@ -241,6 +246,7 @@ export function SimulatorPanel({
           onSensitivityCue={onSensitivityCue}
           onScenarioSelect={onScenarioSelect}
           initialScenarioId={session.lastSimulatorScenario}
+          onSendToWhiteboard={onSendToWhiteboard}
         />
       </div>
       </div>
