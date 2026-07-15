@@ -980,6 +980,8 @@ export interface ConceptMapEdge {
   from: string;
   to: string;
   relation: 'prerequisite' | 'related' | 'contrasts';
+  /** Pointwise mutual information when the edge was inferred from co-occurrence (TOOL-CM-03). */
+  pmi?: number;
 }
 
 function slugify(label: string, i: number): string {
@@ -1157,7 +1159,7 @@ function inferCooccurrenceEdges(
     const rev = `${s.b}|${s.a}|related`;
     if (seen.has(key) || seen.has(rev)) continue;
     seen.add(key);
-    out.push({ from: s.a, to: s.b, relation: 'related' });
+    out.push({ from: s.a, to: s.b, relation: 'related', pmi: s.pmi });
   }
   return out;
 }

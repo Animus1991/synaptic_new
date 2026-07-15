@@ -1,6 +1,6 @@
 # Gap audit — living register
 
-**Last reconciled:** 2026-07-15 (security Wave 0 + TOOL-CM-02 / TOOL-TM-02)  
+**Last reconciled:** 2026-07-15 (Wave 2: CM-03/04, RD-02, MD-05, XTL-03)  
 **Canonical pair:** this file (open gaps) + `PRODUCT_SCALE_STATUS.md` (what ships)  
 **North star:** *NotebookLM to understand · Synapse to retain + teacher visibility*
 
@@ -95,7 +95,7 @@ Goal: every tool **fully functional for its learning purpose**, not demo stubs.
 | ID | Item | Priority | Status |
 | -- | ---- | -------- | ------ |
 | TOOL-RD-01 | Structured segments, TTS, bilingual sync | — | shipped |
-| TOOL-RD-02 | Glossary popover on hover | P2 | open |
+| TOOL-RD-02 | Glossary popover on hover | P2 | **shipped** | Hover delay + click/focus; `reader-glossary-popover` |
 | TOOL-RD-03 | Reprocess for pre-2.4 garbled Greek | P2 | open (runtime repair mitigates) |
 | TOOL-RD-04 | OCR correction + re-anchor spans after reprocess | P2 | open |
 
@@ -121,8 +121,8 @@ Goal: every tool **fully functional for its learning purpose**, not demo stubs.
 | -- | ---- | -------- | ------ |
 | TOOL-CM-01 | Edit graph, undo, PNG export, Reader jump | — | shipped |
 | TOOL-CM-02 | Redo stack | P2 | **shipped** | `redoStack` + `concept-map-redo` in `DraggableConceptMap` |
-| TOOL-CM-03 | PMI edge labels | P2 | open |
-| TOOL-CM-04 | Keyboard a11y + screen-reader tree | P2 | open |
+| TOOL-CM-03 | PMI edge labels | P2 | **shipped** | `pmi` on edges + `formatConceptMapEdgeGlyph` |
+| TOOL-CM-04 | Keyboard a11y + screen-reader tree | P2 | **shipped** | Arrow nav + `role=tree` with `aria-level` |
 | TOOL-CM-05 | CRDT multi-user editing | P3 | **shipped** | Yjs/Hocuspocus via study room |
 
 ### Feynman · Compare · Debate
@@ -163,7 +163,7 @@ Goal: every tool **fully functional for its learning purpose**, not demo stubs.
 | -- | ---- | -------- | ------ |
 | XTL-01 | Glossary refresh on reprocess | P2 | **shipped** | `regenerateGlossaryAfterReprocess` + stale bump |
 | XTL-02 | Feynman / Compare / Debate dedicated Agent chips | P2 | **shipped** | `WorkspaceToolAgentChipBar` |
-| XTL-03 | Expand `@testing-library/react` component tests | P2 | open |
+| XTL-03 | Expand `@testing-library/react` component tests | P2 | **shipped** | Concept map + Reader glossary RTL tests |
 
 ---
 
@@ -189,7 +189,7 @@ Goal: every tool **fully functional for its learning purpose**, not demo stubs.
 | MD-02 | Server-side thumbnail CDN (L19+) | P3 | shipped |
 | MD-03 | Server-side RAG index for cross-device retrieval | P2 | shipped |
 | MD-04 | Leitner deck sync via `/v1/session` | P1 | shipped (partial) |
-| MD-05 | Image-as-thumbnail for `type: image` | P2 | open |
+| MD-05 | Image-as-thumbnail for `type: image` | P2 | **shipped** | `renderImageCoverThumbnail` + ingest/backfill |
 
 ### 3. AI-native polish
 

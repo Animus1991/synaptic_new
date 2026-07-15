@@ -188,6 +188,8 @@ export function CognitiveReader({
   const [activeColor, setActiveColor] = useState<string>(ANN_COLORS[0]!);
   const [showMargin, setShowMargin] = useState(true);
   const [glossaryPopover, setGlossaryPopover] = useState<{ term: string; definition: string } | null>(null);
+  const glossaryOpenTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const glossaryCloseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const markRef = useRef<HTMLElement>(null);
   const bodyRef = useRef<HTMLDivElement>(null);
   const sourceScrollRef = useRef<HTMLDivElement>(null);
@@ -222,6 +224,46 @@ export function CognitiveReader({
   useEffect(() => {
     if (highlight) markRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }, [highlight, text]);
+
+  const clearGlossaryTimers = useCallback(() => {
+    if (glossaryOpenTimer.current) {
+      clearTimeout(glossaryOpenTimer.current);
+      glossaryOpenTimer.current = null;
+    }
+    if (glossaryCloseTimer.current) {
+      clearTimeout(glossaryCloseTimer.current);
+      glossaryCloseTimer.current = null;
+    }
+  }, []);
+
+  useEffect(() => () => clearGlossaryTimers(), [clearGlossaryTimers]);
+
+  const openGlossaryPopover = useCallback((term: string, definition: string, immediate = false) => {
+    if (glossaryCloseTimer.current) {
+      clearTimeout(glossaryCloseTimer.current);
+      glossaryCloseTimer.current = null;
+    }
+    const show = () => setGlossaryPopover({ term, definition });
+    if (immediate) {
+      if (glossaryOpenTimer.current) {
+        clearTimeout(glossaryOpenTimer.current);
+        glossaryOpenTimer.current = null;
+      }
+      show();
+      return;
+    }
+    if (glossaryOpenTimer.current) clearTimeout(glossaryOpenTimer.current);
+    glossaryOpenTimer.current = setTimeout(show, 280);
+  }, []);
+
+  const scheduleCloseGlossaryPopover = useCallback(() => {
+    if (glossaryOpenTimer.current) {
+      clearTimeout(glossaryOpenTimer.current);
+      glossaryOpenTimer.current = null;
+    }
+    if (glossaryCloseTimer.current) clearTimeout(glossaryCloseTimer.current);
+    glossaryCloseTimer.current = setTimeout(() => setGlossaryPopover(null), 220);
+  }, []);
 
   const speakSelection = useCallback(() => {
     if (typeof window === 'undefined' || !window.speechSynthesis) return;
@@ -570,15 +612,33 @@ export function CognitiveReader({
       <button
         key={key}
         type="button"
+        data-testid={glossaryHit ? 'reader-glossary-term' : undefined}
         onClick={() => {
           if (glossaryHit) {
-            setGlossaryPopover({
-              term: glossaryHit.term,
-              definition: glossaryHit.definition?.trim() || '',
-            });
+            openGlossaryPopover(
+              glossaryHit.term,
+              glossaryHit.definition?.trim() || '',
+              true,
+            );
             return;
           }
           if (onTermFocus) onTermFocus(clean);
+        }}
+        onMouseEnter={() => {
+          if (!glossaryHit || annotateMode) return;
+          openGlossaryPopover(glossaryHit.term, glossaryHit.definition?.trim() || '');
+        }}
+        onMouseLeave={() => {
+          if (!glossaryHit) return;
+          scheduleCloseGlossaryPopover();
+        }}
+        onFocus={() => {
+          if (!glossaryHit || annotateMode) return;
+          openGlossaryPopover(glossaryHit.term, glossaryHit.definition?.trim() || '', true);
+        }}
+        onBlur={() => {
+          if (!glossaryHit) return;
+          scheduleCloseGlossaryPopover();
         }}
         className={cn(
           'inline rounded px-0.5 transition-colors',
@@ -1022,6 +1082,8 @@ export function CognitiveReader({
         <div
           className="flex shrink-0 items-start justify-between gap-3 ws-info-strip border-b px-4 py-2"
           data-testid="reader-glossary-popover"
+          onMouseEnter={clearGlossaryTimers}
+          onMouseLeave={scheduleCloseGlossaryPopover}
         >
           <div className="min-w-0">
             <p className="text-[11px] font-semibold text-brand-800">{glossaryPopover.term}</p>

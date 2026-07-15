@@ -15,6 +15,8 @@ export type ConceptMapEdgeSave = {
   from: string;
   to: string;
   relation: 'prerequisite' | 'related' | 'contrasts';
+  /** Optional PMI score for co-occurrence edges (TOOL-CM-03). */
+  pmi?: number;
 };
 
 export type ConceptMapGraphSave = {

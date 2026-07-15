@@ -19,6 +19,7 @@ import {
   renderPdfCoverFromBytes,
   shouldRenderThumbnailInWorker,
 } from './pdfThumbnailWorkerClient';
+import { renderImageCoverThumbnail } from './imageThumbnail';
 
 // Vite resolves this to a stable public URL in dev + production builds.
 
@@ -370,7 +371,9 @@ export async function extractTextFromFile(file: File, settings?: UserSettings): 
 
   if (isImageUpload(file)) {
 
-    const ocr = await extractWithOcrFallback(file, { text: '', pageCount: 1 }, settings);
+    const ocrPromise = extractWithOcrFallback(file, { text: '', pageCount: 1 }, settings);
+    const coverPromise = renderImageCoverThumbnail(file).catch(() => undefined);
+    const [ocr, coverThumbnail] = await Promise.all([ocrPromise, coverPromise]);
 
     return {
       text: ocr.text,
@@ -379,6 +382,7 @@ export async function extractTextFromFile(file: File, settings?: UserSettings): 
       ingestMethod: ocr.ingestMethod ?? 'ocr-client',
       ocrRegions: ocr.ocrRegions,
       ocrModelsUsed: ocr.ocrModelsUsed,
+      ...(coverThumbnail ? { coverThumbnail } : {}),
     };
 
   }

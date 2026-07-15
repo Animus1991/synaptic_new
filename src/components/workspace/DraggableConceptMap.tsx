@@ -30,6 +30,11 @@ import { connectConceptMapCursors,
   type ConceptMapCursor,
 } from '../../lib/conceptMapCursorSync';
 import { nearestNodeInDirection, type CardinalDirection } from '../../lib/canvasKeyboardA11y';
+import {
+  formatConceptMapEdgeGlyph,
+  formatConceptMapPmiPanel,
+  formatPmiScore,
+} from '../../lib/conceptMapEdgeLabel';
 
 interface DragNode {
   id: string;
@@ -46,13 +51,8 @@ interface DragEdge {
   from: string;
   to: string;
   relation: 'prerequisite' | 'related' | 'contrasts';
+  pmi?: number;
 }
-
-const RELATION_LABEL: Record<DragEdge['relation'], string> = {
-  prerequisite: '→',
-  related: '~',
-  contrasts: '≠',
-};
 
 type GraphSnapshot = { nodes: DragNode[]; edges: DragEdge[] };
 
@@ -443,9 +443,47 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
     setSelected(nodeId);
     setSelectedEdgeKey(null);
     setConnectFrom(null);
-    setLiveAnnouncement(t('conceptMapNodeFocused').replace('{label}', node.label));
+    const linkCount = edges.filter((e) => e.from === nodeId || e.to === nodeId).length;
+    const base = t('conceptMapNodeFocused').replace('{label}', node.label);
+    setLiveAnnouncement(
+      linkCount > 0
+        ? `${base}. ${t('conceptMapNodeLinks').replace('{count}', String(linkCount))}`
+        : base,
+    );
     onConceptSelect?.(node.label);
-  }, [nodeMap, onConceptSelect, t]);
+  }, [edges, nodeMap, onConceptSelect, t]);
+
+  const handleTreeKeyDown = useCallback((e: KeyboardEvent<HTMLButtonElement>, nodeId: string) => {
+    const idx = visibleNodes.findIndex((n) => n.id === nodeId);
+    if (idx < 0) return;
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      const next = visibleNodes[idx + 1];
+      if (next) focusNodeById(next.id);
+      return;
+    }
+    if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      const prev = visibleNodes[idx - 1];
+      if (prev) focusNodeById(prev.id);
+      return;
+    }
+    if (e.key === 'Home') {
+      e.preventDefault();
+      focusNodeById(visibleNodes[0]!.id);
+      return;
+    }
+    if (e.key === 'End') {
+      e.preventDefault();
+      focusNodeById(visibleNodes[visibleNodes.length - 1]!.id);
+      return;
+    }
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      focusNodeById(nodeId);
+      canvasFocusRef.current?.focus();
+    }
+  }, [focusNodeById, visibleNodes]);
 
   const handleCanvasKeyDown = useCallback((e: KeyboardEvent<HTMLDivElement>) => {
     if (editingNote || editingLabel) return;
@@ -514,9 +552,15 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
     if (!selectedEdgeKey) return;
     pushHistory();
     setEdges((prev) => {
-      const next = prev.map((e) =>
-        edgeKey(e) === selectedEdgeKey ? { ...e, relation: nextRelation(e.relation) } : e,
-      );
+      const next = prev.map((e) => {
+        if (edgeKey(e) !== selectedEdgeKey) return e;
+        const relation = nextRelation(e.relation);
+        return {
+          ...e,
+          relation,
+          pmi: relation === 'related' ? e.pmi : undefined,
+        };
+      });
       publishGraph(nodes, next);
       return next;
     });
@@ -719,28 +763,37 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
         </div>
       )}
 
-      {/* Screen-reader node tree (keyboard-focusable list) */}
+      {/* Screen-reader node tree (keyboard-navigable, aria levels from hierarchy) */}
       <ul
         role="tree"
         aria-label={t('conceptMapNodeTree')}
         data-testid="concept-map-node-tree"
         className="sr-only"
       >
-        {visibleNodes.map((node) => (
-          <li key={node.id} role="none">
-            <button
-              type="button"
-              id={`concept-map-node-${node.id}`}
-              role="treeitem"
-              aria-selected={selected === node.id}
-              tabIndex={selected === node.id || (!selected && visibleNodes[0]?.id === node.id) ? 0 : -1}
-              onClick={() => focusNodeById(node.id)}
-              onFocus={() => canvasFocusRef.current?.focus()}
-            >
-              {node.label} ({node.mastery}%)
-            </button>
-          </li>
-        ))}
+        {visibleNodes.map((node, index) => {
+          const level = (layerMap.get(node.id) ?? 0) + 1;
+          return (
+            <li key={node.id} role="none">
+              <button
+                type="button"
+                id={`concept-map-node-${node.id}`}
+                role="treeitem"
+                aria-level={level}
+                aria-posinset={index + 1}
+                aria-setsize={visibleNodes.length}
+                aria-selected={selected === node.id}
+                tabIndex={selected === node.id || (!selected && visibleNodes[0]?.id === node.id) ? 0 : -1}
+                onClick={() => {
+                  focusNodeById(node.id);
+                  canvasFocusRef.current?.focus();
+                }}
+                onKeyDown={(e) => handleTreeKeyDown(e, node.id)}
+              >
+                {node.label} ({node.mastery}%)
+              </button>
+            </li>
+          );
+        })}
       </ul>
 
       <div
@@ -817,9 +870,10 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
                     fontSize={9}
                     fill={isEdgeSel ? '#a5b4fc' : lit ? '#a5b4fc' : '#6b6494'}
                     data-testid="concept-map-edge-label"
+                    data-pmi={edge.pmi != null ? formatPmiScore(edge.pmi) : undefined}
                     pointerEvents="none"
                   >
-                    {RELATION_LABEL[edge.relation]}
+                    {formatConceptMapEdgeGlyph(edge.relation, edge.pmi)}
                   </text>
                 </g>
               );
@@ -885,7 +939,12 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
               <p className="text-sm font-semibold truncate">
                 {nodeMap[selectedEdge.from]?.label} → {nodeMap[selectedEdge.to]?.label}
               </p>
-              <p className="text-[10px] text-text-muted">{relationLabel(selectedEdge.relation)}</p>
+              <p className="text-[10px] text-text-muted">
+                {relationLabel(selectedEdge.relation)}
+                {formatConceptMapPmiPanel(selectedEdge.pmi)
+                  ? ` · ${formatConceptMapPmiPanel(selectedEdge.pmi)}`
+                  : ''}
+              </p>
             </div>
             <button
               type="button"

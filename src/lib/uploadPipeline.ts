@@ -268,6 +268,7 @@ function inferFileType(name: string): UploadedFile['type'] {
     case 'py': case 'js': case 'ts': return 'code';
     case 'mp3': case 'wav': case 'm4a': case 'ogg': case 'flac': case 'aac': return 'audio';
     case 'mp4': case 'webm': case 'mov': case 'mkv': case 'ogv': return 'video';
+    case 'jpg': case 'jpeg': case 'png': case 'gif': case 'webp': case 'bmp': case 'svg': return 'image';
     default: return 'pdf';
   }
 }

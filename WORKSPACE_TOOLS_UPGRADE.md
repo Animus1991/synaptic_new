@@ -61,7 +61,7 @@
 ### Κενά / επόμενο
 - [ ] Reprocess/re-upload για παλιά PPTX/PDF (garbled Greek pre-2.4) — runtime `greekTextRepair` + `utf8MojibakeRepair` mitigate display; source reprocess still recommended
 - [x] Component DOM tests — partial: `WorkspaceMobileToolDrawer.test.tsx` (`@testing-library/react`)
-- [ ] Inline glossary popover on **hover** (click + Define popover shipped Wave B)
+- [x] Inline glossary popover on **hover** (click + Define popover shipped Wave B; hover delay Wave 2 / TOOL-RD-02)
 
 ---
 
@@ -122,10 +122,10 @@
 `DraggableConceptMap.tsx`, `conceptMapGraph.ts`, `conceptMapForceLayout.ts`, `conceptMapHierarchy.ts`, `workspacePersistence.ts`
 
 ### Κενά
-- [ ] Redo stack (undo only; no redo)
-- [ ] Edge labels from co-occurrence PMI scores
-- [ ] Keyboard a11y + screen-reader tree for canvas
-- [ ] CRDT multi-user graph editing
+- [x] Redo stack (TOOL-CM-02)
+- [x] Edge labels from co-occurrence PMI scores (TOOL-CM-03)
+- [x] Keyboard a11y + screen-reader tree for canvas (TOOL-CM-04)
+- [ ] CRDT multi-user graph editing — shipped via study room (see GAP TOOL-CM-05); keep listed until multi-room polish verified
 
 ---
 

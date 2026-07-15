@@ -1466,17 +1466,17 @@ export function useAppStore() {
           ocrModelsUsed: extracted.ocrModelsUsed,
           pdfLayoutBlocks: extracted.layoutBlocks,
         });
-        if (extracted.coverThumbnail && meta.type === 'pdf') {
+        if (extracted.coverThumbnail && (meta.type === 'pdf' || meta.type === 'image')) {
           meta = await persistCoverThumbnailOnFile(
             meta,
             extracted.coverThumbnail,
             user.settings,
             applyThumbnailCdnPatch,
           );
-        } else if (meta.type === 'pdf') {
+        } else if (meta.type === 'pdf' || meta.type === 'image') {
           meta = { ...meta, thumbnailStatus: 'failed' };
         }
-        if (meta.type === 'pdf') {
+        if (meta.type === 'pdf' || meta.type === 'image') {
           void cacheSourceBlobOnIngest(f, meta.id);
         }
         newFiles.push(meta);

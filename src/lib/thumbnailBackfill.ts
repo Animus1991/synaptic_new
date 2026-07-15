@@ -1,5 +1,6 @@
 import type { SourceThumbnailRef, UploadedFile, UserSettings } from '../types';
 import { idbLoadSourceBlob } from './indexedDbStorage';
+import { renderImageCoverThumbnail } from './imageThumbnail';
 import { renderPdfCoverFromBytes } from './pdfThumbnailWorkerClient';
 import { persistCoverThumbnailOnFile } from './sourceThumbnailPersist';
 
@@ -7,7 +8,7 @@ const SESSION_BACKFILL_LIMIT = 12;
 let sessionBackfillCount = 0;
 
 export function needsThumbnailBackfill(file: UploadedFile): boolean {
-  return file.type === 'pdf'
+  return (file.type === 'pdf' || file.type === 'image')
     && file.status === 'analyzed'
     && !file.thumbnailRef
     && file.thumbnailStatus !== 'unsupported';
@@ -21,6 +22,10 @@ export async function backfillFileThumbnailFromCache(
   const blob = await idbLoadSourceBlob(file.id);
   if (!blob) return null;
   try {
+    if (file.type === 'image') {
+      const cover = await renderImageCoverThumbnail(blob);
+      return persistCoverThumbnailOnFile(file, cover, settings, onCdnSynced);
+    }
     const bytes = new Uint8Array(await blob.arrayBuffer());
     const cover = await renderPdfCoverFromBytes(bytes, {
       pageCount: file.pageCount ?? 1,
@@ -51,7 +56,7 @@ function deferOnIdle(fn: () => void): void {
 }
 
 /**
- * Idle backfill for legacy PDFs that have a cached blob but no cover thumbnail.
+ * Idle backfill for legacy PDFs/images that have a cached blob but no cover thumbnail.
  * Re-upload / reprocess also regenerates thumbnails on fresh ingest.
  */
 export function scheduleThumbnailBackfill(

@@ -47,4 +47,8 @@ describe('resolveSourceThumbnail', () => {
   it('maps PDF files to pdf kind', () => {
     expect(resolveSourceThumbnail({ name: 'notes.pdf', type: 'pdf' }).kind).toBe('pdf');
   });
+
+  it('maps image files to image kind (MD-05 chip fallback)', () => {
+    expect(resolveSourceThumbnail({ name: 'slide.png', type: 'image' }).kind).toBe('image');
+  });
 });
