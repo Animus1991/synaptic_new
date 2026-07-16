@@ -1,0 +1,23 @@
+# Synapse Learning — secret scan policy (gitleaks)
+# Used by CI (.github/workflows/secret-scan.yml) and local `gitleaks detect`.
+
+title = "synapse-learning"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Generated bundles, lockfiles, and intentional example templates"
+paths = [
+  '''node_modules''',
+  '''dist''',
+  '''coverage''',
+  '''playwright-report''',
+  '''test-results''',
+  '''package-lock\.json''',
+  '''server/package-lock\.json''',
+  '''ocr-server/package-lock\.json''',
+  '''\.env\.example$''',
+  '''\.env\..*\.example$''',
+  '''mobile/fastlane/\.env\.example$''',
+]

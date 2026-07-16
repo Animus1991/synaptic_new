@@ -4857,8 +4857,8 @@ input[type="range"]::-webkit-slider-thumb {
 [data-theme="light"] [data-ws-theme="warm"] .border-white\/12 {
   border-color: color-mix(in srgb, var(--color-border-subtle) 85%, transparent);
 }
-[data-theme="light"] [data-ws-theme="warm"] .bg-white\/\[0.04\],
-[data-theme="light"] [data-ws-theme="warm"] .bg-white\/\[0.05\] {
+[data-theme="light"] [data-ws-theme="warm"] .bg-white\/\[0\.04\],
+[data-theme="light"] [data-ws-theme="warm"] .bg-white\/\[0\.05\] {
   background: color-mix(in srgb, var(--color-surface-secondary) 75%, #faf8f5);
 }
 

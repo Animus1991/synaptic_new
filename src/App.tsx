@@ -895,7 +895,7 @@ export default function App() {
     void (async () => {
       if (authCode) {
         try {
-          const { completeSamlAuth } = await import('./lib/orgClient');
+          const { completeSamlAuth } = await import('./lib/samlAuthClient');
           const session = await completeSamlAuth(authCode, store.user.settings);
           store.updateSettings({
             authToken: session.token,

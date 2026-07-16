@@ -25,7 +25,8 @@ let sqlInit: Promise<SqlJsStatic> | null = null;
 
 async function wasmLocateFile(file: string): Promise<string> {
   if (import.meta.env?.VITEST) {
-    const { createRequire } = await import('node:module');
+    const nodeModuleSpecifier = 'node:' + 'module';
+    const { createRequire } = await import(nodeModuleSpecifier);
     const require = createRequire(import.meta.url);
     return require.resolve(`sql.js/dist/${file}`);
   }
@@ -76,7 +77,7 @@ export async function parseApkgBuffer(buffer: ArrayBuffer): Promise<ParsedApkgCa
   const dbEntry = findCollectionDbFile(zip);
   if (!dbEntry) {
     if (zip.file(/collection\.anki21/i).length > 0) {
-      throw new Error('Compressed .anki21 decks require Anki 2.1.50+ — re-export as legacy .apkg');
+      throw new Error('Compressed .anki21 decks require Anki 2.1.50+; re-export as legacy .apkg');
     }
     throw new Error('Invalid .apkg: missing collection.anki2');
   }

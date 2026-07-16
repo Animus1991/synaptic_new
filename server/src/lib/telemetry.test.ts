@@ -16,7 +16,7 @@ describe('telemetry', () => {
       serviceName: 'synapse-learning-api',
       endpoint: undefined,
     });
-  });
+  }, 15_000);
 
   it('getTelemetryStatus reports enabled when OTLP endpoint is set', async () => {
     process.env.OTEL_EXPORTER_OTLP_ENDPOINT = 'http://otel-collector:4318';

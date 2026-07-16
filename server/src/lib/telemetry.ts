@@ -1,14 +1,8 @@
 import type { NextFunction, Request, Response } from 'express';
 import { context, metrics, SpanStatusCode, trace } from '@opentelemetry/api';
-import { OTLPMetricExporter } from '@opentelemetry/exporter-metrics-otlp-http';
-import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
-import { Resource } from '@opentelemetry/resources';
-import { NodeSDK } from '@opentelemetry/sdk-node';
-import { PeriodicExportingMetricReader } from '@opentelemetry/sdk-metrics';
-import { ATTR_SERVICE_NAME } from '@opentelemetry/semantic-conventions';
 import { config } from '../config';
 
-let sdk: NodeSDK | null = null;
+let sdk: { start(): void | Promise<void>; shutdown(): Promise<void> } | null = null;
 let started = false;
 
 const meter = metrics.getMeter('synapse-learning-api');
@@ -40,11 +34,27 @@ export function getTelemetryStatus(): TelemetryStatus {
 export async function initTelemetry(): Promise<void> {
   if (started || !config.otelEnabled || process.env.NODE_ENV === 'test') return;
 
+  const [
+    { OTLPMetricExporter },
+    { OTLPTraceExporter },
+    { Resource },
+    { NodeSDK },
+    { PeriodicExportingMetricReader },
+    { ATTR_SERVICE_NAME },
+  ] = await Promise.all([
+    import('@opentelemetry/exporter-metrics-otlp-http'),
+    import('@opentelemetry/exporter-trace-otlp-http'),
+    import('@opentelemetry/resources'),
+    import('@opentelemetry/sdk-node'),
+    import('@opentelemetry/sdk-metrics'),
+    import('@opentelemetry/semantic-conventions'),
+  ]);
+
   const endpoint = config.otelExporterOtlpEndpoint!.replace(/\/$/, '');
   const traceExporter = new OTLPTraceExporter({ url: `${endpoint}/v1/traces` });
   const metricExporter = new OTLPMetricExporter({ url: `${endpoint}/v1/metrics` });
 
-  sdk = new NodeSDK({
+  const nextSdk = new NodeSDK({
     resource: new Resource({
       [ATTR_SERVICE_NAME]: config.otelServiceName,
     }),
@@ -55,9 +65,10 @@ export async function initTelemetry(): Promise<void> {
     }),
   });
 
-  await sdk.start();
+  await nextSdk.start();
+  sdk = nextSdk;
   started = true;
-  console.log(`[telemetry] OpenTelemetry export enabled → ${endpoint}`);
+  console.log(`[telemetry] OpenTelemetry export enabled -> ${endpoint}`);
 }
 
 export async function shutdownTelemetry(): Promise<void> {
@@ -67,7 +78,7 @@ export async function shutdownTelemetry(): Promise<void> {
   started = false;
 }
 
-/** Express middleware — HTTP spans + request metrics when telemetry is enabled. */
+/** Express middleware -- HTTP spans + request metrics when telemetry is enabled. */
 export function telemetryMiddleware(req: Request, res: Response, next: NextFunction): void {
   if (!config.otelEnabled) {
     next();
