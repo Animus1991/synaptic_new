@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   Brain, TrendingUp, Clock, Target, AlertTriangle, BarChart3,
@@ -55,6 +55,18 @@ import { ConceptTreemapChart } from './analytics/ConceptTreemapChart';
 import { ConceptMasteryHeatmapChart } from './analytics/ConceptMasteryHeatmapChart';
 import { LearningTimelineChart } from './analytics/LearningTimelineChart';
 import { AnalyticsVisualLabPanel } from './analytics/AnalyticsVisualLabPanel';
+import {
+  AnalyticsDateRangeFilter,
+  AnalyticsDateRangeProvider,
+  useAnalyticsDateRange,
+} from './analytics/AnalyticsDateRangeContext';
+import { SubjectMasteryGrid } from './analytics/SubjectMasteryGrid';
+import { SubjectDrillDown } from './analytics/SubjectDrillDown';
+import { StudyBehaviorCharts } from './analytics/StudyBehaviorCharts';
+import { AIInsightsPanel } from './analytics/AIInsightsPanel';
+import { buildSubjectMasteryTiles, type SubjectMasteryTile } from '../lib/subjectMasteryAnalytics';
+import { filterActivitiesByRange } from '../lib/analyticsDateRange';
+import { useAppStore } from '../store/useStore';
 import { SectionHeader } from './ui/platformChrome';
 
 interface AnalyticsProps {
@@ -189,51 +201,54 @@ export function Analytics({
   const { t } = useI18n();
 
   return (
-    <Page>
-      <PageHeader
-        title={t('analyticsTitle')}
-        subtitle={t('analyticsSubtitle')}
-        icon={BarChart3}
-      />
-
-      <TabBar
-        ariaLabel={t('analyticsTabListAria')}
-        activeKey={tab}
-        onChange={(key) => setTab(key as AnalyticsTab)}
-        tabs={[
-          { key: 'overview', label: t('analyticsTabOverview'), icon: BarChart3 },
-          { key: 'mastery', label: t('analyticsTabMastery'), icon: Brain },
-          { key: 'behavior', label: t('analyticsTabBehavior'), icon: Activity },
-          { key: 'insights', label: t('analyticsTabInsights'), icon: Lightbulb },
-          { key: 'research', label: t('analyticsTabResearch'), icon: FlaskConical },
-        ]}
-      />
-
-      {tab === 'overview' && (
-        <OverviewTab
-          learnerModel={learnerModel}
-          stats={stats}
-          courses={courses}
-          activities={activities}
-          daysToExam={daysToExam}
+    <AnalyticsDateRangeProvider>
+      <Page>
+        <PageHeader
+          title={t('analyticsTitle')}
+          subtitle={t('analyticsSubtitle')}
+          icon={BarChart3}
+          actions={<AnalyticsDateRangeFilter />}
         />
-      )}
-      {tab === 'mastery' && (
-        <MasteryTab learnerModel={learnerModel} courses={courses} activities={activities} />
-      )}
-      {tab === 'behavior' && <BehaviorTab learnerModel={learnerModel} activities={activities} />}
-      {tab === 'insights' && (
-        <InsightsTab
-          learnerModel={learnerModel}
-          activities={activities}
-          repairs={prerequisiteRepairs}
-          courses={courses}
+
+        <TabBar
+          ariaLabel={t('analyticsTabListAria')}
+          activeKey={tab}
+          onChange={(key) => setTab(key as AnalyticsTab)}
+          tabs={[
+            { key: 'overview', label: t('analyticsTabOverview'), icon: BarChart3 },
+            { key: 'mastery', label: t('analyticsTabMastery'), icon: Brain },
+            { key: 'behavior', label: t('analyticsTabBehavior'), icon: Activity },
+            { key: 'insights', label: t('analyticsTabInsights'), icon: Lightbulb },
+            { key: 'research', label: t('analyticsTabResearch'), icon: FlaskConical },
+          ]}
         />
-      )}
-      {tab === 'research' && (
-        <ResearchTab learnerModel={learnerModel} activities={activities} courses={courses} />
-      )}
-    </Page>
+
+        {tab === 'overview' && (
+          <OverviewTab
+            learnerModel={learnerModel}
+            stats={stats}
+            courses={courses}
+            activities={activities}
+            daysToExam={daysToExam}
+          />
+        )}
+        {tab === 'mastery' && (
+          <MasteryTab learnerModel={learnerModel} courses={courses} activities={activities} />
+        )}
+        {tab === 'behavior' && <BehaviorTab learnerModel={learnerModel} activities={activities} />}
+        {tab === 'insights' && (
+          <InsightsTab
+            learnerModel={learnerModel}
+            activities={activities}
+            repairs={prerequisiteRepairs}
+            courses={courses}
+          />
+        )}
+        {tab === 'research' && (
+          <ResearchTab learnerModel={learnerModel} activities={activities} courses={courses} />
+        )}
+      </Page>
+    </AnalyticsDateRangeProvider>
   );
 }
 
@@ -260,16 +275,27 @@ function OverviewTab({
   daysToExam: number | null;
 }) {
   const { t, lang } = useI18n();
-  const meaningfulActivityCount = countMeaningfulLearningActivities(activities);
+  const { range } = useAnalyticsDateRange();
+  const store = useAppStore();
+  const [drillTile, setDrillTile] = useState<SubjectMasteryTile | null>(null);
+  const rangedActivities = useMemo(
+    () => filterActivitiesByRange(activities, range),
+    [activities, range],
+  );
+  const subjectTiles = useMemo(
+    () => buildSubjectMasteryTiles(courses, activities, range),
+    [courses, activities, range],
+  );
+  const meaningfulActivityCount = countMeaningfulLearningActivities(rangedActivities);
   const hasConfidenceMetrics = meaningfulActivityCount >= 3;
   const calibration = hasConfidenceMetrics
     ? computeCalibration(learnerModel.confidenceCalibration)
     : null;
-  const retentionPoints = retentionCurveFromActivities(activities);
+  const retentionPoints = retentionCurveFromActivities(rangedActivities);
   const weekly = learnerModel.weeklyMastery.some((v) => v > 0)
     ? learnerModel.weeklyMastery
-    : weeklyMasteryFromActivities(activities);
-  const hasRetentionData = activities.some(
+    : weeklyMasteryFromActivities(rangedActivities);
+  const hasRetentionData = rangedActivities.some(
     (a) => a.type === 'quiz_passed' || a.type === 'quiz_failed' || a.type === 'review_done',
   );
   const fsrsSummary = summarizeRetentionForecast(learnerModel.spacingIntervals);
@@ -280,15 +306,27 @@ function OverviewTab({
     : [];
   const generatedCourseCount = courses.filter((c) => c.status !== 'generating').length;
   const learningEvents = readAllLearningEvents();
-  const sankeyModel = buildKnowledgeFlowSankey(activities, learningEvents, learnerModel, generatedCourseCount);
-  const waterfallModel = buildMasteryWaterfall(activities, learnerModel, lang);
+  const sankeyModel = buildKnowledgeFlowSankey(rangedActivities, learningEvents, learnerModel, generatedCourseCount);
+  const waterfallModel = buildMasteryWaterfall(rangedActivities, learnerModel, lang);
   const treemapModel = buildConceptTreemap(courses, learnerModel);
-  const timelineModel = buildLearningTimeline(activities, lang);
+  const timelineModel = buildLearningTimeline(rangedActivities, lang);
   return (
     <div className="space-y-4">
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
         <ProgressKpiRow kpis={progressKpis} />
       </motion.div>
+
+      <SubjectMasteryGrid tiles={subjectTiles} onSelect={setDrillTile} />
+      <SubjectDrillDown
+        tile={drillTile}
+        onClose={() => setDrillTile(null)}
+        onStudyConcept={(concept) => {
+          setDrillTile(null);
+          store.openStudyWorkspaceForConcept(concept);
+        }}
+      />
+
+      <StudyBehaviorCharts activities={activities} />
 
       <details className="ux-disclosure" data-testid="analytics-flow-disclosure">
         <summary className="ux-disclosure-summary">{t('analyticsFlowDisclosure')}</summary>
@@ -543,10 +581,31 @@ function MasteryTab({
   activities: ActivityItem[];
 }) {
   const { t } = useI18n();
+  const { range } = useAnalyticsDateRange();
+  const store = useAppStore();
+  const [drillTile, setDrillTile] = useState<SubjectMasteryTile | null>(null);
+  const subjectTiles = useMemo(
+    () => buildSubjectMasteryTiles(courses, activities, range),
+    [courses, activities, range],
+  );
+  const rangedActivities = useMemo(
+    () => filterActivitiesByRange(activities, range),
+    [activities, range],
+  );
   const graph = buildMasteryGraph(learnerModel, courses);
-  const masteryHeatmap = buildConceptMasteryHeatmap(activities, courses, learnerModel);
+  const masteryHeatmap = buildConceptMasteryHeatmap(rangedActivities, courses, learnerModel);
   return (
     <div className="space-y-4">
+      <SubjectMasteryGrid tiles={subjectTiles} onSelect={setDrillTile} />
+      <SubjectDrillDown
+        tile={drillTile}
+        onClose={() => setDrillTile(null)}
+        onStudyConcept={(concept) => {
+          setDrillTile(null);
+          store.openStudyWorkspaceForConcept(concept);
+        }}
+      />
+
       {/* Concept Graph */}
       {graph.nodes.length > 0 ? (
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
@@ -660,6 +719,7 @@ function BehaviorTab({
   ];
   return (
     <div className="space-y-4">
+      <StudyBehaviorCharts activities={activities} />
       {inference.inferenceConfidence === 'low' && (
         <p className="text-xs text-accent-amber">{t('analyticsBehaviorLowConfidence')}</p>
       )}
@@ -734,6 +794,12 @@ function InsightsTab({
   const profileInsights = buildLearnerInsights(learnerModel, activities, courses, lang);
   return (
     <div className="space-y-4">
+      <AIInsightsPanel
+        learnerModel={learnerModel}
+        activities={activities}
+        courses={courses}
+      />
+
       {profileInsights.length > 0 && (
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
           <LearnerInsightCards

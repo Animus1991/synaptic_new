@@ -64,7 +64,7 @@
 | **B** | Dashboard density + time-of-day icons (no emoji) + compact stats | **Done** |
 | **C** | Library badges + filter/view localStorage persist + denser cards | **Done** |
 | **D** | Tasks ΠΡΟΤΕΙΝΕΤΑΙ + warm-sand scope + priority left-border | **Done** |
-| **E** | Analytics denser spacing (data pipes unchanged) | **Partial** — spacing/density; deeper chart widgets later |
+| **E** | Analytics: SubjectMasteryGrid, StudyBehaviorCharts, AIInsightsPanel, date range, SubjectDrillDown | **Done** — CSS/SVG charts (no recharts); `GET /v1/analytics/insights`; Research tab kept |
 | **F** | a11y / contrast / reduced-motion | **Done** — warm-sand muted AA, global `prefers-reduced-motion`, `aria-busy` on key CTAs |
 | **Tools** | Wave 3 OCR/collab | **Done** — OCR re-anchor, annotation conflicts, whiteboard CRDT |
 

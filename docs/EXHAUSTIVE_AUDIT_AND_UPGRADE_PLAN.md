@@ -112,15 +112,24 @@ cd server && npm test
 
 **Wave 3:** closed (2026-07-16).
 
+### Mockup Wave E — Analytics (parallel track)
+
+| Item | Status |
+| ---- | ------ |
+| SubjectMasteryGrid + SubjectDrillDown | **shipped** (2026-07-16) |
+| StudyBehaviorCharts (CSS/SVG) | **shipped** |
+| AIInsightsPanel + `GET /v1/analytics/insights` | **shipped** |
+| AnalyticsDateRangeContext (`7d` / `30d` / `semester`) | **shipped** |
+
 ### Wave 4 — Platform / enterprise
 
-| ID | Item |
-| -- | ---- |
-| MCP-01..03 | MCP SSE, client readers, OAuth Postgres |
-| OPS-07 | LTI grade passback production AGS |
-| PLT-03 | Offline embeddings |
-| TOOL-SP-02/03 | SymPy + unit checker |
-| SRC-08 | Multi-page thumbnail strip |
+| ID | Item | Status |
+| -- | ---- | ------ |
+| MCP-01..03 | MCP SSE, client readers, OAuth Postgres | open |
+| OPS-07 | LTI grade passback production AGS | open |
+| PLT-03 | Offline embeddings | open |
+| TOOL-SP-02/03 | SymPy + unit checker | open |
+| SRC-08 | Multi-page thumbnail strip | open |
 
 ### Wave 5 — Documentation single source of truth
 
@@ -158,7 +167,9 @@ Mark older masters (`EXHAUSTIVE_*`, `STATE_OF_THE_ART_*`, duplicate upgrade plan
 | Wave 2: CM-03/04, RD-02, MD-05, XTL-03 | done |
 | Wave 2 remainder: SM-02/03, PR-02/03 | done |
 | Push to `synaptic_refined` + `synaptic_new` | pending commit |
-| Waves 3–5 | scheduled — continue sprint-by-sprint without breaking Google paths |
+| Wave 3 OCR/collab | done |
+| Mockup Wave E Analytics | done |
+| Waves 4–5 | next — MCP/LTI/embeddings/SymPy/thumbnails, then docs SoT |
 
 ---
 
