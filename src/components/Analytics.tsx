@@ -21,7 +21,7 @@ import { CourseIcon } from './ui/CourseIcon';
 import { cn } from '../utils/cn';
 import { Page, PageHeader, TabBar } from './ui/primitives';
 import { SectionLabel } from './ui/SectionLabel';
-import { useSepiaHeatmap, useWarmSandPageScope, warmSandScopeProps } from '../lib/useDocumentTheme';
+import { useWarmSandPageScope, warmSandScopeProps } from '../lib/useDocumentTheme';
 import { ReadinessRing } from './visuals/ReadinessRing';
 import { RetentionCurve } from './visuals/DiagramGenerator';
 import { ConceptGraph } from './visuals/ConceptGraph';
@@ -282,7 +282,6 @@ function OverviewTab({
   daysToExam: number | null;
 }) {
   const { t, lang } = useI18n();
-  const sepiaHeatmap = useSepiaHeatmap();
   const { range } = useAnalyticsDateRange();
   const store = useAppStore();
   const [drillTile, setDrillTile] = useState<SubjectMasteryTile | null>(null);
@@ -395,7 +394,14 @@ function OverviewTab({
               <p className="ux-kpi-value-sm">{fsrsSummary.trackedConcepts}</p>
             </div>
           </div>
-          <div className="flex items-end gap-1 h-20" data-testid="analytics-fsrs-day-bars">
+          {/* Wave P-C02 — forecast bars wrapped in soft track so the row reads as
+              a chart even when data is sparse; bars use --viz-bar-fill (theme-aware
+              WCAG ≥3:1 vs surface-card in all 5 themes). */}
+          <div
+            className="flex items-end gap-1 h-20 rounded-lg p-1"
+            style={{ backgroundColor: 'var(--viz-bar-track)' }}
+            data-testid="analytics-fsrs-day-bars"
+          >
             {fsrsForecast.map((point) => {
               const label =
                 point.dayOffset === 0
@@ -408,8 +414,11 @@ function OverviewTab({
               return (
               <div key={point.dayOffset} className="flex-1 flex flex-col items-center gap-0.5 min-w-0 h-full justify-end">
                 <div
-                  className="w-full rounded-t bg-brand-600/80 min-h-[4px]"
-                  style={{ height: `${Math.max(8, point.avgRetrievability * 100)}%` }}
+                  className="w-full rounded-t min-h-[6px]"
+                  style={{
+                    height: `${Math.max(10, point.avgRetrievability * 100)}%`,
+                    backgroundColor: 'var(--viz-bar-fill)',
+                  }}
                   title={`${label || `D+${point.dayOffset}`}: ${Math.round(point.avgRetrievability * 100)}%`}
                 />
                 <span className="h-3 text-[8px] text-text-muted tabular-nums leading-none truncate w-full text-center">
@@ -430,7 +439,19 @@ function OverviewTab({
             {weekly.map((val, i) => (
               <div key={i} className="flex-1 flex flex-col items-center gap-1">
                 <span className="text-[9px] text-text-muted font-medium">{val}%</span>
-                <div className="w-full rounded-t transition-all duration-500" style={{ height: `${val * 1.2}%`, backgroundColor: i === weekly.length - 1 ? '#818cf8' : 'var(--viz-track)' }} />
+                {/* Wave P-C01 — theme-aware fills replace hardcoded #818cf8 + var(--viz-track).
+                    Current-day bar = --viz-bar-fill (brand ink); historical bars =
+                    --viz-bar-fill-muted (55% brand mix on card). Both guarantee ≥3:1
+                    contrast vs --color-surface-card across all themes. */}
+                <div
+                  className="w-full rounded-t transition-all duration-500"
+                  style={{
+                    height: `${Math.max(6, val * 1.2)}%`,
+                    backgroundColor: i === weekly.length - 1
+                      ? 'var(--viz-bar-fill)'
+                      : 'var(--viz-bar-fill-muted)',
+                  }}
+                />
                 <span className="text-[9px] text-text-muted">{t(WEEKDAY_KEYS[i]!)}</span>
               </div>
             ))}
@@ -439,25 +460,33 @@ function OverviewTab({
 
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="platform-panel-md">
           <h3 className="text-sm font-semibold flex items-center gap-2 mb-4"><Calendar className="w-4 h-4 text-accent-teal" />{t('analyticsStudyHeatmap')}</h3>
+          {/* Wave P-C03 — heatmap driven by --color-heatmap-scale-{0..4} tokens.
+              Retires ad-hoc bg-surface-hover / bg-brand-* classes that collapsed
+              to invisible ~1.1:1 contrast on spectrum + warm-light cards. Sepia
+              branch kept for backward compatibility with earlier K-T02 identity,
+              but tokens now override in the sepia themes too. */}
           <div className="grid grid-cols-[repeat(13,1fr)] gap-[3px]" data-testid="analytics-heatmap-grid">
             {learnerModel.heatmapData.slice(-91).map((day, i) => {
               const intensity = day.minutes === 0 ? 0 : day.minutes < 15 ? 1 : day.minutes < 30 ? 2 : day.minutes < 60 ? 3 : 4;
-              // K-T02: sepia only on light/warm-sand — spectrum/dark/blueprint keep brand ramp
-              const colors = sepiaHeatmap
-                ? ['bg-[#ebe4d8]', 'bg-[#d4c4a8]', 'bg-[#b8956a]', 'bg-[#8a6440]', 'bg-[#5c4033]']
-                : ['bg-surface-hover', 'bg-brand-900', 'bg-brand-700', 'bg-brand-500', 'bg-brand-400'];
+              const heatmapVar = `var(--color-heatmap-scale-${intensity})`;
               return (
-                <div key={i} className={cn('heatmap-cell w-full aspect-square rounded-[2px]', colors[intensity])} title={formatHeatmapDayTooltip(day.date, day.minutes, lang)} />
+                <div
+                  key={i}
+                  className="heatmap-cell w-full aspect-square rounded-[2px]"
+                  style={{ backgroundColor: heatmapVar }}
+                  title={formatHeatmapDayTooltip(day.date, day.minutes, lang)}
+                />
               );
             })}
           </div>
           <div className="flex items-center justify-end gap-1 mt-2 text-[9px] text-text-muted">
             <span>{t('analyticsHeatmapLess')}</span>
-            {(sepiaHeatmap
-              ? ['bg-[#ebe4d8]', 'bg-[#d4c4a8]', 'bg-[#b8956a]', 'bg-[#8a6440]', 'bg-[#5c4033]']
-              : ['bg-surface-hover', 'bg-brand-900', 'bg-brand-700', 'bg-brand-500', 'bg-brand-400']
-            ).map((c, i) => (
-              <div key={i} className={cn('w-2.5 h-2.5 rounded-[2px]', c)} />
+            {[0, 1, 2, 3, 4].map((step) => (
+              <div
+                key={step}
+                className="w-2.5 h-2.5 rounded-[2px]"
+                style={{ backgroundColor: `var(--color-heatmap-scale-${step})` }}
+              />
             ))}
             <span>{t('analyticsHeatmapMore')}</span>
           </div>

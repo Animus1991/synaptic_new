@@ -166,7 +166,13 @@ export function Settings({
         ))}
       </nav>
 
-      <div className="lg:grid lg:grid-cols-2 lg:gap-6 lg:items-start [&>*]:mb-6 lg:[&>*]:mb-0">
+      {/* Wave P-L01 — masonry column flow. CSS multi-column packs
+          asymmetric-height section cards greedily top-to-bottom left-to-right,
+          eliminating the large vertical whitespace that CSS Grid + items-start
+          leaves under the shorter column. `break-inside-avoid` per child pins
+          each SettingsSection so it never splits across columns.
+          Falls back to single column below `lg` breakpoint. */}
+      <div className="lg:columns-2 lg:gap-6 [&>*]:mb-6 [&>*]:break-inside-avoid">
       <SettingsSection id="settings-teaching" title={c.sectionTeachingApproach} icon={<Brain className="w-5 h-5 text-brand-400" />} delay={0.05}>
         <ToggleRow label={c.labelTeachingStyle} options={c.teachingStyleOptions} value={settings.teachingStyle} onChange={v => onUpdate({ teachingStyle: v as UserSettings['teachingStyle'] })} />
         <ToggleRow label={c.labelExplanationDepth} options={c.explanationDepthOptions} value={settings.explanationDepth} onChange={v => onUpdate({ explanationDepth: v as UserSettings['explanationDepth'] })} />

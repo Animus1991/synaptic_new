@@ -710,7 +710,18 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
               <div className="flex items-end gap-1.5 h-24">
                 {masteryTrend.map((val, i) => (
                   <div key={i} className="flex-1 flex flex-col items-center gap-1">
-                    <div className="w-full rounded-t-sm transition-all duration-500" style={{ height: `${Math.min(100, Math.max(4, val * 1.2))}%`, backgroundColor: i === masteryTrend.length - 1 ? accentHighlightVar() : 'var(--viz-track)' }} />
+                    {/* Wave P-C01 — historical bars use --viz-bar-fill-muted (theme-tuned
+                        55% brand mix on card; guarantees ≥3:1 contrast). Current day keeps
+                        its theme-aware accent highlight for emphasis. */}
+                    <div
+                      className="w-full rounded-t-sm transition-all duration-500"
+                      style={{
+                        height: `${Math.min(100, Math.max(6, val * 1.2))}%`,
+                        backgroundColor: i === masteryTrend.length - 1
+                          ? accentHighlightVar()
+                          : 'var(--viz-bar-fill-muted)',
+                      }}
+                    />
                     <span className="text-[9px] text-text-muted">{weekdayLabels[i] ?? ''}</span>
                   </div>
                 ))}
@@ -752,7 +763,9 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                   {area.reasons[0] && (
                     <p className="type-caption text-text-tertiary line-clamp-1">{area.reasons[0].label}</p>
                   )}
-                  <div className="w-full bg-surface-hover rounded-full h-1.5">
+                  {/* Wave P-C04 — track uses --viz-bar-track (theme-tuned to ≥3:1 vs card)
+                      so low-mastery fills (3-20%) always reveal a visible track behind them. */}
+                  <div className="w-full rounded-full h-1.5" style={{ backgroundColor: 'var(--viz-bar-track)' }}>
                     <div className="h-1.5 rounded-full bg-accent-rose transition-all" style={{ width: `${Math.max(area.mastery, 3)}%` }} />
                   </div>
                 </button>
@@ -801,16 +814,19 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                   <div key={course.id}>
                     <p className="text-sm font-medium">{course.title}</p>
                     <p className="text-xs text-text-secondary mt-1">{t('dashDaysLeftMastery').replace('{days}', String(daysLeft)).replace('{mastery}', String(courseMastery))}</p>
-                    <div className="mt-2 w-full bg-surface-hover rounded-full h-1.5">
+                    {/* Wave P-C04 — Upcoming Exam track uses --viz-bar-track (parity with weak areas). */}
+                    <div className="mt-2 w-full rounded-full h-1.5" style={{ backgroundColor: 'var(--viz-bar-track)' }}>
                       <div className="h-1.5 rounded-full bg-accent-rose transition-all" style={{ width: `${courseMastery}%` }} />
                     </div>
                     {courseMastery < 70 && daysLeft < 30 && (
                       <p className="text-[10px] text-accent-rose mt-2 flex items-center gap-1"><AlertTriangle className="w-3 h-3" />{t('dashBelowMastery')}</p>
                     )}
                     {examTask && (
+                      /* Wave P-C05 — solid rose CTA using .ux-chip-solid-danger + --color-on-danger
+                          ink; retires anemic bg-accent-rose/15 that failed 3:1 vs its own rose banner. */
                       <button
                         onClick={() => onStartTask?.(examTask.id)}
-                        className="mt-3 w-full py-2 rounded-lg text-xs font-medium bg-accent-rose/15 text-accent-rose hover:bg-accent-rose/25 transition-all"
+                        className="ux-focus-ring mt-3 w-full py-2 rounded-lg text-xs font-semibold ux-chip-solid-danger transition-all hover:brightness-95"
                       >
                         {t('dashStartExamSim')}
                       </button>

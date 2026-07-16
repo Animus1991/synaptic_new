@@ -68,6 +68,23 @@
      expand from a small trigger. Used by Visual Lab, Agent mode dropdown, popover menus. */
   --motion-duration-emphasized: 360ms;
   --motion-ease-emphasized: cubic-bezier(0.2, 0, 0, 1);
+
+  /* Wave P — visualization tokens (dark defaults). Each theme MUST override
+     to guarantee ≥3:1 contrast vs its --color-surface-card. Used by
+     Weekly Mastery bars, FSRS forecast row, Weak Areas track, KPI progress. */
+  --viz-bar-track: color-mix(in srgb, #ffffff 6%, var(--color-surface-card));
+  --viz-bar-track-strong: color-mix(in srgb, #ffffff 12%, var(--color-surface-card));
+  --viz-bar-fill: var(--color-brand-500);
+  --viz-bar-fill-muted: color-mix(in srgb, var(--color-brand-500) 55%, var(--color-surface-card));
+
+  /* Wave P — 5-step heatmap scale tokenized (retires ad-hoc bg-brand-*/bg-surface-hover
+     classes that collapse to invisible ~1.1:1 contrast on light card themes). */
+  --color-heatmap-scale-0: color-mix(in srgb, #ffffff 4%, var(--color-surface-card));
+  --color-heatmap-scale-1: color-mix(in srgb, var(--color-brand-500) 20%, var(--color-surface-card));
+  --color-heatmap-scale-2: color-mix(in srgb, var(--color-brand-500) 40%, var(--color-surface-card));
+  --color-heatmap-scale-3: color-mix(in srgb, var(--color-brand-500) 65%, var(--color-surface-card));
+  --color-heatmap-scale-4: var(--color-brand-400);
+
   --viz-grid-line: #16161b;
 
   /* Mastery bands + spectrum palette (dark defaults — softened, still distinct) */
@@ -221,6 +238,18 @@
   --elev-popover: 0 12px 28px -8px color-mix(in srgb, #1f160c 22%, transparent),
                   0 2px 8px color-mix(in srgb, #1f160c 10%, transparent);
 
+  /* Wave P — warm-light viz tokens: sepia-toned tracks + warm-ink bar fills
+     (guarantees ≥3:1 contrast vs #ffffff card; sepia heatmap identity kept). */
+  --viz-bar-track: #e8dfd0;
+  --viz-bar-track-strong: #c4ae88;
+  --viz-bar-fill: var(--color-brand-500);
+  --viz-bar-fill-muted: color-mix(in srgb, var(--color-brand-500) 45%, #ffffff);
+  --color-heatmap-scale-0: #ebe4d8;
+  --color-heatmap-scale-1: #d4c4a8;
+  --color-heatmap-scale-2: #b8956a;
+  --color-heatmap-scale-3: #8a6440;
+  --color-heatmap-scale-4: #5c4033;
+
   /* Harmonized earth accents — sage green aligned to sand family */
   --mastery-weak: #8f6860;
   --mastery-developing: #6a7888;
@@ -298,6 +327,17 @@
   --color-on-info: #ffffff;
   --elev-popover: 0 12px 28px -8px color-mix(in srgb, #1f160c 22%, transparent),
                   0 2px 8px color-mix(in srgb, #1f160c 10%, transparent);
+
+  /* Wave P — warm-sand viz tokens (parity with warm-light; keeps deeper sand identity). */
+  --viz-bar-track: #e8dfd0;
+  --viz-bar-track-strong: #c4ae88;
+  --viz-bar-fill: var(--color-brand-500);
+  --viz-bar-fill-muted: color-mix(in srgb, var(--color-brand-500) 45%, #ffffff);
+  --color-heatmap-scale-0: #ebe4d8;
+  --color-heatmap-scale-1: #d4c4a8;
+  --color-heatmap-scale-2: #b8956a;
+  --color-heatmap-scale-3: #8a6440;
+  --color-heatmap-scale-4: #5c4033;
 
   color-scheme: light;
 }
@@ -526,6 +566,19 @@
   --color-on-info: #ffffff;
   --elev-popover: 0 12px 28px -8px color-mix(in srgb, #1a1430 22%, transparent),
                   0 2px 8px color-mix(in srgb, #1a1430 10%, transparent);
+
+  /* Wave P — spectrum viz tokens: lavender-deep tracks + violet ink bar fills
+     (fixes invisible chart bars on white lavender card; retains identity). */
+  --viz-bar-track: #c4b5ff;
+  --viz-bar-track-strong: #a894ff;
+  --viz-bar-fill: var(--color-brand-600);
+  --viz-bar-fill-muted: color-mix(in srgb, var(--color-brand-500) 55%, #ffffff);
+  --color-heatmap-scale-0: #e8e2ff;
+  --color-heatmap-scale-1: #c4b5ff;
+  --color-heatmap-scale-2: #a894ff;
+  --color-heatmap-scale-3: #7b61ff;
+  --color-heatmap-scale-4: #4a32b0;
+
   color-scheme: light;
 
   /* Original vibrant spectrum accents */
@@ -669,9 +722,13 @@
   --color-surface-active: color-mix(in srgb, #ffffff 10%, #1e293b);
   --color-surface-input: #0f172a;
 
-  --color-border-subtle: color-mix(in srgb, #ffffff 8%, #020617);
-  --color-border-default: color-mix(in srgb, #ffffff 12%, #020617);
-  --color-border-strong: color-mix(in srgb, #ffffff 18%, #020617);
+  /* Wave P-C06 — border-subtle lifted +3% white so blueprint card outlines
+     visibly frame each surface against the deep-space gradient canvas.
+     Default was 8% (blended into canvas); 11% keeps identity while reaching
+     ≥1.4:1 vs surface-card. */
+  --color-border-subtle: color-mix(in srgb, #ffffff 11%, #020617);
+  --color-border-default: color-mix(in srgb, #ffffff 14%, #020617);
+  --color-border-strong: color-mix(in srgb, #ffffff 20%, #020617);
 
   /* Wave M — blueprint semantic aliases (glass dark canvas + refined hairline) */
   --color-surface-canvas: #0d1220;
@@ -690,10 +747,23 @@
   --elev-popover: 0 20px 48px color-mix(in srgb, #000000 45%, transparent),
                   0 3px 10px color-mix(in srgb, #000000 22%, transparent);
 
+  /* Wave P — blueprint viz tokens (cyan-glass identity kept). */
+  --viz-bar-track: color-mix(in srgb, #ffffff 10%, var(--color-surface-card));
+  --viz-bar-track-strong: color-mix(in srgb, #ffffff 18%, var(--color-surface-card));
+  --viz-bar-fill: var(--color-brand-400);
+  --viz-bar-fill-muted: color-mix(in srgb, var(--color-brand-400) 60%, var(--color-surface-card));
+  --color-heatmap-scale-0: color-mix(in srgb, #ffffff 5%, var(--color-surface-card));
+  --color-heatmap-scale-1: color-mix(in srgb, var(--color-brand-500) 25%, var(--color-surface-card));
+  --color-heatmap-scale-2: color-mix(in srgb, var(--color-brand-500) 45%, var(--color-surface-card));
+  --color-heatmap-scale-3: color-mix(in srgb, var(--color-brand-400) 65%, var(--color-surface-card));
+  --color-heatmap-scale-4: var(--color-brand-300);
+
   --color-text-primary: #f8fafc;
   --color-text-secondary: #cbd5e1;
-  --color-text-tertiary: #94a3b8;
-  --color-text-muted: #64748b;
+  /* Wave P-C07 — muted/tertiary promoted one step so small labels (day-of-week,
+     +Nd, tooltips, legend) reach WCAG AA (~4.5:1) on the gradient canvas. */
+  --color-text-tertiary: #b2c0d6;
+  --color-text-muted: #94a3b8;
 
   --color-brand-50: #ecfeff;
   --color-brand-100: #cffafe;

@@ -157,6 +157,10 @@ See [`MOCKUP_WAVE_I_FIDELITY_PLAN.md`](./MOCKUP_WAVE_I_FIDELITY_PLAN.md). Sprint
 
 - [`MOCKUP_WAVE_O_FIDELITY_PLAN.md`](./MOCKUP_WAVE_O_FIDELITY_PLAN.md) — O-1: global `MotionConfig reducedMotion="user"` at `App.tsx` for automatic OS-level reduced-motion respect across all framer-motion subtrees; explicit emphasized transitions on Onboarding steps (welcome/role/goals/schedule), UploadModal backdrop + panel, AppToastBanner, OfflineShellBanner back-online toast. Preserves spring transitions on ConfirmDialog + DashboardHubShell overlay.
 
+## 6h. Wave P
+
+- [`MOCKUP_WAVE_P_FIDELITY_PLAN.md`](./MOCKUP_WAVE_P_FIDELITY_PLAN.md) — P-1: Settings 2-col masonry (`lg:columns-2 + break-inside-avoid`) kills all vertical whitespace under asymmetric-height section cards. New viz tokens per theme — `--viz-bar-track` / `--viz-bar-track-strong` / `--viz-bar-fill` / `--viz-bar-fill-muted` — retire hardcoded `#818cf8` + generic `var(--viz-track)` in Weekly Mastery bars and Dashboard mastery trend. FSRS forecast row now wraps in soft track + uses `--viz-bar-fill`. New 5-step `--color-heatmap-scale-{0..4}` tokens replace `bg-surface-hover` + `bg-brand-*` combo that collapsed to ~1.1:1 contrast on spectrum + warm-light. Weak Areas + Upcoming Exam progress tracks use `--viz-bar-track`. "Start exam simulation" CTA now uses `.ux-chip-solid-danger` with `--color-on-danger` ink (WCAG AA in every theme). Blueprint border-subtle lifted +3% white; text-muted/text-tertiary promoted one step for AA on gradient canvas. Companion `docs/MOCKUP_WAVE_P_FIDELITY_PLAN.md` includes Sprint P-2 (banner content migration, calibration bars, remaining motion callsites) and Sprint P-3 (page-by-page × theme contrast matrix for downstream LLMs).
+
 ---
 
 ## 7. Security
