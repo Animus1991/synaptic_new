@@ -143,7 +143,7 @@ See [`MOCKUP_WAVE_I_FIDELITY_PLAN.md`](./MOCKUP_WAVE_I_FIDELITY_PLAN.md). Sprint
 
 ## 6d. Wave L
 
-- [`MOCKUP_WAVE_L_FIDELITY_PLAN.md`](./MOCKUP_WAVE_L_FIDELITY_PLAN.md) — Analytics flow banner, Library banner order, Tasks tab filter, Settings theme icons, denser Dashboard/CourseView (K-2 closeout).
+- [`MOCKUP_WAVE_L_FIDELITY_PLAN.md`](./MOCKUP_WAVE_L_FIDELITY_PLAN.md) — L-1: Analytics flow banner, Library banner order, Tasks tab filter, Settings theme icons, denser Dashboard/CourseView. L-2: retrieval bar, FSRS expand polish, Visual Lab sticky footer, Agent embedded density.
 
 ---
 

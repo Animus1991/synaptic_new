@@ -60,14 +60,14 @@ Wave A–K: hero IA, hub chips, Create Plan secondary, shell utilities, retentio
 
 ---
 
-## 5. Sprint L-2 (tracked, no omission)
+## 5. Sprint L-2
 
-| ID | Item | Priority |
-| -- | ---- | -------- |
-| L-D02 | Dashboard left-column “Ισχύς ανάκλησης” thin bar above concept mastery (canvas shot 2) | P2 |
-| L-T02 | Optional high-priority expand chrome polish on flashcard tasks | P3 |
-| L-A04 | Promote Visual Lab to sticky footer bar (in addition to disclosure) | P3 |
-| L-X04 | Agent embedded chrome density (out of canvas set) | P3 |
+| ID | Item | Priority | Status |
+| -- | ---- | -------- | ------ |
+| L-D02 | Dashboard left-column “Ισχύς ανάκλησης” thin bar above concept mastery (canvas shot 2) | P2 | **shipped** |
+| L-T02 | High-priority expand chrome polish on flashcard / FSRS tasks | P3 | **shipped** |
+| L-A04 | Promote Visual Lab to sticky footer bar (in addition to disclosure) | P3 | **shipped** |
+| L-X04 | Agent embedded chrome density (out of canvas set) | P3 | **shipped** |
 
 ---
 
@@ -89,3 +89,15 @@ Wave A–K: hero IA, hub chips, Create Plan secondary, shell utilities, retentio
 - [x] Tools intact; no secrets in commit
 
 **Shipped:** Wave L Sprint L-1 (2026-07-16) on `feat/mockup-implementation`.
+
+---
+
+## 8. Acceptance (Wave L-2)
+
+- [x] Retrieval strength thin bar above concept mastery
+- [x] High-priority / FSRS expand chrome denser + hint
+- [x] Visual Lab sticky footer toggles disclosure (panel intact)
+- [x] Embedded Agent chrome denser (header / modes / input)
+- [x] Tools intact; no secrets in commit
+
+**Shipped:** Wave L Sprint L-2 (2026-07-16) on `feat/mockup-implementation`.

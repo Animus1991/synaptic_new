@@ -467,8 +467,16 @@ export function Tasks({
                           {c.sessionRunningBadge}
                         </span>
                       )}
-                      {task.priority === 'critical' && (
-                        <span className="text-[10px] px-2 py-0.5 rounded-full ux-chip-error">{c.highPriority}</span>
+                      {(task.priority === 'critical' || task.priority === 'high') && (
+                        <span
+                          data-testid={`task-priority-badge-${task.id}`}
+                          className={cn(
+                            'text-[9px] font-bold uppercase tracking-[0.06em] px-2 py-0.5 rounded-md',
+                            task.priority === 'critical' ? 'ux-chip-error' : 'bg-accent-rose/12 text-accent-rose border border-accent-rose/25',
+                          )}
+                        >
+                          {c.highPriority}
+                        </span>
                       )}
                       <button
                         type="button"
@@ -482,15 +490,35 @@ export function Tasks({
                   <AnimatePresence>
                     {isExpanded && (
                       <motion.div initial={{ height: 0 }} animate={{ height: 'auto' }} exit={{ height: 0 }} className="overflow-hidden border-t border-border-subtle">
-                        <div className="px-4 pb-4 pt-3 ml-11">
-                          <p className="text-sm text-text-secondary mb-2">{task.description}</p>
+                        {/* L-T02: high-priority / flashcard expand chrome */}
+                        <div
+                          className={cn(
+                            'px-4 pb-3.5 pt-2.5 ml-11 space-y-2',
+                            (task.priority === 'high' || task.priority === 'critical') && 'bg-accent-rose/[0.04]',
+                          )}
+                          data-testid={`task-expand-${task.id}`}
+                        >
+                          {(task.priority === 'high' || task.priority === 'critical') && (
+                            <p className="text-[10px] font-bold uppercase tracking-[0.08em] text-accent-rose">
+                              {c.highPriority}
+                            </p>
+                          )}
+                          <p className="text-sm text-text-secondary leading-relaxed">{task.description}</p>
                           {task.isSpacedRepetition && task.category === 'review' && onReviewRating && (
-                            <div className="flex flex-wrap gap-2 mt-2">
-                              {fsrsRatings.map(({ rating, label, color }) => (
-                                <button key={rating} type="button" onClick={() => onReviewRating(task.id, rating)} className={cn('px-3 py-1.5 rounded-lg text-xs font-medium border', color)}>
-                                  {label}
-                                </button>
-                              ))}
+                            <div className="space-y-2 pt-0.5">
+                              <p className="text-[11px] text-text-muted">{c.fsrsReviewHint}</p>
+                              <div className="flex flex-wrap gap-1.5">
+                                {fsrsRatings.map(({ rating, label, color }) => (
+                                  <button
+                                    key={rating}
+                                    type="button"
+                                    onClick={() => onReviewRating(task.id, rating)}
+                                    className={cn('px-2.5 py-1.5 rounded-lg text-[11px] font-medium border', color)}
+                                  >
+                                    {label}
+                                  </button>
+                                ))}
+                              </div>
                             </div>
                           )}
                         </div>

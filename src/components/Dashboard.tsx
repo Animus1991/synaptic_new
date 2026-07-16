@@ -509,6 +509,30 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
             />
           </div>
 
+          {/* L-D02: Ισχύς ανάκλησης thin bar above concept mastery (canvas shot 2) */}
+          <div
+            className="rounded-xl border border-border-subtle bg-surface-card/50 px-3 py-2"
+            data-testid="dashboard-retrieval-strength-bar"
+          >
+            <div className="mb-1.5 flex items-center justify-between gap-2">
+              <span className="text-[10px] font-semibold uppercase tracking-[0.08em] text-text-secondary">
+                {t('dashSignalRetrieval')}
+              </span>
+              <span className="text-[11px] font-semibold tabular-nums text-text-primary">
+                {Math.round(learnerModel.retrievalPerformance * 100)}%
+              </span>
+            </div>
+            <div className="ux-progress-track h-1.5" aria-hidden>
+              <div
+                className="h-full rounded-full transition-[width] duration-300"
+                style={{
+                  width: `${Math.max(2, Math.round(learnerModel.retrievalPerformance * 100))}%`,
+                  backgroundColor: 'var(--palette-amber)',
+                }}
+              />
+            </div>
+          </div>
+
           {/* Concept mastery + prerequisite repair */}
           {(conceptMastery.length > 0 || prerequisiteRepairs.length > 0) && (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

@@ -664,6 +664,38 @@ function OverviewTab({
           </motion.div>
         </div>
       </details>
+
+      {/* L-A04: sticky Visual Lab footer (canvas) — keeps disclosure body intact */}
+      <div
+        className="sticky bottom-2 z-20 mt-3 rounded-xl border border-border-subtle bg-surface-card/95 shadow-sm backdrop-blur-sm"
+        data-testid="analytics-visual-lab-footer"
+      >
+        <button
+          type="button"
+          className="flex w-full items-center gap-3 px-3.5 py-2.5 text-left transition-colors hover:bg-surface-hover/80"
+          aria-expanded={visualLabOpen}
+          onClick={() => {
+            const next = !visualLabOpen;
+            setVisualLabOpen(next);
+            saveVisualLabOpen(next);
+            requestAnimationFrame(() => {
+              document
+                .querySelector('[data-testid="analytics-visual-lab-disclosure"]')
+                ?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            });
+          }}
+        >
+          <FlaskConical className="w-4 h-4 text-brand-600 shrink-0" aria-hidden />
+          <span className="min-w-0 flex-1">
+            <span className="block text-sm font-medium text-text-primary">{t('analyticsVisualLabFooter')}</span>
+            <span className="block text-[10px] text-text-muted truncate">{t('analyticsVisualLabFooterHint')}</span>
+          </span>
+          <ChevronRight
+            className={cn('w-4 h-4 text-text-muted shrink-0 transition-transform', visualLabOpen && 'rotate-90')}
+            aria-hidden
+          />
+        </button>
+      </div>
     </div>
   );
 }

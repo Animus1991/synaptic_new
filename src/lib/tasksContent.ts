@@ -85,6 +85,8 @@ export type TasksContent = {
   daysAgo: (days: number) => string;
   yesterday: string;
   highPriority: string;
+  /** Hint under expanded spaced-repetition / flashcard tasks (L-T02). */
+  fsrsReviewHint: string;
   weakAreasEmpty: string;
   entryHint: string;
   sessionActiveBanner: (label: string, current: number, total: number) => string;
@@ -181,6 +183,7 @@ const EN: TasksContent = {
   daysAgo: (days) => `${days} days ago`,
   yesterday: 'Yesterday',
   highPriority: 'High priority',
+  fsrsReviewHint: 'Rate how well you remember each card — again, hard, good, or easy.',
   weakAreasEmpty: 'No weak areas yet — complete quizzes to build your mastery profile.',
   entryHint: 'Start or resume a task, or launch a focused session — the queue bar shows which task runs next.',
   sessionActiveBanner: (label, current, total) => `${label} · Task ${current} of ${total}`,
@@ -279,6 +282,7 @@ const EL: TasksContent = {
   daysAgo: (days) => `${days} ημέρες πριν`,
   yesterday: 'Χθες',
   highPriority: 'Υψηλή προτεραιότητα',
+  fsrsReviewHint: 'Αξιολόγησε πόσο καλά θυμάσαι κάθε κάρτα — ξανά, δύσκολο, καλό ή εύκολο.',
   weakAreasEmpty: 'Δεν υπάρχουν αδύναμα σημεία — ολοκλήρωσε quiz για προφίλ mastery.',
   entryHint: 'Ξεκίνα ή συνέχισε μια εργασία, ή εκκίνησε focused session — η ουρά δείχνει ποια εργασία τρέχει επόμενη.',
   sessionActiveBanner: (label, current, total) => `${label} · Εργασία ${current} από ${total}`,
