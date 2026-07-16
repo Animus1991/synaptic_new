@@ -10,14 +10,14 @@ export function ProgressKpiRow({ kpis }: { kpis: ProgressKpi[] }) {
       {kpis.map((kpi, i) => {
         const Icon = KPI_ICONS[i] ?? Brain;
         return (
-          <div key={kpi.label} className="ux-card p-3">
-            <div className="flex items-center gap-2 mb-1">
+          <div key={kpi.label} className="ux-card p-2.5">
+            <div className="flex items-center gap-1.5 mb-0.5">
               <Icon className="w-3.5 h-3.5 text-brand-400" />
-              <span className="text-[10px] uppercase tracking-wide text-text-tertiary">{kpi.label}</span>
+              <span className="text-[9px] uppercase tracking-wide text-text-tertiary truncate">{kpi.label}</span>
             </div>
-            <p className="text-xl font-bold tabular-nums text-text-primary">{kpi.value}</p>
+            <p className="text-sm font-bold tabular-nums text-text-primary sm:text-base">{kpi.value}</p>
             <p className={cn(
-              'text-xs mt-1',
+              'text-[10px] mt-0.5',
               kpi.tone === 'good' ? 'text-accent-emerald' : kpi.tone === 'warn' ? 'text-accent-amber' : 'text-text-tertiary',
             )}>
               {kpi.sub}

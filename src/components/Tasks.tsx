@@ -18,7 +18,7 @@ import {
 } from '../lib/tasksContent';
 import { getRecommendedSessionType } from '../lib/recommendedSessionType';
 import { TaskActionIcon } from './ui/TaskActionIcon';
-import { Page, PageHeader } from './ui/primitives';
+import { Page, PageHeader, SecondaryCTA } from './ui/primitives';
 import { PlatformEmptyState } from './ui/PlatformEmptyState';
 import { HeroGlow, SectionHeader, SessionLauncherCard, UxCallout, DescriptiveStickyTabBar } from './ui/platformChrome';
 import { TasksKanbanStatusStrip, tasksKanbanCardStatus } from './TasksKanbanStatusStrip';
@@ -306,18 +306,19 @@ export function Tasks({
             );
           })}
         </div>
-        <button
+        <SecondaryCTA
           type="button"
           data-testid="tasks-create-plan"
+          size="sm"
           onClick={() => {
             setTab('today');
             setSessionMode(recommendedSession);
             onStartSession?.(recommendedSession);
           }}
-          className="w-full rounded-xl bg-brand-700 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-600"
+          className="w-full border-brand-500/40 bg-surface-card/60 font-semibold text-brand-800 hover:bg-brand-600/10"
         >
           {c.createPlanCta}
-        </button>
+        </SecondaryCTA>
         <p className="text-[10px] text-text-muted text-center sm:text-left">{c.createPlanHint}</p>
       </div>
 
@@ -446,7 +447,7 @@ export function Tasks({
                       {isRunningNow && (
                         <span
                           data-testid={`task-running-badge-${task.id}`}
-                          className="text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-md bg-[var(--color-warm-ink,#5c4033)] text-white"
+                          className="text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-md bg-[var(--color-warm-ink)] text-white"
                         >
                           {c.sessionRunningBadge}
                         </span>

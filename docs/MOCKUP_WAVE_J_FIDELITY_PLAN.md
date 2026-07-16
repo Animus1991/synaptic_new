@@ -100,15 +100,25 @@ Wave A–I including: hub 4-chip + overflow, alert 2×2, rail IA, Create Plan CT
 
 ---
 
-## 6. Sprint J-2 (tracked — no omission)
+## 6. Sprint J-2 (shipped)
 
-| ID | Item | Priority |
-| -- | ---- | -------- |
-| J-D05 | Shell top bar fidelity (dense utility icons) when Shell chrome next wave | P3 |
-| J-T02 | Create Plan visual weight (mockup-secondary vs primary) | P3 |
-| J-A02 | Retention curve day markers polish (Σήμερα … +14ημ) | P2 |
-| J-X01 | Global density pass on remaining oversized `text-lg` KPIs | P3 |
-| J-X02 | Theme tokens: warm light + dark parity checklist | P2 |
+| ID | Item | Priority | Status |
+| -- | ---- | -------- | ------ |
+| J-D05 | Shell top bar: dense h-12, utility analytics/calendar icons, Study Space + Start Session CTAs | P3 | Done |
+| J-T02 | Create Plan → `SecondaryCTA` (session launchers remain primary actions) | P3 | Done |
+| J-A02 | Retention curve theme stroke + Σήμερα / +14ημ. markers; FSRS day-plus i18n | P2 | Done |
+| J-X01 | Density: PageHeader, StatTile, ProgressKpiRow, FSRS/MetricCard values | P3 | Done |
+| J-X02 | `--color-warm-ink` on light/warm-sand/dark/blueprint; dark color-scheme parity | P2 | Done |
+
+### Theme parity checklist (J-X02)
+
+| Token / surface | Warm light / warm-sand | Dark / blueprint |
+| --------------- | ---------------------- | ---------------- |
+| `--color-warm-ink` | `#5c4033` | `#8a6f55` |
+| Page cream scope | `warmSandScopeProps` on Dashboard/Tasks/Library/Analytics | No override (root theme) |
+| Heatmap sepia | Light-family only (J-A01) | Brand ramp |
+| Retention stroke | `var(--color-brand-600)` | Same token (resolves per theme) |
+| Shell CTAs | brand-700 fill / brand border | Same tokens |
 
 ---
 
@@ -131,3 +141,14 @@ Wave A–I including: hub 4-chip + overflow, alert 2×2, rail IA, Create Plan CT
 - [x] No emoji chrome; tools intact; no secrets in commit
 
 **Shipped:** Wave J Sprint J-1 (2026-07-16) on `feat/mockup-implementation`.
+
+## 9. Acceptance (Wave J-2)
+
+- [x] Shell top bar denser; utility icons + Study Space + Start Session (no emoji)
+- [x] Create Plan secondary visual weight
+- [x] Retention curve day markers (Today / +14d · Σήμερα / +14ημ.)
+- [x] Global KPI/header density reduced (no oversized text-xl heroes)
+- [x] Warm light + dark warm-ink / color-scheme parity
+- [x] Tools intact; no secrets in commit
+
+**Shipped:** Wave J Sprint J-2 (2026-07-16) on `feat/mockup-implementation`.

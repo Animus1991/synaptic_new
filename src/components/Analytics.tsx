@@ -363,17 +363,17 @@ function OverviewTab({
           <div className="grid grid-cols-3 gap-3 mb-4">
             <div className="rounded-xl border border-border-subtle bg-surface-card/40 px-3 py-2">
               <p className="text-[10px] text-text-muted">{t('analyticsFsrsRetrievability')}</p>
-              <p className="text-lg font-semibold text-text-primary">
+              <p className="text-sm font-semibold tabular-nums text-text-primary sm:text-base">
                 {Math.round(fsrsSummary.avgRetrievabilityToday * 100)}%
               </p>
             </div>
             <div className="rounded-xl border border-border-subtle bg-surface-card/40 px-3 py-2">
               <p className="text-[10px] text-text-muted">{t('analyticsFsrsDueWeek')}</p>
-              <p className="text-lg font-semibold text-text-primary">{fsrsSummary.dueNext7Days}</p>
+              <p className="text-sm font-semibold tabular-nums text-text-primary sm:text-base">{fsrsSummary.dueNext7Days}</p>
             </div>
             <div className="rounded-xl border border-border-subtle bg-surface-card/40 px-3 py-2">
               <p className="text-[10px] text-text-muted">{t('analyticsFsrsTracked')}</p>
-              <p className="text-lg font-semibold text-text-primary">{fsrsSummary.trackedConcepts}</p>
+              <p className="text-sm font-semibold tabular-nums text-text-primary sm:text-base">{fsrsSummary.trackedConcepts}</p>
             </div>
           </div>
           <div className="flex items-end gap-1 h-20" data-testid="analytics-fsrs-day-bars">
@@ -384,14 +384,14 @@ function OverviewTab({
                   : point.dayOffset === 1
                     ? t('analyticsFsrsDayTomorrow')
                     : point.dayOffset === 3 || point.dayOffset === 7 || point.dayOffset === 14
-                      ? `+${point.dayOffset}`
+                      ? t('analyticsRetentionDayPlus').replace('{n}', String(point.dayOffset))
                       : '';
               return (
               <div key={point.dayOffset} className="flex-1 flex flex-col items-center gap-0.5 min-w-0 h-full justify-end">
                 <div
-                  className="w-full rounded-t bg-accent-cyan/80 min-h-[4px]"
+                  className="w-full rounded-t bg-brand-600/80 min-h-[4px]"
                   style={{ height: `${Math.max(8, point.avgRetrievability * 100)}%` }}
-                  title={`D+${point.dayOffset}: ${Math.round(point.avgRetrievability * 100)}%`}
+                  title={`${label || `D+${point.dayOffset}`}: ${Math.round(point.avgRetrievability * 100)}%`}
                 />
                 <span className="h-3 text-[8px] text-text-muted tabular-nums leading-none truncate w-full text-center">
                   {label}
@@ -1025,9 +1025,9 @@ function ResearchTab({
 
 function MetricCard({ icon, label, value, sub }: { icon: React.ReactNode; label: string; value: string; sub: string }) {
   return (
-    <div className="p-4 rounded-xl border border-border-subtle bg-surface-card">
-      <div className="flex items-center gap-2 mb-2">{icon}<span className="text-xs text-text-tertiary font-medium">{label}</span></div>
-      <p className="text-xl font-bold">{value}</p>
+    <div className="p-3 rounded-xl border border-border-subtle bg-surface-card">
+      <div className="flex items-center gap-2 mb-1.5">{icon}<span className="text-[10px] uppercase tracking-wide text-text-tertiary font-medium">{label}</span></div>
+      <p className="text-sm font-bold tabular-nums sm:text-base">{value}</p>
       <p className="text-[10px] text-text-muted mt-0.5">{sub}</p>
     </div>
   );

@@ -42,6 +42,8 @@
   --color-text-secondary: #b4b4c0;
   --color-text-tertiary: #9494a8;
   --color-text-muted: #858599;
+  /* Wave J-X02 — warm ink for badges/chips (dark parity with light brown ink) */
+  --color-warm-ink: #8a6f55;
 
   --viz-track: #1f1f27;
   --viz-node-fill: #131318;
@@ -154,6 +156,7 @@
   --color-text-secondary: #503a22;
   --color-text-tertiary: #5c4528;
   --color-text-muted: #4f3d24;
+  --color-warm-ink: #5c4033;
 
   --color-brand-50: #ede4d6;
   --color-brand-100: #d8cdb8;
@@ -243,8 +246,16 @@
   --color-brand-600: #7d6245;
   --color-brand-700: #5c4832;
   --color-brand-800: #4a3a28;
+  --color-warm-ink: #5c4033;
 
   color-scheme: light;
+}
+
+/* J-X02 — explicit dark parity (inherits @theme; keeps warm-ink + elevation readable) */
+[data-theme="dark"],
+[data-theme="blueprint"] {
+  --color-warm-ink: #8a6f55;
+  color-scheme: dark;
 }
 
 /* Light platform — warm banners, nav, badges (global, not workspace-only) */

@@ -473,6 +473,10 @@ export default function App() {
     breadcrumb: shellBreadcrumb,
     workspaceLive: store.workspaceLive,
     onOpenWorkspace: openWorkspace,
+    onStartSession: () => {
+      store.startSession('25min');
+      store.navigate('tasks');
+    },
     studyWorkspaceOpen: store.studyWorkspaceOpen,
     onTakeBreath: () => setTakeBreathOpen(true),
     activeCourse: shellActiveCourse
