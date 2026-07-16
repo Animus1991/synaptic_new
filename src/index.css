@@ -37,10 +37,11 @@
   --color-border-default: #3c3c4a;
   --color-border-strong: #4e4e5e;
 
-  --color-text-primary: #f4f4f6;
-  --color-text-secondary: #b4b4c0;
-  --color-text-tertiary: #9494a8;
-  --color-text-muted: #858599;
+  /* Type ink on dark — white/light-gray lifted ~2–3% for easier reading */
+  --color-text-primary: #f8f8fa;
+  --color-text-secondary: #babac6;
+  --color-text-tertiary: #9b9baf;
+  --color-text-muted: #8c8ca0;
   /* Wave J-X02 — warm ink for badges/chips (dark parity with light brown ink) */
   --color-warm-ink: #8a6f55;
 
@@ -56,11 +57,11 @@
   --color-surface-hover-strong: var(--color-surface-active);
   --color-focus-ring: var(--color-brand-500);
   --focus-ring-offset: 2px;
-  --color-on-brand: #f4f4f6;
+  --color-on-brand: #f8f8fa;
   --color-on-danger: #0a0a0c;
   --color-on-warn: #0a0a0c;
   --color-on-success: #0a0a0c;
-  --color-on-info: #f4f4f6;
+  --color-on-info: #f8f8fa;
   --elev-popover: 0 12px 32px -8px color-mix(in srgb, #0a0a0c 40%, transparent),
                   0 2px 8px color-mix(in srgb, #0a0a0c 20%, transparent);
   /* Wave N-T12 — emphasized decelerate curve (Material 3 spec) + duration for surfaces that
@@ -820,12 +821,13 @@
   --color-heatmap-scale-3: color-mix(in srgb, var(--color-brand-400) 65%, var(--color-surface-card));
   --color-heatmap-scale-4: var(--color-brand-300);
 
-  --color-text-primary: #f8fafc;
-  --color-text-secondary: #cbd5e1;
+  /* Type ink — white/light-gray lifted ~2–3% (dark theme parity) */
+  --color-text-primary: #fbfcfe;
+  --color-text-secondary: #d0dae5;
   /* Wave P-C07 — muted/tertiary promoted one step so small labels (day-of-week,
      +Nd, tooltips, legend) reach WCAG AA (~4.5:1) on the gradient canvas. */
-  --color-text-tertiary: #b2c0d6;
-  --color-text-muted: #94a3b8;
+  --color-text-tertiary: #b8c5da;
+  --color-text-muted: #9aa9bc;
 
   --color-brand-50: #ecfeff;
   --color-brand-100: #cffafe;
