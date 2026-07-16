@@ -73,14 +73,24 @@ Wave A–L: hero IA, hub chips, Create Plan secondary, shell utilities, retentio
 
 ---
 
-## 5. Sprint M-2 (tracked, no omission)
+## 5. Sprint M-2
 
-| ID | Item | Priority |
-| -- | ---- | -------- |
-| M-D07 | Migrate remaining KPI callsites to `.ux-kpi-value` (Dashboard KPI grid, Analytics KPI row, CourseView analytics) | P2 |
-| M-A05 | Analytics Visual Lab bar collapse animation refinement | P3 |
-| M-T03 | Spectrum WCAG contrast audit (danger + amber banners) | P3 |
-| M-X05 | Agent embedded mode source picker density | P3 |
+| ID | Item | Priority | Status |
+| -- | ---- | -------- | ------ |
+| M-D07 | Migrate KPI callsites to `.ux-kpi-value` / `.ux-kpi-value-sm` (Dashboard KPI grid + FSRS horizon, Analytics MetricCard + FSRS summary, CourseView library + mastery + velocity, ExamPrep setup + results tiles) | P2 | **shipped** |
+| M-A05 | Analytics Visual Lab collapse animation refinement (`AnimatePresence` height+fade, chevron `duration-300 ease-out`, brand tint on open) | P3 | **shipped** |
+| M-T03 | Spectrum WCAG contrast audit (danger + amber banner titles now mix ≥55 % of `#1a1430` ink → contrast ≥4.5:1 vs `#f7f5ff`) | P3 | **shipped** |
+| M-X05 | Agent embedded chrome inline source picker popover (`Layers` badge + course listbox with `Check`, respects `pinnedFileId`) | P3 | **shipped** |
+
+### Acceptance (Wave M-2)
+
+- [x] All targeted KPI callsites use the shared utility classes.
+- [x] Visual Lab collapse: height + fade + chevron rotate share the same 280 ms curve; motion-reduce respected.
+- [x] Spectrum banner titles pass WCAG AA against the lavender surface.
+- [x] Embedded Agent lets users switch source without opening full page; full-page picker unchanged.
+- [x] Tools intact; no secrets in commit.
+
+**Shipped:** Wave M Sprint M-2 (2026-07-16) on `feat/mockup-implementation`.
 
 ---
 

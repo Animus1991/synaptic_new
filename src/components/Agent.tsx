@@ -4,7 +4,7 @@ import {
   Send, Sparkles, BookOpen, Brain, GraduationCap, MessageSquare,
   Code, Lightbulb, AlertTriangle, Mic, ChevronDown,
   RotateCcw, Target, PenTool, Smile, Search, FileText,
-  HelpCircle, Zap, Settings2
+  HelpCircle, Zap, Settings2, Layers, Check
 } from '@/lib/lucide-shim';
 import type { AgentMessage, AgentMode, Course, UserSettings, UploadedFile, MessageCitation, SkillNode } from '../types';
 import type { DashboardNextAction } from '../lib/dashboardNextAction';
@@ -120,6 +120,8 @@ export function Agent({
   const [attachSource, setAttachSource] = useState(true);
   const [pinnedFileId, setPinnedFileId] = useState<string | null>(null);
   const [showSourceSettings, setShowSourceSettings] = useState(false);
+  // Wave M-X05 — embedded compact source picker popover (single control, no re-open of full page).
+  const [showEmbeddedSource, setShowEmbeddedSource] = useState(false);
   const [showAttachPicker, setShowAttachPicker] = useState(false);
   const [isThinking, setIsThinking] = useState(false);
   const sourceSelectRef = useRef<HTMLSelectElement>(null);
@@ -586,7 +588,73 @@ export function Agent({
             {currentMode.label}
             <ChevronDown className={cn('h-3 w-3 transition-transform', showModes && 'rotate-180')} />
           </button>
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1 relative">
+            {/* Wave M-X05 — compact source picker inline in embedded chrome (no full-page trip required). */}
+            <button
+              type="button"
+              onClick={() => setShowEmbeddedSource((v) => !v)}
+              aria-expanded={showEmbeddedSource}
+              aria-haspopup="listbox"
+              data-testid="agent-embedded-source-picker"
+              className={cn(
+                'flex items-center gap-1 rounded-md border border-border-subtle bg-surface-card px-1.5 py-0.5 text-[11px] font-medium text-text-secondary hover:border-brand-200 transition-colors max-w-[140px]',
+                showEmbeddedSource && 'border-brand-500/40 text-brand-500',
+              )}
+              title={ui.allSources}
+            >
+              <Layers className="h-3 w-3 shrink-0" aria-hidden />
+              <span className="truncate">
+                {selectedSource === 'all'
+                  ? ui.allSources
+                  : (courses.find((c) => c.id === selectedSource)?.title ?? ui.allSources)}
+              </span>
+              <ChevronDown className={cn('h-3 w-3 shrink-0 transition-transform', showEmbeddedSource && 'rotate-180')} aria-hidden />
+            </button>
+            {showEmbeddedSource && (
+              <div
+                role="listbox"
+                data-testid="agent-embedded-source-menu"
+                className="absolute right-0 top-full mt-1 z-30 w-56 max-h-64 overflow-y-auto rounded-lg border border-border-subtle bg-surface-card shadow-lg py-1"
+              >
+                <button
+                  type="button"
+                  role="option"
+                  aria-selected={selectedSource === 'all'}
+                  onClick={() => {
+                    setSelectedSource('all');
+                    setPinnedFileId(null);
+                    setShowEmbeddedSource(false);
+                  }}
+                  className={cn(
+                    'w-full flex items-center gap-2 px-2.5 py-1.5 text-left text-[11px] hover:bg-surface-hover transition-colors',
+                    selectedSource === 'all' ? 'text-brand-500' : 'text-text-secondary',
+                  )}
+                >
+                  {selectedSource === 'all' ? <Check className="h-3 w-3 shrink-0" aria-hidden /> : <span className="w-3 h-3 shrink-0" aria-hidden />}
+                  <span className="truncate">{ui.allSources}</span>
+                </button>
+                {courses.map((c) => (
+                  <button
+                    key={c.id}
+                    type="button"
+                    role="option"
+                    aria-selected={selectedSource === c.id}
+                    onClick={() => {
+                      setSelectedSource(c.id);
+                      setPinnedFileId(null);
+                      setShowEmbeddedSource(false);
+                    }}
+                    className={cn(
+                      'w-full flex items-center gap-2 px-2.5 py-1.5 text-left text-[11px] hover:bg-surface-hover transition-colors',
+                      selectedSource === c.id ? 'text-brand-500' : 'text-text-secondary',
+                    )}
+                  >
+                    {selectedSource === c.id ? <Check className="h-3 w-3 shrink-0" aria-hidden /> : <span className="w-3 h-3 shrink-0" aria-hidden />}
+                    <span className="truncate">{c.title}</span>
+                  </button>
+                ))}
+              </div>
+            )}
             {onOpenFullPage && (
               <button
                 type="button"

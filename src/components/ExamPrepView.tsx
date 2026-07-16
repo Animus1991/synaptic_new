@@ -221,7 +221,7 @@ export function ExamPrepView({
                 return (
                   <div key={item.label} className="ux-card text-center">
                     <Icon className="w-5 h-5 text-brand-400 mx-auto mb-2" />
-                    <p className="text-xl font-bold tabular-nums">{item.value}</p>
+                    <p className="ux-kpi-value">{item.value}</p>
                     <p className="text-xs text-text-tertiary mt-0.5">{item.label}</p>
                   </div>
                 );
@@ -556,7 +556,7 @@ export function ExamPrepView({
                 return (
                   <div key={item.label} className="ux-card text-center">
                     <Icon className={cn('w-4 h-4 mx-auto mb-2', item.tone)} />
-                    <p className="text-xl font-bold tabular-nums">{item.value}</p>
+                    <p className={cn('ux-kpi-value', item.tone)}>{item.value}</p>
                     <p className="text-xs text-text-tertiary">{item.label}</p>
                   </div>
                 );

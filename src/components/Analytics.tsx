@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import {
   Brain, TrendingUp, Clock, Target, AlertTriangle, BarChart3,
   Zap, Calendar, CheckCircle2, XCircle, Lightbulb,
@@ -382,17 +382,17 @@ function OverviewTab({
           <div className="grid grid-cols-3 gap-3 mb-4">
             <div className="rounded-xl border border-border-subtle bg-surface-card/40 px-3 py-2">
               <p className="text-[10px] text-text-muted">{t('analyticsFsrsRetrievability')}</p>
-              <p className="text-sm font-semibold tabular-nums text-text-primary sm:text-base">
+              <p className="ux-kpi-value-sm">
                 {Math.round(fsrsSummary.avgRetrievabilityToday * 100)}%
               </p>
             </div>
             <div className="rounded-xl border border-border-subtle bg-surface-card/40 px-3 py-2">
               <p className="text-[10px] text-text-muted">{t('analyticsFsrsDueWeek')}</p>
-              <p className="text-sm font-semibold tabular-nums text-text-primary sm:text-base">{fsrsSummary.dueNext7Days}</p>
+              <p className="ux-kpi-value-sm">{fsrsSummary.dueNext7Days}</p>
             </div>
             <div className="rounded-xl border border-border-subtle bg-surface-card/40 px-3 py-2">
               <p className="text-[10px] text-text-muted">{t('analyticsFsrsTracked')}</p>
-              <p className="text-sm font-semibold tabular-nums text-text-primary sm:text-base">{fsrsSummary.trackedConcepts}</p>
+              <p className="ux-kpi-value-sm">{fsrsSummary.trackedConcepts}</p>
             </div>
           </div>
           <div className="flex items-end gap-1 h-20" data-testid="analytics-fsrs-day-bars">
@@ -642,6 +642,8 @@ function OverviewTab({
         </div>
       </details>
 
+      {/* L-A03 + M-A05 — canvas-parity Visual Lab disclosure. Body is animated via
+          AnimatePresence so open/close matches the sticky footer chevron cadence. */}
       <details
         className="ux-disclosure"
         data-testid="analytics-visual-lab-disclosure"
@@ -654,14 +656,25 @@ function OverviewTab({
       >
         <summary className="ux-disclosure-summary">{t('analyticsVisualLabDisclosure')}</summary>
         <div className="ux-disclosure-body">
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.28 }}>
-            <AnalyticsVisualLabPanel
-              sankeyLinks={sankeyModel.links}
-              sankeyHasData={sankeyModel.hasData}
-              forecast={fsrsForecast}
-              skills={[...learnerModel.weakAreas, ...learnerModel.almostKnown, ...learnerModel.strongAreas]}
-            />
-          </motion.div>
+          <AnimatePresence initial={false}>
+            {visualLabOpen && (
+              <motion.div
+                key="analytics-visual-lab-panel"
+                initial={{ opacity: 0, y: 8, height: 0 }}
+                animate={{ opacity: 1, y: 0, height: 'auto' }}
+                exit={{ opacity: 0, y: 8, height: 0 }}
+                transition={{ duration: 0.28, ease: [0.4, 0, 0.2, 1] }}
+                style={{ overflow: 'hidden' }}
+              >
+                <AnalyticsVisualLabPanel
+                  sankeyLinks={sankeyModel.links}
+                  sankeyHasData={sankeyModel.hasData}
+                  forecast={fsrsForecast}
+                  skills={[...learnerModel.weakAreas, ...learnerModel.almostKnown, ...learnerModel.strongAreas]}
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </details>
 
@@ -691,7 +704,10 @@ function OverviewTab({
             <span className="block text-[10px] text-text-muted truncate">{t('analyticsVisualLabFooterHint')}</span>
           </span>
           <ChevronRight
-            className={cn('w-4 h-4 text-text-muted shrink-0 transition-transform', visualLabOpen && 'rotate-90')}
+            className={cn(
+              'w-4 h-4 text-text-muted shrink-0 transition-transform duration-300 ease-out motion-reduce:transition-none',
+              visualLabOpen && 'rotate-90 text-brand-600',
+            )}
             aria-hidden
           />
         </button>
@@ -1078,7 +1094,7 @@ function MetricCard({ icon, label, value, sub }: { icon: React.ReactNode; label:
   return (
     <div className="p-3 rounded-xl border border-border-subtle bg-surface-card">
       <div className="flex items-center gap-2 mb-1.5">{icon}<span className="text-[10px] uppercase tracking-wide text-text-tertiary font-medium">{label}</span></div>
-      <p className="text-sm font-bold tabular-nums sm:text-base">{value}</p>
+      <p className="ux-kpi-value-sm">{value}</p>
       <p className="text-[10px] text-text-muted mt-0.5">{sub}</p>
     </div>
   );

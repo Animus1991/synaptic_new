@@ -147,7 +147,7 @@ See [`MOCKUP_WAVE_I_FIDELITY_PLAN.md`](./MOCKUP_WAVE_I_FIDELITY_PLAN.md). Sprint
 
 ## 6e. Wave M
 
-- [`MOCKUP_WAVE_M_FIDELITY_PLAN.md`](./MOCKUP_WAVE_M_FIDELITY_PLAN.md) — M-1: density closeout on Onboarding/Student/Teacher/ExamPrep/Grounded/Reprocess, unicode `✓`/`✗` → Phosphor Check/X, theme SoT aliases (`--color-surface-canvas`, `--color-hairline`) across warm-light/warm-sand/dark/spectrum/blueprint, `.ux-kpi-value` shared numeral utility.
+- [`MOCKUP_WAVE_M_FIDELITY_PLAN.md`](./MOCKUP_WAVE_M_FIDELITY_PLAN.md) — M-1: density closeout on Onboarding/Student/Teacher/ExamPrep/Grounded/Reprocess, unicode `✓`/`✗` → Phosphor Check/X, theme SoT aliases (`--color-surface-canvas`, `--color-hairline`) across warm-light/warm-sand/dark/spectrum/blueprint, `.ux-kpi-value` shared numeral utility. M-2: KPI migration (Dashboard / Analytics / CourseView / ExamPrep), Visual Lab `AnimatePresence` collapse polish, spectrum WCAG title audit, embedded Agent inline source picker.
 
 ---
 

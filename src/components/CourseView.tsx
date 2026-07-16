@@ -516,10 +516,10 @@ export function CourseView({
           <span>~{Math.round(course.estimatedHours * (1 - progress / 100))}h remaining</span>
         </div>
         <div className="grid grid-cols-4 gap-3 mt-4 pt-4 border-t border-border-subtle">
-          <div className="text-center"><p className="text-lg font-bold">{course.conceptCount}</p><p className="text-[10px] text-text-muted">Concepts</p></div>
-          <div className="text-center"><p className="text-lg font-bold">{course.glossaryCount}</p><p className="text-[10px] text-text-muted">Glossary</p></div>
-          <div className="text-center"><p className="text-lg font-bold">{course.exerciseCount}</p><p className="text-[10px] text-text-muted">Exercises</p></div>
-          <div className="text-center"><p className="text-lg font-bold capitalize text-xs">{course.sourceMode}</p><p className="text-[10px] text-text-muted">Source Mode</p></div>
+          <div className="text-center"><p className="ux-kpi-value">{course.conceptCount}</p><p className="text-[10px] text-text-muted">Concepts</p></div>
+          <div className="text-center"><p className="ux-kpi-value">{course.glossaryCount}</p><p className="text-[10px] text-text-muted">Glossary</p></div>
+          <div className="text-center"><p className="ux-kpi-value">{course.exerciseCount}</p><p className="text-[10px] text-text-muted">Exercises</p></div>
+          <div className="text-center"><p className="text-xs font-semibold capitalize">{course.sourceMode}</p><p className="text-[10px] text-text-muted">Source Mode</p></div>
         </div>
       </AnimatedCard>
 
@@ -1083,7 +1083,7 @@ function CourseAnalytics({ course, masteryPercent }: { course: Course; masteryPe
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
       <div className="platform-panel-md sm:col-span-2" data-testid="course-analytics-mastery">
         <p className="text-xs text-text-tertiary">{t('analyticsCourseMastery')}</p>
-        <p className="mt-1 text-xl font-bold tabular-nums">{masteryPercent}%</p>
+        <p className="mt-1 ux-kpi-value">{masteryPercent}%</p>
         <p className="mt-1 text-[11px] text-text-muted">{t('courseMasterySublabel')}</p>
       </div>
       <div className="platform-panel-md">
@@ -1129,12 +1129,12 @@ function CourseAnalytics({ course, masteryPercent }: { course: Course; masteryPe
         {masteredConcepts > 0 ? (
           <div className="flex items-center gap-6 flex-wrap">
             <div>
-              <div className="text-xl font-bold tabular-nums text-accent-emerald">{masteredConcepts}<span className="text-sm text-text-muted">/{totalConcepts}</span></div>
+              <div className="ux-kpi-value text-accent-emerald">{masteredConcepts}<span className="text-sm text-text-muted">/{totalConcepts}</span></div>
               <p className="text-xs text-text-tertiary mt-1">concepts mastered</p>
             </div>
             {velocity > 0 && (
               <div>
-                <div className={cn('text-xl font-bold tabular-nums', velocity >= 1 ? 'text-accent-emerald' : 'text-accent-amber')}>{velocity.toFixed(2)}×</div>
+                <div className={cn('ux-kpi-value', velocity >= 1 ? 'text-accent-emerald' : 'text-accent-amber')}>{velocity.toFixed(2)}×</div>
                 <p className="text-xs text-text-tertiary mt-1">
                   {velocity >= 1.05 ? 'Ahead of the expected pace' : velocity <= 0.95 ? 'Behind the expected pace' : 'On the expected pace'}
                 </p>

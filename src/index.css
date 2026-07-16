@@ -521,19 +521,22 @@
   color: white;
 }
 
+/* Wave M-T03 — WCAG AA audit for spectrum banners. Titles now mix >55% of the
+   deep spectrum ink (#1a1430) with the accent hue so contrast ratio vs the
+   lavender surface (#f7f5ff) exceeds 4.5:1, matching the dark theme parity. */
 [data-theme="spectrum"] .platform-banner-warn {
-  border-color: color-mix(in srgb, var(--palette-amber) 35%, var(--color-border-subtle));
-  background: color-mix(in srgb, var(--palette-amber) 10%, var(--color-surface-primary));
+  border-color: color-mix(in srgb, var(--palette-amber) 40%, var(--color-border-subtle));
+  background: color-mix(in srgb, var(--palette-amber) 12%, var(--color-surface-primary));
 }
 [data-theme="spectrum"] .platform-banner-warn .platform-banner-title {
-  color: color-mix(in srgb, var(--palette-amber) 80%, #1a1430);
+  color: color-mix(in srgb, var(--palette-amber) 40%, #1a1430);
 }
 [data-theme="spectrum"] .platform-banner-danger {
-  border-color: color-mix(in srgb, var(--palette-rose) 35%, var(--color-border-subtle));
-  background: color-mix(in srgb, var(--palette-rose) 10%, var(--color-surface-primary));
+  border-color: color-mix(in srgb, var(--palette-rose) 40%, var(--color-border-subtle));
+  background: color-mix(in srgb, var(--palette-rose) 12%, var(--color-surface-primary));
 }
 [data-theme="spectrum"] .platform-banner-danger .platform-banner-title {
-  color: color-mix(in srgb, var(--palette-rose) 75%, #1a1430);
+  color: color-mix(in srgb, var(--palette-rose) 45%, #1a1430);
 }
 [data-theme="spectrum"] .platform-banner-brand {
   border-color: color-mix(in srgb, var(--color-brand-500) 30%, var(--color-border-subtle));
@@ -3733,6 +3736,21 @@ input[type="range"]::-webkit-slider-thumb {
   font-variant-numeric: tabular-nums;
   color: var(--color-text-primary);
   letter-spacing: -0.01em;
+}
+/* Wave M-D07 — small-tile KPI (Dashboard KPI grid, Analytics MetricCard, FSRS summary tiles). */
+.ux-kpi-value-sm {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-primary);
+  letter-spacing: -0.003em;
+}
+@media (min-width: 640px) {
+  .ux-kpi-value-sm {
+    font-size: 1rem;
+    line-height: 1.375rem;
+  }
 }
 .ux-kpi-label {
   font-size: var(--type-caption, 0.6875rem);

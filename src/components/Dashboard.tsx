@@ -899,15 +899,15 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                 className="p-2 rounded-lg bg-accent-amber/10 border border-accent-amber/20 hover:bg-accent-amber/15 transition-all"
                 data-testid="dash-horizon-today"
               >
-                <p className="text-lg font-bold text-accent-amber tabular-nums">{fsrsHorizon.today}</p>
+                <p className="ux-kpi-value text-accent-amber">{fsrsHorizon.today}</p>
                 <p className="text-[9px] text-text-muted uppercase tracking-wide">{t('dashHorizonToday')}</p>
               </button>
               <div className="p-2 rounded-lg bg-surface-primary/50" data-testid="dash-horizon-tomorrow">
-                <p className="text-lg font-bold tabular-nums">{fsrsHorizon.tomorrow}</p>
+                <p className="ux-kpi-value">{fsrsHorizon.tomorrow}</p>
                 <p className="text-[9px] text-text-muted uppercase tracking-wide">{t('dashHorizonTomorrow')}</p>
               </div>
               <div className="p-2 rounded-lg bg-surface-primary/50" data-testid="dash-horizon-3d">
-                <p className="text-lg font-bold tabular-nums">{fsrsHorizon.within3d}</p>
+                <p className="ux-kpi-value">{fsrsHorizon.within3d}</p>
                 <p className="text-[9px] text-text-muted uppercase tracking-wide">{t('dashHorizon3d')}</p>
               </div>
             </div>
@@ -973,7 +973,7 @@ function StatCard({
         {icon}
         <span className="text-[9px] font-medium uppercase tracking-wide text-text-tertiary truncate">{label}</span>
       </div>
-      <p className="text-sm font-bold tabular-nums leading-tight sm:text-base">{value}</p>
+      <p className="ux-kpi-value-sm leading-tight">{value}</p>
     </BlueprintSurface>
   );
 }
