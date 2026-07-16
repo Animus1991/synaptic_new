@@ -636,10 +636,11 @@ export function Shell({
                   type="button"
                   onClick={onOpenWorkspace}
                   data-testid="shell-study-workspace"
+                  data-tour="dashboard-workspace-cta"
                   {...workspaceEntryPrefetchHandlers()}
-                  className="hidden md:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-brand-500/35 text-[11px] font-medium text-brand-800 hover:bg-brand-600/10 transition-colors whitespace-nowrap"
+                  className="hidden md:inline-flex h-8 items-center gap-1.5 px-2.5 rounded-lg border border-brand-500/35 text-[11px] font-medium leading-none text-brand-800 hover:bg-brand-600/10 transition-colors whitespace-nowrap"
                 >
-                  <Layout className="w-3.5 h-3.5" />
+                  <Layout className="w-3.5 h-3.5 shrink-0" />
                   {t('navStudyWorkspace')}
                 </button>
               )}
@@ -648,9 +649,9 @@ export function Shell({
                   type="button"
                   onClick={onStartSession}
                   data-testid="shell-start-session"
-                  className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-brand-700 text-[11px] font-semibold text-white hover:bg-brand-800 transition-colors whitespace-nowrap"
+                  className="hidden sm:inline-flex h-8 items-center gap-1.5 px-2.5 rounded-lg bg-brand-700 text-[11px] font-semibold leading-none text-white hover:bg-brand-800 transition-colors whitespace-nowrap"
                 >
-                  <Play className="w-3.5 h-3.5" weight="fill" />
+                  <Play className="w-3.5 h-3.5 shrink-0" weight="fill" />
                   {t('startSession')}
                 </button>
               )}

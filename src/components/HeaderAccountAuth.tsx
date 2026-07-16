@@ -25,10 +25,10 @@ export function HeaderAccountAuth({ settings, onPatchSettings }: Props) {
             authPlan: undefined,
           })
         }
-        className="hidden sm:inline-flex items-center gap-1.5 h-8 px-3 rounded-lg text-xs font-medium border border-border-subtle text-text-secondary hover:text-text-primary hover:bg-surface-hover transition-colors"
+        className="hidden sm:inline-flex h-8 items-center gap-1.5 px-2.5 rounded-lg text-[11px] font-medium leading-none border border-border-subtle text-text-secondary hover:text-text-primary hover:bg-surface-hover transition-colors"
         title={c.signOut}
       >
-        <SignOut className="w-3.5 h-3.5" aria-hidden />
+        <SignOut className="w-3.5 h-3.5 shrink-0" aria-hidden />
         {c.signOut}
       </button>
     );
@@ -45,10 +45,10 @@ export function HeaderAccountAuth({ settings, onPatchSettings }: Props) {
           `${window.location.origin}/?view=settings`,
         );
       }}
-      className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg text-xs font-semibold bg-brand-600 text-white hover:bg-brand-500 transition-colors"
+      className="inline-flex h-8 items-center gap-1.5 px-2.5 rounded-lg text-[11px] font-semibold leading-none bg-brand-600 text-white hover:bg-brand-500 transition-colors whitespace-nowrap"
       title={c.google}
     >
-      <SignIn className="w-3.5 h-3.5" aria-hidden />
+      <SignIn className="w-3.5 h-3.5 shrink-0" aria-hidden />
       <span className="hidden sm:inline">{c.google}</span>
     </button>
   );

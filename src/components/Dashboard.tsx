@@ -1,8 +1,8 @@
 import { useMemo, useState } from 'react';
 import {
   Flame, Lightning as Zap, Target, Clock, BookOpen, Warning as AlertTriangle,
-  CaretRight as ChevronRight, TrendUp as TrendingUp, Brain, Calendar, ArrowRight, Play,
-  Shield, Lightbulb, ArrowCounterClockwise as RotateCcw, Eye, SquaresFour as Layout, CheckCircle as CheckCircle2, UploadSimple as Upload, Sparkle as Sparkles,
+  CaretRight as ChevronRight, TrendUp as TrendingUp, Brain, Calendar, ArrowRight,
+  Shield, Lightbulb, ArrowCounterClockwise as RotateCcw, Eye, CheckCircle as CheckCircle2, UploadSimple as Upload, Sparkle as Sparkles,
   Sun, Moon, CloudSun, Columns,
 } from '@phosphor-icons/react';
 import type { Course, DashboardStats, LearnerModel, PersonalStudyDate, Task } from '../types';
@@ -27,7 +27,6 @@ import type { I18nKey, Lang } from '../lib/i18n';
 import type { DashboardNextAction } from '../lib/dashboardNextAction';
 import { TaskActionIcon } from './ui/TaskActionIcon';
 import { courseRingColor, resolveCourseColor, accentHighlightVar } from '../lib/masteryPalette';
-import { workspaceEntryPrefetchHandlers } from '../lib/workspaceEntryPrefetch';
 import { greetingForTime, greetingIconKind, dashboardSubtitle } from '../lib/greeting';
 import { useI18n } from '../lib/i18n';
 import { PrimaryCTA } from './ui/primitives';
@@ -110,7 +109,6 @@ interface DashboardProps {
   onFocusWeakArea?: (concept: string) => void;
   /** §2.1 — last synced workspace state for resume + next-action projection */
   workspaceLive?: WorkspaceLiveSync | null;
-  workspaceBooting?: boolean;
   dashboardNextAction?: DashboardNextAction | null;
   smartCTAs?: DashboardSmartCTA[];
   onRunSmartCTA?: (cta: DashboardSmartCTA) => void;
@@ -131,7 +129,7 @@ interface DashboardProps {
   onDashboardWallpaperChange?: (dataUrl: string | undefined) => void;
 }
 
-export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onSelectCourse, onOpenWorkspace, onOpenExamTimer, onUpload, onExploreDemo, prerequisiteRepairs = [], calibration, conceptMastery = [], activities = [], masteryDelta = 0, daysToExam = null, antiPassiveAlert = false, onStartTask, onStartSession, onResolveMisconception, onFocusWeakArea, workspaceLive = null, workspaceBooting = false, dashboardNextAction = null, smartCTAs = [], onRunSmartCTA, proactiveAgentAlerts = [], onRunProactiveAgentAlert, onOpenWorkspacePractice, lang = 'en', postUploadCourse = null, onDismissPostUpload, onOpenTasksReview, settingsExamDate, personalStudyDates = [], onExamDateChange, onPersonalStudyDatesChange, dashboardWallpaperDataUrl, onDashboardWallpaperChange }: DashboardProps) {
+export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onSelectCourse, onOpenWorkspace, onOpenExamTimer, onUpload, onExploreDemo, prerequisiteRepairs = [], calibration, conceptMastery = [], activities = [], masteryDelta = 0, daysToExam = null, antiPassiveAlert = false, onStartTask, onStartSession, onResolveMisconception, onFocusWeakArea, workspaceLive = null, dashboardNextAction = null, smartCTAs = [], onRunSmartCTA, proactiveAgentAlerts = [], onRunProactiveAgentAlert, onOpenWorkspacePractice, lang = 'en', postUploadCourse = null, onDismissPostUpload, onOpenTasksReview, settingsExamDate, personalStudyDates = [], onExamDateChange, onPersonalStudyDatesChange, dashboardWallpaperDataUrl, onDashboardWallpaperChange }: DashboardProps) {
   const { t } = useI18n();
   const warmSandPage = useWarmSandPageScope();
   const [layoutMode, setLayoutMode] = useState<DashboardLayoutMode>(() => loadDashboardLayoutMode());
@@ -298,24 +296,6 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                   {t('dashboardActiveTopic').replace('{topic}', workspaceLive.snapshot.activeConcept)}
                 </span>
               )}
-              {onOpenWorkspace && (
-                <button
-                  type="button"
-                  onClick={onOpenWorkspace}
-                  aria-busy={workspaceBooting}
-                  data-tour="dashboard-workspace-cta"
-                  {...workspaceEntryPrefetchHandlers()}
-                  className={cn(
-                    'flex items-center gap-2 px-3 py-2 border border-brand-500/40 text-brand-700 rounded-xl font-medium text-xs hover:bg-brand-600/10 transition-all whitespace-nowrap',
-                    workspaceBooting && 'opacity-70',
-                  )}
-                >
-                  <Layout className="w-3.5 h-3.5" /> {t('navStudyWorkspace')}
-                </button>
-              )}
-              <PrimaryCTA onClick={() => onStartSession?.('25min') ?? onNavigate('tasks')} className="whitespace-nowrap text-xs px-3 py-2">
-                <Play className="w-3.5 h-3.5" /> {t('startSession')}
-              </PrimaryCTA>
               <button
                 type="button"
                 onClick={toggleLayout}
@@ -324,7 +304,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                 aria-label={isCanvasLayout ? t('dashLayoutStacked') : t('dashLayoutCanvas')}
                 title={isCanvasLayout ? t('dashLayoutStacked') : t('dashLayoutCanvas')}
                 className={cn(
-                  'inline-flex items-center justify-center rounded-xl border p-2 transition-colors',
+                  'inline-flex h-8 w-8 items-center justify-center rounded-lg border transition-colors',
                   isCanvasLayout
                     ? 'border-brand-500/40 bg-brand-500/10 text-brand-700'
                     : 'border-border-subtle text-text-secondary hover:border-brand-500/30 hover:text-brand-300',
