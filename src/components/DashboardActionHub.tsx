@@ -53,6 +53,8 @@ interface Props {
   greetingTitle?: ReactNode;
   greetingSubtitle?: ReactNode;
   headerActions?: ReactNode;
+  /** KPI strip between greeting and workspace (Wave J-D02 mockup order). */
+  statsSlot?: ReactNode;
   /** Flush to shell top — no side/top gap under demo banner. */
   flushTop?: boolean;
 }
@@ -78,6 +80,7 @@ export function DashboardActionHub({
   greetingTitle,
   greetingSubtitle,
   headerActions,
+  statsSlot,
   flushTop = false,
 }: Props) {
   const { t } = useI18n();
@@ -152,7 +155,7 @@ export function DashboardActionHub({
       >
         <Icon className={cn('h-4 w-4', onHero ? 'text-brand-300' : 'text-brand-500')} aria-hidden />
         <span className={cn('truncate text-[10px] font-semibold leading-tight', onHero ? 'text-white' : 'text-text-primary')}>
-          {t(action.labelKey)}
+          {t(action.chipLabelKey)}
         </span>
         {action.badge && (
           <span className="absolute -right-1 -top-1 min-w-[1.1rem] rounded-full bg-accent-rose px-1 py-0.5 text-[9px] font-bold leading-none text-white">
@@ -205,26 +208,64 @@ export function DashboardActionHub({
             </div>
           )}
 
-          <div className="flex flex-wrap items-start justify-between gap-3">
-            <div id="dashboard-hero-personal-dates">
-              <p className="type-micro font-semibold uppercase tracking-wider opacity-80">
-                {t('dashboardHeroHubEyebrow')}
+          <div id="dashboard-hero-personal-dates" className="sr-only">
+            {(examDate || daysToExam !== null) && (
+              <p data-testid="dashboard-hero-personal-dates-summary">
+                {daysToExam !== null
+                  ? t('dashboardHeroDaysToExam').replace('{count}', String(daysToExam))
+                  : examDate
+                    ? t('dashboardHeroExamDate').replace('{date}', examDate)
+                    : null}
               </p>
-              {(examDate || daysToExam !== null) && (
-                <p className="mt-1 text-sm font-medium" data-testid="dashboard-hero-personal-dates-summary">
-                  {daysToExam !== null
-                    ? t('dashboardHeroDaysToExam').replace('{count}', String(daysToExam))
-                    : examDate
-                      ? t('dashboardHeroExamDate').replace('{date}', examDate)
-                      : null}
-                </p>
-              )}
-              <p className="mt-1 text-xs opacity-75">{t('dashboardHeroActionHint')}</p>
-            </div>
+            )}
           </div>
 
           <div className="space-y-3">
-            {/* I-D03: compact 4-chip row + overflow (reviews / dates / wallpaper) */}
+            {/* J-D02: KPI strip directly under greeting */}
+            {statsSlot}
+
+            {/* Study center before quick actions (canvas order) */}
+            {workspaceLive ? (
+              <div className={cn('rounded-xl overflow-hidden', glassCard)} data-testid="dashboard-hero-study-center">
+                <DashboardLivePreview live={workspaceLive} lang={lang} onOpenWorkspace={onOpenWorkspace} compact />
+              </div>
+            ) : (
+              <BlueprintSurface
+                nest
+                className={cn('p-3 sm:p-3.5', glassCard)}
+                data-testid="dashboard-hero-study-center"
+              >
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+                  <div className="min-w-0">
+                    <p className={cn('text-[10px] font-semibold uppercase tracking-[0.08em]', onHero ? 'text-white/80' : 'text-text-secondary')}>
+                      {t('dashboardLivePreviewEyebrow')}
+                    </p>
+                    <p className={cn('mt-1 text-sm font-medium', onHero ? 'text-white' : 'text-text-primary')}>
+                      {t('dashboardHeroHubSideTitle')}
+                    </p>
+                    <p className={cn('mt-0.5 text-xs leading-relaxed', onHero ? 'text-white/75' : 'text-text-secondary')}>
+                      {t('dashboardHeroHubSideBody')}
+                    </p>
+                  </div>
+                  {onOpenWorkspace && (
+                    <button
+                      type="button"
+                      onClick={onOpenWorkspace}
+                      className={cn(
+                        'shrink-0 self-start rounded-xl border px-3 py-2 text-xs font-semibold transition-colors sm:self-auto',
+                        onHero
+                          ? 'border-white/20 bg-white/10 text-white hover:bg-white/15'
+                          : 'border-brand-500/35 bg-brand-600/10 text-brand-800 hover:bg-brand-600/15',
+                      )}
+                    >
+                      {t('dashboardResumeContinue')}
+                    </button>
+                  )}
+                </div>
+              </BlueprintSurface>
+            )}
+
+            {/* I-D03 / J-D04: compact 4-chip row + overflow */}
             <div
               className="grid grid-cols-4 gap-2 sm:gap-2.5"
               data-testid="dashboard-hero-action-grid"
@@ -272,7 +313,7 @@ export function DashboardActionHub({
                           className="flex w-full items-center gap-2 px-3 py-2 text-left text-xs text-text-primary hover:bg-surface-hover/50"
                         >
                           <Icon className="h-3.5 w-3.5 shrink-0 text-brand-500" aria-hidden />
-                          <span className="min-w-0 flex-1 truncate">{t(action.labelKey)}</span>
+                          <span className="min-w-0 flex-1 truncate">{t(action.chipLabelKey)}</span>
                           {action.badge && (
                             <span className="rounded-full bg-accent-rose/15 px-1.5 py-0.5 text-[9px] font-bold text-accent-rose">
                               {action.badge}
@@ -284,44 +325,6 @@ export function DashboardActionHub({
                   </div>
                 )}
               </div>
-            )}
-
-            {/* Study center: compact full-width strip (never stretched beside cards) */}
-            {workspaceLive ? (
-              <div className={cn('rounded-xl overflow-hidden', glassCard)} data-testid="dashboard-hero-study-center">
-                <DashboardLivePreview live={workspaceLive} lang={lang} onOpenWorkspace={onOpenWorkspace} />
-              </div>
-            ) : (
-              <BlueprintSurface
-                nest
-                className={cn('p-3.5 sm:p-4', glassCard)}
-                data-testid="dashboard-hero-study-center"
-              >
-                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
-                  <div className="min-w-0">
-                    <p className={cn('text-sm font-medium', onHero ? 'text-white' : 'text-text-primary')}>
-                      {t('dashboardHeroHubSideTitle')}
-                    </p>
-                    <p className={cn('mt-1 text-xs leading-relaxed', onHero ? 'text-white/75' : 'text-text-secondary')}>
-                      {t('dashboardHeroHubSideBody')}
-                    </p>
-                  </div>
-                  {onOpenWorkspace && (
-                    <button
-                      type="button"
-                      onClick={onOpenWorkspace}
-                      className={cn(
-                        'shrink-0 self-start rounded-xl border px-3 py-2 text-xs font-semibold transition-colors sm:self-auto',
-                        onHero
-                          ? 'border-white/20 bg-white/10 text-white hover:bg-white/15'
-                          : 'border-brand-500/35 bg-brand-600/10 text-brand-800 hover:bg-brand-600/15',
-                      )}
-                    >
-                      {t('navStudyWorkspace')}
-                    </button>
-                  )}
-                </div>
-              </BlueprintSurface>
             )}
           </div>
         </div>

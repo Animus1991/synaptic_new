@@ -281,6 +281,7 @@ function OverviewTab({
   daysToExam: number | null;
 }) {
   const { t, lang } = useI18n();
+  const isLightTheme = useDocumentThemeIsLight();
   const { range } = useAnalyticsDateRange();
   const store = useAppStore();
   const [drillTile, setDrillTile] = useState<SubjectMasteryTile | null>(null);
@@ -419,10 +420,13 @@ function OverviewTab({
 
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="platform-panel-md">
           <h3 className="text-sm font-semibold flex items-center gap-2 mb-4"><Calendar className="w-4 h-4 text-accent-teal" />{t('analyticsStudyHeatmap')}</h3>
-          <div className="grid grid-cols-[repeat(13,1fr)] gap-[3px]">
+          <div className="grid grid-cols-[repeat(13,1fr)] gap-[3px]" data-testid="analytics-heatmap-grid">
             {learnerModel.heatmapData.slice(-91).map((day, i) => {
               const intensity = day.minutes === 0 ? 0 : day.minutes < 15 ? 1 : day.minutes < 30 ? 2 : day.minutes < 60 ? 3 : 4;
-              const colors = ['bg-surface-hover', 'bg-brand-900', 'bg-brand-700', 'bg-brand-500', 'bg-brand-400'];
+              // J-A01: warm sepia scale under warm-sand / light; keep brand ramp otherwise
+              const colors = isLightTheme
+                ? ['bg-[#ebe4d8]', 'bg-[#d4c4a8]', 'bg-[#b8956a]', 'bg-[#8a6440]', 'bg-[#5c4033]']
+                : ['bg-surface-hover', 'bg-brand-900', 'bg-brand-700', 'bg-brand-500', 'bg-brand-400'];
               return (
                 <div key={i} className={cn('heatmap-cell w-full aspect-square rounded-[2px]', colors[intensity])} title={formatHeatmapDayTooltip(day.date, day.minutes, lang)} />
               );
@@ -430,7 +434,10 @@ function OverviewTab({
           </div>
           <div className="flex items-center justify-end gap-1 mt-2 text-[9px] text-text-muted">
             <span>{t('analyticsHeatmapLess')}</span>
-            {['bg-surface-hover', 'bg-brand-900', 'bg-brand-700', 'bg-brand-500', 'bg-brand-400'].map((c, i) => (
+            {(isLightTheme
+              ? ['bg-[#ebe4d8]', 'bg-[#d4c4a8]', 'bg-[#b8956a]', 'bg-[#8a6440]', 'bg-[#5c4033]']
+              : ['bg-surface-hover', 'bg-brand-900', 'bg-brand-700', 'bg-brand-500', 'bg-brand-400']
+            ).map((c, i) => (
               <div key={i} className={cn('w-2.5 h-2.5 rounded-[2px]', c)} />
             ))}
             <span>{t('analyticsHeatmapMore')}</span>

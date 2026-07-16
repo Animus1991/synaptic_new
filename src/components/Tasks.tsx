@@ -440,12 +440,17 @@ export function Tasks({
                         <span>{task.courseName}</span>
                         <span>·</span>
                         <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{task.estimatedMinutes} min</span>
-                        {isRunningNow && (
-                          <span className="text-[10px] px-1.5 py-0.5 rounded-full ux-chip-info">{c.sessionRunningNow}</span>
-                        )}
                       </div>
                     </div>
                     <div className="flex items-center gap-2 shrink-0">
+                      {isRunningNow && (
+                        <span
+                          data-testid={`task-running-badge-${task.id}`}
+                          className="text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-md bg-[var(--color-warm-ink,#5c4033)] text-white"
+                        >
+                          {c.sessionRunningBadge}
+                        </span>
+                      )}
                       {task.priority === 'critical' && (
                         <span className="text-[10px] px-2 py-0.5 rounded-full ux-chip-error">{c.highPriority}</span>
                       )}

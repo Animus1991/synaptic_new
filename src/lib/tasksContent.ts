@@ -89,6 +89,8 @@ export type TasksContent = {
   entryHint: string;
   sessionActiveBanner: (label: string, current: number, total: number) => string;
   sessionRunningNow: string;
+  /** Compact uppercase badge on the running task card (mockup ΤΡΕΧΕΙ). */
+  sessionRunningBadge: string;
   sessionUpNext: (title: string) => string;
   sessionAutoAdvanceHint: string;
   sessionSectionEyebrow: string;
@@ -183,6 +185,7 @@ const EN: TasksContent = {
   entryHint: 'Start or resume a task, or launch a focused session — the queue bar shows which task runs next.',
   sessionActiveBanner: (label, current, total) => `${label} · Task ${current} of ${total}`,
   sessionRunningNow: 'Running now',
+  sessionRunningBadge: 'RUNNING',
   sessionUpNext: (title) => `Up next: ${title}`,
   sessionAutoAdvanceHint: 'Finish the current task to auto-advance to the next one in this session.',
   sessionSectionEyebrow: 'Focused sessions',
@@ -280,6 +283,7 @@ const EL: TasksContent = {
   entryHint: 'Ξεκίνα ή συνέχισε μια εργασία, ή εκκίνησε focused session — η ουρά δείχνει ποια εργασία τρέχει επόμενη.',
   sessionActiveBanner: (label, current, total) => `${label} · Εργασία ${current} από ${total}`,
   sessionRunningNow: 'Τρέχει τώρα',
+  sessionRunningBadge: 'ΤΡΕΧΕΙ',
   sessionUpNext: (title) => `Επόμενο: ${title}`,
   sessionAutoAdvanceHint: 'Ολοκλήρωσε την τρέχουσα εργασία για αυτόματη μετάβαση στην επόμενη της συνεδρίας.',
   sessionSectionEyebrow: 'Εστιασμένες συνεδρίες',

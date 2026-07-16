@@ -301,6 +301,15 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
           }
           headerActions={
             <>
+              {showWorkspaceResume && workspaceLive?.snapshot.activeConcept && !workspaceLive.snapshot.genericConcept && (
+                <span
+                  data-testid="dashboard-active-topic-pill"
+                  className="inline-flex max-w-[14rem] items-center truncate rounded-full border border-brand-500/30 bg-brand-500/10 px-2.5 py-1 text-[10px] font-semibold text-brand-800"
+                  title={workspaceLive.snapshot.activeConcept}
+                >
+                  {t('dashboardActiveTopic').replace('{topic}', workspaceLive.snapshot.activeConcept)}
+                </span>
+              )}
               {onOpenWorkspace && (
                 <button
                   type="button"
@@ -309,17 +318,33 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                   data-tour="dashboard-workspace-cta"
                   {...workspaceEntryPrefetchHandlers()}
                   className={cn(
-                    'flex items-center gap-2 px-4 py-2.5 border border-brand-500/40 text-brand-700 rounded-xl font-medium text-sm hover:bg-brand-600/10 transition-all whitespace-nowrap',
+                    'flex items-center gap-2 px-3 py-2 border border-brand-500/40 text-brand-700 rounded-xl font-medium text-xs hover:bg-brand-600/10 transition-all whitespace-nowrap',
                     workspaceBooting && 'opacity-70',
                   )}
                 >
-                  <Layout className="w-4 h-4" /> {t('navStudyWorkspace')}
+                  <Layout className="w-3.5 h-3.5" /> {t('navStudyWorkspace')}
                 </button>
               )}
-              <PrimaryCTA onClick={() => onStartSession?.('25min') ?? onNavigate('tasks')} className="whitespace-nowrap">
-                <Play className="w-4 h-4" /> {t('startSession')}
+              <PrimaryCTA onClick={() => onStartSession?.('25min') ?? onNavigate('tasks')} className="whitespace-nowrap text-xs px-3 py-2">
+                <Play className="w-3.5 h-3.5" /> {t('startSession')}
               </PrimaryCTA>
             </>
+          }
+          statsSlot={
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-2" data-testid="dashboard-page-stats">
+              <StatCard icon={<Flame className="w-3.5 h-3.5 text-accent-amber" />} label={t('dashboardStatStreak')} value={t('dashboardStatDaysSuffix').replace('{count}', String(pageStats.streak))} data-testid="dashboard-stat-streak" />
+              <StatCard icon={<Zap className="w-3.5 h-3.5 text-brand-400" />} label={t('dashboardStatTodayXp')} value={`${pageStats.todayXp}`} data-testid="dashboard-stat-today-xp" />
+              <StatCard
+                icon={<Target className="w-3.5 h-3.5 text-accent-teal" />}
+                label={t('dashboardStatReviewsDue')}
+                value={`${pageStats.reviewsDue}`}
+                onClick={pageStats.reviewsDue > 0 ? () => (onOpenTasksReview ? onOpenTasksReview() : onNavigate('tasks')) : undefined}
+                data-testid="dashboard-stat-reviews-due"
+                id="dashboard-stat-reviews-due"
+              />
+              <StatCard icon={<Brain className="w-3.5 h-3.5 text-accent-cyan" />} label={t('dashboardStatConceptsMastered')} value={`${pageStats.conceptsMastered}/${pageStats.totalConcepts}`} data-testid="dashboard-stat-concepts-mastered" />
+              <StatCard icon={<Clock className="w-3.5 h-3.5 text-accent-emerald" />} label={t('dashboardStatStudyToday')} value={t('dashboardStatStudyMinutes').replace('{count}', String(pageStats.studyMinutesToday))} data-testid="dashboard-stat-study-today" />
+            </div>
           }
         />
       </MotionSection>
@@ -342,22 +367,6 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
           />
         </MotionSection>
       )}
-
-      {/* Stats Row */}
-      <MotionSection initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="grid grid-cols-2 sm:grid-cols-5 gap-2 sm:gap-2.5" data-testid="dashboard-page-stats">
-        <StatCard icon={<Flame className="w-4 h-4 text-accent-amber" />} label={t('dashboardStatStreak')} value={t('dashboardStatDaysSuffix').replace('{count}', String(pageStats.streak))} data-testid="dashboard-stat-streak" />
-        <StatCard icon={<Zap className="w-4 h-4 text-brand-400" />} label={t('dashboardStatTodayXp')} value={`${pageStats.todayXp}`} data-testid="dashboard-stat-today-xp" />
-        <StatCard
-          icon={<Target className="w-4 h-4 text-accent-teal" />}
-          label={t('dashboardStatReviewsDue')}
-          value={`${pageStats.reviewsDue}`}
-          onClick={pageStats.reviewsDue > 0 ? () => (onOpenTasksReview ? onOpenTasksReview() : onNavigate('tasks')) : undefined}
-          data-testid="dashboard-stat-reviews-due"
-          id="dashboard-stat-reviews-due"
-        />
-        <StatCard icon={<Brain className="w-4 h-4 text-accent-cyan" />} label={t('dashboardStatConceptsMastered')} value={`${pageStats.conceptsMastered}/${pageStats.totalConcepts}`} data-testid="dashboard-stat-concepts-mastered" />
-        <StatCard icon={<Clock className="w-4 h-4 text-accent-emerald" />} label={t('dashboardStatStudyToday')} value={t('dashboardStatStudyMinutes').replace('{count}', String(pageStats.studyMinutesToday))} data-testid="dashboard-stat-study-today" />
-      </MotionSection>
 
       {!isEmpty && showAlertGrid && (
         <MotionSection initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.06 }}>
@@ -931,16 +940,16 @@ function StatCard({
         }
       } : undefined}
       className={cn(
-        'p-3 card-hover',
+        'p-2.5 card-hover',
         clickable && 'cursor-pointer hover:border-brand-500/30 hover:bg-surface-hover transition-colors',
         className,
       )}
     >
-      <div className="mb-1 flex items-center gap-1.5">
+      <div className="mb-0.5 flex items-center gap-1.5">
         {icon}
-        <span className="text-[10px] font-medium uppercase tracking-wide text-text-tertiary">{label}</span>
+        <span className="text-[9px] font-medium uppercase tracking-wide text-text-tertiary truncate">{label}</span>
       </div>
-      <p className="text-base font-bold tabular-nums leading-tight sm:text-lg">{value}</p>
+      <p className="text-sm font-bold tabular-nums leading-tight sm:text-base">{value}</p>
     </BlueprintSurface>
   );
 }
