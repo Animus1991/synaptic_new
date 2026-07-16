@@ -17,7 +17,7 @@ export function SectionLabel({
     <div className={cn('mb-2 flex items-center justify-between gap-2', className)}>
       <div className="flex min-w-0 items-center gap-1.5">
         {Icon && <Icon className="h-3.5 w-3.5 shrink-0 text-brand-600" aria-hidden />}
-        <p className="truncate text-[10px] font-semibold uppercase tracking-[0.08em] text-text-secondary">
+        <p className="ux-section-label-title truncate text-[10px] font-semibold uppercase tracking-[0.08em] text-text-secondary">
           {children}
         </p>
       </div>

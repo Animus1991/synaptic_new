@@ -431,8 +431,10 @@ function OverviewTab({
         </motion.div>
       )}
 
-      {/* Weekly mastery + Heatmap */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+      {/* Weekly mastery + Heatmap
+          Wave P-3 L03 — CSS multi-column masonry packs asymmetric chart cards
+          (parity with P-L01 Settings / P-L02 Courses-Concepts-Calibration). */}
+      <div className="lg:columns-2 lg:gap-3 [&>*]:mb-3 [&>*]:break-inside-avoid space-y-3 lg:space-y-0">
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="platform-panel-md">
           <h3 className="text-sm font-semibold flex items-center gap-2 mb-4"><TrendingUp className="w-4 h-4 text-accent-emerald" />{t('analyticsWeeklyTrend')}</h3>
           <div className="flex items-end gap-1.5 h-28">
@@ -575,10 +577,19 @@ function OverviewTab({
                 <div key={i} className="space-y-1">
                   <div className="flex items-center justify-between gap-2">
                     <span className="text-xs text-text-secondary truncate">{point.concept}</span>
-                    <span className={cn(
-                      'text-[10px] font-medium inline-flex items-center gap-0.5 shrink-0',
-                      gap > 0.2 ? (overconfident ? 'text-accent-rose' : 'text-accent-cyan') : 'text-accent-emerald',
-                    )}>
+                    {/* Wave P-3 C15 — over/under labels use --color-calibration-*
+                        tokens (theme-tuned ≥4.5:1 on white cards). */}
+                    <span
+                      className={cn(
+                        'text-[10px] font-medium inline-flex items-center gap-0.5 shrink-0',
+                        gap <= 0.2 && 'text-accent-emerald',
+                      )}
+                      style={gap > 0.2 ? {
+                        color: overconfident
+                          ? 'var(--color-calibration-over)'
+                          : 'var(--color-calibration-under)',
+                      } : undefined}
+                    >
                       {gap > 0.2
                         ? (overconfident
                           ? <><ArrowUpRight className="w-3 h-3" aria-hidden />{t('analyticsOverconfident')}</>
@@ -852,8 +863,8 @@ function MasteryTab({
           ))}
         </div>
       </motion.div>
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="rounded-panel border border-accent-amber/20 bg-accent-amber/5 p-5">
-        <h3 className="text-sm font-semibold flex items-center gap-2 mb-4"><AlertTriangle className="w-4 h-4 text-accent-amber" />{t('analyticsAlmostKnown')}</h3>
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="ux-banner-warn rounded-panel border border-accent-amber/20 bg-accent-amber/5 p-5">
+        <h3 className="ux-banner-warn-accent text-sm font-semibold flex items-center gap-2 mb-4"><AlertTriangle className="w-4 h-4" aria-hidden />{t('analyticsAlmostKnown')}</h3>
         <div className="space-y-3">
           {learnerModel.almostKnown.map(a => (
             <SkillBar key={a.concept} concept={a.concept} mastery={a.mastery} retention={a.retentionPrediction} count={a.practiceCount} color="amber" />

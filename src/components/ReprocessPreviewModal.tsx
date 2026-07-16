@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 import { AnimatePresence, motion } from 'framer-motion';
+import { emphasizedBackdropTransition, emphasizedTransition, scaleIn } from '../lib/motion';
 
 import { ArrowRight, CheckCircle2, Cpu, Maximize2, Minimize2, X } from '@/lib/lucide-shim';
 
@@ -258,6 +259,8 @@ export function ReprocessPreviewModal({
 
             exit={{ opacity: 0 }}
 
+            transition={emphasizedBackdropTransition}
+
             onClick={() => !applying && onClose()}
 
           />
@@ -272,11 +275,15 @@ export function ReprocessPreviewModal({
 
             data-testid="reprocess-preview-modal"
 
-            initial={{ opacity: 0, y: 24, scale: 0.98 }}
+            variants={scaleIn}
 
-            animate={{ opacity: 1, y: 0, scale: 1 }}
+            initial="initial"
 
-            exit={{ opacity: 0, y: 16, scale: 0.98 }}
+            animate="animate"
+
+            exit="exit"
+
+            transition={emphasizedTransition}
 
             className={cn(
 

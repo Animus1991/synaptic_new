@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { emphasizedTransition, expandHeight } from '../lib/motion';
 import {
   Search, Upload, BookOpen, FileText, ChevronRight, ChevronDown,
   Clock, BarChart3, Sparkles, Grid3X3, List, Loader2,
@@ -463,6 +464,7 @@ export function Library({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            transition={emphasizedTransition}
           >
             {!search.trim() && filteredCourses.length === 0 && (
               <button
@@ -569,6 +571,7 @@ export function Library({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            transition={emphasizedTransition}
           >
             {filteredFiles.length === 0 ? (
               <PlatformEmptyState
@@ -1204,9 +1207,11 @@ function FileItem({
       <AnimatePresence>
         {expanded && (outlinePreview || recognitionSnapshot) && (
           <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
+            variants={expandHeight}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            transition={emphasizedTransition}
             className="px-3 pb-3 space-y-3"
           >
             {recognitionSnapshot && (

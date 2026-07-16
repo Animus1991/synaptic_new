@@ -380,26 +380,26 @@ Replace anemic `bg-accent-rose/15` with proper solid CTA using the `.ux-chip-sol
 
 ---
 
-## 3.5. Sprint P-3 (tracked, hand-off — remaining items after P-2)
+## 3.5. Sprint P-3 — SHIPPED (2026-07-16) + Wave O-2 motion polish
 
-Downstream LLMs pick these up in order. Each row is a self-contained diff.
+**Focus**: residual contrast (theme picker, Almost There, HIGH PRIORITY pills, calibration labels), density (Analytics 2-col masonry, Tasks insight strip empty column, Combined study line-clamp), and Wave O Sprint O-2 motion unification (`src/lib/motion.ts` + remaining AnimatePresence callsites + CSS motion utilities).
 
-| ID | Surface | Priority | Fix pointer |
-| -- | ------- | -------- | ----------- |
-| P-C12 | Warm-light Interface theme selector active pill | P3 | Same treatment as P-L02 for warm-light. |
-| P-C13 | Dashboard `Almost There` amber banner text in spectrum | P3 | Bump amber banner title to `color-mix(in srgb, var(--palette-amber) 55%, #1a1430)` for spectrum only. |
-| P-C14 | Priority Tasks `HIGH PRIORITY` pill on white spectrum card | P3 | Migrate rose pill background to `.ux-chip-solid-danger` opt-in with `--color-on-danger` foreground. |
-| P-C15 | Analytics Calibration bars `Overestimation` / `Underestimation` triangles | P3 | Add `--color-calibration-over/under` token, WCAG-audit per theme. |
-| P-C16 | Blueprint tooltip small text (`+3d`, `+7d`) | P3 | Verify visual — should now pass with P-C07; if not, promote `--color-text-muted` +2%. |
-| P-L03 | Analytics `Weekly Mastery Trend` + `Study Heatmap` — pack 2-col even tighter when Heatmap sparse | P3 | Replace `grid-cols-1 lg:grid-cols-2 gap-3` with `lg:columns-2` masonry (parity with P-L02). |
-| P-L04 | Tasks page — spacing under "0 of 7 tasks complete" | P3 | Compress `space-y-6` → `space-y-4` for the KPI block. |
-| P-L05 | Library — Combined study card excess bottom padding on wide viewports | P3 | Trim `p-5` → `p-4` for cards with only 2 lines of content. |
-| P-D01 | Dark theme "Start exam simulation" residual | P3 | Verify screenshots for P-C05. |
-| P-D02 | Dark Priority Task rows — hover elevation | P3 | Add `.ux-elev-popover` on hover for row cards; keep spring off. |
-| P-S01 | Motion — remaining `AnimatePresence` sites (Tasks, Library, LessonView, ReprocessPreviewModal, workspace overlays) | P3 | Apply `[0.2, 0, 0, 1] @ 360 ms` transition explicitly. |
-| P-S02 | `src/lib/motion.ts` — export shared `fadeUp`, `slideIn`, `scaleIn` variants | P3 | New helper file; reference from callsites. |
-| P-S03 | `.ux-motion-fade-in` / `.ux-motion-slide-in` CSS utilities | P3 | For non-framer callsites; respect `prefers-reduced-motion` in `@media`. |
-| P-S04 | `whileHover` / `whileTap` audit | P3 | Verify framer-motion v12 auto-disables under `reducedMotion="user"`. Ship no diff if verified. |
+| ID | Surface | Status | Fix shipped |
+| -- | ------- | ------ | ----------- |
+| **P-C12** | Settings ThemePicker active chip | ✅ | `.ux-theme-chip-active` — brand-700 ink on light/warm/spectrum; brand-300 on dark/blueprint. Replaces `text-brand-300` which failed ~2:1 on warm-light. |
+| **P-C13** | Almost There amber banner (Dashboard + Analytics + Tasks) | ✅ | `--color-banner-warn-ink` (spectrum = `amber 55% + #1a1430`); `.ux-banner-warn` + `.ux-section-label-title` / `.ux-banner-warn-accent`. |
+| **P-C14** | HIGH/CRITICAL priority pills | ✅ | Dashboard → `.ux-chip-solid-danger` / `.ux-chip-solid-warn`; Tasks HIGH PRIORITY badge → `.ux-chip-solid-danger`. |
+| **P-C15** | Calibration over/under labels | ✅ | `--color-calibration-over` / `--color-calibration-under` per theme; Analytics labels bind via inline style. |
+| **P-C16** | Blueprint muted small text | ✅ verify | Covered by P-C07 (no further bump needed). |
+| **P-L03** | Analytics Weekly Mastery + Heatmap row | ✅ | `lg:columns-2` masonry + `break-inside-avoid`. |
+| **P-L04** | Tasks insight strip empty column | ✅ | 2-col grid only when both Almost There + Recall Reminder present; else single column. |
+| **P-L05** | Library Combined study promo | ✅ | `line-clamp-2` → `line-clamp-1` when collapsed. |
+| **P-D01** | Dark Start Exam CTA | ✅ verify | Covered by P-C05 (`.ux-chip-solid-danger`). |
+| **P-D02** | Dark Priority Task row hover elev | ✅ | `hover:[box-shadow:var(--elev-popover)]` on Dashboard Priority Task rows. |
+| **P-S01 / O-M06** | Remaining AnimatePresence | ✅ | Tasks, Library (tabs + expand), LessonView, ReprocessPreviewModal, workspace CommandPalette / MiniDashboard / AnnotationOverlay / FormulaScratchpad → `emphasizedTransition`. |
+| **P-S02 / O-M09** | `src/lib/motion.ts` | ✅ | Exports `emphasizedTransition`, `emphasizedBackdropTransition`, `fadeUp`, `slideIn`, `scaleIn`, `expandHeight`. |
+| **P-S03 / O-M07** | CSS motion utilities | ✅ | `.ux-motion-fade-in` / `.ux-motion-slide-in` + `@media (prefers-reduced-motion: reduce)`. |
+| **P-S04 / O-M08** | whileHover / whileTap audit | ✅ verify | Grep: **zero** `whileHover`/`whileTap` callsites in `src/`. Global `MotionConfig reducedMotion="user"` covers all framer-motion. No code change required. |
 
 ---
 
@@ -415,11 +415,11 @@ Downstream LLMs walk each **Page × Theme** cell of this matrix. For each cell:
 | Page | Component | Dark | Warm-light | Warm-sand | Spectrum | Blueprint |
 | ---- | --------- | ---- | ---------- | --------- | -------- | --------- |
 | Dashboard | KPI stripe | pass | pass | pass | ✏️ verify | ✏️ verify |
-| Dashboard | Priority Task rows | pass | pass | pass | ⚠️ pills (P-C09) | pass |
+| Dashboard | Priority Task rows | ✅ (P-D02 elev) | pass | pass | ✅ (P-C14 chips) | pass |
 | Dashboard | Weak Areas bars | pass | ✅ (P-C04) | ✅ (P-C04) | ✅ (P-C04) | pass |
 | Dashboard | Upcoming Exam bar + Start Exam CTA | ✅ (P-C05) | pass | pass | ✅ (P-C05) | pass |
 | Dashboard | Concept Mastery bars | pass | ✅ (P-C08g) | ✅ (P-C08g) | ✅ (P-C08g) | pass |
-| Dashboard | Almost There banner | pass | pass | pass | ⚠️ (P-C13) | pass |
+| Dashboard | Almost There banner | pass | pass | pass | ✅ (P-C13) | pass |
 | Dashboard | Active Courses card progress | pass | ✅ (P-C08d) | ✅ (P-C08d) | ✅ (P-C08d) | ✅ (P-C08d) |
 | Dashboard | Readiness Ring signal bars | pass | ✅ (P-C08i) | ✅ (P-C08i) | ✅ (P-C08i) | pass |
 | Dashboard | Recent Calibration bar | pass | ✅ (P-C09) | ✅ (P-C09) | ✅ (P-C09) | pass |
@@ -428,10 +428,10 @@ Downstream LLMs walk each **Page × Theme** cell of this matrix. For each cell:
 | Analytics | FSRS forecast row | ✅ (P-C02) | ✅ (P-C02) | ✅ (P-C02) | ✅ (P-C02) | ✅ (P-C02) |
 | Analytics | Study Heatmap | pass | ✅ (P-C03) | ✅ (P-C03) | ✅ (P-C03) | ✅ (P-C03) |
 | Analytics | 3-col Courses / Concepts / Calibration row | ✅ (P-L02+P-C08a–c+P-C08h) | ✅ (P-L02+P-C08a–c+P-C08h) | ✅ (P-L02+P-C08a–c+P-C08h) | ✅ (P-L02+P-C08a–c+P-C08h) | ✅ (P-L02) |
-| Analytics | Calibration bars | pass | pass | pass | ✏️ verify | ✏️ (P-C15) |
+| Analytics | Calibration bars | pass | ✅ (P-C15) | ✅ (P-C15) | ✅ (P-C15) | pass |
 | Analytics | Subject Mastery mini-progress | pass | pass | pass | ✏️ verify | pass |
 | Tasks | Focused-session cards | pass | pass | pass | ✏️ verify | pass |
-| Tasks | Task row Priority pill | pass | ✏️ verify | ✏️ verify | ⚠️ (P-C14) | pass |
+| Tasks | Task row Priority pill | pass | ✅ (P-C14) | ✅ (P-C14) | ✅ (P-C14) | pass |
 | Tasks | Filter tabs | pass | pass | pass | ✏️ verify | pass |
 | Library | Course cards + tags | pass | pass | pass | ✏️ (P-C08p+P-C08q+P-C08r shipped) | pass |
 | Library | File chips | pass | pass | pass | ✏️ verify | pass |
@@ -439,9 +439,9 @@ Downstream LLMs walk each **Page × Theme** cell of this matrix. For each cell:
 | Agent | Source picker embedded | pass | pass | pass | pass | pass |
 | Workspace | Sources column | pass | pass | pass | pass | pass |
 | Workspace | Studio tool cards | pass | pass | pass | pass | pass |
-| Settings | Sub-nav pills | pass | pass | pass | ⚠️ (P-L02) | pass |
-| Settings | Section cards | ⚠️ (P-L01) | ⚠️ (P-L01) | ⚠️ (P-L01) | ⚠️ (P-L01) | ⚠️ (P-L01) |
-| Settings | Interface theme selector | pass | ⚠️ (P-C12) | pass | pass | pass |
+| Settings | Sub-nav pills | pass | pass | pass | pass | pass |
+| Settings | Section cards | ✅ (P-L01) | ✅ (P-L01) | ✅ (P-L01) | ✅ (P-L01) | ✅ (P-L01) |
+| Settings | Interface theme selector | pass | ✅ (P-C12) | ✅ (P-C12) | ✅ (P-C12) | pass |
 | Onboarding | Step motion | pass | pass | pass | pass | pass |
 | Modals | ConfirmDialog | pass | pass | pass | pass | pass |
 | Modals | UploadModal panel | pass | pass | pass | pass | pass |

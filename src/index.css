@@ -85,6 +85,12 @@
   --color-heatmap-scale-3: color-mix(in srgb, var(--color-brand-500) 65%, var(--color-surface-card));
   --color-heatmap-scale-4: var(--color-brand-400);
 
+  /* Wave P-3 C15 — calibration over/under ink (WCAG ≥4.5:1 on card). */
+  --color-calibration-over: var(--color-accent-rose);
+  --color-calibration-under: var(--color-accent-cyan);
+  /* Wave P-3 C13 — warn-banner title ink (Almost There etc.). */
+  --color-banner-warn-ink: var(--palette-amber);
+
   --viz-grid-line: #16161b;
 
   /* Mastery bands + spectrum palette (dark defaults — softened, still distinct) */
@@ -251,6 +257,9 @@
   --color-heatmap-scale-2: #b8956a;
   --color-heatmap-scale-3: #8a6440;
   --color-heatmap-scale-4: #5c4033;
+  /* Wave P-3 C15 — darker calibration ink on white card (≥4.5:1). */
+  --color-calibration-over: #b4233c;
+  --color-calibration-under: #0e7490;
 
   /* Harmonized earth accents — sage green aligned to sand family */
   --mastery-weak: #8f6860;
@@ -341,6 +350,8 @@
   --color-heatmap-scale-2: #b8956a;
   --color-heatmap-scale-3: #8a6440;
   --color-heatmap-scale-4: #5c4033;
+  --color-calibration-over: #b4233c;
+  --color-calibration-under: #0e7490;
 
   color-scheme: light;
 }
@@ -583,6 +594,12 @@
   --color-heatmap-scale-2: #a894ff;
   --color-heatmap-scale-3: #7b61ff;
   --color-heatmap-scale-4: #4a32b0;
+  /* Wave P-3 C13 — Almost There / amber banner titles: mix 55% amber into
+     deep spectrum ink so contrast vs peach banner bg clears 4.5:1. */
+  --color-banner-warn-ink: color-mix(in srgb, var(--palette-amber) 55%, #1a1430);
+  /* Wave P-3 C15 — calibration labels on white lavender card. */
+  --color-calibration-over: color-mix(in srgb, var(--palette-rose) 55%, #1a1430);
+  --color-calibration-under: color-mix(in srgb, var(--palette-cyan) 45%, #1a1430);
 
   color-scheme: light;
 
@@ -3655,6 +3672,52 @@ input[type="range"]::-webkit-slider-thumb {
 .ux-chip-solid-info {
   background: var(--color-accent-cyan);
   color: var(--color-on-info);
+}
+
+/* Wave P-3 C12 — Settings theme picker active chip. Uses brand-700 ink on light
+   themes (brand-300 was too pale on warm-light white cards) and brand-300 on dark. */
+.ux-theme-chip-active {
+  border-color: color-mix(in srgb, var(--color-brand-600) 40%, var(--color-border-subtle));
+  background: color-mix(in srgb, var(--color-brand-600) 14%, var(--color-surface-card));
+  color: var(--color-brand-700);
+  font-weight: 600;
+}
+[data-theme="dark"] .ux-theme-chip-active {
+  color: var(--color-brand-300);
+}
+[data-theme="blueprint"] .ux-theme-chip-active {
+  color: var(--color-brand-300);
+}
+
+/* Wave P-3 C13 — warn banner title ink (Almost There etc.). */
+.ux-banner-warn .ux-section-label-title {
+  color: var(--color-banner-warn-ink);
+}
+.ux-banner-warn .ux-banner-warn-accent {
+  color: var(--color-banner-warn-ink);
+}
+
+/* Wave O-M07 / P-S03 — CSS motion utilities for non-framer callsites.
+   Respect prefers-reduced-motion so they collapse to instant. */
+.ux-motion-fade-in {
+  animation: ux-fade-in var(--motion-duration-emphasized) var(--motion-ease-emphasized) both;
+}
+.ux-motion-slide-in {
+  animation: ux-slide-in var(--motion-duration-emphasized) var(--motion-ease-emphasized) both;
+}
+@keyframes ux-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes ux-slide-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ux-motion-fade-in,
+  .ux-motion-slide-in {
+    animation: none;
+  }
 }
 
 @layer base {

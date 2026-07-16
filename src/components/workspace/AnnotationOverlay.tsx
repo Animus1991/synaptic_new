@@ -1,5 +1,6 @@
 import { useState, useRef, useCallback, useEffect, useMemo, type MouseEvent } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { emphasizedTransition, fadeUp } from '../../lib/motion';
 import { MessageSquare, Pin, X, Tag, Wand2, BookOpen, AlertTriangle, FileText } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
 import { useI18n } from '../../lib/i18n';
@@ -691,9 +692,11 @@ export function AnnotationOverlay({
       <AnimatePresence>
         {addingAt !== null && (
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
+            variants={fadeUp}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            transition={emphasizedTransition}
             className="absolute bottom-0 left-0 right-0 p-3 glass-strong border-t border-border-subtle z-10"
           >
             <p className="text-xs font-semibold mb-2 inline-flex items-center gap-1.5">

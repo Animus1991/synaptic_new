@@ -82,7 +82,8 @@ export function CrossLibrarySynthesisPanel({ courses, settings, lang, className 
         </span>
         <span className="min-w-0 flex-1">
           <span className="block text-xs font-semibold text-text-primary">{title}</span>
-          <span className="block text-[10px] text-violet-300/80 line-clamp-2">{promo}</span>
+          {/* Wave P-3 L05 — single-line promo when collapsed keeps the card dense. */}
+          <span className="block text-[10px] text-violet-300/80 line-clamp-1">{promo}</span>
         </span>
         <button
           type="button"

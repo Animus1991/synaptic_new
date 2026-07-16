@@ -748,8 +748,10 @@ function ThemePickerRow({
               onClick={() => onChange(opt.value)}
               className={cn(
                 'inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-[11px] font-medium transition-all',
+                /* Wave P-3 C12 — .ux-theme-chip-active uses brand-700 ink on light
+                   themes (brand-300 collapsed to ~2:1 on warm-light white cards). */
                 active
-                  ? 'border-brand-500/35 bg-brand-600/20 text-brand-300'
+                  ? 'ux-theme-chip-active'
                   : 'border-border-subtle text-text-tertiary hover:text-text-secondary hover:border-brand-500/25',
               )}
               aria-pressed={active}

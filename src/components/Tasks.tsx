@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { emphasizedTransition, expandHeight } from '../lib/motion';
 import {
   CheckCircle2, Circle, Clock, AlertTriangle, RotateCcw, Calendar,
   Play, Flame, Brain, Target, Zap,
@@ -359,15 +360,22 @@ export function Tasks({
             </UxCallout>
           )}
           {showInsightStrip && (
+            /* Wave P-3 L04 — only use 2-col grid when both insight cards are
+               present; a single card previously left a large empty right column. */
             <div
-              className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-2"
+              className={cn(
+                'gap-2 mb-2',
+                almostKnownPreview.length > 0 && antiPassiveAlert
+                  ? 'grid grid-cols-1 sm:grid-cols-2'
+                  : 'flex flex-col',
+              )}
               data-testid="tasks-insight-strip"
             >
               {almostKnownPreview.length > 0 && (
-                <div className="rounded-xl border border-accent-amber/25 bg-accent-amber/5 p-3 space-y-1.5">
+                <div className="ux-banner-warn rounded-xl border border-accent-amber/25 bg-accent-amber/5 p-3 space-y-1.5">
                   <div className="flex items-center gap-1.5">
-                    <TrendingUp className="w-3.5 h-3.5 text-accent-amber shrink-0" aria-hidden />
-                    <p className="text-[10px] font-semibold uppercase tracking-wide text-accent-amber">
+                    <TrendingUp className="w-3.5 h-3.5 ux-banner-warn-accent shrink-0" aria-hidden />
+                    <p className="ux-banner-warn-accent text-[10px] font-semibold uppercase tracking-wide">
                       {c.almostThereTitle}
                     </p>
                   </div>
@@ -468,12 +476,11 @@ export function Tasks({
                         </span>
                       )}
                       {(task.priority === 'critical' || task.priority === 'high') && (
+                        /* Wave P-3 C14 — solid danger chip for HIGH PRIORITY on
+                           white spectrum/warm cards (replaces translucent rose). */
                         <span
                           data-testid={`task-priority-badge-${task.id}`}
-                          className={cn(
-                            'text-[9px] font-bold uppercase tracking-[0.06em] px-2 py-0.5 rounded-md',
-                            task.priority === 'critical' ? 'ux-chip-error' : 'bg-accent-rose/12 text-accent-rose border border-accent-rose/25',
-                          )}
+                          className="ux-chip-solid-danger text-[9px] font-bold uppercase tracking-[0.06em] px-2 py-0.5 rounded-md"
                         >
                           {c.highPriority}
                         </span>
@@ -489,7 +496,14 @@ export function Tasks({
                   </div>
                   <AnimatePresence>
                     {isExpanded && (
-                      <motion.div initial={{ height: 0 }} animate={{ height: 'auto' }} exit={{ height: 0 }} className="overflow-hidden border-t border-border-subtle">
+                      <motion.div
+                        variants={expandHeight}
+                        initial="initial"
+                        animate="animate"
+                        exit="exit"
+                        transition={emphasizedTransition}
+                        className="overflow-hidden border-t border-border-subtle"
+                      >
                         {/* L-T02: high-priority / flashcard expand chrome */}
                         <div
                           className={cn(

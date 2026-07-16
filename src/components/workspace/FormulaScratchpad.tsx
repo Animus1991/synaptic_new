@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { emphasizedTransition, fadeUp } from '../../lib/motion';
 import { Plus, RotateCcw, Copy, Check, PenSquare, LineChart, Sparkles, ShieldCheck, Loader2, Calculator } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
 import { inferVariablesFromFormula, evaluateFormulaExpression, type FormulaVariable } from '../../lib/formulaSolver';
@@ -427,8 +428,14 @@ export function FormulaScratchpad({
               {/* Steps output */}
               <AnimatePresence>
                 {steps.length > 0 && (
-                  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
-                    className="ux-tier-b-panel p-4 rounded-xl bg-surface-primary/60 border border-border-subtle space-y-2">
+                  <motion.div
+                    variants={fadeUp}
+                    initial="initial"
+                    animate="animate"
+                    exit="exit"
+                    transition={emphasizedTransition}
+                    className="ux-tier-b-panel p-4 rounded-xl bg-surface-primary/60 border border-border-subtle space-y-2"
+                  >
                     <div className="flex items-center justify-between mb-1">
                       <span className="text-[10px] text-text-muted font-medium">Solution</span>
                       <button onClick={copyResult} className="flex items-center gap-1 text-[10px] text-text-muted hover:text-text-secondary">

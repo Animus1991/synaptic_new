@@ -60,14 +60,14 @@ Wave A–N: hero IA, hub chips, Create Plan secondary, shell utilities, retentio
 
 ---
 
-## 5. Sprint O-2 (tracked, no omission)
+## 5. Sprint O-2 — SHIPPED (2026-07-16, co-shipped with Wave P Sprint P-3)
 
-| ID | Item | Priority |
-| -- | ---- | -------- |
-| O-M06 | Migrate remaining AnimatePresence callsites (Tasks, Library, LessonView, ReprocessPreviewModal, workspace overlays) σε explicit emphasized transition για uniformity | P3 |
-| O-M07 | Introduce `.ux-motion-fade-in` / `.ux-motion-slide-in` CSS utilities που respect `prefers-reduced-motion` — για non-framer callsites | P3 |
-| O-M08 | Audit `whileHover` / `whileTap` callsites και ensure τα ξεκινούν από `initial` value όταν reduced-motion (framer-motion 12 το κάνει auto, verify only) | P3 |
-| O-M09 | Add `variants` object exports για shared motion patterns (`fadeUp`, `slideIn`, `scaleIn`) στο `src/lib/motion.ts` | P3 |
+| ID | Item | Status |
+| -- | ---- | ------ |
+| **O-M06** | Remaining AnimatePresence → emphasized transition (Tasks expand, Library tabs/expand, LessonView steps, ReprocessPreviewModal backdrop+panel, workspace CommandPalette / MiniDashboard / AnnotationOverlay / FormulaScratchpad) | ✅ |
+| **O-M07** | `.ux-motion-fade-in` / `.ux-motion-slide-in` CSS utilities + `prefers-reduced-motion: reduce` kill-switch | ✅ |
+| **O-M08** | `whileHover` / `whileTap` audit | ✅ verify — **zero** callsites in `src/`; `MotionConfig reducedMotion="user"` covers all framer-motion. No diff. |
+| **O-M09** | `src/lib/motion.ts` — `emphasizedTransition`, `emphasizedBackdropTransition`, `fadeUp`, `slideIn`, `scaleIn`, `expandHeight` | ✅ |
 
 ---
 

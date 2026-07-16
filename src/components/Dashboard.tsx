@@ -588,7 +588,9 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                       onStartTask?.(task.id);
                     }
                   }}
-                  className="flex items-center gap-3 p-3 rounded-xl hover:bg-surface-hover transition-all cursor-pointer group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60">
+                  /* Wave P-3 D02 — soft elev-popover on hover for Priority Task rows
+                      (dark theme especially); no spring — CSS transition only. */
+                  className="flex items-center gap-3 p-3 rounded-xl hover:bg-surface-hover hover:[box-shadow:var(--elev-popover)] transition-all cursor-pointer group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60">
                   <CourseIcon icon={task.courseIcon} size="sm" colorClassName="text-brand-500 shrink-0" />
                   <TaskActionIcon task={task} size="xs" />
                   <div className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: resolveCourseColor(task.courseColor) }} />
@@ -597,8 +599,11 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                     <p className="text-xs text-text-tertiary mt-0.5">{task.courseName} · {taskDurationLabel(task.estimatedMinutes, t)}</p>
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
-                    <span className={cn('text-xs font-medium px-2 py-0.5 rounded-full',
-                      task.priority === 'critical' ? 'bg-accent-rose/15 text-accent-rose' : 'bg-accent-amber/15 text-accent-amber'
+                    {/* Wave P-3 C14 — solid on-accent chips so HIGH/CRITICAL pills
+                        clear WCAG AA on white spectrum + warm-light cards. */}
+                    <span className={cn(
+                      'text-[10px] font-semibold px-2 py-0.5 rounded-full',
+                      task.priority === 'critical' ? 'ux-chip-solid-danger' : 'ux-chip-solid-warn',
                     )}>{taskPriorityLabel(task.priority, t)}</span>
                     <span className="text-xs text-accent-amber">{taskXpLabel(task.xpReward, t)}</span>
                   </div>
@@ -791,14 +796,16 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
 
           {/* Almost Known */}
           {learnerModel.almostKnown.length > 0 && (
-            <div className="rounded-panel border border-accent-amber/20 bg-accent-amber/5 p-5">
+            /* Wave P-3 C13 — ux-banner-warn drives --color-banner-warn-ink so the
+               title + mastery % clear 4.5:1 on spectrum peach banners. */
+            <div className="ux-banner-warn rounded-panel border border-accent-amber/20 bg-accent-amber/5 p-5">
               <SectionLabel icon={Lightbulb}>{t('dashAlmostThere')}</SectionLabel>
               <p className="text-xs text-text-tertiary mb-3">{t('dashAlmostThereHint')}</p>
               <div className="space-y-2">
                 {learnerModel.almostKnown.map(a => (
                   <div key={a.concept} className="flex items-center justify-between">
                     <span className="text-xs font-medium">{a.concept}</span>
-                    <span className="text-xs text-accent-amber">{a.mastery}%</span>
+                    <span className="ux-banner-warn-accent text-xs">{a.mastery}%</span>
                   </div>
                 ))}
               </div>

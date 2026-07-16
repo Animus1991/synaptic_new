@@ -1,5 +1,6 @@
 import { useState, type ReactNode } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { emphasizedTransition } from '../../lib/motion';
 import { ChevronUp, ChevronDown, Brain, AlertTriangle, Target, Zap, RotateCcw, BookOpen, Clock, BarChart3, Play } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
 import { useI18n, type I18nKey } from '../../lib/i18n';
@@ -102,7 +103,7 @@ export function MiniDashboard({
 
       <AnimatePresence>
         {(!collapsed || embedded) && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={emphasizedTransition}>
             {/* Tabs */}
             <div className="flex border-b border-border-subtle">
               {(['overview', 'weak', 'next'] as const).map((tab) => (
