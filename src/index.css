@@ -14,13 +14,15 @@
   --color-brand-900: #1e3a8a;
   --color-brand-950: #172554;
 
-  --color-accent-teal: #2dd4bf;
-  --color-accent-cyan: #22d3ee;
-  --color-accent-emerald: #34d399;
-  --color-accent-amber: #fbbf24;
-  --color-accent-rose: #fb7185;
-  --color-accent-orange: #fb923c;
-  --color-accent-violet: #a78bfa;
+  /* Complementary accents (dark SoT) — warmer / lower chroma than neon Tailwind
+     defaults so charts & chips rest easier on near-black; brand blue untouched. */
+  --color-accent-teal: #5aafa0;
+  --color-accent-cyan: #6aadc0;
+  --color-accent-emerald: #5aad8c;
+  --color-accent-amber: #c9a24a;
+  --color-accent-rose: #c4848c;
+  --color-accent-orange: #c99468;
+  --color-accent-violet: #8f88c4;
 
   /* Dark theme (default) — editorial near-black with cool slate undertone.
      Elevation steps widened (F: reduce dark-on-dark flatness) so panels and
@@ -96,18 +98,18 @@
 
   --viz-grid-line: #16161b;
 
-  /* Mastery bands + spectrum palette (dark defaults — softened, still distinct) */
-  --mastery-weak: #e07a88;
-  --mastery-developing: #68b8de;
-  --mastery-proficient: #d4a84a;
-  --mastery-strong: #52c49a;
-  --palette-purple: #9b92f0;
-  --palette-cyan: #5ec8e8;
-  --palette-teal: #4ec9b8;
-  --palette-green: #52c49a;
-  --palette-amber: #d4a84a;
-  --palette-rose: #e07a88;
-  --palette-orange: #e09858;
+  /* Mastery + spectrum palette (dark) — warm, muted, still band-distinct */
+  --mastery-weak: #c4848c;
+  --mastery-developing: #6aadc0;
+  --mastery-proficient: #c9a24a;
+  --mastery-strong: #5aad8c;
+  --palette-purple: #8f88c4;
+  --palette-cyan: #6aadc0;
+  --palette-teal: #5aafa0;
+  --palette-green: #5aad8c;
+  --palette-amber: #c9a24a;
+  --palette-rose: #c4848c;
+  --palette-orange: #c99468;
 
   /* Light theme is the typography SoT for every theme (optical size parity). */
   --font-sans: 'Nunito Sans', 'Noto Sans', 'Noto Sans Greek', system-ui, -apple-system, sans-serif;
@@ -268,18 +270,19 @@
   --color-banner-warn-ink: color-mix(in srgb, var(--palette-amber) 55%, #352c23);
   --color-banner-warn-border: color-mix(in srgb, var(--color-banner-warn-ink) 58%, var(--color-border-subtle));
 
-  /* Harmonized earth accents — sage green aligned to sand family */
-  --mastery-weak: #8f6860;
-  --mastery-developing: #6a7888;
-  --mastery-proficient: #857048;
-  --mastery-strong: #667872;
-  --palette-purple: #756888;
-  --palette-cyan: #687888;
-  --palette-teal: #647870;
-  --palette-green: #667872;
-  --palette-amber: #857048;
-  --palette-rose: #8f6860;
-  --palette-orange: #8a7660;
+  /* Earth accents — slightly richer/warmer than pure taupe so light feels less
+     flat, still hugging brand brown (#80551f). Brand scale unchanged. */
+  --mastery-weak: #9a6558;
+  --mastery-developing: #6a7a7e;
+  --mastery-proficient: #9a7848;
+  --mastery-strong: #5f7a68;
+  --palette-purple: #7a6680;
+  --palette-cyan: #687a80;
+  --palette-teal: #5f7870;
+  --palette-green: #5f7a68;
+  --palette-amber: #9a7848;
+  --palette-rose: #9a6558;
+  --palette-orange: #9a7050;
 
   --color-accent-emerald: var(--palette-green);
   --color-accent-amber: var(--palette-amber);
@@ -358,8 +361,28 @@
   --color-heatmap-scale-4: #5c4033;
   --color-calibration-over: #b4233c;
   --color-calibration-under: #0e7490;
-  --color-banner-warn-ink: color-mix(in srgb, #857048 55%, #352c23);
+  --color-banner-warn-ink: color-mix(in srgb, #9a7848 55%, #352c23);
   --color-banner-warn-border: color-mix(in srgb, var(--color-banner-warn-ink) 58%, var(--color-border-subtle));
+
+  /* Match light complementary accents when warm-sand is root theme */
+  --mastery-weak: #9a6558;
+  --mastery-developing: #6a7a7e;
+  --mastery-proficient: #9a7848;
+  --mastery-strong: #5f7a68;
+  --palette-purple: #7a6680;
+  --palette-cyan: #687a80;
+  --palette-teal: #5f7870;
+  --palette-green: #5f7a68;
+  --palette-amber: #9a7848;
+  --palette-rose: #9a6558;
+  --palette-orange: #9a7050;
+  --color-accent-emerald: var(--palette-green);
+  --color-accent-amber: var(--palette-amber);
+  --color-accent-orange: var(--palette-orange);
+  --color-accent-teal: var(--palette-teal);
+  --color-accent-rose: var(--palette-rose);
+  --color-accent-cyan: var(--palette-cyan);
+  --color-accent-violet: var(--palette-purple);
 
   color-scheme: light;
 }
@@ -617,18 +640,19 @@
 
   color-scheme: light;
 
-  /* Original vibrant spectrum accents */
-  --mastery-weak: #ff7b8a;
-  --mastery-developing: #5ecfff;
-  --mastery-proficient: #f5c842;
-  --mastery-strong: #34d399;
-  --palette-purple: #9b8cff;
-  --palette-cyan: #5ecfff;
-  --palette-teal: #2dd4bf;
-  --palette-green: #34d399;
-  --palette-amber: #f5c842;
-  --palette-rose: #ff7b8a;
-  --palette-orange: #ff9f6b;
+  /* Spectrum complements — desaturated + warm, pulled toward violet brand
+     (keeps lavender identity without rainbow neon on white cards). */
+  --mastery-weak: #b87884;
+  --mastery-developing: #7a9ab8;
+  --mastery-proficient: #c4a050;
+  --mastery-strong: #5a9a84;
+  --palette-purple: #8b7ed4;
+  --palette-cyan: #7a9ab8;
+  --palette-teal: #5a9a90;
+  --palette-green: #5a9a84;
+  --palette-amber: #c4a050;
+  --palette-rose: #b87884;
+  --palette-orange: #c09068;
 
   --color-accent-emerald: var(--palette-green);
   --color-accent-amber: var(--palette-amber);
@@ -656,7 +680,7 @@
 }
 
 [data-theme="spectrum"] .gradient-text {
-  background: linear-gradient(135deg, #9b8cff 0%, #5ecfff 35%, #34d399 70%, #f5c842 100%);
+  background: linear-gradient(135deg, #8b7ed4 0%, #7a9ab8 40%, #c4a050 100%);
   -webkit-background-clip: text;
   background-clip: text;
 }
@@ -782,7 +806,7 @@
   /* Wave N — SoT overrides for blueprint (cyan glass identity preserved) */
   --color-surface-pressed: color-mix(in srgb, #ffffff 12%, #1e293b);
   --color-surface-hover-strong: color-mix(in srgb, #ffffff 10%, #1e293b);
-  --color-focus-ring: #67e8f9;
+  --color-focus-ring: var(--color-brand-300);
   --focus-ring-offset: 2px;
   --color-on-brand: #020617;
   --color-on-danger: #020617;
@@ -822,30 +846,31 @@
   --color-brand-900: #164e63;
   --color-brand-950: #083344;
 
-  --color-accent-teal: #14b8a6;
-  --color-accent-cyan: #67e8f9;
-  --color-accent-emerald: #6ee7b7;
-  --color-accent-amber: #fbbf24;
-  --color-accent-rose: #f87171;
-  --color-accent-orange: #fb923c;
-  --color-accent-violet: #a78bfa;
+  /* Complements — calmer/warmer than neon cyan-glass; brand cyan scale kept. */
+  --color-accent-teal: #3d9a90;
+  --color-accent-cyan: #5bb8c8;
+  --color-accent-emerald: #4fae90;
+  --color-accent-amber: #c9a24a;
+  --color-accent-rose: #c47878;
+  --color-accent-orange: #c99468;
+  --color-accent-violet: #8a90b8;
 
   --viz-track: color-mix(in srgb, #ffffff 8%, #0f172a);
   --viz-node-fill: #0f172a;
   --viz-canvas-bg: color-mix(in srgb, #ffffff 3%, #020617);
   --viz-grid-line: color-mix(in srgb, #ffffff 6%, #020617);
 
-  --mastery-weak: #f87171;
-  --mastery-developing: #67e8f9;
-  --mastery-proficient: #fbbf24;
-  --mastery-strong: #6ee7b7;
-  --palette-purple: #a78bfa;
-  --palette-cyan: #67e8f9;
-  --palette-teal: #2dd4bf;
-  --palette-green: #6ee7b7;
-  --palette-amber: #fbbf24;
-  --palette-rose: #f87171;
-  --palette-orange: #fb923c;
+  --mastery-weak: #c47878;
+  --mastery-developing: #5bb8c8;
+  --mastery-proficient: #c9a24a;
+  --mastery-strong: #4fae90;
+  --palette-purple: #8a90b8;
+  --palette-cyan: #5bb8c8;
+  --palette-teal: #3d9a90;
+  --palette-green: #4fae90;
+  --palette-amber: #c9a24a;
+  --palette-rose: #c47878;
+  --palette-orange: #c99468;
   /* Warn outlines on cyan-glass: bright amber alone washes out — mix with cyan brand. */
   --color-banner-warn-ink: color-mix(in srgb, var(--palette-amber) 55%, #e2e8f0);
   --color-banner-warn-border: color-mix(in srgb, var(--palette-amber) 42%, var(--color-brand-400));
@@ -855,7 +880,7 @@
   --elev-3: 0 28px 100px color-mix(in srgb, #000000 32%, transparent);
   --elev-4: 0 32px 120px color-mix(in srgb, #000000 36%, transparent);
 
-  --focus-ring-color: #67e8f9;
+  --focus-ring-color: var(--color-brand-300);
 
   color-scheme: dark;
 }
@@ -891,7 +916,7 @@
 }
 
 [data-theme="blueprint"] .gradient-text {
-  background: linear-gradient(135deg, #67e8f9 0%, #a78bfa 40%, #6ee7b7 75%, #fbbf24 100%);
+  background: linear-gradient(135deg, var(--color-brand-300) 0%, var(--palette-purple) 45%, var(--palette-amber) 100%);
   -webkit-background-clip: text;
   background-clip: text;
 }
@@ -5032,7 +5057,7 @@ body { letter-spacing: -0.005em; }
 [data-theme="dark"] [data-ws-theme="warm"] .ws-chip-warn {
   border: 1px solid color-mix(in srgb, var(--color-accent-amber) 50%, var(--color-border-subtle));
   background: color-mix(in srgb, var(--color-accent-amber) 14%, var(--color-surface-card));
-  color: #fde68a;
+  color: var(--color-accent-amber);
   font-weight: 600;
 }
 [data-theme="dark"] [data-ws-theme="warm"] .ws-chip-neutral {
@@ -5050,13 +5075,13 @@ body { letter-spacing: -0.005em; }
 [data-theme="dark"] [data-ws-theme="warm"] .ws-chip-ok {
   border: 1px solid color-mix(in srgb, var(--color-accent-emerald) 45%, var(--color-border-subtle));
   background: color-mix(in srgb, var(--color-accent-emerald) 12%, var(--color-surface-card));
-  color: #6ee7b7;
+  color: var(--color-accent-emerald);
   font-weight: 600;
 }
 [data-theme="dark"] [data-ws-theme="warm"] .ws-chip-danger {
   border: 1px solid color-mix(in srgb, var(--color-accent-rose) 45%, var(--color-border-subtle));
   background: color-mix(in srgb, var(--color-accent-rose) 12%, var(--color-surface-card));
-  color: #fda4af;
+  color: var(--color-accent-rose);
   font-weight: 600;
 }
 
@@ -5095,13 +5120,13 @@ body { letter-spacing: -0.005em; }
 
 [data-theme="dark"] [data-ws-theme="warm"] .text-accent-amber,
 [data-theme="dark"] [data-ws-theme="warm"] .text-accent-amber\/80 {
-  color: #fde68a;
+  color: var(--color-accent-amber);
 }
-[data-theme="dark"] [data-ws-theme="warm"] .text-accent-emerald { color: #6ee7b7; }
-[data-theme="dark"] [data-ws-theme="warm"] .text-accent-rose { color: #fda4af; }
-[data-theme="dark"] [data-ws-theme="warm"] .text-accent-cyan { color: #67e8f9; }
-[data-theme="dark"] [data-ws-theme="warm"] .text-accent-teal { color: #5eead4; }
-[data-theme="dark"] [data-ws-theme="warm"] .text-accent-orange { color: #fdba74; }
+[data-theme="dark"] [data-ws-theme="warm"] .text-accent-emerald { color: var(--color-accent-emerald); }
+[data-theme="dark"] [data-ws-theme="warm"] .text-accent-rose { color: var(--color-accent-rose); }
+[data-theme="dark"] [data-ws-theme="warm"] .text-accent-cyan { color: var(--color-accent-cyan); }
+[data-theme="dark"] [data-ws-theme="warm"] .text-accent-teal { color: var(--color-accent-teal); }
+[data-theme="dark"] [data-ws-theme="warm"] .text-accent-orange { color: var(--color-accent-orange); }
 
 [data-theme="dark"] [data-ws-theme="warm"] .text-text-muted {
   color: var(--color-text-tertiary);
@@ -5124,13 +5149,13 @@ body { letter-spacing: -0.005em; }
 [data-theme="dark"] [data-ws-theme="warm"] .ws-status-ok {
   border-color: color-mix(in srgb, var(--color-accent-emerald) 45%, var(--color-border-subtle));
   background: color-mix(in srgb, var(--color-accent-emerald) 10%, var(--color-surface-card));
-  color: #6ee7b7;
+  color: var(--color-accent-emerald);
   font-weight: 600;
 }
 [data-theme="dark"] [data-ws-theme="warm"] .ws-status-warn {
   border-color: color-mix(in srgb, var(--color-accent-amber) 50%, var(--color-border-subtle));
   background: color-mix(in srgb, var(--color-accent-amber) 12%, var(--color-surface-card));
-  color: #fde68a;
+  color: var(--color-accent-amber);
   font-weight: 600;
 }
 
@@ -5145,7 +5170,7 @@ body { letter-spacing: -0.005em; }
 [data-theme="dark"] [data-ws-theme="warm"] .ws-source-action-btn-warn {
   border-color: color-mix(in srgb, var(--color-accent-amber) 45%, var(--color-border-subtle));
   background: color-mix(in srgb, var(--color-accent-amber) 12%, var(--color-surface-card));
-  color: #fde68a;
+  color: var(--color-accent-amber);
 }
 [data-theme="dark"] [data-ws-theme="warm"] .ws-source-action-btn-ghost {
   color: var(--color-text-tertiary);
