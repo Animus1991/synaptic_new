@@ -1,0 +1,151 @@
+# Mockup screenshot fidelity plan (Replit canvas → production)
+
+**Date:** 2026-07-16  
+**Inputs:** 10 Replit canvas screenshots (Dashboard×2, Tasks×2, Library×2, Analytics×4)  
+**Target branch:** `feat/mockup-implementation` → `Animus1991/synaptic_new` only  
+**Non-negotiables:** keep 100% tool functionality · denser type than Replit · **no emojis** · Phosphor/line icons · warm light + dark first-class · no secrets/PII in commits
+
+**Canonical companions:** [`MOCKUP_MERGE_AUDIT_AND_PLAN.md`](./MOCKUP_MERGE_AUDIT_AND_PLAN.md), [`MOCKUP_IMPLEMENTATION_PLAN.md`](./MOCKUP_IMPLEMENTATION_PLAN.md), [`GAP_AUDIT.md`](./GAP_AUDIT.md), `PRODUCT_SCALE_STATUS.md`
+
+---
+
+## 1. Method (objective)
+
+| Step | Action |
+| ---- | ------ |
+| 1 | Inventory every visible chrome block in each screenshot |
+| 2 | Map to production component / lib (or mark **GAP**) |
+| 3 | Prefer production data wiring over mockup placeholders |
+| 4 | Apply Replit clarity **without** Replit magnification |
+| 5 | Ship Wave G (this sprint) for high-ROI fidelity; defer only explicit Wave H+ rows |
+
+**Density contract (user):** H1 ≈ 18–20px · section labels 11–13px uppercase · cards `p-3`/`p-4` · KPI numerals `text-xl` not `text-3xl` · zero emoji chrome.
+
+---
+
+## 2. Cross-cutting merge (both worlds)
+
+| Keep from production | Adopt from canvas |
+| -------------------- | ----------------- |
+| Full workspace tool surface + Concept Bus | Cream canvas `#FDFBF7` / warm-sand cards |
+| Stacked hub (no side-panel overlap) | Semantic accent chips (tan/sage/rose/blue) |
+| FSRS / pedagogy / i18n / tests | Compact stat strips, dual insight banners |
+| Research analytics tab | Clear tab rhythm + thin-line icons |
+| Dark theme parity | Soft borders, subtle elevation |
+
+---
+
+## 3. Per-surface inventory
+
+### 3.1 Dashboard (shots 1–2)
+
+| Canvas block | Production map | Status |
+| ------------ | -------------- | ------ |
+| Title + Study Space / Start Session | `DashboardActionHub` CTAs | **shipped** (Wave B) |
+| Post-upload banner | `PostUploadBanner` | **shipped** |
+| Greeting + streak subtitle | `greetingForTime` + Phosphor sun/moon | **shipped** (no emoji) |
+| 5 compact stats | `StatCard` row | **shipped** |
+| Active focus / Continue | workspace resume + next action | **shipped** |
+| Quick-action tabs | hub quick links | **shipped** |
+| 2×2 alert grid (exam/quiz/forget/misconception) | dashboard alerts + smart CTAs | **shipped** |
+| Exam countdown + anti-passive | callouts | **shipped** |
+| Recommendation Execute | `dashboardNextAction` | **shipped** |
+| Readiness + performance bars + syllabus | right rail / learner model | **shipped** |
+| Warm cream density | light → warm-sand scope | **Wave G** |
+| Compact greeting type | `text-lg` hub title | **Wave G** |
+
+### 3.2 Tasks (shots 3–4)
+
+| Canvas block | Production map | Status |
+| ------------ | -------------- | ------ |
+| Progress card + daily % | `BlueprintSurface` progress | **shipped** |
+| Active session strip | `tasks-session-status` | **shipped** |
+| 5 session types + recommended | `SessionLauncherCard` + `getRecommendedSessionType` | **shipped** |
+| Tab counts | `DescriptiveStickyTabBar` | **shipped** |
+| Exam countdown callout | `UxCallout` danger | **shipped** |
+| Almost-there + recall reminder dual strip | Dashboard had almost-known; Tasks lacked dual strip | **Wave G** |
+| Leitner rate row on expand | review rating buttons | **shipped** |
+| Badge copy ΠΡΟΤΕΙΝΕΤΑΙ | `sessionRecommendedBadge` | **Wave G** (el) |
+| Warm-sand page scope | already on Tasks | **shipped** |
+
+### 3.3 Library (shots 5–6)
+
+| Canvas block | Production map | Status |
+| ------------ | -------------- | ------ |
+| RAG sync banner | `RagIndexProgressBanner` | **shipped** |
+| NotebookLM import | `NotebookLmImportPanel` | **shipped** |
+| Filter pills + search + grid/list | Library filters + localStorage | **shipped** (Wave C) |
+| Quality / status / gap badges | `QualityScoreBadge`, `CourseStatusBadge` | **shipped** |
+| Dense course cards + Open/Shell | card actions | **shipped** |
+| Topic / prereq / enrichment chips | course metadata | **shipped** |
+| Warm-sand scope + softer cream | page scope | **Wave G** |
+
+### 3.4 Analytics (shots 7–10)
+
+| Canvas block | Production map | Status |
+| ------------ | -------------- | ------ |
+| Tabs Overview / Mastery / Behavior / Insights / Research | `TabBar` | **shipped** (Wave E) |
+| KPI row (mastery, concepts, readiness, time) | `ProgressKpiRow` | denser **Wave G** |
+| Exam readiness ring + retention curve | `ReadinessRing`, `RetentionCurve` | **shipped** |
+| FSRS-4 forecast strip | `analytics-fsrs-forecast` | **shipped** |
+| Weekly trend + 90-day heatmap | behavior charts | **shipped** (Wave E) |
+| Confidence bins + You vs Real | `ConfidenceBucketChart`, calibration | **shipped** |
+| Courses / Concepts lists | mastery tab + drill-down | **shipped** |
+| Date range filter | `AnalyticsDateRangeFilter` | **shipped** |
+| Warm-sand + dense KPI | page scope + `text-xl` | **Wave G** |
+
+---
+
+## 4. Theme upgrade plan (all themes, warm+dark reference)
+
+| Theme | Action |
+| ----- | ------ |
+| **light** | Align canvas cream (`#fdfbf7` / warm-sand surfaces); softer borders |
+| **warm-sand** | Keep as scoped denser cream for platform pages under light |
+| **dark** | Preserve contrast; keep brand fills; no emoji |
+| **spectrum** | Treat as light-family for warm-sand page scope |
+| **blueprint** | Keep distinctive dark canvas; inherit density tokens from `.app-shell` |
+
+---
+
+## 5. Wave G — this sprint (implementation checklist)
+
+| ID | Item | Done when |
+| -- | ---- | --------- |
+| G-01 | Exhaustive screenshot fidelity plan (this file) | written |
+| G-02 | Wave 5 docs SoT: ARCHITECTURE / BLUEPRINT / PRODUCT_SCALE_PLAN / GAP | reconciled |
+| G-03 | Light theme cream ↔ mockup; density tokens tightened | CSS |
+| G-04 | Warm-sand page scope on Dashboard / Library / Analytics | components |
+| G-05 | Compact hub + Analytics KPI type | components |
+| G-06 | Tasks dual insight banners + el recommended badge | Tasks + i18n + App wire |
+| G-07 | Secret scan; push only `synaptic_new` `feat/mockup-implementation` | git |
+
+---
+
+## 6. Wave H+ (deferred, tracked — no omission)
+
+| ID | Item | Why deferred |
+| -- | ---- | ------------ |
+| H-01 | Optional Dashboard 3-column “canvas preview” layout toggle | High risk of regressing stacked hub / tools |
+| H-02 | Library “combined study” purple promo strip redesign | Exists as `CrossLibrarySynthesisPanel`; visual only |
+| H-03 | Analytics Visual Lab always-expanded vs disclosure | Product choice; disclosure keeps density |
+| H-04 | TOOL-RD-03 historical Greek reprocess batch | P2 runtime repair already mitigates |
+| H-05 | AI-05 NotebookLM parity flag default strategy | Product policy |
+
+---
+
+## 7. Security
+
+- Never commit `.env`, live keys, Google client secrets, JWT secrets, user dumps.
+- Only `*.env.example` with placeholders.
+- Push target: **`https://github.com/Animus1991/synaptic_new.git`** branch **`feat/mockup-implementation`** only (not `origin/main` unless explicitly requested).
+
+---
+
+## 8. Acceptance
+
+- [ ] Dashboard / Tasks / Library / Analytics match canvas **structure** at denser scale
+- [ ] No emoji in primary chrome
+- [ ] Warm light + dark remain first-class
+- [ ] All workspace tools still launch and function
+- [ ] No secrets in the commit / push

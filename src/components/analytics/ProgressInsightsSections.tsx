@@ -6,16 +6,16 @@ const KPI_ICONS = [Brain, CheckCircle2, Target, Clock];
 
 export function ProgressKpiRow({ kpis }: { kpis: ProgressKpi[] }) {
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4" data-testid="progress-kpi-row">
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5" data-testid="progress-kpi-row">
       {kpis.map((kpi, i) => {
         const Icon = KPI_ICONS[i] ?? Brain;
         return (
-          <div key={kpi.label} className="ux-card">
+          <div key={kpi.label} className="ux-card p-3">
             <div className="flex items-center gap-2 mb-1">
               <Icon className="w-3.5 h-3.5 text-brand-400" />
-              <span className="text-xs text-text-tertiary">{kpi.label}</span>
+              <span className="text-[10px] uppercase tracking-wide text-text-tertiary">{kpi.label}</span>
             </div>
-            <p className="text-2xl font-bold tabular-nums text-text-primary">{kpi.value}</p>
+            <p className="text-xl font-bold tabular-nums text-text-primary">{kpi.value}</p>
             <p className={cn(
               'text-xs mt-1',
               kpi.tone === 'good' ? 'text-accent-emerald' : kpi.tone === 'warn' ? 'text-accent-amber' : 'text-text-tertiary',

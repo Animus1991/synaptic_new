@@ -25,6 +25,7 @@ import { UiIcon } from './ui/UiIcon';
 import { PlatformEmptyState } from './ui/PlatformEmptyState';
 import { PostUploadBanner } from './ui/PostUploadBanner';
 import { Page, PageHeader, PrimaryCTA } from './ui/primitives';
+import { useDocumentThemeIsLight, warmSandScopeProps } from '../lib/useDocumentTheme';
 import { DescriptiveStickyTabBar, InfoStack, MiniAlert } from './ui/platformChrome';
 import { BlueprintSurface } from './ui/BlueprintSurface';
 import { t } from '../lib/i18n';
@@ -121,6 +122,7 @@ export function Library({
   onOpenConcept,
 }: LibraryProps) {
   const userLanguage = userSettings?.language === 'el' ? 'el' : 'en';
+  const isLightTheme = useDocumentThemeIsLight();
   const postUploadCourse = postUploadCourseId
     ? courses.find((c) => c.id === postUploadCourseId) ?? null
     : null;
@@ -265,6 +267,7 @@ export function Library({
   );
 
   return (
+    <div {...warmSandScopeProps(isLightTheme)} data-testid="library-page">
     <Page>
       <PageHeader
         eyebrow={t('library', userLanguage)}
@@ -569,6 +572,7 @@ export function Library({
         )}
       </AnimatePresence>
     </Page>
+    </div>
   );
 }
 

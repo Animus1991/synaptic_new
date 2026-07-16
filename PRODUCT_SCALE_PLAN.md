@@ -1,5 +1,9 @@
 # Synapse Learning — Product-Scale Masterplan
 
+> **Wave 5 note (2026-07-16):** This masterplan remains strategic context.  
+> **Canonical “what ships”:** `PRODUCT_SCALE_STATUS.md` + `docs/GAP_AUDIT.md`.  
+> Doc backlog (§12) items below are marked where reconciled in Wave 5; unchecked items stay open for follow-up sprints.
+>
 > **Purpose.** This document is the strategic masterplan that takes Synapse
 > Learning from its current ~80% "post-MVP" state to a
 > **state-of-the-art, product-scale, note-grounded adaptive learning platform**.
@@ -1004,8 +1008,8 @@ The cheapest, highest-trust win. Apply these corrections (all derived from §1):
 - [ ] `SECURITY.md`: move rate-limiting + refresh/reset tokens to "in place"; keep
       hardening items (rotation, audit shipping, argon2).
 - [ ] `server/README.md`: mark teacher/rate-limit/refresh done; add nlp/rag/ocr rows.
-- [ ] `ARCHITECTURE.md`: relocate `processUpload` to the store; add recognition stages
-      + server routes; reference `DocumentModel`.
+- [x] `ARCHITECTURE.md`: relocate `processUpload` to the store; add recognition stages
+      + server routes; reference `DocumentModel`; teacher UI shipped (Wave 5, 2026-07-16).
 - [x] `ROADMAP.md`: re-baseline %; OCR/server-RAG/teacher/rate-limit/refresh marked done;
       Wave 8B slices documented (§12 batch 1).
 - [x] `CHANGELOG.md`: backfill entries for OCR, NER, server RAG, teacher, rate-limit, tokens;
@@ -1015,6 +1019,7 @@ The cheapest, highest-trust win. Apply these corrections (all derived from §1):
 - [ ] `CONTRIBUTING.md`: cite D9 as the cautionary example for the no-hardcoded-vocab rule.
 - [ ] Add `public/pyodide/README.md` to a docs-lint ignore (vendored, not project docs).
 - [ ] Add CI **doc-lint** (link check, drift markers, untranslated-string check).
+- [x] Wave 5 doc SoT: BLUEPRINT historical header + D3; GAP DOC-02..05; screenshot fidelity plan (2026-07-16).
 
 ---
 

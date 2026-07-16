@@ -1,18 +1,20 @@
 import { useEffect, useState } from 'react';
 
+function isLightThemeAttr(theme: string | null): boolean {
+  return theme === 'light' || theme === 'spectrum' || theme === 'warm-sand';
+}
+
 /** True when document root theme resolves to a light surface (light or spectrum). */
 export function useDocumentThemeIsLight(): boolean {
   const [isLight, setIsLight] = useState(() => {
     if (typeof document === 'undefined') return false;
-    const theme = document.documentElement.getAttribute('data-theme');
-    return theme === 'light' || theme === 'spectrum' || theme === 'warm-sand';
+    return isLightThemeAttr(document.documentElement.getAttribute('data-theme'));
   });
 
   useEffect(() => {
     const root = document.documentElement;
     const sync = () => {
-      const theme = root.getAttribute('data-theme');
-      setIsLight(theme === 'light' || theme === 'spectrum' || theme === 'warm-sand');
+      setIsLight(isLightThemeAttr(root.getAttribute('data-theme')));
     };
     const observer = new MutationObserver(sync);
     observer.observe(root, { attributes: true, attributeFilter: ['data-theme'] });
@@ -20,4 +22,9 @@ export function useDocumentThemeIsLight(): boolean {
   }, []);
 
   return isLight;
+}
+
+/** Page-scoped Warm Sand cream (mockup) when the root theme is light-family. */
+export function warmSandScopeProps(isLight: boolean): { 'data-theme': 'warm-sand' } | Record<string, never> {
+  return isLight ? { 'data-theme': 'warm-sand' as const } : {};
 }

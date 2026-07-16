@@ -1123,10 +1123,13 @@ export default function App() {
               onFilterPresetConsumed={store.clearTasksFilterPreset}
               studyPlan={store.dailyPlan.studyPlanBlocks}
               weakAreas={store.learnerModel.weakAreas}
+              almostKnown={store.learnerModel.almostKnown}
+              antiPassiveAlert={store.dashboardExtras.antiPassive}
               spacingReviews={store.learnerModel.spacingIntervals}
               streak={store.dashboardStats.streak}
               onFocusWeakArea={openWorkspaceForConcept}
               onOpenAgent={() => store.navigate('agent')}
+              onStartQuiz={() => store.startSession('10min')}
               courseNameById={Object.fromEntries(store.courses.map((c) => [c.id, c.title]))}
               activeSessionType={store.activeSessionType}
               sessionCurrentIndex={sessionCurrentIndex}

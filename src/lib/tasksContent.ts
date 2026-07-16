@@ -98,6 +98,12 @@ export type TasksContent = {
   dangerZoneBody: (days: number) => string;
   dangerZoneRationale: string;
   sessionDurationTag: (minutes: number) => string;
+  almostThereTitle: string;
+  almostThereHint: string;
+  almostThereCta: string;
+  recallReminderTitle: string;
+  recallReminderBody: string;
+  recallReminderCta: string;
 };
 
 const EN: TasksContent = {
@@ -187,6 +193,12 @@ const EN: TasksContent = {
       : `Your exam is ${days} day${days === 1 ? '' : 's'} away. The scheduler is prioritizing weak concepts with the highest forgetting risk.`,
   dangerZoneRationale: 'Tasks are ranked by exam proximity, mastery gap, confidence mismatch, and last retrieval time.',
   sessionDurationTag: (minutes) => (minutes <= 10 ? 'Fast' : minutes <= 25 ? 'Medium' : minutes <= 50 ? 'Deep' : 'Intense'),
+  almostThereTitle: 'Almost there',
+  almostThereHint: '1–2 sessions to mastery',
+  almostThereCta: 'Practice',
+  recallReminderTitle: 'Recall reminder',
+  recallReminderBody: 'You have been reading for a while. Check what you remember.',
+  recallReminderCta: 'Quick quiz',
 };
 
 const EL: TasksContent = {
@@ -276,6 +288,12 @@ const EL: TasksContent = {
       : `Η εξέτασή σου είναι σε ${days} ${days === 1 ? 'ημέρα' : 'ημέρες'}. Ο scheduler δίνει προτεραιότητα σε αδύναμες έννοιες με τον μεγαλύτερο κίνδυνο λήθης.`,
   dangerZoneRationale: 'Τα tasks κατατάσσονται με βάση εγγύτητα εξέτασης, mastery gap, confidence mismatch και τελευταία retrieval.',
   sessionDurationTag: (minutes) => (minutes <= 10 ? 'Fast' : minutes <= 25 ? 'Medium' : minutes <= 50 ? 'Deep' : 'Intense'),
+  almostThereTitle: 'Σχεδόν εκεί',
+  almostThereHint: '1–2 συνεδρίες για κατάκτηση',
+  almostThereCta: 'Εξάσκηση',
+  recallReminderTitle: 'Υπενθύμιση ανάκλησης',
+  recallReminderBody: 'Διαβάζεις αρκετή ώρα. Ας δούμε τι θυμάσαι.',
+  recallReminderCta: 'Γρήγορο κουίζ',
 };
 
 const TASK_TYPE_LABELS: Record<Lang, Record<TaskType, string>> = {

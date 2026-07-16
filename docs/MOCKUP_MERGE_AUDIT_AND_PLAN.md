@@ -68,15 +68,17 @@
 | **F** | a11y / contrast / reduced-motion | **Done** — warm-sand muted AA, global `prefers-reduced-motion`, `aria-busy` on key CTAs |
 | **Tools** | Wave 3 OCR/collab | **Done** — OCR re-anchor, annotation conflicts, whiteboard CRDT |
 | **Platform** | Wave 4 MCP/LTI/embeddings/SymPy/thumbnails | **Done** |
+| **Docs** | Wave 5 SoT reconciliation | **Done** — ARCHITECTURE / BLUEPRINT / PRODUCT_SCALE_PLAN / GAP |
+| **G** | Screenshot fidelity (10 Replit shots) | **Done** — cream/density/warm-sand scope, Tasks insight strip; see `MOCKUP_SCREENSHOT_FIDELITY_PLAN.md` |
 
 ---
 
 ## 5. Acceptance (merge)
 
-- [ ] No regression in workspace tools (quiz, leitner, reader, simulator, whiteboard, timer, progress)
-- [ ] Dashboard / Tasks / Library / Analytics readable at full main width, dense gaps
-- [ ] No emoji in primary chrome
-- [ ] Warm light + dark remain first-class; other themes still boot
+- [x] No regression in workspace tools (quiz, leitner, reader, simulator, whiteboard, timer, progress)
+- [x] Dashboard / Tasks / Library / Analytics readable at full main width, dense gaps
+- [x] No emoji in primary chrome
+- [x] Warm light + dark remain first-class; other themes still boot
 - [ ] No secrets in commits / PRs
 
 ---

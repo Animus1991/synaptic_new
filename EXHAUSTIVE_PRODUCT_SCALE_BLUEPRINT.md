@@ -1,7 +1,12 @@
 # Synapse Learning — Exhaustive Product-Scale Blueprint
 
-> **Scope:** `C:\Users\anast\.cursor\projects\C-Users-anast-AppData-Local-Temp-c2ac0b3d-a59c-4dd0-a69e-116aa07b0c50\synapse-learning` only.  
-> **Purpose:** The most rigorous, evidence-based, omission-free audit of every project Markdown file and a concrete, product-scale blueprint for every page, tool, algorithm, and backend surface. This document is written to be the single source of truth for taking Synapse from its current ~80% post-MVP state to a state-of-the-art, note-grounded adaptive learning platform.  
+> **HISTORICAL / NON-CANONICAL (Wave 5, 2026-07-16).**  
+> Do **not** treat this file as the live source of truth for what ships.  
+> **Canonical:** `PRODUCT_SCALE_STATUS.md` + `docs/GAP_AUDIT.md` + `CHANGELOG.md`.  
+> Drift example fixed below: D3 teacher UI is **shipped** (`TeacherDashboard.tsx`), contrary to older rows in this blueprint.
+>
+> **Scope:** `synapse-learning` only.  
+> **Purpose (original):** rigorous audit + blueprint. Kept for historical sequencing; prefer STATUS/GAP for implementation decisions.  
 > **Methodology:** Each MD file was read in full and cross-checked against the actual source tree (`src/lib/`, `src/components/`, `src/store/`, `server/`). Claims are annotated with file/function pointers so they can be verified without re-discovery. The plan is sequenced by dependency and value, with explicit acceptance criteria for every item. No shortcuts, no omissions, no illusions of capability.
 
 ---
@@ -90,7 +95,7 @@ Scores are on a 0–5 scale. Evidence is cited with absolute file paths and line
 | - | ----- | ------ | -------- |
 | D1 | OCR described as roadmap / not wired | **Resolved** in `CONTENT_PIPELINE.md` | `src/lib/ocrExtract.ts`, `server/src/routes/ocr.ts` |
 | D2 | No server RAG endpoint documented | **Resolved** in `AGENT_RAG.md` | `server/src/routes/rag.ts`, `server/src/lib/ragServer.ts` |
-| D3 | Teacher dashboard UI remaining | **Partial** — endpoint documented, UI not built | `server/src/routes/teacher.ts` |
+| D3 | Teacher dashboard UI remaining | **Reconciled 2026-07-16 — SHIPS** (`TeacherDashboard.tsx` + org analytics). Older “endpoint only” claim is obsolete; see `PRODUCT_SCALE_STATUS.md` | `src/components/TeacherDashboard.tsx`, `server/src/routes/teacher.ts` |
 | D4 | Server NER not in `API.md` | **Resolved** | `server/src/routes/nlp.ts`, `server/src/lib/ner.ts` |
 | D5 | Per-account RPM limiter roadmap | **Resolved** in `SECURITY.md` | `server/src/middleware/rateLimit.ts` |
 | D6 | Refresh/reset tokens roadmap | **Resolved** | `server/src/store/tokenStore.ts`, `server/src/routes/auth.ts` |

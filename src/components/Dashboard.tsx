@@ -33,6 +33,7 @@ import { PrimaryCTA } from './ui/primitives';
 import { UxCallout } from './ui/platformChrome';
 import { BlueprintSurface } from './ui/BlueprintSurface';
 import { PostUploadBanner } from './ui/PostUploadBanner';
+import { useDocumentThemeIsLight, warmSandScopeProps } from '../lib/useDocumentTheme';
 import { DashboardLivePreview } from './DashboardLivePreview';
 import { DashboardActionHub } from './DashboardActionHub';
 import { useBlueprintTheme } from '../lib/useBlueprintTheme';
@@ -129,6 +130,7 @@ interface DashboardProps {
 export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onSelectCourse, onOpenWorkspace, onOpenExamTimer, onUpload, onExploreDemo, prerequisiteRepairs = [], calibration, conceptMastery = [], activities = [], masteryDelta = 0, daysToExam = null, antiPassiveAlert = false, onStartTask, onStartSession, onResolveMisconception, onFocusWeakArea, workspaceLive = null, workspaceBooting = false, dashboardNextAction = null, smartCTAs = [], onRunSmartCTA, proactiveAgentAlerts = [], onRunProactiveAgentAlert, onOpenWorkspacePractice, lang = 'en', postUploadCourse = null, onDismissPostUpload, onOpenTasksReview, settingsExamDate, personalStudyDates = [], onExamDateChange, onPersonalStudyDatesChange, dashboardWallpaperDataUrl, onDashboardWallpaperChange }: DashboardProps) {
   const { t } = useI18n();
   const isBlueprint = useBlueprintTheme();
+  const isLightTheme = useDocumentThemeIsLight();
   const pageView = useMemo(
     () => selectDashboardPageViewModel({ stats, courses, tasks, learnerModel }),
     [stats, courses, tasks, learnerModel],
@@ -218,7 +220,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
   }
 
   return (
-    <div className="w-full min-w-0 pb-24 lg:pb-8 ux-fade-up">
+    <div {...warmSandScopeProps(isLightTheme)} className="w-full min-w-0 pb-24 lg:pb-8 ux-fade-up" data-testid="dashboard-page">
       <MotionSection
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}

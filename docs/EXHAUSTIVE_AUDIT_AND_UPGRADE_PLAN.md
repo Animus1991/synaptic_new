@@ -135,10 +135,14 @@ cd server && npm test
 
 ### Wave 5 — Documentation single source of truth
 
-| ID | Item |
-| -- | ---- |
-| DOC-02..04 | ARCHITECTURE / BLUEPRINT / PRODUCT_SCALE_PLAN drift |
-| DOC-05 | Keep GAP_AUDIT reconciled each sprint |
+| ID | Item | Status |
+| -- | ---- | ------ |
+| DOC-02..04 | ARCHITECTURE / BLUEPRINT / PRODUCT_SCALE_PLAN drift | **shipped** (2026-07-16) |
+| DOC-05 | Keep GAP_AUDIT reconciled each sprint | **shipped** this close-out |
+
+### Wave G — Screenshot fidelity (Replit canvas)
+
+See `docs/MOCKUP_SCREENSHOT_FIDELITY_PLAN.md`. Cream density, warm-sand page scopes, Tasks dual insight banners.
 
 ---
 
@@ -172,7 +176,9 @@ Mark older masters (`EXHAUSTIVE_*`, `STATE_OF_THE_ART_*`, duplicate upgrade plan
 | Wave 3 OCR/collab | done |
 | Mockup Wave E Analytics | done |
 | Wave 4 platform/enterprise | done |
-| Wave 5 | next — docs SoT reconciliation |
+| Wave 5 docs SoT | done |
+| Wave G screenshot fidelity | done |
+| Wave H+ deferred rows | see MOCKUP_SCREENSHOT_FIDELITY_PLAN §6 |
 
 ---
 

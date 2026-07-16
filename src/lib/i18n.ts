@@ -2322,7 +2322,7 @@ const EL: Record<I18nKey, string> = {
   qualityScoreStrong: 'Ισχυρή πηγή · {score}',
   qualityScoreNeedsMaterial: 'Χρειάζεται υλικό · {score}',
   qualityScoreNeutral: 'Πηγή · {score}',
-  sessionRecommendedBadge: 'Προτείνεται',
+  sessionRecommendedBadge: 'ΠΡΟΤΕΙΝΕΤΑΙ',
   dashPriorityTasks: 'Εργασίες προτεραιότητας',
   dashConceptMastery: 'Κατάκτηση εννοιών',
   dashCoursesProcessing: 'Τα μαθήματά σου προετοιμάζονται ακόμη. Άνοιξε τη Βιβλιοθήκη για να παρακολουθήσεις την επεξεργασία.',

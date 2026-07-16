@@ -155,7 +155,7 @@ export function DashboardActionHub({
                   <p className="ws-eyebrow mb-1.5 text-text-secondary opacity-90">{greetingEyebrow}</p>
                 )}
                 {greetingTitle && (
-                  <h1 className="ws-serif font-medium tracking-tight text-xl sm:text-2xl">{greetingTitle}</h1>
+                  <h1 className="ws-serif font-medium tracking-tight text-lg sm:text-xl">{greetingTitle}</h1>
                 )}
                 {greetingSubtitle && (
                   <div className="ux-page-subtitle mt-1.5 text-sm opacity-90">{greetingSubtitle}</div>

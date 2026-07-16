@@ -216,10 +216,10 @@ Goal: every tool **fully functional for its learning purpose**, not demo stubs.
 | ID | Item | Priority | Status |
 | -- | ---- | -------- | ------ |
 | DOC-01 | `PRODUCT_SCALE_STATUS.md` ↔ code | P0 | shipped (P0 sprint) |
-| DOC-02 | `ARCHITECTURE.md` extension points (teacher UI shipped) | P2 | open |
-| DOC-03 | `EXHAUSTIVE_PRODUCT_SCALE_BLUEPRINT.md` D3 drift | P2 | open |
-| DOC-04 | `PRODUCT_SCALE_PLAN.md` doc backlog checkboxes | P2 | open |
-| DOC-05 | This file updated each sprint close-out | P0 | ongoing |
+| DOC-02 | `ARCHITECTURE.md` extension points (teacher UI shipped) | P2 | **shipped** (Wave 5, 2026-07-16) |
+| DOC-03 | `EXHAUSTIVE_PRODUCT_SCALE_BLUEPRINT.md` D3 drift | P2 | **shipped** (historical header + D3 reconciled) |
+| DOC-04 | `PRODUCT_SCALE_PLAN.md` doc backlog checkboxes | P2 | **shipped** (Wave 5 partial; remaining open items tracked in §12) |
+| DOC-05 | This file updated each sprint close-out | P0 | **shipped** (Wave 5 + Wave G close-out) |
 
 ---
 

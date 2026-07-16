@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   CheckCircle2, Circle, Clock, AlertTriangle, RotateCcw, Calendar,
-  Play, Flame, Brain, Target,
+  Play, Flame, Brain, Target, Zap,
   HelpCircle, XCircle, RefreshCw, ArrowDownRight, TrendingUp, Minus,
 } from '@/lib/lucide-shim';
 import type { Task, MistakeRecord, SkillNode, SpacingData } from '../types';
@@ -25,7 +25,7 @@ import { TasksKanbanStatusStrip, tasksKanbanCardStatus } from './TasksKanbanStat
 import { BlueprintSurface } from './ui/BlueprintSurface';
 import { LeitnerDueQueuePanel } from './workspace/LeitnerDueQueuePanel';
 import { buildFsrsDueQueue } from '../lib/leitnerDueQueue';
-import { useDocumentThemeIsLight } from '../lib/useDocumentTheme';
+import { useDocumentThemeIsLight, warmSandScopeProps } from '../lib/useDocumentTheme';
 
 export type { TaskFilter } from '../lib/tasksContent';
 
@@ -49,10 +49,13 @@ interface TasksProps {
   focusCourseId?: string | null;
   focusCourseName?: string | null;
   weakAreas?: SkillNode[];
+  almostKnown?: SkillNode[];
+  antiPassiveAlert?: boolean;
   spacingReviews?: SpacingData[];
   streak?: number;
   onFocusWeakArea?: (concept: string) => void;
   onOpenAgent?: () => void;
+  onStartQuiz?: () => void;
   courseNameById?: Record<string, string>;
   activeSessionType?: SessionType | null;
   sessionCurrentIndex?: number;
@@ -82,10 +85,13 @@ export function Tasks({
   focusCourseId = null,
   focusCourseName = null,
   weakAreas = [],
+  almostKnown = [],
+  antiPassiveAlert = false,
   spacingReviews = [],
   streak = 0,
   onFocusWeakArea,
   onOpenAgent,
+  onStartQuiz,
   courseNameById = {},
   activeSessionType = null,
   sessionCurrentIndex = 0,
@@ -186,6 +192,8 @@ export function Tasks({
     [daysToExam, reviewTasks.length, fsrsQueue.length, scopedWeak.length, todayTasks.length],
   );
   const isLightTheme = useDocumentThemeIsLight();
+  const almostKnownPreview = almostKnown.slice(0, 2);
+  const showInsightStrip = almostKnownPreview.length > 0 || antiPassiveAlert;
 
   const tabs: { id: CommandTab; label: string; summary: string; count: number }[] = [
     { id: 'today', label: c.tabToday, summary: c.tabTodaySummary, count: todayTasks.length },
@@ -197,7 +205,7 @@ export function Tasks({
   return (
     <HeroGlow flush>
     <div
-      {...(isLightTheme ? { 'data-theme': 'warm-sand' as const } : {})}
+      {...warmSandScopeProps(isLightTheme)}
       data-testid="tasks-page"
       className="min-w-0 w-full"
     >
@@ -287,6 +295,59 @@ export function Tasks({
             >
               <p className="text-sm">{c.dangerZoneBody(daysToExam)}</p>
             </UxCallout>
+          )}
+          {showInsightStrip && (
+            <div
+              className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-2"
+              data-testid="tasks-insight-strip"
+            >
+              {almostKnownPreview.length > 0 && (
+                <div className="rounded-xl border border-accent-amber/25 bg-accent-amber/5 p-3 space-y-1.5">
+                  <div className="flex items-center gap-1.5">
+                    <TrendingUp className="w-3.5 h-3.5 text-accent-amber shrink-0" aria-hidden />
+                    <p className="text-[10px] font-semibold uppercase tracking-wide text-accent-amber">
+                      {c.almostThereTitle}
+                    </p>
+                  </div>
+                  <p className="text-xs text-text-tertiary">{c.almostThereHint}</p>
+                  <ul className="space-y-1">
+                    {almostKnownPreview.map((item) => (
+                      <li key={item.concept} className="flex items-center justify-between gap-2 text-xs">
+                        <span className="truncate font-medium text-text-primary">{item.concept}</span>
+                        <span className="tabular-nums text-accent-amber shrink-0">{Math.round(item.mastery)}%</span>
+                      </li>
+                    ))}
+                  </ul>
+                  {onFocusWeakArea && almostKnownPreview[0] && (
+                    <button
+                      type="button"
+                      onClick={() => onFocusWeakArea(almostKnownPreview[0].concept)}
+                      className="text-xs font-medium text-brand-700 hover:text-brand-600"
+                    >
+                      {c.almostThereCta} →
+                    </button>
+                  )}
+                </div>
+              )}
+              {antiPassiveAlert && (
+                <div className="rounded-xl border border-brand-500/20 bg-brand-600/5 p-3 space-y-1.5">
+                  <div className="flex items-center gap-1.5">
+                    <Zap className="w-3.5 h-3.5 text-brand-600 shrink-0" aria-hidden />
+                    <p className="text-[10px] font-semibold uppercase tracking-wide text-brand-700">
+                      {c.recallReminderTitle}
+                    </p>
+                  </div>
+                  <p className="text-xs text-text-secondary">{c.recallReminderBody}</p>
+                  <button
+                    type="button"
+                    onClick={() => (onStartQuiz ? onStartQuiz() : onStartSession?.('10min'))}
+                    className="text-xs font-medium text-brand-700 hover:text-brand-600"
+                  >
+                    {c.recallReminderCta} →
+                  </button>
+                </div>
+              )}
+            </div>
           )}
           {todayTasks.length > 0 && (
             <TasksKanbanStatusStrip

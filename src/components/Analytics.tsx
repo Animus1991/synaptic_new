@@ -19,6 +19,7 @@ import { resolveCourseColor } from '../lib/masteryPalette';
 import { CourseIcon } from './ui/CourseIcon';
 import { cn } from '../utils/cn';
 import { Page, PageHeader, TabBar } from './ui/primitives';
+import { useDocumentThemeIsLight, warmSandScopeProps } from '../lib/useDocumentTheme';
 import { ReadinessRing } from './visuals/ReadinessRing';
 import { RetentionCurve } from './visuals/DiagramGenerator';
 import { ConceptGraph } from './visuals/ConceptGraph';
@@ -199,9 +200,11 @@ export function Analytics({
 }: AnalyticsProps) {
   const [tab, setTab] = useState<AnalyticsTab>('overview');
   const { t } = useI18n();
+  const isLightTheme = useDocumentThemeIsLight();
 
   return (
     <AnalyticsDateRangeProvider>
+      <div {...warmSandScopeProps(isLightTheme)} data-testid="analytics-page">
       <Page>
         <PageHeader
           title={t('analyticsTitle')}
@@ -248,6 +251,7 @@ export function Analytics({
           <ResearchTab learnerModel={learnerModel} activities={activities} courses={courses} />
         )}
       </Page>
+      </div>
     </AnalyticsDateRangeProvider>
   );
 }

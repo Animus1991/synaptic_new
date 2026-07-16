@@ -106,8 +106,9 @@
   --type-display-sm: 1.375rem;
   --type-display: 1.5rem;
   --type-hero: clamp(1.75rem, 4vw, 3rem);
-  --type-hero-app: 1.25rem;
-  --type-hero-app-sm: 1.5rem;
+  /* Wave G — denser app heroes (mockup clarity without Replit magnification) */
+  --type-hero-app: 1.125rem;
+  --type-hero-app-sm: 1.25rem;
   --btn-height: 2.5rem;
   --ux-motion-fade-y: 12px;
   --ux-motion-fade-duration: 0.6s;
@@ -134,19 +135,19 @@
   --motion-ease: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Light theme — Warm Sand (F1–F4: harmonized earth palette) */
+/* Light theme — Warm Sand aligned to Replit canvas cream (#FDFBF7 family) */
 [data-theme="light"] {
-  --color-surface-primary: #faf8f5;
-  --color-surface-secondary: #f4f0e9;
-  --color-surface-tertiary: #efe9de;
+  --color-surface-primary: #fdfbf7;
+  --color-surface-secondary: #f6f1ea;
+  --color-surface-tertiary: #f0ebe2;
   --color-surface-card: #ffffff;
-  --color-surface-hover: #efe9de;
-  --color-surface-active: #e8dcc4;
+  --color-surface-hover: #efe8dc;
+  --color-surface-active: #e8dfd0;
   --color-surface-input: #ffffff;
 
-  --color-border-subtle: #c4b08c;
-  --color-border-default: #ad9870;
-  --color-border-strong: #9d6930;
+  --color-border-subtle: #e0d8cc;
+  --color-border-default: #cfc4b4;
+  --color-border-strong: #7d6245;
 
   /* Darks ~5% softer (F4 pass) */
   --color-text-primary: #352c23;
