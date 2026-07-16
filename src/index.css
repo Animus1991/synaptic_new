@@ -14,14 +14,14 @@
   --color-brand-900: #1e3a8a;
   --color-brand-950: #172554;
 
-  /* Complementary accents (dark SoT) — warm, calm; +~2–3% chroma vs prior pass. */
-  --color-accent-teal: #60b8a8;
-  --color-accent-cyan: #6db3c6;
-  --color-accent-emerald: #5db492;
-  --color-accent-amber: #ceaa4e;
-  --color-accent-rose: #c98991;
-  --color-accent-orange: #ce9a6e;
-  --color-accent-violet: #948dca;
+  /* Complementary accents (dark SoT) — warm, calm; +~2% chroma. */
+  --color-accent-teal: #62bcaa;
+  --color-accent-cyan: #6fb7ca;
+  --color-accent-emerald: #5fb896;
+  --color-accent-amber: #d0ae50;
+  --color-accent-rose: #cb8d95;
+  --color-accent-orange: #d09e72;
+  --color-accent-violet: #9691ce;
 
   /* Dark theme (default) — editorial near-black with cool slate undertone.
      Surfaces lifted ~3–4% vs pure black so panels read with less eye strain. */
@@ -95,18 +95,18 @@
 
   --viz-grid-line: #1c1c22;
 
-  /* Mastery + spectrum palette (dark) — warm, muted, still band-distinct (+~2–3%) */
-  --mastery-weak: #c98991;
-  --mastery-developing: #6db3c6;
-  --mastery-proficient: #ceaa4e;
-  --mastery-strong: #5db492;
-  --palette-purple: #948dca;
-  --palette-cyan: #6db3c6;
-  --palette-teal: #60b8a8;
-  --palette-green: #5db492;
-  --palette-amber: #ceaa4e;
-  --palette-rose: #c98991;
-  --palette-orange: #ce9a6e;
+  /* Mastery + spectrum palette (dark) — warm, muted, still band-distinct (+~2%) */
+  --mastery-weak: #cb8d95;
+  --mastery-developing: #6fb7ca;
+  --mastery-proficient: #d0ae50;
+  --mastery-strong: #5fb896;
+  --palette-purple: #9691ce;
+  --palette-cyan: #6fb7ca;
+  --palette-teal: #62bcaa;
+  --palette-green: #5fb896;
+  --palette-amber: #d0ae50;
+  --palette-rose: #cb8d95;
+  --palette-orange: #d09e72;
 
   /* Light theme is the typography SoT for every theme (optical size parity). */
   --font-sans: 'Nunito Sans', 'Noto Sans', 'Noto Sans Greek', system-ui, -apple-system, sans-serif;
@@ -267,18 +267,18 @@
   --color-banner-warn-ink: color-mix(in srgb, var(--palette-amber) 55%, #352c23);
   --color-banner-warn-border: color-mix(in srgb, var(--color-banner-warn-ink) 58%, var(--color-border-subtle));
 
-  /* Earth accents — warm, near brand brown; +~2–3% chroma. Brand scale unchanged. */
-  --mastery-weak: #9e695c;
-  --mastery-developing: #6d7e82;
-  --mastery-proficient: #9f7d4c;
-  --mastery-strong: #637f6c;
-  --palette-purple: #7e6a84;
-  --palette-cyan: #6c7e84;
-  --palette-teal: #637d74;
-  --palette-green: #637f6c;
-  --palette-amber: #9f7d4c;
-  --palette-rose: #9e695c;
-  --palette-orange: #9e7554;
+  /* Earth accents — warm, near brand brown; −~1% chroma (light SoT). Brand unchanged. */
+  --mastery-weak: #9c685c;
+  --mastery-developing: #6c7d81;
+  --mastery-proficient: #9d7c4c;
+  --mastery-strong: #627e6b;
+  --palette-purple: #7c6982;
+  --palette-cyan: #6b7d83;
+  --palette-teal: #627c73;
+  --palette-green: #627e6b;
+  --palette-amber: #9d7c4c;
+  --palette-rose: #9c685c;
+  --palette-orange: #9c7454;
 
   --color-accent-emerald: var(--palette-green);
   --color-accent-amber: var(--palette-amber);
@@ -357,21 +357,21 @@
   --color-heatmap-scale-4: #5c4033;
   --color-calibration-over: #b4233c;
   --color-calibration-under: #0e7490;
-  --color-banner-warn-ink: color-mix(in srgb, #9f7d4c 55%, #352c23);
+  --color-banner-warn-ink: color-mix(in srgb, #9d7c4c 55%, #352c23);
   --color-banner-warn-border: color-mix(in srgb, var(--color-banner-warn-ink) 58%, var(--color-border-subtle));
 
-  /* Match light complementary accents when warm-sand is root theme */
-  --mastery-weak: #9e695c;
-  --mastery-developing: #6d7e82;
-  --mastery-proficient: #9f7d4c;
-  --mastery-strong: #637f6c;
-  --palette-purple: #7e6a84;
-  --palette-cyan: #6c7e84;
-  --palette-teal: #637d74;
-  --palette-green: #637f6c;
-  --palette-amber: #9f7d4c;
-  --palette-rose: #9e695c;
-  --palette-orange: #9e7554;
+  /* Match light complementary accents when warm-sand is root theme (−~1%) */
+  --mastery-weak: #9c685c;
+  --mastery-developing: #6c7d81;
+  --mastery-proficient: #9d7c4c;
+  --mastery-strong: #627e6b;
+  --palette-purple: #7c6982;
+  --palette-cyan: #6b7d83;
+  --palette-teal: #627c73;
+  --palette-green: #627e6b;
+  --palette-amber: #9d7c4c;
+  --palette-rose: #9c685c;
+  --palette-orange: #9c7454;
   --color-accent-emerald: var(--palette-green);
   --color-accent-amber: var(--palette-amber);
   --color-accent-orange: var(--palette-orange);
@@ -636,18 +636,18 @@
 
   color-scheme: light;
 
-  /* Spectrum complements — calm violet-family; +~2–3% chroma. */
-  --mastery-weak: #bc7d89;
-  --mastery-developing: #7e9fbd;
-  --mastery-proficient: #c9a654;
-  --mastery-strong: #5ea089;
-  --palette-purple: #9083d8;
-  --palette-cyan: #7e9fbd;
-  --palette-teal: #5ea095;
-  --palette-green: #5ea089;
-  --palette-amber: #c9a654;
-  --palette-rose: #bc7d89;
-  --palette-orange: #c5956d;
+  /* Spectrum complements — calm violet-family; −~1% chroma (light theme). */
+  --mastery-weak: #ba7c88;
+  --mastery-developing: #7c9dbb;
+  --mastery-proficient: #c7a453;
+  --mastery-strong: #5c9e87;
+  --palette-purple: #8e81d6;
+  --palette-cyan: #7c9dbb;
+  --palette-teal: #5c9e93;
+  --palette-green: #5c9e87;
+  --palette-amber: #c7a453;
+  --palette-rose: #ba7c88;
+  --palette-orange: #c3936c;
 
   --color-accent-emerald: var(--palette-green);
   --color-accent-amber: var(--palette-amber);
@@ -675,7 +675,7 @@
 }
 
 [data-theme="spectrum"] .gradient-text {
-  background: linear-gradient(135deg, #9083d8 0%, #7e9fbd 40%, #c9a654 100%);
+  background: linear-gradient(135deg, #8e81d6 0%, #7c9dbb 40%, #c7a453 100%);
   -webkit-background-clip: text;
   background-clip: text;
 }
@@ -839,31 +839,31 @@
   --color-brand-900: #164e63;
   --color-brand-950: #083344;
 
-  /* Complements — calm cyan-glass family; +~2–3% chroma. Brand cyan kept. */
-  --color-accent-teal: #41a096;
-  --color-accent-cyan: #60becd;
-  --color-accent-emerald: #53b495;
-  --color-accent-amber: #ceaa4e;
-  --color-accent-rose: #c97d7d;
-  --color-accent-orange: #ce9a6e;
-  --color-accent-violet: #8f95bd;
+  /* Complements — calm cyan-glass family; +~2% chroma. Brand cyan kept. */
+  --color-accent-teal: #43a498;
+  --color-accent-cyan: #62c2d1;
+  --color-accent-emerald: #55b899;
+  --color-accent-amber: #d0ae50;
+  --color-accent-rose: #cb8181;
+  --color-accent-orange: #d09e72;
+  --color-accent-violet: #9199c1;
 
   --viz-track: color-mix(in srgb, #ffffff 8%, #182033);
   --viz-node-fill: #182033;
   --viz-canvas-bg: color-mix(in srgb, #ffffff 3%, #0b1020);
   --viz-grid-line: color-mix(in srgb, #ffffff 6%, #0b1020);
 
-  --mastery-weak: #c97d7d;
-  --mastery-developing: #60becd;
-  --mastery-proficient: #ceaa4e;
-  --mastery-strong: #53b495;
-  --palette-purple: #8f95bd;
-  --palette-cyan: #60becd;
-  --palette-teal: #41a096;
-  --palette-green: #53b495;
-  --palette-amber: #ceaa4e;
-  --palette-rose: #c97d7d;
-  --palette-orange: #ce9a6e;
+  --mastery-weak: #cb8181;
+  --mastery-developing: #62c2d1;
+  --mastery-proficient: #d0ae50;
+  --mastery-strong: #55b899;
+  --palette-purple: #9199c1;
+  --palette-cyan: #62c2d1;
+  --palette-teal: #43a498;
+  --palette-green: #55b899;
+  --palette-amber: #d0ae50;
+  --palette-rose: #cb8181;
+  --palette-orange: #d09e72;
   /* Warn outlines on cyan-glass: bright amber alone washes out — mix with cyan brand. */
   --color-banner-warn-ink: color-mix(in srgb, var(--palette-amber) 55%, #e2e8f0);
   --color-banner-warn-border: color-mix(in srgb, var(--palette-amber) 42%, var(--color-brand-400));
