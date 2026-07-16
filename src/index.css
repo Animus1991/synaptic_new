@@ -1,53 +1,55 @@
 @import "tailwindcss";
 
 @theme {
-  /* Brand + surfaces: dark defaults; light mode overrides via [data-theme="light"] Warm Sand (F1). */
-  --color-brand-50: #eff6ff;
-  --color-brand-100: #dbeafe;
-  --color-brand-200: #bfdbfe;
-  --color-brand-300: #93c5fd;
-  --color-brand-400: #60a5fa;
-  --color-brand-500: #3b82f6;
-  --color-brand-600: #2563eb;
-  --color-brand-700: #1d4ed8;
-  --color-brand-800: #1e40af;
-  --color-brand-900: #1e3a8a;
-  --color-brand-950: #172554;
+  /* Brand + surfaces: dark defaults; light mode overrides via [data-theme="light"] Warm Sand (F1).
+     Dark brand is steel-slate blue (lower chroma than electric Tailwind blue) so CTAs
+     don’t fight purple-tinted chrome. Surfaces are neutral charcoal — not indigo fog. */
+  --color-brand-50: #eef2f6;
+  --color-brand-100: #d8e0ea;
+  --color-brand-200: #b4c3d4;
+  --color-brand-300: #8da4bc;
+  --color-brand-400: #6b87a4;
+  --color-brand-500: #5a7694;
+  --color-brand-600: #4a6280;
+  --color-brand-700: #3d516a;
+  --color-brand-800: #324356;
+  --color-brand-900: #283646;
+  --color-brand-950: #1a2430;
 
-  /* Complementary accents (dark SoT) — warm, calm; +~2% chroma. */
-  --color-accent-teal: #62bcaa;
-  --color-accent-cyan: #6fb7ca;
-  --color-accent-emerald: #5fb896;
-  --color-accent-amber: #d0ae50;
-  --color-accent-rose: #cb8d95;
-  --color-accent-orange: #d09e72;
-  --color-accent-violet: #9691ce;
+  /* Complementary accents (dark SoT) — dusty, share cool-gray undertone. */
+  --color-accent-teal: #6a9e94;
+  --color-accent-cyan: #6e92a3;
+  --color-accent-emerald: #6a9a86;
+  --color-accent-amber: #b89a5c;
+  --color-accent-rose: #b08990;
+  --color-accent-orange: #b89072;
+  --color-accent-violet: #85809a;
 
-  /* Dark theme (default) — editorial near-black with cool slate undertone.
+  /* Dark theme (default) — neutral charcoal (no purple cast).
      Surfaces lifted ~3–4% vs pure black so panels read with less eye strain. */
-  --color-surface-primary: #141416;
-  --color-surface-secondary: #1a1a20;
-  --color-surface-tertiary: #22222a;
-  --color-surface-card: #1c1c24;
-  --color-surface-hover: #282830;
-  --color-surface-active: #32323c;
-  --color-surface-input: #16161a;
+  --color-surface-primary: #131315;
+  --color-surface-secondary: #19191b;
+  --color-surface-tertiary: #222225;
+  --color-surface-card: #1a1a1d;
+  --color-surface-hover: #27272b;
+  --color-surface-active: #313136;
+  --color-surface-input: #151517;
 
-  --color-border-subtle: #303038;
-  --color-border-default: #3c3c4a;
-  --color-border-strong: #4e4e5e;
+  --color-border-subtle: #2c2c31;
+  --color-border-default: #3a3a42;
+  --color-border-strong: #4c4c58;
 
-  /* Type ink on dark — white/light-gray lifted again ~2–3% */
+  /* Type ink on dark — neutral light-gray (no lavender cast). */
   --color-text-primary: #fbfbfc;
-  --color-text-secondary: #bfbfcb;
-  --color-text-tertiary: #a0a0b4;
-  --color-text-muted: #9191a5;
+  --color-text-secondary: #c0c0c6;
+  --color-text-tertiary: #9e9ea6;
+  --color-text-muted: #8e8e96;
   /* Wave J-X02 — warm ink for badges/chips (dark parity with light brown ink) */
   --color-warm-ink: #8a6f55;
 
-  --viz-track: #26262e;
-  --viz-node-fill: #1a1a20;
-  --viz-canvas-bg: #141416;
+  --viz-track: #262629;
+  --viz-node-fill: #19191b;
+  --viz-canvas-bg: #131315;
   --surface-canvas: var(--viz-canvas-bg);
   /* Wave M — semantic aliases so surfaces / hairlines are theme-tokenized (no ad-hoc hex). */
   --color-surface-canvas: var(--viz-canvas-bg);
@@ -94,20 +96,20 @@
   /* Outline for danger/warn callouts — must clear ≥3:1 vs card wash. */
   --color-banner-warn-border: color-mix(in srgb, var(--palette-amber) 48%, var(--color-border-subtle));
 
-  --viz-grid-line: #1c1c22;
+  --viz-grid-line: #1c1c1f;
 
-  /* Mastery + spectrum palette (dark) — warm, muted, still band-distinct (+~2%) */
-  --mastery-weak: #cb8d95;
-  --mastery-developing: #6fb7ca;
-  --mastery-proficient: #d0ae50;
-  --mastery-strong: #5fb896;
-  --palette-purple: #9691ce;
-  --palette-cyan: #6fb7ca;
-  --palette-teal: #62bcaa;
-  --palette-green: #5fb896;
-  --palette-amber: #d0ae50;
-  --palette-rose: #cb8d95;
-  --palette-orange: #d09e72;
+  /* Mastery + spectrum palette (dark) — dusty complements (less candy vs steel brand). */
+  --mastery-weak: #b08990;
+  --mastery-developing: #6e92a3;
+  --mastery-proficient: #b89a5c;
+  --mastery-strong: #6a9a86;
+  --palette-purple: #85809a;
+  --palette-cyan: #6e92a3;
+  --palette-teal: #6a9e94;
+  --palette-green: #6a9a86;
+  --palette-amber: #b89a5c;
+  --palette-rose: #b08990;
+  --palette-orange: #b89072;
 
   /* Light theme is the typography SoT for every theme (optical size parity). */
   --font-sans: 'Nunito Sans', 'Noto Sans', 'Noto Sans Greek', system-ui, -apple-system, sans-serif;
@@ -5200,12 +5202,11 @@ body { letter-spacing: -0.005em; }
 }
 
 /* Readability (all dark themes): the deep brand shades (600–800) are tuned for
-   LIGHT backgrounds. As *foreground text* on dark surfaces they fail WCAG AA
-   (brand-800 #1e40af ≈ 2.3:1, brand-700 #1d4ed8 ≈ 2.3:1, brand-600 #2563eb
-   ≈ 3:1 on surface-primary #0a0a0c). Remap the text + hover utilities to
-   legible brand shades while preserving emphasis hierarchy (700/800 → light,
-   600 → slightly softer). Background/border utilities (bg-brand-*, border-brand-*)
-   are intentionally left unchanged so brand-tinted surfaces keep their depth.
+   LIGHT backgrounds / solid fills. As *foreground text* on dark surfaces they
+   fail WCAG AA. Remap the text + hover utilities to legible brand shades while
+   preserving emphasis hierarchy (700/800 → brand-300, 600 → brand-400).
+   Background/border utilities (bg-brand-*, border-brand-*) are intentionally
+   left unchanged so brand-tinted surfaces keep their depth.
    Light/spectrum themes are unaffected (light backgrounds read these well). */
 [data-theme="dark"] .text-brand-800,
 [data-theme="dark"] .text-brand-700,
