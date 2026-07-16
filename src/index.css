@@ -14,31 +14,28 @@
   --color-brand-900: #1e3a8a;
   --color-brand-950: #172554;
 
-  /* Complementary accents (dark SoT) — warmer / lower chroma than neon Tailwind
-     defaults so charts & chips rest easier on near-black; brand blue untouched. */
-  --color-accent-teal: #5aafa0;
-  --color-accent-cyan: #6aadc0;
-  --color-accent-emerald: #5aad8c;
-  --color-accent-amber: #c9a24a;
-  --color-accent-rose: #c4848c;
-  --color-accent-orange: #c99468;
-  --color-accent-violet: #8f88c4;
+  /* Complementary accents (dark SoT) — warm, calm; +~2–3% chroma vs prior pass. */
+  --color-accent-teal: #60b8a8;
+  --color-accent-cyan: #6db3c6;
+  --color-accent-emerald: #5db492;
+  --color-accent-amber: #ceaa4e;
+  --color-accent-rose: #c98991;
+  --color-accent-orange: #ce9a6e;
+  --color-accent-violet: #948dca;
 
   /* Dark theme (default) — editorial near-black with cool slate undertone.
-     Elevation steps widened (F: reduce dark-on-dark flatness) so panels and
-     cards visibly lift off the base without losing the deep editorial feel.
-     Mockup merge: slightly clearer card/border separation for dense layouts. */
-  --color-surface-primary: #0a0a0c;
-  --color-surface-secondary: #121218;
-  --color-surface-tertiary: #1a1a22;
-  --color-surface-card: #16161e;
-  --color-surface-hover: #22222b;
-  --color-surface-active: #2c2c36;
-  --color-surface-input: #0e0e12;
+     Surfaces lifted ~3–4% vs pure black so panels read with less eye strain. */
+  --color-surface-primary: #141416;
+  --color-surface-secondary: #1a1a20;
+  --color-surface-tertiary: #22222a;
+  --color-surface-card: #1c1c24;
+  --color-surface-hover: #282830;
+  --color-surface-active: #32323c;
+  --color-surface-input: #16161a;
 
-  --color-border-subtle: #2a2a34;
-  --color-border-default: #363644;
-  --color-border-strong: #484858;
+  --color-border-subtle: #303038;
+  --color-border-default: #3c3c4a;
+  --color-border-strong: #4e4e5e;
 
   --color-text-primary: #f4f4f6;
   --color-text-secondary: #b4b4c0;
@@ -47,9 +44,9 @@
   /* Wave J-X02 — warm ink for badges/chips (dark parity with light brown ink) */
   --color-warm-ink: #8a6f55;
 
-  --viz-track: #1f1f27;
-  --viz-node-fill: #131318;
-  --viz-canvas-bg: #0a0a0c;
+  --viz-track: #26262e;
+  --viz-node-fill: #1a1a20;
+  --viz-canvas-bg: #141416;
   --surface-canvas: var(--viz-canvas-bg);
   /* Wave M — semantic aliases so surfaces / hairlines are theme-tokenized (no ad-hoc hex). */
   --color-surface-canvas: var(--viz-canvas-bg);
@@ -96,20 +93,20 @@
   /* Outline for danger/warn callouts — must clear ≥3:1 vs card wash. */
   --color-banner-warn-border: color-mix(in srgb, var(--palette-amber) 48%, var(--color-border-subtle));
 
-  --viz-grid-line: #16161b;
+  --viz-grid-line: #1c1c22;
 
-  /* Mastery + spectrum palette (dark) — warm, muted, still band-distinct */
-  --mastery-weak: #c4848c;
-  --mastery-developing: #6aadc0;
-  --mastery-proficient: #c9a24a;
-  --mastery-strong: #5aad8c;
-  --palette-purple: #8f88c4;
-  --palette-cyan: #6aadc0;
-  --palette-teal: #5aafa0;
-  --palette-green: #5aad8c;
-  --palette-amber: #c9a24a;
-  --palette-rose: #c4848c;
-  --palette-orange: #c99468;
+  /* Mastery + spectrum palette (dark) — warm, muted, still band-distinct (+~2–3%) */
+  --mastery-weak: #c98991;
+  --mastery-developing: #6db3c6;
+  --mastery-proficient: #ceaa4e;
+  --mastery-strong: #5db492;
+  --palette-purple: #948dca;
+  --palette-cyan: #6db3c6;
+  --palette-teal: #60b8a8;
+  --palette-green: #5db492;
+  --palette-amber: #ceaa4e;
+  --palette-rose: #c98991;
+  --palette-orange: #ce9a6e;
 
   /* Light theme is the typography SoT for every theme (optical size parity). */
   --font-sans: 'Nunito Sans', 'Noto Sans', 'Noto Sans Greek', system-ui, -apple-system, sans-serif;
@@ -270,19 +267,18 @@
   --color-banner-warn-ink: color-mix(in srgb, var(--palette-amber) 55%, #352c23);
   --color-banner-warn-border: color-mix(in srgb, var(--color-banner-warn-ink) 58%, var(--color-border-subtle));
 
-  /* Earth accents — slightly richer/warmer than pure taupe so light feels less
-     flat, still hugging brand brown (#80551f). Brand scale unchanged. */
-  --mastery-weak: #9a6558;
-  --mastery-developing: #6a7a7e;
-  --mastery-proficient: #9a7848;
-  --mastery-strong: #5f7a68;
-  --palette-purple: #7a6680;
-  --palette-cyan: #687a80;
-  --palette-teal: #5f7870;
-  --palette-green: #5f7a68;
-  --palette-amber: #9a7848;
-  --palette-rose: #9a6558;
-  --palette-orange: #9a7050;
+  /* Earth accents — warm, near brand brown; +~2–3% chroma. Brand scale unchanged. */
+  --mastery-weak: #9e695c;
+  --mastery-developing: #6d7e82;
+  --mastery-proficient: #9f7d4c;
+  --mastery-strong: #637f6c;
+  --palette-purple: #7e6a84;
+  --palette-cyan: #6c7e84;
+  --palette-teal: #637d74;
+  --palette-green: #637f6c;
+  --palette-amber: #9f7d4c;
+  --palette-rose: #9e695c;
+  --palette-orange: #9e7554;
 
   --color-accent-emerald: var(--palette-green);
   --color-accent-amber: var(--palette-amber);
@@ -361,21 +357,21 @@
   --color-heatmap-scale-4: #5c4033;
   --color-calibration-over: #b4233c;
   --color-calibration-under: #0e7490;
-  --color-banner-warn-ink: color-mix(in srgb, #9a7848 55%, #352c23);
+  --color-banner-warn-ink: color-mix(in srgb, #9f7d4c 55%, #352c23);
   --color-banner-warn-border: color-mix(in srgb, var(--color-banner-warn-ink) 58%, var(--color-border-subtle));
 
   /* Match light complementary accents when warm-sand is root theme */
-  --mastery-weak: #9a6558;
-  --mastery-developing: #6a7a7e;
-  --mastery-proficient: #9a7848;
-  --mastery-strong: #5f7a68;
-  --palette-purple: #7a6680;
-  --palette-cyan: #687a80;
-  --palette-teal: #5f7870;
-  --palette-green: #5f7a68;
-  --palette-amber: #9a7848;
-  --palette-rose: #9a6558;
-  --palette-orange: #9a7050;
+  --mastery-weak: #9e695c;
+  --mastery-developing: #6d7e82;
+  --mastery-proficient: #9f7d4c;
+  --mastery-strong: #637f6c;
+  --palette-purple: #7e6a84;
+  --palette-cyan: #6c7e84;
+  --palette-teal: #637d74;
+  --palette-green: #637f6c;
+  --palette-amber: #9f7d4c;
+  --palette-rose: #9e695c;
+  --palette-orange: #9e7554;
   --color-accent-emerald: var(--palette-green);
   --color-accent-amber: var(--palette-amber);
   --color-accent-orange: var(--palette-orange);
@@ -640,19 +636,18 @@
 
   color-scheme: light;
 
-  /* Spectrum complements — desaturated + warm, pulled toward violet brand
-     (keeps lavender identity without rainbow neon on white cards). */
-  --mastery-weak: #b87884;
-  --mastery-developing: #7a9ab8;
-  --mastery-proficient: #c4a050;
-  --mastery-strong: #5a9a84;
-  --palette-purple: #8b7ed4;
-  --palette-cyan: #7a9ab8;
-  --palette-teal: #5a9a90;
-  --palette-green: #5a9a84;
-  --palette-amber: #c4a050;
-  --palette-rose: #b87884;
-  --palette-orange: #c09068;
+  /* Spectrum complements — calm violet-family; +~2–3% chroma. */
+  --mastery-weak: #bc7d89;
+  --mastery-developing: #7e9fbd;
+  --mastery-proficient: #c9a654;
+  --mastery-strong: #5ea089;
+  --palette-purple: #9083d8;
+  --palette-cyan: #7e9fbd;
+  --palette-teal: #5ea095;
+  --palette-green: #5ea089;
+  --palette-amber: #c9a654;
+  --palette-rose: #bc7d89;
+  --palette-orange: #c5956d;
 
   --color-accent-emerald: var(--palette-green);
   --color-accent-amber: var(--palette-amber);
@@ -680,7 +675,7 @@
 }
 
 [data-theme="spectrum"] .gradient-text {
-  background: linear-gradient(135deg, #8b7ed4 0%, #7a9ab8 40%, #c4a050 100%);
+  background: linear-gradient(135deg, #9083d8 0%, #7e9fbd 40%, #c9a654 100%);
   -webkit-background-clip: text;
   background-clip: text;
 }
@@ -783,36 +778,34 @@
 /* Blueprint — Option-B glass dark (QuillLoop prototype aesthetic); does not alter dark/light/spectrum */
 [data-theme="blueprint"] {
   --ux-radius-hero: 2rem;
-  --color-surface-primary: #020617;
-  --color-surface-secondary: #0f172a;
-  --color-surface-tertiary: #1e293b;
-  --color-surface-card: color-mix(in srgb, #ffffff 4.5%, #020617);
-  --color-surface-hover: color-mix(in srgb, #ffffff 7%, #0f172a);
-  --color-surface-active: color-mix(in srgb, #ffffff 10%, #1e293b);
-  --color-surface-input: #0f172a;
+  /* Deep navy lifted ~3–4% so canvas is less crushing; brand cyan untouched. */
+  --color-surface-primary: #0b1020;
+  --color-surface-secondary: #182033;
+  --color-surface-tertiary: #263245;
+  --color-surface-card: color-mix(in srgb, #ffffff 5%, #0b1020);
+  --color-surface-hover: color-mix(in srgb, #ffffff 7%, #182033);
+  --color-surface-active: color-mix(in srgb, #ffffff 10%, #263245);
+  --color-surface-input: #182033;
 
-  /* Wave P-C06 — border-subtle lifted +3% white so blueprint card outlines
-     visibly frame each surface against the deep-space gradient canvas.
-     Default was 8% (blended into canvas); 11% keeps identity while reaching
-     ≥1.4:1 vs surface-card. */
-  --color-border-subtle: color-mix(in srgb, #ffffff 11%, #020617);
-  --color-border-default: color-mix(in srgb, #ffffff 14%, #020617);
-  --color-border-strong: color-mix(in srgb, #ffffff 20%, #020617);
+  /* Wave P-C06 — border-subtle frames cards vs deep-space canvas. */
+  --color-border-subtle: color-mix(in srgb, #ffffff 11%, #0b1020);
+  --color-border-default: color-mix(in srgb, #ffffff 14%, #0b1020);
+  --color-border-strong: color-mix(in srgb, #ffffff 20%, #0b1020);
 
   /* Wave M — blueprint semantic aliases (glass dark canvas + refined hairline) */
-  --color-surface-canvas: #0d1220;
-  --color-hairline: #1c2a44;
+  --color-surface-canvas: #151a28;
+  --color-hairline: #243048;
 
   /* Wave N — SoT overrides for blueprint (cyan glass identity preserved) */
-  --color-surface-pressed: color-mix(in srgb, #ffffff 12%, #1e293b);
-  --color-surface-hover-strong: color-mix(in srgb, #ffffff 10%, #1e293b);
+  --color-surface-pressed: color-mix(in srgb, #ffffff 12%, #263245);
+  --color-surface-hover-strong: color-mix(in srgb, #ffffff 10%, #263245);
   --color-focus-ring: var(--color-brand-300);
   --focus-ring-offset: 2px;
-  --color-on-brand: #020617;
-  --color-on-danger: #020617;
-  --color-on-warn: #020617;
-  --color-on-success: #020617;
-  --color-on-info: #020617;
+  --color-on-brand: #0b1020;
+  --color-on-danger: #0b1020;
+  --color-on-warn: #0b1020;
+  --color-on-success: #0b1020;
+  --color-on-info: #0b1020;
   --elev-popover: 0 20px 48px color-mix(in srgb, #000000 45%, transparent),
                   0 3px 10px color-mix(in srgb, #000000 22%, transparent);
 
@@ -846,31 +839,31 @@
   --color-brand-900: #164e63;
   --color-brand-950: #083344;
 
-  /* Complements — calmer/warmer than neon cyan-glass; brand cyan scale kept. */
-  --color-accent-teal: #3d9a90;
-  --color-accent-cyan: #5bb8c8;
-  --color-accent-emerald: #4fae90;
-  --color-accent-amber: #c9a24a;
-  --color-accent-rose: #c47878;
-  --color-accent-orange: #c99468;
-  --color-accent-violet: #8a90b8;
+  /* Complements — calm cyan-glass family; +~2–3% chroma. Brand cyan kept. */
+  --color-accent-teal: #41a096;
+  --color-accent-cyan: #60becd;
+  --color-accent-emerald: #53b495;
+  --color-accent-amber: #ceaa4e;
+  --color-accent-rose: #c97d7d;
+  --color-accent-orange: #ce9a6e;
+  --color-accent-violet: #8f95bd;
 
-  --viz-track: color-mix(in srgb, #ffffff 8%, #0f172a);
-  --viz-node-fill: #0f172a;
-  --viz-canvas-bg: color-mix(in srgb, #ffffff 3%, #020617);
-  --viz-grid-line: color-mix(in srgb, #ffffff 6%, #020617);
+  --viz-track: color-mix(in srgb, #ffffff 8%, #182033);
+  --viz-node-fill: #182033;
+  --viz-canvas-bg: color-mix(in srgb, #ffffff 3%, #0b1020);
+  --viz-grid-line: color-mix(in srgb, #ffffff 6%, #0b1020);
 
-  --mastery-weak: #c47878;
-  --mastery-developing: #5bb8c8;
-  --mastery-proficient: #c9a24a;
-  --mastery-strong: #4fae90;
-  --palette-purple: #8a90b8;
-  --palette-cyan: #5bb8c8;
-  --palette-teal: #3d9a90;
-  --palette-green: #4fae90;
-  --palette-amber: #c9a24a;
-  --palette-rose: #c47878;
-  --palette-orange: #c99468;
+  --mastery-weak: #c97d7d;
+  --mastery-developing: #60becd;
+  --mastery-proficient: #ceaa4e;
+  --mastery-strong: #53b495;
+  --palette-purple: #8f95bd;
+  --palette-cyan: #60becd;
+  --palette-teal: #41a096;
+  --palette-green: #53b495;
+  --palette-amber: #ceaa4e;
+  --palette-rose: #c97d7d;
+  --palette-orange: #ce9a6e;
   /* Warn outlines on cyan-glass: bright amber alone washes out — mix with cyan brand. */
   --color-banner-warn-ink: color-mix(in srgb, var(--palette-amber) 55%, #e2e8f0);
   --color-banner-warn-border: color-mix(in srgb, var(--palette-amber) 42%, var(--color-brand-400));
@@ -889,7 +882,7 @@
   background:
     radial-gradient(circle at 0% 0%, color-mix(in srgb, var(--color-accent-teal) 18%, transparent), transparent 34%),
     radial-gradient(circle at 100% 0%, color-mix(in srgb, var(--color-accent-violet) 15%, transparent), transparent 26%),
-    linear-gradient(180deg, #020617 0%, #0f172a 48%, #020617 100%);
+    linear-gradient(180deg, var(--color-surface-primary) 0%, var(--color-surface-secondary) 48%, var(--color-surface-primary) 100%);
   background-color: var(--color-surface-primary);
   background-attachment: fixed;
 }
