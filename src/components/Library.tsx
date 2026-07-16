@@ -792,7 +792,8 @@ function CourseCard({
       )}
 
       {isGenerating && (
-        <div className="w-full bg-surface-hover rounded-full h-1 overflow-hidden">
+        /* Wave P-2 C08 — course generation shimmer track uses --viz-bar-track. */
+        <div className="w-full rounded-full h-1 overflow-hidden" style={{ backgroundColor: 'var(--viz-bar-track)' }}>
           <div className="h-1 bg-accent-amber shimmer" style={{ width: '60%' }} />
         </div>
       )}
@@ -979,7 +980,8 @@ function CourseListItem({
       </div>
       <div className="hidden sm:flex items-center gap-4">
         <div className="w-24">
-          <div className="w-full bg-surface-hover rounded-full h-1.5">
+          {/* Wave P-2 C08 — library list-view mastery track uses --viz-bar-track. */}
+          <div className="w-full rounded-full h-1.5" style={{ backgroundColor: 'var(--viz-bar-track)' }}>
             <div
               className="h-1.5 rounded-full transition-all"
               style={{ width: `${progress}%`, backgroundColor: resolveCourseColor(course.color) }}
@@ -1130,7 +1132,8 @@ function FileItem({
         <div className="shrink-0 flex items-center gap-2">
           {file.status === 'uploading' && (
             <div className="flex items-center gap-2">
-              <div className="w-16 bg-surface-hover rounded-full h-1.5">
+              {/* Wave P-2 C08 — file upload progress track uses --viz-bar-track. */}
+              <div className="w-16 rounded-full h-1.5" style={{ backgroundColor: 'var(--viz-bar-track)' }}>
                 <div className="h-1.5 rounded-full bg-brand-500 transition-all" style={{ width: `${file.progress}%` }} />
               </div>
               <span className="text-xs text-text-tertiary">{Math.round(file.progress || 0)}%</span>

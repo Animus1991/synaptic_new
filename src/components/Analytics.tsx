@@ -502,12 +502,17 @@ function OverviewTab({
         </motion.div>
       )}
 
-      {/* 3-col: Courses | Concepts | You vs Real (I-A01) */}
+      {/* 3-col: Courses | Concepts | You vs Real (I-A01)
+          Wave P-2 L02 — CSS multi-column masonry retires the 3-col grid whose
+          Calibration column was ~5x taller than Courses/Concepts, leaving ~300–500 px
+          of whitespace under the shorter columns. `break-inside-avoid` per child pins
+          each panel so it never splits across columns. Falls back to single column
+          below lg. `space-y-3` inside each column instead of gap for cleaner packing. */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
-        className="grid grid-cols-1 lg:grid-cols-3 gap-3"
+        className="lg:columns-3 lg:gap-3 [&>*]:mb-3 [&>*]:break-inside-avoid space-y-3 lg:space-y-0"
         data-testid="analytics-overview-mastery-row"
       >
         <div className="platform-panel-md">
@@ -520,7 +525,10 @@ function OverviewTab({
               <div key={course.id} className="flex items-center gap-2">
                 <CourseIcon icon={course.icon} size="sm" colorClassName="text-brand-600 shrink-0" />
                 <span className="text-xs text-text-secondary flex-1 truncate">{course.title}</span>
-                <div className="w-16 bg-surface-hover rounded-full h-1.5 shrink-0">
+                {/* Wave P-2 C08 — Courses column progress track uses --viz-bar-track
+                    (theme-tuned ≥3:1 vs card) instead of bg-surface-hover which
+                    collapsed to ~1.1:1 on spectrum + warm-light. */}
+                <div className="w-16 rounded-full h-1.5 shrink-0" style={{ backgroundColor: 'var(--viz-bar-track)' }}>
                   <div className="h-1.5 rounded-full" style={{ width: `${course.mastery}%`, backgroundColor: resolveCourseColor(course.color) }} />
                 </div>
                 <span className="text-[10px] font-semibold tabular-nums w-8 text-right">{course.mastery}%</span>
@@ -539,7 +547,8 @@ function OverviewTab({
               .map((skill) => (
                 <div key={skill.concept} className="flex items-center gap-2">
                   <span className="text-xs text-text-secondary flex-1 truncate">{skill.concept}</span>
-                  <div className="w-16 bg-surface-hover rounded-full h-1.5 shrink-0">
+                  {/* Wave P-2 C08 — Concepts column progress track uses --viz-bar-track. */}
+                  <div className="w-16 rounded-full h-1.5 shrink-0" style={{ backgroundColor: 'var(--viz-bar-track)' }}>
                     <div
                       className={cn(
                         'h-1.5 rounded-full',
@@ -1138,7 +1147,8 @@ function SkillBar({ concept, mastery, retention, count, color }: { concept: stri
         <span className="text-sm font-medium">{concept}</span>
         <span className={cn('text-xs font-medium', `text-accent-${color}`)}>{mastery}%</span>
       </div>
-      <div className="w-full bg-surface-hover rounded-full h-2">
+      {/* Wave P-2 C08 — SkillBar (research view) track uses --viz-bar-track. */}
+      <div className="w-full rounded-full h-2" style={{ backgroundColor: 'var(--viz-bar-track)' }}>
         <div className={cn('h-2 rounded-full transition-all', barColor)} style={{ width: `${Math.max(mastery, 3)}%` }} />
       </div>
       <div className="flex gap-3 mt-1 text-[10px] text-text-muted">

@@ -345,22 +345,57 @@ Replace anemic `bg-accent-rose/15` with proper solid CTA using the `.ux-chip-sol
 
 ---
 
-## 3. Sprint P-2 (tracked, no omission — hand-off ready)
+## 3. Sprint P-2 — SHIPPED (2026-07-16)
+
+**Focus**: eliminate every remaining `bg-surface-hover` progress-bar track (which reduced to ~1.1:1 contrast on white cards in warm-light + spectrum), tighten `--viz-bar-fill-muted` per-theme mix ratios (was 45–55%, now 68–75%) so historical bars stay perceptible, and repack the Analytics 3-col Courses / Concepts / Calibration row with CSS multi-column masonry (eliminates the ~300–500 px whitespace under the shorter columns).
+
+### Sprint P-2 shipped items (each with exact file × line pointer for future LLMs)
+
+| ID | Surface | File · line anchor | Change |
+| -- | ------- | ------------------ | ------ |
+| **P-C08a** | Analytics Overview → Courses column progress track | `src/components/Analytics.tsx` L523 | `bg-surface-hover` → `style={{ backgroundColor: 'var(--viz-bar-track)' }}` |
+| **P-C08b** | Analytics Overview → Concepts column progress track | `src/components/Analytics.tsx` L542 | ditto |
+| **P-C08c** | Analytics Research view SkillBar | `src/components/Analytics.tsx` L1141 | ditto |
+| **P-C08d** | Dashboard Active Courses per-course lesson bar | `src/components/Dashboard.tsx` L670 | ditto |
+| **P-C08e** | Syllabus Coverage compact panel progress | `src/components/examPrep/SyllabusCoverageWidget.tsx` L68 | ditto |
+| **P-C08f** | Syllabus Coverage full panel progress | `src/components/examPrep/SyllabusCoverageWidget.tsx` L137 | ditto |
+| **P-C08g** | ConceptMasteryBars (Dashboard concept panel) | `src/components/visuals/ConceptMasteryBars.tsx` L29 | ditto |
+| **P-C08h** | CalibrationCompareBar (Analytics 3-col) | `src/components/visuals/CalibrationCompareBar.tsx` L25 | `bg-viz-track` → inline `var(--viz-bar-track)` |
+| **P-C08i** | SignalBars (Dashboard readiness ring signals) | `src/components/visuals/SignalBars.tsx` L34 | `bg-surface-hover` → `var(--viz-bar-track)`; +25/50/75 ticks stay visible |
+| **P-C08j** | SessionQueueBar auto-advance progress | `src/components/SessionQueueBar.tsx` L60 | ditto |
+| **P-C08k** | CourseView top-of-page overall progress (`h-3`) | `src/components/CourseView.tsx` L508 | ditto |
+| **P-C08l** | CourseView per-topic mastery bar | `src/components/CourseView.tsx` L706 | ditto |
+| **P-C08m** | CourseView Study Time Distribution bar | `src/components/CourseView.tsx` L1096 | ditto |
+| **P-C08n** | TeacherDashboard plan usage bar | `src/components/TeacherDashboard.tsx` L974 | ditto |
+| **P-C08o** | StudentOrgView completion bar | `src/components/StudentOrgView.tsx` L298 | ditto |
+| **P-C08p** | Library — course card generation shimmer | `src/components/Library.tsx` L795 | ditto |
+| **P-C08q** | Library — course list-view mastery bar | `src/components/Library.tsx` L982 | ditto |
+| **P-C08r** | Library — file upload progress | `src/components/Library.tsx` L1133 | ditto |
+| **P-C09** | Dashboard Recent Calibration compact predicted+actual bar | `src/components/Dashboard.tsx` L857 | Track → `var(--viz-bar-track)`; actual segment now `bg-accent-emerald` (opacity 0.85) instead of `/60` alpha (raises reveal in spectrum + warm-light while keeping the layering readable). |
+| **P-C10** | Syllabus Coverage pending-topic bullet | `src/components/examPrep/SyllabusCoverageWidget.tsx` L77 | Empty circle bullet fills with `var(--viz-bar-track)` + `border-border-default` so pending topics remain visible on white cards. |
+| **P-C11** | Per-theme `--viz-bar-fill-muted` mix ratio bump | `src/index.css` L246 (warm-light), L337 (warm-sand), L578 (spectrum) | 45% → **68%** (warm), 55% → **75%** (spectrum) brand mix. Guarantees historical bars ≥3:1 vs white card even where lavender/warm ink is naturally lighter. |
+| **P-L02** | Analytics 3-col row Courses / Concepts / Calibration → masonry | `src/components/Analytics.tsx` L510 | `grid grid-cols-1 lg:grid-cols-3 gap-3` → `lg:columns-3 lg:gap-3 [&>*]:mb-3 [&>*]:break-inside-avoid space-y-3 lg:space-y-0`. Eliminates ~300–500 px whitespace under the (much shorter) Courses & Concepts panels when Calibration has 5+ rows. |
+
+**Acceptance for P-2**: `npx tsc --noEmit` clean; no `bg-surface-hover rounded-full` / `bg-surface-hover overflow-hidden` remaining anywhere (grep across `src/`); Analytics 3-col row packs Concepts under Courses whenever heights differ; Weekly Mastery historical bars visible on warm-light + spectrum.
+
+---
+
+## 3.5. Sprint P-3 (tracked, hand-off — remaining items after P-2)
 
 Downstream LLMs pick these up in order. Each row is a self-contained diff.
 
 | ID | Surface | Priority | Fix pointer |
 | -- | ------- | -------- | ----------- |
-| P-C08 | Dashboard `Almost There` amber banner in spectrum | P2 | Bump amber banner title to `color-mix(in srgb, var(--palette-amber) 55%, #1a1430)` for spectrum only. |
-| P-C09 | Priority Tasks `HIGH PRIORITY` pill on white spectrum card | P2 | Migrate rose pill background to `.ux-chip-solid-danger` opt-in with `--color-on-danger` foreground. |
-| P-C10 | Calibration bars (`Overestimation` / `Underestimation` labels) | P3 | Add `--color-calibration-over/under` token, WCAG-audit per theme. |
-| P-C11 | Blueprint heatmap empty cells | P3 | Handled by P-C03 tokens; verify visually. |
 | P-C12 | Warm-light Interface theme selector active pill | P3 | Same treatment as P-L02 for warm-light. |
-| P-L03 | Analytics `Weekly Mastery Trend` + `Study Heatmap` grid — collapse gap under 2-col row when Heatmap empties | P3 | Replace `grid-cols-1 lg:grid-cols-2 gap-3` with `.ux-viz-row` utility using `grid-auto-flow: dense`. |
+| P-C13 | Dashboard `Almost There` amber banner text in spectrum | P3 | Bump amber banner title to `color-mix(in srgb, var(--palette-amber) 55%, #1a1430)` for spectrum only. |
+| P-C14 | Priority Tasks `HIGH PRIORITY` pill on white spectrum card | P3 | Migrate rose pill background to `.ux-chip-solid-danger` opt-in with `--color-on-danger` foreground. |
+| P-C15 | Analytics Calibration bars `Overestimation` / `Underestimation` triangles | P3 | Add `--color-calibration-over/under` token, WCAG-audit per theme. |
+| P-C16 | Blueprint tooltip small text (`+3d`, `+7d`) | P3 | Verify visual — should now pass with P-C07; if not, promote `--color-text-muted` +2%. |
+| P-L03 | Analytics `Weekly Mastery Trend` + `Study Heatmap` — pack 2-col even tighter when Heatmap sparse | P3 | Replace `grid-cols-1 lg:grid-cols-2 gap-3` with `lg:columns-2` masonry (parity with P-L02). |
 | P-L04 | Tasks page — spacing under "0 of 7 tasks complete" | P3 | Compress `space-y-6` → `space-y-4` for the KPI block. |
 | P-L05 | Library — Combined study card excess bottom padding on wide viewports | P3 | Trim `p-5` → `p-4` for cards with only 2 lines of content. |
-| P-D01 | Dark theme "Start exam simulation" residual | P2 | Same fix as P-C05 (already covered), just verify screenshots. |
-| P-D02 | Dark Priority Task rows — hover elevation | P3 | Add `.ux-elev-popover` on hover for row cards; keep spring off (respects reduced-motion). |
+| P-D01 | Dark theme "Start exam simulation" residual | P3 | Verify screenshots for P-C05. |
+| P-D02 | Dark Priority Task rows — hover elevation | P3 | Add `.ux-elev-popover` on hover for row cards; keep spring off. |
 | P-S01 | Motion — remaining `AnimatePresence` sites (Tasks, Library, LessonView, ReprocessPreviewModal, workspace overlays) | P3 | Apply `[0.2, 0, 0, 1] @ 360 ms` transition explicitly. |
 | P-S02 | `src/lib/motion.ts` — export shared `fadeUp`, `slideIn`, `scaleIn` variants | P3 | New helper file; reference from callsites. |
 | P-S03 | `.ux-motion-fade-in` / `.ux-motion-slide-in` CSS utilities | P3 | For non-framer callsites; respect `prefers-reduced-motion` in `@media`. |
@@ -381,20 +416,24 @@ Downstream LLMs walk each **Page × Theme** cell of this matrix. For each cell:
 | ---- | --------- | ---- | ---------- | --------- | -------- | --------- |
 | Dashboard | KPI stripe | pass | pass | pass | ✏️ verify | ✏️ verify |
 | Dashboard | Priority Task rows | pass | pass | pass | ⚠️ pills (P-C09) | pass |
-| Dashboard | Weak Areas bars | pass | ⚠️ (P-C04) | ⚠️ (P-C04) | ⚠️ (P-C04) | pass |
-| Dashboard | Upcoming Exam bar + Start Exam CTA | ⚠️ (P-C05) | pass | pass | ⚠️ (P-C05) | pass |
-| Dashboard | Concept Mastery bars | pass | pass | pass | ✏️ verify | pass |
-| Dashboard | Almost There banner | pass | pass | pass | ⚠️ (P-C08) | pass |
-| Dashboard | Active Courses card progress | pass | pass | pass | ✏️ verify | ✏️ verify |
-| Analytics | Weekly Mastery Trend | ⚠️ (P-C01) | ⚠️ (P-C01) | ⚠️ (P-C01) | ⚠️ (P-C01) | ⚠️ (P-C01) |
-| Analytics | FSRS forecast row | ⚠️ (P-C02) | ⚠️ (P-C02) | ⚠️ (P-C02) | ⚠️ (P-C02) | ⚠️ (P-C02) |
-| Analytics | Study Heatmap | pass | ⚠️ (P-C03) | ⚠️ (P-C03) | ⚠️ (P-C03) | ⚠️ (P-C03) |
-| Analytics | Calibration bars | pass | pass | pass | ✏️ verify | ✏️ (P-C10) |
+| Dashboard | Weak Areas bars | pass | ✅ (P-C04) | ✅ (P-C04) | ✅ (P-C04) | pass |
+| Dashboard | Upcoming Exam bar + Start Exam CTA | ✅ (P-C05) | pass | pass | ✅ (P-C05) | pass |
+| Dashboard | Concept Mastery bars | pass | ✅ (P-C08g) | ✅ (P-C08g) | ✅ (P-C08g) | pass |
+| Dashboard | Almost There banner | pass | pass | pass | ⚠️ (P-C13) | pass |
+| Dashboard | Active Courses card progress | pass | ✅ (P-C08d) | ✅ (P-C08d) | ✅ (P-C08d) | ✅ (P-C08d) |
+| Dashboard | Readiness Ring signal bars | pass | ✅ (P-C08i) | ✅ (P-C08i) | ✅ (P-C08i) | pass |
+| Dashboard | Recent Calibration bar | pass | ✅ (P-C09) | ✅ (P-C09) | ✅ (P-C09) | pass |
+| Dashboard | Syllabus Coverage widget (compact) | pass | ✅ (P-C08e+P-C10) | ✅ (P-C08e+P-C10) | ✅ (P-C08e+P-C10) | pass |
+| Analytics | Weekly Mastery Trend | ✅ (P-C01+P-C11) | ✅ (P-C01+P-C11) | ✅ (P-C01+P-C11) | ✅ (P-C01+P-C11) | ✅ (P-C01) |
+| Analytics | FSRS forecast row | ✅ (P-C02) | ✅ (P-C02) | ✅ (P-C02) | ✅ (P-C02) | ✅ (P-C02) |
+| Analytics | Study Heatmap | pass | ✅ (P-C03) | ✅ (P-C03) | ✅ (P-C03) | ✅ (P-C03) |
+| Analytics | 3-col Courses / Concepts / Calibration row | ✅ (P-L02+P-C08a–c+P-C08h) | ✅ (P-L02+P-C08a–c+P-C08h) | ✅ (P-L02+P-C08a–c+P-C08h) | ✅ (P-L02+P-C08a–c+P-C08h) | ✅ (P-L02) |
+| Analytics | Calibration bars | pass | pass | pass | ✏️ verify | ✏️ (P-C15) |
 | Analytics | Subject Mastery mini-progress | pass | pass | pass | ✏️ verify | pass |
 | Tasks | Focused-session cards | pass | pass | pass | ✏️ verify | pass |
-| Tasks | Task row Priority pill | pass | ✏️ verify | ✏️ verify | ⚠️ (P-C09) | pass |
+| Tasks | Task row Priority pill | pass | ✏️ verify | ✏️ verify | ⚠️ (P-C14) | pass |
 | Tasks | Filter tabs | pass | pass | pass | ✏️ verify | pass |
-| Library | Course cards + tags | pass | pass | pass | ✏️ verify | pass |
+| Library | Course cards + tags | pass | pass | pass | ✏️ (P-C08p+P-C08q+P-C08r shipped) | pass |
 | Library | File chips | pass | pass | pass | ✏️ verify | pass |
 | Agent | Tutor mode list | pass | pass | pass | pass | pass |
 | Agent | Source picker embedded | pass | pass | pass | pass | pass |

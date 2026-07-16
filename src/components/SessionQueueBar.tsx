@@ -57,7 +57,8 @@ export function SessionQueueBar({
             </div>
           )}
           <p className="text-[10px] text-text-muted mb-1">{translate('sessionQueueAutoAdvance', lang)}</p>
-          <div className="h-1 rounded-full bg-surface-hover overflow-hidden">
+          {/* Wave P-2 C08 — session queue auto-advance progress uses --viz-bar-track. */}
+          <div className="h-1 rounded-full overflow-hidden" style={{ backgroundColor: 'var(--viz-bar-track)' }}>
             <div
               className="h-full bg-brand-500 transition-all duration-300"
               style={{ width: `${progress}%` }}

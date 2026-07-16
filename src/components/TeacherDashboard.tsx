@@ -971,7 +971,8 @@ export function TeacherDashboard({
                 {data.account.email} · {data.account.plan} {ui.planLabel}
               </span>
             </div>
-            <div className="h-2 rounded-full bg-surface-hover overflow-hidden">
+            {/* Wave P-2 C08 — plan usage track uses --viz-bar-track. */}
+            <div className="h-2 rounded-full overflow-hidden" style={{ backgroundColor: 'var(--viz-bar-track)' }}>
               <div
                 className={cn('h-full rounded-full transition-all', usagePct > 85 ? 'bg-accent-rose' : 'bg-brand-500')}
                 style={{ width: `${usagePct}%` }}

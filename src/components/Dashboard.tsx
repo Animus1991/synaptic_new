@@ -667,7 +667,9 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                       <span>·</span>
                       <span>{t('dashConceptsCount').replace('{count}', String(course.conceptCount))}</span>
                     </div>
-                    <div className="w-full bg-surface-hover rounded-full h-1.5">
+                    {/* Wave P-2 C08 — Active Courses lesson-progress track uses
+                        --viz-bar-track for ≥3:1 contrast vs card surface. */}
+                    <div className="w-full rounded-full h-1.5" style={{ backgroundColor: 'var(--viz-bar-track)' }}>
                       <div className="h-1.5 rounded-full transition-all duration-500" style={{ width: `${Math.min(100, (course.completedLessons / Math.max(course.totalLessons, 1)) * 100)}%`, backgroundColor: resolveCourseColor(course.color) }} />
                     </div>
                   </MotionSection>
@@ -854,9 +856,13 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
               return (
                 <div key={i} className="flex items-center gap-2 mb-1.5">
                   <span className="text-[10px] text-text-secondary w-16 truncate">{p.concept}</span>
-                  <div className="flex-1 h-1.5 bg-surface-hover rounded-full relative">
+                  {/* Wave P-2 C09 — Recent Calibration compact bar migrated to
+                      --viz-bar-track and full-opacity emerald so both predicted
+                      (brand-400) and actual (emerald) segments reach ≥3:1 on all
+                      themes, and the track stays visible when both bars are short. */}
+                  <div className="flex-1 h-1.5 rounded-full relative" style={{ backgroundColor: 'var(--viz-bar-track)' }}>
                     <div className="absolute h-1.5 rounded-full bg-brand-400" style={{ width: `${p.predicted * 100}%` }} />
-                    <div className="absolute h-1.5 rounded-full bg-accent-emerald/60" style={{ width: `${p.actual * 100}%` }} />
+                    <div className="absolute h-1.5 rounded-full bg-accent-emerald" style={{ width: `${p.actual * 100}%`, opacity: 0.85 }} />
                   </div>
                   {overconfident && (
                     <AlertTriangle

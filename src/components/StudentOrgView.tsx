@@ -295,7 +295,8 @@ export function StudentOrgView({
                       </div>
                       {completionPct != null && (
                         <div className="flex items-center gap-2 pt-1 max-w-xs">
-                          <div className="flex-1 h-1.5 rounded-full bg-surface-hover overflow-hidden">
+                          {/* Wave P-2 C08 — student completion track uses --viz-bar-track. */}
+                          <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: 'var(--viz-bar-track)' }}>
                             <div
                               className="h-full bg-brand-500 rounded-full"
                               style={{ width: `${completionPct}%` }}

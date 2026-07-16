@@ -505,7 +505,8 @@ export function CourseView({
           <span className="text-sm font-medium">Course Progress</span>
           <span className="text-sm text-text-secondary">{course.completedLessons}/{course.totalLessons} lessons</span>
         </div>
-        <div className="w-full bg-surface-hover rounded-full h-3">
+        {/* Wave P-2 C08 — Course Progress top-of-page track uses --viz-bar-track. */}
+        <div className="w-full rounded-full h-3" style={{ backgroundColor: 'var(--viz-bar-track)' }}>
           <div
             className="h-3 rounded-full transition-all duration-700"
             style={{ width: `${progress}%`, backgroundColor: resolveCourseColor(course.color) }}
@@ -703,7 +704,8 @@ function TopicCard({ topic, index, courseColor, course, onGoToSource, onStart }:
                   <span className="text-text-muted">Mastery</span>
                   <span className="font-medium">{topic.mastery}%</span>
                 </div>
-                <div className="w-full bg-surface-hover rounded-full h-1.5">
+                {/* Wave P-2 C08 — Topic mastery track uses --viz-bar-track. */}
+                <div className="w-full rounded-full h-1.5" style={{ backgroundColor: 'var(--viz-bar-track)' }}>
                   <div
                     className="h-1.5 rounded-full transition-all"
                     style={{
@@ -1093,7 +1095,8 @@ function CourseAnalytics({ course, masteryPercent }: { course: Course; masteryPe
           {course.topics.slice(0, 6).map(topic => (
             <div key={topic.id} className="flex items-center gap-2">
               <span className="text-xs text-text-secondary w-24 truncate">{topic.title}</span>
-              <div className="flex-1 bg-surface-hover rounded-full h-2">
+              {/* Wave P-2 C08 — Study Time Distribution track uses --viz-bar-track. */}
+              <div className="flex-1 rounded-full h-2" style={{ backgroundColor: 'var(--viz-bar-track)' }}>
                 <div
                   className="h-2 rounded-full bg-brand-500 transition-all"
                   style={{ width: `${Math.max(8, ((topic.estimatedMinutes || 0) / maxMinutes) * 100)}%` }}

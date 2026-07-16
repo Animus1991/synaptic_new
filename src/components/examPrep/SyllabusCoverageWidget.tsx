@@ -65,7 +65,9 @@ export function SyllabusCoverageWidget({
             {snapshot.completedTopics}/{snapshot.totalTopics}
           </span>
         </div>
-        <div className="w-full bg-surface-hover rounded-full h-1.5">
+        {/* Wave P-2 C08 — coverage compact progress track uses --viz-bar-track
+            for ≥3:1 contrast vs card surface in every theme. */}
+        <div className="w-full rounded-full h-1.5" style={{ backgroundColor: 'var(--viz-bar-track)' }}>
           <div className="h-1.5 rounded-full bg-brand-600 transition-all" style={{ width: `${pct}%` }} />
         </div>
         <ul className="space-y-1 max-h-28 overflow-y-auto">
@@ -74,7 +76,14 @@ export function SyllabusCoverageWidget({
               {topic.isComplete ? (
                 <CheckCircle2 className="w-3 h-3 text-accent-emerald shrink-0" aria-hidden />
               ) : (
-                <span className="w-3 h-3 rounded-full border border-border-subtle shrink-0" aria-hidden />
+                /* Wave P-2 C10 — pending-topic bullet now filled with --viz-bar-track
+                    so it stays visible in warm-light / spectrum where the raw
+                    border-subtle stroke collapsed to invisible on tinted cards. */
+                <span
+                  className="w-3 h-3 rounded-full border border-border-default shrink-0"
+                  style={{ backgroundColor: 'var(--viz-bar-track)' }}
+                  aria-hidden
+                />
               )}
               <span className={cn('truncate flex-1', topic.isComplete ? 'text-text-secondary' : 'text-text-primary')}>
                 {topic.title}
@@ -134,7 +143,8 @@ export function SyllabusCoverageWidget({
           />
         </div>
 
-        <div className="h-2 rounded-full bg-surface-hover overflow-hidden">
+        {/* Wave P-2 C08 — full-panel coverage progress track uses --viz-bar-track. */}
+        <div className="h-2 rounded-full overflow-hidden" style={{ backgroundColor: 'var(--viz-bar-track)' }}>
           <div
             className="h-full bg-brand-600 transition-all"
             style={{ width: `${snapshot.coveragePct}%` }}

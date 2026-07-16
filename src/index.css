@@ -239,11 +239,13 @@
                   0 2px 8px color-mix(in srgb, #1f160c 10%, transparent);
 
   /* Wave P — warm-light viz tokens: sepia-toned tracks + warm-ink bar fills
-     (guarantees ≥3:1 contrast vs #ffffff card; sepia heatmap identity kept). */
+     (guarantees ≥3:1 contrast vs #ffffff card; sepia heatmap identity kept).
+     Wave P-2 C11 — muted bumped from 45% → 68% brand mix so historical bars
+     reach ≥3:1 vs #ffffff instead of vanishing into the card. */
   --viz-bar-track: #e8dfd0;
   --viz-bar-track-strong: #c4ae88;
   --viz-bar-fill: var(--color-brand-500);
-  --viz-bar-fill-muted: color-mix(in srgb, var(--color-brand-500) 45%, #ffffff);
+  --viz-bar-fill-muted: color-mix(in srgb, var(--color-brand-500) 68%, #ffffff);
   --color-heatmap-scale-0: #ebe4d8;
   --color-heatmap-scale-1: #d4c4a8;
   --color-heatmap-scale-2: #b8956a;
@@ -328,11 +330,12 @@
   --elev-popover: 0 12px 28px -8px color-mix(in srgb, #1f160c 22%, transparent),
                   0 2px 8px color-mix(in srgb, #1f160c 10%, transparent);
 
-  /* Wave P — warm-sand viz tokens (parity with warm-light; keeps deeper sand identity). */
+  /* Wave P — warm-sand viz tokens (parity with warm-light; keeps deeper sand identity).
+     Wave P-2 C11 — muted bumped from 45% → 68% brand mix so historical bars reach ≥3:1. */
   --viz-bar-track: #e8dfd0;
   --viz-bar-track-strong: #c4ae88;
   --viz-bar-fill: var(--color-brand-500);
-  --viz-bar-fill-muted: color-mix(in srgb, var(--color-brand-500) 45%, #ffffff);
+  --viz-bar-fill-muted: color-mix(in srgb, var(--color-brand-500) 68%, #ffffff);
   --color-heatmap-scale-0: #ebe4d8;
   --color-heatmap-scale-1: #d4c4a8;
   --color-heatmap-scale-2: #b8956a;
@@ -568,11 +571,13 @@
                   0 2px 8px color-mix(in srgb, #1a1430 10%, transparent);
 
   /* Wave P — spectrum viz tokens: lavender-deep tracks + violet ink bar fills
-     (fixes invisible chart bars on white lavender card; retains identity). */
+     (fixes invisible chart bars on white lavender card; retains identity).
+     Wave P-2 C11 — muted bumped from 55% → 75% brand mix so historical bars
+     reach ≥3:1 vs #ffffff (lavender ink is naturally lighter than warm ink). */
   --viz-bar-track: #c4b5ff;
   --viz-bar-track-strong: #a894ff;
   --viz-bar-fill: var(--color-brand-600);
-  --viz-bar-fill-muted: color-mix(in srgb, var(--color-brand-500) 55%, #ffffff);
+  --viz-bar-fill-muted: color-mix(in srgb, var(--color-brand-500) 75%, #ffffff);
   --color-heatmap-scale-0: #e8e2ff;
   --color-heatmap-scale-1: #c4b5ff;
   --color-heatmap-scale-2: #a894ff;

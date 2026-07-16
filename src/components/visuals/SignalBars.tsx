@@ -31,7 +31,13 @@ export function SignalBars({ signals }: SignalBarsProps) {
             </span>
             <span className="text-xs font-bold" style={{ color: s.color }}>{s.value}%</span>
           </div>
-          <div className="relative h-2.5 bg-surface-hover rounded-full overflow-hidden">
+          {/* Wave P-2 C08 — SignalBars (Accuracy / Self-Reliance / Practice Volume /
+              Retrieval Strength on Dashboard readiness card) track uses --viz-bar-track
+              so the 25/50/75 tick marks read visibly on all 5 themes. */}
+          <div
+            className="relative h-2.5 rounded-full overflow-hidden"
+            style={{ backgroundColor: 'var(--viz-bar-track)' }}
+          >
             <motion.div
               className="absolute inset-y-0 left-0 rounded-full"
               style={{ backgroundColor: s.color }}
