@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo, useCallback, useRef, Suspense, type ReactNode } from 'react';
-import { AnimatePresence } from 'framer-motion';
+import { AnimatePresence, MotionConfig } from 'framer-motion';
 import { useAppStore } from './store/useStore';
 import { applyTheme, watchSystemTheme } from './lib/theme';
 import { I18nContext, t as translate, type I18nKey } from './lib/i18n';
@@ -1010,6 +1010,13 @@ export default function App() {
   // Main app views
   return (
     <I18nContext.Provider value={i18nValue}>
+      {/* Wave O-1 — global reduced-motion respect for every framer-motion
+          subtree (AnimatePresence + motion.*). Users with the OS-level
+          `prefers-reduced-motion: reduce` get instant transitions across the
+          whole app (Onboarding, Tasks, Library, ConfirmDialog, AppToastBanner,
+          Analytics Visual Lab, Agent mode dropdown, workspace overlays, etc.)
+          without touching each callsite individually. */}
+      <MotionConfig reducedMotion="user">
       <Shell {...shellProps}>
         {sessionBar}
         <AnimatePresence mode="wait">
@@ -1222,6 +1229,7 @@ export default function App() {
       </AnimatePresence>
       </Shell>
       {overlays}
+      </MotionConfig>
     </I18nContext.Provider>
   );
 }

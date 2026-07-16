@@ -65,6 +65,7 @@ export function OfflineShellBanner() {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 8 }}
+            transition={{ duration: 0.36, ease: [0.2, 0, 0, 1] }}
             className="fixed bottom-20 lg:bottom-6 left-1/2 z-[200] -translate-x-1/2 max-w-sm w-[calc(100%-2rem)]"
             data-testid="pwa-back-online-toast"
           >

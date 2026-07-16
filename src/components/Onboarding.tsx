@@ -267,6 +267,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.32, ease: [0.2, 0, 0, 1] }}
                 className="space-y-8"
                 aria-current="step"
               >
@@ -338,6 +339,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                 key="role"
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.32, ease: [0.2, 0, 0, 1] }}
                 exit={{ opacity: 0, x: -20 }}
                 className="space-y-6"
                 aria-current="step"
@@ -389,6 +391,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                 key="goals"
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.32, ease: [0.2, 0, 0, 1] }}
                 exit={{ opacity: 0, x: -20 }}
                 className="space-y-6"
                 aria-current="step"
@@ -436,6 +439,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                 key="schedule"
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.32, ease: [0.2, 0, 0, 1] }}
                 exit={{ opacity: 0, x: -20 }}
                 className="space-y-6"
                 aria-current="step"

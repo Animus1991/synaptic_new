@@ -151,7 +151,11 @@ See [`MOCKUP_WAVE_I_FIDELITY_PLAN.md`](./MOCKUP_WAVE_I_FIDELITY_PLAN.md). Sprint
 
 ## 6f. Wave N
 
-- [`MOCKUP_WAVE_N_FIDELITY_PLAN.md`](./MOCKUP_WAVE_N_FIDELITY_PLAN.md) — N-1: state-of-the-art theme system audit — `--color-focus-ring` + `--color-surface-pressed` + `--color-on-brand / -danger / -warn / -success / -info` + `--elev-popover` explicit for all 5 themes, `.ux-focus-ring` shared utility, sepia `::selection` for warm-light/warm-sand, thin themed scrollbars for warm-light/warm-sand/spectrum, unicode `✕` on Agent source settings replaced with Phosphor `X`.
+- [`MOCKUP_WAVE_N_FIDELITY_PLAN.md`](./MOCKUP_WAVE_N_FIDELITY_PLAN.md) — N-1: state-of-the-art theme system audit — `--color-focus-ring` + `--color-surface-pressed` + `--color-on-brand / -danger / -warn / -success / -info` + `--elev-popover` explicit for all 5 themes, `.ux-focus-ring` shared utility, sepia `::selection` for warm-light/warm-sand, thin themed scrollbars for warm-light/warm-sand/spectrum, unicode `✕` on Agent source settings replaced with Phosphor `X`. N-2: `.ux-chip-solid-*` bound to `--color-on-*`, `.ux-elev-popover` utility applied to NotificationsPanel/CommandPalette (root + workspace)/DashboardActionHub, `--color-surface-hover-strong` + `.ux-hover-strong` (two-step hover applied to Agent embedded source menu), `--motion-duration-emphasized` (360 ms) + `--motion-ease-emphasized` (Material 3 emphasized decelerate) tokens applied to Analytics Visual Lab collapse and Agent embedded mode dropdown.
+
+## 6g. Wave O
+
+- [`MOCKUP_WAVE_O_FIDELITY_PLAN.md`](./MOCKUP_WAVE_O_FIDELITY_PLAN.md) — O-1: global `MotionConfig reducedMotion="user"` at `App.tsx` for automatic OS-level reduced-motion respect across all framer-motion subtrees; explicit emphasized transitions on Onboarding steps (welcome/role/goals/schedule), UploadModal backdrop + panel, AppToastBanner, OfflineShellBanner back-online toast. Preserves spring transitions on ConfirmDialog + DashboardHubShell overlay.
 
 ---
 

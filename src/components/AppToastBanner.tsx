@@ -20,6 +20,7 @@ export function AppToastBanner({
           initial={{ opacity: 0, y: 24, scale: 0.96 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: 12, scale: 0.98 }}
+          transition={{ duration: 0.36, ease: [0.2, 0, 0, 1] }}
           className="app-toast-shell fixed bottom-6 left-1/2 z-[200] -translate-x-1/2 max-w-md w-[calc(100%-2rem)]"
           data-testid="app-toast"
         >
