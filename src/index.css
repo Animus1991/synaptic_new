@@ -24,18 +24,19 @@
 
   /* Dark theme (default) — editorial near-black with cool slate undertone.
      Elevation steps widened (F: reduce dark-on-dark flatness) so panels and
-     cards visibly lift off the base without losing the deep editorial feel. */
+     cards visibly lift off the base without losing the deep editorial feel.
+     Mockup merge: slightly clearer card/border separation for dense layouts. */
   --color-surface-primary: #0a0a0c;
-  --color-surface-secondary: #131317;
-  --color-surface-tertiary: #1a1a21;
-  --color-surface-card: #17171e;
-  --color-surface-hover: #212129;
-  --color-surface-active: #2a2a34;
-  --color-surface-input: #0f0f13;
+  --color-surface-secondary: #121218;
+  --color-surface-tertiary: #1a1a22;
+  --color-surface-card: #16161e;
+  --color-surface-hover: #22222b;
+  --color-surface-active: #2c2c36;
+  --color-surface-input: #0e0e12;
 
-  --color-border-subtle: #262630;
-  --color-border-default: #32323f;
-  --color-border-strong: #42424f;
+  --color-border-subtle: #2a2a34;
+  --color-border-default: #363644;
+  --color-border-strong: #484858;
 
   --color-text-primary: #f4f4f6;
   --color-text-secondary: #b4b4c0;
@@ -212,6 +213,34 @@
             0 2px 6px color-mix(in srgb, #1f160c 8%, transparent);
   --elev-4: 0 16px 48px color-mix(in srgb, #1f160c 18%, transparent);
   --elev-drawer: -8px 0 32px color-mix(in srgb, #1f160c 12%, transparent);
+
+  color-scheme: light;
+}
+
+/* Tasks-scoped Warm Sand — denser cream surfaces (mockup merge); inherits when nested under light. */
+[data-theme="warm-sand"] {
+  --color-surface-primary: #f6f1ea;
+  --color-surface-secondary: #fdfaf6;
+  --color-surface-tertiary: #f0ebe2;
+  --color-surface-card: #fdfaf6;
+  --color-surface-hover: #efe8dc;
+  --color-surface-active: #e8dfd0;
+  --color-surface-input: #ffffff;
+
+  --color-border-subtle: #e0d8cc;
+  --color-border-default: #cfc4b4;
+  --color-border-strong: #7d6245;
+
+  --color-text-primary: #3a2f24;
+  --color-text-secondary: #5c4832;
+  --color-text-tertiary: #6b5640;
+  --color-text-muted: #7a6550;
+
+  --color-brand-400: #9d7a52;
+  --color-brand-500: #8a6a45;
+  --color-brand-600: #7d6245;
+  --color-brand-700: #5c4832;
+  --color-brand-800: #4a3a28;
 
   color-scheme: light;
 }
@@ -2124,6 +2153,12 @@
 }
 .agent-flow-rail-step-done {
   color: var(--color-text-secondary);
+}
+/* Full remaining width beside sidebar — pages should not invent a narrow max-width. */
+.platform-page {
+  width: 100%;
+  max-width: none;
+  min-width: 0;
 }
 .ux-canvas-frame {
   position: relative;

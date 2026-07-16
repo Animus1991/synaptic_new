@@ -14,7 +14,7 @@ import {
  * Warm Sand bento surfaces + Lora headings (synaptic-refined alignment).
  */
 
-/** Outer page wrapper: consistent padding, max width handling and vertical rhythm. */
+/** Outer page wrapper: full remaining width beside the sidebar (no artificial max-width). */
 export function Page({
   children,
   className,
@@ -24,9 +24,9 @@ export function Page({
   className?: string;
   gap?: 'sm' | 'md' | 'lg';
 }) {
-  const gapClass = gap === 'sm' ? 'space-y-4' : gap === 'lg' ? 'space-y-8' : 'space-y-6';
+  const gapClass = gap === 'sm' ? 'space-y-3' : gap === 'lg' ? 'space-y-6' : 'space-y-4';
   return (
-    <div className={cn('w-full min-w-0 p-4 pb-24 sm:p-6 lg:px-8 lg:pb-8', gapClass, className)}>
+    <div className={cn('platform-page w-full min-w-0 max-w-none p-3 pb-20 sm:p-5 lg:px-6 lg:pb-6', gapClass, className)}>
       {children}
     </div>
   );
@@ -55,15 +55,15 @@ export function PageHeader({
     <div className={cn('ux-page-header flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between', className)}>
       <div className="min-w-0">
         {eyebrow && <p className="ws-eyebrow mb-1.5 text-text-secondary">{eyebrow}</p>}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5">
           {Icon && (
-            <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-brand-500/25 bg-brand-500/10 text-brand-600">
-              <Icon className="h-5 w-5" />
+            <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg border border-brand-500/25 bg-brand-500/10 text-brand-600">
+              <Icon className="h-4 w-4" />
             </span>
           )}
-          <h1 className="ws-serif truncate font-medium tracking-tight text-text-primary">{title}</h1>
+          <h1 className="ws-serif truncate text-lg font-medium tracking-tight text-text-primary sm:text-xl">{title}</h1>
         </div>
-        {subtitle && <div className="ux-page-subtitle mt-1.5 text-text-secondary">{subtitle}</div>}
+        {subtitle && <div className="ux-page-subtitle mt-1 text-sm text-text-secondary">{subtitle}</div>}
       </div>
       {actions && <div className="flex shrink-0 items-center gap-2">{actions}</div>}
     </div>

@@ -147,7 +147,7 @@ export function DashboardActionHub({
             : undefined
         }
       >
-        <div className={cn('p-4 sm:p-5 space-y-4', heroText)}>
+        <div className={cn('p-4 sm:p-5 space-y-3', heroText)}>
           {(greetingTitle || headerActions) && (
             <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
               <div className="min-w-0" id="dashboard-hero-greeting">
@@ -185,81 +185,146 @@ export function DashboardActionHub({
             </div>
           </div>
 
-          <div className="grid gap-4 xl:grid-cols-[1.12fr_0.88fr] xl:items-stretch">
-            <div className="min-w-0">
-              <div className="flex items-center gap-2 mb-2">
-                <button
-                  type="button"
-                  aria-label={t('dashboardHeroCarouselPrev')}
-                  onClick={() => scrollCarousel(-1)}
-                  className={cn('p-1.5 rounded-lg border border-border-subtle hover:bg-surface-hover/30', glassCard)}
-                >
-                  <ChevronLeft className="w-4 h-4" />
-                </button>
-                <button
-                  type="button"
-                  aria-label={t('dashboardHeroCarouselNext')}
-                  onClick={() => scrollCarousel(1)}
-                  className={cn('p-1.5 rounded-lg border border-border-subtle hover:bg-surface-hover/30', glassCard)}
-                >
-                  <ChevronRight className="w-4 h-4" />
-                </button>
-              </div>
-              <div
-                ref={carouselRef}
-                className="flex gap-3 overflow-x-auto snap-x snap-mandatory pb-1 scrollbar-thin"
-                data-testid="dashboard-hero-carousel"
+          <div className="space-y-3">
+            <div className="flex items-center gap-2 md:hidden">
+              <button
+                type="button"
+                aria-label={t('dashboardHeroCarouselPrev')}
+                onClick={() => scrollCarousel(-1)}
+                className={cn('p-1.5 rounded-lg border border-border-subtle hover:bg-surface-hover/30', glassCard)}
               >
-                {actions.map((action) => {
-                  const Icon = ACTION_ICONS[action.id];
-                  return (
-                    <BlueprintSurface
-                      key={action.id}
-                      nest
-                      hint
-                      as="button"
-                      type="button"
-                      data-hub-card
-                      data-testid={`dashboard-hero-action-${action.id}`}
-                      onClick={() => handleCardClick(action.id)}
-                      onDoubleClick={() => handleCardDoubleClick(action.scrollTargetId)}
-                      className={cn(
-                        'snap-start shrink-0 w-[min(100%,14rem)] text-left p-4 transition-transform hover:scale-[1.02] focus-visible:ring-2 focus-visible:ring-brand-500/50',
-                        glassCard,
-                      )}
-                    >
-                      <div className="flex items-center gap-2 mb-2">
-                        <Icon className={cn('w-5 h-5', onHero ? 'text-brand-300' : 'text-brand-400')} />
-                        {action.badge && (
-                          <span className="ml-auto text-[10px] font-bold ws-chip-danger px-2 py-0.5 rounded-full">
-                            {action.badge}
-                          </span>
-                        )}
-                      </div>
-                      <p className={cn('text-sm font-semibold', onHero ? 'text-white' : 'text-text-primary')}>
-                        {t(action.labelKey)}
-                      </p>
-                      <p className={cn('mt-1 text-xs leading-relaxed', onHero ? 'text-white/75' : 'text-text-secondary')}>
-                        {t(action.hintKey)}
-                      </p>
-                    </BlueprintSurface>
-                  );
-                })}
-              </div>
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+              <button
+                type="button"
+                aria-label={t('dashboardHeroCarouselNext')}
+                onClick={() => scrollCarousel(1)}
+                className={cn('p-1.5 rounded-lg border border-border-subtle hover:bg-surface-hover/30', glassCard)}
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
             </div>
 
+            {/* Mobile: horizontal snap carousel */}
+            <div
+              ref={carouselRef}
+              className="flex gap-3 overflow-x-auto snap-x snap-mandatory pb-0.5 scrollbar-thin md:hidden"
+              data-testid="dashboard-hero-carousel"
+            >
+              {actions.map((action) => {
+                const Icon = ACTION_ICONS[action.id];
+                return (
+                  <BlueprintSurface
+                    key={action.id}
+                    nest
+                    hint
+                    as="button"
+                    type="button"
+                    data-hub-card
+                    data-testid={`dashboard-hero-action-${action.id}`}
+                    onClick={() => handleCardClick(action.id)}
+                    onDoubleClick={() => handleCardDoubleClick(action.scrollTargetId)}
+                    className={cn(
+                      'snap-start shrink-0 w-[min(100%,14rem)] text-left p-4 transition-transform hover:scale-[1.02] focus-visible:ring-2 focus-visible:ring-brand-500/50',
+                      glassCard,
+                    )}
+                  >
+                    <div className="flex items-center gap-2 mb-2">
+                      <Icon className={cn('w-5 h-5', onHero ? 'text-brand-300' : 'text-brand-400')} />
+                      {action.badge && (
+                        <span className="ml-auto text-[10px] font-bold ws-chip-danger px-2 py-0.5 rounded-full">
+                          {action.badge}
+                        </span>
+                      )}
+                    </div>
+                    <p className={cn('text-sm font-semibold', onHero ? 'text-white' : 'text-text-primary')}>
+                      {t(action.labelKey)}
+                    </p>
+                    <p className={cn('mt-1 text-xs leading-relaxed', onHero ? 'text-white/75' : 'text-text-secondary')}>
+                      {t(action.hintKey)}
+                    </p>
+                  </BlueprintSurface>
+                );
+              })}
+            </div>
+
+            {/* Desktop+: equal grid — no side panel overlap */}
+            <div
+              className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-3"
+              data-testid="dashboard-hero-action-grid"
+            >
+              {actions.map((action) => {
+                const Icon = ACTION_ICONS[action.id];
+                return (
+                  <BlueprintSurface
+                    key={`grid-${action.id}`}
+                    nest
+                    hint
+                    as="button"
+                    type="button"
+                    data-hub-card
+                    data-testid={`dashboard-hero-action-grid-${action.id}`}
+                    onClick={() => handleCardClick(action.id)}
+                    onDoubleClick={() => handleCardDoubleClick(action.scrollTargetId)}
+                    className={cn(
+                      'w-full text-left p-4 transition-transform hover:scale-[1.01] focus-visible:ring-2 focus-visible:ring-brand-500/50',
+                      glassCard,
+                    )}
+                  >
+                    <div className="flex items-center gap-2 mb-2">
+                      <Icon className={cn('w-5 h-5', onHero ? 'text-brand-300' : 'text-brand-400')} />
+                      {action.badge && (
+                        <span className="ml-auto text-[10px] font-bold ws-chip-danger px-2 py-0.5 rounded-full">
+                          {action.badge}
+                        </span>
+                      )}
+                    </div>
+                    <p className={cn('text-sm font-semibold', onHero ? 'text-white' : 'text-text-primary')}>
+                      {t(action.labelKey)}
+                    </p>
+                    <p className={cn('mt-1 text-xs leading-relaxed', onHero ? 'text-white/75' : 'text-text-secondary')}>
+                      {t(action.hintKey)}
+                    </p>
+                  </BlueprintSurface>
+                );
+              })}
+            </div>
+
+            {/* Study center: compact full-width strip (never stretched beside cards) */}
             {workspaceLive ? (
-              <div className={cn('rounded-xl overflow-hidden', glassCard)}>
+              <div className={cn('rounded-xl overflow-hidden', glassCard)} data-testid="dashboard-hero-study-center">
                 <DashboardLivePreview live={workspaceLive} lang={lang} onOpenWorkspace={onOpenWorkspace} />
               </div>
             ) : (
-              <BlueprintSurface nest className={cn('p-4 flex flex-col justify-center min-h-[8rem]', glassCard)}>
-                <p className={cn('text-sm font-medium', onHero ? 'text-white' : 'text-text-primary')}>
-                  {t('dashboardHeroHubSideTitle')}
-                </p>
-                <p className={cn('mt-2 text-xs leading-relaxed', onHero ? 'text-white/75' : 'text-text-secondary')}>
-                  {t('dashboardHeroHubSideBody')}
-                </p>
+              <BlueprintSurface
+                nest
+                className={cn('p-3.5 sm:p-4', glassCard)}
+                data-testid="dashboard-hero-study-center"
+              >
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+                  <div className="min-w-0">
+                    <p className={cn('text-sm font-medium', onHero ? 'text-white' : 'text-text-primary')}>
+                      {t('dashboardHeroHubSideTitle')}
+                    </p>
+                    <p className={cn('mt-1 text-xs leading-relaxed', onHero ? 'text-white/75' : 'text-text-secondary')}>
+                      {t('dashboardHeroHubSideBody')}
+                    </p>
+                  </div>
+                  {onOpenWorkspace && (
+                    <button
+                      type="button"
+                      onClick={onOpenWorkspace}
+                      className={cn(
+                        'shrink-0 self-start rounded-xl border px-3 py-2 text-xs font-semibold transition-colors sm:self-auto',
+                        onHero
+                          ? 'border-white/20 bg-white/10 text-white hover:bg-white/15'
+                          : 'border-brand-500/35 bg-brand-600/10 text-brand-800 hover:bg-brand-600/15',
+                      )}
+                    >
+                      {t('navStudyWorkspace')}
+                    </button>
+                  )}
+                </div>
               </BlueprintSurface>
             )}
           </div>

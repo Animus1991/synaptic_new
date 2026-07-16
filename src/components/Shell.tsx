@@ -641,7 +641,7 @@ export function Shell({
 
 
         {/* Page content */}
-        <main id="platform-main" data-testid="platform-main" tabIndex={-1} className="flex-1 outline-none">
+        <main id="platform-main" data-testid="platform-main" tabIndex={-1} className="flex-1 min-w-0 outline-none">
           {children}
         </main>
 

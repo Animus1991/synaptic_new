@@ -27,7 +27,7 @@ export function ProactiveAgentAlertStrip({ alerts, onRun }: Props) {
       transition={{ delay: 0.06 }}
       data-testid="proactive-agent-alert-strip"
     >
-      <BlueprintSurface className="p-4 space-y-3 border border-accent-amber/20 bg-accent-amber/5">
+      <BlueprintSurface className="p-3 space-y-2.5 border border-accent-amber/20 bg-accent-amber/5">
         <div className="flex items-center gap-2">
           <AlertTriangle className="w-4 h-4 text-accent-amber" weight="fill" />
           <p className="text-sm font-semibold text-text-primary">{t('proactiveAlertStripTitle')}</p>
@@ -42,7 +42,7 @@ export function ProactiveAgentAlertStrip({ alerts, onRun }: Props) {
                 data-testid={`proactive-agent-alert-${alert.id}`}
                 onClick={() => onRun(alert)}
                 className={cn(
-                  'ux-proactive-alert-item group flex items-start gap-3 rounded-xl border px-3 py-2.5 text-left transition-colors',
+                  'ux-proactive-alert-item group flex items-start gap-3 rounded-xl border px-3 py-2 text-left transition-colors',
                   alert.severity === 'urgent'
                     ? 'border-accent-rose/30 bg-accent-rose/5 hover:border-accent-rose/50'
                     : 'border-border-subtle bg-surface-card/50 hover:border-brand-500/40',

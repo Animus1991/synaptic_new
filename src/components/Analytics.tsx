@@ -285,14 +285,14 @@ function OverviewTab({
   const treemapModel = buildConceptTreemap(courses, learnerModel);
   const timelineModel = buildLearningTimeline(activities, lang);
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
         <ProgressKpiRow kpis={progressKpis} />
       </motion.div>
 
       <details className="ux-disclosure" data-testid="analytics-flow-disclosure">
         <summary className="ux-disclosure-summary">{t('analyticsFlowDisclosure')}</summary>
-        <div className="ux-disclosure-body space-y-6">
+        <div className="ux-disclosure-body space-y-4">
           <SectionHeader
             eyebrow={t('analyticsFlowSectionEyebrow')}
             title={t('analyticsFlowSectionTitle')}
@@ -303,7 +303,7 @@ function OverviewTab({
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.04 }}
-            className="grid grid-cols-1 xl:grid-cols-2 gap-6"
+            className="grid grid-cols-1 xl:grid-cols-2 gap-3"
           >
             <KnowledgeFlowSankeyChart
               links={sankeyModel.links}
@@ -325,7 +325,7 @@ function OverviewTab({
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.06 }}
-            className="grid grid-cols-1 xl:grid-cols-2 gap-6"
+            className="grid grid-cols-1 xl:grid-cols-2 gap-3"
           >
             <ConceptTreemapChart
               blocks={treemapModel.blocks}
@@ -362,7 +362,7 @@ function OverviewTab({
         <CalibrationChip score={calibration.score} direction={calibration.direction} />
       )}
       {/* Readiness Ring + Retention Curve */}
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {hasConfidenceMetrics ? (
           <div className="platform-panel-lg flex items-center justify-center">
             <ReadinessRing value={learnerModel.overallMastery} size={200} sublabel={t('analyticsReadinessSublabel')} />
@@ -426,7 +426,7 @@ function OverviewTab({
       )}
 
       {/* Weekly mastery + Heatmap */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="platform-panel-md">
           <h3 className="text-sm font-semibold flex items-center gap-2 mb-4"><TrendingUp className="w-4 h-4 text-accent-emerald" />{t('analyticsWeeklyTrend')}</h3>
           <div className="flex items-end gap-1.5 h-28">
@@ -546,7 +546,7 @@ function MasteryTab({
   const graph = buildMasteryGraph(learnerModel, courses);
   const masteryHeatmap = buildConceptMasteryHeatmap(activities, courses, learnerModel);
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Concept Graph */}
       {graph.nodes.length > 0 ? (
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
@@ -593,7 +593,7 @@ function MasteryTab({
         />
       </motion.div>
 
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="platform-panel-md">
         <h3 className="text-sm font-semibold flex items-center gap-2 mb-4"><CheckCircle2 className="w-4 h-4 text-accent-emerald" />{t('analyticsStrongAreas')}</h3>
         <div className="space-y-3">
@@ -659,7 +659,7 @@ function BehaviorTab({
     { labelKey: 'analyticsStreakDays', value: `${learnerModel.streakDays}` },
   ];
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {inference.inferenceConfidence === 'low' && (
         <p className="text-xs text-accent-amber">{t('analyticsBehaviorLowConfidence')}</p>
       )}
@@ -793,7 +793,7 @@ function ResearchTab({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <p className="text-sm text-text-secondary">{t('analyticsResearchSubtitle')}</p>
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">

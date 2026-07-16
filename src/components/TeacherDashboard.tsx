@@ -403,7 +403,7 @@ export function TeacherDashboard({
   };
 
   return (
-    <div className="ux-flow-shell p-4 sm:p-6 lg:px-8 pb-24 space-y-6 max-w-5xl mx-auto" data-testid="teacher-dashboard">
+    <div className="ux-flow-shell platform-page w-full max-w-none p-4 sm:p-6 lg:px-8 pb-24 space-y-6" data-testid="teacher-dashboard">
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
           <h1 className="text-2xl font-bold flex items-center gap-2">

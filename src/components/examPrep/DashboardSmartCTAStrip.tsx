@@ -20,7 +20,7 @@ export function DashboardSmartCTAStrip({ ctas, onRun }: Props) {
       transition={{ delay: 0.07 }}
       data-testid="dashboard-smart-cta-strip"
     >
-      <BlueprintSurface className="p-4 space-y-3">
+      <BlueprintSurface className="p-3 space-y-2.5">
         <div className="flex items-center gap-2">
           <Sparkles className="w-4 h-4 text-brand-600" />
           <p className="text-sm font-semibold text-text-primary">{t('dashboardSmartCtaTitle')}</p>

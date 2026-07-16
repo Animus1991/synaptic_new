@@ -123,6 +123,8 @@ export function SessionLauncherCard({
   icon: Icon,
   active,
   disabled,
+  recommended,
+  recommendedLabel,
   onClick,
   testId,
 }: {
@@ -133,6 +135,8 @@ export function SessionLauncherCard({
   icon: LucideIcon;
   active?: boolean;
   disabled?: boolean;
+  recommended?: boolean;
+  recommendedLabel?: string;
   onClick?: () => void;
   testId?: string;
 }) {
@@ -143,11 +147,20 @@ export function SessionLauncherCard({
       onClick={onClick}
       disabled={disabled}
       className={cn(
-        'ux-session-card',
+        'ux-session-card relative',
         active && 'ux-session-card-active',
+        recommended && !active && 'ring-1 ring-brand-500/35',
         disabled && 'opacity-50 cursor-not-allowed',
       )}
     >
+      {recommended && recommendedLabel ? (
+        <span
+          className="absolute -top-1.5 right-2 rounded-full border border-brand-500/30 bg-brand-600/15 px-1.5 py-0.5 text-[8px] font-semibold uppercase tracking-wide text-brand-700"
+          data-testid="session-recommended-badge"
+        >
+          {recommendedLabel}
+        </span>
+      ) : null}
       <span className="ux-session-card-icon">
         <Icon className="h-4 w-4" aria-hidden />
       </span>

@@ -329,7 +329,7 @@ export function ExamPrepView({
           </div>
 
           <div className="flex-1 overflow-y-auto">
-            <div className="max-w-4xl mx-auto w-full px-4 sm:px-6 py-6 space-y-5">
+            <div className="max-w-none w-full px-4 sm:px-6 lg:px-8 py-6 space-y-5">
               <div className="flex items-center justify-between gap-3 flex-wrap">
                 <div className="flex items-center gap-2 text-xs text-text-tertiary flex-wrap">
                   <span>Question {currentQ + 1} of {examQuestions.length}</span>
@@ -526,7 +526,7 @@ export function ExamPrepView({
 
       {phase === 'results' && (
         <div className="flex-1 overflow-y-auto p-4 sm:p-6">
-          <div className="max-w-4xl mx-auto space-y-6">
+          <div className="max-w-none w-full space-y-6">
             <div className="text-center ux-card">
               <CheckCircle2 className="w-12 h-12 text-accent-emerald mx-auto mb-3" />
               <h2 className="text-xl font-bold">Exam submitted</h2>

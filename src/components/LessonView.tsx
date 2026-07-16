@@ -263,7 +263,7 @@ export function LessonView({
       </nav>
 
       <main id="lesson-main" tabIndex={-1} className="flex-1 overflow-y-auto focus:outline-none">
-        <div className="w-full min-w-0 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+        <div className="w-full min-w-0 max-w-none px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
           <AnimatePresence mode="wait">
             <motion.div
               key={step.key}

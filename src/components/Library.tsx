@@ -1,9 +1,9 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Search, Upload, BookOpen, FileText, ChevronRight, ChevronDown,
   Clock, BarChart3, Sparkles, Grid3X3, List, Loader2,
-  File, Image, Code, Presentation, Table2, AlertTriangle, Trash2, RefreshCw, ExternalLink,
+  File, Image, Code, Presentation, Table2, Trash2, RefreshCw, ExternalLink,
 } from '@/lib/lucide-shim';
 import type { Course, UploadedFile, UserSettings, Task, GlossaryEntry } from '../types';
 import { cn } from '../utils/cn';
@@ -35,6 +35,38 @@ import { showCrossLibrarySynthesis } from '../lib/platformFocus';
 import type { NotebookLmImportResult } from '../lib/notebooklmImport';
 import { openNotebookLm, notebookLmSourceLabel } from '../lib/notebooklmBridge';
 import { isDebugUiTopicLabel } from '../lib/knowledgeFlowAnalytics';
+import { QualityScoreBadge } from './ui/QualityScoreBadge';
+import { CourseStatusBadge, type CourseStatusKind } from './ui/CourseStatusBadge';
+import { CompactProgressBar } from './ui/CompactProgressBar';
+
+type LibraryTab = 'courses' | 'files';
+type ViewMode = 'grid' | 'list';
+type LibraryFilter = 'all' | 'in-progress' | 'generating' | 'completed' | 'attention';
+
+const LIBRARY_PREFS_KEY = 'synapse:library-view-prefs';
+
+function loadLibraryPrefs(): { filter: LibraryFilter; viewMode: ViewMode; sortBy: 'recent' | 'progress' | 'quality' | 'title' } {
+  try {
+    const raw = localStorage.getItem(LIBRARY_PREFS_KEY);
+    if (!raw) return { filter: 'all', viewMode: 'grid', sortBy: 'recent' };
+    const parsed = JSON.parse(raw) as Partial<{ filter: LibraryFilter; viewMode: ViewMode; sortBy: 'recent' | 'progress' | 'quality' | 'title' }>;
+    return {
+      filter: parsed.filter ?? 'all',
+      viewMode: parsed.viewMode ?? 'grid',
+      sortBy: parsed.sortBy ?? 'recent',
+    };
+  } catch {
+    return { filter: 'all', viewMode: 'grid', sortBy: 'recent' };
+  }
+}
+
+function courseStatusKind(course: Course): CourseStatusKind {
+  if (course.status === 'generating') return 'generating';
+  if (course.status === 'needs_review') return 'needs_review';
+  if (course.status === 'completed') return 'complete';
+  if (course.status === 'in-progress') return 'in_progress';
+  return 'ready';
+}
 
 interface LibraryProps {
   courses: Course[];
@@ -56,10 +88,6 @@ interface LibraryProps {
   onOpenNotebookShell?: (courseId: string) => void;
   onOpenConcept?: (concept: string) => void;
 }
-
-type LibraryTab = 'courses' | 'files';
-type ViewMode = 'grid' | 'list';
-type LibraryFilter = 'all' | 'in-progress' | 'generating' | 'completed' | 'attention';
 
 const fileTypeIcons: Record<string, typeof FileText> = {
   pdf: FileText,
@@ -97,10 +125,11 @@ export function Library({
     ? courses.find((c) => c.id === postUploadCourseId) ?? null
     : null;
   const [tab, setTab] = useState<LibraryTab>('courses');
-  const [viewMode, setViewMode] = useState<ViewMode>('grid');
+  const initialPrefs = useMemo(() => loadLibraryPrefs(), []);
+  const [viewMode, setViewMode] = useState<ViewMode>(initialPrefs.viewMode);
   const [search, setSearch] = useState('');
-  const [filter, setFilter] = useState<LibraryFilter>('all');
-  const [sortBy, setSortBy] = useState<'recent' | 'progress' | 'quality' | 'title'>('recent');
+  const [filter, setFilter] = useState<LibraryFilter>(initialPrefs.filter);
+  const [sortBy, setSortBy] = useState<'recent' | 'progress' | 'quality' | 'title'>(initialPrefs.sortBy);
   const [entryHintDismissed, setEntryHintDismissed] = useState(() => {
     if (typeof window === 'undefined') return false;
     try {
@@ -109,6 +138,14 @@ export function Library({
       return false;
     }
   });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(LIBRARY_PREFS_KEY, JSON.stringify({ filter, viewMode, sortBy }));
+    } catch {
+      /* ignore */
+    }
+  }, [filter, viewMode, sortBy]);
 
   const dismissEntryHint = () => {
     try {
@@ -582,16 +619,6 @@ function CourseCard({
   const needsReview = course.status === 'needs_review';
   const quality = course.sourceQuality;
   const { pendingTasks, dueReviews, isStalePipeline: isOldPipeline } = selectCourseTaskMetrics(course, tasks);
-  const qualityTone = quality?.band === 'strong'
-    ? 'bg-accent-emerald/10 text-accent-emerald border-accent-emerald/20'
-    : quality?.band === 'moderate'
-      ? 'bg-accent-cyan/10 text-accent-cyan border-accent-cyan/20'
-      : 'bg-accent-amber/10 text-accent-amber border-accent-amber/20';
-  const qualityLabel = quality?.band === 'strong'
-    ? t('libSourceStrong', userLanguage)
-    : quality?.band === 'moderate'
-      ? t('libSourceModerate', userLanguage)
-      : t('libSourceNeedsMore', userLanguage);
 
   return (
     <BlueprintSurface
@@ -605,10 +632,10 @@ function CourseCard({
       }}
       data-testid="library-course-card"
       {...workspaceEntryPrefetchHandlers()}
-      className="p-5 hover:border-brand-500/35 cursor-pointer transition-all group"
+      className="p-3.5 hover:border-brand-500/35 cursor-pointer transition-all group"
     >
-      <div className="flex items-start justify-between mb-4">
-        <CourseIcon icon={course.icon} size="xl" colorClassName="text-brand-600" />
+      <div className="flex items-start justify-between mb-3">
+        <CourseIcon icon={course.icon} size="lg" colorClassName="text-brand-600" />
         <div className="flex items-center gap-1">
           {canDelete && (
             <button
@@ -631,25 +658,19 @@ function CourseCard({
             </div>
           )}
           {isGenerating ? (
-          <div className="platform-status-pill platform-status-pill--generating flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium">
-            <Loader2 className="w-3 h-3 animate-spin" />
-            {t('libGenerating', userLanguage)}
-          </div>
+          <CourseStatusBadge kind="generating" />
         ) : needsReview ? (
-          <div className="flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-semibold border border-accent-amber/30 bg-accent-amber/10 text-accent-amber">
-            <AlertTriangle className="w-3 h-3" />
-            {t('courseNeedsReviewBadge', userLanguage ?? 'en')}
-          </div>
+          <CourseStatusBadge kind="needs_review" />
         ) : (
-          <div className="text-xs text-text-tertiary font-medium capitalize px-2 py-1 rounded-full border border-border-subtle">
+          <span className="text-[10px] text-text-tertiary font-medium capitalize px-2 py-1 rounded-full border border-border-subtle">
             {courseDifficultyLabel(course.difficulty, userLanguage)}
-          </div>
+          </span>
         )}
         </div>
       </div>
 
-      <h3 className="font-semibold mb-1 text-text-primary group-hover:text-brand-700 transition-colors" data-testid="library-course-title">{course.title}</h3>
-      <p className="text-xs text-text-tertiary mb-4 line-clamp-2">{course.description}</p>
+      <h3 className="text-sm font-semibold mb-1 text-text-primary group-hover:text-brand-700 transition-colors" data-testid="library-course-title">{course.title}</h3>
+      <p className="text-xs text-text-tertiary mb-3 line-clamp-2">{course.description}</p>
       {course.recognitionSummary && !isGenerating && (
         <p className="text-[10px] text-text-muted mb-2">
           {t('recognitionReportTitle', userLanguage)}:{' '}
@@ -659,21 +680,18 @@ function CourseCard({
         </p>
       )}
       {quality && !isGenerating && (
-        <div className="mb-3 flex items-center justify-between gap-2">
-          <span className={cn('inline-flex items-center gap-1 rounded-full border px-2 py-1 text-[10px] font-medium', qualityTone)}>
-            {quality.needsMoreMaterial ? <AlertTriangle className="w-3 h-3" /> : <Sparkles className="w-3 h-3" />}
-            {qualityLabel}
-          </span>
-          <span className="text-[10px] text-text-muted">{quality.score}/100</span>
+        <div className="mb-2.5 flex flex-wrap items-center gap-1.5">
+          <QualityScoreBadge score={quality.score} />
+          <CourseStatusBadge kind={courseStatusKind(course)} />
         </div>
       )}
       {quality?.needsMoreMaterial && !isGenerating && (
-        <p className="mb-3 text-[11px] text-accent-amber line-clamp-2">
+        <p className="mb-2.5 text-[11px] text-accent-amber line-clamp-2">
           {quality.warnings[0] ?? t('libNeedsMoreHint', userLanguage)}
         </p>
       )}
 
-      <div className="flex flex-wrap items-center gap-3 text-xs text-text-tertiary mb-3">
+      <div className="flex flex-wrap items-center gap-3 text-xs text-text-tertiary mb-2.5">
         <span className="flex items-center gap-1">
           <BookOpen className="w-3.5 h-3.5" />
           {course.totalLessons} {t('libLessons', userLanguage)}
@@ -701,17 +719,16 @@ function CourseCard({
       </div>
 
       {!isGenerating && (
-        <div className="w-full bg-surface-hover rounded-full h-1.5">
-          <div
-            className="h-1.5 rounded-full transition-all duration-700"
-            style={{ width: `${progress}%`, backgroundColor: resolveCourseColor(course.color) }}
-          />
-        </div>
+        <CompactProgressBar
+          pct={progress}
+          color={resolveCourseColor(course.color)}
+          aria-label={`${course.title} ${Math.round(progress)}%`}
+        />
       )}
 
       {isGenerating && (
-        <div className="w-full bg-surface-hover rounded-full h-1.5 overflow-hidden">
-          <div className="h-1.5 bg-accent-amber shimmer" style={{ width: '60%' }} />
+        <div className="w-full bg-surface-hover rounded-full h-1 overflow-hidden">
+          <div className="h-1 bg-accent-amber shimmer" style={{ width: '60%' }} />
         </div>
       )}
 

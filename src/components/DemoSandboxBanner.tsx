@@ -23,7 +23,7 @@ export function DemoSandboxBanner() {
         'bg-brand-100/90 dark:bg-brand-950/40 backdrop-blur px-4 py-2.5 sm:px-6',
       )}
     >
-      <div className="flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between max-w-6xl mx-auto">
+      <div className="flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between w-full max-w-none">
         <div className="flex items-start gap-2.5 min-w-0">
           <FlaskConical className="w-5 h-5 text-brand-700 shrink-0 mt-0.5" aria-hidden />
           <div className="min-w-0">

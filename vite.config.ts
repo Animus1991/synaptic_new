@@ -131,10 +131,21 @@ export default defineConfig({
     }),
   ],
   server: {
+    // Pin IPv4 — on Windows, `localhost` → ::1 often breaks Vite HMR websockets
+    // (esp. Cursor Simple Browser). App still works; HMR just fails without this.
+    host: '127.0.0.1',
+    port: 5173,
+    strictPort: true,
+    hmr: {
+      protocol: 'ws',
+      host: '127.0.0.1',
+      port: 5173,
+      clientPort: 5173,
+    },
     proxy: {
-      '/v1': { target: 'http://localhost:8787', changeOrigin: true },
-      '/auth': { target: 'http://localhost:8787', changeOrigin: true },
-      '/health': { target: 'http://localhost:8787', changeOrigin: true },
+      '/v1': { target: 'http://127.0.0.1:8787', changeOrigin: true },
+      '/auth': { target: 'http://127.0.0.1:8787', changeOrigin: true },
+      '/health': { target: 'http://127.0.0.1:8787', changeOrigin: true },
     },
     warmup: {
       clientFiles: [

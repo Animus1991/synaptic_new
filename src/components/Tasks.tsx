@@ -7,6 +7,7 @@ import {
 } from '@/lib/lucide-shim';
 import type { Task, MistakeRecord, SkillNode, SpacingData } from '../types';
 import type { Lang } from '../lib/i18n';
+import { t } from '../lib/i18n';
 import { cn } from '../utils/cn';
 import type { FsrsRating } from '../lib/pedagogy';
 import { filterTasksForSession, startButtonLabel, sessionLabel, type SessionType } from '../lib/taskFlows';
@@ -15,6 +16,7 @@ import {
   getSessionTypes,
   type TaskFilter,
 } from '../lib/tasksContent';
+import { getRecommendedSessionType } from '../lib/recommendedSessionType';
 import { TaskActionIcon } from './ui/TaskActionIcon';
 import { Page, PageHeader } from './ui/primitives';
 import { PlatformEmptyState } from './ui/PlatformEmptyState';
@@ -23,6 +25,7 @@ import { TasksKanbanStatusStrip, tasksKanbanCardStatus } from './TasksKanbanStat
 import { BlueprintSurface } from './ui/BlueprintSurface';
 import { LeitnerDueQueuePanel } from './workspace/LeitnerDueQueuePanel';
 import { buildFsrsDueQueue } from '../lib/leitnerDueQueue';
+import { useDocumentThemeIsLight } from '../lib/useDocumentTheme';
 
 export type { TaskFilter } from '../lib/tasksContent';
 
@@ -173,6 +176,17 @@ export function Tasks({
     return `${dateStr}${examPart}`;
   }, [lang, daysToExam, c]);
 
+  const recommendedSession = useMemo(
+    () => getRecommendedSessionType({
+      daysToExam,
+      reviewDueCount: reviewTasks.length || fsrsQueue.length,
+      weakCount: scopedWeak.length,
+      openTaskCount: todayTasks.length,
+    }),
+    [daysToExam, reviewTasks.length, fsrsQueue.length, scopedWeak.length, todayTasks.length],
+  );
+  const isLightTheme = useDocumentThemeIsLight();
+
   const tabs: { id: CommandTab; label: string; summary: string; count: number }[] = [
     { id: 'today', label: c.tabToday, summary: c.tabTodaySummary, count: todayTasks.length },
     { id: 'weak', label: c.tabWeak, summary: c.tabWeakSummary, count: scopedWeak.length },
@@ -182,7 +196,12 @@ export function Tasks({
 
   return (
     <HeroGlow flush>
-    <Page className="max-w-5xl ux-fade-up !pt-0" gap="sm">
+    <div
+      {...(isLightTheme ? { 'data-theme': 'warm-sand' as const } : {})}
+      data-testid="tasks-page"
+      className="min-w-0 w-full"
+    >
+    <Page className="max-w-none ux-fade-up !pt-0" gap="sm">
       <PageHeader
         title={c.pageTitle}
         subtitle={subtitle}
@@ -190,7 +209,7 @@ export function Tasks({
         actions={
           streak > 0 ? (
             <div className="flex items-center gap-2 text-sm text-text-secondary">
-              <Flame className="w-4 h-4 text-accent-amber" />
+              <Flame className="w-4 h-4 text-accent-amber" aria-hidden />
               <span className="font-medium">{c.streakDays(streak)}</span>
             </div>
           ) : undefined
@@ -213,15 +232,15 @@ export function Tasks({
       )}
 
       {/* Daily progress */}
-      <BlueprintSurface hint className="mb-2 p-4">
-        <div className="flex items-center justify-between mb-3">
+      <BlueprintSurface hint className="mb-2 p-3">
+        <div className="flex items-center justify-between mb-2">
           <div>
             <p className="text-sm font-semibold text-text-primary">{c.tasksComplete(doneCount, totalCount)}</p>
             <p className="text-xs text-text-tertiary">{c.totalMinutes(totalMin)} · {c.minRemaining(remainingMin)}</p>
           </div>
           <div className="text-right">
-            <p className="text-2xl font-bold tabular-nums text-text-primary">{progressPct}%</p>
-            <p className="text-xs text-text-tertiary">{c.dailyGoal}</p>
+            <p className="text-lg font-bold tabular-nums text-text-primary">{progressPct}%</p>
+            <p className="text-[10px] uppercase tracking-wide text-text-tertiary">{c.dailyGoal}</p>
           </div>
         </div>
         <div className="ux-progress-track h-2">
@@ -296,7 +315,8 @@ export function Tasks({
                     'tasks-kanban-card ux-card flex flex-col gap-0 p-0 overflow-hidden',
                     `tasks-kanban-card-${kanbanStatus}`,
                     isInProgress && 'border-brand-500/30 bg-brand-600/5',
-                    task.priority === 'critical' && 'border-accent-rose/30',
+                    task.priority === 'critical' && 'border-l-[3px] border-l-accent-rose border-accent-rose/30',
+                    task.priority === 'high' && 'border-l-[3px] border-l-accent-amber',
                   )}
                 >
                   <div className="flex items-center gap-3 p-4 cursor-pointer" onClick={() => setExpandedTask(isExpanded ? null : task.id)}>
@@ -509,6 +529,8 @@ export function Tasks({
                   taskHint={sessionTasks.length > 0 ? c.sessionTaskCount(s.minutes, sessionTasks.length) : undefined}
                   icon={Icon}
                   active={sessionMode === s.type}
+                  recommended={recommendedSession === s.type}
+                  recommendedLabel={t('sessionRecommendedBadge', lang)}
                   disabled={sessionTasks.length === 0}
                   onClick={() => {
                     setSessionMode(s.type);
@@ -521,6 +543,7 @@ export function Tasks({
         </div>
       </details>
     </Page>
+    </div>
     </HeroGlow>
   );
 }

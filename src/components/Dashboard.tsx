@@ -3,7 +3,7 @@ import {
   Flame, Lightning as Zap, Target, Clock, BookOpen, Warning as AlertTriangle,
   CaretRight as ChevronRight, TrendUp as TrendingUp, Brain, Calendar, ArrowRight, Play,
   Shield, Lightbulb, ArrowCounterClockwise as RotateCcw, Eye, SquaresFour as Layout, CheckCircle as CheckCircle2, UploadSimple as Upload, Sparkle as Sparkles,
-  HandWaving as Hand,
+  Sun, Moon, CloudSun,
 } from '@phosphor-icons/react';
 import type { Course, DashboardStats, LearnerModel, PersonalStudyDate, Task } from '../types';
 import { cn } from '../utils/cn';
@@ -27,7 +27,7 @@ import type { DashboardNextAction } from '../lib/dashboardNextAction';
 import { TaskActionIcon } from './ui/TaskActionIcon';
 import { courseRingColor, resolveCourseColor, accentHighlightVar } from '../lib/masteryPalette';
 import { workspaceEntryPrefetchHandlers } from '../lib/workspaceEntryPrefetch';
-import { greetingForTime, dashboardSubtitle } from '../lib/greeting';
+import { greetingForTime, greetingIconKind, dashboardSubtitle } from '../lib/greeting';
 import { useI18n } from '../lib/i18n';
 import { PrimaryCTA } from './ui/primitives';
 import { UxCallout } from './ui/platformChrome';
@@ -247,7 +247,17 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
             <>
               <span className="sr-only">{t('dashboardSrPrefix')}</span>
               {greetingForTime(lang)}!
-              <Hand className="inline-block w-7 h-7 text-brand-600 shrink-0 ml-2 align-middle" aria-hidden />
+              {(() => {
+                const kind = greetingIconKind();
+                const Icon = kind === 'sun' ? Sun : kind === 'moon' ? Moon : CloudSun;
+                return (
+                  <Icon
+                    className="inline-block w-5 h-5 text-brand-600 shrink-0 ml-1.5 align-middle"
+                    weight="duotone"
+                    aria-hidden
+                  />
+                );
+              })()}
             </>
           }
           greetingSubtitle={
@@ -278,7 +288,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
         />
       </MotionSection>
 
-      <div className="px-4 sm:px-6 lg:px-8 space-y-4 sm:space-y-6">
+      <div className="px-4 sm:px-6 lg:px-8 space-y-3 sm:space-y-4">
       {postUploadCourse && (
         <MotionSection initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
           <PostUploadBanner
@@ -298,19 +308,19 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
       )}
 
       {/* Stats Row */}
-      <MotionSection initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="grid grid-cols-2 sm:grid-cols-5 gap-3" data-testid="dashboard-page-stats">
-        <StatCard icon={<Flame className="w-5 h-5 text-accent-amber" />} label={t('dashboardStatStreak')} value={t('dashboardStatDaysSuffix').replace('{count}', String(pageStats.streak))} data-testid="dashboard-stat-streak" />
-        <StatCard icon={<Zap className="w-5 h-5 text-brand-400" />} label={t('dashboardStatTodayXp')} value={`${pageStats.todayXp}`} data-testid="dashboard-stat-today-xp" />
+      <MotionSection initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="grid grid-cols-2 sm:grid-cols-5 gap-2 sm:gap-2.5" data-testid="dashboard-page-stats">
+        <StatCard icon={<Flame className="w-4 h-4 text-accent-amber" />} label={t('dashboardStatStreak')} value={t('dashboardStatDaysSuffix').replace('{count}', String(pageStats.streak))} data-testid="dashboard-stat-streak" />
+        <StatCard icon={<Zap className="w-4 h-4 text-brand-400" />} label={t('dashboardStatTodayXp')} value={`${pageStats.todayXp}`} data-testid="dashboard-stat-today-xp" />
         <StatCard
-          icon={<Target className="w-5 h-5 text-accent-teal" />}
+          icon={<Target className="w-4 h-4 text-accent-teal" />}
           label={t('dashboardStatReviewsDue')}
           value={`${pageStats.reviewsDue}`}
           onClick={pageStats.reviewsDue > 0 ? () => (onOpenTasksReview ? onOpenTasksReview() : onNavigate('tasks')) : undefined}
           data-testid="dashboard-stat-reviews-due"
           id="dashboard-stat-reviews-due"
         />
-        <StatCard icon={<Brain className="w-5 h-5 text-accent-cyan" />} label={t('dashboardStatConceptsMastered')} value={`${pageStats.conceptsMastered}/${pageStats.totalConcepts}`} data-testid="dashboard-stat-concepts-mastered" />
-        <StatCard icon={<Clock className="w-5 h-5 text-accent-emerald" />} label={t('dashboardStatStudyToday')} value={t('dashboardStatStudyMinutes').replace('{count}', String(pageStats.studyMinutesToday))} data-testid="dashboard-stat-study-today" />
+        <StatCard icon={<Brain className="w-4 h-4 text-accent-cyan" />} label={t('dashboardStatConceptsMastered')} value={`${pageStats.conceptsMastered}/${pageStats.totalConcepts}`} data-testid="dashboard-stat-concepts-mastered" />
+        <StatCard icon={<Clock className="w-4 h-4 text-accent-emerald" />} label={t('dashboardStatStudyToday')} value={t('dashboardStatStudyMinutes').replace('{count}', String(pageStats.studyMinutesToday))} data-testid="dashboard-stat-study-today" />
       </MotionSection>
 
       {!isEmpty && smartCTAs.length > 0 && onRunSmartCTA && (
@@ -423,9 +433,9 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
         </MotionSection>
       )}
 
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 xl:gap-5 xl:items-start">
         {/* Left column */}
-        <MotionSection initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="lg:col-span-2 space-y-6">
+        <MotionSection initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="xl:col-span-2 space-y-4">
 
           {/* Readiness Hero */}
           <BlueprintSurface className="ux-calm-panel p-6">
@@ -586,7 +596,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
         </MotionSection>
 
         {/* Right sidebar */}
-        <MotionSection initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="space-y-6">
+        <MotionSection initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="space-y-4">
 
           {/* Mastery Trend */}
           <BlueprintSurface className="p-5">
@@ -842,13 +852,16 @@ function StatCard({
         }
       } : undefined}
       className={cn(
-        'p-4 card-hover',
+        'p-3 card-hover',
         clickable && 'cursor-pointer hover:border-brand-500/30 hover:bg-surface-hover transition-colors',
         className,
       )}
     >
-      <div className="flex items-center gap-2 mb-2">{icon}<span className="text-xs text-text-tertiary font-medium">{label}</span></div>
-      <p className="text-xl font-bold">{value}</p>
+      <div className="mb-1 flex items-center gap-1.5">
+        {icon}
+        <span className="text-[10px] font-medium uppercase tracking-wide text-text-tertiary">{label}</span>
+      </div>
+      <p className="text-base font-bold tabular-nums leading-tight sm:text-lg">{value}</p>
     </BlueprintSurface>
   );
 }
