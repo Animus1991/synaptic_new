@@ -3,7 +3,8 @@ import { motion } from 'framer-motion';
 import {
   Brain, TrendingUp, Clock, Target, AlertTriangle, BarChart3,
   Zap, Calendar, CheckCircle2, XCircle, Lightbulb,
-  Activity, Shield, Eye, HelpCircle, FlaskConical, Download
+  Activity, Shield, Eye, HelpCircle, FlaskConical, Download,
+  GitBranch, ChevronRight, ArrowUpRight, ArrowDownRight, Minus,
 } from '@/lib/lucide-shim';
 import type { LearnerModel, DashboardStats, Course, ActivityItem } from '../types';
 import { computeCalibration, type PrerequisiteRepair } from '../lib/pedagogy';
@@ -324,6 +325,24 @@ function OverviewTab({
         <ProgressKpiRow kpis={progressKpis} />
       </motion.div>
 
+      {/* L-A01: canvas flow banner — opens disclosure without removing chart body */}
+      <button
+        type="button"
+        data-testid="analytics-flow-banner"
+        className="w-full flex items-center gap-3 rounded-xl border border-border-subtle bg-surface-card/70 px-3.5 py-2.5 text-left transition-colors hover:bg-surface-hover hover:border-brand-500/30"
+        onClick={() => {
+          const el = document.querySelector('[data-testid="analytics-flow-disclosure"]') as HTMLDetailsElement | null;
+          if (el) {
+            el.open = true;
+            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        }}
+      >
+        <GitBranch className="w-4 h-4 text-brand-600 shrink-0" aria-hidden />
+        <span className="flex-1 text-sm font-medium text-text-primary">{t('analyticsFlowBanner')}</span>
+        <ChevronRight className="w-4 h-4 text-text-muted shrink-0" aria-hidden />
+      </button>
+
       {calibration && (
         <CalibrationChip score={calibration.score} direction={calibration.direction} />
       )}
@@ -520,13 +539,13 @@ function OverviewTab({
                     <span className="text-xs text-text-secondary truncate">{point.concept}</span>
                     <span className={cn(
                       'text-[10px] font-medium inline-flex items-center gap-0.5 shrink-0',
-                      gap > 0.2 ? (overconfident ? 'text-accent-rose' : 'text-accent-amber') : 'text-accent-emerald',
+                      gap > 0.2 ? (overconfident ? 'text-accent-rose' : 'text-accent-cyan') : 'text-accent-emerald',
                     )}>
                       {gap > 0.2
                         ? (overconfident
-                          ? <><TrendingUp className="w-3 h-3" aria-hidden />{t('analyticsOverconfident')}</>
-                          : <><AlertTriangle className="w-3 h-3" aria-hidden />{t('analyticsUnderconfident')}</>)
-                        : <><CheckCircle2 className="w-3 h-3" aria-hidden />{t('analyticsCalibrated')}</>}
+                          ? <><ArrowUpRight className="w-3 h-3" aria-hidden />{t('analyticsOverconfident')}</>
+                          : <><ArrowDownRight className="w-3 h-3" aria-hidden />{t('analyticsUnderconfident')}</>)
+                        : <><Minus className="w-3 h-3" aria-hidden />{t('analyticsCalibrated')}</>}
                     </span>
                   </div>
                   <CalibrationCompareBar

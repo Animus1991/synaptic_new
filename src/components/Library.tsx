@@ -289,6 +289,23 @@ export function Library({
         className="mb-4"
       />
 
+      {/* L-L01: canvas order — RAG → success → NotebookLM → combined → tip */}
+      {postUploadCourse && onOpenWorkspace && (
+        <PostUploadBanner
+          courseTitle={postUploadCourse.title}
+          onOpenWorkspace={() => {
+            onSelectCourse(postUploadCourse);
+            onDismissPostUpload?.();
+            onOpenWorkspace();
+          }}
+          onViewCourse={() => {
+            onSelectCourse(postUploadCourse);
+            onDismissPostUpload?.();
+          }}
+          onDismiss={() => onDismissPostUpload?.()}
+        />
+      )}
+
       {onImportNotebookLm && (
         <NotebookLmImportPanel
           lang={userLanguage}
@@ -304,22 +321,6 @@ export function Library({
           settings={userSettings}
           lang={userLanguage}
           className="mb-4"
-        />
-      )}
-
-      {postUploadCourse && onOpenWorkspace && (
-        <PostUploadBanner
-          courseTitle={postUploadCourse.title}
-          onOpenWorkspace={() => {
-            onSelectCourse(postUploadCourse);
-            onDismissPostUpload?.();
-            onOpenWorkspace();
-          }}
-          onViewCourse={() => {
-            onSelectCourse(postUploadCourse);
-            onDismissPostUpload?.();
-          }}
-          onDismiss={() => onDismissPostUpload?.()}
         />
       )}
 

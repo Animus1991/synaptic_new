@@ -103,7 +103,7 @@ export function DashboardLivePreview({
   if (compact) {
     return (
       <BlueprintSurface
-        className="dashboard-live-preview border-l-[3px] border-l-accent-emerald p-3 sm:p-3.5"
+        className="dashboard-live-preview border border-accent-emerald/25 bg-accent-emerald/[0.06] border-l-[3px] border-l-accent-emerald p-3 sm:p-3.5"
         data-tour="dashboard-resume"
         data-testid="dashboard-live-preview"
       >

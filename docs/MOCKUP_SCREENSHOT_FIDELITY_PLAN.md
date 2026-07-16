@@ -141,6 +141,10 @@ See [`MOCKUP_WAVE_I_FIDELITY_PLAN.md`](./MOCKUP_WAVE_I_FIDELITY_PLAN.md). Sprint
 - Wave J: [`MOCKUP_WAVE_J_FIDELITY_PLAN.md`](./MOCKUP_WAVE_J_FIDELITY_PLAN.md) (J-1 + J-2 shipped).
 - Wave K: [`MOCKUP_WAVE_K_FIDELITY_PLAN.md`](./MOCKUP_WAVE_K_FIDELITY_PLAN.md) — spectrum/blueprint parity; warm-sand no longer overrides spectrum; horizontal calibration bins.
 
+## 6d. Wave L
+
+- [`MOCKUP_WAVE_L_FIDELITY_PLAN.md`](./MOCKUP_WAVE_L_FIDELITY_PLAN.md) — Analytics flow banner, Library banner order, Tasks tab filter, Settings theme icons, denser Dashboard/CourseView (K-2 closeout).
+
 ---
 
 ## 7. Security

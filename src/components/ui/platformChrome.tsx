@@ -210,6 +210,7 @@ export function DescriptiveStickyTabBar<T extends string>({
   className,
   testIdPrefix = 'descriptive-tab',
   panelIdPrefix,
+  trailing,
 }: {
   items: DescriptiveTabItem<T>[];
   activeId: T;
@@ -218,6 +219,8 @@ export function DescriptiveStickyTabBar<T extends string>({
   testIdPrefix?: string;
   /** When set, tabs expose `aria-controls` pointing at `{panelIdPrefix}-{id}` panels. */
   panelIdPrefix?: string;
+  /** Optional trailing control (e.g. Tasks filter icon) — kept outside the scrollable tablist. */
+  trailing?: ReactNode;
 }) {
   const focusTabAt = (index: number) => {
     const item = items[index];
@@ -246,39 +249,44 @@ export function DescriptiveStickyTabBar<T extends string>({
   };
 
   return (
-    <div
-      className={cn('descriptive-sticky-tabs', className)}
-      role="tablist"
-      aria-label="Section tabs"
-    >
-      {items.map((item, index) => {
-        const active = item.id === activeId;
-        const tabId = `${testIdPrefix}-${item.id}`;
-        const panelId = panelIdPrefix ? `${panelIdPrefix}-${item.id}` : undefined;
-        return (
-          <button
-            key={item.id}
-            id={tabId}
-            type="button"
-            role="tab"
-            aria-selected={active}
-            aria-controls={panelId}
-            tabIndex={active ? 0 : -1}
-            data-testid={tabId}
-            onClick={() => onChange(item.id)}
-            onKeyDown={(event) => onTabKeyDown(event, index)}
-            className={cn('descriptive-sticky-tab', active && 'descriptive-sticky-tab-active')}
-          >
-            <span className="descriptive-sticky-tab-label">{item.label}</span>
-            <span className="descriptive-sticky-tab-summary">{item.summary}</span>
-            {item.count != null && item.count > 0 && (
-              <span className="descriptive-sticky-tab-count" aria-hidden>
-                {item.count}
-              </span>
-            )}
-          </button>
-        );
-      })}
+    <div className={cn('descriptive-sticky-tabs-shell', className)}>
+      <div
+        className="descriptive-sticky-tabs"
+        role="tablist"
+        aria-label="Section tabs"
+      >
+        {items.map((item, index) => {
+          const active = item.id === activeId;
+          const tabId = `${testIdPrefix}-${item.id}`;
+          const panelId = panelIdPrefix ? `${panelIdPrefix}-${item.id}` : undefined;
+          return (
+            <button
+              key={item.id}
+              id={tabId}
+              type="button"
+              role="tab"
+              aria-selected={active}
+              aria-controls={panelId}
+              tabIndex={active ? 0 : -1}
+              data-testid={tabId}
+              onClick={() => onChange(item.id)}
+              onKeyDown={(event) => onTabKeyDown(event, index)}
+              className={cn('descriptive-sticky-tab', active && 'descriptive-sticky-tab-active')}
+            >
+              <span className="descriptive-sticky-tab-label">{item.label}</span>
+              <span className="descriptive-sticky-tab-summary">{item.summary}</span>
+              {item.count != null && item.count > 0 && (
+                <span className="descriptive-sticky-tab-count" aria-hidden>
+                  {item.count}
+                </span>
+              )}
+            </button>
+          );
+        })}
+      </div>
+      {trailing ? (
+        <div className="descriptive-sticky-tabs-trailing shrink-0">{trailing}</div>
+      ) : null}
     </div>
   );
 }

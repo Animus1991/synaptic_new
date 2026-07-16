@@ -2702,16 +2702,28 @@
 }
 
 /* Option-B descriptive sticky tabs (Tasks Command Center pilot) */
-.descriptive-sticky-tabs {
+.descriptive-sticky-tabs-shell {
   position: sticky;
   top: 3.5rem;
   z-index: 12;
   display: flex;
+  align-items: stretch;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+.descriptive-sticky-tabs {
+  display: flex;
+  flex: 1 1 auto;
   gap: 0.5rem;
   overflow-x: auto;
   padding: 0.25rem 0 0.75rem;
-  margin-bottom: 0.75rem;
   scrollbar-width: none;
+  min-width: 0;
+}
+.descriptive-sticky-tabs-trailing {
+  display: flex;
+  align-items: flex-start;
+  padding: 0.25rem 0 0.75rem;
 }
 .descriptive-sticky-tabs::-webkit-scrollbar {
   display: none;

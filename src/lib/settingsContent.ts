@@ -257,9 +257,9 @@ const EN: SettingsContent = {
   labelTheme: 'Theme',
   themeOptions: [
     { value: 'dark', label: 'Dark' },
-    { value: 'light', label: 'Light (Warm Sand)' },
+    { value: 'light', label: 'Warm Light' },
     { value: 'spectrum', label: 'Spectrum' },
-    { value: 'blueprint', label: 'Blueprint (Option-B)' },
+    { value: 'blueprint', label: 'Blueprint' },
     { value: 'system', label: 'System' },
   ],
   labelLanguage: 'Language',
@@ -448,9 +448,9 @@ const EL: SettingsContent = {
   labelTheme: 'Θέμα',
   themeOptions: [
     { value: 'dark', label: 'Σκούρο' },
-    { value: 'light', label: 'Φωτεινό (Warm Sand)' },
+    { value: 'light', label: 'Warm ανοιχτό' },
     { value: 'spectrum', label: 'Spectrum' },
-    { value: 'blueprint', label: 'Blueprint (Option-B)' },
+    { value: 'blueprint', label: 'Blueprint' },
     { value: 'system', label: 'Σύστημα' },
   ],
   labelLanguage: 'Γλώσσα',

@@ -4,6 +4,7 @@ import {
   CheckCircle2, Circle, Clock, AlertTriangle, RotateCcw, Calendar,
   Play, Flame, Brain, Target, Zap,
   HelpCircle, XCircle, RefreshCw, ArrowDownRight, TrendingUp, Minus, ArrowRight,
+  SlidersHorizontal,
 } from '@/lib/lucide-shim';
 import type { Task, MistakeRecord, SkillNode, SpacingData } from '../types';
 import type { Lang } from '../lib/i18n';
@@ -275,7 +276,7 @@ export function Tasks({
       )}
 
       {/* Session launchers above tabs (Wave I-T01 — mockup order) */}
-      <div className="mb-3 space-y-2" data-testid="tasks-session-launchers">
+      <div id="tasks-session-launchers" className="mb-3 space-y-2" data-testid="tasks-session-launchers">
         <SectionHeader
           eyebrow={c.sessionSectionEyebrow}
           title={c.sessionSectionTitle}
@@ -327,6 +328,20 @@ export function Tasks({
         activeId={tab}
         onChange={setTab}
         testIdPrefix="tasks-tab"
+        trailing={
+          <button
+            type="button"
+            data-testid="tasks-tab-filter"
+            className="rounded-xl border border-border-subtle bg-surface-card/70 p-2.5 text-text-secondary transition-colors hover:border-brand-500/30 hover:bg-surface-hover hover:text-text-primary"
+            aria-label={t('tasksTabFilterAria', lang)}
+            title={t('tasksTabFilterAria', lang)}
+            onClick={() => {
+              document.getElementById('tasks-session-launchers')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }}
+          >
+            <SlidersHorizontal className="w-4 h-4" aria-hidden />
+          </button>
+        }
       />
 
       {/* Today's Plan */}

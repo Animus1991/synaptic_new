@@ -648,7 +648,7 @@ function TopicCard({ topic, index, courseColor, course, onGoToSource, onStart }:
         topic.isLocked ? 'border-border-subtle opacity-60' : 'border-border-subtle hover:border-brand-500/20'
       )}
     >
-      <div className="flex items-center gap-4 p-5">
+      <div className="flex items-center gap-3 p-3.5">
         <div className="relative">
           {topic.isLocked ? (
             <div className="w-10 h-10 rounded-xl bg-surface-hover flex items-center justify-center">
@@ -1083,7 +1083,7 @@ function CourseAnalytics({ course, masteryPercent }: { course: Course; masteryPe
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
       <div className="platform-panel-md sm:col-span-2" data-testid="course-analytics-mastery">
         <p className="text-xs text-text-tertiary">{t('analyticsCourseMastery')}</p>
-        <p className="mt-1 text-2xl font-bold">{masteryPercent}%</p>
+        <p className="mt-1 text-xl font-bold tabular-nums">{masteryPercent}%</p>
         <p className="mt-1 text-[11px] text-text-muted">{t('courseMasterySublabel')}</p>
       </div>
       <div className="platform-panel-md">
@@ -1129,12 +1129,12 @@ function CourseAnalytics({ course, masteryPercent }: { course: Course; masteryPe
         {masteredConcepts > 0 ? (
           <div className="flex items-center gap-6 flex-wrap">
             <div>
-              <div className="text-3xl font-bold text-accent-emerald">{masteredConcepts}<span className="text-base text-text-muted">/{totalConcepts}</span></div>
+              <div className="text-xl font-bold tabular-nums text-accent-emerald">{masteredConcepts}<span className="text-sm text-text-muted">/{totalConcepts}</span></div>
               <p className="text-xs text-text-tertiary mt-1">concepts mastered</p>
             </div>
             {velocity > 0 && (
               <div>
-                <div className={cn('text-3xl font-bold', velocity >= 1 ? 'text-accent-emerald' : 'text-accent-amber')}>{velocity.toFixed(2)}×</div>
+                <div className={cn('text-xl font-bold tabular-nums', velocity >= 1 ? 'text-accent-emerald' : 'text-accent-amber')}>{velocity.toFixed(2)}×</div>
                 <p className="text-xs text-text-tertiary mt-1">
                   {velocity >= 1.05 ? 'Ahead of the expected pace' : velocity <= 0.95 ? 'Behind the expected pace' : 'On the expected pace'}
                 </p>

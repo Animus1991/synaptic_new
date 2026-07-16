@@ -1,8 +1,10 @@
 import { useState, useRef, useMemo } from 'react';
 import {
   Brain, BookOpen, Target, Zap,
-  Gauge, Shield, Calendar, Palette, Database, KeyRound
+  Gauge, Shield, Calendar, Palette, Database, KeyRound,
+  Moon, Sun, Sparkles, Layers, Monitor,
 } from '@/lib/lucide-shim';
+import type { LucideIcon } from '@/lib/lucide-shim';
 import type { UserSettings, Task } from '../types';
 import { cn } from '../utils/cn';
 import { clearAllSessionData, downloadBackup, importSessionData } from '../lib/sessionBackup';
@@ -571,7 +573,12 @@ export function Settings({
       </SettingsSection>
 
       <SettingsSection id="settings-interface" title={c.sectionInterface} icon={<Palette className="w-5 h-5 text-brand-300" />} delay={0.35}>
-        <ToggleRow label={c.labelTheme} options={c.themeOptions} value={settings.theme} onChange={v => onUpdate({ theme: v as UserSettings['theme'] })} />
+        <ThemePickerRow
+          label={c.labelTheme}
+          options={c.themeOptions}
+          value={settings.theme}
+          onChange={v => onUpdate({ theme: v as UserSettings['theme'] })}
+        />
         <ToggleRow label={c.labelLanguage} options={c.languageOptions} value={settings.language} onChange={v => onUpdate({ language: v as UserSettings['language'] })} />
       </SettingsSection>
 
@@ -696,6 +703,56 @@ function ToggleRow({ label, options, value, onChange }: { label: string; options
               value === opt.value ? 'bg-brand-600/20 text-brand-300 border border-brand-500/30' : 'border border-border-subtle text-text-tertiary hover:text-text-secondary'
             )}>{opt.label}</button>
         ))}
+      </div>
+    </div>
+  );
+}
+
+const THEME_ICONS: Record<string, LucideIcon> = {
+  dark: Moon,
+  light: Sun,
+  spectrum: Sparkles,
+  blueprint: Layers,
+  system: Monitor,
+};
+
+/** L-S01 / K-S01: denser theme chips with Phosphor icons (no emoji). */
+function ThemePickerRow({
+  label,
+  options,
+  value,
+  onChange,
+}: {
+  label: string;
+  options: { value: string; label: string }[];
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  return (
+    <div data-testid="settings-theme-picker">
+      <label className="text-xs text-text-secondary block mb-2">{label}</label>
+      <div className="flex flex-wrap gap-1.5">
+        {options.map((opt) => {
+          const Icon = THEME_ICONS[opt.value] ?? Palette;
+          const active = value === opt.value;
+          return (
+            <button
+              key={opt.value}
+              type="button"
+              onClick={() => onChange(opt.value)}
+              className={cn(
+                'inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-[11px] font-medium transition-all',
+                active
+                  ? 'border-brand-500/35 bg-brand-600/20 text-brand-300'
+                  : 'border-border-subtle text-text-tertiary hover:text-text-secondary hover:border-brand-500/25',
+              )}
+              aria-pressed={active}
+            >
+              <Icon className="w-3.5 h-3.5 shrink-0" aria-hidden />
+              {opt.label}
+            </button>
+          );
+        })}
       </div>
     </div>
   );

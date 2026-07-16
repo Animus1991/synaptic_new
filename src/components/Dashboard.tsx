@@ -513,7 +513,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
           {(conceptMastery.length > 0 || prerequisiteRepairs.length > 0) && (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {conceptMastery.length > 0 && (
-                <BlueprintSurface className="p-5">
+                <BlueprintSurface className="p-3.5">
                   <SectionLabel icon={Brain}>{t('dashConceptMastery')}</SectionLabel>
                   <ConceptMasteryBars concepts={conceptMastery} />
                 </BlueprintSurface>
@@ -545,7 +545,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
         >
 
           {/* Priority tasks */}
-          <BlueprintSurface className="p-5">
+          <BlueprintSurface className="p-3.5">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold ws-serif font-medium flex items-center gap-2">
                 <AlertTriangle className="w-5 h-5 text-accent-amber" /> {t('dashPriorityTasks')}
@@ -607,7 +607,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
           )}
 
           {/* Active Courses */}
-          <BlueprintSurface className="p-5">
+          <BlueprintSurface className="p-3.5">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold ws-serif font-medium flex items-center gap-2"><BookOpen className="w-5 h-5 text-brand-400" />{t('dashActiveCourses')}</h2>
               <button onClick={() => onNavigate('library')} className="text-sm text-brand-400 hover:text-brand-700 flex items-center gap-1">{t('dashLibrary')} <ChevronRight className="w-4 h-4" /></button>
@@ -680,7 +680,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
           <PostExamNextStepsPanel examDate={settingsExamDate ?? courses.find((c) => c.examDate)?.examDate} />
 
           {/* Mastery Trend */}
-          <BlueprintSurface className="p-5">
+          <BlueprintSurface className="p-3.5">
             <SectionLabel icon={TrendingUp}>{t('dashWeeklyMastery')}</SectionLabel>
             {masteryTrend.length > 0 ? (
               <div className="flex items-end gap-1.5 h-24">
@@ -703,7 +703,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
           </BlueprintSurface>
 
           {/* Weak Areas */}
-          <BlueprintSurface className="p-5">
+          <BlueprintSurface className="p-3.5">
             <SectionLabel icon={Brain}>{t('dashWeakAreas')}</SectionLabel>
             <div className="space-y-3">
               {weakSpotsWithReasons.length > 0 ? weakSpotsWithReasons.map((area) => (
@@ -801,13 +801,13 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
           {calibration ? (
             <CalibrationChip score={calibration.score} direction={calibration.direction} />
           ) : (
-          <BlueprintSurface className="p-5">
+          <BlueprintSurface className="p-3.5">
             <SectionLabel icon={Eye}>{t('dashConfidenceCheck')}</SectionLabel>
             <p className="text-xs text-text-tertiary mb-2">{t('dashConfidenceCheckHint')}</p>
           </BlueprintSurface>
           )}
           {calibration && (
-          <BlueprintSurface className="p-5">
+          <BlueprintSurface className="p-3.5">
             <SectionLabel icon={Eye}>{t('dashRecentCalibration')}</SectionLabel>
             {learnerModel.confidenceCalibration.slice(0, 3).map((p, i) => {
               const overconfident = p.predicted > p.actual + 0.15;
@@ -843,7 +843,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
 
           {/* Misconceptions */}
           {unresolvedMisconceptions.length > 0 && (
-            <BlueprintSurface className="p-5">
+            <BlueprintSurface className="p-3.5">
               <SectionLabel icon={AlertTriangle}>{t('dashActiveMisconceptions')}</SectionLabel>
               <div className="space-y-2">
                 {unresolvedMisconceptions.slice(0, 2).map(m => (
@@ -865,7 +865,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
           )}
 
           {/* Spaced Rep Info */}
-          <BlueprintSurface className="p-5">
+          <BlueprintSurface className="p-3.5">
             <SectionLabel icon={RotateCcw}>{t('dashSpacedRepetition')}</SectionLabel>
             <p className="text-xs text-text-tertiary">{t('dashSpacedRepetitionHint')}</p>
             <div className="mt-3 grid grid-cols-3 gap-2 text-center">
@@ -900,7 +900,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
           </BlueprintSurface>
 
           {/* Activity Feed */}
-          <BlueprintSurface className="p-5">
+          <BlueprintSurface className="p-3.5">
             <SectionLabel icon={Zap}>{t('dashRecentActivity')}</SectionLabel>
             <ActivityFeed activities={activities} maxItems={5} />
           </BlueprintSurface>

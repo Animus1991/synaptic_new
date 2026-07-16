@@ -57,13 +57,13 @@ Wave A–J: dashboard hero IA, hub chips, Create Plan secondary, shell utilities
 
 ---
 
-## 5. Sprint K-2 (tracked)
+## 5. Sprint K-2 (tracked → closed in Wave L)
 
-| ID | Item | Priority |
-| -- | ---- | -------- |
-| K-S01 | Settings theme picker denser labels / icons | P3 |
-| K-A02 | You-vs-Real calibration labels polish (already mostly done) | P3 |
-| K-X03 | Agent / CourseView density pass (out of canvas screenshots) | P3 |
+| ID | Item | Priority | Status |
+| -- | ---- | -------- | ------ |
+| K-S01 | Settings theme picker denser labels / icons | P3 | **shipped in L-S01** |
+| K-A02 | You-vs-Real calibration labels polish | P3 | **shipped in L-A02** |
+| K-X03 | Agent / CourseView density pass | P3 | CourseView **shipped in L-X03**; Agent → L-X04 |
 
 ---
 
