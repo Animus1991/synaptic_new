@@ -205,7 +205,7 @@ export function ExamPrepView({
               <GraduationCap className="w-8 h-8 text-accent-rose" />
             </div>
             <div className="text-center">
-              <h2 className="text-2xl font-bold">{quizConcept}</h2>
+              <h2 className="text-xl font-semibold">{quizConcept}</h2>
               <p className="text-sm text-text-secondary mt-2">
                 {courseName ?? 'Exam prep'} · fullscreen mock exam flow
               </p>
@@ -530,7 +530,7 @@ export function ExamPrepView({
             <div className="text-center ux-card">
               <CheckCircle2 className="w-12 h-12 text-accent-emerald mx-auto mb-3" />
               <h2 className="text-xl font-bold">Exam submitted</h2>
-              <p className="text-3xl font-bold text-brand-300 mt-2">
+              <p className="text-2xl font-bold text-brand-300 mt-2 tabular-nums">
                 {score}/{examQuestions.length} correct
               </p>
               <p className="text-sm text-text-secondary mt-1">

@@ -49,6 +49,9 @@
   --viz-node-fill: #131318;
   --viz-canvas-bg: #0a0a0c;
   --surface-canvas: var(--viz-canvas-bg);
+  /* Wave M — semantic aliases so surfaces / hairlines are theme-tokenized (no ad-hoc hex). */
+  --color-surface-canvas: var(--viz-canvas-bg);
+  --color-hairline: var(--color-border-subtle);
   --viz-grid-line: #16161b;
 
   /* Mastery bands + spectrum palette (dark defaults — softened, still distinct) */
@@ -186,6 +189,9 @@
   --viz-node-fill: #ebe4d8;
   --viz-canvas-bg: #ffffff;
   --viz-grid-line: #e5ddd0;
+  /* Wave M — warm-light aliases */
+  --color-surface-canvas: #fdfbf7;
+  --color-hairline: #e0d8cc;
 
   /* Harmonized earth accents — sage green aligned to sand family */
   --mastery-weak: #8f6860;
@@ -248,6 +254,10 @@
   --color-brand-800: #4a3a28;
   --color-warm-ink: #5c4033;
 
+  /* Wave M — warm-sand aliases (inherits under light) */
+  --color-surface-canvas: #f6f1ea;
+  --color-hairline: #e0d8cc;
+
   color-scheme: light;
 }
 
@@ -255,6 +265,8 @@
 [data-theme="dark"],
 [data-theme="blueprint"] {
   --color-warm-ink: #8a6f55;
+  /* Wave M — dark/blueprint hairline alias (surface-canvas kept via @theme + blueprint override below) */
+  --color-hairline: var(--color-border-subtle);
   color-scheme: dark;
 }
 
@@ -456,6 +468,9 @@
 
   /* Wave K-T03 — badge/chip ink parity (spectrum keeps violet family) */
   --color-warm-ink: #4a32b0;
+  /* Wave M — spectrum aliases (lavender canvas kept) */
+  --color-surface-canvas: #f1eef9;
+  --color-hairline: #dcd6ee;
   color-scheme: light;
 
   /* Original vibrant spectrum accents */
@@ -599,6 +614,10 @@
   --color-border-subtle: color-mix(in srgb, #ffffff 8%, #020617);
   --color-border-default: color-mix(in srgb, #ffffff 12%, #020617);
   --color-border-strong: color-mix(in srgb, #ffffff 18%, #020617);
+
+  /* Wave M — blueprint semantic aliases (glass dark canvas + refined hairline) */
+  --color-surface-canvas: #0d1220;
+  --color-hairline: #1c2a44;
 
   --color-text-primary: #f8fafc;
   --color-text-secondary: #cbd5e1;
@@ -3697,6 +3716,31 @@ input[type="range"]::-webkit-slider-thumb {
 .ux-chip-warn { background: color-mix(in srgb, var(--color-accent-amber) 15%, transparent); color: var(--color-accent-amber); }
 .ux-chip-error { background: color-mix(in srgb, var(--color-accent-rose) 15%, transparent); color: var(--color-accent-rose); }
 .ux-chip-info { background: color-mix(in srgb, var(--color-brand-500) 15%, transparent); color: var(--color-brand-400); }
+
+/* Wave M-C01 — shared KPI numeral utility (density contract; canvas parity). */
+.ux-kpi-value {
+  font-size: 1.25rem;
+  line-height: 1.4;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-primary);
+  letter-spacing: -0.005em;
+}
+.ux-kpi-value-lg {
+  font-size: 1.5rem;
+  line-height: 1.25;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-primary);
+  letter-spacing: -0.01em;
+}
+.ux-kpi-label {
+  font-size: var(--type-caption, 0.6875rem);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-text-tertiary);
+  font-weight: 600;
+}
 .ux-lesson-serif {
   font-family: var(--font-display);
   letter-spacing: -0.01em;

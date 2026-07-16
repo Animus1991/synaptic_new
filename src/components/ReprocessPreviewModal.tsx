@@ -466,7 +466,7 @@ export function ReprocessPreviewModal({
 
                       <p className="text-[10px] text-text-muted">{tr('reprocessBefore')}</p>
 
-                      <p className="text-2xl font-bold text-accent-rose">{preview.beforeScore}</p>
+                      <p className="text-xl font-semibold text-accent-rose tabular-nums">{preview.beforeScore}</p>
 
                     </div>
 
@@ -476,7 +476,7 @@ export function ReprocessPreviewModal({
 
                       <p className="text-[10px] text-text-muted">{tr('reprocessAfter')}</p>
 
-                      <p className="text-2xl font-bold text-accent-emerald">{preview.afterScore}</p>
+                      <p className="text-xl font-semibold text-accent-emerald tabular-nums">{preview.afterScore}</p>
 
                     </div>
 

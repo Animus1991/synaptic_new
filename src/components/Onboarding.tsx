@@ -274,7 +274,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                   <Sparkles className="w-8 h-8" />
                 </div>
                 <div className="text-center space-y-3">
-                  <h1 className="text-2xl font-medium ws-serif">{content.welcomeTitle}</h1>
+                  <h1 className="text-xl font-semibold ws-serif">{content.welcomeTitle}</h1>
                   <p className="text-text-secondary leading-relaxed max-w-xl mx-auto">
                     {content.welcomeBody}
                   </p>

@@ -145,6 +145,10 @@ See [`MOCKUP_WAVE_I_FIDELITY_PLAN.md`](./MOCKUP_WAVE_I_FIDELITY_PLAN.md). Sprint
 
 - [`MOCKUP_WAVE_L_FIDELITY_PLAN.md`](./MOCKUP_WAVE_L_FIDELITY_PLAN.md) — L-1: Analytics flow banner, Library banner order, Tasks tab filter, Settings theme icons, denser Dashboard/CourseView. L-2: retrieval bar, FSRS expand polish, Visual Lab sticky footer, Agent embedded density.
 
+## 6e. Wave M
+
+- [`MOCKUP_WAVE_M_FIDELITY_PLAN.md`](./MOCKUP_WAVE_M_FIDELITY_PLAN.md) — M-1: density closeout on Onboarding/Student/Teacher/ExamPrep/Grounded/Reprocess, unicode `✓`/`✗` → Phosphor Check/X, theme SoT aliases (`--color-surface-canvas`, `--color-hairline`) across warm-light/warm-sand/dark/spectrum/blueprint, `.ux-kpi-value` shared numeral utility.
+
 ---
 
 ## 7. Security
