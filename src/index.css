@@ -562,96 +562,94 @@
 
 /* Spectrum — light vibrant theme (original bright accent hues) */
 [data-theme="spectrum"] {
-  --color-surface-primary: #f7f5ff;
-  --color-surface-secondary: #efebff;
-  --color-surface-tertiary: #e8e2ff;
+  /* Cool gray-lavender canvas — less “purple fog”, more editorial paper. */
+  --color-surface-primary: #f5f4f8;
+  --color-surface-secondary: #eeedf3;
+  --color-surface-tertiary: #e6e4ed;
   --color-surface-card: #ffffff;
-  --color-surface-hover: #e8e2ff;
-  --color-surface-active: #ddd6ff;
+  --color-surface-hover: #e9e7f0;
+  --color-surface-active: #dddce8;
   --color-surface-input: #ffffff;
 
-  --color-border-subtle: #c9c0e8;
-  --color-border-default: #a898d8;
-  --color-border-strong: #8063ff;
+  --color-border-subtle: #d0ceda;
+  --color-border-default: #b4b0c4;
+  --color-border-strong: #6a5f9a;
 
-  --color-text-primary: #1a1430;
-  --color-text-secondary: #3d3560;
-  --color-text-tertiary: #4f4578;
-  --color-text-muted: #5a5088;
+  --color-text-primary: #1c1a24;
+  --color-text-secondary: #3f3b4d;
+  --color-text-tertiary: #5a5568;
+  --color-text-muted: #6e687c;
 
-  /* Central violet brand — ~2% more intense vs muted complements */
-  --color-brand-50: #f1edff;
-  --color-brand-100: #dbd1ff;
-  --color-brand-200: #c1b2ff;
-  --color-brand-300: #ab97ff;
-  --color-brand-400: #8e75ff;
-  --color-brand-500: #8063ff;
-  --color-brand-600: #6e52f2;
-  --color-brand-700: #5d42db;
-  --color-brand-800: #4d34b3;
-  --color-brand-900: #3d2a8b;
-  --color-brand-950: #26195b;
+  /* Brand: indigo-violet (lower chroma / less neon than electric #8063ff). */
+  --color-brand-50: #f0eef6;
+  --color-brand-100: #ddd8eb;
+  --color-brand-200: #c5bdd9;
+  --color-brand-300: #a99fc6;
+  --color-brand-400: #8b7fb0;
+  --color-brand-500: #6f6299;
+  --color-brand-600: #5c5184;
+  --color-brand-700: #4b426c;
+  --color-brand-800: #3c3556;
+  --color-brand-900: #2e2942;
+  --color-brand-950: #1c1830;
 
-  --viz-track: #ddd6ff;
-  --viz-node-fill: #efebff;
+  --viz-track: #e4e2eb;
+  --viz-node-fill: #eeedf3;
   --viz-canvas-bg: #ffffff;
-  --viz-grid-line: #e8e2ff;
+  --viz-grid-line: #e6e4ed;
 
   /* Wave K-T03 — badge/chip ink parity (spectrum keeps violet family) */
-  --color-warm-ink: #4d34b3;
-  /* Wave M — spectrum aliases (lavender canvas kept) */
-  --color-surface-canvas: #f1eef9;
-  --color-hairline: #dcd6ee;
+  --color-warm-ink: #4b426c;
+  /* Wave M — spectrum aliases (lavender canvas kept, neutralized) */
+  --color-surface-canvas: #f2f1f6;
+  --color-hairline: #d8d6e0;
   /* Wave N — SoT overrides for spectrum (WCAG parity + lavender identity) */
-  --color-surface-pressed: #ddd6ff;
-  --color-surface-hover-strong: #ddd6ff;
+  --color-surface-pressed: #dddce8;
+  --color-surface-hover-strong: #dddce8;
   --color-focus-ring: var(--color-brand-600);
   --focus-ring-offset: 2px;
   --color-on-brand: #ffffff;
   --color-on-danger: #ffffff;
-  --color-on-warn: #1a1430;
-  --color-on-success: #1a1430;
+  --color-on-warn: #1c1a24;
+  --color-on-success: #1c1a24;
   --color-on-info: #ffffff;
-  --elev-popover: 0 12px 28px -8px color-mix(in srgb, #1a1430 22%, transparent),
-                  0 2px 8px color-mix(in srgb, #1a1430 10%, transparent);
+  --elev-popover: 0 12px 28px -8px color-mix(in srgb, #1c1a24 18%, transparent),
+                  0 2px 8px color-mix(in srgb, #1c1a24 8%, transparent);
 
-  /* Wave P — spectrum viz tokens: lavender-deep tracks + violet ink bar fills
-     (fixes invisible chart bars on white lavender card; retains identity).
-     Wave P-2 C11 — muted bumped from 55% → 75% brand mix so historical bars
-     reach ≥3:1 vs #ffffff (lavender ink is naturally lighter than warm ink). */
-  --viz-bar-track: #c4b5ff;
-  --viz-bar-track-strong: #a894ff;
+  /* Wave P — spectrum viz: muted indigo tracks (still ≥3:1 on white cards). */
+  --viz-bar-track: #cfcad9;
+  --viz-bar-track-strong: #b4adc4;
   --viz-bar-fill: var(--color-brand-600);
-  --viz-bar-fill-muted: color-mix(in srgb, var(--color-brand-500) 75%, #ffffff);
-  --color-heatmap-scale-0: #e8e2ff;
-  --color-heatmap-scale-1: #c4b5ff;
-  --color-heatmap-scale-2: #a894ff;
-  --color-heatmap-scale-3: #8063ff;
-  --color-heatmap-scale-4: #4d34b3;
+  --viz-bar-fill-muted: color-mix(in srgb, var(--color-brand-500) 70%, #ffffff);
+  --color-heatmap-scale-0: #e6e4ed;
+  --color-heatmap-scale-1: #cfcad9;
+  --color-heatmap-scale-2: #b4adc4;
+  --color-heatmap-scale-3: #6f6299;
+  --color-heatmap-scale-4: #3c3556;
   /* Wave P-3 C13 — Almost There / amber banner titles: mix amber into
      deep spectrum ink so contrast vs peach banner bg clears 4.5:1.
      Ink ratio tightened (40% amber) so titles/% stay distinct; border uses
      the same ink so outlines are not washed-out yellow on cream. */
-  --color-banner-warn-ink: color-mix(in srgb, var(--palette-amber) 40%, #1a1430);
-  --color-banner-warn-border: color-mix(in srgb, var(--color-banner-warn-ink) 62%, var(--color-border-subtle));
+  --color-banner-warn-ink: color-mix(in srgb, var(--palette-amber) 36%, #1c1a24);
+  --color-banner-warn-border: color-mix(in srgb, var(--color-banner-warn-ink) 55%, var(--color-border-subtle));
   /* Wave P-3 C15 — calibration labels on white lavender card. */
-  --color-calibration-over: color-mix(in srgb, var(--palette-rose) 55%, #1a1430);
-  --color-calibration-under: color-mix(in srgb, var(--palette-cyan) 45%, #1a1430);
+  --color-calibration-over: color-mix(in srgb, var(--palette-rose) 50%, #1c1a24);
+  --color-calibration-under: color-mix(in srgb, var(--palette-cyan) 42%, #1c1a24);
 
   color-scheme: light;
 
-  /* Spectrum complements — calm violet-family; −~1% chroma (light theme). */
-  --mastery-weak: #ba7c88;
-  --mastery-developing: #7c9dbb;
-  --mastery-proficient: #c7a453;
-  --mastery-strong: #5c9e87;
-  --palette-purple: #8e81d6;
-  --palette-cyan: #7c9dbb;
-  --palette-teal: #5c9e93;
-  --palette-green: #5c9e87;
-  --palette-amber: #c7a453;
-  --palette-rose: #ba7c88;
-  --palette-orange: #c3936c;
+  /* Complements share violet undertone — dusty, not candy pastel. */
+  --mastery-weak: #a88990;
+  --mastery-developing: #7d8fa3;
+  --mastery-proficient: #b09a6a;
+  --mastery-strong: #6a9484;
+  --palette-purple: #7d7399;
+  --palette-cyan: #7d8fa3;
+  --palette-teal: #6a908a;
+  --palette-green: #6a9484;
+  --palette-amber: #b09a6a;
+  --palette-rose: #a88990;
+  --palette-orange: #ad8f78;
 
   --color-accent-emerald: var(--palette-green);
   --color-accent-amber: var(--palette-amber);
@@ -669,17 +667,18 @@
 
 [data-theme="spectrum"] .glass {
   background: rgba(255, 255, 255, 0.78);
-  border-color: rgba(128, 99, 255, 0.22);
+  border-color: color-mix(in srgb, var(--color-brand-500) 18%, transparent);
 }
 
 [data-theme="spectrum"] .glass-strong {
   background: rgba(255, 255, 255, 0.94);
-  border: 1px solid rgba(128, 99, 255, 0.22);
-  box-shadow: 0 4px 24px rgba(128, 99, 255, 0.08);
+  border: 1px solid color-mix(in srgb, var(--color-brand-500) 18%, transparent);
+  box-shadow: 0 4px 24px color-mix(in srgb, var(--color-brand-700) 6%, transparent);
 }
 
 [data-theme="spectrum"] .gradient-text {
-  background: linear-gradient(135deg, #8e81d6 0%, #7c9dbb 40%, #c7a453 100%);
+  /* Two-stop only — no amber “rainbow” third stop. */
+  background: linear-gradient(135deg, var(--color-brand-600) 0%, var(--palette-cyan) 100%);
   -webkit-background-clip: text;
   background-clip: text;
 }
@@ -689,47 +688,45 @@
   color: white;
 }
 
-/* Wave M-T03 — WCAG AA audit for spectrum banners. Titles now mix >55% of the
-   deep spectrum ink (#1a1430) with the accent hue so contrast ratio vs the
-   lavender surface (#f7f5ff) exceeds 4.5:1, matching the dark theme parity. */
+/* Wave M-T03 — quieter banner washes (was 12% candy pastel fills). */
 [data-theme="spectrum"] .platform-banner-warn {
-  border-color: color-mix(in srgb, var(--palette-amber) 40%, var(--color-border-subtle));
-  background: color-mix(in srgb, var(--palette-amber) 12%, var(--color-surface-primary));
+  border-color: color-mix(in srgb, var(--palette-amber) 28%, var(--color-border-subtle));
+  background: color-mix(in srgb, var(--palette-amber) 6%, var(--color-surface-card));
 }
 [data-theme="spectrum"] .platform-banner-warn .platform-banner-title {
-  color: color-mix(in srgb, var(--palette-amber) 40%, #1a1430);
+  color: color-mix(in srgb, var(--palette-amber) 36%, #1c1a24);
 }
 [data-theme="spectrum"] .platform-banner-danger {
-  border-color: color-mix(in srgb, var(--palette-rose) 40%, var(--color-border-subtle));
-  background: color-mix(in srgb, var(--palette-rose) 12%, var(--color-surface-primary));
+  border-color: color-mix(in srgb, var(--palette-rose) 28%, var(--color-border-subtle));
+  background: color-mix(in srgb, var(--palette-rose) 6%, var(--color-surface-card));
 }
 [data-theme="spectrum"] .platform-banner-danger .platform-banner-title {
-  color: color-mix(in srgb, var(--palette-rose) 45%, #1a1430);
+  color: color-mix(in srgb, var(--palette-rose) 40%, #1c1a24);
 }
 [data-theme="spectrum"] .platform-banner-brand {
-  border-color: color-mix(in srgb, var(--color-brand-500) 30%, var(--color-border-subtle));
-  background: color-mix(in srgb, var(--color-brand-500) 8%, var(--color-surface-primary));
+  border-color: color-mix(in srgb, var(--color-brand-500) 22%, var(--color-border-subtle));
+  background: color-mix(in srgb, var(--color-brand-500) 5%, var(--color-surface-card));
 }
 [data-theme="spectrum"] .platform-banner-brand .platform-banner-title {
   color: var(--color-brand-700);
 }
 [data-theme="spectrum"] .platform-nav-active {
-  background: color-mix(in srgb, var(--color-brand-100) 80%, var(--color-surface-primary));
+  background: color-mix(in srgb, var(--color-brand-100) 70%, var(--color-surface-primary));
   color: var(--color-brand-700);
-  border-color: color-mix(in srgb, var(--color-brand-400) 35%, var(--color-border-subtle));
+  border-color: color-mix(in srgb, var(--color-brand-400) 28%, var(--color-border-subtle));
   font-weight: 600;
 }
 [data-theme="spectrum"] .platform-nav-mobile-active {
   color: var(--color-brand-700);
-  background: color-mix(in srgb, var(--color-brand-100) 75%, var(--color-surface-primary));
+  background: color-mix(in srgb, var(--color-brand-100) 65%, var(--color-surface-primary));
 }
 [data-theme="spectrum"] .platform-brand-icon {
-  background: linear-gradient(135deg, var(--palette-purple), var(--palette-cyan));
+  background: linear-gradient(135deg, var(--color-brand-600), var(--color-brand-500));
   color: #ffffff;
 }
 [data-theme="spectrum"] .platform-pill-active {
-  border: 1px solid color-mix(in srgb, var(--color-brand-500) 45%, var(--color-border-subtle));
-  background: color-mix(in srgb, var(--color-brand-500) 12%, var(--color-surface-primary));
+  border: 1px solid color-mix(in srgb, var(--color-brand-500) 35%, var(--color-border-subtle));
+  background: color-mix(in srgb, var(--color-brand-500) 9%, var(--color-surface-primary));
   color: var(--color-brand-700);
   font-weight: 600;
 }
@@ -738,30 +735,44 @@
   font-weight: 600;
 }
 [data-theme="spectrum"] .ws-fab {
-  background: linear-gradient(135deg, var(--color-brand-600), var(--palette-purple));
+  background: linear-gradient(135deg, var(--color-brand-700), var(--color-brand-600));
   color: #ffffff;
   box-shadow: var(--elev-3);
 }
 [data-theme="spectrum"] .bg-accent-rose\/15 {
-  background-color: color-mix(in srgb, var(--palette-rose) 14%, transparent);
+  background-color: color-mix(in srgb, var(--palette-rose) 9%, transparent);
 }
 [data-theme="spectrum"] .bg-accent-rose\/10,
 [data-theme="spectrum"] .bg-accent-rose\/5 {
-  background-color: color-mix(in srgb, var(--palette-rose) 10%, transparent);
+  background-color: color-mix(in srgb, var(--palette-rose) 6%, transparent);
 }
 [data-theme="spectrum"] .bg-accent-amber\/15,
 [data-theme="spectrum"] .bg-accent-amber\/10,
 [data-theme="spectrum"] .bg-accent-amber\/5 {
-  background-color: color-mix(in srgb, var(--palette-amber) 10%, transparent);
+  background-color: color-mix(in srgb, var(--palette-amber) 6%, transparent);
 }
 [data-theme="spectrum"] .bg-accent-emerald\/15,
 [data-theme="spectrum"] .bg-accent-emerald\/10,
 [data-theme="spectrum"] .bg-accent-emerald\/5 {
-  background-color: color-mix(in srgb, var(--palette-green) 10%, transparent);
+  background-color: color-mix(in srgb, var(--palette-green) 6%, transparent);
+}
+[data-theme="spectrum"] .bg-accent-cyan\/15,
+[data-theme="spectrum"] .bg-accent-cyan\/12,
+[data-theme="spectrum"] .bg-accent-cyan\/10,
+[data-theme="spectrum"] .bg-accent-cyan\/5,
+[data-theme="spectrum"] .bg-accent-teal\/15,
+[data-theme="spectrum"] .bg-accent-teal\/10,
+[data-theme="spectrum"] .bg-accent-teal\/5 {
+  background-color: color-mix(in srgb, var(--palette-cyan) 6%, transparent);
+}
+[data-theme="spectrum"] .bg-accent-violet\/15,
+[data-theme="spectrum"] .bg-accent-violet\/10,
+[data-theme="spectrum"] .bg-accent-violet\/5 {
+  background-color: color-mix(in srgb, var(--palette-purple) 7%, transparent);
 }
 [data-theme="spectrum"] .border-accent-rose\/30,
 [data-theme="spectrum"] .border-accent-rose\/20 {
-  border-color: color-mix(in srgb, var(--palette-rose) 35%, var(--color-border-subtle));
+  border-color: color-mix(in srgb, var(--palette-rose) 28%, var(--color-border-subtle));
 }
 [data-theme="spectrum"] .border-accent-amber\/50,
 [data-theme="spectrum"] .border-accent-amber\/40,
