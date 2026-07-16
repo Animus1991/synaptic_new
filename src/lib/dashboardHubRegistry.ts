@@ -19,6 +19,26 @@ export type DashboardHubAction = {
   disabled?: boolean;
 };
 
+/** Mockup primary 4-chip row (I-D03) — extras go to overflow. */
+export const DASHBOARD_HUB_PRIMARY_IDS: readonly DashboardHubActionId[] = [
+  'calendar',
+  'upload',
+  'session',
+  'workspace',
+] as const;
+
+export function partitionDashboardHubActions(actions: DashboardHubAction[]): {
+  primary: DashboardHubAction[];
+  overflow: DashboardHubAction[];
+} {
+  const primaryIds = new Set<DashboardHubActionId>(DASHBOARD_HUB_PRIMARY_IDS);
+  const primary = DASHBOARD_HUB_PRIMARY_IDS
+    .map((id) => actions.find((a) => a.id === id))
+    .filter((a): a is DashboardHubAction => Boolean(a));
+  const overflow = actions.filter((a) => !primaryIds.has(a.id));
+  return { primary, overflow };
+}
+
 /** Canonical carousel order — calendar is always first. */
 export function buildDashboardHubActions(opts: {
   reviewsDue: number;

@@ -19,6 +19,7 @@ import { resolveCourseColor } from '../lib/masteryPalette';
 import { CourseIcon } from './ui/CourseIcon';
 import { cn } from '../utils/cn';
 import { Page, PageHeader, TabBar } from './ui/primitives';
+import { SectionLabel } from './ui/SectionLabel';
 import { useDocumentThemeIsLight, warmSandScopeProps } from '../lib/useDocumentTheme';
 import { ReadinessRing } from './visuals/ReadinessRing';
 import { RetentionCurve } from './visuals/DiagramGenerator';
@@ -356,10 +357,7 @@ function OverviewTab({
           className="platform-panel-md"
           data-testid="analytics-fsrs-forecast"
         >
-          <h3 className="text-sm font-semibold flex items-center gap-2 mb-1">
-            <Brain className="w-4 h-4 text-accent-cyan" />
-            {t('analyticsFsrsForecastTitle')}
-          </h3>
+          <SectionLabel icon={Brain}>{t('analyticsFsrsForecastTitle')}</SectionLabel>
           <p className="text-[10px] text-text-muted mb-4">{t('analyticsFsrsForecastHint')}</p>
           <div className="grid grid-cols-3 gap-3 mb-4">
             <div className="rounded-xl border border-border-subtle bg-surface-card/40 px-3 py-2">
@@ -377,19 +375,29 @@ function OverviewTab({
               <p className="text-lg font-semibold text-text-primary">{fsrsSummary.trackedConcepts}</p>
             </div>
           </div>
-          <div className="flex items-end gap-1 h-16">
-            {fsrsForecast.map((point) => (
-              <div key={point.dayOffset} className="flex-1 flex flex-col items-center gap-0.5 min-w-0">
+          <div className="flex items-end gap-1 h-20" data-testid="analytics-fsrs-day-bars">
+            {fsrsForecast.map((point) => {
+              const label =
+                point.dayOffset === 0
+                  ? t('analyticsTimelineDayToday')
+                  : point.dayOffset === 1
+                    ? t('analyticsFsrsDayTomorrow')
+                    : point.dayOffset === 3 || point.dayOffset === 7 || point.dayOffset === 14
+                      ? `+${point.dayOffset}`
+                      : '';
+              return (
+              <div key={point.dayOffset} className="flex-1 flex flex-col items-center gap-0.5 min-w-0 h-full justify-end">
                 <div
                   className="w-full rounded-t bg-accent-cyan/80 min-h-[4px]"
                   style={{ height: `${Math.max(8, point.avgRetrievability * 100)}%` }}
                   title={`D+${point.dayOffset}: ${Math.round(point.avgRetrievability * 100)}%`}
                 />
-                <span className="text-[8px] text-text-muted tabular-nums">
-                  {point.dayOffset === 0 ? t('analyticsTimelineDayToday') : `+${point.dayOffset}`}
+                <span className="h-3 text-[8px] text-text-muted tabular-nums leading-none truncate w-full text-center">
+                  {label}
                 </span>
               </div>
-            ))}
+              );
+            })}
           </div>
         </motion.div>
       )}

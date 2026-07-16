@@ -306,6 +306,19 @@ export function Tasks({
             );
           })}
         </div>
+        <button
+          type="button"
+          data-testid="tasks-create-plan"
+          onClick={() => {
+            setTab('today');
+            setSessionMode(recommendedSession);
+            onStartSession?.(recommendedSession);
+          }}
+          className="w-full rounded-xl bg-brand-700 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-600"
+        >
+          {c.createPlanCta}
+        </button>
+        <p className="text-[10px] text-text-muted text-center sm:text-left">{c.createPlanHint}</p>
       </div>
 
       <DescriptiveStickyTabBar
@@ -479,6 +492,18 @@ export function Tasks({
             scopedWeak.map((area) => {
               const errors = Math.round(area.errorRate * 10);
               const TrendIcon = area.mastery < 30 ? ArrowDownRight : area.mastery > 50 ? TrendingUp : Minus;
+              const trendColor =
+                area.mastery < 30
+                  ? 'text-accent-rose'
+                  : area.mastery > 50
+                    ? 'text-accent-emerald'
+                    : 'text-text-muted';
+              const masteryColor =
+                area.mastery < 30
+                  ? 'text-accent-rose'
+                  : area.mastery > 50
+                    ? 'text-accent-emerald'
+                    : 'text-text-secondary';
               return (
                 <div key={area.concept} className="ux-card">
                   <div className="flex items-start justify-between mb-3">
@@ -489,9 +514,9 @@ export function Tasks({
                       </p>
                     </div>
                     <div className="text-right flex items-center gap-2">
-                      <TrendIcon className="w-4 h-4 text-accent-rose" />
+                      <TrendIcon className={cn('w-4 h-4', trendColor)} aria-hidden />
                       <div>
-                        <p className="text-lg font-bold tabular-nums text-accent-rose">{Math.round(area.mastery)}%</p>
+                        <p className={cn('text-lg font-bold tabular-nums', masteryColor)}>{Math.round(area.mastery)}%</p>
                         <p className="text-xs text-text-tertiary">mastery</p>
                       </div>
                     </div>
@@ -523,17 +548,29 @@ export function Tasks({
             <Calendar className="w-4 h-4 shrink-0" />
             {c.spacedReviewBanner}
           </div>
-          {(reviewTasks.length > 0 ? reviewTasks : []).map((task) => (
+          {(reviewTasks.length > 0 ? reviewTasks : []).map((task) => {
+            const spacingMatch = spacingReviews.find((s) =>
+              task.title.toLowerCase().includes(s.concept.toLowerCase())
+              || s.concept.toLowerCase().includes(task.title.toLowerCase().slice(0, 24)),
+            );
+            const intervalDays = spacingMatch?.interval;
+            return (
             <div key={task.id} className="ux-card flex items-center gap-4">
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-text-primary">{task.title}</p>
                 <p className="text-xs text-text-tertiary mt-1">{task.courseName} · {task.estimatedMinutes} min</p>
               </div>
+              {typeof intervalDays === 'number' && (
+                <span className="shrink-0 rounded-md border border-border-subtle bg-surface-secondary/60 px-1.5 py-0.5 text-[10px] font-medium tabular-nums text-text-secondary">
+                  {c.intervalLabel(`${intervalDays}d`)}
+                </span>
+              )}
               <button type="button" onClick={() => onStartTask?.(task.id)} className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-brand-600/15 text-brand-400 text-xs font-medium shrink-0">
                 <Play className="w-3 h-3" /> {c.startReview}
               </button>
             </div>
-          ))}
+            );
+          })}
           <LeitnerDueQueuePanel
             items={fsrsQueue}
             onSelect={onFocusWeakArea}

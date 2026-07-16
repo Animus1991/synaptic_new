@@ -52,7 +52,11 @@ export function PageHeader({
 }) {
   const isBlueprint = useBlueprintTheme();
   const content = (
-    <div className={cn('ux-page-header flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between', className)}>
+    <div className={cn(
+      'ux-page-header sticky top-0 z-20 -mx-3 mb-1 border-b border-border-subtle/50 bg-surface-primary/90 px-3 py-2.5 backdrop-blur-md sm:-mx-5 sm:px-5 lg:-mx-6 lg:px-6',
+      'flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between',
+      className,
+    )}>
       <div className="min-w-0">
         {eyebrow && <p className="ws-eyebrow mb-1.5 text-text-secondary">{eyebrow}</p>}
         <div className="flex items-center gap-2.5">

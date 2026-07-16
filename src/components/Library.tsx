@@ -491,7 +491,7 @@ export function Library({
               )}>
                 {filteredCourses.map((course, i) => (
                   viewMode === 'grid'
-                    ? <CourseCard key={course.id} course={course} index={i} tasks={tasks} glossaryEntries={glossaryEntries} uploadedFiles={uploadedFiles} userLanguage={userLanguage} onClick={() => onSelectCourse(course)} onRemoveCourse={onRemoveCourse} onOpenNotebookShell={onOpenNotebookShell} />
+                    ? <CourseCard key={course.id} course={course} index={i} tasks={tasks} glossaryEntries={glossaryEntries} uploadedFiles={uploadedFiles} userLanguage={userLanguage} onClick={() => onSelectCourse(course)} onRemoveCourse={onRemoveCourse} onOpenNotebookShell={onOpenNotebookShell} onUpload={onUpload} />
                     : <CourseListItem key={course.id} course={course} index={i} tasks={tasks} glossaryEntries={glossaryEntries} uploadedFiles={uploadedFiles} userLanguage={userLanguage} onClick={() => onSelectCourse(course)} onRemoveCourse={onRemoveCourse} onOpenNotebookShell={onOpenNotebookShell} />
                 ))}
               </div>
@@ -616,6 +616,7 @@ function CourseCard({
   onClick,
   onRemoveCourse,
   onOpenNotebookShell,
+  onUpload,
   uploadedFiles,
   tasks = [],
   glossaryEntries = [],
@@ -626,6 +627,7 @@ function CourseCard({
   onClick: () => void;
   onRemoveCourse?: (courseId: string) => boolean;
   onOpenNotebookShell?: (courseId: string) => void;
+  onUpload?: () => void;
   uploadedFiles: UploadedFile[];
   tasks?: Task[];
   glossaryEntries?: GlossaryEntry[];
@@ -646,6 +648,9 @@ function CourseCard({
   const isGenerating = course.status === 'generating';
   const needsReview = course.status === 'needs_review';
   const quality = course.sourceQuality;
+  const showMaterialGap = Boolean(quality?.needsMoreMaterial);
+  const showMisconception = Boolean(quality?.outlineAdjusted);
+  const topicChips = (course.topics ?? []).filter((topic) => !isDebugUiTopicLabel(topic.title)).slice(0, 4);
   const { pendingTasks, dueReviews, isStalePipeline: isOldPipeline } = selectCourseTaskMetrics(course, tasks);
 
   return (
@@ -655,25 +660,50 @@ function CourseCard({
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.05 }}
       onClick={() => {
+        if (isGenerating) return;
         prefetchWorkspaceEntry();
         onClick();
       }}
       data-testid="library-course-card"
-      {...workspaceEntryPrefetchHandlers()}
-      className="p-3.5 hover:border-brand-500/35 cursor-pointer transition-all group"
+      {...(isGenerating ? {} : workspaceEntryPrefetchHandlers())}
+      className={cn(
+        'relative p-3.5 hover:border-brand-500/35 transition-all group',
+        isGenerating ? 'cursor-default pointer-events-none opacity-90' : 'cursor-pointer',
+      )}
     >
+      {!isGenerating && (showMaterialGap || showMisconception) && (
+        <div className="pointer-events-none absolute right-2 top-2 z-10 flex max-w-[55%] flex-col items-end gap-1">
+          {showMaterialGap && (
+            <span
+              data-testid={`library-corner-gap-${course.id}`}
+              className="rounded-md border border-accent-amber/40 bg-accent-amber/15 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-accent-amber"
+            >
+              {t('libCornerMaterialGap', userLanguage)}
+            </span>
+          )}
+          {showMisconception && (
+            <span
+              data-testid={`library-corner-misconception-${course.id}`}
+              className="rounded-md border border-violet-500/35 bg-violet-500/10 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-violet-700 dark:text-violet-300"
+            >
+              {t('libCornerMisconception', userLanguage)}
+            </span>
+          )}
+        </div>
+      )}
+
       <div className="flex items-start justify-between mb-3">
         <CourseIcon icon={course.icon} size="lg" colorClassName="text-brand-600" />
         <div className="flex items-center gap-1">
-          {canDelete && (
+          {canDelete && !isGenerating && (
             <button
               type="button"
               onClick={(e) => { e.stopPropagation(); setRemoveDialogOpen(true); }}
               data-testid="library-course-delete"
-              className="rounded-lg p-1.5 text-text-tertiary opacity-80 transition-all hover:bg-accent-rose/10 hover:text-accent-rose hover:opacity-100"
+              className="pointer-events-auto rounded-lg p-1.5 text-text-tertiary opacity-80 transition-all hover:bg-accent-rose/10 hover:text-accent-rose hover:opacity-100"
               aria-label={t('libDeleteCourseAria', userLanguage)}
             >
-              <Trash2 className="w-4 h-4" />
+              <X className="w-4 h-4" />
             </button>
           )}
           {isOldPipeline && !isGenerating && (
@@ -785,6 +815,33 @@ function CourseCard({
             >
               <BookOpen className="w-3.5 h-3.5" />
               {t('libNotebookShellShort', userLanguage)}
+            </button>
+          )}
+        </div>
+      )}
+
+      {!isGenerating && (
+        <div className="mt-3 flex flex-wrap items-center gap-1.5" data-testid={`library-topic-chips-${course.id}`}>
+          {topicChips.map((topic) => (
+            <span
+              key={topic.id}
+              className="max-w-[7.5rem] truncate rounded-md border border-border-subtle bg-surface-secondary/50 px-1.5 py-0.5 text-[10px] text-text-secondary"
+              title={topic.title}
+            >
+              {topic.title}
+            </span>
+          ))}
+          {onUpload && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onUpload();
+              }}
+              data-testid={`library-add-file-${course.id}`}
+              className="rounded-md border border-dashed border-brand-500/40 px-1.5 py-0.5 text-[10px] font-medium text-brand-700 hover:bg-brand-500/10"
+            >
+              {t('libAddFileChip', userLanguage)}
             </button>
           )}
         </div>

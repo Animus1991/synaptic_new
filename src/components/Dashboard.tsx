@@ -35,9 +35,8 @@ import { UxCallout } from './ui/platformChrome';
 import { BlueprintSurface } from './ui/BlueprintSurface';
 import { PostUploadBanner } from './ui/PostUploadBanner';
 import { useDocumentThemeIsLight, warmSandScopeProps } from '../lib/useDocumentTheme';
-import { DashboardLivePreview } from './DashboardLivePreview';
+import { SectionLabel } from './ui/SectionLabel';
 import { DashboardActionHub } from './DashboardActionHub';
-import { useBlueprintTheme } from '../lib/useBlueprintTheme';
 import { buildDashboardWeakSpotCards } from '../lib/dashboardWeakSpotsModel';
 import { executeDashboardNextAction } from '../lib/dashboardNextAction';
 import { SyllabusCoverageWidget } from './examPrep/SyllabusCoverageWidget';
@@ -134,7 +133,6 @@ interface DashboardProps {
 
 export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onSelectCourse, onOpenWorkspace, onOpenExamTimer, onUpload, onExploreDemo, prerequisiteRepairs = [], calibration, conceptMastery = [], activities = [], masteryDelta = 0, daysToExam = null, antiPassiveAlert = false, onStartTask, onStartSession, onResolveMisconception, onFocusWeakArea, workspaceLive = null, workspaceBooting = false, dashboardNextAction = null, smartCTAs = [], onRunSmartCTA, proactiveAgentAlerts = [], onRunProactiveAgentAlert, onOpenWorkspacePractice, lang = 'en', postUploadCourse = null, onDismissPostUpload, onOpenTasksReview, settingsExamDate, personalStudyDates = [], onExamDateChange, onPersonalStudyDatesChange, dashboardWallpaperDataUrl, onDashboardWallpaperChange }: DashboardProps) {
   const { t } = useI18n();
-  const isBlueprint = useBlueprintTheme();
   const isLightTheme = useDocumentThemeIsLight();
   const [layoutMode, setLayoutMode] = useState<DashboardLayoutMode>(() => loadDashboardLayoutMode());
   const isCanvasLayout = layoutMode === 'canvas';
@@ -425,15 +423,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
         </MotionSection>
       )}
 
-      {!isBlueprint && showWorkspaceResume && workspaceLive && (
-        <MotionSection initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-          <DashboardLivePreview
-            live={workspaceLive}
-            lang={lang}
-            onOpenWorkspace={onOpenWorkspace}
-          />
-        </MotionSection>
-      )}
+      {/* I-D10: workspace resume lives in hub only — no duplicate below stats */}
 
       {!showWorkspaceResume && dashboardNextAction && (
         <MotionSection initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
@@ -515,7 +505,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {conceptMastery.length > 0 && (
                 <BlueprintSurface className="p-5">
-                  <SectionTitle icon={Brain} iconClassName="text-brand-400">{t('dashConceptMastery')}</SectionTitle>
+                  <SectionLabel icon={Brain}>{t('dashConceptMastery')}</SectionLabel>
                   <ConceptMasteryBars concepts={conceptMastery} />
                 </BlueprintSurface>
               )}
@@ -588,7 +578,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
           {/* Needs fixing */}
           {fixTasks.length > 0 && (
             <div className="rounded-panel border border-accent-orange/20 bg-accent-orange/5 p-5">
-              <SectionTitle icon={Shield} iconClassName="text-accent-orange">{t('dashNeedsFixing')}</SectionTitle>
+              <SectionLabel icon={Shield}>{t('dashNeedsFixing')}</SectionLabel>
               <div className="space-y-2">
                 {fixTasks.slice(0, 3).map(task => (
                   <button
@@ -682,7 +672,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
 
           {/* Mastery Trend */}
           <BlueprintSurface className="p-5">
-            <SectionTitle icon={TrendingUp} iconClassName="text-accent-emerald">{t('dashWeeklyMastery')}</SectionTitle>
+            <SectionLabel icon={TrendingUp}>{t('dashWeeklyMastery')}</SectionLabel>
             {masteryTrend.length > 0 ? (
               <div className="flex items-end gap-1.5 h-24">
                 {masteryTrend.map((val, i) => (
@@ -705,7 +695,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
 
           {/* Weak Areas */}
           <BlueprintSurface className="p-5">
-            <SectionTitle icon={Brain} iconClassName="text-accent-rose">{t('dashWeakAreas')}</SectionTitle>
+            <SectionLabel icon={Brain}>{t('dashWeakAreas')}</SectionLabel>
             <div className="space-y-3">
               {weakSpotsWithReasons.length > 0 ? weakSpotsWithReasons.map((area) => (
                 <button
@@ -754,7 +744,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
           {/* Almost Known */}
           {learnerModel.almostKnown.length > 0 && (
             <div className="rounded-panel border border-accent-amber/20 bg-accent-amber/5 p-5">
-              <SectionTitle icon={Lightbulb} iconClassName="text-accent-amber">{t('dashAlmostThere')}</SectionTitle>
+              <SectionLabel icon={Lightbulb}>{t('dashAlmostThere')}</SectionLabel>
               <p className="text-xs text-text-tertiary mb-3">{t('dashAlmostThereHint')}</p>
               <div className="space-y-2">
                 {learnerModel.almostKnown.map(a => (
@@ -770,7 +760,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
           {/* Upcoming Exam */}
           {courses.some(c => c.examDate) && (
             <div className="rounded-panel border border-accent-rose/20 bg-accent-rose/5 p-5">
-              <SectionTitle icon={Calendar} iconClassName="text-accent-rose">{t('dashUpcomingExam')}</SectionTitle>
+              <SectionLabel icon={Calendar}>{t('dashUpcomingExam')}</SectionLabel>
               {courses.filter(c => c.examDate).map(course => {
                 const daysLeft = Math.max(0, Math.ceil((new Date(course.examDate!).getTime() - Date.now()) / 86400000));
                 const courseMastery = selectCanonicalMastery(course);
@@ -803,13 +793,13 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
             <CalibrationChip score={calibration.score} direction={calibration.direction} />
           ) : (
           <BlueprintSurface className="p-5">
-            <SectionTitle icon={Eye} iconClassName="text-accent-amber">{t('dashConfidenceCheck')}</SectionTitle>
+            <SectionLabel icon={Eye}>{t('dashConfidenceCheck')}</SectionLabel>
             <p className="text-xs text-text-tertiary mb-2">{t('dashConfidenceCheckHint')}</p>
           </BlueprintSurface>
           )}
           {calibration && (
           <BlueprintSurface className="p-5">
-            <SectionTitle icon={Eye} iconClassName="text-accent-amber">{t('dashRecentCalibration')}</SectionTitle>
+            <SectionLabel icon={Eye}>{t('dashRecentCalibration')}</SectionLabel>
             {learnerModel.confidenceCalibration.slice(0, 3).map((p, i) => {
               const overconfident = p.predicted > p.actual + 0.15;
               return (
@@ -837,7 +827,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
           {/* Learning Insight */}
           {learnerModel.interactionInsights.length > 0 && (
             <div className="rounded-panel border border-brand-500/20 bg-brand-500/5 p-5">
-              <SectionTitle icon={Lightbulb} iconClassName="text-brand-400">{t('dashLearningInsight')}</SectionTitle>
+              <SectionLabel icon={Lightbulb}>{t('dashLearningInsight')}</SectionLabel>
               <p className="text-xs text-text-secondary leading-relaxed">{learnerModel.interactionInsights[0]}</p>
             </div>
           )}
@@ -845,7 +835,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
           {/* Misconceptions */}
           {unresolvedMisconceptions.length > 0 && (
             <BlueprintSurface className="p-5">
-              <SectionTitle icon={AlertTriangle} iconClassName="text-accent-orange">{t('dashActiveMisconceptions')}</SectionTitle>
+              <SectionLabel icon={AlertTriangle}>{t('dashActiveMisconceptions')}</SectionLabel>
               <div className="space-y-2">
                 {unresolvedMisconceptions.slice(0, 2).map(m => (
                   <div key={m.id} className="p-2.5 rounded-lg bg-accent-orange/5 border border-accent-orange/20 text-xs">
@@ -867,7 +857,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
 
           {/* Spaced Rep Info */}
           <BlueprintSurface className="p-5">
-            <SectionTitle icon={RotateCcw} iconClassName="text-accent-teal">{t('dashSpacedRepetition')}</SectionTitle>
+            <SectionLabel icon={RotateCcw}>{t('dashSpacedRepetition')}</SectionLabel>
             <p className="text-xs text-text-tertiary">{t('dashSpacedRepetitionHint')}</p>
             <div className="mt-3 grid grid-cols-3 gap-2 text-center">
               <button
@@ -902,7 +892,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
 
           {/* Activity Feed */}
           <BlueprintSurface className="p-5">
-            <SectionTitle icon={Zap} iconClassName="text-brand-400">{t('dashRecentActivity')}</SectionTitle>
+            <SectionLabel icon={Zap}>{t('dashRecentActivity')}</SectionLabel>
             <ActivityFeed activities={activities} maxItems={5} />
           </BlueprintSurface>
         </MotionSection>
@@ -952,26 +942,6 @@ function StatCard({
       </div>
       <p className="text-base font-bold tabular-nums leading-tight sm:text-lg">{value}</p>
     </BlueprintSurface>
-  );
-}
-
-/** Unified sidebar section heading — consistent icon size, weight and rhythm (calm minimal). */
-function SectionTitle({
-  icon: Icon,
-  iconClassName,
-  children,
-  className,
-}: {
-  icon: React.ComponentType<{ className?: string }>;
-  iconClassName?: string;
-  children: React.ReactNode;
-  className?: string;
-}) {
-  return (
-    <h3 className={cn('mb-3 flex items-center gap-2 text-sm font-semibold text-text-primary', className)}>
-      <Icon className={cn('h-4 w-4 shrink-0', iconClassName)} />
-      {children}
-    </h3>
   );
 }
 

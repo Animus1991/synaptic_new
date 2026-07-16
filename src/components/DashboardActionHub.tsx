@@ -1,13 +1,15 @@
-import { useRef, useState, useCallback, useEffect, type ReactNode } from 'react';
+import { useRef, useState, useCallback, useEffect, useMemo, type ReactNode } from 'react';
 import {
   UploadSimple as Upload, Play, CheckSquare, SquaresFour as Layout,
-  Calendar, Image as ImageIcon, CalendarBlank, CaretLeft as ChevronLeft, CaretRight as ChevronRight,
+  Calendar, Image as ImageIcon, CalendarBlank, DotsThree,
 } from '@phosphor-icons/react';
 import { cn } from '../utils/cn';
 import { useI18n } from '../lib/i18n';
 import { BlueprintSurface } from './ui/BlueprintSurface';
 import {
   buildDashboardHubActions,
+  partitionDashboardHubActions,
+  type DashboardHubAction,
   type DashboardHubActionId,
 } from '../lib/dashboardHubRegistry';
 import { DashboardLivePreview } from './DashboardLivePreview';
@@ -79,14 +81,25 @@ export function DashboardActionHub({
   flushTop = false,
 }: Props) {
   const { t } = useI18n();
-  const carouselRef = useRef<HTMLDivElement>(null);
   const clickTimerRef = useRef<number | null>(null);
+  const overflowRef = useRef<HTMLDivElement>(null);
   const [activePopup, setActivePopup] = useState<DashboardHubActionId | null>(null);
+  const [overflowOpen, setOverflowOpen] = useState(false);
   const actions = buildDashboardHubActions({ reviewsDue, canWorkspace, canUpload });
+  const { primary, overflow } = useMemo(() => partitionDashboardHubActions(actions), [actions]);
 
   useEffect(() => () => {
     if (clickTimerRef.current) window.clearTimeout(clickTimerRef.current);
   }, []);
+
+  useEffect(() => {
+    if (!overflowOpen) return;
+    const onDoc = (e: MouseEvent) => {
+      if (!overflowRef.current?.contains(e.target as Node)) setOverflowOpen(false);
+    };
+    document.addEventListener('mousedown', onDoc);
+    return () => document.removeEventListener('mousedown', onDoc);
+  }, [overflowOpen]);
 
   const scrollToTarget = useCallback((targetId: string) => {
     document.getElementById(targetId)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -94,6 +107,7 @@ export function DashboardActionHub({
 
   const openPopup = useCallback((id: DashboardHubActionId) => {
     setActivePopup(id);
+    setOverflowOpen(false);
   }, []);
 
   const handleCardClick = (id: DashboardHubActionId) => {
@@ -110,20 +124,44 @@ export function DashboardActionHub({
       clickTimerRef.current = null;
     }
     setActivePopup(null);
+    setOverflowOpen(false);
     if (scrollTargetId) scrollToTarget(scrollTargetId);
-  };
-
-  const scrollCarousel = (dir: -1 | 1) => {
-    const el = carouselRef.current;
-    if (!el) return;
-    const card = el.querySelector<HTMLElement>('[data-hub-card]');
-    const delta = (card?.offsetWidth ?? 240) + 12;
-    el.scrollBy({ left: dir * delta, behavior: 'smooth' });
   };
 
   const onHero = Boolean(wallpaperDataUrl);
   const glassCard = onHero ? 'bg-surface-card/82 backdrop-blur-md border-white/10' : undefined;
   const heroText = onHero ? 'text-white' : undefined;
+
+  const renderChip = (action: DashboardHubAction, testIdPrefix: string) => {
+    const Icon = ACTION_ICONS[action.id];
+    return (
+      <button
+        key={action.id}
+        type="button"
+        data-hub-card
+        data-testid={`${testIdPrefix}-${action.id}`}
+        disabled={action.disabled}
+        onClick={() => handleCardClick(action.id)}
+        onDoubleClick={() => handleCardDoubleClick(action.scrollTargetId)}
+        className={cn(
+          'relative flex min-w-0 flex-col items-center gap-1 rounded-xl border border-border-subtle px-2 py-2.5 text-center transition-colors',
+          'hover:bg-surface-hover/40 focus-visible:ring-2 focus-visible:ring-brand-500/50',
+          action.disabled && 'opacity-50 pointer-events-none',
+          glassCard,
+        )}
+      >
+        <Icon className={cn('h-4 w-4', onHero ? 'text-brand-300' : 'text-brand-500')} aria-hidden />
+        <span className={cn('truncate text-[10px] font-semibold leading-tight', onHero ? 'text-white' : 'text-text-primary')}>
+          {t(action.labelKey)}
+        </span>
+        {action.badge && (
+          <span className="absolute -right-1 -top-1 min-w-[1.1rem] rounded-full bg-accent-rose px-1 py-0.5 text-[9px] font-bold leading-none text-white">
+            {action.badge}
+          </span>
+        )}
+      </button>
+    );
+  };
 
   return (
     <>
@@ -186,109 +224,67 @@ export function DashboardActionHub({
           </div>
 
           <div className="space-y-3">
-            <div className="flex items-center gap-2 md:hidden">
-              <button
-                type="button"
-                aria-label={t('dashboardHeroCarouselPrev')}
-                onClick={() => scrollCarousel(-1)}
-                className={cn('p-1.5 rounded-lg border border-border-subtle hover:bg-surface-hover/30', glassCard)}
-              >
-                <ChevronLeft className="w-4 h-4" />
-              </button>
-              <button
-                type="button"
-                aria-label={t('dashboardHeroCarouselNext')}
-                onClick={() => scrollCarousel(1)}
-                className={cn('p-1.5 rounded-lg border border-border-subtle hover:bg-surface-hover/30', glassCard)}
-              >
-                <ChevronRight className="w-4 h-4" />
-              </button>
-            </div>
-
-            {/* Mobile: horizontal snap carousel */}
+            {/* I-D03: compact 4-chip row + overflow (reviews / dates / wallpaper) */}
             <div
-              ref={carouselRef}
-              className="flex gap-3 overflow-x-auto snap-x snap-mandatory pb-0.5 scrollbar-thin md:hidden"
-              data-testid="dashboard-hero-carousel"
-            >
-              {actions.map((action) => {
-                const Icon = ACTION_ICONS[action.id];
-                return (
-                  <BlueprintSurface
-                    key={action.id}
-                    nest
-                    hint
-                    as="button"
-                    type="button"
-                    data-hub-card
-                    data-testid={`dashboard-hero-action-${action.id}`}
-                    onClick={() => handleCardClick(action.id)}
-                    onDoubleClick={() => handleCardDoubleClick(action.scrollTargetId)}
-                    className={cn(
-                      'snap-start shrink-0 w-[min(100%,14rem)] text-left p-4 transition-transform hover:scale-[1.02] focus-visible:ring-2 focus-visible:ring-brand-500/50',
-                      glassCard,
-                    )}
-                  >
-                    <div className="flex items-center gap-2 mb-2">
-                      <Icon className={cn('w-5 h-5', onHero ? 'text-brand-300' : 'text-brand-400')} />
-                      {action.badge && (
-                        <span className="ml-auto text-[10px] font-bold ws-chip-danger px-2 py-0.5 rounded-full">
-                          {action.badge}
-                        </span>
-                      )}
-                    </div>
-                    <p className={cn('text-sm font-semibold', onHero ? 'text-white' : 'text-text-primary')}>
-                      {t(action.labelKey)}
-                    </p>
-                    <p className={cn('mt-1 text-xs leading-relaxed', onHero ? 'text-white/75' : 'text-text-secondary')}>
-                      {t(action.hintKey)}
-                    </p>
-                  </BlueprintSurface>
-                );
-              })}
-            </div>
-
-            {/* Desktop+: equal grid — no side panel overlap */}
-            <div
-              className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-3"
+              className="grid grid-cols-4 gap-2 sm:gap-2.5"
               data-testid="dashboard-hero-action-grid"
             >
-              {actions.map((action) => {
-                const Icon = ACTION_ICONS[action.id];
-                return (
-                  <BlueprintSurface
-                    key={`grid-${action.id}`}
-                    nest
-                    hint
-                    as="button"
-                    type="button"
-                    data-hub-card
-                    data-testid={`dashboard-hero-action-grid-${action.id}`}
-                    onClick={() => handleCardClick(action.id)}
-                    onDoubleClick={() => handleCardDoubleClick(action.scrollTargetId)}
+              {primary.map((action) => renderChip(action, 'dashboard-hero-action-grid'))}
+            </div>
+
+            {overflow.length > 0 && (
+              <div className="relative flex justify-end" ref={overflowRef}>
+                <button
+                  type="button"
+                  data-testid="dashboard-hero-hub-more"
+                  aria-expanded={overflowOpen}
+                  aria-haspopup="menu"
+                  aria-label={t('dashboardHeroHubMoreAria')}
+                  onClick={() => setOverflowOpen((v) => !v)}
+                  className={cn(
+                    'inline-flex items-center gap-1.5 rounded-lg border border-border-subtle px-2.5 py-1.5 text-[11px] font-medium transition-colors',
+                    'hover:bg-surface-hover/40',
+                    glassCard,
+                    onHero ? 'text-white/90' : 'text-text-secondary',
+                  )}
+                >
+                  <DotsThree className="h-4 w-4" weight="bold" aria-hidden />
+                  {t('dashboardHeroHubMore')}
+                </button>
+                {overflowOpen && (
+                  <div
+                    role="menu"
+                    data-testid="dashboard-hero-hub-overflow"
                     className={cn(
-                      'w-full text-left p-4 transition-transform hover:scale-[1.01] focus-visible:ring-2 focus-visible:ring-brand-500/50',
-                      glassCard,
+                      'absolute right-0 top-full z-30 mt-1.5 min-w-[12rem] overflow-hidden rounded-xl border border-border-subtle bg-surface-card py-1 shadow-lg',
+                      onHero && 'bg-surface-card/95 backdrop-blur-md',
                     )}
                   >
-                    <div className="flex items-center gap-2 mb-2">
-                      <Icon className={cn('w-5 h-5', onHero ? 'text-brand-300' : 'text-brand-400')} />
-                      {action.badge && (
-                        <span className="ml-auto text-[10px] font-bold ws-chip-danger px-2 py-0.5 rounded-full">
-                          {action.badge}
-                        </span>
-                      )}
-                    </div>
-                    <p className={cn('text-sm font-semibold', onHero ? 'text-white' : 'text-text-primary')}>
-                      {t(action.labelKey)}
-                    </p>
-                    <p className={cn('mt-1 text-xs leading-relaxed', onHero ? 'text-white/75' : 'text-text-secondary')}>
-                      {t(action.hintKey)}
-                    </p>
-                  </BlueprintSurface>
-                );
-              })}
-            </div>
+                    {overflow.map((action) => {
+                      const Icon = ACTION_ICONS[action.id];
+                      return (
+                        <button
+                          key={action.id}
+                          type="button"
+                          role="menuitem"
+                          data-testid={`dashboard-hero-overflow-${action.id}`}
+                          onClick={() => handleCardClick(action.id)}
+                          className="flex w-full items-center gap-2 px-3 py-2 text-left text-xs text-text-primary hover:bg-surface-hover/50"
+                        >
+                          <Icon className="h-3.5 w-3.5 shrink-0 text-brand-500" aria-hidden />
+                          <span className="min-w-0 flex-1 truncate">{t(action.labelKey)}</span>
+                          {action.badge && (
+                            <span className="rounded-full bg-accent-rose/15 px-1.5 py-0.5 text-[9px] font-bold text-accent-rose">
+                              {action.badge}
+                            </span>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Study center: compact full-width strip (never stretched beside cards) */}
             {workspaceLive ? (

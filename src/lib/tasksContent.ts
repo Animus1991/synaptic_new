@@ -104,6 +104,8 @@ export type TasksContent = {
   recallReminderTitle: string;
   recallReminderBody: string;
   recallReminderCta: string;
+  createPlanCta: string;
+  createPlanHint: string;
 };
 
 const EN: TasksContent = {
@@ -196,6 +198,8 @@ const EN: TasksContent = {
   almostThereTitle: 'Almost there',
   almostThereHint: '1–2 sessions to mastery',
   almostThereCta: 'Practice',
+  createPlanCta: 'Create Plan',
+  createPlanHint: "Open today's plan and start the recommended session.",
   recallReminderTitle: 'Recall reminder',
   recallReminderBody: 'You have been reading for a while. Check what you remember.',
   recallReminderCta: 'Quick quiz',
@@ -291,6 +295,8 @@ const EL: TasksContent = {
   almostThereTitle: 'Σχεδόν εκεί',
   almostThereHint: '1–2 συνεδρίες για κατάκτηση',
   almostThereCta: 'Εξάσκηση',
+  createPlanCta: 'Δημιούργησε Πλάνο',
+  createPlanHint: 'Άνοιξε το σημερινό πλάνο και ξεκίνα την προτεινόμενη συνεδρία.',
   recallReminderTitle: 'Υπενθύμιση ανάκλησης',
   recallReminderBody: 'Διαβάζεις αρκετή ώρα. Ας δούμε τι θυμάσαι.',
   recallReminderCta: 'Γρήγορο κουίζ',

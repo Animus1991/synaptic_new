@@ -59,20 +59,20 @@ Wave A–G + H-01…H-05: hub CTAs, stats, warm-sand, Tasks dual strip, Library 
 
 ---
 
-## 5. Sprint I-2 / I-3 (tracked — no omission)
+## 5. Sprint I-2 / I-3
 
-| ID | Item | Priority |
-| -- | ---- | -------- |
-| I-D03 | Hub compact 4-chip quick actions | P2 |
-| I-D07 | Sticky page title chrome | P2 |
-| I-D09 | SectionLabel density pass | P3 |
-| I-D10 | Deduplicate workspace resume | P3 |
-| I-T02 | Δημιούργησε Πλάνο CTA | P2 |
-| I-T03 | Weak-area trend colors | P2 |
-| I-T04 | Due review interval badge | P2 |
-| I-L04–L08 | Card corner badges, generating lock, topic chips, per-card alerts, X icon | P2–P3 |
-| I-A03 | FSRS day labels under bars | P2 |
-| I-X03 | Shared SectionLabel adoption | P3 |
+| ID | Item | Priority | Status |
+| -- | ---- | -------- | ------ |
+| I-D03 | Hub compact 4-chip quick actions (+ overflow More) | P2 | **shipped** |
+| I-D07 | Sticky page title chrome (`PageHeader`) | P2 | **shipped** |
+| I-D09 | SectionLabel density pass (Dashboard) | P3 | **shipped** |
+| I-D10 | Deduplicate workspace resume (hub only) | P3 | **shipped** |
+| I-T02 | Δημιούργησε Πλάνο CTA | P2 | **shipped** |
+| I-T03 | Weak-area trend colors (emerald / rose / muted) | P2 | **shipped** |
+| I-T04 | Due review interval badge | P2 | **shipped** |
+| I-L04–L08 | Corner badges, generating lock, topic chips, +Αρχείο, X delete | P2–P3 | **shipped** |
+| I-A03 | FSRS day labels under bars (Today / Tomorrow / +3/+7/+14) | P2 | **shipped** |
+| I-X03 | Shared SectionLabel adoption | P3 | **shipped** |
 
 ---
 
@@ -91,4 +91,16 @@ Wave A–G + H-01…H-05: hub CTAs, stats, warm-sand, Tasks dual strip, Library 
 - [x] Tasks: sessions → tabs → insights → list
 - [x] Library: promo strip, stats, Open+Shell
 - [x] Analytics Overview rhythm + 3-col mastery row
+- [x] No emoji chrome; tools intact; no secrets in commit
+
+---
+
+## 8. Acceptance (Wave I-2 / I-3)
+
+- [x] Hub shows compact 4 chips; reviews / dates / wallpaper in overflow
+- [x] Page headers sticky with backdrop
+- [x] Dashboard uses shared `SectionLabel`; no duplicate workspace resume
+- [x] Tasks: Create Plan CTA; weak trend colors; review interval chips
+- [x] Library cards: corner badges, generating lock, topic chips + add file, X delete
+- [x] Analytics FSRS bars: selective day labels
 - [x] No emoji chrome; tools intact; no secrets in commit
