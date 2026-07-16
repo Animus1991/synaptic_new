@@ -11,7 +11,7 @@ import {
 
 /**
  * Shared page-level layout primitives for Synapse top-level views.
- * Warm Sand bento surfaces + Lora headings (synaptic-refined alignment).
+ * Warm Sand bento surfaces + shared display headings (Lora — light typography SoT).
  */
 
 /** Outer page wrapper: full remaining width beside the sidebar (no artificial max-width). */

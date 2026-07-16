@@ -694,7 +694,7 @@ function CourseCard({
           {showMisconception && (
             <span
               data-testid={`library-corner-misconception-${course.id}`}
-              className="rounded-md border border-violet-500/35 bg-violet-500/10 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-violet-700 dark:text-violet-300"
+              className="rounded-md border border-brand-500/35 bg-brand-500/10 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-brand-700"
             >
               {t('libCornerMisconception', userLanguage)}
             </span>

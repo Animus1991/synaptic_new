@@ -126,7 +126,7 @@ export function DashboardAlertGrid({
 
   return (
     <div
-      className={cn('grid grid-cols-1 sm:grid-cols-2 gap-2', className)}
+      className={cn('grid grid-cols-1 sm:grid-cols-2 gap-3', className)}
       data-testid="dashboard-alert-grid"
     >
       {slots.slice(0, 4).map((slot) => {

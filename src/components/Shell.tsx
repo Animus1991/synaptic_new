@@ -117,11 +117,11 @@ function NavActiveIndicator() {
   );
 }
 
-const QUICK_ACCESS_ICONS: Record<GlobalQuickActionId, { icon: typeof Network; color: string }> = {
-  'note-analysis': { icon: Network, color: '#818CF8' },
-  upload: { icon: Sparkles, color: '#34D399' },
-  workspace: { icon: BookOpen, color: '#60A5FA' },
-  exam: { icon: Zap, color: '#F87171' },
+const QUICK_ACCESS_ICONS: Record<GlobalQuickActionId, { icon: typeof Network; inkClass: string; washClass: string }> = {
+  'note-analysis': { icon: Network, inkClass: 'text-accent-violet', washClass: 'bg-accent-violet/15' },
+  upload: { icon: Sparkles, inkClass: 'text-accent-emerald', washClass: 'bg-accent-emerald/15' },
+  workspace: { icon: BookOpen, inkClass: 'text-brand-600', washClass: 'bg-brand-500/15' },
+  exam: { icon: Zap, inkClass: 'text-accent-rose', washClass: 'bg-accent-rose/15' },
 };
 
 export function Shell({
@@ -325,8 +325,8 @@ export function Shell({
                   onClick={() => onQuickAccess(action.id)}
                   className={cn(shellNavClass(false), 'py-2')}
                 >
-                  <span className="ux-quick-icon" style={{ backgroundColor: `${visual.color}20` }}>
-                    <visual.icon className="w-3 h-3" style={{ color: visual.color }} />
+                  <span className={cn('ux-quick-icon', visual.washClass)}>
+                    <visual.icon className={cn('w-3 h-3', visual.inkClass)} />
                   </span>
                   <span className="text-xs truncate">{t(action.labelKey)}</span>
                 </button>

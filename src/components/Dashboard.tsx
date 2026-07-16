@@ -258,6 +258,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
       <MotionSection
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
+        className="relative z-10"
         data-testid="dashboard-hero-panel"
       >
         <DashboardActionHub
@@ -331,7 +332,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
             </>
           }
           statsSlot={
-            <div className="grid grid-cols-2 sm:grid-cols-5 gap-2" data-testid="dashboard-page-stats">
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5 sm:gap-3" data-testid="dashboard-page-stats">
               <StatCard icon={<Flame className="w-3.5 h-3.5 text-accent-amber" />} label={t('dashboardStatStreak')} value={t('dashboardStatDaysSuffix').replace('{count}', String(pageStats.streak))} data-testid="dashboard-stat-streak" />
               <StatCard icon={<Zap className="w-3.5 h-3.5 text-brand-400" />} label={t('dashboardStatTodayXp')} value={`${pageStats.todayXp}`} data-testid="dashboard-stat-today-xp" />
               <StatCard
@@ -349,7 +350,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
         />
       </MotionSection>
 
-      <div className="px-4 sm:px-6 lg:px-8 space-y-3 sm:space-y-4">
+      <div className="mt-5 sm:mt-6 px-4 sm:px-6 lg:px-8 space-y-5 sm:space-y-6">
       {postUploadCourse && (
         <MotionSection initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
           <PostUploadBanner
@@ -387,7 +388,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           className={cn(
-            'grid gap-2',
+            'grid gap-3',
             daysToExam !== null && (antiPassiveAlert || stats.antiPassiveAlert)
               ? 'grid-cols-1 sm:grid-cols-2'
               : 'grid-cols-1',

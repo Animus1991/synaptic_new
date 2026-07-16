@@ -69,26 +69,27 @@ export function CrossLibrarySynthesisPanel({ courses, settings, lang, className 
   return (
     <div
       className={cn(
-        'rounded-xl border overflow-hidden',
-        'border-violet-500/25 bg-gradient-to-r from-violet-500/[0.08] via-violet-500/[0.04] to-transparent',
+        'ux-combined-study rounded-xl border overflow-hidden',
+        'border-brand-500/25 bg-gradient-to-r from-brand-500/[0.10] via-brand-500/[0.05] to-transparent',
         className,
       )}
       data-testid="cross-library-synthesis"
       data-promo="combined-study"
     >
       <div className="flex items-center gap-2.5 px-3.5 py-2.5">
-        <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-violet-500/15 text-violet-400 shrink-0">
+        <span className="ux-combined-study-icon flex h-7 w-7 items-center justify-center rounded-lg shrink-0">
           <Library className="w-3.5 h-3.5" />
         </span>
         <span className="min-w-0 flex-1">
           <span className="block text-xs font-semibold text-text-primary">{title}</span>
-          {/* Wave P-3 L05 — single-line promo when collapsed keeps the card dense. */}
-          <span className="block text-[10px] text-violet-300/80 line-clamp-1">{promo}</span>
+          {/* Promo ink uses theme secondary (warm sepia / spectrum ink / blueprint slate)
+              — hardcoded violet-300 was ~1.5:1 on light cards. */}
+          <span className="ux-combined-study-promo block text-[10px] line-clamp-1">{promo}</span>
         </span>
         <button
           type="button"
           onClick={() => setOpen((v) => !v)}
-          className="shrink-0 inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-semibold border border-violet-500/40 text-violet-300 hover:bg-violet-500/10"
+          className="ux-combined-study-action shrink-0 inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-semibold border"
           data-testid="cross-library-synthesis-select"
         >
           {selectLabel}
@@ -96,21 +97,21 @@ export function CrossLibrarySynthesisPanel({ courses, settings, lang, className 
         </button>
       </div>
       {open && (
-        <div className="px-3.5 pb-3 space-y-2 border-t border-violet-500/15 pt-2.5 bg-surface-primary/30">
+        <div className="px-3.5 pb-3 space-y-2 border-t border-brand-500/20 pt-2.5 bg-surface-primary/30">
           <p className="text-[10px] text-text-secondary">{subtitle}</p>
           <textarea
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder={defaultQuery}
             rows={2}
-            className="w-full rounded-lg border border-violet-500/20 bg-surface-primary px-2 py-1.5 text-[11px] text-text-primary resize-none focus:outline-none focus:ring-1 focus:ring-violet-500/30"
+            className="w-full rounded-lg border border-brand-500/25 bg-surface-primary px-2 py-1.5 text-[11px] text-text-primary placeholder:text-text-muted resize-none focus:outline-none focus:ring-1 focus:ring-brand-500/35"
             data-testid="cross-library-synthesis-query"
           />
           {courses.length > 0 && (
             <select
               value={scope}
               onChange={(e) => setScope(e.target.value)}
-              className="w-full rounded-lg border border-violet-500/20 bg-surface-primary px-2 py-1 text-[11px]"
+              className="w-full rounded-lg border border-brand-500/25 bg-surface-primary px-2 py-1 text-[11px] text-text-primary"
               data-testid="cross-library-synthesis-scope"
             >
               <option value="all">{lang === 'el' ? 'Όλα τα μαθήματα' : 'All courses'}</option>
@@ -125,7 +126,7 @@ export function CrossLibrarySynthesisPanel({ courses, settings, lang, className 
             type="button"
             disabled={busy || !token}
             onClick={() => void runSynthesis()}
-            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-medium border border-violet-500/35 text-violet-300 hover:bg-violet-500/10 disabled:opacity-60"
+            className="ux-combined-study-cta inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-semibold border disabled:opacity-55"
             data-testid="cross-library-synthesis-run"
           >
             {busy ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}
@@ -139,16 +140,16 @@ export function CrossLibrarySynthesisPanel({ courses, settings, lang, className 
           </button>
           {error && <p className="text-[10px] text-accent-rose">{error}</p>}
           {synthesis && (
-            <pre className="text-[10px] text-text-secondary whitespace-pre-wrap max-h-40 overflow-y-auto p-2 rounded-lg bg-surface-secondary/40 border border-violet-500/15">
+            <pre className="text-[10px] text-text-secondary whitespace-pre-wrap max-h-40 overflow-y-auto p-2 rounded-lg bg-surface-secondary/40 border border-brand-500/20">
               {synthesis}
             </pre>
           )}
           {citations.length > 0 && (
-            <div className="rounded-lg border border-violet-500/15 overflow-hidden">
+            <div className="rounded-lg border border-brand-500/20 overflow-hidden">
               <button
                 type="button"
                 onClick={() => setCitationsOpen((v) => !v)}
-                className="w-full flex items-center gap-1.5 px-2 py-1.5 text-[10px] text-text-tertiary hover:text-violet-300"
+                className="w-full flex items-center gap-1.5 px-2 py-1.5 text-[10px] text-text-secondary hover:text-brand-700"
               >
                 <FileText className="w-3 h-3" />
                 {citations.length}{' '}
@@ -165,7 +166,7 @@ export function CrossLibrarySynthesisPanel({ courses, settings, lang, className 
                 <ul className="divide-y divide-border-subtle/60 max-h-32 overflow-y-auto">
                   {citations.map((c) => (
                     <li key={c.chunkId} className="px-2 py-1.5 text-[10px]">
-                      <p className="font-medium text-violet-300 truncate">
+                      <p className="font-medium text-brand-700 truncate">
                         {c.fileName} · {c.locator}
                       </p>
                       <p className="text-text-secondary mt-0.5 line-clamp-2">{c.snippet}</p>

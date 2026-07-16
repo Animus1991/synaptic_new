@@ -372,7 +372,7 @@ export function Tasks({
               data-testid="tasks-insight-strip"
             >
               {almostKnownPreview.length > 0 && (
-                <div className="ux-banner-warn rounded-xl border border-accent-amber/25 bg-accent-amber/5 p-3 space-y-1.5">
+                <div className="ux-banner-warn rounded-xl border bg-accent-amber/5 p-3 space-y-1.5">
                   <div className="flex items-center gap-1.5">
                     <TrendingUp className="w-3.5 h-3.5 ux-banner-warn-accent shrink-0" aria-hidden />
                     <p className="ux-banner-warn-accent text-[10px] font-semibold uppercase tracking-wide">
@@ -384,7 +384,7 @@ export function Tasks({
                     {almostKnownPreview.map((item) => (
                       <li key={item.concept} className="flex items-center justify-between gap-2 text-xs">
                         <span className="truncate font-medium text-text-primary">{item.concept}</span>
-                        <span className="tabular-nums text-accent-amber shrink-0">{Math.round(item.mastery)}%</span>
+                        <span className="ux-banner-warn-accent tabular-nums font-semibold shrink-0">{Math.round(item.mastery)}%</span>
                       </li>
                     ))}
                   </ul>

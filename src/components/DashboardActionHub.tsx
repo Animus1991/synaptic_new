@@ -171,7 +171,9 @@ export function DashboardActionHub({
       <div
         id="dashboard-action-hub"
         className={cn(
-          'relative overflow-hidden border border-border-subtle bg-surface-secondary/35',
+          /* overflow-visible so «Περισσότερα» menu is not clipped; raise stack when open */
+          'relative overflow-visible border border-border-subtle bg-surface-secondary/35',
+          overflowOpen && 'z-40',
           flushTop
             ? 'rounded-none border-x-0 border-t-0'
             : 'rounded-2xl',
@@ -188,7 +190,7 @@ export function DashboardActionHub({
             : undefined
         }
       >
-        <div className={cn('p-4 sm:p-5 space-y-3', heroText)}>
+        <div className={cn('p-4 sm:p-5 space-y-4 sm:space-y-5', heroText)}>
           {(greetingTitle || headerActions) && (
             <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
               <div className="min-w-0" id="dashboard-hero-greeting">
@@ -220,7 +222,7 @@ export function DashboardActionHub({
             )}
           </div>
 
-          <div className="space-y-3">
+          <div className="space-y-4 sm:space-y-5">
             {/* J-D02: KPI strip directly under greeting */}
             {statsSlot}
 
@@ -232,10 +234,10 @@ export function DashboardActionHub({
             ) : (
               <BlueprintSurface
                 nest
-                className={cn('p-3 sm:p-3.5', glassCard)}
+                className={cn('p-3.5 sm:p-4', glassCard)}
                 data-testid="dashboard-hero-study-center"
               >
-                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+                <div className="flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
                   <div className="min-w-0">
                     <p className={cn('text-[10px] font-semibold uppercase tracking-[0.08em]', onHero ? 'text-white/80' : 'text-text-secondary')}>
                       {t('dashboardLivePreviewEyebrow')}
@@ -265,67 +267,69 @@ export function DashboardActionHub({
               </BlueprintSurface>
             )}
 
-            {/* I-D03 / J-D04: compact 4-chip row + overflow */}
-            <div
-              className="grid grid-cols-4 gap-2 sm:gap-2.5"
-              data-testid="dashboard-hero-action-grid"
-            >
-              {primary.map((action) => renderChip(action, 'dashboard-hero-action-grid'))}
-            </div>
+            {/* I-D03 / J-D04: compact 4-chip row + overflow (same row so menu stacks cleanly) */}
+            <div className="flex items-stretch gap-2 sm:gap-2.5">
+              <div
+                className="grid min-w-0 flex-1 grid-cols-4 gap-2 sm:gap-2.5"
+                data-testid="dashboard-hero-action-grid"
+              >
+                {primary.map((action) => renderChip(action, 'dashboard-hero-action-grid'))}
+              </div>
 
-            {overflow.length > 0 && (
-              <div className="relative flex justify-end" ref={overflowRef}>
-                <button
-                  type="button"
-                  data-testid="dashboard-hero-hub-more"
-                  aria-expanded={overflowOpen}
-                  aria-haspopup="menu"
-                  aria-label={t('dashboardHeroHubMoreAria')}
-                  onClick={() => setOverflowOpen((v) => !v)}
-                  className={cn(
-                    'inline-flex items-center gap-1.5 rounded-lg border border-border-subtle px-2.5 py-1.5 text-[11px] font-medium transition-colors',
-                    'hover:bg-surface-hover/40',
-                    glassCard,
-                    onHero ? 'text-white/90' : 'text-text-secondary',
-                  )}
-                >
-                  <DotsThree className="h-4 w-4" weight="bold" aria-hidden />
-                  {t('dashboardHeroHubMore')}
-                </button>
-                {overflowOpen && (
-                  <div
-                    role="menu"
-                    data-testid="dashboard-hero-hub-overflow"
+              {overflow.length > 0 && (
+                <div className="relative flex shrink-0 items-stretch" ref={overflowRef}>
+                  <button
+                    type="button"
+                    data-testid="dashboard-hero-hub-more"
+                    aria-expanded={overflowOpen}
+                    aria-haspopup="menu"
+                    aria-label={t('dashboardHeroHubMoreAria')}
+                    onClick={() => setOverflowOpen((v) => !v)}
                     className={cn(
-                      'ux-elev-popover absolute right-0 top-full z-30 mt-1.5 min-w-[12rem] overflow-hidden rounded-xl border border-border-subtle bg-surface-card py-1',
-                      onHero && 'bg-surface-card/95 backdrop-blur-md',
+                      'inline-flex h-full min-h-[3.25rem] flex-col items-center justify-center gap-1 rounded-xl border border-border-subtle px-2.5 py-2 text-[10px] font-semibold transition-colors',
+                      'hover:bg-surface-hover/40',
+                      glassCard,
+                      onHero ? 'text-white/90' : 'text-text-secondary',
                     )}
                   >
-                    {overflow.map((action) => {
-                      const Icon = ACTION_ICONS[action.id];
-                      return (
-                        <button
-                          key={action.id}
-                          type="button"
-                          role="menuitem"
-                          data-testid={`dashboard-hero-overflow-${action.id}`}
-                          onClick={() => handleCardClick(action.id)}
-                          className="flex w-full items-center gap-2 px-3 py-2 text-left text-xs text-text-primary hover:bg-surface-hover/50"
-                        >
-                          <Icon className="h-3.5 w-3.5 shrink-0 text-brand-500" aria-hidden />
-                          <span className="min-w-0 flex-1 truncate">{t(action.chipLabelKey)}</span>
-                          {action.badge && (
-                            <span className="rounded-full bg-accent-rose/15 px-1.5 py-0.5 text-[9px] font-bold text-accent-rose">
-                              {action.badge}
-                            </span>
-                          )}
-                        </button>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-            )}
+                    <DotsThree className="h-4 w-4" weight="bold" aria-hidden />
+                    <span className="leading-tight">{t('dashboardHeroHubMore')}</span>
+                  </button>
+                  {overflowOpen && (
+                    <div
+                      role="menu"
+                      data-testid="dashboard-hero-hub-overflow"
+                      className={cn(
+                        'ux-elev-popover absolute right-0 top-full z-50 mt-1.5 min-w-[12rem] overflow-hidden rounded-xl border border-border-subtle bg-surface-card py-1 shadow-lg',
+                        onHero && 'bg-surface-card/95 backdrop-blur-md',
+                      )}
+                    >
+                      {overflow.map((action) => {
+                        const Icon = ACTION_ICONS[action.id];
+                        return (
+                          <button
+                            key={action.id}
+                            type="button"
+                            role="menuitem"
+                            data-testid={`dashboard-hero-overflow-${action.id}`}
+                            onClick={() => handleCardClick(action.id)}
+                            className="flex w-full items-center gap-2 px-3 py-2 text-left text-xs text-text-primary hover:bg-surface-hover/50"
+                          >
+                            <Icon className="h-3.5 w-3.5 shrink-0 text-brand-500" aria-hidden />
+                            <span className="min-w-0 flex-1 truncate">{t(action.chipLabelKey)}</span>
+                            {action.badge && (
+                              <span className="rounded-full bg-accent-rose/15 px-1.5 py-0.5 text-[9px] font-bold text-accent-rose">
+                                {action.badge}
+                              </span>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>

@@ -450,10 +450,10 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                 </div>
                 {isTeacherRole && (
                   <div
-                    className="p-3 rounded-xl border border-amber-500/30 bg-amber-500/10 text-xs text-amber-100 flex items-start gap-2"
+                    className="ux-banner-warn p-3 rounded-xl border border-accent-amber/30 bg-accent-amber/10 text-xs text-text-secondary flex items-start gap-2"
                     data-testid="onboarding-teacher-preview-hint"
                   >
-                    <Users className="w-4 h-4 shrink-0 mt-0.5" aria-hidden />
+                    <Users className="ux-banner-warn-accent w-4 h-4 shrink-0 mt-0.5" aria-hidden />
                     {content.teacherPreviewHint}
                   </div>
                 )}

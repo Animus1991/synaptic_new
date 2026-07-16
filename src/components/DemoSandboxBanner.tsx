@@ -5,7 +5,10 @@ import { shouldShowDemo } from '../lib/demoMode';
 import { useAppStore } from '../store/useStore';
 import { cn } from '../utils/cn';
 
-/** Sticky banner while demo sandbox content is active (B1 demo isolation). */
+/**
+ * Compact status strip while demo sandbox content is active (B1 demo isolation).
+ * Keeps exit / upload / sign-in reachable without a full-width marketing banner.
+ */
 export function DemoSandboxBanner() {
   const { t } = useI18n();
   const { user, exitDemoSandbox, setShowUploadModal } = useAppStore();
@@ -18,20 +21,23 @@ export function DemoSandboxBanner() {
       data-testid="demo-sandbox-banner"
       role="status"
       aria-live="polite"
+      title={t('demoSandboxBannerHint')}
       className={cn(
-        'sticky top-14 z-[19] border-b border-brand-500/35',
-        'bg-brand-100/90 dark:bg-brand-950/40 backdrop-blur px-4 py-2.5 sm:px-6',
+        'sticky top-14 z-[19] border-b border-border-subtle/80',
+        'bg-surface-secondary/70 backdrop-blur-sm px-3 py-1 sm:px-5',
       )}
     >
-      <div className="flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between w-full max-w-none">
-        <div className="flex items-start gap-2.5 min-w-0">
-          <FlaskConical className="w-5 h-5 text-brand-700 shrink-0 mt-0.5" aria-hidden />
-          <div className="min-w-0">
-            <p className="text-sm font-medium text-text-primary">{t('demoSandboxBannerTitle')}</p>
-            <p className="text-xs text-text-secondary mt-0.5">{t('demoSandboxBannerHint')}</p>
-          </div>
+      <div className="flex items-center justify-between gap-3 w-full min-h-7">
+        <div className="flex items-center gap-1.5 min-w-0">
+          <FlaskConical className="w-3.5 h-3.5 text-text-tertiary shrink-0" aria-hidden />
+          <p className="text-[11px] font-medium text-text-secondary truncate">
+            {t('demoSandboxBannerTitle')}
+          </p>
+          <span className="hidden md:inline text-[11px] text-text-tertiary truncate">
+            — {t('demoSandboxBannerHint')}
+          </span>
         </div>
-        <div className="flex flex-wrap items-center gap-2 shrink-0">
+        <div className="flex items-center gap-1 shrink-0">
           {!user.settings.authToken && (
             <button
               type="button"
@@ -43,29 +49,29 @@ export function DemoSandboxBanner() {
                   `${window.location.origin}/?view=settings`,
                 );
               }}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-brand-700 text-white hover:bg-brand-600 transition-colors"
+              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-medium text-text-secondary hover:text-text-primary hover:bg-surface-hover transition-colors"
             >
-              <LogIn className="w-3.5 h-3.5" aria-hidden />
-              {t('demoSandboxGoogleSignIn')}
+              <LogIn className="w-3 h-3" aria-hidden />
+              <span className="hidden sm:inline">{t('demoSandboxGoogleSignIn')}</span>
             </button>
           )}
           <button
             type="button"
             onClick={() => setShowUploadModal(true)}
             data-testid="demo-sandbox-upload"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border border-border-subtle bg-surface-primary/80 hover:border-brand-500/40 transition-colors"
+            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-medium text-text-secondary hover:text-text-primary hover:bg-surface-hover transition-colors"
           >
-            <Upload className="w-3.5 h-3.5" aria-hidden />
-            {t('demoSandboxUpload')}
+            <Upload className="w-3 h-3" aria-hidden />
+            <span className="hidden sm:inline">{t('demoSandboxUpload')}</span>
           </button>
           <button
             type="button"
             onClick={() => exitDemoSandbox()}
             data-testid="demo-sandbox-exit"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-brand-700 text-white hover:bg-brand-600 transition-colors"
+            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-medium text-text-secondary hover:text-text-primary hover:bg-surface-hover transition-colors"
           >
-            <X className="w-3.5 h-3.5" aria-hidden />
-            {t('demoSandboxExit')}
+            <X className="w-3 h-3" aria-hidden />
+            <span className="hidden sm:inline">{t('demoSandboxExit')}</span>
           </button>
         </div>
       </div>

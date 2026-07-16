@@ -91,6 +91,8 @@
   --color-calibration-under: var(--color-accent-cyan);
   /* Wave P-3 C13 — warn-banner title ink (Almost There etc.). */
   --color-banner-warn-ink: var(--palette-amber);
+  /* Outline for danger/warn callouts — must clear ≥3:1 vs card wash. */
+  --color-banner-warn-border: color-mix(in srgb, var(--palette-amber) 48%, var(--color-border-subtle));
 
   --viz-grid-line: #16161b;
 
@@ -107,10 +109,11 @@
   --palette-rose: #e07a88;
   --palette-orange: #e09858;
 
-  --font-sans: 'Inter', 'Noto Sans', 'Noto Sans Greek', ui-sans-serif, system-ui, sans-serif;
+  /* Light theme is the typography SoT for every theme (optical size parity). */
+  --font-sans: 'Nunito Sans', 'Noto Sans', 'Noto Sans Greek', system-ui, -apple-system, sans-serif;
   /* Tabular numerals reuse sans — no third loaded family (Package 2). */
   --font-mono: var(--font-sans);
-  --font-display: 'Playfair Display', 'Noto Serif', ui-serif, Georgia, serif;
+  --font-display: 'Lora', 'Noto Serif', Georgia, serif;
 
   /* Package 2 — spacing scale (4px base) */
   --space-0: 0;
@@ -261,6 +264,9 @@
   /* Wave P-3 C15 — darker calibration ink on white card (≥4.5:1). */
   --color-calibration-over: #b4233c;
   --color-calibration-under: #0e7490;
+  /* Warn-banner / danger-callout title ink on cream wash (≥4.5:1). */
+  --color-banner-warn-ink: color-mix(in srgb, var(--palette-amber) 55%, #352c23);
+  --color-banner-warn-border: color-mix(in srgb, var(--color-banner-warn-ink) 58%, var(--color-border-subtle));
 
   /* Harmonized earth accents — sage green aligned to sand family */
   --mastery-weak: #8f6860;
@@ -283,8 +289,7 @@
   --color-accent-cyan: var(--palette-cyan);
   --color-accent-violet: var(--palette-purple);
 
-  --font-sans: 'Nunito Sans', system-ui, -apple-system, sans-serif;
-  --font-display: 'Lora', Georgia, serif;
+  /* Fonts inherit from @theme (Nunito Sans + Lora) — same stack as dark/spectrum/blueprint. */
 
   --elev-1: 0 1px 0 color-mix(in srgb, var(--color-border-subtle) 45%, transparent);
   --elev-2: 0 4px 24px color-mix(in srgb, #1f160c 6%, transparent);
@@ -353,6 +358,8 @@
   --color-heatmap-scale-4: #5c4033;
   --color-calibration-over: #b4233c;
   --color-calibration-under: #0e7490;
+  --color-banner-warn-ink: color-mix(in srgb, #857048 55%, #352c23);
+  --color-banner-warn-border: color-mix(in srgb, var(--color-banner-warn-ink) 58%, var(--color-border-subtle));
 
   color-scheme: light;
 }
@@ -421,9 +428,12 @@
 [data-theme="light"] .border-accent-rose\/20 {
   border-color: color-mix(in srgb, var(--palette-rose) 22%, var(--color-border-subtle));
 }
+[data-theme="light"] .border-accent-amber\/50,
+[data-theme="light"] .border-accent-amber\/40,
 [data-theme="light"] .border-accent-amber\/30,
+[data-theme="light"] .border-accent-amber\/25,
 [data-theme="light"] .border-accent-amber\/20 {
-  border-color: color-mix(in srgb, var(--palette-amber) 22%, var(--color-border-subtle));
+  border-color: var(--color-banner-warn-border);
 }
 [data-theme="light"] .border-accent-orange\/20 {
   border-color: color-mix(in srgb, var(--palette-orange) 22%, var(--color-border-subtle));
@@ -595,9 +605,12 @@
   --color-heatmap-scale-2: #a894ff;
   --color-heatmap-scale-3: #7b61ff;
   --color-heatmap-scale-4: #4a32b0;
-  /* Wave P-3 C13 — Almost There / amber banner titles: mix 55% amber into
-     deep spectrum ink so contrast vs peach banner bg clears 4.5:1. */
-  --color-banner-warn-ink: color-mix(in srgb, var(--palette-amber) 55%, #1a1430);
+  /* Wave P-3 C13 — Almost There / amber banner titles: mix amber into
+     deep spectrum ink so contrast vs peach banner bg clears 4.5:1.
+     Ink ratio tightened (40% amber) so titles/% stay distinct; border uses
+     the same ink so outlines are not washed-out yellow on cream. */
+  --color-banner-warn-ink: color-mix(in srgb, var(--palette-amber) 40%, #1a1430);
+  --color-banner-warn-border: color-mix(in srgb, var(--color-banner-warn-ink) 62%, var(--color-border-subtle));
   /* Wave P-3 C15 — calibration labels on white lavender card. */
   --color-calibration-over: color-mix(in srgb, var(--palette-rose) 55%, #1a1430);
   --color-calibration-under: color-mix(in srgb, var(--palette-cyan) 45%, #1a1430);
@@ -625,7 +638,8 @@
   --color-accent-cyan: var(--palette-cyan);
   --color-accent-violet: var(--palette-purple);
 
-  --font-sans: 'Inter', 'Noto Sans', ui-sans-serif, system-ui, sans-serif;
+  /* Typography inherits @theme (light SoT: Nunito Sans + Lora). Do not
+     redefine --font-* or --type-* here — optical size must match light. */
 
   color-scheme: light;
 }
@@ -726,9 +740,17 @@
 [data-theme="spectrum"] .border-accent-rose\/20 {
   border-color: color-mix(in srgb, var(--palette-rose) 35%, var(--color-border-subtle));
 }
+[data-theme="spectrum"] .border-accent-amber\/50,
+[data-theme="spectrum"] .border-accent-amber\/40,
 [data-theme="spectrum"] .border-accent-amber\/30,
-[data-theme="spectrum"] .border-accent-amber\/20 {
-  border-color: color-mix(in srgb, var(--palette-amber) 35%, var(--color-border-subtle));
+[data-theme="spectrum"] .border-accent-amber\/25,
+[data-theme="spectrum"] .border-accent-amber\/20,
+[data-theme="warm-sand"] .border-accent-amber\/50,
+[data-theme="warm-sand"] .border-accent-amber\/40,
+[data-theme="warm-sand"] .border-accent-amber\/30,
+[data-theme="warm-sand"] .border-accent-amber\/25,
+[data-theme="warm-sand"] .border-accent-amber\/20 {
+  border-color: var(--color-banner-warn-border);
 }
 [data-theme="spectrum"] .border-accent-emerald\/20 {
   border-color: color-mix(in srgb, var(--palette-green) 35%, var(--color-border-subtle));
@@ -824,6 +846,9 @@
   --palette-amber: #fbbf24;
   --palette-rose: #f87171;
   --palette-orange: #fb923c;
+  /* Warn outlines on cyan-glass: bright amber alone washes out — mix with cyan brand. */
+  --color-banner-warn-ink: color-mix(in srgb, var(--palette-amber) 55%, #e2e8f0);
+  --color-banner-warn-border: color-mix(in srgb, var(--palette-amber) 42%, var(--color-brand-400));
 
   --radius-panel: 1.875rem;
   --elev-2: 0 24px 90px color-mix(in srgb, #000000 28%, transparent);
@@ -1222,10 +1247,13 @@
 }
 [data-theme="blueprint"] .ux-callout-danger {
   border-radius: 1.5rem;
-  border-color: color-mix(in srgb, var(--palette-amber) 15%, transparent);
+  border-color: var(--color-banner-warn-border);
   background: color-mix(in srgb, var(--palette-amber) 8%, var(--color-surface-primary));
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
+}
+[data-theme="blueprint"] .ux-banner-warn {
+  border-color: var(--color-banner-warn-border);
 }
 [data-theme="blueprint"] .ux-card {
   border-radius: var(--ux-radius-hero);
@@ -1295,12 +1323,7 @@
   }
 }
 
-/* Option-B Wave E8 — Inter-only headings on blueprint */
-[data-theme="blueprint"] :is(h1, h2, h3, .ws-serif, .type-display-sm, .ux-section-header h2) {
-  font-family: var(--font-sans);
-  font-weight: 600;
-  letter-spacing: -0.025em;
-}
+/* Blueprint headings use the shared display stack (Lora) — same optical size as light. */
 [data-theme="blueprint"] .ux-section-eyebrow {
   letter-spacing: 0.34em;
   text-transform: uppercase;
@@ -3690,11 +3713,69 @@ input[type="range"]::-webkit-slider-thumb {
   color: var(--color-brand-300);
 }
 
-/* Wave P-3 C13 — warn banner title ink (Almost There etc.). */
+/* Library «Combined study» panel — replace hardcoded violet-300 (fails on
+   warm-light / spectrum / blueprint washes). Promo uses secondary ink (≥4.5:1);
+   actions/CTA use brand-700 on light themes and brand-300 on dark/blueprint. */
+.ux-combined-study-promo {
+  color: var(--color-text-secondary);
+}
+.ux-combined-study-icon {
+  background: color-mix(in srgb, var(--color-brand-600) 14%, transparent);
+  color: var(--color-brand-700);
+}
+[data-theme="dark"] .ux-combined-study-icon,
+[data-theme="blueprint"] .ux-combined-study-icon {
+  color: var(--color-brand-300);
+}
+.ux-combined-study-action {
+  border-color: color-mix(in srgb, var(--color-brand-600) 42%, var(--color-border-subtle));
+  background: color-mix(in srgb, var(--color-brand-600) 8%, transparent);
+  color: var(--color-brand-700);
+}
+.ux-combined-study-action:hover {
+  background: color-mix(in srgb, var(--color-brand-600) 14%, transparent);
+}
+.ux-combined-study-cta {
+  border-color: color-mix(in srgb, var(--color-brand-600) 48%, var(--color-border-subtle));
+  background: color-mix(in srgb, var(--color-brand-600) 12%, var(--color-surface-card));
+  color: var(--color-brand-700);
+}
+.ux-combined-study-cta:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--color-brand-600) 18%, var(--color-surface-card));
+}
+[data-theme="dark"] .ux-combined-study-action,
+[data-theme="dark"] .ux-combined-study-cta,
+[data-theme="blueprint"] .ux-combined-study-action,
+[data-theme="blueprint"] .ux-combined-study-cta {
+  color: var(--color-brand-300);
+  border-color: color-mix(in srgb, var(--color-brand-300) 45%, var(--color-border-subtle));
+}
+
+/* Wave P-3 C13 — warn banner title ink + outline (Almost There / Danger Zone). */
+.ux-banner-warn {
+  border-color: var(--color-banner-warn-border);
+}
 .ux-banner-warn .ux-section-label-title {
   color: var(--color-banner-warn-ink);
 }
 .ux-banner-warn .ux-banner-warn-accent {
+  color: var(--color-banner-warn-ink);
+}
+
+/* Spectrum (and light cream washes): bright accent-amber (#f5c842 / #fbbf24)
+   fails WCAG as body/metric text on pale cards. Remap TEXT utilities to
+   --color-banner-warn-ink; leave bg-/border-accent-amber washes unchanged. */
+[data-theme="spectrum"] .text-accent-amber,
+[data-theme="light"] .text-accent-amber,
+[data-theme="warm-sand"] .text-accent-amber {
+  color: var(--color-banner-warn-ink);
+}
+[data-theme="spectrum"] .ux-chip-warn,
+[data-theme="light"] .ux-chip-warn,
+[data-theme="warm-sand"] .ux-chip-warn {
+  color: var(--color-banner-warn-ink);
+}
+[data-theme="spectrum"] .ux-trust-badge-enrichment {
   color: var(--color-banner-warn-ink);
 }
 
@@ -3867,7 +3948,7 @@ input[type="range"]::-webkit-slider-thumb {
    Color tokens come from [data-theme="light"] on html — not overridden here.
    ============================================================ */
 [data-theme="light"] [data-ws-theme="warm"] {
-  font-family: 'Nunito Sans', system-ui, -apple-system, sans-serif;
+  font-family: var(--font-sans);
 }
 [data-theme="light"] [data-ws-theme="warm"] .text-brand-300,
 [data-theme="light"] [data-ws-theme="warm"] .text-brand-400 {
@@ -4150,12 +4231,14 @@ input[type="range"]::-webkit-slider-thumb {
 .ux-callout-trust .ux-callout-title { color: var(--color-accent-emerald); }
 .ux-callout-trust svg { color: var(--color-accent-emerald); }
 .ux-callout-danger {
-  border-color: color-mix(in srgb, var(--color-accent-amber) 28%, transparent);
+  border-color: var(--color-banner-warn-border);
   background: color-mix(in srgb, var(--color-accent-amber) 8%, var(--color-surface-card));
-  color: color-mix(in srgb, var(--color-accent-amber) 88%, var(--color-text-primary));
+  /* Body ink = secondary (readable on cream wash). Title/icon use warn-ink
+     so spectrum/warm light yellow accents never paint the whole callout. */
+  color: var(--color-text-secondary);
 }
-.ux-callout-danger .ux-callout-title { color: var(--color-accent-amber); }
-.ux-callout-danger svg { color: var(--color-accent-amber); }
+.ux-callout-danger .ux-callout-title { color: var(--color-banner-warn-ink); }
+.ux-callout-danger svg { color: var(--color-banner-warn-ink); }
 .ux-callout-next {
   border-color: color-mix(in srgb, var(--color-accent-emerald) 22%, transparent);
   background: color-mix(in srgb, var(--color-accent-emerald) 7%, var(--color-surface-card));
@@ -4170,11 +4253,12 @@ input[type="range"]::-webkit-slider-thumb {
 }
 .ux-callout-info .ux-callout-title { color: var(--color-brand-600); }
 .ux-callout-warn {
-  border-color: color-mix(in srgb, var(--color-accent-amber) 25%, transparent);
+  border-color: var(--color-banner-warn-border);
   background: color-mix(in srgb, var(--color-accent-amber) 6%, var(--color-surface-card));
   color: var(--color-text-secondary);
 }
-.ux-callout-warn .ux-callout-title { color: var(--color-accent-amber); }
+.ux-callout-warn .ux-callout-title { color: var(--color-banner-warn-ink); }
+.ux-callout-warn svg { color: var(--color-banner-warn-ink); }
 
 .ux-trust-badge {
   display: inline-flex;
@@ -4766,7 +4850,7 @@ input[type="range"]::-webkit-slider-thumb {
   background: color-mix(in srgb, var(--color-surface-secondary) 98%, #faf8f5);
   backdrop-filter: blur(12px);
   box-shadow: -8px 0 32px color-mix(in srgb, #1f160c 12%, transparent);
-  font-family: 'Nunito Sans', system-ui, sans-serif;
+  font-family: var(--font-sans);
   color: var(--color-text-primary);
 }
 [data-theme="light"] [data-ws-theme="warm"] .ws-cognitive-sheet-header {
@@ -4894,8 +4978,8 @@ svg.lucide {
   h3.text-3xl, h3.text-4xl { font-size: clamp(1.15rem, 1.8vw, 1.5rem); line-height: 1.2; }
 }
 
-/* Calmer default body rhythm */
-body { font-feature-settings: "ss01", "cv11"; letter-spacing: -0.005em; }
+/* Calmer default body rhythm — shared across all themes (light SoT metrics). */
+body { letter-spacing: -0.005em; }
 
 /* ============================================================
    Package 5B — dark workspace contrast pass
@@ -5090,17 +5174,23 @@ body { font-feature-settings: "ss01", "cv11"; letter-spacing: -0.005em; }
    are intentionally left unchanged so brand-tinted surfaces keep their depth.
    Light/spectrum themes are unaffected (light backgrounds read these well). */
 [data-theme="dark"] .text-brand-800,
-[data-theme="dark"] .text-brand-700 {
+[data-theme="dark"] .text-brand-700,
+[data-theme="blueprint"] .text-brand-800,
+[data-theme="blueprint"] .text-brand-700 {
   color: var(--color-brand-300);
 }
-[data-theme="dark"] .text-brand-600 {
+[data-theme="dark"] .text-brand-600,
+[data-theme="blueprint"] .text-brand-600 {
   color: var(--color-brand-400);
 }
 [data-theme="dark"] .hover\:text-brand-800:hover,
-[data-theme="dark"] .hover\:text-brand-700:hover {
+[data-theme="dark"] .hover\:text-brand-700:hover,
+[data-theme="blueprint"] .hover\:text-brand-800:hover,
+[data-theme="blueprint"] .hover\:text-brand-700:hover {
   color: var(--color-brand-300);
 }
-[data-theme="dark"] .hover\:text-brand-600:hover {
+[data-theme="dark"] .hover\:text-brand-600:hover,
+[data-theme="blueprint"] .hover\:text-brand-600:hover {
   color: var(--color-brand-400);
 }
 
