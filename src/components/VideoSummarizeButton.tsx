@@ -123,6 +123,7 @@ export function VideoSummarizeButton({ file, settings, lang, className }: Props)
           type="button"
           data-testid={`video-summarize-btn-${file.id}`}
           disabled={busy}
+          aria-busy={busy && busyAction === 'summarize' ? true : undefined}
           onClick={() => void transcribeAndRun('summarize')}
           className="inline-flex items-center gap-1.5 px-2 py-1 rounded-lg text-[10px] font-medium border border-accent-cyan/30 text-accent-cyan hover:bg-accent-cyan/10 disabled:opacity-60"
           title={canTranscribe ? summarizeLabel : signInHint}
@@ -142,6 +143,7 @@ export function VideoSummarizeButton({ file, settings, lang, className }: Props)
           type="button"
           data-testid={`video-chapters-btn-${file.id}`}
           disabled={busy}
+          aria-busy={busy && busyAction === 'chapters' ? true : undefined}
           onClick={() => {
             if (chapters.length > 0) {
               setChaptersOpen((open) => !open);

@@ -49,6 +49,9 @@ import {
   connectAnnotationStream,
   DEFAULT_ANNOTATION_POLL_MS,
   mergeSharedAnnotations,
+  mergeSharedAnnotationsWithConflicts,
+  resolveAnnotationConflict,
+  type AnnotationConflict,
   type AnnotationSyncMode,
 } from '../../../lib/annotationRealtimeSync';
 import { orderDeckByDueQueue } from '../../../lib/leitnerDeckSync';
@@ -298,6 +301,7 @@ export function useStudyWorkspace({
   }, []);
 
   const [sharedAnnotations, setSharedAnnotations] = useState<SharedAnnotationDto[]>([]);
+  const [annotationConflicts, setAnnotationConflicts] = useState<AnnotationConflict[]>([]);
   const [annotationSyncVersion, setAnnotationSyncVersion] = useState(0);
   const [annotationSyncLive, setAnnotationSyncLive] = useState(false);
   const [annotationSyncMode, setAnnotationSyncMode] = useState<AnnotationSyncMode>('poll');
@@ -723,9 +727,19 @@ export function useStudyWorkspace({
     [userSettings, effectiveCourseId, noteBundle.fileKey],
   );
 
+  const absorbAnnotationConflicts = useCallback((incoming: AnnotationConflict[]) => {
+    if (incoming.length === 0) return;
+    setAnnotationConflicts((prev) => {
+      const byId = new Map(prev.map((c) => [c.id, c]));
+      for (const c of incoming) byId.set(c.id, c);
+      return [...byId.values()];
+    });
+  }, []);
+
   const pullSharedAnnotations = useCallback(async (since?: string) => {
     if (!annotationSyncEnabled || !userSettings || !effectiveCourseId || !noteBundle.fileKey) {
       setSharedAnnotations([]);
+      setAnnotationConflicts([]);
       setAnnotationSyncLive(false);
       setAnnotationSyncMode('off');
       return;
@@ -741,18 +755,47 @@ export function useStudyWorkspace({
     }
     annotationBackendDownRef.current = false;
     if (since && result.annotations.length > 0) {
-      setSharedAnnotations((prev) => mergeSharedAnnotations(prev, result.annotations));
+      setSharedAnnotations((prev) => {
+        const { merged, conflicts } = mergeSharedAnnotationsWithConflicts(prev, result.annotations);
+        absorbAnnotationConflicts(conflicts);
+        return merged;
+      });
     } else if (!since) {
       setSharedAnnotations(result.annotations);
+      setAnnotationConflicts([]);
     }
     setAnnotationSyncVersion(result.version);
     lastAnnotationSyncRef.current = result.serverTime;
     setAnnotationSyncLive(true);
-  }, [annotationSyncEnabled, userSettings, effectiveCourseId, noteBundle.fileKey]);
+  }, [annotationSyncEnabled, userSettings, effectiveCourseId, noteBundle.fileKey, absorbAnnotationConflicts]);
+
+  const handleResolveAnnotationConflict = useCallback((id: string, choice: 'local' | 'remote') => {
+    setAnnotationConflicts((conflicts) => {
+      const resolved = resolveAnnotationConflict(conflicts, id, choice, []);
+      // Apply pick onto current shared list (merged arg unused when we map by id below).
+      const hit = conflicts.find((c) => c.id === id);
+      if (hit) {
+        const pick = choice === 'local' ? hit.local : hit.remote;
+        setSharedAnnotations((prev) => {
+          const next = prev.map((a) => (a.id === id ? pick : a));
+          if (!next.some((a) => a.id === id)) next.push(pick);
+          return next.sort(
+            (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+          );
+        });
+      }
+      return resolved.conflicts;
+    });
+  }, []);
+
+  const handleDismissAnnotationConflicts = useCallback(() => {
+    setAnnotationConflicts([]);
+  }, []);
 
   useEffect(() => {
     if (!annotationSyncEnabled) {
       setSharedAnnotations([]);
+      setAnnotationConflicts([]);
       setAnnotationSyncLive(false);
       setAnnotationSyncMode('off');
       annotationBackendDownRef.current = false;
@@ -772,9 +815,14 @@ export function useStudyWorkspace({
       (payload) => {
         annotationBackendDownRef.current = false;
         if (payload.annotations.length > 0) {
-          setSharedAnnotations((prev) => mergeSharedAnnotations(prev, payload.annotations));
+          setSharedAnnotations((prev) => {
+            const { merged, conflicts } = mergeSharedAnnotationsWithConflicts(prev, payload.annotations);
+            absorbAnnotationConflicts(conflicts);
+            return merged;
+          });
         } else {
           setSharedAnnotations(payload.annotations);
+          setAnnotationConflicts([]);
         }
         setAnnotationSyncVersion(payload.version);
         lastAnnotationSyncRef.current = payload.serverTime;
@@ -783,7 +831,7 @@ export function useStudyWorkspace({
       setAnnotationSyncMode,
     );
     return disconnect;
-  }, [annotationSyncEnabled, userSettings, effectiveCourseId, noteBundle.fileKey]);
+  }, [annotationSyncEnabled, userSettings, effectiveCourseId, noteBundle.fileKey, absorbAnnotationConflicts]);
 
   useEffect(() => {
     if (annotationSyncMode !== 'poll') return;
@@ -1489,6 +1537,9 @@ export function useStudyWorkspace({
       conceptKey: quizConcept,
     };
   }, [studyRoomSession, collabWsUrl, quizConcept]);
+
+  /** Same study-room session drives whiteboard Yjs doc (COL-04). */
+  const whiteboardCollabConfig = conceptMapCollabConfig;
 
   const conceptNodes = useMemo(() => {
     if (!noteBundle.hasSource) return [];
@@ -2255,6 +2306,9 @@ export function useStudyWorkspace({
     customLeitnerCards,
     setCustomLeitnerCards,
     sharedAnnotations,
+    annotationConflicts,
+    handleResolveAnnotationConflict,
+    handleDismissAnnotationConflicts,
     annotationSyncLive,
     annotationSyncMode,
     quizIrtRevision,
@@ -2351,6 +2405,7 @@ export function useStudyWorkspace({
     discoverabilityActions,
     conceptMapCursorSync,
     conceptMapCollabConfig,
+    whiteboardCollabConfig,
     conceptNodes,
     conceptEdges,
     workspaceContext,

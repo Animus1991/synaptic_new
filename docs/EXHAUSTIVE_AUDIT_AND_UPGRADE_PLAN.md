@@ -104,11 +104,13 @@ cd server && npm test
 
 ### Wave 3 — Collaboration & OCR depth
 
-| ID | Item |
-| -- | ---- |
-| TOOL-RD-04 / TOOL-AN-03 | OCR re-anchor after reprocess |
-| TOOL-AN-02 / COL-02 | Annotation conflict UI |
-| COL-04 | Collaborative whiteboard shared state |
+| ID | Item | Status |
+| -- | ---- | ------ |
+| TOOL-RD-04 / TOOL-AN-03 | OCR re-anchor after reprocess | **shipped** |
+| TOOL-AN-02 / COL-02 | Annotation conflict UI | **shipped** |
+| COL-04 | Collaborative whiteboard shared state | **shipped** |
+
+**Wave 3:** closed (2026-07-16).
 
 ### Wave 4 — Platform / enterprise
 

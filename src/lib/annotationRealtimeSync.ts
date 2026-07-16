@@ -14,12 +14,84 @@ export function mergeSharedAnnotations(
   current: SharedAnnotationDto[],
   incoming: SharedAnnotationDto[],
 ): SharedAnnotationDto[] {
+  return mergeSharedAnnotationsWithConflicts(current, incoming).merged;
+}
+
+export type AnnotationConflict = {
+  id: string;
+  local: SharedAnnotationDto;
+  remote: SharedAnnotationDto;
+};
+
+export type SharedAnnotationMergeResult = {
+  merged: SharedAnnotationDto[];
+  conflicts: AnnotationConflict[];
+};
+
+/** Detect concurrent edits: same id, different text or span (TOOL-AN-02 / COL-02). */
+export function mergeSharedAnnotationsWithConflicts(
+  current: SharedAnnotationDto[],
+  incoming: SharedAnnotationDto[],
+): SharedAnnotationMergeResult {
   const byId = new Map<string, SharedAnnotationDto>();
   for (const ann of current) byId.set(ann.id, ann);
-  for (const ann of incoming) byId.set(ann.id, ann);
-  return [...byId.values()].sort(
-    (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
-  );
+  const conflicts: AnnotationConflict[] = [];
+  for (const ann of incoming) {
+    const prev = byId.get(ann.id);
+    if (
+      prev
+      && (
+        prev.text !== ann.text
+        || prev.lineStart !== ann.lineStart
+        || prev.lineEnd !== ann.lineEnd
+        || prev.color !== ann.color
+      )
+      && prev.createdAt === ann.createdAt
+    ) {
+      conflicts.push({ id: ann.id, local: prev, remote: ann });
+    }
+    // Prefer newer createdAt when both exist; otherwise remote wins on update.
+    if (!prev) {
+      byId.set(ann.id, ann);
+    } else if (new Date(ann.createdAt).getTime() >= new Date(prev.createdAt).getTime()) {
+      // If content differs and timestamps equal/newer remote — keep remote but flag conflict when text differs
+      if (
+        prev.text !== ann.text
+        || prev.lineStart !== ann.lineStart
+        || prev.lineEnd !== ann.lineEnd
+      ) {
+        if (!conflicts.some((c) => c.id === ann.id)) {
+          conflicts.push({ id: ann.id, local: prev, remote: ann });
+        }
+      }
+      byId.set(ann.id, ann);
+    }
+  }
+  return {
+    merged: [...byId.values()].sort(
+      (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+    ),
+    conflicts,
+  };
+}
+
+export function resolveAnnotationConflict(
+  conflicts: AnnotationConflict[],
+  id: string,
+  choice: 'local' | 'remote',
+  merged: SharedAnnotationDto[],
+): { merged: SharedAnnotationDto[]; conflicts: AnnotationConflict[] } {
+  const hit = conflicts.find((c) => c.id === id);
+  if (!hit) return { merged, conflicts };
+  const pick = choice === 'local' ? hit.local : hit.remote;
+  const nextMerged = merged.map((a) => (a.id === id ? pick : a));
+  if (!nextMerged.some((a) => a.id === id)) nextMerged.push(pick);
+  return {
+    merged: nextMerged.sort(
+      (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+    ),
+    conflicts: conflicts.filter((c) => c.id !== id),
+  };
 }
 
 export function filterAnnotationsSince(

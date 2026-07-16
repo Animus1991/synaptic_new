@@ -124,7 +124,7 @@ export function StudyRoomPanel(props: Props) {
                   required
                 />
               </label>
-              <button type="submit" disabled={busy} className="ws-empty-cta-primary w-full justify-center gap-2">
+              <button type="submit" disabled={busy} aria-busy={busy || undefined} className="ws-empty-cta-primary w-full justify-center gap-2">
                 <Plus className="h-4 w-4" aria-hidden />
                 {busy ? tr('studyRoomCreating') : tr('studyRoomNewRoom')}
               </button>
@@ -144,6 +144,7 @@ export function StudyRoomPanel(props: Props) {
               <button
                 type="button"
                 disabled={busy}
+                aria-busy={busy || undefined}
                 onClick={() => void handleJoin()}
                 className="ws-empty-cta-secondary w-full justify-center"
               >

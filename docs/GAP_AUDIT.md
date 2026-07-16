@@ -97,15 +97,15 @@ Goal: every tool **fully functional for its learning purpose**, not demo stubs.
 | TOOL-RD-01 | Structured segments, TTS, bilingual sync | — | shipped |
 | TOOL-RD-02 | Glossary popover on hover | P2 | **shipped** | Hover delay + click/focus; `reader-glossary-popover` |
 | TOOL-RD-03 | Reprocess for pre-2.4 garbled Greek | P2 | open (runtime repair mitigates) |
-| TOOL-RD-04 | OCR correction + re-anchor spans after reprocess | P2 | open |
+| TOOL-RD-04 | OCR correction + re-anchor spans after reprocess | P2 | **shipped** | `reanchorOcrCorrections` + CognitiveReader effect on source change |
 
 ### Annotations (`Επισημάνσεις`)
 
 | ID | Item | Priority | Status |
 | -- | ---- | -------- | ------ |
 | TOOL-AN-01 | Margin panel, realtime sync, Agent handoff | — | shipped |
-| TOOL-AN-02 | Conflict resolution UI (concurrent edits) | P2 | open |
-| TOOL-AN-03 | OCR span re-anchor after reprocess | P2 | open |
+| TOOL-AN-02 | Conflict resolution UI (concurrent edits) | P2 | **shipped** | `AnnotationConflictPanel` + `mergeSharedAnnotationsWithConflicts` |
+| TOOL-AN-03 | OCR span re-anchor after reprocess | P2 | **shipped** | same path as TOOL-RD-04 (OCR corrections store) |
 
 ### Scratchpad (`Πρόχειρο`)
 
@@ -206,9 +206,9 @@ Goal: every tool **fully functional for its learning purpose**, not demo stubs.
 | ID | Item | Priority | Status |
 | -- | ---- | -------- | ------ |
 | COL-01 | L9-3 assignment discussion threads (full Q&A) | P2 | shipped |
-| COL-02 | Annotation conflict resolution UI | P2 | open |
+| COL-02 | Annotation conflict resolution UI | P2 | **shipped** | `AnnotationConflictPanel` wired in AnnotationOverlay |
 | COL-03 | Concept map CRDT | P3 | **shipped** | `conceptMapCrdt.ts`, `useConceptMapCollab` |
-| COL-04 | Collaborative whiteboard shared state | P3 | open |
+| COL-04 | Collaborative whiteboard shared state | P3 | **shipped** | `whiteboardCrdt` + `useWhiteboardCollab` → StudyWhiteboard |
 | COL-05 | L9-4 LTI NRPS roster sync (not stub) | P2 | shipped |
 
 ### 5. Doc/code single source of truth

@@ -233,8 +233,9 @@
 
   --color-text-primary: #3a2f24;
   --color-text-secondary: #5c4832;
-  --color-text-tertiary: #6b5640;
-  --color-text-muted: #7a6550;
+  --color-text-tertiary: #5a4634;
+  /* Wave F — muted on cream ≥4.5:1 vs #f6f1ea */
+  --color-text-muted: #5f4c38;
 
   --color-brand-400: #9d7a52;
   --color-brand-500: #8a6a45;
@@ -4771,4 +4772,22 @@ body { font-feature-settings: "ss01", "cv11"; letter-spacing: -0.005em; }
 .card-hover:hover {
   transform: translateY(-2px);
   box-shadow: var(--elev-3, 0 8px 24px rgba(0,0,0,.08));
+}
+
+/* Wave F — global reduced-motion: kill CSS animations/transitions & hover lift */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .card-hover:hover {
+    transform: none;
+  }
+  .ux-shimmer {
+    animation: none;
+  }
 }

@@ -14,6 +14,14 @@ import { WorkspaceToolEmptyState } from './WorkspaceToolEmptyState';
 import { StudyWhiteboard } from './StudyWhiteboard';
 import { WhiteboardDiagramCoach } from './WhiteboardDiagramCoach';
 import { useI18n } from '../../lib/i18n';
+import type { WhiteboardDocument } from '../../lib/whiteboardLayers';
+
+type WhiteboardCrdtProps = {
+  doc: WhiteboardDocument;
+  synced: boolean;
+  connecting: boolean;
+  applyLocalDoc: (next: WhiteboardDocument) => void;
+};
 
 type Props = {
   session: WhiteboardSessionContent;
@@ -30,6 +38,7 @@ type Props = {
   prerequisiteConcepts?: string[];
   weakFocus?: string;
   onAskAgent?: (prompt: string, intent: WhiteboardDiagramAgentIntent) => void;
+  crdt?: WhiteboardCrdtProps;
 };
 
 export function WhiteboardPanel({
@@ -47,6 +56,7 @@ export function WhiteboardPanel({
   prerequisiteConcepts = [],
   weakFocus,
   onAskAgent,
+  crdt,
 }: Props) {
   const [filterQuery, setFilterQuery] = useState('');
   const [labelInsertKey, setLabelInsertKey] = useState(0);
@@ -227,6 +237,7 @@ export function WhiteboardPanel({
           coachPlan={coachPlan}
           onAskAgent={onAskAgent}
           sketchDescriptionRef={sketchDescriptionRef}
+          crdt={crdt}
         />
       </div>
     </div>
