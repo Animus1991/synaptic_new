@@ -631,7 +631,7 @@ export function Agent({
                     setShowEmbeddedSource(false);
                   }}
                   className={cn(
-                    'ux-focus-ring w-full flex items-center gap-2 px-2.5 py-1.5 text-left text-[11px] hover:bg-surface-hover transition-colors',
+                    'ux-focus-ring ux-hover-strong w-full flex items-center gap-2 px-2.5 py-1.5 text-left text-[11px]',
                     selectedSource === 'all' ? 'text-brand-500' : 'text-text-secondary',
                   )}
                 >
@@ -650,7 +650,7 @@ export function Agent({
                       setShowEmbeddedSource(false);
                     }}
                     className={cn(
-                      'ux-focus-ring w-full flex items-center gap-2 px-2.5 py-1.5 text-left text-[11px] hover:bg-surface-hover transition-colors',
+                      'ux-focus-ring ux-hover-strong w-full flex items-center gap-2 px-2.5 py-1.5 text-left text-[11px]',
                       selectedSource === c.id ? 'text-brand-500' : 'text-text-secondary',
                     )}
                   >
@@ -711,12 +711,13 @@ export function Agent({
       )}
 
       {/* Mode Selector Dropdown — mobile / embedded */}
-      <AnimatePresence>
+      <AnimatePresence initial={false}>
         {showModes && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.36, ease: [0.2, 0, 0, 1] }}
             className={cn(
               'border-b border-border-subtle bg-surface-secondary/50 overflow-hidden',
               !embedded && 'lg:hidden',

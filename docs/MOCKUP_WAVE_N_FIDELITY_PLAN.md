@@ -76,12 +76,24 @@ Wave A–M: hero IA, hub chips, Create Plan secondary, shell utilities, retentio
 
 ## 5. Sprint N-2 (tracked, no omission)
 
-| ID | Item | Priority |
-| -- | ---- | -------- |
-| N-T09 | Migrate remaining chip / banner titles to `--color-on-*` tokens (audit `.ux-chip-*`) | P2 |
-| N-T10 | Migrate popover callsites (embedded source menu, agent mode menu, source settings menu) to `--elev-popover` + `.ux-focus-ring` on items | P2 |
-| N-T11 | Add `--color-surface-hover-strong` for two-step hovers (buttons on cards) | P3 |
-| N-T12 | Introduce `--motion-ease-emphasized` + apply to Visual Lab collapse + Agent mode dropdown | P3 |
+| ID | Item | Priority | Status |
+| -- | ---- | -------- | ------ |
+| N-T09 | Introduce `.ux-chip-solid-*` SoT utility bound to `--color-on-*` (opt-in for filled chips/badges without touching existing translucent chips) | P2 | **shipped** |
+| N-T10 | Migrate high-visibility popovers (NotificationsPanel, root CommandPalette, workspace CommandPalette, DashboardActionHub) from raw `shadow-lg/xl/2xl` to `.ux-elev-popover` utility → `--elev-popover` per theme | P2 | **shipped** |
+| N-T11 | Add `--color-surface-hover-strong` per theme + `.ux-hover-strong` two-step hover utility (active state → `--color-surface-pressed`), apply on embedded Agent source menu items | P3 | **shipped** |
+| N-T12 | Introduce `--motion-duration-emphasized` (`360ms`) + `--motion-ease-emphasized` (`cubic-bezier(0.2, 0, 0, 1)`, Material 3 emphasized decelerate) tokens; apply to Analytics Visual Lab collapse (`[0.4,0,0.2,1] → [0.2,0,0,1]` + 360 ms) and Agent embedded mode dropdown (explicit `transition` with same curve; `AnimatePresence initial={false}` to avoid first-mount flash) | P3 | **shipped** |
+
+### Acceptance (Wave N-2)
+
+- [x] `.ux-chip-solid-brand / -danger / -warn / -success / -info` shipped and reference `--color-on-*` tokens.
+- [x] `.ux-elev-popover` utility available; NotificationsPanel + both CommandPalette variants + DashboardActionHub menu use it instead of raw shadow classes.
+- [x] `--color-surface-hover-strong` explicit in all 5 themes (dark defaults + light/warm-sand/spectrum/blueprint overrides).
+- [x] `.ux-hover-strong` uses `--motion-ease-emphasized` and pairs hover + active with `--color-surface-pressed`.
+- [x] `--motion-duration-emphasized` + `--motion-ease-emphasized` present; Visual Lab collapse and Agent embedded mode dropdown both use the emphasized curve at 360 ms.
+- [x] Agent embedded source picker menu items adopt `.ux-hover-strong` alongside `.ux-focus-ring`.
+- [x] Tools intact; typecheck clean; no secrets in commit.
+
+**Shipped:** Wave N Sprint N-2 (2026-07-16) on `feat/mockup-implementation`.
 
 ---
 

@@ -54,6 +54,7 @@
   --color-hairline: var(--color-border-subtle);
   /* Wave N — SoT theme tokens (dark defaults; each theme overrides). */
   --color-surface-pressed: var(--color-surface-active);
+  --color-surface-hover-strong: var(--color-surface-active);
   --color-focus-ring: var(--color-brand-500);
   --focus-ring-offset: 2px;
   --color-on-brand: #f4f4f6;
@@ -63,6 +64,10 @@
   --color-on-info: #f4f4f6;
   --elev-popover: 0 12px 32px -8px color-mix(in srgb, #0a0a0c 40%, transparent),
                   0 2px 8px color-mix(in srgb, #0a0a0c 20%, transparent);
+  /* Wave N-T12 — emphasized decelerate curve (Material 3 spec) + duration for surfaces that
+     expand from a small trigger. Used by Visual Lab, Agent mode dropdown, popover menus. */
+  --motion-duration-emphasized: 360ms;
+  --motion-ease-emphasized: cubic-bezier(0.2, 0, 0, 1);
   --viz-grid-line: #16161b;
 
   /* Mastery bands + spectrum palette (dark defaults — softened, still distinct) */
@@ -205,6 +210,7 @@
   --color-hairline: #e0d8cc;
   /* Wave N — SoT overrides for warm-light */
   --color-surface-pressed: #e8dfd0;
+  --color-surface-hover-strong: #e8dfd0;
   --color-focus-ring: var(--color-brand-700);
   --focus-ring-offset: 2px;
   --color-on-brand: #ffffff;
@@ -282,6 +288,7 @@
 
   /* Wave N — SoT overrides for warm-sand (explicit; not implicit from light) */
   --color-surface-pressed: #e8dfd0;
+  --color-surface-hover-strong: #e8dfd0;
   --color-focus-ring: var(--color-brand-600);
   --focus-ring-offset: 2px;
   --color-on-brand: #ffffff;
@@ -509,6 +516,7 @@
   --color-hairline: #dcd6ee;
   /* Wave N — SoT overrides for spectrum (WCAG parity + lavender identity) */
   --color-surface-pressed: #ddd6ff;
+  --color-surface-hover-strong: #ddd6ff;
   --color-focus-ring: var(--color-brand-600);
   --focus-ring-offset: 2px;
   --color-on-brand: #ffffff;
@@ -671,6 +679,7 @@
 
   /* Wave N — SoT overrides for blueprint (cyan glass identity preserved) */
   --color-surface-pressed: color-mix(in srgb, #ffffff 12%, #1e293b);
+  --color-surface-hover-strong: color-mix(in srgb, #ffffff 10%, #1e293b);
   --color-focus-ring: #67e8f9;
   --focus-ring-offset: 2px;
   --color-on-brand: #020617;
@@ -3526,6 +3535,51 @@ input[type="range"]::-webkit-slider-thumb {
   outline: 2px solid var(--color-focus-ring, var(--color-brand-400));
   outline-offset: var(--focus-ring-offset, 2px);
   border-radius: inherit;
+}
+
+/* Wave N-T11 — two-step hover for elements nested inside already-tinted cards.
+   Pairs the regular hover surface with a stronger active tint on press. */
+.ux-hover-strong {
+  transition:
+    background-color var(--motion-duration-ui, 200ms) var(--motion-ease-emphasized, cubic-bezier(0.2, 0, 0, 1)),
+    border-color var(--motion-duration-ui, 200ms) var(--motion-ease-emphasized, cubic-bezier(0.2, 0, 0, 1)),
+    color var(--motion-duration-ui, 200ms) var(--motion-ease-emphasized, cubic-bezier(0.2, 0, 0, 1));
+}
+.ux-hover-strong:hover {
+  background-color: var(--color-surface-hover-strong, var(--color-surface-hover));
+}
+.ux-hover-strong:active {
+  background-color: var(--color-surface-pressed, var(--color-surface-active));
+}
+
+/* Wave N-T10 — canonical floating popover elevation utility. Prefer this over
+   raw `shadow-lg`/`shadow-xl` on dropdowns, listboxes, notifications, palettes. */
+.ux-elev-popover {
+  box-shadow: var(--elev-popover);
+}
+
+/* Wave N-T09 — solid on-accent chip tokens (opt-in). Existing `.ux-chip-*`
+   translucent chips stay unchanged; these variants exist for filled buttons /
+   badges where the background is a solid accent and text must be legible. */
+.ux-chip-solid-brand {
+  background: var(--color-brand-600);
+  color: var(--color-on-brand);
+}
+.ux-chip-solid-danger {
+  background: var(--color-accent-rose);
+  color: var(--color-on-danger);
+}
+.ux-chip-solid-warn {
+  background: var(--color-accent-amber);
+  color: var(--color-on-warn);
+}
+.ux-chip-solid-success {
+  background: var(--color-accent-emerald);
+  color: var(--color-on-success);
+}
+.ux-chip-solid-info {
+  background: var(--color-accent-cyan);
+  color: var(--color-on-info);
 }
 
 @layer base {

@@ -663,7 +663,7 @@ function OverviewTab({
                 initial={{ opacity: 0, y: 8, height: 0 }}
                 animate={{ opacity: 1, y: 0, height: 'auto' }}
                 exit={{ opacity: 0, y: 8, height: 0 }}
-                transition={{ duration: 0.28, ease: [0.4, 0, 0.2, 1] }}
+                transition={{ duration: 0.36, ease: [0.2, 0, 0, 1] }}
                 style={{ overflow: 'hidden' }}
               >
                 <AnalyticsVisualLabPanel

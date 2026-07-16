@@ -297,7 +297,7 @@ export function DashboardActionHub({
                     role="menu"
                     data-testid="dashboard-hero-hub-overflow"
                     className={cn(
-                      'absolute right-0 top-full z-30 mt-1.5 min-w-[12rem] overflow-hidden rounded-xl border border-border-subtle bg-surface-card py-1 shadow-lg',
+                      'ux-elev-popover absolute right-0 top-full z-30 mt-1.5 min-w-[12rem] overflow-hidden rounded-xl border border-border-subtle bg-surface-card py-1',
                       onHero && 'bg-surface-card/95 backdrop-blur-md',
                     )}
                   >

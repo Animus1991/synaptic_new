@@ -223,7 +223,7 @@ export function CommandPalette({
   return (
     <div className="fixed inset-0 z-[100] flex items-start justify-center pt-[15vh] p-4" data-testid="command-palette">
       <div className="absolute inset-0 bg-black/60" onClick={onClose} />
-      <div className="relative w-full max-w-lg rounded-2xl border border-border-subtle bg-surface-secondary shadow-2xl overflow-hidden">
+      <div className="ux-elev-popover relative w-full max-w-lg rounded-2xl border border-border-subtle bg-surface-secondary overflow-hidden">
         <div className="flex items-center gap-2 px-4 py-3 border-b border-border-subtle">
           <Search className="w-4 h-4 text-text-muted" />
           <input

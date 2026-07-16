@@ -136,7 +136,7 @@ export function CommandPalette({ open, onClose, items, placeholder }: Props) {
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: -8, opacity: 0 }}
             transition={{ duration: 0.18 }}
-            className="w-full max-w-xl overflow-hidden rounded-panel border border-border-subtle bg-surface-card shadow-2xl"
+            className="ux-elev-popover w-full max-w-xl overflow-hidden rounded-panel border border-border-subtle bg-surface-card"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center gap-3 border-b border-border-subtle px-4 py-3">

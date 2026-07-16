@@ -64,7 +64,7 @@ export function NotificationsPanel({
         role="dialog"
         aria-modal="true"
         aria-label={t('notifications')}
-        className="absolute right-4 top-16 w-80 max-w-[calc(100vw-2rem)] rounded-2xl border border-border-subtle bg-surface-secondary shadow-xl overflow-hidden"
+        className="ux-elev-popover absolute right-4 top-16 w-80 max-w-[calc(100vw-2rem)] rounded-2xl border border-border-subtle bg-surface-secondary overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between px-4 py-3 border-b border-border-subtle">
