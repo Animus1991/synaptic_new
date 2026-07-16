@@ -589,8 +589,8 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                     }
                   }}
                   /* Wave P-3 D02 — soft elev-popover on hover for Priority Task rows
-                      (dark theme especially); no spring — CSS transition only. */
-                  className="flex items-center gap-3 p-3 rounded-xl hover:bg-surface-hover hover:[box-shadow:var(--elev-popover)] transition-all cursor-pointer group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60">
+                      (dark theme especially); no spring — CSS class only. */
+                  className="ux-row-elev-hover flex items-center gap-3 p-3 rounded-xl hover:bg-surface-hover transition-colors cursor-pointer group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60">
                   <CourseIcon icon={task.courseIcon} size="sm" colorClassName="text-brand-500 shrink-0" />
                   <TaskActionIcon task={task} size="xs" />
                   <div className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: resolveCourseColor(task.courseColor) }} />

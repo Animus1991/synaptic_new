@@ -77,8 +77,9 @@
   --viz-bar-fill: var(--color-brand-500);
   --viz-bar-fill-muted: color-mix(in srgb, var(--color-brand-500) 55%, var(--color-surface-card));
 
-  /* Wave P — 5-step heatmap scale tokenized (retires ad-hoc bg-brand-*/bg-surface-hover
-     classes that collapse to invisible ~1.1:1 contrast on light card themes). */
+  /* Wave P — 5-step heatmap scale tokenized (retires ad-hoc bg-brand-* and
+     bg-surface-hover classes that collapse to invisible ~1.1:1 contrast on
+     light card themes). */
   --color-heatmap-scale-0: color-mix(in srgb, #ffffff 4%, var(--color-surface-card));
   --color-heatmap-scale-1: color-mix(in srgb, var(--color-brand-500) 20%, var(--color-surface-card));
   --color-heatmap-scale-2: color-mix(in srgb, var(--color-brand-500) 40%, var(--color-surface-card));
@@ -3695,6 +3696,16 @@ input[type="range"]::-webkit-slider-thumb {
 }
 .ux-banner-warn .ux-banner-warn-accent {
   color: var(--color-banner-warn-ink);
+}
+
+/* Wave P-3 D02 — Priority Task (and similar) row hover elevation.
+   Use a real utility class; Tailwind v4 Lightning CSS rejects arbitrary
+   hover box-shadow values that nest CSS var() parentheses. */
+.ux-row-elev-hover {
+  transition: box-shadow 180ms var(--motion-ease-emphasized, ease), background-color 180ms ease;
+}
+.ux-row-elev-hover:hover {
+  box-shadow: var(--elev-popover);
 }
 
 /* Wave O-M07 / P-S03 — CSS motion utilities for non-framer callsites.
