@@ -236,14 +236,14 @@ export function Library({
     () => [
       {
         id: 'courses' as const,
-        label: t('libraryTabCourses', userLanguage),
-        summary: t('libraryTabCoursesSummary', userLanguage),
+        label: t('libCoursesStat', userLanguage).replace('{count}', String(courses.length)),
+        summary: t('libCoursesStatReady', userLanguage),
         count: courses.length,
       },
       {
         id: 'files' as const,
-        label: t('libraryTabFiles', userLanguage),
-        summary: t('libraryTabFilesSummary', userLanguage),
+        label: t('libFilesStat', userLanguage).replace('{count}', String(uploadedFiles.length)),
+        summary: t('libFilesStatSources', userLanguage),
         count: uploadedFiles.length,
       },
     ],
@@ -287,94 +287,70 @@ export function Library({
         settings={userSettings}
         lang={userLanguage}
         variant="banner"
-        className="mb-2"
       />
 
-      {/* L-L01: canvas order — RAG → success → NotebookLM → combined → tip */}
-      {postUploadCourse && onOpenWorkspace && (
-        <PostUploadBanner
-          courseTitle={postUploadCourse.title}
-          onOpenWorkspace={() => {
-            onSelectCourse(postUploadCourse);
-            onDismissPostUpload?.();
-            onOpenWorkspace();
-          }}
-          onViewCourse={() => {
-            onSelectCourse(postUploadCourse);
-            onDismissPostUpload?.();
-          }}
-          onDismiss={() => onDismissPostUpload?.()}
-        />
-      )}
+      {/* L-L01: canvas order — RAG → success → NotebookLM → combined → tip.
+          Tight stack avoids stacking Page space-y with per-child mb-*. */}
+      <div className="space-y-1.5">
+        {postUploadCourse && onOpenWorkspace && (
+          <PostUploadBanner
+            courseTitle={postUploadCourse.title}
+            onOpenWorkspace={() => {
+              onSelectCourse(postUploadCourse);
+              onDismissPostUpload?.();
+              onOpenWorkspace();
+            }}
+            onViewCourse={() => {
+              onSelectCourse(postUploadCourse);
+              onDismissPostUpload?.();
+            }}
+            onDismiss={() => onDismissPostUpload?.()}
+          />
+        )}
 
-      {onImportNotebookLm && (
-        <NotebookLmImportPanel
-          lang={userLanguage}
-          onImport={onImportNotebookLm}
-          onAddToFsrs={onAddNotebookLmToFsrs}
-          className="mb-2"
-        />
-      )}
+        {onImportNotebookLm && (
+          <NotebookLmImportPanel
+            lang={userLanguage}
+            onImport={onImportNotebookLm}
+            onAddToFsrs={onAddNotebookLmToFsrs}
+          />
+        )}
 
-      {showCrossLibrarySynthesis() && (
-        <CrossLibrarySynthesisPanel
-          courses={courses}
-          settings={userSettings}
-          lang={userLanguage}
-          className="mb-2"
-        />
-      )}
+        {showCrossLibrarySynthesis() && (
+          <CrossLibrarySynthesisPanel
+            courses={courses}
+            settings={userSettings}
+            lang={userLanguage}
+          />
+        )}
 
-      {!entryHintDismissed && (
-        <div
-          data-testid="library-tip-banner"
-          className="mb-2 flex items-start justify-between gap-3 rounded-xl border border-dashed border-brand-500/35 bg-surface-card/40 px-3.5 py-2.5"
-        >
-          <p className="text-xs text-text-secondary">
-            <span className="font-semibold text-brand-800">{t('libraryTipLabel', userLanguage)}</span>{' '}
-            {t('libraryEntryHint', userLanguage)}
-          </p>
-          <button
-            type="button"
-            onClick={dismissEntryHint}
-            className="shrink-0 text-text-muted hover:text-text-secondary p-0.5"
-            aria-label={t('close', userLanguage)}
+        {!entryHintDismissed && (
+          <div
+            data-testid="library-tip-banner"
+            className="flex items-start justify-between gap-3 rounded-xl border border-dashed border-brand-500/35 bg-surface-card/40 px-3 py-2"
           >
-            <X className="w-3.5 h-3.5" />
-          </button>
-        </div>
-      )}
-
-      <div
-        className="mb-2 grid grid-cols-1 sm:grid-cols-2 gap-2"
-        data-testid="library-stats-strip"
-      >
-        <BlueprintSurface className="px-3.5 py-2.5 flex items-center gap-2.5">
-          <BookOpen className="w-4 h-4 text-brand-600 shrink-0" aria-hidden />
-          <div className="min-w-0">
-            <p className="text-sm font-semibold text-text-primary tabular-nums">
-              {t('libCoursesStat', userLanguage).replace('{count}', String(courses.length))}
+            <p className="text-xs text-text-secondary">
+              <span className="font-semibold text-brand-800">{t('libraryTipLabel', userLanguage)}</span>{' '}
+              {t('libraryEntryHint', userLanguage)}
             </p>
-            <p className="text-[10px] text-text-muted">{t('libCoursesStatReady', userLanguage)}</p>
+            <button
+              type="button"
+              onClick={dismissEntryHint}
+              className="shrink-0 text-text-muted hover:text-text-secondary p-0.5"
+              aria-label={t('close', userLanguage)}
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
           </div>
-        </BlueprintSurface>
-        <BlueprintSurface className="px-3.5 py-2.5 flex items-center gap-2.5">
-          <FileText className="w-4 h-4 text-text-secondary shrink-0" aria-hidden />
-          <div className="min-w-0">
-            <p className="text-sm font-semibold text-text-primary tabular-nums">
-              {t('libFilesStat', userLanguage).replace('{count}', String(uploadedFiles.length))}
-            </p>
-            <p className="text-[10px] text-text-muted">{t('libFilesStatSources', userLanguage)}</p>
-          </div>
-        </BlueprintSurface>
+        )}
       </div>
 
+      {/* Counts live on tab badges — no separate stats strip (was a duplicate row). */}
       <DescriptiveStickyTabBar
         items={libraryTabs}
         activeId={tab}
         onChange={setTab}
         testIdPrefix="library-tab"
-        className="mb-2"
       />
 
       {/* Search & Filters */}
@@ -492,38 +468,61 @@ export function Library({
                 onSecondaryAction={search.trim() || filter !== 'all' ? () => { setSearch(''); setFilter('all'); } : uploadedFiles.length > 0 ? () => setTab('files') : undefined}
               />
             ) : (
-              <div className="space-y-3">
-                <div className={cn(
-                viewMode === 'grid'
-                  ? 'columns-1 sm:columns-2 lg:columns-3 gap-3 [&>*]:mb-3 [&>*]:break-inside-avoid'
-                  : 'space-y-2.5'
-              )}>
-                {filteredCourses.map((course, i) => (
-                  viewMode === 'grid'
-                    ? <CourseCard key={course.id} course={course} index={i} tasks={tasks} glossaryEntries={glossaryEntries} uploadedFiles={uploadedFiles} userLanguage={userLanguage} onClick={() => onSelectCourse(course)} onRemoveCourse={onRemoveCourse} onOpenNotebookShell={onOpenNotebookShell} onUpload={onUpload} />
-                    : <CourseListItem key={course.id} course={course} index={i} tasks={tasks} glossaryEntries={glossaryEntries} uploadedFiles={uploadedFiles} userLanguage={userLanguage} onClick={() => onSelectCourse(course)} onRemoveCourse={onRemoveCourse} onOpenNotebookShell={onOpenNotebookShell} />
-                ))}
-              </div>
-                {!search.trim() && (libraryQualityAlerts.needsMaterial || libraryQualityAlerts.outlineAdjusted) && (
-                  <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-                    {libraryQualityAlerts.needsMaterial && (
-                      <MiniAlert
-                        tone="amber"
-                        title={t('libraryMiniAlertGapTitle', userLanguage)}
-                        body={t('libraryMiniAlertGapBody', userLanguage)}
+              <div className="space-y-2">
+                {/* Courses + alerts + info stacks share one masonry so Topics/Examples
+                    fill voids left by an uneven course count (Settings-style pack). */}
+                <div
+                  className={cn(
+                    viewMode === 'grid'
+                      ? 'columns-1 sm:columns-2 lg:columns-3 gap-2.5 [&>*]:mb-2.5 [&>*]:break-inside-avoid'
+                      : 'space-y-2',
+                  )}
+                >
+                  {filteredCourses.map((course, i) => (
+                    viewMode === 'grid' ? (
+                      <CourseCard
+                        key={course.id}
+                        course={course}
+                        index={i}
+                        tasks={tasks}
+                        glossaryEntries={glossaryEntries}
+                        uploadedFiles={uploadedFiles}
+                        userLanguage={userLanguage}
+                        onClick={() => onSelectCourse(course)}
+                        onRemoveCourse={onRemoveCourse}
+                        onOpenNotebookShell={onOpenNotebookShell}
+                        onUpload={onUpload}
                       />
-                    )}
-                    {libraryQualityAlerts.outlineAdjusted && (
-                      <MiniAlert
-                        tone="violet"
-                        title={t('libraryMiniAlertContradictionTitle', userLanguage)}
-                        body={t('libraryMiniAlertContradictionBody', userLanguage)}
+                    ) : (
+                      <CourseListItem
+                        key={course.id}
+                        course={course}
+                        index={i}
+                        tasks={tasks}
+                        glossaryEntries={glossaryEntries}
+                        uploadedFiles={uploadedFiles}
+                        userLanguage={userLanguage}
+                        onClick={() => onSelectCourse(course)}
+                        onRemoveCourse={onRemoveCourse}
+                        onOpenNotebookShell={onOpenNotebookShell}
                       />
-                    )}
-                  </div>
-                )}
-                {!search.trim() && (libraryInfo.topics.length > 0 || libraryInfo.examples.length > 0) && (
-                  <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
+                    )
+                  ))}
+                  {!search.trim() && libraryQualityAlerts.needsMaterial && (
+                    <MiniAlert
+                      tone="amber"
+                      title={t('libraryMiniAlertGapTitle', userLanguage)}
+                      body={t('libraryMiniAlertGapBody', userLanguage)}
+                    />
+                  )}
+                  {!search.trim() && libraryQualityAlerts.outlineAdjusted && (
+                    <MiniAlert
+                      tone="violet"
+                      title={t('libraryMiniAlertContradictionTitle', userLanguage)}
+                      body={t('libraryMiniAlertContradictionBody', userLanguage)}
+                    />
+                  )}
+                  {!search.trim() && libraryInfo.topics.length > 0 && (
                     <InfoStack
                       title={t('libraryInfoStackTopicsTitle', userLanguage)}
                       items={libraryInfo.topics}
@@ -537,6 +536,8 @@ export function Library({
                       itemHint={t('libTopicOpenHint', userLanguage)}
                       secondaryHint={t('libConceptOpenHint', userLanguage)}
                     />
+                  )}
+                  {!search.trim() && libraryInfo.examples.length > 0 && (
                     <InfoStack
                       title={t('libraryInfoStackExamplesTitle', userLanguage)}
                       items={libraryInfo.examples}
@@ -547,14 +548,14 @@ export function Library({
                       itemHint={t('libConceptOpenHint', userLanguage)}
                       secondaryHint={t('libConceptOpenHint', userLanguage)}
                     />
-                  </div>
-                )}
+                  )}
+                </div>
                 {!search.trim() && (
                   <button
                     type="button"
                     onClick={onUpload}
                     data-testid="library-drop-zone-compact"
-                    className="ux-library-drop-zone ux-library-drop-zone--compact ux-prompt-bar-surface flex w-full flex-row items-center justify-center gap-3 px-4 py-3 text-text-secondary hover:text-text-primary transition-colors"
+                    className="ux-library-drop-zone ux-library-drop-zone--compact ux-prompt-bar-surface flex w-full flex-row items-center justify-center gap-3 px-4 py-2.5 text-text-secondary hover:text-text-primary transition-colors"
                   >
                     <Upload className="h-5 w-5 text-brand-600 shrink-0" aria-hidden />
                     <span className="text-sm font-medium">{t('libDropZoneCompactTitle', userLanguage)}</span>
