@@ -208,7 +208,7 @@ export function Analytics({
   return (
     <AnalyticsDateRangeProvider>
       <div {...warmSandScopeProps(warmSandPage)} data-testid="analytics-page">
-      <Page>
+      <Page gap="sm">
         <PageHeader
           title={t('analyticsTitle')}
           subtitle={t('analyticsSubtitle')}
@@ -319,7 +319,7 @@ function OverviewTab({
   const treemapModel = buildConceptTreemap(courses, learnerModel);
   const timelineModel = buildLearningTimeline(rangedActivities, lang);
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
         <ProgressKpiRow kpis={progressKpis} />
       </motion.div>
@@ -377,8 +377,8 @@ function OverviewTab({
           data-testid="analytics-fsrs-forecast"
         >
           <SectionLabel icon={Brain}>{t('analyticsFsrsForecastTitle')}</SectionLabel>
-          <p className="text-[10px] text-text-muted mb-4">{t('analyticsFsrsForecastHint')}</p>
-          <div className="grid grid-cols-3 gap-3 mb-4">
+          <p className="text-[10px] text-text-muted mb-2.5">{t('analyticsFsrsForecastHint')}</p>
+          <div className="grid grid-cols-3 gap-2.5 mb-2.5">
             <div className="rounded-xl border border-border-subtle bg-surface-card/40 px-3 py-2">
               <p className="text-[10px] text-text-muted">{t('analyticsFsrsRetrievability')}</p>
               <p className="ux-kpi-value-sm">
@@ -431,12 +431,15 @@ function OverviewTab({
         </motion.div>
       )}
 
-      {/* Weekly mastery + Heatmap
-          Wave P-3 L03 — CSS multi-column masonry packs asymmetric chart cards
-          (parity with P-L01 Settings / P-L02 Courses-Concepts-Calibration). */}
-      <div className="lg:columns-2 lg:gap-3 [&>*]:mb-3 [&>*]:break-inside-avoid space-y-3 lg:space-y-0">
+      {/* Unified masonry — Weekly / Heatmap / Courses / Concepts / Calibration.
+          Two separate column blocks left a full-width void under the short Weekly
+          card (row height = Heatmap). One Settings-style pack fills that hole. */}
+      <div
+        className="lg:columns-3 lg:gap-3 [&>*]:mb-3 [&>*]:break-inside-avoid space-y-3 lg:space-y-0"
+        data-testid="analytics-overview-mastery-row"
+      >
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="platform-panel-md">
-          <h3 className="text-sm font-semibold flex items-center gap-2 mb-4"><TrendingUp className="w-4 h-4 text-accent-emerald" />{t('analyticsWeeklyTrend')}</h3>
+          <h3 className="text-sm font-semibold flex items-center gap-2 mb-2.5"><TrendingUp className="w-4 h-4 text-accent-emerald" />{t('analyticsWeeklyTrend')}</h3>
           <div className="flex items-end gap-1.5 h-28">
             {weekly.map((val, i) => (
               <div key={i} className="flex-1 flex flex-col items-center gap-1">
@@ -460,8 +463,8 @@ function OverviewTab({
           </div>
         </motion.div>
 
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="platform-panel-md">
-          <h3 className="text-sm font-semibold flex items-center gap-2 mb-4"><Calendar className="w-4 h-4 text-accent-teal" />{t('analyticsStudyHeatmap')}</h3>
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.12 }} className="platform-panel-md">
+          <h3 className="text-sm font-semibold flex items-center gap-2 mb-2.5"><Calendar className="w-4 h-4 text-accent-teal" />{t('analyticsStudyHeatmap')}</h3>
           {/* Wave P-C03 — heatmap driven by --color-heatmap-scale-{0..4} tokens.
               Retires ad-hoc bg-surface-hover / bg-brand-* classes that collapsed
               to invisible ~1.1:1 contrast on spectrum + warm-light cards. Sepia
@@ -493,36 +496,13 @@ function OverviewTab({
             <span>{t('analyticsHeatmapMore')}</span>
           </div>
         </motion.div>
-      </div>
 
-      {hasConfidenceMetrics && confidenceBuckets.length > 0 && (
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.18 }}>
-          <ConfidenceBucketChart
-            buckets={confidenceBuckets}
-            title={lang === 'el' ? 'Calibration ανά επίπεδο εμπιστοσύνης' : 'Calibration by confidence level'}
-          />
-        </motion.div>
-      )}
-
-      {/* 3-col: Courses | Concepts | You vs Real (I-A01)
-          Wave P-2 L02 — CSS multi-column masonry retires the 3-col grid whose
-          Calibration column was ~5x taller than Courses/Concepts, leaving ~300–500 px
-          of whitespace under the shorter columns. `break-inside-avoid` per child pins
-          each panel so it never splits across columns. Falls back to single column
-          below lg. `space-y-3` inside each column instead of gap for cleaner packing. */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-        className="lg:columns-3 lg:gap-3 [&>*]:mb-3 [&>*]:break-inside-avoid space-y-3 lg:space-y-0"
-        data-testid="analytics-overview-mastery-row"
-      >
         <div className="platform-panel-md">
-          <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
+          <h3 className="text-sm font-semibold mb-2.5 flex items-center gap-2">
             <CheckCircle2 className="w-4 h-4 text-brand-600" />
             {t('analyticsCoursesColumn')}
           </h3>
-          <div className="space-y-2.5">
+          <div className="space-y-2">
             {courses.filter(c => c.status !== 'generating').slice(0, 6).map(course => (
               <div key={course.id} className="flex items-center gap-2">
                 <CourseIcon icon={course.icon} size="sm" colorClassName="text-brand-600 shrink-0" />
@@ -539,11 +519,11 @@ function OverviewTab({
           </div>
         </div>
         <div className="platform-panel-md">
-          <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
+          <h3 className="text-sm font-semibold mb-2.5 flex items-center gap-2">
             <Brain className="w-4 h-4 text-accent-cyan" />
             {t('analyticsConceptsColumn')}
           </h3>
-          <div className="space-y-2.5">
+          <div className="space-y-2">
             {[...learnerModel.weakAreas, ...learnerModel.almostKnown, ...learnerModel.strongAreas]
               .slice(0, 6)
               .map((skill) => (
@@ -565,7 +545,7 @@ function OverviewTab({
           </div>
         </div>
         <div className="platform-panel-md">
-          <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
+          <h3 className="text-sm font-semibold mb-2.5 flex items-center gap-2">
             <Eye className="w-4 h-4 text-accent-amber" />
             {t('analyticsCalibrationColumn')}
           </h3>
@@ -611,7 +591,16 @@ function OverviewTab({
             )}
           </div>
         </div>
-      </motion.div>
+      </div>
+
+      {hasConfidenceMetrics && confidenceBuckets.length > 0 && (
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.18 }}>
+          <ConfidenceBucketChart
+            buckets={confidenceBuckets}
+            title={lang === 'el' ? 'Calibration ανά επίπεδο εμπιστοσύνης' : 'Calibration by confidence level'}
+          />
+        </motion.div>
+      )}
 
       <SubjectMasteryGrid tiles={subjectTiles} onSelect={setDrillTile} />
       <SubjectDrillDown
