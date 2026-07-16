@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Search, Upload, BookOpen, FileText, ChevronRight, ChevronDown,
   Clock, BarChart3, Sparkles, Grid3X3, List, Loader2,
-  File, Image, Code, Presentation, Table2, Trash2, RefreshCw, ExternalLink,
+  File, Image, Code, Presentation, Table2, Trash2, RefreshCw, ExternalLink, X,
 } from '@/lib/lucide-shim';
 import type { Course, UploadedFile, UserSettings, Task, GlossaryEntry } from '../types';
 import { cn } from '../utils/cn';
@@ -329,13 +329,37 @@ export function Library({
           <button
             type="button"
             onClick={dismissEntryHint}
-            className="shrink-0 text-xs text-text-muted hover:text-text-secondary"
+            className="shrink-0 text-text-muted hover:text-text-secondary p-0.5"
             aria-label={t('close', userLanguage)}
           >
-            ✕
+            <X className="w-3.5 h-3.5" />
           </button>
         </BlueprintSurface>
       )}
+
+      <div
+        className="mb-3 grid grid-cols-1 sm:grid-cols-2 gap-2"
+        data-testid="library-stats-strip"
+      >
+        <BlueprintSurface className="px-3.5 py-2.5 flex items-center gap-2.5">
+          <BookOpen className="w-4 h-4 text-brand-600 shrink-0" aria-hidden />
+          <div className="min-w-0">
+            <p className="text-sm font-semibold text-text-primary tabular-nums">
+              {t('libCoursesStat', userLanguage).replace('{count}', String(courses.length))}
+            </p>
+            <p className="text-[10px] text-text-muted">{t('libCoursesStatReady', userLanguage)}</p>
+          </div>
+        </BlueprintSurface>
+        <BlueprintSurface className="px-3.5 py-2.5 flex items-center gap-2.5">
+          <FileText className="w-4 h-4 text-text-secondary shrink-0" aria-hidden />
+          <div className="min-w-0">
+            <p className="text-sm font-semibold text-text-primary tabular-nums">
+              {t('libFilesStat', userLanguage).replace('{count}', String(uploadedFiles.length))}
+            </p>
+            <p className="text-[10px] text-text-muted">{t('libFilesStatSources', userLanguage)}</p>
+          </div>
+        </BlueprintSurface>
+      </div>
 
       <DescriptiveStickyTabBar
         items={libraryTabs}
@@ -736,19 +760,34 @@ function CourseCard({
         </div>
       )}
 
-      {onOpenNotebookShell && !isGenerating && (
-        <button
-          type="button"
-          onClick={(e) => {
-            e.stopPropagation();
-            onOpenNotebookShell(course.id);
-          }}
-          data-testid={`library-notebook-shell-${course.id}`}
-          className="mt-3 w-full inline-flex items-center justify-center gap-1.5 rounded-lg border border-brand-500/30 bg-brand-500/5 px-2 py-1.5 text-[11px] font-medium text-brand-700 hover:bg-brand-500/10 transition-colors"
-        >
-          <BookOpen className="w-3.5 h-3.5" />
-          {t('libNotebookShell', userLanguage)}
-        </button>
+      {!isGenerating && (
+        <div className="mt-3 flex items-center gap-2">
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onClick();
+            }}
+            data-testid={`library-open-course-${course.id}`}
+            className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg bg-brand-700 text-white px-2 py-1.5 text-[11px] font-semibold hover:bg-brand-600 transition-colors"
+          >
+            {t('libOpenCourse', userLanguage)}
+          </button>
+          {onOpenNotebookShell && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onOpenNotebookShell(course.id);
+              }}
+              data-testid={`library-notebook-shell-${course.id}`}
+              className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-brand-500/30 bg-brand-500/5 px-2.5 py-1.5 text-[11px] font-medium text-brand-700 hover:bg-brand-500/10 transition-colors"
+            >
+              <BookOpen className="w-3.5 h-3.5" />
+              {t('libNotebookShellShort', userLanguage)}
+            </button>
+          )}
+        </div>
       )}
 
       <div className="mt-3 flex items-center justify-between">

@@ -274,7 +274,40 @@ export function Tasks({
         </div>
       )}
 
-      {/* Tabs — task list above fold; sessions collapse below */}
+      {/* Session launchers above tabs (Wave I-T01 — mockup order) */}
+      <div className="mb-3 space-y-2" data-testid="tasks-session-launchers">
+        <SectionHeader
+          eyebrow={c.sessionSectionEyebrow}
+          title={c.sessionSectionTitle}
+          subtitle={c.sessionSectionSubtitle}
+        />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-2.5">
+          {sessionTypes.map((s) => {
+            const sessionTasks = filterTasksForSession(visibleTasks, s.type);
+            const Icon = s.icon;
+            return (
+              <SessionLauncherCard
+                key={s.type}
+                testId={`session-launcher-${s.type}`}
+                label={s.label}
+                desc={s.desc}
+                durationTag={c.sessionDurationTag(s.minutes)}
+                taskHint={sessionTasks.length > 0 ? c.sessionTaskCount(s.minutes, sessionTasks.length) : undefined}
+                icon={Icon}
+                active={sessionMode === s.type}
+                recommended={recommendedSession === s.type}
+                recommendedLabel={t('sessionRecommendedBadge', lang)}
+                disabled={sessionTasks.length === 0}
+                onClick={() => {
+                  setSessionMode(s.type);
+                  onStartSession?.(s.type);
+                }}
+              />
+            );
+          })}
+        </div>
+      </div>
+
       <DescriptiveStickyTabBar
         items={tabs}
         activeId={tab}
@@ -563,46 +596,6 @@ export function Tasks({
           )}
         </div>
       )}
-
-      <details
-        className="ux-disclosure mt-4"
-        open={todayTasks.length === 0 && !sessionActive}
-        data-testid="tasks-session-launchers"
-      >
-        <summary className="ux-disclosure-summary">{c.sessionLaunchersToggle}</summary>
-        <div className="ux-disclosure-body space-y-3">
-          <SectionHeader
-            eyebrow={c.sessionSectionEyebrow}
-            title={c.sessionSectionTitle}
-            subtitle={c.sessionSectionSubtitle}
-          />
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3">
-            {sessionTypes.map((s) => {
-              const sessionTasks = filterTasksForSession(visibleTasks, s.type);
-              const Icon = s.icon;
-              return (
-                <SessionLauncherCard
-                  key={s.type}
-                  testId={`session-launcher-${s.type}`}
-                  label={s.label}
-                  desc={s.desc}
-                  durationTag={c.sessionDurationTag(s.minutes)}
-                  taskHint={sessionTasks.length > 0 ? c.sessionTaskCount(s.minutes, sessionTasks.length) : undefined}
-                  icon={Icon}
-                  active={sessionMode === s.type}
-                  recommended={recommendedSession === s.type}
-                  recommendedLabel={t('sessionRecommendedBadge', lang)}
-                  disabled={sessionTasks.length === 0}
-                  onClick={() => {
-                    setSessionMode(s.type);
-                    onStartSession?.(s.type);
-                  }}
-                />
-              );
-            })}
-          </div>
-        </div>
-      </details>
     </Page>
     </div>
     </HeroGlow>

@@ -126,11 +126,15 @@
 
 | ID | Item | Status |
 | -- | ---- | ------ |
-| H-01 | Optional Dashboard 3-column “canvas preview” layout toggle | **shipped** — `dashboardLayoutPrefs` + equal 3-col vs stacked |
-| H-02 | Library “combined study” purple promo strip redesign | **shipped** — `CrossLibrarySynthesisPanel` muted violet promo |
-| H-03 | Analytics Visual Lab expand preference | **shipped** — `visualLabPrefs` persists disclosure open state |
-| H-04 | TOOL-RD-03 historical Greek reprocess path | **shipped** — detect + CTA; see GAP TOOL-RD-03 |
-| H-05 | AI-05 NotebookLM parity flag default strategy | **shipped** — see GAP AI-05 |
+| H-01 | Optional Dashboard 3-column “canvas preview” layout toggle | **shipped** |
+| H-02 | Library “combined study” purple promo strip redesign | **shipped** |
+| H-03 | Analytics Visual Lab expand preference | **shipped** |
+| H-04 | TOOL-RD-03 historical Greek reprocess path | **shipped** |
+| H-05 | AI-05 NotebookLM parity flag default strategy | **shipped** |
+
+## 6b. Wave I (screenshot IA fidelity — 2026-07-16)
+
+See [`MOCKUP_WAVE_I_FIDELITY_PLAN.md`](./MOCKUP_WAVE_I_FIDELITY_PLAN.md). Sprint I-1 shipped (alert grid, rail IA, Tasks session order, Library Open+Shell, Analytics 3-col). I-2/I-3 tracked without omission.
 
 ---
 

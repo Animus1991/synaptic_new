@@ -43,15 +43,14 @@ import { executeDashboardNextAction } from '../lib/dashboardNextAction';
 import { SyllabusCoverageWidget } from './examPrep/SyllabusCoverageWidget';
 import { ExamCalendarPanel } from './examPrep/ExamCalendarPanel';
 import { PostExamNextStepsPanel } from './examPrep/PostExamNextStepsPanel';
-import { DashboardSmartCTAStrip } from './examPrep/DashboardSmartCTAStrip';
-import { ProactiveAgentAlertStrip } from './agent/ProactiveAgentAlertStrip';
 import type { DashboardSmartCTA } from '../lib/examPrep/dashboardSmartCTAs';
 import type { ProactiveAgentAlert } from '../lib/proactiveAgentAlerts';
 import type { WorkspacePracticeLaunch } from '../lib/dashboardNextAction';
 import type { WorkspaceToolId } from '../lib/taskFlows';
 import { recommendToolForTopic } from '../lib/examPrep/coveragePracticeActions';
-import { buildGlobalFsrsDueQueue } from '../lib/leitnerDueQueue';
 import { LeitnerDueQueuePanel } from './workspace/LeitnerDueQueuePanel';
+import { DashboardAlertGrid } from './DashboardAlertGrid';
+import { buildGlobalFsrsDueQueue, summarizeFsrsHorizon } from '../lib/leitnerDueQueue';
 import {
   loadDashboardLayoutMode,
   saveDashboardLayoutMode,
@@ -160,7 +159,12 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
     () => buildGlobalFsrsDueQueue(learnerModel.spacingIntervals),
     [learnerModel.spacingIntervals],
   );
+  const fsrsHorizon = useMemo(
+    () => summarizeFsrsHorizon(learnerModel.spacingIntervals),
+    [learnerModel.spacingIntervals],
+  );
   const weekdayLabels = DASHBOARD_WEEKDAY_KEYS.map((key) => t(key));
+  const showAlertGrid = !isEmpty && (smartCTAs.length > 0 || proactiveAgentAlerts.length > 0 || daysToExam !== null);
 
   const nextActionHandlers = {
     onStartTask,
@@ -357,79 +361,67 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
         <StatCard icon={<Clock className="w-4 h-4 text-accent-emerald" />} label={t('dashboardStatStudyToday')} value={t('dashboardStatStudyMinutes').replace('{count}', String(pageStats.studyMinutesToday))} data-testid="dashboard-stat-study-today" />
       </MotionSection>
 
-      {!isEmpty && smartCTAs.length > 0 && onRunSmartCTA && (
-        <DashboardSmartCTAStrip ctas={smartCTAs} onRun={onRunSmartCTA} />
-      )}
-
-      {!isEmpty && proactiveAgentAlerts.length > 0 && onRunProactiveAgentAlert && (
-        <ProactiveAgentAlertStrip alerts={proactiveAgentAlerts} onRun={onRunProactiveAgentAlert} />
-      )}
-
-      {!isEmpty && (
-        <MotionSection initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.08 }}>
-          <SyllabusCoverageWidget
-            courses={courses}
-            settingsExamDate={settingsExamDate}
-            onSelectCourse={onSelectCourse}
-            onPracticeTopic={onOpenWorkspacePractice
-              ? (topic, courseId) => {
-                  const tool: WorkspaceToolId = recommendToolForTopic(topic, stats, daysToExam, activities);
-                  onOpenWorkspacePractice({
-                    tool,
-                    concept: topic.title,
-                    courseId,
-                    simulatorTab: tool === 'simulator' ? 'exam-prep' : undefined,
-                  });
-                }
-              : undefined}
+      {!isEmpty && showAlertGrid && (
+        <MotionSection initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.06 }}>
+          <DashboardAlertGrid
+            daysToExam={daysToExam}
+            smartCTAs={smartCTAs}
+            proactiveAlerts={proactiveAgentAlerts}
+            onRunSmartCTA={onRunSmartCTA}
+            onRunProactiveAlert={onRunProactiveAgentAlert}
+            onExamPrep={() => (examTask ? onStartTask?.(examTask.id) : onOpenExamTimer?.() ?? onOpenWorkspace?.())}
           />
         </MotionSection>
       )}
 
-      {!isEmpty && (
-        <MotionSection initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.09 }} className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-          <ExamCalendarPanel />
-          <PostExamNextStepsPanel examDate={settingsExamDate ?? courses.find((c) => c.examDate)?.examDate} />
-        </MotionSection>
-      )}
-
-      {/* Exam countdown */}
-      {daysToExam !== null && (
-        <MotionSection initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-          <UxCallout
-            variant="danger"
-            title={t('dashExamCountdown')}
-            icon={<Calendar className="text-accent-amber" />}
-            testId="dashboard-exam-countdown"
-            action={
-              <button
-                type="button"
-                onClick={() => (examTask ? onStartTask?.(examTask.id) : onOpenExamTimer?.() ?? onOpenWorkspace?.())}
-                className="platform-link text-xs flex items-center gap-1 shrink-0"
-              >
-                {examTask ? t('dashStartExamPrep') : t('dashExamPrep')} <ArrowRight className="w-3 h-3" />
-              </button>
-            }
-          >
-            {daysToExam === 0 ? t('dashExamToday') : (daysToExam === 1 ? t('dashDayUntilExam') : t('dashDaysUntilExam').replace('{count}', String(daysToExam)))}
-          </UxCallout>
-        </MotionSection>
-      )}
-
-      {/* Anti-passive learning alert */}
-      {(antiPassiveAlert || stats.antiPassiveAlert) && (
-        <MotionSection initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="platform-banner-warn p-4 rounded-2xl border flex items-start gap-3">
-          <Eye className="w-5 h-5 text-accent-amber shrink-0 mt-0.5" />
-          <div>
-            <p className="platform-banner-title text-sm font-semibold">{t('dashActiveRecallTitle')}</p>
-            <p className="text-xs text-text-secondary mt-0.5">{t('dashActiveRecallBody')}</p>
-            <button
-              onClick={() => (firstReviewTask ? onStartTask?.(firstReviewTask.id) : onNavigate('tasks'))}
-              className="mt-2 platform-link text-xs flex items-center gap-1"
+      {/* Dual secondary prompts — side-by-side when both present (mockup I-D08) */}
+      {(daysToExam !== null || antiPassiveAlert || stats.antiPassiveAlert) && (
+        <MotionSection
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className={cn(
+            'grid gap-2',
+            daysToExam !== null && (antiPassiveAlert || stats.antiPassiveAlert)
+              ? 'grid-cols-1 sm:grid-cols-2'
+              : 'grid-cols-1',
+          )}
+        >
+          {daysToExam !== null && (
+            <UxCallout
+              variant="danger"
+              title={t('dashExamCountdown')}
+              icon={<Calendar className="text-accent-amber" />}
+              testId="dashboard-exam-countdown"
+              className="py-2.5"
+              action={
+                <button
+                  type="button"
+                  onClick={() => (examTask ? onStartTask?.(examTask.id) : onOpenExamTimer?.() ?? onOpenWorkspace?.())}
+                  className="platform-link text-xs flex items-center gap-1 shrink-0"
+                >
+                  {examTask ? t('dashStartExamPrep') : t('dashExamPrep')} <ArrowRight className="w-3 h-3" />
+                </button>
+              }
             >
-              {t('dashTakeQuiz')} <ArrowRight className="w-3 h-3" />
-            </button>
-          </div>
+              {daysToExam === 0 ? t('dashExamToday') : (daysToExam === 1 ? t('dashDayUntilExam') : t('dashDaysUntilExam').replace('{count}', String(daysToExam)))}
+            </UxCallout>
+          )}
+          {(antiPassiveAlert || stats.antiPassiveAlert) && (
+            <div className="platform-banner-warn p-3 rounded-xl border flex items-start gap-2.5" data-testid="dashboard-anti-passive">
+              <Eye className="w-4 h-4 text-accent-amber shrink-0 mt-0.5" />
+              <div className="min-w-0">
+                <p className="platform-banner-title text-xs font-semibold">{t('dashActiveRecallTitle')}</p>
+                <p className="text-[11px] text-text-secondary mt-0.5 line-clamp-2">{t('dashActiveRecallBody')}</p>
+                <button
+                  type="button"
+                  onClick={() => (firstReviewTask ? onStartTask?.(firstReviewTask.id) : onNavigate('tasks'))}
+                  className="mt-1.5 platform-link text-xs flex items-center gap-1"
+                >
+                  {t('dashTakeQuiz')} <ArrowRight className="w-3 h-3" />
+                </button>
+              </div>
+            </div>
+          )}
         </MotionSection>
       )}
 
@@ -448,21 +440,23 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
           <UxCallout
             variant="next-action"
             className="ux-spark-panel"
-            title={t('dashboardSuggestedNext')}
+            title={dashboardNextAction.reason || t('dashboardSuggestedNext')}
             icon={<Lightbulb />}
             testId="dashboard-next-action"
             action={
-              <button
-                type="button"
+              <PrimaryCTA
                 onClick={handleDashboardNextAction}
-                className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-medium ws-empty-cta-secondary shrink-0"
+                className="shrink-0 text-xs px-4 py-2"
+                data-testid="dashboard-execute-cta"
               >
-                {dashboardNextAction.label} <ArrowRight className="w-3 h-3" />
-              </button>
+                {t('dashExecute')} <ArrowRight className="w-3.5 h-3.5" />
+              </PrimaryCTA>
             }
           >
             <p className="text-[11px] text-text-tertiary">{t('dashboardSuggestedNextSubtitle')}</p>
-            <p className="mt-1 text-xs line-clamp-2">{dashboardNextAction.reason}</p>
+            {dashboardNextAction.label && (
+              <p className="mt-1 text-xs line-clamp-2 text-text-secondary">{dashboardNextAction.label}</p>
+            )}
           </UxCallout>
         </MotionSection>
       )}
@@ -482,20 +476,39 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
           data-dashboard-col="a"
         >
 
-          {/* Readiness Hero */}
-          <BlueprintSurface className="ux-calm-panel p-6">
-            <div className="flex flex-col sm:flex-row items-center gap-6">
-              <ReadinessRing value={learnerModel.overallMastery} sublabel={t('dashReadinessSublabel')} />
-              <div className="flex-1 space-y-4">
-                <SignalBars signals={[
-                  { label: t('dashSignalAccuracy'), value: Math.round(learnerModel.retentionRate * 100), icon: 'target', color: 'var(--palette-green)', detail: t('dashSignalAccuracyDetail') },
-                  { label: t('dashSignalReliance'), value: Math.round((1 - learnerModel.helpSeekingRate) * 100), icon: 'strength', color: 'var(--color-brand-600)', detail: t('dashSignalRelianceDetail') },
-                  { label: t('dashSignalVolume'), value: Math.min(100, Math.round(learnerModel.totalSessions * 2.1)), icon: 'chart', color: 'var(--palette-teal)', detail: t('dashSignalVolumeDetail').replace('{count}', String(learnerModel.totalSessions)) },
-                  { label: t('dashSignalRetrieval'), value: Math.round(learnerModel.retrievalPerformance * 100), icon: 'brain', color: 'var(--palette-amber)', detail: t('dashSignalRetrievalDetail') },
-                ]} />
+          {/* Readiness + coverage pair (I-D05) */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 items-stretch">
+            <BlueprintSurface className="ux-calm-panel p-4">
+              <div className="flex flex-col sm:flex-row items-center gap-4">
+                <ReadinessRing value={learnerModel.overallMastery} sublabel={t('dashReadinessSublabel')} />
+                <div className="flex-1 space-y-3 w-full min-w-0">
+                  <SignalBars signals={[
+                    { label: t('dashSignalAccuracy'), value: Math.round(learnerModel.retentionRate * 100), icon: 'target', color: 'var(--palette-green)', detail: t('dashSignalAccuracyDetail') },
+                    { label: t('dashSignalReliance'), value: Math.round((1 - learnerModel.helpSeekingRate) * 100), icon: 'strength', color: 'var(--color-brand-600)', detail: t('dashSignalRelianceDetail') },
+                    { label: t('dashSignalVolume'), value: Math.min(100, Math.round(learnerModel.totalSessions * 2.1)), icon: 'chart', color: 'var(--palette-teal)', detail: t('dashSignalVolumeDetail').replace('{count}', String(learnerModel.totalSessions)) },
+                    { label: t('dashSignalRetrieval'), value: Math.round(learnerModel.retrievalPerformance * 100), icon: 'brain', color: 'var(--palette-amber)', detail: t('dashSignalRetrievalDetail') },
+                  ]} />
+                </div>
               </div>
-            </div>
-          </BlueprintSurface>
+            </BlueprintSurface>
+            <SyllabusCoverageWidget
+              compact
+              courses={courses}
+              settingsExamDate={settingsExamDate}
+              onSelectCourse={onSelectCourse}
+              onPracticeTopic={onOpenWorkspacePractice
+                ? (topic, courseId) => {
+                    const tool: WorkspaceToolId = recommendToolForTopic(topic, stats, daysToExam, activities);
+                    onOpenWorkspacePractice({
+                      tool,
+                      concept: topic.title,
+                      courseId,
+                      simulatorTab: tool === 'simulator' ? 'exam-prep' : undefined,
+                    });
+                  }
+                : undefined}
+            />
+          </div>
 
           {/* Concept mastery + prerequisite repair */}
           {(conceptMastery.length > 0 || prerequisiteRepairs.length > 0) && (
@@ -664,6 +677,8 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
           )}
           data-dashboard-col="c"
         >
+          <ExamCalendarPanel />
+          <PostExamNextStepsPanel examDate={settingsExamDate ?? courses.find((c) => c.examDate)?.examDate} />
 
           {/* Mastery Trend */}
           <BlueprintSurface className="p-5">
@@ -858,13 +873,20 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
               <button
                 type="button"
                 onClick={() => (firstReviewTask ? onStartTask?.(firstReviewTask.id) : onNavigate('tasks'))}
-                className="p-2 rounded-lg bg-surface-primary/50 hover:bg-surface-hover transition-all"
+                className="p-2 rounded-lg bg-accent-amber/10 border border-accent-amber/20 hover:bg-accent-amber/15 transition-all"
+                data-testid="dash-horizon-today"
               >
-                <p className="text-lg font-bold text-accent-teal">{stats.reviewsDue}</p>
-                <p className="text-[9px] text-text-muted">{t('dashDueToday')}</p>
+                <p className="text-lg font-bold text-accent-amber tabular-nums">{fsrsHorizon.today}</p>
+                <p className="text-[9px] text-text-muted uppercase tracking-wide">{t('dashHorizonToday')}</p>
               </button>
-              <div className="p-2 rounded-lg bg-surface-primary/50"><p className="text-lg font-bold">{Math.round(learnerModel.retentionRate * 100)}%</p><p className="text-[9px] text-text-muted">{t('dashRetention')}</p></div>
-              <div className="p-2 rounded-lg bg-surface-primary/50"><p className="text-lg font-bold">{learnerModel.streakDays}</p><p className="text-[9px] text-text-muted">{t('dashStreakShort')}</p></div>
+              <div className="p-2 rounded-lg bg-surface-primary/50" data-testid="dash-horizon-tomorrow">
+                <p className="text-lg font-bold tabular-nums">{fsrsHorizon.tomorrow}</p>
+                <p className="text-[9px] text-text-muted uppercase tracking-wide">{t('dashHorizonTomorrow')}</p>
+              </div>
+              <div className="p-2 rounded-lg bg-surface-primary/50" data-testid="dash-horizon-3d">
+                <p className="text-lg font-bold tabular-nums">{fsrsHorizon.within3d}</p>
+                <p className="text-[9px] text-text-muted uppercase tracking-wide">{t('dashHorizon3d')}</p>
+              </div>
             </div>
             {fsrsDueQueue.length > 0 && onFocusWeakArea && (
               <LeitnerDueQueuePanel

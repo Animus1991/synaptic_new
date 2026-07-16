@@ -322,6 +322,214 @@ function OverviewTab({
         <ProgressKpiRow kpis={progressKpis} />
       </motion.div>
 
+      {calibration && (
+        <CalibrationChip score={calibration.score} direction={calibration.direction} />
+      )}
+
+      {/* Readiness Ring + Retention Curve */}
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        {hasConfidenceMetrics ? (
+          <div className="platform-panel-lg flex items-center justify-center">
+            <ReadinessRing value={learnerModel.overallMastery} size={200} sublabel={t('analyticsReadinessSublabel')} />
+          </div>
+        ) : (
+          <div className="platform-panel-lg flex flex-col items-center justify-center text-center text-sm text-text-muted min-h-[200px]">
+            <Target className="w-8 h-8 text-text-tertiary mb-2" />
+            <p>{t('analyticsResearchEmpty')}</p>
+          </div>
+        )}
+        {hasRetentionData ? (
+          <RetentionCurve dataPoints={retentionPoints} />
+        ) : (
+          <div className="platform-panel-lg flex flex-col items-center justify-center text-center text-sm text-text-muted min-h-[200px]">
+            <Activity className="w-8 h-8 text-text-tertiary mb-2" />
+            <p>{t('analyticsResearchEmpty')}</p>
+          </div>
+        )}
+      </motion.div>
+
+      {fsrsSummary.trackedConcepts > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.06 }}
+          className="platform-panel-md"
+          data-testid="analytics-fsrs-forecast"
+        >
+          <h3 className="text-sm font-semibold flex items-center gap-2 mb-1">
+            <Brain className="w-4 h-4 text-accent-cyan" />
+            {t('analyticsFsrsForecastTitle')}
+          </h3>
+          <p className="text-[10px] text-text-muted mb-4">{t('analyticsFsrsForecastHint')}</p>
+          <div className="grid grid-cols-3 gap-3 mb-4">
+            <div className="rounded-xl border border-border-subtle bg-surface-card/40 px-3 py-2">
+              <p className="text-[10px] text-text-muted">{t('analyticsFsrsRetrievability')}</p>
+              <p className="text-lg font-semibold text-text-primary">
+                {Math.round(fsrsSummary.avgRetrievabilityToday * 100)}%
+              </p>
+            </div>
+            <div className="rounded-xl border border-border-subtle bg-surface-card/40 px-3 py-2">
+              <p className="text-[10px] text-text-muted">{t('analyticsFsrsDueWeek')}</p>
+              <p className="text-lg font-semibold text-text-primary">{fsrsSummary.dueNext7Days}</p>
+            </div>
+            <div className="rounded-xl border border-border-subtle bg-surface-card/40 px-3 py-2">
+              <p className="text-[10px] text-text-muted">{t('analyticsFsrsTracked')}</p>
+              <p className="text-lg font-semibold text-text-primary">{fsrsSummary.trackedConcepts}</p>
+            </div>
+          </div>
+          <div className="flex items-end gap-1 h-16">
+            {fsrsForecast.map((point) => (
+              <div key={point.dayOffset} className="flex-1 flex flex-col items-center gap-0.5 min-w-0">
+                <div
+                  className="w-full rounded-t bg-accent-cyan/80 min-h-[4px]"
+                  style={{ height: `${Math.max(8, point.avgRetrievability * 100)}%` }}
+                  title={`D+${point.dayOffset}: ${Math.round(point.avgRetrievability * 100)}%`}
+                />
+                <span className="text-[8px] text-text-muted tabular-nums">
+                  {point.dayOffset === 0 ? t('analyticsTimelineDayToday') : `+${point.dayOffset}`}
+                </span>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+      )}
+
+      {/* Weekly mastery + Heatmap */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="platform-panel-md">
+          <h3 className="text-sm font-semibold flex items-center gap-2 mb-4"><TrendingUp className="w-4 h-4 text-accent-emerald" />{t('analyticsWeeklyTrend')}</h3>
+          <div className="flex items-end gap-1.5 h-28">
+            {weekly.map((val, i) => (
+              <div key={i} className="flex-1 flex flex-col items-center gap-1">
+                <span className="text-[9px] text-text-muted font-medium">{val}%</span>
+                <div className="w-full rounded-t transition-all duration-500" style={{ height: `${val * 1.2}%`, backgroundColor: i === weekly.length - 1 ? '#818cf8' : 'var(--viz-track)' }} />
+                <span className="text-[9px] text-text-muted">{t(WEEKDAY_KEYS[i]!)}</span>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="platform-panel-md">
+          <h3 className="text-sm font-semibold flex items-center gap-2 mb-4"><Calendar className="w-4 h-4 text-accent-teal" />{t('analyticsStudyHeatmap')}</h3>
+          <div className="grid grid-cols-[repeat(13,1fr)] gap-[3px]">
+            {learnerModel.heatmapData.slice(-91).map((day, i) => {
+              const intensity = day.minutes === 0 ? 0 : day.minutes < 15 ? 1 : day.minutes < 30 ? 2 : day.minutes < 60 ? 3 : 4;
+              const colors = ['bg-surface-hover', 'bg-brand-900', 'bg-brand-700', 'bg-brand-500', 'bg-brand-400'];
+              return (
+                <div key={i} className={cn('heatmap-cell w-full aspect-square rounded-[2px]', colors[intensity])} title={formatHeatmapDayTooltip(day.date, day.minutes, lang)} />
+              );
+            })}
+          </div>
+          <div className="flex items-center justify-end gap-1 mt-2 text-[9px] text-text-muted">
+            <span>{t('analyticsHeatmapLess')}</span>
+            {['bg-surface-hover', 'bg-brand-900', 'bg-brand-700', 'bg-brand-500', 'bg-brand-400'].map((c, i) => (
+              <div key={i} className={cn('w-2.5 h-2.5 rounded-[2px]', c)} />
+            ))}
+            <span>{t('analyticsHeatmapMore')}</span>
+          </div>
+        </motion.div>
+      </div>
+
+      {hasConfidenceMetrics && confidenceBuckets.length > 0 && (
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.18 }}>
+          <ConfidenceBucketChart
+            buckets={confidenceBuckets}
+            title={lang === 'el' ? 'Calibration ανά επίπεδο εμπιστοσύνης' : 'Calibration by confidence level'}
+          />
+        </motion.div>
+      )}
+
+      {/* 3-col: Courses | Concepts | You vs Real (I-A01) */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+        className="grid grid-cols-1 lg:grid-cols-3 gap-3"
+        data-testid="analytics-overview-mastery-row"
+      >
+        <div className="platform-panel-md">
+          <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
+            <CheckCircle2 className="w-4 h-4 text-brand-600" />
+            {t('analyticsCoursesColumn')}
+          </h3>
+          <div className="space-y-2.5">
+            {courses.filter(c => c.status !== 'generating').slice(0, 6).map(course => (
+              <div key={course.id} className="flex items-center gap-2">
+                <CourseIcon icon={course.icon} size="sm" colorClassName="text-brand-600 shrink-0" />
+                <span className="text-xs text-text-secondary flex-1 truncate">{course.title}</span>
+                <div className="w-16 bg-surface-hover rounded-full h-1.5 shrink-0">
+                  <div className="h-1.5 rounded-full" style={{ width: `${course.mastery}%`, backgroundColor: resolveCourseColor(course.color) }} />
+                </div>
+                <span className="text-[10px] font-semibold tabular-nums w-8 text-right">{course.mastery}%</span>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="platform-panel-md">
+          <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
+            <Brain className="w-4 h-4 text-accent-cyan" />
+            {t('analyticsConceptsColumn')}
+          </h3>
+          <div className="space-y-2.5">
+            {[...learnerModel.weakAreas, ...learnerModel.almostKnown, ...learnerModel.strongAreas]
+              .slice(0, 6)
+              .map((skill) => (
+                <div key={skill.concept} className="flex items-center gap-2">
+                  <span className="text-xs text-text-secondary flex-1 truncate">{skill.concept}</span>
+                  <div className="w-16 bg-surface-hover rounded-full h-1.5 shrink-0">
+                    <div
+                      className={cn(
+                        'h-1.5 rounded-full',
+                        skill.mastery >= 75 ? 'bg-accent-emerald' : skill.mastery >= 50 ? 'bg-accent-amber' : 'bg-accent-rose',
+                      )}
+                      style={{ width: `${Math.max(3, skill.mastery)}%` }}
+                    />
+                  </div>
+                  <span className="text-[10px] font-semibold tabular-nums w-8 text-right">{Math.round(skill.mastery)}%</span>
+                </div>
+              ))}
+          </div>
+        </div>
+        <div className="platform-panel-md">
+          <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
+            <Eye className="w-4 h-4 text-accent-amber" />
+            {t('analyticsCalibrationColumn')}
+          </h3>
+          <div className="space-y-2">
+            {learnerModel.confidenceCalibration.slice(0, 5).map((point, i) => {
+              const gap = Math.abs(point.predicted - point.actual);
+              const overconfident = point.predicted > point.actual;
+              return (
+                <div key={i} className="space-y-1">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-xs text-text-secondary truncate">{point.concept}</span>
+                    <span className={cn(
+                      'text-[10px] font-medium inline-flex items-center gap-0.5 shrink-0',
+                      gap > 0.2 ? (overconfident ? 'text-accent-rose' : 'text-accent-amber') : 'text-accent-emerald',
+                    )}>
+                      {gap > 0.2
+                        ? (overconfident
+                          ? <><TrendingUp className="w-3 h-3" aria-hidden />{t('analyticsOverconfident')}</>
+                          : <><AlertTriangle className="w-3 h-3" aria-hidden />{t('analyticsUnderconfident')}</>)
+                        : <><CheckCircle2 className="w-3 h-3" aria-hidden />{t('analyticsCalibrated')}</>}
+                    </span>
+                  </div>
+                  <CalibrationCompareBar
+                    predictedPct={point.predicted * 100}
+                    actualPct={point.actual * 100}
+                    youLabel={`${t('analyticsCalibrationYou')}: ${Math.round(point.predicted * 100)}%`}
+                    actualLabel={`${t('analyticsCalibrationActual')}: ${Math.round(point.actual * 100)}%`}
+                  />
+                </div>
+              );
+            })}
+            {learnerModel.confidenceCalibration.length === 0 && (
+              <p className="text-xs text-text-muted py-4 text-center">{t('analyticsResearchEmpty')}</p>
+            )}
+          </div>
+        </div>
+      </motion.div>
+
       <SubjectMasteryGrid tiles={subjectTiles} onSelect={setDrillTile} />
       <SubjectDrillDown
         tile={drillTile}
@@ -331,8 +539,6 @@ function OverviewTab({
           store.openStudyWorkspaceForConcept(concept);
         }}
       />
-
-      <StudyBehaviorCharts activities={activities} />
 
       <details className="ux-disclosure" data-testid="analytics-flow-disclosure">
         <summary className="ux-disclosure-summary">{t('analyticsFlowDisclosure')}</summary>
@@ -401,164 +607,6 @@ function OverviewTab({
           </motion.div>
         </div>
       </details>
-
-      {calibration && (
-        <CalibrationChip score={calibration.score} direction={calibration.direction} />
-      )}
-      {/* Readiness Ring + Retention Curve */}
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        {hasConfidenceMetrics ? (
-          <div className="platform-panel-lg flex items-center justify-center">
-            <ReadinessRing value={learnerModel.overallMastery} size={200} sublabel={t('analyticsReadinessSublabel')} />
-          </div>
-        ) : (
-          <div className="platform-panel-lg flex flex-col items-center justify-center text-center text-sm text-text-muted min-h-[200px]">
-            <Target className="w-8 h-8 text-text-tertiary mb-2" />
-            <p>{t('analyticsResearchEmpty')}</p>
-          </div>
-        )}
-        {hasRetentionData ? (
-          <RetentionCurve dataPoints={retentionPoints} />
-        ) : (
-          <div className="platform-panel-lg flex flex-col items-center justify-center text-center text-sm text-text-muted min-h-[200px]">
-            <Activity className="w-8 h-8 text-text-tertiary mb-2" />
-            <p>{t('analyticsResearchEmpty')}</p>
-          </div>
-        )}
-      </motion.div>
-
-      {fsrsSummary.trackedConcepts > 0 && (
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.06 }}
-          className="platform-panel-md"
-          data-testid="analytics-fsrs-forecast"
-        >
-          <h3 className="text-sm font-semibold flex items-center gap-2 mb-1">
-            <Brain className="w-4 h-4 text-accent-cyan" />
-            {t('analyticsFsrsForecastTitle')}
-          </h3>
-          <p className="text-[10px] text-text-muted mb-4">{t('analyticsFsrsForecastHint')}</p>
-          <div className="grid grid-cols-3 gap-3 mb-4">
-            <div className="rounded-xl border border-border-subtle bg-surface-card/40 px-3 py-2">
-              <p className="text-[10px] text-text-muted">{t('analyticsFsrsRetrievability')}</p>
-              <p className="text-lg font-semibold text-text-primary">
-                {Math.round(fsrsSummary.avgRetrievabilityToday * 100)}%
-              </p>
-            </div>
-            <div className="rounded-xl border border-border-subtle bg-surface-card/40 px-3 py-2">
-              <p className="text-[10px] text-text-muted">{t('analyticsFsrsDueWeek')}</p>
-              <p className="text-lg font-semibold text-text-primary">{fsrsSummary.dueNext7Days}</p>
-            </div>
-            <div className="rounded-xl border border-border-subtle bg-surface-card/40 px-3 py-2">
-              <p className="text-[10px] text-text-muted">{t('analyticsFsrsTracked')}</p>
-              <p className="text-lg font-semibold text-text-primary">{fsrsSummary.trackedConcepts}</p>
-            </div>
-          </div>
-          <div className="flex items-end gap-1 h-16">
-            {fsrsForecast.map((point) => (
-              <div
-                key={point.dayOffset}
-                className="flex-1 rounded-t bg-accent-cyan/80 min-h-[4px]"
-                style={{ height: `${Math.max(8, point.avgRetrievability * 100)}%` }}
-                title={`D+${point.dayOffset}: ${Math.round(point.avgRetrievability * 100)}%`}
-              />
-            ))}
-          </div>
-        </motion.div>
-      )}
-
-      {/* Weekly mastery + Heatmap */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="platform-panel-md">
-          <h3 className="text-sm font-semibold flex items-center gap-2 mb-4"><TrendingUp className="w-4 h-4 text-accent-emerald" />{t('analyticsWeeklyTrend')}</h3>
-          <div className="flex items-end gap-1.5 h-28">
-            {weekly.map((val, i) => (
-              <div key={i} className="flex-1 flex flex-col items-center gap-1">
-                <span className="text-[9px] text-text-muted font-medium">{val}%</span>
-                <div className="w-full rounded-t transition-all duration-500" style={{ height: `${val * 1.2}%`, backgroundColor: i === weekly.length - 1 ? '#818cf8' : 'var(--viz-track)' }} />
-                <span className="text-[9px] text-text-muted">{t(WEEKDAY_KEYS[i]!)}</span>
-              </div>
-            ))}
-          </div>
-        </motion.div>
-
-        {/* Study Heatmap */}
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="platform-panel-md">
-          <h3 className="text-sm font-semibold flex items-center gap-2 mb-4"><Calendar className="w-4 h-4 text-accent-teal" />{t('analyticsStudyHeatmap')}</h3>
-          <div className="grid grid-cols-[repeat(13,1fr)] gap-[3px]">
-            {learnerModel.heatmapData.slice(-91).map((day, i) => {
-              const intensity = day.minutes === 0 ? 0 : day.minutes < 15 ? 1 : day.minutes < 30 ? 2 : day.minutes < 60 ? 3 : 4;
-              const colors = ['bg-surface-hover', 'bg-brand-900', 'bg-brand-700', 'bg-brand-500', 'bg-brand-400'];
-              return (
-                <div key={i} className={cn('heatmap-cell w-full aspect-square rounded-[2px]', colors[intensity])} title={formatHeatmapDayTooltip(day.date, day.minutes, lang)} />
-              );
-            })}
-          </div>
-          <div className="flex items-center justify-end gap-1 mt-2 text-[9px] text-text-muted">
-            <span>{t('analyticsHeatmapLess')}</span>
-            {['bg-surface-hover', 'bg-brand-900', 'bg-brand-700', 'bg-brand-500', 'bg-brand-400'].map((c, i) => (
-              <div key={i} className={cn('w-2.5 h-2.5 rounded-[2px]', c)} />
-            ))}
-            <span>{t('analyticsHeatmapMore')}</span>
-          </div>
-        </motion.div>
-      </div>
-
-      {/* Confidence Calibration */}
-      {hasConfidenceMetrics && confidenceBuckets.length > 0 && (
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.18 }}>
-          <ConfidenceBucketChart
-            buckets={confidenceBuckets}
-            title={lang === 'el' ? 'Calibration ανά επίπεδο εμπιστοσύνης' : 'Calibration by confidence level'}
-          />
-        </motion.div>
-      )}
-
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="platform-panel-md">
-        <h3 className="text-sm font-semibold flex items-center gap-2 mb-4"><Eye className="w-4 h-4 text-accent-amber" />{t('analyticsConfidenceCalibration')}</h3>
-        <p className="text-xs text-text-tertiary mb-4">{t('analyticsConfidenceHint')}</p>
-        <div className="space-y-2">
-          {learnerModel.confidenceCalibration.map((point, i) => {
-            const gap = Math.abs(point.predicted - point.actual);
-            const overconfident = point.predicted > point.actual;
-            return (
-              <div key={i} className="flex items-center gap-3">
-                <span className="text-xs text-text-secondary w-28 truncate">{point.concept}</span>
-                <div className="flex-1 flex items-center gap-2">
-                  <CalibrationCompareBar
-                    predictedPct={point.predicted * 100}
-                    actualPct={point.actual * 100}
-                    youLabel={`${t('analyticsCalibrationYou')}: ${Math.round(point.predicted * 100)}%`}
-                    actualLabel={`${t('analyticsCalibrationActual')}: ${Math.round(point.actual * 100)}%`}
-                  />
-                </div>
-                <span className={cn('text-[10px] font-medium w-20 text-right', gap > 0.2 ? (overconfident ? 'text-accent-rose' : 'text-accent-amber') : 'text-accent-emerald')}>
-                  {gap > 0.2 ? (overconfident ? `⚠ ${t('analyticsOverconfident')}` : `↑ ${t('analyticsUnderconfident')}`) : `✓ ${t('analyticsCalibrated')}`}
-                </span>
-              </div>
-            );
-          })}
-        </div>
-      </motion.div>
-
-      {/* Course mastery */}
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }} className="platform-panel-md">
-        <h3 className="text-sm font-semibold mb-4">{t('analyticsCourseMastery')}</h3>
-        <div className="space-y-3">
-          {courses.filter(c => c.status !== 'generating').map(course => (
-            <div key={course.id} className="flex items-center gap-3">
-              <CourseIcon icon={course.icon} size="md" colorClassName="text-brand-600 shrink-0" />
-              <span className="text-sm text-text-secondary w-36 truncate">{course.title}</span>
-              <div className="flex-1 bg-surface-hover rounded-full h-2.5">
-                <div className="h-2.5 rounded-full transition-all" style={{ width: `${course.mastery}%`, backgroundColor: resolveCourseColor(course.color) }} />
-              </div>
-              <span className="text-xs font-semibold text-text-primary w-10 text-right tabular-nums">{course.mastery}%</span>
-            </div>
-          ))}
-        </div>
-      </motion.div>
 
       <details
         className="ux-disclosure"

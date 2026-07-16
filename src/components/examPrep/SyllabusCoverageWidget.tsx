@@ -17,6 +17,8 @@ type Props = {
   reviewsDue?: number;
   onSelectCourse?: (course: Course) => void;
   onPracticeTopic?: (topic: TopicCoverageRow, courseId: string) => void;
+  /** Compact rail / paired layout (mockup Wave I). */
+  compact?: boolean;
 };
 
 export function SyllabusCoverageWidget({
@@ -24,6 +26,7 @@ export function SyllabusCoverageWidget({
   settingsExamDate,
   onSelectCourse,
   onPracticeTopic,
+  compact = false,
 }: Props) {
   const { t } = useI18n();
   const primary = useMemo(() => pickPrimaryCourseForCoverage(courses), [courses]);
@@ -33,6 +36,64 @@ export function SyllabusCoverageWidget({
   );
 
   if (!snapshot || snapshot.totalTopics === 0) return null;
+
+  if (compact) {
+    const pct = Math.round(snapshot.coveragePct);
+    return (
+      <div
+        className="rounded-xl border border-border-subtle bg-surface-primary/40 p-3 space-y-2"
+        data-testid="syllabus-coverage-widget-compact"
+      >
+        <div className="flex items-center justify-between gap-2">
+          <p className="text-[10px] font-semibold uppercase tracking-wide text-text-tertiary">
+            {t('coverageTrackerTitle')}
+          </p>
+          {onSelectCourse && primary && (
+            <button
+              type="button"
+              onClick={() => onSelectCourse(primary)}
+              className="text-[10px] font-medium text-brand-700 hover:text-brand-600"
+            >
+              {t('coverageTrackerOpenCourse')}
+            </button>
+          )}
+        </div>
+        <p className="text-xs font-medium text-text-primary truncate">{snapshot.courseTitle}</p>
+        <div className="flex items-baseline gap-2">
+          <span className="text-lg font-bold tabular-nums text-text-primary">{pct}%</span>
+          <span className="text-[10px] text-text-muted">
+            {snapshot.completedTopics}/{snapshot.totalTopics}
+          </span>
+        </div>
+        <div className="w-full bg-surface-hover rounded-full h-1.5">
+          <div className="h-1.5 rounded-full bg-brand-600 transition-all" style={{ width: `${pct}%` }} />
+        </div>
+        <ul className="space-y-1 max-h-28 overflow-y-auto">
+          {snapshot.topics.slice(0, 6).map((topic) => (
+            <li key={topic.topicId} className="flex items-center gap-1.5 text-[10px]">
+              {topic.isComplete ? (
+                <CheckCircle2 className="w-3 h-3 text-accent-emerald shrink-0" aria-hidden />
+              ) : (
+                <span className="w-3 h-3 rounded-full border border-border-subtle shrink-0" aria-hidden />
+              )}
+              <span className={cn('truncate flex-1', topic.isComplete ? 'text-text-secondary' : 'text-text-primary')}>
+                {topic.title}
+              </span>
+              {!topic.isComplete && onPracticeTopic && primary && (
+                <button
+                  type="button"
+                  onClick={() => onPracticeTopic(topic, primary.id)}
+                  className="text-brand-700 shrink-0 font-medium"
+                >
+                  {t('coveragePracticeTopic')}
+                </button>
+              )}
+            </li>
+          ))}
+        </ul>
+      </div>
+    );
+  }
 
   return (
     <div data-testid="syllabus-coverage-widget">
