@@ -34,7 +34,7 @@ import { PrimaryCTA } from './ui/primitives';
 import { UxCallout } from './ui/platformChrome';
 import { BlueprintSurface } from './ui/BlueprintSurface';
 import { PostUploadBanner } from './ui/PostUploadBanner';
-import { useDocumentThemeIsLight, warmSandScopeProps } from '../lib/useDocumentTheme';
+import { useWarmSandPageScope, warmSandScopeProps } from '../lib/useDocumentTheme';
 import { SectionLabel } from './ui/SectionLabel';
 import { DashboardActionHub } from './DashboardActionHub';
 import { buildDashboardWeakSpotCards } from '../lib/dashboardWeakSpotsModel';
@@ -133,7 +133,7 @@ interface DashboardProps {
 
 export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onSelectCourse, onOpenWorkspace, onOpenExamTimer, onUpload, onExploreDemo, prerequisiteRepairs = [], calibration, conceptMastery = [], activities = [], masteryDelta = 0, daysToExam = null, antiPassiveAlert = false, onStartTask, onStartSession, onResolveMisconception, onFocusWeakArea, workspaceLive = null, workspaceBooting = false, dashboardNextAction = null, smartCTAs = [], onRunSmartCTA, proactiveAgentAlerts = [], onRunProactiveAgentAlert, onOpenWorkspacePractice, lang = 'en', postUploadCourse = null, onDismissPostUpload, onOpenTasksReview, settingsExamDate, personalStudyDates = [], onExamDateChange, onPersonalStudyDatesChange, dashboardWallpaperDataUrl, onDashboardWallpaperChange }: DashboardProps) {
   const { t } = useI18n();
-  const isLightTheme = useDocumentThemeIsLight();
+  const warmSandPage = useWarmSandPageScope();
   const [layoutMode, setLayoutMode] = useState<DashboardLayoutMode>(() => loadDashboardLayoutMode());
   const isCanvasLayout = layoutMode === 'canvas';
   const pageView = useMemo(
@@ -189,7 +189,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
       <div className="p-4 sm:p-6 lg:px-8 pb-24 lg:pb-6 w-full min-w-0 flex items-start justify-center pt-8 sm:pt-16">
         <MotionSection initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-2xl">
           <div className="text-center mb-8">
-            <h1 className="text-xl sm:text-2xl font-bold text-text-primary mb-2">
+            <h1 className="text-base sm:text-lg font-bold text-text-primary mb-2">
               {t('welcomeToSynapse')}
             </h1>
             <p className="text-text-secondary text-sm sm:text-base max-w-md mx-auto">
@@ -237,7 +237,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
 
   return (
     <div
-      {...warmSandScopeProps(isLightTheme)}
+      {...warmSandScopeProps(warmSandPage)}
       className="w-full min-w-0 pb-24 lg:pb-8 ux-fade-up"
       data-testid="dashboard-page"
       data-dashboard-layout={layoutMode}

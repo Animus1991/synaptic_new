@@ -231,7 +231,7 @@ export function Shell({
             <div className="w-8 h-8 rounded-lg platform-brand-icon flex items-center justify-center">
               <SynapseBrandGlyph />
             </div>
-            <span className="text-xl font-bold ws-serif">Synapse</span>
+            <span className="text-lg font-bold ws-serif">Synapse</span>
           </div>
         </div>
 
@@ -414,7 +414,7 @@ export function Shell({
                 <div className="w-8 h-8 rounded-lg platform-brand-icon flex items-center justify-center">
                   <SynapseBrandGlyph />
                 </div>
-                <span className="text-xl font-bold ws-serif">Synapse</span>
+                <span className="text-lg font-bold ws-serif">Synapse</span>
               </div>
               <button
                 type="button"

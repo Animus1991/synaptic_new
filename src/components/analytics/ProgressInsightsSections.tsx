@@ -31,19 +31,20 @@ export function ProgressKpiRow({ kpis }: { kpis: ProgressKpi[] }) {
 
 export function ConfidenceBucketChart({ buckets, title }: { buckets: ConfidenceBucket[]; title: string }) {
   return (
-    <div className="ux-card" data-testid="confidence-bucket-chart">
-      <h3 className="text-sm font-semibold text-text-primary mb-4">{title}</h3>
-      <div className="space-y-3">
+    <div className="ux-card p-3" data-testid="confidence-bucket-chart">
+      <h3 className="text-[11px] font-semibold uppercase tracking-[0.06em] text-text-secondary mb-3">{title}</h3>
+      {/* K-A01: dense horizontal 5-bin calibration (mockup) */}
+      <div className="grid grid-cols-5 gap-1.5 sm:gap-2">
         {buckets.map((bucket) => (
-          <div key={bucket.label}>
-            <div className="flex items-center justify-between text-xs mb-1">
-              <span className="text-text-secondary">{bucket.label}</span>
-              <span className="text-text-tertiary">{bucket.correctPct}% correct</span>
-            </div>
-            <div className="flex h-2 rounded-full overflow-hidden bg-surface-hover">
-              <div className="bg-accent-emerald/80" style={{ width: `${bucket.correctPct}%` }} />
-              <div className="bg-accent-rose/70" style={{ width: `${bucket.wrongPct}%` }} />
-            </div>
+          <div
+            key={bucket.rangeLabel}
+            className="min-w-0 rounded-lg border border-border-subtle/80 bg-surface-card/50 px-1 py-2 text-center"
+          >
+            <p className="text-sm font-bold tabular-nums text-text-primary sm:text-base">
+              {bucket.sampleCount === 0 ? '—' : `${bucket.correctPct}%`}
+            </p>
+            <p className="mt-0.5 text-[9px] text-text-muted tabular-nums truncate">{bucket.rangeLabel}</p>
+            <p className="mt-0.5 text-[9px] text-text-tertiary tabular-nums">n={bucket.sampleCount}</p>
           </div>
         ))}
       </div>

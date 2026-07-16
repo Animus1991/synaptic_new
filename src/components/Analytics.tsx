@@ -20,7 +20,7 @@ import { CourseIcon } from './ui/CourseIcon';
 import { cn } from '../utils/cn';
 import { Page, PageHeader, TabBar } from './ui/primitives';
 import { SectionLabel } from './ui/SectionLabel';
-import { useDocumentThemeIsLight, warmSandScopeProps } from '../lib/useDocumentTheme';
+import { useSepiaHeatmap, useWarmSandPageScope, warmSandScopeProps } from '../lib/useDocumentTheme';
 import { ReadinessRing } from './visuals/ReadinessRing';
 import { RetentionCurve } from './visuals/DiagramGenerator';
 import { ConceptGraph } from './visuals/ConceptGraph';
@@ -202,11 +202,11 @@ export function Analytics({
 }: AnalyticsProps) {
   const [tab, setTab] = useState<AnalyticsTab>('overview');
   const { t } = useI18n();
-  const isLightTheme = useDocumentThemeIsLight();
+  const warmSandPage = useWarmSandPageScope();
 
   return (
     <AnalyticsDateRangeProvider>
-      <div {...warmSandScopeProps(isLightTheme)} data-testid="analytics-page">
+      <div {...warmSandScopeProps(warmSandPage)} data-testid="analytics-page">
       <Page>
         <PageHeader
           title={t('analyticsTitle')}
@@ -281,7 +281,7 @@ function OverviewTab({
   daysToExam: number | null;
 }) {
   const { t, lang } = useI18n();
-  const isLightTheme = useDocumentThemeIsLight();
+  const sepiaHeatmap = useSepiaHeatmap();
   const { range } = useAnalyticsDateRange();
   const store = useAppStore();
   const [drillTile, setDrillTile] = useState<SubjectMasteryTile | null>(null);
@@ -423,8 +423,8 @@ function OverviewTab({
           <div className="grid grid-cols-[repeat(13,1fr)] gap-[3px]" data-testid="analytics-heatmap-grid">
             {learnerModel.heatmapData.slice(-91).map((day, i) => {
               const intensity = day.minutes === 0 ? 0 : day.minutes < 15 ? 1 : day.minutes < 30 ? 2 : day.minutes < 60 ? 3 : 4;
-              // J-A01: warm sepia scale under warm-sand / light; keep brand ramp otherwise
-              const colors = isLightTheme
+              // K-T02: sepia only on light/warm-sand — spectrum/dark/blueprint keep brand ramp
+              const colors = sepiaHeatmap
                 ? ['bg-[#ebe4d8]', 'bg-[#d4c4a8]', 'bg-[#b8956a]', 'bg-[#8a6440]', 'bg-[#5c4033]']
                 : ['bg-surface-hover', 'bg-brand-900', 'bg-brand-700', 'bg-brand-500', 'bg-brand-400'];
               return (
@@ -434,7 +434,7 @@ function OverviewTab({
           </div>
           <div className="flex items-center justify-end gap-1 mt-2 text-[9px] text-text-muted">
             <span>{t('analyticsHeatmapLess')}</span>
-            {(isLightTheme
+            {(sepiaHeatmap
               ? ['bg-[#ebe4d8]', 'bg-[#d4c4a8]', 'bg-[#b8956a]', 'bg-[#8a6440]', 'bg-[#5c4033]']
               : ['bg-surface-hover', 'bg-brand-900', 'bg-brand-700', 'bg-brand-500', 'bg-brand-400']
             ).map((c, i) => (

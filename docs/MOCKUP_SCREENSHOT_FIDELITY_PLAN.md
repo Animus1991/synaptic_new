@@ -136,6 +136,11 @@
 
 See [`MOCKUP_WAVE_I_FIDELITY_PLAN.md`](./MOCKUP_WAVE_I_FIDELITY_PLAN.md). Sprint I-1 shipped (alert grid, rail IA, Tasks session order, Library Open+Shell, Analytics 3-col). I-2/I-3 tracked without omission.
 
+## 6c. Wave J + K
+
+- Wave J: [`MOCKUP_WAVE_J_FIDELITY_PLAN.md`](./MOCKUP_WAVE_J_FIDELITY_PLAN.md) (J-1 + J-2 shipped).
+- Wave K: [`MOCKUP_WAVE_K_FIDELITY_PLAN.md`](./MOCKUP_WAVE_K_FIDELITY_PLAN.md) — spectrum/blueprint parity; warm-sand no longer overrides spectrum; horizontal calibration bins.
+
 ---
 
 ## 7. Security

@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   CheckCircle2, Circle, Clock, AlertTriangle, RotateCcw, Calendar,
   Play, Flame, Brain, Target, Zap,
-  HelpCircle, XCircle, RefreshCw, ArrowDownRight, TrendingUp, Minus,
+  HelpCircle, XCircle, RefreshCw, ArrowDownRight, TrendingUp, Minus, ArrowRight,
 } from '@/lib/lucide-shim';
 import type { Task, MistakeRecord, SkillNode, SpacingData } from '../types';
 import type { Lang } from '../lib/i18n';
@@ -25,7 +25,7 @@ import { TasksKanbanStatusStrip, tasksKanbanCardStatus } from './TasksKanbanStat
 import { BlueprintSurface } from './ui/BlueprintSurface';
 import { LeitnerDueQueuePanel } from './workspace/LeitnerDueQueuePanel';
 import { buildFsrsDueQueue } from '../lib/leitnerDueQueue';
-import { useDocumentThemeIsLight, warmSandScopeProps } from '../lib/useDocumentTheme';
+import { useWarmSandPageScope, warmSandScopeProps } from '../lib/useDocumentTheme';
 
 export type { TaskFilter } from '../lib/tasksContent';
 
@@ -191,7 +191,7 @@ export function Tasks({
     }),
     [daysToExam, reviewTasks.length, fsrsQueue.length, scopedWeak.length, todayTasks.length],
   );
-  const isLightTheme = useDocumentThemeIsLight();
+  const warmSandPage = useWarmSandPageScope();
   const almostKnownPreview = almostKnown.slice(0, 2);
   const showInsightStrip = almostKnownPreview.length > 0 || antiPassiveAlert;
 
@@ -205,7 +205,7 @@ export function Tasks({
   return (
     <HeroGlow flush>
     <div
-      {...warmSandScopeProps(isLightTheme)}
+      {...warmSandScopeProps(warmSandPage)}
       data-testid="tasks-page"
       className="min-w-0 w-full"
     >
@@ -369,9 +369,9 @@ export function Tasks({
                     <button
                       type="button"
                       onClick={() => onFocusWeakArea(almostKnownPreview[0].concept)}
-                      className="text-xs font-medium text-brand-700 hover:text-brand-600"
+                      className="inline-flex items-center gap-1 text-xs font-medium text-brand-700 hover:text-brand-600"
                     >
-                      {c.almostThereCta} →
+                      {c.almostThereCta} <ArrowRight className="w-3 h-3" aria-hidden />
                     </button>
                   )}
                 </div>
@@ -388,9 +388,9 @@ export function Tasks({
                   <button
                     type="button"
                     onClick={() => (onStartQuiz ? onStartQuiz() : onStartSession?.('10min'))}
-                    className="text-xs font-medium text-brand-700 hover:text-brand-600"
+                    className="inline-flex items-center gap-1 text-xs font-medium text-brand-700 hover:text-brand-600"
                   >
-                    {c.recallReminderCta} →
+                    {c.recallReminderCta} <ArrowRight className="w-3 h-3" aria-hidden />
                   </button>
                 </div>
               )}

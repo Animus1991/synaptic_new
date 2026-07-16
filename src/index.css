@@ -454,6 +454,10 @@
   --viz-canvas-bg: #ffffff;
   --viz-grid-line: #e8e2ff;
 
+  /* Wave K-T03 — badge/chip ink parity (spectrum keeps violet family) */
+  --color-warm-ink: #4a32b0;
+  color-scheme: light;
+
   /* Original vibrant spectrum accents */
   --mastery-weak: #ff7b8a;
   --mastery-developing: #5ecfff;
