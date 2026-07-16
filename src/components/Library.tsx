@@ -269,7 +269,7 @@ export function Library({
 
   return (
     <div {...warmSandScopeProps(warmSandPage)} data-testid="library-page">
-    <Page>
+    <Page gap="sm">
       <PageHeader
         eyebrow={t('library', userLanguage)}
         title={t('libraryPageTitle', userLanguage)}
@@ -287,7 +287,7 @@ export function Library({
         settings={userSettings}
         lang={userLanguage}
         variant="banner"
-        className="mb-4"
+        className="mb-2"
       />
 
       {/* L-L01: canvas order — RAG → success → NotebookLM → combined → tip */}
@@ -312,7 +312,7 @@ export function Library({
           lang={userLanguage}
           onImport={onImportNotebookLm}
           onAddToFsrs={onAddNotebookLmToFsrs}
-          className="mb-4"
+          className="mb-2"
         />
       )}
 
@@ -321,14 +321,14 @@ export function Library({
           courses={courses}
           settings={userSettings}
           lang={userLanguage}
-          className="mb-4"
+          className="mb-2"
         />
       )}
 
       {!entryHintDismissed && (
         <div
           data-testid="library-tip-banner"
-          className="mb-3 flex items-start justify-between gap-3 rounded-xl border border-dashed border-brand-500/35 bg-surface-card/40 px-3.5 py-2.5"
+          className="mb-2 flex items-start justify-between gap-3 rounded-xl border border-dashed border-brand-500/35 bg-surface-card/40 px-3.5 py-2.5"
         >
           <p className="text-xs text-text-secondary">
             <span className="font-semibold text-brand-800">{t('libraryTipLabel', userLanguage)}</span>{' '}
@@ -346,7 +346,7 @@ export function Library({
       )}
 
       <div
-        className="mb-3 grid grid-cols-1 sm:grid-cols-2 gap-2"
+        className="mb-2 grid grid-cols-1 sm:grid-cols-2 gap-2"
         data-testid="library-stats-strip"
       >
         <BlueprintSurface className="px-3.5 py-2.5 flex items-center gap-2.5">
@@ -374,11 +374,11 @@ export function Library({
         activeId={tab}
         onChange={setTab}
         testIdPrefix="library-tab"
-        className="mb-4"
+        className="mb-2"
       />
 
       {/* Search & Filters */}
-      <div className="flex flex-col sm:flex-row gap-3">
+      <div className="flex flex-col sm:flex-row gap-2">
         <div className="flex-1 relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-tertiary pointer-events-none" aria-hidden="true" />
           <input
@@ -471,7 +471,7 @@ export function Library({
                 type="button"
                 onClick={onUpload}
                 data-testid="library-drop-zone"
-                className="ux-library-drop-zone ux-prompt-bar-surface mb-4 flex w-full flex-col items-center gap-2 px-6 py-8 text-center text-text-secondary hover:text-text-primary transition-colors"
+                className="ux-library-drop-zone ux-prompt-bar-surface mb-2 flex w-full flex-col items-center gap-2 px-6 py-8 text-center text-text-secondary hover:text-text-primary transition-colors"
               >
                 <Upload className="h-8 w-8 text-brand-600" aria-hidden />
                 <span className="text-sm font-medium">
@@ -492,11 +492,11 @@ export function Library({
                 onSecondaryAction={search.trim() || filter !== 'all' ? () => { setSearch(''); setFilter('all'); } : uploadedFiles.length > 0 ? () => setTab('files') : undefined}
               />
             ) : (
-              <div className="space-y-4">
+              <div className="space-y-3">
                 <div className={cn(
                 viewMode === 'grid'
-                  ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4'
-                  : 'space-y-3'
+                  ? 'columns-1 sm:columns-2 lg:columns-3 gap-3 [&>*]:mb-3 [&>*]:break-inside-avoid'
+                  : 'space-y-2.5'
               )}>
                 {filteredCourses.map((course, i) => (
                   viewMode === 'grid'
@@ -505,7 +505,7 @@ export function Library({
                 ))}
               </div>
                 {!search.trim() && (libraryQualityAlerts.needsMaterial || libraryQualityAlerts.outlineAdjusted) && (
-                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                     {libraryQualityAlerts.needsMaterial && (
                       <MiniAlert
                         tone="amber"
@@ -523,7 +523,7 @@ export function Library({
                   </div>
                 )}
                 {!search.trim() && (libraryInfo.topics.length > 0 || libraryInfo.examples.length > 0) && (
-                  <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+                  <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
                     <InfoStack
                       title={t('libraryInfoStackTopicsTitle', userLanguage)}
                       items={libraryInfo.topics}

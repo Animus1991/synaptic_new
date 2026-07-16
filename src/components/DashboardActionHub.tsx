@@ -190,18 +190,18 @@ export function DashboardActionHub({
             : undefined
         }
       >
-        <div className={cn('p-4 sm:p-5 space-y-4 sm:space-y-5', heroText)}>
+        <div className={cn('p-3.5 sm:p-4 space-y-3 sm:space-y-4', heroText)}>
           {(greetingTitle || headerActions) && (
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div className="min-w-0" id="dashboard-hero-greeting">
                 {greetingEyebrow && (
-                  <p className="ws-eyebrow mb-1.5 text-text-secondary opacity-90">{greetingEyebrow}</p>
+                  <p className="ws-eyebrow mb-1 text-text-secondary opacity-90">{greetingEyebrow}</p>
                 )}
                 {greetingTitle && (
                   <h1 className="ws-serif font-medium tracking-tight text-base sm:text-lg">{greetingTitle}</h1>
                 )}
                 {greetingSubtitle && (
-                  <div className="ux-page-subtitle mt-1.5 text-sm opacity-90">{greetingSubtitle}</div>
+                  <div className="ux-page-subtitle mt-1 text-sm opacity-90">{greetingSubtitle}</div>
                 )}
               </div>
               {headerActions && (
@@ -222,7 +222,7 @@ export function DashboardActionHub({
             )}
           </div>
 
-          <div className="space-y-4 sm:space-y-5">
+          <div className="space-y-3 sm:space-y-4">
             {/* J-D02: KPI strip directly under greeting */}
             {statsSlot}
 

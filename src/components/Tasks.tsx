@@ -226,10 +226,10 @@ export function Tasks({
         }
       />
 
-      <p className="text-sm text-text-secondary pb-1">{c.entryHint}</p>
+      <p className="text-sm text-text-secondary">{c.entryHint}</p>
 
       {focusCourseId && focusCourseName && (
-        <div className="flex flex-wrap items-center gap-2 pb-1">
+        <div className="flex flex-wrap items-center gap-2">
           {courseScoped && <span className="text-xs text-text-secondary">{c.courseScopeLabel(focusCourseName)}</span>}
           <button
             type="button"
@@ -242,7 +242,7 @@ export function Tasks({
       )}
 
       {/* Daily progress */}
-      <BlueprintSurface hint className="mb-2 p-3">
+      <BlueprintSurface hint className="p-3">
         <div className="flex items-center justify-between mb-2">
           <div>
             <p className="text-sm font-semibold text-text-primary">{c.tasksComplete(doneCount, totalCount)}</p>
@@ -259,7 +259,7 @@ export function Tasks({
       </BlueprintSurface>
 
       {sessionActive && activeSessionType && (
-        <div className="ux-card ux-chip-info border-brand-500/25 mb-3 p-3 space-y-1.5" data-testid="tasks-session-status">
+        <div className="ux-card ux-chip-info border-brand-500/25 p-3 space-y-1.5" data-testid="tasks-session-status">
           <p className="text-xs font-semibold text-brand-300">
             {c.sessionActiveBanner(sessionLabel(activeSessionType), sessionCurrentIndex, sessionTotal)}
           </p>
@@ -277,13 +277,13 @@ export function Tasks({
       )}
 
       {/* Session launchers above tabs (Wave I-T01 — mockup order) */}
-      <div id="tasks-session-launchers" className="mb-3 space-y-2" data-testid="tasks-session-launchers">
+      <div id="tasks-session-launchers" className="space-y-2" data-testid="tasks-session-launchers">
         <SectionHeader
           eyebrow={c.sessionSectionEyebrow}
           title={c.sessionSectionTitle}
           subtitle={c.sessionSectionSubtitle}
         />
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-2.5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-2">
           {sessionTypes.map((s) => {
             const sessionTasks = filterTasksForSession(visibleTasks, s.type);
             const Icon = s.icon;

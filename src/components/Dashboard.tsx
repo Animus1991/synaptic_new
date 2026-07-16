@@ -242,19 +242,6 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
       data-testid="dashboard-page"
       data-dashboard-layout={layoutMode}
     >
-      <div className="flex justify-end px-1 mb-1">
-        <button
-          type="button"
-          onClick={toggleLayout}
-          data-testid="dashboard-layout-toggle"
-          aria-pressed={isCanvasLayout}
-          title={isCanvasLayout ? t('dashLayoutStacked') : t('dashLayoutCanvas')}
-          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-medium border border-border-subtle text-text-secondary hover:border-brand-500/30 hover:text-brand-300 transition-colors"
-        >
-          <Columns className="w-3.5 h-3.5" />
-          {isCanvasLayout ? t('dashLayoutStacked') : t('dashLayoutCanvas')}
-        </button>
-      </div>
       <MotionSection
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -329,6 +316,22 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
               <PrimaryCTA onClick={() => onStartSession?.('25min') ?? onNavigate('tasks')} className="whitespace-nowrap text-xs px-3 py-2">
                 <Play className="w-3.5 h-3.5" /> {t('startSession')}
               </PrimaryCTA>
+              <button
+                type="button"
+                onClick={toggleLayout}
+                data-testid="dashboard-layout-toggle"
+                aria-pressed={isCanvasLayout}
+                aria-label={isCanvasLayout ? t('dashLayoutStacked') : t('dashLayoutCanvas')}
+                title={isCanvasLayout ? t('dashLayoutStacked') : t('dashLayoutCanvas')}
+                className={cn(
+                  'inline-flex items-center justify-center rounded-xl border p-2 transition-colors',
+                  isCanvasLayout
+                    ? 'border-brand-500/40 bg-brand-500/10 text-brand-700'
+                    : 'border-border-subtle text-text-secondary hover:border-brand-500/30 hover:text-brand-300',
+                )}
+              >
+                <Columns className="w-3.5 h-3.5" />
+              </button>
             </>
           }
           statsSlot={
@@ -350,7 +353,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
         />
       </MotionSection>
 
-      <div className="mt-5 sm:mt-6 px-4 sm:px-6 lg:px-8 space-y-5 sm:space-y-6">
+      <div className="mt-3 sm:mt-4 px-4 sm:px-6 lg:px-8 space-y-3 sm:space-y-4">
       {postUploadCourse && (
         <MotionSection initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
           <PostUploadBanner
@@ -463,7 +466,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
 
       <div
         className={cn(
-          'grid grid-cols-1 gap-4 xl:gap-5 xl:items-start',
+          'grid grid-cols-1 gap-3 xl:gap-4 xl:items-start',
           isCanvasLayout ? 'xl:grid-cols-3' : 'xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]',
         )}
       >
@@ -472,7 +475,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className={cn('space-y-4', !isCanvasLayout && 'xl:col-start-1 xl:row-start-1')}
+          className={cn('space-y-3', !isCanvasLayout && 'xl:col-start-1 xl:row-start-1')}
           data-dashboard-col="a"
         >
 
@@ -536,7 +539,12 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
 
           {/* Concept mastery + prerequisite repair */}
           {(conceptMastery.length > 0 || prerequisiteRepairs.length > 0) && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div
+              className={cn(
+                'grid grid-cols-1 gap-3',
+                conceptMastery.length > 0 && prerequisiteRepairs.length > 0 && 'sm:grid-cols-2',
+              )}
+            >
               {conceptMastery.length > 0 && (
                 <BlueprintSurface className="p-3.5">
                   <SectionLabel icon={Brain}>{t('dashConceptMastery')}</SectionLabel>
@@ -563,7 +571,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.12 }}
           className={cn(
-            'space-y-4',
+            'space-y-3',
             !isCanvasLayout && 'xl:col-start-1 xl:row-start-2',
           )}
           data-dashboard-col="b"
@@ -571,7 +579,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
 
           {/* Priority tasks */}
           <BlueprintSurface className="p-3.5">
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center justify-between mb-2.5">
               <h2 className="text-lg font-semibold ws-serif font-medium flex items-center gap-2">
                 <AlertTriangle className="w-5 h-5 text-accent-amber" /> {t('dashPriorityTasks')}
               </h2>
@@ -638,7 +646,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
 
           {/* Active Courses */}
           <BlueprintSurface className="p-3.5">
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center justify-between mb-2.5">
               <h2 className="text-lg font-semibold ws-serif font-medium flex items-center gap-2"><BookOpen className="w-5 h-5 text-brand-400" />{t('dashActiveCourses')}</h2>
               <button onClick={() => onNavigate('library')} className="text-sm text-brand-400 hover:text-brand-700 flex items-center gap-1">{t('dashLibrary')} <ChevronRight className="w-4 h-4" /></button>
             </div>
@@ -703,7 +711,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.15 }}
           className={cn(
-            'space-y-4',
+            'space-y-3',
             !isCanvasLayout && 'xl:col-start-2 xl:row-start-1 xl:row-span-2',
           )}
           data-dashboard-col="c"
