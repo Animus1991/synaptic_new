@@ -37,11 +37,11 @@
   --color-border-default: #3c3c4a;
   --color-border-strong: #4e4e5e;
 
-  /* Type ink on dark — white/light-gray lifted ~2–3% for easier reading */
-  --color-text-primary: #f8f8fa;
-  --color-text-secondary: #babac6;
-  --color-text-tertiary: #9b9baf;
-  --color-text-muted: #8c8ca0;
+  /* Type ink on dark — white/light-gray lifted again ~2–3% */
+  --color-text-primary: #fbfbfc;
+  --color-text-secondary: #bfbfcb;
+  --color-text-tertiary: #a0a0b4;
+  --color-text-muted: #9191a5;
   /* Wave J-X02 — warm ink for badges/chips (dark parity with light brown ink) */
   --color-warm-ink: #8a6f55;
 
@@ -57,11 +57,11 @@
   --color-surface-hover-strong: var(--color-surface-active);
   --color-focus-ring: var(--color-brand-500);
   --focus-ring-offset: 2px;
-  --color-on-brand: #f8f8fa;
+  --color-on-brand: #fbfbfc;
   --color-on-danger: #0a0a0c;
   --color-on-warn: #0a0a0c;
   --color-on-success: #0a0a0c;
-  --color-on-info: #f8f8fa;
+  --color-on-info: #fbfbfc;
   --elev-popover: 0 12px 32px -8px color-mix(in srgb, #0a0a0c 40%, transparent),
                   0 2px 8px color-mix(in srgb, #0a0a0c 20%, transparent);
   /* Wave N-T12 — emphasized decelerate curve (Material 3 spec) + duration for surfaces that
@@ -195,7 +195,7 @@
 
   --color-border-subtle: #e0d8cc;
   --color-border-default: #cfc4b4;
-  --color-border-strong: #7d6245;
+  --color-border-strong: #806447;
 
   /* Darks ~5% softer (F4 pass) */
   --color-text-primary: #352c23;
@@ -204,17 +204,18 @@
   --color-text-muted: #4f3d24;
   --color-warm-ink: #5c4033;
 
-  --color-brand-50: #ede4d6;
-  --color-brand-100: #d8cdb8;
-  --color-brand-200: #c4ae88;
-  --color-brand-300: #a8824a;
-  --color-brand-400: #9d6930;
-  --color-brand-500: #80551f;
-  --color-brand-600: #684318;
-  --color-brand-700: #533615;
-  --color-brand-800: #432d14;
-  --color-brand-900: #312214;
-  --color-brand-950: #211810;
+  /* Central brand browns — ~2% more intense vs complementary earth accents */
+  --color-brand-50: #ebe0d0;
+  --color-brand-100: #d6cab4;
+  --color-brand-200: #c2ab84;
+  --color-brand-300: #ab8548;
+  --color-brand-400: #a06c2e;
+  --color-brand-500: #84561e;
+  --color-brand-600: #6c4517;
+  --color-brand-700: #573714;
+  --color-brand-800: #462e13;
+  --color-brand-900: #342313;
+  --color-brand-950: #23190f;
 
   /* Fill-only browns — ink softened then +3% depth total for button/icon fills */
   --color-brand-fill-500: color-mix(in srgb, color-mix(in srgb, var(--color-brand-500) 90%, #faf8f5) 99%, var(--color-brand-500));
@@ -321,11 +322,12 @@
   /* Wave F — muted on cream ≥4.5:1 vs #f6f1ea */
   --color-text-muted: #5f4c38;
 
-  --color-brand-400: #9d7a52;
-  --color-brand-500: #8a6a45;
-  --color-brand-600: #7d6245;
-  --color-brand-700: #5c4832;
-  --color-brand-800: #4a3a28;
+  /* Central brand — ~2% more intense (warm-sand root) */
+  --color-brand-400: #a07d54;
+  --color-brand-500: #8d6d46;
+  --color-brand-600: #806447;
+  --color-brand-700: #5f4a33;
+  --color-brand-800: #4d3c29;
   --color-warm-ink: #5c4033;
 
   /* Wave M — warm-sand aliases (inherits under light) */
@@ -570,24 +572,25 @@
 
   --color-border-subtle: #c9c0e8;
   --color-border-default: #a898d8;
-  --color-border-strong: #7b61ff;
+  --color-border-strong: #8063ff;
 
   --color-text-primary: #1a1430;
   --color-text-secondary: #3d3560;
   --color-text-tertiary: #4f4578;
   --color-text-muted: #5a5088;
 
-  --color-brand-50: #f3efff;
-  --color-brand-100: #ddd4ff;
-  --color-brand-200: #c4b5ff;
-  --color-brand-300: #a894ff;
-  --color-brand-400: #8b72ff;
-  --color-brand-500: #7b61ff;
-  --color-brand-600: #6b4ff0;
-  --color-brand-700: #5a3fd8;
-  --color-brand-800: #4a32b0;
-  --color-brand-900: #3a2888;
-  --color-brand-950: #241858;
+  /* Central violet brand — ~2% more intense vs muted complements */
+  --color-brand-50: #f1edff;
+  --color-brand-100: #dbd1ff;
+  --color-brand-200: #c1b2ff;
+  --color-brand-300: #ab97ff;
+  --color-brand-400: #8e75ff;
+  --color-brand-500: #8063ff;
+  --color-brand-600: #6e52f2;
+  --color-brand-700: #5d42db;
+  --color-brand-800: #4d34b3;
+  --color-brand-900: #3d2a8b;
+  --color-brand-950: #26195b;
 
   --viz-track: #ddd6ff;
   --viz-node-fill: #efebff;
@@ -595,7 +598,7 @@
   --viz-grid-line: #e8e2ff;
 
   /* Wave K-T03 — badge/chip ink parity (spectrum keeps violet family) */
-  --color-warm-ink: #4a32b0;
+  --color-warm-ink: #4d34b3;
   /* Wave M — spectrum aliases (lavender canvas kept) */
   --color-surface-canvas: #f1eef9;
   --color-hairline: #dcd6ee;
@@ -623,8 +626,8 @@
   --color-heatmap-scale-0: #e8e2ff;
   --color-heatmap-scale-1: #c4b5ff;
   --color-heatmap-scale-2: #a894ff;
-  --color-heatmap-scale-3: #7b61ff;
-  --color-heatmap-scale-4: #4a32b0;
+  --color-heatmap-scale-3: #8063ff;
+  --color-heatmap-scale-4: #4d34b3;
   /* Wave P-3 C13 — Almost There / amber banner titles: mix amber into
      deep spectrum ink so contrast vs peach banner bg clears 4.5:1.
      Ink ratio tightened (40% amber) so titles/% stay distinct; border uses
@@ -666,13 +669,13 @@
 
 [data-theme="spectrum"] .glass {
   background: rgba(255, 255, 255, 0.78);
-  border-color: rgba(123, 97, 255, 0.22);
+  border-color: rgba(128, 99, 255, 0.22);
 }
 
 [data-theme="spectrum"] .glass-strong {
   background: rgba(255, 255, 255, 0.94);
-  border: 1px solid rgba(123, 97, 255, 0.22);
-  box-shadow: 0 4px 24px rgba(123, 97, 255, 0.08);
+  border: 1px solid rgba(128, 99, 255, 0.22);
+  box-shadow: 0 4px 24px rgba(128, 99, 255, 0.08);
 }
 
 [data-theme="spectrum"] .gradient-text {
@@ -821,13 +824,13 @@
   --color-heatmap-scale-3: color-mix(in srgb, var(--color-brand-400) 65%, var(--color-surface-card));
   --color-heatmap-scale-4: var(--color-brand-300);
 
-  /* Type ink — white/light-gray lifted ~2–3% (dark theme parity) */
-  --color-text-primary: #fbfcfe;
-  --color-text-secondary: #d0dae5;
+  /* Type ink — white/light-gray lifted again ~2–3% */
+  --color-text-primary: #fdfeff;
+  --color-text-secondary: #d5dee9;
   /* Wave P-C07 — muted/tertiary promoted one step so small labels (day-of-week,
      +Nd, tooltips, legend) reach WCAG AA (~4.5:1) on the gradient canvas. */
-  --color-text-tertiary: #b8c5da;
-  --color-text-muted: #9aa9bc;
+  --color-text-tertiary: #bdcadd;
+  --color-text-muted: #9faec1;
 
   --color-brand-50: #ecfeff;
   --color-brand-100: #cffafe;
