@@ -69,6 +69,7 @@ import { buildSubjectMasteryTiles, type SubjectMasteryTile } from '../lib/subjec
 import { filterActivitiesByRange } from '../lib/analyticsDateRange';
 import { useAppStore } from '../store/useStore';
 import { SectionHeader } from './ui/platformChrome';
+import { loadVisualLabOpen, saveVisualLabOpen } from '../lib/visualLabPrefs';
 
 interface AnalyticsProps {
   learnerModel: LearnerModel;
@@ -282,6 +283,7 @@ function OverviewTab({
   const { range } = useAnalyticsDateRange();
   const store = useAppStore();
   const [drillTile, setDrillTile] = useState<SubjectMasteryTile | null>(null);
+  const [visualLabOpen, setVisualLabOpen] = useState(() => loadVisualLabOpen(false));
   const rangedActivities = useMemo(
     () => filterActivitiesByRange(activities, range),
     [activities, range],
@@ -558,7 +560,16 @@ function OverviewTab({
         </div>
       </motion.div>
 
-      <details className="ux-disclosure" data-testid="analytics-visual-lab-disclosure">
+      <details
+        className="ux-disclosure"
+        data-testid="analytics-visual-lab-disclosure"
+        open={visualLabOpen}
+        onToggle={(e) => {
+          const next = (e.target as HTMLDetailsElement).open;
+          setVisualLabOpen(next);
+          saveVisualLabOpen(next);
+        }}
+      >
         <summary className="ux-disclosure-summary">{t('analyticsVisualLabDisclosure')}</summary>
         <div className="ux-disclosure-body">
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.28 }}>

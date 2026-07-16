@@ -18,6 +18,11 @@ import { RagIndexProgressBanner } from './RagIndexProgressBanner';
 import { PluginMarketplacePanel } from './PluginMarketplacePanel';
 import { privacyPolicyUrl } from '../lib/siteConfig';
 import { ColorCodingReferencePanel } from './ui/ColorCodingReferencePanel';
+import {
+  getNotebookLmParityOverride,
+  resolveNotebookLmParity,
+  setNotebookLmParityOverride,
+} from '../lib/notebookLmParity';
 
 import { type TaskCalendarSyncUpdate } from '../lib/taskCalendarSync';
 
@@ -53,7 +58,18 @@ export function Settings({
   const [authPassword, setAuthPassword] = useState('');
   const [authStatus, setAuthStatus] = useState<string | null>(null);
   const [deleteConfirmEmail, setDeleteConfirmEmail] = useState('');
+  const [parityTick, setParityTick] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const parityOverride = useMemo(() => {
+    void parityTick;
+    return getNotebookLmParityOverride();
+  }, [parityTick]);
+  const parityEffective = useMemo(() => {
+    void parityTick;
+    return resolveNotebookLmParity();
+  }, [parityTick]);
+  const parityToggleValue =
+    parityOverride === true ? 'on' : parityOverride === false ? 'off' : 'default';
 
   const handleImport = async (file: File) => {
     const text = await file.text();
@@ -613,6 +629,27 @@ export function Settings({
       <SettingsSection id="settings-developer" title={c.sectionDeveloper} icon={<Gauge className="w-5 h-5 text-accent-amber" />} delay={0.39}>
         <p className="text-xs text-text-secondary">{c.developerHint}</p>
         <WorkspaceTTIPanel />
+        <div className="pt-2 border-t border-border-subtle space-y-2" data-testid="settings-notebooklm-parity">
+          <ToggleRow
+            label={t('settingsNotebookLmParity')}
+            options={[
+              { value: 'default', label: t('settingsNotebookLmParityDefault') },
+              { value: 'on', label: t('settingsNotebookLmParityOn') },
+              { value: 'off', label: t('settingsNotebookLmParityOff') },
+            ]}
+            value={parityToggleValue}
+            onChange={(v) => {
+              if (v === 'on') setNotebookLmParityOverride(true);
+              else if (v === 'off') setNotebookLmParityOverride(false);
+              else setNotebookLmParityOverride(null);
+              setParityTick((n) => n + 1);
+            }}
+          />
+          <p className="text-[11px] text-text-muted">
+            {t('settingsNotebookLmParityHint')}{' '}
+            ({parityEffective ? t('settingsNotebookLmParityOn') : t('settingsNotebookLmParityOff')})
+          </p>
+        </div>
         {onReplayProductTour && (
           <div className="pt-2 border-t border-border-subtle">
             <p className="text-xs text-text-secondary mb-2">{t('tourReplayHint')}</p>

@@ -45,6 +45,7 @@ export function StudyWorkspaceLessonPanel({ model }: StudyWorkspaceLessonPanelPr
     handleReuploadMaterial,
     sourceQualityScore,
     showReuploadHint,
+    showPre24Greek,
     showLowQualityBanner,
     sourceTextHygiene,
     openReprocessWizard,
@@ -67,7 +68,7 @@ export function StudyWorkspaceLessonPanel({ model }: StudyWorkspaceLessonPanelPr
 
   const lessonPanelRef = usePanelRef();
   const ignorePanelSyncRef = useRef(false);
-  const showSourceAlert = (showLowQualityBanner || showReuploadHint) && sourceQualityScore != null;
+  const showSourceAlert = showLowQualityBanner || showReuploadHint || showPre24Greek;
   const canRailCollapse = layout === 'split';
 
   useEffect(() => {
@@ -168,9 +169,10 @@ export function StudyWorkspaceLessonPanel({ model }: StudyWorkspaceLessonPanelPr
                   {showSourceAlert && (
                     <WorkspaceSourceStatusBar
                       lang={lang}
-                      score={sourceQualityScore}
+                      score={sourceQualityScore ?? null}
                       sectionCount={sourceIntelligence?.documentStructure?.sectionCount}
                       showMigration={showReuploadHint}
+                      showPre24Greek={showPre24Greek}
                       showQualityWarning={showLowQualityBanner}
                       reprocessing={reprocessingMaterial}
                       storedPipelineVersion={noteBundle.pipelineVersion}

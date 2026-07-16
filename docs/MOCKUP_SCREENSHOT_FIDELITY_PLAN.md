@@ -122,15 +122,15 @@
 
 ---
 
-## 6. Wave H+ (deferred, tracked — no omission)
+## 6. Wave H+ (shipped 2026-07-16)
 
-| ID | Item | Why deferred |
-| -- | ---- | ------------ |
-| H-01 | Optional Dashboard 3-column “canvas preview” layout toggle | High risk of regressing stacked hub / tools |
-| H-02 | Library “combined study” purple promo strip redesign | Exists as `CrossLibrarySynthesisPanel`; visual only |
-| H-03 | Analytics Visual Lab always-expanded vs disclosure | Product choice; disclosure keeps density |
-| H-04 | TOOL-RD-03 historical Greek reprocess batch | P2 runtime repair already mitigates |
-| H-05 | AI-05 NotebookLM parity flag default strategy | Product policy |
+| ID | Item | Status |
+| -- | ---- | ------ |
+| H-01 | Optional Dashboard 3-column “canvas preview” layout toggle | **shipped** — `dashboardLayoutPrefs` + equal 3-col vs stacked |
+| H-02 | Library “combined study” purple promo strip redesign | **shipped** — `CrossLibrarySynthesisPanel` muted violet promo |
+| H-03 | Analytics Visual Lab expand preference | **shipped** — `visualLabPrefs` persists disclosure open state |
+| H-04 | TOOL-RD-03 historical Greek reprocess path | **shipped** — detect + CTA; see GAP TOOL-RD-03 |
+| H-05 | AI-05 NotebookLM parity flag default strategy | **shipped** — see GAP AI-05 |
 
 ---
 
@@ -144,8 +144,9 @@
 
 ## 8. Acceptance
 
-- [ ] Dashboard / Tasks / Library / Analytics match canvas **structure** at denser scale
-- [ ] No emoji in primary chrome
-- [ ] Warm light + dark remain first-class
-- [ ] All workspace tools still launch and function
-- [ ] No secrets in the commit / push
+- [x] Dashboard / Tasks / Library / Analytics match canvas **structure** at denser scale
+- [x] No emoji in primary chrome
+- [x] Warm light + dark remain first-class
+- [x] All workspace tools still launch and function
+- [x] No secrets in the commit / push
+- [x] Wave H+ H-01…H-05 closed without omission

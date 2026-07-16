@@ -153,7 +153,8 @@ export function CourseView({
     hasReuploadHandler: Boolean(onUploadMore),
   });
   const showReuploadHint = qualityBanner.showMigrationBanner;
-  const showQualityBar = !qualityDismissed && (showReuploadHint || qualityBanner.show) && qualityBanner.score != null;
+  const showPre24Greek = qualityBanner.showPre24Greek;
+  const showQualityBar = !qualityDismissed && (showReuploadHint || showPre24Greek || qualityBanner.show);
 
   const dismissQualityBar = () => {
     try {
@@ -375,6 +376,7 @@ export function CourseView({
           lang={lang}
           score={qualityBanner.score}
           showMigration={showReuploadHint}
+          showPre24Greek={showPre24Greek}
           showQualityWarning={qualityBanner.show}
           reprocessing={reprocessingMaterial}
           storedPipelineVersion={course.pipelineMeta?.version}

@@ -1,12 +1,13 @@
-import { MotionSection } from './ui/MotionSection';
+import { useMemo, useState } from 'react';
 import {
   Flame, Lightning as Zap, Target, Clock, BookOpen, Warning as AlertTriangle,
   CaretRight as ChevronRight, TrendUp as TrendingUp, Brain, Calendar, ArrowRight, Play,
   Shield, Lightbulb, ArrowCounterClockwise as RotateCcw, Eye, SquaresFour as Layout, CheckCircle as CheckCircle2, UploadSimple as Upload, Sparkle as Sparkles,
-  Sun, Moon, CloudSun,
+  Sun, Moon, CloudSun, Columns,
 } from '@phosphor-icons/react';
 import type { Course, DashboardStats, LearnerModel, PersonalStudyDate, Task } from '../types';
 import { cn } from '../utils/cn';
+import { MotionSection } from './ui/MotionSection';
 import { ReadinessRing } from './visuals/ReadinessRing';
 import { SignalBars } from './visuals/SignalBars';
 import { ActivityFeed } from './visuals/ActivityFeed';
@@ -37,7 +38,6 @@ import { useDocumentThemeIsLight, warmSandScopeProps } from '../lib/useDocumentT
 import { DashboardLivePreview } from './DashboardLivePreview';
 import { DashboardActionHub } from './DashboardActionHub';
 import { useBlueprintTheme } from '../lib/useBlueprintTheme';
-import { useMemo } from 'react';
 import { buildDashboardWeakSpotCards } from '../lib/dashboardWeakSpotsModel';
 import { executeDashboardNextAction } from '../lib/dashboardNextAction';
 import { SyllabusCoverageWidget } from './examPrep/SyllabusCoverageWidget';
@@ -52,6 +52,12 @@ import type { WorkspaceToolId } from '../lib/taskFlows';
 import { recommendToolForTopic } from '../lib/examPrep/coveragePracticeActions';
 import { buildGlobalFsrsDueQueue } from '../lib/leitnerDueQueue';
 import { LeitnerDueQueuePanel } from './workspace/LeitnerDueQueuePanel';
+import {
+  loadDashboardLayoutMode,
+  saveDashboardLayoutMode,
+  toggleDashboardLayoutMode,
+  type DashboardLayoutMode,
+} from '../lib/dashboardLayoutPrefs';
 
 const DASHBOARD_WEEKDAY_KEYS: I18nKey[] = [
   'dashWeekdayMon',
@@ -131,6 +137,8 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
   const { t } = useI18n();
   const isBlueprint = useBlueprintTheme();
   const isLightTheme = useDocumentThemeIsLight();
+  const [layoutMode, setLayoutMode] = useState<DashboardLayoutMode>(() => loadDashboardLayoutMode());
+  const isCanvasLayout = layoutMode === 'canvas';
   const pageView = useMemo(
     () => selectDashboardPageViewModel({ stats, courses, tasks, learnerModel }),
     [stats, courses, tasks, learnerModel],
@@ -219,8 +227,32 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
     );
   }
 
+  const toggleLayout = () => {
+    const next = toggleDashboardLayoutMode(layoutMode);
+    setLayoutMode(next);
+    saveDashboardLayoutMode(next);
+  };
+
   return (
-    <div {...warmSandScopeProps(isLightTheme)} className="w-full min-w-0 pb-24 lg:pb-8 ux-fade-up" data-testid="dashboard-page">
+    <div
+      {...warmSandScopeProps(isLightTheme)}
+      className="w-full min-w-0 pb-24 lg:pb-8 ux-fade-up"
+      data-testid="dashboard-page"
+      data-dashboard-layout={layoutMode}
+    >
+      <div className="flex justify-end px-1 mb-1">
+        <button
+          type="button"
+          onClick={toggleLayout}
+          data-testid="dashboard-layout-toggle"
+          aria-pressed={isCanvasLayout}
+          title={isCanvasLayout ? t('dashLayoutStacked') : t('dashLayoutCanvas')}
+          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-medium border border-border-subtle text-text-secondary hover:border-brand-500/30 hover:text-brand-300 transition-colors"
+        >
+          <Columns className="w-3.5 h-3.5" />
+          {isCanvasLayout ? t('dashLayoutStacked') : t('dashLayoutCanvas')}
+        </button>
+      </div>
       <MotionSection
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -435,9 +467,20 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
         </MotionSection>
       )}
 
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 xl:gap-5 xl:items-start">
-        {/* Left column */}
-        <MotionSection initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="xl:col-span-2 space-y-4">
+      <div
+        className={cn(
+          'grid grid-cols-1 gap-4 xl:gap-5 xl:items-start',
+          isCanvasLayout ? 'xl:grid-cols-3' : 'xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]',
+        )}
+      >
+        {/* Col A — readiness + concepts */}
+        <MotionSection
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className={cn('space-y-4', !isCanvasLayout && 'xl:col-start-1 xl:row-start-1')}
+          data-dashboard-col="a"
+        >
 
           {/* Readiness Hero */}
           <BlueprintSurface className="ux-calm-panel p-6">
@@ -475,6 +518,19 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
               )}
             </div>
           )}
+        </MotionSection>
+
+        {/* Col B — tasks + courses */}
+        <MotionSection
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.12 }}
+          className={cn(
+            'space-y-4',
+            !isCanvasLayout && 'xl:col-start-1 xl:row-start-2',
+          )}
+          data-dashboard-col="b"
+        >
 
           {/* Priority tasks */}
           <BlueprintSurface className="p-5">
@@ -597,8 +653,17 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
           </BlueprintSurface>
         </MotionSection>
 
-        {/* Right sidebar */}
-        <MotionSection initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="space-y-4">
+        {/* Col C — right sidebar */}
+        <MotionSection
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15 }}
+          className={cn(
+            'space-y-4',
+            !isCanvasLayout && 'xl:col-start-2 xl:row-start-1 xl:row-span-2',
+          )}
+          data-dashboard-col="c"
+        >
 
           {/* Mastery Trend */}
           <BlueprintSurface className="p-5">

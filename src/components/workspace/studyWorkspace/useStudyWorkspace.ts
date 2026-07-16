@@ -431,11 +431,13 @@ export function useStudyWorkspace({
       show: noteBundle.hasSource && isLowSourceQuality(score),
       score: typeof score === 'number' ? score : null,
       showMigrationBanner: false,
+      showPre24Greek: false,
     };
-  }, [linkedCourse, uploadedFiles, handleReuploadMaterial, noteBundle.hasSource, sourceIntelligence?.score]);
+  }, [linkedCourse, uploadedFiles, onReuploadMaterial, onUpload, noteBundle.hasSource, sourceIntelligence?.score]);
   const showReuploadHint = Boolean(
     qualityBannerDecision.showMigrationBanner && effectiveCourseId && handleReuploadMaterial,
   );
+  const showPre24Greek = Boolean(qualityBannerDecision.showPre24Greek);
   const sourceQualityScore = qualityBannerDecision.score
     ?? linkedCourse?.sourceQuality?.score
     ?? sourceIntelligence?.score;
@@ -2344,6 +2346,7 @@ export function useStudyWorkspace({
     handleReuploadMaterial,
     sourceQualityScore,
     showReuploadHint,
+    showPre24Greek,
     showLowQualityBanner,
     sourceTextHygiene,
     noteConceptActivity,

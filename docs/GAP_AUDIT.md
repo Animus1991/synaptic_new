@@ -96,7 +96,7 @@ Goal: every tool **fully functional for its learning purpose**, not demo stubs.
 | -- | ---- | -------- | ------ |
 | TOOL-RD-01 | Structured segments, TTS, bilingual sync | — | shipped |
 | TOOL-RD-02 | Glossary popover on hover | P2 | **shipped** | Hover delay + click/focus; `reader-glossary-popover` |
-| TOOL-RD-03 | Reprocess for pre-2.4 garbled Greek | P2 | open (runtime repair mitigates) |
+| TOOL-RD-03 | Reprocess for pre-2.4 garbled Greek | P2 | **shipped** | `pre24GreekReprocess` detect + status bar CTA; reprocess stamps current pipeline |
 | TOOL-RD-04 | OCR correction + re-anchor spans after reprocess | P2 | **shipped** | `reanchorOcrCorrections` + CognitiveReader effect on source change |
 
 ### Annotations (`Επισημάνσεις`)
@@ -199,7 +199,7 @@ Goal: every tool **fully functional for its learning purpose**, not demo stubs.
 | AI-02 | Persistent Ask AI rail in tool overlay | P1 | **shipped** | See STU-04 |
 | AI-03 | One-click quiz / mindmap Studio actions | P1 | **shipped** | See STU-05/06 |
 | AI-04 | Agent chips on Feynman / Compare / Debate | P2 | **shipped** | See XTL-02 |
-| AI-05 | `VITE_SHOW_NOTEBOOKLM_PARITY` default strategy | P2 | open |
+| AI-05 | `VITE_SHOW_NOTEBOOKLM_PARITY` default strategy | P2 | **shipped** | override → env → DEV on / prod off; Settings Developer toggle |
 
 ### 4. Collaboration depth
 

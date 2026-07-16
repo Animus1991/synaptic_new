@@ -47,6 +47,7 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
     activeTool,
     sourceQualityScore,
     showReuploadHint,
+    showPre24Greek,
     showLowQualityBanner,
     reprocessingMaterial,
     userSettings,
@@ -76,7 +77,7 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
   const sectionTitle = STEPS[currentStep]?.title;
   const notebookTitle = courseName ?? linkedCourse?.title ?? quizConcept;
   const showQualityStrip =
-    (showReuploadHint || showLowQualityBanner) && sourceQualityScore != null;
+    showReuploadHint || showLowQualityBanner || showPre24Greek;
 
   const openStudioTool = useCallback(
     (tool: WorkspaceTool) => {
@@ -296,7 +297,11 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
   const sourcesFooter = showQualityStrip ? (
     <footer className="flex items-center justify-between gap-2 border-t border-border-subtle px-3 py-2 shrink-0">
       <span className="ws-pill" data-testid="notebook-source-quality">
-        {sourceQualityScore}% {tx('ποιότητα πηγής', 'source quality')}
+        {showPre24Greek
+          ? tx('Προ-v2.4 ελληνικά', 'Pre-v2.4 Greek')
+          : sourceQualityScore != null
+            ? `${sourceQualityScore}% ${tx('ποιότητα πηγής', 'source quality')}`
+            : tx('Έλεγχος πηγής', 'Source check')}
       </span>
       <button
         type="button"
