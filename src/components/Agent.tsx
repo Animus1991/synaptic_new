@@ -4,7 +4,7 @@ import {
   Send, Sparkles, BookOpen, Brain, GraduationCap, MessageSquare,
   Code, Lightbulb, AlertTriangle, Mic, ChevronDown,
   RotateCcw, Target, PenTool, Smile, Search, FileText,
-  HelpCircle, Zap, Settings2, Layers, Check
+  HelpCircle, Zap, Settings2, Layers, Check, X
 } from '@/lib/lucide-shim';
 import type { AgentMessage, AgentMode, Course, UserSettings, UploadedFile, MessageCitation, SkillNode } from '../types';
 import type { DashboardNextAction } from '../lib/dashboardNextAction';
@@ -529,12 +529,15 @@ export function Agent({
               <Settings2 className="w-4 h-4" aria-hidden="true" />
             </button>
             {showSourceSettings && (
-              <div className="absolute right-0 top-full mt-1 z-20 w-64 rounded-xl border border-border-subtle bg-surface-card shadow-lg p-3 text-xs space-y-2">
+              <div
+                className="absolute right-0 top-full mt-1 z-20 w-64 rounded-xl border border-border-subtle bg-surface-card p-3 text-xs space-y-2"
+                style={{ boxShadow: 'var(--elev-popover)' }}
+              >
                 <p className="font-medium text-text-secondary">{ui.sourceSettingsTitle}</p>
                 <button
                   type="button"
                   onClick={() => setAttachSource((v) => !v)}
-                  className="w-full text-left px-2 py-1.5 rounded-lg hover:bg-surface-hover text-text-secondary"
+                  className="ux-focus-ring w-full text-left px-2 py-1.5 rounded-lg hover:bg-surface-hover text-text-secondary"
                 >
                   {attachSource ? ui.sourceOn : ui.sourceOff}
                 </button>
@@ -542,9 +545,10 @@ export function Agent({
                   <button
                     type="button"
                     onClick={handleClearPinnedFile}
-                    className="w-full text-left px-2 py-1.5 rounded-lg hover:bg-surface-hover text-text-tertiary"
+                    className="ux-focus-ring w-full flex items-center justify-between gap-2 text-left px-2 py-1.5 rounded-lg hover:bg-surface-hover text-text-tertiary"
                   >
-                    {ui.pinnedFileLabel}: ✕
+                    <span className="truncate">{ui.pinnedFileLabel}</span>
+                    <X className="h-3 w-3 shrink-0" aria-hidden />
                   </button>
                 )}
                 {onChangeSourceMode && (
@@ -558,7 +562,7 @@ export function Agent({
                         type="button"
                         onClick={() => onChangeSourceMode(opt.id)}
                         className={cn(
-                          'w-full text-left px-2 py-1.5 rounded-lg hover:bg-surface-hover',
+                          'ux-focus-ring w-full text-left px-2 py-1.5 rounded-lg hover:bg-surface-hover',
                           activeSourceMode === opt.id ? 'text-brand-300 bg-brand-500/10' : 'text-text-secondary',
                         )}
                       >
@@ -614,7 +618,8 @@ export function Agent({
               <div
                 role="listbox"
                 data-testid="agent-embedded-source-menu"
-                className="absolute right-0 top-full mt-1 z-30 w-56 max-h-64 overflow-y-auto rounded-lg border border-border-subtle bg-surface-card shadow-lg py-1"
+                className="absolute right-0 top-full mt-1 z-30 w-56 max-h-64 overflow-y-auto rounded-lg border border-border-subtle bg-surface-card py-1"
+                style={{ boxShadow: 'var(--elev-popover)' }}
               >
                 <button
                   type="button"
@@ -626,7 +631,7 @@ export function Agent({
                     setShowEmbeddedSource(false);
                   }}
                   className={cn(
-                    'w-full flex items-center gap-2 px-2.5 py-1.5 text-left text-[11px] hover:bg-surface-hover transition-colors',
+                    'ux-focus-ring w-full flex items-center gap-2 px-2.5 py-1.5 text-left text-[11px] hover:bg-surface-hover transition-colors',
                     selectedSource === 'all' ? 'text-brand-500' : 'text-text-secondary',
                   )}
                 >
@@ -645,7 +650,7 @@ export function Agent({
                       setShowEmbeddedSource(false);
                     }}
                     className={cn(
-                      'w-full flex items-center gap-2 px-2.5 py-1.5 text-left text-[11px] hover:bg-surface-hover transition-colors',
+                      'ux-focus-ring w-full flex items-center gap-2 px-2.5 py-1.5 text-left text-[11px] hover:bg-surface-hover transition-colors',
                       selectedSource === c.id ? 'text-brand-500' : 'text-text-secondary',
                     )}
                   >

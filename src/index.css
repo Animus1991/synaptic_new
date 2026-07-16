@@ -52,6 +52,17 @@
   /* Wave M — semantic aliases so surfaces / hairlines are theme-tokenized (no ad-hoc hex). */
   --color-surface-canvas: var(--viz-canvas-bg);
   --color-hairline: var(--color-border-subtle);
+  /* Wave N — SoT theme tokens (dark defaults; each theme overrides). */
+  --color-surface-pressed: var(--color-surface-active);
+  --color-focus-ring: var(--color-brand-500);
+  --focus-ring-offset: 2px;
+  --color-on-brand: #f4f4f6;
+  --color-on-danger: #0a0a0c;
+  --color-on-warn: #0a0a0c;
+  --color-on-success: #0a0a0c;
+  --color-on-info: #f4f4f6;
+  --elev-popover: 0 12px 32px -8px color-mix(in srgb, #0a0a0c 40%, transparent),
+                  0 2px 8px color-mix(in srgb, #0a0a0c 20%, transparent);
   --viz-grid-line: #16161b;
 
   /* Mastery bands + spectrum palette (dark defaults — softened, still distinct) */
@@ -192,6 +203,17 @@
   /* Wave M — warm-light aliases */
   --color-surface-canvas: #fdfbf7;
   --color-hairline: #e0d8cc;
+  /* Wave N — SoT overrides for warm-light */
+  --color-surface-pressed: #e8dfd0;
+  --color-focus-ring: var(--color-brand-700);
+  --focus-ring-offset: 2px;
+  --color-on-brand: #ffffff;
+  --color-on-danger: #ffffff;
+  --color-on-warn: #3a2f24;
+  --color-on-success: #ffffff;
+  --color-on-info: #ffffff;
+  --elev-popover: 0 12px 28px -8px color-mix(in srgb, #1f160c 22%, transparent),
+                  0 2px 8px color-mix(in srgb, #1f160c 10%, transparent);
 
   /* Harmonized earth accents — sage green aligned to sand family */
   --mastery-weak: #8f6860;
@@ -258,6 +280,18 @@
   --color-surface-canvas: #f6f1ea;
   --color-hairline: #e0d8cc;
 
+  /* Wave N — SoT overrides for warm-sand (explicit; not implicit from light) */
+  --color-surface-pressed: #e8dfd0;
+  --color-focus-ring: var(--color-brand-600);
+  --focus-ring-offset: 2px;
+  --color-on-brand: #ffffff;
+  --color-on-danger: #ffffff;
+  --color-on-warn: #3a2f24;
+  --color-on-success: #ffffff;
+  --color-on-info: #ffffff;
+  --elev-popover: 0 12px 28px -8px color-mix(in srgb, #1f160c 22%, transparent),
+                  0 2px 8px color-mix(in srgb, #1f160c 10%, transparent);
+
   color-scheme: light;
 }
 
@@ -267,6 +301,8 @@
   --color-warm-ink: #8a6f55;
   /* Wave M — dark/blueprint hairline alias (surface-canvas kept via @theme + blueprint override below) */
   --color-hairline: var(--color-border-subtle);
+  /* Wave N — explicit focus ring (dark/blueprint) so @theme fallback stays consistent even when child themes forget */
+  --color-focus-ring: var(--color-brand-500);
   color-scheme: dark;
 }
 
@@ -471,6 +507,17 @@
   /* Wave M — spectrum aliases (lavender canvas kept) */
   --color-surface-canvas: #f1eef9;
   --color-hairline: #dcd6ee;
+  /* Wave N — SoT overrides for spectrum (WCAG parity + lavender identity) */
+  --color-surface-pressed: #ddd6ff;
+  --color-focus-ring: var(--color-brand-600);
+  --focus-ring-offset: 2px;
+  --color-on-brand: #ffffff;
+  --color-on-danger: #ffffff;
+  --color-on-warn: #1a1430;
+  --color-on-success: #1a1430;
+  --color-on-info: #ffffff;
+  --elev-popover: 0 12px 28px -8px color-mix(in srgb, #1a1430 22%, transparent),
+                  0 2px 8px color-mix(in srgb, #1a1430 10%, transparent);
   color-scheme: light;
 
   /* Original vibrant spectrum accents */
@@ -621,6 +668,18 @@
   /* Wave M — blueprint semantic aliases (glass dark canvas + refined hairline) */
   --color-surface-canvas: #0d1220;
   --color-hairline: #1c2a44;
+
+  /* Wave N — SoT overrides for blueprint (cyan glass identity preserved) */
+  --color-surface-pressed: color-mix(in srgb, #ffffff 12%, #1e293b);
+  --color-focus-ring: #67e8f9;
+  --focus-ring-offset: 2px;
+  --color-on-brand: #020617;
+  --color-on-danger: #020617;
+  --color-on-warn: #020617;
+  --color-on-success: #020617;
+  --color-on-info: #020617;
+  --elev-popover: 0 20px 48px color-mix(in srgb, #000000 45%, transparent),
+                  0 3px 10px color-mix(in srgb, #000000 22%, transparent);
 
   --color-text-primary: #f8fafc;
   --color-text-secondary: #cbd5e1;
@@ -3194,6 +3253,48 @@ body {
   color: white;
 }
 
+/* Wave N-T08 — warm-light + warm-sand selection tuned to sepia identity.
+   Uses transparent brand-600 mix so cream stays visible under the highlight. */
+[data-theme="light"] ::selection,
+[data-theme="warm-sand"] ::selection {
+  background-color: color-mix(in srgb, var(--color-brand-500) 30%, #fdfbf7);
+  color: var(--color-brand-900);
+}
+
+/* Wave N-T06 — thin themed scrollbars for light / warm-sand / spectrum.
+   Blueprint keeps its bespoke scrollbar. Dark keeps the browser default. */
+[data-theme="light"],
+[data-theme="warm-sand"],
+[data-theme="spectrum"] {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--color-text-muted) 40%, transparent) transparent;
+}
+[data-theme="light"] ::-webkit-scrollbar,
+[data-theme="warm-sand"] ::-webkit-scrollbar,
+[data-theme="spectrum"] ::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+[data-theme="light"] ::-webkit-scrollbar-track,
+[data-theme="warm-sand"] ::-webkit-scrollbar-track,
+[data-theme="spectrum"] ::-webkit-scrollbar-track {
+  background: transparent;
+}
+[data-theme="light"] ::-webkit-scrollbar-thumb,
+[data-theme="warm-sand"] ::-webkit-scrollbar-thumb,
+[data-theme="spectrum"] ::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--color-text-muted) 40%, transparent);
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+[data-theme="light"] ::-webkit-scrollbar-thumb:hover,
+[data-theme="warm-sand"] ::-webkit-scrollbar-thumb:hover,
+[data-theme="spectrum"] ::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--color-text-muted) 60%, transparent);
+  background-clip: padding-box;
+}
+
 .glass {
   background: rgba(30, 23, 64, 0.6);
   backdrop-filter: blur(20px);
@@ -3411,17 +3512,20 @@ input[type="range"]::-webkit-slider-thumb {
   outline: none;
 }
 
+/* Wave N-T01 — canonical focus ring resolution.
+   Legacy `--focus-ring-color` still wins if a callsite set it locally; otherwise
+   we fall back to the theme-scoped `--color-focus-ring` token (SoT). */
 :focus-visible {
-  outline: 2px solid var(--focus-ring-color, var(--color-brand-400));
+  outline: 2px solid var(--focus-ring-color, var(--color-focus-ring, var(--color-brand-400)));
   outline-offset: var(--focus-ring-offset, 2px);
 }
 
-[data-theme="light"] {
-  --focus-ring-color: var(--color-brand-700);
-}
-
-[data-theme="spectrum"] {
-  --focus-ring-color: var(--color-brand-600);
+/* Wave N-T07 — opt-in focus ring for custom controls (menu items, listboxes,
+   floating popovers) that need the same ring even without native `:focus-visible`. */
+.ux-focus-ring:focus-visible {
+  outline: 2px solid var(--color-focus-ring, var(--color-brand-400));
+  outline-offset: var(--focus-ring-offset, 2px);
+  border-radius: inherit;
 }
 
 @layer base {
