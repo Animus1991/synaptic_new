@@ -125,11 +125,13 @@ cd server && npm test
 
 | ID | Item | Status |
 | -- | ---- | ------ |
-| MCP-01..03 | MCP SSE, client readers, OAuth Postgres | open |
-| OPS-07 | LTI grade passback production AGS | open |
-| PLT-03 | Offline embeddings | open |
-| TOOL-SP-02/03 | SymPy + unit checker | open |
-| SRC-08 | Multi-page thumbnail strip | open |
+| MCP-01..03 | MCP SSE, client readers, OAuth Postgres | **shipped** (2026-07-16) |
+| OPS-07 | LTI grade passback production AGS | **shipped** |
+| PLT-03 | Offline embeddings | **shipped** (localEmbedder + recognition worker) |
+| TOOL-SP-02/03 | SymPy + unit checker | **shipped** |
+| SRC-08 | Multi-page thumbnail strip | **shipped** |
+
+**Wave 4:** closed (2026-07-16).
 
 ### Wave 5 — Documentation single source of truth
 
@@ -169,7 +171,8 @@ Mark older masters (`EXHAUSTIVE_*`, `STATE_OF_THE_ART_*`, duplicate upgrade plan
 | Push to `synaptic_refined` + `synaptic_new` | pending commit |
 | Wave 3 OCR/collab | done |
 | Mockup Wave E Analytics | done |
-| Waves 4–5 | next — MCP/LTI/embeddings/SymPy/thumbnails, then docs SoT |
+| Wave 4 platform/enterprise | done |
+| Wave 5 | next — docs SoT reconciliation |
 
 ---
 

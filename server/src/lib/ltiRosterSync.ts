@@ -11,6 +11,9 @@ export type LtiLaunchSession = {
   ltiContextId: string;
   contextTitle?: string;
   nrpsUrl?: string;
+  /** AGS lineitems container or single lineitem URL from launch claim. */
+  agsLineItemUrl?: string;
+  agsLineItemsUrl?: string;
   ltiSub?: string;
   email?: string;
   expires: number;

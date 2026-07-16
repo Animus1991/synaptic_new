@@ -102,8 +102,8 @@
 → Whiteboard, Simulator, Reader (Source chip)
 
 ### Κενά
-- [ ] SymPy-backed symbolic simplification (offline)
-- [ ] Unit/dimension checker
+- [ ] SymPy-backed symbolic simplification (offline) — **done** (`simplifyExpressionWithSympy`)
+- [ ] Unit/dimension checker — **done** (`unitDimensionChecker`)
 
 ---
 

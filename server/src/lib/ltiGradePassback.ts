@@ -74,7 +74,20 @@ export async function submitLtiGradePassback(opts: {
   lineItemUrl?: string;
   comment?: string;
 }): Promise<LtiPassbackRecord> {
-  const lineItemUrl = opts.lineItemUrl?.trim() || getLtiLineItemUrl(opts.classId, opts.assignmentId);
+  let lineItemUrl = opts.lineItemUrl?.trim() || getLtiLineItemUrl(opts.classId, opts.assignmentId);
+
+  // OPS-07: fall back to AGS lineitem captured on LTI launch for this class's linked context.
+  if (!lineItemUrl) {
+    try {
+      const { getLtiContextLink, getLtiLaunchSession } = await import('./ltiRosterSync');
+      const link = getLtiContextLink(opts.classId);
+      const session = link ? getLtiLaunchSession(link.ltiContextId) : null;
+      lineItemUrl = session?.agsLineItemUrl?.trim() || undefined;
+    } catch {
+      /* ignore */
+    }
+  }
+
   const payload = buildLtiAgsScore(opts.score, opts.ltiUserId, opts.comment);
   const record: LtiPassbackRecord = {
     id: `lti_pb_${randomUUID().replace(/-/g, '').slice(0, 12)}`,

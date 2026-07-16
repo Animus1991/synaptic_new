@@ -190,11 +190,14 @@ ltiRouter.post('/lti/launch', async (req, res) => {
   if (ctx?.title) redirect.searchParams.set('lti_context_title', ctx.title);
 
   const nrps = claims['https://purl.imsglobal.org/spec/lti-nrps/claim/namesroleservice'];
+  const ags = claims['https://purl.imsglobal.org/spec/lti-ags/claim/endpoint'];
   if (ctx?.id) {
     saveLtiLaunchSession({
       ltiContextId: ctx.id,
       contextTitle: ctx.title ?? ctx.label,
       nrpsUrl: nrps?.context_memberships_url,
+      agsLineItemUrl: ags?.lineitem,
+      agsLineItemsUrl: ags?.lineitems,
       ltiSub: claims.sub,
       email: claims.email ? String(claims.email) : undefined,
     });
@@ -282,8 +285,9 @@ ltiRouter.post('/lti/line-items', authenticate, async (req, res) => {
 });
 
 /**
- * POST /v1/lti/grade-passback — push gradebook score to LMS via LTI AGS (Canvas parity stub).
- * Requires graded cell; uses registered line item or explicit lineItemUrl.
+ * POST /v1/lti/grade-passback — push gradebook score to LMS via LTI AGS (production).
+ * Requires graded cell; uses registered line item, launch AGS claim, or explicit lineItemUrl.
+ * Returns 202 when submitted to platform; stub_queued only when AGS credentials/line item absent.
  */
 ltiRouter.post('/lti/grade-passback', authenticate, async (req, res) => {
   const body = req.body as {

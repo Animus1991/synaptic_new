@@ -18,7 +18,8 @@ import { signAccessToken, signRefreshToken, verifyRefreshToken } from '../../mid
 import {
   consumeAuthCode,
   getClient,
-  isRegisteredRedirectUri,
+  getClientAsync,
+  isRegisteredRedirectUriAsync,
   issueAuthCode,
   registerClient,
 } from './store';
@@ -111,14 +112,17 @@ function q(value: unknown): string {
  * Validate an /oauth/authorize request. Client/redirect errors are fatal (shown
  * to the user, not redirected). Other errors redirect back per OAuth spec.
  */
-export function validateAuthorizeRequest(query: Record<string, unknown>): AuthorizeValidation {
+export async function validateAuthorizeRequest(
+  query: Record<string, unknown>,
+): Promise<AuthorizeValidation> {
   const clientId = q(query.client_id);
   const redirectUri = q(query.redirect_uri);
 
-  if (!clientId || !getClient(clientId)) {
+  const client = clientId ? await getClientAsync(clientId) : undefined;
+  if (!clientId || !client) {
     return { ok: false, fatal: 'Unknown client_id' };
   }
-  if (!redirectUri || !isRegisteredRedirectUri(clientId, redirectUri)) {
+  if (!redirectUri || !(await isRegisteredRedirectUriAsync(clientId, redirectUri))) {
     return { ok: false, fatal: 'redirect_uri is not registered for this client' };
   }
 
@@ -153,8 +157,8 @@ export function validateAuthorizeRequest(query: Record<string, unknown>): Author
   };
 }
 
-oauthRouter.get('/oauth/authorize', (req: Request, res: Response) => {
-  const validation = validateAuthorizeRequest(req.query as Record<string, unknown>);
+oauthRouter.get('/oauth/authorize', async (req: Request, res: Response) => {
+  const validation = await validateAuthorizeRequest(req.query as Record<string, unknown>);
   if (!validation.ok) {
     if ('fatal' in validation) {
       res.status(400).send(`OAuth error: ${validation.fatal}`);
@@ -164,7 +168,7 @@ oauthRouter.get('/oauth/authorize', (req: Request, res: Response) => {
     return;
   }
   const r = validation.request;
-  const client = getClient(r.clientId)!;
+  const client = (await getClientAsync(r.clientId))!;
   res.type('html').send(
     renderConsentPage({
       clientId: r.clientId,
@@ -189,8 +193,8 @@ export type DecisionResult =
 export async function processDecision(body: Record<string, unknown>): Promise<DecisionResult> {
   const clientId = q(body.client_id);
   const redirectUri = q(body.redirect_uri);
-  if (!clientId || !getClient(clientId)) return { type: 'fatal', message: 'Unknown client_id' };
-  if (!isRegisteredRedirectUri(clientId, redirectUri)) {
+  if (!clientId || !(await getClientAsync(clientId))) return { type: 'fatal', message: 'Unknown client_id' };
+  if (!(await isRegisteredRedirectUriAsync(clientId, redirectUri))) {
     return { type: 'fatal', message: 'redirect_uri is not registered for this client' };
   }
 

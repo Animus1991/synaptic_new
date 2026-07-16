@@ -3,6 +3,11 @@ import {
   refreshGoogleAccessToken,
   type GoogleTokenResponse,
 } from '../lib/googleOAuth';
+import {
+  deleteGoogleTokenRecord,
+  loadGoogleTokenRecord,
+  upsertGoogleTokenRecord,
+} from './googleTokenPostgres';
 
 export type GoogleTokenRecord = {
   accountId: string;
@@ -38,6 +43,11 @@ type AuthCompletion = {
 };
 
 const authCompletions = new Map<string, AuthCompletion>();
+
+function cacheRecord(record: GoogleTokenRecord): void {
+  byAccount.set(record.accountId, record);
+  byGoogleSub.set(record.googleSub, record.accountId);
+}
 
 export function createOAuthState(
   mode: 'signin' | 'connect',
@@ -77,18 +87,36 @@ export function consumeAuthCompletion(code: string): AuthCompletion | null {
 }
 
 export function saveGoogleTokens(record: GoogleTokenRecord): void {
-  byAccount.set(record.accountId, record);
-  byGoogleSub.set(record.googleSub, record.accountId);
+  cacheRecord(record);
+  void upsertGoogleTokenRecord(record).catch((err) => {
+    console.warn('[googleTokenStore] postgres upsert failed:', (err as Error).message);
+  });
+}
+
+export async function saveGoogleTokensAsync(record: GoogleTokenRecord): Promise<void> {
+  cacheRecord(record);
+  await upsertGoogleTokenRecord(record);
 }
 
 export function getGoogleTokens(accountId: string): GoogleTokenRecord | undefined {
   return byAccount.get(accountId);
 }
 
+/** Memory-first, then Postgres hydrate (multi-instance). */
+export async function getGoogleTokensAsync(accountId: string): Promise<GoogleTokenRecord | undefined> {
+  const mem = byAccount.get(accountId);
+  if (mem) return mem;
+  const fromDb = await loadGoogleTokenRecord(accountId);
+  if (fromDb) cacheRecord(fromDb);
+  return fromDb ?? undefined;
+}
+
 export function deleteGoogleTokens(accountId: string): boolean {
   const existing = byAccount.get(accountId);
   if (existing) byGoogleSub.delete(existing.googleSub);
-  return byAccount.delete(accountId);
+  const deleted = byAccount.delete(accountId);
+  void deleteGoogleTokenRecord(accountId).catch(() => undefined);
+  return deleted;
 }
 
 export function googleStatusForAccount(accountId: string): {
@@ -134,7 +162,14 @@ export function buildTokenRecord(
 }
 
 export async function getValidAccessToken(accountId: string): Promise<string | null> {
-  const rec = byAccount.get(accountId);
+  let rec = byAccount.get(accountId);
+  if (!rec) {
+    const fromDb = await loadGoogleTokenRecord(accountId);
+    if (fromDb) {
+      cacheRecord(fromDb);
+      rec = fromDb;
+    }
+  }
   if (!rec) return null;
   if (rec.expiresAt > Date.now() + 60_000) return rec.accessToken;
   if (!rec.refreshToken) return rec.accessToken;
@@ -145,11 +180,20 @@ export async function getValidAccessToken(accountId: string): Promise<string | n
     if (refreshed.refresh_token) rec.refreshToken = refreshed.refresh_token;
     if (refreshed.scope) rec.scopes = refreshed.scope.split(' ').filter(Boolean);
     rec.updatedAt = new Date().toISOString();
-    byAccount.set(accountId, rec);
+    cacheRecord(rec);
+    await upsertGoogleTokenRecord(rec);
     return rec.accessToken;
   } catch {
     return null;
   }
+}
+
+/** Test helper — clears in-memory maps only. */
+export function __resetGoogleTokenStoreForTests(): void {
+  byAccount.clear();
+  byGoogleSub.clear();
+  pendingStates.clear();
+  authCompletions.clear();
 }
 
 setInterval(() => {

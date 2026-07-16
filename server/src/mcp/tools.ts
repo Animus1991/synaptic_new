@@ -580,6 +580,10 @@ export const MCP_TOOLS: McpToolDefinition[] = [
         topic: { type: 'string', description: 'Optional topic focus for the questions.' },
         count: { type: 'number', description: 'Number of questions (1-20, default 5).' },
         lang: { type: 'string', enum: ['en', 'el'], description: 'Optional output language.' },
+        stream: {
+          type: 'boolean',
+          description: 'When true with Accept: text/event-stream, progress is streamed via SSE (MCP-01).',
+        },
       },
     },
     handler: generateQuizHandler,

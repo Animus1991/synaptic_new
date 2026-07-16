@@ -67,6 +67,7 @@
 | **E** | Analytics: SubjectMasteryGrid, StudyBehaviorCharts, AIInsightsPanel, date range, SubjectDrillDown | **Done** — CSS/SVG charts (no recharts); `GET /v1/analytics/insights`; Research tab kept |
 | **F** | a11y / contrast / reduced-motion | **Done** — warm-sand muted AA, global `prefers-reduced-motion`, `aria-busy` on key CTAs |
 | **Tools** | Wave 3 OCR/collab | **Done** — OCR re-anchor, annotation conflicts, whiteboard CRDT |
+| **Platform** | Wave 4 MCP/LTI/embeddings/SymPy/thumbnails | **Done** |
 
 ---
 

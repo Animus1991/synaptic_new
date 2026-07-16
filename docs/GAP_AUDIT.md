@@ -57,7 +57,7 @@ Surfaces from the default 3-panel layout (`notebookMode` ON).
 | SRC-05 | Legacy PDF without blob → reprocess UX copy | P1 | **shipped** | Notebook source row hint + E2E (P2b) |
 | SRC-06 | Add source flow from Sources panel | P1 | shipped | Upload / paste in workspace |
 | SRC-07 | Citation jump from chat → reader highlight | P1 | shipped | `sourceHighlight` overlay |
-| SRC-08 | Multi-page thumbnail strip | P3 | open | Sprint L18 |
+| SRC-08 | Multi-page thumbnail strip | P3 | **shipped** | `PdfPageThumbnailStrip` in notebook sources |
 
 ### Chat panel (`Συνομιλία`)
 
@@ -112,8 +112,8 @@ Goal: every tool **fully functional for its learning purpose**, not demo stubs.
 | ID | Item | Priority | Status |
 | -- | ---- | -------- | ------ |
 | TOOL-SP-01 | Formula solver, whiteboard export, Agent explain | — | shipped |
-| TOOL-SP-02 | SymPy symbolic simplification (offline) | P3 | open |
-| TOOL-SP-03 | Unit/dimension checker | P3 | open |
+| TOOL-SP-02 | SymPy symbolic simplification (offline) | — | **shipped** | `simplifyExpressionWithSympy` + scratchpad Simplify CTA |
+| TOOL-SP-03 | Unit/dimension checker | — | **shipped** | `unitDimensionChecker.ts` wired in FormulaScratchpad |
 
 ### Concept Map (`Χάρτης εννοιών`)
 
@@ -179,7 +179,7 @@ Goal: every tool **fully functional for its learning purpose**, not demo stubs.
 | OPS-04 | Signed iOS/Android release builds (Fastlane) | P1 | shipped |
 | OPS-05 | Live privacy policy URL (not `synapse.example.com`) | P1 | shipped |
 | OPS-06 | Legal review + DPA counsel sign-off | P1 | ready |
-| OPS-07 | LTI grade passback — production AGS (not stub) | P2 | open |
+| OPS-07 | LTI grade passback — production AGS (not stub) | P2 | **shipped** | Launch AGS claim + live POST when token/line item present |
 
 ### 2. Multi-device continuity
 
@@ -242,9 +242,9 @@ Goal: every tool **fully functional for its learning purpose**, not demo stubs.
 
 | ID | Item | Priority | Status |
 | -- | ---- | -------- | ------ |
-| MCP-01 | SSE streaming for `generate_quiz` | P2 | open |
-| MCP-02 | Client reader for `mcpFlashcards` / `mcpAnnotations` | P2 | open |
-| MCP-03 | OAuth persistence in Postgres (multi-instance) | P2 | open |
+| MCP-01 | SSE streaming for `generate_quiz` | P2 | **shipped** | `Accept: text/event-stream` / `stream:true` progress SSE |
+| MCP-02 | Client reader for `mcpFlashcards` / `mcpAnnotations` | P2 | **shipped** | `McpCourseArtifactsPanel` on Course Sources |
+| MCP-03 | OAuth persistence in Postgres (multi-instance) | P2 | **shipped** | `google_oauth_tokens` + `mcp_oauth_clients` |
 | PLT-01 | Cross-page UI sweep (`PLATFORM_UI_UX_MASTER_PLAN.md`) | P2 | **shipped** | PLT-01A entry flows · PLT-01B course/tasks/agent clarity · PLT-01C design-system sweep |
 | OPT-A | Option-B Phase A aesthetic polish | P2 | **shipped** | `platformChrome` (SectionHeader, UxCallout, TrustBadgeRow, SessionLauncherCard, HeroGlow); Tasks danger zone + session cards; Dashboard callouts; Agent trust badges; **slice 2:** CourseView section headers + callouts; Workspace dashboard/discoverability next-action callouts |
 | OPT-B | Option-B Phase B analytics visuals | P2 | **shipped** | B1: Sankey + Waterfall · B2: Concept treemap + Learning timeline · B3: Standalone concept mastery heatmap (21-day matrix on Mastery tab) |
@@ -283,7 +283,7 @@ Goal: every tool **fully functional for its learning purpose**, not demo stubs.
 | OPT-OB-μ8 | Option-B micro — Visual Lab heading alignment | P3 | **shipped** | `dashboard-preview-title` shared scale; `visual-lab-panel-header` + board head spacing |
 | WS-01 | Workspace empty states (`§2.7`) — learning outcome + CTA per tool | P1 | **shipped** | `WorkspaceToolEmptyState` + `buildWorkspaceEmptyView`; all 16 tools wired; E2E `workspace-empty-tools.spec.ts` |
 | PLT-02 | OpenTelemetry + Helm IaC | P3 | **shipped** | `telemetry.ts`, `/live`/`/ready`, `server/helm/` |
-| PLT-03 | Offline embeddings (transformers.js) | P3 | open |
+| PLT-03 | Offline embeddings (transformers.js) | P3 | **shipped** | `localEmbedder.ts` + recognition worker preload |
 
 ---
 

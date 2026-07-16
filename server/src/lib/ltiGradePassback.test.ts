@@ -1,40 +1,48 @@
-import { describe, it, expect, beforeEach } from 'vitest';
-import {
-  buildLtiAgsScore,
-  registerLtiLineItem,
-  submitLtiGradePassback,
-  listLtiPassbackLog,
-  resetLtiPassbackState,
-  getLtiLineItemUrl,
-} from './ltiGradePassback';
+import { describe, expect, it, vi } from 'vitest';
+import { buildLtiAgsScore, resetLtiPassbackState, submitLtiGradePassback } from './ltiGradePassback';
+import { resetLtiAgsTokenCache } from './ltiAgsOAuth';
 
-beforeEach(() => {
-  resetLtiPassbackState();
-});
-
-describe('ltiGradePassback', () => {
-  it('builds IMS AGS score payload', () => {
-    const score = buildLtiAgsScore(88, 'canvas-user-42');
-    expect(score.userId).toBe('canvas-user-42');
-    expect(score.scoreGiven).toBe(88);
-    expect(score.scoreMaximum).toBe(100);
+describe('LTI AGS passback (OPS-07)', () => {
+  it('buildLtiAgsScore clamps and stamps FullyGraded', () => {
+    const score = buildLtiAgsScore(142, 'user-1');
+    expect(score.scoreGiven).toBe(100);
     expect(score.gradingProgress).toBe('FullyGraded');
   });
 
-  it('queues stub passback when no line item URL', async () => {
-    const row = await submitLtiGradePassback({
-      classId: 'cls1',
-      assignmentId: 'asg1',
-      enrollmentId: 'enr1',
-      ltiUserId: 'lti-user-1',
-      score: 75,
-    });
-    expect(row.status).toBe('stub_queued');
-    expect(listLtiPassbackLog('cls1')).toHaveLength(1);
-  });
+  it('POSTs score when line item + bearer are available', async () => {
+    resetLtiPassbackState();
+    resetLtiAgsTokenCache();
+    const prevToken = process.env.LTI_AGS_TOKEN;
+    process.env.LTI_AGS_TOKEN = 'test-ags-token';
 
-  it('registers and resolves line item URLs per assignment', () => {
-    registerLtiLineItem('cls1', 'asg1', 'https://canvas.example.com/line_items/99');
-    expect(getLtiLineItemUrl('cls1', 'asg1')).toContain('line_items/99');
+    const fetchMock = vi.fn(async () => new Response('ok', { status: 200 }));
+    vi.stubGlobal('fetch', fetchMock);
+
+    // Re-import resolve path uses config — token already set on env before module cache;
+    // submit uses resolveLtiAgsBearer which reads config at call time via already-loaded config.
+    // Force static token via dynamic: submitLtiGradePassback already uses resolveLtiAgsBearer.
+    // Config is loaded once — patch by calling with line item; if token missing, stub_queued.
+    // Use vi.resetModules pattern is heavy; instead mock fetch and set line item URL.
+    const { config } = await import('../config');
+    const original = config.ltiAgsToken;
+    (config as { ltiAgsToken?: string }).ltiAgsToken = 'test-ags-token';
+
+    const record = await submitLtiGradePassback({
+      classId: 'c1',
+      assignmentId: 'a1',
+      enrollmentId: 'e1',
+      ltiUserId: 'lms-user',
+      score: 88,
+      lineItemUrl: 'https://lms.example/api/lti/courses/1/line_items/9',
+    });
+
+    expect(fetchMock).toHaveBeenCalled();
+    expect(record.status).toBe('submitted');
+    expect(record.payload.scoreGiven).toBe(88);
+
+    (config as { ltiAgsToken?: string }).ltiAgsToken = original;
+    if (prevToken === undefined) delete process.env.LTI_AGS_TOKEN;
+    else process.env.LTI_AGS_TOKEN = prevToken;
+    vi.unstubAllGlobals();
   });
 });

@@ -1,10 +1,11 @@
 /**
- * MCP OAuth 2.1 in-memory stores: Dynamic Client Registration (RFC 7591) and
- * short-lived PKCE authorization codes. Auth codes are ephemeral and one-time,
- * so in-memory is appropriate for a single-instance pilot; persistence can be
- * added later behind the same interface.
+ * MCP OAuth 2.1 stores: Dynamic Client Registration (RFC 7591) + short-lived PKCE codes.
+ * Registered clients persist to Postgres when DATABASE_URL is set (MCP-03).
+ * Auth codes stay in-memory (60s TTL, one-time use).
  */
 import { createHash, randomBytes, randomUUID, timingSafeEqual } from 'node:crypto';
+import pg from 'pg';
+import { config } from '../../config';
 
 export interface RegisteredClient {
   clientId: string;
@@ -31,6 +32,63 @@ const authCodes = new Map<string, AuthCodeEntry>();
 
 const AUTH_CODE_TTL_MS = 60_000;
 
+const { Pool } = pg;
+let pool: pg.Pool | null = null;
+
+function getPool(): pg.Pool | null {
+  if (!config.databaseUrl?.trim()) return null;
+  if (!pool) pool = new Pool({ connectionString: config.databaseUrl.trim() });
+  return pool;
+}
+
+async function persistClient(client: RegisteredClient): Promise<void> {
+  const p = getPool();
+  if (!p) return;
+  await p.query(
+    `INSERT INTO mcp_oauth_clients
+      (client_id, redirect_uris, client_name, scope, token_endpoint_auth_method, created_at)
+     VALUES ($1, $2::jsonb, $3, $4, $5, to_timestamp($6 / 1000.0))
+     ON CONFLICT (client_id) DO UPDATE SET
+       redirect_uris = EXCLUDED.redirect_uris,
+       client_name = EXCLUDED.client_name,
+       scope = EXCLUDED.scope`,
+    [
+      client.clientId,
+      JSON.stringify(client.redirectUris),
+      client.clientName ?? null,
+      client.scope ?? null,
+      client.tokenEndpointAuthMethod,
+      client.createdAt,
+    ],
+  );
+}
+
+async function loadClientFromDb(clientId: string): Promise<RegisteredClient | null> {
+  const p = getPool();
+  if (!p) return null;
+  const res = await p.query<{
+    client_id: string;
+    redirect_uris: string[] | string;
+    client_name: string | null;
+    scope: string | null;
+    token_endpoint_auth_method: string;
+    created_at: Date;
+  }>('SELECT * FROM mcp_oauth_clients WHERE client_id = $1', [clientId]);
+  if (!res.rowCount) return null;
+  const row = res.rows[0]!;
+  const uris = Array.isArray(row.redirect_uris)
+    ? row.redirect_uris
+    : (typeof row.redirect_uris === 'string' ? JSON.parse(row.redirect_uris) as string[] : []);
+  return {
+    clientId: row.client_id,
+    redirectUris: uris,
+    clientName: row.client_name ?? undefined,
+    scope: row.scope ?? undefined,
+    tokenEndpointAuthMethod: 'none',
+    createdAt: row.created_at.getTime(),
+  };
+}
+
 // --- Client registration --------------------------------------------------
 
 export function registerClient(input: {
@@ -47,6 +105,9 @@ export function registerClient(input: {
     tokenEndpointAuthMethod: 'none',
   };
   clients.set(client.clientId, client);
+  void persistClient(client).catch((err) => {
+    console.warn('[mcp oauth] persist client failed:', (err as Error).message);
+  });
   return client;
 }
 
@@ -54,8 +115,24 @@ export function getClient(clientId: string): RegisteredClient | undefined {
   return clients.get(clientId);
 }
 
+export async function getClientAsync(clientId: string): Promise<RegisteredClient | undefined> {
+  const mem = clients.get(clientId);
+  if (mem) return mem;
+  const fromDb = await loadClientFromDb(clientId);
+  if (fromDb) clients.set(clientId, fromDb);
+  return fromDb ?? undefined;
+}
+
 export function isRegisteredRedirectUri(clientId: string, redirectUri: string): boolean {
   const client = clients.get(clientId);
+  return Boolean(client && client.redirectUris.includes(redirectUri));
+}
+
+export async function isRegisteredRedirectUriAsync(
+  clientId: string,
+  redirectUri: string,
+): Promise<boolean> {
+  const client = await getClientAsync(clientId);
   return Boolean(client && client.redirectUris.includes(redirectUri));
 }
 

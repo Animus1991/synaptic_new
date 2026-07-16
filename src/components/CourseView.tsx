@@ -43,6 +43,7 @@ import { NotebookLmExportPanel } from './NotebookLmExportPanel';
 import { Page, PageHeader, PrimaryCTA, SecondaryCTA, AnimatedCard } from './ui/primitives';
 import { QualityReportPanel } from './QualityReportPanel';
 import { SectionHeader, TrustBadgeRow, UxCallout, DescriptiveStickyTabBar } from './ui/platformChrome';
+import { McpCourseArtifactsPanel } from './course/McpCourseArtifactsPanel';
 
 interface CourseViewProps {
   course: Course;
@@ -569,7 +570,7 @@ export function CourseView({
         </div>
       )}
       {tab === 'sources' && (
-        <div role="tabpanel" id="course-panel-sources" data-testid="course-panel-sources" aria-labelledby="course-tab-sources">
+        <div role="tabpanel" id="course-panel-sources" data-testid="course-panel-sources" aria-labelledby="course-tab-sources" className="space-y-4">
         <SourceFiles
           course={course}
           uploadedFiles={uploadedFiles}
@@ -586,6 +587,7 @@ export function CourseView({
           onAddAudioToFsrs={onAddAudioToFsrs}
           learnerModel={learnerModel}
         />
+        <McpCourseArtifactsPanel course={course} lang={lang === 'el' ? 'el' : 'en'} />
         </div>
       )}
       {tab === 'analytics' && (

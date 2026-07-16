@@ -58,10 +58,10 @@ describe('Dynamic Client Registration', () => {
 });
 
 describe('authorize validation', () => {
-  it('accepts a valid PKCE authorize request', () => {
+  it('accepts a valid PKCE authorize request', async () => {
     const { clientId, redirectUri } = registerTestClient();
     const { challenge } = pkce();
-    const v = validateAuthorizeRequest({
+    const v = await validateAuthorizeRequest({
       response_type: 'code',
       client_id: clientId,
       redirect_uri: redirectUri,
@@ -77,21 +77,21 @@ describe('authorize validation', () => {
     }
   });
 
-  it('is a fatal error for unknown client', () => {
-    const v = validateAuthorizeRequest({ client_id: 'nope', redirect_uri: 'https://x/y' });
+  it('is a fatal error for unknown client', async () => {
+    const v = await validateAuthorizeRequest({ client_id: 'nope', redirect_uri: 'https://x/y' });
     expect(v.ok).toBe(false);
     expect(v).toHaveProperty('fatal');
   });
 
-  it('is fatal for an unregistered redirect_uri', () => {
+  it('is fatal for an unregistered redirect_uri', async () => {
     const { clientId } = registerTestClient();
-    const v = validateAuthorizeRequest({ client_id: clientId, redirect_uri: 'https://evil.test/cb' });
+    const v = await validateAuthorizeRequest({ client_id: clientId, redirect_uri: 'https://evil.test/cb' });
     expect(v).toHaveProperty('fatal');
   });
 
-  it('redirects with error when PKCE challenge is missing', () => {
+  it('redirects with error when PKCE challenge is missing', async () => {
     const { clientId, redirectUri } = registerTestClient();
-    const v = validateAuthorizeRequest({
+    const v = await validateAuthorizeRequest({
       response_type: 'code',
       client_id: clientId,
       redirect_uri: redirectUri,
@@ -104,9 +104,9 @@ describe('authorize validation', () => {
     }
   });
 
-  it('rejects plain (non-S256) PKCE', () => {
+  it('rejects plain (non-S256) PKCE', async () => {
     const { clientId, redirectUri } = registerTestClient();
-    const v = validateAuthorizeRequest({
+    const v = await validateAuthorizeRequest({
       response_type: 'code',
       client_id: clientId,
       redirect_uri: redirectUri,

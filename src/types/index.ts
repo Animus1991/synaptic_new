@@ -188,6 +188,22 @@ export interface Course {
   recognitionSummary?: import('../lib/documentModelSnapshot').RecognitionSummary;
   /** §5.B7 automated quality rubric (S9). */
   qualityReport?: import('../lib/courseQualityGates').CourseQualityReport;
+  /** MCP write-tool flashcards (create_flashcard). */
+  mcpFlashcards?: Array<{
+    id: string;
+    front: string;
+    back: string;
+    createdAt: string;
+    source?: 'mcp' | string;
+  }>;
+  /** MCP write-tool annotations (add_annotation). */
+  mcpAnnotations?: Array<{
+    id: string;
+    text: string;
+    note?: string;
+    createdAt: string;
+    source?: 'mcp' | string;
+  }>;
 }
 
 /** Maps a course concept to a precise span in uploaded source material. */
