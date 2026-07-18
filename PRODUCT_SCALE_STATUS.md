@@ -9,6 +9,7 @@ sprint close-outs, and investor/contributor snapshots.
 | --- | ---- |
 | **`PRODUCT_SCALE_STATUS.md`** (this file) | What ships today + open gaps |
 | **`docs/GAP_AUDIT.md`** | Living gap register — prioritized backlog across all surfaces |
+| **`docs/INFRA_HARDENING_BLUEPRINT.md`** | SSoT for technical infrastructure hardening (INFRA-* cards, SLOs, waves W0–W6) |
 | `ROADMAP.md` | Layer completion table + sprint tables |
 | `CHANGELOG.md` | Dated shipped history |
 | `PRODUCT_SCALE_PLAN.md` | Forward masterplan (workstreams, sequencing) |

@@ -354,6 +354,7 @@ Do **not** port: `#ff3c00` orange, ABC Diatype, 48–69px displays, 40–60px ma
 ## References
 
 - `PRODUCT_SCALE_STATUS.md` — shipped truth
+- `docs/INFRA_HARDENING_BLUEPRINT.md` — **SSoT for technical infrastructure hardening** (security, multi-instance, SLOs, per-element INFRA-* cards, waves W0–W6). Product/UX gaps stay here; infra execution follows that blueprint.
 - `WORKSPACE_TOOLS_UPGRADE.md` — exhaustive per-tool spec
 - `docs/NOTEBOOKLM_WORKSPACE_UI.md` — notebook layout phases
 - `docs/SPRINT_L17_PDF_SOURCE_THUMBNAILS.md` — thumbnail pipeline
