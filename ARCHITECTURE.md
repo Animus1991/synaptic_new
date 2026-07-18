@@ -215,5 +215,14 @@ src/lib/librarySync.ts / sessionSync.ts  Server pull/push + merge
 src/lib/authClient.ts               /auth/* + /v1/billing helpers
 src/lib/libraryStorage.ts           localStorage + IDB hybrid
 src/store/useStore.ts              App state + upload handler
-src/components/workspace/StudyWorkspace.tsx  11-tool shell
+src/components/workspace/StudyWorkspace.tsx  13-tool shell
 ```
+
+## Related docs
+
+| Doc | Role |
+| --- | ---- |
+| `PRODUCT_SCALE_STATUS.md` | Shipped truth |
+| `docs/GAP_AUDIT.md` | Open product/ops gaps |
+| `docs/INFRA_HARDENING_BLUEPRINT.md` | Technical infrastructure hardening (per-element INFRA-*, SLOs, waves) |
+| `SECURITY.md` · `DEPLOYMENT.md` · `TESTING.md` | Controls, hosting, QA gates |
