@@ -43,6 +43,7 @@ import { initRetentionCron } from './jobs/retentionCron';
 import { initTranscribeQueue } from './jobs/transcribeQueue';
 import { auditLogMiddleware } from './middleware/auditLog';
 import { startStudyRoomCollab } from './collab/studyRoomCollab';
+import { assertProductionConfig } from './lib/assertProductionConfig';
 
 export function createApp(): express.Application {
   const app = express();
@@ -55,6 +56,7 @@ export function createApp(): express.Application {
   );
 
   app.post('/v1/billing/webhook', express.raw({ type: 'application/json' }), billingWebhookHandler);
+  // Global JSON cap; LLM proxy also enforces message-size moderation (W0).
   app.use(express.json({ limit: '15mb' }));
   app.use(express.urlencoded({ extended: false, limit: '2mb' }));
   app.use(telemetryMiddleware);
@@ -116,6 +118,8 @@ export function createApp(): express.Application {
     });
   });
 
+  // W0: rate-limit auth the same as /v1 (Redis-backed when REDIS_URL is set).
+  app.use('/auth', rateLimit);
   app.use('/auth', authRouter);
   app.use('/auth', googleAuthRouter);
   app.use('/v1', rateLimit);
@@ -155,6 +159,8 @@ export function createApp(): express.Application {
 export const app = createApp();
 
 export async function startServer(): Promise<void> {
+  assertProductionConfig();
+
   if (config.databaseUrl && config.runMigrationsOnStart) {
     await runMigrations(config.databaseUrl);
   }

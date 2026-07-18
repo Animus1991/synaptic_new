@@ -11,8 +11,14 @@ function bucketKey(req: Request): string {
 /**
  * Sliding-window rate limiter (requests per minute).
  * Uses Redis when REDIS_URL is configured; in-process buckets for single-node dev.
+ * Skipped in NODE_ENV=test unless ENABLE_RATE_LIMIT_IN_TEST=1 (see rateLimit.integration.test.ts).
  */
 export function rateLimit(req: Request, res: Response, next: NextFunction): void {
+  if (process.env.NODE_ENV === 'test' && process.env.ENABLE_RATE_LIMIT_IN_TEST !== '1') {
+    next();
+    return;
+  }
+
   const limit = config.rateLimitRpm;
   const windowMs = 60_000;
   const key = bucketKey(req);

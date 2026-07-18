@@ -3,14 +3,33 @@ import { authenticate } from '../middleware/auth';
 import { enforceQuota } from '../middleware/usage';
 import { addUsageAsync } from '../store/accounts';
 import { estimateTokens, upstreamFetch, type UpstreamUsage } from '../lib/upstream';
+import { assertModelAllowed } from '../lib/modelAllowlist';
+import { moderateChatCompletionsBody, moderateEmbeddingsBody } from '../lib/promptModeration';
 
 export const proxyRouter = Router();
 proxyRouter.use(authenticate, enforceQuota);
+
+function reject(res: import('express').Response, status: number, error: string, detail?: string): void {
+  res.status(status).json(detail ? { error, detail } : { error });
+}
 
 /** POST /v1/chat/completions — supports both streaming (SSE) and JSON. */
 proxyRouter.post('/chat/completions', async (req, res) => {
   const account = req.account!;
   const body = (req.body ?? {}) as Record<string, unknown>;
+
+  const modelError = assertModelAllowed(body.model);
+  if (modelError) {
+    reject(res, 400, 'Model not allowed', modelError);
+    return;
+  }
+
+  const moderation = moderateChatCompletionsBody(body);
+  if (moderation) {
+    reject(res, 400, 'Prompt rejected by moderation', moderation.reason);
+    return;
+  }
+
   const wantsStream = body.stream === true;
 
   // Ask the upstream to include token usage in the final stream chunk.
@@ -94,9 +113,23 @@ proxyRouter.post('/chat/completions', async (req, res) => {
 /** POST /v1/embeddings — proxied with usage metering. */
 proxyRouter.post('/embeddings', async (req, res) => {
   const account = req.account!;
+  const body = (req.body ?? {}) as Record<string, unknown>;
+
+  const modelError = assertModelAllowed(body.model);
+  if (modelError) {
+    reject(res, 400, 'Model not allowed', modelError);
+    return;
+  }
+
+  const moderation = moderateEmbeddingsBody(body);
+  if (moderation) {
+    reject(res, 400, 'Embedding input rejected', moderation.reason);
+    return;
+  }
+
   let upstream: Response;
   try {
-    upstream = await upstreamFetch('/embeddings', req.body);
+    upstream = await upstreamFetch('/embeddings', body);
   } catch {
     res.status(502).json({ error: 'Upstream request failed' });
     return;

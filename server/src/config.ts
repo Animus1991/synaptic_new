@@ -83,6 +83,11 @@ export const config = {
   otelEnabled:
     process.env.OTEL_ENABLED === 'true'
     || (!!process.env.OTEL_EXPORTER_OTLP_ENDPOINT?.trim() && process.env.OTEL_ENABLED !== 'false'),
+  /**
+   * Comma-separated model allowlist for /v1/chat/completions and /v1/embeddings.
+   * Override with LLM_ALLOWED_MODELS in production.
+   */
+  llmAllowedModels: (process.env.LLM_ALLOWED_MODELS ?? '').trim() || undefined,
   /** Audio TTS voice for neural audio study guide (alloy, nova, etc.). */
   audioTtsVoice: process.env.AUDIO_TTS_VOICE?.trim() || 'nova',
   /** L10-1 — multi-speaker podcast Host voice. */

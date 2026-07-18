@@ -8,7 +8,8 @@ describe('rate limit integration', () => {
 
   beforeAll(async () => {
     savedRpm = process.env.RATE_LIMIT_RPM;
-    process.env.RATE_LIMIT_RPM = '3';
+    process.env.RATE_LIMIT_RPM = '4';
+    process.env.ENABLE_RATE_LIMIT_IN_TEST = '1';
     process.env.NODE_ENV = 'test';
     delete process.env.REDIS_URL;
     vi.resetModules();
@@ -21,6 +22,7 @@ describe('rate limit integration', () => {
   afterAll(() => {
     if (savedRpm === undefined) delete process.env.RATE_LIMIT_RPM;
     else process.env.RATE_LIMIT_RPM = savedRpm;
+    delete process.env.ENABLE_RATE_LIMIT_IN_TEST;
   });
 
   it('GET /health exposes rateLimitDistributed=false without Redis', async () => {
@@ -31,6 +33,7 @@ describe('rate limit integration', () => {
   });
 
   it('returns 429 after exceeding RPM cap on /v1 routes', async () => {
+    // /auth and /v1 share the pre-auth bucket (anon:ip), so register counts as 1 of 4.
     const reg = await request(app)
       .post('/auth/register')
       .send({ email: 'ratelimit@example.com', password: 'password123' })
