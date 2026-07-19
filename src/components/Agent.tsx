@@ -439,7 +439,7 @@ export function Agent({
   return (
     <div
       className={cn(
-        'flex min-h-0',
+        'agent-calm flex min-h-0',
         embedded ? 'flex-col h-full' : 'h-[calc(100vh-56px)] lg:h-[calc(100vh-56px)]',
       )}
       data-testid={embedded ? 'agent-embedded' : 'agent-page'}
@@ -678,7 +678,7 @@ export function Agent({
       <AgentContextBanner context={workspaceContext} lang={lang} compact={embedded} />
 
       {!embedded && (
-        <div className="px-4 sm:px-6 pt-3">
+        <div className="agent-chat-column w-full px-4 sm:px-6 pt-3">
           <CollapsibleChromeSection title={t('chromeAgentFlow')} data-testid="agent-flow-chrome">
             <AgentFlowRail
               activeIndex={messages.length === 0 ? 0 : messages.length < 4 ? 1 : 2}
@@ -766,12 +766,12 @@ export function Agent({
         )}
       </AnimatePresence>
 
-      {/* Messages */}
-      <div className="flex-1 overflow-y-auto">
-        <div className="max-w-none w-full min-w-0 px-4 sm:px-6 py-4 space-y-4">
+      {/* Messages — OPT-C1 centered conversation column */}
+      <div className="agent-thread flex-1 overflow-y-auto" data-testid="agent-thread">
+        <div className={cn('agent-chat-column w-full min-w-0 py-4 space-y-4', embedded ? 'px-2.5' : 'px-4 sm:px-6')}>
           {messages.length === 0 && !isThinking && (
             embedded ? (
-              <div className="py-8 text-center space-y-2">
+              <div className="py-8 text-center space-y-2" data-testid="agent-empty-invite">
                 <Sparkles className="w-6 h-6 mx-auto text-brand-600" aria-hidden />
                 <p className="text-sm font-medium text-text-primary">{ui.title}</p>
                 <p className="text-xs text-text-secondary px-4">
@@ -791,7 +791,7 @@ export function Agent({
                 </div>
               </div>
             ) : (
-            <div className="py-8 space-y-4">
+            <div className="py-8 space-y-4" data-testid="agent-empty-invite">
               <PlatformEmptyState
                 title={ui.title}
                 description={llmReady ? ui.inputPlaceholder : ui.offlineMode}
@@ -825,7 +825,7 @@ export function Agent({
             <MessageBubble key={msg.id} message={msg} onGoToSource={onGoToSource} lang={lang} ui={ui} />
           ))}
           {isThinking && (
-            <div className="flex gap-3 px-1 py-2 text-sm text-text-muted">
+            <div className="agent-thinking flex gap-3 px-1 py-2 text-sm text-text-muted">
               <Sparkles className="w-4 h-4 text-brand-400 animate-pulse shrink-0 mt-0.5" />
               <span>{ui.thinking}</span>
             </div>
@@ -858,11 +858,17 @@ export function Agent({
         </div>
       </div>
 
-      {/* Input Area — L-X04 denser when embedded */}
-      <div className={cn('border-t border-border-subtle bg-surface-secondary/30', embedded ? 'pb-1.5' : 'pb-20 lg:pb-0')}>
-        <div className={cn('max-w-none w-full min-w-0', embedded ? 'px-2.5 py-2' : 'px-4 sm:px-6 py-3')}>
-          <div className="flex items-end gap-2">
-            <div className="flex-1 relative">
+      {/* Input — OPT-C1 sticky soft composer (still holds source/attach/send) */}
+      <div
+        className={cn(
+          'agent-composer border-t border-border-subtle bg-surface-secondary/30 shrink-0',
+          embedded ? 'pb-1.5' : 'pb-20 lg:pb-0',
+        )}
+        data-testid="agent-composer"
+      >
+        <div className={cn('agent-chat-column w-full min-w-0', embedded ? 'px-2.5 py-2' : 'px-4 sm:px-6 py-3')}>
+          <div className="agent-composer-shell">
+            <div className="flex-1 relative min-w-0">
               <textarea
                 ref={inputRef}
                 value={input}
@@ -941,8 +947,9 @@ export function Agent({
               onClick={() => void handleSend()}
               disabled={!input.trim() || isThinking}
               aria-label={t('agentSendMessage')}
+              data-testid="agent-send"
               className={cn(
-                'rounded-xl transition-all shrink-0',
+                'agent-composer-send rounded-xl transition-all shrink-0',
                 embedded ? 'p-2' : 'p-3',
                 input.trim() && !isThinking
                   ? 'bg-brand-600 hover:bg-brand-500 text-white'
@@ -1055,10 +1062,11 @@ function MessageBubble({
     <motion.div
       initial={{ opacity: 0, y: 5 }}
       animate={{ opacity: 1, y: 0 }}
-      className={cn('flex gap-3', isUser && 'flex-row-reverse')}
+      className={cn('agent-message-row flex gap-3', isUser && 'flex-row-reverse')}
+      data-testid={isUser ? 'agent-message-user' : 'agent-message-assistant'}
     >
       {!isUser && (
-        <div className="agent-message-avatar w-8 h-8 rounded-lg bg-gradient-to-br from-brand-500 to-accent-teal flex items-center justify-center shrink-0 mt-1">
+        <div className="agent-message-avatar w-8 h-8 rounded-lg bg-gradient-to-br from-brand-500 to-accent-teal flex items-center justify-center shrink-0 mt-1" aria-hidden>
           <Sparkles className="w-4 h-4 text-white" />
         </div>
       )}
@@ -1068,6 +1076,7 @@ function MessageBubble({
         isUser
           ? 'agent-message-bubble-user agent-user-bubble text-white rounded-tr-md'
           : 'agent-message-bubble-assistant bg-surface-card border border-border-subtle rounded-tl-md',
+        isUser ? 'ml-auto' : 'mr-auto',
       )}>
         <div>
           {isUser ? (

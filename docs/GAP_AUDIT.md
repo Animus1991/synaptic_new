@@ -358,6 +358,8 @@ Constraints for all OPT-R*: no typography/button/modal scale-up; no functional c
 | OPT-M18 | Content-first Course empty states | P2 | **shipped** | Path + Sources `PlatformEmptyState` |
 | OPT-M19 | System preference → Minimal family | P2 | **shipped** | `system` → `minimal` / `minimal-dark` |
 | OPT-M20 | Screenshot matrix launch QA | P2 | **process** | `npm run capture:primer-minimal` dumps PNGs; human Pass? still ☐ |
+| OPT-C0 (calm) | ChatGPT-calm CSS tokens (Minimal-gated) | P2 | **shipped** | `src/styles/chatgpt-calm.css`; see `docs/CHATGPT_MINIMAL_ENHANCEMENT_PLAN.md` (not Blueprint OPT-C) |
+| OPT-C1 (calm) | Agent centered thread + soft bubbles + composer | P2 | **shipped** | `Agent.tsx` column/composer; modes/citations retained |
 
 ### Replit study — explicit non-borrows
 

@@ -1,6 +1,8 @@
 @import "tailwindcss";
 /* OPT-M15 — Primer Minimal tokens + theme-scoped overrides. */
 @import "./styles/primer-minimal.css";
+/* OPT-C0 — ChatGPT-calm conversation tokens (Minimal-gated). */
+@import "./styles/chatgpt-calm.css";
 
 @theme {
   /* Brand + surfaces: dark defaults; light mode overrides via [data-theme="light"] Warm Sand (F1).

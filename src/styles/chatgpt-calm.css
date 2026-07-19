@@ -1,0 +1,122 @@
+/**
+ * OPT-C0 — ChatGPT-calm tokens + conversation chrome.
+ * Gated to Minimal themes only. Blueprint / Spectrum / legacy untouched.
+ * Principles only — not an OpenAI brand clone.
+ */
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) {
+  --chat-column-max: 48rem;
+  --composer-radius: 1.25rem;
+  --chat-body-size: 0.9375rem;
+  --chat-body-leading: 1.55;
+  --chat-user-fill: color-mix(in srgb, var(--color-brand-500, #5a7694) 12%, var(--color-surface-secondary, #f6f8fa));
+  --chat-user-fg: var(--color-text-primary, #1f2328);
+  --chat-assistant-fg: var(--color-text-primary, #1f2328);
+}
+
+[data-theme="minimal-dark"] {
+  --chat-user-fill: color-mix(in srgb, var(--color-brand-400, #6b87a4) 18%, var(--color-surface-secondary, #161b22));
+  --chat-user-fg: var(--color-text-primary, #e6edf3);
+  --chat-assistant-fg: var(--color-text-primary, #e6edf3);
+}
+
+/* Centered conversation column */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .agent-calm .agent-chat-column {
+  width: 100%;
+  max-width: var(--chat-column-max);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Soft sticky composer bar */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .agent-calm .agent-composer {
+  border-top-color: transparent;
+  background: color-mix(in srgb, var(--color-surface-primary, #fff) 88%, transparent);
+  backdrop-filter: blur(8px);
+  padding-top: 0.5rem;
+  padding-bottom: max(0.5rem, env(safe-area-inset-bottom, 0px));
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .agent-calm .agent-composer-shell {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.5rem;
+  border: 1px solid var(--color-border-subtle, #d0d7de);
+  border-radius: var(--composer-radius);
+  background: var(--color-surface-input, #fff);
+  padding: 0.35rem 0.35rem 0.35rem 0.75rem;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .agent-calm .agent-composer-shell:focus-within {
+  border-color: color-mix(in srgb, var(--color-brand-500, #5a7694) 45%, var(--color-border-subtle, #d0d7de));
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .agent-calm .agent-composer-shell textarea {
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  border-radius: 0;
+  font-size: var(--chat-body-size);
+  line-height: var(--chat-body-leading);
+  padding-left: 0.15rem;
+  padding-right: 0.25rem;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .agent-calm .agent-composer-shell .agent-composer-send {
+  border-radius: calc(var(--composer-radius) - 0.35rem);
+}
+
+/* Assistant = prose, not card; hide decorative avatar */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .agent-calm .agent-message-avatar {
+  display: none;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .agent-calm .agent-message-row {
+  gap: 0;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .agent-calm .agent-message-bubble {
+  max-width: 100%;
+  font-size: var(--chat-body-size);
+  line-height: var(--chat-body-leading);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .agent-calm .agent-message-bubble-assistant {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding-left: 0.15rem;
+  padding-right: 0.15rem;
+  color: var(--chat-assistant-fg);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .agent-calm .agent-message-bubble-user,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .agent-calm .agent-user-bubble {
+  background: var(--chat-user-fill) !important;
+  color: var(--chat-user-fg) !important;
+  border: none;
+  border-radius: 1.1rem;
+  border-bottom-right-radius: 0.35rem;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .agent-calm .agent-message-bubble-user .agent-message-meta {
+  border-color: color-mix(in srgb, var(--chat-user-fg) 18%, transparent);
+  color: color-mix(in srgb, var(--chat-user-fg) 65%, transparent);
+}
+
+/* Thinking + empty invite breathing room */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .agent-calm .agent-thread {
+  scroll-behavior: smooth;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .agent-calm .agent-thinking {
+  max-width: var(--chat-column-max);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :is([data-theme="minimal"], [data-theme="minimal-dark"]) .agent-calm .agent-thread {
+    scroll-behavior: auto;
+  }
+}
