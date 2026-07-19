@@ -16,7 +16,7 @@ const WORKER_PATH_LABEL: Record<WorkspaceTTIMetrics['workerPath'], string> = {
 
 const WORKER_PATH_CLASS: Record<WorkspaceTTIMetrics['workerPath'], string> = {
   worker: 'text-emerald-600 dark:text-emerald-400',
-  'idle-fallback': 'text-amber-600 dark:text-amber-400',
+  'idle-fallback': 'text-accent-amber',
   'sync-fallback': 'text-rose-600 dark:text-rose-400',
   none: 'text-text-muted',
 };

@@ -23,9 +23,13 @@ export type ProgressKpi = {
 };
 
 export type ConfidenceBucket = {
+  /** Confidence band label, e.g. 21–40% */
   label: string;
+  rangeLabel: string;
+  /** Accuracy % within the band (mockup large figure) */
   correctPct: number;
   wrongPct: number;
+  sampleCount: number;
 };
 
 export type RadarDimension = {
@@ -100,24 +104,38 @@ export function buildConfidenceBuckets(
   learnerModel: LearnerModel,
   lang: Lang,
 ): ConfidenceBucket[] {
+  // Wave K-A01 — mockup horizontal 5-bin calibration (0–20 … 81–100)
   const bucketDefs = [
-    { label: lang === 'el' ? 'Πολύ σίγουρος' : 'Very confident', min: 0.85 },
-    { label: lang === 'el' ? 'Σίγουρος' : 'Confident', min: 0.65 },
-    { label: lang === 'el' ? 'Αβέβαιος' : 'Unsure', min: 0.4 },
-    { label: lang === 'el' ? 'Μαντεύω' : 'Guessing', min: 0 },
+    { rangeLabel: '0–20%', min: 0, max: 0.2 },
+    { rangeLabel: '21–40%', min: 0.2, max: 0.4 },
+    { rangeLabel: '41–60%', min: 0.4, max: 0.6 },
+    { rangeLabel: '61–80%', min: 0.6, max: 0.8 },
+    { rangeLabel: '81–100%', min: 0.8, max: 1.01 },
   ];
+  void lang;
 
-  return bucketDefs.map((def, i) => {
-    const max = i === 0 ? 1.01 : bucketDefs[i - 1]!.min;
+  return bucketDefs.map((def) => {
     const points = learnerModel.confidenceCalibration.filter(
-      (p) => p.predicted >= def.min && p.predicted < max,
+      (p) => p.predicted >= def.min && p.predicted < def.max,
     );
-    const total = Math.max(1, points.length);
+    const sampleCount = points.length;
+    if (sampleCount === 0) {
+      return {
+        label: def.rangeLabel,
+        rangeLabel: def.rangeLabel,
+        correctPct: 0,
+        wrongPct: 0,
+        sampleCount: 0,
+      };
+    }
     const correct = points.filter((p) => p.actual >= p.predicted - 0.1).length;
+    const correctPct = Math.round((correct / sampleCount) * 100);
     return {
-      label: def.label,
-      correctPct: Math.round((correct / total) * 100),
-      wrongPct: Math.round(((total - correct) / total) * 100),
+      label: def.rangeLabel,
+      rangeLabel: def.rangeLabel,
+      correctPct,
+      wrongPct: 100 - correctPct,
+      sampleCount,
     };
   });
 }

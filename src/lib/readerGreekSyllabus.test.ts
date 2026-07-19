@@ -19,7 +19,7 @@ import type { UploadedFile } from '../types';
 const FRONT_MATTER_BODY = [
   '1 ΕΘΝΙΚΟ ΚΑΙ ΚΑΠΟΔΙΣΤΡΙΑΚΟ ΠΑΝΕΠΙΣΤΗΜΙΟ ΑΘΗΝΩΝ',
   '2 E-class Μαθήματος: https://eclass.uoa.gr/courses/ECON196',
-  '3 E-mail Επικοινωνίας: nstoupo@econ.uoa.gr',
+  '3 E-mail Επικοινωνίας: instructor@example.edu',
   '4 Ώρες Διδασκαλίας: Δευτέρα 12:00 - 15:00',
 ].join('\n');
 

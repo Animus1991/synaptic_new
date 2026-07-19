@@ -44,7 +44,7 @@ export function OfflineShellBanner() {
             'bg-surface-secondary/95 backdrop-blur px-4 py-2.5 sm:px-6',
           )}
         >
-          <div className="flex items-start gap-2.5 max-w-6xl mx-auto">
+          <div className="flex items-start gap-2.5 w-full max-w-none">
             <WifiSlash className="w-5 h-5 text-accent-amber shrink-0 mt-0.5" aria-hidden />
             <div className="min-w-0">
               <p className="text-sm font-medium text-text-primary">{t('pwaOfflineTitle')}</p>
@@ -65,6 +65,7 @@ export function OfflineShellBanner() {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 8 }}
+            transition={{ duration: 0.36, ease: [0.2, 0, 0, 1] }}
             className="fixed bottom-20 lg:bottom-6 left-1/2 z-[200] -translate-x-1/2 max-w-sm w-[calc(100%-2rem)]"
             data-testid="pwa-back-online-toast"
           >

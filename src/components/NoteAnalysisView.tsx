@@ -70,7 +70,7 @@ export function NoteAnalysisView({
   };
 
   return (
-    <Page className="max-w-6xl">
+    <Page className="max-w-none">
       <PageHeader
         title={c.pageTitle}
         subtitle={c.subtitle(snapshot.courseTitle, snapshot.sourceQualityScore)}

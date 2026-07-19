@@ -15,6 +15,7 @@ import type { UploadedFile } from '../../../types';
 import { StudyWorkspaceToolSurface } from './StudyWorkspaceToolSurface';
 import { NotebookSourceThumbnail } from './NotebookSourceThumbnail';
 import { NotebookStudioAudioOverview, type AudioOverviewGenState } from './NotebookStudioAudioOverview';
+import { PdfPageThumbnailStrip } from '../PdfPageThumbnailStrip';
 import type { StudyWorkspaceModel } from './useStudyWorkspace';
 import type { WorkspaceTool } from './types';
 
@@ -46,6 +47,7 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
     activeTool,
     sourceQualityScore,
     showReuploadHint,
+    showPre24Greek,
     showLowQualityBanner,
     reprocessingMaterial,
     userSettings,
@@ -75,7 +77,7 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
   const sectionTitle = STEPS[currentStep]?.title;
   const notebookTitle = courseName ?? linkedCourse?.title ?? quizConcept;
   const showQualityStrip =
-    (showReuploadHint || showLowQualityBanner) && sourceQualityScore != null;
+    showReuploadHint || showLowQualityBanner || showPre24Greek;
 
   const openStudioTool = useCallback(
     (tool: WorkspaceTool) => {
@@ -146,7 +148,7 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
     label: string;
     meta?: string;
     file?: Pick<UploadedFile, 'name' | 'type' | 'ingestMethod'> & Partial<
-      Pick<UploadedFile, 'id' | 'thumbnailRef' | 'thumbnailStatus'>
+      Pick<UploadedFile, 'id' | 'thumbnailRef' | 'thumbnailStatus' | 'pageCount'>
     >;
   };
 
@@ -259,6 +261,16 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
               );
             })}
           </ul>
+          {(() => {
+            const pinned = orderedSourceRows.find((s) => s.key === pinnedSourceKey)?.file;
+            const pages = pinned?.pageCount ?? 0;
+            if (!pinned || pinned.type !== 'pdf' || pages <= 1) return null;
+            return (
+              <div className="mt-2 px-0.5" data-testid="notebook-pdf-page-strip">
+                <PdfPageThumbnailStrip pageCount={pages} lang={lang === 'el' ? 'el' : 'en'} />
+              </div>
+            );
+          })()}
         </>
       ) : (
         <div className="flex h-full flex-col items-center justify-center gap-3 px-4 text-center">
@@ -285,7 +297,11 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
   const sourcesFooter = showQualityStrip ? (
     <footer className="flex items-center justify-between gap-2 border-t border-border-subtle px-3 py-2 shrink-0">
       <span className="ws-pill" data-testid="notebook-source-quality">
-        {sourceQualityScore}% {tx('ποιότητα πηγής', 'source quality')}
+        {showPre24Greek
+          ? tx('Προ-v2.4 ελληνικά', 'Pre-v2.4 Greek')
+          : sourceQualityScore != null
+            ? `${sourceQualityScore}% ${tx('ποιότητα πηγής', 'source quality')}`
+            : tx('Έλεγχος πηγής', 'Source check')}
       </span>
       <button
         type="button"

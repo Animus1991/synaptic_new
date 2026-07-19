@@ -98,6 +98,11 @@ export const config = {
 
 export type Plan = 'free' | 'pro' | 'team';
 
-if (!config.upstreamApiKey) {
+const isTestRuntime =
+  process.env.NODE_ENV === 'test'
+  || process.env.VITEST === 'true'
+  || process.env.VITEST === '1';
+
+if (!config.upstreamApiKey && !isTestRuntime) {
   console.warn('[config] OPENAI_API_KEY is not set — upstream calls will fail until it is configured.');
 }

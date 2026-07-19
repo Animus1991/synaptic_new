@@ -1,8 +1,10 @@
 import { useState, useRef, useMemo } from 'react';
 import {
   Brain, BookOpen, Target, Zap,
-  Gauge, Shield, Calendar, Palette, Database, KeyRound
+  Gauge, Shield, Calendar, Palette, Database, KeyRound,
+  Moon, Sun, Sparkles, Layers, Monitor,
 } from '@/lib/lucide-shim';
+import type { LucideIcon } from '@/lib/lucide-shim';
 import type { UserSettings, Task } from '../types';
 import { cn } from '../utils/cn';
 import { clearAllSessionData, downloadBackup, importSessionData } from '../lib/sessionBackup';
@@ -18,6 +20,11 @@ import { RagIndexProgressBanner } from './RagIndexProgressBanner';
 import { PluginMarketplacePanel } from './PluginMarketplacePanel';
 import { privacyPolicyUrl } from '../lib/siteConfig';
 import { ColorCodingReferencePanel } from './ui/ColorCodingReferencePanel';
+import {
+  getNotebookLmParityOverride,
+  resolveNotebookLmParity,
+  setNotebookLmParityOverride,
+} from '../lib/notebookLmParity';
 
 import { type TaskCalendarSyncUpdate } from '../lib/taskCalendarSync';
 
@@ -53,7 +60,18 @@ export function Settings({
   const [authPassword, setAuthPassword] = useState('');
   const [authStatus, setAuthStatus] = useState<string | null>(null);
   const [deleteConfirmEmail, setDeleteConfirmEmail] = useState('');
+  const [parityTick, setParityTick] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const parityOverride = useMemo(() => {
+    void parityTick;
+    return getNotebookLmParityOverride();
+  }, [parityTick]);
+  const parityEffective = useMemo(() => {
+    void parityTick;
+    return resolveNotebookLmParity();
+  }, [parityTick]);
+  const parityToggleValue =
+    parityOverride === true ? 'on' : parityOverride === false ? 'off' : 'default';
 
   const handleImport = async (file: File) => {
     const text = await file.text();
@@ -148,7 +166,13 @@ export function Settings({
         ))}
       </nav>
 
-      <div className="lg:grid lg:grid-cols-2 lg:gap-6 lg:items-start [&>*]:mb-6 lg:[&>*]:mb-0">
+      {/* Wave P-L01 — masonry column flow. CSS multi-column packs
+          asymmetric-height section cards greedily top-to-bottom left-to-right,
+          eliminating the large vertical whitespace that CSS Grid + items-start
+          leaves under the shorter column. `break-inside-avoid` per child pins
+          each SettingsSection so it never splits across columns.
+          Falls back to single column below `lg` breakpoint. */}
+      <div className="lg:columns-2 lg:gap-6 [&>*]:mb-6 [&>*]:break-inside-avoid">
       <SettingsSection id="settings-teaching" title={c.sectionTeachingApproach} icon={<Brain className="w-5 h-5 text-brand-400" />} delay={0.05}>
         <ToggleRow label={c.labelTeachingStyle} options={c.teachingStyleOptions} value={settings.teachingStyle} onChange={v => onUpdate({ teachingStyle: v as UserSettings['teachingStyle'] })} />
         <ToggleRow label={c.labelExplanationDepth} options={c.explanationDepthOptions} value={settings.explanationDepth} onChange={v => onUpdate({ explanationDepth: v as UserSettings['explanationDepth'] })} />
@@ -555,7 +579,12 @@ export function Settings({
       </SettingsSection>
 
       <SettingsSection id="settings-interface" title={c.sectionInterface} icon={<Palette className="w-5 h-5 text-brand-300" />} delay={0.35}>
-        <ToggleRow label={c.labelTheme} options={c.themeOptions} value={settings.theme} onChange={v => onUpdate({ theme: v as UserSettings['theme'] })} />
+        <ThemePickerRow
+          label={c.labelTheme}
+          options={c.themeOptions}
+          value={settings.theme}
+          onChange={v => onUpdate({ theme: v as UserSettings['theme'] })}
+        />
         <ToggleRow label={c.labelLanguage} options={c.languageOptions} value={settings.language} onChange={v => onUpdate({ language: v as UserSettings['language'] })} />
         <ToggleRow
           label={c.labelChromeDensity}
@@ -619,6 +648,27 @@ export function Settings({
       <SettingsSection id="settings-developer" title={c.sectionDeveloper} icon={<Gauge className="w-5 h-5 text-accent-amber" />} delay={0.39}>
         <p className="text-xs text-text-secondary">{c.developerHint}</p>
         <WorkspaceTTIPanel />
+        <div className="pt-2 border-t border-border-subtle space-y-2" data-testid="settings-notebooklm-parity">
+          <ToggleRow
+            label={t('settingsNotebookLmParity')}
+            options={[
+              { value: 'default', label: t('settingsNotebookLmParityDefault') },
+              { value: 'on', label: t('settingsNotebookLmParityOn') },
+              { value: 'off', label: t('settingsNotebookLmParityOff') },
+            ]}
+            value={parityToggleValue}
+            onChange={(v) => {
+              if (v === 'on') setNotebookLmParityOverride(true);
+              else if (v === 'off') setNotebookLmParityOverride(false);
+              else setNotebookLmParityOverride(null);
+              setParityTick((n) => n + 1);
+            }}
+          />
+          <p className="text-[11px] text-text-muted">
+            {t('settingsNotebookLmParityHint')}{' '}
+            ({parityEffective ? t('settingsNotebookLmParityOn') : t('settingsNotebookLmParityOff')})
+          </p>
+        </div>
         {onReplayProductTour && (
           <div className="pt-2 border-t border-border-subtle">
             <p className="text-xs text-text-secondary mb-2">{t('tourReplayHint')}</p>
@@ -665,6 +715,58 @@ function ToggleRow({ label, options, value, onChange }: { label: string; options
               value === opt.value ? 'bg-brand-600/20 text-brand-300 border border-brand-500/30' : 'border border-border-subtle text-text-tertiary hover:text-text-secondary'
             )}>{opt.label}</button>
         ))}
+      </div>
+    </div>
+  );
+}
+
+const THEME_ICONS: Record<string, LucideIcon> = {
+  dark: Moon,
+  light: Sun,
+  spectrum: Sparkles,
+  blueprint: Layers,
+  system: Monitor,
+};
+
+/** L-S01 / K-S01: denser theme chips with Phosphor icons (no emoji). */
+function ThemePickerRow({
+  label,
+  options,
+  value,
+  onChange,
+}: {
+  label: string;
+  options: { value: string; label: string }[];
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  return (
+    <div data-testid="settings-theme-picker">
+      <label className="text-xs text-text-secondary block mb-2">{label}</label>
+      <div className="flex flex-wrap gap-1.5">
+        {options.map((opt) => {
+          const Icon = THEME_ICONS[opt.value] ?? Palette;
+          const active = value === opt.value;
+          return (
+            <button
+              key={opt.value}
+              type="button"
+              onClick={() => onChange(opt.value)}
+              className={cn(
+                'inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-[11px] font-medium transition-all',
+                /* Wave P-3 C12 — .ux-theme-chip-active uses brand-700 ink on light
+                   themes (brand-300 collapsed to ~2:1 on warm-light white cards). */
+                active
+                  ? 'ux-theme-chip-active'
+                  : 'border-border-subtle text-text-tertiary hover:text-text-secondary hover:border-brand-500/25',
+              )}
+              aria-pressed={active}
+            >
+              <Icon className="w-3.5 h-3.5 shrink-0" aria-hidden />
+              {opt.label}
+            </button>
+          );
+        })}
       </div>
     </div>
   );

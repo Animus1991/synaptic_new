@@ -1,4 +1,4 @@
-import { Sparkles } from '@/lib/lucide-shim';
+import { Sparkles, Check, X } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
 import { RichText } from '../RichText';
 import type { QuizDef, LessonStepKey } from '../../lib/domainContent';
@@ -70,7 +70,7 @@ export function GroundedLessonContent({
     return (
       <div className="space-y-4">
         <span className="text-xs text-brand-400 font-medium">{t('quiz')}</span>
-        <h2 className="text-2xl font-bold">{t('knowledgeCheck')}</h2>
+        <h2 className="text-lg font-semibold">{t('knowledgeCheck')}</h2>
         <div className="p-4 rounded-xl bg-surface-card border border-border-subtle">
           {quizDef.placeholder ? (
             <div className="py-3 text-center">
@@ -101,8 +101,9 @@ export function GroundedLessonContent({
                 </button>
               ))}
               {quizAnswer !== null && (
-                <p className={cn('text-xs mt-2', quizPassed ? 'text-accent-emerald' : 'text-accent-rose')}>
-                  {quizPassed ? `✓ ${t('canFinish')}` : `✗ ${t('reviewMaterial')}`}
+                <p className={cn('text-xs mt-2 inline-flex items-center gap-1.5', quizPassed ? 'text-accent-emerald' : 'text-accent-rose')}>
+                  {quizPassed ? <Check className="w-3.5 h-3.5" aria-hidden /> : <X className="w-3.5 h-3.5" aria-hidden />}
+                  {quizPassed ? t('canFinish') : t('reviewMaterial')}
                 </p>
               )}
             </>
@@ -122,7 +123,7 @@ export function GroundedLessonContent({
             {t('wbFromSources')}
           </span>
         </div>
-        <h2 className="text-2xl font-bold">{generatedPanel.title}</h2>
+        <h2 className="text-lg font-semibold">{generatedPanel.title}</h2>
         {generatedPanel.blocks.map((block, i) => (
           <PanelBlock key={i} block={block} onOpenAgent={onOpenAgent} />
         ))}
@@ -143,7 +144,7 @@ export function GroundedLessonContent({
     <div className="space-y-5">
       <div>
         <span className="text-xs text-accent-cyan font-medium">{stepLabel}</span>
-        <h2 className="text-2xl font-bold mt-2">{concept}</h2>
+        <h2 className="text-lg font-semibold mt-2">{concept}</h2>
       </div>
       <div className="text-sm text-text-secondary leading-relaxed">
         <RichText text={body} />

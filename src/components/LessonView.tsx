@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { emphasizedTransition, slideIn } from '../lib/motion';
 import {
   X, CheckCircle2, Circle, ChevronRight, Sparkles,
 } from '@/lib/lucide-shim';
@@ -263,14 +264,15 @@ export function LessonView({
       </nav>
 
       <main id="lesson-main" tabIndex={-1} className="flex-1 overflow-y-auto focus:outline-none">
-        <div className="w-full min-w-0 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+        <div className="w-full min-w-0 max-w-none px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
           <AnimatePresence mode="wait">
             <motion.div
               key={step.key}
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              transition={{ duration: 0.3 }}
+              variants={slideIn}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+              transition={emphasizedTransition}
             >
               <GroundedLessonContent
                 stepKey={step.key}

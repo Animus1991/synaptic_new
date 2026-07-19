@@ -26,7 +26,11 @@ export function ConceptMasteryBars({ concepts, maxItems = 8 }: Props) {
                 {c.mastery}% · {band}
               </span>
             </div>
-            <div className="h-2 rounded-full bg-surface-hover overflow-hidden">
+            {/* Wave P-2 C08 — Concept mastery bar track uses --viz-bar-track
+                (theme-tuned to ≥3:1 vs card surface) so weak-band fills (3–20%)
+                always reveal a visible track behind them, particularly on the
+                spectrum + warm-light themes where bg-surface-hover collapsed. */}
+            <div className="h-2 rounded-full overflow-hidden" style={{ backgroundColor: 'var(--viz-bar-track)' }}>
               <div
                 className="h-full rounded-full transition-all duration-500"
                 style={{ width: `${c.mastery}%`, backgroundColor: bandColor(band) }}

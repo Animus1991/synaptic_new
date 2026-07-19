@@ -1,9 +1,10 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { emphasizedTransition, expandHeight } from '../lib/motion';
 import {
   Search, Upload, BookOpen, FileText, ChevronRight, ChevronDown,
   Clock, BarChart3, Sparkles, Grid3X3, List, Loader2,
-  File, Image, Code, Presentation, Table2, AlertTriangle, Trash2, RefreshCw, ExternalLink,
+  File, Image, Code, Presentation, Table2, Trash2, RefreshCw, ExternalLink, X,
 } from '@/lib/lucide-shim';
 import type { Course, UploadedFile, UserSettings, Task, GlossaryEntry } from '../types';
 import { cn } from '../utils/cn';
@@ -25,6 +26,7 @@ import { UiIcon } from './ui/UiIcon';
 import { PlatformEmptyState } from './ui/PlatformEmptyState';
 import { PostUploadBanner } from './ui/PostUploadBanner';
 import { Page, PageHeader, PrimaryCTA } from './ui/primitives';
+import { useWarmSandPageScope, warmSandScopeProps } from '../lib/useDocumentTheme';
 import { DescriptiveStickyTabBar, InfoStack, MiniAlert } from './ui/platformChrome';
 import { BlueprintSurface } from './ui/BlueprintSurface';
 import { t } from '../lib/i18n';
@@ -35,6 +37,38 @@ import { showCrossLibrarySynthesis } from '../lib/platformFocus';
 import type { NotebookLmImportResult } from '../lib/notebooklmImport';
 import { openNotebookLm, notebookLmSourceLabel } from '../lib/notebooklmBridge';
 import { isDebugUiTopicLabel } from '../lib/knowledgeFlowAnalytics';
+import { QualityScoreBadge } from './ui/QualityScoreBadge';
+import { CourseStatusBadge, type CourseStatusKind } from './ui/CourseStatusBadge';
+import { CompactProgressBar } from './ui/CompactProgressBar';
+
+type LibraryTab = 'courses' | 'files';
+type ViewMode = 'grid' | 'list';
+type LibraryFilter = 'all' | 'in-progress' | 'generating' | 'completed' | 'attention';
+
+const LIBRARY_PREFS_KEY = 'synapse:library-view-prefs';
+
+function loadLibraryPrefs(): { filter: LibraryFilter; viewMode: ViewMode; sortBy: 'recent' | 'progress' | 'quality' | 'title' } {
+  try {
+    const raw = localStorage.getItem(LIBRARY_PREFS_KEY);
+    if (!raw) return { filter: 'all', viewMode: 'grid', sortBy: 'recent' };
+    const parsed = JSON.parse(raw) as Partial<{ filter: LibraryFilter; viewMode: ViewMode; sortBy: 'recent' | 'progress' | 'quality' | 'title' }>;
+    return {
+      filter: parsed.filter ?? 'all',
+      viewMode: parsed.viewMode ?? 'grid',
+      sortBy: parsed.sortBy ?? 'recent',
+    };
+  } catch {
+    return { filter: 'all', viewMode: 'grid', sortBy: 'recent' };
+  }
+}
+
+function courseStatusKind(course: Course): CourseStatusKind {
+  if (course.status === 'generating') return 'generating';
+  if (course.status === 'needs_review') return 'needs_review';
+  if (course.status === 'completed') return 'complete';
+  if (course.status === 'in-progress') return 'in_progress';
+  return 'ready';
+}
 
 interface LibraryProps {
   courses: Course[];
@@ -56,10 +90,6 @@ interface LibraryProps {
   onOpenNotebookShell?: (courseId: string) => void;
   onOpenConcept?: (concept: string) => void;
 }
-
-type LibraryTab = 'courses' | 'files';
-type ViewMode = 'grid' | 'list';
-type LibraryFilter = 'all' | 'in-progress' | 'generating' | 'completed' | 'attention';
 
 const fileTypeIcons: Record<string, typeof FileText> = {
   pdf: FileText,
@@ -93,14 +123,16 @@ export function Library({
   onOpenConcept,
 }: LibraryProps) {
   const userLanguage = userSettings?.language === 'el' ? 'el' : 'en';
+  const warmSandPage = useWarmSandPageScope();
   const postUploadCourse = postUploadCourseId
     ? courses.find((c) => c.id === postUploadCourseId) ?? null
     : null;
   const [tab, setTab] = useState<LibraryTab>('courses');
-  const [viewMode, setViewMode] = useState<ViewMode>('grid');
+  const initialPrefs = useMemo(() => loadLibraryPrefs(), []);
+  const [viewMode, setViewMode] = useState<ViewMode>(initialPrefs.viewMode);
   const [search, setSearch] = useState('');
-  const [filter, setFilter] = useState<LibraryFilter>('all');
-  const [sortBy, setSortBy] = useState<'recent' | 'progress' | 'quality' | 'title'>('recent');
+  const [filter, setFilter] = useState<LibraryFilter>(initialPrefs.filter);
+  const [sortBy, setSortBy] = useState<'recent' | 'progress' | 'quality' | 'title'>(initialPrefs.sortBy);
   const [entryHintDismissed, setEntryHintDismissed] = useState(() => {
     if (typeof window === 'undefined') return false;
     try {
@@ -109,6 +141,14 @@ export function Library({
       return false;
     }
   });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(LIBRARY_PREFS_KEY, JSON.stringify({ filter, viewMode, sortBy }));
+    } catch {
+      /* ignore */
+    }
+  }, [filter, viewMode, sortBy]);
 
   const dismissEntryHint = () => {
     try {
@@ -196,14 +236,14 @@ export function Library({
     () => [
       {
         id: 'courses' as const,
-        label: t('libraryTabCourses', userLanguage),
-        summary: t('libraryTabCoursesSummary', userLanguage),
+        label: t('libCoursesStat', userLanguage).replace('{count}', String(courses.length)),
+        summary: t('libCoursesStatReady', userLanguage),
         count: courses.length,
       },
       {
         id: 'files' as const,
-        label: t('libraryTabFiles', userLanguage),
-        summary: t('libraryTabFilesSummary', userLanguage),
+        label: t('libFilesStat', userLanguage).replace('{count}', String(uploadedFiles.length)),
+        summary: t('libFilesStatSources', userLanguage),
         count: uploadedFiles.length,
       },
     ],
@@ -228,7 +268,8 @@ export function Library({
   );
 
   return (
-    <Page>
+    <div {...warmSandScopeProps(warmSandPage)} data-testid="library-page">
+    <Page gap="sm">
       <PageHeader
         eyebrow={t('library', userLanguage)}
         title={t('libraryPageTitle', userLanguage)}
@@ -246,67 +287,74 @@ export function Library({
         settings={userSettings}
         lang={userLanguage}
         variant="banner"
-        className="mb-4"
       />
 
-      {onImportNotebookLm && (
-        <NotebookLmImportPanel
-          lang={userLanguage}
-          onImport={onImportNotebookLm}
-          onAddToFsrs={onAddNotebookLmToFsrs}
-          className="mb-4"
-        />
-      )}
+      {/* L-L01: canvas order — RAG → success → NotebookLM → combined → tip.
+          Tight stack avoids stacking Page space-y with per-child mb-*. */}
+      <div className="space-y-1.5">
+        {postUploadCourse && onOpenWorkspace && (
+          <PostUploadBanner
+            courseTitle={postUploadCourse.title}
+            onOpenWorkspace={() => {
+              onSelectCourse(postUploadCourse);
+              onDismissPostUpload?.();
+              onOpenWorkspace();
+            }}
+            onViewCourse={() => {
+              onSelectCourse(postUploadCourse);
+              onDismissPostUpload?.();
+            }}
+            onDismiss={() => onDismissPostUpload?.()}
+          />
+        )}
 
-      {showCrossLibrarySynthesis() && (
-        <CrossLibrarySynthesisPanel
-          courses={courses}
-          settings={userSettings}
-          lang={userLanguage}
-          className="mb-4"
-        />
-      )}
+        {onImportNotebookLm && (
+          <NotebookLmImportPanel
+            lang={userLanguage}
+            onImport={onImportNotebookLm}
+            onAddToFsrs={onAddNotebookLmToFsrs}
+          />
+        )}
 
-      {postUploadCourse && onOpenWorkspace && (
-        <PostUploadBanner
-          courseTitle={postUploadCourse.title}
-          onOpenWorkspace={() => {
-            onSelectCourse(postUploadCourse);
-            onDismissPostUpload?.();
-            onOpenWorkspace();
-          }}
-          onViewCourse={() => {
-            onSelectCourse(postUploadCourse);
-            onDismissPostUpload?.();
-          }}
-          onDismiss={() => onDismissPostUpload?.()}
-        />
-      )}
+        {showCrossLibrarySynthesis() && (
+          <CrossLibrarySynthesisPanel
+            courses={courses}
+            settings={userSettings}
+            lang={userLanguage}
+          />
+        )}
 
-      {!entryHintDismissed && (
-        <BlueprintSurface hint className="mb-3 px-4 py-2.5 flex items-start justify-between gap-3">
-          <p className="text-sm text-text-secondary">{t('libraryEntryHint', userLanguage)}</p>
-          <button
-            type="button"
-            onClick={dismissEntryHint}
-            className="shrink-0 text-xs text-text-muted hover:text-text-secondary"
-            aria-label={t('close', userLanguage)}
+        {!entryHintDismissed && (
+          <div
+            data-testid="library-tip-banner"
+            className="flex items-start justify-between gap-3 rounded-xl border border-dashed border-brand-500/35 bg-surface-card/40 px-3 py-2"
           >
-            ✕
-          </button>
-        </BlueprintSurface>
-      )}
+            <p className="text-xs text-text-secondary">
+              <span className="font-semibold text-brand-800">{t('libraryTipLabel', userLanguage)}</span>{' '}
+              {t('libraryEntryHint', userLanguage)}
+            </p>
+            <button
+              type="button"
+              onClick={dismissEntryHint}
+              className="shrink-0 text-text-muted hover:text-text-secondary p-0.5"
+              aria-label={t('close', userLanguage)}
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        )}
+      </div>
 
+      {/* Counts live on tab badges — no separate stats strip (was a duplicate row). */}
       <DescriptiveStickyTabBar
         items={libraryTabs}
         activeId={tab}
         onChange={setTab}
         testIdPrefix="library-tab"
-        className="mb-4"
       />
 
       {/* Search & Filters */}
-      <div className="flex flex-col sm:flex-row gap-3">
+      <div className="flex flex-col sm:flex-row gap-2">
         <div className="flex-1 relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-tertiary pointer-events-none" aria-hidden="true" />
           <input
@@ -324,7 +372,7 @@ export function Library({
               aria-label={t('libClearSearch', userLanguage)}
               className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded text-text-tertiary hover:text-text-primary hover:bg-surface-hover transition-colors"
             >
-              <span aria-hidden="true" className="text-xs">✕</span>
+              <X className="w-3.5 h-3.5" aria-hidden />
             </button>
           )}
         </div>
@@ -392,13 +440,14 @@ export function Library({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            transition={emphasizedTransition}
           >
             {!search.trim() && filteredCourses.length === 0 && (
               <button
                 type="button"
                 onClick={onUpload}
                 data-testid="library-drop-zone"
-                className="ux-library-drop-zone ux-prompt-bar-surface mb-4 flex w-full flex-col items-center gap-2 px-6 py-8 text-center text-text-secondary hover:text-text-primary transition-colors"
+                className="ux-library-drop-zone ux-prompt-bar-surface mb-2 flex w-full flex-col items-center gap-2 px-6 py-8 text-center text-text-secondary hover:text-text-primary transition-colors"
               >
                 <Upload className="h-8 w-8 text-brand-600" aria-hidden />
                 <span className="text-sm font-medium">
@@ -419,38 +468,61 @@ export function Library({
                 onSecondaryAction={search.trim() || filter !== 'all' ? () => { setSearch(''); setFilter('all'); } : uploadedFiles.length > 0 ? () => setTab('files') : undefined}
               />
             ) : (
-              <div className="space-y-4">
-                <div className={cn(
-                viewMode === 'grid'
-                  ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4'
-                  : 'space-y-3'
-              )}>
-                {filteredCourses.map((course, i) => (
-                  viewMode === 'grid'
-                    ? <CourseCard key={course.id} course={course} index={i} tasks={tasks} glossaryEntries={glossaryEntries} uploadedFiles={uploadedFiles} userLanguage={userLanguage} onClick={() => onSelectCourse(course)} onRemoveCourse={onRemoveCourse} onOpenNotebookShell={onOpenNotebookShell} />
-                    : <CourseListItem key={course.id} course={course} index={i} tasks={tasks} glossaryEntries={glossaryEntries} uploadedFiles={uploadedFiles} userLanguage={userLanguage} onClick={() => onSelectCourse(course)} onRemoveCourse={onRemoveCourse} onOpenNotebookShell={onOpenNotebookShell} />
-                ))}
-              </div>
-                {!search.trim() && (libraryQualityAlerts.needsMaterial || libraryQualityAlerts.outlineAdjusted) && (
-                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                    {libraryQualityAlerts.needsMaterial && (
-                      <MiniAlert
-                        tone="amber"
-                        title={t('libraryMiniAlertGapTitle', userLanguage)}
-                        body={t('libraryMiniAlertGapBody', userLanguage)}
+              <div className="space-y-2">
+                {/* Courses + alerts + info stacks share one masonry so Topics/Examples
+                    fill voids left by an uneven course count (Settings-style pack). */}
+                <div
+                  className={cn(
+                    viewMode === 'grid'
+                      ? 'columns-1 sm:columns-2 lg:columns-3 gap-2.5 [&>*]:mb-2.5 [&>*]:break-inside-avoid'
+                      : 'space-y-2',
+                  )}
+                >
+                  {filteredCourses.map((course, i) => (
+                    viewMode === 'grid' ? (
+                      <CourseCard
+                        key={course.id}
+                        course={course}
+                        index={i}
+                        tasks={tasks}
+                        glossaryEntries={glossaryEntries}
+                        uploadedFiles={uploadedFiles}
+                        userLanguage={userLanguage}
+                        onClick={() => onSelectCourse(course)}
+                        onRemoveCourse={onRemoveCourse}
+                        onOpenNotebookShell={onOpenNotebookShell}
+                        onUpload={onUpload}
                       />
-                    )}
-                    {libraryQualityAlerts.outlineAdjusted && (
-                      <MiniAlert
-                        tone="violet"
-                        title={t('libraryMiniAlertContradictionTitle', userLanguage)}
-                        body={t('libraryMiniAlertContradictionBody', userLanguage)}
+                    ) : (
+                      <CourseListItem
+                        key={course.id}
+                        course={course}
+                        index={i}
+                        tasks={tasks}
+                        glossaryEntries={glossaryEntries}
+                        uploadedFiles={uploadedFiles}
+                        userLanguage={userLanguage}
+                        onClick={() => onSelectCourse(course)}
+                        onRemoveCourse={onRemoveCourse}
+                        onOpenNotebookShell={onOpenNotebookShell}
                       />
-                    )}
-                  </div>
-                )}
-                {!search.trim() && (libraryInfo.topics.length > 0 || libraryInfo.examples.length > 0) && (
-                  <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+                    )
+                  ))}
+                  {!search.trim() && libraryQualityAlerts.needsMaterial && (
+                    <MiniAlert
+                      tone="amber"
+                      title={t('libraryMiniAlertGapTitle', userLanguage)}
+                      body={t('libraryMiniAlertGapBody', userLanguage)}
+                    />
+                  )}
+                  {!search.trim() && libraryQualityAlerts.outlineAdjusted && (
+                    <MiniAlert
+                      tone="violet"
+                      title={t('libraryMiniAlertContradictionTitle', userLanguage)}
+                      body={t('libraryMiniAlertContradictionBody', userLanguage)}
+                    />
+                  )}
+                  {!search.trim() && libraryInfo.topics.length > 0 && (
                     <InfoStack
                       title={t('libraryInfoStackTopicsTitle', userLanguage)}
                       items={libraryInfo.topics}
@@ -464,6 +536,8 @@ export function Library({
                       itemHint={t('libTopicOpenHint', userLanguage)}
                       secondaryHint={t('libConceptOpenHint', userLanguage)}
                     />
+                  )}
+                  {!search.trim() && libraryInfo.examples.length > 0 && (
                     <InfoStack
                       title={t('libraryInfoStackExamplesTitle', userLanguage)}
                       items={libraryInfo.examples}
@@ -474,14 +548,14 @@ export function Library({
                       itemHint={t('libConceptOpenHint', userLanguage)}
                       secondaryHint={t('libConceptOpenHint', userLanguage)}
                     />
-                  </div>
-                )}
+                  )}
+                </div>
                 {!search.trim() && (
                   <button
                     type="button"
                     onClick={onUpload}
                     data-testid="library-drop-zone-compact"
-                    className="ux-library-drop-zone ux-library-drop-zone--compact ux-prompt-bar-surface flex w-full flex-row items-center justify-center gap-3 px-4 py-3 text-text-secondary hover:text-text-primary transition-colors"
+                    className="ux-library-drop-zone ux-library-drop-zone--compact ux-prompt-bar-surface flex w-full flex-row items-center justify-center gap-3 px-4 py-2.5 text-text-secondary hover:text-text-primary transition-colors"
                   >
                     <Upload className="h-5 w-5 text-brand-600 shrink-0" aria-hidden />
                     <span className="text-sm font-medium">{t('libDropZoneCompactTitle', userLanguage)}</span>
@@ -498,6 +572,7 @@ export function Library({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            transition={emphasizedTransition}
           >
             {filteredFiles.length === 0 ? (
               <PlatformEmptyState
@@ -532,6 +607,7 @@ export function Library({
         )}
       </AnimatePresence>
     </Page>
+    </div>
   );
 }
 
@@ -551,6 +627,7 @@ function CourseCard({
   onClick,
   onRemoveCourse,
   onOpenNotebookShell,
+  onUpload,
   uploadedFiles,
   tasks = [],
   glossaryEntries = [],
@@ -561,6 +638,7 @@ function CourseCard({
   onClick: () => void;
   onRemoveCourse?: (courseId: string) => boolean;
   onOpenNotebookShell?: (courseId: string) => void;
+  onUpload?: () => void;
   uploadedFiles: UploadedFile[];
   tasks?: Task[];
   glossaryEntries?: GlossaryEntry[];
@@ -581,17 +659,10 @@ function CourseCard({
   const isGenerating = course.status === 'generating';
   const needsReview = course.status === 'needs_review';
   const quality = course.sourceQuality;
+  const showMaterialGap = Boolean(quality?.needsMoreMaterial);
+  const showMisconception = Boolean(quality?.outlineAdjusted);
+  const topicChips = (course.topics ?? []).filter((topic) => !isDebugUiTopicLabel(topic.title)).slice(0, 4);
   const { pendingTasks, dueReviews, isStalePipeline: isOldPipeline } = selectCourseTaskMetrics(course, tasks);
-  const qualityTone = quality?.band === 'strong'
-    ? 'bg-accent-emerald/10 text-accent-emerald border-accent-emerald/20'
-    : quality?.band === 'moderate'
-      ? 'bg-accent-cyan/10 text-accent-cyan border-accent-cyan/20'
-      : 'bg-accent-amber/10 text-accent-amber border-accent-amber/20';
-  const qualityLabel = quality?.band === 'strong'
-    ? t('libSourceStrong', userLanguage)
-    : quality?.band === 'moderate'
-      ? t('libSourceModerate', userLanguage)
-      : t('libSourceNeedsMore', userLanguage);
 
   return (
     <BlueprintSurface
@@ -600,25 +671,50 @@ function CourseCard({
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.05 }}
       onClick={() => {
+        if (isGenerating) return;
         prefetchWorkspaceEntry();
         onClick();
       }}
       data-testid="library-course-card"
-      {...workspaceEntryPrefetchHandlers()}
-      className="p-5 hover:border-brand-500/35 cursor-pointer transition-all group"
+      {...(isGenerating ? {} : workspaceEntryPrefetchHandlers())}
+      className={cn(
+        'relative p-3.5 hover:border-brand-500/35 transition-all group',
+        isGenerating ? 'cursor-default pointer-events-none opacity-90' : 'cursor-pointer',
+      )}
     >
-      <div className="flex items-start justify-between mb-4">
-        <CourseIcon icon={course.icon} size="xl" colorClassName="text-brand-600" />
+      {!isGenerating && (showMaterialGap || showMisconception) && (
+        <div className="pointer-events-none absolute right-2 top-2 z-10 flex max-w-[55%] flex-col items-end gap-1">
+          {showMaterialGap && (
+            <span
+              data-testid={`library-corner-gap-${course.id}`}
+              className="rounded-md border border-accent-amber/40 bg-accent-amber/15 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-accent-amber"
+            >
+              {t('libCornerMaterialGap', userLanguage)}
+            </span>
+          )}
+          {showMisconception && (
+            <span
+              data-testid={`library-corner-misconception-${course.id}`}
+              className="rounded-md border border-brand-500/35 bg-brand-500/10 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-brand-700"
+            >
+              {t('libCornerMisconception', userLanguage)}
+            </span>
+          )}
+        </div>
+      )}
+
+      <div className="flex items-start justify-between mb-3">
+        <CourseIcon icon={course.icon} size="lg" colorClassName="text-brand-600" />
         <div className="flex items-center gap-1">
-          {canDelete && (
+          {canDelete && !isGenerating && (
             <button
               type="button"
               onClick={(e) => { e.stopPropagation(); setRemoveDialogOpen(true); }}
               data-testid="library-course-delete"
-              className="rounded-lg p-1.5 text-text-tertiary opacity-80 transition-all hover:bg-accent-rose/10 hover:text-accent-rose hover:opacity-100"
+              className="pointer-events-auto rounded-lg p-1.5 text-text-tertiary opacity-80 transition-all hover:bg-accent-rose/10 hover:text-accent-rose hover:opacity-100"
               aria-label={t('libDeleteCourseAria', userLanguage)}
             >
-              <Trash2 className="w-4 h-4" />
+              <X className="w-4 h-4" />
             </button>
           )}
           {isOldPipeline && !isGenerating && (
@@ -631,25 +727,19 @@ function CourseCard({
             </div>
           )}
           {isGenerating ? (
-          <div className="platform-status-pill platform-status-pill--generating flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium">
-            <Loader2 className="w-3 h-3 animate-spin" />
-            {t('libGenerating', userLanguage)}
-          </div>
+          <CourseStatusBadge kind="generating" />
         ) : needsReview ? (
-          <div className="flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-semibold border border-accent-amber/30 bg-accent-amber/10 text-accent-amber">
-            <AlertTriangle className="w-3 h-3" />
-            {t('courseNeedsReviewBadge', userLanguage ?? 'en')}
-          </div>
+          <CourseStatusBadge kind="needs_review" />
         ) : (
-          <div className="text-xs text-text-tertiary font-medium capitalize px-2 py-1 rounded-full border border-border-subtle">
+          <span className="text-[10px] text-text-tertiary font-medium capitalize px-2 py-1 rounded-full border border-border-subtle">
             {courseDifficultyLabel(course.difficulty, userLanguage)}
-          </div>
+          </span>
         )}
         </div>
       </div>
 
-      <h3 className="font-semibold mb-1 text-text-primary group-hover:text-brand-700 transition-colors" data-testid="library-course-title">{course.title}</h3>
-      <p className="text-xs text-text-tertiary mb-4 line-clamp-2">{course.description}</p>
+      <h3 className="text-sm font-semibold mb-1 text-text-primary group-hover:text-brand-700 transition-colors" data-testid="library-course-title">{course.title}</h3>
+      <p className="text-xs text-text-tertiary mb-3 line-clamp-2">{course.description}</p>
       {course.recognitionSummary && !isGenerating && (
         <p className="text-[10px] text-text-muted mb-2">
           {t('recognitionReportTitle', userLanguage)}:{' '}
@@ -659,21 +749,18 @@ function CourseCard({
         </p>
       )}
       {quality && !isGenerating && (
-        <div className="mb-3 flex items-center justify-between gap-2">
-          <span className={cn('inline-flex items-center gap-1 rounded-full border px-2 py-1 text-[10px] font-medium', qualityTone)}>
-            {quality.needsMoreMaterial ? <AlertTriangle className="w-3 h-3" /> : <Sparkles className="w-3 h-3" />}
-            {qualityLabel}
-          </span>
-          <span className="text-[10px] text-text-muted">{quality.score}/100</span>
+        <div className="mb-2.5 flex flex-wrap items-center gap-1.5">
+          <QualityScoreBadge score={quality.score} />
+          <CourseStatusBadge kind={courseStatusKind(course)} />
         </div>
       )}
       {quality?.needsMoreMaterial && !isGenerating && (
-        <p className="mb-3 text-[11px] text-accent-amber line-clamp-2">
+        <p className="mb-2.5 text-[11px] text-accent-amber line-clamp-2">
           {quality.warnings[0] ?? t('libNeedsMoreHint', userLanguage)}
         </p>
       )}
 
-      <div className="flex flex-wrap items-center gap-3 text-xs text-text-tertiary mb-3">
+      <div className="flex flex-wrap items-center gap-3 text-xs text-text-tertiary mb-2.5">
         <span className="flex items-center gap-1">
           <BookOpen className="w-3.5 h-3.5" />
           {course.totalLessons} {t('libLessons', userLanguage)}
@@ -701,33 +788,75 @@ function CourseCard({
       </div>
 
       {!isGenerating && (
-        <div className="w-full bg-surface-hover rounded-full h-1.5">
-          <div
-            className="h-1.5 rounded-full transition-all duration-700"
-            style={{ width: `${progress}%`, backgroundColor: resolveCourseColor(course.color) }}
-          />
-        </div>
+        <CompactProgressBar
+          pct={progress}
+          color={resolveCourseColor(course.color)}
+          aria-label={`${course.title} ${Math.round(progress)}%`}
+        />
       )}
 
       {isGenerating && (
-        <div className="w-full bg-surface-hover rounded-full h-1.5 overflow-hidden">
-          <div className="h-1.5 bg-accent-amber shimmer" style={{ width: '60%' }} />
+        /* Wave P-2 C08 — course generation shimmer track uses --viz-bar-track. */
+        <div className="w-full rounded-full h-1 overflow-hidden" style={{ backgroundColor: 'var(--viz-bar-track)' }}>
+          <div className="h-1 bg-accent-amber shimmer" style={{ width: '60%' }} />
         </div>
       )}
 
-      {onOpenNotebookShell && !isGenerating && (
-        <button
-          type="button"
-          onClick={(e) => {
-            e.stopPropagation();
-            onOpenNotebookShell(course.id);
-          }}
-          data-testid={`library-notebook-shell-${course.id}`}
-          className="mt-3 w-full inline-flex items-center justify-center gap-1.5 rounded-lg border border-brand-500/30 bg-brand-500/5 px-2 py-1.5 text-[11px] font-medium text-brand-700 hover:bg-brand-500/10 transition-colors"
-        >
-          <BookOpen className="w-3.5 h-3.5" />
-          {t('libNotebookShell', userLanguage)}
-        </button>
+      {!isGenerating && (
+        <div className="mt-3 flex items-center gap-2">
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onClick();
+            }}
+            data-testid={`library-open-course-${course.id}`}
+            className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg bg-brand-700 text-white px-2 py-1.5 text-[11px] font-semibold hover:bg-brand-600 transition-colors"
+          >
+            {t('libOpenCourse', userLanguage)}
+          </button>
+          {onOpenNotebookShell && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onOpenNotebookShell(course.id);
+              }}
+              data-testid={`library-notebook-shell-${course.id}`}
+              className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-brand-500/30 bg-brand-500/5 px-2.5 py-1.5 text-[11px] font-medium text-brand-700 hover:bg-brand-500/10 transition-colors"
+            >
+              <BookOpen className="w-3.5 h-3.5" />
+              {t('libNotebookShellShort', userLanguage)}
+            </button>
+          )}
+        </div>
+      )}
+
+      {!isGenerating && (
+        <div className="mt-3 flex flex-wrap items-center gap-1.5" data-testid={`library-topic-chips-${course.id}`}>
+          {topicChips.map((topic) => (
+            <span
+              key={topic.id}
+              className="max-w-[7.5rem] truncate rounded-md border border-border-subtle bg-surface-secondary/50 px-1.5 py-0.5 text-[10px] text-text-secondary"
+              title={topic.title}
+            >
+              {topic.title}
+            </span>
+          ))}
+          {onUpload && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onUpload();
+              }}
+              data-testid={`library-add-file-${course.id}`}
+              className="rounded-md border border-dashed border-brand-500/40 px-1.5 py-0.5 text-[10px] font-medium text-brand-700 hover:bg-brand-500/10"
+            >
+              {t('libAddFileChip', userLanguage)}
+            </button>
+          )}
+        </div>
       )}
 
       <div className="mt-3 flex items-center justify-between">
@@ -855,7 +984,8 @@ function CourseListItem({
       </div>
       <div className="hidden sm:flex items-center gap-4">
         <div className="w-24">
-          <div className="w-full bg-surface-hover rounded-full h-1.5">
+          {/* Wave P-2 C08 — library list-view mastery track uses --viz-bar-track. */}
+          <div className="w-full rounded-full h-1.5" style={{ backgroundColor: 'var(--viz-bar-track)' }}>
             <div
               className="h-1.5 rounded-full transition-all"
               style={{ width: `${progress}%`, backgroundColor: resolveCourseColor(course.color) }}
@@ -1006,7 +1136,8 @@ function FileItem({
         <div className="shrink-0 flex items-center gap-2">
           {file.status === 'uploading' && (
             <div className="flex items-center gap-2">
-              <div className="w-16 bg-surface-hover rounded-full h-1.5">
+              {/* Wave P-2 C08 — file upload progress track uses --viz-bar-track. */}
+              <div className="w-16 rounded-full h-1.5" style={{ backgroundColor: 'var(--viz-bar-track)' }}>
                 <div className="h-1.5 rounded-full bg-brand-500 transition-all" style={{ width: `${file.progress}%` }} />
               </div>
               <span className="text-xs text-text-tertiary">{Math.round(file.progress || 0)}%</span>
@@ -1077,9 +1208,11 @@ function FileItem({
       <AnimatePresence>
         {expanded && (outlinePreview || recognitionSnapshot) && (
           <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
+            variants={expandHeight}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            transition={emphasizedTransition}
             className="px-3 pb-3 space-y-3"
           >
             {recognitionSnapshot && (

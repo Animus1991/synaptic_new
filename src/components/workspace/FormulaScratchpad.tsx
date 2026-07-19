@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { emphasizedTransition, fadeUp } from '../../lib/motion';
 import { Plus, RotateCcw, Copy, Check, PenSquare, LineChart, Sparkles, ShieldCheck, Loader2, Calculator } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
 import { inferVariablesFromFormula, evaluateFormulaExpression, type FormulaVariable } from '../../lib/formulaSolver';
@@ -14,10 +15,11 @@ import { FormulaLatexPreview } from './FormulaLatexPreview';
 import { WorkspaceToolEmptyState } from './WorkspaceToolEmptyState';
 import { ScratchpadNotesPanel } from './ScratchpadNotesPanel';
 import type { ScratchpadEntry, ScratchpadMode } from '../../lib/scratchpadEntryStore';
-import { validateScratchpadStepsWithSympy } from '../../lib/sympyScratchpadRunner';
+import { validateScratchpadStepsWithSympy, simplifyExpressionWithSympy } from '../../lib/sympyScratchpadRunner';
 import type { ScratchpadSympyValidationResult } from '../../lib/scratchpadSympyValidation';
 import { auditScratchpadSympyChain, scratchpadSympyEdgeLabel } from '../../lib/scratchpadSympyChainEdgeCasesQA';
 import { ScratchpadSympyChainStrip } from './ScratchpadSympyChainStrip';
+import { checkVariableUnits, type UnitCheckResult } from '../../lib/unitDimensionChecker';
 import { useI18n } from '../../lib/i18n';
 
 interface Variable { symbol: string; value: string; unit: string }
@@ -102,8 +104,15 @@ export function FormulaScratchpad({
   const [numericResult, setNumericResult] = useState<number | null>(null);
   const [sympyValidation, setSympyValidation] = useState<ScratchpadSympyValidationResult | null>(null);
   const [sympyLoading, setSympyLoading] = useState(false);
+  const [simplifiedExpr, setSimplifiedExpr] = useState<string | null>(null);
+  const [simplifyLoading, setSimplifyLoading] = useState(false);
 
   const activeFormula = formulas.find((f) => f.id === active);
+
+  const unitCheck: UnitCheckResult = useMemo(
+    () => checkVariableUnits(vars, activeFormula?.formula),
+    [vars, activeFormula?.formula],
+  );
 
   const plotSpec = useMemo(() => {
     if (!activeFormula) return null;
@@ -192,6 +201,22 @@ export function FormulaScratchpad({
       setSympyLoading(false);
     }
   }, [activeFormula, derivationLines, vars, numericResult]);
+
+  const simplifyWithSympy = useCallback(async () => {
+    if (!activeFormula) return;
+    setSimplifyLoading(true);
+    setSimplifiedExpr(null);
+    try {
+      const rhs = activeFormula.formula.includes('=')
+        ? activeFormula.formula.split('=').slice(1).join('=').trim()
+        : activeFormula.formula;
+      const result = await simplifyExpressionWithSympy(rhs);
+      if (result.ok && result.simplified) setSimplifiedExpr(result.simplified);
+      else setSimplifiedExpr(result.error ?? 'Simplify failed');
+    } finally {
+      setSimplifyLoading(false);
+    }
+  }, [activeFormula]);
 
   const copyResult = () => {
     navigator.clipboard.writeText(steps.join('\n'));
@@ -317,6 +342,20 @@ export function FormulaScratchpad({
                     {v.unit && <span className="text-[10px] text-text-muted w-8">{v.unit}</span>}
                   </div>
                 ))}
+                {!unitCheck.ok && (
+                  <div className="space-y-0.5" data-testid="scratchpad-unit-check">
+                    {unitCheck.issues.map((issue, i) => (
+                      <p key={`${issue.symbol}-${i}`} className="text-[10px] text-accent-amber">
+                        {issue.symbol}: {issue.message}
+                      </p>
+                    ))}
+                  </div>
+                )}
+                {unitCheck.ok && vars.some((v) => v.unit.trim()) && (
+                  <p className="text-[10px] text-accent-emerald" data-testid="scratchpad-unit-check-ok">
+                    Units OK
+                  </p>
+                )}
               </div>
 
               {/* Actions */}
@@ -389,8 +428,14 @@ export function FormulaScratchpad({
               {/* Steps output */}
               <AnimatePresence>
                 {steps.length > 0 && (
-                  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
-                    className="ux-tier-b-panel p-4 rounded-xl bg-surface-primary/60 border border-border-subtle space-y-2">
+                  <motion.div
+                    variants={fadeUp}
+                    initial="initial"
+                    animate="animate"
+                    exit="exit"
+                    transition={emphasizedTransition}
+                    className="ux-tier-b-panel p-4 rounded-xl bg-surface-primary/60 border border-border-subtle space-y-2"
+                  >
                     <div className="flex items-center justify-between mb-1">
                       <span className="text-[10px] text-text-muted font-medium">Solution</span>
                       <button onClick={copyResult} className="flex items-center gap-1 text-[10px] text-text-muted hover:text-text-secondary">
@@ -415,19 +460,38 @@ export function FormulaScratchpad({
                   <p className="text-[10px] font-semibold text-text-muted">
                     {t('scratchDerivationSteps')}
                   </p>
-                  <button
-                    type="button"
-                    data-testid="scratchpad-validate-sympy"
-                    disabled={sympyLoading || derivationLines.length === 0}
-                    onClick={() => { void validateWithSympy(); }}
-                    className="inline-flex items-center gap-1 rounded-lg border border-accent-emerald/30 bg-accent-emerald/10 px-2.5 py-1 text-[10px] font-medium text-accent-emerald hover:bg-accent-emerald/15 disabled:opacity-40"
-                  >
-                    {sympyLoading
-                      ? <Loader2 className="w-3 h-3 animate-spin" />
-                      : <ShieldCheck className="w-3 h-3" />}
-                    {t('scratchValidate')}
-                  </button>
+                  <div className="flex flex-wrap gap-1.5">
+                    <button
+                      type="button"
+                      data-testid="scratchpad-simplify-sympy"
+                      disabled={simplifyLoading || !activeFormula}
+                      onClick={() => { void simplifyWithSympy(); }}
+                      className="inline-flex items-center gap-1 rounded-lg border border-brand-500/30 bg-brand-500/10 px-2.5 py-1 text-[10px] font-medium text-brand-700 hover:bg-brand-500/15 disabled:opacity-40"
+                    >
+                      {simplifyLoading
+                        ? <Loader2 className="w-3 h-3 animate-spin" />
+                        : <Sparkles className="w-3 h-3" />}
+                      Simplify
+                    </button>
+                    <button
+                      type="button"
+                      data-testid="scratchpad-validate-sympy"
+                      disabled={sympyLoading || derivationLines.length === 0}
+                      onClick={() => { void validateWithSympy(); }}
+                      className="inline-flex items-center gap-1 rounded-lg border border-accent-emerald/30 bg-accent-emerald/10 px-2.5 py-1 text-[10px] font-medium text-accent-emerald hover:bg-accent-emerald/15 disabled:opacity-40"
+                    >
+                      {sympyLoading
+                        ? <Loader2 className="w-3 h-3 animate-spin" />
+                        : <ShieldCheck className="w-3 h-3" />}
+                      {t('scratchValidate')}
+                    </button>
+                  </div>
                 </div>
+                {simplifiedExpr && (
+                  <p className="text-[10px] font-mono text-text-secondary" data-testid="scratchpad-simplified-expr">
+                    simplified: {simplifiedExpr}
+                  </p>
+                )}
                 {sympyChainReport && (
                   <ScratchpadSympyChainStrip report={sympyChainReport} lang={lang} />
                 )}

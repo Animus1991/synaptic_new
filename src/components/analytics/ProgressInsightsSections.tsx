@@ -6,18 +6,18 @@ const KPI_ICONS = [Brain, CheckCircle2, Target, Clock];
 
 export function ProgressKpiRow({ kpis }: { kpis: ProgressKpi[] }) {
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4" data-testid="progress-kpi-row">
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5" data-testid="progress-kpi-row">
       {kpis.map((kpi, i) => {
         const Icon = KPI_ICONS[i] ?? Brain;
         return (
-          <div key={kpi.label} className="ux-card">
-            <div className="flex items-center gap-2 mb-1">
+          <div key={kpi.label} className="ux-card p-2.5">
+            <div className="flex items-center gap-1.5 mb-0.5">
               <Icon className="w-3.5 h-3.5 text-brand-400" />
-              <span className="text-xs text-text-tertiary">{kpi.label}</span>
+              <span className="text-[9px] uppercase tracking-wide text-text-tertiary truncate">{kpi.label}</span>
             </div>
-            <p className="text-2xl font-bold tabular-nums text-text-primary">{kpi.value}</p>
+            <p className="text-sm font-bold tabular-nums text-text-primary sm:text-base">{kpi.value}</p>
             <p className={cn(
-              'text-xs mt-1',
+              'text-[10px] mt-0.5',
               kpi.tone === 'good' ? 'text-accent-emerald' : kpi.tone === 'warn' ? 'text-accent-amber' : 'text-text-tertiary',
             )}>
               {kpi.sub}
@@ -31,19 +31,20 @@ export function ProgressKpiRow({ kpis }: { kpis: ProgressKpi[] }) {
 
 export function ConfidenceBucketChart({ buckets, title }: { buckets: ConfidenceBucket[]; title: string }) {
   return (
-    <div className="ux-card" data-testid="confidence-bucket-chart">
-      <h3 className="text-sm font-semibold text-text-primary mb-4">{title}</h3>
-      <div className="space-y-3">
+    <div className="ux-card p-3" data-testid="confidence-bucket-chart">
+      <h3 className="text-[11px] font-semibold uppercase tracking-[0.06em] text-text-secondary mb-3">{title}</h3>
+      {/* K-A01: dense horizontal 5-bin calibration (mockup) */}
+      <div className="grid grid-cols-5 gap-1.5 sm:gap-2">
         {buckets.map((bucket) => (
-          <div key={bucket.label}>
-            <div className="flex items-center justify-between text-xs mb-1">
-              <span className="text-text-secondary">{bucket.label}</span>
-              <span className="text-text-tertiary">{bucket.correctPct}% correct</span>
-            </div>
-            <div className="flex h-2 rounded-full overflow-hidden bg-surface-hover">
-              <div className="bg-accent-emerald/80" style={{ width: `${bucket.correctPct}%` }} />
-              <div className="bg-accent-rose/70" style={{ width: `${bucket.wrongPct}%` }} />
-            </div>
+          <div
+            key={bucket.rangeLabel}
+            className="min-w-0 rounded-lg border border-border-subtle/80 bg-surface-card/50 px-1 py-2 text-center"
+          >
+            <p className="text-sm font-bold tabular-nums text-text-primary sm:text-base">
+              {bucket.sampleCount === 0 ? '—' : `${bucket.correctPct}%`}
+            </p>
+            <p className="mt-0.5 text-[9px] text-text-muted tabular-nums truncate">{bucket.rangeLabel}</p>
+            <p className="mt-0.5 text-[9px] text-text-tertiary tabular-nums">n={bucket.sampleCount}</p>
           </div>
         ))}
       </div>

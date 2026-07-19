@@ -44,7 +44,14 @@ function withQueryParam(url: string, key: string, value: string): string {
 
 googleAuthRouter.get('/google/start', (req, res) => {
   if (!googleOAuthConfigured()) {
-    res.status(503).json({ error: 'Google OAuth not configured (set GOOGLE_CLIENT_ID + GOOGLE_CLIENT_SECRET)' });
+    // Browser navigations expect a redirect, not a blank JSON body (503).
+    const returnTo = typeof req.query.returnTo === 'string' ? req.query.returnTo : undefined;
+    const dest = withQueryParam(
+      withQueryParam(clientReturnUrl(returnTo), 'google', 'error'),
+      'reason',
+      'not_configured',
+    );
+    res.redirect(dest);
     return;
   }
   const mode = parseMode(req.query.mode);

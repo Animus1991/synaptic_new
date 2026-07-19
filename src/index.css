@@ -1,70 +1,121 @@
 @import "tailwindcss";
 
 @theme {
-  /* Brand + surfaces: dark defaults; light mode overrides via [data-theme="light"] Warm Sand (F1). */
-  --color-brand-50: #eff6ff;
-  --color-brand-100: #dbeafe;
-  --color-brand-200: #bfdbfe;
-  --color-brand-300: #93c5fd;
-  --color-brand-400: #60a5fa;
-  --color-brand-500: #3b82f6;
-  --color-brand-600: #2563eb;
-  --color-brand-700: #1d4ed8;
-  --color-brand-800: #1e40af;
-  --color-brand-900: #1e3a8a;
-  --color-brand-950: #172554;
+  /* Brand + surfaces: dark defaults; light mode overrides via [data-theme="light"] Warm Sand (F1).
+     Dark brand is steel-slate blue (lower chroma than electric Tailwind blue) so CTAs
+     don’t fight purple-tinted chrome. Surfaces are neutral charcoal — not indigo fog. */
+  --color-brand-50: #eef2f6;
+  --color-brand-100: #d8e0ea;
+  --color-brand-200: #b4c3d4;
+  --color-brand-300: #8da4bc;
+  --color-brand-400: #6b87a4;
+  --color-brand-500: #5a7694;
+  --color-brand-600: #4a6280;
+  --color-brand-700: #3d516a;
+  --color-brand-800: #324356;
+  --color-brand-900: #283646;
+  --color-brand-950: #1a2430;
 
-  --color-accent-teal: #2dd4bf;
-  --color-accent-cyan: #22d3ee;
-  --color-accent-emerald: #34d399;
-  --color-accent-amber: #fbbf24;
-  --color-accent-rose: #fb7185;
-  --color-accent-orange: #fb923c;
-  --color-accent-violet: #a78bfa;
+  /* Complementary accents (dark SoT) — dusty, share cool-gray undertone. */
+  --color-accent-teal: #6a9e94;
+  --color-accent-cyan: #6e92a3;
+  --color-accent-emerald: #6a9a86;
+  --color-accent-amber: #b89a5c;
+  --color-accent-rose: #b08990;
+  --color-accent-orange: #b89072;
+  --color-accent-violet: #85809a;
 
-  /* Dark theme (default) — editorial near-black with cool slate undertone.
-     Elevation steps widened (F: reduce dark-on-dark flatness) so panels and
-     cards visibly lift off the base without losing the deep editorial feel. */
-  --color-surface-primary: #0a0a0c;
-  --color-surface-secondary: #131317;
-  --color-surface-tertiary: #1a1a21;
-  --color-surface-card: #17171e;
-  --color-surface-hover: #212129;
-  --color-surface-active: #2a2a34;
-  --color-surface-input: #0f0f13;
+  /* Dark theme (default) — neutral charcoal (no purple cast).
+     Surfaces lifted ~3–4% vs pure black so panels read with less eye strain. */
+  --color-surface-primary: #131315;
+  --color-surface-secondary: #19191b;
+  --color-surface-tertiary: #222225;
+  --color-surface-card: #1a1a1d;
+  --color-surface-hover: #27272b;
+  --color-surface-active: #313136;
+  --color-surface-input: #151517;
 
-  --color-border-subtle: #262630;
-  --color-border-default: #32323f;
-  --color-border-strong: #42424f;
+  --color-border-subtle: #2c2c31;
+  --color-border-default: #3a3a42;
+  --color-border-strong: #4c4c58;
 
-  --color-text-primary: #f4f4f6;
-  --color-text-secondary: #b4b4c0;
-  --color-text-tertiary: #9494a8;
-  --color-text-muted: #858599;
+  /* Type ink on dark — neutral light-gray (no lavender cast). */
+  --color-text-primary: #fbfbfc;
+  --color-text-secondary: #c0c0c6;
+  --color-text-tertiary: #9e9ea6;
+  --color-text-muted: #8e8e96;
+  /* Wave J-X02 — warm ink for badges/chips (dark parity with light brown ink) */
+  --color-warm-ink: #8a6f55;
 
-  --viz-track: #1f1f27;
-  --viz-node-fill: #131318;
-  --viz-canvas-bg: #0a0a0c;
+  --viz-track: #262629;
+  --viz-node-fill: #19191b;
+  --viz-canvas-bg: #131315;
   --surface-canvas: var(--viz-canvas-bg);
-  --viz-grid-line: #16161b;
+  /* Wave M — semantic aliases so surfaces / hairlines are theme-tokenized (no ad-hoc hex). */
+  --color-surface-canvas: var(--viz-canvas-bg);
+  --color-hairline: var(--color-border-subtle);
+  /* Wave N — SoT theme tokens (dark defaults; each theme overrides). */
+  --color-surface-pressed: var(--color-surface-active);
+  --color-surface-hover-strong: var(--color-surface-active);
+  --color-focus-ring: var(--color-brand-500);
+  --focus-ring-offset: 2px;
+  --color-on-brand: #fbfbfc;
+  --color-on-danger: #0a0a0c;
+  --color-on-warn: #0a0a0c;
+  --color-on-success: #0a0a0c;
+  --color-on-info: #fbfbfc;
+  --elev-popover: 0 12px 32px -8px color-mix(in srgb, #0a0a0c 40%, transparent),
+                  0 2px 8px color-mix(in srgb, #0a0a0c 20%, transparent);
+  /* Wave N-T12 — emphasized decelerate curve (Material 3 spec) + duration for surfaces that
+     expand from a small trigger. Used by Visual Lab, Agent mode dropdown, popover menus. */
+  --motion-duration-emphasized: 360ms;
+  --motion-ease-emphasized: cubic-bezier(0.2, 0, 0, 1);
 
-  /* Mastery bands + spectrum palette (dark defaults — softened, still distinct) */
-  --mastery-weak: #e07a88;
-  --mastery-developing: #68b8de;
-  --mastery-proficient: #d4a84a;
-  --mastery-strong: #52c49a;
-  --palette-purple: #9b92f0;
-  --palette-cyan: #5ec8e8;
-  --palette-teal: #4ec9b8;
-  --palette-green: #52c49a;
-  --palette-amber: #d4a84a;
-  --palette-rose: #e07a88;
-  --palette-orange: #e09858;
+  /* Wave P — visualization tokens (dark defaults). Each theme MUST override
+     to guarantee ≥3:1 contrast vs its --color-surface-card. Used by
+     Weekly Mastery bars, FSRS forecast row, Weak Areas track, KPI progress. */
+  --viz-bar-track: color-mix(in srgb, #ffffff 6%, var(--color-surface-card));
+  --viz-bar-track-strong: color-mix(in srgb, #ffffff 12%, var(--color-surface-card));
+  --viz-bar-fill: var(--color-brand-500);
+  --viz-bar-fill-muted: color-mix(in srgb, var(--color-brand-500) 55%, var(--color-surface-card));
 
-  --font-sans: 'Inter', 'Noto Sans', 'Noto Sans Greek', ui-sans-serif, system-ui, sans-serif;
+  /* Wave P — 5-step heatmap scale tokenized (retires ad-hoc bg-brand-* and
+     bg-surface-hover classes that collapse to invisible ~1.1:1 contrast on
+     light card themes). */
+  --color-heatmap-scale-0: color-mix(in srgb, #ffffff 4%, var(--color-surface-card));
+  --color-heatmap-scale-1: color-mix(in srgb, var(--color-brand-500) 20%, var(--color-surface-card));
+  --color-heatmap-scale-2: color-mix(in srgb, var(--color-brand-500) 40%, var(--color-surface-card));
+  --color-heatmap-scale-3: color-mix(in srgb, var(--color-brand-500) 65%, var(--color-surface-card));
+  --color-heatmap-scale-4: var(--color-brand-400);
+
+  /* Wave P-3 C15 — calibration over/under ink (WCAG ≥4.5:1 on card). */
+  --color-calibration-over: var(--color-accent-rose);
+  --color-calibration-under: var(--color-accent-cyan);
+  /* Wave P-3 C13 — warn-banner title ink (Almost There etc.). */
+  --color-banner-warn-ink: var(--palette-amber);
+  /* Outline for danger/warn callouts — must clear ≥3:1 vs card wash. */
+  --color-banner-warn-border: color-mix(in srgb, var(--palette-amber) 48%, var(--color-border-subtle));
+
+  --viz-grid-line: #1c1c1f;
+
+  /* Mastery + spectrum palette (dark) — dusty complements (less candy vs steel brand). */
+  --mastery-weak: #b08990;
+  --mastery-developing: #6e92a3;
+  --mastery-proficient: #b89a5c;
+  --mastery-strong: #6a9a86;
+  --palette-purple: #85809a;
+  --palette-cyan: #6e92a3;
+  --palette-teal: #6a9e94;
+  --palette-green: #6a9a86;
+  --palette-amber: #b89a5c;
+  --palette-rose: #b08990;
+  --palette-orange: #b89072;
+
+  /* Light theme is the typography SoT for every theme (optical size parity). */
+  --font-sans: 'Nunito Sans', 'Noto Sans', 'Noto Sans Greek', system-ui, -apple-system, sans-serif;
   /* Tabular numerals reuse sans — no third loaded family (Package 2). */
   --font-mono: var(--font-sans);
-  --font-display: 'Playfair Display', 'Noto Serif', ui-serif, Georgia, serif;
+  --font-display: 'Lora', 'Noto Serif', Georgia, serif;
 
   /* Package 2 — spacing scale (4px base) */
   --space-0: 0;
@@ -105,8 +156,9 @@
   --type-display-sm: 1.375rem;
   --type-display: 1.5rem;
   --type-hero: clamp(1.75rem, 4vw, 3rem);
-  --type-hero-app: 1.25rem;
-  --type-hero-app-sm: 1.5rem;
+  /* Wave G — denser app heroes (mockup clarity without Replit magnification) */
+  --type-hero-app: 1.125rem;
+  --type-hero-app-sm: 1.25rem;
   --btn-height: 2.5rem;
   --ux-motion-fade-y: 12px;
   --ux-motion-fade-duration: 0.6s;
@@ -133,37 +185,39 @@
   --motion-ease: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Light theme — Warm Sand (F1–F4: harmonized earth palette) */
+/* Light theme — Warm Sand aligned to Replit canvas cream (#FDFBF7 family) */
 [data-theme="light"] {
-  --color-surface-primary: #faf8f5;
-  --color-surface-secondary: #f4f0e9;
-  --color-surface-tertiary: #efe9de;
+  --color-surface-primary: #fdfbf7;
+  --color-surface-secondary: #f6f1ea;
+  --color-surface-tertiary: #f0ebe2;
   --color-surface-card: #ffffff;
-  --color-surface-hover: #efe9de;
-  --color-surface-active: #e8dcc4;
+  --color-surface-hover: #efe8dc;
+  --color-surface-active: #e8dfd0;
   --color-surface-input: #ffffff;
 
-  --color-border-subtle: #c4b08c;
-  --color-border-default: #ad9870;
-  --color-border-strong: #9d6930;
+  --color-border-subtle: #e0d8cc;
+  --color-border-default: #cfc4b4;
+  --color-border-strong: #806447;
 
   /* Darks ~5% softer (F4 pass) */
   --color-text-primary: #352c23;
   --color-text-secondary: #503a22;
   --color-text-tertiary: #5c4528;
   --color-text-muted: #4f3d24;
+  --color-warm-ink: #5c4033;
 
-  --color-brand-50: #ede4d6;
-  --color-brand-100: #d8cdb8;
-  --color-brand-200: #c4ae88;
-  --color-brand-300: #a8824a;
-  --color-brand-400: #9d6930;
-  --color-brand-500: #80551f;
-  --color-brand-600: #684318;
-  --color-brand-700: #533615;
-  --color-brand-800: #432d14;
-  --color-brand-900: #312214;
-  --color-brand-950: #211810;
+  /* Central brand browns — ~2% more intense vs complementary earth accents */
+  --color-brand-50: #ebe0d0;
+  --color-brand-100: #d6cab4;
+  --color-brand-200: #c2ab84;
+  --color-brand-300: #ab8548;
+  --color-brand-400: #a06c2e;
+  --color-brand-500: #84561e;
+  --color-brand-600: #6c4517;
+  --color-brand-700: #573714;
+  --color-brand-800: #462e13;
+  --color-brand-900: #342313;
+  --color-brand-950: #23190f;
 
   /* Fill-only browns — ink softened then +3% depth total for button/icon fills */
   --color-brand-fill-500: color-mix(in srgb, color-mix(in srgb, var(--color-brand-500) 90%, #faf8f5) 99%, var(--color-brand-500));
@@ -181,19 +235,54 @@
   --viz-node-fill: #ebe4d8;
   --viz-canvas-bg: #ffffff;
   --viz-grid-line: #e5ddd0;
+  /* Wave M — warm-light aliases */
+  --color-surface-canvas: #fdfbf7;
+  --color-hairline: #e0d8cc;
+  /* Wave N — SoT overrides for warm-light */
+  --color-surface-pressed: #e8dfd0;
+  --color-surface-hover-strong: #e8dfd0;
+  --color-focus-ring: var(--color-brand-700);
+  --focus-ring-offset: 2px;
+  --color-on-brand: #ffffff;
+  --color-on-danger: #ffffff;
+  --color-on-warn: #3a2f24;
+  --color-on-success: #ffffff;
+  --color-on-info: #ffffff;
+  --elev-popover: 0 12px 28px -8px color-mix(in srgb, #1f160c 22%, transparent),
+                  0 2px 8px color-mix(in srgb, #1f160c 10%, transparent);
 
-  /* Harmonized earth accents — sage green aligned to sand family */
-  --mastery-weak: #8f6860;
-  --mastery-developing: #6a7888;
-  --mastery-proficient: #857048;
-  --mastery-strong: #667872;
-  --palette-purple: #756888;
-  --palette-cyan: #687888;
-  --palette-teal: #647870;
-  --palette-green: #667872;
-  --palette-amber: #857048;
-  --palette-rose: #8f6860;
-  --palette-orange: #8a7660;
+  /* Wave P — warm-light viz tokens: sepia-toned tracks + warm-ink bar fills
+     (guarantees ≥3:1 contrast vs #ffffff card; sepia heatmap identity kept).
+     Wave P-2 C11 — muted bumped from 45% → 68% brand mix so historical bars
+     reach ≥3:1 vs #ffffff instead of vanishing into the card. */
+  --viz-bar-track: #e8dfd0;
+  --viz-bar-track-strong: #c4ae88;
+  --viz-bar-fill: var(--color-brand-500);
+  --viz-bar-fill-muted: color-mix(in srgb, var(--color-brand-500) 68%, #ffffff);
+  --color-heatmap-scale-0: #ebe4d8;
+  --color-heatmap-scale-1: #d4c4a8;
+  --color-heatmap-scale-2: #b8956a;
+  --color-heatmap-scale-3: #8a6440;
+  --color-heatmap-scale-4: #5c4033;
+  /* Wave P-3 C15 — darker calibration ink on white card (≥4.5:1). */
+  --color-calibration-over: #b4233c;
+  --color-calibration-under: #0e7490;
+  /* Warn-banner / danger-callout title ink on cream wash (≥4.5:1). */
+  --color-banner-warn-ink: color-mix(in srgb, var(--palette-amber) 55%, #352c23);
+  --color-banner-warn-border: color-mix(in srgb, var(--color-banner-warn-ink) 58%, var(--color-border-subtle));
+
+  /* Earth accents — warm, near brand brown; −~1% chroma (light SoT). Brand unchanged. */
+  --mastery-weak: #9c685c;
+  --mastery-developing: #6c7d81;
+  --mastery-proficient: #9d7c4c;
+  --mastery-strong: #627e6b;
+  --palette-purple: #7c6982;
+  --palette-cyan: #6b7d83;
+  --palette-teal: #627c73;
+  --palette-green: #627e6b;
+  --palette-amber: #9d7c4c;
+  --palette-rose: #9c685c;
+  --palette-orange: #9c7454;
 
   --color-accent-emerald: var(--palette-green);
   --color-accent-amber: var(--palette-amber);
@@ -203,8 +292,7 @@
   --color-accent-cyan: var(--palette-cyan);
   --color-accent-violet: var(--palette-purple);
 
-  --font-sans: 'Nunito Sans', system-ui, -apple-system, sans-serif;
-  --font-display: 'Lora', Georgia, serif;
+  /* Fonts inherit from @theme (Nunito Sans + Lora) — same stack as dark/spectrum/blueprint. */
 
   --elev-1: 0 1px 0 color-mix(in srgb, var(--color-border-subtle) 45%, transparent);
   --elev-2: 0 4px 24px color-mix(in srgb, #1f160c 6%, transparent);
@@ -214,6 +302,101 @@
   --elev-drawer: -8px 0 32px color-mix(in srgb, #1f160c 12%, transparent);
 
   color-scheme: light;
+}
+
+/* Tasks-scoped Warm Sand — denser cream surfaces (mockup merge); inherits when nested under light. */
+[data-theme="warm-sand"] {
+  --color-surface-primary: #f6f1ea;
+  --color-surface-secondary: #fdfaf6;
+  --color-surface-tertiary: #f0ebe2;
+  --color-surface-card: #fdfaf6;
+  --color-surface-hover: #efe8dc;
+  --color-surface-active: #e8dfd0;
+  --color-surface-input: #ffffff;
+
+  --color-border-subtle: #e0d8cc;
+  --color-border-default: #cfc4b4;
+  --color-border-strong: #7d6245;
+
+  --color-text-primary: #3a2f24;
+  --color-text-secondary: #5c4832;
+  --color-text-tertiary: #5a4634;
+  /* Wave F — muted on cream ≥4.5:1 vs #f6f1ea */
+  --color-text-muted: #5f4c38;
+
+  /* Central brand — ~2% more intense (warm-sand root) */
+  --color-brand-400: #a07d54;
+  --color-brand-500: #8d6d46;
+  --color-brand-600: #806447;
+  --color-brand-700: #5f4a33;
+  --color-brand-800: #4d3c29;
+  --color-warm-ink: #5c4033;
+
+  /* Wave M — warm-sand aliases (inherits under light) */
+  --color-surface-canvas: #f6f1ea;
+  --color-hairline: #e0d8cc;
+
+  /* Wave N — SoT overrides for warm-sand (explicit; not implicit from light) */
+  --color-surface-pressed: #e8dfd0;
+  --color-surface-hover-strong: #e8dfd0;
+  --color-focus-ring: var(--color-brand-600);
+  --focus-ring-offset: 2px;
+  --color-on-brand: #ffffff;
+  --color-on-danger: #ffffff;
+  --color-on-warn: #3a2f24;
+  --color-on-success: #ffffff;
+  --color-on-info: #ffffff;
+  --elev-popover: 0 12px 28px -8px color-mix(in srgb, #1f160c 22%, transparent),
+                  0 2px 8px color-mix(in srgb, #1f160c 10%, transparent);
+
+  /* Wave P — warm-sand viz tokens (parity with warm-light; keeps deeper sand identity).
+     Wave P-2 C11 — muted bumped from 45% → 68% brand mix so historical bars reach ≥3:1. */
+  --viz-bar-track: #e8dfd0;
+  --viz-bar-track-strong: #c4ae88;
+  --viz-bar-fill: var(--color-brand-500);
+  --viz-bar-fill-muted: color-mix(in srgb, var(--color-brand-500) 68%, #ffffff);
+  --color-heatmap-scale-0: #ebe4d8;
+  --color-heatmap-scale-1: #d4c4a8;
+  --color-heatmap-scale-2: #b8956a;
+  --color-heatmap-scale-3: #8a6440;
+  --color-heatmap-scale-4: #5c4033;
+  --color-calibration-over: #b4233c;
+  --color-calibration-under: #0e7490;
+  --color-banner-warn-ink: color-mix(in srgb, #9d7c4c 55%, #352c23);
+  --color-banner-warn-border: color-mix(in srgb, var(--color-banner-warn-ink) 58%, var(--color-border-subtle));
+
+  /* Match light complementary accents when warm-sand is root theme (−~1%) */
+  --mastery-weak: #9c685c;
+  --mastery-developing: #6c7d81;
+  --mastery-proficient: #9d7c4c;
+  --mastery-strong: #627e6b;
+  --palette-purple: #7c6982;
+  --palette-cyan: #6b7d83;
+  --palette-teal: #627c73;
+  --palette-green: #627e6b;
+  --palette-amber: #9d7c4c;
+  --palette-rose: #9c685c;
+  --palette-orange: #9c7454;
+  --color-accent-emerald: var(--palette-green);
+  --color-accent-amber: var(--palette-amber);
+  --color-accent-orange: var(--palette-orange);
+  --color-accent-teal: var(--palette-teal);
+  --color-accent-rose: var(--palette-rose);
+  --color-accent-cyan: var(--palette-cyan);
+  --color-accent-violet: var(--palette-purple);
+
+  color-scheme: light;
+}
+
+/* J-X02 — explicit dark parity (inherits @theme; keeps warm-ink + elevation readable) */
+[data-theme="dark"],
+[data-theme="blueprint"] {
+  --color-warm-ink: #8a6f55;
+  /* Wave M — dark/blueprint hairline alias (surface-canvas kept via @theme + blueprint override below) */
+  --color-hairline: var(--color-border-subtle);
+  /* Wave N — explicit focus ring (dark/blueprint) so @theme fallback stays consistent even when child themes forget */
+  --color-focus-ring: var(--color-brand-500);
+  color-scheme: dark;
 }
 
 /* Light platform — warm banners, nav, badges (global, not workspace-only) */
@@ -269,9 +452,12 @@
 [data-theme="light"] .border-accent-rose\/20 {
   border-color: color-mix(in srgb, var(--palette-rose) 22%, var(--color-border-subtle));
 }
+[data-theme="light"] .border-accent-amber\/50,
+[data-theme="light"] .border-accent-amber\/40,
 [data-theme="light"] .border-accent-amber\/30,
+[data-theme="light"] .border-accent-amber\/25,
 [data-theme="light"] .border-accent-amber\/20 {
-  border-color: color-mix(in srgb, var(--palette-amber) 22%, var(--color-border-subtle));
+  border-color: var(--color-banner-warn-border);
 }
 [data-theme="light"] .border-accent-orange\/20 {
   border-color: color-mix(in srgb, var(--palette-orange) 22%, var(--color-border-subtle));
@@ -378,52 +564,94 @@
 
 /* Spectrum — light vibrant theme (original bright accent hues) */
 [data-theme="spectrum"] {
-  --color-surface-primary: #f7f5ff;
-  --color-surface-secondary: #efebff;
-  --color-surface-tertiary: #e8e2ff;
+  /* Cool gray-lavender canvas — less “purple fog”, more editorial paper. */
+  --color-surface-primary: #f5f4f8;
+  --color-surface-secondary: #eeedf3;
+  --color-surface-tertiary: #e6e4ed;
   --color-surface-card: #ffffff;
-  --color-surface-hover: #e8e2ff;
-  --color-surface-active: #ddd6ff;
+  --color-surface-hover: #e9e7f0;
+  --color-surface-active: #dddce8;
   --color-surface-input: #ffffff;
 
-  --color-border-subtle: #c9c0e8;
-  --color-border-default: #a898d8;
-  --color-border-strong: #7b61ff;
+  --color-border-subtle: #d0ceda;
+  --color-border-default: #b4b0c4;
+  --color-border-strong: #6a5f9a;
 
-  --color-text-primary: #1a1430;
-  --color-text-secondary: #3d3560;
-  --color-text-tertiary: #4f4578;
-  --color-text-muted: #5a5088;
+  --color-text-primary: #1c1a24;
+  --color-text-secondary: #3f3b4d;
+  --color-text-tertiary: #5a5568;
+  --color-text-muted: #6e687c;
 
-  --color-brand-50: #f3efff;
-  --color-brand-100: #ddd4ff;
-  --color-brand-200: #c4b5ff;
-  --color-brand-300: #a894ff;
-  --color-brand-400: #8b72ff;
-  --color-brand-500: #7b61ff;
-  --color-brand-600: #6b4ff0;
-  --color-brand-700: #5a3fd8;
-  --color-brand-800: #4a32b0;
-  --color-brand-900: #3a2888;
-  --color-brand-950: #241858;
+  /* Brand: indigo-violet (lower chroma / less neon than electric #8063ff). */
+  --color-brand-50: #f0eef6;
+  --color-brand-100: #ddd8eb;
+  --color-brand-200: #c5bdd9;
+  --color-brand-300: #a99fc6;
+  --color-brand-400: #8b7fb0;
+  --color-brand-500: #6f6299;
+  --color-brand-600: #5c5184;
+  --color-brand-700: #4b426c;
+  --color-brand-800: #3c3556;
+  --color-brand-900: #2e2942;
+  --color-brand-950: #1c1830;
 
-  --viz-track: #ddd6ff;
-  --viz-node-fill: #efebff;
+  --viz-track: #e4e2eb;
+  --viz-node-fill: #eeedf3;
   --viz-canvas-bg: #ffffff;
-  --viz-grid-line: #e8e2ff;
+  --viz-grid-line: #e6e4ed;
 
-  /* Original vibrant spectrum accents */
-  --mastery-weak: #ff7b8a;
-  --mastery-developing: #5ecfff;
-  --mastery-proficient: #f5c842;
-  --mastery-strong: #34d399;
-  --palette-purple: #9b8cff;
-  --palette-cyan: #5ecfff;
-  --palette-teal: #2dd4bf;
-  --palette-green: #34d399;
-  --palette-amber: #f5c842;
-  --palette-rose: #ff7b8a;
-  --palette-orange: #ff9f6b;
+  /* Wave K-T03 — badge/chip ink parity (spectrum keeps violet family) */
+  --color-warm-ink: #4b426c;
+  /* Wave M — spectrum aliases (lavender canvas kept, neutralized) */
+  --color-surface-canvas: #f2f1f6;
+  --color-hairline: #d8d6e0;
+  /* Wave N — SoT overrides for spectrum (WCAG parity + lavender identity) */
+  --color-surface-pressed: #dddce8;
+  --color-surface-hover-strong: #dddce8;
+  --color-focus-ring: var(--color-brand-600);
+  --focus-ring-offset: 2px;
+  --color-on-brand: #ffffff;
+  --color-on-danger: #ffffff;
+  --color-on-warn: #1c1a24;
+  --color-on-success: #1c1a24;
+  --color-on-info: #ffffff;
+  --elev-popover: 0 12px 28px -8px color-mix(in srgb, #1c1a24 18%, transparent),
+                  0 2px 8px color-mix(in srgb, #1c1a24 8%, transparent);
+
+  /* Wave P — spectrum viz: muted indigo tracks (still ≥3:1 on white cards). */
+  --viz-bar-track: #cfcad9;
+  --viz-bar-track-strong: #b4adc4;
+  --viz-bar-fill: var(--color-brand-600);
+  --viz-bar-fill-muted: color-mix(in srgb, var(--color-brand-500) 70%, #ffffff);
+  --color-heatmap-scale-0: #e6e4ed;
+  --color-heatmap-scale-1: #cfcad9;
+  --color-heatmap-scale-2: #b4adc4;
+  --color-heatmap-scale-3: #6f6299;
+  --color-heatmap-scale-4: #3c3556;
+  /* Wave P-3 C13 — Almost There / amber banner titles: mix amber into
+     deep spectrum ink so contrast vs peach banner bg clears 4.5:1.
+     Ink ratio tightened (40% amber) so titles/% stay distinct; border uses
+     the same ink so outlines are not washed-out yellow on cream. */
+  --color-banner-warn-ink: color-mix(in srgb, var(--palette-amber) 36%, #1c1a24);
+  --color-banner-warn-border: color-mix(in srgb, var(--color-banner-warn-ink) 55%, var(--color-border-subtle));
+  /* Wave P-3 C15 — calibration labels on white lavender card. */
+  --color-calibration-over: color-mix(in srgb, var(--palette-rose) 50%, #1c1a24);
+  --color-calibration-under: color-mix(in srgb, var(--palette-cyan) 42%, #1c1a24);
+
+  color-scheme: light;
+
+  /* Complements share violet undertone — dusty, not candy pastel. */
+  --mastery-weak: #a88990;
+  --mastery-developing: #7d8fa3;
+  --mastery-proficient: #b09a6a;
+  --mastery-strong: #6a9484;
+  --palette-purple: #7d7399;
+  --palette-cyan: #7d8fa3;
+  --palette-teal: #6a908a;
+  --palette-green: #6a9484;
+  --palette-amber: #b09a6a;
+  --palette-rose: #a88990;
+  --palette-orange: #ad8f78;
 
   --color-accent-emerald: var(--palette-green);
   --color-accent-amber: var(--palette-amber);
@@ -433,24 +661,26 @@
   --color-accent-cyan: var(--palette-cyan);
   --color-accent-violet: var(--palette-purple);
 
-  --font-sans: 'Inter', 'Noto Sans', ui-sans-serif, system-ui, sans-serif;
+  /* Typography inherits @theme (light SoT: Nunito Sans + Lora). Do not
+     redefine --font-* or --type-* here — optical size must match light. */
 
   color-scheme: light;
 }
 
 [data-theme="spectrum"] .glass {
   background: rgba(255, 255, 255, 0.78);
-  border-color: rgba(123, 97, 255, 0.22);
+  border-color: color-mix(in srgb, var(--color-brand-500) 18%, transparent);
 }
 
 [data-theme="spectrum"] .glass-strong {
   background: rgba(255, 255, 255, 0.94);
-  border: 1px solid rgba(123, 97, 255, 0.22);
-  box-shadow: 0 4px 24px rgba(123, 97, 255, 0.08);
+  border: 1px solid color-mix(in srgb, var(--color-brand-500) 18%, transparent);
+  box-shadow: 0 4px 24px color-mix(in srgb, var(--color-brand-700) 6%, transparent);
 }
 
 [data-theme="spectrum"] .gradient-text {
-  background: linear-gradient(135deg, #9b8cff 0%, #5ecfff 35%, #34d399 70%, #f5c842 100%);
+  /* Two-stop only — no amber “rainbow” third stop. */
+  background: linear-gradient(135deg, var(--color-brand-600) 0%, var(--palette-cyan) 100%);
   -webkit-background-clip: text;
   background-clip: text;
 }
@@ -460,44 +690,45 @@
   color: white;
 }
 
+/* Wave M-T03 — quieter banner washes (was 12% candy pastel fills). */
 [data-theme="spectrum"] .platform-banner-warn {
-  border-color: color-mix(in srgb, var(--palette-amber) 35%, var(--color-border-subtle));
-  background: color-mix(in srgb, var(--palette-amber) 10%, var(--color-surface-primary));
+  border-color: color-mix(in srgb, var(--palette-amber) 28%, var(--color-border-subtle));
+  background: color-mix(in srgb, var(--palette-amber) 6%, var(--color-surface-card));
 }
 [data-theme="spectrum"] .platform-banner-warn .platform-banner-title {
-  color: color-mix(in srgb, var(--palette-amber) 80%, #1a1430);
+  color: color-mix(in srgb, var(--palette-amber) 36%, #1c1a24);
 }
 [data-theme="spectrum"] .platform-banner-danger {
-  border-color: color-mix(in srgb, var(--palette-rose) 35%, var(--color-border-subtle));
-  background: color-mix(in srgb, var(--palette-rose) 10%, var(--color-surface-primary));
+  border-color: color-mix(in srgb, var(--palette-rose) 28%, var(--color-border-subtle));
+  background: color-mix(in srgb, var(--palette-rose) 6%, var(--color-surface-card));
 }
 [data-theme="spectrum"] .platform-banner-danger .platform-banner-title {
-  color: color-mix(in srgb, var(--palette-rose) 75%, #1a1430);
+  color: color-mix(in srgb, var(--palette-rose) 40%, #1c1a24);
 }
 [data-theme="spectrum"] .platform-banner-brand {
-  border-color: color-mix(in srgb, var(--color-brand-500) 30%, var(--color-border-subtle));
-  background: color-mix(in srgb, var(--color-brand-500) 8%, var(--color-surface-primary));
+  border-color: color-mix(in srgb, var(--color-brand-500) 22%, var(--color-border-subtle));
+  background: color-mix(in srgb, var(--color-brand-500) 5%, var(--color-surface-card));
 }
 [data-theme="spectrum"] .platform-banner-brand .platform-banner-title {
   color: var(--color-brand-700);
 }
 [data-theme="spectrum"] .platform-nav-active {
-  background: color-mix(in srgb, var(--color-brand-100) 80%, var(--color-surface-primary));
+  background: color-mix(in srgb, var(--color-brand-100) 70%, var(--color-surface-primary));
   color: var(--color-brand-700);
-  border-color: color-mix(in srgb, var(--color-brand-400) 35%, var(--color-border-subtle));
+  border-color: color-mix(in srgb, var(--color-brand-400) 28%, var(--color-border-subtle));
   font-weight: 600;
 }
 [data-theme="spectrum"] .platform-nav-mobile-active {
   color: var(--color-brand-700);
-  background: color-mix(in srgb, var(--color-brand-100) 75%, var(--color-surface-primary));
+  background: color-mix(in srgb, var(--color-brand-100) 65%, var(--color-surface-primary));
 }
 [data-theme="spectrum"] .platform-brand-icon {
-  background: linear-gradient(135deg, var(--palette-purple), var(--palette-cyan));
+  background: linear-gradient(135deg, var(--color-brand-600), var(--color-brand-500));
   color: #ffffff;
 }
 [data-theme="spectrum"] .platform-pill-active {
-  border: 1px solid color-mix(in srgb, var(--color-brand-500) 45%, var(--color-border-subtle));
-  background: color-mix(in srgb, var(--color-brand-500) 12%, var(--color-surface-primary));
+  border: 1px solid color-mix(in srgb, var(--color-brand-500) 35%, var(--color-border-subtle));
+  background: color-mix(in srgb, var(--color-brand-500) 9%, var(--color-surface-primary));
   color: var(--color-brand-700);
   font-weight: 600;
 }
@@ -506,34 +737,56 @@
   font-weight: 600;
 }
 [data-theme="spectrum"] .ws-fab {
-  background: linear-gradient(135deg, var(--color-brand-600), var(--palette-purple));
+  background: linear-gradient(135deg, var(--color-brand-700), var(--color-brand-600));
   color: #ffffff;
   box-shadow: var(--elev-3);
 }
 [data-theme="spectrum"] .bg-accent-rose\/15 {
-  background-color: color-mix(in srgb, var(--palette-rose) 14%, transparent);
+  background-color: color-mix(in srgb, var(--palette-rose) 9%, transparent);
 }
 [data-theme="spectrum"] .bg-accent-rose\/10,
 [data-theme="spectrum"] .bg-accent-rose\/5 {
-  background-color: color-mix(in srgb, var(--palette-rose) 10%, transparent);
+  background-color: color-mix(in srgb, var(--palette-rose) 6%, transparent);
 }
 [data-theme="spectrum"] .bg-accent-amber\/15,
 [data-theme="spectrum"] .bg-accent-amber\/10,
 [data-theme="spectrum"] .bg-accent-amber\/5 {
-  background-color: color-mix(in srgb, var(--palette-amber) 10%, transparent);
+  background-color: color-mix(in srgb, var(--palette-amber) 6%, transparent);
 }
 [data-theme="spectrum"] .bg-accent-emerald\/15,
 [data-theme="spectrum"] .bg-accent-emerald\/10,
 [data-theme="spectrum"] .bg-accent-emerald\/5 {
-  background-color: color-mix(in srgb, var(--palette-green) 10%, transparent);
+  background-color: color-mix(in srgb, var(--palette-green) 6%, transparent);
+}
+[data-theme="spectrum"] .bg-accent-cyan\/15,
+[data-theme="spectrum"] .bg-accent-cyan\/12,
+[data-theme="spectrum"] .bg-accent-cyan\/10,
+[data-theme="spectrum"] .bg-accent-cyan\/5,
+[data-theme="spectrum"] .bg-accent-teal\/15,
+[data-theme="spectrum"] .bg-accent-teal\/10,
+[data-theme="spectrum"] .bg-accent-teal\/5 {
+  background-color: color-mix(in srgb, var(--palette-cyan) 6%, transparent);
+}
+[data-theme="spectrum"] .bg-accent-violet\/15,
+[data-theme="spectrum"] .bg-accent-violet\/10,
+[data-theme="spectrum"] .bg-accent-violet\/5 {
+  background-color: color-mix(in srgb, var(--palette-purple) 7%, transparent);
 }
 [data-theme="spectrum"] .border-accent-rose\/30,
 [data-theme="spectrum"] .border-accent-rose\/20 {
-  border-color: color-mix(in srgb, var(--palette-rose) 35%, var(--color-border-subtle));
+  border-color: color-mix(in srgb, var(--palette-rose) 28%, var(--color-border-subtle));
 }
+[data-theme="spectrum"] .border-accent-amber\/50,
+[data-theme="spectrum"] .border-accent-amber\/40,
 [data-theme="spectrum"] .border-accent-amber\/30,
-[data-theme="spectrum"] .border-accent-amber\/20 {
-  border-color: color-mix(in srgb, var(--palette-amber) 35%, var(--color-border-subtle));
+[data-theme="spectrum"] .border-accent-amber\/25,
+[data-theme="spectrum"] .border-accent-amber\/20,
+[data-theme="warm-sand"] .border-accent-amber\/50,
+[data-theme="warm-sand"] .border-accent-amber\/40,
+[data-theme="warm-sand"] .border-accent-amber\/30,
+[data-theme="warm-sand"] .border-accent-amber\/25,
+[data-theme="warm-sand"] .border-accent-amber\/20 {
+  border-color: var(--color-banner-warn-border);
 }
 [data-theme="spectrum"] .border-accent-emerald\/20 {
   border-color: color-mix(in srgb, var(--palette-green) 35%, var(--color-border-subtle));
@@ -852,22 +1105,55 @@
 /* Blueprint — Option-B glass dark (QuillLoop prototype aesthetic); does not alter dark/light/spectrum */
 [data-theme="blueprint"] {
   --ux-radius-hero: 2rem;
-  --color-surface-primary: #020617;
-  --color-surface-secondary: #0f172a;
-  --color-surface-tertiary: #1e293b;
-  --color-surface-card: color-mix(in srgb, #ffffff 4.5%, #020617);
-  --color-surface-hover: color-mix(in srgb, #ffffff 7%, #0f172a);
-  --color-surface-active: color-mix(in srgb, #ffffff 10%, #1e293b);
-  --color-surface-input: #0f172a;
+  /* Deep navy lifted ~3–4% so canvas is less crushing; brand cyan untouched. */
+  --color-surface-primary: #0b1020;
+  --color-surface-secondary: #182033;
+  --color-surface-tertiary: #263245;
+  --color-surface-card: color-mix(in srgb, #ffffff 5%, #0b1020);
+  --color-surface-hover: color-mix(in srgb, #ffffff 7%, #182033);
+  --color-surface-active: color-mix(in srgb, #ffffff 10%, #263245);
+  --color-surface-input: #182033;
 
-  --color-border-subtle: color-mix(in srgb, #ffffff 8%, #020617);
-  --color-border-default: color-mix(in srgb, #ffffff 12%, #020617);
-  --color-border-strong: color-mix(in srgb, #ffffff 18%, #020617);
+  /* Wave P-C06 — border-subtle frames cards vs deep-space canvas. */
+  --color-border-subtle: color-mix(in srgb, #ffffff 11%, #0b1020);
+  --color-border-default: color-mix(in srgb, #ffffff 14%, #0b1020);
+  --color-border-strong: color-mix(in srgb, #ffffff 20%, #0b1020);
 
-  --color-text-primary: #f8fafc;
-  --color-text-secondary: #cbd5e1;
-  --color-text-tertiary: #94a3b8;
-  --color-text-muted: #64748b;
+  /* Wave M — blueprint semantic aliases (glass dark canvas + refined hairline) */
+  --color-surface-canvas: #151a28;
+  --color-hairline: #243048;
+
+  /* Wave N — SoT overrides for blueprint (cyan glass identity preserved) */
+  --color-surface-pressed: color-mix(in srgb, #ffffff 12%, #263245);
+  --color-surface-hover-strong: color-mix(in srgb, #ffffff 10%, #263245);
+  --color-focus-ring: var(--color-brand-300);
+  --focus-ring-offset: 2px;
+  --color-on-brand: #0b1020;
+  --color-on-danger: #0b1020;
+  --color-on-warn: #0b1020;
+  --color-on-success: #0b1020;
+  --color-on-info: #0b1020;
+  --elev-popover: 0 20px 48px color-mix(in srgb, #000000 45%, transparent),
+                  0 3px 10px color-mix(in srgb, #000000 22%, transparent);
+
+  /* Wave P — blueprint viz tokens (cyan-glass identity kept). */
+  --viz-bar-track: color-mix(in srgb, #ffffff 10%, var(--color-surface-card));
+  --viz-bar-track-strong: color-mix(in srgb, #ffffff 18%, var(--color-surface-card));
+  --viz-bar-fill: var(--color-brand-400);
+  --viz-bar-fill-muted: color-mix(in srgb, var(--color-brand-400) 60%, var(--color-surface-card));
+  --color-heatmap-scale-0: color-mix(in srgb, #ffffff 5%, var(--color-surface-card));
+  --color-heatmap-scale-1: color-mix(in srgb, var(--color-brand-500) 25%, var(--color-surface-card));
+  --color-heatmap-scale-2: color-mix(in srgb, var(--color-brand-500) 45%, var(--color-surface-card));
+  --color-heatmap-scale-3: color-mix(in srgb, var(--color-brand-400) 65%, var(--color-surface-card));
+  --color-heatmap-scale-4: var(--color-brand-300);
+
+  /* Type ink — white/light-gray lifted again ~2–3% */
+  --color-text-primary: #fdfeff;
+  --color-text-secondary: #d5dee9;
+  /* Wave P-C07 — muted/tertiary promoted one step so small labels (day-of-week,
+     +Nd, tooltips, legend) reach WCAG AA (~4.5:1) on the gradient canvas. */
+  --color-text-tertiary: #bdcadd;
+  --color-text-muted: #9faec1;
 
   --color-brand-50: #ecfeff;
   --color-brand-100: #cffafe;
@@ -881,37 +1167,41 @@
   --color-brand-900: #164e63;
   --color-brand-950: #083344;
 
-  --color-accent-teal: #14b8a6;
-  --color-accent-cyan: #67e8f9;
-  --color-accent-emerald: #6ee7b7;
-  --color-accent-amber: #fbbf24;
-  --color-accent-rose: #f87171;
-  --color-accent-orange: #fb923c;
-  --color-accent-violet: #a78bfa;
+  /* Complements — calm cyan-glass family; +~2% chroma. Brand cyan kept. */
+  --color-accent-teal: #43a498;
+  --color-accent-cyan: #62c2d1;
+  --color-accent-emerald: #55b899;
+  --color-accent-amber: #d0ae50;
+  --color-accent-rose: #cb8181;
+  --color-accent-orange: #d09e72;
+  --color-accent-violet: #9199c1;
 
-  --viz-track: color-mix(in srgb, #ffffff 8%, #0f172a);
-  --viz-node-fill: #0f172a;
-  --viz-canvas-bg: color-mix(in srgb, #ffffff 3%, #020617);
-  --viz-grid-line: color-mix(in srgb, #ffffff 6%, #020617);
+  --viz-track: color-mix(in srgb, #ffffff 8%, #182033);
+  --viz-node-fill: #182033;
+  --viz-canvas-bg: color-mix(in srgb, #ffffff 3%, #0b1020);
+  --viz-grid-line: color-mix(in srgb, #ffffff 6%, #0b1020);
 
-  --mastery-weak: #f87171;
-  --mastery-developing: #67e8f9;
-  --mastery-proficient: #fbbf24;
-  --mastery-strong: #6ee7b7;
-  --palette-purple: #a78bfa;
-  --palette-cyan: #67e8f9;
-  --palette-teal: #2dd4bf;
-  --palette-green: #6ee7b7;
-  --palette-amber: #fbbf24;
-  --palette-rose: #f87171;
-  --palette-orange: #fb923c;
+  --mastery-weak: #cb8181;
+  --mastery-developing: #62c2d1;
+  --mastery-proficient: #d0ae50;
+  --mastery-strong: #55b899;
+  --palette-purple: #9199c1;
+  --palette-cyan: #62c2d1;
+  --palette-teal: #43a498;
+  --palette-green: #55b899;
+  --palette-amber: #d0ae50;
+  --palette-rose: #cb8181;
+  --palette-orange: #d09e72;
+  /* Warn outlines on cyan-glass: bright amber alone washes out — mix with cyan brand. */
+  --color-banner-warn-ink: color-mix(in srgb, var(--palette-amber) 55%, #e2e8f0);
+  --color-banner-warn-border: color-mix(in srgb, var(--palette-amber) 42%, var(--color-brand-400));
 
   --radius-panel: 1.875rem;
   --elev-2: 0 24px 90px color-mix(in srgb, #000000 28%, transparent);
   --elev-3: 0 28px 100px color-mix(in srgb, #000000 32%, transparent);
   --elev-4: 0 32px 120px color-mix(in srgb, #000000 36%, transparent);
 
-  --focus-ring-color: #67e8f9;
+  --focus-ring-color: var(--color-brand-300);
 
   color-scheme: dark;
 }
@@ -920,7 +1210,7 @@
   background:
     radial-gradient(circle at 0% 0%, color-mix(in srgb, var(--color-accent-teal) 18%, transparent), transparent 34%),
     radial-gradient(circle at 100% 0%, color-mix(in srgb, var(--color-accent-violet) 15%, transparent), transparent 26%),
-    linear-gradient(180deg, #020617 0%, #0f172a 48%, #020617 100%);
+    linear-gradient(180deg, var(--color-surface-primary) 0%, var(--color-surface-secondary) 48%, var(--color-surface-primary) 100%);
   background-color: var(--color-surface-primary);
   background-attachment: fixed;
 }
@@ -947,7 +1237,7 @@
 }
 
 [data-theme="blueprint"] .gradient-text {
-  background: linear-gradient(135deg, #67e8f9 0%, #a78bfa 40%, #6ee7b7 75%, #fbbf24 100%);
+  background: linear-gradient(135deg, var(--color-brand-300) 0%, var(--palette-purple) 45%, var(--palette-amber) 100%);
   -webkit-background-clip: text;
   background-clip: text;
 }
@@ -1303,10 +1593,13 @@
 }
 [data-theme="blueprint"] .ux-callout-danger {
   border-radius: 1.5rem;
-  border-color: color-mix(in srgb, var(--palette-amber) 15%, transparent);
+  border-color: var(--color-banner-warn-border);
   background: color-mix(in srgb, var(--palette-amber) 8%, var(--color-surface-primary));
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
+}
+[data-theme="blueprint"] .ux-banner-warn {
+  border-color: var(--color-banner-warn-border);
 }
 [data-theme="blueprint"] .ux-card {
   border-radius: var(--ux-radius-hero);
@@ -1376,12 +1669,7 @@
   }
 }
 
-/* Option-B Wave E8 — Inter-only headings on blueprint */
-[data-theme="blueprint"] :is(h1, h2, h3, .ws-serif, .type-display-sm, .ux-section-header h2) {
-  font-family: var(--font-sans);
-  font-weight: 600;
-  letter-spacing: -0.025em;
-}
+/* Blueprint headings use the shared display stack (Lora) — same optical size as light. */
 [data-theme="blueprint"] .ux-section-eyebrow {
   letter-spacing: 0.34em;
   text-transform: uppercase;
@@ -2435,6 +2723,12 @@
 .agent-flow-rail-step-done {
   color: var(--color-text-secondary);
 }
+/* Full remaining width beside sidebar — pages should not invent a narrow max-width. */
+.platform-page {
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+}
 .ux-canvas-frame {
   position: relative;
 }
@@ -2960,16 +3254,28 @@
 }
 
 /* Option-B descriptive sticky tabs (Tasks Command Center pilot) */
-.descriptive-sticky-tabs {
+.descriptive-sticky-tabs-shell {
   position: sticky;
   top: 3.5rem;
   z-index: 12;
   display: flex;
+  align-items: stretch;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+.descriptive-sticky-tabs {
+  display: flex;
+  flex: 1 1 auto;
   gap: 0.5rem;
   overflow-x: auto;
-  padding: 0.25rem 0 0.75rem;
-  margin-bottom: 0.75rem;
+  padding: 0.15rem 0 0.25rem;
   scrollbar-width: none;
+  min-width: 0;
+}
+.descriptive-sticky-tabs-trailing {
+  display: flex;
+  align-items: flex-start;
+  padding: 0.15rem 0 0.25rem;
 }
 .descriptive-sticky-tabs::-webkit-scrollbar {
   display: none;
@@ -2979,12 +3285,12 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 0.2rem;
+  gap: 0.15rem;
   min-width: 9.5rem;
   max-width: 13rem;
   flex: 1 0 auto;
-  padding: 0.65rem 0.85rem;
-  border-radius: 1rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.85rem;
   border: 1px solid var(--color-border-subtle);
   background: color-mix(in srgb, var(--color-surface-card) 88%, transparent);
   text-align: left;
@@ -3418,6 +3724,48 @@ body {
   color: white;
 }
 
+/* Wave N-T08 — warm-light + warm-sand selection tuned to sepia identity.
+   Uses transparent brand-600 mix so cream stays visible under the highlight. */
+[data-theme="light"] ::selection,
+[data-theme="warm-sand"] ::selection {
+  background-color: color-mix(in srgb, var(--color-brand-500) 30%, #fdfbf7);
+  color: var(--color-brand-900);
+}
+
+/* Wave N-T06 — thin themed scrollbars for light / warm-sand / spectrum.
+   Blueprint keeps its bespoke scrollbar. Dark keeps the browser default. */
+[data-theme="light"],
+[data-theme="warm-sand"],
+[data-theme="spectrum"] {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--color-text-muted) 40%, transparent) transparent;
+}
+[data-theme="light"] ::-webkit-scrollbar,
+[data-theme="warm-sand"] ::-webkit-scrollbar,
+[data-theme="spectrum"] ::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+[data-theme="light"] ::-webkit-scrollbar-track,
+[data-theme="warm-sand"] ::-webkit-scrollbar-track,
+[data-theme="spectrum"] ::-webkit-scrollbar-track {
+  background: transparent;
+}
+[data-theme="light"] ::-webkit-scrollbar-thumb,
+[data-theme="warm-sand"] ::-webkit-scrollbar-thumb,
+[data-theme="spectrum"] ::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--color-text-muted) 40%, transparent);
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+[data-theme="light"] ::-webkit-scrollbar-thumb:hover,
+[data-theme="warm-sand"] ::-webkit-scrollbar-thumb:hover,
+[data-theme="spectrum"] ::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--color-text-muted) 60%, transparent);
+  background-clip: padding-box;
+}
+
 .glass {
   background: rgba(30, 23, 64, 0.6);
   backdrop-filter: blur(20px);
@@ -3635,17 +3983,179 @@ input[type="range"]::-webkit-slider-thumb {
   outline: none;
 }
 
+/* Wave N-T01 — canonical focus ring resolution.
+   Legacy `--focus-ring-color` still wins if a callsite set it locally; otherwise
+   we fall back to the theme-scoped `--color-focus-ring` token (SoT). */
 :focus-visible {
-  outline: 2px solid var(--focus-ring-color, var(--color-brand-400));
+  outline: 2px solid var(--focus-ring-color, var(--color-focus-ring, var(--color-brand-400)));
   outline-offset: var(--focus-ring-offset, 2px);
 }
 
-[data-theme="light"] {
-  --focus-ring-color: var(--color-brand-700);
+/* Wave N-T07 — opt-in focus ring for custom controls (menu items, listboxes,
+   floating popovers) that need the same ring even without native `:focus-visible`. */
+.ux-focus-ring:focus-visible {
+  outline: 2px solid var(--color-focus-ring, var(--color-brand-400));
+  outline-offset: var(--focus-ring-offset, 2px);
+  border-radius: inherit;
 }
 
-[data-theme="spectrum"] {
-  --focus-ring-color: var(--color-brand-600);
+/* Wave N-T11 — two-step hover for elements nested inside already-tinted cards.
+   Pairs the regular hover surface with a stronger active tint on press. */
+.ux-hover-strong {
+  transition:
+    background-color var(--motion-duration-ui, 200ms) var(--motion-ease-emphasized, cubic-bezier(0.2, 0, 0, 1)),
+    border-color var(--motion-duration-ui, 200ms) var(--motion-ease-emphasized, cubic-bezier(0.2, 0, 0, 1)),
+    color var(--motion-duration-ui, 200ms) var(--motion-ease-emphasized, cubic-bezier(0.2, 0, 0, 1));
+}
+.ux-hover-strong:hover {
+  background-color: var(--color-surface-hover-strong, var(--color-surface-hover));
+}
+.ux-hover-strong:active {
+  background-color: var(--color-surface-pressed, var(--color-surface-active));
+}
+
+/* Wave N-T10 — canonical floating popover elevation utility. Prefer this over
+   raw `shadow-lg`/`shadow-xl` on dropdowns, listboxes, notifications, palettes. */
+.ux-elev-popover {
+  box-shadow: var(--elev-popover);
+}
+
+/* Wave N-T09 — solid on-accent chip tokens (opt-in). Existing `.ux-chip-*`
+   translucent chips stay unchanged; these variants exist for filled buttons /
+   badges where the background is a solid accent and text must be legible. */
+.ux-chip-solid-brand {
+  background: var(--color-brand-600);
+  color: var(--color-on-brand);
+}
+.ux-chip-solid-danger {
+  background: var(--color-accent-rose);
+  color: var(--color-on-danger);
+}
+.ux-chip-solid-warn {
+  background: var(--color-accent-amber);
+  color: var(--color-on-warn);
+}
+.ux-chip-solid-success {
+  background: var(--color-accent-emerald);
+  color: var(--color-on-success);
+}
+.ux-chip-solid-info {
+  background: var(--color-accent-cyan);
+  color: var(--color-on-info);
+}
+
+/* Wave P-3 C12 — Settings theme picker active chip. Uses brand-700 ink on light
+   themes (brand-300 was too pale on warm-light white cards) and brand-300 on dark. */
+.ux-theme-chip-active {
+  border-color: color-mix(in srgb, var(--color-brand-600) 40%, var(--color-border-subtle));
+  background: color-mix(in srgb, var(--color-brand-600) 14%, var(--color-surface-card));
+  color: var(--color-brand-700);
+  font-weight: 600;
+}
+[data-theme="dark"] .ux-theme-chip-active {
+  color: var(--color-brand-300);
+}
+[data-theme="blueprint"] .ux-theme-chip-active {
+  color: var(--color-brand-300);
+}
+
+/* Library «Combined study» panel — replace hardcoded violet-300 (fails on
+   warm-light / spectrum / blueprint washes). Promo uses secondary ink (≥4.5:1);
+   actions/CTA use brand-700 on light themes and brand-300 on dark/blueprint. */
+.ux-combined-study-promo {
+  color: var(--color-text-secondary);
+}
+.ux-combined-study-icon {
+  background: color-mix(in srgb, var(--color-brand-600) 14%, transparent);
+  color: var(--color-brand-700);
+}
+[data-theme="dark"] .ux-combined-study-icon,
+[data-theme="blueprint"] .ux-combined-study-icon {
+  color: var(--color-brand-300);
+}
+.ux-combined-study-action {
+  border-color: color-mix(in srgb, var(--color-brand-600) 42%, var(--color-border-subtle));
+  background: color-mix(in srgb, var(--color-brand-600) 8%, transparent);
+  color: var(--color-brand-700);
+}
+.ux-combined-study-action:hover {
+  background: color-mix(in srgb, var(--color-brand-600) 14%, transparent);
+}
+.ux-combined-study-cta {
+  border-color: color-mix(in srgb, var(--color-brand-600) 48%, var(--color-border-subtle));
+  background: color-mix(in srgb, var(--color-brand-600) 12%, var(--color-surface-card));
+  color: var(--color-brand-700);
+}
+.ux-combined-study-cta:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--color-brand-600) 18%, var(--color-surface-card));
+}
+[data-theme="dark"] .ux-combined-study-action,
+[data-theme="dark"] .ux-combined-study-cta,
+[data-theme="blueprint"] .ux-combined-study-action,
+[data-theme="blueprint"] .ux-combined-study-cta {
+  color: var(--color-brand-300);
+  border-color: color-mix(in srgb, var(--color-brand-300) 45%, var(--color-border-subtle));
+}
+
+/* Wave P-3 C13 — warn banner title ink + outline (Almost There / Danger Zone). */
+.ux-banner-warn {
+  border-color: var(--color-banner-warn-border);
+}
+.ux-banner-warn .ux-section-label-title {
+  color: var(--color-banner-warn-ink);
+}
+.ux-banner-warn .ux-banner-warn-accent {
+  color: var(--color-banner-warn-ink);
+}
+
+/* Spectrum (and light cream washes): bright accent-amber (#f5c842 / #fbbf24)
+   fails WCAG as body/metric text on pale cards. Remap TEXT utilities to
+   --color-banner-warn-ink; leave bg-/border-accent-amber washes unchanged. */
+[data-theme="spectrum"] .text-accent-amber,
+[data-theme="light"] .text-accent-amber,
+[data-theme="warm-sand"] .text-accent-amber {
+  color: var(--color-banner-warn-ink);
+}
+[data-theme="spectrum"] .ux-chip-warn,
+[data-theme="light"] .ux-chip-warn,
+[data-theme="warm-sand"] .ux-chip-warn {
+  color: var(--color-banner-warn-ink);
+}
+[data-theme="spectrum"] .ux-trust-badge-enrichment {
+  color: var(--color-banner-warn-ink);
+}
+
+/* Wave P-3 D02 — Priority Task (and similar) row hover elevation.
+   Use a real utility class; Tailwind v4 Lightning CSS rejects arbitrary
+   hover box-shadow values that nest CSS var() parentheses. */
+.ux-row-elev-hover {
+  transition: box-shadow 180ms var(--motion-ease-emphasized, ease), background-color 180ms ease;
+}
+.ux-row-elev-hover:hover {
+  box-shadow: var(--elev-popover);
+}
+
+/* Wave O-M07 / P-S03 — CSS motion utilities for non-framer callsites.
+   Respect prefers-reduced-motion so they collapse to instant. */
+.ux-motion-fade-in {
+  animation: ux-fade-in var(--motion-duration-emphasized) var(--motion-ease-emphasized) both;
+}
+.ux-motion-slide-in {
+  animation: ux-slide-in var(--motion-duration-emphasized) var(--motion-ease-emphasized) both;
+}
+@keyframes ux-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes ux-slide-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ux-motion-fade-in,
+  .ux-motion-slide-in {
+    animation: none;
+  }
 }
 
 [data-theme="minimal"],
@@ -3789,7 +4299,7 @@ input[type="range"]::-webkit-slider-thumb {
    Color tokens come from [data-theme="light"] on html — not overridden here.
    ============================================================ */
 [data-theme="light"] [data-ws-theme="warm"] {
-  font-family: 'Nunito Sans', system-ui, -apple-system, sans-serif;
+  font-family: var(--font-sans);
 }
 [data-theme="light"] [data-ws-theme="warm"] .text-brand-300,
 [data-theme="light"] [data-ws-theme="warm"] .text-brand-400 {
@@ -3948,6 +4458,46 @@ input[type="range"]::-webkit-slider-thumb {
 .ux-chip-warn { background: color-mix(in srgb, var(--color-accent-amber) 15%, transparent); color: var(--color-accent-amber); }
 .ux-chip-error { background: color-mix(in srgb, var(--color-accent-rose) 15%, transparent); color: var(--color-accent-rose); }
 .ux-chip-info { background: color-mix(in srgb, var(--color-brand-500) 15%, transparent); color: var(--color-brand-400); }
+
+/* Wave M-C01 — shared KPI numeral utility (density contract; canvas parity). */
+.ux-kpi-value {
+  font-size: 1.25rem;
+  line-height: 1.4;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-primary);
+  letter-spacing: -0.005em;
+}
+.ux-kpi-value-lg {
+  font-size: 1.5rem;
+  line-height: 1.25;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-primary);
+  letter-spacing: -0.01em;
+}
+/* Wave M-D07 — small-tile KPI (Dashboard KPI grid, Analytics MetricCard, FSRS summary tiles). */
+.ux-kpi-value-sm {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-primary);
+  letter-spacing: -0.003em;
+}
+@media (min-width: 640px) {
+  .ux-kpi-value-sm {
+    font-size: 1rem;
+    line-height: 1.375rem;
+  }
+}
+.ux-kpi-label {
+  font-size: var(--type-caption, 0.6875rem);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-text-tertiary);
+  font-weight: 600;
+}
 .ux-lesson-serif {
   font-family: var(--font-display);
   letter-spacing: -0.01em;
@@ -4032,12 +4582,14 @@ input[type="range"]::-webkit-slider-thumb {
 .ux-callout-trust .ux-callout-title { color: var(--color-accent-emerald); }
 .ux-callout-trust svg { color: var(--color-accent-emerald); }
 .ux-callout-danger {
-  border-color: color-mix(in srgb, var(--color-accent-amber) 28%, transparent);
+  border-color: var(--color-banner-warn-border);
   background: color-mix(in srgb, var(--color-accent-amber) 8%, var(--color-surface-card));
-  color: color-mix(in srgb, var(--color-accent-amber) 88%, var(--color-text-primary));
+  /* Body ink = secondary (readable on cream wash). Title/icon use warn-ink
+     so spectrum/warm light yellow accents never paint the whole callout. */
+  color: var(--color-text-secondary);
 }
-.ux-callout-danger .ux-callout-title { color: var(--color-accent-amber); }
-.ux-callout-danger svg { color: var(--color-accent-amber); }
+.ux-callout-danger .ux-callout-title { color: var(--color-banner-warn-ink); }
+.ux-callout-danger svg { color: var(--color-banner-warn-ink); }
 .ux-callout-next {
   border-color: color-mix(in srgb, var(--color-accent-emerald) 22%, transparent);
   background: color-mix(in srgb, var(--color-accent-emerald) 7%, var(--color-surface-card));
@@ -4052,11 +4604,12 @@ input[type="range"]::-webkit-slider-thumb {
 }
 .ux-callout-info .ux-callout-title { color: var(--color-brand-600); }
 .ux-callout-warn {
-  border-color: color-mix(in srgb, var(--color-accent-amber) 25%, transparent);
+  border-color: var(--color-banner-warn-border);
   background: color-mix(in srgb, var(--color-accent-amber) 6%, var(--color-surface-card));
   color: var(--color-text-secondary);
 }
-.ux-callout-warn .ux-callout-title { color: var(--color-accent-amber); }
+.ux-callout-warn .ux-callout-title { color: var(--color-banner-warn-ink); }
+.ux-callout-warn svg { color: var(--color-banner-warn-ink); }
 
 .ux-trust-badge {
   display: inline-flex;
@@ -4619,8 +5172,8 @@ input[type="range"]::-webkit-slider-thumb {
 [data-theme="light"] [data-ws-theme="warm"] .border-white\/12 {
   border-color: color-mix(in srgb, var(--color-border-subtle) 85%, transparent);
 }
-[data-theme="light"] [data-ws-theme="warm"] .bg-white\/\[0.04\],
-[data-theme="light"] [data-ws-theme="warm"] .bg-white\/\[0.05\] {
+[data-theme="light"] [data-ws-theme="warm"] .bg-white\/\[0\.04\],
+[data-theme="light"] [data-ws-theme="warm"] .bg-white\/\[0\.05\] {
   background: color-mix(in srgb, var(--color-surface-secondary) 75%, #faf8f5);
 }
 
@@ -4648,7 +5201,7 @@ input[type="range"]::-webkit-slider-thumb {
   background: color-mix(in srgb, var(--color-surface-secondary) 98%, #faf8f5);
   backdrop-filter: blur(12px);
   box-shadow: -8px 0 32px color-mix(in srgb, #1f160c 12%, transparent);
-  font-family: 'Nunito Sans', system-ui, sans-serif;
+  font-family: var(--font-sans);
   color: var(--color-text-primary);
 }
 [data-theme="light"] [data-ws-theme="warm"] .ws-cognitive-sheet-header {
@@ -4776,8 +5329,8 @@ svg.lucide {
   h3.text-3xl, h3.text-4xl { font-size: clamp(1.15rem, 1.8vw, 1.5rem); line-height: 1.2; }
 }
 
-/* Calmer default body rhythm */
-body { font-feature-settings: "ss01", "cv11"; letter-spacing: -0.005em; }
+/* Calmer default body rhythm — shared across all themes (light SoT metrics). */
+body { letter-spacing: -0.005em; }
 
 /* ============================================================
    Package 5B — dark workspace contrast pass
@@ -4830,7 +5383,7 @@ body { font-feature-settings: "ss01", "cv11"; letter-spacing: -0.005em; }
 [data-theme="dark"] [data-ws-theme="warm"] .ws-chip-warn {
   border: 1px solid color-mix(in srgb, var(--color-accent-amber) 50%, var(--color-border-subtle));
   background: color-mix(in srgb, var(--color-accent-amber) 14%, var(--color-surface-card));
-  color: #fde68a;
+  color: var(--color-accent-amber);
   font-weight: 600;
 }
 [data-theme="dark"] [data-ws-theme="warm"] .ws-chip-neutral {
@@ -4848,13 +5401,13 @@ body { font-feature-settings: "ss01", "cv11"; letter-spacing: -0.005em; }
 [data-theme="dark"] [data-ws-theme="warm"] .ws-chip-ok {
   border: 1px solid color-mix(in srgb, var(--color-accent-emerald) 45%, var(--color-border-subtle));
   background: color-mix(in srgb, var(--color-accent-emerald) 12%, var(--color-surface-card));
-  color: #6ee7b7;
+  color: var(--color-accent-emerald);
   font-weight: 600;
 }
 [data-theme="dark"] [data-ws-theme="warm"] .ws-chip-danger {
   border: 1px solid color-mix(in srgb, var(--color-accent-rose) 45%, var(--color-border-subtle));
   background: color-mix(in srgb, var(--color-accent-rose) 12%, var(--color-surface-card));
-  color: #fda4af;
+  color: var(--color-accent-rose);
   font-weight: 600;
 }
 
@@ -4893,13 +5446,13 @@ body { font-feature-settings: "ss01", "cv11"; letter-spacing: -0.005em; }
 
 [data-theme="dark"] [data-ws-theme="warm"] .text-accent-amber,
 [data-theme="dark"] [data-ws-theme="warm"] .text-accent-amber\/80 {
-  color: #fde68a;
+  color: var(--color-accent-amber);
 }
-[data-theme="dark"] [data-ws-theme="warm"] .text-accent-emerald { color: #6ee7b7; }
-[data-theme="dark"] [data-ws-theme="warm"] .text-accent-rose { color: #fda4af; }
-[data-theme="dark"] [data-ws-theme="warm"] .text-accent-cyan { color: #67e8f9; }
-[data-theme="dark"] [data-ws-theme="warm"] .text-accent-teal { color: #5eead4; }
-[data-theme="dark"] [data-ws-theme="warm"] .text-accent-orange { color: #fdba74; }
+[data-theme="dark"] [data-ws-theme="warm"] .text-accent-emerald { color: var(--color-accent-emerald); }
+[data-theme="dark"] [data-ws-theme="warm"] .text-accent-rose { color: var(--color-accent-rose); }
+[data-theme="dark"] [data-ws-theme="warm"] .text-accent-cyan { color: var(--color-accent-cyan); }
+[data-theme="dark"] [data-ws-theme="warm"] .text-accent-teal { color: var(--color-accent-teal); }
+[data-theme="dark"] [data-ws-theme="warm"] .text-accent-orange { color: var(--color-accent-orange); }
 
 [data-theme="dark"] [data-ws-theme="warm"] .text-text-muted {
   color: var(--color-text-tertiary);
@@ -4922,13 +5475,13 @@ body { font-feature-settings: "ss01", "cv11"; letter-spacing: -0.005em; }
 [data-theme="dark"] [data-ws-theme="warm"] .ws-status-ok {
   border-color: color-mix(in srgb, var(--color-accent-emerald) 45%, var(--color-border-subtle));
   background: color-mix(in srgb, var(--color-accent-emerald) 10%, var(--color-surface-card));
-  color: #6ee7b7;
+  color: var(--color-accent-emerald);
   font-weight: 600;
 }
 [data-theme="dark"] [data-ws-theme="warm"] .ws-status-warn {
   border-color: color-mix(in srgb, var(--color-accent-amber) 50%, var(--color-border-subtle));
   background: color-mix(in srgb, var(--color-accent-amber) 12%, var(--color-surface-card));
-  color: #fde68a;
+  color: var(--color-accent-amber);
   font-weight: 600;
 }
 
@@ -4943,7 +5496,7 @@ body { font-feature-settings: "ss01", "cv11"; letter-spacing: -0.005em; }
 [data-theme="dark"] [data-ws-theme="warm"] .ws-source-action-btn-warn {
   border-color: color-mix(in srgb, var(--color-accent-amber) 45%, var(--color-border-subtle));
   background: color-mix(in srgb, var(--color-accent-amber) 12%, var(--color-surface-card));
-  color: #fde68a;
+  color: var(--color-accent-amber);
 }
 [data-theme="dark"] [data-ws-theme="warm"] .ws-source-action-btn-ghost {
   color: var(--color-text-tertiary);
@@ -4964,25 +5517,30 @@ body { font-feature-settings: "ss01", "cv11"; letter-spacing: -0.005em; }
 }
 
 /* Readability (all dark themes): the deep brand shades (600–800) are tuned for
-   LIGHT backgrounds. As *foreground text* on dark surfaces they fail WCAG AA
-   (brand-800 #1e40af ≈ 2.3:1, brand-700 #1d4ed8 ≈ 2.3:1, brand-600 #2563eb
-   ≈ 3:1 on surface-primary #0a0a0c). Remap the text + hover utilities to
-   legible brand shades while preserving emphasis hierarchy (700/800 → light,
-   600 → slightly softer). Background/border utilities (bg-brand-*, border-brand-*)
-   are intentionally left unchanged so brand-tinted surfaces keep their depth.
+   LIGHT backgrounds / solid fills. As *foreground text* on dark surfaces they
+   fail WCAG AA. Remap the text + hover utilities to legible brand shades while
+   preserving emphasis hierarchy (700/800 → brand-300, 600 → brand-400).
+   Background/border utilities (bg-brand-*, border-brand-*) are intentionally
+   left unchanged so brand-tinted surfaces keep their depth.
    Light/spectrum themes are unaffected (light backgrounds read these well). */
 [data-theme="dark"] .text-brand-800,
-[data-theme="dark"] .text-brand-700 {
+[data-theme="dark"] .text-brand-700,
+[data-theme="blueprint"] .text-brand-800,
+[data-theme="blueprint"] .text-brand-700 {
   color: var(--color-brand-300);
 }
-[data-theme="dark"] .text-brand-600 {
+[data-theme="dark"] .text-brand-600,
+[data-theme="blueprint"] .text-brand-600 {
   color: var(--color-brand-400);
 }
 [data-theme="dark"] .hover\:text-brand-800:hover,
-[data-theme="dark"] .hover\:text-brand-700:hover {
+[data-theme="dark"] .hover\:text-brand-700:hover,
+[data-theme="blueprint"] .hover\:text-brand-800:hover,
+[data-theme="blueprint"] .hover\:text-brand-700:hover {
   color: var(--color-brand-300);
 }
-[data-theme="dark"] .hover\:text-brand-600:hover {
+[data-theme="dark"] .hover\:text-brand-600:hover,
+[data-theme="blueprint"] .hover\:text-brand-600:hover {
   color: var(--color-brand-400);
 }
 
@@ -5051,4 +5609,22 @@ body { font-feature-settings: "ss01", "cv11"; letter-spacing: -0.005em; }
 .card-hover:hover {
   transform: translateY(-2px);
   box-shadow: var(--elev-3, 0 8px 24px rgba(0,0,0,.08));
+}
+
+/* Wave F — global reduced-motion: kill CSS animations/transitions & hover lift */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .card-hover:hover {
+    transform: none;
+  }
+  .ux-shimmer {
+    animation: none;
+  }
 }

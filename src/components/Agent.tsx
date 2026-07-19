@@ -4,7 +4,7 @@ import {
   Send, Sparkles, BookOpen, Brain, GraduationCap, MessageSquare,
   Code, Lightbulb, AlertTriangle, Mic, ChevronDown,
   RotateCcw, Target, PenTool, Smile, Search, FileText,
-  HelpCircle, Zap, Settings2
+  HelpCircle, Zap, Settings2, Layers, Check, X
 } from '@/lib/lucide-shim';
 import type { AgentMessage, AgentMode, Course, UserSettings, UploadedFile, MessageCitation, SkillNode } from '../types';
 import type { DashboardNextAction } from '../lib/dashboardNextAction';
@@ -120,6 +120,8 @@ export function Agent({
   const [attachSource, setAttachSource] = useState(true);
   const [pinnedFileId, setPinnedFileId] = useState<string | null>(null);
   const [showSourceSettings, setShowSourceSettings] = useState(false);
+  // Wave M-X05 — embedded compact source picker popover (single control, no re-open of full page).
+  const [showEmbeddedSource, setShowEmbeddedSource] = useState(false);
   const [showAttachPicker, setShowAttachPicker] = useState(false);
   const [isThinking, setIsThinking] = useState(false);
   const sourceSelectRef = useRef<HTMLSelectElement>(null);
@@ -527,12 +529,15 @@ export function Agent({
               <Settings2 className="w-4 h-4" aria-hidden="true" />
             </button>
             {showSourceSettings && (
-              <div className="absolute right-0 top-full mt-1 z-20 w-64 rounded-xl border border-border-subtle bg-surface-card shadow-lg p-3 text-xs space-y-2">
+              <div
+                className="absolute right-0 top-full mt-1 z-20 w-64 rounded-xl border border-border-subtle bg-surface-card p-3 text-xs space-y-2"
+                style={{ boxShadow: 'var(--elev-popover)' }}
+              >
                 <p className="font-medium text-text-secondary">{ui.sourceSettingsTitle}</p>
                 <button
                   type="button"
                   onClick={() => setAttachSource((v) => !v)}
-                  className="w-full text-left px-2 py-1.5 rounded-lg hover:bg-surface-hover text-text-secondary"
+                  className="ux-focus-ring w-full text-left px-2 py-1.5 rounded-lg hover:bg-surface-hover text-text-secondary"
                 >
                   {attachSource ? ui.sourceOn : ui.sourceOff}
                 </button>
@@ -540,9 +545,10 @@ export function Agent({
                   <button
                     type="button"
                     onClick={handleClearPinnedFile}
-                    className="w-full text-left px-2 py-1.5 rounded-lg hover:bg-surface-hover text-text-tertiary"
+                    className="ux-focus-ring w-full flex items-center justify-between gap-2 text-left px-2 py-1.5 rounded-lg hover:bg-surface-hover text-text-tertiary"
                   >
-                    {ui.pinnedFileLabel}: ✕
+                    <span className="truncate">{ui.pinnedFileLabel}</span>
+                    <X className="h-3 w-3 shrink-0" aria-hidden />
                   </button>
                 )}
                 {onChangeSourceMode && (
@@ -556,7 +562,7 @@ export function Agent({
                         type="button"
                         onClick={() => onChangeSourceMode(opt.id)}
                         className={cn(
-                          'w-full text-left px-2 py-1.5 rounded-lg hover:bg-surface-hover',
+                          'ux-focus-ring w-full text-left px-2 py-1.5 rounded-lg hover:bg-surface-hover',
                           activeSourceMode === opt.id ? 'text-brand-300 bg-brand-500/10' : 'text-text-secondary',
                         )}
                       >
@@ -573,22 +579,92 @@ export function Agent({
       )}
 
       {embedded && (
-        <div className="flex items-center justify-between gap-2 border-b border-border-subtle px-3 py-2 shrink-0 bg-surface-secondary/20">
+        <div
+          className="flex items-center justify-between gap-2 border-b border-border-subtle px-2.5 py-1.5 shrink-0 bg-surface-secondary/20"
+          data-testid="agent-embedded-chrome"
+        >
           <button
             type="button"
             onClick={() => setShowModes(!showModes)}
-            className="flex items-center gap-1 rounded-md border border-border-subtle bg-surface-card px-2 py-1 text-xs font-medium text-text-secondary hover:border-brand-200 transition-colors"
+            className="flex items-center gap-1 rounded-md border border-border-subtle bg-surface-card px-1.5 py-0.5 text-[11px] font-medium text-text-secondary hover:border-brand-200 transition-colors"
           >
             <currentMode.icon className={cn('h-3 w-3', currentMode.color)} />
             {currentMode.label}
             <ChevronDown className={cn('h-3 w-3 transition-transform', showModes && 'rotate-180')} />
           </button>
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1 relative">
+            {/* Wave M-X05 — compact source picker inline in embedded chrome (no full-page trip required). */}
+            <button
+              type="button"
+              onClick={() => setShowEmbeddedSource((v) => !v)}
+              aria-expanded={showEmbeddedSource}
+              aria-haspopup="listbox"
+              data-testid="agent-embedded-source-picker"
+              className={cn(
+                'flex items-center gap-1 rounded-md border border-border-subtle bg-surface-card px-1.5 py-0.5 text-[11px] font-medium text-text-secondary hover:border-brand-200 transition-colors max-w-[140px]',
+                showEmbeddedSource && 'border-brand-500/40 text-brand-500',
+              )}
+              title={ui.allSources}
+            >
+              <Layers className="h-3 w-3 shrink-0" aria-hidden />
+              <span className="truncate">
+                {selectedSource === 'all'
+                  ? ui.allSources
+                  : (courses.find((c) => c.id === selectedSource)?.title ?? ui.allSources)}
+              </span>
+              <ChevronDown className={cn('h-3 w-3 shrink-0 transition-transform', showEmbeddedSource && 'rotate-180')} aria-hidden />
+            </button>
+            {showEmbeddedSource && (
+              <div
+                role="listbox"
+                data-testid="agent-embedded-source-menu"
+                className="absolute right-0 top-full mt-1 z-30 w-56 max-h-64 overflow-y-auto rounded-lg border border-border-subtle bg-surface-card py-1"
+                style={{ boxShadow: 'var(--elev-popover)' }}
+              >
+                <button
+                  type="button"
+                  role="option"
+                  aria-selected={selectedSource === 'all'}
+                  onClick={() => {
+                    setSelectedSource('all');
+                    setPinnedFileId(null);
+                    setShowEmbeddedSource(false);
+                  }}
+                  className={cn(
+                    'ux-focus-ring ux-hover-strong w-full flex items-center gap-2 px-2.5 py-1.5 text-left text-[11px]',
+                    selectedSource === 'all' ? 'text-brand-500' : 'text-text-secondary',
+                  )}
+                >
+                  {selectedSource === 'all' ? <Check className="h-3 w-3 shrink-0" aria-hidden /> : <span className="w-3 h-3 shrink-0" aria-hidden />}
+                  <span className="truncate">{ui.allSources}</span>
+                </button>
+                {courses.map((c) => (
+                  <button
+                    key={c.id}
+                    type="button"
+                    role="option"
+                    aria-selected={selectedSource === c.id}
+                    onClick={() => {
+                      setSelectedSource(c.id);
+                      setPinnedFileId(null);
+                      setShowEmbeddedSource(false);
+                    }}
+                    className={cn(
+                      'ux-focus-ring ux-hover-strong w-full flex items-center gap-2 px-2.5 py-1.5 text-left text-[11px]',
+                      selectedSource === c.id ? 'text-brand-500' : 'text-text-secondary',
+                    )}
+                  >
+                    {selectedSource === c.id ? <Check className="h-3 w-3 shrink-0" aria-hidden /> : <span className="w-3 h-3 shrink-0" aria-hidden />}
+                    <span className="truncate">{c.title}</span>
+                  </button>
+                ))}
+              </div>
+            )}
             {onOpenFullPage && (
               <button
                 type="button"
                 onClick={onOpenFullPage}
-                className="type-micro font-medium text-text-muted hover:text-brand-700 px-2 py-1 rounded-md hover:bg-surface-hover transition-colors"
+                className="text-[10px] font-medium text-text-muted hover:text-brand-700 px-1.5 py-0.5 rounded-md hover:bg-surface-hover transition-colors"
                 data-testid="agent-open-full-page"
               >
                 {lang === 'el' ? 'Πλήρης προβολή' : 'Full view'}
@@ -635,20 +711,21 @@ export function Agent({
       )}
 
       {/* Mode Selector Dropdown — mobile / embedded */}
-      <AnimatePresence>
+      <AnimatePresence initial={false}>
         {showModes && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.36, ease: [0.2, 0, 0, 1] }}
             className={cn(
               'border-b border-border-subtle bg-surface-secondary/50 overflow-hidden',
               !embedded && 'lg:hidden',
             )}
           >
-            <div className="max-w-none w-full min-w-0 px-4 sm:px-6 py-4">
+            <div className={cn('max-w-none w-full min-w-0', embedded ? 'px-3 py-2.5' : 'px-4 sm:px-6 py-4')}>
               <PlatformSection title={ui.agentModeHeading} padding="none" tone="muted">
-                <div className="pt-3">
+                <div className={cn(embedded ? 'pt-2' : 'pt-3')}>
                   <AgentModeCatalogGrid
                     modes={agentModes}
                     selectedMode={mode}
@@ -658,8 +735,8 @@ export function Agent({
                 </div>
               </PlatformSection>
               {onChangeSourceMode && (
-                <div className="mt-4 pt-4 border-t border-border-subtle">
-                  <p className="text-xs font-semibold text-text-tertiary uppercase tracking-wider mb-2">
+                <div className={cn('border-t border-border-subtle', embedded ? 'mt-2.5 pt-2.5' : 'mt-4 pt-4')}>
+                  <p className="text-[10px] font-semibold text-text-tertiary uppercase tracking-wider mb-1.5">
                     {ui.sourceModeHeading}
                   </p>
                   <div className="space-y-1">
@@ -776,9 +853,9 @@ export function Agent({
         </div>
       </div>
 
-      {/* Input Area */}
-      <div className={cn('border-t border-border-subtle bg-surface-secondary/30', embedded ? 'pb-2' : 'pb-20 lg:pb-0')}>
-        <div className="max-w-none w-full min-w-0 px-4 sm:px-6 py-3">
+      {/* Input Area — L-X04 denser when embedded */}
+      <div className={cn('border-t border-border-subtle bg-surface-secondary/30', embedded ? 'pb-1.5' : 'pb-20 lg:pb-0')}>
+        <div className={cn('max-w-none w-full min-w-0', embedded ? 'px-2.5 py-2' : 'px-4 sm:px-6 py-3')}>
           <div className="flex items-end gap-2">
             <div className="flex-1 relative">
               <textarea
@@ -795,8 +872,11 @@ export function Agent({
                 placeholder={ui.inputPlaceholder}
                 rows={1}
                 disabled={isThinking}
-                className="w-full px-4 py-3 pr-12 rounded-xl bg-surface-input border border-border-subtle text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-brand-500/50 resize-none"
-                style={{ minHeight: '46px', maxHeight: '120px' }}
+                className={cn(
+                  'w-full pr-12 rounded-xl bg-surface-input border border-border-subtle text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-brand-500/50 resize-none',
+                  embedded ? 'px-3 py-2' : 'px-4 py-3',
+                )}
+                style={{ minHeight: embedded ? '38px' : '46px', maxHeight: '120px' }}
               />
               <div className="absolute right-2 bottom-2 flex items-center gap-1">
                 <button
@@ -857,13 +937,14 @@ export function Agent({
               disabled={!input.trim() || isThinking}
               aria-label={t('agentSendMessage')}
               className={cn(
-                'p-3 rounded-xl transition-all shrink-0',
+                'rounded-xl transition-all shrink-0',
+                embedded ? 'p-2' : 'p-3',
                 input.trim() && !isThinking
                   ? 'bg-brand-600 hover:bg-brand-500 text-white'
                   : 'bg-surface-hover text-text-muted cursor-not-allowed'
               )}
             >
-              <Send className="w-5 h-5" aria-hidden="true" />
+              <Send className={cn(embedded ? 'w-4 h-4' : 'w-5 h-5')} aria-hidden="true" />
             </button>
           </div>
 

@@ -267,6 +267,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.32, ease: [0.2, 0, 0, 1] }}
                 className="space-y-8"
                 aria-current="step"
               >
@@ -274,7 +275,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                   <Sparkles className="w-8 h-8" />
                 </div>
                 <div className="text-center space-y-3">
-                  <h1 className="text-2xl font-medium ws-serif">{content.welcomeTitle}</h1>
+                  <h1 className="text-xl font-semibold ws-serif">{content.welcomeTitle}</h1>
                   <p className="text-text-secondary leading-relaxed max-w-xl mx-auto">
                     {content.welcomeBody}
                   </p>
@@ -338,6 +339,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                 key="role"
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.32, ease: [0.2, 0, 0, 1] }}
                 exit={{ opacity: 0, x: -20 }}
                 className="space-y-6"
                 aria-current="step"
@@ -389,6 +391,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                 key="goals"
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.32, ease: [0.2, 0, 0, 1] }}
                 exit={{ opacity: 0, x: -20 }}
                 className="space-y-6"
                 aria-current="step"
@@ -436,6 +439,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                 key="schedule"
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.32, ease: [0.2, 0, 0, 1] }}
                 exit={{ opacity: 0, x: -20 }}
                 className="space-y-6"
                 aria-current="step"
@@ -446,10 +450,10 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                 </div>
                 {isTeacherRole && (
                   <div
-                    className="p-3 rounded-xl border border-amber-500/30 bg-amber-500/10 text-xs text-amber-100 flex items-start gap-2"
+                    className="ux-banner-warn p-3 rounded-xl border border-accent-amber/30 bg-accent-amber/10 text-xs text-text-secondary flex items-start gap-2"
                     data-testid="onboarding-teacher-preview-hint"
                   >
-                    <Users className="w-4 h-4 shrink-0 mt-0.5" aria-hidden />
+                    <Users className="ux-banner-warn-accent w-4 h-4 shrink-0 mt-0.5" aria-hidden />
                     {content.teacherPreviewHint}
                   </div>
                 )}

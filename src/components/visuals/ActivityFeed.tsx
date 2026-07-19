@@ -31,7 +31,7 @@ export function ActivityFeed({ activities, maxItems = 6 }: Props) {
   const { t, lang } = useI18n();
 
   if (activities.length === 0) {
-    return <p className="text-xs text-text-tertiary text-center py-4">{t('activityFeedEmpty')}</p>;
+    return <p className="text-xs text-text-tertiary text-center py-2">{t('activityFeedEmpty')}</p>;
   }
 
   return (

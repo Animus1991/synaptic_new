@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { emphasizedBackdropTransition, emphasizedTransition } from '../../lib/motion';
 import { Search, X } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
 import {
@@ -123,7 +124,7 @@ export function CommandPalette({ open, onClose, items, placeholder }: Props) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.15 }}
+          transition={emphasizedBackdropTransition}
           className="fixed inset-0 z-[60] flex items-start justify-center bg-black/70 px-4 pt-[12vh]"
           onClick={onClose}
           role="dialog"
@@ -135,8 +136,8 @@ export function CommandPalette({ open, onClose, items, placeholder }: Props) {
             initial={{ y: -8, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: -8, opacity: 0 }}
-            transition={{ duration: 0.18 }}
-            className="w-full max-w-xl overflow-hidden rounded-panel border border-border-subtle bg-surface-card shadow-2xl"
+            transition={emphasizedTransition}
+            className="ux-elev-popover w-full max-w-xl overflow-hidden rounded-panel border border-border-subtle bg-surface-card"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center gap-3 border-b border-border-subtle px-4 py-3">

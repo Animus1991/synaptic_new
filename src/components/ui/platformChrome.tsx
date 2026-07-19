@@ -25,10 +25,10 @@ export function SectionHeader({
 }) {
   const isBlueprint = useBlueprintTheme();
   const body = (
-    <div className={cn('ux-section-header space-y-2', className)}>
+    <div className={cn('ux-section-header space-y-1', className)}>
       {eyebrow ? <p className="ux-section-eyebrow">{eyebrow}</p> : null}
       <h2 className="font-semibold tracking-tight text-text-primary">{title}</h2>
-      {subtitle ? <p className="max-w-2xl text-sm leading-6 text-text-secondary">{subtitle}</p> : null}
+      {subtitle ? <p className="max-w-2xl text-sm leading-5 text-text-secondary">{subtitle}</p> : null}
     </div>
   );
   if (!animate) return body;
@@ -123,6 +123,8 @@ export function SessionLauncherCard({
   icon: Icon,
   active,
   disabled,
+  recommended,
+  recommendedLabel,
   onClick,
   testId,
 }: {
@@ -133,6 +135,8 @@ export function SessionLauncherCard({
   icon: LucideIcon;
   active?: boolean;
   disabled?: boolean;
+  recommended?: boolean;
+  recommendedLabel?: string;
   onClick?: () => void;
   testId?: string;
 }) {
@@ -143,11 +147,20 @@ export function SessionLauncherCard({
       onClick={onClick}
       disabled={disabled}
       className={cn(
-        'ux-session-card',
+        'ux-session-card relative',
         active && 'ux-session-card-active',
+        recommended && !active && 'ring-1 ring-brand-500/35',
         disabled && 'opacity-50 cursor-not-allowed',
       )}
     >
+      {recommended && recommendedLabel ? (
+        <span
+          className="absolute -top-1.5 right-2 rounded-full border border-brand-500/30 bg-brand-600/15 px-1.5 py-0.5 text-[8px] font-semibold uppercase tracking-wide text-brand-700"
+          data-testid="session-recommended-badge"
+        >
+          {recommendedLabel}
+        </span>
+      ) : null}
       <span className="ux-session-card-icon">
         <Icon className="h-4 w-4" aria-hidden />
       </span>
@@ -197,6 +210,7 @@ export function DescriptiveStickyTabBar<T extends string>({
   className,
   testIdPrefix = 'descriptive-tab',
   panelIdPrefix,
+  trailing,
 }: {
   items: DescriptiveTabItem<T>[];
   activeId: T;
@@ -205,6 +219,8 @@ export function DescriptiveStickyTabBar<T extends string>({
   testIdPrefix?: string;
   /** When set, tabs expose `aria-controls` pointing at `{panelIdPrefix}-{id}` panels. */
   panelIdPrefix?: string;
+  /** Optional trailing control (e.g. Tasks filter icon) — kept outside the scrollable tablist. */
+  trailing?: ReactNode;
 }) {
   const focusTabAt = (index: number) => {
     const item = items[index];
@@ -233,39 +249,44 @@ export function DescriptiveStickyTabBar<T extends string>({
   };
 
   return (
-    <div
-      className={cn('descriptive-sticky-tabs', className)}
-      role="tablist"
-      aria-label="Section tabs"
-    >
-      {items.map((item, index) => {
-        const active = item.id === activeId;
-        const tabId = `${testIdPrefix}-${item.id}`;
-        const panelId = panelIdPrefix ? `${panelIdPrefix}-${item.id}` : undefined;
-        return (
-          <button
-            key={item.id}
-            id={tabId}
-            type="button"
-            role="tab"
-            aria-selected={active}
-            aria-controls={panelId}
-            tabIndex={active ? 0 : -1}
-            data-testid={tabId}
-            onClick={() => onChange(item.id)}
-            onKeyDown={(event) => onTabKeyDown(event, index)}
-            className={cn('descriptive-sticky-tab', active && 'descriptive-sticky-tab-active')}
-          >
-            <span className="descriptive-sticky-tab-label">{item.label}</span>
-            <span className="descriptive-sticky-tab-summary">{item.summary}</span>
-            {item.count != null && item.count > 0 && (
-              <span className="descriptive-sticky-tab-count" aria-hidden>
-                {item.count}
-              </span>
-            )}
-          </button>
-        );
-      })}
+    <div className={cn('descriptive-sticky-tabs-shell', className)}>
+      <div
+        className="descriptive-sticky-tabs"
+        role="tablist"
+        aria-label="Section tabs"
+      >
+        {items.map((item, index) => {
+          const active = item.id === activeId;
+          const tabId = `${testIdPrefix}-${item.id}`;
+          const panelId = panelIdPrefix ? `${panelIdPrefix}-${item.id}` : undefined;
+          return (
+            <button
+              key={item.id}
+              id={tabId}
+              type="button"
+              role="tab"
+              aria-selected={active}
+              aria-controls={panelId}
+              tabIndex={active ? 0 : -1}
+              data-testid={tabId}
+              onClick={() => onChange(item.id)}
+              onKeyDown={(event) => onTabKeyDown(event, index)}
+              className={cn('descriptive-sticky-tab', active && 'descriptive-sticky-tab-active')}
+            >
+              <span className="descriptive-sticky-tab-label">{item.label}</span>
+              <span className="descriptive-sticky-tab-summary">{item.summary}</span>
+              {item.count != null && item.count > 0 && (
+                <span className="descriptive-sticky-tab-count" aria-hidden>
+                  {item.count}
+                </span>
+              )}
+            </button>
+          );
+        })}
+      </div>
+      {trailing ? (
+        <div className="descriptive-sticky-tabs-trailing shrink-0">{trailing}</div>
+      ) : null}
     </div>
   );
 }

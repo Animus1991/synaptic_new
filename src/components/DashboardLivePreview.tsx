@@ -76,15 +76,60 @@ export function DashboardLivePreview({
   live,
   lang,
   onOpenWorkspace,
+  compact = false,
 }: {
   live: WorkspaceLiveSync;
   lang: Lang;
   onOpenWorkspace?: () => void;
+  /** Dense mockup strip (Wave J-D03) — eyebrow + title + Continue. */
+  compact?: boolean;
 }) {
   const { t } = useI18n();
   const steps = buildPreviewSteps(live, t);
   const activeIndex = activeStepIndex(steps, live.snapshot);
-  const headline = live.snapshot.courseLabel || live.snapshot.activeConcept || t('dashboardResumeTitle');
+  const concept = live.snapshot.activeConcept?.trim();
+  const course = live.snapshot.courseLabel?.trim();
+  const headline = [concept, course].filter(Boolean).join(' · ')
+    || course
+    || concept
+    || t('dashboardResumeTitle');
+  const meta = live.snapshot.stepLabel
+    || (live.snapshot.stepCount > 0
+      ? t('dashboardLivePreviewStepBody')
+          .replace('{n}', String(live.snapshot.stepIndex + 1))
+          .replace('{total}', String(live.snapshot.stepCount))
+      : t('dashboardResumeSubtitle'));
+
+  if (compact) {
+    return (
+      <BlueprintSurface
+        className="dashboard-live-preview border border-accent-emerald/25 bg-accent-emerald/[0.06] border-l-[3px] border-l-accent-emerald p-3 sm:p-3.5"
+        data-tour="dashboard-resume"
+        data-testid="dashboard-live-preview"
+      >
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="min-w-0 flex-1">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-text-secondary">
+              {t('dashboardLivePreviewEyebrow')}
+            </p>
+            <h2 className="mt-1 truncate text-sm font-semibold text-text-primary">{headline}</h2>
+            <p className="mt-0.5 text-[11px] text-text-tertiary line-clamp-1">{meta}</p>
+          </div>
+          {onOpenWorkspace && (
+            <button
+              type="button"
+              onClick={onOpenWorkspace}
+              data-testid="dashboard-resume-workspace"
+              {...workspaceEntryPrefetchHandlers()}
+              className="flex shrink-0 items-center gap-1.5 rounded-xl bg-brand-700 px-3.5 py-2 text-xs font-semibold text-white transition-all hover:bg-brand-800"
+            >
+              {t('dashboardResumeContinue')} <ArrowRight className="h-3 w-3" />
+            </button>
+          )}
+        </div>
+      </BlueprintSurface>
+    );
+  }
 
   return (
     <BlueprintSurface
@@ -107,7 +152,7 @@ export function DashboardLivePreview({
             {...workspaceEntryPrefetchHandlers()}
             className="flex shrink-0 items-center gap-1.5 rounded-xl bg-brand-700 px-4 py-2 text-xs font-semibold text-white transition-all hover:bg-brand-800"
           >
-            {t('dashboardResumeOpenWorkspace')} <ArrowRight className="h-3 w-3" />
+            {t('dashboardResumeContinue')} <ArrowRight className="h-3 w-3" />
           </button>
         )}
       </div>

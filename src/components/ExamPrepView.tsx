@@ -205,7 +205,7 @@ export function ExamPrepView({
               <GraduationCap className="w-8 h-8 text-accent-rose" />
             </div>
             <div className="text-center">
-              <h2 className="text-2xl font-bold">{quizConcept}</h2>
+              <h2 className="text-xl font-semibold">{quizConcept}</h2>
               <p className="text-sm text-text-secondary mt-2">
                 {courseName ?? 'Exam prep'} · fullscreen mock exam flow
               </p>
@@ -221,7 +221,7 @@ export function ExamPrepView({
                 return (
                   <div key={item.label} className="ux-card text-center">
                     <Icon className="w-5 h-5 text-brand-400 mx-auto mb-2" />
-                    <p className="text-xl font-bold tabular-nums">{item.value}</p>
+                    <p className="ux-kpi-value">{item.value}</p>
                     <p className="text-xs text-text-tertiary mt-0.5">{item.label}</p>
                   </div>
                 );
@@ -329,7 +329,7 @@ export function ExamPrepView({
           </div>
 
           <div className="flex-1 overflow-y-auto">
-            <div className="max-w-4xl mx-auto w-full px-4 sm:px-6 py-6 space-y-5">
+            <div className="max-w-none w-full px-4 sm:px-6 lg:px-8 py-6 space-y-5">
               <div className="flex items-center justify-between gap-3 flex-wrap">
                 <div className="flex items-center gap-2 text-xs text-text-tertiary flex-wrap">
                   <span>Question {currentQ + 1} of {examQuestions.length}</span>
@@ -526,11 +526,11 @@ export function ExamPrepView({
 
       {phase === 'results' && (
         <div className="flex-1 overflow-y-auto p-4 sm:p-6">
-          <div className="max-w-4xl mx-auto space-y-6">
+          <div className="max-w-none w-full space-y-6">
             <div className="text-center ux-card">
               <CheckCircle2 className="w-12 h-12 text-accent-emerald mx-auto mb-3" />
               <h2 className="text-xl font-bold">Exam submitted</h2>
-              <p className="text-3xl font-bold text-brand-300 mt-2">
+              <p className="text-2xl font-bold text-brand-300 mt-2 tabular-nums">
                 {score}/{examQuestions.length} correct
               </p>
               <p className="text-sm text-text-secondary mt-1">
@@ -556,7 +556,7 @@ export function ExamPrepView({
                 return (
                   <div key={item.label} className="ux-card text-center">
                     <Icon className={cn('w-4 h-4 mx-auto mb-2', item.tone)} />
-                    <p className="text-xl font-bold tabular-nums">{item.value}</p>
+                    <p className={cn('ux-kpi-value', item.tone)}>{item.value}</p>
                     <p className="text-xs text-text-tertiary">{item.label}</p>
                   </div>
                 );

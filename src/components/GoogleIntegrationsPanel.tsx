@@ -119,7 +119,12 @@ export function GoogleIntegrationsPanel({
     const reason = params.get('reason');
 
     if (reason && params.get('google') === 'error') {
-      setError(decodeURIComponent(reason));
+      const decoded = decodeURIComponent(reason);
+      setError(
+        decoded === 'not_configured'
+          ? t('googleOAuthNotConfigured')
+          : decoded,
+      );
       clearGoogleAuthQueryParams();
       return;
     }

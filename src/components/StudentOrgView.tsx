@@ -159,7 +159,7 @@ export function StudentOrgView({
   if (!signedIn) {
     return (
       <div className="max-w-3xl mx-auto p-6 space-y-4" data-testid="student-org-signin">
-        <h1 className="text-2xl font-semibold text-text-primary">{ui.title}</h1>
+        <h1 className="text-lg font-semibold text-text-primary">{ui.title}</h1>
         <p className="text-text-secondary">{ui.signInRequired}</p>
         <p className="text-sm text-text-muted">{ui.signInHint}</p>
         {samlEmailHint && (
@@ -177,11 +177,11 @@ export function StudentOrgView({
   }
 
   return (
-    <div className="max-w-5xl mx-auto p-4 md:p-6 space-y-8" data-testid="student-org-view">
+    <div className="platform-page w-full max-w-none p-4 md:p-6 space-y-6" data-testid="student-org-view">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold text-text-primary flex items-center gap-2">
-            <GraduationCap className="w-7 h-7 text-brand-600" />
+          <h1 className="text-lg font-semibold text-text-primary flex items-center gap-2">
+            <GraduationCap className="w-5 h-5 text-brand-600" />
             {ui.title}
           </h1>
           <p className="text-text-secondary mt-1">{ui.subtitle}</p>
@@ -295,7 +295,8 @@ export function StudentOrgView({
                       </div>
                       {completionPct != null && (
                         <div className="flex items-center gap-2 pt-1 max-w-xs">
-                          <div className="flex-1 h-1.5 rounded-full bg-surface-hover overflow-hidden">
+                          {/* Wave P-2 C08 — student completion track uses --viz-bar-track. */}
+                          <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: 'var(--viz-bar-track)' }}>
                             <div
                               className="h-full bg-brand-500 rounded-full"
                               style={{ width: `${completionPct}%` }}

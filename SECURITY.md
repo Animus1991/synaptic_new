@@ -92,6 +92,8 @@ Before exposing Synapse to real learners:
 6. **Secure admin** — set `ADMIN_SECRET`.
 7. **Never commit `.env` / `.env.local`** — use `.env.example` /
    `.env.local.example` only. Client Vite keys must stay empty templates.
+   CI runs Gitleaks (`.github/workflows/secret-scan.yml`, `.gitleaks.toml`)
+   on every PR/push — keep real secrets out of the tree and history.
 8. **Run migrations once** — set `RUN_MIGRATIONS_ON_START=false` in
    multi-replica deployments and call `npm run migrate` from CI.
 9. **Rotate `JWT_SECRET`** at least quarterly; force-logout on rotation.
@@ -112,6 +114,9 @@ Before exposing Synapse to real learners:
 - Stronger LLM safety (vendor Moderation API / classifier) beyond MVP regex.
 - CSRF protection if cookies are added later (current Bearer-token flow does
   not need it).
+- **Commit author / history email scrub** — only with explicit maintainer
+  approval (coordinated `filter-repo` / rewrite across all remotes + noreply
+  identities). Do not rewrite history without a signed-off decision.
 
 ## Reporting vulnerabilities
 

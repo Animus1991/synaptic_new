@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { cn } from '../../../utils/cn';
 import { useConceptMapCollab } from '../../../hooks/useConceptMapCollab';
+import { useWhiteboardCollab } from '../../../hooks/useWhiteboardCollab';
 import { Panel } from 'react-resizable-panels';
 import { WorkspaceToolStrip } from '../WorkspaceToolStrip';
 import { ToolFrame } from '../ToolFrame';
@@ -14,7 +15,8 @@ import {
 import { WorkspaceIdleMount } from '../WorkspaceIdleMount';
 import { WorkspaceToolSuspense } from '../WorkspaceToolSuspense';
 import { mergeReaderHighlight } from '../../../lib/workspaceFocus';
-import { saveConceptMapPositions, saveConceptMapGraph } from '../../../lib/workspacePersistence';
+import { saveConceptMapPositions, saveConceptMapGraph, loadWhiteboardStrokes, saveLastSimulatorScenario, saveExamPracticePreset } from '../../../lib/workspacePersistence';
+import { migrateWhiteboardPayload } from '../../../lib/whiteboardLayers';
 import { recordQuizResponse } from '../../../lib/quizIrt';
 import { conceptSignalForAnnotationCategory } from '../../../lib/annotationAnchor';
 import { appendScratchpadAnnotation } from '../../../lib/scratchpadEntryStore';
@@ -26,7 +28,6 @@ import {
 } from '../../../lib/workspaceToolAgentPrompts';
 import { buildCompareDifferencePrompt } from '../../../lib/compareExplainDifference';
 import { hasDedicatedToolAgentChips } from '../../../lib/workspaceToolAgentChips';
-import { saveLastSimulatorScenario, saveExamPracticePreset } from '../../../lib/workspacePersistence';
 import { examPracticePresetForScenario, type SimulatorScenarioId } from '../../../lib/examPracticePresets';
 import { loadFeynmanDraft } from '../../../lib/feynmanDraftStore';
 import { AnnotationConflictPanel } from '../AnnotationConflictPanel';
@@ -126,6 +127,7 @@ export function StudyWorkspaceToolSurface({ model }: StudyWorkspaceToolSurfacePr
     discoverabilityActions,
     conceptMapCursorSync,
     conceptMapCollabConfig,
+    whiteboardCollabConfig,
     conceptNodes,
     conceptEdges,
     nextActionRecommendation,
@@ -165,6 +167,22 @@ export function StudyWorkspaceToolSurface({ model }: StudyWorkspaceToolSurfacePr
     enabled: activeTool === 'concept-map' && layout === 'split',
     config: conceptMapCollabConfig,
     seedGraph: conceptMapSeedGraph,
+  });
+
+  const whiteboardStorageScope = `${progressKey}:${quizConcept}`;
+  const whiteboardSeedDoc = useMemo(() => {
+    try {
+      const persisted = loadWhiteboardStrokes<unknown>(whiteboardStorageScope);
+      if (persisted) return migrateWhiteboardPayload(persisted, lang);
+    } catch { /* ignore */ }
+    return migrateWhiteboardPayload([], lang);
+  }, [whiteboardStorageScope, lang]);
+
+  const whiteboardCrdt = useWhiteboardCollab({
+    enabled: activeTool === 'whiteboard' && (layout === 'split' || layout === 'focus-tool'),
+    config: whiteboardCollabConfig,
+    seedDoc: whiteboardSeedDoc,
+    lang,
   });
 
   const toolAgentChipBar = useMemo(() => {
@@ -347,7 +365,7 @@ export function StudyWorkspaceToolSurface({ model }: StudyWorkspaceToolSurfacePr
                           session={whiteboardSession}
                           concept={quizConcept}
                           lang={lang}
-                          storageScope={`${progressKey}:${quizConcept}`}
+                          storageScope={whiteboardStorageScope}
                           scratchpadImport={scratchpadImport}
                           onDismissScratchpadImport={() => setScratchpadImport(null)}
                           emptyMessage={toolEmptyMessage('whiteboard')}
@@ -364,6 +382,7 @@ export function StudyWorkspaceToolSurface({ model }: StudyWorkspaceToolSurfacePr
                               ?.reasons[0]?.label
                             ?? (conceptLensView.struggling ? quizConcept : undefined)
                           }
+                          crdt={whiteboardCrdt.active ? whiteboardCrdt : undefined}
                           onAskAgent={(prompt, intent) => {
                             const agentIntent: ToolAgentIntent = intent === 'critique'
                               ? 'diagram-critique'
@@ -613,6 +632,9 @@ export function StudyWorkspaceToolSurface({ model }: StudyWorkspaceToolSurfacePr
                           annotationSyncLive={annotationSyncLive}
                           annotationSyncVersion={annotationSyncVersion}
                           annotationSyncMode={annotationSyncMode}
+                          annotationConflicts={annotationConflicts}
+                          onResolveAnnotationConflict={handleResolveAnnotationConflict}
+                          onDismissAnnotationConflicts={handleDismissAnnotationConflicts}
                           onRemapComplete={(count) => {
                             if (count > 0) noteConceptActivity(quizConcept, 'annotations', 'annotated');
                           }}

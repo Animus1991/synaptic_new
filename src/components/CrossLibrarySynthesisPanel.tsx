@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Sparkles, Loader2, ChevronDown, ChevronUp, FileText } from '@/lib/lucide-shim';
+import { Sparkles, Loader2, ChevronDown, ChevronUp, FileText, Library } from '@/lib/lucide-shim';
 import type { Course, MessageCitation, UserSettings } from '../types';
 import { cn } from '../utils/cn';
 import { runMultiDocSynthesize } from '../lib/agentMultiDocSynthesize';
@@ -55,42 +55,63 @@ export function CrossLibrarySynthesisPanel({ courses, settings, lang, className 
     }
   };
 
-  const title = lang === 'el' ? 'Σύνθεση βιβλιοθήκης' : 'Library synthesis';
+  const title = lang === 'el' ? 'Συνδυαστική μελέτη' : 'Combined study';
+  const promo =
+    lang === 'el'
+      ? 'Δημιουργήστε συνθετικές κάρτες και ερωτήσεις συνδυάζοντας ύλη από 2+ μαθήματα.'
+      : 'Create synthetic cards and questions by combining material from 2+ courses.';
+  const selectLabel = lang === 'el' ? 'Επιλογή' : 'Select';
   const subtitle =
     lang === 'el'
-      ? 'NotebookLM-style σύνθεση με πηγές από όλα τα έγγραφα.'
-      : 'NotebookLM-style digest with citations from all indexed documents.';
+      ? 'Σύνθεση θεμάτων με πηγές από όλα τα έγγραφα της βιβλιοθήκης.'
+      : 'Theme digest with citations across your library documents.';
 
   return (
     <div
-      className={cn('rounded-xl border border-border-subtle bg-surface-primary/40', className)}
+      className={cn(
+        'ux-combined-study rounded-xl border overflow-hidden',
+        'border-brand-500/25 bg-gradient-to-r from-brand-500/[0.10] via-brand-500/[0.05] to-transparent',
+        className,
+      )}
       data-testid="cross-library-synthesis"
+      data-promo="combined-study"
     >
-      <button
-        type="button"
-        onClick={() => setOpen((v) => !v)}
-        className="w-full flex items-center gap-2 px-3 py-2 text-left"
-      >
-        <Sparkles className="w-4 h-4 text-accent-amber shrink-0" />
-        <span className="text-xs font-semibold text-text-primary flex-1">{title}</span>
-        {open ? <ChevronUp className="w-4 h-4 text-text-muted" /> : <ChevronDown className="w-4 h-4 text-text-muted" />}
-      </button>
+      <div className="flex items-center gap-2.5 px-3.5 py-2.5">
+        <span className="ux-combined-study-icon flex h-7 w-7 items-center justify-center rounded-lg shrink-0">
+          <Library className="w-3.5 h-3.5" />
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="block text-xs font-semibold text-text-primary">{title}</span>
+          {/* Promo ink uses theme secondary (warm sepia / spectrum ink / blueprint slate)
+              — hardcoded violet-300 was ~1.5:1 on light cards. */}
+          <span className="ux-combined-study-promo block text-[10px] line-clamp-1">{promo}</span>
+        </span>
+        <button
+          type="button"
+          onClick={() => setOpen((v) => !v)}
+          className="ux-combined-study-action shrink-0 inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-semibold border"
+          data-testid="cross-library-synthesis-select"
+        >
+          {selectLabel}
+          {open ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+        </button>
+      </div>
       {open && (
-        <div className="px-3 pb-3 space-y-2 border-t border-border-subtle/60 pt-2">
+        <div className="px-3.5 pb-3 space-y-2 border-t border-brand-500/20 pt-2.5 bg-surface-primary/30">
           <p className="text-[10px] text-text-secondary">{subtitle}</p>
           <textarea
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder={defaultQuery}
             rows={2}
-            className="w-full rounded-lg border border-border-subtle bg-surface-primary px-2 py-1.5 text-[11px] text-text-primary resize-none"
+            className="w-full rounded-lg border border-brand-500/25 bg-surface-primary px-2 py-1.5 text-[11px] text-text-primary placeholder:text-text-muted resize-none focus:outline-none focus:ring-1 focus:ring-brand-500/35"
             data-testid="cross-library-synthesis-query"
           />
           {courses.length > 0 && (
             <select
               value={scope}
               onChange={(e) => setScope(e.target.value)}
-              className="w-full rounded-lg border border-border-subtle bg-surface-primary px-2 py-1 text-[11px]"
+              className="w-full rounded-lg border border-brand-500/25 bg-surface-primary px-2 py-1 text-[11px] text-text-primary"
               data-testid="cross-library-synthesis-scope"
             >
               <option value="all">{lang === 'el' ? 'Όλα τα μαθήματα' : 'All courses'}</option>
@@ -105,7 +126,7 @@ export function CrossLibrarySynthesisPanel({ courses, settings, lang, className 
             type="button"
             disabled={busy || !token}
             onClick={() => void runSynthesis()}
-            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-medium border border-accent-amber/40 text-accent-amber hover:bg-accent-amber/10 disabled:opacity-60"
+            className="ux-combined-study-cta inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-semibold border disabled:opacity-55"
             data-testid="cross-library-synthesis-run"
           >
             {busy ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}
@@ -119,16 +140,16 @@ export function CrossLibrarySynthesisPanel({ courses, settings, lang, className 
           </button>
           {error && <p className="text-[10px] text-accent-rose">{error}</p>}
           {synthesis && (
-            <pre className="text-[10px] text-text-secondary whitespace-pre-wrap max-h-40 overflow-y-auto p-2 rounded-lg bg-surface-secondary/40 border border-border-subtle">
+            <pre className="text-[10px] text-text-secondary whitespace-pre-wrap max-h-40 overflow-y-auto p-2 rounded-lg bg-surface-secondary/40 border border-brand-500/20">
               {synthesis}
             </pre>
           )}
           {citations.length > 0 && (
-            <div className="rounded-lg border border-border-subtle/80 overflow-hidden">
+            <div className="rounded-lg border border-brand-500/20 overflow-hidden">
               <button
                 type="button"
                 onClick={() => setCitationsOpen((v) => !v)}
-                className="w-full flex items-center gap-1.5 px-2 py-1.5 text-[10px] text-text-tertiary hover:text-brand-300"
+                className="w-full flex items-center gap-1.5 px-2 py-1.5 text-[10px] text-text-secondary hover:text-brand-700"
               >
                 <FileText className="w-3 h-3" />
                 {citations.length}{' '}
@@ -145,7 +166,7 @@ export function CrossLibrarySynthesisPanel({ courses, settings, lang, className 
                 <ul className="divide-y divide-border-subtle/60 max-h-32 overflow-y-auto">
                   {citations.map((c) => (
                     <li key={c.chunkId} className="px-2 py-1.5 text-[10px]">
-                      <p className="font-medium text-brand-300 truncate">
+                      <p className="font-medium text-brand-700 truncate">
                         {c.fileName} · {c.locator}
                       </p>
                       <p className="text-text-secondary mt-0.5 line-clamp-2">{c.snippet}</p>

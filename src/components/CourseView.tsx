@@ -43,6 +43,7 @@ import { NotebookLmExportPanel } from './NotebookLmExportPanel';
 import { Page, PageHeader, PrimaryCTA, SecondaryCTA, AnimatedCard } from './ui/primitives';
 import { QualityReportPanel } from './QualityReportPanel';
 import { SectionHeader, TrustBadgeRow, UxCallout, DescriptiveStickyTabBar } from './ui/platformChrome';
+import { McpCourseArtifactsPanel } from './course/McpCourseArtifactsPanel';
 
 interface CourseViewProps {
   course: Course;
@@ -152,7 +153,8 @@ export function CourseView({
     hasReuploadHandler: Boolean(onUploadMore),
   });
   const showReuploadHint = qualityBanner.showMigrationBanner;
-  const showQualityBar = !qualityDismissed && (showReuploadHint || qualityBanner.show) && qualityBanner.score != null;
+  const showPre24Greek = qualityBanner.showPre24Greek;
+  const showQualityBar = !qualityDismissed && (showReuploadHint || showPre24Greek || qualityBanner.show);
 
   const dismissQualityBar = () => {
     try {
@@ -374,6 +376,7 @@ export function CourseView({
           lang={lang}
           score={qualityBanner.score}
           showMigration={showReuploadHint}
+          showPre24Greek={showPre24Greek}
           showQualityWarning={qualityBanner.show}
           reprocessing={reprocessingMaterial}
           storedPipelineVersion={course.pipelineMeta?.version}
@@ -502,7 +505,8 @@ export function CourseView({
           <span className="text-sm font-medium">Course Progress</span>
           <span className="text-sm text-text-secondary">{course.completedLessons}/{course.totalLessons} lessons</span>
         </div>
-        <div className="w-full bg-surface-hover rounded-full h-3">
+        {/* Wave P-2 C08 — Course Progress top-of-page track uses --viz-bar-track. */}
+        <div className="w-full rounded-full h-3" style={{ backgroundColor: 'var(--viz-bar-track)' }}>
           <div
             className="h-3 rounded-full transition-all duration-700"
             style={{ width: `${progress}%`, backgroundColor: resolveCourseColor(course.color) }}
@@ -513,10 +517,10 @@ export function CourseView({
           <span>~{Math.round(course.estimatedHours * (1 - progress / 100))}h remaining</span>
         </div>
         <div className="grid grid-cols-4 gap-3 mt-4 pt-4 border-t border-border-subtle">
-          <div className="text-center"><p className="text-lg font-bold">{course.conceptCount}</p><p className="text-[10px] text-text-muted">Concepts</p></div>
-          <div className="text-center"><p className="text-lg font-bold">{course.glossaryCount}</p><p className="text-[10px] text-text-muted">Glossary</p></div>
-          <div className="text-center"><p className="text-lg font-bold">{course.exerciseCount}</p><p className="text-[10px] text-text-muted">Exercises</p></div>
-          <div className="text-center"><p className="text-lg font-bold capitalize text-xs">{course.sourceMode}</p><p className="text-[10px] text-text-muted">Source Mode</p></div>
+          <div className="text-center"><p className="ux-kpi-value">{course.conceptCount}</p><p className="text-[10px] text-text-muted">Concepts</p></div>
+          <div className="text-center"><p className="ux-kpi-value">{course.glossaryCount}</p><p className="text-[10px] text-text-muted">Glossary</p></div>
+          <div className="text-center"><p className="ux-kpi-value">{course.exerciseCount}</p><p className="text-[10px] text-text-muted">Exercises</p></div>
+          <div className="text-center"><p className="text-xs font-semibold capitalize">{course.sourceMode}</p><p className="text-[10px] text-text-muted">Source Mode</p></div>
         </div>
       </AnimatedCard>
 
@@ -569,7 +573,7 @@ export function CourseView({
         </div>
       )}
       {tab === 'sources' && (
-        <div role="tabpanel" id="course-panel-sources" data-testid="course-panel-sources" aria-labelledby="course-tab-sources">
+        <div role="tabpanel" id="course-panel-sources" data-testid="course-panel-sources" aria-labelledby="course-tab-sources" className="space-y-4">
         <SourceFiles
           course={course}
           uploadedFiles={uploadedFiles}
@@ -586,6 +590,7 @@ export function CourseView({
           onAddAudioToFsrs={onAddAudioToFsrs}
           learnerModel={learnerModel}
         />
+        <McpCourseArtifactsPanel course={course} lang={lang === 'el' ? 'el' : 'en'} />
         </div>
       )}
       {tab === 'analytics' && (
@@ -644,7 +649,7 @@ function TopicCard({ topic, index, courseColor, course, onGoToSource, onStart }:
         topic.isLocked ? 'border-border-subtle opacity-60' : 'border-border-subtle hover:border-brand-500/20'
       )}
     >
-      <div className="flex items-center gap-4 p-5">
+      <div className="flex items-center gap-3 p-3.5">
         <div className="relative">
           {topic.isLocked ? (
             <div className="w-10 h-10 rounded-xl bg-surface-hover flex items-center justify-center">
@@ -699,7 +704,8 @@ function TopicCard({ topic, index, courseColor, course, onGoToSource, onStart }:
                   <span className="text-text-muted">Mastery</span>
                   <span className="font-medium">{topic.mastery}%</span>
                 </div>
-                <div className="w-full bg-surface-hover rounded-full h-1.5">
+                {/* Wave P-2 C08 — Topic mastery track uses --viz-bar-track. */}
+                <div className="w-full rounded-full h-1.5" style={{ backgroundColor: 'var(--viz-bar-track)' }}>
                   <div
                     className="h-1.5 rounded-full transition-all"
                     style={{
@@ -1079,7 +1085,7 @@ function CourseAnalytics({ course, masteryPercent }: { course: Course; masteryPe
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
       <div className="platform-panel-md sm:col-span-2" data-testid="course-analytics-mastery">
         <p className="text-xs text-text-tertiary">{t('analyticsCourseMastery')}</p>
-        <p className="mt-1 text-2xl font-bold">{masteryPercent}%</p>
+        <p className="mt-1 ux-kpi-value">{masteryPercent}%</p>
         <p className="mt-1 text-[11px] text-text-muted">{t('courseMasterySublabel')}</p>
       </div>
       <div className="platform-panel-md">
@@ -1089,7 +1095,8 @@ function CourseAnalytics({ course, masteryPercent }: { course: Course; masteryPe
           {course.topics.slice(0, 6).map(topic => (
             <div key={topic.id} className="flex items-center gap-2">
               <span className="text-xs text-text-secondary w-24 truncate">{topic.title}</span>
-              <div className="flex-1 bg-surface-hover rounded-full h-2">
+              {/* Wave P-2 C08 — Study Time Distribution track uses --viz-bar-track. */}
+              <div className="flex-1 rounded-full h-2" style={{ backgroundColor: 'var(--viz-bar-track)' }}>
                 <div
                   className="h-2 rounded-full bg-brand-500 transition-all"
                   style={{ width: `${Math.max(8, ((topic.estimatedMinutes || 0) / maxMinutes) * 100)}%` }}
@@ -1125,12 +1132,12 @@ function CourseAnalytics({ course, masteryPercent }: { course: Course; masteryPe
         {masteredConcepts > 0 ? (
           <div className="flex items-center gap-6 flex-wrap">
             <div>
-              <div className="text-3xl font-bold text-accent-emerald">{masteredConcepts}<span className="text-base text-text-muted">/{totalConcepts}</span></div>
+              <div className="ux-kpi-value text-accent-emerald">{masteredConcepts}<span className="text-sm text-text-muted">/{totalConcepts}</span></div>
               <p className="text-xs text-text-tertiary mt-1">concepts mastered</p>
             </div>
             {velocity > 0 && (
               <div>
-                <div className={cn('text-3xl font-bold', velocity >= 1 ? 'text-accent-emerald' : 'text-accent-amber')}>{velocity.toFixed(2)}×</div>
+                <div className={cn('ux-kpi-value', velocity >= 1 ? 'text-accent-emerald' : 'text-accent-amber')}>{velocity.toFixed(2)}×</div>
                 <p className="text-xs text-text-tertiary mt-1">
                   {velocity >= 1.05 ? 'Ahead of the expected pace' : velocity <= 0.95 ? 'Behind the expected pace' : 'On the expected pace'}
                 </p>

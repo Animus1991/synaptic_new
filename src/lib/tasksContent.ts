@@ -85,10 +85,14 @@ export type TasksContent = {
   daysAgo: (days: number) => string;
   yesterday: string;
   highPriority: string;
+  /** Hint under expanded spaced-repetition / flashcard tasks (L-T02). */
+  fsrsReviewHint: string;
   weakAreasEmpty: string;
   entryHint: string;
   sessionActiveBanner: (label: string, current: number, total: number) => string;
   sessionRunningNow: string;
+  /** Compact uppercase badge on the running task card (mockup ΤΡΕΧΕΙ). */
+  sessionRunningBadge: string;
   sessionUpNext: (title: string) => string;
   sessionAutoAdvanceHint: string;
   sessionSectionEyebrow: string;
@@ -98,6 +102,14 @@ export type TasksContent = {
   dangerZoneBody: (days: number) => string;
   dangerZoneRationale: string;
   sessionDurationTag: (minutes: number) => string;
+  almostThereTitle: string;
+  almostThereHint: string;
+  almostThereCta: string;
+  recallReminderTitle: string;
+  recallReminderBody: string;
+  recallReminderCta: string;
+  createPlanCta: string;
+  createPlanHint: string;
 };
 
 const EN: TasksContent = {
@@ -171,10 +183,12 @@ const EN: TasksContent = {
   daysAgo: (days) => `${days} days ago`,
   yesterday: 'Yesterday',
   highPriority: 'High priority',
+  fsrsReviewHint: 'Rate how well you remember each card — again, hard, good, or easy.',
   weakAreasEmpty: 'No weak areas yet — complete quizzes to build your mastery profile.',
   entryHint: 'Start or resume a task, or launch a focused session — the queue bar shows which task runs next.',
   sessionActiveBanner: (label, current, total) => `${label} · Task ${current} of ${total}`,
   sessionRunningNow: 'Running now',
+  sessionRunningBadge: 'RUNNING',
   sessionUpNext: (title) => `Up next: ${title}`,
   sessionAutoAdvanceHint: 'Finish the current task to auto-advance to the next one in this session.',
   sessionSectionEyebrow: 'Focused sessions',
@@ -187,6 +201,14 @@ const EN: TasksContent = {
       : `Your exam is ${days} day${days === 1 ? '' : 's'} away. The scheduler is prioritizing weak concepts with the highest forgetting risk.`,
   dangerZoneRationale: 'Tasks are ranked by exam proximity, mastery gap, confidence mismatch, and last retrieval time.',
   sessionDurationTag: (minutes) => (minutes <= 10 ? 'Fast' : minutes <= 25 ? 'Medium' : minutes <= 50 ? 'Deep' : 'Intense'),
+  almostThereTitle: 'Almost there',
+  almostThereHint: '1–2 sessions to mastery',
+  almostThereCta: 'Practice',
+  createPlanCta: 'Create Plan',
+  createPlanHint: "Open today's plan and start the recommended session.",
+  recallReminderTitle: 'Recall reminder',
+  recallReminderBody: 'You have been reading for a while. Check what you remember.',
+  recallReminderCta: 'Quick quiz',
 };
 
 const EL: TasksContent = {
@@ -260,10 +282,12 @@ const EL: TasksContent = {
   daysAgo: (days) => `${days} ημέρες πριν`,
   yesterday: 'Χθες',
   highPriority: 'Υψηλή προτεραιότητα',
+  fsrsReviewHint: 'Αξιολόγησε πόσο καλά θυμάσαι κάθε κάρτα — ξανά, δύσκολο, καλό ή εύκολο.',
   weakAreasEmpty: 'Δεν υπάρχουν αδύναμα σημεία — ολοκλήρωσε quiz για προφίλ mastery.',
   entryHint: 'Ξεκίνα ή συνέχισε μια εργασία, ή εκκίνησε focused session — η ουρά δείχνει ποια εργασία τρέχει επόμενη.',
   sessionActiveBanner: (label, current, total) => `${label} · Εργασία ${current} από ${total}`,
   sessionRunningNow: 'Τρέχει τώρα',
+  sessionRunningBadge: 'ΤΡΕΧΕΙ',
   sessionUpNext: (title) => `Επόμενο: ${title}`,
   sessionAutoAdvanceHint: 'Ολοκλήρωσε την τρέχουσα εργασία για αυτόματη μετάβαση στην επόμενη της συνεδρίας.',
   sessionSectionEyebrow: 'Εστιασμένες συνεδρίες',
@@ -276,6 +300,14 @@ const EL: TasksContent = {
       : `Η εξέτασή σου είναι σε ${days} ${days === 1 ? 'ημέρα' : 'ημέρες'}. Ο scheduler δίνει προτεραιότητα σε αδύναμες έννοιες με τον μεγαλύτερο κίνδυνο λήθης.`,
   dangerZoneRationale: 'Τα tasks κατατάσσονται με βάση εγγύτητα εξέτασης, mastery gap, confidence mismatch και τελευταία retrieval.',
   sessionDurationTag: (minutes) => (minutes <= 10 ? 'Fast' : minutes <= 25 ? 'Medium' : minutes <= 50 ? 'Deep' : 'Intense'),
+  almostThereTitle: 'Σχεδόν εκεί',
+  almostThereHint: '1–2 συνεδρίες για κατάκτηση',
+  almostThereCta: 'Εξάσκηση',
+  createPlanCta: 'Δημιούργησε Πλάνο',
+  createPlanHint: 'Άνοιξε το σημερινό πλάνο και ξεκίνα την προτεινόμενη συνεδρία.',
+  recallReminderTitle: 'Υπενθύμιση ανάκλησης',
+  recallReminderBody: 'Διαβάζεις αρκετή ώρα. Ας δούμε τι θυμάσαι.',
+  recallReminderCta: 'Γρήγορο κουίζ',
 };
 
 const TASK_TYPE_LABELS: Record<Lang, Record<TaskType, string>> = {

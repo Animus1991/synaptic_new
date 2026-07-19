@@ -104,28 +104,45 @@ cd server && npm test
 
 ### Wave 3 — Collaboration & OCR depth
 
-| ID | Item |
-| -- | ---- |
-| TOOL-RD-04 / TOOL-AN-03 | OCR re-anchor after reprocess |
-| TOOL-AN-02 / COL-02 | Annotation conflict UI |
-| COL-04 | Collaborative whiteboard shared state |
+| ID | Item | Status |
+| -- | ---- | ------ |
+| TOOL-RD-04 / TOOL-AN-03 | OCR re-anchor after reprocess | **shipped** |
+| TOOL-AN-02 / COL-02 | Annotation conflict UI | **shipped** |
+| COL-04 | Collaborative whiteboard shared state | **shipped** |
+
+**Wave 3:** closed (2026-07-16).
+
+### Mockup Wave E — Analytics (parallel track)
+
+| Item | Status |
+| ---- | ------ |
+| SubjectMasteryGrid + SubjectDrillDown | **shipped** (2026-07-16) |
+| StudyBehaviorCharts (CSS/SVG) | **shipped** |
+| AIInsightsPanel + `GET /v1/analytics/insights` | **shipped** |
+| AnalyticsDateRangeContext (`7d` / `30d` / `semester`) | **shipped** |
 
 ### Wave 4 — Platform / enterprise
 
-| ID | Item |
-| -- | ---- |
-| MCP-01..03 | MCP SSE, client readers, OAuth Postgres |
-| OPS-07 | LTI grade passback production AGS |
-| PLT-03 | Offline embeddings |
-| TOOL-SP-02/03 | SymPy + unit checker |
-| SRC-08 | Multi-page thumbnail strip |
+| ID | Item | Status |
+| -- | ---- | ------ |
+| MCP-01..03 | MCP SSE, client readers, OAuth Postgres | **shipped** (2026-07-16) |
+| OPS-07 | LTI grade passback production AGS | **shipped** |
+| PLT-03 | Offline embeddings | **shipped** (localEmbedder + recognition worker) |
+| TOOL-SP-02/03 | SymPy + unit checker | **shipped** |
+| SRC-08 | Multi-page thumbnail strip | **shipped** |
+
+**Wave 4:** closed (2026-07-16).
 
 ### Wave 5 — Documentation single source of truth
 
-| ID | Item |
-| -- | ---- |
-| DOC-02..04 | ARCHITECTURE / BLUEPRINT / PRODUCT_SCALE_PLAN drift |
-| DOC-05 | Keep GAP_AUDIT reconciled each sprint |
+| ID | Item | Status |
+| -- | ---- | ------ |
+| DOC-02..04 | ARCHITECTURE / BLUEPRINT / PRODUCT_SCALE_PLAN drift | **shipped** (2026-07-16) |
+| DOC-05 | Keep GAP_AUDIT reconciled each sprint | **shipped** this close-out |
+
+### Wave G — Screenshot fidelity (Replit canvas)
+
+See `docs/MOCKUP_SCREENSHOT_FIDELITY_PLAN.md`. Cream density, warm-sand page scopes, Tasks dual insight banners.
 
 ---
 
@@ -155,8 +172,13 @@ Mark older masters (`EXHAUSTIVE_*`, `STATE_OF_THE_ART_*`, duplicate upgrade plan
 | SECURITY.md checklist update | done |
 | Wave 2: CM-03/04, RD-02, MD-05, XTL-03 | done |
 | Wave 2 remainder: SM-02/03, PR-02/03 | done |
-| Push to `synaptic_refined` + `synaptic_new` | pending commit |
-| Waves 3–5 | scheduled — continue sprint-by-sprint without breaking Google paths |
+| Push to `synaptic_refined` + `synaptic_new` | ongoing on `feat/mockup-implementation` → `synaptic_new` |
+| Wave 3 OCR/collab | done |
+| Mockup Wave E Analytics | done |
+| Wave 4 platform/enterprise | done |
+| Wave 5 docs SoT | done |
+| Wave G screenshot fidelity | done |
+| Wave H+ deferred rows | see MOCKUP_SCREENSHOT_FIDELITY_PLAN §6 |
 
 ---
 
@@ -170,3 +192,63 @@ Mark older masters (`EXHAUSTIVE_*`, `STATE_OF_THE_ART_*`, duplicate upgrade plan
 ---
 
 *Maintainer: update §7 when closing waves; sync IDs into `docs/GAP_AUDIT.md`.*
+
+---
+
+## 9. Audit addendum - 2026-07-17
+
+**Scope:** Follow-up audit pass on the local `synapse-learning` checkout, active branch `feat/mockup-implementation`, all local/remotes refs visible in this clone, current Markdown corpus, security-sensitive env surfaces, baseline tests, and production build.
+
+### 9.1 Verification results
+
+| Gate | Result | Notes |
+| ---- | ------ | ----- |
+| Client + server typecheck | pass | `npm.cmd run typecheck:all` |
+| Client/unit suite | pass | 298 files / 1166 tests |
+| Server suite | pass | 39 files / 180 tests after telemetry cold-import fix |
+| Production build | pass | `npm.cmd run build`; remaining warnings are chunk-size and mixed static/dynamic `orgClient` import |
+| High-confidence secret scan | pass | No AWS/GCP/OpenAI/GitHub/Slack/private-key patterns found across visible refs after excluding generated/vendor bundles |
+| Env hygiene | pass with history note | `.env.local`, `server/.env`, `ocr-server/.env`, Fastlane secrets are ignored; historical `.env.local` snapshot had empty API key + localhost URL |
+| PII scan | needs policy decision | Commit author emails and some public/test/support email fixtures exist; removing pushed author emails requires coordinated git-history rewrite |
+
+### 9.2 Implemented in this addendum pass
+
+| Area | Change | Why |
+| ---- | ------ | --- |
+| Server telemetry | Lazy-load OpenTelemetry SDK/exporters only inside `initTelemetry()` | Avoid cold-import test timeout and keep status reads light |
+| Server tests | Added a focused cold-import timeout only to telemetry disabled-status test | Prevent false CI failure on slow first module transform |
+| CSS build hygiene | Escaped decimal points in warm workspace `.bg-white/[0.04]` and `[0.05]` selectors | Removes Lightning CSS optimizer warning |
+| Vitest config | Replaced deprecated `environmentMatchGlobs` reliance with explicit jsdom pragmas on the remaining TSX tests | Removes deprecated test-config warning without changing runtime behavior |
+| Anki APKG build hygiene | Hid the Vitest-only `node:module` dynamic import behind a non-literal module specifier | Prevents browser-bundle externalization warning for a test-only path |
+
+### 9.3 Remaining upgrade plan, ordered
+
+| # | Item | Status (2026-07-17 follow-up) |
+| - | ---- | ----------------------------- |
+| 1 | Credential CI gate (gitleaks) | **shipped** — `.gitleaks.toml` + `.github/workflows/secret-scan.yml`; noted in `SECURITY.md` |
+| 2 | Commit author email history rewrite | **blocked — needs explicit approval** (remotes: `origin`, `synaptic_new`, `synaptic_refined`). Not executed. |
+| 3 | Public / fixture email review | **shipped (policy pass)** — store metadata already uses `support@` / `privacy@` / `review@synapse-learning.io`; fixed corrupted `first_name.txt`; replaced personal-looking syllabus fixture `nstoupo@econ.uoa.gr` → `instructor@example.edu` in unit + e2e fixtures. Test/example.com addresses retained as fixtures. |
+| 4 | Bundle / `orgClient` mixed import | **shipped (safe boundary)** — SAML complete moved to `samlAuthClient.ts`; App lazy-imports that module only. Mermaid/pdf/katex/codemirror already in `vite.config.ts` `manualChunks`. Further index-chunk reduction deferred (risk to tools). |
+| 5 | Test log hygiene (`OPENAI_API_KEY`) | **shipped** — `server/src/config.ts` suppresses the warn when `NODE_ENV=test` or `VITEST` is set |
+| 6 | Dependency vulnerability audit | **open** — run `npm audit` with network when ready; document advisories |
+| 7 | E2E smoke pass (Google + core surfaces) | **open** — manual/CI before release |
+| 8 | Docs encoding / mojibake cleanup | **open** — docs-only pass |
+| 9 | i18n-lint inline-string sweep | **open** — large; do not mix with tool refactors |
+
+### 9.4 Protections kept intact
+
+- No Google tooling scopes/routes were removed or narrowed.
+- No git history rewrite was attempted (author emails remain until approved).
+- No secret values were printed into docs or committed files.
+- Env files remain gitignored; only `*.example` templates are tracked.
+
+### 9.5 Follow-up implementation (this pass)
+
+| Area | Change |
+| ---- | ------ |
+| Server config | Quiet `OPENAI_API_KEY` warn in test/Vitest runtimes |
+| CI | Gitleaks workflow + allowlist for lockfiles / example envs |
+| PII fixtures | Syllabus contact email → `instructor@example.edu` |
+| Store metadata | `first_name.txt` cleaned to role-safe display name |
+| Code-split | `samlAuthClient.ts` + App dynamic import retarget |
+| Docs | This addendum + `SECURITY.md` CI/history notes |

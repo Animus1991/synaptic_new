@@ -77,3 +77,65 @@ export function applyOcrCorrectionsToText(text: string, scopeKey: string): strin
 
   return out.join('');
 }
+
+export type OcrReanchorResult = {
+  corrections: OcrLineCorrection[];
+  remapped: number;
+  dropped: number;
+};
+
+/**
+ * After reprocess, block indices shift. Re-bind corrections by matching
+ * original or corrected text to the new paragraph blocks (TOOL-RD-04 / AN-03).
+ */
+export function reanchorOcrCorrections(
+  scopeKey: string,
+  newSourceText: string,
+): OcrReanchorResult {
+  if (!scopeKey || !newSourceText.trim()) {
+    return { corrections: loadOcrCorrections(scopeKey), remapped: 0, dropped: 0 };
+  }
+  const existing = loadOcrCorrections(scopeKey);
+  if (existing.length === 0) {
+    return { corrections: [], remapped: 0, dropped: 0 };
+  }
+
+  const blocks = ocrParagraphBlocks(newSourceText);
+  const used = new Set<number>();
+  const next: OcrLineCorrection[] = [];
+  let remapped = 0;
+  let dropped = 0;
+
+  for (const c of existing) {
+    const needles = [c.correctedText.trim(), c.originalText.trim()].filter((s) => s.length >= 8);
+    let found = -1;
+    for (let i = 0; i < blocks.length; i++) {
+      if (used.has(i)) continue;
+      const block = blocks[i]!;
+      if (needles.some((n) => block.includes(n) || n.includes(block.slice(0, Math.min(64, block.length))))) {
+        found = i;
+        break;
+      }
+    }
+    if (found < 0) {
+      dropped += 1;
+      continue;
+    }
+    used.add(found);
+    if (found !== c.blockIndex) remapped += 1;
+    next.push({
+      ...c,
+      blockIndex: found,
+      originalText: blocks[found]!,
+      updatedAt: new Date().toISOString(),
+    });
+  }
+
+  const all = allCorrections();
+  if (next.length === 0) delete all[scopeKey];
+  else all[scopeKey] = next;
+  saveJson(KEY, all);
+
+  return { corrections: next, remapped, dropped };
+}
+

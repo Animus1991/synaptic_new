@@ -179,7 +179,7 @@ Express server in `server/` — JWT auth, OpenAI-compatible `/v1/chat/completion
 | OCR | `POST /v1/ocr/pages` | `ocrExtract.ts` proxy path for scanned PDFs / images |
 | NLP entities | `POST /v1/nlp/entities` | `entityExtract.ts` enrichment path when proxy is configured |
 | Semantic RAG (optional) | `POST /v1/rag/query` | Server path exists; current client default remains local BM25/hybrid retrieval |
-| Teacher aggregates | `GET /v1/teacher/dashboard` | Endpoint ships; dedicated teacher UI remains future work |
+| Teacher aggregates | `GET /v1/teacher/dashboard` | **Shipped** — `TeacherDashboard.tsx` + org/cohort widgets (see `PRODUCT_SCALE_STATUS.md`) |
 | Admin | `GET /v1/admin/stats` | (Operator only — not exposed in UI) |
 
 Postgres tables (`accounts`, `account_libraries`, `account_sessions`) are versioned in `server/migrations/` and applied via `npm run migrate` or automatically with `RUN_MIGRATIONS_ON_START=true`.
@@ -188,12 +188,12 @@ See [server/README.md](server/README.md), [API.md](API.md), [SECURITY.md](SECURI
 
 ## Extension points (remaining)
 
-1. **Local offline embeddings** — drop the proxy/key dependency by shipping a transformers.js model.
+1. **Local offline embeddings** — **shipped** (`localEmbedder.ts` + recognition worker); optional cloud/proxy path remains.
 2. **Audio / richer multimodal pipelines** — OCR for images + scanned PDFs already ships; extend ingestion to audio/Whisper, handwriting, math OCR, and richer figure extraction.
 3. **Server-side RAG index** — index synced uploads server-side for cross-device retrieval.
-4. **Email verification / auth hardening** — refresh + password-reset tokens already ship; remaining work is rotation UX, verification, OAuth, and stronger session controls.
-5. **Collaborative annotations + whiteboard** — multi-user shared state.
-6. **Teacher / class dashboard UI** — build the actual product surface on top of the shipped teacher aggregate endpoint.
+4. **Email verification / auth hardening** — refresh + password-reset tokens already ship; remaining work is rotation UX, verification, OAuth polish, and stronger session controls.
+5. **Collaborative annotations + whiteboard** — **shipped** (annotation conflict merge + whiteboard CRDT/Yjs path); deepen multi-tenant ops as needed.
+6. **Teacher / class dashboard UI** — **shipped** (`TeacherDashboard.tsx` on aggregates + class/assignment surfaces); deepen grading/LMS parity as needed.
 
 ## Key files index
 

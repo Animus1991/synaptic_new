@@ -5,7 +5,7 @@ import { openReaderInWorkspace, openToolInWorkspace } from './helpers/workspace'
 const GREEK_SYLLABUS = `
 ΕΘΝΙΚΟ ΚΑΙ ΚΑΠΟΔΙΣΤΡΙΑΚΟ ΠΑΝΕΠΙΣΤΗΜΙΟ ΑΘΗΝΩΝ
 E-class Μαθήματος: https://eclass.uoa.gr/courses/ECON196
-E-mail Επικοινωνίας: nstoupo@econ.uoa.gr
+E-mail Επικοινωνίας: instructor@example.edu
 
 ΔΙΑΛΕΞΗ 1 ΕΙΣΑΓΩΓΗ ΣΤΗ ΔΙΕΘΝΗ ΟΙΚΟΝΟΜΙΚΗ
 Θεματική: εμπορική πολιτική, ισοζύγιο πληρωμών.

@@ -403,11 +403,11 @@ export function TeacherDashboard({
   };
 
   return (
-    <div className="ux-flow-shell p-4 sm:p-6 lg:px-8 pb-24 space-y-6 max-w-5xl mx-auto" data-testid="teacher-dashboard">
+    <div className="ux-flow-shell platform-page w-full max-w-none p-4 sm:p-6 lg:px-8 pb-24 space-y-6" data-testid="teacher-dashboard">
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
-          <h1 className="text-2xl font-bold flex items-center gap-2">
-            <Users className="w-7 h-7 text-brand-400" />
+          <h1 className="text-lg font-semibold flex items-center gap-2">
+            <Users className="w-5 h-5 text-brand-400" />
             {ui.title}
           </h1>
           <p className="text-sm text-text-secondary mt-1">{ui.subtitle}</p>
@@ -971,7 +971,8 @@ export function TeacherDashboard({
                 {data.account.email} · {data.account.plan} {ui.planLabel}
               </span>
             </div>
-            <div className="h-2 rounded-full bg-surface-hover overflow-hidden">
+            {/* Wave P-2 C08 — plan usage track uses --viz-bar-track. */}
+            <div className="h-2 rounded-full overflow-hidden" style={{ backgroundColor: 'var(--viz-bar-track)' }}>
               <div
                 className={cn('h-full rounded-full transition-all', usagePct > 85 ? 'bg-accent-rose' : 'bg-brand-500')}
                 style={{ width: `${usagePct}%` }}

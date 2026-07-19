@@ -1,13 +1,15 @@
-import { useRef, useState, useCallback, useEffect, type ReactNode } from 'react';
+import { useRef, useState, useCallback, useEffect, useMemo, type ReactNode } from 'react';
 import {
   UploadSimple as Upload, Play, CheckSquare, SquaresFour as Layout,
-  Calendar, Image as ImageIcon, CalendarBlank, CaretLeft as ChevronLeft, CaretRight as ChevronRight,
+  Calendar, Image as ImageIcon, CalendarBlank, DotsThree,
 } from '@phosphor-icons/react';
 import { cn } from '../utils/cn';
 import { useI18n } from '../lib/i18n';
 import { BlueprintSurface } from './ui/BlueprintSurface';
 import {
   buildDashboardHubActions,
+  partitionDashboardHubActions,
+  type DashboardHubAction,
   type DashboardHubActionId,
 } from '../lib/dashboardHubRegistry';
 import { DashboardLivePreview } from './DashboardLivePreview';
@@ -51,6 +53,8 @@ interface Props {
   greetingTitle?: ReactNode;
   greetingSubtitle?: ReactNode;
   headerActions?: ReactNode;
+  /** KPI strip between greeting and workspace (Wave J-D02 mockup order). */
+  statsSlot?: ReactNode;
   /** Flush to shell top — no side/top gap under demo banner. */
   flushTop?: boolean;
 }
@@ -76,17 +80,29 @@ export function DashboardActionHub({
   greetingTitle,
   greetingSubtitle,
   headerActions,
+  statsSlot,
   flushTop = false,
 }: Props) {
   const { t } = useI18n();
-  const carouselRef = useRef<HTMLDivElement>(null);
   const clickTimerRef = useRef<number | null>(null);
+  const overflowRef = useRef<HTMLDivElement>(null);
   const [activePopup, setActivePopup] = useState<DashboardHubActionId | null>(null);
+  const [overflowOpen, setOverflowOpen] = useState(false);
   const actions = buildDashboardHubActions({ reviewsDue, canWorkspace, canUpload });
+  const { primary, overflow } = useMemo(() => partitionDashboardHubActions(actions), [actions]);
 
   useEffect(() => () => {
     if (clickTimerRef.current) window.clearTimeout(clickTimerRef.current);
   }, []);
+
+  useEffect(() => {
+    if (!overflowOpen) return;
+    const onDoc = (e: MouseEvent) => {
+      if (!overflowRef.current?.contains(e.target as Node)) setOverflowOpen(false);
+    };
+    document.addEventListener('mousedown', onDoc);
+    return () => document.removeEventListener('mousedown', onDoc);
+  }, [overflowOpen]);
 
   const scrollToTarget = useCallback((targetId: string) => {
     document.getElementById(targetId)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -94,6 +110,7 @@ export function DashboardActionHub({
 
   const openPopup = useCallback((id: DashboardHubActionId) => {
     setActivePopup(id);
+    setOverflowOpen(false);
   }, []);
 
   const handleCardClick = (id: DashboardHubActionId) => {
@@ -110,27 +127,53 @@ export function DashboardActionHub({
       clickTimerRef.current = null;
     }
     setActivePopup(null);
+    setOverflowOpen(false);
     if (scrollTargetId) scrollToTarget(scrollTargetId);
-  };
-
-  const scrollCarousel = (dir: -1 | 1) => {
-    const el = carouselRef.current;
-    if (!el) return;
-    const card = el.querySelector<HTMLElement>('[data-hub-card]');
-    const delta = (card?.offsetWidth ?? 240) + 12;
-    el.scrollBy({ left: dir * delta, behavior: 'smooth' });
   };
 
   const onHero = Boolean(wallpaperDataUrl);
   const glassCard = onHero ? 'bg-surface-card/82 backdrop-blur-md border-white/10' : undefined;
   const heroText = onHero ? 'text-white' : undefined;
 
+  const renderChip = (action: DashboardHubAction, testIdPrefix: string) => {
+    const Icon = ACTION_ICONS[action.id];
+    return (
+      <button
+        key={action.id}
+        type="button"
+        data-hub-card
+        data-testid={`${testIdPrefix}-${action.id}`}
+        disabled={action.disabled}
+        onClick={() => handleCardClick(action.id)}
+        onDoubleClick={() => handleCardDoubleClick(action.scrollTargetId)}
+        className={cn(
+          'relative flex min-w-0 flex-col items-center gap-1 rounded-xl border border-border-subtle px-2 py-2.5 text-center transition-colors',
+          'hover:bg-surface-hover/40 focus-visible:ring-2 focus-visible:ring-brand-500/50',
+          action.disabled && 'opacity-50 pointer-events-none',
+          glassCard,
+        )}
+      >
+        <Icon className={cn('h-4 w-4', onHero ? 'text-brand-300' : 'text-brand-500')} aria-hidden />
+        <span className={cn('truncate text-[10px] font-semibold leading-tight', onHero ? 'text-white' : 'text-text-primary')}>
+          {t(action.chipLabelKey)}
+        </span>
+        {action.badge && (
+          <span className="absolute -right-1 -top-1 min-w-[1.1rem] rounded-full bg-accent-rose px-1 py-0.5 text-[9px] font-bold leading-none text-white">
+            {action.badge}
+          </span>
+        )}
+      </button>
+    );
+  };
+
   return (
     <>
       <div
         id="dashboard-action-hub"
         className={cn(
-          'relative overflow-hidden border border-border-subtle bg-surface-secondary/35',
+          /* overflow-visible so «Περισσότερα» menu is not clipped; raise stack when open */
+          'relative overflow-visible border border-border-subtle bg-surface-secondary/35',
+          overflowOpen && 'z-40',
           flushTop
             ? 'rounded-none border-x-0 border-t-0'
             : 'rounded-2xl',
@@ -147,18 +190,18 @@ export function DashboardActionHub({
             : undefined
         }
       >
-        <div className={cn('p-4 sm:p-5 space-y-4', heroText)}>
+        <div className={cn('p-3.5 sm:p-4 space-y-3 sm:space-y-4', heroText)}>
           {(greetingTitle || headerActions) && (
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div className="min-w-0" id="dashboard-hero-greeting">
                 {greetingEyebrow && (
-                  <p className="ws-eyebrow mb-1.5 text-text-secondary opacity-90">{greetingEyebrow}</p>
+                  <p className="ws-eyebrow mb-1 text-text-secondary opacity-90">{greetingEyebrow}</p>
                 )}
                 {greetingTitle && (
-                  <h1 className="ws-serif font-medium tracking-tight text-xl sm:text-2xl">{greetingTitle}</h1>
+                  <h1 className="ws-serif font-medium tracking-tight text-base sm:text-lg">{greetingTitle}</h1>
                 )}
                 {greetingSubtitle && (
-                  <div className="ux-page-subtitle mt-1.5 text-sm opacity-90">{greetingSubtitle}</div>
+                  <div className="ux-page-subtitle mt-1 text-sm opacity-90">{greetingSubtitle}</div>
                 )}
               </div>
               {headerActions && (
@@ -167,101 +210,126 @@ export function DashboardActionHub({
             </div>
           )}
 
-          <div className="flex flex-wrap items-start justify-between gap-3">
-            <div id="dashboard-hero-personal-dates">
-              <p className="type-micro font-semibold uppercase tracking-wider opacity-80">
-                {t('dashboardHeroHubEyebrow')}
+          <div id="dashboard-hero-personal-dates" className="sr-only">
+            {(examDate || daysToExam !== null) && (
+              <p data-testid="dashboard-hero-personal-dates-summary">
+                {daysToExam !== null
+                  ? t('dashboardHeroDaysToExam').replace('{count}', String(daysToExam))
+                  : examDate
+                    ? t('dashboardHeroExamDate').replace('{date}', examDate)
+                    : null}
               </p>
-              {(examDate || daysToExam !== null) && (
-                <p className="mt-1 text-sm font-medium" data-testid="dashboard-hero-personal-dates-summary">
-                  {daysToExam !== null
-                    ? t('dashboardHeroDaysToExam').replace('{count}', String(daysToExam))
-                    : examDate
-                      ? t('dashboardHeroExamDate').replace('{date}', examDate)
-                      : null}
-                </p>
-              )}
-              <p className="mt-1 text-xs opacity-75">{t('dashboardHeroActionHint')}</p>
-            </div>
+            )}
           </div>
 
-          <div className="grid gap-4 xl:grid-cols-[1.12fr_0.88fr] xl:items-stretch">
-            <div className="min-w-0">
-              <div className="flex items-center gap-2 mb-2">
-                <button
-                  type="button"
-                  aria-label={t('dashboardHeroCarouselPrev')}
-                  onClick={() => scrollCarousel(-1)}
-                  className={cn('p-1.5 rounded-lg border border-border-subtle hover:bg-surface-hover/30', glassCard)}
-                >
-                  <ChevronLeft className="w-4 h-4" />
-                </button>
-                <button
-                  type="button"
-                  aria-label={t('dashboardHeroCarouselNext')}
-                  onClick={() => scrollCarousel(1)}
-                  className={cn('p-1.5 rounded-lg border border-border-subtle hover:bg-surface-hover/30', glassCard)}
-                >
-                  <ChevronRight className="w-4 h-4" />
-                </button>
-              </div>
-              <div
-                ref={carouselRef}
-                className="flex gap-3 overflow-x-auto snap-x snap-mandatory pb-1 scrollbar-thin"
-                data-testid="dashboard-hero-carousel"
-              >
-                {actions.map((action) => {
-                  const Icon = ACTION_ICONS[action.id];
-                  return (
-                    <BlueprintSurface
-                      key={action.id}
-                      nest
-                      hint
-                      as="button"
-                      type="button"
-                      data-hub-card
-                      data-testid={`dashboard-hero-action-${action.id}`}
-                      onClick={() => handleCardClick(action.id)}
-                      onDoubleClick={() => handleCardDoubleClick(action.scrollTargetId)}
-                      className={cn(
-                        'snap-start shrink-0 w-[min(100%,14rem)] text-left p-4 transition-transform hover:scale-[1.02] focus-visible:ring-2 focus-visible:ring-brand-500/50',
-                        glassCard,
-                      )}
-                    >
-                      <div className="flex items-center gap-2 mb-2">
-                        <Icon className={cn('w-5 h-5', onHero ? 'text-brand-300' : 'text-brand-400')} />
-                        {action.badge && (
-                          <span className="ml-auto text-[10px] font-bold ws-chip-danger px-2 py-0.5 rounded-full">
-                            {action.badge}
-                          </span>
-                        )}
-                      </div>
-                      <p className={cn('text-sm font-semibold', onHero ? 'text-white' : 'text-text-primary')}>
-                        {t(action.labelKey)}
-                      </p>
-                      <p className={cn('mt-1 text-xs leading-relaxed', onHero ? 'text-white/75' : 'text-text-secondary')}>
-                        {t(action.hintKey)}
-                      </p>
-                    </BlueprintSurface>
-                  );
-                })}
-              </div>
-            </div>
+          <div className="space-y-3 sm:space-y-4">
+            {/* J-D02: KPI strip directly under greeting */}
+            {statsSlot}
 
+            {/* Study center before quick actions (canvas order) */}
             {workspaceLive ? (
-              <div className={cn('rounded-xl overflow-hidden', glassCard)}>
-                <DashboardLivePreview live={workspaceLive} lang={lang} onOpenWorkspace={onOpenWorkspace} />
+              <div className={cn('rounded-xl overflow-hidden', glassCard)} data-testid="dashboard-hero-study-center">
+                <DashboardLivePreview live={workspaceLive} lang={lang} onOpenWorkspace={onOpenWorkspace} compact />
               </div>
             ) : (
-              <BlueprintSurface nest className={cn('p-4 flex flex-col justify-center min-h-[8rem]', glassCard)}>
-                <p className={cn('text-sm font-medium', onHero ? 'text-white' : 'text-text-primary')}>
-                  {t('dashboardHeroHubSideTitle')}
-                </p>
-                <p className={cn('mt-2 text-xs leading-relaxed', onHero ? 'text-white/75' : 'text-text-secondary')}>
-                  {t('dashboardHeroHubSideBody')}
-                </p>
+              <BlueprintSurface
+                nest
+                className={cn('p-3.5 sm:p-4', glassCard)}
+                data-testid="dashboard-hero-study-center"
+              >
+                <div className="flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+                  <div className="min-w-0">
+                    <p className={cn('text-[10px] font-semibold uppercase tracking-[0.08em]', onHero ? 'text-white/80' : 'text-text-secondary')}>
+                      {t('dashboardLivePreviewEyebrow')}
+                    </p>
+                    <p className={cn('mt-1 text-sm font-medium', onHero ? 'text-white' : 'text-text-primary')}>
+                      {t('dashboardHeroHubSideTitle')}
+                    </p>
+                    <p className={cn('mt-0.5 text-xs leading-relaxed', onHero ? 'text-white/75' : 'text-text-secondary')}>
+                      {t('dashboardHeroHubSideBody')}
+                    </p>
+                  </div>
+                  {onOpenWorkspace && (
+                    <button
+                      type="button"
+                      onClick={onOpenWorkspace}
+                      className={cn(
+                        'shrink-0 self-start rounded-xl border px-3 py-2 text-xs font-semibold transition-colors sm:self-auto',
+                        onHero
+                          ? 'border-white/20 bg-white/10 text-white hover:bg-white/15'
+                          : 'border-brand-500/35 bg-brand-600/10 text-brand-800 hover:bg-brand-600/15',
+                      )}
+                    >
+                      {t('dashboardResumeContinue')}
+                    </button>
+                  )}
+                </div>
               </BlueprintSurface>
             )}
+
+            {/* I-D03 / J-D04: compact 4-chip row + overflow (same row so menu stacks cleanly) */}
+            <div className="flex items-stretch gap-2 sm:gap-2.5">
+              <div
+                className="grid min-w-0 flex-1 grid-cols-4 gap-2 sm:gap-2.5"
+                data-testid="dashboard-hero-action-grid"
+              >
+                {primary.map((action) => renderChip(action, 'dashboard-hero-action-grid'))}
+              </div>
+
+              {overflow.length > 0 && (
+                <div className="relative flex shrink-0 items-stretch" ref={overflowRef}>
+                  <button
+                    type="button"
+                    data-testid="dashboard-hero-hub-more"
+                    aria-expanded={overflowOpen}
+                    aria-haspopup="menu"
+                    aria-label={t('dashboardHeroHubMoreAria')}
+                    onClick={() => setOverflowOpen((v) => !v)}
+                    className={cn(
+                      'inline-flex h-full min-h-[3.25rem] flex-col items-center justify-center gap-1 rounded-xl border border-border-subtle px-2.5 py-2 text-[10px] font-semibold transition-colors',
+                      'hover:bg-surface-hover/40',
+                      glassCard,
+                      onHero ? 'text-white/90' : 'text-text-secondary',
+                    )}
+                  >
+                    <DotsThree className="h-4 w-4" weight="bold" aria-hidden />
+                    <span className="leading-tight">{t('dashboardHeroHubMore')}</span>
+                  </button>
+                  {overflowOpen && (
+                    <div
+                      role="menu"
+                      data-testid="dashboard-hero-hub-overflow"
+                      className={cn(
+                        'ux-elev-popover absolute right-0 top-full z-50 mt-1.5 min-w-[12rem] overflow-hidden rounded-xl border border-border-subtle bg-surface-card py-1 shadow-lg',
+                        onHero && 'bg-surface-card/95 backdrop-blur-md',
+                      )}
+                    >
+                      {overflow.map((action) => {
+                        const Icon = ACTION_ICONS[action.id];
+                        return (
+                          <button
+                            key={action.id}
+                            type="button"
+                            role="menuitem"
+                            data-testid={`dashboard-hero-overflow-${action.id}`}
+                            onClick={() => handleCardClick(action.id)}
+                            className="flex w-full items-center gap-2 px-3 py-2 text-left text-xs text-text-primary hover:bg-surface-hover/50"
+                          >
+                            <Icon className="h-3.5 w-3.5 shrink-0 text-brand-500" aria-hidden />
+                            <span className="min-w-0 flex-1 truncate">{t(action.chipLabelKey)}</span>
+                            {action.badge && (
+                              <span className="rounded-full bg-accent-rose/15 px-1.5 py-0.5 text-[9px] font-bold text-accent-rose">
+                                {action.badge}
+                              </span>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>

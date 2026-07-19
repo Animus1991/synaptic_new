@@ -3,8 +3,9 @@ import { motion } from 'framer-motion';
 import {
   BookOpen, CheckSquare, Robot as Bot, SquaresFour as LayoutDashboard, Gear as Settings,
   Sparkle as Sparkles, List as Menu, X, UploadSimple as Upload, Bell, MagnifyingGlass as Search, CaretRight as ChevronRight,
-  ChartBar as BarChart3, Sun, Moon, Users,   Fire as Flame, SquaresFour as Layout, Wind, GraduationCap,
+  ChartBar as BarChart3, Sun, Moon, Users, Fire as Flame, SquaresFour as Layout, Wind, GraduationCap,
   TreeStructure as Network, Lightning as Zap, Clock, Stack as Layers, DotsThreeOutline, Minus, Square,
+  CalendarBlank, Play,
 } from '@phosphor-icons/react';
 import type { AppView, User, DashboardStats, UserSettings } from '../types';
 import { cn } from '../utils/cn';
@@ -48,6 +49,8 @@ interface ShellProps {
   breadcrumb?: { course?: string; lesson?: string; viewLabel?: string };
   workspaceLive?: WorkspaceLiveSync | null;
   onOpenWorkspace?: () => void;
+  /** Start recommended study session (Tasks). Wave J-D05 shell CTA. */
+  onStartSession?: () => void;
   studyWorkspaceOpen?: boolean;
   onTakeBreath?: () => void;
   activeCourse?: { title: string; mastery: number; daysToExam: number | null } | null;
@@ -114,11 +117,11 @@ function NavActiveIndicator() {
   );
 }
 
-const QUICK_ACCESS_ICONS: Record<GlobalQuickActionId, { icon: typeof Network; color: string }> = {
-  'note-analysis': { icon: Network, color: '#818CF8' },
-  upload: { icon: Sparkles, color: '#34D399' },
-  workspace: { icon: BookOpen, color: '#60A5FA' },
-  exam: { icon: Zap, color: '#F87171' },
+const QUICK_ACCESS_ICONS: Record<GlobalQuickActionId, { icon: typeof Network; inkClass: string; washClass: string }> = {
+  'note-analysis': { icon: Network, inkClass: 'text-accent-violet', washClass: 'bg-accent-violet/15' },
+  upload: { icon: Sparkles, inkClass: 'text-accent-emerald', washClass: 'bg-accent-emerald/15' },
+  workspace: { icon: BookOpen, inkClass: 'text-brand-600', washClass: 'bg-brand-500/15' },
+  exam: { icon: Zap, inkClass: 'text-accent-rose', washClass: 'bg-accent-rose/15' },
 };
 
 export function Shell({
@@ -138,6 +141,7 @@ export function Shell({
   breadcrumb,
   workspaceLive = null,
   onOpenWorkspace,
+  onStartSession,
   studyWorkspaceOpen = false,
   onTakeBreath,
   activeCourse = null,
@@ -227,7 +231,7 @@ export function Shell({
             <div className="w-8 h-8 rounded-lg platform-brand-icon flex items-center justify-center">
               <SynapseBrandGlyph />
             </div>
-            <span className="text-xl font-bold ws-serif">Synapse</span>
+            <span className="text-lg font-bold ws-serif">Synapse</span>
           </div>
         </div>
 
@@ -321,8 +325,8 @@ export function Shell({
                   onClick={() => onQuickAccess(action.id)}
                   className={cn(shellNavClass(false), 'py-2')}
                 >
-                  <span className="ux-quick-icon" style={{ backgroundColor: `${visual.color}20` }}>
-                    <visual.icon className="w-3 h-3" style={{ color: visual.color }} />
+                  <span className={cn('ux-quick-icon', visual.washClass)}>
+                    <visual.icon className={cn('w-3 h-3', visual.inkClass)} />
                   </span>
                   <span className="text-xs truncate">{t(action.labelKey)}</span>
                 </button>
@@ -410,7 +414,7 @@ export function Shell({
                 <div className="w-8 h-8 rounded-lg platform-brand-icon flex items-center justify-center">
                   <SynapseBrandGlyph />
                 </div>
-                <span className="text-xl font-bold ws-serif">Synapse</span>
+                <span className="text-lg font-bold ws-serif">Synapse</span>
               </div>
               <button
                 type="button"
@@ -480,78 +484,96 @@ export function Shell({
 
       {/* Main content area */}
       <div className="flex-1 lg:ml-64 min-h-screen flex flex-col">
-        {/* Top bar */}
-        <header className="sticky top-0 z-20 glass-strong border-b border-border-subtle">
-          <div className="flex items-center justify-between px-4 sm:px-6 h-14 gap-3">
-            <div className="flex items-center gap-3 min-w-0 flex-1">
+        {/* Top bar — Wave J-D05 dense utility chrome */}
+        <header className="sticky top-0 z-20 glass-strong border-b border-border-subtle" data-testid="shell-topbar">
+          <div className="flex items-center justify-between px-3 sm:px-5 h-12 gap-2">
+            <div className="flex items-center gap-2 min-w-0 flex-1">
               <button
                 onClick={() => onToggleSidebar(true)}
                 ref={mobileMenuRef}
                 className="lg:hidden p-1.5 rounded-lg hover:bg-surface-hover shrink-0"
                 aria-label={t('openMenu')}
               >
-                <Menu className="w-5 h-5 text-text-secondary" />
+                <Menu className="w-4 h-4 text-text-secondary" />
               </button>
-              <div className="hidden sm:flex items-center gap-1.5 text-sm text-text-tertiary min-w-0" aria-current="page">
+              <div className="hidden sm:flex items-center gap-1.5 text-xs text-text-tertiary min-w-0" aria-current="page">
                 {breadcrumb?.course ? (
                   <>
-                    <span className="text-text-secondary font-medium">{breadcrumb.course}</span>
+                    <span className="text-text-secondary font-medium truncate max-w-[160px]">{breadcrumb.course}</span>
                     {breadcrumb.lesson && (
                       <>
                         <span aria-hidden="true">›</span>
-                        <span className="truncate max-w-[200px]">{breadcrumb.lesson}</span>
+                        <span className="truncate max-w-[160px]">{breadcrumb.lesson}</span>
                       </>
                     )}
                   </>
                 ) : (
-                  <span className="text-text-secondary font-medium">
+                  <span className="text-text-secondary font-medium truncate">
                     {breadcrumb?.viewLabel ?? currentView}
                   </span>
                 )}
               </div>
-              <HeaderTrustBadgeRow lang={activeLang} className="hidden xl:flex shrink-0" />
+              <HeaderTrustBadgeRow lang={activeLang} className="hidden 2xl:flex shrink-0" />
             </div>
 
-            <div className="flex items-center gap-2 shrink-0">
+            <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
+              {/* Utility icon cluster (mockup: analytics + calendar) */}
+              <div className="hidden md:flex items-center gap-0.5" data-testid="shell-utility-icons">
+                <button
+                  type="button"
+                  onClick={() => onNavigate('analytics')}
+                  data-testid="shell-utility-analytics"
+                  className={cn(
+                    'p-1.5 rounded-lg transition-colors',
+                    currentView === 'analytics' ? 'bg-brand-500/15 text-brand-700' : 'text-text-secondary hover:bg-surface-hover hover:text-text-primary',
+                  )}
+                  aria-label={t('analytics')}
+                  title={t('analytics')}
+                >
+                  <BarChart3 className="w-4 h-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onNavigate('tasks')}
+                  data-testid="shell-utility-calendar"
+                  className={cn(
+                    'p-1.5 rounded-lg transition-colors',
+                    currentView === 'tasks' ? 'bg-brand-500/15 text-brand-700' : 'text-text-secondary hover:bg-surface-hover hover:text-text-primary',
+                  )}
+                  aria-label={t('tasks')}
+                  title={t('tasks')}
+                >
+                  <CalendarBlank className="w-4 h-4" />
+                </button>
+              </div>
+
               {onLanguageChange && (
                 <HeaderLangPill
                   lang={activeLang}
                   onChange={onLanguageChange}
-                  className="hidden sm:inline-flex"
+                  className="hidden lg:inline-flex scale-95 origin-right"
                 />
               )}
               {onTakeBreath && (
-                <>
-                  <button
-                    type="button"
-                    onClick={onTakeBreath}
-                    data-testid="header-take-breath"
-                    className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border-subtle text-xs text-text-secondary hover:border-brand-500/30 hover:text-brand-800 transition-colors"
-                    title={t('wellnessBreathTitle')}
-                  >
-                    <Wind className="w-4 h-4" />
-                    {t('wellnessTakeBreath')}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={onTakeBreath}
-                    data-testid="header-take-breath-mobile"
-                    className="sm:hidden p-2 rounded-lg hover:bg-surface-hover transition-colors"
-                    aria-label={t('wellnessTakeBreath')}
-                    title={t('wellnessBreathTitle')}
-                  >
-                    <Wind className="w-5 h-5 text-text-secondary" />
-                  </button>
-                </>
+                <button
+                  type="button"
+                  onClick={onTakeBreath}
+                  data-testid="header-take-breath"
+                  className="p-1.5 rounded-lg text-text-secondary hover:bg-surface-hover hover:text-text-primary transition-colors"
+                  aria-label={t('wellnessTakeBreath')}
+                  title={t('wellnessBreathTitle')}
+                >
+                  <Wind className="w-4 h-4" />
+                </button>
               )}
               <button
                 onClick={onOpenSearch}
-                className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface-input border border-border-subtle text-sm text-text-tertiary hover:border-brand-500/30 transition-colors"
+                className="hidden sm:flex items-center gap-1.5 px-2 py-1 rounded-lg bg-surface-input border border-border-subtle text-xs text-text-tertiary hover:border-brand-500/30 transition-colors"
               >
-                <Search className="w-4 h-4" />
-                <span>{t('search')}</span>
+                <Search className="w-3.5 h-3.5" />
+                <span className="hidden xl:inline">{t('search')}</span>
                 <kbd
-                  className="text-xs bg-surface-hover px-1.5 py-0.5 rounded border border-border-subtle ml-4 font-mono"
+                  className="text-[10px] bg-surface-hover px-1 py-0.5 rounded border border-border-subtle font-mono"
                   data-testid="shell-search-shortcut"
                 >
                   {commandPaletteBadge()}
@@ -562,17 +584,17 @@ export function Shell({
                 onClick={onOpenNotifications}
                 data-testid="shell-notifications-bell"
                 data-unread-count={notificationCount > 0 ? String(notificationCount) : '0'}
-                className="relative p-2 rounded-lg hover:bg-surface-hover transition-colors"
+                className="relative p-1.5 rounded-lg hover:bg-surface-hover transition-colors"
                 aria-label={
                   notificationCount > 0
                     ? `${t('notifications')} (${notificationCount})`
                     : t('notifications')
                 }
               >
-                <Bell className="w-5 h-5 text-text-secondary" />
+                <Bell className="w-4 h-4 text-text-secondary" />
                 {notificationCount > 0 && (
                   <span
-                    className="absolute top-1.5 right-1.5 min-w-[8px] h-2 px-0.5 bg-accent-rose rounded-full"
+                    className="absolute top-1 right-1 min-w-[7px] h-1.5 px-0.5 bg-accent-rose rounded-full"
                     aria-hidden="true"
                   />
                 )}
@@ -596,26 +618,51 @@ export function Shell({
                 return (
                   <button
                     onClick={onToggleTheme}
-                    className="p-2 rounded-lg hover:bg-surface-hover transition-colors"
+                    className="p-1.5 rounded-lg hover:bg-surface-hover transition-colors"
                     title={t(labelKey)}
                     aria-label={t(labelKey)}
                   >
                     {target === 'light' ? (
-                      <Sun className="w-5 h-5 text-text-secondary" />
+                      <Sun className="w-4 h-4 text-text-secondary" />
                     ) : target === 'spectrum' ? (
-                      <Sparkles className="w-5 h-5 text-text-secondary" />
+                      <Sparkles className="w-4 h-4 text-text-secondary" />
                     ) : target === 'blueprint' ? (
-                      <Layers className="w-5 h-5 text-text-secondary" />
+                      <Layers className="w-4 h-4 text-text-secondary" />
                     ) : target === 'minimal' ? (
-                      <Minus className="w-5 h-5 text-text-secondary" />
+                      <Minus className="w-4 h-4 text-text-secondary" />
                     ) : target === 'minimal-dark' ? (
-                      <Square className="w-5 h-5 text-text-secondary" />
+                      <Square className="w-4 h-4 text-text-secondary" />
                     ) : (
-                      <Moon className="w-5 h-5 text-text-secondary" />
+                      <Moon className="w-4 h-4 text-text-secondary" />
                     )}
                   </button>
                 );
               })()}
+
+              {onOpenWorkspace && (
+                <button
+                  type="button"
+                  onClick={onOpenWorkspace}
+                  data-testid="shell-study-workspace"
+                  data-tour="dashboard-workspace-cta"
+                  {...workspaceEntryPrefetchHandlers()}
+                  className="hidden md:inline-flex h-8 items-center gap-1.5 px-2.5 rounded-lg border border-brand-500/35 text-[11px] font-medium leading-none text-brand-800 hover:bg-brand-600/10 transition-colors whitespace-nowrap"
+                >
+                  <Layout className="w-3.5 h-3.5 shrink-0" />
+                  {t('navStudyWorkspace')}
+                </button>
+              )}
+              {onStartSession && (
+                <button
+                  type="button"
+                  onClick={onStartSession}
+                  data-testid="shell-start-session"
+                  className="hidden sm:inline-flex h-8 items-center gap-1.5 px-2.5 rounded-lg bg-brand-700 text-[11px] font-semibold leading-none text-white hover:bg-brand-800 transition-colors whitespace-nowrap"
+                >
+                  <Play className="w-3.5 h-3.5 shrink-0" weight="fill" />
+                  {t('startSession')}
+                </button>
+              )}
 
               {onPatchSettings && (
                 <HeaderAccountAuth
@@ -628,14 +675,14 @@ export function Shell({
                 type="button"
                 onClick={() => onNavigate('settings')}
                 data-testid="header-profile-settings"
-                className="flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-surface-hover cursor-pointer transition-colors"
+                className="flex items-center gap-1.5 px-1.5 py-1 rounded-lg hover:bg-surface-hover cursor-pointer transition-colors"
               >
-                <div className="w-7 h-7 rounded-full platform-brand-icon flex items-center justify-center text-xs font-bold">
+                <div className="w-6 h-6 rounded-full platform-brand-icon flex items-center justify-center text-[10px] font-bold">
                   {user.name.charAt(0)}
                 </div>
-                <div className="hidden sm:flex items-center gap-1">
-                  <span className="text-xs font-medium text-accent-amber inline-flex items-center gap-1">
-                    <Flame className="w-3.5 h-3.5" weight="fill" />
+                <div className="hidden sm:flex items-center gap-0.5">
+                  <span className="text-[11px] font-medium text-accent-amber inline-flex items-center gap-0.5">
+                    <Flame className="w-3 h-3" weight="fill" />
                     {stats.streak}
                   </span>
                   <ChevronRight className="w-3 h-3 text-text-tertiary" />
@@ -649,7 +696,7 @@ export function Shell({
 
 
         {/* Page content */}
-        <main id="platform-main" data-testid="platform-main" tabIndex={-1} className="flex-1 outline-none">
+        <main id="platform-main" data-testid="platform-main" tabIndex={-1} className="flex-1 min-w-0 outline-none">
           {children}
         </main>
 

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import { Sparkles, Type, Volume2, Highlighter, Download, StickyNote, X, Languages, BookOpen, AlertTriangle } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
 import { prepareWorkspaceDisplayText } from '../../lib/workspaceDisplayText';
+import { reanchorOcrCorrections } from '../../lib/readerOcrCorrectionStore';
 import { readerGreekOcrNeedsReview } from '../../lib/readerGreekDisplay';
 import { useI18n } from '../../lib/i18n';
 import type { SourceHighlight } from '../../lib/conceptProvenance';
@@ -203,6 +204,21 @@ export function CognitiveReader({
   const [textSelection, setTextSelection] = useState<string | null>(null);
   const rawDisplayText = fullSource ? (sourceFullText?.trim() || text) : text;
   const glossaryTerms = useMemo(() => glossary?.map((g) => g.term) ?? [], [glossary]);
+  const prevRawTextRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    const scope = annotationScopeKey ?? 'reader';
+    const next = rawDisplayText ?? '';
+    const prev = prevRawTextRef.current;
+    prevRawTextRef.current = next;
+    if (prev == null || prev === next || !next.trim()) return;
+    // Source reprocessed — re-bind OCR corrections to new paragraph blocks (TOOL-RD-04).
+    const { remapped, dropped } = reanchorOcrCorrections(scope, next);
+    if (remapped > 0 || dropped > 0) {
+      setOcrCorrectionRevision((v) => v + 1);
+    }
+  }, [rawDisplayText, annotationScopeKey]);
+
   const displayText = useMemo(
     () => prepareWorkspaceDisplayText(
       rawDisplayText ?? '',

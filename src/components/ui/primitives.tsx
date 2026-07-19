@@ -11,10 +11,10 @@ import {
 
 /**
  * Shared page-level layout primitives for Synapse top-level views.
- * Warm Sand bento surfaces + Lora headings (synaptic-refined alignment).
+ * Warm Sand bento surfaces + shared display headings (Lora — light typography SoT).
  */
 
-/** Outer page wrapper: consistent padding, max width handling and vertical rhythm. */
+/** Outer page wrapper: full remaining width beside the sidebar (no artificial max-width). */
 export function Page({
   children,
   className,
@@ -24,9 +24,9 @@ export function Page({
   className?: string;
   gap?: 'sm' | 'md' | 'lg';
 }) {
-  const gapClass = gap === 'sm' ? 'space-y-4' : gap === 'lg' ? 'space-y-8' : 'space-y-6';
+  const gapClass = gap === 'sm' ? 'space-y-3' : gap === 'lg' ? 'space-y-6' : 'space-y-4';
   return (
-    <div className={cn('w-full min-w-0 p-4 pb-24 sm:p-6 lg:px-8 lg:pb-8', gapClass, className)}>
+    <div className={cn('platform-page w-full min-w-0 max-w-none p-3 pb-20 sm:p-5 lg:px-6 lg:pb-6', gapClass, className)}>
       {children}
     </div>
   );
@@ -52,18 +52,22 @@ export function PageHeader({
 }) {
   const isBlueprint = useBlueprintTheme();
   const content = (
-    <div className={cn('ux-page-header flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between', className)}>
+    <div className={cn(
+      'ux-page-header sticky top-0 z-20 -mx-3 mb-1 border-b border-border-subtle/50 bg-surface-primary/90 px-3 py-2 backdrop-blur-md sm:-mx-5 sm:px-5 lg:-mx-6 lg:px-6',
+      'flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between',
+      className,
+    )}>
       <div className="min-w-0">
-        {eyebrow && <p className="ws-eyebrow mb-1.5 text-text-secondary">{eyebrow}</p>}
-        <div className="flex items-center gap-3">
+        {eyebrow && <p className="ws-eyebrow mb-1 text-text-secondary">{eyebrow}</p>}
+        <div className="flex items-center gap-2">
           {Icon && (
-            <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-brand-500/25 bg-brand-500/10 text-brand-600">
-              <Icon className="h-5 w-5" />
+            <span className="grid h-7 w-7 shrink-0 place-items-center rounded-lg border border-brand-500/25 bg-brand-500/10 text-brand-600">
+              <Icon className="h-3.5 w-3.5" />
             </span>
           )}
-          <h1 className="ws-serif truncate font-medium tracking-tight text-text-primary">{title}</h1>
+          <h1 className="ws-serif truncate text-base font-medium tracking-tight text-text-primary sm:text-lg">{title}</h1>
         </div>
-        {subtitle && <div className="ux-page-subtitle mt-1.5 text-text-secondary">{subtitle}</div>}
+        {subtitle && <div className="ux-page-subtitle mt-0.5 text-xs text-text-secondary sm:text-sm">{subtitle}</div>}
       </div>
       {actions && <div className="flex shrink-0 items-center gap-2">{actions}</div>}
     </div>
@@ -239,12 +243,12 @@ export function StatTile({
   className?: string;
 }) {
   return (
-    <BlueprintSurface className={cn('p-4 ux-stat-tile', className)}>
-      <div className="flex items-center gap-2">
+    <BlueprintSurface className={cn('p-2.5 ux-stat-tile', className)}>
+      <div className="flex items-center gap-1.5">
         {icon}
-        <span className="ws-eyebrow text-text-secondary">{label}</span>
+        <span className="ws-eyebrow text-text-secondary truncate">{label}</span>
       </div>
-      <p className="mt-2 text-xl font-bold tracking-tight text-text-primary">{value}</p>
+      <p className="mt-1 text-sm font-bold tracking-tight tabular-nums text-text-primary sm:text-base">{value}</p>
       {hint && <p className="ws-caption mt-0.5 text-text-muted">{hint}</p>}
     </BlueprintSurface>
   );

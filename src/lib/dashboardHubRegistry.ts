@@ -13,11 +13,33 @@ export type DashboardHubActionId =
 export type DashboardHubAction = {
   id: DashboardHubActionId;
   labelKey: import('./i18n').I18nKey;
+  /** Short chip label for compact hub row (J-D04). */
+  chipLabelKey: import('./i18n').I18nKey;
   hintKey: import('./i18n').I18nKey;
   scrollTargetId?: string;
   badge?: string;
   disabled?: boolean;
 };
+
+/** Mockup primary 4-chip row (I-D03) — extras go to overflow. */
+export const DASHBOARD_HUB_PRIMARY_IDS: readonly DashboardHubActionId[] = [
+  'calendar',
+  'upload',
+  'session',
+  'workspace',
+] as const;
+
+export function partitionDashboardHubActions(actions: DashboardHubAction[]): {
+  primary: DashboardHubAction[];
+  overflow: DashboardHubAction[];
+} {
+  const primaryIds = new Set<DashboardHubActionId>(DASHBOARD_HUB_PRIMARY_IDS);
+  const primary = DASHBOARD_HUB_PRIMARY_IDS
+    .map((id) => actions.find((a) => a.id === id))
+    .filter((a): a is DashboardHubAction => Boolean(a));
+  const overflow = actions.filter((a) => !primaryIds.has(a.id));
+  return { primary, overflow };
+}
 
 /** Canonical carousel order — calendar is always first. */
 export function buildDashboardHubActions(opts: {
@@ -29,6 +51,7 @@ export function buildDashboardHubActions(opts: {
     {
       id: 'calendar',
       labelKey: 'dashboardHeroCarouselCalendar',
+      chipLabelKey: 'dashboardHubChipCalendar',
       hintKey: 'dashboardHeroCarouselCalendarHint',
       scrollTargetId: 'exam-calendar-panel',
     },
@@ -38,6 +61,7 @@ export function buildDashboardHubActions(opts: {
     actions.push({
       id: 'upload',
       labelKey: 'dashboardHeroCarouselUpload',
+      chipLabelKey: 'dashboardHubChipUpload',
       hintKey: 'dashboardHeroCarouselUploadHint',
     });
   }
@@ -45,12 +69,14 @@ export function buildDashboardHubActions(opts: {
   actions.push({
     id: 'session',
     labelKey: 'dashboardHeroCarouselSession',
+    chipLabelKey: 'dashboardHubChipSession',
     hintKey: 'dashboardHeroCarouselSessionHint',
   });
 
   actions.push({
     id: 'reviews',
     labelKey: 'dashboardHeroCarouselReviews',
+    chipLabelKey: 'dashboardHubChipReviews',
     hintKey: 'dashboardHeroCarouselReviewsHint',
     badge: opts.reviewsDue > 0 ? String(opts.reviewsDue) : undefined,
     scrollTargetId: 'dashboard-stat-reviews-due',
@@ -60,6 +86,7 @@ export function buildDashboardHubActions(opts: {
     actions.push({
       id: 'workspace',
       labelKey: 'dashboardHeroCarouselWorkspace',
+      chipLabelKey: 'dashboardHubChipWorkspace',
       hintKey: 'dashboardHeroCarouselWorkspaceHint',
     });
   }
@@ -67,6 +94,7 @@ export function buildDashboardHubActions(opts: {
   actions.push({
     id: 'personal-dates',
     labelKey: 'dashboardHeroCarouselPersonalDates',
+    chipLabelKey: 'dashboardHubChipPersonalDates',
     hintKey: 'dashboardHeroCarouselPersonalDatesHint',
     scrollTargetId: 'dashboard-hero-personal-dates',
   });
@@ -74,6 +102,7 @@ export function buildDashboardHubActions(opts: {
   actions.push({
     id: 'wallpaper',
     labelKey: 'dashboardHeroCarouselWallpaper',
+    chipLabelKey: 'dashboardHubChipWallpaper',
     hintKey: 'dashboardHeroCarouselWallpaperHint',
     scrollTargetId: 'dashboard-action-hub',
   });

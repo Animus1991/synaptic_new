@@ -67,6 +67,7 @@ export function StudyWhiteboard({
   coachPlan,
   onAskAgent,
   sketchDescriptionRef,
+  crdt,
 }: {
   referenceFormulas?: ExtractedFormula[];
   referenceExcerpt?: string;
@@ -80,6 +81,12 @@ export function StudyWhiteboard({
   coachPlan?: DiagramCoachPlan;
   onAskAgent?: (prompt: string, intent: WhiteboardDiagramAgentIntent) => void;
   sketchDescriptionRef?: MutableRefObject<string>;
+  crdt?: {
+    doc: WhiteboardDocument;
+    synced: boolean;
+    connecting: boolean;
+    applyLocalDoc: (next: WhiteboardDocument) => void;
+  };
 }) {
   const { t } = useI18n();
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -95,6 +102,19 @@ export function StudyWhiteboard({
   const [showStamps, setShowStamps] = useState(false);
   const [liveAnnouncement, setLiveAnnouncement] = useState('');
   const drawing = useRef(false);
+  const crdtRef = useRef(crdt);
+  crdtRef.current = crdt;
+
+  const patchDoc = useCallback((fn: (d: WhiteboardDocument) => WhiteboardDocument) => {
+    setDoc((prev) => {
+      const next = fn(prev);
+      const c = crdtRef.current;
+      if (c?.synced) {
+        Promise.resolve().then(() => c.applyLocalDoc(next));
+      }
+      return next;
+    });
+  }, []);
 
   const stampLibrary = useMemo(
     () => buildLatexStampLibrary(referenceFormulas, lang),
@@ -237,6 +257,11 @@ export function StudyWhiteboard({
     } catch { /* ignore */ }
   }, [scopeKey, lang]);
 
+  useEffect(() => {
+    if (!crdt?.synced) return;
+    setDoc(crdt.doc);
+  }, [crdt?.synced, crdt?.doc]);
+
   const visible = visibleStrokes(doc);
   useEffect(() => { redraw(visible, draft); }, [visible, draft, redraw]);
 
@@ -254,7 +279,7 @@ export function StudyWhiteboard({
   const effectiveWidth = tool === 'marker' ? width * 2.5 : tool === 'highlighter' ? width * 4 : tool === 'eraser' ? width * 3 : width;
 
   const appendStroke = (stroke: LayeredStroke) => {
-    setDoc((d) => ({ ...d, strokes: [...d.strokes, stroke] }));
+    patchDoc((d) => ({ ...d, strokes: [...d.strokes, stroke] }));
     setRedoStack([]);
     onEngage?.();
   };
@@ -305,7 +330,7 @@ export function StudyWhiteboard({
   };
 
   const undo = () => {
-    setDoc((d) => {
+    patchDoc((d) => {
       if (d.strokes.length === 0) return d;
       const last = d.strokes[d.strokes.length - 1]!;
       setRedoStack((r) => [...r, last]);
@@ -317,13 +342,13 @@ export function StudyWhiteboard({
     setRedoStack((r) => {
       if (r.length === 0) return r;
       const last = r[r.length - 1]!;
-      setDoc((d) => ({ ...d, strokes: [...d.strokes, last] }));
+      patchDoc((d) => ({ ...d, strokes: [...d.strokes, last] }));
       return r.slice(0, -1);
     });
   };
 
   const clearActiveLayer = () => {
-    setDoc((d) => ({
+    patchDoc((d) => ({
       ...d,
       strokes: d.strokes.filter((s) => s.layerId !== d.activeLayerId),
     }));
@@ -369,10 +394,10 @@ export function StudyWhiteboard({
       points: [positions[i] ?? { x: 56, y: 72 + i * 48 }],
       text: text.slice(0, 80),
     }));
-    setDoc((d) => ({ ...d, strokes: [...d.strokes, ...strokesToAdd] }));
+    patchDoc((d) => ({ ...d, strokes: [...d.strokes, ...strokesToAdd] }));
     setRedoStack([]);
     onEngage?.();
-  }, [doc.activeLayerId, onEngage]);
+  }, [doc.activeLayerId, onEngage, patchDoc]);
 
   useEffect(() => {
     if (labelInsertKey === 0 || labelInsertPayload.length === 0) return;
@@ -403,7 +428,7 @@ export function StudyWhiteboard({
         });
       }
     }
-    setDoc((d) => ({ ...d, strokes: [...d.strokes, ...strokesToAdd] }));
+    patchDoc((d) => ({ ...d, strokes: [...d.strokes, ...strokesToAdd] }));
     setRedoStack([]);
     onEngage?.();
   };
@@ -417,7 +442,7 @@ export function StudyWhiteboard({
   const insertLatexStamp = (stamp: LatexStamp) => {
     const x = 48 + Math.random() * 100;
     const y = 48 + Math.random() * 80;
-    setDoc((d) => ({
+    patchDoc((d) => ({
       ...d,
       strokes: [...d.strokes, {
         layerId: d.activeLayerId,
@@ -434,7 +459,7 @@ export function StudyWhiteboard({
 
   const addLayer = () => {
     const id = `layer-${Date.now()}`;
-    setDoc((d) => ({
+    patchDoc((d) => ({
       ...d,
       layers: [
         ...d.layers,
@@ -450,14 +475,14 @@ export function StudyWhiteboard({
   };
 
   const toggleLayerVisibility = (layerId: string) => {
-    setDoc((d) => ({
+    patchDoc((d) => ({
       ...d,
       layers: d.layers.map((l) => (l.id === layerId ? { ...l, visible: !l.visible } : l)),
     }));
   };
 
   const toggleLayerLock = (layerId: string) => {
-    setDoc((d) => ({
+    patchDoc((d) => ({
       ...d,
       layers: d.layers.map((l) => (l.id === layerId ? { ...l, locked: !l.locked } : l)),
     }));
@@ -579,7 +604,22 @@ export function StudyWhiteboard({
 
       <div className="flex min-h-0 flex-1 flex-col min-w-0">
       <div className="shrink-0 border-b border-border-subtle px-3 py-2">
-        <h3 className="text-sm font-semibold">Study Whiteboard</h3>
+        <div className="flex items-center gap-2">
+          <h3 className="text-sm font-semibold">Study Whiteboard</h3>
+          {crdt && (
+            <span
+              className={cn(
+                'rounded-full px-2 py-0.5 text-[9px] font-semibold border',
+                crdt.synced
+                  ? 'border-accent-emerald/40 bg-accent-emerald/10 text-accent-emerald'
+                  : 'border-border-subtle bg-surface-hover text-text-muted',
+              )}
+              data-testid="whiteboard-crdt-status"
+            >
+              {crdt.synced ? t('conceptMapCollabSynced') : t('conceptMapCollabConnecting')}
+            </span>
+          )}
+        </div>
         <p className="text-[10px] text-text-tertiary">
           {t('wbHintLocalSave')}
         </p>
@@ -746,7 +786,7 @@ export function StudyWhiteboard({
                   data-testid={`whiteboard-layer-${layer.id}`}
                   aria-label={t('wbActivateLayer').replace('{name}', layer.name)}
                   aria-current={active ? 'true' : undefined}
-                  onClick={() => setDoc((d) => ({ ...d, activeLayerId: layer.id }))}
+                  onClick={() => patchDoc((d) => ({ ...d, activeLayerId: layer.id }))}
                   className="font-medium text-text-secondary hover:text-brand-800"
                 >
                   {layer.name}

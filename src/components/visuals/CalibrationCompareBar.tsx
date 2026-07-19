@@ -22,7 +22,13 @@ export function CalibrationCompareBar({
   const showActualInside = actual >= MIN_IN_BAR_LABEL;
 
   return (
-    <div className="relative h-7 flex-1 rounded-lg bg-viz-track overflow-hidden">
+    // Wave P-2 C08 — CalibrationCompareBar track migrated from bg-viz-track
+    // (which passed through the raw --viz-track hue and collapsed to ~1.1:1 on
+    // spectrum + warm-light) to --viz-bar-track (theme-tuned to ≥3:1 vs card).
+    <div
+      className="relative h-7 flex-1 rounded-lg overflow-hidden"
+      style={{ backgroundColor: 'var(--viz-bar-track)' }}
+    >
       <div
         className="absolute inset-y-0 left-0 rounded-lg bg-brand-600"
         style={{ width: `${predicted}%` }}

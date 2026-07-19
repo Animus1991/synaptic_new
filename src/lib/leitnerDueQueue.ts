@@ -80,6 +80,29 @@ export function buildFsrsDueQueue(
   return items.slice(0, limit);
 }
 
+export type FsrsHorizonSummary = {
+  today: number;
+  tomorrow: number;
+  within3d: number;
+};
+
+/** Bucket counts for mockup review-queue strip (today / tomorrow / ≤3d). */
+export function summarizeFsrsHorizon(
+  spacingIntervals: SpacingData[],
+  now = new Date(),
+): FsrsHorizonSummary {
+  const queue = buildGlobalFsrsDueQueue(spacingIntervals, now, 3, 500);
+  let today = 0;
+  let tomorrow = 0;
+  let within3d = 0;
+  for (const item of queue) {
+    if (item.overdue || item.daysUntil <= 0) today += 1;
+    else if (item.daysUntil === 1) tomorrow += 1;
+    if (item.overdue || item.daysUntil <= 3) within3d += 1;
+  }
+  return { today, tomorrow, within3d };
+}
+
 export function findDeckIndexForConcept(
   deck: { front: string; back: string }[],
   concept: string,

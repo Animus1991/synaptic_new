@@ -62,7 +62,7 @@ export function themeColorScheme(resolved: ResolvedTheme): 'light' | 'dark' {
 }
 
 const THEME_META_COLORS: Record<ResolvedTheme, string> = {
-  light: '#faf8f5',
+  light: '#fdfbf7',
   dark: '#0f0a1e',
   spectrum: '#f7f5ff',
   blueprint: '#020617',

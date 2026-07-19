@@ -1,5 +1,6 @@
 import { useState, useRef, useCallback, useEffect, useMemo, type MouseEvent } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { emphasizedTransition, fadeUp } from '../../lib/motion';
 import { MessageSquare, Pin, X, Tag, Wand2, BookOpen, AlertTriangle, FileText } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
 import { useI18n } from '../../lib/i18n';
@@ -30,6 +31,7 @@ import type {
 } from '../../lib/workspaceSelectionActions';
 import { WorkspaceToolEmptyState } from './WorkspaceToolEmptyState';
 import { AnnotationRemapPanel } from './AnnotationRemapPanel';
+import { AnnotationConflictPanel } from './AnnotationConflictPanel';
 import { AnnotationToolbar, ANNOTATION_COLORS, SEMANTIC_CATEGORIES } from './AnnotationToolbar';
 import { AnnotationMarginRail } from './AnnotationMarginRail';
 import { WorkspacePanelWarnStrip } from './WorkspacePanelWarnStrip';
@@ -44,6 +46,7 @@ import {
   formatRemapEdgeCaseBanner,
 } from '../../lib/annotationRemapEdgeCasesQA';
 import { UiIcon } from '../ui/UiIcon';
+import type { AnnotationConflict } from '../../lib/annotationRealtimeSync';
 
 function categoryLabel(cat: AnnotationCategory, lang: 'en' | 'el'): string {
   const row = SEMANTIC_CATEGORIES.find((c) => c.cat === cat);
@@ -85,6 +88,9 @@ interface Props {
   annotationSyncVersion?: number;
   annotationSyncMode?: 'stream' | 'poll' | 'off';
   onRemapComplete?: (remappedCount: number) => void;
+  annotationConflicts?: AnnotationConflict[];
+  onResolveAnnotationConflict?: (id: string, choice: 'local' | 'remote') => void;
+  onDismissAnnotationConflicts?: () => void;
 }
 
 export function AnnotationOverlay({
@@ -111,6 +117,9 @@ export function AnnotationOverlay({
   annotationSyncVersion = 0,
   annotationSyncMode = 'poll',
   onRemapComplete,
+  annotationConflicts = [],
+  onResolveAnnotationConflict,
+  onDismissAnnotationConflicts,
 }: Props) {
   const { t, lang: i18nLang } = useI18n();
   const lang = langProp ?? i18nLang;
@@ -434,6 +443,17 @@ export function AnnotationOverlay({
         pinLabel={t('pin')}
       />
 
+      {annotationConflicts.length > 0 && onResolveAnnotationConflict && (
+        <div className="shrink-0 border-b border-border-subtle px-3 py-2">
+          <AnnotationConflictPanel
+            conflicts={annotationConflicts}
+            lang={lang}
+            onChoose={onResolveAnnotationConflict}
+            onDismissAll={onDismissAnnotationConflicts}
+          />
+        </div>
+      )}
+
       {tool === 'highlight' && (
         <p className="shrink-0 border-b border-border-subtle px-3 py-1 text-[9px] text-text-muted" data-testid="annotation-span-hint">
           {t('annoSelectSpan')}
@@ -672,9 +692,11 @@ export function AnnotationOverlay({
       <AnimatePresence>
         {addingAt !== null && (
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
+            variants={fadeUp}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            transition={emphasizedTransition}
             className="absolute bottom-0 left-0 right-0 p-3 glass-strong border-t border-border-subtle z-10"
           >
             <p className="text-xs font-semibold mb-2 inline-flex items-center gap-1.5">

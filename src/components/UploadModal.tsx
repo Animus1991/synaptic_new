@@ -316,6 +316,7 @@ export function UploadModal({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
+        transition={{ duration: 0.22, ease: [0.2, 0, 0, 1] }}
         className="fixed inset-0 z-[130] flex items-center justify-center p-4"
       >
         <div className="absolute inset-0 bg-black/70" onClick={requestClose} aria-hidden="true" />
@@ -329,6 +330,7 @@ export function UploadModal({
           initial={{ opacity: 0, scale: 0.95, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
+          transition={{ duration: 0.36, ease: [0.2, 0, 0, 1] }}
           className="relative w-full max-w-2xl max-h-[90vh] ux-modal-panel rounded-2xl border border-border-subtle bg-surface-secondary overflow-y-auto"
           data-testid="upload-modal"
         >

@@ -21,6 +21,11 @@ export type LtiLaunchClaims = {
     context_memberships_url?: string;
     service_versions?: string[];
   };
+  'https://purl.imsglobal.org/spec/lti-ags/claim/endpoint'?: {
+    lineitems?: string;
+    lineitem?: string;
+    scope?: string[];
+  };
   [key: string]: unknown;
 };
 

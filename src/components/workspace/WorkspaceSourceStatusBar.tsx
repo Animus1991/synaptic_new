@@ -3,6 +3,7 @@ import { AlertTriangle, ChevronDown, ChevronUp, Cpu, FileSearch, RefreshCw } fro
 import { cn } from '../../utils/cn';
 import { CONTENT_PIPELINE_VERSION } from '../../lib/pipelineConstants';
 import { reuploadMigrationMessage } from '../../lib/pipelineMigration';
+import { pre24GreekReprocessMessage } from '../../lib/pre24GreekReprocess';
 import { lowSourceQualityMessage } from '../../lib/sourceQualityPrompt';
 import { hygieneFlagLabel } from '../../lib/textQualityMetrics';
 import { useI18n } from '../../lib/i18n';
@@ -12,6 +13,8 @@ type Props = {
   score: number | null;
   sectionCount?: number;
   showMigration: boolean;
+  /** TOOL-RD-03 — pre-v2.4 column/Greek corruption path */
+  showPre24Greek?: boolean;
   showQualityWarning: boolean;
   reprocessing?: boolean;
   storedPipelineVersion?: string;
@@ -32,6 +35,7 @@ export function WorkspaceSourceStatusBar({
   score,
   sectionCount,
   showMigration,
+  showPre24Greek = false,
   showQualityWarning,
   reprocessing = false,
   storedPipelineVersion,
@@ -48,13 +52,15 @@ export function WorkspaceSourceStatusBar({
   const { t } = useI18n();
   const [expanded, setExpanded] = useState(defaultExpanded);
 
-  if (!showMigration && !showQualityWarning) return null;
+  if (!showMigration && !showQualityWarning && !showPre24Greek) return null;
 
-  const message = showMigration
-    ? reuploadMigrationMessage(lang)
-    : (score != null ? lowSourceQualityMessage(lang, score) : '');
+  const message = showPre24Greek
+    ? pre24GreekReprocessMessage(lang)
+    : showMigration
+      ? reuploadMigrationMessage(lang)
+      : (score != null ? lowSourceQualityMessage(lang, score) : '');
 
-  const pipelineBadge = showMigration
+  const pipelineBadge = (showMigration || showPre24Greek)
     ? (storedPipelineVersion
       ? `Pipeline v${storedPipelineVersion} → v${CONTENT_PIPELINE_VERSION}`
       : `Pipeline v${CONTENT_PIPELINE_VERSION}`)
@@ -102,7 +108,7 @@ export function WorkspaceSourceStatusBar({
           </span>
           {!expanded && (
             <span className="mt-0.5 block truncate text-[10px] text-text-muted">
-              {showMigration
+              {showMigration || showPre24Greek
                 ? t('sourcePipelineReprocessRecommended')
                 : t('sourceLowRecognitionQuality')}
             </span>
@@ -165,13 +171,16 @@ export function WorkspaceSourceStatusBar({
 
           <p className="mt-2 px-3.5 text-[11px] leading-relaxed text-text-secondary">{message}</p>
 
-          {showMigration && (
+          {(showMigration || showPre24Greek) && (
             <div className="mt-2 px-3.5 text-[11px] text-text-secondary" data-testid="source-status-migration-affected">
               <p className="font-medium text-text-primary">{t('sourceMigrationAffectedTitle')}</p>
               <ul className="mt-1 list-disc space-y-0.5 pl-4 text-text-muted">
                 <li>{t('sourceMigrationAffectedOcr')}</li>
                 <li>{t('sourceMigrationAffectedTables')}</li>
                 <li>{t('sourceMigrationAffectedGreek')}</li>
+                {showPre24Greek && (
+                  <li data-testid="source-status-pre24-greek">{t('sourceMigrationAffectedPre24')}</li>
+                )}
               </ul>
               <p className="mt-1.5 text-text-muted">{t('sourceMigrationNonBlocking')}</p>
             </div>
@@ -228,4 +237,4 @@ export function WorkspaceSourceStatusBar({
     </div>
   );
 }
-
+
