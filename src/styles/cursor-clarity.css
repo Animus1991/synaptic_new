@@ -542,15 +542,107 @@
   border: none !important;
   background: transparent !important;
   box-shadow: none !important;
-  max-width: var(--content-measure-wide);
+  max-width: none;
+  width: 100%;
 }
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .hub-quiet-surface [data-testid="dashboard-hero-action-grid"] {
-  max-width: var(--content-measure-wide);
+  max-width: none;
+  width: 100%;
 }
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .hub-quiet-surface .dashboard-continue-hero {
   margin-inline-start: 0;
+}
+
+/* ── OPT-K18 — Dashboard full-span + pair rows (homogenize width) ──────────
+   Keep label↔value proximity (flex-start). Lift section max-width caps so
+   wells match main remaining width; pair short panels at lg+. Blueprint OK. */
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm [data-testid="dashboard-page-stats"] {
+  max-width: none !important;
+  width: 100%;
+}
+
+@media (min-width: 720px) {
+  :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm [data-testid="dashboard-page-stats"] .hub-section-body {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(10.5rem, 1fr)) !important;
+    column-gap: 1.25rem;
+    row-gap: 0.15rem;
+  }
+
+  :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm [data-testid="dashboard-page-stats"] .utility-row {
+    max-width: none !important;
+  }
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm .hub-section-stack :is(
+  .proximity-track,
+  .proximity-track-wide,
+  .utility-row,
+  .content-measure-bars,
+  .concept-mastery-bars,
+  .coverage-topic-row,
+  .dashboard-course-grid,
+  .dashboard-almost-there,
+  [data-testid="syllabus-coverage-widget-compact"],
+  [data-testid="syllabus-coverage-widget"]
+) {
+  max-width: none !important;
+  width: 100%;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm .hub-section-stack .dashboard-course-grid > * {
+  max-width: none !important;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm .hub-section-stack .proximity-row {
+  max-width: none;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm [data-testid="dashboard-readiness-section"] .proximity-track {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm .hub-quiet-surface .proximity-track-wide {
+  max-width: none !important;
+  width: 100%;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm .hub-section-stack > .dashboard-pair-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem 1.5rem;
+  align-items: start;
+}
+
+@media (min-width: 900px) {
+  :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm .hub-section-stack > .dashboard-pair-row {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm .hub-section-stack > .dashboard-pair-row > * {
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  min-width: 0;
+}
+
+@media (min-width: 900px) {
+  :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm .hub-section-stack > .dashboard-pair-row > *:first-child {
+    padding-inline-end: 0.75rem !important;
+    border-inline-end: 1px solid color-mix(in srgb, var(--color-border-subtle) 70%, transparent) !important;
+  }
+
+  :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm .hub-section-stack > .dashboard-pair-row > *:last-child:not(:only-child) {
+    padding-inline-start: 0.75rem !important;
+  }
 }
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .analytics-quiet .progress-kpi-stack .utility-row-hint {

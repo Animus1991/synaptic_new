@@ -568,75 +568,118 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
             </div>
           </BlueprintSurface>
           )}
-          <SyllabusCoverageWidget
-            compact
-            courses={courses}
-            settingsExamDate={settingsExamDate}
-            onSelectCourse={onSelectCourse}
-            onPracticeTopic={onOpenWorkspacePractice
-              ? (topic, courseId) => {
-                  const tool: WorkspaceToolId = recommendToolForTopic(topic, stats, daysToExam, activities);
-                  onOpenWorkspacePractice({
-                    tool,
-                    concept: topic.title,
-                    courseId,
-                    simulatorTab: tool === 'simulator' ? 'exam-prep' : undefined,
-                  });
-                }
-              : undefined}
-          />
-
-          {/* L-D02: retrieval strength bar — Blueprint only (Minimal: in readiness HubSection). */}
-          {!isMinimal && (
-          <div
-            className="rounded-xl border border-border-subtle bg-surface-card/50 px-3 py-2"
-            data-testid="dashboard-retrieval-strength-bar"
-          >
-            <div className="mb-1.5 flex items-center justify-between gap-2">
-              <span className="text-[10px] font-semibold uppercase tracking-[0.08em] text-text-secondary">
-                {t('dashSignalRetrieval')}
-              </span>
-              <span className="text-[11px] font-semibold tabular-nums text-text-primary">
-                {Math.round(learnerModel.retrievalPerformance * 100)}%
-              </span>
-            </div>
-            <div className="ux-progress-track h-1.5" aria-hidden>
-              <div
-                className="h-full rounded-full transition-[width] duration-300"
-                style={{
-                  width: `${Math.max(2, Math.round(learnerModel.retrievalPerformance * 100))}%`,
-                  backgroundColor: 'var(--palette-amber)',
-                }}
+          {/* OPT-K18 Minimal: coverage + mastery share one full-width pair row when both present */}
+          {isMinimal && (conceptMastery.length > 0 || prerequisiteRepairs.length > 0) ? (
+            <div className="dashboard-pair-row" data-testid="dashboard-pair-coverage-mastery">
+              <SyllabusCoverageWidget
+                compact
+                courses={courses}
+                settingsExamDate={settingsExamDate}
+                onSelectCourse={onSelectCourse}
+                onPracticeTopic={onOpenWorkspacePractice
+                  ? (topic, courseId) => {
+                      const tool: WorkspaceToolId = recommendToolForTopic(topic, stats, daysToExam, activities);
+                      onOpenWorkspacePractice({
+                        tool,
+                        concept: topic.title,
+                        courseId,
+                        simulatorTab: tool === 'simulator' ? 'exam-prep' : undefined,
+                      });
+                    }
+                  : undefined}
               />
+              <div className="min-w-0 space-y-3">
+                {conceptMastery.length > 0 && (
+                  <div>
+                    <SectionLabel icon={Brain}>{t('dashConceptMastery')}</SectionLabel>
+                    <ConceptMasteryBars concepts={conceptMastery} className="concept-mastery-bars" />
+                  </div>
+                )}
+                {prerequisiteRepairs.length > 0 && (
+                  <PrerequisiteRepairPanel
+                    repairs={prerequisiteRepairs}
+                    onStartRepair={(repair) => {
+                      const task = findTaskForRepair(tasks, repair);
+                      if (task) onStartTask?.(task.id);
+                      else onNavigate('tasks');
+                    }}
+                  />
+                )}
+              </div>
             </div>
-          </div>
-          )}
+          ) : (
+            <>
+              <SyllabusCoverageWidget
+                compact
+                courses={courses}
+                settingsExamDate={settingsExamDate}
+                onSelectCourse={onSelectCourse}
+                onPracticeTopic={onOpenWorkspacePractice
+                  ? (topic, courseId) => {
+                      const tool: WorkspaceToolId = recommendToolForTopic(topic, stats, daysToExam, activities);
+                      onOpenWorkspacePractice({
+                        tool,
+                        concept: topic.title,
+                        courseId,
+                        simulatorTab: tool === 'simulator' ? 'exam-prep' : undefined,
+                      });
+                    }
+                  : undefined}
+              />
 
-          {/* Concept mastery + prerequisite repair */}
-          {(conceptMastery.length > 0 || prerequisiteRepairs.length > 0) && (
-            <div
-              className={cn(
-                'grid grid-cols-1 gap-3',
-                conceptMastery.length > 0 && prerequisiteRepairs.length > 0 && 'sm:grid-cols-2',
+              {/* L-D02: retrieval strength bar — Blueprint only (Minimal: in readiness HubSection). */}
+              {!isMinimal && (
+              <div
+                className="rounded-xl border border-border-subtle bg-surface-card/50 px-3 py-2"
+                data-testid="dashboard-retrieval-strength-bar"
+              >
+                <div className="mb-1.5 flex items-center justify-between gap-2">
+                  <span className="text-[10px] font-semibold uppercase tracking-[0.08em] text-text-secondary">
+                    {t('dashSignalRetrieval')}
+                  </span>
+                  <span className="text-[11px] font-semibold tabular-nums text-text-primary">
+                    {Math.round(learnerModel.retrievalPerformance * 100)}%
+                  </span>
+                </div>
+                <div className="ux-progress-track h-1.5" aria-hidden>
+                  <div
+                    className="h-full rounded-full transition-[width] duration-300"
+                    style={{
+                      width: `${Math.max(2, Math.round(learnerModel.retrievalPerformance * 100))}%`,
+                      backgroundColor: 'var(--palette-amber)',
+                    }}
+                  />
+                </div>
+              </div>
               )}
-            >
-              {conceptMastery.length > 0 && (
-                <BlueprintSurface className="p-3.5">
-                  <SectionLabel icon={Brain}>{t('dashConceptMastery')}</SectionLabel>
-                  <ConceptMasteryBars concepts={conceptMastery} className="concept-mastery-bars" />
-                </BlueprintSurface>
+
+              {/* Concept mastery + prerequisite repair */}
+              {(conceptMastery.length > 0 || prerequisiteRepairs.length > 0) && (
+                <div
+                  className={cn(
+                    'grid grid-cols-1 gap-3',
+                    conceptMastery.length > 0 && prerequisiteRepairs.length > 0 && 'sm:grid-cols-2',
+                  )}
+                >
+                  {conceptMastery.length > 0 && (
+                    <BlueprintSurface className="p-3.5">
+                      <SectionLabel icon={Brain}>{t('dashConceptMastery')}</SectionLabel>
+                      <ConceptMasteryBars concepts={conceptMastery} className="concept-mastery-bars" />
+                    </BlueprintSurface>
+                  )}
+                  {prerequisiteRepairs.length > 0 && (
+                    <PrerequisiteRepairPanel
+                      repairs={prerequisiteRepairs}
+                      onStartRepair={(repair) => {
+                        const task = findTaskForRepair(tasks, repair);
+                        if (task) onStartTask?.(task.id);
+                        else onNavigate('tasks');
+                      }}
+                    />
+                  )}
+                </div>
               )}
-              {prerequisiteRepairs.length > 0 && (
-                <PrerequisiteRepairPanel
-                  repairs={prerequisiteRepairs}
-                  onStartRepair={(repair) => {
-                    const task = findTaskForRepair(tasks, repair);
-                    if (task) onStartTask?.(task.id);
-                    else onNavigate('tasks');
-                  }}
-                />
-              )}
-            </div>
+            </>
           )}
 
           {/* Priority tasks */}
@@ -803,8 +846,10 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
             </div>
           </BlueprintSurface>
 
-          {/* Weak Areas */}
-          <BlueprintSurface className="p-3">
+          {/* Weak Areas — OPT-K18: pair with Almost-there under Minimal when both exist */}
+          {isMinimal && learnerModel.almostKnown.length > 0 ? (
+            <div className="dashboard-pair-row" data-testid="dashboard-pair-weak-almost">
+          <div className="min-w-0">
             <SectionLabel icon={Brain}>{t('dashWeakAreas')}</SectionLabel>
             <div className="proximity-track space-y-2">
               {weakSpotsWithReasons.length > 0 ? weakSpotsWithReasons.map((area) => (
@@ -851,6 +896,72 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
               {t('dashPracticeWeak')} <ArrowRight className="w-3 h-3" />
             </button>
             )}
+          </div>
+              <div className="dashboard-almost-there proximity-track space-y-1 min-w-0" data-testid="dashboard-almost-there">
+                <div className="mb-1.5">
+                  <p className="text-xs font-semibold text-text-primary tracking-wide uppercase">
+                    {t('dashAlmostThere')}
+                  </p>
+                  <p className="text-[11px] text-text-tertiary mt-0.5">{t('dashAlmostThereHint')}</p>
+                </div>
+                {learnerModel.almostKnown.map((a) => (
+                  <UtilityRow
+                    key={a.concept}
+                    label={a.concept}
+                    value={`${a.mastery}%`}
+                    barPct={a.mastery}
+                    data-testid={`dashboard-almost-there-${a.concept}`}
+                  />
+                ))}
+              </div>
+            </div>
+          ) : (
+            <>
+          <BlueprintSurface className="p-3">
+            <SectionLabel icon={Brain}>{t('dashWeakAreas')}</SectionLabel>
+            <div className="proximity-track space-y-2">
+              {weakSpotsWithReasons.length > 0 ? weakSpotsWithReasons.map((area) => (
+                <button
+                  key={area.concept}
+                  type="button"
+                  onClick={() => {
+                    if (onFocusWeakArea) {
+                      onFocusWeakArea(area.concept);
+                      return;
+                    }
+                    const task = findTaskForConcept(tasks, area.concept);
+                    if (task) onStartTask?.(task.id);
+                    else onNavigate('agent');
+                  }}
+                  className="w-full space-y-1 text-left hover:bg-surface-hover rounded-lg p-1 -m-1 transition-all group"
+                >
+                  <div className="proximity-row">
+                    <span className="proximity-row-label text-xs font-medium group-hover:text-brand-300 transition-colors truncate">{area.concept}</span>
+                    <span className="text-xs text-text-tertiary shrink-0 tabular-nums">{area.mastery}%</span>
+                  </div>
+                  {area.reasons[0] && (
+                    <p className="type-caption text-text-tertiary line-clamp-1">{area.reasons[0].label}</p>
+                  )}
+                  <div className="w-full rounded-full h-1.5" style={{ backgroundColor: 'var(--viz-bar-track)' }}>
+                    <div className="h-1.5 rounded-full bg-accent-rose transition-all" style={{ width: `${Math.max(area.mastery, 3)}%` }} />
+                  </div>
+                </button>
+              )) : (
+                <p className="py-3 text-center text-xs text-text-tertiary">{t('dashNoWeakAreas')}</p>
+              )}
+            </div>
+            {weakSpotsWithReasons.length > 0 && (
+            <button
+              onClick={() => {
+                const first = learnerModel.weakAreas[0];
+                if (first && onFocusWeakArea) onFocusWeakArea(first.concept);
+                else onNavigate('agent');
+              }}
+              className="mt-2.5 w-full text-xs text-brand-400 hover:text-brand-700 flex items-center justify-center gap-1"
+            >
+              {t('dashPracticeWeak')} <ArrowRight className="w-3 h-3" />
+            </button>
+            )}
           </BlueprintSurface>
 
           {/* Almost Known — OPT-K17 Minimal: UtilityRows (no peach banner). Blueprint keeps warn well. */}
@@ -874,8 +985,6 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                 ))}
               </div>
             ) : (
-              /* Wave P-3 C13 — ux-banner-warn drives --color-banner-warn-ink so the
-                 title + mastery % clear 4.5:1 on spectrum peach banners. */
               <div className="ux-banner-warn rounded-panel border border-accent-amber/20 bg-accent-amber/5 p-3">
                 <SectionLabel icon={Lightbulb}>{t('dashAlmostThere')}</SectionLabel>
                 <p className="text-xs text-text-tertiary mb-2">{t('dashAlmostThereHint')}</p>
@@ -890,79 +999,143 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
               </div>
             )
           )}
+            </>
+          )}
 
-          {/* Upcoming Exam */}
-          {courses.some(c => c.examDate) && (
-            <div className="rounded-panel border border-accent-rose/20 bg-accent-rose/5 p-3">
-              <SectionLabel icon={Calendar}>{t('dashUpcomingExam')}</SectionLabel>
-              {courses.filter(c => c.examDate).map(course => {
-                const daysLeft = Math.max(0, Math.ceil((new Date(course.examDate!).getTime() - Date.now()) / 86400000));
-                const courseMastery = selectCanonicalMastery(course);
-                return (
-                  <div key={course.id} className="proximity-track">
-                    <p className="text-sm font-medium">{course.title}</p>
-                    <p className="text-xs text-text-secondary mt-1">{t('dashDaysLeftMastery').replace('{days}', String(daysLeft)).replace('{mastery}', String(courseMastery))}</p>
-                    {/* Wave P-C04 — Upcoming Exam track uses --viz-bar-track (parity with weak areas). */}
-                    <div className="mt-2 w-full rounded-full h-1.5" style={{ backgroundColor: 'var(--viz-bar-track)' }}>
-                      <div className="h-1.5 rounded-full bg-accent-rose transition-all" style={{ width: `${courseMastery}%` }} />
+          {/* Upcoming Exam + Calibration — OPT-K18 pair under Minimal */}
+          {isMinimal && courses.some(c => c.examDate) ? (
+            <div className="dashboard-pair-row" data-testid="dashboard-pair-exam-calibration">
+              <div className="min-w-0">
+                <SectionLabel icon={Calendar}>{t('dashUpcomingExam')}</SectionLabel>
+                {courses.filter(c => c.examDate).map(course => {
+                  const daysLeft = Math.max(0, Math.ceil((new Date(course.examDate!).getTime() - Date.now()) / 86400000));
+                  const courseMastery = selectCanonicalMastery(course);
+                  return (
+                    <div key={course.id} className="proximity-track">
+                      <p className="text-sm font-medium">{course.title}</p>
+                      <p className="text-xs text-text-secondary mt-1">{t('dashDaysLeftMastery').replace('{days}', String(daysLeft)).replace('{mastery}', String(courseMastery))}</p>
+                      <div className="mt-2 w-full rounded-full h-1.5" style={{ backgroundColor: 'var(--viz-bar-track)' }}>
+                        <div className="h-1.5 rounded-full bg-accent-rose transition-all" style={{ width: `${courseMastery}%` }} />
+                      </div>
+                      {courseMastery < 70 && daysLeft < 30 && (
+                        <p className="text-[10px] text-accent-rose mt-2 flex items-center gap-1"><AlertTriangle className="w-3 h-3" />{t('dashBelowMastery')}</p>
+                      )}
+                      {examTask && (
+                        <button
+                          onClick={() => onStartTask?.(examTask.id)}
+                          className="ux-focus-ring mt-3 w-full py-2 rounded-lg text-xs font-semibold ux-chip-solid-danger transition-all hover:brightness-95"
+                        >
+                          {t('dashStartExamSim')}
+                        </button>
+                      )}
                     </div>
-                    {courseMastery < 70 && daysLeft < 30 && (
-                      <p className="text-[10px] text-accent-rose mt-2 flex items-center gap-1"><AlertTriangle className="w-3 h-3" />{t('dashBelowMastery')}</p>
-                    )}
-                    {examTask && (
-                      /* Wave P-C05 — solid rose CTA using .ux-chip-solid-danger + --color-on-danger
-                          ink; retires anemic bg-accent-rose/15 that failed 3:1 vs its own rose banner. */
-                      <button
-                        onClick={() => onStartTask?.(examTask.id)}
-                        className="ux-focus-ring mt-3 w-full py-2 rounded-lg text-xs font-semibold ux-chip-solid-danger transition-all hover:brightness-95"
-                      >
-                        {t('dashStartExamSim')}
-                      </button>
-                    )}
+                  );
+                })}
+              </div>
+              <div className="min-w-0 space-y-3">
+                {calibration ? (
+                  <CalibrationChip score={calibration.score} direction={calibration.direction} />
+                ) : (
+                  <div>
+                    <SectionLabel icon={Eye}>{t('dashConfidenceCheck')}</SectionLabel>
+                    <p className="text-xs text-text-tertiary mb-2">{t('dashConfidenceCheckHint')}</p>
                   </div>
-                );
-              })}
+                )}
+                {calibration && (
+                  <div>
+                    <SectionLabel icon={Eye}>{t('dashRecentCalibration')}</SectionLabel>
+                    {learnerModel.confidenceCalibration.slice(0, 3).map((p, i) => {
+                      const overconfident = p.predicted > p.actual + 0.15;
+                      return (
+                        <div key={i} className="flex items-center gap-2 mb-1.5">
+                          <span className="text-[10px] text-text-secondary w-16 truncate">{p.concept}</span>
+                          <div className="flex-1 h-1.5 rounded-full relative" style={{ backgroundColor: 'var(--viz-bar-track)' }}>
+                            <div className="absolute h-1.5 rounded-full bg-brand-400" style={{ width: `${p.predicted * 100}%` }} />
+                            <div className="absolute h-1.5 rounded-full bg-accent-emerald" style={{ width: `${p.actual * 100}%`, opacity: 0.85 }} />
+                          </div>
+                          {overconfident && (
+                            <AlertTriangle
+                              className="h-3 w-3 text-accent-rose"
+                              aria-label={t('dashOverconfidentPrediction')}
+                            />
+                          )}
+                        </div>
+                      );
+                    })}
+                    <button onClick={() => onNavigate('analytics')} className="mt-2 w-full text-xs text-brand-400 hover:text-brand-700 flex items-center justify-center gap-1">
+                      {t('dashFullAnalytics')} <ArrowRight className="w-3 h-3" />
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
-          )}
-
-          {/* Confidence Calibration mini */}
-          {calibration ? (
-            <CalibrationChip score={calibration.score} direction={calibration.direction} />
           ) : (
-          <BlueprintSurface className="p-3.5">
-            <SectionLabel icon={Eye}>{t('dashConfidenceCheck')}</SectionLabel>
-            <p className="text-xs text-text-tertiary mb-2">{t('dashConfidenceCheckHint')}</p>
-          </BlueprintSurface>
-          )}
-          {calibration && (
-          <BlueprintSurface className="p-3.5">
-            <SectionLabel icon={Eye}>{t('dashRecentCalibration')}</SectionLabel>
-            {learnerModel.confidenceCalibration.slice(0, 3).map((p, i) => {
-              const overconfident = p.predicted > p.actual + 0.15;
-              return (
-                <div key={i} className="flex items-center gap-2 mb-1.5">
-                  <span className="text-[10px] text-text-secondary w-16 truncate">{p.concept}</span>
-                  {/* Wave P-2 C09 — Recent Calibration compact bar migrated to
-                      --viz-bar-track and full-opacity emerald so both predicted
-                      (brand-400) and actual (emerald) segments reach ≥3:1 on all
-                      themes, and the track stays visible when both bars are short. */}
-                  <div className="flex-1 h-1.5 rounded-full relative" style={{ backgroundColor: 'var(--viz-bar-track)' }}>
-                    <div className="absolute h-1.5 rounded-full bg-brand-400" style={{ width: `${p.predicted * 100}%` }} />
-                    <div className="absolute h-1.5 rounded-full bg-accent-emerald" style={{ width: `${p.actual * 100}%`, opacity: 0.85 }} />
-                  </div>
-                  {overconfident && (
-                    <AlertTriangle
-                      className="h-3 w-3 text-accent-rose"
-                      aria-label={t('dashOverconfidentPrediction')}
-                    />
-                  )}
+            <>
+              {courses.some(c => c.examDate) && (
+                <div className="rounded-panel border border-accent-rose/20 bg-accent-rose/5 p-3">
+                  <SectionLabel icon={Calendar}>{t('dashUpcomingExam')}</SectionLabel>
+                  {courses.filter(c => c.examDate).map(course => {
+                    const daysLeft = Math.max(0, Math.ceil((new Date(course.examDate!).getTime() - Date.now()) / 86400000));
+                    const courseMastery = selectCanonicalMastery(course);
+                    return (
+                      <div key={course.id} className="proximity-track">
+                        <p className="text-sm font-medium">{course.title}</p>
+                        <p className="text-xs text-text-secondary mt-1">{t('dashDaysLeftMastery').replace('{days}', String(daysLeft)).replace('{mastery}', String(courseMastery))}</p>
+                        <div className="mt-2 w-full rounded-full h-1.5" style={{ backgroundColor: 'var(--viz-bar-track)' }}>
+                          <div className="h-1.5 rounded-full bg-accent-rose transition-all" style={{ width: `${courseMastery}%` }} />
+                        </div>
+                        {courseMastery < 70 && daysLeft < 30 && (
+                          <p className="text-[10px] text-accent-rose mt-2 flex items-center gap-1"><AlertTriangle className="w-3 h-3" />{t('dashBelowMastery')}</p>
+                        )}
+                        {examTask && (
+                          <button
+                            onClick={() => onStartTask?.(examTask.id)}
+                            className="ux-focus-ring mt-3 w-full py-2 rounded-lg text-xs font-semibold ux-chip-solid-danger transition-all hover:brightness-95"
+                          >
+                            {t('dashStartExamSim')}
+                          </button>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
-              );
-            })}
-            <button onClick={() => onNavigate('analytics')} className="mt-2 w-full text-xs text-brand-400 hover:text-brand-700 flex items-center justify-center gap-1">
-              {t('dashFullAnalytics')} <ArrowRight className="w-3 h-3" />
-            </button>
-          </BlueprintSurface>
+              )}
+
+              {calibration ? (
+                <CalibrationChip score={calibration.score} direction={calibration.direction} />
+              ) : (
+              <BlueprintSurface className="p-3.5">
+                <SectionLabel icon={Eye}>{t('dashConfidenceCheck')}</SectionLabel>
+                <p className="text-xs text-text-tertiary mb-2">{t('dashConfidenceCheckHint')}</p>
+              </BlueprintSurface>
+              )}
+              {calibration && (
+              <BlueprintSurface className="p-3.5">
+                <SectionLabel icon={Eye}>{t('dashRecentCalibration')}</SectionLabel>
+                {learnerModel.confidenceCalibration.slice(0, 3).map((p, i) => {
+                  const overconfident = p.predicted > p.actual + 0.15;
+                  return (
+                    <div key={i} className="flex items-center gap-2 mb-1.5">
+                      <span className="text-[10px] text-text-secondary w-16 truncate">{p.concept}</span>
+                      <div className="flex-1 h-1.5 rounded-full relative" style={{ backgroundColor: 'var(--viz-bar-track)' }}>
+                        <div className="absolute h-1.5 rounded-full bg-brand-400" style={{ width: `${p.predicted * 100}%` }} />
+                        <div className="absolute h-1.5 rounded-full bg-accent-emerald" style={{ width: `${p.actual * 100}%`, opacity: 0.85 }} />
+                      </div>
+                      {overconfident && (
+                        <AlertTriangle
+                          className="h-3 w-3 text-accent-rose"
+                          aria-label={t('dashOverconfidentPrediction')}
+                        />
+                      )}
+                    </div>
+                  );
+                })}
+                <button onClick={() => onNavigate('analytics')} className="mt-2 w-full text-xs text-brand-400 hover:text-brand-700 flex items-center justify-center gap-1">
+                  {t('dashFullAnalytics')} <ArrowRight className="w-3 h-3" />
+                </button>
+              </BlueprintSurface>
+              )}
+            </>
           )}
 
           {/* Learning Insight */}
@@ -973,63 +1146,121 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
             </div>
           )}
 
-          {/* Misconceptions — OPT-K11b: divider rows, not nested bordered cards */}
-          {unresolvedMisconceptions.length > 0 && (
-            <BlueprintSurface className="p-3">
-              <SectionLabel icon={AlertTriangle}>{t('dashActiveMisconceptions')}</SectionLabel>
-              <div className="proximity-track-wide divide-y divide-border-subtle">
-                {unresolvedMisconceptions.slice(0, 2).map(m => (
-                  <div key={m.id} className="py-2 first:pt-0 last:pb-0 text-xs">
-                    <p className="font-medium text-accent-orange">{m.concept}</p>
-                    <p className="text-text-secondary mt-0.5">{m.description}</p>
-                    {onResolveMisconception && (
-                      <button
-                        onClick={() => onResolveMisconception(m.id)}
-                        className="mt-1.5 platform-link text-[10px] flex items-center gap-1"
-                      >
-                        <CheckCircle2 className="w-3 h-3" /> {t('dashMarkCorrected')}
-                      </button>
-                    )}
+          {/* Misconceptions + Spaced rep — OPT-K18 pair under Minimal when misconceptions exist */}
+          {isMinimal && unresolvedMisconceptions.length > 0 ? (
+            <div className="dashboard-pair-row" data-testid="dashboard-pair-misconceptions-spaced">
+              <div className="min-w-0">
+                <SectionLabel icon={AlertTriangle}>{t('dashActiveMisconceptions')}</SectionLabel>
+                <div className="proximity-track-wide divide-y divide-border-subtle">
+                  {unresolvedMisconceptions.slice(0, 2).map(m => (
+                    <div key={m.id} className="py-2 first:pt-0 last:pb-0 text-xs">
+                      <p className="font-medium text-accent-orange">{m.concept}</p>
+                      <p className="text-text-secondary mt-0.5">{m.description}</p>
+                      {onResolveMisconception && (
+                        <button
+                          onClick={() => onResolveMisconception(m.id)}
+                          className="mt-1.5 platform-link text-[10px] flex items-center gap-1"
+                        >
+                          <CheckCircle2 className="w-3 h-3" /> {t('dashMarkCorrected')}
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="min-w-0">
+                <SectionLabel icon={RotateCcw}>{t('dashSpacedRepetition')}</SectionLabel>
+                <p className="text-xs text-text-tertiary">{t('dashSpacedRepetitionHint')}</p>
+                <div className="mt-2 grid grid-cols-3 gap-1.5 text-center">
+                  <button
+                    type="button"
+                    onClick={() => (firstReviewTask ? onStartTask?.(firstReviewTask.id) : onNavigate('tasks'))}
+                    className="p-2 rounded-lg bg-accent-amber/10 border border-accent-amber/20 hover:bg-accent-amber/15 transition-all"
+                    data-testid="dash-horizon-today"
+                  >
+                    <p className="ux-kpi-value text-accent-amber">{fsrsHorizon.today}</p>
+                    <p className="text-[9px] text-text-muted uppercase tracking-wide">{t('dashHorizonToday')}</p>
+                  </button>
+                  <div className="p-2 rounded-lg bg-surface-primary/50" data-testid="dash-horizon-tomorrow">
+                    <p className="ux-kpi-value">{fsrsHorizon.tomorrow}</p>
+                    <p className="text-[9px] text-text-muted uppercase tracking-wide">{t('dashHorizonTomorrow')}</p>
                   </div>
-                ))}
-              </div>
-            </BlueprintSurface>
-          )}
-
-          {/* Spaced Rep Info */}
-          <BlueprintSurface className="p-3">
-            <SectionLabel icon={RotateCcw}>{t('dashSpacedRepetition')}</SectionLabel>
-            <p className="text-xs text-text-tertiary">{t('dashSpacedRepetitionHint')}</p>
-            <div className="mt-2 grid grid-cols-3 gap-1.5 text-center">
-              <button
-                type="button"
-                onClick={() => (firstReviewTask ? onStartTask?.(firstReviewTask.id) : onNavigate('tasks'))}
-                className="p-2 rounded-lg bg-accent-amber/10 border border-accent-amber/20 hover:bg-accent-amber/15 transition-all"
-                data-testid="dash-horizon-today"
-              >
-                <p className="ux-kpi-value text-accent-amber">{fsrsHorizon.today}</p>
-                <p className="text-[9px] text-text-muted uppercase tracking-wide">{t('dashHorizonToday')}</p>
-              </button>
-              <div className="p-2 rounded-lg bg-surface-primary/50" data-testid="dash-horizon-tomorrow">
-                <p className="ux-kpi-value">{fsrsHorizon.tomorrow}</p>
-                <p className="text-[9px] text-text-muted uppercase tracking-wide">{t('dashHorizonTomorrow')}</p>
-              </div>
-              <div className="p-2 rounded-lg bg-surface-primary/50" data-testid="dash-horizon-3d">
-                <p className="ux-kpi-value">{fsrsHorizon.within3d}</p>
-                <p className="text-[9px] text-text-muted uppercase tracking-wide">{t('dashHorizon3d')}</p>
+                  <div className="p-2 rounded-lg bg-surface-primary/50" data-testid="dash-horizon-3d">
+                    <p className="ux-kpi-value">{fsrsHorizon.within3d}</p>
+                    <p className="text-[9px] text-text-muted uppercase tracking-wide">{t('dashHorizon3d')}</p>
+                  </div>
+                </div>
+                {fsrsDueQueue.length > 0 && onFocusWeakArea && (
+                  <LeitnerDueQueuePanel
+                    items={fsrsDueQueue}
+                    onSelect={onFocusWeakArea}
+                    lang={lang}
+                    defaultOpen={false}
+                    variant="card"
+                    className="mt-2"
+                  />
+                )}
               </div>
             </div>
-            {fsrsDueQueue.length > 0 && onFocusWeakArea && (
-              <LeitnerDueQueuePanel
-                items={fsrsDueQueue}
-                onSelect={onFocusWeakArea}
-                lang={lang}
-                defaultOpen={!isMinimal}
-                variant="card"
-                className="mt-2"
-              />
-            )}
-          </BlueprintSurface>
+          ) : (
+            <>
+              {unresolvedMisconceptions.length > 0 && (
+                <BlueprintSurface className="p-3">
+                  <SectionLabel icon={AlertTriangle}>{t('dashActiveMisconceptions')}</SectionLabel>
+                  <div className="proximity-track-wide divide-y divide-border-subtle">
+                    {unresolvedMisconceptions.slice(0, 2).map(m => (
+                      <div key={m.id} className="py-2 first:pt-0 last:pb-0 text-xs">
+                        <p className="font-medium text-accent-orange">{m.concept}</p>
+                        <p className="text-text-secondary mt-0.5">{m.description}</p>
+                        {onResolveMisconception && (
+                          <button
+                            onClick={() => onResolveMisconception(m.id)}
+                            className="mt-1.5 platform-link text-[10px] flex items-center gap-1"
+                          >
+                            <CheckCircle2 className="w-3 h-3" /> {t('dashMarkCorrected')}
+                          </button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </BlueprintSurface>
+              )}
+
+              <BlueprintSurface className="p-3">
+                <SectionLabel icon={RotateCcw}>{t('dashSpacedRepetition')}</SectionLabel>
+                <p className="text-xs text-text-tertiary">{t('dashSpacedRepetitionHint')}</p>
+                <div className="mt-2 grid grid-cols-3 gap-1.5 text-center">
+                  <button
+                    type="button"
+                    onClick={() => (firstReviewTask ? onStartTask?.(firstReviewTask.id) : onNavigate('tasks'))}
+                    className="p-2 rounded-lg bg-accent-amber/10 border border-accent-amber/20 hover:bg-accent-amber/15 transition-all"
+                    data-testid="dash-horizon-today"
+                  >
+                    <p className="ux-kpi-value text-accent-amber">{fsrsHorizon.today}</p>
+                    <p className="text-[9px] text-text-muted uppercase tracking-wide">{t('dashHorizonToday')}</p>
+                  </button>
+                  <div className="p-2 rounded-lg bg-surface-primary/50" data-testid="dash-horizon-tomorrow">
+                    <p className="ux-kpi-value">{fsrsHorizon.tomorrow}</p>
+                    <p className="text-[9px] text-text-muted uppercase tracking-wide">{t('dashHorizonTomorrow')}</p>
+                  </div>
+                  <div className="p-2 rounded-lg bg-surface-primary/50" data-testid="dash-horizon-3d">
+                    <p className="ux-kpi-value">{fsrsHorizon.within3d}</p>
+                    <p className="text-[9px] text-text-muted uppercase tracking-wide">{t('dashHorizon3d')}</p>
+                  </div>
+                </div>
+                {fsrsDueQueue.length > 0 && onFocusWeakArea && (
+                  <LeitnerDueQueuePanel
+                    items={fsrsDueQueue}
+                    onSelect={onFocusWeakArea}
+                    lang={lang}
+                    defaultOpen={!isMinimal}
+                    variant="card"
+                    className="mt-2"
+                  />
+                )}
+              </BlueprintSurface>
+            </>
+          )}
 
           {/* Activity Feed */}
           <BlueprintSurface className="p-3">

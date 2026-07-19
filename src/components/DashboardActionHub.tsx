@@ -240,11 +240,16 @@ export function DashboardActionHub({
                 className={cn('p-3.5 sm:p-4', glassCard)}
                 data-testid="dashboard-hero-study-center"
               >
-                <div className={cn(
-                  'flex flex-col gap-2.5 sm:gap-3',
-                  hubQuiet ? 'proximity-track-wide sm:flex-row sm:items-start' : 'sm:flex-row sm:items-center sm:justify-between sm:gap-4',
-                )}>
-                  <div className="min-w-0">
+                <div
+                  className={cn(
+                    'flex w-full flex-col gap-2.5 sm:gap-3',
+                    /* OPT-K18 — full-span row; Continue anchors to the trailing edge */
+                    hubQuiet
+                      ? 'sm:flex-row sm:items-center sm:justify-between'
+                      : 'sm:flex-row sm:items-center sm:justify-between sm:gap-4',
+                  )}
+                >
+                  <div className="min-w-0 flex-1">
                     <p className={cn('text-[10px] font-semibold uppercase tracking-[0.08em]', onHero ? 'text-white/80' : 'text-text-secondary')}>
                       {t('dashboardLivePreviewEyebrow')}
                     </p>
@@ -261,7 +266,7 @@ export function DashboardActionHub({
                       onClick={onOpenWorkspace}
                       data-testid="dashboard-resume-workspace"
                       className={cn(
-                        'dashboard-continue-hero shrink-0 self-start rounded-xl border px-3 py-2 text-xs font-semibold transition-colors',
+                        'dashboard-continue-hero shrink-0 self-start sm:self-center rounded-xl border px-3 py-2 text-xs font-semibold transition-colors',
                         onHero
                           ? 'border-white/20 bg-white/10 text-white hover:bg-white/15'
                           : hubQuiet
