@@ -43,6 +43,7 @@ CSS: `src/styles/cursor-clarity.css` (imported after `replit-clarity.css`).
 | **OPT-K17** | Dashboard signal pass (urgency lines + one-step + almost-there) | **shipped** |
 | **OPT-K18** | Dashboard full-span + pair narrow sections | **shipped** |
 | **OPT-K19** | Soft status red + exam primary + page rhythm | **shipped** |
+| **OPT-K20** | Cyan brand CTAs (restore preferred button ink) | **shipped** |
 
 **Default gate:** Minimal / Minimal Dark only. Blueprint untouched.  
 **Width rule:** Compact `w-14` + `lg:ml-14` and Expanded `w-56` + `lg:ml-56` — main never underlays rail.

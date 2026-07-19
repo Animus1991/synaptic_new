@@ -213,6 +213,22 @@
   color: #ffffff;
 }
 
+/* OPT-K20 — dark: brighter cyan fill + dark label for contrast */
+:is([data-theme="minimal-dark"]) .ux-primary-cta {
+  background: var(--color-brand-500);
+  color: #0d1117;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .ux-chip-solid-brand {
+  background: var(--color-brand-600);
+  color: #ffffff;
+}
+
+:is([data-theme="minimal-dark"]) .ux-chip-solid-brand {
+  background: var(--color-brand-500);
+  color: #0d1117;
+}
+
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .ux-secondary-cta {
   border-radius: var(--radius-md);
   box-shadow: none;

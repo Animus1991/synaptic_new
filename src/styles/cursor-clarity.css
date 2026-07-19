@@ -1155,17 +1155,38 @@
   max-width: none;
 }
 
+/* OPT-K20 — cyan brand CTAs (not ink black/white); keep soft hierarchy */
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm .dashboard-exam-cta.ux-chip-solid-brand {
-  background: var(--color-text-primary);
-  color: var(--color-surface-primary);
+  background: var(--color-brand-600);
+  color: #ffffff;
+}
+
+:is([data-theme="minimal-dark"]) .app-shell .dashboard-calm .dashboard-exam-cta.ux-chip-solid-brand {
+  background: var(--color-brand-500);
+  color: #0d1117;
 }
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm .dashboard-exam-cta.ux-chip-solid-brand:hover {
-  filter: brightness(1.05);
+  filter: brightness(1.06);
 }
 
-/* One primary action: when one-step strip exists, Continue stays quieter */
-:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm:has(.dashboard-one-step-strip) .dashboard-continue-hero {
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .hub-quiet .dashboard-one-step-strip .dashboard-continue-hero.ux-primary-cta,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .hub-quiet .dashboard-one-step-strip .ux-primary-cta {
+  background: var(--color-brand-600);
+  color: #ffffff;
+  border-color: transparent;
+  font-weight: 600;
+}
+
+:is([data-theme="minimal-dark"]) .hub-quiet .dashboard-one-step-strip .dashboard-continue-hero.ux-primary-cta,
+:is([data-theme="minimal-dark"]) .hub-quiet .dashboard-one-step-strip .ux-primary-cta {
+  background: var(--color-brand-500);
+  color: #0d1117;
+}
+
+/* One primary action: quiet study-center Continue only — never the one-step Execute */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm:has(.dashboard-one-step-strip) [data-testid="dashboard-resume-workspace"].dashboard-continue-hero,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm:has(.dashboard-one-step-strip) [data-testid="dashboard-hero-study-center"] .dashboard-continue-hero {
   font-weight: 500;
   border-color: var(--color-border-subtle);
   color: var(--color-text-secondary);
