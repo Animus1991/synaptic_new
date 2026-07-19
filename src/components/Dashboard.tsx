@@ -187,7 +187,11 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
 
   if (isEmpty) {
     return (
-      <div className="p-4 sm:p-6 lg:px-8 pb-24 lg:pb-6 w-full min-w-0 flex items-start justify-center pt-8 sm:pt-16">
+      <div
+        data-testid="dashboard-empty"
+        className="p-4 sm:p-6 lg:px-8 pb-24 lg:pb-6 w-full min-w-0 flex items-start justify-center pt-8 sm:pt-16"
+      >
+        {/* OPT-K2 — page shell stays full-width; copy column may stay readable. */}
         <MotionSection initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-2xl">
           <div className="text-center mb-8">
             <h1 className="text-base sm:text-lg font-bold text-text-primary mb-2">

@@ -1,4 +1,4 @@
-﻿import { ReactNode, useCallback, useEffect, useRef, useState } from 'react';
+﻿import { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   BookOpen, CheckSquare, Robot as Bot, SquaresFour as LayoutDashboard, Gear as Settings,
@@ -33,6 +33,7 @@ import { commandPaletteBadge } from '../lib/workspaceKeyboardShortcuts';
 import { quickAccessActions, type GlobalQuickActionId } from '../lib/globalActionRegistry';
 import { useMinimalTheme } from '../lib/useMinimalTheme';
 import { loadShellRailCollapsed, persistShellRailCollapsed } from '../lib/shellRailCollapsed';
+import { groupShellNavEntries, type ShellNavGroupId } from '../lib/shellNavGroups';
 
 interface ShellProps {
   children: ReactNode;
@@ -101,7 +102,8 @@ function buildMobileBarItems(
 
 const shellNavClass = (active: boolean, quiet = false, iconRail = false) =>
   cn(
-    'platform-nav-item relative w-full flex rounded-xl text-sm font-medium transition-all border',
+    'platform-nav-item relative w-full flex text-sm font-medium transition-all border',
+    quiet ? 'rounded-md' : 'rounded-xl',
     iconRail ? 'items-center justify-center gap-0 px-2 py-2.5' : 'gap-3 px-3 py-2.5',
     !iconRail && (quiet ? 'items-center' : 'items-start'),
     active
@@ -113,7 +115,10 @@ function NavActiveIndicator({ quiet = false }: { quiet?: boolean }) {
   return (
     <motion.div
       layoutId="synapseActiveNavIndicator"
-      className="absolute inset-0 rounded-xl platform-nav-active pointer-events-none"
+      className={cn(
+        'absolute inset-0 platform-nav-active pointer-events-none',
+        quiet ? 'rounded-md' : 'rounded-xl',
+      )}
       initial={false}
       // OPT-R17 — Minimal: short tween instead of spring float feel.
       transition={
@@ -184,6 +189,18 @@ export function Shell({
     onOpenWorkspace && (studyWorkspaceOpen || showMobileWorkspaceNav),
   );
   const navViews = filterNavigationRegistry(user);
+  /** OPT-K1 — Cursor-like section groups under Minimal (flat list on Blueprint). */
+  const navGroups = useMemo(
+    () => (quietNav ? groupShellNavEntries(navViews) : [{ id: 'study' as ShellNavGroupId, entries: navViews }]),
+    [quietNav, navViews],
+  );
+  const showNavGroupLabels = quietNav && !iconRail;
+  const navGroupLabel = (id: ShellNavGroupId) => {
+    if (id === 'insights') return shellUx.navGroupInsights;
+    if (id === 'organization') return shellUx.navGroupOrganization;
+    if (id === 'account') return shellUx.navGroupAccount;
+    return shellUx.navGroupStudy;
+  };
   const mobileNavItems = buildMobileBarItems(
     navViews,
     showMobileWorkspaceNav,
@@ -275,81 +292,90 @@ export function Shell({
               <span className={cn(iconRail ? 'sr-only' : 'flex-1 text-left truncate')}>{t('wellnessTakeBreath')}</span>
             </button>
           )}
-          {navViews.map((item) => {
-            const NavIcon = SHELL_NAV_ICONS[item.view];
-            const insertWorkspaceAfter = item.view === 'agent';
-            const label = t(item.labelKey);
-            const subtitle = item.subtitleKey ? t(item.subtitleKey) : undefined;
-            const tip = subtitle ? `${label} — ${subtitle}` : label;
-            return (
-              <div key={item.view}>
-                <button
-                  {...navButtonProps(item.view)}
-                  onClick={() => onNavigate(item.view)}
-                  title={tip}
-                  aria-label={tip}
-                  className={shellNavClass(currentView === item.view && !studyWorkspaceOpen, quietNav, iconRail)}
-                >
-                  {currentView === item.view && !studyWorkspaceOpen && (
-                    <NavActiveIndicator quiet={quietNav} />
-                  )}
-                  <NavIcon className="w-5 h-5 shrink-0 relative z-[1]" />
-                  <span className={cn(iconRail ? 'sr-only' : 'flex-1 text-left min-w-0 relative z-[1]')}>
-                    <span className="block truncate">{label}</span>
-                    {subtitle && !quietNav && !iconRail && (
-                      <span className="platform-nav-subtitle block text-[11px] font-normal text-text-tertiary truncate mt-0.5">
-                        {subtitle}
-                      </span>
-                    )}
-                  </span>
-                  {item.view === 'tasks' && stats.reviewsDue > 0 && (
-                    <span
-                      title={tasksReviewBadgeHint}
-                      className={cn(
-                        'text-xs ws-chip-danger font-semibold',
-                        iconRail
-                          ? 'absolute -right-0.5 -top-0.5 z-[2] min-w-[1rem] rounded-full px-1 py-0 text-[9px] leading-tight'
-                          : 'ml-auto px-2 py-0.5 rounded-full',
-                      )}
+          {navGroups.map((group) => (
+            <div key={group.id} className="shell-nav-group" data-nav-group={group.id}>
+              {showNavGroupLabels && (
+                <p className="shell-nav-group-label" aria-hidden>
+                  {navGroupLabel(group.id)}
+                </p>
+              )}
+              {group.entries.map((item) => {
+                const NavIcon = SHELL_NAV_ICONS[item.view];
+                const insertWorkspaceAfter = item.view === 'agent';
+                const label = t(item.labelKey);
+                const subtitle = item.subtitleKey ? t(item.subtitleKey) : undefined;
+                const tip = subtitle ? `${label} — ${subtitle}` : label;
+                return (
+                  <div key={item.view}>
+                    <button
+                      {...navButtonProps(item.view)}
+                      onClick={() => onNavigate(item.view)}
+                      title={tip}
+                      aria-label={tip}
+                      className={shellNavClass(currentView === item.view && !studyWorkspaceOpen, quietNav, iconRail)}
                     >
-                      {stats.reviewsDue}
-                    </span>
-                  )}
-                </button>
-                {insertWorkspaceAfter && showDesktopWorkspaceNav && (
-                  <button
-                    type="button"
-                    data-testid="nav-workspace"
-                    data-tour="nav-workspace"
-                    onClick={() => onOpenWorkspace?.()}
-                    {...workspaceEntryPrefetchHandlers()}
-                    title={`${t('navStudyWorkspace')} — ${t('navSubtitleWorkspace')}`}
-                    aria-label={`${t('navStudyWorkspace')} — ${t('navSubtitleWorkspace')}`}
-                    className={cn(shellNavClass(studyWorkspaceOpen, quietNav, iconRail), 'mt-1')}
-                  >
-                    <Layout className="w-5 h-5 shrink-0" />
-                    <span className={cn(iconRail ? 'sr-only' : 'flex-1 text-left min-w-0')}>
-                      <span className="block truncate">{t('navStudyWorkspace')}</span>
-                      {!quietNav && !iconRail && (
-                        <span className="platform-nav-subtitle block text-[11px] font-normal text-text-tertiary truncate mt-0.5">
-                          {t('navSubtitleWorkspace')}
+                      {currentView === item.view && !studyWorkspaceOpen && (
+                        <NavActiveIndicator quiet={quietNav} />
+                      )}
+                      <NavIcon className="w-5 h-5 shrink-0 relative z-[1]" />
+                      <span className={cn(iconRail ? 'sr-only' : 'flex-1 text-left min-w-0 relative z-[1]')}>
+                        <span className="block truncate">{label}</span>
+                        {subtitle && !quietNav && !iconRail && (
+                          <span className="platform-nav-subtitle block text-[11px] font-normal text-text-tertiary truncate mt-0.5">
+                            {subtitle}
+                          </span>
+                        )}
+                      </span>
+                      {item.view === 'tasks' && stats.reviewsDue > 0 && (
+                        <span
+                          title={tasksReviewBadgeHint}
+                          className={cn(
+                            'text-xs ws-chip-danger font-semibold',
+                            iconRail
+                              ? 'absolute -right-0.5 -top-0.5 z-[2] min-w-[1rem] rounded-full px-1 py-0 text-[9px] leading-tight'
+                              : 'ml-auto px-2 py-0.5 rounded-full',
+                          )}
+                        >
+                          {stats.reviewsDue}
                         </span>
                       )}
-                    </span>
-                    {!iconRail && (studyWorkspaceOpen ? (
-                      <span className="ml-auto type-micro ws-chip-brand px-2 py-0.5 rounded-full font-semibold whitespace-nowrap">
-                        {t('navContinuingHere')}
-                      </span>
-                    ) : workspaceLive?.snapshot.toolLabel ? (
-                      <span className="ml-auto type-micro ws-chip-neutral px-2 py-0.5 rounded-full font-semibold truncate max-w-[5.5rem]">
-                        {workspaceLive.snapshot.toolLabel}
-                      </span>
-                    ) : null)}
-                  </button>
-                )}
-              </div>
-            );
-          })}
+                    </button>
+                    {insertWorkspaceAfter && showDesktopWorkspaceNav && (
+                      <button
+                        type="button"
+                        data-testid="nav-workspace"
+                        data-tour="nav-workspace"
+                        onClick={() => onOpenWorkspace?.()}
+                        {...workspaceEntryPrefetchHandlers()}
+                        title={`${t('navStudyWorkspace')} — ${t('navSubtitleWorkspace')}`}
+                        aria-label={`${t('navStudyWorkspace')} — ${t('navSubtitleWorkspace')}`}
+                        className={cn(shellNavClass(studyWorkspaceOpen, quietNav, iconRail), 'mt-1')}
+                      >
+                        <Layout className="w-5 h-5 shrink-0" />
+                        <span className={cn(iconRail ? 'sr-only' : 'flex-1 text-left min-w-0')}>
+                          <span className="block truncate">{t('navStudyWorkspace')}</span>
+                          {!quietNav && !iconRail && (
+                            <span className="platform-nav-subtitle block text-[11px] font-normal text-text-tertiary truncate mt-0.5">
+                              {t('navSubtitleWorkspace')}
+                            </span>
+                          )}
+                        </span>
+                        {!iconRail && (studyWorkspaceOpen ? (
+                          <span className="ml-auto type-micro ws-chip-brand px-2 py-0.5 rounded-full font-semibold whitespace-nowrap">
+                            {t('navContinuingHere')}
+                          </span>
+                        ) : workspaceLive?.snapshot.toolLabel ? (
+                          <span className="ml-auto type-micro ws-chip-neutral px-2 py-0.5 rounded-full font-semibold truncate max-w-[5.5rem]">
+                            {workspaceLive.snapshot.toolLabel}
+                          </span>
+                        ) : null)}
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          ))}
           {onQuickAccess && quickActions.length > 0 && (
             <>
               {!iconRail && (
@@ -372,8 +398,8 @@ export function Shell({
                   aria-label={actionLabel}
                   className={cn(shellNavClass(false, quietNav, iconRail), 'py-2')}
                 >
-                  <span className={cn('ux-quick-icon', visual.washClass)}>
-                    <visual.icon className={cn('w-3 h-3', visual.inkClass)} />
+                  <span className={cn('ux-quick-icon', quietNav ? 'bg-surface-secondary' : visual.washClass)}>
+                    <visual.icon className={cn('w-3 h-3', quietNav ? 'text-text-secondary' : visual.inkClass)} />
                   </span>
                   <span className={cn(iconRail ? 'sr-only' : 'text-xs truncate')}>{actionLabel}</span>
                 </button>

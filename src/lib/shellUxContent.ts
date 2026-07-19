@@ -2,6 +2,11 @@ import type { Lang } from './i18n';
 
 export type ShellUxContent = {
   quickAccessTitle: string;
+  /** OPT-K1 — Cursor-like nav group labels */
+  navGroupStudy: string;
+  navGroupInsights: string;
+  navGroupOrganization: string;
+  navGroupAccount: string;
   quickNoteAnalysis: string;
   quickUpload: string;
   quickWorkspace: string;
@@ -16,6 +21,10 @@ export type ShellUxContent = {
 
 const EN: ShellUxContent = {
   quickAccessTitle: 'Quick Access',
+  navGroupStudy: 'Study',
+  navGroupInsights: 'Insights',
+  navGroupOrganization: 'Organization',
+  navGroupAccount: 'Account',
   quickNoteAnalysis: 'Note Analysis',
   quickUpload: 'Upload / Generate',
   quickWorkspace: 'Study Workspace',
@@ -30,6 +39,10 @@ const EN: ShellUxContent = {
 
 const EL: ShellUxContent = {
   quickAccessTitle: 'Γρήγορη πρόσβαση',
+  navGroupStudy: 'Μελέτη',
+  navGroupInsights: 'Ανάλυση',
+  navGroupOrganization: 'Οργάνωση',
+  navGroupAccount: 'Λογαριασμός',
   quickNoteAnalysis: 'Ανάλυση σημειώσεων',
   quickUpload: 'Ανέβασμα / Δημιουργία',
   quickWorkspace: 'Χώρος μελέτης',

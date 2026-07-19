@@ -344,6 +344,15 @@ Constraints for all OPT-R*: no typography/button/modal scale-up; no functional r
 | OPT-R16 | Wave R16 — Settings IDE-like section layout | P2 | **shipped** | Left section rail + single-column content under Minimal; all sections kept; Blueprint masonry unchanged |
 | OPT-R17 | Wave R17 — Motion/skeleton/focus Minimal polish | P2 | **shipped** | Opacity-only entrances; flatter skeletons; quieter AA focus rings; no card float |
 
+### Cursor-like clarity (OPT-K) — zero feature removal
+
+| ID | Item | Priority | Status | Notes |
+| -- | ---- | -------- | ------ | ----- |
+| OPT-K1 | Shell nav groups + neutral active pill | P2 | **shipped** | Study/Insights/Org/Account labels; no brand accent bar; all `nav-*` kept |
+| OPT-K2 | Full remaining main width (no sidebar overlap) | P2 | **shipped** | `#platform-main` / `.platform-page` max-w-none asserted under Minimal |
+| OPT-K3 | Flat hairline panels + quiet header icon | P2 | **shipped** | `cursor-clarity.css`; tint washes neutralized on default surfaces |
+| OPT-K4–K8 | Residual Cursor calm (rows, hubs, CTAs) | P2 | **planned** | See `CURSOR_CLARITY_ENHANCEMENT_PLAN.md` |
+
 ### Primer-inspired minimal (OPT-M) — zero feature removal
 
 | ID | Item | Priority | Status |

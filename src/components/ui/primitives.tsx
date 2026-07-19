@@ -63,7 +63,14 @@ export function PageHeader({
         {eyebrow && <p className="ws-eyebrow mb-1 text-text-secondary">{eyebrow}</p>}
         <div className="flex items-center gap-2">
           {Icon && (
-            <span className="grid h-7 w-7 shrink-0 place-items-center rounded-lg border border-brand-500/25 bg-brand-500/10 text-brand-600">
+            <span
+              className={cn(
+                'ux-page-header-icon grid h-7 w-7 shrink-0 place-items-center rounded-lg border',
+                isMinimal
+                  ? 'border-border-subtle bg-transparent text-text-secondary'
+                  : 'border-brand-500/25 bg-brand-500/10 text-brand-600',
+              )}
+            >
               <Icon className="h-3.5 w-3.5" />
             </span>
           )}
