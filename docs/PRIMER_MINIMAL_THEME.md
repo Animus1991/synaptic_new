@@ -38,6 +38,15 @@ This is **not** a GitHub clone (no Octocat/Primer brand assets).
 | OPT-M6 | Density Comfortable / Compact (`data-density`) |
 | OPT-M7 | Classic overflow menu + ContextBar status inbox |
 | OPT-M8 | Zen chip discoverability; landing mild vs app-shell strict |
+| OPT-M9 | Unified strip bus (OCR/QA/stale → Status panel) + screenshot matrix |
+
+## OPT-M9 — Status bus
+
+- `WorkspaceStatusBusProvider` wraps the study workspace body.
+- `WorkspacePanelWarnStrip` / `WorkspaceQaStatusStrip` register into the bus.
+- Under **Minimal** or **Compact**, strips are visually mirrored (`data-status-mirrored`) into `WorkspaceStatusPanel`; DOM + actions stay intact.
+- Clicking a Status item temporarily reveals the in-tool strip (flash + scroll).
+- Screenshot acceptance checklist: `docs/PRIMER_MINIMAL_SCREENSHOT_MATRIX.md`.
 
 ## Acceptance
 
@@ -45,5 +54,6 @@ This is **not** a GitHub clone (no Octocat/Primer brand assets).
 - Orbs/glows off in **app-shell**; landing may keep mild orbs  
 - Compact density folds classic chrome into overflow; all actions remain in the menu  
 - Status inbox folds context chips; expand reveals every chip action  
+- Unified Status panel lists OCR/QA/stale strips; reveal restores in-tool visibility  
 - Header theme cycle includes Minimal → Minimal Dark  
 - Existing users with stored `blueprint` are unaffected  

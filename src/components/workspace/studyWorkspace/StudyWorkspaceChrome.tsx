@@ -12,6 +12,7 @@ import { CompactStudyTimer } from '../CompactStudyTimer';
 import { ConceptLensChromeStrip } from '../ConceptLensChromeStrip';
 import { TheoryPracticeLensToggle } from '../TheoryPracticeLensToggle';
 import { CollapsibleChromeSection } from '../CollapsibleChromeSection';
+import { WorkspaceStatusPanel } from '../WorkspaceStatusPanel';
 import { nextActionLabel } from '../../../lib/nextActionEngine';
 import { commandPaletteBadge } from '../../../lib/workspaceKeyboardShortcuts';
 import type { MobileIntelTab } from '../WorkspaceMobileIntelligenceTabs';
@@ -250,6 +251,7 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
             {/* DESKTOP NOTEBOOKLM MINIMAL CHROME                              */}
             {/* ============================================================ */}
             {!chromeHidden && !isMobile && notebookMode && (
+              <>
               <div
                 className="relative z-10 flex items-center justify-between gap-2 px-4 py-2.5 border-b border-border-subtle bg-surface-card shrink-0"
                 data-testid="notebook-workspace-chrome"
@@ -301,6 +303,8 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
                   )}
                 </div>
               </div>
+              <WorkspaceStatusPanel defaultOpen={false} />
+              </>
             )}
 
             {/* ============================================================ */}
@@ -461,7 +465,9 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
             )}
       
             {!chromeHidden && !notebookMode && (
-              <WorkspaceContextBar
+              <>
+                <WorkspaceStatusPanel defaultOpen={useClassicOverflow} />
+                <WorkspaceContextBar
                 context={workspaceContext}
                 lang={lang}
                 sourceQuality={sourceQualityScore ?? null}
@@ -492,6 +498,7 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
                 studyRoomOpen={studyRoomOpen}
                 studyRoomInHeader
               />
+              </>
             )}
 
             {!chromeHidden && !isMobile && !notebookMode && (

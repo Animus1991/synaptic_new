@@ -346,6 +346,7 @@ Constraints for all OPT-R*: no typography/button/modal scale-up; no functional c
 | OPT-M6 | Chrome density Comfortable/Compact + `data-density` | P2 | **shipped** | Settings; `chromeDensity.ts`; EL defaults comfortable |
 | OPT-M7 | Classic chrome overflow parity + Status inbox | P2 | **shipped** | classic menu; ContextBar `statusInbox` |
 | OPT-M8 | Zen discoverability + landing/app orb split | P2 | **shipped** | Zen chip label; landing orbs mild under minimal |
+| OPT-M9 | Unified strip bus (OCR/QA/stale → Status) + screenshot matrix | P2 | **shipped** | `workspaceStatusBus`; `WorkspaceStatusPanel`; matrix doc |
 
 ### Replit study — explicit non-borrows
 

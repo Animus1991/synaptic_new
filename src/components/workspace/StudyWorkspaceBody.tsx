@@ -1,6 +1,7 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { WorkspaceProvider } from './WorkspaceProvider';
 import { WorkspaceEmptyActionsProvider } from './WorkspaceEmptyActionsContext';
+import { WorkspaceStatusBusProvider } from '../../lib/workspaceStatusBus';
 import { cn } from '../../utils/cn';
 import { useStudyWorkspace } from './studyWorkspace/useStudyWorkspace';
 import { StudyWorkspaceChrome } from './studyWorkspace/StudyWorkspaceChrome';
@@ -9,12 +10,23 @@ import { NotebookWorkspaceLayout } from './studyWorkspace/NotebookWorkspaceLayou
 import { StudyWorkspaceOverlays } from './studyWorkspace/StudyWorkspaceOverlays';
 import type { StudyWorkspaceProps } from './studyWorkspace/types';
 import { markWorkspaceBodyReady } from '../../lib/workspacePerf';
+import { useMinimalTheme } from '../../lib/useMinimalTheme';
+import { resolveChromeDensity } from '../../lib/chromeDensity';
 
 export type { StudyWorkspaceProps } from './studyWorkspace/types';
 
 /** Heavy workspace body — separate chunk from thin StudyWorkspace shell (1C). */
 export function StudyWorkspaceBody(props: StudyWorkspaceProps) {
   const model = useStudyWorkspace(props);
+  const isMinimal = useMinimalTheme();
+  const density = resolveChromeDensity(
+    props.userSettings?.chromeDensity,
+    props.userSettings?.language === 'el' ? 'el' : 'en',
+  );
+  const mirrorInPanel = useMemo(
+    () => isMinimal || density === 'compact',
+    [isMinimal, density],
+  );
 
   useEffect(() => {
     markWorkspaceBodyReady();
@@ -28,9 +40,11 @@ export function StudyWorkspaceBody(props: StudyWorkspaceProps) {
       hasSource={model.noteBundle.hasSource}
       pipelineVersion={model.noteBundle.pipelineVersion}
     >
+      <WorkspaceStatusBusProvider mirrorInPanel={mirrorInPanel}>
       <WorkspaceEmptyActionsProvider resolve={model.resolveEmptyActions}>
       <div
         data-ws-theme="warm"
+        data-status-mirror={mirrorInPanel ? 'true' : undefined}
         className={cn(
           model.agentSplit
             ? 'relative h-full w-full bg-surface-primary flex flex-col'
@@ -48,6 +62,7 @@ export function StudyWorkspaceBody(props: StudyWorkspaceProps) {
         <StudyWorkspaceOverlays model={model} />
       </div>
       </WorkspaceEmptyActionsProvider>
+      </WorkspaceStatusBusProvider>
     </WorkspaceProvider>
   );
 }
