@@ -171,3 +171,5 @@ These are **organizational / power-user** patterns inspired by GitHub, mapped to
 **Yes — this document is the exhaustive enhancement plan:** principles, shipped inventory, GitHub-adapted feature map, aesthetic rules, forward waves, and non-goals — all under **zero functionality removal**.
 
 Next: **M20 screenshot QA** — dump via `npm run capture:primer-minimal`, human marks Pass? in `docs/PRIMER_MINIMAL_SCREENSHOT_MATRIX.md`. Engineering waves M0–M19 complete under zero feature removal.
+
+**Parallel aesthetic track:** ChatGPT-calm conversation UI — see `docs/CHATGPT_MINIMAL_ENHANCEMENT_PLAN.md` (OPT-C0–C8). Does not replace Primer; softens Agent/shell under Minimal.
