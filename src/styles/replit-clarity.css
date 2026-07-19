@@ -424,3 +424,44 @@
   letter-spacing: 0.02em;
   color: var(--color-text-secondary, #424a53);
 }
+
+/* ── OPT-R16 — Settings IDE-like section layout ─────────────────────────── */
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .settings-ide .settings-ide-nav-item.is-active {
+  background: color-mix(in srgb, var(--color-surface-secondary, #f6f8fa) 70%, transparent);
+  color: var(--color-text-primary, #1f2328);
+  box-shadow: inset 2px 0 0 var(--color-brand-600, #0969da);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .settings-ide .settings-ide-section {
+  box-shadow: none;
+  border-radius: 0.45rem;
+  border-color: color-mix(in srgb, var(--color-border-subtle, #d0d7de) 80%, transparent);
+  background: color-mix(in srgb, var(--color-surface-secondary, #f6f8fa) 28%, transparent);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .settings-ide .settings-ide-section-title {
+  font-size: 0.8rem;
+  letter-spacing: 0.01em;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .settings-ide .settings-ide-section-title svg {
+  color: var(--color-text-tertiary, #656d76);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .settings-ide .settings-ide-footer {
+  box-shadow: none;
+  border-color: color-mix(in srgb, var(--color-border-subtle, #d0d7de) 75%, transparent);
+  background: transparent;
+}
+
+@media (min-width: 1024px) {
+  :is([data-theme="minimal"], [data-theme="minimal-dark"]) .settings-ide .settings-ide-nav {
+    border-right: 1px solid color-mix(in srgb, var(--color-border-subtle, #d0d7de) 70%, transparent);
+    padding-right: 0.75rem;
+  }
+
+  :is([data-theme="minimal"], [data-theme="minimal-dark"]) .settings-ide .settings-ide-nav-item.is-active {
+    border-radius: 0.35rem;
+  }
+}

@@ -1,4 +1,4 @@
-import { useState, useRef, useMemo } from 'react';
+import { useState, useRef, useMemo, useEffect } from 'react';
 import {
   Brain, BookOpen, Target, Zap,
   Gauge, Shield, Calendar, Palette, Database, KeyRound,
@@ -143,38 +143,88 @@ export function Settings({
     ],
     [c, t],
   );
+  const [activeSection, setActiveSection] = useState(settingsSections[0]?.id ?? 'settings-teaching');
+
+  // OPT-R16 — highlight the section nearest the viewport top while scrolling (Minimal IDE nav).
+  useEffect(() => {
+    if (!isMinimal) return;
+    const elements = settingsSections
+      .map((section) => document.getElementById(section.id))
+      .filter((el): el is HTMLElement => Boolean(el));
+    if (elements.length === 0) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+        const id = visible[0]?.target?.id;
+        if (id) setActiveSection(id);
+      },
+      { rootMargin: '-18% 0px -62% 0px', threshold: [0, 0.2, 0.45] },
+    );
+    elements.forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
+  }, [isMinimal, settingsSections]);
 
   return (
-    <Page className={cn('ux-flow-shell', isMinimal && 'enterprise-calm')}>
+    <Page className={cn('ux-flow-shell', isMinimal && 'enterprise-calm settings-ide')}>
       <PageHeader
         title={c.pageTitle}
         subtitle={c.pageSubtitle}
         icon={Brain}
       />
 
+      <div
+        className={cn(
+          isMinimal &&
+            'settings-ide-layout lg:grid lg:grid-cols-[13.5rem_minmax(0,1fr)] lg:items-start lg:gap-8',
+        )}
+      >
       <nav
-        className="ux-settings-nav sticky top-16 z-20 -mx-1 mb-4 flex gap-2 overflow-x-auto pb-2 pt-1"
+        className={cn(
+          'ux-settings-nav sticky top-16 z-20',
+          isMinimal
+            ? 'settings-ide-nav -mx-1 mb-4 flex gap-1 overflow-x-auto pb-2 pt-1 lg:mx-0 lg:mb-0 lg:max-h-[calc(100dvh-5.5rem)] lg:flex-col lg:gap-0.5 lg:overflow-x-visible lg:overflow-y-auto lg:pb-0'
+            : '-mx-1 mb-4 flex gap-2 overflow-x-auto pb-2 pt-1',
+        )}
         aria-label={t('settingsSectionNav')}
         data-testid="settings-section-nav"
       >
-        {settingsSections.map((section) => (
-          <a
-            key={section.id}
-            href={`#${section.id}`}
-            className="platform-pill shrink-0 px-3 py-1.5 text-xs font-medium text-text-secondary hover:text-brand-700"
-          >
-            {section.label}
-          </a>
-        ))}
+        {settingsSections.map((section) => {
+          const isActive = isMinimal && activeSection === section.id;
+          return (
+            <a
+              key={section.id}
+              href={`#${section.id}`}
+              aria-current={isActive ? 'true' : undefined}
+              className={cn(
+                isMinimal
+                  ? cn(
+                      'settings-ide-nav-item shrink-0 rounded-md px-2.5 py-1.5 text-left text-[11px] font-medium text-text-secondary transition-colors hover:bg-surface-hover hover:text-text-primary lg:w-full',
+                      isActive && 'is-active',
+                    )
+                  : 'platform-pill shrink-0 px-3 py-1.5 text-xs font-medium text-text-secondary hover:text-brand-700',
+              )}
+              onClick={() => {
+                if (isMinimal) setActiveSection(section.id);
+              }}
+            >
+              {section.label}
+            </a>
+          );
+        })}
       </nav>
 
-      {/* Wave P-L01 — masonry column flow. CSS multi-column packs
-          asymmetric-height section cards greedily top-to-bottom left-to-right,
-          eliminating the large vertical whitespace that CSS Grid + items-start
-          leaves under the shorter column. `break-inside-avoid` per child pins
-          each SettingsSection so it never splits across columns.
-          Falls back to single column below `lg` breakpoint. */}
-      <div className="lg:columns-2 lg:gap-6 [&>*]:mb-6 [&>*]:break-inside-avoid">
+      {/* Wave P-L01 — masonry column flow (Blueprint). OPT-R16 Minimal uses a single
+          IDE-like content column beside the section rail instead of multi-column cards. */}
+      <div
+        className={cn(
+          isMinimal
+            ? 'settings-ide-content space-y-3'
+            : 'lg:columns-2 lg:gap-6 [&>*]:mb-6 [&>*]:break-inside-avoid',
+        )}
+      >
       <SettingsSection id="settings-teaching" title={c.sectionTeachingApproach} icon={<Brain className="w-5 h-5 text-brand-400" />} delay={0.05}>
         <ToggleRow label={c.labelTeachingStyle} options={c.teachingStyleOptions} value={settings.teachingStyle} onChange={v => onUpdate({ teachingStyle: v as UserSettings['teachingStyle'] })} />
         <ToggleRow label={c.labelExplanationDepth} options={c.explanationDepthOptions} value={settings.explanationDepth} onChange={v => onUpdate({ explanationDepth: v as UserSettings['explanationDepth'] })} />
@@ -687,8 +737,9 @@ export function Settings({
         )}
       </SettingsSection>
       </div>
+      </div>
 
-      <div className="platform-panel-soft">
+      <div className={cn('platform-panel-soft', isMinimal && 'settings-ide-footer')}>
         <p className="text-xs text-text-tertiary leading-relaxed flex items-start gap-2">
           <Zap className="w-4 h-4 text-brand-400 shrink-0 mt-0.5" />
           {c.footerNote}
@@ -699,9 +750,23 @@ export function Settings({
 }
 
 function SettingsSection({ id, title, icon, children, delay }: { id: string; title: string; icon: React.ReactNode; children: React.ReactNode; delay: number }) {
+  const isMinimal = useMinimalTheme();
   return (
-    <AnimatedCard id={id} delay={delay} padding="md" className="scroll-mt-28">
-      <h3 className="ws-serif text-sm font-medium flex items-center gap-2 mb-4 text-text-primary">{icon}{title}</h3>
+    <AnimatedCard
+      id={id}
+      delay={isMinimal ? 0 : delay}
+      padding="md"
+      className={cn('scroll-mt-28', isMinimal && 'settings-ide-section')}
+    >
+      <h3
+        className={cn(
+          'ws-serif text-sm font-medium flex items-center gap-2 mb-4 text-text-primary',
+          isMinimal && 'settings-ide-section-title',
+        )}
+      >
+        {icon}
+        {title}
+      </h3>
       <div className="space-y-4">{children}</div>
     </AnimatedCard>
   );
