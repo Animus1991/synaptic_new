@@ -35,10 +35,15 @@ This is **not** a GitHub clone (no Octocat/Primer brand assets).
 | OPT-M3 | Gate orbs / glow / heavy motion under minimal* |
 | OPT-M4 | Calm panels / CTAs / conflict surfaces under minimal* |
 | OPT-M5 | Tests + visual acceptance (blueprint stays default) |
+| OPT-M6 | Density Comfortable / Compact (`data-density`) |
+| OPT-M7 | Classic overflow menu + ContextBar status inbox |
+| OPT-M8 | Zen chip discoverability; landing mild vs app-shell strict |
 
 ## Acceptance
 
 - Switching to Minimal does not hide any tool, strip action, or settings section  
-- Orbs/glows off; cards border-first; radius tighter  
+- Orbs/glows off in **app-shell**; landing may keep mild orbs  
+- Compact density folds classic chrome into overflow; all actions remain in the menu  
+- Status inbox folds context chips; expand reveals every chip action  
 - Header theme cycle includes Minimal → Minimal Dark  
 - Existing users with stored `blueprint` are unaffected  

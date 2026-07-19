@@ -557,6 +557,12 @@ export function Settings({
       <SettingsSection id="settings-interface" title={c.sectionInterface} icon={<Palette className="w-5 h-5 text-brand-300" />} delay={0.35}>
         <ToggleRow label={c.labelTheme} options={c.themeOptions} value={settings.theme} onChange={v => onUpdate({ theme: v as UserSettings['theme'] })} />
         <ToggleRow label={c.labelLanguage} options={c.languageOptions} value={settings.language} onChange={v => onUpdate({ language: v as UserSettings['language'] })} />
+        <ToggleRow
+          label={c.labelChromeDensity}
+          options={c.chromeDensityOptions}
+          value={settings.chromeDensity ?? 'comfortable'}
+          onChange={v => onUpdate({ chromeDensity: v as UserSettings['chromeDensity'] })}
+        />
       </SettingsSection>
 
       <div className="lg:col-span-2">

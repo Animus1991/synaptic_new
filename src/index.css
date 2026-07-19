@@ -686,14 +686,20 @@
   --focus-ring-color: var(--color-brand-500);
 }
 
-/* OPT-M3/M4 — shared chrome flattening (zero feature removal) */
-:is([data-theme="minimal"], [data-theme="minimal-dark"]) .platform-blueprint-orbs,
-:is([data-theme="minimal"], [data-theme="minimal-dark"]) .landing-hero-orbs,
-:is([data-theme="minimal"], [data-theme="minimal-dark"]) .landing-default-orbs,
-:is([data-theme="minimal"], [data-theme="minimal-dark"]) .platform-hero-glow-orbs {
+/* OPT-M3/M4 — shared chrome flattening (zero feature removal)
+   Landing keeps mild atmosphere; app-shell is strict (plan §4.D). */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .platform-blueprint-orbs,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .platform-hero-glow-orbs {
   display: none !important;
   opacity: 0 !important;
   pointer-events: none !important;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .landing-page .landing-hero-orbs,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .landing-page .landing-default-orbs {
+  display: block;
+  opacity: 0.35;
+  pointer-events: none;
 }
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) :is(.glass, .glass-strong, .blueprint-surface, .blueprint-surface-nest, .blueprint-surface-hint) {
@@ -801,6 +807,28 @@
     animation: none !important;
     transform: none !important;
   }
+}
+
+/* OPT-M density — Compact tightens chrome padding without removing controls */
+[data-density="compact"] .app-shell {
+  --space-chrome-y: 0.375rem;
+}
+[data-density="compact"] .ws-chrome-btn,
+[data-density="compact"] [data-testid="classic-chrome-menu"],
+[data-density="compact"] [data-testid="notebook-chrome-menu"] {
+  min-height: 2rem;
+  min-width: 2rem;
+}
+[data-density="comfortable"] .app-shell {
+  --space-chrome-y: 0.5rem;
+}
+
+/* Under compact + minimal, tool warn/QA strips stay reachable but visually quieter */
+[data-density="compact"]:is([data-theme="minimal"], [data-theme="minimal-dark"]) .ws-tool-body [data-testid$="-strip"],
+[data-density="compact"]:is([data-theme="minimal"], [data-theme="minimal-dark"]) .ws-tool-body [class*="StatusStrip"],
+[data-density="compact"]:is([data-theme="minimal"], [data-theme="minimal-dark"]) .ws-tool-body [class*="WarnStrip"] {
+  border-radius: var(--radius-sm);
+  box-shadow: none;
 }
 
 /* Blueprint — Option-B glass dark (QuillLoop prototype aesthetic); does not alter dark/light/spectrum */

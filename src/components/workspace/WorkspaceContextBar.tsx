@@ -1,4 +1,5 @@
-import { HelpCircle, Sparkles } from '@/lib/lucide-shim';
+import { useState } from 'react';
+import { HelpCircle, Sparkles, ChevronDown, ChevronRight } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
 import type { WorkspaceContextBreadcrumb } from '../../lib/workspaceContextModel';
 import type { WorkspaceSourceIntelligence } from '../../lib/workspaceNoteContent';
@@ -27,6 +28,11 @@ type Props = {
   studyRoomOpen?: boolean;
   /** When Together is already in the workspace header, hide the duplicate chip here. */
   studyRoomInHeader?: boolean;
+  /**
+   * OPT-M status inbox — keep breadcrumb/focus visible; fold quality/weak/concepts/next into Status.
+   * All actions remain reachable when expanded.
+   */
+  statusInbox?: boolean;
   className?: string;
 };
 
@@ -64,26 +70,16 @@ export function WorkspaceContextBar({
   onOpenStudyRoom,
   studyRoomOpen = false,
   studyRoomInHeader = false,
+  statusInbox = false,
   className,
 }: Props) {
   const { t } = useI18n();
+  const [inboxOpen, setInboxOpen] = useState(false);
   const score = sourceQuality ?? sourceIntelligence?.score ?? null;
   const band = typeof score === 'number' ? qualityBand(score) : null;
 
-  return (
-    <div
-      className={cn(
-        'relative z-10 flex min-h-[2.25rem] max-h-12 items-center gap-1.5 border-b border-border-subtle/70 bg-surface-primary/85 px-2 py-1 shrink-0 overflow-x-auto scrollbar-none',
-        className,
-      )}
-      data-testid="workspace-context-bar"
-    >
-      <div className="hidden min-w-0 max-w-[28%] truncate text-[10px] text-text-muted sm:block" title={context.sectionLabel}>
-        <span className="font-medium text-text-secondary">{context.courseLabel}</span>
-        <span className="mx-1">/</span>
-        <span className="text-text-primary">{context.sectionLabel}</span>
-      </div>
-
+  const statusChips = (
+    <>
       {typeof score === 'number' && band && (
         <button
           type="button"
@@ -108,16 +104,6 @@ export function WorkspaceContextBar({
         />
       )}
 
-      {focusConcept && (
-        <span
-          className="ws-eyebrow max-w-[8rem] truncate shrink rounded-full border border-brand-500/30 bg-brand-500/10 px-2 py-0.5 text-[10px] text-brand-800"
-          data-testid="context-bar-focus-chip"
-          title={focusConcept}
-        >
-          {focusConcept}
-        </span>
-      )}
-
       {showNextAction && onNextAction && (
         <button
           type="button"
@@ -137,9 +123,7 @@ export function WorkspaceContextBar({
           aria-pressed={weakOpen}
           className={cn(
             'ws-eyebrow shrink-0 rounded-full border px-2 py-0.5 text-[10px]',
-            weakOpen
-              ? 'ws-chip-danger'
-              : 'ws-chip-neutral',
+            weakOpen ? 'ws-chip-danger' : 'ws-chip-neutral',
           )}
           data-testid="context-bar-weak-chip"
         >
@@ -154,9 +138,7 @@ export function WorkspaceContextBar({
           aria-pressed={conceptsOpen}
           className={cn(
             'ws-eyebrow shrink-0 rounded-full border px-2 py-0.5 text-[10px]',
-            conceptsOpen
-              ? 'ws-chip-brand'
-              : 'ws-chip-neutral',
+            conceptsOpen ? 'ws-chip-brand' : 'ws-chip-neutral',
           )}
           data-testid="context-bar-concepts-chip"
         >
@@ -181,6 +163,59 @@ export function WorkspaceContextBar({
         >
           <HelpCircle className="h-3.5 w-3.5" aria-hidden />
         </button>
+      )}
+    </>
+  );
+
+  return (
+    <div
+      className={cn(
+        'relative z-10 flex min-h-[2.25rem] items-center gap-1.5 border-b border-border-subtle/70 bg-surface-primary/85 px-2 py-1 shrink-0',
+        statusInbox ? 'flex-wrap max-h-none' : 'max-h-12 overflow-x-auto scrollbar-none',
+        className,
+      )}
+      data-testid="workspace-context-bar"
+      data-status-inbox={statusInbox || undefined}
+    >
+      <div className="hidden min-w-0 max-w-[28%] truncate text-[10px] text-text-muted sm:block" title={context.sectionLabel}>
+        <span className="font-medium text-text-secondary">{context.courseLabel}</span>
+        <span className="mx-1">/</span>
+        <span className="text-text-primary">{context.sectionLabel}</span>
+      </div>
+
+      {focusConcept && (
+        <span
+          className="ws-eyebrow max-w-[8rem] truncate shrink rounded-full border border-brand-500/30 bg-brand-500/10 px-2 py-0.5 text-[10px] text-brand-800"
+          data-testid="context-bar-focus-chip"
+          title={focusConcept}
+        >
+          {focusConcept}
+        </span>
+      )}
+
+      {statusInbox ? (
+        <div className="ml-auto flex min-w-0 flex-1 flex-col items-stretch sm:max-w-[70%]">
+          <button
+            type="button"
+            className="inline-flex w-fit items-center gap-1 self-end rounded-md border border-border-default px-2 py-0.5 text-[10px] font-medium text-text-secondary hover:bg-surface-hover hover:text-text-primary"
+            aria-expanded={inboxOpen}
+            data-testid="workspace-status-inbox-toggle"
+            onClick={() => setInboxOpen((v) => !v)}
+          >
+            {t('chromeMoreStatus')}
+            {inboxOpen ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
+          </button>
+          {inboxOpen ? (
+            <div
+              className="mt-1 flex flex-wrap items-center gap-1.5 border-t border-border-subtle pt-1"
+              data-testid="workspace-status-inbox"
+            >
+              {statusChips}
+            </div>
+          ) : null}
+        </div>
+      ) : (
+        statusChips
       )}
     </div>
   );

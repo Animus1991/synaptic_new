@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo, useCallback, useRef, Suspense, type ReactNode } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import { useAppStore } from './store/useStore';
-import { applyTheme, watchSystemTheme } from './lib/theme';
+import { applyTheme, watchSystemTheme, resolveChromeDensity } from './lib/theme';
 import { I18nContext, t as translate, type I18nKey } from './lib/i18n';
 import { getTaskConcept, getWorkspaceTool, getMistakesForTask, getExamDurationSeconds, findPendingTask } from './lib/taskFlows';
 import { executeDashboardNextAction } from './lib/dashboardNextAction';
@@ -813,10 +813,14 @@ export default function App() {
   ) : null;
 
   useEffect(() => {
-    applyTheme(store.user.settings.theme);
+    const density = resolveChromeDensity(
+      store.user.settings.chromeDensity,
+      store.user.settings.language,
+    );
+    applyTheme(store.user.settings.theme, density);
     if (store.user.settings.theme !== 'system') return;
-    return watchSystemTheme(() => applyTheme('system'));
-  }, [store.user.settings.theme]);
+    return watchSystemTheme(() => applyTheme('system', density));
+  }, [store.user.settings.theme, store.user.settings.chromeDensity, store.user.settings.language]);
 
   useEffect(() => {
     if (persistWorkspaceV2CanaryFromUrl()) reportWorkspaceCanaryCohort();

@@ -41,6 +41,7 @@ export const defaultSettings: UserSettings = {
   sourceMode: 'enriched',
   language: 'en',
   theme: 'dark',
+  chromeDensity: 'comfortable',
   dailyGoalMinutes: 30,
   examDate: '2026-02-20',
   useLlm: true,

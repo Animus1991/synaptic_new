@@ -343,6 +343,9 @@ Constraints for all OPT-R*: no typography/button/modal scale-up; no functional c
 | OPT-M3 | Gate orbs / glow / heavy motion under minimal* | P2 | **shipped** | CSS + `useMinimalTheme` / MotionSection |
 | OPT-M4 | Flat CTAs / calm panels / border-first cards | P2 | **shipped** | shared minimal overrides in `index.css` |
 | OPT-M5 | Blueprint remains default; tests updated | P2 | **shipped** | `theme.test.ts`; default still `blueprint` |
+| OPT-M6 | Chrome density Comfortable/Compact + `data-density` | P2 | **shipped** | Settings; `chromeDensity.ts`; EL defaults comfortable |
+| OPT-M7 | Classic chrome overflow parity + Status inbox | P2 | **shipped** | classic menu; ContextBar `statusInbox` |
+| OPT-M8 | Zen discoverability + landing/app orb split | P2 | **shipped** | Zen chip label; landing orbs mild under minimal |
 
 ### Replit study — explicit non-borrows
 

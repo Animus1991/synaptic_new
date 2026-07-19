@@ -1,5 +1,11 @@
 import type { UserSettings } from '../types';
 import { loadJson, saveJson } from './persistence';
+import {
+  applyChromeDensity,
+  loadChromeDensity,
+  resolveChromeDensity,
+  type ChromeDensity,
+} from './chromeDensity';
 
 const THEME_KEY = 'theme-preference';
 const SESSION_KEY = 'session-v2';
@@ -7,6 +13,8 @@ const LEGACY_SESSION_KEY = 'session-v1';
 
 /** Default for first-time production users (no saved preference). */
 export const DEFAULT_THEME_PREFERENCE: UserSettings['theme'] = 'blueprint';
+
+export type { ChromeDensity };
 
 export function hasStoredThemePreference(): boolean {
   try {
@@ -66,7 +74,10 @@ export function themeMetaColor(resolved: ResolvedTheme): string {
   return THEME_META_COLORS[resolved];
 }
 
-export function applyTheme(preference: UserSettings['theme']): ResolvedTheme {
+export function applyTheme(
+  preference: UserSettings['theme'],
+  density?: ChromeDensity,
+): ResolvedTheme {
   const resolved = resolveTheme(preference);
   document.documentElement.setAttribute('data-theme', resolved);
   document.documentElement.style.colorScheme = themeColorScheme(resolved);
@@ -75,6 +86,8 @@ export function applyTheme(preference: UserSettings['theme']): ResolvedTheme {
   if (meta) {
     meta.setAttribute('content', themeMetaColor(resolved));
   }
+
+  applyChromeDensity(density ?? loadChromeDensity());
 
   saveJson(THEME_KEY, preference);
   return resolved;
@@ -132,4 +145,8 @@ export function initThemeEarly(): void {
   if (meta) {
     meta.setAttribute('content', themeMetaColor(resolved));
   }
+  // Density from dedicated key; session language may refine later via React.
+  applyChromeDensity(loadChromeDensity());
 }
+
+export { applyChromeDensity, resolveChromeDensity, loadChromeDensity };

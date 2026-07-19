@@ -17,6 +17,8 @@ import { commandPaletteBadge } from '../../../lib/workspaceKeyboardShortcuts';
 import type { MobileIntelTab } from '../WorkspaceMobileIntelligenceTabs';
 import type { StudyWorkspaceModel } from './useStudyWorkspace';
 import { useState } from 'react';
+import { useMinimalTheme } from '../../../lib/useMinimalTheme';
+import { resolveChromeDensity } from '../../../lib/chromeDensity';
 
 interface StudyWorkspaceChromeProps {
   model: StudyWorkspaceModel;
@@ -79,6 +81,11 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
   const { userSettings, onToggleTheme } = model;
 
   const [notebookMenuOpen, setNotebookMenuOpen] = useState(false);
+  const [classicMenuOpen, setClassicMenuOpen] = useState(false);
+  const isMinimal = useMinimalTheme();
+  const chromeDensity = resolveChromeDensity(userSettings?.chromeDensity, lang);
+  /** Compact chrome or minimal theme → overflow menu parity with notebook (OPT-M2). */
+  const useClassicOverflow = isMinimal || chromeDensity === 'compact';
 
   const themeToggle = onToggleTheme ? (
     <ThemeToggle
@@ -325,13 +332,15 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
                 </div>
       
                 <div className="flex items-center gap-1.5 shrink-0">
-                  <TheoryPracticeLensToggle
-                    lens={pedagogyLens}
-                    onChange={applyPedagogyLens}
-                    lang={lang}
-                    className="hidden lg:inline-flex"
-                  />
-                  {layout !== 'zen' && (
+                  {!useClassicOverflow && (
+                    <TheoryPracticeLensToggle
+                      lens={pedagogyLens}
+                      onChange={applyPedagogyLens}
+                      lang={lang}
+                      className="hidden lg:inline-flex"
+                    />
+                  )}
+                  {layout !== 'zen' && !useClassicOverflow && (
                     <button
                       type="button"
                       onClick={enterSplitLesson}
@@ -343,7 +352,7 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
                       <PanelLeftOpen className="w-4 h-4" />
                     </button>
                   )}
-                  {layout !== 'zen' && (
+                  {layout !== 'zen' && !useClassicOverflow && (
                     <button
                       type="button"
                       onClick={() => setShowPalette(true)}
@@ -354,36 +363,92 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
                       {commandPaletteBadge()}
                     </button>
                   )}
-                  <WorkspaceStudyRoomTrigger
-                    lang={lang}
-                    open={studyRoomOpen}
-                    onClick={() => setStudyRoomOpen((v) => !v)}
-                    variant="chrome"
-                  />
-                  <CompactStudyTimer lang={lang} className="hidden lg:inline-flex" />
-                  <button onClick={() => setShowNotes((v) => !v)} className={cn('ws-chrome-btn p-1.5 shrink-0', showNotes && 'ws-chrome-btn-active')} title={t('paletteSessionNotes')} aria-pressed={showNotes}>
-                    <StickyNote className="w-4 h-4" />
-                  </button>
+                  {!useClassicOverflow && (
+                    <WorkspaceStudyRoomTrigger
+                      lang={lang}
+                      open={studyRoomOpen}
+                      onClick={() => setStudyRoomOpen((v) => !v)}
+                      variant="chrome"
+                    />
+                  )}
+                  {!useClassicOverflow && (
+                    <CompactStudyTimer lang={lang} className="hidden lg:inline-flex" />
+                  )}
+                  {!useClassicOverflow && (
+                    <button onClick={() => setShowNotes((v) => !v)} className={cn('ws-chrome-btn p-1.5 shrink-0', showNotes && 'ws-chrome-btn-active')} title={t('paletteSessionNotes')} aria-pressed={showNotes}>
+                      <StickyNote className="w-4 h-4" />
+                    </button>
+                  )}
+                  {!useClassicOverflow && (
+                    <button
+                      onClick={() => setNotebookMode(!notebookMode)}
+                      className={cn('ws-chrome-btn p-1.5 shrink-0', notebookMode && 'ws-chrome-btn-active')}
+                      aria-pressed={notebookMode}
+                      data-testid="workspace-notebook-toggle"
+                      title={notebookMode ? (lang === 'el' ? 'Κλασική προβολή' : 'Classic view') : (lang === 'el' ? 'Προβολή NotebookLM' : 'NotebookLM view')}
+                    >
+                      <LayoutGrid className="w-4 h-4" />
+                    </button>
+                  )}
                   <button
-                    onClick={() => setNotebookMode(!notebookMode)}
-                    className={cn('ws-chrome-btn p-1.5 shrink-0', notebookMode && 'ws-chrome-btn-active')}
-                    aria-pressed={notebookMode}
-                    data-testid="workspace-notebook-toggle"
-                    title={notebookMode ? (lang === 'el' ? 'Κλασική προβολή' : 'Classic view') : (lang === 'el' ? 'Προβολή NotebookLM' : 'NotebookLM view')}
+                    onClick={() => setLayout(layout === 'zen' ? 'split' : 'zen')}
+                    className="inline-flex items-center gap-1 p-1.5 rounded-lg hover:bg-surface-hover text-text-secondary hover:text-text-primary transition-colors shrink-0"
+                    title={layout === 'zen' ? t('wsExitFocus') : t('wsEnterZen')}
+                    data-testid="workspace-zen-toggle"
+                    aria-pressed={layout === 'zen'}
                   >
-                    <LayoutGrid className="w-4 h-4" />
-                  </button>
-                  <button onClick={() => setLayout(layout === 'zen' ? 'split' : 'zen')} className="p-1.5 rounded-lg hover:bg-surface-hover text-text-secondary hover:text-text-primary transition-colors shrink-0" title={layout === 'zen' ? t('wsExitFocus') : t('wsToggleLayout')}>
                     {layout === 'zen' ? <Minimize2 className="w-4 h-4 text-brand-800" /> : <Maximize2 className="w-4 h-4" />}
+                    <span className="hidden xl:inline type-micro font-medium">{t('wsZenShort')}</span>
                   </button>
-                  {themeToggle && (
+                  {!useClassicOverflow && themeToggle && (
                     <div className="[&>button]:ws-chrome-btn [&>button]:p-1.5 [&>button]:shrink-0">
                       {themeToggle}
                     </div>
                   )}
-                  <button onClick={handleOpenAgent} className="flex items-center gap-1 px-2.5 py-1.5 rounded-full type-micro font-medium border border-border-subtle bg-surface-card hover:border-brand-200 hover:bg-surface-hover text-text-secondary hover:text-text-primary shrink-0 transition-colors">
-                    <Sparkles className="w-3.5 h-3.5 text-brand-800" /> {t('agentBtn')}
-                  </button>
+                  {!useClassicOverflow && (
+                    <button onClick={handleOpenAgent} className="flex items-center gap-1 px-2.5 py-1.5 rounded-full type-micro font-medium border border-border-subtle bg-surface-card hover:border-brand-200 hover:bg-surface-hover text-text-secondary hover:text-text-primary shrink-0 transition-colors">
+                      <Sparkles className="w-3.5 h-3.5 text-brand-800" /> {t('agentBtn')}
+                    </button>
+                  )}
+                  {useClassicOverflow && (
+                    <div className="relative shrink-0">
+                      <button
+                        type="button"
+                        onClick={() => setClassicMenuOpen((v) => !v)}
+                        aria-expanded={classicMenuOpen}
+                        aria-label={t('chromeMoreMenu')}
+                        data-testid="classic-chrome-menu"
+                        className="p-1.5 rounded-lg hover:bg-surface-hover text-text-secondary hover:text-text-primary transition-colors"
+                      >
+                        <SlidersHorizontal className="w-4 h-4" />
+                      </button>
+                      {classicMenuOpen && (
+                        <div
+                          className="absolute right-0 top-full mt-1 z-30 w-56 rounded-lg border border-border-default bg-surface-card py-1 text-xs shadow-none"
+                          data-testid="classic-chrome-menu-panel"
+                        >
+                          <button type="button" onClick={() => { setShowPalette(true); setClassicMenuOpen(false); }} className="w-full text-left px-3 py-2 hover:bg-surface-hover text-text-secondary" data-testid="classic-menu-palette">{t('wsCommandPalette')}</button>
+                          <button type="button" onClick={() => { enterSplitLesson(); setClassicMenuOpen(false); }} className="w-full text-left px-3 py-2 hover:bg-surface-hover text-text-secondary">{t('wsSplitLesson')}</button>
+                          <button type="button" onClick={() => { setShowNotes((v) => !v); setClassicMenuOpen(false); }} className="w-full text-left px-3 py-2 hover:bg-surface-hover text-text-secondary">{t('paletteSessionNotes')}</button>
+                          <button type="button" onClick={() => { setStudyRoomOpen((v) => !v); setClassicMenuOpen(false); }} className="w-full text-left px-3 py-2 hover:bg-surface-hover text-text-secondary">{lang === 'el' ? 'Study room' : 'Study room'}</button>
+                          <button type="button" onClick={() => { setNotebookMode(true); setClassicMenuOpen(false); }} className="w-full text-left px-3 py-2 hover:bg-surface-hover text-text-secondary" data-testid="classic-menu-notebook">{lang === 'el' ? 'Προβολή NotebookLM' : 'NotebookLM view'}</button>
+                          <button type="button" onClick={() => { setIntelSheetOpen(true); setClassicMenuOpen(false); }} className="w-full text-left px-3 py-2 hover:bg-surface-hover text-text-secondary">{t('chromeMoreStatus')}</button>
+                          {onToggleTheme && (
+                            <button type="button" onClick={() => { onToggleTheme(); setClassicMenuOpen(false); }} className="w-full text-left px-3 py-2 hover:bg-surface-hover text-text-secondary">{t('theme')}</button>
+                          )}
+                          <button type="button" onClick={() => { handleOpenAgent(); setClassicMenuOpen(false); }} className="w-full text-left px-3 py-2 hover:bg-surface-hover text-text-secondary">{t('agentBtn')}</button>
+                          <div className="border-t border-border-subtle my-1" />
+                          <div className="px-3 py-2">
+                            <TheoryPracticeLensToggle
+                              lens={pedagogyLens}
+                              onChange={(v) => { applyPedagogyLens(v); setClassicMenuOpen(false); }}
+                              lang={lang}
+                            />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             )}
@@ -402,21 +467,22 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
                 sourceQuality={sourceQualityScore ?? null}
                 sourceIntelligence={sourceIntelligence}
                 focusConcept={effectiveFocus?.term ?? quizConcept}
-                showNextAction={Boolean(nextActionRecommendation && noteBundle.hasSource)}
-                nextActionLabel={nextActionRecommendation ? nextActionLabel(nextActionRecommendation.primary, lang) : undefined}
+                statusInbox={useClassicOverflow}
+                showNextAction={Boolean(nextActionRecommendation && noteBundle.hasSource && runNextAction)}
+                nextActionLabel={
+                  nextActionRecommendation
+                    ? nextActionLabel(nextActionRecommendation.primary, lang)
+                    : undefined
+                }
                 onNextAction={runNextAction}
                 weakCount={weakAreaSpots.length}
-                onToggleWeak={
-                  isMobile
-                    ? () => setIntelTab((tab: MobileIntelTab | null) => (tab === 'weak-areas' ? null : 'weak-areas'))
-                    : () => setIntelSheetOpen(true)
-                }
-                onToggleConcepts={
-                  isMobile
-                    ? () => setIntelTab((tab: MobileIntelTab | null) => (tab === 'concept-bus' ? null : 'concept-bus'))
-                    : () => setIntelSheetOpen(true)
-                }
                 conceptCount={conceptBusRows.length}
+                onToggleWeak={isMobile
+                  ? () => setIntelTab((tb: MobileIntelTab | null) => (tb === 'weak-areas' ? null : 'weak-areas'))
+                  : () => setIntelSheetOpen((v) => !v)}
+                onToggleConcepts={isMobile
+                  ? () => setIntelTab((tb: MobileIntelTab | null) => (tb === 'concept-bus' ? null : 'concept-bus'))
+                  : () => setIntelSheetOpen((v) => !v)}
                 weakOpen={isMobile ? intelTab === 'weak-areas' : intelSheetOpen}
                 conceptsOpen={isMobile ? intelTab === 'concept-bus' : intelSheetOpen}
                 onOpenIntelSheet={() => setIntelSheetOpen((v) => !v)}

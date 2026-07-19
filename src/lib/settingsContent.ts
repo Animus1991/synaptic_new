@@ -81,6 +81,8 @@ export type SettingsContent = {
   themeOptions: ToggleOption[];
   labelLanguage: string;
   languageOptions: ToggleOption[];
+  labelChromeDensity: string;
+  chromeDensityOptions: ToggleOption[];
   sectionDataProgress: string;
   labelDemoContent: string;
   demoContentOptions: ToggleOption[];
@@ -268,6 +270,11 @@ const EN: SettingsContent = {
   languageOptions: [
     { value: 'en', label: 'English' },
     { value: 'el', label: 'Ελληνικά' },
+  ],
+  labelChromeDensity: 'Chrome density',
+  chromeDensityOptions: [
+    { value: 'comfortable', label: 'Comfortable' },
+    { value: 'compact', label: 'Compact' },
   ],
   sectionDataProgress: 'Data & Progress',
   labelDemoContent: 'Demo showcase content',
@@ -461,6 +468,11 @@ const EL: SettingsContent = {
   languageOptions: [
     { value: 'en', label: 'English' },
     { value: 'el', label: 'Ελληνικά' },
+  ],
+  labelChromeDensity: 'Πυκνότητα chrome',
+  chromeDensityOptions: [
+    { value: 'comfortable', label: 'Άνετη' },
+    { value: 'compact', label: 'Συμπαγής' },
   ],
   sectionDataProgress: 'Δεδομένα & Πρόοδος',
   labelDemoContent: 'Demo showcase content',

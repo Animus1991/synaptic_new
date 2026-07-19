@@ -32,6 +32,12 @@ export interface UserSettings {
   sourceMode: 'strict' | 'enriched' | 'notes-only';
   language: 'en' | 'el';
   theme: 'dark' | 'light' | 'system' | 'spectrum' | 'blueprint' | 'minimal' | 'minimal-dark';
+  /**
+   * Workspace/app chrome density (OPT-M).
+   * `compact` collapses secondary chrome into overflow (GitHub-like).
+   * Defaults: comfortable; Greek prefers comfortable when unset.
+   */
+  chromeDensity?: 'comfortable' | 'compact';
   dailyGoalMinutes: number;
   examDate?: string;
   /** Goals selected during onboarding — drives defaults for pacing and task mix. */

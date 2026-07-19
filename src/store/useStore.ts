@@ -10,7 +10,7 @@ import { createActivity } from '../lib/activityLog';
 import { countUnreadNotifications, notificationsReadWatermark } from '../lib/notificationState';
 import { SEED_ACTIVITIES } from '../demo/activityDemo';
 import { mockUser, mockCourses, mockTasks, mockLearnerModel, mockDashboardStats, mockAgentMessages } from '../demo/mockData';
-import { loadThemePreference, applyTheme, cycleTheme, resolveInitialThemePreference, hasStoredThemePreference } from '../lib/theme';
+import { loadThemePreference, applyTheme, cycleTheme, resolveInitialThemePreference, hasStoredThemePreference, applyChromeDensity, resolveChromeDensity } from '../lib/theme';
 import { ECON_CONCEPT_IMPORTANCE } from '../data/conceptGraph';
 import {
   betaMean,
@@ -1170,7 +1170,10 @@ export function useAppStore() {
   const toggleTheme = useCallback(() => {
     setUser((prev) => {
       const nextTheme = cycleTheme(prev.settings.theme);
-      applyTheme(nextTheme);
+      applyTheme(
+        nextTheme,
+        resolveChromeDensity(prev.settings.chromeDensity, prev.settings.language),
+      );
       return { ...prev, settings: { ...prev.settings, theme: nextTheme } };
     });
   }, []);
@@ -1178,7 +1181,14 @@ export function useAppStore() {
   const updateSettings = useCallback((partial: Partial<UserSettings>) => {
     setUser((prev) => {
       const nextSettings = { ...prev.settings, ...partial };
-      if (partial.theme) applyTheme(partial.theme);
+      if (partial.theme) {
+        applyTheme(
+          partial.theme,
+          resolveChromeDensity(nextSettings.chromeDensity, nextSettings.language),
+        );
+      } else if (partial.chromeDensity !== undefined || partial.language !== undefined) {
+        applyChromeDensity(resolveChromeDensity(nextSettings.chromeDensity, nextSettings.language));
+      }
       if (partial.teachingStyle || partial.explanationDepth || partial.challengeLevel) {
         setAgentMode(settingsToAgentMode(nextSettings));
       }
