@@ -26,6 +26,7 @@ import { ReadinessRing } from './visuals/ReadinessRing';
 import { RetentionCurve } from './visuals/DiagramGenerator';
 import { ConceptGraph } from './visuals/ConceptGraph';
 import { useI18n, type I18nKey } from '../lib/i18n';
+import { CollapsibleChromeSection } from './workspace/CollapsibleChromeSection';
 import { formatHeatmapDayTooltip } from '../lib/localeFormat';
 import { readAllLearningEvents } from '../lib/learningEvents';
 import {
@@ -325,22 +326,29 @@ function OverviewTab({
       </motion.div>
 
       {/* L-A01: canvas flow banner — opens disclosure without removing chart body */}
-      <button
-        type="button"
-        data-testid="analytics-flow-banner"
-        className="w-full flex items-center gap-3 rounded-xl border border-border-subtle bg-surface-card/70 px-3.5 py-2.5 text-left transition-colors hover:bg-surface-hover hover:border-brand-500/30"
-        onClick={() => {
-          const el = document.querySelector('[data-testid="analytics-flow-disclosure"]') as HTMLDetailsElement | null;
-          if (el) {
-            el.open = true;
-            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          }
-        }}
+      <CollapsibleChromeSection
+        title={t('chromeAnalyticsExtras')}
+        data-testid="analytics-extras-chrome"
       >
-        <GitBranch className="w-4 h-4 text-brand-600 shrink-0" aria-hidden />
-        <span className="flex-1 text-sm font-medium text-text-primary">{t('analyticsFlowBanner')}</span>
-        <ChevronRight className="w-4 h-4 text-text-muted shrink-0" aria-hidden />
-      </button>
+        <div className="px-1 pb-2">
+          <button
+            type="button"
+            data-testid="analytics-flow-banner"
+            className="w-full flex items-center gap-3 rounded-xl border border-border-subtle bg-surface-card/70 px-3.5 py-2.5 text-left transition-colors hover:bg-surface-hover hover:border-brand-500/30"
+            onClick={() => {
+              const el = document.querySelector('[data-testid="analytics-flow-disclosure"]') as HTMLDetailsElement | null;
+              if (el) {
+                el.open = true;
+                el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              }
+            }}
+          >
+            <GitBranch className="w-4 h-4 text-brand-600 shrink-0" aria-hidden />
+            <span className="flex-1 text-sm font-medium text-text-primary">{t('analyticsFlowBanner')}</span>
+            <ChevronRight className="w-4 h-4 text-text-muted shrink-0" aria-hidden />
+          </button>
+        </div>
+      </CollapsibleChromeSection>
 
       {calibration && (
         <CalibrationChip score={calibration.score} direction={calibration.direction} />

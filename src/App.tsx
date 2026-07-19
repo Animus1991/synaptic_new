@@ -13,6 +13,8 @@ import {
   resolveReviewCards,
 } from './lib/taskFlowContent';
 import { AppCommandPaletteMount, useCommandPalette } from './components/CommandPalette';
+import { WorkspaceKeyboardHelp } from './components/workspace/WorkspaceKeyboardHelp';
+import { isTypingTarget } from './lib/workspaceKeyboardShortcuts';
 import { NavAccessDenied } from './components/NavAccessDenied';
 import { canAccessShellView } from './lib/navCapabilities';
 import { clearCourseDeepLinkParams, parseCourseDeepLink, seedCourseTabFromDeepLink } from './lib/courseDeepLink';
@@ -101,6 +103,20 @@ export default function App() {
   const [uploadIntent, setUploadIntent] = useState<{ mode: 'new' | 'extend'; targetCourseId?: string }>({ mode: 'new' });
   const [productTourOpen, setProductTourOpen] = useState(false);
   const [takeBreathOpen, setTakeBreathOpen] = useState(false);
+  const [shellHelpOpen, setShellHelpOpen] = useState(false);
+
+  // OPT-M16: shell-level `?` help when Study Workspace is closed (workspace owns `?` when open).
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (store.studyWorkspaceOpen) return;
+      if (isTypingTarget(e.target)) return;
+      if (e.key !== '?' && !(e.shiftKey && e.key === '/')) return;
+      e.preventDefault();
+      setShellHelpOpen((v) => !v);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [store.studyWorkspaceOpen]);
 
   const closeLessonView = () => {
     store.setActiveLessonView(false);
@@ -512,6 +528,11 @@ export default function App() {
   const overlays = (
     <>
       <BlueprintSvgDefs />
+      <WorkspaceKeyboardHelp
+        open={shellHelpOpen}
+        onClose={() => setShellHelpOpen(false)}
+        lang={store.user.settings.language === 'el' ? 'el' : 'en'}
+      />
       <AppCommandPaletteMount
         open={paletteOpen}
         onClose={closePalette}

@@ -567,8 +567,12 @@ export function Shell({
                 </button>
               )}
               <button
+                type="button"
                 onClick={onOpenSearch}
+                data-testid="shell-search-button"
                 className="hidden sm:flex items-center gap-1.5 px-2 py-1 rounded-lg bg-surface-input border border-border-subtle text-xs text-text-tertiary hover:border-brand-500/30 transition-colors"
+                title={t('shellSearchTitle').replace('{shortcut}', commandPaletteBadge())}
+                aria-label={t('shellSearchTitle').replace('{shortcut}', commandPaletteBadge())}
               >
                 <Search className="w-3.5 h-3.5" />
                 <span className="hidden xl:inline">{t('search')}</span>

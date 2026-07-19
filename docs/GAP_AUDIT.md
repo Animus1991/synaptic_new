@@ -342,7 +342,7 @@ Constraints for all OPT-R*: no typography/button/modal scale-up; no functional c
 | OPT-M2 | Chrome thinning via collapsible secondary chrome | P2 | **shipped** | `CollapsibleChromeSection`; ToolFrame + ConceptLens |
 | OPT-M3 | Gate orbs / glow / heavy motion under minimal* | P2 | **shipped** | CSS + `useMinimalTheme` / MotionSection |
 | OPT-M4 | Flat CTAs / calm panels / border-first cards | P2 | **shipped** | shared minimal overrides in `index.css` |
-| OPT-M5 | Blueprint remains default; tests updated | P2 | **shipped** | `theme.test.ts`; default still `blueprint` |
+| OPT-M5 | Theme defaults + tests (superseded by M13) | P2 | **shipped** | Was Blueprint; M13 flipped default to Minimal |
 | OPT-M6 | Chrome density Comfortable/Compact + `data-density` | P2 | **shipped** | Settings; `chromeDensity.ts`; EL defaults comfortable |
 | OPT-M7 | Classic chrome overflow parity + Status inbox | P2 | **shipped** | classic menu; ContextBar `statusInbox` |
 | OPT-M8 | Zen discoverability + landing/app orb split | P2 | **shipped** | Zen chip label; landing orbs mild under minimal |
@@ -351,8 +351,9 @@ Constraints for all OPT-R*: no typography/button/modal scale-up; no functional c
 | OPT-M11 | Modal/overlay border-first under minimal; fab hardcode cleanup | P2 | **shipped** | `index.css` OPT-M11; `StudyWorkspaceOverlays`; `concept-lens-chip` |
 | OPT-M12 | Dashboard/Tasks/Agent progressive disclosure under minimal | P2 | **shipped** | Alerts / flow rail / quick actions collapsible; due-queue collapsed by default |
 | OPT-M13 | Minimal as production default (pre-launch) | P2 | **shipped** | `DEFAULT_THEME_PREFERENCE = minimal`; Blueprint remains selectable |
-| OPT-M14 | App-shell surface polish under Minimal | P2 | **partial** | rounded/blur/pulse gates in `index.css`; more page-level disclosure TBD |
-| OPT-M15–M20 | CSS prune, global ⌘K, app inbox, course empty states, QA | P2 | open | See `docs/PRIMER_GITHUB_ENHANCEMENT_PLAN.md` |
+| OPT-M14 | App-shell surface polish under Minimal | P2 | **shipped** | CSS radius/blur + Library/Analytics/Teacher collapsible chrome |
+| OPT-M16 | Global ⌘K + `?` help parity | P2 | **partial** | Shell search title/aria; app-level `?` → WorkspaceKeyboardHelp when WS closed |
+| OPT-M15, M17–M20 | CSS prune, app inbox, empty states, QA | P2 | open | See `docs/PRIMER_GITHUB_ENHANCEMENT_PLAN.md` |
 
 ### Replit study — explicit non-borrows
 

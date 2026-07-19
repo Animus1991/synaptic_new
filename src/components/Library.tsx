@@ -29,6 +29,7 @@ import { Page, PageHeader, PrimaryCTA } from './ui/primitives';
 import { useWarmSandPageScope, warmSandScopeProps } from '../lib/useDocumentTheme';
 import { DescriptiveStickyTabBar, InfoStack, MiniAlert } from './ui/platformChrome';
 import { BlueprintSurface } from './ui/BlueprintSurface';
+import { CollapsibleChromeSection } from './workspace/CollapsibleChromeSection';
 import { t } from '../lib/i18n';
 import { RagIndexProgressBanner } from './RagIndexProgressBanner';
 import { CrossLibrarySynthesisPanel } from './CrossLibrarySynthesisPanel';
@@ -308,40 +309,49 @@ export function Library({
           />
         )}
 
-        {onImportNotebookLm && (
-          <NotebookLmImportPanel
-            lang={userLanguage}
-            onImport={onImportNotebookLm}
-            onAddToFsrs={onAddNotebookLmToFsrs}
-          />
-        )}
-
-        {showCrossLibrarySynthesis() && (
-          <CrossLibrarySynthesisPanel
-            courses={courses}
-            settings={userSettings}
-            lang={userLanguage}
-          />
-        )}
-
-        {!entryHintDismissed && (
-          <div
-            data-testid="library-tip-banner"
-            className="flex items-start justify-between gap-3 rounded-xl border border-dashed border-brand-500/35 bg-surface-card/40 px-3 py-2"
+        {(onImportNotebookLm || showCrossLibrarySynthesis() || !entryHintDismissed) && (
+          <CollapsibleChromeSection
+            title={t('chromeLibraryExtras', userLanguage)}
+            data-testid="library-extras-chrome"
           >
-            <p className="text-xs text-text-secondary">
-              <span className="font-semibold text-brand-800">{t('libraryTipLabel', userLanguage)}</span>{' '}
-              {t('libraryEntryHint', userLanguage)}
-            </p>
-            <button
-              type="button"
-              onClick={dismissEntryHint}
-              className="shrink-0 text-text-muted hover:text-text-secondary p-0.5"
-              aria-label={t('close', userLanguage)}
-            >
-              <X className="w-3.5 h-3.5" />
-            </button>
-          </div>
+            <div className="space-y-3 px-1 pb-2">
+              {onImportNotebookLm && (
+                <NotebookLmImportPanel
+                  lang={userLanguage}
+                  onImport={onImportNotebookLm}
+                  onAddToFsrs={onAddNotebookLmToFsrs}
+                />
+              )}
+
+              {showCrossLibrarySynthesis() && (
+                <CrossLibrarySynthesisPanel
+                  courses={courses}
+                  settings={userSettings}
+                  lang={userLanguage}
+                />
+              )}
+
+              {!entryHintDismissed && (
+                <div
+                  data-testid="library-tip-banner"
+                  className="flex items-start justify-between gap-3 rounded-xl border border-dashed border-brand-500/35 bg-surface-card/40 px-3 py-2"
+                >
+                  <p className="text-xs text-text-secondary">
+                    <span className="font-semibold text-brand-800">{t('libraryTipLabel', userLanguage)}</span>{' '}
+                    {t('libraryEntryHint', userLanguage)}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={dismissEntryHint}
+                    className="shrink-0 text-text-muted hover:text-text-secondary p-0.5"
+                    aria-label={t('close', userLanguage)}
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              )}
+            </div>
+          </CollapsibleChromeSection>
         )}
       </div>
 
@@ -508,19 +518,29 @@ export function Library({
                       />
                     )
                   ))}
-                  {!search.trim() && libraryQualityAlerts.needsMaterial && (
-                    <MiniAlert
-                      tone="amber"
-                      title={t('libraryMiniAlertGapTitle', userLanguage)}
-                      body={t('libraryMiniAlertGapBody', userLanguage)}
-                    />
-                  )}
-                  {!search.trim() && libraryQualityAlerts.outlineAdjusted && (
-                    <MiniAlert
-                      tone="violet"
-                      title={t('libraryMiniAlertContradictionTitle', userLanguage)}
-                      body={t('libraryMiniAlertContradictionBody', userLanguage)}
-                    />
+                  {!search.trim() && (libraryQualityAlerts.needsMaterial || libraryQualityAlerts.outlineAdjusted) && (
+                    <CollapsibleChromeSection
+                      title={t('chromeAlerts', userLanguage)}
+                      data-testid="library-quality-alerts-chrome"
+                      defaultOpen
+                    >
+                      <div className="space-y-2 px-1 pb-2">
+                        {libraryQualityAlerts.needsMaterial && (
+                          <MiniAlert
+                            tone="amber"
+                            title={t('libraryMiniAlertGapTitle', userLanguage)}
+                            body={t('libraryMiniAlertGapBody', userLanguage)}
+                          />
+                        )}
+                        {libraryQualityAlerts.outlineAdjusted && (
+                          <MiniAlert
+                            tone="violet"
+                            title={t('libraryMiniAlertContradictionTitle', userLanguage)}
+                            body={t('libraryMiniAlertContradictionBody', userLanguage)}
+                          />
+                        )}
+                      </div>
+                    </CollapsibleChromeSection>
                   )}
                   {!search.trim() && libraryInfo.topics.length > 0 && (
                     <InfoStack

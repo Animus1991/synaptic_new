@@ -51,19 +51,23 @@ Related: `docs/PRIMER_MINIMAL_THEME.md`, `docs/PRIMER_MINIMAL_SCREENSHOT_MATRIX.
 | M9 | Unified status bus (OCR/QA/stale) |
 | M10 | Screenshot matrix checklist (manual captures) |
 | M12 | Dashboard alerts / Agent flow & quick actions / due queues collapsed under Minimal |
+| M13 | Default theme = Minimal (Blueprint opt-in) |
+| M14 | App-shell CSS + Library / Analytics / Teacher collapsible chrome |
+| M16 | Shell ⌘K discoverability + app-level `?` help (partial) |
 
 ### 2.2 Remaining UI gaps (polish — no removals)
 
 | Area | Gap under Minimal | Proposed wave |
 |------|-------------------|---------------|
-| Analytics / Note Analysis / Exam Prep | Card density, leftover elevation utilities | M14 |
-| Teacher / Student Org / LTI surfaces | Enterprise chrome still “loud” visually | M14 |
-| Library / Course tabs | Secondary strips always expanded | M14 |
-| Hardcoded colors outside fab | Occasional warm-sand / rgba shadows in charts | M14 |
+| Note Analysis / Exam Prep | Card density, leftover elevation utilities | M14 remainder |
+| Teacher / Student Org / LTI surfaces | Enterprise chrome still partially loud | M14 remainder |
+| Library secondary tools / tip / quality alerts | Collapsed under Minimal | M14 ✅ |
+| Analytics flow banner | Collapsed under Minimal | M14 ✅ |
+| Hardcoded colors outside fab | Occasional warm-sand / rgba shadows in charts | M14 remainder |
 | `index.css` size | Parallel theme languages (~5k lines) | M15 prune (theme-scoped only) |
-| Screenshot matrix rows | Unchecked human captures | M10 continued (process) |
-| Global Command Palette discoverability | Exists in workspace; app-shell ⌘K less obvious | M16 |
-| Keyboard shortcut help parity | Workspace `?` help; shell-level help incomplete | M16 |
+| Screenshot matrix rows | Unchecked human captures | M20 (process) |
+| Global Command Palette discoverability | Shell title/aria + badge; more actions optional | M16 ✅ partial |
+| Keyboard shortcut help parity | App `?` when workspace closed; WS owns `?` when open | M16 ✅ partial |
 
 ### 2.3 Non-negotiable inventory (must remain 100%)
 
@@ -77,8 +81,8 @@ These are **organizational / power-user** patterns inspired by GitHub, mapped to
 
 | GitHub pattern | Synapse adaptation | Benefit | Wave | Status |
 |----------------|--------------------|---------|------|--------|
-| Command palette (⌘K) | Promote global + workspace palette; more actions registered | Fewer permanent icons | M16 | Partial (workspace) |
-| Keyboard shortcuts help (`?`) | Shell + workspace unified help sheet | Discoverability without chrome | M16 | Partial |
+| Command palette (⌘K) | Promote global + workspace palette; more actions registered | Fewer permanent icons | M16 | Partial (shell label + global palette) |
+| Keyboard shortcuts help (`?`) | Shell + workspace unified help sheet | Discoverability without chrome | M16 | Partial (app `?` when WS closed) |
 | Density Comfortable/Compact | Already shipped | EL safety | M6 | Shipped |
 | Notifications inbox | Map app toasts + agent alerts into one Status/Inbox affordance | Less strip noise | M17 | Partial (workspace Status) |
 | Progressive “Files changed” style diffs | Reprocess / OCR / conflict panels as flat review surfaces | Clear decisions | M11 | Shipped (visual) |
@@ -87,7 +91,7 @@ These are **organizational / power-user** patterns inspired by GitHub, mapped to
 | Codespaces “focus” | Zen / Focus layouts — improve empty-state hints | Deep work | M8+ | Partial |
 | README-first repo home | Course overview + notebook sources as content-first home | Orientation | M18 | Idea |
 | Saved replies / templates | Agent quick actions + mode catalog (collapse under Minimal) | Speed | M12 | Shipped (disclosure) |
-| Org settings vs user settings | Keep Teacher/LTI separate; flatter chrome only | Enterprise clarity | M14 | Open |
+| Org settings vs user settings | Keep Teacher/LTI separate; flatter chrome only | Enterprise clarity | M14 | Partial (server caps collapsed) |
 | Mobile responsive density | Compact optional; Comfortable default for `el` | Touch + Greek | M6 | Shipped |
 
 **Explicit non-borrows:** social feed, marketplace chrome, Copilot purple marketing, sticky promo banners.
@@ -123,9 +127,9 @@ These are **organizational / power-user** patterns inspired by GitHub, mapped to
 | ID | Scope | Acceptance | Risk |
 |----|--------|------------|------|
 | **OPT-M13** | Default theme → `minimal` (Blueprint still in Settings) | Fresh profile opens Minimal; saved prefs respected; tests updated | Low (pre-launch) |
-| **OPT-M14** | Surface polish: Analytics, Teacher, Library, Exam Prep, Note Analysis under Minimal | No feature loss; border-first cards; secondary chrome collapsible | Medium CSS |
+| **OPT-M14** | Surface polish: Analytics, Teacher, Library (+ CSS shell) under Minimal | No feature loss; border-first cards; secondary chrome collapsible | **shipped** (Exam Prep / Note Analysis polish still open) |
 | **OPT-M15** | CSS hygiene: theme-scoped overrides only; document de-emphasize class inventory | No visual change to Blueprint/Spectrum | Medium |
-| **OPT-M16** | Global ⌘K + `?` help parity with workspace | Same actions; fewer permanent icons | Low |
+| **OPT-M16** | Global ⌘K + `?` help parity with workspace | Same actions; fewer permanent icons | **partial** |
 | **OPT-M17** | App-level Status/Inbox for toasts + proactive alerts (mirror workspace bus) | All signals reachable | Medium |
 | **OPT-M18** | Content-first Course/Notebook empty & overview states | Clearer first minute | Low |
 | **OPT-M19** | Optional `minimal-dark` as system-dark companion default | OS dark → minimal-dark when preference=system (optional) | Low |
@@ -155,12 +159,11 @@ These are **organizational / power-user** patterns inspired by GitHub, mapped to
 
 ## 8. Priority of effort (ROI)
 
-1. **M13 default Minimal** — everyone sees calm immediately (pre-launch)  
-2. **M14 surface polish** — largest remaining visual noise outside workspace  
-3. **M16 palette/help** — power without permanent chrome  
-4. **M17 inbox** — strip consolidation at app level  
-5. **M15 CSS prune** — maintainability  
-6. **M20 visual QA** — launch gate  
+1. **M17 inbox** — strip consolidation at app level  
+2. **M15 CSS prune** — maintainability  
+3. **M14 remainder** — Exam Prep / Note Analysis / Student Org polish  
+4. **M20 visual QA** — launch gate  
+5. **M16 deepen** — more palette actions / denser shell help (optional)  
 
 ---
 
@@ -169,4 +172,4 @@ These are **organizational / power-user** patterns inspired by GitHub, mapped to
 **Not everything is finished at pixel level.**  
 **Yes — this document is the exhaustive enhancement plan:** principles, shipped inventory, GitHub-adapted feature map, aesthetic rules, forward waves, and non-goals — all under **zero functionality removal**.
 
-Next engineering execution order: **M13 → M14 → M16**.
+Next engineering execution order: **M17 app inbox → M15 CSS prune → M14 remainder (Exam Prep/Note Analysis) → M20 screenshot QA**.

@@ -34,6 +34,8 @@ import { AssignmentDiscussionThread } from './AssignmentDiscussionThread';
 import { formatDateTime, formatShortDate, localeTag } from '../lib/localeFormat';
 import { cn } from '../utils/cn';
 import { UxShimmerPanel } from './ui/UxShimmerSkeleton';
+import { CollapsibleChromeSection } from './workspace/CollapsibleChromeSection';
+import { t as i18nT } from '../lib/i18n';
 
 interface Props {
   settings: UserSettings;
@@ -1077,19 +1079,24 @@ export function TeacherDashboard({
             )}
           </div>
 
-          <div className="ux-flow-panel p-5">
-            <h2 className="font-semibold flex items-center gap-2 mb-3">
-              <Cpu className="w-4 h-4 text-accent-cyan" />
-              {ui.serverCapabilities}
-            </h2>
-            <div className="flex flex-wrap gap-2">
-              <FeaturePill on={data.features.embeddings} label="Embeddings" />
-              <FeaturePill on={data.features.rag} label="RAG" />
-              <FeaturePill on={data.features.ner} label="NER" />
-              <FeaturePill on={data.features.ocr ?? true} label="OCR" />
-              <FeaturePill on={data.features.stripe} label="Stripe" />
+          <CollapsibleChromeSection
+            title={i18nT('chromeServerCaps', lang)}
+            data-testid="teacher-server-caps-chrome"
+          >
+            <div className="ux-flow-panel p-5">
+              <h2 className="font-semibold flex items-center gap-2 mb-3">
+                <Cpu className="w-4 h-4 text-accent-cyan" />
+                {ui.serverCapabilities}
+              </h2>
+              <div className="flex flex-wrap gap-2">
+                <FeaturePill on={data.features.embeddings} label="Embeddings" />
+                <FeaturePill on={data.features.rag} label="RAG" />
+                <FeaturePill on={data.features.ner} label="NER" />
+                <FeaturePill on={data.features.ocr ?? true} label="OCR" />
+                <FeaturePill on={data.features.stripe} label="Stripe" />
+              </div>
             </div>
-          </div>
+          </CollapsibleChromeSection>
         </motion.div>
       )}
 
