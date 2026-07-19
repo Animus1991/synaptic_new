@@ -515,9 +515,10 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
           {/* Readiness + coverage as separate masonry items (I-D05) */}
           {isMinimal ? (
             <HubSection title={t('examReadiness')} data-testid="dashboard-readiness-section">
-              <div className="flex flex-col sm:flex-row items-center gap-3">
+              <div className="flex flex-col sm:flex-row items-start gap-3">
                 <ReadinessRing value={learnerModel.overallMastery} sublabel={t('dashReadinessSublabel')} />
-                <div className="flex-1 space-y-1 w-full min-w-0">
+                {/* OPT-K9b — signals use proximity UtilityRows inside a tight track */}
+                <div className="proximity-track space-y-1 min-w-0">
                   <UtilityRow label={t('dashSignalAccuracy')} value={`${Math.round(learnerModel.retentionRate * 100)}%`} barPct={Math.round(learnerModel.retentionRate * 100)} hint={t('dashSignalAccuracyDetail')} />
                   <UtilityRow label={t('dashSignalReliance')} value={`${Math.round((1 - learnerModel.helpSeekingRate) * 100)}%`} barPct={Math.round((1 - learnerModel.helpSeekingRate) * 100)} hint={t('dashSignalRelianceDetail')} />
                   <UtilityRow label={t('dashSignalVolume')} value={`${Math.min(100, Math.round(learnerModel.totalSessions * 2.1))}%`} barPct={Math.min(100, Math.round(learnerModel.totalSessions * 2.1))} hint={t('dashSignalVolumeDetail').replace('{count}', String(learnerModel.totalSessions))} />
@@ -692,7 +693,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
               <button onClick={() => onNavigate('library')} className="text-sm text-brand-400 hover:text-brand-700 flex items-center gap-1">{t('dashLibrary')} <ChevronRight className="w-4 h-4" /></button>
             </div>
             {activeCourses.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="dashboard-course-grid grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {activeCourses.map((course, i) => {
                   const courseMastery = selectCanonicalMastery(course);
                   return (
@@ -712,7 +713,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                     }}
                     className="p-4 rounded-xl border border-border-subtle hover:border-brand-500/30 bg-surface-primary/50 cursor-pointer transition-all group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60"
                   >
-                    <div className="flex items-start justify-between mb-3">
+                    <div className="proximity-row mb-3">
                       <CourseIcon icon={course.icon} size="lg" colorClassName="text-brand-600" />
                       <MasteryRing mastery={courseMastery} size={38} />
                     </div>
@@ -785,7 +786,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
           {/* Weak Areas */}
           <BlueprintSurface className="p-3">
             <SectionLabel icon={Brain}>{t('dashWeakAreas')}</SectionLabel>
-            <div className="space-y-2">
+            <div className="proximity-track space-y-2">
               {weakSpotsWithReasons.length > 0 ? weakSpotsWithReasons.map((area) => (
                 <button
                   key={area.concept}
@@ -801,9 +802,9 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                   }}
                   className="w-full space-y-1 text-left hover:bg-surface-hover rounded-lg p-1 -m-1 transition-all group"
                 >
-                  <div className="flex justify-between items-center gap-2">
-                    <span className="text-xs font-medium group-hover:text-brand-300 transition-colors truncate">{area.concept}</span>
-                    <span className="text-xs text-text-tertiary shrink-0">{area.mastery}%</span>
+                  <div className="proximity-row">
+                    <span className="proximity-row-label text-xs font-medium group-hover:text-brand-300 transition-colors truncate">{area.concept}</span>
+                    <span className="text-xs text-text-tertiary shrink-0 tabular-nums">{area.mastery}%</span>
                   </div>
                   {area.reasons[0] && (
                     <p className="type-caption text-text-tertiary line-clamp-1">{area.reasons[0].label}</p>
@@ -839,11 +840,11 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
             <div className="ux-banner-warn rounded-panel border border-accent-amber/20 bg-accent-amber/5 p-3">
               <SectionLabel icon={Lightbulb}>{t('dashAlmostThere')}</SectionLabel>
               <p className="text-xs text-text-tertiary mb-2">{t('dashAlmostThereHint')}</p>
-              <div className="space-y-1.5">
+              <div className="proximity-track space-y-1.5">
                 {learnerModel.almostKnown.map(a => (
-                  <div key={a.concept} className="flex items-center justify-between">
-                    <span className="text-xs font-medium">{a.concept}</span>
-                    <span className="ux-banner-warn-accent text-xs">{a.mastery}%</span>
+                  <div key={a.concept} className="proximity-row">
+                    <span className="proximity-row-label text-xs font-medium">{a.concept}</span>
+                    <span className="ux-banner-warn-accent text-xs tabular-nums shrink-0">{a.mastery}%</span>
                   </div>
                 ))}
               </div>
@@ -858,7 +859,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                 const daysLeft = Math.max(0, Math.ceil((new Date(course.examDate!).getTime() - Date.now()) / 86400000));
                 const courseMastery = selectCanonicalMastery(course);
                 return (
-                  <div key={course.id}>
+                  <div key={course.id} className="proximity-track">
                     <p className="text-sm font-medium">{course.title}</p>
                     <p className="text-xs text-text-secondary mt-1">{t('dashDaysLeftMastery').replace('{days}', String(daysLeft)).replace('{mastery}', String(courseMastery))}</p>
                     {/* Wave P-C04 — Upcoming Exam track uses --viz-bar-track (parity with weak areas). */}
@@ -932,13 +933,13 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
             </div>
           )}
 
-          {/* Misconceptions */}
+          {/* Misconceptions — OPT-K11b: divider rows, not nested bordered cards */}
           {unresolvedMisconceptions.length > 0 && (
             <BlueprintSurface className="p-3">
               <SectionLabel icon={AlertTriangle}>{t('dashActiveMisconceptions')}</SectionLabel>
-              <div className="space-y-2">
+              <div className="proximity-track-wide divide-y divide-border-subtle">
                 {unresolvedMisconceptions.slice(0, 2).map(m => (
-                  <div key={m.id} className="p-2 rounded-lg bg-accent-orange/5 border border-accent-orange/20 text-xs">
+                  <div key={m.id} className="py-2 first:pt-0 last:pb-0 text-xs">
                     <p className="font-medium text-accent-orange">{m.concept}</p>
                     <p className="text-text-secondary mt-0.5">{m.description}</p>
                     {onResolveMisconception && (

@@ -356,8 +356,10 @@ Constraints for all OPT-R*: no typography/button/modal scale-up; no functional r
 | OPT-K6 | Dashboard/Analytics hub section stacks | P2 | **shipped** | `hub-section-stack` under Minimal; Blueprint masonry/cards unchanged |
 | OPT-K7 | PageHeader text-first + outline/solid CTA pair | P2 | **shipped** | Hide leading icon tile; `ux-page-header-actions--pair`; Blueprint icon kept |
 | OPT-K8 | Settings/Teacher Spending-like wells | P2 | **shipped** | Pref label/control rows; flat wells; teacher `ux-flow-panel` quieted |
-| OPT-K9 | Anti-stretch content measure | P2 | **shipped** | `--content-measure` 36/42rem on UtilityRows, coverage, mastery bars; stats 2-col densify ≥900px; page stays full-width |
+| OPT-K9 | Anti-stretch content measure | P2 | **shipped** | `--content-measure` on UtilityRows, coverage, mastery bars; page stays full-width |
+| OPT-K9b | Proximity layout + densify fix | P2 | **shipped** | `flex-start` UtilityRows (not space-between); track 28/32rem; stats 2-col @720px dense cells; Practice beside title; weak/almost/exam/calibration/calendar/next-steps proximity |
 | OPT-K11 | Single well depth + merge retrieval | P2 | **shipped** | `hub-section-stack` outer well + hairline dividers; Minimal retrieval only in readiness UtilityRow (`dashboard-retrieval-strength-bar`); Blueprint L-D02 bar kept |
+| OPT-K11b | Extend well + quiet Study hub | P2 | **shipped** | Flatten nested wells/misconceptions in stack; quieter hub chips; course grid measure; study-center continue proximity |
 
 ### Primer-inspired minimal (OPT-M) — zero feature removal
 

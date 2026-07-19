@@ -220,11 +220,13 @@
   border-bottom: none;
 }
 
+/* OPT-K9b — proximity: label and value sit together (not ultrawide space-between) */
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .utility-row-main {
   display: flex;
+  flex-wrap: wrap;
   align-items: baseline;
-  justify-content: space-between;
-  gap: 0.75rem;
+  justify-content: flex-start;
+  gap: 0.35rem 0.85rem;
 }
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .utility-row-label {
@@ -329,14 +331,15 @@
   box-shadow: none !important;
 }
 
-/* ── OPT-K9 — Anti-stretch content measure (page stays full-width) ───────── */
+/* ── OPT-K9 / K9b — Anti-stretch + proximity (page stays full-width) ─────── */
 /*
- * Keep label ↔ value proximity on ultrawide. Main shell remains max-w-none;
- * only dense row tracks get a readable measure.
+ * Main shell remains max-w-none. Rows use a tight measure AND flex-start
+ * proximity so label↔value never flee to opposite ultrawide edges.
  */
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell {
-  --content-measure: 36rem;
-  --content-measure-wide: 42rem;
+  --content-measure: 28rem;
+  --content-measure-wide: 32rem;
+  --content-measure-dense: 13.5rem;
 }
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .content-measure {
@@ -344,10 +347,36 @@
   width: 100%;
 }
 
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .proximity-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: flex-start;
+  gap: 0.35rem 0.85rem;
+  max-width: var(--content-measure);
+  width: 100%;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .proximity-row > .proximity-row-label {
+  min-width: 0;
+  max-width: 100%;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .proximity-track {
+  max-width: var(--content-measure);
+  width: 100%;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .proximity-track-wide {
+  max-width: var(--content-measure-wide);
+  width: 100%;
+}
+
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell :is(
   .hub-section .utility-row,
   .progress-kpi-stack .utility-row,
-  .hub-section-stack .utility-row
+  .hub-section-stack .utility-row,
+  .hub-quiet-surface .utility-row
 ) {
   max-width: var(--content-measure);
 }
@@ -359,28 +388,62 @@
   max-width: var(--content-measure-wide);
 }
 
-:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .hub-section-stack [data-testid="syllabus-coverage-widget-compact"] li {
+/* Coverage topic rows: title + Practice as one cluster (not justify-between) */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .coverage-topic-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
   max-width: var(--content-measure);
+  width: 100%;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .coverage-topic-row .coverage-topic-title {
+  min-width: 0;
+  flex: 0 1 auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .coverage-topic-row .coverage-topic-action {
+  flex-shrink: 0;
+  margin-inline-start: 0.15rem;
 }
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .hub-section-stack .content-measure-bars,
-:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .hub-section-stack .concept-mastery-bars {
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .hub-section-stack .concept-mastery-bars,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .concept-mastery-bars {
   max-width: var(--content-measure-wide);
 }
 
-/* Stats HubSection: denser two-column UtilityRows on wide viewports */
-@media (min-width: 900px) {
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .concept-mastery-bars .proximity-row {
+  max-width: 100%;
+}
+
+/* Stats HubSection: real 2-col densify (tight cells; page stays full-width) */
+@media (min-width: 720px) {
+  :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell [data-testid="dashboard-page-stats"] {
+    max-width: calc(var(--content-measure-dense) * 2 + 1.25rem);
+  }
+
   :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell [data-testid="dashboard-page-stats"] .hub-section-body {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, var(--content-measure)));
-    column-gap: 1.5rem;
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, var(--content-measure-dense)));
+    column-gap: 1.25rem;
     row-gap: 0;
-    max-width: calc(var(--content-measure) * 2 + 1.5rem);
   }
 
   :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell [data-testid="dashboard-page-stats"] .utility-row {
     max-width: none;
   }
+}
+
+/* Hub stack list rows that still use justify-between in markup */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .hub-section-stack .proximity-track :is(
+  .w-full.rounded-full,
+  [style*="viz-bar-track"]
+) {
+  max-width: 100%;
 }
 
 /* ── OPT-K11 — Single well depth inside hub-section-stack ───────────────── */
@@ -416,20 +479,78 @@
   margin-bottom: 0.5rem;
 }
 
-/* Nested cards/wells inside the stack: one depth only */
+/* Nested cards/wells inside the stack: one depth only (OPT-K11 / K11b) */
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .hub-section-stack :is(
   .ux-card,
   .ux-calm-panel,
   .platform-panel-md,
   .platform-panel,
+  .rounded-panel,
+  .rounded-xl,
   [data-testid="syllabus-coverage-widget-compact"]
 ) {
+  border-color: transparent !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .hub-section-stack > * :is(
+  .ux-card,
+  .ux-calm-panel,
+  .rounded-xl.border,
+  .rounded-panel
+) {
   border: none !important;
-  border-radius: 0 !important;
+  border-radius: 0.25rem !important;
   background: transparent !important;
   box-shadow: none !important;
-  padding-left: 0 !important;
-  padding-right: 0 !important;
+}
+
+/* Course cards inside stack: keep interaction, quieter nested chrome */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .hub-section-stack .dashboard-course-grid {
+  max-width: calc(var(--content-measure-wide) * 2 + 0.75rem);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .hub-section-stack .dashboard-course-grid > * {
+  border: 1px solid color-mix(in srgb, var(--color-border-subtle) 55%, transparent) !important;
+  background: var(--color-surface-secondary) !important;
+  border-radius: 0.375rem !important;
+  max-width: var(--content-measure-wide);
+  box-shadow: none !important;
+}
+
+/* OPT-K11b — Study hub chips: quiet hairline tiles, not equal-weight card wall */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .hub-quiet-surface {
+  border-color: var(--color-border-subtle) !important;
+  background: var(--color-surface-primary) !important;
+  border-radius: 0.5rem !important;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .hub-quiet-surface .dashboard-hub-chip {
+  border-color: color-mix(in srgb, var(--color-border-subtle) 70%, transparent);
+  background: transparent;
+  border-radius: 0.375rem;
+  padding-top: 0.45rem;
+  padding-bottom: 0.45rem;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .hub-quiet-surface .dashboard-hub-chip:hover {
+  background: var(--color-surface-secondary);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .hub-quiet-surface [data-testid="dashboard-hero-study-center"] {
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  max-width: var(--content-measure-wide);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .hub-quiet-surface [data-testid="dashboard-hero-action-grid"] {
+  max-width: var(--content-measure-wide);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .hub-quiet-surface .dashboard-continue-hero {
+  margin-inline-start: 0;
 }
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .analytics-quiet .progress-kpi-stack .utility-row-hint {

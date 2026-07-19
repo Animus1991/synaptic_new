@@ -21,10 +21,11 @@ export function ConceptMasteryBars({ concepts, maxItems = 8, className }: Props)
       {sorted.map((c) => {
         const band = masteryBand(c.mastery);
         return (
-          <div key={c.concept}>
-            <div className="flex items-center justify-between text-xs mb-1">
-              <span className="text-text-secondary truncate pr-2">{c.concept}</span>
-              <span className="font-medium shrink-0" style={{ color: bandColor(band) }}>
+          <div key={c.concept} className="proximity-track">
+            {/* OPT-K9b — label + % sit together; bar uses same tight track */}
+            <div className="proximity-row flex flex-wrap items-baseline gap-x-3 gap-y-0.5 text-xs mb-1">
+              <span className="proximity-row-label text-text-secondary truncate">{c.concept}</span>
+              <span className="font-medium shrink-0 tabular-nums" style={{ color: bandColor(band) }}>
                 {c.mastery}% · {band}
               </span>
             </div>

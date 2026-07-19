@@ -40,15 +40,16 @@ export function ExamCalendarPanel() {
         ))}
       </div>
 
-      <ul className="space-y-3">
+      <ul className="proximity-track-wide space-y-3">
         {entries.map((entry) => (
           <li
             key={entry.id}
             className="rounded-xl border border-border-subtle bg-surface-card/40 p-3"
             data-testid={`exam-calendar-entry-${entry.id}`}
           >
-            <div className="flex items-start justify-between gap-2">
-              <div>
+            {/* OPT-K9b — link beside title cluster, not far-right of ultrawide card */}
+            <div className="proximity-row items-start">
+              <div className="proximity-row-label min-w-0">
                 <p className="text-[10px] text-text-muted mb-1">{entry.date}</p>
                 <p className="text-sm font-semibold text-text-primary">{t(entry.titleKey as never)}</p>
                 <p className="text-xs text-text-secondary mt-1">{t(entry.bodyKey as never)}</p>

@@ -72,7 +72,8 @@ export function SyllabusCoverageWidget({
         </div>
         <ul className="space-y-1 max-h-28 overflow-y-auto">
           {snapshot.topics.slice(0, 6).map((topic) => (
-            <li key={topic.topicId} className="flex items-center gap-1.5 text-[10px]">
+            /* OPT-K9b — Practice sits beside title (proximity), not far-right justify */
+            <li key={topic.topicId} className="coverage-topic-row flex items-center gap-1.5 text-[10px]">
               {topic.isComplete ? (
                 <CheckCircle2 className="w-3 h-3 text-accent-emerald shrink-0" aria-hidden />
               ) : (
@@ -85,14 +86,14 @@ export function SyllabusCoverageWidget({
                   aria-hidden
                 />
               )}
-              <span className={cn('truncate flex-1', topic.isComplete ? 'text-text-secondary' : 'text-text-primary')}>
+              <span className={cn('coverage-topic-title', topic.isComplete ? 'text-text-secondary' : 'text-text-primary')}>
                 {topic.title}
               </span>
               {!topic.isComplete && onPracticeTopic && primary && (
                 <button
                   type="button"
                   onClick={() => onPracticeTopic(topic, primary.id)}
-                  className="text-brand-700 shrink-0 font-medium"
+                  className="coverage-topic-action text-brand-700 font-medium"
                 >
                   {t('coveragePracticeTopic')}
                 </button>
@@ -158,25 +159,25 @@ export function SyllabusCoverageWidget({
           {snapshot.topics.map((topic) => (
             <li
               key={topic.topicId}
-              className="flex items-center justify-between gap-2 text-[11px] rounded-lg px-2 py-1.5 bg-surface-card/50"
+              className="coverage-topic-row flex items-center gap-1.5 text-[11px] rounded-lg px-2 py-1.5 bg-surface-card/50"
             >
-              <span className={cn('truncate min-w-0', topic.isComplete && 'text-accent-emerald')}>
+              {topic.isComplete && <CheckCircle2 className="w-3 h-3 text-accent-emerald shrink-0" />}
+              <span className={cn('coverage-topic-title', topic.isComplete && 'text-accent-emerald')}>
                 {topic.title}
               </span>
-              <span className="shrink-0 text-text-muted flex items-center gap-1.5">
-                {topic.isComplete && <CheckCircle2 className="w-3 h-3 text-accent-emerald" />}
-                <span>{topic.completedLessons}/{topic.totalLessons}</span>
-                {!topic.isComplete && onPracticeTopic && primary && (
-                  <button
-                    type="button"
-                    data-testid={`coverage-practice-${topic.topicId}`}
-                    onClick={() => onPracticeTopic(topic, snapshot.courseId)}
-                    className="text-brand-700 font-medium hover:underline"
-                  >
-                    {t('coveragePracticeTopic')}
-                  </button>
-                )}
+              <span className="shrink-0 text-text-muted tabular-nums">
+                {topic.completedLessons}/{topic.totalLessons}
               </span>
+              {!topic.isComplete && onPracticeTopic && primary && (
+                <button
+                  type="button"
+                  data-testid={`coverage-practice-${topic.topicId}`}
+                  onClick={() => onPracticeTopic(topic, snapshot.courseId)}
+                  className="coverage-topic-action text-brand-700 font-medium hover:underline"
+                >
+                  {t('coveragePracticeTopic')}
+                </button>
+              )}
             </li>
           ))}
         </ul>

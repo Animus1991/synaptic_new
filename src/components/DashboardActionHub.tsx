@@ -240,7 +240,10 @@ export function DashboardActionHub({
                 className={cn('p-3.5 sm:p-4', glassCard)}
                 data-testid="dashboard-hero-study-center"
               >
-                <div className="flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+                <div className={cn(
+                  'flex flex-col gap-2.5 sm:gap-3',
+                  hubQuiet ? 'proximity-track-wide sm:flex-row sm:items-start' : 'sm:flex-row sm:items-center sm:justify-between sm:gap-4',
+                )}>
                   <div className="min-w-0">
                     <p className={cn('text-[10px] font-semibold uppercase tracking-[0.08em]', onHero ? 'text-white/80' : 'text-text-secondary')}>
                       {t('dashboardLivePreviewEyebrow')}
@@ -258,10 +261,12 @@ export function DashboardActionHub({
                       onClick={onOpenWorkspace}
                       data-testid="dashboard-resume-workspace"
                       className={cn(
-                        'dashboard-continue-hero shrink-0 self-start rounded-xl border px-3 py-2 text-xs font-semibold transition-colors sm:self-auto',
+                        'dashboard-continue-hero shrink-0 self-start rounded-xl border px-3 py-2 text-xs font-semibold transition-colors',
                         onHero
                           ? 'border-white/20 bg-white/10 text-white hover:bg-white/15'
-                          : 'border-brand-500/35 bg-brand-600/10 text-brand-800 hover:bg-brand-600/15',
+                          : hubQuiet
+                            ? 'border-border-subtle bg-transparent text-text-primary hover:bg-surface-secondary'
+                            : 'border-brand-500/35 bg-brand-600/10 text-brand-800 hover:bg-brand-600/15',
                       )}
                     >
                       {t('dashboardResumeContinue')}

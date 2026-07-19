@@ -31,8 +31,10 @@ CSS: `src/styles/cursor-clarity.css` (imported after `replit-clarity.css`).
 | **OPT-K7** | PageHeader text-first + outline/solid CTA pair | **shipped** |
 | **OPT-K8** | Settings/Teacher Spending-like wells | **shipped** |
 | **OPT-K9** | Anti-stretch content measure inside full-width main | **shipped** |
+| **OPT-K9b** | Proximity layout + real densify + Practice inline | **shipped** |
 | **OPT-K10** | Shell chrome calm (overflow secondary CTAs/badges) | planned |
 | **OPT-K11** | Single well depth; no duplicate retrieval wells | **shipped** |
+| **OPT-K11b** | Extend single-well past mid-stack; quiet Study chips | **shipped** |
 | **OPT-K12** | Studio/tool grid distinct monochrome icons | planned |
 | **OPT-K13** | Rail expand discoverability (keep compact default) | planned |
 | **OPT-K14** | Library chip overflow (+N); all tags reachable | planned |
@@ -55,4 +57,4 @@ CSS: `src/styles/cursor-clarity.css` (imported after `replit-clarity.css`).
 
 ## Completeness
 
-**OPT-K1–K9 + K11 shipped.** Residual **K10, K12–K16** remain (shell chrome, Studio icons, rail discoverability, Library/Analytics/Agent). Compact rail + expand kept. See canvas `cursor-clarity-residual-audit.canvas.tsx`.
+**OPT-K1–K9 + K9b + K11 + K11b shipped.** Residual **K10, K12–K16** remain (shell chrome, Studio icons, rail discoverability, Library/Analytics/Agent). Compact rail + expand kept. See canvas `cursor-clarity-post-k911-audit.canvas.tsx`.
