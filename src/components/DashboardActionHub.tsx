@@ -19,6 +19,7 @@ import type { WorkspaceLiveSync } from '../lib/workspaceStoreSpine';
 import type { Lang } from '../lib/i18n';
 import type { PersonalStudyDate } from '../types';
 import type { SessionType } from '../lib/taskFlows';
+import { useMinimalTheme } from '../lib/useMinimalTheme';
 
 const ACTION_ICONS: Record<DashboardHubActionId, typeof Upload> = {
   calendar: Calendar,
@@ -84,6 +85,7 @@ export function DashboardActionHub({
   flushTop = false,
 }: Props) {
   const { t } = useI18n();
+  const hubQuiet = useMinimalTheme();
   const clickTimerRef = useRef<number | null>(null);
   const overflowRef = useRef<HTMLDivElement>(null);
   const [activePopup, setActivePopup] = useState<DashboardHubActionId | null>(null);
@@ -147,13 +149,13 @@ export function DashboardActionHub({
         onClick={() => handleCardClick(action.id)}
         onDoubleClick={() => handleCardDoubleClick(action.scrollTargetId)}
         className={cn(
-          'relative flex min-w-0 flex-col items-center gap-1 rounded-xl border border-border-subtle px-2 py-2.5 text-center transition-colors',
+          'dashboard-hub-chip relative flex min-w-0 flex-col items-center gap-1 rounded-xl border border-border-subtle px-2 py-2.5 text-center transition-colors',
           'hover:bg-surface-hover/40 focus-visible:ring-2 focus-visible:ring-brand-500/50',
           action.disabled && 'opacity-50 pointer-events-none',
           glassCard,
         )}
       >
-        <Icon className={cn('h-4 w-4', onHero ? 'text-brand-300' : 'text-brand-500')} aria-hidden />
+        <Icon className={cn('h-4 w-4', onHero ? 'text-brand-300' : hubQuiet ? 'text-text-tertiary' : 'text-brand-500')} aria-hidden />
         <span className={cn('truncate text-[10px] font-semibold leading-tight', onHero ? 'text-white' : 'text-text-primary')}>
           {t(action.chipLabelKey)}
         </span>
@@ -173,6 +175,7 @@ export function DashboardActionHub({
         className={cn(
           /* overflow-visible so «Περισσότερα» menu is not clipped; raise stack when open */
           'relative overflow-visible border border-border-subtle bg-surface-secondary/35',
+          hubQuiet && 'hub-quiet-surface',
           overflowOpen && 'z-40',
           flushTop
             ? 'rounded-none border-x-0 border-t-0'
@@ -253,8 +256,9 @@ export function DashboardActionHub({
                     <button
                       type="button"
                       onClick={onOpenWorkspace}
+                      data-testid="dashboard-resume-workspace"
                       className={cn(
-                        'shrink-0 self-start rounded-xl border px-3 py-2 text-xs font-semibold transition-colors sm:self-auto',
+                        'dashboard-continue-hero shrink-0 self-start rounded-xl border px-3 py-2 text-xs font-semibold transition-colors sm:self-auto',
                         onHero
                           ? 'border-white/20 bg-white/10 text-white hover:bg-white/15'
                           : 'border-brand-500/35 bg-brand-600/10 text-brand-800 hover:bg-brand-600/15',

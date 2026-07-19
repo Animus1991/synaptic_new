@@ -5,7 +5,7 @@ import {
   CheckCircle2, Circle, Clock, AlertTriangle, RotateCcw, Calendar,
   Play, Flame, Brain, Target, Zap,
   HelpCircle, XCircle, RefreshCw, ArrowDownRight, TrendingUp, Minus, ArrowRight,
-  SlidersHorizontal,
+  SlidersHorizontal, List, LayoutGrid,
 } from '@/lib/lucide-shim';
 import type { Task, MistakeRecord, SkillNode, SpacingData } from '../types';
 import type { Lang } from '../lib/i18n';
@@ -25,6 +25,7 @@ import { PlatformEmptyState } from './ui/PlatformEmptyState';
 import { HeroGlow, SectionHeader, SessionLauncherCard, UxCallout, DescriptiveStickyTabBar } from './ui/platformChrome';
 import { TasksKanbanStatusStrip, tasksKanbanCardStatus } from './TasksKanbanStatusStrip';
 import { BlueprintSurface } from './ui/BlueprintSurface';
+import { CollapsibleChromeSection } from './workspace/CollapsibleChromeSection';
 import { LeitnerDueQueuePanel } from './workspace/LeitnerDueQueuePanel';
 import { buildFsrsDueQueue } from '../lib/leitnerDueQueue';
 import { useWarmSandPageScope, warmSandScopeProps } from '../lib/useDocumentTheme';
@@ -33,6 +34,7 @@ import { useMinimalTheme } from '../lib/useMinimalTheme';
 export type { TaskFilter } from '../lib/tasksContent';
 
 type CommandTab = 'today' | 'weak' | 'reviews' | 'mistakes';
+type TasksLayoutMode = 'list' | 'board';
 
 interface TasksProps {
   tasks: Task[];
@@ -107,6 +109,7 @@ export function Tasks({
   const sessionTypes = getSessionTypes(lang);
   const [tab, setTab] = useState<CommandTab>('today');
   const [sessionMode, setSessionMode] = useState<SessionType | null>(null);
+  const [layoutMode, setLayoutMode] = useState<TasksLayoutMode>(() => (isMinimal ? 'list' : 'board'));
   const [showAllCourses, setShowAllCourses] = useState(false);
   const [localExpanded, setLocalExpanded] = useState<string | null>(null);
   const expandedTask = expandedTaskId ?? localExpanded;
@@ -211,7 +214,8 @@ export function Tasks({
     <div
       {...warmSandScopeProps(warmSandPage)}
       data-testid="tasks-page"
-      className="min-w-0 w-full"
+      data-tasks-layout={layoutMode}
+      className={cn('min-w-0 w-full', isMinimal && 'tasks-quiet')}
     >
     <Page className="max-w-none ux-fade-up !pt-0" gap="sm">
       <PageHeader
@@ -219,12 +223,51 @@ export function Tasks({
         subtitle={subtitle}
         icon={CheckCircle2}
         actions={
-          streak > 0 ? (
-            <div className="flex items-center gap-2 text-sm text-text-secondary">
-              <Flame className="w-4 h-4 text-accent-amber" aria-hidden />
-              <span className="font-medium">{c.streakDays(streak)}</span>
+          <div className="flex items-center gap-2">
+            <div
+              className="tasks-layout-toggle inline-flex items-center rounded-lg border border-border-subtle p-0.5"
+              role="group"
+              aria-label={t('tasksViewToggleAria', lang)}
+              data-testid="tasks-layout-toggle"
+            >
+              <button
+                type="button"
+                data-testid="tasks-layout-list"
+                aria-pressed={layoutMode === 'list'}
+                title={t('tasksViewList', lang)}
+                onClick={() => setLayoutMode('list')}
+                className={cn(
+                  'inline-flex h-7 w-7 items-center justify-center rounded-md transition-colors',
+                  layoutMode === 'list'
+                    ? 'bg-surface-hover text-text-primary'
+                    : 'text-text-tertiary hover:text-text-secondary',
+                )}
+              >
+                <List className="w-3.5 h-3.5" aria-hidden />
+              </button>
+              <button
+                type="button"
+                data-testid="tasks-layout-board"
+                aria-pressed={layoutMode === 'board'}
+                title={t('tasksViewBoard', lang)}
+                onClick={() => setLayoutMode('board')}
+                className={cn(
+                  'inline-flex h-7 w-7 items-center justify-center rounded-md transition-colors',
+                  layoutMode === 'board'
+                    ? 'bg-surface-hover text-text-primary'
+                    : 'text-text-tertiary hover:text-text-secondary',
+                )}
+              >
+                <LayoutGrid className="w-3.5 h-3.5" aria-hidden />
+              </button>
             </div>
-          ) : undefined
+            {streak > 0 && (
+              <div className="flex items-center gap-2 text-sm text-text-secondary">
+                <Flame className="w-4 h-4 text-accent-amber" aria-hidden />
+                <span className="font-medium">{c.streakDays(streak)}</span>
+              </div>
+            )}
+          </div>
         }
       />
 
@@ -278,52 +321,56 @@ export function Tasks({
         </div>
       )}
 
-      {/* Session launchers above tabs (Wave I-T01 — mockup order) */}
-      <div id="tasks-session-launchers" className="space-y-2" data-testid="tasks-session-launchers">
-        <SectionHeader
-          eyebrow={c.sessionSectionEyebrow}
-          title={c.sessionSectionTitle}
-          subtitle={c.sessionSectionSubtitle}
-        />
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-2">
-          {sessionTypes.map((s) => {
-            const sessionTasks = filterTasksForSession(visibleTasks, s.type);
-            const Icon = s.icon;
-            return (
-              <SessionLauncherCard
-                key={s.type}
-                testId={`session-launcher-${s.type}`}
-                label={s.label}
-                desc={s.desc}
-                durationTag={c.sessionDurationTag(s.minutes)}
-                taskHint={sessionTasks.length > 0 ? c.sessionTaskCount(s.minutes, sessionTasks.length) : undefined}
-                icon={Icon}
-                active={sessionMode === s.type}
-                recommended={recommendedSession === s.type}
-                recommendedLabel={t('sessionRecommendedBadge', lang)}
-                disabled={sessionTasks.length === 0}
-                onClick={() => {
-                  setSessionMode(s.type);
-                  onStartSession?.(s.type);
-                }}
-              />
-            );
-          })}
-        </div>
-        <SecondaryCTA
-          type="button"
-          data-testid="tasks-create-plan"
-          size="sm"
-          onClick={() => {
-            setTab('today');
-            setSessionMode(recommendedSession);
-            onStartSession?.(recommendedSession);
-          }}
-          className="w-full border-brand-500/40 bg-surface-card/60 font-semibold text-brand-800 hover:bg-brand-600/10"
-        >
-          {c.createPlanCta}
-        </SecondaryCTA>
-        <p className="text-[10px] text-text-muted text-center sm:text-left">{c.createPlanHint}</p>
+      {/* Session launchers — quieter under Minimal (OPT-R15); Wave I-T01 order kept */}
+      <div id="tasks-session-launchers" data-testid="tasks-session-launchers">
+        <CollapsibleChromeSection title={t('chromeSessions', lang)} data-testid="tasks-sessions-chrome">
+          <div className="space-y-2 pb-1">
+            <SectionHeader
+              eyebrow={c.sessionSectionEyebrow}
+              title={c.sessionSectionTitle}
+              subtitle={c.sessionSectionSubtitle}
+            />
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-2">
+              {sessionTypes.map((s) => {
+                const sessionTasks = filterTasksForSession(visibleTasks, s.type);
+                const Icon = s.icon;
+                return (
+                  <SessionLauncherCard
+                    key={s.type}
+                    testId={`session-launcher-${s.type}`}
+                    label={s.label}
+                    desc={s.desc}
+                    durationTag={c.sessionDurationTag(s.minutes)}
+                    taskHint={sessionTasks.length > 0 ? c.sessionTaskCount(s.minutes, sessionTasks.length) : undefined}
+                    icon={Icon}
+                    active={sessionMode === s.type}
+                    recommended={recommendedSession === s.type}
+                    recommendedLabel={t('sessionRecommendedBadge', lang)}
+                    disabled={sessionTasks.length === 0}
+                    onClick={() => {
+                      setSessionMode(s.type);
+                      onStartSession?.(s.type);
+                    }}
+                  />
+                );
+              })}
+            </div>
+            <SecondaryCTA
+              type="button"
+              data-testid="tasks-create-plan"
+              size="sm"
+              onClick={() => {
+                setTab('today');
+                setSessionMode(recommendedSession);
+                onStartSession?.(recommendedSession);
+              }}
+              className="w-full border-brand-500/40 bg-surface-card/60 font-semibold text-brand-800 hover:bg-brand-600/10"
+            >
+              {c.createPlanCta}
+            </SecondaryCTA>
+            <p className="text-[10px] text-text-muted text-center sm:text-left">{c.createPlanHint}</p>
+          </div>
+        </CollapsibleChromeSection>
       </div>
 
       <DescriptiveStickyTabBar
@@ -421,7 +468,7 @@ export function Tasks({
               )}
             </div>
           )}
-          {todayTasks.length > 0 && (
+          {todayTasks.length > 0 && layoutMode === 'board' && (
             <TasksKanbanStatusStrip
               tasks={visibleTasks}
               activeTaskId={activeTaskId}
@@ -447,13 +494,16 @@ export function Tasks({
                   className={cn(
                     'tasks-kanban-card ux-card flex flex-col gap-0 p-0 overflow-hidden',
                     `tasks-kanban-card-${kanbanStatus}`,
+                    layoutMode === 'list' && 'tasks-list-row',
                     isInProgress && 'border-brand-500/30 bg-brand-600/5',
                     task.priority === 'critical' && 'border-l-[3px] border-l-accent-rose border-accent-rose/30',
                     task.priority === 'high' && 'border-l-[3px] border-l-accent-amber',
                   )}
                 >
-                  <div className="flex items-center gap-3 p-4 cursor-pointer" onClick={() => setExpandedTask(isExpanded ? null : task.id)}>
-                    <span className={cn('tasks-kanban-status-dot shrink-0', `tasks-kanban-status-${kanbanStatus}`)} aria-hidden />
+                  <div className={cn('flex items-center gap-3 cursor-pointer', layoutMode === 'list' ? 'p-3' : 'p-4')} onClick={() => setExpandedTask(isExpanded ? null : task.id)}>
+                    {layoutMode === 'board' && (
+                      <span className={cn('tasks-kanban-status-dot shrink-0', `tasks-kanban-status-${kanbanStatus}`)} aria-hidden />
+                    )}
                     <button type="button" onClick={(e) => { e.stopPropagation(); onComplete(task.id); }} className="shrink-0" data-testid={`task-complete-${task.id}`} aria-label={`Complete ${task.title}`}>
                       <Circle className="w-5 h-5 text-text-muted hover:text-brand-400" />
                     </button>

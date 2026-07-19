@@ -212,7 +212,7 @@ export function Analytics({
     <AnalyticsDateRangeProvider>
       <div
         {...warmSandScopeProps(warmSandPage)}
-        className={cn(isMinimal && 'enterprise-calm')}
+        className={cn(isMinimal && 'enterprise-calm analytics-quiet')}
         data-testid="analytics-page"
       >
       <Page gap="sm">

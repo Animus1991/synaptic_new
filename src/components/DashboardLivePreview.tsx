@@ -121,7 +121,7 @@ export function DashboardLivePreview({
               onClick={onOpenWorkspace}
               data-testid="dashboard-resume-workspace"
               {...workspaceEntryPrefetchHandlers()}
-              className="flex shrink-0 items-center gap-1.5 rounded-xl bg-brand-700 px-3.5 py-2 text-xs font-semibold text-white transition-all hover:bg-brand-800"
+              className="dashboard-continue-hero flex shrink-0 items-center gap-1.5 rounded-xl bg-brand-700 px-3.5 py-2 text-xs font-semibold text-white transition-all hover:bg-brand-800"
             >
               {t('dashboardResumeContinue')} <ArrowRight className="h-3 w-3" />
             </button>
@@ -150,7 +150,7 @@ export function DashboardLivePreview({
             onClick={onOpenWorkspace}
             data-testid="dashboard-resume-workspace"
             {...workspaceEntryPrefetchHandlers()}
-            className="flex shrink-0 items-center gap-1.5 rounded-xl bg-brand-700 px-4 py-2 text-xs font-semibold text-white transition-all hover:bg-brand-800"
+            className="dashboard-continue-hero flex shrink-0 items-center gap-1.5 rounded-xl bg-brand-700 px-4 py-2 text-xs font-semibold text-white transition-all hover:bg-brand-800"
           >
             {t('dashboardResumeContinue')} <ArrowRight className="h-3 w-3" />
           </button>

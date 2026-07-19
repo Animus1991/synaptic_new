@@ -1,6 +1,6 @@
 /**
- * OPT-R10 / OPT-R13 / OPT-R11 / OPT-R12 — Replit-inspired create, canvas,
- * Status-as-console, Library/⌘K path density.
+ * OPT-R10 / OPT-R13 / OPT-R11 / OPT-R12 / OPT-R15 — Replit-inspired create,
+ * canvas, Status-as-console, Library/⌘K path density, quieter hubs.
  * Minimal-gated only. No orange palette. Zero feature removal.
  * Principles only — not a Replit brand clone.
  */
@@ -283,4 +283,106 @@
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .notebook-canvas [data-testid="notebook-source-list"] > li > div {
   padding-left: 0.45rem;
   padding-right: 0.45rem;
+}
+
+/* ── OPT-R15 — Dashboard / Tasks / Analytics quieter hubs ────────────── */
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .hub-quiet .dashboard-continue-hero {
+  min-height: 2.25rem;
+  padding-inline: 1rem;
+  font-weight: 650;
+  letter-spacing: 0.01em;
+  box-shadow: none;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .hub-quiet .hub-quiet-surface {
+  background: color-mix(in srgb, var(--color-surface-secondary, #f6f8fa) 45%, transparent);
+  border-color: color-mix(in srgb, var(--color-border-subtle, #d0d7de) 70%, transparent);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .hub-quiet .dashboard-hub-chip {
+  border-radius: 0.5rem;
+  padding-top: 0.45rem;
+  padding-bottom: 0.45rem;
+  background: transparent;
+  box-shadow: none;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .hub-quiet [data-testid="dashboard-page-stats"] {
+  gap: 0.4rem;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .hub-quiet [data-testid="dashboard-page-stats"] > * {
+  padding: 0.45rem 0.55rem;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .hub-quiet [data-testid="dashboard-masonry"] > * {
+  box-shadow: none;
+  border-color: color-mix(in srgb, var(--color-border-subtle, #d0d7de) 75%, transparent);
+  background: color-mix(in srgb, var(--color-surface-secondary, #f6f8fa) 35%, transparent);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .hub-quiet .dashboard-next-action-quiet {
+  box-shadow: none;
+  border-color: color-mix(in srgb, var(--color-border-subtle, #d0d7de) 80%, transparent);
+  background: color-mix(in srgb, var(--color-surface-secondary, #f6f8fa) 50%, transparent);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .hub-quiet [data-testid="dashboard-active-topic-pill"] {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-weight: 500;
+  opacity: 0.9;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .tasks-quiet .tasks-layout-toggle {
+  border-color: color-mix(in srgb, var(--color-border-subtle, #d0d7de) 80%, transparent);
+  background: color-mix(in srgb, var(--color-surface-secondary, #f6f8fa) 40%, transparent);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .tasks-quiet .tasks-list-row {
+  border-radius: 0.5rem;
+  box-shadow: none;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .tasks-quiet [data-testid="tasks-kanban-strip"] .tasks-kanban-column {
+  box-shadow: none;
+  border-radius: 0.4rem;
+  padding: 0.4rem 0.5rem;
+  background: color-mix(in srgb, var(--color-surface-secondary, #f6f8fa) 50%, transparent);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .tasks-quiet [data-testid="tasks-kanban-strip"] .tasks-kanban-column-label {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.04em;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .tasks-quiet [data-testid="tasks-session-launchers"] .ux-card,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .tasks-quiet [data-testid^="session-launcher-"] {
+  box-shadow: none;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .analytics-quiet [data-testid="progress-kpi-row"] {
+  gap: 0.4rem;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .analytics-quiet [data-testid="progress-kpi-row"] .ux-card {
+  box-shadow: none;
+  border-radius: 0.45rem;
+  padding: 0.5rem 0.65rem;
+  background: color-mix(in srgb, var(--color-surface-secondary, #f6f8fa) 40%, transparent);
+  border-color: color-mix(in srgb, var(--color-border-subtle, #d0d7de) 75%, transparent);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .analytics-quiet .ux-card,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .analytics-quiet .platform-panel-md {
+  box-shadow: none;
+  border-color: color-mix(in srgb, var(--color-border-subtle, #d0d7de) 75%, transparent);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .analytics-quiet .ux-card h3,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .analytics-quiet .platform-panel-md h3 {
+  font-size: 0.75rem;
+  letter-spacing: 0.02em;
+  color: var(--color-text-secondary, #424a53);
 }

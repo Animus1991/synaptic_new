@@ -151,9 +151,9 @@ Scoring: **Gap** = Replit clarity still weak after R+M+C. **Borrow** = principle
 
 | Surface | Current | Residual gap | Wave |
 |---------|---------|--------------|------|
-| Dashboard | Soft stats (C5); alerts collapse (M12) | Single “Continue” hero; secondary masonry quieter | R15 |
-| Tasks | Kanban visual (R3) | Board vs list toggle clarity; no backend Kanban | R15 |
-| Analytics | Enterprise calm header (C6) | Chart chrome thinner; KPIs less card-stacked | R15 |
+| Dashboard | Continue hero + quieter masonry (**R15**) | — largely done | — |
+| Tasks | List/Board toggle + quieter sessions (**R15**) | — largely done | — |
+| Analytics | Thinner chart/KPI chrome (**R15**) | — largely done | — |
 
 ### 4.7 Enterprise / Settings / Landing
 
@@ -202,7 +202,7 @@ These improve **legibility of existing power**, not new product pillars:
 | **OPT-R12** | Library/files + ⌘K path mono density | Filters/upload kept | **shipped** |
 | **OPT-R13** | Workspace/notebook canvas primacy (Sources/Studio hierarchy copy+CSS) | 3-panel + tools 100% | **shipped** |
 | **OPT-R14** | Agent tools/modes menu grouping (all modes still listed) | Modes 100% | Low |
-| **OPT-R15** | Dashboard/Tasks/Analytics secondary quieter | Hub features kept | Low |
+| **OPT-R15** | Dashboard/Tasks/Analytics secondary quieter | Hub features kept | **shipped** |
 | **OPT-R16** | Settings IDE-like section layout polish | All sections kept | Low |
 | **OPT-R17** | Motion/skeleton/focus Minimal polish | AA retained | Low |
 | **OPT-R18** | Capture harness: seed demo course for M20/C8 workspace rows | Human Pass? fill-in reduced | **shipped** |
@@ -255,9 +255,9 @@ These improve **legibility of existing power**, not new product pillars:
 
 ## 10. Completeness answer (honest)
 
-**Prior agents finished OPT-R1–R8 aesthetic waves; R10–R13 + R18 now shipped.** Primer + ChatGPT-calm layers sit on the same Minimal default. Synapse is **not** a blank slate for Replit — remaining residual value is quieter hubs (R14–R17) and optional collapsed rail (R9), with zero removals.
+**Prior agents finished OPT-R1–R8 aesthetic waves; R10–R13 + R15 + R18 now shipped.** Primer + ChatGPT-calm layers sit on the same Minimal default. Synapse is **not** a blank slate for Replit — remaining residual value is Agent mode grouping (R14), optional collapsed rail (R9), Settings (R16), and motion polish (R17), with zero removals.
 
-**Recommended next engineering step:** human Pass? on M20/C8 capture matrices, then **OPT-R9** or **OPT-R14–R15**.
+**Recommended next engineering step:** human Pass? on M20/C8 (if not done), then **OPT-R14** or **OPT-R9**.
 
 ---
 
@@ -270,4 +270,5 @@ These improve **legibility of existing power**, not new product pillars:
 | Engineering (R11) | 2026-07-19 | Status-as-console dock + inbox Errors/Activity + pipeline strip shipped. |
 | Engineering (R18) | 2026-07-19 | Capture demo-course seed harness + atomic explore-demo onboarding. |
 | Engineering (R12) | 2026-07-19 | Library/files + ⌘K path mono density; list-view course card testids. |
+| Engineering (R15) | 2026-07-19 | Dashboard Continue hero + quieter masonry; Tasks List/Board; Analytics KPI chrome. |
 | | | |

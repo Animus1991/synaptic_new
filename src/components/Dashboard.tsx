@@ -239,7 +239,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
   return (
     <div
       {...warmSandScopeProps(warmSandPage)}
-      className={cn('w-full min-w-0 pb-24 lg:pb-8 ux-fade-up', isMinimal && 'dashboard-calm')}
+      className={cn('w-full min-w-0 pb-24 lg:pb-8 ux-fade-up', isMinimal && 'dashboard-calm hub-quiet')}
       data-testid="dashboard-page"
       data-dashboard-layout={layoutMode}
     >
@@ -370,54 +370,56 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
         </MotionSection>
       )}
 
-      {/* Dual secondary prompts — side-by-side when both present (mockup I-D08) */}
+      {/* Dual secondary prompts — quieter under Minimal (OPT-R15); side-by-side when both present */}
       {(daysToExam !== null || antiPassiveAlert || stats.antiPassiveAlert) && (
-        <MotionSection
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className={cn(
-            'grid gap-3',
-            daysToExam !== null && (antiPassiveAlert || stats.antiPassiveAlert)
-              ? 'grid-cols-1 sm:grid-cols-2'
-              : 'grid-cols-1',
-          )}
-        >
-          {daysToExam !== null && (
-            <UxCallout
-              variant="danger"
-              title={t('dashExamCountdown')}
-              icon={<Calendar className="text-accent-amber" />}
-              testId="dashboard-exam-countdown"
-              className="py-2.5"
-              action={
-                <button
-                  type="button"
-                  onClick={() => (examTask ? onStartTask?.(examTask.id) : onOpenExamTimer?.() ?? onOpenWorkspace?.())}
-                  className="platform-link text-xs flex items-center gap-1 shrink-0"
-                >
-                  {examTask ? t('dashStartExamPrep') : t('dashExamPrep')} <ArrowRight className="w-3 h-3" />
-                </button>
-              }
+        <MotionSection initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+          <CollapsibleChromeSection title={t('chromeStudyPrompts')} data-testid="dashboard-study-prompts-chrome">
+            <div
+              className={cn(
+                'grid gap-3',
+                daysToExam !== null && (antiPassiveAlert || stats.antiPassiveAlert)
+                  ? 'grid-cols-1 sm:grid-cols-2'
+                  : 'grid-cols-1',
+              )}
             >
-              {daysToExam === 0 ? t('dashExamToday') : (daysToExam === 1 ? t('dashDayUntilExam') : t('dashDaysUntilExam').replace('{count}', String(daysToExam)))}
-            </UxCallout>
-          )}
-          {(antiPassiveAlert || stats.antiPassiveAlert) && (
-            <div className="platform-banner-warn p-3 rounded-xl border flex items-start gap-2.5" data-testid="dashboard-anti-passive">
-              <Eye className="w-4 h-4 text-accent-amber shrink-0 mt-0.5" />
-              <div className="min-w-0">
-                <p className="platform-banner-title text-xs font-semibold">{t('dashActiveRecallTitle')}</p>
-                <p className="text-[11px] text-text-secondary mt-0.5 line-clamp-2">{t('dashActiveRecallBody')}</p>
-                <button
-                  type="button"
-                  onClick={() => (firstReviewTask ? onStartTask?.(firstReviewTask.id) : onNavigate('tasks'))}
-                  className="mt-1.5 platform-link text-xs flex items-center gap-1"
+              {daysToExam !== null && (
+                <UxCallout
+                  variant="danger"
+                  title={t('dashExamCountdown')}
+                  icon={<Calendar className="text-accent-amber" />}
+                  testId="dashboard-exam-countdown"
+                  className="py-2.5"
+                  action={
+                    <button
+                      type="button"
+                      onClick={() => (examTask ? onStartTask?.(examTask.id) : onOpenExamTimer?.() ?? onOpenWorkspace?.())}
+                      className="platform-link text-xs flex items-center gap-1 shrink-0"
+                    >
+                      {examTask ? t('dashStartExamPrep') : t('dashExamPrep')} <ArrowRight className="w-3 h-3" />
+                    </button>
+                  }
                 >
-                  {t('dashTakeQuiz')} <ArrowRight className="w-3 h-3" />
-                </button>
-              </div>
+                  {daysToExam === 0 ? t('dashExamToday') : (daysToExam === 1 ? t('dashDayUntilExam') : t('dashDaysUntilExam').replace('{count}', String(daysToExam)))}
+                </UxCallout>
+              )}
+              {(antiPassiveAlert || stats.antiPassiveAlert) && (
+                <div className="platform-banner-warn p-3 rounded-xl border flex items-start gap-2.5" data-testid="dashboard-anti-passive">
+                  <Eye className="w-4 h-4 text-accent-amber shrink-0 mt-0.5" />
+                  <div className="min-w-0">
+                    <p className="platform-banner-title text-xs font-semibold">{t('dashActiveRecallTitle')}</p>
+                    <p className="text-[11px] text-text-secondary mt-0.5 line-clamp-2">{t('dashActiveRecallBody')}</p>
+                    <button
+                      type="button"
+                      onClick={() => (firstReviewTask ? onStartTask?.(firstReviewTask.id) : onNavigate('tasks'))}
+                      className="mt-1.5 platform-link text-xs flex items-center gap-1"
+                    >
+                      {t('dashTakeQuiz')} <ArrowRight className="w-3 h-3" />
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
-          )}
+          </CollapsibleChromeSection>
         </MotionSection>
       )}
 
@@ -427,14 +429,14 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
         <MotionSection initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
           <UxCallout
             variant="next-action"
-            className="ux-spark-panel"
+            className={cn(!isMinimal && 'ux-spark-panel', isMinimal && 'dashboard-next-action-quiet')}
             title={dashboardNextAction.reason || t('dashboardSuggestedNext')}
             icon={<Lightbulb />}
             testId="dashboard-next-action"
             action={
               <PrimaryCTA
                 onClick={handleDashboardNextAction}
-                className="shrink-0 text-xs px-4 py-2"
+                className="shrink-0 text-xs px-4 py-2 dashboard-continue-hero"
                 data-testid="dashboard-execute-cta"
               >
                 {t('dashExecute')} <ArrowRight className="w-3.5 h-3.5" />
