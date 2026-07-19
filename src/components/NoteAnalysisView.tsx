@@ -4,7 +4,7 @@ import {
   AlertTriangle, CheckCircle2, ArrowRight, Play, Lightbulb,
 } from '@/lib/lucide-shim';
 import type { Course, UploadedFile } from '../types';
-import type { Lang } from '../lib/i18n';
+import { t, type Lang } from '../lib/i18n';
 import { cn } from '../utils/cn';
 import { buildNoteAnalysisSnapshot, type NoteAnalysisStageId } from '../lib/noteAnalysisSnapshot';
 import { getNoteAnalysisContent, NOTE_ANALYSIS_STAGES } from '../lib/noteAnalysisContent';
@@ -13,6 +13,7 @@ import { ConceptGraph } from './visuals/ConceptGraph';
 import { Page, PageHeader } from './ui/primitives';
 import { workspaceEntryPrefetchHandlers } from '../lib/workspaceEntryPrefetch';
 import { LiveEngineTransparencyPanel } from './analysis/LiveEngineTransparencyPanel';
+import { CollapsibleChromeSection } from './workspace/CollapsibleChromeSection';
 
 const STAGE_ICONS: Record<NoteAnalysisStageId, typeof FileText> = {
   1: FileText,
@@ -260,12 +261,20 @@ export function NoteAnalysisView({
         <div className="space-y-4">
           <p className="text-sm text-text-secondary">{c.algorithmTransparency}</p>
 
-          <LiveEngineTransparencyPanel
-            courseId={course.id}
-            files={files}
-            lang={lang}
-            defaultQuery={snapshot.keyphrases[0]?.phrase ?? course.title}
-          />
+          <CollapsibleChromeSection
+            title={t('chromeNoteExtras', lang)}
+            data-testid="note-analysis-engine-chrome"
+            defaultOpen
+          >
+            <div className="space-y-4 px-1 pb-2">
+              <LiveEngineTransparencyPanel
+                courseId={course.id}
+                files={files}
+                lang={lang}
+                defaultQuery={snapshot.keyphrases[0]?.phrase ?? course.title}
+              />
+            </div>
+          </CollapsibleChromeSection>
 
           {snapshot.bm25Terms.length > 0 && (
             <div className="ux-card overflow-x-auto">

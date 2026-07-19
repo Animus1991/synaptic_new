@@ -16,6 +16,8 @@ import {
 } from '@/lib/lucide-shim';
 import type { ExamQuestion } from '../lib/taskFlows';
 import { cn } from '../utils/cn';
+import { CollapsibleChromeSection } from './workspace/CollapsibleChromeSection';
+import { useI18n } from '../lib/i18n';
 
 interface ExamPrepViewProps {
   onClose: () => void;
@@ -52,6 +54,7 @@ export function ExamPrepView({
   durationSeconds = 180,
   questions = [],
 }: ExamPrepViewProps) {
+  const { t } = useI18n();
   const [phase, setPhase] = useState<ExamPhase>('setup');
   const [examMode, setExamMode] = useState<ExamMode>('standard');
   const [timeLeft, setTimeLeft] = useState(durationSeconds);
@@ -265,9 +268,11 @@ export function ExamPrepView({
               ))}
             </div>
 
-            <div className="rounded-xl border border-accent-amber/20 bg-accent-amber/5 text-xs text-accent-amber p-4">
-              <p>Use the Agent before or after the run for coaching. During the exam, focus on answering and flagging questions for later review.</p>
-            </div>
+            <CollapsibleChromeSection title={t('chromeExamTip')} data-testid="exam-prep-tip-chrome">
+              <div className="rounded-xl border border-accent-amber/20 bg-accent-amber/5 text-xs text-accent-amber p-4">
+                <p>Use the Agent before or after the run for coaching. During the exam, focus on answering and flagging questions for later review.</p>
+              </div>
+            </CollapsibleChromeSection>
 
             <div className="flex justify-center">
               <button

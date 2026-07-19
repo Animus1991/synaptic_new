@@ -485,7 +485,10 @@ export default function App() {
     onToggleTheme: store.toggleTheme,
     onOpenSearch: () => togglePalette(),
     onOpenNotifications: () => setNotificationsOpen(true),
-    notificationCount: store.notificationUnreadCount,
+    notificationCount:
+      store.notificationUnreadCount
+      + store.proactiveAgentAlerts.length
+      + (store.appToast ? 1 : 0),
     breadcrumb: shellBreadcrumb,
     workspaceLive: store.workspaceLive,
     onOpenWorkspace: openWorkspace,
@@ -581,6 +584,10 @@ export default function App() {
         onOpenTasks={(filter) => {
           if (filter) store.openTasksWithFilter(filter);
         }}
+        appToastMessage={store.appToast?.message ?? null}
+        onDismissAppToast={store.dismissAppToast}
+        proactiveAlerts={store.proactiveAgentAlerts}
+        onRunProactiveAlert={store.runProactiveAgentAlert}
       />
       <NotificationToastStack />
       <TakeBreathModal open={takeBreathOpen} onClose={() => setTakeBreathOpen(false)} />

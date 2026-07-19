@@ -351,9 +351,10 @@ Constraints for all OPT-R*: no typography/button/modal scale-up; no functional c
 | OPT-M11 | Modal/overlay border-first under minimal; fab hardcode cleanup | P2 | **shipped** | `index.css` OPT-M11; `StudyWorkspaceOverlays`; `concept-lens-chip` |
 | OPT-M12 | Dashboard/Tasks/Agent progressive disclosure under minimal | P2 | **shipped** | Alerts / flow rail / quick actions collapsible; due-queue collapsed by default |
 | OPT-M13 | Minimal as production default (pre-launch) | P2 | **shipped** | `DEFAULT_THEME_PREFERENCE = minimal`; Blueprint remains selectable |
-| OPT-M14 | App-shell surface polish under Minimal | P2 | **shipped** | CSS radius/blur + Library/Analytics/Teacher collapsible chrome |
+| OPT-M14 | App-shell surface polish under Minimal | P2 | **shipped** | Library/Analytics/Teacher + Exam tip / Note engine / Student Org hints |
 | OPT-M16 | Global ⌘K + `?` help parity | P2 | **partial** | Shell search title/aria; app-level `?` → WorkspaceKeyboardHelp when WS closed |
-| OPT-M15, M17–M20 | CSS prune, app inbox, empty states, QA | P2 | open | See `docs/PRIMER_GITHUB_ENHANCEMENT_PLAN.md` |
+| OPT-M17 | App-level Status/Inbox | P2 | **shipped** | NotificationsPanel hosts toast + proactive alerts; bell badge includes them |
+| OPT-M15, M18–M20 | CSS prune, empty states, QA | P2 | open | See `docs/PRIMER_GITHUB_ENHANCEMENT_PLAN.md` |
 
 ### Replit study — explicit non-borrows
 

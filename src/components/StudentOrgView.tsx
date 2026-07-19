@@ -14,6 +14,8 @@ import { AssignmentDiscussionThread } from './AssignmentDiscussionThread';
 import type { StudentAssignmentDue } from '../lib/studentOrgCalendar';
 import { formatShortDate } from '../lib/localeFormat';
 import { UxShimmerPanel } from './ui/UxShimmerSkeleton';
+import { CollapsibleChromeSection } from './workspace/CollapsibleChromeSection';
+import { t as i18nT } from '../lib/i18n';
 import { cn } from '../utils/cn';
 
 interface Props {
@@ -199,9 +201,15 @@ export function StudentOrgView({
       </div>
 
       {samlEmailHint && (
-        <div className="rounded-xl border border-brand-500/30 bg-brand-500/10 px-4 py-3 text-sm text-text-secondary">
-          {ui.samlWelcome} ({samlEmailHint})
-        </div>
+        <CollapsibleChromeSection
+          title={i18nT('chromeOrgHints', lang)}
+          data-testid="student-org-saml-chrome"
+          defaultOpen
+        >
+          <div className="rounded-xl border border-brand-500/30 bg-brand-500/10 px-4 py-3 text-sm text-text-secondary">
+            {ui.samlWelcome} ({samlEmailHint})
+          </div>
+        </CollapsibleChromeSection>
       )}
 
       {error && (
@@ -251,7 +259,12 @@ export function StudentOrgView({
             </label>
           )}
         </div>
-        <p className="text-sm text-text-muted">{ui.myClassesHint}</p>
+        <CollapsibleChromeSection
+          title={i18nT('chromeOrgHints', lang)}
+          data-testid="student-org-classes-hint-chrome"
+        >
+          <p className="text-sm text-text-muted px-1 pb-2">{ui.myClassesHint}</p>
+        </CollapsibleChromeSection>
         {loading && filteredClasses.length === 0 ? (
           <div className="ux-shimmer-panel rounded-panel border border-border-subtle bg-surface-card p-6" role="status" aria-live="polite">
             <UxShimmerPanel lines={4} />

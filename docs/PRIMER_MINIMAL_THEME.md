@@ -1,6 +1,6 @@
 # Primer-inspired Minimal Theme (OPT-M)
 
-**Status:** shipped through OPT-M14 (+ M16 partial); forward plan in `docs/PRIMER_GITHUB_ENHANCEMENT_PLAN.md`  
+**Status:** shipped through OPT-M17 (+ M16 partial); forward plan in `docs/PRIMER_GITHUB_ENHANCEMENT_PLAN.md`  
 **Constraint:** zero functionality removal — visual + disclosure only  
 **Default:** `minimal` (pre-launch; Blueprint remains Settings option)
 
@@ -43,9 +43,10 @@ This is **not** a GitHub clone (no Octocat/Primer brand assets).
 | OPT-M11 | Modal/overlay border-first + remove warm `#faf8f5` hardcodes in fab |
 | OPT-M12 | Shell density: Dashboard/Tasks/Agent progressive disclosure under minimal |
 | OPT-M13 | Production default → Minimal (pre-launch; Blueprint selectable) |
-| OPT-M14 | Library / Analytics / Teacher secondary chrome collapsible under Minimal |
+| OPT-M14 | Page secondary chrome collapsible (Library/Analytics/Teacher/Exam/Note/Student Org) |
 | OPT-M16 | Shell ⌘K label + global `?` help when workspace closed (partial) |
-| OPT-M15+ | CSS prune, app inbox, QA — see `PRIMER_GITHUB_ENHANCEMENT_PLAN.md` |
+| OPT-M17 | Shell notifications inbox = activity + toast + proactive alerts |
+| OPT-M15+ | CSS prune, empty states, QA — see `PRIMER_GITHUB_ENHANCEMENT_PLAN.md` |
 
 ## OPT-M9 — Status bus
 
