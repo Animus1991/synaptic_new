@@ -357,7 +357,7 @@ Constraints for all OPT-R*: no typography/button/modal scale-up; no functional c
 | OPT-M15 | CSS hygiene / theme-scoped extract | P2 | **shipped** | `src/styles/primer-minimal.css` + `docs/PRIMER_MINIMAL_CSS_INVENTORY.md` |
 | OPT-M18 | Content-first Course empty states | P2 | **shipped** | Path + Sources `PlatformEmptyState` |
 | OPT-M19 | System preference → Minimal family | P2 | **shipped** | `system` → `minimal` / `minimal-dark` |
-| OPT-M20 | Screenshot matrix launch QA | P2 | **process** | Matrix expanded; human captures still ☐ |
+| OPT-M20 | Screenshot matrix launch QA | P2 | **process** | `npm run capture:primer-minimal` dumps PNGs; human Pass? still ☐ |
 
 ### Replit study — explicit non-borrows
 

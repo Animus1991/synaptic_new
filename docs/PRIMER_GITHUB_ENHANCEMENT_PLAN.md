@@ -135,7 +135,7 @@ These are **organizational / power-user** patterns inspired by GitHub, mapped to
 | **OPT-M17** | App-level Status/Inbox for toasts + proactive alerts (mirror workspace bus) | All signals reachable | **shipped** |
 | **OPT-M18** | Content-first Course/Notebook empty & overview states | Clearer first minute | **shipped** |
 | **OPT-M19** | Optional `minimal-dark` as system-dark companion default | OS dark → minimal-dark when preference=system | **shipped** |
-| **OPT-M20** | Visual QA fill screenshot matrix before public launch | Matrix rows checked | Process |
+| **OPT-M20** | Visual QA: `npm run capture:primer-minimal` + human Pass? on matrix | Matrix rows checked | Process |
 
 ---
 
@@ -161,7 +161,7 @@ These are **organizational / power-user** patterns inspired by GitHub, mapped to
 
 ## 8. Priority of effort (ROI)
 
-1. **M20 visual QA** — fill screenshot matrix before public launch (human)  
+1. **M20 visual QA** — run `npm run capture:primer-minimal`, review PNGs, check matrix Pass? before public launch (human)  
 
 ---
 
@@ -170,4 +170,4 @@ These are **organizational / power-user** patterns inspired by GitHub, mapped to
 **Not everything is finished at pixel level.**  
 **Yes — this document is the exhaustive enhancement plan:** principles, shipped inventory, GitHub-adapted feature map, aesthetic rules, forward waves, and non-goals — all under **zero functionality removal**.
 
-Next: **M20 screenshot QA (human captures)** — engineering waves M0–M19 complete under zero feature removal.
+Next: **M20 screenshot QA** — dump via `npm run capture:primer-minimal`, human marks Pass? in `docs/PRIMER_MINIMAL_SCREENSHOT_MATRIX.md`. Engineering waves M0–M19 complete under zero feature removal.

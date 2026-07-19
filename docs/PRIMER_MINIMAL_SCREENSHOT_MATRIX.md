@@ -6,10 +6,12 @@
 
 ## How to capture
 
-1. Use desktop 1280×800 and mobile 390×844.
-2. Theme cycle: **Blueprint** (baseline) → **Minimal** → **Minimal Dark**.
-3. Density: **Comfortable** then **Compact** (on Minimal).
-4. Store under `artifacts/primer-minimal/` (local; do not commit binaries unless requested).
+1. **Automated dump (recommended):** `npm run capture:primer-minimal`  
+   Writes PNGs + `MANIFEST.md` under `artifacts/primer-minimal/` (Playwright; not a CI gate).
+2. Use desktop 1280×800 and mobile 390×844 for any manual fill-ins.
+3. Theme cycle: **Blueprint** (baseline) → **Minimal** → **Minimal Dark**.
+4. Density: **Comfortable** then **Compact** (on Minimal).
+5. Do not commit PNG binaries unless requested. Review PNGs and mark Pass? below.
 
 ## Matrix
 
@@ -60,5 +62,5 @@
 
 | Role | Date | Notes |
 |------|------|-------|
-| Engineering | 2026-07-19 | M0–M17 code landed (M16 partial). Matrix rows remain for human visual capture under `artifacts/primer-minimal/`. **M20 launch gate.** |
+| Engineering | 2026-07-19 | M0–M19 code landed. Capture helper: `npm run capture:primer-minimal` → `artifacts/primer-minimal/`. **M20 launch gate = human Pass? checkboxes.** |
 | | | |
