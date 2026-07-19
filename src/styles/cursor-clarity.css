@@ -724,6 +724,33 @@
   border-bottom-color: color-mix(in srgb, var(--color-border-subtle) 70%, transparent);
 }
 
+/* ── OPT-K14 — Library chip overflow (+N densify; all tags reachable) ───── */
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .overflow-chip-row .overflow-chip,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .overflow-chip-row .overflow-chip-more {
+  border-radius: 0.25rem;
+  border-color: var(--color-border-subtle);
+  background: transparent;
+  color: var(--color-text-secondary);
+  box-shadow: none;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .overflow-chip-row .overflow-chip-more {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  letter-spacing: 0.02em;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .overflow-chip-row .overflow-chip-more:hover,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .overflow-chip-row .overflow-chip-more:focus-visible {
+  color: var(--color-text-primary);
+  border-color: var(--color-border-default, var(--color-border-subtle));
+  outline: none;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .info-stack .overflow-chip-row {
+  gap: 0.35rem;
+}
+
 /* ── OPT-K12 — Studio tool icons: distinct monochrome (no cyan blobs) ───── */
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .notebook-canvas [data-testid="notebook-studio-grid"] .studio-tool-icon {

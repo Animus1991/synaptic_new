@@ -41,6 +41,7 @@ import { isDebugUiTopicLabel } from '../lib/knowledgeFlowAnalytics';
 import { QualityScoreBadge } from './ui/QualityScoreBadge';
 import { CourseStatusBadge, type CourseStatusKind } from './ui/CourseStatusBadge';
 import { CompactProgressBar } from './ui/CompactProgressBar';
+import { OverflowChipRow } from './ui/OverflowChipRow';
 import { useMinimalTheme } from '../lib/useMinimalTheme';
 
 type LibraryTab = 'courses' | 'files';
@@ -226,20 +227,21 @@ export function Library({
   }, [courses]);
 
   const libraryInfo = useMemo(() => {
+    /** OPT-K14 — keep full tag lists; OverflowChipRow densifies with +N (no silent drop). */
     const topics: string[] = [];
     const prereqSet = new Set<string>();
     for (const course of filteredCourses) {
       for (const topic of course.topics) {
         if (isDebugUiTopicLabel(topic.title)) continue;
-        if (topics.length < 4 && !topics.includes(topic.title)) topics.push(topic.title);
+        if (!topics.includes(topic.title)) topics.push(topic.title);
         topic.prerequisites.filter((p) => !isDebugUiTopicLabel(p)).forEach((p) => prereqSet.add(p));
         (topic.keyConcepts ?? []).filter((k) => !isDebugUiTopicLabel(k)).forEach((k) => prereqSet.add(k));
       }
     }
     const glossaryTerms = [...new Set(glossaryEntries.map((g) => g.term).filter(Boolean))];
-    const examples = glossaryTerms.slice(0, 4);
-    const prerequisites = [...prereqSet].slice(0, 8);
-    const enrichments = [...new Set([...glossaryTerms.slice(4), ...prerequisites])].slice(0, 8);
+    const examples = glossaryTerms;
+    const prerequisites = [...prereqSet];
+    const enrichments = [...new Set([...glossaryTerms.slice(4), ...prerequisites])];
     return { topics, prerequisites, examples, enrichments };
   }, [filteredCourses, glossaryEntries]);
 
@@ -695,7 +697,7 @@ function CourseCard({
   const quality = course.sourceQuality;
   const showMaterialGap = Boolean(quality?.needsMoreMaterial);
   const showMisconception = Boolean(quality?.outlineAdjusted);
-  const topicChips = (course.topics ?? []).filter((topic) => !isDebugUiTopicLabel(topic.title)).slice(0, 4);
+  const topicChips = (course.topics ?? []).filter((topic) => !isDebugUiTopicLabel(topic.title));
   const { pendingTasks, dueReviews, isStalePipeline: isOldPipeline } = selectCourseTaskMetrics(course, tasks);
 
   return (
@@ -867,30 +869,33 @@ function CourseCard({
       )}
 
       {!isGenerating && (
-        <div className="mt-3 flex flex-wrap items-center gap-1.5" data-testid={`library-topic-chips-${course.id}`}>
-          {topicChips.map((topic) => (
-            <span
-              key={topic.id}
-              className="max-w-[7.5rem] truncate rounded-md border border-border-subtle bg-surface-secondary/50 px-1.5 py-0.5 text-[10px] text-text-secondary"
-              title={topic.title}
-            >
-              {topic.title}
-            </span>
-          ))}
-          {onUpload && (
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                onUpload();
-              }}
-              data-testid={`library-add-file-${course.id}`}
-              className="rounded-md border border-dashed border-brand-500/40 px-1.5 py-0.5 text-[10px] font-medium text-brand-700 hover:bg-brand-500/10"
-            >
-              {t('libAddFileChip', userLanguage)}
-            </button>
-          )}
-        </div>
+        <OverflowChipRow
+          testId={`library-topic-chips-${course.id}`}
+          className="mt-3"
+          maxVisible={2}
+          moreAriaLabel={(n) => t('libChipOverflowMoreAria', userLanguage).replace('{n}', String(n))}
+          lessAriaLabel={t('libChipOverflowLessAria', userLanguage)}
+          items={topicChips.map((topic) => ({
+            key: topic.id,
+            label: topic.title,
+            title: topic.title,
+          }))}
+          trailing={
+            onUpload ? (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onUpload();
+                }}
+                data-testid={`library-add-file-${course.id}`}
+                className="rounded-md border border-dashed border-brand-500/40 px-1.5 py-0.5 text-[10px] font-medium text-brand-700 hover:bg-brand-500/10"
+              >
+                {t('libAddFileChip', userLanguage)}
+              </button>
+            ) : undefined
+          }
+        />
       )}
 
       <div className="mt-3 flex items-center justify-between">

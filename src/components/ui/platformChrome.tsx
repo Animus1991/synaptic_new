@@ -6,6 +6,7 @@ import type { UserSettings } from '../../types';
 import { t, type Lang } from '../../lib/i18n';
 import { getAgentContent } from '../../lib/agentContent';
 import { BLUEPRINT_MOTION, useBlueprintTheme } from '../../lib/useBlueprintTheme';
+import { OverflowChipRow } from './OverflowChipRow';
 
 export { BlueprintSurface } from './BlueprintSurface';
 
@@ -304,6 +305,10 @@ export function InfoStack({
   onSecondaryClick,
   itemHint,
   secondaryHint,
+  /** OPT-K14 — densify primary items; remainder via +N (all still reachable). */
+  maxVisibleItems = 4,
+  /** OPT-K14 — densify secondary pills; remainder via +N. */
+  maxVisibleSecondary = 4,
 }: {
   title: string;
   items: string[];
@@ -314,54 +319,50 @@ export function InfoStack({
   onSecondaryClick?: (item: string) => void;
   itemHint?: string;
   secondaryHint?: string;
+  maxVisibleItems?: number;
+  maxVisibleSecondary?: number;
 }) {
   if (items.length === 0 && secondary.length === 0) return null;
   return (
     <div className={cn('info-stack', className)}>
       <div className="info-stack-title">{title}</div>
       {items.length > 0 && (
-        <div className="info-stack-items">
-          {items.map((item) =>
-            onItemClick ? (
-              <button
-                key={item}
-                type="button"
-                onClick={() => onItemClick(item)}
-                title={itemHint}
-                className="info-stack-item info-stack-item--interactive"
-              >
-                {item}
-              </button>
-            ) : (
-              <div key={item} className="info-stack-item">
-                {item}
-              </div>
-            ),
+        <OverflowChipRow
+          testId="info-stack-items"
+          className="info-stack-items"
+          chipClassName={cn(
+            'info-stack-item max-w-[12rem] text-[11px]',
+            onItemClick && 'info-stack-item--interactive',
           )}
-        </div>
+          moreClassName="info-stack-item"
+          maxVisible={maxVisibleItems}
+          items={items.map((item) => ({
+            key: item,
+            label: item,
+            title: itemHint ?? item,
+            onClick: onItemClick ? () => onItemClick(item) : undefined,
+          }))}
+        />
       )}
       {secondary.length > 0 && (
         <div className="info-stack-secondary">
           <p className="info-stack-secondary-eyebrow">{secondaryLabel}</p>
-          <div className="info-stack-pills">
-            {secondary.map((item) =>
-              onSecondaryClick ? (
-                <button
-                  key={item}
-                  type="button"
-                  onClick={() => onSecondaryClick(item)}
-                  title={secondaryHint}
-                  className="info-stack-pill info-stack-pill--interactive"
-                >
-                  {item}
-                </button>
-              ) : (
-                <span key={item} className="info-stack-pill">
-                  {item}
-                </span>
-              ),
+          <OverflowChipRow
+            testId="info-stack-pills"
+            className="info-stack-pills"
+            chipClassName={cn(
+              'info-stack-pill',
+              onSecondaryClick && 'info-stack-pill--interactive',
             )}
-          </div>
+            moreClassName="info-stack-pill"
+            maxVisible={maxVisibleSecondary}
+            items={secondary.map((item) => ({
+              key: item,
+              label: item,
+              title: secondaryHint ?? item,
+              onClick: onSecondaryClick ? () => onSecondaryClick(item) : undefined,
+            }))}
+          />
         </div>
       )}
     </div>
