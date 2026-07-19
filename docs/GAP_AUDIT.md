@@ -351,7 +351,9 @@ Constraints for all OPT-R*: no typography/button/modal scale-up; no functional r
 | OPT-K1 | Shell nav groups + neutral active pill | P2 | **shipped** | Study/Insights/Org/Account labels; no brand accent bar; all `nav-*` kept |
 | OPT-K2 | Full remaining main width (no sidebar overlap) | P2 | **shipped** | `#platform-main` / `.platform-page` max-w-none asserted under Minimal |
 | OPT-K3 | Flat hairline panels + quiet header icon | P2 | **shipped** | `cursor-clarity.css`; tint washes neutralized on default surfaces |
-| OPT-K4–K8 | Residual Cursor calm (rows, hubs, CTAs) | P2 | **planned** | See `CURSOR_CLARITY_ENHANCEMENT_PLAN.md` |
+| OPT-K5 | UtilityRow + UsageBar primitives | P2 | **shipped** | `UtilityPrimitives.tsx`; Dashboard stats/readiness/retrieval; Analytics KPI/behavior/research |
+| OPT-K6 | Dashboard/Analytics hub section stacks | P2 | **shipped** | `hub-section-stack` under Minimal; Blueprint masonry/cards unchanged |
+| OPT-K4/K7/K8 | Residual Cursor calm (icons, CTAs, Settings wells) | P2 | **planned** | See `CURSOR_CLARITY_ENHANCEMENT_PLAN.md` |
 
 ### Primer-inspired minimal (OPT-M) — zero feature removal
 

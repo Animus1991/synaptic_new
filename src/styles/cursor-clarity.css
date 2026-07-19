@@ -132,3 +132,135 @@
 ) {
   border-color: var(--color-border-subtle) !important;
 }
+
+/* ── OPT-K5 — UtilityRow / UsageBar ─────────────────────────────────────── */
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .utility-row {
+  padding: 0.55rem 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--color-border-subtle) 70%, transparent);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .utility-row:last-child {
+  border-bottom: none;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .utility-row-main {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .utility-row-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-width: 0;
+  color: var(--color-text-primary);
+  font-size: 0.8125rem;
+  font-weight: 500;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .utility-row-icon {
+  display: inline-flex;
+  color: var(--color-text-tertiary);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .utility-row-icon svg {
+  width: 0.875rem;
+  height: 0.875rem;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .utility-row-value {
+  flex-shrink: 0;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-primary);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .utility-row-hint {
+  margin-top: 0.15rem;
+  font-size: 0.6875rem;
+  color: var(--color-text-tertiary);
+  line-height: 1.35;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .utility-row--interactive {
+  cursor: pointer;
+  border-radius: 0.35rem;
+  margin: 0 -0.35rem;
+  padding-left: 0.35rem;
+  padding-right: 0.35rem;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .utility-row--interactive:hover {
+  background: var(--color-surface-secondary);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .usage-bar {
+  height: 0.25rem;
+  width: 100%;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--color-surface-secondary);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .usage-bar-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: color-mix(in srgb, var(--color-text-secondary) 55%, var(--color-border-strong));
+  transition: width 200ms ease;
+}
+
+/* ── OPT-K6 — Hub section stacks (not masonry card walls) ───────────────── */
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .hub-section {
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 0.5rem;
+  background: var(--color-surface-primary);
+  padding: 0.85rem 1rem;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .hub-section-title {
+  margin: 0 0 0.65rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--color-text-primary);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .hub-section-body {
+  min-width: 0;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .hub-section-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .hub-section-stack > * {
+  break-inside: auto;
+  margin-bottom: 0 !important;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .hub-quiet .hub-section :is(.ux-card, .ux-calm-panel, .platform-panel-md) {
+  border: none !important;
+  background: transparent !important;
+  padding-left: 0;
+  padding-right: 0;
+  box-shadow: none !important;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .analytics-quiet .progress-kpi-stack .utility-row-hint {
+  color: var(--color-text-tertiary);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .analytics-quiet .progress-kpi-stack .utility-row-hint[data-tone="good"] {
+  color: var(--color-accent-emerald);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .analytics-quiet .progress-kpi-stack .utility-row-hint[data-tone="warn"] {
+  color: var(--color-accent-amber);
+}

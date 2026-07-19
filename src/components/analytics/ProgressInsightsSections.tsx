@@ -1,10 +1,43 @@
 import { Brain, CheckCircle2, Clock, Target, TrendingUp } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
 import type { ConfidenceBucket, ProgressInsight, ProgressKpi, RadarDimension } from '../../lib/progressInsights';
+import { useMinimalTheme } from '../../lib/useMinimalTheme';
+import { HubSection, UtilityRow } from '../ui/UtilityPrimitives';
 
 const KPI_ICONS = [Brain, CheckCircle2, Target, Clock];
 
+function parseTrailingPct(value: string): number | undefined {
+  const m = value.trim().match(/^(\d+(?:\.\d+)?)%$/);
+  if (!m) return undefined;
+  return Number(m[1]);
+}
+
 export function ProgressKpiRow({ kpis }: { kpis: ProgressKpi[] }) {
+  const isMinimal = useMinimalTheme();
+
+  // OPT-K5/K6 — Spending-like stacked rows under Minimal; Blueprint keeps KPI cards.
+  if (isMinimal) {
+    return (
+      <HubSection className="progress-kpi-stack" data-testid="progress-kpi-row">
+        {kpis.map((kpi, i) => {
+          const Icon = KPI_ICONS[i] ?? Brain;
+          return (
+            <UtilityRow
+              key={kpi.label}
+              icon={<Icon />}
+              label={kpi.label}
+              value={kpi.value}
+              hint={
+                <span data-tone={kpi.tone ?? 'neutral'}>{kpi.sub}</span>
+              }
+              barPct={parseTrailingPct(kpi.value)}
+            />
+          );
+        })}
+      </HubSection>
+    );
+  }
+
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5" data-testid="progress-kpi-row">
       {kpis.map((kpi, i) => {

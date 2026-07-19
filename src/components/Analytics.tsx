@@ -48,6 +48,7 @@ import {
   LearningRadarChart,
   ProgressKpiRow,
 } from './analytics/ProgressInsightsSections';
+import { HubSection, UtilityRow } from './ui/UtilityPrimitives';
 import {
   buildKnowledgeFlowSankey,
   buildMasteryWaterfall,
@@ -315,6 +316,7 @@ function OverviewTab({
   );
   const fsrsSummary = summarizeRetentionForecast(learnerModel.spacingIntervals);
   const fsrsForecast = buildRetentionForecast(learnerModel.spacingIntervals, 14);
+  const isMinimal = useMinimalTheme();
   const progressKpis = buildProgressKpis(learnerModel, stats, daysToExam, lang);
   const confidenceBuckets = hasConfidenceMetrics
     ? buildConfidenceBuckets(learnerModel, lang)
@@ -326,7 +328,7 @@ function OverviewTab({
   const treemapModel = buildConceptTreemap(courses, learnerModel);
   const timelineModel = buildLearningTimeline(rangedActivities, lang);
   return (
-    <div className="space-y-3">
+    <div className={cn(isMinimal ? 'hub-section-stack' : 'space-y-3')}>
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
         <ProgressKpiRow kpis={progressKpis} />
       </motion.div>
@@ -778,6 +780,7 @@ function MasteryTab({
   activities: ActivityItem[];
 }) {
   const { t } = useI18n();
+  const isMinimal = useMinimalTheme();
   const { range } = useAnalyticsDateRange();
   const store = useAppStore();
   const [drillTile, setDrillTile] = useState<SubjectMasteryTile | null>(null);
@@ -792,7 +795,7 @@ function MasteryTab({
   const graph = buildMasteryGraph(learnerModel, courses);
   const masteryHeatmap = buildConceptMasteryHeatmap(rangedActivities, courses, learnerModel);
   return (
-    <div className="space-y-4">
+    <div className={cn(isMinimal ? 'hub-section-stack' : 'space-y-4')}>
       <SubjectMasteryGrid tiles={subjectTiles} onSelect={setDrillTile} />
       <SubjectDrillDown
         tile={drillTile}
@@ -904,18 +907,25 @@ function BehaviorTab({
   activities: ActivityItem[];
 }) {
   const { t, lang } = useI18n();
+  const isMinimal = useMinimalTheme();
   const inference = inferBehaviorFromActivities(activities, readAllLearningEvents());
   const radarDimensions = buildLearningRadar(learnerModel, lang);
-  const modelVars: { labelKey: I18nKey; value: string }[] = [
-    { labelKey: 'analyticsRetrievalPerformance', value: `${Math.round(learnerModel.retrievalPerformance * 100)}%` },
-    { labelKey: 'analyticsTransferAbility', value: `${Math.round(learnerModel.transferAbility * 100)}%` },
+  const modelVars: { labelKey: I18nKey; value: string; barPct?: number }[] = [
+    { labelKey: 'analyticsRetrievalPerformance', value: `${Math.round(learnerModel.retrievalPerformance * 100)}%`, barPct: Math.round(learnerModel.retrievalPerformance * 100) },
+    { labelKey: 'analyticsTransferAbility', value: `${Math.round(learnerModel.transferAbility * 100)}%`, barPct: Math.round(learnerModel.transferAbility * 100) },
     { labelKey: 'analyticsCognitiveLoadPref', value: learnerModel.cognitiveLoadPreference },
     { labelKey: 'analyticsBestStudyTime', value: learnerModel.bestTimeOfDay || '—' },
     { labelKey: 'analyticsLearningVelocity', value: `${learnerModel.learningVelocity}×` },
     { labelKey: 'analyticsStreakDays', value: `${learnerModel.streakDays}` },
   ];
+  const behaviorMetrics = [
+    { icon: <Clock className="w-5 h-5 text-text-tertiary" />, label: t('analyticsAvgSession'), value: `${learnerModel.averageSessionLength}m`, sub: t('analyticsAvgSessionSub') },
+    { icon: <Target className="w-5 h-5 text-text-tertiary" />, label: t('analyticsConfidence'), value: `${Math.round(learnerModel.averageConfidence * 100)}%`, sub: t('analyticsConfidenceSub') },
+    { icon: <HelpCircle className="w-5 h-5 text-text-tertiary" />, label: t('analyticsHelpSeeking'), value: `${Math.round(learnerModel.helpSeekingRate * 100)}%`, sub: t('analyticsHelpSeekingSub') },
+    { icon: <Shield className="w-5 h-5 text-text-tertiary" />, label: t('analyticsPersistence'), value: `${Math.round(learnerModel.persistenceScore * 100)}%`, sub: t('analyticsPersistenceSub') },
+  ];
   return (
-    <div className="space-y-4">
+    <div className={cn(isMinimal ? 'hub-section-stack' : 'space-y-4')}>
       <StudyBehaviorCharts activities={activities} />
       {inference.inferenceConfidence === 'low' && (
         <p className="text-xs text-accent-amber">{t('analyticsBehaviorLowConfidence')}</p>
@@ -923,12 +933,19 @@ function BehaviorTab({
       {inference.inferenceConfidence !== 'low' && (
         <p className="text-xs text-text-tertiary">{t('analyticsBehaviorInferred')}</p>
       )}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <MetricCard icon={<Clock className="w-5 h-5 text-text-tertiary" />} label={t('analyticsAvgSession')} value={`${learnerModel.averageSessionLength}m`} sub={t('analyticsAvgSessionSub')} />
-        <MetricCard icon={<Target className="w-5 h-5 text-text-tertiary" />} label={t('analyticsConfidence')} value={`${Math.round(learnerModel.averageConfidence * 100)}%`} sub={t('analyticsConfidenceSub')} />
-        <MetricCard icon={<HelpCircle className="w-5 h-5 text-text-tertiary" />} label={t('analyticsHelpSeeking')} value={`${Math.round(learnerModel.helpSeekingRate * 100)}%`} sub={t('analyticsHelpSeekingSub')} />
-        <MetricCard icon={<Shield className="w-5 h-5 text-text-tertiary" />} label={t('analyticsPersistence')} value={`${Math.round(learnerModel.persistenceScore * 100)}%`} sub={t('analyticsPersistenceSub')} />
-      </div>
+      {isMinimal ? (
+        <HubSection data-testid="analytics-behavior-metrics">
+          {behaviorMetrics.map((m) => (
+            <MetricCard key={m.label} icon={m.icon} label={m.label} value={m.value} sub={m.sub} />
+          ))}
+        </HubSection>
+      ) : (
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3" data-testid="analytics-behavior-metrics">
+          {behaviorMetrics.map((m) => (
+            <MetricCard key={m.label} icon={m.icon} label={m.label} value={m.value} sub={m.sub} />
+          ))}
+        </div>
+      )}
 
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}>
         <LearningRadarChart
@@ -957,20 +974,34 @@ function BehaviorTab({
         </div>
       </motion.div>
 
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="platform-panel-md">
-        <h3 className="text-sm font-semibold mb-4">{t('analyticsAdaptiveModelVars')}</h3>
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+      {isMinimal ? (
+        <HubSection title={t('analyticsAdaptiveModelVars')} data-testid="analytics-adaptive-model-vars">
           {modelVars.map((item) => (
-            <div key={item.labelKey} className="p-3 rounded-xl bg-surface-primary/50 border border-border-subtle text-center">
-              <p className="text-[10px] text-text-muted mb-1">{t(item.labelKey)}</p>
-              <p className="text-sm font-semibold capitalize">{item.value}</p>
-            </div>
+            <UtilityRow
+              key={item.labelKey}
+              label={t(item.labelKey)}
+              value={item.value}
+              barPct={item.barPct}
+            />
           ))}
-        </div>
-        <p className="text-[10px] text-text-muted mt-4 leading-relaxed">
-          {t('analyticsAdaptiveModelFootnote')}
-        </p>
-      </motion.div>
+          <p className="utility-row-hint mt-2">{t('analyticsAdaptiveModelFootnote')}</p>
+        </HubSection>
+      ) : (
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="platform-panel-md" data-testid="analytics-adaptive-model-vars">
+          <h3 className="text-sm font-semibold mb-4">{t('analyticsAdaptiveModelVars')}</h3>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            {modelVars.map((item) => (
+              <div key={item.labelKey} className="p-3 rounded-xl bg-surface-primary/50 border border-border-subtle text-center">
+                <p className="text-[10px] text-text-muted mb-1">{t(item.labelKey)}</p>
+                <p className="text-sm font-semibold capitalize">{item.value}</p>
+              </div>
+            ))}
+          </div>
+          <p className="text-[10px] text-text-muted mt-4 leading-relaxed">
+            {t('analyticsAdaptiveModelFootnote')}
+          </p>
+        </motion.div>
+      )}
     </div>
   );
 }
@@ -1046,6 +1077,7 @@ function ResearchTab({
   courses: Course[];
 }) {
   const { t } = useI18n();
+  const isMinimal = useMinimalTheme();
   const events = readAllLearningEvents();
   const metrics = computeResearchMetrics(learnerModel, activities, events);
   const hasData = metrics.bktConcepts.length > 0 || metrics.sampleActivities >= 3;
@@ -1055,36 +1087,50 @@ function ResearchTab({
     downloadResearchExport(manifest);
   };
 
+  const researchMetrics = [
+    {
+      icon: <Target className="w-5 h-5 text-text-tertiary" />,
+      label: t('analyticsResearchBrier'),
+      value: metrics.brierScore != null ? metrics.brierScore.toFixed(3) : '—',
+      sub: t('analyticsConfidenceHint').slice(0, 40),
+    },
+    {
+      icon: <Eye className="w-5 h-5 text-text-tertiary" />,
+      label: t('analyticsResearchEce'),
+      value: metrics.expectedCalibrationError != null ? metrics.expectedCalibrationError.toFixed(3) : '—',
+      sub: t('analyticsCalibrated'),
+    },
+    {
+      icon: <Clock className="w-5 h-5 text-text-tertiary" />,
+      label: t('analyticsResearchSpacing'),
+      value: `${Math.round(metrics.spacingDensity * 100)}%`,
+      sub: t('analyticsSevenDayRecall'),
+    },
+    {
+      icon: <Brain className="w-5 h-5 text-text-tertiary" />,
+      label: t('analyticsResearchInterleaving'),
+      value: `${Math.round(metrics.interleavingRatio * 100)}%`,
+      sub: t('analyticsVsBaseline'),
+    },
+  ];
+
   return (
-    <div className="space-y-4">
+    <div className={cn(isMinimal ? 'hub-section-stack' : 'space-y-4')}>
       <p className="text-sm text-text-secondary">{t('analyticsResearchSubtitle')}</p>
 
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <MetricCard
-          icon={<Target className="w-5 h-5 text-text-tertiary" />}
-          label={t('analyticsResearchBrier')}
-          value={metrics.brierScore != null ? metrics.brierScore.toFixed(3) : '—'}
-          sub={t('analyticsConfidenceHint').slice(0, 40)}
-        />
-        <MetricCard
-          icon={<Eye className="w-5 h-5 text-text-tertiary" />}
-          label={t('analyticsResearchEce')}
-          value={metrics.expectedCalibrationError != null ? metrics.expectedCalibrationError.toFixed(3) : '—'}
-          sub={t('analyticsCalibrated')}
-        />
-        <MetricCard
-          icon={<Clock className="w-5 h-5 text-text-tertiary" />}
-          label={t('analyticsResearchSpacing')}
-          value={`${Math.round(metrics.spacingDensity * 100)}%`}
-          sub={t('analyticsSevenDayRecall')}
-        />
-        <MetricCard
-          icon={<Brain className="w-5 h-5 text-text-tertiary" />}
-          label={t('analyticsResearchInterleaving')}
-          value={`${Math.round(metrics.interleavingRatio * 100)}%`}
-          sub={t('analyticsVsBaseline')}
-        />
-      </div>
+      {isMinimal ? (
+        <HubSection data-testid="analytics-research-metrics">
+          {researchMetrics.map((m) => (
+            <MetricCard key={m.label} icon={m.icon} label={m.label} value={m.value} sub={m.sub} />
+          ))}
+        </HubSection>
+      ) : (
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3" data-testid="analytics-research-metrics">
+          {researchMetrics.map((m) => (
+            <MetricCard key={m.label} icon={m.icon} label={m.label} value={m.value} sub={m.sub} />
+          ))}
+        </div>
+      )}
 
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="platform-panel-md">
         <h3 className="text-sm font-semibold flex items-center gap-2 mb-1">
@@ -1142,7 +1188,25 @@ function ResearchTab({
   );
 }
 
+function parseTrailingPct(value: string): number | undefined {
+  const m = value.trim().match(/^(\d+(?:\.\d+)?)%$/);
+  if (!m) return undefined;
+  return Number(m[1]);
+}
+
 function MetricCard({ icon, label, value, sub }: { icon: React.ReactNode; label: string; value: string; sub: string }) {
+  const isMinimal = useMinimalTheme();
+  if (isMinimal) {
+    return (
+      <UtilityRow
+        icon={icon}
+        label={label}
+        value={value}
+        hint={sub}
+        barPct={parseTrailingPct(value)}
+      />
+    );
+  }
   return (
     <div className="p-3 rounded-xl border border-border-subtle bg-surface-card">
       <div className="flex items-center gap-2 mb-1.5">{icon}<span className="text-[10px] uppercase tracking-wide text-text-tertiary font-medium">{label}</span></div>
@@ -1154,6 +1218,17 @@ function MetricCard({ icon, label, value, sub }: { icon: React.ReactNode; label:
 
 function SkillBar({ concept, mastery, retention, count, color }: { concept: string; mastery: number; retention: number; count: number; color: string }) {
   const { t } = useI18n();
+  const isMinimal = useMinimalTheme();
+  if (isMinimal) {
+    return (
+      <UtilityRow
+        label={concept}
+        value={`${mastery}%`}
+        barPct={mastery}
+        hint={`${t('analyticsSkillRetention')}: ${Math.round(retention * 100)}% · ${t('analyticsSkillPracticed')} ${count}×`}
+      />
+    );
+  }
   const barColor = color === 'emerald' ? 'bg-accent-emerald' : color === 'rose' ? 'bg-accent-rose' : 'bg-accent-amber';
   return (
     <div>

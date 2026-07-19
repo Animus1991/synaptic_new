@@ -26,8 +26,8 @@ CSS: `src/styles/cursor-clarity.css` (imported after `replit-clarity.css`).
 | **OPT-K2** | Main uses full remaining width; no sidebar overlay; page `max-w-none` asserted | **shipped** |
 | **OPT-K3** | Flat hairline panels; kill default tint washes; quiet PageHeader icon | **shipped** |
 | **OPT-K4** | Icon/CTA monochrome default; accent only for state | planned |
-| **OPT-K5** | UtilityRow + UsageBar primitives | planned |
-| **OPT-K6** | Dashboard/Analytics section stacks (not card walls) | planned |
+| **OPT-K5** | UtilityRow + UsageBar primitives | **shipped** |
+| **OPT-K6** | Dashboard/Analytics section stacks (not card walls) | **shipped** |
 | **OPT-K7** | PageHeader text-first + outline/solid CTA pair | partial (icon quiet in K3) |
 | **OPT-K8** | Settings/Teacher Spending-like wells | planned (builds on R16) |
 
@@ -46,4 +46,4 @@ CSS: `src/styles/cursor-clarity.css` (imported after `replit-clarity.css`).
 
 ## Completeness
 
-**OPT-K1–K3 foundation shipped.** Visible Cursor-calm chrome: grouped shell labels, grey active pill, full-width main, flat panels. Next: **OPT-K5/K6** for hub content rows.
+**OPT-K1–K3 + K5/K6 shipped.** Chrome calm + hub UtilityRow stacks on Dashboard/Analytics under Minimal. Next: **OPT-K4** (monochrome icons), **OPT-K7/K8** (header CTA pair + Settings wells).

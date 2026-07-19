@@ -57,6 +57,7 @@ import {
   toggleDashboardLayoutMode,
   type DashboardLayoutMode,
 } from '../lib/dashboardLayoutPrefs';
+import { HubSection, UtilityRow } from './ui/UtilityPrimitives';
 
 const DASHBOARD_WEEKDAY_KEYS: I18nKey[] = [
   'dashWeekdayMon',
@@ -322,20 +323,61 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
             </>
           }
           statsSlot={
-            <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5 sm:gap-3" data-testid="dashboard-page-stats">
-              <StatCard icon={<Flame className="w-3.5 h-3.5 text-accent-amber" />} label={t('dashboardStatStreak')} value={t('dashboardStatDaysSuffix').replace('{count}', String(pageStats.streak))} data-testid="dashboard-stat-streak" />
-              <StatCard icon={<Zap className="w-3.5 h-3.5 text-brand-400" />} label={t('dashboardStatTodayXp')} value={`${pageStats.todayXp}`} data-testid="dashboard-stat-today-xp" />
-              <StatCard
-                icon={<Target className="w-3.5 h-3.5 text-accent-teal" />}
-                label={t('dashboardStatReviewsDue')}
-                value={`${pageStats.reviewsDue}`}
-                onClick={pageStats.reviewsDue > 0 ? () => (onOpenTasksReview ? onOpenTasksReview() : onNavigate('tasks')) : undefined}
-                data-testid="dashboard-stat-reviews-due"
-                id="dashboard-stat-reviews-due"
-              />
-              <StatCard icon={<Brain className="w-3.5 h-3.5 text-accent-cyan" />} label={t('dashboardStatConceptsMastered')} value={`${pageStats.conceptsMastered}/${pageStats.totalConcepts}`} data-testid="dashboard-stat-concepts-mastered" />
-              <StatCard icon={<Clock className="w-3.5 h-3.5 text-accent-emerald" />} label={t('dashboardStatStudyToday')} value={t('dashboardStatStudyMinutes').replace('{count}', String(pageStats.studyMinutesToday))} data-testid="dashboard-stat-study-today" />
-            </div>
+            isMinimal ? (
+              <HubSection data-testid="dashboard-page-stats">
+                <UtilityRow
+                  icon={<Flame className="w-3.5 h-3.5" />}
+                  label={t('dashboardStatStreak')}
+                  value={t('dashboardStatDaysSuffix').replace('{count}', String(pageStats.streak))}
+                  data-testid="dashboard-stat-streak"
+                />
+                <UtilityRow
+                  icon={<Zap className="w-3.5 h-3.5" />}
+                  label={t('dashboardStatTodayXp')}
+                  value={`${pageStats.todayXp}`}
+                  data-testid="dashboard-stat-today-xp"
+                />
+                <UtilityRow
+                  icon={<Target className="w-3.5 h-3.5" />}
+                  label={t('dashboardStatReviewsDue')}
+                  value={`${pageStats.reviewsDue}`}
+                  onClick={pageStats.reviewsDue > 0 ? () => (onOpenTasksReview ? onOpenTasksReview() : onNavigate('tasks')) : undefined}
+                  data-testid="dashboard-stat-reviews-due"
+                />
+                <UtilityRow
+                  icon={<Brain className="w-3.5 h-3.5" />}
+                  label={t('dashboardStatConceptsMastered')}
+                  value={`${pageStats.conceptsMastered}/${pageStats.totalConcepts}`}
+                  barPct={
+                    pageStats.totalConcepts > 0
+                      ? Math.round((pageStats.conceptsMastered / pageStats.totalConcepts) * 100)
+                      : undefined
+                  }
+                  data-testid="dashboard-stat-concepts-mastered"
+                />
+                <UtilityRow
+                  icon={<Clock className="w-3.5 h-3.5" />}
+                  label={t('dashboardStatStudyToday')}
+                  value={t('dashboardStatStudyMinutes').replace('{count}', String(pageStats.studyMinutesToday))}
+                  data-testid="dashboard-stat-study-today"
+                />
+              </HubSection>
+            ) : (
+              <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5 sm:gap-3" data-testid="dashboard-page-stats">
+                <StatCard icon={<Flame className="w-3.5 h-3.5 text-accent-amber" />} label={t('dashboardStatStreak')} value={t('dashboardStatDaysSuffix').replace('{count}', String(pageStats.streak))} data-testid="dashboard-stat-streak" />
+                <StatCard icon={<Zap className="w-3.5 h-3.5 text-brand-400" />} label={t('dashboardStatTodayXp')} value={`${pageStats.todayXp}`} data-testid="dashboard-stat-today-xp" />
+                <StatCard
+                  icon={<Target className="w-3.5 h-3.5 text-accent-teal" />}
+                  label={t('dashboardStatReviewsDue')}
+                  value={`${pageStats.reviewsDue}`}
+                  onClick={pageStats.reviewsDue > 0 ? () => (onOpenTasksReview ? onOpenTasksReview() : onNavigate('tasks')) : undefined}
+                  data-testid="dashboard-stat-reviews-due"
+                  id="dashboard-stat-reviews-due"
+                />
+                <StatCard icon={<Brain className="w-3.5 h-3.5 text-accent-cyan" />} label={t('dashboardStatConceptsMastered')} value={`${pageStats.conceptsMastered}/${pageStats.totalConcepts}`} data-testid="dashboard-stat-concepts-mastered" />
+                <StatCard icon={<Clock className="w-3.5 h-3.5 text-accent-emerald" />} label={t('dashboardStatStudyToday')} value={t('dashboardStatStudyMinutes').replace('{count}', String(pageStats.studyMinutesToday))} data-testid="dashboard-stat-study-today" />
+              </div>
+            )
           }
         />
       </MotionSection>
@@ -455,20 +497,35 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
         </MotionSection>
       )}
 
-      {/* Settings-style masonry: packs panels into short columns so a tall
-          sidebar no longer leaves a full-height void beside shorter left content.
-          Canvas toggle = 3 columns; stacked = 2. */}
+      {/* OPT-K6 Minimal: vertical hub section stack. Blueprint: masonry columns. */}
       <div
         className={cn(
-          'space-y-2.5 xl:space-y-0',
-          isCanvasLayout
-            ? 'xl:columns-3 xl:gap-3 [&>*]:mb-2.5 [&>*]:break-inside-avoid'
-            : 'xl:columns-2 xl:gap-3 [&>*]:mb-2.5 [&>*]:break-inside-avoid',
+          isMinimal
+            ? 'hub-section-stack'
+            : cn(
+                'space-y-2.5 xl:space-y-0',
+                isCanvasLayout
+                  ? 'xl:columns-3 xl:gap-3 [&>*]:mb-2.5 [&>*]:break-inside-avoid'
+                  : 'xl:columns-2 xl:gap-3 [&>*]:mb-2.5 [&>*]:break-inside-avoid',
+              ),
         )}
         data-testid="dashboard-masonry"
         data-dashboard-layout-body={layoutMode}
       >
           {/* Readiness + coverage as separate masonry items (I-D05) */}
+          {isMinimal ? (
+            <HubSection title={t('examReadiness')} data-testid="dashboard-readiness-section">
+              <div className="flex flex-col sm:flex-row items-center gap-3">
+                <ReadinessRing value={learnerModel.overallMastery} sublabel={t('dashReadinessSublabel')} />
+                <div className="flex-1 space-y-1 w-full min-w-0">
+                  <UtilityRow label={t('dashSignalAccuracy')} value={`${Math.round(learnerModel.retentionRate * 100)}%`} barPct={Math.round(learnerModel.retentionRate * 100)} hint={t('dashSignalAccuracyDetail')} />
+                  <UtilityRow label={t('dashSignalReliance')} value={`${Math.round((1 - learnerModel.helpSeekingRate) * 100)}%`} barPct={Math.round((1 - learnerModel.helpSeekingRate) * 100)} hint={t('dashSignalRelianceDetail')} />
+                  <UtilityRow label={t('dashSignalVolume')} value={`${Math.min(100, Math.round(learnerModel.totalSessions * 2.1))}%`} barPct={Math.min(100, Math.round(learnerModel.totalSessions * 2.1))} hint={t('dashSignalVolumeDetail').replace('{count}', String(learnerModel.totalSessions))} />
+                  <UtilityRow label={t('dashSignalRetrieval')} value={`${Math.round(learnerModel.retrievalPerformance * 100)}%`} barPct={Math.round(learnerModel.retrievalPerformance * 100)} hint={t('dashSignalRetrievalDetail')} />
+                </div>
+              </div>
+            </HubSection>
+          ) : (
           <BlueprintSurface className="ux-calm-panel p-3.5" data-dashboard-col="a">
             <div className="flex flex-col sm:flex-row items-center gap-3">
               <ReadinessRing value={learnerModel.overallMastery} sublabel={t('dashReadinessSublabel')} />
@@ -482,6 +539,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
               </div>
             </div>
           </BlueprintSurface>
+          )}
           <SyllabusCoverageWidget
             compact
             courses={courses}
@@ -500,7 +558,17 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
               : undefined}
           />
 
-          {/* L-D02: Ισχύς ανάκλησης thin bar above concept mastery (canvas shot 2) */}
+          {/* L-D02: retrieval strength — OPT-K5 UsageBar under Minimal */}
+          {isMinimal ? (
+            <HubSection data-testid="dashboard-retrieval-strength-bar">
+              <UtilityRow
+                label={t('dashSignalRetrieval')}
+                value={`${Math.round(learnerModel.retrievalPerformance * 100)}%`}
+                barPct={Math.round(learnerModel.retrievalPerformance * 100)}
+                hint={t('dashSignalRetrievalDetail')}
+              />
+            </HubSection>
+          ) : (
           <div
             className="rounded-xl border border-border-subtle bg-surface-card/50 px-3 py-2"
             data-testid="dashboard-retrieval-strength-bar"
@@ -523,6 +591,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
               />
             </div>
           </div>
+          )}
 
           {/* Concept mastery + prerequisite repair */}
           {(conceptMastery.length > 0 || prerequisiteRepairs.length > 0) && (
