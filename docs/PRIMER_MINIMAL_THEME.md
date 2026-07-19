@@ -1,6 +1,6 @@
 # Primer-inspired Minimal Theme (OPT-M)
 
-**Status:** implementing  
+**Status:** shipped (OPT-M0–M9 on `synaptic_new/main`; verified after `feat/mockup-implementation` merge)  
 **Constraint:** zero functionality removal — visual + disclosure only  
 **Default:** unchanged (`blueprint` remains production default)
 
