@@ -354,7 +354,8 @@ Constraints for all OPT-R*: no typography/button/modal scale-up; no functional r
 | OPT-K4 | Icon/CTA monochrome; accent for state only | P2 | **shipped** | Brand/cool inks → secondary; solid ink PrimaryCTA; status emerald/amber/rose kept |
 | OPT-K5 | UtilityRow + UsageBar primitives | P2 | **shipped** | `UtilityPrimitives.tsx`; Dashboard stats/readiness/retrieval; Analytics KPI/behavior/research |
 | OPT-K6 | Dashboard/Analytics hub section stacks | P2 | **shipped** | `hub-section-stack` under Minimal; Blueprint masonry/cards unchanged |
-| OPT-K7/K8 | PageHeader CTA pair + Settings/Teacher wells | P2 | **planned** | See `CURSOR_CLARITY_ENHANCEMENT_PLAN.md` |
+| OPT-K7 | PageHeader text-first + outline/solid CTA pair | P2 | **shipped** | Hide leading icon tile; `ux-page-header-actions--pair`; Blueprint icon kept |
+| OPT-K8 | Settings/Teacher Spending-like wells | P2 | **shipped** | Pref label/control rows; flat wells; teacher `ux-flow-panel` quieted |
 
 ### Primer-inspired minimal (OPT-M) — zero feature removal
 

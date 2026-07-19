@@ -410,14 +410,15 @@ export function TeacherDashboard({
     <div
       className={cn(
         'ux-flow-shell platform-page w-full max-w-none p-4 sm:p-6 lg:px-8 pb-24 space-y-6',
-        isMinimal && 'enterprise-calm',
+        isMinimal && 'enterprise-calm teacher-wells',
       )}
       data-testid="teacher-dashboard"
     >
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
-          <h1 className="text-lg font-semibold flex items-center gap-2">
-            <Users className={cn('w-5 h-5', isMinimal ? 'text-text-secondary' : 'text-brand-400')} />
+          {/* OPT-K7/K8 — text-first title under Minimal (no leading icon tile). */}
+          <h1 className={cn('text-lg font-semibold', !isMinimal && 'flex items-center gap-2')}>
+            {!isMinimal && <Users className="w-5 h-5 text-brand-400" />}
             {ui.title}
           </h1>
           <p className="text-sm text-text-secondary mt-1">{ui.subtitle}</p>

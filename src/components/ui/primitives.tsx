@@ -57,28 +57,54 @@ export function PageHeader({
     <div className={cn(
       'ux-page-header sticky top-0 z-20 -mx-3 mb-1 border-b border-border-subtle/50 bg-surface-primary/90 px-3 py-2 backdrop-blur-md sm:-mx-5 sm:px-5 lg:-mx-6 lg:px-6',
       'flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between',
+      isMinimal && 'ux-page-header--text-first',
       className,
     )}>
       <div className="min-w-0">
-        {eyebrow && <p className="ws-eyebrow mb-1 text-text-secondary">{eyebrow}</p>}
+        {eyebrow && (
+          <p className={cn('ws-eyebrow mb-1 text-text-secondary', isMinimal && 'text-[10px] uppercase tracking-[0.06em] text-text-muted')}>
+            {eyebrow}
+          </p>
+        )}
         <div className="flex items-center gap-2">
-          {Icon && (
-            <span
-              className={cn(
-                'ux-page-header-icon grid h-7 w-7 shrink-0 place-items-center rounded-lg border',
-                isMinimal
-                  ? 'border-border-subtle bg-transparent text-text-secondary'
-                  : 'border-brand-500/25 bg-brand-500/10 text-brand-600',
-              )}
-            >
+          {/* OPT-K7 — Minimal is text-first: no leading icon tile. Blueprint keeps brand square. */}
+          {Icon && !isMinimal && (
+            <span className="ux-page-header-icon grid h-7 w-7 shrink-0 place-items-center rounded-lg border border-brand-500/25 bg-brand-500/10 text-brand-600">
               <Icon className="h-3.5 w-3.5" />
             </span>
           )}
-          <h1 className="ws-serif truncate text-base font-medium tracking-tight text-text-primary sm:text-lg">{title}</h1>
+          <h1
+            className={cn(
+              'truncate tracking-tight text-text-primary',
+              isMinimal
+                ? 'text-lg font-semibold sm:text-xl'
+                : 'ws-serif text-base font-medium sm:text-lg',
+            )}
+          >
+            {title}
+          </h1>
         </div>
-        {subtitle && <div className="ux-page-subtitle mt-0.5 text-xs text-text-secondary sm:text-sm">{subtitle}</div>}
+        {subtitle && (
+          <div
+            className={cn(
+              'ux-page-subtitle mt-0.5 text-text-secondary',
+              isMinimal ? 'text-xs leading-snug sm:text-[13px]' : 'text-xs sm:text-sm',
+            )}
+          >
+            {subtitle}
+          </div>
+        )}
       </div>
-      {actions && <div className="flex shrink-0 items-center gap-2">{actions}</div>}
+      {actions && (
+        <div
+          className={cn(
+            'ux-page-header-actions flex shrink-0 flex-wrap items-center gap-2',
+            isMinimal && 'ux-page-header-actions--pair',
+          )}
+        >
+          {actions}
+        </div>
+      )}
     </div>
   );
 

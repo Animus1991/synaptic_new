@@ -340,3 +340,141 @@
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .analytics-quiet .progress-kpi-stack .utility-row-hint[data-tone="warn"] {
   color: var(--color-accent-amber);
 }
+
+/* ── OPT-K7 — PageHeader text-first + outline/solid CTA pair ────────────── */
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .ux-page-header--text-first {
+  padding-top: 0.65rem;
+  padding-bottom: 0.75rem;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .ux-page-header-actions--pair {
+  gap: 0.5rem;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .ux-page-header-actions--pair :is(.ux-primary-cta, .ux-secondary-cta) {
+  min-height: 2rem;
+  padding-left: 0.85rem;
+  padding-right: 0.85rem;
+  font-size: 0.75rem;
+  border-radius: 0.375rem !important;
+}
+
+/* Prefer solid primary after outline secondary when both appear in the slot. */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .ux-page-header-actions--pair .ux-secondary-cta {
+  order: 0;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .ux-page-header-actions--pair .ux-primary-cta {
+  order: 1;
+}
+
+/* ── OPT-K8 — Settings / Teacher Spending-like wells ────────────────────── */
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .settings-ide .settings-ide-nav-item.is-active {
+  box-shadow: none;
+  background: var(--color-surface-secondary);
+  color: var(--color-text-primary);
+  font-weight: 600;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .settings-ide .settings-ide-section {
+  background: var(--color-surface-primary) !important;
+  border: 1px solid var(--color-border-subtle) !important;
+  border-radius: 0.5rem !important;
+  box-shadow: none !important;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .settings-ide .settings-ide-section-title {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin-bottom: 0.35rem;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .settings-ide .settings-ide-section-title svg {
+  width: 0.95rem;
+  height: 0.95rem;
+  color: var(--color-text-tertiary);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .settings-ide .settings-pref-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.7rem 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--color-border-subtle) 70%, transparent);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .settings-ide .settings-pref-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .settings-ide .settings-pref-label {
+  flex: 0 1 42%;
+  min-width: 0;
+  padding-top: 0.2rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-text-primary);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .settings-ide .settings-pref-control {
+  flex: 1 1 auto;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .settings-ide .settings-pref-chip {
+  border-radius: 0.35rem;
+  border: 1px solid var(--color-border-subtle);
+  background: transparent;
+  color: var(--color-text-tertiary);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  padding: 0.3rem 0.55rem;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .settings-ide .settings-pref-chip.is-active {
+  background: var(--color-surface-secondary);
+  border-color: var(--color-border-subtle);
+  color: var(--color-text-primary);
+  font-weight: 600;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .settings-ide .settings-ide-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .teacher-wells {
+  gap: 0.85rem;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .teacher-wells .ux-flow-panel {
+  border: 1px solid var(--color-border-subtle) !important;
+  border-radius: 0.5rem !important;
+  background: var(--color-surface-primary) !important;
+  box-shadow: none !important;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .teacher-wells :is(button.bg-brand-600, .bg-brand-600) {
+  background: var(--color-text-primary) !important;
+  color: var(--color-surface-primary) !important;
+  border-radius: 0.375rem;
+  box-shadow: none;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .teacher-wells :is(
+  button.border-brand-500\/30,
+  .border-brand-500\/30
+) {
+  border-color: var(--color-border-subtle) !important;
+  color: var(--color-text-secondary) !important;
+}

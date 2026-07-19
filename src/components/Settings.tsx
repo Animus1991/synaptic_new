@@ -773,6 +773,28 @@ function SettingsSection({ id, title, icon, children, delay }: { id: string; tit
 }
 
 function ToggleRow({ label, options, value, onChange }: { label: string; options: { value: string; label: string }[]; value: string; onChange: (v: string) => void }) {
+  const isMinimal = useMinimalTheme();
+  // OPT-K8 — Spending-like label ↔ control row under Minimal.
+  if (isMinimal) {
+    return (
+      <div className="settings-pref-row">
+        <span className="settings-pref-label">{label}</span>
+        <div className="settings-pref-control" role="group" aria-label={label}>
+          {options.map((opt) => (
+            <button
+              key={opt.value}
+              type="button"
+              onClick={() => onChange(opt.value)}
+              className={cn('settings-pref-chip', value === opt.value && 'is-active')}
+              aria-pressed={value === opt.value}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
+      </div>
+    );
+  }
   return (
     <div>
       <label className="text-xs text-text-secondary block mb-2">{label}</label>
@@ -810,6 +832,51 @@ function ThemePickerRow({
   value: string;
   onChange: (v: string) => void;
 }) {
+  const isMinimal = useMinimalTheme();
+  const chips = options.map((opt) => {
+    const Icon = THEME_ICONS[opt.value] ?? Palette;
+    const active = value === opt.value;
+    return (
+      <button
+        key={opt.value}
+        type="button"
+        onClick={() => onChange(opt.value)}
+        className={cn(
+          isMinimal
+            ? cn('settings-pref-chip inline-flex items-center gap-1.5', active && 'is-active')
+            : cn(
+                'inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-[11px] font-medium transition-all',
+                /* Wave P-3 C12 — .ux-theme-chip-active uses brand-700 ink on light
+                   themes (brand-300 collapsed to ~2:1 on warm-light white cards). */
+                active
+                  ? 'ux-theme-chip-active'
+                  : 'border-border-subtle text-text-tertiary hover:text-text-secondary hover:border-brand-500/25',
+              ),
+        )}
+        aria-pressed={active}
+      >
+        <Icon className="w-3.5 h-3.5 shrink-0" aria-hidden />
+        {opt.label}
+      </button>
+    );
+  });
+
+  if (isMinimal) {
+    return (
+      <div data-testid="settings-theme-picker" className="settings-pref-row">
+        <div className="settings-pref-label">
+          <span>{label}</span>
+          {hint && (
+            <p className="mt-1 text-[11px] font-normal leading-snug text-text-tertiary" data-testid="settings-theme-hint">
+              {hint}
+            </p>
+          )}
+        </div>
+        <div className="settings-pref-control">{chips}</div>
+      </div>
+    );
+  }
+
   return (
     <div data-testid="settings-theme-picker">
       <label className="text-xs text-text-secondary block mb-2">{label}</label>
@@ -818,36 +885,33 @@ function ThemePickerRow({
           {hint}
         </p>
       )}
-      <div className="flex flex-wrap gap-1.5">
-        {options.map((opt) => {
-          const Icon = THEME_ICONS[opt.value] ?? Palette;
-          const active = value === opt.value;
-          return (
-            <button
-              key={opt.value}
-              type="button"
-              onClick={() => onChange(opt.value)}
-              className={cn(
-                'inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-[11px] font-medium transition-all',
-                /* Wave P-3 C12 — .ux-theme-chip-active uses brand-700 ink on light
-                   themes (brand-300 collapsed to ~2:1 on warm-light white cards). */
-                active
-                  ? 'ux-theme-chip-active'
-                  : 'border-border-subtle text-text-tertiary hover:text-text-secondary hover:border-brand-500/25',
-              )}
-              aria-pressed={active}
-            >
-              <Icon className="w-3.5 h-3.5 shrink-0" aria-hidden />
-              {opt.label}
-            </button>
-          );
-        })}
-      </div>
+      <div className="flex flex-wrap gap-1.5">{chips}</div>
     </div>
   );
 }
 
 function SliderRow({ label, leftLabel, rightLabel, value, onChange, min = 0, max = 100 }: { label: string; leftLabel: string; rightLabel: string; value: number; onChange: (v: number) => void; min?: number; max?: number }) {
+  const isMinimal = useMinimalTheme();
+  if (isMinimal) {
+    return (
+      <div className="settings-pref-row">
+        <span className="settings-pref-label">{label}</span>
+        <div className="settings-pref-control items-center !flex-nowrap">
+          <span className="text-[10px] text-text-muted shrink-0">{leftLabel}</span>
+          <input
+            type="range"
+            min={min}
+            max={max}
+            value={value}
+            onChange={(e) => onChange(Number(e.target.value))}
+            className="min-w-[7rem] flex-1"
+            aria-label={label}
+          />
+          <span className="text-[10px] text-text-muted shrink-0">{rightLabel}</span>
+        </div>
+      </div>
+    );
+  }
   return (
     <div>
       <label className="text-xs text-text-secondary block mb-2">{label}</label>

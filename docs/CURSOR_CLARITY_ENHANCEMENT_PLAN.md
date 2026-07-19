@@ -28,8 +28,8 @@ CSS: `src/styles/cursor-clarity.css` (imported after `replit-clarity.css`).
 | **OPT-K4** | Icon/CTA monochrome default; accent only for state | **shipped** |
 | **OPT-K5** | UtilityRow + UsageBar primitives | **shipped** |
 | **OPT-K6** | Dashboard/Analytics section stacks (not card walls) | **shipped** |
-| **OPT-K7** | PageHeader text-first + outline/solid CTA pair | partial (icon quiet in K3) |
-| **OPT-K8** | Settings/Teacher Spending-like wells | planned (builds on R16) |
+| **OPT-K7** | PageHeader text-first + outline/solid CTA pair | **shipped** |
+| **OPT-K8** | Settings/Teacher Spending-like wells | **shipped** |
 
 **Default gate:** Minimal / Minimal Dark only. Blueprint untouched.
 
@@ -46,4 +46,4 @@ CSS: `src/styles/cursor-clarity.css` (imported after `replit-clarity.css`).
 
 ## Completeness
 
-**OPT-K1–K6 shipped** (K4 monochrome icons/CTAs; K5/K6 hub rows). Next: **OPT-K7** (PageHeader text-first + outline/solid CTA pair), then **OPT-K8** (Settings/Teacher wells).
+**OPT-K1–K8 complete** under Minimal. Cursor-clarity axis shipped: shell calm, full-width main, flat panels, monochrome icons/CTAs, UtilityRow hubs, text-first headers, Settings/Teacher wells. Blueprint remains selectable/expressive.
