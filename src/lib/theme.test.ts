@@ -55,8 +55,9 @@ describe('resolveInitialThemePreference', () => {
     installLocalStorageMock();
   });
 
-  it('defaults to blueprint when no session or theme key exists', () => {
+  it('defaults to minimal when no session or theme key exists', () => {
     expect(hasStoredThemePreference()).toBe(false);
+    expect(DEFAULT_THEME_PREFERENCE).toBe('minimal');
     expect(resolveInitialThemePreference()).toBe(DEFAULT_THEME_PREFERENCE);
   });
 

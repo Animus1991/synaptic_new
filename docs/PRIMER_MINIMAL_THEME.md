@@ -1,8 +1,8 @@
 # Primer-inspired Minimal Theme (OPT-M)
 
-**Status:** shipped through OPT-M12 (OPT-M13 default flip deferred)  
+**Status:** shipped through OPT-M13 (+ M14 partial); forward plan in `docs/PRIMER_GITHUB_ENHANCEMENT_PLAN.md`  
 **Constraint:** zero functionality removal — visual + disclosure only  
-**Default:** unchanged (`blueprint` remains production default)
+**Default:** `minimal` (pre-launch; Blueprint remains Settings option)
 
 ## Goal
 
@@ -42,7 +42,8 @@ This is **not** a GitHub clone (no Octocat/Primer brand assets).
 | OPT-M10 | Visual QA checklist (matrix) — captures are manual / local |
 | OPT-M11 | Modal/overlay border-first + remove warm `#faf8f5` hardcodes in fab |
 | OPT-M12 | Shell density: Dashboard/Tasks/Agent progressive disclosure under minimal |
-| OPT-M13 | Optional: Minimal as default for new users — **deferred** (needs metrics) |
+| OPT-M13 | Production default → Minimal (pre-launch; Blueprint selectable) |
+| OPT-M14+ | Surface polish + GitHub-adapted features — see `PRIMER_GITHUB_ENHANCEMENT_PLAN.md` |
 
 ## OPT-M9 — Status bus
 

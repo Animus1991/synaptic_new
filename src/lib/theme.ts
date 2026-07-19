@@ -11,8 +11,8 @@ const THEME_KEY = 'theme-preference';
 const SESSION_KEY = 'session-v2';
 const LEGACY_SESSION_KEY = 'session-v1';
 
-/** Default for first-time production users (no saved preference). */
-export const DEFAULT_THEME_PREFERENCE: UserSettings['theme'] = 'blueprint';
+/** Default for first-time production users (no saved preference). Pre-launch: Primer Minimal. */
+export const DEFAULT_THEME_PREFERENCE: UserSettings['theme'] = 'minimal';
 
 export type { ChromeDensity };
 
@@ -24,7 +24,7 @@ export function hasStoredThemePreference(): boolean {
   }
 }
 
-/** Theme on cold start before React — respects saved pref, demo dark, else blueprint. */
+/** Theme on cold start before React — respects saved pref, demo dark, else Minimal. */
 export function resolveInitialThemePreference(): UserSettings['theme'] {
   if (hasStoredThemePreference()) return loadThemePreference();
   try {

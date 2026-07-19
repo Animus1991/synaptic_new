@@ -10,7 +10,7 @@ import { createActivity } from '../lib/activityLog';
 import { countUnreadNotifications, notificationsReadWatermark } from '../lib/notificationState';
 import { SEED_ACTIVITIES } from '../demo/activityDemo';
 import { mockUser, mockCourses, mockTasks, mockLearnerModel, mockDashboardStats, mockAgentMessages } from '../demo/mockData';
-import { loadThemePreference, applyTheme, cycleTheme, resolveInitialThemePreference, hasStoredThemePreference, applyChromeDensity, resolveChromeDensity } from '../lib/theme';
+import { loadThemePreference, applyTheme, cycleTheme, resolveInitialThemePreference, hasStoredThemePreference, applyChromeDensity, resolveChromeDensity, DEFAULT_THEME_PREFERENCE } from '../lib/theme';
 import { ECON_CONCEPT_IMPORTANCE } from '../data/conceptGraph';
 import {
   betaMean,
@@ -2255,13 +2255,13 @@ export function useAppStore() {
     };
 
     setUser((prev) => {
-      const seedBlueprint = !hasStoredThemePreference();
+      const seedDefaultTheme = !hasStoredThemePreference();
       const nextUser = buildOnboardingUserPatch(prev, profile, { openTeacher: data.openTeacher });
       const nextSettings: typeof prev.settings = {
         ...nextUser.settings,
-        ...(seedBlueprint ? { theme: 'blueprint' as const } : {}),
+        ...(seedDefaultTheme ? { theme: DEFAULT_THEME_PREFERENCE } : {}),
       };
-      if (seedBlueprint) applyTheme('blueprint');
+      if (seedDefaultTheme) applyTheme(DEFAULT_THEME_PREFERENCE);
       const finalUser = { ...nextUser, settings: nextSettings };
       savePersistedUserProfile({
         onboardingComplete: true,

@@ -350,7 +350,9 @@ Constraints for all OPT-R*: no typography/button/modal scale-up; no functional c
 | OPT-M10 | Visual regression checklist (Minimal vs Blueprint) | P2 | **shipped** | `docs/PRIMER_MINIMAL_SCREENSHOT_MATRIX.md` (manual capture; no feature gate) |
 | OPT-M11 | Modal/overlay border-first under minimal; fab hardcode cleanup | P2 | **shipped** | `index.css` OPT-M11; `StudyWorkspaceOverlays`; `concept-lens-chip` |
 | OPT-M12 | Dashboard/Tasks/Agent progressive disclosure under minimal | P2 | **shipped** | Alerts / flow rail / quick actions collapsible; due-queue collapsed by default |
-| OPT-M13 | Minimal as default for new users | P3 | deferred | Keep `blueprint` until qual/metrics |
+| OPT-M13 | Minimal as production default (pre-launch) | P2 | **shipped** | `DEFAULT_THEME_PREFERENCE = minimal`; Blueprint remains selectable |
+| OPT-M14 | App-shell surface polish under Minimal | P2 | **partial** | rounded/blur/pulse gates in `index.css`; more page-level disclosure TBD |
+| OPT-M15–M20 | CSS prune, global ⌘K, app inbox, course empty states, QA | P2 | open | See `docs/PRIMER_GITHUB_ENHANCEMENT_PLAN.md` |
 
 ### Replit study — explicit non-borrows
 
