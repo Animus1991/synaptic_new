@@ -8,6 +8,7 @@ import { StudyWorkspaceChrome } from './studyWorkspace/StudyWorkspaceChrome';
 import { StudyWorkspaceMainLayout } from './studyWorkspace/StudyWorkspaceMainLayout';
 import { NotebookWorkspaceLayout } from './studyWorkspace/NotebookWorkspaceLayout';
 import { StudyWorkspaceOverlays } from './studyWorkspace/StudyWorkspaceOverlays';
+import { WorkspaceStatusPanel } from './WorkspaceStatusPanel';
 import type { StudyWorkspaceProps } from './studyWorkspace/types';
 import { markWorkspaceBodyReady } from '../../lib/workspacePerf';
 import { useMinimalTheme } from '../../lib/useMinimalTheme';
@@ -61,6 +62,10 @@ export function StudyWorkspaceBody(props: StudyWorkspaceProps) {
         {model.notebookMode
           ? <NotebookWorkspaceLayout model={model} />
           : <StudyWorkspaceMainLayout model={model} />}
+        {/* OPT-R11 — bottom console dock under Minimal (toggleable; no alert loss). */}
+        {isMinimal && !model.chromeHidden ? (
+          <WorkspaceStatusPanel className="status-console-dock" defaultOpen={false} />
+        ) : null}
         <StudyWorkspaceOverlays model={model} />
       </div>
       </WorkspaceEmptyActionsProvider>

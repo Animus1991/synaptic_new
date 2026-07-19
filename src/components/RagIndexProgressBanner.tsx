@@ -4,6 +4,7 @@ import { Database, Loader2, AlertTriangle } from '@/lib/lucide-shim';
 import { fetchRagStatus, type RagStatusResponse } from '../lib/orgClient';
 import type { UserSettings } from '../types';
 import { cn } from '../utils/cn';
+import { useMinimalTheme } from '../lib/useMinimalTheme';
 
 type Props = {
   settings?: UserSettings;
@@ -25,6 +26,8 @@ export function RagIndexProgressBanner({
   const token = settings?.authToken?.trim();
   const [status, setStatus] = useState<RagStatusResponse | null>(null);
   const wasIndexingRef = useRef(false);
+  /** OPT-R11 — thin console pipeline strip under Minimal. */
+  const consoleStrip = useMinimalTheme();
 
   useEffect(() => {
     if (!token || !settings) {
@@ -137,11 +140,17 @@ export function RagIndexProgressBanner({
         failed
           ? 'border-accent-rose/30 bg-accent-rose/5'
           : 'border-accent-teal/30 bg-accent-teal/5',
+        consoleStrip && variant === 'banner' && 'pipeline-console-strip',
         className,
       )}
       data-testid="rag-index-progress"
+      data-console={consoleStrip && variant === 'banner' ? 'true' : undefined}
+      role="status"
     >
-      <div className="flex items-center gap-2 text-xs font-medium text-text-primary mb-1.5">
+      <div className={cn(
+        'flex items-center gap-2 text-xs font-medium text-text-primary',
+        consoleStrip && variant === 'banner' ? 'mb-1' : 'mb-1.5',
+      )}>
         {failed ? (
           <AlertTriangle className="w-3.5 h-3.5 text-accent-rose shrink-0" />
         ) : (
@@ -155,7 +164,10 @@ export function RagIndexProgressBanner({
         )}
       </div>
       {!failed && (
-        <div className="h-1.5 rounded-full bg-surface-secondary overflow-hidden">
+        <div className={cn(
+          'rounded-full bg-surface-secondary overflow-hidden',
+          consoleStrip && variant === 'banner' ? 'h-1' : 'h-1.5',
+        )}>
           <div
             className="h-full rounded-full bg-accent-teal transition-all duration-500"
             style={{ width: `${Math.max(4, indexing.progress)}%` }}
@@ -163,14 +175,14 @@ export function RagIndexProgressBanner({
         </div>
       )}
       {!failed && indexing.targetChunks > 0 && (
-        <p className="mt-1 text-[10px] text-text-secondary">
+        <p className="mt-1 text-[10px] text-text-secondary font-mono">
           {lang === 'el'
             ? `${indexing.embedded + indexing.reused} / ${indexing.targetChunks} chunks`
             : `${indexing.embedded + indexing.reused} / ${indexing.targetChunks} chunks`}
         </p>
       )}
       {failed && indexing.error && (
-        <p className="text-[10px] text-accent-rose mt-1">{indexing.error}</p>
+        <p className="text-[10px] text-accent-rose mt-1 font-mono">{indexing.error}</p>
       )}
     </div>
   );

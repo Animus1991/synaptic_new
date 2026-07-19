@@ -334,8 +334,9 @@ Constraints for all OPT-R*: no typography/button/modal scale-up; no functional r
 | OPT-R7 | Wave R7 — empty states + modal header stack | P3 | **shipped** | `platform-empty-state` border card; `ModalHeaderStack`; light `--focus-ring-color` on app-shell |
 | OPT-R8 | Wave R8 — nav accent indicator + Visual Lab lane dividers | P3 | **shipped** | Sidebar left accent bar; mobile underline; `visual-lab-mode-rail-lanes` column dividers |
 | OPT-R10 | Wave R10 — prompt-first create/upload chrome | P2 | **shipped** | `create-prompt` UploadModal; paste/YouTube in `CollapsibleChromeSection`; quiet `post-upload-create`; `replit-clarity.css` |
+| OPT-R11 | Wave R11 — Status-as-console + pipeline strip | P2 | **shipped** | Bottom console dock; Errors/Activity groups; inbox console chrome; thin RAG `pipeline-console-strip` |
 | OPT-R13 | Wave R13 — workspace/notebook canvas primacy | P2 | **shipped** | `workspace-canvas` + `notebook-canvas`; Files/AI/Tools hierarchy labels under Minimal; denser Sources list |
-| OPT-R9, R11–R12, R14–R18 | Residual create/canvas/console program | P2 | **planned** | See `REPLIT_CLARITY_ENHANCEMENT_PLAN.md` §6; next R11 (+ R18 for captures) |
+| OPT-R9, R12, R14–R18 | Residual create/canvas/console program | P2 | **planned** | See `REPLIT_CLARITY_ENHANCEMENT_PLAN.md` §6; next R18 (+ R12) |
 
 ### Primer-inspired minimal (OPT-M) — zero feature removal
 

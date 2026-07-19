@@ -303,7 +303,8 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
                   )}
                 </div>
               </div>
-              <WorkspaceStatusPanel defaultOpen={false} />
+              {/* OPT-R11 — under Minimal, Status docks at workspace bottom (StudyWorkspaceBody). */}
+              {!isMinimal && <WorkspaceStatusPanel defaultOpen={false} />}
               </>
             )}
 
@@ -466,7 +467,7 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
       
             {!chromeHidden && !notebookMode && (
               <>
-                <WorkspaceStatusPanel defaultOpen={useClassicOverflow} />
+                {!isMinimal && <WorkspaceStatusPanel defaultOpen={useClassicOverflow} />}
                 <WorkspaceContextBar
                 context={workspaceContext}
                 lang={lang}

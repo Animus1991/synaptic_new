@@ -78,6 +78,7 @@ Related: `docs/MOCKUP_WAVE_L_FIDELITY_PLAN.md`, `docs/MOCKUP_WAVE_M_FIDELITY_PLA
 | R7 | Empty states + modal header stack |
 | R8 | Nav accent bar; Visual Lab lane dividers |
 | **R10** | Prompt-first UploadModal (`create-prompt`); paste/YouTube collapsible; quiet post-upload banner; `replit-clarity.css` |
+| **R11** | Status console dock; inbox Errors/Activity; thin RAG pipeline strip; quieter toasts |
 | **R13** | `workspace-canvas` / `notebook-canvas`; Files·AI·Tools hierarchy labels; denser Sources list; thinner panel chrome |
 
 ### 2.2 Primer + Calm (complete engineering)
@@ -107,7 +108,7 @@ Scoring: **Gap** = Replit clarity still weak after R+M+C. **Borrow** = principle
 | Shell rail | Quiet labels (C3); accent bar (R8) | Optional icon-collapsed rail (still full labels via tooltip) | R9 |
 | Mobile nav | Quiet under Minimal (C7) | — largely done | — |
 | ⌘K / `?` | Shipped (M16) | Command results denser / mono paths | R12 |
-| Inbox/bell | Shipped (M17) | Console-like grouping (Errors / Activity) without removing toasts | R11 |
+| Inbox/bell | Console Errors/Activity (**R11**) | — largely done | — |
 
 ### 4.2 Create / ingest (highest Replit ROI left)
 
@@ -115,7 +116,7 @@ Scoring: **Gap** = Replit clarity still weak after R+M+C. **Borrow** = principle
 |---------|---------|--------------|------|
 | Upload modal | Prompt-first + disclosed paste/YouTube (**R10**) | — largely done | — |
 | Library empty | Content-first empties (M18) | Empty = single prompt/upload hero (filters still present when data exists) | R10 |
-| Pipeline progress | Banners exist | Thin bottom/console progress strip (non-blocking) | R11 |
+| Pipeline progress | Thin `pipeline-console-strip` (**R11**) | — | — |
 | Post-upload banner | Quieter create strip (**R10**) | — | — |
 
 ### 4.3 Library / Sources
@@ -131,7 +132,7 @@ Scoring: **Gap** = Replit clarity still weak after R+M+C. **Borrow** = principle
 | Surface | Current | Residual gap | Wave |
 |---------|---------|--------------|------|
 | Reader canvas | Content-first | Maximize canvas; chrome in overflow (partial M7) | R13 |
-| Status bus | Unified (M9) | Optional bottom dock height like console (toggleable) | R11 |
+| Status bus | Bottom console dock + Errors/Activity (**R11**) | — | — |
 | Tool dock | Overflow menus | Soft active tool; no icon wall return | R13 |
 | Notebook 3-panel | Files · AI · Tools + canvas chrome (**R13**) | Zen discoverability polish | R13 residual / R17 |
 | Split / Zen | Present | Zen more discoverable as “focus canvas” | R13 |
@@ -196,7 +197,7 @@ These improve **legibility of existing power**, not new product pillars:
 |------|-------|-----------|------|
 | **OPT-R9** | Optional collapsed shell rail (icons + tooltip; expand restores labels) | All `nav-*` retained; a11y OK | Med |
 | **OPT-R10** | Create/upload/onboarding prompt-first chrome (disclose advanced) | Upload + demo paths intact | **shipped** |
-| **OPT-R11** | Status/inbox “console” panel chrome + pipeline strip | No alert loss | Low |
+| **OPT-R11** | Status/inbox “console” panel chrome + pipeline strip | No alert loss | **shipped** |
 | **OPT-R12** | Library/files + ⌘K path mono density | Filters/upload kept | Low |
 | **OPT-R13** | Workspace/notebook canvas primacy (Sources/Studio hierarchy copy+CSS) | 3-panel + tools 100% | **shipped** |
 | **OPT-R14** | Agent tools/modes menu grouping (all modes still listed) | Modes 100% | Low |
@@ -253,9 +254,9 @@ These improve **legibility of existing power**, not new product pillars:
 
 ## 10. Completeness answer (honest)
 
-**Prior agents finished OPT-R1–R8 aesthetic waves; R10 + R13 now shipped.** Primer + ChatGPT-calm layers sit on the same Minimal default. Synapse is **not** a blank slate for Replit — remaining residual value is console Status (R11), files/⌘K density (R12), quieter hubs, and capture seed (R18), with zero removals.
+**Prior agents finished OPT-R1–R8 aesthetic waves; R10 + R11 + R13 now shipped.** Primer + ChatGPT-calm layers sit on the same Minimal default. Synapse is **not** a blank slate for Replit — remaining residual value is files/⌘K density (R12), quieter hubs, and capture seed (R18), with zero removals.
 
-**Recommended next engineering step:** **OPT-R11** (Status-as-console), then **OPT-R18** (demo-course seed for human QA captures).
+**Recommended next engineering step:** **OPT-R18** (demo-course seed for human QA captures), then **OPT-R12** (Library/⌘K path density).
 
 ---
 
@@ -265,4 +266,5 @@ These improve **legibility of existing power**, not new product pillars:
 |------|------|-------|
 | Engineering (audit) | 2026-07-19 | Exhaustive residual audit vs Replit principles; R9–R18 proposed. R1–R8 already shipped. |
 | Engineering (R10+R13) | 2026-07-19 | Prompt-first create + workspace/notebook canvas primacy shipped (Minimal-gated). |
+| Engineering (R11) | 2026-07-19 | Status-as-console dock + inbox Errors/Activity + pipeline strip shipped. |
 | | | |

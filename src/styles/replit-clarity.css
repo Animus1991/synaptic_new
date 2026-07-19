@@ -1,5 +1,5 @@
 /**
- * OPT-R10 / OPT-R13 — Replit-inspired create loop + workspace canvas primacy.
+ * OPT-R10 / OPT-R13 / OPT-R11 — Replit-inspired create, canvas, Status-as-console.
  * Minimal-gated only. No orange palette. Zero feature removal.
  * Principles only — not a Replit brand clone.
  */
@@ -122,4 +122,63 @@
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .workspace-canvas .workspace-glass-panel {
   box-shadow: none;
   backdrop-filter: none;
+}
+
+/* ── OPT-R11 — Status as console ────────────────────────────────────── */
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .status-console,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .status-console-dock {
+  background: color-mix(in srgb, var(--color-surface-secondary, #f6f8fa) 88%, transparent);
+  border-color: color-mix(in srgb, var(--color-border-subtle, #d0d7de) 90%, transparent);
+  box-shadow: none;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .status-console-dock {
+  border-b: 0;
+  border-t: 1px solid color-mix(in srgb, var(--color-border-subtle, #d0d7de) 90%, transparent);
+  order: 99;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .status-console [data-testid="workspace-status-panel-toggle"],
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .status-console-dock [data-testid="workspace-status-panel-toggle"] {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.02em;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .status-console-section-label {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  letter-spacing: 0.04em;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .status-console-inbox {
+  border-radius: 0.65rem;
+  box-shadow: none;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .status-console-inbox .status-console-section-label {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) [data-testid="rag-index-progress"].pipeline-console-strip {
+  border-radius: 0.4rem;
+  box-shadow: none;
+  padding-top: 0.45rem;
+  padding-bottom: 0.45rem;
+  margin-bottom: 0.35rem;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) [data-testid="workspace-source-status-bar"] {
+  border-radius: 0.4rem;
+  box-shadow: none;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) [data-testid="notification-toast-stack"] .notification-toast {
+  box-shadow: none;
+  border-radius: 0.5rem;
+  backdrop-filter: none;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) [data-testid="workspace-context-bar"][data-status-inbox="true"] [data-testid="workspace-status-inbox"] {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }
