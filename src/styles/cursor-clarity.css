@@ -1086,3 +1086,92 @@
   font-weight: 600;
   color: var(--color-text-primary);
 }
+
+/* ── OPT-K19 — Soft status red + exam primary + page rhythm ────────────────
+   Minimal only. Soften mastery/rose fills; demote exam CTA from danger;
+   exam full-width; quieter secondary Continue when one-step is present. */
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm {
+  --dashboard-progress-h: 0.375rem; /* 6px — shared progress language */
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm .hub-section-stack {
+  gap: 1.25rem;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm .hub-section-stack > .dashboard-pair-row {
+  gap: 0.65rem 1.15rem;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm .dashboard-prose {
+  max-width: 36rem;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm .dashboard-progress-track {
+  position: relative;
+  width: 100%;
+  height: var(--dashboard-progress-h);
+  border-radius: 9999px;
+  overflow: hidden;
+  background-color: var(--viz-bar-track, var(--color-border-subtle));
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm .dashboard-progress-fill {
+  height: 100%;
+  border-radius: 9999px;
+  transition: width 0.35s ease;
+}
+
+/* Soft weak fill — muted coral/ink mix, not solid alarm red */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm .dashboard-progress-fill--weak {
+  background: color-mix(in srgb, var(--mastery-weak) 55%, var(--color-text-tertiary));
+}
+
+:is([data-theme="minimal-dark"]) .app-shell .dashboard-calm .dashboard-progress-fill--weak {
+  background: color-mix(in srgb, var(--mastery-weak) 45%, var(--color-text-secondary));
+  opacity: 0.9;
+}
+
+/* Status rose for labels/icons only */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm .dashboard-status-rose {
+  color: var(--color-accent-rose);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm .concept-mastery-bars .proximity-track > div:last-child {
+  height: var(--dashboard-progress-h) !important;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm .concept-mastery-bars .proximity-track > div:last-child > div {
+  /* Soften weak-band bar via token already muted in primer-minimal */
+  opacity: 0.92;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm .usage-bar {
+  height: var(--dashboard-progress-h);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm .dashboard-exam-primary {
+  width: 100%;
+  max-width: none;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm .dashboard-exam-cta.ux-chip-solid-brand {
+  background: var(--color-text-primary);
+  color: var(--color-surface-primary);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm .dashboard-exam-cta.ux-chip-solid-brand:hover {
+  filter: brightness(1.05);
+}
+
+/* One primary action: when one-step strip exists, Continue stays quieter */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm:has(.dashboard-one-step-strip) .dashboard-continue-hero {
+  font-weight: 500;
+  border-color: var(--color-border-subtle);
+  color: var(--color-text-secondary);
+  background: transparent;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .hub-quiet .dashboard-urgency-signal[data-tone="forget"] {
+  border-left-color: color-mix(in srgb, var(--color-accent-rose) 70%, var(--color-border-default));
+}

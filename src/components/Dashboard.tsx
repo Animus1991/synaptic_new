@@ -876,8 +876,11 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                   )}
                   {/* Wave P-C04 — track uses --viz-bar-track (theme-tuned to ≥3:1 vs card)
                       so low-mastery fills (3-20%) always reveal a visible track behind them. */}
-                  <div className="w-full rounded-full h-1.5" style={{ backgroundColor: 'var(--viz-bar-track)' }}>
-                    <div className="h-1.5 rounded-full bg-accent-rose transition-all" style={{ width: `${Math.max(area.mastery, 3)}%` }} />
+                  <div className="dashboard-progress-track">
+                    <div
+                      className="dashboard-progress-fill dashboard-progress-fill--weak"
+                      style={{ width: `${Math.max(area.mastery, 3)}%` }}
+                    />
                   </div>
                 </button>
               )) : (
@@ -1002,10 +1005,43 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
             </>
           )}
 
-          {/* Upcoming Exam + Calibration — OPT-K18 pair under Minimal */}
+          {/* Upcoming Exam — OPT-K19: full-width primary under Minimal (not paired with meta) */}
           {isMinimal && courses.some(c => c.examDate) ? (
-            <div className="dashboard-pair-row" data-testid="dashboard-pair-exam-calibration">
-              <div className="min-w-0">
+            <div className="dashboard-exam-primary min-w-0" data-testid="dashboard-upcoming-exam">
+              <SectionLabel icon={Calendar}>{t('dashUpcomingExam')}</SectionLabel>
+              {courses.filter(c => c.examDate).map(course => {
+                const daysLeft = Math.max(0, Math.ceil((new Date(course.examDate!).getTime() - Date.now()) / 86400000));
+                const courseMastery = selectCanonicalMastery(course);
+                return (
+                  <div key={course.id} className="proximity-track">
+                    <p className="text-sm font-medium">{course.title}</p>
+                    <p className="text-xs text-text-secondary mt-1">{t('dashDaysLeftMastery').replace('{days}', String(daysLeft)).replace('{mastery}', String(courseMastery))}</p>
+                    <div className="dashboard-progress-track mt-2">
+                      <div
+                        className="dashboard-progress-fill dashboard-progress-fill--weak"
+                        style={{ width: `${courseMastery}%` }}
+                      />
+                    </div>
+                    {courseMastery < 70 && daysLeft < 30 && (
+                      <p className="dashboard-status-rose text-[10px] mt-2 flex items-center gap-1">
+                        <AlertTriangle className="w-3 h-3" />{t('dashBelowMastery')}
+                      </p>
+                    )}
+                    {examTask && (
+                      <button
+                        onClick={() => onStartTask?.(examTask.id)}
+                        className="ux-focus-ring dashboard-exam-cta mt-3 w-full py-2 rounded-lg text-xs font-semibold ux-chip-solid-brand transition-all hover:brightness-95"
+                      >
+                        {t('dashStartExamSim')}
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            courses.some(c => c.examDate) && (
+              <div className="rounded-panel border border-accent-rose/20 bg-accent-rose/5 p-3">
                 <SectionLabel icon={Calendar}>{t('dashUpcomingExam')}</SectionLabel>
                 {courses.filter(c => c.examDate).map(course => {
                   const daysLeft = Math.max(0, Math.ceil((new Date(course.examDate!).getTime() - Date.now()) / 86400000));
@@ -1032,75 +1068,66 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                   );
                 })}
               </div>
-              <div className="min-w-0 space-y-3">
-                {calibration ? (
-                  <CalibrationChip score={calibration.score} direction={calibration.direction} />
-                ) : (
-                  <div>
-                    <SectionLabel icon={Eye}>{t('dashConfidenceCheck')}</SectionLabel>
-                    <p className="text-xs text-text-tertiary mb-2">{t('dashConfidenceCheckHint')}</p>
-                  </div>
+            )
+          )}
+
+          {/* Calibration + insight — OPT-K19: quiet meta pair under Minimal when both exist */}
+          {isMinimal ? (
+              <div
+                className={cn(
+                  learnerModel.interactionInsights.length > 0 && 'dashboard-pair-row',
                 )}
-                {calibration && (
-                  <div>
-                    <SectionLabel icon={Eye}>{t('dashRecentCalibration')}</SectionLabel>
-                    {learnerModel.confidenceCalibration.slice(0, 3).map((p, i) => {
-                      const overconfident = p.predicted > p.actual + 0.15;
-                      return (
-                        <div key={i} className="flex items-center gap-2 mb-1.5">
-                          <span className="text-[10px] text-text-secondary w-16 truncate">{p.concept}</span>
-                          <div className="flex-1 h-1.5 rounded-full relative" style={{ backgroundColor: 'var(--viz-bar-track)' }}>
-                            <div className="absolute h-1.5 rounded-full bg-brand-400" style={{ width: `${p.predicted * 100}%` }} />
-                            <div className="absolute h-1.5 rounded-full bg-accent-emerald" style={{ width: `${p.actual * 100}%`, opacity: 0.85 }} />
+                data-testid={
+                  learnerModel.interactionInsights.length > 0
+                    ? 'dashboard-pair-calibration-insight'
+                    : 'dashboard-calibration-block'
+                }
+              >
+                <div className="min-w-0 space-y-3">
+                  {calibration ? (
+                    <CalibrationChip score={calibration.score} direction={calibration.direction} />
+                  ) : (
+                    <div>
+                      <SectionLabel icon={Eye}>{t('dashConfidenceCheck')}</SectionLabel>
+                      <p className="dashboard-prose text-xs text-text-tertiary mb-2">{t('dashConfidenceCheckHint')}</p>
+                    </div>
+                  )}
+                  {calibration && (
+                    <div>
+                      <SectionLabel icon={Eye}>{t('dashRecentCalibration')}</SectionLabel>
+                      {learnerModel.confidenceCalibration.slice(0, 3).map((p, i) => {
+                        const overconfident = p.predicted > p.actual + 0.15;
+                        return (
+                          <div key={i} className="flex items-center gap-2 mb-1.5">
+                            <span className="text-[10px] text-text-secondary w-16 truncate">{p.concept}</span>
+                            <div className="dashboard-progress-track flex-1 relative">
+                              <div className="absolute inset-y-0 left-0 rounded-full bg-brand-400" style={{ width: `${p.predicted * 100}%` }} />
+                              <div className="absolute inset-y-0 left-0 rounded-full bg-accent-emerald opacity-90" style={{ width: `${p.actual * 100}%` }} />
+                            </div>
+                            {overconfident && (
+                              <AlertTriangle
+                                className="h-3 w-3 dashboard-status-rose"
+                                aria-label={t('dashOverconfidentPrediction')}
+                              />
+                            )}
                           </div>
-                          {overconfident && (
-                            <AlertTriangle
-                              className="h-3 w-3 text-accent-rose"
-                              aria-label={t('dashOverconfidentPrediction')}
-                            />
-                          )}
-                        </div>
-                      );
-                    })}
-                    <button onClick={() => onNavigate('analytics')} className="mt-2 w-full text-xs text-brand-400 hover:text-brand-700 flex items-center justify-center gap-1">
-                      {t('dashFullAnalytics')} <ArrowRight className="w-3 h-3" />
-                    </button>
+                        );
+                      })}
+                      <button onClick={() => onNavigate('analytics')} className="mt-2 w-full text-xs text-brand-400 hover:text-brand-700 flex items-center justify-center gap-1">
+                        {t('dashFullAnalytics')} <ArrowRight className="w-3 h-3" />
+                      </button>
+                    </div>
+                  )}
+                </div>
+                {learnerModel.interactionInsights.length > 0 && (
+                  <div className="min-w-0">
+                    <SectionLabel icon={Lightbulb}>{t('dashLearningInsight')}</SectionLabel>
+                    <p className="dashboard-prose text-xs text-text-secondary leading-relaxed">{learnerModel.interactionInsights[0]}</p>
                   </div>
                 )}
               </div>
-            </div>
           ) : (
             <>
-              {courses.some(c => c.examDate) && (
-                <div className="rounded-panel border border-accent-rose/20 bg-accent-rose/5 p-3">
-                  <SectionLabel icon={Calendar}>{t('dashUpcomingExam')}</SectionLabel>
-                  {courses.filter(c => c.examDate).map(course => {
-                    const daysLeft = Math.max(0, Math.ceil((new Date(course.examDate!).getTime() - Date.now()) / 86400000));
-                    const courseMastery = selectCanonicalMastery(course);
-                    return (
-                      <div key={course.id} className="proximity-track">
-                        <p className="text-sm font-medium">{course.title}</p>
-                        <p className="text-xs text-text-secondary mt-1">{t('dashDaysLeftMastery').replace('{days}', String(daysLeft)).replace('{mastery}', String(courseMastery))}</p>
-                        <div className="mt-2 w-full rounded-full h-1.5" style={{ backgroundColor: 'var(--viz-bar-track)' }}>
-                          <div className="h-1.5 rounded-full bg-accent-rose transition-all" style={{ width: `${courseMastery}%` }} />
-                        </div>
-                        {courseMastery < 70 && daysLeft < 30 && (
-                          <p className="text-[10px] text-accent-rose mt-2 flex items-center gap-1"><AlertTriangle className="w-3 h-3" />{t('dashBelowMastery')}</p>
-                        )}
-                        {examTask && (
-                          <button
-                            onClick={() => onStartTask?.(examTask.id)}
-                            className="ux-focus-ring mt-3 w-full py-2 rounded-lg text-xs font-semibold ux-chip-solid-danger transition-all hover:brightness-95"
-                          >
-                            {t('dashStartExamSim')}
-                          </button>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-
               {calibration ? (
                 <CalibrationChip score={calibration.score} direction={calibration.direction} />
               ) : (
@@ -1135,15 +1162,13 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                 </button>
               </BlueprintSurface>
               )}
+              {learnerModel.interactionInsights.length > 0 && (
+                <div className="rounded-panel border border-brand-500/20 bg-brand-500/5 p-3">
+                  <SectionLabel icon={Lightbulb}>{t('dashLearningInsight')}</SectionLabel>
+                  <p className="text-xs text-text-secondary leading-relaxed">{learnerModel.interactionInsights[0]}</p>
+                </div>
+              )}
             </>
-          )}
-
-          {/* Learning Insight */}
-          {learnerModel.interactionInsights.length > 0 && (
-            <div className="rounded-panel border border-brand-500/20 bg-brand-500/5 p-3">
-              <SectionLabel icon={Lightbulb}>{t('dashLearningInsight')}</SectionLabel>
-              <p className="text-xs text-text-secondary leading-relaxed">{learnerModel.interactionInsights[0]}</p>
-            </div>
           )}
 
           {/* Misconceptions + Spaced rep — OPT-K18 pair under Minimal when misconceptions exist */}

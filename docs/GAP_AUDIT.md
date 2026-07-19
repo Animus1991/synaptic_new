@@ -368,6 +368,7 @@ Constraints for all OPT-R*: no typography/button/modal scale-up; no functional r
 | OPT-K16 | Agent mode chrome monochrome | P2 | **shipped** | Mode rail/catalog/header ink wells + ink active; quiet provenance badges/task banner/composer accents under Minimal; all `agent-mode-*` retained; Blueprint rainbow untouched |
 | OPT-K17 | Dashboard signal pass | P2 | **shipped** | Urgency left-edge on alert/study prompts; stronger one-step strip; Almost-there as UtilityRows under Minimal; Blueprint peach/washes kept |
 | OPT-K18 | Dashboard full-span + pair rows | P2 | **shipped** | Lift measure caps on hero/stats/hub; pair coverage↔mastery, weak↔almost, exam↔calibration, misconceptions↔spaced @≥900px; proximity flex-start kept; Blueprint untouched |
+| OPT-K19 | Soft status red + exam primary | P2 | **shipped** | Soft mastery/rose tokens; weak bars muted fills; exam full-width + brand/ink CTA (not solid-danger); calibration↔insight quiet pair; stack rhythm + shared progress height; Continue quieter when one-step present; Blueprint untouched |
 
 ### Primer-inspired minimal (OPT-M) — zero feature removal
 

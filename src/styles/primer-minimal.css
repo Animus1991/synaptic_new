@@ -62,11 +62,12 @@
   --color-accent-cyan: #0891b2;
   --color-accent-emerald: #1a7f37;
   --color-accent-amber: #9a6700;
-  --color-accent-rose: #cf222e;
+  /* OPT-K19 — soft status rose (not Primer alarm) for learning UI */
+  --color-accent-rose: #b42318;
   --color-accent-orange: #bc4c00;
   --color-accent-violet: #8250df;
 
-  --mastery-weak: #cf222e;
+  --mastery-weak: #c45c66;
   --mastery-developing: #0969da;
   --mastery-proficient: #9a6700;
   --mastery-strong: #1a7f37;
@@ -134,11 +135,12 @@
   --color-accent-cyan: #39d0d8;
   --color-accent-emerald: #3fb950;
   --color-accent-amber: #d29922;
-  --color-accent-rose: #f85149;
+  /* OPT-K19 — soft danger (less neon than #f85149) */
+  --color-accent-rose: #da3633;
   --color-accent-orange: #db6d28;
   --color-accent-violet: #a371f7;
 
-  --mastery-weak: #f85149;
+  --mastery-weak: #da3633;
   --mastery-developing: #58a6ff;
   --mastery-proficient: #d29922;
   --mastery-strong: #3fb950;
