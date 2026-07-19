@@ -133,6 +133,7 @@ export interface AccountRepository {
   setPlan(accountId: string, plan: Plan, stripeCustomerId?: string): Promise<Account | undefined>;
   saveUsage(accountId: string, usage: UsageWindow): Promise<void>;
   updatePassword(accountId: string, passwordHash: string, salt: string): Promise<boolean>;
+  markEmailVerified(accountId: string): Promise<Account | undefined>;
   deleteAccount(accountId: string): Promise<boolean>;
   accountStats(): Promise<{ total: number; byPlan: Record<Plan, number> }>;
 }
@@ -146,6 +147,8 @@ function rowToAccount(row: {
   stripe_customer_id: string | null;
   usage: UsageWindow;
   created_at: Date;
+  email_verified?: boolean | null;
+  email_verified_at?: Date | null;
 }): Account {
   return {
     id: row.id,
@@ -156,6 +159,8 @@ function rowToAccount(row: {
     stripeCustomerId: row.stripe_customer_id ?? undefined,
     usage: row.usage,
     createdAt: row.created_at.toISOString(),
+    emailVerified: row.email_verified === true,
+    emailVerifiedAt: row.email_verified_at ? row.email_verified_at.toISOString() : undefined,
   };
 }
 
@@ -168,6 +173,8 @@ type AccountRow = {
   stripe_customer_id: string | null;
   usage: UsageWindow;
   created_at: Date;
+  email_verified?: boolean | null;
+  email_verified_at?: Date | null;
 };
 
 export function createPostgresAccountRepo(databaseUrl: string): AccountRepository {
@@ -197,8 +204,8 @@ export function createPostgresAccountRepo(databaseUrl: string): AccountRepositor
 
     async create(account: Account): Promise<Account> {
       await pool.query(
-        `INSERT INTO accounts (id, email, plan, password_hash, salt, stripe_customer_id, usage, created_at)
-         VALUES ($1, $2, $3, $4, $5, $6, $7::jsonb, $8::timestamptz)`,
+        `INSERT INTO accounts (id, email, plan, password_hash, salt, stripe_customer_id, usage, created_at, email_verified, email_verified_at)
+         VALUES ($1, $2, $3, $4, $5, $6, $7::jsonb, $8::timestamptz, $9, $10::timestamptz)`,
         [
           account.id,
           account.email,
@@ -208,6 +215,8 @@ export function createPostgresAccountRepo(databaseUrl: string): AccountRepositor
           account.stripeCustomerId ?? null,
           JSON.stringify(account.usage),
           account.createdAt,
+          account.emailVerified === true,
+          account.emailVerifiedAt ?? null,
         ],
       );
       return account;
@@ -238,6 +247,17 @@ export function createPostgresAccountRepo(databaseUrl: string): AccountRepositor
         [accountId, passwordHash, salt],
       );
       return (res.rowCount ?? 0) > 0;
+    },
+
+    async markEmailVerified(accountId: string): Promise<Account | undefined> {
+      const res = await pool.query<AccountRow>(
+        `UPDATE accounts
+         SET email_verified = true, email_verified_at = NOW()
+         WHERE id = $1
+         RETURNING *`,
+        [accountId],
+      );
+      return res.rowCount ? rowToAccount(res.rows[0]!) : undefined;
     },
 
     async deleteAccount(accountId: string): Promise<boolean> {
@@ -279,7 +299,7 @@ export function createAccountRepo(databaseUrl: string | undefined): AccountRepos
   return createPostgresAccountRepo(databaseUrl.trim());
 }
 
-export type StoredTokenKind = 'refresh' | 'password_reset';
+export type StoredTokenKind = 'refresh' | 'password_reset' | 'email_verify';
 
 export interface TokenRepository {
   issueToken(accountId: string, tokenHash: string, kind: StoredTokenKind, expiresAt: Date): Promise<void>;

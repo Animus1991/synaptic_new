@@ -7,7 +7,7 @@ export const GOOGLE_CALENDAR_EVENTS_SCOPE = 'https://www.googleapis.com/auth/cal
 
 export const googleCalendarRouter = Router();
 
-function requireGoogle(req: Request, res: Response): string | null {
+async function requireGoogle(req: Request, res: Response): Promise<string | null> {
   if (!googleOAuthConfigured()) {
     res.status(503).json({ error: 'Google OAuth not configured' });
     return null;
@@ -17,7 +17,7 @@ function requireGoogle(req: Request, res: Response): string | null {
     res.status(401).json({ error: 'Sign in required' });
     return null;
   }
-  const status = googleStatusForAccount(accountId);
+  const status = await googleStatusForAccount(accountId);
   if (!status.connected) {
     res.status(403).json({ error: 'Google account not connected', code: 'google_not_connected' });
     return null;
@@ -43,7 +43,7 @@ type CalendarEventBody = {
 };
 
 googleCalendarRouter.post('/google/calendar/events', authenticate, async (req, res) => {
-  const accountId = requireGoogle(req, res);
+  const accountId = await requireGoogle(req, res);
   if (!accountId) return;
 
   const body = req.body as CalendarEventBody;
@@ -102,7 +102,7 @@ googleCalendarRouter.post('/google/calendar/events', authenticate, async (req, r
 });
 
 googleCalendarRouter.delete('/google/calendar/events/:eventId', authenticate, async (req, res) => {
-  const accountId = requireGoogle(req, res);
+  const accountId = await requireGoogle(req, res);
   if (!accountId) return;
 
   const eventId = req.params.eventId?.trim();
@@ -134,7 +134,7 @@ googleCalendarRouter.delete('/google/calendar/events/:eventId', authenticate, as
 });
 
 googleCalendarRouter.get('/google/calendar/events', authenticate, async (req, res) => {
-  const accountId = requireGoogle(req, res);
+  const accountId = await requireGoogle(req, res);
   if (!accountId) return;
 
   const timeMin = typeof req.query.timeMin === 'string'

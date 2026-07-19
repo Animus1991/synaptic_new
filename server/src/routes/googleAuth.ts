@@ -98,8 +98,8 @@ googleAuthRouter.get('/google/callback', async (req, res) => {
 
     let accountId = pending.accountId;
     if (pending.mode === 'connect' && accountId) {
-      const existing = getGoogleTokens(accountId);
-      saveGoogleTokens(buildTokenRecord(accountId, user, tokenRes, existing?.refreshToken));
+      const existing = await getGoogleTokens(accountId);
+      await saveGoogleTokens(buildTokenRecord(accountId, user, tokenRes, existing?.refreshToken));
       res.redirect(withQueryParam(clientReturnUrl(pending.returnTo), 'google', 'connected'));
       return;
     }
@@ -110,7 +110,7 @@ googleAuthRouter.get('/google/callback', async (req, res) => {
       account = await createAccountAsync(user.email, randomPassword);
     }
 
-    saveGoogleTokens(buildTokenRecord(account.id, user, tokenRes));
+    await saveGoogleTokens(buildTokenRecord(account.id, user, tokenRes));
 
     const accessToken = signAccessToken(account.id);
     const refreshToken = await signRefreshToken(account.id);
@@ -143,11 +143,11 @@ googleAuthRouter.post('/google/complete', async (req, res) => {
   });
 });
 
-googleAuthRouter.get('/google/status', authenticate, (req, res) => {
-  res.json(googleStatusForAccount(req.account!.id));
+googleAuthRouter.get('/google/status', authenticate, async (req, res) => {
+  res.json(await googleStatusForAccount(req.account!.id));
 });
 
-googleAuthRouter.post('/google/disconnect', authenticate, (req, res) => {
-  deleteGoogleTokens(req.account!.id);
+googleAuthRouter.post('/google/disconnect', authenticate, async (req, res) => {
+  await deleteGoogleTokens(req.account!.id);
   res.json({ ok: true });
 });

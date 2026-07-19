@@ -24,6 +24,9 @@ export interface Account {
   createdAt: string;
   usage: UsageWindow;
   stripeCustomerId?: string;
+  /** W1 — false until /auth/verify-email succeeds (existing DB rows migrated true). */
+  emailVerified?: boolean;
+  emailVerifiedAt?: string;
 }
 
 const accounts = new Map<string, Account>();
@@ -53,6 +56,7 @@ function buildAccount(email: string, password: string, plan: Plan = 'free'): Acc
     salt,
     createdAt: new Date().toISOString(),
     usage: freshWindow(),
+    emailVerified: false,
   };
 }
 
@@ -93,6 +97,7 @@ export function anonymousAccount(): Account {
       salt: '',
       createdAt: new Date().toISOString(),
       usage: freshWindow(),
+      emailVerified: true,
     };
   }
   ensureMonth(anon);
@@ -255,6 +260,16 @@ export async function updatePasswordAsync(accountId: string, password: string): 
   account.salt = salt;
   account.passwordHash = passwordHash;
   return true;
+}
+
+export async function markEmailVerifiedAsync(accountId: string): Promise<Account | undefined> {
+  if (accountId === 'anonymous') return anonymousAccount();
+  if (pgRepo) return pgRepo.markEmailVerified(accountId);
+  const account = accounts.get(accountId);
+  if (!account) return undefined;
+  account.emailVerified = true;
+  account.emailVerifiedAt = new Date().toISOString();
+  return account;
 }
 
 export async function deleteAccountAsync(accountId: string): Promise<boolean> {

@@ -151,6 +151,11 @@ export default defineConfig({
       ],
     },
   },
+  // Allow Cloudflare/localtunnel hosts for live preview demos.
+  preview: {
+    host: true,
+    allowedHosts: true,
+  },
   optimizeDeps: {
     exclude: ['pyodide'],
   },

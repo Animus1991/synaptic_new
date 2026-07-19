@@ -50,9 +50,10 @@ wellKnownRouter.get('/.well-known/oauth-authorization-server', (_req, res) => {
 
 // --- Dynamic Client Registration (RFC 7591) --------------------------------
 
-export function processRegistration(body: unknown):
+export async function processRegistration(body: unknown): Promise<
   | { status: 201; body: Record<string, unknown> }
-  | { status: 400; body: Record<string, unknown> } {
+  | { status: 400; body: Record<string, unknown> }
+> {
   const b = (typeof body === 'object' && body !== null ? body : {}) as Record<string, unknown>;
   const redirectUris = Array.isArray(b.redirect_uris)
     ? b.redirect_uris.filter((u): u is string => typeof u === 'string' && /^https?:\/\//.test(u))
@@ -60,7 +61,7 @@ export function processRegistration(body: unknown):
   if (redirectUris.length === 0) {
     return { status: 400, body: { error: 'invalid_redirect_uri', error_description: 'redirect_uris required' } };
   }
-  const client = registerClient({
+  const client = await registerClient({
     redirectUris,
     clientName: typeof b.client_name === 'string' ? b.client_name : undefined,
     scope: typeof b.scope === 'string' ? sanitizeScope(b.scope) : undefined,
@@ -80,8 +81,8 @@ export function processRegistration(body: unknown):
   };
 }
 
-oauthRouter.post('/oauth/register', (req, res) => {
-  const result = processRegistration(req.body);
+oauthRouter.post('/oauth/register', async (req, res) => {
+  const result = await processRegistration(req.body);
   res.status(result.status).json(result.body);
 });
 
@@ -111,14 +112,16 @@ function q(value: unknown): string {
  * Validate an /oauth/authorize request. Client/redirect errors are fatal (shown
  * to the user, not redirected). Other errors redirect back per OAuth spec.
  */
-export function validateAuthorizeRequest(query: Record<string, unknown>): AuthorizeValidation {
+export async function validateAuthorizeRequest(
+  query: Record<string, unknown>,
+): Promise<AuthorizeValidation> {
   const clientId = q(query.client_id);
   const redirectUri = q(query.redirect_uri);
 
-  if (!clientId || !getClient(clientId)) {
+  if (!clientId || !(await getClient(clientId))) {
     return { ok: false, fatal: 'Unknown client_id' };
   }
-  if (!redirectUri || !isRegisteredRedirectUri(clientId, redirectUri)) {
+  if (!redirectUri || !(await isRegisteredRedirectUri(clientId, redirectUri))) {
     return { ok: false, fatal: 'redirect_uri is not registered for this client' };
   }
 
@@ -153,8 +156,8 @@ export function validateAuthorizeRequest(query: Record<string, unknown>): Author
   };
 }
 
-oauthRouter.get('/oauth/authorize', (req: Request, res: Response) => {
-  const validation = validateAuthorizeRequest(req.query as Record<string, unknown>);
+oauthRouter.get('/oauth/authorize', async (req: Request, res: Response) => {
+  const validation = await validateAuthorizeRequest(req.query as Record<string, unknown>);
   if (!validation.ok) {
     if ('fatal' in validation) {
       res.status(400).send(`OAuth error: ${validation.fatal}`);
@@ -164,7 +167,7 @@ oauthRouter.get('/oauth/authorize', (req: Request, res: Response) => {
     return;
   }
   const r = validation.request;
-  const client = getClient(r.clientId)!;
+  const client = (await getClient(r.clientId))!;
   res.type('html').send(
     renderConsentPage({
       clientId: r.clientId,
@@ -189,8 +192,8 @@ export type DecisionResult =
 export async function processDecision(body: Record<string, unknown>): Promise<DecisionResult> {
   const clientId = q(body.client_id);
   const redirectUri = q(body.redirect_uri);
-  if (!clientId || !getClient(clientId)) return { type: 'fatal', message: 'Unknown client_id' };
-  if (!isRegisteredRedirectUri(clientId, redirectUri)) {
+  if (!clientId || !(await getClient(clientId))) return { type: 'fatal', message: 'Unknown client_id' };
+  if (!(await isRegisteredRedirectUri(clientId, redirectUri))) {
     return { type: 'fatal', message: 'redirect_uri is not registered for this client' };
   }
 
@@ -221,7 +224,7 @@ export async function processDecision(body: Record<string, unknown>): Promise<De
     return { type: 'consent_error', message: 'Invalid email or password.' };
   }
 
-  const code = issueAuthCode({
+  const code = await issueAuthCode({
     clientId,
     accountId: account.id,
     redirectUri,
@@ -240,10 +243,11 @@ oauthRouter.post('/oauth/authorize/decision', async (req: Request, res: Response
   }
   if (result.type === 'consent_error') {
     const b = req.body as Record<string, unknown>;
+    const client = await getClient(q(b.client_id));
     res.status(401).type('html').send(
       renderConsentPage({
         clientId: q(b.client_id),
-        clientName: getClient(q(b.client_id))?.clientName || q(b.client_id),
+        clientName: client?.clientName || q(b.client_id),
         redirectUri: q(b.redirect_uri),
         state: q(b.state),
         scope: sanitizeScope(q(b.scope)),
@@ -275,7 +279,7 @@ export async function exchangeToken(body: Record<string, unknown>): Promise<Toke
     if (!code || !clientId || !redirectUri || !codeVerifier) {
       return { status: 400, body: { error: 'invalid_request', error_description: 'missing parameters' } };
     }
-    const result = consumeAuthCode({ code, clientId, redirectUri, codeVerifier });
+    const result = await consumeAuthCode({ code, clientId, redirectUri, codeVerifier });
     if ('error' in result) return { status: 400, body: { error: result.error } };
 
     const accessToken = signAccessToken(result.accountId);

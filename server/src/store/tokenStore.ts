@@ -5,7 +5,7 @@ import { createTokenRepo } from './postgres';
 export type StoredToken = {
   accountId: string;
   expiresAt: number;
-  kind: 'refresh' | 'password_reset';
+  kind: 'refresh' | 'password_reset' | 'email_verify';
 };
 
 const tokens = new Map<string, StoredToken>();

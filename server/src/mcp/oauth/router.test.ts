@@ -28,8 +28,8 @@ function pkce() {
   return { verifier, challenge };
 }
 
-function registerTestClient(redirectUri = 'https://client.test/callback') {
-  const reg = processRegistration({ redirect_uris: [redirectUri], client_name: 'Test Client' });
+async function registerTestClient(redirectUri = 'https://client.test/callback') {
+  const reg = await processRegistration({ redirect_uris: [redirectUri], client_name: 'Test Client' });
   const clientId = (reg.body as { client_id: string }).client_id;
   return { clientId, redirectUri };
 }
@@ -42,8 +42,8 @@ beforeEach(() => {
 });
 
 describe('Dynamic Client Registration', () => {
-  it('registers a public PKCE client', () => {
-    const res = processRegistration({ redirect_uris: ['https://c.test/cb'], client_name: 'Claude' });
+  it('registers a public PKCE client', async () => {
+    const res = await processRegistration({ redirect_uris: ['https://c.test/cb'], client_name: 'Claude' });
     expect(res.status).toBe(201);
     const body = res.body as Record<string, unknown>;
     expect(String(body.client_id)).toMatch(/^mcp-/);
@@ -51,17 +51,17 @@ describe('Dynamic Client Registration', () => {
     expect(body.redirect_uris).toEqual(['https://c.test/cb']);
   });
 
-  it('rejects registration without valid redirect_uris', () => {
-    expect(processRegistration({}).status).toBe(400);
-    expect(processRegistration({ redirect_uris: ['not-a-url'] }).status).toBe(400);
+  it('rejects registration without valid redirect_uris', async () => {
+    expect((await processRegistration({})).status).toBe(400);
+    expect((await processRegistration({ redirect_uris: ['not-a-url'] })).status).toBe(400);
   });
 });
 
 describe('authorize validation', () => {
-  it('accepts a valid PKCE authorize request', () => {
-    const { clientId, redirectUri } = registerTestClient();
+  it('accepts a valid PKCE authorize request', async () => {
+    const { clientId, redirectUri } = await registerTestClient();
     const { challenge } = pkce();
-    const v = validateAuthorizeRequest({
+    const v = await validateAuthorizeRequest({
       response_type: 'code',
       client_id: clientId,
       redirect_uri: redirectUri,
@@ -77,21 +77,21 @@ describe('authorize validation', () => {
     }
   });
 
-  it('is a fatal error for unknown client', () => {
-    const v = validateAuthorizeRequest({ client_id: 'nope', redirect_uri: 'https://x/y' });
+  it('is a fatal error for unknown client', async () => {
+    const v = await validateAuthorizeRequest({ client_id: 'nope', redirect_uri: 'https://x/y' });
     expect(v.ok).toBe(false);
     expect(v).toHaveProperty('fatal');
   });
 
-  it('is fatal for an unregistered redirect_uri', () => {
-    const { clientId } = registerTestClient();
-    const v = validateAuthorizeRequest({ client_id: clientId, redirect_uri: 'https://evil.test/cb' });
+  it('is fatal for an unregistered redirect_uri', async () => {
+    const { clientId } = await registerTestClient();
+    const v = await validateAuthorizeRequest({ client_id: clientId, redirect_uri: 'https://evil.test/cb' });
     expect(v).toHaveProperty('fatal');
   });
 
-  it('redirects with error when PKCE challenge is missing', () => {
-    const { clientId, redirectUri } = registerTestClient();
-    const v = validateAuthorizeRequest({
+  it('redirects with error when PKCE challenge is missing', async () => {
+    const { clientId, redirectUri } = await registerTestClient();
+    const v = await validateAuthorizeRequest({
       response_type: 'code',
       client_id: clientId,
       redirect_uri: redirectUri,
@@ -104,9 +104,9 @@ describe('authorize validation', () => {
     }
   });
 
-  it('rejects plain (non-S256) PKCE', () => {
-    const { clientId, redirectUri } = registerTestClient();
-    const v = validateAuthorizeRequest({
+  it('rejects plain (non-S256) PKCE', async () => {
+    const { clientId, redirectUri } = await registerTestClient();
+    const v = await validateAuthorizeRequest({
       response_type: 'code',
       client_id: clientId,
       redirect_uri: redirectUri,
@@ -119,7 +119,7 @@ describe('authorize validation', () => {
 
 describe('consent decision', () => {
   it('denies → redirect with access_denied', async () => {
-    const { clientId, redirectUri } = registerTestClient();
+    const { clientId, redirectUri } = await registerTestClient();
     const res = await processDecision({
       client_id: clientId,
       redirect_uri: redirectUri,
@@ -133,7 +133,7 @@ describe('consent decision', () => {
   it('wrong credentials → consent_error', async () => {
     vi.mocked(findByEmailAsync).mockResolvedValue(account);
     vi.mocked(verifyPassword).mockReturnValue(false);
-    const { clientId, redirectUri } = registerTestClient();
+    const { clientId, redirectUri } = await registerTestClient();
     const { challenge } = pkce();
     const res = await processDecision({
       client_id: clientId,
@@ -151,7 +151,7 @@ describe('consent decision', () => {
   it('approve + valid creds → redirect with an authorization code', async () => {
     vi.mocked(findByEmailAsync).mockResolvedValue(account);
     vi.mocked(verifyPassword).mockReturnValue(true);
-    const { clientId, redirectUri } = registerTestClient();
+    const { clientId, redirectUri } = await registerTestClient();
     const { challenge } = pkce();
     const res = await processDecision({
       client_id: clientId,
@@ -192,7 +192,7 @@ describe('token exchange (full PKCE flow)', () => {
   }
 
   it('exchanges an auth code + verifier for tokens', async () => {
-    const { clientId, redirectUri } = registerTestClient();
+    const { clientId, redirectUri } = await registerTestClient();
     const { verifier, challenge } = pkce();
     const code = await getCode(redirectUri, clientId, challenge);
 
@@ -212,7 +212,7 @@ describe('token exchange (full PKCE flow)', () => {
   });
 
   it('rejects a wrong PKCE verifier', async () => {
-    const { clientId, redirectUri } = registerTestClient();
+    const { clientId, redirectUri } = await registerTestClient();
     const { challenge } = pkce();
     const code = await getCode(redirectUri, clientId, challenge);
     const res = await exchangeToken({
@@ -227,7 +227,7 @@ describe('token exchange (full PKCE flow)', () => {
   });
 
   it('rejects auth-code reuse (one-time)', async () => {
-    const { clientId, redirectUri } = registerTestClient();
+    const { clientId, redirectUri } = await registerTestClient();
     const { verifier, challenge } = pkce();
     const code = await getCode(redirectUri, clientId, challenge);
     const params = {
