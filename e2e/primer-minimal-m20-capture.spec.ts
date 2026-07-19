@@ -24,15 +24,18 @@ import {
   type PrimerCaptureTheme,
 } from './helpers/primerCapture';
 
-/** Open study workspace; notebook layout may omit classic `workspace-dock`. */
-async function openWorkspaceForCapture(page: Page) {
+/** Open study workspace; notebook layout may omit classic `workspace-dock`. Returns false if no course. */
+async function openWorkspaceForCapture(page: Page): Promise<boolean> {
   const courseCard = page.getByTestId('library-course-card').first();
-  await expect(courseCard).toBeVisible({ timeout: 15_000 });
+  if (!(await courseCard.isVisible({ timeout: 8_000 }).catch(() => false))) {
+    return false;
+  }
   await courseCard.click();
   await expect(page.getByTestId('course-open-workspace')).toBeVisible({ timeout: 15_000 });
   await page.getByTestId('course-open-workspace').click();
   await expect(page.getByTestId('study-workspace')).toBeVisible({ timeout: 45_000 });
   await dismissBlockingShellOverlays(page);
+  return true;
 }
 
 async function closeWorkspaceForCapture(page: Page) {
@@ -262,50 +265,66 @@ test.describe('OPT-M20 Primer Minimal screenshot dump', () => {
     // Workspace surfaces (14–22)
     await goNav(page, 'nav-library');
     await waitForLibraryReady(page);
-    await openWorkspaceForCapture(page);
-    await forcePrimerTheme(page, 'minimal');
-    await forceChromeDensity(page, 'compact');
-
-    // 15 first while notebook default
-    if (await page.getByTestId('notebook-workspace-layout').isVisible().catch(() => false)) {
-      await shot(page, '15-workspace-notebook-minimal', '#15 Workspace notebook');
-    } else {
-      skip('#15 Workspace notebook', 'notebook layout not active');
-    }
-
-    const classicOk = await reopenWorkspaceClassic(page);
-    await forcePrimerTheme(page, 'minimal');
-    await forceChromeDensity(page, 'compact');
-    if (classicOk) {
-      await shot(page, '14-workspace-classic-compact', '#14 Workspace classic Compact');
-    } else {
-      await shot(page, '14-workspace-notebook-compact-fallback', '#14 Workspace classic Compact', {
-        note: 'Classic remount failed — notebook+compact fallback',
-      });
-    }
-
-    const tools: Array<{ id: WorkspaceDockToolId; slug: string; matrix: string }> = [
-      { id: 'reader', slug: '16-tool-reader-compact', matrix: '#16 Tool: Reader' },
-      { id: 'annotations', slug: '17-tool-annotations', matrix: '#17 Tool: Annotations' },
-      { id: 'quiz', slug: '18-tool-quiz-compact', matrix: '#18 Tool: Quiz' },
-      { id: 'leitner', slug: '19-tool-leitner', matrix: '#19 Tool: Leitner' },
-      { id: 'simulator', slug: '20-tool-simulator', matrix: '#20 Tool: Simulator' },
-      { id: 'concept-map', slug: '21-tool-concept-map', matrix: '#21 Tool: Concept map' },
-      { id: 'feynman', slug: '22-tool-feynman', matrix: '#22 Tool: Feynman' },
-    ];
-
-    for (const t of tools) {
-      try {
-        await openToolInWorkspace(page, t.id);
-        await page.waitForTimeout(500);
-        await shot(page, t.slug, t.matrix);
-      } catch (err) {
-        skip(t.matrix, `open failed: ${err instanceof Error ? err.message : String(err)}`);
+    const workspaceOpened = await openWorkspaceForCapture(page);
+    if (!workspaceOpened) {
+      skip('#14 Workspace classic Compact', 'no library-course-card (manual fill-in)');
+      skip('#15 Workspace notebook', 'no library-course-card (manual fill-in)');
+      for (const matrix of [
+        '#16 Tool: Reader',
+        '#17 Tool: Annotations',
+        '#18 Tool: Quiz',
+        '#19 Tool: Leitner',
+        '#20 Tool: Simulator',
+        '#21 Tool: Concept map',
+        '#22 Tool: Feynman',
+      ]) {
+        skip(matrix, 'no library-course-card (manual fill-in)');
       }
-    }
+    } else {
+      await forcePrimerTheme(page, 'minimal');
+      await forceChromeDensity(page, 'compact');
 
-    // Leave workspace → Note Analysis / Exam Prep via palette
-    await closeWorkspaceForCapture(page);
+      // 15 first while notebook default
+      if (await page.getByTestId('notebook-workspace-layout').isVisible().catch(() => false)) {
+        await shot(page, '15-workspace-notebook-minimal', '#15 Workspace notebook');
+      } else {
+        skip('#15 Workspace notebook', 'notebook layout not active');
+      }
+
+      const classicOk = await reopenWorkspaceClassic(page);
+      await forcePrimerTheme(page, 'minimal');
+      await forceChromeDensity(page, 'compact');
+      if (classicOk) {
+        await shot(page, '14-workspace-classic-compact', '#14 Workspace classic Compact');
+      } else {
+        await shot(page, '14-workspace-notebook-compact-fallback', '#14 Workspace classic Compact', {
+          note: 'Classic remount failed — notebook+compact fallback',
+        });
+      }
+
+      const tools: Array<{ id: WorkspaceDockToolId; slug: string; matrix: string }> = [
+        { id: 'reader', slug: '16-tool-reader-compact', matrix: '#16 Tool: Reader' },
+        { id: 'annotations', slug: '17-tool-annotations', matrix: '#17 Tool: Annotations' },
+        { id: 'quiz', slug: '18-tool-quiz-compact', matrix: '#18 Tool: Quiz' },
+        { id: 'leitner', slug: '19-tool-leitner', matrix: '#19 Tool: Leitner' },
+        { id: 'simulator', slug: '20-tool-simulator', matrix: '#20 Tool: Simulator' },
+        { id: 'concept-map', slug: '21-tool-concept-map', matrix: '#21 Tool: Concept map' },
+        { id: 'feynman', slug: '22-tool-feynman', matrix: '#22 Tool: Feynman' },
+      ];
+
+      for (const t of tools) {
+        try {
+          await openToolInWorkspace(page, t.id);
+          await page.waitForTimeout(500);
+          await shot(page, t.slug, t.matrix);
+        } catch (err) {
+          skip(t.matrix, `open failed: ${err instanceof Error ? err.message : String(err)}`);
+        }
+      }
+
+      // Leave workspace → Note Analysis / Exam Prep via palette
+      await closeWorkspaceForCapture(page);
+    }
     await settleShell(page, 'minimal');
 
     // 23 — Note Analysis

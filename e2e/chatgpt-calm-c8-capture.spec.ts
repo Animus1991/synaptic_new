@@ -33,14 +33,17 @@ async function captureCalmShot(page: Page, slug: string, opts?: { fullPage?: boo
   return file;
 }
 
-async function openWorkspaceForCapture(page: Page) {
+async function openWorkspaceForCapture(page: Page): Promise<boolean> {
   const courseCard = page.getByTestId('library-course-card').first();
-  await expect(courseCard).toBeVisible({ timeout: 15_000 });
+  if (!(await courseCard.isVisible({ timeout: 8_000 }).catch(() => false))) {
+    return false;
+  }
   await courseCard.click();
   await expect(page.getByTestId('course-open-workspace')).toBeVisible({ timeout: 15_000 });
   await page.getByTestId('course-open-workspace').click();
   await expect(page.getByTestId('study-workspace')).toBeVisible({ timeout: 45_000 });
   await dismissBlockingShellOverlays(page);
+  return true;
 }
 
 type ManifestRow = { slug: string; matrix: string; ok: boolean; note?: string };
@@ -172,12 +175,16 @@ test.describe('OPT-C8 ChatGPT-calm screenshot dump', () => {
       await goNav(page, 'nav-library');
       await waitForLibraryReady(page);
       try {
-        await openWorkspaceForCapture(page);
-        await forcePrimerTheme(page, 'minimal');
-        if (await page.getByTestId('notebook-workspace-layout').isVisible().catch(() => false)) {
-          await shot(page, 'c4-notebook-calm', '#C4 Notebook calm');
+        const opened = await openWorkspaceForCapture(page);
+        if (!opened) {
+          skip('#C4 Notebook calm', 'no library-course-card (manual fill-in)');
         } else {
-          skip('#C4 Notebook calm', 'notebook layout not active');
+          await forcePrimerTheme(page, 'minimal');
+          if (await page.getByTestId('notebook-workspace-layout').isVisible().catch(() => false)) {
+            await shot(page, 'c4-notebook-calm', '#C4 Notebook calm');
+          } else {
+            skip('#C4 Notebook calm', 'notebook layout not active');
+          }
         }
       } catch (err) {
         skip('#C4 Notebook calm', `open failed: ${err instanceof Error ? err.message : String(err)}`);
