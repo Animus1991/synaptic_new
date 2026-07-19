@@ -78,7 +78,7 @@ jobs:
         env:
           CI: true
       - if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: a11y-playwright-report
           path: |
@@ -105,7 +105,7 @@ jobs:
         env:
           CI: true
       - if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: chunk-recovery-playwright-report
           path: |
@@ -150,7 +150,7 @@ jobs:
         env:
           CI: true
       - if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: visual-regression-playwright-report
           path: |
@@ -173,7 +173,7 @@ jobs:
         env:
           CI: true
       - if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: perf-budget-playwright-report
           path: |
@@ -216,7 +216,7 @@ jobs:
           path: .github/perf/b11-prod-stretch-history.json
           key: b11-prod-stretch-history-v1
       - if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: perf-budget-prod-playwright-report
           path: |
