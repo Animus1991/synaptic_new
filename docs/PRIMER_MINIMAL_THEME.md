@@ -1,6 +1,6 @@
 # Primer-inspired Minimal Theme (OPT-M)
 
-**Status:** shipped through OPT-M17 (+ M16 partial); forward plan in `docs/PRIMER_GITHUB_ENHANCEMENT_PLAN.md`  
+**Status:** shipped through OPT-M17 + OPT-M15 (+ M16 partial); forward plan in `docs/PRIMER_GITHUB_ENHANCEMENT_PLAN.md`  
 **Constraint:** zero functionality removal — visual + disclosure only  
 **Default:** `minimal` (pre-launch; Blueprint remains Settings option)
 
@@ -46,7 +46,15 @@ This is **not** a GitHub clone (no Octocat/Primer brand assets).
 | OPT-M14 | Page secondary chrome collapsible (Library/Analytics/Teacher/Exam/Note/Student Org) |
 | OPT-M16 | Shell ⌘K label + global `?` help when workspace closed (partial) |
 | OPT-M17 | Shell notifications inbox = activity + toast + proactive alerts |
-| OPT-M15+ | CSS prune, empty states, QA — see `PRIMER_GITHUB_ENHANCEMENT_PLAN.md` |
+| OPT-M15 | Extract Minimal CSS to `src/styles/primer-minimal.css` + inventory doc |
+| OPT-M20 | Screenshot matrix (manual captures) — see `PRIMER_MINIMAL_SCREENSHOT_MATRIX.md` |
+| OPT-M18+ | Empty states / optional deepen — see `PRIMER_GITHUB_ENHANCEMENT_PLAN.md` |
+
+## CSS layout (M15)
+
+- Tokens + overrides: `src/styles/primer-minimal.css`
+- Inventory: `docs/PRIMER_MINIMAL_CSS_INVENTORY.md`
+- Import: top of `src/index.css` (after Tailwind)
 
 ## OPT-M9 — Status bus
 

@@ -354,7 +354,9 @@ Constraints for all OPT-R*: no typography/button/modal scale-up; no functional c
 | OPT-M14 | App-shell surface polish under Minimal | P2 | **shipped** | Library/Analytics/Teacher + Exam tip / Note engine / Student Org hints |
 | OPT-M16 | Global ⌘K + `?` help parity | P2 | **partial** | Shell search title/aria; app-level `?` → WorkspaceKeyboardHelp when WS closed |
 | OPT-M17 | App-level Status/Inbox | P2 | **shipped** | NotificationsPanel hosts toast + proactive alerts; bell badge includes them |
-| OPT-M15, M18–M20 | CSS prune, empty states, QA | P2 | open | See `docs/PRIMER_GITHUB_ENHANCEMENT_PLAN.md` |
+| OPT-M15 | CSS hygiene / theme-scoped extract | P2 | **shipped** | `src/styles/primer-minimal.css` + `docs/PRIMER_MINIMAL_CSS_INVENTORY.md` |
+| OPT-M20 | Screenshot matrix launch QA | P2 | **process** | Matrix expanded; human captures still ☐ |
+| OPT-M18–M19 | Empty states / system-dark companion | P2 | open | See `docs/PRIMER_GITHUB_ENHANCEMENT_PLAN.md` |
 
 ### Replit study — explicit non-borrows
 

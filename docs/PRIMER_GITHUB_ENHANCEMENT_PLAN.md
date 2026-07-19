@@ -55,6 +55,7 @@ Related: `docs/PRIMER_MINIMAL_THEME.md`, `docs/PRIMER_MINIMAL_SCREENSHOT_MATRIX.
 | M14 | App-shell CSS + Library / Analytics / Teacher collapsible chrome |
 | M16 | Shell ⌘K discoverability + app-level `?` help (partial) |
 | M17 | Shell notifications = activity + toast + proactive alerts |
+| M15 | Extract Minimal CSS + class inventory doc |
 
 ### 2.2 Remaining UI gaps (polish — no removals)
 
@@ -65,7 +66,7 @@ Related: `docs/PRIMER_MINIMAL_THEME.md`, `docs/PRIMER_MINIMAL_SCREENSHOT_MATRIX.
 | Library secondary tools / tip / quality alerts | Collapsed under Minimal | M14 ✅ |
 | Analytics flow banner | Collapsed under Minimal | M14 ✅ |
 | Hardcoded colors outside fab | Occasional warm-sand / rgba shadows in charts | M14 remainder |
-| `index.css` size | Parallel theme languages (~5k lines) | M15 prune (theme-scoped only) |
+| `index.css` size | Minimal extracted to `primer-minimal.css` | M15 ✅ |
 | Screenshot matrix rows | Unchecked human captures | M20 (process) |
 | Global Command Palette discoverability | Shell title/aria + badge; more actions optional | M16 ✅ partial |
 | Keyboard shortcut help parity | App `?` when workspace closed; WS owns `?` when open | M16 ✅ partial |
@@ -129,7 +130,7 @@ These are **organizational / power-user** patterns inspired by GitHub, mapped to
 |----|--------|------------|------|
 | **OPT-M13** | Default theme → `minimal` (Blueprint still in Settings) | Fresh profile opens Minimal; saved prefs respected; tests updated | Low (pre-launch) |
 | **OPT-M14** | Surface polish under Minimal (Library/Analytics/Teacher/Exam/Note/Student Org) | No feature loss; secondary chrome collapsible | **shipped** |
-| **OPT-M15** | CSS hygiene: theme-scoped overrides only; document de-emphasize class inventory | No visual change to Blueprint/Spectrum | Medium |
+| **OPT-M15** | CSS hygiene: theme-scoped overrides only; document de-emphasize class inventory | No visual change to Blueprint/Spectrum | **shipped** |
 | **OPT-M16** | Global ⌘K + `?` help parity with workspace | Same actions; fewer permanent icons | **partial** |
 | **OPT-M17** | App-level Status/Inbox for toasts + proactive alerts (mirror workspace bus) | All signals reachable | **shipped** |
 | **OPT-M18** | Content-first Course/Notebook empty & overview states | Clearer first minute | Low |
@@ -160,10 +161,10 @@ These are **organizational / power-user** patterns inspired by GitHub, mapped to
 
 ## 8. Priority of effort (ROI)
 
-1. **M15 CSS prune** — maintainability  
-2. **M20 visual QA** — launch gate  
-3. **M18** content-first empty states (optional)  
-4. **M16 deepen** — more palette actions / denser shell help (optional)  
+1. **M20 visual QA** — fill screenshot matrix before public launch  
+2. **M18** content-first empty states (optional)  
+3. **M16 deepen** — more palette actions / denser shell help (optional)  
+4. **M19** system-dark → minimal-dark companion (optional)  
 
 ---
 
@@ -172,4 +173,4 @@ These are **organizational / power-user** patterns inspired by GitHub, mapped to
 **Not everything is finished at pixel level.**  
 **Yes — this document is the exhaustive enhancement plan:** principles, shipped inventory, GitHub-adapted feature map, aesthetic rules, forward waves, and non-goals — all under **zero functionality removal**.
 
-Next engineering execution order: **M15 CSS prune → M20 screenshot QA → M18 empty states (optional)**.
+Next engineering execution order: **M20 screenshot QA (human) → M18 empty states (optional)**.
