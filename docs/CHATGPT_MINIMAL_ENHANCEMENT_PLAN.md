@@ -19,6 +19,23 @@ Related: `docs/PRIMER_GITHUB_ENHANCEMENT_PLAN.md`, `docs/PRIMER_MINIMAL_THEME.md
 | Start where? | Agent full page + embedded notebook chat (closest surface), then shell sidebar, then tool chrome |
 | Clone ChatGPT brand? | **No** — principles only |
 
+### 0.1 Κρίσιμο συμπέρασμα (two axes coexist)
+
+Ναι — και χωρίς να αφαιρέσουμε τίποτα. Το Primer Minimal (M0–M19) έφερε GitHub-style καθαρότητα· **δεν είναι ακόμα** πλήρες ChatGPT-calm (human QA + C6/C7 remain).
+
+| Άξονας | Τι έχουμε | Τι ζητάει το calm layer |
+|--------|-----------|-------------------------|
+| **Primer** | Borders, density, overflow, status bus | — (κρατάει tools / tables) |
+| **ChatGPT-calm** | Soft canvas, κεντρική συνομιλία, sticky composer, ήσυχο sidebar (C0–C5 + C8 harness) | Conversation-first Agent/chat |
+
+Οι δύο άξονες **συνυπάρχουν**: τα tools κρατούν instrument chrome· το Agent/chat γίνεται conversation-first.
+
+**Deliverables:** SSoT αυτό το doc · Canvas `chatgpt-calm-ux-plan` (Cursor) · CSS `src/styles/chatgpt-calm.css` (Minimal-gated).
+
+**Υψηλότερο ROI (χωρίς removals) — shipped:** OPT-C0 tokens · OPT-C1 Agent column/bubbles/composer · OPT-C3 quiet shell nav · OPT-C4 notebook chat parity.  
+**Also shipped:** OPT-C2 mode quieting + regenerate · OPT-C5 Dashboard/Library soft lists · OPT-C8 capture harness.  
+**Must keep:** όλα τα modes, 13+ tools, NotebookLM 3-panel, Teacher/LTI, EL/EN, Blueprint selectable.
+
 ---
 
 ## 1. What “ChatGPT UI/UX” means here (principles → Synapse)
@@ -220,12 +237,11 @@ Landing, Onboarding, Dashboard, Library, Course (4 tabs), Note Analysis, Tasks, 
 
 ## 10. Completeness answer (honest)
 
-**Primer Minimal made Synapse GitHub-clear. It is not yet ChatGPT-calm.**  
-The highest-leverage path is **OPT-C0 → C1** (tokens + Agent/embedded conversation UI) under existing Minimal, with zero feature removal, then shell quieting (C3) and notebook parity (C4).
+**Primer Minimal made Synapse GitHub-clear.** Engineering calm (C0–C5 + C8 harness) is in; **human Pass?** and **C6/C7** still separate ChatGPT-calm “done” from “shipped code.”
 
 **Shipped:** OPT-C0–C1, C2 (mode quieting + regenerate), C3–C5, C8 harness.  
 **Human gate:** mark Pass? in `docs/CHATGPT_CALM_SCREENSHOT_MATRIX.md` after `npm run capture:chatgpt-calm`.  
-**Remaining product wave:** OPT-C6 (enterprise calm headers), OPT-C7 (mobile composer) — not blocking C2/C5/C8.
+**Next after QA:** OPT-C6 (enterprise calm headers) → OPT-C7 (mobile composer).
 
 ---
 
@@ -237,4 +253,5 @@ The highest-leverage path is **OPT-C0 → C1** (tokens + Agent/embedded conversa
 | Engineering (C0/C1) | 2026-07-19 | Calm CSS + Agent conversation-first under Minimal. Modes/citations/stream retained. |
 | Engineering (C3/C4) | 2026-07-19 | Shell single-line nav + narrower rail; notebook-calm chat/studio. |
 | Engineering (C2/C5/C8) | 2026-07-19 | Quiet modes + regenerate; Dashboard/Library soft lists; `capture:chatgpt-calm` matrix. |
+| Product (exec summary) | 2026-07-19 | Dual-axis Primer vs calm locked in §0.1; zero removals; next = human QA then C6→C7. |
 | | | |
