@@ -365,6 +365,8 @@ Constraints for all OPT-R*: no typography/button/modal scale-up; no functional c
 | OPT-C2 (calm) | Mode UI quieting + regenerate | P2 | **shipped** | Minimal: muted mode colors; `agent-regenerate`; modes 100% reachable |
 | OPT-C5 (calm) | Dashboard/Library soft lists | P2 | **shipped** | `dashboard-calm` / `library-calm`; list-first default when no prefs |
 | OPT-C8 (calm) | Calm screenshot matrix + capture | P2 | **harness** | `npm run capture:chatgpt-calm` → `artifacts/chatgpt-calm/`; human Pass? in matrix |
+| OPT-C6 (calm) | Enterprise/Settings calm headers | P2 | **shipped** | `enterprise-calm` + quieter `ux-page-header`; theme hint Minimal vs Blueprint |
+| OPT-C7 (calm) | Mobile composer + drawer labels | P2 | **shipped** | ≥40px targets; quiet workspace hint under Minimal; safe-area nav |
 
 ### Replit study — explicit non-borrows
 

@@ -21,19 +21,19 @@ Related: `docs/PRIMER_GITHUB_ENHANCEMENT_PLAN.md`, `docs/PRIMER_MINIMAL_THEME.md
 
 ### 0.1 Κρίσιμο συμπέρασμα (two axes coexist)
 
-Ναι — και χωρίς να αφαιρέσουμε τίποτα. Το Primer Minimal (M0–M19) έφερε GitHub-style καθαρότητα· **δεν είναι ακόμα** πλήρες ChatGPT-calm (human QA + C6/C7 remain).
+Ναι — και χωρίς να αφαιρέσουμε τίποτα. Το Primer Minimal (M0–M19) έφερε GitHub-style καθαρότητα· engineering calm **C0–C8** είναι in — **human Pass?** παραμένει το launch gate.
 
 | Άξονας | Τι έχουμε | Τι ζητάει το calm layer |
 |--------|-----------|-------------------------|
 | **Primer** | Borders, density, overflow, status bus | — (κρατάει tools / tables) |
-| **ChatGPT-calm** | Soft canvas, κεντρική συνομιλία, sticky composer, ήσυχο sidebar (C0–C5 + C8 harness) | Conversation-first Agent/chat |
+| **ChatGPT-calm** | Soft canvas, κεντρική συνομιλία, sticky composer, ήσυχο sidebar (C0–C7 + C8 harness) | Conversation-first Agent/chat |
 
 Οι δύο άξονες **συνυπάρχουν**: τα tools κρατούν instrument chrome· το Agent/chat γίνεται conversation-first.
 
 **Deliverables:** SSoT αυτό το doc · Canvas `chatgpt-calm-ux-plan` (Cursor) · CSS `src/styles/chatgpt-calm.css` (Minimal-gated).
 
-**Υψηλότερο ROI (χωρίς removals) — shipped:** OPT-C0 tokens · OPT-C1 Agent column/bubbles/composer · OPT-C3 quiet shell nav · OPT-C4 notebook chat parity.  
-**Also shipped:** OPT-C2 mode quieting + regenerate · OPT-C5 Dashboard/Library soft lists · OPT-C8 capture harness.  
+**Υψηλότερο ROI (χωρίς removals) — shipped:** OPT-C0…C7 (tokens → mobile).  
+**Harness:** OPT-C8 `npm run capture:chatgpt-calm` → mark Pass? in matrix.  
 **Must keep:** όλα τα modes, 13+ tools, NotebookLM 3-panel, Teacher/LTI, EL/EN, Blueprint selectable.
 
 ---
@@ -177,10 +177,10 @@ Landing, Onboarding, Dashboard, Library, Course (4 tabs), Note Analysis, Tasks, 
 | **OPT-C2** | Mode UI quieting: reduce multi-color mode noise; catalog in rail/menu; stop/regenerate polish | Modes 100% reachable | Low |
 | **OPT-C3** | Shell: quieter nav (subtitle → tooltip), optional collapse width | All nav testids + a11y | Low — **shipped 2026-07-19** |
 | **OPT-C4** | Notebook center chat parity + optional “focus chat” chrome hide | 3-panel IA intact | Medium — **shipped 2026-07-19** |
-| **OPT-C5** | Dashboard/Library/Tasks soft lists under Minimal | No feature loss | Low |
-| **OPT-C6** | Analytics/Teacher/Org/Settings calm headers | Enterprise intact | Low |
-| **OPT-C7** | Mobile composer + drawer label cleanup | Touch targets ≥ 40px | Medium |
-| **OPT-C8** | Screenshot matrix rows for calm Agent/shell (extend M20 or sibling checklist) | Human Pass? | Process |
+| **OPT-C5** | Dashboard/Library/Tasks soft lists under Minimal | No feature loss | Low — **shipped 2026-07-19** |
+| **OPT-C6** | Analytics/Teacher/Org/Settings calm headers | Enterprise intact | Low — **shipped 2026-07-19** |
+| **OPT-C7** | Mobile composer + drawer label cleanup | Touch targets ≥ 40px | Medium — **shipped 2026-07-19** |
+| **OPT-C8** | Screenshot matrix rows for calm Agent/shell (extend M20 or sibling checklist) | Human Pass? | Process — harness shipped |
 
 ---
 
@@ -237,11 +237,10 @@ Landing, Onboarding, Dashboard, Library, Course (4 tabs), Note Analysis, Tasks, 
 
 ## 10. Completeness answer (honest)
 
-**Primer Minimal made Synapse GitHub-clear.** Engineering calm (C0–C5 + C8 harness) is in; **human Pass?** and **C6/C7** still separate ChatGPT-calm “done” from “shipped code.”
+**Primer Minimal made Synapse GitHub-clear.** Engineering calm **C0–C7 + C8 harness** is shipped; **human Pass?** still separates “done” from “shipped code.”
 
-**Shipped:** OPT-C0–C1, C2 (mode quieting + regenerate), C3–C5, C8 harness.  
-**Human gate:** mark Pass? in `docs/CHATGPT_CALM_SCREENSHOT_MATRIX.md` after `npm run capture:chatgpt-calm`.  
-**Next after QA:** OPT-C6 (enterprise calm headers) → OPT-C7 (mobile composer).
+**Shipped:** OPT-C0–C7 + C8 capture harness.  
+**Human gate:** `npm run capture:chatgpt-calm` → mark Pass? in `docs/CHATGPT_CALM_SCREENSHOT_MATRIX.md` (also Primer M20).
 
 ---
 
@@ -253,5 +252,6 @@ Landing, Onboarding, Dashboard, Library, Course (4 tabs), Note Analysis, Tasks, 
 | Engineering (C0/C1) | 2026-07-19 | Calm CSS + Agent conversation-first under Minimal. Modes/citations/stream retained. |
 | Engineering (C3/C4) | 2026-07-19 | Shell single-line nav + narrower rail; notebook-calm chat/studio. |
 | Engineering (C2/C5/C8) | 2026-07-19 | Quiet modes + regenerate; Dashboard/Library soft lists; `capture:chatgpt-calm` matrix. |
-| Product (exec summary) | 2026-07-19 | Dual-axis Primer vs calm locked in §0.1; zero removals; next = human QA then C6→C7. |
+| Engineering (C6/C7) | 2026-07-19 | Enterprise calm headers + Settings theme story; mobile composer/nav ≥40px. |
+| Product (exec summary) | 2026-07-19 | Dual-axis Primer vs calm locked in §0.1; zero removals; next = human QA Pass?. |
 | | | |

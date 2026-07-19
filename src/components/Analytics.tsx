@@ -28,6 +28,7 @@ import { ConceptGraph } from './visuals/ConceptGraph';
 import { useI18n, type I18nKey } from '../lib/i18n';
 import { CollapsibleChromeSection } from './workspace/CollapsibleChromeSection';
 import { formatHeatmapDayTooltip } from '../lib/localeFormat';
+import { useMinimalTheme } from '../lib/useMinimalTheme';
 import { readAllLearningEvents } from '../lib/learningEvents';
 import {
   computeResearchMetrics,
@@ -205,10 +206,15 @@ export function Analytics({
   const [tab, setTab] = useState<AnalyticsTab>('overview');
   const { t } = useI18n();
   const warmSandPage = useWarmSandPageScope();
+  const isMinimal = useMinimalTheme();
 
   return (
     <AnalyticsDateRangeProvider>
-      <div {...warmSandScopeProps(warmSandPage)} data-testid="analytics-page">
+      <div
+        {...warmSandScopeProps(warmSandPage)}
+        className={cn(isMinimal && 'enterprise-calm')}
+        data-testid="analytics-page"
+      >
       <Page gap="sm">
         <PageHeader
           title={t('analyticsTitle')}

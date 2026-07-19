@@ -78,6 +78,8 @@ export type SettingsContent = {
   sectionGoogleWorkspace: string;
   sectionInterface: string;
   labelTheme: string;
+  /** OPT-C6 — clarify Minimal = calm/chat vs Blueprint = expressive */
+  themeHint: string;
   themeOptions: ToggleOption[];
   labelLanguage: string;
   languageOptions: ToggleOption[];
@@ -257,13 +259,14 @@ const EN: SettingsContent = {
   sectionGoogleWorkspace: 'Google Workspace',
   sectionInterface: 'Interface',
   labelTheme: 'Theme',
+  themeHint: 'Minimal = calm chat + Primer clarity (default). Blueprint = expressive Option-B surfaces. Tools keep instrument chrome either way.',
   themeOptions: [
     { value: 'dark', label: 'Dark' },
     { value: 'light', label: 'Light (Warm Sand)' },
     { value: 'spectrum', label: 'Spectrum' },
-    { value: 'blueprint', label: 'Blueprint (Option-B)' },
-    { value: 'minimal', label: 'Minimal (Primer light)' },
-    { value: 'minimal-dark', label: 'Minimal Dark (Primer)' },
+    { value: 'blueprint', label: 'Blueprint (expressive)' },
+    { value: 'minimal', label: 'Minimal (calm / Primer)' },
+    { value: 'minimal-dark', label: 'Minimal Dark (calm)' },
     { value: 'system', label: 'System' },
   ],
   labelLanguage: 'Language',
@@ -455,13 +458,14 @@ const EL: SettingsContent = {
   sectionGoogleWorkspace: 'Google Workspace',
   sectionInterface: 'Διεπαφή',
   labelTheme: 'Θέμα',
+  themeHint: 'Minimal = ήρεμο chat + Primer καθαρότητα (προεπιλογή). Blueprint = εκφραστικές επιφάνειες Option-B. Τα tools κρατούν instrument chrome και στα δύο.',
   themeOptions: [
     { value: 'dark', label: 'Σκούρο' },
     { value: 'light', label: 'Φωτεινό (Warm Sand)' },
     { value: 'spectrum', label: 'Spectrum' },
-    { value: 'blueprint', label: 'Blueprint (Option-B)' },
-    { value: 'minimal', label: 'Minimal (Primer φωτεινό)' },
-    { value: 'minimal-dark', label: 'Minimal Dark (Primer)' },
+    { value: 'blueprint', label: 'Blueprint (εκφραστικό)' },
+    { value: 'minimal', label: 'Minimal (ήρεμο / Primer)' },
+    { value: 'minimal-dark', label: 'Minimal Dark (ήρεμο)' },
     { value: 'system', label: 'Σύστημα' },
   ],
   labelLanguage: 'Γλώσσα',

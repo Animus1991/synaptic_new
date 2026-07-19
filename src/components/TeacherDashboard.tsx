@@ -36,6 +36,7 @@ import { cn } from '../utils/cn';
 import { UxShimmerPanel } from './ui/UxShimmerSkeleton';
 import { CollapsibleChromeSection } from './workspace/CollapsibleChromeSection';
 import { t as i18nT } from '../lib/i18n';
+import { useMinimalTheme } from '../lib/useMinimalTheme';
 
 interface Props {
   settings: UserSettings;
@@ -64,6 +65,7 @@ export function TeacherDashboard({
   onOpenSettings,
 }: Props) {
   const ui = getTeacherContent(lang);
+  const isMinimal = useMinimalTheme();
   const [data, setData] = useState<TeacherDashboardResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -405,11 +407,17 @@ export function TeacherDashboard({
   };
 
   return (
-    <div className="ux-flow-shell platform-page w-full max-w-none p-4 sm:p-6 lg:px-8 pb-24 space-y-6" data-testid="teacher-dashboard">
+    <div
+      className={cn(
+        'ux-flow-shell platform-page w-full max-w-none p-4 sm:p-6 lg:px-8 pb-24 space-y-6',
+        isMinimal && 'enterprise-calm',
+      )}
+      data-testid="teacher-dashboard"
+    >
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
           <h1 className="text-lg font-semibold flex items-center gap-2">
-            <Users className="w-5 h-5 text-brand-400" />
+            <Users className={cn('w-5 h-5', isMinimal ? 'text-text-secondary' : 'text-brand-400')} />
             {ui.title}
           </h1>
           <p className="text-sm text-text-secondary mt-1">{ui.subtitle}</p>

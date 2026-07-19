@@ -25,6 +25,7 @@ import {
   resolveNotebookLmParity,
   setNotebookLmParityOverride,
 } from '../lib/notebookLmParity';
+import { useMinimalTheme } from '../lib/useMinimalTheme';
 
 import { type TaskCalendarSyncUpdate } from '../lib/taskCalendarSync';
 
@@ -55,6 +56,7 @@ export function Settings({
 }: SettingsProps) {
   const { t } = useI18n();
   const c = getSettingsContent(settings.language);
+  const isMinimal = useMinimalTheme();
   const [backupStatus, setBackupStatus] = useState<string | null>(null);
   const [authEmail, setAuthEmail] = useState(settings.authEmail ?? '');
   const [authPassword, setAuthPassword] = useState('');
@@ -143,7 +145,7 @@ export function Settings({
   );
 
   return (
-    <Page className="ux-flow-shell">
+    <Page className={cn('ux-flow-shell', isMinimal && 'enterprise-calm')}>
       <PageHeader
         title={c.pageTitle}
         subtitle={c.pageSubtitle}
@@ -581,6 +583,7 @@ export function Settings({
       <SettingsSection id="settings-interface" title={c.sectionInterface} icon={<Palette className="w-5 h-5 text-brand-300" />} delay={0.35}>
         <ThemePickerRow
           label={c.labelTheme}
+          hint={c.themeHint}
           options={c.themeOptions}
           value={settings.theme}
           onChange={v => onUpdate({ theme: v as UserSettings['theme'] })}
@@ -731,11 +734,13 @@ const THEME_ICONS: Record<string, LucideIcon> = {
 /** L-S01 / K-S01: denser theme chips with Phosphor icons (no emoji). */
 function ThemePickerRow({
   label,
+  hint,
   options,
   value,
   onChange,
 }: {
   label: string;
+  hint?: string;
   options: { value: string; label: string }[];
   value: string;
   onChange: (v: string) => void;
@@ -743,6 +748,11 @@ function ThemePickerRow({
   return (
     <div data-testid="settings-theme-picker">
       <label className="text-xs text-text-secondary block mb-2">{label}</label>
+      {hint && (
+        <p className="text-[11px] leading-snug mb-2" data-testid="settings-theme-hint">
+          {hint}
+        </p>
+      )}
       <div className="flex flex-wrap gap-1.5">
         {options.map((opt) => {
           const Icon = THEME_ICONS[opt.value] ?? Palette;

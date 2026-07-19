@@ -17,6 +17,7 @@ import { UxShimmerPanel } from './ui/UxShimmerSkeleton';
 import { CollapsibleChromeSection } from './workspace/CollapsibleChromeSection';
 import { t as i18nT } from '../lib/i18n';
 import { cn } from '../utils/cn';
+import { useMinimalTheme } from '../lib/useMinimalTheme';
 
 interface Props {
   settings: UserSettings;
@@ -41,6 +42,7 @@ export function StudentOrgView({
   onOpenSettings,
 }: Props) {
   const ui = getStudentOrgContent(lang);
+  const isMinimal = useMinimalTheme();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [dashboard, setDashboard] = useState<StudentDashboard | null>(null);
@@ -179,11 +181,17 @@ export function StudentOrgView({
   }
 
   return (
-    <div className="platform-page w-full max-w-none p-4 md:p-6 space-y-6" data-testid="student-org-view">
+    <div
+      className={cn(
+        'platform-page w-full max-w-none p-4 md:p-6 space-y-6',
+        isMinimal && 'enterprise-calm',
+      )}
+      data-testid="student-org-view"
+    >
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1 className="text-lg font-semibold text-text-primary flex items-center gap-2">
-            <GraduationCap className="w-5 h-5 text-brand-600" />
+            <GraduationCap className={cn('w-5 h-5', isMinimal ? 'text-text-secondary' : 'text-brand-600')} />
             {ui.title}
           </h1>
           <p className="text-text-secondary mt-1">{ui.subtitle}</p>

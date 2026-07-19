@@ -24,10 +24,14 @@
 | C6 | Library soft list | Desktop | Minimal | Filters/upload kept; softer course rows; list toggle available | ☐ |
 | C7 | Agent Minimal Dark | Desktop | Minimal Dark | Same calm conversation chrome on dark canvas | ☐ |
 | C8 | Regenerate affordance | Desktop | Minimal | After an agent reply, `agent-regenerate` visible near composer footer | ☐ |
+| C9 | Settings theme story | Desktop | Minimal | `settings-theme-hint` + Minimal/Blueprint labels clear | ☐ |
+| C10 | Mobile Agent composer | 390 | Minimal | Sticky composer; send/attach ≥40px; above bottom nav | ☐ |
+| C11 | Mobile quiet nav | 390 | Minimal | Bottom labels single-line; drawer close ≥40px; all `nav-mobile-*` | ☐ |
 
 ## Sign-off
 
 | Role | Date | Notes |
 |------|------|-------|
-| Engineering | 2026-07-19 | Capture helper: `npm run capture:chatgpt-calm` → `artifacts/chatgpt-calm/`. **C8 launch gate = human Pass? checkboxes.** |
+| Engineering | 2026-07-19 | Capture helper: `npm run capture:chatgpt-calm` → `artifacts/chatgpt-calm/`. **C8 launch gate = human Pass? checkboxes.** Capture dump 2026-07-19 (C1–C3,C5,C7–C8 PNGs ok; C4 notebook soft-skip). |
+| Engineering (C6/C7) | 2026-07-19 | Enterprise headers + mobile composer/nav. Re-run capture after pull for C9–C11. |
 | | | |

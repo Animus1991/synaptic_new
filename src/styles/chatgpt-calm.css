@@ -208,3 +208,70 @@
   background: var(--color-surface-hover, rgba(0, 0, 0, 0.04));
   border-color: color-mix(in srgb, var(--color-brand-500, #5a7694) 28%, var(--color-border-subtle, #d0d7de));
 }
+
+/* OPT-C6 — enterprise / page headers quieter under Minimal */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .ux-page-header {
+  border-bottom-color: color-mix(in srgb, var(--color-border-subtle, #d0d7de) 55%, transparent);
+  background: color-mix(in srgb, var(--color-surface-primary, #fff) 92%, transparent);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .ux-page-header .ux-page-subtitle {
+  color: var(--color-text-tertiary, #656d76);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .ux-page-header span.grid {
+  border-color: color-mix(in srgb, var(--color-border-subtle, #d0d7de) 80%, transparent);
+  background: var(--color-surface-hover, rgba(0, 0, 0, 0.04));
+  color: var(--color-text-secondary, #424a53);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .enterprise-calm > .flex.items-start h1 svg,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .enterprise-calm > .flex.flex-wrap h1 svg {
+  color: var(--color-text-secondary, #424a53);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .enterprise-calm > .flex.items-start > div > p.text-sm,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .enterprise-calm > .flex.flex-wrap > div > p.text-text-secondary {
+  color: var(--color-text-tertiary, #656d76);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) [data-testid="settings-theme-hint"] {
+  color: var(--color-text-tertiary, #656d76);
+  max-width: 36rem;
+}
+
+/* OPT-C7 — mobile composer + bottom nav / drawer touch */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .agent-calm .agent-composer {
+  padding-bottom: max(0.65rem, env(safe-area-inset-bottom, 0px));
+}
+
+@media (max-width: 1023px) {
+  :is([data-theme="minimal"], [data-theme="minimal-dark"]) .agent-calm .agent-composer-shell {
+    min-height: 2.75rem;
+  }
+
+  :is([data-theme="minimal"], [data-theme="minimal-dark"]) .agent-calm .agent-composer-send {
+    min-width: 2.5rem;
+    min-height: 2.5rem;
+  }
+
+  :is([data-theme="minimal"], [data-theme="minimal-dark"]) .agent-calm .agent-composer-shell button[aria-label] {
+    min-width: 2.5rem;
+    min-height: 2.5rem;
+  }
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) #platform-mobile-nav[data-quiet-nav="true"] {
+  background: color-mix(in srgb, var(--color-surface-primary, #fff) 92%, transparent);
+  backdrop-filter: blur(10px);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) #platform-mobile-nav[data-quiet-nav="true"] .platform-nav-mobile-item {
+  min-height: 2.75rem;
+  min-width: 2.75rem;
+  justify-content: center;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) [data-testid="nav-mobile-drawer"] button {
+  min-height: 2.5rem;
+}

@@ -432,7 +432,7 @@ export function Shell({
                 type="button"
                 onClick={() => onToggleSidebar(false)}
                 aria-label={t('close')}
-                className="p-1.5 rounded-lg hover:bg-surface-hover"
+                className="p-2.5 min-w-10 min-h-10 rounded-lg hover:bg-surface-hover inline-flex items-center justify-center"
               >
                 <X className="w-5 h-5 text-text-secondary" />
               </button>
@@ -722,10 +722,11 @@ export function Shell({
         <nav
           id="platform-mobile-nav"
           data-testid="platform-mobile-nav"
+          data-quiet-nav={quietNav ? 'true' : undefined}
           tabIndex={-1}
-          className="lg:hidden fixed bottom-0 left-0 right-0 z-30 glass-strong border-t border-border-subtle outline-none"
+          className="lg:hidden fixed bottom-0 left-0 right-0 z-30 glass-strong border-t border-border-subtle outline-none pb-[env(safe-area-inset-bottom,0px)]"
         >
-          <div className="flex items-center justify-around h-16 px-1">
+          <div className="flex items-center justify-around min-h-16 px-1 py-1">
             {mobileNavItems.map((item) => {
               const active = item.kind === 'workspace'
                 ? studyWorkspaceOpen
@@ -738,6 +739,8 @@ export function Shell({
                   ? 'more'
                   : item.entry.view;
               const Icon = item.kind === 'view' ? item.icon : item.icon;
+              const label = item.kind === 'view' ? t(item.entry.labelKey) : t(item.labelKey);
+              const workspaceHint = t('shellMobileWorkspaceHint');
               return (
                 <button
                   key={key}
@@ -766,19 +769,20 @@ export function Shell({
                   }}
                   {...(item.kind === 'workspace' ? workspaceEntryPrefetchHandlers() : {})}
                   className={cn(
-                    'platform-nav-mobile-item relative flex flex-col items-center gap-1 p-1.5 rounded-xl transition-all min-w-[52px] max-w-[72px]',
+                    'platform-nav-mobile-item relative flex flex-col items-center gap-0.5 p-2 rounded-xl transition-all min-w-[52px] max-w-[72px] min-h-[44px]',
                     active ? 'platform-nav-mobile-active' : 'text-text-tertiary',
                     item.kind === 'workspace' && !active && 'text-brand-600',
                   )}
-                  title={item.kind === 'workspace' ? t('shellMobileWorkspaceHint') : undefined}
+                  title={item.kind === 'workspace' ? `${label} — ${workspaceHint}` : label}
                 >
                   <Icon className="w-5 h-5 shrink-0" />
                   <span className="type-micro font-medium truncate w-full text-center">
-                    {item.kind === 'view' ? t(item.entry.labelKey) : t(item.labelKey)}
+                    {label}
                   </span>
-                  {item.kind === 'workspace' && (
+                  {/* OPT-C7 — under Minimal, hint stays in title only (less label noise). */}
+                  {item.kind === 'workspace' && !quietNav && (
                     <span className="type-micro text-[9px] text-text-tertiary truncate w-full text-center">
-                      {t('shellMobileWorkspaceHint')}
+                      {workspaceHint}
                     </span>
                   )}
                 </button>
