@@ -11,6 +11,7 @@ import { WorkspaceStudyRoomTrigger } from '../WorkspaceStudyRoomTrigger';
 import { CompactStudyTimer } from '../CompactStudyTimer';
 import { ConceptLensChromeStrip } from '../ConceptLensChromeStrip';
 import { TheoryPracticeLensToggle } from '../TheoryPracticeLensToggle';
+import { CollapsibleChromeSection } from '../CollapsibleChromeSection';
 import { nextActionLabel } from '../../../lib/nextActionEngine';
 import { commandPaletteBadge } from '../../../lib/workspaceKeyboardShortcuts';
 import type { MobileIntelTab } from '../WorkspaceMobileIntelligenceTabs';
@@ -218,21 +219,23 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
                 </div>
       
                 {/* Concept ribbon — inline chrome, not over tool content */}
-                <ConceptLensChromeStrip
-                  conceptLensView={conceptLensView}
-                  activeConceptLabel={activeConceptLabel}
-                  activeStepTitle={STEPS[currentStep]?.title}
-                  conceptLensExpanded={conceptLensExpanded}
-                  onToggleExpand={() => setConceptLensExpanded((v) => !v)}
-                  conceptBus={conceptBus}
-                  activeTool={activeTool}
-                  lang={lang}
-                  onFocus={(term) => focusOnTerm(term, activeTool)}
-                  onJumpTool={openWorkspaceTool}
-                  onAction={handleConceptLensAction}
-                  onExplainRelation={handleExplainGraphRelation}
-                  onOpenReaderSection={openReaderAtConceptSection}
-                />
+                <CollapsibleChromeSection title={t('chromeConceptLens')} data-testid="mobile-concept-lens-chrome">
+                  <ConceptLensChromeStrip
+                    conceptLensView={conceptLensView}
+                    activeConceptLabel={activeConceptLabel}
+                    activeStepTitle={STEPS[currentStep]?.title}
+                    conceptLensExpanded={conceptLensExpanded}
+                    onToggleExpand={() => setConceptLensExpanded((v) => !v)}
+                    conceptBus={conceptBus}
+                    activeTool={activeTool}
+                    lang={lang}
+                    onFocus={(term) => focusOnTerm(term, activeTool)}
+                    onJumpTool={openWorkspaceTool}
+                    onAction={handleConceptLensAction}
+                    onExplainRelation={handleExplainGraphRelation}
+                    onOpenReaderSection={openReaderAtConceptSection}
+                  />
+                </CollapsibleChromeSection>
               </>
             )}
       
@@ -426,22 +429,24 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
             )}
 
             {!chromeHidden && !isMobile && !notebookMode && (
-              <ConceptLensChromeStrip
-                conceptLensView={conceptLensView}
-                activeConceptLabel={activeConceptLabel}
-                activeStepTitle={STEPS[currentStep]?.title}
-                conceptLensExpanded={conceptLensExpanded}
-                onToggleExpand={() => setConceptLensExpanded((v) => !v)}
-                conceptBus={conceptBus}
-                activeTool={activeTool}
-                lang={lang}
-                onFocus={(term) => focusOnTerm(term, activeTool)}
-                onJumpTool={openWorkspaceTool}
-                onAction={handleConceptLensAction}
-                onExplainRelation={handleExplainGraphRelation}
-                onOpenReaderSection={openReaderAtConceptSection}
-                className="border-b border-border-subtle/60 bg-surface-primary/40"
-              />
+              <CollapsibleChromeSection title={t('chromeConceptLens')} data-testid="desktop-concept-lens-chrome">
+                <ConceptLensChromeStrip
+                  conceptLensView={conceptLensView}
+                  activeConceptLabel={activeConceptLabel}
+                  activeStepTitle={STEPS[currentStep]?.title}
+                  conceptLensExpanded={conceptLensExpanded}
+                  onToggleExpand={() => setConceptLensExpanded((v) => !v)}
+                  conceptBus={conceptBus}
+                  activeTool={activeTool}
+                  lang={lang}
+                  onFocus={(term) => focusOnTerm(term, activeTool)}
+                  onJumpTool={openWorkspaceTool}
+                  onAction={handleConceptLensAction}
+                  onExplainRelation={handleExplainGraphRelation}
+                  onOpenReaderSection={openReaderAtConceptSection}
+                  className="border-b border-border-subtle/60 bg-surface-primary/40"
+                />
+              </CollapsibleChromeSection>
             )}
     </>
   );

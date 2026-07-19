@@ -2,6 +2,8 @@ import type { ReactNode } from 'react';
 import type { WorkspaceToolId } from '../../lib/taskFlows';
 import { WorkspaceToolHeader } from './WorkspaceToolHeader';
 import { BlueprintSurface } from '../ui/BlueprintSurface';
+import { CollapsibleChromeSection } from './CollapsibleChromeSection';
+import { useI18n } from '../../lib/i18n';
 
 type Props = {
   activeTool: WorkspaceToolId;
@@ -30,6 +32,7 @@ export function ToolFrame({
   crossLinkBar,
   children,
 }: Props) {
+  const { t } = useI18n();
   return (
     <BlueprintSurface className="flex h-full min-h-0 flex-1 flex-col overflow-hidden" data-testid="workspace-tool-frame" data-tool={activeTool}>
       <WorkspaceToolHeader
@@ -43,9 +46,14 @@ export function ToolFrame({
         onAskAgent={onAskAgent}
       />
       {crossLinkBar && (
-        <div className="shrink-0 border-b border-border-subtle/60" data-testid="workspace-tool-frame-crosslink">
-          {crossLinkBar}
-        </div>
+        <CollapsibleChromeSection
+          title={t('chromeAgentLinks')}
+          data-testid="workspace-tool-frame-crosslink"
+        >
+          <div className="shrink-0 border-b border-border-subtle/60">
+            {crossLinkBar}
+          </div>
+        </CollapsibleChromeSection>
       )}
       <div className="ws-tool-body relative flex min-h-0 flex-1 flex-col overflow-hidden">{children}</div>
     </BlueprintSurface>

@@ -10,7 +10,7 @@ import {
   type AppTheme,
 } from './helpers/a11y';
 
-const THEMES: AppTheme[] = ['dark', 'light', 'spectrum'];
+const THEMES: AppTheme[] = ['dark', 'light', 'spectrum', 'minimal', 'minimal-dark'];
 
 for (const theme of THEMES) {
   test.describe(`A11y contrast — ${theme} theme`, () => {

@@ -29,11 +29,13 @@ function installLocalStorageMock(): void {
 }
 
 describe('cycleTheme', () => {
-  it('cycles dark → light → spectrum → blueprint → dark', () => {
+  it('cycles dark → light → spectrum → blueprint → minimal → minimal-dark → dark', () => {
     expect(cycleTheme('dark')).toBe('light');
     expect(cycleTheme('light')).toBe('spectrum');
     expect(cycleTheme('spectrum')).toBe('blueprint');
-    expect(cycleTheme('blueprint')).toBe('dark');
+    expect(cycleTheme('blueprint')).toBe('minimal');
+    expect(cycleTheme('minimal')).toBe('minimal-dark');
+    expect(cycleTheme('minimal-dark')).toBe('dark');
   });
 });
 
@@ -42,7 +44,9 @@ describe('themeToggleTarget', () => {
     expect(themeToggleTarget('dark')).toBe('light');
     expect(themeToggleTarget('light')).toBe('spectrum');
     expect(themeToggleTarget('spectrum')).toBe('blueprint');
-    expect(themeToggleTarget('blueprint')).toBe('dark');
+    expect(themeToggleTarget('blueprint')).toBe('minimal');
+    expect(themeToggleTarget('minimal')).toBe('minimal-dark');
+    expect(themeToggleTarget('minimal-dark')).toBe('dark');
   });
 });
 

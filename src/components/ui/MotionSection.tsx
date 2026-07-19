@@ -4,6 +4,7 @@ import {
   BLUEPRINT_MOTION,
   blueprintStaggerDelay,
 } from '../../lib/useBlueprintTheme';
+import { MINIMAL_MOTION, useMinimalTheme } from '../../lib/useMinimalTheme';
 import { useReducedMotion } from '../../lib/useReducedMotion';
 import { cn } from '../../utils/cn';
 
@@ -48,19 +49,30 @@ export function MotionSection({
   'data-testid': dataTestId,
 }: Props) {
   const reduced = useReducedMotion();
-  const useUnifiedMotion = variant !== 'default' && !reduced;
+  const isMinimal = useMinimalTheme();
+  const useUnifiedMotion = variant !== 'default' && !reduced && !isMinimal;
 
-  const resolvedInitial = useUnifiedMotion ? BLUEPRINT_MOTION.initial : initial;
-  const resolvedAnimate = useUnifiedMotion ? BLUEPRINT_MOTION.animate : animate;
-  const resolvedDelay = blueprintStaggerDelay(staggerIndex, delay);
+  const resolvedInitial = isMinimal
+    ? MINIMAL_MOTION.initial
+    : useUnifiedMotion
+      ? BLUEPRINT_MOTION.initial
+      : initial;
+  const resolvedAnimate = isMinimal
+    ? MINIMAL_MOTION.animate
+    : useUnifiedMotion
+      ? BLUEPRINT_MOTION.animate
+      : animate;
+  const resolvedDelay = isMinimal ? delay : blueprintStaggerDelay(staggerIndex, delay);
   const resolvedTransition = transition ?? (
-    useUnifiedMotion
-      ? { ...BLUEPRINT_MOTION.transition, delay: resolvedDelay }
-      : { duration: 0.6, ease: [0, 0, 0.2, 1], delay: resolvedDelay }
+    isMinimal
+      ? { ...MINIMAL_MOTION.transition, delay: resolvedDelay }
+      : useUnifiedMotion
+        ? { ...BLUEPRINT_MOTION.transition, delay: resolvedDelay }
+        : { duration: 0.6, ease: [0, 0, 0.2, 1], delay: resolvedDelay }
   );
 
   const htmlProps = {
-    className: cn(useUnifiedMotion && 'blueprint-motion-section', className),
+    className: cn(useUnifiedMotion && 'blueprint-motion-section', isMinimal && 'minimal-motion-section', className),
     onClick,
     onKeyDown,
     tabIndex,

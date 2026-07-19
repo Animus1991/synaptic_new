@@ -4,7 +4,7 @@ import {
   BookOpen, CheckSquare, Robot as Bot, SquaresFour as LayoutDashboard, Gear as Settings,
   Sparkle as Sparkles, List as Menu, X, UploadSimple as Upload, Bell, MagnifyingGlass as Search, CaretRight as ChevronRight,
   ChartBar as BarChart3, Sun, Moon, Users,   Fire as Flame, SquaresFour as Layout, Wind, GraduationCap,
-  TreeStructure as Network, Lightning as Zap, Clock, Stack as Layers, DotsThreeOutline,
+  TreeStructure as Network, Lightning as Zap, Clock, Stack as Layers, DotsThreeOutline, Minus, Square,
 } from '@phosphor-icons/react';
 import type { AppView, User, DashboardStats, UserSettings } from '../types';
 import { cn } from '../utils/cn';
@@ -588,7 +588,11 @@ export function Shell({
                       ? 'switchSpectrum'
                       : target === 'blueprint'
                         ? 'switchBlueprint'
-                        : 'switchDark';
+                        : target === 'minimal'
+                          ? 'switchMinimal'
+                          : target === 'minimal-dark'
+                            ? 'switchMinimalDark'
+                            : 'switchDark';
                 return (
                   <button
                     onClick={onToggleTheme}
@@ -602,6 +606,10 @@ export function Shell({
                       <Sparkles className="w-5 h-5 text-text-secondary" />
                     ) : target === 'blueprint' ? (
                       <Layers className="w-5 h-5 text-text-secondary" />
+                    ) : target === 'minimal' ? (
+                      <Minus className="w-5 h-5 text-text-secondary" />
+                    ) : target === 'minimal-dark' ? (
+                      <Square className="w-5 h-5 text-text-secondary" />
                     ) : (
                       <Moon className="w-5 h-5 text-text-secondary" />
                     )}

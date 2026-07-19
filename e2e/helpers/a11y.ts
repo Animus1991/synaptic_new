@@ -4,7 +4,7 @@ import { skipOnboardingToLibrary } from './onboarding';
 
 export const A11Y_TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'] as const;
 
-export type AppTheme = 'dark' | 'light' | 'spectrum';
+export type AppTheme = 'dark' | 'light' | 'spectrum' | 'minimal' | 'minimal-dark';
 
 /** Full WCAG 2.1 A/AA scan including color-contrast. */
 export function axeBuilder(page: Page) {

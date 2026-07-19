@@ -333,6 +333,17 @@ Constraints for all OPT-R*: no typography/button/modal scale-up; no functional c
 | OPT-R7 | Wave R7 — empty states + modal header stack | P3 | **shipped** | `platform-empty-state` border card; `ModalHeaderStack`; light `--focus-ring-color` on app-shell |
 | OPT-R8 | Wave R8 — nav accent indicator + Visual Lab lane dividers | P3 | **shipped** | Sidebar left accent bar; mobile underline; `visual-lab-mode-rail-lanes` column dividers |
 
+### Primer-inspired minimal (OPT-M) — zero feature removal
+
+| ID | Item | Priority | Status |
+| -- | ---- | -------- | ------ |
+| OPT-M0 | Lock doc + principles (not GitHub clone) | P2 | **shipped** | `docs/PRIMER_MINIMAL_THEME.md` |
+| OPT-M1 | Themes `minimal` / `minimal-dark` + Settings + cycle | P2 | **shipped** | tokens in `index.css`; Settings; ThemeToggle |
+| OPT-M2 | Chrome thinning via collapsible secondary chrome | P2 | **shipped** | `CollapsibleChromeSection`; ToolFrame + ConceptLens |
+| OPT-M3 | Gate orbs / glow / heavy motion under minimal* | P2 | **shipped** | CSS + `useMinimalTheme` / MotionSection |
+| OPT-M4 | Flat CTAs / calm panels / border-first cards | P2 | **shipped** | shared minimal overrides in `index.css` |
+| OPT-M5 | Blueprint remains default; tests updated | P2 | **shipped** | `theme.test.ts`; default still `blueprint` |
+
 ### Replit study — explicit non-borrows
 
 Do **not** port: `#ff3c00` orange, ABC Diatype, 48–69px displays, 40–60px marketing radii, 100px app pills, warm cream on blueprint, infinite canvas UX, Kanban backend, shadow-heavy elevation.

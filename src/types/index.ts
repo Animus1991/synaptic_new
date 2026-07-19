@@ -31,7 +31,7 @@ export interface UserSettings {
   challengeLevel: 'low-stress' | 'balanced' | 'high-challenge';
   sourceMode: 'strict' | 'enriched' | 'notes-only';
   language: 'en' | 'el';
-  theme: 'dark' | 'light' | 'system' | 'spectrum' | 'blueprint';
+  theme: 'dark' | 'light' | 'system' | 'spectrum' | 'blueprint' | 'minimal' | 'minimal-dark';
   dailyGoalMinutes: number;
   examDate?: string;
   /** Goals selected during onboarding — drives defaults for pacing and task mix. */

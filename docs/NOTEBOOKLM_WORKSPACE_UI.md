@@ -6,6 +6,8 @@
 
 Synapse does **not** clone NotebookLM. We adopt its **calm 3-panel shell** while keeping every existing workspace tool behind Studio cards and a discreet overflow menu — zero feature removal.
 
+**Visual companion:** Primer-inspired Minimal themes (`minimal` / `minimal-dark`) — see `docs/PRIMER_MINIMAL_THEME.md` (OPT-M). Opt-in only; production default remains Blueprint.
+
 ---
 
 ## Audit — what prior LLM work already shipped

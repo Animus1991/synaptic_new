@@ -30,7 +30,13 @@ export function resolveInitialThemePreference(): UserSettings['theme'] {
   }
 }
 
-export type ResolvedTheme = 'dark' | 'light' | 'spectrum' | 'blueprint';
+export type ResolvedTheme =
+  | 'dark'
+  | 'light'
+  | 'spectrum'
+  | 'blueprint'
+  | 'minimal'
+  | 'minimal-dark';
 
 export function resolveTheme(preference: UserSettings['theme']): ResolvedTheme {
   if (preference === 'system') {
@@ -40,7 +46,11 @@ export function resolveTheme(preference: UserSettings['theme']): ResolvedTheme {
 }
 
 export function themeColorScheme(resolved: ResolvedTheme): 'light' | 'dark' {
-  return resolved === 'light' || resolved === 'spectrum' ? 'light' : 'dark';
+  return resolved === 'light'
+    || resolved === 'spectrum'
+    || resolved === 'minimal'
+    ? 'light'
+    : 'dark';
 }
 
 const THEME_META_COLORS: Record<ResolvedTheme, string> = {
@@ -48,6 +58,8 @@ const THEME_META_COLORS: Record<ResolvedTheme, string> = {
   dark: '#0f0a1e',
   spectrum: '#f7f5ff',
   blueprint: '#020617',
+  minimal: '#ffffff',
+  'minimal-dark': '#0d1117',
 };
 
 export function themeMetaColor(resolved: ResolvedTheme): string {
@@ -72,20 +84,33 @@ export function loadThemePreference(): UserSettings['theme'] {
   return loadJson<UserSettings['theme']>(THEME_KEY, DEFAULT_THEME_PREFERENCE);
 }
 
-const THEME_CYCLE: ResolvedTheme[] = ['dark', 'light', 'spectrum', 'blueprint'];
+const THEME_CYCLE: ResolvedTheme[] = [
+  'dark',
+  'light',
+  'spectrum',
+  'blueprint',
+  'minimal',
+  'minimal-dark',
+];
 
-/** Header toggle: dark → light → spectrum → dark (explicit themes only). */
+/** Header toggle: cycles explicit themes (system not in cycle). */
 export function cycleTheme(preference: UserSettings['theme']): ThemeToggleTarget {
   const current = resolveTheme(preference);
   const idx = THEME_CYCLE.indexOf(current);
-  return THEME_CYCLE[(idx + 1) % THEME_CYCLE.length];
+  return THEME_CYCLE[(idx + 1) % THEME_CYCLE.length]!;
 }
 
-export type ThemeToggleTarget = 'dark' | 'light' | 'spectrum' | 'blueprint';
+export type ThemeToggleTarget =
+  | 'dark'
+  | 'light'
+  | 'spectrum'
+  | 'blueprint'
+  | 'minimal'
+  | 'minimal-dark';
 
 export function themeToggleTarget(resolved: ResolvedTheme): ThemeToggleTarget {
   const idx = THEME_CYCLE.indexOf(resolved);
-  return THEME_CYCLE[(idx + 1) % THEME_CYCLE.length];
+  return THEME_CYCLE[(idx + 1) % THEME_CYCLE.length]!;
 }
 
 export function watchSystemTheme(onChange: () => void): () => void {
