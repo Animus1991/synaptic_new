@@ -31,6 +31,7 @@ import { HeaderLangPill, HeaderTrustBadgeRow, SynapseBrandGlyph } from './ui/pla
 import type { Lang } from '../lib/i18n';
 import { commandPaletteBadge } from '../lib/workspaceKeyboardShortcuts';
 import { quickAccessActions, type GlobalQuickActionId } from '../lib/globalActionRegistry';
+import { useMinimalTheme } from '../lib/useMinimalTheme';
 
 interface ShellProps {
   children: ReactNode;
@@ -97,9 +98,10 @@ function buildMobileBarItems(
   return items;
 }
 
-const shellNavClass = (active: boolean) =>
+const shellNavClass = (active: boolean, quiet = false) =>
   cn(
-    'platform-nav-item relative w-full flex items-start gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all border',
+    'platform-nav-item relative w-full flex gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all border',
+    quiet ? 'items-center' : 'items-start',
     active
       ? 'platform-nav-active'
       : 'border-transparent text-text-secondary hover:text-text-primary hover:bg-surface-hover',
@@ -154,6 +156,8 @@ export function Shell({
 }: ShellProps) {
   const { t, lang } = useI18n();
   const activeLang = language ?? lang;
+  /** OPT-C3 — ChatGPT-calm: single-line nav under Minimal; subtitles stay in title tooltips. */
+  const quietNav = useMinimalTheme();
   const shellUx = getShellUxContent(lang);
   const tasksReviewBadgeHint = getTasksContent(lang).reviewsDue(stats.reviewsDue);
   const showMobileWorkspaceNav = Boolean(
@@ -224,7 +228,11 @@ export function Shell({
       <aside
         id="platform-sidebar-nav"
         tabIndex={-1}
-        className="hidden lg:flex flex-col w-64 border-r border-border-subtle bg-surface-secondary/50 fixed inset-y-0 left-0 z-30"
+        data-quiet-nav={quietNav ? 'true' : undefined}
+        className={cn(
+          'hidden lg:flex flex-col border-r border-border-subtle bg-surface-secondary/50 fixed inset-y-0 left-0 z-30',
+          quietNav ? 'w-56' : 'w-64',
+        )}
       >
         <div className="p-4 border-b border-border-subtle">
           <div className="flex items-center gap-2">
@@ -241,7 +249,7 @@ export function Shell({
               type="button"
               onClick={onTakeBreath}
               data-testid="nav-take-breath"
-              className={cn(shellNavClass(false), 'mb-1')}
+              className={cn(shellNavClass(false, quietNav), 'mb-1')}
             >
               <Wind className="w-5 h-5 shrink-0" />
               <span className="flex-1 text-left truncate">{t('wellnessTakeBreath')}</span>
@@ -250,21 +258,23 @@ export function Shell({
           {navViews.map((item) => {
             const NavIcon = SHELL_NAV_ICONS[item.view];
             const insertWorkspaceAfter = item.view === 'agent';
+            const label = t(item.labelKey);
+            const subtitle = item.subtitleKey ? t(item.subtitleKey) : undefined;
             return (
               <div key={item.view}>
                 <button
                   {...navButtonProps(item.view)}
                   onClick={() => onNavigate(item.view)}
-                  title={item.subtitleKey ? t(item.subtitleKey) : undefined}
-                  className={shellNavClass(currentView === item.view && !studyWorkspaceOpen)}
+                  title={subtitle ? `${label} — ${subtitle}` : label}
+                  className={shellNavClass(currentView === item.view && !studyWorkspaceOpen, quietNav)}
                 >
                   {currentView === item.view && !studyWorkspaceOpen && <NavActiveIndicator />}
                   <NavIcon className="w-5 h-5 shrink-0 relative z-[1]" />
                   <span className="flex-1 text-left min-w-0 relative z-[1]">
-                    <span className="block truncate">{t(item.labelKey)}</span>
-                    {item.subtitleKey && (
-                      <span className="block text-[11px] font-normal text-text-tertiary truncate mt-0.5">
-                        {t(item.subtitleKey)}
+                    <span className="block truncate">{label}</span>
+                    {subtitle && !quietNav && (
+                      <span className="platform-nav-subtitle block text-[11px] font-normal text-text-tertiary truncate mt-0.5">
+                        {subtitle}
                       </span>
                     )}
                   </span>
@@ -284,15 +294,17 @@ export function Shell({
                     data-tour="nav-workspace"
                     onClick={() => onOpenWorkspace?.()}
                     {...workspaceEntryPrefetchHandlers()}
-                    title={t('navSubtitleWorkspace')}
-                    className={cn(shellNavClass(studyWorkspaceOpen), 'mt-1')}
+                    title={`${t('navStudyWorkspace')} — ${t('navSubtitleWorkspace')}`}
+                    className={cn(shellNavClass(studyWorkspaceOpen, quietNav), 'mt-1')}
                   >
                     <Layout className="w-5 h-5 shrink-0" />
                     <span className="flex-1 text-left min-w-0">
-                      <span className="block truncate" title={t('navStudyWorkspace')}>{t('navStudyWorkspace')}</span>
-                      <span className="block text-[11px] font-normal text-text-tertiary truncate mt-0.5">
-                        {t('navSubtitleWorkspace')}
-                      </span>
+                      <span className="block truncate">{t('navStudyWorkspace')}</span>
+                      {!quietNav && (
+                        <span className="platform-nav-subtitle block text-[11px] font-normal text-text-tertiary truncate mt-0.5">
+                          {t('navSubtitleWorkspace')}
+                        </span>
+                      )}
                     </span>
                     {studyWorkspaceOpen ? (
                       <span className="ml-auto type-micro ws-chip-brand px-2 py-0.5 rounded-full font-semibold whitespace-nowrap">
@@ -323,7 +335,7 @@ export function Shell({
                   type="button"
                   data-testid={`quick-access-${action.id}`}
                   onClick={() => onQuickAccess(action.id)}
-                  className={cn(shellNavClass(false), 'py-2')}
+                  className={cn(shellNavClass(false, quietNav), 'py-2')}
                 >
                   <span className={cn('ux-quick-icon', visual.washClass)}>
                     <visual.icon className={cn('w-3 h-3', visual.inkClass)} />
@@ -432,7 +444,7 @@ export function Shell({
                   type="button"
                   onClick={() => { onTakeBreath(); onToggleSidebar(false); }}
                   data-testid="nav-mobile-take-breath"
-                  className={cn(shellNavClass(false), 'mb-1')}
+                  className={cn(shellNavClass(false, quietNav), 'mb-1')}
                 >
                   <Wind className="w-5 h-5" />
                   {t('wellnessTakeBreath')}
@@ -440,20 +452,22 @@ export function Shell({
               )}
               {navViews.map((item) => {
                 const NavIcon = SHELL_NAV_ICONS[item.view];
+                const label = t(item.labelKey);
+                const subtitle = item.subtitleKey ? t(item.subtitleKey) : undefined;
                 return (
                 <button
                   key={item.view}
                   {...navButtonProps(item.view)}
                   onClick={() => { onNavigate(item.view); onToggleSidebar(false); }}
-                  title={item.subtitleKey ? t(item.subtitleKey) : undefined}
-                  className={shellNavClass(currentView === item.view && !studyWorkspaceOpen)}
+                  title={subtitle ? `${label} — ${subtitle}` : label}
+                  className={shellNavClass(currentView === item.view && !studyWorkspaceOpen, quietNav)}
                 >
                   <NavIcon className="w-5 h-5" />
                   <span className="flex-1 min-w-0 text-left">
-                    <span className="block truncate">{t(item.labelKey)}</span>
-                    {item.subtitleKey && (
-                      <span className="block text-[11px] font-normal text-text-tertiary truncate mt-0.5">
-                        {t(item.subtitleKey)}
+                    <span className="block truncate">{label}</span>
+                    {subtitle && !quietNav && (
+                      <span className="platform-nav-subtitle block text-[11px] font-normal text-text-tertiary truncate mt-0.5">
+                        {subtitle}
                       </span>
                     )}
                   </span>
@@ -483,7 +497,7 @@ export function Shell({
       )}
 
       {/* Main content area */}
-      <div className="flex-1 lg:ml-64 min-h-screen flex flex-col">
+      <div className={cn('flex-1 min-h-screen flex flex-col', quietNav ? 'lg:ml-56' : 'lg:ml-64')}>
         {/* Top bar — Wave J-D05 dense utility chrome */}
         <header className="sticky top-0 z-20 glass-strong border-b border-border-subtle" data-testid="shell-topbar">
           <div className="flex items-center justify-between px-3 sm:px-5 h-12 gap-2">

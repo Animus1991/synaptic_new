@@ -120,3 +120,50 @@
     scroll-behavior: auto;
   }
 }
+
+/* OPT-C3 — quieter shell rail */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell #platform-sidebar-nav[data-quiet-nav="true"] {
+  background: color-mix(in srgb, var(--color-surface-secondary, #f6f8fa) 92%, transparent);
+}
+
+/* OPT-C4 — notebook chat column parity with Agent calm */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .notebook-calm [data-testid="notebook-chat-panel"] {
+  border-color: color-mix(in srgb, var(--color-border-subtle, #d0d7de) 70%, transparent);
+  background: var(--color-surface-primary, #fff);
+  box-shadow: none;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .notebook-calm [data-testid="notebook-chat-panel"] > header {
+  padding-top: 0.55rem;
+  padding-bottom: 0.55rem;
+  background: transparent;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .notebook-calm [data-testid="notebook-chat-panel"] > header .type-micro,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .notebook-calm [data-testid="notebook-studio-panel"] > header .type-micro {
+  display: none;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .notebook-calm [data-testid="notebook-sources-panel"],
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .notebook-calm [data-testid="notebook-studio-panel"] {
+  box-shadow: none;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .notebook-calm [data-testid^="studio-card-"] {
+  border-color: color-mix(in srgb, var(--color-border-subtle, #d0d7de) 80%, transparent);
+  background: transparent;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .notebook-calm [data-testid^="studio-card-"]:hover {
+  background: var(--color-surface-hover, rgba(0, 0, 0, 0.04));
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .agent-calm[data-testid="agent-embedded"] [data-testid="agent-embedded-chrome"] {
+  background: transparent;
+  border-bottom-color: color-mix(in srgb, var(--color-border-subtle, #d0d7de) 65%, transparent);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .agent-calm[data-testid="agent-embedded"] [data-testid="agent-context-banner"] {
+  background: transparent;
+  border-bottom-color: color-mix(in srgb, var(--color-border-subtle, #d0d7de) 50%, transparent);
+}

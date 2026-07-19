@@ -18,6 +18,7 @@ import { NotebookStudioAudioOverview, type AudioOverviewGenState } from './Noteb
 import { PdfPageThumbnailStrip } from '../PdfPageThumbnailStrip';
 import type { StudyWorkspaceModel } from './useStudyWorkspace';
 import type { WorkspaceTool } from './types';
+import { useMinimalTheme } from '../../../lib/useMinimalTheme';
 
 interface NotebookWorkspaceLayoutProps {
   model: StudyWorkspaceModel;
@@ -67,6 +68,8 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
     (el: string, en: string) => (lang === 'el' ? el : en),
     [lang],
   );
+  /** OPT-C4 — chat column inherits ChatGPT-calm under Minimal. */
+  const notebookCalm = useMinimalTheme();
 
   const [studioToolOpen, setStudioToolOpen] = useState(false);
   const [mobileTab, setMobileTab] = useState<MobileTab>('chat');
@@ -481,7 +484,10 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
   if (isMobile) {
     return (
       <div
-        className="relative z-10 flex flex-1 flex-col overflow-hidden bg-surface-secondary/60"
+        className={cn(
+          'relative z-10 flex flex-1 flex-col overflow-hidden bg-surface-secondary/60',
+          notebookCalm && 'notebook-calm',
+        )}
         id="workspace-main"
         role="main"
         tabIndex={-1}
@@ -554,9 +560,16 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
     );
   }
 
+  const chatGrounding = noteBundle.hasSource
+    ? tx('Θεμελιωμένη στις πηγές σου', 'Grounded in your sources')
+    : tx('Χωρίς πηγές ακόμα', 'No sources yet');
+
   return (
     <div
-      className="relative z-10 flex-1 flex overflow-hidden bg-surface-secondary/60"
+      className={cn(
+        'relative z-10 flex-1 flex overflow-hidden bg-surface-secondary/60',
+        notebookCalm && 'notebook-calm',
+      )}
       id="workspace-main"
       role="main"
       tabIndex={-1}
@@ -590,13 +603,12 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
             aria-label={tx('Συνομιλία', 'Chat')}
             data-testid="notebook-chat-panel"
           >
-            <header className="flex items-center justify-between gap-2 border-b border-border-subtle px-4 py-3 shrink-0">
+            <header
+              className="flex items-center justify-between gap-2 border-b border-border-subtle px-4 py-3 shrink-0"
+              title={chatGrounding}
+            >
               <h2 className="text-sm font-semibold text-text-primary">{tx('Συνομιλία', 'Chat')}</h2>
-              <span className="type-micro text-text-muted truncate">
-                {noteBundle.hasSource
-                  ? tx('Θεμελιωμένη στις πηγές σου', 'Grounded in your sources')
-                  : tx('Χωρίς πηγές ακόμα', 'No sources yet')}
-              </span>
+              <span className="type-micro text-text-muted truncate">{chatGrounding}</span>
             </header>
             {chatBody}
           </section>
@@ -613,7 +625,10 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
               aria-label="Studio"
               data-testid="notebook-studio-panel"
             >
-              <header className="flex items-center justify-between gap-2 border-b border-border-subtle px-4 py-3 shrink-0">
+              <header
+                className="flex items-center justify-between gap-2 border-b border-border-subtle px-4 py-3 shrink-0"
+                title={tx('Εργαλεία με βοήθεια AI', 'AI-assisted tools')}
+              >
                 <h2 className="text-sm font-semibold text-text-primary">Studio</h2>
                 <span className="type-micro text-text-muted">{tx('Εργαλεία με βοήθεια AI', 'AI-assisted tools')}</span>
               </header>

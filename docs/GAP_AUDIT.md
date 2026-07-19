@@ -360,6 +360,8 @@ Constraints for all OPT-R*: no typography/button/modal scale-up; no functional c
 | OPT-M20 | Screenshot matrix launch QA | P2 | **process** | `npm run capture:primer-minimal` dumps PNGs; human Pass? still ☐ |
 | OPT-C0 (calm) | ChatGPT-calm CSS tokens (Minimal-gated) | P2 | **shipped** | `src/styles/chatgpt-calm.css`; see `docs/CHATGPT_MINIMAL_ENHANCEMENT_PLAN.md` (not Blueprint OPT-C) |
 | OPT-C1 (calm) | Agent centered thread + soft bubbles + composer | P2 | **shipped** | `Agent.tsx` column/composer; modes/citations retained |
+| OPT-C3 (calm) | Quiet shell nav (subtitles → tooltip) | P2 | **shipped** | Minimal: single-line labels, `w-56` rail; all `nav-*` kept |
+| OPT-C4 (calm) | Notebook chat column calm parity | P2 | **shipped** | `notebook-calm` + softer chat/studio chrome; 3-panel IA intact |
 
 ### Replit study — explicit non-borrows
 

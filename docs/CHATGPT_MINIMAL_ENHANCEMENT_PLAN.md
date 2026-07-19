@@ -158,8 +158,8 @@ Landing, Onboarding, Dashboard, Library, Course (4 tabs), Note Analysis, Tasks, 
 | **OPT-C0** | Tokens: chat column width, composer radius, bubble typography; CSS file `src/styles/chatgpt-calm.css` imported under Minimal only; inventory doc | Visual tokens exist; Blueprint unchanged | Low — **shipped 2026-07-19** |
 | **OPT-C1** | Agent full + embedded: centered thread, soft bubbles, sticky composer, starters | Agent feels conversation-first; all modes/citations/stream OK | Medium — **shipped 2026-07-19** |
 | **OPT-C2** | Mode UI quieting: reduce multi-color mode noise; catalog in rail/menu; stop/regenerate polish | Modes 100% reachable | Low |
-| **OPT-C3** | Shell: quieter nav (subtitle → tooltip), optional collapse width | All nav testids + a11y | Low |
-| **OPT-C4** | Notebook center chat parity + optional “focus chat” chrome hide | 3-panel IA intact | Medium |
+| **OPT-C3** | Shell: quieter nav (subtitle → tooltip), optional collapse width | All nav testids + a11y | Low — **shipped 2026-07-19** |
+| **OPT-C4** | Notebook center chat parity + optional “focus chat” chrome hide | 3-panel IA intact | Medium — **shipped 2026-07-19** |
 | **OPT-C5** | Dashboard/Library/Tasks soft lists under Minimal | No feature loss | Low |
 | **OPT-C6** | Analytics/Teacher/Org/Settings calm headers | Enterprise intact | Low |
 | **OPT-C7** | Mobile composer + drawer label cleanup | Touch targets ≥ 40px | Medium |
@@ -223,8 +223,8 @@ Landing, Onboarding, Dashboard, Library, Course (4 tabs), Note Analysis, Tasks, 
 **Primer Minimal made Synapse GitHub-clear. It is not yet ChatGPT-calm.**  
 The highest-leverage path is **OPT-C0 → C1** (tokens + Agent/embedded conversation UI) under existing Minimal, with zero feature removal, then shell quieting (C3) and notebook parity (C4).
 
-**Shipped:** OPT-C0 + OPT-C1 (`chatgpt-calm.css` + Agent column/composer/bubbles).  
-**Next:** OPT-C3 shell nav quieting, then OPT-C4 notebook chat parity.
+**Shipped:** OPT-C0–C1 (Agent calm), OPT-C3 (quiet shell nav), OPT-C4 (notebook chat parity).  
+**Next:** OPT-C2 mode quieting, OPT-C5 Dashboard/Library soft lists, OPT-C8 screenshot rows.
 
 ---
 
@@ -234,4 +234,5 @@ The highest-leverage path is **OPT-C0 → C1** (tokens + Agent/embedded conversa
 |------|------|-------|
 | Engineering (plan) | 2026-07-19 | Audit complete; waves OPT-C0–C8 defined. |
 | Engineering (C0/C1) | 2026-07-19 | Calm CSS + Agent conversation-first under Minimal. Modes/citations/stream retained. |
+| Engineering (C3/C4) | 2026-07-19 | Shell single-line nav + narrower rail; notebook-calm chat/studio. |
 | | | |
