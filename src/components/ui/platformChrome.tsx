@@ -62,6 +62,7 @@ export function UxCallout({
   action,
   className,
   testId,
+  dataTone,
 }: {
   variant: UxCalloutVariant;
   title?: ReactNode;
@@ -70,11 +71,14 @@ export function UxCallout({
   action?: ReactNode;
   className?: string;
   testId?: string;
+  /** OPT-K17 — urgency taxonomy for Minimal left-edge signal */
+  dataTone?: string;
 }) {
   return (
     <div
       className={cn('ux-callout', CALLOUT_CLASS[variant], className)}
       data-testid={testId}
+      data-tone={dataTone}
       role="status"
     >
       <div className="flex items-start gap-3 min-w-0 flex-1">

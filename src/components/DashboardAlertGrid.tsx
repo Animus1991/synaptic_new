@@ -5,6 +5,7 @@ import { cn } from '../utils/cn';
 import type { DashboardSmartCTA } from '../lib/examPrep/dashboardSmartCTAs';
 import type { ProactiveAgentAlert } from '../lib/proactiveAgentAlerts';
 import { useI18n } from '../lib/i18n';
+import { useMinimalTheme } from '../lib/useMinimalTheme';
 
 export type DashboardAlertGridProps = {
   daysToExam: number | null;
@@ -38,6 +39,7 @@ export function DashboardAlertGrid({
   className,
 }: DashboardAlertGridProps) {
   const { t } = useI18n();
+  const quiet = useMinimalTheme();
 
   const forget = proactiveAlerts.find((a) => a.kind === 'forgetting-risk');
   const quizAlert = proactiveAlerts.find((a) => a.kind === 'quiz-fail-streak');
@@ -105,18 +107,33 @@ export function DashboardAlertGrid({
 
   if (slots.length === 0) return null;
 
-  const toneClass: Record<Slot['tone'], string> = {
-    exam: 'border-brand-500/25 bg-brand-600/5',
-    quiz: 'border-accent-cyan/25 bg-accent-cyan/5',
-    forget: 'border-accent-rose/25 bg-accent-rose/5',
-    misconception: 'border-accent-amber/25 bg-accent-amber/5',
-  };
-  const iconClass: Record<Slot['tone'], string> = {
-    exam: 'text-brand-600',
-    quiz: 'text-accent-cyan',
-    forget: 'text-accent-rose',
-    misconception: 'text-accent-amber',
-  };
+  /* OPT-K17 — Minimal: hairline + left urgency line (status tone only). Blueprint keeps washes. */
+  const toneClass: Record<Slot['tone'], string> = quiet
+    ? {
+        exam: 'dashboard-urgency-signal',
+        quiz: 'dashboard-urgency-signal',
+        forget: 'dashboard-urgency-signal',
+        misconception: 'dashboard-urgency-signal',
+      }
+    : {
+        exam: 'border-brand-500/25 bg-brand-600/5',
+        quiz: 'border-accent-cyan/25 bg-accent-cyan/5',
+        forget: 'border-accent-rose/25 bg-accent-rose/5',
+        misconception: 'border-accent-amber/25 bg-accent-amber/5',
+      };
+  const iconClass: Record<Slot['tone'], string> = quiet
+    ? {
+        exam: 'text-text-secondary',
+        quiz: 'text-text-secondary',
+        forget: 'text-text-secondary',
+        misconception: 'text-text-secondary',
+      }
+    : {
+        exam: 'text-brand-600',
+        quiz: 'text-accent-cyan',
+        forget: 'text-accent-rose',
+        misconception: 'text-accent-amber',
+      };
   const IconFor: Record<Slot['tone'], typeof Target> = {
     exam: Target,
     quiz: CheckSquare,
@@ -143,10 +160,15 @@ export function DashboardAlertGrid({
               slot.onClick && 'hover:bg-surface-hover/60 cursor-pointer',
               !slot.onClick && 'cursor-default',
             )}
+            data-tone={slot.tone}
             data-testid={`dashboard-alert-${slot.id}`}
           >
             <div className="flex items-start gap-2">
-              <Icon className={cn('w-4 h-4 shrink-0 mt-0.5', iconClass[slot.tone])} weight="duotone" aria-hidden />
+              <Icon
+                className={cn('w-4 h-4 shrink-0 mt-0.5', iconClass[slot.tone])}
+                weight={quiet ? 'regular' : 'duotone'}
+                aria-hidden
+              />
               <div className="min-w-0 flex-1">
                 <p className="text-[10px] font-semibold uppercase tracking-wide text-text-secondary">
                   {slot.title}

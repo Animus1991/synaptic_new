@@ -360,11 +360,7 @@
   background: color-mix(in srgb, var(--color-surface-secondary, #f6f8fa) 35%, transparent);
 }
 
-:is([data-theme="minimal"], [data-theme="minimal-dark"]) .hub-quiet .dashboard-next-action-quiet {
-  box-shadow: none;
-  border-color: color-mix(in srgb, var(--color-border-subtle, #d0d7de) 80%, transparent);
-  background: color-mix(in srgb, var(--color-surface-secondary, #f6f8fa) 50%, transparent);
-}
+/* OPT-K17 — one-step strip styles live in cursor-clarity.css (.dashboard-one-step-strip) */
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .hub-quiet [data-testid="dashboard-active-topic-pill"] {
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;

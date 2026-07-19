@@ -40,6 +40,7 @@ CSS: `src/styles/cursor-clarity.css` (imported after `replit-clarity.css`).
 | **OPT-K14** | Library chip overflow (+N); all tags reachable | **shipped** |
 | **OPT-K15** | Analytics viz chrome quiet; keep all widgets | **shipped** |
 | **OPT-K16** | Agent mode chrome monochrome under Minimal | **shipped** |
+| **OPT-K17** | Dashboard signal pass (urgency lines + one-step + almost-there) | **shipped** |
 
 **Default gate:** Minimal / Minimal Dark only. Blueprint untouched.  
 **Width rule:** Compact `w-14` + `lg:ml-14` and Expanded `w-56` + `lg:ml-56` — main never underlays rail.
@@ -57,4 +58,4 @@ CSS: `src/styles/cursor-clarity.css` (imported after `replit-clarity.css`).
 
 ## Completeness
 
-**OPT-K1–K16 shipped.** OPT-K\* residual queue empty. Compact default + expand kept; main offset `ml-14` / `ml-56`. Human Pass? **M20 / C8** still open (engineering must not self-sign). See canvas `cursor-clarity-post-k911-audit.canvas.tsx`.
+**OPT-K1–K17 shipped.** Compact default + expand kept; main offset `ml-14` / `ml-56`. Human Pass? **M20 / C8** still open (engineering must not self-sign). See canvas `cursor-clarity-post-k911-audit.canvas.tsx`.

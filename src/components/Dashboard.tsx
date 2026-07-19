@@ -419,7 +419,11 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
       {/* Dual secondary prompts — quieter under Minimal (OPT-R15); side-by-side when both present */}
       {(daysToExam !== null || antiPassiveAlert || stats.antiPassiveAlert) && (
         <MotionSection initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-          <CollapsibleChromeSection title={t('chromeStudyPrompts')} data-testid="dashboard-study-prompts-chrome">
+          <CollapsibleChromeSection
+            title={t('chromeStudyPrompts')}
+            data-testid="dashboard-study-prompts-chrome"
+            defaultOpen={isMinimal && daysToExam !== null && daysToExam <= 1}
+          >
             <div
               className={cn(
                 'grid gap-3',
@@ -430,11 +434,12 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
             >
               {daysToExam !== null && (
                 <UxCallout
-                  variant="danger"
+                  variant={isMinimal ? 'warn' : 'danger'}
                   title={t('dashExamCountdown')}
-                  icon={<Calendar className="text-accent-amber" />}
+                  icon={<Calendar className={isMinimal ? 'text-text-secondary' : 'text-accent-amber'} />}
                   testId="dashboard-exam-countdown"
-                  className="py-2.5"
+                  dataTone="exam"
+                  className={cn('py-2.5', isMinimal && 'dashboard-urgency-signal')}
                   action={
                     <button
                       type="button"
@@ -449,10 +454,21 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                 </UxCallout>
               )}
               {(antiPassiveAlert || stats.antiPassiveAlert) && (
-                <div className="platform-banner-warn p-3 rounded-xl border flex items-start gap-2.5" data-testid="dashboard-anti-passive">
-                  <Eye className="w-4 h-4 text-accent-amber shrink-0 mt-0.5" />
+                <div
+                  className={cn(
+                    'p-3 rounded-xl border flex items-start gap-2.5',
+                    isMinimal
+                      ? 'dashboard-urgency-signal border-border-subtle bg-transparent'
+                      : 'platform-banner-warn',
+                  )}
+                  data-tone="recall"
+                  data-testid="dashboard-anti-passive"
+                >
+                  <Eye className={cn('w-4 h-4 shrink-0 mt-0.5', isMinimal ? 'text-text-secondary' : 'text-accent-amber')} />
                   <div className="min-w-0">
-                    <p className="platform-banner-title text-xs font-semibold">{t('dashActiveRecallTitle')}</p>
+                    <p className={cn('text-xs font-semibold', isMinimal ? 'text-text-primary' : 'platform-banner-title')}>
+                      {t('dashActiveRecallTitle')}
+                    </p>
                     <p className="text-[11px] text-text-secondary mt-0.5 line-clamp-2">{t('dashActiveRecallBody')}</p>
                     <button
                       type="button"
@@ -475,14 +491,18 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
         <MotionSection initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
           <UxCallout
             variant="next-action"
-            className={cn(!isMinimal && 'ux-spark-panel', isMinimal && 'dashboard-next-action-quiet')}
+            className={cn(
+              !isMinimal && 'ux-spark-panel',
+              isMinimal && 'dashboard-one-step-strip',
+            )}
             title={dashboardNextAction.reason || t('dashboardSuggestedNext')}
-            icon={<Lightbulb />}
+            icon={<Lightbulb className={isMinimal ? 'text-text-secondary' : undefined} />}
             testId="dashboard-next-action"
+            dataTone="next"
             action={
               <PrimaryCTA
                 onClick={handleDashboardNextAction}
-                className="shrink-0 text-xs px-4 py-2 dashboard-continue-hero"
+                className="shrink-0 text-xs px-4 py-2.5 dashboard-continue-hero"
                 data-testid="dashboard-execute-cta"
               >
                 {t('dashExecute')} <ArrowRight className="w-3.5 h-3.5" />
@@ -833,22 +853,42 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
             )}
           </BlueprintSurface>
 
-          {/* Almost Known */}
+          {/* Almost Known — OPT-K17 Minimal: UtilityRows (no peach banner). Blueprint keeps warn well. */}
           {learnerModel.almostKnown.length > 0 && (
-            /* Wave P-3 C13 — ux-banner-warn drives --color-banner-warn-ink so the
-               title + mastery % clear 4.5:1 on spectrum peach banners. */
-            <div className="ux-banner-warn rounded-panel border border-accent-amber/20 bg-accent-amber/5 p-3">
-              <SectionLabel icon={Lightbulb}>{t('dashAlmostThere')}</SectionLabel>
-              <p className="text-xs text-text-tertiary mb-2">{t('dashAlmostThereHint')}</p>
-              <div className="proximity-track space-y-1.5">
-                {learnerModel.almostKnown.map(a => (
-                  <div key={a.concept} className="proximity-row">
-                    <span className="proximity-row-label text-xs font-medium">{a.concept}</span>
-                    <span className="ux-banner-warn-accent text-xs tabular-nums shrink-0">{a.mastery}%</span>
-                  </div>
+            isMinimal ? (
+              <div className="dashboard-almost-there proximity-track space-y-1" data-testid="dashboard-almost-there">
+                <div className="mb-1.5">
+                  <p className="text-xs font-semibold text-text-primary tracking-wide uppercase">
+                    {t('dashAlmostThere')}
+                  </p>
+                  <p className="text-[11px] text-text-tertiary mt-0.5">{t('dashAlmostThereHint')}</p>
+                </div>
+                {learnerModel.almostKnown.map((a) => (
+                  <UtilityRow
+                    key={a.concept}
+                    label={a.concept}
+                    value={`${a.mastery}%`}
+                    barPct={a.mastery}
+                    data-testid={`dashboard-almost-there-${a.concept}`}
+                  />
                 ))}
               </div>
-            </div>
+            ) : (
+              /* Wave P-3 C13 — ux-banner-warn drives --color-banner-warn-ink so the
+                 title + mastery % clear 4.5:1 on spectrum peach banners. */
+              <div className="ux-banner-warn rounded-panel border border-accent-amber/20 bg-accent-amber/5 p-3">
+                <SectionLabel icon={Lightbulb}>{t('dashAlmostThere')}</SectionLabel>
+                <p className="text-xs text-text-tertiary mb-2">{t('dashAlmostThereHint')}</p>
+                <div className="proximity-track space-y-1.5">
+                  {learnerModel.almostKnown.map(a => (
+                    <div key={a.concept} className="proximity-row">
+                      <span className="proximity-row-label text-xs font-medium">{a.concept}</span>
+                      <span className="ux-banner-warn-accent text-xs tabular-nums shrink-0">{a.mastery}%</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )
           )}
 
           {/* Upcoming Exam */}

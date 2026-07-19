@@ -366,6 +366,7 @@ Constraints for all OPT-R*: no typography/button/modal scale-up; no functional r
 | OPT-K14 | Library chip overflow +N | P2 | **shipped** | `OverflowChipRow` on course topic chips + InfoStack items/pills; full tag lists (no silent `slice`); +N expands to every tag; filters unchanged |
 | OPT-K15 | Analytics viz chrome quiet | P2 | **shipped** | `.analytics-quiet` ink viz tokens + ink course fills; heatmap grayscale; weekly % proximity; quiet Visual Lab footer/rail; status mastery colors kept; all tabs/widgets retained |
 | OPT-K16 | Agent mode chrome monochrome | P2 | **shipped** | Mode rail/catalog/header ink wells + ink active; quiet provenance badges/task banner/composer accents under Minimal; all `agent-mode-*` retained; Blueprint rainbow untouched |
+| OPT-K17 | Dashboard signal pass | P2 | **shipped** | Urgency left-edge on alert/study prompts; stronger one-step strip; Almost-there as UtilityRows under Minimal; Blueprint peach/washes kept |
 
 ### Primer-inspired minimal (OPT-M) — zero feature removal
 
