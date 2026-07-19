@@ -1,0 +1,125 @@
+/**
+ * OPT-R10 / OPT-R13 — Replit-inspired create loop + workspace canvas primacy.
+ * Minimal-gated only. No orange palette. Zero feature removal.
+ * Principles only — not a Replit brand clone.
+ */
+
+/* ── OPT-R10 — prompt-first create / upload ─────────────────────────── */
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) [data-testid="upload-modal"].create-prompt .ux-upload-drop-zone {
+  border-style: solid;
+  border-width: 1px;
+  border-color: color-mix(in srgb, var(--color-border-subtle, #d0d7de) 85%, transparent);
+  background: color-mix(in srgb, var(--color-surface-secondary, #f6f8fa) 70%, transparent);
+  padding-top: 2.25rem;
+  padding-bottom: 2.25rem;
+  box-shadow: none;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) [data-testid="upload-modal"].create-prompt .ux-upload-drop-zone[data-active="true"],
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) [data-testid="upload-modal"].create-prompt .ux-upload-drop-zone:hover {
+  border-color: color-mix(in srgb, var(--color-brand-500, #5a7694) 40%, var(--color-border-subtle, #d0d7de));
+  background: color-mix(in srgb, var(--color-brand-500, #5a7694) 6%, var(--color-surface-secondary, #f6f8fa));
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) [data-testid="upload-modal"].create-prompt .create-prompt-formats {
+  opacity: 0.75;
+  gap: 0.35rem;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) [data-testid="upload-modal"].create-prompt .create-prompt-formats .text-red-400,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) [data-testid="upload-modal"].create-prompt .create-prompt-formats .text-blue-400,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) [data-testid="upload-modal"].create-prompt .create-prompt-formats .text-orange-400,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) [data-testid="upload-modal"].create-prompt .create-prompt-formats .text-accent-emerald,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) [data-testid="upload-modal"].create-prompt .create-prompt-formats .text-accent-teal,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) [data-testid="upload-modal"].create-prompt .create-prompt-formats .text-brand-400 {
+  color: var(--color-text-tertiary, #656d76) !important;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) [data-testid="upload-modal"].create-prompt .create-prompt-flow .rounded-xl {
+  box-shadow: none;
+  padding: 0.55rem 0.65rem;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) [data-testid="library-drop-zone"].ux-prompt-bar-surface,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) [data-testid="library-drop-zone-compact"].ux-prompt-bar-surface {
+  border-style: solid;
+  border-width: 1px;
+  box-shadow: none;
+  background: color-mix(in srgb, var(--color-surface-secondary, #f6f8fa) 55%, transparent);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) [data-testid="post-upload-banner"].post-upload-create {
+  box-shadow: none;
+  border-color: color-mix(in srgb, var(--color-border-subtle, #d0d7de) 80%, transparent);
+  background: color-mix(in srgb, var(--color-surface-secondary, #f6f8fa) 50%, transparent);
+}
+
+/* ── OPT-R13 — workspace / notebook canvas primacy ──────────────────── */
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) [data-testid="study-workspace"].workspace-canvas {
+  background: var(--color-surface-primary, #fff);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .notebook-canvas {
+  background: var(--color-surface-primary, #fff);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .notebook-canvas [data-testid="notebook-sources-panel"],
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .notebook-canvas [data-testid="notebook-chat-panel"],
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .notebook-canvas [data-testid="notebook-studio-panel"] {
+  border-radius: 0.65rem;
+  box-shadow: none;
+  background: var(--color-surface-primary, #fff);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .notebook-canvas [data-testid="notebook-sources-panel"] > header,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .notebook-canvas [data-testid="notebook-chat-panel"] > header,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .notebook-canvas [data-testid="notebook-studio-panel"] > header {
+  padding-top: 0.45rem;
+  padding-bottom: 0.45rem;
+  background: transparent;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .notebook-canvas [data-testid="notebook-sources-panel"] > header h2,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .notebook-canvas [data-testid="notebook-chat-panel"] > header h2,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .notebook-canvas [data-testid="notebook-studio-panel"] > header h2 {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--color-text-tertiary, #656d76);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .notebook-canvas [data-testid="notebook-chat-panel"] {
+  /* Center column = canvas hero */
+  border-color: color-mix(in srgb, var(--color-border-subtle, #d0d7de) 55%, transparent);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .notebook-canvas[data-layout="desktop"] > [data-panel-group] {
+  padding: 0.35rem !important;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .notebook-canvas [data-testid="notebook-source-list"] {
+  gap: 0.15rem;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .notebook-canvas [data-testid="notebook-source-list"] > li > div {
+  border-radius: 0.4rem;
+  padding-top: 0.35rem;
+  padding-bottom: 0.35rem;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .notebook-canvas [data-testid="notebook-source-list"] .type-micro {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.65rem;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .workspace-canvas #workspace-main {
+  background: var(--color-surface-primary, #fff);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .workspace-canvas .workspace-glass-panel {
+  box-shadow: none;
+  backdrop-filter: none;
+}

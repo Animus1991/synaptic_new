@@ -2,6 +2,7 @@ import { Play, BookOpen, X } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
 import { workspaceEntryPrefetchHandlers } from '../../lib/workspaceEntryPrefetch';
 import { useI18n } from '../../lib/i18n';
+import { useMinimalTheme } from '../../lib/useMinimalTheme';
 import { PrimaryCTA, SecondaryCTA } from './primitives';
 import { BlueprintSurface } from './BlueprintSurface';
 
@@ -16,10 +17,16 @@ type Props = {
 /** Post-upload CTA strip — open workspace or explore course (PLATFORM_UI_UX §2.3). */
 export function PostUploadBanner({ courseTitle, onOpenWorkspace, onViewCourse, onDismiss, className }: Props) {
   const { t } = useI18n();
+  /** OPT-R10 — quieter create-loop banner under Minimal. */
+  const createQuiet = useMinimalTheme();
   return (
     <BlueprintSurface
       hint
-      className={cn('p-4 flex flex-col sm:flex-row sm:items-center gap-4 border-brand-500/30', className)}
+      className={cn(
+        'p-4 flex flex-col sm:flex-row sm:items-center gap-4 border-brand-500/30',
+        createQuiet && 'post-upload-create',
+        className,
+      )}
       data-testid="post-upload-banner"
       role="status"
     >

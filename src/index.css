@@ -3,6 +3,8 @@
 @import "./styles/primer-minimal.css";
 /* OPT-C0 — ChatGPT-calm conversation tokens (Minimal-gated). */
 @import "./styles/chatgpt-calm.css";
+/* OPT-R10 / OPT-R13 — Replit clarity create + canvas (Minimal-gated). */
+@import "./styles/replit-clarity.css";
 
 @theme {
   /* Brand + surfaces: dark defaults; light mode overrides via [data-theme="light"] Warm Sand (F1).

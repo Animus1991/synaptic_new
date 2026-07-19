@@ -51,6 +51,8 @@ export function StudyWorkspaceBody(props: StudyWorkspaceProps) {
             : 'fixed inset-0 z-50 bg-surface-primary flex flex-col',
           model.isMobile && !model.chromeHidden && !model.notebookMode && 'pb-20',
           model.isMobile && model.notebookMode && !model.chromeHidden && 'pb-2',
+          /* OPT-R13 — workspace canvas primacy under Minimal */
+          isMinimal && 'workspace-canvas',
         )}
         data-testid="study-workspace"
         data-grounded={model.noteBundle.hasSource ? 'true' : 'false'}

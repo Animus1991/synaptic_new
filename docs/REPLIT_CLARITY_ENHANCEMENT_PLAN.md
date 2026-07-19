@@ -77,6 +77,8 @@ Related: `docs/MOCKUP_WAVE_L_FIDELITY_PLAN.md`, `docs/MOCKUP_WAVE_M_FIDELITY_PLA
 | R6 | Landing intent chips + trust strip |
 | R7 | Empty states + modal header stack |
 | R8 | Nav accent bar; Visual Lab lane dividers |
+| **R10** | Prompt-first UploadModal (`create-prompt`); paste/YouTube collapsible; quiet post-upload banner; `replit-clarity.css` |
+| **R13** | `workspace-canvas` / `notebook-canvas`; Files·AI·Tools hierarchy labels; denser Sources list; thinner panel chrome |
 
 ### 2.2 Primer + Calm (complete engineering)
 
@@ -111,10 +113,10 @@ Scoring: **Gap** = Replit clarity still weak after R+M+C. **Borrow** = principle
 
 | Surface | Current | Residual gap | Wave |
 |---------|---------|--------------|------|
-| Upload modal | Prompt-bar chrome (R2) | Stronger “describe → generate” primacy; secondary options disclosed | R10 |
+| Upload modal | Prompt-first + disclosed paste/YouTube (**R10**) | — largely done | — |
 | Library empty | Content-first empties (M18) | Empty = single prompt/upload hero (filters still present when data exists) | R10 |
 | Pipeline progress | Banners exist | Thin bottom/console progress strip (non-blocking) | R11 |
-| Post-upload banner | Present | Softer; one primary “Open workspace” | R10 |
+| Post-upload banner | Quieter create strip (**R10**) | — | — |
 
 ### 4.3 Library / Sources
 
@@ -122,7 +124,7 @@ Scoring: **Gap** = Replit clarity still weak after R+M+C. **Borrow** = principle
 |---------|---------|--------------|------|
 | Course list | Soft list (C5) | Tree-like density: title + meta mono; less badge rainbow | R12 |
 | Files tab | Functional | Path-style rows; quieter type icons | R12 |
-| Notebook Sources | 3-panel intact | File-tree spacing / selection like Replit files | R13 |
+| Notebook Sources | Denser list + Files label (**R13**) | Further mono meta polish | R12 |
 
 ### 4.4 Study workspace (Replit’s core analogy)
 
@@ -131,7 +133,7 @@ Scoring: **Gap** = Replit clarity still weak after R+M+C. **Borrow** = principle
 | Reader canvas | Content-first | Maximize canvas; chrome in overflow (partial M7) | R13 |
 | Status bus | Unified (M9) | Optional bottom dock height like console (toggleable) | R11 |
 | Tool dock | Overflow menus | Soft active tool; no icon wall return | R13 |
-| Notebook 3-panel | Calm (C4) | Sources column = files; Studio = “tools”; Chat = AI — naming/hierarchy only | R13 |
+| Notebook 3-panel | Files · AI · Tools + canvas chrome (**R13**) | Zen discoverability polish | R13 residual / R17 |
 | Split / Zen | Present | Zen more discoverable as “focus canvas” | R13 |
 
 ### 4.5 Agent / AI
@@ -193,10 +195,10 @@ These improve **legibility of existing power**, not new product pillars:
 | Wave | Scope | Done when | Risk |
 |------|-------|-----------|------|
 | **OPT-R9** | Optional collapsed shell rail (icons + tooltip; expand restores labels) | All `nav-*` retained; a11y OK | Med |
-| **OPT-R10** | Create/upload/onboarding prompt-first chrome (disclose advanced) | Upload + demo paths intact | Med |
+| **OPT-R10** | Create/upload/onboarding prompt-first chrome (disclose advanced) | Upload + demo paths intact | **shipped** |
 | **OPT-R11** | Status/inbox “console” panel chrome + pipeline strip | No alert loss | Low |
 | **OPT-R12** | Library/files + ⌘K path mono density | Filters/upload kept | Low |
-| **OPT-R13** | Workspace/notebook canvas primacy (Sources/Studio hierarchy copy+CSS) | 3-panel + tools 100% | Med |
+| **OPT-R13** | Workspace/notebook canvas primacy (Sources/Studio hierarchy copy+CSS) | 3-panel + tools 100% | **shipped** |
 | **OPT-R14** | Agent tools/modes menu grouping (all modes still listed) | Modes 100% | Low |
 | **OPT-R15** | Dashboard/Tasks/Analytics secondary quieter | Hub features kept | Low |
 | **OPT-R16** | Settings IDE-like section layout polish | All sections kept | Low |
@@ -251,9 +253,9 @@ These improve **legibility of existing power**, not new product pillars:
 
 ## 10. Completeness answer (honest)
 
-**Prior agents finished OPT-R1–R8 aesthetic waves.** Primer + ChatGPT-calm layers shipped on top. Synapse is **not** a blank slate for Replit — remaining value is a **focused R9–R18 residual program** aimed at create-loop + workspace canvas + console metaphor, with zero removals.
+**Prior agents finished OPT-R1–R8 aesthetic waves; R10 + R13 now shipped.** Primer + ChatGPT-calm layers sit on the same Minimal default. Synapse is **not** a blank slate for Replit — remaining residual value is console Status (R11), files/⌘K density (R12), quieter hubs, and capture seed (R18), with zero removals.
 
-**Recommended next engineering step:** **OPT-R10 + OPT-R13** (create chrome + workspace canvas), Minimal-gated, after or parallel to human Pass? on existing matrices.
+**Recommended next engineering step:** **OPT-R11** (Status-as-console), then **OPT-R18** (demo-course seed for human QA captures).
 
 ---
 
@@ -262,4 +264,5 @@ These improve **legibility of existing power**, not new product pillars:
 | Role | Date | Notes |
 |------|------|-------|
 | Engineering (audit) | 2026-07-19 | Exhaustive residual audit vs Replit principles; R9–R18 proposed. R1–R8 already shipped. |
+| Engineering (R10+R13) | 2026-07-19 | Prompt-first create + workspace/notebook canvas primacy shipped (Minimal-gated). |
 | | | |

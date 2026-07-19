@@ -457,9 +457,21 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
       data-testid="notebook-mobile-tabs"
     >
       {([
-        { id: 'sources' as const, label: tx('Πηγές', 'Sources'), icon: FileText },
-        { id: 'chat' as const, label: tx('Συνομιλία', 'Chat'), icon: MessageSquare },
-        { id: 'studio' as const, label: 'Studio', icon: LayoutGrid },
+        {
+          id: 'sources' as const,
+          label: notebookCalm ? tx('Αρχεία', 'Files') : tx('Πηγές', 'Sources'),
+          icon: FileText,
+        },
+        {
+          id: 'chat' as const,
+          label: notebookCalm ? 'AI' : tx('Συνομιλία', 'Chat'),
+          icon: MessageSquare,
+        },
+        {
+          id: 'studio' as const,
+          label: notebookCalm ? tx('Εργαλεία', 'Tools') : 'Studio',
+          icon: LayoutGrid,
+        },
       ]).map(({ id, label, icon: Icon }) => (
         <button
           key={id}
@@ -486,7 +498,7 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
       <div
         className={cn(
           'relative z-10 flex flex-1 flex-col overflow-hidden bg-surface-secondary/60',
-          notebookCalm && 'notebook-calm',
+          notebookCalm && 'notebook-calm notebook-canvas',
         )}
         id="workspace-main"
         role="main"
@@ -507,7 +519,9 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
                   data-testid="notebook-sources-panel"
                 >
                   <header className="flex items-center justify-between gap-2 border-b border-border-subtle px-4 py-3 shrink-0">
-                    <h2 className="text-sm font-semibold text-text-primary">{tx('Πηγές', 'Sources')}</h2>
+                    <h2 className="text-sm font-semibold text-text-primary">
+                      {notebookCalm ? tx('Αρχεία', 'Files') : tx('Πηγές', 'Sources')}
+                    </h2>
                     <button type="button" onClick={addSource} data-testid="notebook-add-source" className="flex items-center gap-1 rounded-full border border-border-subtle px-2.5 py-1 type-micro font-medium text-text-secondary">
                       <Plus className="h-3.5 w-3.5" />
                       {tx('Προσθήκη', 'Add')}
@@ -523,7 +537,9 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
                   data-testid="notebook-chat-panel"
                 >
                   <header className="border-b border-border-subtle px-4 py-3 shrink-0">
-                    <h2 className="text-sm font-semibold text-text-primary">{tx('Συνομιλία', 'Chat')}</h2>
+                    <h2 className="text-sm font-semibold text-text-primary">
+                      {notebookCalm ? 'AI' : tx('Συνομιλία', 'Chat')}
+                    </h2>
                   </header>
                   {chatBody}
                 </section>
@@ -534,7 +550,9 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
                   data-testid="notebook-studio-panel"
                 >
                   <header className="border-b border-border-subtle px-4 py-3 shrink-0">
-                    <h2 className="text-sm font-semibold text-text-primary">Studio</h2>
+                    <h2 className="text-sm font-semibold text-text-primary">
+                      {notebookCalm ? tx('Εργαλεία', 'Tools') : 'Studio'}
+                    </h2>
                   </header>
                   {studioGrid}
                 </section>
@@ -568,7 +586,7 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
     <div
       className={cn(
         'relative z-10 flex-1 flex overflow-hidden bg-surface-secondary/60',
-        notebookCalm && 'notebook-calm',
+        notebookCalm && 'notebook-calm notebook-canvas',
       )}
       id="workspace-main"
       role="main"
@@ -580,11 +598,13 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
         <Panel id="nb-sources" defaultSize={22} minSize={14} className="flex h-full min-h-0 flex-col overflow-hidden">
           <section
             className="flex h-full min-h-0 flex-col overflow-hidden workspace-glass-panel rounded-2xl border border-border-subtle bg-surface-card"
-            aria-label={tx('Πηγές', 'Sources')}
+            aria-label={notebookCalm ? tx('Αρχεία', 'Files') : tx('Πηγές', 'Sources')}
             data-testid="notebook-sources-panel"
           >
             <header className="flex items-center justify-between gap-2 border-b border-border-subtle px-4 py-3 shrink-0">
-              <h2 className="text-sm font-semibold text-text-primary">{tx('Πηγές', 'Sources')}</h2>
+              <h2 className="text-sm font-semibold text-text-primary">
+                {notebookCalm ? tx('Αρχεία', 'Files') : tx('Πηγές', 'Sources')}
+              </h2>
               <button type="button" onClick={addSource} data-testid="notebook-add-source" className="flex items-center gap-1 rounded-full border border-border-subtle px-2.5 py-1 type-micro font-medium text-text-secondary hover:bg-surface-hover hover:text-text-primary transition-colors">
                 <Plus className="h-3.5 w-3.5" />
                 {tx('Προσθήκη', 'Add')}
@@ -600,14 +620,16 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
         <Panel id="nb-chat" defaultSize={46} minSize={28} className="flex h-full min-h-0 flex-col overflow-hidden">
           <section
             className="flex h-full min-h-0 flex-col overflow-hidden workspace-glass-panel rounded-2xl border border-border-subtle bg-surface-card"
-            aria-label={tx('Συνομιλία', 'Chat')}
+            aria-label={notebookCalm ? 'AI' : tx('Συνομιλία', 'Chat')}
             data-testid="notebook-chat-panel"
           >
             <header
               className="flex items-center justify-between gap-2 border-b border-border-subtle px-4 py-3 shrink-0"
               title={chatGrounding}
             >
-              <h2 className="text-sm font-semibold text-text-primary">{tx('Συνομιλία', 'Chat')}</h2>
+              <h2 className="text-sm font-semibold text-text-primary">
+                {notebookCalm ? 'AI' : tx('Συνομιλία', 'Chat')}
+              </h2>
               <span className="type-micro text-text-muted truncate">{chatGrounding}</span>
             </header>
             {chatBody}
@@ -622,14 +644,16 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
           <Panel id="nb-studio" defaultSize={32} minSize={20} className="flex h-full min-h-0 flex-col overflow-hidden">
             <section
               className="flex h-full min-h-0 flex-col overflow-hidden workspace-glass-panel rounded-2xl border border-border-subtle bg-surface-card"
-              aria-label="Studio"
+              aria-label={notebookCalm ? tx('Εργαλεία', 'Tools') : 'Studio'}
               data-testid="notebook-studio-panel"
             >
               <header
                 className="flex items-center justify-between gap-2 border-b border-border-subtle px-4 py-3 shrink-0"
                 title={tx('Εργαλεία με βοήθεια AI', 'AI-assisted tools')}
               >
-                <h2 className="text-sm font-semibold text-text-primary">Studio</h2>
+                <h2 className="text-sm font-semibold text-text-primary">
+                  {notebookCalm ? tx('Εργαλεία', 'Tools') : 'Studio'}
+                </h2>
                 <span className="type-micro text-text-muted">{tx('Εργαλεία με βοήθεια AI', 'AI-assisted tools')}</span>
               </header>
               {studioGrid}

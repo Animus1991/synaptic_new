@@ -17,8 +17,10 @@ import { UiIcon } from './ui/UiIcon';
 import type { UiIconId } from '../lib/uiIconRegistry';
 import { t } from '../lib/i18n';
 import { ModalHeaderStack } from './ui/ModalHeaderStack';
+import { CollapsibleChromeSection } from './workspace/CollapsibleChromeSection';
 import { validateUploadInput, createUploadJobId } from '../lib/uploadValidation';
 import type { I18nKey } from '../lib/i18n';
+import { useMinimalTheme } from '../lib/useMinimalTheme';
 
 interface UploadModalProps {
   isOpen: boolean;
@@ -114,6 +116,9 @@ export function UploadModal({
   const dialogRef = useRef<HTMLDivElement>(null);
   const wasOpenRef = useRef(false);
   const previewLang = userSettings?.language === 'el' ? 'el' : 'en';
+  /** OPT-R10 — prompt-first create chrome under Minimal. */
+  const createPrompt = useMinimalTheme();
+  const moreSourcesOpen = Boolean(pastedContent.trim() || youtubeUrl.trim());
 
   const extendableCourses = courses.filter((c) => !isDemoCourse(c.id));
 
@@ -331,7 +336,10 @@ export function UploadModal({
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
           transition={{ duration: 0.36, ease: [0.2, 0, 0, 1] }}
-          className="relative w-full max-w-2xl max-h-[90vh] ux-modal-panel rounded-2xl border border-border-subtle bg-surface-secondary overflow-y-auto"
+          className={cn(
+            'relative w-full max-w-2xl max-h-[90vh] ux-modal-panel rounded-2xl border border-border-subtle bg-surface-secondary overflow-y-auto',
+            createPrompt && 'create-prompt',
+          )}
           data-testid="upload-modal"
         >
           {/* Header */}
@@ -380,7 +388,7 @@ export function UploadModal({
             </div>
           )}
 
-          <div className="px-5 pt-4">
+          <div className="px-5 pt-4 create-prompt-flow">
             <div className="grid gap-2 sm:grid-cols-3">
               {FLOW_STAGES.map((stage, index) => {
                 const isActive = activeFlowIndex === index;
@@ -457,7 +465,7 @@ export function UploadModal({
                 </div>
 
                 {/* Accepted formats */}
-                <div className="flex flex-wrap gap-2 justify-center">
+                <div className="create-prompt-formats flex flex-wrap gap-2 justify-center">
                   {acceptedFormats.map(f => (
                     <span key={f.ext} className="flex items-center gap-1.5 text-xs text-text-tertiary">
                       <f.icon className={cn('w-3.5 h-3.5', f.color)} />
@@ -498,38 +506,45 @@ export function UploadModal({
                   </div>
                 )}
 
-                {/* Or paste content */}
-                <div className="ux-prompt-bar">
-                  <label className="text-xs text-text-tertiary font-medium block mb-2">{t('uploadPasteLabel', previewLang)}</label>
-                  <textarea
-                    data-testid="upload-paste"
-                    value={pastedContent}
-                    onChange={e => setPastedContent(e.target.value)}
-                    placeholder={t('uploadPastePlaceholder', previewLang)}
-                    rows={4}
-                    className="ux-prompt-bar-input w-full px-4 py-3 rounded-xl bg-surface-input border border-border-subtle text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-brand-500/50 resize-none"
-                  />
-                </div>
-
                 <div className="rounded-xl border border-border-subtle bg-surface-hover/40 p-3">
                   <p className="text-xs text-text-secondary">{t('uploadNextStepHint', previewLang)}</p>
                 </div>
 
-                {/* YouTube URL */}
-                <div>
-                  <label className="text-xs text-text-tertiary font-medium block mb-2">
-                    <Link2 className="w-3.5 h-3.5 inline mr-1" />
-                    {t('uploadYoutubeLabel', previewLang)}
-                  </label>
-                  <input
-                    type="url"
-                    data-testid="upload-youtube-url"
-                    value={youtubeUrl}
-                    onChange={e => setYoutubeUrl(e.target.value)}
-                    placeholder={t('uploadYoutubePlaceholder', previewLang)}
-                    className="w-full px-4 py-2.5 rounded-xl bg-surface-input border border-border-subtle text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-brand-500/50"
-                  />
-                </div>
+                {/* OPT-R10 — paste/YouTube disclosed under Minimal; always present */}
+                <CollapsibleChromeSection
+                  title={t('uploadMoreSources', previewLang)}
+                  defaultOpen={moreSourcesOpen}
+                  className="rounded-xl border border-border-subtle bg-transparent"
+                  data-testid="upload-more-sources"
+                >
+                  <div className="space-y-3 px-1 pb-1 pt-2">
+                    <div className="ux-prompt-bar">
+                      <label className="text-xs text-text-tertiary font-medium block mb-2">{t('uploadPasteLabel', previewLang)}</label>
+                      <textarea
+                        data-testid="upload-paste"
+                        value={pastedContent}
+                        onChange={e => setPastedContent(e.target.value)}
+                        placeholder={t('uploadPastePlaceholder', previewLang)}
+                        rows={4}
+                        className="ux-prompt-bar-input w-full px-4 py-3 rounded-xl bg-surface-input border border-border-subtle text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-brand-500/50 resize-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs text-text-tertiary font-medium block mb-2">
+                        <Link2 className="w-3.5 h-3.5 inline mr-1" />
+                        {t('uploadYoutubeLabel', previewLang)}
+                      </label>
+                      <input
+                        type="url"
+                        data-testid="upload-youtube-url"
+                        value={youtubeUrl}
+                        onChange={e => setYoutubeUrl(e.target.value)}
+                        placeholder={t('uploadYoutubePlaceholder', previewLang)}
+                        className="w-full px-4 py-2.5 rounded-xl bg-surface-input border border-border-subtle text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-brand-500/50"
+                      />
+                    </div>
+                  </div>
+                </CollapsibleChromeSection>
               </>
             )}
 
