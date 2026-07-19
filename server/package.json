@@ -35,7 +35,7 @@
     "jsonwebtoken": "^9.0.2",
     "node-pg-migrate": "^7.9.1",
     "pg": "^8.13.1",
-    "stripe": "^17.7.0",
+    "stripe": "^22.3.2",
     "tesseract.js": "^5.1.1",
     "xml-crypto": "^6.1.2",
     "y-protocols": "^1.0.7",
