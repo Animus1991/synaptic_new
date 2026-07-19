@@ -1,8 +1,15 @@
+/**
+ * Google OAuth token store — Postgres when DATABASE_URL is set (multi-instance),
+ * in-memory fallback for local/dev. Pending OAuth state + auth completion codes
+ * stay in-memory (short TTL); tokens persist durably.
+ */
 import { randomBytes } from 'node:crypto';
+import { config } from '../config';
 import {
   refreshGoogleAccessToken,
   type GoogleTokenResponse,
 } from '../lib/googleOAuth';
+import { createGoogleTokenRepo } from './postgresGoogleTokens';
 
 export type GoogleTokenRecord = {
   accountId: string;
@@ -17,6 +24,7 @@ export type GoogleTokenRecord = {
 
 const byAccount = new Map<string, GoogleTokenRecord>();
 const byGoogleSub = new Map<string, string>();
+const pgRepo = createGoogleTokenRepo(config.databaseUrl);
 
 /** OAuth state → pending flow metadata (60s TTL). */
 type PendingOAuth = {
@@ -76,30 +84,36 @@ export function consumeAuthCompletion(code: string): AuthCompletion | null {
   return entry;
 }
 
-export function saveGoogleTokens(record: GoogleTokenRecord): void {
+export async function saveGoogleTokens(record: GoogleTokenRecord): Promise<void> {
+  if (pgRepo) {
+    await pgRepo.save(record);
+    return;
+  }
   byAccount.set(record.accountId, record);
   byGoogleSub.set(record.googleSub, record.accountId);
 }
 
-export function getGoogleTokens(accountId: string): GoogleTokenRecord | undefined {
+export async function getGoogleTokens(accountId: string): Promise<GoogleTokenRecord | undefined> {
+  if (pgRepo) return pgRepo.getByAccountId(accountId);
   return byAccount.get(accountId);
 }
 
-export function deleteGoogleTokens(accountId: string): boolean {
+export async function deleteGoogleTokens(accountId: string): Promise<boolean> {
+  if (pgRepo) return pgRepo.deleteByAccountId(accountId);
   const existing = byAccount.get(accountId);
   if (existing) byGoogleSub.delete(existing.googleSub);
   return byAccount.delete(accountId);
 }
 
-export function googleStatusForAccount(accountId: string): {
+export async function googleStatusForAccount(accountId: string): Promise<{
   connected: boolean;
   email?: string;
   scopes: string[];
   hasTasks: boolean;
   hasMeet: boolean;
   hasCalendar: boolean;
-} {
-  const rec = byAccount.get(accountId);
+}> {
+  const rec = await getGoogleTokens(accountId);
   if (!rec) {
     return { connected: false, scopes: [], hasTasks: false, hasMeet: false, hasCalendar: false };
   }
@@ -134,7 +148,7 @@ export function buildTokenRecord(
 }
 
 export async function getValidAccessToken(accountId: string): Promise<string | null> {
-  const rec = byAccount.get(accountId);
+  const rec = await getGoogleTokens(accountId);
   if (!rec) return null;
   if (rec.expiresAt > Date.now() + 60_000) return rec.accessToken;
   if (!rec.refreshToken) return rec.accessToken;
@@ -145,7 +159,7 @@ export async function getValidAccessToken(accountId: string): Promise<string | n
     if (refreshed.refresh_token) rec.refreshToken = refreshed.refresh_token;
     if (refreshed.scope) rec.scopes = refreshed.scope.split(' ').filter(Boolean);
     rec.updatedAt = new Date().toISOString();
-    byAccount.set(accountId, rec);
+    await saveGoogleTokens(rec);
     return rec.accessToken;
   } catch {
     return null;

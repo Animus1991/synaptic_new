@@ -41,6 +41,10 @@ Adversaries we care about:
 | Admin endpoint behind shared secret | `server/src/routes/admin.ts` | `x-admin-secret: $ADMIN_SECRET`. |
 | Postgres parameterized queries | `server/src/store/postgres.ts` | No string-concatenated SQL. |
 | Anonymous fallback | `ALLOW_ANONYMOUS=true` | All anonymous traffic uses one synthetic account; turn off for paid tiers. |
+| Email verification gate | `requireEmailVerified` + `/auth/verify-email*` | Blocks privileged sync PUTs when `EMAIL_VERIFICATION_REQUIRED` (default prod). |
+| Sync ETags | `library.ts` / `session.ts` | `ETag` on GET; `If-Match` → 412 on mismatch. |
+| Google OAuth tokens (PG) | `googleTokenStore` + `google_oauth_tokens` | Durable multi-instance when `DATABASE_URL` set. |
+| MCP OAuth clients/codes (PG) | `mcp/oauth/store` + migrations | Durable multi-instance when `DATABASE_URL` set. |
 
 ### Client-side
 
@@ -90,7 +94,7 @@ Before exposing Synapse to real learners:
 ## Roadmap (not yet in code)
 
 - Access/refresh rotation UX and session-management surfaces.
-- Email verification.
+- Stronger email delivery (SMTP) for verification tokens (API routes exist; prod currently acknowledges without sending).
 - Password hashing parameter audit (currently scrypt with default cost — see
   `server/src/store/accounts.ts`).
 - Distributed / Redis-backed rate limiting (the current limiter is single-node).

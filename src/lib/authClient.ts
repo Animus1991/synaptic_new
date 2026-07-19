@@ -130,10 +130,18 @@ export async function pushRemoteLibrary(
   token: string,
   settings: UserSettings,
   library: Omit<RemoteLibrary, 'updatedAt'>,
+  opts?: { ifMatchUpdatedAt?: string },
 ): Promise<RemoteLibrary> {
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    Authorization: `Bearer ${token}`,
+  };
+  if (opts?.ifMatchUpdatedAt) {
+    headers['If-Match'] = `W/"${opts.ifMatchUpdatedAt}"`;
+  }
   const res = await fetch(`${proxyBase(settings)}/v1/library`, {
     method: 'PUT',
-    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    headers,
     body: JSON.stringify(library),
   });
   if (!res.ok) throw new Error(await res.text());
@@ -169,10 +177,18 @@ export async function pushRemoteSession(
   token: string,
   settings: UserSettings,
   session: Omit<RemoteSession, 'updatedAt'>,
+  opts?: { ifMatchUpdatedAt?: string },
 ): Promise<RemoteSession> {
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    Authorization: `Bearer ${token}`,
+  };
+  if (opts?.ifMatchUpdatedAt) {
+    headers['If-Match'] = `W/"${opts.ifMatchUpdatedAt}"`;
+  }
   const res = await fetch(`${proxyBase(settings)}/v1/session`, {
     method: 'PUT',
-    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    headers,
     body: JSON.stringify(session),
   });
   if (!res.ok) throw new Error(await res.text());

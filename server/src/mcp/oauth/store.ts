@@ -1,10 +1,11 @@
 /**
- * MCP OAuth 2.1 in-memory stores: Dynamic Client Registration (RFC 7591) and
- * short-lived PKCE authorization codes. Auth codes are ephemeral and one-time,
- * so in-memory is appropriate for a single-instance pilot; persistence can be
- * added later behind the same interface.
+ * MCP OAuth 2.1 stores: Dynamic Client Registration (RFC 7591) and
+ * short-lived PKCE authorization codes.
+ * Uses Postgres when DATABASE_URL is set (multi-instance); memory otherwise.
  */
 import { createHash, randomBytes, randomUUID, timingSafeEqual } from 'node:crypto';
+import { config } from '../../config';
+import { createMcpOAuthRepo } from '../../store/postgresMcpOAuth';
 
 export interface RegisteredClient {
   clientId: string;
@@ -28,16 +29,17 @@ interface AuthCodeEntry {
 
 const clients = new Map<string, RegisteredClient>();
 const authCodes = new Map<string, AuthCodeEntry>();
+const pgRepo = createMcpOAuthRepo(config.databaseUrl);
 
 const AUTH_CODE_TTL_MS = 60_000;
 
 // --- Client registration --------------------------------------------------
 
-export function registerClient(input: {
+export async function registerClient(input: {
   redirectUris: string[];
   clientName?: string;
   scope?: string;
-}): RegisteredClient {
+}): Promise<RegisteredClient> {
   const client: RegisteredClient = {
     clientId: `mcp-${randomUUID()}`,
     redirectUris: input.redirectUris,
@@ -46,24 +48,34 @@ export function registerClient(input: {
     createdAt: Date.now(),
     tokenEndpointAuthMethod: 'none',
   };
+  if (pgRepo) {
+    await pgRepo.saveClient(client);
+    return client;
+  }
   clients.set(client.clientId, client);
   return client;
 }
 
-export function getClient(clientId: string): RegisteredClient | undefined {
+export async function getClient(clientId: string): Promise<RegisteredClient | undefined> {
+  if (pgRepo) return pgRepo.getClient(clientId);
   return clients.get(clientId);
 }
 
-export function isRegisteredRedirectUri(clientId: string, redirectUri: string): boolean {
-  const client = clients.get(clientId);
+export async function isRegisteredRedirectUri(clientId: string, redirectUri: string): Promise<boolean> {
+  const client = await getClient(clientId);
   return Boolean(client && client.redirectUris.includes(redirectUri));
 }
 
 // --- Authorization codes (PKCE) ------------------------------------------
 
-export function issueAuthCode(entry: Omit<AuthCodeEntry, 'expiresAt'>): string {
+export async function issueAuthCode(entry: Omit<AuthCodeEntry, 'expiresAt'>): Promise<string> {
   const code = randomBytes(32).toString('base64url');
-  authCodes.set(hash(code), { ...entry, expiresAt: Date.now() + AUTH_CODE_TTL_MS });
+  const stored: AuthCodeEntry = { ...entry, expiresAt: Date.now() + AUTH_CODE_TTL_MS };
+  if (pgRepo) {
+    await pgRepo.issueAuthCode(hash(code), stored);
+    return code;
+  }
+  authCodes.set(hash(code), stored);
   return code;
 }
 
@@ -71,17 +83,23 @@ export function issueAuthCode(entry: Omit<AuthCodeEntry, 'expiresAt'>): string {
  * Consume an authorization code exactly once, validating the PKCE verifier,
  * the client id and the redirect URI. Returns the accountId + scope on success.
  */
-export function consumeAuthCode(input: {
+export async function consumeAuthCode(input: {
   code: string;
   clientId: string;
   redirectUri: string;
   codeVerifier: string;
-}): { accountId: string; scope: string } | { error: string } {
+}): Promise<{ accountId: string; scope: string } | { error: string }> {
   const key = hash(input.code);
-  const entry = authCodes.get(key);
-  if (!entry) return { error: 'invalid_grant' };
-  authCodes.delete(key); // one-time use
 
+  let entry: AuthCodeEntry | undefined;
+  if (pgRepo) {
+    entry = await pgRepo.consumeAuthCode(key);
+  } else {
+    entry = authCodes.get(key);
+    if (entry) authCodes.delete(key);
+  }
+
+  if (!entry) return { error: 'invalid_grant' };
   if (entry.expiresAt < Date.now()) return { error: 'invalid_grant' };
   if (entry.clientId !== input.clientId) return { error: 'invalid_grant' };
   if (entry.redirectUri !== input.redirectUri) return { error: 'invalid_grant' };

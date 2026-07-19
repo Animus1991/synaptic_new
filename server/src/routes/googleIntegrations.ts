@@ -5,7 +5,7 @@ import { getValidAccessToken, googleStatusForAccount } from '../store/googleToke
 
 export const googleIntegrationsRouter = Router();
 
-function requireGoogle(req: Request, res: Response): string | null {
+async function requireGoogle(req: Request, res: Response): Promise<string | null> {
   if (!googleOAuthConfigured()) {
     res.status(503).json({ error: 'Google OAuth not configured' });
     return null;
@@ -15,7 +15,7 @@ function requireGoogle(req: Request, res: Response): string | null {
     res.status(401).json({ error: 'Sign in required' });
     return null;
   }
-  const status = googleStatusForAccount(accountId);
+  const status = await googleStatusForAccount(accountId);
   if (!status.connected) {
     res.status(403).json({ error: 'Google account not connected', code: 'google_not_connected' });
     return null;
@@ -24,9 +24,9 @@ function requireGoogle(req: Request, res: Response): string | null {
 }
 
 googleIntegrationsRouter.get('/google/tasks/lists', authenticate, async (req, res) => {
-  const accountId = requireGoogle(req, res);
+  const accountId = await requireGoogle(req, res);
   if (!accountId) return;
-  const status = googleStatusForAccount(accountId);
+  const status = await googleStatusForAccount(accountId);
   if (!hasGoogleScope(status.scopes, 'https://www.googleapis.com/auth/tasks')) {
     res.status(403).json({ error: 'Tasks scope not granted — reconnect Google with Tasks permission' });
     return;
@@ -48,7 +48,7 @@ googleIntegrationsRouter.get('/google/tasks/lists', authenticate, async (req, re
 });
 
 googleIntegrationsRouter.get('/google/tasks', authenticate, async (req, res) => {
-  const accountId = requireGoogle(req, res);
+  const accountId = await requireGoogle(req, res);
   if (!accountId) return;
   const listId = typeof req.query.listId === 'string' ? req.query.listId : '@default';
   const accessToken = await getValidAccessToken(accountId);
@@ -69,7 +69,7 @@ googleIntegrationsRouter.get('/google/tasks', authenticate, async (req, res) => 
 });
 
 googleIntegrationsRouter.post('/google/tasks', authenticate, async (req, res) => {
-  const accountId = requireGoogle(req, res);
+  const accountId = await requireGoogle(req, res);
   if (!accountId) return;
   const title = typeof req.body?.title === 'string' ? req.body.title.trim() : '';
   const notes = typeof req.body?.notes === 'string' ? req.body.notes.trim() : undefined;
@@ -102,9 +102,9 @@ googleIntegrationsRouter.post('/google/tasks', authenticate, async (req, res) =>
 });
 
 googleIntegrationsRouter.post('/google/meet/spaces', authenticate, async (req, res) => {
-  const accountId = requireGoogle(req, res);
+  const accountId = await requireGoogle(req, res);
   if (!accountId) return;
-  const status = googleStatusForAccount(accountId);
+  const status = await googleStatusForAccount(accountId);
   if (!hasGoogleScope(status.scopes, 'https://www.googleapis.com/auth/meetings.space.created')) {
     res.status(403).json({ error: 'Meet scope not granted — reconnect Google with Meet permission' });
     return;

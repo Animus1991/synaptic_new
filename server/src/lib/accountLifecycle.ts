@@ -25,7 +25,7 @@ export type AccountExportPayload = {
   };
   library: Awaited<ReturnType<typeof getLibraryAsync>>;
   session: Awaited<ReturnType<typeof getSessionAsync>>;
-  google: ReturnType<typeof googleStatusForAccount>;
+  google: Awaited<ReturnType<typeof googleStatusForAccount>>;
   vectorChunkCount: number;
 };
 
@@ -45,10 +45,11 @@ export async function exportAccountData(accountId: string): Promise<AccountExpor
   const account = await findByIdAsync(accountId);
   if (!account) return null;
 
-  const [library, session, vectorChunkCount] = await Promise.all([
+  const [library, session, vectorChunkCount, google] = await Promise.all([
     getLibraryAsync(accountId),
     getSessionAsync(accountId),
     getVectorChunkStore().count(accountId),
+    googleStatusForAccount(accountId),
   ]);
 
   return {
@@ -57,7 +58,7 @@ export async function exportAccountData(accountId: string): Promise<AccountExpor
     account: publicAccount(account),
     library,
     session,
-    google: googleStatusForAccount(accountId),
+    google,
     vectorChunkCount,
   };
 }
@@ -71,7 +72,7 @@ export async function deleteAccountData(accountId: string): Promise<boolean> {
   await getVectorChunkStore().syncAccountChunks(accountId, [], { activeFileIds: [] });
   await deleteThumbnailsForAccount(accountId);
   purgeAccountScopedRetentionData(accountId);
-  deleteGoogleTokens(accountId);
+  await deleteGoogleTokens(accountId);
   await revokeTokensForAccount(accountId);
 
   if (!config.databaseUrl?.trim()) {

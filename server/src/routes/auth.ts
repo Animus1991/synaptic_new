@@ -3,7 +3,9 @@ import { authenticate, signAccessToken, signRefreshToken, verifyRefreshToken } f
 import {
   createAccountAsync,
   findByEmailAsync,
+  findByIdAsync,
   getUsage,
+  markEmailVerifiedAsync,
   updatePasswordAsync,
   verifyPassword,
 } from '../store/accounts';
@@ -19,14 +21,19 @@ function validCredentials(body: unknown): { email: string; password: string } | 
   return { email, password };
 }
 
-async function authPayloadWithRefresh(account: { id: string; email: string; plan: string }) {
+async function authPayloadWithRefresh(account: { id: string; email: string; plan: string; emailVerified?: boolean }) {
   const accessToken = signAccessToken(account.id);
   const refreshToken = await signRefreshToken(account.id);
   return {
     token: accessToken,
     accessToken,
     refreshToken,
-    account: { id: account.id, email: account.email, plan: account.plan },
+    account: {
+      id: account.id,
+      email: account.email,
+      plan: account.plan,
+      emailVerified: account.emailVerified === true,
+    },
   };
 }
 
@@ -114,10 +121,68 @@ authRouter.post('/reset-password', async (req, res) => {
   res.json({ ok: true });
 });
 
-authRouter.get('/me', authenticate, (req, res) => {
+authRouter.get('/me', authenticate, async (req, res) => {
   const account = req.account!;
+  const fresh = (await findByIdAsync(account.id)) ?? account;
   res.json({
-    account: { id: account.id, email: account.email, plan: account.plan },
-    usage: getUsage(account),
+    account: {
+      id: fresh.id,
+      email: fresh.email,
+      plan: fresh.plan,
+      emailVerified: fresh.emailVerified === true,
+    },
+    usage: getUsage(fresh),
+  });
+});
+
+/** W1 — request email verification token (dev returns token in body). */
+authRouter.post('/verify-email/request', authenticate, async (req, res) => {
+  const account = req.account!;
+  if (account.id === 'anonymous') {
+    res.status(400).json({ error: 'Anonymous accounts cannot verify email' });
+    return;
+  }
+  const fresh = await findByIdAsync(account.id);
+  if (!fresh) {
+    res.status(404).json({ error: 'Account not found' });
+    return;
+  }
+  if (fresh.emailVerified) {
+    res.json({ ok: true, alreadyVerified: true });
+    return;
+  }
+  const verifyToken = await issueToken(fresh.id, 'email_verify', 24 * 60 * 60 * 1000);
+  if (process.env.NODE_ENV !== 'production') {
+    res.json({ ok: true, verifyToken });
+    return;
+  }
+  // Production: token would be emailed — no SMTP wired yet, so acknowledge only.
+  res.json({ ok: true });
+});
+
+authRouter.post('/verify-email', async (req, res) => {
+  const verifyToken = typeof req.body?.verifyToken === 'string' ? req.body.verifyToken : '';
+  if (!verifyToken) {
+    res.status(400).json({ error: 'verifyToken required' });
+    return;
+  }
+  const accountId = await consumeToken(verifyToken, 'email_verify');
+  if (!accountId) {
+    res.status(401).json({ error: 'Invalid or expired verification token' });
+    return;
+  }
+  const account = await markEmailVerifiedAsync(accountId);
+  if (!account) {
+    res.status(404).json({ error: 'Account not found' });
+    return;
+  }
+  res.json({
+    ok: true,
+    account: {
+      id: account.id,
+      email: account.email,
+      plan: account.plan,
+      emailVerified: true,
+    },
   });
 });
