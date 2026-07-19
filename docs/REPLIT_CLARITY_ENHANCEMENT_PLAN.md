@@ -80,6 +80,7 @@ Related: `docs/MOCKUP_WAVE_L_FIDELITY_PLAN.md`, `docs/MOCKUP_WAVE_M_FIDELITY_PLA
 | **R10** | Prompt-first UploadModal (`create-prompt`); paste/YouTube collapsible; quiet post-upload banner; `replit-clarity.css` |
 | **R11** | Status console dock; inbox Errors/Activity; thin RAG pipeline strip; quieter toasts |
 | **R13** | `workspace-canvas` / `notebook-canvas`; Files·AI·Tools hierarchy labels; denser Sources list; thinner panel chrome |
+| **R18** | Atomic explore-demo seed; `e2e/helpers/captureSeed.ts` for M20/C8 workspace rows |
 
 ### 2.2 Primer + Calm (complete engineering)
 
@@ -172,7 +173,7 @@ Scoring: **Gap** = Replit clarity still weak after R+M+C. **Borrow** = principle
 | Skeletons | Shimmer panels | Flatter, border-only | R17 |
 | i18n EL | Comfortable density | Never shrink Greek for Replit airiness | constraint |
 | A11y | Focus, labels | No color-only state | constraint |
-| Capture QA | Demo courses missing in capture → workspace skips | R18 harness | seed demo for capture |
+| Capture QA | `ensureCaptureDemoCourse` + atomic explore-demo (**R18**) | — | — |
 
 ---
 
@@ -204,7 +205,7 @@ These improve **legibility of existing power**, not new product pillars:
 | **OPT-R15** | Dashboard/Tasks/Analytics secondary quieter | Hub features kept | Low |
 | **OPT-R16** | Settings IDE-like section layout polish | All sections kept | Low |
 | **OPT-R17** | Motion/skeleton/focus Minimal polish | AA retained | Low |
-| **OPT-R18** | Capture harness: seed demo course for M20/C8 workspace rows | Human Pass? fill-in reduced | Process |
+| **OPT-R18** | Capture harness: seed demo course for M20/C8 workspace rows | Human Pass? fill-in reduced | **shipped** |
 
 **Default gate:** Minimal / Minimal Dark only (match C* pattern). Blueprint untouched unless polish is theme-agnostic and harmless.
 
@@ -254,9 +255,9 @@ These improve **legibility of existing power**, not new product pillars:
 
 ## 10. Completeness answer (honest)
 
-**Prior agents finished OPT-R1–R8 aesthetic waves; R10 + R11 + R13 now shipped.** Primer + ChatGPT-calm layers sit on the same Minimal default. Synapse is **not** a blank slate for Replit — remaining residual value is files/⌘K density (R12), quieter hubs, and capture seed (R18), with zero removals.
+**Prior agents finished OPT-R1–R8 aesthetic waves; R10 + R11 + R13 + R18 now shipped.** Primer + ChatGPT-calm layers sit on the same Minimal default. Synapse is **not** a blank slate for Replit — remaining residual value is files/⌘K density (R12) and quieter hubs (R14–R17), with zero removals.
 
-**Recommended next engineering step:** **OPT-R18** (demo-course seed for human QA captures), then **OPT-R12** (Library/⌘K path density).
+**Recommended next engineering step:** **OPT-R12** (Library/⌘K path density), then human Pass? on M20/C8 matrices.
 
 ---
 
@@ -267,4 +268,5 @@ These improve **legibility of existing power**, not new product pillars:
 | Engineering (audit) | 2026-07-19 | Exhaustive residual audit vs Replit principles; R9–R18 proposed. R1–R8 already shipped. |
 | Engineering (R10+R13) | 2026-07-19 | Prompt-first create + workspace/notebook canvas primacy shipped (Minimal-gated). |
 | Engineering (R11) | 2026-07-19 | Status-as-console dock + inbox Errors/Activity + pipeline strip shipped. |
+| Engineering (R18) | 2026-07-19 | Capture demo-course seed harness + atomic explore-demo onboarding. |
 | | | |

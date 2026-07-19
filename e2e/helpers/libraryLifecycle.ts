@@ -2,7 +2,14 @@ import { expect, type Page } from '@playwright/test';
 
 export async function uploadCourseFromPaste(page: Page, notes: string): Promise<string> {
   await page.getByTestId('library-upload').click();
-  await page.getByTestId('upload-paste').fill(notes);
+  // OPT-R10 — paste may sit under Minimal collapsible chrome
+  const paste = page.getByTestId('upload-paste');
+  if (!(await paste.isVisible().catch(() => false))) {
+    const more = page.getByTestId('upload-more-sources-toggle');
+    if (await more.isVisible().catch(() => false)) await more.click();
+  }
+  await expect(paste).toBeVisible({ timeout: 8_000 });
+  await paste.fill(notes);
   await page.getByTestId('upload-continue').click();
   await expect(page.getByTestId('upload-outline-preview')).toBeVisible({ timeout: 20_000 });
   await page.getByTestId('upload-generate').click();

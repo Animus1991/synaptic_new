@@ -336,7 +336,8 @@ Constraints for all OPT-R*: no typography/button/modal scale-up; no functional r
 | OPT-R10 | Wave R10 — prompt-first create/upload chrome | P2 | **shipped** | `create-prompt` UploadModal; paste/YouTube in `CollapsibleChromeSection`; quiet `post-upload-create`; `replit-clarity.css` |
 | OPT-R11 | Wave R11 — Status-as-console + pipeline strip | P2 | **shipped** | Bottom console dock; Errors/Activity groups; inbox console chrome; thin RAG `pipeline-console-strip` |
 | OPT-R13 | Wave R13 — workspace/notebook canvas primacy | P2 | **shipped** | `workspace-canvas` + `notebook-canvas`; Files/AI/Tools hierarchy labels under Minimal; denser Sources list |
-| OPT-R9, R12, R14–R18 | Residual create/canvas/console program | P2 | **planned** | See `REPLIT_CLARITY_ENHANCEMENT_PLAN.md` §6; next R18 (+ R12) |
+| OPT-R18 | Wave R18 — capture harness demo-course seed | P2 | **shipped** | Atomic explore-demo seed; `ensureCaptureDemoCourse` for M20/C8; paste fallback |
+| OPT-R9, R12, R14–R17 | Residual create/canvas/console program | P2 | **planned** | See `REPLIT_CLARITY_ENHANCEMENT_PLAN.md` §6; next R12 |
 
 ### Primer-inspired minimal (OPT-M) — zero feature removal
 

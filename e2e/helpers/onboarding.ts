@@ -31,13 +31,20 @@ export async function completeOnboardingScheduleWithUpload(page: Page) {
 
 /** Skip onboarding and land on Library (explore demo, no auto-workspace). */
 export async function skipOnboardingToLibrary(page: Page) {
-  await startOnboardingFromLanding(page);  await page.getByTestId('onboarding-continue').click();
+  await startOnboardingFromLanding(page);
+  await page.getByTestId('onboarding-continue').click();
   await page.getByTestId('onboarding-role-selflearner').click();
   await page.getByTestId('onboarding-next').click();
   await page.getByTestId('onboarding-goal-understand').click();
   await page.getByTestId('onboarding-next').click();
   await page.getByTestId('onboarding-explore-demo').click();
   await expect(page.getByTestId('platform-main')).toBeVisible({ timeout: 15_000 });
+  // OPT-R18 — demo courses are in-memory; wait briefly so Library can paint cards.
+  await page
+    .getByTestId('library-course-card')
+    .first()
+    .waitFor({ state: 'visible', timeout: 12_000 })
+    .catch(() => undefined);
 }
 
 async function dismissUploadModalIfOpen(page: Page) {

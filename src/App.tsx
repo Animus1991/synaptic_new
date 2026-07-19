@@ -208,17 +208,14 @@ export default function App() {
   }, [store]);
 
   const handleOnboardingComplete = useCallback((
-    data: Parameters<typeof store.completeOnboarding>[0] & { exploreDemoMode?: boolean },
+    data: Parameters<typeof store.completeOnboarding>[0],
   ) => {
-    const { exploreDemoMode, ...rest } = data;
-    store.completeOnboarding(rest);
-    if (exploreDemoMode) {
-      store.closeStudyWorkspace();
-      store.enableDemoContent();
-      store.navigate('library');
+    // OPT-R18 — exploreDemoMode seeds demo courses atomically inside completeOnboarding.
+    store.completeOnboarding(data);
+    if (data.exploreDemoMode) {
       return;
     }
-    if (rest.role !== 'tutor' && !rest.openTeacher && !rest.skipWizard) {
+    if (data.role !== 'tutor' && !data.openTeacher && !data.skipWizard) {
       window.setTimeout(() => setProductTourOpen(true), 400);
     }
   }, [store]);

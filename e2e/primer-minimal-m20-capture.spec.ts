@@ -23,6 +23,7 @@ import {
   PRIMER_CAPTURE_DIR,
   type PrimerCaptureTheme,
 } from './helpers/primerCapture';
+import { ensureCaptureDemoCourse } from './helpers/captureSeed';
 
 /** Open study workspace; notebook layout may omit classic `workspace-dock`. Returns false if no course. */
 async function openWorkspaceForCapture(page: Page): Promise<boolean> {
@@ -144,10 +145,14 @@ test.describe('OPT-M20 Primer Minimal screenshot dump', () => {
     await expect(page.getByTestId('landing-get-started')).toBeVisible({ timeout: 15_000 });
     await shot(page, '01-landing-minimal', '#1 Landing');
 
-    // Enter app
+    // Enter app + OPT-R18 seed so workspace/tool matrix rows can capture
     await skipOnboardingToLibrary(page);
     await settleShell(page, 'minimal');
     await waitForLibraryReady(page);
+    const seeded = await ensureCaptureDemoCourse(page);
+    if (!seeded) {
+      skip('#R18 capture seed', 'failed to seed library-course-card');
+    }
 
     // 2 — Dashboard Minimal
     if (await goNav(page, 'nav-dashboard')) {

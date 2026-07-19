@@ -19,6 +19,7 @@ import {
   forcePrimerTheme,
   type PrimerCaptureTheme,
 } from './helpers/primerCapture';
+import { ensureCaptureDemoCourse } from './helpers/captureSeed';
 
 const CALM_CAPTURE_DIR = path.join(process.cwd(), 'artifacts', 'chatgpt-calm');
 
@@ -115,6 +116,8 @@ test.describe('OPT-C8 ChatGPT-calm screenshot dump', () => {
       await skipOnboardingToLibrary(page);
       await settleShell(page, 'minimal');
       await waitForLibraryReady(page);
+      // OPT-R18 — seed demo/generated course for notebook calm row
+      await ensureCaptureDemoCourse(page);
 
       // C3 — Shell quiet nav (dashboard framing)
       if (await goNav(page, 'nav-dashboard')) {

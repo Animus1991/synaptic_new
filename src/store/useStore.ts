@@ -2231,78 +2231,10 @@ export function useAppStore() {
     [activeTaskId, tasks],
   );
 
-  const completeOnboarding = useCallback((data: {
-    role?: string;
-    goals?: string[];
-    dailyGoalMinutes?: number;
-    examDate?: string;
-    openUpload?: boolean;
-    openTeacher?: boolean;
-    displayName?: string;
-    skipWizard?: boolean;
-  }) => {
-    const isTeacher = data.role === 'tutor' || data.openTeacher;
-    const parsedGoals = parseOnboardingGoals(data.goals ?? []);
-    const role: OnboardingRoleId = isOnboardingRoleId(data.role ?? '')
-      ? (data.role as OnboardingRoleId)
-      : 'selflearner';
-    const profile = {
-      role,
-      goals: parsedGoals.length > 0 ? parsedGoals : (['explore'] as OnboardingGoalId[]),
-      dailyGoalMinutes: data.dailyGoalMinutes ?? 30,
-      examDate: data.examDate,
-      displayName: data.displayName,
-    };
-
-    setUser((prev) => {
-      const seedDefaultTheme = !hasStoredThemePreference();
-      const nextUser = buildOnboardingUserPatch(prev, profile, { openTeacher: data.openTeacher });
-      const nextSettings: typeof prev.settings = {
-        ...nextUser.settings,
-        ...(seedDefaultTheme ? { theme: DEFAULT_THEME_PREFERENCE } : {}),
-      };
-      if (seedDefaultTheme) applyTheme(DEFAULT_THEME_PREFERENCE);
-      const finalUser = { ...nextUser, settings: nextSettings };
-      savePersistedUserProfile({
-        onboardingComplete: true,
-        name: finalUser.name,
-        segment: finalUser.segment,
-        role: finalUser.role,
-      });
-      clearOnboardingDraft();
-      persist(learnerModel, dashboardStats, tasks, finalUser.xp, betaMastery, firstAttemptKeys, openMistakes, activities, nextSettings);
-      return finalUser;
-    });
-    if (data.openUpload) setShowUploadModal(true);
-    if (data.skipWizard) {
-      navigate('library');
-    } else {
-      navigate(isTeacher ? 'teacher' : 'dashboard');
-    }
-  }, [learnerModel, dashboardStats, tasks, betaMastery, firstAttemptKeys, openMistakes, activities, persist, navigate]);
-
-  const enableDemoContent = useCallback(() => {
-    workspaceCloseGenRef.current += 1;
-    studyWorkspaceOpenRef.current = false;
-    setStudyWorkspaceOpen(false);
-    setWorkspaceAgentSplit(false);
-    setActiveTaskId(null);
-
+  /** OPT-R18 — seed in-memory demo courses/tasks (demo IDs never persisted). */
+  const seedDemoSandboxContent = useCallback(() => {
     const demoLearner = syncLearnerHeatmap(mockLearnerModel, activities);
     const demoBeta = initBetaMastery({ ...user.settings, showDemoContent: true });
-    setUser((prev) => {
-      const nextSettings = { ...prev.settings, showDemoContent: true };
-      applyTheme(nextSettings.theme);
-      persist(mockLearnerModel, mockDashboardStats, mockTasks, prev.xp, demoBeta, firstAttemptKeys, INITIAL_MISTAKES, activities, nextSettings);
-      savePersistedUserProfile({
-        onboardingComplete: true,
-        name: prev.name,
-        segment: prev.segment,
-        role: prev.role,
-      });
-      clearOnboardingDraft();
-      return { ...prev, onboardingComplete: true, settings: nextSettings };
-    });
     setCourses((prev) => {
       const have = new Set(prev.map((c) => c.id));
       const add = mockCourses.filter((c) => !have.has(c.id));
@@ -2338,7 +2270,124 @@ export function useAppStore() {
       const merged = withDemoCourseGraphs(mockCourses);
       return merged[0] ?? null;
     });
-  }, [user.settings, activities, firstAttemptKeys, persist]);
+  }, [user.settings, activities]);
+
+  const completeOnboarding = useCallback((data: {
+    role?: string;
+    goals?: string[];
+    dailyGoalMinutes?: number;
+    examDate?: string;
+    openUpload?: boolean;
+    openTeacher?: boolean;
+    displayName?: string;
+    skipWizard?: boolean;
+    /** OPT-R18 — atomic demo seed with onboarding (avoids showDemoContent race). */
+    exploreDemoMode?: boolean;
+  }) => {
+    const isTeacher = data.role === 'tutor' || data.openTeacher;
+    const exploreDemo = Boolean(data.exploreDemoMode);
+    const parsedGoals = parseOnboardingGoals(data.goals ?? []);
+    const role: OnboardingRoleId = isOnboardingRoleId(data.role ?? '')
+      ? (data.role as OnboardingRoleId)
+      : 'selflearner';
+    const profile = {
+      role,
+      goals: parsedGoals.length > 0 ? parsedGoals : (['explore'] as OnboardingGoalId[]),
+      dailyGoalMinutes: data.dailyGoalMinutes ?? 30,
+      examDate: data.examDate,
+      displayName: data.displayName,
+    };
+
+    setUser((prev) => {
+      const seedDefaultTheme = !hasStoredThemePreference();
+      const nextUser = buildOnboardingUserPatch(prev, profile, { openTeacher: data.openTeacher });
+      const nextSettings: typeof prev.settings = {
+        ...nextUser.settings,
+        ...(seedDefaultTheme ? { theme: DEFAULT_THEME_PREFERENCE } : {}),
+        ...(exploreDemo ? { showDemoContent: true } : {}),
+      };
+      if (seedDefaultTheme) applyTheme(DEFAULT_THEME_PREFERENCE);
+      else if (exploreDemo) applyTheme(nextSettings.theme);
+      const finalUser = { ...nextUser, settings: nextSettings };
+      savePersistedUserProfile({
+        onboardingComplete: true,
+        name: finalUser.name,
+        segment: finalUser.segment,
+        role: finalUser.role,
+      });
+      clearOnboardingDraft();
+      const persistTasks = exploreDemo ? mockTasks : tasks;
+      const persistLearner = exploreDemo ? mockLearnerModel : learnerModel;
+      const persistStats = exploreDemo ? mockDashboardStats : dashboardStats;
+      const persistBeta = exploreDemo
+        ? initBetaMastery({ ...nextSettings, showDemoContent: true })
+        : betaMastery;
+      const persistMistakes = exploreDemo ? INITIAL_MISTAKES : openMistakes;
+      persist(
+        persistLearner,
+        persistStats,
+        persistTasks,
+        finalUser.xp,
+        persistBeta,
+        firstAttemptKeys,
+        persistMistakes,
+        activities,
+        nextSettings,
+      );
+      return finalUser;
+    });
+    if (exploreDemo) {
+      workspaceCloseGenRef.current += 1;
+      studyWorkspaceOpenRef.current = false;
+      setStudyWorkspaceOpen(false);
+      setWorkspaceAgentSplit(false);
+      setActiveTaskId(null);
+      seedDemoSandboxContent();
+      navigate('library');
+      return;
+    }
+    if (data.openUpload) setShowUploadModal(true);
+    if (data.skipWizard) {
+      navigate('library');
+    } else {
+      navigate(isTeacher ? 'teacher' : 'dashboard');
+    }
+  }, [
+    learnerModel,
+    dashboardStats,
+    tasks,
+    betaMastery,
+    firstAttemptKeys,
+    openMistakes,
+    activities,
+    persist,
+    navigate,
+    seedDemoSandboxContent,
+  ]);
+
+  const enableDemoContent = useCallback(() => {
+    workspaceCloseGenRef.current += 1;
+    studyWorkspaceOpenRef.current = false;
+    setStudyWorkspaceOpen(false);
+    setWorkspaceAgentSplit(false);
+    setActiveTaskId(null);
+
+    const demoBeta = initBetaMastery({ ...user.settings, showDemoContent: true });
+    setUser((prev) => {
+      const nextSettings = { ...prev.settings, showDemoContent: true };
+      applyTheme(nextSettings.theme);
+      persist(mockLearnerModel, mockDashboardStats, mockTasks, prev.xp, demoBeta, firstAttemptKeys, INITIAL_MISTAKES, activities, nextSettings);
+      savePersistedUserProfile({
+        onboardingComplete: true,
+        name: prev.name,
+        segment: prev.segment,
+        role: prev.role,
+      });
+      clearOnboardingDraft();
+      return { ...prev, onboardingComplete: true, settings: nextSettings };
+    });
+    seedDemoSandboxContent();
+  }, [user.settings, activities, firstAttemptKeys, persist, seedDemoSandboxContent]);
 
   const exitDemoSandbox = useCallback(() => {
     workspaceCloseGenRef.current += 1;
