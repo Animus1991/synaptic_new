@@ -1,5 +1,6 @@
 /**
- * OPT-R10 / OPT-R13 / OPT-R11 — Replit-inspired create, canvas, Status-as-console.
+ * OPT-R10 / OPT-R13 / OPT-R11 / OPT-R12 — Replit-inspired create, canvas,
+ * Status-as-console, Library/⌘K path density.
  * Minimal-gated only. No orange palette. Zero feature removal.
  * Principles only — not a Replit brand clone.
  */
@@ -181,4 +182,105 @@
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) [data-testid="workspace-context-bar"][data-status-inbox="true"] [data-testid="workspace-status-inbox"] {
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+/* ── OPT-R12 — Library / files / ⌘K path mono density ───────────────── */
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .library-files-density [data-testid="library-course-card"] {
+  padding: 0.65rem 0.85rem;
+  gap: 0.75rem;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .library-files-density [data-testid="library-course-card"] [data-testid="library-course-title"],
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .library-files-density [data-testid="library-course-card"] h3 {
+  font-size: 0.8125rem;
+  letter-spacing: -0.01em;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .library-files-density [data-testid="library-course-card"] p.text-xs,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .library-files-density [data-testid="library-course-card"] p[class*="text-[10px]"],
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .library-files-density [data-testid="library-course-card"] p[class*="text-[11px]"] {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.01em;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .library-files-density [data-testid="library-course-card"] .rounded-full,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .library-files-density [data-testid="library-course-card"] [class*="Badge"] {
+  opacity: 0.85;
+  font-weight: 500;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .library-files-density [data-testid^="library-corner-"] {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  opacity: 0.9;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .library-files-dense {
+  gap: 0.35rem;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .library-file-row {
+  border-radius: 0.5rem;
+  box-shadow: none;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .library-file-row > .flex.items-center {
+  gap: 0.65rem;
+  padding: 0.5rem 0.65rem;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .library-file-icon {
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 0.35rem;
+  background: color-mix(in srgb, var(--color-surface-hover, rgba(0, 0, 0, 0.04)) 70%, transparent);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .library-file-icon svg {
+  width: 0.9rem;
+  height: 0.9rem;
+  color: var(--color-text-tertiary, #656d76) !important;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .library-file-name {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .library-file-meta {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.65rem;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .command-palette-dense .command-palette-item {
+  gap: 0.55rem;
+  padding: 0.4rem 0.65rem;
+  border-radius: 0.45rem;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .command-palette-dense .command-palette-item-icon {
+  width: 0.9rem;
+  height: 0.9rem;
+  color: var(--color-text-tertiary, #656d76) !important;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .command-palette-dense .command-palette-path {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.625rem;
+  letter-spacing: 0.01em;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .notebook-canvas [data-testid="notebook-source-list"] [data-testid^="notebook-source-row-"] .truncate.text-xs {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.7rem;
+  font-weight: 500;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .notebook-canvas [data-testid="notebook-source-list"] > li > div {
+  padding-left: 0.45rem;
+  padding-right: 0.45rem;
 }

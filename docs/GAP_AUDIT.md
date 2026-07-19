@@ -337,7 +337,8 @@ Constraints for all OPT-R*: no typography/button/modal scale-up; no functional r
 | OPT-R11 | Wave R11 — Status-as-console + pipeline strip | P2 | **shipped** | Bottom console dock; Errors/Activity groups; inbox console chrome; thin RAG `pipeline-console-strip` |
 | OPT-R13 | Wave R13 — workspace/notebook canvas primacy | P2 | **shipped** | `workspace-canvas` + `notebook-canvas`; Files/AI/Tools hierarchy labels under Minimal; denser Sources list |
 | OPT-R18 | Wave R18 — capture harness demo-course seed | P2 | **shipped** | Atomic explore-demo seed; `ensureCaptureDemoCourse` for M20/C8; paste fallback |
-| OPT-R9, R12, R14–R17 | Residual create/canvas/console program | P2 | **planned** | See `REPLIT_CLARITY_ENHANCEMENT_PLAN.md` §6; next R12 |
+| OPT-R12 | Wave R12 — Library/files + ⌘K path mono density | P2 | **shipped** | List course testids; path-style files; ⌘K mono paths; notebook source mono |
+| OPT-R9, R14–R17 | Residual create/canvas/console program | P2 | **planned** | See `REPLIT_CLARITY_ENHANCEMENT_PLAN.md` §6; next human Pass? or R9/R14 |
 
 ### Primer-inspired minimal (OPT-M) — zero feature removal
 

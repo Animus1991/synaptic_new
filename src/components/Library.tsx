@@ -281,7 +281,7 @@ export function Library({
   return (
     <div
       {...warmSandScopeProps(warmSandPage)}
-      className={cn(isMinimal && 'library-calm')}
+      className={cn(isMinimal && 'library-calm library-files-density')}
       data-testid="library-page"
     >
     <Page gap="sm">
@@ -618,7 +618,7 @@ export function Library({
                 onSecondaryAction={search.trim() ? () => setSearch('') : () => setTab('courses')}
               />
             ) : (
-              <div className="space-y-2">
+              <div className={cn('space-y-2', isMinimal && 'library-files-dense')}>
                 {filteredFiles.map((file, i) => (
                   <FileItem
                     key={file.id}
@@ -985,13 +985,14 @@ function CourseListItem({
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: index * 0.03 }}
       onClick={onClick}
+      data-testid="library-course-card"
       {...workspaceEntryPrefetchHandlers()}
       className="flex items-center gap-4 p-4 hover:border-brand-500/35 cursor-pointer transition-all group"
     >
       <CourseIcon icon={course.icon} size="lg" colorClassName="text-brand-600 shrink-0" />
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
-          <h3 className="font-semibold text-sm group-hover:text-brand-300 transition-colors truncate">{course.title}</h3>
+          <h3 className="font-semibold text-sm group-hover:text-brand-300 transition-colors truncate" data-testid="library-course-title">{course.title}</h3>
           {isOldPipeline && !isGenerating && (
             <span
               className="inline-flex items-center gap-1 rounded-full border border-accent-amber/30 bg-accent-amber/10 px-1.5 py-0.5 text-[10px] font-medium text-accent-amber"
@@ -1097,6 +1098,7 @@ function FileItem({
   reprocessingMaterial?: boolean;
 }) {
   const Icon = fileTypeIcons[file.type] || FileText;
+  const pathDense = useMinimalTheme();
   const [expanded, setExpanded] = useState(false);
   const [removeDialogOpen, setRemoveDialogOpen] = useState(false);
   const outlinePreview = useMemo(() => {
@@ -1139,29 +1141,45 @@ function FileItem({
   const removeTitle = cascadeCopy.title;
   const removeDescription = cascadeCopy.description;
 
+  const pathMeta = [
+    `${(file.size / 1024).toFixed(1)} KB`,
+    file.type.toUpperCase(),
+    outlinePreview ? `${outlinePreview.outline.topics.length} ${t('libModules', userLanguage)}` : null,
+    recognitionSnapshot ? `${recognitionSnapshot.quality.conceptCount} ${t('libConcepts', userLanguage)}` : null,
+  ].filter(Boolean).join(' · ');
+
   return (
     <>
     <motion.div
       initial={{ opacity: 0, x: -10 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: index * 0.03 }}
-      className="rounded-xl border border-border-subtle bg-surface-card overflow-hidden"
+      data-testid="library-file-row"
+      className="library-file-row rounded-xl border border-border-subtle bg-surface-card overflow-hidden"
     >
       <div className="flex items-center gap-3 p-3">
-        <div className="w-10 h-10 rounded-lg bg-surface-hover flex items-center justify-center shrink-0">
+        <div className="library-file-icon w-10 h-10 rounded-lg bg-surface-hover flex items-center justify-center shrink-0">
           <Icon className="w-5 h-5 text-brand-400" />
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium truncate">{file.name}</p>
-          <p className="text-xs text-text-tertiary mt-0.5">
-            {(file.size / 1024).toFixed(1)} KB · {file.type.toUpperCase()}
-            {course && <> · {course.title}</>}
-            {outlinePreview && (
-              <> · {outlinePreview.outline.topics.length} {t('libModules', userLanguage)}</>
-            )}
-            {recognitionSnapshot && (
-              <> · {recognitionSnapshot.quality.conceptCount} {t('libConcepts', userLanguage)}</>
-            )}
+          <p className="library-file-name text-sm font-medium truncate">
+            {pathDense && course ? `${course.title}/${file.name}` : file.name}
+          </p>
+          <p className="library-file-meta text-xs text-text-tertiary mt-0.5">
+            {pathDense
+              ? pathMeta
+              : (
+                <>
+                  {(file.size / 1024).toFixed(1)} KB · {file.type.toUpperCase()}
+                  {course && <> · {course.title}</>}
+                  {outlinePreview && (
+                    <> · {outlinePreview.outline.topics.length} {t('libModules', userLanguage)}</>
+                  )}
+                  {recognitionSnapshot && (
+                    <> · {recognitionSnapshot.quality.conceptCount} {t('libConcepts', userLanguage)}</>
+                  )}
+                </>
+              )}
           </p>
           {file.pipelineVersion && (
             <p className="text-[10px] text-text-muted mt-0.5">{t('libPipelineVersion', userLanguage).replace('{version}', file.pipelineVersion)}</p>

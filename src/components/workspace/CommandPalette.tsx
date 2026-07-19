@@ -8,6 +8,7 @@ import {
   recordRecentCommandKey,
   workspaceCommandKey,
 } from '../../lib/commandPaletteRecent';
+import { useMinimalTheme } from '../../lib/useMinimalTheme';
 
 export interface CommandItem {
   id: string;
@@ -39,6 +40,7 @@ interface Props {
  * surface here is < 90 lines.
  */
 export function CommandPalette({ open, onClose, items, placeholder }: Props) {
+  const densePalette = useMinimalTheme();
   const [query, setQuery] = useState('');
   const [active, setActive] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -125,7 +127,10 @@ export function CommandPalette({ open, onClose, items, placeholder }: Props) {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={emphasizedBackdropTransition}
-          className="fixed inset-0 z-[60] flex items-start justify-center bg-black/70 px-4 pt-[12vh]"
+          className={cn(
+            'fixed inset-0 z-[60] flex items-start justify-center bg-black/70 px-4 pt-[12vh]',
+            densePalette && 'command-palette-dense',
+          )}
           onClick={onClose}
           role="dialog"
           aria-modal="true"
@@ -184,7 +189,7 @@ export function CommandPalette({ open, onClose, items, placeholder }: Props) {
                           onMouseEnter={() => setActive(idx)}
                           onClick={() => runItem(it)}
                           className={cn(
-                            'flex w-full items-center justify-between gap-2 rounded-lg px-2 py-1.5 text-left text-sm transition-colors',
+                            'command-palette-item flex w-full items-center justify-between gap-2 rounded-lg px-2 py-1.5 text-left text-sm transition-colors',
                             isActive
                               ? 'bg-brand-500/15 text-text-primary'
                               : 'text-text-secondary hover:bg-white/5',
@@ -193,7 +198,7 @@ export function CommandPalette({ open, onClose, items, placeholder }: Props) {
                           <div className="min-w-0 flex-1">
                             <div className="truncate">{it.label}</div>
                             {it.hint && (
-                              <div className="truncate text-[11px] text-text-muted">{it.hint}</div>
+                              <div className="command-palette-path truncate text-[11px] text-text-muted">{it.hint}</div>
                             )}
                           </div>
                           {it.shortcut && (

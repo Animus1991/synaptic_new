@@ -12,6 +12,7 @@ import { getTaskActionVisual } from '../lib/taskActionIcons';
 import type { LucideIcon } from '@/lib/lucide-shim';
 import type { DashboardNextAction } from '../lib/dashboardNextAction';
 import { paletteQuickActions, type GlobalQuickActionId } from '../lib/globalActionRegistry';
+import { useMinimalTheme } from '../lib/useMinimalTheme';
 
 export type CommandAction =
   | { type: 'navigate'; view: AppView; label: string; icon: typeof Search }
@@ -88,6 +89,7 @@ export function CommandPalette({
   onQuickAction,
 }: Props) {
   const { t, lang } = useI18n();
+  const densePalette = useMinimalTheme();
   const [query, setQuery] = useState('');
 
   useEffect(() => {
@@ -221,7 +223,10 @@ export function CommandPalette({
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-start justify-center pt-[15vh] p-4" data-testid="command-palette">
+    <div
+      className={cn('fixed inset-0 z-[100] flex items-start justify-center pt-[15vh] p-4', densePalette && 'command-palette-dense')}
+      data-testid="command-palette"
+    >
       <div className="absolute inset-0 bg-black/60" onClick={onClose} />
       <div className="ux-elev-popover relative w-full max-w-lg rounded-2xl border border-border-subtle bg-surface-secondary overflow-hidden">
         <div className="flex items-center gap-2 px-4 py-3 border-b border-border-subtle">
@@ -257,21 +262,21 @@ export function CommandPalette({
               }
               onClick={() => run(a)}
               className={cn(
-                'w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-sm',
+                'command-palette-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-sm',
                 'hover:bg-surface-hover transition-colors',
               )}
             >
-              <a.icon className="w-4 h-4 text-brand-400 shrink-0" />
+              <a.icon className="command-palette-item-icon w-4 h-4 text-brand-400 shrink-0" />
               <span className="min-w-0 flex-1">
                 <span className="block truncate">{a.label}</span>
                 {a.type === 'content' && a.sublabel && (
-                  <span className="block truncate text-[10px] text-text-muted">{a.sublabel}</span>
+                  <span className="command-palette-path block truncate text-[10px] text-text-muted">{a.sublabel}</span>
                 )}
                 {a.type === 'next-action' && a.sublabel && (
-                  <span className="block truncate text-[10px] text-text-muted">{a.sublabel}</span>
+                  <span className="command-palette-path block truncate text-[10px] text-text-muted">{a.sublabel}</span>
                 )}
                 {a.type === 'nlm-bridge' && a.sublabel && (
-                  <span className="block truncate text-[10px] text-text-muted">{a.sublabel}</span>
+                  <span className="command-palette-path block truncate text-[10px] text-text-muted">{a.sublabel}</span>
                 )}
               </span>
             </button>

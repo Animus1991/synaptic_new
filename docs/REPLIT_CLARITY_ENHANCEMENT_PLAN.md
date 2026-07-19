@@ -108,7 +108,7 @@ Scoring: **Gap** = Replit clarity still weak after R+M+C. **Borrow** = principle
 |---------|---------|--------------|------|
 | Shell rail | Quiet labels (C3); accent bar (R8) | Optional icon-collapsed rail (still full labels via tooltip) | R9 |
 | Mobile nav | Quiet under Minimal (C7) | — largely done | — |
-| ⌘K / `?` | Shipped (M16) | Command results denser / mono paths | R12 |
+| ⌘K / `?` | Path mono density (**R12**) | — largely done | — |
 | Inbox/bell | Console Errors/Activity (**R11**) | — largely done | — |
 
 ### 4.2 Create / ingest (highest Replit ROI left)
@@ -124,9 +124,9 @@ Scoring: **Gap** = Replit clarity still weak after R+M+C. **Borrow** = principle
 
 | Surface | Current | Residual gap | Wave |
 |---------|---------|--------------|------|
-| Course list | Soft list (C5) | Tree-like density: title + meta mono; less badge rainbow | R12 |
-| Files tab | Functional | Path-style rows; quieter type icons | R12 |
-| Notebook Sources | Denser list + Files label (**R13**) | Further mono meta polish | R12 |
+| Course list | Tree density + list `library-course-card` (**R12**) | — largely done | — |
+| Files tab | Path-style rows + quiet icons (**R12**) | — largely done | — |
+| Notebook Sources | Denser list + Files label (**R13**) + mono labels (**R12**) | — largely done | — |
 
 ### 4.4 Study workspace (Replit’s core analogy)
 
@@ -199,7 +199,7 @@ These improve **legibility of existing power**, not new product pillars:
 | **OPT-R9** | Optional collapsed shell rail (icons + tooltip; expand restores labels) | All `nav-*` retained; a11y OK | Med |
 | **OPT-R10** | Create/upload/onboarding prompt-first chrome (disclose advanced) | Upload + demo paths intact | **shipped** |
 | **OPT-R11** | Status/inbox “console” panel chrome + pipeline strip | No alert loss | **shipped** |
-| **OPT-R12** | Library/files + ⌘K path mono density | Filters/upload kept | Low |
+| **OPT-R12** | Library/files + ⌘K path mono density | Filters/upload kept | **shipped** |
 | **OPT-R13** | Workspace/notebook canvas primacy (Sources/Studio hierarchy copy+CSS) | 3-panel + tools 100% | **shipped** |
 | **OPT-R14** | Agent tools/modes menu grouping (all modes still listed) | Modes 100% | Low |
 | **OPT-R15** | Dashboard/Tasks/Analytics secondary quieter | Hub features kept | Low |
@@ -255,9 +255,9 @@ These improve **legibility of existing power**, not new product pillars:
 
 ## 10. Completeness answer (honest)
 
-**Prior agents finished OPT-R1–R8 aesthetic waves; R10 + R11 + R13 + R18 now shipped.** Primer + ChatGPT-calm layers sit on the same Minimal default. Synapse is **not** a blank slate for Replit — remaining residual value is files/⌘K density (R12) and quieter hubs (R14–R17), with zero removals.
+**Prior agents finished OPT-R1–R8 aesthetic waves; R10–R13 + R18 now shipped.** Primer + ChatGPT-calm layers sit on the same Minimal default. Synapse is **not** a blank slate for Replit — remaining residual value is quieter hubs (R14–R17) and optional collapsed rail (R9), with zero removals.
 
-**Recommended next engineering step:** **OPT-R12** (Library/⌘K path density), then human Pass? on M20/C8 matrices.
+**Recommended next engineering step:** human Pass? on M20/C8 capture matrices, then **OPT-R9** or **OPT-R14–R15**.
 
 ---
 
@@ -269,4 +269,5 @@ These improve **legibility of existing power**, not new product pillars:
 | Engineering (R10+R13) | 2026-07-19 | Prompt-first create + workspace/notebook canvas primacy shipped (Minimal-gated). |
 | Engineering (R11) | 2026-07-19 | Status-as-console dock + inbox Errors/Activity + pipeline strip shipped. |
 | Engineering (R18) | 2026-07-19 | Capture demo-course seed harness + atomic explore-demo onboarding. |
+| Engineering (R12) | 2026-07-19 | Library/files + ⌘K path mono density; list-view course card testids. |
 | | | |
