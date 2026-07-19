@@ -29,7 +29,7 @@
     "@xmldom/xmldom": "^0.9.10",
     "bullmq": "^5.34.5",
     "cors": "^2.8.5",
-    "dotenv": "^16.4.5",
+    "dotenv": "^17.4.2",
     "express": "^4.19.2",
     "ioredis": "^5.4.2",
     "jsonwebtoken": "^9.0.2",
