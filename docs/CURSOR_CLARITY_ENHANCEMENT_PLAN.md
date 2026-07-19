@@ -48,6 +48,7 @@ CSS: `src/styles/cursor-clarity.css` (imported after `replit-clarity.css`).
 | **OPT-K22** | Dark white CTAs + slightly livelier muted status | **shipped** |
 | **OPT-K23** | Light cyan Start session + status nudge | **shipped** |
 | **OPT-K24** | Soft priority chips + cyan-harmonized status | **shipped** |
+| **OPT-K25** | Ultra-soft light accents; ink typography + cyan CTAs | **shipped** |
 
 **Default gate:** Minimal / Minimal Dark only. Blueprint untouched.  
 **Width rule:** Compact `w-14` + `lg:ml-14` and Expanded `w-56` + `lg:ml-56` — main never underlays rail.

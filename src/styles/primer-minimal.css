@@ -58,22 +58,32 @@
   --color-text-tertiary: #656d76;
   --color-text-muted: #818b98;
 
-  --color-accent-teal: #3d8a94;
+  /* Brand cyan kept vivid for CTAs only; all other accents are dusty pastels */
+  --color-accent-teal: #7a9aa0;
   --color-accent-cyan: #0891b2;
-  /* OPT-K24 — cool status hues that sit with cyan (not muddy mustard/maroon) */
-  --color-accent-emerald: #2f8f6a;
-  --color-accent-amber: #8a7d3d;
-  --color-accent-rose: #a85d72;
-  --color-accent-orange: #a06a4a;
-  --color-accent-violet: #6b7a9a;
-  --color-on-danger: #6b3344;
-  --color-on-warn: #5a5228;
-  --color-on-success: #1f5c45;
+  /* OPT-K25 — ultra-soft companion hues; ink (white/black/gray) owns typography */
+  --color-accent-emerald: #8aada0;
+  --color-accent-amber: #b0a888;
+  --color-accent-rose: #c4a8b0;
+  --color-accent-orange: #c4b0a0;
+  --color-accent-violet: #a0a8b8;
+  --color-on-danger: #5c4a50;
+  --color-on-warn: #5a5648;
+  --color-on-success: #4a5c54;
 
-  --mastery-weak: #a85d72;
-  --mastery-developing: #3d7eb8;
-  --mastery-proficient: #8a7d3d;
-  --mastery-strong: #2f8f6a;
+  --mastery-weak: #d0b8be;
+  --mastery-developing: #a8c0d4;
+  --mastery-proficient: #c8c0a8;
+  --mastery-strong: #a8c4b8;
+
+  /* Course / viz palette — same softness so bars never shout over body ink */
+  --palette-purple: #b0b4c4;
+  --palette-cyan: #a8c0cc;
+  --palette-teal: #a8c4bc;
+  --palette-green: #a8c4b8;
+  --palette-amber: #c8c0a8;
+  --palette-rose: #d0b8be;
+  --palette-orange: #d0c0b0;
 
   --viz-track: #eaeef2;
   --viz-node-fill: #ffffff;
@@ -232,23 +242,29 @@
   color: var(--color-surface-primary);
 }
 
-/* OPT-K24 — soft status chips (pastel wash + tinted label; never black-on-mustard) */
+/* OPT-K25 — even softer chips; label near body ink, wash barely tinted */
 :is([data-theme="minimal"]) .ux-chip-solid-warn {
-  background: color-mix(in srgb, var(--color-accent-amber) 14%, var(--color-surface-primary));
-  color: color-mix(in srgb, var(--color-accent-amber) 72%, var(--color-text-primary));
-  border: 1px solid color-mix(in srgb, var(--color-accent-amber) 22%, transparent);
+  background: color-mix(in srgb, var(--color-accent-amber) 8%, var(--color-surface-secondary));
+  color: var(--color-text-secondary);
+  border: 1px solid color-mix(in srgb, var(--color-accent-amber) 14%, var(--color-border-subtle));
 }
 
 :is([data-theme="minimal"]) .ux-chip-solid-danger {
-  background: color-mix(in srgb, var(--color-accent-rose) 12%, var(--color-surface-primary));
-  color: color-mix(in srgb, var(--color-accent-rose) 68%, var(--color-text-primary));
-  border: 1px solid color-mix(in srgb, var(--color-accent-rose) 20%, transparent);
+  background: color-mix(in srgb, var(--color-accent-rose) 8%, var(--color-surface-secondary));
+  color: var(--color-text-secondary);
+  border: 1px solid color-mix(in srgb, var(--color-accent-rose) 14%, var(--color-border-subtle));
 }
 
 :is([data-theme="minimal"]) .ux-chip-solid-success {
-  background: color-mix(in srgb, var(--color-accent-emerald) 12%, var(--color-surface-primary));
-  color: color-mix(in srgb, var(--color-accent-emerald) 68%, var(--color-text-primary));
-  border: 1px solid color-mix(in srgb, var(--color-accent-emerald) 20%, transparent);
+  background: color-mix(in srgb, var(--color-accent-emerald) 8%, var(--color-surface-secondary));
+  color: var(--color-text-secondary);
+  border: 1px solid color-mix(in srgb, var(--color-accent-emerald) 14%, var(--color-border-subtle));
+}
+
+:is([data-theme="minimal"]) .ux-chip-solid-info {
+  background: color-mix(in srgb, var(--color-brand-600) 8%, var(--color-surface-secondary));
+  color: var(--color-text-secondary);
+  border: 1px solid color-mix(in srgb, var(--color-brand-600) 14%, var(--color-border-subtle));
 }
 
 :is([data-theme="minimal-dark"]) .ux-chip-solid-warn {

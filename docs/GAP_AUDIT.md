@@ -374,6 +374,7 @@ Constraints for all OPT-R*: no typography/button/modal scale-up; no functional r
 | OPT-K22 | Dark white CTAs + livelier mute | P2 | **shipped** | Dark primary/exam CTAs → white on dark surface; light keeps cyan; status tokens & bar saturate nudged up slightly |
 | OPT-K23 | Cyan Start session (light) | P2 | **shipped** | Shell `shell-start-session` uses primary CTA cyan on Minimal light (white on dark); status tokens/saturate nudged again |
 | OPT-K24 | Soft priority chips | P2 | **shipped** | Soft pastel warn/danger chips + tinted labels (not black-on-mustard); cooler cyan-harmonized accent tokens; quieter XP amber under Dashboard |
+| OPT-K25 | Ultra-soft light accents | P2 | **shipped** | Light Minimal: dusty pastel accents/mastery/palette; status text→secondary ink; softer chips; cyan only on CTAs; white/black/gray typography |
 
 ### Primer-inspired minimal (OPT-M) — zero feature removal
 

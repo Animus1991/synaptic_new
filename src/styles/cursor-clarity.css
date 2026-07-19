@@ -156,38 +156,64 @@
   color: var(--color-text-primary) !important;
 }
 
-/* OPT-K21 — status text muted toward secondary (never louder than content ink) */
-:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .text-accent-rose,
-:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-status-rose {
-  color: color-mix(in srgb, var(--color-accent-rose) 55%, var(--color-text-secondary)) !important;
+/* OPT-K25 light — status text = body secondary (ink hierarchy); dark keeps soft tint */
+:is([data-theme="minimal"]) .app-shell :is(
+  .text-accent-rose,
+  .text-accent-amber,
+  .text-accent-emerald,
+  .text-accent-orange,
+  .dashboard-status-rose
+) {
+  color: var(--color-text-secondary) !important;
 }
 
-:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .text-accent-amber {
-  color: color-mix(in srgb, var(--color-accent-amber) 55%, var(--color-text-secondary)) !important;
+:is([data-theme="minimal-dark"]) .app-shell .text-accent-rose,
+:is([data-theme="minimal-dark"]) .app-shell .dashboard-status-rose {
+  color: color-mix(in srgb, var(--color-accent-rose) 45%, var(--color-text-secondary)) !important;
 }
 
-:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .text-accent-emerald {
-  color: color-mix(in srgb, var(--color-accent-emerald) 55%, var(--color-text-secondary)) !important;
+:is([data-theme="minimal-dark"]) .app-shell .text-accent-amber {
+  color: color-mix(in srgb, var(--color-accent-amber) 45%, var(--color-text-secondary)) !important;
 }
 
-:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .text-accent-orange {
-  color: color-mix(in srgb, var(--color-accent-orange) 52%, var(--color-text-secondary)) !important;
+:is([data-theme="minimal-dark"]) .app-shell .text-accent-emerald {
+  color: color-mix(in srgb, var(--color-accent-emerald) 45%, var(--color-text-secondary)) !important;
 }
 
-/* Soft status bar fills (not neon solid) */
-:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .bg-accent-rose {
+:is([data-theme="minimal-dark"]) .app-shell .text-accent-orange {
+  color: color-mix(in srgb, var(--color-accent-orange) 42%, var(--color-text-secondary)) !important;
+}
+
+/* Soft status bar fills — light: dusty pastel; dark: prior mute */
+:is([data-theme="minimal"]) .app-shell .bg-accent-rose {
+  background-color: color-mix(in srgb, var(--mastery-weak) 55%, var(--color-border-subtle)) !important;
+}
+
+:is([data-theme="minimal"]) .app-shell .bg-accent-amber {
+  background-color: color-mix(in srgb, var(--mastery-proficient) 55%, var(--color-border-subtle)) !important;
+}
+
+:is([data-theme="minimal"]) .app-shell .bg-accent-emerald {
+  background-color: color-mix(in srgb, var(--mastery-strong) 55%, var(--color-border-subtle)) !important;
+}
+
+:is([data-theme="minimal"]) .app-shell .bg-accent-orange {
+  background-color: color-mix(in srgb, var(--color-accent-orange) 50%, var(--color-border-subtle)) !important;
+}
+
+:is([data-theme="minimal-dark"]) .app-shell .bg-accent-rose {
   background-color: color-mix(in srgb, var(--mastery-weak) 48%, var(--color-text-tertiary)) !important;
 }
 
-:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .bg-accent-amber {
+:is([data-theme="minimal-dark"]) .app-shell .bg-accent-amber {
   background-color: color-mix(in srgb, var(--mastery-proficient) 46%, var(--color-text-tertiary)) !important;
 }
 
-:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .bg-accent-emerald {
+:is([data-theme="minimal-dark"]) .app-shell .bg-accent-emerald {
   background-color: color-mix(in srgb, var(--mastery-strong) 46%, var(--color-text-tertiary)) !important;
 }
 
-:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .bg-accent-orange {
+:is([data-theme="minimal-dark"]) .app-shell .bg-accent-orange {
   background-color: color-mix(in srgb, var(--color-accent-orange) 42%, var(--color-text-tertiary)) !important;
 }
 
@@ -1173,9 +1199,9 @@
   transition: width 0.35s ease;
 }
 
-/* Soft weak fill — muted coral/ink mix, not solid alarm red */
-:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm .dashboard-progress-fill--weak {
-  background: color-mix(in srgb, var(--mastery-weak) 55%, var(--color-text-tertiary));
+/* Soft weak fill — dusty pastel on light */
+:is([data-theme="minimal"]) .app-shell .dashboard-calm .dashboard-progress-fill--weak {
+  background: color-mix(in srgb, var(--mastery-weak) 70%, var(--color-border-subtle));
 }
 
 :is([data-theme="minimal-dark"]) .app-shell .dashboard-calm .dashboard-progress-fill--weak {
@@ -1183,19 +1209,23 @@
   opacity: 0.9;
 }
 
-/* Status rose for labels/icons only */
-:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm .dashboard-status-rose {
-  color: var(--color-accent-rose);
+:is([data-theme="minimal"]) .app-shell .dashboard-calm .dashboard-status-rose {
+  color: var(--color-text-secondary) !important;
 }
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm .concept-mastery-bars .proximity-track > div:last-child {
   height: var(--dashboard-progress-h) !important;
 }
 
-:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm .concept-mastery-bars .proximity-track > div:last-child > div {
-  /* OPT-K23 — slightly livelier bars, still subordinate */
-  filter: saturate(0.68) brightness(0.99);
-  opacity: 0.94;
+:is([data-theme="minimal"]) .app-shell .dashboard-calm .concept-mastery-bars .proximity-track > div:last-child > div {
+  /* OPT-K25 — dusty pastel fills; ink owns labels */
+  filter: saturate(0.28) brightness(1.04);
+  opacity: 0.85;
+}
+
+:is([data-theme="minimal-dark"]) .app-shell .dashboard-calm .concept-mastery-bars .proximity-track > div:last-child > div {
+  filter: saturate(0.55) brightness(0.98);
+  opacity: 0.9;
 }
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm .concept-mastery-bars .proximity-row span[style*="color"] {
@@ -1203,8 +1233,12 @@
   font-weight: 500;
 }
 
-:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm .mastery-ring {
-  filter: saturate(0.55);
+:is([data-theme="minimal"]) .app-shell .dashboard-calm .mastery-ring {
+  filter: saturate(0.25);
+}
+
+:is([data-theme="minimal-dark"]) .app-shell .dashboard-calm .mastery-ring {
+  filter: saturate(0.5);
 }
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm .usage-bar {
@@ -1258,6 +1292,11 @@
 }
 
 :is([data-theme="minimal"]) .app-shell .dashboard-calm .text-accent-amber {
-  color: color-mix(in srgb, var(--color-accent-amber) 45%, var(--color-text-tertiary)) !important;
+  color: var(--color-text-tertiary) !important;
   font-variant-numeric: tabular-nums;
+}
+
+:is([data-theme="minimal"]) .app-shell .ux-banner-warn-accent,
+:is([data-theme="minimal"]) .app-shell .platform-banner-warn {
+  color: var(--color-text-secondary);
 }
