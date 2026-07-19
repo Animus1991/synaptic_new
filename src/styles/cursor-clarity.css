@@ -724,6 +724,34 @@
   border-bottom-color: color-mix(in srgb, var(--color-border-subtle) 70%, transparent);
 }
 
+/* ── OPT-K12 — Studio tool icons: distinct monochrome (no cyan blobs) ───── */
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .notebook-canvas [data-testid="notebook-studio-grid"] .studio-tool-icon {
+  background: transparent !important;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 0.375rem;
+  color: var(--color-text-secondary) !important;
+  box-shadow: none;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .notebook-canvas [data-testid="notebook-studio-grid"] .studio-tool-icon svg {
+  color: inherit;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .notebook-canvas [data-testid^="studio-card-"]:hover .studio-tool-icon {
+  border-color: var(--color-border-default, var(--color-border-subtle));
+  color: var(--color-text-primary) !important;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .notebook-canvas [data-testid^="studio-card-ai-"] {
+  color: var(--color-text-muted, var(--color-text-tertiary));
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .notebook-canvas [data-testid^="studio-card-ai-"]:hover {
+  background: var(--color-surface-secondary) !important;
+  color: var(--color-text-primary) !important;
+}
+
 /* ── OPT-K13 — Rail expand discoverability (compact default kept) ───────── */
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .shell-rail-expand-affordance {

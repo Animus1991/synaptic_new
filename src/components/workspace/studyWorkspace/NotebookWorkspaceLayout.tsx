@@ -420,7 +420,17 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
               title={workspaceToolDescription(id, lang)}
               className="flex w-full flex-col items-start gap-2 rounded-xl border border-border-subtle bg-surface-secondary/50 px-3 py-3 text-left hover:bg-surface-hover hover:border-brand-200 transition-colors min-h-[76px]"
             >
-              <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-brand-100/80 text-brand-800">
+              {/* OPT-K12 — distinct monochrome glyph; no shared cyan brand wash. */}
+              <span
+                className={cn(
+                  'studio-tool-icon flex h-7 w-7 items-center justify-center rounded-md',
+                  notebookCalm
+                    ? 'border border-border-subtle bg-transparent text-text-secondary'
+                    : 'bg-brand-100/80 text-brand-800',
+                )}
+                data-tool-id={id}
+                aria-hidden
+              >
                 <Icon className="h-4 w-4" />
               </span>
               <span className="text-xs font-medium text-text-primary leading-tight">

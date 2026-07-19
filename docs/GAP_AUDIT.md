@@ -362,6 +362,7 @@ Constraints for all OPT-R*: no typography/button/modal scale-up; no functional r
 | OPT-K11b | Extend well + quiet Study hub | P2 | **shipped** | Flatten nested wells/misconceptions in stack; quieter hub chips; course grid measure; study-center continue proximity |
 | OPT-K10 | Shell chrome calm | P2 | **shipped** | One solid primary (`shell-start-session`); Study Space + trust badges in `shell-chrome-overflow`; Google outline (`quiet`); demo strip quieter with overflow (`demo-sandbox-more`); all actions reachable |
 | OPT-K13 | Rail expand discoverability | P2 | **shipped** | Compact default kept; `shell-rail-expand-top` + foot `shell-rail-collapse-toggle` (double-caret); hint titles; `shell-main-offset` `data-rail-state` compact/expanded; persist via `shellRailCollapsed` |
+| OPT-K12 | Studio monochrome icons | P2 | **shipped** | Distinct tool silhouettes in `workspaceToolRegistry`; Studio grid `.studio-tool-icon` hairline wells (no shared `bg-brand-100` cyan blobs); Ask-AI chip quiet under Minimal |
 
 ### Primer-inspired minimal (OPT-M) — zero feature removal
 
