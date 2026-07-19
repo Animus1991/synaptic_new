@@ -12,6 +12,8 @@ export type SharedAnnotation = {
   focusTerm?: string;
   teacherEmail: string;
   createdAt: string;
+  revision: number;
+  updatedAt: string;
 };
 
 const memory = new Map<string, SharedAnnotation[]>();
@@ -48,7 +50,10 @@ export function listSharedAnnotationsWithMeta(
     return { annotations: all, version, serverTime };
   }
   const sinceMs = new Date(since).getTime();
-  const delta = all.filter((a) => new Date(a.createdAt).getTime() > sinceMs);
+  const delta = all.filter((a) => {
+    const ts = new Date(a.updatedAt || a.createdAt).getTime();
+    return ts > sinceMs;
+  });
   return { annotations: delta, version, serverTime };
 }
 
@@ -85,15 +90,18 @@ export function addSharedAnnotation(
   courseId: string,
   fileKey: string,
   teacherEmail: string,
-  payload: Omit<SharedAnnotation, 'id' | 'courseId' | 'fileKey' | 'teacherEmail' | 'createdAt'>,
+  payload: Omit<SharedAnnotation, 'id' | 'courseId' | 'fileKey' | 'teacherEmail' | 'createdAt' | 'revision' | 'updatedAt'>,
 ): SharedAnnotation {
+  const now = new Date().toISOString();
   const ann: SharedAnnotation = {
     ...payload,
     id: `tann-${Date.now()}`,
     courseId,
     fileKey,
     teacherEmail,
-    createdAt: new Date().toISOString(),
+    createdAt: now,
+    updatedAt: now,
+    revision: 1,
   };
   const k = key(courseId, fileKey);
   const list = memory.get(k) ?? [];
@@ -103,6 +111,52 @@ export function addSharedAnnotation(
   return ann;
 }
 
+/**
+ * W2 — update existing shared annotation with optimistic revision check.
+ * Returns null when id missing; throws ConflictError when baseRevision is stale.
+ */
+export class SharedAnnotationConflictError extends Error {
+  current: SharedAnnotation;
+  constructor(current: SharedAnnotation) {
+    super('Annotation revision conflict');
+    this.name = 'SharedAnnotationConflictError';
+    this.current = current;
+  }
+}
+
+export function updateSharedAnnotation(
+  courseId: string,
+  fileKey: string,
+  annotationId: string,
+  patch: Partial<Pick<SharedAnnotation, 'text' | 'color' | 'lineStart' | 'lineEnd' | 'focusTerm' | 'type'>>,
+  baseRevision?: number,
+): SharedAnnotation | null {
+  const k = key(courseId, fileKey);
+  const list = memory.get(k) ?? [];
+  const idx = list.findIndex((a) => a.id === annotationId);
+  if (idx < 0) return null;
+  const current = list[idx]!;
+  if (typeof baseRevision === 'number' && current.revision !== baseRevision) {
+    throw new SharedAnnotationConflictError(current);
+  }
+  const next: SharedAnnotation = {
+    ...current,
+    ...patch,
+    revision: current.revision + 1,
+    updatedAt: new Date().toISOString(),
+  };
+  list[idx] = next;
+  memory.set(k, list);
+  versions.set(k, (versions.get(k) ?? 0) + 1);
+  return next;
+}
+
 export function sharedAnnotationsEnabled(): boolean {
   return Boolean(config.databaseUrl) || true;
+}
+
+/** Test helper */
+export function __resetSharedAnnotationStore(): void {
+  memory.clear();
+  versions.clear();
 }

@@ -29,6 +29,7 @@ import { hasDedicatedToolAgentChips } from '../../../lib/workspaceToolAgentChips
 import { saveLastSimulatorScenario, saveExamPracticePreset } from '../../../lib/workspacePersistence';
 import { examPracticePresetForScenario, type SimulatorScenarioId } from '../../../lib/examPracticePresets';
 import { loadFeynmanDraft } from '../../../lib/feynmanDraftStore';
+import { AnnotationConflictPanel } from '../AnnotationConflictPanel';
 import { WorkspaceMobileIntelligenceBottomSheet } from '../WorkspaceMobileIntelligenceBottomSheet';
 import { AVAILABLE_TOOLS, type WorkspaceTool } from './types';
 
@@ -63,6 +64,9 @@ export function StudyWorkspaceToolSurface({ model }: StudyWorkspaceToolSurfacePr
     setScratchpadImport,
     setCustomLeitnerCards,
     sharedAnnotations,
+    annotationConflicts,
+    handleResolveAnnotationConflict,
+    handleDismissAnnotationConflicts,
     annotationSyncLive,
     annotationSyncMode,
     setQuizIrtRevision,
@@ -566,6 +570,16 @@ export function StudyWorkspaceToolSurface({ model }: StudyWorkspaceToolSurfacePr
                       )}
                       {activeTool === 'annotations' && (
                         <WorkspaceToolSuspense tool="annotations" lang={lang}>
+                        {annotationConflicts.length > 0 ? (
+                          <div className="shrink-0 px-3 pt-3">
+                            <AnnotationConflictPanel
+                              conflicts={annotationConflicts}
+                              language={lang}
+                              onResolved={handleResolveAnnotationConflict}
+                              onDismissAll={handleDismissAnnotationConflicts}
+                            />
+                          </div>
+                        ) : null}
                         <LazyAnnotationOverlay
                           sourceText={annotationStableSource}
                           sourceName={noteBundle.sourceName}

@@ -7,6 +7,8 @@ import {
   addSharedAnnotation,
   listSharedAnnotationsWithMeta,
   summarizeTeacherPublishing,
+  updateSharedAnnotation,
+  SharedAnnotationConflictError,
   type SharedAnnotation,
 } from '../store/sharedAnnotationStore';
 import {
@@ -82,6 +84,58 @@ teacherRouter.post('/teacher/annotations', (req, res) => {
   });
   notifyAnnotationStream(body.courseId, body.fileKey);
   res.status(201).json(saved);
+});
+
+/**
+ * PATCH /v1/teacher/annotations/:id — update with optimistic revision (W2 / TOOL-AN-02).
+ * Send baseRevision; stale → 412 + current row.
+ */
+teacherRouter.patch('/teacher/annotations/:id', (req, res) => {
+  const account = req.account!;
+  const annotationId = String(req.params.id ?? '');
+  const body = req.body as Partial<SharedAnnotation> & { baseRevision?: number };
+  if (!annotationId || !body.courseId || !body.fileKey) {
+    res.status(400).json({ error: 'id, courseId, fileKey required' });
+    return;
+  }
+  const existing = listSharedAnnotationsWithMeta(body.courseId, body.fileKey).annotations
+    .find((a) => a.id === annotationId);
+  if (!existing) {
+    res.status(404).json({ error: 'annotation not found' });
+    return;
+  }
+  if (existing.teacherEmail.trim().toLowerCase() !== account.email.trim().toLowerCase()) {
+    res.status(403).json({ error: 'not annotation owner' });
+    return;
+  }
+  const patch: Partial<Pick<SharedAnnotation, 'text' | 'color' | 'lineStart' | 'lineEnd' | 'focusTerm' | 'type'>> = {};
+  if (body.type !== undefined) patch.type = body.type;
+  if (body.text !== undefined) patch.text = body.text;
+  if (body.color !== undefined) patch.color = body.color;
+  if (body.lineStart !== undefined) patch.lineStart = body.lineStart;
+  if (body.lineEnd !== undefined) patch.lineEnd = body.lineEnd;
+  if (body.focusTerm !== undefined) patch.focusTerm = body.focusTerm;
+  try {
+    const updated = updateSharedAnnotation(
+      body.courseId,
+      body.fileKey,
+      annotationId,
+      patch,
+      body.baseRevision,
+    );
+    if (!updated) {
+      res.status(404).json({ error: 'annotation not found' });
+      return;
+    }
+    notifyAnnotationStream(body.courseId, body.fileKey);
+    res.json(updated);
+  } catch (e) {
+    if (e instanceof SharedAnnotationConflictError) {
+      res.status(412).json({ error: 'revision conflict', current: e.current });
+      return;
+    }
+    throw e;
+  }
 });
 
 /** GET /v1/teacher/dashboard — course + usage aggregates for instructor view. */

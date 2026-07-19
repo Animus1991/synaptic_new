@@ -98,7 +98,8 @@ import {
   regenerateGlossaryAfterReprocess,
   summarizeReprocessTaskDelta,
 } from '../lib/pipelineReprocess';
-import { reprocessCourseAnnotations } from '../lib/annotationStore';
+import { reprocessCourseAnnotations, reprocessCourseReaderAnnotations } from '../lib/annotationStore';
+import { prepareWorkspaceDisplayText } from '../lib/workspaceDisplayText';
 import { clearQuizSessions } from '../lib/quizSession';
 import { markCourseArtifactsStale, clearCourseArtifactsStale } from '../lib/artifactStaleness';
 import { persistCoverThumbnailOnFile } from '../lib/sourceThumbnailPersist';
@@ -1765,11 +1766,24 @@ export function useAppStore() {
         textByFileKey,
         CONTENT_PIPELINE_VERSION,
       );
+      const primaryText = courseFiles.map((f) => f.extractedText!.trim()).join('\n\n');
+      const readerScopeKeys = [
+        ...courseFiles.map((f) => f.name),
+        ...courseFiles.map((f) => f.id),
+        ...result.course.topics.map((t) => `concept:${t.title}`),
+      ];
+      const textByReaderScope: Record<string, string> = {};
+      for (const key of readerScopeKeys) {
+        const raw = textByFileKey[key] ?? primaryText;
+        textByReaderScope[key] = prepareWorkspaceDisplayText(raw, key);
+      }
+      const readerFlagged = reprocessCourseReaderAnnotations(readerScopeKeys, textByReaderScope);
+      const totalFlagged = annotationsFlagged + readerFlagged;
       clearQuizSessions();
       markCourseArtifactsStale(courseId, CONTENT_PIPELINE_VERSION);
       const lang = user.settings.language === 'el' ? 'el' : 'en';
-      const reviewHint = annotationsFlagged > 0
-        ? t('toastAnnotationsReview', lang).replace('{count}', String(annotationsFlagged))
+      const reviewHint = totalFlagged > 0
+        ? t('toastAnnotationsReview', lang).replace('{count}', String(totalFlagged))
         : '';
       const taskHint = taskDelta && taskDelta.addedGenerated > 0
         ? t('toastNewTasks', lang)
