@@ -565,6 +565,101 @@
   color: var(--color-accent-amber);
 }
 
+/* ── OPT-K15 — Analytics viz chrome quiet (keep all widgets) ───────────────
+   One ink chart language; status emerald/amber/rose kept for mastery bands.
+   Zero feature removal — densify / recolor chrome only. */
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .analytics-quiet {
+  --viz-bar-fill: var(--color-text-primary);
+  --viz-bar-fill-muted: color-mix(in srgb, var(--color-text-secondary) 55%, var(--color-surface-primary));
+  --viz-bar-track: color-mix(in srgb, var(--color-border-subtle) 70%, var(--color-surface-primary));
+  --viz-bar-track-strong: var(--color-border-subtle);
+  --color-heatmap-scale-0: color-mix(in srgb, var(--color-border-subtle) 35%, var(--color-surface-primary));
+  --color-heatmap-scale-1: color-mix(in srgb, var(--color-text-tertiary) 28%, var(--color-surface-primary));
+  --color-heatmap-scale-2: color-mix(in srgb, var(--color-text-secondary) 42%, var(--color-surface-primary));
+  --color-heatmap-scale-3: color-mix(in srgb, var(--color-text-secondary) 70%, var(--color-surface-primary));
+  --color-heatmap-scale-4: var(--color-text-primary);
+}
+
+/* Rainbow course fills → ink (status bars elsewhere untouched). */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .analytics-quiet .analytics-course-bar-fill {
+  background-color: var(--viz-bar-fill) !important;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .analytics-quiet [data-testid="analytics-overview-mastery-row"] .platform-panel-md,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .analytics-quiet [data-testid="analytics-fsrs-forecast"].platform-panel-md {
+  border-color: var(--color-border-subtle);
+  box-shadow: none;
+  background: var(--color-surface-primary);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .analytics-quiet [data-testid="analytics-overview-mastery-row"] h3 :is(svg),
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .analytics-quiet .platform-panel-md h3 :is(svg),
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .analytics-quiet .platform-panel-lg :is(svg) {
+  color: var(--color-text-secondary) !important;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .analytics-quiet [data-testid="analytics-fsrs-forecast"] .rounded-xl.border {
+  border-color: var(--color-border-subtle);
+  background: transparent;
+  border-radius: 0.375rem;
+  box-shadow: none;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .analytics-quiet .analytics-visual-lab-footer {
+  border-color: var(--color-border-subtle);
+  background: var(--color-surface-primary);
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border-radius: 0.375rem;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .analytics-quiet .analytics-visual-lab-footer svg {
+  color: var(--color-text-secondary) !important;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .analytics-quiet [data-testid="analytics-visual-lab-disclosure"] .ux-disclosure-summary,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .analytics-quiet [data-testid="analytics-flow-disclosure"] .ux-disclosure-summary {
+  color: var(--color-text-secondary);
+}
+
+/* Empty / sparse chart wells — quieter, not loud card voids */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .analytics-quiet .platform-panel-lg.flex.items-center.justify-center {
+  border-style: dashed;
+  border-color: color-mix(in srgb, var(--color-border-subtle) 80%, transparent);
+  background: transparent;
+  box-shadow: none;
+  min-height: 9rem;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .analytics-quiet .platform-panel-lg.flex.items-center.justify-center svg {
+  color: var(--color-text-tertiary) !important;
+  opacity: 0.85;
+}
+
+/* Visual Lab mode rail — monochrome active, keep every mode */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .analytics-quiet .visual-lab-mode-tab {
+  border: 1px solid transparent;
+  border-radius: 0.375rem;
+  background: transparent;
+  box-shadow: none;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .analytics-quiet .visual-lab-mode-tab-active,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .analytics-quiet .visual-lab-mode-tab[aria-selected="true"] {
+  border-color: var(--color-border-default, var(--color-border-subtle));
+  background: var(--color-surface-secondary);
+  box-shadow: none;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .analytics-quiet .visual-lab-mode-badge,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .analytics-quiet .visual-lab-mapping-symbol {
+  color: var(--color-text-tertiary);
+  background: transparent;
+  border-color: var(--color-border-subtle);
+}
+
 /* ── OPT-K7 — PageHeader text-first + outline/solid CTA pair ────────────── */
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .ux-page-header--text-first {

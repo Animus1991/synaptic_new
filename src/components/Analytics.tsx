@@ -456,24 +456,24 @@ function OverviewTab({
       >
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="platform-panel-md">
           <h3 className="text-sm font-semibold flex items-center gap-2 mb-2.5"><TrendingUp className="w-4 h-4 text-accent-emerald" />{t('analyticsWeeklyTrend')}</h3>
-          <div className="flex items-end gap-1.5 h-28">
+          <div className="flex items-end gap-1.5 h-28" data-testid="analytics-weekly-trend">
             {weekly.map((val, i) => (
-              <div key={i} className="flex-1 flex flex-col items-center gap-1">
-                <span className="text-[9px] text-text-muted font-medium">{val}%</span>
-                {/* Wave P-C01 — theme-aware fills replace hardcoded #818cf8 + var(--viz-track).
-                    Current-day bar = --viz-bar-fill (brand ink); historical bars =
-                    --viz-bar-fill-muted (55% brand mix on card). Both guarantee ≥3:1
-                    contrast vs --color-surface-card across all themes. */}
+              <div key={i} className="analytics-weekly-col flex h-full flex-1 flex-col items-center justify-end gap-1 min-h-0">
+                {/* Wave P-C01 + OPT-K15 — % sits with day label (proximity); fills use viz tokens. */}
                 <div
-                  className="w-full rounded-t transition-all duration-500"
+                  className="analytics-weekly-bar w-full rounded-t transition-all duration-500"
                   style={{
                     height: `${Math.max(6, val * 1.2)}%`,
                     backgroundColor: i === weekly.length - 1
                       ? 'var(--viz-bar-fill)'
                       : 'var(--viz-bar-fill-muted)',
                   }}
+                  title={`${val}%`}
                 />
-                <span className="text-[9px] text-text-muted">{t(WEEKDAY_KEYS[i]!)}</span>
+                <span className="analytics-weekly-meta flex items-baseline gap-0.5 text-[9px] text-text-muted leading-none">
+                  <span>{t(WEEKDAY_KEYS[i]!)}</span>
+                  <span className="tabular-nums font-medium text-text-secondary">{val}%</span>
+                </span>
               </div>
             ))}
           </div>
@@ -527,9 +527,12 @@ function OverviewTab({
                     (theme-tuned ≥3:1 vs card) instead of bg-surface-hover which
                     collapsed to ~1.1:1 on spectrum + warm-light. */}
                 <div className="w-16 rounded-full h-1.5 shrink-0" style={{ backgroundColor: 'var(--viz-bar-track)' }}>
-                  <div className="h-1.5 rounded-full" style={{ width: `${course.mastery}%`, backgroundColor: resolveCourseColor(course.color) }} />
+                  <div
+                    className="analytics-course-bar-fill h-1.5 rounded-full"
+                    style={{ width: `${course.mastery}%`, backgroundColor: resolveCourseColor(course.color) }}
+                  />
                 </div>
-                <span className="text-[10px] font-semibold tabular-nums w-8 text-right">{course.mastery}%</span>
+                <span className="text-[10px] font-semibold tabular-nums w-8 text-right shrink-0">{course.mastery}%</span>
               </div>
             ))}
           </div>
@@ -734,7 +737,7 @@ function OverviewTab({
 
       {/* L-A04: sticky Visual Lab footer (canvas) — keeps disclosure body intact */}
       <div
-        className="sticky bottom-2 z-20 mt-3 rounded-xl border border-border-subtle bg-surface-card/95 shadow-sm backdrop-blur-sm"
+        className="analytics-visual-lab-footer sticky bottom-2 z-20 mt-3 rounded-xl border border-border-subtle bg-surface-card/95 shadow-sm backdrop-blur-sm"
         data-testid="analytics-visual-lab-footer"
       >
         <button

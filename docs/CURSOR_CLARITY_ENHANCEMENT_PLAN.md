@@ -38,7 +38,7 @@ CSS: `src/styles/cursor-clarity.css` (imported after `replit-clarity.css`).
 | **OPT-K12** | Studio/tool grid distinct monochrome icons | **shipped** |
 | **OPT-K13** | Rail expand discoverability (keep compact default) | **shipped** |
 | **OPT-K14** | Library chip overflow (+N); all tags reachable | **shipped** |
-| **OPT-K15** | Analytics viz chrome quiet; keep all widgets | planned |
+| **OPT-K15** | Analytics viz chrome quiet; keep all widgets | **shipped** |
 | **OPT-K16** | Agent mode chrome monochrome under Minimal | planned |
 
 **Default gate:** Minimal / Minimal Dark only. Blueprint untouched.  
@@ -57,4 +57,4 @@ CSS: `src/styles/cursor-clarity.css` (imported after `replit-clarity.css`).
 
 ## Completeness
 
-**OPT-K1–K14 shipped.** Residual **K15–K16** remain (Analytics viz chrome, Agent monochrome). Compact default + expand kept; main offset `ml-14` / `ml-56`. See canvas `cursor-clarity-post-k911-audit.canvas.tsx`.
+**OPT-K1–K15 shipped.** Residual **K16** remains (Agent mode chrome monochrome). Compact default + expand kept; main offset `ml-14` / `ml-56`. See canvas `cursor-clarity-post-k911-audit.canvas.tsx`.

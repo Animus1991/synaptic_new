@@ -364,6 +364,7 @@ Constraints for all OPT-R*: no typography/button/modal scale-up; no functional r
 | OPT-K13 | Rail expand discoverability | P2 | **shipped** | Compact default kept; `shell-rail-expand-top` + foot `shell-rail-collapse-toggle` (double-caret); hint titles; `shell-main-offset` `data-rail-state` compact/expanded; persist via `shellRailCollapsed` |
 | OPT-K12 | Studio monochrome icons | P2 | **shipped** | Distinct tool silhouettes in `workspaceToolRegistry`; Studio grid `.studio-tool-icon` hairline wells (no shared `bg-brand-100` cyan blobs); Ask-AI chip quiet under Minimal |
 | OPT-K14 | Library chip overflow +N | P2 | **shipped** | `OverflowChipRow` on course topic chips + InfoStack items/pills; full tag lists (no silent `slice`); +N expands to every tag; filters unchanged |
+| OPT-K15 | Analytics viz chrome quiet | P2 | **shipped** | `.analytics-quiet` ink viz tokens + ink course fills; heatmap grayscale; weekly % proximity; quiet Visual Lab footer/rail; status mastery colors kept; all tabs/widgets retained |
 
 ### Primer-inspired minimal (OPT-M) — zero feature removal
 
