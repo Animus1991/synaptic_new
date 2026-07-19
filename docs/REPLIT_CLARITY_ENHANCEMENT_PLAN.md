@@ -106,7 +106,7 @@ Scoring: **Gap** = Replit clarity still weak after R+M+C. **Borrow** = principle
 
 | Surface | Current | Residual gap | Wave |
 |---------|---------|--------------|------|
-| Shell rail | Quiet labels (C3); accent bar (R8) | Optional icon-collapsed rail (still full labels via tooltip) | R9 |
+| Shell rail | Icon-collapsed rail + tooltips (**R9**) | — largely done | — |
 | Mobile nav | Quiet under Minimal (C7) | — largely done | — |
 | ⌘K / `?` | Path mono density (**R12**) | — largely done | — |
 | Inbox/bell | Console Errors/Activity (**R11**) | — largely done | — |
@@ -196,7 +196,7 @@ These improve **legibility of existing power**, not new product pillars:
 
 | Wave | Scope | Done when | Risk |
 |------|-------|-----------|------|
-| **OPT-R9** | Optional collapsed shell rail (icons + tooltip; expand restores labels) | All `nav-*` retained; a11y OK | Med |
+| **OPT-R9** | Optional collapsed shell rail (icons + tooltip; expand restores labels) | All `nav-*` retained; a11y OK | **shipped** |
 | **OPT-R10** | Create/upload/onboarding prompt-first chrome (disclose advanced) | Upload + demo paths intact | **shipped** |
 | **OPT-R11** | Status/inbox “console” panel chrome + pipeline strip | No alert loss | **shipped** |
 | **OPT-R12** | Library/files + ⌘K path mono density | Filters/upload kept | **shipped** |
@@ -255,9 +255,9 @@ These improve **legibility of existing power**, not new product pillars:
 
 ## 10. Completeness answer (honest)
 
-**Prior agents finished OPT-R1–R8 aesthetic waves; R10–R13 + R15 + R18 now shipped.** Primer + ChatGPT-calm layers sit on the same Minimal default. Synapse is **not** a blank slate for Replit — remaining residual value is Agent mode grouping (R14), optional collapsed rail (R9), Settings (R16), and motion polish (R17), with zero removals.
+**Prior agents finished OPT-R1–R8 aesthetic waves; R9–R13 + R15 + R18 now shipped.** Primer + ChatGPT-calm layers sit on the same Minimal default. Synapse is **not** a blank slate for Replit — remaining residual value is Agent mode grouping (R14), Settings (R16), and motion polish (R17), with zero removals.
 
-**Recommended next engineering step:** human Pass? on M20/C8 (if not done), then **OPT-R14** or **OPT-R9**.
+**Recommended next engineering step:** human Pass? on M20/C8 (if not done), then **OPT-R14**.
 
 ---
 
@@ -271,4 +271,5 @@ These improve **legibility of existing power**, not new product pillars:
 | Engineering (R18) | 2026-07-19 | Capture demo-course seed harness + atomic explore-demo onboarding. |
 | Engineering (R12) | 2026-07-19 | Library/files + ⌘K path mono density; list-view course card testids. |
 | Engineering (R15) | 2026-07-19 | Dashboard Continue hero + quieter masonry; Tasks List/Board; Analytics KPI chrome. |
+| Engineering (R9) | 2026-07-19 | Optional icon-collapsed shell rail (tooltips/aria; expand restores labels). |
 | | | |

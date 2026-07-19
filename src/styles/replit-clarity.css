@@ -1,9 +1,25 @@
 /**
- * OPT-R10 / OPT-R13 / OPT-R11 / OPT-R12 / OPT-R15 — Replit-inspired create,
+ * OPT-R9 / R10 / R11 / R12 / R13 / R15 — Replit-inspired shell rail, create,
  * canvas, Status-as-console, Library/⌘K path density, quieter hubs.
  * Minimal-gated only. No orange palette. Zero feature removal.
  * Principles only — not a Replit brand clone.
  */
+
+/* ── OPT-R9 — collapsed shell rail ──────────────────────────────────── */
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) #platform-sidebar-nav.shell-rail-collapsed {
+  transition: width 160ms ease;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) #platform-sidebar-nav.shell-rail-collapsed .platform-nav-item {
+  border-radius: 0.5rem;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) #platform-sidebar-nav [data-testid="shell-rail-collapse-toggle"] {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  letter-spacing: 0.02em;
+  box-shadow: none;
+}
 
 /* ── OPT-R10 — prompt-first create / upload ─────────────────────────── */
 

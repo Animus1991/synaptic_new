@@ -1,9 +1,9 @@
-﻿import { ReactNode, useEffect, useRef } from 'react';
+﻿import { ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   BookOpen, CheckSquare, Robot as Bot, SquaresFour as LayoutDashboard, Gear as Settings,
   Sparkle as Sparkles, List as Menu, X, UploadSimple as Upload, Bell, MagnifyingGlass as Search, CaretRight as ChevronRight,
-  ChartBar as BarChart3, Sun, Moon, Users, Fire as Flame, SquaresFour as Layout, Wind, GraduationCap,
+  CaretLeft as ChevronLeft, ChartBar as BarChart3, Sun, Moon, Users, Fire as Flame, SquaresFour as Layout, Wind, GraduationCap,
   TreeStructure as Network, Lightning as Zap, Clock, Stack as Layers, DotsThreeOutline, Minus, Square,
   CalendarBlank, Play,
 } from '@phosphor-icons/react';
@@ -32,6 +32,7 @@ import type { Lang } from '../lib/i18n';
 import { commandPaletteBadge } from '../lib/workspaceKeyboardShortcuts';
 import { quickAccessActions, type GlobalQuickActionId } from '../lib/globalActionRegistry';
 import { useMinimalTheme } from '../lib/useMinimalTheme';
+import { loadShellRailCollapsed, persistShellRailCollapsed } from '../lib/shellRailCollapsed';
 
 interface ShellProps {
   children: ReactNode;
@@ -98,10 +99,11 @@ function buildMobileBarItems(
   return items;
 }
 
-const shellNavClass = (active: boolean, quiet = false) =>
+const shellNavClass = (active: boolean, quiet = false, iconRail = false) =>
   cn(
-    'platform-nav-item relative w-full flex gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all border',
-    quiet ? 'items-center' : 'items-start',
+    'platform-nav-item relative w-full flex rounded-xl text-sm font-medium transition-all border',
+    iconRail ? 'items-center justify-center gap-0 px-2 py-2.5' : 'gap-3 px-3 py-2.5',
+    !iconRail && (quiet ? 'items-center' : 'items-start'),
     active
       ? 'platform-nav-active'
       : 'border-transparent text-text-secondary hover:text-text-primary hover:bg-surface-hover',
@@ -158,6 +160,16 @@ export function Shell({
   const activeLang = language ?? lang;
   /** OPT-C3 — ChatGPT-calm: single-line nav under Minimal; subtitles stay in title tooltips. */
   const quietNav = useMinimalTheme();
+  /** OPT-R9 — optional icon-collapsed desktop rail under Minimal (persisted). */
+  const [railCollapsed, setRailCollapsed] = useState(() => loadShellRailCollapsed(quietNav));
+  const iconRail = quietNav && railCollapsed;
+  const toggleRailCollapsed = useCallback(() => {
+    setRailCollapsed((prev) => {
+      const next = !prev;
+      persistShellRailCollapsed(next);
+      return next;
+    });
+  }, []);
   const shellUx = getShellUxContent(lang);
   const tasksReviewBadgeHint = getTasksContent(lang).reviewsDue(stats.reviewsDue);
   const showMobileWorkspaceNav = Boolean(
@@ -229,30 +241,33 @@ export function Shell({
         id="platform-sidebar-nav"
         tabIndex={-1}
         data-quiet-nav={quietNav ? 'true' : undefined}
+        data-rail-collapsed={iconRail ? 'true' : undefined}
         className={cn(
           'hidden lg:flex flex-col border-r border-border-subtle bg-surface-secondary/50 fixed inset-y-0 left-0 z-30',
-          quietNav ? 'w-56' : 'w-64',
+          iconRail ? 'w-14 shell-rail-collapsed' : quietNav ? 'w-56' : 'w-64',
         )}
       >
-        <div className="p-4 border-b border-border-subtle">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg platform-brand-icon flex items-center justify-center">
+        <div className={cn('border-b border-border-subtle', iconRail ? 'p-2' : 'p-4')}>
+          <div className={cn('flex items-center', iconRail ? 'justify-center' : 'gap-2')}>
+            <div className="w-8 h-8 rounded-lg platform-brand-icon flex items-center justify-center shrink-0" title="Synapse">
               <SynapseBrandGlyph />
             </div>
-            <span className="text-lg font-bold ws-serif">Synapse</span>
+            {!iconRail && <span className="text-lg font-bold ws-serif">Synapse</span>}
           </div>
         </div>
 
-        <nav className="flex-1 p-3 space-y-1">
+        <nav className={cn('flex-1 space-y-1', iconRail ? 'p-1.5' : 'p-3')}>
           {onTakeBreath && (
             <button
               type="button"
               onClick={onTakeBreath}
               data-testid="nav-take-breath"
-              className={cn(shellNavClass(false, quietNav), 'mb-1')}
+              title={t('wellnessTakeBreath')}
+              aria-label={t('wellnessTakeBreath')}
+              className={cn(shellNavClass(false, quietNav, iconRail), 'mb-1')}
             >
               <Wind className="w-5 h-5 shrink-0" />
-              <span className="flex-1 text-left truncate">{t('wellnessTakeBreath')}</span>
+              <span className={cn(iconRail ? 'sr-only' : 'flex-1 text-left truncate')}>{t('wellnessTakeBreath')}</span>
             </button>
           )}
           {navViews.map((item) => {
@@ -260,19 +275,21 @@ export function Shell({
             const insertWorkspaceAfter = item.view === 'agent';
             const label = t(item.labelKey);
             const subtitle = item.subtitleKey ? t(item.subtitleKey) : undefined;
+            const tip = subtitle ? `${label} — ${subtitle}` : label;
             return (
               <div key={item.view}>
                 <button
                   {...navButtonProps(item.view)}
                   onClick={() => onNavigate(item.view)}
-                  title={subtitle ? `${label} — ${subtitle}` : label}
-                  className={shellNavClass(currentView === item.view && !studyWorkspaceOpen, quietNav)}
+                  title={tip}
+                  aria-label={tip}
+                  className={shellNavClass(currentView === item.view && !studyWorkspaceOpen, quietNav, iconRail)}
                 >
                   {currentView === item.view && !studyWorkspaceOpen && <NavActiveIndicator />}
                   <NavIcon className="w-5 h-5 shrink-0 relative z-[1]" />
-                  <span className="flex-1 text-left min-w-0 relative z-[1]">
+                  <span className={cn(iconRail ? 'sr-only' : 'flex-1 text-left min-w-0 relative z-[1]')}>
                     <span className="block truncate">{label}</span>
-                    {subtitle && !quietNav && (
+                    {subtitle && !quietNav && !iconRail && (
                       <span className="platform-nav-subtitle block text-[11px] font-normal text-text-tertiary truncate mt-0.5">
                         {subtitle}
                       </span>
@@ -281,7 +298,12 @@ export function Shell({
                   {item.view === 'tasks' && stats.reviewsDue > 0 && (
                     <span
                       title={tasksReviewBadgeHint}
-                      className="ml-auto text-xs ws-chip-danger px-2 py-0.5 rounded-full font-semibold"
+                      className={cn(
+                        'text-xs ws-chip-danger font-semibold',
+                        iconRail
+                          ? 'absolute -right-0.5 -top-0.5 z-[2] min-w-[1rem] rounded-full px-1 py-0 text-[9px] leading-tight'
+                          : 'ml-auto px-2 py-0.5 rounded-full',
+                      )}
                     >
                       {stats.reviewsDue}
                     </span>
@@ -295,18 +317,19 @@ export function Shell({
                     onClick={() => onOpenWorkspace?.()}
                     {...workspaceEntryPrefetchHandlers()}
                     title={`${t('navStudyWorkspace')} — ${t('navSubtitleWorkspace')}`}
-                    className={cn(shellNavClass(studyWorkspaceOpen, quietNav), 'mt-1')}
+                    aria-label={`${t('navStudyWorkspace')} — ${t('navSubtitleWorkspace')}`}
+                    className={cn(shellNavClass(studyWorkspaceOpen, quietNav, iconRail), 'mt-1')}
                   >
                     <Layout className="w-5 h-5 shrink-0" />
-                    <span className="flex-1 text-left min-w-0">
+                    <span className={cn(iconRail ? 'sr-only' : 'flex-1 text-left min-w-0')}>
                       <span className="block truncate">{t('navStudyWorkspace')}</span>
-                      {!quietNav && (
+                      {!quietNav && !iconRail && (
                         <span className="platform-nav-subtitle block text-[11px] font-normal text-text-tertiary truncate mt-0.5">
                           {t('navSubtitleWorkspace')}
                         </span>
                       )}
                     </span>
-                    {studyWorkspaceOpen ? (
+                    {!iconRail && (studyWorkspaceOpen ? (
                       <span className="ml-auto type-micro ws-chip-brand px-2 py-0.5 rounded-full font-semibold whitespace-nowrap">
                         {t('navContinuingHere')}
                       </span>
@@ -314,7 +337,7 @@ export function Shell({
                       <span className="ml-auto type-micro ws-chip-neutral px-2 py-0.5 rounded-full font-semibold truncate max-w-[5.5rem]">
                         {workspaceLive.snapshot.toolLabel}
                       </span>
-                    ) : null}
+                    ) : null)}
                   </button>
                 )}
               </div>
@@ -322,30 +345,48 @@ export function Shell({
           })}
           {onQuickAccess && quickActions.length > 0 && (
             <>
-              <div className="pt-4 pb-2">
-                <p className="type-micro font-semibold text-text-tertiary uppercase tracking-wider px-2">
-                  {shellUx.quickAccessTitle}
-                </p>
-              </div>
+              {!iconRail && (
+                <div className="pt-4 pb-2">
+                  <p className="type-micro font-semibold text-text-tertiary uppercase tracking-wider px-2">
+                    {shellUx.quickAccessTitle}
+                  </p>
+                </div>
+              )}
               {quickActions.map((action) => {
                 const visual = QUICK_ACCESS_ICONS[action.id];
+                const actionLabel = t(action.labelKey);
                 return (
                 <button
                   key={action.id}
                   type="button"
                   data-testid={`quick-access-${action.id}`}
                   onClick={() => onQuickAccess(action.id)}
-                  className={cn(shellNavClass(false, quietNav), 'py-2')}
+                  title={actionLabel}
+                  aria-label={actionLabel}
+                  className={cn(shellNavClass(false, quietNav, iconRail), 'py-2')}
                 >
                   <span className={cn('ux-quick-icon', visual.washClass)}>
                     <visual.icon className={cn('w-3 h-3', visual.inkClass)} />
                   </span>
-                  <span className="text-xs truncate">{t(action.labelKey)}</span>
+                  <span className={cn(iconRail ? 'sr-only' : 'text-xs truncate')}>{actionLabel}</span>
                 </button>
               );})}
             </>
           )}
           {activeCourse && onContinueCourse && (
+            iconRail ? (
+              <button
+                type="button"
+                onClick={onContinueCourse}
+                data-testid="active-course-card"
+                title={`${activeCourse.title} — ${shellUx.continueCourse}`}
+                aria-label={`${activeCourse.title} — ${shellUx.continueCourse}`}
+                className={cn(shellNavClass(false, quietNav, true), 'mt-2')}
+              >
+                <BookOpen className="w-5 h-5 shrink-0 text-brand-400" />
+                <span className="sr-only">{activeCourse.title}</span>
+              </button>
+            ) : (
             <div className="mt-4 mx-1 p-3 rounded-xl border border-border-subtle bg-surface-hover/60" data-testid="active-course-card">
               <div className="flex items-center gap-2 mb-2">
                 <div className="w-5 h-5 rounded-md bg-brand-600/20 flex items-center justify-center shrink-0">
@@ -378,33 +419,67 @@ export function Shell({
                 </button>
               </div>
             </div>
+            )
           )}
         </nav>
 
-        <div className="p-3">
+        <div className={cn(iconRail ? 'p-1.5' : 'p-3')}>
           <button
+            type="button"
             onClick={onUpload}
-            className="w-full flex items-center gap-2 px-4 py-3 rounded-xl ws-fab font-medium text-sm transition-all"
+            title={t('uploadMaterial')}
+            aria-label={t('uploadMaterial')}
+            className={cn(
+              'w-full flex items-center rounded-xl ws-fab font-medium text-sm transition-all',
+              iconRail ? 'justify-center px-2 py-2.5' : 'gap-2 px-4 py-3',
+            )}
           >
-            <Upload className="w-4 h-4" />
-            {t('uploadMaterial')}
+            <Upload className="w-4 h-4 shrink-0" />
+            <span className={iconRail ? 'sr-only' : undefined}>{t('uploadMaterial')}</span>
           </button>
         </div>
 
-        <div className="p-3 border-t border-border-subtle">
+        {quietNav && (
+          <div className={cn('border-t border-border-subtle', iconRail ? 'p-1.5' : 'px-3 py-2')}>
+            <button
+              type="button"
+              onClick={toggleRailCollapsed}
+              data-testid="shell-rail-collapse-toggle"
+              aria-pressed={iconRail}
+              aria-label={iconRail ? t('shellRailExpandAria') : t('shellRailCollapseAria')}
+              title={iconRail ? t('shellRailExpand') : t('shellRailCollapse')}
+              className={cn(
+                'w-full flex items-center rounded-lg border border-border-subtle text-text-secondary transition-colors hover:bg-surface-hover hover:text-text-primary',
+                iconRail ? 'justify-center p-2' : 'gap-2 px-3 py-2 text-xs font-medium',
+              )}
+            >
+              {iconRail ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+              {!iconRail && <span>{t('shellRailCollapse')}</span>}
+            </button>
+          </div>
+        )}
+
+        <div className={cn('border-t border-border-subtle', iconRail ? 'p-1.5' : 'p-3')}>
           <button
             type="button"
             onClick={() => onNavigate('settings')}
             data-testid="nav-profile-settings"
-            className="w-full flex items-center gap-3 px-2 rounded-lg hover:bg-surface-hover transition-colors text-left"
+            title={`${user.name} · Level ${user.level}`}
+            aria-label={`${user.name} · Level ${user.level}`}
+            className={cn(
+              'w-full flex items-center rounded-lg hover:bg-surface-hover transition-colors',
+              iconRail ? 'justify-center p-1.5' : 'gap-3 px-2 text-left',
+            )}
           >
-            <div className="w-9 h-9 rounded-full platform-brand-icon flex items-center justify-center text-sm font-bold">
+            <div className="w-9 h-9 rounded-full platform-brand-icon flex items-center justify-center text-sm font-bold shrink-0">
               {user.name.charAt(0)}
             </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium truncate">{user.name}</p>
-              <p className="text-xs text-text-tertiary">Level {user.level} · {user.xp} XP</p>
-            </div>
+            {!iconRail && (
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium truncate">{user.name}</p>
+                <p className="text-xs text-text-tertiary">Level {user.level} · {user.xp} XP</p>
+              </div>
+            )}
           </button>
         </div>
       </aside>
@@ -497,7 +572,7 @@ export function Shell({
       )}
 
       {/* Main content area */}
-      <div className={cn('flex-1 min-h-screen flex flex-col', quietNav ? 'lg:ml-56' : 'lg:ml-64')}>
+      <div className={cn('flex-1 min-h-screen flex flex-col', iconRail ? 'lg:ml-14' : quietNav ? 'lg:ml-56' : 'lg:ml-64')}>
         {/* Top bar — Wave J-D05 dense utility chrome */}
         <header className="sticky top-0 z-20 glass-strong border-b border-border-subtle" data-testid="shell-topbar">
           <div className="flex items-center justify-between px-3 sm:px-5 h-12 gap-2">
