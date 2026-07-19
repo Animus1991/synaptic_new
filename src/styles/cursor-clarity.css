@@ -702,3 +702,24 @@
   border-color: var(--color-border-subtle) !important;
   color: var(--color-text-secondary) !important;
 }
+
+/* ── OPT-K10 — Shell chrome calm (one primary; secondary in overflow) ───── */
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .shell-topbar-calm {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  background: var(--color-surface-primary);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell [data-testid="shell-chrome-overflow"] .header-trust-badges .ux-trust-badge {
+  font-size: 0.6875rem;
+  padding: 0.15rem 0.45rem;
+  border-radius: 0.25rem;
+  border: 1px solid var(--color-border-subtle);
+  background: transparent;
+  color: var(--color-text-secondary);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell [data-testid="demo-sandbox-banner"][data-quiet-demo="true"] {
+  border-bottom-color: color-mix(in srgb, var(--color-border-subtle) 70%, transparent);
+}

@@ -360,6 +360,7 @@ Constraints for all OPT-R*: no typography/button/modal scale-up; no functional r
 | OPT-K9b | Proximity layout + densify fix | P2 | **shipped** | `flex-start` UtilityRows (not space-between); track 28/32rem; stats 2-col @720px dense cells; Practice beside title; weak/almost/exam/calibration/calendar/next-steps proximity |
 | OPT-K11 | Single well depth + merge retrieval | P2 | **shipped** | `hub-section-stack` outer well + hairline dividers; Minimal retrieval only in readiness UtilityRow (`dashboard-retrieval-strength-bar`); Blueprint L-D02 bar kept |
 | OPT-K11b | Extend well + quiet Study hub | P2 | **shipped** | Flatten nested wells/misconceptions in stack; quieter hub chips; course grid measure; study-center continue proximity |
+| OPT-K10 | Shell chrome calm | P2 | **shipped** | One solid primary (`shell-start-session`); Study Space + trust badges in `shell-chrome-overflow`; Google outline (`quiet`); demo strip quieter with overflow (`demo-sandbox-more`); all actions reachable |
 
 ### Primer-inspired minimal (OPT-M) — zero feature removal
 

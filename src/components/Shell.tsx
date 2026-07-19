@@ -172,6 +172,9 @@ export function Shell({
   const quietNav = useMinimalTheme();
   /** OPT-R9 — optional icon-collapsed desktop rail under Minimal (persisted). */
   const [railCollapsed, setRailCollapsed] = useState(() => loadShellRailCollapsed(quietNav));
+  /** OPT-K10 — secondary chrome (trust badges + study space) in overflow under Minimal. */
+  const [chromeMoreOpen, setChromeMoreOpen] = useState(false);
+  const chromeMoreRef = useRef<HTMLDivElement>(null);
   const iconRail = quietNav && railCollapsed;
   const toggleRailCollapsed = useCallback(() => {
     setRailCollapsed((prev) => {
@@ -210,6 +213,15 @@ export function Shell({
   const mobileDrawerRef = useRef<HTMLDivElement>(null);
   const mobileMoreRef = useRef<HTMLButtonElement>(null);
   const mobileMenuRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (!chromeMoreOpen) return;
+    const onDoc = (e: MouseEvent) => {
+      if (!chromeMoreRef.current?.contains(e.target as Node)) setChromeMoreOpen(false);
+    };
+    document.addEventListener('mousedown', onDoc);
+    return () => document.removeEventListener('mousedown', onDoc);
+  }, [chromeMoreOpen]);
 
   useEffect(() => {
     if (!sidebarOpen) return;
@@ -607,7 +619,14 @@ export function Shell({
       {/* Main content area */}
       <div className={cn('flex-1 min-h-screen flex flex-col', iconRail ? 'lg:ml-14' : quietNav ? 'lg:ml-56' : 'lg:ml-64')}>
         {/* Top bar — Wave J-D05 dense utility chrome */}
-        <header className="sticky top-0 z-20 glass-strong border-b border-border-subtle" data-testid="shell-topbar">
+        <header
+          className={cn(
+            'sticky top-0 z-20 glass-strong border-b border-border-subtle',
+            quietNav && 'shell-topbar-calm',
+          )}
+          data-testid="shell-topbar"
+          data-chrome-calm={quietNav ? 'true' : undefined}
+        >
           <div className="flex items-center justify-between px-3 sm:px-5 h-12 gap-2">
             <div className="flex items-center gap-2 min-w-0 flex-1">
               <button
@@ -635,11 +654,14 @@ export function Shell({
                   </span>
                 )}
               </div>
-              <HeaderTrustBadgeRow lang={activeLang} className="hidden 2xl:flex shrink-0" />
+              {/* OPT-K10 — trust badges live in chrome overflow under Minimal (still reachable). */}
+              {!quietNav && (
+                <HeaderTrustBadgeRow lang={activeLang} className="hidden 2xl:flex shrink-0" />
+              )}
             </div>
 
             <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
-              {/* Utility icon cluster (mockup: analytics + calendar) */}
+              {/* Utility icon cluster — kept under Minimal (quiet icons, not competing CTAs) */}
               <div className="hidden md:flex items-center gap-0.5" data-testid="shell-utility-icons">
                 <button
                   type="button"
@@ -647,7 +669,11 @@ export function Shell({
                   data-testid="shell-utility-analytics"
                   className={cn(
                     'p-1.5 rounded-lg transition-colors',
-                    currentView === 'analytics' ? 'bg-brand-500/15 text-brand-700' : 'text-text-secondary hover:bg-surface-hover hover:text-text-primary',
+                    currentView === 'analytics'
+                      ? quietNav
+                        ? 'bg-surface-secondary text-text-primary'
+                        : 'bg-brand-500/15 text-brand-700'
+                      : 'text-text-secondary hover:bg-surface-hover hover:text-text-primary',
                   )}
                   aria-label={t('analytics')}
                   title={t('analytics')}
@@ -660,7 +686,11 @@ export function Shell({
                   data-testid="shell-utility-calendar"
                   className={cn(
                     'p-1.5 rounded-lg transition-colors',
-                    currentView === 'tasks' ? 'bg-brand-500/15 text-brand-700' : 'text-text-secondary hover:bg-surface-hover hover:text-text-primary',
+                    currentView === 'tasks'
+                      ? quietNav
+                        ? 'bg-surface-secondary text-text-primary'
+                        : 'bg-brand-500/15 text-brand-700'
+                      : 'text-text-secondary hover:bg-surface-hover hover:text-text-primary',
                   )}
                   aria-label={t('tasks')}
                   title={t('tasks')}
@@ -692,7 +722,7 @@ export function Shell({
                 type="button"
                 onClick={onOpenSearch}
                 data-testid="shell-search-button"
-                className="hidden sm:flex items-center gap-1.5 px-2 py-1 rounded-lg bg-surface-input border border-border-subtle text-xs text-text-tertiary hover:border-brand-500/30 transition-colors"
+                className="hidden sm:flex items-center gap-1.5 px-2 py-1 rounded-lg bg-surface-input border border-border-subtle text-xs text-text-tertiary hover:border-border-default transition-colors"
                 title={t('shellSearchTitle').replace('{shortcut}', commandPaletteBadge())}
                 aria-label={t('shellSearchTitle').replace('{shortcut}', commandPaletteBadge())}
               >
@@ -765,7 +795,84 @@ export function Shell({
                 );
               })()}
 
-              {onOpenWorkspace && (
+              {/* OPT-K10 — sole solid primary CTA under Minimal */}
+              {onStartSession && (
+                <button
+                  type="button"
+                  onClick={onStartSession}
+                  data-testid="shell-start-session"
+                  className={cn(
+                    'hidden sm:inline-flex h-8 items-center gap-1.5 px-2.5 rounded-lg text-[11px] font-semibold leading-none transition-colors whitespace-nowrap',
+                    quietNav
+                      ? 'bg-text-primary text-surface-primary hover:opacity-90'
+                      : 'bg-brand-700 text-white hover:bg-brand-800',
+                  )}
+                >
+                  <Play className="w-3.5 h-3.5 shrink-0" weight="fill" />
+                  {t('startSession')}
+                </button>
+              )}
+
+              {onPatchSettings && (
+                <HeaderAccountAuth
+                  settings={user.settings}
+                  onPatchSettings={onPatchSettings}
+                  quiet={quietNav}
+                />
+              )}
+
+              {/* OPT-K10 — overflow: study space + trust badges (all still reachable) */}
+              {quietNav && (
+                <div className="relative hidden md:block" ref={chromeMoreRef}>
+                  <button
+                    type="button"
+                    data-testid="shell-chrome-more"
+                    aria-expanded={chromeMoreOpen}
+                    aria-haspopup="menu"
+                    aria-label={t('shellChromeMore')}
+                    onClick={() => setChromeMoreOpen((v) => !v)}
+                    className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-border-subtle text-text-secondary hover:bg-surface-hover hover:text-text-primary transition-colors"
+                  >
+                    <DotsThreeOutline className="w-4 h-4" weight="bold" aria-hidden />
+                  </button>
+                  {chromeMoreOpen && (
+                    <div
+                      role="menu"
+                      data-testid="shell-chrome-overflow"
+                      className="ux-elev-popover absolute right-0 top-full z-50 mt-1.5 min-w-[14rem] overflow-hidden rounded-lg border border-border-subtle bg-surface-card py-1 shadow-lg"
+                    >
+                      {onOpenWorkspace && (
+                        <button
+                          type="button"
+                          role="menuitem"
+                          data-testid="shell-study-workspace"
+                          data-tour="dashboard-workspace-cta"
+                          {...workspaceEntryPrefetchHandlers()}
+                          onClick={() => {
+                            setChromeMoreOpen(false);
+                            onOpenWorkspace();
+                          }}
+                          className="flex w-full items-center gap-2 px-3 py-2 text-left text-[12px] text-text-primary hover:bg-surface-hover"
+                        >
+                          <Layout className="w-3.5 h-3.5 text-text-tertiary shrink-0" aria-hidden />
+                          {t('navStudyWorkspace')}
+                        </button>
+                      )}
+                      <div
+                        className="border-t border-border-subtle px-3 py-2"
+                        data-testid="shell-chrome-status"
+                      >
+                        <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-wide text-text-muted">
+                          {t('chromeMoreStatus')}
+                        </p>
+                        <HeaderTrustBadgeRow lang={activeLang} className="flex flex-col items-start gap-1.5" />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {!quietNav && onOpenWorkspace && (
                 <button
                   type="button"
                   onClick={onOpenWorkspace}
@@ -777,24 +884,6 @@ export function Shell({
                   <Layout className="w-3.5 h-3.5 shrink-0" />
                   {t('navStudyWorkspace')}
                 </button>
-              )}
-              {onStartSession && (
-                <button
-                  type="button"
-                  onClick={onStartSession}
-                  data-testid="shell-start-session"
-                  className="hidden sm:inline-flex h-8 items-center gap-1.5 px-2.5 rounded-lg bg-brand-700 text-[11px] font-semibold leading-none text-white hover:bg-brand-800 transition-colors whitespace-nowrap"
-                >
-                  <Play className="w-3.5 h-3.5 shrink-0" weight="fill" />
-                  {t('startSession')}
-                </button>
-              )}
-
-              {onPatchSettings && (
-                <HeaderAccountAuth
-                  settings={user.settings}
-                  onPatchSettings={onPatchSettings}
-                />
               )}
 
               <button
