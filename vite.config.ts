@@ -84,6 +84,8 @@ export default defineConfig({
     chunkErrorsDevPlugin(),
     workspaceEntryManifestPlugin(),
     VitePWA({
+      // W0 INFRA-CL-05: autoUpdate = skipWaiting + clientsClaim via workbox-window.
+      // Rollback = redeploy previous dist; clients pick up on next navigation.
       registerType: "autoUpdate",
       manifest: {
         name: "Synapse",
