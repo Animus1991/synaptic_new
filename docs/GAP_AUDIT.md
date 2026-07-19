@@ -347,6 +347,10 @@ Constraints for all OPT-R*: no typography/button/modal scale-up; no functional c
 | OPT-M7 | Classic chrome overflow parity + Status inbox | P2 | **shipped** | classic menu; ContextBar `statusInbox` |
 | OPT-M8 | Zen discoverability + landing/app orb split | P2 | **shipped** | Zen chip label; landing orbs mild under minimal |
 | OPT-M9 | Unified strip bus (OCR/QA/stale → Status) + screenshot matrix | P2 | **shipped** | `workspaceStatusBus`; `WorkspaceStatusPanel`; matrix doc |
+| OPT-M10 | Visual regression checklist (Minimal vs Blueprint) | P2 | **shipped** | `docs/PRIMER_MINIMAL_SCREENSHOT_MATRIX.md` (manual capture; no feature gate) |
+| OPT-M11 | Modal/overlay border-first under minimal; fab hardcode cleanup | P2 | **shipped** | `index.css` OPT-M11; `StudyWorkspaceOverlays`; `concept-lens-chip` |
+| OPT-M12 | Dashboard/Tasks/Agent progressive disclosure under minimal | P2 | **shipped** | Alerts / flow rail / quick actions collapsible; due-queue collapsed by default |
+| OPT-M13 | Minimal as default for new users | P3 | deferred | Keep `blueprint` until qual/metrics |
 
 ### Replit study — explicit non-borrows
 

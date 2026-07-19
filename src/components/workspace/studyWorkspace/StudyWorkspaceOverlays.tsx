@@ -209,9 +209,9 @@ export function StudyWorkspaceOverlays({ model }: StudyWorkspaceOverlaysProps) {
                     className="w-8 h-8 rounded-full bg-white/15 flex items-center justify-center shrink-0"
                     aria-hidden
                   >
-                    <LayoutGrid className="h-4 w-4 text-[#faf8f5]" />
+                    <LayoutGrid className="h-4 w-4 ws-fab-ink text-white" />
                   </div>
-                  <span className="text-[11px] font-semibold text-[#faf8f5]/80 truncate">
+                  <span className="ws-fab-ink text-[11px] font-semibold text-white/80 truncate">
                     {workspaceToolLabel(activeTool, lang)}
                   </span>
                 </div>
@@ -219,7 +219,7 @@ export function StudyWorkspaceOverlays({ model }: StudyWorkspaceOverlaysProps) {
                   <button
                     type="button"
                     onClick={runNextAction}
-                    className="px-3 py-1.5 rounded-full bg-white/15 text-[#faf8f5] text-[11px] font-semibold hover:bg-white/25 transition-colors shrink-0"
+                    className="ws-fab-ink px-3 py-1.5 rounded-full bg-white/15 text-white text-[11px] font-semibold hover:bg-white/25 transition-colors shrink-0"
                     data-testid="workspace-mobile-next-action"
                     aria-label={nextActionLabel(nextActionRecommendation.primary, lang)}
                   >
@@ -233,7 +233,7 @@ export function StudyWorkspaceOverlays({ model }: StudyWorkspaceOverlaysProps) {
                   aria-haspopup="dialog"
                   aria-expanded={mobileToolDrawerOpen}
                   aria-label={t('wsOverlayToolsCurrent').replace('{tool}', workspaceToolLabel(activeTool, lang))}
-                  className="w-10 h-10 rounded-full bg-[#faf8f5] text-brand-700 flex items-center justify-center shadow-inner shrink-0 hover:bg-white transition-colors min-h-[40px] min-w-[40px]"
+                  className="ws-fab-primary w-10 h-10 rounded-full bg-surface-card text-brand-700 flex items-center justify-center shadow-inner shrink-0 hover:bg-surface-hover transition-colors min-h-[40px] min-w-[40px]"
                 >
                   <LayoutGrid className="h-5 w-5" aria-hidden />
                 </button>

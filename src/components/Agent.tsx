@@ -35,6 +35,7 @@ import { PlatformSection } from './ui/primitives';
 import { PlatformEmptyState } from './ui/PlatformEmptyState';
 import { TrustBadgeRow } from './ui/platformChrome';
 import { BlueprintSurface } from './ui/BlueprintSurface';
+import { CollapsibleChromeSection } from './workspace/CollapsibleChromeSection';
 
 interface AgentProps {
   messages: AgentMessage[];
@@ -678,9 +679,11 @@ export function Agent({
 
       {!embedded && (
         <div className="px-4 sm:px-6 pt-3">
-          <AgentFlowRail
-            activeIndex={messages.length === 0 ? 0 : messages.length < 4 ? 1 : 2}
-          />
+          <CollapsibleChromeSection title={t('chromeAgentFlow')} data-testid="agent-flow-chrome">
+            <AgentFlowRail
+              activeIndex={messages.length === 0 ? 0 : messages.length < 4 ? 1 : 2}
+            />
+          </CollapsibleChromeSection>
         </div>
       )}
 
@@ -836,18 +839,20 @@ export function Agent({
               animate={{ opacity: 1, y: 0 }}
               className="pt-4"
             >
-              <p className="text-xs text-text-tertiary mb-3">{ui.quickActionsHeading}</p>
-              <div className="flex flex-wrap gap-2">
-                {contextualSuggestions.map(action => (
-                  <button
-                    key={action}
-                    onClick={() => handleQuickAction(action)}
-                    className="ux-agent-chip font-medium"
-                  >
-                    {action}
-                  </button>
-                ))}
-              </div>
+              <CollapsibleChromeSection title={t('chromeQuickActions')} data-testid="agent-quick-actions-chrome">
+                <p className="text-xs text-text-tertiary mb-3 px-1">{ui.quickActionsHeading}</p>
+                <div className="flex flex-wrap gap-2 px-1 pb-2">
+                  {contextualSuggestions.map(action => (
+                    <button
+                      key={action}
+                      onClick={() => handleQuickAction(action)}
+                      className="ux-agent-chip font-medium"
+                    >
+                      {action}
+                    </button>
+                  ))}
+                </div>
+              </CollapsibleChromeSection>
             </motion.div>
           )}
         </div>

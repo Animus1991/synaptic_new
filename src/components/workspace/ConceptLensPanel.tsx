@@ -69,7 +69,7 @@ export function ConceptLensPanel({
       data-testid={isStrip ? 'concept-lens-strip' : 'concept-lens-panel'}
     >
       <div className={cn(
-        'flex items-center gap-2 w-full rounded-full border border-white/10 bg-surface-secondary/85 backdrop-blur px-2.5 py-1 shadow-[0_8px_30px_rgba(2,6,23,0.45)]',
+        'concept-lens-chip flex items-center gap-2 w-full rounded-full border border-white/10 bg-surface-secondary/85 backdrop-blur px-2.5 py-1 shadow-[0_8px_30px_rgba(2,6,23,0.45)]',
         isStrip && 'shadow-none max-w-full',
       )}>
         <Aperture className="w-3.5 h-3.5 text-brand-800 shrink-0" />

@@ -48,6 +48,8 @@ import type { WorkspaceToolId } from '../lib/taskFlows';
 import { recommendToolForTopic } from '../lib/examPrep/coveragePracticeActions';
 import { LeitnerDueQueuePanel } from './workspace/LeitnerDueQueuePanel';
 import { DashboardAlertGrid } from './DashboardAlertGrid';
+import { CollapsibleChromeSection } from './workspace/CollapsibleChromeSection';
+import { useMinimalTheme } from '../lib/useMinimalTheme';
 import { buildGlobalFsrsDueQueue, summarizeFsrsHorizon } from '../lib/leitnerDueQueue';
 import {
   loadDashboardLayoutMode,
@@ -131,6 +133,7 @@ interface DashboardProps {
 
 export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onSelectCourse, onOpenWorkspace, onOpenExamTimer, onUpload, onExploreDemo, prerequisiteRepairs = [], calibration, conceptMastery = [], activities = [], masteryDelta = 0, daysToExam = null, antiPassiveAlert = false, onStartTask, onStartSession, onResolveMisconception, onFocusWeakArea, workspaceLive = null, dashboardNextAction = null, smartCTAs = [], onRunSmartCTA, proactiveAgentAlerts = [], onRunProactiveAgentAlert, onOpenWorkspacePractice, lang = 'en', postUploadCourse = null, onDismissPostUpload, onOpenTasksReview, settingsExamDate, personalStudyDates = [], onExamDateChange, onPersonalStudyDatesChange, dashboardWallpaperDataUrl, onDashboardWallpaperChange }: DashboardProps) {
   const { t } = useI18n();
+  const isMinimal = useMinimalTheme();
   const warmSandPage = useWarmSandPageScope();
   const [layoutMode, setLayoutMode] = useState<DashboardLayoutMode>(() => loadDashboardLayoutMode());
   const isCanvasLayout = layoutMode === 'canvas';
@@ -354,14 +357,16 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
 
       {!isEmpty && showAlertGrid && (
         <MotionSection initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.06 }}>
-          <DashboardAlertGrid
-            daysToExam={daysToExam}
-            smartCTAs={smartCTAs}
-            proactiveAlerts={proactiveAgentAlerts}
-            onRunSmartCTA={onRunSmartCTA}
-            onRunProactiveAlert={onRunProactiveAgentAlert}
-            onExamPrep={() => (examTask ? onStartTask?.(examTask.id) : onOpenExamTimer?.() ?? onOpenWorkspace?.())}
-          />
+          <CollapsibleChromeSection title={t('chromeAlerts')} data-testid="dashboard-alerts-chrome">
+            <DashboardAlertGrid
+              daysToExam={daysToExam}
+              smartCTAs={smartCTAs}
+              proactiveAlerts={proactiveAgentAlerts}
+              onRunSmartCTA={onRunSmartCTA}
+              onRunProactiveAlert={onRunProactiveAgentAlert}
+              onExamPrep={() => (examTask ? onStartTask?.(examTask.id) : onOpenExamTimer?.() ?? onOpenWorkspace?.())}
+            />
+          </CollapsibleChromeSection>
         </MotionSection>
       )}
 
@@ -905,7 +910,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                 items={fsrsDueQueue}
                 onSelect={onFocusWeakArea}
                 lang={lang}
-                defaultOpen
+                defaultOpen={!isMinimal}
                 variant="card"
                 className="mt-2"
               />

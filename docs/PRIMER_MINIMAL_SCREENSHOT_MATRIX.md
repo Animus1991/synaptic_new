@@ -50,4 +50,5 @@
 
 | Role | Date | Notes |
 |------|------|-------|
+| Engineering | 2026-07-19 | OPT-M11/M12 code landed; matrix rows remain for human visual capture (local `artifacts/primer-minimal/`). Not a release blocker. |
 | | | |

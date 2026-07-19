@@ -1054,6 +1054,57 @@
   background: var(--color-surface-primary);
 }
 
+/* OPT-M11 — modal / overlay / toast border-first (zero feature removal)
+   Tailwind shadow-* utilities and warm-sand hardcodes stay for other themes. */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) :is(
+  .ux-modal-panel,
+  .app-toast-banner,
+  [data-testid="confirm-dialog"],
+  [data-testid="reprocess-preview-modal"],
+  [class*="shadow-2xl"],
+  [class*="shadow-xl"]
+) {
+  box-shadow: none !important;
+  border-color: var(--color-border-default);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .ux-elev-popover,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) [class*="shadow-lg"] {
+  box-shadow: 0 0 0 1px var(--color-border-default) !important;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-toast-banner {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  background: var(--color-surface-card) !important;
+  border-radius: var(--radius-md);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .concept-lens-chip {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: none !important;
+  border: 1px solid var(--color-border-default) !important;
+  border-radius: var(--radius-md) !important;
+  background: var(--color-surface-card) !important;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .ws-fab {
+  background: var(--color-surface-card) !important;
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border-default);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .ws-fab .ws-fab-ink {
+  color: var(--color-text-primary) !important;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .ws-fab .ws-fab-primary {
+  background: var(--color-brand-600) !important;
+  color: #ffffff !important;
+  border-radius: var(--radius-md) !important;
+}
+
 @media (prefers-reduced-motion: no-preference) {
   :is([data-theme="minimal"], [data-theme="minimal-dark"]) .blueprint-fade-up,
   :is([data-theme="minimal"], [data-theme="minimal-dark"]) .blueprint-motion-section {

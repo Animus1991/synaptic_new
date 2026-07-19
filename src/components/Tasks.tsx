@@ -28,6 +28,7 @@ import { BlueprintSurface } from './ui/BlueprintSurface';
 import { LeitnerDueQueuePanel } from './workspace/LeitnerDueQueuePanel';
 import { buildFsrsDueQueue } from '../lib/leitnerDueQueue';
 import { useWarmSandPageScope, warmSandScopeProps } from '../lib/useDocumentTheme';
+import { useMinimalTheme } from '../lib/useMinimalTheme';
 
 export type { TaskFilter } from '../lib/tasksContent';
 
@@ -102,6 +103,7 @@ export function Tasks({
   activeTaskId = null,
 }: TasksProps) {
   const c = getTasksContent(lang);
+  const isMinimal = useMinimalTheme();
   const sessionTypes = getSessionTypes(lang);
   const [tab, setTab] = useState<CommandTab>('today');
   const [sessionMode, setSessionMode] = useState<SessionType | null>(null);
@@ -638,7 +640,7 @@ export function Tasks({
             items={fsrsQueue}
             onSelect={onFocusWeakArea}
             lang={lang}
-            defaultOpen
+            defaultOpen={!isMinimal}
             variant="card"
           />
           {reviewTasks.length === 0 && fsrsQueue.length === 0 && (

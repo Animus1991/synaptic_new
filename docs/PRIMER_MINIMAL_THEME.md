@@ -1,6 +1,6 @@
 # Primer-inspired Minimal Theme (OPT-M)
 
-**Status:** shipped (OPT-M0–M9 on `synaptic_new/main`; verified after `feat/mockup-implementation` merge)  
+**Status:** shipped through OPT-M12 (OPT-M13 default flip deferred)  
 **Constraint:** zero functionality removal — visual + disclosure only  
 **Default:** unchanged (`blueprint` remains production default)
 
@@ -39,6 +39,10 @@ This is **not** a GitHub clone (no Octocat/Primer brand assets).
 | OPT-M7 | Classic overflow menu + ContextBar status inbox |
 | OPT-M8 | Zen chip discoverability; landing mild vs app-shell strict |
 | OPT-M9 | Unified strip bus (OCR/QA/stale → Status panel) + screenshot matrix |
+| OPT-M10 | Visual QA checklist (matrix) — captures are manual / local |
+| OPT-M11 | Modal/overlay border-first + remove warm `#faf8f5` hardcodes in fab |
+| OPT-M12 | Shell density: Dashboard/Tasks/Agent progressive disclosure under minimal |
+| OPT-M13 | Optional: Minimal as default for new users — **deferred** (needs metrics) |
 
 ## OPT-M9 — Status bus
 
