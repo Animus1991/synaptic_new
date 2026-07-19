@@ -200,6 +200,7 @@ export function SectionHeading({
   size?: 'sm' | 'lg';
   className?: string;
 }) {
+  const isMinimal = useMinimalTheme();
   return (
     <div className={cn('flex items-center justify-between gap-3', className)}>
       <h2
@@ -208,7 +209,16 @@ export function SectionHeading({
           size === 'lg' ? 'ws-serif text-lg font-medium' : 'text-sm',
         )}
       >
-        {Icon && <Icon className={cn('shrink-0 text-brand-600', size === 'lg' ? 'h-5 w-5' : 'h-4 w-4', iconClassName)} />}
+        {Icon && (
+          <Icon
+            className={cn(
+              'ux-card-title-icon shrink-0',
+              isMinimal ? 'text-text-secondary' : 'text-brand-600',
+              size === 'lg' ? 'h-5 w-5' : 'h-4 w-4',
+              iconClassName,
+            )}
+          />
+        )}
         {title}
       </h2>
       {action}
@@ -226,12 +236,16 @@ export function CardLink({
   onClick?: () => void;
   className?: string;
 }) {
+  const isMinimal = useMinimalTheme();
   return (
     <button
       type="button"
       onClick={onClick}
       className={cn(
-        'inline-flex shrink-0 items-center gap-1 text-sm font-semibold text-brand-600 transition-colors hover:text-brand-700',
+        'ux-card-link inline-flex shrink-0 items-center gap-1 text-sm font-semibold transition-colors',
+        isMinimal
+          ? 'text-text-secondary hover:text-text-primary'
+          : 'text-brand-600 hover:text-brand-700',
         className,
       )}
     >
