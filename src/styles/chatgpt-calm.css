@@ -167,3 +167,44 @@
   background: transparent;
   border-bottom-color: color-mix(in srgb, var(--color-border-subtle, #d0d7de) 50%, transparent);
 }
+
+/* OPT-C2 — quieter mode rail / catalog (one accent, not rainbow) */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) [data-testid="agent-mode-sidebar"][data-quiet-modes="true"] {
+  background: color-mix(in srgb, var(--color-surface-secondary, #f6f8fa) 88%, transparent);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) [data-testid="agent-mode-sidebar"][data-quiet-modes="true"] [data-testid^="agent-mode-"] {
+  border-radius: 0.5rem;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) [data-testid="agent-mode-catalog"][data-quiet-modes="true"] .ux-card {
+  box-shadow: none;
+  background: transparent;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .agent-calm [data-testid="agent-regenerate"] {
+  opacity: 0.85;
+}
+
+/* OPT-C5 — Dashboard / Library soft lists */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .dashboard-calm [data-testid="dashboard-page-stats"] > * {
+  box-shadow: none;
+  border-color: color-mix(in srgb, var(--color-border-subtle, #d0d7de) 75%, transparent);
+  background: color-mix(in srgb, var(--color-surface-secondary, #f6f8fa) 55%, transparent);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .dashboard-calm [data-testid="dashboard-hero-panel"] .ux-card,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .dashboard-calm [data-testid="dashboard-masonry"] .ux-card {
+  box-shadow: none;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .library-calm [data-testid="library-course-card"] {
+  box-shadow: none;
+  border-color: color-mix(in srgb, var(--color-border-subtle, #d0d7de) 80%, transparent);
+  background: color-mix(in srgb, var(--color-surface-secondary, #f6f8fa) 40%, transparent);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .library-calm [data-testid="library-course-card"]:hover {
+  background: var(--color-surface-hover, rgba(0, 0, 0, 0.04));
+  border-color: color-mix(in srgb, var(--color-brand-500, #5a7694) 28%, var(--color-border-subtle, #d0d7de));
+}

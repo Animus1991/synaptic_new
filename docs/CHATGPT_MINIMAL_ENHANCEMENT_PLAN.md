@@ -223,8 +223,9 @@ Landing, Onboarding, Dashboard, Library, Course (4 tabs), Note Analysis, Tasks, 
 **Primer Minimal made Synapse GitHub-clear. It is not yet ChatGPT-calm.**  
 The highest-leverage path is **OPT-C0 → C1** (tokens + Agent/embedded conversation UI) under existing Minimal, with zero feature removal, then shell quieting (C3) and notebook parity (C4).
 
-**Shipped:** OPT-C0–C1 (Agent calm), OPT-C3 (quiet shell nav), OPT-C4 (notebook chat parity).  
-**Next:** OPT-C2 mode quieting, OPT-C5 Dashboard/Library soft lists, OPT-C8 screenshot rows.
+**Shipped:** OPT-C0–C1, C2 (mode quieting + regenerate), C3–C5, C8 harness.  
+**Human gate:** mark Pass? in `docs/CHATGPT_CALM_SCREENSHOT_MATRIX.md` after `npm run capture:chatgpt-calm`.  
+**Remaining product wave:** OPT-C6 (enterprise calm headers), OPT-C7 (mobile composer) — not blocking C2/C5/C8.
 
 ---
 
@@ -235,4 +236,5 @@ The highest-leverage path is **OPT-C0 → C1** (tokens + Agent/embedded conversa
 | Engineering (plan) | 2026-07-19 | Audit complete; waves OPT-C0–C8 defined. |
 | Engineering (C0/C1) | 2026-07-19 | Calm CSS + Agent conversation-first under Minimal. Modes/citations/stream retained. |
 | Engineering (C3/C4) | 2026-07-19 | Shell single-line nav + narrower rail; notebook-calm chat/studio. |
+| Engineering (C2/C5/C8) | 2026-07-19 | Quiet modes + regenerate; Dashboard/Library soft lists; `capture:chatgpt-calm` matrix. |
 | | | |

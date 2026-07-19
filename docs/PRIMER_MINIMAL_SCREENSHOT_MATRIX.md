@@ -58,6 +58,10 @@
 | Fresh profile → Minimal default | ☐ |
 | Settings can switch back to Blueprint | ☐ |
 
+## ChatGPT-calm sibling (OPT-C8)
+
+Calm-focused rows live in `docs/CHATGPT_CALM_SCREENSHOT_MATRIX.md` (`npm run capture:chatgpt-calm`). Primer M20 above remains the full-surface matrix.
+
 ## Sign-off
 
 | Role | Date | Notes |

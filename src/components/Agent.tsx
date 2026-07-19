@@ -36,6 +36,7 @@ import { PlatformEmptyState } from './ui/PlatformEmptyState';
 import { TrustBadgeRow } from './ui/platformChrome';
 import { BlueprintSurface } from './ui/BlueprintSurface';
 import { CollapsibleChromeSection } from './workspace/CollapsibleChromeSection';
+import { useMinimalTheme } from '../lib/useMinimalTheme';
 
 interface AgentProps {
   messages: AgentMessage[];
@@ -425,6 +426,18 @@ export function Agent({
 
   const currentMode = agentModes.find(m => m.mode === mode)!;
   const currentVisual = AGENT_MODE_VISUALS[mode];
+  /** OPT-C2 — mute rainbow mode chrome under Minimal. */
+  const quietModes = useMinimalTheme();
+  const lastUserMessage = useMemo(
+    () => [...messages].reverse().find((m) => m.role === 'user'),
+    [messages],
+  );
+  const canRegenerate =
+    !isThinking &&
+    !!lastUserMessage?.content?.trim() &&
+    messages.length > 0 &&
+    messages[messages.length - 1]?.role === 'agent' &&
+    !messages[messages.length - 1]?.isStreaming;
   const activeSourceMode = settings?.sourceMode ?? 'strict';
   const activeSourceLabel = useMemo(() => {
     if (pinnedFileId) {
@@ -465,10 +478,16 @@ export function Agent({
         <BlueprintSurface hint className="flex items-center justify-between max-w-none w-full min-w-0 px-4 py-3">
           <div className="flex items-center gap-3">
             <div
-              className="w-9 h-9 rounded-xl flex items-center justify-center"
-              style={{ backgroundColor: `${currentVisual.color}25` }}
+              className={cn(
+                'w-9 h-9 rounded-xl flex items-center justify-center',
+                quietModes && 'bg-surface-hover text-text-secondary',
+              )}
+              style={quietModes ? undefined : { backgroundColor: `${currentVisual.color}25` }}
             >
-              <currentMode.icon className="w-5 h-5" style={{ color: currentVisual.color }} />
+              <currentMode.icon
+                className="w-5 h-5"
+                style={quietModes ? undefined : { color: currentVisual.color }}
+              />
             </div>
             <div>
               <div className="flex items-center gap-2">
@@ -477,12 +496,12 @@ export function Agent({
                   onClick={() => setShowModes(!showModes)}
                   className="lg:hidden flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium bg-surface-hover border border-border-subtle hover:border-brand-500/30 transition-all"
                 >
-                  <currentMode.icon className={cn('w-3 h-3', currentMode.color)} />
+                  <currentMode.icon className={cn('w-3 h-3', quietModes ? 'text-text-secondary' : currentMode.color)} />
                   {currentMode.label}
                   <ChevronDown className={cn('w-3 h-3 transition-transform', showModes && 'rotate-180')} />
                 </button>
                 <span className="hidden lg:inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium bg-surface-hover border border-border-subtle text-text-secondary">
-                  <currentMode.icon className={cn('w-3 h-3', currentMode.color)} />
+                  <currentMode.icon className={cn('w-3 h-3', quietModes ? 'text-text-secondary' : currentMode.color)} />
                   {currentMode.label}
                 </span>
               </div>
@@ -978,6 +997,17 @@ export function Agent({
               {' · '}
               {ui.shiftEnter}
             </p>
+            {canRegenerate && lastUserMessage && (
+              <button
+                type="button"
+                data-testid="agent-regenerate"
+                onClick={() => void handleSend(lastUserMessage.content)}
+                className="inline-flex items-center gap-1 text-[10px] text-text-tertiary hover:text-text-secondary transition-colors"
+              >
+                <RotateCcw className="w-3 h-3" aria-hidden="true" />
+                {lang === 'el' ? 'Επανάληψη' : 'Regenerate'}
+              </button>
+            )}
           </div>
           )}
         </div>

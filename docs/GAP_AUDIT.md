@@ -362,6 +362,9 @@ Constraints for all OPT-R*: no typography/button/modal scale-up; no functional c
 | OPT-C1 (calm) | Agent centered thread + soft bubbles + composer | P2 | **shipped** | `Agent.tsx` column/composer; modes/citations retained |
 | OPT-C3 (calm) | Quiet shell nav (subtitles → tooltip) | P2 | **shipped** | Minimal: single-line labels, `w-56` rail; all `nav-*` kept |
 | OPT-C4 (calm) | Notebook chat column calm parity | P2 | **shipped** | `notebook-calm` + softer chat/studio chrome; 3-panel IA intact |
+| OPT-C2 (calm) | Mode UI quieting + regenerate | P2 | **shipped** | Minimal: muted mode colors; `agent-regenerate`; modes 100% reachable |
+| OPT-C5 (calm) | Dashboard/Library soft lists | P2 | **shipped** | `dashboard-calm` / `library-calm`; list-first default when no prefs |
+| OPT-C8 (calm) | Calm screenshot matrix + capture | P2 | **harness** | `npm run capture:chatgpt-calm` → `artifacts/chatgpt-calm/`; human Pass? in matrix |
 
 ### Replit study — explicit non-borrows
 

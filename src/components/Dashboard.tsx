@@ -239,7 +239,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
   return (
     <div
       {...warmSandScopeProps(warmSandPage)}
-      className="w-full min-w-0 pb-24 lg:pb-8 ux-fade-up"
+      className={cn('w-full min-w-0 pb-24 lg:pb-8 ux-fade-up', isMinimal && 'dashboard-calm')}
       data-testid="dashboard-page"
       data-dashboard-layout={layoutMode}
     >

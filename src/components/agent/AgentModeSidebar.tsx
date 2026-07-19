@@ -4,6 +4,7 @@ import type { AgentMode, UserSettings } from '../../types';
 import { AGENT_MODE_VISUALS } from '../../lib/agentCatalog';
 import { cn } from '../../utils/cn';
 import type { AgentSourceModeOption } from '../../lib/agentContent';
+import { useMinimalTheme } from '../../lib/useMinimalTheme';
 
 const SOURCE_ICONS: Record<UserSettings['sourceMode'], ElementType> = {
   strict: Lock,
@@ -41,13 +42,17 @@ export function AgentModeSidebar({
   sourceModeHeading,
   className,
 }: AgentModeSidebarProps) {
+  /** OPT-C2 — one accent under Minimal; keep every mode reachable. */
+  const quietModes = useMinimalTheme();
   return (
     <aside
       className={cn(
-        'w-72 flex-shrink-0 flex-col border-r border-border-subtle bg-surface-card/50 overflow-hidden',
+        'flex-shrink-0 flex-col border-r border-border-subtle bg-surface-card/50 overflow-hidden',
+        quietModes ? 'w-56' : 'w-72',
         className,
       )}
       data-testid="agent-mode-sidebar"
+      data-quiet-modes={quietModes ? 'true' : undefined}
     >
       <div className="flex-1 overflow-y-auto">
         <div className="p-4 border-b border-border-subtle">
@@ -73,10 +78,16 @@ export function AgentModeSidebar({
                   data-testid={`agent-mode-${m.mode}`}
                 >
                   <div
-                    className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5"
-                    style={{ backgroundColor: `${visual.color}20` }}
+                    className={cn(
+                      'w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5',
+                      quietModes && 'bg-surface-hover text-text-secondary',
+                    )}
+                    style={quietModes ? undefined : { backgroundColor: `${visual.color}20` }}
                   >
-                    <Icon className="w-3.5 h-3.5" style={{ color: visual.color }} />
+                    <Icon
+                      className="w-3.5 h-3.5"
+                      style={quietModes ? undefined : { color: visual.color }}
+                    />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-1.5">
@@ -89,9 +100,11 @@ export function AgentModeSidebar({
                         </span>
                       )}
                     </div>
-                    <p className="text-[10px] text-text-tertiary leading-tight mt-0.5 hidden xl:block">
-                      {m.desc}
-                    </p>
+                    {!quietModes && (
+                      <p className="text-[10px] text-text-tertiary leading-tight mt-0.5 hidden xl:block">
+                        {m.desc}
+                      </p>
+                    )}
                   </div>
                   {active && <div className="w-1.5 h-1.5 rounded-full bg-brand-400 mt-1 flex-shrink-0" />}
                 </button>
@@ -147,8 +160,9 @@ export function AgentModeCatalogGrid({
   onSelectMode: (mode: AgentMode) => void;
   onClose?: () => void;
 }) {
+  const quietModes = useMinimalTheme();
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2" data-testid="agent-mode-catalog">
+    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2" data-testid="agent-mode-catalog" data-quiet-modes={quietModes ? 'true' : undefined}>
       {modes.map((m) => {
         const Icon = m.icon;
         const visual = AGENT_MODE_VISUALS[m.mode];
@@ -161,19 +175,28 @@ export function AgentModeCatalogGrid({
               onSelectMode(m.mode);
               onClose?.();
             }}
+            title={m.desc}
             className={cn(
               'ux-card p-2.5 text-left transition-all',
               active ? 'border-brand-500/35 ring-1 ring-brand-500/20' : 'hover:border-brand-500/20',
             )}
           >
             <div
-              className="w-7 h-7 rounded-lg flex items-center justify-center mb-1.5"
-              style={{ backgroundColor: `${visual.color}20` }}
+              className={cn(
+                'w-7 h-7 rounded-lg flex items-center justify-center mb-1.5',
+                quietModes && 'bg-surface-hover text-text-secondary',
+              )}
+              style={quietModes ? undefined : { backgroundColor: `${visual.color}20` }}
             >
-              <Icon className="w-3.5 h-3.5" style={{ color: visual.color }} />
+              <Icon
+                className="w-3.5 h-3.5"
+                style={quietModes ? undefined : { color: visual.color }}
+              />
             </div>
             <p className="text-xs font-medium text-text-primary">{m.label}</p>
-            <p className="text-[10px] text-text-tertiary line-clamp-2">{m.desc}</p>
+            {!quietModes && (
+              <p className="text-[10px] text-text-tertiary line-clamp-2">{m.desc}</p>
+            )}
           </button>
         );
       })}

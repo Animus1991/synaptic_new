@@ -41,6 +41,7 @@ import { isDebugUiTopicLabel } from '../lib/knowledgeFlowAnalytics';
 import { QualityScoreBadge } from './ui/QualityScoreBadge';
 import { CourseStatusBadge, type CourseStatusKind } from './ui/CourseStatusBadge';
 import { CompactProgressBar } from './ui/CompactProgressBar';
+import { useMinimalTheme } from '../lib/useMinimalTheme';
 
 type LibraryTab = 'courses' | 'files';
 type ViewMode = 'grid' | 'list';
@@ -48,18 +49,25 @@ type LibraryFilter = 'all' | 'in-progress' | 'generating' | 'completed' | 'atten
 
 const LIBRARY_PREFS_KEY = 'synapse:library-view-prefs';
 
+function defaultLibraryViewMode(): ViewMode {
+  if (typeof document === 'undefined') return 'grid';
+  const theme = document.documentElement.getAttribute('data-theme');
+  return theme === 'minimal' || theme === 'minimal-dark' ? 'list' : 'grid';
+}
+
 function loadLibraryPrefs(): { filter: LibraryFilter; viewMode: ViewMode; sortBy: 'recent' | 'progress' | 'quality' | 'title' } {
+  const fallbackView = defaultLibraryViewMode();
   try {
     const raw = localStorage.getItem(LIBRARY_PREFS_KEY);
-    if (!raw) return { filter: 'all', viewMode: 'grid', sortBy: 'recent' };
+    if (!raw) return { filter: 'all', viewMode: fallbackView, sortBy: 'recent' };
     const parsed = JSON.parse(raw) as Partial<{ filter: LibraryFilter; viewMode: ViewMode; sortBy: 'recent' | 'progress' | 'quality' | 'title' }>;
     return {
       filter: parsed.filter ?? 'all',
-      viewMode: parsed.viewMode ?? 'grid',
+      viewMode: parsed.viewMode ?? fallbackView,
       sortBy: parsed.sortBy ?? 'recent',
     };
   } catch {
-    return { filter: 'all', viewMode: 'grid', sortBy: 'recent' };
+    return { filter: 'all', viewMode: fallbackView, sortBy: 'recent' };
   }
 }
 
@@ -125,6 +133,8 @@ export function Library({
 }: LibraryProps) {
   const userLanguage = userSettings?.language === 'el' ? 'el' : 'en';
   const warmSandPage = useWarmSandPageScope();
+  /** OPT-C5 — soft chrome under Minimal; list-first when no saved prefs. */
+  const isMinimal = useMinimalTheme();
   const postUploadCourse = postUploadCourseId
     ? courses.find((c) => c.id === postUploadCourseId) ?? null
     : null;
@@ -269,7 +279,11 @@ export function Library({
   );
 
   return (
-    <div {...warmSandScopeProps(warmSandPage)} data-testid="library-page">
+    <div
+      {...warmSandScopeProps(warmSandPage)}
+      className={cn(isMinimal && 'library-calm')}
+      data-testid="library-page"
+    >
     <Page gap="sm">
       <PageHeader
         eyebrow={t('library', userLanguage)}

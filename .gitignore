@@ -18,6 +18,9 @@ test-results/
 artifacts/primer-minimal/*.png
 !artifacts/primer-minimal/README.md
 !artifacts/primer-minimal/MANIFEST.md
+artifacts/chatgpt-calm/*.png
+!artifacts/chatgpt-calm/README.md
+!artifacts/chatgpt-calm/MANIFEST.md
 public/pyodide/
 .github/perf/b11-prod-stretch-history.json
 *.log

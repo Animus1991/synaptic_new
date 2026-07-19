@@ -16,6 +16,7 @@
     "test:e2e:visual": "playwright test e2e/visual-regression.spec.ts",
     "test:e2e:visual:update": "playwright test e2e/visual-regression.spec.ts --update-snapshots",
     "capture:primer-minimal": "playwright test e2e/primer-minimal-m20-capture.spec.ts --workers=1",
+    "capture:chatgpt-calm": "playwright test e2e/chatgpt-calm-c8-capture.spec.ts --workers=1",
     "test:e2e:perf": "playwright test e2e/workspace-perf-budget.spec.ts",
     "test:e2e:perf:prod": "playwright test e2e/workspace-perf-budget.spec.ts --config playwright.prod.config.ts",
     "b11:stretch-tracker": "vite-node scripts/b11ProdStretchTracker.ts",
