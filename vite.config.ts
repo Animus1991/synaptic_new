@@ -131,6 +131,7 @@ export default defineConfig({
     }),
   ],
   server: {
+    allowedHosts: true,
     proxy: {
       '/v1': { target: 'http://localhost:8787', changeOrigin: true },
       '/auth': { target: 'http://localhost:8787', changeOrigin: true },
@@ -148,6 +149,9 @@ export default defineConfig({
         "./src/components/workspace/DebatePanel.tsx",
       ],
     },
+  },
+  preview: {
+    allowedHosts: true,
   },
   optimizeDeps: {
     exclude: ['pyodide'],
