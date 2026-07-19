@@ -67,4 +67,5 @@ Calm-focused rows live in `docs/CHATGPT_CALM_SCREENSHOT_MATRIX.md` (`npm run cap
 | Role | Date | Notes |
 |------|------|-------|
 | Engineering | 2026-07-19 | M0–M19 code landed. Capture helper: `npm run capture:primer-minimal` → `artifacts/primer-minimal/`. **M20 launch gate = human Pass? checkboxes.** |
+| Engineering (re-capture) | 2026-07-19 | Post R18+R12 dump: course/workspace/tools #5,#14–#22 PNGs **yes**; skips only #9–#10 role-gated + #25 mobile after exam-prep. Human Pass? still open. |
 | | | |

@@ -33,5 +33,6 @@
 | Role | Date | Notes |
 |------|------|-------|
 | Engineering | 2026-07-19 | Capture helper: `npm run capture:chatgpt-calm` → `artifacts/chatgpt-calm/`. **C8 launch gate = human Pass? checkboxes.** Capture dump 2026-07-19 (C1–C3,C5,C7–C8 PNGs ok; C4 notebook soft-skip). |
+| Engineering (re-capture) | 2026-07-19 | Post R18+R12 dump: **C1–C8 all PNGs yes** (incl. `c4-notebook-calm.png`). Human Pass? still open. |
 | Engineering (C6/C7) | 2026-07-19 | Enterprise headers + mobile composer/nav. Re-run capture after pull for C9–C11. |
 | | | |
