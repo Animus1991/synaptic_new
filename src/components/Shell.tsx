@@ -109,13 +109,18 @@ const shellNavClass = (active: boolean, quiet = false, iconRail = false) =>
       : 'border-transparent text-text-secondary hover:text-text-primary hover:bg-surface-hover',
   );
 
-function NavActiveIndicator() {
+function NavActiveIndicator({ quiet = false }: { quiet?: boolean }) {
   return (
     <motion.div
       layoutId="synapseActiveNavIndicator"
       className="absolute inset-0 rounded-xl platform-nav-active pointer-events-none"
       initial={false}
-      transition={{ type: 'spring', stiffness: 400, damping: 32 }}
+      // OPT-R17 — Minimal: short tween instead of spring float feel.
+      transition={
+        quiet
+          ? { type: 'tween', duration: 0.16, ease: [0, 0, 0.2, 1] }
+          : { type: 'spring', stiffness: 400, damping: 32 }
+      }
       style={{ zIndex: 0 }}
     />
   );
@@ -285,7 +290,9 @@ export function Shell({
                   aria-label={tip}
                   className={shellNavClass(currentView === item.view && !studyWorkspaceOpen, quietNav, iconRail)}
                 >
-                  {currentView === item.view && !studyWorkspaceOpen && <NavActiveIndicator />}
+                  {currentView === item.view && !studyWorkspaceOpen && (
+                    <NavActiveIndicator quiet={quietNav} />
+                  )}
                   <NavIcon className="w-5 h-5 shrink-0 relative z-[1]" />
                   <span className={cn(iconRail ? 'sr-only' : 'flex-1 text-left min-w-0 relative z-[1]')}>
                     <span className="block truncate">{label}</span>

@@ -342,7 +342,7 @@ Constraints for all OPT-R*: no typography/button/modal scale-up; no functional r
 | OPT-R9 | Wave R9 — optional collapsed shell rail | P2 | **shipped** | Icon rail + tooltips/aria; expand restores labels; all `nav-*` kept; mobile unchanged |
 | OPT-R14 | Wave R14 — Agent mode grouping | P2 | **shipped** | Dialogue/Exam/Subject/Support groups; all `agent-mode-*` retained; flow rail default collapsed |
 | OPT-R16 | Wave R16 — Settings IDE-like section layout | P2 | **shipped** | Left section rail + single-column content under Minimal; all sections kept; Blueprint masonry unchanged |
-| OPT-R17 | Residual motion/skeleton/focus polish | P2 | **planned** | See `REPLIT_CLARITY_ENHANCEMENT_PLAN.md` §6; next R17 |
+| OPT-R17 | Wave R17 — Motion/skeleton/focus Minimal polish | P2 | **shipped** | Opacity-only entrances; flatter skeletons; quieter AA focus rings; no card float |
 
 ### Primer-inspired minimal (OPT-M) — zero feature removal
 

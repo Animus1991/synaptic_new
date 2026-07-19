@@ -36,7 +36,7 @@ import { PlatformEmptyState } from './ui/PlatformEmptyState';
 import { TrustBadgeRow } from './ui/platformChrome';
 import { BlueprintSurface } from './ui/BlueprintSurface';
 import { CollapsibleChromeSection } from './workspace/CollapsibleChromeSection';
-import { useMinimalTheme } from '../lib/useMinimalTheme';
+import { entranceMotion, useMinimalTheme } from '../lib/useMinimalTheme';
 
 interface AgentProps {
   messages: AgentMessage[];
@@ -855,8 +855,7 @@ export function Agent({
           {/* Quick Actions — collapsed in embedded chat to save vertical space */}
           {showQuickActions && messages.length <= 4 && !embedded && (
             <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
+              {...entranceMotion(quietModes)}
               className="pt-4"
             >
               <CollapsibleChromeSection title={t('chromeQuickActions')} data-testid="agent-quick-actions-chrome">
@@ -1076,6 +1075,7 @@ function MessageBubble({
   lang?: 'en' | 'el';
   ui: AgentUiCopy;
 }) {
+  const isMinimal = useMinimalTheme();
   const isUser = message.role === 'user';
   const isSystem = message.role === 'system';
 
@@ -1091,8 +1091,7 @@ function MessageBubble({
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 5 }}
-      animate={{ opacity: 1, y: 0 }}
+      {...entranceMotion(isMinimal, { y: 5 })}
       className={cn('agent-message-row flex gap-3', isUser && 'flex-row-reverse')}
       data-testid={isUser ? 'agent-message-user' : 'agent-message-assistant'}
     >

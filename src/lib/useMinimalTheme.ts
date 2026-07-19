@@ -26,9 +26,30 @@ export function isMinimalThemeAttr(theme: string | null | undefined): boolean {
   return theme === 'minimal' || theme === 'minimal-dark';
 }
 
-/** Quiet entrance — opacity only (OPT-M3). */
+/** Quiet entrance — opacity only (OPT-M3 / OPT-R17). */
 export const MINIMAL_MOTION = {
   initial: { opacity: 0 },
   animate: { opacity: 1 },
   transition: { duration: 0.18, ease: [0, 0, 0.2, 1] as const },
 };
+
+/** OPT-R17 — shared entrance: opacity-only under Minimal; fadeUp otherwise. */
+export function entranceMotion(
+  isMinimal: boolean,
+  opts?: { delay?: number; y?: number; duration?: number },
+) {
+  const delay = opts?.delay ?? 0;
+  if (isMinimal) {
+    return {
+      initial: MINIMAL_MOTION.initial,
+      animate: MINIMAL_MOTION.animate,
+      transition: { ...MINIMAL_MOTION.transition, delay },
+    } as const;
+  }
+  const y = opts?.y ?? 10;
+  return {
+    initial: { opacity: 0, y },
+    animate: { opacity: 1, y: 0 },
+    transition: { delay, duration: opts?.duration ?? 0.2, ease: [0.4, 0, 0.2, 1] as const },
+  } as const;
+}

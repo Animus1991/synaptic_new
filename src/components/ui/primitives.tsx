@@ -8,6 +8,7 @@ import {
   blueprintStaggerDelay,
   useBlueprintTheme,
 } from '../../lib/useBlueprintTheme';
+import { MINIMAL_MOTION, useMinimalTheme } from '../../lib/useMinimalTheme';
 
 /**
  * Shared page-level layout primitives for Synapse top-level views.
@@ -51,6 +52,7 @@ export function PageHeader({
   animate?: boolean;
 }) {
   const isBlueprint = useBlueprintTheme();
+  const isMinimal = useMinimalTheme();
   const content = (
     <div className={cn(
       'ux-page-header sticky top-0 z-20 -mx-3 mb-1 border-b border-border-subtle/50 bg-surface-primary/90 px-3 py-2 backdrop-blur-md sm:-mx-5 sm:px-5 lg:-mx-6 lg:px-6',
@@ -74,9 +76,12 @@ export function PageHeader({
   );
 
   if (!animate) return content;
-  const motionProps = isBlueprint
-    ? { ...BLUEPRINT_MOTION, transition: { ...BLUEPRINT_MOTION.transition, delay: 0 } }
-    : { initial: { opacity: 0, y: 10 }, animate: { opacity: 1, y: 0 } };
+  // OPT-R17 — Minimal: opacity-only (no float). Blueprint keeps fadeUp.
+  const motionProps = isMinimal
+    ? { ...MINIMAL_MOTION }
+    : isBlueprint
+      ? { ...BLUEPRINT_MOTION, transition: { ...BLUEPRINT_MOTION.transition, delay: 0 } }
+      : { initial: { opacity: 0, y: 10 }, animate: { opacity: 1, y: 0 } };
   return (
     <motion.div {...motionProps}>
       {content}
@@ -322,17 +327,29 @@ export function AnimatedCard({
   ...motionProps
 }: AnimatedCardProps) {
   const isBlueprint = useBlueprintTheme();
+  const isMinimal = useMinimalTheme();
   const card = (
     <Card tone={tone} padding={padding} className={className}>
       {children}
     </Card>
   );
   if (!animate) return card;
-  const motionInitial = isBlueprint ? BLUEPRINT_MOTION.initial : { opacity: 0, y: 10 };
-  const motionAnimate = isBlueprint ? BLUEPRINT_MOTION.animate : { opacity: 1, y: 0 };
-  const motionTransition = isBlueprint
-    ? { ...BLUEPRINT_MOTION.transition, delay: blueprintStaggerDelay(undefined, delay) }
-    : { delay, duration: 0.2, ease: [0.4, 0, 0.2, 1] as const };
+  // OPT-R17 — Minimal: opacity-only entrance (no y float).
+  const motionInitial = isMinimal
+    ? MINIMAL_MOTION.initial
+    : isBlueprint
+      ? BLUEPRINT_MOTION.initial
+      : { opacity: 0, y: 10 };
+  const motionAnimate = isMinimal
+    ? MINIMAL_MOTION.animate
+    : isBlueprint
+      ? BLUEPRINT_MOTION.animate
+      : { opacity: 1, y: 0 };
+  const motionTransition = isMinimal
+    ? { ...MINIMAL_MOTION.transition, delay }
+    : isBlueprint
+      ? { ...BLUEPRINT_MOTION.transition, delay: blueprintStaggerDelay(undefined, delay) }
+      : { delay, duration: 0.2, ease: [0.4, 0, 0.2, 1] as const };
   return (
     <motion.div
       initial={motionInitial}

@@ -204,7 +204,7 @@ These improve **legibility of existing power**, not new product pillars:
 | **OPT-R14** | Agent tools/modes menu grouping (all modes still listed) | Modes 100% | **shipped** |
 | **OPT-R15** | Dashboard/Tasks/Analytics secondary quieter | Hub features kept | **shipped** |
 | **OPT-R16** | Settings IDE-like section layout polish | All sections kept | **shipped** |
-| **OPT-R17** | Motion/skeleton/focus Minimal polish | AA retained | Low |
+| **OPT-R17** | Motion/skeleton/focus Minimal polish | AA retained | **shipped** |
 | **OPT-R18** | Capture harness: seed demo course for M20/C8 workspace rows | Human Pass? fill-in reduced | **shipped** |
 
 **Default gate:** Minimal / Minimal Dark only (match C* pattern). Blueprint untouched unless polish is theme-agnostic and harmless.
@@ -255,9 +255,9 @@ These improve **legibility of existing power**, not new product pillars:
 
 ## 10. Completeness answer (honest)
 
-**Prior agents finished OPT-R1–R8 aesthetic waves; R9–R16 + R18 now shipped.** Primer + ChatGPT-calm layers sit on the same Minimal default. Synapse is **not** a blank slate for Replit — remaining residual value is motion polish (R17), with zero removals.
+**Prior agents finished OPT-R1–R8 aesthetic waves; R9–R18 residual program now shipped.** Primer + ChatGPT-calm layers sit on the same Minimal default. Synapse is **not** a blank slate for Replit — Replit clarity residual waves are complete (zero removals).
 
-**Recommended next engineering step:** human Pass? on M20/C8 (if not done), then **OPT-R17**.
+**Recommended next engineering step:** human Pass? on M20/C8 (if not done).
 
 ---
 
