@@ -365,6 +365,7 @@ Constraints for all OPT-R*: no typography/button/modal scale-up; no functional r
 | OPT-K12 | Studio monochrome icons | P2 | **shipped** | Distinct tool silhouettes in `workspaceToolRegistry`; Studio grid `.studio-tool-icon` hairline wells (no shared `bg-brand-100` cyan blobs); Ask-AI chip quiet under Minimal |
 | OPT-K14 | Library chip overflow +N | P2 | **shipped** | `OverflowChipRow` on course topic chips + InfoStack items/pills; full tag lists (no silent `slice`); +N expands to every tag; filters unchanged |
 | OPT-K15 | Analytics viz chrome quiet | P2 | **shipped** | `.analytics-quiet` ink viz tokens + ink course fills; heatmap grayscale; weekly % proximity; quiet Visual Lab footer/rail; status mastery colors kept; all tabs/widgets retained |
+| OPT-K16 | Agent mode chrome monochrome | P2 | **shipped** | Mode rail/catalog/header ink wells + ink active; quiet provenance badges/task banner/composer accents under Minimal; all `agent-mode-*` retained; Blueprint rainbow untouched |
 
 ### Primer-inspired minimal (OPT-M) — zero feature removal
 

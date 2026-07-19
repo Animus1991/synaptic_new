@@ -453,9 +453,11 @@ export function Agent({
     <div
       className={cn(
         'agent-calm flex min-h-0',
+        quietModes && 'agent-quiet-chrome',
         embedded ? 'flex-col h-full' : 'h-[calc(100vh-56px)] lg:h-[calc(100vh-56px)]',
       )}
       data-testid={embedded ? 'agent-embedded' : 'agent-page'}
+      data-quiet-modes={quietModes ? 'true' : undefined}
     >
       {!embedded && (
         <AgentModeSidebar
@@ -479,13 +481,13 @@ export function Agent({
           <div className="flex items-center gap-3">
             <div
               className={cn(
-                'w-9 h-9 rounded-xl flex items-center justify-center',
-                quietModes && 'bg-surface-hover text-text-secondary',
+                'agent-header-mode-icon w-9 h-9 rounded-xl flex items-center justify-center',
+                quietModes && 'border border-border-subtle bg-transparent text-text-secondary',
               )}
               style={quietModes ? undefined : { backgroundColor: `${currentVisual.color}25` }}
             >
               <currentMode.icon
-                className="w-5 h-5"
+                className={cn('w-5 h-5', quietModes && 'text-text-secondary')}
                 style={quietModes ? undefined : { color: currentVisual.color }}
               />
             </div>
@@ -494,7 +496,10 @@ export function Agent({
                 <span className="ws-serif text-sm font-medium text-text-primary">{ui.title}</span>
                 <button
                   onClick={() => setShowModes(!showModes)}
-                  className="lg:hidden flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium bg-surface-hover border border-border-subtle hover:border-brand-500/30 transition-all"
+                  className={cn(
+                    'lg:hidden flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium bg-surface-hover border border-border-subtle transition-all',
+                    quietModes ? 'hover:border-border-default' : 'hover:border-brand-500/30',
+                  )}
                 >
                   <currentMode.icon className={cn('w-3 h-3', quietModes ? 'text-text-secondary' : currentMode.color)} />
                   {currentMode.label}
@@ -521,7 +526,10 @@ export function Agent({
                 setSelectedSource(e.target.value);
                 setPinnedFileId(null);
               }}
-              className="text-xs bg-surface-input border border-border-subtle rounded-lg px-2 py-1.5 text-text-secondary focus:outline-none focus:border-brand-500/50"
+              className={cn(
+                'text-xs bg-surface-input border border-border-subtle rounded-lg px-2 py-1.5 text-text-secondary focus:outline-none',
+                quietModes ? 'focus:border-border-default' : 'focus:border-brand-500/50',
+              )}
             >
               <option value="all">{ui.allSources}</option>
               {courses.map(c => (
@@ -529,7 +537,12 @@ export function Agent({
               ))}
             </select>
             {pinnedFileId && (
-              <span className="text-[10px] text-brand-300 truncate max-w-[120px]">
+              <span
+                className={cn(
+                  'text-[10px] truncate max-w-[120px]',
+                  quietModes ? 'text-text-secondary' : 'text-brand-300',
+                )}
+              >
                 {ui.pinnedFileLabel}: {analyzedFiles.find((f) => f.id === pinnedFileId)?.name ?? '…'}
               </span>
             )}
@@ -543,7 +556,7 @@ export function Agent({
               }}
               className={cn(
                 'p-1.5 rounded-lg hover:bg-surface-hover text-text-tertiary',
-                showSourceSettings && 'bg-surface-hover text-brand-300',
+                showSourceSettings && (quietModes ? 'bg-surface-hover text-text-primary' : 'bg-surface-hover text-brand-300'),
               )}
             >
               <Settings2 className="w-4 h-4" aria-hidden="true" />
@@ -583,7 +596,11 @@ export function Agent({
                         onClick={() => onChangeSourceMode(opt.id)}
                         className={cn(
                           'ux-focus-ring w-full text-left px-2 py-1.5 rounded-lg hover:bg-surface-hover',
-                          activeSourceMode === opt.id ? 'text-brand-300 bg-brand-500/10' : 'text-text-secondary',
+                          activeSourceMode === opt.id
+                            ? quietModes
+                              ? 'text-text-primary bg-surface-secondary'
+                              : 'text-brand-300 bg-brand-500/10'
+                            : 'text-text-secondary',
                         )}
                       >
                         {opt.label}
@@ -606,9 +623,12 @@ export function Agent({
           <button
             type="button"
             onClick={() => setShowModes(!showModes)}
-            className="flex items-center gap-1 rounded-md border border-border-subtle bg-surface-card px-1.5 py-0.5 text-[11px] font-medium text-text-secondary hover:border-brand-200 transition-colors"
+            className={cn(
+              'flex items-center gap-1 rounded-md border border-border-subtle bg-surface-card px-1.5 py-0.5 text-[11px] font-medium text-text-secondary transition-colors',
+              quietModes ? 'hover:border-border-default' : 'hover:border-brand-200',
+            )}
           >
-            <currentMode.icon className={cn('h-3 w-3', currentMode.color)} />
+            <currentMode.icon className={cn('h-3 w-3', quietModes ? 'text-text-secondary' : currentMode.color)} />
             {currentMode.label}
             <ChevronDown className={cn('h-3 w-3 transition-transform', showModes && 'rotate-180')} />
           </button>
@@ -621,8 +641,10 @@ export function Agent({
               aria-haspopup="listbox"
               data-testid="agent-embedded-source-picker"
               className={cn(
-                'flex items-center gap-1 rounded-md border border-border-subtle bg-surface-card px-1.5 py-0.5 text-[11px] font-medium text-text-secondary hover:border-brand-200 transition-colors max-w-[140px]',
-                showEmbeddedSource && 'border-brand-500/40 text-brand-500',
+                'flex items-center gap-1 rounded-md border border-border-subtle bg-surface-card px-1.5 py-0.5 text-[11px] font-medium text-text-secondary transition-colors max-w-[140px]',
+                quietModes ? 'hover:border-border-default' : 'hover:border-brand-200',
+                showEmbeddedSource &&
+                  (quietModes ? 'border-border-default text-text-primary' : 'border-brand-500/40 text-brand-500'),
               )}
               title={ui.allSources}
             >
@@ -652,7 +674,11 @@ export function Agent({
                   }}
                   className={cn(
                     'ux-focus-ring ux-hover-strong w-full flex items-center gap-2 px-2.5 py-1.5 text-left text-[11px]',
-                    selectedSource === 'all' ? 'text-brand-500' : 'text-text-secondary',
+                    selectedSource === 'all'
+                      ? quietModes
+                        ? 'text-text-primary'
+                        : 'text-brand-500'
+                      : 'text-text-secondary',
                   )}
                 >
                   {selectedSource === 'all' ? <Check className="h-3 w-3 shrink-0" aria-hidden /> : <span className="w-3 h-3 shrink-0" aria-hidden />}
@@ -671,7 +697,11 @@ export function Agent({
                     }}
                     className={cn(
                       'ux-focus-ring ux-hover-strong w-full flex items-center gap-2 px-2.5 py-1.5 text-left text-[11px]',
-                      selectedSource === c.id ? 'text-brand-500' : 'text-text-secondary',
+                      selectedSource === c.id
+                        ? quietModes
+                          ? 'text-text-primary'
+                          : 'text-brand-500'
+                        : 'text-text-secondary',
                     )}
                   >
                     {selectedSource === c.id ? <Check className="h-3 w-3 shrink-0" aria-hidden /> : <span className="w-3 h-3 shrink-0" aria-hidden />}
@@ -684,7 +714,10 @@ export function Agent({
               <button
                 type="button"
                 onClick={onOpenFullPage}
-                className="text-[10px] font-medium text-text-muted hover:text-brand-700 px-1.5 py-0.5 rounded-md hover:bg-surface-hover transition-colors"
+                className={cn(
+                  'text-[10px] font-medium text-text-muted px-1.5 py-0.5 rounded-md hover:bg-surface-hover transition-colors',
+                  quietModes ? 'hover:text-text-primary' : 'hover:text-brand-700',
+                )}
                 data-testid="agent-open-full-page"
               >
                 {lang === 'el' ? 'Πλήρης προβολή' : 'Full view'}
@@ -708,22 +741,48 @@ export function Agent({
       )}
 
       {activeTaskTitle && !embedded && (
-        <div className="px-4 sm:px-6 py-2 border-b border-brand-500/20 bg-brand-500/5">
+        <div
+          className={cn(
+            'agent-task-banner px-4 sm:px-6 py-2 border-b',
+            quietModes
+              ? 'border-border-subtle bg-surface-secondary/40'
+              : 'border-brand-500/20 bg-brand-500/5',
+          )}
+        >
           <div className="max-w-none w-full min-w-0 flex items-center justify-between gap-3 flex-wrap">
             <div className="min-w-0">
-              <p className="text-xs font-semibold text-brand-300 truncate">{activeTaskTitle}</p>
+              <p
+                className={cn(
+                  'text-xs font-semibold truncate',
+                  quietModes ? 'text-text-primary' : 'text-brand-300',
+                )}
+              >
+                {activeTaskTitle}
+              </p>
               {activeTaskConcept && (
                 <p className="text-[10px] text-text-tertiary truncate">{ui.focus}: {activeTaskConcept}</p>
               )}
             </div>
             <div className="flex items-center gap-2 shrink-0">
               {xpReward !== undefined && (
-                <span className="text-xs text-accent-amber font-medium">+{xpReward} XP</span>
+                <span
+                  className={cn(
+                    'text-xs font-medium',
+                    quietModes ? 'text-text-secondary' : 'text-accent-amber',
+                  )}
+                >
+                  +{xpReward} XP
+                </span>
               )}
               {onCompleteTask && (
                 <button
                   onClick={onCompleteTask}
-                  className="px-3 py-1.5 rounded-lg text-xs font-medium bg-brand-600 hover:bg-brand-500 text-white transition-all"
+                  className={cn(
+                    'px-3 py-1.5 rounded-lg text-xs font-medium transition-all',
+                    quietModes
+                      ? 'bg-surface-secondary border border-border-default text-text-primary hover:bg-surface-hover'
+                      : 'bg-brand-600 hover:bg-brand-500 text-white',
+                  )}
                 >
                   {ui.completeTask}
                 </button>
@@ -771,7 +830,9 @@ export function Agent({
                         className={cn(
                           'w-full text-left px-3 py-2 rounded-xl text-xs transition-all',
                           activeSourceMode === opt.id
-                            ? 'bg-brand-500/10 text-brand-300 border border-brand-500/25'
+                            ? quietModes
+                              ? 'bg-surface-secondary text-text-primary border border-border-default'
+                              : 'bg-brand-500/10 text-brand-300 border border-brand-500/25'
                             : 'text-text-secondary hover:bg-surface-hover',
                         )}
                       >
@@ -792,7 +853,10 @@ export function Agent({
           {messages.length === 0 && !isThinking && (
             embedded ? (
               <div className="py-8 text-center space-y-2" data-testid="agent-empty-invite">
-                <Sparkles className="w-6 h-6 mx-auto text-brand-600" aria-hidden />
+                <Sparkles
+                  className={cn('w-6 h-6 mx-auto', quietModes ? 'text-text-secondary' : 'text-brand-600')}
+                  aria-hidden
+                />
                 <p className="text-sm font-medium text-text-primary">{ui.title}</p>
                 <p className="text-xs text-text-secondary px-4">
                   {llmReady ? ui.inputPlaceholder : ui.offlineMode}
@@ -846,7 +910,12 @@ export function Agent({
           ))}
           {isThinking && (
             <div className="agent-thinking flex gap-3 px-1 py-2 text-sm text-text-muted">
-              <Sparkles className="w-4 h-4 text-brand-400 animate-pulse shrink-0 mt-0.5" />
+              <Sparkles
+                className={cn(
+                  'w-4 h-4 animate-pulse shrink-0 mt-0.5',
+                  quietModes ? 'text-text-tertiary' : 'text-brand-400',
+                )}
+              />
               <span>{ui.thinking}</span>
             </div>
           )}
@@ -903,8 +972,9 @@ export function Agent({
                 rows={1}
                 disabled={isThinking}
                 className={cn(
-                  'w-full pr-12 rounded-xl bg-surface-input border border-border-subtle text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-brand-500/50 resize-none',
+                  'w-full pr-12 rounded-xl bg-surface-input border border-border-subtle text-sm text-text-primary placeholder:text-text-muted focus:outline-none resize-none',
                   embedded ? 'px-3 py-2' : 'px-4 py-3',
+                  quietModes ? 'focus:border-border-default' : 'focus:border-brand-500/50',
                 )}
                 style={{ minHeight: embedded ? '38px' : '46px', maxHeight: '120px' }}
               />
@@ -915,7 +985,7 @@ export function Agent({
                   onClick={handleSearchSources}
                   className={cn(
                     'p-1.5 rounded-lg hover:bg-surface-hover text-text-muted',
-                    attachSource && 'text-brand-400',
+                    attachSource && (quietModes ? 'text-text-primary' : 'text-brand-400'),
                   )}
                 >
                   <Search className="w-4 h-4" aria-hidden="true" />
@@ -931,7 +1001,7 @@ export function Agent({
                     }}
                     className={cn(
                       'p-1.5 rounded-lg hover:bg-surface-hover text-text-muted',
-                      pinnedFileId && 'text-brand-400',
+                      pinnedFileId && (quietModes ? 'text-text-primary' : 'text-brand-400'),
                     )}
                   >
                     <FileText className="w-4 h-4" aria-hidden="true" />
@@ -949,7 +1019,11 @@ export function Agent({
                             onClick={() => handlePinFile(file.id)}
                             className={cn(
                               'w-full text-left px-2 py-1.5 rounded-lg hover:bg-surface-hover truncate',
-                              pinnedFileId === file.id ? 'text-brand-300 bg-brand-500/10' : 'text-text-secondary',
+                              pinnedFileId === file.id
+                                ? quietModes
+                                  ? 'text-text-primary bg-surface-secondary'
+                                  : 'text-brand-300 bg-brand-500/10'
+                                : 'text-text-secondary',
                             )}
                           >
                             {file.name}
@@ -971,7 +1045,9 @@ export function Agent({
                 'agent-composer-send rounded-xl transition-all shrink-0',
                 embedded ? 'p-2' : 'p-3',
                 input.trim() && !isThinking
-                  ? 'bg-brand-600 hover:bg-brand-500 text-white'
+                  ? quietModes
+                    ? 'bg-text-primary text-surface-primary hover:opacity-90'
+                    : 'bg-brand-600 hover:bg-brand-500 text-white'
                   : 'bg-surface-hover text-text-muted cursor-not-allowed'
               )}
             >
@@ -990,7 +1066,12 @@ export function Agent({
                 type="button"
                 onClick={handleNoAnswerHint}
                 disabled={isThinking}
-                className="text-brand-400 hover:text-brand-300 transition-colors disabled:opacity-50"
+                className={cn(
+                  'transition-colors disabled:opacity-50',
+                  quietModes
+                    ? 'text-text-secondary hover:text-text-primary'
+                    : 'text-brand-400 hover:text-brand-300',
+                )}
               >
                 {ui.noAnswerHint}
               </button>
@@ -1222,29 +1303,29 @@ function MessageBubble({
           </div>
         )}
 
-        {/* Source attribution labels */}
+        {/* Source attribution labels — OPT-K16: rainbow washes quiet under Minimal via .agent-meta-badge */}
         {!isUser && message.metadata && (
-          <div className="mt-2 pt-2 border-t border-border-subtle flex items-center gap-2 flex-wrap">
+          <div className="agent-meta-badge-row mt-2 pt-2 border-t border-border-subtle flex items-center gap-2 flex-wrap">
             {message.metadata.sourceGrounded && (
-              <span className="text-[9px] px-1.5 py-0.5 rounded bg-accent-emerald/10 text-accent-emerald font-medium">{ui.badgeSourceGrounded}</span>
+              <span className="agent-meta-badge text-[9px] px-1.5 py-0.5 rounded bg-accent-emerald/10 text-accent-emerald font-medium">{ui.badgeSourceGrounded}</span>
             )}
             {message.metadata.inferenceUsed && (
-              <span className="text-[9px] px-1.5 py-0.5 rounded bg-brand-500/10 text-brand-300 font-medium">{ui.badgeAiInference}</span>
+              <span className="agent-meta-badge text-[9px] px-1.5 py-0.5 rounded bg-brand-500/10 text-brand-300 font-medium">{ui.badgeAiInference}</span>
             )}
             {message.metadata.enrichmentUsed && (
-              <span className="text-[9px] px-1.5 py-0.5 rounded bg-accent-amber/10 text-accent-amber font-medium">{ui.badgeEnrichment}</span>
+              <span className="agent-meta-badge text-[9px] px-1.5 py-0.5 rounded bg-accent-amber/10 text-accent-amber font-medium">{ui.badgeEnrichment}</span>
             )}
             {message.metadata.globalRag && (
-              <span className="text-[9px] px-1.5 py-0.5 rounded bg-accent-cyan/10 text-accent-cyan font-medium">{ui.badgeGlobalRag}</span>
+              <span className="agent-meta-badge text-[9px] px-1.5 py-0.5 rounded bg-accent-cyan/10 text-accent-cyan font-medium">{ui.badgeGlobalRag}</span>
             )}
             {message.metadata.graphRag && (
-              <span className="text-[9px] px-1.5 py-0.5 rounded bg-brand-500/10 text-brand-200 font-medium">{ui.badgeGraphRag}</span>
+              <span className="agent-meta-badge text-[9px] px-1.5 py-0.5 rounded bg-brand-500/10 text-brand-200 font-medium">{ui.badgeGraphRag}</span>
             )}
             {message.metadata.globalRag === false && message.metadata.sourceGrounded && (
-              <span className="text-[9px] px-1.5 py-0.5 rounded bg-surface-hover text-text-muted font-medium">{ui.badgeLocalRag}</span>
+              <span className="agent-meta-badge text-[9px] px-1.5 py-0.5 rounded bg-surface-hover text-text-muted font-medium">{ui.badgeLocalRag}</span>
             )}
             {message.metadata.lowRetrieval && (
-              <span className="text-[9px] px-1.5 py-0.5 rounded bg-accent-rose/10 text-accent-rose font-medium">{ui.badgeLowRetrieval}</span>
+              <span className="agent-meta-badge agent-meta-badge--warn text-[9px] px-1.5 py-0.5 rounded bg-accent-rose/10 text-accent-rose font-medium">{ui.badgeLowRetrieval}</span>
             )}
           </div>
         )}

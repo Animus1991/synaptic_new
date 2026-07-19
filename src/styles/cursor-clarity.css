@@ -892,3 +892,44 @@
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) #platform-sidebar-nav.shell-rail-collapsed [data-testid="shell-rail-expand-top"] {
   background: color-mix(in srgb, var(--color-surface-secondary) 88%, transparent);
 }
+
+/* ── OPT-K16 — Agent mode chrome monochrome (keep every mode) ──────────────
+   Mode rail/catalog/header already ink via quietModes TSX.
+   CSS quiets residual rainbow provenance chips + any leftover brand washes. */
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .agent-calm.agent-quiet-chrome .agent-meta-badge {
+  background: transparent !important;
+  border: 1px solid var(--color-border-subtle);
+  color: var(--color-text-tertiary) !important;
+  font-weight: 500;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .agent-calm.agent-quiet-chrome .agent-meta-badge--warn {
+  color: var(--color-text-secondary) !important;
+  border-color: var(--color-border-default);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .agent-calm.agent-quiet-chrome .agent-mode-row[data-active="true"],
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .agent-calm.agent-quiet-chrome .agent-mode-catalog-tile[data-active="true"] {
+  background: var(--color-surface-secondary);
+  border-color: var(--color-border-default);
+  box-shadow: none;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .agent-calm.agent-quiet-chrome .agent-mode-icon,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .agent-calm.agent-quiet-chrome .agent-header-mode-icon {
+  background: transparent !important;
+  color: var(--color-text-secondary) !important;
+  border: 1px solid var(--color-border-subtle);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .agent-calm.agent-quiet-chrome .agent-mode-icon svg,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .agent-calm.agent-quiet-chrome .agent-header-mode-icon svg {
+  color: var(--color-text-secondary) !important;
+  stroke: currentColor;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) [data-quiet-modes="true"] .agent-mode-group-label {
+  color: var(--color-text-muted);
+  letter-spacing: 0.06em;
+}

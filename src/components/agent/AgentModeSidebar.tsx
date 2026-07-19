@@ -56,22 +56,25 @@ function ModeRow({
       onClick={() => onSelectMode(m.mode)}
       title={m.desc}
       className={cn(
-        'w-full flex items-start gap-3 p-2.5 rounded-xl text-left transition-all',
+        'agent-mode-row w-full flex items-start gap-3 p-2.5 rounded-xl text-left transition-all',
         active
-          ? 'bg-brand-500/15 border border-brand-500/30'
+          ? quietModes
+            ? 'bg-surface-secondary border border-border-default'
+            : 'bg-brand-500/15 border border-brand-500/30'
           : 'hover:bg-surface-hover/60 border border-transparent',
       )}
       data-testid={`agent-mode-${m.mode}`}
+      data-active={active ? 'true' : 'false'}
     >
       <div
         className={cn(
-          'w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5',
-          quietModes && 'bg-surface-hover text-text-secondary',
+          'agent-mode-icon w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5',
+          quietModes && 'bg-transparent border border-border-subtle text-text-secondary',
         )}
         style={quietModes ? undefined : { backgroundColor: `${visual.color}20` }}
       >
         <Icon
-          className="w-3.5 h-3.5"
+          className={cn('w-3.5 h-3.5', quietModes && 'text-text-secondary')}
           style={quietModes ? undefined : { color: visual.color }}
         />
       </div>
@@ -81,7 +84,14 @@ function ModeRow({
             {m.label}
           </span>
           {visual.badge && (
-            <span className="text-[10px] px-1.5 py-0 rounded-full bg-brand-500/20 text-brand-400">
+            <span
+              className={cn(
+                'text-[10px] px-1.5 py-0 rounded-full',
+                quietModes
+                  ? 'border border-border-subtle text-text-tertiary bg-transparent'
+                  : 'bg-brand-500/20 text-brand-400',
+              )}
+            >
               {visual.badge}
             </span>
           )}
@@ -92,7 +102,14 @@ function ModeRow({
           </p>
         )}
       </div>
-      {active && <div className="w-1.5 h-1.5 rounded-full bg-brand-400 mt-1 flex-shrink-0" />}
+      {active && (
+        <div
+          className={cn(
+            'w-1.5 h-1.5 rounded-full mt-1 flex-shrink-0',
+            quietModes ? 'bg-text-primary' : 'bg-brand-400',
+          )}
+        />
+      )}
     </button>
   );
 }
@@ -236,7 +253,16 @@ export function AgentModeSidebar({
                   )}
                   data-testid={`agent-source-mode-${opt.id}`}
                 >
-                  <Icon className={cn('w-3.5 h-3.5 mt-0.5', active ? 'text-brand-400' : 'text-text-tertiary')} />
+                  <Icon
+                    className={cn(
+                      'w-3.5 h-3.5 mt-0.5',
+                      active
+                        ? quietModes
+                          ? 'text-text-primary'
+                          : 'text-brand-400'
+                        : 'text-text-tertiary',
+                    )}
+                  />
                   <div>
                     <p className="text-xs font-medium text-text-primary">{opt.label}</p>
                     <p className="text-[10px] text-text-tertiary">{opt.desc}</p>
@@ -330,11 +356,14 @@ export function AgentModeCatalogGrid({
                   title={m.desc}
                   data-testid={`agent-mode-${m.mode}`}
                   className={cn(
-                    'ux-card p-2.5 text-left transition-all',
-                    active ? 'border-brand-500/35 ring-1 ring-brand-500/20' : 'hover:border-brand-500/20',
+                    'ux-card agent-mode-catalog-tile p-2.5 text-left transition-all',
+                    active
+                      ? 'border-border-default bg-surface-secondary ring-0'
+                      : 'hover:border-border-subtle',
                   )}
+                  data-active={active ? 'true' : 'false'}
                 >
-                  <div className="w-7 h-7 rounded-lg flex items-center justify-center mb-1.5 bg-surface-hover text-text-secondary">
+                  <div className="agent-mode-icon w-7 h-7 rounded-lg flex items-center justify-center mb-1.5 border border-border-subtle bg-transparent text-text-secondary">
                     <Icon className="w-3.5 h-3.5" />
                   </div>
                   <p className="text-xs font-medium text-text-primary">{m.label}</p>
