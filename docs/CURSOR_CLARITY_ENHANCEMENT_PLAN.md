@@ -36,7 +36,7 @@ CSS: `src/styles/cursor-clarity.css` (imported after `replit-clarity.css`).
 | **OPT-K11** | Single well depth; no duplicate retrieval wells | **shipped** |
 | **OPT-K11b** | Extend single-well past mid-stack; quiet Study chips | **shipped** |
 | **OPT-K12** | Studio/tool grid distinct monochrome icons | planned |
-| **OPT-K13** | Rail expand discoverability (keep compact default) | planned |
+| **OPT-K13** | Rail expand discoverability (keep compact default) | **shipped** |
 | **OPT-K14** | Library chip overflow (+N); all tags reachable | planned |
 | **OPT-K15** | Analytics viz chrome quiet; keep all widgets | planned |
 | **OPT-K16** | Agent mode chrome monochrome under Minimal | planned |
@@ -57,4 +57,4 @@ CSS: `src/styles/cursor-clarity.css` (imported after `replit-clarity.css`).
 
 ## Completeness
 
-**OPT-K1–K11b shipped (incl. K9b/K10/K11b).** Residual **K12–K16** remain (Studio icons, rail discoverability, Library/Analytics/Agent). Compact rail + expand kept. See canvas `cursor-clarity-post-k911-audit.canvas.tsx`.
+**OPT-K1–K11b + K13 shipped.** Residual **K12, K14–K16** remain (Studio icons, Library/Analytics/Agent). Compact default + expand (top + foot) kept; main offset `ml-14` / `ml-56`. See canvas `cursor-clarity-post-k911-audit.canvas.tsx`.

@@ -361,6 +361,7 @@ Constraints for all OPT-R*: no typography/button/modal scale-up; no functional r
 | OPT-K11 | Single well depth + merge retrieval | P2 | **shipped** | `hub-section-stack` outer well + hairline dividers; Minimal retrieval only in readiness UtilityRow (`dashboard-retrieval-strength-bar`); Blueprint L-D02 bar kept |
 | OPT-K11b | Extend well + quiet Study hub | P2 | **shipped** | Flatten nested wells/misconceptions in stack; quieter hub chips; course grid measure; study-center continue proximity |
 | OPT-K10 | Shell chrome calm | P2 | **shipped** | One solid primary (`shell-start-session`); Study Space + trust badges in `shell-chrome-overflow`; Google outline (`quiet`); demo strip quieter with overflow (`demo-sandbox-more`); all actions reachable |
+| OPT-K13 | Rail expand discoverability | P2 | **shipped** | Compact default kept; `shell-rail-expand-top` + foot `shell-rail-collapse-toggle` (double-caret); hint titles; `shell-main-offset` `data-rail-state` compact/expanded; persist via `shellRailCollapsed` |
 
 ### Primer-inspired minimal (OPT-M) — zero feature removal
 

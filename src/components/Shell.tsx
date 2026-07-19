@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import {
   BookOpen, CheckSquare, Robot as Bot, SquaresFour as LayoutDashboard, Gear as Settings,
   Sparkle as Sparkles, List as Menu, X, UploadSimple as Upload, Bell, MagnifyingGlass as Search, CaretRight as ChevronRight,
-  CaretLeft as ChevronLeft, ChartBar as BarChart3, Sun, Moon, Users, Fire as Flame, SquaresFour as Layout, Wind, GraduationCap,
+  CaretLeft as ChevronLeft, CaretDoubleRight, ChartBar as BarChart3, Sun, Moon, Users, Fire as Flame, SquaresFour as Layout, Wind, GraduationCap,
   TreeStructure as Network, Lightning as Zap, Clock, Stack as Layers, DotsThreeOutline, Minus, Square,
   CalendarBlank, Play,
 } from '@phosphor-icons/react';
@@ -281,13 +281,27 @@ export function Shell({
           iconRail ? 'w-14 shell-rail-collapsed' : quietNav ? 'w-56' : 'w-64',
         )}
       >
-        <div className={cn('border-b border-border-subtle', iconRail ? 'p-2' : 'p-4')}>
+        <div className={cn('border-b border-border-subtle', iconRail ? 'p-2 space-y-1.5' : 'p-4')}>
           <div className={cn('flex items-center', iconRail ? 'justify-center' : 'gap-2')}>
             <div className="w-8 h-8 rounded-lg platform-brand-icon flex items-center justify-center shrink-0" title="Synapse">
               <SynapseBrandGlyph />
             </div>
             {!iconRail && <span className="text-lg font-bold ws-serif">Synapse</span>}
           </div>
+          {/* OPT-K13 — expand control near brand when compact (foot toggle alone was easy to miss). */}
+          {quietNav && iconRail && (
+            <button
+              type="button"
+              onClick={toggleRailCollapsed}
+              data-testid="shell-rail-expand-top"
+              aria-label={t('shellRailExpandAria')}
+              title={t('shellRailExpandHint')}
+              className="shell-rail-expand-affordance w-full flex items-center justify-center rounded-lg border border-border-subtle p-1.5 text-text-secondary transition-colors hover:bg-surface-hover hover:text-text-primary"
+            >
+              <CaretDoubleRight className="w-4 h-4" weight="bold" aria-hidden />
+              <span className="sr-only">{t('shellRailExpand')}</span>
+            </button>
+          )}
         </div>
 
         <nav className={cn('flex-1 space-y-1', iconRail ? 'p-1.5' : 'p-3')}>
@@ -492,14 +506,21 @@ export function Shell({
               data-testid="shell-rail-collapse-toggle"
               aria-pressed={iconRail}
               aria-label={iconRail ? t('shellRailExpandAria') : t('shellRailCollapseAria')}
-              title={iconRail ? t('shellRailExpand') : t('shellRailCollapse')}
+              title={iconRail ? t('shellRailExpandHint') : t('shellRailCollapseHint')}
               className={cn(
-                'w-full flex items-center rounded-lg border border-border-subtle text-text-secondary transition-colors hover:bg-surface-hover hover:text-text-primary',
-                iconRail ? 'justify-center p-2' : 'gap-2 px-3 py-2 text-xs font-medium',
+                'shell-rail-expand-affordance w-full flex items-center rounded-lg border text-text-secondary transition-colors hover:bg-surface-hover hover:text-text-primary',
+                iconRail
+                  ? 'justify-center border-border-default bg-surface-secondary/80 p-2'
+                  : 'gap-2 border-border-subtle px-3 py-2 text-xs font-medium',
               )}
             >
-              {iconRail ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+              {iconRail ? (
+                <CaretDoubleRight className="w-4 h-4" weight="bold" aria-hidden />
+              ) : (
+                <ChevronLeft className="w-4 h-4" aria-hidden />
+              )}
               {!iconRail && <span>{t('shellRailCollapse')}</span>}
+              {iconRail && <span className="sr-only">{t('shellRailExpand')}</span>}
             </button>
           </div>
         )}
@@ -617,7 +638,11 @@ export function Shell({
       )}
 
       {/* Main content area */}
-      <div className={cn('flex-1 min-h-screen flex flex-col', iconRail ? 'lg:ml-14' : quietNav ? 'lg:ml-56' : 'lg:ml-64')}>
+      <div
+        className={cn('flex-1 min-h-screen flex flex-col', iconRail ? 'lg:ml-14' : quietNav ? 'lg:ml-56' : 'lg:ml-64')}
+        data-testid="shell-main-offset"
+        data-rail-state={iconRail ? 'compact' : quietNav ? 'expanded' : 'blueprint'}
+      >
         {/* Top bar — Wave J-D05 dense utility chrome */}
         <header
           className={cn(
