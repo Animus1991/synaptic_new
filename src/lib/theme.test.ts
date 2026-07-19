@@ -4,6 +4,7 @@ import {
   cycleTheme,
   themeToggleTarget,
   resolveInitialThemePreference,
+  resolveTheme,
   DEFAULT_THEME_PREFERENCE,
   hasStoredThemePreference,
 } from './theme';
@@ -67,5 +68,49 @@ describe('resolveInitialThemePreference', () => {
       JSON.stringify({ userSettings: { showDemoContent: true } }),
     );
     expect(resolveInitialThemePreference()).toBe('dark');
+  });
+});
+
+describe('resolveTheme (OPT-M19)', () => {
+  beforeEach(() => {
+    vi.stubGlobal(
+      'matchMedia',
+      vi.fn((query: string) => ({
+        matches: query.includes('prefers-color-scheme: light') ? true : false,
+        media: query,
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+        addListener: vi.fn(),
+        removeListener: vi.fn(),
+        dispatchEvent: vi.fn(),
+        onchange: null,
+      })),
+    );
+  });
+
+  it('maps system + light OS to minimal', () => {
+    expect(resolveTheme('system')).toBe('minimal');
+  });
+
+  it('maps system + dark OS to minimal-dark', () => {
+    vi.stubGlobal(
+      'matchMedia',
+      vi.fn((query: string) => ({
+        matches: query.includes('prefers-color-scheme: light') ? false : true,
+        media: query,
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+        addListener: vi.fn(),
+        removeListener: vi.fn(),
+        dispatchEvent: vi.fn(),
+        onchange: null,
+      })),
+    );
+    expect(resolveTheme('system')).toBe('minimal-dark');
+  });
+
+  it('passes through explicit preferences', () => {
+    expect(resolveTheme('blueprint')).toBe('blueprint');
+    expect(resolveTheme('minimal')).toBe('minimal');
   });
 });

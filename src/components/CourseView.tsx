@@ -41,6 +41,7 @@ import { VideoSummarizeButton } from './VideoSummarizeButton';
 import { CourseMediaPanel } from './CourseMediaPanel';
 import { NotebookLmExportPanel } from './NotebookLmExportPanel';
 import { Page, PageHeader, PrimaryCTA, SecondaryCTA, AnimatedCard } from './ui/primitives';
+import { PlatformEmptyState } from './ui/PlatformEmptyState';
 import { QualityReportPanel } from './QualityReportPanel';
 import { SectionHeader, TrustBadgeRow, UxCallout, DescriptiveStickyTabBar } from './ui/platformChrome';
 import { McpCourseArtifactsPanel } from './course/McpCourseArtifactsPanel';
@@ -559,10 +560,14 @@ export function CourseView({
             <TopicCard key={topic.id} topic={topic} index={i} courseColor={course.color} course={course} onGoToSource={onGoToSource} onStart={() => onStartLesson(topic.title)} />
           ))}
           {course.topics.length === 0 && (
-            <div className="text-center py-16">
-              <Brain className="w-12 h-12 text-text-muted mx-auto mb-4" />
-              <p className="text-text-secondary">Course is being generated... Topics will appear soon.</p>
-            </div>
+            <PlatformEmptyState
+              icon={Brain}
+              title={t('coursePathEmptyTitle')}
+              description={t('coursePathEmptyBody')}
+              actionLabel={onUploadMore ? t('coursePathEmptyAction') : undefined}
+              onAction={onUploadMore}
+              data-testid="course-path-empty"
+            />
           )}
         </div>
       )}
@@ -589,6 +594,7 @@ export function CourseView({
           onUploadAudio={onUploadAudio}
           onAddAudioToFsrs={onAddAudioToFsrs}
           learnerModel={learnerModel}
+          onUploadMore={onUploadMore}
         />
         <McpCourseArtifactsPanel course={course} lang={lang === 'el' ? 'el' : 'en'} />
         </div>
@@ -860,6 +866,7 @@ function SourceFiles({
   onUploadAudio,
   onAddAudioToFsrs,
   learnerModel,
+  onUploadMore,
 }: {
   course: Course;
   uploadedFiles: UploadedFile[];
@@ -875,6 +882,7 @@ function SourceFiles({
   onUploadAudio?: (file: File, courseId: string) => Promise<boolean>;
   onAddAudioToFsrs?: (fileId: string, courseId: string) => void;
   learnerModel?: LearnerModel;
+  onUploadMore?: () => void;
 }) {
   const { t } = useI18n();
   const provenanceCount = course.conceptSpans?.length ?? 0;
@@ -947,7 +955,18 @@ function SourceFiles({
           )}
         </div>
         <div className="space-y-2">
-          {(uploadedFiles.length > 0 ? uploadedFiles : course.sourceFiles.map((name) => ({ name } as UploadedFile))).map((file, i) => {
+          {uploadedFiles.length === 0 && course.sourceFiles.length === 0 ? (
+            <PlatformEmptyState
+              icon={Upload}
+              title={t('courseSourcesEmptyTitle')}
+              description={t('courseSourcesEmptyBody')}
+              actionLabel={onUploadMore ? t('courseSourcesEmptyAction') : undefined}
+              onAction={onUploadMore}
+              className="py-10"
+              data-testid="course-sources-empty"
+            />
+          ) : (
+          (uploadedFiles.length > 0 ? uploadedFiles : course.sourceFiles.map((name) => ({ name } as UploadedFile))).map((file, i) => {
             const preview = file.id ? buildSourcePreviewText(file, course) : null;
             return (
             <div key={file.id ?? i} className="flex items-start gap-3 p-3 rounded-xl bg-surface-primary/50 border border-border-subtle flex-wrap" data-testid={file.id ? `source-file-${file.id}` : undefined}>
@@ -987,7 +1006,8 @@ function SourceFiles({
               )}
             </div>
             );
-          })}
+          })
+          )}
         </div>
         {course.pipelineMeta && (
           <p className="mt-3 text-[10px] text-text-muted">

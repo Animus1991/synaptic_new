@@ -13,9 +13,10 @@ type Props = {
   className?: string;
   secondaryActionLabel?: string;
   onSecondaryAction?: () => void;
+  'data-testid'?: string;
 };
 
-/** Bento empty state for platform pages (Library, Agent, Tasks). */
+/** Bento empty state for platform pages (Library, Agent, Tasks, Course). */
 export function PlatformEmptyState({
   title,
   description,
@@ -25,6 +26,7 @@ export function PlatformEmptyState({
   className,
   secondaryActionLabel,
   onSecondaryAction,
+  'data-testid': testId = 'platform-empty-state',
 }: Props) {
   return (
     <BlueprintSurface
@@ -32,7 +34,7 @@ export function PlatformEmptyState({
         'platform-empty-state flex flex-col items-center justify-center py-16 px-6 text-center border border-border-subtle bg-surface-card/60',
         className,
       )}
-      data-testid="platform-empty-state"
+      data-testid={testId}
     >
       <div className="platform-empty-state-icon grid h-16 w-16 place-items-center rounded-2xl border border-border-subtle bg-surface-primary mb-5">
         <Icon className="h-8 w-8 text-brand-600" aria-hidden />

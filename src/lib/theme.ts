@@ -48,7 +48,8 @@ export type ResolvedTheme =
 
 export function resolveTheme(preference: UserSettings['theme']): ResolvedTheme {
   if (preference === 'system') {
-    return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+    // OPT-M19 — system preference follows Primer Minimal family (not legacy light/dark).
+    return window.matchMedia('(prefers-color-scheme: light)').matches ? 'minimal' : 'minimal-dark';
   }
   return preference;
 }
@@ -136,9 +137,7 @@ export function watchSystemTheme(onChange: () => void): () => void {
 /** Call once before React mount to avoid flash */
 export function initThemeEarly(): void {
   const pref = resolveInitialThemePreference();
-  const resolved = pref === 'system'
-    ? (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark')
-    : pref;
+  const resolved = resolveTheme(pref);
   document.documentElement.setAttribute('data-theme', resolved);
   document.documentElement.style.colorScheme = themeColorScheme(resolved);
   const meta = document.querySelector('meta[name="theme-color"]');

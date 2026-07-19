@@ -83,15 +83,15 @@ These are **organizational / power-user** patterns inspired by GitHub, mapped to
 
 | GitHub pattern | Synapse adaptation | Benefit | Wave | Status |
 |----------------|--------------------|---------|------|--------|
-| Command palette (⌘K) | Promote global + workspace palette; more actions registered | Fewer permanent icons | M16 | Partial (shell label + global palette) |
-| Keyboard shortcuts help (`?`) | Shell + workspace unified help sheet | Discoverability without chrome | M16 | Partial (app `?` when WS closed) |
+| Command palette (⌘K) | Promote global + workspace palette; more actions registered | Fewer permanent icons | M16 | Shipped (shell label + global palette) |
+| Keyboard shortcuts help (`?`) | Shell + workspace help sheets | Discoverability without chrome | M16 | Shipped (shell variant vs workspace) |
 | Density Comfortable/Compact | Already shipped | EL safety | M6 | Shipped |
 | Notifications inbox | Map app toasts + agent alerts into one Status/Inbox affordance | Less strip noise | M17 | Shipped (shell bell panel) |
 | Progressive “Files changed” style diffs | Reprocess / OCR / conflict panels as flat review surfaces | Clear decisions | M11 | Shipped (visual) |
 | Issues / Projects triage | Tasks tabs + due queue (already); collapse chrome under Minimal | Focus | M12 | Shipped |
 | Blame / history (read-only) | Annotation revision / sync conflict keep-local/keep-remote | Trust | W2 + AN | Shipped |
 | Codespaces “focus” | Zen / Focus layouts — improve empty-state hints | Deep work | M8+ | Partial |
-| README-first repo home | Course overview + notebook sources as content-first home | Orientation | M18 | Idea |
+| README-first repo home | Course overview + notebook sources as content-first home | Orientation | M18 | Shipped (path/sources empty) |
 | Saved replies / templates | Agent quick actions + mode catalog (collapse under Minimal) | Speed | M12 | Shipped (disclosure) |
 | Org settings vs user settings | Keep Teacher/LTI separate; flatter chrome only | Enterprise clarity | M14 | Partial (server caps collapsed) |
 | Mobile responsive density | Compact optional; Comfortable default for `el` | Touch + Greek | M6 | Shipped |
@@ -131,10 +131,10 @@ These are **organizational / power-user** patterns inspired by GitHub, mapped to
 | **OPT-M13** | Default theme → `minimal` (Blueprint still in Settings) | Fresh profile opens Minimal; saved prefs respected; tests updated | Low (pre-launch) |
 | **OPT-M14** | Surface polish under Minimal (Library/Analytics/Teacher/Exam/Note/Student Org) | No feature loss; secondary chrome collapsible | **shipped** |
 | **OPT-M15** | CSS hygiene: theme-scoped overrides only; document de-emphasize class inventory | No visual change to Blueprint/Spectrum | **shipped** |
-| **OPT-M16** | Global ⌘K + `?` help parity with workspace | Same actions; fewer permanent icons | **partial** |
+| **OPT-M16** | Global ⌘K + `?` help parity with workspace | Same actions; fewer permanent icons | **shipped** |
 | **OPT-M17** | App-level Status/Inbox for toasts + proactive alerts (mirror workspace bus) | All signals reachable | **shipped** |
-| **OPT-M18** | Content-first Course/Notebook empty & overview states | Clearer first minute | Low |
-| **OPT-M19** | Optional `minimal-dark` as system-dark companion default | OS dark → minimal-dark when preference=system (optional) | Low |
+| **OPT-M18** | Content-first Course/Notebook empty & overview states | Clearer first minute | **shipped** |
+| **OPT-M19** | Optional `minimal-dark` as system-dark companion default | OS dark → minimal-dark when preference=system | **shipped** |
 | **OPT-M20** | Visual QA fill screenshot matrix before public launch | Matrix rows checked | Process |
 
 ---
@@ -161,10 +161,7 @@ These are **organizational / power-user** patterns inspired by GitHub, mapped to
 
 ## 8. Priority of effort (ROI)
 
-1. **M20 visual QA** — fill screenshot matrix before public launch  
-2. **M18** content-first empty states (optional)  
-3. **M16 deepen** — more palette actions / denser shell help (optional)  
-4. **M19** system-dark → minimal-dark companion (optional)  
+1. **M20 visual QA** — fill screenshot matrix before public launch (human)  
 
 ---
 
@@ -173,4 +170,4 @@ These are **organizational / power-user** patterns inspired by GitHub, mapped to
 **Not everything is finished at pixel level.**  
 **Yes — this document is the exhaustive enhancement plan:** principles, shipped inventory, GitHub-adapted feature map, aesthetic rules, forward waves, and non-goals — all under **zero functionality removal**.
 
-Next engineering execution order: **M20 screenshot QA (human) → M18 empty states (optional)**.
+Next: **M20 screenshot QA (human captures)** — engineering waves M0–M19 complete under zero feature removal.

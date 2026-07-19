@@ -21,4 +21,11 @@ describe('WorkspaceKeyboardHelp (SW-P3-08)', () => {
     fireEvent.click(within(dialog).getByLabelText('Close'));
     expect(onClose).toHaveBeenCalled();
   });
+
+  it('shell variant lists app shortcuts without workspace tool map', () => {
+    render(<WorkspaceKeyboardHelp open onClose={vi.fn()} lang="en" variant="shell" />);
+    expect(screen.getByText('App')).toBeTruthy();
+    expect(screen.getByText('Open command palette')).toBeTruthy();
+    expect(screen.queryByText('Switch tool (0 = 10th tool)')).toBeNull();
+  });
 });

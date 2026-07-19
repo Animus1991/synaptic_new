@@ -535,6 +535,7 @@ export default function App() {
         open={shellHelpOpen}
         onClose={() => setShellHelpOpen(false)}
         lang={store.user.settings.language === 'el' ? 'el' : 'en'}
+        variant="shell"
       />
       <AppCommandPaletteMount
         open={paletteOpen}

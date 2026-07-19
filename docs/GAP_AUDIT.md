@@ -352,11 +352,12 @@ Constraints for all OPT-R*: no typography/button/modal scale-up; no functional c
 | OPT-M12 | Dashboard/Tasks/Agent progressive disclosure under minimal | P2 | **shipped** | Alerts / flow rail / quick actions collapsible; due-queue collapsed by default |
 | OPT-M13 | Minimal as production default (pre-launch) | P2 | **shipped** | `DEFAULT_THEME_PREFERENCE = minimal`; Blueprint remains selectable |
 | OPT-M14 | App-shell surface polish under Minimal | P2 | **shipped** | Library/Analytics/Teacher + Exam tip / Note engine / Student Org hints |
-| OPT-M16 | Global ⌘K + `?` help parity | P2 | **partial** | Shell search title/aria; app-level `?` → WorkspaceKeyboardHelp when WS closed |
+| OPT-M16 | Global ⌘K + `?` help parity | P2 | **shipped** | Shell search badge; shell `?` variant; workspace keeps full map |
 | OPT-M17 | App-level Status/Inbox | P2 | **shipped** | NotificationsPanel hosts toast + proactive alerts; bell badge includes them |
 | OPT-M15 | CSS hygiene / theme-scoped extract | P2 | **shipped** | `src/styles/primer-minimal.css` + `docs/PRIMER_MINIMAL_CSS_INVENTORY.md` |
+| OPT-M18 | Content-first Course empty states | P2 | **shipped** | Path + Sources `PlatformEmptyState` |
+| OPT-M19 | System preference → Minimal family | P2 | **shipped** | `system` → `minimal` / `minimal-dark` |
 | OPT-M20 | Screenshot matrix launch QA | P2 | **process** | Matrix expanded; human captures still ☐ |
-| OPT-M18–M19 | Empty states / system-dark companion | P2 | open | See `docs/PRIMER_GITHUB_ENHANCEMENT_PLAN.md` |
 
 ### Replit study — explicit non-borrows
 

@@ -1,17 +1,23 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { Keyboard, X } from '@/lib/lucide-shim';
-import { workspaceShortcutGroups, displayShortcutKeys } from '../../lib/workspaceKeyboardShortcuts';
+import {
+  workspaceShortcutGroups,
+  shellShortcutGroups,
+  displayShortcutKeys,
+} from '../../lib/workspaceKeyboardShortcuts';
 import { t } from '../../lib/i18n';
 
 type Props = {
   open: boolean;
   onClose: () => void;
   lang: 'en' | 'el';
+  /** OPT-M16 — shell help lists app shortcuts only; workspace lists full tool map. */
+  variant?: 'workspace' | 'shell';
 };
 
-/** Keyboard shortcut help overlay — `?` in Study Workspace (SW-P3-08). */
-export function WorkspaceKeyboardHelp({ open, onClose, lang }: Props) {
-  const groups = workspaceShortcutGroups(lang);
+/** Keyboard shortcut help overlay — `?` in Study Workspace (SW-P3-08) or app shell. */
+export function WorkspaceKeyboardHelp({ open, onClose, lang, variant = 'workspace' }: Props) {
+  const groups = variant === 'shell' ? shellShortcutGroups(lang) : workspaceShortcutGroups(lang);
 
   return (
     <AnimatePresence>

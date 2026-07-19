@@ -1,6 +1,6 @@
 # Primer-inspired Minimal Theme (OPT-M)
 
-**Status:** shipped through OPT-M17 + OPT-M15 (+ M16 partial); forward plan in `docs/PRIMER_GITHUB_ENHANCEMENT_PLAN.md`  
+**Status:** shipped through OPT-M19 (+ M20 human QA open); forward plan in `docs/PRIMER_GITHUB_ENHANCEMENT_PLAN.md`  
 **Constraint:** zero functionality removal — visual + disclosure only  
 **Default:** `minimal` (pre-launch; Blueprint remains Settings option)
 
@@ -44,11 +44,12 @@ This is **not** a GitHub clone (no Octocat/Primer brand assets).
 | OPT-M12 | Shell density: Dashboard/Tasks/Agent progressive disclosure under minimal |
 | OPT-M13 | Production default → Minimal (pre-launch; Blueprint selectable) |
 | OPT-M14 | Page secondary chrome collapsible (Library/Analytics/Teacher/Exam/Note/Student Org) |
-| OPT-M16 | Shell ⌘K label + global `?` help when workspace closed (partial) |
+| OPT-M16 | Shell ⌘K label + shell/workspace `?` help variants |
 | OPT-M17 | Shell notifications inbox = activity + toast + proactive alerts |
 | OPT-M15 | Extract Minimal CSS to `src/styles/primer-minimal.css` + inventory doc |
+| OPT-M18 | Course path/sources content-first empty states |
+| OPT-M19 | `system` theme → `minimal` / `minimal-dark` |
 | OPT-M20 | Screenshot matrix (manual captures) — see `PRIMER_MINIMAL_SCREENSHOT_MATRIX.md` |
-| OPT-M18+ | Empty states / optional deepen — see `PRIMER_GITHUB_ENHANCEMENT_PLAN.md` |
 
 ## CSS layout (M15)
 

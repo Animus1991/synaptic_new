@@ -163,6 +163,40 @@ export function workspaceShortcutGroups(lang: 'en' | 'el'): { group: string; ite
   return labels.filter((g) => map.has(g)).map((g) => ({ group: g, items: map.get(g)! }));
 }
 
+/** OPT-M16 — App-shell help when Study Workspace is closed (no tool/layout noise). */
+export const APP_SHELL_KEYBOARD_SHORTCUTS: WorkspaceShortcutDef[] = [
+  {
+    id: 'open-palette',
+    keys: '⌘K / Ctrl+K',
+    labelEn: 'Open command palette',
+    labelEl: 'Άνοιγμα παλέτας εντολών',
+    groupEn: 'App',
+    groupEl: 'Εφαρμογή',
+    allowWhileTyping: true,
+  },
+  {
+    id: 'toggle-help',
+    keys: '?',
+    labelEn: 'Show keyboard shortcuts',
+    labelEl: 'Εμφάνιση συντομεύσεων πληκτρολογίου',
+    groupEn: 'App',
+    groupEl: 'Εφαρμογή',
+  },
+  {
+    id: 'close-overlay',
+    keys: 'Esc',
+    labelEn: 'Close panels / dialogs',
+    labelEl: 'Κλείσιμο πλαισίων / διαλόγων',
+    groupEn: 'App',
+    groupEl: 'Εφαρμογή',
+  },
+];
+
+export function shellShortcutGroups(lang: 'en' | 'el'): { group: string; items: WorkspaceShortcutDef[] }[] {
+  const group = lang === 'el' ? 'Εφαρμογή' : 'App';
+  return [{ group, items: APP_SHELL_KEYBOARD_SHORTCUTS }];
+}
+
 export function isTypingTarget(target: EventTarget | null): boolean {
   if (!(target instanceof HTMLElement)) return false;
   const tag = target.tagName;
