@@ -45,6 +45,7 @@ CSS: `src/styles/cursor-clarity.css` (imported after `replit-clarity.css`).
 | **OPT-K19** | Soft status red + exam primary + page rhythm | **shipped** |
 | **OPT-K20** | Cyan brand CTAs (restore preferred button ink) | **shipped** |
 | **OPT-K21** | Mute status accents; cyan Execute (fix ink CTA) | **shipped** |
+| **OPT-K22** | Dark white CTAs + slightly livelier muted status | **shipped** |
 
 **Default gate:** Minimal / Minimal Dark only. Blueprint untouched.  
 **Width rule:** Compact `w-14` + `lg:ml-14` and Expanded `w-56` + `lg:ml-56` — main never underlays rail.

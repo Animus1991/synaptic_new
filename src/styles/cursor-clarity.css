@@ -159,19 +159,19 @@
 /* OPT-K21 — status text muted toward secondary (never louder than content ink) */
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .text-accent-rose,
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-status-rose {
-  color: color-mix(in srgb, var(--color-accent-rose) 38%, var(--color-text-secondary)) !important;
+  color: color-mix(in srgb, var(--color-accent-rose) 48%, var(--color-text-secondary)) !important;
 }
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .text-accent-amber {
-  color: color-mix(in srgb, var(--color-accent-amber) 38%, var(--color-text-secondary)) !important;
+  color: color-mix(in srgb, var(--color-accent-amber) 48%, var(--color-text-secondary)) !important;
 }
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .text-accent-emerald {
-  color: color-mix(in srgb, var(--color-accent-emerald) 38%, var(--color-text-secondary)) !important;
+  color: color-mix(in srgb, var(--color-accent-emerald) 48%, var(--color-text-secondary)) !important;
 }
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .text-accent-orange {
-  color: color-mix(in srgb, var(--color-accent-orange) 36%, var(--color-text-secondary)) !important;
+  color: color-mix(in srgb, var(--color-accent-orange) 46%, var(--color-text-secondary)) !important;
 }
 
 /* Soft status bar fills (not neon solid) */
@@ -210,19 +210,20 @@
   box-shadow: none !important;
 }
 
+/* OPT-K22 — dark: white primary buttons (light keeps cyan) */
 :is([data-theme="minimal-dark"]) .app-shell .ux-primary-cta {
-  background: var(--color-brand-500) !important;
-  color: #0d1117 !important;
+  background: var(--color-text-primary) !important;
+  color: var(--color-surface-primary) !important;
 }
 
-:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .ux-primary-cta:hover:not(:disabled) {
+:is([data-theme="minimal"]) .app-shell .ux-primary-cta:hover:not(:disabled) {
   filter: brightness(1.06);
   background: var(--color-brand-600) !important;
 }
 
 :is([data-theme="minimal-dark"]) .app-shell .ux-primary-cta:hover:not(:disabled) {
-  background: var(--color-brand-500) !important;
-  filter: brightness(1.08);
+  background: color-mix(in srgb, var(--color-text-primary) 90%, var(--color-text-secondary)) !important;
+  filter: none;
 }
 
 /* Secondary CTA — outline, no brand hover tint. */
@@ -1188,9 +1189,9 @@
 }
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm .concept-mastery-bars .proximity-track > div:last-child > div {
-  /* OPT-K21 — desaturate band fills so they stay subordinate to ink + cyan */
-  filter: saturate(0.45) brightness(0.96);
-  opacity: 0.88;
+  /* OPT-K22 — slightly livelier than K21, still subordinate */
+  filter: saturate(0.58) brightness(0.98);
+  opacity: 0.92;
 }
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm .concept-mastery-bars .proximity-row span[style*="color"] {
@@ -1199,7 +1200,7 @@
 }
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm .mastery-ring {
-  filter: saturate(0.4);
+  filter: saturate(0.55);
 }
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm .usage-bar {
@@ -1218,8 +1219,8 @@
 }
 
 :is([data-theme="minimal-dark"]) .app-shell .dashboard-calm .dashboard-exam-cta.ux-chip-solid-brand {
-  background: var(--color-brand-500);
-  color: #0d1117;
+  background: var(--color-text-primary);
+  color: var(--color-surface-primary);
 }
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm .dashboard-exam-cta.ux-chip-solid-brand:hover {
