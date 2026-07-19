@@ -46,6 +46,7 @@ CSS: `src/styles/cursor-clarity.css` (imported after `replit-clarity.css`).
 | **OPT-K20** | Cyan brand CTAs (restore preferred button ink) | **shipped** |
 | **OPT-K21** | Mute status accents; cyan Execute (fix ink CTA) | **shipped** |
 | **OPT-K22** | Dark white CTAs + slightly livelier muted status | **shipped** |
+| **OPT-K23** | Light cyan Start session + status nudge | **shipped** |
 
 **Default gate:** Minimal / Minimal Dark only. Blueprint untouched.  
 **Width rule:** Compact `w-14` + `lg:ml-14` and Expanded `w-56` + `lg:ml-56` — main never underlays rail.

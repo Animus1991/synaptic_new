@@ -60,17 +60,17 @@
 
   --color-accent-teal: #5a7d82;
   --color-accent-cyan: #0891b2;
-  /* OPT-K22 — slightly livelier muted status (still subordinate) */
-  --color-accent-emerald: #4f8a5c;
-  --color-accent-amber: #9a7f45;
-  --color-accent-rose: #a65d64;
-  --color-accent-orange: #a86b45;
+  /* OPT-K23 — nudge status a touch livelier (still subordinate to ink + cyan) */
+  --color-accent-emerald: #3f9a52;
+  --color-accent-amber: #a88835;
+  --color-accent-rose: #b05058;
+  --color-accent-orange: #b46838;
   --color-accent-violet: #7a7088;
 
-  --mastery-weak: #b06a72;
-  --mastery-developing: #5a7eb0;
-  --mastery-proficient: #9a7f45;
-  --mastery-strong: #4f8a5c;
+  --mastery-weak: #b85862;
+  --mastery-developing: #4a78c0;
+  --mastery-proficient: #a88835;
+  --mastery-strong: #3f9a52;
 
   --viz-track: #eaeef2;
   --viz-node-fill: #ffffff;

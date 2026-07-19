@@ -820,7 +820,7 @@ export function Shell({
                 );
               })()}
 
-              {/* OPT-K10 — sole solid primary CTA under Minimal */}
+              {/* OPT-K10/K23 — solid primary CTA; Minimal light = cyan via CSS */}
               {onStartSession && (
                 <button
                   type="button"
@@ -829,7 +829,7 @@ export function Shell({
                   className={cn(
                     'hidden sm:inline-flex h-8 items-center gap-1.5 px-2.5 rounded-lg text-[11px] font-semibold leading-none transition-colors whitespace-nowrap',
                     quietNav
-                      ? 'bg-text-primary text-surface-primary hover:opacity-90'
+                      ? 'shell-start-session ux-primary-cta'
                       : 'bg-brand-700 text-white hover:bg-brand-800',
                   )}
                 >
