@@ -1249,3 +1249,15 @@
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .hub-quiet .dashboard-urgency-signal[data-tone="forget"] {
   border-left-color: color-mix(in srgb, var(--color-accent-rose) 70%, var(--color-border-default));
 }
+
+/* OPT-K24 — priority chips + XP never overpower task titles */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm .ux-chip-solid-warn,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm .ux-chip-solid-danger {
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+:is([data-theme="minimal"]) .app-shell .dashboard-calm .text-accent-amber {
+  color: color-mix(in srgb, var(--color-accent-amber) 45%, var(--color-text-tertiary)) !important;
+  font-variant-numeric: tabular-nums;
+}

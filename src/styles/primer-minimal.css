@@ -58,19 +58,22 @@
   --color-text-tertiary: #656d76;
   --color-text-muted: #818b98;
 
-  --color-accent-teal: #5a7d82;
+  --color-accent-teal: #3d8a94;
   --color-accent-cyan: #0891b2;
-  /* OPT-K23 — nudge status a touch livelier (still subordinate to ink + cyan) */
-  --color-accent-emerald: #3f9a52;
-  --color-accent-amber: #a88835;
-  --color-accent-rose: #b05058;
-  --color-accent-orange: #b46838;
-  --color-accent-violet: #7a7088;
+  /* OPT-K24 — cool status hues that sit with cyan (not muddy mustard/maroon) */
+  --color-accent-emerald: #2f8f6a;
+  --color-accent-amber: #8a7d3d;
+  --color-accent-rose: #a85d72;
+  --color-accent-orange: #a06a4a;
+  --color-accent-violet: #6b7a9a;
+  --color-on-danger: #6b3344;
+  --color-on-warn: #5a5228;
+  --color-on-success: #1f5c45;
 
-  --mastery-weak: #b85862;
-  --mastery-developing: #4a78c0;
-  --mastery-proficient: #a88835;
-  --mastery-strong: #3f9a52;
+  --mastery-weak: #a85d72;
+  --mastery-developing: #3d7eb8;
+  --mastery-proficient: #8a7d3d;
+  --mastery-strong: #2f8f6a;
 
   --viz-track: #eaeef2;
   --viz-node-fill: #ffffff;
@@ -227,6 +230,43 @@
 :is([data-theme="minimal-dark"]) .ux-chip-solid-brand {
   background: var(--color-text-primary);
   color: var(--color-surface-primary);
+}
+
+/* OPT-K24 — soft status chips (pastel wash + tinted label; never black-on-mustard) */
+:is([data-theme="minimal"]) .ux-chip-solid-warn {
+  background: color-mix(in srgb, var(--color-accent-amber) 14%, var(--color-surface-primary));
+  color: color-mix(in srgb, var(--color-accent-amber) 72%, var(--color-text-primary));
+  border: 1px solid color-mix(in srgb, var(--color-accent-amber) 22%, transparent);
+}
+
+:is([data-theme="minimal"]) .ux-chip-solid-danger {
+  background: color-mix(in srgb, var(--color-accent-rose) 12%, var(--color-surface-primary));
+  color: color-mix(in srgb, var(--color-accent-rose) 68%, var(--color-text-primary));
+  border: 1px solid color-mix(in srgb, var(--color-accent-rose) 20%, transparent);
+}
+
+:is([data-theme="minimal"]) .ux-chip-solid-success {
+  background: color-mix(in srgb, var(--color-accent-emerald) 12%, var(--color-surface-primary));
+  color: color-mix(in srgb, var(--color-accent-emerald) 68%, var(--color-text-primary));
+  border: 1px solid color-mix(in srgb, var(--color-accent-emerald) 20%, transparent);
+}
+
+:is([data-theme="minimal-dark"]) .ux-chip-solid-warn {
+  background: color-mix(in srgb, var(--color-accent-amber) 16%, var(--color-surface-secondary));
+  color: color-mix(in srgb, var(--color-accent-amber) 55%, var(--color-text-primary));
+  border: 1px solid color-mix(in srgb, var(--color-accent-amber) 28%, transparent);
+}
+
+:is([data-theme="minimal-dark"]) .ux-chip-solid-danger {
+  background: color-mix(in srgb, var(--color-accent-rose) 14%, var(--color-surface-secondary));
+  color: color-mix(in srgb, var(--color-accent-rose) 55%, var(--color-text-primary));
+  border: 1px solid color-mix(in srgb, var(--color-accent-rose) 26%, transparent);
+}
+
+:is([data-theme="minimal-dark"]) .ux-chip-solid-success {
+  background: color-mix(in srgb, var(--color-accent-emerald) 14%, var(--color-surface-secondary));
+  color: color-mix(in srgb, var(--color-accent-emerald) 55%, var(--color-text-primary));
+  border: 1px solid color-mix(in srgb, var(--color-accent-emerald) 26%, transparent);
 }
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .ux-secondary-cta {
