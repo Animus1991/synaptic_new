@@ -698,7 +698,8 @@ export function Agent({
 
       {!embedded && (
         <div className="agent-chat-column w-full px-4 sm:px-6 pt-3">
-          <CollapsibleChromeSection title={t('chromeAgentFlow')} data-testid="agent-flow-chrome">
+          {/* OPT-R14 — flow rail stays collapsible; Minimal defaults collapsed (M2). */}
+          <CollapsibleChromeSection title={t('chromeAgentFlow')} data-testid="agent-flow-chrome" defaultOpen={false}>
             <AgentFlowRail
               activeIndex={messages.length === 0 ? 0 : messages.length < 4 ? 1 : 2}
             />

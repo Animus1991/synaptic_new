@@ -1,6 +1,7 @@
 /**
- * OPT-R9 / R10 / R11 / R12 / R13 / R15 — Replit-inspired shell rail, create,
- * canvas, Status-as-console, Library/⌘K path density, quieter hubs.
+ * OPT-R9 / R10 / R11 / R12 / R13 / R14 / R15 — Replit-inspired shell rail,
+ * create, canvas, Status-as-console, Library/⌘K path density, Agent mode
+ * grouping, quieter hubs.
  * Minimal-gated only. No orange palette. Zero feature removal.
  * Principles only — not a Replit brand clone.
  */
@@ -19,6 +20,27 @@
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   letter-spacing: 0.02em;
   box-shadow: none;
+}
+
+/* ── OPT-R14 — Agent mode grouping ──────────────────────────────────── */
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .agent-modes-grouped .agent-mode-group {
+  border-color: color-mix(in srgb, var(--color-border-subtle, #d0d7de) 75%, transparent);
+  background: color-mix(in srgb, var(--color-surface-secondary, #f6f8fa) 35%, transparent);
+  box-shadow: none;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .agent-modes-grouped .agent-mode-group-toggle,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .agent-modes-grouped .agent-mode-group-label {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  letter-spacing: 0.04em;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .agent-modes-grouped .agent-mode-group [data-testid^="agent-mode-"],
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .agent-modes-grouped [data-testid^="agent-mode-group-"] [data-testid^="agent-mode-"] {
+  border-radius: 0.45rem;
+  padding-top: 0.4rem;
+  padding-bottom: 0.4rem;
 }
 
 /* ── OPT-R10 — prompt-first create / upload ─────────────────────────── */
