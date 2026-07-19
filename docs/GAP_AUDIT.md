@@ -370,6 +370,7 @@ Constraints for all OPT-R*: no typography/button/modal scale-up; no functional r
 | OPT-K18 | Dashboard full-span + pair rows | P2 | **shipped** | Lift measure caps on hero/stats/hub; pair coverage↔mastery, weak↔almost, exam↔calibration, misconceptions↔spaced @≥900px; proximity flex-start kept; Blueprint untouched |
 | OPT-K19 | Soft status red + exam primary | P2 | **shipped** | Soft mastery/rose tokens; weak bars muted fills; exam full-width + brand CTA (not solid-danger); calibration↔insight quiet pair; stack rhythm + shared progress height; Continue quieter when one-step present; Blueprint untouched |
 | OPT-K20 | Cyan brand CTAs | P2 | **shipped** | Restore cyan/teal primary buttons (not black/white ink); dark uses brand-500 + dark label; one-step Execute stays cyan; only study-center Continue quiets when one-step present |
+| OPT-K21 | Mute status + cyan Execute | P2 | **shipped** | Fix K4 ink `!important` on `.ux-primary-cta` → cyan; mute rose/amber/emerald/orange/mastery tokens; desaturate mastery bars & status text; light=white/black+cyan, dark=black+cyan |
 
 ### Primer-inspired minimal (OPT-M) — zero feature removal
 

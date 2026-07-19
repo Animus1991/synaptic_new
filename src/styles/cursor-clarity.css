@@ -135,7 +135,7 @@
 
 /* ── OPT-K4 — Monochrome icons/CTAs; accent only for state ──────────────── */
 
-/* Decorative brand / cool-accent inks → secondary (status emerald/amber/rose kept). */
+/* Decorative brand / cool-accent inks → secondary. */
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell :is(
   .text-brand-400,
   .text-brand-500,
@@ -156,6 +156,41 @@
   color: var(--color-text-primary) !important;
 }
 
+/* OPT-K21 — status text muted toward secondary (never louder than content ink) */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .text-accent-rose,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-status-rose {
+  color: color-mix(in srgb, var(--color-accent-rose) 38%, var(--color-text-secondary)) !important;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .text-accent-amber {
+  color: color-mix(in srgb, var(--color-accent-amber) 38%, var(--color-text-secondary)) !important;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .text-accent-emerald {
+  color: color-mix(in srgb, var(--color-accent-emerald) 38%, var(--color-text-secondary)) !important;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .text-accent-orange {
+  color: color-mix(in srgb, var(--color-accent-orange) 36%, var(--color-text-secondary)) !important;
+}
+
+/* Soft status bar fills (not neon solid) */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .bg-accent-rose {
+  background-color: color-mix(in srgb, var(--mastery-weak) 48%, var(--color-text-tertiary)) !important;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .bg-accent-amber {
+  background-color: color-mix(in srgb, var(--mastery-proficient) 46%, var(--color-text-tertiary)) !important;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .bg-accent-emerald {
+  background-color: color-mix(in srgb, var(--mastery-strong) 46%, var(--color-text-tertiary)) !important;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .bg-accent-orange {
+  background-color: color-mix(in srgb, var(--color-accent-orange) 42%, var(--color-text-tertiary)) !important;
+}
+
 /* Rainbow decorative fills on icon wells (not status chips). */
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell :is(
   .bg-brand-500\/15,
@@ -166,17 +201,28 @@
   background-color: var(--color-surface-secondary) !important;
 }
 
-/* Primary CTA — solid ink (Cursor Settings weight), not brand wash. */
+/* OPT-K21 — Primary CTA: cyan brand (user preference), not ink black/white */
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .ux-primary-cta {
-  background: var(--color-text-primary) !important;
-  color: var(--color-surface-primary) !important;
+  background: var(--color-brand-600) !important;
+  color: #ffffff !important;
   border: 1px solid transparent;
   border-radius: 0.375rem !important;
   box-shadow: none !important;
 }
 
+:is([data-theme="minimal-dark"]) .app-shell .ux-primary-cta {
+  background: var(--color-brand-500) !important;
+  color: #0d1117 !important;
+}
+
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .ux-primary-cta:hover:not(:disabled) {
-  background: color-mix(in srgb, var(--color-text-primary) 88%, var(--color-text-secondary)) !important;
+  filter: brightness(1.06);
+  background: var(--color-brand-600) !important;
+}
+
+:is([data-theme="minimal-dark"]) .app-shell .ux-primary-cta:hover:not(:disabled) {
+  background: var(--color-brand-500) !important;
+  filter: brightness(1.08);
 }
 
 /* Secondary CTA — outline, no brand hover tint. */
@@ -1142,8 +1188,18 @@
 }
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm .concept-mastery-bars .proximity-track > div:last-child > div {
-  /* Soften weak-band bar via token already muted in primer-minimal */
-  opacity: 0.92;
+  /* OPT-K21 — desaturate band fills so they stay subordinate to ink + cyan */
+  filter: saturate(0.45) brightness(0.96);
+  opacity: 0.88;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm .concept-mastery-bars .proximity-row span[style*="color"] {
+  color: var(--color-text-secondary) !important;
+  font-weight: 500;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm .mastery-ring {
+  filter: saturate(0.4);
 }
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm .usage-bar {
@@ -1170,18 +1226,10 @@
   filter: brightness(1.06);
 }
 
-:is([data-theme="minimal"], [data-theme="minimal-dark"]) .hub-quiet .dashboard-one-step-strip .dashboard-continue-hero.ux-primary-cta,
+/* one-step Execute inherits .app-shell .ux-primary-cta cyan (OPT-K21) */
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .hub-quiet .dashboard-one-step-strip .ux-primary-cta {
-  background: var(--color-brand-600);
-  color: #ffffff;
-  border-color: transparent;
+  border-color: transparent !important;
   font-weight: 600;
-}
-
-:is([data-theme="minimal-dark"]) .hub-quiet .dashboard-one-step-strip .dashboard-continue-hero.ux-primary-cta,
-:is([data-theme="minimal-dark"]) .hub-quiet .dashboard-one-step-strip .ux-primary-cta {
-  background: var(--color-brand-500);
-  color: #0d1117;
 }
 
 /* One primary action: quiet study-center Continue only — never the one-step Execute */
