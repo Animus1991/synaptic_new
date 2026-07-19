@@ -318,9 +318,10 @@ Goal: every tool **fully functional for its learning purpose**, not demo stubs.
 
 _All Cinobo micro items shipped (Jul 2026)._
 
-### Open — Replit-inspired clarity waves (aesthetic only)
+### Replit-inspired clarity waves (aesthetic only)
 
-Constraints for all OPT-R*: no typography/button/modal scale-up; no functional changes; blueprint cyan identity preserved; no orange palette import.
+Constraints for all OPT-R*: no typography/button/modal scale-up; no functional removals; blueprint cyan identity preserved; no orange palette import.  
+**SSoT (residual R9+):** `docs/REPLIT_CLARITY_ENHANCEMENT_PLAN.md` (coexists with Primer M* + ChatGPT-calm C*).
 
 | ID | Item | Priority | Status | Notes |
 | -- | ---- | -------- | ------ | ----- |
@@ -332,6 +333,7 @@ Constraints for all OPT-R*: no typography/button/modal scale-up; no functional c
 | OPT-R6 | Wave R6 — Landing intent chips + trust strip | P3 | **shipped** | `LandingIntentChips`; `LandingTrustStrip`; `ux-semi-mono-eyebrow` on landing labels |
 | OPT-R7 | Wave R7 — empty states + modal header stack | P3 | **shipped** | `platform-empty-state` border card; `ModalHeaderStack`; light `--focus-ring-color` on app-shell |
 | OPT-R8 | Wave R8 — nav accent indicator + Visual Lab lane dividers | P3 | **shipped** | Sidebar left accent bar; mobile underline; `visual-lab-mode-rail-lanes` column dividers |
+| OPT-R9–R18 | Residual create/canvas/console program | P2 | **planned** | See `REPLIT_CLARITY_ENHANCEMENT_PLAN.md` §6; start R10+R13 |
 
 ### Primer-inspired minimal (OPT-M) — zero feature removal
 
