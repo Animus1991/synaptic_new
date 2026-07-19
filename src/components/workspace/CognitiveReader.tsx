@@ -299,6 +299,8 @@ export function CognitiveReader({
       color: activeColor,
       note: noteDraft.trim() || undefined,
       createdAt: new Date().toISOString(),
+      excerpt: pendingNote.excerpt.replace(/\s+/g, ' ').trim().slice(0, 120),
+      anchorStatus: 'ok',
     };
     setAnnotations((prev) => [...prev, ann]);
     setPendingNote(null);
@@ -1247,8 +1249,12 @@ export function CognitiveReader({
         <OcrCorrectionPanel
           regions={overlayRegions}
           scopeKey={annotationScopeKey}
+          sourceText={rawDisplayText ?? ''}
           lang={lang}
-          onApplied={() => setOcrCorrectionRevision((v) => v + 1)}
+          onApplied={() => {
+            setOcrCorrectionRevision((v) => v + 1);
+            setAnnotations(loadReaderAnnotations(annotationScopeKey));
+          }}
         />
       )}
 

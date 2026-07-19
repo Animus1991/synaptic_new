@@ -14,6 +14,8 @@ import {
 import {
   listLtiPassbackLog,
   registerLtiLineItem,
+  retryFailedLtiPassbacks,
+  retryLtiPassback,
   submitLtiGradePassback,
 } from '../lib/ltiGradePassback';
 import { verifyLtiIdToken } from '../lib/ltiJwtVerify';
@@ -190,11 +192,20 @@ ltiRouter.post('/lti/launch', async (req, res) => {
   if (ctx?.title) redirect.searchParams.set('lti_context_title', ctx.title);
 
   const nrps = claims['https://purl.imsglobal.org/spec/lti-nrps/claim/namesroleservice'];
+  const ags = claims['https://purl.imsglobal.org/spec/lti-ags/claim/endpoint'] as
+    | { lineitem?: string; lineitems?: string; scope?: string[] }
+    | undefined;
+  const resourceLink = claims['https://purl.imsglobal.org/spec/lti/claim/resource_link'] as
+    | { id?: string; title?: string }
+    | undefined;
   if (ctx?.id) {
     saveLtiLaunchSession({
       ltiContextId: ctx.id,
       contextTitle: ctx.title ?? ctx.label,
       nrpsUrl: nrps?.context_memberships_url,
+      agsLineItemUrl: ags?.lineitem?.trim() || undefined,
+      agsLineItemsUrl: ags?.lineitems?.trim() || undefined,
+      resourceLinkId: resourceLink?.id?.trim() || undefined,
       ltiSub: claims.sub,
       email: claims.email ? String(claims.email) : undefined,
     });
@@ -255,7 +266,12 @@ ltiRouter.post('/auth/saml/complete', async (req, res) => {
 
 /** POST /v1/lti/line-items — map Synapse assignment to platform AGS line item URL. */
 ltiRouter.post('/lti/line-items', authenticate, async (req, res) => {
-  const body = req.body as { classId?: string; assignmentId?: string; lineItemUrl?: string };
+  const body = req.body as {
+    classId?: string;
+    assignmentId?: string;
+    lineItemUrl?: string;
+    resourceLinkId?: string;
+  };
   if (!body.classId?.trim() || !body.assignmentId?.trim() || !body.lineItemUrl?.trim()) {
     res.status(400).json({ error: 'classId, assignmentId, lineItemUrl required' });
     return;
@@ -270,7 +286,12 @@ ltiRouter.post('/lti/line-items', authenticate, async (req, res) => {
     res.status(404).json({ error: 'assignment not found' });
     return;
   }
-  const mapped = registerLtiLineItem(owned.class.id, body.assignmentId.trim(), body.lineItemUrl.trim());
+  const mapped = await registerLtiLineItem(
+    owned.class.id,
+    body.assignmentId.trim(),
+    body.lineItemUrl.trim(),
+    body.resourceLinkId,
+  );
   await appendAuditLogAsync({
     orgId: owned.class.orgId,
     accountId: req.account!.id,
@@ -282,8 +303,60 @@ ltiRouter.post('/lti/line-items', authenticate, async (req, res) => {
 });
 
 /**
- * POST /v1/lti/grade-passback — push gradebook score to LMS via LTI AGS (Canvas parity stub).
+ * POST /v1/lti/line-items/bind-from-launch — auto-bind AGS lineitem from recent LTI launch (OPS-07).
+ * Uses claim endpoint.lineitem when present.
+ */
+ltiRouter.post('/lti/line-items/bind-from-launch', authenticate, async (req, res) => {
+  const body = req.body as { classId?: string; assignmentId?: string; ltiContextId?: string };
+  if (!body.classId?.trim() || !body.assignmentId?.trim()) {
+    res.status(400).json({ error: 'classId, assignmentId required' });
+    return;
+  }
+  const owned = await requireTeacherClass(body.classId.trim(), req.account!.id);
+  if (!owned.ok) {
+    res.status(owned.status).json({ error: owned.error });
+    return;
+  }
+  const link = getLtiContextLink(owned.class.id);
+  const ltiContextId = body.ltiContextId?.trim() || link?.ltiContextId;
+  if (!ltiContextId) {
+    res.status(404).json({ error: 'no LTI context linked to class — launch or link first' });
+    return;
+  }
+  const session = getLtiLaunchSession(ltiContextId);
+  const lineItemUrl = session?.agsLineItemUrl;
+  if (!lineItemUrl) {
+    res.status(404).json({
+      error: 'no AGS lineitem on launch session — open assignment from LMS or POST /lti/line-items',
+      hasLineItemsCollection: Boolean(session?.agsLineItemsUrl),
+    });
+    return;
+  }
+  const assignments = await listClassAssignmentsAsync(owned.class.id);
+  if (!assignments.some((a) => a.id === body.assignmentId)) {
+    res.status(404).json({ error: 'assignment not found' });
+    return;
+  }
+  const mapped = await registerLtiLineItem(
+    owned.class.id,
+    body.assignmentId.trim(),
+    lineItemUrl,
+    session?.resourceLinkId,
+  );
+  await appendAuditLogAsync({
+    orgId: owned.class.orgId,
+    accountId: req.account!.id,
+    action: 'lti.line_item.bind_launch',
+    resource: `${owned.class.id}:${body.assignmentId}`,
+    metadata: { lineItemUrl: mapped.lineItemUrl, ltiContextId },
+  });
+  res.status(201).json(mapped);
+});
+
+/**
+ * POST /v1/lti/grade-passback — push gradebook score to LMS via LTI AGS.
  * Requires graded cell; uses registered line item or explicit lineItemUrl.
+ * Persists passback log (Postgres when DATABASE_URL set).
  */
 ltiRouter.post('/lti/grade-passback', authenticate, async (req, res) => {
   const body = req.body as {
@@ -361,10 +434,35 @@ ltiRouter.get('/lti/grade-passback', authenticate, async (req, res) => {
     res.status(owned.status).json({ error: owned.error });
     return;
   }
-  res.json({ classId, records: listLtiPassbackLog(classId) });
+  res.json({ classId, records: await listLtiPassbackLog(classId) });
 });
 
-/** GET /v1/lti/launch-context/:ltiContextId — NRPS session from recent LTI launch. */
+/** POST /v1/lti/grade-passback/retry — retry stub_queued/failed AGS posts. */
+ltiRouter.post('/lti/grade-passback/retry', authenticate, async (req, res) => {
+  const body = req.body as { classId?: string; recordId?: string };
+  if (!body.classId?.trim()) {
+    res.status(400).json({ error: 'classId required' });
+    return;
+  }
+  const owned = await requireTeacherClass(body.classId.trim(), req.account!.id);
+  if (!owned.ok) {
+    res.status(owned.status).json({ error: owned.error });
+    return;
+  }
+  if (body.recordId?.trim()) {
+    const record = await retryLtiPassback(body.recordId.trim());
+    if (!record || record.classId !== owned.class.id) {
+      res.status(404).json({ error: 'passback record not found' });
+      return;
+    }
+    res.json({ records: [record] });
+    return;
+  }
+  const records = await retryFailedLtiPassbacks(owned.class.id);
+  res.json({ records });
+});
+
+/** GET /v1/lti/launch-context/:ltiContextId — NRPS/AGS session from recent LTI launch. */
 ltiRouter.get('/lti/launch-context/:ltiContextId', authenticate, (req, res) => {
   const session = getLtiLaunchSession(req.params.ltiContextId);
   if (!session) {
@@ -376,6 +474,9 @@ ltiRouter.get('/lti/launch-context/:ltiContextId', authenticate, (req, res) => {
     ltiContextId: session.ltiContextId,
     contextTitle: session.contextTitle,
     hasNrpsUrl: Boolean(session.nrpsUrl),
+    hasAgsLineItem: Boolean(session.agsLineItemUrl),
+    hasAgsLineItems: Boolean(session.agsLineItemsUrl),
+    resourceLinkId: session.resourceLinkId,
     linkedClassId,
   });
 });

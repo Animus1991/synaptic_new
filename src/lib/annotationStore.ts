@@ -1,6 +1,7 @@
 import { hasStoredLineSpan, spanExcerptFromLine } from './annotationSpan';
 import { refreshAnnotationsAfterReprocess } from './annotationAnchor';
 import { loadJson, saveJson } from './persistence';
+import { reprocessReaderAnnotationsForScope } from './readerAnnotationReanchor';
 
 export type AnnotationCategory =
   | 'general'
@@ -71,6 +72,26 @@ export function reprocessCourseAnnotations(
     if (!text?.trim()) continue;
     const items = reprocessFileAnnotations(key, text, pipelineVersion);
     flagged += items.filter((a) => a.anchorStatus === 'needs-review' || a.anchorStatus === 'legacy').length;
+  }
+  return flagged;
+}
+
+/**
+ * W2 TOOL-RD-04 — also re-anchor document-level reader annotations for the same files.
+ * `scopeKeys` typically match CognitiveReader annotationScopeKey (file id/name or `concept:` / `task:`).
+ */
+export function reprocessCourseReaderAnnotations(
+  scopeKeys: string[],
+  textByScopeKey: Record<string, string>,
+): number {
+  let flagged = 0;
+  const seen = new Set<string>();
+  for (const key of scopeKeys) {
+    if (!key || seen.has(key)) continue;
+    seen.add(key);
+    const text = textByScopeKey[key];
+    if (!text?.trim()) continue;
+    flagged += reprocessReaderAnnotationsForScope(key, text);
   }
   return flagged;
 }

@@ -4,16 +4,20 @@ import { cn } from '../../utils/cn';
 import { t as translate, type Lang } from '../../lib/i18n';
 import type { OcrOverlayRegion } from '../../lib/readerOcrOverlay';
 import { isLowConfidenceRegion } from '../../lib/readerOcrOverlay';
-import { loadOcrCorrections, saveOcrCorrection } from '../../lib/readerOcrCorrectionStore';
+import { loadOcrCorrections, saveOcrCorrection, applyOcrCorrectionsToText } from '../../lib/readerOcrCorrectionStore';
+import { reanchorReaderAnnotationsAfterOcrCorrection } from '../../lib/readerAnnotationReanchor';
+import { prepareWorkspaceDisplayText } from '../../lib/workspaceDisplayText';
 
 type Props = {
   regions: OcrOverlayRegion[];
   scopeKey: string;
+  /** Raw source text before OCR corrections — used to rematch reader spans after a fix. */
+  sourceText?: string;
   lang?: Lang;
   onApplied?: () => void;
 };
 
-export function OcrCorrectionPanel({ regions, scopeKey, lang = 'en', onApplied }: Props) {
+export function OcrCorrectionPanel({ regions, scopeKey, sourceText, lang = 'en', onApplied }: Props) {
   const lowConf = regions.filter((r) => isLowConfidenceRegion(r.confidence));
   const [editingId, setEditingId] = useState<string | null>(null);
   const [draft, setDraft] = useState('');
@@ -38,6 +42,10 @@ export function OcrCorrectionPanel({ regions, scopeKey, lang = 'en', onApplied }
       correctedText: corrected,
       updatedAt: new Date().toISOString(),
     });
+    if (sourceText?.trim()) {
+      const correctedDisplay = prepareWorkspaceDisplayText(sourceText, scopeKey);
+      reanchorReaderAnnotationsAfterOcrCorrection(scopeKey, correctedDisplay || applyOcrCorrectionsToText(sourceText, scopeKey));
+    }
     setEditingId(null);
     onApplied?.();
   };

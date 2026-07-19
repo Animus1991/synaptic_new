@@ -616,6 +616,9 @@ export type SharedAnnotationDto = {
   focusTerm?: string;
   teacherEmail: string;
   createdAt: string;
+  /** Monotonic revision for conflict detection (W2). */
+  revision?: number;
+  updatedAt?: string;
 };
 
 export type SharedAnnotationSyncResult = {
@@ -670,6 +673,43 @@ export async function publishTeacherAnnotation(
   });
   if (!res.ok) return null;
   return res.json() as Promise<SharedAnnotationDto>;
+}
+
+export type PatchTeacherAnnotationResult =
+  | { ok: true; annotation: SharedAnnotationDto }
+  | { ok: false; conflict?: SharedAnnotationDto; status: number };
+
+/** W2 — optimistic update; 412 when baseRevision is stale. */
+export async function patchTeacherAnnotation(
+  token: string,
+  settings: UserSettings,
+  annotationId: string,
+  payload: {
+    courseId: string;
+    fileKey: string;
+    baseRevision?: number;
+    type?: SharedAnnotationDto['type'];
+    text?: string;
+    color?: string;
+    lineStart?: number;
+    lineEnd?: number;
+    focusTerm?: string;
+  },
+): Promise<PatchTeacherAnnotationResult> {
+  const res = await fetch(`${proxyBase(settings)}/v1/teacher/annotations/${encodeURIComponent(annotationId)}`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(payload),
+  });
+  if (res.status === 412) {
+    const body = (await res.json().catch(() => ({}))) as { current?: SharedAnnotationDto };
+    return { ok: false, conflict: body.current, status: 412 };
+  }
+  if (!res.ok) return { ok: false, status: res.status };
+  return { ok: true, annotation: (await res.json()) as SharedAnnotationDto };
 }
 
 export async function authExportAccount(token: string, settings: UserSettings): Promise<Blob> {

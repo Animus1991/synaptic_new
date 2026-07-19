@@ -7,6 +7,9 @@ export type ReaderAnnotation = {
   color: string;
   note?: string;
   createdAt: string;
+  /** Quote used to re-find the span after OCR/reprocess (TOOL-RD-04). */
+  excerpt?: string;
+  anchorStatus?: 'ok' | 'needs-review' | 'legacy';
 };
 
 const KEY = 'reader-annotations';

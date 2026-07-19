@@ -6,6 +6,8 @@ import {
   listLtiPassbackLog,
   resetLtiPassbackState,
   getLtiLineItemUrl,
+  getLtiLineItemUrlSync,
+  retryLtiPassback,
 } from './ltiGradePassback';
 
 beforeEach(() => {
@@ -30,11 +32,28 @@ describe('ltiGradePassback', () => {
       score: 75,
     });
     expect(row.status).toBe('stub_queued');
-    expect(listLtiPassbackLog('cls1')).toHaveLength(1);
+    expect(row.attemptCount).toBe(1);
+    expect(await listLtiPassbackLog('cls1')).toHaveLength(1);
   });
 
-  it('registers and resolves line item URLs per assignment', () => {
-    registerLtiLineItem('cls1', 'asg1', 'https://canvas.example.com/line_items/99');
-    expect(getLtiLineItemUrl('cls1', 'asg1')).toContain('line_items/99');
+  it('registers and resolves line item URLs per assignment', async () => {
+    await registerLtiLineItem('cls1', 'asg1', 'https://canvas.example.com/line_items/99');
+    expect(await getLtiLineItemUrl('cls1', 'asg1')).toContain('line_items/99');
+    expect(getLtiLineItemUrlSync('cls1', 'asg1')).toContain('line_items/99');
+  });
+
+  it('retry without bearer leaves stub_queued', async () => {
+    const row = await submitLtiGradePassback({
+      classId: 'cls1',
+      assignmentId: 'asg1',
+      enrollmentId: 'enr1',
+      ltiUserId: 'u1',
+      score: 90,
+      lineItemUrl: 'https://canvas.example.com/line_items/1',
+    });
+    expect(row.status).toBe('stub_queued');
+    const retried = await retryLtiPassback(row.id);
+    expect(retried?.status).toBe('stub_queued');
+    expect(retried?.attemptCount).toBe(1);
   });
 });
