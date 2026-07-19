@@ -328,7 +328,7 @@ function OverviewTab({
   const treemapModel = buildConceptTreemap(courses, learnerModel);
   const timelineModel = buildLearningTimeline(rangedActivities, lang);
   return (
-    <div className={cn(isMinimal ? 'hub-section-stack' : 'space-y-3')}>
+    <div className={cn(isMinimal ? 'hub-section-stack analytics-hub-stack' : 'space-y-3')}>
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
         <ProgressKpiRow kpis={progressKpis} />
       </motion.div>

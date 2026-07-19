@@ -68,4 +68,5 @@ Calm-focused rows live in `docs/CHATGPT_CALM_SCREENSHOT_MATRIX.md` (`npm run cap
 |------|------|-------|
 | Engineering | 2026-07-19 | M0–M19 code landed. Capture helper: `npm run capture:primer-minimal` → `artifacts/primer-minimal/`. **M20 launch gate = human Pass? checkboxes.** |
 | Engineering (re-capture) | 2026-07-19 | Post R18+R12 dump: course/workspace/tools #5,#14–#22 PNGs **yes**; skips only #9–#10 role-gated + #25 mobile after exam-prep. Human Pass? still open. |
+| Engineering (post OPT-K) | 2026-07-19 | OPT-K1–K9+K11 landed after 18:31Z dump. **Re-run `npm run capture:primer-minimal` before marking Pass?** — old PNGs still show pre-K hub cards. Teacher #9 still harness-skip. |
 | | | |

@@ -1,4 +1,5 @@
 import { masteryBand, bandColor } from '../../lib/pedagogy';
+import { cn } from '../../utils/cn';
 
 interface ConceptBar {
   concept: string;
@@ -8,14 +9,15 @@ interface ConceptBar {
 interface Props {
   concepts: ConceptBar[];
   maxItems?: number;
+  className?: string;
 }
 
-export function ConceptMasteryBars({ concepts, maxItems = 8 }: Props) {
+export function ConceptMasteryBars({ concepts, maxItems = 8, className }: Props) {
   const sorted = [...concepts].sort((a, b) => a.mastery - b.mastery).slice(0, maxItems);
   if (sorted.length === 0) return null;
 
   return (
-    <div className="space-y-2.5">
+    <div className={cn('space-y-2.5 concept-mastery-bars', className)}>
       {sorted.map((c) => {
         const band = masteryBand(c.mastery);
         return (

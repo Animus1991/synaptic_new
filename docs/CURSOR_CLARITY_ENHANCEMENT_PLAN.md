@@ -30,8 +30,17 @@ CSS: `src/styles/cursor-clarity.css` (imported after `replit-clarity.css`).
 | **OPT-K6** | Dashboard/Analytics section stacks (not card walls) | **shipped** |
 | **OPT-K7** | PageHeader text-first + outline/solid CTA pair | **shipped** |
 | **OPT-K8** | Settings/Teacher Spending-like wells | **shipped** |
+| **OPT-K9** | Anti-stretch content measure inside full-width main | **shipped** |
+| **OPT-K10** | Shell chrome calm (overflow secondary CTAs/badges) | planned |
+| **OPT-K11** | Single well depth; no duplicate retrieval wells | **shipped** |
+| **OPT-K12** | Studio/tool grid distinct monochrome icons | planned |
+| **OPT-K13** | Rail expand discoverability (keep compact default) | planned |
+| **OPT-K14** | Library chip overflow (+N); all tags reachable | planned |
+| **OPT-K15** | Analytics viz chrome quiet; keep all widgets | planned |
+| **OPT-K16** | Agent mode chrome monochrome under Minimal | planned |
 
-**Default gate:** Minimal / Minimal Dark only. Blueprint untouched.
+**Default gate:** Minimal / Minimal Dark only. Blueprint untouched.  
+**Width rule:** Compact `w-14` + `lg:ml-14` and Expanded `w-56` + `lg:ml-56` — main never underlays rail.
 
 ---
 
@@ -46,4 +55,4 @@ CSS: `src/styles/cursor-clarity.css` (imported after `replit-clarity.css`).
 
 ## Completeness
 
-**OPT-K1–K8 complete** under Minimal. Cursor-clarity axis shipped: shell calm, full-width main, flat panels, monochrome icons/CTAs, UtilityRow hubs, text-first headers, Settings/Teacher wells. Blueprint remains selectable/expressive.
+**OPT-K1–K9 + K11 shipped.** Residual **K10, K12–K16** remain (shell chrome, Studio icons, rail discoverability, Library/Analytics/Agent). Compact rail + expand kept. See canvas `cursor-clarity-residual-audit.canvas.tsx`.

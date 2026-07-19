@@ -521,7 +521,14 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                   <UtilityRow label={t('dashSignalAccuracy')} value={`${Math.round(learnerModel.retentionRate * 100)}%`} barPct={Math.round(learnerModel.retentionRate * 100)} hint={t('dashSignalAccuracyDetail')} />
                   <UtilityRow label={t('dashSignalReliance')} value={`${Math.round((1 - learnerModel.helpSeekingRate) * 100)}%`} barPct={Math.round((1 - learnerModel.helpSeekingRate) * 100)} hint={t('dashSignalRelianceDetail')} />
                   <UtilityRow label={t('dashSignalVolume')} value={`${Math.min(100, Math.round(learnerModel.totalSessions * 2.1))}%`} barPct={Math.min(100, Math.round(learnerModel.totalSessions * 2.1))} hint={t('dashSignalVolumeDetail').replace('{count}', String(learnerModel.totalSessions))} />
-                  <UtilityRow label={t('dashSignalRetrieval')} value={`${Math.round(learnerModel.retrievalPerformance * 100)}%`} barPct={Math.round(learnerModel.retrievalPerformance * 100)} hint={t('dashSignalRetrievalDetail')} />
+                  {/* OPT-K11 — retrieval lives here only under Minimal (no duplicate well). */}
+                  <UtilityRow
+                    label={t('dashSignalRetrieval')}
+                    value={`${Math.round(learnerModel.retrievalPerformance * 100)}%`}
+                    barPct={Math.round(learnerModel.retrievalPerformance * 100)}
+                    hint={t('dashSignalRetrievalDetail')}
+                    data-testid="dashboard-retrieval-strength-bar"
+                  />
                 </div>
               </div>
             </HubSection>
@@ -558,17 +565,8 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
               : undefined}
           />
 
-          {/* L-D02: retrieval strength — OPT-K5 UsageBar under Minimal */}
-          {isMinimal ? (
-            <HubSection data-testid="dashboard-retrieval-strength-bar">
-              <UtilityRow
-                label={t('dashSignalRetrieval')}
-                value={`${Math.round(learnerModel.retrievalPerformance * 100)}%`}
-                barPct={Math.round(learnerModel.retrievalPerformance * 100)}
-                hint={t('dashSignalRetrievalDetail')}
-              />
-            </HubSection>
-          ) : (
+          {/* L-D02: retrieval strength bar — Blueprint only (Minimal: in readiness HubSection). */}
+          {!isMinimal && (
           <div
             className="rounded-xl border border-border-subtle bg-surface-card/50 px-3 py-2"
             data-testid="dashboard-retrieval-strength-bar"
@@ -604,7 +602,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
               {conceptMastery.length > 0 && (
                 <BlueprintSurface className="p-3.5">
                   <SectionLabel icon={Brain}>{t('dashConceptMastery')}</SectionLabel>
-                  <ConceptMasteryBars concepts={conceptMastery} />
+                  <ConceptMasteryBars concepts={conceptMastery} className="concept-mastery-bars" />
                 </BlueprintSurface>
               )}
               {prerequisiteRepairs.length > 0 && (

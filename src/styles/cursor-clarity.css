@@ -329,6 +329,109 @@
   box-shadow: none !important;
 }
 
+/* ── OPT-K9 — Anti-stretch content measure (page stays full-width) ───────── */
+/*
+ * Keep label ↔ value proximity on ultrawide. Main shell remains max-w-none;
+ * only dense row tracks get a readable measure.
+ */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell {
+  --content-measure: 36rem;
+  --content-measure-wide: 42rem;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .content-measure {
+  max-width: var(--content-measure);
+  width: 100%;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell :is(
+  .hub-section .utility-row,
+  .progress-kpi-stack .utility-row,
+  .hub-section-stack .utility-row
+) {
+  max-width: var(--content-measure);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .hub-section-stack :is(
+  [data-testid="syllabus-coverage-widget-compact"],
+  [data-testid="syllabus-coverage-widget"]
+) {
+  max-width: var(--content-measure-wide);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .hub-section-stack [data-testid="syllabus-coverage-widget-compact"] li {
+  max-width: var(--content-measure);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .hub-section-stack .content-measure-bars,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .hub-section-stack .concept-mastery-bars {
+  max-width: var(--content-measure-wide);
+}
+
+/* Stats HubSection: denser two-column UtilityRows on wide viewports */
+@media (min-width: 900px) {
+  :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell [data-testid="dashboard-page-stats"] .hub-section-body {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, var(--content-measure)));
+    column-gap: 1.5rem;
+    row-gap: 0;
+    max-width: calc(var(--content-measure) * 2 + 1.5rem);
+  }
+
+  :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell [data-testid="dashboard-page-stats"] .utility-row {
+    max-width: none;
+  }
+}
+
+/* ── OPT-K11 — Single well depth inside hub-section-stack ───────────────── */
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .hub-section-stack {
+  gap: 0;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 0.5rem;
+  background: var(--color-surface-primary);
+  overflow: hidden;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .hub-section-stack > * {
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  border-bottom: 1px solid color-mix(in srgb, var(--color-border-subtle) 75%, transparent) !important;
+  padding: 0.9rem 1rem !important;
+  margin: 0 !important;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .hub-section-stack > *:last-child {
+  border-bottom: none !important;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .hub-section-stack > .hub-section {
+  border: none !important;
+  padding: 0.9rem 1rem !important;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .hub-section-stack .hub-section-title {
+  margin-bottom: 0.5rem;
+}
+
+/* Nested cards/wells inside the stack: one depth only */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .hub-section-stack :is(
+  .ux-card,
+  .ux-calm-panel,
+  .platform-panel-md,
+  .platform-panel,
+  [data-testid="syllabus-coverage-widget-compact"]
+) {
+  border: none !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .analytics-quiet .progress-kpi-stack .utility-row-hint {
   color: var(--color-text-tertiary);
 }
