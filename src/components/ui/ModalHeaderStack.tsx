@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { cn } from '../../utils/cn';
+import { AllCapsLabel } from './AllCapsLabel';
 
 type Props = {
   eyebrow?: string;
@@ -23,7 +24,7 @@ export function ModalHeaderStack({
 }: Props) {
   return (
     <div className={cn('ux-modal-header-stack', className)}>
-      {eyebrow ? <p className="ux-semi-mono-eyebrow ux-modal-eyebrow">{eyebrow}</p> : null}
+      {eyebrow ? <p className="ux-semi-mono-eyebrow ux-modal-eyebrow"><AllCapsLabel>{eyebrow}</AllCapsLabel></p> : null}
       <h2 id={titleId} className={cn('ux-modal-title text-lg font-bold text-text-primary', titleClassName)}>
         {title}
       </h2>

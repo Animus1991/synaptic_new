@@ -21,6 +21,7 @@ import {
   type OnboardingWizardStep,
 } from '../lib/onboardingDraft';
 import { UiIcon } from './ui/UiIcon';
+import { AllCapsLabel } from './ui/AllCapsLabel';
 
 interface OnboardingProps {
   onComplete: (data: {
@@ -282,7 +283,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                 </div>
                 <div>
                   <p className="text-xs font-semibold text-text-tertiary uppercase tracking-wider mb-3 text-center">
-                    {content.welcomeFeatureTitle}
+                    <AllCapsLabel>{content.welcomeFeatureTitle}</AllCapsLabel>
                   </p>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {features.map((feature, index) => {

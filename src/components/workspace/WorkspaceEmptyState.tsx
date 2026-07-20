@@ -5,6 +5,7 @@ import type { WorkspaceEmptyAction, WorkspaceEmptyTool } from '../../lib/workspa
 import { workspaceEmptyTitle } from '../../lib/workspaceEmptyState';
 import { useWorkspaceEmptyActions } from './WorkspaceEmptyActionsContext';
 import { PrimaryCTA, SecondaryCTA } from '../ui/primitives';
+import { AllCapsLabel } from '../ui/AllCapsLabel';
 
 interface Props {
   message: string;
@@ -77,7 +78,7 @@ export function WorkspaceEmptyState({
       {(actions.length > 0 || showLegacyUpload) && (
         <div className={cn('flex flex-col gap-2', compact ? 'mt-2 w-full' : 'mt-5 items-center')}>
           <p className="text-[10px] font-semibold uppercase tracking-wide text-text-muted">
-            {t('workspaceEmptyNextStep')}
+            <AllCapsLabel>{t('workspaceEmptyNextStep')}</AllCapsLabel>
           </p>
           <div className={cn('flex flex-wrap gap-2', compact ? '' : 'items-center justify-center')}>
             {showLegacyUpload && (

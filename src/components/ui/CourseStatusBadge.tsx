@@ -1,5 +1,6 @@
 import { cn } from '../../utils/cn';
 import { useI18n } from '../../lib/i18n';
+import { asAllCapsLabel } from '../../lib/greekTypography';
 
 export type CourseStatusKind =
   | 'ready'
@@ -46,7 +47,7 @@ export function CourseStatusBadge({
       )}
       data-testid={`course-status-${kind}`}
     >
-      {label ?? t(KIND_KEY[kind])}
+      {asAllCapsLabel(label ?? t(KIND_KEY[kind]))}
     </span>
   );
 }

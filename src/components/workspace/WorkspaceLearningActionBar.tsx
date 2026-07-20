@@ -9,6 +9,7 @@ import {
   type NextActionRecommendation,
 } from '../../lib/nextActionEngine';
 import { BlueprintSurface } from '../ui/BlueprintSurface';
+import { AllCapsLabel } from '../ui/AllCapsLabel';
 
 export function WorkspaceLearningActionBar({
   lang,
@@ -56,7 +57,7 @@ export function WorkspaceLearningActionBar({
         data-testid="learning-actions-toggle"
       >
         <span className="ws-eyebrow text-[10px] text-text-muted">
-          {t('nextAction')}
+          <AllCapsLabel>{t('nextAction')}</AllCapsLabel>
         </span>
         {expanded ? (
           <ChevronUp className="h-3.5 w-3.5 shrink-0 text-text-muted" />

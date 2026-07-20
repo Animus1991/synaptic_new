@@ -3,6 +3,7 @@ import { cn } from '../../utils/cn';
 import { workspaceEntryPrefetchHandlers } from '../../lib/workspaceEntryPrefetch';
 import { useI18n } from '../../lib/i18n';
 import { useMinimalTheme } from '../../lib/useMinimalTheme';
+import { AllCapsLabel } from './AllCapsLabel';
 import { PrimaryCTA, SecondaryCTA } from './primitives';
 import { BlueprintSurface } from './BlueprintSurface';
 
@@ -31,7 +32,7 @@ export function PostUploadBanner({ courseTitle, onOpenWorkspace, onViewCourse, o
       role="status"
     >
       <div className="flex-1 min-w-0">
-        <p className="ws-eyebrow text-text-secondary mb-1">{t('postUploadCourseReady')}</p>
+        <p className="ws-eyebrow text-text-secondary mb-1"><AllCapsLabel>{t('postUploadCourseReady')}</AllCapsLabel></p>
         <p className="text-sm font-semibold text-text-primary truncate">{courseTitle}</p>
         <p className="text-xs text-text-secondary mt-1">{t('postUploadHint')}</p>
       </div>

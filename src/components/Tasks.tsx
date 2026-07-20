@@ -30,6 +30,7 @@ import { LeitnerDueQueuePanel } from './workspace/LeitnerDueQueuePanel';
 import { buildFsrsDueQueue } from '../lib/leitnerDueQueue';
 import { useWarmSandPageScope, warmSandScopeProps } from '../lib/useDocumentTheme';
 import { useMinimalTheme } from '../lib/useMinimalTheme';
+import { AllCapsLabel } from './ui/AllCapsLabel';
 
 export type { TaskFilter } from '../lib/tasksContent';
 
@@ -295,7 +296,7 @@ export function Tasks({
           </div>
           <div className="text-right">
             <p className="text-lg font-bold tabular-nums text-text-primary">{progressPct}%</p>
-            <p className="text-[10px] uppercase tracking-wide text-text-tertiary">{c.dailyGoal}</p>
+            <p className="text-[10px] uppercase tracking-wide text-text-tertiary"><AllCapsLabel>{c.dailyGoal}</AllCapsLabel></p>
           </div>
         </div>
         <div className="ux-progress-track h-2">
@@ -310,7 +311,7 @@ export function Tasks({
           </p>
           {activeTask && (
             <p className="text-sm text-text-primary truncate">
-              <span className="text-[10px] uppercase tracking-wide text-brand-400 mr-2">{c.sessionRunningNow}</span>
+              <span className="text-[10px] uppercase tracking-wide text-brand-400 mr-2"><AllCapsLabel>{c.sessionRunningNow}</AllCapsLabel></span>
               {activeTask.title}
             </p>
           )}
@@ -425,7 +426,7 @@ export function Tasks({
                   <div className="flex items-center gap-1.5">
                     <TrendingUp className="w-3.5 h-3.5 ux-banner-warn-accent shrink-0" aria-hidden />
                     <p className="ux-banner-warn-accent text-[10px] font-semibold uppercase tracking-wide">
-                      {c.almostThereTitle}
+                      <AllCapsLabel>{c.almostThereTitle}</AllCapsLabel>
                     </p>
                   </div>
                   <p className="text-xs text-text-tertiary">{c.almostThereHint}</p>
@@ -453,7 +454,7 @@ export function Tasks({
                   <div className="flex items-center gap-1.5">
                     <Zap className="w-3.5 h-3.5 text-brand-600 shrink-0" aria-hidden />
                     <p className="text-[10px] font-semibold uppercase tracking-wide text-brand-700">
-                      {c.recallReminderTitle}
+                      <AllCapsLabel>{c.recallReminderTitle}</AllCapsLabel>
                     </p>
                   </div>
                   <p className="text-xs text-text-secondary">{c.recallReminderBody}</p>
@@ -524,7 +525,7 @@ export function Tasks({
                           data-testid={`task-running-badge-${task.id}`}
                           className="text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-md bg-[var(--color-warm-ink)] text-white"
                         >
-                          {c.sessionRunningBadge}
+                          <AllCapsLabel>{c.sessionRunningBadge}</AllCapsLabel>
                         </span>
                       )}
                       {(task.priority === 'critical' || task.priority === 'high') && (
@@ -534,7 +535,7 @@ export function Tasks({
                           data-testid={`task-priority-badge-${task.id}`}
                           className="ux-chip-solid-danger text-[9px] font-bold uppercase tracking-[0.06em] px-2 py-0.5 rounded-md"
                         >
-                          {c.highPriority}
+                          <AllCapsLabel>{c.highPriority}</AllCapsLabel>
                         </span>
                       )}
                       <button
@@ -566,7 +567,7 @@ export function Tasks({
                         >
                           {(task.priority === 'high' || task.priority === 'critical') && (
                             <p className="text-[10px] font-bold uppercase tracking-[0.08em] text-accent-rose">
-                              {c.highPriority}
+                              <AllCapsLabel>{c.highPriority}</AllCapsLabel>
                             </p>
                           )}
                           <p className="text-sm text-text-secondary leading-relaxed">{task.description}</p>

@@ -22,6 +22,7 @@ import { courseDeleteStats } from '../lib/removeCourse';
 import { isDemoCourse } from '../lib/demoMode';
 import { selectCourseTaskMetrics } from '../lib/coursePageSelectors';
 import { CourseIcon } from './ui/CourseIcon';
+import { AllCapsLabel } from './ui/AllCapsLabel';
 import { UiIcon } from './ui/UiIcon';
 import { PlatformEmptyState } from './ui/PlatformEmptyState';
 import { PostUploadBanner } from './ui/PostUploadBanner';
@@ -725,7 +726,7 @@ function CourseCard({
               data-testid={`library-corner-gap-${course.id}`}
               className="rounded-md border border-accent-amber/40 bg-accent-amber/15 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-accent-amber"
             >
-              {t('libCornerMaterialGap', userLanguage)}
+              <AllCapsLabel>{t('libCornerMaterialGap', userLanguage)}</AllCapsLabel>
             </span>
           )}
           {showMisconception && (
@@ -733,7 +734,7 @@ function CourseCard({
               data-testid={`library-corner-misconception-${course.id}`}
               className="rounded-md border border-brand-500/35 bg-brand-500/10 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-brand-700"
             >
-              {t('libCornerMisconception', userLanguage)}
+              <AllCapsLabel>{t('libCornerMisconception', userLanguage)}</AllCapsLabel>
             </span>
           )}
         </div>

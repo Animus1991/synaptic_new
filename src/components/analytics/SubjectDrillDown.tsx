@@ -3,6 +3,7 @@ import { CompactProgressBar } from '../ui/CompactProgressBar';
 import type { SubjectMasteryTile } from '../../lib/subjectMasteryAnalytics';
 import { useI18n } from '../../lib/i18n';
 import { cn } from '../../utils/cn';
+import { AllCapsLabel } from '../ui/AllCapsLabel';
 
 type Props = {
   tile: SubjectMasteryTile | null;
@@ -35,7 +36,7 @@ export function SubjectDrillDown({ tile, onClose, onStudyConcept }: Props) {
       >
         <div className="flex items-start justify-between gap-2 border-b border-border-subtle px-4 py-3">
           <div className="min-w-0">
-            <p className="text-[10px] font-semibold uppercase tracking-wide text-text-tertiary">{title}</p>
+            <p className="text-[10px] font-semibold uppercase tracking-wide text-text-tertiary"><AllCapsLabel>{title}</AllCapsLabel></p>
             <h3 className="text-sm font-semibold text-text-primary truncate">{tile.title}</h3>
             <p className="text-xs text-text-secondary mt-0.5 tabular-nums">{tile.mastery}% mastery</p>
           </div>

@@ -2,6 +2,7 @@ import { X, BookOpen, Sparkles, ExternalLink, Layers, Brain, BarChart3, Upload }
 import { useMemo, useState } from 'react';
 import type { Course, GlossaryEntry, LearnerModel, UploadedFile } from '../types';
 import { cn } from '../utils/cn';
+import { AllCapsLabel } from './ui/AllCapsLabel';
 import { openNotebookLm, notebookLmSourceLabel } from '../lib/notebooklmBridge';
 import { parseNotebookLmExport, parseNotebookLmAudioFromMarkdown } from '../lib/notebooklmImport';
 import {
@@ -170,7 +171,7 @@ export function NotebookShellView({
         >
           <div className="px-3 py-2 border-b border-border-subtle/60">
             <p className="text-[10px] font-semibold uppercase tracking-wide text-text-muted">
-              {el ? 'Πηγές' : 'Sources'}
+              <AllCapsLabel>{el ? 'Πηγές' : 'Sources'}</AllCapsLabel>
             </p>
           </div>
           <ul className="p-2 space-y-1">
@@ -273,7 +274,7 @@ export function NotebookShellView({
           <div className="px-3 py-2 border-b border-border-subtle/60 flex items-center gap-1.5">
             <BarChart3 className="w-3.5 h-3.5 text-accent-amber" />
             <p className="text-[10px] font-semibold uppercase tracking-wide text-text-muted">
-              Studio
+              <AllCapsLabel>Studio</AllCapsLabel>
             </p>
           </div>
           <div className="p-2 grid grid-cols-2 lg:grid-cols-1 gap-2">

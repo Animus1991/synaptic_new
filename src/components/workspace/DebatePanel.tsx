@@ -10,6 +10,7 @@ import type {
   WorkspaceSelectionContext,
 } from '../../lib/workspaceSelectionActions';
 import { useI18n } from '../../lib/i18n';
+import { AllCapsLabel } from '../ui/AllCapsLabel';
 
 type Props = {
   session: DebateSessionContent;
@@ -97,7 +98,7 @@ export function DebatePanel({
       <div className="shrink-0 border-b border-border-subtle px-4 py-3">
         {session.sectionLabel && (
           <p className="mb-2 ws-eyebrow text-text-muted" data-testid="debate-section-label">
-            <span>{t('wsSectionLabel')}</span>
+            <span><AllCapsLabel>{t('wsSectionLabel')}</AllCapsLabel></span>
             <span className="ml-2 normal-case tracking-normal text-text-secondary font-sans text-[11px]">
               {session.sectionLabel}
             </span>
@@ -132,7 +133,7 @@ export function DebatePanel({
             />
           </div>
           <span className="ws-eyebrow text-text-muted">
-            <span className="ws-num">{session.nodeCount}</span> {t('panelNodes')}
+            <span className="ws-num">{session.nodeCount}</span> <AllCapsLabel>{t('panelNodes')}</AllCapsLabel>
           </span>
           {onOpenInReader && (
             <button
@@ -142,7 +143,7 @@ export function DebatePanel({
               data-testid="debate-open-reader"
             >
               <BookOpen className="w-3 h-3" aria-hidden />
-              {t('panelReaderSource')}
+              <AllCapsLabel>{t('panelReaderSource')}</AllCapsLabel>
             </button>
           )}
         </div>

@@ -2,6 +2,7 @@ import type { DocumentModelSnapshot, RecognitionSummary } from '../lib/documentM
 import { recognitionSummaryFromSnapshot } from '../lib/documentModelSnapshot';
 import { t, type Lang } from '../lib/i18n';
 import { cn } from '../utils/cn';
+import { AllCapsLabel } from './ui/AllCapsLabel';
 
 type RecognitionReportPanelProps = {
   snapshot?: DocumentModelSnapshot;
@@ -19,7 +20,7 @@ function Metric({
 }) {
   return (
     <div className="rounded-lg border border-border-subtle bg-surface-hover/50 px-3 py-2">
-      <p className="text-[10px] uppercase tracking-wide text-text-muted">{label}</p>
+      <p className="text-[10px] uppercase tracking-wide text-text-muted"><AllCapsLabel>{label}</AllCapsLabel></p>
       <p className="text-sm font-semibold text-text-primary tabular-nums">{value}</p>
     </div>
   );
@@ -82,7 +83,7 @@ export function RecognitionReportPanel({
       {topConcepts.length > 0 && (
         <div>
           <p className="text-[10px] uppercase tracking-wide text-text-muted mb-1.5">
-            {t('recognitionKeyConcepts', language)}
+            <AllCapsLabel>{t('recognitionKeyConcepts', language)}</AllCapsLabel>
           </p>
           <div className="flex flex-wrap gap-1">
             {topConcepts.map((c) => (

@@ -7,6 +7,7 @@ import { useI18n } from '../lib/i18n';
 import { workspaceEntryPrefetchHandlers } from '../lib/workspaceEntryPrefetch';
 import { BlueprintSurface } from './ui/BlueprintSurface';
 import { DashboardLivePreviewWatches } from './DashboardLivePreviewWatches';
+import { AllCapsLabel } from './ui/AllCapsLabel';
 
 type PreviewStep = {
   id: string;
@@ -110,7 +111,7 @@ export function DashboardLivePreview({
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="min-w-0 flex-1">
             <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-text-secondary">
-              {t('dashboardLivePreviewEyebrow')}
+              <AllCapsLabel>{t('dashboardLivePreviewEyebrow')}</AllCapsLabel>
             </p>
             <h2 className="mt-1 truncate text-sm font-semibold text-text-primary">{headline}</h2>
             <p className="mt-0.5 text-[11px] text-text-tertiary line-clamp-1">{meta}</p>
@@ -140,7 +141,7 @@ export function DashboardLivePreview({
       <div className="dashboard-live-preview-topline" aria-hidden />
       <div className="mb-4 flex flex-wrap items-start justify-between gap-4">
         <div className="min-w-0">
-          <p className="dashboard-live-preview-eyebrow">{t('dashboardLivePreviewEyebrow')}</p>
+          <p className="dashboard-live-preview-eyebrow"><AllCapsLabel>{t('dashboardLivePreviewEyebrow')}</AllCapsLabel></p>
           <h2 className="dashboard-preview-title mt-2">{headline}</h2>
           <p className="mt-1 text-sm text-text-secondary">{t('dashboardResumeSubtitle')}</p>
         </div>
@@ -174,7 +175,7 @@ export function DashboardLivePreview({
                 <div className="flex items-center justify-between gap-3">
                   <h3 className="text-sm font-semibold text-text-primary">{step.title}</h3>
                   <span className="dashboard-live-preview-status">
-                    {active ? t('dashboardLivePreviewActive') : t('dashboardLivePreviewQueued')}
+                    <AllCapsLabel>{active ? t('dashboardLivePreviewActive') : t('dashboardLivePreviewQueued')}</AllCapsLabel>
                   </span>
                 </div>
                 <p className="mt-2 text-sm leading-6 text-text-secondary">{step.body}</p>

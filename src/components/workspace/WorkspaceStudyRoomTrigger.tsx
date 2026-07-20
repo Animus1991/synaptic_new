@@ -1,6 +1,7 @@
 import { Users } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
 import { useI18n } from '../../lib/i18n';
+import { AllCapsLabel } from '../ui/AllCapsLabel';
 
 type Props = {
   lang: 'en' | 'el';
@@ -53,7 +54,7 @@ export function WorkspaceStudyRoomTrigger({
       )}
     >
       <Users className="h-3 w-3" aria-hidden />
-      {!compact && label}
+      {!compact && <AllCapsLabel>{label}</AllCapsLabel>}
     </button>
   );
 }

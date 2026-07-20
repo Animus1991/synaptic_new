@@ -1,5 +1,6 @@
 import { useI18n, type I18nKey } from '../lib/i18n';
 import { cn } from '../utils/cn';
+import { AllCapsLabel } from './ui/AllCapsLabel';
 
 const INSTITUTIONS: I18nKey[] = [
   'landingTrustUni',
@@ -14,7 +15,7 @@ export function LandingTrustStrip({ className }: { className?: string }) {
 
   return (
     <div className={cn('landing-trust-strip', className)} data-testid="landing-trust-strip">
-      <p className="ux-semi-mono-eyebrow landing-trust-strip-eyebrow">{t('landingTrustStripEyebrow')}</p>
+      <p className="ux-semi-mono-eyebrow landing-trust-strip-eyebrow"><AllCapsLabel>{t('landingTrustStripEyebrow')}</AllCapsLabel></p>
       <div className="landing-trust-strip-logos" aria-hidden>
         {INSTITUTIONS.map((key) => (
           <span key={key} className="landing-trust-strip-logo">

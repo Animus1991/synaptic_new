@@ -18,6 +18,7 @@ import { courseQualityDismissKey, shouldShowCourseQualityBanner } from '../lib/c
 import { buildReprocessPreview } from '../lib/reprocessPreview';
 import { ReprocessPreviewModal } from './ReprocessPreviewModal';
 import { ConfirmDialog } from './ui/ConfirmDialog';
+import { AllCapsLabel } from './ui/AllCapsLabel';
 import { useI18n } from '../lib/i18n';
 import { buildDeleteFileCascadeCopy } from '../lib/deleteFileCascadeCopy';
 import { buildDeleteCourseCascadeCopy } from '../lib/deleteCourseCascadeCopy';
@@ -307,23 +308,23 @@ export function CourseView({
         data-testid="course-page-stats"
       >
         <div className="ux-stat-card" data-testid="course-stat-progress">
-          <p className="ux-stat-card-label">{t('courseStatProgress')}</p>
+          <p className="ux-stat-card-label"><AllCapsLabel>{t('courseStatProgress')}</AllCapsLabel></p>
           <p className="ux-stat-card-value">{pageStats.progressPercent}%</p>
         </div>
         <div className="ux-stat-card" data-testid="course-stat-mastery-card">
-          <p className="ux-stat-card-label">{t('courseStatMastery')}</p>
+          <p className="ux-stat-card-label"><AllCapsLabel>{t('courseStatMastery')}</AllCapsLabel></p>
           <p className="ux-stat-card-value">{pageStats.masteryPercent}%</p>
         </div>
         <div className="ux-stat-card" data-testid="course-stat-pending-tasks">
-          <p className="ux-stat-card-label">{t('courseStatPendingTasks')}</p>
+          <p className="ux-stat-card-label"><AllCapsLabel>{t('courseStatPendingTasks')}</AllCapsLabel></p>
           <p className="ux-stat-card-value">{pageStats.pendingTasks}</p>
         </div>
         <div className="ux-stat-card" data-testid="course-stat-due-reviews">
-          <p className="ux-stat-card-label">{t('courseStatDueReviews')}</p>
+          <p className="ux-stat-card-label"><AllCapsLabel>{t('courseStatDueReviews')}</AllCapsLabel></p>
           <p className="ux-stat-card-value">{pageStats.dueReviews}</p>
         </div>
         <div className="ux-stat-card" data-testid="course-stat-source-quality">
-          <p className="ux-stat-card-label">{t('courseStatSourceQuality')}</p>
+          <p className="ux-stat-card-label"><AllCapsLabel>{t('courseStatSourceQuality')}</AllCapsLabel></p>
           <p className="ux-stat-card-value">
             {pageStats.sourceQualityScore != null
               ? `${pageStats.sourceQualityScore}/100`

@@ -13,6 +13,7 @@ import { LandingIntentChips } from './LandingIntentChips';
 import { LandingTrustStrip } from './LandingTrustStrip';
 import { LandingFooter } from './LandingFooter';
 import { HeaderTrustBadgeRow, SynapseBrandGlyph } from './ui/platformChrome';
+import { AllCapsLabel } from './ui/AllCapsLabel';
 import { useBlueprintTheme } from '../lib/useBlueprintTheme';
 import { cn } from '../utils/cn';
 
@@ -93,7 +94,7 @@ export function Landing({ onGetStarted, onSeeDemo }: LandingProps) {
             <span
               className="landing-eyebrow ux-semi-mono-eyebrow text-xs font-medium text-brand-700"
             >
-              {content.badge}
+              <AllCapsLabel>{content.badge}</AllCapsLabel>
             </span>
           </motion.div>
 
@@ -148,7 +149,7 @@ export function Landing({ onGetStarted, onSeeDemo }: LandingProps) {
               >
                 {content.ctaSecondary}
                 <span className="landing-demo-sandbox-badge ml-1.5 rounded-full border border-brand-500/40 bg-brand-100/80 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-brand-800">
-                  {t('landingDemoSandboxBadge')}
+                  <AllCapsLabel>{t('landingDemoSandboxBadge')}</AllCapsLabel>
                 </span>
                 <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </button>
@@ -299,7 +300,7 @@ export function Landing({ onGetStarted, onSeeDemo }: LandingProps) {
               <h2
                 className="ux-semi-mono-eyebrow text-brand-700 mb-5"
               >
-                {content.featuresSectionTitle}
+                <AllCapsLabel>{content.featuresSectionTitle}</AllCapsLabel>
               </h2>
               <h3
                 className="landing-display landing-section-title text-text-primary"
@@ -344,7 +345,7 @@ export function Landing({ onGetStarted, onSeeDemo }: LandingProps) {
               <h2
                 className="ux-semi-mono-eyebrow text-brand-700 mb-5"
               >
-                {t('landingDifferentiation')}
+                <AllCapsLabel>{t('landingDifferentiation')}</AllCapsLabel>
               </h2>
               <h3
                 className="landing-display landing-section-title text-text-primary mb-4"
@@ -403,7 +404,7 @@ export function Landing({ onGetStarted, onSeeDemo }: LandingProps) {
               >
                 {content.ctaSecondary}
                 <span className="landing-demo-sandbox-badge ml-1.5 rounded-full border border-brand-500/40 bg-brand-100/80 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-brand-800">
-                  {t('landingDemoSandboxBadge')}
+                  <AllCapsLabel>{t('landingDemoSandboxBadge')}</AllCapsLabel>
                 </span>
                 <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </button>

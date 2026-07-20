@@ -5,6 +5,7 @@ import { useAnalyticsDateRange } from './AnalyticsDateRangeContext';
 import { SectionLabel } from '../ui/SectionLabel';
 import { useI18n } from '../../lib/i18n';
 import { cn } from '../../utils/cn';
+import { AllCapsLabel } from '../ui/AllCapsLabel';
 
 type Props = {
   activities: ActivityItem[];
@@ -38,7 +39,7 @@ export function StudyBehaviorCharts({ activities, className }: Props) {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
         <div className="rounded-xl border border-border-subtle bg-surface-card p-3" data-testid="study-behavior-bars">
           <p className="text-[10px] font-semibold uppercase tracking-wide text-text-tertiary mb-2">
-            {lang === 'el' ? 'Δραστηριότητα' : 'Activity'}
+            <AllCapsLabel>{lang === 'el' ? 'Δραστηριότητα' : 'Activity'}</AllCapsLabel>
           </p>
           <div className="flex items-end gap-1 h-24">
             {model.dayBars.map((d) => (
@@ -56,7 +57,7 @@ export function StudyBehaviorCharts({ activities, className }: Props) {
 
         <div className="rounded-xl border border-border-subtle bg-surface-card p-3" data-testid="study-behavior-effectiveness">
           <p className="text-[10px] font-semibold uppercase tracking-wide text-text-tertiary mb-2">
-            {lang === 'el' ? 'Αποτελεσματικότητα' : 'Effectiveness'}
+            <AllCapsLabel>{lang === 'el' ? 'Αποτελεσματικότητα' : 'Effectiveness'}</AllCapsLabel>
           </p>
           <svg viewBox={`0 0 ${Math.max(model.effectiveness.length * 24, 120)} 80`} className="w-full h-24" role="img">
             <polyline

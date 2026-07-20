@@ -5,6 +5,7 @@ import { useMemo } from 'react';
 import type { AnnotationConflict } from '../../lib/annotationConflict';
 import { resolveAnnotationConflict } from '../../lib/annotationConflict';
 import type { SharedAnnotationDto } from '../../lib/authClient';
+import { AllCapsLabel } from '../ui/AllCapsLabel';
 
 type Props = {
   conflicts: AnnotationConflict[];
@@ -69,7 +70,7 @@ export function AnnotationConflictPanel({
           data-testid="annotation-conflict-keep-local"
           onClick={() => pick('local')}
         >
-          <div className="text-xs uppercase tracking-wide opacity-60">{copy.local}</div>
+          <div className="text-xs uppercase tracking-wide opacity-60"><AllCapsLabel>{copy.local}</AllCapsLabel></div>
           <div className="text-sm mt-1 whitespace-pre-wrap">{current.local.text}</div>
           <div className="text-xs opacity-50 mt-2">
             L{current.local.lineStart + 1} · rev {current.local.revision ?? 0}
@@ -81,7 +82,7 @@ export function AnnotationConflictPanel({
           data-testid="annotation-conflict-keep-remote"
           onClick={() => pick('remote')}
         >
-          <div className="text-xs uppercase tracking-wide opacity-60">{copy.remote}</div>
+          <div className="text-xs uppercase tracking-wide opacity-60"><AllCapsLabel>{copy.remote}</AllCapsLabel></div>
           <div className="text-sm mt-1 whitespace-pre-wrap">{current.remote.text}</div>
           <div className="text-xs opacity-50 mt-2">
             L{current.remote.lineStart + 1} · rev {current.remote.revision ?? 0}

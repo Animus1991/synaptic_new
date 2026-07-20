@@ -9,6 +9,7 @@ import { useStudyRoomSession } from '../../hooks/useStudyRoomSession';
 import { JitsiMeetEmbed } from './JitsiMeetEmbed';
 import { StudyRoomSharedNotes } from './StudyRoomSharedNotes';
 import { resolveCollabWebSocketUrl } from '../../lib/studyRoomCollab';
+import { AllCapsLabel } from '../ui/AllCapsLabel';
 
 type Props = {
   open: boolean;
@@ -114,7 +115,7 @@ export function StudyRoomPanel(props: Props) {
                 {tr('studyRoomIntro')}
               </p>
               <label className="block">
-                <span className="ws-field-label">{tr('studyRoomDisplayName')}</span>
+                <span className="ws-field-label"><AllCapsLabel>{tr('studyRoomDisplayName')}</AllCapsLabel></span>
                 <input
                   value={displayName}
                   onChange={(e) => setDisplayName(e.target.value)}
@@ -133,7 +134,7 @@ export function StudyRoomPanel(props: Props) {
                 <div className="absolute inset-x-0 top-1/2 border-t border-border-subtle" />
               </div>
               <label className="block">
-                <span className="ws-field-label">{tr('studyRoomInviteCode')}</span>
+                <span className="ws-field-label"><AllCapsLabel>{tr('studyRoomInviteCode')}</AllCapsLabel></span>
                 <input
                   value={inviteInput}
                   onChange={(e) => setInviteInput(e.target.value)}
@@ -225,7 +226,7 @@ export function StudyRoomPanel(props: Props) {
                 localOnly={room.localOnly}
               />
               <div className="space-y-2">
-                <p className="ws-field-label">{tr('studyRoomVideoCall')}</p>
+                <p className="ws-field-label"><AllCapsLabel>{tr('studyRoomVideoCall')}</AllCapsLabel></p>
                 {showVideo ? (
                   <JitsiMeetEmbed roomName={room.jitsiRoom} lang={lang} />
                 ) : (

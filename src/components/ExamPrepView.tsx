@@ -18,6 +18,7 @@ import type { ExamQuestion } from '../lib/taskFlows';
 import { cn } from '../utils/cn';
 import { CollapsibleChromeSection } from './workspace/CollapsibleChromeSection';
 import { useI18n } from '../lib/i18n';
+import { AllCapsLabel } from './ui/AllCapsLabel';
 
 interface ExamPrepViewProps {
   onClose: () => void;
@@ -289,7 +290,7 @@ export function ExamPrepView({
       {(phase === 'active' || phase === 'review') && currentQuestion && currentAnswer && (
         <div className="flex-1 flex overflow-hidden">
           <div className="hidden sm:flex w-56 shrink-0 flex-col border-r border-border-subtle bg-surface-secondary/20 p-3 gap-3 overflow-y-auto">
-            <p className="text-xs font-semibold text-text-tertiary uppercase tracking-wider">Questions</p>
+            <p className="text-xs font-semibold text-text-tertiary uppercase tracking-wider"><AllCapsLabel>Questions</AllCapsLabel></p>
             <div className="grid grid-cols-4 gap-2">
               {examQuestions.map((_, i) => {
                 const answer = answers[i];

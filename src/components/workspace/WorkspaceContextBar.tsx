@@ -5,6 +5,7 @@ import type { WorkspaceContextBreadcrumb } from '../../lib/workspaceContextModel
 import type { WorkspaceSourceIntelligence } from '../../lib/workspaceNoteContent';
 import { WorkspaceStudyRoomTrigger } from './WorkspaceStudyRoomTrigger';
 import { useI18n } from '../../lib/i18n';
+import { AllCapsLabel } from '../ui/AllCapsLabel';
 
 type Props = {
   context: WorkspaceContextBreadcrumb;
@@ -112,7 +113,7 @@ export function WorkspaceContextBar({
           data-testid="context-bar-next-action"
         >
           <Sparkles className="h-3 w-3" aria-hidden />
-          {nextActionLabel ?? t('next')}
+          <AllCapsLabel>{nextActionLabel ?? t('next')}</AllCapsLabel>
         </button>
       )}
 
@@ -127,7 +128,7 @@ export function WorkspaceContextBar({
           )}
           data-testid="context-bar-weak-chip"
         >
-          {t('weak')} <span className="ws-num">({weakCount})</span>
+          <AllCapsLabel>{t('weak')}</AllCapsLabel> <span className="ws-num">({weakCount})</span>
         </button>
       )}
 
@@ -142,7 +143,7 @@ export function WorkspaceContextBar({
           )}
           data-testid="context-bar-concepts-chip"
         >
-          {t('contextConceptsLabel')}
+          <AllCapsLabel>{t('contextConceptsLabel')}</AllCapsLabel>
           {conceptCount > 0 ? <span className="ws-num"> ({conceptCount})</span> : null}
         </button>
       )}
@@ -189,7 +190,7 @@ export function WorkspaceContextBar({
           data-testid="context-bar-focus-chip"
           title={focusConcept}
         >
-          {focusConcept}
+          <AllCapsLabel>{focusConcept}</AllCapsLabel>
         </span>
       )}
 

@@ -8,6 +8,7 @@ import {
   WORKSPACE_TOOLS,
   workspaceToolLabel,
 } from '../../lib/workspaceToolRegistry';
+import { AllCapsLabel } from '../ui/AllCapsLabel';
 
 interface Props {
   open: boolean;
@@ -67,7 +68,7 @@ export function WorkspaceMobileToolDrawer({
             </div>
             <div className="flex items-center justify-between border-b border-border-subtle px-4 pb-3 pt-1">
               <div className="min-w-0">
-                <p className="ws-eyebrow text-text-muted">{t('wsStudyToolsAria', lang)}</p>
+                <p className="ws-eyebrow text-text-muted"><AllCapsLabel>{t('wsStudyToolsAria', lang)}</AllCapsLabel></p>
                 <p className="mt-0.5 truncate text-[12px] text-text-secondary">
                   {t('wsCurrentColon', lang)}{' '}
                   <span className="text-text-primary font-medium">{workspaceToolLabel(activeTool, lang)}</span>
@@ -89,7 +90,7 @@ export function WorkspaceMobileToolDrawer({
                 return (
                   <div key={group.label}>
                     <p className="mb-2 px-1 ws-eyebrow text-text-muted">
-                      {lang === 'el' ? group.labelEl : group.label}
+                      <AllCapsLabel>{lang === 'el' ? group.labelEl : group.label}</AllCapsLabel>
                     </p>
                     <div className="grid grid-cols-1 gap-2 xs:grid-cols-2">
                       {toolsInGroup.map((toolId) => {

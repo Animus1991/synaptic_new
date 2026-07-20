@@ -11,6 +11,7 @@ import { StudyTimer } from './StudyTimer';
 import { TimerExamCountdownDashboardStrip } from './TimerExamCountdownDashboardStrip';
 import { WorkspacePanelWarnStrip } from './WorkspacePanelWarnStrip';
 import { useI18n } from '../../lib/i18n';
+import { AllCapsLabel } from '../ui/AllCapsLabel';
 
 type Props = {
   session: TimerSessionContent;
@@ -114,7 +115,7 @@ export function TimerPanel({
             className="ws-eyebrow ws-chip-warn rounded-full px-2 py-0.5 text-[9px] font-medium"
             data-testid="timer-suggested-exam-practice"
           >
-            {examPracticeLabel(activeExamPractice ?? session.suggestedExamPractice, lang)}
+            <AllCapsLabel>{examPracticeLabel(activeExamPractice ?? session.suggestedExamPractice, lang)}</AllCapsLabel>
           </span>
           {session.daysToExam !== null && (
             <span className="text-[10px] text-text-muted">

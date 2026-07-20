@@ -9,6 +9,7 @@ import {
 import { useI18n } from '../../lib/i18n';
 import { cn } from '../../utils/cn';
 import { PlatformSection } from '../ui/primitives';
+import { AllCapsLabel } from '../ui/AllCapsLabel';
 
 type Props = {
   courses: Course[];
@@ -46,7 +47,7 @@ export function SyllabusCoverageWidget({
       >
         <div className="flex items-center justify-between gap-2">
           <p className="text-[10px] font-semibold uppercase tracking-wide text-text-tertiary">
-            {t('coverageTrackerTitle')}
+            <AllCapsLabel>{t('coverageTrackerTitle')}</AllCapsLabel>
           </p>
           {onSelectCourse && primary && (
             <button

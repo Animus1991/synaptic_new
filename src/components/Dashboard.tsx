@@ -35,6 +35,7 @@ import { BlueprintSurface } from './ui/BlueprintSurface';
 import { PostUploadBanner } from './ui/PostUploadBanner';
 import { useWarmSandPageScope, warmSandScopeProps } from '../lib/useDocumentTheme';
 import { SectionLabel } from './ui/SectionLabel';
+import { AllCapsLabel } from './ui/AllCapsLabel';
 import { DashboardActionHub } from './DashboardActionHub';
 import { buildDashboardWeakSpotCards } from '../lib/dashboardWeakSpotsModel';
 import { executeDashboardNextAction } from '../lib/dashboardNextAction';
@@ -635,7 +636,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
               >
                 <div className="mb-1.5 flex items-center justify-between gap-2">
                   <span className="text-[10px] font-semibold uppercase tracking-[0.08em] text-text-secondary">
-                    {t('dashSignalRetrieval')}
+                    <AllCapsLabel>{t('dashSignalRetrieval')}</AllCapsLabel>
                   </span>
                   <span className="text-[11px] font-semibold tabular-nums text-text-primary">
                     {Math.round(learnerModel.retrievalPerformance * 100)}%
@@ -903,7 +904,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
               <div className="dashboard-almost-there proximity-track space-y-1 min-w-0" data-testid="dashboard-almost-there">
                 <div className="mb-1.5">
                   <p className="text-xs font-semibold text-text-primary tracking-wide uppercase">
-                    {t('dashAlmostThere')}
+                    <AllCapsLabel>{t('dashAlmostThere')}</AllCapsLabel>
                   </p>
                   <p className="text-[11px] text-text-tertiary mt-0.5">{t('dashAlmostThereHint')}</p>
                 </div>
@@ -973,7 +974,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
               <div className="dashboard-almost-there proximity-track space-y-1" data-testid="dashboard-almost-there">
                 <div className="mb-1.5">
                   <p className="text-xs font-semibold text-text-primary tracking-wide uppercase">
-                    {t('dashAlmostThere')}
+                    <AllCapsLabel>{t('dashAlmostThere')}</AllCapsLabel>
                   </p>
                   <p className="text-[11px] text-text-tertiary mt-0.5">{t('dashAlmostThereHint')}</p>
                 </div>
@@ -1204,15 +1205,15 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                     data-testid="dash-horizon-today"
                   >
                     <p className="ux-kpi-value text-accent-amber">{fsrsHorizon.today}</p>
-                    <p className="text-[9px] text-text-muted uppercase tracking-wide">{t('dashHorizonToday')}</p>
+                    <p className="text-[9px] text-text-muted uppercase tracking-wide"><AllCapsLabel>{t('dashHorizonToday')}</AllCapsLabel></p>
                   </button>
                   <div className="p-2 rounded-lg bg-surface-primary/50" data-testid="dash-horizon-tomorrow">
                     <p className="ux-kpi-value">{fsrsHorizon.tomorrow}</p>
-                    <p className="text-[9px] text-text-muted uppercase tracking-wide">{t('dashHorizonTomorrow')}</p>
+                    <p className="text-[9px] text-text-muted uppercase tracking-wide"><AllCapsLabel>{t('dashHorizonTomorrow')}</AllCapsLabel></p>
                   </div>
                   <div className="p-2 rounded-lg bg-surface-primary/50" data-testid="dash-horizon-3d">
                     <p className="ux-kpi-value">{fsrsHorizon.within3d}</p>
-                    <p className="text-[9px] text-text-muted uppercase tracking-wide">{t('dashHorizon3d')}</p>
+                    <p className="text-[9px] text-text-muted uppercase tracking-wide"><AllCapsLabel>{t('dashHorizon3d')}</AllCapsLabel></p>
                   </div>
                 </div>
                 {fsrsDueQueue.length > 0 && onFocusWeakArea && (
@@ -1262,15 +1263,15 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                     data-testid="dash-horizon-today"
                   >
                     <p className="ux-kpi-value text-accent-amber">{fsrsHorizon.today}</p>
-                    <p className="text-[9px] text-text-muted uppercase tracking-wide">{t('dashHorizonToday')}</p>
+                    <p className="text-[9px] text-text-muted uppercase tracking-wide"><AllCapsLabel>{t('dashHorizonToday')}</AllCapsLabel></p>
                   </button>
                   <div className="p-2 rounded-lg bg-surface-primary/50" data-testid="dash-horizon-tomorrow">
                     <p className="ux-kpi-value">{fsrsHorizon.tomorrow}</p>
-                    <p className="text-[9px] text-text-muted uppercase tracking-wide">{t('dashHorizonTomorrow')}</p>
+                    <p className="text-[9px] text-text-muted uppercase tracking-wide"><AllCapsLabel>{t('dashHorizonTomorrow')}</AllCapsLabel></p>
                   </div>
                   <div className="p-2 rounded-lg bg-surface-primary/50" data-testid="dash-horizon-3d">
                     <p className="ux-kpi-value">{fsrsHorizon.within3d}</p>
-                    <p className="text-[9px] text-text-muted uppercase tracking-wide">{t('dashHorizon3d')}</p>
+                    <p className="text-[9px] text-text-muted uppercase tracking-wide"><AllCapsLabel>{t('dashHorizon3d')}</AllCapsLabel></p>
                   </div>
                 </div>
                 {fsrsDueQueue.length > 0 && onFocusWeakArea && (
@@ -1334,7 +1335,7 @@ function StatCard({
     >
       <div className="mb-0.5 flex items-center gap-1.5">
         {icon}
-        <span className="text-[9px] font-medium uppercase tracking-wide text-text-tertiary truncate">{label}</span>
+        <span className="text-[9px] font-medium uppercase tracking-wide text-text-tertiary truncate"><AllCapsLabel>{label}</AllCapsLabel></span>
       </div>
       <p className="ux-kpi-value-sm leading-tight">{value}</p>
     </BlueprintSurface>

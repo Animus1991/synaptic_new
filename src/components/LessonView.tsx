@@ -11,6 +11,7 @@ import { buildLessonSteps } from '../lib/lessonContent';
 import { isMcQuiz } from '../lib/lessonTypes';
 import { getLessonProgress, saveLessonProgress } from '../lib/lessonProgress';
 import { useI18n } from '../lib/i18n';
+import { AllCapsLabel } from './ui/AllCapsLabel';
 import { useWorkspaceNoteBundle } from '../lib/useWorkspaceNoteBundle';
 import { generateLessonPanels, canGenerateGroundedLesson } from '../lib/lessonGenerator';
 import type { WorkspacePanel } from '../lib/workspaceLessonPanels';
@@ -190,7 +191,7 @@ export function LessonView({
           </button>
           <div className="min-w-0">
             <p className="ws-eyebrow text-text-muted truncate">
-              {lessonCourse}
+              <AllCapsLabel>{lessonCourse}</AllCapsLabel>
               {noteBundle.hasSource && (
                 <span className="ml-1.5 text-accent-emerald normal-case tracking-normal">
                   · {t('lessonViewFromYourNotes')}

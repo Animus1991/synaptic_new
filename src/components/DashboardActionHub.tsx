@@ -6,6 +6,7 @@ import {
 import { cn } from '../utils/cn';
 import { useI18n } from '../lib/i18n';
 import { BlueprintSurface } from './ui/BlueprintSurface';
+import { AllCapsLabel } from './ui/AllCapsLabel';
 import {
   buildDashboardHubActions,
   partitionDashboardHubActions,
@@ -198,7 +199,7 @@ export function DashboardActionHub({
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div className="min-w-0" id="dashboard-hero-greeting">
                 {greetingEyebrow && (
-                  <p className="ws-eyebrow mb-1 text-text-secondary opacity-90">{greetingEyebrow}</p>
+                  <p className="ws-eyebrow mb-1 text-text-secondary opacity-90"><AllCapsLabel>{greetingEyebrow}</AllCapsLabel></p>
                 )}
                 {greetingTitle && (
                   <h1 className="ws-serif font-medium tracking-tight text-base sm:text-lg">{greetingTitle}</h1>
@@ -251,7 +252,7 @@ export function DashboardActionHub({
                 >
                   <div className="min-w-0 flex-1">
                     <p className={cn('text-[10px] font-semibold uppercase tracking-[0.08em]', onHero ? 'text-white/80' : 'text-text-secondary')}>
-                      {t('dashboardLivePreviewEyebrow')}
+                      <AllCapsLabel>{t('dashboardLivePreviewEyebrow')}</AllCapsLabel>
                     </p>
                     <p className={cn('mt-1 text-sm font-medium', onHero ? 'text-white' : 'text-text-primary')}>
                       {t('dashboardHeroHubSideTitle')}

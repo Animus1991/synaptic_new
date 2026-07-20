@@ -11,6 +11,7 @@ import { cn } from '../../utils/cn';
 import type { AgentSourceModeOption } from '../../lib/agentContent';
 import { useMinimalTheme } from '../../lib/useMinimalTheme';
 import { useI18n } from '../../lib/i18n';
+import { AllCapsLabel } from '../ui/AllCapsLabel';
 
 const SOURCE_ICONS: Record<UserSettings['sourceMode'], ElementType> = {
   strict: Lock,
@@ -167,7 +168,7 @@ export function AgentModeSidebar({
       <div className="flex-1 overflow-y-auto">
         <div className="p-4 border-b border-border-subtle">
           <p className="text-xs font-semibold text-text-tertiary uppercase tracking-wider mb-3">
-            {tutorModeHeading}
+            <AllCapsLabel>{tutorModeHeading}</AllCapsLabel>
           </p>
 
           {quietModes ? (
@@ -196,7 +197,7 @@ export function AgentModeSidebar({
                         <ChevronRight className="w-3 h-3 text-text-tertiary shrink-0" aria-hidden />
                       )}
                       <span className="flex-1 text-[10px] font-semibold uppercase tracking-wider text-text-tertiary truncate">
-                        {t(group.labelKey)}
+                        <AllCapsLabel>{t(group.labelKey)}</AllCapsLabel>
                       </span>
                       <span className="text-[10px] tabular-nums text-text-muted">{count}</span>
                     </button>
@@ -235,7 +236,7 @@ export function AgentModeSidebar({
         {onChangeSourceMode && (
           <div className="p-4 border-b border-border-subtle">
             <p className="text-xs font-semibold text-text-tertiary uppercase tracking-wider mb-3">
-              {sourceModeHeading}
+              <AllCapsLabel>{sourceModeHeading}</AllCapsLabel>
             </p>
             {sourceModeOptions.map((opt) => {
               const Icon = SOURCE_ICONS[opt.id];
@@ -339,7 +340,7 @@ export function AgentModeCatalogGrid({
       {groups.map((group) => (
         <div key={group.id} data-testid={`agent-mode-group-${group.id}`}>
           <p className="agent-mode-group-label mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-text-tertiary">
-            {t(group.labelKey)}
+            <AllCapsLabel>{t(group.labelKey)}</AllCapsLabel>
           </p>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
             {group.modes.map((m) => {

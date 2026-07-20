@@ -8,6 +8,7 @@ import { workspaceToolLabel } from '../../../lib/workspaceToolRegistry';
 import { displayWorkspaceStepTitle } from '../../../lib/workspaceContextModel';
 import { WorkspaceContextBar } from '../WorkspaceContextBar';
 import { WorkspaceStudyRoomTrigger } from '../WorkspaceStudyRoomTrigger';
+import { AllCapsLabel } from '../../ui/AllCapsLabel';
 import { CompactStudyTimer } from '../CompactStudyTimer';
 import { ConceptLensChromeStrip } from '../ConceptLensChromeStrip';
 import { TheoryPracticeLensToggle } from '../TheoryPracticeLensToggle';
@@ -167,7 +168,7 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
                   </div>
                   <div className="space-y-1">
                     <p className="ws-eyebrow type-micro text-brand-800 font-semibold truncate">
-                      {courseName ?? linkedCourse?.title ?? t('courseEyebrow')}
+                      <AllCapsLabel>{courseName ?? linkedCourse?.title ?? t('courseEyebrow')}</AllCapsLabel>
                     </p>
                     <h1
                       className="ws-serif type-display-sm text-text-primary truncate"

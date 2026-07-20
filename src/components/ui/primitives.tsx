@@ -9,6 +9,7 @@ import {
   useBlueprintTheme,
 } from '../../lib/useBlueprintTheme';
 import { MINIMAL_MOTION, useMinimalTheme } from '../../lib/useMinimalTheme';
+import { AllCapsLabel } from './AllCapsLabel';
 
 /**
  * Shared page-level layout primitives for Synapse top-level views.
@@ -63,7 +64,7 @@ export function PageHeader({
       <div className="min-w-0">
         {eyebrow && (
           <p className={cn('ws-eyebrow mb-1 text-text-secondary', isMinimal && 'text-[10px] uppercase tracking-[0.06em] text-text-muted')}>
-            {eyebrow}
+            <AllCapsLabel>{eyebrow}</AllCapsLabel>
           </p>
         )}
         <div className="flex items-center gap-2">
@@ -298,7 +299,7 @@ export function StatTile({
     <BlueprintSurface className={cn('p-2.5 ux-stat-tile', className)}>
       <div className="flex items-center gap-1.5">
         {icon}
-        <span className="ws-eyebrow text-text-secondary truncate">{label}</span>
+        <span className="ws-eyebrow text-text-secondary truncate"><AllCapsLabel>{label}</AllCapsLabel></span>
       </div>
       <p className="mt-1 text-sm font-bold tracking-tight tabular-nums text-text-primary sm:text-base">{value}</p>
       {hint && <p className="ws-caption mt-0.5 text-text-muted">{hint}</p>}

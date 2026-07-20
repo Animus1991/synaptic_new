@@ -8,6 +8,7 @@ import { UiIcon } from '../ui/UiIcon';
 
 import { ANNOTATION_PALETTE } from '../../lib/masteryPalette';
 import { useI18n } from '../../lib/i18n';
+import { AllCapsLabel } from '../ui/AllCapsLabel';
 
 const COLORS = [...ANNOTATION_PALETTE];
 
@@ -75,7 +76,7 @@ export function AnnotationToolbar({
     <div className="ws-panel-toolbar" data-testid="annotation-toolbar">
       <div className="ws-panel-toolbar-row">
         <FileText className="h-3 w-3 shrink-0 text-brand-700" aria-hidden />
-        <span className="ws-eyebrow shrink-0 text-text-secondary">{sourceViewerLabel}</span>
+        <span className="ws-eyebrow shrink-0 text-text-secondary"><AllCapsLabel>{sourceViewerLabel}</AllCapsLabel></span>
         {sharedCount > 0 && (
           <span className="ws-chip-warn rounded px-1 py-0.5 text-[8px]">
             {sharedCount} {t('annoTeacherShort')}

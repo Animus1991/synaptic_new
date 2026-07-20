@@ -184,21 +184,21 @@
   color: color-mix(in srgb, var(--color-accent-orange) 42%, var(--color-text-secondary)) !important;
 }
 
-/* Soft status bar fills — light: dusty pastel; dark: prior mute */
+/* Soft status bar fills — light: OPT-K27 slightly stronger pastels; dark: prior mute */
 :is([data-theme="minimal"]) .app-shell .bg-accent-rose {
-  background-color: color-mix(in srgb, var(--mastery-weak) 55%, var(--color-border-subtle)) !important;
+  background-color: color-mix(in srgb, var(--mastery-weak) 72%, var(--color-border-subtle)) !important;
 }
 
 :is([data-theme="minimal"]) .app-shell .bg-accent-amber {
-  background-color: color-mix(in srgb, var(--mastery-proficient) 55%, var(--color-border-subtle)) !important;
+  background-color: color-mix(in srgb, var(--mastery-proficient) 72%, var(--color-border-subtle)) !important;
 }
 
 :is([data-theme="minimal"]) .app-shell .bg-accent-emerald {
-  background-color: color-mix(in srgb, var(--mastery-strong) 55%, var(--color-border-subtle)) !important;
+  background-color: color-mix(in srgb, var(--mastery-strong) 72%, var(--color-border-subtle)) !important;
 }
 
 :is([data-theme="minimal"]) .app-shell .bg-accent-orange {
-  background-color: color-mix(in srgb, var(--color-accent-orange) 50%, var(--color-border-subtle)) !important;
+  background-color: color-mix(in srgb, var(--color-accent-orange) 68%, var(--color-border-subtle)) !important;
 }
 
 :is([data-theme="minimal-dark"]) .app-shell .bg-accent-rose {

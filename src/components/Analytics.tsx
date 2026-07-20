@@ -21,6 +21,7 @@ import { CourseIcon } from './ui/CourseIcon';
 import { cn } from '../utils/cn';
 import { Page, PageHeader, TabBar } from './ui/primitives';
 import { SectionLabel } from './ui/SectionLabel';
+import { AllCapsLabel } from './ui/AllCapsLabel';
 import { useWarmSandPageScope, warmSandScopeProps } from '../lib/useDocumentTheme';
 import { ReadinessRing } from './visuals/ReadinessRing';
 import { RetentionCurve } from './visuals/DiagramGenerator';
@@ -1212,7 +1213,7 @@ function MetricCard({ icon, label, value, sub }: { icon: React.ReactNode; label:
   }
   return (
     <div className="p-3 rounded-xl border border-border-subtle bg-surface-card">
-      <div className="flex items-center gap-2 mb-1.5">{icon}<span className="text-[10px] uppercase tracking-wide text-text-tertiary font-medium">{label}</span></div>
+      <div className="flex items-center gap-2 mb-1.5">{icon}<span className="text-[10px] uppercase tracking-wide text-text-tertiary font-medium"><AllCapsLabel>{label}</AllCapsLabel></span></div>
       <p className="ux-kpi-value-sm">{value}</p>
       <p className="text-[10px] text-text-muted mt-0.5">{sub}</p>
     </div>

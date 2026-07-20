@@ -14,6 +14,7 @@ import { Page, PageHeader } from './ui/primitives';
 import { workspaceEntryPrefetchHandlers } from '../lib/workspaceEntryPrefetch';
 import { LiveEngineTransparencyPanel } from './analysis/LiveEngineTransparencyPanel';
 import { CollapsibleChromeSection } from './workspace/CollapsibleChromeSection';
+import { AllCapsLabel } from './ui/AllCapsLabel';
 
 const STAGE_ICONS: Record<NoteAnalysisStageId, typeof FileText> = {
   1: FileText,
@@ -101,7 +102,7 @@ export function NoteAnalysisView({
 
       <div className="grid gap-4 lg:grid-cols-3 mb-6" data-testid="note-analysis-summary">
         <div className="ux-card">
-          <p className="text-xs font-semibold text-text-tertiary uppercase tracking-wide mb-2">{c.summarySourceHealth}</p>
+          <p className="text-xs font-semibold text-text-tertiary uppercase tracking-wide mb-2"><AllCapsLabel>{c.summarySourceHealth}</AllCapsLabel></p>
           <p className="text-base font-semibold text-text-primary">{snapshot.summary.sourceHealth}</p>
           <p className="text-xs text-text-secondary mt-2">{snapshot.summary.sourceHealthDetail}</p>
           <div className="mt-3 pt-3 border-t border-border-subtle">
@@ -113,7 +114,7 @@ export function NoteAnalysisView({
           </div>
         </div>
         <div className="ux-card">
-          <p className="text-xs font-semibold text-text-tertiary uppercase tracking-wide mb-2">{c.summaryStructure}</p>
+          <p className="text-xs font-semibold text-text-tertiary uppercase tracking-wide mb-2"><AllCapsLabel>{c.summaryStructure}</AllCapsLabel></p>
           <p className="text-base font-semibold text-text-primary">{snapshot.summary.structure}</p>
           <p className="text-xs text-text-secondary mt-2">{snapshot.summary.structureDetail}</p>
           <div className="mt-3 grid grid-cols-2 gap-2">
@@ -128,7 +129,7 @@ export function NoteAnalysisView({
           </div>
         </div>
         <div className="ux-card flex flex-col">
-          <p className="text-xs font-semibold text-text-tertiary uppercase tracking-wide mb-2">{c.summaryNextStep}</p>
+          <p className="text-xs font-semibold text-text-tertiary uppercase tracking-wide mb-2"><AllCapsLabel>{c.summaryNextStep}</AllCapsLabel></p>
           <p className="text-sm text-text-secondary flex-1">{snapshot.summary.nextStep}</p>
           <button
             type="button"

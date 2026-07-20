@@ -1,5 +1,6 @@
 import { cn } from '../utils/cn';
 import { useI18n } from '../lib/i18n';
+import { AllCapsLabel } from './ui/AllCapsLabel';
 
 const STEPS = ['agentFlowDescribe', 'agentFlowGround', 'agentFlowReview'] as const;
 
@@ -22,7 +23,7 @@ export function AgentFlowRail({ className, activeIndex = 0 }: { className?: stri
             index < activeIndex && 'agent-flow-rail-step-done',
           )}
         >
-          {t(key)}
+          <AllCapsLabel>{t(key)}</AllCapsLabel>
         </span>
       ))}
     </div>

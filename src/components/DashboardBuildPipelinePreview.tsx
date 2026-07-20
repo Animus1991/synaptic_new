@@ -3,6 +3,7 @@ import { HERO_PIPELINE_STEP_IDS } from '../lib/colorCodingReference';
 import { useI18n, type I18nKey } from '../lib/i18n';
 import { BlueprintSurface } from './ui/BlueprintSurface';
 import { DashboardLivePreviewWatches } from './DashboardLivePreviewWatches';
+import { AllCapsLabel } from './ui/AllCapsLabel';
 
 const STEP_TITLE_KEYS: Record<(typeof HERO_PIPELINE_STEP_IDS)[number], I18nKey> = {
   ingest: 'dashboardPipelineIngestTitle',
@@ -29,7 +30,7 @@ export function DashboardBuildPipelinePreview({ className }: { className?: strin
     >
       <div className="dashboard-live-preview-topline" aria-hidden />
       <div className="mb-4">
-        <p className="dashboard-live-preview-eyebrow">{t('dashboardBuildPreviewEyebrow')}</p>
+        <p className="dashboard-live-preview-eyebrow"><AllCapsLabel>{t('dashboardBuildPreviewEyebrow')}</AllCapsLabel></p>
         <h2 className="dashboard-preview-title mt-2">
           {t('dashboardBuildPreviewTitle')}
         </h2>
@@ -48,7 +49,7 @@ export function DashboardBuildPipelinePreview({ className }: { className?: strin
             <div className="min-w-0 flex-1">
               <div className="flex items-center justify-between gap-3">
                 <h3 className="text-sm font-semibold text-text-primary">{t(STEP_TITLE_KEYS[stepId])}</h3>
-                <span className="dashboard-live-preview-status">{t('dashboardPipelineStage')}</span>
+                <span className="dashboard-live-preview-status"><AllCapsLabel>{t('dashboardPipelineStage')}</AllCapsLabel></span>
               </div>
               <p className="mt-2 text-sm leading-6 text-text-secondary">{t(STEP_BODY_KEYS[stepId])}</p>
             </div>

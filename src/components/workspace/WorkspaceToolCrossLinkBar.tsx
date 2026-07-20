@@ -5,6 +5,7 @@ import { getToolCrossLinkDef } from '../../lib/workspaceToolCrossLinks';
 import { buildToolDefaultAgentPrompt } from '../../lib/workspaceToolAgentPrompts';
 import { workspaceToolLabel } from '../../lib/workspaceToolRegistry';
 import { useI18n } from '../../lib/i18n';
+import { AllCapsLabel } from '../ui/AllCapsLabel';
 
 type Props = {
   activeTool: WorkspaceToolId;
@@ -50,7 +51,7 @@ export function WorkspaceToolCrossLinkBar({
       <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
         <span className="ws-eyebrow inline-flex items-center gap-1 text-text-muted">
           <Link2 className="h-3 w-3" aria-hidden />
-          {groupLabel}
+          <AllCapsLabel>{groupLabel}</AllCapsLabel>
         </span>
         {stepTitle && (
           <span
@@ -70,7 +71,7 @@ export function WorkspaceToolCrossLinkBar({
             className="ws-eyebrow inline-flex items-center gap-1 rounded-md border border-border-subtle bg-surface-card/80 px-2 py-1 text-[10px] text-text-secondary hover:border-brand-400/40 hover:text-brand-800 transition-colors min-h-[32px]"
           >
             <BookOpen className="h-3 w-3" aria-hidden />
-            {t('toolSource')}
+            <AllCapsLabel>{t('toolSource')}</AllCapsLabel>
           </button>
         )}
         {onAskAgent && (
@@ -82,7 +83,7 @@ export function WorkspaceToolCrossLinkBar({
             className="ws-eyebrow inline-flex items-center gap-1 rounded-md border border-accent-cyan/30 bg-accent-cyan/10 px-2 py-1 text-[10px] text-brand-800 hover:opacity-90 transition-colors min-h-[32px]"
           >
             <Sparkles className="h-3 w-3" aria-hidden />
-            Agent
+            <AllCapsLabel>Agent</AllCapsLabel>
           </button>
         )}
       </div>

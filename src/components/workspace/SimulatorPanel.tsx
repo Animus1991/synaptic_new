@@ -11,6 +11,7 @@ import { ArtifactStaleBanner } from './ArtifactStaleBanner';
 import { WorkspacePanelWarnStrip } from './WorkspacePanelWarnStrip';
 import { SimulatorTimerPresetSyncStrip } from './SimulatorTimerPresetSyncStrip';
 import { useI18n } from '../../lib/i18n';
+import { AllCapsLabel } from '../ui/AllCapsLabel';
 import { ExamPrepPanel } from './ExamPrepPanel';
 import { cn } from '../../utils/cn';
 
@@ -201,7 +202,7 @@ export function SimulatorPanel({
               className="ws-eyebrow ws-chip-warn inline-flex items-center gap-1 rounded-lg px-2 py-1 text-[10px] font-medium hover:opacity-90"
             >
               <Timer className="w-3 h-3" />
-              {t('panelTimedBlock')} · {examPracticeLabel(session.suggestedExamPractice, lang)}
+              <AllCapsLabel>{t('panelTimedBlock')} · {examPracticeLabel(session.suggestedExamPractice, lang)}</AllCapsLabel>
             </button>
           )}
           {onOpenInReader && (

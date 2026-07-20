@@ -1,5 +1,6 @@
 import { t, type Lang } from '../../lib/i18n';
 import { useStudyRoomSharedNotes } from '../../hooks/useStudyRoomSharedNotes';
+import { AllCapsLabel } from '../ui/AllCapsLabel';
 
 type Props = {
   lang: Lang;
@@ -28,7 +29,7 @@ export function StudyRoomSharedNotes({ lang, roomId, inviteCode, wsUrl, localOnl
   return (
     <div className="space-y-1.5" data-testid="study-room-shared-notes">
       <div className="flex items-center justify-between gap-2">
-        <p className="ws-field-label">{tr('studyRoomSharedNotes')}</p>
+        <p className="ws-field-label"><AllCapsLabel>{tr('studyRoomSharedNotes')}</AllCapsLabel></p>
         <span className="text-[10px] text-text-muted">
           {synced ? tr('studyRoomCollabSynced') : tr('studyRoomCollabConnecting')}
         </span>

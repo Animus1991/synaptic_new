@@ -1,5 +1,6 @@
 import { cn } from '../utils/cn';
 import { useI18n } from '../lib/i18n';
+import { AllCapsLabel } from './ui/AllCapsLabel';
 
 /** “What the system watches” footer — shared by live + pipeline previews (Wave E13). */
 export function DashboardLivePreviewWatches({ className }: { className?: string }) {
@@ -7,7 +8,7 @@ export function DashboardLivePreviewWatches({ className }: { className?: string 
 
   return (
     <div className={cn('dashboard-live-preview-watches', className)} data-testid="dashboard-live-preview-watches">
-      <p className="dashboard-live-preview-eyebrow">{t('dashboardPreviewWatchesEyebrow')}</p>
+      <p className="dashboard-live-preview-eyebrow"><AllCapsLabel>{t('dashboardPreviewWatchesEyebrow')}</AllCapsLabel></p>
       <div className="mt-4 grid gap-3 sm:grid-cols-2">
         <div>
           <p className="text-sm font-semibold text-text-primary">{t('dashboardPreviewWatchesNotesTitle')}</p>

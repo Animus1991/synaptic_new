@@ -7,6 +7,7 @@ import { AlertTriangle, CheckCircle2, AlertCircle, ChevronDown, ChevronRight, Te
 import { cn } from '../../utils/cn';
 import { useI18n } from '../../lib/i18n';
 import { useMinimalTheme } from '../../lib/useMinimalTheme';
+import { AllCapsLabel } from '../ui/AllCapsLabel';
 import {
   useWorkspaceStatusBus,
   type WorkspaceStatusItem,
@@ -127,7 +128,7 @@ export function WorkspaceStatusPanel({ className, defaultOpen = false }: Props) 
               {errorItems.length > 0 ? (
                 <div data-testid="workspace-status-console-errors">
                   <p className="status-console-section-label px-1 pb-1 text-[10px] font-semibold uppercase tracking-wide text-text-muted">
-                    {t('appInboxErrors')}
+                    <AllCapsLabel>{t('appInboxErrors')}</AllCapsLabel>
                   </p>
                   <ul className="space-y-1">
                     {errorItems.map((item) => (
@@ -145,7 +146,7 @@ export function WorkspaceStatusPanel({ className, defaultOpen = false }: Props) 
               {activityItems.length > 0 ? (
                 <div data-testid="workspace-status-console-activity">
                   <p className="status-console-section-label px-1 pb-1 text-[10px] font-semibold uppercase tracking-wide text-text-muted">
-                    {t('appInboxActivity')}
+                    <AllCapsLabel>{t('appInboxActivity')}</AllCapsLabel>
                   </p>
                   <ul className="space-y-1">
                     {activityItems.map((item) => (

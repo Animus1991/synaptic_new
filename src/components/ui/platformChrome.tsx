@@ -7,6 +7,7 @@ import { t, type Lang } from '../../lib/i18n';
 import { getAgentContent } from '../../lib/agentContent';
 import { BLUEPRINT_MOTION, useBlueprintTheme } from '../../lib/useBlueprintTheme';
 import { OverflowChipRow } from './OverflowChipRow';
+import { AllCapsLabel } from './AllCapsLabel';
 
 export { BlueprintSurface } from './BlueprintSurface';
 
@@ -27,7 +28,11 @@ export function SectionHeader({
   const isBlueprint = useBlueprintTheme();
   const body = (
     <div className={cn('ux-section-header space-y-1', className)}>
-      {eyebrow ? <p className="ux-section-eyebrow">{eyebrow}</p> : null}
+      {eyebrow ? (
+        <p className="ux-section-eyebrow">
+          <AllCapsLabel>{eyebrow}</AllCapsLabel>
+        </p>
+      ) : null}
       <h2 className="font-semibold tracking-tight text-text-primary">{title}</h2>
       {subtitle ? <p className="max-w-2xl text-sm leading-5 text-text-secondary">{subtitle}</p> : null}
     </div>
@@ -163,7 +168,7 @@ export function SessionLauncherCard({
           className="absolute -top-1.5 right-2 rounded-full border border-brand-500/30 bg-brand-600/15 px-1.5 py-0.5 text-[8px] font-semibold uppercase tracking-wide text-brand-700"
           data-testid="session-recommended-badge"
         >
-          {recommendedLabel}
+          <AllCapsLabel>{recommendedLabel}</AllCapsLabel>
         </span>
       ) : null}
       <span className="ux-session-card-icon">
@@ -171,7 +176,9 @@ export function SessionLauncherCard({
       </span>
       <span className="min-w-0 flex-1 text-left">
         <span className="block text-sm font-semibold text-text-primary">{label}</span>
-        <span className="mt-1 block text-[10px] uppercase tracking-[0.22em] text-text-muted">{durationTag}</span>
+        <span className="mt-1 block text-[10px] uppercase tracking-[0.22em] text-text-muted">
+          <AllCapsLabel>{durationTag}</AllCapsLabel>
+        </span>
         <span className="mt-1.5 block text-xs leading-5 text-text-secondary">{desc}</span>
         {taskHint ? (
           <span className="mt-1 block text-[10px] text-text-tertiary">{taskHint}</span>
@@ -350,7 +357,7 @@ export function InfoStack({
       )}
       {secondary.length > 0 && (
         <div className="info-stack-secondary">
-          <p className="info-stack-secondary-eyebrow">{secondaryLabel}</p>
+          <p className="info-stack-secondary-eyebrow"><AllCapsLabel>{secondaryLabel}</AllCapsLabel></p>
           <OverflowChipRow
             testId="info-stack-pills"
             className="info-stack-pills"

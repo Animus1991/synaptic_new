@@ -14,6 +14,7 @@ import { WorkspaceToolEmptyState } from './WorkspaceToolEmptyState';
 import { StudyWhiteboard } from './StudyWhiteboard';
 import { WhiteboardDiagramCoach } from './WhiteboardDiagramCoach';
 import { useI18n } from '../../lib/i18n';
+import { AllCapsLabel } from '../ui/AllCapsLabel';
 import type { WhiteboardDocument } from '../../lib/whiteboardLayers';
 
 type WhiteboardCrdtProps = {
@@ -144,7 +145,7 @@ export function WhiteboardPanel({
       <div className="shrink-0 border-b border-border-subtle px-4 py-3">
         {session.sectionLabel && (
           <p className="mb-2 ws-eyebrow text-text-muted" data-testid="whiteboard-section-label">
-            <span>{t('wsSectionLabel')}</span>
+            <span><AllCapsLabel>{t('wsSectionLabel')}</AllCapsLabel></span>
             <span className="ml-2 normal-case tracking-normal text-text-secondary font-sans text-[11px]">
               {session.sectionLabel}
             </span>
@@ -181,7 +182,7 @@ export function WhiteboardPanel({
             </div>
           )}
           <span className="ws-eyebrow text-text-muted">
-            <span className="ws-num">{session.formulas.length}</span> {t('panelFormulas')}
+            <span className="ws-num">{session.formulas.length}</span> <AllCapsLabel>{t('panelFormulas')}</AllCapsLabel>
             {session.stampCount > 0 && (
               <> · <span className="ws-num">{session.stampCount}</span> LaTeX</>
             )}
@@ -194,7 +195,7 @@ export function WhiteboardPanel({
               data-testid="whiteboard-open-reader"
             >
               <BookOpen className="w-3 h-3" aria-hidden />
-              {t('panelReaderSource')}
+              <AllCapsLabel>{t('panelReaderSource')}</AllCapsLabel>
             </button>
           )}
         </div>

@@ -37,6 +37,7 @@ import { TrustBadgeRow } from './ui/platformChrome';
 import { BlueprintSurface } from './ui/BlueprintSurface';
 import { CollapsibleChromeSection } from './workspace/CollapsibleChromeSection';
 import { entranceMotion, useMinimalTheme } from '../lib/useMinimalTheme';
+import { AllCapsLabel } from './ui/AllCapsLabel';
 
 interface AgentProps {
   messages: AgentMessage[];
@@ -587,7 +588,7 @@ export function Agent({
                 {onChangeSourceMode && (
                   <div className="pt-2 border-t border-border-subtle space-y-1">
                     <p className="text-[10px] font-medium text-text-tertiary uppercase tracking-wider px-1">
-                      {ui.sourceModeHeading}
+                      <AllCapsLabel>{ui.sourceModeHeading}</AllCapsLabel>
                     </p>
                     {sourceModes.map((opt) => (
                       <button
@@ -819,7 +820,7 @@ export function Agent({
               {onChangeSourceMode && (
                 <div className={cn('border-t border-border-subtle', embedded ? 'mt-2.5 pt-2.5' : 'mt-4 pt-4')}>
                   <p className="text-[10px] font-semibold text-text-tertiary uppercase tracking-wider mb-1.5">
-                    {ui.sourceModeHeading}
+                    <AllCapsLabel>{ui.sourceModeHeading}</AllCapsLabel>
                   </p>
                   <div className="space-y-1">
                     {sourceModes.map((opt) => (

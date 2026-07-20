@@ -59,31 +59,31 @@
   --color-text-muted: #818b98;
 
   /* Brand cyan kept vivid for CTAs only; all other accents are dusty pastels */
-  --color-accent-teal: #7a9aa0;
+  --color-accent-teal: #6e949c;
   --color-accent-cyan: #0891b2;
-  /* OPT-K25 — ultra-soft companion hues; ink (white/black/gray) owns typography */
-  --color-accent-emerald: #8aada0;
-  --color-accent-amber: #b0a888;
-  --color-accent-rose: #c4a8b0;
-  --color-accent-orange: #c4b0a0;
-  --color-accent-violet: #a0a8b8;
+  /* OPT-K27 — slightly livelier than K25; still soft vs body ink */
+  --color-accent-emerald: #6f9e8e;
+  --color-accent-amber: #a89868;
+  --color-accent-rose: #b8909c;
+  --color-accent-orange: #b89a88;
+  --color-accent-violet: #8e98ac;
   --color-on-danger: #5c4a50;
   --color-on-warn: #5a5648;
   --color-on-success: #4a5c54;
 
-  --mastery-weak: #d0b8be;
-  --mastery-developing: #a8c0d4;
-  --mastery-proficient: #c8c0a8;
-  --mastery-strong: #a8c4b8;
+  --mastery-weak: #c49aa4;
+  --mastery-developing: #8aafc8;
+  --mastery-proficient: #b8ac78;
+  --mastery-strong: #7eb89a;
 
-  /* Course / viz palette — same softness so bars never shout over body ink */
-  --palette-purple: #b0b4c4;
-  --palette-cyan: #a8c0cc;
-  --palette-teal: #a8c4bc;
-  --palette-green: #a8c4b8;
-  --palette-amber: #c8c0a8;
-  --palette-rose: #d0b8be;
-  --palette-orange: #d0c0b0;
+  /* Course / viz palette — match mastery nudge */
+  --palette-purple: #9aa0b4;
+  --palette-cyan: #8eb4c4;
+  --palette-teal: #8eb8ac;
+  --palette-green: #8eb8a4;
+  --palette-amber: #bcb088;
+  --palette-rose: #c4a0a8;
+  --palette-orange: #c4b098;
 
   --viz-track: #eaeef2;
   --viz-node-fill: #ffffff;

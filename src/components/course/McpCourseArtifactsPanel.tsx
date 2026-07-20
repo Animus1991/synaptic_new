@@ -3,6 +3,7 @@
  */
 import type { Course } from '../../types';
 import { BlueprintSurface } from '../ui/BlueprintSurface';
+import { AllCapsLabel } from '../ui/AllCapsLabel';
 
 export type McpFlashcard = {
   id: string;
@@ -58,7 +59,7 @@ export function McpCourseArtifactsPanel({ course, lang = 'en' }: Props) {
         <div className="grid gap-4 md:grid-cols-2">
           <section aria-label="MCP flashcards">
             <h4 className="text-[11px] font-semibold uppercase tracking-wide text-text-muted mb-2">
-              Flashcards ({cards.length})
+              <AllCapsLabel>Flashcards ({cards.length})</AllCapsLabel>
             </h4>
             <ul className="space-y-2" data-testid="mcp-flashcards-list">
               {cards.map((c) => (
@@ -75,7 +76,7 @@ export function McpCourseArtifactsPanel({ course, lang = 'en' }: Props) {
           </section>
           <section aria-label="MCP annotations">
             <h4 className="text-[11px] font-semibold uppercase tracking-wide text-text-muted mb-2">
-              Annotations ({notes.length})
+              <AllCapsLabel>Annotations ({notes.length})</AllCapsLabel>
             </h4>
             <ul className="space-y-2" data-testid="mcp-annotations-list">
               {notes.map((a) => (

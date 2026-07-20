@@ -34,6 +34,8 @@ import { quickAccessActions, type GlobalQuickActionId } from '../lib/globalActio
 import { useMinimalTheme } from '../lib/useMinimalTheme';
 import { loadShellRailCollapsed, persistShellRailCollapsed } from '../lib/shellRailCollapsed';
 import { groupShellNavEntries, type ShellNavGroupId } from '../lib/shellNavGroups';
+import { asAllCapsLabel } from '../lib/greekTypography';
+import { AllCapsLabel } from './ui/AllCapsLabel';
 
 interface ShellProps {
   children: ReactNode;
@@ -199,10 +201,15 @@ export function Shell({
   );
   const showNavGroupLabels = quietNav && !iconRail;
   const navGroupLabel = (id: ShellNavGroupId) => {
-    if (id === 'insights') return shellUx.navGroupInsights;
-    if (id === 'organization') return shellUx.navGroupOrganization;
-    if (id === 'account') return shellUx.navGroupAccount;
-    return shellUx.navGroupStudy;
+    const raw =
+      id === 'insights'
+        ? shellUx.navGroupInsights
+        : id === 'organization'
+          ? shellUx.navGroupOrganization
+          : id === 'account'
+            ? shellUx.navGroupAccount
+            : shellUx.navGroupStudy;
+    return asAllCapsLabel(raw);
   };
   const mobileNavItems = buildMobileBarItems(
     navViews,
@@ -407,7 +414,7 @@ export function Shell({
               {!iconRail && (
                 <div className="pt-4 pb-2">
                   <p className="type-micro font-semibold text-text-tertiary uppercase tracking-wider px-2">
-                    {shellUx.quickAccessTitle}
+                    <AllCapsLabel>{shellUx.quickAccessTitle}</AllCapsLabel>
                   </p>
                 </div>
               )}
@@ -888,7 +895,7 @@ export function Shell({
                         data-testid="shell-chrome-status"
                       >
                         <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-wide text-text-muted">
-                          {t('chromeMoreStatus')}
+                          <AllCapsLabel>{t('chromeMoreStatus')}</AllCapsLabel>
                         </p>
                         <HeaderTrustBadgeRow lang={activeLang} className="flex flex-col items-start gap-1.5" />
                       </div>

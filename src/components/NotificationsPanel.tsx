@@ -7,6 +7,7 @@ import { useI18n } from '../lib/i18n';
 import { formatDateTime } from '../lib/localeFormat';
 import { activityDeepLink, isActivityUnread } from '../lib/notificationState';
 import { useMinimalTheme } from '../lib/useMinimalTheme';
+import { AllCapsLabel } from './ui/AllCapsLabel';
 
 interface Props {
   open: boolean;
@@ -151,7 +152,7 @@ export function NotificationsPanel({
               data-testid="app-inbox-errors"
             >
               <p className="status-console-section-label px-4 pt-3 pb-1 text-[10px] font-semibold uppercase tracking-wide text-text-muted">
-                {t('appInboxErrors')}
+                <AllCapsLabel>{t('appInboxErrors')}</AllCapsLabel>
               </p>
               {errorAlerts.map(renderAlert)}
             </div>
@@ -163,7 +164,7 @@ export function NotificationsPanel({
               data-testid="app-inbox-status"
             >
               <p className="status-console-section-label px-4 pt-3 pb-1 text-[10px] font-semibold uppercase tracking-wide text-text-muted">
-                {consoleMode && !hasErrors ? t('appInboxErrors') : t('appInboxStatus')}
+                <AllCapsLabel>{consoleMode && !hasErrors ? t('appInboxErrors') : t('appInboxStatus')}</AllCapsLabel>
               </p>
 
               {appToastMessage && (
@@ -199,7 +200,7 @@ export function NotificationsPanel({
           <div data-testid="app-inbox-activity">
             {(hasStatus || hasErrors) && (
               <p className="status-console-section-label px-4 pt-3 pb-1 text-[10px] font-semibold uppercase tracking-wide text-text-muted">
-                {t('appInboxActivity')}
+                <AllCapsLabel>{t('appInboxActivity')}</AllCapsLabel>
               </p>
             )}
             {recent.length === 0 ? (

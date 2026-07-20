@@ -4,6 +4,7 @@ import type { ToolAgentIntent } from '../../lib/workspaceToolAgentPrompts';
 import { getToolAgentChips } from '../../lib/workspaceToolAgentChips';
 import { useI18n } from '../../lib/i18n';
 import { cn } from '../../utils/cn';
+import { AllCapsLabel } from '../ui/AllCapsLabel';
 
 type Props = {
   tool: WorkspaceToolId;
@@ -28,7 +29,7 @@ export function WorkspaceToolAgentChipBar({ tool, lang, concept, onChip, classNa
       data-testid={`workspace-agent-chips-${tool}`}
       aria-label={t('toolAgentChipsAria')}
     >
-      <span className="ws-eyebrow shrink-0 text-text-muted">{t('toolAgentChipsLabel')}</span>
+      <span className="ws-eyebrow shrink-0 text-text-muted"><AllCapsLabel>{t('toolAgentChipsLabel')}</AllCapsLabel></span>
       {chips.map((chip) => (
         <button
           key={chip.id}

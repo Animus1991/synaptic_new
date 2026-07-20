@@ -3,6 +3,7 @@ import { cn } from '../../utils/cn';
 import { BlueprintSurface } from '../ui/BlueprintSurface';
 import { SectionHeader } from '../ui/platformChrome';
 import { useI18n } from '../../lib/i18n';
+import { AllCapsLabel } from '../ui/AllCapsLabel';
 import type { SankeyLink } from '../../lib/knowledgeFlowAnalytics';
 import type { RetentionForecastPoint } from '../../lib/adaptiveScheduler';
 import type { SkillNode } from '../../types';
@@ -126,7 +127,7 @@ export function AnalyticsVisualLabPanel({
         <div className="visual-lab-board-well">
           <div className="mb-3 flex flex-wrap items-start justify-between gap-3 visual-lab-board-head">
             <div>
-              <p className="dashboard-live-preview-eyebrow">{t('visualLabCurrentModeEyebrow')}</p>
+              <p className="dashboard-live-preview-eyebrow"><AllCapsLabel>{t('visualLabCurrentModeEyebrow')}</AllCapsLabel></p>
               <p className="dashboard-preview-title mt-1">{t(active.titleKey)}</p>
             </div>
             <span className="visual-lab-mode-badge">{t('visualLabDecorativeBadge')}</span>
@@ -148,7 +149,7 @@ export function AnalyticsVisualLabPanel({
 
         <div className="space-y-4">
           <div className="visual-lab-side-panel">
-            <p className="dashboard-live-preview-eyebrow">{t('visualLabGuidanceEyebrow')}</p>
+            <p className="dashboard-live-preview-eyebrow"><AllCapsLabel>{t('visualLabGuidanceEyebrow')}</AllCapsLabel></p>
             <div className="mt-4 space-y-3 text-sm leading-6 text-text-secondary">
               <p>{t('visualLabGuidance1')}</p>
               <p>{t('visualLabGuidance2')}</p>
@@ -158,7 +159,7 @@ export function AnalyticsVisualLabPanel({
           </div>
 
           <div className="visual-lab-side-panel">
-            <p className="dashboard-live-preview-eyebrow">{t('visualLabMappingEyebrow')}</p>
+            <p className="dashboard-live-preview-eyebrow"><AllCapsLabel>{t('visualLabMappingEyebrow')}</AllCapsLabel></p>
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
               {SOURCE_VISUAL_TILES.map((tile) => (
                 <div key={tile.id} className="visual-lab-mapping-tile">

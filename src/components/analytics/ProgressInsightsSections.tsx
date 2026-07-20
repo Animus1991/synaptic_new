@@ -3,6 +3,7 @@ import { cn } from '../../utils/cn';
 import type { ConfidenceBucket, ProgressInsight, ProgressKpi, RadarDimension } from '../../lib/progressInsights';
 import { useMinimalTheme } from '../../lib/useMinimalTheme';
 import { HubSection, UtilityRow } from '../ui/UtilityPrimitives';
+import { AllCapsLabel } from '../ui/AllCapsLabel';
 
 const KPI_ICONS = [Brain, CheckCircle2, Target, Clock];
 
@@ -46,7 +47,7 @@ export function ProgressKpiRow({ kpis }: { kpis: ProgressKpi[] }) {
           <div key={kpi.label} className="ux-card p-2.5">
             <div className="flex items-center gap-1.5 mb-0.5">
               <Icon className="w-3.5 h-3.5 text-brand-400" />
-              <span className="text-[9px] uppercase tracking-wide text-text-tertiary truncate">{kpi.label}</span>
+              <span className="text-[9px] uppercase tracking-wide text-text-tertiary truncate"><AllCapsLabel>{kpi.label}</AllCapsLabel></span>
             </div>
             <p className="text-sm font-bold tabular-nums text-text-primary sm:text-base">{kpi.value}</p>
             <p className={cn(
@@ -65,7 +66,7 @@ export function ProgressKpiRow({ kpis }: { kpis: ProgressKpi[] }) {
 export function ConfidenceBucketChart({ buckets, title }: { buckets: ConfidenceBucket[]; title: string }) {
   return (
     <div className="ux-card p-3" data-testid="confidence-bucket-chart">
-      <h3 className="text-[11px] font-semibold uppercase tracking-[0.06em] text-text-secondary mb-3">{title}</h3>
+      <h3 className="text-[11px] font-semibold uppercase tracking-[0.06em] text-text-secondary mb-3"><AllCapsLabel>{title}</AllCapsLabel></h3>
       {/* K-A01: dense horizontal 5-bin calibration (mockup) */}
       <div className="grid grid-cols-5 gap-1.5 sm:gap-2">
         {buckets.map((bucket) => (

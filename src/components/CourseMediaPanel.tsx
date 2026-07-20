@@ -6,6 +6,7 @@ import { BlueprintSurface } from './ui/BlueprintSurface';
 import { formatChapterTimestamp } from '../lib/videoChapters';
 import { parseNotebookLmAudioFromMarkdown } from '../lib/notebooklmImport';
 import { openNotebookLm } from '../lib/notebooklmBridge';
+import { AllCapsLabel } from './ui/AllCapsLabel';
 
 type Props = {
   courseId: string;
@@ -173,7 +174,7 @@ export function CourseMediaPanel({
           {audioFiles.length > 0 && (
             <div className="space-y-2 pt-1 border-t border-border-subtle/60">
               <p className="text-[10px] font-semibold uppercase tracking-wide text-text-muted">
-                {el ? 'Transcripts' : 'Transcripts'} ({audioFiles.length})
+                <AllCapsLabel>{el ? 'Transcripts' : 'Transcripts'} ({audioFiles.length})</AllCapsLabel>
               </p>
               <div className="flex flex-wrap gap-1.5">
                 {audioFiles.map((file) => (

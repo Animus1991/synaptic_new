@@ -8,6 +8,7 @@ import { getToolCrossLinkDef } from '../../lib/workspaceToolCrossLinks';
 import { loadJson, saveJson } from '../../lib/persistence';
 import { cn } from '../../utils/cn';
 import { useI18n } from '../../lib/i18n';
+import { AllCapsLabel } from '../ui/AllCapsLabel';
 
 type Props = {
   activeTool: WorkspaceToolId;
@@ -89,7 +90,7 @@ export function WorkspaceToolHeader({
             </h2>
             {s20.readiness !== 'launch-ready' && (
               <span className="ws-eyebrow ws-chip-warn rounded-sm px-1 py-0.5 text-[8px]">
-                {t('toolPolishing')}
+                <AllCapsLabel>{t('toolPolishing')}</AllCapsLabel>
               </span>
             )}
           </div>
@@ -114,7 +115,7 @@ export function WorkspaceToolHeader({
           )}
         >
           <HelpCircle className="h-3 w-3" aria-hidden />
-          <span className="hidden sm:inline">{t('toolGuide')}</span>
+          <span className="hidden sm:inline"><AllCapsLabel>{t('toolGuide')}</AllCapsLabel></span>
           {collapsed ? <ChevronRight className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
         </button>
       </div>
@@ -181,7 +182,7 @@ export function WorkspaceToolHeader({
           {/* Connected tools + source/agent shortcuts */}
           <div className="flex flex-wrap items-center gap-1 border-t border-border-subtle/60 pt-2">
             <span className="ws-eyebrow shrink-0 text-text-muted">
-              {t('connectsTo')}
+              <AllCapsLabel>{t('connectsTo')}</AllCapsLabel>
             </span>
             {relatedTools.map((link, i) => (
               <button

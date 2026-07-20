@@ -21,6 +21,7 @@ import {
 import { syncTasksToGoogleCalendar, type TaskCalendarSyncUpdate } from '../lib/taskCalendarSync';
 import { useI18n } from '../lib/i18n';
 import { formatDateTime } from '../lib/localeFormat';
+import { AllCapsLabel } from './ui/AllCapsLabel';
 
 type Props = {
   settings: UserSettings;
@@ -344,7 +345,7 @@ export function GoogleIntegrationsPanel({
           </div>
           <div className="space-y-1 pt-2 border-t border-border-subtle/60">
             <p className="text-[10px] font-semibold text-text-muted uppercase tracking-wide">
-              {t('googleUpcomingEvents')}
+              <AllCapsLabel>{t('googleUpcomingEvents')}</AllCapsLabel>
             </p>
             <ul className="max-h-40 space-y-1 overflow-y-auto text-[11px] text-text-secondary" data-testid="google-calendar-events">
               {calendarEvents.map((ev) => (

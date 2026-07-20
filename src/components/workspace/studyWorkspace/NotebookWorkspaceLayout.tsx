@@ -19,6 +19,7 @@ import { PdfPageThumbnailStrip } from '../PdfPageThumbnailStrip';
 import type { StudyWorkspaceModel } from './useStudyWorkspace';
 import type { WorkspaceTool } from './types';
 import { useMinimalTheme } from '../../../lib/useMinimalTheme';
+import { AllCapsLabel } from '../../ui/AllCapsLabel';
 
 interface NotebookWorkspaceLayoutProps {
   model: StudyWorkspaceModel;
@@ -530,7 +531,7 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
                 >
                   <header className="flex items-center justify-between gap-2 border-b border-border-subtle px-4 py-3 shrink-0">
                     <h2 className="text-sm font-semibold text-text-primary">
-                      {notebookCalm ? tx('Αρχεία', 'Files') : tx('Πηγές', 'Sources')}
+                      <AllCapsLabel>{notebookCalm ? tx('Αρχεία', 'Files') : tx('Πηγές', 'Sources')}</AllCapsLabel>
                     </h2>
                     <button type="button" onClick={addSource} data-testid="notebook-add-source" className="flex items-center gap-1 rounded-full border border-border-subtle px-2.5 py-1 type-micro font-medium text-text-secondary">
                       <Plus className="h-3.5 w-3.5" />
@@ -548,7 +549,7 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
                 >
                   <header className="border-b border-border-subtle px-4 py-3 shrink-0">
                     <h2 className="text-sm font-semibold text-text-primary">
-                      {notebookCalm ? 'AI' : tx('Συνομιλία', 'Chat')}
+                      <AllCapsLabel>{notebookCalm ? 'AI' : tx('Συνομιλία', 'Chat')}</AllCapsLabel>
                     </h2>
                   </header>
                   {chatBody}
@@ -561,7 +562,7 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
                 >
                   <header className="border-b border-border-subtle px-4 py-3 shrink-0">
                     <h2 className="text-sm font-semibold text-text-primary">
-                      {notebookCalm ? tx('Εργαλεία', 'Tools') : 'Studio'}
+                      <AllCapsLabel>{notebookCalm ? tx('Εργαλεία', 'Tools') : 'Studio'}</AllCapsLabel>
                     </h2>
                   </header>
                   {studioGrid}
@@ -613,7 +614,7 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
           >
             <header className="flex items-center justify-between gap-2 border-b border-border-subtle px-4 py-3 shrink-0">
               <h2 className="text-sm font-semibold text-text-primary">
-                {notebookCalm ? tx('Αρχεία', 'Files') : tx('Πηγές', 'Sources')}
+                <AllCapsLabel>{notebookCalm ? tx('Αρχεία', 'Files') : tx('Πηγές', 'Sources')}</AllCapsLabel>
               </h2>
               <button type="button" onClick={addSource} data-testid="notebook-add-source" className="flex items-center gap-1 rounded-full border border-border-subtle px-2.5 py-1 type-micro font-medium text-text-secondary hover:bg-surface-hover hover:text-text-primary transition-colors">
                 <Plus className="h-3.5 w-3.5" />
@@ -638,7 +639,7 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
               title={chatGrounding}
             >
               <h2 className="text-sm font-semibold text-text-primary">
-                {notebookCalm ? 'AI' : tx('Συνομιλία', 'Chat')}
+                <AllCapsLabel>{notebookCalm ? 'AI' : tx('Συνομιλία', 'Chat')}</AllCapsLabel>
               </h2>
               <span className="type-micro text-text-muted truncate">{chatGrounding}</span>
             </header>
@@ -662,7 +663,7 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
                 title={tx('Εργαλεία με βοήθεια AI', 'AI-assisted tools')}
               >
                 <h2 className="text-sm font-semibold text-text-primary">
-                  {notebookCalm ? tx('Εργαλεία', 'Tools') : 'Studio'}
+                  <AllCapsLabel>{notebookCalm ? tx('Εργαλεία', 'Tools') : 'Studio'}</AllCapsLabel>
                 </h2>
                 <span className="type-micro text-text-muted">{tx('Εργαλεία με βοήθεια AI', 'AI-assisted tools')}</span>
               </header>

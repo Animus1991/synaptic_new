@@ -1,5 +1,6 @@
 import { cn } from '../../utils/cn';
 import { useI18n } from '../../lib/i18n';
+import { AllCapsLabel } from '../ui/AllCapsLabel';
 import type { TimerPresetKey } from '../../lib/timerSessionModel';
 
 type PresetDef = {
@@ -33,7 +34,7 @@ export function PomodoroSessionModeList({
 
   return (
     <div className={cn('ux-pomodoro-mode-list', className)} data-testid="pomodoro-session-modes">
-      <p className="ux-pomodoro-mode-list-label">{t('pomodoroSessionModes')}</p>
+      <p className="ux-pomodoro-mode-list-label"><AllCapsLabel>{t('pomodoroSessionModes')}</AllCapsLabel></p>
       <div className="ux-pomodoro-mode-list-stack">
         {presets.map((preset, index) => {
           const active = activeIdx === index && !examPracticeActive;

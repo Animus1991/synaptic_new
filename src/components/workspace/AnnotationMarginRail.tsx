@@ -12,6 +12,7 @@ import type {
 import { WorkspaceSelectionActionBar } from './WorkspaceSelectionActionBar';
 import { SEMANTIC_CATEGORIES } from './AnnotationToolbar';
 import { useI18n } from '../../lib/i18n';
+import { AllCapsLabel } from '../ui/AllCapsLabel';
 
 function categoryLabel(cat: AnnotationCategory, lang: 'en' | 'el'): string {
   const row = SEMANTIC_CATEGORIES.find((c) => c.cat === cat);
@@ -86,7 +87,7 @@ export function AnnotationMarginRail({
       {expanded && (
         <div className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain px-1.5 pb-1.5">
           <div className="mb-1 flex items-center justify-between px-0.5">
-            <p className="ws-eyebrow text-text-muted">{visibleAnnotations.length} {countLabel}</p>
+            <p className="ws-eyebrow text-text-muted"><span className="ws-num">{visibleAnnotations.length}</span> <AllCapsLabel>{countLabel}</AllCapsLabel></p>
             {onExportJson && visibleAnnotations.length > 0 && (
               <button
                 type="button"

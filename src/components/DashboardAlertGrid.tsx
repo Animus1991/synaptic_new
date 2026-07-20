@@ -6,6 +6,7 @@ import type { DashboardSmartCTA } from '../lib/examPrep/dashboardSmartCTAs';
 import type { ProactiveAgentAlert } from '../lib/proactiveAgentAlerts';
 import { useI18n } from '../lib/i18n';
 import { useMinimalTheme } from '../lib/useMinimalTheme';
+import { AllCapsLabel } from './ui/AllCapsLabel';
 
 export type DashboardAlertGridProps = {
   daysToExam: number | null;
@@ -171,7 +172,7 @@ export function DashboardAlertGrid({
               />
               <div className="min-w-0 flex-1">
                 <p className="text-[10px] font-semibold uppercase tracking-wide text-text-secondary">
-                  {slot.title}
+                  <AllCapsLabel>{slot.title}</AllCapsLabel>
                 </p>
                 <p className="text-xs text-text-primary mt-0.5 line-clamp-2">{slot.body}</p>
               </div>

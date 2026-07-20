@@ -1,5 +1,6 @@
 import type { ComponentType, ReactNode } from 'react';
 import { cn } from '../../utils/cn';
+import { AllCapsLabel } from './AllCapsLabel';
 
 /** Dense uppercase section label used across Dashboard / Library / Tasks / Analytics. */
 export function SectionLabel({
@@ -18,7 +19,7 @@ export function SectionLabel({
       <div className="flex min-w-0 items-center gap-1.5">
         {Icon && <Icon className="h-3.5 w-3.5 shrink-0 text-brand-600" aria-hidden />}
         <p className="ux-section-label-title truncate text-[10px] font-semibold uppercase tracking-[0.08em] text-text-secondary">
-          {children}
+          <AllCapsLabel>{children}</AllCapsLabel>
         </p>
       </div>
       {action && <div className="shrink-0">{action}</div>}

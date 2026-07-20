@@ -3,6 +3,7 @@ import { HERO_PIPELINE_STEP_IDS } from '../lib/colorCodingReference';
 import { useI18n, type I18nKey } from '../lib/i18n';
 import { blueprintStaggerDelay } from '../lib/useBlueprintTheme';
 import { BlueprintSurface } from './ui/BlueprintSurface';
+import { AllCapsLabel } from './ui/AllCapsLabel';
 
 const STEP_TITLE_KEYS: Record<(typeof HERO_PIPELINE_STEP_IDS)[number], I18nKey> = {
   ingest: 'dashboardPipelineIngestTitle',
@@ -33,7 +34,7 @@ export function DashboardHeroSteps({ className }: { className?: string }) {
           style={{ animationDelay: `${blueprintStaggerDelay(index)}ms` }}
         >
           <p className="dashboard-live-preview-eyebrow">
-            {String(index + 1).padStart(2, '0')}
+            <AllCapsLabel>{String(index + 1).padStart(2, '0')}</AllCapsLabel>
           </p>
           <h3 className="mt-2 text-sm font-semibold text-text-primary">{t(STEP_TITLE_KEYS[stepId])}</h3>
           <p className="mt-2 text-sm leading-6 text-text-secondary">{t(STEP_BODY_KEYS[stepId])}</p>

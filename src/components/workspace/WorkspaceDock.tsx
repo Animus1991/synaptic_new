@@ -10,6 +10,7 @@ import {
 } from '../../lib/workspaceToolRegistry';
 import { loadJson, saveJson } from '../../lib/persistence';
 import { useI18n } from '../../lib/i18n';
+import { AllCapsLabel } from '../ui/AllCapsLabel';
 import { WorkspaceStudyRoomTrigger } from './WorkspaceStudyRoomTrigger';
 
 interface Props {
@@ -65,7 +66,7 @@ export function WorkspaceDock({ activeTool, onSelectTool, availableTools, lang =
           expanded ? 'justify-between' : 'justify-center',
         )}
       >
-        {expanded && <span className="ws-eyebrow">{t('wsToolsLabel')}</span>}
+        {expanded && <span className="ws-eyebrow"><AllCapsLabel>{t('wsToolsLabel')}</AllCapsLabel></span>}
         {expanded ? <PanelLeftClose className="h-4 w-4" /> : <PanelLeftOpen className="h-4 w-4" />}
       </button>
 
@@ -82,7 +83,7 @@ export function WorkspaceDock({ activeTool, onSelectTool, availableTools, lang =
             >
               {expanded && (
                 <span className="ws-eyebrow px-3 pb-1 pt-1 text-text-muted">
-                  {lang === 'el' ? group.labelEl : group.label}
+                  <AllCapsLabel>{lang === 'el' ? group.labelEl : group.label}</AllCapsLabel>
                 </span>
               )}
               {groupTools.map(({ id, icon: Icon }) => {

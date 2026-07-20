@@ -1,3 +1,5 @@
+import { asAllCapsLabel } from '../../lib/greekTypography';
+
 /** Decorative SVG boards for Analytics Visual Lab mode rail (Wave E14). */
 
 const TONE: Record<string, string> = {
@@ -83,7 +85,7 @@ export function MasteryRingDecorativeBoard() {
         );
       })}
       <text x="160" y="96" textAnchor="middle" className="visual-lab-mastery-value">68%</text>
-      <text x="160" y="118" textAnchor="middle" className="visual-lab-mastery-label">Exam readiness</text>
+      <text x="160" y="118" textAnchor="middle" className="visual-lab-mastery-label">{asAllCapsLabel('Exam readiness')}</text>
     </svg>
   );
 }

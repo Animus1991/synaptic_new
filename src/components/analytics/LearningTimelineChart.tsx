@@ -3,6 +3,7 @@ import { Calendar } from '@/lib/lucide-shim';
 import type { LearningTimelineEvent, TimelineEventType } from '../../lib/knowledgeFlowAnalytics';
 import { cn } from '../../utils/cn';
 import { BlueprintSurface } from '../ui/BlueprintSurface';
+import { AllCapsLabel } from '../ui/AllCapsLabel';
 
 const TYPE_STYLE: Record<TimelineEventType, { border: string; bg: string; text: string }> = {
   lesson: { border: 'border-accent-cyan/30', bg: 'bg-accent-cyan/10', text: 'text-text-primary' },
@@ -93,7 +94,7 @@ export function LearningTimelineChart({
                         </span>
                       )}
                       <span className="text-[10px] uppercase tracking-wider text-text-muted">
-                        {dayLabel(event.daysAgo)}
+                        <AllCapsLabel>{dayLabel(event.daysAgo)}</AllCapsLabel>
                       </span>
                     </div>
                   </div>

@@ -1,6 +1,7 @@
 import { cn } from '../utils/cn';
 import type { Task } from '../types';
 import { useI18n, type I18nKey } from '../lib/i18n';
+import { AllCapsLabel } from './ui/AllCapsLabel';
 
 type ColumnId = 'drafts' | 'active' | 'ready' | 'done';
 
@@ -70,7 +71,7 @@ export function TasksKanbanStatusStrip({
           key={col.id}
           className={cn('tasks-kanban-column', col.id === 'active' && counts.active > 0 && 'tasks-kanban-column-accent')}
         >
-          <p className="tasks-kanban-column-label">{t(col.labelKey)}</p>
+          <p className="tasks-kanban-column-label"><AllCapsLabel>{t(col.labelKey)}</AllCapsLabel></p>
           <p className="tasks-kanban-column-count">{counts[col.id]}</p>
         </div>
       ))}
