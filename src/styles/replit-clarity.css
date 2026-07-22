@@ -6,13 +6,13 @@
  * Principles only — not a Replit brand clone.
  */
 
-/* ── OPT-R9 — collapsed shell rail ──────────────────────────────────── */
+/* ── OPT-R9 — collapsed shell rail (all themes) ─────────────────────── */
 
-:is([data-theme="minimal"], [data-theme="minimal-dark"]) #platform-sidebar-nav.shell-rail-collapsed {
+#platform-sidebar-nav.shell-rail-collapsed {
   transition: width 160ms ease;
 }
 
-:is([data-theme="minimal"], [data-theme="minimal-dark"]) #platform-sidebar-nav.shell-rail-collapsed .platform-nav-item {
+#platform-sidebar-nav.shell-rail-collapsed .platform-nav-item {
   border-radius: 0.5rem;
 }
 

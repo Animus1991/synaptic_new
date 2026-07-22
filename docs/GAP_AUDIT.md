@@ -339,7 +339,7 @@ Constraints for all OPT-R*: no typography/button/modal scale-up; no functional r
 | OPT-R18 | Wave R18 — capture harness demo-course seed | P2 | **shipped** | Atomic explore-demo seed; `ensureCaptureDemoCourse` for M20/C8; paste fallback |
 | OPT-R12 | Wave R12 — Library/files + ⌘K path mono density | P2 | **shipped** | List course testids; path-style files; ⌘K mono paths; notebook source mono |
 | OPT-R15 | Wave R15 — Dashboard/Tasks/Analytics quieter hubs | P2 | **shipped** | Continue hero; study prompts chrome; Tasks List/Board; quieter Analytics KPIs |
-| OPT-R9 | Wave R9 — optional collapsed shell rail | P2 | **shipped** | Icon rail + tooltips/aria; expand restores labels; all `nav-*` kept; mobile unchanged |
+| OPT-R9 | Wave R9 — optional collapsed shell rail | P2 | **shipped** | Icon rail + tooltips/aria; expand restores labels; all `nav-*` kept; mobile unchanged; available on all themes (not Minimal-only) |
 | OPT-R14 | Wave R14 — Agent mode grouping | P2 | **shipped** | Dialogue/Exam/Subject/Support groups; all `agent-mode-*` retained; flow rail default collapsed |
 | OPT-R16 | Wave R16 — Settings IDE-like section layout | P2 | **shipped** | Left section rail + single-column content under Minimal; all sections kept; Blueprint masonry unchanged |
 | OPT-R17 | Wave R17 — Motion/skeleton/focus Minimal polish | P2 | **shipped** | Opacity-only entrances; flatter skeletons; quieter AA focus rings; no card float |

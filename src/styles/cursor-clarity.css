@@ -1061,22 +1061,22 @@
   color: var(--color-text-primary) !important;
 }
 
-/* ── OPT-K13 — Rail expand discoverability (compact default kept) ───────── */
+/* ── OPT-K13 — Rail expand discoverability (all themes; Minimal compact default) ─ */
 
-:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .shell-rail-expand-affordance {
+.app-shell .shell-rail-expand-affordance {
   color: var(--color-text-secondary);
 }
 
-:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .shell-rail-expand-affordance:hover,
-:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .shell-rail-expand-affordance:focus-visible {
+.app-shell .shell-rail-expand-affordance:hover,
+.app-shell .shell-rail-expand-affordance:focus-visible {
   color: var(--color-text-primary);
   border-color: var(--color-border-default);
   outline: none;
   box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-border-default) 55%, transparent);
 }
 
-:is([data-theme="minimal"], [data-theme="minimal-dark"]) #platform-sidebar-nav.shell-rail-collapsed [data-testid="shell-rail-collapse-toggle"],
-:is([data-theme="minimal"], [data-theme="minimal-dark"]) #platform-sidebar-nav.shell-rail-collapsed [data-testid="shell-rail-expand-top"] {
+#platform-sidebar-nav.shell-rail-collapsed [data-testid="shell-rail-collapse-toggle"],
+#platform-sidebar-nav.shell-rail-collapsed [data-testid="shell-rail-expand-top"] {
   background: color-mix(in srgb, var(--color-surface-secondary) 88%, transparent);
 }
 

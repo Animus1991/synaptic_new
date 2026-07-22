@@ -1,4 +1,4 @@
-/** OPT-R9 — persist optional icon-collapsed desktop shell rail (Minimal). */
+/** OPT-R9 — persist optional icon-collapsed desktop shell rail (all themes). */
 
 export const SHELL_RAIL_COLLAPSED_KEY = 'synapse:shell-rail-collapsed';
 
