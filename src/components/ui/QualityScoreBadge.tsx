@@ -16,7 +16,7 @@ export function QualityScoreBadge({
   return (
     <span
       className={cn(
-        'inline-flex items-center rounded-full border px-1.5 py-0.5 text-[9px] font-semibold',
+        'ux-status-badge inline-flex items-center rounded-md border px-1.5 py-0.5 text-[10px] font-semibold',
         strong && 'border-accent-emerald/30 bg-accent-emerald/10 text-accent-emerald',
         weak && 'border-accent-amber/30 bg-accent-amber/10 text-accent-amber',
         !strong && !weak && 'border-border-subtle bg-surface-primary/60 text-text-secondary',

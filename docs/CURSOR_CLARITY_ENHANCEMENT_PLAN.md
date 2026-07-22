@@ -72,9 +72,28 @@ CSS: `src/styles/cursor-clarity.css` (imported after `replit-clarity.css`).
 | **OPT-K46** | Dark status accents ±5% toward light pastels | **shipped** |
 | **OPT-K47** | Focus ring 2px + brand focus tokens | **shipped** |
 | **OPT-K48** | Smoke checklist (Human Pass M20/C8 — not self-signed) | **shipped** |
+| **OPT-K49** | Residual badges: status chips ≥10px + md/pill radius | **shipped** |
 
 **Default gate:** Minimal / Minimal Dark only. Blueprint untouched.  
 **Width rule:** Compact `w-14` + `lg:ml-14` and Expanded `w-56` + `lg:ml-56` — main never underlays rail.
+
+---
+
+## Post-K48 findings (updated)
+
+| Περιοχή | Κατάσταση μετά K30–K49 |
+|---|---|
+| Radius tokens | Αμετάβλητα: sm 4 / md 6 / panel 8 / pill 6 |
+| Απόκλιση | CTA → `radius-md`· `.rounded-xl` → panel· chips → md/pill· nested stack ακόμα 0.25rem (by design) |
+| Τυπογραφία | Meta ≥10px· body hints `text-xs`· SectionLabel `10→11 sm`· modal `text-base` semibold |
+| Αντίθεση | Dark muted `#7d8590`· light secondary `#4d5560` / tertiary `#6e7781`· chips +track nudges |
+| CTA | Αμετάβλητο (light cyan / dark white) — καλό |
+| Responsive | Stats 1/2/5· course `p-3`· `pb-24`· pair gap 1.15rem |
+
+### Ανοιχτό μόνο για άνθρωπο
+
+- **M20 / C8 Human Pass?** — όχι self-sign  
+- Workspace dense chrome (`text-[8px]` σε Annotation rail/toolbar) — εκτός Dashboard scope· υποψήφιο για μελλοντικό OPT-W*
 
 ---
 
@@ -89,7 +108,7 @@ CSS: `src/styles/cursor-clarity.css` (imported after `replit-clarity.css`).
 
 ## Completeness
 
-**OPT-K1–K48 shipped.** Compact default + expand kept; main offset `ml-14` / `ml-56`. Human Pass? **M20 / C8** still open (engineering must not self-sign). See canvas `cursor-clarity-post-k911-audit.canvas.tsx`.
+**OPT-K1–K49 shipped.** Compact default + expand kept; main offset `ml-14` / `ml-56`. Human Pass? **M20 / C8** still open (engineering must not self-sign). See canvas `cursor-clarity-post-k911-audit.canvas.tsx`.
 
 ### OPT-K48 smoke matrix (manual — do not self-sign)
 

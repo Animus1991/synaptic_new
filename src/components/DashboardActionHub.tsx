@@ -161,7 +161,7 @@ export function DashboardActionHub({
           {t(action.chipLabelKey)}
         </span>
         {action.badge && (
-          <span className="absolute -right-1 -top-1 min-w-[1.1rem] rounded-full bg-accent-rose px-1 py-0.5 text-[9px] font-bold leading-none text-white">
+          <span className="absolute -right-1 -top-1 min-w-[1.1rem] rounded-md bg-accent-rose px-1 py-0.5 text-[10px] font-bold leading-none text-white">
             {action.badge}
           </span>
         )}
@@ -333,7 +333,7 @@ export function DashboardActionHub({
                             <Icon className="h-3.5 w-3.5 shrink-0 text-brand-500" aria-hidden />
                             <span className="min-w-0 flex-1 truncate">{t(action.chipLabelKey)}</span>
                             {action.badge && (
-                              <span className="rounded-full bg-accent-rose/15 px-1.5 py-0.5 text-[9px] font-bold text-accent-rose">
+                              <span className="rounded-md bg-accent-rose/15 px-1.5 py-0.5 text-[10px] font-bold text-accent-rose">
                                 {action.badge}
                               </span>
                             )}

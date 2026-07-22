@@ -24,7 +24,7 @@ export function StatusChip({ children, variant = 'info', className }: Props) {
   return (
     <span
       className={cn(
-        'inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold',
+        'ux-status-badge inline-flex items-center rounded-md px-2 py-0.5 text-[10px] font-semibold',
         VARIANT_CLASS[variant],
         className,
       )}

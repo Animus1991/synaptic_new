@@ -468,6 +468,7 @@
   .ux-chip-solid-success,
   .ux-chip-solid-info,
   .ux-chip-solid-brand,
+  .ux-status-badge,
   [data-testid="dashboard-active-topic-pill"]
 ) {
   border-radius: var(--radius-pill) !important;

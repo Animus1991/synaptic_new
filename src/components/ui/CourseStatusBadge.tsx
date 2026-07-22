@@ -41,7 +41,7 @@ export function CourseStatusBadge({
   return (
     <span
       className={cn(
-        'inline-flex items-center rounded-full border px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide',
+        'ux-status-badge inline-flex items-center rounded-md border px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide',
         KIND_CLASS[kind],
         className,
       )}
