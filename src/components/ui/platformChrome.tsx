@@ -305,7 +305,8 @@ export function DescriptiveStickyTabBar<T extends string>({
 
 /** Nested topic / prerequisite rhythm — Option-B Library InfoStack.
  *  When onItemClick / onSecondaryClick are provided, entries render as
- *  keyboard-accessible buttons that deep-link into the owning surface. */
+ *  keyboard-accessible buttons that deep-link into the owning surface.
+ *  OPT-L1 — full-width responsive grid; no narrow max-width trap. */
 export function InfoStack({
   title,
   items,
@@ -316,10 +317,10 @@ export function InfoStack({
   onSecondaryClick,
   itemHint,
   secondaryHint,
-  /** OPT-K14 — densify primary items; remainder via +N (all still reachable). */
-  maxVisibleItems = 4,
-  /** OPT-K14 — densify secondary pills; remainder via +N. */
-  maxVisibleSecondary = 4,
+  /** OPT-K14 / L1 — densify primary items; remainder via +N (all still reachable). */
+  maxVisibleItems = 6,
+  /** OPT-K14 / L1 — densify secondary pills; remainder via +N. */
+  maxVisibleSecondary = 8,
 }: {
   title: string;
   items: string[];
@@ -335,17 +336,17 @@ export function InfoStack({
 }) {
   if (items.length === 0 && secondary.length === 0) return null;
   return (
-    <div className={cn('info-stack', className)}>
+    <div className={cn('info-stack', className)} data-testid="library-info-stack">
       <div className="info-stack-title">{title}</div>
       {items.length > 0 && (
         <OverflowChipRow
           testId="info-stack-items"
           className="info-stack-items"
           chipClassName={cn(
-            'info-stack-item max-w-[12rem] text-[11px]',
+            'info-stack-item !max-w-none text-xs sm:text-sm',
             onItemClick && 'info-stack-item--interactive',
           )}
-          moreClassName="info-stack-item"
+          moreClassName="info-stack-item info-stack-more"
           maxVisible={maxVisibleItems}
           items={items.map((item) => ({
             key: item,
@@ -362,10 +363,10 @@ export function InfoStack({
             testId="info-stack-pills"
             className="info-stack-pills"
             chipClassName={cn(
-              'info-stack-pill',
+              'info-stack-pill !max-w-[14rem] text-xs',
               onSecondaryClick && 'info-stack-pill--interactive',
             )}
-            moreClassName="info-stack-pill"
+            moreClassName="info-stack-pill info-stack-more"
             maxVisible={maxVisibleSecondary}
             items={secondary.map((item) => ({
               key: item,

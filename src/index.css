@@ -3060,68 +3060,123 @@
   color: var(--color-brand-300);
 }
 
-/* Option-B InfoStack — Library topic rhythm */
+/* Option-B / OPT-L1 InfoStack — Library topic rhythm (viewport-optimal) */
 .info-stack {
-  border-radius: 1.5rem;
+  border-radius: var(--radius-panel, 0.5rem);
   border: 1px solid var(--color-border-subtle);
   background: color-mix(in srgb, var(--color-surface-card) 72%, transparent);
-  padding: 1rem;
+  padding: 0.75rem;
+  width: 100%;
+  min-width: 0;
+}
+@media (min-width: 640px) {
+  .info-stack {
+    padding: 1rem;
+  }
 }
 .info-stack-title {
   font-size: 0.875rem;
   font-weight: 600;
   color: var(--color-text-primary);
 }
+/* Mobile: 1 col · tablet: 2 · desktop: 3 — full card width, no centered stub column */
 .info-stack-items {
   margin-top: 0.75rem;
-  display: flex;
-  flex-direction: column;
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr);
   gap: 0.5rem;
+  align-items: stretch;
+}
+@media (min-width: 640px) {
+  .info-stack-items {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (min-width: 1024px) {
+  .info-stack-items {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  /* Paired Topics + Examples columns: 2 topic cells per stack (readable width) */
+  .library-info-stacks .info-stack-items {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 .info-stack-item {
-  border-radius: 1rem;
+  border-radius: var(--radius-md, 0.375rem);
   border: 1px solid var(--color-border-subtle);
   background: color-mix(in srgb, var(--color-surface-hover) 55%, transparent);
-  padding: 0.75rem;
-  font-size: 0.875rem;
-  line-height: 1.5;
+  padding: 0.625rem 0.75rem;
+  font-size: 0.75rem;
+  line-height: 1.4;
   color: var(--color-text-secondary);
+  max-width: none;
+  white-space: normal;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+@media (min-width: 640px) {
+  .info-stack-item {
+    font-size: 0.8125rem;
+    padding: 0.75rem;
+  }
 }
 .info-stack-secondary {
-  margin-top: 1rem;
+  margin-top: 0.875rem;
   border-top: 1px solid var(--color-border-subtle);
-  padding-top: 1rem;
+  padding-top: 0.875rem;
 }
 .info-stack-secondary-eyebrow {
-  font-size: 0.6875rem;
-  letter-spacing: 0.28em;
+  font-size: 0.6875rem; /* 11px */
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--color-text-muted);
 }
 .info-stack-pills {
-  margin-top: 0.75rem;
+  margin-top: 0.625rem;
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
+  gap: 0.375rem;
+}
+@media (min-width: 640px) {
+  .info-stack-pills {
+    gap: 0.5rem;
+  }
 }
 .info-stack-pill {
-  border-radius: 9999px;
+  border-radius: var(--radius-md, 0.375rem);
   border: 1px solid var(--color-border-subtle);
   background: color-mix(in srgb, var(--color-surface-hover) 45%, transparent);
-  padding: 0.25rem 0.75rem;
+  padding: 0.35rem 0.65rem;
   font-size: 0.75rem;
   color: var(--color-text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
-/* Interactive variants — deep-link into the owning course / concept / glossary */
+.info-stack-more {
+  justify-self: start;
+  width: auto !important;
+  -webkit-line-clamp: 1;
+}
+/* Interactive variants — deep-link into study workspace / concept */
 .info-stack-item--interactive,
 .info-stack-pill--interactive {
   cursor: pointer;
   text-align: left;
-  width: 100%;
   transition: border-color 0.15s ease, background-color 0.15s ease, color 0.15s ease;
+}
+.info-stack-item--interactive {
+  width: 100%;
 }
 .info-stack-pill--interactive {
   width: auto;
+  max-width: min(14rem, 100%);
 }
 .info-stack-item--interactive:hover,
 .info-stack-pill--interactive:hover {
@@ -3134,15 +3189,19 @@
   outline: 2px solid color-mix(in srgb, var(--color-brand-500) 55%, transparent);
   outline-offset: 2px;
 }
+/* Blueprint — softer radius + cyan wash */
 [data-theme="blueprint"] .info-stack {
+  border-radius: 1rem;
   border-color: color-mix(in srgb, var(--color-accent-cyan) 12%, transparent);
   background: color-mix(in srgb, var(--color-surface-card) 38%, transparent);
 }
 [data-theme="blueprint"] .info-stack-item {
+  border-radius: 0.75rem;
   border-color: color-mix(in srgb, var(--color-accent-cyan) 10%, transparent);
   background: color-mix(in srgb, var(--color-surface-card) 28%, transparent);
 }
 [data-theme="blueprint"] .info-stack-pill {
+  border-radius: 9999px;
   border-color: color-mix(in srgb, var(--color-accent-cyan) 14%, transparent);
 }
 

@@ -496,8 +496,7 @@ export function Library({
               />
             ) : (
               <div className="space-y-2">
-                {/* Courses + alerts + info stacks share one masonry so Topics/Examples
-                    fill voids left by an uneven course count (Settings-style pack). */}
+                {/* Courses (+ quality alerts) pack in masonry/list; Topics stacks are full-bleed below (OPT-L1). */}
                 <div
                   className={cn(
                     viewMode === 'grid'
@@ -519,6 +518,7 @@ export function Library({
                         onRemoveCourse={onRemoveCourse}
                         onOpenNotebookShell={onOpenNotebookShell}
                         onUpload={onUpload}
+                        onOpenTopic={onOpenConcept}
                       />
                     ) : (
                       <CourseListItem
@@ -559,34 +559,48 @@ export function Library({
                       </div>
                     </CollapsibleChromeSection>
                   )}
-                  {!search.trim() && libraryInfo.topics.length > 0 && (
-                    <InfoStack
-                      title={t('libraryInfoStackTopicsTitle', userLanguage)}
-                      items={libraryInfo.topics}
-                      secondary={libraryInfo.prerequisites}
-                      secondaryLabel={t('libraryInfoStackSecondaryLabel', userLanguage)}
-                      onItemClick={(topicTitle) => {
-                        const owning = topicToCourse.get(topicTitle);
-                        if (owning) onSelectCourse(owning);
-                      }}
-                      onSecondaryClick={onOpenConcept}
-                      itemHint={t('libTopicOpenHint', userLanguage)}
-                      secondaryHint={t('libConceptOpenHint', userLanguage)}
-                    />
-                  )}
-                  {!search.trim() && libraryInfo.examples.length > 0 && (
-                    <InfoStack
-                      title={t('libraryInfoStackExamplesTitle', userLanguage)}
-                      items={libraryInfo.examples}
-                      secondary={libraryInfo.enrichments}
-                      secondaryLabel={t('libraryInfoStackSecondaryLabel', userLanguage)}
-                      onItemClick={onOpenConcept}
-                      onSecondaryClick={onOpenConcept}
-                      itemHint={t('libConceptOpenHint', userLanguage)}
-                      secondaryHint={t('libConceptOpenHint', userLanguage)}
-                    />
-                  )}
                 </div>
+                {!search.trim() && (libraryInfo.topics.length > 0 || libraryInfo.examples.length > 0) && (
+                  <div
+                    className="library-info-stacks grid grid-cols-1 gap-2 lg:grid-cols-2 lg:gap-2.5"
+                    data-testid="library-info-stacks"
+                  >
+                    {libraryInfo.topics.length > 0 && (
+                      <InfoStack
+                        title={t('libraryInfoStackTopicsTitle', userLanguage)}
+                        items={libraryInfo.topics}
+                        secondary={libraryInfo.prerequisites}
+                        secondaryLabel={t('libraryInfoStackSecondaryLabel', userLanguage)}
+                        onItemClick={(topicTitle) => {
+                          // OPT-L1 — open study workspace on the topic (demo + prod); fallback to course.
+                          if (onOpenConcept) {
+                            onOpenConcept(topicTitle);
+                            return;
+                          }
+                          const owning = topicToCourse.get(topicTitle);
+                          if (owning) onSelectCourse(owning);
+                        }}
+                        onSecondaryClick={(label) => {
+                          if (onOpenConcept) onOpenConcept(label);
+                        }}
+                        itemHint={t('libTopicOpenHint', userLanguage)}
+                        secondaryHint={t('libConceptOpenHint', userLanguage)}
+                      />
+                    )}
+                    {libraryInfo.examples.length > 0 && (
+                      <InfoStack
+                        title={t('libraryInfoStackExamplesTitle', userLanguage)}
+                        items={libraryInfo.examples}
+                        secondary={libraryInfo.enrichments}
+                        secondaryLabel={t('libraryInfoStackSecondaryLabel', userLanguage)}
+                        onItemClick={onOpenConcept}
+                        onSecondaryClick={onOpenConcept}
+                        itemHint={t('libConceptOpenHint', userLanguage)}
+                        secondaryHint={t('libConceptOpenHint', userLanguage)}
+                      />
+                    )}
+                  </div>
+                )}
                 {!search.trim() && (
                   <button
                     type="button"
@@ -665,6 +679,7 @@ function CourseCard({
   onRemoveCourse,
   onOpenNotebookShell,
   onUpload,
+  onOpenTopic,
   uploadedFiles,
   tasks = [],
   glossaryEntries = [],
@@ -676,6 +691,8 @@ function CourseCard({
   onRemoveCourse?: (courseId: string) => boolean;
   onOpenNotebookShell?: (courseId: string) => void;
   onUpload?: () => void;
+  /** OPT-L1 — topic chip → study workspace for that topic. */
+  onOpenTopic?: (topicTitle: string) => void;
   uploadedFiles: UploadedFile[];
   tasks?: Task[];
   glossaryEntries?: GlossaryEntry[];
@@ -873,13 +890,15 @@ function CourseCard({
         <OverflowChipRow
           testId={`library-topic-chips-${course.id}`}
           className="mt-3"
-          maxVisible={2}
+          maxVisible={3}
           moreAriaLabel={(n) => t('libChipOverflowMoreAria', userLanguage).replace('{n}', String(n))}
           lessAriaLabel={t('libChipOverflowLessAria', userLanguage)}
+          chipClassName="!max-w-[10rem] text-[10px] sm:text-xs"
           items={topicChips.map((topic) => ({
             key: topic.id,
             label: topic.title,
-            title: topic.title,
+            title: t('libTopicOpenHint', userLanguage),
+            onClick: onOpenTopic ? () => onOpenTopic(topic.title) : undefined,
           }))}
           trailing={
             onUpload ? (
@@ -890,7 +909,7 @@ function CourseCard({
                   onUpload();
                 }}
                 data-testid={`library-add-file-${course.id}`}
-                className="rounded-md border border-dashed border-brand-500/40 px-1.5 py-0.5 text-[10px] font-medium text-brand-700 hover:bg-brand-500/10"
+                className="rounded-md border border-dashed border-brand-500/40 px-1.5 py-0.5 text-[10px] sm:text-xs font-medium text-brand-700 hover:bg-brand-500/10"
               >
                 {t('libAddFileChip', userLanguage)}
               </button>
