@@ -302,7 +302,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
               {showWorkspaceResume && workspaceLive?.snapshot.activeConcept && !workspaceLive.snapshot.genericConcept && (
                 <span
                   data-testid="dashboard-active-topic-pill"
-                  className="inline-flex max-w-[14rem] items-center truncate rounded-full border border-brand-500/30 bg-brand-500/10 px-2.5 py-1 text-[10px] font-semibold text-brand-800"
+                  className="inline-flex max-w-[14rem] items-center truncate rounded-md border border-brand-500/30 bg-brand-500/10 px-2.5 py-1 text-[10px] font-semibold text-brand-800"
                   title={workspaceLive.snapshot.activeConcept}
                 >
                   {t('dashboardActiveTopic').replace('{topic}', workspaceLive.snapshot.activeConcept)}
@@ -371,7 +371,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                 />
               </HubSection>
             ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5 sm:gap-3" data-testid="dashboard-page-stats">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2.5 sm:gap-3" data-testid="dashboard-page-stats">
                 <StatCard icon={<Flame className="w-3.5 h-3.5 text-accent-amber" />} label={t('dashboardStatStreak')} value={t('dashboardStatDaysSuffix').replace('{count}', String(pageStats.streak))} data-testid="dashboard-stat-streak" />
                 <StatCard icon={<Zap className="w-3.5 h-3.5 text-brand-400" />} label={t('dashboardStatTodayXp')} value={`${pageStats.todayXp}`} data-testid="dashboard-stat-today-xp" />
                 <StatCard
@@ -477,7 +477,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                     <p className={cn('text-xs font-semibold', isMinimal ? 'text-text-primary' : 'platform-banner-title')}>
                       {t('dashActiveRecallTitle')}
                     </p>
-                    <p className="text-[11px] text-text-secondary mt-0.5 line-clamp-2">{t('dashActiveRecallBody')}</p>
+                    <p className="text-xs text-text-secondary mt-0.5 line-clamp-2">{t('dashActiveRecallBody')}</p>
                     <button
                       type="button"
                       onClick={() => (firstReviewTask ? onStartTask?.(firstReviewTask.id) : onNavigate('tasks'))}
@@ -517,7 +517,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
               </PrimaryCTA>
             }
           >
-            <p className="text-[11px] text-text-tertiary">{t('dashboardSuggestedNextSubtitle')}</p>
+            <p className="text-xs text-text-tertiary">{t('dashboardSuggestedNextSubtitle')}</p>
             {dashboardNextAction.label && (
               <p className="mt-1 text-xs line-clamp-2 text-text-secondary">{dashboardNextAction.label}</p>
             )}
@@ -650,7 +650,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                   <span className="text-[10px] font-semibold uppercase tracking-[0.08em] text-text-secondary">
                     <AllCapsLabel>{t('dashSignalRetrieval')}</AllCapsLabel>
                   </span>
-                  <span className="text-[11px] font-semibold tabular-nums text-text-primary">
+                  <span className="text-xs font-semibold tabular-nums text-text-primary">
                     {Math.round(learnerModel.retrievalPerformance * 100)}%
                   </span>
                 </div>
@@ -729,7 +729,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                     {/* Wave P-3 C14 — solid on-accent chips so HIGH/CRITICAL pills
                         clear WCAG AA on white spectrum + warm-light cards. */}
                     <span className={cn(
-                      'text-[10px] font-semibold px-2 py-0.5 rounded-full',
+                      'text-[10px] font-semibold px-2 py-0.5 rounded-md',
                       task.priority === 'critical' ? 'ux-chip-solid-danger' : 'ux-chip-solid-warn',
                     )}>{taskPriorityLabel(task.priority, t)}</span>
                     <span className="text-xs text-accent-amber">{taskXpLabel(task.xpReward, t)}</span>
@@ -792,7 +792,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                         onSelectCourse(course);
                       }
                     }}
-                    className="p-4 rounded-xl border border-border-subtle hover:border-brand-500/30 bg-surface-primary/50 cursor-pointer transition-all group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60"
+                    className="p-3 sm:p-3.5 rounded-xl border border-border-subtle hover:border-brand-500/30 bg-surface-primary/50 cursor-pointer transition-all group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60"
                   >
                     <div className="proximity-row mb-3">
                       <CourseIcon icon={course.icon} size="lg" colorClassName="text-brand-600" />
@@ -849,7 +849,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                           : 'var(--viz-bar-fill-muted)',
                       }}
                     />
-                    <span className="text-[9px] text-text-muted">{weekdayLabels[i] ?? ''}</span>
+                    <span className="text-[10px] text-text-muted">{weekdayLabels[i] ?? ''}</span>
                   </div>
                 ))}
               </div>
@@ -923,7 +923,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                   <p className="text-xs font-semibold text-text-primary tracking-wide uppercase">
                     <AllCapsLabel>{t('dashAlmostThere')}</AllCapsLabel>
                   </p>
-                  <p className="text-[11px] text-text-tertiary mt-0.5">{t('dashAlmostThereHint')}</p>
+                  <p className="text-xs text-text-tertiary mt-0.5">{t('dashAlmostThereHint')}</p>
                 </div>
                 {learnerModel.almostKnown.map((a) => (
                   <UtilityRow
@@ -993,7 +993,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                   <p className="text-xs font-semibold text-text-primary tracking-wide uppercase">
                     <AllCapsLabel>{t('dashAlmostThere')}</AllCapsLabel>
                   </p>
-                  <p className="text-[11px] text-text-tertiary mt-0.5">{t('dashAlmostThereHint')}</p>
+                  <p className="text-xs text-text-tertiary mt-0.5">{t('dashAlmostThereHint')}</p>
                 </div>
                 {learnerModel.almostKnown.map((a) => (
                   <UtilityRow
@@ -1222,15 +1222,15 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                     data-testid="dash-horizon-today"
                   >
                     <p className="ux-kpi-value text-accent-amber">{fsrsHorizon.today}</p>
-                    <p className="text-[9px] text-text-muted uppercase tracking-wide"><AllCapsLabel>{t('dashHorizonToday')}</AllCapsLabel></p>
+                    <p className="text-[10px] text-text-muted uppercase tracking-wide"><AllCapsLabel>{t('dashHorizonToday')}</AllCapsLabel></p>
                   </button>
                   <div className="p-2 rounded-lg bg-surface-primary/50" data-testid="dash-horizon-tomorrow">
                     <p className="ux-kpi-value">{fsrsHorizon.tomorrow}</p>
-                    <p className="text-[9px] text-text-muted uppercase tracking-wide"><AllCapsLabel>{t('dashHorizonTomorrow')}</AllCapsLabel></p>
+                    <p className="text-[10px] text-text-muted uppercase tracking-wide"><AllCapsLabel>{t('dashHorizonTomorrow')}</AllCapsLabel></p>
                   </div>
                   <div className="p-2 rounded-lg bg-surface-primary/50" data-testid="dash-horizon-3d">
                     <p className="ux-kpi-value">{fsrsHorizon.within3d}</p>
-                    <p className="text-[9px] text-text-muted uppercase tracking-wide"><AllCapsLabel>{t('dashHorizon3d')}</AllCapsLabel></p>
+                    <p className="text-[10px] text-text-muted uppercase tracking-wide"><AllCapsLabel>{t('dashHorizon3d')}</AllCapsLabel></p>
                   </div>
                 </div>
                 {fsrsDueQueue.length > 0 && onFocusWeakArea && (
@@ -1280,15 +1280,15 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                     data-testid="dash-horizon-today"
                   >
                     <p className="ux-kpi-value text-accent-amber">{fsrsHorizon.today}</p>
-                    <p className="text-[9px] text-text-muted uppercase tracking-wide"><AllCapsLabel>{t('dashHorizonToday')}</AllCapsLabel></p>
+                    <p className="text-[10px] text-text-muted uppercase tracking-wide"><AllCapsLabel>{t('dashHorizonToday')}</AllCapsLabel></p>
                   </button>
                   <div className="p-2 rounded-lg bg-surface-primary/50" data-testid="dash-horizon-tomorrow">
                     <p className="ux-kpi-value">{fsrsHorizon.tomorrow}</p>
-                    <p className="text-[9px] text-text-muted uppercase tracking-wide"><AllCapsLabel>{t('dashHorizonTomorrow')}</AllCapsLabel></p>
+                    <p className="text-[10px] text-text-muted uppercase tracking-wide"><AllCapsLabel>{t('dashHorizonTomorrow')}</AllCapsLabel></p>
                   </div>
                   <div className="p-2 rounded-lg bg-surface-primary/50" data-testid="dash-horizon-3d">
                     <p className="ux-kpi-value">{fsrsHorizon.within3d}</p>
-                    <p className="text-[9px] text-text-muted uppercase tracking-wide"><AllCapsLabel>{t('dashHorizon3d')}</AllCapsLabel></p>
+                    <p className="text-[10px] text-text-muted uppercase tracking-wide"><AllCapsLabel>{t('dashHorizon3d')}</AllCapsLabel></p>
                   </div>
                 </div>
                 {fsrsDueQueue.length > 0 && onFocusWeakArea && (
@@ -1352,7 +1352,7 @@ function StatCard({
     >
       <div className="mb-0.5 flex items-center gap-1.5">
         {icon}
-        <span className="text-[9px] font-medium uppercase tracking-wide text-text-tertiary truncate"><AllCapsLabel>{label}</AllCapsLabel></span>
+        <span className="text-[10px] font-medium uppercase tracking-wide text-text-tertiary truncate"><AllCapsLabel>{label}</AllCapsLabel></span>
       </div>
       <p className="ux-kpi-value-sm leading-tight">{value}</p>
     </BlueprintSurface>

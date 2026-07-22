@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { cn } from '../../utils/cn';
 import { AllCapsLabel } from './AllCapsLabel';
+import { useMinimalTheme } from '../../lib/useMinimalTheme';
 
 type Props = {
   eyebrow?: string;
@@ -22,14 +23,28 @@ export function ModalHeaderStack({
   titleId,
   subtitleId,
 }: Props) {
+  const isMinimal = useMinimalTheme();
   return (
     <div className={cn('ux-modal-header-stack', className)}>
       {eyebrow ? <p className="ux-semi-mono-eyebrow ux-modal-eyebrow"><AllCapsLabel>{eyebrow}</AllCapsLabel></p> : null}
-      <h2 id={titleId} className={cn('ux-modal-title text-lg font-bold text-text-primary', titleClassName)}>
+      <h2
+        id={titleId}
+        className={cn(
+          'ux-modal-title text-text-primary',
+          isMinimal ? 'text-base font-semibold' : 'text-lg font-bold',
+          titleClassName,
+        )}
+      >
         {title}
       </h2>
       {subtitle ? (
-        <p id={subtitleId} className="ux-modal-subtitle text-sm text-text-secondary mt-0.5">
+        <p
+          id={subtitleId}
+          className={cn(
+            'ux-modal-subtitle text-text-secondary mt-0.5',
+            isMinimal ? 'text-sm leading-relaxed' : 'text-sm',
+          )}
+        >
           {subtitle}
         </p>
       ) : null}

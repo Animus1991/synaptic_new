@@ -165,7 +165,7 @@ export function SessionLauncherCard({
     >
       {recommended && recommendedLabel ? (
         <span
-          className="absolute -top-1.5 right-2 rounded-full border border-brand-500/30 bg-brand-600/15 px-1.5 py-0.5 text-[8px] font-semibold uppercase tracking-wide text-brand-700"
+          className="absolute -top-1.5 right-2 rounded-md border border-brand-500/30 bg-brand-600/15 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-brand-700"
           data-testid="session-recommended-badge"
         >
           <AllCapsLabel>{recommendedLabel}</AllCapsLabel>
@@ -176,7 +176,7 @@ export function SessionLauncherCard({
       </span>
       <span className="min-w-0 flex-1 text-left">
         <span className="block text-sm font-semibold text-text-primary">{label}</span>
-        <span className="mt-1 block text-[10px] uppercase tracking-[0.22em] text-text-muted">
+        <span className="mt-1 block text-[10px] uppercase tracking-[0.08em] text-text-muted">
           <AllCapsLabel>{durationTag}</AllCapsLabel>
         </span>
         <span className="mt-1.5 block text-xs leading-5 text-text-secondary">{desc}</span>

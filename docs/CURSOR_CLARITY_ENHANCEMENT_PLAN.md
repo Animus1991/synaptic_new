@@ -53,6 +53,25 @@ CSS: `src/styles/cursor-clarity.css` (imported after `replit-clarity.css`).
 | **OPT-K27** | Slightly livelier light status pastels (mastery + bar fills) | **shipped** |
 | **OPT-K28** | Soften cyan/grey readiness bars; nudge rose a touch stronger | **shipped** |
 | **OPT-K29** | Dashboard Columns toggle: Minimal 2-col ↔ 1-col (wire layoutMode) | **shipped** |
+| **OPT-K30** | Dark muted text +1 step for meta readability | **shipped** |
+| **OPT-K31** | Light secondary/tertiary separation | **shipped** |
+| **OPT-K32** | Light chips: +tint wash + primary-leaning label | **shipped** |
+| **OPT-K33** | Progress track darker; soft fills +~5% presence | **shipped** |
+| **OPT-K34** | `.rounded-xl` → panel radius (existing M14 + CTA md) | **shipped** |
+| **OPT-K35** | Dashboard/status chips → pill/md (not capsules) | **shipped** |
+| **OPT-K36** | `--btn-height-sm: 2rem` for icon + CTA sm | **shipped** |
+| **OPT-K37** | Normalize meta≥10px; body hints → `text-xs` | **shipped** |
+| **OPT-K38** | Eyebrow tracking 0.06–0.08em (cut 0.22em) | **shipped** |
+| **OPT-K39** | SectionLabel `10px` → `sm:11px` | **shipped** |
+| **OPT-K40** | Minimal modal title quieter (`text-base` semibold) | **shipped** |
+| **OPT-K41** | Mobile stats 1-col; tablet 2; desktop 5 | **shipped** |
+| **OPT-K42** | Course cards `p-3 sm:p-3.5` | **shipped** |
+| **OPT-K43** | Mobile page bottom `pb-24` (nav clearance) | **shipped** |
+| **OPT-K44** | Pair-row gap 1.15rem + divider padding | **shipped** |
+| **OPT-K45** | Brand = CTA/focus; accent-cyan = non-CTA | **shipped** |
+| **OPT-K46** | Dark status accents ±5% toward light pastels | **shipped** |
+| **OPT-K47** | Focus ring 2px + brand focus tokens | **shipped** |
+| **OPT-K48** | Smoke checklist (Human Pass M20/C8 — not self-signed) | **shipped** |
 
 **Default gate:** Minimal / Minimal Dark only. Blueprint untouched.  
 **Width rule:** Compact `w-14` + `lg:ml-14` and Expanded `w-56` + `lg:ml-56` — main never underlays rail.
@@ -70,4 +89,15 @@ CSS: `src/styles/cursor-clarity.css` (imported after `replit-clarity.css`).
 
 ## Completeness
 
-**OPT-K1–K29 shipped.** Compact default + expand kept; main offset `ml-14` / `ml-56`. Human Pass? **M20 / C8** still open (engineering must not self-sign). See canvas `cursor-clarity-post-k911-audit.canvas.tsx`.
+**OPT-K1–K48 shipped.** Compact default + expand kept; main offset `ml-14` / `ml-56`. Human Pass? **M20 / C8** still open (engineering must not self-sign). See canvas `cursor-clarity-post-k911-audit.canvas.tsx`.
+
+### OPT-K48 smoke matrix (manual — do not self-sign)
+
+| Surface | Light Minimal | Dark Minimal | Mobile | Tablet | Desktop |
+|---------|---------------|--------------|--------|--------|---------|
+| Dashboard (canvas + stacked) | ☐ | ☐ | ☐ | ☐ | ☐ |
+| Modal header + ConfirmDialog | ☐ | ☐ | ☐ | ☐ | ☐ |
+| PrimaryCTA / SecondaryCTA | ☐ | ☐ | ☐ | ☐ | ☐ |
+| Priority / status chips | ☐ | ☐ | ☐ | ☐ | ☐ |
+| Progress / readiness bars | ☐ | ☐ | ☐ | ☐ | ☐ |
+| Focus-visible rings | ☐ | ☐ | ☐ | ☐ | ☐ |

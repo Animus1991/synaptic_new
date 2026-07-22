@@ -54,11 +54,12 @@
   --color-border-strong: #afb8c1;
 
   --color-text-primary: #1f2328;
-  --color-text-secondary: #59636e;
-  --color-text-tertiary: #656d76;
+  /* OPT-K31 — clearer secondary vs tertiary separation */
+  --color-text-secondary: #4d5560;
+  --color-text-tertiary: #6e7781;
   --color-text-muted: #818b98;
 
-  /* Brand cyan kept vivid for CTAs only; all other accents are dusty pastels */
+  /* OPT-K45 — brand-* = CTAs/focus only; accent-cyan = non-CTA status/viz */
   --color-accent-teal: #7aa0a6;
   --color-accent-cyan: #5a9eb0;
   /* OPT-K28 — cyan/grey softer; rose a touch stronger */
@@ -67,6 +68,8 @@
   --color-accent-rose: #a87082;
   --color-accent-orange: #b89a88;
   --color-accent-violet: #9aa2b0;
+  /* OPT-K36 — shared small control height (icon toggles + CTA sm) */
+  --btn-height-sm: 2rem;
   --color-on-danger: #5c4a50;
   --color-on-warn: #5a5648;
   --color-on-success: #4a5c54;
@@ -90,7 +93,9 @@
   --viz-canvas-bg: #f6f8fa;
   --surface-canvas: var(--viz-canvas-bg);
   --viz-grid-line: #d8dee4;
+  /* OPT-K47 — brand focus ink; 2px ring enforced in shared Minimal rules below */
   --focus-ring-color: var(--color-brand-600);
+  --focus-ring-width: 2px;
 }
 
 /* ========== OPT-M — Primer-inspired Minimal Dark ========== */
@@ -142,21 +147,23 @@
   --color-text-primary: #f0f6fc;
   --color-text-secondary: #b1bac4;
   --color-text-tertiary: #8b949e;
-  --color-text-muted: #6e7681;
+  /* OPT-K30 — muted +1 step so 9–10px meta stays readable on #0d1117 */
+  --color-text-muted: #7d8590;
 
   --color-accent-teal: #6a9088;
   --color-accent-cyan: #39d0d8;
-  /* OPT-K22 — slightly livelier muted status on dark; CTAs are white */
-  --color-accent-emerald: #56a06a;
+  /* OPT-K46 — dark status slightly closer to light pastel ratios (±5%) */
+  --color-accent-emerald: #5a9870;
   --color-accent-amber: #c4a84a;
-  --color-accent-rose: #c96b72;
+  --color-accent-rose: #c07a80;
   --color-accent-orange: #c98a52;
   --color-accent-violet: #8a8098;
 
-  --mastery-weak: #c96b72;
+  --mastery-weak: #c07a80;
   --mastery-developing: #6a9ec4;
   --mastery-proficient: #c4a84a;
-  --mastery-strong: #56a06a;
+  --mastery-strong: #5a9870;
+  --btn-height-sm: 2rem;
 
   --viz-track: #21262d;
   --viz-node-fill: #161b22;
@@ -164,6 +171,7 @@
   --surface-canvas: var(--viz-canvas-bg);
   --viz-grid-line: #30363d;
   --focus-ring-color: var(--color-brand-500);
+  --focus-ring-width: 2px;
 }
 
 /* OPT-M3/M4 — shared chrome flattening (zero feature removal)
@@ -242,29 +250,29 @@
   color: var(--color-surface-primary);
 }
 
-/* OPT-K25 — even softer chips; label near body ink, wash barely tinted */
+/* OPT-K32 — light chips: +~4% wash tint; label leans toward primary ink */
 :is([data-theme="minimal"]) .ux-chip-solid-warn {
-  background: color-mix(in srgb, var(--color-accent-amber) 8%, var(--color-surface-secondary));
-  color: var(--color-text-secondary);
-  border: 1px solid color-mix(in srgb, var(--color-accent-amber) 14%, var(--color-border-subtle));
+  background: color-mix(in srgb, var(--color-accent-amber) 12%, var(--color-surface-secondary));
+  color: color-mix(in srgb, var(--color-text-primary) 55%, var(--color-text-secondary));
+  border: 1px solid color-mix(in srgb, var(--color-accent-amber) 18%, var(--color-border-subtle));
 }
 
 :is([data-theme="minimal"]) .ux-chip-solid-danger {
-  background: color-mix(in srgb, var(--color-accent-rose) 8%, var(--color-surface-secondary));
-  color: var(--color-text-secondary);
-  border: 1px solid color-mix(in srgb, var(--color-accent-rose) 14%, var(--color-border-subtle));
+  background: color-mix(in srgb, var(--color-accent-rose) 12%, var(--color-surface-secondary));
+  color: color-mix(in srgb, var(--color-text-primary) 55%, var(--color-text-secondary));
+  border: 1px solid color-mix(in srgb, var(--color-accent-rose) 18%, var(--color-border-subtle));
 }
 
 :is([data-theme="minimal"]) .ux-chip-solid-success {
-  background: color-mix(in srgb, var(--color-accent-emerald) 8%, var(--color-surface-secondary));
-  color: var(--color-text-secondary);
-  border: 1px solid color-mix(in srgb, var(--color-accent-emerald) 14%, var(--color-border-subtle));
+  background: color-mix(in srgb, var(--color-accent-emerald) 12%, var(--color-surface-secondary));
+  color: color-mix(in srgb, var(--color-text-primary) 55%, var(--color-text-secondary));
+  border: 1px solid color-mix(in srgb, var(--color-accent-emerald) 18%, var(--color-border-subtle));
 }
 
 :is([data-theme="minimal"]) .ux-chip-solid-info {
-  background: color-mix(in srgb, var(--color-brand-600) 8%, var(--color-surface-secondary));
-  color: var(--color-text-secondary);
-  border: 1px solid color-mix(in srgb, var(--color-brand-600) 14%, var(--color-border-subtle));
+  background: color-mix(in srgb, var(--color-brand-600) 12%, var(--color-surface-secondary));
+  color: color-mix(in srgb, var(--color-text-primary) 55%, var(--color-text-secondary));
+  border: 1px solid color-mix(in srgb, var(--color-brand-600) 18%, var(--color-border-subtle));
 }
 
 :is([data-theme="minimal-dark"]) .ux-chip-solid-warn {
@@ -447,4 +455,44 @@
 .ws-status-flash {
   outline: 2px solid var(--color-brand-600);
   outline-offset: 2px;
+}
+
+/* OPT-K34/K35/K36/K47 — radius, sm control height, focus ring (Minimal only) */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) {
+  --btn-height-sm: 2rem;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell :is(
+  .ux-chip-solid-warn,
+  .ux-chip-solid-danger,
+  .ux-chip-solid-success,
+  .ux-chip-solid-info,
+  .ux-chip-solid-brand,
+  [data-testid="dashboard-active-topic-pill"]
+) {
+  border-radius: var(--radius-pill) !important;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell [data-testid="dashboard-layout-toggle"] {
+  height: var(--btn-height-sm);
+  width: var(--btn-height-sm);
+  min-height: var(--btn-height-sm);
+  min-width: var(--btn-height-sm);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell :focus-visible {
+  outline: var(--focus-ring-width, 2px) solid var(--focus-ring-color);
+  outline-offset: 2px;
+}
+
+/* OPT-K40 — quieter modal titles under Minimal */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .ux-modal-title {
+  font-size: 1rem !important;
+  font-weight: 600 !important;
+  line-height: 1.35;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .ux-modal-subtitle {
+  font-size: 0.875rem !important;
+  line-height: 1.5;
 }

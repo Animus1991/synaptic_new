@@ -28,7 +28,7 @@ export function Page({
 }) {
   const gapClass = gap === 'sm' ? 'space-y-3' : gap === 'lg' ? 'space-y-6' : 'space-y-4';
   return (
-    <div className={cn('platform-page w-full min-w-0 max-w-none p-3 pb-20 sm:p-5 lg:px-6 lg:pb-6', gapClass, className)}>
+    <div className={cn('platform-page w-full min-w-0 max-w-none p-3 pb-24 sm:p-5 lg:px-6 lg:pb-6', gapClass, className)}>
       {children}
     </div>
   );
@@ -63,7 +63,7 @@ export function PageHeader({
     )}>
       <div className="min-w-0">
         {eyebrow && (
-          <p className={cn('ws-eyebrow mb-1 text-text-secondary', isMinimal && 'text-[10px] uppercase tracking-[0.06em] text-text-muted')}>
+          <p className={cn('ws-eyebrow mb-1 text-text-secondary', isMinimal && 'text-[10px] uppercase tracking-[0.08em] text-text-muted')}>
             <AllCapsLabel>{eyebrow}</AllCapsLabel>
           </p>
         )}
@@ -422,7 +422,7 @@ export const PrimaryCTA = forwardRef<
       className={cn(
         'ux-primary-cta inline-flex items-center justify-center gap-2 rounded-xl font-semibold text-white transition-all duration-300',
         'bg-brand-600 hover:bg-brand-700 disabled:opacity-60 disabled:pointer-events-none',
-        size === 'sm' ? 'px-4 py-2 text-xs min-h-[2rem]' : 'px-5 text-sm min-h-[var(--btn-height)]',
+        size === 'sm' ? 'px-4 py-2 text-xs min-h-[var(--btn-height-sm,2rem)]' : 'px-5 text-sm min-h-[var(--btn-height)]',
         className,
       )}
       {...props}
@@ -445,7 +445,7 @@ export const SecondaryCTA = forwardRef<
         'ux-secondary-cta inline-flex items-center justify-center gap-2 rounded-xl font-medium transition-all duration-300 platform-pill',
         'border border-border-subtle text-text-secondary hover:border-brand-500/35 hover:text-brand-700',
         'disabled:opacity-60 disabled:pointer-events-none',
-        size === 'sm' ? 'px-3 py-2 text-xs min-h-[2rem]' : 'px-4 text-sm min-h-[var(--btn-height)]',
+        size === 'sm' ? 'px-3 py-2 text-xs min-h-[var(--btn-height-sm,2rem)]' : 'px-4 text-sm min-h-[var(--btn-height)]',
         className,
       )}
       {...props}

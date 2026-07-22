@@ -358,14 +358,15 @@
   width: 100%;
   overflow: hidden;
   border-radius: 999px;
-  background: var(--color-surface-secondary);
+  /* OPT-K33 — slightly darker track so soft fills read on secondary surfaces */
+  background: color-mix(in srgb, var(--color-border-subtle) 55%, var(--color-surface-tertiary));
 }
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .usage-bar-fill {
   height: 100%;
   border-radius: inherit;
-  /* OPT-K28 — slightly softer grey bar fill */
-  background: color-mix(in srgb, var(--color-text-secondary) 40%, var(--color-border-subtle));
+  /* OPT-K33 — +~5% fill presence vs K28; still soft, not neon */
+  background: color-mix(in srgb, var(--color-text-secondary) 48%, var(--color-border-subtle));
   transition: width 200ms ease;
 }
 
@@ -693,7 +694,8 @@
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm .hub-section-stack > .dashboard-pair-row {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 1rem 1.5rem;
+  /* OPT-K44 — stable pair gap */
+  gap: 1.15rem;
   align-items: start;
 }
 
@@ -715,12 +717,13 @@
 
 @media (min-width: 900px) {
   :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm[data-dashboard-layout="canvas"] .hub-section-stack > .dashboard-pair-row > *:first-child {
-    padding-inline-end: 0.75rem !important;
+    /* OPT-K44 — +2px breathing room vs divider */
+    padding-inline-end: 0.875rem !important;
     border-inline-end: 1px solid color-mix(in srgb, var(--color-border-subtle) 70%, transparent) !important;
   }
 
   :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm[data-dashboard-layout="canvas"] .hub-section-stack > .dashboard-pair-row > *:last-child:not(:only-child) {
-    padding-inline-start: 0.75rem !important;
+    padding-inline-start: 0.875rem !important;
   }
 }
 
@@ -1185,9 +1188,11 @@
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm {
   --dashboard-progress-h: 0.375rem; /* 6px — shared progress language */
-  /* OPT-K28 — readiness signal bars: softer grey + soft cyan (not ink/brand) */
-  --dashboard-signal-ink: color-mix(in srgb, var(--color-text-secondary) 38%, var(--color-border-subtle));
-  --dashboard-signal-cyan: color-mix(in srgb, var(--palette-cyan) 70%, var(--color-border-subtle));
+  /* OPT-K28/K33 — readiness signal bars: softer grey + soft cyan, slightly clearer on track */
+  --dashboard-signal-ink: color-mix(in srgb, var(--color-text-secondary) 42%, var(--color-border-subtle));
+  --dashboard-signal-cyan: color-mix(in srgb, var(--palette-cyan) 74%, var(--color-border-subtle));
+  /* OPT-K33 — darker progress track */
+  --viz-bar-track: color-mix(in srgb, var(--color-border-subtle) 78%, var(--color-surface-tertiary));
 }
 
 :is([data-theme="minimal-dark"]) .app-shell .dashboard-calm {
@@ -1200,7 +1205,8 @@
 }
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm .hub-section-stack > .dashboard-pair-row {
-  gap: 0.65rem 1.15rem;
+  /* OPT-K44 — keep pair gap stable (do not collapse below 1.15rem) */
+  gap: 1.15rem;
 }
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm .dashboard-prose {
