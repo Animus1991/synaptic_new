@@ -51,6 +51,8 @@ CSS: `src/styles/cursor-clarity.css` (imported after `replit-clarity.css`).
 | **OPT-K25** | Ultra-soft light accents; ink typography + cyan CTAs | **shipped** |
 | **OPT-K26** | Greek all-caps labels: strip τόνοι (`asAllCapsLabel` / `AllCapsLabel`) | **shipped** |
 | **OPT-K27** | Slightly livelier light status pastels (mastery + bar fills) | **shipped** |
+| **OPT-K28** | Soften cyan/grey readiness bars; nudge rose a touch stronger | **shipped** |
+| **OPT-K29** | Dashboard Columns toggle: Minimal 2-col ↔ 1-col (wire layoutMode) | **shipped** |
 
 **Default gate:** Minimal / Minimal Dark only. Blueprint untouched.  
 **Width rule:** Compact `w-14` + `lg:ml-14` and Expanded `w-56` + `lg:ml-56` — main never underlays rail.
@@ -68,4 +70,4 @@ CSS: `src/styles/cursor-clarity.css` (imported after `replit-clarity.css`).
 
 ## Completeness
 
-**OPT-K1–K27 shipped.** Compact default + expand kept; main offset `ml-14` / `ml-56`. Human Pass? **M20 / C8** still open (engineering must not self-sign). See canvas `cursor-clarity-post-k911-audit.canvas.tsx`.
+**OPT-K1–K29 shipped.** Compact default + expand kept; main offset `ml-14` / `ml-56`. Human Pass? **M20 / C8** still open (engineering must not self-sign). See canvas `cursor-clarity-post-k911-audit.canvas.tsx`.

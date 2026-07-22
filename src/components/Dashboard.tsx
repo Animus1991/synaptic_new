@@ -3,7 +3,7 @@ import {
   Flame, Lightning as Zap, Target, Clock, BookOpen, Warning as AlertTriangle,
   CaretRight as ChevronRight, TrendUp as TrendingUp, Brain, Calendar, ArrowRight,
   Shield, Lightbulb, ArrowCounterClockwise as RotateCcw, Eye, CheckCircle as CheckCircle2, UploadSimple as Upload, Sparkle as Sparkles,
-  Sun, Moon, CloudSun, Columns,
+  Sun, Moon, CloudSun, Columns, Rows,
 } from '@phosphor-icons/react';
 import type { Course, DashboardStats, LearnerModel, PersonalStudyDate, Task } from '../types';
 import { cn } from '../utils/cn';
@@ -137,7 +137,10 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
   const { t } = useI18n();
   const isMinimal = useMinimalTheme();
   const warmSandPage = useWarmSandPageScope();
-  const [layoutMode, setLayoutMode] = useState<DashboardLayoutMode>(() => loadDashboardLayoutMode());
+  /* Minimal defaults to canvas (paired 2-col); Blueprint keeps stacked (2-col masonry). */
+  const [layoutMode, setLayoutMode] = useState<DashboardLayoutMode>(() =>
+    loadDashboardLayoutMode(isMinimal ? 'canvas' : 'stacked'),
+  );
   const isCanvasLayout = layoutMode === 'canvas';
   const pageView = useMemo(
     () => selectDashboardPageViewModel({ stats, courses, tasks, learnerModel }),
@@ -319,7 +322,11 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                     : 'border-border-subtle text-text-secondary hover:border-brand-500/30 hover:text-brand-300',
                 )}
               >
-                <Columns className="w-3.5 h-3.5" />
+                {isCanvasLayout ? (
+                  <Columns className="w-3.5 h-3.5" aria-hidden />
+                ) : (
+                  <Rows className="w-3.5 h-3.5" aria-hidden />
+                )}
               </button>
             </>
           }
@@ -427,8 +434,8 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
           >
             <div
               className={cn(
-                'grid gap-3',
-                daysToExam !== null && (antiPassiveAlert || stats.antiPassiveAlert)
+                'dashboard-multi-col grid gap-3',
+                daysToExam !== null && (antiPassiveAlert || stats.antiPassiveAlert) && isCanvasLayout
                   ? 'grid-cols-1 sm:grid-cols-2'
                   : 'grid-cols-1',
               )}
@@ -536,7 +543,12 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
           {/* Readiness + coverage as separate masonry items (I-D05) */}
           {isMinimal ? (
             <HubSection title={t('examReadiness')} data-testid="dashboard-readiness-section">
-              <div className="flex flex-col sm:flex-row items-start gap-3">
+              <div
+                className={cn(
+                  'dashboard-readiness-row flex items-start gap-3',
+                  isCanvasLayout ? 'flex-col sm:flex-row' : 'flex-col',
+                )}
+              >
                 <ReadinessRing value={learnerModel.overallMastery} sublabel={t('dashReadinessSublabel')} />
                 {/* OPT-K9b — signals use proximity UtilityRows inside a tight track */}
                 <div className="proximity-track space-y-1 min-w-0">
@@ -560,10 +572,10 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
               <ReadinessRing value={learnerModel.overallMastery} sublabel={t('dashReadinessSublabel')} />
               <div className="flex-1 space-y-2.5 w-full min-w-0">
                 <SignalBars signals={[
-                  { label: t('dashSignalAccuracy'), value: Math.round(learnerModel.retentionRate * 100), icon: 'target', color: 'var(--palette-green)', detail: t('dashSignalAccuracyDetail') },
-                  { label: t('dashSignalReliance'), value: Math.round((1 - learnerModel.helpSeekingRate) * 100), icon: 'strength', color: 'var(--color-brand-600)', detail: t('dashSignalRelianceDetail') },
-                  { label: t('dashSignalVolume'), value: Math.min(100, Math.round(learnerModel.totalSessions * 2.1)), icon: 'chart', color: 'var(--palette-teal)', detail: t('dashSignalVolumeDetail').replace('{count}', String(learnerModel.totalSessions)) },
-                  { label: t('dashSignalRetrieval'), value: Math.round(learnerModel.retrievalPerformance * 100), icon: 'brain', color: 'var(--palette-amber)', detail: t('dashSignalRetrievalDetail') },
+                  { label: t('dashSignalAccuracy'), value: Math.round(learnerModel.retentionRate * 100), icon: 'target', color: 'var(--dashboard-signal-ink)', detail: t('dashSignalAccuracyDetail') },
+                  { label: t('dashSignalReliance'), value: Math.round((1 - learnerModel.helpSeekingRate) * 100), icon: 'strength', color: 'var(--dashboard-signal-cyan)', detail: t('dashSignalRelianceDetail') },
+                  { label: t('dashSignalVolume'), value: Math.min(100, Math.round(learnerModel.totalSessions * 2.1)), icon: 'chart', color: 'var(--dashboard-signal-ink)', detail: t('dashSignalVolumeDetail').replace('{count}', String(learnerModel.totalSessions)) },
+                  { label: t('dashSignalRetrieval'), value: Math.round(learnerModel.retrievalPerformance * 100), icon: 'brain', color: 'var(--dashboard-signal-ink)', detail: t('dashSignalRetrievalDetail') },
                 ]} />
               </div>
             </div>
@@ -757,7 +769,12 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
               <button onClick={() => onNavigate('library')} className="text-sm text-brand-400 hover:text-brand-700 flex items-center gap-1">{t('dashLibrary')} <ChevronRight className="w-4 h-4" /></button>
             </div>
             {activeCourses.length > 0 ? (
-              <div className="dashboard-course-grid grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div
+                className={cn(
+                  'dashboard-course-grid grid gap-3',
+                  isCanvasLayout ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1',
+                )}
+              >
                 {activeCourses.map((course, i) => {
                   const courseMastery = selectCanonicalMastery(course);
                   return (

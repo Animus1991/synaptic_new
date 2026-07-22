@@ -186,7 +186,7 @@
 
 /* Soft status bar fills — light: OPT-K27 slightly stronger pastels; dark: prior mute */
 :is([data-theme="minimal"]) .app-shell .bg-accent-rose {
-  background-color: color-mix(in srgb, var(--mastery-weak) 72%, var(--color-border-subtle)) !important;
+  background-color: color-mix(in srgb, var(--mastery-weak) 82%, var(--color-border-subtle)) !important;
 }
 
 :is([data-theme="minimal"]) .app-shell .bg-accent-amber {
@@ -364,7 +364,8 @@
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .usage-bar-fill {
   height: 100%;
   border-radius: inherit;
-  background: color-mix(in srgb, var(--color-text-secondary) 55%, var(--color-border-strong));
+  /* OPT-K28 — slightly softer grey bar fill */
+  background: color-mix(in srgb, var(--color-text-secondary) 40%, var(--color-border-subtle));
   transition: width 200ms ease;
 }
 
@@ -688,6 +689,7 @@
   width: 100%;
 }
 
+/* OPT-K29 — pair rows: canvas = 2-col (≥900px); stacked = always 1-col */
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm .hub-section-stack > .dashboard-pair-row {
   display: grid;
   grid-template-columns: 1fr;
@@ -696,7 +698,7 @@
 }
 
 @media (min-width: 900px) {
-  :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm .hub-section-stack > .dashboard-pair-row {
+  :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm[data-dashboard-layout="canvas"] .hub-section-stack > .dashboard-pair-row {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   }
 }
@@ -712,14 +714,27 @@
 }
 
 @media (min-width: 900px) {
-  :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm .hub-section-stack > .dashboard-pair-row > *:first-child {
+  :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm[data-dashboard-layout="canvas"] .hub-section-stack > .dashboard-pair-row > *:first-child {
     padding-inline-end: 0.75rem !important;
     border-inline-end: 1px solid color-mix(in srgb, var(--color-border-subtle) 70%, transparent) !important;
   }
 
-  :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm .hub-section-stack > .dashboard-pair-row > *:last-child:not(:only-child) {
+  :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm[data-dashboard-layout="canvas"] .hub-section-stack > .dashboard-pair-row > *:last-child:not(:only-child) {
     padding-inline-start: 0.75rem !important;
   }
+}
+
+/* OPT-K29 — stacked: course / next-steps grids + readiness side-by-side → single column */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm[data-dashboard-layout="stacked"] .dashboard-course-grid {
+  grid-template-columns: 1fr !important;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm[data-dashboard-layout="stacked"] .dashboard-readiness-row {
+  flex-direction: column !important;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm[data-dashboard-layout="stacked"] .dashboard-multi-col {
+  grid-template-columns: 1fr !important;
 }
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .analytics-quiet .progress-kpi-stack .utility-row-hint {
@@ -1170,6 +1185,14 @@
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm {
   --dashboard-progress-h: 0.375rem; /* 6px — shared progress language */
+  /* OPT-K28 — readiness signal bars: softer grey + soft cyan (not ink/brand) */
+  --dashboard-signal-ink: color-mix(in srgb, var(--color-text-secondary) 38%, var(--color-border-subtle));
+  --dashboard-signal-cyan: color-mix(in srgb, var(--palette-cyan) 70%, var(--color-border-subtle));
+}
+
+:is([data-theme="minimal-dark"]) .app-shell .dashboard-calm {
+  --dashboard-signal-ink: color-mix(in srgb, var(--color-text-tertiary) 55%, var(--color-surface-tertiary));
+  --dashboard-signal-cyan: color-mix(in srgb, var(--palette-cyan) 55%, var(--color-text-tertiary));
 }
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm .hub-section-stack {
@@ -1199,9 +1222,9 @@
   transition: width 0.35s ease;
 }
 
-/* Soft weak fill — dusty pastel on light */
+/* Soft weak fill — OPT-K28 rose a touch stronger */
 :is([data-theme="minimal"]) .app-shell .dashboard-calm .dashboard-progress-fill--weak {
-  background: color-mix(in srgb, var(--mastery-weak) 70%, var(--color-border-subtle));
+  background: color-mix(in srgb, var(--mastery-weak) 82%, var(--color-border-subtle));
 }
 
 :is([data-theme="minimal-dark"]) .app-shell .dashboard-calm .dashboard-progress-fill--weak {
