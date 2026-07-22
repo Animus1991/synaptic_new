@@ -63,7 +63,7 @@ export function PageHeader({
     )}>
       <div className="min-w-0">
         {eyebrow && (
-          <p className={cn('ws-eyebrow mb-1 text-text-secondary', isMinimal && 'text-[10px] uppercase tracking-[0.08em] text-text-muted')}>
+          <p className={cn('ws-eyebrow mb-1 text-text-secondary', isMinimal && 'text-[11px] uppercase tracking-[0.08em] text-text-muted')}>
             <AllCapsLabel>{eyebrow}</AllCapsLabel>
           </p>
         )}
@@ -76,10 +76,8 @@ export function PageHeader({
           )}
           <h1
             className={cn(
-              'truncate tracking-tight text-text-primary',
-              isMinimal
-                ? 'text-lg font-semibold sm:text-xl'
-                : 'ws-serif text-base font-medium sm:text-lg',
+              'truncate tracking-tight text-text-primary text-[length:var(--ux-type-hero)] leading-tight',
+              isMinimal ? 'font-semibold' : 'ws-serif font-medium',
             )}
           >
             {title}
@@ -89,7 +87,7 @@ export function PageHeader({
           <div
             className={cn(
               'ux-page-subtitle mt-0.5 text-text-secondary',
-              isMinimal ? 'text-xs leading-snug sm:text-[13px]' : 'text-xs sm:text-sm',
+              isMinimal ? 'text-[13px] leading-snug' : 'text-xs sm:text-sm',
             )}
           >
             {subtitle}

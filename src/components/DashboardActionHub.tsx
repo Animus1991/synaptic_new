@@ -202,7 +202,9 @@ export function DashboardActionHub({
                   <p className="ws-eyebrow mb-1 text-text-secondary opacity-90"><AllCapsLabel>{greetingEyebrow}</AllCapsLabel></p>
                 )}
                 {greetingTitle && (
-                  <h1 className="ws-serif font-medium tracking-tight text-base sm:text-lg">{greetingTitle}</h1>
+                  <h1 className="ws-serif font-semibold tracking-tight text-[length:var(--ux-type-hero)] leading-tight">
+                    {greetingTitle}
+                  </h1>
                 )}
                 {greetingSubtitle && (
                   <div className="ux-page-subtitle mt-1 text-sm opacity-90">{greetingSubtitle}</div>

@@ -199,7 +199,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
         {/* OPT-K2 — page shell stays full-width; copy column may stay readable. */}
         <MotionSection initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-2xl">
           <div className="text-center mb-8">
-            <h1 className="text-base sm:text-lg font-bold text-text-primary mb-2">
+            <h1 className="text-[length:var(--ux-type-hero)] font-semibold leading-tight text-text-primary mb-2">
               {t('welcomeToSynapse')}
             </h1>
             <p className="text-text-secondary text-sm sm:text-base max-w-md mx-auto">

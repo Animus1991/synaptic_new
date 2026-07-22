@@ -164,9 +164,9 @@
   --type-display-sm: 1.375rem;
   --type-display: 1.5rem;
   --type-hero: clamp(1.75rem, 4vw, 3rem);
-  /* Wave G — denser app heroes (mockup clarity without Replit magnification) */
-  --type-hero-app: 1.125rem;
-  --type-hero-app-sm: 1.25rem;
+  /* OPT-K51 — page title one step above section titles (1.125), not equal */
+  --type-hero-app: 1.25rem;
+  --type-hero-app-sm: 1.375rem;
   --btn-height: 2.5rem;
   --btn-height-sm: 2rem;
   --ux-motion-fade-y: 12px;
@@ -2227,17 +2227,18 @@
   font-size: inherit;
 }
 .ux-section-header h2 {
-  font-size: 1.125rem;
+  /* OPT-K51 — stay under page hero (1.25 / 1.375); avoid matching h1 */
+  font-size: 1.0625rem;
   line-height: 1.3;
   letter-spacing: var(--ux-tracking-section, var(--tracking-section));
 }
 @media (min-width: 640px) {
   .ux-section-header h2 {
-    font-size: 1.25rem;
+    font-size: 1.125rem;
   }
 }
 .dashboard-preview-title {
-  font-size: 1.125rem;
+  font-size: 1.0625rem;
   line-height: 1.3;
   font-weight: 600;
   letter-spacing: var(--ux-tracking-title, var(--tracking-title));
@@ -2245,7 +2246,7 @@
 }
 @media (min-width: 640px) {
   .dashboard-preview-title {
-    font-size: 1.25rem;
+    font-size: 1.125rem;
   }
 }
 
