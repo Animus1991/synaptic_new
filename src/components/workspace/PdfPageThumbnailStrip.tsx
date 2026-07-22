@@ -107,15 +107,17 @@ export function PdfPageThumbnailStrip({
             aria-selected={selected}
             data-testid={`pdf-page-thumb-${t.pageIndex}`}
             className={cn(
-              'shrink-0 h-14 w-11 rounded-md border overflow-hidden bg-surface-secondary',
+              /* OPT-N1 — ≥40px touch target on phone; larger selectable thumbs */
+              'shrink-0 h-11 w-10 min-h-11 min-w-10 sm:h-14 sm:w-11 rounded-md border overflow-hidden bg-surface-secondary',
               selected ? 'border-accent-cyan ring-1 ring-accent-cyan/40' : 'border-border-subtle/60',
+              onSelectPage && 'cursor-pointer hover:border-brand-400',
             )}
             onClick={() => onSelectPage?.(t.pageIndex)}
           >
             {t.url ? (
               <img src={t.url} alt="" className="h-full w-full object-cover object-top" />
             ) : (
-              <span className="flex h-full w-full items-center justify-center text-[10px] text-text-muted">
+              <span className="flex h-full w-full items-center justify-center text-xs text-text-muted">
                 {t.loading && pdfBytes ? '…' : t.pageIndex + 1}
               </span>
             )}

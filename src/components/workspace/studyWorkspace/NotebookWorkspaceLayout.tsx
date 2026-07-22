@@ -29,6 +29,15 @@ type StudioGenState = 'idle' | 'running' | 'done' | 'error';
 
 type MobileTab = 'sources' | 'chat' | 'studio';
 
+/** OPT-N1 — phone tabs only below 768; tablet+desktop get multi-panel (not isMobile&lt;1024). */
+type NotebookViewport = 'phone' | 'tablet' | 'desktop';
+
+function resolveNotebookViewport(width: number): NotebookViewport {
+  if (width < 768) return 'phone';
+  if (width < 1024) return 'tablet';
+  return 'desktop';
+}
+
 /** Reader lives in the Sources column; every other tool becomes a Studio card. */
 const STUDIO_TOOLS = WORKSPACE_TOOLS.filter((tool) => tool.id !== 'reader');
 
@@ -39,7 +48,6 @@ const STUDIO_TOOLS = WORKSPACE_TOOLS.filter((tool) => tool.id !== 'reader');
 export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps) {
   const {
     lang,
-    isMobile,
     noteBundle,
     courseSourceFiles,
     linkedCourse,
@@ -72,9 +80,22 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
   /** OPT-C4 — chat column inherits ChatGPT-calm under Minimal. */
   const notebookCalm = useMinimalTheme();
 
+  const [nbViewport, setNbViewport] = useState<NotebookViewport>(() =>
+    typeof window !== 'undefined' ? resolveNotebookViewport(window.innerWidth) : 'desktop',
+  );
+  const phoneLayout = nbViewport === 'phone';
+
+  useEffect(() => {
+    const onResize = () => setNbViewport(resolveNotebookViewport(window.innerWidth));
+    onResize();
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+
   const [studioToolOpen, setStudioToolOpen] = useState(false);
   const [mobileTab, setMobileTab] = useState<MobileTab>('chat');
   const [activeSourceKey, setActiveSourceKey] = useState<string | null>(null);
+  const [pdfPageIndex, setPdfPageIndex] = useState(0);
   const [studioGen, setStudioGen] = useState<Partial<Record<string, StudioGenState>>>({});
   const [audioOverviewGen, setAudioOverviewGen] = useState<AudioOverviewGenState>('idle');
   const concept = effectiveFocus?.term ?? quizConcept;
@@ -87,9 +108,9 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
     (tool: WorkspaceTool) => {
       openWorkspaceTool(tool);
       setStudioToolOpen(true);
-      if (isMobile) setMobileTab('studio');
+      if (phoneLayout) setMobileTab('studio');
     },
-    [openWorkspaceTool, isMobile],
+    [openWorkspaceTool, phoneLayout],
   );
 
   const askAiForTool = useCallback(
@@ -97,9 +118,9 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
       const prompt = buildToolDefaultAgentPrompt(tool, lang, concept, sectionTitle);
       openStudioTool(tool);
       openAgentForTool(tool, prompt);
-      if (isMobile) setMobileTab('chat');
+      if (phoneLayout) setMobileTab('chat');
     },
-    [lang, concept, sectionTitle, openStudioTool, openAgentForTool, isMobile],
+    [lang, concept, sectionTitle, openStudioTool, openAgentForTool, phoneLayout],
   );
 
   const runStudioQuickAction = useCallback(
@@ -115,10 +136,10 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
             ? `Δημιούργησε χάρτη εννοιών από τις πηγές μου για «${concept ?? notebookTitle}» με κεντρικές έννοιες και σχέσεις.`
             : `Build a concept map from my sources for "${concept ?? notebookTitle}" with key concepts and relations.`);
       openAgentForTool(tool, prompt);
-      if (isMobile) setMobileTab('chat');
+      if (phoneLayout) setMobileTab('chat');
       setStudioGen((prev) => ({ ...prev, [actionId]: 'idle' }));
     },
-    [lang, concept, notebookTitle, openStudioTool, openAgentForTool, isMobile],
+    [lang, concept, notebookTitle, openStudioTool, openAgentForTool, phoneLayout],
   );
 
   const openSourceGuide = useCallback(() => {
@@ -128,8 +149,8 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
         ? `Δώσε μου έναν σύντομο οδηγό πηγής για το «${notebookTitle}»: τα βασικά θέματα, τις κεντρικές έννοιες και 3 προτεινόμενες ερωτήσεις μελέτης, με βάση τις πηγές μου.`
         : `Give me a brief source guide for "${notebookTitle}": the key topics, the central concepts and 3 suggested study questions, grounded in my sources.`;
     openAgentForTool('reader', prompt);
-    if (isMobile) setMobileTab('chat');
-  }, [lang, notebookTitle, openStudioTool, openAgentForTool, isMobile]);
+    if (phoneLayout) setMobileTab('chat');
+  }, [lang, notebookTitle, openStudioTool, openAgentForTool, phoneLayout]);
 
   const addSource = useCallback(() => {
     if (noteBundle.hasSource) {
@@ -187,6 +208,16 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
       openStudioTool('reader');
     },
     [openStudioTool],
+  );
+
+  const openPdfPage = useCallback(
+    (pageIndex: number) => {
+      setPdfPageIndex(pageIndex);
+      const key = pinnedSourceKey ?? sourceRows[0]?.key;
+      if (key) setActiveSourceKey(key);
+      openStudioTool('reader');
+    },
+    [openStudioTool, pinnedSourceKey, sourceRows],
   );
 
   const sourcesBody = (
@@ -271,7 +302,13 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
             if (!pinned || pinned.type !== 'pdf' || pages <= 1) return null;
             return (
               <div className="mt-2 px-0.5" data-testid="notebook-pdf-page-strip">
-                <PdfPageThumbnailStrip pageCount={pages} lang={lang === 'el' ? 'el' : 'en'} />
+                <PdfPageThumbnailStrip
+                  pageCount={pages}
+                  activePageIndex={pdfPageIndex}
+                  onSelectPage={openPdfPage}
+                  lang={lang === 'el' ? 'el' : 'en'}
+                  className="notebook-pdf-page-strip"
+                />
               </div>
             );
           })()}
@@ -407,7 +444,13 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
   const studioGrid = (
     <div className="flex-1 min-h-0 overflow-y-auto p-3">
       {studioQuickActions}
-      <div className="grid grid-cols-2 gap-2" data-testid="notebook-studio-grid">
+      <div
+        className={cn(
+          'grid gap-2',
+          phoneLayout ? 'grid-cols-2 min-[400px]:grid-cols-3' : 'grid-cols-2 xl:grid-cols-3',
+        )}
+        data-testid="notebook-studio-grid"
+      >
         {STUDIO_TOOLS.map(({ id, icon: Icon }) => {
           const genKey = id === 'quiz' ? 'quiz-from-source' : id === 'concept-map' ? 'mindmap-from-source' : null;
           const genState = genKey ? studioGen[genKey] : undefined;
@@ -491,20 +534,20 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
           data-testid={`notebook-tab-${id}`}
           aria-current={mobileTab === id ? 'page' : undefined}
           className={cn(
-            'flex flex-1 flex-col items-center gap-0.5 py-2 text-[10px] font-medium transition-colors',
+            'flex min-h-11 flex-1 flex-col items-center justify-center gap-0.5 py-2 text-xs font-medium transition-colors',
             mobileTab === id
               ? 'text-brand-700 bg-brand-50/80'
               : 'text-text-muted hover:text-text-primary hover:bg-surface-hover',
           )}
         >
-          <Icon className="h-4 w-4" />
+          <Icon className="h-5 w-5" />
           {label}
         </button>
       ))}
     </nav>
   );
 
-  if (isMobile) {
+  if (phoneLayout) {
     return (
       <div
         className={cn(
@@ -515,7 +558,7 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
         role="main"
         tabIndex={-1}
         data-testid="notebook-workspace-layout"
-        data-layout="mobile"
+        data-layout="phone"
       >
         <div className="flex min-h-0 flex-1 flex-col overflow-hidden p-2 pb-0">
           {studioToolOpen ? (
@@ -602,11 +645,16 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
       id="workspace-main"
       role="main"
       tabIndex={-1}
-      data-testid="notebook-workspace-layout"
-      data-layout="desktop"
-    >
+        data-testid="notebook-workspace-layout"
+        data-layout={nbViewport}
+      >
       <Group orientation="horizontal" className="flex-1 min-h-0 w-full h-full p-2 gap-0">
-        <Panel id="nb-sources" defaultSize={22} minSize={14} className="flex h-full min-h-0 flex-col overflow-hidden">
+        <Panel
+          id="nb-sources"
+          defaultSize={nbViewport === 'tablet' ? 26 : 22}
+          minSize={nbViewport === 'tablet' ? 18 : 14}
+          className="flex h-full min-h-0 flex-col overflow-hidden"
+        >
           <section
             className="flex h-full min-h-0 flex-col overflow-hidden workspace-glass-panel rounded-2xl border border-border-subtle bg-surface-card"
             aria-label={notebookCalm ? tx('Αρχεία', 'Files') : tx('Πηγές', 'Sources')}

@@ -126,5 +126,6 @@ Each OPT: small PR, no feature removal, themes preserved.
 
 | ID | Status |
 |----|--------|
-| OPT-L1 | **shipping** — topics wired + responsive InfoStack |
+| OPT-L1 | **shipped** — topics wired + responsive InfoStack |
 | OPT-L2…L6 | planned |
+| Notebook companion | See `NOTEBOOK_WORKSPACE_AUDIT_UPGRADE_PLAN.md` (OPT-N*) |

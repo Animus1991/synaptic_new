@@ -139,6 +139,12 @@
   background: transparent;
 }
 
+/* OPT-N1 — notebook micro labels ≥11px (readable on cream Minimal) */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .notebook-canvas .type-micro {
+  font-size: 0.6875rem;
+  line-height: 1.35;
+}
+
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .notebook-calm [data-testid="notebook-chat-panel"] > header .type-micro,
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .notebook-calm [data-testid="notebook-studio-panel"] > header .type-micro {
   display: none;

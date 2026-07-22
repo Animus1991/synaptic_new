@@ -301,6 +301,7 @@ export default function App() {
     ?? store.selectedCourse;
   const workspaceConcept = taskConcept
     ?? store.studyConceptOverride
+    ?? store.workspaceFocus?.term
     ?? workspaceCourse?.topics[0]?.title
     ?? workspaceCourse?.title
     ?? 'Introduction';

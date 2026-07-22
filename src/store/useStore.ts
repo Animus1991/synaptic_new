@@ -392,14 +392,20 @@ export function useAppStore() {
       setActiveTaskId(null);
     }
 
+    // OPT-N1 — anchor context to selected course topic (avoid stale Philosophy/etc. banners).
     setStudyConceptOverride(null);
-    setWorkspaceFocus(null);
+    const course = selectedCourse;
+    const anchor =
+      course?.topics?.find((t) => t.title?.trim())?.title?.trim()
+      ?? course?.title?.trim()
+      ?? null;
+    setWorkspaceFocus(anchor ? { term: anchor, originTool: 'dashboard' } : null);
     setWorkspaceAgentSplit(false);
     setWorkspaceInlineAgentOpen(true);
     setNotebookShellCourseId(null);
     studyWorkspaceOpenRef.current = true;
     setStudyWorkspaceOpen(true);
-  }, [cancelPendingWorkspaceClose, closeCompetingTaskOverlays]);
+  }, [cancelPendingWorkspaceClose, closeCompetingTaskOverlays, selectedCourse]);
 
   const openNotebookShell = useCallback((courseId: string) => {
     const course = courses.find((c) => c.id === courseId);
