@@ -108,7 +108,7 @@ test.describe('NotebookLM workspace mobile tabs', () => {
   test('switches Sources | Chat | Studio tabs on narrow viewport', async ({ page }) => {
     await openNotebookWorkspace(page);
 
-    await expect(page.getByTestId('notebook-workspace-layout')).toHaveAttribute('data-layout', 'mobile');
+    await expect(page.getByTestId('notebook-workspace-layout')).toHaveAttribute('data-layout', 'phone');
     const tabs = page.getByTestId('notebook-mobile-tabs');
     await expect(tabs).toBeVisible({ timeout: 15_000 });
 
@@ -120,5 +120,25 @@ test.describe('NotebookLM workspace mobile tabs', () => {
 
     await page.getByTestId('notebook-tab-chat').click();
     await expect(page.getByTestId('agent-embedded')).toBeVisible();
+  });
+});
+
+test.describe('OPT-N3/N5 notebook sources integrity', () => {
+  test.describe.configure({ timeout: 120_000 });
+
+  test('quality strip is always actionable and opens note analysis', async ({ page }) => {
+    await openNotebookWorkspace(page);
+    await expect(page.getByTestId('notebook-source-quality')).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByTestId('notebook-source-reprocess')).toBeVisible();
+    await page.getByTestId('notebook-source-quality').click();
+    await expect(page.getByTestId('note-analysis-summary')).toBeVisible({ timeout: 15_000 });
+  });
+
+  test('studio quiz card opens tool surface without leaving workspace', async ({ page }) => {
+    await openNotebookWorkspace(page);
+    await page.getByTestId('studio-card-quiz').click();
+    await expect(page.getByTestId('study-workspace')).toBeVisible();
+    await expect(page.getByTestId('agent-page')).not.toBeVisible();
+    await expect(page.getByTestId('workspace-tool-header')).toBeVisible({ timeout: 10_000 });
   });
 });

@@ -17,6 +17,7 @@ function topic(partial: Partial<Topic> & Pick<Topic, 'id' | 'title'>): Topic {
     isLocked: false,
     estimatedMinutes: 10,
     conceptCount: 1,
+    retentionPrediction: 0.5,
     ...partial,
   };
 }

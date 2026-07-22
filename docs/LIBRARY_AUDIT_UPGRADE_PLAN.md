@@ -127,6 +127,9 @@ Each OPT: small PR, no feature removal, themes preserved.
 | ID | Status |
 |----|--------|
 | OPT-L1 | **shipped** — topics wired + responsive InfoStack |
-| OPT-L2 | **shipping** — resolve opaque `t1` prereq ids → titles; clearer secondary labels; denser readable meta |
-| OPT-L3…L6 | planned |
+| OPT-L2 | **shipped** — resolve opaque `t1` prereq ids → titles; clearer secondary labels; denser readable meta |
+| OPT-L3 | **shipped** — NotebookLM empty/error/success + ⌘/Ctrl+Enter; Combined study demo-safe hint + loading/error; quality MiniAlert → upload |
+| OPT-L4 | **shipped** — demo sandbox hint on Library (no fake disabled); InfoStack topics/prereqs open workspace |
+| OPT-L5 | **shipped** — signed-in sync hint when `canAutoSyncLibrary`; offline queue banner remains shell-level |
+| OPT-L6 | **verification ready** — e2e `library-info-stack.spec.ts` (no raw `tN` pills); Human Pass rows remain user-owned |
 | Notebook companion | See `NOTEBOOK_WORKSPACE_AUDIT_UPGRADE_PLAN.md` (OPT-N*) |

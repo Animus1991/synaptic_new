@@ -412,16 +412,31 @@ export function MiniAlert({
   body,
   tone,
   className,
+  actionLabel,
+  onAction,
 }: {
   title: string;
   body: string;
   tone: 'amber' | 'violet';
   className?: string;
+  /** OPT-L3 — optional deep-link (upload / reprocess). */
+  actionLabel?: string;
+  onAction?: () => void;
 }) {
   return (
     <div className={cn('mini-alert', tone === 'amber' ? 'mini-alert-amber' : 'mini-alert-violet', className)}>
       <div className="text-sm font-semibold">{title}</div>
       <div className="mt-2 text-sm leading-6">{body}</div>
+      {actionLabel && onAction && (
+        <button
+          type="button"
+          onClick={onAction}
+          data-testid="mini-alert-action"
+          className="mt-2 text-sm font-semibold text-brand-800 hover:underline"
+        >
+          {actionLabel}
+        </button>
+      )}
     </div>
   );
 }

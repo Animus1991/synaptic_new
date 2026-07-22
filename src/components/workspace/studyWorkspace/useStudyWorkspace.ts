@@ -429,6 +429,7 @@ export function useStudyWorkspace({
       show: noteBundle.hasSource && isLowSourceQuality(score),
       score: typeof score === 'number' ? score : null,
       showMigrationBanner: false,
+      showPre24Greek: false,
     };
   }, [linkedCourse, uploadedFiles, handleReuploadMaterial, noteBundle.hasSource, sourceIntelligence?.score]);
   const showReuploadHint = Boolean(
@@ -438,6 +439,7 @@ export function useStudyWorkspace({
     ?? linkedCourse?.sourceQuality?.score
     ?? sourceIntelligence?.score;
   const showLowQualityBanner = qualityBannerDecision.show;
+  const showPre24Greek = Boolean(qualityBannerDecision.showPre24Greek);
 
   const sourceTextHygiene = useMemo(() => {
     if (!intelReady) return null;
@@ -2335,6 +2337,7 @@ export function useStudyWorkspace({
     sourceQualityScore,
     showReuploadHint,
     showLowQualityBanner,
+    showPre24Greek,
     sourceTextHygiene,
     noteConceptActivity,
     openReprocessWizard,

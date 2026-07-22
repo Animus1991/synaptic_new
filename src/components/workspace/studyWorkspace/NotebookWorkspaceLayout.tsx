@@ -20,6 +20,7 @@ import type { StudyWorkspaceModel } from './useStudyWorkspace';
 import type { WorkspaceTool } from './types';
 import { useMinimalTheme } from '../../../lib/useMinimalTheme';
 import { AllCapsLabel } from '../../ui/AllCapsLabel';
+import { useAppStore } from '../../../store/useStore';
 
 interface NotebookWorkspaceLayoutProps {
   model: StudyWorkspaceModel;
@@ -56,9 +57,7 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
     effectiveFocus,
     activeTool,
     sourceQualityScore,
-    showReuploadHint,
     showPre24Greek,
-    showLowQualityBanner,
     reprocessingMaterial,
     userSettings,
     openReprocessWizard,
@@ -71,7 +70,10 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
     sourceHighlight,
     currentStep,
     STEPS,
+    effectiveCourseId,
   } = model;
+
+  const { openNoteAnalysis, closeStudyWorkspace } = useAppStore();
 
   const tx = useCallback(
     (el: string, en: string) => (lang === 'el' ? el : en),
@@ -101,8 +103,17 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
   const concept = effectiveFocus?.term ?? quizConcept;
   const sectionTitle = STEPS[currentStep]?.title;
   const notebookTitle = courseName ?? linkedCourse?.title ?? quizConcept;
-  const showQualityStrip =
-    showReuploadHint || showLowQualityBanner || showPre24Greek;
+  /** OPT-N3 — quality strip always present when sources exist (not only low-quality). */
+  const showQualityStrip = noteBundle.hasSource;
+
+  const openSourceCheck = useCallback(() => {
+    if (effectiveCourseId) {
+      closeStudyWorkspace();
+      openNoteAnalysis(effectiveCourseId);
+      return;
+    }
+    openReprocessWizard();
+  }, [effectiveCourseId, closeStudyWorkspace, openNoteAnalysis, openReprocessWizard]);
 
   const openStudioTool = useCallback(
     (tool: WorkspaceTool) => {
@@ -337,17 +348,24 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
 
   const sourcesFooter = showQualityStrip ? (
     <footer className="flex items-center justify-between gap-2 border-t border-border-subtle px-3 py-2 shrink-0">
-      <span className="ws-pill" data-testid="notebook-source-quality">
+      <button
+        type="button"
+        onClick={openSourceCheck}
+        title={tx('Άνοιγμα ανάλυσης πηγής', 'Open source analysis')}
+        className="ws-pill hover:bg-brand-100/60 hover:text-brand-800 transition-colors cursor-pointer text-left"
+        data-testid="notebook-source-quality"
+      >
         {showPre24Greek
           ? tx('Προ-v2.4 ελληνικά', 'Pre-v2.4 Greek')
           : sourceQualityScore != null
             ? `${sourceQualityScore}% ${tx('ποιότητα πηγής', 'source quality')}`
             : tx('Έλεγχος πηγής', 'Source check')}
-      </span>
+      </button>
       <button
         type="button"
         onClick={openReprocessWizard}
         disabled={reprocessingMaterial}
+        data-testid="notebook-source-reprocess"
         className="flex items-center gap-1 type-micro font-medium text-text-secondary hover:text-brand-700 transition-colors disabled:opacity-50"
       >
         <RefreshCw className={cn('h-3 w-3', reprocessingMaterial && 'animate-spin')} />

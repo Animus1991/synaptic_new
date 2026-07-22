@@ -17,6 +17,7 @@ export function NotebookLmImportPanel({ lang, onImport, onAddToFsrs, className }
   const [open, setOpen] = useState(false);
   const [text, setText] = useState('');
   const [busy, setBusy] = useState(false);
+  const [importError, setImportError] = useState<string | null>(null);
   const [lastResult, setLastResult] = useState<NotebookLmImportResult | null>(null);
   const [fsrsBusy, setFsrsBusy] = useState(false);
   const [lastFsrsAdded, setLastFsrsAdded] = useState<number | null>(null);
@@ -31,13 +32,22 @@ export function NotebookLmImportPanel({ lang, onImport, onAddToFsrs, className }
   const handleImport = async (raw: string) => {
     if (!raw.trim()) return;
     setBusy(true);
+    setImportError(null);
     try {
       const result = onImport(raw);
       if (result) {
         setLastResult(result);
         setLastFsrsAdded(null);
         setText('');
+      } else {
+        setImportError(
+          lang === 'el'
+            ? 'Δεν αναγνωρίστηκε έγκυρο NotebookLM περιεχόμενο. Δοκίμασε άλλο paste.'
+            : 'Could not parse NotebookLM content. Try a different paste.',
+        );
       }
+    } catch (e) {
+      setImportError(e instanceof Error ? e.message : 'Import failed');
     } finally {
       setBusy(false);
     }
@@ -88,22 +98,28 @@ export function NotebookLmImportPanel({ lang, onImport, onAddToFsrs, className }
 
       {open && (
         <div className="px-3 pb-3 space-y-2 border-t border-brand-500/15 pt-2">
-          <p className="text-[10px] text-text-secondary">{hint}</p>
+          <p className="text-xs text-text-secondary">{hint}</p>
           <button
             type="button"
             onClick={() => void openNotebookLm({ lang })}
-            className="inline-flex items-center gap-1 text-[10px] font-medium text-brand-700 dark:text-brand-300 hover:underline"
+            className="inline-flex items-center gap-1 text-xs font-medium text-brand-700 dark:text-brand-300 hover:underline"
             data-testid="notebooklm-open-external"
           >
             <ExternalLink className="w-3 h-3" />
             {lang === 'el' ? 'Άνοιγμα NotebookLM' : 'Open NotebookLM'}
           </button>
-          <p className="text-[10px] text-text-muted">
+          <p className="text-xs text-text-muted">
             {NOTEBOOKLM_URL}
           </p>
           <textarea
             value={text}
             onChange={(e) => setText(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && (e.metaKey || e.ctrlKey) && text.trim() && !busy) {
+                e.preventDefault();
+                void handleImport(text);
+              }
+            }}
             rows={5}
             placeholder={
               lang === 'el'
@@ -112,7 +128,13 @@ export function NotebookLmImportPanel({ lang, onImport, onAddToFsrs, className }
             }
             className="w-full rounded-lg border border-border-subtle bg-surface-input px-2 py-1.5 text-xs text-text-primary placeholder:text-text-muted resize-y min-h-[80px]"
             data-testid="notebooklm-import-text"
+            aria-invalid={importError ? true : undefined}
           />
+          {importError && (
+            <p className="text-xs text-accent-rose" data-testid="notebooklm-import-error" role="alert">
+              {importError}
+            </p>
+          )}
           <div className="flex flex-wrap gap-2">
             <button
               type="button"
@@ -139,7 +161,10 @@ export function NotebookLmImportPanel({ lang, onImport, onAddToFsrs, className }
             />
           </div>
           {lastResult && (
-            <div className="rounded-lg border border-border-subtle/60 bg-surface-input/50 px-2 py-1.5 text-[10px] text-text-secondary space-y-1">
+            <div
+              className="rounded-lg border border-border-subtle/60 bg-surface-input/50 px-2 py-1.5 text-xs text-text-secondary space-y-1"
+              data-testid="notebooklm-import-success"
+            >
               <p>
                 {lang === 'el' ? 'Τελευταία εισαγωγή:' : 'Last import:'}{' '}
                 <span className="font-medium text-text-primary">{lastResult.title}</span>
@@ -194,7 +219,7 @@ export function NotebookLmImportPanel({ lang, onImport, onAddToFsrs, className }
                 </div>
               )}
               {lastFsrsAdded != null && (
-                <p className="text-[10px] text-accent-emerald font-medium" data-testid="notebooklm-fsrs-added-hint">
+                <p className="text-xs text-accent-emerald font-medium" data-testid="notebooklm-fsrs-added-hint">
                   {lang === 'el'
                     ? 'Άνοιξε Leitner στο Workspace για review.'
                     : 'Open Leitner in Workspace to review.'}

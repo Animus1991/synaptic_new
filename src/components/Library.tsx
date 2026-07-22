@@ -19,7 +19,8 @@ import { resolveCourseColor } from '../lib/masteryPalette';
 import { countFilesForCourse } from '../lib/deleteCascade';
 import { countGeneratedTasksForCourse } from '../lib/pipelineReprocess';
 import { courseDeleteStats } from '../lib/removeCourse';
-import { isDemoCourse } from '../lib/demoMode';
+import { isDemoCourse, shouldShowDemo } from '../lib/demoMode';
+import { canAutoSyncLibrary } from '../lib/libraryRemoteSync';
 import { selectCourseTaskMetrics } from '../lib/coursePageSelectors';
 import { CourseIcon } from './ui/CourseIcon';
 import { AllCapsLabel } from './ui/AllCapsLabel';
@@ -323,6 +324,22 @@ export function Library({
       {/* L-L01: canvas order — RAG → success → NotebookLM → combined → tip.
           Tight stack avoids stacking Page space-y with per-child mb-*. */}
       <div className="space-y-1.5">
+        {userSettings && shouldShowDemo(userSettings) && (
+          <p
+            className="text-xs text-text-secondary px-0.5"
+            data-testid="library-demo-sandbox-hint"
+          >
+            {t('libraryDemoSandboxHint', userLanguage)}
+          </p>
+        )}
+        {userSettings && canAutoSyncLibrary(userSettings) && (
+          <p
+            className="text-xs text-text-muted px-0.5"
+            data-testid="library-sync-signed-in-hint"
+          >
+            {t('librarySyncSignedInHint', userLanguage)}
+          </p>
+        )}
         {postUploadCourse && onOpenWorkspace && (
           <PostUploadBanner
             courseTitle={postUploadCourse.title}
@@ -560,6 +577,8 @@ export function Library({
                             tone="amber"
                             title={t('libraryMiniAlertGapTitle', userLanguage)}
                             body={t('libraryMiniAlertGapBody', userLanguage)}
+                            actionLabel={t('libraryMiniAlertUploadAction', userLanguage)}
+                            onAction={onUpload}
                           />
                         )}
                         {libraryQualityAlerts.outlineAdjusted && (
@@ -567,6 +586,8 @@ export function Library({
                             tone="violet"
                             title={t('libraryMiniAlertContradictionTitle', userLanguage)}
                             body={t('libraryMiniAlertContradictionBody', userLanguage)}
+                            actionLabel={t('libraryMiniAlertUploadAction', userLanguage)}
+                            onAction={onUpload}
                           />
                         )}
                       </div>

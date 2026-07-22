@@ -85,6 +85,8 @@
 | ID | Status |
 |----|--------|
 | OPT-N1 | **shipped** |
-| OPT-N2 | **shipping** — studio card active state |
-| OPT-N3…N5 | planned |
-| OPT-L1 / L2 (Library topics + prereq labels) | shipped / shipping — feeds this surface |
+| OPT-N2 | **shipped** — studio card active / pressed state |
+| OPT-N3 | **shipped** — quality strip always on with sources; Source check → Note Analysis; Reprocess CTA |
+| OPT-N4 | **shipped** — demo mock sources seeded; studio cards + audio overview wired on Microeconomics; course-scoped agent context |
+| OPT-N5 | **verification ready** — e2e: phone layout, quality→analysis, studio open; Human Pass rows remain user-owned |
+| OPT-L1 / L2 (Library topics + prereq labels) | shipped — feeds this surface |
