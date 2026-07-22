@@ -35,11 +35,10 @@
   padding: 0.65rem 0.5rem 0.25rem;
 }
 
-/* OPT-K51 — app type harmony: page h1 slightly leads; chrome/labels readable */
+/* OPT-K51 — type roles only (no button height / CTA size changes) */
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell {
   --type-micro: 0.6875rem;
   --type-caption: 0.75rem;
-  --btn-height-sm: 2.125rem;
 }
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell #dashboard-hero-greeting h1 {
@@ -52,10 +51,6 @@
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .ux-page-subtitle {
   font-size: 0.8125rem;
   line-height: 1.45;
-}
-
-:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell :is(.ux-primary-cta, .ux-secondary-cta) {
-  font-size: 0.8125rem;
 }
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell [role="dialog"] :is(h2, [data-testid$="-title"]) {
