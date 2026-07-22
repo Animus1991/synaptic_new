@@ -78,21 +78,21 @@ export function AnnotationToolbar({
         <FileText className="h-3 w-3 shrink-0 text-brand-700" aria-hidden />
         <span className="ws-eyebrow shrink-0 text-text-secondary"><AllCapsLabel>{sourceViewerLabel}</AllCapsLabel></span>
         {sharedCount > 0 && (
-          <span className="ws-chip-warn rounded px-1 py-0.5 text-[8px]">
+          <span className="ws-chip-warn rounded px-1 py-0.5 text-[10px]">
             {sharedCount} {t('annoTeacherShort')}
           </span>
         )}
         {syncLive && (
           <span
             data-testid="annotation-sync-live"
-            className="ws-chip-ok rounded px-1 py-0.5 text-[8px]"
+            className="ws-chip-ok rounded px-1 py-0.5 text-[10px]"
             title={t('annoSyncVersion').replace('{version}', String(syncVersion))}
           >
             {syncMode === 'stream' ? t('annoStream') : t('annoLive')}
           </span>
         )}
         {sourceName && (
-          <span className="min-w-0 flex-1 truncate text-[9px] text-text-muted" title={sourceName}>
+          <span className="min-w-0 flex-1 truncate text-[10px] text-text-muted" title={sourceName}>
             {sourceName}
           </span>
         )}

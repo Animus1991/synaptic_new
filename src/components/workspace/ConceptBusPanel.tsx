@@ -169,7 +169,7 @@ export function ConceptBusPanel({
                       key={`pre-${r.label}`}
                       type="button"
                       onClick={() => onFocusTerm(r.label)}
-                      className="rounded px-1.5 py-0.5 text-[8px] border border-white/10 text-text-muted hover:text-brand-800"
+                      className="rounded px-1.5 py-0.5 text-[10px] border border-white/10 text-text-muted hover:text-brand-800"
                     >
                       ← {r.label}
                     </button>
@@ -179,7 +179,7 @@ export function ConceptBusPanel({
                       key={`rel-${r.label}`}
                       type="button"
                       onClick={() => onFocusTerm(r.label)}
-                      className="rounded px-1.5 py-0.5 text-[8px] border border-white/10 text-text-muted hover:text-brand-800"
+                      className="rounded px-1.5 py-0.5 text-[10px] border border-white/10 text-text-muted hover:text-brand-800"
                     >
                       ~ {r.label}
                     </button>
@@ -190,7 +190,7 @@ export function ConceptBusPanel({
                 <button
                   type="button"
                   onClick={onOpenReaderSection}
-                  className="mt-1 text-[9px] text-brand-800 hover:underline"
+                  className="mt-1 text-[10px] text-brand-800 hover:underline"
                   data-testid="concept-bus-reader-link"
                 >
                   {t('busOpenInReader')} · {activeLens.sourceSections[0]}
@@ -216,16 +216,16 @@ export function ConceptBusPanel({
                 </button>
                 <div className="flex items-center gap-1">
                   {row.struggling && (
-                    <span className="inline-flex items-center gap-0.5 text-[9px] text-accent-amber">
+                    <span className="inline-flex items-center gap-0.5 text-[10px] text-accent-amber">
                       <AlertTriangle className="w-3 h-3" />
                     </span>
                   )}
                   {row.confident && !row.struggling && (
-                    <span className="inline-flex items-center gap-0.5 text-[9px] text-accent-emerald">
+                    <span className="inline-flex items-center gap-0.5 text-[10px] text-accent-emerald">
                       <CheckCircle2 className="w-3 h-3" />
                     </span>
                   )}
-                  <span className="text-[9px] text-text-muted font-mono">
+                  <span className="text-[10px] text-text-muted font-mono">
                     {Math.round(row.engagement * 100)}%
                   </span>
                 </div>
@@ -237,7 +237,7 @@ export function ConceptBusPanel({
                     type="button"
                     onClick={() => onJumpTool(tool)}
                     className={cn(
-                      'rounded-full border px-1.5 py-0.5 text-[9px] font-medium transition-colors',
+                      'rounded-full border px-1.5 py-0.5 text-[10px] font-medium transition-colors',
                       tool === activeTool
                         ? 'border-brand-500/50 bg-brand-500/15 text-brand-800'
                         : 'border-white/10 bg-white/[0.04] text-text-secondary hover:border-brand-600/35 hover:text-brand-800',
@@ -248,13 +248,13 @@ export function ConceptBusPanel({
                 ))}
               </div>
               {row.signals.length > 0 && (
-                <p className="mt-1 text-[9px] text-text-muted truncate">
+                <p className="mt-1 text-[10px] text-text-muted truncate">
                   {row.signals.map((s) => SIGNAL_LABELS[s][lang]).join(' → ')}
                 </p>
               )}
               {onRemediate && (row.struggling || row.signals.some((s) => s === 'quiz-wrong' || s === 'leitner-hard' || s === 'annotated-confusing')) && (
                 <div className="mt-1.5 flex flex-wrap gap-1" data-testid={`concept-bus-remediation-${row.key}`}>
-                  <span className="w-full text-[8px] font-medium text-text-muted">
+                  <span className="w-full text-[10px] font-medium text-text-muted">
                     {t('busNextStep')}
                   </span>
                   {buildConceptRemediationMatrix(row, lang).map((action) => (
@@ -263,7 +263,7 @@ export function ConceptBusPanel({
                       type="button"
                       title={action.hint}
                       onClick={() => onRemediate(row.concept, action.id)}
-                      className="rounded-full border border-accent-amber/30 bg-accent-amber/10 px-1.5 py-0.5 text-[9px] font-medium text-accent-amber hover:bg-accent-amber/20 transition-colors"
+                      className="rounded-full border border-accent-amber/30 bg-accent-amber/10 px-1.5 py-0.5 text-[10px] font-medium text-accent-amber hover:bg-accent-amber/20 transition-colors"
                     >
                       {action.label}
                     </button>
@@ -308,7 +308,7 @@ function ConceptBusChip({
             type="button"
             onClick={() => onJumpTool(tool)}
             className={cn(
-              'rounded px-1 py-0.5 text-[8px] font-medium',
+              'rounded px-1 py-0.5 text-[10px] font-medium',
               tool === activeTool ? 'bg-brand-500/20 text-brand-800' : 'bg-white/6 text-text-muted hover:text-brand-800',
             )}
           >

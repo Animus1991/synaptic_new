@@ -130,7 +130,7 @@ export function AIInsightsPanel({
       <SectionLabel
         icon={Lightbulb}
         action={(
-          <span className="text-[9px] text-text-muted">
+          <span className="text-[10px] text-text-muted">
             {payload.source === 'api'
               ? (lang === 'el' ? 'API' : 'API')
               : (lang === 'el' ? 'τοπικά' : 'local')}

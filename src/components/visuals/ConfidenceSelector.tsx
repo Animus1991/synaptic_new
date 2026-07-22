@@ -19,7 +19,7 @@ export function ConfidenceSelector({ value, onChange, required }: ConfidenceSele
     <div>
       <p className="text-xs text-text-tertiary mb-2 flex items-center gap-1">
         How confident are you?
-        {required && !value && <span className="text-accent-rose text-[9px]">*required before submitting</span>}
+        {required && !value && <span className="text-accent-rose text-[10px]">*required before submitting</span>}
       </p>
       <div className="flex gap-2" role="radiogroup" aria-label="Confidence level">
         {levels.map(l => (

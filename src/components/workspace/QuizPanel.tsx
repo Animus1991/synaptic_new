@@ -201,7 +201,7 @@ export function QuizPanel({
               key={item.id}
               type="button"
               onClick={() => (onSelectionAction ? selectQuestion(item) : onOpenInReader?.(quizItemQuestion(item)))}
-              className="rounded-full border border-accent-cyan/25 bg-accent-cyan/8 px-2 py-0.5 text-[9px] text-brand-800 hover:opacity-90"
+              className="rounded-full border border-accent-cyan/25 bg-accent-cyan/8 px-2 py-0.5 text-[10px] text-brand-800 hover:opacity-90"
             >
               {quizItemQuestion(item).slice(0, 56)}
               {quizItemQuestion(item).length > 56 ? '…' : ''}

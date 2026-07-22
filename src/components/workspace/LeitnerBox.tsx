@@ -353,7 +353,7 @@ export function LeitnerBox({
 
             data-testid="leitner-due-badge"
 
-            className="rounded-full bg-accent-rose/20 px-2 py-0.5 text-[9px] font-semibold text-accent-rose"
+            className="rounded-full bg-accent-rose/20 px-2 py-0.5 text-[10px] font-semibold text-accent-rose"
 
           >
 
@@ -429,7 +429,7 @@ export function LeitnerBox({
         </button>
 
         {importError && (
-          <span className="text-[9px] text-red-500 max-w-[12rem] truncate" title={importError}>
+          <span className="text-[10px] text-red-500 max-w-[12rem] truncate" title={importError}>
             {importError}
           </span>
         )}
@@ -442,7 +442,7 @@ export function LeitnerBox({
 
       <div className="mb-1" data-testid="leitner-due-heatmap">
 
-        <p className="text-[9px] font-semibold text-text-muted mb-1">
+        <p className="text-[10px] font-semibold text-text-muted mb-1">
 
           {t('leitnerDueQueue7d')}
 
@@ -464,7 +464,7 @@ export function LeitnerBox({
 
             >
 
-              <p className="text-[8px] text-text-muted truncate">{day.label}</p>
+              <p className="text-[10px] text-text-muted truncate">{day.label}</p>
 
               <p className="text-[10px] font-bold text-accent-amber">{day.dueCount}</p>
 
@@ -504,7 +504,7 @@ export function LeitnerBox({
         <div className="mb-2 flex flex-wrap items-center gap-1.5">
           {card && (
             <span
-              className="inline-block rounded-full border border-accent-cyan/25 bg-accent-cyan/10 px-2 py-0.5 text-[9px] font-medium text-brand-800"
+              className="inline-block rounded-full border border-accent-cyan/25 bg-accent-cyan/10 px-2 py-0.5 text-[10px] font-medium text-brand-800"
               data-testid="leitner-card-type"
             >
               {leitnerCardTypeLabel(inferLeitnerCardType(card), lang)}
@@ -512,7 +512,7 @@ export function LeitnerBox({
           )}
           {card?.source && (
             <span
-              className="inline-block rounded-full border border-brand-500/25 bg-brand-600/10 px-2 py-0.5 text-[9px] font-medium text-brand-800"
+              className="inline-block rounded-full border border-brand-500/25 bg-brand-600/10 px-2 py-0.5 text-[10px] font-medium text-brand-800"
               data-testid="leitner-card-source"
             >
               {leitnerCardSourceLabel(card.source, lang)}

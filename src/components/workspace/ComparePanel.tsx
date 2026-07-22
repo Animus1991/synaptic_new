@@ -189,7 +189,7 @@ export function ComparePanel({
 
       {selectedRow && ocrNoisyTerms.has(selectedRow[0]) && (
         <p
-          className="mb-2 text-[9px] text-accent-amber px-1"
+          className="mb-2 text-[10px] text-accent-amber px-1"
           data-testid="compare-row-ocr-warning"
         >
           {t('compareOcrWarning')}

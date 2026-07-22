@@ -75,7 +75,7 @@ export function KnowledgeFlowSankeyChart({ links, title, hint, emptyLabel, hasDa
               <g key={name}>
                 <circle cx={cx} cy={cy} r={14} fill={tone} opacity={0.16} />
                 <circle cx={cx} cy={cy} r={7} fill={tone} opacity={0.9} />
-                <text x={cx} y={cy + 24} textAnchor="middle" className="fill-text-secondary text-[9px] font-medium">
+                <text x={cx} y={cy + 24} textAnchor="middle" className="fill-text-secondary text-[10px] font-medium">
                   {name}
                 </text>
               </g>
@@ -168,7 +168,7 @@ export function MasteryWaterfallChart({
                   {isGain && step.delta > 0 ? '+' : ''}
                   {step.delta}
                 </text>
-                <text x={x + w / 2} y={252} textAnchor="middle" className="fill-text-muted text-[8px]">
+                <text x={x + w / 2} y={252} textAnchor="middle" className="fill-text-muted text-[10px]">
                   {step.label.length > 14 ? `${step.label.slice(0, 12)}…` : step.label}
                 </text>
                 {i > 0 && (

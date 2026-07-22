@@ -49,7 +49,7 @@ export function StudyBehaviorCharts({ activities, className }: Props) {
                   style={{ height: `${Math.max(4, (d.count / maxBar) * 100)}%` }}
                   title={`${d.label}: ${d.count}`}
                 />
-                <span className="text-[8px] text-text-muted truncate w-full text-center">{d.label}</span>
+                <span className="text-[10px] text-text-muted truncate w-full text-center">{d.label}</span>
               </div>
             ))}
           </div>

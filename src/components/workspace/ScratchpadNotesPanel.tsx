@@ -128,7 +128,7 @@ export function ScratchpadNotesPanel({
             data-testid={`scratchpad-mode-${m}`}
             onClick={() => setMode(m)}
             className={cn(
-              'px-2 py-0.5 rounded text-[9px] font-medium border transition-all',
+              'px-2 py-0.5 rounded text-[10px] font-medium border transition-all',
               mode === m
                 ? 'border-brand-400/50 bg-brand-500/15 text-brand-800'
                 : 'border-transparent text-text-muted hover:text-text-secondary',
@@ -192,7 +192,7 @@ export function ScratchpadNotesPanel({
                   onClick={() => setSelectedId(selectedId === entry.id ? null : entry.id)}
                 >
                   <div className="flex items-center justify-between gap-2 mb-1">
-                    <span className="text-[9px] text-brand-800 font-medium">
+                    <span className="text-[10px] text-brand-800 font-medium">
                       {SCRATCHPAD_MODE_LABELS[entry.mode][lang]}
                       {entry.sectionLabel && <span className="text-text-muted ml-1">· {entry.sectionLabel}</span>}
                     </span>
@@ -222,7 +222,7 @@ export function ScratchpadNotesPanel({
                           type="button"
                           data-testid="scratchpad-to-flashcard"
                           onClick={() => onConvertToFlashcard(buildFlashcardFromEntry(entry), entry)}
-                          className="flex items-center gap-1 text-[9px] text-accent-amber hover:text-accent-amber/80"
+                          className="flex items-center gap-1 text-[10px] text-accent-amber hover:text-accent-amber/80"
                         >
                           <Layers className="w-3 h-3" />
                           {t('scratchToFlashcard')}
@@ -233,7 +233,7 @@ export function ScratchpadNotesPanel({
                           type="button"
                           data-testid="scratchpad-to-annotation"
                           onClick={() => onConvertToAnnotation(entry)}
-                          className="flex items-center gap-1 text-[9px] text-brand-800 hover:opacity-80"
+                          className="flex items-center gap-1 text-[10px] text-brand-800 hover:opacity-80"
                         >
                           <Highlighter className="w-3 h-3" />
                           {t('scratchToAnnotation')}
@@ -243,7 +243,7 @@ export function ScratchpadNotesPanel({
                         <button
                           type="button"
                           onClick={() => onAskAgent(entry.body, entry.mode)}
-                          className="flex items-center gap-1 text-[9px] text-brand-700"
+                          className="flex items-center gap-1 text-[10px] text-brand-700"
                         >
                           <Sparkles className="w-3 h-3" />
                           Agent
@@ -259,7 +259,7 @@ export function ScratchpadNotesPanel({
       </div>
 
       {selected && (
-        <div className="px-3 py-1 border-t border-border-subtle text-[9px] text-text-muted shrink-0">
+        <div className="px-3 py-1 border-t border-border-subtle text-[10px] text-text-muted shrink-0">
           {t('scratchSelectedEntry')} · {selected.updatedAt.slice(0, 10)}
         </div>
       )}

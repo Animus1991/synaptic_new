@@ -1,4 +1,4 @@
-﻿import { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   BookOpen, CheckSquare, Robot as Bot, SquaresFour as LayoutDashboard, Gear as Settings,
@@ -365,7 +365,7 @@ export function Shell({
                           className={cn(
                             'text-xs ws-chip-danger font-semibold',
                             iconRail
-                              ? 'absolute -right-0.5 -top-0.5 z-[2] min-w-[1rem] rounded-full px-1 py-0 text-[9px] leading-tight'
+                              ? 'absolute -right-0.5 -top-0.5 z-[2] min-w-[1rem] rounded-full px-1 py-0 text-[10px] leading-tight'
                               : 'ml-auto px-2 py-0.5 rounded-full',
                           )}
                         >
@@ -1010,7 +1010,7 @@ export function Shell({
                   </span>
                   {/* OPT-C7 — under Minimal, hint stays in title only (less label noise). */}
                   {item.kind === 'workspace' && !quietNav && (
-                    <span className="type-micro text-[9px] text-text-tertiary truncate w-full text-center">
+                    <span className="type-micro text-[10px] text-text-tertiary truncate w-full text-center">
                       {workspaceHint}
                     </span>
                   )}

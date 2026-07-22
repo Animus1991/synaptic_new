@@ -80,7 +80,7 @@ export function AgentContextBanner({ context, lang, className, compact = false }
                 <p className="mt-1.5 text-text-muted">{banner.groundingNote}</p>
               )}
               {jsonText && (
-                <pre className="mt-2 max-h-28 overflow-auto rounded-lg border border-border-subtle bg-surface-input/80 p-2 font-mono text-[9px]">
+                <pre className="mt-2 max-h-28 overflow-auto rounded-lg border border-border-subtle bg-surface-input/80 p-2 font-mono text-[10px]">
                   {jsonText}
                 </pre>
               )}
@@ -102,7 +102,7 @@ export function AgentContextBanner({ context, lang, className, compact = false }
         )}
         {jsonOpen && jsonText && (
           <pre
-            className="absolute left-3 right-3 top-full z-40 mt-1 max-h-32 overflow-auto rounded-lg border border-border-subtle bg-surface-card p-2 font-mono text-[9px] leading-relaxed text-text-secondary shadow-lg"
+            className="absolute left-3 right-3 top-full z-40 mt-1 max-h-32 overflow-auto rounded-lg border border-border-subtle bg-surface-card p-2 font-mono text-[10px] leading-relaxed text-text-secondary shadow-lg"
             data-testid="agent-context-json"
           >
             {jsonText}

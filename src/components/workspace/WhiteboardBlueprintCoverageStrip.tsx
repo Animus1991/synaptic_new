@@ -32,7 +32,7 @@ export function WhiteboardBlueprintCoverageStrip({ report, lang }: Props) {
         </span>
       </div>
       {contextHint && (
-        <p className="text-[9px] opacity-90 pl-5">{contextHint}</p>
+        <p className="text-[10px] opacity-90 pl-5">{contextHint}</p>
       )}
     </div>
   );

@@ -324,7 +324,7 @@ export function FormulaScratchpad({
                 <div className="py-3 px-6 rounded-xl bg-surface-primary/60 inline-block">
                   <FormulaLatexPreview formula={activeFormula.formula} />
                 </div>
-                <p className="text-[9px] text-text-muted font-mono mt-1 opacity-70">{activeFormula.formula}</p>
+                <p className="text-[10px] text-text-muted font-mono mt-1 opacity-70">{activeFormula.formula}</p>
               </div>
 
               {/* Variable inputs */}
@@ -522,12 +522,12 @@ export function FormulaScratchpad({
                         : t('scratchNeedsFix')}
                     </p>
                     {sympyValidation.simplifiedTarget && (
-                      <p className="text-[9px] text-text-muted font-mono truncate">
+                      <p className="text-[10px] text-text-muted font-mono truncate">
                         target: {sympyValidation.simplifiedTarget}
                       </p>
                     )}
                     {sympyValidation.error && (
-                      <p className="text-[9px] text-accent-amber">{sympyValidation.error}</p>
+                      <p className="text-[10px] text-accent-amber">{sympyValidation.error}</p>
                     )}
                     {sympyValidation.steps.filter((s) => s.status !== 'skipped').map((row) => {
                       const edge = sympyChainReport?.entries[row.index];

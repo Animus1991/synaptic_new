@@ -59,7 +59,7 @@ export function CohortNotebookLmHeatmap({ analytics, lang }: Props) {
                   <p className="text-[7px] text-text-primary truncate leading-tight">
                     {student.studentLabel}
                   </p>
-                  <p className="text-[8px] font-bold text-text-primary text-center">
+                  <p className="text-[10px] font-bold text-text-primary text-center">
                     {student.totalCount > 0 ? student.totalCount : '—'}
                   </p>
                 </div>
@@ -67,7 +67,7 @@ export function CohortNotebookLmHeatmap({ analytics, lang }: Props) {
             })}
           </div>
           {(hm.artifactTotals.import + hm.artifactTotals.chat + hm.artifactTotals.audio) > 0 && (
-            <p className="text-[9px] text-text-muted">
+            <p className="text-[10px] text-text-muted">
               {el ? 'Σύνολο' : 'Totals'}:
               {' '}
               {hm.artifactTotals.import} {el ? 'εισαγωγές' : 'imports'}

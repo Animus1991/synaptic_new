@@ -81,7 +81,7 @@ export function ConceptMasteryHeatmapChart({
           <div className="mb-2 flex">
             <div className="w-28 shrink-0" />
             {dayLabels.map((daysAgo) => (
-              <div key={daysAgo} className="flex-1 text-center text-[9px] text-text-muted">
+              <div key={daysAgo} className="flex-1 text-center text-[10px] text-text-muted">
                 {daysAgo === 0 ? '·' : daysAgo % 7 === 0 ? daysAgo : ''}
               </div>
             ))}

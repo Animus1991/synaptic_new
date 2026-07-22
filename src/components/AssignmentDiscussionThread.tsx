@@ -84,7 +84,7 @@ function PostCard({
             <div className="flex flex-wrap items-center gap-2">
               <span
                 className={cn(
-                  'text-[9px] px-1.5 py-0.5 rounded-full',
+                  'text-[10px] px-1.5 py-0.5 rounded-full',
                   post.authorRole === 'teacher'
                     ? 'bg-brand-600/10 text-brand-800'
                     : 'bg-surface-hover text-text-secondary',
@@ -92,7 +92,7 @@ function PostCard({
               >
                 {post.authorRole === 'teacher' ? ui.roleTeacher : ui.roleStudent}
               </span>
-              <span className="text-[9px] text-text-muted">
+              <span className="text-[10px] text-text-muted">
                 {formatDateTime(post.createdAt, lang)}
               </span>
             </div>
@@ -135,7 +135,7 @@ function PostCard({
                   <div className="flex flex-wrap items-center gap-2">
                     <span
                       className={cn(
-                        'text-[9px] px-1.5 py-0.5 rounded-full',
+                        'text-[10px] px-1.5 py-0.5 rounded-full',
                         reply.authorRole === 'teacher'
                           ? 'bg-brand-600/10 text-brand-800'
                           : 'bg-surface-hover text-text-secondary',
@@ -143,7 +143,7 @@ function PostCard({
                     >
                       {reply.authorRole === 'teacher' ? ui.roleTeacher : ui.roleStudent}
                     </span>
-                    <span className="text-[9px] text-text-muted">
+                    <span className="text-[10px] text-text-muted">
                       {formatDateTime(reply.createdAt, lang)}
                     </span>
                   </div>

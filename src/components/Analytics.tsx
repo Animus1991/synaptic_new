@@ -438,7 +438,7 @@ function OverviewTab({
                   }}
                   title={`${label || `D+${point.dayOffset}`}: ${Math.round(point.avgRetrievability * 100)}%`}
                 />
-                <span className="h-3 text-[8px] text-text-muted tabular-nums leading-none truncate w-full text-center">
+                <span className="h-3 text-[10px] text-text-muted tabular-nums leading-none truncate w-full text-center">
                   {label}
                 </span>
               </div>
@@ -471,7 +471,7 @@ function OverviewTab({
                   }}
                   title={`${val}%`}
                 />
-                <span className="analytics-weekly-meta flex items-baseline gap-0.5 text-[9px] text-text-muted leading-none">
+                <span className="analytics-weekly-meta flex items-baseline gap-0.5 text-[10px] text-text-muted leading-none">
                   <span>{t(WEEKDAY_KEYS[i]!)}</span>
                   <span className="tabular-nums font-medium text-text-secondary">{val}%</span>
                 </span>
@@ -501,7 +501,7 @@ function OverviewTab({
               );
             })}
           </div>
-          <div className="flex items-center justify-end gap-1 mt-2 text-[9px] text-text-muted">
+          <div className="flex items-center justify-end gap-1 mt-2 text-[10px] text-text-muted">
             <span>{t('analyticsHeatmapLess')}</span>
             {[0, 1, 2, 3, 4].map((step) => (
               <div

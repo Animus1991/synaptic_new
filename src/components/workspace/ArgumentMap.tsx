@@ -382,7 +382,7 @@ export function ArgumentMap({
             <span
               key={i}
               className={cn(
-                'rounded-full px-2 py-0.5 text-[9px] font-medium border',
+                'rounded-full px-2 py-0.5 text-[10px] font-medium border',
                 e.kind === 'rebuts' ? 'border-accent-rose/40 text-accent-rose bg-accent-rose/10' : 'border-accent-emerald/40 text-accent-emerald bg-accent-emerald/10',
               )}
             >

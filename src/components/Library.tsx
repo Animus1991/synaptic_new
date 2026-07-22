@@ -724,7 +724,7 @@ function CourseCard({
           {showMaterialGap && (
             <span
               data-testid={`library-corner-gap-${course.id}`}
-              className="rounded-md border border-accent-amber/40 bg-accent-amber/15 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-accent-amber"
+              className="rounded-md border border-accent-amber/40 bg-accent-amber/15 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-accent-amber"
             >
               <AllCapsLabel>{t('libCornerMaterialGap', userLanguage)}</AllCapsLabel>
             </span>
@@ -732,7 +732,7 @@ function CourseCard({
           {showMisconception && (
             <span
               data-testid={`library-corner-misconception-${course.id}`}
-              className="rounded-md border border-brand-500/35 bg-brand-500/10 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-brand-700"
+              className="rounded-md border border-brand-500/35 bg-brand-500/10 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-brand-700"
             >
               <AllCapsLabel>{t('libCornerMisconception', userLanguage)}</AllCapsLabel>
             </span>

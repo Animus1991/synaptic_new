@@ -710,7 +710,7 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
           {crdt && (
             <span
               className={cn(
-                'ml-2 rounded-full px-2 py-0.5 text-[9px] font-semibold border',
+                'ml-2 rounded-full px-2 py-0.5 text-[10px] font-semibold border',
                 crdt.synced
                   ? 'border-accent-emerald/40 bg-accent-emerald/10 text-accent-emerald'
                   : 'border-border-subtle bg-surface-hover text-text-muted',
@@ -734,12 +734,12 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
 
       {layerGroups.length > 1 && (
         <div className="flex flex-wrap items-center gap-1.5 px-4 py-1.5 border-b border-border-subtle bg-surface-secondary/20 shrink-0" data-testid="concept-map-layers">
-          <span className="text-[9px] font-semibold text-text-muted">{t('conceptMapLayersLabel')}</span>
+          <span className="text-[10px] font-semibold text-text-muted">{t('conceptMapLayersLabel')}</span>
           <button
             type="button"
             onClick={() => setActiveLayerDepth(null)}
             className={cn(
-              'rounded-full px-2 py-0.5 text-[9px] font-medium border',
+              'rounded-full px-2 py-0.5 text-[10px] font-medium border',
               activeLayerDepth === null ? 'border-brand-500/40 bg-brand-600/15 text-brand-800' : 'border-border-subtle text-text-muted',
             )}
           >
@@ -752,7 +752,7 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
               data-testid={`concept-map-layer-${g.depth}`}
               onClick={() => setActiveLayerDepth(g.depth)}
               className={cn(
-                'rounded-full px-2 py-0.5 text-[9px] font-medium border',
+                'rounded-full px-2 py-0.5 text-[10px] font-medium border',
                 activeLayerDepth === g.depth ? 'border-brand-500/40 text-text-primary' : 'border-border-subtle text-text-muted',
               )}
               style={{ borderColor: activeLayerDepth === g.depth ? layerColor(g.depth) : undefined }}
@@ -1072,12 +1072,12 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
       {/* Legend */}
       <div className="flex items-center justify-center gap-3 py-2 border-t border-border-subtle bg-surface-secondary/30 shrink-0">
         {([['strong', t('strong')], ['proficient', t('proficient')], ['developing', t('developing')], ['weak', t('weakLabel')]] as const).map(([band, l]) => (
-          <span key={band} className="flex items-center gap-1 text-[9px] text-text-muted">
+          <span key={band} className="flex items-center gap-1 text-[10px] text-text-muted">
             <span className="w-2 h-2 rounded-full" style={{ backgroundColor: bandColorVar(band) }} />{l}
           </span>
         ))}
-        <span className="text-[9px] text-text-muted ml-2">→ {t('prerequisite')}</span>
-        <span className="text-[9px] text-text-muted">┄ {t('related')}</span>
+        <span className="text-[10px] text-text-muted ml-2">→ {t('prerequisite')}</span>
+        <span className="text-[10px] text-text-muted">┄ {t('related')}</span>
       </div>
     </BlueprintSurface>
   );

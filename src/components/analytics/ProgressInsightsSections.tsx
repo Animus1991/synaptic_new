@@ -47,7 +47,7 @@ export function ProgressKpiRow({ kpis }: { kpis: ProgressKpi[] }) {
           <div key={kpi.label} className="ux-card p-2.5">
             <div className="flex items-center gap-1.5 mb-0.5">
               <Icon className="w-3.5 h-3.5 text-brand-400" />
-              <span className="text-[9px] uppercase tracking-wide text-text-tertiary truncate"><AllCapsLabel>{kpi.label}</AllCapsLabel></span>
+              <span className="text-[10px] uppercase tracking-wide text-text-tertiary truncate"><AllCapsLabel>{kpi.label}</AllCapsLabel></span>
             </div>
             <p className="text-sm font-bold tabular-nums text-text-primary sm:text-base">{kpi.value}</p>
             <p className={cn(
@@ -77,8 +77,8 @@ export function ConfidenceBucketChart({ buckets, title }: { buckets: ConfidenceB
             <p className="text-sm font-bold tabular-nums text-text-primary sm:text-base">
               {bucket.sampleCount === 0 ? '—' : `${bucket.correctPct}%`}
             </p>
-            <p className="mt-0.5 text-[9px] text-text-muted tabular-nums truncate">{bucket.rangeLabel}</p>
-            <p className="mt-0.5 text-[9px] text-text-tertiary tabular-nums">n={bucket.sampleCount}</p>
+            <p className="mt-0.5 text-[10px] text-text-muted tabular-nums truncate">{bucket.rangeLabel}</p>
+            <p className="mt-0.5 text-[10px] text-text-tertiary tabular-nums">n={bucket.sampleCount}</p>
           </div>
         ))}
       </div>

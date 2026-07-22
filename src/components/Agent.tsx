@@ -1308,25 +1308,25 @@ function MessageBubble({
         {!isUser && message.metadata && (
           <div className="agent-meta-badge-row mt-2 pt-2 border-t border-border-subtle flex items-center gap-2 flex-wrap">
             {message.metadata.sourceGrounded && (
-              <span className="agent-meta-badge text-[9px] px-1.5 py-0.5 rounded bg-accent-emerald/10 text-accent-emerald font-medium">{ui.badgeSourceGrounded}</span>
+              <span className="agent-meta-badge text-[10px] px-1.5 py-0.5 rounded bg-accent-emerald/10 text-accent-emerald font-medium">{ui.badgeSourceGrounded}</span>
             )}
             {message.metadata.inferenceUsed && (
-              <span className="agent-meta-badge text-[9px] px-1.5 py-0.5 rounded bg-brand-500/10 text-brand-300 font-medium">{ui.badgeAiInference}</span>
+              <span className="agent-meta-badge text-[10px] px-1.5 py-0.5 rounded bg-brand-500/10 text-brand-300 font-medium">{ui.badgeAiInference}</span>
             )}
             {message.metadata.enrichmentUsed && (
-              <span className="agent-meta-badge text-[9px] px-1.5 py-0.5 rounded bg-accent-amber/10 text-accent-amber font-medium">{ui.badgeEnrichment}</span>
+              <span className="agent-meta-badge text-[10px] px-1.5 py-0.5 rounded bg-accent-amber/10 text-accent-amber font-medium">{ui.badgeEnrichment}</span>
             )}
             {message.metadata.globalRag && (
-              <span className="agent-meta-badge text-[9px] px-1.5 py-0.5 rounded bg-accent-cyan/10 text-accent-cyan font-medium">{ui.badgeGlobalRag}</span>
+              <span className="agent-meta-badge text-[10px] px-1.5 py-0.5 rounded bg-accent-cyan/10 text-accent-cyan font-medium">{ui.badgeGlobalRag}</span>
             )}
             {message.metadata.graphRag && (
-              <span className="agent-meta-badge text-[9px] px-1.5 py-0.5 rounded bg-brand-500/10 text-brand-200 font-medium">{ui.badgeGraphRag}</span>
+              <span className="agent-meta-badge text-[10px] px-1.5 py-0.5 rounded bg-brand-500/10 text-brand-200 font-medium">{ui.badgeGraphRag}</span>
             )}
             {message.metadata.globalRag === false && message.metadata.sourceGrounded && (
-              <span className="agent-meta-badge text-[9px] px-1.5 py-0.5 rounded bg-surface-hover text-text-muted font-medium">{ui.badgeLocalRag}</span>
+              <span className="agent-meta-badge text-[10px] px-1.5 py-0.5 rounded bg-surface-hover text-text-muted font-medium">{ui.badgeLocalRag}</span>
             )}
             {message.metadata.lowRetrieval && (
-              <span className="agent-meta-badge agent-meta-badge--warn text-[9px] px-1.5 py-0.5 rounded bg-accent-rose/10 text-accent-rose font-medium">{ui.badgeLowRetrieval}</span>
+              <span className="agent-meta-badge agent-meta-badge--warn text-[10px] px-1.5 py-0.5 rounded bg-accent-rose/10 text-accent-rose font-medium">{ui.badgeLowRetrieval}</span>
             )}
           </div>
         )}

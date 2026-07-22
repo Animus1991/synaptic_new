@@ -95,14 +95,14 @@ export function AnnotationRemapPanel({
                 <div className="flex items-center gap-2 mb-1">
                   <MapPin className="w-3 h-3 text-accent-amber shrink-0" />
                   <span className="text-[10px] font-medium text-text-secondary capitalize">{ann.type}</span>
-                  <span className="text-[9px] rounded-full border border-accent-amber/30 px-1.5 py-0.5 text-accent-amber">
+                  <span className="text-[10px] rounded-full border border-accent-amber/30 px-1.5 py-0.5 text-accent-amber">
                     {isLegacy
                       ? t('annoLegacy')
                       : t('annoNeedsReview')}
                   </span>
                   {edgeKind && (
                     <span
-                      className="text-[9px] rounded-full border border-accent-cyan/30 px-1.5 py-0.5 text-brand-800"
+                      className="text-[10px] rounded-full border border-accent-cyan/30 px-1.5 py-0.5 text-brand-800"
                       data-testid={`annotation-remap-edge-${ann.id}`}
                     >
                       {remapEdgeCaseLabel(edgeKind, lang)}
@@ -113,7 +113,7 @@ export function AnnotationRemapPanel({
                   {currentPreview || t('annoNoExcerpt')}
                 </p>
                 {edgeHint && (
-                  <p className="mt-1 text-[9px] text-text-secondary">{edgeHint}</p>
+                  <p className="mt-1 text-[10px] text-text-secondary">{edgeHint}</p>
                 )}
               </button>
 
@@ -133,7 +133,7 @@ export function AnnotationRemapPanel({
 
                   {candidates.length > 0 ? (
                     <div className="space-y-1">
-                      <p className="text-[9px] font-semibold text-text-muted">
+                      <p className="text-[10px] font-semibold text-text-muted">
                         {t('annoSuggestedLines')}
                       </p>
                       {candidates.map((c) => (

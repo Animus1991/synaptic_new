@@ -106,13 +106,13 @@ export function TimerPanel({
 
         <div className="mb-2 flex flex-wrap items-center gap-2">
           <span
-            className="rounded-full border border-brand-500/30 bg-brand-600/10 px-2 py-0.5 text-[9px] font-medium text-brand-800"
+            className="rounded-full border border-brand-500/30 bg-brand-600/10 px-2 py-0.5 text-[10px] font-medium text-brand-800"
             data-testid="timer-suggested-preset"
           >
             {PRESET_LABELS[session.suggestedPreset][lang]}
           </span>
           <span
-            className="ws-eyebrow ws-chip-warn rounded-full px-2 py-0.5 text-[9px] font-medium"
+            className="ws-eyebrow ws-chip-warn rounded-full px-2 py-0.5 text-[10px] font-medium"
             data-testid="timer-suggested-exam-practice"
           >
             <AllCapsLabel>{examPracticeLabel(activeExamPractice ?? session.suggestedExamPractice, lang)}</AllCapsLabel>
@@ -131,7 +131,7 @@ export function TimerPanel({
             <button
               type="button"
               onClick={onOpenBreakTool}
-              className="inline-flex items-center gap-1 rounded-lg border border-accent-emerald/30 bg-accent-emerald/10 px-2 py-0.5 text-[9px] font-medium text-accent-emerald hover:bg-accent-emerald/15"
+              className="inline-flex items-center gap-1 rounded-lg border border-accent-emerald/30 bg-accent-emerald/10 px-2 py-0.5 text-[10px] font-medium text-accent-emerald hover:bg-accent-emerald/15"
               data-testid="timer-break-leitner"
             >
               <Layers className="w-3 h-3" />
@@ -170,7 +170,7 @@ export function TimerPanel({
             {filterMatches.slice(0, 4).map((log, i) => (
               <span
                 key={`${log.at}-${i}`}
-                className="rounded-full border border-accent-cyan/25 bg-accent-cyan/8 px-2 py-0.5 text-[9px] text-brand-800"
+                className="rounded-full border border-accent-cyan/25 bg-accent-cyan/8 px-2 py-0.5 text-[10px] text-brand-800"
               >
                 {log.label.slice(0, 40)}{log.label.length > 40 ? '…' : ''} · {log.minutes}m
               </span>

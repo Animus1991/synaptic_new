@@ -225,7 +225,7 @@ export function SimulatorPanel({
                 key={cue.id}
                 type="button"
                 onClick={() => onOpenInReader?.(cue.context.slice(0, 80) || cue.label)}
-                className="rounded-full border border-accent-cyan/25 bg-accent-cyan/8 px-2 py-0.5 text-[9px] text-brand-800 hover:opacity-90"
+                className="rounded-full border border-accent-cyan/25 bg-accent-cyan/8 px-2 py-0.5 text-[10px] text-brand-800 hover:opacity-90"
               >
                 {cue.label.slice(0, 48)}{cue.label.length > 48 ? '…' : ''}
               </button>

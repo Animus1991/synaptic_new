@@ -98,7 +98,7 @@ export function FormulaExplorer({ formula, name, symbols }: { formula: string; n
             <span className="font-mono font-bold text-brand-400 text-sm w-8 shrink-0">{s.symbol}</span>
             <div>
               <p className="text-xs text-text-secondary">{s.meaning}</p>
-              {s.unit && <p className="text-[9px] text-text-muted">Unit: {s.unit}</p>}
+              {s.unit && <p className="text-[10px] text-text-muted">Unit: {s.unit}</p>}
             </div>
           </div>
         ))}
@@ -217,7 +217,7 @@ export function ComparisonTable({
                   {h}
                   <ArrowDownUp className="w-3 h-3 opacity-60" />
                   {sortCol === i && (
-                    <span className="text-[8px] font-mono">{sortDir === 'asc' ? '↑' : '↓'}</span>
+                    <span className="text-[10px] font-mono">{sortDir === 'asc' ? '↑' : '↓'}</span>
                   )}
                 </button>
               </th>
@@ -301,8 +301,8 @@ export function ProgressTimeline({ milestones, title }: { milestones: Milestone[
             </div>
             <div className="pb-6">
               <p className={`text-xs font-medium ${m.completed ? 'text-text-primary' : 'text-text-tertiary'}`}>{m.label}</p>
-              {m.date && <p className="text-[9px] text-text-muted mt-0.5">{m.date}</p>}
-              {m.xp && m.completed && <p className="text-[9px] text-accent-amber mt-0.5">+{m.xp} XP</p>}
+              {m.date && <p className="text-[10px] text-text-muted mt-0.5">{m.date}</p>}
+              {m.xp && m.completed && <p className="text-[10px] text-accent-amber mt-0.5">+{m.xp} XP</p>}
             </div>
           </motion.div>
         ))}
@@ -388,7 +388,7 @@ export function RetentionCurve({ dataPoints }: { dataPoints: { day: number; rete
           );
         })}
       </svg>
-      <p className="text-[9px] text-text-muted text-center mt-1">{t('analyticsRetentionCurveHint')}</p>
+      <p className="text-[10px] text-text-muted text-center mt-1">{t('analyticsRetentionCurveHint')}</p>
     </div>
   );
 }

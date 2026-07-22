@@ -57,12 +57,12 @@ export function PluginMarketplacePanel() {
                   {hooks.map((label) => (
                     <span
                       key={label}
-                      className="rounded-md border border-border-subtle bg-surface-card px-1.5 py-0.5 text-[9px] font-medium text-text-tertiary"
+                      className="rounded-md border border-border-subtle bg-surface-card px-1.5 py-0.5 text-[10px] font-medium text-text-tertiary"
                     >
                       {label}
                     </span>
                   ))}
-                  <span className="rounded-md border border-border-subtle/60 px-1.5 py-0.5 text-[9px] text-text-muted">
+                  <span className="rounded-md border border-border-subtle/60 px-1.5 py-0.5 text-[10px] text-text-muted">
                     v{plugin.version}
                   </span>
                 </div>

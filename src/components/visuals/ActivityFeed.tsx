@@ -53,7 +53,7 @@ export function ActivityFeed({ activities, maxItems = 6 }: Props) {
             <p className="text-xs text-text-secondary flex-1 truncate">{item.description}</p>
             <div className="flex items-center gap-2 shrink-0">
               {item.xp != null && <span className="text-[10px] text-accent-amber font-medium">+{item.xp}</span>}
-              <span className="text-[9px] text-text-muted">{formatRelativeTime(item.timestamp, lang)}</span>
+              <span className="text-[10px] text-text-muted">{formatRelativeTime(item.timestamp, lang)}</span>
             </div>
           </motion.div>
         );

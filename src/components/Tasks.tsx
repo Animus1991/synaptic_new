@@ -533,7 +533,7 @@ export function Tasks({
                            white spectrum/warm cards (replaces translucent rose). */
                         <span
                           data-testid={`task-priority-badge-${task.id}`}
-                          className="ux-chip-solid-danger text-[9px] font-bold uppercase tracking-[0.06em] px-2 py-0.5 rounded-md"
+                          className="ux-chip-solid-danger text-[10px] font-bold uppercase tracking-[0.06em] px-2 py-0.5 rounded-md"
                         >
                           <AllCapsLabel>{c.highPriority}</AllCapsLabel>
                         </span>

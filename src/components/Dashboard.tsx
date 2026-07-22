@@ -1368,7 +1368,7 @@ function MasteryRing({ mastery, size }: { mastery: number; size: number }) {
     <svg width={size} height={size} className="-rotate-90">
       <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--viz-track)" strokeWidth={3} />
       <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={stroke} strokeWidth={3} strokeDasharray={c} strokeDashoffset={offset} strokeLinecap="round" className="mastery-ring" />
-      <text x={size / 2} y={size / 2} textAnchor="middle" dominantBaseline="central" className="fill-text-primary text-[9px] font-bold rotate-90 origin-center">{mastery}%</text>
+      <text x={size / 2} y={size / 2} textAnchor="middle" dominantBaseline="central" className="fill-text-primary text-[10px] font-bold rotate-90 origin-center">{mastery}%</text>
     </svg>
   );
 }

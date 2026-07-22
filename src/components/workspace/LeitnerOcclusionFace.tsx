@@ -16,7 +16,7 @@ export function LeitnerOcclusionFace({ occlusion, flipped }: Props) {
       data-testid="leitner-occlusion-face"
     >
       <div className="absolute inset-0 bg-gradient-to-br from-brand-600/10 via-surface-card to-accent-cyan/10" />
-      <p className="relative z-10 px-3 pt-2 text-[9px] text-text-muted truncate">{sourceFileName}</p>
+      <p className="relative z-10 px-3 pt-2 text-[10px] text-text-muted truncate">{sourceFileName}</p>
       <div className="relative mx-3 mb-3 mt-1 aspect-[4/3] rounded-md border border-dashed border-brand-500/30 bg-surface-primary/80">
         {!flipped && (
           <div

@@ -87,7 +87,7 @@ export function ConceptTreemapChart({
               {block.prereqs.length > 0 && (
                 <div className="mt-2 flex flex-wrap gap-1">
                   {block.prereqs.map((p) => (
-                    <span key={p} className="rounded-full bg-surface-hover px-2 py-0.5 text-[9px] text-text-muted">
+                    <span key={p} className="rounded-full bg-surface-hover px-2 py-0.5 text-[10px] text-text-muted">
                       {p}
                     </span>
                   ))}

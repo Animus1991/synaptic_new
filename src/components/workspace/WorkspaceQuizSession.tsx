@@ -191,14 +191,14 @@ export function WorkspaceQuizSession({
                 return (
                 <li key={w.itemId} className="rounded-lg border border-white/8 bg-surface-primary/40 p-2">
                   <p className="text-[10px] text-text-secondary line-clamp-2">{w.question}</p>
-                  <p className="mt-1 text-[9px] text-accent-emerald">{w.correctAnswer}</p>
+                  <p className="mt-1 text-[10px] text-accent-emerald">{w.correctAnswer}</p>
                   {onRemediateWrong && (
                     <div className="mt-2 flex flex-wrap gap-1.5">
                       <button
                         type="button"
                         data-testid={`quiz-review-make-card-${w.itemId}`}
                         onClick={() => onRemediateWrong('make-card', item)}
-                        className="rounded border border-brand-500/30 bg-brand-600/10 px-2 py-0.5 text-[9px] text-brand-800"
+                        className="rounded border border-brand-500/30 bg-brand-600/10 px-2 py-0.5 text-[10px] text-brand-800"
                       >
                         {t('quizSessCard')}
                       </button>
@@ -206,7 +206,7 @@ export function WorkspaceQuizSession({
                         type="button"
                         data-testid={`quiz-review-feynman-${w.itemId}`}
                         onClick={() => onRemediateWrong('feynman', item)}
-                        className="rounded border border-accent-cyan/30 bg-accent-cyan/10 px-2 py-0.5 text-[9px] text-brand-800"
+                        className="rounded border border-accent-cyan/30 bg-accent-cyan/10 px-2 py-0.5 text-[10px] text-brand-800"
                       >
                         Feynman
                       </button>
@@ -215,7 +215,7 @@ export function WorkspaceQuizSession({
                           type="button"
                           data-testid={`quiz-review-reader-${w.itemId}`}
                           onClick={() => onOpenQuestionInReader(w.question)}
-                          className="rounded border border-white/10 px-2 py-0.5 text-[9px] text-text-secondary hover:text-brand-800"
+                          className="rounded border border-white/10 px-2 py-0.5 text-[10px] text-text-secondary hover:text-brand-800"
                         >
                           {t('toolReader')}
                         </button>
@@ -290,7 +290,7 @@ export function WorkspaceQuizSession({
 
       {current.provenance && (
         <span
-          className="inline-flex rounded-full border border-brand-500/25 bg-brand-600/10 px-2 py-0.5 text-[9px] font-medium text-brand-800"
+          className="inline-flex rounded-full border border-brand-500/25 bg-brand-600/10 px-2 py-0.5 text-[10px] font-medium text-brand-800"
           data-testid="quiz-provenance-badge"
         >
           {t(provenanceLabelKey(current.provenance) as never)}
@@ -332,7 +332,7 @@ export function WorkspaceQuizSession({
                       type="button"
                       data-testid="quiz-grounded-open-reader"
                       onClick={() => onOpenQuestionInReader(groundedFeedback.sourceExcerpt ?? concept)}
-                      className="inline-flex items-center gap-1 rounded-full border border-brand-500/30 bg-brand-500/10 px-2 py-0.5 text-[9px] font-medium text-brand-800 hover:opacity-90"
+                      className="inline-flex items-center gap-1 rounded-full border border-brand-500/30 bg-brand-500/10 px-2 py-0.5 text-[10px] font-medium text-brand-800 hover:opacity-90"
                     >
                       {t('quizGroundedViewSource')}
                     </button>

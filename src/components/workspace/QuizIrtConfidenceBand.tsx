@@ -24,7 +24,7 @@ export function QuizIrtConfidenceBand({ band, className }: Props) {
   const width = Math.max(4, band.highPct - band.lowPct);
   return (
     <div className={cn('space-y-1', className)} data-testid="quiz-irt-confidence-band">
-      <div className="flex items-center justify-between gap-2 text-[9px]">
+      <div className="flex items-center justify-between gap-2 text-[10px]">
         <span className="text-text-secondary font-medium">{band.bandLabel}</span>
         <span className="font-mono text-text-muted shrink-0">{band.rangeLabel}</span>
       </div>

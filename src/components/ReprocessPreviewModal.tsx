@@ -97,7 +97,7 @@ function StepRailPreview({
 
           className={cn(
 
-            'inline-flex max-w-[160px] truncate rounded-full border px-2 py-0.5 text-[9px] transition-colors',
+            'inline-flex max-w-[160px] truncate rounded-full border px-2 py-0.5 text-[10px] transition-colors',
 
             onSelectIndex && 'hover:ring-1 hover:ring-brand-500/30 cursor-pointer',
 
@@ -443,7 +443,7 @@ export function ReprocessPreviewModal({
 
                       {id === 'edit' && manualEdits > 0 && (
 
-                        <span className="ml-1.5 rounded-full bg-brand-600/20 px-1.5 text-[9px] text-brand-800">
+                        <span className="ml-1.5 rounded-full bg-brand-600/20 px-1.5 text-[10px] text-brand-800">
 
                           {manualEdits}
 

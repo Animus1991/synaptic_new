@@ -42,7 +42,7 @@ export function CohortTopicMasteryHeatmap({ analytics, lang }: Props) {
                   )}
                 >
                   <p className="text-[7px] text-text-primary truncate leading-tight">{topic.topicLabel}</p>
-                  <p className="text-[8px] font-bold text-text-primary text-center">
+                  <p className="text-[10px] font-bold text-text-primary text-center">
                     {topic.avgScore != null ? `${Math.round(topic.avgScore)}%` : '—'}
                   </p>
                 </div>

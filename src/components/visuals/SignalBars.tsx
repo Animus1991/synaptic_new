@@ -53,7 +53,7 @@ export function SignalBars({ signals }: SignalBarsProps) {
               />
             ))}
           </div>
-          {s.detail && <p className="text-[9px] text-text-muted mt-0.5">{s.detail}</p>}
+          {s.detail && <p className="text-[10px] text-text-muted mt-0.5">{s.detail}</p>}
         </motion.div>
       ))}
     </div>

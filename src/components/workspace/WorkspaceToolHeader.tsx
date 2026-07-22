@@ -89,7 +89,7 @@ export function WorkspaceToolHeader({
               {name}
             </h2>
             {s20.readiness !== 'launch-ready' && (
-              <span className="ws-eyebrow ws-chip-warn rounded-sm px-1 py-0.5 text-[8px]">
+              <span className="ws-eyebrow ws-chip-warn rounded-sm px-1 py-0.5 text-[10px]">
                 <AllCapsLabel>{t('toolPolishing')}</AllCapsLabel>
               </span>
             )}
@@ -108,7 +108,7 @@ export function WorkspaceToolHeader({
           aria-expanded={!collapsed}
           aria-label={t('toolGuideAria')}
           className={cn(
-            'inline-flex shrink-0 items-center gap-0.5 rounded-md border px-1.5 py-1 text-[9px] transition-colors ws-eyebrow min-h-[32px] sm:gap-1 sm:px-2',
+            'inline-flex shrink-0 items-center gap-0.5 rounded-md border px-1.5 py-1 text-[10px] transition-colors ws-eyebrow min-h-[32px] sm:gap-1 sm:px-2',
             collapsed
               ? 'ws-chip-neutral hover:opacity-90'
               : 'ws-chip-brand',

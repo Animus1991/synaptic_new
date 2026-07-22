@@ -554,14 +554,14 @@ export function StudyWhiteboard({
                 <FormulaLatexPreview formula={scratchpadImport.formula} />
               </div>
               {scratchpadImport.variables && scratchpadImport.variables.length > 0 && (
-                <div className="text-[9px] text-text-muted space-y-0.5">
+                <div className="text-[10px] text-text-muted space-y-0.5">
                   {scratchpadImport.variables.map((v) => (
                     <p key={v.symbol}>{v.symbol} = {v.value}{v.unit ? ` ${v.unit}` : ''}</p>
                   ))}
                 </div>
               )}
               {scratchpadImport.steps && scratchpadImport.steps.length > 0 && (
-                <div className="text-[9px] font-mono text-text-tertiary space-y-0.5 max-h-24 overflow-y-auto">
+                <div className="text-[10px] font-mono text-text-tertiary space-y-0.5 max-h-24 overflow-y-auto">
                   {scratchpadImport.steps.map((s, i) => (
                     <p key={i}>{s}</p>
                   ))}
@@ -586,11 +586,11 @@ export function StudyWhiteboard({
               <div className="mt-1 overflow-x-auto">
                 <FormulaLatexPreview formula={f.formula} display={false} />
               </div>
-              <p className="text-[9px] font-mono text-text-muted mt-1 break-all opacity-70">{f.formula}</p>
+              <p className="text-[10px] font-mono text-text-muted mt-1 break-all opacity-70">{f.formula}</p>
               <button
                 type="button"
                 onClick={() => insertFormulaLabel(f.name, f.formula)}
-                className="mt-2 text-[9px] font-medium text-brand-700 hover:text-brand-800"
+                className="mt-2 text-[10px] font-medium text-brand-700 hover:text-brand-800"
               >
                 {t('wbInsertOnBoardArrow')}
               </button>
@@ -609,7 +609,7 @@ export function StudyWhiteboard({
           {crdt && (
             <span
               className={cn(
-                'rounded-full px-2 py-0.5 text-[9px] font-semibold border',
+                'rounded-full px-2 py-0.5 text-[10px] font-semibold border',
                 crdt.synced
                   ? 'border-accent-emerald/40 bg-accent-emerald/10 text-accent-emerald'
                   : 'border-border-subtle bg-surface-hover text-text-muted',
@@ -720,7 +720,7 @@ export function StudyWhiteboard({
           data-testid="whiteboard-export-svg"
           aria-label={t('wbExportSvg')}
           onClick={exportSvg}
-          className="rounded-lg px-1.5 py-1 text-[9px] font-medium text-text-muted hover:bg-surface-hover"
+          className="rounded-lg px-1.5 py-1 text-[10px] font-medium text-text-muted hover:bg-surface-hover"
         >
           SVG
         </button>
@@ -731,7 +731,7 @@ export function StudyWhiteboard({
             aria-label={t('wbExplainDiagram')}
             disabled={doc.strokes.length === 0}
             onClick={handleExplainDiagram}
-            className="inline-flex items-center gap-1 rounded-lg border border-accent-cyan/30 px-2 py-1 text-[9px] font-medium text-brand-800 hover:bg-accent-cyan/10 disabled:opacity-40 disabled:cursor-not-allowed"
+            className="inline-flex items-center gap-1 rounded-lg border border-accent-cyan/30 px-2 py-1 text-[10px] font-medium text-brand-800 hover:bg-accent-cyan/10 disabled:opacity-40 disabled:cursor-not-allowed"
           >
             <Bot className="w-3 h-3" aria-hidden />
             <span className="hidden sm:inline">{t('wbExplainDiagram')}</span>
@@ -754,7 +754,7 @@ export function StudyWhiteboard({
               type="button"
               aria-label={t('wbInsertStamp').replace('{label}', stamp.label)}
               onClick={() => insertLatexStamp(stamp)}
-              className="rounded-lg border border-border-subtle bg-surface-card px-2 py-1 text-[9px] text-text-secondary hover:border-accent-cyan/40 hover:text-brand-800"
+              className="rounded-lg border border-border-subtle bg-surface-card px-2 py-1 text-[10px] text-text-secondary hover:border-accent-cyan/40 hover:text-brand-800"
             >
               {stamp.label}
             </button>

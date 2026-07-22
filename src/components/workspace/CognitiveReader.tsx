@@ -1087,7 +1087,7 @@ export function CognitiveReader({
                 type="button"
                 data-testid={`reader-suspicious-jump-${seg.index}`}
                 onClick={() => scrollToSection(seg.index)}
-                className="rounded-full border border-accent-amber/40 bg-accent-amber/10 px-2 py-0.5 text-[9px] text-accent-amber hover:bg-accent-amber/20"
+                className="rounded-full border border-accent-amber/40 bg-accent-amber/10 px-2 py-0.5 text-[10px] text-accent-amber hover:bg-accent-amber/20"
               >
                 {seg.label.slice(0, 48)}{seg.label.length > 48 ? '…' : ''}
               </button>
@@ -1114,7 +1114,7 @@ export function CognitiveReader({
               type="button"
               data-testid="reader-define-btn"
               aria-pressed="true"
-              className="rounded-lg border border-brand-500/40 bg-brand-600/20 px-2 py-1 text-[9px] font-medium text-brand-800"
+              className="rounded-lg border border-brand-500/40 bg-brand-600/20 px-2 py-1 text-[10px] font-medium text-brand-800"
             >
               {t('readerDefine')}
             </button>
@@ -1126,7 +1126,7 @@ export function CognitiveReader({
                   onTermFocus(glossaryPopover.term);
                   setGlossaryPopover(null);
                 }}
-                className="rounded-lg border border-brand-500/30 bg-brand-600/10 px-2 py-1 text-[9px] font-medium text-brand-800"
+                className="rounded-lg border border-brand-500/30 bg-brand-600/10 px-2 py-1 text-[10px] font-medium text-brand-800"
               >
                 {t('readerFocusInText')}
               </button>
@@ -1158,7 +1158,7 @@ export function CognitiveReader({
           className="ux-tier-b-nav flex shrink-0 gap-1.5 overflow-x-auto border-b border-border-subtle bg-surface-secondary/40 px-3 py-2 hide-scrollbar"
           data-testid="reader-section-nav"
         >
-          <span className="shrink-0 self-center text-[9px] font-semibold text-text-muted">
+          <span className="shrink-0 self-center text-[10px] font-semibold text-text-muted">
             {sectionNavRailLabel(sectionNav, lang)}
           </span>
           {sectionNav.map((item) => {
@@ -1345,7 +1345,7 @@ export function CognitiveReader({
                   >
                     {pair.companion}
                     {pair.glossHits.length > 0 && (
-                      <span className="mt-1 block text-[9px] text-text-muted">
+                      <span className="mt-1 block text-[10px] text-text-muted">
                         {pair.glossHits.slice(0, 4).join(' · ')}
                       </span>
                     )}
@@ -1424,7 +1424,7 @@ export function CognitiveReader({
                 {ann.note && <p className="text-text-primary mt-1">{ann.note}</p>}
               </div>
             ))}
-            <button type="button" onClick={exportJson} className="w-full text-[9px] text-brand-700 hover:text-brand-800 py-1">
+            <button type="button" onClick={exportJson} className="w-full text-[10px] text-brand-700 hover:text-brand-800 py-1">
               JSON export
             </button>
           </aside>

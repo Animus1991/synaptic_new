@@ -230,7 +230,7 @@ export function StudyTimer({
             <p className="text-[10px] text-text-muted">{t('timerSession')}</p>
             <p className="text-xs font-medium text-brand-800 truncate">{sessionLabel}</p>
             {conceptMastery !== undefined && (
-              <p className="text-[9px] text-text-muted mt-0.5">
+              <p className="text-[10px] text-text-muted mt-0.5">
                 {t('timerMasteryColon')}: {conceptMastery}%
               </p>
             )}
@@ -417,7 +417,7 @@ export function StudyTimer({
                 `sessions-${scopeKey}`,
                 buildStudySessionsIcs(recentSessions, lang),
               )}
-              className="inline-flex items-center gap-1 text-[9px] text-brand-700 hover:text-brand-800"
+              className="inline-flex items-center gap-1 text-[10px] text-brand-700 hover:text-brand-800"
             >
               <Calendar className="w-3 h-3" />
               .ics

@@ -169,7 +169,7 @@ export function LeitnerPanel({
           <button
             type="button"
             onClick={() => setTypeFilter('all')}
-            className={`rounded-full border px-2 py-0.5 text-[9px] font-medium transition-colors ${
+            className={`rounded-full border px-2 py-0.5 text-[10px] font-medium transition-colors ${
               typeFilter === 'all'
                 ? 'border-accent-cyan/40 bg-accent-cyan/15 text-brand-800'
                 : 'border-border-subtle text-text-muted hover:text-text-secondary'
@@ -185,7 +185,7 @@ export function LeitnerPanel({
                 key={type}
                 type="button"
                 onClick={() => setTypeFilter(type)}
-                className={`rounded-full border px-2 py-0.5 text-[9px] font-medium transition-colors ${
+                className={`rounded-full border px-2 py-0.5 text-[10px] font-medium transition-colors ${
                   typeFilter === type
                     ? 'border-brand-500/40 bg-brand-600/12 text-brand-800'
                     : 'border-border-subtle text-text-muted hover:text-text-secondary'
@@ -205,7 +205,7 @@ export function LeitnerPanel({
                 key={card.front}
                 type="button"
                 onClick={() => onOpenInReader?.(card.front)}
-                className="rounded-full border border-accent-cyan/25 bg-accent-cyan/8 px-2 py-0.5 text-[9px] text-brand-800 hover:opacity-90"
+                className="rounded-full border border-accent-cyan/25 bg-accent-cyan/8 px-2 py-0.5 text-[10px] text-brand-800 hover:opacity-90"
               >
                 {card.front.slice(0, 48)}{card.front.length > 48 ? '…' : ''}
               </button>

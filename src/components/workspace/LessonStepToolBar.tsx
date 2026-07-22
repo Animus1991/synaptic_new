@@ -71,7 +71,7 @@ export function LessonStepToolBar({
     <div className="space-y-2 pt-2 border-t border-border-subtle/60 mt-3">
       {onLearningAction && (
         <div className="flex flex-wrap items-center gap-1.5" data-testid="lesson-step-unified-actions">
-          <span className="text-[9px] font-semibold text-text-muted w-full sm:w-auto">
+          <span className="text-[10px] font-semibold text-text-muted w-full sm:w-auto">
             {t('stepActions')}
           </span>
           {unifiedActions.map((action) => {
@@ -99,7 +99,7 @@ export function LessonStepToolBar({
         </div>
       )}
       <div className="flex flex-wrap items-center gap-1.5">
-        <span className="text-[9px] font-semibold text-text-muted w-full sm:w-auto">
+        <span className="text-[10px] font-semibold text-text-muted w-full sm:w-auto">
           {t('openTool')}
         </span>
       {tools.map((tool) => {
@@ -125,7 +125,7 @@ export function LessonStepToolBar({
             <Icon className="w-3 h-3" />
             {stepToolActionLabel(tool, lang)}
             {isRecommended && (
-              <span className="rounded bg-accent-emerald/15 px-1 text-[8px] font-semibold">
+              <span className="rounded bg-accent-emerald/15 px-1 text-[10px] font-semibold">
                 {t('next')}
               </span>
             )}

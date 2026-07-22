@@ -220,7 +220,7 @@ export function LessonContent({
           />
         )}
         {genStatus === 'loading' && (
-          <span className="inline-flex items-center gap-1 text-[9px] px-1.5 py-0.5 rounded bg-brand-500/10 text-brand-800 font-medium animate-pulse">
+          <span className="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded bg-brand-500/10 text-brand-800 font-medium animate-pulse">
             <Sparkles className="w-2.5 h-2.5" /> {t('generatingFromSources')}
           </span>
         )}

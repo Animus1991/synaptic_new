@@ -262,7 +262,7 @@ export function InteractiveSimulator({
                   className="w-full"
                   style={{ accentColor: '#818cf8' }}
                 />
-                <div className="flex justify-between text-[9px] text-text-muted mt-1">
+                <div className="flex justify-between text-[10px] text-text-muted mt-1">
                   <span>{cue.min}</span>
                   <span>{t('baselineLabel')}: {cue.baseline}</span>
                   <span>{cue.max}</span>
@@ -288,7 +288,7 @@ export function InteractiveSimulator({
                           style={{ width: `${Math.round(cell.intensity * 100)}%` }}
                         />
                       </div>
-                      <span className="text-[9px] font-mono text-text-muted w-8 text-right">
+                      <span className="text-[10px] font-mono text-text-muted w-8 text-right">
                         {(cell.intensity * 100).toFixed(0)}%
                       </span>
                     </div>
@@ -347,7 +347,7 @@ export function InteractiveSimulator({
                 type="button"
                 data-testid="simulator-send-whiteboard"
                 onClick={sendGraphToWhiteboard}
-                className="inline-flex items-center gap-1 rounded-lg border border-brand-500/30 bg-brand-600/10 px-2 py-0.5 text-[9px] font-medium text-brand-800 hover:bg-brand-600/15"
+                className="inline-flex items-center gap-1 rounded-lg border border-brand-500/30 bg-brand-600/10 px-2 py-0.5 text-[10px] font-medium text-brand-800 hover:bg-brand-600/15"
               >
                 <PenLine className="w-3 h-3" />
                 {t('scratchOpenWhiteboard')}
@@ -483,7 +483,7 @@ export function InteractiveSimulator({
               const peak = Math.max(...cells.map((c) => c.intensity), 0.01);
               return (
                 <div key={axis} className="rounded-lg bg-surface-primary/50 p-2">
-                  <p className="text-[9px] font-medium text-text-secondary mb-1 capitalize">{axis}</p>
+                  <p className="text-[10px] font-medium text-text-secondary mb-1 capitalize">{axis}</p>
                   <div className="flex gap-0.5 h-6 items-end">
                     {cells.slice(0, 5).map((cell, i) => (
                       <div

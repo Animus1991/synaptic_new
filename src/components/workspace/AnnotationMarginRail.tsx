@@ -92,7 +92,7 @@ export function AnnotationMarginRail({
               <button
                 type="button"
                 onClick={onExportJson}
-                className="text-[8px] font-medium text-brand-700 hover:underline"
+                className="text-[10px] font-medium text-brand-700 hover:underline"
               >
                 JSON
               </button>
@@ -161,14 +161,14 @@ export function AnnotationMarginRail({
 
                   <div className="mt-0.5 flex flex-wrap gap-0.5">
                     {ann.focusTerm && (
-                      <span className="rounded bg-brand-600/12 px-1 py-px text-[8px] text-brand-800">
+                      <span className="rounded bg-brand-600/12 px-1 py-px text-[10px] text-brand-800">
                         #{ann.focusTerm}
                       </span>
                     )}
                     {ann.category && ann.category !== 'general' && (
                       <span
                         className={cn(
-                          'inline-flex items-center gap-0.5 rounded px-1 py-px text-[8px]',
+                          'inline-flex items-center gap-0.5 rounded px-1 py-px text-[10px]',
                           ann.category === 'confusing'
                             ? 'bg-accent-amber/12 text-accent-amber'
                             : 'bg-brand-600/10 text-brand-800',
@@ -204,7 +204,7 @@ export function AnnotationMarginRail({
                           e.stopPropagation();
                           onOpenInReader(lines[ann.lineStart]?.trim() || ann.focusTerm || '');
                         }}
-                        className="inline-flex items-center gap-0.5 text-[8px] font-medium text-brand-800 hover:underline"
+                        className="inline-flex items-center gap-0.5 text-[10px] font-medium text-brand-800 hover:underline"
                       >
                         <BookOpen className="h-2.5 w-2.5" />
                         {t('annoReaderShort')}
@@ -217,7 +217,7 @@ export function AnnotationMarginRail({
                           e.stopPropagation();
                           onPublishShared(ann);
                         }}
-                        className="text-[8px] font-medium text-accent-amber hover:underline"
+                        className="text-[10px] font-medium text-accent-amber hover:underline"
                       >
                         {t('shareShort')}
                       </button>
@@ -229,7 +229,7 @@ export function AnnotationMarginRail({
                           e.stopPropagation();
                           onAskAgent(lines[ann.lineStart] || '');
                         }}
-                        className="inline-flex items-center gap-0.5 text-[8px] font-medium text-brand-700 hover:underline"
+                        className="inline-flex items-center gap-0.5 text-[10px] font-medium text-brand-700 hover:underline"
                       >
                         <Sparkles className="h-2.5 w-2.5" />
                         {askAgentLabel}

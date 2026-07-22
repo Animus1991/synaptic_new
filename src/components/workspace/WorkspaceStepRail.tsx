@@ -62,7 +62,7 @@ export function WorkspaceStepRail({
       >
         <span
           className={cn(
-            'w-4 h-4 rounded-full border text-[8px] flex items-center justify-center relative',
+            'w-4 h-4 rounded-full border text-[10px] flex items-center justify-center relative',
             currentStep === i
               ? 'border-accent-cyan text-brand-800 bg-accent-cyan/10'
               : i < currentStep

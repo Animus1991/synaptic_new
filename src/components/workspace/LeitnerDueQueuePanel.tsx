@@ -46,7 +46,7 @@ export function LeitnerDueQueuePanel({
         <p
           className={cn(
             'font-semibold text-text-muted flex items-center gap-1.5',
-            isCard ? 'text-xs text-text-secondary' : 'text-[9px] mb-1',
+            isCard ? 'text-xs text-text-secondary' : 'text-[10px] mb-1',
           )}
         >
           {t('leitnerDueQueuePanel')}
@@ -86,10 +86,10 @@ export function LeitnerDueQueuePanel({
                 )}
                 title={`${item.label} · R=${retPct}% · ${item.intervalDays}d`}
               >
-                <p className={cn('font-medium text-text-primary truncate', isCard ? 'text-xs' : 'text-[9px]')}>
+                <p className={cn('font-medium text-text-primary truncate', isCard ? 'text-xs' : 'text-[10px]')}>
                   {item.label}
                 </p>
-                <p className={cn('text-text-muted flex gap-2', isCard ? 'text-[10px] mt-0.5' : 'text-[8px]')}>
+                <p className={cn('text-text-muted flex gap-2', isCard ? 'text-[10px] mt-0.5' : 'text-[10px]')}>
                   <span className={cn(item.overdue && 'text-accent-amber font-semibold')}>{dueLabel}</span>
                   <span>R {retPct}%</span>
                   <span>{item.intervalDays}d</span>

@@ -31,7 +31,7 @@ export function ReaderStepHeatSyncStrip({ summary, lang: _lang, onJumpToSegment 
       {summary.heatLevel !== 'none' && (
         <span
           className={cn(
-            'inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[9px] font-medium text-white',
+            'inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium text-white',
             summary.heatLevel === 'high' && 'bg-accent-rose/90',
             summary.heatLevel === 'medium' && 'bg-accent-amber/90',
             summary.heatLevel === 'low' && 'bg-brand-500/80',
@@ -47,7 +47,7 @@ export function ReaderStepHeatSyncStrip({ summary, lang: _lang, onJumpToSegment 
         <button
           type="button"
           onClick={onJumpToSegment}
-          className="shrink-0 rounded border border-accent-cyan/30 px-2 py-0.5 text-[9px] font-medium text-brand-800 hover:bg-accent-cyan/10"
+          className="shrink-0 rounded border border-accent-cyan/30 px-2 py-0.5 text-[10px] font-medium text-brand-800 hover:bg-accent-cyan/10"
         >
           {t('jump')}
         </button>

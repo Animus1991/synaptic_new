@@ -115,7 +115,7 @@ export function PdfPageThumbnailStrip({
             {t.url ? (
               <img src={t.url} alt="" className="h-full w-full object-cover object-top" />
             ) : (
-              <span className="flex h-full w-full items-center justify-center text-[9px] text-text-muted">
+              <span className="flex h-full w-full items-center justify-center text-[10px] text-text-muted">
                 {t.loading && pdfBytes ? '…' : t.pageIndex + 1}
               </span>
             )}

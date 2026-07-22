@@ -116,7 +116,7 @@ export function WhiteboardDiagramCoach({
                     <span>
                       <span className="font-medium text-text-secondary">{step.label}</span>
                       <span
-                        className="ml-1 rounded border border-brand-500/25 px-1 py-0 text-[8px] text-brand-800"
+                        className="ml-1 rounded border border-brand-500/25 px-1 py-0 text-[10px] text-brand-800"
                         data-testid={`whiteboard-coach-tool-${step.order}`}
                       >
                         {step.toolHint}
@@ -136,7 +136,7 @@ export function WhiteboardDiagramCoach({
                 <button
                   type="button"
                   onClick={() => onInsertLabels([activeStep.boardLabel!])}
-                  className="rounded-lg border border-border-subtle px-2 py-0.5 text-[9px] text-text-muted hover:text-brand-800"
+                  className="rounded-lg border border-border-subtle px-2 py-0.5 text-[10px] text-text-muted hover:text-brand-800"
                 >
                   {t('wbLabel')}: {activeStep.boardLabel}
                 </button>
@@ -145,7 +145,7 @@ export function WhiteboardDiagramCoach({
                 type="button"
                 data-testid="whiteboard-coach-ask-step"
                 onClick={() => onAskAgent('step', activeStep)}
-                className="inline-flex items-center gap-1 rounded-lg border border-accent-cyan/25 px-2 py-0.5 text-[9px] text-brand-800 hover:bg-accent-cyan/10"
+                className="inline-flex items-center gap-1 rounded-lg border border-accent-cyan/25 px-2 py-0.5 text-[10px] text-brand-800 hover:bg-accent-cyan/10"
               >
                 <Sparkles className="w-3 h-3" />
                 {t('wbAgentStep').replace('{order}', String(activeStep.order))}

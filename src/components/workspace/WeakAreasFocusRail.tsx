@@ -106,7 +106,7 @@ export function WeakAreasFocusRail({
                       <span
                         key={reason.id}
                         className={cn(
-                          'rounded-full border px-1.5 py-0.5 text-[9px]',
+                          'rounded-full border px-1.5 py-0.5 text-[10px]',
                           reason.severity === 'high'
                             ? 'ws-chip-danger'
                             : reason.severity === 'medium'
@@ -119,7 +119,7 @@ export function WeakAreasFocusRail({
                     ))}
                   </div>
                 ) : (
-                  <p className="mt-1 text-[9px] text-text-muted">
+                  <p className="mt-1 text-[10px] text-text-muted">
                     {t('lowMasteryReview', lang)}
                   </p>
                 )}

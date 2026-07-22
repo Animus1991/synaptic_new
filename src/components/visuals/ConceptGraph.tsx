@@ -157,7 +157,7 @@ export function ConceptGraph({
             ['weak', 'Weak <40%'],
           ] as [MasteryBand, string][]
         ).map(([band, label]) => (
-          <span key={label} className="flex items-center gap-1.5 text-[9px] text-text-muted">
+          <span key={label} className="flex items-center gap-1.5 text-[10px] text-text-muted">
             <span className="w-2 h-2 rounded-full" style={{ backgroundColor: bandColorVar(band) }} />
             {label}
           </span>

@@ -227,7 +227,7 @@ export function DashboardPanel({
 
         <div className="mb-2 flex flex-wrap items-center gap-2">
           {session.weakSpotCount > 0 && (
-            <span className="rounded-full border border-accent-rose/30 bg-accent-rose/10 px-2 py-0.5 text-[9px] font-medium text-accent-rose">
+            <span className="rounded-full border border-accent-rose/30 bg-accent-rose/10 px-2 py-0.5 text-[10px] font-medium text-accent-rose">
               {session.weakSpotCount} {t('panelWeakCount')}
             </span>
           )}
@@ -240,7 +240,7 @@ export function DashboardPanel({
             <button
               type="button"
               onClick={onOpenSuggestedTool}
-              className="inline-flex items-center gap-1 rounded-lg border border-brand-500/30 bg-brand-600/10 px-2 py-0.5 text-[9px] font-medium text-brand-800 hover:bg-brand-600/15"
+              className="inline-flex items-center gap-1 rounded-lg border border-brand-500/30 bg-brand-600/10 px-2 py-0.5 text-[10px] font-medium text-brand-800 hover:bg-brand-600/15"
               data-testid="dashboard-suggest-tool"
             >
               <Target className="w-3 h-3" />
@@ -263,7 +263,7 @@ export function DashboardPanel({
               type="button"
               onClick={handleExportHtml}
               title={t('dashDownloadHtml')}
-              className="inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[9px] text-text-secondary hover:bg-white/[0.06] hover:text-brand-800"
+              className="inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[10px] text-text-secondary hover:bg-white/[0.06] hover:text-brand-800"
               data-testid="dashboard-export-html"
             >
               <Download className="w-3 h-3" />
@@ -273,7 +273,7 @@ export function DashboardPanel({
               type="button"
               onClick={handlePrintPdf}
               title={t('dashPrintPdf')}
-              className="inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[9px] text-text-secondary hover:bg-white/[0.06] hover:text-brand-800"
+              className="inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[10px] text-text-secondary hover:bg-white/[0.06] hover:text-brand-800"
               data-testid="dashboard-export-pdf"
             >
               <Printer className="w-3 h-3" />
@@ -283,7 +283,7 @@ export function DashboardPanel({
               type="button"
               onClick={handleExportJson}
               title={t('dashSessionJson')}
-              className="inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[9px] text-text-secondary hover:bg-white/[0.06] hover:text-brand-800"
+              className="inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[10px] text-text-secondary hover:bg-white/[0.06] hover:text-brand-800"
               data-testid="dashboard-export-json"
             >
               JSON

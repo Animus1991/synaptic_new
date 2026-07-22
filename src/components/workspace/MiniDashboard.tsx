@@ -108,7 +108,7 @@ export function MiniDashboard({
             <div className="flex border-b border-border-subtle">
               {(['overview', 'weak', 'next'] as const).map((tab) => (
                 <button key={tab} type="button" onClick={() => setActiveTab(tab)}
-                  className={cn('flex-1 py-1.5 text-[9px] font-medium capitalize transition-all inline-flex items-center justify-center gap-0.5',
+                  className={cn('flex-1 py-1.5 text-[10px] font-medium capitalize transition-all inline-flex items-center justify-center gap-0.5',
                     activeTab === tab ? 'text-brand-600 border-b border-brand-500' : 'text-text-muted hover:text-text-secondary')}>
                   {tab === 'overview' ? (
                     <><Target className="w-3 h-3" /> {t('status')}</>
@@ -136,8 +136,8 @@ export function MiniDashboard({
                   </svg>
                   <div>
                     <p className="text-xs font-semibold">{band.label}</p>
-                    <p className="text-[9px] text-text-muted">{t('examReadiness')}</p>
-                    <p className="text-[9px] text-text-muted mt-1">{conceptsMastered}/{totalConcepts} {t('concepts')}</p>
+                    <p className="text-[10px] text-text-muted">{t('examReadiness')}</p>
+                    <p className="text-[10px] text-text-muted mt-1">{conceptsMastered}/{totalConcepts} {t('concepts')}</p>
                   </div>
                 </div>
 
@@ -155,7 +155,7 @@ export function MiniDashboard({
 
                 {recentStudyDays.length > 0 && (
                   <div className="rounded-lg border border-border-subtle bg-surface-primary/40 p-2">
-                    <p className="text-[8px] text-text-muted mb-1.5">{t('studyThisWeek')}</p>
+                    <p className="text-[10px] text-text-muted mb-1.5">{t('studyThisWeek')}</p>
                     <div className="flex items-end gap-1 h-8">
                       {recentStudyDays.map((mins, i) => (
                         <div key={i} className="flex-1 flex flex-col items-center gap-0.5">
@@ -175,7 +175,7 @@ export function MiniDashboard({
                     className="rounded-lg border border-border-subtle bg-surface-primary/40 p-2"
                     data-testid="progress-tool-activity"
                   >
-                    <p className="text-[8px] text-text-muted mb-1.5">
+                    <p className="text-[10px] text-text-muted mb-1.5">
                       {t('exportSessionTools')}
                     </p>
                     <div className="flex flex-wrap gap-1">
@@ -195,7 +195,7 @@ export function MiniDashboard({
                               key={tool}
                               type="button"
                               onClick={() => onOpenToolActivity(tool as WorkspaceToolId)}
-                              className="inline-flex items-center gap-0.5 rounded-full border border-white/10 bg-surface-card/60 px-1.5 py-0.5 text-[8px] text-text-secondary hover:border-brand-600/35 hover:text-brand-800"
+                              className="inline-flex items-center gap-0.5 rounded-full border border-white/10 bg-surface-card/60 px-1.5 py-0.5 text-[10px] text-text-secondary hover:border-brand-600/35 hover:text-brand-800"
                               data-testid={`progress-tool-${tool}`}
                             >
                               {chip}
@@ -205,7 +205,7 @@ export function MiniDashboard({
                         return (
                           <span
                             key={tool}
-                            className="inline-flex items-center gap-0.5 rounded-full border border-white/10 bg-surface-card/60 px-1.5 py-0.5 text-[8px] text-text-secondary"
+                            className="inline-flex items-center gap-0.5 rounded-full border border-white/10 bg-surface-card/60 px-1.5 py-0.5 text-[10px] text-text-secondary"
                             data-testid={`progress-tool-${tool}`}
                           >
                             {chip}
@@ -241,9 +241,9 @@ export function MiniDashboard({
                         <AlertTriangle className="w-3 h-3 text-accent-rose shrink-0" />
                         <div className="flex-1 min-w-0">
                           <p className="text-[10px] font-medium truncate">{concept}</p>
-                          <p className="text-[8px] text-text-muted">{w.course}</p>
+                          <p className="text-[10px] text-text-muted">{w.course}</p>
                         </div>
-                        <p className="text-[9px] text-text-muted shrink-0">{w.mastery}%</p>
+                        <p className="text-[10px] text-text-muted shrink-0">{w.mastery}%</p>
                       </button>
                       {detail && detail.reasons.length > 0 && (
                         <div className="mt-1.5 flex flex-wrap gap-1">
@@ -251,7 +251,7 @@ export function MiniDashboard({
                             <span
                               key={reason.id}
                               className={cn(
-                                'rounded-full border px-1.5 py-0.5 text-[8px]',
+                                'rounded-full border px-1.5 py-0.5 text-[10px]',
                                 reason.severity === 'high'
                                   ? 'border-accent-rose/35 bg-accent-rose/12 text-accent-rose'
                                   : reason.severity === 'medium'
@@ -272,7 +272,7 @@ export function MiniDashboard({
                               type="button"
                               title={action.hint}
                               onClick={() => onRemediateWeakSpot(concept, action.id)}
-                              className="rounded-full border border-brand-500/30 bg-brand-500/10 px-1.5 py-0.5 text-[8px] font-medium text-brand-800 hover:bg-brand-500/20"
+                              className="rounded-full border border-brand-500/30 bg-brand-500/10 px-1.5 py-0.5 text-[10px] font-medium text-brand-800 hover:bg-brand-500/20"
                             >
                               {action.label}
                             </button>
@@ -303,7 +303,7 @@ export function MiniDashboard({
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-[10px] font-medium truncate">{a.label}</p>
-                      <p className="text-[8px] text-text-muted">{a.minutes}m • +{a.xp} XP</p>
+                      <p className="text-[10px] text-text-muted">{a.minutes}m • +{a.xp} XP</p>
                     </div>
                   </button>
                 ))}

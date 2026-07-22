@@ -73,6 +73,7 @@ CSS: `src/styles/cursor-clarity.css` (imported after `replit-clarity.css`).
 | **OPT-K47** | Focus ring 2px + brand focus tokens | **shipped** |
 | **OPT-K48** | Smoke checklist (Human Pass M20/C8 — not self-signed) | **shipped** |
 | **OPT-K49** | Residual badges: status chips ≥10px + md/pill radius | **shipped** |
+| **OPT-K50** | App meta `text-[8/9px]` → `10px` (workspace + shell; reprocess excepted; K37 complete) | **shipped** |
 
 **Default gate:** Minimal / Minimal Dark only. Blueprint untouched.  
 **Width rule:** Compact `w-14` + `lg:ml-14` and Expanded `w-56` + `lg:ml-56` — main never underlays rail.
@@ -93,7 +94,6 @@ CSS: `src/styles/cursor-clarity.css` (imported after `replit-clarity.css`).
 ### Ανοιχτό μόνο για άνθρωπο
 
 - **M20 / C8 Human Pass?** — όχι self-sign  
-- Workspace dense chrome (`text-[8px]` σε Annotation rail/toolbar) — εκτός Dashboard scope· υποψήφιο για μελλοντικό OPT-W*
 
 ---
 
@@ -108,7 +108,7 @@ CSS: `src/styles/cursor-clarity.css` (imported after `replit-clarity.css`).
 
 ## Completeness
 
-**OPT-K1–K49 shipped.** Compact default + expand kept; main offset `ml-14` / `ml-56`. Human Pass? **M20 / C8** still open (engineering must not self-sign). See canvas `cursor-clarity-post-k911-audit.canvas.tsx`.
+**OPT-K1–K50 shipped.** Compact default + expand kept; main offset `ml-14` / `ml-56`. Human Pass? **M20 / C8** still open (engineering must not self-sign). Capture dumps refreshed under `artifacts/primer-minimal/` + `artifacts/chatgpt-calm/`.
 
 ### OPT-K48 smoke matrix (manual — do not self-sign)
 

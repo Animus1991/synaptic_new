@@ -72,10 +72,10 @@ export function WorkspaceContextStrip({
             {context.toolLabel}
           </span>
         </div>
-        <p className="mt-0.5 hidden text-[9px] text-text-muted sm:block truncate" title={context.toolDescription}>
+        <p className="mt-0.5 hidden text-[10px] text-text-muted sm:block truncate" title={context.toolDescription}>
           {context.toolDescription}
           {typeof sourceQuality === 'number' && (
-            <span className="ml-2 ws-chip-warn inline-flex rounded-full px-1.5 py-px text-[9px]">
+            <span className="ml-2 ws-chip-warn inline-flex rounded-full px-1.5 py-px text-[10px]">
               · {t('contextQualityLabel')} {sourceQuality}/100
             </span>
           )}

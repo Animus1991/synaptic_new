@@ -455,7 +455,7 @@ export function AnnotationOverlay({
       )}
 
       {tool === 'highlight' && (
-        <p className="shrink-0 border-b border-border-subtle px-3 py-1 text-[9px] text-text-muted" data-testid="annotation-span-hint">
+        <p className="shrink-0 border-b border-border-subtle px-3 py-1 text-[10px] text-text-muted" data-testid="annotation-span-hint">
           {t('annoSelectSpan')}
         </p>
       )}
@@ -470,7 +470,7 @@ export function AnnotationOverlay({
                 type="button"
                 data-testid="annotation-banner-auto-remap"
                 onClick={handleAutoRemap}
-                className="ws-chip-ok inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[9px] font-semibold"
+                className="ws-chip-ok inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[10px] font-semibold"
               >
                 <Wand2 className="h-3 w-3" />
                 {t('annoAutoRemap')}
@@ -479,7 +479,7 @@ export function AnnotationOverlay({
                 type="button"
                 data-testid="annotation-banner-review"
                 onClick={openRemapReview}
-                className="ws-chip-warn rounded-md px-2 py-0.5 text-[9px] font-semibold"
+                className="ws-chip-warn rounded-md px-2 py-0.5 text-[10px] font-semibold"
               >
                 {t('annoReviewFlaggedBtn')}
               </button>
@@ -539,7 +539,7 @@ export function AnnotationOverlay({
             type="button"
             onClick={() => setFilterTerm(null)}
             className={cn(
-              'shrink-0 rounded px-1.5 py-0.5 text-[8px] font-medium',
+              'shrink-0 rounded px-1.5 py-0.5 text-[10px] font-medium',
               !filterTerm ? 'ws-chip-brand' : 'text-text-muted',
             )}
           >
@@ -551,7 +551,7 @@ export function AnnotationOverlay({
               type="button"
               onClick={() => setFilterTerm(filterTerm === term ? null : term)}
               className={cn(
-                'shrink-0 rounded border px-1.5 py-0.5 text-[8px] font-medium',
+                'shrink-0 rounded border px-1.5 py-0.5 text-[10px] font-medium',
                 filterTerm === term ? 'ws-chip-brand' : 'border-border-subtle text-text-muted',
               )}
             >
@@ -564,7 +564,7 @@ export function AnnotationOverlay({
               type="button"
               onClick={() => setFilterCategory(filterCategory === cat ? null : cat)}
               className={cn(
-                'inline-flex shrink-0 items-center gap-0.5 rounded border px-1.5 py-0.5 text-[8px] font-medium',
+                'inline-flex shrink-0 items-center gap-0.5 rounded border px-1.5 py-0.5 text-[10px] font-medium',
                 filterCategory === cat ? 'ws-chip-brand' : 'border-border-subtle text-text-muted',
               )}
             >
@@ -576,7 +576,7 @@ export function AnnotationOverlay({
             value={tagDraft}
             onChange={(e) => setTagDraft(e.target.value)}
             placeholder={t('annoTagPlaceholder')}
-            className="ml-auto w-16 shrink-0 rounded border border-border-subtle bg-surface-input px-1 py-0.5 text-[8px] sm:w-20"
+            className="ml-auto w-16 shrink-0 rounded border border-border-subtle bg-surface-input px-1 py-0.5 text-[10px] sm:w-20"
           />
         </div>
       )}
@@ -642,7 +642,7 @@ export function AnnotationOverlay({
                   </button>
                 )}
                 {lineAnns.some((a) => a.focusTerm) && (
-                  <span className="ml-1 text-[8px] text-brand-700 opacity-80">
+                  <span className="ml-1 text-[10px] text-brand-700 opacity-80">
                     #{lineAnns.find((a) => a.focusTerm)?.focusTerm}
                   </span>
                 )}
