@@ -461,8 +461,15 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
               onClick={() => openStudioTool(id)}
               data-testid={`studio-card-${id}`}
               data-generation-state={genState ?? 'idle'}
+              data-active={studioToolOpen && activeTool === id ? 'true' : undefined}
+              aria-pressed={studioToolOpen && activeTool === id}
               title={workspaceToolDescription(id, lang)}
-              className="flex w-full flex-col items-start gap-2 rounded-xl border border-border-subtle bg-surface-secondary/50 px-3 py-3 text-left hover:bg-surface-hover hover:border-brand-200 transition-colors min-h-[76px]"
+              className={cn(
+                'flex w-full flex-col items-start gap-2 rounded-xl border px-3 py-3 text-left transition-colors min-h-[76px]',
+                studioToolOpen && activeTool === id
+                  ? 'border-brand-400/50 bg-brand-100/70 text-brand-900'
+                  : 'border-border-subtle bg-surface-secondary/50 hover:bg-surface-hover hover:border-brand-200',
+              )}
             >
               {/* OPT-K12 — distinct monochrome glyph; no shared cyan brand wash. */}
               <span

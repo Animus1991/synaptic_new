@@ -84,6 +84,7 @@
 
 | ID | Status |
 |----|--------|
-| OPT-N1 | **shipping** |
-| OPT-N2…N5 | planned |
-| OPT-L1 (Library topics) | shipped — feeds this surface |
+| OPT-N1 | **shipped** |
+| OPT-N2 | **shipping** — studio card active state |
+| OPT-N3…N5 | planned |
+| OPT-L1 / L2 (Library topics + prereq labels) | shipped / shipping — feeds this surface |

@@ -39,6 +39,11 @@ import { showCrossLibrarySynthesis } from '../lib/platformFocus';
 import type { NotebookLmImportResult } from '../lib/notebooklmImport';
 import { openNotebookLm, notebookLmSourceLabel } from '../lib/notebooklmBridge';
 import { isDebugUiTopicLabel } from '../lib/knowledgeFlowAnalytics';
+import {
+  buildTopicIdTitleMap,
+  resolveTopicPrerequisiteTitles,
+  resolveTopicRef,
+} from '../lib/topicRefResolve';
 import { QualityScoreBadge } from './ui/QualityScoreBadge';
 import { CourseStatusBadge, type CourseStatusKind } from './ui/CourseStatusBadge';
 import { CompactProgressBar } from './ui/CompactProgressBar';
@@ -217,6 +222,8 @@ export function Library({
     });
   }, [courses, search, uploadedFiles]);
 
+  const topicIdToTitle = useMemo(() => buildTopicIdTitleMap(courses), [courses]);
+
   const topicToCourse = useMemo(() => {
     const map = new Map<string, Course>();
     for (const course of courses) {
@@ -228,23 +235,29 @@ export function Library({
   }, [courses]);
 
   const libraryInfo = useMemo(() => {
-    /** OPT-K14 — keep full tag lists; OverflowChipRow densifies with +N (no silent drop). */
+    /** OPT-K14 / L2 — full lists densified via +N; resolve opaque t1/t2 ids → titles. */
     const topics: string[] = [];
     const prereqSet = new Set<string>();
     for (const course of filteredCourses) {
       for (const topic of course.topics) {
         if (isDebugUiTopicLabel(topic.title)) continue;
         if (!topics.includes(topic.title)) topics.push(topic.title);
-        topic.prerequisites.filter((p) => !isDebugUiTopicLabel(p)).forEach((p) => prereqSet.add(p));
-        (topic.keyConcepts ?? []).filter((k) => !isDebugUiTopicLabel(k)).forEach((k) => prereqSet.add(k));
+        for (const title of resolveTopicPrerequisiteTitles(topic, topicIdToTitle)) {
+          prereqSet.add(title);
+        }
+        for (const concept of topic.keyConcepts ?? []) {
+          const label = resolveTopicRef(concept, topicIdToTitle);
+          if (label && !isDebugUiTopicLabel(label)) prereqSet.add(label);
+        }
       }
     }
     const glossaryTerms = [...new Set(glossaryEntries.map((g) => g.term).filter(Boolean))];
     const examples = glossaryTerms;
     const prerequisites = [...prereqSet];
-    const enrichments = [...new Set([...glossaryTerms.slice(4), ...prerequisites])];
+    /** Enrichments = glossary only (do not dump raw prerequisite ids into this row). */
+    const enrichments = glossaryTerms.slice(0, 16);
     return { topics, prerequisites, examples, enrichments };
-  }, [filteredCourses, glossaryEntries]);
+  }, [filteredCourses, glossaryEntries, topicIdToTitle]);
 
   const libraryTabs = useMemo(
     () => [
@@ -570,7 +583,7 @@ export function Library({
                         title={t('libraryInfoStackTopicsTitle', userLanguage)}
                         items={libraryInfo.topics}
                         secondary={libraryInfo.prerequisites}
-                        secondaryLabel={t('libraryInfoStackSecondaryLabel', userLanguage)}
+                        secondaryLabel={t('libraryInfoStackPrereqLabel', userLanguage)}
                         onItemClick={(topicTitle) => {
                           // OPT-L1 — open study workspace on the topic (demo + prod); fallback to course.
                           if (onOpenConcept) {
@@ -584,7 +597,7 @@ export function Library({
                           if (onOpenConcept) onOpenConcept(label);
                         }}
                         itemHint={t('libTopicOpenHint', userLanguage)}
-                        secondaryHint={t('libConceptOpenHint', userLanguage)}
+                        secondaryHint={t('libPrereqOpenHint', userLanguage)}
                       />
                     )}
                     {libraryInfo.examples.length > 0 && (
@@ -592,7 +605,7 @@ export function Library({
                         title={t('libraryInfoStackExamplesTitle', userLanguage)}
                         items={libraryInfo.examples}
                         secondary={libraryInfo.enrichments}
-                        secondaryLabel={t('libraryInfoStackSecondaryLabel', userLanguage)}
+                        secondaryLabel={t('libraryInfoStackEnrichmentLabel', userLanguage)}
                         onItemClick={onOpenConcept}
                         onSecondaryClick={onOpenConcept}
                         itemHint={t('libConceptOpenHint', userLanguage)}
@@ -865,7 +878,7 @@ function CourseCard({
               onClick();
             }}
             data-testid={`library-open-course-${course.id}`}
-            className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg bg-brand-700 text-white px-2 py-1.5 text-[11px] font-semibold hover:bg-brand-600 transition-colors"
+            className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg bg-brand-700 text-white px-2 py-1.5 text-xs font-semibold hover:bg-brand-600 transition-colors"
           >
             {t('libOpenCourse', userLanguage)}
           </button>
@@ -877,7 +890,7 @@ function CourseCard({
                 onOpenNotebookShell(course.id);
               }}
               data-testid={`library-notebook-shell-${course.id}`}
-              className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-brand-500/30 bg-brand-500/5 px-2.5 py-1.5 text-[11px] font-medium text-brand-700 hover:bg-brand-500/10 transition-colors"
+              className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-brand-500/30 bg-brand-500/5 px-2.5 py-1.5 text-xs font-medium text-brand-700 hover:bg-brand-500/10 transition-colors"
             >
               <BookOpen className="w-3.5 h-3.5" />
               {t('libNotebookShellShort', userLanguage)}
@@ -940,7 +953,7 @@ function CourseCard({
         </span>
       </div>
       {course.conceptCount > 0 && (
-        <div className="mt-2 flex items-center gap-3 text-[10px] text-text-muted">
+        <div className="mt-2 flex items-center gap-3 text-xs text-text-muted">
           <span>{course.conceptCount} {t('libConcepts', userLanguage)}</span>
           <span>{course.glossaryCount} {t('libTerms', userLanguage)}</span>
           <span>{course.exerciseCount} {t('libExercises', userLanguage)}</span>

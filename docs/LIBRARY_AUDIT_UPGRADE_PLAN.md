@@ -127,5 +127,6 @@ Each OPT: small PR, no feature removal, themes preserved.
 | ID | Status |
 |----|--------|
 | OPT-L1 | **shipped** — topics wired + responsive InfoStack |
-| OPT-L2…L6 | planned |
+| OPT-L2 | **shipping** — resolve opaque `t1` prereq ids → titles; clearer secondary labels; denser readable meta |
+| OPT-L3…L6 | planned |
 | Notebook companion | See `NOTEBOOK_WORKSPACE_AUDIT_UPGRADE_PLAN.md` (OPT-N*) |

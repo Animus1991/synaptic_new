@@ -1,6 +1,7 @@
 import type { ActivityItem, ActivityType, Course, LearnerModel } from '../types';
 import type { LearningEvent } from './learningEvents';
 import type { Lang } from './i18n';
+import { buildTopicIdTitleMap, resolveTopicPrerequisiteTitles } from './topicRefResolve';
 
 export type SankeyLink = { from: string; to: string; value: number; color: string };
 
@@ -248,9 +249,10 @@ function topicWeight(conceptCount: number, estimatedMinutes: number): number {
   return Math.max(10, Math.round(conceptCount * 2.5 + estimatedMinutes / 4));
 }
 
-/** Hide auto-generated topic ids from user-facing analytics. */
+/** Hide auto-generated / opaque topic ids from user-facing surfaces (ui-*, t1…). */
 export function isDebugUiTopicLabel(label: string): boolean {
-  return /^ui-\d+/i.test(label.trim());
+  const t = label.trim();
+  return /^ui-\d+/i.test(t) || /^t\d+$/i.test(t);
 }
 
 /** Treemap blocks from course topics, falling back to learner skill nodes. */
@@ -259,6 +261,7 @@ export function buildConceptTreemap(
   learnerModel: LearnerModel,
 ): { blocks: TreemapBlock[]; hasData: boolean; totalWeight: number } {
   const ready = courses.filter((c) => c.status !== 'generating');
+  const idToTitle = buildTopicIdTitleMap(ready);
   const fromTopics: TreemapBlock[] = [];
 
   for (const course of ready) {
@@ -270,7 +273,7 @@ export function buildConceptTreemap(
         value: topicWeight(topic.conceptCount, topic.estimatedMinutes),
         mastery: Math.round(topic.mastery),
         tone: toneForMastery(topic.mastery),
-        prereqs: topic.prerequisites.slice(0, 3),
+        prereqs: resolveTopicPrerequisiteTitles(topic, idToTitle).slice(0, 3),
       });
     }
   }
