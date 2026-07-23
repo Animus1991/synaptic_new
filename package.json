@@ -80,6 +80,9 @@
     "ts-fsrs": "^5.4.1",
     "yjs": "^13.6.31"
   },
+  "overrides": {
+    "esbuild": "0.28.1"
+  },
   "devDependencies": {
     "@axe-core/playwright": "^4.12.1",
     "@capacitor/cli": "^7.4.2",
