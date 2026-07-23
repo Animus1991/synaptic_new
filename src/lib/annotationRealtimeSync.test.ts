@@ -35,17 +35,19 @@ describe('annotationRealtimeSync', () => {
     const remote = ann('1', { text: 'remote text', lineStart: 3, lineEnd: 4 });
     const { merged, conflicts } = mergeSharedAnnotationsWithConflicts([local], [remote]);
     expect(merged).toHaveLength(1);
-    expect(merged[0]!.text).toBe('remote text');
+    // Keep local until the user resolves (COL-02).
+    expect(merged[0]!.text).toBe('local text');
     expect(conflicts).toHaveLength(1);
     expect(conflicts[0]!.local.text).toBe('local text');
+    expect(conflicts[0]!.remote.text).toBe('remote text');
   });
 
   it('resolveAnnotationConflict keeps chosen side', () => {
     const local = ann('1', { text: 'local' });
     const remote = ann('1', { text: 'remote' });
-    const { merged, conflicts } = mergeSharedAnnotationsWithConflicts([local], [remote]);
-    const resolved = resolveAnnotationConflict(conflicts, '1', 'local', merged);
-    expect(resolved.conflicts).toHaveLength(0);
-    expect(resolved.merged[0]!.text).toBe('local');
+    const { conflicts } = mergeSharedAnnotationsWithConflicts([local], [remote]);
+    const resolved = resolveAnnotationConflict(conflicts, '1', 'local');
+    expect(resolved.remaining).toHaveLength(0);
+    expect(resolved.chosen?.text).toBe('local');
   });
 });
