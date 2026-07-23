@@ -89,7 +89,9 @@ CSS: `src/styles/cursor-clarity.css` (imported after `replit-clarity.css`).
 | **OPT-K64** | Exam mastery fill: weak / mid / strong bands | **shipped** |
 | **OPT-K65** | Gate exam calendar + post-exam panel by meaning | **shipped** |
 | **OPT-K66** | Coarse-pointer hit floors for nav/composer/Continue | **shipped** |
+| **OPT-K67** | Workspace phone chrome `<768` (align notebook OPT-N1) | **shipped** |
 | **OPT-K68** | Product tour Skip/step contrast + 44px close | **shipped** |
+| **OPT-K71** | Vista-inspired clarity micro (grouping/selection/titleband/scroll) | **shipped** |
 
 **Default gate:** Minimal / Minimal Dark only. Blueprint untouched.  
 **Width rule:** Compact `w-14` + `lg:ml-14` and Expanded `w-56` + `lg:ml-56` — main never underlays rail.
@@ -124,7 +126,7 @@ CSS: `src/styles/cursor-clarity.css` (imported after `replit-clarity.css`).
 
 ## Completeness
 
-**OPT-K1–K68 shipped** (K59/K67/K69–K70 = human pass / tablet soft-boundary deferred). Compact default + expand kept; main offset `ml-14` / `ml-56`. Human Pass? **M20 / C8 / K69** still open (engineering must not self-sign). Capture dumps refreshed under `artifacts/primer-minimal/` + `artifacts/chatgpt-calm/`.
+**OPT-K1–K71 shipped** (K69–K70 = human pass — not self-signed). Compact default + expand kept; main offset `ml-14` / `ml-56`. Human Pass? **M20 / C8 / K69** still open (engineering must not self-sign).
 
 ### OPT-K48 / OPT-K69 smoke matrix (manual — do not self-sign)
 
@@ -133,8 +135,10 @@ CSS: `src/styles/cursor-clarity.css` (imported after `replit-clarity.css`).
 | Dashboard (canvas + stacked) | ☐ | ☐ | ☐ | ☐ | ☐ |
 | Mobile nav labels (no ellipsis) | ☐ | ☐ | ☐ | ☐ | ☐ |
 | Hub 2×2 / Continue contrast | ☐ | ☐ | ☐ | ☐ | ☐ |
+| Tablet workspace chrome (not phone) | ☐ | ☐ | — | ☐ | ☐ |
 | Exam calendar gated / post-exam | ☐ | ☐ | ☐ | ☐ | ☐ |
 | Mastery fill bands | ☐ | ☐ | ☐ | ☐ | ☐ |
+| Vista soft grouping / titleband | ☐ | ☐ | ☐ | ☐ | ☐ |
 | Modal header + ConfirmDialog | ☐ | ☐ | ☐ | ☐ | ☐ |
 | Product tour Skip/Next | ☐ | ☐ | ☐ | ☐ | ☐ |
 | PrimaryCTA / SecondaryCTA / Teacher | ☐ | ☐ | ☐ | ☐ | ☐ |

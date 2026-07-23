@@ -1232,15 +1232,15 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                     data-testid="dash-horizon-today"
                   >
                     <p className="ux-kpi-value text-accent-amber">{fsrsHorizon.today}</p>
-                    <p className="text-[10px] text-text-muted uppercase tracking-wide"><AllCapsLabel>{t('dashHorizonToday')}</AllCapsLabel></p>
+                    <p className="text-[10px] text-text-muted uppercase tracking-[0.04em] leading-tight"><AllCapsLabel>{t('dashHorizonToday')}</AllCapsLabel></p>
                   </button>
                   <div className="p-2 rounded-lg bg-surface-primary/50" data-testid="dash-horizon-tomorrow">
                     <p className="ux-kpi-value">{fsrsHorizon.tomorrow}</p>
-                    <p className="text-[10px] text-text-muted uppercase tracking-wide"><AllCapsLabel>{t('dashHorizonTomorrow')}</AllCapsLabel></p>
+                    <p className="text-[10px] text-text-muted uppercase tracking-[0.04em] leading-tight"><AllCapsLabel>{t('dashHorizonTomorrow')}</AllCapsLabel></p>
                   </div>
                   <div className="p-2 rounded-lg bg-surface-primary/50" data-testid="dash-horizon-3d">
                     <p className="ux-kpi-value">{fsrsHorizon.within3d}</p>
-                    <p className="text-[10px] text-text-muted uppercase tracking-wide"><AllCapsLabel>{t('dashHorizon3d')}</AllCapsLabel></p>
+                    <p className="text-[10px] text-text-muted uppercase tracking-[0.04em] leading-tight"><AllCapsLabel>{t('dashHorizon3d')}</AllCapsLabel></p>
                   </div>
                 </div>
                 {fsrsDueQueue.length > 0 && onFocusWeakArea && (
@@ -1290,15 +1290,15 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                     data-testid="dash-horizon-today"
                   >
                     <p className="ux-kpi-value text-accent-amber">{fsrsHorizon.today}</p>
-                    <p className="text-[10px] text-text-muted uppercase tracking-wide"><AllCapsLabel>{t('dashHorizonToday')}</AllCapsLabel></p>
+                    <p className="text-[10px] text-text-muted uppercase tracking-[0.04em] leading-tight"><AllCapsLabel>{t('dashHorizonToday')}</AllCapsLabel></p>
                   </button>
                   <div className="p-2 rounded-lg bg-surface-primary/50" data-testid="dash-horizon-tomorrow">
                     <p className="ux-kpi-value">{fsrsHorizon.tomorrow}</p>
-                    <p className="text-[10px] text-text-muted uppercase tracking-wide"><AllCapsLabel>{t('dashHorizonTomorrow')}</AllCapsLabel></p>
+                    <p className="text-[10px] text-text-muted uppercase tracking-[0.04em] leading-tight"><AllCapsLabel>{t('dashHorizonTomorrow')}</AllCapsLabel></p>
                   </div>
                   <div className="p-2 rounded-lg bg-surface-primary/50" data-testid="dash-horizon-3d">
                     <p className="ux-kpi-value">{fsrsHorizon.within3d}</p>
-                    <p className="text-[10px] text-text-muted uppercase tracking-wide"><AllCapsLabel>{t('dashHorizon3d')}</AllCapsLabel></p>
+                    <p className="text-[10px] text-text-muted uppercase tracking-[0.04em] leading-tight"><AllCapsLabel>{t('dashHorizon3d')}</AllCapsLabel></p>
                   </div>
                 </div>
                 {fsrsDueQueue.length > 0 && onFocusWeakArea && (

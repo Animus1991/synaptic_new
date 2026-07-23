@@ -17,6 +17,7 @@ import {
   type WorkspacePedagogyLens,
 } from '../../../lib/workspacePedagogyLens';
 import { isWorkspaceTourComplete } from '../../../lib/workspaceTour';
+import { isWorkspacePhoneWidth } from '../../../lib/workspaceViewport';
 import { mergeConceptMapGraph } from '../../../lib/conceptMapGraph';
 import { buildMiniDashboardProps } from '../../../lib/workspaceData';
 import { collectConceptBusInsights, countSpacedStepReviewsDue, type ConceptBusMap } from '../../../lib/conceptBusSync';
@@ -259,10 +260,10 @@ export function useStudyWorkspace({
   // Initialize from current viewport so mobile users land directly on the lesson
   // panel instead of a crowded split layout where neither pane is usable.
   const [isMobile, setIsMobile] = useState(() =>
-    typeof window !== 'undefined' ? window.innerWidth < 1024 : false,
+    typeof window !== 'undefined' ? isWorkspacePhoneWidth(window.innerWidth) : false,
   );
   const [layout, setLayout] = useState<LayoutMode>(() =>
-    typeof window !== 'undefined' && window.innerWidth < 1024 ? 'focus-lesson' : 'split',
+    typeof window !== 'undefined' && isWorkspacePhoneWidth(window.innerWidth) ? 'focus-lesson' : 'split',
   );
   const [currentStep, setCurrentStep] = useState(() => loadWorkspaceStep(progressKey));
   const [quizPassed, setQuizPassed] = useState(false);
@@ -856,7 +857,7 @@ export function useStudyWorkspace({
 
   useEffect(() => {
     const checkMobile = () => {
-      const mobile = window.innerWidth < 1024;
+      const mobile = isWorkspacePhoneWidth(window.innerWidth);
       setIsMobile((prev) => {
         // Auto-correct stale split layout when crossing into mobile so the
         // lesson surface always wins (previous layout left both panes too

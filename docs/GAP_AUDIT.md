@@ -390,7 +390,9 @@ Constraints for all OPT-R*: no typography/button/modal scale-up; no functional r
 | OPT-K64 | Mastery fill bands | P2 | **shipped** | Exam bar weak/mid/strong |
 | OPT-K65 | Exam panels gated | P2 | **shipped** | Calendar if exam context; post-exam only after date |
 | OPT-K66 | Coarse pointer floors | P2 | **shipped** | Nav/composer/Continue ≥40–44px |
+| OPT-K67 | Workspace phone &lt;768 | P2 | **shipped** | `isWorkspacePhoneWidth`; tablet gets desktop chrome; aligns OPT-N1 |
 | OPT-K68 | Tour contrast | P2 | **shipped** | Skip/step secondary; close hit 40px |
+| OPT-K71 | Vista clarity micro | P2 | **shipped** | Soft grouping/selection/titleband/scrollbars — no Aero blur/glass clone |
 
 ### Primer-inspired minimal (OPT-M) — zero feature removal
 

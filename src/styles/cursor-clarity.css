@@ -1421,3 +1421,93 @@
   }
 }
 
+/* ── OPT-K71 — Vista-inspired clarity (principles only; not Aero/glass clone) ─
+   Borrowed: soft window grouping, cool selection wash, titleband separation,
+   whisper elevation, readable scrollbars. Rejected: blur, glossy buttons,
+   orb/glow, thick glass, OS chrome clone. */
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell {
+  --vista-lift: 0 1px 2px color-mix(in srgb, var(--color-text-primary) 5%, transparent);
+  --vista-inset: inset 0 1px 0 color-mix(in srgb, #ffffff 55%, transparent);
+  --vista-select: color-mix(in srgb, var(--color-brand-600) 7%, var(--color-surface-secondary));
+}
+
+:is([data-theme="minimal-dark"]) .app-shell {
+  --vista-lift: 0 1px 2px color-mix(in srgb, #000000 35%, transparent);
+  --vista-inset: inset 0 1px 0 color-mix(in srgb, #ffffff 6%, transparent);
+  --vista-select: color-mix(in srgb, var(--color-brand-500) 10%, var(--color-surface-secondary));
+}
+
+/* Soft titleband — chrome vs content separation */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .ux-page-header,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .ux-page-header--text-first {
+  background: linear-gradient(
+    to bottom,
+    var(--color-surface-primary) 0%,
+    color-mix(in srgb, var(--color-surface-secondary) 55%, var(--color-surface-primary)) 100%
+  );
+  border-bottom: 1px solid color-mix(in srgb, var(--color-border-subtle) 85%, transparent);
+}
+
+/* Soft window grouping on calm cards / hub wells */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm :is(
+  .ux-card,
+  .blueprint-surface,
+  .hub-quiet-surface,
+  [data-testid="dashboard-action-hub"]
+) {
+  box-shadow: var(--vista-inset), var(--vista-lift);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm .hub-section-stack {
+  box-shadow: var(--vista-inset), var(--vista-lift);
+  border-radius: 0.5rem;
+}
+
+/* Cool soft selection (Vista highlight principle → our brand wash) */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .utility-row--interactive:hover,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm .proximity-track > button:hover,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-hub-chip:hover {
+  background: var(--vista-select) !important;
+}
+
+/* Modal / tour: whisper elevation without blur */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .ux-modal-panel,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) [data-testid="product-tour-panel"] {
+  box-shadow:
+    var(--vista-inset),
+    0 8px 24px color-mix(in srgb, var(--color-text-primary) 10%, transparent);
+}
+
+/* Soft, thin scrollbars — clearer chrome than OS default blobs */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell * {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--color-text-muted) 55%, transparent) transparent;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell *::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell *::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--color-text-muted) 45%, transparent);
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell *::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Spaced-rep horizon tiles: keep 3 visible without mid-word crush */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm [data-testid="dash-horizon-today"] .text-\[10px\],
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm [data-testid="dash-horizon-tomorrow"] .text-\[10px\],
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm [data-testid="dash-horizon-3d"] .text-\[10px\] {
+  letter-spacing: 0.04em;
+  line-height: 1.2;
+  white-space: normal;
+}
+
+
