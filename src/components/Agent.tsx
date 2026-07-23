@@ -632,7 +632,7 @@ export function Agent({
             type="button"
             onClick={() => setShowModes(!showModes)}
             className={cn(
-              'flex items-center gap-1 rounded-md border border-border-subtle bg-surface-card px-1.5 py-0.5 text-[11px] font-medium text-text-secondary transition-colors',
+              'flex items-center gap-1 rounded-md border border-border-subtle bg-surface-card px-1.5 py-0.5 text-[11px] font-medium text-text-primary transition-colors',
               quietModes ? 'hover:border-border-default' : 'hover:border-brand-200',
             )}
           >
@@ -649,7 +649,7 @@ export function Agent({
               aria-haspopup="listbox"
               data-testid="agent-embedded-source-picker"
               className={cn(
-                'flex items-center gap-1 rounded-md border border-border-subtle bg-surface-card px-1.5 py-0.5 text-[11px] font-medium text-text-secondary transition-colors max-w-[140px]',
+                'flex items-center gap-1 rounded-md border border-border-subtle bg-surface-card px-1.5 py-0.5 text-[11px] font-medium text-text-primary transition-colors max-w-[140px]',
                 quietModes ? 'hover:border-border-default' : 'hover:border-brand-200',
                 showEmbeddedSource &&
                   (quietModes ? 'border-border-default text-text-primary' : 'border-brand-500/40 text-brand-500'),
@@ -987,7 +987,7 @@ export function Agent({
                 rows={1}
                 disabled={isThinking}
                 className={cn(
-                  'w-full pr-12 rounded-xl bg-surface-input border border-border-subtle text-sm text-text-primary placeholder:text-text-muted focus:outline-none resize-none',
+                  'w-full pr-12 rounded-xl bg-surface-input border border-border-subtle text-sm text-text-primary placeholder:text-text-tertiary focus:outline-none resize-none',
                   embedded ? 'px-3 py-2' : 'px-4 py-3',
                   quietModes ? 'focus:border-border-default' : 'focus:border-brand-500/50',
                 )}
@@ -1178,7 +1178,10 @@ function MessageBubble({
   if (isSystem) {
     return (
       <div className="text-center">
-        <span className="text-xs text-text-muted px-3 py-1 rounded-full bg-surface-hover inline-block">
+        <span
+          className="agent-system-status text-xs px-3 py-1.5 rounded-full inline-block max-w-full border border-border-default bg-surface-tertiary text-text-primary font-medium"
+          data-testid="agent-system-status"
+        >
           {message.content}
         </span>
       </div>

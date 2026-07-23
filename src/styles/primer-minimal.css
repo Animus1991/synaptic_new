@@ -228,28 +228,48 @@
 }
 
 /* OPT-K74 — ws-pill: no white wash (illegible on minimal-dark); solid tertiary fill + primary ink */
-:is([data-theme="minimal"]) .ws-pill {
+:is([data-theme="minimal"]) .ws-pill,
+:is([data-theme="minimal"]) button.ws-pill {
   background: var(--color-surface-secondary) !important;
   border-color: var(--color-border-default) !important;
   color: var(--color-text-secondary) !important;
 }
 
-:is([data-theme="minimal-dark"]) .ws-pill {
+:is([data-theme="minimal-dark"]) .ws-pill,
+:is([data-theme="minimal-dark"]) button.ws-pill {
   background: var(--color-surface-tertiary) !important;
   border-color: var(--color-border-default) !important;
   color: var(--color-text-primary) !important;
 }
 
-:is([data-theme="minimal"], [data-theme="minimal-dark"]) .ws-pill[data-active="true"] {
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .ws-pill[data-active="true"],
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) button.ws-pill[data-active="true"] {
   background: var(--color-brand-600) !important;
   border-color: var(--color-brand-600) !important;
   color: #ffffff !important;
 }
 
-:is([data-theme="minimal-dark"]) .ws-pill[data-active="true"] {
+:is([data-theme="minimal-dark"]) .ws-pill[data-active="true"],
+:is([data-theme="minimal-dark"]) button.ws-pill[data-active="true"] {
   background: var(--color-text-primary) !important;
   border-color: var(--color-text-primary) !important;
   color: var(--color-surface-primary) !important;
+}
+
+/* OPT-K75 — system status / embedded chrome button ink ≥ AA on dark */
+:is([data-theme="minimal-dark"], [data-theme="blueprint"]) .agent-system-status {
+  background: var(--color-surface-tertiary) !important;
+  border-color: var(--color-border-default) !important;
+  color: var(--color-text-primary) !important;
+}
+
+:is([data-theme="minimal-dark"], [data-theme="blueprint"]) .agent-calm[data-testid="agent-embedded"] [data-testid="agent-embedded-chrome"] button {
+  color: var(--color-text-primary);
+}
+
+:is([data-theme="minimal-dark"], [data-theme="blueprint"]) .agent-calm .agent-composer textarea::placeholder {
+  color: var(--color-text-tertiary);
+  opacity: 1;
 }
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .ux-primary-cta {

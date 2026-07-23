@@ -131,6 +131,12 @@ describe('OPT-K69 engineering clarity contracts', () => {
     expect(primer).toMatch(/OPT-K74/);
     expect(primer).toMatch(/minimal-dark[\s\S]{0,120}\.ws-pill/);
     expect(primer).toMatch(/--color-text-primary/);
+    expect(primer).toMatch(/OPT-K75/);
+    expect(primer).toMatch(/agent-system-status/);
+
+    const indexCss = read('src/index.css');
+    expect(indexCss).toMatch(/OPT-K75/);
+    expect(indexCss).toMatch(/button\.ws-pill/);
 
     const calm = read('src/styles/chatgpt-calm.css');
     expect(calm).toMatch(/OPT-K74/);
@@ -138,5 +144,9 @@ describe('OPT-K69 engineering clarity contracts', () => {
 
     const ctx = read('src/lib/agentWorkspaceContext.ts');
     expect(ctx).toMatch(/compactLine/);
+
+    const agent = read('src/components/Agent.tsx');
+    expect(agent).toMatch(/agent-system-status/);
+    expect(agent).toMatch(/text-text-primary/);
   });
 });
