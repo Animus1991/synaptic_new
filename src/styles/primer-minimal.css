@@ -54,10 +54,10 @@
   --color-border-strong: #afb8c1;
 
   --color-text-primary: #1f2328;
-  /* OPT-K31 — clearer secondary vs tertiary separation */
+  /* OPT-K31 + OPT-K73 — secondary > tertiary > muted, all ≥4.5:1 on white/sec */
   --color-text-secondary: #4d5560;
-  --color-text-tertiary: #6e7781;
-  --color-text-muted: #818b98;
+  --color-text-tertiary: #656d76;
+  --color-text-muted: #6a737d;
 
   /* OPT-K45 — brand-* = CTAs/focus only; accent-cyan = non-CTA status/viz */
   --color-accent-teal: #7aa0a6;
@@ -147,8 +147,8 @@
   --color-text-primary: #f0f6fc;
   --color-text-secondary: #b1bac4;
   --color-text-tertiary: #8b949e;
-  /* OPT-K30 — muted +1 step so 9–10px meta stays readable on #0d1117 */
-  --color-text-muted: #7d8590;
+  /* OPT-K30 + OPT-K73 — muted readable on primary + tertiary surfaces (≥4.5:1) */
+  --color-text-muted: #848d97;
 
   --color-accent-teal: #6a9088;
   --color-accent-cyan: #39d0d8;
@@ -250,29 +250,29 @@
   color: var(--color-surface-primary);
 }
 
-/* OPT-K32 — light chips: +~4% wash tint; label leans toward primary ink */
+/* OPT-K32 + OPT-K52 clarity — light chips: ~16% wash; label leans primary */
 :is([data-theme="minimal"]) .ux-chip-solid-warn {
-  background: color-mix(in srgb, var(--color-accent-amber) 12%, var(--color-surface-secondary));
-  color: color-mix(in srgb, var(--color-text-primary) 55%, var(--color-text-secondary));
-  border: 1px solid color-mix(in srgb, var(--color-accent-amber) 18%, var(--color-border-subtle));
+  background: color-mix(in srgb, var(--color-accent-amber) 16%, var(--color-surface-secondary));
+  color: color-mix(in srgb, var(--color-text-primary) 70%, var(--color-text-secondary));
+  border: 1px solid color-mix(in srgb, var(--color-accent-amber) 22%, var(--color-border-subtle));
 }
 
 :is([data-theme="minimal"]) .ux-chip-solid-danger {
-  background: color-mix(in srgb, var(--color-accent-rose) 12%, var(--color-surface-secondary));
-  color: color-mix(in srgb, var(--color-text-primary) 55%, var(--color-text-secondary));
-  border: 1px solid color-mix(in srgb, var(--color-accent-rose) 18%, var(--color-border-subtle));
+  background: color-mix(in srgb, var(--color-accent-rose) 16%, var(--color-surface-secondary));
+  color: color-mix(in srgb, var(--color-text-primary) 70%, var(--color-text-secondary));
+  border: 1px solid color-mix(in srgb, var(--color-accent-rose) 22%, var(--color-border-subtle));
 }
 
 :is([data-theme="minimal"]) .ux-chip-solid-success {
-  background: color-mix(in srgb, var(--color-accent-emerald) 12%, var(--color-surface-secondary));
-  color: color-mix(in srgb, var(--color-text-primary) 55%, var(--color-text-secondary));
-  border: 1px solid color-mix(in srgb, var(--color-accent-emerald) 18%, var(--color-border-subtle));
+  background: color-mix(in srgb, var(--color-accent-emerald) 16%, var(--color-surface-secondary));
+  color: color-mix(in srgb, var(--color-text-primary) 70%, var(--color-text-secondary));
+  border: 1px solid color-mix(in srgb, var(--color-accent-emerald) 22%, var(--color-border-subtle));
 }
 
 :is([data-theme="minimal"]) .ux-chip-solid-info {
-  background: color-mix(in srgb, var(--color-brand-600) 12%, var(--color-surface-secondary));
-  color: color-mix(in srgb, var(--color-text-primary) 55%, var(--color-text-secondary));
-  border: 1px solid color-mix(in srgb, var(--color-brand-600) 18%, var(--color-border-subtle));
+  background: color-mix(in srgb, var(--color-brand-600) 16%, var(--color-surface-secondary));
+  color: color-mix(in srgb, var(--color-text-primary) 70%, var(--color-text-secondary));
+  border: 1px solid color-mix(in srgb, var(--color-brand-600) 22%, var(--color-border-subtle));
 }
 
 :is([data-theme="minimal-dark"]) .ux-chip-solid-warn {

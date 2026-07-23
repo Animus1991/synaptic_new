@@ -160,8 +160,9 @@
 
 /* ── OPT-K4 — Monochrome icons/CTAs; accent only for state ──────────────── */
 
-/* Decorative brand / cool-accent inks → secondary. */
+/* Decorative brand / cool-accent inks → secondary (OPT-K4 + OPT-K73 brand-300). */
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell :is(
+  .text-brand-300,
   .text-brand-400,
   .text-brand-500,
   .text-brand-600,
@@ -176,7 +177,16 @@
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell :is(
   .hover\:text-brand-600:hover,
   .hover\:text-brand-700:hover,
-  .hover\:text-brand-500:hover
+  .hover\:text-brand-500:hover,
+  .hover\:text-brand-300:hover,
+  .hover\:text-brand-400:hover
+) {
+  color: var(--color-text-primary) !important;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .group:hover :is(
+  .group-hover\:text-brand-300,
+  .group-hover\:text-brand-400
 ) {
   color: var(--color-text-primary) !important;
 }
@@ -996,10 +1006,16 @@
 }
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .teacher-wells :is(button.bg-brand-600, .bg-brand-600) {
-  background: var(--color-text-primary) !important;
-  color: var(--color-surface-primary) !important;
+  /* OPT-K55 — align with K20/K22: light cyan / dark white */
+  background: var(--color-brand-600) !important;
+  color: #ffffff !important;
   border-radius: 0.375rem;
   box-shadow: none;
+}
+
+:is([data-theme="minimal-dark"]) .teacher-wells :is(button.bg-brand-600, .bg-brand-600) {
+  background: var(--color-text-primary) !important;
+  color: var(--color-surface-primary) !important;
 }
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .teacher-wells :is(
@@ -1325,12 +1341,12 @@
   font-weight: 600;
 }
 
-/* One primary action: quiet study-center Continue only — never the one-step Execute */
+/* One primary action: quieter study-center Continue when Execute strip present — OPT-K61 keep readable ink */
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm:has(.dashboard-one-step-strip) [data-testid="dashboard-resume-workspace"].dashboard-continue-hero,
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm:has(.dashboard-one-step-strip) [data-testid="dashboard-hero-study-center"] .dashboard-continue-hero {
   font-weight: 500;
-  border-color: var(--color-border-subtle);
-  color: var(--color-text-secondary);
+  border-color: var(--color-border-default);
+  color: var(--color-text-primary);
   background: transparent;
 }
 
@@ -1345,12 +1361,278 @@
   letter-spacing: 0.01em;
 }
 
-:is([data-theme="minimal"]) .app-shell .dashboard-calm .text-accent-amber {
-  color: var(--color-text-tertiary) !important;
-  font-variant-numeric: tabular-nums;
-}
-
 :is([data-theme="minimal"]) .app-shell .ux-banner-warn-accent,
 :is([data-theme="minimal"]) .app-shell .platform-banner-warn {
   color: var(--color-text-secondary);
 }
+
+/* ── OPT-K52+ clarity residuals (Minimal only) ──────────────────────────── */
+
+/* OPT-K53 — app-shell eyebrow tracking (landing 0.34em untouched) */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell {
+  --ux-tracking-eyebrow: 0.08em;
+}
+
+/* OPT-K61b — XP meta stays readable (≥ secondary), not tertiary grey */
+:is([data-theme="minimal"]) .app-shell .dashboard-calm .text-accent-amber {
+  color: var(--color-text-secondary) !important;
+  font-variant-numeric: tabular-nums;
+}
+
+/* OPT-K63 — progress language always pill-capped */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm :is(
+  .usage-bar,
+  .usage-bar-fill,
+  .dashboard-progress-track,
+  .dashboard-progress-fill,
+  .h-1\.5
+) {
+  border-radius: 9999px !important;
+}
+
+/* OPT-K64 — mastery fill bands (weak / mid / strong) */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm .dashboard-progress-fill--mid {
+  background: color-mix(in srgb, var(--color-text-secondary) 42%, var(--color-border-subtle));
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm .dashboard-progress-fill--strong {
+  background: color-mix(in srgb, var(--color-brand-600) 55%, var(--color-border-subtle));
+}
+
+:is([data-theme="minimal-dark"]) .app-shell .dashboard-calm .dashboard-progress-fill--strong {
+  background: color-mix(in srgb, var(--color-brand-500) 45%, var(--color-text-secondary));
+}
+
+/* OPT-K57 — non-status brand text in calm dashboard chrome → secondary ink */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm a.text-brand-400,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm a.text-brand-300,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm button.text-brand-400,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm .text-brand-400:not(.ux-primary-cta):not(.ux-chip-solid-brand):not(.dashboard-exam-cta) {
+  color: var(--color-text-secondary) !important;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm a.text-brand-400:hover,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm a.text-brand-700:hover {
+  color: var(--color-text-primary) !important;
+}
+
+/* OPT-K68 — product tour: Skip / step meta readable */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) #product-tour-dialog .type-body-sm.text-text-tertiary,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) [data-testid="product-tour-panel"] .text-text-tertiary {
+  color: var(--color-text-secondary);
+}
+
+/* OPT-K66 — coarse pointer CTA sm floor */
+@media (pointer: coarse) {
+  :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .ux-primary-cta[data-size="sm"],
+  :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .ux-secondary-cta[data-size="sm"],
+  :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-continue-hero {
+    min-height: 2.5rem;
+  }
+}
+
+/* ── OPT-K71 — Vista-inspired clarity (principles only; not Aero/glass clone) ─
+   Borrowed: soft window grouping, cool selection wash, titleband separation,
+   whisper elevation, readable scrollbars. Rejected: blur, glossy buttons,
+   orb/glow, thick glass, OS chrome clone. */
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell {
+  --vista-lift: 0 1px 2px color-mix(in srgb, var(--color-text-primary) 5%, transparent);
+  --vista-inset: inset 0 1px 0 color-mix(in srgb, #ffffff 55%, transparent);
+  --vista-select: color-mix(in srgb, var(--color-brand-600) 7%, var(--color-surface-secondary));
+}
+
+:is([data-theme="minimal-dark"]) .app-shell {
+  --vista-lift: 0 1px 2px color-mix(in srgb, #000000 35%, transparent);
+  --vista-inset: inset 0 1px 0 color-mix(in srgb, #ffffff 6%, transparent);
+  --vista-select: color-mix(in srgb, var(--color-brand-500) 10%, var(--color-surface-secondary));
+}
+
+/* Soft titleband — chrome vs content separation */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .ux-page-header,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .ux-page-header--text-first {
+  background: linear-gradient(
+    to bottom,
+    var(--color-surface-primary) 0%,
+    color-mix(in srgb, var(--color-surface-secondary) 55%, var(--color-surface-primary)) 100%
+  );
+  border-bottom: 1px solid color-mix(in srgb, var(--color-border-subtle) 85%, transparent);
+}
+
+/* Soft window grouping on calm cards / hub wells */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm :is(
+  .ux-card,
+  .blueprint-surface,
+  .hub-quiet-surface,
+  [data-testid="dashboard-action-hub"]
+) {
+  box-shadow: var(--vista-inset), var(--vista-lift);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm .hub-section-stack {
+  box-shadow: var(--vista-inset), var(--vista-lift);
+  border-radius: 0.5rem;
+}
+
+/* Cool soft selection (Vista highlight principle → our brand wash) */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .utility-row--interactive:hover,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm .proximity-track > button:hover,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-hub-chip:hover {
+  background: var(--vista-select) !important;
+}
+
+/* Modal / tour: whisper elevation without blur */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .ux-modal-panel,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) [data-testid="product-tour-panel"] {
+  box-shadow:
+    var(--vista-inset),
+    0 8px 24px color-mix(in srgb, var(--color-text-primary) 10%, transparent);
+}
+
+/* Soft, thin scrollbars — clearer chrome than OS default blobs */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell * {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--color-text-muted) 55%, transparent) transparent;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell *::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell *::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--color-text-muted) 45%, transparent);
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell *::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Spaced-rep horizon tiles: keep 3 visible without mid-word crush */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm [data-testid="dash-horizon-today"] .text-\[10px\],
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm [data-testid="dash-horizon-tomorrow"] .text-\[10px\],
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm [data-testid="dash-horizon-3d"] .text-\[10px\] {
+  letter-spacing: 0.04em;
+  line-height: 1.2;
+  white-space: normal;
+}
+
+/* ── OPT-K72 — Windows 8-inspired clarity (principles only; not Metro clone) ─
+   Borrowed: flatter than Vista, solid titleband, clear gutters, solid
+   selection wash. No size/height inflation — harmony only.
+   Rejected: live tiles, charms, Segoe branding, heavy accent nav bars,
+   Start-screen clone, glossy glass, larger type/controls. */
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell {
+  --w8-select: color-mix(in srgb, var(--color-brand-600) 14%, var(--color-surface-secondary));
+}
+
+:is([data-theme="minimal-dark"]) .app-shell {
+  --w8-select: color-mix(in srgb, var(--color-brand-500) 18%, var(--color-surface-secondary));
+}
+
+/* Flatten Vista soft lift on primary dashboard wells — border-first tiles */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm :is(
+  .ux-card,
+  .blueprint-surface,
+  .hub-quiet-surface,
+  [data-testid="dashboard-action-hub"]
+) {
+  box-shadow: none;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm .hub-section-stack {
+  box-shadow: none;
+}
+
+/* Solid titleband — flat wash + hairline (replaces Vista soft gradient) */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .ux-page-header,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .ux-page-header--text-first {
+  background: color-mix(in srgb, var(--color-surface-primary) 92%, var(--color-surface-secondary) 8%);
+  border-bottom: 1px solid color-mix(in srgb, var(--color-border-subtle) 90%, transparent);
+}
+
+/* Flat selection / hover wash — slightly more opaque than Vista soft */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .utility-row--interactive:hover,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm .proximity-track > button:hover,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-hub-chip:hover {
+  background: var(--w8-select) !important;
+}
+
+/* Modal / tour: flatter elevation (no inset gloss) */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .ux-modal-panel,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) [data-testid="product-tour-panel"] {
+  box-shadow: 0 4px 16px color-mix(in srgb, var(--color-text-primary) 8%, transparent);
+}
+
+/* Content gutters — safe-area only (no extra padding beyond existing px-4) */
+@media (max-width: 639px) {
+  :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell [data-testid="dashboard-page"] > div.px-4 {
+    padding-inline: max(1rem, env(safe-area-inset-left, 0px), env(safe-area-inset-right, 0px));
+  }
+}
+
+/* Hub chips — keep K11b transparent hairline; only drop any residual lift */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .hub-quiet-surface .dashboard-hub-chip {
+  box-shadow: none;
+}
+
+/* Brand mark — flat (no glow / soft lift residue) */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .platform-brand-icon {
+  box-shadow: none;
+  filter: none;
+}
+
+/* ── OPT-K73 — Minimal contrast pass (harmony only; no size inflation) ─────
+   Fix AA text failures: muted/tertiary ladder, brand-300 ink, opacity wash. */
+
+/* Drop opacity wash on hero meta (was cutting secondary/tertiary below AA) */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .hub-quiet-surface .ws-eyebrow,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .hub-quiet-surface .ux-page-subtitle {
+  opacity: 1;
+}
+
+/* Placeholders — use tertiary floor (muted token now AA; keep hierarchy) */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell :is(
+  input,
+  textarea
+)::placeholder {
+  color: var(--color-text-tertiary);
+  opacity: 1;
+}
+
+/* Shell / dashboard micro meta — muted is AA after token bump; icons match */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell #platform-sidebar-nav .shell-nav-group-label {
+  color: var(--color-text-tertiary);
+}
+
+/* Mobile inactive nav — tertiary after K73 is ≥4.5:1; keep labels readable */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) #platform-mobile-nav .platform-nav-mobile-item:not(.platform-nav-mobile-active) {
+  color: var(--color-text-secondary);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) #platform-mobile-nav .platform-nav-mobile-item:not(.platform-nav-mobile-active) .type-micro {
+  color: var(--color-text-secondary);
+}
+
+/* Utility row hints/icons — secondary for values-adjacent meta on small type */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .utility-row-icon,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .utility-row-hint {
+  color: var(--color-text-secondary);
+}
+
+/* Quiet agent mode group labels */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) [data-quiet-modes="true"] .agent-mode-group-label {
+  color: var(--color-text-tertiary);
+}
+
+/* Page header subtitle — secondary for body-adjacent support copy */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .ux-page-header .ux-page-subtitle,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .ux-page-header--text-first .ux-page-subtitle {
+  color: var(--color-text-secondary);
+}
+
+

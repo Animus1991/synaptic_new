@@ -1,4 +1,4 @@
-import { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+﻿import { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   BookOpen, CheckSquare, Robot as Bot, SquaresFour as LayoutDashboard, Gear as Settings,
@@ -996,14 +996,14 @@ export function Shell({
                   }}
                   {...(item.kind === 'workspace' ? workspaceEntryPrefetchHandlers() : {})}
                   className={cn(
-                    'platform-nav-mobile-item relative flex flex-col items-center gap-0.5 p-2 rounded-xl transition-all min-w-[52px] max-w-[72px] min-h-[44px]',
+                    'platform-nav-mobile-item relative flex flex-col items-center gap-0.5 p-2 rounded-xl transition-all min-w-[52px] max-w-[80px] min-h-[44px]',
                     active ? 'platform-nav-mobile-active' : 'text-text-tertiary',
                     item.kind === 'workspace' && !active && 'text-brand-600',
                   )}
                   title={item.kind === 'workspace' ? `${label} — ${workspaceHint}` : label}
                 >
                   <Icon className="w-5 h-5 shrink-0" />
-                  <span className="type-micro font-medium truncate w-full text-center">
+                  <span className="type-micro font-medium w-full text-center leading-tight truncate">
                     {label}
                   </span>
                   {/* OPT-C7 — under Minimal, hint stays in title only (less label noise). */}

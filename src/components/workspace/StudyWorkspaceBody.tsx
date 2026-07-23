@@ -50,8 +50,8 @@ export function StudyWorkspaceBody(props: StudyWorkspaceProps) {
           model.agentSplit
             ? 'relative h-full w-full bg-surface-primary flex flex-col'
             : 'fixed inset-0 z-50 bg-surface-primary flex flex-col',
-          model.isMobile && !model.chromeHidden && !model.notebookMode && 'pb-20',
-          model.isMobile && model.notebookMode && !model.chromeHidden && 'pb-2',
+          model.shellNavClearance && !model.chromeHidden && !model.notebookMode && 'pb-20',
+          model.shellNavClearance && model.notebookMode && !model.chromeHidden && 'pb-2',
           /* OPT-R13 — workspace canvas primacy under Minimal */
           isMinimal && 'workspace-canvas',
         )}

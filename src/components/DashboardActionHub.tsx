@@ -135,7 +135,12 @@ export function DashboardActionHub({
   };
 
   const onHero = Boolean(wallpaperDataUrl);
-  const glassCard = onHero ? 'bg-surface-card/82 backdrop-blur-md border-white/10' : undefined;
+  /* OPT-K72 — Minimal: flat overlay (no Aero/blur); other themes keep soft glass */
+  const glassCard = onHero
+    ? hubQuiet
+      ? 'bg-surface-card/90 border-white/10'
+      : 'bg-surface-card/82 backdrop-blur-md border-white/10'
+    : undefined;
   const heroText = onHero ? 'text-white' : undefined;
 
   const renderChip = (action: DashboardHubAction, testIdPrefix: string) => {
@@ -155,9 +160,10 @@ export function DashboardActionHub({
           action.disabled && 'opacity-50 pointer-events-none',
           glassCard,
         )}
+        aria-label={t(action.chipLabelKey)}
       >
-        <Icon className={cn('h-4 w-4', onHero ? 'text-brand-300' : hubQuiet ? 'text-text-tertiary' : 'text-brand-500')} aria-hidden />
-        <span className={cn('truncate text-[10px] font-semibold leading-tight', onHero ? 'text-white' : 'text-text-primary')}>
+        <Icon className={cn('h-4 w-4', onHero ? 'text-white/90' : hubQuiet ? 'text-text-tertiary' : 'text-brand-500')} aria-hidden />
+        <span className={cn('truncate text-[10px] font-semibold leading-tight max-w-full', onHero ? 'text-white' : 'text-text-primary')}>
           {t(action.chipLabelKey)}
         </span>
         {action.badge && (
@@ -199,7 +205,7 @@ export function DashboardActionHub({
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div className="min-w-0" id="dashboard-hero-greeting">
                 {greetingEyebrow && (
-                  <p className="ws-eyebrow mb-1 text-text-secondary opacity-90"><AllCapsLabel>{greetingEyebrow}</AllCapsLabel></p>
+                  <p className="ws-eyebrow mb-1 text-text-secondary"><AllCapsLabel>{greetingEyebrow}</AllCapsLabel></p>
                 )}
                 {greetingTitle && (
                   <h1 className="ws-serif font-semibold tracking-tight text-[length:var(--ux-type-hero)] leading-tight">
@@ -207,7 +213,7 @@ export function DashboardActionHub({
                   </h1>
                 )}
                 {greetingSubtitle && (
-                  <div className="ux-page-subtitle mt-1 text-sm opacity-90">{greetingSubtitle}</div>
+                  <div className="ux-page-subtitle mt-1 text-sm line-clamp-2 sm:line-clamp-none">{greetingSubtitle}</div>
                 )}
               </div>
               {headerActions && (
@@ -269,11 +275,11 @@ export function DashboardActionHub({
                       onClick={onOpenWorkspace}
                       data-testid="dashboard-resume-workspace"
                       className={cn(
-                        'dashboard-continue-hero shrink-0 self-start sm:self-center rounded-xl border px-3 py-2 text-xs font-semibold transition-colors',
+                        'dashboard-continue-hero shrink-0 self-start sm:self-center rounded-md border px-3 py-2 text-xs font-semibold transition-colors min-h-10 inline-flex items-center justify-center',
                         onHero
                           ? 'border-white/20 bg-white/10 text-white hover:bg-white/15'
                           : hubQuiet
-                            ? 'border-border-subtle bg-transparent text-text-primary hover:bg-surface-secondary'
+                            ? 'border-border-default bg-transparent text-text-primary hover:bg-surface-secondary'
                             : 'border-brand-500/35 bg-brand-600/10 text-brand-800 hover:bg-brand-600/15',
                       )}
                     >
@@ -284,10 +290,10 @@ export function DashboardActionHub({
               </BlueprintSurface>
             )}
 
-            {/* I-D03 / J-D04: compact 4-chip row + overflow (same row so menu stacks cleanly) */}
+            {/* OPT-K62 — 2×2 on mobile (no mid-word chip ellipsis); 4-col from sm */}
             <div className="flex items-stretch gap-2 sm:gap-2.5">
               <div
-                className="grid min-w-0 flex-1 grid-cols-4 gap-2 sm:gap-2.5"
+                className="grid min-w-0 flex-1 grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-2.5"
                 data-testid="dashboard-hero-action-grid"
               >
                 {primary.map((action) => renderChip(action, 'dashboard-hero-action-grid'))}

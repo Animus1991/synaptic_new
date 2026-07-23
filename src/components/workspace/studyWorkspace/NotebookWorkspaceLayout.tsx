@@ -19,6 +19,7 @@ import { PdfPageThumbnailStrip } from '../PdfPageThumbnailStrip';
 import type { StudyWorkspaceModel } from './useStudyWorkspace';
 import type { WorkspaceTool } from './types';
 import { useMinimalTheme } from '../../../lib/useMinimalTheme';
+import { isWorkspacePhoneWidth } from '../../../lib/workspaceViewport';
 import { AllCapsLabel } from '../../ui/AllCapsLabel';
 import { useAppStore } from '../../../store/useStore';
 
@@ -30,11 +31,11 @@ type StudioGenState = 'idle' | 'running' | 'done' | 'error';
 
 type MobileTab = 'sources' | 'chat' | 'studio';
 
-/** OPT-N1 — phone tabs only below 768; tablet+desktop get multi-panel (not isMobile&lt;1024). */
+/** OPT-N1 / OPT-K67 — phone tabs only below 768; tablet+desktop get multi-panel. */
 type NotebookViewport = 'phone' | 'tablet' | 'desktop';
 
 function resolveNotebookViewport(width: number): NotebookViewport {
-  if (width < 768) return 'phone';
+  if (isWorkspacePhoneWidth(width)) return 'phone';
   if (width < 1024) return 'tablet';
   return 'desktop';
 }

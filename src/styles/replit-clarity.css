@@ -151,7 +151,8 @@
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .notebook-canvas [data-testid="notebook-source-list"] .type-micro {
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 0.65rem;
+  /* OPT-K54 — mono meta floor ≥11px (was 0.65rem) */
+  font-size: 0.6875rem;
 }
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .workspace-canvas #workspace-main {
@@ -239,7 +240,8 @@
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .library-files-density [data-testid="library-course-card"] p[class*="text-[10px]"],
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .library-files-density [data-testid="library-course-card"] p[class*="text-[11px]"] {
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 0.65rem;
+  /* OPT-K54 */
+  font-size: 0.6875rem;
   letter-spacing: 0.01em;
 }
 
@@ -291,7 +293,8 @@
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .library-file-meta {
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 0.65rem;
+  /* OPT-K54 */
+  font-size: 0.6875rem;
 }
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .command-palette-dense .command-palette-item {
@@ -308,7 +311,8 @@
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .command-palette-dense .command-palette-path {
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 0.625rem;
+  /* OPT-K54 — path meta ≥11px */
+  font-size: 0.6875rem;
   letter-spacing: 0.01em;
 }
 
@@ -462,18 +466,25 @@
   }
 }
 
-/* ── OPT-R17 — Motion / skeleton / focus Minimal polish ─────────────────── */
+/* ── OPT-R17 / OPT-K52 — Motion / skeleton / focus Minimal polish ───────── */
 
-/* Quieter focus rings (still 2px solid for AA); less neon brand wash. */
+/* OPT-K52 — one focus truth with Primer K47 (brand solid 2px / offset 2px). */
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) {
-  --focus-ring-color: color-mix(in srgb, var(--color-brand-600) 70%, var(--color-text-primary) 30%);
+  --focus-ring-offset: 2px;
   --color-focus-ring: var(--focus-ring-color);
-  --focus-ring-offset: 1px;
+}
+
+:is([data-theme="minimal"]) {
+  --focus-ring-color: var(--color-brand-600);
+}
+
+:is([data-theme="minimal-dark"]) {
+  --focus-ring-color: var(--color-brand-500);
 }
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell :is(button, a, [role="button"], input, textarea, select, .ux-focus-ring):focus-visible {
-  outline-color: var(--focus-ring-color);
-  outline-offset: var(--focus-ring-offset);
+  outline: var(--focus-ring-width, 2px) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset, 2px);
 }
 
 /* Flatten shimmer skeletons to border-only placeholders (no brand sweep). */

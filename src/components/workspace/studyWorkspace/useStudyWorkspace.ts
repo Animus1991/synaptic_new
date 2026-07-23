@@ -17,6 +17,7 @@ import {
   type WorkspacePedagogyLens,
 } from '../../../lib/workspacePedagogyLens';
 import { isWorkspaceTourComplete } from '../../../lib/workspaceTour';
+import { isShellMobileNavWidth, isWorkspacePhoneWidth } from '../../../lib/workspaceViewport';
 import { mergeConceptMapGraph } from '../../../lib/conceptMapGraph';
 import { buildMiniDashboardProps } from '../../../lib/workspaceData';
 import { collectConceptBusInsights, countSpacedStepReviewsDue, type ConceptBusMap } from '../../../lib/conceptBusSync';
@@ -259,10 +260,14 @@ export function useStudyWorkspace({
   // Initialize from current viewport so mobile users land directly on the lesson
   // panel instead of a crowded split layout where neither pane is usable.
   const [isMobile, setIsMobile] = useState(() =>
-    typeof window !== 'undefined' ? window.innerWidth < 1024 : false,
+    typeof window !== 'undefined' ? isWorkspacePhoneWidth(window.innerWidth) : false,
+  );
+  /** OPT-K67b — bottom padding while shell mobile nav is visible (< lg / 1024). */
+  const [shellNavClearance, setShellNavClearance] = useState(() =>
+    typeof window !== 'undefined' ? isShellMobileNavWidth(window.innerWidth) : false,
   );
   const [layout, setLayout] = useState<LayoutMode>(() =>
-    typeof window !== 'undefined' && window.innerWidth < 1024 ? 'focus-lesson' : 'split',
+    typeof window !== 'undefined' && isWorkspacePhoneWidth(window.innerWidth) ? 'focus-lesson' : 'split',
   );
   const [currentStep, setCurrentStep] = useState(() => loadWorkspaceStep(progressKey));
   const [quizPassed, setQuizPassed] = useState(false);
@@ -856,13 +861,18 @@ export function useStudyWorkspace({
 
   useEffect(() => {
     const checkMobile = () => {
-      const mobile = window.innerWidth < 1024;
+      const width = window.innerWidth;
+      const mobile = isWorkspacePhoneWidth(width);
+      setShellNavClearance(isShellMobileNavWidth(width));
       setIsMobile((prev) => {
-        // Auto-correct stale split layout when crossing into mobile so the
-        // lesson surface always wins (previous layout left both panes too
-        // cramped to read or interact on phones).
+        // Entering phone: prefer focus-lesson over cramped split.
+        // Leaving phone (tablet+): restore split so desktop/tablet chrome matches.
         if (mobile && !prev) {
           setLayout((current) => (current === 'split' ? 'focus-lesson' : current));
+        } else if (!mobile && prev) {
+          setLayout((current) =>
+            current === 'focus-lesson' || current === 'focus-tool' ? 'split' : current,
+          );
         }
         return mobile;
       });
@@ -2271,6 +2281,7 @@ export function useStudyWorkspace({
     intelReady,
     activeTool,
     isMobile,
+    shellNavClearance,
     layout,
     setLayout,
     currentStep,
