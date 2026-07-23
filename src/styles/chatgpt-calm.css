@@ -63,6 +63,10 @@
   padding-right: 0.25rem;
 }
 
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .agent-calm .agent-composer-tools {
+  gap: 0.15rem;
+}
+
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .agent-calm .agent-composer-shell .agent-composer-send {
   border-radius: calc(var(--composer-radius) - 0.35rem);
 }

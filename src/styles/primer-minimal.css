@@ -272,6 +272,11 @@
   opacity: 1;
 }
 
+/* Composer tools sit beside the field — keep hit target readable on dark */
+:is([data-theme="minimal-dark"], [data-theme="blueprint"]) .agent-calm .agent-composer-tools button {
+  color: var(--color-text-primary);
+}
+
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .ux-primary-cta {
   border-radius: var(--radius-md);
   box-shadow: none;

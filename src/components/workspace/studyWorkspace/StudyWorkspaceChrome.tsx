@@ -248,7 +248,7 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
                         type="button"
                         onClick={() => setIntelTab((tb: MobileIntelTab | null) => (tb === 'weak-areas' ? null : 'weak-areas'))}
                         aria-pressed={intelTab === 'weak-areas'}
-                        className={cn('ws-pill', !intelReady && 'animate-pulse')}
+                        className="ws-pill"
                         data-active={intelTab === 'weak-areas' || undefined}
                         data-hydrating={!intelReady || undefined}
                       >
@@ -258,7 +258,7 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
                         type="button"
                         onClick={() => setIntelTab((tb: MobileIntelTab | null) => (tb === 'concept-bus' ? null : 'concept-bus'))}
                         aria-pressed={intelTab === 'concept-bus'}
-                        className={cn('ws-pill', !intelReady && 'animate-pulse')}
+                        className="ws-pill"
                         data-active={intelTab === 'concept-bus' || undefined}
                         data-hydrating={!intelReady || undefined}
                       >

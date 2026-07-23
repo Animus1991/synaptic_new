@@ -147,6 +147,12 @@ describe('OPT-K69 engineering clarity contracts', () => {
 
     const agent = read('src/components/Agent.tsx');
     expect(agent).toMatch(/agent-system-status/);
+    expect(agent).toMatch(/agent-composer-tools/);
+    expect(agent).not.toMatch(/absolute right-2 bottom-2 flex items-center gap-1/);
     expect(agent).toMatch(/text-text-primary/);
+
+    // Hydrating pills must not use animate-pulse (washes ink on dark)
+    expect(chrome).not.toMatch(/ws-pill['"].*animate-pulse|animate-pulse['"].*ws-pill/);
+    expect(indexCss).toMatch(/study-workspace.*ws-pill|ws-pill[\s\S]{0,80}study-workspace/);
   });
 });
