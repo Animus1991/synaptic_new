@@ -26,9 +26,19 @@ import { ECON_CONCEPT_EDGES } from '../data/conceptGraph';
 import { edgesFromCourses } from '../lib/conceptEdges';
 import { loadJson, saveJson } from '../lib/persistence';
 import { t } from '../lib/i18n';
-import { hydrateLibrary, loadLibrarySync, saveLibrarySync } from '../lib/libraryStorage';
+import {
+  hydrateLibrary,
+  loadLibrarySync,
+  saveLibrarySync,
+  type PersistedLibrary,
+} from '../lib/libraryStorage';
 import { scheduleLibraryRemoteSync } from '../lib/libraryRemoteSync';
-import { mergeLibraries, remoteLibraryToPersisted } from '../lib/librarySync';
+import {
+  countPendingReviewsDue,
+  mergeLibrariesWithConflicts,
+  remoteLibraryToPersisted,
+  type LibrarySyncConflictItem,
+} from '../lib/librarySync';
 import { markWorkspaceContinue } from '../lib/workspacePerf';
 import {
   buildNotebookLmUploadedFile,
@@ -337,6 +347,11 @@ export function useAppStore() {
   const [glossaryEntries, setGlossaryEntries] = useState<GlossaryEntry[]>(
     () => initialGlossary(library.glossaryEntries, mergedSettings, mockGlossaryEntries),
   );
+  /** OPT-L5 — pending Library pull conflict (remote already applied; local snapshot restorable). */
+  const [librarySyncConflict, setLibrarySyncConflict] = useState<{
+    conflicts: LibrarySyncConflictItem[];
+    localSnapshot: PersistedLibrary;
+  } | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [isReprocessing, setIsReprocessing] = useState(false);
   const [showUploadModal, setShowUploadModal] = useState(false);
@@ -1236,7 +1251,7 @@ export function useAppStore() {
     });
   }, [learnerModel, tasks, user.xp, user.settings, betaMastery, firstAttemptKeys, openMistakes, persist, logActivity]);
 
-  const applyRemoteLibrary = useCallback((merged: ReturnType<typeof mergeLibraries>) => {
+  const applyRemoteLibrary = useCallback((merged: PersistedLibrary) => {
     setUploadedFiles(merged.uploadedFiles);
     setGlossaryEntries(merged.glossaryEntries);
     const nextCourses = initialCourses(merged.generatedCourses, user.settings, mockCourses);
@@ -1273,14 +1288,35 @@ export function useAppStore() {
     if (!token) throw new Error('Sign in to pull your library');
     const remote = await fetchRemoteLibrary(token, user.settings);
     const local = loadLibrarySync();
-    const merged = mergeLibraries(local, remoteLibraryToPersisted(remote));
+    const { merged, conflicts, localSnapshot } = mergeLibrariesWithConflicts(
+      local,
+      remoteLibraryToPersisted(remote),
+    );
     applyRemoteLibrary(merged);
+    if (conflicts.length > 0) {
+      setLibrarySyncConflict({ conflicts, localSnapshot });
+      const lang = user.settings.language === 'el' ? 'el' : 'en';
+      showAppToast(t('librarySyncConflictToast', lang));
+    } else {
+      setLibrarySyncConflict(null);
+    }
     const indexPayload = await hydrateLibrary(remoteLibraryToPersisted(remote));
     void ensureServerRagIndex(token, user.settings, indexPayload).catch(() => {
       /* index rebuild is best-effort; RagIndexProgressBanner surfaces failures */
     });
     return merged;
-  }, [user.settings, applyRemoteLibrary]);
+  }, [user.settings, applyRemoteLibrary, showAppToast]);
+
+  const resolveLibrarySyncConflict = useCallback((choice: 'keep-remote' | 'restore-local') => {
+    if (choice === 'restore-local' && librarySyncConflict?.localSnapshot) {
+      applyRemoteLibrary(librarySyncConflict.localSnapshot);
+    }
+    setLibrarySyncConflict(null);
+  }, [librarySyncConflict, applyRemoteLibrary]);
+
+  const dismissLibrarySyncConflict = useCallback(() => {
+    setLibrarySyncConflict(null);
+  }, []);
 
   const applyRemoteSession = useCallback((merged: ReturnType<typeof mergeSessions>) => {
     if (merged.conceptBuses) replaceAllConceptBuses(merged.conceptBuses);
@@ -2068,6 +2104,11 @@ export function useAppStore() {
     setUploadedFiles(result.files);
     setCourses(result.courses);
     setTasks(nextTasks);
+    const nextStats = {
+      ...dashboardStats,
+      reviewsDue: countPendingReviewsDue(nextTasks),
+    };
+    setDashboardStats(nextStats);
     const courseId = removedCourseId;
     if (selectedCourse?.id === courseId) {
       const updated = result.courses.find((c) => c.id === courseId);
@@ -2078,7 +2119,7 @@ export function useAppStore() {
       nextGlossary,
       result.courses.filter((c) => !MOCK_COURSE_IDS.has(c.id)),
     );
-    persist(learnerModel, dashboardStats, nextTasks, user.xp, betaMastery, firstAttemptKeys, openMistakes, activities, user.settings);
+    persist(learnerModel, nextStats, nextTasks, user.xp, betaMastery, firstAttemptKeys, openMistakes, activities, user.settings);
     if (result.courseFullyOrphaned && courseId) {
       clearCourseArtifactsStale(courseId);
     }
@@ -2113,6 +2154,11 @@ export function useAppStore() {
     setUploadedFiles(result.files);
     setGlossaryEntries(result.glossary);
     setTasks(result.tasks);
+    const nextStats = {
+      ...dashboardStats,
+      reviewsDue: countPendingReviewsDue(result.tasks),
+    };
+    setDashboardStats(nextStats);
     clearCourseArtifactsStale(courseId);
     clearQuizSessions();
     persistLibrary(
@@ -2120,7 +2166,7 @@ export function useAppStore() {
       result.glossary,
       result.courses.filter((c) => !MOCK_COURSE_IDS.has(c.id)),
     );
-    persist(learnerModel, dashboardStats, result.tasks, user.xp, betaMastery, firstAttemptKeys, openMistakes, activities, user.settings);
+    persist(learnerModel, nextStats, result.tasks, user.xp, betaMastery, firstAttemptKeys, openMistakes, activities, user.settings);
     if (selectedCourse?.id === courseId) {
       setSelectedCourse(null);
       navigate('library');
@@ -2611,6 +2657,7 @@ export function useAppStore() {
     uploadedFiles, glossaryEntries, isUploading, isReprocessing, simulateUpload, processUpload,
     reprocessCourseMaterial, saveCourseExtractedText, removeUploadedFile, importNotebookLm, importNotebookLmAudioForCourse, transcribeAudioForCourse, importNotebookLmQuizToFsrs, importNotebookLmAudioToFsrs, removeCourse,
     pullLibraryFromServer, pullSessionFromServer, pushSessionToServer, syncAccountOnLogin,
+    librarySyncConflict, resolveLibrarySyncConflict, dismissLibrarySyncConflict,
     queueConceptBusSync, flushConceptBusSync,
     refreshAuthPlan, logStudyMinutes,
     showUploadModal, setShowUploadModal,

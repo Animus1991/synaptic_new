@@ -1119,6 +1119,10 @@ export default function App() {
               onAddNotebookLmToFsrs={store.importNotebookLmQuizToFsrs}
               onOpenNotebookShell={store.openNotebookShell}
               onOpenConcept={openWorkspaceForConcept}
+              syncConflicts={store.librarySyncConflict?.conflicts ?? []}
+              onKeepRemoteLibrary={() => store.resolveLibrarySyncConflict('keep-remote')}
+              onRestoreLocalLibrary={() => store.resolveLibrarySyncConflict('restore-local')}
+              onDismissLibrarySyncConflict={store.dismissLibrarySyncConflict}
             />
           )}
           {store.currentView === 'note-analysis' && (() => {

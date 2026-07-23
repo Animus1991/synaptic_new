@@ -130,6 +130,6 @@ Each OPT: small PR, no feature removal, themes preserved.
 | OPT-L2 | **shipped** — resolve opaque `t1` prereq ids → titles; clearer secondary labels; denser readable meta |
 | OPT-L3 | **shipped** — NotebookLM empty/error/success + ⌘/Ctrl+Enter; Combined study demo-safe hint + loading/error; quality MiniAlert → upload |
 | OPT-L4 | **shipped** — demo sandbox hint on Library (no fake disabled); InfoStack topics/prereqs open workspace |
-| OPT-L5 | **partial** — signed-in sync hint + shell offline queue; dedicated Library conflict UX / full file-cascade audit still open |
-| OPT-L6 | **partial** — e2e topic/prereq smoke; Library-only screenshot matrix + Human Pass still user-owned |
+| OPT-L5 | **shipped** — Library sync conflict panel (keep local / keep server); delete cascade refreshes reviewsDue badge; view prefs theme-safe (no clobber on first paint) |
+| OPT-L6 | **shipped (matrix + smoke)** — `docs/LIBRARY_SCREENSHOT_MATRIX.md` + `npm run capture:library` + e2e smoke; Human Pass checkboxes remain user-owned |
 | Notebook companion | See `NOTEBOOK_WORKSPACE_AUDIT_UPGRADE_PLAN.md` (OPT-N*) |

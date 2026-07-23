@@ -5,14 +5,14 @@ test.describe('Library InfoStack (OPT-L1/L6)', () => {
   test('demo library shows human prerequisite titles (not raw t1 ids)', async ({ page }) => {
     test.setTimeout(60_000);
     await page.goto('/');
-    await page.getByRole('button', { name: /demo|δοκίμασε/i }).click();
+    await page.getByTestId('landing-see-demo').click();
     await expect(page.getByTestId('library-page')).toBeVisible({ timeout: 15_000 });
     await expect(page.getByTestId('library-demo-sandbox-hint')).toBeVisible();
 
     const stacks = page.getByTestId('library-info-stacks');
     await expect(stacks).toBeVisible({ timeout: 15_000 });
 
-    const pills = page.getByTestId('info-stack-pills');
+    const pills = page.getByTestId('info-stack-pills').first();
     await expect(pills).toBeVisible();
     const pillText = await pills.innerText();
     expect(pillText).not.toMatch(/\bt\d+\b/i);

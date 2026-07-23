@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { emphasizedTransition, expandHeight } from '../lib/motion';
 import {
@@ -22,6 +22,14 @@ import { courseDeleteStats } from '../lib/removeCourse';
 import { isDemoCourse, shouldShowDemo } from '../lib/demoMode';
 import { canAutoSyncLibrary } from '../lib/libraryRemoteSync';
 import { selectCourseTaskMetrics } from '../lib/coursePageSelectors';
+import {
+  loadLibraryViewPrefs,
+  saveLibraryViewPrefs,
+  type LibraryFilter,
+  type LibrarySortBy,
+  type LibraryViewMode,
+} from '../lib/libraryViewPrefs';
+import type { LibrarySyncConflictItem } from '../lib/librarySync';
 import { CourseIcon } from './ui/CourseIcon';
 import { AllCapsLabel } from './ui/AllCapsLabel';
 import { UiIcon } from './ui/UiIcon';
@@ -36,6 +44,7 @@ import { t } from '../lib/i18n';
 import { RagIndexProgressBanner } from './RagIndexProgressBanner';
 import { CrossLibrarySynthesisPanel } from './CrossLibrarySynthesisPanel';
 import { NotebookLmImportPanel } from './NotebookLmImportPanel';
+import { LibrarySyncConflictPanel } from './LibrarySyncConflictPanel';
 import { showCrossLibrarySynthesis } from '../lib/platformFocus';
 import type { NotebookLmImportResult } from '../lib/notebooklmImport';
 import { openNotebookLm, notebookLmSourceLabel } from '../lib/notebooklmBridge';
@@ -52,32 +61,7 @@ import { OverflowChipRow } from './ui/OverflowChipRow';
 import { useMinimalTheme } from '../lib/useMinimalTheme';
 
 type LibraryTab = 'courses' | 'files';
-type ViewMode = 'grid' | 'list';
-type LibraryFilter = 'all' | 'in-progress' | 'generating' | 'completed' | 'attention';
-
-const LIBRARY_PREFS_KEY = 'synapse:library-view-prefs';
-
-function defaultLibraryViewMode(): ViewMode {
-  if (typeof document === 'undefined') return 'grid';
-  const theme = document.documentElement.getAttribute('data-theme');
-  return theme === 'minimal' || theme === 'minimal-dark' ? 'list' : 'grid';
-}
-
-function loadLibraryPrefs(): { filter: LibraryFilter; viewMode: ViewMode; sortBy: 'recent' | 'progress' | 'quality' | 'title' } {
-  const fallbackView = defaultLibraryViewMode();
-  try {
-    const raw = localStorage.getItem(LIBRARY_PREFS_KEY);
-    if (!raw) return { filter: 'all', viewMode: fallbackView, sortBy: 'recent' };
-    const parsed = JSON.parse(raw) as Partial<{ filter: LibraryFilter; viewMode: ViewMode; sortBy: 'recent' | 'progress' | 'quality' | 'title' }>;
-    return {
-      filter: parsed.filter ?? 'all',
-      viewMode: parsed.viewMode ?? fallbackView,
-      sortBy: parsed.sortBy ?? 'recent',
-    };
-  } catch {
-    return { filter: 'all', viewMode: fallbackView, sortBy: 'recent' };
-  }
-}
+type ViewMode = LibraryViewMode;
 
 function courseStatusKind(course: Course): CourseStatusKind {
   if (course.status === 'generating') return 'generating';
@@ -106,6 +90,11 @@ interface LibraryProps {
   onAddNotebookLmToFsrs?: (result: NotebookLmImportResult) => void;
   onOpenNotebookShell?: (courseId: string) => void;
   onOpenConcept?: (concept: string) => void;
+  /** OPT-L5 — signed-in pull conflict (remote already applied). */
+  syncConflicts?: LibrarySyncConflictItem[];
+  onKeepRemoteLibrary?: () => void;
+  onRestoreLocalLibrary?: () => void;
+  onDismissLibrarySyncConflict?: () => void;
 }
 
 const fileTypeIcons: Record<string, typeof FileText> = {
@@ -138,6 +127,10 @@ export function Library({
   onAddNotebookLmToFsrs,
   onOpenNotebookShell,
   onOpenConcept,
+  syncConflicts = [],
+  onKeepRemoteLibrary,
+  onRestoreLocalLibrary,
+  onDismissLibrarySyncConflict,
 }: LibraryProps) {
   const userLanguage = userSettings?.language === 'el' ? 'el' : 'en';
   const warmSandPage = useWarmSandPageScope();
@@ -147,11 +140,13 @@ export function Library({
     ? courses.find((c) => c.id === postUploadCourseId) ?? null
     : null;
   const [tab, setTab] = useState<LibraryTab>('courses');
-  const initialPrefs = useMemo(() => loadLibraryPrefs(), []);
+  const initialPrefs = useMemo(() => loadLibraryViewPrefs(), []);
   const [viewMode, setViewMode] = useState<ViewMode>(initialPrefs.viewMode);
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState<LibraryFilter>(initialPrefs.filter);
-  const [sortBy, setSortBy] = useState<'recent' | 'progress' | 'quality' | 'title'>(initialPrefs.sortBy);
+  const [sortBy, setSortBy] = useState<LibrarySortBy>(initialPrefs.sortBy);
+  /** Skip first paint so theme-default viewMode does not clobber unset prefs (OPT-L5). */
+  const prefsReadyRef = useRef(false);
   const [entryHintDismissed, setEntryHintDismissed] = useState(() => {
     if (typeof window === 'undefined') return false;
     try {
@@ -162,11 +157,11 @@ export function Library({
   });
 
   useEffect(() => {
-    try {
-      localStorage.setItem(LIBRARY_PREFS_KEY, JSON.stringify({ filter, viewMode, sortBy }));
-    } catch {
-      /* ignore */
+    if (!prefsReadyRef.current) {
+      prefsReadyRef.current = true;
+      return;
     }
+    saveLibraryViewPrefs({ filter, viewMode, sortBy });
   }, [filter, viewMode, sortBy]);
 
   const dismissEntryHint = () => {
@@ -340,6 +335,15 @@ export function Library({
             {t('librarySyncSignedInHint', userLanguage)}
           </p>
         )}
+        {syncConflicts.length > 0 && onKeepRemoteLibrary && onRestoreLocalLibrary && (
+          <LibrarySyncConflictPanel
+            conflicts={syncConflicts}
+            language={userLanguage}
+            onKeepRemote={onKeepRemoteLibrary}
+            onRestoreLocal={onRestoreLocalLibrary}
+            onDismiss={onDismissLibrarySyncConflict}
+          />
+        )}
         {postUploadCourse && onOpenWorkspace && (
           <PostUploadBanner
             courseTitle={postUploadCourse.title}
@@ -443,6 +447,7 @@ export function Library({
                   type="button"
                   onClick={() => setFilter(f)}
                   aria-pressed={active}
+                  data-testid={`library-filter-${f}`}
                   className={cn(
                     'platform-pill px-3 py-1.5 rounded-md text-xs transition-colors border',
                     active ? 'platform-pill-active' : '',
@@ -458,6 +463,7 @@ export function Library({
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
               aria-label={t('libSortLabel', userLanguage)}
+              data-testid="library-sort"
               className="h-8 rounded-md border border-border-subtle bg-surface-input px-2 text-xs text-text-primary focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500/40"
             >
               <option value="recent">{t('libSortRecent', userLanguage)}</option>
