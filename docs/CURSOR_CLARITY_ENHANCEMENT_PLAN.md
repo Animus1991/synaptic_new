@@ -94,6 +94,7 @@ CSS: `src/styles/cursor-clarity.css` (imported after `replit-clarity.css`).
 | **OPT-K69** | Engineering clarity contracts (visual Human Pass not self-signed) | **shipped** |
 | **OPT-K71** | Vista-inspired clarity micro (grouping/selection/titleband/scroll) | **shipped** |
 | **OPT-K72** | Windows 8-inspired clarity micro (flat/gutter/select — no size inflation) | **shipped** |
+| **OPT-K73** | Minimal contrast pass (text AA ≥4.5:1; brand-300 remap) | **shipped** |
 
 **Default gate:** Minimal / Minimal Dark only. Blueprint untouched.  
 **Width rule:** Compact `w-14` + `lg:ml-14` and Expanded `w-56` + `lg:ml-56` — main never underlays rail.
@@ -107,7 +108,7 @@ CSS: `src/styles/cursor-clarity.css` (imported after `replit-clarity.css`).
 | Radius tokens | Αμετάβλητα: sm 4 / md 6 / panel 8 / pill 6 |
 | Απόκλιση | CTA → `radius-md`· `.rounded-xl` → panel· chips → md/pill· nested stack ακόμα 0.25rem (by design) |
 | Τυπογραφία | Meta ≥10px· body hints `text-xs`· SectionLabel `10→11 sm`· modal `text-base` semibold |
-| Αντίθεση | Dark muted `#7d8590`· light secondary `#4d5560` / tertiary `#6e7781`· chips +track nudges |
+| Αντίθεση | Dark muted `#848d97`· light tertiary `#656d76` / muted `#6a737d` (≥4.5:1)· brand-300→secondary |
 | CTA | Αμετάβλητο (light cyan / dark white) — καλό |
 | Responsive | Stats 1/2/5· course `p-3`· `pb-24`· pair gap 1.15rem |
 
@@ -129,7 +130,7 @@ CSS: `src/styles/cursor-clarity.css` (imported after `replit-clarity.css`).
 
 ## Completeness
 
-**OPT-K1–K72 shipped** (K70 visual Human Pass — not self-signed; K69 = engineering contracts only). Compact default + expand kept; main offset `ml-14` / `ml-56`. Human Pass? **M20 / C8 / K70** still open (engineering must not self-sign).
+**OPT-K1–K73 shipped** (K70 visual Human Pass — not self-signed; K69 = engineering contracts only). Compact default + expand kept; main offset `ml-14` / `ml-56`. Human Pass? **M20 / C8 / K70** still open (engineering must not self-sign).
 
 ### OPT-K48 / OPT-K70 smoke matrix (manual — do not self-sign)
 
@@ -143,6 +144,7 @@ CSS: `src/styles/cursor-clarity.css` (imported after `replit-clarity.css`).
 | Mastery fill bands | ☐ | ☐ | ☐ | ☐ | ☐ |
 | Vista soft grouping / titleband | ☐ | ☐ | ☐ | ☐ | ☐ |
 | Win8 flat titleband / tile rhythm | ☐ | ☐ | ☐ | ☐ | ☐ |
+| Contrast muted/tertiary / brand-300 | ☐ | ☐ | ☐ | ☐ | ☐ |
 | Modal header + ConfirmDialog | ☐ | ☐ | ☐ | ☐ | ☐ |
 | Product tour Skip/Next | ☐ | ☐ | ☐ | ☐ | ☐ |
 | PrimaryCTA / SecondaryCTA / Teacher | ☐ | ☐ | ☐ | ☐ | ☐ |

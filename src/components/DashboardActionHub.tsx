@@ -205,7 +205,7 @@ export function DashboardActionHub({
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div className="min-w-0" id="dashboard-hero-greeting">
                 {greetingEyebrow && (
-                  <p className="ws-eyebrow mb-1 text-text-secondary opacity-90"><AllCapsLabel>{greetingEyebrow}</AllCapsLabel></p>
+                  <p className="ws-eyebrow mb-1 text-text-secondary"><AllCapsLabel>{greetingEyebrow}</AllCapsLabel></p>
                 )}
                 {greetingTitle && (
                   <h1 className="ws-serif font-semibold tracking-tight text-[length:var(--ux-type-hero)] leading-tight">
@@ -213,7 +213,7 @@ export function DashboardActionHub({
                   </h1>
                 )}
                 {greetingSubtitle && (
-                  <div className="ux-page-subtitle mt-1 text-sm opacity-90 line-clamp-2 sm:line-clamp-none">{greetingSubtitle}</div>
+                  <div className="ux-page-subtitle mt-1 text-sm line-clamp-2 sm:line-clamp-none">{greetingSubtitle}</div>
                 )}
               </div>
               {headerActions && (

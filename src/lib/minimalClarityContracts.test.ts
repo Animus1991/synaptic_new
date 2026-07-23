@@ -77,4 +77,40 @@ describe('OPT-K69 engineering clarity contracts', () => {
     // Flat titleband (solid / color-mix), not Vista soft gradient under K72
     expect(k72).toMatch(/ux-page-header[\s\S]{0,280}background:\s*color-mix/);
   });
+
+  it('K73 — Minimal text tokens meet AA contrast (≥4.5:1) on primary surfaces', () => {
+    const primer = read('src/styles/primer-minimal.css');
+    expect(primer).toMatch(/OPT-K73/);
+    expect(primer).toMatch(/--color-text-tertiary:\s*#656d76/);
+    expect(primer).toMatch(/--color-text-muted:\s*#6a737d/);
+    expect(primer).toMatch(/--color-text-muted:\s*#848d97/);
+
+    const clarity = read('src/styles/cursor-clarity.css');
+    expect(clarity).toMatch(/OPT-K73/);
+    expect(clarity).toMatch(/\.text-brand-300/);
+
+    const hex = (h: string) => {
+      const v = h.replace('#', '');
+      return [0, 2, 4].map((i) => parseInt(v.slice(i, i + 2), 16) / 255);
+    };
+    const lin = (c: number) => (c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4);
+    const lum = (h: string) => {
+      const [r, g, b] = hex(h);
+      return 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b);
+    };
+    const contrast = (a: string, b: string) => {
+      const L1 = lum(a);
+      const L2 = lum(b);
+      const hi = Math.max(L1, L2);
+      const lo = Math.min(L1, L2);
+      return (hi + 0.05) / (lo + 0.05);
+    };
+
+    expect(contrast('#656d76', '#ffffff')).toBeGreaterThanOrEqual(4.5);
+    expect(contrast('#6a737d', '#ffffff')).toBeGreaterThanOrEqual(4.5);
+    expect(contrast('#6a737d', '#f6f8fa')).toBeGreaterThanOrEqual(4.5);
+    expect(contrast('#848d97', '#0d1117')).toBeGreaterThanOrEqual(4.5);
+    expect(contrast('#848d97', '#161b22')).toBeGreaterThanOrEqual(4.5);
+    expect(contrast('#848d97', '#21262d')).toBeGreaterThanOrEqual(4.5);
+  });
 });

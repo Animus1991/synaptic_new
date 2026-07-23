@@ -223,7 +223,7 @@
 }
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .ux-page-header .ux-page-subtitle {
-  color: var(--color-text-tertiary, #656d76);
+  color: var(--color-text-secondary, #4d5560);
 }
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .ux-page-header span.grid {
