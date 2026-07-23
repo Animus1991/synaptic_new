@@ -392,10 +392,11 @@ Constraints for all OPT-R*: no typography/button/modal scale-up; no functional r
 | OPT-K66 | Coarse pointer floors | P2 | **shipped** | Nav/composer/Continue ≥40–44px |
 | OPT-K67 | Workspace phone &lt;768 | P2 | **shipped** | `isWorkspacePhoneWidth`; tablet gets desktop chrome; aligns OPT-N1 |
 | OPT-K68 | Tour contrast | P2 | **shipped** | Skip/step secondary; close hit 40px |
-| OPT-K69 | Engineering clarity contracts | P2 | **shipped** | `minimalClarityContracts.test.ts` — K52/K56/K62/K65/K67/K68/K71/K72 gates; visual Human Pass remains user-owned |
+| OPT-K69 | Engineering clarity contracts | P2 | **shipped** | `minimalClarityContracts.test.ts` — K52/K56/K62/K65/K67/K68/K71/K72/K73/K74 gates; visual Human Pass remains user-owned |
 | OPT-K71 | Vista clarity micro | P2 | **shipped** | Soft grouping/selection/titleband/scrollbars — no Aero blur/glass clone |
 | OPT-K72 | Windows 8 clarity micro | P2 | **shipped** | Flatter than Vista; solid titleband; safe-area gutters; flat select — no Metro clone; no control/type size inflation |
 | OPT-K73 | Minimal contrast pass | P2 | **shipped** | Light tertiary/muted AA ladder; dark muted on tert surfaces; brand-300→secondary; drop hero opacity wash |
+| OPT-K74 | Mobile notebook clarity | P1 | **shipped** | Compact step `n/m`; context `tool·step` chip; thread-local scroll + badge padding; dark `ws-pill` AA; phone overflow menu |
 
 ### Primer-inspired minimal (OPT-M) — zero feature removal
 

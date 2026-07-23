@@ -170,7 +170,7 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
                             onClick={() => { setStudyRoomOpen((v) => !v); setMobileMenuOpen(false); }}
                             className="w-full text-left px-3 py-2 hover:bg-surface-hover text-text-secondary"
                           >
-                            {lang === 'el' ? 'Study room' : 'Study room'}
+                            {t('studyRoomAria')}
                           </button>
                           {onToggleTheme && (
                             <button
@@ -308,7 +308,7 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
                     type="button"
                     onClick={() => setNotebookMenuOpen((v) => !v)}
                     aria-expanded={notebookMenuOpen}
-                    aria-label={lang === 'el' ? 'Περισσότερα εργαλεία' : 'More tools'}
+                    aria-label={t('wsMoreTools')}
                     data-testid="notebook-chrome-menu"
                     className="p-1.5 rounded-lg hover:bg-surface-hover text-text-secondary hover:text-text-primary transition-colors"
                   >
@@ -318,9 +318,9 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
                     <div className="absolute right-0 top-full mt-1 z-30 w-52 rounded-xl border border-border-subtle bg-surface-card shadow-lg py-1 text-xs">
                       <button type="button" onClick={() => { setShowPalette(true); setNotebookMenuOpen(false); }} className="w-full text-left px-3 py-2 hover:bg-surface-hover text-text-secondary">{t('wsCommandPalette')}</button>
                       <button type="button" onClick={() => { setShowNotes((v) => !v); setNotebookMenuOpen(false); }} className="w-full text-left px-3 py-2 hover:bg-surface-hover text-text-secondary">{t('paletteSessionNotes')}</button>
-                      <button type="button" onClick={() => { setStudyRoomOpen((v) => !v); setNotebookMenuOpen(false); }} className="w-full text-left px-3 py-2 hover:bg-surface-hover text-text-secondary">{lang === 'el' ? 'Study room' : 'Study room'}</button>
-                      <button type="button" onClick={() => { setIntelSheetOpen(true); setNotebookMenuOpen(false); }} className="w-full text-left px-3 py-2 hover:bg-surface-hover text-text-secondary">{lang === 'el' ? 'Αδύναμα σημεία & έννοιες' : 'Weak areas & concepts'}</button>
-                      <button type="button" onClick={() => { setNotebookMode(false); setNotebookMenuOpen(false); }} className="w-full text-left px-3 py-2 hover:bg-surface-hover text-text-secondary">{lang === 'el' ? 'Κλασική προβολή' : 'Classic view'}</button>
+                      <button type="button" onClick={() => { setStudyRoomOpen((v) => !v); setNotebookMenuOpen(false); }} className="w-full text-left px-3 py-2 hover:bg-surface-hover text-text-secondary">{t('studyRoomAria')}</button>
+                      <button type="button" onClick={() => { setIntelSheetOpen(true); setNotebookMenuOpen(false); }} className="w-full text-left px-3 py-2 hover:bg-surface-hover text-text-secondary">{t('wsWeakAreasConcepts')}</button>
+                      <button type="button" onClick={() => { setNotebookMode(false); setNotebookMenuOpen(false); }} className="w-full text-left px-3 py-2 hover:bg-surface-hover text-text-secondary">{t('wsClassicView')}</button>
                       {onToggleTheme && (
                         <button type="button" onClick={() => { onToggleTheme(); setNotebookMenuOpen(false); }} className="w-full text-left px-3 py-2 hover:bg-surface-hover text-text-secondary">{t('theme')}</button>
                       )}
@@ -416,7 +416,7 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
                       className={cn('ws-chrome-btn p-1.5 shrink-0', notebookMode && 'ws-chrome-btn-active')}
                       aria-pressed={notebookMode}
                       data-testid="workspace-notebook-toggle"
-                      title={notebookMode ? (lang === 'el' ? 'Κλασική προβολή' : 'Classic view') : (lang === 'el' ? 'Προβολή NotebookLM' : 'NotebookLM view')}
+                      title={notebookMode ? t('wsClassicView') : t('wsNotebookView')}
                     >
                       <LayoutGrid className="w-4 h-4" />
                     </button>
@@ -461,8 +461,8 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
                           <button type="button" onClick={() => { setShowPalette(true); setClassicMenuOpen(false); }} className="w-full text-left px-3 py-2 hover:bg-surface-hover text-text-secondary" data-testid="classic-menu-palette">{t('wsCommandPalette')}</button>
                           <button type="button" onClick={() => { enterSplitLesson(); setClassicMenuOpen(false); }} className="w-full text-left px-3 py-2 hover:bg-surface-hover text-text-secondary">{t('wsSplitLesson')}</button>
                           <button type="button" onClick={() => { setShowNotes((v) => !v); setClassicMenuOpen(false); }} className="w-full text-left px-3 py-2 hover:bg-surface-hover text-text-secondary">{t('paletteSessionNotes')}</button>
-                          <button type="button" onClick={() => { setStudyRoomOpen((v) => !v); setClassicMenuOpen(false); }} className="w-full text-left px-3 py-2 hover:bg-surface-hover text-text-secondary">{lang === 'el' ? 'Study room' : 'Study room'}</button>
-                          <button type="button" onClick={() => { setNotebookMode(true); setClassicMenuOpen(false); }} className="w-full text-left px-3 py-2 hover:bg-surface-hover text-text-secondary" data-testid="classic-menu-notebook">{lang === 'el' ? 'Προβολή NotebookLM' : 'NotebookLM view'}</button>
+                          <button type="button" onClick={() => { setStudyRoomOpen((v) => !v); setClassicMenuOpen(false); }} className="w-full text-left px-3 py-2 hover:bg-surface-hover text-text-secondary">{t('studyRoomAria')}</button>
+                          <button type="button" onClick={() => { setNotebookMode(true); setClassicMenuOpen(false); }} className="w-full text-left px-3 py-2 hover:bg-surface-hover text-text-secondary" data-testid="classic-menu-notebook">{t('wsNotebookView')}</button>
                           <button type="button" onClick={() => { setIntelSheetOpen(true); setClassicMenuOpen(false); }} className="w-full text-left px-3 py-2 hover:bg-surface-hover text-text-secondary">{t('chromeMoreStatus')}</button>
                           {onToggleTheme && (
                             <button type="button" onClick={() => { onToggleTheme(); setClassicMenuOpen(false); }} className="w-full text-left px-3 py-2 hover:bg-surface-hover text-text-secondary">{t('theme')}</button>
