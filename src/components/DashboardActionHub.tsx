@@ -155,9 +155,10 @@ export function DashboardActionHub({
           action.disabled && 'opacity-50 pointer-events-none',
           glassCard,
         )}
+        aria-label={t(action.chipLabelKey)}
       >
         <Icon className={cn('h-4 w-4', onHero ? 'text-brand-300' : hubQuiet ? 'text-text-tertiary' : 'text-brand-500')} aria-hidden />
-        <span className={cn('truncate text-[10px] font-semibold leading-tight', onHero ? 'text-white' : 'text-text-primary')}>
+        <span className={cn('truncate text-[10px] font-semibold leading-tight max-w-full', onHero ? 'text-white' : 'text-text-primary')}>
           {t(action.chipLabelKey)}
         </span>
         {action.badge && (
@@ -207,7 +208,7 @@ export function DashboardActionHub({
                   </h1>
                 )}
                 {greetingSubtitle && (
-                  <div className="ux-page-subtitle mt-1 text-sm opacity-90">{greetingSubtitle}</div>
+                  <div className="ux-page-subtitle mt-1 text-sm opacity-90 line-clamp-2 sm:line-clamp-none">{greetingSubtitle}</div>
                 )}
               </div>
               {headerActions && (
@@ -269,11 +270,11 @@ export function DashboardActionHub({
                       onClick={onOpenWorkspace}
                       data-testid="dashboard-resume-workspace"
                       className={cn(
-                        'dashboard-continue-hero shrink-0 self-start sm:self-center rounded-xl border px-3 py-2 text-xs font-semibold transition-colors',
+                        'dashboard-continue-hero shrink-0 self-start sm:self-center rounded-md border px-3 py-2 text-xs font-semibold transition-colors min-h-10 inline-flex items-center justify-center',
                         onHero
                           ? 'border-white/20 bg-white/10 text-white hover:bg-white/15'
                           : hubQuiet
-                            ? 'border-border-subtle bg-transparent text-text-primary hover:bg-surface-secondary'
+                            ? 'border-border-default bg-transparent text-text-primary hover:bg-surface-secondary'
                             : 'border-brand-500/35 bg-brand-600/10 text-brand-800 hover:bg-brand-600/15',
                       )}
                     >
@@ -284,10 +285,10 @@ export function DashboardActionHub({
               </BlueprintSurface>
             )}
 
-            {/* I-D03 / J-D04: compact 4-chip row + overflow (same row so menu stacks cleanly) */}
+            {/* OPT-K62 — 2×2 on mobile (no mid-word chip ellipsis); 4-col from sm */}
             <div className="flex items-stretch gap-2 sm:gap-2.5">
               <div
-                className="grid min-w-0 flex-1 grid-cols-4 gap-2 sm:gap-2.5"
+                className="grid min-w-0 flex-1 grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-2.5"
                 data-testid="dashboard-hero-action-grid"
               >
                 {primary.map((action) => renderChip(action, 'dashboard-hero-action-grid'))}

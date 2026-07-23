@@ -375,6 +375,22 @@ Constraints for all OPT-R*: no typography/button/modal scale-up; no functional r
 | OPT-K23 | Cyan Start session (light) | P2 | **shipped** | Shell `shell-start-session` uses primary CTA cyan on Minimal light (white on dark); status tokens/saturate nudged again |
 | OPT-K24 | Soft priority chips | P2 | **shipped** | Soft pastel warn/danger chips + tinted labels (not black-on-mustard); cooler cyan-harmonized accent tokens; quieter XP amber under Dashboard |
 | OPT-K25 | Ultra-soft light accents | P2 | **shipped** | Light Minimal: dusty pastel accents/mastery/palette; status text→secondary ink; softer chips; cyan only on CTAs; white/black/gray typography |
+| OPT-K51 | Micro type harmony | P2 | **shipped** | Page titles lead section text; shell micro/caption floors |
+| OPT-K52 | Unify Minimal focus ring | P2 | **shipped** | Replit R17 → Primer K47 `2px` brand / `2px` offset |
+| OPT-K53 | App-shell eyebrow tracking | P2 | **shipped** | `--ux-tracking-eyebrow: 0.08em` under Minimal; landing untouched |
+| OPT-K54 | Mono meta ≥11px | P2 | **shipped** | Library / ⌘K / notebook mono floors `0.6875rem` |
+| OPT-K55 | Teacher CTA ink | P2 | **shipped** | Light cyan / dark white — matches shell CTAs |
+| OPT-K56 | Composer border-first | P2 | **shipped** | Drop composer + quiet-nav backdrop blur |
+| OPT-K57 | Residual brand chrome | P2 | **shipped** | Dashboard non-CTA `text-brand-400` → secondary |
+| OPT-K58 | Docs sync K51–K70 | P2 | **shipped** | Plan + GAP_AUDIT rows |
+| OPT-K60 | Mobile nav labels | P2 | **shipped** | `max-w-[80px]`; no truncate; 10px letter-tight |
+| OPT-K61 | Continue + XP contrast | P2 | **shipped** | Continue primary ink; XP secondary |
+| OPT-K62 | Hub grid responsive | P2 | **shipped** | 2×2 mobile / 4-col `sm+` |
+| OPT-K63 | Progress pill caps | P2 | **shipped** | usage/dashboard progress `9999px` |
+| OPT-K64 | Mastery fill bands | P2 | **shipped** | Exam bar weak/mid/strong |
+| OPT-K65 | Exam panels gated | P2 | **shipped** | Calendar if exam context; post-exam only after date |
+| OPT-K66 | Coarse pointer floors | P2 | **shipped** | Nav/composer/Continue ≥40–44px |
+| OPT-K68 | Tour contrast | P2 | **shipped** | Skip/step secondary; close hit 40px |
 
 ### Primer-inspired minimal (OPT-M) — zero feature removal
 

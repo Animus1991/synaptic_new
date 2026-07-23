@@ -74,6 +74,22 @@ CSS: `src/styles/cursor-clarity.css` (imported after `replit-clarity.css`).
 | **OPT-K48** | Smoke checklist (Human Pass M20/C8 — not self-signed) | **shipped** |
 | **OPT-K49** | Residual badges: status chips ≥10px + md/pill radius | **shipped** |
 | **OPT-K50** | App meta `text-[8/9px]` → `10px` (workspace + shell; reprocess excepted; K37 complete) | **shipped** |
+| **OPT-K51** | Micro type harmony — page titles lead section text | **shipped** |
+| **OPT-K52** | Unify Minimal focus ring with Primer K47 (2px brand / offset 2px) | **shipped** |
+| **OPT-K53** | App-shell eyebrow tracking `0.08em` (landing untouched) | **shipped** |
+| **OPT-K54** | Mono meta floor `0.6875rem` (Library / ⌘K / notebook) | **shipped** |
+| **OPT-K55** | Teacher wells CTA = light cyan / dark white (K20/K22) | **shipped** |
+| **OPT-K56** | Composer + quiet nav: border-first, no backdrop blur | **shipped** |
+| **OPT-K57** | Residual dashboard brand-400 chrome → secondary ink | **shipped** |
+| **OPT-K58** | Docs sync K51–K70 in plan + GAP_AUDIT | **shipped** |
+| **OPT-K60** | Mobile nav labels without `Dashboa…` ellipsis | **shipped** |
+| **OPT-K61** | Continue outline readable; XP meta ≥ secondary | **shipped** |
+| **OPT-K62** | Hub action grid 2×2 mobile / 4-col sm+ | **shipped** |
+| **OPT-K63** | Progress tracks/fills always pill-capped | **shipped** |
+| **OPT-K64** | Exam mastery fill: weak / mid / strong bands | **shipped** |
+| **OPT-K65** | Gate exam calendar + post-exam panel by meaning | **shipped** |
+| **OPT-K66** | Coarse-pointer hit floors for nav/composer/Continue | **shipped** |
+| **OPT-K68** | Product tour Skip/step contrast + 44px close | **shipped** |
 
 **Default gate:** Minimal / Minimal Dark only. Blueprint untouched.  
 **Width rule:** Compact `w-14` + `lg:ml-14` and Expanded `w-56` + `lg:ml-56` — main never underlays rail.
@@ -108,15 +124,22 @@ CSS: `src/styles/cursor-clarity.css` (imported after `replit-clarity.css`).
 
 ## Completeness
 
-**OPT-K1–K50 shipped.** Compact default + expand kept; main offset `ml-14` / `ml-56`. Human Pass? **M20 / C8** still open (engineering must not self-sign). Capture dumps refreshed under `artifacts/primer-minimal/` + `artifacts/chatgpt-calm/`.
+**OPT-K1–K68 shipped** (K59/K67/K69–K70 = human pass / tablet soft-boundary deferred). Compact default + expand kept; main offset `ml-14` / `ml-56`. Human Pass? **M20 / C8 / K69** still open (engineering must not self-sign). Capture dumps refreshed under `artifacts/primer-minimal/` + `artifacts/chatgpt-calm/`.
 
-### OPT-K48 smoke matrix (manual — do not self-sign)
+### OPT-K48 / OPT-K69 smoke matrix (manual — do not self-sign)
 
 | Surface | Light Minimal | Dark Minimal | Mobile | Tablet | Desktop |
 |---------|---------------|--------------|--------|--------|---------|
 | Dashboard (canvas + stacked) | ☐ | ☐ | ☐ | ☐ | ☐ |
+| Mobile nav labels (no ellipsis) | ☐ | ☐ | ☐ | ☐ | ☐ |
+| Hub 2×2 / Continue contrast | ☐ | ☐ | ☐ | ☐ | ☐ |
+| Exam calendar gated / post-exam | ☐ | ☐ | ☐ | ☐ | ☐ |
+| Mastery fill bands | ☐ | ☐ | ☐ | ☐ | ☐ |
 | Modal header + ConfirmDialog | ☐ | ☐ | ☐ | ☐ | ☐ |
-| PrimaryCTA / SecondaryCTA | ☐ | ☐ | ☐ | ☐ | ☐ |
+| Product tour Skip/Next | ☐ | ☐ | ☐ | ☐ | ☐ |
+| PrimaryCTA / SecondaryCTA / Teacher | ☐ | ☐ | ☐ | ☐ | ☐ |
 | Priority / status chips | ☐ | ☐ | ☐ | ☐ | ☐ |
 | Progress / readiness bars | ☐ | ☐ | ☐ | ☐ | ☐ |
-| Focus-visible rings | ☐ | ☐ | ☐ | ☐ | ☐ |
+| Focus-visible rings (2px brand) | ☐ | ☐ | ☐ | ☐ | ☐ |
+| Agent composer (no blur) | ☐ | ☐ | ☐ | ☐ | ☐ |
+| Blueprint regression spot-check | ☐ | ☐ | ☐ | ☐ | ☐ |

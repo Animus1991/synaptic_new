@@ -222,7 +222,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
               <button
                 type="button"
                 onClick={onExploreDemo}
-                className="flex items-center justify-center gap-2 px-8 py-3.5 border border-brand-500/40 bg-brand-500/5 hover:bg-brand-500/10 text-brand-300 rounded-xl font-semibold text-sm transition-all"
+                className="flex items-center justify-center gap-2 px-8 py-3.5 border border-brand-500/40 bg-brand-500/5 hover:bg-brand-500/10 text-brand-700 rounded-xl font-semibold text-sm transition-all"
               >
                 <Sparkles className="w-4 h-4" />
                 {t('exploreDemo')}
@@ -827,7 +827,9 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
             )}
           </BlueprintSurface>
 
-          <ExamCalendarPanel />
+          {(daysToExam !== null || Boolean(settingsExamDate) || courses.some((c) => Boolean(c.examDate))) && (
+            <ExamCalendarPanel />
+          )}
           <PostExamNextStepsPanel examDate={settingsExamDate ?? courses.find((c) => c.examDate)?.examDate} />
 
           {/* Mastery Trend */}
@@ -1036,7 +1038,15 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                     <p className="text-xs text-text-secondary mt-1">{t('dashDaysLeftMastery').replace('{days}', String(daysLeft)).replace('{mastery}', String(courseMastery))}</p>
                     <div className="dashboard-progress-track mt-2">
                       <div
-                        className="dashboard-progress-fill dashboard-progress-fill--weak"
+                        className={cn(
+                          'dashboard-progress-fill',
+                          /* OPT-K64 — rose only when weak; mid/strong use calmer fills */
+                          courseMastery < 50
+                            ? 'dashboard-progress-fill--weak'
+                            : courseMastery < 70
+                              ? 'dashboard-progress-fill--mid'
+                              : 'dashboard-progress-fill--strong',
+                        )}
                         style={{ width: `${courseMastery}%` }}
                       />
                     </div>

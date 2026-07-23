@@ -133,9 +133,10 @@ export function ProductTour({ step, stepIndex, totalSteps, ready, onNext, onSkip
           centered && 'w-[min(22rem,calc(100vw-2rem))]',
         )}
         style={style}
+        data-testid="product-tour-panel"
       >
         <div className="flex items-start justify-between gap-3 mb-2">
-          <p className="type-caption text-text-tertiary">
+          <p className="type-caption text-text-secondary">
             {t('tourStepOf')
               .replace('{current}', String(stepIndex + 1))
               .replace('{total}', String(totalSteps))}
@@ -143,7 +144,7 @@ export function ProductTour({ step, stepIndex, totalSteps, ready, onNext, onSkip
           <button
             type="button"
             onClick={onSkip}
-            className="p-1 rounded-lg hover:bg-surface-hover text-text-tertiary"
+            className="p-2 rounded-lg hover:bg-surface-hover text-text-secondary min-h-10 min-w-10 inline-flex items-center justify-center"
             aria-label={t('close')}
           >
             <X className="w-4 h-4" />
@@ -157,7 +158,7 @@ export function ProductTour({ step, stepIndex, totalSteps, ready, onNext, onSkip
           <button
             type="button"
             onClick={onSkip}
-            className="type-body-sm text-text-tertiary hover:text-text-secondary px-2 py-1.5"
+            className="type-body-sm text-text-secondary hover:text-text-primary px-2 py-1.5 min-h-10"
           >
             {t('tourSkip')}
           </button>
@@ -165,7 +166,7 @@ export function ProductTour({ step, stepIndex, totalSteps, ready, onNext, onSkip
             type="button"
             onClick={onNext}
             data-testid="product-tour-next"
-            className="px-4 py-2 rounded-xl bg-brand-600 text-white type-body-sm font-semibold hover:bg-brand-500 transition-colors"
+            className="px-4 py-2 rounded-md bg-brand-600 text-white type-body-sm font-semibold hover:bg-brand-500 transition-colors min-h-10"
           >
             {isLast ? t('tourFinish') : t('next')}
           </button>

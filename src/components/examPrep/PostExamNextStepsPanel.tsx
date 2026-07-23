@@ -9,10 +9,11 @@ type Props = {
 
 export function PostExamNextStepsPanel({ examDate }: Props) {
   const { t } = useI18n();
-  const show = isPostExamPhase(examDate) || !examDate;
+  /* OPT-K65 — only when post-exam phase has meaning (not always-on editorial) */
+  const show = isPostExamPhase(examDate);
   const links = filterPostExamLinks();
 
-  if (!show && examDate) return null;
+  if (!show) return null;
 
   return (
     <PlatformSection

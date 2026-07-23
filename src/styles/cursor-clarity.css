@@ -996,10 +996,16 @@
 }
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .teacher-wells :is(button.bg-brand-600, .bg-brand-600) {
-  background: var(--color-text-primary) !important;
-  color: var(--color-surface-primary) !important;
+  /* OPT-K55 — align with K20/K22: light cyan / dark white */
+  background: var(--color-brand-600) !important;
+  color: #ffffff !important;
   border-radius: 0.375rem;
   box-shadow: none;
+}
+
+:is([data-theme="minimal-dark"]) .teacher-wells :is(button.bg-brand-600, .bg-brand-600) {
+  background: var(--color-text-primary) !important;
+  color: var(--color-surface-primary) !important;
 }
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .teacher-wells :is(
@@ -1325,12 +1331,12 @@
   font-weight: 600;
 }
 
-/* One primary action: quiet study-center Continue only — never the one-step Execute */
+/* One primary action: quieter study-center Continue when Execute strip present — OPT-K61 keep readable ink */
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm:has(.dashboard-one-step-strip) [data-testid="dashboard-resume-workspace"].dashboard-continue-hero,
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm:has(.dashboard-one-step-strip) [data-testid="dashboard-hero-study-center"] .dashboard-continue-hero {
   font-weight: 500;
-  border-color: var(--color-border-subtle);
-  color: var(--color-text-secondary);
+  border-color: var(--color-border-default);
+  color: var(--color-text-primary);
   background: transparent;
 }
 
@@ -1345,12 +1351,73 @@
   letter-spacing: 0.01em;
 }
 
-:is([data-theme="minimal"]) .app-shell .dashboard-calm .text-accent-amber {
-  color: var(--color-text-tertiary) !important;
-  font-variant-numeric: tabular-nums;
-}
-
 :is([data-theme="minimal"]) .app-shell .ux-banner-warn-accent,
 :is([data-theme="minimal"]) .app-shell .platform-banner-warn {
   color: var(--color-text-secondary);
 }
+
+/* ── OPT-K52+ clarity residuals (Minimal only) ──────────────────────────── */
+
+/* OPT-K53 — app-shell eyebrow tracking (landing 0.34em untouched) */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell {
+  --ux-tracking-eyebrow: 0.08em;
+}
+
+/* OPT-K61b — XP meta stays readable (≥ secondary), not tertiary grey */
+:is([data-theme="minimal"]) .app-shell .dashboard-calm .text-accent-amber {
+  color: var(--color-text-secondary) !important;
+  font-variant-numeric: tabular-nums;
+}
+
+/* OPT-K63 — progress language always pill-capped */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm :is(
+  .usage-bar,
+  .usage-bar-fill,
+  .dashboard-progress-track,
+  .dashboard-progress-fill,
+  .h-1\.5
+) {
+  border-radius: 9999px !important;
+}
+
+/* OPT-K64 — mastery fill bands (weak / mid / strong) */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm .dashboard-progress-fill--mid {
+  background: color-mix(in srgb, var(--color-text-secondary) 42%, var(--color-border-subtle));
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm .dashboard-progress-fill--strong {
+  background: color-mix(in srgb, var(--color-brand-600) 55%, var(--color-border-subtle));
+}
+
+:is([data-theme="minimal-dark"]) .app-shell .dashboard-calm .dashboard-progress-fill--strong {
+  background: color-mix(in srgb, var(--color-brand-500) 45%, var(--color-text-secondary));
+}
+
+/* OPT-K57 — non-status brand text in calm dashboard chrome → secondary ink */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm a.text-brand-400,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm a.text-brand-300,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm button.text-brand-400,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm .text-brand-400:not(.ux-primary-cta):not(.ux-chip-solid-brand):not(.dashboard-exam-cta) {
+  color: var(--color-text-secondary) !important;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm a.text-brand-400:hover,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm a.text-brand-700:hover {
+  color: var(--color-text-primary) !important;
+}
+
+/* OPT-K68 — product tour: Skip / step meta readable */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) #product-tour-dialog .type-body-sm.text-text-tertiary,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) [data-testid="product-tour-panel"] .text-text-tertiary {
+  color: var(--color-text-secondary);
+}
+
+/* OPT-K66 — coarse pointer CTA sm floor */
+@media (pointer: coarse) {
+  :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .ux-primary-cta[data-size="sm"],
+  :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .ux-secondary-cta[data-size="sm"],
+  :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-continue-hero {
+    min-height: 2.5rem;
+  }
+}
+
