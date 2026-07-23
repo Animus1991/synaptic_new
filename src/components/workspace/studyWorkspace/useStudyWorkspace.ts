@@ -1533,6 +1533,8 @@ export function useStudyWorkspace({
     };
   }, [studyRoomSession, collabWsUrl, quizConcept]);
 
+  const whiteboardCollabConfig = conceptMapCollabConfig;
+
   const conceptNodes = useMemo(() => {
     if (!noteBundle.hasSource) return [];
     if (!workspaceIntelActive(intelReady, activeTool, 'concept-map')) {
@@ -2398,6 +2400,7 @@ export function useStudyWorkspace({
     discoverabilityActions,
     conceptMapCursorSync,
     conceptMapCollabConfig,
+    whiteboardCollabConfig,
     conceptNodes,
     conceptEdges,
     workspaceContext,

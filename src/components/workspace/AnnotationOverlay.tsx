@@ -89,7 +89,10 @@ interface Props {
   annotationSyncMode?: 'stream' | 'poll' | 'off';
   onRemapComplete?: (remappedCount: number) => void;
   annotationConflicts?: AnnotationConflict[];
-  onResolveAnnotationConflict?: (id: string, choice: 'local' | 'remote') => void;
+  onResolveAnnotationConflict?: (
+    remaining: AnnotationConflict[],
+    chosen: SharedAnnotationDto,
+  ) => void;
   onDismissAnnotationConflicts?: () => void;
 }
 
@@ -447,8 +450,8 @@ export function AnnotationOverlay({
         <div className="shrink-0 border-b border-border-subtle px-3 py-2">
           <AnnotationConflictPanel
             conflicts={annotationConflicts}
-            lang={lang}
-            onChoose={onResolveAnnotationConflict}
+            language={lang}
+            onResolved={onResolveAnnotationConflict}
             onDismissAll={onDismissAnnotationConflicts}
           />
         </div>
