@@ -61,7 +61,7 @@ export function AgentContextBanner({ context, lang, className, compact = false }
             <MapPin className="h-3 w-3 shrink-0 text-brand-600" aria-hidden />
             <span className="truncate text-[10px] font-medium text-text-secondary">
               <span className="text-text-muted">{banner.heading}</span>{' '}
-              {banner.line}
+              {banner.compactLine}
             </span>
             {banner.caution && (
               <AlertTriangle className="h-3 w-3 shrink-0 text-accent-amber" aria-hidden />

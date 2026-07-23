@@ -129,6 +129,7 @@ export function Agent({
   const [isThinking, setIsThinking] = useState(false);
   const sourceSelectRef = useRef<HTMLSelectElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const threadRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const llmReady = isLlmAvailable(settings);
   const agentContent = useMemo(() => getAgentContent(lang), [lang]);
@@ -177,6 +178,12 @@ export function Agent({
     : undefined;
 
   useEffect(() => {
+    const thread = threadRef.current;
+    if (thread) {
+      // Scroll the thread pane only — avoid scrollIntoView pulling ancestors under workspace chrome.
+      thread.scrollTo({ top: thread.scrollHeight, behavior: 'smooth' });
+      return;
+    }
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
@@ -849,8 +856,15 @@ export function Agent({
       </AnimatePresence>
 
       {/* Messages — OPT-C1 centered conversation column */}
-      <div className="agent-thread flex-1 overflow-y-auto" data-testid="agent-thread">
-        <div className={cn('agent-chat-column w-full min-w-0 py-4 space-y-4', embedded ? 'px-2.5' : 'px-4 sm:px-6')}>
+      <div
+        ref={threadRef}
+        className="agent-thread flex-1 overflow-y-auto"
+        data-testid="agent-thread"
+      >
+        <div className={cn(
+          'agent-chat-column w-full min-w-0 py-4 space-y-4',
+          embedded ? 'px-2.5 pb-6' : 'px-4 sm:px-6',
+        )}>
           {messages.length === 0 && !isThinking && (
             embedded ? (
               <div className="py-8 text-center space-y-2" data-testid="agent-empty-invite">
@@ -1304,9 +1318,9 @@ function MessageBubble({
           </div>
         )}
 
-        {/* Source attribution labels — OPT-K16: rainbow washes quiet under Minimal via .agent-meta-badge */}
+        {/* Source attribution labels — OPT-K16 quiet under Minimal; OPT-K74 phone wrap clear of composer */}
         {!isUser && message.metadata && (
-          <div className="agent-meta-badge-row mt-2 pt-2 border-t border-border-subtle flex items-center gap-2 flex-wrap">
+          <div className="agent-meta-badge-row mt-2 pt-2 border-t border-border-subtle flex items-center gap-1.5 flex-wrap pb-0.5">
             {message.metadata.sourceGrounded && (
               <span className="agent-meta-badge text-[10px] px-1.5 py-0.5 rounded bg-accent-emerald/10 text-accent-emerald font-medium">{ui.badgeSourceGrounded}</span>
             )}

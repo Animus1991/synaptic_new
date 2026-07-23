@@ -2,7 +2,7 @@ import { cn } from '../../../utils/cn';
 import { BlueprintSurface } from '../../ui/BlueprintSurface';
 import { ThemeToggle } from '../../ThemeToggle';
 import {
-  X, Maximize2, Minimize2, Sparkles, StickyNote, Search, LayoutGrid, SlidersHorizontal, PanelLeftOpen,
+  X, Maximize2, Minimize2, Sparkles, StickyNote, LayoutGrid, SlidersHorizontal, PanelLeftOpen,
 } from '@/lib/lucide-shim';
 import { workspaceToolLabel } from '../../../lib/workspaceToolRegistry';
 import { displayWorkspaceStepTitle } from '../../../lib/workspaceContextModel';
@@ -84,6 +84,7 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
 
   const [notebookMenuOpen, setNotebookMenuOpen] = useState(false);
   const [classicMenuOpen, setClassicMenuOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const isMinimal = useMinimalTheme();
   const chromeDensity = resolveChromeDensity(userSettings?.chromeDensity, lang);
   /** Compact chrome or minimal theme → overflow menu parity with notebook (OPT-M2). */
@@ -125,45 +126,63 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
                     >
                       <X className="w-5 h-5" />
                     </button>
-                    <div className="flex gap-2">
-                      {layout !== 'zen' && (
-                        <button
-                          type="button"
-                          onClick={() => setShowPalette(true)}
-                          data-testid="workspace-command-palette-fab"
-                          aria-label={t('wsCommandPalette')}
-                          className="p-2 rounded-full bg-brand-600 hover:bg-brand-700 text-white transition-colors min-h-[40px] min-w-[40px] flex items-center justify-center shadow-md"
-                        >
-                          <Search className="w-4 h-4" />
-                        </button>
-                      )}
-                      <WorkspaceStudyRoomTrigger
-                        lang={lang}
-                        open={studyRoomOpen}
-                        onClick={() => setStudyRoomOpen((v) => !v)}
-                        variant="chrome"
-                        className="p-2 rounded-full bg-surface-secondary hover:bg-surface-hover min-h-[40px] min-w-[40px] sm:min-h-0 sm:min-w-0 sm:rounded-lg sm:bg-transparent"
-                      />
-                      <button
-                        onClick={() => setShowNotes((v) => !v)}
-                        aria-label={t('paletteSessionNotes')}
-                        aria-pressed={showNotes}
-                        className="p-2 rounded-full bg-surface-secondary hover:bg-surface-hover text-text-secondary transition-colors min-h-[40px] min-w-[40px] flex items-center justify-center"
-                      >
-                        <StickyNote className={cn('w-4 h-4', showNotes && 'text-brand-600')} />
-                      </button>
-                      {themeToggle && (
-                        <div className="[&>button]:p-2 [&>button]:rounded-full [&>button]:bg-surface-secondary [&>button]:hover:bg-surface-hover [&>button]:min-h-[40px] [&>button]:min-w-[40px] [&>button]:flex [&>button]:items-center [&>button]:justify-center">
-                          {themeToggle}
-                        </div>
-                      )}
+                    {/* OPT-K74 — phone: AI + overflow (search/notes/room/theme) instead of icon cluster */}
+                    <div className="relative flex items-center gap-2">
                       <button
                         onClick={handleOpenAgent}
                         aria-label={t('agentBtn')}
+                        data-testid="workspace-mobile-open-agent"
                         className="p-2 rounded-full bg-surface-secondary hover:bg-surface-hover text-text-secondary transition-colors min-h-[40px] min-w-[40px] flex items-center justify-center"
                       >
                         <Sparkles className="w-4 h-4 text-brand-600" />
                       </button>
+                      <button
+                        type="button"
+                        onClick={() => setMobileMenuOpen((v) => !v)}
+                        aria-expanded={mobileMenuOpen}
+                        aria-label={t('wsMoreTools')}
+                        data-testid="workspace-mobile-chrome-menu"
+                        className="p-2 rounded-full bg-surface-secondary hover:bg-surface-hover text-text-secondary transition-colors min-h-[40px] min-w-[40px] flex items-center justify-center"
+                      >
+                        <SlidersHorizontal className="w-4 h-4" />
+                      </button>
+                      {mobileMenuOpen && (
+                        <div className="absolute right-0 top-full mt-1 z-30 w-52 rounded-xl border border-border-subtle bg-surface-card shadow-lg py-1 text-xs">
+                          {layout !== 'zen' && (
+                            <button
+                              type="button"
+                              onClick={() => { setShowPalette(true); setMobileMenuOpen(false); }}
+                              data-testid="workspace-command-palette-fab"
+                              className="w-full text-left px-3 py-2 hover:bg-surface-hover text-text-secondary"
+                            >
+                              {t('wsCommandPalette')}
+                            </button>
+                          )}
+                          <button
+                            type="button"
+                            onClick={() => { setShowNotes((v) => !v); setMobileMenuOpen(false); }}
+                            className="w-full text-left px-3 py-2 hover:bg-surface-hover text-text-secondary"
+                          >
+                            {t('paletteSessionNotes')}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => { setStudyRoomOpen((v) => !v); setMobileMenuOpen(false); }}
+                            className="w-full text-left px-3 py-2 hover:bg-surface-hover text-text-secondary"
+                          >
+                            {lang === 'el' ? 'Study room' : 'Study room'}
+                          </button>
+                          {onToggleTheme && (
+                            <button
+                              type="button"
+                              onClick={() => { onToggleTheme(); setMobileMenuOpen(false); }}
+                              className="w-full text-left px-3 py-2 hover:bg-surface-hover text-text-secondary"
+                            >
+                              {t('theme')}
+                            </button>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </div>
                   <div className="space-y-1">
@@ -179,10 +198,10 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
                   </div>
                 </header>
       
-                {/* Progressive disclosure: step + source quality in one row */}
+                {/* OPT-K74 — step compact + wrapping intel pills (no truncated “Step… · S..”) */}
                 <div className="px-4 py-2 shrink-0">
-                  <BlueprintSurface hint className="p-3 flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-2 min-w-0">
+                  <BlueprintSurface hint className="p-2.5 flex flex-wrap items-center gap-x-2 gap-y-1.5">
+                    <div className="flex items-center gap-1.5 shrink-0">
                       <div className="flex -space-x-1 shrink-0" aria-hidden>
                         <div className="w-6 h-6 rounded-full bg-brand-600 border-2 border-surface-secondary flex items-center justify-center type-micro text-white font-semibold">
                           {Math.min(currentStep + 1, STEPS.length || 1)}
@@ -191,13 +210,19 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
                           {STEPS.length || 7}
                         </div>
                       </div>
-                      <span className="text-xs font-semibold text-text-secondary truncate">
-                        {t('wsStepOf')
+                      <span
+                        className="text-xs font-semibold text-text-secondary tabular-nums"
+                        data-testid="workspace-mobile-step-progress"
+                        aria-label={t('wsStepOf')
+                          .replace('{current}', String(Math.min(currentStep + 1, STEPS.length || 1)))
+                          .replace('{total}', String(STEPS.length || 7))}
+                      >
+                        {t('wsStepCompact')
                           .replace('{current}', String(Math.min(currentStep + 1, STEPS.length || 1)))
                           .replace('{total}', String(STEPS.length || 7))}
                       </span>
                     </div>
-                    <div className="flex items-center gap-1 shrink-0">
+                    <div className="flex items-center gap-1 flex-wrap min-w-0">
                       {typeof sourceQualityScore === 'number' && (
                         <span className="ws-pill" data-testid="workspace-mobile-source-quality">
                           {sourceQualityScore}% {t('wsSourceShort')}
@@ -227,7 +252,7 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
                   </BlueprintSurface>
                 </div>
       
-                {/* Concept ribbon — inline chrome, not over tool content */}
+                {/* Concept ribbon — collapsed by default under Minimal (OPT-M2) */}
                 <CollapsibleChromeSection title={t('chromeConceptLens')} data-testid="mobile-concept-lens-chrome">
                   <ConceptLensChromeStrip
                     conceptLensView={conceptLensView}

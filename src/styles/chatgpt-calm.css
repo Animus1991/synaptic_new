@@ -110,6 +110,32 @@
   scroll-behavior: smooth;
 }
 
+/* OPT-K74 — phone/embedded: keep first lines + grounding badges clear of chrome/composer */
+@media (max-width: 767px) {
+  :is([data-theme="minimal"], [data-theme="minimal-dark"]) .agent-calm .agent-thread {
+    scroll-padding-top: 0.35rem;
+    scroll-padding-bottom: 5rem;
+  }
+
+  :is([data-theme="minimal"], [data-theme="minimal-dark"]) .agent-calm .agent-chat-column {
+    padding-bottom: 1.25rem;
+  }
+
+  :is([data-theme="minimal"], [data-theme="minimal-dark"]) .notebook-calm [data-testid="notebook-chat-panel"] > header {
+    padding-top: 0.4rem;
+    padding-bottom: 0.4rem;
+  }
+
+  :is([data-theme="minimal"], [data-theme="minimal-dark"]) .agent-calm[data-testid="agent-embedded"] [data-testid="agent-context-banner"] {
+    padding-top: 0.2rem;
+    padding-bottom: 0.2rem;
+  }
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .agent-calm[data-testid="agent-embedded"] .agent-thread {
+  scroll-padding-bottom: 4.5rem;
+}
+
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .agent-calm .agent-thinking {
   max-width: var(--chat-column-max);
   margin-left: auto;
