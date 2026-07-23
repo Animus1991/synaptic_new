@@ -119,12 +119,13 @@ describe('OPT-K69 engineering clarity contracts', () => {
     expect(contrast('#848d97', '#21262d')).toBeGreaterThanOrEqual(4.5);
   });
 
-  it('K74 — mobile notebook clarity: compact step, dark pill ink, thread scroll pad', () => {
+  it('K74/K75 — mobile notebook clarity: step rail, dark pill ink, thread scroll pad', () => {
     const chrome = read('src/components/workspace/studyWorkspace/StudyWorkspaceChrome.tsx');
     expect(chrome).toMatch(/OPT-K74/);
     expect(chrome).toMatch(/workspace-mobile-step-progress/);
     expect(chrome).toMatch(/workspace-mobile-chrome-menu/);
-    expect(chrome).toMatch(/wsStepCompact/);
+    expect(chrome).toMatch(/wsStepOf/);
+    expect(chrome).toMatch(/bg-surface-tertiary text-text-primary/);
     expect(chrome).toMatch(/notebook Studio owns tools/);
 
     const primer = read('src/styles/primer-minimal.css');

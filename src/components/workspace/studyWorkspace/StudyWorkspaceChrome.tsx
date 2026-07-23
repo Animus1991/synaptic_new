@@ -227,20 +227,20 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
                         </div>
                       </div>
                       <span
-                        className="text-xs font-semibold text-text-secondary tabular-nums"
+                        className="text-xs font-semibold text-text-primary tabular-nums"
                         data-testid="workspace-mobile-step-progress"
-                        aria-label={t('wsStepOf')
-                          .replace('{current}', String(Math.min(currentStep + 1, STEPS.length || 1)))
-                          .replace('{total}', String(STEPS.length || 7))}
                       >
-                        {t('wsStepCompact')
+                        {t('wsStepOf')
                           .replace('{current}', String(Math.min(currentStep + 1, STEPS.length || 1)))
                           .replace('{total}', String(STEPS.length || 7))}
                       </span>
                     </div>
                     <div className="flex items-center gap-1 flex-wrap min-w-0">
                       {typeof sourceQualityScore === 'number' && (
-                        <span className="ws-pill" data-testid="workspace-mobile-source-quality">
+                        <span
+                          className="ws-pill bg-surface-tertiary text-text-primary border-border-default"
+                          data-testid="workspace-mobile-source-quality"
+                        >
                           {sourceQualityScore}% {t('wsSourceShort')}
                         </span>
                       )}
@@ -248,7 +248,7 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
                         type="button"
                         onClick={() => setIntelTab((tb: MobileIntelTab | null) => (tb === 'weak-areas' ? null : 'weak-areas'))}
                         aria-pressed={intelTab === 'weak-areas'}
-                        className="ws-pill"
+                        className="ws-pill bg-surface-tertiary text-text-primary border-border-default"
                         data-active={intelTab === 'weak-areas' || undefined}
                         data-hydrating={!intelReady || undefined}
                       >
@@ -258,7 +258,7 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
                         type="button"
                         onClick={() => setIntelTab((tb: MobileIntelTab | null) => (tb === 'concept-bus' ? null : 'concept-bus'))}
                         aria-pressed={intelTab === 'concept-bus'}
-                        className="ws-pill"
+                        className="ws-pill bg-surface-tertiary text-text-primary border-border-default"
                         data-active={intelTab === 'concept-bus' || undefined}
                         data-hydrating={!intelReady || undefined}
                       >

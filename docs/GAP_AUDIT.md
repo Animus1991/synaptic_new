@@ -396,8 +396,8 @@ Constraints for all OPT-R*: no typography/button/modal scale-up; no functional r
 | OPT-K71 | Vista clarity micro | P2 | **shipped** | Soft grouping/selection/titleband/scrollbars — no Aero blur/glass clone |
 | OPT-K72 | Windows 8 clarity micro | P2 | **shipped** | Flatter than Vista; solid titleband; safe-area gutters; flat select — no Metro clone; no control/type size inflation |
 | OPT-K73 | Minimal contrast pass | P2 | **shipped** | Light tertiary/muted AA ladder; dark muted on tert surfaces; brand-300→secondary; drop hero opacity wash |
-| OPT-K74 | Mobile notebook clarity | P1 | **shipped** | Compact step `n/m`; context `tool·step` chip; thread-local scroll + badge padding; dark `ws-pill` AA; phone overflow menu |
-| OPT-K75 | Dark button/chip ink contrast | P1 | **shipped** | System status pill primary ink; embedded mode/source `text-primary`; dark `button.ws-pill` AA (no white-wash) |
+| OPT-K74 | Mobile notebook clarity | P1 | **shipped** | Full step `Step n of m` + wrapping intel pills; context `tool·step` chip; thread-local scroll + badge padding; dark `ws-pill` AA; phone overflow menu |
+| OPT-K75 | Dark workspace chip/composer contrast | P1 | **shipped** | Status pill + `ws-pill` primary ink on tertiary fill (no white-wash); embedded mode/source `text-primary`; composer tools beside field |
 
 ### Primer-inspired minimal (OPT-M) — zero feature removal
 

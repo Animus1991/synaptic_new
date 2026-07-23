@@ -96,6 +96,7 @@ CSS: `src/styles/cursor-clarity.css` (imported after `replit-clarity.css`).
 | **OPT-K72** | Windows 8-inspired clarity micro (flat/gutter/select — no size inflation) | **shipped** |
 | **OPT-K73** | Minimal contrast pass (text AA ≥4.5:1; brand-300 remap) | **shipped** |
 | **OPT-K74** | Mobile notebook clarity (step/context/chat/pills/overflow) | **shipped** |
+| **OPT-K75** | Dark workspace chip/composer contrast | **shipped** |
 
 **Default gate:** Minimal / Minimal Dark only. Blueprint untouched.  
 **Width rule:** Compact `w-14` + `lg:ml-14` and Expanded `w-56` + `lg:ml-56` — main never underlays rail.

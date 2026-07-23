@@ -257,7 +257,7 @@
 }
 
 /* OPT-K75 — system status / embedded chrome button ink ≥ AA on dark */
-:is([data-theme="minimal-dark"], [data-theme="blueprint"]) .agent-system-status {
+:is([data-theme="minimal-dark"], [data-theme="blueprint"], [data-theme="dark"]) .agent-system-status {
   background: var(--color-surface-tertiary) !important;
   border-color: var(--color-border-default) !important;
   color: var(--color-text-primary) !important;
