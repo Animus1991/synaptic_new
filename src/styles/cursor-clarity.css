@@ -1510,4 +1510,88 @@
   white-space: normal;
 }
 
+/* ── OPT-K72 — Windows 8-inspired clarity (principles only; not Metro clone) ─
+   Borrowed: flatter than Vista, solid titleband, clear gutters, equal tile
+   rhythm, stronger flat header type, solid selection wash.
+   Rejected: live tiles, charms, Segoe branding, heavy accent nav bars,
+   Start-screen clone, glossy glass. */
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell {
+  --w8-select: color-mix(in srgb, var(--color-brand-600) 14%, var(--color-surface-secondary));
+}
+
+:is([data-theme="minimal-dark"]) .app-shell {
+  --w8-select: color-mix(in srgb, var(--color-brand-500) 18%, var(--color-surface-secondary));
+}
+
+/* Flatten Vista soft lift on primary dashboard wells — border-first tiles */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm :is(
+  .ux-card,
+  .blueprint-surface,
+  .hub-quiet-surface,
+  [data-testid="dashboard-action-hub"]
+) {
+  box-shadow: none;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm .hub-section-stack {
+  box-shadow: none;
+}
+
+/* Solid titleband — flat wash + hairline (replaces Vista soft gradient) */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .ux-page-header,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .ux-page-header--text-first {
+  background: color-mix(in srgb, var(--color-surface-primary) 92%, var(--color-surface-secondary) 8%);
+  border-bottom: 1px solid color-mix(in srgb, var(--color-border-subtle) 90%, transparent);
+}
+
+/* Flat selection / hover wash — slightly more opaque than Vista soft */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .utility-row--interactive:hover,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm .proximity-track > button:hover,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-hub-chip:hover {
+  background: var(--w8-select) !important;
+}
+
+/* Modal / tour: flatter elevation (no inset gloss) */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .ux-modal-panel,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) [data-testid="product-tour-panel"] {
+  box-shadow: 0 4px 16px color-mix(in srgb, var(--color-text-primary) 8%, transparent);
+}
+
+/* Content gutters — safer phone edge breathing (safe-area aware) */
+@media (max-width: 639px) {
+  :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell [data-testid="dashboard-page"] > div.px-4 {
+    padding-inline: max(1rem, env(safe-area-inset-left, 0px), env(safe-area-inset-right, 0px));
+  }
+}
+
+/* Hub tile rhythm — equal gaps, flat filled tiles (not live-tile chrome) */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .hub-quiet-surface [data-testid="dashboard-hero-action-grid"] {
+  gap: 0.5rem;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .hub-quiet-surface .dashboard-hub-chip {
+  box-shadow: none;
+  background: var(--color-surface-secondary);
+  border-color: color-mix(in srgb, var(--color-border-subtle) 85%, transparent);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .hub-quiet-surface .dashboard-hub-chip:hover {
+  background: var(--w8-select);
+}
+
+/* Header / hero type — stronger flat hierarchy */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .hub-quiet-surface .ws-serif,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .ux-page-header .ws-serif,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .ux-page-header h1 {
+  letter-spacing: -0.02em;
+  font-weight: 700;
+}
+
+/* Brand mark — flat (no glow / soft lift residue) */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .platform-brand-icon {
+  box-shadow: none;
+  filter: none;
+}
+
 

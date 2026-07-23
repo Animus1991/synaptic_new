@@ -135,7 +135,12 @@ export function DashboardActionHub({
   };
 
   const onHero = Boolean(wallpaperDataUrl);
-  const glassCard = onHero ? 'bg-surface-card/82 backdrop-blur-md border-white/10' : undefined;
+  /* OPT-K72 — Minimal: flat overlay (no Aero/blur); other themes keep soft glass */
+  const glassCard = onHero
+    ? hubQuiet
+      ? 'bg-surface-card/90 border-white/10'
+      : 'bg-surface-card/82 backdrop-blur-md border-white/10'
+    : undefined;
   const heroText = onHero ? 'text-white' : undefined;
 
   const renderChip = (action: DashboardHubAction, testIdPrefix: string) => {
@@ -158,7 +163,7 @@ export function DashboardActionHub({
         aria-label={t(action.chipLabelKey)}
       >
         <Icon className={cn('h-4 w-4', onHero ? 'text-brand-300' : hubQuiet ? 'text-text-tertiary' : 'text-brand-500')} aria-hidden />
-        <span className={cn('truncate text-[10px] font-semibold leading-tight max-w-full', onHero ? 'text-white' : 'text-text-primary')}>
+        <span className={cn('text-[10px] font-semibold leading-tight max-w-full whitespace-normal line-clamp-2', onHero ? 'text-white' : 'text-text-primary')}>
           {t(action.chipLabelKey)}
         </span>
         {action.badge && (

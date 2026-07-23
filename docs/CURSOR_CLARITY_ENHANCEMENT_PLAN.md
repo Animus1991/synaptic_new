@@ -91,7 +91,9 @@ CSS: `src/styles/cursor-clarity.css` (imported after `replit-clarity.css`).
 | **OPT-K66** | Coarse-pointer hit floors for nav/composer/Continue | **shipped** |
 | **OPT-K67** | Workspace phone chrome `<768` (align notebook OPT-N1) | **shipped** |
 | **OPT-K68** | Product tour Skip/step contrast + 44px close | **shipped** |
+| **OPT-K69** | Engineering clarity contracts (visual Human Pass not self-signed) | **shipped** |
 | **OPT-K71** | Vista-inspired clarity micro (grouping/selection/titleband/scroll) | **shipped** |
+| **OPT-K72** | Windows 8-inspired clarity micro (flat/gutter/tile/type) | **shipped** |
 
 **Default gate:** Minimal / Minimal Dark only. Blueprint untouched.  
 **Width rule:** Compact `w-14` + `lg:ml-14` and Expanded `w-56` + `lg:ml-56` — main never underlays rail.
@@ -111,7 +113,8 @@ CSS: `src/styles/cursor-clarity.css` (imported after `replit-clarity.css`).
 
 ### Ανοιχτό μόνο για άνθρωπο
 
-- **M20 / C8 Human Pass?** — όχι self-sign  
+- **M20 / C8 / K70 Human Pass?** — όχι self-sign  
+- **OPT-K69** — engineering contracts shipped (`src/lib/minimalClarityContracts.test.ts`) 
 
 ---
 
@@ -126,9 +129,9 @@ CSS: `src/styles/cursor-clarity.css` (imported after `replit-clarity.css`).
 
 ## Completeness
 
-**OPT-K1–K71 shipped** (K69–K70 = human pass — not self-signed). Compact default + expand kept; main offset `ml-14` / `ml-56`. Human Pass? **M20 / C8 / K69** still open (engineering must not self-sign).
+**OPT-K1–K72 shipped** (K70 visual Human Pass — not self-signed; K69 = engineering contracts only). Compact default + expand kept; main offset `ml-14` / `ml-56`. Human Pass? **M20 / C8 / K70** still open (engineering must not self-sign).
 
-### OPT-K48 / OPT-K69 smoke matrix (manual — do not self-sign)
+### OPT-K48 / OPT-K70 smoke matrix (manual — do not self-sign)
 
 | Surface | Light Minimal | Dark Minimal | Mobile | Tablet | Desktop |
 |---------|---------------|--------------|--------|--------|---------|
@@ -139,6 +142,7 @@ CSS: `src/styles/cursor-clarity.css` (imported after `replit-clarity.css`).
 | Exam calendar gated / post-exam | ☐ | ☐ | ☐ | ☐ | ☐ |
 | Mastery fill bands | ☐ | ☐ | ☐ | ☐ | ☐ |
 | Vista soft grouping / titleband | ☐ | ☐ | ☐ | ☐ | ☐ |
+| Win8 flat titleband / tile rhythm | ☐ | ☐ | ☐ | ☐ | ☐ |
 | Modal header + ConfirmDialog | ☐ | ☐ | ☐ | ☐ | ☐ |
 | Product tour Skip/Next | ☐ | ☐ | ☐ | ☐ | ☐ |
 | PrimaryCTA / SecondaryCTA / Teacher | ☐ | ☐ | ☐ | ☐ | ☐ |
