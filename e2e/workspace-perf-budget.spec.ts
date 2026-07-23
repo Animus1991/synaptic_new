@@ -44,6 +44,13 @@ function recordProdStretchSample(elapsed: number): void {
   writeFileSync(join(dir, 'b11-prod-stretch.json'), `${JSON.stringify(payload)}\n`, 'utf8');
 }
 
+async function waitForWorkspaceInteractive(page: import('@playwright/test').Page): Promise<void> {
+  // Notebook default (Sources/Chat/Studio) or classic ToolFrame both count as interactive.
+  await expect(
+    page.getByTestId('workspace-tool-frame').or(page.getByTestId('notebook-workspace-layout')),
+  ).toBeVisible({ timeout: 15_000 });
+}
+
 test.describe('Workspace perf budget (B11)', () => {
   test('course Continue → study-workspace within budget (upload path)', async ({ page }) => {
     test.skip(IS_PROD_PERF, 'Upload path uses dev budget only');
@@ -66,7 +73,7 @@ test.describe('Workspace perf budget (B11)', () => {
     const t0 = Date.now();
     await page.getByTestId('course-open-workspace').click();
     await expect(page.getByTestId('study-workspace')).toBeVisible({ timeout: 45_000 });
-    await expect(page.getByTestId('workspace-tool-frame')).toBeVisible({ timeout: 15_000 });
+    await waitForWorkspaceInteractive(page);
     const elapsed = Date.now() - t0;
 
     expect(elapsed, `Expected interactive workspace ≤ ${INTERACTIVE_BUDGET_MS}ms, got ${elapsed}ms`).toBeLessThan(
@@ -87,7 +94,7 @@ test.describe('Workspace perf budget (B11)', () => {
     const t0 = Date.now();
     await page.getByTestId('course-open-workspace').click();
     await expect(page.getByTestId('study-workspace')).toBeVisible({ timeout: 30_000 });
-    await expect(page.getByTestId('workspace-tool-frame')).toBeVisible({ timeout: 10_000 });
+    await waitForWorkspaceInteractive(page);
     const elapsed = Date.now() - t0;
 
     expect(elapsed, `Expected prod interactive ≤ ${INTERACTIVE_BUDGET_MS}ms, got ${elapsed}ms`).toBeLessThan(

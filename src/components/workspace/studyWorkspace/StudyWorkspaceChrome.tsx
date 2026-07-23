@@ -117,8 +117,13 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
             {/* ============================================================ */}
             {!chromeHidden && isMobile && (
               <>
-                <header className="relative z-10 px-5 pt-4 pb-2 shrink-0">
-                  <div className="flex items-center justify-between mb-3">
+                <header
+                  className={cn(
+                    'relative z-10 shrink-0',
+                    notebookMode ? 'px-3 pt-2 pb-1.5' : 'px-5 pt-4 pb-2',
+                  )}
+                >
+                  <div className={cn('flex items-center justify-between', !notebookMode && 'mb-3')}>
                     <button
                       onClick={onClose}
                       aria-label={t('close')}
@@ -126,8 +131,17 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
                     >
                       <X className="w-5 h-5" />
                     </button>
+                    {/* OPT-K74 — notebook phone: title inline (panels own section chrome) */}
+                    {notebookMode ? (
+                      <h1
+                        className="mx-2 min-w-0 flex-1 truncate text-sm font-semibold text-text-primary"
+                        data-testid="workspace-header-title"
+                      >
+                        {courseName ?? linkedCourse?.title ?? taskTitle ?? quizConcept}
+                      </h1>
+                    ) : null}
                     {/* OPT-K74 — phone: AI + overflow (search/notes/room/theme) instead of icon cluster */}
-                    <div className="relative flex items-center gap-2">
+                    <div className="relative flex items-center gap-2 shrink-0">
                       <button
                         onClick={handleOpenAgent}
                         aria-label={t('agentBtn')}
@@ -185,21 +199,23 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
                       )}
                     </div>
                   </div>
-                  <div className="space-y-1">
-                    <p className="ws-eyebrow type-micro text-brand-800 font-semibold truncate">
-                      <AllCapsLabel>{courseName ?? linkedCourse?.title ?? t('courseEyebrow')}</AllCapsLabel>
-                    </p>
-                    <h1
-                      className="ws-serif type-display-sm text-text-primary truncate"
-                      data-testid="workspace-header-title"
-                    >
-                      {displayWorkspaceStepTitle(STEPS[currentStep]?.title ?? quizConcept, quizConcept, lang)}
-                    </h1>
-                  </div>
+                  {!notebookMode && (
+                    <div className="space-y-1">
+                      <p className="ws-eyebrow type-micro text-brand-800 font-semibold truncate">
+                        <AllCapsLabel>{courseName ?? linkedCourse?.title ?? t('courseEyebrow')}</AllCapsLabel>
+                      </p>
+                      <h1
+                        className="ws-serif type-display-sm text-text-primary truncate"
+                        data-testid="workspace-header-title"
+                      >
+                        {displayWorkspaceStepTitle(STEPS[currentStep]?.title ?? quizConcept, quizConcept, lang)}
+                      </h1>
+                    </div>
+                  )}
                 </header>
       
                 {/* OPT-K74 — step compact + wrapping intel pills (no truncated “Step… · S..”) */}
-                <div className="px-4 py-2 shrink-0">
+                <div className={cn('px-4 shrink-0', notebookMode ? 'py-1' : 'py-2')}>
                   <BlueprintSurface hint className="p-2.5 flex flex-wrap items-center gap-x-2 gap-y-1.5">
                     <div className="flex items-center gap-1.5 shrink-0">
                       <div className="flex -space-x-1 shrink-0" aria-hidden>
@@ -252,7 +268,8 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
                   </BlueprintSurface>
                 </div>
       
-                {/* Concept ribbon — collapsed by default under Minimal (OPT-M2) */}
+                {/* Concept ribbon — classic mobile only; notebook Studio owns tools (OPT-K74 density) */}
+                {!notebookMode && (
                 <CollapsibleChromeSection title={t('chromeConceptLens')} data-testid="mobile-concept-lens-chrome">
                   <ConceptLensChromeStrip
                     conceptLensView={conceptLensView}
@@ -270,6 +287,7 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
                     onOpenReaderSection={openReaderAtConceptSection}
                   />
                 </CollapsibleChromeSection>
+                )}
               </>
             )}
       

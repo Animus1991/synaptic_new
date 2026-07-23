@@ -125,6 +125,7 @@ describe('OPT-K69 engineering clarity contracts', () => {
     expect(chrome).toMatch(/workspace-mobile-step-progress/);
     expect(chrome).toMatch(/workspace-mobile-chrome-menu/);
     expect(chrome).toMatch(/wsStepCompact/);
+    expect(chrome).toMatch(/notebook Studio owns tools/);
 
     const primer = read('src/styles/primer-minimal.css');
     expect(primer).toMatch(/OPT-K74/);
