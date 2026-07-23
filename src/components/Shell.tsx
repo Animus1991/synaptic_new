@@ -1003,7 +1003,7 @@ export function Shell({
                   title={item.kind === 'workspace' ? `${label} — ${workspaceHint}` : label}
                 >
                   <Icon className="w-5 h-5 shrink-0" />
-                  <span className="type-micro font-medium w-full text-center leading-tight">
+                  <span className="type-micro font-medium w-full text-center leading-tight truncate">
                     {label}
                   </span>
                   {/* OPT-C7 — under Minimal, hint stays in title only (less label noise). */}

@@ -6,7 +6,7 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { isWorkspacePhoneWidth } from './workspaceViewport';
+import { isShellMobileNavWidth, isWorkspacePhoneWidth } from './workspaceViewport';
 import { isPostExamPhase } from './examPrep/postExamNextSteps';
 
 const root = resolve(process.cwd());
@@ -19,6 +19,11 @@ describe('OPT-K69 engineering clarity contracts', () => {
   it('K67 — phone chrome below 768 only', () => {
     expect(isWorkspacePhoneWidth(767)).toBe(true);
     expect(isWorkspacePhoneWidth(768)).toBe(false);
+  });
+
+  it('K67b — shell nav clearance below lg (1024)', () => {
+    expect(isShellMobileNavWidth(1023)).toBe(true);
+    expect(isShellMobileNavWidth(1024)).toBe(false);
   });
 
   it('K65 — post-exam panel meaning gate', () => {

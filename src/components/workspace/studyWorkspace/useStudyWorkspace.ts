@@ -17,7 +17,7 @@ import {
   type WorkspacePedagogyLens,
 } from '../../../lib/workspacePedagogyLens';
 import { isWorkspaceTourComplete } from '../../../lib/workspaceTour';
-import { isWorkspacePhoneWidth } from '../../../lib/workspaceViewport';
+import { isShellMobileNavWidth, isWorkspacePhoneWidth } from '../../../lib/workspaceViewport';
 import { mergeConceptMapGraph } from '../../../lib/conceptMapGraph';
 import { buildMiniDashboardProps } from '../../../lib/workspaceData';
 import { collectConceptBusInsights, countSpacedStepReviewsDue, type ConceptBusMap } from '../../../lib/conceptBusSync';
@@ -261,6 +261,10 @@ export function useStudyWorkspace({
   // panel instead of a crowded split layout where neither pane is usable.
   const [isMobile, setIsMobile] = useState(() =>
     typeof window !== 'undefined' ? isWorkspacePhoneWidth(window.innerWidth) : false,
+  );
+  /** OPT-K67b — bottom padding while shell mobile nav is visible (< lg / 1024). */
+  const [shellNavClearance, setShellNavClearance] = useState(() =>
+    typeof window !== 'undefined' ? isShellMobileNavWidth(window.innerWidth) : false,
   );
   const [layout, setLayout] = useState<LayoutMode>(() =>
     typeof window !== 'undefined' && isWorkspacePhoneWidth(window.innerWidth) ? 'focus-lesson' : 'split',
@@ -857,13 +861,18 @@ export function useStudyWorkspace({
 
   useEffect(() => {
     const checkMobile = () => {
-      const mobile = isWorkspacePhoneWidth(window.innerWidth);
+      const width = window.innerWidth;
+      const mobile = isWorkspacePhoneWidth(width);
+      setShellNavClearance(isShellMobileNavWidth(width));
       setIsMobile((prev) => {
-        // Auto-correct stale split layout when crossing into mobile so the
-        // lesson surface always wins (previous layout left both panes too
-        // cramped to read or interact on phones).
+        // Entering phone: prefer focus-lesson over cramped split.
+        // Leaving phone (tablet+): restore split so desktop/tablet chrome matches.
         if (mobile && !prev) {
           setLayout((current) => (current === 'split' ? 'focus-lesson' : current));
+        } else if (!mobile && prev) {
+          setLayout((current) =>
+            current === 'focus-lesson' || current === 'focus-tool' ? 'split' : current,
+          );
         }
         return mobile;
       });
@@ -2272,6 +2281,7 @@ export function useStudyWorkspace({
     intelReady,
     activeTool,
     isMobile,
+    shellNavClearance,
     layout,
     setLayout,
     currentStep,

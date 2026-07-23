@@ -162,7 +162,7 @@ export function DashboardActionHub({
         )}
         aria-label={t(action.chipLabelKey)}
       >
-        <Icon className={cn('h-4 w-4', onHero ? 'text-brand-300' : hubQuiet ? 'text-text-tertiary' : 'text-brand-500')} aria-hidden />
+        <Icon className={cn('h-4 w-4', onHero ? 'text-white/90' : hubQuiet ? 'text-text-tertiary' : 'text-brand-500')} aria-hidden />
         <span className={cn('truncate text-[10px] font-semibold leading-tight max-w-full', onHero ? 'text-white' : 'text-text-primary')}>
           {t(action.chipLabelKey)}
         </span>

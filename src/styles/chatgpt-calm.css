@@ -286,8 +286,8 @@
   font-size: 0.625rem;
   letter-spacing: -0.015em;
   line-height: 1.15;
-  overflow: visible;
-  text-overflow: clip;
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
