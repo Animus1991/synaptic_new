@@ -1511,10 +1511,10 @@
 }
 
 /* ── OPT-K72 — Windows 8-inspired clarity (principles only; not Metro clone) ─
-   Borrowed: flatter than Vista, solid titleband, clear gutters, equal tile
-   rhythm, stronger flat header type, solid selection wash.
+   Borrowed: flatter than Vista, solid titleband, clear gutters, solid
+   selection wash. No size/height inflation — harmony only.
    Rejected: live tiles, charms, Segoe branding, heavy accent nav bars,
-   Start-screen clone, glossy glass. */
+   Start-screen clone, glossy glass, larger type/controls. */
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell {
   --w8-select: color-mix(in srgb, var(--color-brand-600) 14%, var(--color-surface-secondary));
@@ -1558,34 +1558,16 @@
   box-shadow: 0 4px 16px color-mix(in srgb, var(--color-text-primary) 8%, transparent);
 }
 
-/* Content gutters — safer phone edge breathing (safe-area aware) */
+/* Content gutters — safe-area only (no extra padding beyond existing px-4) */
 @media (max-width: 639px) {
   :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell [data-testid="dashboard-page"] > div.px-4 {
     padding-inline: max(1rem, env(safe-area-inset-left, 0px), env(safe-area-inset-right, 0px));
   }
 }
 
-/* Hub tile rhythm — equal gaps, flat filled tiles (not live-tile chrome) */
-:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .hub-quiet-surface [data-testid="dashboard-hero-action-grid"] {
-  gap: 0.5rem;
-}
-
+/* Hub chips — keep K11b transparent hairline; only drop any residual lift */
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .hub-quiet-surface .dashboard-hub-chip {
   box-shadow: none;
-  background: var(--color-surface-secondary);
-  border-color: color-mix(in srgb, var(--color-border-subtle) 85%, transparent);
-}
-
-:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .hub-quiet-surface .dashboard-hub-chip:hover {
-  background: var(--w8-select);
-}
-
-/* Header / hero type — stronger flat hierarchy */
-:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .hub-quiet-surface .ws-serif,
-:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .ux-page-header .ws-serif,
-:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .ux-page-header h1 {
-  letter-spacing: -0.02em;
-  font-weight: 700;
 }
 
 /* Brand mark — flat (no glow / soft lift residue) */

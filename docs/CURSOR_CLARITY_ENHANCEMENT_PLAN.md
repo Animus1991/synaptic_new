@@ -93,7 +93,7 @@ CSS: `src/styles/cursor-clarity.css` (imported after `replit-clarity.css`).
 | **OPT-K68** | Product tour Skip/step contrast + 44px close | **shipped** |
 | **OPT-K69** | Engineering clarity contracts (visual Human Pass not self-signed) | **shipped** |
 | **OPT-K71** | Vista-inspired clarity micro (grouping/selection/titleband/scroll) | **shipped** |
-| **OPT-K72** | Windows 8-inspired clarity micro (flat/gutter/tile/type) | **shipped** |
+| **OPT-K72** | Windows 8-inspired clarity micro (flat/gutter/select — no size inflation) | **shipped** |
 
 **Default gate:** Minimal / Minimal Dark only. Blueprint untouched.  
 **Width rule:** Compact `w-14` + `lg:ml-14` and Expanded `w-56` + `lg:ml-56` — main never underlays rail.

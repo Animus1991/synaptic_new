@@ -394,7 +394,7 @@ Constraints for all OPT-R*: no typography/button/modal scale-up; no functional r
 | OPT-K68 | Tour contrast | P2 | **shipped** | Skip/step secondary; close hit 40px |
 | OPT-K69 | Engineering clarity contracts | P2 | **shipped** | `minimalClarityContracts.test.ts` — K52/K56/K62/K65/K67/K68/K71/K72 gates; visual Human Pass remains user-owned |
 | OPT-K71 | Vista clarity micro | P2 | **shipped** | Soft grouping/selection/titleband/scrollbars — no Aero blur/glass clone |
-| OPT-K72 | Windows 8 clarity micro | P2 | **shipped** | Flatter than Vista; solid titleband; gutters; flat hub tiles; stronger type — no Metro/live-tile clone |
+| OPT-K72 | Windows 8 clarity micro | P2 | **shipped** | Flatter than Vista; solid titleband; safe-area gutters; flat select — no Metro clone; no control/type size inflation |
 
 ### Primer-inspired minimal (OPT-M) — zero feature removal
 
