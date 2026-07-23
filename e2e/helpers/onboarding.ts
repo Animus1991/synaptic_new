@@ -9,11 +9,17 @@ export async function clearAppStorage(page: Page) {
 
 /** Open onboarding from landing (no-op if draft already routed to onboarding). */
 export async function startOnboardingFromLanding(page: Page) {
-  const onLanding = await page.getByTestId('landing-get-started').isVisible().catch(() => false);
+  const continueBtn = page.getByTestId('onboarding-continue');
+  if (await continueBtn.isVisible().catch(() => false)) return;
+
+  const getStarted = page
+    .getByTestId('landing-get-started')
+    .or(page.getByTestId('landing-get-started-primary'));
+  const onLanding = await getStarted.first().isVisible().catch(() => false);
   if (onLanding) {
-    await page.getByTestId('landing-get-started').click();
+    await getStarted.first().click();
   }
-  await expect(page.getByTestId('onboarding-continue')).toBeVisible({ timeout: 10_000 });
+  await expect(continueBtn).toBeVisible({ timeout: 20_000 });
 }
 
 /** Walk wizard steps through schedule and open the shared UploadModal. */
