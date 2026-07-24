@@ -191,7 +191,7 @@ jobs:
         with:
           node-version: '22'
           cache: npm
-      - uses: actions/cache@v4
+      - uses: actions/cache@v6
         with:
           path: .github/perf/b11-prod-stretch-history.json
           key: b11-prod-stretch-history-v1
@@ -210,7 +210,7 @@ jobs:
         run: npm run b11:stretch-tracker
         env:
           B11_STRETCH_WINDOW: '10'
-      - uses: actions/cache/save@v4
+      - uses: actions/cache/save@v6
         if: success()
         with:
           path: .github/perf/b11-prod-stretch-history.json
