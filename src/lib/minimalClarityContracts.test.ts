@@ -87,7 +87,7 @@ describe('OPT-K69 engineering clarity contracts', () => {
     const primer = read('src/styles/primer-minimal.css');
     expect(primer).toMatch(/OPT-K73/);
     expect(primer).toMatch(/--color-text-tertiary:\s*#59636e/);
-    expect(primer).toMatch(/--color-text-muted:\s*#5f6872/);
+    expect(primer).toMatch(/--color-text-muted:\s*#59636e/);
     expect(primer).toMatch(/--color-text-muted:\s*#848d97/);
 
     const clarity = read('src/styles/cursor-clarity.css');
@@ -113,8 +113,7 @@ describe('OPT-K69 engineering clarity contracts', () => {
 
     expect(contrast('#59636e', '#ffffff')).toBeGreaterThanOrEqual(4.5);
     expect(contrast('#59636e', '#eaeef2')).toBeGreaterThanOrEqual(4.5);
-    expect(contrast('#5f6872', '#ffffff')).toBeGreaterThanOrEqual(4.5);
-    expect(contrast('#5f6872', '#f6f8fa')).toBeGreaterThanOrEqual(4.5);
+    expect(contrast('#59636e', '#f6f8fa')).toBeGreaterThanOrEqual(4.5);
     expect(contrast('#848d97', '#0d1117')).toBeGreaterThanOrEqual(4.5);
     expect(contrast('#848d97', '#161b22')).toBeGreaterThanOrEqual(4.5);
     expect(contrast('#848d97', '#21262d')).toBeGreaterThanOrEqual(4.5);

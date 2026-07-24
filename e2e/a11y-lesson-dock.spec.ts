@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { skipOnboardingToLibrary } from './helpers/onboarding';
-import { axeBuilder, blockingViolations, formatAxeViolations, dismissProductTourIfOpen, waitForLibraryReady } from './helpers/a11y';
+import { axeBuilder, blockingViolations, formatAxeViolations, dismissProductTourIfOpen, waitForLibraryReady, settleMotionForAxe } from './helpers/a11y';
 
 /**
  * Automated accessibility audits for the Lesson view and the desktop
@@ -51,6 +51,7 @@ test.describe('Accessibility — Lesson view', () => {
       await expect(stepNav.locator('[aria-current="step"]')).toHaveCount(1);
     }
 
+    await settleMotionForAxe(page);
     const results = await axeBuilder(page).analyze();
 
     const blocking = blockingViolations(results);

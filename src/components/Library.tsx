@@ -765,7 +765,8 @@ function CourseCard({
   return (
     <BlueprintSurface
       as={motion.div}
-      initial={{ opacity: 0, y: 10 }}
+      // Skip fade-in — opacity wash fails WCAG contrast mid-animation (a11y CI).
+      initial={false}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.05 }}
       onClick={() => {
@@ -1050,7 +1051,7 @@ function CourseListItem({
   return (
     <BlueprintSurface
       as={motion.div}
-      initial={{ opacity: 0, x: -10 }}
+      initial={false}
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: index * 0.03 }}
       onClick={onClick}

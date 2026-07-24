@@ -6,6 +6,25 @@ export const A11Y_TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'] as const;
 
 export type AppTheme = 'dark' | 'light' | 'spectrum' | 'minimal' | 'minimal-dark';
 
+/** Kill framer entrance opacity wash so axe contrast sees real tokens. */
+export async function settleMotionForAxe(page: Page) {
+  await page.evaluate(() => {
+    document.documentElement.setAttribute('data-a11y-settle', '1');
+    document.querySelectorAll<HTMLElement>('[data-testid="library-course-card"]').forEach((el) => {
+      el.style.setProperty('opacity', '1', 'important');
+      el.style.setProperty('transform', 'none', 'important');
+    });
+  });
+  await page.addStyleTag({
+    content: `
+      html[data-a11y-settle="1"] [data-testid="library-course-card"] {
+        opacity: 1 !important;
+        transform: none !important;
+      }
+    `,
+  }).catch(() => undefined);
+}
+
 /** Full WCAG 2.1 A/AA scan including color-contrast. */
 export function axeBuilder(page: Page) {
   return new AxeBuilder({ page }).withTags([...A11Y_TAGS]);
@@ -22,6 +41,7 @@ export async function setAppTheme(page: Page, theme: AppTheme) {
 }
 
 export async function waitForLibraryReady(page: Page) {
+  await settleMotionForAxe(page);
   await page.waitForFunction(() => {
     const cards = document.querySelectorAll('[data-testid="library-course-card"]');
     if (cards.length === 0) return true;

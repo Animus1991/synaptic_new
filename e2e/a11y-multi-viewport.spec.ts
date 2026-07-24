@@ -1,6 +1,6 @@
 import { test, expect, devices } from '@playwright/test';
 import { skipOnboardingToLibrary } from './helpers/onboarding';
-import { axeBuilder, blockingViolations, formatAxeViolations, dismissProductTourIfOpen, waitForLibraryReady, openWorkspaceFromLibrary } from './helpers/a11y';
+import { axeBuilder, blockingViolations, formatAxeViolations, dismissProductTourIfOpen, waitForLibraryReady, openWorkspaceFromLibrary, settleMotionForAxe } from './helpers/a11y';
 
 /**
  * Re-runs the Lesson + WorkspaceDock a11y guarantees across multiple
@@ -27,6 +27,7 @@ for (const vp of VIEWPORTS) {
       await skipOnboardingToLibrary(page);
       await dismissProductTourIfOpen(page);
       await waitForLibraryReady(page);
+      await settleMotionForAxe(page);
 
       const libResults = await axeBuilder(page).analyze();
       const libBlocking = blockingViolations(libResults);
