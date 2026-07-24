@@ -1,5 +1,7 @@
-import { loadJson, saveJson } from './persistence';
+import { hasStoredLineSpan, spanExcerptFromLine } from './annotationSpan';
 import { refreshAnnotationsAfterReprocess } from './annotationAnchor';
+import { loadJson, saveJson } from './persistence';
+import { reprocessReaderAnnotationsForScope } from './readerAnnotationReanchor';
 
 export type AnnotationCategory =
   | 'general'
@@ -25,6 +27,10 @@ export type StoredAnnotation = {
   color: string;
   lineStart: number;
   lineEnd: number;
+  /** Line-local start offset for sub-line span highlights (inclusive). */
+  charStart?: number;
+  /** Line-local end offset for sub-line span highlights (exclusive). */
+  charEnd?: number;
   /** Optional glossary/concept tag linked to workspace focus. */
   focusTerm?: string;
   createdAt?: string;
@@ -70,6 +76,26 @@ export function reprocessCourseAnnotations(
   return flagged;
 }
 
+/**
+ * W2 TOOL-RD-04 — also re-anchor document-level reader annotations for the same files.
+ * `scopeKeys` typically match CognitiveReader annotationScopeKey (file id/name or `concept:` / `task:`).
+ */
+export function reprocessCourseReaderAnnotations(
+  scopeKeys: string[],
+  textByScopeKey: Record<string, string>,
+): number {
+  let flagged = 0;
+  const seen = new Set<string>();
+  for (const key of scopeKeys) {
+    if (!key || seen.has(key)) continue;
+    seen.add(key);
+    const text = textByScopeKey[key];
+    if (!text?.trim()) continue;
+    flagged += reprocessReaderAnnotationsForScope(key, text);
+  }
+  return flagged;
+}
+
 export function exportAnnotationsMarkdown(
   sourceName: string,
   lines: string[],
@@ -79,9 +105,14 @@ export function exportAnnotationsMarkdown(
   const body = items
     .sort((a, b) => a.lineStart - b.lineStart)
     .map((ann) => {
-      const excerpt = (lines[ann.lineStart] ?? '').trim();
+      const line = lines[ann.lineStart] ?? '';
+      const excerpt = hasStoredLineSpan(ann)
+        ? spanExcerptFromLine(line, ann.charStart, ann.charEnd)
+        : line.trim();
       const parts = [
-        `## Line ${ann.lineStart + 1} · ${ann.type}${ann.category ? ` · ${ann.category}` : ''}`,
+        `## Line ${ann.lineStart + 1} · ${ann.type}${ann.category ? ` · ${ann.category}` : ''}${
+          hasStoredLineSpan(ann) ? ' · span' : ''
+        }`,
         excerpt ? `> ${excerpt}` : '',
         ann.focusTerm ? `**Term:** ${ann.focusTerm}` : '',
         ann.anchorStatus && ann.anchorStatus !== 'ok' ? `**Status:** ${ann.anchorStatus}` : '',

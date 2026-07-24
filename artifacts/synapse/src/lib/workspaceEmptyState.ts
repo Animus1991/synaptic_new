@@ -1,4 +1,6 @@
-import type { Lang } from './i18n';
+import { t, type Lang } from './i18n';
+import type { WorkspaceToolId } from './taskFlows';
+import { WORKSPACE_TOOL_CROSS_LINKS } from './workspaceToolCrossLinks';
 
 /** Tools that render `WorkspaceEmptyState` when extraction yields nothing. */
 export type WorkspaceEmptyTool =
@@ -14,12 +16,48 @@ export type WorkspaceEmptyTool =
   | 'dashboard'
   | 'concept-map'
   | 'annotations'
-  | 'lesson';
+  | 'feynman'
+  | 'lesson'
+  | 'discover'
+  | 'weak-areas';
 
 export function workspaceNoSourceMessage(lang: Lang): string {
-  return lang === 'el'
-    ? 'Ανέβασε σημειώσεις για να εμφανιστεί εξατομικευμένο περιεχόμενο από το δικό σου υλικό.'
-    : 'Upload your notes to see personalized content from your own material.';
+  return t('workspaceNoSource', lang);
+}
+
+export function workspaceEmptyTitle(opts: { hasSource: boolean; lang: Lang }): string {
+  return t(opts.hasSource ? 'workspaceEmptyTitleNoExtract' : 'workspaceEmptyTitleNoSource', opts.lang);
+}
+
+export type WorkspaceEmptyView = {
+  title: string;
+  message: string;
+  hasSource: boolean;
+  actions: WorkspaceEmptyAction[];
+};
+
+/** Full empty-state view model for a workspace tool (§2.7). */
+export function buildWorkspaceEmptyView(opts: {
+  tool: WorkspaceEmptyTool;
+  hasSource: boolean;
+  lang: Lang;
+  concept?: string;
+  onUpload?: () => void;
+  onReprocess?: () => void;
+  onSwitchTool?: (tool: WorkspaceToolId) => void;
+}): WorkspaceEmptyView {
+  const hasSource = opts.hasSource;
+  return {
+    title: workspaceEmptyTitle({ hasSource, lang: opts.lang }),
+    message: workspaceToolEmptyMessage({
+      tool: opts.tool,
+      hasSource,
+      lang: opts.lang,
+      concept: opts.concept,
+    }),
+    hasSource,
+    actions: buildWorkspaceEmptyActions(opts),
+  };
 }
 
 const NO_EXTRACT: Record<WorkspaceEmptyTool, { en: (concept?: string) => string; el: (concept?: string) => string }> = {
@@ -137,6 +175,16 @@ const NO_EXTRACT: Record<WorkspaceEmptyTool, { en: (concept?: string) => string;
     en: () => 'No source text is available to annotate for the current focus.',
     el: () => 'Δεν υπάρχει διαθέσιμο κείμενο προς σχολιασμό για το τρέχον θέμα.',
   },
+  feynman: {
+    en: (c) =>
+      c
+        ? `No explanation prompt was built for «${c}». Try Reader first or reprocess your notes.`
+        : 'No explanation prompt was built from your notes. Try Reader first or reprocess material.',
+    el: (c) =>
+      c
+        ? `Δεν δημιουργήθηκε prompt για «${c}». Δοκίμασε Reader ή reprocess.`
+        : 'Δεν δημιουργήθηκε prompt από τις σημειώσεις. Δοκίμασε Reader ή reprocess.',
+  },
   lesson: {
     en: (c) =>
       c
@@ -146,6 +194,22 @@ const NO_EXTRACT: Record<WorkspaceEmptyTool, { en: (concept?: string) => string;
       c
         ? `Δεν βρέθηκε περιεχόμενο μαθήματος για «${c}» στις σημειώσεις.`
         : 'Δεν βρέθηκε περιεχόμενο μαθήματος για αυτό το βήμα.',
+  },
+  discover: {
+    en: () =>
+      'Upload notes in Library, generate a course, then open Workspace for personalized study guidance.',
+    el: () =>
+      'Ανέβασε σημειώσεις στη Library, δημιούργησε μάθημα και άνοιξε Workspace για εξατομικευμένη καθοδήγηση.',
+  },
+  'weak-areas': {
+    en: (c) =>
+      c
+        ? `No weak spots for «${c}» yet — complete a quiz or rate flashcards to build mastery signals.`
+        : 'No weak spots yet — complete a quiz or rate flashcards to build your mastery profile.',
+    el: (c) =>
+      c
+        ? `Δεν υπάρχουν αδύναμα σημεία για «${c}» — ολοκλήρωσε quiz ή βαθμολόγησε κάρτες.`
+        : 'Δεν υπάρχουν αδύναμα σημεία — ολοκλήρωσε quiz ή βαθμολόγησε κάρτες για προφίλ mastery.',
   },
 };
 
@@ -166,4 +230,98 @@ export function workspaceEmptyUploadHandler(
   onUpload?: () => void,
 ): (() => void) | undefined {
   return !hasSource ? onUpload : undefined;
+}
+
+export type WorkspaceEmptyActionId = 'upload' | 'reprocess' | 'switch-tool';
+
+export type WorkspaceEmptyAction = {
+  id: WorkspaceEmptyActionId;
+  label: string;
+  onClick: () => void;
+  primary?: boolean;
+};
+
+const REPROCESS_ELIGIBLE = new Set<WorkspaceEmptyTool>([
+  'reader', 'scratchpad', 'concept-map', 'quiz', 'leitner', 'simulator', 'compare', 'debate', 'dashboard', 'feynman',
+]);
+
+/** Per-tool CTAs: upload (no source), reprocess, or jump to a related tool. */
+export function buildWorkspaceEmptyActions(opts: {
+  tool: WorkspaceEmptyTool;
+  hasSource: boolean;
+  lang: Lang;
+  onUpload?: () => void;
+  onReprocess?: () => void;
+  onSwitchTool?: (tool: WorkspaceToolId) => void;
+}): WorkspaceEmptyAction[] {
+  const { tool, hasSource, lang, onUpload, onReprocess, onSwitchTool } = opts;
+  if (!hasSource) {
+    if (!onUpload) return [];
+    return [{
+      id: 'upload',
+      label: t('busUploadMaterial', lang),
+      onClick: onUpload,
+      primary: true,
+    }];
+  }
+
+  if (tool === 'weak-areas' && onSwitchTool) {
+    return [
+      {
+        id: 'switch-tool',
+        label: t('emptyActionQuizCheck', lang),
+        onClick: () => onSwitchTool('quiz'),
+        primary: true,
+      },
+      {
+        id: 'switch-tool',
+        label: t('emptyActionLeitner', lang),
+        onClick: () => onSwitchTool('leitner'),
+      },
+      {
+        id: 'switch-tool',
+        label: t('panelOpenReader', lang),
+        onClick: () => onSwitchTool('reader'),
+      },
+    ];
+  }
+
+  if (tool === 'discover' && onSwitchTool) {
+    return [
+      {
+        id: 'switch-tool',
+        label: t('panelOpenReader', lang),
+        onClick: () => onSwitchTool('reader'),
+        primary: true,
+      },
+      {
+        id: 'switch-tool',
+        label: t('emptyActionConceptMap', lang),
+        onClick: () => onSwitchTool('concept-map'),
+      },
+    ];
+  }
+
+  const actions: WorkspaceEmptyAction[] = [];
+
+  if (onReprocess && REPROCESS_ELIGIBLE.has(tool)) {
+    actions.push({
+      id: 'reprocess',
+      label: t('busReprocessMaterial', lang),
+      onClick: onReprocess,
+      primary: actions.length === 0,
+    });
+  }
+
+  const crossKey = tool as WorkspaceToolId;
+  const related = WORKSPACE_TOOL_CROSS_LINKS[crossKey]?.related?.find((r) => r.tool !== crossKey);
+  if (related && onSwitchTool) {
+    actions.push({
+      id: 'switch-tool',
+      label: lang === 'el' ? related.labelEl : related.labelEn,
+      onClick: () => onSwitchTool(related.tool),
+    });
+  }
+
+  return actions;
 }

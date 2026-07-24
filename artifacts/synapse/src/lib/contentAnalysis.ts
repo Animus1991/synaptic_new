@@ -857,7 +857,7 @@ export function inferSubject(text: string): string {
 export function estimateDifficulty(text: string): 'beginner' | 'intermediate' | 'advanced' {
   const sentences = splitSentences(text);
   if (sentences.length === 0) return 'intermediate';
-  const words = text.match(WORD_RE) ?? [];
+  const words: string[] = text.match(WORD_RE) ?? [];
   const avgSentenceWords = words.length / sentences.length;
   const longWordRatio = words.filter((w) => w.length >= 9).length / Math.max(1, words.length);
   const formulaDensity = (text.match(/[=∑∫∂√≤≥≠→±×÷]|\b\d+\.\d+\b/g)?.length ?? 0) / Math.max(1, sentences.length);

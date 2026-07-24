@@ -3,6 +3,7 @@
  */
 
 import type { StoredAnnotation, AnnotationCategory, AnnotationAnchorStatus } from './annotationStore';
+import { hasStoredLineSpan, resolveSpanOffsetsInLine, spanExcerptFromLine } from './annotationSpan';
 import type { ConceptSignal } from './workspaceConceptBus';
 
 export type AnnotationCreatedPayload = {
@@ -24,9 +25,16 @@ export function buildAnnotationAnchor(
   fileKey: string,
   lines: string[],
   lineStart: number,
-  opts?: { courseId?: string; pipelineVersion?: string; sectionLabel?: string },
+  opts?: {
+    courseId?: string;
+    pipelineVersion?: string;
+    sectionLabel?: string;
+    charStart?: number;
+    charEnd?: number;
+  },
 ): AnnotationAnchorMeta {
-  const excerpt = (lines[lineStart] ?? '').trim().slice(0, 240);
+  const line = lines[lineStart] ?? '';
+  const excerpt = spanExcerptFromLine(line, opts?.charStart, opts?.charEnd);
   return {
     courseId: opts?.courseId,
     fileKey,
@@ -96,14 +104,18 @@ export function refreshAnnotationsAfterReprocess(
     }
 
     const lineText = (newLines[resolvedLine] ?? '').trim();
+    const spanOffsets = excerpt ? resolveSpanOffsetsInLine(newLines[resolvedLine] ?? '', excerpt) : null;
     const excerptStillMatches = !excerpt
       || lineText.includes(excerpt.slice(0, 32))
-      || excerpt.includes(lineText.slice(0, 32));
+      || excerpt.includes(lineText.slice(0, 32))
+      || spanOffsets != null;
 
     return {
       ...ann,
       lineStart: resolvedLine,
       lineEnd: Math.max(resolvedLine, ann.lineEnd <= resolvedLine ? resolvedLine : ann.lineEnd),
+      charStart: spanOffsets?.charStart ?? (hasStoredLineSpan(ann) ? undefined : ann.charStart),
+      charEnd: spanOffsets?.charEnd ?? (hasStoredLineSpan(ann) ? undefined : ann.charEnd),
       anchorStatus: excerptStillMatches ? 'ok' : ('needs-review' as AnnotationAnchorStatus),
       anchor: {
         ...(ann.anchor ?? { fileKey: '', excerpt: excerpt || lineText.slice(0, 240) }),

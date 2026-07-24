@@ -1,6 +1,9 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-// Concept graph visual component
+import { bandColorVar, masteryColorForValue, accentHighlightVar } from '../../lib/masteryPalette';
+import type { MasteryBand } from '../../lib/pedagogy';
+import { conceptTypeGlyph } from '../../lib/conceptTypeIcons';
+import { BlueprintSurface } from '../ui/BlueprintSurface';
 
 interface ConceptNode {
   id: string;
@@ -22,32 +25,38 @@ interface ConceptGraphProps {
   edges: ConceptEdge[];
   width?: number;
   height?: number;
+  onOpenConcept?: (label: string) => void;
+  openConceptLabel?: string;
 }
 
-const getMasteryColor = (m: number) => {
-  if (m >= 80) return '#34d399';
-  if (m >= 60) return '#fbbf24';
-  if (m >= 40) return '#38bdf8';
-  if (m > 0) return '#fb7185';
-  return '#4d4870';
-};
+const getMasteryColor = (m: number) => (m > 0 ? masteryColorForValue(m) : 'var(--color-text-muted)');
 
 const typeIcons: Record<string, string> = {
-  concept: '💡', formula: '📐', definition: '📖', theory: '🧠',
+  concept: conceptTypeGlyph('concept'),
+  formula: conceptTypeGlyph('formula'),
+  definition: conceptTypeGlyph('definition'),
+  theory: conceptTypeGlyph('theory'),
 };
 
-export function ConceptGraph({ nodes, edges, width = 700, height = 400 }: ConceptGraphProps) {
+export function ConceptGraph({
+  nodes,
+  edges,
+  width = 700,
+  height = 400,
+  onOpenConcept,
+  openConceptLabel = 'Study in workspace',
+}: ConceptGraphProps) {
   const [hoveredNode, setHoveredNode] = useState<string | null>(null);
   const [selectedNode, setSelectedNode] = useState<string | null>(null);
 
   const nodeMap = Object.fromEntries(nodes.map(n => [n.id, n]));
 
   return (
-    <div className="relative rounded-2xl border border-border-subtle bg-surface-card overflow-hidden" style={{ width: '100%', maxWidth: width }}>
+    <BlueprintSurface className="relative overflow-hidden" style={{ width: '100%', maxWidth: width }}>
       <svg width="100%" viewBox={`0 0 ${width} ${height}`} className="block">
         <defs>
           <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
-            <polygon points="0 0, 8 3, 0 6" fill="#4d4870" />
+            <polygon points="0 0, 8 3, 0 6" fill="var(--color-text-muted)" />
           </marker>
           <filter id="glow">
             <feGaussianBlur stdDeviation="3" result="blur" />
@@ -68,7 +77,7 @@ export function ConceptGraph({ nodes, edges, width = 700, height = 400 }: Concep
             <motion.line
               key={i}
               x1={from.x} y1={from.y} x2={to.x} y2={to.y}
-              stroke={isHighlighted ? '#818cf8' : '#2a2252'}
+              stroke={isHighlighted ? accentHighlightVar() : 'var(--color-border-subtle)'}
               strokeWidth={isHighlighted ? 2 : 1}
               strokeDasharray={dashArray}
               markerEnd="url(#arrowhead)"
@@ -103,7 +112,7 @@ export function ConceptGraph({ nodes, edges, width = 700, height = 400 }: Concep
               )}
 
               {/* Background circle */}
-              <circle cx={node.x} cy={node.y} r={r} fill="#1a1333" stroke={color} strokeWidth={2.5} />
+              <circle cx={node.x} cy={node.y} r={r} fill="var(--viz-node-fill)" stroke={color} strokeWidth={2.5} />
 
               {/* Mastery arc */}
               <circle
@@ -115,8 +124,8 @@ export function ConceptGraph({ nodes, edges, width = 700, height = 400 }: Concep
               />
 
               {/* Icon */}
-              <text x={node.x} y={node.y - 3} textAnchor="middle" dominantBaseline="central" fontSize={14}>
-                {typeIcons[node.type] || '💡'}
+              <text x={node.x} y={node.y - 3} textAnchor="middle" dominantBaseline="central" fontSize={11} fill={color} fontWeight="600">
+                {typeIcons[node.type] || 'C'}
               </text>
 
               {/* Mastery text */}
@@ -128,7 +137,7 @@ export function ConceptGraph({ nodes, edges, width = 700, height = 400 }: Concep
               <text
                 x={node.x} y={node.y + r + 16}
                 textAnchor="middle" fontSize={10}
-                fill={isHovered || isSelected ? '#f1f0f7' : '#a8a3c4'}
+                fill={isHovered || isSelected ? 'var(--color-text-primary)' : 'var(--color-text-tertiary)'}
                 fontWeight={isHovered ? '600' : '400'}
               >
                 {node.label.length > 18 ? node.label.slice(0, 16) + '…' : node.label}
@@ -140,15 +149,17 @@ export function ConceptGraph({ nodes, edges, width = 700, height = 400 }: Concep
 
       {/* Legend */}
       <div className="flex items-center justify-center gap-4 py-3 border-t border-border-subtle">
-        {[
-          { color: '#34d399', label: 'Strong ≥80%' },
-          { color: '#fbbf24', label: 'Proficient ≥60%' },
-          { color: '#38bdf8', label: 'Developing ≥40%' },
-          { color: '#fb7185', label: 'Weak <40%' },
-        ].map(b => (
-          <span key={b.label} className="flex items-center gap-1.5 text-[9px] text-text-muted">
-            <span className="w-2 h-2 rounded-full" style={{ backgroundColor: b.color }} />
-            {b.label}
+        {(
+          [
+            ['strong', 'Strong ≥80%'],
+            ['proficient', 'Proficient ≥60%'],
+            ['developing', 'Developing ≥40%'],
+            ['weak', 'Weak <40%'],
+          ] as [MasteryBand, string][]
+        ).map(([band, label]) => (
+          <span key={label} className="flex items-center gap-1.5 text-[10px] text-text-muted">
+            <span className="w-2 h-2 rounded-full" style={{ backgroundColor: bandColorVar(band) }} />
+            {label}
           </span>
         ))}
       </div>
@@ -170,8 +181,17 @@ export function ConceptGraph({ nodes, edges, width = 700, height = 400 }: Concep
           <div className="text-text-muted">
             Prerequisites: {edges.filter(e => e.to === selectedNode && e.relation === 'prerequisite').map(e => nodeMap[e.from]?.label).filter(Boolean).join(', ') || 'None'}
           </div>
+          {onOpenConcept && (
+            <button
+              type="button"
+              onClick={() => onOpenConcept(nodeMap[selectedNode].label)}
+              className="mt-2 w-full rounded-lg bg-brand-600/15 px-3 py-1.5 text-[11px] font-medium text-brand-300 hover:bg-brand-600/25 transition-colors"
+            >
+              {openConceptLabel}
+            </button>
+          )}
         </motion.div>
       )}
-    </div>
+    </BlueprintSurface>
   );
 }

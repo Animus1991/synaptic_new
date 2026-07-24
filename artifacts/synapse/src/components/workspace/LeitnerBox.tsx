@@ -1,6 +1,6 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 
-import { Layers, RotateCcw, Download, Sparkles, Loader2 } from 'lucide-react';
+import { Layers, RotateCcw, Download, Upload, Sparkles, Loader2 } from '@/lib/lucide-shim';
 
 import { cn } from '../../utils/cn';
 
@@ -10,21 +10,28 @@ import type { SpacingData } from '../../types';
 
 import { useI18n } from '../../lib/i18n';
 
-import { downloadAnkiDeck } from '../../lib/ankiExport';
+import { downloadAnkiDeck, downloadAnkiDeckApkg } from '../../lib/ankiExport';
+import { buildAnkiSchedulingTags, matchSpacingForCard, mergeCardTags } from '../../lib/ankiScheduling';
+import { runPluginHook } from '../../lib/pluginApi';
 
 import { buildDueHeatmap } from '../../lib/leitnerDueHeatmap';
+import { buildFsrsDueQueue, findDeckIndexForConcept } from '../../lib/leitnerDueQueue';
 import { leitnerCardSourceLabel } from '../../lib/leitnerCardSources';
-import type { LeitnerCard } from '../../lib/leitnerSessionModel';
+import { inferLeitnerCardType, leitnerCardTypeLabel } from '../../lib/leitnerCardTypes';
+import { readAnkiFile } from '../../lib/ankiImport';
+import { notifyError, notifySuccess, notifyWarning } from '../../lib/notificationBus';
+import { mergeLeitnerCards, type LeitnerCard } from '../../lib/leitnerSessionModel';
 
 import { saveDeckState, syncDeckState } from '../../lib/leitnerDeckSync';
 import { chatCompletion } from '../../lib/llmClient';
 
-import { WorkspaceEmptyState } from './WorkspaceEmptyState';
+import { WorkspaceToolEmptyState } from './WorkspaceToolEmptyState';
 import { LeitnerStaleArtifactBanner } from './LeitnerStaleArtifactBanner';
+import { LeitnerDueQueuePanel } from './LeitnerDueQueuePanel';
+import { LeitnerFsrsBoxRail } from './LeitnerFsrsBoxRail';
+import { SourceCitationChip } from './SourceCitationChip';
+import { LeitnerOcclusionFace } from './LeitnerOcclusionFace';
 
-
-
-const BOX_KEYS = ['leitnerAgain', 'leitnerHard', 'leitnerGood', 'leitnerEasy'] as const;
 
 
 
@@ -45,13 +52,16 @@ interface LeitnerBoxProps {
   emptyMessage?: string;
 
   hasSource?: boolean;
+  onSessionDirty?: () => void;
 
   onUpload?: () => void;
   onOpenQuiz?: () => void;
   onQuizCard?: (front: string) => void;
+  onOpenInReader?: (query: string) => void;
   artifactStale?: boolean;
   onAcknowledgeStale?: () => void;
   lang?: 'en' | 'el';
+  interleaved?: boolean;
 }
 
 
@@ -73,14 +83,17 @@ export function LeitnerBox({
   emptyMessage,
 
   hasSource = false,
+  onSessionDirty,
 
   onUpload,
 
   onOpenQuiz,
   onQuizCard,
+  onOpenInReader,
   artifactStale = false,
   onAcknowledgeStale,
   lang: langProp,
+  interleaved = false,
 }: LeitnerBoxProps) {
 
   const { t, lang: i18nLang } = useI18n();
@@ -97,6 +110,68 @@ export function LeitnerBox({
   const [dueCount, setDueCount] = useState(0);
 
   const [finished, setFinished] = useState(false);
+  const [activeBoxIndex, setActiveBoxIndex] = useState<number | null>(null);
+  const [importError, setImportError] = useState<string | null>(null);
+  const importRef = useRef<HTMLInputElement>(null);
+
+  const handleAnkiImport = useCallback(async (file: File) => {
+    setImportError(null);
+    try {
+      const parsed = await readAnkiFile(file);
+      if (parsed.length === 0) {
+        const msg = lang === 'el' ? 'Δεν βρέθηκαν κάρτες στο αρχείο.' : 'No cards found in file.';
+        setImportError(msg);
+        notifyWarning(lang === 'el' ? 'Κενό αρχείο Anki' : 'Empty Anki file', msg);
+        return;
+      }
+      const imported: LeitnerCard[] = parsed.map((c) => ({ front: c.front, back: c.back }));
+      setDeck((prev) => mergeLeitnerCards(prev, imported));
+      setIndex(0);
+      setFinished(false);
+      onSessionDirty?.();
+      notifySuccess(
+        lang === 'el' ? 'Εισαγωγή Anki' : 'Anki import complete',
+        lang === 'el'
+          ? `${parsed.length} κάρτε${parsed.length === 1 ? 'α' : 'ες'} προστέθηκαν`
+          : `${parsed.length} card${parsed.length === 1 ? '' : 's'} added`,
+      );
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      setImportError(msg);
+      notifyError(lang === 'el' ? 'Αποτυχία εισαγωγής Anki' : 'Anki import failed', msg);
+    }
+  }, [onSessionDirty, lang]);
+
+  const buildAnkiExportCards = useCallback(async () => {
+    let exportCards = deck.map((card) => {
+      const spacing = matchSpacingForCard(card.front, spacingIntervals ?? []);
+      const tags = spacing
+        ? mergeCardTags(concept ? [concept] : [], buildAnkiSchedulingTags(spacing))
+        : (concept ? [concept] : []);
+      return { front: card.front, back: card.back, tags };
+    });
+    exportCards = (await runPluginHook('leitner:beforeExport', exportCards)) as typeof exportCards;
+    return exportCards;
+  }, [deck, spacingIntervals, concept]);
+
+  const handleAnkiExportTsv = useCallback(async () => {
+    const exportCards = await buildAnkiExportCards();
+    downloadAnkiDeck(
+      exportCards,
+      `Synapse — ${concept || 'deck'}`,
+      `synapse-${concept || 'deck'}`,
+      concept ? [concept, 'synapse:fsrs'] : ['synapse:fsrs'],
+    );
+  }, [buildAnkiExportCards, concept]);
+
+  const handleAnkiExportApkg = useCallback(async () => {
+    const exportCards = await buildAnkiExportCards();
+    await downloadAnkiDeckApkg(
+      exportCards,
+      `Synapse — ${concept || 'deck'}`,
+      `synapse-${concept || 'deck'}`,
+    );
+  }, [buildAnkiExportCards, concept]);
 
   const [aiHint, setAiHint] = useState<string | null>(null);
   const [aiHintLoading, setAiHintLoading] = useState(false);
@@ -107,7 +182,7 @@ export function LeitnerBox({
 
     if (cards.length === 0) return;
 
-    const synced = syncDeckState(scopeKey, cards, spacingIntervals, concept ?? '');
+    const synced = syncDeckState(scopeKey, cards, spacingIntervals, concept ?? '', { interleaved });
 
     setDeck(synced.ordered);
 
@@ -116,18 +191,30 @@ export function LeitnerBox({
     setDueCount(synced.dueCount);
 
     setBoxCounts(synced.boxCounts ?? [0, 0, 0, 0]);
+    onSessionDirty?.();
 
-  }, [cards, spacingIntervals, concept, scopeKey]);
+  }, [cards, spacingIntervals, concept, scopeKey, onSessionDirty, interleaved]);
 
 
 
   const heatmap = useMemo(
-
     () => buildDueHeatmap(spacingIntervals, concept ?? '', 7, new Date(), lang),
-
     [spacingIntervals, concept, lang],
-
   );
+
+  const dueQueue = useMemo(
+    () => buildFsrsDueQueue(spacingIntervals, deck, concept ?? '', new Date()),
+    [spacingIntervals, deck, concept],
+  );
+
+  const handleDueQueueSelect = useCallback((itemConcept: string) => {
+    const idx = findDeckIndexForConcept(deck, itemConcept);
+    if (idx >= 0) {
+      setIndex(idx);
+      setFlipped(false);
+      setFinished(false);
+    }
+  }, [deck]);
 
 
 
@@ -148,8 +235,9 @@ export function LeitnerBox({
       cardOrder: deck.map((c) => c.front),
 
     });
+    onSessionDirty?.();
 
-  }, [scopeKey, deck]);
+  }, [scopeKey, deck, onSessionDirty]);
 
 
 
@@ -262,14 +350,12 @@ export function LeitnerBox({
 
     return (
 
-      <WorkspaceEmptyState
-
-        message={emptyMessage ?? 'Upload notes to generate flashcards from your glossary and definitions.'}
-
-        hasSource={hasSource}
-
+      <WorkspaceToolEmptyState
+        tool="leitner"
+        concept={concept}
+        message={emptyMessage}
+        hasSource={hasSource ?? false}
         onUpload={onUpload}
-
       />
 
     );
@@ -280,7 +366,7 @@ export function LeitnerBox({
 
   return (
 
-    <div className="flex flex-col h-full p-4">
+    <div className="flex flex-col h-full p-4 leitner-box-shell">
 
       {artifactStale && onAcknowledgeStale && (
         <LeitnerStaleArtifactBanner
@@ -290,7 +376,7 @@ export function LeitnerBox({
         />
       )}
 
-      <h3 className="text-sm font-semibold flex items-center gap-2 mb-2">
+      <h3 className="text-sm font-semibold flex items-center gap-2 mb-2 xl:col-span-2">
 
         <Layers className="w-4 h-4 text-accent-amber" />
 
@@ -302,11 +388,11 @@ export function LeitnerBox({
 
             data-testid="leitner-due-badge"
 
-            className="rounded-full bg-accent-rose/20 px-2 py-0.5 text-[9px] font-semibold text-accent-rose"
+            className="rounded-full bg-accent-rose/20 px-2 py-0.5 text-[10px] font-semibold text-accent-rose"
 
           >
 
-            {dueCount} {lang === 'el' ? 'λόγω ουράς' : 'due'}
+            {dueCount} {t('leitnerDueBadge')}
 
           </span>
 
@@ -317,45 +403,83 @@ export function LeitnerBox({
             type="button"
             data-testid="leitner-open-quiz"
             onClick={onOpenQuiz}
-            className="ml-auto flex items-center gap-1 text-[10px] font-medium text-accent-cyan hover:text-accent-cyan/80 border border-accent-cyan/30 rounded-lg px-2 py-0.5 mr-1"
+            className="ml-auto flex items-center gap-1 text-[10px] font-medium text-brand-800 hover:opacity-80 border border-accent-cyan/30 rounded-lg px-2 py-0.5 mr-1"
           >
-            {lang === 'el' ? 'Κουίζ' : 'Quiz'}
+            {t('quiz')}
           </button>
         )}
 
         {deck.length > 0 && (
+          <details className="relative group">
+            <summary
+              className="flex items-center gap-1 text-[10px] font-medium text-brand-700 hover:text-brand-800 border border-brand-500/30 rounded-lg px-2 py-0.5 cursor-pointer list-none [&::-webkit-details-marker]:hidden"
+              title={t('leitnerExportAnki')}
+              data-testid="leitner-export-anki"
+            >
+              <Download className="w-3 h-3" />
+              Anki
+            </summary>
+            <div className="absolute right-0 top-full z-20 mt-1 min-w-[7rem] rounded-lg border border-border-subtle bg-surface-elevated shadow-lg py-1">
+              <button
+                type="button"
+                data-testid="leitner-export-anki-apkg"
+                onClick={() => void handleAnkiExportApkg()}
+                className="block w-full text-left px-2 py-1 text-[10px] font-medium text-text-primary hover:bg-surface-muted"
+              >
+                {t('leitnerExportAnkiApkg')}
+              </button>
+              <button
+                type="button"
+                data-testid="leitner-export-anki-tsv"
+                onClick={() => void handleAnkiExportTsv()}
+                className="block w-full text-left px-2 py-1 text-[10px] font-medium text-text-secondary hover:bg-surface-muted"
+              >
+                {t('leitnerExportAnkiTsv')}
+              </button>
+            </div>
+          </details>
+        )}
 
-          <button
+        <input
+          ref={importRef}
+          type="file"
+          accept=".txt,.tsv,.apkg,text/plain,application/octet-stream"
+          className="hidden"
+          data-testid="leitner-import-anki-input"
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            if (file) void handleAnkiImport(file);
+            e.target.value = '';
+          }}
+        />
+        <button
+          type="button"
+          data-testid="leitner-import-anki"
+          onClick={() => importRef.current?.click()}
+          className="flex items-center gap-1 text-[10px] font-medium text-text-secondary hover:text-text-primary border border-border-subtle rounded-lg px-2 py-0.5"
+          title={t('leitnerImportAnki')}
+        >
+          <Upload className="w-3 h-3" />
+          {lang === 'el' ? 'Εισαγωγή' : 'Import'}
+        </button>
 
-            type="button"
-
-            data-testid="leitner-export-anki"
-
-            onClick={() => downloadAnkiDeck(deck, `Synapse — ${concept || 'deck'}`, `synapse-${concept || 'deck'}`, concept ? [concept] : [])}
-
-            className="ml-auto flex items-center gap-1 text-[10px] font-medium text-brand-400 hover:text-brand-300 border border-brand-500/30 rounded-lg px-2 py-0.5"
-
-            title={lang === 'el' ? 'Εξαγωγή Anki' : 'Export Anki'}
-
-          >
-
-            <Download className="w-3 h-3" />
-
-            Anki
-
-          </button>
-
+        {importError && (
+          <span className="text-[10px] text-red-500 max-w-[12rem] truncate" title={importError}>
+            {importError}
+          </span>
         )}
 
       </h3>
 
+      <div className="grid gap-4 xl:grid-cols-[280px_1fr] flex-1 min-h-0">
+        <aside className="leitner-box-sidebar space-y-3 min-h-0 overflow-y-auto">
+          <p className="text-sm leading-6 text-text-secondary">{t('leitnerBoxSidebarHint')}</p>
 
+      <div className="mb-1" data-testid="leitner-due-heatmap">
 
-      <div className="mb-3" data-testid="leitner-due-heatmap">
+        <p className="text-[10px] font-semibold text-text-muted mb-1">
 
-        <p className="text-[9px] font-semibold uppercase tracking-wide text-text-muted mb-1">
-
-          {lang === 'el' ? 'Ουρά επανάληψης (7ημ)' : 'Due queue (7d)'}
+          {t('leitnerDueQueue7d')}
 
         </p>
 
@@ -375,7 +499,7 @@ export function LeitnerBox({
 
             >
 
-              <p className="text-[8px] text-text-muted truncate">{day.label}</p>
+              <p className="text-[10px] text-text-muted truncate">{day.label}</p>
 
               <p className="text-[10px] font-bold text-accent-amber">{day.dueCount}</p>
 
@@ -387,46 +511,64 @@ export function LeitnerBox({
 
       </div>
 
+      <LeitnerDueQueuePanel items={dueQueue} onSelect={handleDueQueueSelect} lang={lang} />
 
+      <LeitnerFsrsBoxRail
+        counts={boxCounts}
+        total={deck.length}
+        activeIndex={activeBoxIndex}
+        onSelect={setActiveBoxIndex}
+      />
+        </aside>
 
-      <div className="grid grid-cols-4 gap-2 mb-4">
+        <div className="leitner-box-main flex flex-col min-h-0">
 
-        {BOX_KEYS.map((key, i) => (
-
-          <div key={key} className="p-2 rounded-lg bg-surface-primary/50 border border-border-subtle text-center">
-
-            <p className="text-lg font-bold">{boxCounts[i]}</p>
-
-            <p className="text-[9px] text-text-muted">{t(key)}</p>
-
-          </div>
-
-        ))}
-
-      </div>
-
-
-
+      <div className="leitner-flip-stage flex-1 flex flex-col min-h-0">
       <button
 
         onClick={() => setFlipped(!flipped)}
 
-        className="flex-1 min-h-[140px] rounded-xl border border-brand-500/30 bg-brand-500/5 p-5 text-left hover:border-brand-500/50 transition-all"
+        className={cn(
+          'leitner-flip-card flex-1 min-h-[140px] p-5 text-left transition-all',
+          flipped && 'leitner-flip-card--flipped',
+        )}
 
       >
 
         <p className="text-[10px] text-text-muted mb-2">{flipped ? t('answer') : t('question')}</p>
-        {card?.source && (
-          <span
-            className="mb-2 inline-block rounded-full border border-brand-500/25 bg-brand-600/10 px-2 py-0.5 text-[9px] font-medium text-brand-300"
-            data-testid="leitner-card-source"
-          >
-            {leitnerCardSourceLabel(card.source, lang)}
-          </span>
+        <div className="mb-2 flex flex-wrap items-center gap-1.5">
+          {card && (
+            <span
+              className="inline-block rounded-full border border-accent-cyan/25 bg-accent-cyan/10 px-2 py-0.5 text-[10px] font-medium text-brand-800"
+              data-testid="leitner-card-type"
+            >
+              {leitnerCardTypeLabel(inferLeitnerCardType(card), lang)}
+            </span>
+          )}
+          {card?.source && (
+            <span
+              className="inline-block rounded-full border border-brand-500/25 bg-brand-600/10 px-2 py-0.5 text-[10px] font-medium text-brand-800"
+              data-testid="leitner-card-source"
+            >
+              {leitnerCardSourceLabel(card.source, lang)}
+            </span>
+          )}
+        </div>
+        {card?.citation && (
+          <SourceCitationChip
+            citation={card.citation}
+            onOpenInReader={onOpenInReader}
+            className="mb-2"
+          />
         )}
-        <p className="text-sm font-medium leading-relaxed">{flipped ? card!.back : card!.front}</p>
+        {card?.occlusion ? (
+          <LeitnerOcclusionFace occlusion={card.occlusion} flipped={flipped} />
+        ) : (
+          <p className="text-sm font-medium leading-relaxed">{flipped ? card!.back : card!.front}</p>
+        )}
 
       </button>
+      </div>
 
 
 
@@ -447,9 +589,9 @@ export function LeitnerBox({
           type="button"
           data-testid="leitner-quiz-this-card"
           onClick={() => onQuizCard(card.front)}
-          className="mt-2 w-full rounded-lg border border-accent-cyan/30 bg-accent-cyan/10 py-1.5 text-[10px] font-medium text-accent-cyan hover:bg-accent-cyan/15"
+          className="mt-2 w-full rounded-lg border border-accent-cyan/30 bg-accent-cyan/10 py-1.5 text-[10px] font-medium text-brand-800 hover:opacity-90"
         >
-          {lang === 'el' ? 'Κουίζ αυτής της κάρτας →' : 'Quiz this card →'}
+          {t('leitnerQuizThisCard')}
         </button>
       )}
 
@@ -483,7 +625,7 @@ export function LeitnerBox({
 
       {flipped && !finished && (
 
-        <p className="mt-2 text-center text-[10px] text-text-muted">Space · 1–4 {lang === 'el' ? 'αξιολόγηση' : 'rate'}</p>
+        <p className="mt-2 text-center text-[10px] text-text-muted">Space · 1–4 {t('leitnerRateKeyboard')}</p>
 
       )}
 
@@ -560,6 +702,9 @@ export function LeitnerBox({
         <RotateCcw className="w-3 h-3" /> {t('resetDeck')}
 
       </button>
+
+        </div>
+      </div>
 
     </div>
 

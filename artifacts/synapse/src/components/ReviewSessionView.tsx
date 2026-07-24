@@ -1,4 +1,4 @@
-import { X, RotateCcw, Sparkles } from 'lucide-react';
+import { X, RotateCcw, Sparkles } from '@/lib/lucide-shim';
 import { LeitnerBox } from './workspace/LeitnerBox';
 import type { FsrsRating } from '../lib/pedagogy';
 

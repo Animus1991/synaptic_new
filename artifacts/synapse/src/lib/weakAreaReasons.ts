@@ -2,7 +2,7 @@
  * Wave 3B — explainable weak-area reasons from Concept Bus + mastery.
  */
 
-import type { Lang } from './i18n';
+import { t, type Lang } from './i18n';
 import type { WeakSpotRef } from './workspaceWeakAreas';
 import {
   activityFor,
@@ -61,8 +61,7 @@ export function buildWeakAreaReasons(
   lang: Lang,
   opts?: { mastery?: number; source?: WeakSpotRef['source'] },
 ): WeakAreaReason[] {
-  const isEl = lang === 'el';
-  const reasons: WeakAreaReason[] = [];
+    const reasons: WeakAreaReason[] = [];
   const activity = activityFor(bus, concept);
 
   if (activity) {
@@ -81,7 +80,7 @@ export function buildWeakAreaReasons(
     if (activity.struggleScore > 1 && reasons.length === 0) {
       reasons.push({
         id: 'struggle-score',
-        label: isEl ? 'Συνολική δυσκολία στη συνεδρία' : 'Net struggle this session',
+        label: t('weakReasonNetStruggle', lang),
         severity: 'medium',
       });
     }
@@ -91,7 +90,7 @@ export function buildWeakAreaReasons(
   if (mastery != null && mastery < 50) {
     reasons.push({
       id: 'low-mastery',
-      label: isEl ? `Χαμηλό mastery (${mastery}%)` : `Low mastery (${mastery}%)`,
+      label: t('weakReasonLowMastery', lang).replace('{mastery}', String(mastery)),
       severity: mastery < 35 ? 'high' : 'medium',
     });
   }
@@ -99,7 +98,7 @@ export function buildWeakAreaReasons(
   if (opts?.source === 'bus' && reasons.length === 0) {
     reasons.push({
       id: 'session-weak',
-      label: isEl ? 'Αδύναμο σήμα αυτή τη συνεδρία' : 'Weak signal this session',
+      label: t('weakReasonWeakSignal', lang),
       severity: 'low',
     });
   }

@@ -1,0 +1,162 @@
+import type { Lang } from './i18n';
+import type { NoteAnalysisStageId } from './noteAnalysisSnapshot';
+
+export type NoteAnalysisContent = {
+  pageTitle: string;
+  subtitle: (course: string, score: number | null) => string;
+  stageNames: Record<NoteAnalysisStageId, string>;
+  continueToCourse: string;
+  openWorkspace: string;
+  backToLibrary: string;
+  fileProcessing: string;
+  pagesParsed: string;
+  wordsExtracted: string;
+  filesUploaded: string;
+  contentDiagnosis: string;
+  detectedSubject: string;
+  extractedItems: string;
+  detectedIssues: string;
+  algorithmTransparency: string;
+  liveTransparencyTitle: string;
+  liveTransparencyHint: string;
+  liveTransparencyQueryLabel: string;
+  liveTransparencyQueryPlaceholder: string;
+  liveTransparencyRun: string;
+  liveTransparencyHits: string;
+  liveTransparencyNoHits: string;
+  bm25Ranking: string;
+  textRankSentences: string;
+  keyphraseRankings: string;
+  knowledgeGraph: string;
+  courseArchitecture: string;
+  qualityAssurance: string;
+  noIssues: string;
+  generateCourse: string;
+  materialProcessingReadiness: string;
+  readinessInsufficient: string;
+  exploreDetails: string;
+  summarySourceHealth: string;
+  summaryStructure: string;
+  summaryNextStep: string;
+  qaInsufficientData: string;
+  actionUpload: string;
+  actionWorkspace: string;
+  actionCourse: string;
+  actionReprocess: string;
+};
+
+const STAGE_EN: Record<NoteAnalysisStageId, string> = {
+  1: 'File Processing',
+  2: 'Content Diagnosis',
+  2.5: 'Algorithm Transparency',
+  3: 'Knowledge Graph',
+  4: 'Course Architecture',
+  5: 'Quality Assurance',
+};
+
+const STAGE_EL: Record<NoteAnalysisStageId, string> = {
+  1: 'Επεξεργασία αρχείων',
+  2: 'Διάγνωση περιεχομένου',
+  2.5: 'Διαφάνεια αλγορίθμων',
+  3: 'Γράφημα γνώσης',
+  4: 'Αρχιτεκτονική μαθήματος',
+  5: 'Διασφάλιση ποιότητας',
+};
+
+const EN: NoteAnalysisContent = {
+  pageTitle: 'Note Analysis',
+  subtitle: (course, score) => score != null
+    ? `${course} · Source quality ${score}%`
+    : course,
+  stageNames: STAGE_EN,
+  continueToCourse: 'View course',
+  openWorkspace: 'Open workspace',
+  backToLibrary: 'Back to library',
+  fileProcessing: 'Files processed',
+  pagesParsed: 'Pages estimated',
+  wordsExtracted: 'Words extracted',
+  filesUploaded: 'Source files',
+  contentDiagnosis: 'Content diagnosis',
+  detectedSubject: 'Detected subject',
+  extractedItems: 'Extracted items',
+  detectedIssues: 'Detected issues',
+  algorithmTransparency: 'See how BM25, TextRank, and keyphrase extraction work on your notes.',
+  liveTransparencyTitle: 'Live engine transparency',
+  liveTransparencyHint: 'Run a concept or query against your uploaded material and inspect live BM25 hits, TextRank summaries, and keyphrase signals.',
+  liveTransparencyQueryLabel: 'Concept or query',
+  liveTransparencyQueryPlaceholder: 'Try: price elasticity, demand curve, mitochondria...',
+  liveTransparencyRun: 'Run analysis',
+  liveTransparencyHits: 'Top grounded hits',
+  liveTransparencyNoHits: 'No lexical hits found for this query yet.',
+  bm25Ranking: 'BM25 term ranking',
+  textRankSentences: 'TextRank sentence scores',
+  keyphraseRankings: 'Keyphrase rankings',
+  knowledgeGraph: 'Concept knowledge graph',
+  courseArchitecture: 'Generated course modules',
+  qualityAssurance: 'Quality assurance metrics',
+  noIssues: 'No critical issues detected — review the summary and choose your next step.',
+  generateCourse: 'Continue to course',
+  materialProcessingReadiness: 'Material processing readiness',
+  readinessInsufficient: 'Insufficient data',
+  exploreDetails: 'Explore pipeline details',
+  summarySourceHealth: 'Source health',
+  summaryStructure: 'Extracted structure',
+  summaryNextStep: 'Recommended next step',
+  qaInsufficientData: 'Quality metrics appear only when the pipeline computed source quality or course rubric scores.',
+  actionUpload: 'Upload more material',
+  actionWorkspace: 'Open workspace',
+  actionCourse: 'View course',
+  actionReprocess: 'Reprocess sources',
+};
+
+const EL: NoteAnalysisContent = {
+  pageTitle: 'Ανάλυση σημειώσεων',
+  subtitle: (course, score) => score != null
+    ? `${course} · Ποιότητα πηγής ${score}%`
+    : course,
+  stageNames: STAGE_EL,
+  continueToCourse: 'Προβολή μαθήματος',
+  openWorkspace: 'Άνοιγμα workspace',
+  backToLibrary: 'Πίσω στη βιβλιοθήκη',
+  fileProcessing: 'Επεξεργασμένα αρχεία',
+  pagesParsed: 'Εκτιμώμενες σελίδες',
+  wordsExtracted: 'Εξαγόμενες λέξεις',
+  filesUploaded: 'Αρχεία πηγής',
+  contentDiagnosis: 'Διάγνωση περιεχομένου',
+  detectedSubject: 'Ανιχνευμένο αντικείμενο',
+  extractedItems: 'Εξαγόμενα στοιχεία',
+  detectedIssues: 'Ανιχνευμένα θέματα',
+  algorithmTransparency: 'Δες πώς λειτουργούν BM25, TextRank και εξαγωγή keyphrases στις σημειώσεις σου.',
+  liveTransparencyTitle: 'Live διαφάνεια engine',
+  liveTransparencyHint: 'Τρέξε μια έννοια ή ερώτημα πάνω στο ανεβασμένο υλικό και δες live BM25 hits, TextRank summaries και keyphrase signals.',
+  liveTransparencyQueryLabel: 'Έννοια ή ερώτημα',
+  liveTransparencyQueryPlaceholder: 'Δοκίμασε: price elasticity, demand curve, μιτοχόνδρια...',
+  liveTransparencyRun: 'Εκτέλεση ανάλυσης',
+  liveTransparencyHits: 'Κορυφαία grounded hits',
+  liveTransparencyNoHits: 'Δεν βρέθηκαν lexical hits για αυτό το query ακόμη.',
+  bm25Ranking: 'Κατάταξη όρων BM25',
+  textRankSentences: 'Βαθμολογίες προτάσεων TextRank',
+  keyphraseRankings: 'Κατάταξη keyphrases',
+  knowledgeGraph: 'Γράφημα εννοιών',
+  courseArchitecture: 'Modules μαθήματος',
+  qualityAssurance: 'Μετρικές ποιότητας',
+  noIssues: 'Δεν εντοπίστηκαν κρίσιμα θέματα — δες την περίληψη και διάλεξε επόμενο βήμα.',
+  generateCourse: 'Συνέχεια στο μάθημα',
+  materialProcessingReadiness: 'Material processing readiness',
+  readinessInsufficient: 'Ανεπαρκή δεδομένα',
+  exploreDetails: 'Λεπτομέρειες pipeline',
+  summarySourceHealth: 'Υγεία πηγής',
+  summaryStructure: 'Εξαγόμενη δομή',
+  summaryNextStep: 'Προτεινόμενο επόμενο βήμα',
+  qaInsufficientData: 'Μετρικές ποιότητας εμφανίζονται μόνο όταν το pipeline υπολόγισε source quality ή course rubric.',
+  actionUpload: 'Ανέβασε περισσότερο υλικό',
+  actionWorkspace: 'Άνοιγμα workspace',
+  actionCourse: 'Προβολή μαθήματος',
+  actionReprocess: 'Επανεπεξεργασία πηγών',
+};
+
+export function getNoteAnalysisContent(lang: Lang): NoteAnalysisContent {
+  return lang === 'el' ? EL : EN;
+}
+
+export const NOTE_ANALYSIS_STAGES: NoteAnalysisStageId[] = [1, 2, 2.5, 3, 4, 5];

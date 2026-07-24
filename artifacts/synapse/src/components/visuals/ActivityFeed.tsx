@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { BookOpen, CheckCircle2, Brain, Zap, RotateCcw, AlertTriangle, Star, Target, Clock, Upload, Activity } from 'lucide-react';
+import { BookOpen, CheckCircle2, Brain, Zap, RotateCcw, AlertTriangle, Star, Target, Clock, Upload, Activity } from '@/lib/lucide-shim';
 import type { ActivityItem, ActivityType } from '../../types';
 import { formatRelativeTime } from '../../lib/activityLog';
 import { useI18n } from '../../lib/i18n';
@@ -31,7 +31,7 @@ export function ActivityFeed({ activities, maxItems = 6 }: Props) {
   const { t, lang } = useI18n();
 
   if (activities.length === 0) {
-    return <p className="text-xs text-text-tertiary text-center py-4">{t('activityFeedEmpty')}</p>;
+    return <p className="text-xs text-text-tertiary text-center py-2">{t('activityFeedEmpty')}</p>;
   }
 
   return (
@@ -53,7 +53,7 @@ export function ActivityFeed({ activities, maxItems = 6 }: Props) {
             <p className="text-xs text-text-secondary flex-1 truncate">{item.description}</p>
             <div className="flex items-center gap-2 shrink-0">
               {item.xp != null && <span className="text-[10px] text-accent-amber font-medium">+{item.xp}</span>}
-              <span className="text-[9px] text-text-muted">{formatRelativeTime(item.timestamp, lang)}</span>
+              <span className="text-[10px] text-text-muted">{formatRelativeTime(item.timestamp, lang)}</span>
             </div>
           </motion.div>
         );

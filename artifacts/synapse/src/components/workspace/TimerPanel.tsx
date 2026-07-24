@@ -1,5 +1,5 @@
 import { useMemo, useState, useCallback } from 'react';
-import { AlertTriangle, BookOpen, Layers, Search, Sparkles, Loader2 } from 'lucide-react';
+import { BookOpen, Layers, Search, AlertTriangle, Sparkles, Loader2 } from '@/lib/lucide-shim';
 import type { TimerSessionContent } from '../../lib/timerSessionModel';
 import { filterTimerSessionLogs } from '../../lib/timerSessionModel';
 import { examPracticeLabel } from '../../lib/examPracticePresets';
@@ -7,9 +7,12 @@ import type { ExamPracticePresetId } from '../../lib/examPracticePresets';
 import { auditTimerExamCountdownDashboard } from '../../lib/timerExamCountdownDashboardQA';
 import { loadTimerSessions } from '../../lib/workspacePersistence';
 import { chatCompletion } from '../../lib/llmClient';
-import { WorkspaceEmptyState } from './WorkspaceEmptyState';
+import { WorkspaceToolEmptyState } from './WorkspaceToolEmptyState';
 import { StudyTimer } from './StudyTimer';
 import { TimerExamCountdownDashboardStrip } from './TimerExamCountdownDashboardStrip';
+import { WorkspacePanelWarnStrip } from './WorkspacePanelWarnStrip';
+import { useI18n } from '../../lib/i18n';
+import { AllCapsLabel } from '../ui/AllCapsLabel';
 
 type Props = {
   session: TimerSessionContent;
@@ -58,6 +61,7 @@ export function TimerPanel({
   const [aiPlan, setAiPlan] = useState<string | null>(null);
   const [aiPlanLoading, setAiPlanLoading] = useState(false);
   const isEl = lang === 'el';
+  const { t } = useI18n();
 
   const generateAiPlan = useCallback(async () => {
     setAiPlanLoading(true);
@@ -91,8 +95,10 @@ export function TimerPanel({
 
   if (!session.hasSource) {
     return (
-      <WorkspaceEmptyState
-        message={emptyMessage ?? (isEl ? 'Ανέβασε σημειώσεις για χρονόμετρο μελέτης.' : 'Upload notes to use the study timer.')}
+      <WorkspaceToolEmptyState
+        tool="timer"
+        concept={concept}
+        message={emptyMessage}
         hasSource={false}
         onUpload={onUpload}
       />
@@ -104,65 +110,51 @@ export function TimerPanel({
       <div className="shrink-0 border-b border-border-subtle px-4 py-3">
         {session.sectionLabel && (
           <p className="mb-2 text-[10px] text-text-muted" data-testid="timer-section-label">
-            {isEl ? 'Ενότητα:' : 'Section:'}{' '}
+            {t('wsSectionColon')}{' '}
             <span className="text-text-secondary">{session.sectionLabel}</span>
           </p>
         )}
 
         {(session.weakExtraction || session.passageGrounded) && (
-          <div
-            className="mb-3 flex items-start gap-2 rounded-xl border border-accent-amber/30 bg-accent-amber/8 px-3 py-2 text-[10px] text-accent-amber"
-            data-testid="timer-weak-extraction"
-          >
-            <AlertTriangle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
-            <p>
-              {session.passageGrounded
-                ? (isEl
-                  ? 'Η συνεδρία δένεται σε generic concept — επίλεξε πιο συγκεκριμένο βήμα για καλύτερο tracking.'
-                  : 'Session is tied to a generic concept — pick a specific step for better tracking.')
-                : (isEl
-                  ? 'Γενική έννοια — δοκίμασε Reprocess ή άλλαξε βήμα.'
-                  : 'Generic concept — try Reprocess or switch step.')}
-            </p>
-          </div>
+          <WorkspacePanelWarnStrip testId="timer-weak-extraction">
+            {session.passageGrounded ? t('panelTimerGenericTracking') : t('panelTimerGenericWeak')}
+          </WorkspacePanelWarnStrip>
         )}
 
         <TimerExamCountdownDashboardStrip report={countdownReport} lang={lang} />
 
         <div className="mb-2 flex flex-wrap items-center gap-2">
           <span
-            className="rounded-full border border-brand-500/30 bg-brand-600/10 px-2 py-0.5 text-[9px] font-medium text-brand-300"
+            className="rounded-full border border-brand-500/30 bg-brand-600/10 px-2 py-0.5 text-[10px] font-medium text-brand-800"
             data-testid="timer-suggested-preset"
           >
             {PRESET_LABELS[session.suggestedPreset][lang]}
           </span>
           <span
-            className="rounded-full border border-accent-amber/30 bg-accent-amber/10 px-2 py-0.5 text-[9px] font-medium text-accent-amber"
+            className="ws-eyebrow ws-chip-warn rounded-full px-2 py-0.5 text-[10px] font-medium"
             data-testid="timer-suggested-exam-practice"
           >
-            {examPracticeLabel(activeExamPractice ?? session.suggestedExamPractice, lang)}
+            <AllCapsLabel>{examPracticeLabel(activeExamPractice ?? session.suggestedExamPractice, lang)}</AllCapsLabel>
           </span>
           {session.daysToExam !== null && (
             <span className="text-[10px] text-text-muted">
-              {isEl
-                ? `${session.daysToExam} ημ. μέχρι εξέταση`
-                : `${session.daysToExam}d to exam`}
+              {t('panelDaysToExam').replace('{days}', String(session.daysToExam))}
             </span>
           )}
           {session.recentSessionCount > 0 && (
             <span className="text-[10px] text-text-muted">
-              {session.recentSessionCount} {isEl ? 'συνεδρίες' : 'sessions'}
+              {session.recentSessionCount} {t('panelSessions')}
             </span>
           )}
           {session.suggestBreakTool === 'leitner' && onOpenBreakTool && (
             <button
               type="button"
               onClick={onOpenBreakTool}
-              className="inline-flex items-center gap-1 rounded-lg border border-accent-emerald/30 bg-accent-emerald/10 px-2 py-0.5 text-[9px] font-medium text-accent-emerald hover:bg-accent-emerald/15"
+              className="inline-flex items-center gap-1 rounded-lg border border-accent-emerald/30 bg-accent-emerald/10 px-2 py-0.5 text-[10px] font-medium text-accent-emerald hover:bg-accent-emerald/15"
               data-testid="timer-break-leitner"
             >
               <Layers className="w-3 h-3" />
-              {isEl ? 'Διάλειμμα → Κάρτες' : 'Break → Flashcards'}
+              {t('panelBreakToFlashcards')}
             </button>
           )}
           <button
@@ -179,7 +171,7 @@ export function TimerPanel({
             <button
               type="button"
               onClick={() => onOpenInReader(concept)}
-              className="ml-auto inline-flex items-center gap-1 rounded-lg border border-white/10 px-2 py-1 text-[10px] text-text-secondary hover:border-accent-cyan/35 hover:text-accent-cyan"
+              className="ml-auto inline-flex items-center gap-1 rounded-lg border border-white/10 px-2 py-1 text-[10px] text-text-secondary hover:border-brand-600/35 hover:text-brand-800"
               data-testid="timer-open-reader"
             >
               <BookOpen className="w-3 h-3" />
@@ -205,7 +197,7 @@ export function TimerPanel({
               type="search"
               value={filterQuery}
               onChange={(e) => setFilterQuery(e.target.value)}
-              placeholder={isEl ? 'Αναζήτηση συνεδριών…' : 'Search sessions…'}
+              placeholder={t('panelSearchSessions')}
               className="w-full rounded-lg border border-border-subtle bg-surface-card py-1.5 pl-7 pr-2 text-[11px] text-text-secondary placeholder:text-text-muted focus:border-accent-cyan/40 focus:outline-none"
               data-testid="timer-filter"
             />
@@ -217,7 +209,7 @@ export function TimerPanel({
             {filterMatches.slice(0, 4).map((log, i) => (
               <span
                 key={`${log.at}-${i}`}
-                className="rounded-full border border-accent-cyan/25 bg-accent-cyan/8 px-2 py-0.5 text-[9px] text-accent-cyan"
+                className="rounded-full border border-accent-cyan/25 bg-accent-cyan/8 px-2 py-0.5 text-[10px] text-brand-800"
               >
                 {log.label.slice(0, 40)}{log.label.length > 40 ? '…' : ''} · {log.minutes}m
               </span>
@@ -237,6 +229,7 @@ export function TimerPanel({
           suggestedExamPractice={activeExamPractice ?? session.suggestedExamPractice}
           onSessionComplete={onSessionComplete}
           onOpenSimulator={onOpenSimulator}
+          onOpenBreakTool={onOpenBreakTool}
         />
       </div>
     </div>

@@ -1,26 +1,18 @@
-import type { Lang } from './i18n';
+import { t, type I18nKey, type Lang } from './i18n';
 import type { CustomLeitnerCard } from './leitnerCustomCards';
 
 type CardSource = NonNullable<CustomLeitnerCard['source']>;
 
-const EN: Record<CardSource, string> = {
-  scratchpad: 'Scratchpad',
-  'reader-selection': 'Reader',
-  'concept-map': 'Concept map',
-  'quiz-mistake': 'Quiz mistake',
-  'quiz-selection': 'Quiz',
-  compare: 'Compare',
-  debate: 'Debate',
-};
-
-const EL: Record<CardSource, string> = {
-  scratchpad: 'Πρόχειρο',
-  'reader-selection': 'Reader',
-  'concept-map': 'Χάρτης',
-  'quiz-mistake': 'Λάθος κουίζ',
-  'quiz-selection': 'Κουίζ',
-  compare: 'Σύγκριση',
-  debate: 'Συζήτηση',
+const SOURCE_KEYS: Record<CardSource, I18nKey> = {
+  scratchpad: 'leitnerCardSourceScratchpad',
+  'reader-selection': 'leitnerCardSourceReaderSelection',
+  'reader-occlusion': 'leitnerCardSourceReaderOcclusion',
+  'concept-map': 'leitnerCardSourceConceptMap',
+  'quiz-mistake': 'leitnerCardSourceQuizMistake',
+  'quiz-selection': 'leitnerCardSourceQuizSelection',
+  'notebooklm-quiz': 'leitnerCardSourceNotebooklmQuiz',
+  compare: 'leitnerCardSourceCompare',
+  debate: 'leitnerCardSourceDebate',
 };
 
 export function leitnerCardSourceLabel(
@@ -28,5 +20,6 @@ export function leitnerCardSourceLabel(
   lang: Lang,
 ): string | null {
   if (!source) return null;
-  return (lang === 'el' ? EL : EN)[source] ?? null;
+  const key = SOURCE_KEYS[source];
+  return key ? t(key, lang) : null;
 }

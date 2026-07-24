@@ -22,6 +22,7 @@ import {
   buildOutlinePreviewFromTitles,
 } from './courseSourceQuality';
 import { buildConceptSpans } from './conceptProvenance';
+import { attachConceptGraphToCourse } from './courseConceptGraph';
 import { extractTopicsFromText } from './uploadPipeline';
 import { synthesizeOutlineV2 } from './outlineSynthesis';
 import type { GeneratedOutline } from './courseGenerator';
@@ -231,6 +232,13 @@ self.onmessage = async (event: MessageEvent<RecognitionWorkerInput>) => {
         ...course,
         conceptSpans: buildConceptSpans(withCourse, conceptLabels, course.id),
       };
+    }
+
+    if (!course.conceptGraph && combinedCourseText.trim()) {
+      const graphLabels = outline
+        ? [...new Set(outline.topics.flatMap((t) => t.concepts))]
+        : course.topics.flatMap((t) => [t.title, ...(t.keyConcepts ?? [])]);
+      course = await attachConceptGraphToCourse(course, combinedCourseText, graphLabels);
     }
 
     const output: RecognitionWorkerOutput = {

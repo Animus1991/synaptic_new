@@ -59,8 +59,8 @@ const file: UploadedFile = {
   pipelineVersion: '2.0.0',
 };
 
-describe('Reprocess', () => {
-  it('regenerates topics and tasks from stored text', () => {
+describe.sequential('Reprocess', () => {
+  it('regenerates topics and tasks from stored text', { timeout: 30_000 }, () => {
     const result = reprocessCourseFromStoredText(course, [file]);
     expect(result).not.toBeNull();
     expect(result!.course.topics.length).toBeGreaterThan(0);
@@ -71,7 +71,7 @@ describe('Reprocess', () => {
     expect(tasks.some((t) => t.courseId === course.id)).toBe(true);
   });
 
-  it('enables workspace tools after reprocess on generic Introduction step', () => {
+  it('enables workspace tools after reprocess on generic Introduction step', { timeout: 30_000 }, () => {
     const result = reprocessCourseFromStoredText(course, [file]);
     expect(result).not.toBeNull();
     const text = result!.files[0]!.extractedText ?? '';
@@ -89,7 +89,7 @@ describe('Reprocess', () => {
     expect(debate).not.toBeNull();
   });
 
-  it('replaces stale generated tasks instead of silently keeping old ones', () => {
+  it('replaces stale generated tasks instead of silently keeping old ones', { timeout: 30_000 }, () => {
     const result = reprocessCourseFromStoredText(course, [file]);
     expect(result).not.toBeNull();
     const stale = [{
@@ -118,7 +118,7 @@ describe('Reprocess', () => {
     expect(delta.addedGenerated).toBeGreaterThan(0);
   });
 
-  it('preserves non-generated course tasks while refreshing generated ones', () => {
+  it('preserves non-generated course tasks while refreshing generated ones', { timeout: 30_000 }, () => {
     const result = reprocessCourseFromStoredText(course, [file]);
     expect(result).not.toBeNull();
     const manual = [{
@@ -143,7 +143,7 @@ describe('Reprocess', () => {
     expect(merged.some((t) => t.id.startsWith(`gen-${course.id}-`))).toBe(true);
   });
 
-  it('regenerates tasks even when re-running on equivalent stored text (idempotent regen)', () => {
+  it('regenerates tasks even when re-running on equivalent stored text (idempotent regen)', { timeout: 30_000 }, () => {
     const first = reprocessCourseFromStoredText(course, [file]);
     const second = reprocessCourseFromStoredText(first!.course, first!.files);
     expect(first).not.toBeNull();

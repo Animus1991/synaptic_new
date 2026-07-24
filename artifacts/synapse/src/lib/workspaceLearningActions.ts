@@ -4,6 +4,7 @@ export type LearningActionId =
   | 'study-section'
   | 'test-me'
   | 'explain-zero'
+  | 'feynman-explain'
   | 'flashcards'
   | 'ask-agent'
   | 'mark-understood'
@@ -20,6 +21,7 @@ const ACTIONS_EN: Record<LearningActionId, Omit<LearningActionDef, 'id'>> = {
   'study-section': { label: 'Study section', hint: 'Open Reader at this step', primary: true },
   'test-me': { label: 'Test me', hint: 'Jump to knowledge check' },
   'explain-zero': { label: 'Explain from zero', hint: 'Ask Agent in beginner mode' },
+  'feynman-explain': { label: 'Feynman explain', hint: 'Explain the concept in your own words' },
   'flashcards': { label: 'Flashcards', hint: 'Open spaced-repetition deck' },
   'ask-agent': { label: 'Ask Agent', hint: 'Contextual tutor for this section' },
   'mark-understood': { label: 'Understood', hint: 'Mark section as clear' },
@@ -30,6 +32,7 @@ const ACTIONS_EL: Record<LearningActionId, Omit<LearningActionDef, 'id'>> = {
   'study-section': { label: 'Μελέτη ενότητας', hint: 'Άνοιγμα Reader σε αυτό το βήμα', primary: true },
   'test-me': { label: 'Δοκίμασέ με', hint: 'Μετάβαση στο knowledge check' },
   'explain-zero': { label: 'Εξήγηση από μηδέν', hint: 'Agent σε beginner mode' },
+  'feynman-explain': { label: 'Feynman εξήγηση', hint: 'Εξήγησε την έννοια με δικά σου λόγια' },
   'flashcards': { label: 'Κάρτες', hint: 'Leitner / επανάληψη' },
   'ask-agent': { label: 'Ρώτα Agent', hint: 'Tutor με context ενότητας' },
   'mark-understood': { label: 'Κατάλαβα', hint: 'Σημείωση ως σαφές' },

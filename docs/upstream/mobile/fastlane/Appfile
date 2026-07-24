@@ -1,0 +1,5 @@
+# Apple Developer credentials — set via env or mobile/fastlane/.env (gitignored)
+app_identifier(ENV.fetch('IOS_APP_IDENTIFIER', 'com.synapse.learning'))
+apple_id(ENV['APPLE_ID']) if ENV['APPLE_ID']
+itc_team_id(ENV['APP_STORE_CONNECT_TEAM_ID']) if ENV['APP_STORE_CONNECT_TEAM_ID']
+team_id(ENV['APPLE_TEAM_ID']) if ENV['APPLE_TEAM_ID']

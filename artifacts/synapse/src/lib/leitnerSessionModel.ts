@@ -4,16 +4,27 @@
  */
 
 import type { Lang } from './i18n';
-import type { GlossaryEntry, SpacingData } from '../types';
+import type { GlossaryEntry, SpacingData, UploadedFile } from '../types';
+import type { ContentCitation } from './contentCitation';
 import type { CustomLeitnerCard } from './leitnerCustomCards';
+import {
+  inferLeitnerCardType,
+  type LeitnerCardType,
+  withLeitnerCardType,
+} from './leitnerCardTypes';
 import { buildFlashcards, relevantExcerpt } from './noteContentExtractors';
 import { isGenericStudyConcept } from './workspaceContentFallback';
 import { filterLeitnerCardsByConfidence } from './confidenceGating';
+import { buildOcclusionCardsFromFiles } from './imageOcclusionCards';
+import type { ImageOcclusionPayload } from './imageOcclusionCards';
 
 export type LeitnerCard = {
   front: string;
   back: string;
   source?: CustomLeitnerCard['source'];
+  cardType?: LeitnerCardType;
+  citation?: ContentCitation;
+  occlusion?: ImageOcclusionPayload;
 };
 
 export type LeitnerSessionContent = {
@@ -32,9 +43,16 @@ export function mergeLeitnerCards(...sources: LeitnerCard[][]): LeitnerCard[] {
       if (!key) continue;
       const prev = seen.get(key);
       if (prev) {
-        seen.set(key, { ...prev, ...card, source: card.source ?? prev.source });
+        seen.set(key, withLeitnerCardType({
+          ...prev,
+          ...card,
+          source: card.source ?? prev.source,
+          cardType: card.cardType ?? prev.cardType,
+          citation: card.citation ?? prev.citation,
+          occlusion: card.occlusion ?? prev.occlusion,
+        }));
       } else {
-        seen.set(key, card);
+        seen.set(key, withLeitnerCardType(card));
       }
     }
   }
@@ -94,6 +112,14 @@ export function filterLeitnerCards(cards: LeitnerCard[], query: string): Leitner
   );
 }
 
+export function filterLeitnerCardsByType(
+  cards: LeitnerCard[],
+  type: LeitnerCardType | 'all',
+): LeitnerCard[] {
+  if (type === 'all') return cards;
+  return cards.filter((card) => inferLeitnerCardType(card) === type);
+}
+
 export function buildLeitnerSessionContent(opts: {
   text: string;
   concept: string;
@@ -103,6 +129,7 @@ export function buildLeitnerSessionContent(opts: {
   hasSource: boolean;
   spacingIntervals?: SpacingData[];
   customCards?: LeitnerCard[];
+  sourceFiles?: UploadedFile[];
 }): LeitnerSessionContent {
   const {
     text,
@@ -113,6 +140,7 @@ export function buildLeitnerSessionContent(opts: {
     hasSource,
     spacingIntervals = [],
     customCards = [],
+    sourceFiles = [],
   } = opts;
 
   if (!hasSource) {
@@ -125,9 +153,12 @@ export function buildLeitnerSessionContent(opts: {
     };
   }
 
-  const fromNotes = buildFlashcards(text, concept, glossary, lang);
-  const fromSpacing = buildSpacingLeitnerCards(spacingIntervals, concept, glossary, text);
-  const cards = filterLeitnerCardsByConfidence(mergeLeitnerCards(fromSpacing, fromNotes, customCards));
+  const fromNotes = buildFlashcards(text, concept, glossary, lang, sourceFiles);
+  const fromSpacing = buildSpacingLeitnerCards(spacingIntervals, concept, glossary, lang);
+  const fromOcclusion = buildOcclusionCardsFromFiles(sourceFiles, lang);
+  const cards = filterLeitnerCardsByConfidence(
+    mergeLeitnerCards(customCards, fromSpacing, fromNotes, fromOcclusion),
+  );
   const generic = isGenericStudyConcept(concept);
   const passageGrounded = generic && fromNotes.length > 0;
   const weakExtraction = generic || cards.length === 0 || glossary.length < 2;

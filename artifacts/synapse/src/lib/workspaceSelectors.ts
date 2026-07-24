@@ -5,7 +5,6 @@
 import type { WorkspaceToolId } from './taskFlows';
 import type { Lang } from './i18n';
 import type { ConceptBusInsight } from './conceptBusSync';
-import type { LearnerModel } from '../types';
 import { buildConceptBusRows, buildToolActivityBreakdown } from './conceptBusPanelModel';
 import type { ConceptBusState } from './workspaceConceptBus';
 import {
@@ -13,6 +12,9 @@ import {
   weakConceptKeysFromBus,
 } from './workspaceCorrelationEvents';
 import { recommendNextAction, type NextActionRecommendation } from './nextActionEngine';
+import { recommendDailyPlan } from './unifiedAdaptiveScheduler';
+import type { BetaMastery } from './pedagogy';
+import type { DashboardStats, LearnerModel, Task } from '../types';
 import { collectWorkspaceWeakSpots, type WeakSpotRef } from './workspaceWeakAreas';
 import {
   buildWorkspaceContext,
@@ -78,19 +80,30 @@ export function selectWeakConcepts(
   return collectWorkspaceWeakSpots(learnerModel, mergedInsights, courseName);
 }
 
-export function selectNextBestAction(opts: {
-  lang: Lang;
-  hasSource: boolean;
-  sourceQuality: number | null;
-  showMigration: boolean;
-  showLowQuality: boolean;
-  stepIndex: number;
-  stepCount: number;
-  stepMark?: 'understood' | 'confusing';
-  quizPassed: boolean;
-  weakConceptCount: number;
-}): NextActionRecommendation | null {
+export function selectNextBestAction(
+  opts: Parameters<typeof recommendNextAction>[0],
+): NextActionRecommendation | null {
   return recommendNextAction(opts);
+}
+
+export { recommendNextAction as recommendWorkspaceAction } from './nextActionEngine';
+
+export function selectDailyPlanForTasks(opts: {
+  lang: Lang;
+  learnerModel: LearnerModel;
+  betaMastery: BetaMastery[];
+  tasks: Task[];
+  stats: DashboardStats;
+  daysToExam?: number | null;
+}) {
+  return recommendDailyPlan({
+    lang: opts.lang,
+    learnerModel: opts.learnerModel,
+    betaMastery: opts.betaMastery,
+    tasks: opts.tasks,
+    stats: opts.stats,
+    daysToExam: opts.daysToExam ?? null,
+  });
 }
 
 export function selectToolActivity(conceptBus: ConceptBusState) {

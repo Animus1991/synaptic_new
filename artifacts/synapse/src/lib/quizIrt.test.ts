@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   estimateQuizDifficulty,
   formatQuizIrtForLearner,
+  buildQuizIrtConfidenceBand,
   probabilityCorrect,
   targetQuizDifficulty,
   updateQuizAbility,
@@ -43,5 +44,19 @@ describe('quizIrt', () => {
     expect(copy.probabilityLabel).toMatch(/~\d+%/);
     expect(copy.hint).toBeTruthy();
     expect(JSON.stringify(copy)).not.toContain('Ικανότητα');
+  });
+
+  it('builds narrowing confidence bands as responses grow', () => {
+    const irt = buildQuizIrtDisplay(
+      { kind: 'mc', question: 'q', options: ['a', 'b', 'c', 'd'], correctIndex: 0 },
+      'Supply',
+      0,
+      55,
+    );
+    const cold = buildQuizIrtConfidenceBand(irt, 0, 'en');
+    const warm = buildQuizIrtConfidenceBand(irt, 10, 'en');
+    expect(cold.tier).toBe('unknown');
+    expect(cold.highPct - cold.lowPct).toBeGreaterThan(warm.highPct - warm.lowPct);
+    expect(warm.tier).not.toBe('unknown');
   });
 });

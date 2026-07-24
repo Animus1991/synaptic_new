@@ -1,18 +1,23 @@
 import { useState } from 'react';
-import { Pencil, Check, X } from 'lucide-react';
+import { Pencil, Check, X } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
+import { t as translate, type Lang } from '../../lib/i18n';
 import type { OcrOverlayRegion } from '../../lib/readerOcrOverlay';
 import { isLowConfidenceRegion } from '../../lib/readerOcrOverlay';
-import { loadOcrCorrections, saveOcrCorrection } from '../../lib/readerOcrCorrectionStore';
+import { loadOcrCorrections, saveOcrCorrection, applyOcrCorrectionsToText } from '../../lib/readerOcrCorrectionStore';
+import { reanchorReaderAnnotationsAfterOcrCorrection } from '../../lib/readerAnnotationReanchor';
+import { prepareWorkspaceDisplayText } from '../../lib/workspaceDisplayText';
 
 type Props = {
   regions: OcrOverlayRegion[];
   scopeKey: string;
-  lang?: 'en' | 'el';
+  /** Raw source text before OCR corrections — used to rematch reader spans after a fix. */
+  sourceText?: string;
+  lang?: Lang;
   onApplied?: () => void;
 };
 
-export function OcrCorrectionPanel({ regions, scopeKey, lang = 'en', onApplied }: Props) {
+export function OcrCorrectionPanel({ regions, scopeKey, sourceText, lang = 'en', onApplied }: Props) {
   const lowConf = regions.filter((r) => isLowConfidenceRegion(r.confidence));
   const [editingId, setEditingId] = useState<string | null>(null);
   const [draft, setDraft] = useState('');
@@ -37,6 +42,10 @@ export function OcrCorrectionPanel({ regions, scopeKey, lang = 'en', onApplied }
       correctedText: corrected,
       updatedAt: new Date().toISOString(),
     });
+    if (sourceText?.trim()) {
+      const correctedDisplay = prepareWorkspaceDisplayText(sourceText, scopeKey);
+      reanchorReaderAnnotationsAfterOcrCorrection(scopeKey, correctedDisplay || applyOcrCorrectionsToText(sourceText, scopeKey));
+    }
     setEditingId(null);
     onApplied?.();
   };
@@ -46,8 +55,8 @@ export function OcrCorrectionPanel({ regions, scopeKey, lang = 'en', onApplied }
       className="shrink-0 border-b border-accent-amber/20 bg-accent-amber/5 px-3 py-2"
       data-testid="reader-ocr-correction-panel"
     >
-      <p className="text-[10px] font-semibold uppercase tracking-wide text-accent-amber mb-1.5">
-        {lang === 'el' ? 'Διόρθωση OCR (τοπικά)' : 'OCR line correction (local)'}
+      <p className="text-[10px] font-semibold text-accent-amber mb-1.5">
+        {translate('ocrCorrectionTitle', lang)}
       </p>
       <ul className="space-y-1.5 max-h-28 overflow-y-auto">
         {lowConf.map((region, blockIndex) => {
@@ -63,7 +72,7 @@ export function OcrCorrectionPanel({ regions, scopeKey, lang = 'en', onApplied }
                   <span className="flex-1 text-text-secondary line-clamp-2">
                     {fixed?.correctedText ?? region.text}
                     {fixed && (
-                      <span className="ml-1 text-accent-emerald">({lang === 'el' ? 'διορθ.' : 'fixed'})</span>
+                      <span className="ml-1 text-accent-emerald">({translate('ocrFixedShort', lang)})</span>
                     )}
                   </span>
                   <button
@@ -71,7 +80,7 @@ export function OcrCorrectionPanel({ regions, scopeKey, lang = 'en', onApplied }
                     data-testid={`reader-ocr-edit-${blockIndex}`}
                     onClick={() => startEdit(region, blockIndex)}
                     className="shrink-0 rounded p-1 text-text-muted hover:text-accent-amber"
-                    title={lang === 'el' ? 'Επεξεργασία γραμμής' : 'Edit line'}
+                    title={translate('ocrEditLine', lang)}
                   >
                     <Pencil className="h-3 w-3" />
                   </button>

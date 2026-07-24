@@ -1,0 +1,9 @@
+# Synapse
+
+> Synapse is an AI-powered adaptive learning platform. Upload notes, PDFs, or slides and the AI builds a personalized interactive tutor-course that adapts to how you actually learn — through your behavior, errors, and progress.
+
+Synapse turns static study material into a structured course with lessons, quizzes, Socratic tutoring, spaced repetition, and learning analytics. It is source-grounded with citation verification and works across subjects.
+
+## Pages
+
+- [Home](/): Product overview, how it works, features, and getting started.

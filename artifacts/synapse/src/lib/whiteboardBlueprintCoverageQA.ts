@@ -2,7 +2,7 @@
  * Wave 6.8g — QA spine for Whiteboard diagram coach blueprint coverage.
  */
 
-import type { Lang } from './i18n';
+import { t, type Lang } from './i18n';
 import {
   buildDiagramCoachPlan,
   buildWhiteboardDiagramAgentPrompt,
@@ -258,19 +258,19 @@ export function formatBlueprintCoverageBanner(input: {
   agentGuideReady: boolean;
   lang: Lang;
 }): string | null {
-  const isEl = input.lang === 'el';
+  const lang = input.lang;
   const parts: string[] = [
     input.kind.replace(/-/g, ' '),
-    isEl ? `${input.stepCount} βήματα` : `${input.stepCount} steps`,
+    t('qaBannerSteps', lang).replace('{count}', String(input.stepCount)),
   ];
   if (input.nodeLabelCount > 0) {
-    parts.push(isEl ? `${input.nodeLabelCount} ετικέτες` : `${input.nodeLabelCount} labels`);
+    parts.push(t('qaBannerLabels', lang).replace('{count}', String(input.nodeLabelCount)));
   }
   if (input.agentGuideReady) {
-    parts.push(isEl ? 'Agent έτοιμο' : 'Agent ready');
+    parts.push(t('qaBannerAgentReady', lang));
   }
   if (input.contextEdge === 'sparse-context') {
-    parts.push(isEl ? 'sparse' : 'sparse');
+    parts.push(t('qaBannerSparse', lang));
   }
   return parts.join(' · ');
 }

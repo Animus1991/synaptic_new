@@ -1,0 +1,74 @@
+# Persistence
+
+Client-side storage keys, server sync surfaces, and backup strategy.
+
+## localStorage (`synapse:*`)
+
+| Key | Content |
+|-----|---------|
+| `synapse:session-v2` | Learner model, tasks, activities, settings, XP, mistakes |
+| `synapse:library-v1` | Upload metadata, glossary, generated courses (including `Course.conceptSpans` and future `Course.conceptGraph`) |
+| `synapse:whiteboard-strokes` | Whiteboard strokes — **scoped per workspace task** (`{ [progressKey]: Stroke[] }`) |
+| `synapse:scratchpad-formulas` | Scratchpad formulas/vars/steps — **scoped per workspace task** |
+| `synapse:concept-map-positions` | Concept-map node positions — **scoped per workspace task** |
+| `synapse:workspace-progress` | Last viewed step per workspace key |
+| `synapse:workspace-notes` | Per-task session notes |
+
+Legacy keys auto-migrated on first load:
+- `synapse:session-v1` → merged into `session-v2`
+- `synapse.whiteboard.v1` (single global board) → moved into the scoped `__global` slot of `whiteboard-strokes`
+
+## Course provenance
+
+Each generated `Course` stored in `synapse:library-v1` carries:
+
+- `Course.conceptSpans` — sentence-level `{ fileId, charStart, charEnd }` ranges produced by `conceptProvenance.ts` (`buildConceptSpans`). These power click-to-source in lessons and the workspace.
+- `Course.sourceQuality` — the structured quality report from `courseSourceQuality.ts`.
+- Future: `Course.conceptGraph` — a typed knowledge graph (`nodes` + `edges`) mined by `conceptEdges.ts` and `relationMine.ts` (see `EXHAUSTIVE_PRODUCT_SCALE_BLUEPRINT.md` §4.6).
+
+## IndexedDB (`synapse-learning` database)
+
+Large `extractedText` (≥ 48KB) offloaded from localStorage:
+
+- Store: `file-text`
+- Key: uploaded file `id`
+- Hydrated on app load via `hydrateLibrary()`
+
+Module: `src/lib/indexedDbStorage.ts`, `src/lib/libraryStorage.ts`
+
+## Session backup
+
+Settings → **Export backup** / **Import backup** — all `synapse:*` keys via `sessionBackup.ts`.
+
+## Server sync
+
+When signed in (Settings → Account & Sync), the client and server keep two
+independent JSON blobs in sync. Sync is automatic on login (`syncAccountOnLogin`)
+and exposed manually as **Pull / Push** buttons in Settings.
+
+| Surface | Endpoint | Server table | Client module |
+| ------- | -------- | ------------ | ------------- |
+| Library (uploads + glossary + courses) | `GET/PUT /v1/library` | `account_libraries` | `librarySync.ts` |
+| Session (learner model + tasks + activities + XP + settings + **concept bus + step schedules**) | `GET/PUT /v1/session` | `account_sessions` | `sessionSync.ts`, `conceptBusSync.ts` |
+| Plan tier | `GET /auth/me` | `accounts.plan` | `authClient.authMe` + `refreshAuthPlan` |
+
+Server tables live in Postgres when `DATABASE_URL` is set. Schema is owned by
+`node-pg-migrate` (`server/migrations/`); apply with `npm run migrate` or set
+`RUN_MIGRATIONS_ON_START=true`. In dev mode without `DATABASE_URL` the server
+falls back to in-memory repos.
+
+Module: `src/lib/sessionSync.ts`, `src/lib/conceptBusSessionSync.ts`, `src/lib/librarySync.ts`, `server/src/routes/library.ts`, `server/src/routes/session.ts`.
+
+While studying (authenticated), `queueConceptBusSync` debounces `PUT /v1/session` by 2.5s after concept-bus or spaced-step changes; `flushConceptBusSync` runs on workspace close and tab hide.
+
+## Quotas
+
+localStorage ~5MB typical browser limit. IndexedDB reduces quota errors for
+large PDFs (the extracted text is offloaded automatically when ≥ 48KB).
+
+## Demo isolation
+
+- Demo courses filtered by `demoMode.ts` on persist (`stripDemoFromTasks`,
+  `visibleCourses`).
+- `showDemoContent: false` is the production default — demo seeds in
+  `src/demo/` are never injected unless the setting is on.

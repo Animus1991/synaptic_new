@@ -1,0 +1,17 @@
+{
+  "expectedConcepts": [
+    "αδράνεια",
+    "δύναμη",
+    "επιτάχυνση",
+    "μάζα",
+    "κίνηση",
+    "νεύτων"
+  ],
+  "expectedDefinitions": [
+    "αδράνεια"
+  ],
+  "expectedFormulas": [
+    "F = m a"
+  ],
+  "expectedSubject": "Physics"
+}

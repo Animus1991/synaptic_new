@@ -1,5 +1,6 @@
-import { BookOpen } from 'lucide-react';
+import { BookOpen } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
+import { t, type Lang } from '../../lib/i18n';
 
 export function FrontMatterCard({
   title,
@@ -8,11 +9,11 @@ export function FrontMatterCard({
 }: {
   title?: string;
   items: string[];
-  lang: 'en' | 'el';
+  lang: Lang;
 }) {
   if (items.length === 0) return null;
 
-  const heading = title ?? (lang === 'el' ? 'Στοιχεία μαθήματος' : 'Course information');
+  const heading = title ?? t('courseInfo', lang);
 
   return (
     <div
@@ -20,7 +21,7 @@ export function FrontMatterCard({
       data-testid="reader-front-matter"
     >
       <div className="flex items-center gap-2 mb-3">
-        <BookOpen className="w-4 h-4 text-accent-cyan shrink-0" />
+        <BookOpen className="w-4 h-4 text-brand-800 shrink-0" />
         <h3 className="text-sm font-semibold text-text-primary">{heading}</h3>
       </div>
       <ol className={cn('list-decimal space-y-2 pl-5 text-[14px] text-text-primary')}>

@@ -12,6 +12,16 @@ export function greetingForTime(lang: Lang, now = new Date()): string {
   return 'Good evening';
 }
 
+/** Time-of-day Phosphor icon key — never emoji. */
+export type GreetingIconKind = 'sun' | 'sun-dim' | 'moon';
+
+export function greetingIconKind(now = new Date()): GreetingIconKind {
+  const hour = now.getHours();
+  if (hour < 12) return 'sun';
+  if (hour < 18) return 'sun-dim';
+  return 'moon';
+}
+
 export function dashboardSubtitle(
   lang: Lang,
   criticalTaskCount: number,

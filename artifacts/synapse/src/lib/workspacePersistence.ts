@@ -1,4 +1,5 @@
 import { loadJson, saveJson } from './persistence';
+import type { ConceptMapGraphSave } from './conceptMapGraph';
 
 type MapNodeSave = { x: number; y: number; note?: string };
 
@@ -32,6 +33,21 @@ export function saveConceptMapPositions(
   const slot = scope ?? '__global';
   all[slot] = Object.fromEntries(nodes.map((n) => [n.id, { x: n.x, y: n.y, note: n.note }]));
   saveJson(MAP_KEY, all);
+}
+
+const MAP_GRAPH_KEY = 'concept-map-graph';
+
+/** Full graph overlay (user edits: add/rename/delete nodes, custom edges). */
+export function loadConceptMapGraph(scope: string): ConceptMapGraphSave | null {
+  const all = loadJson<Record<string, ConceptMapGraphSave>>(MAP_GRAPH_KEY, {});
+  return all[scope] ?? null;
+}
+
+export function saveConceptMapGraph(scope: string, graph: ConceptMapGraphSave): void {
+  const all = loadJson<Record<string, ConceptMapGraphSave>>(MAP_GRAPH_KEY, {});
+  all[scope] = graph;
+  saveJson(MAP_GRAPH_KEY, all);
+  saveConceptMapPositions(graph.nodes, scope);
 }
 
 export function loadWorkspaceStep(key: string): number {

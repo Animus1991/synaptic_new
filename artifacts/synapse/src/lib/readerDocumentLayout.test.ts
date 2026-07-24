@@ -41,7 +41,7 @@ describe('detectEnumeratedItems', () => {
     const body = [
       '1 ΕΘΝΙΚΟ ΚΑΙ ΚΑΠΟΔΙΣΤΡΙΑΚΟ ΠΑΝΕΠΙΣΤΗΜΙΟ ΑΘΗΝΩΝ',
       '2 E-class Μαθήματος: https://eclass.uoa.gr/courses/ECON196',
-      '3 E-mail Επικοινωνίας: nstoupo@econ.uoa.gr',
+      '3 E-mail Επικοινωνίας: instructor@example.edu',
       '4 Ώρες Διδασκαλίας: Δευτέρα 12:00 - 15:00',
     ].join('\n');
     const items = detectEnumeratedItems(body);
@@ -53,7 +53,7 @@ describe('detectEnumeratedItems', () => {
       '1 ΕΘΝΙΚΟ ΚΑΙ ΚΑΠΟΔΙΣΤΡΙΑΚΟ ΠΑΝΕΠΙΣΤΗΜΙΟ ΑΘΗΝΩΝ',
       'ΤΜΗΜΑ ΟΙΚΟΝΟΜΙΚΩΝ ΕΠΙΣΤΗΜΩΝ',
       '2 E-class Μαθήματος: https://eclass.uoa.gr/courses/ECON196',
-      '3 E-mail Επικοινωνίας: nstoupo@econ.uoa.gr',
+      '3 E-mail Επικοινωνίας: instructor@example.edu',
     ].join('\n');
     const multiItems = detectEnumeratedItems(multiline);
     expect(multiItems).not.toBeNull();

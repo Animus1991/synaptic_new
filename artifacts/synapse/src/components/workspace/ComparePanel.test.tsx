@@ -49,6 +49,6 @@ describe('ComparePanel — selection parity §13.5 (Wave 6.8i)', () => {
       />,
     );
     expect(screen.getByTestId('compare-selection-parity-strip')).toBeTruthy();
-    expect(screen.getByTestId('compare-selection-parity-strip').textContent).toMatch(/§13\.5/);
+    expect(screen.getByTestId('compare-selection-parity-strip').textContent).toMatch(/Text selection|Reader parity/i);
   });
 });

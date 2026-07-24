@@ -61,7 +61,13 @@ export function engagedToolCount(state: ConceptBusState): number {
   return tools.size;
 }
 
-export type ToolActivityCount = { tool: WorkspaceToolId; count: number; lastAt: number };
+export type ToolActivityCount = {
+  tool: WorkspaceToolId;
+  count: number;
+  lastAt: number;
+  /** Dwell milliseconds this session (TOOL-PR-02). */
+  ms?: number;
+};
 
 /** Per-tool engagement counts for Progress / MiniDashboard breakdown. */
 export function buildToolActivityBreakdown(state: ConceptBusState, limit = 13): ToolActivityCount[] {
@@ -80,4 +86,24 @@ export function buildToolActivityBreakdown(state: ConceptBusState, limit = 13): 
     .map(([tool, meta]) => ({ tool, ...meta }))
     .sort((a, b) => b.lastAt - a.lastAt || b.count - a.count)
     .slice(0, limit);
+}
+
+/** Attach dwell ms onto activity rows (and include time-only tools). */
+export function attachToolTimeToActivity(
+  activity: ToolActivityCount[],
+  msByTool: Partial<Record<WorkspaceToolId, number>>,
+): ToolActivityCount[] {
+  const byTool = new Map(activity.map((row) => [row.tool, { ...row }]));
+  for (const [tool, ms] of Object.entries(msByTool) as [WorkspaceToolId, number][]) {
+    if (!ms || ms <= 0) continue;
+    const prev = byTool.get(tool);
+    if (prev) {
+      byTool.set(tool, { ...prev, ms });
+    } else {
+      byTool.set(tool, { tool, count: 0, lastAt: Date.now(), ms });
+    }
+  }
+  return [...byTool.values()].sort(
+    (a, b) => (b.ms ?? 0) - (a.ms ?? 0) || b.lastAt - a.lastAt || b.count - a.count,
+  );
 }

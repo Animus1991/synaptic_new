@@ -1,25 +1,245 @@
-import app from "./app";
-import { logger } from "./lib/logger";
+import express from 'express';
+import cors from 'cors';
+import { config } from './config';
+import { runMigrations } from './db/migrate';
+import { getProductionProbeStatus } from './lib/productionProbe';
+import { getReadinessStatus } from './lib/readiness';
+import {
+  getTelemetryStatus,
+  initTelemetry,
+  shutdownTelemetry,
+  telemetryMiddleware,
+} from './lib/telemetry';
+import { rateLimit } from './middleware/rateLimit';
+import { authRouter } from './routes/auth';
+import { proxyRouter } from './routes/proxy';
+import { usageRouter } from './routes/usage';
+import { libraryRouter } from './routes/library';
+import { thumbnailsRouter } from './routes/thumbnails';
+import { sessionRouter } from './routes/session';
+import { youtubeRouter } from './routes/youtube';
+import { billingWebhookHandler, billingRouter } from './routes/billing';
+import { adminRouter } from './routes/admin';
+import { nlpRouter } from './routes/nlp';
+import { ragRouter } from './routes/rag';
+import { teacherRouter } from './routes/teacher';
+import { orgRouter } from './routes/org';
+import { ltiRouter } from './routes/lti';
+import { audioRouter } from './routes/audio';
+import { studentRouter } from './routes/student';
+import { ocrRouter } from './routes/ocr';
+import { transcribeRouter } from './routes/transcribe';
+import { chunkErrorsRouter } from './routes/chunkErrors';
+import { googleAuthRouter } from './routes/googleAuth';
+import { googleIntegrationsRouter } from './routes/googleIntegrations';
+import { googleCalendarRouter } from './routes/googleCalendar';
+import { accountRouter } from './routes/account';
+import { studyRoomsRouter } from './routes/studyRooms';
+import { analyticsRouter } from './routes/analytics';
+import { mcpRouter } from './mcp/router';
+import { oauthRouter, wellKnownRouter } from './mcp/oauth/router';
+import { bootstrapStudyRoomsFromPg } from './store/studyRoomPgStore';
+import { initVectorIndexQueue } from './jobs/vectorIndexQueue';
+import { initRetentionCron } from './jobs/retentionCron';
+import { initTranscribeQueue } from './jobs/transcribeQueue';
+import { auditLogMiddleware } from './middleware/auditLog';
+import { startStudyRoomCollab } from './collab/studyRoomCollab';
+import { assertProductionConfig } from './lib/assertProductionConfig';
+// Replit built-in AI proxy routes (kept from the monorepo integration): /api/ai/*
+import replitApiRoutes from './routes/index';
 
-const rawPort = process.env["PORT"];
+export function createApp(): express.Application {
+  const app = express();
 
-if (!rawPort) {
-  throw new Error(
-    "PORT environment variable is required but was not provided.",
+  app.use(
+    cors({
+      origin: config.allowedOrigins.includes('*') ? true : config.allowedOrigins,
+      credentials: true,
+    }),
   );
+
+  app.post('/v1/billing/webhook', express.raw({ type: 'application/json' }), billingWebhookHandler);
+  // Global JSON cap; LLM proxy also enforces message-size moderation (W0).
+  app.use(express.json({ limit: '15mb' }));
+  app.use(express.urlencoded({ extended: false, limit: '2mb' }));
+  app.use(telemetryMiddleware);
+
+  app.get('/live', (_req, res) => {
+    res.json({ ok: true });
+  });
+
+  app.get('/ready', async (_req, res) => {
+    const status = await getReadinessStatus();
+    res.status(status.ready ? 200 : 503).json(status);
+  });
+
+  const healthHandler = async (_req: express.Request, res: express.Response) => {
+    const production = await getProductionProbeStatus();
+    res.json({
+      ok: true,
+      upstream: config.upstreamBaseUrl,
+      anonymous: config.allowAnonymous,
+      database: production.database,
+      production,
+      multiTenant: production.tenantIsolation,
+      features: {
+        embeddings: Boolean(config.upstreamApiKey),
+        rag: Boolean(config.upstreamApiKey),
+        ner: true,
+        refreshTokens: true,
+        ocr: true,
+        rateLimitRpm: config.rateLimitRpm,
+        rateLimitBackend: production.rateLimit.backend,
+        rateLimitDistributed: production.rateLimit.distributed,
+        rateLimitRequireRedis: production.rateLimit.requireRedis,
+        googleOAuth: Boolean(config.googleClientId && config.googleClientSecret),
+        studyRooms: true,
+        mcp: true,
+        mcpOAuth: true,
+        vectorIndexQueue: production.vectorIndexQueue,
+        pgvectorRag: production.pgvector,
+        collab: true,
+        collabWebSocketUrl: `ws://localhost:${config.collabPort}`,
+        l4Enterprise: production.l4Enterprise,
+        l6Enterprise: production.l6Enterprise,
+        l7Enterprise: production.l7Enterprise,
+        l8Enterprise: production.l8Enterprise,
+        l9Enterprise: production.l9Enterprise,
+        l10Enterprise: production.l10Enterprise,
+        l11Enterprise: production.l11Enterprise,
+        l12Enterprise: production.l12Enterprise,
+        l13Enterprise: production.l13Enterprise,
+        l14Enterprise: production.l14Enterprise,
+        l15Enterprise: production.l15Enterprise,
+        l16Enterprise: production.l16Enterprise,
+        l17Enterprise: production.l17Enterprise,
+        l18Enterprise: production.l18Enterprise,
+        l19Enterprise: production.l19Enterprise,
+        l20Enterprise: production.l20Enterprise,
+      },
+      telemetry: getTelemetryStatus(),
+    });
+  };
+  app.get('/health', healthHandler);
+
+  // W0: rate-limit auth the same as /v1 (Redis-backed when REDIS_URL is set).
+  // Every surface is mounted twice: at its native path and under the /api
+  // prefix, because the Replit path-based proxy routes /api/* to this server.
+  for (const prefix of ['', '/api'] as const) {
+    app.use(`${prefix}/auth`, rateLimit);
+    app.use(`${prefix}/auth`, authRouter);
+    app.use(`${prefix}/auth`, googleAuthRouter);
+    app.use(`${prefix}/v1`, rateLimit);
+    app.use(`${prefix}/v1`, auditLogMiddleware);
+    app.use(`${prefix}/v1`, usageRouter);
+    app.use(`${prefix}/v1`, libraryRouter);
+    app.use(`${prefix}/v1`, thumbnailsRouter);
+    app.use(`${prefix}/v1`, sessionRouter);
+    app.use(`${prefix}/v1`, youtubeRouter);
+    app.use(`${prefix}/v1`, billingRouter);
+    app.use(`${prefix}/v1`, adminRouter);
+    app.use(`${prefix}/v1`, nlpRouter);
+    app.use(`${prefix}/v1`, ragRouter);
+    app.use(`${prefix}/v1`, ocrRouter);
+    app.use(`${prefix}/v1`, transcribeRouter);
+    app.use(`${prefix}/v1`, teacherRouter);
+    app.use(`${prefix}/v1`, orgRouter);
+    app.use(`${prefix}/v1`, ltiRouter);
+    app.use(`${prefix}/v1`, audioRouter);
+    app.use(`${prefix}/v1`, studentRouter);
+    app.use(`${prefix}/v1`, googleIntegrationsRouter);
+    app.use(`${prefix}/v1`, googleCalendarRouter);
+    app.use(`${prefix}/v1`, accountRouter);
+    app.use(`${prefix}/v1`, studyRoomsRouter);
+    app.use(`${prefix}/v1`, analyticsRouter);
+    app.use(`${prefix}/v1`, proxyRouter);
+  }
+  app.get('/api/health', healthHandler);
+  app.use(wellKnownRouter);
+  app.use(oauthRouter);
+  app.use(mcpRouter);
+
+  app.use(chunkErrorsRouter);
+
+  // Replit built-in AI proxy (llmClient default): /api/ai/chat/completions etc.
+  app.use('/api', replitApiRoutes);
+
+  app.use((_req, res) => res.status(404).json({ error: 'Not found' }));
+
+  return app;
 }
 
-const port = Number(rawPort);
+export const app = createApp();
 
-if (Number.isNaN(port) || port <= 0) {
-  throw new Error(`Invalid PORT value: "${rawPort}"`);
-}
+export async function startServer(): Promise<void> {
+  assertProductionConfig();
 
-app.listen(port, (err) => {
-  if (err) {
-    logger.error({ err }, "Error listening on port");
-    process.exit(1);
+  // Dev-resilient boot: infra pieces (PG, Redis, OTEL) are optional on Replit.
+  try {
+    if (config.databaseUrl && config.runMigrationsOnStart) {
+      await runMigrations(config.databaseUrl);
+    }
+    await bootstrapStudyRoomsFromPg(config.databaseUrl);
+  } catch (err) {
+    console.warn('[synapse-proxy] database bootstrap skipped:', err);
+  }
+  try {
+    initVectorIndexQueue();
+    initTranscribeQueue();
+    initRetentionCron();
+  } catch (err) {
+    console.warn('[synapse-proxy] background queues unavailable:', err);
+  }
+  try {
+    await initTelemetry();
+  } catch (err) {
+    console.warn('[synapse-proxy] telemetry init failed:', err);
   }
 
-  logger.info({ port }, "Server listening");
-});
+  const production = await getProductionProbeStatus();
+  if (production.database) {
+    console.log(`[synapse-proxy] pgvector RAG: ${production.pgvector ? 'ready' : 'unavailable'}`);
+  }
+  if (production.redis) {
+    console.log('[synapse-proxy] Redis: connected (rate limit + BullMQ)');
+  } else if (config.redisUrl && config.rateLimitRequireRedis) {
+    console.warn(
+      '[synapse-proxy] REDIS_URL is set but Redis is unreachable — rate limiting will return 503 until Redis is available',
+    );
+  }
+
+  app.listen(config.port, () => {
+    console.log(`[synapse-proxy] listening on http://localhost:${config.port}`);
+    console.log(`[synapse-proxy] upstream: ${config.upstreamBaseUrl} · anonymous: ${config.allowAnonymous}`);
+    if (config.databaseUrl) {
+      console.log(`[synapse-proxy] database: connected · migrations-on-start: ${config.runMigrationsOnStart}`);
+    }
+    if (config.redisUrl) {
+      console.log('[synapse-proxy] vector index queue: BullMQ (Redis)');
+    }
+    if (process.env.NODE_ENV !== 'test') {
+      try {
+        startStudyRoomCollab(config.collabPort, config.databaseUrl);
+      } catch (err) {
+        console.warn('[synapse-proxy] study-room collab websocket failed to start:', err);
+      }
+    }
+  });
+
+  if (process.env.NODE_ENV !== 'test') {
+    const shutdown = async (signal: string) => {
+      console.log(`[synapse-proxy] ${signal} received — shutting down`);
+      await shutdownTelemetry();
+      process.exit(0);
+    };
+    process.once('SIGTERM', () => { void shutdown('SIGTERM'); });
+    process.once('SIGINT', () => { void shutdown('SIGINT'); });
+  }
+}
+
+if (process.env.NODE_ENV !== 'test') {
+  startServer().catch((err) => {
+    console.error('[synapse-proxy] failed to start:', err);
+    process.exit(1);
+  });
+}

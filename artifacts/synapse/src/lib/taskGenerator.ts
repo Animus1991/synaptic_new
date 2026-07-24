@@ -1,4 +1,6 @@
 import type { Course, Task } from '../types';
+import type { Lang } from './i18n';
+import { getTasksContent } from './tasksContent';
 import { isDemoCourse } from './demoMode';
 
 function mkTask(
@@ -39,9 +41,10 @@ function mkTask(
  * Derive study tasks from a user-generated course outline (topics + key concepts).
  * Replaces mock task lists when material is uploaded.
  */
-export function generateTasksFromCourse(course: Course): Task[] {
+export function generateTasksFromCourse(course: Course, lang: Lang = 'en'): Task[] {
   const tasks: Task[] = [];
   const ready = course.status !== 'generating';
+  const tc = getTasksContent(lang);
 
   course.topics.forEach((topic, idx) => {
     const concept = topic.keyConcepts?.[0] ?? topic.title;
@@ -50,8 +53,8 @@ export function generateTasksFromCourse(course: Course): Task[] {
     if (ready) {
       tasks.push(mkTask(
         `gen-${course.id}-lesson-${topic.id}`,
-        `Lesson: ${topic.title}`,
-        topic.description || `Study ${topic.title} from your uploaded material.`,
+        tc.generatedLessonTitle(topic.title),
+        topic.description || tc.generatedLessonDesc(topic.title),
         'lesson',
         course,
         topic.title,
@@ -65,8 +68,8 @@ export function generateTasksFromCourse(course: Course): Task[] {
       if (topic.keyConcepts && topic.keyConcepts.length > 0) {
         tasks.push(mkTask(
           `gen-${course.id}-workspace-${topic.id}`,
-          `Study Workspace: ${concept}`,
-          `Interactive study — concept map, flashcards, and recall from your notes.`,
+          tc.generatedWorkspaceTitle(concept),
+          tc.generatedWorkspaceDesc,
           'self-explanation',
           course,
           topic.title,
@@ -81,8 +84,8 @@ export function generateTasksFromCourse(course: Course): Task[] {
       if ((topic.objectives?.length ?? 0) > 0 || idx % 2 === 1) {
         tasks.push(mkTask(
           `gen-${course.id}-review-${topic.id}`,
-          `Review: ${topic.title}`,
-          `Spaced recall for concepts in ${topic.title}.`,
+          tc.generatedReviewTitle(topic.title),
+          tc.generatedReviewDesc(topic.title),
           'flashcards',
           course,
           topic.title,
@@ -100,8 +103,8 @@ export function generateTasksFromCourse(course: Course): Task[] {
   if (ready && course.examDate) {
     tasks.push(mkTask(
       `gen-${course.id}-exam`,
-      `Exam prep: ${course.title}`,
-      `Review all topics before your exam.`,
+      tc.generatedExamPrepTitle(course.title),
+      tc.generatedExamPrepDesc,
       'exam-prep',
       course,
       course.title,
@@ -126,18 +129,18 @@ export function isGeneratedCourseTask(task: Task, courseId: string): boolean {
   return task.id.startsWith(generatedTaskPrefix(courseId));
 }
 
-export function mergeCourseTasks(existing: Task[], course: Course): Task[] {
+export function mergeCourseTasks(existing: Task[], course: Course, lang: Lang = 'en'): Task[] {
   const prefix = generatedTaskPrefix(course.id);
   const without = existing.filter((t) => !t.id.startsWith(prefix));
-  return [...without, ...generateTasksFromCourse(course)];
+  return [...without, ...generateTasksFromCourse(course, lang)];
 }
 
-export function mergeAllGeneratedTasks(existing: Task[], courses: Course[]): Task[] {
+export function mergeAllGeneratedTasks(existing: Task[], courses: Course[], lang: Lang = 'en'): Task[] {
   const userCourses = courses.filter((c) => !isDemoCourse(c.id));
   let next = existing.filter((t) => !t.id.startsWith('gen-'));
   for (const course of userCourses) {
     if (course.status === 'generating') continue;
-    next = mergeCourseTasks(next, course);
+    next = mergeCourseTasks(next, course, lang);
   }
   return next;
 }

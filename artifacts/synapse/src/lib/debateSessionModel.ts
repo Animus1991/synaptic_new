@@ -61,7 +61,11 @@ export function buildDebateSessionContent(opts: {
     };
   }
 
-  const seedTree = buildDebateTreeFromNotes(text, concept);
+  let seedTree = buildDebateTreeFromNotes(text, concept);
+  // Single-node fallback trees are not real debate extraction — show empty state instead.
+  if (seedTree && countDebateNodes(seedTree) <= 1) {
+    seedTree = null;
+  }
   const sourceExcerpt = relevantExcerpt(text, concept, 2500);
   const generic = isGenericStudyConcept(concept);
   const passageGrounded = generic && seedTree !== null;

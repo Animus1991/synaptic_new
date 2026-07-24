@@ -1,4 +1,4 @@
-import { Component, type ErrorInfo, type ReactNode } from 'react';
+import { Component, Fragment, type ErrorInfo, type ReactNode } from 'react';
 
 type Props = {
   children: ReactNode;
@@ -84,6 +84,6 @@ export class ErrorBoundary extends Component<Props, State> {
         </div>
       );
     }
-    return <div key={this.state.childGeneration} className="contents">{this.props.children}</div>;
+    return <Fragment key={this.state.childGeneration}>{this.props.children}</Fragment>;
   }
 }

@@ -1,16 +1,52 @@
-import { StrictMode } from "react";
+﻿import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
+import "@fontsource/playfair-display/400.css";
+import "@fontsource/playfair-display/700.css";
+import "@fontsource/playfair-display/700-italic.css";
+import "@fontsource/lora/400.css";
+import "@fontsource/lora/500.css";
+import "@fontsource/lora/600.css";
+import "@fontsource/nunito-sans/400.css";
+import "@fontsource/nunito-sans/600.css";
+import "@fontsource/nunito-sans/700.css";
 import App from "./App";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { initThemeEarly } from "./lib/theme";
+import { initPluginMarketplace } from './lib/pluginMarketplace';
+import { clearChunkReloadFlags } from "./lib/lazyWithRetry";
+import { initSentry } from "./lib/sentryInit";
+import { IconContext } from "@phosphor-icons/react";
+import { LazyMotion, MotionConfig, domAnimation } from "framer-motion";
+import { resetThumbnailBackfillSessionForTests } from "./lib/thumbnailBackfill";
+
+clearChunkReloadFlags();
+void initSentry();
 
 initThemeEarly();
+initPluginMarketplace();
+
+if (import.meta.env.DEV) {
+  (window as unknown as { __synapseResetThumbnailBackfill?: () => void }).__synapseResetThumbnailBackfill =
+    resetThumbnailBackfillSessionForTests;
+}
+
+if (import.meta.env.PROD) {
+  void import('virtual:pwa-register').then(({ registerSW }) => {
+    registerSW({ immediate: true });
+  });
+}
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <ErrorBoundary>
-      <App />
+      <MotionConfig reducedMotion="user">
+        <LazyMotion features={domAnimation}>
+          <IconContext.Provider value={{ weight: "regular", mirrored: false }}>
+            <App />
+          </IconContext.Provider>
+        </LazyMotion>
+      </MotionConfig>
     </ErrorBoundary>
-  </StrictMode>
+  </StrictMode>,
 );

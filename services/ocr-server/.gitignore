@@ -1,0 +1,7 @@
+node_modules/
+.env
+*.log
+# Tesseract downloads language data on first run
+*.traineddata
+*.traineddata.gz
+.cache/

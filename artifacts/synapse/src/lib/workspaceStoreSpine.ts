@@ -49,6 +49,9 @@ export function mergeAgentWorkspaceContext(
     oldPipeline: handoff.oldPipeline ?? live.oldPipeline,
     pipelineVersion: handoff.pipelineVersion ?? live.pipelineVersion,
     lowConfidenceSection: handoff.lowConfidenceSection ?? live.lowConfidenceSection,
+    handwrittenSource: handoff.handwrittenSource ?? live.handwrittenSource,
+    selectionExcerpt: handoff.selectionExcerpt ?? live.selectionExcerpt,
+    graphRelation: handoff.graphRelation ?? live.graphRelation,
   };
 }
 

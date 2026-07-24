@@ -361,6 +361,10 @@ export interface RetrievalResult {
   citations: Citation[];
   /** Whether any grounded material was found. */
   grounded: boolean;
+  /** True when hits came from the server-side global index (/v1/rag/search). */
+  globalRag?: boolean;
+  /** True when GraphRAG concept boosting was applied on the server. */
+  graphRag?: boolean;
 }
 
 /**

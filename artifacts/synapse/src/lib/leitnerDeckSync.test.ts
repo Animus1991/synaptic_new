@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { orderDeckByDueQueue } from './leitnerDeckSync';
+import {
+  loadAllDeckStates,
+  orderDeckByDueQueue,
+} from './leitnerDeckSync';
 import { buildDueHeatmap } from './leitnerDueHeatmap';
 
 describe('leitnerDeckSync', () => {
@@ -19,6 +22,10 @@ describe('leitnerDeckSync', () => {
     const { ordered, dueCount } = orderDeckByDueQueue(cards, spacing, 'elasticity');
     expect(dueCount).toBeGreaterThan(0);
     expect(ordered[0]?.front).toBe('Elasticity');
+  });
+
+  it('returns an empty scoped deck-state map by default', () => {
+    expect(loadAllDeckStates()).toEqual({});
   });
 });
 

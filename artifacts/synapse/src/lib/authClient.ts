@@ -1,6 +1,22 @@
 import type { UserSettings } from '../types';
+import type { LeitnerDeckState } from './leitnerDeckSync';
+import type { QuizAttemptRecord } from './quizAttemptHistory';
 import type { OcrStoredRegion } from './readerOcrOverlay';
 import type { TeacherDashboardResponse } from './teacherDashboardTypes';
+import type {
+  AnnouncementRow,
+  AnnouncementsResponse,
+  AssignmentDiscussionResponse,
+  AssignmentRow,
+  AssignmentsResponse,
+  ClassEnrollmentRow,
+  ClassRosterResponse,
+  DiscussionPostRow,
+  GradebookCellRow,
+  GradebookResponse,
+  TeacherClassRow,
+  TeacherClassesResponse,
+} from './teacherClassTypes';
 
 export type AuthSession = {
   token: string;
@@ -10,7 +26,7 @@ export type AuthSession = {
 };
 
 function proxyBase(settings: UserSettings): string {
-  return (settings.authProxyBase ?? settings.llmProxyUrl ?? 'http://localhost:8787')
+  return (settings.authProxyBase ?? settings.llmProxyUrl ?? (typeof window !== 'undefined' ? `${window.location.origin}/api` : 'http://localhost:8787'))
     .replace(/\/v1\/?$/, '')
     .replace(/\/$/, '');
 }
@@ -114,10 +130,18 @@ export async function pushRemoteLibrary(
   token: string,
   settings: UserSettings,
   library: Omit<RemoteLibrary, 'updatedAt'>,
+  opts?: { ifMatchUpdatedAt?: string },
 ): Promise<RemoteLibrary> {
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    Authorization: `Bearer ${token}`,
+  };
+  if (opts?.ifMatchUpdatedAt) {
+    headers['If-Match'] = `W/"${opts.ifMatchUpdatedAt}"`;
+  }
   const res = await fetch(`${proxyBase(settings)}/v1/library`, {
     method: 'PUT',
-    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    headers,
     body: JSON.stringify(library),
   });
   if (!res.ok) throw new Error(await res.text());
@@ -136,6 +160,8 @@ export type RemoteSession = {
   userSettings: unknown;
   conceptBuses?: Record<string, unknown>;
   stepSchedules?: Record<string, unknown>;
+  leitnerDeckStates?: Record<string, LeitnerDeckState>;
+  quizAttemptHistories?: Record<string, QuizAttemptRecord[]>;
   updatedAt: string;
 };
 
@@ -151,10 +177,18 @@ export async function pushRemoteSession(
   token: string,
   settings: UserSettings,
   session: Omit<RemoteSession, 'updatedAt'>,
+  opts?: { ifMatchUpdatedAt?: string },
 ): Promise<RemoteSession> {
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    Authorization: `Bearer ${token}`,
+  };
+  if (opts?.ifMatchUpdatedAt) {
+    headers['If-Match'] = `W/"${opts.ifMatchUpdatedAt}"`;
+  }
   const res = await fetch(`${proxyBase(settings)}/v1/session`, {
     method: 'PUT',
-    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    headers,
     body: JSON.stringify(session),
   });
   if (!res.ok) throw new Error(await res.text());
@@ -222,19 +256,288 @@ export async function fetchTeacherDashboard(token: string, settings: UserSetting
   return res.json() as Promise<TeacherDashboardResponse>;
 }
 
+export async function fetchTeacherClasses(token: string, settings: UserSettings) {
+  const res = await fetch(`${proxyBase(settings)}/v1/teacher/classes`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json() as Promise<TeacherClassesResponse>;
+}
+
+export async function createTeacherClass(
+  token: string,
+  settings: UserSettings,
+  payload: { name: string; courseId?: string },
+): Promise<TeacherClassRow> {
+  const res = await fetch(`${proxyBase(settings)}/v1/teacher/classes`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json() as Promise<TeacherClassRow>;
+}
+
+export async function fetchClassRoster(
+  token: string,
+  settings: UserSettings,
+  classId: string,
+): Promise<ClassRosterResponse> {
+  const res = await fetch(`${proxyBase(settings)}/v1/teacher/classes/${classId}/roster`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json() as Promise<ClassRosterResponse>;
+}
+
+export async function addClassEnrollment(
+  token: string,
+  settings: UserSettings,
+  classId: string,
+  payload: { email: string; displayName?: string; mastery?: number },
+): Promise<ClassEnrollmentRow> {
+  const res = await fetch(`${proxyBase(settings)}/v1/teacher/classes/${classId}/roster`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json() as Promise<ClassEnrollmentRow>;
+}
+
+export async function removeClassEnrollment(
+  token: string,
+  settings: UserSettings,
+  classId: string,
+  enrollmentId: string,
+): Promise<void> {
+  const res = await fetch(
+    `${proxyBase(settings)}/v1/teacher/classes/${classId}/roster/${enrollmentId}`,
+    {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${token}` },
+    },
+  );
+  if (!res.ok) throw new Error(await res.text());
+}
+
+export async function fetchClassAssignments(
+  token: string,
+  settings: UserSettings,
+  classId: string,
+): Promise<AssignmentsResponse> {
+  const res = await fetch(`${proxyBase(settings)}/v1/teacher/classes/${classId}/assignments`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json() as Promise<AssignmentsResponse>;
+}
+
+export async function createClassAssignment(
+  token: string,
+  settings: UserSettings,
+  classId: string,
+  payload: { title: string; description?: string; dueAt?: string; courseId?: string },
+): Promise<AssignmentRow> {
+  const res = await fetch(`${proxyBase(settings)}/v1/teacher/classes/${classId}/assignments`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json() as Promise<AssignmentRow>;
+}
+
+export async function removeClassAssignment(
+  token: string,
+  settings: UserSettings,
+  classId: string,
+  assignmentId: string,
+): Promise<void> {
+  const res = await fetch(
+    `${proxyBase(settings)}/v1/teacher/classes/${classId}/assignments/${assignmentId}`,
+    {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${token}` },
+    },
+  );
+  if (!res.ok) throw new Error(await res.text());
+}
+
+export async function fetchClassAnnouncements(
+  token: string,
+  settings: UserSettings,
+  classId: string,
+): Promise<AnnouncementsResponse> {
+  const res = await fetch(`${proxyBase(settings)}/v1/teacher/classes/${classId}/announcements`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json() as Promise<AnnouncementsResponse>;
+}
+
+export async function createClassAnnouncement(
+  token: string,
+  settings: UserSettings,
+  classId: string,
+  payload: { title: string; body: string },
+): Promise<AnnouncementRow> {
+  const res = await fetch(`${proxyBase(settings)}/v1/teacher/classes/${classId}/announcements`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json() as Promise<AnnouncementRow>;
+}
+
+export async function removeClassAnnouncement(
+  token: string,
+  settings: UserSettings,
+  classId: string,
+  announcementId: string,
+): Promise<void> {
+  const res = await fetch(
+    `${proxyBase(settings)}/v1/teacher/classes/${classId}/announcements/${announcementId}`,
+    {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${token}` },
+    },
+  );
+  if (!res.ok) throw new Error(await res.text());
+}
+
+export async function fetchAssignmentDiscussion(
+  token: string,
+  settings: UserSettings,
+  classId: string,
+  assignmentId: string,
+): Promise<AssignmentDiscussionResponse> {
+  const res = await fetch(
+    `${proxyBase(settings)}/v1/teacher/classes/${classId}/assignments/${assignmentId}/discussion`,
+    { headers: { Authorization: `Bearer ${token}` } },
+  );
+  if (!res.ok) throw new Error(await res.text());
+  return res.json() as Promise<AssignmentDiscussionResponse>;
+}
+
+export async function postAssignmentDiscussion(
+  token: string,
+  settings: UserSettings,
+  classId: string,
+  assignmentId: string,
+  body: string,
+  parentPostId?: string,
+): Promise<DiscussionPostRow> {
+  const res = await fetch(
+    `${proxyBase(settings)}/v1/teacher/classes/${classId}/assignments/${assignmentId}/discussion`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ body, parentPostId }),
+    },
+  );
+  if (!res.ok) throw new Error(await res.text());
+  return res.json() as Promise<DiscussionPostRow>;
+}
+
+export async function deleteAssignmentDiscussionPost(
+  token: string,
+  settings: UserSettings,
+  classId: string,
+  assignmentId: string,
+  postId: string,
+): Promise<void> {
+  const res = await fetch(
+    `${proxyBase(settings)}/v1/teacher/classes/${classId}/assignments/${assignmentId}/discussion/${postId}`,
+    {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${token}` },
+    },
+  );
+  if (!res.ok) throw new Error(await res.text());
+}
+
+export async function fetchClassGradebook(
+  token: string,
+  settings: UserSettings,
+  classId: string,
+): Promise<GradebookResponse> {
+  const res = await fetch(`${proxyBase(settings)}/v1/teacher/classes/${classId}/gradebook`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json() as Promise<GradebookResponse>;
+}
+
+export async function updateGradebookCell(
+  token: string,
+  settings: UserSettings,
+  classId: string,
+  payload: {
+    enrollmentId: string;
+    assignmentId: string;
+    status?: GradebookCellRow['status'];
+    score?: number;
+  },
+): Promise<GradebookCellRow> {
+  const res = await fetch(`${proxyBase(settings)}/v1/teacher/classes/${classId}/gradebook`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json() as Promise<GradebookCellRow>;
+}
+
+export async function ocrMathRegions(
+  token: string | undefined,
+  settings: UserSettings,
+  regions: string[],
+) {
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+  if (token?.trim()) headers.Authorization = `Bearer ${token.trim()}`;
+  const res = await fetch(`${proxyBase(settings)}/v1/ocr/math`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({ regions }),
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json() as Promise<{ latex: string[]; modelsUsed?: string[]; ocrUsed: boolean }>;
+}
+
 export async function ocrPages(
   token: string | undefined,
   settings: UserSettings,
   pages: string[],
   pageCount?: number,
   languages = 'eng+ell',
+  mode: 'auto' | 'handwriting' | 'printed' = 'auto',
 ) {
   const headers: Record<string, string> = { 'Content-Type': 'application/json' };
   if (token?.trim()) headers.Authorization = `Bearer ${token.trim()}`;
   const res = await fetch(`${proxyBase(settings)}/v1/ocr/pages`, {
     method: 'POST',
     headers,
-    body: JSON.stringify({ pages, pageCount, languages }),
+    body: JSON.stringify({ pages, pageCount, languages, mode }),
   });
   if (!res.ok) throw new Error(await res.text());
   return res.json() as Promise<{
@@ -264,6 +567,59 @@ export async function ragQuery(
   return res.json() as Promise<{ results: { id: string; text: string; score: number }[] }>;
 }
 
+export type GlobalRagHit = {
+  id: string;
+  text: string;
+  score: number;
+  fileId: string;
+  fileName: string;
+  charStart: number;
+  charEnd: number;
+  heading?: string;
+  page?: number;
+  graphBoost?: number;
+  matchedConcepts?: string[];
+};
+
+export async function ragSearch(
+  token: string | undefined,
+  settings: UserSettings,
+  query: string,
+  opts: { topK?: number; courseId?: string; graph?: boolean } = {},
+): Promise<{ results: GlobalRagHit[]; indexedChunks: number; global: boolean; graphRag?: boolean }> {
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+  if (token?.trim()) headers.Authorization = `Bearer ${token.trim()}`;
+  const res = await fetch(`${proxyBase(settings)}/v1/rag/search`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({
+      query,
+      topK: opts.topK ?? 5,
+      courseId: opts.courseId,
+      graph: opts.graph !== false,
+    }),
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json() as Promise<{ results: GlobalRagHit[]; indexedChunks: number; global: boolean; graphRag?: boolean }>;
+}
+
+export async function ragIndexLibrary(
+  token: string,
+  settings: UserSettings,
+  library: { uploadedFiles: unknown[]; glossaryEntries: unknown[]; generatedCourses: unknown[] },
+): Promise<{ indexedChunks: number }> {
+  const res = await fetch(`${proxyBase(settings)}/v1/rag/index`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(library),
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json() as Promise<{ indexedChunks: number }>;
+}
+
 export type SharedAnnotationDto = {
   id: string;
   courseId: string;
@@ -276,6 +632,9 @@ export type SharedAnnotationDto = {
   focusTerm?: string;
   teacherEmail: string;
   createdAt: string;
+  /** Monotonic revision for conflict detection (W2). */
+  revision?: number;
+  updatedAt?: string;
 };
 
 export type SharedAnnotationSyncResult = {
@@ -330,4 +689,65 @@ export async function publishTeacherAnnotation(
   });
   if (!res.ok) return null;
   return res.json() as Promise<SharedAnnotationDto>;
+}
+
+export type PatchTeacherAnnotationResult =
+  | { ok: true; annotation: SharedAnnotationDto }
+  | { ok: false; conflict?: SharedAnnotationDto; status: number };
+
+/** W2 — optimistic update; 412 when baseRevision is stale. */
+export async function patchTeacherAnnotation(
+  token: string,
+  settings: UserSettings,
+  annotationId: string,
+  payload: {
+    courseId: string;
+    fileKey: string;
+    baseRevision?: number;
+    type?: SharedAnnotationDto['type'];
+    text?: string;
+    color?: string;
+    lineStart?: number;
+    lineEnd?: number;
+    focusTerm?: string;
+  },
+): Promise<PatchTeacherAnnotationResult> {
+  const res = await fetch(`${proxyBase(settings)}/v1/teacher/annotations/${encodeURIComponent(annotationId)}`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(payload),
+  });
+  if (res.status === 412) {
+    const body = (await res.json().catch(() => ({}))) as { current?: SharedAnnotationDto };
+    return { ok: false, conflict: body.current, status: 412 };
+  }
+  if (!res.ok) return { ok: false, status: res.status };
+  return { ok: true, annotation: (await res.json()) as SharedAnnotationDto };
+}
+
+export async function authExportAccount(token: string, settings: UserSettings): Promise<Blob> {
+  const res = await fetch(`${proxyBase(settings)}/v1/account/export`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return res.blob();
+}
+
+export async function authDeleteAccount(
+  token: string,
+  settings: UserSettings,
+  confirmEmail: string,
+): Promise<void> {
+  const res = await fetch(`${proxyBase(settings)}/v1/account`, {
+    method: 'DELETE',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ confirmEmail }),
+  });
+  if (!res.ok) throw new Error(await res.text());
 }

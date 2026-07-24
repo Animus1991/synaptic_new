@@ -1,0 +1,526 @@
+/**
+ * OPT-R9 / R10 / R11 / R12 / R13 / R14 / R15 — Replit-inspired shell rail,
+ * create, canvas, Status-as-console, Library/⌘K path density, Agent mode
+ * grouping, quieter hubs.
+ * Minimal-gated only. No orange palette. Zero feature removal.
+ * Principles only — not a Replit brand clone.
+ */
+
+/* ── OPT-R9 — collapsed shell rail (all themes) ─────────────────────── */
+
+#platform-sidebar-nav.shell-rail-collapsed {
+  transition: width 160ms ease;
+}
+
+#platform-sidebar-nav.shell-rail-collapsed .platform-nav-item {
+  border-radius: 0.5rem;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) #platform-sidebar-nav [data-testid="shell-rail-collapse-toggle"] {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  letter-spacing: 0.02em;
+  box-shadow: none;
+}
+
+/* ── OPT-R14 — Agent mode grouping ──────────────────────────────────── */
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .agent-modes-grouped .agent-mode-group {
+  border-color: color-mix(in srgb, var(--color-border-subtle, #d0d7de) 75%, transparent);
+  background: color-mix(in srgb, var(--color-surface-secondary, #f6f8fa) 35%, transparent);
+  box-shadow: none;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .agent-modes-grouped .agent-mode-group-toggle,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .agent-modes-grouped .agent-mode-group-label {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  letter-spacing: 0.04em;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .agent-modes-grouped .agent-mode-group [data-testid^="agent-mode-"],
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .agent-modes-grouped [data-testid^="agent-mode-group-"] [data-testid^="agent-mode-"] {
+  border-radius: 0.45rem;
+  padding-top: 0.4rem;
+  padding-bottom: 0.4rem;
+}
+
+/* ── OPT-R10 — prompt-first create / upload ─────────────────────────── */
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) [data-testid="upload-modal"].create-prompt .ux-upload-drop-zone {
+  border-style: solid;
+  border-width: 1px;
+  border-color: color-mix(in srgb, var(--color-border-subtle, #d0d7de) 85%, transparent);
+  background: color-mix(in srgb, var(--color-surface-secondary, #f6f8fa) 70%, transparent);
+  padding-top: 2.25rem;
+  padding-bottom: 2.25rem;
+  box-shadow: none;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) [data-testid="upload-modal"].create-prompt .ux-upload-drop-zone[data-active="true"],
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) [data-testid="upload-modal"].create-prompt .ux-upload-drop-zone:hover {
+  border-color: color-mix(in srgb, var(--color-brand-500, #5a7694) 40%, var(--color-border-subtle, #d0d7de));
+  background: color-mix(in srgb, var(--color-brand-500, #5a7694) 6%, var(--color-surface-secondary, #f6f8fa));
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) [data-testid="upload-modal"].create-prompt .create-prompt-formats {
+  opacity: 0.75;
+  gap: 0.35rem;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) [data-testid="upload-modal"].create-prompt .create-prompt-formats .text-red-400,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) [data-testid="upload-modal"].create-prompt .create-prompt-formats .text-blue-400,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) [data-testid="upload-modal"].create-prompt .create-prompt-formats .text-orange-400,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) [data-testid="upload-modal"].create-prompt .create-prompt-formats .text-accent-emerald,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) [data-testid="upload-modal"].create-prompt .create-prompt-formats .text-accent-teal,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) [data-testid="upload-modal"].create-prompt .create-prompt-formats .text-brand-400 {
+  color: var(--color-text-tertiary, #656d76) !important;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) [data-testid="upload-modal"].create-prompt .create-prompt-flow .rounded-xl {
+  box-shadow: none;
+  padding: 0.55rem 0.65rem;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) [data-testid="library-drop-zone"].ux-prompt-bar-surface,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) [data-testid="library-drop-zone-compact"].ux-prompt-bar-surface {
+  border-style: solid;
+  border-width: 1px;
+  box-shadow: none;
+  background: color-mix(in srgb, var(--color-surface-secondary, #f6f8fa) 55%, transparent);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) [data-testid="post-upload-banner"].post-upload-create {
+  box-shadow: none;
+  border-color: color-mix(in srgb, var(--color-border-subtle, #d0d7de) 80%, transparent);
+  background: color-mix(in srgb, var(--color-surface-secondary, #f6f8fa) 50%, transparent);
+}
+
+/* ── OPT-R13 — workspace / notebook canvas primacy ──────────────────── */
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) [data-testid="study-workspace"].workspace-canvas {
+  background: var(--color-surface-primary, #fff);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .notebook-canvas {
+  background: var(--color-surface-primary, #fff);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .notebook-canvas [data-testid="notebook-sources-panel"],
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .notebook-canvas [data-testid="notebook-chat-panel"],
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .notebook-canvas [data-testid="notebook-studio-panel"] {
+  border-radius: 0.65rem;
+  box-shadow: none;
+  background: var(--color-surface-primary, #fff);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .notebook-canvas [data-testid="notebook-sources-panel"] > header,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .notebook-canvas [data-testid="notebook-chat-panel"] > header,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .notebook-canvas [data-testid="notebook-studio-panel"] > header {
+  padding-top: 0.45rem;
+  padding-bottom: 0.45rem;
+  background: transparent;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .notebook-canvas [data-testid="notebook-sources-panel"] > header h2,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .notebook-canvas [data-testid="notebook-chat-panel"] > header h2,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .notebook-canvas [data-testid="notebook-studio-panel"] > header h2 {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--color-text-tertiary, #656d76);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .notebook-canvas [data-testid="notebook-chat-panel"] {
+  /* Center column = canvas hero */
+  border-color: color-mix(in srgb, var(--color-border-subtle, #d0d7de) 55%, transparent);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .notebook-canvas[data-layout="desktop"] > [data-panel-group] {
+  padding: 0.35rem !important;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .notebook-canvas [data-testid="notebook-source-list"] {
+  gap: 0.15rem;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .notebook-canvas [data-testid="notebook-source-list"] > li > div {
+  border-radius: 0.4rem;
+  padding-top: 0.35rem;
+  padding-bottom: 0.35rem;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .notebook-canvas [data-testid="notebook-source-list"] .type-micro {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  /* OPT-K54 — mono meta floor ≥11px (was 0.65rem) */
+  font-size: 0.6875rem;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .workspace-canvas #workspace-main {
+  background: var(--color-surface-primary, #fff);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .workspace-canvas .workspace-glass-panel {
+  box-shadow: none;
+  backdrop-filter: none;
+}
+
+/* ── OPT-R11 — Status as console ────────────────────────────────────── */
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .status-console,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .status-console-dock {
+  background: color-mix(in srgb, var(--color-surface-secondary, #f6f8fa) 88%, transparent);
+  border-color: color-mix(in srgb, var(--color-border-subtle, #d0d7de) 90%, transparent);
+  box-shadow: none;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .status-console-dock {
+  border-b: 0;
+  border-t: 1px solid color-mix(in srgb, var(--color-border-subtle, #d0d7de) 90%, transparent);
+  order: 99;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .status-console [data-testid="workspace-status-panel-toggle"],
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .status-console-dock [data-testid="workspace-status-panel-toggle"] {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.02em;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .status-console-section-label {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  letter-spacing: 0.04em;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .status-console-inbox {
+  border-radius: 0.65rem;
+  box-shadow: none;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .status-console-inbox .status-console-section-label {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) [data-testid="rag-index-progress"].pipeline-console-strip {
+  border-radius: 0.4rem;
+  box-shadow: none;
+  padding-top: 0.45rem;
+  padding-bottom: 0.45rem;
+  margin-bottom: 0.35rem;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) [data-testid="workspace-source-status-bar"] {
+  border-radius: 0.4rem;
+  box-shadow: none;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) [data-testid="notification-toast-stack"] .notification-toast {
+  box-shadow: none;
+  border-radius: 0.5rem;
+  backdrop-filter: none;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) [data-testid="workspace-context-bar"][data-status-inbox="true"] [data-testid="workspace-status-inbox"] {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+/* ── OPT-R12 — Library / files / ⌘K path mono density ───────────────── */
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .library-files-density [data-testid="library-course-card"] {
+  padding: 0.65rem 0.85rem;
+  gap: 0.75rem;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .library-files-density [data-testid="library-course-card"] [data-testid="library-course-title"],
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .library-files-density [data-testid="library-course-card"] h3 {
+  font-size: 0.8125rem;
+  letter-spacing: -0.01em;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .library-files-density [data-testid="library-course-card"] p.text-xs,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .library-files-density [data-testid="library-course-card"] p[class*="text-[10px]"],
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .library-files-density [data-testid="library-course-card"] p[class*="text-[11px]"] {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  /* OPT-K54 */
+  font-size: 0.6875rem;
+  letter-spacing: 0.01em;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .library-files-density [data-testid="library-course-card"] .rounded-full,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .library-files-density [data-testid="library-course-card"] [class*="Badge"] {
+  opacity: 0.85;
+  font-weight: 500;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .library-files-density [data-testid^="library-corner-"] {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  opacity: 0.9;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .library-files-dense {
+  gap: 0.35rem;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .library-file-row {
+  border-radius: 0.5rem;
+  box-shadow: none;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .library-file-row > .flex.items-center {
+  gap: 0.65rem;
+  padding: 0.5rem 0.65rem;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .library-file-icon {
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 0.35rem;
+  background: color-mix(in srgb, var(--color-surface-hover, rgba(0, 0, 0, 0.04)) 70%, transparent);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .library-file-icon svg {
+  width: 0.9rem;
+  height: 0.9rem;
+  color: var(--color-text-tertiary, #656d76) !important;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .library-file-name {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .library-file-meta {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  /* OPT-K54 */
+  font-size: 0.6875rem;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .command-palette-dense .command-palette-item {
+  gap: 0.55rem;
+  padding: 0.4rem 0.65rem;
+  border-radius: 0.45rem;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .command-palette-dense .command-palette-item-icon {
+  width: 0.9rem;
+  height: 0.9rem;
+  color: var(--color-text-tertiary, #656d76) !important;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .command-palette-dense .command-palette-path {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  /* OPT-K54 — path meta ≥11px */
+  font-size: 0.6875rem;
+  letter-spacing: 0.01em;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .notebook-canvas [data-testid="notebook-source-list"] [data-testid^="notebook-source-row-"] .truncate.text-xs {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.7rem;
+  font-weight: 500;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .notebook-canvas [data-testid="notebook-source-list"] > li > div {
+  padding-left: 0.45rem;
+  padding-right: 0.45rem;
+}
+
+/* ── OPT-R15 — Dashboard / Tasks / Analytics quieter hubs ────────────── */
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .hub-quiet .dashboard-continue-hero {
+  min-height: 2.25rem;
+  padding-inline: 1rem;
+  font-weight: 650;
+  letter-spacing: 0.01em;
+  box-shadow: none;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .hub-quiet .hub-quiet-surface {
+  background: color-mix(in srgb, var(--color-surface-secondary, #f6f8fa) 45%, transparent);
+  border-color: color-mix(in srgb, var(--color-border-subtle, #d0d7de) 70%, transparent);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .hub-quiet .dashboard-hub-chip {
+  border-radius: 0.5rem;
+  padding-top: 0.45rem;
+  padding-bottom: 0.45rem;
+  background: transparent;
+  box-shadow: none;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .hub-quiet [data-testid="dashboard-page-stats"] {
+  gap: 0.4rem;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .hub-quiet [data-testid="dashboard-page-stats"] > * {
+  padding: 0.45rem 0.55rem;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .hub-quiet [data-testid="dashboard-masonry"] > * {
+  box-shadow: none;
+  border-color: color-mix(in srgb, var(--color-border-subtle, #d0d7de) 75%, transparent);
+  background: color-mix(in srgb, var(--color-surface-secondary, #f6f8fa) 35%, transparent);
+}
+
+/* OPT-K17 — one-step strip styles live in cursor-clarity.css (.dashboard-one-step-strip) */
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .hub-quiet [data-testid="dashboard-active-topic-pill"] {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-weight: 500;
+  opacity: 0.9;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .tasks-quiet .tasks-layout-toggle {
+  border-color: color-mix(in srgb, var(--color-border-subtle, #d0d7de) 80%, transparent);
+  background: color-mix(in srgb, var(--color-surface-secondary, #f6f8fa) 40%, transparent);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .tasks-quiet .tasks-list-row {
+  border-radius: 0.5rem;
+  box-shadow: none;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .tasks-quiet [data-testid="tasks-kanban-strip"] .tasks-kanban-column {
+  box-shadow: none;
+  border-radius: 0.4rem;
+  padding: 0.4rem 0.5rem;
+  background: color-mix(in srgb, var(--color-surface-secondary, #f6f8fa) 50%, transparent);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .tasks-quiet [data-testid="tasks-kanban-strip"] .tasks-kanban-column-label {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.04em;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .tasks-quiet [data-testid="tasks-session-launchers"] .ux-card,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .tasks-quiet [data-testid^="session-launcher-"] {
+  box-shadow: none;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .analytics-quiet [data-testid="progress-kpi-row"] {
+  gap: 0.4rem;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .analytics-quiet [data-testid="progress-kpi-row"] .ux-card {
+  box-shadow: none;
+  border-radius: 0.45rem;
+  padding: 0.5rem 0.65rem;
+  background: color-mix(in srgb, var(--color-surface-secondary, #f6f8fa) 40%, transparent);
+  border-color: color-mix(in srgb, var(--color-border-subtle, #d0d7de) 75%, transparent);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .analytics-quiet .ux-card,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .analytics-quiet .platform-panel-md {
+  box-shadow: none;
+  border-color: color-mix(in srgb, var(--color-border-subtle, #d0d7de) 75%, transparent);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .analytics-quiet .ux-card h3,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .analytics-quiet .platform-panel-md h3 {
+  font-size: 0.75rem;
+  letter-spacing: 0.02em;
+  color: var(--color-text-secondary, #424a53);
+}
+
+/* ── OPT-R16 — Settings IDE-like section layout ─────────────────────────── */
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .settings-ide .settings-ide-nav-item.is-active {
+  background: color-mix(in srgb, var(--color-surface-secondary, #f6f8fa) 70%, transparent);
+  color: var(--color-text-primary, #1f2328);
+  box-shadow: inset 2px 0 0 var(--color-brand-600, #0969da);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .settings-ide .settings-ide-section {
+  box-shadow: none;
+  border-radius: 0.45rem;
+  border-color: color-mix(in srgb, var(--color-border-subtle, #d0d7de) 80%, transparent);
+  background: color-mix(in srgb, var(--color-surface-secondary, #f6f8fa) 28%, transparent);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .settings-ide .settings-ide-section-title {
+  font-size: 0.8rem;
+  letter-spacing: 0.01em;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .settings-ide .settings-ide-section-title svg {
+  color: var(--color-text-tertiary, #656d76);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .settings-ide .settings-ide-footer {
+  box-shadow: none;
+  border-color: color-mix(in srgb, var(--color-border-subtle, #d0d7de) 75%, transparent);
+  background: transparent;
+}
+
+@media (min-width: 1024px) {
+  :is([data-theme="minimal"], [data-theme="minimal-dark"]) .settings-ide .settings-ide-nav {
+    border-right: 1px solid color-mix(in srgb, var(--color-border-subtle, #d0d7de) 70%, transparent);
+    padding-right: 0.75rem;
+  }
+
+  :is([data-theme="minimal"], [data-theme="minimal-dark"]) .settings-ide .settings-ide-nav-item.is-active {
+    border-radius: 0.35rem;
+  }
+}
+
+/* ── OPT-R17 / OPT-K52 — Motion / skeleton / focus Minimal polish ───────── */
+
+/* OPT-K52 — one focus truth with Primer K47 (brand solid 2px / offset 2px). */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) {
+  --focus-ring-offset: 2px;
+  --color-focus-ring: var(--focus-ring-color);
+}
+
+:is([data-theme="minimal"]) {
+  --focus-ring-color: var(--color-brand-600);
+}
+
+:is([data-theme="minimal-dark"]) {
+  --focus-ring-color: var(--color-brand-500);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell :is(button, a, [role="button"], input, textarea, select, .ux-focus-ring):focus-visible {
+  outline: var(--focus-ring-width, 2px) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset, 2px);
+}
+
+/* Flatten shimmer skeletons to border-only placeholders (no brand sweep). */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .ux-shimmer-skeleton,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .ux-shimmer,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .shimmer {
+  animation: none;
+  background: color-mix(in srgb, var(--color-surface-secondary, #f6f8fa) 85%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-border-subtle, #d0d7de) 80%, transparent);
+  background-size: auto;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .ux-shimmer-panel {
+  box-shadow: none;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) [data-testid="lazy-overlay-loading"] .ux-shimmer-panel {
+  border-radius: 0.5rem;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  background: var(--color-surface-card, #ffffff);
+}
+
+/* No hover float under Minimal (prefer opacity/border feedback only). */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .card-hover:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .ux-row-elev-hover:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+/* Strip Framer y-float on hub/analytics/agent rows; keep opacity/height. */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell :is(.analytics-quiet, .hub-quiet, .tasks-quiet) [style*="translateY("],
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .agent-message-row[style*="translateY("] {
+  transform: none !important;
+}

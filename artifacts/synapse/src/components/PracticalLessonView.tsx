@@ -3,8 +3,8 @@ import { motion } from 'framer-motion';
 import {
   X, Play, CheckCircle2, AlertTriangle, Lightbulb,
   ChevronRight, ArrowRight, Sparkles, RotateCcw,
-  Terminal, Eye, Gauge, Zap, Upload,
-} from 'lucide-react';
+  Terminal, Eye, EyeOff, Gauge, Zap, Upload, GraduationCap,
+} from '@/lib/lucide-shim';
 import { cn } from '../utils/cn';
 import { CodeEditor } from './CodeEditor';
 import { buildPracticeExercisesFromNotes, getPracticeExercises } from '../lib/practiceExercises';
@@ -74,7 +74,7 @@ export function PracticalLessonView({
   const [hintLevel, setHintLevel] = useState(0);
   const [testsPassed, setTestsPassed] = useState<boolean | null>(null);
   const [showSolution, setShowSolution] = useState(false);
-  const [completedCount, setCompletedCount] = useState(0);
+  const [passedExerciseIds, setPassedExerciseIds] = useState<Set<number>>(() => new Set());
   const [pyodideStatus, setPyodideStatus] = useState<'idle' | 'loading' | 'ready' | 'error'>('idle');
 
   const isPythonExercise = useMemo(
@@ -134,7 +134,7 @@ export function PracticalLessonView({
       setOutput(result.output);
       if (result.passed) {
         onPracticeAttempt?.(quizConcept, true);
-        setCompletedCount((c) => Math.max(c, exerciseIdx + 1));
+        setPassedExerciseIds((prev) => new Set(prev).add(exerciseIdx));
       } else {
         onPracticeAttempt?.(quizConcept, false);
       }
@@ -145,21 +145,23 @@ export function PracticalLessonView({
     setOutput(passed ? `✓ ${t('allTestsPassed')}` : `✗ ${t('testsFailed')}`);
     if (passed) {
       onPracticeAttempt?.(quizConcept, true);
-      setCompletedCount((c) => Math.max(c, exerciseIdx + 1));
+      setPassedExerciseIds((prev) => new Set(prev).add(exerciseIdx));
     } else {
       onPracticeAttempt?.(quizConcept, false);
     }
   };
 
+  const passedCount = passedExerciseIds.size;
+
   const handleFinish = () => {
-    if (completedCount < exercises.length) return;
+    if (passedCount < exercises.length) return;
     onComplete?.();
     onClose();
   };
 
-  const lessonTitle = taskTitle ?? (lang === 'el' ? `Εξάσκηση: ${quizConcept}` : `Practice: ${quizConcept}`);
+  const lessonTitle = taskTitle ?? t('practiceTitleColon').replace('{concept}', quizConcept);
   const lessonCourse = courseName ? `${courseName} · Practice` : 'Practice';
-  const allDone = completedCount >= exercises.length;
+  const allDone = exercises.length > 0 && passedCount >= exercises.length;
 
   if (!hasNoteSource && onUpload) {
     return (
@@ -178,19 +180,17 @@ export function PracticalLessonView({
         <div className="flex-1 flex flex-col items-center justify-center p-8 text-center max-w-lg mx-auto">
           <Upload className="w-12 h-12 text-brand-400 mb-4" />
           <h2 className="text-lg font-semibold mb-2">
-            {lang === 'el' ? 'Ανέβασε σημειώσεις για εξάσκηση' : 'Upload notes to practice'}
+            {t('uploadNotesPractice')}
           </h2>
           <p className="text-sm text-text-secondary mb-6">
-            {lang === 'el'
-              ? 'Οι ασκήσεις παράγονται από παραδείγματα, τύπους και κώδικα στις δικές σου σημειώσεις — όχι από demo templates.'
-              : 'Exercises are generated from worked examples, formulas, and code in your notes — not demo templates.'}
+            {t('practiceFromNotesBody')}
           </p>
           <button
             type="button"
             onClick={onUpload}
             className="px-5 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-sm font-medium"
           >
-            {lang === 'el' ? 'Ανέβασμα υλικού' : 'Upload material'}
+            {t('uploadMaterialBtn')}
           </button>
         </div>
       </div>
@@ -223,8 +223,8 @@ export function PracticalLessonView({
         <div className="lg:w-[40%] border-b lg:border-b-0 lg:border-r border-border-subtle overflow-y-auto min-w-0">
           <div className="p-5 space-y-5">
             <div>
-              <span className="text-xs text-accent-teal font-medium uppercase tracking-wider">
-                {hasNoteSource ? (lang === 'el' ? 'Από τις σημειώσεις σου' : 'From your notes') : 'Exercise'}
+              <span className="text-xs text-accent-teal font-medium">
+                {hasNoteSource ? t('wbFromNotes') : t('exercise')}
               </span>
               <h2 className="text-xl font-bold mt-1">{exercise.title}</h2>
               <p className="text-[10px] text-text-muted mt-1">{t('exercise')} {exerciseIdx + 1} {t('of')} {exercises.length}</p>
@@ -245,10 +245,10 @@ export function PracticalLessonView({
                   onClick={() => loadExercise(i)}
                   className={cn(
                     'w-7 h-7 rounded-lg text-[10px] font-bold border',
-                    i === exerciseIdx ? 'border-brand-500 bg-brand-600/20 text-brand-300' : i < completedCount ? 'border-accent-emerald/40 text-accent-emerald' : 'border-border-subtle text-text-muted',
+                    i === exerciseIdx ? 'border-brand-500 bg-brand-600/20 text-brand-300' : passedExerciseIds.has(i) ? 'border-accent-emerald/40 text-accent-emerald' : 'border-border-subtle text-text-muted',
                   )}
                 >
-                  {i < completedCount ? '✓' : i + 1}
+                  {passedExerciseIds.has(i) ? '✓' : i + 1}
                 </button>
               ))}
             </div>
@@ -263,8 +263,9 @@ export function PracticalLessonView({
             <div className="space-y-2">
               {exercise.hints.slice(0, hintLevel).map((hint, i) => (
                 <motion.div key={i} initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }}
-                  className="p-3 rounded-lg bg-accent-amber/5 border border-accent-amber/20 text-xs text-text-secondary">
-                  💡 {hint}
+                  className="p-3 rounded-lg bg-accent-amber/5 border border-accent-amber/20 text-xs text-text-secondary flex items-start gap-2">
+                  <Lightbulb className="w-3.5 h-3.5 text-accent-amber shrink-0 mt-0.5" />
+                  {hint}
                 </motion.div>
               ))}
               {hintLevel < exercise.hints.length && (
@@ -284,11 +285,12 @@ export function PracticalLessonView({
             )}
 
             <div className="flex flex-wrap gap-2">
-              <button type="button" onClick={() => setShowSolution(!showSolution)} className="px-3 py-1.5 rounded-lg text-[11px] font-medium border border-border-subtle hover:border-brand-500/30 text-text-secondary transition-all">
-                {showSolution ? '🙈 Hide solution' : '👀 Show solution'}
+              <button type="button" onClick={() => setShowSolution(!showSolution)} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-medium border border-border-subtle hover:border-brand-500/30 text-text-secondary transition-all">
+                {showSolution ? <><EyeOff className="w-3.5 h-3.5" /> Hide solution</> : <><Eye className="w-3.5 h-3.5" /> Show solution</>}
               </button>
-              <button type="button" onClick={onOpenAgent} className="px-3 py-1.5 rounded-lg text-[11px] font-medium border border-border-subtle hover:border-brand-500/30 text-text-secondary transition-all">
-                🔰 Explain like beginner
+              <button type="button" onClick={onOpenAgent} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-medium border border-border-subtle hover:border-brand-500/30 text-text-secondary transition-all">
+                <GraduationCap className="w-3.5 h-3.5 text-brand-600" />
+                Explain like beginner
               </button>
             </div>
           </div>
@@ -342,7 +344,7 @@ export function PracticalLessonView({
       <div className="border-t border-border-subtle bg-surface-secondary/50 px-4 py-3 w-full min-w-0">
         <div className="w-full flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <span className="text-xs text-text-muted">{completedCount}/{exercises.length} completed</span>
+            <span className="text-xs text-text-muted">{passedCount}/{exercises.length} completed</span>
             {testsPassed && <span className="text-xs text-accent-emerald flex items-center gap-1"><Zap className="w-3 h-3" /> Exercise passed</span>}
           </div>
           <div className="flex items-center gap-2">

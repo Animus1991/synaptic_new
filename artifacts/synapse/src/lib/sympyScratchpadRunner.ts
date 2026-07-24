@@ -192,3 +192,53 @@ export async function validateScratchpadStepsWithSympy(
     };
   }
 }
+
+const SYMPY_SIMPLIFY_SCRIPT = `
+import json
+from sympy import sympify, simplify
+
+raw = str(__expr).strip().replace('^', '**')
+try:
+    expr = sympify(raw)
+    __result_json = json.dumps({ 'ok': True, 'simplified': str(simplify(expr)), 'engine': 'sympy' })
+except Exception as e:
+    __result_json = json.dumps({ 'ok': False, 'error': str(e), 'engine': 'sympy' })
+`;
+
+export type SympySimplifyResult = {
+  ok: boolean;
+  simplified?: string;
+  error?: string;
+  engine: 'sympy' | 'unavailable';
+};
+
+/** TOOL-SP-02 — offline SymPy simplify for a single expression. */
+export async function simplifyExpressionWithSympy(expr: string): Promise<SympySimplifyResult> {
+  const trimmed = expr.trim();
+  if (!trimmed) {
+    return { ok: false, engine: 'unavailable', error: 'Empty expression' };
+  }
+  const ready = await ensureSympyLoaded();
+  if (!ready) {
+    return { ok: false, engine: 'unavailable', error: 'SymPy unavailable offline' };
+  }
+  try {
+    const pyodide = await getPyodide();
+    pyodide.globals.set('__expr', trimmed);
+    await pyodide.runPythonAsync(SYMPY_SIMPLIFY_SCRIPT);
+    const json = String(pyodide.globals.get('__result_json') ?? '{}');
+    const parsed = JSON.parse(json) as { ok: boolean; simplified?: string; error?: string };
+    return {
+      ok: parsed.ok,
+      simplified: parsed.simplified,
+      error: parsed.error,
+      engine: 'sympy',
+    };
+  } catch (e) {
+    return {
+      ok: false,
+      engine: 'unavailable',
+      error: e instanceof Error ? e.message : String(e),
+    };
+  }
+}

@@ -10,6 +10,16 @@ import type { UserSettings } from '../types';
 import { importChatGptExportFile, isChatGptExportFile, isLikelyChatGptExportJson } from './chatGptImport';
 
 import { extractWithOcrFallback, isImageOnlyPdf, isImageUpload } from './ocrExtract';
+import { extractAudioVideoTranscript, isAudioVideoFile } from './youtubeTranscript';
+import { detectMathZonesFromPage, type PdfMathZone } from './pdfMathZones';
+import { repairPdfMathZones } from './mathOcrClient';
+import { extractLayoutBlocksFromPages, type PdfLayoutBlockInput } from './pdfLayoutBlocks';
+import { renderPdfPageThumbnailFromDoc, type PdfCoverThumbnail } from './pdfThumbnail';
+import {
+  renderPdfCoverFromBytes,
+  shouldRenderThumbnailInWorker,
+} from './pdfThumbnailWorkerClient';
+import { renderImageCoverThumbnail } from './imageThumbnail';
 
 // Vite resolves this to a stable public URL in dev + production builds.
 
@@ -29,6 +39,16 @@ export type PdfExtractResult = {
 
   ocrRegions?: FileExtractResult['ocrRegions'];
 
+  mathZones?: PdfMathZone[];
+
+  mathOcrUsed?: boolean;
+
+  layoutBlocks?: PdfLayoutBlockInput[];
+
+  ocrModelsUsed?: string[];
+
+  coverThumbnail?: PdfCoverThumbnail;
+
 };
 
 
@@ -41,9 +61,19 @@ export type FileExtractResult = {
 
   ocrUsed?: boolean;
 
-  ingestMethod?: 'text-layer' | 'ocr-client' | 'ocr-server' | 'ocr-ensemble' | 'chatgpt-export';
+  ingestMethod?: 'text-layer' | 'ocr-client' | 'ocr-server' | 'ocr-ensemble' | 'ocr-vision' | 'chatgpt-export' | 'transcript';
 
   ocrRegions?: import('./readerOcrOverlay').OcrStoredRegion[];
+
+  mathZones?: PdfMathZone[];
+
+  mathOcrUsed?: boolean;
+
+  layoutBlocks?: PdfLayoutBlockInput[];
+
+  ocrModelsUsed?: string[];
+
+  coverThumbnail?: PdfCoverThumbnail;
 
 };
 
@@ -59,6 +89,16 @@ interface TextItem {
 
 const LINE_TOLERANCE = 4;
 const COLUMN_GAP_FRACTION = 0.03;
+
+/** PDF user space: when transform d > 0, y increases upward (native PDF coords). */
+function pdfVerticalSortDirection(items: TextItem[]): 'asc' | 'desc' {
+  const ds = items
+    .map((it) => it.transform[3] ?? 0)
+    .filter((d) => Math.abs(d) > 0.01);
+  if (ds.length === 0) return 'asc';
+  const avg = ds.reduce((sum, d) => sum + d, 0) / ds.length;
+  return avg > 0 ? 'desc' : 'asc';
+}
 
 /**
  * Reconstruct PDF text in human reading order using coordinates from PDF.js.
@@ -81,8 +121,10 @@ function layoutAwareTextFromItems(items: unknown[], pageWidth: number): string {
 
   if (withCoords.length === 0) return '';
 
+  const ySort = pdfVerticalSortDirection(raw);
+
   // Group into lines by y-coordinate (tolerance for small variations).
-  const sortedByY = [...withCoords].sort((a, b) => a.y - b.y);
+  const sortedByY = [...withCoords].sort((a, b) => (ySort === 'desc' ? b.y - a.y : a.y - b.y));
   const lines: { y: number; items: typeof withCoords }[] = [];
   for (const it of sortedByY) {
     const line = lines.find((l) => Math.abs(l.y - it.y) <= LINE_TOLERANCE);
@@ -95,7 +137,7 @@ function layoutAwareTextFromItems(items: unknown[], pageWidth: number): string {
   }
 
   // Sort lines top-to-bottom.
-  lines.sort((a, b) => a.y - b.y);
+  lines.sort((a, b) => (ySort === 'desc' ? b.y - a.y : a.y - b.y));
 
   // Sort items within each line left-to-right.
   for (const line of lines) {
@@ -159,8 +201,22 @@ export async function extractTextFromPdf(file: File, settings?: UserSettings): P
 
   const doc = await pdfjs.getDocument({ data }).promise;
 
+  const coverPromise = shouldRenderThumbnailInWorker(doc.numPages, file.size)
+    ? renderPdfCoverFromBytes(data, { pageCount: doc.numPages, fileSize: file.size }).catch(() => undefined)
+    : renderPdfPageThumbnailFromDoc(
+      doc as unknown as Parameters<typeof renderPdfPageThumbnailFromDoc>[0],
+    ).catch(() => undefined);
+
   const parts: string[] = [];
   const pageCharCounts: number[] = [];
+  const allMathZones: PdfMathZone[] = [];
+  const pageLayoutInputs: {
+    items: unknown[];
+    styles: Record<string, { fontFamily?: string }> | undefined;
+    pageHeight: number;
+    pageText: string;
+    pageIndex: number;
+  }[] = [];
 
 
 
@@ -174,11 +230,29 @@ export async function extractTextFromPdf(file: File, settings?: UserSettings): P
     parts.push(pageText);
     pageCharCounts.push(pageText.replace(/\s+/g, '').length);
 
+    const styles = content.styles as Record<string, { fontFamily?: string }> | undefined;
+    pageLayoutInputs.push({
+      items: content.items,
+      styles,
+      pageHeight: viewport.height,
+      pageText,
+      pageIndex: i - 1,
+    });
+    const pageZones = detectMathZonesFromPage(
+      content.items,
+      styles,
+      viewport.width,
+      viewport.height,
+      i - 1,
+    );
+    allMathZones.push(...pageZones);
+
   }
 
 
 
   const pageCount = doc.numPages;
+  const coverThumbnail = await coverPromise;
 
   if (isImageOnlyPdf(pageCharCounts)) {
     const ocr = await extractWithOcrFallback(file, { text: '', pageCount }, settings);
@@ -188,12 +262,22 @@ export async function extractTextFromPdf(file: File, settings?: UserSettings): P
       ocrUsed: ocr.ocrUsed,
       ingestMethod: ocr.ingestMethod ?? (ocr.ocrUsed ? 'ocr-client' : 'text-layer'),
       ocrRegions: ocr.ocrRegions,
+      ocrModelsUsed: ocr.ocrModelsUsed,
+      coverThumbnail,
     };
   }
 
+  const mathRepair = await repairPdfMathZones(file, parts, allMathZones, settings);
+
+  const repairedPages = pageLayoutInputs.map((page, idx) => ({
+    ...page,
+    pageText: mathRepair.pageTexts[idx] ?? page.pageText,
+  }));
+  const layoutBlocks = extractLayoutBlocksFromPages(repairedPages);
+
   const textLayer = {
 
-    text: parts.join('\n\f\n'),
+    text: mathRepair.pageTexts.join('\n\f\n'),
 
     pageCount,
 
@@ -214,6 +298,16 @@ export async function extractTextFromPdf(file: File, settings?: UserSettings): P
     ingestMethod: withOcr.ingestMethod ?? (withOcr.ocrUsed ? 'ocr-client' : 'text-layer'),
 
     ocrRegions: withOcr.ocrRegions,
+
+    mathZones: mathRepair.zones,
+
+    mathOcrUsed: mathRepair.mathOcrUsed,
+
+    layoutBlocks: withOcr.ocrUsed ? undefined : layoutBlocks,
+
+    ocrModelsUsed: withOcr.ocrModelsUsed,
+
+    coverThumbnail,
 
   };
 
@@ -277,7 +371,9 @@ export async function extractTextFromFile(file: File, settings?: UserSettings): 
 
   if (isImageUpload(file)) {
 
-    const ocr = await extractWithOcrFallback(file, { text: '', pageCount: 1 }, settings);
+    const ocrPromise = extractWithOcrFallback(file, { text: '', pageCount: 1 }, settings);
+    const coverPromise = renderImageCoverThumbnail(file).catch(() => undefined);
+    const [ocr, coverThumbnail] = await Promise.all([ocrPromise, coverPromise]);
 
     return {
       text: ocr.text,
@@ -285,11 +381,23 @@ export async function extractTextFromFile(file: File, settings?: UserSettings): 
       ocrUsed: ocr.ocrUsed,
       ingestMethod: ocr.ingestMethod ?? 'ocr-client',
       ocrRegions: ocr.ocrRegions,
+      ocrModelsUsed: ocr.ocrModelsUsed,
+      ...(coverThumbnail ? { coverThumbnail } : {}),
     };
 
   }
 
-
+  if (isAudioVideoFile(file)) {
+    const transcript = await extractAudioVideoTranscript(file, {
+      authProxyBase: settings?.llmProxyUrl?.replace(/\/v1\/?$/, ''),
+      llmProxyUrl: settings?.llmProxyUrl,
+      authToken: settings?.authToken,
+    });
+    if (transcript?.text) {
+      return { text: transcript.text, ingestMethod: 'transcript' };
+    }
+    return { text: '' };
+  }
 
   const ext = file.name.split('.').pop()?.toLowerCase();
 
@@ -302,6 +410,11 @@ export async function extractTextFromFile(file: File, settings?: UserSettings): 
       ocrUsed: pdf.ocrUsed,
       ingestMethod: pdf.ingestMethod,
       ocrRegions: pdf.ocrRegions,
+      mathZones: pdf.mathZones,
+      mathOcrUsed: pdf.mathOcrUsed,
+      layoutBlocks: pdf.layoutBlocks,
+      ocrModelsUsed: pdf.ocrModelsUsed,
+      coverThumbnail: pdf.coverThumbnail,
     };
 
   }

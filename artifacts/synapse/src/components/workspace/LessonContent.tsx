@@ -1,7 +1,8 @@
 import { useCallback, useState } from 'react';
-import { Sparkles } from 'lucide-react';
+import { Sparkles } from '@/lib/lucide-shim';
 import { RichText } from '../RichText';
 import type { WorkspaceToolId } from '../../lib/taskFlows';
+import type { WorkspacePedagogyLens } from '../../lib/workspacePedagogyLens';
 import { LessonStepToolBar } from './LessonStepToolBar';
 import { WorkspaceLearningActionBar } from './WorkspaceLearningActionBar';
 import { WorkspaceQuiz } from './WorkspaceQuiz';
@@ -48,6 +49,8 @@ interface LessonContentProps {
   stepConfusing?: boolean;
   onSelectionAction?: (action: WorkspaceSelectionActionId, ctx: WorkspaceSelectionContext) => void;
   onRemediateWrong?: (kind: 'make-card' | 'feynman', item: QuizSessionItem) => void;
+  sourceBestTool?: WorkspaceToolId | null;
+  pedagogyLens?: WorkspacePedagogyLens;
 }
 
 export function LessonContent({
@@ -78,6 +81,8 @@ export function LessonContent({
   stepConfusing,
   onSelectionAction,
   onRemediateWrong,
+  sourceBestTool,
+  pedagogyLens = 'balanced',
 }: LessonContentProps) {
   const [textSelection, setTextSelection] = useState<string | null>(null);
 
@@ -120,16 +125,34 @@ export function LessonContent({
       stepCount={stepCount}
       activeTool={activeTool}
       onOpenTool={onOpenTool}
+      onLearningAction={onLearningAction}
       lang={lang}
+      nextActionRecommendation={nextActionRecommendation}
+      sourceBestTool={sourceBestTool}
     />
   ) : null;
 
   const quizStepIndex = stepCount - 1;
+  const isPracticeLens = pedagogyLens === 'practice';
+  const isTheoryLens = pedagogyLens === 'theory';
+
   if (step === quizStepIndex && hasSource) {
+    const theoryRecap =
+      isTheoryLens && noteExcerpt.trim()
+        ? noteExcerpt.trim().slice(0, 420) + (noteExcerpt.trim().length > 420 ? '…' : '')
+        : null;
     return (
       <div className="space-y-4">
         {learningBar}
-        <span className="text-[10px] text-accent-cyan font-semibold uppercase tracking-wider">{t('quiz')}</span>
+        {theoryRecap && (
+          <div className="p-3 rounded-xl bg-surface-card border border-border-subtle space-y-2">
+            <span className="text-[10px] text-brand-800 font-semibold">{t('wsLensTheoryHint')}</span>
+            <div className="text-sm text-text-secondary leading-relaxed">
+              <RichText text={theoryRecap} />
+            </div>
+          </div>
+        )}
+        <span className="text-[10px] text-brand-800 font-semibold">{t('quiz')}</span>
         <h2 className="text-xl font-bold">{t('knowledgeCheck')}</h2>
         <div className="p-3 rounded-xl bg-surface-card border border-border-subtle">
           {quizSessionItems && quizSessionItems.length > 0 && quizSessionScopeKey ? (
@@ -158,11 +181,13 @@ export function LessonContent({
     const keys: LessonStepKey[] = ['hook', 'prior', 'core', 'worked-example', 'practice', 'misconception', 'retrieval', 'summary'];
     const stepKey = keys[step % keys.length] ?? 'core';
     const chunk = getNoteContentForLessonStep(stepKey, noteExcerpt, concept, undefined, lang);
+    const displayChunk =
+      isPracticeLens && chunk.length > 280 ? `${chunk.slice(0, 280).trim()}…` : chunk;
     return (
       <div className="space-y-4">
         {learningBar}
-        <span className="text-[10px] text-accent-cyan font-semibold uppercase tracking-wider">
-          {lang === 'el' ? 'Από τις σημειώσεις σου' : 'From your notes'}
+        <span className="text-[10px] text-brand-800 font-semibold">
+          {t('wbFromNotes')}
         </span>
         <h2 className="text-xl font-bold">{stepTitle ?? concept}</h2>
         {stepType && (
@@ -172,8 +197,18 @@ export function LessonContent({
           className="text-sm text-text-secondary leading-relaxed"
           onMouseUp={onSelectionAction ? captureSelection : undefined}
         >
-          <RichText text={chunk} />
+          <RichText text={displayChunk} />
         </div>
+        {isPracticeLens && (
+          <button
+            type="button"
+            onClick={() => onOpenTool('quiz')}
+            className="inline-flex items-center gap-1 rounded-lg border border-brand-400/45 bg-brand-100/80 px-3 py-1.5 text-xs font-semibold text-brand-800 hover:bg-brand-100 transition-colors"
+            data-testid="lesson-practice-cta"
+          >
+            {t('wsPracticePanelCta')}
+          </button>
+        )}
         {textSelection && onSelectionAction && (
           <WorkspaceSelectionActionBar
             lang={lang}
@@ -185,8 +220,8 @@ export function LessonContent({
           />
         )}
         {genStatus === 'loading' && (
-          <span className="inline-flex items-center gap-1 text-[9px] px-1.5 py-0.5 rounded bg-brand-500/10 text-brand-300 font-medium animate-pulse">
-            <Sparkles className="w-2.5 h-2.5" /> {lang === 'el' ? 'Δημιουργία από τις πηγές σου…' : 'Generating from your sources…'}
+          <span className="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded bg-brand-500/10 text-brand-800 font-medium animate-pulse">
+            <Sparkles className="w-2.5 h-2.5" /> {t('generatingFromSources')}
           </span>
         )}
         {toolBar}
@@ -199,7 +234,7 @@ export function LessonContent({
       <p className="text-sm text-text-secondary">{emptyMessage}</p>
       {!hasSource && onUpload && (
         <button type="button" onClick={onUpload} className="mt-2 px-4 py-2 rounded-xl text-sm font-medium bg-brand-600 text-white hover:bg-brand-500">
-          {lang === 'el' ? 'Ανέβασμα Υλικού' : 'Upload Material'}
+          {t('uploadMaterial')}
         </button>
       )}
     </div>

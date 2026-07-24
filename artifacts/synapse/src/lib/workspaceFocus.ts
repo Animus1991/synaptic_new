@@ -9,6 +9,9 @@ export type WorkspaceFocus = {
   highlight?: SourceHighlight | null;
   /** Tool that initiated the focus (for analytics / back navigation). */
   originTool?: WorkspaceToolId;
+  /** Dashboard practice CTAs — open this tool instead of defaulting to reader. */
+  preferredTool?: WorkspaceToolId;
+  simulatorTab?: 'simulator' | 'exam-prep';
 };
 
 export function normalizeFocusTerm(term: string): string {

@@ -31,9 +31,17 @@ export interface UserSettings {
   challengeLevel: 'low-stress' | 'balanced' | 'high-challenge';
   sourceMode: 'strict' | 'enriched' | 'notes-only';
   language: 'en' | 'el';
-  theme: 'dark' | 'light' | 'system';
+  theme: 'dark' | 'light' | 'system' | 'spectrum' | 'blueprint' | 'minimal' | 'minimal-dark';
+  /**
+   * Workspace/app chrome density (OPT-M).
+   * `compact` collapses secondary chrome into overflow (GitHub-like).
+   * Defaults: comfortable; Greek prefers comfortable when unset.
+   */
+  chromeDensity?: 'comfortable' | 'compact';
   dailyGoalMinutes: number;
   examDate?: string;
+  /** Goals selected during onboarding — drives defaults for pacing and task mix. */
+  learningGoals?: Array<'exam' | 'understand' | 'review' | 'practice' | 'organize' | 'explore'>;
   /** OpenAI-compatible API key (stored locally). Falls back to VITE_OPENAI_API_KEY. */
   openaiApiKey?: string;
   llmModel?: string;
@@ -41,6 +49,14 @@ export interface UserSettings {
   /** Managed/self-hosted LLM proxy URL (holds the key server-side). */
   llmProxyUrl?: string;
   useLlm?: boolean;
+  /**
+   * Use the configured vision-capable LLM (the user's own key/subscription) to
+   * transcribe scanned pages and handwriting. Dramatically improves Greek
+   * handwriting OCR. Defaults to enabled whenever an LLM is available.
+   */
+  useVisionOcr?: boolean;
+  /** Optional override model for vision OCR; defaults to llmModel or gpt-4o-mini. */
+  llmVisionModel?: string;
   /** Managed proxy auth token from /auth/login */
   authToken?: string;
   authEmail?: string;
@@ -49,7 +65,19 @@ export interface UserSettings {
   authPlan?: 'free' | 'pro' | 'team';
   /** When true, show seeded demo courses/tasks (MVP showcase). Default: false. */
   showDemoContent?: boolean;
+  /** ISO timestamp — activities after this count as unread notifications. */
+  notificationsLastSeenAt?: string;
+  /** Optional dashboard hero wallpaper (local data URL). */
+  dashboardWallpaperDataUrl?: string;
+  /** User-defined study milestones shown in hero calendar. */
+  personalStudyDates?: PersonalStudyDate[];
 }
+
+export type PersonalStudyDate = {
+  id: string;
+  label: string;
+  date: string;
+};
 
 export interface UploadedFile {
   id: string;
@@ -67,14 +95,37 @@ export interface UploadedFile {
   /** True when OCR was applied to extract text (scanned PDF / image). */
   ocrUsed?: boolean;
   /** How text was obtained from this file. */
-  ingestMethod?: 'text-layer' | 'ocr-server' | 'ocr-client' | 'ocr-ensemble' | 'paste' | 'youtube' | 'transcript' | 'chatgpt-export';
+  ingestMethod?: 'text-layer' | 'ocr-server' | 'ocr-client' | 'ocr-ensemble' | 'ocr-vision' | 'paste' | 'youtube' | 'transcript' | 'chatgpt-export' | 'notebooklm-import' | 'notebooklm-chat' | 'notebooklm-audio-transcript';
   /** Pipeline version that processed this file. */
   pipelineVersion?: string;
   /** Server OCR word bounding boxes (percent of page), when available. */
   ocrRegions?: import('../lib/readerOcrOverlay').OcrStoredRegion[];
+  /** OCR / repair models that contributed to extraction (e.g. 'trocr-handwritten'). */
+  ocrModelsUsed?: string[];
+  /** S8 DocumentModel recognition snapshot (text omitted — use extractedText). */
+  documentModelSnapshot?: import('../lib/documentModelSnapshot').DocumentModelSnapshot;
+  /** Geometry-derived PDF layout blocks (8B-gamma); used during recognition. */
+  pdfLayoutBlocks?: import('../lib/pdfLayoutBlocks').PdfLayoutBlockInput[];
+  /** Cover page preview metadata; blob in IndexedDB (`thumbnailRef.storageKey`). */
+  thumbnailRef?: SourceThumbnailRef;
+  thumbnailStatus?: 'pending' | 'ready' | 'failed' | 'unsupported';
 }
 
-export type FileType = 'pdf' | 'docx' | 'pptx' | 'txt' | 'md' | 'image' | 'csv' | 'code' | 'youtube' | 'audio';
+export type SourceThumbnailRef = {
+  storageKey: string;
+  pageIndex: number;
+  width: number;
+  height: number;
+  format: 'webp' | 'png';
+  pipelineVersion: string;
+  generatedAt: string;
+  /** L19+ server CDN key (file id) when synced for cross-device preview. */
+  cdnKey?: string;
+  /** ETag from server upload — cache-bust query param on CDN URL. */
+  etag?: string;
+};
+
+export type FileType = 'pdf' | 'docx' | 'pptx' | 'txt' | 'md' | 'image' | 'csv' | 'code' | 'youtube' | 'audio' | 'video';
 
 export interface CourseSourceQuality {
   score: number;
@@ -97,6 +148,9 @@ export interface CourseSourceQuality {
     formulaCount: number;
     comparisonCount: number;
     averageConceptsPerTopic: number;
+    textHygieneScore?: number;
+    textCorruptionScore?: number;
+    textHygieneFlags?: string[];
   };
 }
 
@@ -117,7 +171,7 @@ export interface Course {
   examDate?: string;
   estimatedHours: number;
   sourceFiles: string[];
-  status: 'generating' | 'ready' | 'in-progress' | 'completed';
+  status: 'generating' | 'ready' | 'needs_review' | 'in-progress' | 'completed';
   sourceMode: 'strict' | 'enriched' | 'notes-only';
   conceptCount: number;
   glossaryCount: number;
@@ -128,12 +182,34 @@ export interface Course {
   sourceQuality?: CourseSourceQuality;
   /** Typed concept graph + prerequisite DAG powering ordering and locking. */
   conceptGraph?: import('../lib/conceptGraph').ConceptGraph;
+  /** Other courses sharing concepts with this material (cross-document links). */
+  linkedCourseIds?: string[];
   /** Pipeline lineage for reproducibility. */
   pipelineMeta?: {
     version: string;
     generatedAt: string;
     outlineSource: 'llm' | 'embedding' | 'lexical' | 'fallback' | 'extend';
   };
+  /** Aggregated DocumentModel recognition metrics (S8). */
+  recognitionSummary?: import('../lib/documentModelSnapshot').RecognitionSummary;
+  /** §5.B7 automated quality rubric (S9). */
+  qualityReport?: import('../lib/courseQualityGates').CourseQualityReport;
+  /** MCP write-tool flashcards (create_flashcard). */
+  mcpFlashcards?: Array<{
+    id: string;
+    front: string;
+    back: string;
+    createdAt: string;
+    source?: 'mcp' | string;
+  }>;
+  /** MCP write-tool annotations (add_annotation). */
+  mcpAnnotations?: Array<{
+    id: string;
+    text: string;
+    note?: string;
+    createdAt: string;
+    source?: 'mcp' | string;
+  }>;
 }
 
 /** Maps a course concept to a precise span in uploaded source material. */
@@ -221,6 +297,8 @@ export interface Task {
   isSpacedRepetition: boolean;
   masteryBefore?: number;
   retentionPrediction?: number;
+  googleCalendarEventId?: string;
+  calendarSyncedAt?: string;
   tags: string[];
   category: 'learn' | 'review' | 'practice' | 'exam' | 'fix';
 }
@@ -386,6 +464,27 @@ export interface AgentMessage {
     /** Post-hoc citation overlap check (strict / notes-only). */
     groundingVerified?: boolean;
     groundingCoverage?: number;
+    /** Span-level faithfulness score from grounding.ts (0–1). */
+    groundingFaithfulness?: number;
+    /** Strict-mode span gate outcome (S9). */
+    groundingGatePassed?: boolean;
+    /** Sentences that failed span verification. */
+    ungroundedClaims?: string[];
+    /** Per-claim grounding with optional source spans for click-to-source. */
+    groundingClaims?: Array<{
+      claim: string;
+      grounded: boolean;
+      score: number;
+      source?: { fileId: string; charStart: number; charEnd: number };
+    }>;
+    /** Retrieval came from server global index vs local BM25/hybrid. */
+    globalRag?: boolean;
+    /** GraphRAG concept boosting was used on the server. */
+    graphRag?: boolean;
+    /** Agent slash command that triggered this turn, if any. */
+    agentCommand?: 'quiz' | 'explain' | 'compare' | 'summarize';
+    /** Low-confidence retrieval — agent should clarify before answering. */
+    lowRetrieval?: boolean;
   };
 }
 
@@ -450,4 +549,4 @@ export interface ConceptNode {
   connections: { to: string; relation: string }[];
 }
 
-export type AppView = 'landing' | 'onboarding' | 'dashboard' | 'library' | 'tasks' | 'agent' | 'course' | 'lesson' | 'settings' | 'analytics' | 'teacher';
+export type AppView = 'landing' | 'onboarding' | 'dashboard' | 'library' | 'tasks' | 'agent' | 'course' | 'lesson' | 'settings' | 'analytics' | 'teacher' | 'student-org' | 'note-analysis';

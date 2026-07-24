@@ -1,0 +1,49 @@
+replicaCount: 2
+
+image:
+  repository: synapse-learning-api
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 8787
+
+resources:
+  requests:
+    cpu: 250m
+    memory: 512Mi
+  limits:
+    cpu: "1"
+    memory: 1Gi
+
+probes:
+  liveness:
+    path: /live
+    initialDelaySeconds: 10
+    periodSeconds: 15
+  readiness:
+    path: /ready
+    initialDelaySeconds: 5
+    periodSeconds: 10
+
+env:
+  PORT: "8787"
+  RUN_MIGRATIONS_ON_START: "false"
+  RATE_LIMIT_REQUIRE_REDIS: "true"
+  NODE_ENV: production
+
+secrets:
+  # kubectl create secret generic synapse-api-secrets --from-literal=...
+  existingSecret: synapse-api-secrets
+  keys:
+    databaseUrl: DATABASE_URL
+    redisUrl: REDIS_URL
+    jwtSecret: JWT_SECRET
+    openaiApiKey: OPENAI_API_KEY
+
+otel:
+  enabled: false
+  serviceName: synapse-learning-api
+  # e.g. http://otel-collector.observability:4318
+  exporterOtlpEndpoint: ""

@@ -65,6 +65,27 @@ describe('nextActionEngine', () => {
     expect(rec?.primary).toBe('explain-zero');
   });
 
+  it('recommends feynman explain after three quiz misses', () => {
+    const rec = recommendNextAction({
+      lang: 'en',
+      hasSource: true,
+      sourceQuality: 80,
+      showMigration: false,
+      showLowQuality: false,
+      stepIndex: 7,
+      stepCount: 8,
+      quizPassed: false,
+      weakConceptCount: 1,
+      activeConcept: 'Elasticity',
+      activities: [
+        { id: '1', type: 'quiz_failed', description: 'Missed quiz on Elasticity', timestamp: '2026-07-04T12:00:00Z' },
+        { id: '2', type: 'quiz_failed', description: 'Missed quiz on Elasticity', timestamp: '2026-07-04T11:00:00Z' },
+        { id: '3', type: 'quiz_failed', description: 'Missed quiz on Elasticity', timestamp: '2026-07-04T10:00:00Z' },
+      ],
+    });
+    expect(rec?.primary).toBe('feynman-explain');
+  });
+
   it('labels reprocess action in Greek', () => {
     expect(nextActionLabel('reprocess', 'el')).toContain('επανεπεξεργασίας');
   });

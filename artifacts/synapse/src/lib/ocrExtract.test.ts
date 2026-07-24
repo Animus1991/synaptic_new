@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { SPACED_ABSOLUTE_ADVANTAGE } from './greekOcrFixtures';
 import { isImageOnlyPdf, needsOcr, OCR_MIN_TOTAL_CHARS, OCR_MIN_CHARS_PER_PAGE } from './ocrExtract';
 
 describe('needsOcr', () => {
@@ -20,6 +21,12 @@ describe('needsOcr', () => {
     const sparse = 'header\ffooter\fheader\f'.repeat(25);
     expect(sparse.replace(/\f/g, ' ').trim().length).toBeGreaterThan(OCR_MIN_TOTAL_CHARS);
     expect(needsOcr(sparse, 50)).toBe(true);
+  });
+
+  it('returns true when text layer has spaced-glyph corruption (Wave 8B-β)', () => {
+    const corrupt = `${SPACED_ABSOLUTE_ADVANTAGE} `.repeat(8);
+    expect(corrupt.length).toBeGreaterThan(OCR_MIN_TOTAL_CHARS);
+    expect(needsOcr(corrupt, 2)).toBe(true);
   });
 });
 

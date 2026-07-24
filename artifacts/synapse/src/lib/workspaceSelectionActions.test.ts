@@ -19,11 +19,23 @@ describe('workspaceSelectionActions', () => {
     expect(defs.some((d) => d.id === 'annotate')).toBe(true);
   });
 
+  it('shows make-occlusion only in Reader when OCR match available', () => {
+    expect(getSelectionActionDefs('en', 'reader').some((d) => d.id === 'make-occlusion')).toBe(false);
+    expect(getSelectionActionDefs('en', 'reader', { occlusionAvailable: true }).some((d) => d.id === 'make-occlusion')).toBe(true);
+    expect(getSelectionActionDefs('en', 'concept-map', { occlusionAvailable: true }).some((d) => d.id === 'make-occlusion')).toBe(false);
+  });
+
   it('hides quiz action when origin is Quiz', () => {
     const defs = getSelectionActionDefs('en', 'quiz');
     expect(defs.some((d) => d.id === 'quiz')).toBe(false);
     expect(defs.some((d) => d.id === 'ask-agent')).toBe(true);
     expect(defs.some((d) => d.id === 'open-reader')).toBe(true);
+  });
+
+  it('returns Greek labels when lang is el', () => {
+    const defs = getSelectionActionDefs('el', 'concept-map');
+    expect(defs.find((d) => d.id === 'annotate')?.label).toBe('Επισήμανση');
+    expect(defs.find((d) => d.id === 'ask-agent')?.label).toBe('Ρώτα Agent');
   });
 
   it('builds bilingual agent prompts', () => {
@@ -35,6 +47,7 @@ describe('workspaceSelectionActions', () => {
 
   it('builds flashcard front/back', () => {
     const card = buildSelectionFlashcard('Elasticity measures responsiveness', 'Elasticity', 'Price sensitivity');
+    expect(card.cardType).toBe('definition');
     expect(card.front).toContain('Elasticity');
     expect(card.back).toBe('Price sensitivity');
   });

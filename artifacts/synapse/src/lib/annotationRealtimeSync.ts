@@ -1,5 +1,13 @@
 import type { SharedAnnotationDto } from './authClient';
 
+export {
+  mergeSharedAnnotations,
+  mergeSharedAnnotationsWithConflicts,
+  resolveAnnotationConflict,
+  type AnnotationConflict,
+  type MergeSharedAnnotationsResult,
+} from './annotationConflict';
+
 export const ANNOTATION_SYNC_CHANNEL = 'synapse.annotation.sync';
 
 export type AnnotationSyncPayload = {
@@ -8,19 +16,6 @@ export type AnnotationSyncPayload = {
   version: number;
   at: string;
 };
-
-/** Merge remote teacher annotations without duplicates (id-stable). */
-export function mergeSharedAnnotations(
-  current: SharedAnnotationDto[],
-  incoming: SharedAnnotationDto[],
-): SharedAnnotationDto[] {
-  const byId = new Map<string, SharedAnnotationDto>();
-  for (const ann of current) byId.set(ann.id, ann);
-  for (const ann of incoming) byId.set(ann.id, ann);
-  return [...byId.values()].sort(
-    (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
-  );
-}
 
 export function filterAnnotationsSince(
   annotations: SharedAnnotationDto[],

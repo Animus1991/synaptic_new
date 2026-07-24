@@ -1,5 +1,5 @@
 import { useMemo, useState, useCallback } from 'react';
-import { AlertTriangle, BookOpen, Download, Printer, Search, Target } from 'lucide-react';
+import { ArrowRight, BookOpen, Download, Lightbulb, Printer, Search, Target } from '@/lib/lucide-shim';
 import type { DashboardSessionContent } from '../../lib/dashboardSessionModel';
 import {
   filterDashboardToolActivity,
@@ -10,18 +10,26 @@ import type { WorkspaceToolId } from '../../lib/taskFlows';
 import type { ConceptRemediationId } from '../../lib/conceptBusRemediation';
 import type { DashboardWeakSpot } from '../../lib/dashboardWeakSpotsModel';
 import type { NextActionRecommendation } from '../../lib/nextActionEngine';
+import { nextActionLabel } from '../../lib/nextActionEngine';
 import {
   buildProgressSessionExportPayload,
   buildProgressSessionHtml,
   buildProgressSessionJson,
+  buildConceptBusExportSnapshot,
   downloadProgressSessionJson,
   downloadProgressSessionReport,
   printProgressSessionReport,
   progressSessionFilename,
 } from '../../lib/progressSessionExport';
-import { WorkspaceEmptyState } from './WorkspaceEmptyState';
+import { auditProgressConceptBusMirror } from '../../lib/progressConceptBusMirrorQA';
+import type { ConceptBusRow } from '../../lib/conceptBusPanelModel';
+import { ProgressConceptBusMirrorStrip } from './ProgressConceptBusMirrorStrip';
+import { UxCallout } from '../ui/platformChrome';
+import { WorkspacePanelWarnStrip } from './WorkspacePanelWarnStrip';
+import { WorkspaceToolEmptyState } from './WorkspaceToolEmptyState';
 import { MiniDashboard } from './MiniDashboard';
 import type { ToolActivityCount } from '../../lib/conceptBusPanelModel';
+import { useI18n } from '../../lib/i18n';
 
 type MiniDashboardProps = {
   readiness: number;
@@ -53,6 +61,8 @@ type Props = {
   onRemediateWeakSpot?: (concept: string, action: ConceptRemediationId) => void;
   courseName?: string;
   nextAction?: NextActionRecommendation | null;
+  onRunNextAction?: () => void;
+  conceptBusRows?: ConceptBusRow[];
 };
 
 export function DashboardPanel({
@@ -70,9 +80,11 @@ export function DashboardPanel({
   onRemediateWeakSpot,
   courseName,
   nextAction,
+  onRunNextAction,
+  conceptBusRows = [],
 }: Props) {
   const [filterQuery, setFilterQuery] = useState('');
-  const isEl = lang === 'el';
+  const { t } = useI18n();
 
   const exportPayload = useMemo(
     () => buildProgressSessionExportPayload({
@@ -93,8 +105,28 @@ export function DashboardPanel({
       nextActions: miniProps.nextActions,
       session,
       nextAction,
+      conceptBusSnapshot: buildConceptBusExportSnapshot(conceptBusRows),
     }),
-    [lang, concept, courseName, session, miniProps, nextAction],
+    [lang, concept, courseName, session, miniProps, nextAction, conceptBusRows],
+  );
+
+  const mirrorReport = useMemo(
+    () => auditProgressConceptBusMirror({
+      lang,
+      concept,
+      conceptBusRows,
+      toolActivity: miniProps.toolActivity ?? [],
+      weakSpotsDetail: miniProps.weakSpotsDetail ?? [],
+      session,
+      nextAction,
+      readiness: miniProps.readiness,
+      streak: miniProps.streak,
+      reviewsDue: miniProps.reviewsDue,
+      conceptsMastered: miniProps.conceptsMastered,
+      totalConcepts: miniProps.totalConcepts,
+      nextActions: miniProps.nextActions,
+    }),
+    [lang, concept, conceptBusRows, miniProps, session, nextAction],
   );
 
   const exportHtml = useCallback(
@@ -132,8 +164,10 @@ export function DashboardPanel({
 
   if (!session.hasSource) {
     return (
-      <WorkspaceEmptyState
-        message={emptyMessage ?? (isEl ? 'Ανέβασε σημειώσεις για εξατομικευμένη πρόοδο.' : 'Upload notes for personalized progress.')}
+      <WorkspaceToolEmptyState
+        tool="dashboard"
+        concept={concept}
+        message={emptyMessage}
         hasSource={false}
         onUpload={onUpload}
       />
@@ -149,56 +183,75 @@ export function DashboardPanel({
       <div className="shrink-0 border-b border-border-subtle px-4 py-3">
         {session.sectionLabel && (
           <p className="mb-2 text-[10px] text-text-muted" data-testid="dashboard-section-label">
-            {isEl ? 'Ενότητα:' : 'Section:'}{' '}
+            {t('wsSectionColon')}{' '}
             <span className="text-text-secondary">{session.sectionLabel}</span>
           </p>
         )}
 
         {(session.weakExtraction || session.passageGrounded) && (
-          <div
-            className="mb-3 flex items-start gap-2 rounded-xl border border-accent-amber/30 bg-accent-amber/8 px-3 py-2 text-[10px] text-accent-amber"
-            data-testid="dashboard-weak-extraction"
+          <WorkspacePanelWarnStrip testId="dashboard-weak-extraction">
+            {session.passageGrounded
+              ? t('panelPassageGroundedDashboard')
+              : t('panelWeakExtractionDashboard')}
+          </WorkspacePanelWarnStrip>
+        )}
+
+        <ProgressConceptBusMirrorStrip
+          report={mirrorReport}
+          lang={lang}
+          onExportHtml={handleExportHtml}
+        />
+
+        {nextAction && onRunNextAction && (
+          <UxCallout
+            variant="next-action"
+            title={t('dashboardSuggestedNext')}
+            icon={<Lightbulb />}
+            testId="workspace-dashboard-next-action"
+            className="mb-3"
+            action={
+              <button
+                type="button"
+                onClick={onRunNextAction}
+                data-testid="workspace-dashboard-next-action-btn"
+                className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-medium ws-empty-cta-secondary shrink-0"
+              >
+                {nextActionLabel(nextAction.primary, lang)} <ArrowRight className="w-3 h-3" />
+              </button>
+            }
           >
-            <AlertTriangle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
-            <p>
-              {session.passageGrounded
-                ? (isEl
-                  ? 'Τα weak spots δένονται σε generic concept — επίλεξε πιο συγκεκριμένο βήμα.'
-                  : 'Weak spots are tied to a generic concept — pick a more specific step.')
-                : (isEl
-                  ? 'Γενική έννοια — η πρόοδος είναι λιγότερο ακριβής μέχρι Reprocess.'
-                  : 'Generic concept — progress tracking is less precise until Reprocess.')}
-            </p>
-          </div>
+            <p className="text-[11px] text-text-tertiary">{t('dashboardSuggestedNextSubtitle')}</p>
+            <p className="mt-1 text-xs line-clamp-2">{nextAction.reason}</p>
+          </UxCallout>
         )}
 
         <div className="mb-2 flex flex-wrap items-center gap-2">
           {session.weakSpotCount > 0 && (
-            <span className="rounded-full border border-accent-rose/30 bg-accent-rose/10 px-2 py-0.5 text-[9px] font-medium text-accent-rose">
-              {session.weakSpotCount} {isEl ? 'αδύναμα' : 'weak'}
+            <span className="rounded-full border border-accent-rose/30 bg-accent-rose/10 px-2 py-0.5 text-[10px] font-medium text-accent-rose">
+              {session.weakSpotCount} {t('panelWeakCount')}
             </span>
           )}
           {session.toolActivityCount > 0 && (
             <span className="text-[10px] text-text-muted">
-              {session.engagedToolCount} {isEl ? 'εργαλεία' : 'tools'} · {session.toolActivityCount} {isEl ? 'ενέργειες' : 'actions'}
+              {session.engagedToolCount} {t('panelTools')} · {session.toolActivityCount} {t('panelActions')}
             </span>
           )}
           {session.suggestFocusTool && suggestLabel && onOpenSuggestedTool && (
             <button
               type="button"
               onClick={onOpenSuggestedTool}
-              className="inline-flex items-center gap-1 rounded-lg border border-brand-500/30 bg-brand-600/10 px-2 py-0.5 text-[9px] font-medium text-brand-300 hover:bg-brand-600/15"
+              className="inline-flex items-center gap-1 rounded-lg border border-brand-500/30 bg-brand-600/10 px-2 py-0.5 text-[10px] font-medium text-brand-800 hover:bg-brand-600/15"
               data-testid="dashboard-suggest-tool"
             >
               <Target className="w-3 h-3" />
-              {isEl ? 'Επόμενο:' : 'Next:'} {suggestLabel}
+              {t('dashboardNextColon')} {suggestLabel}
             </button>
           )}
           {onOpenInReader && (
             <button
               type="button"
               onClick={() => onOpenInReader(concept)}
-              className="inline-flex items-center gap-1 rounded-lg border border-white/10 px-2 py-1 text-[10px] text-text-secondary hover:border-accent-cyan/35 hover:text-accent-cyan"
+              className="inline-flex items-center gap-1 rounded-lg border border-white/10 px-2 py-1 text-[10px] text-text-secondary hover:border-brand-600/35 hover:text-brand-800"
               data-testid="dashboard-open-reader"
             >
               <BookOpen className="w-3 h-3" />
@@ -209,8 +262,8 @@ export function DashboardPanel({
             <button
               type="button"
               onClick={handleExportHtml}
-              title={isEl ? 'Λήψη HTML αναφοράς' : 'Download HTML report'}
-              className="inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[9px] text-text-secondary hover:bg-white/[0.06] hover:text-brand-200"
+              title={t('dashDownloadHtml')}
+              className="inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[10px] text-text-secondary hover:bg-white/[0.06] hover:text-brand-800"
               data-testid="dashboard-export-html"
             >
               <Download className="w-3 h-3" />
@@ -219,8 +272,8 @@ export function DashboardPanel({
             <button
               type="button"
               onClick={handlePrintPdf}
-              title={isEl ? 'Εκτύπωση / PDF' : 'Print / Save as PDF'}
-              className="inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[9px] text-text-secondary hover:bg-white/[0.06] hover:text-brand-200"
+              title={t('dashPrintPdf')}
+              className="inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[10px] text-text-secondary hover:bg-white/[0.06] hover:text-brand-800"
               data-testid="dashboard-export-pdf"
             >
               <Printer className="w-3 h-3" />
@@ -229,8 +282,8 @@ export function DashboardPanel({
             <button
               type="button"
               onClick={handleExportJson}
-              title={isEl ? 'Εξαγωγή JSON συνεδρίας' : 'Session JSON export'}
-              className="inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[9px] text-text-secondary hover:bg-white/[0.06] hover:text-brand-200"
+              title={t('dashSessionJson')}
+              className="inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[10px] text-text-secondary hover:bg-white/[0.06] hover:text-brand-800"
               data-testid="dashboard-export-json"
             >
               JSON
@@ -245,7 +298,7 @@ export function DashboardPanel({
               type="search"
               value={filterQuery}
               onChange={(e) => setFilterQuery(e.target.value)}
-              placeholder={isEl ? 'Φίλτρο weak spots / εργαλείων…' : 'Filter weak spots / tools…'}
+              placeholder={t('dashFilterPlaceholder')}
               className="w-full rounded-lg border border-border-subtle bg-surface-card py-1.5 pl-7 pr-2 text-[11px] text-text-secondary placeholder:text-text-muted focus:border-accent-cyan/40 focus:outline-none"
               data-testid="dashboard-filter"
             />

@@ -1,0 +1,1 @@
+Demo account: use Sign Up in-app with any email, or contact us for institution SAML/LTI test credentials. Enterprise LTI and SAML are optional — consumer sign-up works without institution configuration.

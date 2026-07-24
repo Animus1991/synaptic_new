@@ -1,7 +1,10 @@
-import { Layers, ListTree, Loader2, AlertTriangle } from 'lucide-react';
+import { Layers, ListTree, AlertTriangle } from '@/lib/lucide-shim';
 import type { UploadOutlinePreview } from '../lib/uploadOutlinePreview';
 import type { DocumentStructureKind } from '../lib/documentStructureReport';
 import { cn } from '../utils/cn';
+import { formatSectionFallbackLabel } from '../lib/sectionLabel';
+import { useI18n } from '../lib/i18n';
+import { UxShimmerPanel } from './ui/UxShimmerSkeleton';
 
 const KIND_BADGE: Record<DocumentStructureKind, string> = {
   conversation: 'Chat / Q&A',
@@ -42,19 +45,20 @@ export function OutlinePreviewPanel({
   editedTopicTitles?: string[];
   onTopicTitleChange?: (index: number, title: string) => void;
 }) {
-  const isEl = language === 'el';
-  const kindBadge = isEl ? KIND_BADGE_EL : KIND_BADGE;
+  const { t } = useI18n();
+  const kindBadge = language === 'el' ? KIND_BADGE_EL : KIND_BADGE;
 
   if (loading) {
     return (
       <div
         data-testid="upload-outline-preview"
-        className="rounded-2xl border border-border-subtle bg-surface-card p-4"
+        className="ux-shimmer-panel rounded-2xl border border-border-subtle bg-surface-card p-4"
+        role="status"
+        aria-live="polite"
+        aria-label={t('outlineAnalyzing')}
       >
-        <div className="flex items-center gap-2 text-sm text-text-secondary">
-          <Loader2 className="w-4 h-4 animate-spin text-brand-400" />
-          {isEl ? 'Ανάλυση δομής και προεπισκόπηση outline…' : 'Analyzing structure and building outline preview…'}
-        </div>
+        <UxShimmerPanel lines={4} />
+        <p className="mt-3 text-xs text-text-muted">{t('outlineAnalyzing')}</p>
       </div>
     );
   }
@@ -95,9 +99,9 @@ export function OutlinePreviewPanel({
       <div className="flex items-start justify-between gap-3 flex-wrap">
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="inline-flex items-center gap-1 rounded-full px-2 py-1 text-[10px] font-semibold uppercase tracking-wide bg-brand-500/15 text-brand-300">
+            <span className="inline-flex items-center gap-1 rounded-full px-2 py-1 text-[10px] font-semibold bg-brand-500/15 text-brand-300">
               <ListTree className="w-3 h-3" />
-              {isEl ? 'Προεπισκόπηση outline' : 'Outline preview'}
+              {t('outlinePreview')}
             </span>
             <span className={cn('text-[11px] font-semibold', bandColor)}>
               {quality.score}/100 · {quality.band}
@@ -120,8 +124,8 @@ export function OutlinePreviewPanel({
           )}
         </div>
         <div className="text-right shrink-0">
-          <p className="text-[10px] text-text-tertiary uppercase tracking-wide">
-            {isEl ? 'Προτεινόμενα modules' : 'Proposed modules'}
+          <p className="text-[10px] text-text-tertiary">
+            {t('outlineProposedModules')}
           </p>
           <p className="text-lg font-bold text-text-primary">{outline.topics.length}</p>
         </div>
@@ -130,7 +134,7 @@ export function OutlinePreviewPanel({
       {structure.sections.length > 0 && (
         <div className="mt-3 flex flex-wrap gap-1.5 max-h-20 overflow-y-auto">
           {structure.sections.slice(0, compact ? 5 : 8).map((sec, i) => {
-            const label = sec.heading ?? `§${i + 1}`;
+            const label = sec.heading ?? formatSectionFallbackLabel(i, language);
             if (/page break/i.test(label)) return null;
             return (
               <span
@@ -177,7 +181,7 @@ export function OutlinePreviewPanel({
         })}
         {outline.topics.length > topicLimit && (
           <li className="text-[10px] text-text-muted pl-7">
-            +{outline.topics.length - topicLimit} {isEl ? 'ακόμη' : 'more'}
+            +{outline.topics.length - topicLimit} {t('outlineMore')}
           </li>
         )}
       </ol>

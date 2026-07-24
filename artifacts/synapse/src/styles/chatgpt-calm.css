@@ -1,0 +1,310 @@
+/**
+ * OPT-C0 — ChatGPT-calm tokens + conversation chrome.
+ * Gated to Minimal themes only. Blueprint / Spectrum / legacy untouched.
+ * Principles only — not an OpenAI brand clone.
+ */
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) {
+  --chat-column-max: 48rem;
+  --composer-radius: 1.25rem;
+  --chat-body-size: 0.9375rem;
+  --chat-body-leading: 1.55;
+  --chat-user-fill: color-mix(in srgb, var(--color-brand-500, #5a7694) 12%, var(--color-surface-secondary, #f6f8fa));
+  --chat-user-fg: var(--color-text-primary, #1f2328);
+  --chat-assistant-fg: var(--color-text-primary, #1f2328);
+}
+
+[data-theme="minimal-dark"] {
+  --chat-user-fill: color-mix(in srgb, var(--color-brand-400, #6b87a4) 18%, var(--color-surface-secondary, #161b22));
+  --chat-user-fg: var(--color-text-primary, #e6edf3);
+  --chat-assistant-fg: var(--color-text-primary, #e6edf3);
+}
+
+/* Centered conversation column */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .agent-calm .agent-chat-column {
+  width: 100%;
+  max-width: var(--chat-column-max);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Soft sticky composer bar — OPT-K56: border-first, no blur under Minimal */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .agent-calm .agent-composer {
+  border-top-color: transparent;
+  background: var(--color-surface-primary, #fff);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  padding-top: 0.5rem;
+  padding-bottom: max(0.5rem, env(safe-area-inset-bottom, 0px));
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .agent-calm .agent-composer-shell {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.5rem;
+  border: 1px solid var(--color-border-subtle, #d0d7de);
+  border-radius: var(--composer-radius);
+  background: var(--color-surface-input, #fff);
+  padding: 0.35rem 0.35rem 0.35rem 0.75rem;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .agent-calm .agent-composer-shell:focus-within {
+  border-color: color-mix(in srgb, var(--color-brand-500, #5a7694) 45%, var(--color-border-subtle, #d0d7de));
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .agent-calm .agent-composer-shell textarea {
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  border-radius: 0;
+  font-size: var(--chat-body-size);
+  line-height: var(--chat-body-leading);
+  padding-left: 0.15rem;
+  padding-right: 0.25rem;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .agent-calm .agent-composer-shell .agent-composer-send {
+  border-radius: calc(var(--composer-radius) - 0.35rem);
+}
+
+/* Assistant = prose, not card; hide decorative avatar */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .agent-calm .agent-message-avatar {
+  display: none;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .agent-calm .agent-message-row {
+  gap: 0;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .agent-calm .agent-message-bubble {
+  max-width: 100%;
+  font-size: var(--chat-body-size);
+  line-height: var(--chat-body-leading);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .agent-calm .agent-message-bubble-assistant {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding-left: 0.15rem;
+  padding-right: 0.15rem;
+  color: var(--chat-assistant-fg);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .agent-calm .agent-message-bubble-user,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .agent-calm .agent-user-bubble {
+  background: var(--chat-user-fill) !important;
+  color: var(--chat-user-fg) !important;
+  border: none;
+  border-radius: 1.1rem;
+  border-bottom-right-radius: 0.35rem;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .agent-calm .agent-message-bubble-user .agent-message-meta {
+  border-color: color-mix(in srgb, var(--chat-user-fg) 18%, transparent);
+  color: color-mix(in srgb, var(--chat-user-fg) 65%, transparent);
+}
+
+/* Thinking + empty invite breathing room */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .agent-calm .agent-thread {
+  scroll-behavior: smooth;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .agent-calm .agent-thinking {
+  max-width: var(--chat-column-max);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :is([data-theme="minimal"], [data-theme="minimal-dark"]) .agent-calm .agent-thread {
+    scroll-behavior: auto;
+  }
+}
+
+/* OPT-C3 — quieter shell rail */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell #platform-sidebar-nav[data-quiet-nav="true"] {
+  background: color-mix(in srgb, var(--color-surface-secondary, #f6f8fa) 92%, transparent);
+}
+
+/* OPT-C4 — notebook chat column parity with Agent calm */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .notebook-calm [data-testid="notebook-chat-panel"] {
+  border-color: color-mix(in srgb, var(--color-border-subtle, #d0d7de) 70%, transparent);
+  background: var(--color-surface-primary, #fff);
+  box-shadow: none;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .notebook-calm [data-testid="notebook-chat-panel"] > header {
+  padding-top: 0.55rem;
+  padding-bottom: 0.55rem;
+  background: transparent;
+}
+
+/* OPT-N1 — notebook micro labels ≥11px (readable on cream Minimal) */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .notebook-canvas .type-micro {
+  font-size: 0.6875rem;
+  line-height: 1.35;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .notebook-calm [data-testid="notebook-chat-panel"] > header .type-micro,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .notebook-calm [data-testid="notebook-studio-panel"] > header .type-micro {
+  display: none;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .notebook-calm [data-testid="notebook-sources-panel"],
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .notebook-calm [data-testid="notebook-studio-panel"] {
+  box-shadow: none;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .notebook-calm [data-testid^="studio-card-"] {
+  border-color: color-mix(in srgb, var(--color-border-subtle, #d0d7de) 80%, transparent);
+  background: transparent;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .notebook-calm [data-testid^="studio-card-"]:hover {
+  background: var(--color-surface-hover, rgba(0, 0, 0, 0.04));
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .agent-calm[data-testid="agent-embedded"] [data-testid="agent-embedded-chrome"] {
+  background: transparent;
+  border-bottom-color: color-mix(in srgb, var(--color-border-subtle, #d0d7de) 65%, transparent);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .agent-calm[data-testid="agent-embedded"] [data-testid="agent-context-banner"] {
+  background: transparent;
+  border-bottom-color: color-mix(in srgb, var(--color-border-subtle, #d0d7de) 50%, transparent);
+}
+
+/* OPT-C2 — quieter mode rail / catalog (one accent, not rainbow) */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) [data-testid="agent-mode-sidebar"][data-quiet-modes="true"] {
+  background: color-mix(in srgb, var(--color-surface-secondary, #f6f8fa) 88%, transparent);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) [data-testid="agent-mode-sidebar"][data-quiet-modes="true"] [data-testid^="agent-mode-"] {
+  border-radius: 0.5rem;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) [data-testid="agent-mode-catalog"][data-quiet-modes="true"] .ux-card {
+  box-shadow: none;
+  background: transparent;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .agent-calm [data-testid="agent-regenerate"] {
+  opacity: 0.85;
+}
+
+/* OPT-C5 — Dashboard / Library soft lists */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .dashboard-calm [data-testid="dashboard-page-stats"] > * {
+  box-shadow: none;
+  border-color: color-mix(in srgb, var(--color-border-subtle, #d0d7de) 75%, transparent);
+  background: color-mix(in srgb, var(--color-surface-secondary, #f6f8fa) 55%, transparent);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .dashboard-calm [data-testid="dashboard-hero-panel"] .ux-card,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .dashboard-calm [data-testid="dashboard-masonry"] .ux-card {
+  box-shadow: none;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .library-calm [data-testid="library-course-card"] {
+  box-shadow: none;
+  border-color: color-mix(in srgb, var(--color-border-subtle, #d0d7de) 80%, transparent);
+  background: color-mix(in srgb, var(--color-surface-secondary, #f6f8fa) 40%, transparent);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .library-calm [data-testid="library-course-card"]:hover {
+  background: var(--color-surface-hover, rgba(0, 0, 0, 0.04));
+  border-color: color-mix(in srgb, var(--color-brand-500, #5a7694) 28%, var(--color-border-subtle, #d0d7de));
+}
+
+/* OPT-C6 — enterprise / page headers quieter under Minimal */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .ux-page-header {
+  border-bottom-color: color-mix(in srgb, var(--color-border-subtle, #d0d7de) 55%, transparent);
+  background: color-mix(in srgb, var(--color-surface-primary, #fff) 92%, transparent);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .ux-page-header .ux-page-subtitle {
+  color: var(--color-text-secondary, #4d5560);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .ux-page-header span.grid {
+  border-color: color-mix(in srgb, var(--color-border-subtle, #d0d7de) 80%, transparent);
+  background: var(--color-surface-hover, rgba(0, 0, 0, 0.04));
+  color: var(--color-text-secondary, #424a53);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .enterprise-calm > .flex.items-start h1 svg,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .enterprise-calm > .flex.flex-wrap h1 svg {
+  color: var(--color-text-secondary, #424a53);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .enterprise-calm > .flex.items-start > div > p.text-sm,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .enterprise-calm > .flex.flex-wrap > div > p.text-text-secondary {
+  color: var(--color-text-tertiary, #656d76);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) [data-testid="settings-theme-hint"] {
+  color: var(--color-text-tertiary, #656d76);
+  max-width: 36rem;
+}
+
+/* OPT-C7 — mobile composer + bottom nav / drawer touch */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .agent-calm .agent-composer {
+  padding-bottom: max(0.65rem, env(safe-area-inset-bottom, 0px));
+}
+
+@media (max-width: 1023px) {
+  :is([data-theme="minimal"], [data-theme="minimal-dark"]) .agent-calm .agent-composer-shell {
+    min-height: 2.75rem;
+  }
+
+  :is([data-theme="minimal"], [data-theme="minimal-dark"]) .agent-calm .agent-composer-send {
+    min-width: 2.5rem;
+    min-height: 2.5rem;
+  }
+
+  :is([data-theme="minimal"], [data-theme="minimal-dark"]) .agent-calm .agent-composer-shell button[aria-label] {
+    min-width: 2.5rem;
+    min-height: 2.5rem;
+  }
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) #platform-mobile-nav[data-quiet-nav="true"] {
+  background: var(--color-surface-primary, #fff);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border-top: 1px solid var(--color-border-subtle, #d0d7de);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) #platform-mobile-nav[data-quiet-nav="true"] .platform-nav-mobile-item {
+  min-height: 2.75rem;
+  min-width: 2.75rem;
+  justify-content: center;
+}
+
+/* OPT-K60 — mobile nav labels: fit without ellipsis (EN Dashboard) */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) #platform-mobile-nav .platform-nav-mobile-item .type-micro {
+  font-size: 0.625rem;
+  letter-spacing: -0.015em;
+  line-height: 1.15;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* OPT-K66 — coarse pointer: keep quiet-nav hits ≥44px */
+@media (pointer: coarse) {
+  :is([data-theme="minimal"], [data-theme="minimal-dark"]) #platform-mobile-nav .platform-nav-mobile-item {
+    min-height: 2.75rem;
+    min-width: 2.75rem;
+  }
+
+  :is([data-theme="minimal"], [data-theme="minimal-dark"]) .agent-calm .agent-composer-send,
+  :is([data-theme="minimal"], [data-theme="minimal-dark"]) .agent-calm .agent-composer-shell button[aria-label] {
+    min-width: 2.75rem;
+    min-height: 2.75rem;
+  }
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) [data-testid="nav-mobile-drawer"] button {
+  min-height: 2.5rem;
+}

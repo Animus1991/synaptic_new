@@ -1,21 +1,26 @@
 import { useMemo, useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowRight, SlidersHorizontal, Target, Zap } from 'lucide-react';
+import { ArrowRight, PenLine, SlidersHorizontal, Target, Zap } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
 import { useI18n } from '../../lib/i18n';
 import type { NumericCue } from '../../lib/numericCues';
 import { sandboxDeltaInsight } from '../../lib/numericCues';
 import {
   buildEconomicsSensitivity,
-  buildDeviationReadout,
-  topDeviationCue,
+  buildParameterSensitivity,
   topSensitivityCue,
 } from '../../lib/sandboxSensitivity';
 import {
   SIMULATOR_SCENARIO_PRESETS,
   type SimulatorScenarioId,
 } from '../../lib/examPracticePresets';
-import { WorkspaceEmptyState } from './WorkspaceEmptyState';
+import {
+  resolveCourseSimulatorPresets,
+  type ParametricScenarioId,
+} from '../../lib/simulatorCoursePresets';
+import { buildSimulatorWhiteboardExport } from '../../lib/simulatorWhiteboardBridge';
+import type { ScratchpadExport } from '../../lib/workspaceScratchpadBridge';
+import { WorkspaceToolEmptyState } from './WorkspaceToolEmptyState';
 
 const CHALLENGE_TARGET_P = 55;
 const CHALLENGE_TOLERANCE = 3;
@@ -25,6 +30,7 @@ interface Props {
   economicsMode?: boolean;
   numericCues?: NumericCue[];
   concept?: string;
+  courseTitle?: string;
   emptyMessage?: string;
   hasSource?: boolean;
   onUpload?: () => void;
@@ -33,6 +39,7 @@ interface Props {
   onEngage?: () => void;
   onScenarioSelect?: (scenarioId: SimulatorScenarioId) => void;
   initialScenarioId?: SimulatorScenarioId | null;
+  onSendToWhiteboard?: (payload: ScratchpadExport) => void;
 }
 
 export function InteractiveSimulator({
@@ -40,6 +47,7 @@ export function InteractiveSimulator({
   economicsMode = false,
   numericCues = [],
   concept = '',
+  courseTitle = '',
   emptyMessage,
   hasSource = false,
   onUpload,
@@ -48,6 +56,7 @@ export function InteractiveSimulator({
   onEngage,
   onScenarioSelect,
   initialScenarioId,
+  onSendToWhiteboard,
 }: Props) {
   const { t, lang: i18nLang } = useI18n();
   const lang = langProp ?? i18nLang;
@@ -59,26 +68,46 @@ export function InteractiveSimulator({
   const [cueValues, setCueValues] = useState<Record<string, number>>(() =>
     Object.fromEntries(numericCues.map((c) => [c.id, c.baseline])),
   );
+  const [activeParametricPreset, setActiveParametricPreset] = useState<ParametricScenarioId | null>(null);
+  const [activeEconScenario, setActiveEconScenario] = useState<SimulatorScenarioId | null>(
+    initialScenarioId ?? null,
+  );
 
   useEffect(() => {
     setCueValues(Object.fromEntries(numericCues.map((c) => [c.id, c.baseline])));
   }, [numericCues]);
+
+  const coursePresets = useMemo(
+    () => resolveCourseSimulatorPresets({
+      economicsMode,
+      numericCues,
+      courseTitle,
+      concept,
+    }),
+    [economicsMode, numericCues, courseTitle, concept],
+  );
 
   const genericInsight = useMemo(
     () => sandboxDeltaInsight(numericCues, cueValues, concept, lang),
     [numericCues, cueValues, concept, lang],
   );
 
-  const deviationRows = useMemo(
-    () => buildDeviationReadout(numericCues, cueValues),
-    [numericCues, cueValues],
-  );
-  const movedCount = deviationRows.filter((r) => r.direction !== 'flat').length;
+  const sensitivityCells = useMemo(() => {
+    if (numericCues.length === 0) return [];
+    return buildParameterSensitivity(numericCues, cueValues, (trial) => {
+      let sum = 0;
+      for (const c of numericCues) {
+        const v = trial[c.id] ?? c.baseline;
+        sum += (v - c.baseline) / Math.max(c.baseline, 1e-6);
+      }
+      return sum;
+    });
+  }, [numericCues, cueValues]);
 
   useEffect(() => {
-    const top = topDeviationCue(deviationRows);
+    const top = topSensitivityCue(sensitivityCells);
     if (top) onSensitivityCue?.(top);
-  }, [deviationRows, onSensitivityCue]);
+  }, [sensitivityCells, onSensitivityCue]);
 
   const econSensitivity = useMemo(
     () => buildEconomicsSensitivity(demandShift, supplyShift),
@@ -115,15 +144,46 @@ export function InteractiveSimulator({
   const sP2 = 140;
   const sQ2 = sP2 + supplyShift;
 
-  const presetButtons = useMemo(() => SIMULATOR_SCENARIO_PRESETS, []);
-
   const applyScenario = (scenarioId: SimulatorScenarioId) => {
     const preset = SIMULATOR_SCENARIO_PRESETS.find((p) => p.id === scenarioId);
     if (!preset) return;
     setDemandShift(preset.demand);
     setSupplyShift(preset.supply);
+    setActiveEconScenario(scenarioId);
     onEngage?.();
     onScenarioSelect?.(scenarioId);
+  };
+
+  const applyParametricPreset = (presetId: ParametricScenarioId) => {
+    if (coursePresets.mode !== 'parametric') return;
+    const preset = coursePresets.scenarios.find((p) => p.id === presetId);
+    if (!preset) return;
+    setCueValues({ ...preset.values });
+    setActiveParametricPreset(presetId);
+    onEngage?.();
+  };
+
+  const sendGraphToWhiteboard = () => {
+    if (!onSendToWhiteboard) return;
+    const scenarioLabel = economicsMode && activeEconScenario
+      ? t(SIMULATOR_SCENARIO_PRESETS.find((p) => p.id === activeEconScenario)!.i18nKey)
+      : activeParametricPreset && coursePresets.mode === 'parametric'
+        ? (lang === 'el'
+          ? coursePresets.scenarios.find((p) => p.id === activeParametricPreset)?.labelEl
+          : coursePresets.scenarios.find((p) => p.id === activeParametricPreset)?.labelEn)
+        : undefined;
+    onSendToWhiteboard(buildSimulatorWhiteboardExport({
+      concept,
+      economicsMode,
+      demandShift,
+      supplyShift,
+      eqP,
+      eqQ,
+      cues: numericCues,
+      cueValues,
+      scenarioLabel,
+    }));
+    onEngage?.();
   };
 
   if (!economicsMode) {
@@ -132,24 +192,56 @@ export function InteractiveSimulator({
         <div className="flex h-full flex-col overflow-hidden">
           <div className="flex items-center justify-between border-b border-border-subtle bg-surface-card px-4 py-2.5 shrink-0">
             <span className="flex items-center gap-2 text-sm font-semibold">
-              <SlidersHorizontal className="w-4 h-4 text-brand-400" />
+              <SlidersHorizontal className="w-4 h-4 text-brand-700" />
               {t('parametricSandbox')}
             </span>
-            <span className="rounded border border-brand-500/30 bg-brand-500/10 px-2 py-0.5 text-[10px] text-brand-300">
-              {lang === 'el' ? 'Από σημειώσεις' : 'From notes'}
+            <span className="rounded border border-brand-500/30 bg-brand-500/10 px-2 py-0.5 text-[10px] text-brand-800">
+              {t('fromNotesBadge')}
             </span>
           </div>
           <div className="flex-1 overflow-y-auto p-4 space-y-4">
             <p className="text-xs text-text-tertiary">
-              {lang === 'el'
-                ? 'Ρύθμισε τιμές που εμφανίζονται στο υλικό σου και παρατήρησε τη μεταβολή.'
-                : 'Adjust values found in your material and observe the relative change.'}
+              {t('sandboxAdjustHint')}
             </p>
+            {coursePresets.mode === 'parametric' && coursePresets.scenarios.length > 0 && (
+              <div data-testid="simulator-course-presets">
+                <p className="mb-1.5 text-xs font-medium text-text-tertiary">{t('presets')}</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {coursePresets.scenarios.map((p) => (
+                    <button
+                      key={p.id}
+                      type="button"
+                      data-testid={`simulator-parametric-preset-${p.id}`}
+                      onClick={() => applyParametricPreset(p.id)}
+                      className={cn(
+                        'rounded-full border px-2.5 py-1 text-xs transition-all',
+                        activeParametricPreset === p.id
+                          ? 'border-brand-500/40 bg-brand-600/10 text-brand-800'
+                          : 'border-border-subtle bg-surface-primary/50 hover:border-brand-500/40',
+                      )}
+                    >
+                      {lang === 'el' ? p.labelEl : p.labelEn}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+            {onSendToWhiteboard && (
+              <button
+                type="button"
+                data-testid="simulator-send-whiteboard"
+                onClick={sendGraphToWhiteboard}
+                className="inline-flex items-center gap-1.5 rounded-lg border border-brand-500/30 bg-brand-600/10 px-2.5 py-1.5 text-[10px] font-medium text-brand-800 hover:bg-brand-600/15"
+              >
+                <PenLine className="w-3 h-3" />
+                {t('scratchOpenWhiteboard')}
+              </button>
+            )}
             {numericCues.map((cue) => (
               <div key={cue.id} className="rounded-xl border border-border-subtle bg-surface-card p-4">
                 <div className="mb-2 flex justify-between items-start gap-2">
                   <div>
-                    <p className="text-xs font-semibold text-brand-300">{cue.label}</p>
+                    <p className="text-xs font-semibold text-brand-800">{cue.label}</p>
                     <p className="text-[10px] text-text-muted mt-0.5 line-clamp-2">{cue.context}</p>
                   </div>
                   <span className="font-mono text-sm text-text-secondary shrink-0">
@@ -170,9 +262,9 @@ export function InteractiveSimulator({
                   className="w-full"
                   style={{ accentColor: '#818cf8' }}
                 />
-                <div className="flex justify-between text-[9px] text-text-muted mt-1">
+                <div className="flex justify-between text-[10px] text-text-muted mt-1">
                   <span>{cue.min}</span>
-                  <span>{lang === 'el' ? 'βάση' : 'baseline'}: {cue.baseline}</span>
+                  <span>{t('baselineLabel')}: {cue.baseline}</span>
                   <span>{cue.max}</span>
                 </div>
               </div>
@@ -181,57 +273,29 @@ export function InteractiveSimulator({
               <Zap className="w-4 h-4 inline mr-1.5 mb-0.5" />
               {genericInsight || insight}
             </div>
-            {movedCount > 0 && (
+            {sensitivityCells.length > 0 && (
               <div className="rounded-xl border border-border-subtle bg-surface-card p-3" data-testid="sandbox-sensitivity-heatmap">
-                <div className="mb-2 flex items-center justify-between">
-                  <p className="text-[10px] font-semibold text-text-muted">
-                    {lang === 'el' ? 'Μεταβολή από τη βάση' : 'Change from baseline'}
-                  </p>
-                  <span className="text-[9px] text-text-muted">
-                    {movedCount} {lang === 'el' ? 'άλλαξαν' : 'changed'}
-                  </span>
-                </div>
+                <p className="mb-2 text-[10px] font-semibold text-text-muted">
+                  {t('paramSensitivity')}
+                </p>
                 <div className="space-y-2">
-                  {deviationRows
-                    .filter((row) => row.direction !== 'flat')
-                    .map((row) => {
-                      const up = row.direction === 'up';
-                      const fmt = (n: number) =>
-                        Math.abs(n) >= 100 ? n.toFixed(0) : String(parseFloat(n.toFixed(2)));
-                      const readout = row.pctMeaningful
-                        ? `${up ? '+' : ''}${row.deltaPct.toFixed(0)}%`
-                        : `${row.deltaAbs > 0 ? '+' : ''}${fmt(row.deltaAbs)}${row.unit ? ` ${row.unit}` : ''}`;
-                      return (
-                        <div key={row.cueId} className="flex items-center gap-2">
-                          <span className="w-24 truncate text-[10px] text-text-secondary" title={row.label}>
-                            {row.label}
-                          </span>
-                          <div className="relative flex-1 h-2 overflow-hidden rounded-full bg-surface-primary">
-                            <div
-                              className={cn('h-full rounded-full', up ? 'bg-accent-emerald/80' : 'bg-accent-amber/80')}
-                              style={{ width: `${row.movePct}%` }}
-                            />
-                          </div>
-                          <span
-                            className={cn('w-16 text-right font-mono text-[9px]', up ? 'text-accent-emerald' : 'text-accent-amber')}
-                            title={`${fmt(row.baseline)} → ${fmt(row.current)}${row.unit ? ` ${row.unit}` : ''}`}
-                          >
-                            {readout}
-                          </span>
-                        </div>
-                      );
-                    })}
+                  {sensitivityCells.map((cell) => (
+                    <div key={cell.cueId} className="flex items-center gap-2">
+                      <span className="w-24 truncate text-[10px] text-text-secondary">{cell.label}</span>
+                      <div className="flex-1 h-2 rounded-full bg-surface-primary overflow-hidden">
+                        <div
+                          className="h-full rounded-full bg-accent-cyan/80"
+                          style={{ width: `${Math.round(cell.intensity * 100)}%` }}
+                        />
+                      </div>
+                      <span className="text-[10px] font-mono text-text-muted w-8 text-right">
+                        {(cell.intensity * 100).toFixed(0)}%
+                      </span>
+                    </div>
+                  ))}
                 </div>
               </div>
             )}
-            <p className="flex items-start gap-1.5 rounded-lg border border-border-subtle bg-surface-primary/40 px-3 py-2 text-[10px] leading-snug text-text-muted">
-              <Target className="mt-0.5 h-3 w-3 shrink-0" aria-hidden />
-              <span>
-                {lang === 'el'
-                  ? 'Μέθοδος: ο πίνακας μετράει πόσο μετακίνησες κάθε τιμή από τη βάση των σημειώσεων. Δεν μοντελοποιεί σχέσεις μεταξύ παραμέτρων — αν οι σημειώσεις σου έχουν τύπο, χρησιμοποίησε τον Scratchpad για ακριβή υπολογισμό.'
-                  : 'Method: this tracks how far you moved each value from your notes baseline. It does not model relationships between parameters — if your notes contain a formula, use the Scratchpad to compute exact results.'}
-              </span>
-            </p>
           </div>
         </div>
       );
@@ -240,14 +304,16 @@ export function InteractiveSimulator({
       <div className="flex h-full flex-col overflow-hidden">
         <div className="flex items-center justify-between border-b border-border-subtle bg-surface-card px-4 py-2.5 shrink-0">
           <span className="flex items-center gap-2 text-sm font-semibold">
-            <SlidersHorizontal className="w-4 h-4 text-brand-400" />
+            <SlidersHorizontal className="w-4 h-4 text-brand-700" />
             {t('parametricSandbox')}
           </span>
         </div>
         <div className="flex flex-1 flex-col items-center justify-center p-6">
-          <WorkspaceEmptyState
-            message={emptyMessage ?? (insight || t('sandboxInsight'))}
-            hasSource={hasSource}
+          <WorkspaceToolEmptyState
+            tool="simulator"
+            concept={concept}
+            message={emptyMessage ?? insight ?? t('sandboxInsight')}
+            hasSource={hasSource ?? false}
             onUpload={onUpload}
           />
           {insight && (
@@ -264,7 +330,7 @@ export function InteractiveSimulator({
     <div className="flex h-full flex-col overflow-hidden">
       <div className="flex items-center justify-between border-b border-border-subtle bg-surface-card px-4 py-2.5 shrink-0">
         <span className="flex items-center gap-2 text-sm font-semibold">
-          <SlidersHorizontal className="w-4 h-4 text-brand-400" />
+          <SlidersHorizontal className="w-4 h-4 text-brand-700" />
           {t('parametricSandbox')}
         </span>
         <span className="rounded border border-accent-teal/35 bg-accent-teal/15 px-2.5 py-1 text-xs text-accent-teal">
@@ -274,15 +340,33 @@ export function InteractiveSimulator({
 
       <div className="flex flex-1 flex-col items-center overflow-y-auto p-4">
         <div className="mb-3 w-full max-w-sm">
-          <p className="mb-1.5 text-xs font-medium text-text-tertiary">{t('presets')}</p>
-          <div className="flex flex-wrap gap-1.5">
-            {presetButtons.map((p) => (
+          <div className="mb-1.5 flex items-center justify-between gap-2">
+            <p className="text-xs font-medium text-text-tertiary">{t('presets')}</p>
+            {onSendToWhiteboard && (
+              <button
+                type="button"
+                data-testid="simulator-send-whiteboard"
+                onClick={sendGraphToWhiteboard}
+                className="inline-flex items-center gap-1 rounded-lg border border-brand-500/30 bg-brand-600/10 px-2 py-0.5 text-[10px] font-medium text-brand-800 hover:bg-brand-600/15"
+              >
+                <PenLine className="w-3 h-3" />
+                {t('scratchOpenWhiteboard')}
+              </button>
+            )}
+          </div>
+          <div className="flex flex-wrap gap-1.5" data-testid="simulator-course-presets">
+            {SIMULATOR_SCENARIO_PRESETS.map((p) => (
               <button
                 key={p.id}
                 type="button"
                 data-testid={`simulator-scenario-${p.id}`}
                 onClick={() => applyScenario(p.id)}
-                className="rounded-full border border-border-subtle bg-surface-primary/50 px-2.5 py-1 text-xs hover:border-brand-500/40 transition-all"
+                className={cn(
+                  'rounded-full border px-2.5 py-1 text-xs transition-all',
+                  activeEconScenario === p.id
+                    ? 'border-brand-500/40 bg-brand-600/10 text-brand-800'
+                    : 'border-border-subtle bg-surface-primary/50 hover:border-brand-500/40',
+                )}
               >
                 {t(p.i18nKey)}
               </button>
@@ -332,40 +416,32 @@ export function InteractiveSimulator({
             <span className="h-3.5 w-3.5 rounded-sm border border-accent-emerald bg-accent-emerald/25" />
             {t('consumerSurplus')}
           </span>
-          <span className="flex items-center gap-1.5 text-brand-300">
+          <span className="flex items-center gap-1.5 text-brand-800">
             <span className="h-3.5 w-3.5 rounded-sm border border-brand-400 bg-brand-500/25" />
             {t('producerSurplus')}
           </span>
         </div>
 
         <div className="mb-3 w-full max-w-sm rounded-xl border border-border-subtle bg-surface-primary/50 p-3">
-          <p className="mb-1 text-[11px] font-semibold text-brand-300">{t('equilibriumFormulas')}</p>
+          <p className="mb-1 text-[11px] font-semibold text-brand-800">{t('equilibriumFormulas')}</p>
           <p className="font-mono text-sm text-text-secondary">P* = (100 + ΔD − ΔS) / 2</p>
           <p className="font-mono text-sm text-text-secondary">Q* = P* + ΔS</p>
-          <p className="mt-2 flex items-start gap-1.5 text-[10px] leading-snug text-text-muted">
-            <Target className="mt-0.5 h-3 w-3 shrink-0" aria-hidden />
-            <span>
-              {lang === 'el'
-                ? 'Πρότυπο μοντέλο προσφοράς–ζήτησης (γραμμικές καμπύλες, βάση 100) για εξάσκηση της λογικής ισορροπίας — όχι από τους αριθμούς σου.'
-                : 'Standard linear supply–demand reference model (baseline 100) for practising equilibrium logic — not derived from your numbers.'}
-            </span>
-          </p>
         </div>
 
         <div className="w-full max-w-sm space-y-4 rounded-xl border border-border-subtle bg-surface-card p-4">
           <div>
             <div className="mb-2 flex justify-between">
-              <label className="text-xs font-semibold text-accent-emerald">{t('demandShock')}</label>
+              <label htmlFor="sim-demand-shift" className="text-xs font-semibold text-accent-emerald">{t('demandShock')}</label>
               <span className="font-mono text-xs text-text-tertiary">{demandShift > 0 ? '+' : ''}{demandShift}</span>
             </div>
-            <input type="range" min={-40} max={40} value={demandShift} onChange={(e) => { setDemandShift(Number(e.target.value)); onEngage?.(); }} className="w-full" style={{ accentColor: '#34d399' }} />
+            <input id="sim-demand-shift" type="range" min={-40} max={40} value={demandShift} onChange={(e) => { setDemandShift(Number(e.target.value)); onEngage?.(); }} className="w-full" style={{ accentColor: '#34d399' }} />
           </div>
           <div>
             <div className="mb-2 flex justify-between">
-              <label className="text-xs font-semibold text-brand-300">{t('supplyShock')}</label>
+              <label htmlFor="sim-supply-shift" className="text-xs font-semibold text-brand-800">{t('supplyShock')}</label>
               <span className="font-mono text-xs text-text-tertiary">{supplyShift > 0 ? '+' : ''}{supplyShift}</span>
             </div>
-            <input type="range" min={-40} max={40} value={supplyShift} onChange={(e) => { setSupplyShift(Number(e.target.value)); onEngage?.(); }} className="w-full" style={{ accentColor: '#818cf8' }} />
+            <input id="sim-supply-shift" type="range" min={-40} max={40} value={supplyShift} onChange={(e) => { setSupplyShift(Number(e.target.value)); onEngage?.(); }} className="w-full" style={{ accentColor: '#818cf8' }} />
           </div>
           <div className="flex items-center justify-between border-t border-border-subtle pt-3 font-mono text-sm">
             <span>P* = <strong>{eqP.toFixed(1)}</strong></span>
@@ -399,7 +475,7 @@ export function InteractiveSimulator({
 
         <div className="mt-4 w-full max-w-sm rounded-xl border border-border-subtle bg-surface-card p-3" data-testid="sandbox-sensitivity-heatmap">
           <p className="mb-2 text-[10px] font-semibold text-text-muted">
-            {lang === 'el' ? 'Ευαισθησία P*' : 'P* sensitivity'}
+            {t('pStarSensitivity')}
           </p>
           <div className="grid grid-cols-2 gap-2">
             {['demand', 'supply'].map((axis) => {
@@ -407,7 +483,7 @@ export function InteractiveSimulator({
               const peak = Math.max(...cells.map((c) => c.intensity), 0.01);
               return (
                 <div key={axis} className="rounded-lg bg-surface-primary/50 p-2">
-                  <p className="text-[9px] font-medium text-text-secondary mb-1 capitalize">{axis}</p>
+                  <p className="text-[10px] font-medium text-text-secondary mb-1 capitalize">{axis}</p>
                   <div className="flex gap-0.5 h-6 items-end">
                     {cells.slice(0, 5).map((cell, i) => (
                       <div

@@ -1,0 +1,101 @@
+{
+  "cases": [
+    {
+      "id": "agent-grounded-elasticity",
+      "source": "Price elasticity of demand measures responsiveness of quantity demanded to price changes.",
+      "content": "Price elasticity of demand measures how responsive quantity demanded is when prices change.",
+      "kind": "agent",
+      "strict": true,
+      "expectVerified": true,
+      "minFaithfulness": 0.95
+    },
+    {
+      "id": "agent-grounded-numeric",
+      "source": "The speed of light in a vacuum is 299,792,458 m/s. Newton formulated the laws of motion.",
+      "content": "The speed of light in a vacuum is 299,792,458 m/s.",
+      "kind": "agent",
+      "strict": true,
+      "expectVerified": true,
+      "minFaithfulness": 0.95
+    },
+    {
+      "id": "agent-grounded-supply-demand",
+      "source": "Supply and demand determine market equilibrium in competitive markets. Equilibrium price clears the market.",
+      "content": "Supply and demand determine market equilibrium when competitive markets clear at equilibrium price.",
+      "kind": "agent",
+      "strict": true,
+      "expectVerified": true,
+      "minFaithfulness": 0.95
+    },
+    {
+      "id": "agent-hallucination-entity",
+      "source": "Price elasticity of demand measures responsiveness of quantity demanded to price changes.",
+      "content": "Einstein invented macroeconomics in 1920. Price elasticity measures responsiveness.",
+      "kind": "agent",
+      "strict": true,
+      "expectVerified": false,
+      "minFaithfulness": 0.5
+    },
+    {
+      "id": "lesson-panels-grounded",
+      "source": "Newton's second law states that force equals mass times acceleration. F equals m a.",
+      "kind": "lesson",
+      "strict": false,
+      "expectVerified": true,
+      "minFaithfulness": 0.95,
+      "panels": [
+        {
+          "badge": "Core",
+          "title": "Newton second law",
+          "blocks": [
+            {
+              "kind": "paragraph",
+              "text": "Newton's second law states that force equals mass times acceleration."
+            },
+            { "kind": "formula", "label": "Formula", "formula": "F equals m a" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "lesson-panels-equilibrium",
+      "source": "Supply and demand determine market equilibrium in competitive markets.",
+      "kind": "lesson",
+      "strict": false,
+      "expectVerified": true,
+      "minFaithfulness": 0.95,
+      "panels": [
+        {
+          "badge": "Core",
+          "title": "Market equilibrium",
+          "blocks": [
+            {
+              "kind": "paragraph",
+              "text": "Supply and demand determine market equilibrium in competitive markets."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "lesson-panels-hallucination",
+      "source": "Supply and demand determine market equilibrium in competitive markets.",
+      "kind": "lesson",
+      "strict": true,
+      "expectVerified": false,
+      "minFaithfulness": 0.5,
+      "panels": [
+        {
+          "badge": "Core",
+          "title": "Quantum tariffs",
+          "blocks": [
+            {
+              "kind": "paragraph",
+              "text": "Einstein proved tariffs are always zero in 1920."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

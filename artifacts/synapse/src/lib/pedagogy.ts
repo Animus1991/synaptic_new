@@ -1,4 +1,7 @@
 import type { LearnerModel, SkillNode, ConfidencePoint } from '../types';
+import type { Lang } from './i18n';
+import { bandColorVar } from './masteryPalette';
+import { studyPlanBlockLabel } from './tasksContent';
 
 export type MasteryBand = 'strong' | 'proficient' | 'developing' | 'weak';
 export type CalibrationDirection = 'overconfident' | 'calibrated' | 'underconfident';
@@ -32,12 +35,7 @@ export function masteryBand(mastery: number): MasteryBand {
 }
 
 export function bandColor(band: MasteryBand): string {
-  switch (band) {
-    case 'strong': return '#34d399';
-    case 'proficient': return '#fbbf24';
-    case 'developing': return '#22d3ee';
-    case 'weak': return '#fb7185';
-  }
+  return bandColorVar(band);
 }
 
 /** Beta posterior mean α / (α + β) */
@@ -197,36 +195,47 @@ export function deriveInsights(
 }
 
 /** Study plan blocks (LearnAI-style daily queue) */
-export function buildStudyPlanBlocks(tasks: {
-  category: string;
-  status: string;
-  priority: string;
-  title: string;
-  estimatedMinutes: number;
-  isSpacedRepetition?: boolean;
-}[]): { label: string; minutes: number; items: string[] }[] {
+export function buildStudyPlanBlocks(
+  tasks: {
+    category: string;
+    status: string;
+    priority: string;
+    title: string;
+    estimatedMinutes: number;
+    isSpacedRepetition?: boolean;
+  }[],
+  lang: Lang,
+): { label: string; minutes: number; items: string[] }[] {
+  type PlanTask = (typeof tasks)[number];
   const pending = tasks.filter((t) => t.status === 'pending');
-  const mistakes = pending.filter((t) => t.category === 'fix').slice(0, 2);
-  const reviews = pending.filter((t) => t.isSpacedRepetition).slice(0, 3);
-  const weak = pending.filter((t) => t.category === 'learn' || t.priority === 'high').slice(0, 2);
+  // Each task appears in at most one block (no repeat between mistakes/reviews/weak).
+  const used = new Set<PlanTask>();
+  const take = (predicate: (t: PlanTask) => boolean, limit: number): PlanTask[] => {
+    const picked = pending.filter((t) => !used.has(t) && predicate(t)).slice(0, limit);
+    for (const t of picked) used.add(t);
+    return picked;
+  };
+  const mistakes = take((t) => t.category === 'fix', 2);
+  const reviews = take((t) => Boolean(t.isSpacedRepetition), 3);
+  const weak = take((t) => t.category === 'learn' || t.priority === 'high', 2);
   const blocks: { label: string; minutes: number; items: string[] }[] = [];
   if (mistakes.length) {
     blocks.push({
-      label: 'Retry mistakes',
+      label: studyPlanBlockLabel('mistakes', lang),
       minutes: mistakes.reduce((s, t) => s + t.estimatedMinutes, 0),
       items: mistakes.map((t) => t.title),
     });
   }
   if (reviews.length) {
     blocks.push({
-      label: 'Spaced reviews',
+      label: studyPlanBlockLabel('reviews', lang),
       minutes: reviews.reduce((s, t) => s + t.estimatedMinutes, 0),
       items: reviews.map((t) => t.title),
     });
   }
   if (weak.length) {
     blocks.push({
-      label: 'Weak concepts',
+      label: studyPlanBlockLabel('weak', lang),
       minutes: weak.reduce((s, t) => s + t.estimatedMinutes, 0),
       items: weak.map((t) => t.title),
     });

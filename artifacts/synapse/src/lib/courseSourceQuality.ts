@@ -2,6 +2,7 @@ import type { Course, CourseSourceQuality } from '../types';
 import type { GeneratedOutline, GeneratedTopic } from './courseGenerator';
 import { detectSections, extractDefinitions, rankKeyphrases } from './contentAnalysis';
 import { extractComparisons, extractFormulas } from './noteContentExtractors';
+import { analyzeTextHygiene } from './textQualityMetrics';
 
 function clamp(value: number, min: number, max: number): number {
   return Math.max(min, Math.min(max, value));
@@ -147,18 +148,21 @@ export function analyzeCourseSourceQuality(
   const avgConcepts = averageConceptsPerTopic(outline.topics);
   const topicPressure = Math.max(0, detectedTopicCount - recommendedTopicCount);
   const conceptDensityScore = clamp01(1 - Math.abs(avgConcepts - 4) / 4);
+  const hygiene = analyzeTextHygiene(text);
 
   let score = Math.round(
-    clamp01(words / 1800) * 18
-    + clamp01(sections / 5) * 16
-    + clamp01((definitions + glossaryCount) / 12) * 16
-    + clamp01(keyphraseCount / 14) * 12
-    + clamp01((workedExampleCount + formulaCount + comparisonCount) / 8) * 14
-    + clamp01(1 - topicPressure / Math.max(1, recommendedTopicCount)) * 12
-    + conceptDensityScore * 12,
+    clamp01(words / 1800) * 16
+    + clamp01(sections / 5) * 14
+    + clamp01((definitions + glossaryCount) / 12) * 14
+    + clamp01(keyphraseCount / 14) * 10
+    + clamp01((workedExampleCount + formulaCount + comparisonCount) / 8) * 12
+    + clamp01(1 - topicPressure / Math.max(1, recommendedTopicCount)) * 10
+    + conceptDensityScore * 10
+    + clamp01(hygiene.hygieneScore / 100) * 14,
   );
   if (words < 220 && detectedTopicCount > 3) score = Math.min(score, 42);
   if (sections < 2 && definitions < 2 && glossaryCount < 2) score = Math.min(score, 48);
+  if (hygiene.corruptionScore >= 45) score = Math.min(score, 55);
 
   const band: CourseSourceQuality['band'] =
     score >= 75 ? 'strong'
@@ -181,12 +185,16 @@ export function analyzeCourseSourceQuality(
   if (topicPressure >= 2) warnings.push(`The source currently supports about ${recommendedTopicCount} solid modules, but ${detectedTopicCount} were detected.`);
   if (definitions + glossaryCount < 3) warnings.push('Explicit term/definition coverage is limited, which weakens quizzes, flashcards, and retrieval practice.');
   if (workedExampleCount + formulaCount === 0) warnings.push('No worked examples or formula cues were detected, so practice generation will be lighter.');
+  if (hygiene.corruptionScore >= 35) {
+    warnings.push('Text extraction shows OCR/spacing corruption — reprocess or re-upload for cleaner Reader output.');
+  }
 
   const nextActions: string[] = [];
   if (needsMoreMaterial) nextActions.push('Upload another lecture, chapter, or fuller note set before relying on this course as the main study source.');
   if (sections < 2) nextActions.push('Prefer notes with headings or slide structure so topic splitting becomes more reliable.');
   if (definitions + glossaryCount < 3) nextActions.push('Add glossary-heavy material or slides with explicit definitions to improve concept recognition.');
   if (workedExampleCount + formulaCount === 0) nextActions.push('Add solved exercises, worked examples, or problem sheets to strengthen practice-mode generation.');
+  if (hygiene.corruptionScore >= 35) nextActions.push('Use Επανεπεξεργασία κειμένου or re-upload the PDF to apply Wave 8B text hygiene repair.');
 
   return {
     score,
@@ -209,6 +217,9 @@ export function analyzeCourseSourceQuality(
       formulaCount,
       comparisonCount,
       averageConceptsPerTopic: Number(avgConcepts.toFixed(2)),
+      textHygieneScore: hygiene.hygieneScore,
+      textCorruptionScore: hygiene.corruptionScore,
+      textHygieneFlags: hygiene.flags,
     },
   };
 }

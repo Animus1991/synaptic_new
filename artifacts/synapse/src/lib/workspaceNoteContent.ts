@@ -3,13 +3,14 @@
  * When no uploaded source exists, tools receive empty payloads — never demo data.
  */
 
-import type { Lang } from './i18n';
+import { t, type I18nKey, type Lang } from './i18n';
 import type { QuizDef } from './domainContent';
 import type { Course, GlossaryEntry, LearnerModel, Topic, UploadedFile } from '../types';
 import type { WorkspaceToolId } from './taskFlows';
 import { extractDefinitions } from './contentAnalysis';
 import type { DebateNode, ConceptMapEdge, ConceptMapNode, ExtractedFormula } from './noteContentExtractors';
 import { workspaceNoSourceMessage } from './workspaceEmptyState';
+import { prepareWorkspaceDisplayText } from './workspaceDisplayText';
 import {
   buildConceptMapFromCourse,
   buildDebateTreeFromNotes,
@@ -166,113 +167,59 @@ export function buildWorkspaceSourceIntelligence(opts: {
   const strengths: string[] = [];
   if (passageCount >= 3) {
     strengths.push(
-      lang === 'el'
-        ? `Ισχυρή τεκμηρίωση της έννοιας σε ${passageCount} σχετικά αποσπάσματα.`
-        : `Strong evidence for the concept across ${passageCount} relevant source passages.`,
+      t('srcIntelStrengthPassages', lang).replace('{passageCount}', String(passageCount)),
     );
   }
   if (sectionCount >= 2) {
     const structLabel = structure?.labels[0];
     strengths.push(
-      lang === 'el'
-        ? `Το υλικό έχει καθαρή δομή με ${sectionCount} ενότητες${structLabel ? ` (${structLabel})` : ''}.`
-        : `The material has clear structure with ${sectionCount} sections${structLabel ? ` (${structLabel})` : ''}.`,
+      t('srcIntelStrengthStructure', lang)
+        .replace('{sectionCount}', String(sectionCount))
+        .replace('{structSuffix}', structLabel ? ` (${structLabel})` : ''),
     );
   }
   if (definitionCount + glossaryCount >= 4) {
-    strengths.push(
-      lang === 'el'
-        ? 'Υπάρχει αρκετή ορολογία για ποιοτικά quiz, flashcards και explanations.'
-        : 'There is enough terminology to support high-quality quizzes, flashcards, and explanations.',
-    );
+    strengths.push(t('srcIntelStrengthTerminology', lang));
   }
   if (workedExampleCount + formulaCount >= 2) {
-    strengths.push(
-      lang === 'el'
-        ? 'Ανιχνεύτηκαν παραδείγματα ή τύποι που υποστηρίζουν ουσιαστική practice.'
-        : 'Examples or formulas were detected, which supports meaningful practice.',
-    );
+    strengths.push(t('srcIntelStrengthExamples', lang));
   }
   if (comparisonCount >= 2) {
-    strengths.push(
-      lang === 'el'
-        ? 'Το περιεχόμενο περιλαμβάνει συγκρίσεις που βοηθούν βαθύτερη κατανόηση.'
-        : 'The content contains comparisons that support deeper understanding.',
-    );
+    strengths.push(t('srcIntelStrengthComparisons', lang));
   }
 
   const gaps: string[] = [];
   if (passageCount < 2) {
-    gaps.push(
-      lang === 'el'
-        ? 'Η έννοια εμφανίζεται σε λίγα ισχυρά αποσπάσματα, άρα το grounding παραμένει εύθραυστο.'
-        : 'The concept appears in too few strong passages, so grounding remains fragile.',
-    );
+    gaps.push(t('srcIntelGapPassages', lang));
   }
   if (sectionCount < 2) {
-    gaps.push(
-      lang === 'el'
-        ? 'Οι σημειώσεις έχουν ασθενή δομή, οπότε τα lesson steps βασίζονται περισσότερο σε heuristics.'
-        : 'The notes have weak structure, so lesson steps rely more heavily on heuristics.',
-    );
+    gaps.push(t('srcIntelGapStructure', lang));
   }
   if (definitionCount + glossaryCount < 2) {
-    gaps.push(
-      lang === 'el'
-        ? 'Υπάρχουν λίγοι ρητοί ορισμοί ή glossary anchors για την έννοια.'
-        : 'There are too few explicit definitions or glossary anchors for this concept.',
-    );
+    gaps.push(t('srcIntelGapDefinitions', lang));
   }
   if (workedExampleCount + formulaCount === 0) {
-    gaps.push(
-      lang === 'el'
-        ? 'Δεν εντοπίστηκαν λυμένα παραδείγματα ή υπολογιστικά στοιχεία για practice.'
-        : 'No worked examples or computational cues were detected for practice.',
-    );
+    gaps.push(t('srcIntelGapWorkedExamples', lang));
   }
   if (comparisonCount === 0 && conceptNodeCount < 4) {
-    gaps.push(
-      lang === 'el'
-        ? 'Η σχεσιακή κάλυψη της έννοιας είναι περιορισμένη και το concept graph παραμένει ρηχό.'
-        : 'Relational coverage is limited, so the concept graph stays shallow.',
-    );
+    gaps.push(t('srcIntelGapRelational', lang));
   }
 
   const nextActions: string[] = [];
   if (passageCount < 2) {
-    nextActions.push(
-      lang === 'el'
-        ? 'Ανέβασε ακόμη μία διάλεξη, chapter ή set σημειώσεων ειδικά για αυτή την έννοια.'
-        : 'Upload one more lecture, chapter, or note set focused on this concept.',
-    );
+    nextActions.push(t('srcIntelActionUploadMore', lang));
   }
   if (sectionCount < 2) {
-    nextActions.push(
-      lang === 'el'
-        ? 'Πρόσθεσε υλικό με headings ή καθαρές ενότητες ώστε το course flow να γίνει πιο αξιόπιστο.'
-        : 'Add material with headings or clear sections so the course flow becomes more reliable.',
-    );
+    nextActions.push(t('srcIntelActionHeadings', lang));
   }
   if (definitionCount + glossaryCount < 2) {
-    nextActions.push(
-      lang === 'el'
-        ? 'Συνδύασε lecture notes με slides ή glossary-heavy υλικό για πιο καθαρούς ορισμούς.'
-        : 'Combine lecture notes with slides or glossary-heavy material for clearer definitions.',
-    );
+    nextActions.push(t('srcIntelActionGlossary', lang));
   }
   if (workedExampleCount + formulaCount === 0) {
-    nextActions.push(
-      lang === 'el'
-        ? 'Πρόσθεσε λυμένες ασκήσεις, παραδείγματα ή problem sets για ισχυρότερη practice generation.'
-        : 'Add solved exercises, examples, or problem sets for stronger practice generation.',
-    );
+    nextActions.push(t('srcIntelActionPractice', lang));
   }
   if (comparisonCount === 0 && conceptNodeCount < 4) {
-    nextActions.push(
-      lang === 'el'
-        ? 'Ανέβασε υλικό που συγκρίνει έννοιες ή δείχνει σχέσεις prerequisite/contrast.'
-        : 'Upload material that compares concepts or makes prerequisite/contrast relations explicit.',
-    );
+    nextActions.push(t('srcIntelActionCompare', lang));
   }
 
   const toolScores: Array<{ tool: WorkspaceToolId; score: number }> = [
@@ -286,33 +233,16 @@ export function buildWorkspaceSourceIntelligence(opts: {
   ];
   toolScores.sort((a, b) => b.score - a.score);
   const bestTool = toolScores[0]?.tool ?? 'reader';
-  const bestToolReason = bestTool === 'scratchpad'
-    ? (lang === 'el'
-      ? 'Οι σημειώσεις περιέχουν τύπους ή υπολογιστικά μοτίβα που αξίζει να δουλευτούν ενεργά.'
-      : 'The notes contain formulas or computational patterns worth working through actively.')
-    : bestTool === 'compare'
-      ? (lang === 'el'
-        ? 'Το υλικό έχει αρκετές συγκρίσεις για να ξεκαθαρίσεις ομοιότητες και διαφορές.'
-        : 'The material contains enough comparisons to clarify similarities and differences.')
-      : bestTool === 'leitner'
-        ? (lang === 'el'
-          ? 'Η έννοια υποστηρίζεται από αρκετή ορολογία για αποδοτικό retrieval practice.'
-          : 'The concept is supported by enough terminology for efficient retrieval practice.')
-        : bestTool === 'concept-map'
-          ? (lang === 'el'
-            ? 'Υπάρχουν αρκετοί σχετικοί κόμβοι και σχέσεις για εννοιολογική χαρτογράφηση.'
-            : 'There are enough related nodes and relations for concept mapping.')
-          : bestTool === 'whiteboard'
-            ? (lang === 'el'
-              ? 'Η έννοια ταιριάζει σε worked examples και οπτική επίλυση βήμα-βήμα.'
-              : 'This concept benefits from worked examples and visual step-by-step solving.')
-            : bestTool === 'feynman'
-              ? (lang === 'el'
-                ? 'Το υλικό προσφέρεται για self-explanation και έλεγχο κατανόησης.'
-                : 'The material is well-suited to self-explanation and understanding checks.')
-              : (lang === 'el'
-                ? 'Τα πιο ισχυρά αποσπάσματα βρίσκονται στον reader και δίνουν το καλύτερο grounded context.'
-                : 'The strongest grounded context is in the reader excerpts.');
+  const bestToolReasonKeys: Partial<Record<WorkspaceToolId, I18nKey>> = {
+    scratchpad: 'bestToolReasonScratchpad',
+    compare: 'bestToolReasonCompare',
+    leitner: 'bestToolReasonLeitner',
+    'concept-map': 'bestToolReasonConceptMap',
+    reader: 'bestToolReasonReader',
+    whiteboard: 'bestToolReasonWhiteboard',
+    feynman: 'bestToolReasonFeynman',
+  };
+  const bestToolReason = t(bestToolReasonKeys[bestTool] ?? 'bestToolReasonReader', lang);
 
   return {
     score,
@@ -338,7 +268,7 @@ export function buildWorkspaceSourceIntelligence(opts: {
   };
 }
 
-export function buildWorkspaceNoteBundle(opts: {
+export type BuildWorkspaceNoteBundleOpts = {
   uploadedFiles: UploadedFile[];
   glossaryEntries: GlossaryEntry[];
   courses: Course[];
@@ -347,9 +277,26 @@ export function buildWorkspaceNoteBundle(opts: {
   conceptBars: { concept: string; mastery: number }[];
   lang: Lang;
   learnerModel?: LearnerModel;
-}): WorkspaceNoteBundle {
-  const { uploadedFiles, glossaryEntries, courses, courseId, concept, conceptBars, lang, learnerModel } = opts;
+  /** Skip PMI/BM25 + heavy extractors for faster first paint. */
+  lightweight?: boolean;
+};
 
+/** Pre-gathered inputs — one text blob for shell + worker (avoids duplicate gather / clone). */
+export type WorkspaceNoteGathered = {
+  text: string;
+  fileNames: string[];
+  hasSource: boolean;
+  linkedCourseId?: string;
+  course?: Course;
+  scopedGlossary: GlossaryEntry[];
+  topics: Topic[];
+  matchingTopic?: Topic;
+  pipelineVersion?: string;
+  emptyMessage: string;
+};
+
+export function gatherWorkspaceNoteInputs(opts: BuildWorkspaceNoteBundleOpts): WorkspaceNoteGathered {
+  const { uploadedFiles, glossaryEntries, courses, courseId, concept, lang } = opts;
   const { text, fileNames, hasSource } = gatherAnalyzedText(uploadedFiles, courseId);
   const linkedCourseId =
     courseId ?? uploadedFiles.find((f) => f.extractedText?.trim() && f.courseId)?.courseId;
@@ -358,67 +305,166 @@ export function buildWorkspaceNoteBundle(opts: {
     (g) => linkedCourseId && g.courseId === linkedCourseId,
   );
   const topics = course?.topics ?? [];
-  const matchingTopic = findMatchingTopic(topics, concept);
+  const linkedFile = uploadedFiles.find(
+    (f) => f.courseId === linkedCourseId && (f.extractedText?.trim().length ?? 0) > 0,
+  );
+  return {
+    text,
+    fileNames,
+    hasSource,
+    linkedCourseId,
+    course,
+    scopedGlossary,
+    topics,
+    matchingTopic: findMatchingTopic(topics, concept),
+    pipelineVersion: linkedFile?.pipelineVersion ?? course?.pipelineMeta?.version,
+    emptyMessage: workspaceNoSourceMessage(lang),
+  };
+}
 
-  const emptyMessage = workspaceNoSourceMessage(lang);
+/**
+ * Instant metadata-only gather — skips joining large extractedText blobs (1C defer path).
+ */
+export function buildPendingWorkspaceNoteGathered(opts: BuildWorkspaceNoteBundleOpts): WorkspaceNoteGathered {
+  const { uploadedFiles, glossaryEntries, courses, courseId, concept, lang } = opts;
+  const linkedCourseId =
+    courseId ?? uploadedFiles.find((f) => f.extractedText?.trim() && f.courseId)?.courseId;
+  const course = linkedCourseId ? courses.find((c) => c.id === linkedCourseId) : undefined;
+  const scopedGlossary = glossaryEntries.filter(
+    (g) => linkedCourseId && g.courseId === linkedCourseId,
+  );
+  const topics = course?.topics ?? [];
+  const linkedFile = uploadedFiles.find(
+    (f) => f.courseId === linkedCourseId && (f.extractedText?.trim().length ?? 0) > 0,
+  );
+  const hasLikelySource = uploadedFiles.some((f) => {
+    if (f.status !== 'analyzed' && f.status !== 'processing') return false;
+    const body = f.extractedText?.trim();
+    if (!body || body.length < 80) return false;
+    if (courseId && f.courseId && f.courseId !== courseId) return false;
+    return true;
+  });
+  return {
+    text: '',
+    fileNames: linkedFile ? [linkedFile.name] : [],
+    hasSource: hasLikelySource,
+    linkedCourseId,
+    course,
+    scopedGlossary,
+    topics,
+    matchingTopic: findMatchingTopic(topics, concept),
+    pipelineVersion: linkedFile?.pipelineVersion ?? course?.pipelineMeta?.version,
+    emptyMessage: workspaceNoSourceMessage(lang),
+  };
+}
+
+function emptyWorkspaceNoteBundle(concept: string, lang: Lang, emptyMessage: string): WorkspaceNoteBundle {
+  return {
+    hasSource: false,
+    sourceName: '',
+    fileKey: 'no-source',
+    sourceFullText: '',
+    readerText: '',
+    annotationText: '',
+    conceptMap: { nodes: [], edges: [] },
+    leitnerCards: [],
+    compareRows: [],
+    formulas: [],
+    debateTree: null,
+    feynmanOutline: [
+      t('feynmanNoSourceOutline1', lang).replace('{concept}', concept),
+      t('feynmanNoSourceOutline2', lang),
+    ],
+    feynmanGaps: [t('feynmanNoSourceGap', lang)],
+    feynmanGapTerms: [],
+    feynmanPlaceholder: t('feynmanNoSourcePlaceholder', lang).replace('{concept}', concept),
+    workspaceSteps: null,
+    quiz: null,
+    economicsSandbox: false,
+    numericCues: [],
+    sandboxInsight: '',
+    matchingTopic: undefined,
+    courseTitle: undefined,
+    emptyMessage,
+    sourceIntelligence: null,
+    documentStructure: null,
+    pipelineVersion: undefined,
+  };
+}
+
+/** Build bundle from pre-gathered text (shell on main thread, full bundle in worker). */
+export function buildWorkspaceNoteBundleFromGathered(
+  gathered: WorkspaceNoteGathered,
+  opts: Pick<BuildWorkspaceNoteBundleOpts, 'concept' | 'conceptBars' | 'lang' | 'learnerModel'>,
+  lightweight = false,
+): WorkspaceNoteBundle {
+  const { concept, conceptBars, lang, learnerModel } = opts;
+  const {
+    text, fileNames, hasSource, course, topics, matchingTopic, scopedGlossary,
+    pipelineVersion, emptyMessage, linkedCourseId,
+  } = gathered;
 
   if (!hasSource) {
+    return emptyWorkspaceNoteBundle(concept, lang, emptyMessage);
+  }
+
+  const sourceName = fileNames.join(', ') || course?.title || 'Your notes';
+  const fileKey = fileNames[0] ?? linkedCourseId ?? 'notes';
+  const glossaryTerms = scopedGlossary.map((g) => g.term);
+  const workingText = prepareWorkspaceDisplayText(text, fileKey, glossaryTerms);
+  const sourceFullText = workingText;
+  const readerText = lightweight ? workingText.slice(0, 12000) : relevantExcerpt(workingText, concept, 12000);
+  const annotationText = lightweight ? workingText.slice(0, 16000) : relevantExcerpt(workingText, concept, 16000);
+
+  const conceptMap = buildConceptMapFromCourse(
+    topics,
+    scopedGlossary,
+    conceptBars,
+    concept,
+    lightweight ? undefined : workingText,
+  );
+
+  if (lightweight) {
     return {
-      hasSource: false,
-      sourceName: '',
-      fileKey: 'no-source',
-      sourceFullText: '',
-      readerText: '',
-      annotationText: '',
-      conceptMap: { nodes: [], edges: [] },
+      hasSource: true,
+      sourceName,
+      fileKey,
+      sourceFullText,
+      readerText,
+      annotationText,
+      conceptMap,
       leitnerCards: [],
       compareRows: [],
       formulas: [],
       debateTree: null,
-      feynmanOutline: lang === 'el'
-        ? [`Ανέβασε τις σημειώσεις σου για το «${concept}»`, 'Μετά εξήγησε με δικά σου λόγια μόνο από το υλικό σου']
-        : [`Upload your notes for «${concept}»`, 'Then explain in your own words using only your material'],
-      feynmanGaps: lang === 'el'
-        ? ['Χωρίς ανεβασμένο υλικό δεν μπορούμε να ελέγξουμε ακρίβεια — ανέβασε πρώτα τις σημειώσεις.']
-        : ['Without uploaded material we cannot verify accuracy — upload your notes first.'],
+      feynmanOutline: matchingTopic
+        ? [matchingTopic.title, matchingTopic.description ?? ''].filter(Boolean)
+        : [concept],
+      feynmanGaps: [],
       feynmanGapTerms: [],
-      feynmanPlaceholder:
-        lang === 'el'
-          ? `Εξήγησε το «${concept}» — ανέβασε πρώτα τις σημειώσεις σου για στοχευμένη ανατροφοδότηση.`
-          : `Explain «${concept}» — upload your notes first for targeted feedback.`,
+      feynmanPlaceholder: t('feynmanExplainPlaceholder', lang).replace('{concept}', concept),
       workspaceSteps: null,
       quiz: null,
       economicsSandbox: false,
       numericCues: [],
       sandboxInsight: '',
-      matchingTopic: undefined,
-      courseTitle: undefined,
+      matchingTopic,
+      courseTitle: course?.title,
       emptyMessage,
       sourceIntelligence: null,
       documentStructure: null,
-      pipelineVersion: undefined,
+      pipelineVersion,
     };
   }
 
-  const documentStructure = analyzeDocumentStructure(text, lang);
-  const sourceFullText = text;
-  const readerText = relevantExcerpt(text, concept, 12000);
-  const annotationText = relevantExcerpt(text, concept, 16000);
-  const sourceName = fileNames.join(', ') || course?.title || 'Your notes';
-  const fileKey = fileNames[0] ?? courseId ?? 'notes';
-  const linkedFile = uploadedFiles.find(
-    (f) => f.courseId === linkedCourseId && (f.extractedText?.trim().length ?? 0) > 0,
-  );
-  const pipelineVersion = linkedFile?.pipelineVersion ?? course?.pipelineMeta?.version;
-
-  const conceptMap = buildConceptMapFromCourse(topics, scopedGlossary, conceptBars, concept, text);
-  const leitnerFromNotes = buildFlashcards(text, concept, scopedGlossary, lang);
-  const compareRows = extractComparisons(text, concept, scopedGlossary);
-  const formulas = extractFormulas(text, concept);
-  const workspaceSteps = buildWorkspaceStepsFromNotes(text, concept, lang);
-  const quiz = buildQuizFromNotes(text, concept, scopedGlossary, lang);
+  const documentStructure = analyzeDocumentStructure(workingText, lang);
+  const leitnerFromNotes = buildFlashcards(workingText, concept, scopedGlossary, lang);
+  const compareRows = extractComparisons(workingText, concept, scopedGlossary);
+  const formulas = extractFormulas(workingText, concept);
+  const workspaceSteps = buildWorkspaceStepsFromNotes(workingText, concept, lang);
+  const quiz = buildQuizFromNotes(workingText, concept, scopedGlossary, lang);
   const sourceIntelligence = buildWorkspaceSourceIntelligence({
-    text,
+    text: workingText,
     concept,
     glossary: scopedGlossary,
     matchingTopic,
@@ -431,14 +477,13 @@ export function buildWorkspaceNoteBundle(opts: {
     documentStructure,
   });
 
-  // Merge FSRS spacing cards that match the concept, but only if they exist in learner model.
   const spacingCards = (learnerModel?.spacingIntervals ?? [])
     .filter((s) => s.concept.toLowerCase().includes(concept.toLowerCase().slice(0, 5))
       || concept.toLowerCase().includes(s.concept.toLowerCase().slice(0, 5)))
     .map((s) => ({
       front: s.concept,
       back: scopedGlossary.find((g) => g.term.toLowerCase().includes(s.concept.toLowerCase().slice(0, 6)))?.definition
-        ?? (lang === 'el' ? `Επόμενη επανάληψη σε ${Math.round(s.interval)} ημέρες` : `Next review in ${Math.round(s.interval)} days`),
+        ?? t('nextReviewInDays', lang).replace('{days}', String(Math.round(s.interval))),
     }));
 
   const leitnerCards = [...spacingCards, ...leitnerFromNotes].filter(
@@ -456,19 +501,16 @@ export function buildWorkspaceNoteBundle(opts: {
     leitnerCards,
     compareRows,
     formulas,
-    debateTree: buildDebateTreeFromNotes(text, concept),
-    feynmanOutline: buildFeynmanOutline(matchingTopic, text, concept, lang),
+    debateTree: buildDebateTreeFromNotes(workingText, concept),
+    feynmanOutline: buildFeynmanOutline(matchingTopic, workingText, concept, lang),
     feynmanGaps: buildFeynmanGaps(scopedGlossary, concept, lang),
     feynmanGapTerms: buildFeynmanGapTerms(scopedGlossary, concept),
-    feynmanPlaceholder:
-      lang === 'el'
-        ? `Εξήγησε το «${concept}» με απλά λόγια, βασιζόμενος/η μόνο στις σημειώσεις σου…`
-        : `Explain «${concept}» simply, using only your uploaded notes…`,
+    feynmanPlaceholder: t('feynmanExplainPlaceholder', lang).replace('{concept}', concept),
     workspaceSteps: workspaceSteps ?? fallbackWorkspaceSteps(concept, lang),
     quiz,
-    economicsSandbox: notesSupportSandbox(text, concept, formulas),
-    numericCues: extractNumericCues(text, concept),
-    sandboxInsight: sandboxInsightFromNotes(text, concept, lang),
+    economicsSandbox: notesSupportSandbox(workingText, concept, formulas),
+    numericCues: extractNumericCues(workingText, concept),
+    sandboxInsight: sandboxInsightFromNotes(workingText, concept, lang),
     matchingTopic,
     courseTitle: course?.title,
     emptyMessage,
@@ -476,4 +518,9 @@ export function buildWorkspaceNoteBundle(opts: {
     documentStructure,
     pipelineVersion,
   };
+}
+
+export function buildWorkspaceNoteBundle(opts: BuildWorkspaceNoteBundleOpts): WorkspaceNoteBundle {
+  const gathered = gatherWorkspaceNoteInputs(opts);
+  return buildWorkspaceNoteBundleFromGathered(gathered, opts, opts.lightweight ?? false);
 }

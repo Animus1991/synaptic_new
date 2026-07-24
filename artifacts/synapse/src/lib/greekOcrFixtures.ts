@@ -1,37 +1,53 @@
 /**
- * Real corruption snippets from ΕΚΠΑ economics PDFs (Διανομή εισοδήματος, Διεθνής Οικονομική).
- * Used as regression fixtures for Greek OCR repair v2.3+.
+ * Synthetic OCR corruption patterns for Greek PDF text-layer repair tests.
+ * No user-uploaded document content — only minimal algorithm regression vectors.
  */
 
-/** Spaced glyphs — syllabus lecture 2 (Playwright e2e fixture). */
+/** Spaced glyphs — single-char tokens with spaces. */
 export const SPACED_ABSOLUTE_ADVANTAGE =
   'Α π ό λ υ τ α π λ ε ο ν ε κ τ ή μ α τ α και διεθνές εμπόριο.';
 
-/** Spaced glyphs — income distribution title/body. */
 export const SPACED_INCOME_DISTRIBUTION =
-  'Δ ι α ν ο μ ή ε ι σ ο δ ή μ α τ ο ς';
+  'Δ ι α ν ο μ ή ε ι σ ο δή μ α τ ο ς';
 
 export const SPACED_PRODUCTION_INCOME =
   'π α ρ α γ ω γής εισοδήματος';
 
-/** OCR glue — lecture PDF reader screenshot (Δύο χώρες / ημεδαπή). */
+/** OCR glue — merged words without spaces. */
 export const GLUED_TWO_SPACES_LECTURE =
   '6.Δύοχώρες;ΗημεδαπήκαιΑλλοδαπή';
 
-/** OCR glue — merged title words without spaced glyphs. */
 export const GLUED_INCOME_TITLE = 'Διανομήεισοδήματος';
 
 export const GLUED_PARTICLE_FOREIGN = 'καιΑλλοδαπή';
 
 export const GLUED_ARTICLE_PRODUCTION = 'τηνπαραγωγή';
 
-/** Spaced competition paragraph (ΕΚΠΑ PDF screenshot). */
 export const SPACED_COMPETITION =
   'Ο α ν τ α γωνισ μ ός ε π ιτρέ π ει στους εργαζόμενους να μειώσουν το μισθό τους.';
 
 export const SPACED_TWO_SPACES_TITLE = 'Δ Υ Ο Χ Ω Ρ Ε Σ : Η ημεδαπή και η αλλοδαπή';
 
-/** Expected repairs (for documentation / optional snapshot tests). */
+/** Behavioral-economics translation PDF — severe word glue (synthetic). */
+export const GLUED_RATIONAL_CHOICE = 'ορθολογικήςεπιλογήςλέει';
+
+export const GLUED_REAL_CHOICES = 'πραγματικάεπιλογέςκαιοικονομικέςαποφάσεις';
+
+export const GLUED_HYPERBOLIC_LINE =
+  '1μετάαπόένανμήνααπόσήμερασυνήθωςαποδίδειστοδολάριο';
+
+export const SPACED_COST_WORD = 'Κό στο ς';
+
+export const HTML_ENTITY_MATH = 'είναι &lt;1 όπου n';
+
+export const GLUED_CURRENCY = 'Το $1 . 000 . 000 ;';
+
+export const PUA_ICON_NOISE = 'Διανομή\uE001\uE002 εισοδήματος';
+
+export const SPACED_SUPPLY_EN = 's u p p l y curve shifts when price changes.';
+
+export const FONT_MARKUP = '<span style="font-family: Wingdings">Διανομή</span> <i>εισοδήματος</i>';
+
 export const EXPECTED_REPAIRS: Array<{ input: string; mustContain: string[]; mustNotContain?: string[] }> = [
   {
     input: SPACED_ABSOLUTE_ADVANTAGE,
@@ -65,4 +81,57 @@ export const EXPECTED_REPAIRS: Array<{ input: string; mustContain: string[]; mus
     input: GLUED_ARTICLE_PRODUCTION,
     mustContain: ['την', 'παραγωγή'],
   },
+  {
+    input: GLUED_RATIONAL_CHOICE,
+    mustContain: ['ορθολογικής', 'επιλογής'],
+    mustNotContain: ['ορθολογικήςεπιλογής'],
+  },
+  {
+    input: GLUED_REAL_CHOICES,
+    mustContain: ['πραγματικά', 'επιλογές', 'οικονομικές', 'αποφάσεις'],
+    mustNotContain: ['πραγματικάεπιλογές', 'οικονομικέςαποφάσεις'],
+  },
+  {
+    input: SPACED_COST_WORD,
+    mustContain: ['Κόστος'],
+    mustNotContain: ['Κό στο'],
+  },
+  {
+    input: HTML_ENTITY_MATH,
+    mustContain: ['<1'],
+    mustNotContain: ['&lt;'],
+  },
+  {
+    input: GLUED_CURRENCY,
+    mustContain: ['$1.000.000'],
+    mustNotContain: ['$1 . 000'],
+  },
+  {
+    input: PUA_ICON_NOISE,
+    mustContain: ['Διανομή', 'εισοδήματος'],
+    mustNotContain: ['\uE001'],
+  },
+  {
+    input: SPACED_SUPPLY_EN,
+    mustContain: ['supply'],
+    mustNotContain: ['s u p'],
+  },
+  {
+    input: FONT_MARKUP,
+    mustContain: ['Διανομή', 'εισοδήματος'],
+    mustNotContain: ['<span', '<i>'],
+  },
 ];
+
+/** Regression vectors that need the full documentTextPipeline (not greekTextRepair alone). */
+export const PIPELINE_ONLY_REPAIRS = EXPECTED_REPAIRS.filter(({ input }) =>
+  input === PUA_ICON_NOISE ||
+  input === SPACED_SUPPLY_EN ||
+  input === FONT_MARKUP ||
+  input === HTML_ENTITY_MATH,
+);
+
+/** Subset for unit tests of repairGreekDocumentText only. */
+export const GREEK_REPAIR_FIXTURES = EXPECTED_REPAIRS.filter(
+  (fixture) => !PIPELINE_ONLY_REPAIRS.some((p) => p.input === fixture.input),
+);

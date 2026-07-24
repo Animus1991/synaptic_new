@@ -1,7 +1,9 @@
 import { useEffect, useRef } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { AlertTriangle, X } from 'lucide-react';
-import { cn } from '../../utils/cn';
+import { AlertTriangle, X } from '@/lib/lucide-shim';
+import { useI18n } from '../../lib/i18n';
+import { PrimaryCTA, SecondaryCTA } from './primitives';
+import { ModalHeaderStack } from './ModalHeaderStack';
 
 export interface ConfirmDialogProps {
   open: boolean;
@@ -29,6 +31,7 @@ export function ConfirmDialog({
   confirming = false,
   'data-testid': testId = 'confirm-dialog',
 }: ConfirmDialogProps) {
+  const { t } = useI18n();
   const cancelRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
@@ -67,23 +70,23 @@ export function ConfirmDialog({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 16, scale: 0.98 }}
             transition={{ type: 'spring', damping: 26, stiffness: 320 }}
-            className="relative w-full max-w-md rounded-2xl border border-border-subtle bg-surface-card shadow-2xl"
+            className="relative w-full max-w-md ux-modal-panel rounded-2xl border border-border-subtle bg-surface-card shadow-2xl"
           >
             <div className="flex items-start gap-3 p-5 pb-3">
               {destructive && (
-                <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent-rose/15">
+                <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-accent-rose/25 bg-accent-rose/10">
                   <AlertTriangle className="h-4 w-4 text-accent-rose" aria-hidden />
                 </div>
               )}
-              <div className="min-w-0 flex-1">
-                <h2 id={`${testId}-title`} className="text-base font-semibold text-text-primary pr-6">
-                  {title}
-                </h2>
-                {description && (
-                  <p id={`${testId}-desc`} className="mt-2 text-sm text-text-secondary whitespace-pre-line">
-                    {description}
-                  </p>
-                )}
+              <div className="min-w-0 flex-1 pr-6">
+                <ModalHeaderStack
+                  eyebrow={t('confirmDialogEyebrow')}
+                  title={title}
+                  subtitle={description}
+                  titleClassName="text-base font-semibold"
+                  titleId={`${testId}-title`}
+                  subtitleId={description ? `${testId}-desc` : undefined}
+                />
               </div>
               <button
                 type="button"
@@ -95,30 +98,22 @@ export function ConfirmDialog({
               </button>
             </div>
             <div className="flex flex-col-reverse gap-2 border-t border-border-subtle p-4 sm:flex-row sm:justify-end">
-              <button
+              <SecondaryCTA
                 ref={cancelRef}
-                type="button"
                 onClick={onClose}
                 disabled={confirming}
                 data-testid={`${testId}-cancel`}
-                className="rounded-xl border border-border-subtle px-4 py-2.5 text-sm font-medium text-text-secondary hover:bg-surface-hover disabled:opacity-60"
               >
                 {cancelLabel}
-              </button>
-              <button
-                type="button"
+              </SecondaryCTA>
+              <PrimaryCTA
                 onClick={onConfirm}
                 disabled={confirming}
                 data-testid={`${testId}-confirm`}
-                className={cn(
-                  'rounded-xl px-4 py-2.5 text-sm font-semibold disabled:opacity-60',
-                  destructive
-                    ? 'bg-accent-rose text-white hover:bg-accent-rose/90'
-                    : 'bg-brand-600 text-white hover:bg-brand-500',
-                )}
+                className={destructive ? 'bg-accent-rose hover:bg-accent-rose/90' : undefined}
               >
                 {confirmLabel}
-              </button>
+              </PrimaryCTA>
             </div>
           </motion.div>
         </div>

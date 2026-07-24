@@ -22,7 +22,10 @@ function reconstructText(items: MockItem[], pageWidth: number): string {
 
   if (withCoords.length === 0) return '';
 
-  const sortedByY = [...withCoords].sort((a, b) => a.y - b.y);
+  const avgD = items.reduce((s, it) => s + (it.transform[3] ?? 1), 0) / items.length;
+  const ySort: 'asc' | 'desc' = avgD > 0 ? 'desc' : 'asc';
+
+  const sortedByY = [...withCoords].sort((a, b) => (ySort === 'desc' ? b.y - a.y : a.y - b.y));
   const lines: { y: number; items: typeof withCoords }[] = [];
   for (const it of sortedByY) {
     const line = lines.find((l) => Math.abs(l.y - it.y) <= LINE_TOLERANCE);
@@ -33,7 +36,7 @@ function reconstructText(items: MockItem[], pageWidth: number): string {
       lines.push({ y: it.y, items: [it] });
     }
   }
-  lines.sort((a, b) => a.y - b.y);
+  lines.sort((a, b) => (ySort === 'desc' ? b.y - a.y : a.y - b.y));
   for (const line of lines) {
     line.items.sort((a, b) => a.x - b.x);
   }
@@ -83,10 +86,10 @@ function reconstructText(items: MockItem[], pageWidth: number): string {
 describe('pdfExtract layout-aware reconstruction', () => {
   it('preserves single-column reading order', () => {
     const items: MockItem[] = [
-      makeItem('First', 50, 100),
-      makeItem('sentence.', 90, 100),
-      makeItem('Second', 50, 120),
-      makeItem('line.', 100, 120),
+      makeItem('First', 50, 200),
+      makeItem('sentence.', 90, 200),
+      makeItem('Second', 50, 180),
+      makeItem('line.', 100, 180),
     ];
     const text = reconstructText(items, 600);
     expect(text).toContain('First sentence.');
@@ -96,14 +99,14 @@ describe('pdfExtract layout-aware reconstruction', () => {
   it('reads multi-column text column-major (left then right)', () => {
     const pageWidth = 600;
     const items: MockItem[] = [
-      makeItem('Left', 50, 100, 50),
-      makeItem('column', 110, 100, 60),
-      makeItem('Right', 350, 100, 60),
-      makeItem('column', 420, 100, 60),
-      makeItem('Next', 50, 120, 50),
-      makeItem('row', 110, 120, 40),
-      makeItem('Far', 350, 120, 50),
-      makeItem('side', 410, 120, 50),
+      makeItem('Left', 50, 200, 50),
+      makeItem('column', 110, 200, 60),
+      makeItem('Right', 350, 200, 60),
+      makeItem('column', 420, 200, 60),
+      makeItem('Next', 50, 180, 50),
+      makeItem('row', 110, 180, 40),
+      makeItem('Far', 350, 180, 50),
+      makeItem('side', 410, 180, 50),
     ];
     const text = reconstructText(items, pageWidth);
     expect(text).toMatch(/Left column[\s\S]*Next row/);
@@ -115,10 +118,20 @@ describe('pdfExtract layout-aware reconstruction', () => {
 
   it('sorts items left-to-right on the same line', () => {
     const items: MockItem[] = [
-      makeItem('world', 120, 100),
-      makeItem('Hello', 50, 100),
+      makeItem('world', 120, 200),
+      makeItem('Hello', 50, 200),
     ];
     const text = reconstructText(items, 600);
     expect(text).toBe('Hello world');
+  });
+
+  it('reads Greek PDF pages top-to-bottom (native y-up, d>0)', () => {
+    const items: MockItem[] = [
+      makeItem('Θεμελιώδη', 50, 734, 80),
+      makeItem('Θεωρήματα', 140, 734, 80),
+      makeItem('Page 1', 50, 10, 40),
+    ];
+    const text = reconstructText(items, 600);
+    expect(text.indexOf('Θεμελιώδη')).toBeLessThan(text.indexOf('Page 1'));
   });
 });

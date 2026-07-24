@@ -17,6 +17,7 @@ const baseLearner = {
   weakAreas: [],
   misconceptions: [],
   confidenceCalibration: [],
+  spacingIntervals: [],
   weeklyMastery: [50, 52],
   totalSessions: 3,
 } as unknown as LearnerModel;

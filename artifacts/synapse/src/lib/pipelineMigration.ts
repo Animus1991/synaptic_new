@@ -46,9 +46,9 @@ export function reuploadMigrationMessage(
   current = CONTENT_PIPELINE_VERSION,
 ): string {
   if (lang === 'el') {
-    return `Το υλικό αναλύθηκε με παλαιότερο pipeline (v${current} τώρα). Ανέβασε ξανά τα αρχεία για αναγνώριση πινάκων, βιβλιογραφίας και μαθηματικών.`;
+    return `Το υλικό αναλύθηκε με παλαιότερο pipeline (v${current} τώρα). Ανέβασε ξανά τα αρχεία για βελτιωμένη αναγνώριση ελληνικού κειμένου, πινάκων, βιβλιογραφίας και μαθηματικών.`;
   }
-  return `This material was analyzed with an older recognition pipeline (now v${current}). Re-upload your files to apply table, bibliography, and math detection.`;
+  return `This material was analyzed with an older recognition pipeline (now v${current}). Re-upload your files to apply Greek/text hygiene repair, table, bibliography, and math detection.`;
 }
 
 export function reuploadDismissKey(courseId: string): string {

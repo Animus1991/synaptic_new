@@ -1,75 +1,3321 @@
 @import "tailwindcss";
+/* OPT-M15 — Primer Minimal tokens + theme-scoped overrides. */
+@import "./styles/primer-minimal.css";
+/* OPT-C0 — ChatGPT-calm conversation tokens (Minimal-gated). */
+@import "./styles/chatgpt-calm.css";
+/* OPT-R10 / OPT-R13 — Replit clarity create + canvas (Minimal-gated). */
+@import "./styles/replit-clarity.css";
+/* OPT-K1–K3 — Cursor-like clarity foundation (Minimal-gated). */
+@import "./styles/cursor-clarity.css";
 
 @theme {
-  --color-brand-50: #eef2ff;
-  --color-brand-100: #e0e7ff;
-  --color-brand-200: #c7d2fe;
-  --color-brand-300: #a5b4fc;
-  --color-brand-400: #818cf8;
-  --color-brand-500: #6366f1;
-  --color-brand-600: #4f46e5;
-  --color-brand-700: #4338ca;
-  --color-brand-800: #3730a3;
-  --color-brand-900: #312e81;
-  --color-brand-950: #1e1b4b;
+  /* Brand + surfaces: dark defaults; light mode overrides via [data-theme="light"] Warm Sand (F1).
+     Dark brand is steel-slate blue (lower chroma than electric Tailwind blue) so CTAs
+     don’t fight purple-tinted chrome. Surfaces are neutral charcoal — not indigo fog. */
+  --color-brand-50: #eef2f6;
+  --color-brand-100: #d8e0ea;
+  --color-brand-200: #b4c3d4;
+  --color-brand-300: #8da4bc;
+  --color-brand-400: #6b87a4;
+  --color-brand-500: #5a7694;
+  --color-brand-600: #4a6280;
+  --color-brand-700: #3d516a;
+  --color-brand-800: #324356;
+  --color-brand-900: #283646;
+  --color-brand-950: #1a2430;
 
-  --color-accent-teal: #2dd4bf;
-  --color-accent-cyan: #22d3ee;
-  --color-accent-emerald: #34d399;
-  --color-accent-amber: #fbbf24;
-  --color-accent-rose: #fb7185;
-  --color-accent-orange: #fb923c;
+  /* Complementary accents (dark SoT) — dusty, share cool-gray undertone. */
+  --color-accent-teal: #6a9e94;
+  --color-accent-cyan: #6e92a3;
+  --color-accent-emerald: #6a9a86;
+  --color-accent-amber: #b89a5c;
+  --color-accent-rose: #b08990;
+  --color-accent-orange: #b89072;
+  --color-accent-violet: #85809a;
 
-  /* Dark theme (default) */
-  --color-surface-primary: #0f0a1e;
-  --color-surface-secondary: #1a1333;
-  --color-surface-tertiary: #241d42;
-  --color-surface-card: #1e1740;
-  --color-surface-hover: #2a2252;
-  --color-surface-active: #332b5e;
-  --color-surface-input: #16112b;
+  /* Dark theme (default) — neutral charcoal (no purple cast).
+     Surfaces lifted ~3–4% vs pure black so panels read with less eye strain. */
+  --color-surface-primary: #131315;
+  --color-surface-secondary: #19191b;
+  --color-surface-tertiary: #222225;
+  --color-surface-card: #1a1a1d;
+  --color-surface-hover: #27272b;
+  --color-surface-active: #313136;
+  --color-surface-input: #151517;
 
-  --color-border-subtle: #2a2252;
-  --color-border-default: #352d60;
-  --color-border-strong: #4a3f80;
+  --color-border-subtle: #2c2c31;
+  --color-border-default: #3a3a42;
+  --color-border-strong: #4c4c58;
 
-  --color-text-primary: #f1f0f7;
-  --color-text-secondary: #a8a3c4;
-  --color-text-tertiary: #706b8f;
-  --color-text-muted: #4d4870;
+  /* Type ink on dark — neutral light-gray (no lavender cast). */
+  --color-text-primary: #fbfbfc;
+  --color-text-secondary: #c0c0c6;
+  --color-text-tertiary: #9e9ea6;
+  --color-text-muted: #8e8e96;
+  /* Wave J-X02 — warm ink for badges/chips (dark parity with light brown ink) */
+  --color-warm-ink: #8a6f55;
 
-  --viz-track: #2a2252;
-  --viz-node-fill: #1e1740;
-  --viz-canvas-bg: #0f172a;
-  --viz-grid-line: #1e1740;
+  --viz-track: #262629;
+  --viz-node-fill: #19191b;
+  --viz-canvas-bg: #131315;
+  --surface-canvas: var(--viz-canvas-bg);
+  /* Wave M — semantic aliases so surfaces / hairlines are theme-tokenized (no ad-hoc hex). */
+  --color-surface-canvas: var(--viz-canvas-bg);
+  --color-hairline: var(--color-border-subtle);
+  /* Wave N — SoT theme tokens (dark defaults; each theme overrides). */
+  --color-surface-pressed: var(--color-surface-active);
+  --color-surface-hover-strong: var(--color-surface-active);
+  --color-focus-ring: var(--color-brand-500);
+  --focus-ring-offset: 2px;
+  --color-on-brand: #fbfbfc;
+  --color-on-danger: #0a0a0c;
+  --color-on-warn: #0a0a0c;
+  --color-on-success: #0a0a0c;
+  --color-on-info: #fbfbfc;
+  --elev-popover: 0 12px 32px -8px color-mix(in srgb, #0a0a0c 40%, transparent),
+                  0 2px 8px color-mix(in srgb, #0a0a0c 20%, transparent);
+  /* Wave N-T12 — emphasized decelerate curve (Material 3 spec) + duration for surfaces that
+     expand from a small trigger. Used by Visual Lab, Agent mode dropdown, popover menus. */
+  --motion-duration-emphasized: 360ms;
+  --motion-ease-emphasized: cubic-bezier(0.2, 0, 0, 1);
 
-  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  /* Wave P — visualization tokens (dark defaults). Each theme MUST override
+     to guarantee ≥3:1 contrast vs its --color-surface-card. Used by
+     Weekly Mastery bars, FSRS forecast row, Weak Areas track, KPI progress. */
+  --viz-bar-track: color-mix(in srgb, #ffffff 6%, var(--color-surface-card));
+  --viz-bar-track-strong: color-mix(in srgb, #ffffff 12%, var(--color-surface-card));
+  --viz-bar-fill: var(--color-brand-500);
+  --viz-bar-fill-muted: color-mix(in srgb, var(--color-brand-500) 55%, var(--color-surface-card));
+
+  /* Wave P — 5-step heatmap scale tokenized (retires ad-hoc bg-brand-* and
+     bg-surface-hover classes that collapse to invisible ~1.1:1 contrast on
+     light card themes). */
+  --color-heatmap-scale-0: color-mix(in srgb, #ffffff 4%, var(--color-surface-card));
+  --color-heatmap-scale-1: color-mix(in srgb, var(--color-brand-500) 20%, var(--color-surface-card));
+  --color-heatmap-scale-2: color-mix(in srgb, var(--color-brand-500) 40%, var(--color-surface-card));
+  --color-heatmap-scale-3: color-mix(in srgb, var(--color-brand-500) 65%, var(--color-surface-card));
+  --color-heatmap-scale-4: var(--color-brand-400);
+
+  /* Wave P-3 C15 — calibration over/under ink (WCAG ≥4.5:1 on card). */
+  --color-calibration-over: var(--color-accent-rose);
+  --color-calibration-under: var(--color-accent-cyan);
+  /* Wave P-3 C13 — warn-banner title ink (Almost There etc.). */
+  --color-banner-warn-ink: var(--palette-amber);
+  /* Outline for danger/warn callouts — must clear ≥3:1 vs card wash. */
+  --color-banner-warn-border: color-mix(in srgb, var(--palette-amber) 48%, var(--color-border-subtle));
+
+  --viz-grid-line: #1c1c1f;
+
+  /* Mastery + spectrum palette (dark) — dusty complements (less candy vs steel brand). */
+  --mastery-weak: #b08990;
+  --mastery-developing: #6e92a3;
+  --mastery-proficient: #b89a5c;
+  --mastery-strong: #6a9a86;
+  --palette-purple: #85809a;
+  --palette-cyan: #6e92a3;
+  --palette-teal: #6a9e94;
+  --palette-green: #6a9a86;
+  --palette-amber: #b89a5c;
+  --palette-rose: #b08990;
+  --palette-orange: #b89072;
+
+  /* Light theme is the typography SoT for every theme (optical size parity). */
+  --font-sans: 'Nunito Sans', 'Noto Sans', 'Noto Sans Greek', system-ui, -apple-system, sans-serif;
+  /* Tabular numerals reuse sans — no third loaded family (Package 2). */
+  --font-mono: var(--font-sans);
+  --font-display: 'Lora', 'Noto Serif', Georgia, serif;
+
+  /* Package 2 — spacing scale (4px base) */
+  --space-0: 0;
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+
+  /* Package 2 — corner radii */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-panel: 1.25rem;
+  --radius-pill: 9999px;
+
+  /* Package 2 — elevation (hairline → modal) */
+  --elev-0: none;
+  --elev-1: 0 1px 0 color-mix(in srgb, var(--color-border-subtle) 55%, transparent);
+  --elev-2: 0 4px 24px color-mix(in srgb, #0a0a0c 8%, transparent);
+  --elev-3: 0 12px 28px -10px color-mix(in srgb, #0a0a0c 22%, transparent),
+            0 2px 6px color-mix(in srgb, #0a0a0c 10%, transparent);
+  --elev-4: 0 16px 48px color-mix(in srgb, #0a0a0c 20%, transparent);
+  --elev-drawer: -8px 0 32px color-mix(in srgb, #0a0a0c 14%, transparent);
+
+  /* Package 2 — shared type scale (platform + workspace) */
+  --type-micro: 0.625rem;
+  --type-caption: 0.6875rem;
+  --type-body-sm: 0.75rem;
+  --type-meta: 0.8125rem;
+  --type-body: 0.875rem;
+  --type-title: 1.125rem;
+  --type-display-sm: 1.375rem;
+  --type-display: 1.5rem;
+  --type-hero: clamp(1.75rem, 4vw, 3rem);
+  /* OPT-K51 — page title one step above section titles (1.125), not equal */
+  --type-hero-app: 1.25rem;
+  --type-hero-app-sm: 1.375rem;
+  --btn-height: 2.5rem;
+  --btn-height-sm: 2rem;
+  --ux-motion-fade-y: 12px;
+  --ux-motion-fade-duration: 0.6s;
+  --ux-motion-fade-duration-fast: 0.35s;
+  --ux-motion-stagger-step: 0.09s;
+  --tracking-hero: -0.02em;
+  --tracking-hero-app: -0.015em;
+  --tracking-section: -0.015em;
+  --tracking-title: -0.01em;
+  --tracking-eyebrow: 0.34em;
+  --tracking-eyebrow-tight: 0.32em;
+  --leading-micro: 1rem;
+  --leading-caption: 1rem;
+  --leading-body-sm: 1.25rem;
+  --leading-body: 1.375rem;
+  --leading-title: 1.4;
+  --leading-display-sm: 1.25;
+  --leading-display: 1.2;
+
+  /* PLT-01C — motion tokens (platform + workspace) */
+  --motion-duration-fast: 120ms;
+  --motion-duration-ui: 200ms;
+  --motion-duration-slow: 320ms;
+  --motion-ease: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Light theme */
+/* Light theme — Warm Sand aligned to Replit canvas cream (#FDFBF7 family) */
 [data-theme="light"] {
-  --color-surface-primary: #f8f7fc;
-  --color-surface-secondary: #f1eff8;
-  --color-surface-tertiary: #e8e4f4;
+  --color-surface-primary: #fdfbf7;
+  --color-surface-secondary: #f6f1ea;
+  --color-surface-tertiary: #f0ebe2;
   --color-surface-card: #ffffff;
-  --color-surface-hover: #ece9f5;
-  --color-surface-active: #e0dbef;
+  --color-surface-hover: #efe8dc;
+  --color-surface-active: #e8dfd0;
   --color-surface-input: #ffffff;
 
-  --color-border-subtle: #e2ddf0;
-  --color-border-default: #d4cde8;
-  --color-border-strong: #b8aed4;
+  --color-border-subtle: #e0d8cc;
+  --color-border-default: #cfc4b4;
+  --color-border-strong: #806447;
 
-  --color-text-primary: #1a1333;
-  --color-text-secondary: #4a4468;
-  --color-text-tertiary: #6b648f;
-  --color-text-muted: #9b94b8;
+  /* Darks ~5% softer (F4 pass) */
+  --color-text-primary: #352c23;
+  --color-text-secondary: #503a22;
+  --color-text-tertiary: #5c4528;
+  --color-text-muted: #4f3d24;
+  --color-warm-ink: #5c4033;
 
-  --viz-track: #e2ddf0;
-  --viz-node-fill: #f1eff8;
+  /* Central brand browns — ~2% more intense vs complementary earth accents */
+  --color-brand-50: #ebe0d0;
+  --color-brand-100: #d6cab4;
+  --color-brand-200: #c2ab84;
+  --color-brand-300: #ab8548;
+  --color-brand-400: #a06c2e;
+  --color-brand-500: #84561e;
+  --color-brand-600: #6c4517;
+  --color-brand-700: #573714;
+  --color-brand-800: #462e13;
+  --color-brand-900: #342313;
+  --color-brand-950: #23190f;
+
+  /* Fill-only browns — ink softened then +3% depth total for button/icon fills */
+  --color-brand-fill-500: color-mix(in srgb, color-mix(in srgb, var(--color-brand-500) 90%, #faf8f5) 99%, var(--color-brand-500));
+  --color-brand-fill-600: color-mix(in srgb, color-mix(in srgb, var(--color-brand-600) 90%, #faf8f5) 99%, var(--color-brand-600));
+  --color-brand-fill-700: color-mix(in srgb, color-mix(in srgb, var(--color-brand-700) 90%, #faf8f5) 99%, var(--color-brand-700));
+  --color-brand-fill-800: color-mix(in srgb, color-mix(in srgb, var(--color-brand-800) 90%, #faf8f5) 99%, var(--color-brand-800));
+  --color-brand-fill-900: color-mix(in srgb, color-mix(in srgb, var(--color-brand-900) 90%, #faf8f5) 99%, var(--color-brand-900));
+  --color-brand-fill-950: color-mix(in srgb, color-mix(in srgb, var(--color-brand-950) 90%, #faf8f5) 99%, var(--color-brand-950));
+  /* Selected surfaces — 2% lighter than fill (logo, avatar, agent user bubble, Resume) */
+  --color-brand-fill-soft-600: color-mix(in srgb, var(--color-brand-fill-600) 98%, #faf8f5);
+  --color-brand-fill-soft-700: color-mix(in srgb, var(--color-brand-fill-700) 98%, #faf8f5);
+  --color-brand-fill-soft-800: color-mix(in srgb, var(--color-brand-fill-800) 98%, #faf8f5);
+
+  --viz-track: #d8cdb8;
+  --viz-node-fill: #ebe4d8;
   --viz-canvas-bg: #ffffff;
-  --viz-grid-line: #ece9f5;
+  --viz-grid-line: #e5ddd0;
+  /* Wave M — warm-light aliases */
+  --color-surface-canvas: #fdfbf7;
+  --color-hairline: #e0d8cc;
+  /* Wave N — SoT overrides for warm-light */
+  --color-surface-pressed: #e8dfd0;
+  --color-surface-hover-strong: #e8dfd0;
+  --color-focus-ring: var(--color-brand-700);
+  --focus-ring-offset: 2px;
+  --color-on-brand: #ffffff;
+  --color-on-danger: #ffffff;
+  --color-on-warn: #3a2f24;
+  --color-on-success: #ffffff;
+  --color-on-info: #ffffff;
+  --elev-popover: 0 12px 28px -8px color-mix(in srgb, #1f160c 22%, transparent),
+                  0 2px 8px color-mix(in srgb, #1f160c 10%, transparent);
+
+  /* Wave P — warm-light viz tokens: sepia-toned tracks + warm-ink bar fills
+     (guarantees ≥3:1 contrast vs #ffffff card; sepia heatmap identity kept).
+     Wave P-2 C11 — muted bumped from 45% → 68% brand mix so historical bars
+     reach ≥3:1 vs #ffffff instead of vanishing into the card. */
+  --viz-bar-track: #e8dfd0;
+  --viz-bar-track-strong: #c4ae88;
+  --viz-bar-fill: var(--color-brand-500);
+  --viz-bar-fill-muted: color-mix(in srgb, var(--color-brand-500) 68%, #ffffff);
+  --color-heatmap-scale-0: #ebe4d8;
+  --color-heatmap-scale-1: #d4c4a8;
+  --color-heatmap-scale-2: #b8956a;
+  --color-heatmap-scale-3: #8a6440;
+  --color-heatmap-scale-4: #5c4033;
+  /* Wave P-3 C15 — darker calibration ink on white card (≥4.5:1). */
+  --color-calibration-over: #b4233c;
+  --color-calibration-under: #0e7490;
+  /* Warn-banner / danger-callout title ink on cream wash (≥4.5:1). */
+  --color-banner-warn-ink: color-mix(in srgb, var(--palette-amber) 55%, #352c23);
+  --color-banner-warn-border: color-mix(in srgb, var(--color-banner-warn-ink) 58%, var(--color-border-subtle));
+
+  /* Earth accents — warm, near brand brown; −~1% chroma (light SoT). Brand unchanged. */
+  --mastery-weak: #9c685c;
+  --mastery-developing: #6c7d81;
+  --mastery-proficient: #9d7c4c;
+  --mastery-strong: #627e6b;
+  --palette-purple: #7c6982;
+  --palette-cyan: #6b7d83;
+  --palette-teal: #627c73;
+  --palette-green: #627e6b;
+  --palette-amber: #9d7c4c;
+  --palette-rose: #9c685c;
+  --palette-orange: #9c7454;
+
+  --color-accent-emerald: var(--palette-green);
+  --color-accent-amber: var(--palette-amber);
+  --color-accent-orange: var(--palette-orange);
+  --color-accent-teal: var(--palette-teal);
+  --color-accent-rose: var(--palette-rose);
+  --color-accent-cyan: var(--palette-cyan);
+  --color-accent-violet: var(--palette-purple);
+
+  /* Fonts inherit from @theme (Nunito Sans + Lora) — same stack as dark/spectrum/blueprint. */
+
+  --elev-1: 0 1px 0 color-mix(in srgb, var(--color-border-subtle) 45%, transparent);
+  --elev-2: 0 4px 24px color-mix(in srgb, #1f160c 6%, transparent);
+  --elev-3: 0 12px 28px -10px color-mix(in srgb, #1f160c 18%, transparent),
+            0 2px 6px color-mix(in srgb, #1f160c 8%, transparent);
+  --elev-4: 0 16px 48px color-mix(in srgb, #1f160c 18%, transparent);
+  --elev-drawer: -8px 0 32px color-mix(in srgb, #1f160c 12%, transparent);
+
+  color-scheme: light;
+}
+
+/* Tasks-scoped Warm Sand — denser cream surfaces (mockup merge); inherits when nested under light. */
+[data-theme="warm-sand"] {
+  --color-surface-primary: #f6f1ea;
+  --color-surface-secondary: #fdfaf6;
+  --color-surface-tertiary: #f0ebe2;
+  --color-surface-card: #fdfaf6;
+  --color-surface-hover: #efe8dc;
+  --color-surface-active: #e8dfd0;
+  --color-surface-input: #ffffff;
+
+  --color-border-subtle: #e0d8cc;
+  --color-border-default: #cfc4b4;
+  --color-border-strong: #7d6245;
+
+  --color-text-primary: #3a2f24;
+  --color-text-secondary: #5c4832;
+  --color-text-tertiary: #5a4634;
+  /* Wave F — muted on cream ≥4.5:1 vs #f6f1ea */
+  --color-text-muted: #5f4c38;
+
+  /* Central brand — ~2% more intense (warm-sand root) */
+  --color-brand-400: #a07d54;
+  --color-brand-500: #8d6d46;
+  --color-brand-600: #806447;
+  --color-brand-700: #5f4a33;
+  --color-brand-800: #4d3c29;
+  --color-warm-ink: #5c4033;
+
+  /* Wave M — warm-sand aliases (inherits under light) */
+  --color-surface-canvas: #f6f1ea;
+  --color-hairline: #e0d8cc;
+
+  /* Wave N — SoT overrides for warm-sand (explicit; not implicit from light) */
+  --color-surface-pressed: #e8dfd0;
+  --color-surface-hover-strong: #e8dfd0;
+  --color-focus-ring: var(--color-brand-600);
+  --focus-ring-offset: 2px;
+  --color-on-brand: #ffffff;
+  --color-on-danger: #ffffff;
+  --color-on-warn: #3a2f24;
+  --color-on-success: #ffffff;
+  --color-on-info: #ffffff;
+  --elev-popover: 0 12px 28px -8px color-mix(in srgb, #1f160c 22%, transparent),
+                  0 2px 8px color-mix(in srgb, #1f160c 10%, transparent);
+
+  /* Wave P — warm-sand viz tokens (parity with warm-light; keeps deeper sand identity).
+     Wave P-2 C11 — muted bumped from 45% → 68% brand mix so historical bars reach ≥3:1. */
+  --viz-bar-track: #e8dfd0;
+  --viz-bar-track-strong: #c4ae88;
+  --viz-bar-fill: var(--color-brand-500);
+  --viz-bar-fill-muted: color-mix(in srgb, var(--color-brand-500) 68%, #ffffff);
+  --color-heatmap-scale-0: #ebe4d8;
+  --color-heatmap-scale-1: #d4c4a8;
+  --color-heatmap-scale-2: #b8956a;
+  --color-heatmap-scale-3: #8a6440;
+  --color-heatmap-scale-4: #5c4033;
+  --color-calibration-over: #b4233c;
+  --color-calibration-under: #0e7490;
+  --color-banner-warn-ink: color-mix(in srgb, #9d7c4c 55%, #352c23);
+  --color-banner-warn-border: color-mix(in srgb, var(--color-banner-warn-ink) 58%, var(--color-border-subtle));
+
+  /* Match light complementary accents when warm-sand is root theme (−~1%) */
+  --mastery-weak: #9c685c;
+  --mastery-developing: #6c7d81;
+  --mastery-proficient: #9d7c4c;
+  --mastery-strong: #627e6b;
+  --palette-purple: #7c6982;
+  --palette-cyan: #6b7d83;
+  --palette-teal: #627c73;
+  --palette-green: #627e6b;
+  --palette-amber: #9d7c4c;
+  --palette-rose: #9c685c;
+  --palette-orange: #9c7454;
+  --color-accent-emerald: var(--palette-green);
+  --color-accent-amber: var(--palette-amber);
+  --color-accent-orange: var(--palette-orange);
+  --color-accent-teal: var(--palette-teal);
+  --color-accent-rose: var(--palette-rose);
+  --color-accent-cyan: var(--palette-cyan);
+  --color-accent-violet: var(--palette-purple);
+
+  color-scheme: light;
+}
+
+/* J-X02 — explicit dark parity (inherits @theme; keeps warm-ink + elevation readable) */
+[data-theme="dark"],
+[data-theme="blueprint"] {
+  --color-warm-ink: #8a6f55;
+  /* Wave M — dark/blueprint hairline alias (surface-canvas kept via @theme + blueprint override below) */
+  --color-hairline: var(--color-border-subtle);
+  /* Wave N — explicit focus ring (dark/blueprint) so @theme fallback stays consistent even when child themes forget */
+  --color-focus-ring: var(--color-brand-500);
+  color-scheme: dark;
+}
+
+/* Light platform — warm banners, nav, badges (global, not workspace-only) */
+[data-theme="light"] .platform-banner-warn {
+  border-color: color-mix(in srgb, var(--palette-amber) 28%, var(--color-border-subtle));
+  background: color-mix(in srgb, var(--palette-amber) 5%, var(--color-surface-primary));
+}
+[data-theme="light"] .platform-banner-warn .platform-banner-title {
+  color: var(--palette-amber);
+}
+[data-theme="light"] .platform-banner-danger {
+  border-color: color-mix(in srgb, var(--palette-rose) 28%, var(--color-border-subtle));
+  background: color-mix(in srgb, var(--palette-rose) 5%, var(--color-surface-primary));
+}
+[data-theme="light"] .platform-banner-danger .platform-banner-title {
+  color: var(--palette-rose);
+}
+[data-theme="light"] .platform-banner-brand {
+  border-color: color-mix(in srgb, var(--color-brand-600) 26%, var(--color-border-subtle));
+  background: color-mix(in srgb, var(--color-brand-600) 5%, var(--color-surface-primary));
+}
+[data-theme="light"] .platform-banner-brand .platform-banner-title {
+  color: var(--color-brand-800);
+}
+[data-theme="light"] .platform-nav-active {
+  background: color-mix(in srgb, var(--color-brand-100) 85%, var(--color-surface-primary));
+  color: var(--color-brand-800);
+  border-color: color-mix(in srgb, var(--color-brand-400) 28%, var(--color-border-subtle));
+  font-weight: 600;
+}
+[data-theme="light"] .bg-accent-rose\/15 {
+  background-color: color-mix(in srgb, var(--palette-rose) 10%, transparent);
+}
+[data-theme="light"] .bg-accent-rose\/10,
+[data-theme="light"] .bg-accent-rose\/5 {
+  background-color: color-mix(in srgb, var(--palette-rose) 6%, transparent);
+}
+[data-theme="light"] .bg-accent-amber\/15,
+[data-theme="light"] .bg-accent-amber\/10,
+[data-theme="light"] .bg-accent-amber\/5 {
+  background-color: color-mix(in srgb, var(--palette-amber) 6%, transparent);
+}
+[data-theme="light"] .bg-accent-emerald\/15,
+[data-theme="light"] .bg-accent-emerald\/10,
+[data-theme="light"] .bg-accent-emerald\/5 {
+  background-color: color-mix(in srgb, var(--palette-green) 6%, transparent);
+}
+[data-theme="light"] .bg-accent-orange\/15,
+[data-theme="light"] .bg-accent-orange\/5 {
+  background-color: color-mix(in srgb, var(--palette-orange) 6%, transparent);
+}
+[data-theme="light"] .border-accent-rose\/30,
+[data-theme="light"] .border-accent-rose\/20 {
+  border-color: color-mix(in srgb, var(--palette-rose) 22%, var(--color-border-subtle));
+}
+[data-theme="light"] .border-accent-amber\/50,
+[data-theme="light"] .border-accent-amber\/40,
+[data-theme="light"] .border-accent-amber\/30,
+[data-theme="light"] .border-accent-amber\/25,
+[data-theme="light"] .border-accent-amber\/20 {
+  border-color: var(--color-banner-warn-border);
+}
+[data-theme="light"] .border-accent-orange\/20 {
+  border-color: color-mix(in srgb, var(--palette-orange) 22%, var(--color-border-subtle));
+}
+[data-theme="light"] .border-accent-emerald\/20 {
+  border-color: color-mix(in srgb, var(--palette-green) 22%, var(--color-border-subtle));
+}
+[data-theme="light"] .bg-accent-rose {
+  background-color: var(--palette-rose);
+}
+[data-theme="light"] .text-accent-cyan,
+[data-theme="light"] .text-accent-teal {
+  color: var(--palette-cyan);
+}
+[data-theme="light"] .text-accent-violet {
+  color: var(--palette-purple);
+}
+[data-theme="light"] .platform-pill {
+  border: 1px solid var(--color-border-subtle);
+  color: var(--color-text-secondary);
+  font-weight: 500;
+}
+[data-theme="light"] .platform-pill:hover {
+  color: var(--color-text-primary);
+  border-color: color-mix(in srgb, var(--color-brand-600) 30%, var(--color-border-subtle));
+}
+[data-theme="light"] .platform-pill-active {
+  border: 1px solid color-mix(in srgb, var(--color-brand-600) 40%, var(--color-border-subtle));
+  background: color-mix(in srgb, var(--color-brand-600) 10%, var(--color-surface-primary));
+  color: var(--color-brand-800);
+  font-weight: 600;
+}
+[data-theme="light"] .platform-link {
+  color: var(--color-brand-700);
+  font-weight: 600;
+}
+[data-theme="light"] .platform-link:hover {
+  color: var(--color-brand-900);
+}
+[data-theme="light"] .platform-nav-mobile-active {
+  color: var(--color-brand-800);
+  background: color-mix(in srgb, var(--color-brand-100) 70%, var(--color-surface-primary));
+}
+[data-theme="light"] .platform-brand-icon {
+  background: var(--color-brand-fill-soft-700);
+  color: #faf8f5;
+}
+[data-theme="light"] .agent-user-bubble {
+  background-color: var(--color-brand-fill-soft-600);
+}
+[data-theme="light"] .ws-fab {
+  background: var(--color-brand-fill-600);
+  color: #faf8f5;
+  box-shadow: var(--elev-3);
+}
+[data-theme="light"] .ws-pill[data-active="true"] {
+  background: var(--color-brand-fill-600);
+  border-color: var(--color-brand-fill-600);
+}
+[data-theme="light"] .skip-to-content {
+  background: var(--color-brand-fill-600);
+}
+/* Solid brand button fills — progress bars / viz bars unchanged */
+[data-theme="light"] :is(button, a).bg-brand-600 {
+  background-color: var(--color-brand-fill-600);
+}
+[data-theme="light"] :is(button, a).bg-brand-700 {
+  background-color: var(--color-brand-fill-700);
+}
+[data-theme="light"] :is(button, a).hover\:bg-brand-500:hover {
+  background-color: var(--color-brand-fill-500);
+}
+[data-theme="light"] :is(button, a).hover\:bg-brand-800:hover {
+  background-color: var(--color-brand-fill-800);
+}
+[data-theme="light"] button[data-testid="dashboard-resume-workspace"].bg-brand-700 {
+  background-color: var(--color-brand-fill-soft-700);
+}
+[data-theme="light"] button[data-testid="dashboard-resume-workspace"].hover\:bg-brand-800:hover {
+  background-color: var(--color-brand-fill-soft-800);
+}
+[data-theme="light"] :is(button, a).from-brand-600 {
+  --tw-gradient-from: var(--color-brand-fill-600) var(--tw-gradient-from-position);
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+}
+[data-theme="light"] :is(button, a).to-brand-500 {
+  --tw-gradient-to: var(--color-brand-fill-500) var(--tw-gradient-to-position);
+}
+[data-theme="light"] :is(button, a).hover\:from-brand-500:hover {
+  --tw-gradient-from: var(--color-brand-fill-500) var(--tw-gradient-from-position);
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+}
+[data-theme="light"] .text-brand-100 {
+  color: var(--color-brand-800);
+}
+[data-theme="light"] .bg-brand-600\/15,
+[data-theme="light"] .bg-brand-600\/12 {
+  background: color-mix(in srgb, var(--color-brand-600) 12%, var(--color-surface-primary));
+}
+[data-theme="light"] .bg-brand-100\/70,
+[data-theme="light"] .bg-brand-100\/80 {
+  background: color-mix(in srgb, var(--color-brand-100) 85%, var(--color-surface-primary));
+}
+
+/* Spectrum — light vibrant theme (original bright accent hues) */
+[data-theme="spectrum"] {
+  /* Cool gray-lavender canvas — less “purple fog”, more editorial paper. */
+  --color-surface-primary: #f5f4f8;
+  --color-surface-secondary: #eeedf3;
+  --color-surface-tertiary: #e6e4ed;
+  --color-surface-card: #ffffff;
+  --color-surface-hover: #e9e7f0;
+  --color-surface-active: #dddce8;
+  --color-surface-input: #ffffff;
+
+  --color-border-subtle: #d0ceda;
+  --color-border-default: #b4b0c4;
+  --color-border-strong: #6a5f9a;
+
+  --color-text-primary: #1c1a24;
+  --color-text-secondary: #3f3b4d;
+  --color-text-tertiary: #5a5568;
+  --color-text-muted: #6e687c;
+
+  /* Brand: indigo-violet (lower chroma / less neon than electric #8063ff). */
+  --color-brand-50: #f0eef6;
+  --color-brand-100: #ddd8eb;
+  --color-brand-200: #c5bdd9;
+  --color-brand-300: #a99fc6;
+  --color-brand-400: #8b7fb0;
+  --color-brand-500: #6f6299;
+  --color-brand-600: #5c5184;
+  --color-brand-700: #4b426c;
+  --color-brand-800: #3c3556;
+  --color-brand-900: #2e2942;
+  --color-brand-950: #1c1830;
+
+  --viz-track: #e4e2eb;
+  --viz-node-fill: #eeedf3;
+  --viz-canvas-bg: #ffffff;
+  --viz-grid-line: #e6e4ed;
+
+  /* Wave K-T03 — badge/chip ink parity (spectrum keeps violet family) */
+  --color-warm-ink: #4b426c;
+  /* Wave M — spectrum aliases (lavender canvas kept, neutralized) */
+  --color-surface-canvas: #f2f1f6;
+  --color-hairline: #d8d6e0;
+  /* Wave N — SoT overrides for spectrum (WCAG parity + lavender identity) */
+  --color-surface-pressed: #dddce8;
+  --color-surface-hover-strong: #dddce8;
+  --color-focus-ring: var(--color-brand-600);
+  --focus-ring-offset: 2px;
+  --color-on-brand: #ffffff;
+  --color-on-danger: #ffffff;
+  --color-on-warn: #1c1a24;
+  --color-on-success: #1c1a24;
+  --color-on-info: #ffffff;
+  --elev-popover: 0 12px 28px -8px color-mix(in srgb, #1c1a24 18%, transparent),
+                  0 2px 8px color-mix(in srgb, #1c1a24 8%, transparent);
+
+  /* Wave P — spectrum viz: muted indigo tracks (still ≥3:1 on white cards). */
+  --viz-bar-track: #cfcad9;
+  --viz-bar-track-strong: #b4adc4;
+  --viz-bar-fill: var(--color-brand-600);
+  --viz-bar-fill-muted: color-mix(in srgb, var(--color-brand-500) 70%, #ffffff);
+  --color-heatmap-scale-0: #e6e4ed;
+  --color-heatmap-scale-1: #cfcad9;
+  --color-heatmap-scale-2: #b4adc4;
+  --color-heatmap-scale-3: #6f6299;
+  --color-heatmap-scale-4: #3c3556;
+  /* Wave P-3 C13 — Almost There / amber banner titles: mix amber into
+     deep spectrum ink so contrast vs peach banner bg clears 4.5:1.
+     Ink ratio tightened (40% amber) so titles/% stay distinct; border uses
+     the same ink so outlines are not washed-out yellow on cream. */
+  --color-banner-warn-ink: color-mix(in srgb, var(--palette-amber) 36%, #1c1a24);
+  --color-banner-warn-border: color-mix(in srgb, var(--color-banner-warn-ink) 55%, var(--color-border-subtle));
+  /* Wave P-3 C15 — calibration labels on white lavender card. */
+  --color-calibration-over: color-mix(in srgb, var(--palette-rose) 50%, #1c1a24);
+  --color-calibration-under: color-mix(in srgb, var(--palette-cyan) 42%, #1c1a24);
+
+  color-scheme: light;
+
+  /* Complements share violet undertone — dusty, not candy pastel. */
+  --mastery-weak: #a88990;
+  --mastery-developing: #7d8fa3;
+  --mastery-proficient: #b09a6a;
+  --mastery-strong: #6a9484;
+  --palette-purple: #7d7399;
+  --palette-cyan: #7d8fa3;
+  --palette-teal: #6a908a;
+  --palette-green: #6a9484;
+  --palette-amber: #b09a6a;
+  --palette-rose: #a88990;
+  --palette-orange: #ad8f78;
+
+  --color-accent-emerald: var(--palette-green);
+  --color-accent-amber: var(--palette-amber);
+  --color-accent-orange: var(--palette-orange);
+  --color-accent-teal: var(--palette-teal);
+  --color-accent-rose: var(--palette-rose);
+  --color-accent-cyan: var(--palette-cyan);
+  --color-accent-violet: var(--palette-purple);
+
+  /* Typography inherits @theme (light SoT: Nunito Sans + Lora). Do not
+     redefine --font-* or --type-* here — optical size must match light. */
+
+  color-scheme: light;
+}
+
+[data-theme="spectrum"] .glass {
+  background: rgba(255, 255, 255, 0.78);
+  border-color: color-mix(in srgb, var(--color-brand-500) 18%, transparent);
+}
+
+[data-theme="spectrum"] .glass-strong {
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid color-mix(in srgb, var(--color-brand-500) 18%, transparent);
+  box-shadow: 0 4px 24px color-mix(in srgb, var(--color-brand-700) 6%, transparent);
+}
+
+[data-theme="spectrum"] .gradient-text {
+  /* Two-stop only — no amber “rainbow” third stop. */
+  background: linear-gradient(135deg, var(--color-brand-600) 0%, var(--palette-cyan) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+[data-theme="spectrum"] ::selection {
+  background-color: var(--color-brand-500);
+  color: white;
+}
+
+/* Wave M-T03 — quieter banner washes (was 12% candy pastel fills). */
+[data-theme="spectrum"] .platform-banner-warn {
+  border-color: color-mix(in srgb, var(--palette-amber) 28%, var(--color-border-subtle));
+  background: color-mix(in srgb, var(--palette-amber) 6%, var(--color-surface-card));
+}
+[data-theme="spectrum"] .platform-banner-warn .platform-banner-title {
+  color: color-mix(in srgb, var(--palette-amber) 36%, #1c1a24);
+}
+[data-theme="spectrum"] .platform-banner-danger {
+  border-color: color-mix(in srgb, var(--palette-rose) 28%, var(--color-border-subtle));
+  background: color-mix(in srgb, var(--palette-rose) 6%, var(--color-surface-card));
+}
+[data-theme="spectrum"] .platform-banner-danger .platform-banner-title {
+  color: color-mix(in srgb, var(--palette-rose) 40%, #1c1a24);
+}
+[data-theme="spectrum"] .platform-banner-brand {
+  border-color: color-mix(in srgb, var(--color-brand-500) 22%, var(--color-border-subtle));
+  background: color-mix(in srgb, var(--color-brand-500) 5%, var(--color-surface-card));
+}
+[data-theme="spectrum"] .platform-banner-brand .platform-banner-title {
+  color: var(--color-brand-700);
+}
+[data-theme="spectrum"] .platform-nav-active {
+  background: color-mix(in srgb, var(--color-brand-100) 70%, var(--color-surface-primary));
+  color: var(--color-brand-700);
+  border-color: color-mix(in srgb, var(--color-brand-400) 28%, var(--color-border-subtle));
+  font-weight: 600;
+}
+[data-theme="spectrum"] .platform-nav-mobile-active {
+  color: var(--color-brand-700);
+  background: color-mix(in srgb, var(--color-brand-100) 65%, var(--color-surface-primary));
+}
+[data-theme="spectrum"] .platform-brand-icon {
+  background: linear-gradient(135deg, var(--color-brand-600), var(--color-brand-500));
+  color: #ffffff;
+}
+[data-theme="spectrum"] .platform-pill-active {
+  border: 1px solid color-mix(in srgb, var(--color-brand-500) 35%, var(--color-border-subtle));
+  background: color-mix(in srgb, var(--color-brand-500) 9%, var(--color-surface-primary));
+  color: var(--color-brand-700);
+  font-weight: 600;
+}
+[data-theme="spectrum"] .platform-link {
+  color: var(--color-brand-600);
+  font-weight: 600;
+}
+[data-theme="spectrum"] .ws-fab {
+  background: linear-gradient(135deg, var(--color-brand-700), var(--color-brand-600));
+  color: #ffffff;
+  box-shadow: var(--elev-3);
+}
+[data-theme="spectrum"] .bg-accent-rose\/15 {
+  background-color: color-mix(in srgb, var(--palette-rose) 9%, transparent);
+}
+[data-theme="spectrum"] .bg-accent-rose\/10,
+[data-theme="spectrum"] .bg-accent-rose\/5 {
+  background-color: color-mix(in srgb, var(--palette-rose) 6%, transparent);
+}
+[data-theme="spectrum"] .bg-accent-amber\/15,
+[data-theme="spectrum"] .bg-accent-amber\/10,
+[data-theme="spectrum"] .bg-accent-amber\/5 {
+  background-color: color-mix(in srgb, var(--palette-amber) 6%, transparent);
+}
+[data-theme="spectrum"] .bg-accent-emerald\/15,
+[data-theme="spectrum"] .bg-accent-emerald\/10,
+[data-theme="spectrum"] .bg-accent-emerald\/5 {
+  background-color: color-mix(in srgb, var(--palette-green) 6%, transparent);
+}
+[data-theme="spectrum"] .bg-accent-cyan\/15,
+[data-theme="spectrum"] .bg-accent-cyan\/12,
+[data-theme="spectrum"] .bg-accent-cyan\/10,
+[data-theme="spectrum"] .bg-accent-cyan\/5,
+[data-theme="spectrum"] .bg-accent-teal\/15,
+[data-theme="spectrum"] .bg-accent-teal\/10,
+[data-theme="spectrum"] .bg-accent-teal\/5 {
+  background-color: color-mix(in srgb, var(--palette-cyan) 6%, transparent);
+}
+[data-theme="spectrum"] .bg-accent-violet\/15,
+[data-theme="spectrum"] .bg-accent-violet\/10,
+[data-theme="spectrum"] .bg-accent-violet\/5 {
+  background-color: color-mix(in srgb, var(--palette-purple) 7%, transparent);
+}
+[data-theme="spectrum"] .border-accent-rose\/30,
+[data-theme="spectrum"] .border-accent-rose\/20 {
+  border-color: color-mix(in srgb, var(--palette-rose) 28%, var(--color-border-subtle));
+}
+[data-theme="spectrum"] .border-accent-amber\/50,
+[data-theme="spectrum"] .border-accent-amber\/40,
+[data-theme="spectrum"] .border-accent-amber\/30,
+[data-theme="spectrum"] .border-accent-amber\/25,
+[data-theme="spectrum"] .border-accent-amber\/20,
+[data-theme="warm-sand"] .border-accent-amber\/50,
+[data-theme="warm-sand"] .border-accent-amber\/40,
+[data-theme="warm-sand"] .border-accent-amber\/30,
+[data-theme="warm-sand"] .border-accent-amber\/25,
+[data-theme="warm-sand"] .border-accent-amber\/20 {
+  border-color: var(--color-banner-warn-border);
+}
+[data-theme="spectrum"] .border-accent-emerald\/20 {
+  border-color: color-mix(in srgb, var(--palette-green) 35%, var(--color-border-subtle));
+}
+
+
+/* Blueprint — Option-B glass dark (QuillLoop prototype aesthetic); does not alter dark/light/spectrum */
+[data-theme="blueprint"] {
+  --ux-radius-hero: 2rem;
+  /* Deep navy lifted ~3–4% so canvas is less crushing; brand cyan untouched. */
+  --color-surface-primary: #0b1020;
+  --color-surface-secondary: #182033;
+  --color-surface-tertiary: #263245;
+  --color-surface-card: color-mix(in srgb, #ffffff 5%, #0b1020);
+  --color-surface-hover: color-mix(in srgb, #ffffff 7%, #182033);
+  --color-surface-active: color-mix(in srgb, #ffffff 10%, #263245);
+  --color-surface-input: #182033;
+
+  /* Wave P-C06 — border-subtle frames cards vs deep-space canvas. */
+  --color-border-subtle: color-mix(in srgb, #ffffff 11%, #0b1020);
+  --color-border-default: color-mix(in srgb, #ffffff 14%, #0b1020);
+  --color-border-strong: color-mix(in srgb, #ffffff 20%, #0b1020);
+
+  /* Wave M — blueprint semantic aliases (glass dark canvas + refined hairline) */
+  --color-surface-canvas: #151a28;
+  --color-hairline: #243048;
+
+  /* Wave N — SoT overrides for blueprint (cyan glass identity preserved) */
+  --color-surface-pressed: color-mix(in srgb, #ffffff 12%, #263245);
+  --color-surface-hover-strong: color-mix(in srgb, #ffffff 10%, #263245);
+  --color-focus-ring: var(--color-brand-300);
+  --focus-ring-offset: 2px;
+  --color-on-brand: #0b1020;
+  --color-on-danger: #0b1020;
+  --color-on-warn: #0b1020;
+  --color-on-success: #0b1020;
+  --color-on-info: #0b1020;
+  --elev-popover: 0 20px 48px color-mix(in srgb, #000000 45%, transparent),
+                  0 3px 10px color-mix(in srgb, #000000 22%, transparent);
+
+  /* Wave P — blueprint viz tokens (cyan-glass identity kept). */
+  --viz-bar-track: color-mix(in srgb, #ffffff 10%, var(--color-surface-card));
+  --viz-bar-track-strong: color-mix(in srgb, #ffffff 18%, var(--color-surface-card));
+  --viz-bar-fill: var(--color-brand-400);
+  --viz-bar-fill-muted: color-mix(in srgb, var(--color-brand-400) 60%, var(--color-surface-card));
+  --color-heatmap-scale-0: color-mix(in srgb, #ffffff 5%, var(--color-surface-card));
+  --color-heatmap-scale-1: color-mix(in srgb, var(--color-brand-500) 25%, var(--color-surface-card));
+  --color-heatmap-scale-2: color-mix(in srgb, var(--color-brand-500) 45%, var(--color-surface-card));
+  --color-heatmap-scale-3: color-mix(in srgb, var(--color-brand-400) 65%, var(--color-surface-card));
+  --color-heatmap-scale-4: var(--color-brand-300);
+
+  /* Type ink — white/light-gray lifted again ~2–3% */
+  --color-text-primary: #fdfeff;
+  --color-text-secondary: #d5dee9;
+  /* Wave P-C07 — muted/tertiary promoted one step so small labels (day-of-week,
+     +Nd, tooltips, legend) reach WCAG AA (~4.5:1) on the gradient canvas. */
+  --color-text-tertiary: #bdcadd;
+  --color-text-muted: #9faec1;
+
+  --color-brand-50: #ecfeff;
+  --color-brand-100: #cffafe;
+  --color-brand-200: #a5f3fc;
+  --color-brand-300: #67e8f9;
+  --color-brand-400: #22d3ee;
+  --color-brand-500: #06b6d4;
+  --color-brand-600: #0891b2;
+  --color-brand-700: #0e7490;
+  --color-brand-800: #155e75;
+  --color-brand-900: #164e63;
+  --color-brand-950: #083344;
+
+  /* Complements — calm cyan-glass family; +~2% chroma. Brand cyan kept. */
+  --color-accent-teal: #43a498;
+  --color-accent-cyan: #62c2d1;
+  --color-accent-emerald: #55b899;
+  --color-accent-amber: #d0ae50;
+  --color-accent-rose: #cb8181;
+  --color-accent-orange: #d09e72;
+  --color-accent-violet: #9199c1;
+
+  --viz-track: color-mix(in srgb, #ffffff 8%, #182033);
+  --viz-node-fill: #182033;
+  --viz-canvas-bg: color-mix(in srgb, #ffffff 3%, #0b1020);
+  --viz-grid-line: color-mix(in srgb, #ffffff 6%, #0b1020);
+
+  --mastery-weak: #cb8181;
+  --mastery-developing: #62c2d1;
+  --mastery-proficient: #d0ae50;
+  --mastery-strong: #55b899;
+  --palette-purple: #9199c1;
+  --palette-cyan: #62c2d1;
+  --palette-teal: #43a498;
+  --palette-green: #55b899;
+  --palette-amber: #d0ae50;
+  --palette-rose: #cb8181;
+  --palette-orange: #d09e72;
+  /* Warn outlines on cyan-glass: bright amber alone washes out — mix with cyan brand. */
+  --color-banner-warn-ink: color-mix(in srgb, var(--palette-amber) 55%, #e2e8f0);
+  --color-banner-warn-border: color-mix(in srgb, var(--palette-amber) 42%, var(--color-brand-400));
+
+  --radius-panel: 1.875rem;
+  --elev-2: 0 24px 90px color-mix(in srgb, #000000 28%, transparent);
+  --elev-3: 0 28px 100px color-mix(in srgb, #000000 32%, transparent);
+  --elev-4: 0 32px 120px color-mix(in srgb, #000000 36%, transparent);
+
+  --focus-ring-color: var(--color-brand-300);
+
+  color-scheme: dark;
+}
+
+[data-theme="blueprint"] body {
+  background:
+    radial-gradient(circle at 0% 0%, color-mix(in srgb, var(--color-accent-teal) 18%, transparent), transparent 34%),
+    radial-gradient(circle at 100% 0%, color-mix(in srgb, var(--color-accent-violet) 15%, transparent), transparent 26%),
+    linear-gradient(180deg, var(--color-surface-primary) 0%, var(--color-surface-secondary) 48%, var(--color-surface-primary) 100%);
+  background-color: var(--color-surface-primary);
+  background-attachment: fixed;
+}
+
+[data-theme="blueprint"] ::selection {
+  background-color: color-mix(in srgb, var(--color-accent-cyan) 28%, transparent);
+  color: #020617;
+}
+
+[data-theme="blueprint"] .glass {
+  background: color-mix(in srgb, #ffffff 4.5%, transparent);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid color-mix(in srgb, #ffffff 10%, transparent);
+  box-shadow: var(--elev-2);
+}
+
+[data-theme="blueprint"] .glass-strong {
+  background: color-mix(in srgb, #020617 82%, transparent);
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+  border: 1px solid color-mix(in srgb, #ffffff 10%, transparent);
+  box-shadow: var(--elev-3);
+}
+
+[data-theme="blueprint"] .gradient-text {
+  background: linear-gradient(135deg, var(--color-brand-300) 0%, var(--palette-purple) 45%, var(--palette-amber) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+[data-theme="blueprint"] .platform-hero-glow-orbs {
+  opacity: 1;
+  background:
+    radial-gradient(circle at 8% 20%, color-mix(in srgb, var(--color-accent-cyan) 22%, transparent), transparent 42%),
+    radial-gradient(circle at 92% 10%, color-mix(in srgb, var(--color-accent-violet) 18%, transparent), transparent 38%);
+}
+
+/* Light/warm: turn the ambient glow into an intentional, tasteful hero wash
+   (top-anchored brand tint that fades downward) instead of a near-invisible empty band. */
+[data-theme="light"] .platform-hero-glow-orbs {
+  inset: -1.5rem -1rem auto;
+  height: 12rem;
+  opacity: 1;
+  background:
+    radial-gradient(130% 120% at 10% -15%, color-mix(in srgb, var(--color-brand-400) 22%, transparent), transparent 58%),
+    radial-gradient(130% 120% at 95% -15%, color-mix(in srgb, var(--color-accent-teal) 16%, transparent), transparent 52%);
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 42%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 0%, #000 42%, transparent 100%);
+}
+
+[data-theme="blueprint"] .platform-banner-warn {
+  border-color: color-mix(in srgb, var(--palette-amber) 28%, var(--color-border-subtle));
+  background: color-mix(in srgb, var(--palette-amber) 8%, var(--color-surface-primary));
+}
+[data-theme="blueprint"] .platform-banner-warn .platform-banner-title {
+  color: var(--palette-amber);
+}
+[data-theme="blueprint"] .platform-banner-danger {
+  border-color: color-mix(in srgb, var(--palette-rose) 28%, var(--color-border-subtle));
+  background: color-mix(in srgb, var(--palette-rose) 8%, var(--color-surface-primary));
+}
+[data-theme="blueprint"] .platform-banner-danger .platform-banner-title {
+  color: var(--palette-rose);
+}
+[data-theme="blueprint"] .platform-banner-brand {
+  border-color: color-mix(in srgb, var(--color-accent-cyan) 28%, var(--color-border-subtle));
+  background: color-mix(in srgb, var(--color-accent-cyan) 8%, var(--color-surface-primary));
+}
+[data-theme="blueprint"] .platform-banner-brand .platform-banner-title {
+  color: var(--color-brand-300);
+}
+[data-theme="blueprint"] .platform-nav-active {
+  background: color-mix(in srgb, var(--color-accent-cyan) 10%, var(--color-surface-primary));
+  color: var(--color-brand-300);
+  border-color: color-mix(in srgb, var(--color-accent-cyan) 40%, var(--color-border-subtle));
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-accent-cyan) 18%, transparent);
+  font-weight: 600;
+}
+[data-theme="blueprint"] .platform-nav-mobile-active {
+  color: var(--color-brand-300);
+  background: color-mix(in srgb, var(--color-accent-cyan) 10%, var(--color-surface-primary));
+}
+[data-theme="blueprint"] .platform-brand-icon {
+  background: linear-gradient(135deg, var(--color-brand-300), var(--color-accent-violet), var(--color-accent-emerald));
+  color: #020617;
+}
+[data-theme="blueprint"] .platform-pill-active {
+  border: 1px solid color-mix(in srgb, var(--color-accent-cyan) 40%, var(--color-border-subtle));
+  background: color-mix(in srgb, var(--color-accent-cyan) 10%, var(--color-surface-primary));
+  color: var(--color-brand-300);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-accent-cyan) 18%, transparent);
+  font-weight: 600;
+}
+[data-theme="blueprint"] .platform-link {
+  color: var(--color-brand-300);
+  font-weight: 600;
+}
+[data-theme="blueprint"] .ux-section-eyebrow {
+  color: color-mix(in srgb, var(--color-accent-cyan) 70%, var(--color-text-secondary));
+  letter-spacing: 0.34em;
+}
+[data-theme="blueprint"] .ux-session-card {
+  border-color: color-mix(in srgb, #ffffff 10%, transparent);
+  background: color-mix(in srgb, #ffffff 4%, var(--color-surface-primary));
+  backdrop-filter: blur(12px);
+}
+[data-theme="blueprint"] .ux-session-card:hover:not(:disabled) {
+  border-color: color-mix(in srgb, var(--color-accent-cyan) 30%, transparent);
+  background: color-mix(in srgb, #ffffff 7%, var(--color-surface-primary));
+}
+[data-theme="blueprint"] .ux-session-card-active {
+  border-color: color-mix(in srgb, var(--color-accent-cyan) 40%, transparent);
+  background: color-mix(in srgb, var(--color-accent-cyan) 10%, var(--color-surface-primary));
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-accent-cyan) 18%, transparent);
+}
+[data-theme="blueprint"] .ux-trust-badge-grounded {
+  border-color: color-mix(in srgb, var(--color-accent-emerald) 20%, transparent);
+  background: color-mix(in srgb, var(--color-accent-emerald) 10%, transparent);
+  color: var(--color-accent-emerald);
+}
+
+/* Option-B Wave E2 — inverted CTAs, glass secondary, typography, fadeUp motion */
+[data-theme="blueprint"] .ux-primary-cta {
+  border-radius: 1rem;
+  background-color: #ffffff !important;
+  background-image: none !important;
+  color: #020617;
+  font-weight: 600;
+  transition:
+    background-color var(--motion-duration-ui) var(--motion-ease),
+    transform var(--motion-duration-ui) var(--motion-ease),
+    box-shadow var(--motion-duration-ui) var(--motion-ease);
+}
+[data-theme="blueprint"] .ux-primary-cta:hover:not(:disabled) {
+  background-color: #ecfeff !important;
+  color: #020617;
+}
+@media (prefers-reduced-motion: no-preference) {
+  [data-theme="blueprint"] .ux-primary-cta:hover:not(:disabled) {
+    transform: translateY(-2px);
+  }
+}
+[data-theme="blueprint"] .ux-secondary-cta {
+  border-radius: 1rem;
+  border-color: color-mix(in srgb, #ffffff 10%, transparent);
+  background: color-mix(in srgb, #ffffff 5%, var(--color-surface-primary));
+  color: var(--color-text-primary);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition:
+    border-color var(--motion-duration-ui) var(--motion-ease),
+    background-color var(--motion-duration-ui) var(--motion-ease),
+    color var(--motion-duration-ui) var(--motion-ease),
+    transform var(--motion-duration-ui) var(--motion-ease);
+}
+[data-theme="blueprint"] .ux-secondary-cta:hover:not(:disabled) {
+  border-color: color-mix(in srgb, var(--color-accent-cyan) 40%, transparent);
+  background: color-mix(in srgb, #ffffff 10%, var(--color-surface-primary));
+  color: #ffffff;
+}
+@media (prefers-reduced-motion: no-preference) {
+  [data-theme="blueprint"] .ux-secondary-cta:hover:not(:disabled) {
+    transform: translateY(-2px);
+  }
+}
+[data-theme="blueprint"] .ws-eyebrow {
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: color-mix(in srgb, var(--color-accent-cyan) 70%, var(--color-text-secondary));
+}
+@keyframes uxFadeUp {
+  0% { opacity: 0; transform: translateY(var(--ux-motion-fade-y, 12px)); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .blueprint-fade-up,
+  [data-theme="blueprint"] .blueprint-fade-up {
+    animation: uxFadeUp var(--ux-motion-fade-duration) cubic-bezier(0, 0, 0.2, 1) both;
+  }
+}
+
+/* Option-B Wave E4 — agent bubbles, follow-up chips, toast polish */
+.ux-agent-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  border-radius: 9999px;
+  border: 1px solid var(--color-border-subtle);
+  padding: 0.375rem 0.75rem;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  color: var(--color-text-secondary);
+  transition:
+    border-color var(--motion-duration-ui) var(--motion-ease),
+    background-color var(--motion-duration-ui) var(--motion-ease),
+    color var(--motion-duration-ui) var(--motion-ease);
+}
+.ux-agent-chip:hover {
+  border-color: color-mix(in srgb, var(--color-brand-500) 30%, transparent);
+  background: var(--color-surface-hover);
+}
+[data-theme="blueprint"] .agent-message-bubble-assistant {
+  border: 1px solid color-mix(in srgb, var(--color-accent-cyan) 20%, transparent);
+  background: color-mix(in srgb, var(--color-accent-cyan) 10%, transparent);
+  color: color-mix(in srgb, #ecfeff 92%, var(--color-text-primary));
+  border-radius: 1.5rem;
+}
+[data-theme="blueprint"] .agent-message-bubble-user {
+  border: 1px solid color-mix(in srgb, #ffffff 8%, transparent);
+  background: color-mix(in srgb, #ffffff 4%, var(--color-surface-primary)) !important;
+  color: var(--color-text-primary);
+  border-radius: 1.5rem;
+}
+[data-theme="blueprint"] .agent-message-bubble-user .agent-message-meta {
+  border-color: color-mix(in srgb, #ffffff 15%, transparent);
+  color: color-mix(in srgb, #ffffff 65%, var(--color-text-muted));
+}
+[data-theme="blueprint"] .agent-message-avatar {
+  border-radius: 0.75rem;
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--color-accent-cyan) 85%, #020617),
+    color-mix(in srgb, var(--color-accent-teal) 70%, #020617)
+  );
+  box-shadow: 0 0 16px color-mix(in srgb, var(--color-accent-cyan) 20%, transparent);
+}
+[data-theme="blueprint"] .ux-agent-chip {
+  border-color: color-mix(in srgb, #ffffff 10%, transparent);
+  background: color-mix(in srgb, #ffffff 4%, transparent);
+  color: color-mix(in srgb, #ffffff 88%, var(--color-text-secondary));
+}
+[data-theme="blueprint"] .ux-agent-chip:hover {
+  border-color: color-mix(in srgb, var(--color-accent-cyan) 35%, transparent);
+  background: color-mix(in srgb, var(--color-accent-cyan) 8%, transparent);
+  color: #ecfeff;
+}
+[data-theme="blueprint"] .ux-proactive-alert-item {
+  border-color: color-mix(in srgb, #ffffff 10%, transparent);
+  background: color-mix(in srgb, #ffffff 4%, var(--color-surface-primary));
+}
+[data-theme="blueprint"] .ux-proactive-alert-item:hover {
+  border-color: color-mix(in srgb, var(--color-accent-cyan) 30%, transparent);
+}
+[data-theme="blueprint"] .app-toast-shell {
+  left: auto;
+  right: 1.5rem;
+  transform: none;
+  max-width: 24rem;
+}
+[data-theme="blueprint"] .app-toast-banner {
+  border-color: color-mix(in srgb, var(--color-accent-cyan) 30%, transparent);
+  background: color-mix(in srgb, #020617 92%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 24px 60px color-mix(in srgb, #000000 35%, transparent);
+}
+[data-theme="blueprint"] .app-toast-banner .text-accent-emerald {
+  color: var(--color-accent-cyan);
+}
+
+/* Option-B Wave E5 — modal/form glass, library drop, tasks danger */
+.ux-modal-panel {
+  position: relative;
+  overflow: hidden;
+}
+[data-theme="blueprint"] .ux-modal-panel {
+  border-radius: 1.875rem;
+  border-color: color-mix(in srgb, #ffffff 10%, transparent);
+  background: color-mix(in srgb, #020617 94%, transparent);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  box-shadow: 0 24px 90px color-mix(in srgb, #000000 35%, transparent);
+}
+[data-theme="blueprint"] .ux-modal-panel::before {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--color-accent-cyan) 60%, transparent),
+    transparent
+  );
+  pointer-events: none;
+}
+[data-theme="blueprint"] .ux-modal-panel :is(input, textarea, select) {
+  border-radius: 0.75rem;
+  border-color: color-mix(in srgb, #ffffff 10%, transparent);
+  background: color-mix(in srgb, #ffffff 4%, var(--color-surface-primary));
+  color: var(--color-text-primary);
+}
+[data-theme="blueprint"] .ux-modal-panel :is(input, textarea, select):focus {
+  outline: 2px solid color-mix(in srgb, var(--color-accent-cyan) 80%, transparent);
+  outline-offset: 1px;
+}
+.ux-upload-drop-zone,
+.ux-library-drop-zone {
+  border-width: 2px;
+  border-style: dashed;
+  border-radius: 1.5rem;
+  transition:
+    border-color var(--motion-duration-ui) var(--motion-ease),
+    background-color var(--motion-duration-ui) var(--motion-ease);
+}
+.ux-library-drop-zone--compact {
+  border-radius: var(--radius-lg);
+  border-width: 1px;
+}
+.ux-stat-card {
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border-subtle);
+  background: color-mix(in srgb, var(--color-surface-primary) 40%, transparent);
+  padding: var(--space-3);
+}
+.ux-stat-card-label {
+  font-size: var(--type-micro);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+.ux-stat-card-value {
+  margin-top: var(--space-1);
+  font-size: var(--type-body);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  font-variant-numeric: tabular-nums;
+}
+.ux-disclosure {
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+  background: color-mix(in srgb, var(--color-surface-primary) 35%, transparent);
+}
+.ux-disclosure-summary {
+  cursor: pointer;
+  list-style: none;
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--type-caption);
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+.ux-disclosure-summary::-webkit-details-marker {
+  display: none;
+}
+.ux-disclosure-summary::before {
+  content: '▸';
+  display: inline-block;
+  margin-right: 0.5rem;
+  transition: transform 0.15s ease;
+}
+.ux-disclosure[open] .ux-disclosure-summary::before {
+  transform: rotate(90deg);
+}
+.ux-disclosure-body {
+  padding: 0 var(--space-4) var(--space-4);
+  border-top: 1px solid var(--color-border-subtle);
+}
+.ux-settings-nav {
+  background: color-mix(in srgb, var(--color-surface-canvas) 92%, transparent);
+  backdrop-filter: blur(8px);
+}
+[data-theme="light"] .descriptive-sticky-tab-summary {
+  color: var(--color-text-secondary);
+  font-size: var(--type-caption);
+}
+[data-theme="blueprint"] .ux-upload-drop-zone,
+[data-theme="blueprint"] .ux-library-drop-zone {
+  border-color: color-mix(in srgb, var(--color-accent-cyan) 20%, transparent);
+  background: color-mix(in srgb, var(--color-accent-cyan) 5%, transparent);
+}
+[data-theme="blueprint"] .ux-upload-drop-zone[data-active="true"],
+[data-theme="blueprint"] .ux-library-drop-zone:hover {
+  border-color: color-mix(in srgb, var(--color-accent-cyan) 40%, transparent);
+  background: color-mix(in srgb, var(--color-accent-cyan) 10%, transparent);
+}
+[data-theme="blueprint"] .ux-callout-danger {
+  border-radius: 1.5rem;
+  border-color: var(--color-banner-warn-border);
+  background: color-mix(in srgb, var(--palette-amber) 8%, var(--color-surface-primary));
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+[data-theme="blueprint"] .ux-banner-warn {
+  border-color: var(--color-banner-warn-border);
+}
+[data-theme="blueprint"] .ux-card {
+  border-radius: var(--ux-radius-hero);
+  box-shadow: 0 24px 90px color-mix(in srgb, #000000 22%, transparent);
+}
+
+/* Option-B Wave E6 — workspace deep sweep (blueprint + warm workspace scope) */
+[data-theme="blueprint"] [data-ws-theme="warm"] .workspace-glass-panel {
+  border-color: color-mix(in srgb, #ffffff 8%, transparent);
+  background: color-mix(in srgb, #ffffff 4%, var(--color-surface-primary));
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 12px 40px color-mix(in srgb, #000000 18%, transparent);
+}
+[data-theme="blueprint"] [data-ws-theme="warm"] .workspace-glass-panel::before {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--color-accent-cyan) 45%, transparent),
+    transparent
+  );
+  pointer-events: none;
+}
+[data-theme="blueprint"] [data-ws-theme="warm"] .workspace-glass-panel {
+  position: relative;
+  overflow: hidden;
+}
+[data-theme="blueprint"] .ux-workspace-tool-tab[aria-selected="true"] {
+  border-color: color-mix(in srgb, var(--color-accent-cyan) 40%, transparent) !important;
+  background: color-mix(in srgb, var(--color-accent-cyan) 10%, transparent) !important;
+  color: #ecfeff !important;
+  border-radius: 1rem;
+}
+[data-theme="blueprint"] .ux-workspace-tool-tab {
+  border-radius: 1rem;
+}
+[data-theme="blueprint"] [data-ws-theme="warm"] #workspace-main .bg-surface-secondary\/60 {
+  background: color-mix(in srgb, #020617 88%, var(--color-surface-secondary));
+}
+
+/* Option-B Wave E7 — SVG gradient strokes + chart hovers */
+.blueprint-stroke-gradient {
+  stroke: url(#blueprint-stroke-cve);
+}
+[data-theme="blueprint"] .blueprint-diagram-dot {
+  fill: var(--color-accent-cyan);
+  filter: drop-shadow(0 0 8px color-mix(in srgb, var(--color-accent-cyan) 45%, transparent));
+}
+@media (prefers-reduced-motion: no-preference) {
+  [data-theme="blueprint"] .treemap-block:hover {
+    filter: brightness(1.18) saturate(1.25);
+    transform: scale(1.02);
+  }
+  [data-theme="blueprint"] .waterfall-bar:hover {
+    filter: brightness(1.25);
+    transform: scaleY(1.05);
+    transform-origin: bottom;
+  }
+  [data-theme="blueprint"] .heatmap-cell:hover {
+    filter: brightness(1.35);
+    z-index: 2;
+  }
+}
+
+/* Blueprint headings use the shared display stack (Lora) — same optical size as light. */
+[data-theme="blueprint"] .ux-section-eyebrow {
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: color-mix(in srgb, var(--color-accent-cyan) 70%, var(--color-text-secondary));
+}
+
+/* Option-B Wave E9 — Settings / Onboarding / Teacher flow glass */
+.ux-flow-panel {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-panel);
+  border: 1px solid var(--color-border-subtle);
+  background: var(--color-surface-card);
+}
+[data-theme="blueprint"] .ux-flow-shell :is(
+    .platform-panel-soft,
+    .platform-panel-md,
+    .platform-panel-lg,
+    .platform-panel-xl,
+    .ux-flow-panel
+  ) {
+  border-radius: 1.875rem;
+  border-color: color-mix(in srgb, #ffffff 10%, transparent);
+  background: color-mix(in srgb, #020617 94%, transparent);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  box-shadow: 0 24px 90px color-mix(in srgb, #000000 35%, transparent);
+}
+[data-theme="blueprint"] .ux-flow-shell :is(.platform-panel-soft, .platform-panel-md, .platform-panel-lg, .platform-panel-xl, .ux-flow-panel)::before {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--color-accent-cyan) 60%, transparent),
+    transparent
+  );
+  pointer-events: none;
+}
+[data-theme="blueprint"] .ux-flow-shell :is(input, textarea, select).bg-surface-input {
+  border-radius: 0.75rem;
+  border-color: color-mix(in srgb, #ffffff 10%, transparent);
+  background: color-mix(in srgb, #ffffff 4%, var(--color-surface-primary));
+  color: var(--color-text-primary);
+}
+[data-theme="blueprint"] .ux-flow-shell :is(input, textarea, select).bg-surface-input:focus {
+  outline: 2px solid color-mix(in srgb, var(--color-accent-cyan) 80%, transparent);
+  outline-offset: 1px;
+}
+[data-theme="blueprint"] .ux-flow-shell .sticky.bg-surface-card {
+  background: color-mix(in srgb, #020617 96%, transparent);
+}
+[data-theme="blueprint"] .ux-onboarding-shell .ux-flow-progress-fill {
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--color-accent-cyan) 85%, #020617),
+    color-mix(in srgb, var(--color-brand-400) 70%, #020617)
+  );
+}
+[data-theme="blueprint"] .ux-onboarding-shell .platform-brand-icon {
+  border-color: color-mix(in srgb, var(--color-accent-cyan) 35%, transparent);
+  background: color-mix(in srgb, var(--color-accent-cyan) 8%, var(--color-surface-primary));
+  box-shadow: 0 16px 48px color-mix(in srgb, #000000 28%, transparent);
+}
+
+/* Option-B Wave E10 — decorative SourceFlow + RetentionSparkline boards */
+.source-flow-node-bg {
+  fill: color-mix(in srgb, var(--color-surface-card) 88%, transparent);
+  stroke: var(--color-border-subtle);
+  stroke-width: 1;
+}
+[data-theme="blueprint"] .source-flow-node-bg {
+  fill: color-mix(in srgb, #020617 82%, transparent);
+  stroke: color-mix(in srgb, #ffffff 12%, transparent);
+}
+.source-flow-node-label {
+  fill: var(--color-text-secondary);
+  font-size: 9px;
+  font-weight: 600;
+  font-family: var(--font-sans);
+}
+[data-theme="blueprint"] .source-flow-node-label {
+  fill: color-mix(in srgb, var(--color-accent-cyan) 75%, var(--color-text-primary));
+}
+@media (prefers-reduced-motion: no-preference) {
+  [data-theme="blueprint"] .source-flow-pipe {
+    animation: blueprint-flow-pulse 4s ease-in-out infinite;
+  }
+  [data-theme="blueprint"] .retention-sparkline-cell:hover {
+    border-color: color-mix(in srgb, var(--color-accent-cyan) 35%, transparent);
+    background: color-mix(in srgb, var(--color-accent-cyan) 6%, var(--color-surface-primary));
+  }
+  [data-theme="blueprint"] .retention-sparkline-cell:hover .retention-sparkline-stroke {
+    filter: drop-shadow(0 0 6px color-mix(in srgb, var(--color-accent-cyan) 45%, transparent));
+  }
+}
+@keyframes blueprint-flow-pulse {
+  0%,
+  100% {
+    opacity: 0.75;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* Option-B Wave E11 — Tier-B workspace tool internals (Reader / Scratchpad / Quiz) */
+[data-theme="blueprint"] .ux-tier-b-tool .workspace-glass-panel,
+[data-theme="blueprint"] .ux-tier-b-tool.ux-tier-b-shell {
+  position: relative;
+  overflow: hidden;
+  border-color: color-mix(in srgb, #ffffff 8%, transparent);
+  background: color-mix(in srgb, #ffffff 4%, var(--color-surface-primary));
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 12px 40px color-mix(in srgb, #000000 18%, transparent);
+}
+[data-theme="blueprint"] .ux-tier-b-tool .workspace-glass-panel::before,
+[data-theme="blueprint"] .ux-tier-b-tool.ux-tier-b-shell::before {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--color-accent-cyan) 45%, transparent),
+    transparent
+  );
+  pointer-events: none;
+}
+[data-theme="blueprint"] .ux-tier-b-tool :is(.ux-tier-b-toolbar, .ux-tier-b-nav) {
+  border-color: color-mix(in srgb, #ffffff 8%, transparent);
+  background: color-mix(in srgb, #020617 88%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+[data-theme="blueprint"] .ux-tier-b-tool :is(.ux-tier-b-segment, .ux-tier-b-panel) {
+  border-color: color-mix(in srgb, #ffffff 10%, transparent) !important;
+  background: color-mix(in srgb, #ffffff 4%, var(--color-surface-primary)) !important;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+[data-theme="blueprint"] .ux-tier-b-tool .ux-tier-b-sidebar {
+  border-color: color-mix(in srgb, #ffffff 8%, transparent);
+  background: color-mix(in srgb, #020617 92%, transparent);
+}
+[data-theme="blueprint"] .ux-tier-b-tool .ux-tier-b-input {
+  border-color: color-mix(in srgb, #ffffff 10%, transparent);
+  background: color-mix(in srgb, #ffffff 4%, var(--color-surface-primary));
+}
+[data-theme="blueprint"] .ux-tier-b-tool .ux-tier-b-input:focus {
+  outline: 2px solid color-mix(in srgb, var(--color-accent-cyan) 70%, transparent);
+  outline-offset: 1px;
+}
+[data-theme="blueprint"] .ux-tier-b-quiz .ux-quiz-option {
+  border-color: color-mix(in srgb, #ffffff 10%, transparent);
+  background: color-mix(in srgb, #ffffff 3%, var(--color-surface-primary));
+  transition:
+    border-color var(--motion-duration-ui) var(--motion-ease),
+    background-color var(--motion-duration-ui) var(--motion-ease);
+}
+@media (prefers-reduced-motion: no-preference) {
+  [data-theme="blueprint"] .ux-tier-b-quiz .ux-quiz-option:hover:not(:disabled) {
+    border-color: color-mix(in srgb, var(--color-accent-cyan) 35%, transparent);
+    background: color-mix(in srgb, var(--color-accent-cyan) 8%, transparent);
+  }
+}
+[data-theme="blueprint"] .ux-tier-b-quiz-session .ux-quiz-session-header {
+  padding: 0.375rem 0.625rem;
+  border-radius: 0.75rem;
+  border: 1px solid color-mix(in srgb, #ffffff 8%, transparent);
+  background: color-mix(in srgb, #020617 85%, transparent);
+}
+[data-theme="blueprint"] .ux-tier-b-scratchpad [data-testid="scratchpad-graph-panel"] path {
+  stroke: url(#blueprint-stroke-cve);
+  stroke-width: 2;
+  fill: none;
+}
+
+/* Option-B Wave E12 — route transitions + cyan shimmer skeletons */
+.platform-view-transition {
+  width: 100%;
+  min-width: 0;
+}
+.ux-shimmer-skeleton {
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--color-surface-elevated) 100%, transparent) 0%,
+    color-mix(in srgb, var(--color-brand-400) 14%, var(--color-surface-elevated)) 50%,
+    color-mix(in srgb, var(--color-surface-elevated) 100%, transparent) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 2.2s infinite;
+}
+[data-theme="blueprint"] .ux-shimmer-skeleton {
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, #020617 100%, transparent) 0%,
+    color-mix(in srgb, var(--color-accent-cyan) 28%, #020617) 50%,
+    color-mix(in srgb, #020617 100%, transparent) 100%
+  );
+  background-size: 200% 100%;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ux-shimmer-skeleton {
+    animation: none;
+    opacity: 0.55;
+  }
+}
+
+/* Option-B Wave E13 — hero pipeline preview + watches footer */
+.dashboard-live-preview-watches {
+  border-radius: 1.5rem;
+  border: 1px solid var(--color-border-subtle);
+  background: color-mix(in srgb, var(--color-surface-card) 45%, transparent);
+  padding: 1rem;
+}
+[data-theme="blueprint"] .dashboard-live-preview-watches {
+  border-color: color-mix(in srgb, #ffffff 8%, transparent);
+  background: color-mix(in srgb, #020617 40%, transparent);
+}
+.dashboard-hero-step-card {
+  animation-fill-mode: both;
+}
+
+/* Option-B Wave E15 — semantic color reference panel */
+.ux-color-ref-card {
+  border-radius: 1.625rem;
+  border: 1px solid var(--color-border-subtle);
+  background: color-mix(in srgb, var(--color-surface-card) 55%, transparent);
+  padding: 1rem;
+}
+.ux-color-ref-swatch {
+  height: 2.5rem;
+  width: 2.5rem;
+  flex-shrink: 0;
+  border-radius: 1rem;
+  box-shadow: var(--elev-1, 0 8px 24px color-mix(in srgb, #000000 18%, transparent));
+}
+.ux-color-ref-rule {
+  border-radius: 1.5rem;
+  border: 1px solid var(--color-border-subtle);
+  background: color-mix(in srgb, var(--color-surface-secondary) 55%, transparent);
+  padding: 1rem;
+}
+.ux-color-ref-rule-bar {
+  display: flex;
+  height: 1.5rem;
+  overflow: hidden;
+  border-radius: 9999px;
+}
+.ux-color-ref-rule-seg {
+  display: block;
+  height: 100%;
+}
+.ux-color-ref-rule-bg {
+  width: 60%;
+  background: var(--color-surface-tertiary);
+}
+.ux-color-ref-rule-structure {
+  width: 30%;
+  background: color-mix(in srgb, var(--color-text-muted) 55%, var(--color-surface-tertiary));
+}
+.ux-color-ref-rule-cyan {
+  width: 5%;
+  background: var(--color-accent-cyan);
+}
+.ux-color-ref-rule-emerald {
+  width: 3%;
+  background: var(--color-accent-emerald);
+}
+.ux-color-ref-rule-rose {
+  width: 2%;
+  background: var(--color-accent-rose);
+}
+[data-theme="blueprint"] .ux-color-ref-card {
+  border-color: color-mix(in srgb, #ffffff 8%, transparent);
+  background: color-mix(in srgb, #ffffff 4%, #020617);
+}
+[data-theme="blueprint"] .ux-color-ref-rule {
+  border-color: color-mix(in srgb, #ffffff 8%, transparent);
+  background: color-mix(in srgb, #020617 35%, transparent);
+}
+
+/* Option-B Wave E14 — Visual Lab 6-mode rail + decorative boards */
+.visual-lab-mode-tab {
+  min-width: 12.5rem;
+  flex-shrink: 0;
+  border-radius: 1rem;
+  border: 1px solid var(--color-border-subtle);
+  background: color-mix(in srgb, var(--color-surface-card) 55%, transparent);
+  padding: 0.75rem 1rem;
+  text-align: left;
+  transition:
+    border-color 0.25s ease,
+    background 0.25s ease,
+    box-shadow 0.25s ease;
+}
+.visual-lab-mode-tab:hover {
+  background: color-mix(in srgb, var(--color-surface-hover) 80%, transparent);
+}
+.visual-lab-mode-tab-active {
+  border-color: color-mix(in srgb, var(--color-brand-500) 35%, transparent);
+  background: color-mix(in srgb, var(--color-brand-500) 10%, transparent);
+}
+[data-theme="blueprint"] .visual-lab-mode-tab-active {
+  border-color: color-mix(in srgb, var(--color-accent-cyan) 35%, transparent);
+  background: color-mix(in srgb, var(--color-accent-cyan) 10%, transparent);
+  box-shadow: 0 0 24px color-mix(in srgb, var(--color-accent-cyan) 8%, transparent);
+}
+.visual-lab-board-well,
+.visual-lab-side-panel {
+  border-radius: 1.75rem;
+  border: 1px solid var(--color-border-subtle);
+  background: color-mix(in srgb, var(--color-surface-card) 45%, transparent);
+  padding: 1rem;
+}
+.visual-lab-board-frame {
+  border-radius: 1.5rem;
+  border: 1px solid var(--color-border-subtle);
+  background: color-mix(in srgb, var(--ux-surface-canvas, var(--surface-canvas)) 35%, transparent);
+  padding: 0.75rem;
+}
+.visual-lab-mode-badge {
+  border-radius: 9999px;
+  border: 1px solid var(--color-border-subtle);
+  background: color-mix(in srgb, var(--color-surface-hover) 70%, transparent);
+  padding: 0.25rem 0.75rem;
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+}
+.visual-lab-mapping-tile {
+  border-radius: 1rem;
+  border: 1px solid var(--color-border-subtle);
+  background: color-mix(in srgb, var(--color-surface-card) 55%, transparent);
+  padding: 0.75rem;
+}
+.visual-lab-mapping-symbol {
+  display: flex;
+  height: 2.5rem;
+  width: 2.5rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 1rem;
+  border: 1px solid var(--color-border-subtle);
+  background: color-mix(in srgb, var(--color-surface-secondary) 70%, transparent);
+  font-size: 0.625rem;
+  font-weight: 700;
+  color: var(--color-brand-700);
+}
+.visual-lab-board-bg {
+  fill: color-mix(in srgb, var(--color-surface-primary) 25%, transparent);
+}
+.visual-lab-edge {
+  stroke: color-mix(in srgb, var(--color-text-primary) 15%, transparent);
+}
+.visual-lab-node-label {
+  fill: var(--color-text-secondary);
+  font-size: 9px;
+}
+.visual-lab-mastery-value {
+  fill: var(--color-text-primary);
+  font-size: 22px;
+  font-weight: 600;
+}
+.visual-lab-mastery-label {
+  fill: var(--color-text-muted);
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+.visual-lab-exam-node {
+  fill: color-mix(in srgb, var(--color-text-primary) 18%, transparent);
+}
+.visual-lab-exam-node-active {
+  fill: var(--color-accent-cyan);
+  filter: drop-shadow(0 0 12px color-mix(in srgb, var(--color-accent-cyan) 45%, transparent));
+}
+.visual-lab-formula-main {
+  fill: var(--color-text-primary);
+  font-size: 18px;
+  font-weight: 600;
+}
+.visual-lab-formula-chip {
+  fill: color-mix(in srgb, var(--color-surface-card) 70%, transparent);
+  stroke: color-mix(in srgb, var(--color-border-subtle) 100%, transparent);
+}
+.visual-lab-formula-chip-label {
+  fill: var(--color-text-secondary);
+  font-size: 10px;
+}
+
+/* Option-B Wave E16 — Leitner FSRS box rail + flip card chrome */
+.leitner-flip-card {
+  border-radius: 0.75rem;
+  border: 1px solid color-mix(in srgb, var(--color-brand-500) 30%, transparent);
+  background: color-mix(in srgb, var(--color-brand-500) 5%, transparent);
+}
+.leitner-flip-card:hover {
+  border-color: color-mix(in srgb, var(--color-brand-500) 50%, transparent);
+}
+.leitner-box-rail-item {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 0.75rem;
+  border-radius: 1rem;
+  border: 1px solid var(--color-border-subtle);
+  background: color-mix(in srgb, var(--color-surface-card) 55%, transparent);
+  padding: 0.75rem;
+  text-align: left;
+  transition:
+    border-color 0.25s ease,
+    background 0.25s ease,
+    box-shadow 0.25s ease;
+}
+.leitner-box-rail-item:hover {
+  border-color: color-mix(in srgb, var(--color-brand-500) 22%, transparent);
+}
+.leitner-box-rail-item-active {
+  border-color: color-mix(in srgb, var(--color-brand-500) 35%, transparent);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-brand-500) 12%, transparent);
+}
+.leitner-box-rail-dot {
+  height: 0.75rem;
+  width: 0.75rem;
+  flex-shrink: 0;
+  border-radius: 9999px;
+}
+.leitner-box-dot-again { background: var(--color-accent-rose); }
+.leitner-box-dot-hard { background: var(--color-accent-orange); }
+.leitner-box-dot-good { background: var(--color-accent-amber); }
+.leitner-box-dot-easy { background: var(--color-accent-emerald); }
+.leitner-box-rail-meter {
+  height: 0.375rem;
+  width: 3.5rem;
+  flex-shrink: 0;
+  overflow: hidden;
+  border-radius: 9999px;
+  background: color-mix(in srgb, var(--color-text-primary) 8%, transparent);
+}
+.leitner-box-rail-meter-fill {
+  display: block;
+  height: 100%;
+  border-radius: 9999px;
+  background: color-mix(in srgb, var(--color-text-primary) 40%, transparent);
+  transition: width 0.4s ease;
+}
+[data-theme="blueprint"] .leitner-flip-card {
+  border-radius: 1.625rem;
+  border-color: color-mix(in srgb, var(--color-accent-cyan) 25%, transparent);
+  background: color-mix(in srgb, var(--color-accent-cyan) 6%, transparent);
+}
+[data-theme="blueprint"] .leitner-box-rail-item-active {
+  border-color: color-mix(in srgb, var(--color-accent-cyan) 30%, transparent);
+  background: color-mix(in srgb, var(--color-accent-cyan) 8%, transparent);
+}
+[data-theme="blueprint"] .leitner-box-rail-meter-fill {
+  background: var(--color-accent-cyan);
+}
+
+/* Option-B Wave E17 — Pomodoro timer visual chrome */
+.ux-pomodoro-shell {
+  position: relative;
+}
+.ux-pomodoro-ring {
+  position: relative;
+  width: 10rem;
+  height: 10rem;
+}
+.ux-pomodoro-ring-svg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+.ux-pomodoro-ring-track {
+  stroke: var(--viz-track);
+  stroke-width: 6;
+}
+.ux-pomodoro-ring-progress {
+  stroke-width: 6;
+  transition: stroke-dasharray 0.35s ease;
+}
+.ux-pomodoro-stroke-work {
+  stroke: var(--palette-purple);
+}
+.ux-pomodoro-stroke-break {
+  stroke: var(--mastery-strong);
+}
+.ux-pomodoro-stroke-exam {
+  stroke: var(--palette-amber);
+}
+.ux-pomodoro-ring-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.ux-pomodoro-ring-time {
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  color: var(--color-text-primary);
+}
+.ux-pomodoro-ring-phase {
+  margin-top: 0.25rem;
+  font-size: 0.625rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+.ux-pomodoro-ring-phase-work {
+  color: var(--color-brand-700);
+}
+.ux-pomodoro-ring-phase-break {
+  color: var(--color-accent-emerald);
+}
+.ux-pomodoro-ring-phase-exam {
+  color: var(--color-accent-amber);
+}
+.ux-pomodoro-play-btn-start {
+  background: var(--color-brand-600);
+  color: #ffffff;
+}
+.ux-pomodoro-play-btn-start:hover {
+  background: var(--color-brand-500);
+}
+.ux-pomodoro-play-btn-pause {
+  border: 1px solid color-mix(in srgb, var(--color-accent-rose) 35%, transparent);
+  background: color-mix(in srgb, var(--color-accent-rose) 12%, transparent);
+  color: var(--color-accent-rose);
+}
+.ux-pomodoro-mode-list-label {
+  margin-bottom: 0.75rem;
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+.ux-pomodoro-mode-list-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.ux-pomodoro-mode-card {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  gap: 0.35rem;
+  border-radius: 1rem;
+  border: 1px solid var(--color-border-subtle);
+  background: color-mix(in srgb, var(--color-surface-card) 55%, transparent);
+  padding: 0.75rem 0.875rem;
+  text-align: left;
+  transition:
+    border-color 0.25s ease,
+    background 0.25s ease,
+    box-shadow 0.25s ease;
+}
+.ux-pomodoro-mode-card:hover {
+  border-color: color-mix(in srgb, var(--color-brand-500) 22%, transparent);
+}
+.ux-pomodoro-mode-card-active {
+  border-color: color-mix(in srgb, var(--color-brand-500) 35%, transparent);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-brand-500) 12%, transparent);
+}
+.ux-pomodoro-mode-card-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+.ux-pomodoro-mode-card-title {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+.ux-pomodoro-mode-card-duration {
+  font-size: 0.625rem;
+  font-weight: 600;
+  font-family: var(--font-mono);
+  color: var(--color-text-muted);
+}
+.ux-pomodoro-mode-card-desc {
+  font-size: 0.6875rem;
+  line-height: 1.45;
+  color: var(--color-text-tertiary);
+}
+[data-theme="blueprint"] .ux-pomodoro-shell {
+  border-radius: 1.75rem;
+  background: color-mix(in srgb, var(--color-surface-card) 42%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+[data-theme="blueprint"] .ux-pomodoro-ring {
+  width: 11rem;
+  height: 11rem;
+}
+[data-theme="blueprint"] .ux-pomodoro-ring-time {
+  font-size: 1.75rem;
+}
+[data-theme="blueprint"] .ux-pomodoro-stroke-work {
+  stroke: var(--color-accent-cyan);
+}
+[data-theme="blueprint"] .ux-pomodoro-stroke-break {
+  stroke: var(--color-accent-emerald);
+}
+[data-theme="blueprint"] .ux-pomodoro-ring-phase-work {
+  color: var(--color-accent-cyan);
+}
+[data-theme="blueprint"] .ux-pomodoro-ring-phase-break {
+  color: var(--color-accent-emerald);
+}
+[data-theme="blueprint"] .ux-pomodoro-play-btn-start {
+  background: color-mix(in srgb, var(--color-accent-emerald) 85%, #ffffff);
+  color: #022c22;
+}
+[data-theme="blueprint"] .ux-pomodoro-play-btn-start:hover {
+  background: var(--color-accent-emerald);
+  color: #022c22;
+}
+[data-theme="blueprint"] .ux-pomodoro-play-btn-pause {
+  border-color: color-mix(in srgb, var(--color-accent-rose) 45%, transparent);
+  background: color-mix(in srgb, var(--color-accent-rose) 18%, transparent);
+  color: #fecdd3;
+}
+[data-theme="blueprint"] .ux-pomodoro-reset-btn {
+  border-color: color-mix(in srgb, #ffffff 12%, transparent);
+  background: color-mix(in srgb, #ffffff 5%, transparent);
+}
+[data-theme="blueprint"] .ux-pomodoro-mode-card-active {
+  border-color: color-mix(in srgb, var(--color-accent-cyan) 35%, transparent);
+  background: color-mix(in srgb, var(--color-accent-cyan) 8%, transparent);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-accent-cyan) 14%, transparent);
+}
+[data-theme="blueprint"] .ux-pomodoro-mode-list-label {
+  color: var(--color-accent-cyan);
+  letter-spacing: 0.34em;
+}
+
+/* Option-B Wave E18 — Landing blueprint variant */
+.landing-display {
+  font-family: var(--font-display);
+}
+[data-theme="blueprint"] .landing-page {
+  background:
+    radial-gradient(ellipse 80% 50% at 15% -10%, color-mix(in srgb, var(--color-accent-cyan) 12%, transparent), transparent 55%),
+    radial-gradient(ellipse 60% 45% at 90% 20%, color-mix(in srgb, var(--color-brand-600) 10%, transparent), transparent 50%),
+    var(--color-surface-primary);
+}
+[data-theme="blueprint"] .landing-page .landing-display {
+  font-family: var(--font-sans);
+}
+[data-theme="blueprint"] .landing-page .landing-nav {
+  border-color: color-mix(in srgb, #ffffff 8%, transparent);
+  background: color-mix(in srgb, var(--color-surface-primary) 72%, transparent);
+}
+[data-theme="blueprint"] .landing-page .landing-hero-orbs {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+[data-theme="blueprint"] .landing-page .landing-hero-orbs::before,
+[data-theme="blueprint"] .landing-page .landing-hero-orbs::after {
+  content: '';
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(120px);
+}
+[data-theme="blueprint"] .landing-page .landing-hero-orbs::before {
+  top: -6rem;
+  left: -8rem;
+  width: 36rem;
+  height: 36rem;
+  background: color-mix(in srgb, var(--color-accent-cyan) 14%, transparent);
+}
+[data-theme="blueprint"] .landing-page .landing-hero-orbs::after {
+  top: 10rem;
+  right: -4rem;
+  width: 28rem;
+  height: 28rem;
+  background: color-mix(in srgb, var(--color-brand-600) 12%, transparent);
+}
+[data-theme="blueprint"] .landing-page .landing-eyebrow {
+  color: var(--color-accent-cyan);
+  letter-spacing: 0.34em;
+}
+[data-theme="blueprint"] .landing-page .landing-hero-card {
+  border-radius: 1.75rem;
+  border-color: color-mix(in srgb, #ffffff 10%, transparent);
+  background: color-mix(in srgb, var(--color-surface-card) 45%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+[data-theme="blueprint"] .landing-page .landing-features-frame {
+  border-radius: 1.75rem;
+  border-color: color-mix(in srgb, #ffffff 10%, transparent);
+  background: color-mix(in srgb, var(--color-surface-card) 38%, transparent);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+[data-theme="blueprint"] .landing-page .landing-features-frame .bg-brand-500 {
+  background: var(--color-accent-cyan);
+}
+[data-theme="blueprint"] .landing-page .landing-cta-panel {
+  border-radius: 1.75rem;
+  border-color: color-mix(in srgb, #ffffff 10%, transparent);
+  background: color-mix(in srgb, var(--color-surface-card) 42%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+[data-theme="blueprint"] .landing-page .landing-trust-check {
+  color: var(--color-accent-cyan);
+}
+[data-theme="blueprint"] .landing-page .landing-default-orbs {
+  display: none;
+}
+
+/* Option-B Wave F1 — Landing Cinobo clarity (type density tokens) */
+/* Wave G+H — global density tokens + marketing vs app-shell namespace */
+.app-shell {
+  --ux-namespace-surface: var(--color-surface-primary);
+  --ux-surface-canvas: var(--surface-canvas);
+  --ux-type-hero: var(--type-hero-app);
+  --ux-btn-height: var(--btn-height);
+  --ux-tracking-hero: var(--tracking-hero-app);
+  --ux-tracking-section: var(--tracking-section);
+  --ux-tracking-title: var(--tracking-title);
+  --ux-tracking-eyebrow: var(--tracking-eyebrow-tight);
+}
+@media (min-width: 640px) {
+  .app-shell {
+    --ux-type-hero: var(--type-hero-app-sm);
+  }
+}
+.app-shell :is(.ux-primary-cta, .ux-secondary-cta) {
+  min-height: var(--ux-btn-height);
+  box-sizing: border-box;
+}
+.app-shell :is(.platform-pill, .ux-settings-nav .platform-pill) {
+  min-height: var(--ux-btn-height);
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+}
+.landing-page {
+  --ux-namespace-surface: var(--color-surface-primary);
+  --ux-surface-canvas: var(--surface-canvas);
+  --ux-type-hero: var(--type-hero);
+  --ux-btn-height: var(--btn-height);
+  --ux-tracking-hero: var(--tracking-hero);
+  --ux-tracking-section: var(--tracking-section);
+  --ux-tracking-title: var(--tracking-title);
+  --ux-tracking-eyebrow: var(--tracking-eyebrow);
+  --landing-type-hero: var(--type-hero);
+  --landing-type-section: clamp(1.125rem, 2vw, 1.25rem);
+  --landing-type-body: 0.9375rem;
+  --landing-btn-py: 0.625rem;
+  --landing-section-py: clamp(4rem, 8vw, 5rem);
+}
+.landing-page .landing-cta {
+  min-height: var(--ux-btn-height);
+  box-sizing: border-box;
+}
+.landing-hero-title {
+  font-size: var(--ux-type-hero);
+  font-weight: 700;
+  line-height: 1.08;
+  letter-spacing: var(--ux-tracking-hero);
+}
+.landing-hero-subtitle {
+  font-size: clamp(0.875rem, 1.6vw, 1.125rem);
+  line-height: 1.65;
+}
+.landing-section-title {
+  font-size: var(--landing-type-section);
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: var(--ux-tracking-section);
+}
+.landing-step-num {
+  font-size: clamp(1.5rem, 3vw, 1.875rem);
+  line-height: 1;
+}
+.landing-section {
+  padding-top: var(--landing-section-py);
+  padding-bottom: var(--landing-section-py);
+}
+.landing-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: var(--landing-btn-py) 1.25rem;
+  border-radius: 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+.landing-cta-microcopy {
+  margin-top: 0.75rem;
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+.landing-trust-line {
+  display: none;
+  font-size: 0.8125rem;
+  line-height: 1.55;
+  color: var(--color-text-tertiary);
+}
+
+/* Option-B Wave F2 — Blueprint landing quiet luxury */
+@media (prefers-reduced-motion: no-preference) {
+  [data-theme="blueprint"] .landing-page .landing-hero-orbs::before {
+    animation: platform-blueprint-float 10s ease-in-out infinite;
+  }
+  [data-theme="blueprint"] .landing-page .landing-hero-orbs::after {
+    animation: platform-blueprint-float 12s ease-in-out infinite reverse;
+  }
+}
+[data-theme="blueprint"] .landing-page .landing-features-corners {
+  display: none;
+}
+[data-theme="blueprint"] .landing-page .landing-trust-items {
+  display: none;
+}
+[data-theme="blueprint"] .landing-page .landing-trust-line {
+  display: block;
+}
+[data-theme="blueprint"] .landing-page .landing-hero-card,
+[data-theme="blueprint"] .landing-page .landing-features-frame,
+[data-theme="blueprint"] .landing-page .landing-cta-panel {
+  border-radius: var(--ux-radius-hero);
+}
+
+/* Option-B Wave F3 — app chrome density (page-level headings only) */
+.app-shell .ux-page-header h1 {
+  font-size: var(--ux-type-hero);
+  line-height: 1.25;
+  letter-spacing: var(--ux-tracking-hero);
+}
+.ux-page-subtitle {
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+[data-theme="blueprint"] .ux-page-subtitle .gradient-text {
+  font-size: inherit;
+}
+.ux-section-header h2 {
+  /* OPT-K51 — stay under page hero (1.25 / 1.375); avoid matching h1 */
+  font-size: 1.0625rem;
+  line-height: 1.3;
+  letter-spacing: var(--ux-tracking-section, var(--tracking-section));
+}
+@media (min-width: 640px) {
+  .ux-section-header h2 {
+    font-size: 1.125rem;
+  }
+}
+.dashboard-preview-title {
+  font-size: 1.0625rem;
+  line-height: 1.3;
+  font-weight: 600;
+  letter-spacing: var(--ux-tracking-title, var(--tracking-title));
+  color: var(--text-primary);
+}
+@media (min-width: 640px) {
+  .dashboard-preview-title {
+    font-size: 1.125rem;
+  }
+}
+
+/* Wave F4 — landing mid-page CTA strip */
+.landing-section-compact {
+  --landing-section-py: clamp(2.5rem, 5vw, 3.5rem);
+}
+[data-theme="blueprint"] .landing-page .landing-section-compact {
+  border-color: color-mix(in srgb, var(--border-subtle) 80%, transparent);
+}
+
+/* OB-μ4 — decorative dashboard hero lens chip (blueprint only) */
+.dashboard-hero-lens-chip {
+  display: none;
+}
+[data-theme="blueprint"] .dashboard-hero-lens-chip {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 9999px;
+  border: 1px solid var(--border-subtle);
+  background: color-mix(in srgb, var(--surface-card) 82%, transparent);
+  padding: 0.125rem;
+  pointer-events: none;
+  user-select: none;
+}
+[data-theme="blueprint"] .dashboard-hero-lens-chip-segment {
+  border-radius: 9999px;
+  padding: 0.25rem 0.625rem;
+  font-size: 0.625rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+[data-theme="blueprint"] .dashboard-hero-lens-chip-segment-active {
+  background: var(--brand-600);
+  color: var(--surface-primary);
+  box-shadow: 0 1px 2px color-mix(in srgb, var(--brand-700) 24%, transparent);
+}
+
+/* OB-μ8 — Visual Lab heading alignment with section chrome */
+.analytics-visual-lab .visual-lab-panel-header.ux-section-header {
+  margin-bottom: 0;
+}
+.analytics-visual-lab .visual-lab-mode-rail {
+  margin-top: 1.25rem;
+}
+.analytics-visual-lab .visual-lab-board-head .dashboard-preview-title {
+  margin-top: 0.5rem;
+}
+
+/* Wave R1 — calm/spark rhythm + light border-over-shadow (Replit clarity) */
+[data-theme="light"] .app-shell :is(.platform-panel-md, .platform-panel-lg, .platform-panel-xl, .platform-panel-soft, .ux-card) {
+  box-shadow: none;
+}
+[data-theme="light"] .app-shell .ux-calm-panel.blueprint-surface {
+  box-shadow: none;
+}
+[data-theme="light"] .ux-spark-panel.ux-callout-next {
+  border-width: 1.5px;
+  border-color: color-mix(in srgb, var(--color-brand-500) 32%, var(--color-border-subtle));
+  background: color-mix(in srgb, var(--color-brand-100) 50%, var(--color-surface-card));
+  box-shadow: none;
+}
+[data-theme="blueprint"] .ux-spark-panel.ux-callout-next {
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-accent-emerald) 22%, transparent);
+}
+[data-theme="light"] .landing-page .landing-spark-card {
+  margin: -0.75rem;
+  padding: 0.75rem;
+  border-radius: 1rem;
+  border: 1px solid color-mix(in srgb, var(--color-brand-300) 35%, var(--color-border-subtle));
+  background: color-mix(in srgb, var(--color-brand-100) 42%, var(--color-surface-card));
+}
+
+/* Wave R2 — prompt-bar chrome + ghost outline pills */
+[data-theme="light"] .ux-prompt-bar-surface {
+  background: var(--color-surface-card);
+  box-shadow: none;
+}
+[data-theme="light"] .ux-upload-drop-zone.ux-prompt-bar-surface {
+  border-style: solid;
+  border-width: 1px;
+}
+[data-theme="light"] .ux-prompt-bar-input {
+  background: var(--color-surface-card);
+  box-shadow: none;
+}
+.landing-page .landing-cta.ux-secondary-cta,
+[data-theme="light"] .landing-page .landing-cta.ux-primary-cta {
+  border-radius: 9999px;
+}
+[data-theme="light"] .app-shell .ux-secondary-cta {
+  border-radius: 9999px;
+}
+
+/* Wave R3 — Tasks Kanban column strip + card status dots */
+.tasks-kanban-column {
+  border-radius: 0.75rem;
+  border: 1px solid var(--color-border-subtle);
+  background: color-mix(in srgb, var(--color-surface-card) 72%, transparent);
+  padding: 0.5rem 0.75rem;
+}
+.tasks-kanban-column-label {
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--color-text-tertiary);
+}
+.tasks-kanban-column-count {
+  margin-top: 0.125rem;
+  font-size: 1.125rem;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--color-text-primary);
+}
+.tasks-kanban-column-accent {
+  border-color: color-mix(in srgb, var(--color-brand-500) 38%, var(--color-border-subtle));
+  background: color-mix(in srgb, var(--color-brand-500) 6%, var(--color-surface-card));
+}
+.tasks-kanban-card {
+  border-left-width: 2px;
+}
+.tasks-kanban-card-active {
+  border-left-color: color-mix(in srgb, var(--color-brand-500) 55%, transparent);
+}
+.tasks-kanban-card-drafts {
+  border-left-color: color-mix(in srgb, var(--color-text-muted) 70%, transparent);
+}
+.tasks-kanban-status-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--color-text-muted);
+}
+.tasks-kanban-status-active {
+  background: var(--color-brand-500);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-brand-500) 18%, transparent);
+}
+.tasks-kanban-status-drafts {
+  background: color-mix(in srgb, var(--color-text-muted) 85%, transparent);
+}
+.tasks-kanban-status-done {
+  background: var(--color-accent-emerald);
+}
+[data-theme="light"] .tasks-kanban-column {
+  box-shadow: none;
+}
+
+/* Wave R4 — Agent flow rail + preview canvas frame ticks */
+.agent-flow-rail {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem 0.35rem;
+  max-width: 100%;
+  padding: 0.375rem 0.75rem;
+  border-radius: 9999px;
+  border: 1px solid var(--color-border-subtle);
+  background: color-mix(in srgb, var(--color-surface-secondary) 55%, transparent);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--color-text-tertiary);
+}
+.agent-flow-rail-step + .agent-flow-rail-step::before {
+  content: '→';
+  margin-right: 0.35rem;
+  font-weight: 400;
+  opacity: 0.35;
+}
+.agent-flow-rail-step-active {
+  color: var(--color-brand-400);
+}
+.agent-flow-rail-step-done {
+  color: var(--color-text-secondary);
+}
+/* Full remaining width beside sidebar — pages should not invent a narrow max-width. */
+.platform-page {
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+}
+.ux-canvas-frame {
+  position: relative;
+}
+.ux-canvas-frame::after {
+  content: '';
+  position: absolute;
+  inset: 0.5rem;
+  border: 1px dashed color-mix(in srgb, var(--color-border-subtle) 70%, transparent);
+  border-radius: calc(var(--ux-radius-card, 1rem) - 0.35rem);
+  pointer-events: none;
+}
+.ux-canvas-frame::before {
+  content: '';
+  position: absolute;
+  inset: 0.35rem;
+  pointer-events: none;
+  background:
+    linear-gradient(var(--color-border-subtle), var(--color-border-subtle)) 0 0 / 10px 1px no-repeat,
+    linear-gradient(var(--color-border-subtle), var(--color-border-subtle)) 0 0 / 1px 10px no-repeat,
+    linear-gradient(var(--color-border-subtle), var(--color-border-subtle)) 100% 0 / 10px 1px no-repeat,
+    linear-gradient(var(--color-border-subtle), var(--color-border-subtle)) 100% 0 / 1px 10px no-repeat,
+    linear-gradient(var(--color-border-subtle), var(--color-border-subtle)) 0 100% / 10px 1px no-repeat,
+    linear-gradient(var(--color-border-subtle), var(--color-border-subtle)) 0 100% / 1px 10px no-repeat,
+    linear-gradient(var(--color-border-subtle), var(--color-border-subtle)) 100% 100% / 10px 1px no-repeat,
+    linear-gradient(var(--color-border-subtle), var(--color-border-subtle)) 100% 100% / 1px 10px no-repeat;
+  opacity: 0.55;
+}
+[data-theme="blueprint"] .ux-canvas-frame::before {
+  opacity: 0.75;
+}
+[data-theme="blueprint"] .ux-canvas-frame::after {
+  border-color: color-mix(in srgb, var(--color-accent-cyan) 22%, var(--color-border-subtle));
+}
+
+/* Wave R6 — Landing intent chips, trust strip, semi-mono eyebrows */
+.ux-semi-mono-eyebrow {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', monospace;
+  font-variant-numeric: tabular-nums;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: var(--ux-tracking-eyebrow, var(--tracking-eyebrow-tight));
+  text-transform: uppercase;
+  line-height: 1.2;
+}
+.landing-page .landing-eyebrow.ux-semi-mono-eyebrow {
+  letter-spacing: var(--ux-tracking-eyebrow, var(--tracking-eyebrow));
+}
+.landing-intent-chip {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--color-border-subtle);
+  background: color-mix(in srgb, var(--color-surface-card) 82%, transparent);
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  min-width: 4.5rem;
+}
+.landing-intent-chip-icon {
+  width: 0.875rem;
+  height: 0.875rem;
+  color: var(--color-brand-500);
+}
+.landing-trust-strip {
+  border-top: 1px solid var(--color-border-subtle);
+  padding-top: 1.5rem;
+}
+.landing-trust-strip-eyebrow {
+  margin-bottom: 0.75rem;
+  color: var(--color-text-muted);
+}
+.landing-trust-strip-logos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.25rem;
+  align-items: center;
+}
+.landing-trust-strip-logo {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--color-text-tertiary);
+  filter: grayscale(1);
+  opacity: 0.72;
+}
+[data-theme="light"] .landing-page .landing-intent-chip {
+  box-shadow: none;
+}
+
+/* Wave R7 — empty states, modal headers, light focus ring */
+.platform-empty-state.blueprint-surface {
+  box-shadow: none;
+}
+[data-theme="light"] .platform-empty-state {
+  box-shadow: none;
+}
+.platform-empty-state-icon {
+  color: var(--color-brand-600);
+}
+.ux-modal-header-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.ux-modal-eyebrow {
+  color: var(--color-text-muted);
+}
+.ux-modal-subtitle {
+  white-space: pre-line;
+}
+[data-theme="light"] .app-shell :is(
+  input:not([type='checkbox']):not([type='radio']),
+  textarea,
+  select,
+  .ux-prompt-bar-input
+):focus-visible {
+  --focus-ring-color: var(--color-brand-600);
+}
+[data-theme="light"] .app-shell :is(.ux-primary-cta, .ux-secondary-cta):focus-visible {
+  --focus-ring-color: var(--color-brand-600);
+}
+
+/* Wave R8 — nav accent indicator + Visual Lab lane dividers */
+.app-shell .platform-nav-active {
+  background: color-mix(in srgb, var(--color-surface-hover) 40%, transparent);
+  border-color: transparent;
+  box-shadow: none;
+}
+.app-shell .platform-nav-item.platform-nav-active::before {
+  content: '';
+  position: absolute;
+  left: 0.2rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 2px;
+  height: 1.125rem;
+  border-radius: 1px;
+  background: var(--color-brand-500);
+}
+[data-theme="blueprint"] .app-shell .platform-nav-item.platform-nav-active::before {
+  background: var(--color-accent-cyan);
+}
+[data-theme="light"] .app-shell .platform-nav-item.platform-nav-active::before {
+  background: var(--color-brand-700);
+}
+.app-shell .platform-nav-mobile-active {
+  background: transparent;
+}
+.app-shell .platform-nav-mobile-item.platform-nav-mobile-active::after {
+  content: '';
+  position: absolute;
+  bottom: 0.1rem;
+  left: 22%;
+  right: 22%;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--color-brand-500);
+}
+[data-theme="blueprint"] .app-shell .platform-nav-mobile-item.platform-nav-mobile-active::after {
+  background: var(--color-accent-cyan);
+}
+[data-theme="light"] .app-shell .platform-nav-mobile-item.platform-nav-mobile-active::after {
+  background: var(--color-brand-700);
+}
+.visual-lab-mode-rail-lanes {
+  gap: 0;
+  padding: 0.2rem;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 1rem;
+  background: color-mix(in srgb, var(--color-surface-card) 48%, transparent);
+}
+.visual-lab-mode-rail-lanes .visual-lab-mode-tab {
+  border: none;
+  border-radius: 0.75rem;
+  box-shadow: none;
+}
+.visual-lab-mode-rail-lanes .visual-lab-mode-tab + .visual-lab-mode-tab {
+  border-left: 1px solid var(--color-border-subtle);
+}
+.visual-lab-mode-rail-lanes .visual-lab-mode-tab-active {
+  box-shadow: none;
+}
+[data-theme="blueprint"] .visual-lab-mode-rail-lanes .visual-lab-mode-tab-active {
+  box-shadow: none;
+}
+
+/* Cinobo CIN-μ1 — quieter landing nav on small breakpoints */
+@media (max-width: 639px) {
+  .landing-page .landing-nav {
+    border-color: color-mix(in srgb, var(--color-border-subtle) 65%, transparent);
+  }
+  .landing-page .landing-nav .landing-display.text-lg {
+    font-size: 1rem;
+  }
+  .landing-page .landing-nav .landing-nav-cta {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+.ux-stat-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+[data-theme="blueprint"] .dashboard-live-preview.blueprint-surface {
+  border-radius: var(--ux-radius-hero);
+}
+
+[data-theme="blueprint"] :is(button, a).bg-brand-600,
+[data-theme="blueprint"] :is(button, a).bg-brand-700 {
+  background-color: #ffffff;
+  color: #020617;
+  font-weight: 600;
+  transition:
+    background-color var(--motion-duration-ui) var(--motion-ease),
+    transform var(--motion-duration-ui) var(--motion-ease);
+}
+[data-theme="blueprint"] :is(button, a).hover\:bg-brand-500:hover,
+[data-theme="blueprint"] :is(button, a).hover\:bg-brand-800:hover {
+  background-color: #ecfeff;
+}
+@media (prefers-reduced-motion: no-preference) {
+  [data-theme="blueprint"] :is(button, a).bg-brand-600:hover,
+  [data-theme="blueprint"] :is(button, a).bg-brand-700:hover {
+    transform: translateY(-1px);
+  }
+}
+[data-theme="blueprint"] .ws-fab {
+  background: #ffffff;
+  color: #020617;
+  box-shadow: var(--elev-3);
+}
+[data-theme="blueprint"] .ws-fab:hover {
+  background: #ecfeff;
+}
+
+/* Blueprint — floating ambient orbs (Option-B hero atmosphere) */
+.platform-blueprint-orbs {
+  display: none;
+}
+[data-theme="blueprint"] .platform-blueprint-orbs {
+  display: block;
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+[data-theme="blueprint"] .platform-blueprint-orb {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(64px);
+}
+[data-theme="blueprint"] .platform-blueprint-orb-cyan {
+  left: 1rem;
+  top: 3.5rem;
+  width: 14rem;
+  height: 14rem;
+  background: color-mix(in srgb, var(--color-accent-cyan) 10%, transparent);
+}
+[data-theme="blueprint"] .platform-blueprint-orb-violet {
+  right: 0.5rem;
+  top: 11rem;
+  width: 18rem;
+  height: 18rem;
+  background: color-mix(in srgb, var(--color-accent-violet) 10%, transparent);
+}
+@media (prefers-reduced-motion: no-preference) {
+  [data-theme="blueprint"] .platform-blueprint-orb-cyan {
+    animation: platform-blueprint-float 10s ease-in-out infinite;
+  }
+  [data-theme="blueprint"] .platform-blueprint-orb-violet {
+    animation: platform-blueprint-float 12s ease-in-out infinite reverse;
+  }
+}
+@keyframes platform-blueprint-float {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-18px) scale(1.03); }
+}
+
+/* Blueprint — glass surface panel (Option-B Surface wrapper) */
+[data-theme="blueprint"] .blueprint-surface {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--ux-radius-hero);
+  border-color: color-mix(in srgb, #ffffff 10%, transparent);
+  background: color-mix(in srgb, #ffffff 4.5%, var(--color-surface-primary));
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  box-shadow: 0 24px 90px color-mix(in srgb, #000000 28%, transparent);
+}
+[data-theme="blueprint"] .blueprint-surface::before {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--color-accent-cyan) 60%, transparent),
+    transparent
+  );
+  pointer-events: none;
+}
+
+/* Nested inner wells — split workspace lesson/tool panes */
+[data-theme="blueprint"] .blueprint-surface-nest {
+  border-radius: 1.5rem;
+  border-color: color-mix(in srgb, #ffffff 8%, transparent);
+  background: color-mix(in srgb, #ffffff 3.5%, var(--color-surface-primary));
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, #ffffff 6%, transparent),
+    0 12px 40px color-mix(in srgb, #000000 18%, transparent);
+}
+
+/* Optional subtle glass on dark when using BlueprintSurface without full blueprint theme */
+[data-theme="dark"] .blueprint-surface-hint {
+  border-color: color-mix(in srgb, var(--color-accent-cyan) 14%, var(--color-border-subtle));
+  background: color-mix(in srgb, var(--color-accent-cyan) 3%, var(--color-surface-card));
+}
+
+[data-theme="blueprint"] .ws-bento.blueprint-surface {
+  border-radius: 1.875rem;
+}
+
+/* Header EN/ΕΛ segmented pill (Option-B) */
+.platform-lang-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.125rem;
+  padding: 0.125rem;
+  border-radius: 9999px;
+  border: 1px solid var(--color-border-subtle);
+  background: color-mix(in srgb, var(--color-surface-primary) 80%, transparent);
+}
+[data-theme="blueprint"] .platform-lang-pill {
+  border-color: color-mix(in srgb, #ffffff 10%, transparent);
+  background: color-mix(in srgb, #ffffff 4%, var(--color-surface-primary));
+  backdrop-filter: blur(12px);
+}
+.platform-lang-pill-btn {
+  min-width: 2.25rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--color-text-tertiary);
+  transition:
+    color var(--motion-duration-ui) var(--motion-ease),
+    background-color var(--motion-duration-ui) var(--motion-ease),
+    box-shadow var(--motion-duration-ui) var(--motion-ease);
+}
+.platform-lang-pill-btn:hover {
+  color: var(--color-text-secondary);
+}
+.platform-lang-pill-btn-active,
+[data-theme="blueprint"] .platform-lang-pill-btn-active {
+  color: var(--color-text-primary);
+  background: color-mix(in srgb, var(--color-surface-hover) 90%, transparent);
+}
+[data-theme="blueprint"] .platform-lang-pill-btn-active {
+  color: #020617;
+  background: var(--color-accent-cyan);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-accent-cyan) 35%, transparent);
+}
+
+/* Option-B brand glyph (sidebar / shell) */
+.synapse-brand-glyph {
+  display: flex;
+  height: 1.5rem;
+  width: 1.5rem;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.synapse-brand-glyph-bar {
+  height: 0.375rem;
+  border-radius: 9999px;
+}
+.synapse-brand-glyph-bar-cyan {
+  background: linear-gradient(90deg, var(--color-brand-300), var(--color-brand-500));
+}
+.synapse-brand-glyph-bar-violet {
+  background: linear-gradient(90deg, color-mix(in srgb, var(--color-accent-violet) 85%, white), var(--color-accent-violet));
+}
+.synapse-brand-glyph-bar-emerald {
+  background: linear-gradient(90deg, color-mix(in srgb, var(--color-accent-emerald) 85%, white), var(--color-accent-emerald));
+}
+
+/* Shell header trust badges */
+.header-trust-badges .ux-trust-badge {
+  font-size: 0.6875rem;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+.ux-trust-badge-pwa {
+  border-color: color-mix(in srgb, var(--color-accent-cyan) 22%, transparent);
+  background: color-mix(in srgb, var(--color-accent-cyan) 10%, transparent);
+  color: var(--color-brand-300);
+}
+.ux-trust-badge-offline {
+  border-color: color-mix(in srgb, var(--color-accent-violet) 22%, transparent);
+  background: color-mix(in srgb, var(--color-accent-violet) 10%, transparent);
+  color: var(--color-accent-violet);
+}
+[data-theme="blueprint"] .ux-trust-badge-pwa {
+  color: var(--color-brand-300);
+}
+
+/* Option-B MiniAlert */
+.mini-alert {
+  border-radius: 1.5rem;
+  border: 1px solid var(--color-border-subtle);
+  padding: 1rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+.mini-alert-amber {
+  border-color: color-mix(in srgb, var(--color-accent-amber) 15%, transparent);
+  background: color-mix(in srgb, var(--color-accent-amber) 8%, var(--color-surface-primary));
+  color: color-mix(in srgb, var(--color-accent-amber) 85%, var(--color-text-primary));
+}
+.mini-alert-amber .text-sm:last-child,
+.mini-alert-violet .text-sm:last-child {
+  color: var(--color-text-secondary);
+}
+.mini-alert-violet {
+  border-color: color-mix(in srgb, var(--color-accent-violet) 15%, transparent);
+  background: color-mix(in srgb, var(--color-accent-violet) 8%, var(--color-surface-primary));
+  color: color-mix(in srgb, var(--color-accent-violet) 85%, var(--color-text-primary));
+}
+
+/* Blueprint scrollbar (Option-B) */
+[data-theme="blueprint"] {
+  scrollbar-color: color-mix(in srgb, var(--color-text-muted) 35%, transparent) color-mix(in srgb, var(--color-surface-secondary) 90%, transparent);
+}
+[data-theme="blueprint"] ::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+[data-theme="blueprint"] ::-webkit-scrollbar-track {
+  background: color-mix(in srgb, var(--color-surface-secondary) 90%, transparent);
+}
+[data-theme="blueprint"] ::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--color-text-muted) 35%, transparent);
+  border-radius: 9999px;
+}
+
+/* Blueprint toast skin (Option-B cyan glass) */
+[data-theme="blueprint"] .notification-toast {
+  border-radius: 1rem;
+  border-color: color-mix(in srgb, var(--color-accent-cyan) 30%, transparent);
+  background: color-mix(in srgb, #020617 92%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 24px 60px color-mix(in srgb, #000000 35%, transparent);
+}
+[data-theme="blueprint"] .notification-toast .text-text-primary {
+  color: #ecfeff;
+}
+[data-theme="blueprint"] .notification-toast .text-text-secondary {
+  color: color-mix(in srgb, #ecfeff 70%, transparent);
+}
+[data-theme="blueprint"] .notification-toast-info {
+  border-color: color-mix(in srgb, var(--color-accent-cyan) 32%, transparent);
+}
+[data-theme="blueprint"] .notification-toast-success {
+  border-color: color-mix(in srgb, var(--color-accent-emerald) 35%, transparent);
+}
+[data-theme="blueprint"] .notification-toast-warning {
+  border-color: color-mix(in srgb, var(--palette-amber) 35%, transparent);
+}
+[data-theme="blueprint"] .notification-toast-error {
+  border-color: color-mix(in srgb, var(--palette-rose) 40%, transparent);
+}
+
+@keyframes blueprint-pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-accent-cyan) 0%, transparent);
+  }
+  50% {
+    box-shadow: 0 0 20px 4px color-mix(in srgb, var(--color-accent-cyan) 18%, transparent);
+  }
+}
+
+[data-theme="blueprint"] .timeline-dot {
+  position: relative;
+}
+@media (prefers-reduced-motion: no-preference) {
+  [data-theme="blueprint"] .timeline-dot::after {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: 9999px;
+    border: 2px solid color-mix(in srgb, var(--color-accent-cyan) 25%, transparent);
+    animation: blueprint-pulse-glow 2.4s ease-in-out infinite;
+    pointer-events: none;
+  }
+}
+
+/* Leitner card depth — blueprint theme */
+[data-theme="blueprint"] .leitner-flip-stage {
+  perspective: 800px;
+}
+[data-theme="blueprint"] .leitner-flip-card {
+  transition:
+    border-color var(--motion-duration-ui) var(--motion-ease),
+    box-shadow var(--motion-duration-ui) var(--motion-ease),
+    transform var(--motion-duration-ui) var(--motion-ease);
+}
+@media (prefers-reduced-motion: no-preference) {
+  [data-theme="blueprint"] .leitner-flip-card--flipped {
+    transform: rotateX(4deg) scale(1.01);
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-accent-cyan) 22%, transparent);
+    border-color: color-mix(in srgb, var(--color-accent-cyan) 40%, transparent);
+  }
+}
+
+/* Option-B descriptive sticky tabs (Tasks Command Center pilot) */
+.descriptive-sticky-tabs-shell {
+  position: sticky;
+  top: 3.5rem;
+  z-index: 12;
+  display: flex;
+  align-items: stretch;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+.descriptive-sticky-tabs {
+  display: flex;
+  flex: 1 1 auto;
+  gap: 0.5rem;
+  overflow-x: auto;
+  padding: 0.15rem 0 0.25rem;
+  scrollbar-width: none;
+  min-width: 0;
+}
+.descriptive-sticky-tabs-trailing {
+  display: flex;
+  align-items: flex-start;
+  padding: 0.15rem 0 0.25rem;
+}
+.descriptive-sticky-tabs::-webkit-scrollbar {
+  display: none;
+}
+.descriptive-sticky-tab {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.15rem;
+  min-width: 9.5rem;
+  max-width: 13rem;
+  flex: 1 0 auto;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.85rem;
+  border: 1px solid var(--color-border-subtle);
+  background: color-mix(in srgb, var(--color-surface-card) 88%, transparent);
+  text-align: left;
+  transition:
+    border-color var(--motion-duration-ui) var(--motion-ease),
+    background-color var(--motion-duration-ui) var(--motion-ease),
+    box-shadow var(--motion-duration-ui) var(--motion-ease);
+}
+.descriptive-sticky-tab:hover {
+  border-color: color-mix(in srgb, var(--color-brand-500) 25%, var(--color-border-subtle));
+  background: var(--color-surface-hover);
+}
+.descriptive-sticky-tab-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  line-height: 1.2;
+}
+.descriptive-sticky-tab-summary {
+  font-size: 0.625rem;
+  line-height: 1.35;
+  color: var(--color-text-tertiary);
+}
+.descriptive-sticky-tab-count {
+  position: absolute;
+  top: 0.45rem;
+  right: 0.5rem;
+  min-width: 1.25rem;
+  padding: 0.1rem 0.35rem;
+  border-radius: 9999px;
+  font-size: 0.5625rem;
+  font-weight: 700;
+  text-align: center;
+  background: var(--color-surface-hover);
+  color: var(--color-text-secondary);
+}
+.descriptive-sticky-tab-active {
+  border-color: color-mix(in srgb, var(--color-brand-500) 35%, var(--color-border-subtle));
+  background: color-mix(in srgb, var(--color-brand-500) 8%, var(--color-surface-card));
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-brand-500) 12%, transparent);
+}
+.descriptive-sticky-tab-active .descriptive-sticky-tab-label {
+  color: var(--color-brand-700);
+}
+.descriptive-sticky-tab-active .descriptive-sticky-tab-count {
+  background: color-mix(in srgb, var(--color-brand-500) 15%, transparent);
+  color: var(--color-brand-700);
+}
+[data-theme="blueprint"] .descriptive-sticky-tab {
+  border-color: color-mix(in srgb, #ffffff 10%, transparent);
+  background: color-mix(in srgb, #ffffff 4%, var(--color-surface-primary));
+  backdrop-filter: blur(12px);
+}
+[data-theme="blueprint"] .descriptive-sticky-tab:hover {
+  border-color: color-mix(in srgb, var(--color-accent-cyan) 28%, transparent);
+}
+[data-theme="blueprint"] .descriptive-sticky-tab-active {
+  border-color: color-mix(in srgb, var(--color-accent-cyan) 40%, transparent);
+  background: color-mix(in srgb, var(--color-accent-cyan) 10%, var(--color-surface-primary));
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-accent-cyan) 18%, transparent);
+}
+[data-theme="blueprint"] .descriptive-sticky-tab-active .descriptive-sticky-tab-label {
+  color: var(--color-brand-300);
+}
+[data-theme="blueprint"] .descriptive-sticky-tab-active .descriptive-sticky-tab-count {
+  background: color-mix(in srgb, var(--color-accent-cyan) 18%, transparent);
+  color: var(--color-brand-300);
+}
+
+/* Option-B / OPT-L1 InfoStack — Library topic rhythm (viewport-optimal) */
+.info-stack {
+  border-radius: var(--radius-panel, 0.5rem);
+  border: 1px solid var(--color-border-subtle);
+  background: color-mix(in srgb, var(--color-surface-card) 72%, transparent);
+  padding: 0.75rem;
+  width: 100%;
+  min-width: 0;
+}
+@media (min-width: 640px) {
+  .info-stack {
+    padding: 1rem;
+  }
+}
+.info-stack-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+/* Mobile: 1 col · tablet: 2 · desktop: 3 — full card width, no centered stub column */
+.info-stack-items {
+  margin-top: 0.75rem;
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.5rem;
+  align-items: stretch;
+}
+@media (min-width: 640px) {
+  .info-stack-items {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (min-width: 1024px) {
+  .info-stack-items {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  /* Paired Topics + Examples columns: 2 topic cells per stack (readable width) */
+  .library-info-stacks .info-stack-items {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+.info-stack-item {
+  border-radius: var(--radius-md, 0.375rem);
+  border: 1px solid var(--color-border-subtle);
+  background: color-mix(in srgb, var(--color-surface-hover) 55%, transparent);
+  padding: 0.625rem 0.75rem;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  color: var(--color-text-secondary);
+  max-width: none;
+  white-space: normal;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+@media (min-width: 640px) {
+  .info-stack-item {
+    font-size: 0.8125rem;
+    padding: 0.75rem;
+  }
+}
+.info-stack-secondary {
+  margin-top: 0.875rem;
+  border-top: 1px solid var(--color-border-subtle);
+  padding-top: 0.875rem;
+}
+.info-stack-secondary-eyebrow {
+  font-size: 0.6875rem; /* 11px */
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+.info-stack-pills {
+  margin-top: 0.625rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+}
+@media (min-width: 640px) {
+  .info-stack-pills {
+    gap: 0.5rem;
+  }
+}
+.info-stack-pill {
+  border-radius: var(--radius-md, 0.375rem);
+  border: 1px solid var(--color-border-subtle);
+  background: color-mix(in srgb, var(--color-surface-hover) 45%, transparent);
+  padding: 0.35rem 0.65rem;
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.info-stack-more {
+  justify-self: start;
+  width: auto !important;
+  -webkit-line-clamp: 1;
+}
+/* Interactive variants — deep-link into study workspace / concept */
+.info-stack-item--interactive,
+.info-stack-pill--interactive {
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.15s ease, background-color 0.15s ease, color 0.15s ease;
+}
+.info-stack-item--interactive {
+  width: 100%;
+}
+.info-stack-pill--interactive {
+  width: auto;
+  max-width: min(14rem, 100%);
+}
+.info-stack-item--interactive:hover,
+.info-stack-pill--interactive:hover {
+  border-color: color-mix(in srgb, var(--color-brand-500) 45%, transparent);
+  background: color-mix(in srgb, var(--color-brand-500) 8%, transparent);
+  color: var(--color-brand-700);
+}
+.info-stack-item--interactive:focus-visible,
+.info-stack-pill--interactive:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--color-brand-500) 55%, transparent);
+  outline-offset: 2px;
+}
+/* Blueprint — softer radius + cyan wash */
+[data-theme="blueprint"] .info-stack {
+  border-radius: 1rem;
+  border-color: color-mix(in srgb, var(--color-accent-cyan) 12%, transparent);
+  background: color-mix(in srgb, var(--color-surface-card) 38%, transparent);
+}
+[data-theme="blueprint"] .info-stack-item {
+  border-radius: 0.75rem;
+  border-color: color-mix(in srgb, var(--color-accent-cyan) 10%, transparent);
+  background: color-mix(in srgb, var(--color-surface-card) 28%, transparent);
+}
+[data-theme="blueprint"] .info-stack-pill {
+  border-radius: 9999px;
+  border-color: color-mix(in srgb, var(--color-accent-cyan) 14%, transparent);
+}
+
+/* Option-B Dashboard live preview widget */
+.dashboard-live-preview {
+  position: relative;
+  overflow: hidden;
+}
+.dashboard-live-preview-topline {
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--color-brand-500) 55%, transparent),
+    transparent
+  );
+}
+.dashboard-live-preview-eyebrow {
+  font-size: 0.6875rem;
+  letter-spacing: var(--ux-tracking-eyebrow, var(--tracking-eyebrow-tight));
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+.dashboard-live-preview-step {
+  display: flex;
+  gap: 1rem;
+  border-radius: 1rem;
+  border: 1px solid var(--color-border-subtle);
+  background: color-mix(in srgb, var(--color-surface-card) 55%, transparent);
+  padding: 1rem;
+  transition: border-color 0.25s ease, background 0.25s ease;
+}
+.dashboard-live-preview-step:hover {
+  border-color: color-mix(in srgb, var(--color-brand-500) 22%, transparent);
+}
+.dashboard-live-preview-rail {
+  display: flex;
+  width: 2.5rem;
+  flex-direction: column;
+  align-items: center;
+}
+.dashboard-live-preview-dot {
+  height: 0.75rem;
+  width: 0.75rem;
+  border-radius: 9999px;
+  background: color-mix(in srgb, var(--color-text-muted) 35%, transparent);
+}
+.dashboard-live-preview-dot-active {
+  background: var(--color-brand-500);
+  box-shadow: 0 0 22px color-mix(in srgb, var(--color-brand-400) 55%, transparent);
+}
+.dashboard-live-preview-line {
+  margin-top: 0.5rem;
+  height: 100%;
+  width: 1px;
+  flex: 1;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--color-text-muted) 25%, transparent),
+    transparent
+  );
+}
+.dashboard-live-preview-status {
+  font-size: 0.6875rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+.dashboard-live-preview-progress-track {
+  margin-top: 0.75rem;
+  height: 0.375rem;
+  overflow: hidden;
+  border-radius: 9999px;
+  background: color-mix(in srgb, var(--color-text-muted) 12%, transparent);
+}
+.dashboard-live-preview-progress-bar {
+  height: 100%;
+  border-radius: 9999px;
+  background: color-mix(in srgb, var(--color-text-muted) 28%, transparent);
+  transition: width 0.7s ease;
+}
+.dashboard-live-preview-progress-bar-active {
+  background: linear-gradient(
+    90deg,
+    var(--color-brand-400),
+    color-mix(in srgb, var(--color-accent-violet) 80%, var(--color-brand-400))
+  );
+}
+[data-theme="blueprint"] .dashboard-live-preview-step-active {
+  border-color: color-mix(in srgb, var(--color-accent-cyan) 22%, transparent);
+  background: color-mix(in srgb, var(--color-surface-card) 32%, transparent);
+}
+[data-theme="blueprint"] .dashboard-live-preview-dot-active {
+  background: var(--color-accent-cyan);
+  box-shadow: 0 0 22px color-mix(in srgb, var(--color-accent-cyan) 55%, transparent);
+}
+
+/* Option-B chart micro-interactions (theme-safe) */
+.treemap-block:hover {
+  filter: brightness(1.15) saturate(1.2);
+}
+.waterfall-bar:hover {
+  filter: brightness(1.2);
+  transform: scaleY(1.04);
+  transform-origin: bottom;
+}
+.heatmap-cell:hover {
+  filter: brightness(1.3);
+  z-index: 2;
 }
 
 * {
@@ -83,11 +3329,201 @@ body {
   color: var(--color-text-primary);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* High-contrast labels on filled progress / calibration bars */
+.viz-bar-label {
+  color: #ffffff;
+  text-shadow: 0 1px 2px rgba(20, 14, 8, 0.5);
+}
+
+/* Study Workspace type scale (editorial academic) — sentence case labels */
+.ws-eyebrow {
+  font-family: var(--font-sans);
+  font-size: var(--type-caption);
+  line-height: var(--leading-caption);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: none;
+}
+
+.ws-caption {
+  font-size: var(--type-body-sm);
+  line-height: var(--leading-micro);
+}
+
+/* UI subtitles — sans, upright, easy to scan (tool purpose lines, hints) */
+.ws-purpose-line {
+  font-family: var(--font-sans);
+  font-size: var(--type-body-sm);
+  line-height: var(--leading-body-sm);
+  font-style: normal;
+  font-weight: 400;
+  color: var(--color-text-muted);
+}
+
+.ws-excerpt {
+  font-family: var(--font-sans);
+  font-size: var(--type-micro);
+  line-height: var(--leading-micro);
+  font-style: normal;
+  color: var(--color-text-secondary);
+}
+
+.ws-meta {
+  font-size: var(--type-meta);
+  line-height: var(--leading-body-sm);
+}
+
+.ws-body {
+  font-size: var(--type-body);
+  line-height: var(--leading-body);
+}
+
+.ws-title {
+  font-family: var(--font-display);
+  font-size: var(--type-title);
+  line-height: var(--leading-title);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.ws-display-title {
+  font-family: var(--font-display);
+  font-size: var(--type-display-sm);
+  line-height: var(--leading-display-sm);
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+
+/* Platform shell type scale — prefer these over text-[10px] / text-[11px] */
+.type-micro {
+  font-size: var(--type-micro);
+  line-height: var(--leading-micro);
+}
+
+.type-caption {
+  font-size: var(--type-caption);
+  line-height: var(--leading-body-sm);
+}
+
+.type-body-sm {
+  font-size: var(--type-body-sm);
+  line-height: var(--leading-body-sm);
+}
+
+.type-body {
+  font-size: var(--type-body);
+  line-height: var(--leading-body);
+}
+
+.type-title {
+  font-size: var(--type-title);
+  line-height: var(--leading-title);
+  font-weight: 600;
+}
+
+.type-display-sm {
+  font-family: var(--font-display);
+  font-size: var(--type-display-sm);
+  line-height: var(--leading-display-sm);
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+
+.ws-num {
+  font-family: var(--font-sans);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Package 2 — two-font policy: sans (UI/body) + display (headings) per theme */
+.ws-serif {
+  font-family: var(--font-display);
+  font-weight: 500;
+  letter-spacing: -0.005em;
+}
+
+/* Tabular UI labels — sans alignment, no third webfont */
+.font-mono {
+  font-family: var(--font-sans);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Raw source / code — system monospace stack only */
+.ws-source-code {
+  font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, monospace;
+}
+
+/* Package 2 — spacing / elevation / radius utilities */
+.elev-0 { box-shadow: var(--elev-0); }
+.elev-1 { box-shadow: var(--elev-1); }
+.elev-2 { box-shadow: var(--elev-2); }
+.elev-3 { box-shadow: var(--elev-3); }
+.elev-4 { box-shadow: var(--elev-4); }
+.elev-drawer { box-shadow: var(--elev-drawer); }
+.rounded-panel { border-radius: var(--radius-panel); }
+.space-stack-sm > * + * { margin-top: var(--space-4); }
+.space-stack-md > * + * { margin-top: var(--space-6); }
+.space-stack-lg > * + * { margin-top: var(--space-8); }
+
+/* Reader long-form: Greek + Latin mixed academic text */
+.reader-prose {
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  line-height: 1.65;
+  letter-spacing: 0.01em;
+  font-feature-settings: 'kern' 1, 'liga' 1, 'calt' 1;
+  font-variant-ligatures: common-ligatures;
+  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
 ::selection {
   background-color: var(--color-brand-600);
   color: white;
+}
+
+/* Wave N-T08 — warm-light + warm-sand selection tuned to sepia identity.
+   Uses transparent brand-600 mix so cream stays visible under the highlight. */
+[data-theme="light"] ::selection,
+[data-theme="warm-sand"] ::selection {
+  background-color: color-mix(in srgb, var(--color-brand-500) 30%, #fdfbf7);
+  color: var(--color-brand-900);
+}
+
+/* Wave N-T06 — thin themed scrollbars for light / warm-sand / spectrum.
+   Blueprint keeps its bespoke scrollbar. Dark keeps the browser default. */
+[data-theme="light"],
+[data-theme="warm-sand"],
+[data-theme="spectrum"] {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--color-text-muted) 40%, transparent) transparent;
+}
+[data-theme="light"] ::-webkit-scrollbar,
+[data-theme="warm-sand"] ::-webkit-scrollbar,
+[data-theme="spectrum"] ::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+[data-theme="light"] ::-webkit-scrollbar-track,
+[data-theme="warm-sand"] ::-webkit-scrollbar-track,
+[data-theme="spectrum"] ::-webkit-scrollbar-track {
+  background: transparent;
+}
+[data-theme="light"] ::-webkit-scrollbar-thumb,
+[data-theme="warm-sand"] ::-webkit-scrollbar-thumb,
+[data-theme="spectrum"] ::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--color-text-muted) 40%, transparent);
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+[data-theme="light"] ::-webkit-scrollbar-thumb:hover,
+[data-theme="warm-sand"] ::-webkit-scrollbar-thumb:hover,
+[data-theme="spectrum"] ::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--color-text-muted) 60%, transparent);
+  background-clip: padding-box;
 }
 
 .glass {
@@ -98,8 +3534,8 @@ body {
 }
 
 [data-theme="light"] .glass {
-  background: rgba(255, 255, 255, 0.72);
-  border: 1px solid rgba(226, 221, 240, 0.9);
+  background: rgba(250, 248, 245, 0.78);
+  border: 1px solid rgba(201, 184, 150, 0.55);
 }
 
 .glass-strong {
@@ -111,12 +3547,12 @@ body {
 
 [data-theme="light"] .glass-strong {
   background: rgba(255, 255, 255, 0.92);
-  border: 1px solid rgba(212, 205, 232, 0.95);
-  box-shadow: 0 4px 24px rgba(26, 19, 51, 0.06);
+  border: 1px solid rgba(201, 184, 150, 0.65);
+  box-shadow: var(--elev-2);
 }
 
 .gradient-text {
-  background: linear-gradient(135deg, #818cf8 0%, #22d3ee 50%, #2dd4bf 100%);
+  background: linear-gradient(135deg, #d4bc8f 0%, #b8894a 50%, #704818 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -132,7 +3568,7 @@ body {
   inset: 0;
   border-radius: inherit;
   padding: 1px;
-  background: linear-gradient(135deg, #4f46e5, #22d3ee, #2dd4bf);
+  background: linear-gradient(135deg, #e8dcc4, #b8894a, #5a3812);
   mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
@@ -141,11 +3577,11 @@ body {
 }
 
 .glow-brand {
-  box-shadow: 0 0 20px rgba(99, 102, 241, 0.3), 0 0 60px rgba(99, 102, 241, 0.1);
+  box-shadow: 0 0 20px rgba(184, 137, 74, 0.28), 0 0 60px rgba(184, 137, 74, 0.1);
 }
 
 .glow-teal {
-  box-shadow: 0 0 20px rgba(45, 212, 191, 0.3), 0 0 60px rgba(45, 212, 191, 0.1);
+  box-shadow: 0 0 20px rgba(15, 118, 110, 0.22), 0 0 60px rgba(15, 118, 110, 0.08);
 }
 
 .animate-float {
@@ -167,27 +3603,25 @@ body {
 }
 
 .shimmer {
-  background: linear-gradient(90deg, transparent 0%, rgba(129, 140, 248, 0.1) 50%, transparent 100%);
+  background: linear-gradient(90deg, transparent 0%, rgba(184, 137, 74, 0.12) 50%, transparent 100%);
   background-size: 200% 100%;
   animation: shimmer 3s infinite;
 }
 
 [data-theme="light"] .shimmer {
-  background: linear-gradient(90deg, transparent 0%, rgba(99, 102, 241, 0.08) 50%, transparent 100%);
+  background: linear-gradient(90deg, transparent 0%, rgba(184, 137, 74, 0.1) 50%, transparent 100%);
   background-size: 200% 100%;
 }
 
 [data-theme="light"] .glow-brand {
-  box-shadow: 0 0 20px rgba(99, 102, 241, 0.15), 0 0 60px rgba(99, 102, 241, 0.05);
+  box-shadow: 0 0 20px rgba(184, 137, 74, 0.18), 0 0 60px rgba(184, 137, 74, 0.06);
 }
 
 [data-theme="light"] .glow-teal {
-  box-shadow: 0 0 20px rgba(45, 212, 191, 0.15), 0 0 60px rgba(45, 212, 191, 0.05);
+  box-shadow: 0 0 20px rgba(15, 118, 110, 0.14), 0 0 60px rgba(15, 118, 110, 0.05);
 }
 
-/* --- Blueprint aesthetic (option-b-blueprint-system), used by Study Workspace.
-   Additive + theme-agnostic: layered cyan/indigo glows, technical grid, cyan
-   accents and glows. Does not alter the global theme tokens. --- */
+/* --- Blueprint aesthetic — warm sand variant on light; cool undertone retained on dark. --- */
 .blueprint-canvas::before {
   content: '';
   position: absolute;
@@ -198,6 +3632,19 @@ body {
     radial-gradient(circle at top left, rgba(34, 211, 238, 0.12), transparent 36%),
     radial-gradient(circle at top right, rgba(129, 140, 248, 0.12), transparent 30%),
     radial-gradient(circle at bottom right, rgba(45, 212, 191, 0.08), transparent 32%);
+}
+
+[data-theme="light"] .blueprint-canvas::before {
+  background:
+    radial-gradient(circle at top left, rgba(212, 188, 143, 0.18), transparent 38%),
+    radial-gradient(circle at top right, rgba(184, 137, 74, 0.12), transparent 32%),
+    radial-gradient(circle at bottom right, rgba(15, 118, 110, 0.06), transparent 34%);
+}
+
+[data-theme="light"] .blueprint-grid::after {
+  background-image:
+    linear-gradient(rgba(184, 137, 74, 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(184, 137, 74, 0.07) 1px, transparent 1px);
 }
 
 .blueprint-grid::after {
@@ -215,13 +3662,17 @@ body {
   mask-image: radial-gradient(circle at 50% 35%, black, transparent 82%);
 }
 
-@keyframes fadeUp {
-  0% { opacity: 0; transform: translateY(12px); }
+@keyframes uxFadeUp {
+  0% { opacity: 0; transform: translateY(var(--ux-motion-fade-y, 12px)); }
   100% { opacity: 1; transform: translateY(0); }
 }
 
 .animate-fade-up {
-  animation: fadeUp 0.35s ease-out both;
+  animation: uxFadeUp var(--ux-motion-fade-duration-fast) ease-out both;
+}
+
+.blueprint-motion-section {
+  --motion-section-stagger: var(--ux-motion-stagger-step);
 }
 
 .glow-cyan {
@@ -248,34 +3699,6 @@ body {
 .hide-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
-}
-
-/* --- Workspace semantic type scale ---
-   Comfortable minimums for long study sessions. Replaces ad-hoc text-[9/10/11px]
-   across the workspace chrome. 9-10px is reserved for badges/counts only. */
-.ws-eyebrow {
-  font-size: 0.6875rem; /* 11px */
-  line-height: 1rem;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-}
-.ws-caption {
-  font-size: 0.75rem; /* 12px */
-  line-height: 1rem;
-}
-.ws-meta {
-  font-size: 0.8125rem; /* 13px */
-  line-height: 1.125rem;
-}
-.ws-body {
-  font-size: 0.875rem; /* 14px */
-  line-height: 1.375rem;
-}
-.ws-title {
-  font-size: 1rem; /* 16px */
-  line-height: 1.5rem;
-  font-weight: 600;
 }
 
 .mastery-ring {
@@ -309,17 +3732,1659 @@ input[type="range"]::-webkit-slider-thumb {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .mastery-ring {
+    transition: none !important;
   }
 }
 
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Wave N-T01 — canonical focus ring resolution.
+   Legacy `--focus-ring-color` still wins if a callsite set it locally; otherwise
+   we fall back to the theme-scoped `--color-focus-ring` token (SoT). */
 :focus-visible {
-  outline: 2px solid var(--color-brand-400);
-  outline-offset: 2px;
+  outline: 2px solid var(--focus-ring-color, var(--color-focus-ring, var(--color-brand-400)));
+  outline-offset: var(--focus-ring-offset, 2px);
+}
+
+/* Wave N-T07 — opt-in focus ring for custom controls (menu items, listboxes,
+   floating popovers) that need the same ring even without native `:focus-visible`. */
+.ux-focus-ring:focus-visible {
+  outline: 2px solid var(--color-focus-ring, var(--color-brand-400));
+  outline-offset: var(--focus-ring-offset, 2px);
+  border-radius: inherit;
+}
+
+/* Wave N-T11 — two-step hover for elements nested inside already-tinted cards.
+   Pairs the regular hover surface with a stronger active tint on press. */
+.ux-hover-strong {
+  transition:
+    background-color var(--motion-duration-ui, 200ms) var(--motion-ease-emphasized, cubic-bezier(0.2, 0, 0, 1)),
+    border-color var(--motion-duration-ui, 200ms) var(--motion-ease-emphasized, cubic-bezier(0.2, 0, 0, 1)),
+    color var(--motion-duration-ui, 200ms) var(--motion-ease-emphasized, cubic-bezier(0.2, 0, 0, 1));
+}
+.ux-hover-strong:hover {
+  background-color: var(--color-surface-hover-strong, var(--color-surface-hover));
+}
+.ux-hover-strong:active {
+  background-color: var(--color-surface-pressed, var(--color-surface-active));
+}
+
+/* Wave N-T10 — canonical floating popover elevation utility. Prefer this over
+   raw `shadow-lg`/`shadow-xl` on dropdowns, listboxes, notifications, palettes. */
+.ux-elev-popover {
+  box-shadow: var(--elev-popover);
+}
+
+/* Wave N-T09 — solid on-accent chip tokens (opt-in). Existing `.ux-chip-*`
+   translucent chips stay unchanged; these variants exist for filled buttons /
+   badges where the background is a solid accent and text must be legible. */
+.ux-chip-solid-brand {
+  background: var(--color-brand-600);
+  color: var(--color-on-brand);
+}
+.ux-chip-solid-danger {
+  background: var(--color-accent-rose);
+  color: var(--color-on-danger);
+}
+.ux-chip-solid-warn {
+  background: var(--color-accent-amber);
+  color: var(--color-on-warn);
+}
+.ux-chip-solid-success {
+  background: var(--color-accent-emerald);
+  color: var(--color-on-success);
+}
+.ux-chip-solid-info {
+  background: var(--color-accent-cyan);
+  color: var(--color-on-info);
+}
+
+/* Wave P-3 C12 — Settings theme picker active chip. Uses brand-700 ink on light
+   themes (brand-300 was too pale on warm-light white cards) and brand-300 on dark. */
+.ux-theme-chip-active {
+  border-color: color-mix(in srgb, var(--color-brand-600) 40%, var(--color-border-subtle));
+  background: color-mix(in srgb, var(--color-brand-600) 14%, var(--color-surface-card));
+  color: var(--color-brand-700);
+  font-weight: 600;
+}
+[data-theme="dark"] .ux-theme-chip-active {
+  color: var(--color-brand-300);
+}
+[data-theme="blueprint"] .ux-theme-chip-active {
+  color: var(--color-brand-300);
+}
+
+/* Library «Combined study» panel — replace hardcoded violet-300 (fails on
+   warm-light / spectrum / blueprint washes). Promo uses secondary ink (≥4.5:1);
+   actions/CTA use brand-700 on light themes and brand-300 on dark/blueprint. */
+.ux-combined-study-promo {
+  color: var(--color-text-secondary);
+}
+.ux-combined-study-icon {
+  background: color-mix(in srgb, var(--color-brand-600) 14%, transparent);
+  color: var(--color-brand-700);
+}
+[data-theme="dark"] .ux-combined-study-icon,
+[data-theme="blueprint"] .ux-combined-study-icon {
+  color: var(--color-brand-300);
+}
+.ux-combined-study-action {
+  border-color: color-mix(in srgb, var(--color-brand-600) 42%, var(--color-border-subtle));
+  background: color-mix(in srgb, var(--color-brand-600) 8%, transparent);
+  color: var(--color-brand-700);
+}
+.ux-combined-study-action:hover {
+  background: color-mix(in srgb, var(--color-brand-600) 14%, transparent);
+}
+.ux-combined-study-cta {
+  border-color: color-mix(in srgb, var(--color-brand-600) 48%, var(--color-border-subtle));
+  background: color-mix(in srgb, var(--color-brand-600) 12%, var(--color-surface-card));
+  color: var(--color-brand-700);
+}
+.ux-combined-study-cta:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--color-brand-600) 18%, var(--color-surface-card));
+}
+[data-theme="dark"] .ux-combined-study-action,
+[data-theme="dark"] .ux-combined-study-cta,
+[data-theme="blueprint"] .ux-combined-study-action,
+[data-theme="blueprint"] .ux-combined-study-cta {
+  color: var(--color-brand-300);
+  border-color: color-mix(in srgb, var(--color-brand-300) 45%, var(--color-border-subtle));
+}
+
+/* Wave P-3 C13 — warn banner title ink + outline (Almost There / Danger Zone). */
+.ux-banner-warn {
+  border-color: var(--color-banner-warn-border);
+}
+.ux-banner-warn .ux-section-label-title {
+  color: var(--color-banner-warn-ink);
+}
+.ux-banner-warn .ux-banner-warn-accent {
+  color: var(--color-banner-warn-ink);
+}
+
+/* Spectrum (and light cream washes): bright accent-amber (#f5c842 / #fbbf24)
+   fails WCAG as body/metric text on pale cards. Remap TEXT utilities to
+   --color-banner-warn-ink; leave bg-/border-accent-amber washes unchanged. */
+[data-theme="spectrum"] .text-accent-amber,
+[data-theme="light"] .text-accent-amber,
+[data-theme="warm-sand"] .text-accent-amber {
+  color: var(--color-banner-warn-ink);
+}
+[data-theme="spectrum"] .ux-chip-warn,
+[data-theme="light"] .ux-chip-warn,
+[data-theme="warm-sand"] .ux-chip-warn {
+  color: var(--color-banner-warn-ink);
+}
+[data-theme="spectrum"] .ux-trust-badge-enrichment {
+  color: var(--color-banner-warn-ink);
+}
+
+/* Wave P-3 D02 — Priority Task (and similar) row hover elevation.
+   Use a real utility class; Tailwind v4 Lightning CSS rejects arbitrary
+   hover box-shadow values that nest CSS var() parentheses. */
+.ux-row-elev-hover {
+  transition: box-shadow 180ms var(--motion-ease-emphasized, ease), background-color 180ms ease;
+}
+.ux-row-elev-hover:hover {
+  box-shadow: var(--elev-popover);
+}
+
+/* Wave O-M07 / P-S03 — CSS motion utilities for non-framer callsites.
+   Respect prefers-reduced-motion so they collapse to instant. */
+.ux-motion-fade-in {
+  animation: ux-fade-in var(--motion-duration-emphasized) var(--motion-ease-emphasized) both;
+}
+.ux-motion-slide-in {
+  animation: ux-slide-in var(--motion-duration-emphasized) var(--motion-ease-emphasized) both;
+}
+@keyframes ux-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes ux-slide-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ux-motion-fade-in,
+  .ux-motion-slide-in {
+    animation: none;
+  }
+}
+
+[data-theme="minimal"],
+[data-theme="minimal-dark"] {
+  --focus-ring-color: var(--color-brand-600);
 }
 
 @layer base {
   html,
   :host {
     text-size-adjust: 100%;
+  }
+}
+
+/* Hide scrollbars on horizontally scrollable chip rows (mobile) */
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+/* xs breakpoint helper for ultra-narrow screens */
+@media (min-width: 420px) {
+  .xs\:inline { display: inline; }
+  .xs\:hidden { display: none; }
+  .xs\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+/* Skip-to-content link — fully hidden until keyboard focus (no overlap with UI) */
+.skip-to-content {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 10000;
+  margin: 0;
+  padding: 0.5rem 0.875rem;
+  background: var(--color-brand-600);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 0 0 6px 0;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.skip-to-content:focus,
+.skip-to-content:focus-visible {
+  clip: auto;
+  clip-path: none;
+  width: auto;
+  height: auto;
+  overflow: visible;
+  outline: 2px solid var(--focus-ring-color, var(--color-brand-300));
+  outline-offset: 2px;
+}
+
+/* Legacy wrapper — workspace lesson dock still uses .skip-links nav */
+.skip-links {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0;
+  pointer-events: none;
+}
+.skip-links:focus-within {
+  pointer-events: auto;
+}
+.skip-links .skip-to-content {
+  position: relative;
+  transform: none;
+  transition: none;
+  pointer-events: auto;
+}
+
+/* Package 5 — accessible micro-copy on platform surfaces */
+.platform-meta-chip {
+  font-size: var(--type-caption);
+  line-height: var(--leading-caption);
+  color: var(--color-text-secondary);
+  background: var(--color-surface-hover);
+}
+
+.platform-source-badge {
+  font-size: var(--type-micro);
+  line-height: var(--leading-micro);
+}
+.platform-source-badge--strict {
+  color: var(--mastery-strong);
+  background: color-mix(in srgb, var(--mastery-strong) 14%, var(--color-surface-card));
+}
+.platform-source-badge--enriched {
+  color: var(--color-brand-300);
+  background: color-mix(in srgb, var(--color-brand-500) 18%, var(--color-surface-card));
+}
+.platform-source-badge--notes {
+  color: var(--color-text-secondary);
+  background: var(--color-surface-hover);
+}
+[data-theme="light"] .platform-source-badge--enriched,
+[data-theme="spectrum"] .platform-source-badge--enriched {
+  color: var(--color-brand-800);
+  background: color-mix(in srgb, var(--color-brand-500) 12%, var(--color-surface-card));
+}
+[data-theme="light"] .platform-source-badge--strict,
+[data-theme="spectrum"] .platform-source-badge--strict {
+  color: #1a6b4f;
+  background: color-mix(in srgb, var(--mastery-strong) 14%, var(--color-surface-card));
+}
+
+.platform-status-pill--generating {
+  color: var(--color-text-secondary);
+  background: color-mix(in srgb, var(--color-accent-amber) 16%, var(--color-surface-card));
+}
+[data-theme="dark"] .platform-status-pill--generating,
+:not([data-theme]) .platform-status-pill--generating {
+  color: var(--color-accent-amber);
+  background: color-mix(in srgb, var(--color-accent-amber) 12%, var(--color-surface-card));
+}
+[data-theme="light"] .platform-status-pill--generating {
+  color: #5c4520;
+  background: color-mix(in srgb, var(--color-accent-amber) 14%, var(--color-surface-primary));
+}
+[data-theme="spectrum"] .platform-status-pill--generating {
+  color: #5a4518;
+  background: color-mix(in srgb, var(--color-accent-amber) 14%, var(--color-surface-card));
+}
+
+
+/* ============================================================
+   WORKSPACE — Warm Bento theme (scoped to Study Workspace only)
+   Typography + bento utilities when light theme is active.
+   Color tokens come from [data-theme="light"] on html — not overridden here.
+   ============================================================ */
+[data-theme="light"] [data-ws-theme="warm"] {
+  font-family: var(--font-sans);
+}
+[data-theme="light"] [data-ws-theme="warm"] .text-brand-300,
+[data-theme="light"] [data-ws-theme="warm"] .text-brand-400 {
+  color: var(--color-brand-700);
+}
+[data-theme="light"] [data-ws-theme="warm"] .text-brand-500 {
+  color: var(--color-brand-800);
+}
+[data-theme="light"] [data-ws-theme="warm"] .ws-eyebrow {
+  color: var(--color-brand-900);
+  font-weight: 700;
+}
+[data-theme="light"] [data-ws-theme="warm"] .ws-pill {
+  color: var(--color-brand-900);
+  font-weight: 600;
+}
+[data-theme="light"] [data-ws-theme="warm"] button.ws-eyebrow,
+[data-theme="light"] [data-ws-theme="warm"] .ws-eyebrow.text-brand-200 {
+  color: var(--color-brand-800);
+}
+[data-theme="light"] [data-ws-theme="warm"] .text-brand-200 {
+  color: var(--color-brand-800);
+}
+[data-theme="light"] [data-ws-theme="warm"] .text-brand-300 {
+  color: var(--color-brand-800);
+}
+[data-theme="light"] [data-ws-theme="warm"] a.text-brand-400,
+[data-theme="light"] [data-ws-theme="warm"] button.text-brand-400 {
+  color: var(--color-brand-700);
+}
+[data-theme="light"] [data-ws-theme="warm"] .blueprint-grid,
+[data-theme="light"] [data-ws-theme="warm"].blueprint-grid {
+  background-image: none !important;
+}
+[data-theme="light"] [data-ws-theme="warm"] h1,
+[data-theme="light"] [data-ws-theme="warm"] h2,
+[data-theme="light"] [data-ws-theme="warm"] h3,
+[data-theme="light"] [data-ws-theme="warm"] .ws-serif {
+  font-family: var(--font-display);
+  font-weight: 500;
+  letter-spacing: -0.005em;
+}
+[data-theme="light"] [data-ws-theme="warm"] .ws-eyebrow,
+[data-theme="light"] [data-ws-theme="warm"] .ws-title,
+[data-theme="light"] [data-ws-theme="warm"] .ws-num {
+  font-family: var(--font-sans);
+  letter-spacing: 0.01em;
+}
+
+/* Bento card primitive: rounded, hairline, soft */
+.ws-bento {
+  background: var(--color-surface-card);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-panel);
+  box-shadow: var(--elev-1);
+}
+.ws-bento-soft {
+  background: var(--color-surface-secondary);
+  border: 1px solid color-mix(in srgb, var(--color-brand-400) 28%, transparent);
+  border-radius: var(--radius-panel);
+}
+
+/* PLT-01C — platform panel utilities (ws-bento + standard spacing) */
+.platform-panel-md {
+  background: var(--color-surface-card);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-panel);
+  box-shadow: var(--elev-1);
+  padding: var(--space-5);
+}
+.platform-panel-lg {
+  background: var(--color-surface-card);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-panel);
+  box-shadow: var(--elev-1);
+  padding: var(--space-6);
+}
+.platform-panel-xl {
+  background: var(--color-surface-card);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-panel);
+  box-shadow: var(--elev-1);
+  padding: var(--space-8);
+}
+.platform-panel-soft {
+  background: var(--color-surface-secondary);
+  border: 1px solid color-mix(in srgb, var(--color-brand-400) 28%, transparent);
+  border-radius: var(--radius-panel);
+  padding: var(--space-4);
+}
+
+/* UX-A — FigmaSynaptic-inspired card + tab primitives (aligned with ws-bento elevation) */
+.ux-card {
+  background: var(--color-surface-card);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-panel);
+  padding: var(--space-5);
+  box-shadow: var(--elev-1);
+  transition: border-color var(--motion-duration-fast) var(--motion-ease),
+    box-shadow var(--motion-duration-fast) var(--motion-ease);
+}
+.ux-card:hover {
+  border-color: color-mix(in srgb, var(--color-brand-500) 30%, var(--color-border-subtle));
+}
+.ux-card-interactive {
+  cursor: pointer;
+}
+.ux-tab-bar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  border-bottom: 1px solid var(--color-border-subtle);
+  margin-bottom: 1.25rem;
+}
+.ux-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding-bottom: 0.75rem;
+  font-size: var(--type-body-sm);
+  font-weight: 500;
+  color: var(--color-text-tertiary);
+  border-bottom: 2px solid transparent;
+  transition: color var(--motion-duration-fast) var(--motion-ease),
+    border-color var(--motion-duration-fast) var(--motion-ease);
+}
+.ux-tab:hover {
+  color: var(--color-text-secondary);
+}
+.ux-tab-active {
+  color: var(--color-text-primary);
+  border-bottom-color: var(--color-brand-500);
+}
+.ux-quick-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 0.375rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.ux-progress-track {
+  height: 0.375rem;
+  border-radius: 9999px;
+  background: color-mix(in srgb, var(--color-surface-hover) 80%, transparent);
+  overflow: hidden;
+}
+.ux-progress-fill {
+  height: 100%;
+  border-radius: 9999px;
+  background: linear-gradient(90deg, var(--color-brand-600), var(--color-accent-violet));
+  transition: width 0.3s ease;
+}
+.ux-chip-mastered { background: color-mix(in srgb, var(--color-accent-emerald) 15%, transparent); color: var(--color-accent-emerald); }
+.ux-chip-warn { background: color-mix(in srgb, var(--color-accent-amber) 15%, transparent); color: var(--color-accent-amber); }
+.ux-chip-error { background: color-mix(in srgb, var(--color-accent-rose) 15%, transparent); color: var(--color-accent-rose); }
+.ux-chip-info { background: color-mix(in srgb, var(--color-brand-500) 15%, transparent); color: var(--color-brand-400); }
+
+/* Wave M-C01 — shared KPI numeral utility (density contract; canvas parity). */
+.ux-kpi-value {
+  font-size: 1.25rem;
+  line-height: 1.4;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-primary);
+  letter-spacing: -0.005em;
+}
+.ux-kpi-value-lg {
+  font-size: 1.5rem;
+  line-height: 1.25;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-primary);
+  letter-spacing: -0.01em;
+}
+/* Wave M-D07 — small-tile KPI (Dashboard KPI grid, Analytics MetricCard, FSRS summary tiles). */
+.ux-kpi-value-sm {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-primary);
+  letter-spacing: -0.003em;
+}
+@media (min-width: 640px) {
+  .ux-kpi-value-sm {
+    font-size: 1rem;
+    line-height: 1.375rem;
+  }
+}
+.ux-kpi-label {
+  font-size: var(--type-caption, 0.6875rem);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-text-tertiary);
+  font-weight: 600;
+}
+.ux-lesson-serif {
+  font-family: var(--font-display);
+  letter-spacing: -0.01em;
+}
+
+/* OPT-A — Option-B blueprint aesthetic polish (Phase A) */
+@keyframes ux-fade-up {
+  0% { opacity: 0; transform: translateY(10px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+.ux-fade-up {
+  animation: ux-fade-up 0.55s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ux-fade-up { animation: none; }
+}
+
+.platform-hero-glow {
+  position: relative;
+  isolation: isolate;
+}
+.platform-hero-glow-orbs {
+  pointer-events: none;
+  position: absolute;
+  inset: 0 0 auto;
+  height: min(100%, 10rem);
+  z-index: 0;
+  background:
+    radial-gradient(circle at 8% 20%, color-mix(in srgb, var(--color-accent-teal) 16%, transparent), transparent 42%),
+    radial-gradient(circle at 92% 10%, color-mix(in srgb, var(--color-accent-violet) 12%, transparent), transparent 38%);
+  opacity: 0.85;
+}
+.platform-hero-glow-flush .platform-hero-glow-orbs {
+  display: none;
+}
+.platform-hero-glow > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Hub scroll targets — clear sticky shell header + demo banner */
+#dashboard-action-hub,
+#dashboard-hero-personal-dates,
+#dashboard-stat-reviews-due,
+#exam-calendar-panel {
+  scroll-margin-top: 7.5rem;
+}
+
+.ux-section-eyebrow {
+  font-size: var(--type-caption);
+  font-weight: 600;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--color-accent-teal) 72%, var(--color-text-secondary));
+}
+
+.ux-callout {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  border-radius: var(--radius-panel);
+  padding: var(--space-4);
+  border: 1px solid transparent;
+}
+@media (min-width: 640px) {
+  .ux-callout {
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
+  }
+}
+.ux-callout-title {
+  font-size: var(--type-body-sm);
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+.ux-callout-trust {
+  border-color: color-mix(in srgb, var(--color-accent-emerald) 22%, transparent);
+  background: color-mix(in srgb, var(--color-accent-emerald) 8%, var(--color-surface-card));
+  color: var(--color-text-secondary);
+}
+.ux-callout-trust .ux-callout-title { color: var(--color-accent-emerald); }
+.ux-callout-trust svg { color: var(--color-accent-emerald); }
+.ux-callout-danger {
+  border-color: var(--color-banner-warn-border);
+  background: color-mix(in srgb, var(--color-accent-amber) 8%, var(--color-surface-card));
+  /* Body ink = secondary (readable on cream wash). Title/icon use warn-ink
+     so spectrum/warm light yellow accents never paint the whole callout. */
+  color: var(--color-text-secondary);
+}
+.ux-callout-danger .ux-callout-title { color: var(--color-banner-warn-ink); }
+.ux-callout-danger svg { color: var(--color-banner-warn-ink); }
+.ux-callout-next {
+  border-color: color-mix(in srgb, var(--color-accent-emerald) 22%, transparent);
+  background: color-mix(in srgb, var(--color-accent-emerald) 7%, var(--color-surface-card));
+  color: var(--color-text-secondary);
+}
+.ux-callout-next .ux-callout-title { color: var(--color-accent-emerald); }
+.ux-callout-next svg { color: var(--color-brand-600); }
+.ux-callout-info {
+  border-color: color-mix(in srgb, var(--color-brand-500) 25%, transparent);
+  background: color-mix(in srgb, var(--color-brand-500) 6%, var(--color-surface-card));
+  color: var(--color-text-secondary);
+}
+.ux-callout-info .ux-callout-title { color: var(--color-brand-600); }
+.ux-callout-warn {
+  border-color: var(--color-banner-warn-border);
+  background: color-mix(in srgb, var(--color-accent-amber) 6%, var(--color-surface-card));
+  color: var(--color-text-secondary);
+}
+.ux-callout-warn .ux-callout-title { color: var(--color-banner-warn-ink); }
+.ux-callout-warn svg { color: var(--color-banner-warn-ink); }
+
+.ux-trust-badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  border: 1px solid var(--color-border-subtle);
+  background: color-mix(in srgb, var(--color-surface-hover) 65%, transparent);
+  padding: 0.2rem 0.65rem;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+.ux-trust-badge-grounded {
+  border-color: color-mix(in srgb, var(--color-accent-emerald) 28%, transparent);
+  background: color-mix(in srgb, var(--color-accent-emerald) 12%, transparent);
+  color: var(--color-accent-emerald);
+}
+.ux-trust-badge-enrichment {
+  border-color: color-mix(in srgb, var(--color-accent-amber) 28%, transparent);
+  background: color-mix(in srgb, var(--color-accent-amber) 12%, transparent);
+  color: var(--color-accent-amber);
+}
+
+.ux-session-card {
+  display: flex;
+  gap: 0.75rem;
+  width: 100%;
+  border-radius: var(--radius-panel);
+  border: 1px solid var(--color-border-subtle);
+  background: var(--color-surface-card);
+  padding: var(--space-4);
+  text-align: left;
+  box-shadow: var(--elev-1);
+  transition:
+    border-color var(--motion-duration-ui) var(--motion-ease),
+    background var(--motion-duration-ui) var(--motion-ease),
+    box-shadow var(--motion-duration-ui) var(--motion-ease),
+    transform var(--motion-duration-ui) var(--motion-ease);
+}
+.ux-session-card:hover:not(:disabled) {
+  border-color: color-mix(in srgb, var(--color-brand-500) 35%, var(--color-border-subtle));
+  background: color-mix(in srgb, var(--color-brand-500) 4%, var(--color-surface-card));
+}
+.ux-session-card-active {
+  border-color: color-mix(in srgb, var(--color-brand-500) 45%, transparent);
+  background: color-mix(in srgb, var(--color-brand-500) 8%, var(--color-surface-card));
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-brand-400) 18%, transparent);
+}
+.ux-session-card-icon {
+  display: grid;
+  place-items: center;
+  height: 2.25rem;
+  width: 2.25rem;
+  shrink: 0;
+  border-radius: 0.75rem;
+  border: 1px solid color-mix(in srgb, var(--color-brand-500) 22%, transparent);
+  background: color-mix(in srgb, var(--color-brand-500) 10%, transparent);
+  color: var(--color-brand-500);
+}
+/* Tool body: bounded height so inner overflow-y-auto regions can scroll */
+.ws-tool-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 0%;
+  min-height: 0;
+  overflow: hidden;
+}
+.ws-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.625rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, #ffffff 65%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-brand-400) 35%, transparent);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+  text-transform: none;
+  letter-spacing: 0;
+}
+.ws-pill[data-active="true"] {
+  background: var(--color-brand-600);
+  color: #faf8f5;
+  border-color: var(--color-brand-600);
+}
+.ws-fab {
+  background: var(--color-brand-600);
+  color: #faf8f5;
+  border-radius: 1.75rem;
+  box-shadow: var(--elev-3);
+}
+.ws-fab button { color: inherit; }
+
+/* Warm Sand — status chips & QA strips (minimal tint, readable text) */
+[data-theme="light"] [data-ws-theme="warm"] .ws-chip-warn {
+  border: 1px solid color-mix(in srgb, var(--color-accent-amber) 55%, var(--color-border-subtle));
+  background: color-mix(in srgb, var(--color-accent-amber) 12%, #faf8f5);
+  color: var(--color-accent-amber);
+  font-weight: 600;
+}
+[data-theme="light"] [data-ws-theme="warm"] .ws-chip-neutral {
+  border: 1px solid var(--color-border-subtle);
+  background: var(--color-surface-card);
+  color: var(--color-text-secondary);
+  font-weight: 600;
+}
+[data-theme="light"] [data-ws-theme="warm"] .ws-chip-brand {
+  border: 1px solid color-mix(in srgb, var(--color-brand-600) 45%, var(--color-border-subtle));
+  background: color-mix(in srgb, var(--color-brand-600) 10%, #faf8f5);
+  color: var(--color-brand-800);
+  font-weight: 600;
+}
+[data-theme="light"] [data-ws-theme="warm"] .ws-chip-ok {
+  border: 1px solid color-mix(in srgb, var(--color-accent-emerald) 45%, var(--color-border-subtle));
+  background: color-mix(in srgb, var(--color-accent-emerald) 9%, #faf8f5);
+  color: var(--color-accent-emerald);
+  font-weight: 600;
+}
+[data-theme="light"] [data-ws-theme="warm"] .ws-chip-danger {
+  border: 1px solid color-mix(in srgb, var(--color-accent-rose) 45%, var(--color-border-subtle));
+  background: color-mix(in srgb, var(--color-accent-rose) 9%, #faf8f5);
+  color: var(--color-accent-rose);
+  font-weight: 600;
+}
+[data-theme="light"] [data-ws-theme="warm"] .bg-accent-emerald\/10 { background: color-mix(in srgb, var(--color-accent-emerald) 10%, #faf8f5); }
+[data-theme="light"] [data-ws-theme="warm"] .bg-accent-amber\/10 { background: color-mix(in srgb, var(--color-accent-amber) 10%, #faf8f5); }
+[data-theme="light"] [data-ws-theme="warm"] .bg-accent-amber\/8 { background: color-mix(in srgb, var(--color-accent-amber) 8%, #faf8f5); }
+[data-theme="light"] [data-ws-theme="warm"] .bg-accent-cyan\/10,
+[data-theme="light"] [data-ws-theme="warm"] .bg-accent-cyan\/12,
+[data-theme="light"] [data-ws-theme="warm"] .bg-accent-cyan\/15 { background: color-mix(in srgb, var(--color-brand-700) 8%, #faf8f5); }
+[data-theme="light"] [data-ws-theme="warm"] .bg-accent-rose\/10 { background: color-mix(in srgb, var(--color-accent-rose) 9%, #faf8f5); }
+[data-theme="light"] [data-ws-theme="warm"] .border-accent-emerald\/35,
+[data-theme="light"] [data-ws-theme="warm"] .border-accent-emerald\/40 { border-color: color-mix(in srgb, var(--color-accent-emerald) 45%, var(--color-border-subtle)); }
+[data-theme="light"] [data-ws-theme="warm"] .border-accent-amber\/30,
+[data-theme="light"] [data-ws-theme="warm"] .border-accent-amber\/40 { border-color: color-mix(in srgb, var(--color-accent-amber) 50%, var(--color-border-subtle)); }
+[data-theme="light"] [data-ws-theme="warm"] .border-accent-cyan\/35,
+[data-theme="light"] [data-ws-theme="warm"] .border-accent-cyan\/40,
+[data-theme="light"] [data-ws-theme="warm"] .border-accent-cyan\/45 { border-color: color-mix(in srgb, var(--color-brand-600) 40%, var(--color-border-subtle)); }
+[data-theme="light"] [data-ws-theme="warm"] .border-accent-rose\/40 { border-color: color-mix(in srgb, var(--color-accent-rose) 45%, var(--color-border-subtle)); }
+[data-theme="light"] [data-ws-theme="warm"] .ws-status-strip {
+  border-radius: 0.75rem;
+  border-width: 1px;
+  border-style: solid;
+  padding: 0.5rem 0.75rem;
+  font-size: 11px;
+  line-height: 1.35;
+}
+[data-theme="light"] [data-ws-theme="warm"] .ws-status-ok {
+  border-color: color-mix(in srgb, var(--color-accent-emerald) 45%, var(--color-border-subtle));
+  background: color-mix(in srgb, var(--color-accent-emerald) 9%, #faf8f5);
+  color: var(--color-accent-emerald);
+  font-weight: 600;
+}
+[data-theme="light"] [data-ws-theme="warm"] .ws-status-warn {
+  border-color: color-mix(in srgb, var(--color-accent-amber) 50%, var(--color-border-subtle));
+  background: color-mix(in srgb, var(--color-accent-amber) 10%, #faf8f5);
+  color: var(--color-accent-amber);
+  font-weight: 600;
+}
+[data-theme="light"] [data-ws-theme="warm"] .ws-source-alert {
+  border-left-width: 3px;
+  border-color: color-mix(in srgb, var(--color-accent-amber) 70%, var(--color-border-subtle));
+  background: color-mix(in srgb, var(--color-accent-amber) 6%, #faf8f5);
+  overflow: hidden;
+  transition: box-shadow 0.2s ease;
+}
+[data-theme="light"] [data-ws-theme="warm"] .ws-source-alert--collapsed:hover {
+  box-shadow: 0 1px 0 color-mix(in srgb, var(--color-accent-amber) 25%, transparent);
+}
+[data-theme="light"] [data-ws-theme="warm"] .ws-source-alert-header {
+  display: flex;
+  width: 100%;
+  align-items: flex-start;
+  gap: 0.625rem;
+  padding: 0.625rem 0.875rem;
+  text-align: left;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  color: inherit;
+  transition: background 0.15s ease;
+}
+[data-theme="light"] [data-ws-theme="warm"] .ws-source-alert-header:hover {
+  background: color-mix(in srgb, var(--color-accent-amber) 8%, #faf8f5);
+}
+[data-theme="light"] [data-ws-theme="warm"] .ws-source-alert-chevron {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 0.125rem;
+  padding: 0.25rem;
+  border-radius: 0.375rem;
+  color: var(--color-text-muted);
+  transition: background 0.15s ease, color 0.15s ease;
+}
+[data-theme="light"] [data-ws-theme="warm"] .ws-source-alert-header:hover .ws-source-alert-chevron {
+  background: var(--color-surface-hover);
+  color: var(--color-text-secondary);
+}
+[data-theme="light"] [data-ws-theme="warm"] .ws-source-alert-body {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.22s ease;
+}
+[data-theme="light"] [data-ws-theme="warm"] .ws-source-alert-body--open {
+  grid-template-rows: 1fr;
+}
+[data-theme="light"] [data-ws-theme="warm"] .ws-source-alert-body-inner {
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* Lesson panel — collapsed vertical rail (minimal affordance, no content) */
+[data-theme="light"] [data-ws-theme="warm"] .ws-lesson-panel--collapsed {
+  border-right: 1px solid var(--color-border-subtle);
+  border-left: none;
+  background: color-mix(in srgb, var(--color-surface-card) 96%, #faf8f5);
+  box-shadow: inset -1px 0 0 color-mix(in srgb, var(--color-border-subtle) 60%, transparent);
+}
+[data-theme="light"] [data-ws-theme="warm"] .ws-lesson-collapsed-rail {
+  width: 100%;
+  min-width: 3rem;
+  max-width: 3rem;
+  padding-top: 0.625rem;
+  padding-bottom: 0.625rem;
+}
+[data-theme="light"] [data-ws-theme="warm"] .ws-lesson-rail-expand-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--color-border-subtle);
+  background: var(--color-surface-card);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+[data-theme="light"] [data-ws-theme="warm"] .ws-lesson-rail-expand-btn:hover {
+  color: var(--color-brand-800);
+  border-color: color-mix(in srgb, var(--color-brand-600) 35%, var(--color-border-subtle));
+  background: var(--color-surface-hover);
+  box-shadow: 0 1px 3px rgba(62, 47, 35, 0.06);
+}
+[data-theme="light"] [data-ws-theme="warm"] .ws-lesson-rail-grip {
+  display: block;
+  width: 0.125rem;
+  flex: 1;
+  min-height: 2.5rem;
+  max-height: 4rem;
+  margin-top: 0.5rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-border-subtle) 85%, transparent);
+  opacity: 0.7;
+}
+[data-theme="light"] [data-ws-theme="warm"] .ws-lesson-panel-collapse-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem;
+  margin-right: 0.5rem;
+  border-radius: 0.375rem;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  flex-shrink: 0;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+[data-theme="light"] [data-ws-theme="warm"] .ws-lesson-panel-collapse-btn:hover {
+  background: var(--color-surface-hover);
+  color: var(--color-text-secondary);
+}
+
+[data-theme="light"] [data-ws-theme="warm"] .ws-source-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.375rem;
+  border: 1px solid var(--color-border-subtle);
+  background: var(--color-surface-card);
+  font-family: var(--font-sans);
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  pointer-events: auto;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+[data-theme="light"] [data-ws-theme="warm"] .ws-source-action-btn:hover:not(:disabled) {
+  color: var(--color-text-primary);
+  border-color: color-mix(in srgb, var(--color-brand-600) 35%, var(--color-border-subtle));
+  background: var(--color-surface-hover);
+}
+[data-theme="light"] [data-ws-theme="warm"] .ws-source-action-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+[data-theme="light"] [data-ws-theme="warm"] .ws-source-action-btn-primary {
+  border-color: color-mix(in srgb, var(--color-brand-600) 40%, var(--color-border-subtle));
+  background: color-mix(in srgb, var(--color-brand-600) 12%, #faf8f5);
+  color: var(--color-brand-800);
+}
+[data-theme="light"] [data-ws-theme="warm"] .ws-source-action-btn-warn {
+  border-color: color-mix(in srgb, var(--color-accent-amber) 45%, var(--color-border-subtle));
+  background: color-mix(in srgb, var(--color-accent-amber) 10%, #faf8f5);
+  color: var(--color-accent-amber);
+}
+[data-theme="light"] [data-ws-theme="warm"] .ws-source-action-btn-ghost {
+  border-color: transparent;
+  background: transparent;
+  color: var(--color-text-muted);
+}
+[data-theme="light"] [data-ws-theme="warm"] .text-accent-emerald { color: var(--color-accent-emerald); }
+[data-theme="light"] [data-ws-theme="warm"] .text-accent-amber { color: var(--color-accent-amber); }
+[data-theme="light"] [data-ws-theme="warm"] .text-accent-orange { color: var(--color-accent-orange); }
+[data-theme="light"] [data-ws-theme="warm"] .text-accent-teal { color: var(--color-accent-teal); }
+[data-theme="light"] [data-ws-theme="warm"] .text-accent-rose { color: var(--color-accent-rose); }
+[data-theme="light"] [data-ws-theme="warm"] .text-accent-cyan { color: var(--color-brand-800); }
+
+.reprocess-editor-pane {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(139, 115, 85, 0.45) transparent;
+}
+.reprocess-editor-pane::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.reprocess-editor-pane::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgba(139, 115, 85, 0.45);
+}
+
+/* Workspace empty states — minimal brown CTAs */
+[data-theme="light"] [data-ws-theme="warm"] .ws-empty-cta-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.5rem 0.875rem;
+  border-radius: 0.5rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  background: var(--color-brand-fill-700);
+  color: #faf8f5;
+  border: 1px solid var(--color-brand-fill-700);
+  transition: background 0.15s ease;
+}
+[data-theme="light"] [data-ws-theme="warm"] .ws-empty-cta-primary:hover {
+  background: var(--color-brand-fill-800);
+}
+[data-theme="light"] [data-ws-theme="warm"] .ws-empty-cta-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.5rem 0.875rem;
+  border-radius: 0.5rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  background: transparent;
+  color: var(--color-brand-800);
+  border: 1px solid color-mix(in srgb, var(--color-brand-600) 35%, var(--color-border-subtle));
+  transition: background 0.15s ease;
+}
+[data-theme="light"] [data-ws-theme="warm"] .ws-empty-cta-secondary:hover {
+  background: color-mix(in srgb, var(--color-brand-100) 60%, #faf8f5);
+}
+
+/* Chrome icon/text actions — neutral default, brand tint when active */
+[data-theme="light"] [data-ws-theme="warm"] .ws-chrome-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.375rem 0.625rem;
+  border-radius: 0.5rem;
+  font-size: 0.625rem;
+  font-weight: 500;
+  line-height: 1;
+  color: var(--color-text-secondary);
+  border: 1px solid transparent;
+  background: transparent;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+[data-theme="light"] [data-ws-theme="warm"] .ws-chrome-btn:hover {
+  background: var(--color-surface-hover);
+  color: var(--color-text-primary);
+}
+[data-theme="light"] [data-ws-theme="warm"] .ws-chrome-btn-active,
+[data-theme="light"] [data-ws-theme="warm"] .ws-chrome-btn[aria-pressed="true"] {
+  background: color-mix(in srgb, var(--color-brand-600) 10%, #faf8f5);
+  border-color: color-mix(in srgb, var(--color-brand-600) 28%, var(--color-border-subtle));
+  color: var(--color-brand-800);
+}
+
+/* Hide scrollbars inside ribbons (already have .scrollbar-none but extra-safe) */
+[data-theme="light"] [data-ws-theme="warm"] .ws-ribbon::-webkit-scrollbar { display: none; }
+[data-theme="light"] [data-ws-theme="warm"] .ws-ribbon { scrollbar-width: none; }
+
+/* WS-4: Right panel density — compact tool headers + annotation margin rail */
+[data-theme="light"] [data-ws-theme="warm"] .ws-tool-header {
+  --ws-tool-header-py: 0.5rem;
+  --ws-tool-header-px: 0.75rem;
+}
+@media (min-width: 640px) {
+  [data-theme="light"] [data-ws-theme="warm"] .ws-tool-header {
+    --ws-tool-header-py: 0.625rem;
+    --ws-tool-header-px: 0.875rem;
+  }
+}
+[data-theme="light"] [data-ws-theme="warm"] .ws-tool-header .ws-tool-header-row {
+  padding: var(--ws-tool-header-py) var(--ws-tool-header-px);
+}
+[data-theme="light"] [data-ws-theme="warm"] .ws-tool-header .ws-tool-header-guide {
+  padding: 0 var(--ws-tool-header-px) 0.625rem;
+  gap: 0.5rem;
+}
+[data-theme="light"] [data-ws-theme="warm"] .ws-panel-toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.375rem 0.625rem;
+  border-bottom: 1px solid var(--color-border-subtle);
+  background: color-mix(in srgb, var(--color-surface-secondary) 55%, #faf8f5);
+  flex-shrink: 0;
+}
+@media (min-width: 640px) {
+  [data-theme="light"] [data-ws-theme="warm"] .ws-panel-toolbar {
+    padding: 0.375rem 0.75rem;
+  }
+}
+[data-theme="light"] [data-ws-theme="warm"] .ws-panel-toolbar-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.375rem;
+  min-width: 0;
+}
+[data-theme="light"] [data-ws-theme="warm"] .ws-panel-toolbar-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+[data-theme="light"] [data-ws-theme="warm"] .ws-panel-tool-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  min-height: 1.625rem;
+  padding: 0.125rem 0.375rem;
+  border-radius: 0.375rem;
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+}
+[data-theme="light"] [data-ws-theme="warm"] .ws-panel-tool-btn[data-active="true"] {
+  background: color-mix(in srgb, var(--color-brand-600) 14%, #faf8f5);
+  color: var(--color-brand-800);
+  border: 1px solid color-mix(in srgb, var(--color-brand-600) 28%, var(--color-border-subtle));
+}
+[data-theme="light"] [data-ws-theme="warm"] .ws-panel-tool-btn[data-active="false"] {
+  color: var(--color-text-muted);
+  border: 1px solid transparent;
+}
+[data-theme="light"] [data-ws-theme="warm"] .ws-panel-tool-btn[data-active="false"]:hover {
+  color: var(--color-text-secondary);
+  background: color-mix(in srgb, var(--color-surface-hover) 60%, #faf8f5);
+}
+[data-theme="light"] [data-ws-theme="warm"] .ws-margin-rail {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  align-self: stretch;
+  border-left: 1px solid var(--color-border-subtle);
+  background: color-mix(in srgb, var(--color-surface-secondary) 45%, #faf8f5);
+  flex-shrink: 0;
+  overflow: hidden;
+  transition: width 0.18s ease;
+}
+/* Annotations source viewer — isolated scroll, no parent/reader bleed */
+.ws-annotation-source-scroll {
+  overscroll-behavior: contain;
+  touch-action: pan-y;
+  -webkit-overflow-scrolling: touch;
+}
+.ws-annotation-source-scroll--active .ws-annotation-line {
+  pointer-events: none;
+}
+.ws-annotation-source-scroll--active .ws-annotation-line:hover {
+  background: transparent;
+}
+[data-theme="light"] [data-ws-theme="warm"] .ws-margin-rail[data-expanded="true"] {
+  width: min(12.5rem, 34vw);
+}
+@media (min-width: 768px) {
+  [data-theme="light"] [data-ws-theme="warm"] .ws-margin-rail[data-expanded="true"] {
+    width: 13rem;
+  }
+}
+[data-theme="light"] [data-ws-theme="warm"] .ws-margin-rail[data-expanded="false"] {
+  width: 1.75rem;
+}
+[data-theme="light"] [data-ws-theme="warm"] .ws-annotation-card {
+  padding: 0.375rem 0.5rem;
+  border-radius: 0.5rem;
+  font-size: 0.5625rem;
+  line-height: 1.35;
+}
+[data-theme="light"] [data-ws-theme="warm"] .ws-filter-strip {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.625rem;
+  border-bottom: 1px solid var(--color-border-subtle);
+  background: color-mix(in srgb, var(--color-surface-primary) 35%, #faf8f5);
+  overflow-x: auto;
+  flex-shrink: 0;
+}
+
+/* WS-5: Workspace accent sweep — semantic tool controls (Warm Sand) */
+[data-theme="light"] [data-ws-theme="warm"] .ws-tool-toggle {
+  border: 1px solid var(--color-border-subtle);
+  background: color-mix(in srgb, var(--color-surface-card) 90%, #faf8f5);
+  color: var(--color-text-secondary);
+  transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+}
+[data-theme="light"] [data-ws-theme="warm"] .ws-tool-toggle:hover {
+  color: var(--color-text-primary);
+  border-color: color-mix(in srgb, var(--color-brand-600) 30%, var(--color-border-subtle));
+}
+[data-theme="light"] [data-ws-theme="warm"] .ws-focus-line {
+  background: color-mix(in srgb, var(--color-brand-700) 8%, #faf8f5);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-brand-600) 35%, transparent);
+}
+[data-theme="light"] [data-ws-theme="warm"] .ws-info-strip {
+  background: color-mix(in srgb, var(--color-brand-700) 6%, #faf8f5);
+  border-color: color-mix(in srgb, var(--color-brand-600) 25%, var(--color-border-subtle));
+}
+[data-theme="light"] [data-ws-theme="warm"] .ws-link-action {
+  color: var(--color-brand-800);
+  font-weight: 600;
+}
+[data-theme="light"] [data-ws-theme="warm"] .ws-link-action:hover {
+  color: var(--color-brand-900);
+  text-decoration: underline;
+}
+[data-theme="light"] [data-ws-theme="warm"] .decoration-accent-cyan\/40 {
+  text-decoration-color: color-mix(in srgb, var(--color-brand-600) 45%, transparent);
+}
+/* Neutralize dark-glass leftovers inside warm workspace */
+[data-theme="light"] [data-ws-theme="warm"] .border-white\/10,
+[data-theme="light"] [data-ws-theme="warm"] .border-white\/12 {
+  border-color: color-mix(in srgb, var(--color-border-subtle) 85%, transparent);
+}
+[data-theme="light"] [data-ws-theme="warm"] .bg-white\/\[0\.04\],
+[data-theme="light"] [data-ws-theme="warm"] .bg-white\/\[0\.05\] {
+  background: color-mix(in srgb, var(--color-surface-secondary) 75%, #faf8f5);
+}
+
+/* Cognitive overlays — portal-friendly (carry data-ws-theme="warm" on node) */
+[data-theme="light"] [data-ws-theme="warm"].ws-cognitive-backdrop,
+[data-theme="light"] [data-ws-theme="warm"] .ws-cognitive-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 190;
+  background: color-mix(in srgb, #1f160c 28%, transparent);
+  border: none;
+  cursor: default;
+}
+[data-theme="light"] [data-ws-theme="warm"].ws-cognitive-sheet,
+[data-theme="light"] [data-ws-theme="warm"] .ws-cognitive-sheet {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 200;
+  width: min(100%, 24rem);
+  display: flex;
+  flex-direction: column;
+  border-left: 1px solid var(--color-border-subtle);
+  background: color-mix(in srgb, var(--color-surface-secondary) 98%, #faf8f5);
+  backdrop-filter: blur(12px);
+  box-shadow: -8px 0 32px color-mix(in srgb, #1f160c 12%, transparent);
+  font-family: var(--font-sans);
+  color: var(--color-text-primary);
+}
+[data-theme="light"] [data-ws-theme="warm"] .ws-cognitive-sheet-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.875rem 1rem;
+  border-bottom: 1px solid var(--color-border-subtle);
+  shrink: 0;
+}
+[data-theme="light"] [data-ws-theme="warm"] .ws-cognitive-sheet-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem;
+}
+[data-theme="light"] [data-ws-theme="warm"] .ws-field-label {
+  display: block;
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+[data-theme="light"] [data-ws-theme="warm"] .ws-field-input {
+  display: block;
+  width: 100%;
+  border-radius: 0.5rem;
+  border: 1px solid var(--color-border-subtle);
+  background: var(--color-surface-card);
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  color: var(--color-text-primary);
+}
+[data-theme="light"] [data-ws-theme="warm"] .ws-field-input:focus {
+  outline: 2px solid color-mix(in srgb, var(--color-brand-600) 35%, transparent);
+  outline-offset: 1px;
+}
+
+/* Jitsi video — inline, float, pop-up */
+[data-theme="light"] [data-ws-theme="warm"] .ws-jitsi-inline {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+[data-theme="light"] [data-ws-theme="warm"] .ws-jitsi-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+}
+[data-theme="light"] [data-ws-theme="warm"] .ws-jitsi-tool-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.375rem;
+  border: 1px solid var(--color-border-subtle);
+  background: var(--color-surface-card);
+  font-size: 0.625rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  transition: background 0.15s ease, color 0.15s ease;
+}
+[data-theme="light"] [data-ws-theme="warm"] .ws-jitsi-tool-btn:hover {
+  background: var(--color-surface-hover);
+  color: var(--color-text-primary);
+}
+[data-theme="light"] [data-ws-theme="warm"] .ws-jitsi-tool-btn-active {
+  border-color: color-mix(in srgb, var(--color-brand-600) 40%, var(--color-border-subtle));
+  background: color-mix(in srgb, var(--color-brand-600) 10%, #faf8f5);
+  color: var(--color-brand-800);
+}
+[data-theme="light"] [data-ws-theme="warm"] .ws-jitsi-float {
+  position: fixed;
+  z-index: 210;
+  width: min(92vw, 28rem);
+  height: min(70vh, 22rem);
+  min-width: 17.5rem;
+  min-height: 11rem;
+  resize: both;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  border-radius: 0.75rem;
+  border: 1px solid var(--color-border-subtle);
+  background: var(--color-surface-secondary);
+  box-shadow: 0 16px 48px color-mix(in srgb, #1f160c 18%, transparent);
+}
+[data-theme="light"] [data-ws-theme="warm"] .ws-jitsi-float-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.375rem 0.5rem;
+  border-bottom: 1px solid var(--color-border-subtle);
+  background: color-mix(in srgb, var(--color-surface-card) 90%, #faf8f5);
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+}
+[data-theme="light"] [data-ws-theme="warm"] .ws-jitsi-float-header:active {
+  cursor: grabbing;
+}
+[data-theme="light"] [data-ws-theme="warm"] .ws-jitsi-float-body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+}
+
+/* ================================================================
+   GLOBAL MINIMALIST SWEEP
+   - Thin all Lucide strokes app-wide → Phosphor-thin feel
+     without rewriting every icon import.
+   - Soften oversized headings on web/tablet for a calmer surface.
+   - Slightly looser line-height for an editorial feel.
+   ================================================================ */
+svg.lucide {
+  stroke-width: 1.25 !important;
+}
+
+/* Tame the loudest display headings (≥ tablet). Mobile keeps its own scale. */
+@media (min-width: 768px) {
+  h1.text-5xl, h1.text-6xl, h1.text-7xl { font-size: clamp(1.75rem, 3.5vw, 2.75rem); line-height: 1.1; }
+  h2.text-4xl, h2.text-5xl, h2.text-6xl { font-size: clamp(1.4rem, 2.6vw, 2rem); line-height: 1.15; }
+  h3.text-3xl, h3.text-4xl { font-size: clamp(1.15rem, 1.8vw, 1.5rem); line-height: 1.2; }
+}
+
+/* Calmer default body rhythm — shared across all themes (light SoT metrics). */
+body { letter-spacing: -0.005em; }
+
+/* ============================================================
+   Package 5B — dark workspace contrast pass
+   Warm Sand workspace uses light-theme ink classes (text-brand-800,
+   bg-brand-100/80) that fail on dark surfaces — remap under warm root.
+   ============================================================ */
+[data-theme="dark"] [data-ws-theme="warm"] .text-brand-800,
+[data-theme="dark"] [data-ws-theme="warm"] button.text-brand-800,
+[data-theme="dark"] [data-ws-theme="warm"] a.text-brand-800 {
+  color: var(--color-brand-300);
+}
+[data-theme="dark"] [data-ws-theme="warm"] .text-brand-700 {
+  color: var(--color-brand-200);
+}
+[data-theme="dark"] [data-ws-theme="warm"] .text-brand-600 {
+  color: var(--color-brand-300);
+}
+[data-theme="dark"] [data-ws-theme="warm"] .hover\:text-brand-800:hover {
+  color: var(--color-brand-200);
+}
+[data-theme="dark"] [data-ws-theme="warm"] .bg-brand-100\/80 {
+  background: color-mix(in srgb, var(--color-brand-600) 22%, var(--color-surface-card));
+}
+[data-theme="dark"] [data-ws-theme="warm"] .border-brand-400\/45 {
+  border-color: color-mix(in srgb, var(--color-brand-400) 45%, var(--color-border-subtle));
+}
+[data-theme="dark"] [data-ws-theme="warm"] .border-brand-500\/30,
+[data-theme="dark"] [data-ws-theme="warm"] .border-brand-500\/40 {
+  border-color: color-mix(in srgb, var(--color-brand-500) 40%, var(--color-border-subtle));
+}
+[data-theme="dark"] [data-ws-theme="warm"] .bg-brand-600\/10 {
+  background: color-mix(in srgb, var(--color-brand-600) 14%, var(--color-surface-card));
+}
+[data-theme="dark"] [data-ws-theme="warm"] .bg-brand-600\/15,
+[data-theme="dark"] [data-ws-theme="warm"] .bg-brand-600\/20 {
+  background: color-mix(in srgb, var(--color-brand-600) 20%, var(--color-surface-card));
+}
+
+[data-theme="dark"] [data-ws-theme="warm"] .ws-tool-toggle {
+  border: 1px solid var(--color-border-subtle);
+  background: color-mix(in srgb, var(--color-surface-card) 92%, var(--color-surface-secondary));
+  color: var(--color-text-secondary);
+  transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+}
+[data-theme="dark"] [data-ws-theme="warm"] .ws-tool-toggle:hover {
+  color: var(--color-text-primary);
+  border-color: color-mix(in srgb, var(--color-brand-500) 35%, var(--color-border-subtle));
+}
+
+[data-theme="dark"] [data-ws-theme="warm"] .ws-chip-warn {
+  border: 1px solid color-mix(in srgb, var(--color-accent-amber) 50%, var(--color-border-subtle));
+  background: color-mix(in srgb, var(--color-accent-amber) 14%, var(--color-surface-card));
+  color: var(--color-accent-amber);
+  font-weight: 600;
+}
+[data-theme="dark"] [data-ws-theme="warm"] .ws-chip-neutral {
+  border: 1px solid var(--color-border-subtle);
+  background: var(--color-surface-card);
+  color: var(--color-text-secondary);
+  font-weight: 600;
+}
+[data-theme="dark"] [data-ws-theme="warm"] .ws-chip-brand {
+  border: 1px solid color-mix(in srgb, var(--color-brand-500) 45%, var(--color-border-subtle));
+  background: color-mix(in srgb, var(--color-brand-600) 18%, var(--color-surface-card));
+  color: var(--color-brand-200);
+  font-weight: 600;
+}
+[data-theme="dark"] [data-ws-theme="warm"] .ws-chip-ok {
+  border: 1px solid color-mix(in srgb, var(--color-accent-emerald) 45%, var(--color-border-subtle));
+  background: color-mix(in srgb, var(--color-accent-emerald) 12%, var(--color-surface-card));
+  color: var(--color-accent-emerald);
+  font-weight: 600;
+}
+[data-theme="dark"] [data-ws-theme="warm"] .ws-chip-danger {
+  border: 1px solid color-mix(in srgb, var(--color-accent-rose) 45%, var(--color-border-subtle));
+  background: color-mix(in srgb, var(--color-accent-rose) 12%, var(--color-surface-card));
+  color: var(--color-accent-rose);
+  font-weight: 600;
+}
+
+[data-theme="dark"] [data-ws-theme="warm"] .bg-accent-emerald\/10 {
+  background: color-mix(in srgb, var(--color-accent-emerald) 12%, var(--color-surface-card));
+}
+[data-theme="dark"] [data-ws-theme="warm"] .bg-accent-amber\/10,
+[data-theme="dark"] [data-ws-theme="warm"] .bg-accent-amber\/8 {
+  background: color-mix(in srgb, var(--color-accent-amber) 12%, var(--color-surface-card));
+}
+[data-theme="dark"] [data-ws-theme="warm"] .bg-accent-cyan\/10,
+[data-theme="dark"] [data-ws-theme="warm"] .bg-accent-cyan\/12,
+[data-theme="dark"] [data-ws-theme="warm"] .bg-accent-cyan\/15 {
+  background: color-mix(in srgb, var(--color-accent-cyan) 10%, var(--color-surface-card));
+}
+[data-theme="dark"] [data-ws-theme="warm"] .bg-accent-rose\/10 {
+  background: color-mix(in srgb, var(--color-accent-rose) 12%, var(--color-surface-card));
+}
+
+[data-theme="dark"] [data-ws-theme="warm"] .border-accent-emerald\/35,
+[data-theme="dark"] [data-ws-theme="warm"] .border-accent-emerald\/40 {
+  border-color: color-mix(in srgb, var(--color-accent-emerald) 45%, var(--color-border-subtle));
+}
+[data-theme="dark"] [data-ws-theme="warm"] .border-accent-amber\/30,
+[data-theme="dark"] [data-ws-theme="warm"] .border-accent-amber\/40 {
+  border-color: color-mix(in srgb, var(--color-accent-amber) 48%, var(--color-border-subtle));
+}
+[data-theme="dark"] [data-ws-theme="warm"] .border-accent-cyan\/35,
+[data-theme="dark"] [data-ws-theme="warm"] .border-accent-cyan\/40,
+[data-theme="dark"] [data-ws-theme="warm"] .border-accent-cyan\/45 {
+  border-color: color-mix(in srgb, var(--color-accent-cyan) 40%, var(--color-border-subtle));
+}
+[data-theme="dark"] [data-ws-theme="warm"] .border-accent-rose\/40 {
+  border-color: color-mix(in srgb, var(--color-accent-rose) 45%, var(--color-border-subtle));
+}
+
+[data-theme="dark"] [data-ws-theme="warm"] .text-accent-amber,
+[data-theme="dark"] [data-ws-theme="warm"] .text-accent-amber\/80 {
+  color: var(--color-accent-amber);
+}
+[data-theme="dark"] [data-ws-theme="warm"] .text-accent-emerald { color: var(--color-accent-emerald); }
+[data-theme="dark"] [data-ws-theme="warm"] .text-accent-rose { color: var(--color-accent-rose); }
+[data-theme="dark"] [data-ws-theme="warm"] .text-accent-cyan { color: var(--color-accent-cyan); }
+[data-theme="dark"] [data-ws-theme="warm"] .text-accent-teal { color: var(--color-accent-teal); }
+[data-theme="dark"] [data-ws-theme="warm"] .text-accent-orange { color: var(--color-accent-orange); }
+
+[data-theme="dark"] [data-ws-theme="warm"] .text-text-muted {
+  color: var(--color-text-tertiary);
+}
+[data-theme="dark"] [data-ws-theme="warm"] .type-micro.text-text-muted,
+[data-theme="dark"] [data-ws-theme="warm"] .text-\[9px\].text-text-muted,
+[data-theme="dark"] [data-ws-theme="warm"] .text-\[10px\].text-text-muted {
+  color: var(--color-text-secondary);
+}
+
+[data-theme="dark"] [data-ws-theme="warm"] .ws-link-action {
+  color: var(--color-brand-300);
+  font-weight: 600;
+}
+[data-theme="dark"] [data-ws-theme="warm"] .ws-link-action:hover {
+  color: var(--color-brand-200);
+  text-decoration: underline;
+}
+
+[data-theme="dark"] [data-ws-theme="warm"] .ws-status-ok {
+  border-color: color-mix(in srgb, var(--color-accent-emerald) 45%, var(--color-border-subtle));
+  background: color-mix(in srgb, var(--color-accent-emerald) 10%, var(--color-surface-card));
+  color: var(--color-accent-emerald);
+  font-weight: 600;
+}
+[data-theme="dark"] [data-ws-theme="warm"] .ws-status-warn {
+  border-color: color-mix(in srgb, var(--color-accent-amber) 50%, var(--color-border-subtle));
+  background: color-mix(in srgb, var(--color-accent-amber) 12%, var(--color-surface-card));
+  color: var(--color-accent-amber);
+  font-weight: 600;
+}
+
+[data-theme="dark"] [data-ws-theme="warm"] .ws-source-action-btn {
+  color: var(--color-text-secondary);
+}
+[data-theme="dark"] [data-ws-theme="warm"] .ws-source-action-btn-primary {
+  border-color: color-mix(in srgb, var(--color-brand-500) 40%, var(--color-border-subtle));
+  background: color-mix(in srgb, var(--color-brand-600) 16%, var(--color-surface-card));
+  color: var(--color-brand-200);
+}
+[data-theme="dark"] [data-ws-theme="warm"] .ws-source-action-btn-warn {
+  border-color: color-mix(in srgb, var(--color-accent-amber) 45%, var(--color-border-subtle));
+  background: color-mix(in srgb, var(--color-accent-amber) 12%, var(--color-surface-card));
+  color: var(--color-accent-amber);
+}
+[data-theme="dark"] [data-ws-theme="warm"] .ws-source-action-btn-ghost {
+  color: var(--color-text-tertiary);
+}
+
+[data-theme="dark"] [data-ws-theme="warm"] .ws-eyebrow.text-text-muted,
+[data-theme="dark"] [data-ws-theme="warm"] .ws-eyebrow {
+  color: var(--color-text-tertiary);
+}
+
+[data-theme="dark"] [data-ws-theme="warm"] .ws-focus-line {
+  background: color-mix(in srgb, var(--color-brand-600) 12%, var(--color-surface-card));
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-brand-500) 35%, transparent);
+}
+[data-theme="dark"] [data-ws-theme="warm"] .ws-info-strip {
+  background: color-mix(in srgb, var(--color-brand-600) 10%, var(--color-surface-card));
+  border-color: color-mix(in srgb, var(--color-brand-500) 28%, var(--color-border-subtle));
+}
+
+/* Readability (all dark themes): the deep brand shades (600–800) are tuned for
+   LIGHT backgrounds / solid fills. As *foreground text* on dark surfaces they
+   fail WCAG AA. Remap the text + hover utilities to legible brand shades while
+   preserving emphasis hierarchy (700/800 → brand-300, 600 → brand-400).
+   Background/border utilities (bg-brand-*, border-brand-*) are intentionally
+   left unchanged so brand-tinted surfaces keep their depth.
+   Light/spectrum themes are unaffected (light backgrounds read these well). */
+[data-theme="dark"] .text-brand-800,
+[data-theme="dark"] .text-brand-700,
+[data-theme="blueprint"] .text-brand-800,
+[data-theme="blueprint"] .text-brand-700 {
+  color: var(--color-brand-300);
+}
+[data-theme="dark"] .text-brand-600,
+[data-theme="blueprint"] .text-brand-600 {
+  color: var(--color-brand-400);
+}
+[data-theme="dark"] .hover\:text-brand-800:hover,
+[data-theme="dark"] .hover\:text-brand-700:hover,
+[data-theme="blueprint"] .hover\:text-brand-800:hover,
+[data-theme="blueprint"] .hover\:text-brand-700:hover {
+  color: var(--color-brand-300);
+}
+[data-theme="dark"] .hover\:text-brand-600:hover,
+[data-theme="blueprint"] .hover\:text-brand-600:hover {
+  color: var(--color-brand-400);
+}
+
+/* Legibility (study workspace only): the smallest chrome labels were set at
+   9–10px, below a comfortable minimum for dense bilingual UI. Lift each one
+   step, scoped by [data-ws-theme] so layouts elsewhere in the app are
+   unaffected. Font-size only (no line-height change) keeps single-line chips
+   and labels from reflowing. Applies in every theme. */
+[data-ws-theme] .text-\[9px\] {
+  font-size: 0.625rem; /* 9px → 10px */
+}
+[data-ws-theme] .text-\[10px\] {
+  font-size: 0.6875rem; /* 10px → 11px */
+}
+
+/* ─── Focus Ring (cross-pollinated from ai_tutor_studio) ──────── */
+.focus-ring:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--color-brand-500) 50%, transparent);
+  outline-offset: 2px;
+  border-radius: inherit;
+}
+
+/* ─── Scrollbar hover (cross-pollinated from ai_tutor_studio) ─── */
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-muted);
+}
+
+/* ─── Stat Tile hover micro-interaction ──────────────────────── */
+.ux-stat-tile {
+  transition: transform 200ms cubic-bezier(0.4, 0, 0.2, 1), box-shadow 200ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+.ux-stat-tile:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--elev-2);
+}
+
+/* ─── Progress bar fill animation (from ai_tutor_studio) ───── */
+@keyframes progress-fill {
+  from { width: 0; }
+}
+
+/* ─── Glass card surface (from ai_tutor_studio) ────────────── */
+.glass-card {
+  background: color-mix(in srgb, var(--color-surface-card) 72%, transparent);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid color-mix(in srgb, var(--color-border-subtle) 55%, transparent);
+}
+
+/* ─── Shimmer loading skeleton (from ai_tutor_studio) ──────── */
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.ux-shimmer {
+  background: linear-gradient(90deg, var(--color-surface-hover) 25%, var(--color-surface-secondary) 50%, var(--color-surface-hover) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: 0.5rem;
+}
+
+/* ─── Card hover elevation (from ai_tutor_studio) ──────────── */
+.card-hover {
+  transition: transform 300ms cubic-bezier(0.4, 0, 0.2, 1), box-shadow 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+.card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--elev-3, 0 8px 24px rgba(0,0,0,.08));
+}
+
+/* Wave F — global reduced-motion: kill CSS animations/transitions & hover lift */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .card-hover:hover {
+    transform: none;
+  }
+  .ux-shimmer {
+    animation: none;
   }
 }

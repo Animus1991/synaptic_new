@@ -1,0 +1,7 @@
+# Copy to android/gradle.properties (gitignored) or set in CI secrets.
+# Required for Play Store release builds via `npm run mobile:android:beta`.
+
+# MYAPP_RELEASE_STORE_FILE=../mobile/keystore/synapse-release.jks
+# MYAPP_RELEASE_STORE_PASSWORD=
+# MYAPP_RELEASE_KEY_ALIAS=synapse
+# MYAPP_RELEASE_KEY_PASSWORD=

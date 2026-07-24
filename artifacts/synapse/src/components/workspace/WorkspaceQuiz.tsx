@@ -1,9 +1,11 @@
 import { useMemo, useState, type KeyboardEvent } from 'react';
+import { HelpCircle } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
 import { isMcQuiz, type QuizDef } from '../../lib/lessonTypes';
 import type { Lang } from '../../lib/i18n';
+import { useI18n } from '../../lib/i18n';
 import type { QuizIrtDisplay } from '../../lib/quizIrt';
-import { formatQuizIrtForLearner } from '../../lib/quizIrt';
+import { QuizIrtBadge } from './QuizIrtBadge';
 
 type Props = {
   quizDef: QuizDef;
@@ -38,6 +40,7 @@ function normalizeAnswer(s: string): string {
 }
 
 export function WorkspaceQuiz({ quizDef, lang, irt, irtResponseCount = 0, onComplete, onQuestionSelect }: Props) {
+  const { t } = useI18n();
   const [mcAnswer, setMcAnswer] = useState<number | null>(null);
   const [shortText, setShortText] = useState('');
   const [shortChecked, setShortChecked] = useState<boolean | null>(null);
@@ -54,22 +57,22 @@ export function WorkspaceQuiz({ quizDef, lang, irt, irtResponseCount = 0, onComp
   }, [quizDef]);
 
   if (isMcQuiz(quizDef)) {
+    if (quizDef.placeholder) {
+      return (
+        <div
+          className="ux-tier-b-tool ux-tier-b-quiz rounded-xl border border-dashed border-border-default bg-surface-card/50 px-4 py-6 text-center"
+          data-testid="workspace-quiz-empty"
+        >
+          <HelpCircle className="mx-auto mb-2 h-6 w-6 text-brand-400" aria-hidden />
+          <p className="text-sm font-medium text-text-secondary">{quizDef.question}</p>
+          <p className="mx-auto mt-1.5 max-w-xs text-xs text-text-muted">{t('wsQuizEmptyHint')}</p>
+        </div>
+      );
+    }
     const passed = mcAnswer !== null && mcAnswer === quizDef.correctIndex;
     return (
-      <div className="space-y-3" data-testid="workspace-quiz">
-        {irt && (() => {
-          const copy = formatQuizIrtForLearner(irt, lang, irtResponseCount);
-          return (
-          <div
-            className="rounded-lg border border-border-subtle bg-surface-primary/40 px-2.5 py-1.5 text-[10px] text-text-muted space-y-0.5"
-            data-testid="quiz-irt-badge"
-          >
-            <p className="text-text-secondary">{copy.readinessLabel}</p>
-            <p>{copy.difficultyLabel} · {copy.probabilityLabel}</p>
-            {copy.hint && <p className="text-text-muted italic">{copy.hint}</p>}
-          </div>
-          );
-        })()}
+      <div className="ux-tier-b-tool ux-tier-b-quiz space-y-3" data-testid="workspace-quiz">
+        {irt && <QuizIrtBadge irt={irt} lang={lang} responseCount={irtResponseCount} />}
         <p {...questionProps(quizDef.question, onQuestionSelect)}>{quizDef.question}</p>
         {quizDef.options.map((opt, i) => (
           <button
@@ -80,7 +83,7 @@ export function WorkspaceQuiz({ quizDef, lang, irt, irtResponseCount = 0, onComp
               onComplete(i === quizDef.correctIndex);
             }}
             className={cn(
-              'w-full text-left p-2.5 rounded-lg border text-sm mb-1.5 transition-all flex items-center gap-2',
+              'ux-quiz-option w-full text-left p-2.5 rounded-lg border text-sm mb-1.5 transition-all flex items-center gap-2',
               mcAnswer === i
                 ? i === quizDef.correctIndex
                   ? 'border-accent-emerald/50 bg-accent-emerald/10 text-accent-emerald'
@@ -96,9 +99,7 @@ export function WorkspaceQuiz({ quizDef, lang, irt, irtResponseCount = 0, onComp
         ))}
         {mcAnswer !== null && (
           <p className={cn('text-xs mt-2', passed ? 'text-accent-emerald' : 'text-accent-rose')}>
-            {passed
-              ? (lang === 'el' ? '✓ Σωστά — μπορείς να συνεχίσεις' : '✓ Correct — you can continue')
-              : (lang === 'el' ? '✗ Δες ξανά το υλικό σου' : '✗ Review your material')}
+            {passed ? t('quizWkCorrectContinue') : t('quizWkReviewMaterial')}
           </p>
         )}
       </div>
@@ -115,23 +116,16 @@ export function WorkspaceQuiz({ quizDef, lang, irt, irtResponseCount = 0, onComp
       onComplete(ok);
     };
     return (
-      <div className="space-y-3" data-testid="workspace-quiz">
-        {irt && (() => {
-          const copy = formatQuizIrtForLearner(irt, lang, irtResponseCount);
-          return (
-          <div className="text-[10px] text-text-muted space-y-0.5" data-testid="quiz-irt-badge">
-            <p>{copy.readinessLabel} · {copy.probabilityLabel}</p>
-          </div>
-          );
-        })()}
+      <div className="ux-tier-b-tool ux-tier-b-quiz space-y-3" data-testid="workspace-quiz">
+        {irt && <QuizIrtBadge irt={irt} lang={lang} responseCount={irtResponseCount} compact />}
         <p {...questionProps(sa.question, onQuestionSelect)}>{sa.question}</p>
         {sa.hint && <p className="text-xs text-text-muted">{sa.hint}</p>}
         <input
           type="text"
           value={shortText}
           onChange={(e) => { setShortText(e.target.value); setShortChecked(null); }}
-          className="w-full rounded-lg border border-border-subtle bg-surface-primary px-3 py-2 text-sm"
-          placeholder={lang === 'el' ? 'Η απάντησή σου…' : 'Your answer…'}
+          className="ux-tier-b-input w-full rounded-lg border border-border-subtle bg-surface-primary px-3 py-2 text-sm"
+          placeholder={t('quizWkYourAnswer')}
         />
         <button
           type="button"
@@ -139,13 +133,11 @@ export function WorkspaceQuiz({ quizDef, lang, irt, irtResponseCount = 0, onComp
           disabled={!shortText.trim()}
           className="px-4 py-2 rounded-lg bg-brand-600 text-white text-sm disabled:opacity-40"
         >
-          {lang === 'el' ? 'Έλεγχος' : 'Check'}
+          {t('quizWkCheck')}
         </button>
         {shortChecked !== null && (
           <p className={cn('text-xs', shortChecked ? 'text-accent-emerald' : 'text-accent-rose')}>
-            {shortChecked
-              ? (lang === 'el' ? '✓ Σωστά' : '✓ Correct')
-              : (lang === 'el' ? '✗ Δοκίμασε ξανά' : '✗ Try again')}
+            {shortChecked ? t('quizWkCorrectShort') : t('quizWkTryAgain')}
           </p>
         )}
       </div>
@@ -168,11 +160,11 @@ export function WorkspaceQuiz({ quizDef, lang, irt, irtResponseCount = 0, onComp
       onComplete(ok);
     };
     return (
-      <div className="space-y-3">
+      <div className="ux-tier-b-tool ux-tier-b-quiz space-y-3">
         <p {...questionProps(ord.question, onQuestionSelect)}>{ord.question}</p>
         <ul className="space-y-2">
           {order.map((itemIdx, pos) => (
-            <li key={itemIdx} className="flex items-center gap-2 p-2 rounded-lg border border-border-subtle bg-surface-card text-sm">
+            <li key={itemIdx} className="ux-quiz-option flex items-center gap-2 p-2 rounded-lg border border-border-subtle bg-surface-card text-sm">
               <span className="text-text-muted w-5">{pos + 1}.</span>
               <span className="flex-1">{ord.items[itemIdx]}</span>
               <button type="button" onClick={() => move(pos, -1)} className="px-2 py-0.5 text-xs rounded border border-white/10">↑</button>
@@ -181,11 +173,11 @@ export function WorkspaceQuiz({ quizDef, lang, irt, irtResponseCount = 0, onComp
           ))}
         </ul>
         <button type="button" onClick={checkOrder} className="px-4 py-2 rounded-lg bg-brand-600 text-white text-sm">
-          {lang === 'el' ? 'Έλεγχος σειράς' : 'Check order'}
+          {t('quizWkCheckOrder')}
         </button>
         {orderChecked !== null && (
           <p className={cn('text-xs', orderChecked ? 'text-accent-emerald' : 'text-accent-rose')}>
-            {orderChecked ? '✓' : '✗'} {lang === 'el' ? (orderChecked ? 'Σωστή σειρά' : 'Λάθος σειρά') : (orderChecked ? 'Correct order' : 'Wrong order')}
+            {orderChecked ? '✓' : '✗'} {orderChecked ? t('quizWkCorrectOrder') : t('quizWkWrongOrder')}
           </p>
         )}
       </div>
@@ -200,12 +192,12 @@ export function WorkspaceQuiz({ quizDef, lang, irt, irtResponseCount = 0, onComp
       onComplete(ok);
     };
     return (
-      <div className="space-y-3">
+      <div className="ux-tier-b-tool ux-tier-b-quiz space-y-3">
         <p {...questionProps(match.question, onQuestionSelect)}>{match.question}</p>
         <div className="grid gap-2">
           {match.left.map((left, li) => (
             <div key={li} className="flex items-center gap-2 text-sm">
-              <span className="flex-1 p-2 rounded-lg bg-surface-card border border-border-subtle">{left}</span>
+              <span className="ux-tier-b-panel flex-1 p-2 rounded-lg bg-surface-card border border-border-subtle">{left}</span>
               <select
                 value={matches[li] ?? ''}
                 onChange={(e) => {
@@ -218,9 +210,9 @@ export function WorkspaceQuiz({ quizDef, lang, irt, irtResponseCount = 0, onComp
                   });
                   setMatchChecked(null);
                 }}
-                className="flex-1 rounded-lg border border-border-subtle bg-surface-primary px-2 py-2 text-sm"
+                className="ux-tier-b-input flex-1 rounded-lg border border-border-subtle bg-surface-primary px-2 py-2 text-sm"
               >
-                <option value="">{lang === 'el' ? '— επίλεξε —' : '— select —'}</option>
+                <option value="">{t('quizWkSelectOption')}</option>
                 {shuffledRight.map(({ label, orig }) => (
                   <option key={orig} value={orig}>{label}</option>
                 ))}
@@ -234,11 +226,11 @@ export function WorkspaceQuiz({ quizDef, lang, irt, irtResponseCount = 0, onComp
           disabled={Object.keys(matches).length < match.left.length}
           className="px-4 py-2 rounded-lg bg-brand-600 text-white text-sm disabled:opacity-40"
         >
-          {lang === 'el' ? 'Έλεγχος αντιστοιχίσεων' : 'Check matches'}
+          {t('quizWkCheckMatches')}
         </button>
         {matchChecked !== null && (
           <p className={cn('text-xs', matchChecked ? 'text-accent-emerald' : 'text-accent-rose')}>
-            {matchChecked ? '✓' : '✗'} {lang === 'el' ? (matchChecked ? 'Σωστά' : 'Λάθος') : (matchChecked ? 'Correct' : 'Incorrect')}
+            {matchChecked ? '✓' : '✗'} {matchChecked ? t('quizWkMatchCorrect') : t('quizWkMatchIncorrect')}
           </p>
         )}
       </div>

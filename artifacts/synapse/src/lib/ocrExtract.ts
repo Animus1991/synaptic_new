@@ -6,20 +6,50 @@
 import type { UserSettings } from '../types';
 import { ocrPages as ocrPagesServer } from './authClient';
 import { normalizeBilingualExtractedText, runClientBilingualOcrEnsemble } from './bilingualOcrEnsemble';
+import { isVisionOcrEnabled, transcribeImageWithVision, VISION_OCR_MODEL_ID } from './llmClient';
+import { textLayerLooksCorrupted } from './textQualityMetrics';
 import pdfjsWorker from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 
 export const OCR_MIN_TOTAL_CHARS = 80;
 export const OCR_MIN_CHARS_PER_PAGE = 28;
 export const OCR_MAX_PAGES = 15;
 
+export const OCR_RENDER_SCALE_SERVER = 2.25;
+export const OCR_RENDER_SCALE_CLIENT = 2.5;
+
 export type OcrExtractResult = {
   text: string;
   pageCount: number;
   ocrUsed: boolean;
-  ingestMethod?: 'text-layer' | 'ocr-server' | 'ocr-client' | 'ocr-ensemble';
+  ingestMethod?: 'text-layer' | 'ocr-server' | 'ocr-client' | 'ocr-ensemble' | 'ocr-vision';
   ocrRegions?: import('./readerOcrOverlay').OcrStoredRegion[];
   ocrModelsUsed?: string[];
 };
+
+/** Minimum useful transcript length from vision OCR before we trust it. */
+export const VISION_OCR_MIN_CHARS = 12;
+
+/**
+ * Run async `fn` over `items` with bounded concurrency, preserving order.
+ * Keeps multi-page vision OCR fast without hammering rate limits.
+ */
+async function mapLimit<T, R>(
+  items: T[],
+  limit: number,
+  fn: (item: T, index: number) => Promise<R>,
+): Promise<R[]> {
+  const results = new Array<R>(items.length);
+  let cursor = 0;
+  const worker = async () => {
+    while (cursor < items.length) {
+      const index = cursor++;
+      results[index] = await fn(items[index], index);
+    }
+  };
+  const size = Math.max(1, Math.min(limit, items.length));
+  await Promise.all(Array.from({ length: size }, worker));
+  return results;
+}
 
 function proxyConfigured(settings?: UserSettings): boolean {
   return !!(settings?.llmProxyUrl?.trim() || settings?.authProxyBase?.trim());
@@ -35,7 +65,9 @@ export function needsOcr(text: string, pageCount = 1): boolean {
   const clean = text.replace(/\f/g, ' ').replace(/\s+/g, ' ').trim();
   if (clean.length < OCR_MIN_TOTAL_CHARS) return true;
   const perPage = clean.length / effectivePages;
-  return perPage < OCR_MIN_CHARS_PER_PAGE;
+  if (perPage < OCR_MIN_CHARS_PER_PAGE) return true;
+  if (textLayerLooksCorrupted(clean)) return true;
+  return false;
 }
 
 /** True when most PDF pages lack a meaningful text layer (image-only / scanned). */
@@ -75,7 +107,7 @@ export async function renderPdfPagesToBase64(file: File, maxPages = OCR_MAX_PAGE
 
   for (let i = 1; i <= limit; i++) {
     const page = await doc.getPage(i);
-    const viewport = page.getViewport({ scale: 1.75 });
+    const viewport = page.getViewport({ scale: OCR_RENDER_SCALE_SERVER });
     const canvas = document.createElement('canvas');
     canvas.width = Math.floor(viewport.width);
     canvas.height = Math.floor(viewport.height);
@@ -99,6 +131,46 @@ function arrayBufferToBase64(buf: ArrayBuffer): string {
   return btoa(binary);
 }
 
+async function fileToDataUrl(file: File): Promise<string> {
+  const base64 = arrayBufferToBase64(await file.arrayBuffer());
+  const mime = file.type && file.type.startsWith('image/') ? file.type : 'image/jpeg';
+  return `data:${mime};base64,${base64}`;
+}
+
+/**
+ * Transcribe page images with the user's configured vision LLM. Highest-quality
+ * path for Greek (printed and handwritten). Throws when nothing usable is
+ * produced so callers can fall back to server/client OCR.
+ */
+async function ocrWithVision(
+  images: string[],
+  pageCount: number,
+  settings: UserSettings,
+): Promise<OcrExtractResult> {
+  let lastError: unknown = null;
+  const perPage = await mapLimit(images, 3, async (image) => {
+    try {
+      return await transcribeImageWithVision(image, settings, { lang: 'auto' });
+    } catch (err) {
+      lastError = err;
+      return '';
+    }
+  });
+
+  const joined = perPage.map((t) => t.trim()).filter(Boolean).join('\n\f\n');
+  if (!joined.trim()) {
+    throw lastError ?? new Error('Vision OCR produced no text');
+  }
+
+  return {
+    text: normalizeBilingualExtractedText(joined),
+    pageCount,
+    ocrUsed: true,
+    ingestMethod: 'ocr-vision',
+    ocrModelsUsed: [VISION_OCR_MODEL_ID],
+  };
+}
+
 async function ocrPdfClient(file: File, pageCount: number, maxPages = OCR_MAX_PAGES): Promise<OcrExtractResult> {
   const doc = await loadPdfDocument(file);
   const limit = Math.min(doc.numPages, maxPages);
@@ -107,7 +179,7 @@ async function ocrPdfClient(file: File, pageCount: number, maxPages = OCR_MAX_PA
 
   for (let i = 1; i <= limit; i++) {
     const page = await doc.getPage(i);
-    const viewport = page.getViewport({ scale: 2 });
+    const viewport = page.getViewport({ scale: OCR_RENDER_SCALE_CLIENT });
     const canvas = document.createElement('canvas');
     canvas.width = Math.floor(viewport.width);
     canvas.height = Math.floor(viewport.height);
@@ -153,6 +225,15 @@ export async function extractWithOcrFallback(
   settings?: UserSettings,
 ): Promise<OcrExtractResult> {
   if (isImageUpload(file)) {
+    if (settings && isVisionOcrEnabled(settings)) {
+      try {
+        const dataUrl = await fileToDataUrl(file);
+        const vision = await ocrWithVision([dataUrl], 1, settings);
+        if (vision.text.trim().length >= VISION_OCR_MIN_CHARS) return vision;
+      } catch {
+        /* fall through to server/client OCR */
+      }
+    }
     if (settings && proxyConfigured(settings)) {
       try {
         const buf = await file.arrayBuffer();
@@ -183,6 +264,18 @@ export async function extractWithOcrFallback(
       ingestMethod: 'text-layer',
       ocrModelsUsed: ['text-layer', 'greek-document-repair', 'unicode-nfc'],
     };
+  }
+
+  if (settings && isVisionOcrEnabled(settings)) {
+    try {
+      const pages = await renderPdfPagesToBase64(file);
+      if (pages.length > 0) {
+        const vision = await ocrWithVision(pages, textLayer.pageCount, settings);
+        if (vision.text.trim().length >= OCR_MIN_TOTAL_CHARS / 2) return vision;
+      }
+    } catch {
+      /* fall through to server/client OCR */
+    }
   }
 
   if (settings && proxyConfigured(settings)) {

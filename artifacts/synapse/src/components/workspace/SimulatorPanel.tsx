@@ -1,20 +1,29 @@
-import { useMemo, useState, useCallback } from 'react';
-import { AlertTriangle, BookOpen, Search, Timer, Sparkles, Loader2 } from 'lucide-react';
+import { useMemo, useState, useEffect, useCallback } from 'react';
+import { BookOpen, Search, Timer, AlertTriangle, Sparkles, Loader2 } from '@/lib/lucide-shim';
 import type { SimulatorSessionContent } from '../../lib/simulatorSessionModel';
 import { filterNumericCues } from '../../lib/simulatorSessionModel';
 import { examPracticeLabel } from '../../lib/examPracticePresets';
 import type { ExamPracticePresetId, SimulatorScenarioId } from '../../lib/examPracticePresets';
 import { auditSimulatorTimerPresetSync } from '../../lib/simulatorTimerPresetSyncQA';
+import { WorkspaceToolEmptyState } from './WorkspaceToolEmptyState';
 import { chatCompletion } from '../../lib/llmClient';
 import { WorkspaceEmptyState } from './WorkspaceEmptyState';
 import { InteractiveSimulator } from './InteractiveSimulator';
 import { ArtifactStaleBanner } from './ArtifactStaleBanner';
+import { WorkspacePanelWarnStrip } from './WorkspacePanelWarnStrip';
 import { SimulatorTimerPresetSyncStrip } from './SimulatorTimerPresetSyncStrip';
+import { useI18n } from '../../lib/i18n';
+import { AllCapsLabel } from '../ui/AllCapsLabel';
+import { ExamPrepPanel } from './ExamPrepPanel';
+import { cn } from '../../utils/cn';
+
+type MainTab = 'simulator' | 'exam-prep';
 
 type Props = {
   session: SimulatorSessionContent;
   concept: string;
   lang: 'en' | 'el';
+  courseTitle?: string;
   emptyMessage?: string;
   onUpload?: () => void;
   onEngage?: () => void;
@@ -22,15 +31,18 @@ type Props = {
   onOpenInReader?: (query: string) => void;
   onScenarioSelect?: (scenarioId: SimulatorScenarioId) => void;
   onStartTimedPractice?: (presetId: ExamPracticePresetId) => void;
+  onSendToWhiteboard?: (payload: import('../../lib/workspaceScratchpadBridge').ScratchpadExport) => void;
   artifactStale?: boolean;
   onAcknowledgeStale?: () => void;
   scopeKey?: string;
+  initialMainTab?: MainTab;
 };
 
 export function SimulatorPanel({
   session,
   concept,
   lang,
+  courseTitle,
   emptyMessage,
   onUpload,
   onEngage,
@@ -38,14 +50,50 @@ export function SimulatorPanel({
   onOpenInReader,
   onScenarioSelect,
   onStartTimedPractice,
+  onSendToWhiteboard,
   artifactStale = false,
   onAcknowledgeStale,
   scopeKey = '',
+  initialMainTab,
 }: Props) {
   const [filterQuery, setFilterQuery] = useState('');
   const [aiInsight, setAiInsight] = useState<string | null>(null);
   const [aiInsightLoading, setAiInsightLoading] = useState(false);
   const isEl = lang === 'el';
+  const [mainTab, setMainTab] = useState<MainTab>(initialMainTab ?? 'simulator');
+  const { t } = useI18n();
+
+  useEffect(() => {
+    if (initialMainTab) setMainTab(initialMainTab);
+  }, [initialMainTab]);
+
+  const tabBar = (
+    <div className="shrink-0 flex gap-1 border-b border-border-subtle px-4 py-2" data-testid="simulator-main-tabs">
+      <button
+        type="button"
+        data-testid="simulator-tab-simulator"
+        onClick={() => setMainTab('simulator')}
+        className={cn(
+          'rounded-lg px-3 py-1.5 text-[11px] font-medium',
+          mainTab === 'simulator' ? 'bg-brand-600/15 text-brand-800' : 'text-text-secondary hover:bg-surface-hover',
+        )}
+      >
+        {t('toolSimulator')}
+      </button>
+      <button
+        type="button"
+        data-testid="simulator-tab-exam-prep"
+        onClick={() => setMainTab('exam-prep')}
+        className={cn(
+          'rounded-lg px-3 py-1.5 text-[11px] font-medium',
+          mainTab === 'exam-prep' ? 'bg-brand-600/15 text-brand-800' : 'text-text-secondary hover:bg-surface-hover',
+        )}
+      >
+        {t('examPrepPanelTitle')}
+      </button>
+    </div>
+  );
+
 
   const generateAiInsight = useCallback(async () => {
     setAiInsightLoading(true);
@@ -61,6 +109,15 @@ export function SimulatorPanel({
       setAiInsightLoading(false);
     }
   }, [concept, session.numericCues, isEl]);
+
+  if (mainTab === 'exam-prep') {
+    return (
+      <div className="flex h-full flex-col overflow-hidden" data-testid="simulator-panel">
+        {tabBar}
+        <ExamPrepPanel />
+      </div>
+    );
+  }
 
   const syncReport = useMemo(
     () => auditSimulatorTimerPresetSync({
@@ -78,39 +135,48 @@ export function SimulatorPanel({
 
   if (!session.hasSource) {
     return (
-      <WorkspaceEmptyState
-        message={emptyMessage ?? (isEl ? 'Ανέβασε σημειώσεις για προσομοίωση.' : 'Upload notes to simulate.')}
-        hasSource={false}
-        onUpload={onUpload}
-      />
+      <div className="flex h-full flex-col overflow-hidden" data-testid="simulator-panel">
+        {tabBar}
+        <WorkspaceToolEmptyState
+          tool="simulator"
+          concept={concept}
+          message={emptyMessage}
+          hasSource={false}
+          onUpload={onUpload}
+        />
+      </div>
     );
   }
 
   if (!session.hasActionableContent) {
     return (
-      <div className="p-4" data-testid="simulator-panel-empty">
-        <WorkspaceEmptyState
-          message={emptyMessage ?? (isEl
-            ? 'Δεν βρέθηκαν αριθμητικές παράμετροι — δοκίμασε Reprocess ή ανέβασε πίνακες/δείκτες.'
-            : 'No numeric parameters found — try Reprocess or upload tables/indicators.')}
+      <div className="flex h-full flex-col overflow-hidden" data-testid="simulator-panel">
+        {tabBar}
+        <div className="p-4 flex-1 overflow-y-auto" data-testid="simulator-panel-empty">
+        <WorkspaceToolEmptyState
+          tool="simulator"
+          concept={concept}
+          message={emptyMessage}
           hasSource
-          onUpload={onUpload}
         />
         {session.sandboxInsight && (
           <div className="mt-4 rounded-xl border border-accent-cyan/25 bg-accent-cyan/5 p-3 text-[11px] text-text-secondary">
             {session.sandboxInsight}
           </div>
         )}
+        </div>
       </div>
     );
   }
 
   return (
     <div className="flex h-full flex-col overflow-hidden" data-testid="simulator-panel">
+      {tabBar}
+      <div className="flex-1 flex flex-col overflow-hidden min-h-0">
       <div className="shrink-0 border-b border-border-subtle px-4 py-3">
         {session.sectionLabel && (
           <p className="mb-2 text-[10px] text-text-muted" data-testid="simulator-section-label">
-            {isEl ? 'Ενότητα:' : 'Section:'}{' '}
+            {t('wsSectionColon')}{' '}
             <span className="text-text-secondary">{session.sectionLabel}</span>
           </p>
         )}
@@ -120,21 +186,11 @@ export function SimulatorPanel({
         )}
 
         {(session.weakExtraction || session.passageGrounded) && (
-          <div
-            className="mb-3 flex items-start gap-2 rounded-xl border border-accent-amber/30 bg-accent-amber/8 px-3 py-2 text-[10px] text-accent-amber"
-            data-testid="simulator-weak-extraction"
-          >
-            <AlertTriangle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
-            <p>
-              {session.passageGrounded
-                ? (isEl
-                  ? 'Οι παράμετροι προέρχονται από το απόσπασμα (generic concept) — Reprocess για πιο πλούσια δομή.'
-                  : 'Parameters are passage-grounded (generic concept) — Reprocess for richer structure.')
-                : (isEl
-                  ? 'Αδύναμη εξαγωγή — λίγοι αριθμοί στο υλικό. Δοκίμασε Reprocess.'
-                  : 'Weak extraction — sparse numerics in material. Try Reprocess.')}
-            </p>
-          </div>
+          <WorkspacePanelWarnStrip testId="simulator-weak-extraction">
+            {session.passageGrounded
+              ? t('panelPassageGroundedSimulator')
+              : t('panelWeakExtractionSimulator')}
+          </WorkspacePanelWarnStrip>
         )}
 
         <SimulatorTimerPresetSyncStrip report={syncReport} lang={lang} />
@@ -147,16 +203,16 @@ export function SimulatorPanel({
                 type="search"
                 value={filterQuery}
                 onChange={(e) => setFilterQuery(e.target.value)}
-                placeholder={isEl ? 'Αναζήτηση παραμέτρων…' : 'Search parameters…'}
+                placeholder={t('panelSearchParameters')}
                 className="w-full rounded-lg border border-border-subtle bg-surface-card py-1.5 pl-7 pr-2 text-[11px] text-text-secondary placeholder:text-text-muted focus:border-accent-cyan/40 focus:outline-none"
                 data-testid="simulator-filter"
               />
             </div>
           )}
           <span className="text-[10px] text-text-muted">
-            {session.numericCues.length} {isEl ? 'παράμετροι' : 'parameters'}
+            {session.numericCues.length} {t('panelParameters')}
             {session.economicsMode && (
-              <> · {isEl ? 'οικονομική λειτουργία' : 'econ mode'}</>
+              <> · {t('panelEconMode')}</>
             )}
           </span>
           {onStartTimedPractice && (
@@ -164,17 +220,17 @@ export function SimulatorPanel({
               type="button"
               data-testid="simulator-start-timed-practice"
               onClick={() => onStartTimedPractice(session.suggestedExamPractice)}
-              className="inline-flex items-center gap-1 rounded-lg border border-accent-amber/30 bg-accent-amber/10 px-2 py-1 text-[10px] font-medium text-accent-amber hover:bg-accent-amber/15"
+              className="ws-eyebrow ws-chip-warn inline-flex items-center gap-1 rounded-lg px-2 py-1 text-[10px] font-medium hover:opacity-90"
             >
               <Timer className="w-3 h-3" />
-              {isEl ? 'Χρονομέτρηση' : 'Timed block'} · {examPracticeLabel(session.suggestedExamPractice, lang)}
+              <AllCapsLabel>{t('panelTimedBlock')} · {examPracticeLabel(session.suggestedExamPractice, lang)}</AllCapsLabel>
             </button>
           )}
           {onOpenInReader && (
             <button
               type="button"
               onClick={() => onOpenInReader(concept)}
-              className="inline-flex items-center gap-1 rounded-lg border border-white/10 px-2 py-1 text-[10px] text-text-secondary hover:border-accent-cyan/35 hover:text-accent-cyan"
+              className="inline-flex items-center gap-1 rounded-lg border border-white/10 px-2 py-1 text-[10px] text-text-secondary hover:border-brand-600/35 hover:text-brand-800"
               data-testid="simulator-open-reader"
             >
               <BookOpen className="w-3 h-3" />
@@ -215,7 +271,7 @@ export function SimulatorPanel({
                 key={cue.id}
                 type="button"
                 onClick={() => onOpenInReader?.(cue.context.slice(0, 80) || cue.label)}
-                className="rounded-full border border-accent-cyan/25 bg-accent-cyan/8 px-2 py-0.5 text-[9px] text-accent-cyan hover:bg-accent-cyan/15"
+                className="rounded-full border border-accent-cyan/25 bg-accent-cyan/8 px-2 py-0.5 text-[10px] text-brand-800 hover:opacity-90"
               >
                 {cue.label.slice(0, 48)}{cue.label.length > 48 ? '…' : ''}
               </button>
@@ -227,6 +283,7 @@ export function SimulatorPanel({
       <div className="flex-1 min-h-0 overflow-hidden">
         <InteractiveSimulator
           concept={concept}
+          courseTitle={courseTitle}
           economicsMode={session.economicsMode}
           insight={session.sandboxInsight}
           numericCues={session.numericCues}
@@ -236,7 +293,9 @@ export function SimulatorPanel({
           onSensitivityCue={onSensitivityCue}
           onScenarioSelect={onScenarioSelect}
           initialScenarioId={session.lastSimulatorScenario}
+          onSendToWhiteboard={onSendToWhiteboard}
         />
+      </div>
       </div>
     </div>
   );

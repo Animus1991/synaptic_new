@@ -1,0 +1,277 @@
+import pg from 'pg';
+import { config } from '../config';
+import { getRateLimitStatus } from './rateLimitStore';
+import { probeRedis } from './redisClient';
+
+const { Pool } = pg;
+
+export type ProductionProbeStatus = {
+  database: boolean;
+  pgvector: boolean;
+  redis: boolean;
+  vectorIndexQueue: boolean;
+  /** Sprint L2 — distributed rate limiting across API replicas. */
+  rateLimit: {
+    backend: 'redis' | 'memory';
+    distributed: boolean;
+    requireRedis: boolean;
+  };
+  /** Org-level RBAC (institution → classes → members). */
+  tenantIsolation: {
+    teacherClassScoped: true;
+    postgresAccountScoped: boolean;
+    orgRbac: true;
+  };
+  /** Sprint L4 — enterprise gap closure (LTI, audit, async jobs). */
+  l4Enterprise: {
+    auditLogs: boolean;
+    lti: boolean;
+    ltiGradePassback: boolean;
+    samlMetadata: boolean;
+    transcribeQueue: boolean;
+    orgAnalytics: true;
+  };
+  /** Sprint L6 — production LTI, neural podcast, cohort heatmaps. */
+  l6Enterprise: {
+    ltiJwtValidation: boolean;
+    samlAcs: boolean;
+    ltiAgsOAuth: boolean;
+    neuralAudioPodcast: boolean;
+    cohortHeatmap: boolean;
+  };
+  /** Sprint L7 — student org UI + SAML crypto. */
+  l7Enterprise: {
+    samlXmlSignature: boolean;
+    studentOrgDashboard: boolean;
+    studentOrgUi: boolean;
+  };
+  /** Sprint L8 — distribution & trust. */
+  l8Enterprise: {
+    auditExport: boolean;
+  };
+  /** Sprint L9 — institution depth. */
+  l9Enterprise: {
+    classAnnouncements: boolean;
+    studentOrgCalendar: boolean;
+    assignmentDiscussion: boolean;
+    ltiRosterSync: boolean;
+    samlAutoProvision: boolean;
+  };
+  /** Sprint L10 — AI delight parity. */
+  l10Enterprise: {
+    multiSpeakerPodcast: boolean;
+    videoChaptering: boolean;
+    ragIndexProgress: boolean;
+    crossLibrarySynthesis: boolean;
+    quizIrtConfidenceBands: boolean;
+  };
+  /** Sprint L11 — pedagogy & ecosystem (Anki maturity). */
+  l11Enterprise: {
+    ankiApkgImportExport: boolean;
+    fsrsDueQueuePanel: boolean;
+    pluginMarketplace: boolean;
+    cohortTopicMasteryHeatmap: boolean;
+  };
+  /** Sprint L12 — platform polish. */
+  l12Enterprise: {
+    notificationBus: boolean;
+    commandPaletteRecent: boolean;
+    offlineSyncQueue: boolean;
+    a11yLiveRegions: boolean;
+    workspacePerfBudget: boolean;
+  };
+  /** Sprint L13 — NotebookLM bridge + learning OS focus. */
+  l13Enterprise: {
+    notebooklmImport: boolean;
+    platformFocusConsolidation: boolean;
+    notebooklmDeepLink: boolean;
+    notebookShellView: boolean;
+    notebooklmQuizFsrs: boolean;
+    notebooklmChatImport: boolean;
+    notebooklmAudioTranscript: boolean;
+  };
+  /** Sprint L14 — Synapse → NotebookLM export + course audio upload. */
+  l14Enterprise: {
+    notebooklmExport: boolean;
+    courseMediaAudioUpload: boolean;
+  };
+  /** Sprint L15 — retention loop closure (round-trip bridge). */
+  l15Enterprise: {
+    audioTranscriptFsrs: boolean;
+    notebookShellExport: boolean;
+    notebooklmBridgeCommands: boolean;
+  };
+  /** Sprint L16 — teacher visibility for NLM bridge adoption. */
+  l16Enterprise: {
+    notebooklmCohortHeatmap: boolean;
+    teacherBridgeVisibility: boolean;
+  };
+  /** Sprint L17 — PDF source page-preview thumbnails (client IDB). */
+  l17Enterprise: {
+    pdfThumbnails: boolean;
+    notebookWorkspace: boolean;
+    thumbnailBackfill: boolean;
+    pdfThumbnailWorker: boolean;
+  };
+  /** Sprint L18 / MD-02 — server-side thumbnail CDN for cross-device sync. */
+  l18Enterprise: {
+    thumbnailCdn: boolean;
+    thumbnailCdnImmutableCache: boolean;
+    thumbnailQueryTokenAuth: boolean;
+  };
+  /** Sprint L19 / PLT-02 — OpenTelemetry export + Kubernetes probes + Helm IaC. */
+  l19Enterprise: {
+    openTelemetry: boolean;
+    otlpExport: boolean;
+    readinessProbes: boolean;
+    helmChart: boolean;
+  };
+  /** Sprint L20 / COL-03 — Yjs CRDT multi-user concept map editing in study rooms. */
+  l20Enterprise: {
+    conceptMapCrdt: boolean;
+    conceptMapCollabWebSocket: boolean;
+    conceptMapStudyRoomAuth: boolean;
+  };
+};
+
+let cachedPgvector: boolean | null = null;
+
+/** True when pgvector extension and library_chunks table are available. */
+export async function probePgvector(databaseUrl = config.databaseUrl): Promise<boolean> {
+  if (!databaseUrl?.trim()) return false;
+  if (cachedPgvector !== null) return cachedPgvector;
+  const pool = new Pool({ connectionString: databaseUrl.trim() });
+  try {
+    const ext = await pool.query<{ ok: boolean }>(
+      `SELECT EXISTS(SELECT 1 FROM pg_extension WHERE extname = 'vector') AS ok`,
+    );
+    const table = await pool.query<{ ok: boolean }>(
+      `SELECT to_regclass('public.library_chunks') IS NOT NULL AS ok`,
+    );
+    cachedPgvector = Boolean(ext.rows[0]?.ok) && Boolean(table.rows[0]?.ok);
+    return cachedPgvector;
+  } catch {
+    cachedPgvector = false;
+    return false;
+  } finally {
+    await pool.end().catch(() => undefined);
+  }
+}
+
+export function resetPgvectorProbeCache(): void {
+  cachedPgvector = null;
+}
+
+export async function getProductionProbeStatus(): Promise<ProductionProbeStatus> {
+  const database = Boolean(config.databaseUrl?.trim());
+  const [pgvector, redis] = await Promise.all([
+    database ? probePgvector() : Promise.resolve(false),
+    probeRedis(),
+  ]);
+  return {
+    database,
+    pgvector,
+    redis,
+    vectorIndexQueue: redis,
+    rateLimit: getRateLimitStatus(redis),
+    tenantIsolation: {
+      teacherClassScoped: true,
+      postgresAccountScoped: database,
+      orgRbac: true,
+    },
+    l4Enterprise: {
+      auditLogs: database,
+      lti: Boolean(config.ltiClientId || config.ltiPlatformAuthUrl),
+      ltiGradePassback: true,
+      samlMetadata: Boolean(config.samlEntityId),
+      transcribeQueue: redis,
+      orgAnalytics: true,
+    },
+    l6Enterprise: {
+      ltiJwtValidation: Boolean(process.env.LTI_PLATFORM_JWKS_URL?.trim()),
+      samlAcs: Boolean(config.samlEntityId),
+      ltiAgsOAuth: Boolean(config.ltiAgsTokenUrl && config.ltiAgsClientSecret),
+      neuralAudioPodcast: Boolean(config.upstreamApiKey),
+      cohortHeatmap: true,
+    },
+    l7Enterprise: {
+      samlXmlSignature: Boolean(config.samlIdpCert),
+      studentOrgDashboard: true,
+      studentOrgUi: true,
+    },
+    l8Enterprise: {
+      auditExport: true,
+    },
+    l9Enterprise: {
+      classAnnouncements: true,
+      studentOrgCalendar: true,
+      assignmentDiscussion: true,
+      ltiRosterSync: true,
+      samlAutoProvision: true,
+    },
+    l10Enterprise: {
+      multiSpeakerPodcast: true,
+      videoChaptering: true,
+      ragIndexProgress: true,
+      crossLibrarySynthesis: true,
+      quizIrtConfidenceBands: true,
+    },
+    l11Enterprise: {
+      ankiApkgImportExport: true,
+      fsrsDueQueuePanel: true,
+      pluginMarketplace: true,
+      cohortTopicMasteryHeatmap: true,
+    },
+    l12Enterprise: {
+      notificationBus: true,
+      commandPaletteRecent: true,
+      offlineSyncQueue: true,
+      a11yLiveRegions: true,
+      workspacePerfBudget: true,
+    },
+    l13Enterprise: {
+      notebooklmImport: true,
+      platformFocusConsolidation: true,
+      notebooklmDeepLink: true,
+      notebookShellView: true,
+      notebooklmQuizFsrs: true,
+      notebooklmChatImport: true,
+      notebooklmAudioTranscript: true,
+    },
+    l14Enterprise: {
+      notebooklmExport: true,
+      courseMediaAudioUpload: true,
+    },
+    l15Enterprise: {
+      audioTranscriptFsrs: true,
+      notebookShellExport: true,
+      notebooklmBridgeCommands: true,
+    },
+    l16Enterprise: {
+      notebooklmCohortHeatmap: true,
+      teacherBridgeVisibility: true,
+    },
+    l17Enterprise: {
+      pdfThumbnails: true,
+      notebookWorkspace: true,
+      thumbnailBackfill: true,
+      pdfThumbnailWorker: true,
+    },
+    l18Enterprise: {
+      thumbnailCdn: true,
+      thumbnailCdnImmutableCache: true,
+      thumbnailQueryTokenAuth: true,
+    },
+    l19Enterprise: {
+      openTelemetry: true,
+      otlpExport: config.otelEnabled,
+      readinessProbes: true,
+      helmChart: true,
+    },
+    l20Enterprise: {
+      conceptMapCrdt: true,
+      conceptMapCollabWebSocket: true,
+      conceptMapStudyRoomAuth: true,
+    },
+  };
+}

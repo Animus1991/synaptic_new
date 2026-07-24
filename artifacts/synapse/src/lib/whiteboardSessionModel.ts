@@ -44,8 +44,9 @@ export function buildWhiteboardSessionContent(opts: {
   lang: Lang;
   sectionLabel?: string;
   hasSource: boolean;
+  preExtractedFormulas?: ExtractedFormula[];
 }): WhiteboardSessionContent {
-  const { text, concept, lang, sectionLabel, hasSource } = opts;
+  const { text, concept, lang, sectionLabel, hasSource, preExtractedFormulas } = opts;
 
   if (!hasSource) {
     return {
@@ -60,13 +61,16 @@ export function buildWhiteboardSessionContent(opts: {
     };
   }
 
-  const formulas = extractFormulas(text, concept);
+  let formulas = extractFormulas(text, concept);
+  if (formulas.length === 0 && preExtractedFormulas?.length) {
+    formulas = preExtractedFormulas;
+  }
   const referenceExcerpt = relevantExcerpt(text, concept, 400);
   const stampCount = buildLatexStampLibrary(formulas, lang).length;
   const hasReferenceContent = formulas.length > 0 || referenceExcerpt.trim().length > 40;
   const generic = isGenericStudyConcept(concept);
   const passageGrounded = generic && hasReferenceContent;
-  const weakExtraction = generic || formulas.length === 0;
+  const weakExtraction = generic || (formulas.length === 0 && !(preExtractedFormulas?.length));
 
   return {
     formulas,

@@ -56,7 +56,7 @@ export function searchUploadedContent(
         id: `course-${course.id}`,
         kind: 'course',
         label: course.title,
-        sublabel: course.subject,
+        sublabel: `library/${course.subject || 'course'}`,
         courseId: course.id,
       });
     }
@@ -68,7 +68,7 @@ export function searchUploadedContent(
           id: `topic-${course.id}-${topic.id}`,
           kind: 'topic',
           label: title,
-          sublabel: course.title,
+          sublabel: `${course.title}/${title}`,
           courseId: course.id,
           concept: title,
         });
@@ -80,11 +80,14 @@ export function searchUploadedContent(
     const term = g.term.trim();
     if (!term) continue;
     if (norm(term).includes(nq) || norm(g.definition ?? '').includes(nq)) {
+      const courseTitle = courses.find((c) => c.id === g.courseId)?.title;
       push({
         id: `glossary-${g.courseId}-${term}`,
         kind: 'glossary',
         label: term,
-        sublabel: g.definition?.slice(0, 80),
+        sublabel: courseTitle
+          ? `${courseTitle}/glossary`
+          : (g.definition?.slice(0, 80) ?? 'glossary'),
         courseId: g.courseId,
         concept: term,
       });
@@ -94,12 +97,14 @@ export function searchUploadedContent(
   for (const file of uploadedFiles) {
     const text = file.extractedText?.trim();
     if (!text || text.length < 40) continue;
+    const courseTitle = courses.find((c) => c.id === file.courseId)?.title;
+    const filePath = courseTitle ? `${courseTitle}/files/${file.name}` : `files/${file.name}`;
     if (norm(file.name).includes(nq)) {
       push({
         id: `note-name-${file.id}`,
         kind: 'note',
         label: file.name,
-        sublabel: excerptAround(text, q),
+        sublabel: filePath,
         courseId: file.courseId,
       });
       continue;
@@ -109,7 +114,7 @@ export function searchUploadedContent(
         id: `note-body-${file.id}`,
         kind: 'note',
         label: excerptAround(text, q),
-        sublabel: file.name,
+        sublabel: filePath,
         courseId: file.courseId,
       });
     }

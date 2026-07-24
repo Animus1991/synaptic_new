@@ -65,6 +65,11 @@ export function listLearningEvents(limit = 50): LearningEvent[] {
   return readAll().slice(-limit).reverse();
 }
 
+/** Full event log for behavior inference and research export. */
+export function readAllLearningEvents(): LearningEvent[] {
+  return readAll();
+}
+
 export function countLearningEventsByType(): Record<LearningEventType, number> {
   const counts = {} as Record<LearningEventType, number>;
   for (const e of readAll()) {

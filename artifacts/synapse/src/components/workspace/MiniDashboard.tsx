@@ -1,11 +1,13 @@
 import { useState, type ReactNode } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronUp, ChevronDown, Brain, AlertTriangle, Target, Zap, RotateCcw, BookOpen, Clock } from 'lucide-react';
+import { emphasizedTransition } from '../../lib/motion';
+import { ChevronUp, ChevronDown, Brain, AlertTriangle, Target, Zap, RotateCcw, BookOpen, Clock, BarChart3, Play } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
 import { useI18n, type I18nKey } from '../../lib/i18n';
 import type { WorkspaceToolId } from '../../lib/taskFlows';
 import { workspaceToolLabel } from '../../lib/workspaceToolRegistry';
 import type { ToolActivityCount } from '../../lib/conceptBusPanelModel';
+import { formatToolTimeMinutes } from '../../lib/toolTimeTracker';
 import type { ConceptRemediationId } from '../../lib/conceptBusRemediation';
 import type { DashboardWeakSpot } from '../../lib/dashboardWeakSpotsModel';
 
@@ -33,11 +35,14 @@ interface Props {
   embedded?: boolean;
 }
 
-const BAND = (v: number, t: (k: I18nKey) => string) =>
-  v >= 80 ? { label: t('strong'), color: '#34d399' }
-  : v >= 60 ? { label: t('proficient'), color: '#fbbf24' }
-  : v >= 40 ? { label: t('developing'), color: '#38bdf8' }
-  : { label: t('weakLabel'), color: '#fb7185' };
+import { bandColorVar } from '../../lib/masteryPalette';
+import { masteryBand } from '../../lib/pedagogy';
+
+const BAND = (v: number, t: (k: I18nKey) => string) => {
+  const band = masteryBand(v);
+  const keys = { strong: 'strong', proficient: 'proficient', developing: 'developing', weak: 'weakLabel' } as const satisfies Record<typeof band, I18nKey>;
+  return { label: t(keys[band]), color: bandColorVar(band) };
+};
 
 export function MiniDashboard({
   readiness,
@@ -83,7 +88,12 @@ export function MiniDashboard({
       {!embedded && (
       <div className={cn('flex items-center gap-2 px-3 py-2 border-b border-border-subtle bg-surface-secondary/40 cursor-pointer', collapsed && 'justify-center')}
         onClick={() => setCollapsed(!collapsed)}>
-        {!collapsed && <span className="text-[10px] font-semibold text-text-secondary flex-1">📊 {t('quickView')}</span>}
+        {!collapsed && (
+          <span className="text-[10px] font-semibold text-text-secondary flex-1 inline-flex items-center gap-1">
+            <BarChart3 className="w-3 h-3 shrink-0" />
+            {t('quickView')}
+          </span>
+        )}
         {collapsed
           ? <ChevronUp className="w-3.5 h-3.5 text-text-muted rotate-90" />
           : <ChevronDown className="w-3.5 h-3.5 text-text-muted rotate-90" />
@@ -93,14 +103,20 @@ export function MiniDashboard({
 
       <AnimatePresence>
         {(!collapsed || embedded) && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={emphasizedTransition}>
             {/* Tabs */}
             <div className="flex border-b border-border-subtle">
               {(['overview', 'weak', 'next'] as const).map((tab) => (
                 <button key={tab} type="button" onClick={() => setActiveTab(tab)}
-                  className={cn('flex-1 py-1.5 text-[9px] font-medium capitalize transition-all',
-                    activeTab === tab ? 'text-brand-300 border-b border-brand-400' : 'text-text-muted hover:text-text-secondary')}>
-                  {tab === 'overview' ? `🎯 ${t('status')}` : tab === 'weak' ? `⚠ ${t('weak')}` : `▶ ${t('nextActions')}`}
+                  className={cn('flex-1 py-1.5 text-[10px] font-medium capitalize transition-all inline-flex items-center justify-center gap-0.5',
+                    activeTab === tab ? 'text-brand-600 border-b border-brand-500' : 'text-text-muted hover:text-text-secondary')}>
+                  {tab === 'overview' ? (
+                    <><Target className="w-3 h-3" /> {t('status')}</>
+                  ) : tab === 'weak' ? (
+                    <><AlertTriangle className="w-3 h-3" /> {t('weak')}</>
+                  ) : (
+                    <><Play className="w-3 h-3" /> {t('nextActions')}</>
+                  )}
                 </button>
               ))}
             </div>
@@ -111,7 +127,7 @@ export function MiniDashboard({
                 {/* Mini readiness ring */}
                 <div className="flex items-center gap-3">
                   <svg width={size} height={size} className="-rotate-90 shrink-0">
-                    <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="#1e1740" strokeWidth={sw} />
+                    <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--viz-track)" strokeWidth={sw} />
                     <circle cx={size / 2} cy={size / 2} r={r} fill="none"
                       stroke={band.color} strokeWidth={sw} strokeDasharray={c} strokeDashoffset={offset}
                       strokeLinecap="round" className="transition-all duration-700" />
@@ -120,8 +136,8 @@ export function MiniDashboard({
                   </svg>
                   <div>
                     <p className="text-xs font-semibold">{band.label}</p>
-                    <p className="text-[9px] text-text-muted">{t('examReadiness')}</p>
-                    <p className="text-[9px] text-text-muted mt-1">{conceptsMastered}/{totalConcepts} {t('concepts')}</p>
+                    <p className="text-[10px] text-text-muted">{t('examReadiness')}</p>
+                    <p className="text-[10px] text-text-muted mt-1">{conceptsMastered}/{totalConcepts} {t('concepts')}</p>
                   </div>
                 </div>
 
@@ -129,17 +145,17 @@ export function MiniDashboard({
                 <div className="grid grid-cols-3 gap-1.5">
                   <StatPill icon={<Zap className="w-3 h-3 text-accent-amber" />} label={t('streak')} value={`${streak}d`} />
                   <StatPill icon={<RotateCcw className="w-3 h-3 text-accent-teal" />} label={t('due')} value={`${reviewsDue}`} />
-                  <StatPill icon={<Brain className="w-3 h-3 text-brand-400" />} label={t('weak')} value={`${weakSpots.length}`} />
+                  <StatPill icon={<Brain className="w-3 h-3 text-brand-700" />} label={t('weak')} value={`${weakSpots.length}`} />
                 </div>
 
                 <div className="grid grid-cols-2 gap-1.5">
                   <StatPill icon={<Clock className="w-3 h-3 text-accent-emerald" />} label={t('studyToday')} value={`${studyTimeToday}m`} />
-                  <StatPill icon={<Clock className="w-3 h-3 text-accent-cyan" />} label={t('studyThisWeek')} value={`${studyTimeWeek}m`} />
+                  <StatPill icon={<Clock className="w-3 h-3 text-brand-800" />} label={t('studyThisWeek')} value={`${studyTimeWeek}m`} />
                 </div>
 
                 {recentStudyDays.length > 0 && (
                   <div className="rounded-lg border border-border-subtle bg-surface-primary/40 p-2">
-                    <p className="text-[8px] text-text-muted mb-1.5">{t('studyThisWeek')}</p>
+                    <p className="text-[10px] text-text-muted mb-1.5">{t('studyThisWeek')}</p>
                     <div className="flex items-end gap-1 h-8">
                       {recentStudyDays.map((mins, i) => (
                         <div key={i} className="flex-1 flex flex-col items-center gap-0.5">
@@ -159,15 +175,18 @@ export function MiniDashboard({
                     className="rounded-lg border border-border-subtle bg-surface-primary/40 p-2"
                     data-testid="progress-tool-activity"
                   >
-                    <p className="text-[8px] text-text-muted mb-1.5">
-                      {lang === 'el' ? 'Εργαλεία συνεδρίας' : 'Session tools'}
+                    <p className="text-[10px] text-text-muted mb-1.5">
+                      {t('exportSessionTools')}
                     </p>
                     <div className="flex flex-wrap gap-1">
-                      {toolActivity.slice(0, 8).map(({ tool, count }) => {
+                      {toolActivity.slice(0, 8).map(({ tool, count, ms }) => {
                         const chip = (
                           <>
                             {workspaceToolLabel(tool as WorkspaceToolId, lang)}
-                            <span className="text-text-muted">×{count}</span>
+                            <span className="text-text-muted">
+                              ×{count}
+                              {ms != null && ms > 0 ? ` · ${formatToolTimeMinutes(ms)}` : ''}
+                            </span>
                           </>
                         );
                         if (onOpenToolActivity) {
@@ -176,7 +195,7 @@ export function MiniDashboard({
                               key={tool}
                               type="button"
                               onClick={() => onOpenToolActivity(tool as WorkspaceToolId)}
-                              className="inline-flex items-center gap-0.5 rounded-full border border-white/10 bg-surface-card/60 px-1.5 py-0.5 text-[8px] text-text-secondary hover:border-accent-cyan/35 hover:text-accent-cyan"
+                              className="inline-flex items-center gap-0.5 rounded-full border border-white/10 bg-surface-card/60 px-1.5 py-0.5 text-[10px] text-text-secondary hover:border-brand-600/35 hover:text-brand-800"
                               data-testid={`progress-tool-${tool}`}
                             >
                               {chip}
@@ -186,7 +205,7 @@ export function MiniDashboard({
                         return (
                           <span
                             key={tool}
-                            className="inline-flex items-center gap-0.5 rounded-full border border-white/10 bg-surface-card/60 px-1.5 py-0.5 text-[8px] text-text-secondary"
+                            className="inline-flex items-center gap-0.5 rounded-full border border-white/10 bg-surface-card/60 px-1.5 py-0.5 text-[10px] text-text-secondary"
                             data-testid={`progress-tool-${tool}`}
                           >
                             {chip}
@@ -222,9 +241,9 @@ export function MiniDashboard({
                         <AlertTriangle className="w-3 h-3 text-accent-rose shrink-0" />
                         <div className="flex-1 min-w-0">
                           <p className="text-[10px] font-medium truncate">{concept}</p>
-                          <p className="text-[8px] text-text-muted">{w.course}</p>
+                          <p className="text-[10px] text-text-muted">{w.course}</p>
                         </div>
-                        <p className="text-[9px] text-text-muted shrink-0">{w.mastery}%</p>
+                        <p className="text-[10px] text-text-muted shrink-0">{w.mastery}%</p>
                       </button>
                       {detail && detail.reasons.length > 0 && (
                         <div className="mt-1.5 flex flex-wrap gap-1">
@@ -232,7 +251,7 @@ export function MiniDashboard({
                             <span
                               key={reason.id}
                               className={cn(
-                                'rounded-full border px-1.5 py-0.5 text-[8px]',
+                                'rounded-full border px-1.5 py-0.5 text-[10px]',
                                 reason.severity === 'high'
                                   ? 'border-accent-rose/35 bg-accent-rose/12 text-accent-rose'
                                   : reason.severity === 'medium'
@@ -253,7 +272,7 @@ export function MiniDashboard({
                               type="button"
                               title={action.hint}
                               onClick={() => onRemediateWeakSpot(concept, action.id)}
-                              className="rounded-full border border-brand-500/30 bg-brand-500/10 px-1.5 py-0.5 text-[8px] font-medium text-brand-300 hover:bg-brand-500/20"
+                              className="rounded-full border border-brand-500/30 bg-brand-500/10 px-1.5 py-0.5 text-[10px] font-medium text-brand-800 hover:bg-brand-500/20"
                             >
                               {action.label}
                             </button>
@@ -280,11 +299,11 @@ export function MiniDashboard({
                     <div className="w-5 h-5 rounded-md bg-surface-hover flex items-center justify-center shrink-0">
                       {a.type === 'review' ? <RotateCcw className="w-3 h-3 text-accent-amber" />
                         : a.type === 'practice' ? <Target className="w-3 h-3 text-accent-teal" />
-                        : <BookOpen className="w-3 h-3 text-brand-400" />}
+                        : <BookOpen className="w-3 h-3 text-brand-700" />}
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-[10px] font-medium truncate">{a.label}</p>
-                      <p className="text-[8px] text-text-muted">~{a.minutes}m{a.xp != null ? ` • +${a.xp} XP` : ''}</p>
+                      <p className="text-[10px] text-text-muted">{a.minutes}m • +{a.xp} XP</p>
                     </div>
                   </button>
                 ))}

@@ -1,7 +1,10 @@
-import { AlertTriangle, ChevronDown, ChevronUp } from 'lucide-react';
+import { AlertTriangle, ChevronDown, ChevronUp } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
+import { t, type Lang } from '../../lib/i18n';
 import type { WeakSpotWithReasons } from '../../lib/weakAreaReasons';
 import { isWeakSpotFocused } from '../../lib/workspaceWeakAreas';
+import type { WorkspaceEmptyAction } from '../../lib/workspaceEmptyState';
+import { WorkspaceToolEmptyState } from './WorkspaceToolEmptyState';
 
 export function WeakAreasFocusRail({
   spots,
@@ -10,33 +13,47 @@ export function WeakAreasFocusRail({
   expanded,
   onToggle,
   onFocusWeakSpot,
+  emptyMessage,
+  emptyActions = [],
 }: {
   spots: WeakSpotWithReasons[];
   focusTerm?: string;
-  lang: 'en' | 'el';
+  lang: Lang;
   expanded: boolean;
   onToggle: () => void;
   onFocusWeakSpot: (concept: string) => void;
+  emptyMessage?: string;
+  emptyActions?: WorkspaceEmptyAction[];
 }) {
-  if (spots.length === 0) return null;
-
-  const isEl = lang === 'el';
+  if (spots.length === 0) {
+    return (
+      <div className="shrink-0 border-b border-border-subtle/80 bg-surface-card/40" data-testid="workspace-weak-areas-rail">
+        <WorkspaceToolEmptyState
+          compact
+          tool="weak-areas"
+          message={emptyMessage ?? t('weakAreasEmpty', lang)}
+          hasSource
+          actions={emptyActions}
+        />
+      </div>
+    );
+  }
 
   return (
     <div
-      className="shrink-0 border-b border-accent-rose/20 bg-accent-rose/5"
+      className="shrink-0 border-b border-border-subtle/80 bg-surface-card/40"
       data-testid="workspace-weak-areas-rail"
     >
       <button
         type="button"
         onClick={onToggle}
-        className="flex w-full items-center justify-between gap-2 px-3 py-2 text-left hover:bg-accent-rose/8 transition-colors"
+        className="flex w-full items-center justify-between gap-2 px-3 py-2 text-left transition-colors hover:bg-surface-hover"
         aria-expanded={expanded}
       >
         <div className="flex items-center gap-2 min-w-0">
-          <AlertTriangle className="w-3.5 h-3.5 text-accent-rose shrink-0" />
+          <AlertTriangle className="h-3.5 w-3.5 shrink-0 opacity-80" aria-hidden />
           <p className="text-[11px] font-semibold text-text-primary truncate">
-            {isEl ? 'Αδύναμα σημεία' : 'Weak areas'}
+            {t('weakAreasTitle', lang)}
             <span className="ml-1.5 font-normal text-text-tertiary">({spots.length})</span>
           </p>
         </div>
@@ -59,9 +76,7 @@ export function WeakAreasFocusRail({
                   title={`${spot.concept} · ${spot.mastery}%`}
                   className={cn(
                     'shrink-0 max-w-[150px] truncate rounded-full border px-2.5 py-1 text-[10px] transition-colors',
-                    active
-                      ? 'border-accent-rose/60 bg-accent-rose/20 text-accent-rose'
-                      : 'border-white/10 bg-surface-card text-text-secondary hover:border-accent-rose/40 hover:text-accent-rose',
+                    active ? 'ws-chip-danger' : 'ws-chip-neutral hover:opacity-90',
                   )}
                 >
                   {spot.concept.slice(0, 28)}
@@ -70,17 +85,17 @@ export function WeakAreasFocusRail({
               );
             })}
           </div>
-          <div className="px-3 pb-3 space-y-2 border-t border-accent-rose/15 pt-2 max-h-40 overflow-y-auto">
+          <div className="px-3 pb-3 space-y-2 border-t border-border-subtle/60 pt-2 max-h-40 overflow-y-auto">
             {spots.map((spot) => (
               <div
                 key={`detail-${spot.concept}`}
-                className="rounded-xl border border-white/8 bg-white/[0.03] px-2.5 py-2"
+                className="rounded-xl border border-border-subtle bg-surface-card/60 px-2.5 py-2"
                 data-testid={`weak-area-detail-${normalizeChipKey(spot.concept)}`}
               >
                 <button
                   type="button"
                   onClick={() => onFocusWeakSpot(spot.concept)}
-                  className="text-[11px] font-semibold text-text-primary hover:text-accent-rose truncate block max-w-full text-left"
+                  className="text-[11px] font-semibold text-text-primary hover:text-brand-800 truncate block max-w-full text-left"
                 >
                   {spot.concept}
                   <span className="ml-1.5 font-normal text-text-muted">{spot.mastery}%</span>
@@ -91,12 +106,12 @@ export function WeakAreasFocusRail({
                       <span
                         key={reason.id}
                         className={cn(
-                          'rounded-full border px-1.5 py-0.5 text-[9px]',
+                          'rounded-full border px-1.5 py-0.5 text-[10px]',
                           reason.severity === 'high'
-                            ? 'border-accent-rose/40 bg-accent-rose/15 text-accent-rose'
+                            ? 'ws-chip-danger'
                             : reason.severity === 'medium'
-                              ? 'border-accent-amber/35 bg-accent-amber/10 text-accent-amber'
-                              : 'border-white/10 bg-white/[0.04] text-text-muted',
+                              ? 'ws-chip-warn'
+                              : 'ws-chip-neutral',
                         )}
                       >
                         {reason.label}
@@ -104,8 +119,8 @@ export function WeakAreasFocusRail({
                     ))}
                   </div>
                 ) : (
-                  <p className="mt-1 text-[9px] text-text-muted">
-                    {isEl ? 'Χαμηλό mastery — χρειάζεται επανάληψη' : 'Low mastery — needs review'}
+                  <p className="mt-1 text-[10px] text-text-muted">
+                    {t('lowMasteryReview', lang)}
                   </p>
                 )}
               </div>

@@ -1,13 +1,14 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { createLocalEmbedder, hashText, resetLocalEmbedder } from './localEmbedder';
+import { createLocalEmbedder, hashText, isEmbeddingRuntime, resetLocalEmbedder } from './localEmbedder';
 
 describe('localEmbedder', () => {
   beforeEach(() => {
     resetLocalEmbedder();
   });
 
-  it('returns null outside a browser runtime', async () => {
+  it('returns null outside a browser/worker runtime', async () => {
     const embedder = createLocalEmbedder();
+    expect(isEmbeddingRuntime()).toBe(false);
     expect(embedder.ready).toBe(false);
     const result = await embedder.embed(['hello', 'world']);
     expect(result).toBeNull();

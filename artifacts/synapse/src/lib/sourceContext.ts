@@ -1,11 +1,74 @@
 import type { UploadedFile, UserSettings } from '../types';
-import { ragQuery } from './authClient';
-import { retrieveSources, retrieveAndRerank, type Citation, type RetrievalResult, type RetrievedChunk } from './rag';
+import { ragQuery, ragSearch, type GlobalRagHit } from './authClient';
+import { retrieveSources, retrieveAndRerank, formatCitation, type Citation, type RetrievalResult, type RetrievedChunk } from './rag';
 import { embedTexts, isLlmAvailable } from './llmClient';
-import { localEmbedder } from './localEmbedder';
 
 function isServerProxyConfigured(settings?: UserSettings): boolean {
   return !!(settings?.llmProxyUrl?.trim() || settings?.authProxyBase?.trim());
+}
+
+function canUseGlobalRag(settings?: UserSettings): boolean {
+  return isServerProxyConfigured(settings) && !!settings?.authToken?.trim();
+}
+
+function globalHitToCitation(hit: GlobalRagHit): Citation {
+  const snippet = hit.text.length > 160 ? `${hit.text.slice(0, 157)}…` : hit.text;
+  const locator = hit.page ? `p.${hit.page}` : `¶${hit.id.split('#')[1] ?? '1'}`;
+  return {
+    chunkId: hit.id,
+    fileId: hit.fileId,
+    fileName: hit.fileName,
+    locator,
+    charStart: hit.charStart,
+    charEnd: hit.charEnd,
+    page: hit.page,
+    heading: hit.heading,
+    snippet,
+  };
+}
+
+function buildRetrievalFromGlobalHits(
+  hits: GlobalRagHit[],
+  maxChars: number,
+  meta?: { graphRag?: boolean },
+): RetrievalResult {
+  const citations: Citation[] = [];
+  const blocks: string[] = [];
+  let used = 0;
+  for (const hit of hits) {
+    const citation = globalHitToCitation(hit);
+    const header = `[${formatCitation(citation)}]`;
+    const block = `${header}\n${hit.text}`;
+    if (used + block.length > maxChars && blocks.length > 0) break;
+    blocks.push(block);
+    citations.push(citation);
+    used += block.length;
+  }
+  return {
+    excerpt: blocks.length > 0 ? blocks.join('\n\n') : undefined,
+    citations,
+    grounded: blocks.length > 0,
+    globalRag: true,
+    graphRag: meta?.graphRag,
+  };
+}
+
+async function retrieveViaGlobalSearch(
+  query: string,
+  settings: UserSettings,
+  opts: { concept?: string; courseId?: string; k?: number; maxChars?: number },
+): Promise<RetrievalResult | null> {
+  const fullQuery = [query, opts.concept].filter(Boolean).join(' ');
+  try {
+    const { results, indexedChunks, graphRag } = await ragSearch(settings.authToken, settings, fullQuery, {
+      topK: opts.k ?? 4,
+      courseId: opts.courseId,
+    });
+    if (indexedChunks === 0 || results.length === 0) return null;
+    return buildRetrievalFromGlobalHits(results, opts.maxChars ?? MAX_EXCERPT, { graphRag });
+  } catch {
+    return null;
+  }
 }
 
 const MAX_EXCERPT = 3500;
@@ -73,23 +136,6 @@ function embeddingReranker(settings?: UserSettings) {
   };
 }
 
-function localEmbeddingReranker() {
-  return async (query: string, hits: RetrievedChunk[]): Promise<RetrievedChunk[]> => {
-    if (hits.length === 0 || !localEmbedder.ready) return hits;
-    const texts = [query, ...hits.map((h) => h.chunk.text.slice(0, 800))];
-    const emb = await localEmbedder.embed(texts);
-    if (!emb || emb.length !== texts.length) return hits;
-    const q = emb[0]!;
-    const maxLex = Math.max(...hits.map((h) => h.score), 1e-9);
-    return hits
-      .map((h, i) => ({
-        chunk: h.chunk,
-        score: 0.5 * (h.score / maxLex) + 0.5 * Math.max(0, cosine(q, emb[i + 1]!)),
-      }))
-      .sort((a, b) => b.score - a.score);
-  };
-}
-
 /**
  * Backward-compatible excerpt builder. Now backed by BM25 retrieval instead of
  * a naive `indexOf` slice: returns the most relevant chunks for `concept`,
@@ -136,8 +182,12 @@ export async function retrieveForQueryHybrid(
   files: UploadedFile[],
   query: string,
   settings?: UserSettings,
-  opts: { concept?: string; courseId?: string; k?: number } = {},
+  opts: { concept?: string; courseId?: string; fileIds?: string[]; k?: number } = {},
 ): Promise<RetrievalResult> {
+  const scopedFiles =
+    opts.fileIds?.length
+      ? files.filter((f) => opts.fileIds!.includes(f.id))
+      : files;
   const rerankOpts = {
     concept: opts.concept,
     courseId: opts.courseId,
@@ -145,18 +195,20 @@ export async function retrieveForQueryHybrid(
     maxChars: MAX_EXCERPT,
   };
 
-  if (settings && isServerProxyConfigured(settings)) {
-    return retrieveAndRerank(files, query, rerankOpts, serverRagReranker(settings));
+  if (settings && canUseGlobalRag(settings)) {
+    const global = await retrieveViaGlobalSearch(query, settings, rerankOpts);
+    if (global?.grounded) return global;
   }
 
-  // Prefer local offline embedder; fall back to LLM endpoint; otherwise lexical only.
-  const reranker = localEmbedder.ready
-    ? localEmbeddingReranker()
-    : isLlmAvailable(settings)
-      ? embeddingReranker(settings)
-      : undefined;
+  if (settings && isServerProxyConfigured(settings)) {
+    const local = await retrieveAndRerank(scopedFiles, query, rerankOpts, serverRagReranker(settings));
+    return { ...local, globalRag: false };
+  }
 
-  return retrieveAndRerank(files, query, rerankOpts, reranker);
+  // Offline-only: OpenAI-compatible embedder when configured; otherwise lexical BM25.
+  const reranker = isLlmAvailable(settings) ? embeddingReranker(settings) : undefined;
+  const local = await retrieveAndRerank(scopedFiles, query, rerankOpts, reranker);
+  return { ...local, globalRag: false };
 }
 
 export function shouldGroundInSources(settings?: UserSettings): boolean {

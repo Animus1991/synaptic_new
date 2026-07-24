@@ -1,9 +1,9 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type KeyboardEvent, type MutableRefObject } from 'react';
 import {
-  ArrowRight, Circle, Eraser, Eye, EyeOff, Highlighter, Layers, Lock, Minus, Pen,
+  ArrowRight, Bot, Circle, Eraser, Eye, EyeOff, Highlighter, Layers, Lock, Minus, Pen,
   Plus, Redo2, Ruler, Save, Square, Trash2, Type, Undo2, BookOpen, Calculator, X, Unlock, Download,
-} from 'lucide-react';
-import { downloadWhiteboardPng } from '../../lib/whiteboardExport';
+} from '@/lib/lucide-shim';
+import { buildWhiteboardSvg, downloadWhiteboardPng, downloadWhiteboardSvg } from '../../lib/whiteboardExport';
 import { cn } from '../../utils/cn';
 import type { ExtractedFormula } from '../../lib/noteContentExtractors';
 import type { ScratchpadExport } from '../../lib/workspaceScratchpadBridge';
@@ -17,7 +17,15 @@ import {
 } from '../../lib/whiteboardLayers';
 import { FormulaLatexPreview } from './FormulaLatexPreview';
 import { buildLatexStampLibrary, stampToInsertText, type LatexStamp } from '../../lib/whiteboardLatexStamps';
-import { layoutCoachNodePositions } from '../../lib/whiteboardDiagramCoach';
+import {
+  buildWhiteboardDiagramAgentPrompt,
+  describeWhiteboardDocument,
+  layoutCoachNodePositions,
+  type DiagramCoachPlan,
+  type WhiteboardDiagramAgentIntent,
+} from '../../lib/whiteboardDiagramCoach';
+import { useI18n } from '../../lib/i18n';
+import { cycleToolIndex } from '../../lib/canvasKeyboardA11y';
 
 type Tool = 'pen' | 'marker' | 'highlighter' | 'eraser' | 'line' | 'rect' | 'ellipse' | 'arrow' | 'ruler' | 'text';
 type Point = { x: number; y: number };
@@ -56,7 +64,10 @@ export function StudyWhiteboard({
   lang = 'en',
   labelInsertKey = 0,
   labelInsertPayload = [],
-  onPlacedTextChange,
+  coachPlan,
+  onAskAgent,
+  sketchDescriptionRef,
+  crdt,
 }: {
   referenceFormulas?: ExtractedFormula[];
   referenceExcerpt?: string;
@@ -67,9 +78,17 @@ export function StudyWhiteboard({
   lang?: 'en' | 'el';
   labelInsertKey?: number;
   labelInsertPayload?: string[];
-  /** Reports the text currently placed on the board (for blueprint coverage). */
-  onPlacedTextChange?: (texts: string[]) => void;
+  coachPlan?: DiagramCoachPlan;
+  onAskAgent?: (prompt: string, intent: WhiteboardDiagramAgentIntent) => void;
+  sketchDescriptionRef?: MutableRefObject<string>;
+  crdt?: {
+    doc: WhiteboardDocument;
+    synced: boolean;
+    connecting: boolean;
+    applyLocalDoc: (next: WhiteboardDocument) => void;
+  };
 }) {
+  const { t } = useI18n();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [tool, setTool] = useState<Tool>('pen');
@@ -81,7 +100,21 @@ export function StudyWhiteboard({
   const [savedMsg, setSavedMsg] = useState(false);
   const [showLayers, setShowLayers] = useState(true);
   const [showStamps, setShowStamps] = useState(false);
+  const [liveAnnouncement, setLiveAnnouncement] = useState('');
   const drawing = useRef(false);
+  const crdtRef = useRef(crdt);
+  crdtRef.current = crdt;
+
+  const patchDoc = useCallback((fn: (d: WhiteboardDocument) => WhiteboardDocument) => {
+    setDoc((prev) => {
+      const next = fn(prev);
+      const c = crdtRef.current;
+      if (c?.synced) {
+        Promise.resolve().then(() => c.applyLocalDoc(next));
+      }
+      return next;
+    });
+  }, []);
 
   const stampLibrary = useMemo(
     () => buildLatexStampLibrary(referenceFormulas, lang),
@@ -89,6 +122,25 @@ export function StudyWhiteboard({
   );
 
   const activeLayerLocked = isLayerLocked(doc, doc.activeLayerId);
+
+  const sketchDescription = useMemo(
+    () => describeWhiteboardDocument(doc, lang),
+    [doc, lang],
+  );
+
+  useEffect(() => {
+    if (sketchDescriptionRef) sketchDescriptionRef.current = sketchDescription;
+  }, [sketchDescription, sketchDescriptionRef]);
+
+  const handleExplainDiagram = useCallback(() => {
+    if (!onAskAgent || !coachPlan) return;
+    const prompt = buildWhiteboardDiagramAgentPrompt(coachPlan, lang, 'explain', {
+      sketchDescription,
+      referenceExcerpt: referenceExcerpt,
+    });
+    onAskAgent(prompt, 'explain');
+    onEngage?.();
+  }, [coachPlan, lang, onAskAgent, onEngage, referenceExcerpt, sketchDescription]);
 
   const redraw = useCallback((list: LayeredStroke[], current?: LayeredStroke | null) => {
     const canvas = canvasRef.current;
@@ -205,6 +257,11 @@ export function StudyWhiteboard({
     } catch { /* ignore */ }
   }, [scopeKey, lang]);
 
+  useEffect(() => {
+    if (!crdt?.synced) return;
+    setDoc(crdt.doc);
+  }, [crdt?.synced, crdt?.doc]);
+
   const visible = visibleStrokes(doc);
   useEffect(() => { redraw(visible, draft); }, [visible, draft, redraw]);
 
@@ -222,7 +279,7 @@ export function StudyWhiteboard({
   const effectiveWidth = tool === 'marker' ? width * 2.5 : tool === 'highlighter' ? width * 4 : tool === 'eraser' ? width * 3 : width;
 
   const appendStroke = (stroke: LayeredStroke) => {
-    setDoc((d) => ({ ...d, strokes: [...d.strokes, stroke] }));
+    patchDoc((d) => ({ ...d, strokes: [...d.strokes, stroke] }));
     setRedoStack([]);
     onEngage?.();
   };
@@ -231,7 +288,7 @@ export function StudyWhiteboard({
     if (activeLayerLocked) return;
     if (tool === 'text') {
       const p = pos(e);
-      const text = window.prompt(lang === 'el' ? 'Κείμενο:' : 'Enter text:');
+      const text = window.prompt(t('wbEnterText'));
       if (text?.trim()) {
         appendStroke({
           layerId: doc.activeLayerId,
@@ -273,7 +330,7 @@ export function StudyWhiteboard({
   };
 
   const undo = () => {
-    setDoc((d) => {
+    patchDoc((d) => {
       if (d.strokes.length === 0) return d;
       const last = d.strokes[d.strokes.length - 1]!;
       setRedoStack((r) => [...r, last]);
@@ -285,18 +342,36 @@ export function StudyWhiteboard({
     setRedoStack((r) => {
       if (r.length === 0) return r;
       const last = r[r.length - 1]!;
-      setDoc((d) => ({ ...d, strokes: [...d.strokes, last] }));
+      patchDoc((d) => ({ ...d, strokes: [...d.strokes, last] }));
       return r.slice(0, -1);
     });
   };
 
   const clearActiveLayer = () => {
-    setDoc((d) => ({
+    patchDoc((d) => ({
       ...d,
       strokes: d.strokes.filter((s) => s.layerId !== d.activeLayerId),
     }));
     setRedoStack([]);
     setDraft(null);
+  };
+
+  const exportFilename = `whiteboard-${scopeKey ?? 'board'}`;
+
+  const exportPng = () => {
+    if (canvasRef.current) downloadWhiteboardPng(canvasRef.current, exportFilename);
+  };
+
+  const exportSvg = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const bg = getComputedStyle(document.documentElement).getPropertyValue('--viz-canvas-bg').trim() || '#0f172a';
+    const svg = buildWhiteboardSvg(doc, {
+      width: canvas.clientWidth,
+      height: canvas.clientHeight,
+      background: bg,
+    });
+    downloadWhiteboardSvg(svg, exportFilename);
   };
 
   const save = () => {
@@ -319,23 +394,15 @@ export function StudyWhiteboard({
       points: [positions[i] ?? { x: 56, y: 72 + i * 48 }],
       text: text.slice(0, 80),
     }));
-    setDoc((d) => ({ ...d, strokes: [...d.strokes, ...strokesToAdd] }));
+    patchDoc((d) => ({ ...d, strokes: [...d.strokes, ...strokesToAdd] }));
     setRedoStack([]);
     onEngage?.();
-  }, [doc.activeLayerId, onEngage]);
+  }, [doc.activeLayerId, onEngage, patchDoc]);
 
   useEffect(() => {
     if (labelInsertKey === 0 || labelInsertPayload.length === 0) return;
     insertCoachLabels(labelInsertPayload);
   }, [labelInsertKey, labelInsertPayload, insertCoachLabels]);
-
-  useEffect(() => {
-    if (!onPlacedTextChange) return;
-    const texts = visibleStrokes(doc)
-      .filter((s) => s.tool === 'text' && s.text?.trim())
-      .map((s) => s.text!.trim());
-    onPlacedTextChange(texts);
-  }, [doc, onPlacedTextChange]);
 
   const insertFormulaLabel = (label: string, formula: string, extraLines?: string[]) => {
     const x = 40 + Math.random() * 80;
@@ -361,7 +428,7 @@ export function StudyWhiteboard({
         });
       }
     }
-    setDoc((d) => ({ ...d, strokes: [...d.strokes, ...strokesToAdd] }));
+    patchDoc((d) => ({ ...d, strokes: [...d.strokes, ...strokesToAdd] }));
     setRedoStack([]);
     onEngage?.();
   };
@@ -375,7 +442,7 @@ export function StudyWhiteboard({
   const insertLatexStamp = (stamp: LatexStamp) => {
     const x = 48 + Math.random() * 100;
     const y = 48 + Math.random() * 80;
-    setDoc((d) => ({
+    patchDoc((d) => ({
       ...d,
       strokes: [...d.strokes, {
         layerId: d.activeLayerId,
@@ -392,13 +459,13 @@ export function StudyWhiteboard({
 
   const addLayer = () => {
     const id = `layer-${Date.now()}`;
-    setDoc((d) => ({
+    patchDoc((d) => ({
       ...d,
       layers: [
         ...d.layers,
         {
           id,
-          name: lang === 'el' ? `Επίπεδο ${d.layers.length + 1}` : `Layer ${d.layers.length + 1}`,
+          name: t('wbLayerN').replace('{n}', String(d.layers.length + 1)),
           visible: true,
           locked: false,
         },
@@ -408,47 +475,93 @@ export function StudyWhiteboard({
   };
 
   const toggleLayerVisibility = (layerId: string) => {
-    setDoc((d) => ({
+    patchDoc((d) => ({
       ...d,
       layers: d.layers.map((l) => (l.id === layerId ? { ...l, visible: !l.visible } : l)),
     }));
   };
 
   const toggleLayerLock = (layerId: string) => {
-    setDoc((d) => ({
+    patchDoc((d) => ({
       ...d,
       layers: d.layers.map((l) => (l.id === layerId ? { ...l, locked: !l.locked } : l)),
     }));
   };
 
+  const handleCanvasKeyDown = useCallback((e: KeyboardEvent<HTMLCanvasElement>) => {
+    if (activeLayerLocked) return;
+    const toolIdx = TOOL_DEFS.findIndex((td) => td.id === tool);
+
+    if (e.key === '[') {
+      e.preventDefault();
+      const next = cycleToolIndex(toolIdx, -1, TOOL_DEFS.length);
+      const nextTool = TOOL_DEFS[next]!;
+      setTool(nextTool.id);
+      setLiveAnnouncement(t('wbToolFocused').replace('{tool}', nextTool.label));
+      return;
+    }
+    if (e.key === ']') {
+      e.preventDefault();
+      const next = cycleToolIndex(toolIdx, 1, TOOL_DEFS.length);
+      const nextTool = TOOL_DEFS[next]!;
+      setTool(nextTool.id);
+      setLiveAnnouncement(t('wbToolFocused').replace('{tool}', nextTool.label));
+      return;
+    }
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z' && !e.shiftKey) {
+      e.preventDefault();
+      undo();
+      return;
+    }
+    if ((e.ctrlKey || e.metaKey) && (e.key.toLowerCase() === 'y' || (e.key.toLowerCase() === 'z' && e.shiftKey))) {
+      e.preventDefault();
+      redo();
+      return;
+    }
+    if (e.key === '+' || e.key === '=') {
+      e.preventDefault();
+      setWidth((w) => Math.min(12, w + 1));
+      return;
+    }
+    if (e.key === '-') {
+      e.preventDefault();
+      setWidth((w) => Math.max(1, w - 1));
+    }
+  }, [activeLayerLocked, redo, t, tool, undo]);
+
   return (
-    <div className="flex h-full flex-col lg:flex-row min-w-0">
+    <div className="flex h-full min-h-0 flex-col overflow-hidden lg:flex-row min-w-0">
       {(referenceFormulas.length > 0 || referenceExcerpt || scratchpadImport) && (
         <aside className="shrink-0 border-b lg:border-b-0 lg:border-r border-border-subtle lg:w-64 overflow-y-auto p-3 space-y-3">
           {scratchpadImport && (
             <div className="p-3 rounded-xl border border-accent-cyan/30 bg-accent-cyan/5 space-y-2">
               <div className="flex items-center justify-between gap-2">
-                <div className="flex items-center gap-1.5 text-xs font-semibold text-accent-cyan">
+                <div className="flex items-center gap-1.5 text-xs font-semibold text-brand-800">
                   <Calculator className="w-3.5 h-3.5" />
-                  {lang === 'el' ? 'Από scratchpad' : 'From scratchpad'}
+                  {t('wbFromScratchpad')}
                 </div>
-                <button type="button" onClick={onDismissScratchpadImport} className="text-text-muted hover:text-text-secondary">
-                  <X className="w-3.5 h-3.5" />
+                <button
+                  type="button"
+                  aria-label={t('wbDismissScratchpad')}
+                  onClick={onDismissScratchpadImport}
+                  className="text-text-muted hover:text-text-secondary"
+                >
+                  <X className="w-3.5 h-3.5" aria-hidden />
                 </button>
               </div>
-              <p className="text-[10px] font-medium text-brand-300">{scratchpadImport.name}</p>
+              <p className="text-[10px] font-medium text-brand-800">{scratchpadImport.name}</p>
               <div className="rounded-lg bg-surface-primary/60 p-2 overflow-x-auto">
                 <FormulaLatexPreview formula={scratchpadImport.formula} />
               </div>
               {scratchpadImport.variables && scratchpadImport.variables.length > 0 && (
-                <div className="text-[9px] text-text-muted space-y-0.5">
+                <div className="text-[10px] text-text-muted space-y-0.5">
                   {scratchpadImport.variables.map((v) => (
                     <p key={v.symbol}>{v.symbol} = {v.value}{v.unit ? ` ${v.unit}` : ''}</p>
                   ))}
                 </div>
               )}
               {scratchpadImport.steps && scratchpadImport.steps.length > 0 && (
-                <div className="text-[9px] font-mono text-text-tertiary space-y-0.5 max-h-24 overflow-y-auto">
+                <div className="text-[10px] font-mono text-text-tertiary space-y-0.5 max-h-24 overflow-y-auto">
                   {scratchpadImport.steps.map((s, i) => (
                     <p key={i}>{s}</p>
                   ))}
@@ -459,27 +572,27 @@ export function StudyWhiteboard({
                 onClick={insertScratchpadImport}
                 className="w-full py-1.5 rounded-lg text-[10px] font-semibold bg-brand-600 text-white hover:bg-brand-500"
               >
-                {lang === 'el' ? 'Εισαγωγή στον πίνακα' : 'Insert on board'}
+                {t('wbInsertOnBoard')}
               </button>
             </div>
           )}
           <div className="flex items-center gap-1.5 text-xs font-semibold text-text-secondary">
-            <BookOpen className="w-3.5 h-3.5 text-brand-400" />
-            {lang === 'el' ? 'Από τις σημειώσεις' : 'From your notes'}
+            <BookOpen className="w-3.5 h-3.5 text-brand-700" />
+            {t('wbFromNotes')}
           </div>
           {referenceFormulas.map((f) => (
             <div key={f.id} className="p-2 rounded-lg bg-surface-card border border-border-subtle">
-              <p className="text-[10px] font-medium text-brand-300 truncate">{f.name}</p>
+              <p className="text-[10px] font-medium text-brand-800 truncate">{f.name}</p>
               <div className="mt-1 overflow-x-auto">
                 <FormulaLatexPreview formula={f.formula} display={false} />
               </div>
-              <p className="text-[9px] font-mono text-text-muted mt-1 break-all opacity-70">{f.formula}</p>
+              <p className="text-[10px] font-mono text-text-muted mt-1 break-all opacity-70">{f.formula}</p>
               <button
                 type="button"
                 onClick={() => insertFormulaLabel(f.name, f.formula)}
-                className="mt-2 text-[9px] font-medium text-brand-400 hover:text-brand-300"
+                className="mt-2 text-[10px] font-medium text-brand-700 hover:text-brand-800"
               >
-                {lang === 'el' ? 'Εισαγωγή →' : 'Insert on board →'}
+                {t('wbInsertOnBoardArrow')}
               </button>
             </div>
           ))}
@@ -491,9 +604,24 @@ export function StudyWhiteboard({
 
       <div className="flex min-h-0 flex-1 flex-col min-w-0">
       <div className="shrink-0 border-b border-border-subtle px-3 py-2">
-        <h3 className="text-sm font-semibold">Study Whiteboard</h3>
+        <div className="flex items-center gap-2">
+          <h3 className="text-sm font-semibold">Study Whiteboard</h3>
+          {crdt && (
+            <span
+              className={cn(
+                'rounded-full px-2 py-0.5 text-[10px] font-semibold border',
+                crdt.synced
+                  ? 'border-accent-emerald/40 bg-accent-emerald/10 text-accent-emerald'
+                  : 'border-border-subtle bg-surface-hover text-text-muted',
+              )}
+              data-testid="whiteboard-crdt-status"
+            >
+              {crdt.synced ? t('conceptMapCollabSynced') : t('conceptMapCollabConnecting')}
+            </span>
+          )}
+        </div>
         <p className="text-[10px] text-text-tertiary">
-          {lang === 'el' ? 'Σκίτσα, επίπεδα, αποθήκευση τοπικά.' : 'Sketch diagrams, layers, save to this device.'}
+          {t('wbHintLocalSave')}
         </p>
       </div>
 
@@ -502,16 +630,17 @@ export function StudyWhiteboard({
           <button
             key={id}
             type="button"
-            title={label}
+            aria-label={label}
+            aria-pressed={tool === id}
             disabled={activeLayerLocked}
             onClick={() => setTool(id)}
             className={cn(
               'flex items-center gap-1 rounded-lg px-2 py-1.5 text-[10px] font-medium transition-colors',
-              tool === id ? 'bg-brand-600/20 text-brand-300' : 'text-text-muted hover:bg-surface-hover',
+              tool === id ? 'bg-brand-600/20 text-brand-800' : 'text-text-muted hover:bg-surface-hover',
               activeLayerLocked && 'opacity-40 cursor-not-allowed',
             )}
           >
-            <Icon className="w-3.5 h-3.5" />
+            <Icon className="w-3.5 h-3.5" aria-hidden />
             <span className="hidden sm:inline">{label}</span>
           </button>
         ))}
@@ -519,46 +648,98 @@ export function StudyWhiteboard({
         <button
           type="button"
           data-testid="whiteboard-layers-toggle"
+          aria-label={t('wbToggleLayersPanel')}
+          aria-pressed={showLayers}
           onClick={() => setShowLayers((v) => !v)}
           className={cn(
             'rounded-lg p-1.5',
-            showLayers ? 'bg-brand-600/20 text-brand-300' : 'text-text-muted hover:bg-surface-hover',
+            showLayers ? 'bg-brand-600/20 text-brand-800' : 'text-text-muted hover:bg-surface-hover',
           )}
-          title={lang === 'el' ? 'Επίπεδα' : 'Layers'}
         >
-          <Layers className="w-3.5 h-3.5" />
+          <Layers className="w-3.5 h-3.5" aria-hidden />
         </button>
         <button
           type="button"
           data-testid="whiteboard-latex-stamps"
+          aria-label={t('wbToggleLatexPanel')}
+          aria-pressed={showStamps}
           onClick={() => setShowStamps((v) => !v)}
           className={cn(
             'rounded-lg px-2 py-1.5 text-[10px] font-medium',
-            showStamps ? 'bg-accent-cyan/20 text-accent-cyan' : 'text-text-muted hover:bg-surface-hover',
+            showStamps ? 'bg-accent-cyan/20 text-brand-800' : 'text-text-muted hover:bg-surface-hover',
           )}
-          title={lang === 'el' ? 'LaTeX stamps' : 'LaTeX stamps'}
         >
-          <Calculator className="w-3.5 h-3.5 inline" />
+          <Calculator className="w-3.5 h-3.5 inline" aria-hidden />
           <span className="hidden sm:inline ml-1">LaTeX</span>
         </button>
-        <button type="button" onClick={undo} disabled={doc.strokes.length === 0} className="rounded-lg p-1.5 text-text-muted hover:bg-surface-hover disabled:opacity-40 disabled:cursor-not-allowed"><Undo2 className="w-3.5 h-3.5" /></button>
-        <button type="button" onClick={redo} disabled={redoStack.length === 0} className="rounded-lg p-1.5 text-text-muted hover:bg-surface-hover disabled:opacity-40 disabled:cursor-not-allowed"><Redo2 className="w-3.5 h-3.5" /></button>
-        <button type="button" onClick={clearActiveLayer} className="rounded-lg p-1.5 text-text-muted hover:bg-surface-hover" title={lang === 'el' ? 'Καθαρισμός ενεργού επιπέδου' : 'Clear active layer'}><Trash2 className="w-3.5 h-3.5" /></button>
-        <button type="button" onClick={save} className="rounded-lg p-1.5 text-text-muted hover:bg-surface-hover"><Save className="w-3.5 h-3.5" /></button>
+        <button
+          type="button"
+          aria-label={t('wbUndo')}
+          onClick={undo}
+          disabled={doc.strokes.length === 0}
+          className="rounded-lg p-1.5 text-text-muted hover:bg-surface-hover disabled:opacity-40 disabled:cursor-not-allowed"
+        >
+          <Undo2 className="w-3.5 h-3.5" aria-hidden />
+        </button>
+        <button
+          type="button"
+          aria-label={t('wbRedo')}
+          onClick={redo}
+          disabled={redoStack.length === 0}
+          className="rounded-lg p-1.5 text-text-muted hover:bg-surface-hover disabled:opacity-40 disabled:cursor-not-allowed"
+        >
+          <Redo2 className="w-3.5 h-3.5" aria-hidden />
+        </button>
+        <button
+          type="button"
+          aria-label={t('wbClearActiveLayer')}
+          onClick={clearActiveLayer}
+          className="rounded-lg p-1.5 text-text-muted hover:bg-surface-hover"
+        >
+          <Trash2 className="w-3.5 h-3.5" aria-hidden />
+        </button>
+        <button
+          type="button"
+          aria-label={t('wbSaveBoard')}
+          onClick={save}
+          className="rounded-lg p-1.5 text-text-muted hover:bg-surface-hover"
+        >
+          <Save className="w-3.5 h-3.5" aria-hidden />
+        </button>
         <button
           type="button"
           data-testid="whiteboard-export-png"
-          onClick={() => {
-            if (canvasRef.current) downloadWhiteboardPng(canvasRef.current, `whiteboard-${scopeKey ?? 'board'}`);
-          }}
+          aria-label={t('wbExportPng')}
+          onClick={exportPng}
           className="rounded-lg p-1.5 text-text-muted hover:bg-surface-hover"
-          title={lang === 'el' ? 'Εξαγωγή PNG' : 'Export PNG'}
         >
-          <Download className="w-3.5 h-3.5" />
+          <Download className="w-3.5 h-3.5" aria-hidden />
         </button>
-        {savedMsg && <span className="text-[10px] text-accent-emerald">{lang === 'el' ? 'Αποθηκεύτηκε' : 'Saved'}</span>}
+        <button
+          type="button"
+          data-testid="whiteboard-export-svg"
+          aria-label={t('wbExportSvg')}
+          onClick={exportSvg}
+          className="rounded-lg px-1.5 py-1 text-[10px] font-medium text-text-muted hover:bg-surface-hover"
+        >
+          SVG
+        </button>
+        {onAskAgent && coachPlan && (
+          <button
+            type="button"
+            data-testid="whiteboard-explain-diagram"
+            aria-label={t('wbExplainDiagram')}
+            disabled={doc.strokes.length === 0}
+            onClick={handleExplainDiagram}
+            className="inline-flex items-center gap-1 rounded-lg border border-accent-cyan/30 px-2 py-1 text-[10px] font-medium text-brand-800 hover:bg-accent-cyan/10 disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            <Bot className="w-3 h-3" aria-hidden />
+            <span className="hidden sm:inline">{t('wbExplainDiagram')}</span>
+          </button>
+        )}
+        {savedMsg && <span className="text-[10px] text-accent-emerald">{t('wbSaved')}</span>}
         {activeLayerLocked && (
-          <span className="text-[10px] text-accent-amber">{lang === 'el' ? 'Επίπεδο κλειδωμένο' : 'Layer locked'}</span>
+          <span className="text-[10px] text-accent-amber">{t('wbLayerLocked')}</span>
         )}
       </div>
 
@@ -571,9 +752,9 @@ export function StudyWhiteboard({
             <button
               key={stamp.id}
               type="button"
+              aria-label={t('wbInsertStamp').replace('{label}', stamp.label)}
               onClick={() => insertLatexStamp(stamp)}
-              className="rounded-lg border border-border-subtle bg-surface-card px-2 py-1 text-[9px] text-text-secondary hover:border-accent-cyan/40 hover:text-accent-cyan"
-              title={stamp.latex}
+              className="rounded-lg border border-border-subtle bg-surface-card px-2 py-1 text-[10px] text-text-secondary hover:border-accent-cyan/40 hover:text-brand-800"
             >
               {stamp.label}
             </button>
@@ -586,8 +767,8 @@ export function StudyWhiteboard({
           className="flex shrink-0 flex-wrap items-center gap-2 border-b border-border-subtle px-3 py-2 text-[10px]"
           data-testid="whiteboard-layers"
         >
-          <span className="text-text-tertiary font-semibold uppercase tracking-wide">
-            {lang === 'el' ? 'Επίπεδα' : 'Layers'}
+          <span className="text-text-tertiary font-semibold">
+            {t('wbLayers')}
           </span>
           {doc.layers.map((layer) => {
             const active = layer.id === doc.activeLayerId;
@@ -603,17 +784,33 @@ export function StudyWhiteboard({
                 <button
                   type="button"
                   data-testid={`whiteboard-layer-${layer.id}`}
-                  onClick={() => setDoc((d) => ({ ...d, activeLayerId: layer.id }))}
-                  className="font-medium text-text-secondary hover:text-brand-300"
+                  aria-label={t('wbActivateLayer').replace('{name}', layer.name)}
+                  aria-current={active ? 'true' : undefined}
+                  onClick={() => patchDoc((d) => ({ ...d, activeLayerId: layer.id }))}
+                  className="font-medium text-text-secondary hover:text-brand-800"
                 >
                   {layer.name}
                   <span className="ml-1 text-text-muted">({strokeCount})</span>
                 </button>
-                <button type="button" onClick={() => toggleLayerVisibility(layer.id)} className="text-text-muted hover:text-text-secondary">
-                  {layer.visible ? <Eye className="w-3 h-3" /> : <EyeOff className="w-3 h-3" />}
+                <button
+                  type="button"
+                  aria-label={layer.visible
+                    ? t('wbHideLayer').replace('{name}', layer.name)
+                    : t('wbShowLayer').replace('{name}', layer.name)}
+                  onClick={() => toggleLayerVisibility(layer.id)}
+                  className="text-text-muted hover:text-text-secondary"
+                >
+                  {layer.visible ? <Eye className="w-3 h-3" aria-hidden /> : <EyeOff className="w-3 h-3" aria-hidden />}
                 </button>
-                <button type="button" onClick={() => toggleLayerLock(layer.id)} className="text-text-muted hover:text-text-secondary">
-                  {layer.locked ? <Lock className="w-3 h-3 text-accent-amber" /> : <Unlock className="w-3 h-3" />}
+                <button
+                  type="button"
+                  aria-label={layer.locked
+                    ? t('wbUnlockLayer').replace('{name}', layer.name)
+                    : t('wbLockLayer').replace('{name}', layer.name)}
+                  onClick={() => toggleLayerLock(layer.id)}
+                  className="text-text-muted hover:text-text-secondary"
+                >
+                  {layer.locked ? <Lock className="w-3 h-3 text-accent-amber" aria-hidden /> : <Unlock className="w-3 h-3" aria-hidden />}
                 </button>
               </div>
             );
@@ -622,10 +819,10 @@ export function StudyWhiteboard({
             type="button"
             data-testid="whiteboard-layer-add"
             onClick={addLayer}
-            className="inline-flex items-center gap-1 rounded-lg border border-dashed border-border-subtle px-2 py-1 text-text-muted hover:border-brand-500/30 hover:text-brand-300"
+            className="inline-flex items-center gap-1 rounded-lg border border-dashed border-border-subtle px-2 py-1 text-text-muted hover:border-brand-500/30 hover:text-brand-800"
           >
             <Plus className="w-3 h-3" />
-            {lang === 'el' ? 'Νέο' : 'Add'}
+            {t('wbAddLayer')}
           </button>
         </div>
       )}
@@ -636,22 +833,38 @@ export function StudyWhiteboard({
           <button
             key={c}
             type="button"
+            aria-label={`${t('wbSelectColor')} ${c}`}
+            aria-pressed={color === c}
             onClick={() => setColor(c)}
             className={cn('h-5 w-5 rounded-full border-2', color === c ? 'border-brand-400' : 'border-transparent')}
             style={{ backgroundColor: c }}
           />
         ))}
-        <span className="ml-2 text-text-tertiary">Width</span>
-        <input type="range" min={1} max={12} value={width} onChange={(e) => setWidth(Number(e.target.value))} className="w-24" />
+        <label htmlFor="wb-stroke-width" className="ml-2 text-text-tertiary">{t('wbStrokeWidth')}</label>
+        <input
+          id="wb-stroke-width"
+          type="range"
+          min={1}
+          max={12}
+          value={width}
+          onChange={(e) => setWidth(Number(e.target.value))}
+          className="w-24"
+        />
       </div>
 
       <div ref={containerRef} className="relative min-h-0 flex-1 p-2">
+        <span className="sr-only" aria-live="polite" aria-atomic="true">{liveAnnouncement}</span>
         <canvas
           ref={canvasRef}
+          data-testid="whiteboard-canvas"
+          role="application"
+          tabIndex={0}
+          aria-label={t('wbCanvasLabel')}
           className={cn(
-            'touch-none rounded-xl border border-border-subtle w-full',
+            'touch-none rounded-xl border border-border-subtle w-full outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50',
             activeLayerLocked && 'cursor-not-allowed opacity-90',
           )}
+          onKeyDown={handleCanvasKeyDown}
           onPointerDown={onDown}
           onPointerMove={onMove}
           onPointerUp={onUp}

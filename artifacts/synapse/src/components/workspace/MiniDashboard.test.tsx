@@ -33,6 +33,17 @@ describe('MiniDashboard — Progress tool activity (Prompt 17)', () => {
     expect(screen.getByTestId('progress-tool-quiz').textContent).toContain('×1');
   });
 
+  it('shows dwell minutes when ms is present on tool activity', () => {
+    render(
+      <MiniDashboard
+        {...baseProps}
+        embedded
+        toolActivity={[{ tool: 'reader', count: 1, lastAt: 10, ms: 120_000 }]}
+      />,
+    );
+    expect(screen.getByTestId('progress-tool-reader').textContent).toContain('2m');
+  });
+
   it('hides tool activity section when breakdown is empty', () => {
     render(<MiniDashboard {...baseProps} embedded toolActivity={[]} />);
     expect(screen.queryByTestId('progress-tool-activity')).toBeNull();
@@ -72,7 +83,7 @@ describe('MiniDashboard — Progress tool activity (Prompt 17)', () => {
       />,
     );
     fireEvent.click(screen.getByText(/status/i));
-    fireEvent.click(screen.getByRole('button', { name: /⚠/i }));
+    fireEvent.click(screen.getByRole('button', { name: /weak/i }));
     expect(screen.getByText('2× quiz mistakes')).toBeTruthy();
     fireEvent.click(screen.getByText('Quiz'));
     expect(onRemediate).toHaveBeenCalledWith('Tariffs', 'quiz');

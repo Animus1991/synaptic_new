@@ -1,9 +1,17 @@
 import { describe, it, expect } from 'vitest';
-import { buildDashboardWeakSpots } from './dashboardWeakSpotsModel';
+import { buildDashboardWeakSpots, buildDashboardWeakSpotCards } from './dashboardWeakSpotsModel';
 import { enrichWeakSpotsWithReasons } from './weakAreaReasons';
 import { recordConceptActivity } from './workspaceConceptBus';
 
 describe('dashboardWeakSpotsModel', () => {
+  it('builds weak spot cards with reasons from learner model', () => {
+    const cards = buildDashboardWeakSpotCards(
+      [{ concept: 'Tariffs', mastery: 35 }],
+      'en',
+    );
+    expect(cards[0]?.reasons.length).toBeGreaterThan(0);
+  });
+
   it('attaches remediation actions from concept bus', () => {
     let bus = {};
     bus = recordConceptActivity(bus, 'Tariffs', 'quiz', 'quiz-wrong');

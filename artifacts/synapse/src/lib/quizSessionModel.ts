@@ -4,7 +4,7 @@
  */
 
 import type { Lang } from './i18n';
-import type { GlossaryEntry } from '../types';
+import type { GlossaryEntry, UploadedFile } from '../types';
 import { buildQuizSession, type QuizSessionItem } from './quizSession';
 import { filterQuizSessionItems } from './confidenceGating';
 import { isGenericStudyConcept } from './workspaceContentFallback';
@@ -39,6 +39,7 @@ export function buildQuizSessionContent(opts: {
   sectionLabel?: string;
   hasSource: boolean;
   count?: number;
+  sourceFiles?: UploadedFile[];
 }): QuizSessionContent {
   const {
     text,
@@ -50,6 +51,7 @@ export function buildQuizSessionContent(opts: {
     sectionLabel,
     hasSource,
     count = 3,
+    sourceFiles = [],
   } = opts;
 
   if (!hasSource) {
@@ -62,7 +64,7 @@ export function buildQuizSessionContent(opts: {
     };
   }
 
-  const rawItems = buildQuizSession(text, concept, glossary, lang, ability, mastery, count);
+  const rawItems = buildQuizSession(text, concept, glossary, lang, ability, mastery, count, sourceFiles);
   const items = filterQuizSessionItems(rawItems);
   const generic = isGenericStudyConcept(concept);
   const passageGrounded = generic && items.length > 0;

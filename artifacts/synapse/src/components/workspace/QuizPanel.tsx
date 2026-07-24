@@ -1,40 +1,49 @@
 import { useCallback, useMemo, useState } from 'react';
-import { AlertTriangle, BookOpen, Search } from 'lucide-react';
-import { cn } from '../../utils/cn';
+import { BookOpen, Search } from '@/lib/lucide-shim';
 import type { QuizIrtDisplay } from '../../lib/quizIrt';
 import type { QuizSessionContent } from '../../lib/quizSessionModel';
 import { filterQuizItems, quizItemQuestion } from '../../lib/quizSessionModel';
 import type { QuizSessionItem } from '../../lib/quizSession';
-import { clearQuizSessions, loadQuizSession } from '../../lib/quizSession';
+import { loadQuizSession } from '../../lib/quizSession';
 import { auditQuizSelectionRemediation } from '../../lib/quizSelectionRemediationQA';
-import { WorkspaceEmptyState } from './WorkspaceEmptyState';
+import { WorkspaceToolEmptyState } from './WorkspaceToolEmptyState';
 import { WorkspaceQuizSession } from './WorkspaceQuizSession';
 import { WorkspaceSelectionActionBar } from './WorkspaceSelectionActionBar';
 import { QuizSelectionContractStrip } from './QuizSelectionContractStrip';
 import { ArtifactStaleBanner } from './ArtifactStaleBanner';
+import { WorkspacePanelWarnStrip } from './WorkspacePanelWarnStrip';
 import type {
   WorkspaceSelectionActionId,
   WorkspaceSelectionContext,
 } from '../../lib/workspaceSelectionActions';
+import type { Course } from '../../types';
+import type { GroundedQuizFeedback } from '../../lib/quizGroundedFeedback';
+import { useI18n } from '../../lib/i18n';
 
 type Props = {
   session: QuizSessionContent;
   concept: string;
   lang: 'en' | 'el';
   scopeKey: string;
+  course?: Course | null;
   irt?: QuizIrtDisplay;
   irtResponseCount?: number;
   emptyMessage?: string;
   onUpload?: () => void;
-  onSessionComplete: (summary: { accuracy: number; meanConfidence: number }) => void;
+  onSessionComplete: (summary: {
+    accuracy: number;
+    meanConfidence: number;
+    wrongCount: number;
+    itemCount: number;
+  }) => void;
   onOpenFlashcards?: () => void;
   onOpenFeynman?: () => void;
   onOpenInReader?: (query: string) => void;
   onRemediateWrong?: (kind: 'make-card' | 'feynman', item: QuizSessionItem) => void;
+  onRemediateWrongCluster?: (items: QuizSessionItem[]) => void;
+  attemptHistory?: Array<{ accuracy: number; completedAt: string; wrongCount: number }>;
   onSelectionAction?: (action: WorkspaceSelectionActionId, ctx: WorkspaceSelectionContext) => void;
-  desiredCount: number;
-  onChangeDesiredCount: (n: number) => void;
-  countOptions: readonly number[];
+  onGroundedFeedbackFocus?: (feedback: GroundedQuizFeedback) => void;
   artifactStale?: boolean;
   onAcknowledgeStale?: () => void;
 };
@@ -53,31 +62,17 @@ export function QuizPanel({
   onOpenFeynman,
   onOpenInReader,
   onRemediateWrong,
+  onRemediateWrongCluster,
+  attemptHistory,
   onSelectionAction,
-  desiredCount,
-  onChangeDesiredCount,
-  countOptions,
+  onGroundedFeedbackFocus,
+  course = null,
   artifactStale = false,
   onAcknowledgeStale,
 }: Props) {
   const [filterQuery, setFilterQuery] = useState('');
   const [selectedPassage, setSelectedPassage] = useState<{ text: string; term: string } | null>(null);
-  const [pendingCount, setPendingCount] = useState<number | null>(null);
-  const isEl = lang === 'el';
-
-  const applyCount = useCallback((n: number) => {
-    clearQuizSessions(scopeKey);
-    onChangeDesiredCount(n);
-    setPendingCount(null);
-  }, [scopeKey, onChangeDesiredCount]);
-
-  const handlePickCount = useCallback((n: number) => {
-    if (n === desiredCount) { setPendingCount(null); return; }
-    const live = loadQuizSession(scopeKey, concept);
-    const inProgress = !!live && !live.completedAt && live.correctFlags.length > 0;
-    if (inProgress) setPendingCount(n);
-    else applyCount(n);
-  }, [desiredCount, scopeKey, concept, applyCount]);
+  const { t } = useI18n();
 
   const selectPassage = useCallback((text: string, term?: string) => {
     if (!onSelectionAction) return;
@@ -125,8 +120,10 @@ export function QuizPanel({
 
   if (!session.hasSource) {
     return (
-      <WorkspaceEmptyState
-        message={emptyMessage ?? (isEl ? 'Ανέβασε σημειώσεις για κουίζ.' : 'Upload notes to quiz.')}
+      <WorkspaceToolEmptyState
+        tool="quiz"
+        concept={concept}
+        message={emptyMessage}
         hasSource={false}
         onUpload={onUpload}
       />
@@ -136,12 +133,11 @@ export function QuizPanel({
   if (session.items.length === 0) {
     return (
       <div className="p-4" data-testid="quiz-panel-empty">
-        <WorkspaceEmptyState
-          message={emptyMessage ?? (isEl
-            ? 'Δεν δημιουργήθηκαν ερωτήσεις — δοκίμασε Reprocess ή ανέβασε πιο δομημένες σημειώσεις.'
-            : 'No questions generated — try Reprocess or upload more structured notes.')}
+        <WorkspaceToolEmptyState
+          tool="quiz"
+          concept={concept}
+          message={emptyMessage}
           hasSource
-          onUpload={onUpload}
         />
       </div>
     );
@@ -151,7 +147,7 @@ export function QuizPanel({
     <div className="flex h-full flex-col overflow-hidden p-4" data-testid="quiz-panel">
       {session.sectionLabel && (
         <p className="mb-2 text-[10px] text-text-muted" data-testid="quiz-section-label">
-          {isEl ? 'Ενότητα:' : 'Section:'}{' '}
+          {t('wsSectionColon')}{' '}
           <span className="text-text-secondary">{session.sectionLabel}</span>
         </p>
       )}
@@ -163,21 +159,11 @@ export function QuizPanel({
       <QuizSelectionContractStrip report={selectionContractReport} lang={lang} />
 
       {(session.weakExtraction || session.passageGrounded) && (
-        <div
-          className="mb-3 flex items-start gap-2 rounded-xl border border-accent-amber/30 bg-accent-amber/8 px-3 py-2 text-[10px] text-accent-amber"
-          data-testid="quiz-weak-extraction"
-        >
-          <AlertTriangle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
-          <p>
-            {session.passageGrounded
-              ? (isEl
-                ? 'Οι ερωτήσεις προέρχονται από το απόσπασμα (generic concept) — Reprocess για πιο πλούσια δομή.'
-                : 'Questions are passage-grounded (generic concept) — Reprocess for richer structure.')
-              : (isEl
-                ? 'Αδύναμη εξαγωγή — λίγοι όροι γλωσσαρίου. Δοκίμασε Reprocess.'
-                : 'Weak extraction — sparse glossary. Try Reprocess.')}
-          </p>
-        </div>
+        <WorkspacePanelWarnStrip testId="quiz-weak-extraction">
+          {session.passageGrounded
+            ? t('panelPassageGroundedQuiz')
+            : t('panelWeakExtractionQuiz')}
+        </WorkspacePanelWarnStrip>
       )}
 
       <div className="mb-3 flex flex-wrap items-center gap-2">
@@ -187,42 +173,19 @@ export function QuizPanel({
             type="search"
             value={filterQuery}
             onChange={(e) => setFilterQuery(e.target.value)}
-            placeholder={isEl ? 'Αναζήτηση ερωτήσεων…' : 'Search questions…'}
+            placeholder={t('panelSearchQuestions')}
             className="w-full rounded-lg border border-border-subtle bg-surface-card py-1.5 pl-7 pr-2 text-[11px] text-text-secondary placeholder:text-text-muted focus:border-accent-cyan/40 focus:outline-none"
             data-testid="quiz-filter"
           />
         </div>
-        <div className="flex items-center gap-1" data-testid="quiz-count-selector">
-          <span className="text-[10px] text-text-muted">{isEl ? 'Πλήθος:' : 'Length:'}</span>
-          {countOptions.map((n) => (
-            <button
-              key={n}
-              type="button"
-              data-testid={`quiz-count-${n}`}
-              onClick={() => handlePickCount(n)}
-              className={cn(
-                'rounded px-2 py-0.5 text-[10px] border',
-                n === desiredCount
-                  ? 'border-brand-500 bg-brand-600/20 text-brand-200'
-                  : 'border-border-subtle text-text-muted hover:text-text-secondary',
-              )}
-            >
-              {n}
-            </button>
-          ))}
-        </div>
-        <span className="text-[10px] text-text-muted" data-testid="quiz-count-actual">
-          {session.items.length < desiredCount
-            ? (isEl
-              ? `${session.items.length} από ${desiredCount} ερωτήσεις`
-              : `${session.items.length} of ${desiredCount} questions`)
-            : `${session.items.length} ${isEl ? 'ερωτήσεις' : 'questions'}`}
+        <span className="text-[10px] text-text-muted">
+          {session.items.length} {t('panelQuestions')}
         </span>
         {onOpenInReader && (
           <button
             type="button"
             onClick={() => onOpenInReader(concept)}
-            className="inline-flex items-center gap-1 rounded-lg border border-white/10 px-2 py-1 text-[10px] text-text-secondary hover:border-accent-cyan/35 hover:text-accent-cyan"
+            className="inline-flex items-center gap-1 rounded-lg border border-white/10 px-2 py-1 text-[10px] text-text-secondary hover:border-brand-600/35 hover:text-brand-800"
             data-testid="quiz-open-reader"
           >
             <BookOpen className="w-3 h-3" />
@@ -231,35 +194,6 @@ export function QuizPanel({
         )}
       </div>
 
-      {pendingCount !== null && (
-        <div
-          className="mb-3 flex flex-wrap items-center gap-2 rounded-xl border border-accent-amber/30 bg-accent-amber/8 px-3 py-2 text-[10px] text-accent-amber"
-          data-testid="quiz-restart-confirm"
-        >
-          <span>
-            {isEl
-              ? `Συνεδρία σε εξέλιξη — επανεκκίνηση με ${pendingCount} ερωτήσεις; Η πρόοδος θα χαθεί.`
-              : `Session in progress — restart with ${pendingCount} questions? Current progress will be lost.`}
-          </span>
-          <button
-            type="button"
-            data-testid="quiz-restart-apply"
-            onClick={() => pendingCount !== null && applyCount(pendingCount)}
-            className="rounded-lg border border-accent-rose/40 bg-accent-rose/10 px-2 py-0.5 text-accent-rose"
-          >
-            {isEl ? 'Επανεκκίνηση' : 'Restart'}
-          </button>
-          <button
-            type="button"
-            data-testid="quiz-restart-cancel"
-            onClick={() => setPendingCount(null)}
-            className="rounded-lg border border-border-subtle px-2 py-0.5 text-text-muted"
-          >
-            {isEl ? 'Άκυρο' : 'Cancel'}
-          </button>
-        </div>
-      )}
-
       {filterQuery.trim() && filterMatches.length > 0 && (
         <div className="mb-3 flex flex-wrap gap-1.5" data-testid="quiz-filter-matches">
           {filterMatches.slice(0, 4).map((item) => (
@@ -267,7 +201,7 @@ export function QuizPanel({
               key={item.id}
               type="button"
               onClick={() => (onSelectionAction ? selectQuestion(item) : onOpenInReader?.(quizItemQuestion(item)))}
-              className="rounded-full border border-accent-cyan/25 bg-accent-cyan/8 px-2 py-0.5 text-[9px] text-accent-cyan hover:bg-accent-cyan/15"
+              className="rounded-full border border-accent-cyan/25 bg-accent-cyan/8 px-2 py-0.5 text-[10px] text-brand-800 hover:opacity-90"
             >
               {quizItemQuestion(item).slice(0, 56)}
               {quizItemQuestion(item).length > 56 ? '…' : ''}
@@ -306,9 +240,13 @@ export function QuizPanel({
           onOpenReader={onOpenInReader ? () => onOpenInReader(concept) : undefined}
           onOpenQuestionInReader={onOpenInReader}
           onRemediateWrong={onRemediateWrong}
+          onRemediateWrongCluster={onRemediateWrongCluster}
+          attemptHistory={attemptHistory}
           onSelectPassage={onSelectionAction ? selectPassage : undefined}
           onClearSelection={() => setSelectedPassage(null)}
           onQuestionSelect={onSelectionAction ? (question) => selectPassage(question, concept) : undefined}
+          course={course}
+          onGroundedFeedbackFocus={onGroundedFeedbackFocus}
         />
       </div>
     </div>

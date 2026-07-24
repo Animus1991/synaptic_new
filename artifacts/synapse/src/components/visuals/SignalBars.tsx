@@ -1,9 +1,11 @@
 import { motion } from 'framer-motion';
+import type { UiIconId } from '../../lib/uiIconRegistry';
+import { UiIcon } from '../ui/UiIcon';
 
 interface Signal {
   label: string;
   value: number;
-  icon: string;
+  icon: UiIconId;
   color: string;
   detail?: string;
 }
@@ -24,12 +26,18 @@ export function SignalBars({ signals }: SignalBarsProps) {
         >
           <div className="flex items-center justify-between mb-1.5">
             <span className="text-xs font-medium flex items-center gap-1.5">
-              <span>{s.icon}</span>
+              <UiIcon id={s.icon} size="xs" className="text-text-secondary shrink-0" />
               {s.label}
             </span>
             <span className="text-xs font-bold" style={{ color: s.color }}>{s.value}%</span>
           </div>
-          <div className="relative h-2.5 bg-surface-hover rounded-full overflow-hidden">
+          {/* Wave P-2 C08 — SignalBars (Accuracy / Self-Reliance / Practice Volume /
+              Retrieval Strength on Dashboard readiness card) track uses --viz-bar-track
+              so the 25/50/75 tick marks read visibly on all 5 themes. */}
+          <div
+            className="relative h-2.5 rounded-full overflow-hidden"
+            style={{ backgroundColor: 'var(--viz-bar-track)' }}
+          >
             <motion.div
               className="absolute inset-y-0 left-0 rounded-full"
               style={{ backgroundColor: s.color }}
@@ -37,12 +45,15 @@ export function SignalBars({ signals }: SignalBarsProps) {
               animate={{ width: `${s.value}%` }}
               transition={{ duration: 1, delay: 0.3 + i * 0.1, ease: 'easeOut' }}
             />
-            {/* Marker lines at 25%, 50%, 75% */}
             {[25, 50, 75].map(mark => (
-              <div key={mark} className="absolute inset-y-0" style={{ left: `${mark}%`, width: 1, backgroundColor: '#1a1333' }} />
+              <div
+                key={mark}
+                className="absolute inset-y-0 w-px bg-border-subtle/60"
+                style={{ left: `${mark}%` }}
+              />
             ))}
           </div>
-          {s.detail && <p className="text-[9px] text-text-muted mt-0.5">{s.detail}</p>}
+          {s.detail && <p className="text-[10px] text-text-muted mt-0.5">{s.detail}</p>}
         </motion.div>
       ))}
     </div>

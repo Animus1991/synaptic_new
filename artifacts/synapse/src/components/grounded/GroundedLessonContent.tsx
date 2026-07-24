@@ -1,4 +1,4 @@
-import { Sparkles } from 'lucide-react';
+import { Sparkles, Check, X } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
 import { RichText } from '../RichText';
 import type { QuizDef, LessonStepKey } from '../../lib/domainContent';
@@ -59,7 +59,7 @@ export function GroundedLessonContent({
             onClick={onUpload}
             className="mt-2 px-4 py-2.5 rounded-xl text-sm font-medium bg-gradient-to-r from-brand-600 to-brand-500 text-white hover:from-brand-500 hover:to-brand-400 transition-all"
           >
-            {lang === 'el' ? 'Ανέβασμα Υλικού' : 'Upload Material'}
+            {t('uploadMaterial')}
           </button>
         )}
       </div>
@@ -69,34 +69,44 @@ export function GroundedLessonContent({
   if (stepKey === 'retrieval' && quizDef && onQuizSelect && isMcQuiz(quizDef)) {
     return (
       <div className="space-y-4">
-        <span className="text-xs text-brand-400 font-medium uppercase tracking-wider">{t('quiz')}</span>
-        <h2 className="text-2xl font-bold">{t('knowledgeCheck')}</h2>
+        <span className="text-xs text-brand-400 font-medium">{t('quiz')}</span>
+        <h2 className="text-lg font-semibold">{t('knowledgeCheck')}</h2>
         <div className="p-4 rounded-xl bg-surface-card border border-border-subtle">
-          <p className="text-sm mb-3">{quizDef.question}</p>
-          {quizDef.options.map((opt, i) => (
-            <button
-              key={i}
-              type="button"
-              onClick={() => onQuizSelect(i)}
-              className={cn(
-                'w-full text-left p-3 rounded-lg border text-sm mb-2 transition-all flex items-center gap-2',
-                quizAnswer === i
-                  ? i === quizDef.correctIndex
-                    ? 'border-accent-emerald/50 bg-accent-emerald/10 text-accent-emerald'
-                    : 'border-accent-rose/50 bg-accent-rose/10 text-accent-rose'
-                  : 'border-border-subtle hover:border-brand-500/30',
+          {quizDef.placeholder ? (
+            <div className="py-3 text-center">
+              <p className="text-sm font-medium text-text-secondary">{quizDef.question}</p>
+              <p className="mx-auto mt-1.5 max-w-xs text-xs text-text-muted">{t('wsQuizEmptyHint')}</p>
+            </div>
+          ) : (
+            <>
+              <p className="text-sm mb-3">{quizDef.question}</p>
+              {quizDef.options.map((opt, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  onClick={() => onQuizSelect(i)}
+                  className={cn(
+                    'w-full text-left p-3 rounded-lg border text-sm mb-2 transition-all flex items-center gap-2',
+                    quizAnswer === i
+                      ? i === quizDef.correctIndex
+                        ? 'border-accent-emerald/50 bg-accent-emerald/10 text-accent-emerald'
+                        : 'border-accent-rose/50 bg-accent-rose/10 text-accent-rose'
+                      : 'border-border-subtle hover:border-brand-500/30',
+                  )}
+                >
+                  <span className="w-6 h-6 rounded-full border border-current text-xs flex items-center justify-center shrink-0">
+                    {String.fromCharCode(65 + i)}
+                  </span>
+                  {opt}
+                </button>
+              ))}
+              {quizAnswer !== null && (
+                <p className={cn('text-xs mt-2 inline-flex items-center gap-1.5', quizPassed ? 'text-accent-emerald' : 'text-accent-rose')}>
+                  {quizPassed ? <Check className="w-3.5 h-3.5" aria-hidden /> : <X className="w-3.5 h-3.5" aria-hidden />}
+                  {quizPassed ? t('canFinish') : t('reviewMaterial')}
+                </p>
               )}
-            >
-              <span className="w-6 h-6 rounded-full border border-current text-xs flex items-center justify-center shrink-0">
-                {String.fromCharCode(65 + i)}
-              </span>
-              {opt}
-            </button>
-          ))}
-          {quizAnswer !== null && (
-            <p className={cn('text-xs mt-2', quizPassed ? 'text-accent-emerald' : 'text-accent-rose')}>
-              {quizPassed ? `✓ ${t('canFinish')}` : `✗ ${t('reviewMaterial')}`}
-            </p>
+            </>
           )}
         </div>
       </div>
@@ -107,13 +117,13 @@ export function GroundedLessonContent({
     return (
       <div className="space-y-5">
         <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-xs text-brand-400 font-medium uppercase tracking-wider">{generatedPanel.badge}</span>
+          <span className="text-xs text-brand-400 font-medium">{generatedPanel.badge}</span>
           <span className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-accent-emerald/10 text-accent-emerald font-medium">
             <Sparkles className="w-3 h-3" />
-            {lang === 'el' ? 'Από τις πηγές σου' : 'From your sources'}
+            {t('wbFromSources')}
           </span>
         </div>
-        <h2 className="text-2xl font-bold">{generatedPanel.title}</h2>
+        <h2 className="text-lg font-semibold">{generatedPanel.title}</h2>
         {generatedPanel.blocks.map((block, i) => (
           <PanelBlock key={i} block={block} onOpenAgent={onOpenAgent} />
         ))}
@@ -133,28 +143,26 @@ export function GroundedLessonContent({
   return (
     <div className="space-y-5">
       <div>
-        <span className="text-xs text-accent-cyan font-medium uppercase tracking-wider">{stepLabel}</span>
-        <h2 className="text-2xl font-bold mt-2">{concept}</h2>
+        <span className="text-xs text-accent-cyan font-medium">{stepLabel}</span>
+        <h2 className="text-lg font-semibold mt-2">{concept}</h2>
       </div>
       <div className="text-sm text-text-secondary leading-relaxed">
         <RichText text={body} />
       </div>
       {stepKey === 'practice' && (
-        <p className="text-xs text-text-muted italic">
-          {lang === 'el'
-            ? 'Σκέψου δυνατά πριν προχωρήσεις — η εξάσκηση βασίζεται στις σημειώσεις σου.'
-            : 'Think through this before continuing — practice is tied to your notes.'}
+        <p className="text-xs text-text-muted">
+          {t('lessonPracticeHint')}
         </p>
       )}
       {sourceName && (
         <p className="text-[10px] text-text-muted flex items-center gap-1.5 pt-2 border-t border-border-subtle">
-          {lang === 'el' ? 'Πηγή' : 'Source'}: {sourceName}
+          {t('sourceColon')} {sourceName}
         </p>
       )}
       {genStatus === 'loading' && (
         <span className="inline-flex items-center gap-1 text-[10px] px-2 py-1 rounded-full bg-brand-500/10 text-brand-300 animate-pulse">
           <Sparkles className="w-3 h-3" />
-          {lang === 'el' ? 'Δημιουργία από τις πηγές σου…' : 'Generating from your sources…'}
+          {t('generatingFromSources')}
         </span>
       )}
     </div>

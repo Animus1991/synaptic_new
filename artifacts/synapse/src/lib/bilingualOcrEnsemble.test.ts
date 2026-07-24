@@ -16,6 +16,7 @@ describe('bilingualOcrEnsemble', () => {
     expect(BILINGUAL_OCR_MODELS).toContain('tesseract-eng+ell');
     expect(BILINGUAL_OCR_MODELS).toContain('tesseract-eng');
     expect(BILINGUAL_OCR_MODELS).toContain('tesseract-ell');
+    expect(BILINGUAL_OCR_MODELS).toContain('trocr-handwritten');
   });
 
   it('scores repaired Greek higher than spaced-glyph noise', () => {

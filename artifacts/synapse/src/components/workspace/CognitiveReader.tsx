@@ -1,10 +1,14 @@
 import { useEffect, useRef, useState, useCallback, useMemo } from 'react';
-import { Sparkles, Type, Volume2, Highlighter, Download, StickyNote, X, Languages, BookOpen, AlertTriangle, Loader2 } from 'lucide-react';
+import { Sparkles, Type, Volume2, Highlighter, Download, StickyNote, X, Languages, BookOpen, AlertTriangle, Loader2 } from '@/lib/lucide-shim';
 import { chatCompletion } from '../../lib/llmClient';
 import { cn } from '../../utils/cn';
+import { prepareWorkspaceDisplayText } from '../../lib/workspaceDisplayText';
+import { reanchorOcrCorrections } from '../../lib/readerOcrCorrectionStore';
+import { readerGreekOcrNeedsReview } from '../../lib/readerGreekDisplay';
 import { useI18n } from '../../lib/i18n';
 import type { SourceHighlight } from '../../lib/conceptProvenance';
 import { normalizeFocusTerm } from '../../lib/workspaceFocus';
+import { resolveFocusScrollTarget } from '../../lib/workspaceFocusNavigation';
 import {
   exportReaderAnnotationsJson,
   exportReaderAnnotationsMarkdown,
@@ -14,13 +18,13 @@ import {
   type ReaderAnnotation,
 } from '../../lib/readerAnnotationStore';
 import { WorkspaceSelectionActionBar } from './WorkspaceSelectionActionBar';
-import { WorkspaceEmptyState } from './WorkspaceEmptyState';
+import { WorkspaceToolEmptyState } from './WorkspaceToolEmptyState';
 import type { WorkspaceSelectionActionId, WorkspaceSelectionContext } from '../../lib/workspaceSelectionActions';
 import { FrontMatterCard } from './FrontMatterCard';
 import { BibliographyBlock } from './BibliographyBlock';
 import { FormulaLatexPreview } from './FormulaLatexPreview';
 import { RichText } from '../RichText';
-import type { GlossaryEntry, UserSettings } from '../../types';
+import type { GlossaryEntry, UserSettings, Course } from '../../types';
 import {
   buildGlossaryCompanionColumns,
   loadCachedTranslations,
@@ -31,14 +35,18 @@ import {
   type TranslationMode,
 } from '../../lib/readerTranslation';
 import {
-  paragraphIndexForTerm,
   scrollBothToParagraph,
   syncBilingualByParagraph,
 } from '../../lib/readerBilingualSync';
 import { speakParagraphs } from '../../lib/readerTts';
-import { buildOcrOverlayRegions, isLowConfidenceRegion, needsOcrOverlay } from '../../lib/readerOcrOverlay';
+import {
+  buildOcrOverlayRegions,
+  isLowConfidenceRegion,
+  needsOcrOverlay,
+  ocrOverlayGranularity,
+} from '../../lib/readerOcrOverlay';
 import type { OcrStoredRegion } from '../../lib/readerOcrOverlay';
-import { applyOcrCorrectionsToText } from '../../lib/readerOcrCorrectionStore';
+import { canMakeOcclusionFromSelection } from '../../lib/readerOcclusionFromSelection';
 import { OcrCorrectionPanel } from './OcrCorrectionPanel';
 import { isLlmAvailable } from '../../lib/llmClient';
 import {
@@ -65,7 +73,9 @@ import { estimateDifficulty } from '../../lib/contentAnalysis';
 
 type ReaderHeatmapMode = 'off' | 'learning' | 'complexity';
 
-const ANN_COLORS = ['#818cf8', '#fbbf24', '#34d399', '#fb7185', '#22d3ee'];
+import { ANNOTATION_PALETTE } from '../../lib/masteryPalette';
+
+const ANN_COLORS = [...ANNOTATION_PALETTE];
 
 interface Props {
   text?: string;
@@ -96,12 +106,17 @@ interface Props {
   onAskAgentAboutSelection?: (text: string, sectionLabel?: string) => void;
   /** Server OCR bounding boxes from upload, when available. */
   ocrRegions?: OcrStoredRegion[];
+  /** Course files with stored OCR regions for occlusion-from-selection. */
+  ocrSourceFiles?: import('../../types').UploadedFile[];
+  /** True when handwriting OCR (TrOCR) contributed to the extracted text. */
+  handwritingRecognized?: boolean;
   conceptBus?: ConceptBusState;
   stepMarks?: Record<number, 'understood' | 'confusing'>;
   stepTitles?: string[];
   stepToSegmentIndex?: Record<number, number>;
   /** Wave 6.8a — active lesson step ↔ reader segment ↔ heat sync */
   stepHeatSync?: ReaderStepHeatSyncSummary | null;
+  course?: Course | null;
 }
 
 function getTextOffset(root: HTMLElement, targetNode: Node, offset: number): number {
@@ -148,11 +163,14 @@ export function CognitiveReader({
   onSelectionAction,
   onAskAgentAboutSelection,
   ocrRegions,
+  ocrSourceFiles = [],
+  handwritingRecognized = false,
   conceptBus,
   stepMarks,
   stepTitles,
   stepToSegmentIndex,
   stepHeatSync,
+  course = null,
 }: Props) {
   const { t } = useI18n();
   const [bionic, setBionic] = useState(false);
@@ -168,9 +186,11 @@ export function CognitiveReader({
   );
   const [pendingNote, setPendingNote] = useState<{ start: number; end: number; excerpt: string } | null>(null);
   const [noteDraft, setNoteDraft] = useState('');
-  const [activeColor, setActiveColor] = useState(ANN_COLORS[0]!);
+  const [activeColor, setActiveColor] = useState<string>(ANN_COLORS[0]!);
   const [showMargin, setShowMargin] = useState(true);
   const [glossaryPopover, setGlossaryPopover] = useState<{ term: string; definition: string } | null>(null);
+  const glossaryOpenTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const glossaryCloseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const markRef = useRef<HTMLElement>(null);
   const bodyRef = useRef<HTMLDivElement>(null);
   const sourceScrollRef = useRef<HTMLDivElement>(null);
@@ -186,10 +206,31 @@ export function CognitiveReader({
   const [inlineAiResult, setInlineAiResult] = useState<string | null>(null);
   const [inlineAiLoading, setInlineAiLoading] = useState(false);
   const rawDisplayText = fullSource ? (sourceFullText?.trim() || text) : text;
+  const glossaryTerms = useMemo(() => glossary?.map((g) => g.term) ?? [], [glossary]);
+  const prevRawTextRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    const scope = annotationScopeKey ?? 'reader';
+    const next = rawDisplayText ?? '';
+    const prev = prevRawTextRef.current;
+    prevRawTextRef.current = next;
+    if (prev == null || prev === next || !next.trim()) return;
+    // Source reprocessed — re-bind OCR corrections to new paragraph blocks (TOOL-RD-04).
+    const { remapped, dropped } = reanchorOcrCorrections(scope, next);
+    if (remapped > 0 || dropped > 0) {
+      setOcrCorrectionRevision((v) => v + 1);
+    }
+  }, [rawDisplayText, annotationScopeKey]);
+
   const displayText = useMemo(
-    () => applyOcrCorrectionsToText(rawDisplayText ?? '', annotationScopeKey ?? ''),
-    [rawDisplayText, annotationScopeKey, ocrCorrectionRevision],
+    () => prepareWorkspaceDisplayText(
+      rawDisplayText ?? '',
+      annotationScopeKey ?? 'reader',
+      glossaryTerms,
+    ),
+    [rawDisplayText, annotationScopeKey, ocrCorrectionRevision, glossaryTerms],
   );
+  const greekOcrReview = useMemo(() => readerGreekOcrNeedsReview(displayText), [displayText]);
 
   useEffect(() => {
     setAnnotations(loadReaderAnnotations(annotationScopeKey));
@@ -202,6 +243,46 @@ export function CognitiveReader({
   useEffect(() => {
     if (highlight) markRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }, [highlight, text]);
+
+  const clearGlossaryTimers = useCallback(() => {
+    if (glossaryOpenTimer.current) {
+      clearTimeout(glossaryOpenTimer.current);
+      glossaryOpenTimer.current = null;
+    }
+    if (glossaryCloseTimer.current) {
+      clearTimeout(glossaryCloseTimer.current);
+      glossaryCloseTimer.current = null;
+    }
+  }, []);
+
+  useEffect(() => () => clearGlossaryTimers(), [clearGlossaryTimers]);
+
+  const openGlossaryPopover = useCallback((term: string, definition: string, immediate = false) => {
+    if (glossaryCloseTimer.current) {
+      clearTimeout(glossaryCloseTimer.current);
+      glossaryCloseTimer.current = null;
+    }
+    const show = () => setGlossaryPopover({ term, definition });
+    if (immediate) {
+      if (glossaryOpenTimer.current) {
+        clearTimeout(glossaryOpenTimer.current);
+        glossaryOpenTimer.current = null;
+      }
+      show();
+      return;
+    }
+    if (glossaryOpenTimer.current) clearTimeout(glossaryOpenTimer.current);
+    glossaryOpenTimer.current = setTimeout(show, 280);
+  }, []);
+
+  const scheduleCloseGlossaryPopover = useCallback(() => {
+    if (glossaryOpenTimer.current) {
+      clearTimeout(glossaryOpenTimer.current);
+      glossaryOpenTimer.current = null;
+    }
+    if (glossaryCloseTimer.current) clearTimeout(glossaryCloseTimer.current);
+    glossaryCloseTimer.current = setTimeout(() => setGlossaryPopover(null), 220);
+  }, []);
 
   const speakSelection = useCallback(() => {
     if (typeof window === 'undefined' || !window.speechSynthesis) return;
@@ -237,6 +318,8 @@ export function CognitiveReader({
       color: activeColor,
       note: noteDraft.trim() || undefined,
       createdAt: new Date().toISOString(),
+      excerpt: pendingNote.excerpt.replace(/\s+/g, ' ').trim().slice(0, 120),
+      anchorStatus: 'ok',
     };
     setAnnotations((prev) => [...prev, ann]);
     setPendingNote(null);
@@ -319,6 +402,10 @@ export function CognitiveReader({
   const overlayRegions = useMemo(
     () => (ocrOverlayOn && ocrCandidate ? buildOcrOverlayRegions(text, 0, ocrRegions) : []),
     [ocrOverlayOn, ocrCandidate, text, ocrRegions],
+  );
+  const overlayGranularity = useMemo(
+    () => (ocrCandidate ? ocrOverlayGranularity(text, ocrRegions) : 'block'),
+    [ocrCandidate, text, ocrRegions],
   );
 
   useEffect(() => {
@@ -488,6 +575,16 @@ export function CognitiveReader({
     onSelectionAction, onAskAgentAboutSelection, dismissTextSelection,
   ]);
 
+  const occlusionSelectionAvailable = useMemo(() => {
+    if (!textSelection) return false;
+    return canMakeOcclusionFromSelection(
+      ocrSourceFiles,
+      textSelection,
+      displayText,
+      sourceName,
+    );
+  }, [textSelection, ocrSourceFiles, displayText, sourceName]);
+
   const readAllParagraphs = useCallback(() => {
     ttsRef.current?.stop();
     const paragraphs = translationMode !== 'off' && bilingual.length > 0
@@ -508,10 +605,14 @@ export function CognitiveReader({
   useEffect(() => () => { ttsRef.current?.stop(); }, []);
 
   useEffect(() => {
-    if (translationMode === 'off' || bilingual.length === 0 || !focusTerm) return;
-    const idx = paragraphIndexForTerm(bilingual.map((p) => p.source), focusTerm);
-    if (idx >= 0) scrollToParagraph(idx);
-  }, [focusTerm, translationMode, bilingual, scrollToParagraph]);
+    if (!focusTerm) return;
+    const paragraphs =
+      translationMode !== 'off' && bilingual.length > 0
+        ? bilingual.map((p) => p.source)
+        : paragraphChunks.map((p) => p.paragraph);
+    const target = resolveFocusScrollTarget(paragraphs, focusTerm, course);
+    if (target && target.paragraphIndex >= 0) scrollToParagraph(target.paragraphIndex);
+  }, [focusTerm, translationMode, bilingual, paragraphChunks, course, scrollToParagraph]);
 
   const renderAnnotatedSlice = (slice: string, rangeStart: number, keyPrefix: string) => {
     const segments = segmentAnnotatedRange(displayText, annotations, rangeStart, rangeStart + slice.length);
@@ -563,15 +664,33 @@ export function CognitiveReader({
       <button
         key={key}
         type="button"
+        data-testid={glossaryHit ? 'reader-glossary-term' : undefined}
         onClick={() => {
           if (glossaryHit) {
-            setGlossaryPopover({
-              term: glossaryHit.term,
-              definition: glossaryHit.definition?.trim() || '',
-            });
+            openGlossaryPopover(
+              glossaryHit.term,
+              glossaryHit.definition?.trim() || '',
+              true,
+            );
             return;
           }
           if (onTermFocus) onTermFocus(clean);
+        }}
+        onMouseEnter={() => {
+          if (!glossaryHit || annotateMode) return;
+          openGlossaryPopover(glossaryHit.term, glossaryHit.definition?.trim() || '');
+        }}
+        onMouseLeave={() => {
+          if (!glossaryHit) return;
+          scheduleCloseGlossaryPopover();
+        }}
+        onFocus={() => {
+          if (!glossaryHit || annotateMode) return;
+          openGlossaryPopover(glossaryHit.term, glossaryHit.definition?.trim() || '', true);
+        }}
+        onBlur={() => {
+          if (!glossaryHit) return;
+          scheduleCloseGlossaryPopover();
         }}
         className={cn(
           'inline rounded px-0.5 transition-colors',
@@ -597,9 +716,11 @@ export function CognitiveReader({
 
   if (!displayText.trim() && !text.trim()) {
     return (
-      <WorkspaceEmptyState
-        message={emptyMessage ?? 'Upload notes to read your material with bionic and complexity highlighting.'}
-        hasSource={hasSource}
+      <WorkspaceToolEmptyState
+        tool="reader"
+        concept={concept}
+        message={emptyMessage}
+        hasSource={hasSource ?? false}
         onUpload={onUpload}
       />
     );
@@ -629,7 +750,7 @@ export function CognitiveReader({
             : heatmapMode === 'learning' && learningHeat
               ? readerHeatmapLevelClass(learningHeat.level)
               : 'text-text-primary',
-          ttsActiveIndex === bodyIndex && 'ring-2 ring-accent-cyan/40 bg-accent-cyan/10',
+          ttsActiveIndex === bodyIndex && 'ws-focus-line',
         )}
         title={heatmapMode === 'learning' && learningHeat?.reasons.length ? learningHeat.reasons.join(' · ') : undefined}
       >
@@ -656,12 +777,12 @@ export function CognitiveReader({
                 key={`seg-${i}`}
                 id={`reader-seg-${i}`}
                 className={cn(
-                  'scroll-mt-4 border-b pb-1 pt-2 text-sm font-semibold uppercase tracking-wide',
+                  'scroll-mt-4 border-b pb-1 pt-2 text-sm font-semibold',
                   heatmapMode === 'learning' && learningHeat
                     ? readerHeatmapLevelClass(learningHeat.level)
                     : suspicious
                       ? 'border-accent-amber/40 text-accent-amber'
-                      : 'border-border-subtle/60 text-brand-300',
+                      : 'border-border-subtle/60 text-brand-800',
                 )}
                 title={heatmapMode === 'learning' && learningHeat?.reasons.length ? learningHeat.reasons.join(' · ') : undefined}
                 data-suspicious-fragment={suspicious ? 'true' : undefined}
@@ -673,9 +794,7 @@ export function CognitiveReader({
                 {seg.content}
                 {suspicious && (
                   <span className="ml-2 block text-[10px] font-normal normal-case tracking-normal text-accent-amber/80">
-                    {lang === 'el'
-                      ? 'Πιθανό σφάλμα εξαγωγής — επαλήθευσε με την πρωτότυπη πηγή'
-                      : 'Possible extraction error — verify against your source'}
+                    {t('readerExtractionError')}
                   </span>
                 )}
               </h3>
@@ -711,7 +830,7 @@ export function CognitiveReader({
                 key={`seg-${i}`}
                 id={`reader-para-body-${idx}`}
                 className={cn(
-                  'space-y-1.5 rounded-lg border border-border-subtle/40 bg-surface-card/30 px-5 py-3 text-[15px] text-text-primary',
+                  'ux-tier-b-segment space-y-1.5 rounded-lg border border-border-subtle/40 bg-surface-card/30 px-5 py-3 text-[15px] text-text-primary',
                   seg.listOrdered ? 'list-decimal pl-8' : 'list-disc pl-5',
                 )}
               >
@@ -736,7 +855,7 @@ export function CognitiveReader({
               <div
                 key={`seg-${i}`}
                 id={`reader-seg-${i}`}
-                className="overflow-x-auto rounded-lg border border-border-subtle/50 bg-surface-card/40"
+                className="ux-tier-b-segment overflow-x-auto rounded-lg border border-border-subtle/50 bg-surface-card/40"
                 data-testid="reader-table-segment"
               >
                 {title && (
@@ -771,7 +890,7 @@ export function CognitiveReader({
               <div
                 key={`seg-${i}`}
                 id={`reader-para-body-${idx}`}
-                className="rounded-lg border border-border-subtle/40 bg-surface-card/30 px-4 py-3"
+                className="ux-tier-b-segment rounded-lg border border-border-subtle/40 bg-surface-card/30 px-4 py-3"
                 data-testid="reader-math-segment"
               >
                 <FormulaLatexPreview formula={seg.mathLatex} display />
@@ -787,7 +906,7 @@ export function CognitiveReader({
                 className={cn(
                   'rounded-lg p-2 text-[15px] text-text-primary',
                   dyslexia ? 'leading-loose tracking-wide' : 'leading-relaxed',
-                  ttsActiveIndex === idx && 'ring-2 ring-accent-cyan/40 bg-accent-cyan/10',
+                  ttsActiveIndex === idx && 'ws-focus-line',
                 )}
               >
                 <RichText text={seg.content} />
@@ -820,10 +939,10 @@ export function CognitiveReader({
   };
 
   return (
-    <div className="flex h-full flex-col overflow-hidden" data-testid="cognitive-reader">
-      <div className="flex shrink-0 flex-wrap items-center justify-between gap-2 border-b border-border-subtle bg-surface-card px-4 py-2">
+    <div className="ux-tier-b-tool ux-tier-b-reader flex h-full flex-col overflow-hidden" data-testid="cognitive-reader">
+      <div className="ux-tier-b-toolbar flex shrink-0 flex-wrap items-center justify-between gap-2 border-b border-border-subtle bg-surface-card px-4 py-2">
         <span className="flex items-center gap-2 text-xs font-semibold">
-          <Type className="w-3.5 h-3.5 text-brand-400" />
+          <Type className="w-3.5 h-3.5 text-brand-700" />
           {t('cognitiveReader')}
           {annotations.length > 0 && (
             <span className="text-[10px] font-normal text-text-muted">{annotations.length} notes</span>
@@ -835,30 +954,30 @@ export function CognitiveReader({
             onClick={() => setAnnotateMode(!annotateMode)}
             className={cn(
               'rounded-lg border px-2 py-1 text-[10px] font-medium flex items-center gap-1',
-              annotateMode ? 'border-accent-amber/30 bg-accent-amber/15 text-accent-amber' : 'border-white/12 bg-white/[0.05] text-text-secondary hover:text-text-primary',
+              annotateMode ? 'border-accent-amber/30 bg-accent-amber/15 text-accent-amber' : 'ws-tool-toggle',
             )}
           >
             <Highlighter className="w-3 h-3" />
-            {lang === 'el' ? 'Σημείωση' : 'Annotate'}
+            {t('readerAnnotate')}
           </button>
           {annotations.length > 0 && (
             <>
-              <button type="button" onClick={exportMarkdown} className="rounded-lg p-1 text-text-muted hover:text-brand-300" title="Export Markdown">
+              <button type="button" onClick={exportMarkdown} className="rounded-lg p-1 text-text-muted hover:text-brand-800" title="Export Markdown">
                 <Download className="w-3.5 h-3.5" />
               </button>
               <button
                 type="button"
                 onClick={() => setShowMargin(!showMargin)}
-                className={cn('rounded-lg p-1', showMargin ? 'text-brand-300' : 'text-text-muted')}
+                className={cn('rounded-lg p-1', showMargin ? 'text-brand-800' : 'text-text-muted')}
               >
                 <StickyNote className="w-3.5 h-3.5" />
               </button>
             </>
           )}
-          <button type="button" onClick={() => setDyslexia(!dyslexia)} className={cn('rounded-lg border px-2 py-1 text-[10px] font-medium', dyslexia ? 'border-accent-cyan/30 bg-accent-cyan/15 text-accent-cyan' : 'border-white/12 bg-white/[0.05] text-text-secondary hover:text-text-primary')}>
-            {lang === 'el' ? 'Δυσλεξία' : 'Dyslexia'}
+          <button type="button" onClick={() => setDyslexia(!dyslexia)} className={cn('rounded-lg border px-2 py-1 text-[10px] font-medium', dyslexia ? 'ws-chip-brand' : 'ws-tool-toggle')}>
+            {t('readerDyslexia')}
           </button>
-          <button type="button" onClick={speakSelection} className="rounded-lg border border-transparent p-1 text-text-muted hover:text-brand-300" title="Read aloud">
+          <button type="button" onClick={speakSelection} className="rounded-lg border border-transparent p-1 text-text-muted hover:text-brand-800" title={t('readerReadAloud')}>
             <Volume2 className="w-3.5 h-3.5" />
           </button>
           <button
@@ -867,18 +986,18 @@ export function CognitiveReader({
             onClick={readAllParagraphs}
             className={cn(
               'rounded-lg border px-2 py-1 text-[10px] font-medium',
-              ttsActiveIndex !== null ? 'border-accent-cyan/40 bg-accent-cyan/15 text-accent-cyan' : 'border-white/12 bg-white/[0.05] text-text-secondary hover:text-text-primary',
+              ttsActiveIndex !== null ? 'ws-chip-brand' : 'ws-tool-toggle',
             )}
           >
-            {lang === 'el' ? 'Ανάγνωση' : 'Read all'}
+            {t('readerReadAll')}
           </button>
           <button
             type="button"
             data-testid="reader-full-source-toggle"
             onClick={() => setFullSource(!fullSource)}
-            className={cn('rounded-lg border px-2 py-1 text-[10px]', fullSource ? 'border-brand-500/30 bg-brand-600/15 text-brand-300' : 'border-white/12 bg-white/[0.05] text-text-secondary hover:text-text-primary')}
+            className={cn('rounded-lg border px-2 py-1 text-[10px]', fullSource ? 'border-brand-500/30 bg-brand-600/15 text-brand-800' : 'ws-tool-toggle')}
           >
-            {fullSource ? (lang === 'el' ? 'Πλήρες' : 'Full') : (lang === 'el' ? 'Απόσπασμα' : 'Excerpt')}
+            {fullSource ? t('readerFull') : t('readerExcerpt')}
           </button>
           {text.trim().length > 0 && (
             <button
@@ -894,21 +1013,21 @@ export function CognitiveReader({
               className={cn(
                 'rounded-lg border px-2 py-1 text-[10px] font-medium flex items-center gap-1',
                 translationMode !== 'off'
-                  ? 'border-accent-cyan/30 bg-accent-cyan/15 text-accent-cyan'
-                  : 'border-white/12 bg-white/[0.05] text-text-secondary hover:text-text-primary',
+                  ? 'ws-chip-brand'
+                  : 'ws-tool-toggle',
               )}
-              title={lang === 'el' ? 'Δίγλωσση προβολή' : 'Side-by-side translation'}
+              title={t('readerSideBySideTitle')}
             >
               <Languages className="w-3 h-3" />
               {translationMode === 'off'
-                ? (lang === 'el' ? 'Μετάφραση' : 'Translate')
+                ? t('readerTranslate')
                 : translationMode === 'glossary'
-                  ? (lang === 'el' ? 'Γλωσσάρι' : 'Glossary')
-                  : (lang === 'el' ? 'Πλήρης' : 'Full')}
+                  ? t('readerGlossaryMode')
+                  : t('readerFull')}
               {translating && '…'}
             </button>
           )}
-          <button type="button" onClick={() => setBionic(!bionic)} disabled={!!highlight} className={cn('rounded-lg border px-2 py-1 text-[10px] font-medium disabled:opacity-40', bionic ? 'border-brand-500/30 bg-brand-600/20 text-brand-300' : 'border-white/12 bg-white/[0.05] text-text-secondary hover:text-text-primary')}>
+          <button type="button" onClick={() => setBionic(!bionic)} disabled={!!highlight} className={cn('rounded-lg border px-2 py-1 text-[10px] font-medium disabled:opacity-40', bionic ? 'border-brand-500/30 bg-brand-600/20 text-brand-800' : 'ws-tool-toggle')}>
             {t('bionic')}
           </button>
           {ocrCandidate && (
@@ -918,10 +1037,10 @@ export function CognitiveReader({
               onClick={() => setOcrOverlayOn(!ocrOverlayOn)}
               className={cn(
                 'rounded-lg border px-2 py-1 text-[10px] font-medium',
-                ocrOverlayOn ? 'border-accent-amber/30 bg-accent-amber/15 text-accent-amber' : 'border-white/12 bg-white/[0.05] text-text-secondary hover:text-text-primary',
+                ocrOverlayOn ? 'border-accent-amber/30 bg-accent-amber/15 text-accent-amber' : 'ws-tool-toggle',
               )}
             >
-              {lang === 'el' ? 'OCR overlay' : 'OCR overlay'}
+              {t('readerOcrOverlay')}
             </button>
           )}
           <button
@@ -935,18 +1054,18 @@ export function CognitiveReader({
                 ? heatmapMode === 'learning'
                   ? 'border-accent-rose/30 bg-accent-rose/20 text-accent-rose'
                   : 'border-accent-amber/30 bg-accent-amber/20 text-accent-amber'
-                : 'border-white/12 bg-white/[0.05] text-text-secondary hover:text-text-primary',
+                : 'ws-tool-toggle',
             )}
             title={
               heatmapMode === 'learning'
-                ? (lang === 'el' ? 'Heatmap αδυναμιών (Concept Bus)' : 'Weak-area heatmap (Concept Bus)')
+                ? t('readerHeatmapWeakTitle')
                 : heatmapMode === 'complexity'
-                  ? (lang === 'el' ? 'Heatmap αναγνωσιμότητας' : 'Readability heatmap')
-                  : (lang === 'el' ? 'Heatmap μελέτης' : 'Study heatmap')
+                  ? t('readerHeatmapTermTitle')
+                  : t('readerHeatmapStudyTitle')
             }
           >
             {heatmapMode === 'learning'
-              ? (lang === 'el' ? 'Αδυναμίες' : 'Weak spots')
+              ? t('readerWeakSpotsLabel')
               : heatmapMode === 'complexity'
                 ? t('heatmap')
                 : t('heatmap')}
@@ -969,6 +1088,26 @@ export function CognitiveReader({
         />
       )}
 
+      {handwritingRecognized && (
+        <div
+          className="flex shrink-0 items-start gap-2 border-b border-accent-amber/30 bg-accent-amber/10 px-4 py-2"
+          data-testid="reader-handwriting-banner"
+        >
+          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-accent-amber" aria-hidden />
+          <p className="text-[11px] text-accent-amber">{t('readerHandwritingRecognized')}</p>
+        </div>
+      )}
+
+      {greekOcrReview && (
+        <div
+          className="flex shrink-0 items-start gap-2 border-b border-accent-amber/30 bg-accent-amber/10 px-4 py-2"
+          data-testid="reader-greek-ocr-banner"
+        >
+          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-accent-amber" aria-hidden />
+          <p className="text-[11px] text-accent-amber">{t('readerGreekOcrReview')}</p>
+        </div>
+      )}
+
       {suspiciousSegments.length > 0 && (
         <div
           className="flex shrink-0 flex-col gap-2 border-b border-accent-amber/30 bg-accent-amber/10 px-4 py-2"
@@ -976,10 +1115,10 @@ export function CognitiveReader({
         >
           <div className="flex items-start gap-2">
             <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-accent-amber" />
-            <p className="ws-caption text-accent-amber">
-              {lang === 'el'
-                ? `${suspiciousSegments.length} ενότητ${suspiciousSegments.length === 1 ? 'α' : 'ες'} με πιθανό σφάλμα OCR/εξαγωγής — μην τις χρησιμοποιείς ως αυθεντικές χωρίς επαλήθευση.`
-                : `${suspiciousSegments.length} section${suspiciousSegments.length === 1 ? '' : 's'} may contain OCR/extraction errors — do not treat as authoritative without verification.`}
+            <p className="text-[11px] text-accent-amber">
+              {suspiciousSegments.length === 1
+                ? t('readerSuspiciousOne')
+                : t('readerSuspiciousMany').replace('{count}', String(suspiciousSegments.length))}
             </p>
           </div>
           <div className="flex flex-wrap gap-1.5 pl-6" data-testid="reader-suspicious-jumps">
@@ -989,7 +1128,7 @@ export function CognitiveReader({
                 type="button"
                 data-testid={`reader-suspicious-jump-${seg.index}`}
                 onClick={() => scrollToSection(seg.index)}
-                className="rounded-full border border-accent-amber/40 bg-accent-amber/10 px-2 py-1 ws-caption text-accent-amber hover:bg-accent-amber/20"
+                className="rounded-full border border-accent-amber/40 bg-accent-amber/10 px-2 py-0.5 text-[10px] text-accent-amber hover:bg-accent-amber/20"
               >
                 {seg.label.slice(0, 48)}{seg.label.length > 48 ? '…' : ''}
               </button>
@@ -1000,33 +1139,44 @@ export function CognitiveReader({
 
       {glossaryPopover && (
         <div
-          className="flex shrink-0 items-start justify-between gap-3 border-b border-accent-cyan/25 bg-accent-cyan/8 px-4 py-2"
+          className="flex shrink-0 items-start justify-between gap-3 ws-info-strip border-b px-4 py-2"
           data-testid="reader-glossary-popover"
+          onMouseEnter={clearGlossaryTimers}
+          onMouseLeave={scheduleCloseGlossaryPopover}
         >
           <div className="min-w-0">
-            <p className="ws-meta font-semibold text-accent-cyan">{glossaryPopover.term}</p>
-            <p className="ws-caption text-text-secondary mt-0.5">
-              {glossaryPopover.definition || (lang === 'el' ? 'Δεν υπάρχει ορισμός στο γλωσσάρι.' : 'No glossary definition.')}
+            <p className="text-[11px] font-semibold text-brand-800">{glossaryPopover.term}</p>
+            <p className="text-[10px] text-text-secondary mt-0.5">
+              {glossaryPopover.definition || t('readerNoGlossaryDef')}
             </p>
           </div>
           <div className="flex shrink-0 gap-1.5">
+            <button
+              type="button"
+              data-testid="reader-define-btn"
+              aria-pressed="true"
+              className="rounded-lg border border-brand-500/40 bg-brand-600/20 px-2 py-1 text-[10px] font-medium text-brand-800"
+            >
+              {t('readerDefine')}
+            </button>
             {onTermFocus && (
               <button
                 type="button"
+                data-testid="reader-focus-in-text"
                 onClick={() => {
                   onTermFocus(glossaryPopover.term);
                   setGlossaryPopover(null);
                 }}
-                className="rounded-lg border border-brand-500/30 bg-brand-600/10 px-2.5 py-1.5 ws-caption font-medium text-brand-300"
+                className="rounded-lg border border-brand-500/30 bg-brand-600/10 px-2 py-1 text-[10px] font-medium text-brand-800"
               >
-                {lang === 'el' ? 'Εστίαση' : 'Focus'}
+                {t('readerFocusInText')}
               </button>
             )}
             <button
               type="button"
               onClick={() => setGlossaryPopover(null)}
               className="rounded p-1 text-text-muted hover:text-text-primary"
-              aria-label={lang === 'el' ? 'Κλείσιμο' : 'Dismiss'}
+              aria-label={t('close')}
             >
               <X className="h-3 w-3" />
             </button>
@@ -1035,21 +1185,21 @@ export function CognitiveReader({
       )}
 
       {annotateMode && (
-        <div className="flex shrink-0 items-center gap-2 border-b border-border-subtle bg-surface-secondary/40 px-4 py-2">
-          <span className="ws-caption text-text-muted">{lang === 'el' ? 'Χρώμα:' : 'Color:'}</span>
+        <div className="flex shrink-0 items-center gap-2 border-b border-border-subtle bg-surface-secondary/40 px-4 py-1.5">
+          <span className="text-[10px] text-text-muted">{t('readerColorColon')}</span>
           {ANN_COLORS.map((c) => (
             <button key={c} type="button" aria-label={lang === 'el' ? `Χρώμα ${c}` : `Color ${c}`} onClick={() => setActiveColor(c)} className={cn('h-5 w-5 rounded-full border-2', activeColor === c ? 'border-white' : 'border-transparent')} style={{ backgroundColor: c }} />
           ))}
-          <span className="ws-caption text-text-muted ml-2">{lang === 'el' ? 'Επίλεξε κείμενο για σημείωση' : 'Select text to annotate'}</span>
+          <span className="text-[10px] text-text-muted ml-2">{t('readerSelectToAnnotate')}</span>
         </div>
       )}
 
       {sectionNav.length >= 2 && (
         <div
-          className="flex shrink-0 gap-1.5 overflow-x-auto border-b border-border-subtle bg-surface-secondary/40 px-3 py-2 hide-scrollbar"
+          className="ux-tier-b-nav flex shrink-0 gap-1.5 overflow-x-auto border-b border-border-subtle bg-surface-secondary/40 px-3 py-2 hide-scrollbar"
           data-testid="reader-section-nav"
         >
-          <span className="shrink-0 self-center ws-eyebrow text-text-muted">
+          <span className="shrink-0 self-center text-[10px] font-semibold text-text-muted">
             {sectionNavRailLabel(sectionNav, lang)}
           </span>
           {sectionNav.map((item) => {
@@ -1067,8 +1217,8 @@ export function CognitiveReader({
               className={cn(
                 'shrink-0 max-w-[140px] truncate rounded-full border px-2.5 py-1.5 ws-caption transition-colors',
                 isActive
-                  ? 'border-accent-cyan/40 bg-accent-cyan/15 text-accent-cyan font-medium'
-                  : 'border-white/10 bg-surface-card text-text-secondary hover:border-brand-400/40 hover:text-brand-200',
+                  ? 'ws-chip-brand font-medium'
+                  : 'border-border-subtle bg-surface-card text-text-secondary hover:border-brand-600/35 hover:text-brand-800',
               )}
               title={item.label}
               aria-current={isActive ? 'true' : undefined}
@@ -1093,10 +1243,10 @@ export function CognitiveReader({
               type="button"
               data-testid="reader-section-study"
               onClick={() => onSectionStudy(activeSectionLabel)}
-              className="inline-flex items-center gap-1 rounded-lg border border-brand-500/30 bg-brand-600/10 px-2.5 py-1.5 ws-caption font-medium text-brand-300 hover:bg-brand-600/15"
+              className="inline-flex items-center gap-1 ws-chip-brand rounded-lg border px-2 py-1 text-[10px] font-medium hover:bg-brand-600/15"
             >
               <BookOpen className="h-3 w-3" />
-              {lang === 'el' ? 'Μελέτη' : 'Study'}
+              {t('readerSectionStudy')}
             </button>
           )}
           {onSectionAskAgent && (
@@ -1104,10 +1254,10 @@ export function CognitiveReader({
               type="button"
               data-testid="reader-section-ask-agent"
               onClick={() => onSectionAskAgent(activeSectionLabel)}
-              className="inline-flex items-center gap-1 rounded-lg border border-accent-cyan/30 bg-accent-cyan/10 px-2.5 py-1.5 ws-caption font-medium text-accent-cyan hover:bg-accent-cyan/15"
+              className="inline-flex items-center gap-1 ws-chip-brand rounded-lg border px-2 py-1 text-[10px] font-medium hover:opacity-90"
             >
               <Sparkles className="h-3 w-3" />
-              {lang === 'el' ? 'Ρώτα Agent' : 'Ask Agent'}
+              {t('readerAskAgentBtn')}
             </button>
           )}
         </div>
@@ -1121,29 +1271,31 @@ export function CognitiveReader({
             originTool="reader"
             onAction={handleReaderSelectionAction}
             onDismiss={dismissTextSelection}
+            occlusionAvailable={occlusionSelectionAvailable}
+            askAiInlineAvailable={llmReady}
             data-testid="reader-selection-actions"
           />
         ) : (
         <div
-          className="flex shrink-0 items-center gap-2 border-b border-accent-cyan/20 bg-accent-cyan/5 px-3 py-1.5"
+          className="flex shrink-0 items-center gap-2 ws-info-strip border-b px-3 py-1.5"
           data-testid="reader-selection-ask-agent"
         >
-          <span className="flex-1 truncate text-[10px] italic text-text-secondary">
+          <span className="ws-excerpt flex-1 truncate">
             "{textSelection.slice(0, 72)}{textSelection.length > 72 ? '…' : ''}"
           </span>
           <button
             type="button"
             onClick={() => handleReaderSelectionAction('ask-agent')}
-            className="shrink-0 inline-flex items-center gap-1 rounded-lg border border-accent-cyan/40 bg-accent-cyan/15 px-2 py-1 text-[10px] font-medium text-accent-cyan"
+            className="shrink-0 inline-flex items-center gap-1 rounded-lg border border-accent-cyan/40 bg-accent-cyan/15 px-2 py-1 text-[10px] font-medium text-brand-800"
           >
             <Sparkles className="h-3 w-3" />
-            {lang === 'el' ? 'Agent' : 'Ask Agent'}
+            {t('readerAskAgentChip')}
           </button>
           <button
             type="button"
             onClick={dismissTextSelection}
             className="shrink-0 rounded p-1 text-text-muted hover:text-text-primary"
-            aria-label={lang === 'el' ? 'Κλείσιμο' : 'Dismiss'}
+            aria-label={t('readerDismiss')}
           >
             <X className="h-3 w-3" />
           </button>
@@ -1191,8 +1343,12 @@ export function CognitiveReader({
         <OcrCorrectionPanel
           regions={overlayRegions}
           scopeKey={annotationScopeKey}
+          sourceText={rawDisplayText ?? ''}
           lang={lang}
-          onApplied={() => setOcrCorrectionRevision((v) => v + 1)}
+          onApplied={() => {
+            setOcrCorrectionRevision((v) => v + 1);
+            setAnnotations(loadReaderAnnotations(annotationScopeKey));
+          }}
         />
       )}
 
@@ -1204,7 +1360,7 @@ export function CognitiveReader({
             handleTextMouseUp();
             captureReaderSelection();
           }}
-          className={cn('flex-1 overflow-y-auto bg-surface-primary p-6', dyslexia && 'font-sans', annotateMode && 'select-text')}
+          className={cn('min-h-0 flex-1 overflow-y-auto bg-surface-primary p-6', dyslexia && 'font-sans', annotateMode && 'select-text')}
         >
           {renderHighlightedBody()}
         </div>
@@ -1213,10 +1369,10 @@ export function CognitiveReader({
             <div
               ref={sourceScrollRef}
               onScroll={onSourceScroll}
-              className="overflow-y-auto border-r border-border-subtle/60 bg-surface-primary p-4 md:p-6"
+              className="min-h-0 overflow-y-auto border-r border-border-subtle/60 bg-surface-primary p-4 md:p-6"
             >
-              <p className="sticky top-0 z-10 mb-2 bg-surface-primary/90 py-1 text-[10px] font-semibold uppercase tracking-wide text-text-muted backdrop-blur-sm">
-                {lang === 'el' ? 'Πηγή' : 'Source'}
+              <p className="sticky top-0 z-10 mb-2 bg-surface-primary/90 py-1 text-[10px] font-semibold text-text-muted backdrop-blur-sm">
+                {t('toolSource')}
               </p>
               <div className="space-y-4">
                 {bilingual.map((pair, i) => (
@@ -1232,7 +1388,7 @@ export function CognitiveReader({
                       'rounded-lg p-2 text-[15px] leading-relaxed text-text-primary scroll-mt-4 cursor-pointer hover:bg-surface-hover/40',
                       dyslexia && 'leading-loose tracking-wide',
                       focusTerm && pair.source.toLowerCase().includes(focusTerm.toLowerCase()) && 'ring-1 ring-brand-500/40 bg-brand-600/10',
-                      ttsActiveIndex === i && 'ring-2 ring-accent-cyan/50 bg-accent-cyan/10',
+                      ttsActiveIndex === i && 'ws-focus-line',
                     )}
                   >
                     {pair.source}
@@ -1243,12 +1399,12 @@ export function CognitiveReader({
             <div
               ref={companionScrollRef}
               onScroll={onCompanionScroll}
-              className="overflow-y-auto bg-surface-secondary/40 p-4 md:p-6"
+              className="min-h-0 overflow-y-auto bg-surface-secondary/40 p-4 md:p-6"
             >
-              <p className="sticky top-0 z-10 mb-2 bg-surface-primary/90 py-1 text-[10px] font-semibold uppercase tracking-wide text-accent-cyan backdrop-blur-sm">
+              <p className="sticky top-0 z-10 mb-2 bg-surface-primary/90 py-1 text-[10px] font-semibold text-brand-800 backdrop-blur-sm">
                 {translationMode === 'full'
-                  ? (lang === 'el' ? 'Μετάφραση' : 'Translation')
-                  : (lang === 'el' ? 'Γλωσσάρι / ορισμοί' : 'Glossary companion')}
+                  ? t('readerTranslationCol')
+                  : t('readerGlossaryCompanion')}
               </p>
               <div className="space-y-4">
                 {bilingual.map((pair, i) => (
@@ -1262,12 +1418,12 @@ export function CognitiveReader({
                     className={cn(
                       'rounded-lg border border-border-subtle/50 bg-surface-card/40 p-2 text-sm text-text-primary scroll-mt-4 cursor-pointer hover:bg-surface-hover/30',
                       dyslexia && 'leading-loose tracking-wide',
-                      focusTerm && pair.source.toLowerCase().includes(focusTerm.toLowerCase()) && 'ring-1 ring-accent-cyan/40',
+                      focusTerm && pair.source.toLowerCase().includes(focusTerm.toLowerCase()) && 'ring-1 ring-brand-600/35',
                     )}
                   >
                     {pair.companion}
                     {pair.glossHits.length > 0 && (
-                      <span className="mt-1 block text-[9px] text-text-muted">
+                      <span className="mt-1 block text-[10px] text-text-muted">
                         {pair.glossHits.slice(0, 4).join(' · ')}
                       </span>
                     )}
@@ -1283,17 +1439,20 @@ export function CognitiveReader({
             handleTextMouseUp();
             captureReaderSelection();
           }}
-          className={cn('relative flex-1 overflow-y-auto bg-surface-primary p-6', dyslexia && 'font-sans', annotateMode && 'select-text')}
+          className={cn('relative min-h-0 flex-1 overflow-y-auto bg-surface-primary p-6', dyslexia && 'font-sans', annotateMode && 'select-text')}
         >
           {overlayRegions.length > 0 && (
             <div
               className="pointer-events-none absolute inset-0 z-10"
               data-testid="reader-ocr-overlay"
+              data-ocr-granularity={overlayGranularity}
               aria-hidden
             >
-              {overlayRegions.map((r) => (
+              {overlayRegions.map((r, i) => (
                 <div
                   key={r.id}
+                  data-testid={`reader-ocr-word-${i}`}
+                  data-ocr-confidence={Math.round(r.confidence * 100)}
                   className={cn(
                     'absolute rounded border',
                     isLowConfidenceRegion(r.confidence)
@@ -1316,16 +1475,14 @@ export function CognitiveReader({
             <div className="mx-auto mt-6 flex max-w-xl items-start gap-2 rounded-lg border border-accent-rose/20 bg-accent-rose/5 p-3 text-xs text-accent-rose" data-testid="reader-learning-heatmap-legend">
               <Sparkles className="w-4 h-4 shrink-0" />
               <span>
-                {lang === 'el'
-                  ? 'Κόκκινο/πορτοκαλί = πραγματικές αδυναμίες από Concept Bus (λάθη κουίζ, μπερδευτικά, δύσκολες κάρτες).'
-                  : 'Rose/amber = real weak spots from Concept Bus (quiz mistakes, confusing marks, hard cards).'}
+                {t('readerLearningHeatLegend')}
               </span>
             </div>
           )}
           {heatmapMode === 'complexity' && !highlight && (
             <div className="mx-auto mt-6 flex max-w-xl items-start gap-2 rounded-lg border border-accent-amber/20 bg-accent-amber/5 p-3 text-xs text-accent-amber">
               <Sparkles className="w-4 h-4 shrink-0" />
-              <span>{lang === 'el' ? 'Κόκκινο = δύσκολη ανάγνωση, πορτοκαλί = μέτρια (μήκος προτάσεων, σύνθετοι όροι, τύποι).' : 'Rose = hard to read, amber = moderate (sentence length, complex terms, formulas).'}</span>
+              <span>{t('readerDenseTermHint')}</span>
             </div>
           )}
         </div>
@@ -1333,19 +1490,19 @@ export function CognitiveReader({
 
         {showMargin && annotations.length > 0 && (
           <aside className="hidden sm:block w-44 shrink-0 border-l border-border-subtle overflow-y-auto p-2 space-y-2 bg-surface-card/50">
-            <p className="text-[10px] font-semibold text-text-muted px-1">{lang === 'el' ? 'Περιθώρια' : 'Margin'}</p>
+            <p className="text-[10px] font-semibold text-text-muted px-1">{t('readerMargin')}</p>
             {annotations.map((ann) => (
               <div key={ann.id} className="rounded-lg border border-border-subtle p-2 text-[10px] group relative" style={{ borderLeftColor: ann.color, borderLeftWidth: 3 }}>
                 <button type="button" onClick={() => removeAnnotation(ann.id)} className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 text-text-muted">
                   <X className="w-3 h-3" />
                 </button>
-                <p className="text-text-secondary line-clamp-2 italic">
+                <p className="ws-excerpt line-clamp-2">
                   "{text.slice(ann.charStart, ann.charEnd).slice(0, 60)}{ann.charEnd - ann.charStart > 60 ? '…' : ''}"
                 </p>
                 {ann.note && <p className="text-text-primary mt-1">{ann.note}</p>}
               </div>
             ))}
-            <button type="button" onClick={exportJson} className="w-full text-[9px] text-brand-400 hover:text-brand-300 py-1">
+            <button type="button" onClick={exportJson} className="w-full text-[10px] text-brand-700 hover:text-brand-800 py-1">
               JSON export
             </button>
           </aside>
@@ -1354,17 +1511,17 @@ export function CognitiveReader({
 
       {pendingNote && (
         <div className="shrink-0 border-t border-border-subtle bg-surface-card p-3 space-y-2">
-          <p className="text-[10px] text-text-muted">{lang === 'el' ? 'Επιλεγμένο:' : 'Selected:'} <span className="italic text-text-secondary">"{pendingNote.excerpt.slice(0, 80)}"</span></p>
+          <p className="text-[10px] text-text-muted">{t('readerSelectedColon')} <span className="ws-excerpt">"{pendingNote.excerpt.slice(0, 80)}"</span></p>
           <input
             value={noteDraft}
             onChange={(e) => setNoteDraft(e.target.value)}
-            placeholder={lang === 'el' ? 'Προαιρετική σημείωση…' : 'Optional margin note…'}
+            placeholder={t('readerOptionalMarginNote')}
             className="w-full px-3 py-1.5 rounded-lg bg-surface-input border border-border-subtle text-xs"
             onKeyDown={(e) => e.key === 'Enter' && confirmAnnotation()}
           />
           <div className="flex gap-2 justify-end">
             <button type="button" onClick={() => setPendingNote(null)} className="text-xs text-text-muted">{t('cancel')}</button>
-            <button type="button" onClick={confirmAnnotation} className="text-xs font-medium text-brand-300">{lang === 'el' ? 'Αποθήκευση' : 'Save'}</button>
+            <button type="button" onClick={confirmAnnotation} className="text-xs font-medium text-brand-800">{t('save')}</button>
           </div>
         </div>
       )}

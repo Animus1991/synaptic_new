@@ -1,5 +1,5 @@
 /**
- * Acceptance harness for Greek university syllabus PDFs (ΕΚΠΑ-style).
+ * Acceptance harness for Greek university syllabus PDFs.
  * Composes unit-tested recognition modules into an end-to-end checklist.
  */
 
@@ -19,7 +19,7 @@ import type { UploadedFile } from '../types';
 const FRONT_MATTER_BODY = [
   '1 ΕΘΝΙΚΟ ΚΑΙ ΚΑΠΟΔΙΣΤΡΙΑΚΟ ΠΑΝΕΠΙΣΤΗΜΙΟ ΑΘΗΝΩΝ',
   '2 E-class Μαθήματος: https://eclass.uoa.gr/courses/ECON196',
-  '3 E-mail Επικοινωνίας: nstoupo@econ.uoa.gr',
+  '3 E-mail Επικοινωνίας: instructor@example.edu',
   '4 Ώρες Διδασκαλίας: Δευτέρα 12:00 - 15:00',
 ].join('\n');
 
@@ -61,7 +61,7 @@ function buildGreekSyllabusFixture(): string {
 describe('Greek syllabus recognition (acceptance)', () => {
   const normalized = normalizeDocumentText(buildGreekSyllabusFixture());
 
-  it('detects ΕΚΠΑ admin front-matter as ordered enumerated syllabus', () => {
+  it('detects Greek admin front-matter as ordered enumerated syllabus', () => {
     const items = detectEnumeratedItems(FRONT_MATTER_BODY);
     expect(items).toHaveLength(4);
     expect(isFrontMatterBlock(undefined, FRONT_MATTER_BODY)).toBe(true);

@@ -1,18 +1,23 @@
 import { useState, useCallback, useMemo, useRef, useEffect } from 'react';
 import type { AppView, Course, AgentMessage, AgentMode, UploadedFile, UserSettings, LearnerModel, DashboardStats, MistakeRecord, ActivityItem, GlossaryEntry } from '../types';
+import {
+  applyDashboardStatsOnTaskComplete,
+  applyLearnerModelOnTaskComplete,
+  markTaskCompleted,
+  taskCompletionActivityLabel,
+} from '../lib/taskCompletionFanOut';
 import { createActivity } from '../lib/activityLog';
+import { countUnreadNotifications, notificationsReadWatermark } from '../lib/notificationState';
 import { SEED_ACTIVITIES } from '../demo/activityDemo';
 import { mockUser, mockCourses, mockTasks, mockLearnerModel, mockDashboardStats, mockAgentMessages } from '../demo/mockData';
-import { loadThemePreference, applyTheme } from '../lib/theme';
+import { loadThemePreference, applyTheme, cycleTheme, resolveInitialThemePreference, hasStoredThemePreference, applyChromeDensity, resolveChromeDensity, DEFAULT_THEME_PREFERENCE } from '../lib/theme';
 import { ECON_CONCEPT_IMPORTANCE } from '../data/conceptGraph';
 import {
   betaMean,
   computeCalibration,
   computeExamReadiness,
   computePrerequisiteRepairs,
-  computeReviewInterval,
   deriveInsights,
-  fsrsIntervalDays,
   updateBetaMastery,
   updateSkillMastery,
   type FsrsRating,
@@ -20,10 +25,45 @@ import {
 import { ECON_CONCEPT_EDGES } from '../data/conceptGraph';
 import { edgesFromCourses } from '../lib/conceptEdges';
 import { loadJson, saveJson } from '../lib/persistence';
-import { hydrateLibrary, loadLibrarySync, saveLibrarySync } from '../lib/libraryStorage';
-import { mergeLibraries, remoteLibraryToPersisted } from '../lib/librarySync';
+import { t } from '../lib/i18n';
+import {
+  hydrateLibrary,
+  loadLibrarySync,
+  saveLibrarySync,
+  type PersistedLibrary,
+} from '../lib/libraryStorage';
+import { scheduleLibraryRemoteSync } from '../lib/libraryRemoteSync';
+import {
+  countPendingReviewsDue,
+  mergeLibrariesWithConflicts,
+  remoteLibraryToPersisted,
+  type LibrarySyncConflictItem,
+} from '../lib/librarySync';
+import { markWorkspaceContinue } from '../lib/workspacePerf';
+import {
+  buildNotebookLmUploadedFile,
+  parseNotebookLmExport,
+  buildNotebookLmAudioImportResult,
+  parseNotebookLmAudioFromMarkdown,
+  type NotebookLmImportResult,
+} from '../lib/notebooklmImport';
+import {
+  prepareNotebookLmFsrsImport,
+  type NotebookLmFsrsImportResult,
+} from '../lib/notebooklmFsrsImport';
+import { notifySuccess, notifyWarning } from '../lib/notificationBus';
+import { prefetchWorkspaceEntry } from '../lib/workspaceEntryPrefetch';
 import { fetchYoutubeTranscript } from '../lib/youtubeTranscript';
+import {
+  enqueueTranscribeJob,
+  fileToBase64,
+  waitForTranscribeJob,
+} from '../lib/transcribeClient';
+import { whisperJobToAudioMarkdown } from '../lib/notebooklmAudioTranscript';
+import { buildAudioFsrsImportResult } from '../lib/notebooklmAudioFsrsImport';
 import { fetchRemoteLibrary, fetchRemoteSession, pushRemoteSession, authMe } from '../lib/authClient';
+import { ensureServerRagIndex } from '../lib/serverRagBootstrap';
+import { deleteRemoteThumbnail } from '../lib/thumbnailRemoteSync';
 import {
   loadLocalSession,
   mergeSessions,
@@ -36,13 +76,30 @@ import {
 } from '../lib/conceptBusSync';
 import { loadAllConceptBuses, replaceAllConceptBuses } from '../lib/workspacePersistence';
 import { loadAllStepSchedules, replaceAllStepSchedules } from '../lib/spacedStepSchedule';
+import { loadAllDeckStates, replaceAllDeckStates } from '../lib/leitnerDeckSync';
+import { loadAllQuizAttemptHistories, replaceAllQuizAttemptHistories } from '../lib/quizAttemptHistory';
 import { createDebouncedConceptBusPusher } from '../lib/conceptBusSessionSync';
 import { mergeAgentWorkspaceContext, type WorkspaceLiveSync } from '../lib/workspaceStoreSpine';
 import { filterTasksForSession, getTaskAction, getTaskConcept, getAgentMode, type SessionType, type WorkspaceToolId } from '../lib/taskFlows';
 import { settingsToAgentMode } from '../lib/settingsEffects';
-import { readTextFromFiles, uploadedFileMeta, extractFileContent, type UploadPayload } from '../lib/uploadPipeline';
+import {
+  readTextFromFiles,
+  uploadedFileMeta,
+  extractFileContent,
+  recognizeDocumentModelsForUpload,
+  attachDocumentSnapshots,
+  type UploadPayload,
+} from '../lib/uploadPipeline';
 import { recognizeCourse } from '../lib/recognitionWorkerClient';
 import { buildConceptSpans, type SourceHighlight } from '../lib/conceptProvenance';
+import { enrichCourseWithCrossLinks } from '../lib/crossDocumentLink';
+import {
+  captureUploadSnapshot,
+  isUploadForceFailEnabled,
+  restoreUploadSnapshot,
+} from '../lib/uploadTransaction';
+import { applyFsrsToSpacing, quizOutcomeToFsrsRating } from '../lib/adaptiveScheduler';
+import type { TaskCalendarSyncUpdate } from '../lib/taskCalendarSync';
 import type { WorkspaceFocus } from '../lib/workspaceFocus';
 import { CONTENT_PIPELINE_VERSION } from '../lib/pipelineConstants';
 import {
@@ -51,20 +108,43 @@ import {
   regenerateGlossaryAfterReprocess,
   summarizeReprocessTaskDelta,
 } from '../lib/pipelineReprocess';
-import { reprocessCourseAnnotations } from '../lib/annotationStore';
+import { reprocessCourseAnnotations, reprocessCourseReaderAnnotations } from '../lib/annotationStore';
+import { prepareWorkspaceDisplayText } from '../lib/workspaceDisplayText';
 import { clearQuizSessions } from '../lib/quizSession';
 import { markCourseArtifactsStale, clearCourseArtifactsStale } from '../lib/artifactStaleness';
+import { persistCoverThumbnailOnFile } from '../lib/sourceThumbnailPersist';
+import { cacheSourceBlobOnIngest } from '../lib/sourceBlobCache';
+import { scheduleThumbnailBackfill } from '../lib/thumbnailBackfill';
 import { removeUploadedFileFromLibrary } from '../lib/removeUploadedFile';
+import { idbDeleteText, idbDeleteThumbnail, idbDeleteSourceBlob } from '../lib/indexedDbStorage';
+import { removeCourseFromLibrary } from '../lib/removeCourse';
 import {
   glossaryAfterCourseSourceRemoval,
   tasksAfterFileRemoval,
 } from '../lib/deleteCascade';
 import { emitAnalyticsLearningEvent } from '../lib/emitLearningEvent';
-import { selectDashboardNextAction } from '../lib/dashboardNextAction';
+import type { TaskFilter } from '../components/Tasks';
+import { selectDashboardNextAction, type WorkspacePracticeLaunch } from '../lib/dashboardNextAction';
+import { recommendDailyPlan } from '../lib/unifiedAdaptiveScheduler';
+import {
+  buildDashboardSmartCTAs,
+  smartCTAToWorkspaceLaunch,
+  type DashboardSmartCTA,
+} from '../lib/examPrep/dashboardSmartCTAs';
+import {
+  buildProactiveAgentAlerts,
+  proactiveAlertToWorkspaceLaunch,
+  type ProactiveAgentAlert,
+} from '../lib/proactiveAgentAlerts';
+import {
+  buildSyllabusCoverageSnapshot,
+  pickPrimaryCourseForCoverage,
+} from '../lib/examPrep/syllabusCoverageTracker';
 import { formatUploadSuccessToast, summarizeUploadStructure } from '../lib/uploadStructureSummary';
 import type { BetaMastery } from '../lib/pedagogy';
 import {
   shouldShowDemo,
+  isDemoCourse,
   initialCourses,
   initialUploadedFiles,
   initialGlossary,
@@ -72,15 +152,28 @@ import {
   stripDemoFromTasks,
 } from '../lib/demoMode';
 import { mockUploadedFiles, mockGlossaryEntries } from '../demo/mockSource';
+import { withDemoCourseGraphs } from '../demo/demoConceptGraph';
+import {
+  buildOnboardingUserPatch,
+  isOnboardingRoleId,
+  parseOnboardingGoals,
+  type OnboardingGoalId,
+  type OnboardingRoleId,
+} from '../lib/onboardingProfile';
+import { canAccessShellView, unauthorizedRedirectView } from '../lib/navCapabilities';
+import { isShellNavView } from '../lib/navigationRegistry';
+import { clearOnboardingDraft, loadOnboardingDraft, resolveInitialAppView } from '../lib/onboardingDraft';
+import { loadPersistedUserProfile, savePersistedUserProfile } from '../lib/userProfilePersist';
 import { buildInitialUser, applyAuthIdentity, levelFromXp } from '../lib/identity';
 import { createEmptyLearnerModel, EMPTY_DASHBOARD_STATS } from '../lib/emptyLearnerState';
+import { applyBehaviorInference, inferBehaviorFromActivities } from '../lib/behaviorInference';
+import { readAllLearningEvents } from '../lib/learningEvents';
 import { mergeCourseTasks } from '../lib/taskGenerator';
 import { syncLearnerHeatmap, computeStreakFromHeatmap } from '../lib/activityAnalytics';
 import { computeRetentionRate, weeklyMasteryFromActivities } from '../lib/retentionAnalytics';
 import {
   applySkillUpdate,
   ensureSkillNode,
-  findSkillForConcept,
   fsrsRatingToConfidence,
   mergeBetaFromCourse,
   mergeSkillNodesFromCourse,
@@ -114,7 +207,7 @@ function initTasks(
   tasks = stripDemoFromTasks(tasks);
   for (const course of generatedCourses) {
     if (course.status !== 'generating') {
-      tasks = mergeCourseTasks(tasks, course);
+      tasks = mergeCourseTasks(tasks, course, settings.language);
     }
   }
   return tasks;
@@ -170,12 +263,16 @@ function masteryMapFromSkills(lm: LearnerModel, courses: Course[], showDemo: boo
 
 export function useAppStore() {
   const persisted = useMemo(() => loadPersisted(), []);
+  const persistedProfile = useMemo(() => loadPersistedUserProfile(), []);
+  const onboardingDraft = useMemo(() => loadOnboardingDraft(), []);
   const library = useMemo(() => loadLibrarySync(), []);
   const mergedSettings = useMemo(
     () => ({
       ...mockUser.settings,
       ...persisted.userSettings,
-      theme: loadThemePreference(),
+      theme: hasStoredThemePreference()
+        ? loadThemePreference()
+        : (persisted.userSettings?.theme ?? resolveInitialThemePreference()),
     }),
     [persisted.userSettings],
   );
@@ -185,12 +282,15 @@ export function useAppStore() {
   );
 
   const [workspaceFocus, setWorkspaceFocus] = useState<WorkspaceFocus | null>(null);
-  const [currentView, setCurrentView] = useState<AppView>('landing');
+  const [currentView, setCurrentView] = useState<AppView>(() =>
+    resolveInitialAppView(Boolean(persistedProfile?.onboardingComplete), onboardingDraft),
+  );
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [user, setUser] = useState(() => buildInitialUser({
     settings: mergedSettings,
     persistedXp: persisted.xp,
     authEmail: mergedSettings.authEmail,
+    persistedProfile,
   }));
   const [courses, setCourses] = useState<Course[]>(
     () => initialCourses(library.generatedCourses, mergedSettings, mockCourses),
@@ -247,17 +347,29 @@ export function useAppStore() {
   const [glossaryEntries, setGlossaryEntries] = useState<GlossaryEntry[]>(
     () => initialGlossary(library.glossaryEntries, mergedSettings, mockGlossaryEntries),
   );
+  /** OPT-L5 — pending Library pull conflict (remote already applied; local snapshot restorable). */
+  const [librarySyncConflict, setLibrarySyncConflict] = useState<{
+    conflicts: LibrarySyncConflictItem[];
+    localSnapshot: PersistedLibrary;
+  } | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [isReprocessing, setIsReprocessing] = useState(false);
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [activeLessonView, setActiveLessonView] = useState(false);
   const [practicalLessonView, setPracticalLessonView] = useState(false);
   const [studyWorkspaceOpen, setStudyWorkspaceOpen] = useState(false);
+  /** L13-6 — NotebookLM-style 3-column shell for a course. */
+  const [notebookShellCourseId, setNotebookShellCourseId] = useState<string | null>(null);
   /** Side-by-side workspace + Agent when navigating via sidebar while workspace is open. */
   const [workspaceAgentSplit, setWorkspaceAgentSplit] = useState(false);
+  /** Agent embedded in workspace center panel (NotebookLM chat column). */
+  const [workspaceInlineAgentOpen, setWorkspaceInlineAgentOpen] = useState(false);
+  /** Side-by-side workspace + CourseView when opening a course while workspace stays open. */
+  const [workspaceCourseSplit, setWorkspaceCourseSplit] = useState(false);
   const studyWorkspaceOpenRef = useRef(false);
   /** One-shot tool focus when opening workspace from dashboard exam countdown. */
   const [workspaceOpenTool, setWorkspaceOpenTool] = useState<WorkspaceToolId | null>(null);
+  const [workspaceOpenSimulatorTab, setWorkspaceOpenSimulatorTab] = useState<'simulator' | 'exam-prep' | null>(null);
   const studyConceptOverrideRef = useRef<string | null>(null);
   /** Bumped on open to cancel an in-flight async close (flush) that would otherwise race. */
   const workspaceCloseGenRef = useRef(0);
@@ -286,6 +398,8 @@ export function useAppStore() {
   }, []);
 
   const openStudyWorkspace = useCallback((opts?: { keepTask?: boolean }) => {
+    markWorkspaceContinue();
+    prefetchWorkspaceEntry();
     cancelPendingWorkspaceClose();
     closeCompetingTaskOverlays('workspace');
 
@@ -293,14 +407,35 @@ export function useAppStore() {
       setActiveTaskId(null);
     }
 
+    // OPT-N1 — anchor context to selected course topic (avoid stale Philosophy/etc. banners).
     setStudyConceptOverride(null);
-    setWorkspaceFocus(null);
+    const course = selectedCourse;
+    const anchor =
+      course?.topics?.find((t) => t.title?.trim())?.title?.trim()
+      ?? course?.title?.trim()
+      ?? null;
+    setWorkspaceFocus(anchor ? { term: anchor, originTool: 'dashboard' } : null);
     setWorkspaceAgentSplit(false);
+    setWorkspaceInlineAgentOpen(true);
+    setNotebookShellCourseId(null);
     studyWorkspaceOpenRef.current = true;
     setStudyWorkspaceOpen(true);
-  }, [cancelPendingWorkspaceClose, closeCompetingTaskOverlays]);
+  }, [cancelPendingWorkspaceClose, closeCompetingTaskOverlays, selectedCourse]);
+
+  const openNotebookShell = useCallback((courseId: string) => {
+    const course = courses.find((c) => c.id === courseId);
+    if (!course) return;
+    setSelectedCourse(course);
+    setNotebookShellCourseId(courseId);
+  }, [courses]);
+
+  const closeNotebookShell = useCallback(() => {
+    setNotebookShellCourseId(null);
+  }, []);
 
   const openStudyWorkspaceForConcept = useCallback((concept?: string) => {
+    markWorkspaceContinue();
+    prefetchWorkspaceEntry();
     cancelPendingWorkspaceClose();
     closeCompetingTaskOverlays('workspace');
     setActiveTaskId(null);
@@ -310,24 +445,61 @@ export function useAppStore() {
     setStudyConceptOverride(trimmed);
     setWorkspaceFocus(trimmed ? { term: trimmed, originTool: 'dashboard' } : null);
     setWorkspaceAgentSplit(false);
+    setWorkspaceInlineAgentOpen(true);
     studyWorkspaceOpenRef.current = true;
     setStudyWorkspaceOpen(true);
   }, [cancelPendingWorkspaceClose, closeCompetingTaskOverlays]);
 
   const openStudyWorkspaceForExamCountdown = useCallback(() => {
+    markWorkspaceContinue();
+    prefetchWorkspaceEntry();
     cancelPendingWorkspaceClose();
     closeCompetingTaskOverlays('workspace');
     setActiveTaskId(null);
     setStudyConceptOverride(null);
     setWorkspaceFocus(null);
     setWorkspaceAgentSplit(false);
+    setWorkspaceInlineAgentOpen(true);
+    setWorkspaceOpenSimulatorTab(null);
     setWorkspaceOpenTool('timer');
     studyWorkspaceOpenRef.current = true;
     setStudyWorkspaceOpen(true);
   }, [cancelPendingWorkspaceClose, closeCompetingTaskOverlays]);
 
+  const openStudyWorkspaceForPractice = useCallback((launch: WorkspacePracticeLaunch) => {
+    markWorkspaceContinue();
+    prefetchWorkspaceEntry();
+    cancelPendingWorkspaceClose();
+    closeCompetingTaskOverlays('workspace');
+    setActiveTaskId(null);
+
+    if (launch.courseId) {
+      const course = courses.find((c) => c.id === launch.courseId);
+      if (course) setSelectedCourse(course);
+    }
+
+    const trimmed = launch.concept?.trim() || null;
+    setStudyConceptOverride(trimmed);
+    setWorkspaceFocus({
+      ...(trimmed ? { term: trimmed } : {}),
+      originTool: 'dashboard',
+      preferredTool: launch.tool,
+      ...(launch.simulatorTab ? { simulatorTab: launch.simulatorTab } : {}),
+    });
+    setWorkspaceOpenTool(launch.tool);
+    setWorkspaceOpenSimulatorTab(launch.simulatorTab ?? null);
+    setWorkspaceAgentSplit(false);
+    setWorkspaceInlineAgentOpen(true);
+    studyWorkspaceOpenRef.current = true;
+    setStudyWorkspaceOpen(true);
+  }, [cancelPendingWorkspaceClose, closeCompetingTaskOverlays, courses]);
+
   const consumeWorkspaceOpenTool = useCallback(() => {
     setWorkspaceOpenTool(null);
+  }, []);
+
+  const consumeWorkspaceOpenSimulatorTab = useCallback(() => {
+    setWorkspaceOpenSimulatorTab(null);
   }, []);
 
   const [sourceHighlight, setSourceHighlight] = useState<SourceHighlight | null>(null);
@@ -342,6 +514,7 @@ export function useAppStore() {
     });
     setSourceHighlight(highlight);
     setWorkspaceAgentSplit(false);
+    setWorkspaceInlineAgentOpen(true);
     studyWorkspaceOpenRef.current = true;
     setStudyWorkspaceOpen(true);
   }, [cancelPendingWorkspaceClose, closeCompetingTaskOverlays]);
@@ -354,8 +527,33 @@ export function useAppStore() {
   const [activeSessionType, setActiveSessionType] = useState<SessionType | null>(null);
   const [activeTaskId, setActiveTaskId] = useState<string | null>(null);
   const [expandedTaskId, setExpandedTaskId] = useState<string | null>(null);
+  const [tasksFilterPreset, setTasksFilterPreset] = useState<TaskFilter | null>(null);
   const [appToast, setAppToast] = useState<{ id: number; message: string } | null>(null);
+  const [postUploadCourseId, setPostUploadCourseId] = useState<string | null>(null);
+  const [noteAnalysisCourseId, setNoteAnalysisCourseId] = useState<string | null>(null);
   const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const markPostUploadCourse = useCallback((courseId: string) => setPostUploadCourseId(courseId), []);
+  const clearPostUploadHighlight = useCallback(() => setPostUploadCourseId(null), []);
+
+  const openNoteAnalysis = useCallback((courseId?: string) => {
+    const id = courseId ?? selectedCourse?.id ?? courses[0]?.id;
+    if (!id) return false;
+    const course = courses.find((c) => c.id === id);
+    if (!course) return false;
+    setNoteAnalysisCourseId(id);
+    setSelectedCourse(course);
+    setCurrentView('note-analysis');
+    setSidebarOpen(false);
+    window.scrollTo(0, 0);
+    return true;
+  }, [courses, selectedCourse]);
+
+  const closeNoteAnalysis = useCallback(() => {
+    setNoteAnalysisCourseId(null);
+    setCurrentView('library');
+    setSidebarOpen(false);
+  }, []);
 
   const dismissAppToast = useCallback(() => {
     if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
@@ -379,7 +577,47 @@ export function useAppStore() {
       glossaryEntries: glossary,
       generatedCourses: allCourses.filter((c) => !MOCK_COURSE_IDS.has(c.id)),
     });
-  }, []);
+    scheduleLibraryRemoteSync(user.settings);
+  }, [user.settings]);
+
+  const applyThumbnailCdnPatch = useCallback((
+    fileId: string,
+    patch: { cdnKey?: string; etag?: string },
+  ) => {
+    setUploadedFiles((prev) => {
+      const next = prev.map((f) =>
+        f.id === fileId && f.thumbnailRef
+          ? { ...f, thumbnailRef: { ...f.thumbnailRef, ...patch } }
+          : f,
+      );
+      persistLibrary(
+        next,
+        glossaryEntries,
+        courses.filter((c) => !MOCK_COURSE_IDS.has(c.id)),
+      );
+      return next;
+    });
+  }, [glossaryEntries, courses, persistLibrary]);
+
+  const applyThumbnailBackfill = useCallback((files: UploadedFile[]) => {
+    scheduleThumbnailBackfill(
+      files,
+      (patched) => {
+        setUploadedFiles((prev) => {
+          const byId = new Map(patched.map((p) => [p.id, p]));
+          const next = prev.map((f) => byId.get(f.id) ?? f);
+          persistLibrary(
+            next,
+            glossaryEntries,
+            courses.filter((c) => !MOCK_COURSE_IDS.has(c.id)),
+          );
+          return next;
+        });
+      },
+      user.settings,
+      applyThumbnailCdnPatch,
+    );
+  }, [glossaryEntries, courses, persistLibrary, user.settings, applyThumbnailCdnPatch]);
 
   useEffect(() => {
     void hydrateLibrary({
@@ -390,8 +628,22 @@ export function useAppStore() {
       if (hydrated.uploadedFiles.some((f, i) => f.extractedText !== library.uploadedFiles[i]?.extractedText)) {
         setUploadedFiles(initialUploadedFiles(hydrated.uploadedFiles, mergedSettings, mockUploadedFiles));
       }
+      applyThumbnailBackfill(hydrated.uploadedFiles);
     });
-  }, [library.uploadedFiles, library.glossaryEntries, library.generatedCourses, mergedSettings]);
+  }, [library.uploadedFiles, library.glossaryEntries, library.generatedCourses, mergedSettings, applyThumbnailBackfill]);
+
+  useEffect(() => {
+    if (!import.meta.env.DEV || typeof window === 'undefined') return undefined;
+    const reloadFromDisk = () => {
+      const fresh = loadLibrarySync();
+      void hydrateLibrary(fresh).then((hydrated) => {
+        setUploadedFiles(initialUploadedFiles(hydrated.uploadedFiles, mergedSettings, mockUploadedFiles));
+        applyThumbnailBackfill(hydrated.uploadedFiles);
+      });
+    };
+    window.addEventListener('synapse:library-reload', reloadFromDisk);
+    return () => window.removeEventListener('synapse:library-reload', reloadFromDisk);
+  }, [mergedSettings, mockUploadedFiles, applyThumbnailBackfill]);
 
   const persist = useCallback((
     nextLearner: LearnerModel,
@@ -433,6 +685,7 @@ export function useAppStore() {
     beta: BetaMastery[],
     keys: Set<string>,
     _mistakes: MistakeRecord[],
+    activityLog: ActivityItem[] = activities,
   ): LearnerModel => {
     const masteryMap = masteryMapFromSkills(lm, courses, shouldShowDemo(user.settings));
     const courseEdges = edgesFromCourses(courses);
@@ -445,17 +698,44 @@ export function useAppStore() {
     const fallbackAccuracy = lm.confidenceCalibration.length > 0
       ? lm.confidenceCalibration.reduce((s, p) => s + p.actual, 0) / lm.confidenceCalibration.length
       : lm.retentionRate;
-    const selfReliance = 1 - lm.helpSeekingRate;
+
+    const behavior = inferBehaviorFromActivities(
+      activityLog,
+      readAllLearningEvents(),
+      courses,
+    );
+    const withBehavior = applyBehaviorInference(lm, behavior);
+    const selfReliance = 1 - withBehavior.helpSeekingRate;
     const readiness = computeExamReadiness(beta, fallbackAccuracy, selfReliance, firstCount);
 
     return {
-      ...lm,
+      ...withBehavior,
       overallMastery: readiness,
-      interactionInsights: deriveInsights(lm, repairs, calibration),
+      retentionRate: withBehavior.retrievalPerformance || lm.retentionRate,
+      interactionInsights: deriveInsights(withBehavior, repairs, calibration),
     };
-  }, [courses, user.settings]);
+  }, [courses, user.settings, activities]);
+
+  useEffect(() => {
+    setLearnerModel((lm) => recomputeLearnerMetrics(lm, betaMastery, firstAttemptKeys, openMistakes, activities));
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- recompute when activity log changes
+  }, [activities.length, activities[0]?.id]);
 
   const navigate = useCallback((view: AppView) => {
+    if (isShellNavView(view) && !canAccessShellView(view, user)) {
+      setCurrentView(unauthorizedRedirectView(view));
+      setSidebarOpen(false);
+      window.scrollTo(0, 0);
+      return;
+    }
+    if (view === 'course' || view === 'library') {
+      workspaceCloseGenRef.current += 1;
+      studyWorkspaceOpenRef.current = false;
+      setStudyWorkspaceOpen(false);
+      setWorkspaceAgentSplit(false);
+      setWorkspaceCourseSplit(false);
+      setActiveTaskId(null);
+    }
     setCurrentView(view);
     setSidebarOpen(false);
     if (view === 'agent' && studyWorkspaceOpenRef.current) {
@@ -467,11 +747,45 @@ export function useAppStore() {
       setWorkspaceAgentSplit(false);
     }
     window.scrollTo(0, 0);
+  }, [user]);
+
+  const openTasksWithFilter = useCallback((filter: TaskFilter) => {
+    setTasksFilterPreset(filter);
+    setCurrentView('tasks');
+    setSidebarOpen(false);
+    window.scrollTo(0, 0);
+  }, []);
+
+  const clearTasksFilterPreset = useCallback(() => {
+    setTasksFilterPreset(null);
+  }, []);
+
+  const openCourseReview = useCallback((course: Course) => {
+    setSelectedCourse(course);
+    setCurrentView('course');
+    setSidebarOpen(false);
+    if (studyWorkspaceOpenRef.current) {
+      setWorkspaceCourseSplit(true);
+      window.scrollTo(0, 0);
+      return;
+    }
+    workspaceCloseGenRef.current += 1;
+    studyWorkspaceOpenRef.current = false;
+    setStudyWorkspaceOpen(false);
+    setWorkspaceAgentSplit(false);
+    setWorkspaceCourseSplit(false);
+    setActiveTaskId(null);
+    window.scrollTo(0, 0);
   }, []);
 
   const exitWorkspaceAgentSplit = useCallback(() => {
     setWorkspaceAgentSplit(false);
     setCurrentView((v) => (v === 'agent' ? 'dashboard' : v));
+  }, []);
+
+  const exitWorkspaceCourseSplit = useCallback(() => {
+    setWorkspaceCourseSplit(false);
+    setCurrentView('library');
   }, []);
 
   useEffect(() => {
@@ -490,42 +804,19 @@ export function useAppStore() {
 
   const completeTask = useCallback((taskId: string) => {
     setTasks((prev) => {
-      const task = prev.find((t) => t.id === taskId);
-      if (!task || task.status === 'completed') return prev;
-
-      const updated = prev.map((t) =>
-        t.id === taskId ? { ...t, status: 'completed' as const } : t,
-      );
+      const { nextTasks, task } = markTaskCompleted(prev, taskId);
+      if (!task) return prev;
 
       setLearnerModel((lm) => {
-        const concept = task.title.split('—')[0]?.trim() ?? task.title;
-        const match = findSkillForConcept(lm, concept);
-        const updatedSkill = match ? updateSkillMastery(match, true, 70) : null;
-
-        const nextWeak = updatedSkill
-          ? lm.weakAreas.map((s) => (s.concept === updatedSkill.concept ? updatedSkill : s))
-          : lm.weakAreas;
-
-        let next: LearnerModel = {
-          ...lm,
-          weakAreas: nextWeak,
-          totalSessions: lm.totalSessions + 1,
-          retrievalPerformance: Math.min(1, lm.retrievalPerformance + (task.isSpacedRepetition ? 0.03 : 0.01)),
-        };
+        let next = applyLearnerModelOnTaskComplete(lm, task);
         next = recomputeLearnerMetrics(next, betaMastery, firstAttemptKeys, openMistakes);
 
         setDashboardStats((stats) => {
-          const nextStats: DashboardStats = {
-            ...stats,
-            tasksCompleted: stats.tasksCompleted + 1,
-            todayXP: stats.todayXP + task.xpReward,
-            weeklyXP: stats.weeklyXP + task.xpReward,
-            reviewsDue: Math.max(0, stats.reviewsDue - (task.isSpacedRepetition ? 1 : 0)),
-          };
+          const nextStats = applyDashboardStatsOnTaskComplete(stats, task);
           setUser((u) => {
             const nextXp = u.xp + task.xpReward;
-            const nextActs = logActivity(createActivity('task_complete', `Completed: ${task.title}`, task.xpReward));
-            persist(next, nextStats, updated, nextXp, betaMastery, firstAttemptKeys, openMistakes, nextActs, u.settings);
+            const nextActs = logActivity(createActivity('task_complete', taskCompletionActivityLabel(task), task.xpReward));
+            persist(next, nextStats, nextTasks, nextXp, betaMastery, firstAttemptKeys, openMistakes, nextActs, u.settings);
             return { ...u, xp: nextXp, level: levelFromXp(nextXp) };
           });
           return nextStats;
@@ -534,7 +825,7 @@ export function useAppStore() {
         return next;
       });
 
-      return updated;
+      return nextTasks;
     });
   }, [persist, betaMastery, firstAttemptKeys, openMistakes, recomputeLearnerMetrics, logActivity, activities]);
 
@@ -545,16 +836,14 @@ export function useAppStore() {
 
       const concept = getTaskConcept(task);
       const spacing = learnerModel.spacingIntervals.find((s) => s.concept.toLowerCase().includes(concept.toLowerCase().slice(0, 6)));
-      const stability = spacing?.stability ?? 0.5;
-      const reviewCount = spacing?.reviewCount ?? 0;
-      const days = fsrsIntervalDays(stability, rating, reviewCount);
+      const fsrsUpdated = applyFsrsToSpacing(spacing, concept, rating);
 
       const updated = prev.map((t) =>
         t.id === taskId
           ? {
               ...t,
               status: 'completed' as const,
-              scheduledFor: new Date(Date.now() + days * 86400000).toISOString(),
+              scheduledFor: fsrsUpdated.nextReview,
             }
           : t,
       );
@@ -581,27 +870,9 @@ export function useAppStore() {
 
         const nextSpacing = nextLm.spacingIntervals.some((s) => s.concept === concept)
           ? nextLm.spacingIntervals.map((s) =>
-              s.concept === concept
-                ? {
-                    ...s,
-                    interval: days,
-                    reviewCount: s.reviewCount + 1,
-                    nextReview: new Date(Date.now() + days * 86400000).toISOString(),
-                    stability: rating === 'again' ? Math.max(0.1, s.stability - 0.15) : Math.min(1, s.stability + 0.1),
-                  }
-                : s,
+              s.concept === concept ? fsrsUpdated : s,
             )
-          : [
-              ...nextLm.spacingIntervals,
-              {
-                concept,
-                interval: days,
-                nextReview: new Date(Date.now() + days * 86400000).toISOString(),
-                stability: rating === 'again' ? 0.3 : 0.55,
-                difficulty: 0.5,
-                reviewCount: 1,
-              },
-            ];
+          : [...nextLm.spacingIntervals, fsrsUpdated];
 
         let next: LearnerModel = {
           ...nextLm,
@@ -653,9 +924,7 @@ export function useAppStore() {
       s.concept.toLowerCase().includes(concept.toLowerCase().slice(0, 6))
       || concept.toLowerCase().includes(s.concept.toLowerCase().slice(0, 6)),
     );
-    const stability = spacing?.stability ?? 0.5;
-    const reviewCount = spacing?.reviewCount ?? 0;
-    const days = fsrsIntervalDays(stability, rating, reviewCount);
+    const fsrsUpdated = applyFsrsToSpacing(spacing, concept, rating);
     const correct = rating !== 'again';
     const confidence = fsrsRatingToConfidence(rating);
 
@@ -679,27 +948,9 @@ export function useAppStore() {
 
       const nextSpacing = nextLm.spacingIntervals.some((s) => s.concept === concept)
         ? nextLm.spacingIntervals.map((s) =>
-            s.concept === concept
-              ? {
-                  ...s,
-                  interval: days,
-                  reviewCount: s.reviewCount + 1,
-                  nextReview: new Date(Date.now() + days * 86400000).toISOString(),
-                  stability: rating === 'again' ? Math.max(0.1, s.stability - 0.15) : Math.min(1, s.stability + 0.1),
-                }
-              : s,
+            s.concept === concept ? fsrsUpdated : s,
           )
-        : [
-            ...nextLm.spacingIntervals,
-            {
-              concept,
-              interval: days,
-              nextReview: new Date(Date.now() + days * 86400000).toISOString(),
-              stability: rating === 'again' ? 0.3 : 0.55,
-              difficulty: 0.5,
-              reviewCount: 1,
-            },
-          ];
+        : [...nextLm.spacingIntervals, fsrsUpdated];
 
       let next: LearnerModel = {
         ...nextLm,
@@ -819,29 +1070,14 @@ export function useAppStore() {
       updatedSkill,
     );
 
+    const spacingRow = nextLm.spacingIntervals.find((s) => s.concept === updatedSkill.concept);
+    const fsrsRating = quizOutcomeToFsrsRating(correct, confidence);
+    const fsrsUpdated = applyFsrsToSpacing(spacingRow, updatedSkill.concept, fsrsRating);
     const spacing = nextLm.spacingIntervals.some((s) => s.concept === updatedSkill.concept)
       ? nextLm.spacingIntervals.map((s) =>
-          s.concept === updatedSkill.concept
-            ? {
-                ...s,
-                interval: computeReviewInterval(s.reviewCount + 1, confidence, correct),
-                reviewCount: s.reviewCount + 1,
-                nextReview: new Date(Date.now() + computeReviewInterval(s.reviewCount + 1, confidence, correct) * 86400000).toISOString(),
-                stability: correct ? Math.min(1, s.stability + 0.08) : Math.max(0.1, s.stability - 0.12),
-              }
-            : s,
+          s.concept === updatedSkill.concept ? fsrsUpdated : s,
         )
-      : [
-          ...nextLm.spacingIntervals,
-          {
-            concept: updatedSkill.concept,
-            interval: computeReviewInterval(1, confidence, correct),
-            nextReview: new Date(Date.now() + computeReviewInterval(1, confidence, correct) * 86400000).toISOString(),
-            stability: correct ? 0.55 : 0.3,
-            difficulty: 0.5,
-            reviewCount: 1,
-          },
-        ];
+      : [...nextLm.spacingIntervals, fsrsUpdated];
 
     let next: LearnerModel = {
       ...nextLm,
@@ -891,7 +1127,15 @@ export function useAppStore() {
     setAgentDraftPrompt(opts?.prompt?.trim() || null);
     setAgentAutoSend(opts?.autoSend ?? false);
     setAgentWorkspaceContext(merged);
+
+    if (studyWorkspaceOpenRef.current && !opts?.fullPage) {
+      setWorkspaceInlineAgentOpen(true);
+      setWorkspaceAgentSplit(false);
+      return;
+    }
+
     setWorkspaceAgentSplit(false);
+    setWorkspaceInlineAgentOpen(false);
     studyWorkspaceOpenRef.current = false;
     setStudyWorkspaceOpen(false);
     navigate('agent');
@@ -947,8 +1191,11 @@ export function useAppStore() {
 
   const toggleTheme = useCallback(() => {
     setUser((prev) => {
-      const nextTheme = prev.settings.theme === 'light' ? 'dark' : 'light';
-      applyTheme(nextTheme);
+      const nextTheme = cycleTheme(prev.settings.theme);
+      applyTheme(
+        nextTheme,
+        resolveChromeDensity(prev.settings.chromeDensity, prev.settings.language),
+      );
       return { ...prev, settings: { ...prev.settings, theme: nextTheme } };
     });
   }, []);
@@ -956,7 +1203,14 @@ export function useAppStore() {
   const updateSettings = useCallback((partial: Partial<UserSettings>) => {
     setUser((prev) => {
       const nextSettings = { ...prev.settings, ...partial };
-      if (partial.theme) applyTheme(partial.theme);
+      if (partial.theme) {
+        applyTheme(
+          partial.theme,
+          resolveChromeDensity(nextSettings.chromeDensity, nextSettings.language),
+        );
+      } else if (partial.chromeDensity !== undefined || partial.language !== undefined) {
+        applyChromeDensity(resolveChromeDensity(nextSettings.chromeDensity, nextSettings.language));
+      }
       if (partial.teachingStyle || partial.explanationDepth || partial.challengeLevel) {
         setAgentMode(settingsToAgentMode(nextSettings));
       }
@@ -965,52 +1219,23 @@ export function useAppStore() {
     });
   }, [learnerModel, dashboardStats, tasks, betaMastery, firstAttemptKeys, openMistakes, activities, persist]);
 
-  /**
-   * Seed the bundled demo course/tasks into live state without a page reload and
-   * mark onboarding complete. Mirrors the store's init-time demo branch so the
-   * Study Workspace is immediately reachable from "See Demo" / "Explore Demo".
-   * Guarded so it never clobbers a returning user's real data.
-   */
-  const enableDemoContent = useCallback(() => {
-    const demoLearner = syncLearnerHeatmap(mockLearnerModel, activities);
-    const demoBeta = initBetaMastery({ ...user.settings, showDemoContent: true });
-    setUser((prev) => {
-      const nextSettings = { ...prev.settings, showDemoContent: true };
-      applyTheme(nextSettings.theme);
-      persist(mockLearnerModel, mockDashboardStats, mockTasks, prev.xp, demoBeta, firstAttemptKeys, INITIAL_MISTAKES, activities, nextSettings);
-      return { ...prev, onboardingComplete: true, settings: nextSettings };
-    });
-    setCourses((prev) => {
-      const have = new Set(prev.map((c) => c.id));
-      const add = mockCourses.filter((c) => !have.has(c.id));
-      return add.length ? [...add, ...prev] : prev;
-    });
-    setTasks((prev) => {
-      const have = new Set(prev.map((t) => t.id));
-      const add = mockTasks.filter((t) => !have.has(t.id));
-      return add.length ? [...add, ...prev] : prev;
-    });
-    setLearnerModel((prev) =>
-      prev.strongAreas.length > 0 || prev.weakAreas.length > 0 || prev.almostKnown.length > 0
-        ? prev
-        : demoLearner,
-    );
-    setDashboardStats((prev) => (prev.studyTimeWeek > 0 ? prev : { ...mockDashboardStats, streak: prev.streak }));
-    setBetaMastery((prev) => (prev.length > 0 ? prev : demoBeta));
-    setOpenMistakes((prev) => (prev.length > 0 ? prev : INITIAL_MISTAKES));
-    setAgentMessages((prev) => (prev.length > 0 ? prev : mockAgentMessages));
-    setUploadedFiles((prev) => {
-      const have = new Set(prev.map((f) => f.id));
-      const add = mockUploadedFiles.filter((f) => !have.has(f.id));
-      return add.length ? [...add, ...prev] : prev;
-    });
-    setGlossaryEntries((prev) => {
-      const have = new Set(prev.map((g) => `${g.courseId}::${g.term}`));
-      const add = mockGlossaryEntries.filter((g) => !have.has(`${g.courseId}::${g.term}`));
-      return add.length ? [...add, ...prev] : prev;
-    });
-    setSelectedCourse((prev) => prev ?? mockCourses[0] ?? null);
-  }, [user.settings, activities, firstAttemptKeys, persist]);
+  const notificationUnreadCount = useMemo(
+    () => countUnreadNotifications(activities, user.settings.notificationsLastSeenAt),
+    [activities, user.settings.notificationsLastSeenAt],
+  );
+
+  const markNotificationsRead = useCallback(() => {
+    updateSettings({ notificationsLastSeenAt: notificationsReadWatermark() });
+  }, [updateSettings]);
+
+  const notificationsBaselineInit = useRef(false);
+  useEffect(() => {
+    if (notificationsBaselineInit.current) return;
+    notificationsBaselineInit.current = true;
+    if (!user.settings.notificationsLastSeenAt) {
+      updateSettings({ notificationsLastSeenAt: notificationsReadWatermark() });
+    }
+  }, [user.settings.notificationsLastSeenAt, updateSettings]);
 
   const logStudyMinutes = useCallback((minutes: number, label = 'Focus session') => {
     if (minutes <= 0) return;
@@ -1026,7 +1251,7 @@ export function useAppStore() {
     });
   }, [learnerModel, tasks, user.xp, user.settings, betaMastery, firstAttemptKeys, openMistakes, persist, logActivity]);
 
-  const applyRemoteLibrary = useCallback((merged: ReturnType<typeof mergeLibraries>) => {
+  const applyRemoteLibrary = useCallback((merged: PersistedLibrary) => {
     setUploadedFiles(merged.uploadedFiles);
     setGlossaryEntries(merged.glossaryEntries);
     const nextCourses = initialCourses(merged.generatedCourses, user.settings, mockCourses);
@@ -1035,7 +1260,7 @@ export function useAppStore() {
     let nextTasks = stripDemoFromTasks(tasks);
     for (const course of merged.generatedCourses) {
       if (course.status !== 'generating') {
-        nextTasks = mergeCourseTasks(nextTasks, course);
+        nextTasks = mergeCourseTasks(nextTasks, course, user.settings.language);
       }
     }
     setTasks(nextTasks);
@@ -1063,14 +1288,41 @@ export function useAppStore() {
     if (!token) throw new Error('Sign in to pull your library');
     const remote = await fetchRemoteLibrary(token, user.settings);
     const local = loadLibrarySync();
-    const merged = mergeLibraries(local, remoteLibraryToPersisted(remote));
+    const { merged, conflicts, localSnapshot } = mergeLibrariesWithConflicts(
+      local,
+      remoteLibraryToPersisted(remote),
+    );
     applyRemoteLibrary(merged);
+    if (conflicts.length > 0) {
+      setLibrarySyncConflict({ conflicts, localSnapshot });
+      const lang = user.settings.language === 'el' ? 'el' : 'en';
+      showAppToast(t('librarySyncConflictToast', lang));
+    } else {
+      setLibrarySyncConflict(null);
+    }
+    const indexPayload = await hydrateLibrary(remoteLibraryToPersisted(remote));
+    void ensureServerRagIndex(token, user.settings, indexPayload).catch(() => {
+      /* index rebuild is best-effort; RagIndexProgressBanner surfaces failures */
+    });
     return merged;
-  }, [user.settings, applyRemoteLibrary]);
+  }, [user.settings, applyRemoteLibrary, showAppToast]);
+
+  const resolveLibrarySyncConflict = useCallback((choice: 'keep-remote' | 'restore-local') => {
+    if (choice === 'restore-local' && librarySyncConflict?.localSnapshot) {
+      applyRemoteLibrary(librarySyncConflict.localSnapshot);
+    }
+    setLibrarySyncConflict(null);
+  }, [librarySyncConflict, applyRemoteLibrary]);
+
+  const dismissLibrarySyncConflict = useCallback(() => {
+    setLibrarySyncConflict(null);
+  }, []);
 
   const applyRemoteSession = useCallback((merged: ReturnType<typeof mergeSessions>) => {
     if (merged.conceptBuses) replaceAllConceptBuses(merged.conceptBuses);
     if (merged.stepSchedules) replaceAllStepSchedules(merged.stepSchedules);
+    if (merged.leitnerDeckStates) replaceAllDeckStates(merged.leitnerDeckStates);
+    if (merged.quizAttemptHistories) replaceAllQuizAttemptHistories(merged.quizAttemptHistories);
 
     const nextTasks = stripDemoFromTasks(merged.tasks as typeof tasks);
     const nextKeys = new Set(merged.firstAttemptKeys);
@@ -1143,6 +1395,8 @@ export function useAppStore() {
       userSettings: user.settings,
       conceptBuses: loadAllConceptBuses() as import('../lib/conceptBusSync').ConceptBusMap,
       stepSchedules: loadAllStepSchedules(),
+      leitnerDeckStates: loadAllDeckStates(),
+      quizAttemptHistories: loadAllQuizAttemptHistories(),
       ...local,
     });
     return pushRemoteSession(token, user.settings, payload);
@@ -1186,6 +1440,8 @@ export function useAppStore() {
     studyWorkspaceOpenRef.current = false;
     setStudyWorkspaceOpen(false);
     setWorkspaceAgentSplit(false);
+    setWorkspaceInlineAgentOpen(false);
+    setWorkspaceCourseSplit(false);
     setActiveTaskId(null);
     void flushConceptBusSync().catch(() => {});
   }, [flushConceptBusSync]);
@@ -1234,10 +1490,15 @@ export function useAppStore() {
     const token = user.settings.authToken;
     if (!token || autoSessionSynced.current === token) return;
     autoSessionSynced.current = token;
-    void pullSessionFromServer().catch(() => {
-      autoSessionSynced.current = null;
-    });
-  }, [user.settings.authToken, pullSessionFromServer]);
+    void (async () => {
+      try {
+        await pullLibraryFromServer();
+        await pullSessionFromServer();
+      } catch {
+        autoSessionSynced.current = null;
+      }
+    })();
+  }, [user.settings.authToken, pullLibraryFromServer, pullSessionFromServer]);
 
   const processUpload = useCallback(async (payload: UploadPayload) => {
     setIsUploading(true);
@@ -1251,13 +1512,27 @@ export function useAppStore() {
       for (const f of payload.files) {
         const extracted = await extractFileContent(f, user.settings);
         if (extracted.text.trim()) fileTexts.push(extracted.text);
-        newFiles.push(
-          uploadedFileMeta(f, undefined, undefined, extracted.text, extracted.pageCount, {
-            ocrUsed: extracted.ocrUsed,
-            ingestMethod: extracted.ingestMethod ?? (extracted.ocrUsed ? 'ocr-client' : 'text-layer'),
-            ocrRegions: extracted.ocrRegions,
-          }),
-        );
+        let meta = uploadedFileMeta(f, undefined, undefined, extracted.text, extracted.pageCount, {
+          ocrUsed: extracted.ocrUsed,
+          ingestMethod: extracted.ingestMethod ?? (extracted.ocrUsed ? 'ocr-client' : 'text-layer'),
+          ocrRegions: extracted.ocrRegions,
+          ocrModelsUsed: extracted.ocrModelsUsed,
+          pdfLayoutBlocks: extracted.layoutBlocks,
+        });
+        if (extracted.coverThumbnail && (meta.type === 'pdf' || meta.type === 'image')) {
+          meta = await persistCoverThumbnailOnFile(
+            meta,
+            extracted.coverThumbnail,
+            user.settings,
+            applyThumbnailCdnPatch,
+          );
+        } else if (meta.type === 'pdf' || meta.type === 'image') {
+          meta = { ...meta, thumbnailStatus: 'failed' };
+        }
+        if (meta.type === 'pdf' || meta.type === 'image') {
+          void cacheSourceBlobOnIngest(f, meta.id);
+        }
+        newFiles.push(meta);
         if (extracted.ocrUsed) {
           emitAnalyticsLearningEvent('ocr_applied', { fileName: f.name, chars: extracted.text.length });
         }
@@ -1327,6 +1602,9 @@ export function useAppStore() {
       editedOutline: payload.editedOutline,
     };
 
+    const lang = user.settings.language === 'el' ? 'el' : 'en';
+    const documentRecognitionPromise = recognizeDocumentModelsForUpload(newFiles, text, lang);
+
     const result = await recognizeCourse({
       text,
       fileNames,
@@ -1341,19 +1619,23 @@ export function useAppStore() {
     let course = result.course;
     let nextGlossary = result.glossary;
     const topics = course.topics.map((t) => t.title);
-    const withCourse: UploadedFile[] = result.withCourse.length > 0
-      ? result.withCourse.map((meta, i) => ({
-        ...meta,
-        courseId: course.id,
-        extractedTopics: topics,
-        pipelineVersion: CONTENT_PIPELINE_VERSION,
-        extractedText: newFiles[i]?.extractedText?.trim()
-          ? newFiles[i]!.extractedText
-          : (newFiles.length === 1 ? text : meta.extractedText),
-        pageCount: newFiles[i]?.pageCount ?? meta.pageCount,
-        ocrUsed: newFiles[i]?.ocrUsed,
-        ingestMethod: newFiles[i]?.ingestMethod ?? (pasted ? 'paste' : undefined),
-      }))
+    const workerBacked: UploadedFile[] = result.withCourse.length > 0
+      ? result.withCourse.map((meta, i) => {
+        const ingested = newFiles[i];
+        return {
+          ...meta,
+          ...(ingested ?? {}),
+          courseId: course.id,
+          extractedTopics: topics,
+          pipelineVersion: CONTENT_PIPELINE_VERSION,
+          extractedText: ingested?.extractedText?.trim()
+            ? ingested.extractedText
+            : (newFiles.length === 1 ? text : meta.extractedText),
+          pageCount: ingested?.pageCount ?? meta.pageCount,
+          ocrUsed: ingested?.ocrUsed,
+          ingestMethod: ingested?.ingestMethod ?? (pasted ? 'paste' : undefined),
+        };
+      })
       : newFiles.map((f) => ({
         ...f,
         courseId: course.id,
@@ -1362,6 +1644,20 @@ export function useAppStore() {
         extractedText: f.extractedText?.trim() ? f.extractedText : text,
         ingestMethod: f.ingestMethod ?? (pasted ? 'paste' : undefined),
       }));
+    const withCourse: UploadedFile[] = [...workerBacked];
+    // Companion paste / extra ingest rows are not mirrored in the worker's withCourse array.
+    if (result.withCourse.length > 0 && newFiles.length > result.withCourse.length) {
+      withCourse.push(
+        ...newFiles.slice(result.withCourse.length).map((f) => ({
+          ...f,
+          courseId: course.id,
+          extractedTopics: topics,
+          pipelineVersion: CONTENT_PIPELINE_VERSION,
+          extractedText: f.extractedText?.trim() ? f.extractedText : text,
+          ingestMethod: f.ingestMethod ?? 'paste',
+        })),
+      );
+    }
     if (result.ytFile) {
       withCourse.push({
         ...result.ytFile,
@@ -1374,11 +1670,17 @@ export function useAppStore() {
       });
     }
 
+    const documentRecognition = await documentRecognitionPromise;
+    const withRecognition = attachDocumentSnapshots(withCourse, documentRecognition);
+    if (documentRecognition.courseSummary) {
+      course = { ...course, recognitionSummary: documentRecognition.courseSummary };
+    }
+
     const conceptLabels = [...new Set(course.topics.flatMap((t) => t.keyConcepts ?? [t.title]))];
-    if (conceptLabels.length > 0 && withCourse.some((f) => (f.extractedText?.trim().length ?? 0) > 40)) {
+    if (conceptLabels.length > 0 && withRecognition.some((f) => (f.extractedText?.trim().length ?? 0) > 40)) {
       course = {
         ...course,
-        conceptSpans: buildConceptSpans(withCourse, conceptLabels, course.id),
+        conceptSpans: buildConceptSpans(withRecognition, conceptLabels, course.id),
         pipelineMeta: course.pipelineMeta ?? {
           version: CONTENT_PIPELINE_VERSION,
           generatedAt: new Date().toISOString(),
@@ -1387,39 +1689,82 @@ export function useAppStore() {
       };
     }
 
-    const nextFiles = [...uploadedFiles, ...withCourse];
+    course = await enrichCourseWithCrossLinks(
+      course,
+      text,
+      courses.filter((c) => !MOCK_COURSE_IDS.has(c.id)),
+      uploadedFiles,
+    );
+
+    const nextFiles = [...uploadedFiles, ...withRecognition];
 
     const generatedOnly = [
       ...courses.filter((c) => !MOCK_COURSE_IDS.has(c.id) && c.id !== course.id),
       course,
     ];
     const nextCourses = initialCourses(generatedOnly, user.settings, mockCourses);
-    const nextTasks = mergeCourseTasks(stripDemoFromTasks(tasks), course);
+    const nextTasks = mergeCourseTasks(stripDemoFromTasks(tasks), course, user.settings.language);
     const nextBeta = mergeBetaFromCourse(betaMastery, course);
     const nextLm = mergeSkillNodesFromCourse(learnerModel, course);
     const nextLmMetrics = recomputeLearnerMetrics(nextLm, nextBeta, firstAttemptKeys, openMistakes);
-    setUploadedFiles(nextFiles);
-    setCourses(nextCourses);
-    setTasks(nextTasks);
-    setBetaMastery(nextBeta);
-    setLearnerModel(nextLmMetrics);
-    persistLibrary(nextFiles, nextGlossary, nextCourses.filter((c) => !MOCK_COURSE_IDS.has(c.id)));
-    const actLabel = extendTarget ? `Extended course: ${course.title}` : `Created course: ${course.title}`;
-    emitAnalyticsLearningEvent('course_generated', {
-      topicCount: course.topics.length,
-      conceptCount: course.conceptCount,
-      pipelineVersion: CONTENT_PIPELINE_VERSION,
-    }, { courseId: course.id });
-    const nextActs = logActivity(createActivity('upload', actLabel));
-    persist(nextLmMetrics, dashboardStats, nextTasks, user.xp, nextBeta, firstAttemptKeys, openMistakes, nextActs, user.settings);
-    setSelectedCourse(course);
-    const lang = user.settings.language === 'el' ? 'el' : 'en';
-    showAppToast(formatUploadSuccessToast(summarizeUploadStructure(text, lang), lang));
-    return course;
+
+    const uploadSnapshot = captureUploadSnapshot({
+      courses,
+      uploadedFiles,
+      glossaryEntries,
+      tasks,
+      betaMastery,
+      learnerModel,
+      activities,
+      dashboardStats,
+      selectedCourseId: selectedCourse?.id ?? null,
+    });
+
+    try {
+      if (isUploadForceFailEnabled()) {
+        throw new Error('Upload commit blocked (test hook)');
+      }
+
+      setUploadedFiles(nextFiles);
+      applyThumbnailBackfill(nextFiles);
+      setCourses(nextCourses);
+      setTasks(nextTasks);
+      setBetaMastery(nextBeta);
+      setGlossaryEntries(nextGlossary);
+      setLearnerModel(nextLmMetrics);
+
+      persistLibrary(nextFiles, nextGlossary, nextCourses.filter((c) => !MOCK_COURSE_IDS.has(c.id)));
+
+      const actLabel = extendTarget ? `Extended course: ${course.title}` : `Created course: ${course.title}`;
+      emitAnalyticsLearningEvent('course_generated', {
+        topicCount: course.topics.length,
+        conceptCount: course.conceptCount,
+        pipelineVersion: CONTENT_PIPELINE_VERSION,
+      }, { courseId: course.id });
+      const nextActs = logActivity(createActivity('upload', actLabel));
+      persist(nextLmMetrics, dashboardStats, nextTasks, user.xp, nextBeta, firstAttemptKeys, openMistakes, nextActs, user.settings);
+
+      setSelectedCourse(course);
+      showAppToast(formatUploadSuccessToast(summarizeUploadStructure(text, lang), lang));
+      return course;
+    } catch (commitErr) {
+      restoreUploadSnapshot(uploadSnapshot, {
+        setCourses,
+        setUploadedFiles,
+        setGlossaryEntries,
+        setTasks,
+        setBetaMastery,
+        setLearnerModel,
+        setActivities,
+        setDashboardStats,
+        setSelectedCourse,
+      });
+      throw commitErr;
+    }
     } finally {
       setIsUploading(false);
     }
-  }, [courses, uploadedFiles, glossaryEntries, learnerModel, dashboardStats, tasks, user.xp, user.settings, betaMastery, firstAttemptKeys, openMistakes, persist, persistLibrary, logActivity, showAppToast]);
+  }, [courses, uploadedFiles, glossaryEntries, learnerModel, dashboardStats, tasks, user.xp, user.settings, betaMastery, firstAttemptKeys, openMistakes, activities, selectedCourse, persist, persistLibrary, logActivity, showAppToast, applyThumbnailBackfill]);
 
   const reprocessCourseMaterial = useCallback((courseId: string) => {
     setIsReprocessing(true);
@@ -1427,11 +1772,7 @@ export function useAppStore() {
       const result = runCourseReprocess(courseId, courses, uploadedFiles);
       if (!result) {
         const lang = user.settings.language === 'el' ? 'el' : 'en';
-        showAppToast(
-          lang === 'el'
-            ? 'Δεν βρέθηκε αποθηκευμένο κείμενο για επανεπεξεργασία.'
-            : 'No stored extracted text found to reprocess.',
-        );
+        showAppToast(t('toastNoStoredText', lang));
         return false;
       }
       const nextCourses = courses.map((c) => (c.id === courseId ? result.course : c));
@@ -1440,7 +1781,7 @@ export function useAppStore() {
       let nextTasks = tasks;
       let taskDelta: ReturnType<typeof summarizeReprocessTaskDelta> | null = null;
       if (result.tasksRegenerated) {
-        nextTasks = regenerateTasksAfterReprocess(tasks, result.course);
+        nextTasks = regenerateTasksAfterReprocess(tasks, result.course, user.settings.language);
         taskDelta = summarizeReprocessTaskDelta(
           tasks,
           nextTasks,
@@ -1467,30 +1808,35 @@ export function useAppStore() {
         textByFileKey,
         CONTENT_PIPELINE_VERSION,
       );
+      const primaryText = courseFiles.map((f) => f.extractedText!.trim()).join('\n\n');
+      const readerScopeKeys = [
+        ...courseFiles.map((f) => f.name),
+        ...courseFiles.map((f) => f.id),
+        ...result.course.topics.map((t) => `concept:${t.title}`),
+      ];
+      const textByReaderScope: Record<string, string> = {};
+      for (const key of readerScopeKeys) {
+        const raw = textByFileKey[key] ?? primaryText;
+        textByReaderScope[key] = prepareWorkspaceDisplayText(raw, key);
+      }
+      const readerFlagged = reprocessCourseReaderAnnotations(readerScopeKeys, textByReaderScope);
+      const totalFlagged = annotationsFlagged + readerFlagged;
       clearQuizSessions();
       markCourseArtifactsStale(courseId, CONTENT_PIPELINE_VERSION);
       const lang = user.settings.language === 'el' ? 'el' : 'en';
-      const reviewHint = annotationsFlagged > 0
-        ? (lang === 'el'
-          ? ` ${annotationsFlagged} σημειώσεις χρειάζονται επανέλεγχο.`
-          : ` ${annotationsFlagged} annotation(s) need review.`)
+      const reviewHint = totalFlagged > 0
+        ? t('toastAnnotationsReview', lang).replace('{count}', String(totalFlagged))
         : '';
       const taskHint = taskDelta && taskDelta.addedGenerated > 0
-        ? (lang === 'el'
-          ? ` ${taskDelta.addedGenerated} νέες εργασίες (${taskDelta.removedGenerated} παλιές αντικαταστάθηκαν).`
-          : ` ${taskDelta.addedGenerated} new tasks (${taskDelta.removedGenerated} stale replaced).`)
+        ? t('toastNewTasks', lang)
+          .replace('{added}', String(taskDelta.addedGenerated))
+          .replace('{removed}', String(taskDelta.removedGenerated))
         : '';
-      const staleHint = lang === 'el'
-        ? ' Κουίζ, κάρτες και προσομοίωση σημειώθηκαν ως παρωχημένα.'
-        : ' Quiz, flashcards, and simulator flagged as outdated.';
+      const staleHint = t('toastArtifactsStale', lang);
       showAppToast(
         (result.tasksRegenerated
-          ? (lang === 'el'
-            ? 'Αναγνώριση, γλωσσάρι και εργασίες ενημερώθηκαν από το αποθηκευμένο κείμενο.'
-            : 'Recognition, glossary, and tasks refreshed from stored text.')
-          : (lang === 'el'
-            ? 'Η αναγνώριση ενημερώθηκε από το αποθηκευμένο κείμενο.'
-            : 'Recognition refreshed from stored text.')) + taskHint + staleHint + reviewHint,
+          ? t('toastReprocessFull', lang)
+          : t('toastReprocessRecognition', lang)) + taskHint + staleHint + reviewHint,
       );
       return true;
     } finally {
@@ -1498,14 +1844,253 @@ export function useAppStore() {
     }
   }, [courses, uploadedFiles, glossaryEntries, tasks, selectedCourse, learnerModel, dashboardStats, user, betaMastery, firstAttemptKeys, openMistakes, activities, persistLibrary, persist, showAppToast]);
 
+  const saveCourseExtractedText = useCallback((courseId: string, text: string) => {
+    const trimmed = text.trim();
+    if (trimmed.length < 40) {
+      const lang = user.settings.language === 'el' ? 'el' : 'en';
+      showAppToast(t('toastTextTooShort', lang));
+      return false;
+    }
+    const linked = uploadedFiles.filter(
+      (f) => f.courseId === courseId && (f.extractedText?.trim().length ?? 0) > 0,
+    );
+    if (linked.length === 0) return false;
+
+    const primary = linked[0];
+    const nextFiles = uploadedFiles.map((f) =>
+      f.id === primary.id ? { ...f, extractedText: trimmed } : f,
+    );
+    setUploadedFiles(nextFiles);
+    persistLibrary(nextFiles, glossaryEntries, courses.filter((c) => !MOCK_COURSE_IDS.has(c.id)));
+    return true;
+  }, [uploadedFiles, glossaryEntries, courses, persistLibrary, user.settings.language, showAppToast]);
+
+  const importNotebookLm = useCallback((raw: string, opts?: { courseId?: string }): NotebookLmImportResult | null => {
+    const parsed = parseNotebookLmExport(raw);
+    if (!parsed.markdown.trim() && parsed.quizCards.length === 0 && parsed.chatTurns.length === 0 && parsed.audioSegments.length === 0) {
+      const lang = user.settings.language === 'el' ? 'el' : 'en';
+      notifyWarning(
+        lang === 'el' ? 'Κενό περιεχόμενο' : 'Empty content',
+        lang === 'el' ? 'Επικόλλησε κείμενο από NotebookLM.' : 'Paste text from NotebookLM.',
+      );
+      return null;
+    }
+    const file = buildNotebookLmUploadedFile(parsed, { courseId: opts?.courseId });
+    const nextFiles = [...uploadedFiles, file];
+    setUploadedFiles(nextFiles);
+    persistLibrary(nextFiles, glossaryEntries, courses.filter((c) => !MOCK_COURSE_IDS.has(c.id)));
+    const lang = user.settings.language === 'el' ? 'el' : 'en';
+    notifySuccess(
+      lang === 'el' ? 'Εισαγωγή NotebookLM' : 'NotebookLM import',
+      parsed.kind === 'chat'
+        ? (lang === 'el'
+          ? `${parsed.title} · ${parsed.chatTurns.length} γύροι chat`
+          : `${parsed.title} · ${parsed.chatTurns.length} chat turns`)
+        : parsed.kind === 'audio-transcript'
+          ? (lang === 'el'
+            ? `${parsed.title} · ${parsed.audioSegments.length} κεφάλαια`
+            : `${parsed.title} · ${parsed.audioSegments.length} chapters`)
+          : parsed.quizCards.length > 0
+            ? (lang === 'el'
+              ? `${parsed.title} · ${parsed.quizCards.length} κάρτες quiz`
+              : `${parsed.title} · ${parsed.quizCards.length} quiz cards`)
+            : parsed.title,
+    );
+    return parsed;
+  }, [uploadedFiles, glossaryEntries, courses, persistLibrary, user.settings.language]);
+
+  const importNotebookLmAudioForCourse = useCallback((raw: string, courseId: string): boolean => {
+    const parsed = buildNotebookLmAudioImportResult(raw);
+    const lang = user.settings.language === 'el' ? 'el' : 'en';
+    if (!parsed) {
+      notifyWarning(
+        lang === 'el' ? 'Μη έγκυρο transcript' : 'Invalid transcript',
+        lang === 'el'
+          ? 'Επικόλλησε transcript από NotebookLM Studio Audio (με κεφάλαια ή χρονικές σημάνσεις).'
+          : 'Paste a NotebookLM Studio Audio transcript (chapters or timestamps).',
+      );
+      return false;
+    }
+    const file = buildNotebookLmUploadedFile(parsed, { courseId });
+    const nextFiles = [...uploadedFiles, file];
+    setUploadedFiles(nextFiles);
+    persistLibrary(nextFiles, glossaryEntries, courses.filter((c) => !MOCK_COURSE_IDS.has(c.id)));
+    notifySuccess(
+      lang === 'el' ? 'Audio transcript' : 'Audio transcript',
+      lang === 'el'
+        ? `${parsed.title} · ${parsed.audioSegments.length} κεφάλαια`
+        : `${parsed.title} · ${parsed.audioSegments.length} chapters`,
+    );
+    return true;
+  }, [uploadedFiles, glossaryEntries, courses, persistLibrary, user.settings.language]);
+
+  const transcribeAudioForCourse = useCallback(async (file: File, courseId: string): Promise<boolean> => {
+    const token = user.settings.authToken?.trim();
+    const lang = user.settings.language === 'el' ? 'el' : 'en';
+    if (!token) {
+      notifyWarning(
+        lang === 'el' ? 'Σύνδεση απαιτείται' : 'Sign-in required',
+        lang === 'el'
+          ? 'Για Whisper transcript χρειάζεσαι συνδεδεμένο λογαριασμό.'
+          : 'Whisper transcription requires a signed-in account.',
+      );
+      return false;
+    }
+    try {
+      const audioBase64 = await fileToBase64(file);
+      const { jobId } = await enqueueTranscribeJob(token, user.settings, audioBase64, {
+        filename: file.name,
+        language: user.settings.language === 'el' ? 'el' : undefined,
+      });
+      const job = await waitForTranscribeJob(token, user.settings, jobId);
+      if (job.status === 'failed') {
+        notifyWarning(
+          lang === 'el' ? 'Μεταγραφή απέτυχε' : 'Transcription failed',
+          job.error ?? (lang === 'el' ? 'Δοκίμασε ξανά.' : 'Try again.'),
+        );
+        return false;
+      }
+      const baseTitle = file.name.replace(/\.[^.]+$/, '');
+      const markdown = whisperJobToAudioMarkdown(job, baseTitle);
+      if (!markdown.trim()) {
+        notifyWarning(
+          lang === 'el' ? 'Κενό transcript' : 'Empty transcript',
+          lang === 'el' ? 'Ο Whisper δεν επέστρεψε κείμενο.' : 'Whisper returned no text.',
+        );
+        return false;
+      }
+      return importNotebookLmAudioForCourse(markdown, courseId);
+    } catch (err) {
+      notifyWarning(
+        lang === 'el' ? 'Μεταγραφή απέτυχε' : 'Transcription failed',
+        err instanceof Error ? err.message : String(err),
+      );
+      return false;
+    }
+  }, [user.settings, importNotebookLmAudioForCourse]);
+
+  const importNotebookLmQuizToFsrs = useCallback((
+    result: NotebookLmImportResult,
+    opts?: { openWorkspace?: boolean; courseId?: string },
+  ): NotebookLmFsrsImportResult | null => {
+    if (result.quizCards.length === 0) {
+      const lang = user.settings.language === 'el' ? 'el' : 'en';
+      notifyWarning(
+        lang === 'el' ? 'Χωρίς κάρτες quiz' : 'No quiz cards',
+        lang === 'el' ? 'Επικόλλησε Studio Quiz από NotebookLM.' : 'Paste a Studio Quiz from NotebookLM.',
+      );
+      return null;
+    }
+
+    const prepared = prepareNotebookLmFsrsImport(result, learnerModel.spacingIntervals);
+    const lang = user.settings.language === 'el' ? 'el' : 'en';
+    const courseId =
+      opts?.courseId ??
+      selectedCourse?.id ??
+      courses.find((c) => !MOCK_COURSE_IDS.has(c.id))?.id;
+
+    setLearnerModel((lm) => {
+      const next: LearnerModel = {
+        ...lm,
+        spacingIntervals: prepared.spacing,
+      };
+      persist(next, dashboardStats, tasks, user.xp, betaMastery, firstAttemptKeys, openMistakes, activities, user.settings);
+      return next;
+    });
+
+    if (prepared.added === 0) {
+      notifyWarning(
+        lang === 'el' ? 'Ήδη στο deck' : 'Already in deck',
+        lang === 'el'
+          ? 'Οι κάρτες quiz υπάρχουν ήδη στο FSRS deck.'
+          : 'Quiz cards are already in your FSRS deck.',
+      );
+    } else {
+      notifySuccess(
+        lang === 'el' ? 'FSRS deck' : 'FSRS deck',
+        lang === 'el'
+          ? `${prepared.added} κάρτες · ${prepared.studyConcept}`
+          : `${prepared.added} cards · ${prepared.studyConcept}`,
+      );
+    }
+
+    if (opts?.openWorkspace !== false && prepared.added > 0) {
+      openStudyWorkspaceForPractice({
+        tool: 'leitner',
+        concept: prepared.studyConcept,
+        courseId,
+      });
+    }
+
+    return {
+      added: prepared.added,
+      skipped: prepared.skipped,
+      studyConcept: prepared.studyConcept,
+      scopeKey: prepared.scopeKey,
+    };
+  }, [
+    learnerModel.spacingIntervals,
+    selectedCourse?.id,
+    courses,
+    user.settings,
+    user.xp,
+    dashboardStats,
+    tasks,
+    betaMastery,
+    firstAttemptKeys,
+    openMistakes,
+    activities,
+    persist,
+    openStudyWorkspaceForPractice,
+  ]);
+
+  const importNotebookLmAudioToFsrs = useCallback((
+    fileId: string,
+    courseId?: string,
+  ): NotebookLmFsrsImportResult | null => {
+    const file = uploadedFiles.find((f) => f.id === fileId);
+    const lang = user.settings.language === 'el' ? 'el' : 'en';
+    if (!file?.extractedText?.trim()) {
+      notifyWarning(
+        lang === 'el' ? 'Χωρίς transcript' : 'No transcript',
+        lang === 'el' ? 'Επίλεξε audio transcript με κεφάλαια.' : 'Pick an audio transcript with chapters.',
+      );
+      return null;
+    }
+    const segments = parseNotebookLmAudioFromMarkdown(file.extractedText);
+    if (segments.length === 0) {
+      notifyWarning(
+        lang === 'el' ? 'Χωρίς κεφάλαια' : 'No chapters',
+        lang === 'el' ? 'Το transcript δεν έχει αναγνωρίσιμα κεφάλαια.' : 'Transcript has no parseable chapters.',
+      );
+      return null;
+    }
+    const title = file.name.replace(/\.md$/i, '').trim() || 'Audio transcript';
+    const result = buildAudioFsrsImportResult(title, segments);
+    return importNotebookLmQuizToFsrs(result, {
+      courseId: courseId ?? file.courseId,
+      openWorkspace: true,
+    });
+  }, [uploadedFiles, user.settings.language, importNotebookLmQuizToFsrs]);
+
   const removeUploadedFile = useCallback((fileId: string) => {
+    const removed = uploadedFiles.find((f) => f.id === fileId);
     const result = removeUploadedFileFromLibrary(fileId, uploadedFiles, courses);
     if (!result.removed) {
       const lang = user.settings.language === 'el' ? 'el' : 'en';
-      showAppToast(lang === 'el' ? 'Το αρχείο δεν βρέθηκε.' : 'File not found.');
+      showAppToast(t('toastFileNotFound', lang));
       return false;
     }
     const removedCourseId = uploadedFiles.find((f) => f.id === fileId)?.courseId;
+    if (removed?.thumbnailRef?.storageKey) {
+      void idbDeleteThumbnail(removed.thumbnailRef.storageKey);
+    }
+    const token = user.settings.authToken;
+    if (token && removed?.thumbnailRef) {
+      void deleteRemoteThumbnail(token, user.settings, fileId);
+    }
+    void idbDeleteSourceBlob(fileId);
+    void idbDeleteText(fileId);
     const nextGlossary = glossaryAfterCourseSourceRemoval(
       glossaryEntries,
       removedCourseId,
@@ -1519,6 +2104,11 @@ export function useAppStore() {
     setUploadedFiles(result.files);
     setCourses(result.courses);
     setTasks(nextTasks);
+    const nextStats = {
+      ...dashboardStats,
+      reviewsDue: countPendingReviewsDue(nextTasks),
+    };
+    setDashboardStats(nextStats);
     const courseId = removedCourseId;
     if (selectedCourse?.id === courseId) {
       const updated = result.courses.find((c) => c.id === courseId);
@@ -1529,7 +2119,7 @@ export function useAppStore() {
       nextGlossary,
       result.courses.filter((c) => !MOCK_COURSE_IDS.has(c.id)),
     );
-    persist(learnerModel, dashboardStats, nextTasks, user.xp, betaMastery, firstAttemptKeys, openMistakes, activities, user.settings);
+    persist(learnerModel, nextStats, nextTasks, user.xp, betaMastery, firstAttemptKeys, openMistakes, activities, user.settings);
     if (result.courseFullyOrphaned && courseId) {
       clearCourseArtifactsStale(courseId);
     }
@@ -1539,15 +2129,55 @@ export function useAppStore() {
       clearQuizSessions();
     }
     const cascadeNote = result.courseFullyOrphaned
-      ? (lang === 'el' ? ' Αφαιρέθηκαν και οι εργασίες του μαθήματος.' : ' Course tasks were removed too.')
+      ? t('toastCourseTasksRemoved', lang)
       : '';
     showAppToast(
       (result.reprocessed
-        ? (lang === 'el' ? 'Αφαιρέθηκε · επανεπεξεργασία υπόλοιπων πηγών.' : 'Removed · reprocessed remaining sources.')
-        : (lang === 'el' ? 'Το αρχείο αφαιρέθηκε.' : 'File removed.')) + cascadeNote,
+        ? t('toastFileRemovedReprocessed', lang)
+        : t('toastFileRemoved', lang)) + cascadeNote,
     );
     return true;
   }, [uploadedFiles, courses, glossaryEntries, tasks, selectedCourse, learnerModel, dashboardStats, user, betaMastery, firstAttemptKeys, openMistakes, activities, persistLibrary, persist, showAppToast]);
+
+  const removeCourse = useCallback((courseId: string) => {
+    const result = removeCourseFromLibrary(courseId, courses, uploadedFiles, glossaryEntries, tasks);
+    const lang = user.settings.language === 'el' ? 'el' : 'en';
+    if (!result.removed) {
+      if (result.reason === 'demo') {
+        showAppToast(t('toastDemoCourseNoDelete', lang));
+      } else {
+        showAppToast(t('toastCourseNotFound', lang));
+      }
+      return false;
+    }
+    setCourses(result.courses);
+    setUploadedFiles(result.files);
+    setGlossaryEntries(result.glossary);
+    setTasks(result.tasks);
+    const nextStats = {
+      ...dashboardStats,
+      reviewsDue: countPendingReviewsDue(result.tasks),
+    };
+    setDashboardStats(nextStats);
+    clearCourseArtifactsStale(courseId);
+    clearQuizSessions();
+    persistLibrary(
+      result.files,
+      result.glossary,
+      result.courses.filter((c) => !MOCK_COURSE_IDS.has(c.id)),
+    );
+    persist(learnerModel, nextStats, result.tasks, user.xp, betaMastery, firstAttemptKeys, openMistakes, activities, user.settings);
+    if (selectedCourse?.id === courseId) {
+      setSelectedCourse(null);
+      navigate('library');
+    }
+    showAppToast(t('toastCourseRemoved', lang));
+    return true;
+  }, [
+    courses, uploadedFiles, glossaryEntries, tasks, selectedCourse, learnerModel, dashboardStats,
+    user, betaMastery, firstAttemptKeys, openMistakes, activities, persistLibrary, persist,
+    navigate, showAppToast,
+  ]);
 
   const simulateUpload = useCallback((files: File[]) => {
     setIsUploading(true);
@@ -1653,34 +2283,220 @@ export function useAppStore() {
     [activeTaskId, tasks],
   );
 
+  /** OPT-R18 — seed in-memory demo courses/tasks (demo IDs never persisted). */
+  const seedDemoSandboxContent = useCallback(() => {
+    const demoLearner = syncLearnerHeatmap(mockLearnerModel, activities);
+    const demoBeta = initBetaMastery({ ...user.settings, showDemoContent: true });
+    setCourses((prev) => {
+      const have = new Set(prev.map((c) => c.id));
+      const add = mockCourses.filter((c) => !have.has(c.id));
+      const merged = add.length ? [...add, ...prev] : prev;
+      return withDemoCourseGraphs(merged);
+    });
+    setTasks((prev) => {
+      const have = new Set(prev.map((t) => t.id));
+      const add = mockTasks.filter((t) => !have.has(t.id));
+      return add.length ? [...add, ...prev] : prev;
+    });
+    setLearnerModel((prev) =>
+      prev.strongAreas.length > 0 || prev.weakAreas.length > 0 || prev.almostKnown.length > 0
+        ? prev
+        : demoLearner,
+    );
+    setDashboardStats((prev) => (prev.studyTimeWeek > 0 ? prev : { ...mockDashboardStats, streak: prev.streak }));
+    setBetaMastery((prev) => (prev.length > 0 ? prev : demoBeta));
+    setOpenMistakes((prev) => (prev.length > 0 ? prev : INITIAL_MISTAKES));
+    setAgentMessages((prev) => (prev.length > 0 ? prev : mockAgentMessages));
+    setUploadedFiles((prev) => {
+      const have = new Set(prev.map((f) => f.id));
+      const add = mockUploadedFiles.filter((f) => !have.has(f.id));
+      return add.length ? [...add, ...prev] : prev;
+    });
+    setGlossaryEntries((prev) => {
+      const have = new Set(prev.map((g) => `${g.courseId}::${g.term}`));
+      const add = mockGlossaryEntries.filter((g) => !have.has(`${g.courseId}::${g.term}`));
+      return add.length ? [...add, ...prev] : prev;
+    });
+    setSelectedCourse((prev) => {
+      if (prev) return prev;
+      const merged = withDemoCourseGraphs(mockCourses);
+      return merged[0] ?? null;
+    });
+  }, [user.settings, activities]);
+
   const completeOnboarding = useCallback((data: {
     role?: string;
     goals?: string[];
     dailyGoalMinutes?: number;
     examDate?: string;
     openUpload?: boolean;
+    openTeacher?: boolean;
     displayName?: string;
+    skipWizard?: boolean;
+    /** OPT-R18 — atomic demo seed with onboarding (avoids showDemoContent race). */
+    exploreDemoMode?: boolean;
   }) => {
+    const isTeacher = data.role === 'tutor' || data.openTeacher;
+    const exploreDemo = Boolean(data.exploreDemoMode);
+    const parsedGoals = parseOnboardingGoals(data.goals ?? []);
+    const role: OnboardingRoleId = isOnboardingRoleId(data.role ?? '')
+      ? (data.role as OnboardingRoleId)
+      : 'selflearner';
+    const profile = {
+      role,
+      goals: parsedGoals.length > 0 ? parsedGoals : (['explore'] as OnboardingGoalId[]),
+      dailyGoalMinutes: data.dailyGoalMinutes ?? 30,
+      examDate: data.examDate,
+      displayName: data.displayName,
+    };
+
     setUser((prev) => {
-      const nextSettings: UserSettings = {
-        ...prev.settings,
-        dailyGoalMinutes: data.dailyGoalMinutes ?? prev.settings.dailyGoalMinutes,
-        examDate: data.examDate || prev.settings.examDate,
+      const seedDefaultTheme = !hasStoredThemePreference();
+      const nextUser = buildOnboardingUserPatch(prev, profile, { openTeacher: data.openTeacher });
+      const nextSettings: typeof prev.settings = {
+        ...nextUser.settings,
+        ...(seedDefaultTheme ? { theme: DEFAULT_THEME_PREFERENCE } : {}),
+        ...(exploreDemo ? { showDemoContent: true } : {}),
       };
-      const trimmedName = (data.displayName ?? '').trim();
-      const next = {
-        ...prev,
-        name: trimmedName || prev.name,
-        segment: (data.role as typeof prev.segment) ?? prev.segment,
+      if (seedDefaultTheme) applyTheme(DEFAULT_THEME_PREFERENCE);
+      else if (exploreDemo) applyTheme(nextSettings.theme);
+      const finalUser = { ...nextUser, settings: nextSettings };
+      savePersistedUserProfile({
         onboardingComplete: true,
-        settings: nextSettings,
-      };
-      persist(learnerModel, dashboardStats, tasks, next.xp, betaMastery, firstAttemptKeys, openMistakes, activities, nextSettings);
-      return next;
+        name: finalUser.name,
+        segment: finalUser.segment,
+        role: finalUser.role,
+      });
+      clearOnboardingDraft();
+      const persistTasks = exploreDemo ? mockTasks : tasks;
+      const persistLearner = exploreDemo ? mockLearnerModel : learnerModel;
+      const persistStats = exploreDemo ? mockDashboardStats : dashboardStats;
+      const persistBeta = exploreDemo
+        ? initBetaMastery({ ...nextSettings, showDemoContent: true })
+        : betaMastery;
+      const persistMistakes = exploreDemo ? INITIAL_MISTAKES : openMistakes;
+      persist(
+        persistLearner,
+        persistStats,
+        persistTasks,
+        finalUser.xp,
+        persistBeta,
+        firstAttemptKeys,
+        persistMistakes,
+        activities,
+        nextSettings,
+      );
+      return finalUser;
     });
+    if (exploreDemo) {
+      workspaceCloseGenRef.current += 1;
+      studyWorkspaceOpenRef.current = false;
+      setStudyWorkspaceOpen(false);
+      setWorkspaceAgentSplit(false);
+      setActiveTaskId(null);
+      seedDemoSandboxContent();
+      navigate('library');
+      return;
+    }
     if (data.openUpload) setShowUploadModal(true);
-    navigate('dashboard');
-  }, [learnerModel, dashboardStats, tasks, betaMastery, firstAttemptKeys, openMistakes, activities, persist, navigate]);
+    if (data.skipWizard) {
+      navigate('library');
+    } else {
+      navigate(isTeacher ? 'teacher' : 'dashboard');
+    }
+  }, [
+    learnerModel,
+    dashboardStats,
+    tasks,
+    betaMastery,
+    firstAttemptKeys,
+    openMistakes,
+    activities,
+    persist,
+    navigate,
+    seedDemoSandboxContent,
+  ]);
+
+  const enableDemoContent = useCallback(() => {
+    workspaceCloseGenRef.current += 1;
+    studyWorkspaceOpenRef.current = false;
+    setStudyWorkspaceOpen(false);
+    setWorkspaceAgentSplit(false);
+    setActiveTaskId(null);
+
+    const demoBeta = initBetaMastery({ ...user.settings, showDemoContent: true });
+    setUser((prev) => {
+      const nextSettings = { ...prev.settings, showDemoContent: true };
+      applyTheme(nextSettings.theme);
+      persist(mockLearnerModel, mockDashboardStats, mockTasks, prev.xp, demoBeta, firstAttemptKeys, INITIAL_MISTAKES, activities, nextSettings);
+      savePersistedUserProfile({
+        onboardingComplete: true,
+        name: prev.name,
+        segment: prev.segment,
+        role: prev.role,
+      });
+      clearOnboardingDraft();
+      return { ...prev, onboardingComplete: true, settings: nextSettings };
+    });
+    seedDemoSandboxContent();
+  }, [user.settings, activities, firstAttemptKeys, persist, seedDemoSandboxContent]);
+
+  const exitDemoSandbox = useCallback(() => {
+    workspaceCloseGenRef.current += 1;
+    studyWorkspaceOpenRef.current = false;
+    setStudyWorkspaceOpen(false);
+    setWorkspaceAgentSplit(false);
+    setActiveTaskId(null);
+    setActiveLessonView(false);
+    setPracticalLessonView(false);
+
+    setCourses((prevCourses) => {
+      const nextCourses = prevCourses.filter((c) => !isDemoCourse(c.id));
+      setTasks((prevTasks) => {
+        const nextTasks = stripDemoFromTasks(prevTasks);
+        setUploadedFiles((prevFiles) => {
+          const nextFiles = stripDemoFiles(prevFiles);
+          setGlossaryEntries((prevGlossary) => {
+            const nextGlossary = prevGlossary.filter((g) => !isDemoCourse(g.courseId));
+            setOpenMistakes((prevMistakes) => {
+              const nextMistakes = prevMistakes.filter((m) => !isDemoCourse(m.courseId));
+              setSelectedCourse((prev) => (prev && isDemoCourse(prev.id) ? null : prev));
+              setUser((prevUser) => {
+                const nextSettings = { ...prevUser.settings, showDemoContent: false };
+                applyTheme(nextSettings.theme);
+                persist(
+                  learnerModel,
+                  dashboardStats,
+                  nextTasks,
+                  prevUser.xp,
+                  betaMastery,
+                  firstAttemptKeys,
+                  nextMistakes,
+                  activities,
+                  nextSettings,
+                );
+                return { ...prevUser, settings: nextSettings };
+              });
+              return nextMistakes;
+            });
+            return nextGlossary;
+          });
+          return nextFiles;
+        });
+        return nextTasks;
+      });
+      return nextCourses;
+    });
+    navigate('library');
+  }, [
+    navigate,
+    persist,
+    learnerModel,
+    dashboardStats,
+    betaMastery,
+    firstAttemptKeys,
+    activities,
+  ]);
 
   const dashboardExtras = useMemo(() => {
     const weekly = learnerModel.weeklyMastery;
@@ -1690,11 +2506,9 @@ export function useAppStore() {
       ? Math.max(0, Math.ceil((new Date(examDate).getTime() - Date.now()) / 86400000))
       : null;
     const pendingReviews = tasks.filter((t) => t.isSpacedRepetition && t.status === 'pending').length;
-    const lastCalibration =
-      learnerModel.confidenceCalibration[learnerModel.confidenceCalibration.length - 1];
     const antiPassive = dashboardStats.studyTimeToday > 20
       && learnerModel.confidenceCalibration.length > 0
-      && Date.now() - new Date(lastCalibration?.timestamp ?? 0).getTime() > 86400000;
+      && Date.now() - new Date(learnerModel.confidenceCalibration.at(-1)?.timestamp ?? 0).getTime() > 86400000;
     return { masteryDelta, daysToExam, pendingReviews, antiPassive };
   }, [learnerModel, user.settings.examDate, tasks, dashboardStats.studyTimeToday]);
 
@@ -1717,13 +2531,74 @@ export function useAppStore() {
     () => selectDashboardNextAction({
       lang: user.settings.language,
       learnerModel,
+      betaMastery,
       tasks,
       stats: dashboardStats,
       workspaceLive,
       daysToExam: dashboardExtras.daysToExam,
+      activities,
     }),
-    [user.settings.language, learnerModel, tasks, dashboardStats, workspaceLive, dashboardExtras.daysToExam],
+    [user.settings.language, learnerModel, betaMastery, tasks, dashboardStats, workspaceLive, dashboardExtras.daysToExam, activities],
   );
+
+  const dailyPlan = useMemo(
+    () => recommendDailyPlan({
+      lang: user.settings.language,
+      learnerModel,
+      betaMastery,
+      tasks,
+      stats: dashboardStats,
+      daysToExam: dashboardExtras.daysToExam,
+      workspaceLive,
+      activeCourseId: selectedCourse?.id ?? null,
+      activities,
+    }),
+    [user.settings.language, learnerModel, betaMastery, tasks, dashboardStats, dashboardExtras.daysToExam, workspaceLive, selectedCourse?.id, activities],
+  );
+
+  const coverageSnapshot = useMemo(() => {
+    const primary = pickPrimaryCourseForCoverage(courses);
+    return primary ? buildSyllabusCoverageSnapshot(primary, user.settings.examDate) : null;
+  }, [courses, user.settings.examDate]);
+
+  const dashboardSmartCTAs = useMemo(
+    () => buildDashboardSmartCTAs({
+      lang: user.settings.language,
+      dashboardAction: dashboardNextAction,
+      snapshot: coverageSnapshot,
+      stats: dashboardStats,
+      daysToExam: dashboardExtras.daysToExam,
+      primaryCourseId: selectedCourse?.id ?? coverageSnapshot?.courseId ?? courses[0]?.id ?? null,
+    }),
+    [user.settings.language, dashboardNextAction, coverageSnapshot, dashboardStats, dashboardExtras.daysToExam, selectedCourse?.id, courses],
+  );
+
+  const proactiveAgentAlerts = useMemo(
+    () => buildProactiveAgentAlerts({
+      lang: user.settings.language,
+      learnerModel,
+      activities,
+    }),
+    [user.settings.language, learnerModel, activities],
+  );
+
+  const runProactiveAgentAlert = useCallback((alert: ProactiveAgentAlert) => {
+    if (alert.action.type === 'workspace') {
+      const launch = proactiveAlertToWorkspaceLaunch(alert);
+      if (launch) openStudyWorkspaceForPractice(launch);
+      return;
+    }
+    openAgentFromWorkspace({
+      mode: alert.action.mode,
+      prompt: alert.action.prompt,
+      autoSend: false,
+      context: { concept: alert.action.concept ?? alert.concept },
+    });
+  }, [openStudyWorkspaceForPractice, openAgentFromWorkspace]);
+
+  const runDashboardSmartCTA = useCallback((cta: DashboardSmartCTA) => {
+    openStudyWorkspaceForPractice(smartCTAToWorkspaceLaunch(cta));
+  }, [openStudyWorkspaceForPractice]);
 
   const agentContextForView = useMemo(
     () => mergeAgentWorkspaceContext(
@@ -1733,27 +2608,56 @@ export function useAppStore() {
     [workspaceLive, agentWorkspaceContext],
   );
 
+  const applyTaskCalendarSync = useCallback((updates: TaskCalendarSyncUpdate[]) => {
+    if (updates.length === 0) return;
+    setTasks((prev) => {
+      const byId = new Map(updates.map((u) => [u.taskId, u]));
+      const next = prev.map((t) => {
+        const u = byId.get(t.id);
+        if (!u) return t;
+        return {
+          ...t,
+          googleCalendarEventId: u.googleCalendarEventId,
+          calendarSyncedAt: u.calendarSyncedAt,
+        };
+      });
+      persist(learnerModel, dashboardStats, next, user.xp, betaMastery, firstAttemptKeys, openMistakes, activities, user.settings);
+      return next;
+    });
+  }, [persist, learnerModel, dashboardStats, user.xp, user.settings, betaMastery, firstAttemptKeys, openMistakes, activities]);
+
   return {
-    currentView, navigate,
+    currentView, navigate, openCourseReview,
     sidebarOpen, setSidebarOpen,
     user, updateSettings, toggleTheme,
     courses, selectedCourse, setSelectedCourse,
     tasks, completeTask, completeTaskAndAdvance, submitReviewRating, submitReviewAndAdvance, submitLeitnerRating,
+    applyTaskCalendarSync,
     startTask, startSession, endSession,
     sessionQueue, sessionTotal, activeSessionType,
     activeTask, activeTaskId, setActiveTaskId, expandedTaskId, setExpandedTaskId,
+    tasksFilterPreset, openTasksWithFilter, clearTasksFilterPreset,
     learnerModel, dashboardStats, pedagogyMetrics, dashboardExtras, activities,
     recordConfidence, recordQuizAttempt,
-    openMistakes, resolveMistake, resolveMisconception, completeOnboarding, enableDemoContent,
+    openMistakes, resolveMistake, resolveMisconception, completeOnboarding, enableDemoContent, exitDemoSandbox,
     agentMessages, addAgentMessage, updateAgentMessage, agentMode, setAgentMode, bindAgentToTask,
     agentDraftPrompt, setAgentDraftPrompt, agentAutoSend, setAgentAutoSend,
     agentWorkspaceContext, setAgentWorkspaceContext, openAgentFromWorkspace, agentContextForView,
     workspaceLive, syncWorkspaceLive, workspaceContext,
     workspaceAgentSplit, setWorkspaceAgentSplit, exitWorkspaceAgentSplit,
+    workspaceInlineAgentOpen, setWorkspaceInlineAgentOpen,
+    workspaceCourseSplit, exitWorkspaceCourseSplit,
     dashboardNextAction,
+    dailyPlan,
+    dashboardSmartCTAs,
+    runDashboardSmartCTA,
+    proactiveAgentAlerts,
+    runProactiveAgentAlert,
+    coverageSnapshot,
     uploadedFiles, glossaryEntries, isUploading, isReprocessing, simulateUpload, processUpload,
-    reprocessCourseMaterial, removeUploadedFile,
+    reprocessCourseMaterial, saveCourseExtractedText, removeUploadedFile, importNotebookLm, importNotebookLmAudioForCourse, transcribeAudioForCourse, importNotebookLmQuizToFsrs, importNotebookLmAudioToFsrs, removeCourse,
     pullLibraryFromServer, pullSessionFromServer, pushSessionToServer, syncAccountOnLogin,
+    librarySyncConflict, resolveLibrarySyncConflict, dismissLibrarySyncConflict,
     queueConceptBusSync, flushConceptBusSync,
     refreshAuthPlan, logStudyMinutes,
     showUploadModal, setShowUploadModal,
@@ -1761,8 +2665,11 @@ export function useAppStore() {
     practicalLessonView, setPracticalLessonView,
     studyWorkspaceOpen, setStudyWorkspaceOpen,
     openStudyWorkspace, closeStudyWorkspace,
+    notebookShellCourseId, openNotebookShell, closeNotebookShell,
     studyConceptOverride, openStudyWorkspaceForConcept, openStudyWorkspaceForExamCountdown,
+    openStudyWorkspaceForPractice,
     workspaceOpenTool, consumeWorkspaceOpenTool,
+    workspaceOpenSimulatorTab, consumeWorkspaceOpenSimulatorTab,
     workspaceFocus, setWorkspaceFocus,
     sourceHighlight, openSourceAt, clearSourceHighlight: () => setSourceHighlight(null),
     reviewSessionOpen, setReviewSessionOpen,
@@ -1770,6 +2677,9 @@ export function useAppStore() {
     examPrepOpen, setExamPrepOpen,
     prerequisiteRepairOpen, setPrerequisiteRepairOpen,
     appToast, showAppToast, dismissAppToast,
+    postUploadCourseId, markPostUploadCourse, clearPostUploadHighlight,
+    noteAnalysisCourseId, openNoteAnalysis, closeNoteAnalysis,
+    notificationUnreadCount, markNotificationsRead,
   };
 }
 

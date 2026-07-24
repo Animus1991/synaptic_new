@@ -1,14 +1,27 @@
-import { X, Play } from 'lucide-react';
+import { X, Play } from '@/lib/lucide-shim';
+import type { Lang } from '../lib/i18n';
+import { t as translate } from '../lib/i18n';
 import { sessionLabel, type SessionType } from '../lib/taskFlows';
 
 interface SessionQueueBarProps {
   sessionType: SessionType;
   currentIndex: number;
   total: number;
+  currentTaskTitle?: string;
+  nextTaskTitle?: string;
+  lang?: Lang;
   onEndSession: () => void;
 }
 
-export function SessionQueueBar({ sessionType, currentIndex, total, onEndSession }: SessionQueueBarProps) {
+export function SessionQueueBar({
+  sessionType,
+  currentIndex,
+  total,
+  currentTaskTitle,
+  nextTaskTitle,
+  lang = 'en',
+  onEndSession,
+}: SessionQueueBarProps) {
   if (total <= 0) return null;
 
   const progress = Math.round((currentIndex / total) * 100);
@@ -26,10 +39,26 @@ export function SessionQueueBar({ sessionType, currentIndex, total, onEndSession
               onClick={onEndSession}
               className="text-[10px] text-text-tertiary hover:text-text-secondary shrink-0"
             >
-              End session
+              {translate('sessionQueueEnd', lang)}
             </button>
           </div>
-          <div className="h-1 rounded-full bg-surface-hover overflow-hidden">
+          {(currentTaskTitle || nextTaskTitle) && (
+            <div className="space-y-0.5 mb-1">
+              {currentTaskTitle && (
+                <p className="text-[11px] text-text-primary truncate">
+                  {translate('sessionQueueCurrentTask', lang).replace('{title}', currentTaskTitle)}
+                </p>
+              )}
+              {nextTaskTitle && (
+                <p className="text-[10px] text-text-tertiary truncate">
+                  {translate('sessionQueueNextTask', lang).replace('{title}', nextTaskTitle)}
+                </p>
+              )}
+            </div>
+          )}
+          <p className="text-[10px] text-text-muted mb-1">{translate('sessionQueueAutoAdvance', lang)}</p>
+          {/* Wave P-2 C08 — session queue auto-advance progress uses --viz-bar-track. */}
+          <div className="h-1 rounded-full overflow-hidden" style={{ backgroundColor: 'var(--viz-bar-track)' }}>
             <div
               className="h-full bg-brand-500 transition-all duration-300"
               style={{ width: `${progress}%` }}
@@ -39,7 +68,7 @@ export function SessionQueueBar({ sessionType, currentIndex, total, onEndSession
         <button
           onClick={onEndSession}
           className="p-1 rounded-lg hover:bg-surface-hover text-text-muted shrink-0"
-          title="End session"
+          title={translate('sessionQueueEnd', lang)}
         >
           <X className="w-3.5 h-3.5" />
         </button>

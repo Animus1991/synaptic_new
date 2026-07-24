@@ -1,11 +1,12 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
+import { prefetchWorkspaceEntry, workspaceEntryPrefetchHandlers } from '../lib/workspaceEntryPrefetch';
 import { motion } from 'framer-motion';
 import {
-  ArrowLeft, BookOpen, Clock, BarChart3, Calendar, FileText,
+  ArrowLeft, ArrowRight, BookOpen, Clock, BarChart3, Calendar, FileText,
   Lock, CheckCircle2, Circle, ChevronRight, Brain, Target,
-  AlertTriangle, Sparkles, Play, MapPin, Network, Upload, Trash2, RefreshCw
-} from 'lucide-react';
-import type { Course, Topic, UploadedFile, GlossaryEntry, Task } from '../types';
+  AlertTriangle, Sparkles, Play, MapPin, Upload, Trash2, RefreshCw, Lightbulb,
+} from '@/lib/lucide-shim';
+import type { Course, Topic, UploadedFile, GlossaryEntry, Task, UserSettings, LearnerModel } from '../types';
 import { cn } from '../utils/cn';
 import { ConceptGraph } from './visuals/ConceptGraph';
 import { ProgressTimeline } from './visuals/DiagramGenerator';
@@ -17,10 +18,34 @@ import { courseQualityDismissKey, shouldShowCourseQualityBanner } from '../lib/c
 import { buildReprocessPreview } from '../lib/reprocessPreview';
 import { ReprocessPreviewModal } from './ReprocessPreviewModal';
 import { ConfirmDialog } from './ui/ConfirmDialog';
+import { AllCapsLabel } from './ui/AllCapsLabel';
 import { useI18n } from '../lib/i18n';
 import { buildDeleteFileCascadeCopy } from '../lib/deleteFileCascadeCopy';
+import { buildDeleteCourseCascadeCopy } from '../lib/deleteCourseCascadeCopy';
 import { countFilesForCourse } from '../lib/deleteCascade';
 import { countGeneratedTasksForCourse } from '../lib/pipelineReprocess';
+import { MASTERY_VAR, resolveCourseColor } from '../lib/masteryPalette';
+import { courseDeleteStats } from '../lib/removeCourse';
+import {
+  readPersistedCourseTab,
+  selectCoursePageStats,
+  writePersistedCourseTab,
+  type CourseTabId,
+} from '../lib/coursePageSelectors';
+import { syncCourseDeepLinkToUrl } from '../lib/courseDeepLink';
+import { isDemoCourse } from '../lib/demoMode';
+import { conceptGraphToCourseVisual, summarizeCourseGraph } from '../lib/courseConceptGraph';
+import { PostUploadBanner } from './ui/PostUploadBanner';
+import { AudioStudyGuideButton } from './AudioStudyGuideButton';
+import { StudyGuideExportButton } from './StudyGuideExportButton';
+import { VideoSummarizeButton } from './VideoSummarizeButton';
+import { CourseMediaPanel } from './CourseMediaPanel';
+import { NotebookLmExportPanel } from './NotebookLmExportPanel';
+import { Page, PageHeader, PrimaryCTA, SecondaryCTA, AnimatedCard } from './ui/primitives';
+import { PlatformEmptyState } from './ui/PlatformEmptyState';
+import { QualityReportPanel } from './QualityReportPanel';
+import { SectionHeader, TrustBadgeRow, UxCallout, DescriptiveStickyTabBar } from './ui/platformChrome';
+import { McpCourseArtifactsPanel } from './course/McpCourseArtifactsPanel';
 
 interface CourseViewProps {
   course: Course;
@@ -34,9 +59,18 @@ interface CourseViewProps {
   onOpenAgent: () => void;
   onUploadMore?: () => void;
   onReprocessMaterial?: () => boolean | void;
+  onSaveCourseExtractedText?: (courseId: string, text: string) => boolean;
   reprocessingMaterial?: boolean;
   onRemoveFile?: (fileId: string) => void;
+  onRemoveCourse?: (courseId: string) => boolean;
   tasks?: Task[];
+  showPostUploadBanner?: boolean;
+  onDismissPostUpload?: () => void;
+  userSettings?: UserSettings;
+  onImportAudioTranscript?: (raw: string, courseId: string) => boolean;
+  onUploadAudio?: (file: File, courseId: string) => Promise<boolean>;
+  onAddAudioToFsrs?: (fileId: string, courseId: string) => void;
+  learnerModel?: LearnerModel;
 }
 
 /** Real per-topic lesson count: explicit lessons if present, else derived from
@@ -47,7 +81,20 @@ function topicLessonCount(topic: Topic): number {
   return Math.min(6, Math.max(2, Math.ceil(concepts / 2)));
 }
 
-type CourseTab = 'path' | 'map' | 'sources' | 'analytics';
+type CourseTab = CourseTabId;
+
+function buildSourcePreviewText(file: UploadedFile, course: Course): string | null {
+  if (file.extractedText?.trim()) {
+    const text = file.extractedText.replace(/\s+/g, ' ').trim();
+    return text.length > 160 ? `${text.slice(0, 157)}…` : text;
+  }
+  const span = course.conceptSpans?.find((s) => s.fileId === file.id && s.sentence?.trim());
+  if (span?.sentence) {
+    const sentence = span.sentence.replace(/\s+/g, ' ').trim();
+    return sentence.length > 160 ? `${sentence.slice(0, 157)}…` : sentence;
+  }
+  return null;
+}
 
 export function CourseView({
   course,
@@ -59,13 +106,23 @@ export function CourseView({
   onOpenAgent,
   onUploadMore,
   onReprocessMaterial,
+  onSaveCourseExtractedText,
   reprocessingMaterial = false,
   onRemoveFile,
+  onRemoveCourse,
   tasks = [],
+  showPostUploadBanner = false,
+  onDismissPostUpload,
+  userSettings,
+  onImportAudioTranscript,
+  onUploadAudio,
+  onAddAudioToFsrs,
+  learnerModel,
 }: CourseViewProps) {
-  const [tab, setTab] = useState<CourseTab>('path');
+  const [tab, setTab] = useState<CourseTab>(() => readPersistedCourseTab(course.id) ?? 'path');
   const [reprocessWizardOpen, setReprocessWizardOpen] = useState(false);
   const [reprocessApplied, setReprocessApplied] = useState(false);
+  const [removeCourseOpen, setRemoveCourseOpen] = useState(false);
   const [qualityDismissed, setQualityDismissed] = useState(() => {
     try {
       return sessionStorage.getItem(courseQualityDismissKey(course.id)) === '1';
@@ -73,8 +130,23 @@ export function CourseView({
       return false;
     }
   });
-  const { lang } = useI18n();
-  const progress = (course.completedLessons / Math.max(course.totalLessons, 1)) * 100;
+  const { lang, t } = useI18n();
+  const pageStats = useMemo(() => selectCoursePageStats(course, tasks), [course, tasks]);
+  const progress = pageStats.progressPercent;
+  const graphSummary = useMemo(() => summarizeCourseGraph(course.conceptGraph), [course.conceptGraph]);
+  const courseFileCount = useMemo(
+    () => uploadedFiles.filter((f) => f.courseId === course.id).length,
+    [uploadedFiles, course.id],
+  );
+  const courseTabs = useMemo(
+    () => [
+      { id: 'path' as const, label: t('courseTabPath'), summary: t('courseTabPathSummary'), count: course.topics.length },
+      { id: 'map' as const, label: t('courseTabMap'), summary: t('courseTabMapSummary'), count: graphSummary.nodeCount },
+      { id: 'sources' as const, label: t('courseTabSources'), summary: t('courseTabSourcesSummary'), count: courseFileCount },
+      { id: 'analytics' as const, label: t('courseTabAnalytics'), summary: t('courseTabAnalyticsSummary'), count: course.topics.length },
+    ],
+    [t, course.topics.length, graphSummary.nodeCount, courseFileCount],
+  );
   const quality = course.sourceQuality;
   const needsSourceUpgrade = Boolean(quality && (quality.needsMoreMaterial || quality.outlineAdjusted));
   const qualityBanner = shouldShowCourseQualityBanner({
@@ -83,7 +155,8 @@ export function CourseView({
     hasReuploadHandler: Boolean(onUploadMore),
   });
   const showReuploadHint = qualityBanner.showMigrationBanner;
-  const showQualityBar = !qualityDismissed && (showReuploadHint || qualityBanner.show) && qualityBanner.score != null;
+  const showPre24Greek = qualityBanner.showPre24Greek;
+  const showQualityBar = !qualityDismissed && (showReuploadHint || showPre24Greek || qualityBanner.show);
 
   const dismissQualityBar = () => {
     try {
@@ -95,102 +168,223 @@ export function CourseView({
   };
 
   const openReprocessWizard = () => {
+    if (reprocessingMaterial) return;
     setReprocessApplied(false);
     setReprocessWizardOpen(true);
   };
+
+  useEffect(() => {
+    writePersistedCourseTab(course.id, tab);
+    syncCourseDeepLinkToUrl(course.id, tab);
+  }, [course.id, tab]);
+
+  useEffect(() => {
+    const persisted = readPersistedCourseTab(course.id);
+    if (persisted) setTab(persisted);
+  }, [course.id]);
 
   const reprocessPreview = useMemo(() => {
     if (!reprocessWizardOpen) return null;
     return buildReprocessPreview(course, uploadedFiles, lang);
   }, [reprocessWizardOpen, course, uploadedFiles, lang]);
 
-  const handleApplyReprocess = () => {
+  const canDeleteCourse = Boolean(onRemoveCourse) && !isDemoCourse(course.id);
+  const deleteCourseCopy = useMemo(() => {
+    const stats = courseDeleteStats(course.id, uploadedFiles, tasks, glossaryEntries);
+    return buildDeleteCourseCascadeCopy({
+      lang,
+      courseTitle: course.title,
+      ...stats,
+    });
+  }, [course.id, course.title, uploadedFiles, tasks, glossaryEntries, lang]);
+
+  const handleApplyReprocess = (editedText?: string) => {
+    if (editedText && onSaveCourseExtractedText) {
+      onSaveCourseExtractedText(course.id, editedText);
+    }
     if (!onReprocessMaterial) return;
     const ok = onReprocessMaterial();
     if (ok !== false) setReprocessApplied(true);
   };
 
+  /** B10/B11 — warm workspace + reader chunks while viewing course overview. */
+  useEffect(() => {
+    prefetchWorkspaceEntry();
+  }, [course.id]);
+
   return (
-    <div className="p-4 sm:p-6 lg:px-8 pb-24 lg:pb-6 w-full min-w-0 space-y-6">
-      {/* Back + Header */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
+    <Page>
+      <button
+        type="button"
+        onClick={onBack}
+        data-testid="course-back"
+        className="flex items-center gap-1.5 text-sm text-text-secondary hover:text-text-primary mb-2 transition-colors -mt-1"
       >
-        <button
-          onClick={onBack}
-          className="flex items-center gap-1.5 text-sm text-text-secondary hover:text-text-primary mb-4 transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Back to Library
-        </button>
+        <ArrowLeft className="w-4 h-4" />
+        Back to library
+      </button>
 
-        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-          <div className="flex items-start gap-4">
-            <div className="text-4xl">{course.icon}</div>
-            <div>
-              <h1 className="text-2xl sm:text-3xl font-bold" data-testid="course-title">{course.title}</h1>
-              <p className="text-text-secondary mt-1 text-sm max-w-xl">{course.description}</p>
-              <div className="flex flex-wrap items-center gap-3 mt-3 text-xs text-text-tertiary">
-                <span className="flex items-center gap-1">
-                  <BookOpen className="w-3.5 h-3.5" />
-                  {course.totalLessons} lessons
+      <PageHeader
+        eyebrow={t('courseEyebrow')}
+        title={<span data-testid="course-title">{course.title}</span>}
+        subtitle={
+          <>
+            <span className="block max-w-xl">{course.description}</span>
+            <span className="mt-2 flex flex-wrap items-center gap-3 text-xs text-text-tertiary">
+              <span className="flex items-center gap-1">
+                <BookOpen className="w-3.5 h-3.5" />
+                {course.totalLessons} lessons
+              </span>
+              <span className="flex items-center gap-1">
+                <Clock className="w-3.5 h-3.5" />
+                {course.estimatedHours}h estimated
+              </span>
+              <span className="flex items-center gap-1" data-testid="course-stat-mastery">
+                <BarChart3 className="w-3.5 h-3.5" />
+                {pageStats.masteryPercent}% {t('courseStatMastery').toLowerCase()}
+              </span>
+              {course.examDate && (
+                <span className="flex items-center gap-1 text-accent-amber">
+                  <Calendar className="w-3.5 h-3.5" />
+                  Exam: {new Date(course.examDate).toLocaleDateString()}
                 </span>
-                <span className="flex items-center gap-1">
-                  <Clock className="w-3.5 h-3.5" />
-                  {course.estimatedHours}h estimated
-                </span>
-                <span className="flex items-center gap-1">
-                  <BarChart3 className="w-3.5 h-3.5" />
-                  {course.mastery}% mastery
-                </span>
-                {course.examDate && (
-                  <span className="flex items-center gap-1 text-accent-amber">
-                    <Calendar className="w-3.5 h-3.5" />
-                    Exam: {new Date(course.examDate).toLocaleDateString()}
-                  </span>
-                )}
-              </div>
-            </div>
-          </div>
-
-          <div className="flex gap-2 shrink-0">
+              )}
+            </span>
+          </>
+        }
+        actions={
+          <div className="flex flex-wrap gap-2 shrink-0">
+            {canDeleteCourse && (
+              <button
+                type="button"
+                onClick={() => setRemoveCourseOpen(true)}
+                data-testid="course-delete"
+                className="flex items-center gap-2 px-3 py-2.5 border border-accent-rose/30 hover:bg-accent-rose/10 rounded-xl text-sm font-medium text-accent-rose transition-all"
+                aria-label={t('deleteCourseAria')}
+              >
+                <Trash2 className="w-4 h-4" />
+                <span className="hidden sm:inline">{t('deleteLabel')}</span>
+              </button>
+            )}
             {needsSourceUpgrade && onUploadMore && (
               <button
+                type="button"
                 onClick={onUploadMore}
                 data-testid="course-upload-more"
                 className="flex items-center gap-2 px-4 py-2.5 border border-accent-amber/30 bg-accent-amber/10 hover:bg-accent-amber/15 rounded-xl text-sm font-medium text-accent-amber transition-all"
               >
                 <Upload className="w-4 h-4" />
-                Add Material
+                Add material
               </button>
             )}
-            <button
-              onClick={onOpenAgent}
-              className="flex items-center gap-2 px-4 py-2.5 border border-border-default hover:border-brand-500/30 rounded-xl text-sm font-medium transition-all"
-            >
-              <Sparkles className="w-4 h-4 text-brand-400" />
-              Ask Agent
-            </button>
-            <button
+            <SecondaryCTA onClick={onOpenAgent} data-testid="course-ask-agent">
+              <Sparkles className="w-4 h-4 text-brand-600" />
+              Ask agent
+            </SecondaryCTA>
+            <AudioStudyGuideButton course={course} lang={lang} settings={userSettings} />
+            <StudyGuideExportButton course={course} glossaryEntries={glossaryEntries} lang={lang} />
+            <PrimaryCTA
               onClick={() => onStartLesson()}
               data-testid="course-open-workspace"
-              className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-brand-600 to-brand-500 text-white rounded-xl text-sm font-medium hover:from-brand-500 hover:to-brand-400 transition-all"
+              {...workspaceEntryPrefetchHandlers()}
             >
               <Play className="w-4 h-4" />
               Continue
-            </button>
+            </PrimaryCTA>
           </div>
+        }
+      />
+
+      <UxCallout variant="info" title={t('courseSectionTitle')} icon={<MapPin className="text-brand-500" />} testId="course-entry-hint">
+        {t('courseEntryHint')}
+      </UxCallout>
+
+      {userSettings && (
+        <TrustBadgeRow sourceMode={userSettings.sourceMode} lang={lang} className="mt-3" />
+      )}
+
+      <div
+        className="mt-3 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2"
+        data-testid="course-page-stats"
+      >
+        <div className="ux-stat-card" data-testid="course-stat-progress">
+          <p className="ux-stat-card-label"><AllCapsLabel>{t('courseStatProgress')}</AllCapsLabel></p>
+          <p className="ux-stat-card-value">{pageStats.progressPercent}%</p>
         </div>
-      </motion.div>
+        <div className="ux-stat-card" data-testid="course-stat-mastery-card">
+          <p className="ux-stat-card-label"><AllCapsLabel>{t('courseStatMastery')}</AllCapsLabel></p>
+          <p className="ux-stat-card-value">{pageStats.masteryPercent}%</p>
+        </div>
+        <div className="ux-stat-card" data-testid="course-stat-pending-tasks">
+          <p className="ux-stat-card-label"><AllCapsLabel>{t('courseStatPendingTasks')}</AllCapsLabel></p>
+          <p className="ux-stat-card-value">{pageStats.pendingTasks}</p>
+        </div>
+        <div className="ux-stat-card" data-testid="course-stat-due-reviews">
+          <p className="ux-stat-card-label"><AllCapsLabel>{t('courseStatDueReviews')}</AllCapsLabel></p>
+          <p className="ux-stat-card-value">{pageStats.dueReviews}</p>
+        </div>
+        <div className="ux-stat-card" data-testid="course-stat-source-quality">
+          <p className="ux-stat-card-label"><AllCapsLabel>{t('courseStatSourceQuality')}</AllCapsLabel></p>
+          <p className="ux-stat-card-value">
+            {pageStats.sourceQualityScore != null
+              ? `${pageStats.sourceQualityScore}/100`
+              : t('courseStatSourceQualityUnknown')}
+          </p>
+        </div>
+      </div>
+
+      {quality?.band === 'strong' && !quality.needsMoreMaterial && (
+        <UxCallout variant="trust" title={t('courseTrustCalloutTitle')} icon={<Sparkles />} testId="course-trust-callout" className="mt-3">
+          {t('courseTrustCalloutBody')}
+        </UxCallout>
+      )}
+
+      {progress < 100 && (
+        <UxCallout
+          variant="next-action"
+          title={t('courseContinueCalloutTitle')}
+          icon={<Lightbulb />}
+          testId="course-continue-callout"
+          className="mt-3"
+          action={
+            <button
+              type="button"
+              onClick={() => onStartLesson()}
+              data-testid="course-continue-callout-action"
+              className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-medium ws-empty-cta-secondary shrink-0"
+            >
+              {t('courseContinueCalloutAction')} <ArrowRight className="w-3 h-3" />
+            </button>
+          }
+        >
+          {t('courseContinueCalloutBody').replace('{pct}', String(Math.round(progress)))}
+        </UxCallout>
+      )}
+
+      {showPostUploadBanner && (
+        <PostUploadBanner
+          courseTitle={course.title}
+          onOpenWorkspace={() => {
+            onDismissPostUpload?.();
+            onStartLesson();
+          }}
+          onViewCourse={() => onDismissPostUpload?.()}
+          onDismiss={() => onDismissPostUpload?.()}
+        />
+      )}
 
       {showQualityBar && (
         <WorkspaceSourceStatusBar
           lang={lang}
           score={qualityBanner.score}
           showMigration={showReuploadHint}
+          showPre24Greek={showPre24Greek}
           showQualityWarning={qualityBanner.show}
           reprocessing={reprocessingMaterial}
+          storedPipelineVersion={course.pipelineMeta?.version}
+          textHygieneScore={quality?.metrics.textHygieneScore}
+          textCorruptionScore={quality?.metrics.textCorruptionScore}
+          textHygieneFlags={quality?.metrics.textHygieneFlags}
           onInspect={openReprocessWizard}
           onReprocess={onReprocessMaterial ? openReprocessWizard : undefined}
           onReupload={onUploadMore}
@@ -218,7 +412,7 @@ export function CourseView({
             <div>
               <div className="flex items-center gap-2 flex-wrap">
                 <span className={cn(
-                  'inline-flex items-center gap-1 rounded-full px-2 py-1 text-[10px] font-semibold uppercase tracking-wide',
+                  'inline-flex items-center gap-1 rounded-full px-2 py-1 text-[10px] font-semibold',
                   quality.band === 'strong'
                     ? 'bg-accent-emerald/12 text-accent-emerald'
                     : quality.band === 'moderate'
@@ -266,24 +460,58 @@ export function CourseView({
               <span className="font-semibold text-text-primary">Best next upgrade:</span> {quality.nextActions[0]}
             </p>
           )}
+          <div className="mt-4 flex flex-wrap gap-2">
+            {quality.needsMoreMaterial && onUploadMore && (
+              <button
+                type="button"
+                onClick={onUploadMore}
+                data-testid="course-quality-upload-more"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-accent-amber/30 bg-accent-amber/10 text-xs font-medium text-accent-amber hover:bg-accent-amber/15"
+              >
+                <Upload className="w-3.5 h-3.5" />
+                {t('courseQualityActionUpload')}
+              </button>
+            )}
+            {onReprocessMaterial && (
+              <button
+                type="button"
+                onClick={openReprocessWizard}
+                disabled={reprocessingMaterial}
+                data-testid="course-quality-reprocess"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-brand-500/30 text-xs font-medium text-brand-300 hover:bg-brand-500/10 disabled:opacity-60"
+              >
+                <RefreshCw className={cn('w-3.5 h-3.5', reprocessingMaterial && 'animate-spin')} />
+                {t('courseQualityActionReprocess')}
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={() => onStartLesson()}
+              data-testid="course-quality-open-workspace"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand-600/15 text-xs font-medium text-brand-300 hover:bg-brand-600/25"
+            >
+              <Play className="w-3.5 h-3.5" />
+              {t('courseQualityActionWorkspace')}
+            </button>
+          </div>
         </motion.div>
       )}
 
+      {course.qualityReport && (
+        <QualityReportPanel report={course.qualityReport} lang={lang} className="max-w-[1600px] mx-auto" />
+      )}
+
       {/* Progress bar */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.1 }}
-        className="rounded-2xl border border-border-subtle bg-surface-card p-5"
-      >
+      <AnimatedCard delay={0.1}>
         <div className="flex items-center justify-between mb-3">
           <span className="text-sm font-medium">Course Progress</span>
           <span className="text-sm text-text-secondary">{course.completedLessons}/{course.totalLessons} lessons</span>
         </div>
-        <div className="w-full bg-surface-hover rounded-full h-3">
+        {/* Wave P-2 C08 — Course Progress top-of-page track uses --viz-bar-track. */}
+        <div className="w-full rounded-full h-3" style={{ backgroundColor: 'var(--viz-bar-track)' }}>
           <div
             className="h-3 rounded-full transition-all duration-700"
-            style={{ width: `${progress}%`, backgroundColor: course.color }}
+            style={{ width: `${progress}%`, backgroundColor: resolveCourseColor(course.color) }}
           />
         </div>
         <div className="flex justify-between mt-2 text-xs text-text-tertiary">
@@ -291,54 +519,67 @@ export function CourseView({
           <span>~{Math.round(course.estimatedHours * (1 - progress / 100))}h remaining</span>
         </div>
         <div className="grid grid-cols-4 gap-3 mt-4 pt-4 border-t border-border-subtle">
-          <div className="text-center"><p className="text-lg font-bold">{course.conceptCount}</p><p className="text-[10px] text-text-muted">Concepts</p></div>
-          <div className="text-center"><p className="text-lg font-bold">{course.glossaryCount}</p><p className="text-[10px] text-text-muted">Glossary</p></div>
-          <div className="text-center"><p className="text-lg font-bold">{course.exerciseCount}</p><p className="text-[10px] text-text-muted">Exercises</p></div>
-          <div className="text-center"><p className="text-lg font-bold capitalize text-xs">{course.sourceMode}</p><p className="text-[10px] text-text-muted">Source Mode</p></div>
+          <div className="text-center"><p className="ux-kpi-value">{course.conceptCount}</p><p className="text-[10px] text-text-muted">Concepts</p></div>
+          <div className="text-center"><p className="ux-kpi-value">{course.glossaryCount}</p><p className="text-[10px] text-text-muted">Glossary</p></div>
+          <div className="text-center"><p className="ux-kpi-value">{course.exerciseCount}</p><p className="text-[10px] text-text-muted">Exercises</p></div>
+          <div className="text-center"><p className="text-xs font-semibold capitalize">{course.sourceMode}</p><p className="text-[10px] text-text-muted">Source Mode</p></div>
         </div>
-      </motion.div>
+      </AnimatedCard>
 
-      {/* Tabs */}
-      <div className="flex items-center gap-6 border-b border-border-subtle">
-        {[
-          { key: 'path' as CourseTab, label: 'Learning Path', icon: MapPin },
-          { key: 'map' as CourseTab, label: 'Concept Map', icon: Network },
-          { key: 'sources' as CourseTab, label: 'Source Files', icon: FileText },
-          { key: 'analytics' as CourseTab, label: 'Analytics', icon: BarChart3 },
-        ].map(t => (
-          <button
-            key={t.key}
-            onClick={() => setTab(t.key)}
-            className={cn(
-              'pb-3 text-sm font-medium transition-all border-b-2 flex items-center gap-1.5',
-              tab === t.key
-                ? 'text-brand-400 border-brand-400'
-                : 'text-text-tertiary border-transparent hover:text-text-secondary'
-            )}
-          >
-            <t.icon className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">{t.label}</span>
-          </button>
-        ))}
-      </div>
+      <SectionHeader
+        eyebrow={t('courseSectionEyebrow')}
+        title={t('courseSectionTitle')}
+        subtitle={t('courseSectionSubtitle')}
+        className="mt-2"
+      />
+
+      <DescriptiveStickyTabBar
+        items={courseTabs}
+        activeId={tab}
+        onChange={(id) => setTab(id)}
+        testIdPrefix="course-tab"
+        panelIdPrefix="course-panel"
+        className="mt-2"
+      />
 
       {/* Tab Content */}
       {tab === 'path' && (
-        <div className="space-y-4">
+        <div
+          role="tabpanel"
+          id="course-panel-path"
+          data-testid="course-panel-path"
+          aria-labelledby="course-tab-path"
+          className="space-y-4"
+        >
+          <SectionHeader
+            eyebrow={t('coursePathSectionEyebrow')}
+            title={t('coursePathSectionTitle')}
+            subtitle={t('coursePathSectionSubtitle')}
+            animate={false}
+          />
           {course.topics.map((topic, i) => (
             <TopicCard key={topic.id} topic={topic} index={i} courseColor={course.color} course={course} onGoToSource={onGoToSource} onStart={() => onStartLesson(topic.title)} />
           ))}
           {course.topics.length === 0 && (
-            <div className="text-center py-16">
-              <Brain className="w-12 h-12 text-text-muted mx-auto mb-4" />
-              <p className="text-text-secondary">Course is being generated... Topics will appear soon.</p>
-            </div>
+            <PlatformEmptyState
+              icon={Brain}
+              title={t('coursePathEmptyTitle')}
+              description={t('coursePathEmptyBody')}
+              actionLabel={onUploadMore ? t('coursePathEmptyAction') : undefined}
+              onAction={onUploadMore}
+              data-testid="course-path-empty"
+            />
           )}
         </div>
       )}
 
-      {tab === 'map' && <ConceptMap course={course} />}
+      {tab === 'map' && (
+        <div role="tabpanel" id="course-panel-map" data-testid="course-panel-map" aria-labelledby="course-tab-map">
+          <ConceptMap course={course} masteryPercent={pageStats.masteryPercent} onStartLesson={onStartLesson} />
+        </div>
+      )}
       {tab === 'sources' && (
+        <div role="tabpanel" id="course-panel-sources" data-testid="course-panel-sources" aria-labelledby="course-tab-sources" className="space-y-4">
         <SourceFiles
           course={course}
           uploadedFiles={uploadedFiles}
@@ -349,9 +590,21 @@ export function CourseView({
           onReprocessMaterial={onReprocessMaterial ? openReprocessWizard : undefined}
           reprocessingMaterial={reprocessingMaterial}
           lang={lang}
+          userSettings={userSettings}
+          onImportAudioTranscript={onImportAudioTranscript}
+          onUploadAudio={onUploadAudio}
+          onAddAudioToFsrs={onAddAudioToFsrs}
+          learnerModel={learnerModel}
+          onUploadMore={onUploadMore}
         />
+        <McpCourseArtifactsPanel course={course} lang={lang === 'el' ? 'el' : 'en'} />
+        </div>
       )}
-      {tab === 'analytics' && <CourseAnalytics course={course} />}
+      {tab === 'analytics' && (
+        <div role="tabpanel" id="course-panel-analytics" data-testid="course-panel-analytics" aria-labelledby="course-tab-analytics">
+          <CourseAnalytics course={course} masteryPercent={pageStats.masteryPercent} />
+        </div>
+      )}
 
       <ReprocessPreviewModal
         open={reprocessWizardOpen}
@@ -362,7 +615,23 @@ export function CourseView({
         applied={reprocessApplied}
         onApply={onReprocessMaterial ? handleApplyReprocess : undefined}
       />
-    </div>
+      {canDeleteCourse && (
+        <ConfirmDialog
+          open={removeCourseOpen}
+          title={deleteCourseCopy.title}
+          description={deleteCourseCopy.description}
+          confirmLabel={t('deleteLabel')}
+          cancelLabel={t('cancel')}
+          destructive
+          data-testid="course-delete-confirm"
+          onConfirm={() => {
+            onRemoveCourse?.(course.id);
+            setRemoveCourseOpen(false);
+          }}
+          onClose={() => setRemoveCourseOpen(false)}
+        />
+      )}
+    </Page>
   );
 }
 
@@ -375,6 +644,7 @@ function TopicCard({ topic, index, courseColor, course, onGoToSource, onStart }:
   onStart: () => void;
 }) {
   const [expanded, setExpanded] = useState(false);
+  const accent = resolveCourseColor(courseColor);
   const hasDetail = (topic.objectives?.length ?? 0) > 0 || (topic.keyConcepts?.length ?? 0) > 0;
   return (
     <motion.div
@@ -386,7 +656,7 @@ function TopicCard({ topic, index, courseColor, course, onGoToSource, onStart }:
         topic.isLocked ? 'border-border-subtle opacity-60' : 'border-border-subtle hover:border-brand-500/20'
       )}
     >
-      <div className="flex items-center gap-4 p-5">
+      <div className="flex items-center gap-3 p-3.5">
         <div className="relative">
           {topic.isLocked ? (
             <div className="w-10 h-10 rounded-xl bg-surface-hover flex items-center justify-center">
@@ -397,8 +667,8 @@ function TopicCard({ topic, index, courseColor, course, onGoToSource, onStart }:
               <CheckCircle2 className="w-5 h-5 text-accent-emerald" />
             </div>
           ) : topic.mastery > 0 ? (
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: courseColor + '15' }}>
-              <Circle className="w-5 h-5" style={{ color: courseColor }} />
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: `color-mix(in srgb, ${accent} 14%, transparent)` }}>
+              <Circle className="w-5 h-5" style={{ color: accent }} />
             </div>
           ) : (
             <div className="w-10 h-10 rounded-xl bg-surface-hover flex items-center justify-center">
@@ -441,18 +711,20 @@ function TopicCard({ topic, index, courseColor, course, onGoToSource, onStart }:
                   <span className="text-text-muted">Mastery</span>
                   <span className="font-medium">{topic.mastery}%</span>
                 </div>
-                <div className="w-full bg-surface-hover rounded-full h-1.5">
+                {/* Wave P-2 C08 — Topic mastery track uses --viz-bar-track. */}
+                <div className="w-full rounded-full h-1.5" style={{ backgroundColor: 'var(--viz-bar-track)' }}>
                   <div
                     className="h-1.5 rounded-full transition-all"
                     style={{
                       width: `${topic.mastery}%`,
-                      backgroundColor: topic.mastery >= 80 ? '#34d399' : courseColor
+                      backgroundColor: topic.mastery >= 80 ? MASTERY_VAR.strong : accent
                     }}
                   />
                 </div>
               </div>
               <button
                 onClick={onStart}
+                aria-label={`Start lesson: ${topic.title}`}
                 className="p-2 rounded-lg hover:bg-surface-hover transition-colors"
               >
                 <ChevronRight className="w-5 h-5 text-text-tertiary" />
@@ -516,22 +788,46 @@ function TopicCard({ topic, index, courseColor, course, onGoToSource, onStart }:
   );
 }
 
-function ConceptMap({ course }: { course: Course }) {
+function ConceptMap({
+  course,
+  masteryPercent,
+  onStartLesson,
+}: {
+  course: Course;
+  masteryPercent: number;
+  onStartLesson: (topicTitle?: string) => void;
+}) {
+  const { t } = useI18n();
   const topics = course.topics.filter(t => !t.isLocked);
-  // Generate graph nodes from topics
-  const graphNodes = topics.map((t, i) => ({
-    id: t.id, label: t.title, mastery: t.mastery,
-    type: 'concept' as const,
-    x: 100 + (i % 3) * 200, y: 80 + Math.floor(i / 3) * 140,
-  }));
-  const graphEdges = topics.flatMap(t => t.prerequisites.map(p => ({
-    from: p, to: t.id, relation: 'prerequisite' as const,
-  }))).filter(e => graphNodes.some(n => n.id === e.from));
+  const graphSummary = summarizeCourseGraph(course.conceptGraph);
+  const { nodes: graphNodes, edges: graphEdges } = conceptGraphToCourseVisual(course, topics);
 
   return (
     <div className="space-y-6">
+      {graphSummary.nodeCount > 0 && (
+        <p
+          className="text-xs text-text-secondary"
+          data-testid="course-knowledge-graph-meta"
+        >
+          {t('courseGraphMeta')
+            .replace('{nodes}', String(graphSummary.nodeCount))
+            .replace('{edges}', String(graphSummary.edgeCount))
+            .replace('{status}', graphSummary.valid ? t('courseGraphValid') : t('courseGraphInvalid'))}
+        </p>
+      )}
+
       {graphNodes.length > 0 && (
-        <ConceptGraph nodes={graphNodes} edges={graphEdges} width={640} height={Math.max(280, Math.ceil(topics.length / 3) * 140 + 80)} />
+        <>
+          <p className="text-xs text-text-secondary">{t('courseConceptMapHint')}</p>
+          <ConceptGraph
+            nodes={graphNodes}
+            edges={graphEdges}
+            width={640}
+            height={Math.max(280, Math.ceil(graphNodes.length / 4) * 110 + 80)}
+            onOpenConcept={(label) => onStartLesson(label)}
+            openConceptLabel={t('courseConceptMapOpenWorkspace')}
+          />
+        </>
       )}
 
       <ProgressTimeline
@@ -544,8 +840,13 @@ function ConceptMap({ course }: { course: Course }) {
         }))}
       />
 
-      <div className="rounded-2xl border border-border-subtle bg-surface-card p-5 flex items-center justify-center">
-        <ReadinessRing value={course.mastery} size={160} label="Course Readiness" sublabel="Based on weighted concept mastery across all topics" />
+      <div className="platform-panel-md flex items-center justify-center" data-testid="course-mastery-ring">
+        <ReadinessRing
+          value={masteryPercent}
+          size={160}
+          label={t('analyticsCourseMastery')}
+          sublabel={t('courseMasterySublabel')}
+        />
       </div>
     </div>
   );
@@ -561,6 +862,12 @@ function SourceFiles({
   onReprocessMaterial,
   reprocessingMaterial = false,
   lang,
+  userSettings,
+  onImportAudioTranscript,
+  onUploadAudio,
+  onAddAudioToFsrs,
+  learnerModel,
+  onUploadMore,
 }: {
   course: Course;
   uploadedFiles: UploadedFile[];
@@ -571,8 +878,14 @@ function SourceFiles({
   onReprocessMaterial?: () => void;
   reprocessingMaterial?: boolean;
   lang: 'en' | 'el';
+  userSettings?: UserSettings;
+  onImportAudioTranscript?: (raw: string, courseId: string) => boolean;
+  onUploadAudio?: (file: File, courseId: string) => Promise<boolean>;
+  onAddAudioToFsrs?: (fileId: string, courseId: string) => void;
+  learnerModel?: LearnerModel;
+  onUploadMore?: () => void;
 }) {
-  const el = lang === 'el';
+  const { t } = useI18n();
   const provenanceCount = course.conceptSpans?.length ?? 0;
   const [pendingRemove, setPendingRemove] = useState<UploadedFile | null>(null);
   const generatedTaskCount = countGeneratedTasksForCourse(tasks, course.id);
@@ -605,11 +918,29 @@ function SourceFiles({
   return (
     <>
     <div className="space-y-6">
-      <div className="rounded-2xl border border-border-subtle bg-surface-card p-6">
+      <NotebookLmExportPanel
+        course={course}
+        glossaryEntries={glossaryEntries}
+        learnerModel={learnerModel}
+        lang={lang}
+      />
+      {onImportAudioTranscript && (
+        <CourseMediaPanel
+          courseId={course.id}
+          courseTitle={course.title}
+          files={uploadedFiles}
+          lang={lang}
+          onImportTranscript={onImportAudioTranscript}
+          onUploadAudio={onUploadAudio}
+          onAddAudioToFsrs={onAddAudioToFsrs}
+          userSettings={userSettings}
+        />
+      )}
+      <div className="platform-panel-lg">
         <div className="flex items-center justify-between gap-3 mb-4 flex-wrap">
           <h3 className="font-semibold flex items-center gap-2">
             <FileText className="w-5 h-5 text-brand-400" />
-            {el ? 'Αρχεία πηγής' : 'Source Files'}
+            {t('courseSourceFiles')}
           </h3>
           {onReprocessMaterial && uploadedFiles.length > 0 && (
             <button
@@ -620,18 +951,37 @@ function SourceFiles({
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-brand-500/30 text-xs font-medium text-brand-300 hover:bg-brand-500/10 disabled:opacity-60"
             >
               <RefreshCw className={cn('w-3.5 h-3.5', reprocessingMaterial && 'animate-spin')} />
-              {el ? 'Επανεπεξεργασία κειμένου' : 'Reprocess stored text'}
+              {t('courseReprocessStoredText')}
             </button>
           )}
         </div>
         <div className="space-y-2">
-          {(uploadedFiles.length > 0 ? uploadedFiles : course.sourceFiles.map((name) => ({ name } as UploadedFile))).map((file, i) => (
-            <div key={file.id ?? i} className="flex items-center gap-3 p-3 rounded-xl bg-surface-primary/50 border border-border-subtle flex-wrap" data-testid={file.id ? `source-file-${file.id}` : undefined}>
-              <FileText className="w-5 h-5 text-text-tertiary shrink-0" />
+          {uploadedFiles.length === 0 && course.sourceFiles.length === 0 ? (
+            <PlatformEmptyState
+              icon={Upload}
+              title={t('courseSourcesEmptyTitle')}
+              description={t('courseSourcesEmptyBody')}
+              actionLabel={onUploadMore ? t('courseSourcesEmptyAction') : undefined}
+              onAction={onUploadMore}
+              className="py-10"
+              data-testid="course-sources-empty"
+            />
+          ) : (
+          (uploadedFiles.length > 0 ? uploadedFiles : course.sourceFiles.map((name) => ({ name } as UploadedFile))).map((file, i) => {
+            const preview = file.id ? buildSourcePreviewText(file, course) : null;
+            return (
+            <div key={file.id ?? i} className="flex items-start gap-3 p-3 rounded-xl bg-surface-primary/50 border border-border-subtle flex-wrap" data-testid={file.id ? `source-file-${file.id}` : undefined}>
+              <FileText className="w-5 h-5 text-text-tertiary shrink-0 mt-0.5" />
               <div className="flex-1 min-w-0">
                 <span className="text-sm font-medium block truncate">{file.name}</span>
                 {'pipelineVersion' in file && file.pipelineVersion && (
                   <span className="text-[10px] text-text-muted">pipeline v{file.pipelineVersion}</span>
+                )}
+                {file.id && (
+                  <p className="mt-2 text-xs text-text-secondary leading-relaxed">
+                    <span className="font-medium text-text-primary">{t('courseSourcePreviewLabel')}: </span>
+                    {preview ?? t('courseSourcePreviewEmpty')}
+                  </p>
                 )}
               </div>
               {'ocrUsed' in file && file.ocrUsed && (
@@ -640,20 +990,25 @@ function SourceFiles({
               {'ingestMethod' in file && file.ingestMethod && (
                 <span className="text-[10px] text-text-muted">{file.ingestMethod}</span>
               )}
-              <span className="text-xs text-text-muted">{el ? 'Αναλυμένο' : 'Analyzed'}</span>
+              <span className="text-xs text-text-muted">{t('courseAnalyzed')}</span>
+              {file.id && (
+                <VideoSummarizeButton file={file} settings={userSettings} lang={lang} />
+              )}
               {file.id && onRemoveFile && (
                 <button
                   type="button"
                   onClick={() => confirmRemove(file)}
                   data-testid={`remove-source-${file.id}`}
                   className="p-1.5 rounded-lg border border-accent-rose/30 text-accent-rose hover:bg-accent-rose/10 transition-colors"
-                  title={el ? 'Αφαίρεση αρχείου' : 'Remove file'}
+                  title={t('removeFileTitle')}
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>
               )}
             </div>
-          ))}
+            );
+          })
+          )}
         </div>
         {course.pipelineMeta && (
           <p className="mt-3 text-[10px] text-text-muted">
@@ -663,7 +1018,7 @@ function SourceFiles({
       </div>
 
       {glossaryEntries.length > 0 && (
-        <div className="rounded-2xl border border-border-subtle bg-surface-card p-6">
+        <div className="platform-panel-lg">
           <h3 className="font-semibold mb-3 flex items-center gap-2">
             <BookOpen className="w-5 h-5 text-accent-emerald" />
             Glossary ({glossaryEntries.length})
@@ -700,7 +1055,7 @@ function SourceFiles({
         </div>
       )}
 
-      <div className="rounded-2xl border border-border-subtle bg-surface-card p-6">
+      <div className="platform-panel-lg">
         <div className="mt-0 p-4 rounded-xl bg-surface-hover/50 border border-border-subtle">
           <p className="text-xs text-text-tertiary mb-2 flex items-center gap-1.5">
             <AlertTriangle className="w-3.5 h-3.5 text-accent-amber" />
@@ -725,16 +1080,17 @@ function SourceFiles({
       }}
       title={removeTitle}
       description={removeDescription}
-      confirmLabel={el ? 'Αφαίρεση' : 'Remove'}
-      cancelLabel={el ? 'Ακύρωση' : 'Cancel'}
+      confirmLabel={t('removeLabel')}
+      cancelLabel={t('cancel')}
       destructive
-      data-testid="course-remove-source-dialog"
+      data-testid="course-file-delete-confirm"
     />
     </>
   );
 }
 
-function CourseAnalytics({ course }: { course: Course }) {
+function CourseAnalytics({ course, masteryPercent }: { course: Course; masteryPercent: number }) {
+  const { t } = useI18n();
   const maxMinutes = Math.max(...course.topics.map((t) => t.estimatedMinutes || 0), 1);
   const totalConcepts = course.topics.reduce((s, t) => s + (t.conceptCount || 0), 0);
   const masteredConcepts = course.topics.reduce(
@@ -748,14 +1104,20 @@ function CourseAnalytics({ course }: { course: Course }) {
   const velocity = baselineCph > 0 && actualCph > 0 ? actualCph / baselineCph : 0;
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-      <div className="rounded-2xl border border-border-subtle bg-surface-card p-5">
+      <div className="platform-panel-md sm:col-span-2" data-testid="course-analytics-mastery">
+        <p className="text-xs text-text-tertiary">{t('analyticsCourseMastery')}</p>
+        <p className="mt-1 ux-kpi-value">{masteryPercent}%</p>
+        <p className="mt-1 text-[11px] text-text-muted">{t('courseMasterySublabel')}</p>
+      </div>
+      <div className="platform-panel-md">
         <h4 className="text-sm font-semibold mb-3">Study Time Distribution</h4>
         <p className="text-[11px] text-text-tertiary mb-3">Estimated minutes per module, from the generated outline</p>
         <div className="space-y-2">
           {course.topics.slice(0, 6).map(topic => (
             <div key={topic.id} className="flex items-center gap-2">
               <span className="text-xs text-text-secondary w-24 truncate">{topic.title}</span>
-              <div className="flex-1 bg-surface-hover rounded-full h-2">
+              {/* Wave P-2 C08 — Study Time Distribution track uses --viz-bar-track. */}
+              <div className="flex-1 rounded-full h-2" style={{ backgroundColor: 'var(--viz-bar-track)' }}>
                 <div
                   className="h-2 rounded-full bg-brand-500 transition-all"
                   style={{ width: `${Math.max(8, ((topic.estimatedMinutes || 0) / maxMinutes) * 100)}%` }}
@@ -766,7 +1128,7 @@ function CourseAnalytics({ course }: { course: Course }) {
           ))}
         </div>
       </div>
-      <div className="rounded-2xl border border-border-subtle bg-surface-card p-5">
+      <div className="platform-panel-md">
         <h4 className="text-sm font-semibold mb-3">Retention Predictions</h4>
         <div className="space-y-2">
           {course.topics.filter(t => t.mastery > 0).slice(0, 5).map(topic => {
@@ -785,18 +1147,18 @@ function CourseAnalytics({ course }: { course: Course }) {
           })}
         </div>
       </div>
-      <div className="rounded-2xl border border-border-subtle bg-surface-card p-5 sm:col-span-2">
+      <div className="platform-panel-md sm:col-span-2">
         <h4 className="text-sm font-semibold mb-3">Concept Coverage &amp; Pace</h4>
         <p className="text-xs text-text-secondary mb-4">Mastered concepts relative to the {totalConcepts} concepts extracted from your material</p>
         {masteredConcepts > 0 ? (
           <div className="flex items-center gap-6 flex-wrap">
             <div>
-              <div className="text-3xl font-bold text-accent-emerald">{masteredConcepts}<span className="text-base text-text-muted">/{totalConcepts}</span></div>
+              <div className="ux-kpi-value text-accent-emerald">{masteredConcepts}<span className="text-sm text-text-muted">/{totalConcepts}</span></div>
               <p className="text-xs text-text-tertiary mt-1">concepts mastered</p>
             </div>
             {velocity > 0 && (
               <div>
-                <div className={cn('text-3xl font-bold', velocity >= 1 ? 'text-accent-emerald' : 'text-accent-amber')}>{velocity.toFixed(2)}×</div>
+                <div className={cn('ux-kpi-value', velocity >= 1 ? 'text-accent-emerald' : 'text-accent-amber')}>{velocity.toFixed(2)}×</div>
                 <p className="text-xs text-text-tertiary mt-1">
                   {velocity >= 1.05 ? 'Ahead of the expected pace' : velocity <= 0.95 ? 'Behind the expected pace' : 'On the expected pace'}
                 </p>

@@ -1,9 +1,11 @@
 import { useMemo, useState, useCallback, useEffect } from 'react';
-import { AlertTriangle, BookOpen, Search, Sparkles, Loader2, X } from 'lucide-react';
+import { BookOpen, Search, AlertTriangle, Sparkles, Loader2, X } from '@/lib/lucide-shim';
 import { ComparisonTable } from '../visuals/DiagramGenerator';
-import { WorkspaceEmptyState } from './WorkspaceEmptyState';
+import { WorkspaceToolEmptyState } from './WorkspaceToolEmptyState';
 import { WorkspaceSelectionActionBar } from './WorkspaceSelectionActionBar';
 import { CompareSelectionParityStrip } from './CompareSelectionParityStrip';
+import { WorkspacePanelWarnStrip } from './WorkspacePanelWarnStrip';
+import { useI18n } from '../../lib/i18n';
 import type { CompareRow, CompareSessionContent } from '../../lib/compareSessionModel';
 import { filterCompareRows } from '../../lib/compareSessionModel';
 import {
@@ -45,6 +47,7 @@ export function ComparePanel({
   onSelectionAction,
   onExplainDifference,
 }: Props) {
+  const { t } = useI18n();
   const [filterQuery, setFilterQuery] = useState('');
   const [selectedRow, setSelectedRow] = useState<CompareRow | null>(null);
   const [aiDiffResult, setAiDiffResult] = useState<string | null>(null);
@@ -111,8 +114,10 @@ export function ComparePanel({
 
   if (!session.hasSource) {
     return (
-      <WorkspaceEmptyState
-        message={emptyMessage ?? (isEl ? 'Ανέβασε σημειώσεις για σύγκριση.' : 'Upload notes to compare.')}
+      <WorkspaceToolEmptyState
+        tool="compare"
+        concept={concept}
+        message={emptyMessage}
         hasSource={false}
         onUpload={onUpload}
       />
@@ -122,12 +127,11 @@ export function ComparePanel({
   if (session.rows.length === 0) {
     return (
       <div className="p-4" data-testid="compare-panel-empty">
-        <WorkspaceEmptyState
-          message={emptyMessage ?? (isEl
-            ? 'Δεν βρέθηκαν συγκρίσεις στο υλικό — δοκίμασε Reprocess ή ανέβασε πιο δομημένες σημειώσεις.'
-            : 'No comparisons found in your material — try Reprocess or upload more structured notes.')}
+        <WorkspaceToolEmptyState
+          tool="compare"
+          concept={concept}
+          message={emptyMessage}
           hasSource
-          onUpload={onUpload}
         />
       </div>
     );
@@ -137,30 +141,18 @@ export function ComparePanel({
     <div className="flex h-full flex-col overflow-hidden p-4" data-testid="compare-panel">
       {session.sectionLabel && (
         <p className="mb-2 text-[10px] text-text-muted" data-testid="compare-section-label">
-          {isEl ? 'Ενότητα:' : 'Section:'}{' '}
+          {t('compareSection')}{' '}
           <span className="text-text-secondary">{session.sectionLabel}</span>
         </p>
       )}
 
       {(session.weakExtraction || session.passageGrounded) && (
-        <div
-          className="mb-3 flex items-start gap-2 rounded-xl border border-accent-amber/30 bg-accent-amber/8 px-3 py-2 text-[10px] text-accent-amber"
-          data-testid="compare-weak-extraction"
-        >
-          <AlertTriangle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
-          <p>
-            {session.passageGrounded
-              ? (isEl
-                ? 'Οι συγκρίσεις προέρχονται από το απόσπασμα (generic concept) — Reprocess για πιο πλούσια δομή.'
-                : 'Comparisons are passage-grounded (generic concept) — Reprocess for richer structure.')
-              : (isEl
-                ? 'Αδύναμη εξαγωγή — λίγοι όροι γλωσσαρίου. Δοκίμασε Reprocess.'
-                : 'Weak extraction — sparse glossary. Try Reprocess.')}
-          </p>
-        </div>
+        <WorkspacePanelWarnStrip testId="compare-weak-extraction">
+          {session.passageGrounded ? t('comparePassageGrounded') : t('compareWeakExtraction')}
+        </WorkspacePanelWarnStrip>
       )}
 
-      <CompareSelectionParityStrip report={parityReport} lang={lang} />
+      <CompareSelectionParityStrip report={parityReport} />
 
       <div className="mb-3 flex items-center gap-2">
         <div className="relative flex-1 max-w-xs">
@@ -169,23 +161,23 @@ export function ComparePanel({
             type="search"
             value={filterQuery}
             onChange={(e) => setFilterQuery(e.target.value)}
-            placeholder={isEl ? 'Φίλτρο σειρών…' : 'Filter rows…'}
+            placeholder={t('compareFilterPlaceholder')}
             className="w-full rounded-lg border border-border-subtle bg-surface-card py-1.5 pl-7 pr-2 text-[11px] text-text-secondary placeholder:text-text-muted focus:border-accent-cyan/40 focus:outline-none"
             data-testid="compare-filter"
           />
         </div>
         <span className="text-[10px] text-text-muted">
-          {visibleRows.length}/{session.rows.length} {isEl ? 'σειρές' : 'rows'}
+          {visibleRows.length}/{session.rows.length} {t('compareRows')}
         </span>
         {onOpenInReader && (
           <button
             type="button"
             onClick={() => onOpenInReader(concept)}
-            className="inline-flex items-center gap-1 rounded-lg border border-white/10 px-2 py-1 text-[10px] text-text-secondary hover:border-accent-cyan/35 hover:text-accent-cyan"
+            className="inline-flex items-center gap-1 rounded-lg border border-white/10 px-2 py-1 text-[10px] text-text-secondary hover:border-brand-600/35 hover:text-brand-800"
             data-testid="compare-open-reader"
           >
             <BookOpen className="w-3 h-3" />
-            Reader
+            {t('cognitiveReader')}
           </button>
         )}
       </div>
@@ -210,9 +202,9 @@ export function ComparePanel({
                 term: selectedRow[0],
                 text: buildCompareSelectionContext(selectedRow, concept, session.sectionLabel).text,
               })}
-              className="inline-flex items-center gap-1 rounded-lg border border-accent-cyan/30 bg-accent-cyan/10 px-3 py-1.5 text-[10px] font-medium text-accent-cyan hover:bg-accent-cyan/15"
+              className="inline-flex items-center gap-1 rounded-lg border border-accent-cyan/30 bg-accent-cyan/10 px-3 py-1.5 text-[10px] font-medium text-brand-800 hover:opacity-90"
             >
-              {isEl ? 'Εξήγηση (Agent)' : 'Explain (Agent)'}
+              {t('compareExplainDiff')}
             </button>
           )}
         </div>
@@ -247,23 +239,21 @@ export function ComparePanel({
 
       {selectedRow && ocrNoisyTerms.has(selectedRow[0]) && (
         <p
-          className="mb-2 text-[9px] text-accent-amber px-1"
+          className="mb-2 text-[10px] text-accent-amber px-1"
           data-testid="compare-row-ocr-warning"
         >
-          {isEl
-            ? 'Πιθανό OCR noise — επαλήθευσε στο Reader πριν χρησιμοποιήσεις τη σειρά.'
-            : 'Possible OCR noise — verify in Reader before using this row.'}
+          {t('compareOcrWarning')}
         </p>
       )}
 
       <div className="flex-1 overflow-y-auto min-h-0">
         {visibleRows.length === 0 ? (
           <p className="text-[11px] text-text-muted px-1">
-            {isEl ? 'Καμία σειρά δεν ταιριάζει στο φίλτρο.' : 'No rows match the filter.'}
+            {t('compareNoFilterMatch')}
           </p>
         ) : (
           <ComparisonTable
-            title={`${isEl ? 'Σύγκριση' : 'Compare'}: ${concept}`}
+            title={`${t('compare')}: ${concept}`}
             headers={[...session.headers]}
             items={visibleRows}
             concept={concept}

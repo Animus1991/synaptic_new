@@ -1,13 +1,29 @@
 /**
  * Offline local embedder for Synapse.
  *
- * Transformers.js is not available in this environment, so all embedding
- * requests return null and callers fall back to lexical (BM25) retrieval.
+ * Runs a quantized sentence-transformer model via Transformers.js
+ * (dynamic import so it is only loaded when embeddings are requested).
+ * Embeddings are cached by a stable content hash so repeated calls over the
+ * same corpus are deterministic and fast.
+ *
+ * Works on the main thread and in dedicated Web Workers (`importScripts` probe).
+ * Hybrid RAG (`retrieveForQueryHybrid`) no longer uses this embedder — server
+ * pgvector (1536d) is the canonical retrieval space when a proxy is configured.
+ * If the model fails to load, the embedder returns `null`.
  */
 
 export interface LocalEmbedder {
   embed(texts: string[]): Promise<number[][] | null>;
   ready: boolean;
+}
+
+/** True when Transformers.js can run (browser main thread or dedicated worker). */
+export function isEmbeddingRuntime(): boolean {
+  if (typeof globalThis === 'undefined') return false;
+  return (
+    typeof window !== 'undefined'
+    || typeof (globalThis as { importScripts?: unknown }).importScripts === 'function'
+  );
 }
 
 /** Stable content hash for the embedding cache (browser + Web Worker compatible). */
@@ -28,12 +44,87 @@ export async function hashText(text: string): Promise<string> {
   return (hash >>> 0).toString(16).padStart(16, '0');
 }
 
-/** Create a stub embedder that always returns null (falls back to lexical retrieval). */
+interface Pipeline {
+  (texts: string[], options: { pooling: 'mean'; normalize: true }): Promise<{ data: number[]; dims: number[] }>;
+}
+
+export const LOCAL_EMBEDDER_MODEL = 'Xenova/all-MiniLM-L6-v2';
+const MAX_BATCH = 32;
+
+let pipelinePromise: Promise<Pipeline | null> | null = null;
+const cache = new Map<string, number[]>();
+
+async function loadPipeline(): Promise<Pipeline | null> {
+  if (!isEmbeddingRuntime()) {
+    return null;
+  }
+  try {
+    const { pipeline } = await import('@huggingface/transformers');
+    return (await pipeline('feature-extraction', LOCAL_EMBEDDER_MODEL, {
+      dtype: 'q8',
+    })) as Pipeline;
+  } catch (err) {
+    console.warn('[localEmbedder] failed to load model:', (err as Error).message);
+    return null;
+  }
+}
+
+function getPipeline(): Promise<Pipeline | null> {
+  if (!pipelinePromise) pipelinePromise = loadPipeline();
+  return pipelinePromise;
+}
+
+/** Eagerly load the embedding model (call from app boot or worker preload). */
+export async function preloadLocalEmbedder(): Promise<boolean> {
+  const pipe = await getPipeline();
+  return pipe !== null;
+}
+
+function flattenEmbedding(data: number[], dims: number[]): number[] {
+  if (dims.length === 1) return Array.from(data);
+  const expected = dims.reduce((a, b) => a * b, 1);
+  if (expected !== data.length) return Array.from(data);
+  return Array.from(data);
+}
+
+/** Create a deterministic, offline embedder backed by Transformers.js. */
 export function createLocalEmbedder(): LocalEmbedder {
   return {
-    ready: false,
-    async embed(_texts: string[]): Promise<number[][] | null> {
-      return null;
+    ready: isEmbeddingRuntime(),
+    async embed(texts: string[]): Promise<number[][] | null> {
+      if (texts.length === 0) return [];
+      const pipe = await getPipeline();
+      if (!pipe) return null;
+
+      const out: number[][] = [];
+      const uncached: { text: string; index: number }[] = [];
+
+      for (let i = 0; i < texts.length; i++) {
+        const text = texts[i]!;
+        const h = await hashText(text);
+        const cached = cache.get(h);
+        if (cached) {
+          out[i] = cached;
+        } else {
+          uncached.push({ text, index: i });
+        }
+      }
+
+      for (let i = 0; i < uncached.length; i += MAX_BATCH) {
+        const batch = uncached.slice(i, i + MAX_BATCH);
+        const batchTexts = batch.map((b) => b.text);
+        const result = await pipe(batchTexts, { pooling: 'mean', normalize: true });
+        const flat = flattenEmbedding(Array.from(result.data), result.dims);
+        const dim = flat.length / batchTexts.length;
+        for (let j = 0; j < batch.length; j++) {
+          const embedding = flat.slice(j * dim, (j + 1) * dim);
+          const h = await hashText(batchTexts[j]!);
+          cache.set(h, embedding);
+          out[batch[j]!.index] = embedding;
+        }
+      }
+
+      return out;
     },
   };
 }

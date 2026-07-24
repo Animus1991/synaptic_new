@@ -4,6 +4,17 @@ import { inferSubject, rankKeyphrases, titleCasePhrase } from './contentAnalysis
 import type { GeneratedOutline } from './courseGenerator';
 import { buildGlossaryEntriesFromOutline } from './courseMerge';
 import { CONTENT_PIPELINE_VERSION } from './pipelineConstants';
+import { DEFAULT_COURSE_ICON_ID } from './uiIconRegistry';
+import { buildDocumentModelInWorker } from './documentModelWorkerClient';
+import {
+  mergeRecognitionSummaries,
+  recognitionSummaryFromSnapshot,
+  toDocumentModelSnapshot,
+  type DocumentModelSnapshot,
+  type RecognitionSummary,
+} from './documentModelSnapshot';
+import { applyQualityGatesToCourse } from './courseQualityGates';
+import { buildOutlinePreviewFromCourse } from './courseSourceQuality';
 
 /**
  * Derive candidate topic titles from the material itself — subject-agnostic.
@@ -63,7 +74,7 @@ export function buildCourseFromUpload(
   const topicLimit = sourceQuality ? Math.min(6, Math.max(1, sourceQuality.finalTopicCount)) : 6;
   const topics = (rawTopics.length > 0 ? rawTopics : [title]).slice(0, topicLimit);
 
-  return {
+  const draft: Course = {
     id: `c-upload-${Date.now()}`,
     title,
     description: qualityAwareDescription(
@@ -72,7 +83,7 @@ export function buildCourseFromUpload(
     ),
     subject: inferSubject(sourceText),
     color: ['#818cf8', '#22d3ee', '#2dd4bf', '#fb923c'][existingCount % 4]!,
-    icon: '📚',
+    icon: DEFAULT_COURSE_ICON_ID,
     totalLessons: Math.max(6, topics.length * 2),
     completedLessons: 0,
     mastery: 0,
@@ -96,7 +107,7 @@ export function buildCourseFromUpload(
       ...payload.files.map((f) => f.name),
       ...(payload.youtubeUrl ? [payload.youtubeUrl] : []),
     ],
-    status: 'ready',
+    status: 'generating',
     sourceMode: payload.sourceMode,
     conceptCount: topics.length * 4,
     glossaryCount: topics.length * 2,
@@ -104,6 +115,8 @@ export function buildCourseFromUpload(
     examDate: payload.examDate,
     ...(sourceQuality ? { sourceQuality } : {}),
   };
+  const outlinePreview = buildOutlinePreviewFromCourse(draft);
+  return applyQualityGatesToCourse(draft, outlinePreview, sourceText);
 }
 
 const COURSE_COLORS = ['#818cf8', '#22d3ee', '#2dd4bf', '#fb923c', '#f472b6', '#a78bfa'];
@@ -162,7 +175,7 @@ export function buildCourseFromOutline(
     ),
     subject: outline.subject,
     color: COURSE_COLORS[existingCount % COURSE_COLORS.length]!,
-    icon: '📚',
+    icon: DEFAULT_COURSE_ICON_ID,
     totalLessons: Math.max(6, outline.topics.length * 2),
     completedLessons: 0,
     mastery: 0,
@@ -174,7 +187,7 @@ export function buildCourseFromOutline(
       ...payload.files.map((f) => f.name),
       ...(payload.youtubeUrl ? [payload.youtubeUrl] : []),
     ],
-    status: 'ready',
+    status: 'generating',
     sourceMode: payload.sourceMode,
     conceptCount: totalConcepts,
     glossaryCount: glossary.length,
@@ -183,7 +196,11 @@ export function buildCourseFromOutline(
     ...(sourceQuality ? { sourceQuality } : {}),
   };
 
-  return { course, glossary };
+  const sourceText = payload.analyzedText ?? payload.pastedContent ?? '';
+  return {
+    course: applyQualityGatesToCourse(course, outline, sourceText),
+    glossary,
+  };
 }
 
 export async function readTextFromFiles(files: File[], settings?: UserSettings): Promise<string> {
@@ -212,7 +229,7 @@ export function uploadedFileMeta(
   topics?: string[],
   extractedText?: string,
   pageCount?: number,
-  ingest?: Pick<UploadedFile, 'ocrUsed' | 'ingestMethod' | 'ocrRegions'>,
+  ingest?: Pick<UploadedFile, 'ocrUsed' | 'ingestMethod' | 'ocrRegions' | 'pdfLayoutBlocks' | 'ocrModelsUsed' | 'thumbnailRef' | 'thumbnailStatus'>,
 ): UploadedFile {
   return {
     id: `file-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
@@ -231,6 +248,10 @@ export function uploadedFileMeta(
     ...(ingest?.ocrUsed !== undefined ? { ocrUsed: ingest.ocrUsed } : {}),
     ...(ingest?.ingestMethod ? { ingestMethod: ingest.ingestMethod } : {}),
     ...(ingest?.ocrRegions?.length ? { ocrRegions: ingest.ocrRegions } : {}),
+    ...(ingest?.ocrModelsUsed?.length ? { ocrModelsUsed: ingest.ocrModelsUsed } : {}),
+    ...(ingest?.pdfLayoutBlocks?.length ? { pdfLayoutBlocks: ingest.pdfLayoutBlocks } : {}),
+    ...(ingest?.thumbnailRef ? { thumbnailRef: ingest.thumbnailRef } : {}),
+    ...(ingest?.thumbnailStatus ? { thumbnailStatus: ingest.thumbnailStatus } : {}),
   };
 }
 
@@ -245,6 +266,83 @@ function inferFileType(name: string): UploadedFile['type'] {
     case 'json': case 'zip': return 'txt';
     case 'csv': return 'csv';
     case 'py': case 'js': case 'ts': return 'code';
+    case 'mp3': case 'wav': case 'm4a': case 'ogg': case 'flac': case 'aac': return 'audio';
+    case 'mp4': case 'webm': case 'mov': case 'mkv': case 'ogv': return 'video';
+    case 'jpg': case 'jpeg': case 'png': case 'gif': case 'webp': case 'bmp': case 'svg': return 'image';
     default: return 'pdf';
   }
+}
+
+export type DocumentRecognitionResult = {
+  byFileId: Map<string, DocumentModelSnapshot>;
+  courseSummary?: RecognitionSummary;
+};
+
+/**
+ * Build DocumentModel snapshots for each uploaded file (off-thread when available)
+ * plus an optional combined-course summary from merged source text.
+ */
+export async function recognizeDocumentModelsForUpload(
+  files: UploadedFile[],
+  combinedText: string,
+  language: 'en' | 'el' = 'en',
+): Promise<DocumentRecognitionResult> {
+  const byFileId = new Map<string, DocumentModelSnapshot>();
+  const summaries: RecognitionSummary[] = [];
+
+  const buildOne = async (file: UploadedFile, text: string) => {
+    const trimmed = text.trim();
+    if (trimmed.length < 40) return;
+    const model = await buildDocumentModelInWorker({
+      text: trimmed,
+      file: {
+        id: file.id,
+        name: file.name,
+        type: file.type,
+        size: file.size,
+        detectedLanguage: file.detectedLanguage ?? language,
+      },
+      options: {
+        language: file.detectedLanguage ?? language,
+        ...(file.pdfLayoutBlocks?.length ? { pdfLayoutBlocks: file.pdfLayoutBlocks } : {}),
+      },
+    });
+    const snapshot = toDocumentModelSnapshot(model);
+    byFileId.set(file.id, snapshot);
+    summaries.push(recognitionSummaryFromSnapshot(snapshot));
+  };
+
+  await Promise.all(
+    files.map((file) => buildOne(file, file.extractedText?.trim() ? file.extractedText : combinedText)),
+  );
+
+  if (combinedText.trim().length >= 80 && files.length > 1) {
+    const combinedModel = await buildDocumentModelInWorker({
+      text: combinedText,
+      file: {
+        id: `combined-${files[0]?.id ?? 'upload'}`,
+        name: files.map((f) => f.name).join(' + '),
+        type: 'txt',
+        size: combinedText.length,
+        detectedLanguage: language,
+      },
+      options: { language },
+    });
+    summaries.push(recognitionSummaryFromSnapshot(toDocumentModelSnapshot(combinedModel)));
+  }
+
+  return {
+    byFileId,
+    courseSummary: mergeRecognitionSummaries(summaries),
+  };
+}
+
+export function attachDocumentSnapshots(
+  files: UploadedFile[],
+  recognition: DocumentRecognitionResult,
+): UploadedFile[] {
+  return files.map((file) => {
+    const snapshot = recognition.byFileId.get(file.id);
+    return snapshot ? { ...file, documentModelSnapshot: snapshot } : file;
+  });
 }

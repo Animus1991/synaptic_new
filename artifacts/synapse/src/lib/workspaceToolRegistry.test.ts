@@ -35,4 +35,9 @@ describe('workspaceToolRegistry', () => {
     expect(PRIMARY_WORKSPACE_TOOLS).toContain('quiz');
     expect(PRIMARY_WORKSPACE_TOOLS.length).toBeLessThan(WORKSPACE_TOOLS.length);
   });
+
+  it('OPT-K12 keeps a unique icon component per tool', () => {
+    const icons = WORKSPACE_TOOLS.map((t) => t.icon);
+    expect(new Set(icons).size).toBe(icons.length);
+  });
 });

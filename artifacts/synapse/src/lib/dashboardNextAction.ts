@@ -1,12 +1,14 @@
 /**
  * Dashboard next-action projection when no active workspace session (§2.3).
+ * Delegates scoring to unifiedAdaptiveScheduler.recommendDailyPlan().
  */
 
-import type { DashboardStats, LearnerModel, Task } from '../types';
+import type { DashboardStats, LearnerModel, Task, ActivityItem } from '../types';
 import type { Lang } from './i18n';
-import { findPendingTask } from './taskFlows';
+import type { BetaMastery } from './pedagogy';
+import { recommendDailyPlan } from './unifiedAdaptiveScheduler';
+import type { WorkspaceToolId } from './taskFlows';
 import type { WorkspaceLiveSync } from './workspaceStoreSpine';
-import { workspaceLiveIsStale } from './workspaceStoreSpine';
 
 export type DashboardNextActionKind =
   | 'weak-area'
@@ -15,96 +17,101 @@ export type DashboardNextActionKind =
   | 'exam-prep'
   | 'start-session';
 
+export type SimulatorDeepTab = 'exam-prep';
+
 export type DashboardNextAction = {
   kind: DashboardNextActionKind;
   label: string;
   reason: string;
   concept?: string;
   taskId?: string;
+  courseId?: string;
+  topicId?: string;
+  workspaceTool?: WorkspaceToolId;
+  simulatorTab?: SimulatorDeepTab;
 };
 
 export function selectDashboardNextAction(opts: {
   lang: Lang;
   learnerModel: LearnerModel;
+  betaMastery?: BetaMastery[];
   tasks: Task[];
   stats: DashboardStats;
   workspaceLive?: WorkspaceLiveSync | null;
   daysToExam?: number | null;
+  activities?: ActivityItem[];
 }): DashboardNextAction | null {
-  const { lang, learnerModel, tasks, stats, workspaceLive, daysToExam = null } = opts;
-  const isEl = lang === 'el';
+  return recommendDailyPlan({
+    lang: opts.lang,
+    learnerModel: opts.learnerModel,
+    betaMastery: opts.betaMastery ?? [],
+    tasks: opts.tasks,
+    stats: opts.stats,
+    workspaceLive: opts.workspaceLive,
+    daysToExam: opts.daysToExam ?? null,
+    activities: opts.activities ?? [],
+  }).dashboardAction;
+}
 
-  if (workspaceLive && !workspaceLiveIsStale(workspaceLive) && workspaceLive.nextAction) {
-    return null;
-  }
+export type WorkspacePracticeLaunch = {
+  tool: WorkspaceToolId;
+  concept?: string;
+  courseId?: string;
+  simulatorTab?: SimulatorDeepTab;
+};
 
-  if (daysToExam !== null && daysToExam <= 14) {
-    const examTask = findPendingTask(tasks, (t) => t.type === 'exam-prep');
+export type DashboardNextActionHandlers = {
+  onStartTask?: (taskId: string) => void;
+  onNavigateTasks?: () => void;
+  onOpenExamTimer?: () => void;
+  onOpenWorkspace?: () => void;
+  onFocusWeakArea?: (concept: string) => void;
+  onStartSession?: () => void;
+  onOpenWorkspacePractice?: (launch: WorkspacePracticeLaunch) => void;
+};
+
+export function executeDashboardNextAction(
+  action: DashboardNextAction,
+  handlers: DashboardNextActionHandlers,
+): void {
+  const launchFromAction = (): WorkspacePracticeLaunch | null => {
+    if (!action.workspaceTool) return null;
     return {
-      kind: 'exam-prep',
-      label: isEl ? 'Προετοιμασία εξέτασης' : 'Exam prep',
-      reason: daysToExam === 0
-        ? (isEl ? 'Η εξέταση είναι σήμερα — τελευταία προετοιμασία' : 'Exam is today — final prep')
-        : (isEl
-          ? `${daysToExam} ημέρ${daysToExam === 1 ? 'α' : 'ες'} μέχρι την εξέταση`
-          : `${daysToExam} day${daysToExam === 1 ? '' : 's'} until exam`),
-      taskId: examTask?.id,
+      tool: action.workspaceTool,
+      concept: action.concept,
+      courseId: action.courseId,
+      simulatorTab: action.simulatorTab,
     };
-  }
+  };
 
-  const critical = tasks.find(
-    (t) => t.status === 'pending' && (t.priority === 'critical' || t.priority === 'high'),
-  );
-  if (critical) {
-    return {
-      kind: 'critical-task',
-      label: isEl ? 'Έναρξη προτεραιότητας' : 'Start priority task',
-      reason: isEl ? `Εκκρεμεί: ${critical.title}` : `Pending: ${critical.title}`,
-      taskId: critical.id,
-    };
+  switch (action.kind) {
+    case 'critical-task':
+      if (action.taskId) handlers.onStartTask?.(action.taskId);
+      else handlers.onNavigateTasks?.();
+      break;
+    case 'review-due': {
+      const launch = launchFromAction();
+      if (launch && handlers.onOpenWorkspacePractice) handlers.onOpenWorkspacePractice(launch);
+      else handlers.onNavigateTasks?.();
+      break;
+    }
+    case 'exam-prep':
+      if (action.taskId) handlers.onStartTask?.(action.taskId);
+      else {
+        const launch = launchFromAction();
+        if (launch && handlers.onOpenWorkspacePractice) handlers.onOpenWorkspacePractice(launch);
+        else handlers.onOpenExamTimer?.() ?? handlers.onOpenWorkspace?.();
+      }
+      break;
+    case 'weak-area': {
+      const launch = launchFromAction();
+      if (launch && handlers.onOpenWorkspacePractice) handlers.onOpenWorkspacePractice(launch);
+      else if (action.concept) handlers.onFocusWeakArea?.(action.concept);
+      else handlers.onOpenWorkspace?.();
+      break;
+    }
+    case 'start-session':
+      handlers.onStartSession?.() ?? handlers.onNavigateTasks?.();
+      break;
   }
-
-  if (stats.reviewsDue > 0) {
-    return {
-      kind: 'review-due',
-      label: isEl ? 'Επανάληψη' : 'Reviews due',
-      reason: isEl
-        ? `${stats.reviewsDue} επαναλήψεις για σήμερα`
-        : `${stats.reviewsDue} reviews due today`,
-    };
-  }
-
-  const weakest = [...learnerModel.weakAreas].sort((a, b) => a.mastery - b.mastery)[0];
-  if (weakest && weakest.mastery < 60) {
-    return {
-      kind: 'weak-area',
-      label: isEl ? 'Εστίαση αδύναμης έννοιας' : 'Focus weak concept',
-      reason: isEl
-        ? `«${weakest.concept}» — ${weakest.mastery}% κατάκτηση`
-        : `"${weakest.concept}" — ${weakest.mastery}% mastery`,
-      concept: weakest.concept,
-    };
-  }
-
-  const openMisconception = learnerModel.misconceptions.find((m) => !m.corrected);
-  if (openMisconception) {
-    return {
-      kind: 'weak-area',
-      label: isEl ? 'Διόρθωση παρανόησης' : 'Fix misconception',
-      reason: openMisconception.description,
-      concept: openMisconception.concept,
-    };
-  }
-
-  if (learnerModel.totalSessions === 0) {
-    return {
-      kind: 'start-session',
-      label: isEl ? 'Ξεκίνα συνεδρία' : 'Start a session',
-      reason: isEl
-        ? 'Ξεκίνα με μια σύντομη συγκεντρωμένη συνεδρία μελέτης'
-        : 'Begin with a short focused study session',
-    };
-  }
-
-  return null;
 }

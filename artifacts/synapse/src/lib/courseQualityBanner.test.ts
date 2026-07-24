@@ -77,6 +77,7 @@ describe('courseQualityBanner', () => {
     expect(decision.show).toBe(true);
     expect(decision.score).toBe(37);
     expect(decision.showMigrationBanner).toBe(false);
+    expect(decision.showPre24Greek).toBe(false);
   });
 
   it('hides banner for acceptable quality scores', () => {
@@ -106,6 +107,26 @@ describe('courseQualityBanner', () => {
     });
     expect(decision.showMigrationBanner).toBe(true);
     expect(decision.show).toBe(false);
+    expect(decision.showPre24Greek).toBe(false);
+  });
+
+  it('flags pre-2.4 Greek corruption for TOOL-RD-03', () => {
+    const garbled = {
+      ...currentFile,
+      pipelineVersion: '2.3.0',
+      extractedText: 'Δ ι α ν ο μ ή   ε ι σ ο δ ή μ α τ ο ς και άλλα spaced glyphs',
+    };
+    const course = {
+      ...baseCourse,
+      pipelineMeta: { version: '2.3.0', generatedAt: '2026-01-01', outlineSource: 'lexical' as const },
+    };
+    const decision = shouldShowCourseQualityBanner({
+      course,
+      uploadedFiles: [garbled],
+      hasReuploadHandler: true,
+    });
+    expect(decision.showPre24Greek).toBe(true);
+    expect(decision.showMigrationBanner).toBe(true);
   });
 
   it('builds stable dismiss keys per course', () => {

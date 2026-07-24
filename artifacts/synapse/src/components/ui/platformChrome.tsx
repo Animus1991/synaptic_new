@@ -1,0 +1,479 @@
+import { type KeyboardEvent, type ReactNode } from 'react';
+import { motion } from 'framer-motion';
+import type { LucideIcon } from '@/lib/lucide-shim';
+import { cn } from '../../utils/cn';
+import type { UserSettings } from '../../types';
+import { t, type Lang } from '../../lib/i18n';
+import { getAgentContent } from '../../lib/agentContent';
+import { BLUEPRINT_MOTION, useBlueprintTheme } from '../../lib/useBlueprintTheme';
+import { OverflowChipRow } from './OverflowChipRow';
+import { AllCapsLabel } from './AllCapsLabel';
+
+export { BlueprintSurface } from './BlueprintSurface';
+
+/** In-page section chrome — Option-B eyebrow / title / subtitle (distinct from PageHeader). */
+export function SectionHeader({
+  eyebrow,
+  title,
+  subtitle,
+  className,
+  animate = true,
+}: {
+  eyebrow?: ReactNode;
+  title: ReactNode;
+  subtitle?: ReactNode;
+  className?: string;
+  animate?: boolean;
+}) {
+  const isBlueprint = useBlueprintTheme();
+  const body = (
+    <div className={cn('ux-section-header space-y-1', className)}>
+      {eyebrow ? (
+        <p className="ux-section-eyebrow">
+          <AllCapsLabel>{eyebrow}</AllCapsLabel>
+        </p>
+      ) : null}
+      <h2 className="font-semibold tracking-tight text-text-primary">{title}</h2>
+      {subtitle ? <p className="max-w-2xl text-sm leading-5 text-text-secondary">{subtitle}</p> : null}
+    </div>
+  );
+  if (!animate) return body;
+  const motionProps = isBlueprint
+    ? { ...BLUEPRINT_MOTION, transition: { ...BLUEPRINT_MOTION.transition, delay: 0 } }
+    : { initial: { opacity: 0, y: 10 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.25 } };
+  return (
+    <motion.div {...motionProps}>
+      {body}
+    </motion.div>
+  );
+}
+
+export type UxCalloutVariant = 'trust' | 'danger' | 'next-action' | 'info' | 'warn';
+
+const CALLOUT_CLASS: Record<UxCalloutVariant, string> = {
+  trust: 'ux-callout-trust',
+  danger: 'ux-callout-danger',
+  'next-action': 'ux-callout-next',
+  info: 'ux-callout-info',
+  warn: 'ux-callout-warn',
+};
+
+/** Semantic alert / callout — danger zone, next best action, trust notes. */
+export function UxCallout({
+  variant,
+  title,
+  children,
+  icon,
+  action,
+  className,
+  testId,
+  dataTone,
+}: {
+  variant: UxCalloutVariant;
+  title?: ReactNode;
+  children: ReactNode;
+  icon?: ReactNode;
+  action?: ReactNode;
+  className?: string;
+  testId?: string;
+  /** OPT-K17 — urgency taxonomy for Minimal left-edge signal */
+  dataTone?: string;
+}) {
+  return (
+    <div
+      className={cn('ux-callout', CALLOUT_CLASS[variant], className)}
+      data-testid={testId}
+      data-tone={dataTone}
+      role="status"
+    >
+      <div className="flex items-start gap-3 min-w-0 flex-1">
+        {icon ? <span className="mt-0.5 shrink-0 [&>svg]:h-5 [&>svg]:w-5" aria-hidden>{icon}</span> : null}
+        <div className="min-w-0">
+          {title ? <p className="ux-callout-title">{title}</p> : null}
+          <div className="text-sm leading-6">{children}</div>
+        </div>
+      </div>
+      {action ? <div className="shrink-0 self-center sm:self-start">{action}</div> : null}
+    </div>
+  );
+}
+
+/** Source-trust pill row — mirrors Option-B source viewer badges. */
+export function TrustBadgeRow({
+  sourceMode,
+  lang,
+  className,
+}: {
+  sourceMode: UserSettings['sourceMode'];
+  lang: Lang;
+  className?: string;
+}) {
+  const { ui, sourceModes } = getAgentContent(lang);
+  const active = sourceModes.find((m) => m.id === sourceMode);
+
+  return (
+    <div className={cn('flex flex-wrap gap-2', className)} data-testid="trust-badge-row">
+      <span className="ux-trust-badge ux-trust-badge-grounded">{ui.badgeSourceGrounded}</span>
+      {(sourceMode === 'strict' || sourceMode === 'notes-only') && (
+        <span className="ux-trust-badge">{active?.label ?? ui.sourceOn}</span>
+      )}
+      {sourceMode === 'enriched' && (
+        <span className="ux-trust-badge ux-trust-badge-enrichment">{ui.badgeEnrichment}</span>
+      )}
+    </div>
+  );
+}
+
+/** Session launcher card — Option-B left-aligned duration tag + detail. */
+export function SessionLauncherCard({
+  label,
+  desc,
+  durationTag,
+  taskHint,
+  icon: Icon,
+  active,
+  disabled,
+  recommended,
+  recommendedLabel,
+  onClick,
+  testId,
+}: {
+  label: string;
+  desc: string;
+  durationTag: string;
+  taskHint?: string;
+  icon: LucideIcon;
+  active?: boolean;
+  disabled?: boolean;
+  recommended?: boolean;
+  recommendedLabel?: string;
+  onClick?: () => void;
+  testId?: string;
+}) {
+  return (
+    <button
+      type="button"
+      data-testid={testId}
+      onClick={onClick}
+      disabled={disabled}
+      className={cn(
+        'ux-session-card relative',
+        active && 'ux-session-card-active',
+        recommended && !active && 'ring-1 ring-brand-500/35',
+        disabled && 'opacity-50 cursor-not-allowed',
+      )}
+    >
+      {recommended && recommendedLabel ? (
+        <span
+          className="absolute -top-1.5 right-2 rounded-md border border-brand-500/30 bg-brand-600/15 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-brand-700"
+          data-testid="session-recommended-badge"
+        >
+          <AllCapsLabel>{recommendedLabel}</AllCapsLabel>
+        </span>
+      ) : null}
+      <span className="ux-session-card-icon">
+        <Icon className="h-4 w-4" aria-hidden />
+      </span>
+      <span className="min-w-0 flex-1 text-left">
+        <span className="block text-sm font-semibold text-text-primary">{label}</span>
+        <span className="mt-1 block text-[10px] uppercase tracking-[0.08em] text-text-muted">
+          <AllCapsLabel>{durationTag}</AllCapsLabel>
+        </span>
+        <span className="mt-1.5 block text-xs leading-5 text-text-secondary">{desc}</span>
+        {taskHint ? (
+          <span className="mt-1 block text-[10px] text-text-tertiary">{taskHint}</span>
+        ) : null}
+      </span>
+    </button>
+  );
+}
+
+/** Subtle hero radial glow — Dashboard / Tasks page headers. */
+export function HeroGlow({
+  children,
+  className,
+  /** When true, skip decorative orbs and top dead-space (hero band pages). */
+  flush,
+}: {
+  children: ReactNode;
+  className?: string;
+  flush?: boolean;
+}) {
+  return (
+    <div className={cn('platform-hero-glow', flush && 'platform-hero-glow-flush', className)}>
+      {!flush && <div className="platform-hero-glow-orbs" aria-hidden />}
+      {children}
+    </div>
+  );
+}
+
+export type DescriptiveTabItem<T extends string = string> = {
+  id: T;
+  label: string;
+  summary: string;
+  count?: number;
+};
+
+/** Option-B sticky section tabs — title + summary per tab (progressive disclosure). */
+export function DescriptiveStickyTabBar<T extends string>({
+  items,
+  activeId,
+  onChange,
+  className,
+  testIdPrefix = 'descriptive-tab',
+  panelIdPrefix,
+  trailing,
+}: {
+  items: DescriptiveTabItem<T>[];
+  activeId: T;
+  onChange: (id: T) => void;
+  className?: string;
+  testIdPrefix?: string;
+  /** When set, tabs expose `aria-controls` pointing at `{panelIdPrefix}-{id}` panels. */
+  panelIdPrefix?: string;
+  /** Optional trailing control (e.g. Tasks filter icon) — kept outside the scrollable tablist. */
+  trailing?: ReactNode;
+}) {
+  const focusTabAt = (index: number) => {
+    const item = items[index];
+    if (!item) return;
+    onChange(item.id);
+    requestAnimationFrame(() => {
+      document.getElementById(`${testIdPrefix}-${item.id}`)?.focus();
+    });
+  };
+
+  const onTabKeyDown = (event: KeyboardEvent<HTMLButtonElement>, index: number) => {
+    if (items.length <= 1) return;
+    if (event.key === 'ArrowRight') {
+      event.preventDefault();
+      focusTabAt((index + 1) % items.length);
+    } else if (event.key === 'ArrowLeft') {
+      event.preventDefault();
+      focusTabAt((index - 1 + items.length) % items.length);
+    } else if (event.key === 'Home') {
+      event.preventDefault();
+      focusTabAt(0);
+    } else if (event.key === 'End') {
+      event.preventDefault();
+      focusTabAt(items.length - 1);
+    }
+  };
+
+  return (
+    <div className={cn('descriptive-sticky-tabs-shell', className)}>
+      <div
+        className="descriptive-sticky-tabs"
+        role="tablist"
+        aria-label="Section tabs"
+      >
+        {items.map((item, index) => {
+          const active = item.id === activeId;
+          const tabId = `${testIdPrefix}-${item.id}`;
+          const panelId = panelIdPrefix ? `${panelIdPrefix}-${item.id}` : undefined;
+          return (
+            <button
+              key={item.id}
+              id={tabId}
+              type="button"
+              role="tab"
+              aria-selected={active}
+              aria-controls={panelId}
+              tabIndex={active ? 0 : -1}
+              data-testid={tabId}
+              onClick={() => onChange(item.id)}
+              onKeyDown={(event) => onTabKeyDown(event, index)}
+              className={cn('descriptive-sticky-tab', active && 'descriptive-sticky-tab-active')}
+            >
+              <span className="descriptive-sticky-tab-label">{item.label}</span>
+              <span className="descriptive-sticky-tab-summary">{item.summary}</span>
+              {item.count != null && item.count > 0 && (
+                <span className="descriptive-sticky-tab-count" aria-hidden>
+                  {item.count}
+                </span>
+              )}
+            </button>
+          );
+        })}
+      </div>
+      {trailing ? (
+        <div className="descriptive-sticky-tabs-trailing shrink-0">{trailing}</div>
+      ) : null}
+    </div>
+  );
+}
+
+/** Nested topic / prerequisite rhythm — Option-B Library InfoStack.
+ *  When onItemClick / onSecondaryClick are provided, entries render as
+ *  keyboard-accessible buttons that deep-link into the owning surface.
+ *  OPT-L1 — full-width responsive grid; no narrow max-width trap. */
+export function InfoStack({
+  title,
+  items,
+  secondary,
+  secondaryLabel,
+  className,
+  onItemClick,
+  onSecondaryClick,
+  itemHint,
+  secondaryHint,
+  /** OPT-K14 / L1 — densify primary items; remainder via +N (all still reachable). */
+  maxVisibleItems = 6,
+  /** OPT-K14 / L1 — densify secondary pills; remainder via +N. */
+  maxVisibleSecondary = 8,
+}: {
+  title: string;
+  items: string[];
+  secondary: string[];
+  secondaryLabel: string;
+  className?: string;
+  onItemClick?: (item: string) => void;
+  onSecondaryClick?: (item: string) => void;
+  itemHint?: string;
+  secondaryHint?: string;
+  maxVisibleItems?: number;
+  maxVisibleSecondary?: number;
+}) {
+  if (items.length === 0 && secondary.length === 0) return null;
+  return (
+    <div className={cn('info-stack', className)} data-testid="library-info-stack">
+      <div className="info-stack-title">{title}</div>
+      {items.length > 0 && (
+        <OverflowChipRow
+          testId="info-stack-items"
+          className="info-stack-items"
+          chipClassName={cn(
+            'info-stack-item !max-w-none text-xs sm:text-sm',
+            onItemClick && 'info-stack-item--interactive',
+          )}
+          moreClassName="info-stack-item info-stack-more"
+          maxVisible={maxVisibleItems}
+          items={items.map((item) => ({
+            key: item,
+            label: item,
+            title: itemHint ?? item,
+            onClick: onItemClick ? () => onItemClick(item) : undefined,
+          }))}
+        />
+      )}
+      {secondary.length > 0 && (
+        <div className="info-stack-secondary">
+          <p className="info-stack-secondary-eyebrow"><AllCapsLabel>{secondaryLabel}</AllCapsLabel></p>
+          <OverflowChipRow
+            testId="info-stack-pills"
+            className="info-stack-pills"
+            chipClassName={cn(
+              'info-stack-pill !max-w-[14rem] text-xs',
+              onSecondaryClick && 'info-stack-pill--interactive',
+            )}
+            moreClassName="info-stack-pill info-stack-more"
+            maxVisible={maxVisibleSecondary}
+            items={secondary.map((item) => ({
+              key: item,
+              label: item,
+              title: secondaryHint ?? item,
+              onClick: onSecondaryClick ? () => onSecondaryClick(item) : undefined,
+            }))}
+          />
+        </div>
+      )}
+    </div>
+  );
+}
+
+/** Option-B three-bar brand glyph — cyan / violet / emerald. */
+export function SynapseBrandGlyph({ className }: { className?: string }) {
+  return (
+    <div className={cn('synapse-brand-glyph', className)} aria-hidden>
+      <span className="synapse-brand-glyph-bar synapse-brand-glyph-bar-cyan" />
+      <span className="synapse-brand-glyph-bar synapse-brand-glyph-bar-violet" />
+      <span className="synapse-brand-glyph-bar synapse-brand-glyph-bar-emerald" />
+    </div>
+  );
+}
+
+/** Shell header trust pills — Source grounded, PWA, offline reviews (Option-B). */
+export function HeaderTrustBadgeRow({ lang, className }: { lang: Lang; className?: string }) {
+  return (
+    <div
+      className={cn('header-trust-badges flex flex-wrap items-center gap-2', className)}
+      data-testid="header-trust-badges"
+    >
+      <span className="ux-trust-badge ux-trust-badge-grounded">{t('shellTrustBadgeSource', lang)}</span>
+      <span className="ux-trust-badge ux-trust-badge-pwa">{t('shellTrustBadgePwa', lang)}</span>
+      <span className="ux-trust-badge ux-trust-badge-offline">{t('shellTrustBadgeOffline', lang)}</span>
+    </div>
+  );
+}
+
+/** Compact paired alert — Option-B amber / violet MiniAlert. */
+export function MiniAlert({
+  title,
+  body,
+  tone,
+  className,
+  actionLabel,
+  onAction,
+}: {
+  title: string;
+  body: string;
+  tone: 'amber' | 'violet';
+  className?: string;
+  /** OPT-L3 — optional deep-link (upload / reprocess). */
+  actionLabel?: string;
+  onAction?: () => void;
+}) {
+  return (
+    <div className={cn('mini-alert', tone === 'amber' ? 'mini-alert-amber' : 'mini-alert-violet', className)}>
+      <div className="text-sm font-semibold">{title}</div>
+      <div className="mt-2 text-sm leading-6">{body}</div>
+      {actionLabel && onAction && (
+        <button
+          type="button"
+          onClick={onAction}
+          data-testid="mini-alert-action"
+          className="mt-2 text-sm font-semibold text-brand-800 hover:underline"
+        >
+          {actionLabel}
+        </button>
+      )}
+    </div>
+  );
+}
+
+/** Compact EN/ΕΛ toggle for shell header — Option-B segmented pill. */
+export function HeaderLangPill({
+  lang,
+  onChange,
+  className,
+}: {
+  lang: Lang;
+  onChange: (lang: Lang) => void;
+  className?: string;
+}) {
+  return (
+    <div
+      className={cn('platform-lang-pill', className)}
+      role="group"
+      aria-label="Language"
+      data-testid="header-lang-pill"
+    >
+      <button
+        type="button"
+        className={cn('platform-lang-pill-btn', lang === 'en' && 'platform-lang-pill-btn-active')}
+        aria-pressed={lang === 'en'}
+        onClick={() => onChange('en')}
+      >
+        EN
+      </button>
+      <button
+        type="button"
+        className={cn('platform-lang-pill-btn', lang === 'el' && 'platform-lang-pill-btn-active')}
+        aria-pressed={lang === 'el'}
+        onClick={() => onChange('el')}
+      >
+        ΕΛ
+      </button>
+    </div>
+  );
+}

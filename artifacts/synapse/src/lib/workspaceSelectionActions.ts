@@ -2,7 +2,7 @@
  * §13.5 Unified selection-action contract — same affordances in every tool surface.
  */
 
-import type { Lang } from './i18n';
+import { t, type I18nKey, type Lang } from './i18n';
 import type { WorkspaceToolId } from './taskFlows';
 
 export type WorkspaceSelectionActionId =
@@ -10,6 +10,7 @@ export type WorkspaceSelectionActionId =
   | 'ask-agent'
   | 'ask-ai-inline'
   | 'make-card'
+  | 'make-occlusion'
   | 'quiz'
   | 'compare'
   | 'debate'
@@ -33,37 +34,52 @@ export type SelectionActionDef = {
   hideOnReader?: boolean;
   /** Hide when already on Quiz and action is quiz. */
   hideOnQuiz?: boolean;
+  /** Only shown in Reader when OCR/heuristic regions match selection. */
+  readerOcclusionOnly?: boolean;
 };
 
-const EN: Record<WorkspaceSelectionActionId, Omit<SelectionActionDef, 'id'>> = {
-  annotate: { label: 'Annotate', hint: 'Highlight on source text' },
-  'ask-agent': { label: 'Ask Agent', hint: 'Contextual tutor for this passage' },
-  'ask-ai-inline': { label: 'Ask AI', hint: 'Quick inline AI answer — stays in Reader' },
-  'make-card': { label: 'Make card', hint: 'Add to Leitner deck' },
-  quiz: { label: 'Quiz', hint: 'Test this passage', hideOnQuiz: true },
-  compare: { label: 'Compare', hint: 'Side-by-side with related concept' },
-  debate: { label: 'Debate', hint: 'Argument map for this claim' },
-  scratchpad: { label: 'Scratchpad', hint: 'Draft notes or formulas' },
-  'open-reader': { label: 'Open in Reader', hint: 'Jump to source passage', hideOnReader: true },
+export type SelectionActionOptions = {
+  /** Show make-occlusion when selection maps to an OCR bbox. */
+  occlusionAvailable?: boolean;
+  /** Show ask-ai-inline (Reader only) when the LLM proxy is reachable. */
+  askAiInlineAvailable?: boolean;
 };
 
-const EL: Record<WorkspaceSelectionActionId, Omit<SelectionActionDef, 'id'>> = {
-  annotate: { label: 'Επισήμανση', hint: 'Επισήμανση στο κείμενο πηγής' },
-  'ask-agent': { label: 'Ρώτα Agent', hint: 'Tutor για αυτό το απόσπασμα' },
-  'ask-ai-inline': { label: 'Ρώτα AI', hint: 'Γρήγορη AI απάντηση — μένει στο Reader' },
-  'make-card': { label: 'Κάρτα', hint: 'Προσθήκη στο Leitner' },
-  quiz: { label: 'Κουίζ', hint: 'Έλεγχος για αυτό το απόσπασμα', hideOnQuiz: true },
-  compare: { label: 'Σύγκριση', hint: 'Παράλληλα με σχετική έννοια' },
-  debate: { label: 'Συζήτηση', hint: 'Χάρτης επιχειρήματος' },
-  scratchpad: { label: 'Πρόχειρο', hint: 'Πρόχειρες σημειώσεις' },
-  'open-reader': { label: 'Άνοιγμα στο Reader', hint: 'Μετάβαση στην πηγή', hideOnReader: true },
+type ActionMeta = {
+  labelKey: I18nKey;
+  hintKey: I18nKey;
+  hideOnReader?: boolean;
+  hideOnQuiz?: boolean;
+  readerOcclusionOnly?: boolean;
+};
+
+const ACTION_META: Record<WorkspaceSelectionActionId, ActionMeta> = {
+  annotate: { labelKey: 'selectionActionAnnotateLabel', hintKey: 'selectionActionAnnotateHint' },
+  'ask-agent': { labelKey: 'selectionActionAskAgentLabel', hintKey: 'selectionActionAskAgentHint' },
+  'ask-ai-inline': { labelKey: 'selectionActionAskAiInlineLabel', hintKey: 'selectionActionAskAiInlineHint' },
+  'make-card': { labelKey: 'selectionActionMakeCardLabel', hintKey: 'selectionActionMakeCardHint' },
+  'make-occlusion': {
+    labelKey: 'selectionActionMakeOcclusionLabel',
+    hintKey: 'selectionActionMakeOcclusionHint',
+    readerOcclusionOnly: true,
+  },
+  quiz: { labelKey: 'selectionActionQuizLabel', hintKey: 'selectionActionQuizHint', hideOnQuiz: true },
+  compare: { labelKey: 'selectionActionCompareLabel', hintKey: 'selectionActionCompareHint' },
+  debate: { labelKey: 'selectionActionDebateLabel', hintKey: 'selectionActionDebateHint' },
+  scratchpad: { labelKey: 'selectionActionScratchpadLabel', hintKey: 'selectionActionScratchpadHint' },
+  'open-reader': {
+    labelKey: 'selectionActionOpenReaderLabel',
+    hintKey: 'selectionActionOpenReaderHint',
+    hideOnReader: true,
+  },
 };
 
 export const SELECTION_ACTION_ORDER: WorkspaceSelectionActionId[] = [
   'annotate',
-  'ask-ai-inline',
   'ask-agent',
+  'ask-ai-inline',
   'make-card',
+  'make-occlusion',
   'quiz',
   'compare',
   'debate',
@@ -71,16 +87,35 @@ export const SELECTION_ACTION_ORDER: WorkspaceSelectionActionId[] = [
   'open-reader',
 ];
 
+/** Reader-only actions excluded from §13.5 parity on other tools. */
+export const READER_ONLY_SELECTION_ACTIONS = new Set<WorkspaceSelectionActionId>(['make-occlusion', 'ask-ai-inline']);
+
 export function getSelectionActionDefs(
   lang: Lang,
   originTool: WorkspaceToolId,
+  options?: SelectionActionOptions,
 ): SelectionActionDef[] {
-  const table = lang === 'el' ? EL : EN;
   return SELECTION_ACTION_ORDER
-    .map((id) => ({ id, ...table[id] }))
+    .map((id) => {
+      const meta = ACTION_META[id];
+      return {
+        id,
+        label: t(meta.labelKey, lang),
+        hint: t(meta.hintKey, lang),
+        hideOnReader: meta.hideOnReader,
+        hideOnQuiz: meta.hideOnQuiz,
+        readerOcclusionOnly: meta.readerOcclusionOnly,
+      };
+    })
     .filter((def) => {
       if (originTool === 'reader' && def.hideOnReader) return false;
       if (originTool === 'quiz' && def.hideOnQuiz) return false;
+      if (originTool !== 'reader' && READER_ONLY_SELECTION_ACTIONS.has(def.id)) return false;
+      if (def.readerOcclusionOnly) {
+        if (originTool !== 'reader') return false;
+        if (!options?.occlusionAvailable) return false;
+      }
+      if (def.id === 'ask-ai-inline' && !options?.askAiInlineAvailable) return false;
       return true;
     });
 }
@@ -93,24 +128,29 @@ export function buildSelectionAgentPrompt(
 ): string {
   const excerpt = text.trim().slice(0, 600);
   const section = sectionLabel?.trim() || concept;
-  if (lang === 'el') {
-    return `Εξήγησε από τις σημειώσεις μου (ενότητα «${section}», έννοια: ${concept}):\n\n«${excerpt}»`;
-  }
-  return `Explain this from my notes (section "${section}", concept: ${concept}):\n\n"${excerpt}"`;
+  return t('selectionAgentPrompt', lang)
+    .replace('{section}', section)
+    .replace('{concept}', concept)
+    .replace('{excerpt}', excerpt);
 }
 
 export function buildSelectionFlashcard(
   text: string,
   concept: string,
   glossaryDefinition?: string,
-): { front: string; back: string } {
+): { front: string; back: string; cardType: 'definition' | 'term' } {
   const front = text.trim().slice(0, 120);
   const back = glossaryDefinition?.trim() || concept;
-  return { front, back };
+  return {
+    front,
+    back,
+    cardType: glossaryDefinition?.trim() ? 'definition' : 'term',
+  };
 }
 
 export function selectionExcerptPreview(text: string, max = 72): string {
-  const t = text.trim();
-  if (t.length <= max) return t;
-  return `${t.slice(0, max)}…`;
+  const trimmed = text.trim();
+  if (trimmed.length <= max) return trimmed;
+  return `${trimmed.slice(0, max)}…`;
 }
+

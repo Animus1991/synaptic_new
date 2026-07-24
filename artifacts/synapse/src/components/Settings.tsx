@@ -1,16 +1,33 @@
-import { useState, useRef } from 'react';
-import { motion } from 'framer-motion';
+import { useState, useRef, useMemo, useEffect } from 'react';
 import {
   Brain, BookOpen, Target, Zap,
-  Gauge, Shield, Calendar, Palette, Database, KeyRound, SlidersHorizontal
-} from 'lucide-react';
-import type { LucideIcon } from 'lucide-react';
-import type { UserSettings } from '../types';
+  Gauge, Shield, Calendar, Palette, Database, KeyRound,
+  Moon, Sun, Sparkles, Layers, Monitor,
+} from '@/lib/lucide-shim';
+import type { LucideIcon } from '@/lib/lucide-shim';
+import type { UserSettings, Task } from '../types';
 import { cn } from '../utils/cn';
-import { Page, PageHeader, Card, SectionHeading } from './ui/primitives';
 import { clearAllSessionData, downloadBackup, importSessionData } from '../lib/sessionBackup';
-import { authLogin, authRegister, pushRemoteLibrary, createCheckoutSession, type AuthSession } from '../lib/authClient';
+import { authLogin, authRegister, pushRemoteLibrary, createCheckoutSession, authExportAccount, authDeleteAccount, type AuthSession } from '../lib/authClient';
+import { GoogleIntegrationsPanel } from './GoogleIntegrationsPanel';
+import { googleAuthStartUrl } from '../lib/googleClient';
 import { loadLibrarySync } from '../lib/libraryStorage';
+import { Page, PageHeader, AnimatedCard } from './ui/primitives';
+import { WorkspaceTTIPanel } from './WorkspaceTTIPanel';
+import { useI18n } from '../lib/i18n';
+import { getSettingsContent } from '../lib/settingsContent';
+import { RagIndexProgressBanner } from './RagIndexProgressBanner';
+import { PluginMarketplacePanel } from './PluginMarketplacePanel';
+import { privacyPolicyUrl } from '../lib/siteConfig';
+import { ColorCodingReferencePanel } from './ui/ColorCodingReferencePanel';
+import {
+  getNotebookLmParityOverride,
+  resolveNotebookLmParity,
+  setNotebookLmParityOverride,
+} from '../lib/notebookLmParity';
+import { useMinimalTheme } from '../lib/useMinimalTheme';
+
+import { type TaskCalendarSyncUpdate } from '../lib/taskCalendarSync';
 
 interface SettingsProps {
   settings: UserSettings;
@@ -20,6 +37,9 @@ interface SettingsProps {
   onPushSession?: () => Promise<unknown>;
   onSyncAccount?: () => Promise<unknown>;
   onRefreshPlan?: () => Promise<unknown>;
+  onReplayProductTour?: () => void;
+  tasks?: Task[];
+  onApplyCalendarSync?: (updates: TaskCalendarSyncUpdate[]) => void;
 }
 
 export function Settings({
@@ -30,24 +50,43 @@ export function Settings({
   onPushSession,
   onSyncAccount,
   onRefreshPlan,
+  onReplayProductTour,
+  tasks = [],
+  onApplyCalendarSync,
 }: SettingsProps) {
+  const { t } = useI18n();
+  const c = getSettingsContent(settings.language);
+  const isMinimal = useMinimalTheme();
   const [backupStatus, setBackupStatus] = useState<string | null>(null);
   const [authEmail, setAuthEmail] = useState(settings.authEmail ?? '');
   const [authPassword, setAuthPassword] = useState('');
   const [authStatus, setAuthStatus] = useState<string | null>(null);
+  const [deleteConfirmEmail, setDeleteConfirmEmail] = useState('');
+  const [parityTick, setParityTick] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const parityOverride = useMemo(() => {
+    void parityTick;
+    return getNotebookLmParityOverride();
+  }, [parityTick]);
+  const parityEffective = useMemo(() => {
+    void parityTick;
+    return resolveNotebookLmParity();
+  }, [parityTick]);
+  const parityToggleValue =
+    parityOverride === true ? 'on' : parityOverride === false ? 'off' : 'default';
 
   const handleImport = async (file: File) => {
     const text = await file.text();
     const result = importSessionData(text);
     if (result.ok) {
-      setBackupStatus(`Imported ${result.keysImported} saved items. Reload to apply everywhere.`);
+      setBackupStatus(c.formatImported(result.keysImported));
     } else {
       setBackupStatus(result.error);
     }
   };
 
-  const proxyBase = (settings.authProxyBase ?? settings.llmProxyUrl ?? 'http://localhost:8787')
+  const sameOriginApi = typeof window !== 'undefined' ? `${window.location.origin}/api` : 'http://localhost:8787';
+  const proxyBase = (settings.authProxyBase ?? settings.llmProxyUrl ?? sameOriginApi)
     .replace(/\/v1\/?$/, '')
     .replace(/\/$/, '');
 
@@ -56,22 +95,24 @@ export function Settings({
       authToken: session.token,
       authEmail: session.email,
       authPlan: session.plan ?? 'free',
-      llmProxyUrl: settings.llmProxyUrl ?? `${proxyBase}/v1`,
+      // Only persist a derived proxy URL when the user explicitly configured a
+      // base — never bake the same-origin/localhost fallback into settings.
+      llmProxyUrl: settings.llmProxyUrl ?? (settings.authProxyBase ? `${proxyBase}/v1` : undefined),
     });
     if (onSyncAccount) {
       await onSyncAccount();
-      setAuthStatus(`${label} ${session.email} — library & progress synced`);
+      setAuthStatus(c.formatAuthStatusSynced(label, session.email));
       return;
     }
     if (onPullLibrary) await onPullLibrary();
     if (onPullSession) await onPullSession();
     if (onPushSession) await onPushSession();
-    setAuthStatus(`${label} ${session.email}`);
+    setAuthStatus(c.formatAuthStatus(label, session.email));
   };
 
   const startCheckout = async (plan: 'pro' | 'team') => {
     if (!settings.authToken) {
-      setAuthStatus('Sign in before upgrading');
+      setAuthStatus(c.signInBeforeUpgrade);
       return;
     }
     try {
@@ -81,113 +122,152 @@ export function Settings({
         cancelUrl: `${origin}/?billing=cancel`,
       });
       if (url) window.location.href = url;
-      else setAuthStatus('Checkout URL missing — check Stripe configuration');
+      else setAuthStatus(c.checkoutUrlMissing);
     } catch (e) {
-      setAuthStatus(e instanceof Error ? e.message : 'Checkout failed');
+      setAuthStatus(e instanceof Error ? e.message : c.checkoutFailed);
     }
   };
 
+  const settingsSections = useMemo(
+    () => [
+      { id: 'settings-teaching', label: c.sectionTeachingApproach },
+      { id: 'settings-content', label: c.sectionContentBalance },
+      { id: 'settings-pacing', label: c.sectionPacingDifficulty },
+      { id: 'settings-practice', label: c.sectionPracticeRevision },
+      { id: 'settings-plugins', label: t('pluginMarketplaceTitle') },
+      { id: 'settings-source', label: c.sectionSourceContent },
+      { id: 'settings-goals', label: c.sectionStudyGoals },
+      { id: 'settings-ai', label: c.sectionAiLlm },
+      { id: 'settings-account', label: c.sectionAccountSync },
+      { id: 'settings-google', label: c.sectionGoogleWorkspace },
+      { id: 'settings-interface', label: c.sectionInterface },
+      { id: 'settings-data', label: c.sectionDataProgress },
+      { id: 'settings-developer', label: c.sectionDeveloper },
+    ],
+    [c, t],
+  );
+  const [activeSection, setActiveSection] = useState(settingsSections[0]?.id ?? 'settings-teaching');
+
+  // OPT-R16 — highlight the section nearest the viewport top while scrolling (Minimal IDE nav).
+  useEffect(() => {
+    if (!isMinimal) return;
+    const elements = settingsSections
+      .map((section) => document.getElementById(section.id))
+      .filter((el): el is HTMLElement => Boolean(el));
+    if (elements.length === 0) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+        const id = visible[0]?.target?.id;
+        if (id) setActiveSection(id);
+      },
+      { rootMargin: '-18% 0px -62% 0px', threshold: [0, 0.2, 0.45] },
+    );
+    elements.forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
+  }, [isMinimal, settingsSections]);
+
   return (
-    <Page>
+    <Page className={cn('ux-flow-shell', isMinimal && 'enterprise-calm settings-ide')}>
       <PageHeader
-        eyebrow="Preferences"
-        icon={SlidersHorizontal}
-        title="Learning Preferences"
-        subtitle="Customize how Synapse teaches you. These are UI preferences — the adaptive engine also learns from your behavior."
+        title={c.pageTitle}
+        subtitle={c.pageSubtitle}
+        icon={Brain}
       />
 
-      <div className="lg:grid lg:grid-cols-2 lg:gap-6 lg:items-start [&>*]:mb-6 lg:[&>*]:mb-0">
-      {/* Teaching Style */}
-      <SettingsSection title="Teaching Approach" icon={Brain} iconClassName="text-brand-400" delay={0.05}>
-        <ToggleRow label="Teaching style" options={[
-          { value: 'socratic', label: 'Socratic' },
-          { value: 'direct', label: 'Direct' },
-          { value: 'mixed', label: 'Mixed' },
-        ]} value={settings.teachingStyle} onChange={v => onUpdate({ teachingStyle: v as UserSettings['teachingStyle'] })} />
-        <ToggleRow label="Explanation depth" options={[
-          { value: 'beginner', label: 'Beginner' },
-          { value: 'intermediate', label: 'Intermediate' },
-          { value: 'advanced', label: 'Advanced' },
-          { value: 'expert', label: 'Expert' },
-        ]} value={settings.explanationDepth} onChange={v => onUpdate({ explanationDepth: v as UserSettings['explanationDepth'] })} />
-        <ToggleRow label="Feedback tone" options={[
-          { value: 'gentle', label: 'Gentle' },
-          { value: 'balanced', label: 'Balanced' },
-          { value: 'strict', label: 'Strict' },
-        ]} value={settings.feedbackTone} onChange={v => onUpdate({ feedbackTone: v as UserSettings['feedbackTone'] })} />
+      <div
+        className={cn(
+          isMinimal &&
+            'settings-ide-layout lg:grid lg:grid-cols-[13.5rem_minmax(0,1fr)] lg:items-start lg:gap-8',
+        )}
+      >
+      <nav
+        className={cn(
+          'ux-settings-nav sticky top-16 z-20',
+          isMinimal
+            ? 'settings-ide-nav -mx-1 mb-4 flex gap-1 overflow-x-auto pb-2 pt-1 lg:mx-0 lg:mb-0 lg:max-h-[calc(100dvh-5.5rem)] lg:flex-col lg:gap-0.5 lg:overflow-x-visible lg:overflow-y-auto lg:pb-0'
+            : '-mx-1 mb-4 flex gap-2 overflow-x-auto pb-2 pt-1',
+        )}
+        aria-label={t('settingsSectionNav')}
+        data-testid="settings-section-nav"
+      >
+        {settingsSections.map((section) => {
+          const isActive = isMinimal && activeSection === section.id;
+          return (
+            <a
+              key={section.id}
+              href={`#${section.id}`}
+              aria-current={isActive ? 'true' : undefined}
+              className={cn(
+                isMinimal
+                  ? cn(
+                      'settings-ide-nav-item shrink-0 rounded-md px-2.5 py-1.5 text-left text-[11px] font-medium text-text-secondary transition-colors hover:bg-surface-hover hover:text-text-primary lg:w-full',
+                      isActive && 'is-active',
+                    )
+                  : 'platform-pill shrink-0 px-3 py-1.5 text-xs font-medium text-text-secondary hover:text-brand-700',
+              )}
+              onClick={() => {
+                if (isMinimal) setActiveSection(section.id);
+              }}
+            >
+              {section.label}
+            </a>
+          );
+        })}
+      </nav>
+
+      {/* Wave P-L01 — masonry column flow (Blueprint). OPT-R16 Minimal uses a single
+          IDE-like content column beside the section rail instead of multi-column cards. */}
+      <div
+        className={cn(
+          isMinimal
+            ? 'settings-ide-content space-y-3'
+            : 'lg:columns-2 lg:gap-6 [&>*]:mb-6 [&>*]:break-inside-avoid',
+        )}
+      >
+      <SettingsSection id="settings-teaching" title={c.sectionTeachingApproach} icon={<Brain className="w-5 h-5 text-brand-400" />} delay={0.05}>
+        <ToggleRow label={c.labelTeachingStyle} options={c.teachingStyleOptions} value={settings.teachingStyle} onChange={v => onUpdate({ teachingStyle: v as UserSettings['teachingStyle'] })} />
+        <ToggleRow label={c.labelExplanationDepth} options={c.explanationDepthOptions} value={settings.explanationDepth} onChange={v => onUpdate({ explanationDepth: v as UserSettings['explanationDepth'] })} />
+        <ToggleRow label={c.labelFeedbackTone} options={c.feedbackToneOptions} value={settings.feedbackTone} onChange={v => onUpdate({ feedbackTone: v as UserSettings['feedbackTone'] })} />
       </SettingsSection>
 
-      {/* Content Balance */}
-      <SettingsSection title="Content Balance" icon={BookOpen} iconClassName="text-accent-teal" delay={0.1}>
-        <SliderRow label="Theory vs Practice" leftLabel="More theory" rightLabel="More practice" value={settings.theoryVsPractice} onChange={v => onUpdate({ theoryVsPractice: v })} />
-        <ToggleRow label="Question frequency" options={[
-          { value: 'minimal', label: 'Fewer' },
-          { value: 'moderate', label: 'Moderate' },
-          { value: 'frequent', label: 'Frequent' },
-        ]} value={settings.questionFrequency} onChange={v => onUpdate({ questionFrequency: v as UserSettings['questionFrequency'] })} />
-        <ToggleRow label="Example density" options={[
-          { value: 'fewer', label: 'Fewer' },
-          { value: 'moderate', label: 'Moderate' },
-          { value: 'many', label: 'Many' },
-        ]} value={settings.exampleDensity} onChange={v => onUpdate({ exampleDensity: v as UserSettings['exampleDensity'] })} />
-        <ToggleRow label="Diagram frequency" options={[
-          { value: 'minimal', label: 'Minimal' },
-          { value: 'moderate', label: 'Moderate' },
-          { value: 'rich', label: 'Rich' },
-        ]} value={settings.diagramFrequency} onChange={v => onUpdate({ diagramFrequency: v as UserSettings['diagramFrequency'] })} />
+      <SettingsSection id="settings-content" title={c.sectionContentBalance} icon={<BookOpen className="w-5 h-5 text-accent-teal" />} delay={0.1}>
+        <SliderRow label={c.labelTheoryVsPractice} leftLabel={c.theoryVsPracticeLeft} rightLabel={c.theoryVsPracticeRight} value={settings.theoryVsPractice} onChange={v => onUpdate({ theoryVsPractice: v })} />
+        <ToggleRow label={c.labelQuestionFrequency} options={c.questionFrequencyOptions} value={settings.questionFrequency} onChange={v => onUpdate({ questionFrequency: v as UserSettings['questionFrequency'] })} />
+        <ToggleRow label={c.labelExampleDensity} options={c.exampleDensityOptions} value={settings.exampleDensity} onChange={v => onUpdate({ exampleDensity: v as UserSettings['exampleDensity'] })} />
+        <ToggleRow label={c.labelDiagramFrequency} options={c.diagramFrequencyOptions} value={settings.diagramFrequency} onChange={v => onUpdate({ diagramFrequency: v as UserSettings['diagramFrequency'] })} />
       </SettingsSection>
 
-      {/* Pacing & Difficulty */}
-      <SettingsSection title="Pacing & Difficulty" icon={Gauge} iconClassName="text-accent-amber" delay={0.15}>
-        <ToggleRow label="Pacing" options={[
-          { value: 'slow', label: 'Slow' },
-          { value: 'moderate', label: 'Moderate' },
-          { value: 'fast', label: 'Fast' },
-        ]} value={settings.pacing} onChange={v => onUpdate({ pacing: v as UserSettings['pacing'] })} />
-        <ToggleRow label="Challenge level" options={[
-          { value: 'low-stress', label: 'Low Stress' },
-          { value: 'balanced', label: 'Balanced' },
-          { value: 'high-challenge', label: 'High Challenge' },
-        ]} value={settings.challengeLevel} onChange={v => onUpdate({ challengeLevel: v as UserSettings['challengeLevel'] })} />
-        <ToggleRow label="Lesson length" options={[
-          { value: 'short', label: 'Short (5-10m)' },
-          { value: 'medium', label: 'Medium (15-20m)' },
-          { value: 'long', label: 'Long (25-40m)' },
-        ]} value={settings.lessonLength} onChange={v => onUpdate({ lessonLength: v as UserSettings['lessonLength'] })} />
-        <SliderRow label="Mastery threshold" leftLabel="60%" rightLabel="100%" value={settings.masteryThreshold} onChange={v => onUpdate({ masteryThreshold: v })} min={60} max={100} />
+      <SettingsSection id="settings-pacing" title={c.sectionPacingDifficulty} icon={<Gauge className="w-5 h-5 text-accent-amber" />} delay={0.15}>
+        <ToggleRow label={c.labelPacing} options={c.pacingOptions} value={settings.pacing} onChange={v => onUpdate({ pacing: v as UserSettings['pacing'] })} />
+        <ToggleRow label={c.labelChallengeLevel} options={c.challengeLevelOptions} value={settings.challengeLevel} onChange={v => onUpdate({ challengeLevel: v as UserSettings['challengeLevel'] })} />
+        <ToggleRow label={c.labelLessonLength} options={c.lessonLengthOptions} value={settings.lessonLength} onChange={v => onUpdate({ lessonLength: v as UserSettings['lessonLength'] })} />
+        <SliderRow label={c.labelMasteryThreshold} leftLabel="60%" rightLabel="100%" value={settings.masteryThreshold} onChange={v => onUpdate({ masteryThreshold: v })} min={60} max={100} />
       </SettingsSection>
 
-      {/* Practice & Revision */}
-      <SettingsSection title="Practice & Revision" icon={Target} iconClassName="text-accent-cyan" delay={0.2}>
-        <ToggleRow label="Practice intensity" options={[
-          { value: 'light', label: 'Light' },
-          { value: 'moderate', label: 'Moderate' },
-          { value: 'intense', label: 'Intense' },
-        ]} value={settings.practiceIntensity} onChange={v => onUpdate({ practiceIntensity: v as UserSettings['practiceIntensity'] })} />
-        <ToggleRow label="Revision loops" options={[
-          { value: 'fewer', label: 'Fewer' },
-          { value: 'moderate', label: 'Moderate' },
-          { value: 'more', label: 'More' },
-        ]} value={settings.revisionLoops} onChange={v => onUpdate({ revisionLoops: v as UserSettings['revisionLoops'] })} />
+      <SettingsSection id="settings-practice" title={c.sectionPracticeRevision} icon={<Target className="w-5 h-5 text-accent-cyan" />} delay={0.2}>
+        <ToggleRow label={c.labelPracticeIntensity} options={c.practiceIntensityOptions} value={settings.practiceIntensity} onChange={v => onUpdate({ practiceIntensity: v as UserSettings['practiceIntensity'] })} />
+        <ToggleRow label={c.labelRevisionLoops} options={c.revisionLoopsOptions} value={settings.revisionLoops} onChange={v => onUpdate({ revisionLoops: v as UserSettings['revisionLoops'] })} />
       </SettingsSection>
 
-      {/* Source & Privacy */}
-      <SettingsSection title="Source & Content Mode" icon={Shield} iconClassName="text-accent-emerald" delay={0.25}>
-        <ToggleRow label="Source mode" options={[
-          { value: 'strict', label: 'Strict (Notes Only)' },
-          { value: 'enriched', label: 'Notes + Enrichment' },
-          { value: 'notes-only', label: 'Notes Structure Only' },
-        ]} value={settings.sourceMode} onChange={v => onUpdate({ sourceMode: v as UserSettings['sourceMode'] })} />
+      <SettingsSection id="settings-plugins" title={t('pluginMarketplaceTitle')} icon={<Zap className="w-5 h-5 text-brand-400" />} delay={0.22}>
+        <PluginMarketplacePanel />
+      </SettingsSection>
+
+      <SettingsSection id="settings-source" title={c.sectionSourceContent} icon={<Shield className="w-5 h-5 text-accent-emerald" />} delay={0.25}>
+        <ToggleRow label={c.labelSourceMode} options={c.sourceModeOptions} value={settings.sourceMode} onChange={v => onUpdate({ sourceMode: v as UserSettings['sourceMode'] })} />
         <p className="text-xs text-text-muted mt-1 px-1">
-          Strict mode only uses your uploaded material. Enriched mode adds trusted external explanations.
+          {c.sourceModeHint}
         </p>
       </SettingsSection>
 
-      {/* Study Goals */}
-      <SettingsSection title="Study Goals" icon={Calendar} iconClassName="text-accent-rose" delay={0.3}>
+      <SettingsSection id="settings-goals" title={c.sectionStudyGoals} icon={<Calendar className="w-5 h-5 text-accent-rose" />} delay={0.3}>
         <div className="space-y-3">
           <div>
-            <label className="text-sm text-text-secondary block mb-1">Daily study goal</label>
+            <label className="text-sm text-text-secondary block mb-1">{c.labelDailyStudyGoal}</label>
             <div className="flex items-center gap-3">
               {[15, 30, 45, 60, 90].map(m => (
                 <button key={m} onClick={() => onUpdate({ dailyGoalMinutes: m })}
@@ -198,27 +278,26 @@ export function Settings({
             </div>
           </div>
           <div>
-            <label className="text-sm text-text-secondary block mb-1">Exam date</label>
+            <label className="text-sm text-text-secondary block mb-1">{c.labelExamDate}</label>
             <input type="date" value={settings.examDate || ''} onChange={e => onUpdate({ examDate: e.target.value })}
               className="px-4 py-2 rounded-xl bg-surface-input border border-border-subtle text-sm text-text-primary focus:outline-none focus:border-brand-500/50" />
           </div>
         </div>
       </SettingsSection>
 
-      {/* AI / LLM */}
-      <SettingsSection title="AI & LLM" icon={Brain} iconClassName="text-brand-400" delay={0.32}>
+      <SettingsSection id="settings-ai" title={c.sectionAiLlm} icon={<Brain className="w-5 h-5 text-brand-400" />} delay={0.32}>
         <div>
-          <label className="text-xs text-text-secondary block mb-2">OpenAI API key (stored locally in browser)</label>
+          <label className="text-xs text-text-secondary block mb-2">{c.labelOpenAiKey}</label>
           <input
             type="password"
             value={settings.openaiApiKey ?? ''}
             onChange={(e) => onUpdate({ openaiApiKey: e.target.value || undefined })}
-            placeholder="sk-… or set VITE_OPENAI_API_KEY at build time"
+            placeholder={c.placeholderOpenAiKey}
             className="w-full px-4 py-2 rounded-xl bg-surface-input border border-border-subtle text-sm text-text-primary focus:outline-none focus:border-brand-500/50"
           />
         </div>
         <div>
-          <label className="text-xs text-text-secondary block mb-2">Model</label>
+          <label className="text-xs text-text-secondary block mb-2">{c.labelModel}</label>
           <input
             type="text"
             value={settings.llmModel ?? 'gpt-4o-mini'}
@@ -227,52 +306,41 @@ export function Settings({
           />
         </div>
         <div>
-          <label className="text-xs text-text-secondary block mb-2">API base URL (optional, for OpenAI-compatible proxies)</label>
+          <label className="text-xs text-text-secondary block mb-2">{c.labelApiBaseUrl}</label>
           <input
             type="url"
             value={settings.llmBaseUrl ?? ''}
             onChange={(e) => onUpdate({ llmBaseUrl: e.target.value || undefined })}
-            placeholder="https://api.openai.com/v1"
+            placeholder={c.placeholderApiBaseUrl}
             className="w-full px-4 py-2 rounded-xl bg-surface-input border border-border-subtle text-sm text-text-primary focus:outline-none focus:border-brand-500/50"
           />
         </div>
         <div>
-          <label className="text-xs text-text-secondary block mb-2">Managed proxy URL (keeps the API key off the browser)</label>
+          <label className="text-xs text-text-secondary block mb-2">{c.labelManagedProxyUrl}</label>
           <input
             type="url"
             value={settings.llmProxyUrl ?? ''}
             onChange={(e) => onUpdate({ llmProxyUrl: e.target.value || undefined })}
-            placeholder="https://your-proxy.example.com/v1"
+            placeholder={c.placeholderManagedProxyUrl}
             className="w-full px-4 py-2 rounded-xl bg-surface-input border border-border-subtle text-sm text-text-primary focus:outline-none focus:border-brand-500/50"
           />
-          <p className="ws-caption text-text-muted mt-1.5">When set, chat & embeddings route here with no browser key — the proxy injects the secret server-side and can meter managed (paid) usage.</p>
+          <p className="text-[11px] text-text-muted mt-1.5">{c.managedProxyHint}</p>
         </div>
-        {/* Built-in AI status badge */}
-        <div className="flex items-start gap-2 rounded-xl border border-accent-emerald/25 bg-accent-emerald/8 px-3 py-2.5">
-          <span className="mt-0.5 text-accent-emerald text-sm">✅</span>
-          <div>
-            <p className="text-xs font-semibold text-accent-emerald">Synapse AI Ενεργό / Built-in AI Active</p>
-            <p className="ws-caption text-text-muted mt-0.5">
-              Χρησιμοποιεί ενσωματωμένο proxy — δεν χρειάζεται δικό σου API key. Λειτουργούν: Agent (15 modes), Feynman Coach, AI Hints, Translation, Course Generation.
-              {' '}Uses the built-in Synapse proxy — no personal API key required.
-            </p>
-          </div>
-        </div>
-        <ToggleRow label="Use LLM for Agent & Feynman" options={[
-          { value: 'true', label: 'Enabled' },
-          { value: 'false', label: 'Offline only' },
-        ]} value={settings.useLlm !== false ? 'true' : 'false'} onChange={v => onUpdate({ useLlm: v === 'true' })} />
+        <ToggleRow label={c.labelUseLlm} options={c.useLlmOptions} value={settings.useLlm !== false ? 'true' : 'false'} onChange={v => onUpdate({ useLlm: v === 'true' })} />
         <p className="text-xs text-text-muted mt-1 px-1">
-          Αν θέλεις δικό σου OpenAI key, συμπλήρωσε το παραπάνω — διαφορετικά η πλατφόρμα χρησιμοποιεί τον built-in proxy αυτόματα.
-          Keys never leave your browser except to your chosen endpoint.
+          {c.llmOfflineHint}
+        </p>
+        <ToggleRow label={c.labelUseVisionOcr} options={c.visionOcrOptions} value={settings.useVisionOcr !== false ? 'true' : 'false'} onChange={v => onUpdate({ useVisionOcr: v === 'true' })} />
+        <p className="text-xs text-text-muted mt-1 px-1">
+          {c.visionOcrHint}
         </p>
       </SettingsSection>
 
-      <SettingsSection title="Account & Sync" icon={KeyRound} iconClassName="text-accent-teal" delay={0.34}>
+      <SettingsSection id="settings-account" title={c.sectionAccountSync} icon={<KeyRound className="w-5 h-5 text-accent-teal" />} delay={0.34}>
         {settings.authToken && (
           <div className="flex flex-wrap items-center gap-2 mb-3">
             <span className="text-xs px-2 py-1 rounded-lg bg-surface-hover border border-border-subtle">
-              Plan: <strong className="text-brand-300">{settings.authPlan ?? 'free'}</strong>
+              {c.planLabel} <strong className="text-brand-300">{settings.authPlan ?? 'free'}</strong>
             </span>
             {(settings.authPlan ?? 'free') === 'free' && (
               <>
@@ -282,7 +350,7 @@ export function Settings({
                   className="px-3 py-1.5 rounded-lg text-xs font-medium bg-brand-600 text-white"
                   onClick={() => void startCheckout('pro')}
                 >
-                  Upgrade to Pro
+                  {c.upgradePro}
                 </button>
                 <button
                   type="button"
@@ -290,7 +358,7 @@ export function Settings({
                   className="px-3 py-1.5 rounded-lg text-xs font-medium border border-brand-500/40 text-brand-300"
                   onClick={() => void startCheckout('team')}
                 >
-                  Upgrade to Team
+                  {c.upgradeTeam}
                 </button>
               </>
             )}
@@ -301,24 +369,24 @@ export function Settings({
                 onClick={async () => {
                   try {
                     await onRefreshPlan();
-                    setAuthStatus('Plan refreshed from server');
+                    setAuthStatus(c.planRefreshed);
                   } catch (e) {
-                    setAuthStatus(e instanceof Error ? e.message : 'Refresh failed');
+                    setAuthStatus(e instanceof Error ? e.message : c.refreshFailed);
                   }
                 }}
               >
-                Refresh plan
+                {c.refreshPlan}
               </button>
             )}
           </div>
         )}
         <div>
-          <label className="text-xs text-text-secondary block mb-2">Proxy base URL (auth + library sync)</label>
+          <label className="text-xs text-text-secondary block mb-2">{c.labelProxyBaseUrl}</label>
           <input
             type="url"
             value={settings.authProxyBase ?? settings.llmProxyUrl?.replace(/\/v1\/?$/, '') ?? ''}
             onChange={(e) => onUpdate({ authProxyBase: e.target.value || undefined })}
-            placeholder="http://localhost:8787"
+            placeholder={c.placeholderProxyBaseUrl}
             className="w-full px-4 py-2 rounded-xl bg-surface-input border border-border-subtle text-sm"
           />
         </div>
@@ -327,14 +395,14 @@ export function Settings({
             type="email"
             value={authEmail}
             onChange={(e) => setAuthEmail(e.target.value)}
-            placeholder="Email"
+            placeholder={c.placeholderEmail}
             className="px-4 py-2 rounded-xl bg-surface-input border border-border-subtle text-sm"
           />
           <input
             type="password"
             value={authPassword}
             onChange={(e) => setAuthPassword(e.target.value)}
-            placeholder="Password"
+            placeholder={c.placeholderPassword}
             className="px-4 py-2 rounded-xl bg-surface-input border border-border-subtle text-sm"
           />
         </div>
@@ -345,13 +413,13 @@ export function Settings({
             onClick={async () => {
               try {
                 const session = await authLogin(authEmail, authPassword, settings);
-                await finishAuth(session, 'Signed in as');
+                await finishAuth(session, c.signedInAs);
               } catch (e) {
-                setAuthStatus(e instanceof Error ? e.message : 'Login failed');
+                setAuthStatus(e instanceof Error ? e.message : c.loginFailed);
               }
             }}
           >
-            Sign in
+            {c.signIn}
           </button>
           <button
             type="button"
@@ -359,13 +427,27 @@ export function Settings({
             onClick={async () => {
               try {
                 const session = await authRegister(authEmail, authPassword, settings);
-                await finishAuth(session, 'Registered');
+                await finishAuth(session, c.registeredAs);
               } catch (e) {
-                setAuthStatus(e instanceof Error ? e.message : 'Register failed');
+                setAuthStatus(e instanceof Error ? e.message : c.registerFailed);
               }
             }}
           >
-            Register
+            {c.register}
+          </button>
+          <button
+            type="button"
+            className="px-4 py-2 rounded-xl text-sm font-medium border border-border-subtle inline-flex items-center gap-2"
+            data-testid="settings-google-sign-in"
+            onClick={() => {
+              window.location.href = googleAuthStartUrl(
+                settings,
+                'signin',
+                `${window.location.origin}/?view=settings`,
+              );
+            }}
+          >
+            {c.google}
           </button>
           {settings.authToken && (
             <button
@@ -373,7 +455,7 @@ export function Settings({
               className="px-4 py-2 rounded-xl text-sm font-medium border border-border-subtle"
               onClick={() => onUpdate({ authToken: undefined, authEmail: undefined, authPlan: undefined })}
             >
-              Sign out
+              {c.signOut}
             </button>
           )}
           {settings.authToken && onPullLibrary && (
@@ -383,13 +465,13 @@ export function Settings({
               onClick={async () => {
                 try {
                   await onPullLibrary();
-                  setAuthStatus('Library pulled from server');
+                  setAuthStatus(c.libraryPulled);
                 } catch (e) {
-                  setAuthStatus(e instanceof Error ? e.message : 'Pull failed');
+                  setAuthStatus(e instanceof Error ? e.message : c.pullFailed);
                 }
               }}
             >
-              Pull library
+              {c.pullLibrary}
             </button>
           )}
           {settings.authToken && (
@@ -400,13 +482,13 @@ export function Settings({
                 try {
                   const lib = loadLibrarySync();
                   await pushRemoteLibrary(settings.authToken!, settings, lib);
-                  setAuthStatus('Library synced to server');
+                  setAuthStatus(c.librarySynced);
                 } catch (e) {
-                  setAuthStatus(e instanceof Error ? e.message : 'Sync failed');
+                  setAuthStatus(e instanceof Error ? e.message : c.syncFailed);
                 }
               }}
             >
-              Push library
+              {c.pushLibrary}
             </button>
           )}
           {settings.authToken && onPullSession && (
@@ -416,13 +498,13 @@ export function Settings({
               onClick={async () => {
                 try {
                   await onPullSession();
-                  setAuthStatus('Progress pulled from server');
+                  setAuthStatus(c.progressPulled);
                 } catch (e) {
-                  setAuthStatus(e instanceof Error ? e.message : 'Session pull failed');
+                  setAuthStatus(e instanceof Error ? e.message : c.sessionPullFailed);
                 }
               }}
             >
-              Pull progress
+              {c.pullProgress}
             </button>
           )}
           {settings.authToken && onPushSession && (
@@ -432,68 +514,175 @@ export function Settings({
               onClick={async () => {
                 try {
                   await onPushSession();
-                  setAuthStatus('Progress synced to server');
+                  setAuthStatus(c.progressSynced);
                 } catch (e) {
-                  setAuthStatus(e instanceof Error ? e.message : 'Session push failed');
+                  setAuthStatus(e instanceof Error ? e.message : c.sessionPushFailed);
                 }
               }}
             >
-              Push progress
+              {c.pushProgress}
             </button>
           )}
         </div>
         {settings.authEmail && (
-          <p className="text-xs text-text-secondary">Logged in: {settings.authEmail}</p>
+          <p className="text-xs text-text-secondary">{c.loggedIn} {settings.authEmail}</p>
+        )}
+        {settings.authToken && (
+          <RagIndexProgressBanner
+            settings={settings}
+            lang={settings.language === 'el' ? 'el' : 'en'}
+            variant="panel"
+            className="mt-3"
+          />
+        )}
+        {settings.authToken && (
+          <div className="mt-3 pt-3 border-t border-border-subtle space-y-2">
+            <p className="text-xs font-semibold text-text-primary">{t('gdprExportData')}</p>
+            <p className="text-[11px] text-text-muted">{t('gdprExportHint')}</p>
+            <p className="text-[11px]">
+              <a
+                href={privacyPolicyUrl()}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-brand-600 hover:underline"
+                data-testid="privacy-policy-link"
+              >
+                Privacy policy
+              </a>
+            </p>
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                data-testid="gdpr-export-account"
+                className="px-3 py-2 rounded-xl text-xs font-medium border border-border-subtle text-text-secondary hover:border-brand-500/30"
+                onClick={async () => {
+                  if (!settings.authToken) return;
+                  try {
+                    const blob = await authExportAccount(settings.authToken, settings);
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `synapse-export-${new Date().toISOString().slice(0, 10)}.json`;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                    setAuthStatus(t('gdprExportSuccess'));
+                  } catch (e) {
+                    setAuthStatus(e instanceof Error ? e.message : c.exportFailed);
+                  }
+                }}
+              >
+                {t('gdprExportData')}
+              </button>
+            </div>
+            <p className="text-[11px] text-text-muted pt-1">{t('gdprDeleteHint')}</p>
+            <label className="text-[11px] text-text-secondary block">{t('gdprDeleteConfirm')}</label>
+            <input
+              type="email"
+              value={deleteConfirmEmail}
+              onChange={(e) => setDeleteConfirmEmail(e.target.value)}
+              placeholder={settings.authEmail ?? 'email@example.com'}
+              className="w-full px-3 py-2 rounded-xl bg-surface-input border border-border-subtle text-sm"
+            />
+            <button
+              type="button"
+              data-testid="gdpr-delete-account"
+              disabled={!deleteConfirmEmail.trim()}
+              className="px-3 py-2 rounded-xl text-xs font-medium border border-accent-rose/30 text-accent-rose hover:bg-accent-rose/10 disabled:opacity-50"
+              onClick={async () => {
+                if (!settings.authToken || !settings.authEmail) return;
+                if (deleteConfirmEmail.trim().toLowerCase() !== settings.authEmail.toLowerCase()) {
+                  setAuthStatus(t('gdprDeleteConfirm'));
+                  return;
+                }
+                if (!window.confirm(t('gdprDeleteHint'))) return;
+                try {
+                  await authDeleteAccount(settings.authToken, settings, deleteConfirmEmail.trim());
+                  onUpdate({
+                    authToken: undefined,
+                    authEmail: undefined,
+                    authPlan: undefined,
+                  });
+                  clearAllSessionData();
+                  setDeleteConfirmEmail('');
+                  setAuthStatus(t('gdprDeleteSuccess'));
+                } catch (e) {
+                  setAuthStatus(e instanceof Error ? e.message : c.deleteFailed);
+                }
+              }}
+            >
+              {t('gdprDeleteAccount')}
+            </button>
+          </div>
         )}
         {authStatus && <p className="text-xs text-text-muted">{authStatus}</p>}
       </SettingsSection>
 
-      {/* Interface */}
-      <SettingsSection title="Interface" icon={Palette} iconClassName="text-brand-300" delay={0.35}>
-        <ToggleRow label="Theme" options={[
-          { value: 'dark', label: 'Dark' },
-          { value: 'light', label: 'Light' },
-          { value: 'system', label: 'System' },
-        ]} value={settings.theme} onChange={v => onUpdate({ theme: v as UserSettings['theme'] })} />
-        <ToggleRow label="Language" options={[
-          { value: 'en', label: 'English' },
-          { value: 'el', label: 'Ελληνικά' },
-        ]} value={settings.language} onChange={v => onUpdate({ language: v as UserSettings['language'] })} />
+      <SettingsSection
+        id="settings-google"
+        title={c.sectionGoogleWorkspace}
+        icon={<KeyRound className="w-5 h-5 text-brand-400" />}
+        delay={0.32}
+      >
+        <GoogleIntegrationsPanel
+          settings={settings}
+          onUpdate={onUpdate}
+          onAuthComplete={(msg) => setAuthStatus(msg)}
+          synapseTasks={tasks}
+          onCalendarSync={onApplyCalendarSync}
+          lang={settings.language}
+        />
       </SettingsSection>
 
-      {/* Data management */}
-      <SettingsSection title="Data & Progress" icon={Database} iconClassName="text-accent-cyan" delay={0.38}>
-        <ToggleRow label="Demo showcase content" options={[
-          { value: 'off', label: 'Hidden' },
-          { value: 'on', label: 'Show demo' },
-        ]} value={settings.showDemoContent ? 'on' : 'off'} onChange={v => onUpdate({ showDemoContent: v === 'on' })} />
-        <p className="ws-caption text-text-muted">When hidden, only courses and tasks from your uploaded notes appear. Reload after toggling.</p>
+      <SettingsSection id="settings-interface" title={c.sectionInterface} icon={<Palette className="w-5 h-5 text-brand-300" />} delay={0.35}>
+        <ThemePickerRow
+          label={c.labelTheme}
+          hint={c.themeHint}
+          options={c.themeOptions}
+          value={settings.theme}
+          onChange={v => onUpdate({ theme: v as UserSettings['theme'] })}
+        />
+        <ToggleRow label={c.labelLanguage} options={c.languageOptions} value={settings.language} onChange={v => onUpdate({ language: v as UserSettings['language'] })} />
+        <ToggleRow
+          label={c.labelChromeDensity}
+          options={c.chromeDensityOptions}
+          value={settings.chromeDensity ?? 'comfortable'}
+          onChange={v => onUpdate({ chromeDensity: v as UserSettings['chromeDensity'] })}
+        />
+      </SettingsSection>
+
+      <div className="lg:col-span-2">
+        <ColorCodingReferencePanel />
+      </div>
+
+      <SettingsSection id="settings-data" title={c.sectionDataProgress} icon={<Database className="w-5 h-5 text-accent-cyan" />} delay={0.38}>
+        <ToggleRow label={c.labelDemoContent} options={c.demoContentOptions} value={settings.showDemoContent ? 'on' : 'off'} onChange={v => onUpdate({ showDemoContent: v === 'on' })} />
+        <p className="text-[11px] text-text-muted">{c.demoContentHint}</p>
         <div className="flex flex-wrap gap-2">
           <button
             type="button"
-            onClick={() => { downloadBackup(); setBackupStatus('Backup downloaded.'); }}
+            onClick={() => { downloadBackup(); setBackupStatus(c.backupDownloaded); }}
             className="px-3 py-2 rounded-xl text-xs font-medium bg-brand-600/20 text-brand-300 border border-brand-500/30 hover:bg-brand-600/30"
           >
-            Export backup
+            {c.exportBackup}
           </button>
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
             className="px-3 py-2 rounded-xl text-xs font-medium border border-border-subtle text-text-secondary hover:border-brand-500/30"
           >
-            Import backup
+            {c.importBackup}
           </button>
           <button
             type="button"
             onClick={() => {
-              if (window.confirm('Clear all Synapse local data? This cannot be undone.')) {
+              if (window.confirm(c.clearConfirm)) {
                 const n = clearAllSessionData();
-                setBackupStatus(`Cleared ${n} stored items. Reload recommended.`);
+                setBackupStatus(c.formatCleared(n));
               }
             }}
             className="px-3 py-2 rounded-xl text-xs font-medium border border-accent-rose/30 text-accent-rose hover:bg-accent-rose/10"
           >
-            Clear local data
+            {c.clearLocalData}
           </button>
         </div>
         <input
@@ -511,30 +700,104 @@ export function Settings({
           <p className="text-xs text-text-secondary px-1">{backupStatus}</p>
         )}
       </SettingsSection>
+
+      <SettingsSection id="settings-developer" title={c.sectionDeveloper} icon={<Gauge className="w-5 h-5 text-accent-amber" />} delay={0.39}>
+        <p className="text-xs text-text-secondary">{c.developerHint}</p>
+        <WorkspaceTTIPanel />
+        <div className="pt-2 border-t border-border-subtle space-y-2" data-testid="settings-notebooklm-parity">
+          <ToggleRow
+            label={t('settingsNotebookLmParity')}
+            options={[
+              { value: 'default', label: t('settingsNotebookLmParityDefault') },
+              { value: 'on', label: t('settingsNotebookLmParityOn') },
+              { value: 'off', label: t('settingsNotebookLmParityOff') },
+            ]}
+            value={parityToggleValue}
+            onChange={(v) => {
+              if (v === 'on') setNotebookLmParityOverride(true);
+              else if (v === 'off') setNotebookLmParityOverride(false);
+              else setNotebookLmParityOverride(null);
+              setParityTick((n) => n + 1);
+            }}
+          />
+          <p className="text-[11px] text-text-muted">
+            {t('settingsNotebookLmParityHint')}{' '}
+            ({parityEffective ? t('settingsNotebookLmParityOn') : t('settingsNotebookLmParityOff')})
+          </p>
+        </div>
+        {onReplayProductTour && (
+          <div className="pt-2 border-t border-border-subtle">
+            <p className="text-xs text-text-secondary mb-2">{t('tourReplayHint')}</p>
+            <button
+              type="button"
+              onClick={onReplayProductTour}
+              data-testid="settings-replay-product-tour"
+              className="px-3 py-2 rounded-lg text-xs font-medium border border-border-subtle hover:bg-surface-hover transition-colors"
+            >
+              {t('tourReplay')}
+            </button>
+          </div>
+        )}
+      </SettingsSection>
+      </div>
       </div>
 
-      <Card padding="sm">
+      <div className={cn('platform-panel-soft', isMinimal && 'settings-ide-footer')}>
         <p className="text-xs text-text-tertiary leading-relaxed flex items-start gap-2">
           <Zap className="w-4 h-4 text-brand-400 shrink-0 mt-0.5" />
-          These are your UI preferences. The adaptive engine also learns from your behavior — response time, accuracy, confidence calibration, error patterns, help-seeking rate, and retention over time. It adjusts independently of these settings.
+          {c.footerNote}
         </p>
-      </Card>
+      </div>
     </Page>
   );
 }
 
-function SettingsSection({ title, icon, iconClassName, children, delay }: { title: string; icon: LucideIcon; iconClassName?: string; children: React.ReactNode; delay: number }) {
+function SettingsSection({ id, title, icon, children, delay }: { id: string; title: string; icon: React.ReactNode; children: React.ReactNode; delay: number }) {
+  const isMinimal = useMinimalTheme();
   return (
-    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay }}>
-      <Card>
-        <SectionHeading title={title} icon={icon} iconClassName={iconClassName} className="mb-4" />
-        <div className="space-y-4">{children}</div>
-      </Card>
-    </motion.div>
+    <AnimatedCard
+      id={id}
+      delay={isMinimal ? 0 : delay}
+      padding="md"
+      className={cn('scroll-mt-28', isMinimal && 'settings-ide-section')}
+    >
+      <h3
+        className={cn(
+          'ws-serif text-sm font-medium flex items-center gap-2 mb-4 text-text-primary',
+          isMinimal && 'settings-ide-section-title',
+        )}
+      >
+        {icon}
+        {title}
+      </h3>
+      <div className="space-y-4">{children}</div>
+    </AnimatedCard>
   );
 }
 
 function ToggleRow({ label, options, value, onChange }: { label: string; options: { value: string; label: string }[]; value: string; onChange: (v: string) => void }) {
+  const isMinimal = useMinimalTheme();
+  // OPT-K8 — Spending-like label ↔ control row under Minimal.
+  if (isMinimal) {
+    return (
+      <div className="settings-pref-row">
+        <span className="settings-pref-label">{label}</span>
+        <div className="settings-pref-control" role="group" aria-label={label}>
+          {options.map((opt) => (
+            <button
+              key={opt.value}
+              type="button"
+              onClick={() => onChange(opt.value)}
+              className={cn('settings-pref-chip', value === opt.value && 'is-active')}
+              aria-pressed={value === opt.value}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
+      </div>
+    );
+  }
   return (
     <div>
       <label className="text-xs text-text-secondary block mb-2">{label}</label>
@@ -550,14 +813,115 @@ function ToggleRow({ label, options, value, onChange }: { label: string; options
   );
 }
 
+const THEME_ICONS: Record<string, LucideIcon> = {
+  dark: Moon,
+  light: Sun,
+  spectrum: Sparkles,
+  blueprint: Layers,
+  system: Monitor,
+};
+
+/** L-S01 / K-S01: denser theme chips with Phosphor icons (no emoji). */
+function ThemePickerRow({
+  label,
+  hint,
+  options,
+  value,
+  onChange,
+}: {
+  label: string;
+  hint?: string;
+  options: { value: string; label: string }[];
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  const isMinimal = useMinimalTheme();
+  const chips = options.map((opt) => {
+    const Icon = THEME_ICONS[opt.value] ?? Palette;
+    const active = value === opt.value;
+    return (
+      <button
+        key={opt.value}
+        type="button"
+        onClick={() => onChange(opt.value)}
+        className={cn(
+          isMinimal
+            ? cn('settings-pref-chip inline-flex items-center gap-1.5', active && 'is-active')
+            : cn(
+                'inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-[11px] font-medium transition-all',
+                /* Wave P-3 C12 — .ux-theme-chip-active uses brand-700 ink on light
+                   themes (brand-300 collapsed to ~2:1 on warm-light white cards). */
+                active
+                  ? 'ux-theme-chip-active'
+                  : 'border-border-subtle text-text-tertiary hover:text-text-secondary hover:border-brand-500/25',
+              ),
+        )}
+        aria-pressed={active}
+      >
+        <Icon className="w-3.5 h-3.5 shrink-0" aria-hidden />
+        {opt.label}
+      </button>
+    );
+  });
+
+  if (isMinimal) {
+    return (
+      <div data-testid="settings-theme-picker" className="settings-pref-row">
+        <div className="settings-pref-label">
+          <span>{label}</span>
+          {hint && (
+            <p className="mt-1 text-[11px] font-normal leading-snug text-text-tertiary" data-testid="settings-theme-hint">
+              {hint}
+            </p>
+          )}
+        </div>
+        <div className="settings-pref-control">{chips}</div>
+      </div>
+    );
+  }
+
+  return (
+    <div data-testid="settings-theme-picker">
+      <label className="text-xs text-text-secondary block mb-2">{label}</label>
+      {hint && (
+        <p className="text-[11px] leading-snug mb-2" data-testid="settings-theme-hint">
+          {hint}
+        </p>
+      )}
+      <div className="flex flex-wrap gap-1.5">{chips}</div>
+    </div>
+  );
+}
+
 function SliderRow({ label, leftLabel, rightLabel, value, onChange, min = 0, max = 100 }: { label: string; leftLabel: string; rightLabel: string; value: number; onChange: (v: number) => void; min?: number; max?: number }) {
+  const isMinimal = useMinimalTheme();
+  if (isMinimal) {
+    return (
+      <div className="settings-pref-row">
+        <span className="settings-pref-label">{label}</span>
+        <div className="settings-pref-control items-center !flex-nowrap">
+          <span className="text-[10px] text-text-muted shrink-0">{leftLabel}</span>
+          <input
+            type="range"
+            min={min}
+            max={max}
+            value={value}
+            onChange={(e) => onChange(Number(e.target.value))}
+            className="min-w-[7rem] flex-1"
+            aria-label={label}
+          />
+          <span className="text-[10px] text-text-muted shrink-0">{rightLabel}</span>
+        </div>
+      </div>
+    );
+  }
   return (
     <div>
       <label className="text-xs text-text-secondary block mb-2">{label}</label>
       <div className="flex items-center gap-3">
-        <span className="ws-caption text-text-muted w-20 text-right">{leftLabel}</span>
+        <span className="text-[10px] text-text-muted w-20 text-right">{leftLabel}</span>
         <input type="range" min={min} max={max} value={value} onChange={e => onChange(Number(e.target.value))} className="flex-1" />
-        <span className="ws-caption text-text-muted w-20">{rightLabel}</span>
+        <span className="text-[10px] text-text-muted w-20">{rightLabel}</span>
       </div>
     </div>
   );

@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { useMemo, useState } from 'react';
-import { ArrowDownUp, Download, Sparkles } from 'lucide-react';
+import { ArrowDownUp, Download, Sparkles, List, Calculator, Scale, Flag, TrendingUp } from '@/lib/lucide-shim';
 import { termMatchesFocus } from '../../lib/workspaceFocus';
 import { cn } from '../../utils/cn';
 import { downloadCompareCsv } from '../../lib/compareExport';
@@ -11,6 +11,7 @@ import {
   isDiffHighlight,
   rowDiffScores,
 } from '../../lib/compareDiff';
+import { t as translate, useI18n, type Lang } from '../../lib/i18n';
 
 /* --- Flowchart Diagram --- */
 interface FlowNode { id: string; label: string; type: 'start' | 'step' | 'decision' | 'end' }
@@ -36,7 +37,7 @@ export function FlowchartDiagram({ nodes, edges, title }: { nodes: FlowNode[]; e
 
   return (
     <div className="rounded-xl border border-border-subtle bg-surface-card p-4">
-      {title && <p className="text-xs font-semibold mb-2 text-text-secondary">📋 {title}</p>}
+      {title && <p className="text-xs font-semibold mb-2 text-text-secondary inline-flex items-center gap-1.5"><List className="w-3.5 h-3.5" /> {title}</p>}
       <svg width={320} height={svgH} className="block mx-auto">
         {/* Edges */}
         {edges.map((e, i) => {
@@ -84,7 +85,7 @@ interface FormulaSymbol { symbol: string; meaning: string; unit?: string }
 export function FormulaExplorer({ formula, name, symbols }: { formula: string; name: string; symbols: FormulaSymbol[] }) {
   return (
     <div className="rounded-xl border border-border-subtle bg-surface-card p-4">
-      <p className="text-xs font-semibold mb-3 text-text-secondary">📐 Formula Explorer</p>
+      <p className="text-xs font-semibold mb-3 text-text-secondary inline-flex items-center gap-1.5"><Calculator className="w-3.5 h-3.5" /> Formula Explorer</p>
       <div className="text-center mb-4">
         <p className="text-xs text-text-muted mb-1">{name}</p>
         <div className="text-2xl font-mono font-bold text-brand-300 py-3 px-4 rounded-lg bg-surface-primary/60 inline-block">
@@ -97,7 +98,7 @@ export function FormulaExplorer({ formula, name, symbols }: { formula: string; n
             <span className="font-mono font-bold text-brand-400 text-sm w-8 shrink-0">{s.symbol}</span>
             <div>
               <p className="text-xs text-text-secondary">{s.meaning}</p>
-              {s.unit && <p className="text-[9px] text-text-muted">Unit: {s.unit}</p>}
+              {s.unit && <p className="text-[10px] text-text-muted">Unit: {s.unit}</p>}
             </div>
           </div>
         ))}
@@ -161,7 +162,7 @@ export function ComparisonTable({
   return (
     <div className="rounded-xl border border-border-subtle bg-surface-card p-4 overflow-x-auto" data-testid="comparison-table">
       <div className="flex items-center justify-between gap-2 mb-3">
-        <p className="text-xs font-semibold text-text-secondary">⚖️ {title}</p>
+        <p className="text-xs font-semibold text-text-secondary inline-flex items-center gap-1.5"><Scale className="w-3.5 h-3.5" /> {title}</p>
         <div className="flex items-center gap-1.5">
           <button
             type="button"
@@ -172,7 +173,7 @@ export function ComparisonTable({
               diffMode ? 'border-accent-amber/40 bg-accent-amber/10 text-accent-amber' : 'border-border-subtle text-text-muted',
             )}
           >
-            {lang === 'el' ? 'Διαφορές' : 'Diff'}
+            {translate('compareDiff', lang as Lang)}
           </button>
           <button
             type="button"
@@ -216,7 +217,7 @@ export function ComparisonTable({
                   {h}
                   <ArrowDownUp className="w-3 h-3 opacity-60" />
                   {sortCol === i && (
-                    <span className="text-[8px] font-mono">{sortDir === 'asc' ? '↑' : '↓'}</span>
+                    <span className="text-[10px] font-mono">{sortDir === 'asc' ? '↑' : '↓'}</span>
                   )}
                 </button>
               </th>
@@ -280,7 +281,7 @@ interface Milestone { label: string; completed: boolean; date?: string; xp?: num
 export function ProgressTimeline({ milestones, title }: { milestones: Milestone[]; title?: string }) {
   return (
     <div className="rounded-xl border border-border-subtle bg-surface-card p-4">
-      {title && <p className="text-xs font-semibold mb-3 text-text-secondary">🏁 {title}</p>}
+      {title && <p className="text-xs font-semibold mb-3 text-text-secondary inline-flex items-center gap-1.5"><Flag className="w-3.5 h-3.5" /> {title}</p>}
       <div className="space-y-0">
         {milestones.map((m, i) => (
           <motion.div
@@ -300,8 +301,8 @@ export function ProgressTimeline({ milestones, title }: { milestones: Milestone[
             </div>
             <div className="pb-6">
               <p className={`text-xs font-medium ${m.completed ? 'text-text-primary' : 'text-text-tertiary'}`}>{m.label}</p>
-              {m.date && <p className="text-[9px] text-text-muted mt-0.5">{m.date}</p>}
-              {m.xp && m.completed && <p className="text-[9px] text-accent-amber mt-0.5">+{m.xp} XP</p>}
+              {m.date && <p className="text-[10px] text-text-muted mt-0.5">{m.date}</p>}
+              {m.xp && m.completed && <p className="text-[10px] text-accent-amber mt-0.5">+{m.xp} XP</p>}
             </div>
           </motion.div>
         ))}
@@ -310,58 +311,84 @@ export function ProgressTimeline({ milestones, title }: { milestones: Milestone[
   );
 }
 
-/* --- Retention Curve --- */
+/* --- Retention Curve (J-A02: theme-aware stroke + day markers) --- */
 export function RetentionCurve({ dataPoints }: { dataPoints: { day: number; retention: number }[] }) {
-  const w = 300, h = 160, pad = 30;
-  const gw = w - 2 * pad, gh = h - 2 * pad;
-  const maxDay = Math.max(...dataPoints.map(d => d.day), 30);
+  const { t } = useI18n();
+  const w = 300, h = 168, pad = 28;
+  const gw = w - 2 * pad, gh = h - 2 * pad - 14;
+  const maxDay = Math.max(...dataPoints.map(d => d.day), 14);
 
   const points = dataPoints.map(d => ({
+    day: d.day,
     x: pad + (d.day / maxDay) * gw,
     y: pad + gh - (d.retention / 100) * gh,
   }));
   const pathD = points.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x},${p.y}`).join(' ');
+  const markerDays = new Set([0, 14]);
+  const markers = points.filter((p) => markerDays.has(p.day) || p.day === maxDay);
+  const stroke = 'var(--color-brand-600)';
+  const grid = 'var(--color-border-subtle)';
+  const axis = 'var(--color-text-muted)';
 
   return (
-    <div className="rounded-xl border border-border-subtle bg-surface-card p-4">
-      <p className="text-xs font-semibold mb-2 text-text-secondary">📉 Forgetting Curve</p>
-      <svg width={w} height={h} className="block mx-auto">
-        {/* Grid */}
+    <div className="rounded-xl border border-border-subtle bg-surface-card p-3" data-testid="retention-curve">
+      <p className="text-[11px] font-semibold mb-0.5 text-text-secondary inline-flex items-center gap-1.5">
+        <TrendingUp className="w-3.5 h-3.5 rotate-180" /> {t('analyticsRetentionCurveTitle')}
+      </p>
+      <p className="text-[10px] text-text-muted mb-2">{t('analyticsRetentionCurveSubtitle')}</p>
+      <svg width={w} height={h} className="block mx-auto max-w-full" viewBox={`0 0 ${w} ${h}`}>
         {[0, 25, 50, 75, 100].map(v => (
           <g key={v}>
-            <line x1={pad} y1={pad + gh - (v / 100) * gh} x2={w - pad} y2={pad + gh - (v / 100) * gh} stroke="#1e1740" strokeWidth={1} />
-            <text x={pad - 5} y={pad + gh - (v / 100) * gh + 3} textAnchor="end" fill="#4d4870" fontSize={8}>{v}%</text>
+            <line x1={pad} y1={pad + gh - (v / 100) * gh} x2={w - pad} y2={pad + gh - (v / 100) * gh} stroke={grid} strokeWidth={1} />
+            <text x={pad - 5} y={pad + gh - (v / 100) * gh + 3} textAnchor="end" fill={axis} fontSize={8}>{v}%</text>
           </g>
         ))}
-        <line x1={pad} y1={h - pad} x2={w - pad} y2={h - pad} stroke="#4d4870" strokeWidth={1} />
+        <line x1={pad} y1={pad + gh} x2={w - pad} y2={pad + gh} stroke={axis} strokeWidth={1} />
 
-        {/* Curve */}
         <motion.path
           d={pathD}
-          fill="none" stroke="#818cf8" strokeWidth={2.5} strokeLinecap="round"
-          initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 1.5 }}
+          fill="none" stroke={stroke} strokeWidth={2.25} strokeLinecap="round"
+          initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 1.2 }}
         />
 
-        {/* Area fill */}
-        <path d={`${pathD} L${points[points.length - 1]?.x || pad},${pad + gh} L${pad},${pad + gh} Z`} fill="url(#retention-grad)" opacity={0.15} />
+        <path d={`${pathD} L${points[points.length - 1]?.x || pad},${pad + gh} L${pad},${pad + gh} Z`} fill="url(#retention-grad)" opacity={0.18} />
         <defs>
           <linearGradient id="retention-grad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#818cf8" /><stop offset="100%" stopColor="transparent" />
+            <stop offset="0%" stopColor="var(--color-brand-500)" /><stop offset="100%" stopColor="transparent" />
           </linearGradient>
         </defs>
 
-        {/* Data points */}
         {points.map((p, i) => (
           <motion.circle
-            key={i} cx={p.x} cy={p.y} r={3} fill="#818cf8"
-            initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.5 + i * 0.1 }}
+            key={i} cx={p.x} cy={p.y} r={2.5} fill={stroke}
+            initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.4 + i * 0.08 }}
           />
         ))}
 
-        {/* Labels */}
-        <text x={pad + gw / 2} y={h - 5} textAnchor="middle" fill="#706b8f" fontSize={9}>Days since learning</text>
+        {/* Mockup day markers: Σήμερα … +14ημ. */}
+        {markers.map((p) => {
+          const label = p.day === 0
+            ? t('analyticsTimelineDayToday')
+            : t('analyticsRetentionDayPlus').replace('{n}', String(p.day));
+          return (
+            <g key={`marker-${p.day}`}>
+              <rect
+                x={p.x - 18}
+                y={pad + gh + 2}
+                width={36}
+                height={12}
+                rx={6}
+                fill="var(--color-brand-700)"
+                opacity={0.9}
+              />
+              <text x={p.x} y={pad + gh + 10.5} textAnchor="middle" fill="#fff" fontSize={7} fontWeight={600}>
+                {label}
+              </text>
+            </g>
+          );
+        })}
       </svg>
-      <p className="text-[9px] text-text-muted text-center mt-1">Spaced reviews (↑) reset the curve. Without review, retention decays exponentially.</p>
+      <p className="text-[10px] text-text-muted text-center mt-1">{t('analyticsRetentionCurveHint')}</p>
     </div>
   );
 }

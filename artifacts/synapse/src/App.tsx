@@ -1,9 +1,10 @@
-import { useEffect, useState, useMemo, useCallback, useRef, lazy, Suspense, type ReactNode } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
+import { useEffect, useState, useMemo, useCallback, useRef, Suspense, type ReactNode } from 'react';
+import { AnimatePresence, MotionConfig } from 'framer-motion';
 import { useAppStore } from './store/useStore';
-import { applyTheme, watchSystemTheme } from './lib/theme';
+import { applyTheme, watchSystemTheme, resolveChromeDensity } from './lib/theme';
 import { I18nContext, t as translate, type I18nKey } from './lib/i18n';
 import { getTaskConcept, getWorkspaceTool, getMistakesForTask, getExamDurationSeconds, findPendingTask } from './lib/taskFlows';
+import { executeDashboardNextAction } from './lib/dashboardNextAction';
 import {
   buildTaskFlowContext,
   resolveExamQuestions,
@@ -11,9 +12,21 @@ import {
   resolvePrerequisiteSteps,
   resolveReviewCards,
 } from './lib/taskFlowContent';
-import { CommandPalette, useCommandPalette } from './components/CommandPalette';
+import { AppCommandPaletteMount, useCommandPalette } from './components/CommandPalette';
+import { WorkspaceKeyboardHelp } from './components/workspace/WorkspaceKeyboardHelp';
+import { isTypingTarget } from './lib/workspaceKeyboardShortcuts';
+import { NavAccessDenied } from './components/NavAccessDenied';
+import { canAccessShellView } from './lib/navCapabilities';
+import { clearCourseDeepLinkParams, parseCourseDeepLink, seedCourseTabFromDeepLink } from './lib/courseDeepLink';
+import { buildShellBreadcrumb } from './lib/shellBreadcrumb';
+import type { GlobalQuickActionId } from './lib/globalActionRegistry';
+import { persistWorkspaceV2CanaryFromUrl, reportWorkspaceCanaryCohort } from './lib/workspaceFeatureFlags';
 import type { ContentSearchHit } from './lib/globalContentSearch';
 import { NotificationsPanel } from './components/NotificationsPanel';
+import { NotificationToastStack } from './components/NotificationToastStack';
+import { BlueprintSvgDefs } from './components/ui/BlueprintSvgDefs';
+import { PlatformViewTransition } from './components/ui/PlatformViewTransition';
+import { PlatformLazyOverlaySkeleton } from './components/ui/UxShimmerSkeleton';
 import { MistakeRetryView } from './components/MistakeRetryView';
 import { ExamPrepView } from './components/ExamPrepView';
 import { PrerequisiteRepairView } from './components/PrerequisiteRepairView';
@@ -24,6 +37,7 @@ import { Shell } from './components/Shell';
 import { Dashboard } from './components/Dashboard';
 import { Library } from './components/Library';
 import { Tasks } from './components/Tasks';
+import { NoteAnalysisView } from './components/NoteAnalysisView';
 import { CourseView } from './components/CourseView';
 import { Settings } from './components/Settings';
 import { UploadModal } from './components/UploadModal';
@@ -31,25 +45,55 @@ import { AppToastBanner } from './components/AppToastBanner';
 import type { AppView } from './types';
 import type { FsrsRating } from './lib/pedagogy';
 import { visibleCourses } from './lib/demoMode';
-import { StudyWorkspace } from './components/workspace/StudyWorkspace';
+import { ErrorBoundary } from './components/ErrorBoundary';
+import { StudyWorkspaceLazy } from './components/workspace/StudyWorkspaceLazy';
+import { NotebookShellView } from './components/NotebookShellView';
+import { parseNotebookLmExport } from './lib/notebooklmImport';
+import {
+  buildNotebookLmExportPayload,
+  exportToNotebookLm,
+} from './lib/notebooklmExport';
+import { prefetchWorkspaceEntry } from './lib/workspaceEntryPrefetch';
+import { preloadCriticalChunks } from './lib/preloadCriticalChunks';
+import { lazyWithRetry } from './lib/lazyWithRetry';
+import { ProductTour } from './components/ProductTour';
+import { useProductTour } from './hooks/useProductTour';
+import { isProductTourComplete } from './lib/productTour';
+import { TakeBreathModal } from './components/examPrep/TakeBreathModal';
+import { subscribeTakeBreathPrompt } from './lib/examPrep/takeBreathEvents';
 
-const Agent = lazy(() => import('./components/Agent').then((m) => ({ default: m.Agent })));
-const Analytics = lazy(() => import('./components/Analytics').then((m) => ({ default: m.Analytics })));
-const TeacherDashboard = lazy(() => import('./components/TeacherDashboard').then((m) => ({ default: m.TeacherDashboard })));
-const LessonView = lazy(() => import('./components/LessonView').then((m) => ({ default: m.LessonView })));
-const PracticalLessonView = lazy(() => import('./components/PracticalLessonView').then((m) => ({ default: m.PracticalLessonView })));
-const ReviewSessionView = lazy(() => import('./components/ReviewSessionView').then((m) => ({ default: m.ReviewSessionView })));
+const Agent = lazyWithRetry(() => import('./components/Agent').then((m) => ({ default: m.Agent })), 'agent');
+const Analytics = lazyWithRetry(() => import('./components/Analytics').then((m) => ({ default: m.Analytics })), 'analytics');
+const TeacherDashboard = lazyWithRetry(() => import('./components/TeacherDashboard').then((m) => ({ default: m.TeacherDashboard })), 'teacher');
+const StudentOrgView = lazyWithRetry(() => import('./components/StudentOrgView').then((m) => ({ default: m.StudentOrgView })), 'student-org');
+const LessonView = lazyWithRetry(() => import('./components/LessonView').then((m) => ({ default: m.LessonView })), 'lesson');
+const PracticalLessonView = lazyWithRetry(() => import('./components/PracticalLessonView').then((m) => ({ default: m.PracticalLessonView })), 'practical-lesson');
+const ReviewSessionView = lazyWithRetry(() => import('./components/ReviewSessionView').then((m) => ({ default: m.ReviewSessionView })), 'review-session');
 
-function LazyOverlay({ children, fallback }: { children: ReactNode; fallback?: ReactNode }) {
+/**
+ * Wraps lazy overlay subtrees in an ErrorBoundary so a chunk-load failure
+ * renders a Try-again / Reload card instead of stranding the user on a blank
+ * spinner. `flow` is forwarded into the Suspense fallback testid for E2E.
+ */
+function LazyOverlay({
+  children,
+  fallback,
+  flow,
+  onRecover,
+}: {
+  children: ReactNode;
+  fallback?: ReactNode;
+  flow?: string;
+  onRecover?: () => void;
+}) {
   const resolvedFallback = fallback !== undefined ? fallback : (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-surface-primary/95 backdrop-blur-sm"
-      data-testid="lazy-overlay-loading"
-    >
-      <p className="text-sm text-text-secondary">Loading…</p>
-    </div>
+    <PlatformLazyOverlaySkeleton flow={flow} />
   );
-  return <Suspense fallback={resolvedFallback}>{children}</Suspense>;
+  return (
+    <ErrorBoundary overlay onRecover={onRecover}>
+      <Suspense fallback={resolvedFallback}>{children}</Suspense>
+    </ErrorBoundary>
+  );
 }
 
 export default function App() {
@@ -57,6 +101,22 @@ export default function App() {
   const { open: paletteOpen, toggle: togglePalette, close: closePalette } = useCommandPalette();
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [uploadIntent, setUploadIntent] = useState<{ mode: 'new' | 'extend'; targetCourseId?: string }>({ mode: 'new' });
+  const [productTourOpen, setProductTourOpen] = useState(false);
+  const [takeBreathOpen, setTakeBreathOpen] = useState(false);
+  const [shellHelpOpen, setShellHelpOpen] = useState(false);
+
+  // OPT-M16: shell-level `?` help when Study Workspace is closed (workspace owns `?` when open).
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (store.studyWorkspaceOpen) return;
+      if (isTypingTarget(e.target)) return;
+      if (e.key !== '?' && !(e.shiftKey && e.key === '/')) return;
+      e.preventDefault();
+      setShellHelpOpen((v) => !v);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [store.studyWorkspaceOpen]);
 
   const closeLessonView = () => {
     store.setActiveLessonView(false);
@@ -85,36 +145,120 @@ export default function App() {
   };
 
   const openWorkspace = useCallback(() => {
+    if (store.currentView === 'landing' || store.currentView === 'onboarding') {
+      store.navigate('dashboard');
+    }
     store.openStudyWorkspace();
   }, [store]);
 
   const openWorkspaceForConcept = useCallback((concept?: string) => {
+    if (store.currentView === 'landing' || store.currentView === 'onboarding') {
+      store.navigate('dashboard');
+    }
     store.openStudyWorkspaceForConcept(concept);
   }, [store]);
 
+  /** Course / library Continue — store marks TTI + prefetches chunk. */
+  const openCourseWorkspace = useCallback((topicTitle?: string) => {
+    if (topicTitle?.trim()) {
+      store.openStudyWorkspaceForConcept(topicTitle.trim());
+      return;
+    }
+    store.openStudyWorkspace();
+  }, [store]);
+
   const openExamTimerWorkspace = useCallback(() => {
+    if (store.currentView === 'landing' || store.currentView === 'onboarding') {
+      store.navigate('dashboard');
+    }
     store.openStudyWorkspaceForExamCountdown();
   }, [store]);
 
   const hasCourses = visibleCourses(store.courses, store.user.settings).length > 0;
 
-  const handleSeeDemo = useCallback(() => {
-    store.enableDemoContent();
-    // Leave the landing/onboarding gate so the workspace overlay can render.
-    store.navigate('dashboard');
-    store.openStudyWorkspace();
-  }, [store]);
+  useEffect(() => subscribeTakeBreathPrompt(() => setTakeBreathOpen(true)), []);
 
-  const handleOnboardingComplete = useCallback((data: Parameters<typeof store.completeOnboarding>[0] & { exploreDemoMode?: boolean }) => {
-    const { exploreDemoMode, ...rest } = data;
-    if (exploreDemoMode) {
-      store.enableDemoContent();
-      store.navigate('dashboard');
-      store.openStudyWorkspace();
+  const runDashboardNextAction = useCallback(() => {
+    const action = store.dashboardNextAction;
+    if (!action) return;
+    if (action.kind === 'review-due') {
+      const firstReviewTask = findPendingTask(store.tasks, (t) => t.isSpacedRepetition && t.status === 'pending');
+      if (firstReviewTask) store.startTask(firstReviewTask.id);
+      else executeDashboardNextAction(action, {
+        onNavigateTasks: () => store.openTasksWithFilter('review'),
+        onOpenWorkspacePractice: store.openStudyWorkspaceForPractice,
+      });
       return;
     }
-    store.completeOnboarding(rest);
+    executeDashboardNextAction(action, {
+      onStartTask: store.startTask,
+      onNavigateTasks: () => store.openTasksWithFilter('review'),
+      onOpenExamTimer: openExamTimerWorkspace,
+      onOpenWorkspace: openWorkspace,
+      onFocusWeakArea: openWorkspaceForConcept,
+      onStartSession: () => store.startSession('25min'),
+      onOpenWorkspacePractice: store.openStudyWorkspaceForPractice,
+    });
+  }, [store, openExamTimerWorkspace, openWorkspace, openWorkspaceForConcept]);
+
+  const handleSeeDemo = useCallback(() => {
+    store.closeStudyWorkspace();
+    store.enableDemoContent();
+    store.navigate('library');
   }, [store]);
+
+  const handleOnboardingComplete = useCallback((
+    data: Parameters<typeof store.completeOnboarding>[0],
+  ) => {
+    // OPT-R18 — exploreDemoMode seeds demo courses atomically inside completeOnboarding.
+    store.completeOnboarding(data);
+    if (data.exploreDemoMode) {
+      return;
+    }
+    if (data.role !== 'tutor' && !data.openTeacher && !data.skipWizard) {
+      window.setTimeout(() => setProductTourOpen(true), 400);
+    }
+  }, [store]);
+
+  const replayProductTour = useCallback(() => {
+    setProductTourOpen(false);
+    store.navigate('dashboard');
+    window.setTimeout(() => setProductTourOpen(true), 100);
+  }, [store]);
+
+  const productTour = useProductTour({
+    open: productTourOpen && !store.studyWorkspaceOpen,
+    currentView: store.currentView,
+    onNavigate: store.navigate,
+    onClose: () => setProductTourOpen(false),
+  });
+
+  useEffect(() => {
+    if (
+      !store.user.onboardingComplete
+      || store.currentView !== 'dashboard'
+      || store.studyWorkspaceOpen
+      || isProductTourComplete()
+      || productTourOpen
+    ) {
+      return;
+    }
+    const timer = window.setTimeout(() => setProductTourOpen(true), 900);
+    return () => window.clearTimeout(timer);
+  }, [store.user.onboardingComplete, store.currentView, store.studyWorkspaceOpen, productTourOpen]);
+
+  const demoDeepLinkFired = useRef(false);
+  const viewDeepLinkFired = useRef(false);
+  const courseDeepLinkFired = useRef(false);
+  const samlDeepLinkFired = useRef(false);
+  const ltiDeepLinkFired = useRef(false);
+  const [samlEmailHint, setSamlEmailHint] = useState<string | null>(null);
+  const [ltiLaunchHint, setLtiLaunchHint] = useState<{
+    contextId: string;
+    contextTitle?: string;
+    email?: string;
+    linkedClassId?: string;
+  } | null>(null);
 
   const closeReviewSession = () => {
     store.setReviewSessionOpen(false);
@@ -130,6 +274,16 @@ export default function App() {
     store.setShowUploadModal(false);
     setUploadIntent({ mode: 'new' });
   };
+
+  const handleQuickAccess = useCallback((action: GlobalQuickActionId) => {
+    if (action === 'note-analysis') store.openNoteAnalysis();
+    else if (action === 'upload') openUploadModal();
+    else if (action === 'workspace') openWorkspace();
+    else {
+      store.openTasksWithFilter('exam');
+      store.setExamPrepOpen(true);
+    }
+  }, [store, openWorkspace]);
 
   const handleReviewRating = (rating: FsrsRating) => {
     if (store.activeTaskId) {
@@ -147,6 +301,7 @@ export default function App() {
     ?? store.selectedCourse;
   const workspaceConcept = taskConcept
     ?? store.studyConceptOverride
+    ?? store.workspaceFocus?.term
     ?? workspaceCourse?.topics[0]?.title
     ?? workspaceCourse?.title
     ?? 'Introduction';
@@ -175,9 +330,17 @@ export default function App() {
   const sessionCurrentIndex = store.sessionTotal > 0
     ? store.sessionTotal - store.sessionQueue.length + 1
     : 0;
+  const sessionNextTaskId = store.sessionQueue.find((id) => id !== store.activeTaskId);
+  const sessionNextTask = sessionNextTaskId
+    ? store.tasks.find((t) => t.id === sessionNextTaskId) ?? null
+    : null;
 
   const nextPendingTask = findPendingTask(store.tasks, () => true);
   const agentSplitActive = store.studyWorkspaceOpen && store.workspaceAgentSplit && store.currentView === 'agent';
+  const courseSplitActive = Boolean(
+    store.studyWorkspaceOpen && store.workspaceCourseSplit && store.currentView === 'course' && store.selectedCourse,
+  );
+  const embeddedSplitActive = agentSplitActive || courseSplitActive;
 
   const agentPanelProps = {
     messages: store.agentMessages,
@@ -199,12 +362,23 @@ export default function App() {
     autoSendDraft: store.agentAutoSend,
     onConsumeAutoSend: () => store.setAgentAutoSend(false),
     workspaceContext: store.agentContextForView,
+    onChangeSourceMode: (sourceMode: import('./types').UserSettings['sourceMode']) => store.updateSettings({ sourceMode }),
+    dashboardNextAction: store.dashboardNextAction,
+    weakAreas: store.learnerModel.weakAreas,
   };
 
   const studyWorkspaceElement = (
-      <StudyWorkspace
+    <ErrorBoundary
+      overlay
+      remountKey={workspaceSessionKey}
+      onRecover={closeWorkspace}
+      onRetry={closeWorkspace}
+    >
+      <StudyWorkspaceLazy
         key={workspaceSessionKey}
-        agentSplit={agentSplitActive}
+        bootCompact={embeddedSplitActive}
+        bootLang={store.user.settings.language === 'el' ? 'el' : 'en'}
+        agentSplit={embeddedSplitActive}
         onClose={closeWorkspace}
         onOpenAgent={() => store.openAgentFromWorkspace()}
         onOpenAgentWithPrompt={store.openAgentFromWorkspace}
@@ -217,6 +391,7 @@ export default function App() {
         initialTool={workspaceTool}
         taskId={store.activeTaskId}
         learnerModel={store.learnerModel}
+        activities={store.activities}
         dashboardStats={store.dashboardStats}
         conceptBars={store.pedagogyMetrics.conceptBars}
         uploadedFiles={store.uploadedFiles}
@@ -229,31 +404,72 @@ export default function App() {
         onLeitnerRate={(concept, rating) => store.submitLeitnerRating(concept, rating, store.activeTask?.courseId ?? store.selectedCourse?.id)}
         onLogStudyMinutes={store.logStudyMinutes}
         userSettings={store.user.settings}
+        onToggleTheme={store.toggleTheme}
         onUpload={() => openUploadModal()}
         onReuploadMaterial={() => {
           const id = store.activeTask?.courseId ?? store.selectedCourse?.id;
           openUploadModal(id ? { mode: 'extend', targetCourseId: id } : undefined);
         }}
         onReprocessMaterial={() => {
-          const id = store.activeTask?.courseId ?? store.selectedCourse?.id;
-          if (id) store.reprocessCourseMaterial(id);
+          const id =
+            store.activeTask?.courseId
+            ?? store.selectedCourse?.id
+            ?? store.uploadedFiles.find((f) => f.courseId)?.courseId;
+          if (!id) return false;
+          return store.reprocessCourseMaterial(id);
         }}
+        onSaveCourseExtractedText={(courseId, text) => store.saveCourseExtractedText(courseId, text)}
         reprocessingMaterial={store.isReprocessing}
         sourceHighlight={store.sourceHighlight}
         openSourceAt={store.openSourceAt}
         clearSourceHighlight={store.clearSourceHighlight}
         onConceptBusDirty={store.queueConceptBusSync}
+        onSessionDirty={store.queueConceptBusSync}
         workspaceFocus={store.workspaceFocus ?? undefined}
         setWorkspaceFocus={store.setWorkspaceFocus}
         workspaceOpenTool={store.workspaceOpenTool}
         onConsumeWorkspaceOpenTool={store.consumeWorkspaceOpenTool}
+        workspaceOpenSimulatorTab={store.workspaceOpenSimulatorTab}
+        onConsumeWorkspaceOpenSimulatorTab={store.consumeWorkspaceOpenSimulatorTab}
+        renderCenterAgent={
+          store.workspaceInlineAgentOpen
+            ? () => (
+                <div className="h-full min-h-0 flex flex-col" data-testid="workspace-inline-agent">
+                  <LazyOverlay>
+                    <Agent
+                      {...agentPanelProps}
+                      embedded
+                      autoFocusInput
+                      onOpenFullPage={() => store.openAgentFromWorkspace({ fullPage: true })}
+                    />
+                  </LazyOverlay>
+                </div>
+              )
+            : undefined
+        }
+        onCloseInlineAgent={() => store.setWorkspaceInlineAgentOpen(false)}
       />
+    </ErrorBoundary>
   );
 
   const i18nValue = useMemo(() => ({
     lang: store.user.settings.language,
     t: (key: I18nKey) => translate(key, store.user.settings.language),
   }), [store.user.settings.language]);
+
+  const shellActiveCourse = store.selectedCourse ?? visibleCourses(store.courses, store.user.settings)[0] ?? null;
+
+  const shellBreadcrumb = buildShellBreadcrumb({
+    currentView: store.currentView,
+    t: (key) => translate(key, store.user.settings.language),
+    courseTitle: store.currentView === 'course' && store.selectedCourse
+      ? store.selectedCourse.title
+      : store.currentView === 'note-analysis' && shellActiveCourse
+        ? shellActiveCourse.title
+        : store.selectedCourse?.title,
+    taskCourse: store.activeTask?.courseName,
+    taskTitle: store.activeTask?.title,
+  });
 
   const shellProps = {
     currentView: store.currentView,
@@ -267,23 +483,42 @@ export default function App() {
     onToggleTheme: store.toggleTheme,
     onOpenSearch: () => togglePalette(),
     onOpenNotifications: () => setNotificationsOpen(true),
-    notificationCount: store.activities.length,
-    hasCourses,
-    breadcrumb: store.currentView === 'course' && store.selectedCourse
-      ? { course: store.selectedCourse.title }
-      : store.activeTask
-        ? { course: store.activeTask.courseName, lesson: store.activeTask.title }
-        : store.selectedCourse
-        ? { course: store.selectedCourse.title }
-        : undefined,
+    notificationCount:
+      store.notificationUnreadCount
+      + store.proactiveAgentAlerts.length
+      + (store.appToast ? 1 : 0),
+    breadcrumb: shellBreadcrumb,
+    workspaceLive: store.workspaceLive,
+    onOpenWorkspace: openWorkspace,
+    onStartSession: () => {
+      store.startSession('25min');
+      store.navigate('tasks');
+    },
+    studyWorkspaceOpen: store.studyWorkspaceOpen,
+    onTakeBreath: () => setTakeBreathOpen(true),
+    activeCourse: shellActiveCourse
+      ? {
+          title: shellActiveCourse.title,
+          mastery: shellActiveCourse.mastery,
+          daysToExam: store.dashboardExtras.daysToExam,
+        }
+      : null,
+    onContinueCourse: () => {
+      if (shellActiveCourse) store.openCourseReview(shellActiveCourse);
+      openCourseWorkspace();
+    },
+    hasCourses: visibleCourses(store.courses, store.user.settings).length > 0,
+    onQuickAccess: handleQuickAccess,
+    language: (store.user.settings.language === 'el' ? 'el' : 'en') as 'en' | 'el',
+    onLanguageChange: (lang: 'en' | 'el') => store.updateSettings({ language: lang }),
+    onPatchSettings: store.updateSettings,
   };
 
   const handleContentSelect = (hit: ContentSearchHit) => {
     if (hit.courseId) {
       const course = store.courses.find((c) => c.id === hit.courseId);
       if (course) {
-        store.setSelectedCourse(course);
-        store.navigate('course');
+        store.openCourseReview(course);
       }
     }
     if (hit.kind === 'topic' || hit.kind === 'glossary' || hit.kind === 'note') {
@@ -293,7 +528,14 @@ export default function App() {
 
   const overlays = (
     <>
-      <CommandPalette
+      <BlueprintSvgDefs />
+      <WorkspaceKeyboardHelp
+        open={shellHelpOpen}
+        onClose={() => setShellHelpOpen(false)}
+        lang={store.user.settings.language === 'el' ? 'el' : 'en'}
+        variant="shell"
+      />
+      <AppCommandPaletteMount
         open={paletteOpen}
         onClose={closePalette}
         tasks={store.tasks}
@@ -305,12 +547,59 @@ export default function App() {
         onStartSession={store.startSession}
         onContentSelect={handleContentSelect}
         onOpenWorkspace={openWorkspace}
+        dashboardNextAction={store.dashboardNextAction}
+        onDashboardNextAction={runDashboardNextAction}
+        hasSelectedCourse={Boolean(store.selectedCourse)}
+        onNotebookLmBridge={(id) => {
+          if (id === 'import') {
+            store.navigate('library');
+            return;
+          }
+          if (id === 'shell' && store.selectedCourse) {
+            store.openNotebookShell(store.selectedCourse.id);
+            return;
+          }
+          if (id === 'export-review' && store.selectedCourse) {
+            const lang = store.user.settings.language === 'el' ? 'el' : 'en';
+            const payload = buildNotebookLmExportPayload('review-pack', {
+              course: store.selectedCourse,
+              glossary: store.glossaryEntries.filter((g) => g.courseId === store.selectedCourse!.id),
+              learnerModel: store.learnerModel,
+              lang,
+            });
+            void exportToNotebookLm(payload, lang);
+          }
+        }}
+        user={store.user}
+        onQuickAction={handleQuickAccess}
       />
       <NotificationsPanel
         open={notificationsOpen}
         onClose={() => setNotificationsOpen(false)}
         activities={store.activities}
+        lastSeenAt={store.user.settings.notificationsLastSeenAt}
+        onMarkAllRead={store.markNotificationsRead}
+        onNavigate={store.navigate}
+        onOpenTasks={(filter) => {
+          if (filter) store.openTasksWithFilter(filter);
+        }}
+        appToastMessage={store.appToast?.message ?? null}
+        onDismissAppToast={store.dismissAppToast}
+        proactiveAlerts={store.proactiveAgentAlerts}
+        onRunProactiveAlert={store.runProactiveAgentAlert}
       />
+      <NotificationToastStack />
+      <TakeBreathModal open={takeBreathOpen} onClose={() => setTakeBreathOpen(false)} />
+      {productTourOpen && !store.studyWorkspaceOpen && (
+        <ProductTour
+          step={productTour.step}
+          stepIndex={productTour.stepIndex}
+          totalSteps={productTour.totalSteps}
+          ready={productTour.ready}
+          onNext={productTour.next}
+          onSkip={productTour.skip}
+        />
+      )}
       {store.activeLessonView && (
         <LazyOverlay>
         <LessonView
@@ -355,8 +644,80 @@ export default function App() {
         />
         </LazyOverlay>
       )}
+      {store.notebookShellCourseId && store.selectedCourse && (
+        <NotebookShellView
+          course={store.selectedCourse}
+          sources={store.uploadedFiles.filter((f) => f.courseId === store.selectedCourse!.id)}
+          glossaryEntries={store.glossaryEntries.filter((g) => g.courseId === store.selectedCourse!.id)}
+          learnerModel={store.learnerModel}
+          lang={store.user.settings.language === 'el' ? 'el' : 'en'}
+          onClose={store.closeNotebookShell}
+          onOpenWorkspace={() => {
+            store.closeNotebookShell();
+            openCourseWorkspace();
+          }}
+          onOpenLibraryImport={() => {
+            store.closeNotebookShell();
+            store.navigate('library');
+          }}
+          onAddQuizToFsrs={() => {
+            const source = store.uploadedFiles.find(
+              (f) => f.courseId === store.selectedCourse!.id && f.extractedText?.trim(),
+            );
+            if (!source?.extractedText) return;
+            const parsed = parseNotebookLmExport(source.extractedText);
+            store.importNotebookLmQuizToFsrs(parsed, { courseId: store.selectedCourse!.id });
+          }}
+          onAddAudioToFsrs={(fileId) => {
+            store.importNotebookLmAudioToFsrs(fileId, store.selectedCourse!.id);
+          }}
+        />
+      )}
       {store.studyWorkspaceOpen && (
-        agentSplitActive ? (
+        courseSplitActive && store.selectedCourse ? (
+          <div className="fixed inset-0 z-50 flex bg-surface-primary" data-testid="workspace-course-split">
+            <div className="w-[58%] min-w-0 shrink-0 border-r border-border-subtle">
+              {studyWorkspaceElement}
+            </div>
+            <div className="flex w-[42%] min-w-0 flex-col bg-surface-primary overflow-hidden">
+              <div className="flex shrink-0 items-center justify-between border-b border-border-subtle bg-surface-card px-3 py-2 gap-2">
+                <span className="text-xs font-semibold text-brand-700 truncate">{store.selectedCourse.title}</span>
+                <button
+                  type="button"
+                  onClick={store.exitWorkspaceCourseSplit}
+                  className="type-micro font-medium text-text-secondary hover:text-brand-700 transition-colors shrink-0"
+                >
+                  {store.user.settings.language === 'el' ? 'Πλήρες workspace' : 'Full workspace'}
+                </button>
+              </div>
+              <div className="min-h-0 flex-1 overflow-y-auto">
+                <CourseView
+                  course={store.selectedCourse}
+                  uploadedFiles={store.uploadedFiles.filter((f) => f.courseId === store.selectedCourse!.id)}
+                  glossaryEntries={store.glossaryEntries.filter((g) => g.courseId === store.selectedCourse!.id)}
+                  onGoToSource={store.openSourceAt}
+                  onBack={store.exitWorkspaceCourseSplit}
+                  onStartLesson={(topicTitle?: string) => openCourseWorkspace(topicTitle)}
+                  onOpenAgent={() => store.navigate('agent')}
+                  onUploadMore={() => openUploadModal({ mode: 'extend', targetCourseId: store.selectedCourse!.id })}
+                  onReprocessMaterial={() => store.reprocessCourseMaterial(store.selectedCourse!.id)}
+                  onSaveCourseExtractedText={(courseId, text) => store.saveCourseExtractedText(courseId, text)}
+                  reprocessingMaterial={store.isReprocessing}
+                  onRemoveFile={store.removeUploadedFile}
+                  onRemoveCourse={store.removeCourse}
+                  tasks={store.tasks}
+                  showPostUploadBanner={store.postUploadCourseId === store.selectedCourse!.id}
+                  onDismissPostUpload={store.clearPostUploadHighlight}
+                  userSettings={store.user.settings}
+                  onImportAudioTranscript={store.importNotebookLmAudioForCourse}
+                  onUploadAudio={store.transcribeAudioForCourse}
+                  onAddAudioToFsrs={store.importNotebookLmAudioToFsrs}
+                  learnerModel={store.learnerModel}
+                />
+              </div>
+            </div>
+          </div>
+        ) : agentSplitActive ? (
           <div className="fixed inset-0 z-50 flex bg-surface-primary" data-testid="workspace-agent-split">
             <div className="w-[58%] min-w-0 shrink-0 border-r border-border-subtle">
               {studyWorkspaceElement}
@@ -453,20 +814,10 @@ export default function App() {
         onUpload={() => {}}
         onProcessUpload={store.processUpload}
         onUploadComplete={(course) => {
-          store.setSelectedCourse(course);
           closeUploadModal();
-          const firstTopic = course.topics[0]?.title;
-          if (firstTopic) {
-            openWorkspaceForConcept(firstTopic);
-          } else {
-            openWorkspace();
-          }
-          const isEl = store.user.settings.language === 'el';
-          store.showAppToast(
-            isEl
-              ? `Το μάθημα «${course.title}» έτοιμο — άνοιξε τον χώρο μελέτης.`
-              : `Course "${course.title}" is ready — study workspace opened.`,
-          );
+          setUploadIntent({ mode: 'new' });
+          store.markPostUploadCourse(course.id);
+          store.openNoteAnalysis(course.id);
         }}
         onProceed={() => {
           /* Navigation handled in onUploadComplete after successful upload */
@@ -476,6 +827,7 @@ export default function App() {
         defaultTargetCourseId={uploadIntent.targetCourseId}
         userSettings={store.user.settings}
       />
+      <AppToastBanner toast={store.appToast} onDismiss={store.dismissAppToast} />
     </>
   );
 
@@ -484,15 +836,40 @@ export default function App() {
       sessionType={store.activeSessionType}
       currentIndex={sessionCurrentIndex}
       total={store.sessionTotal}
+      currentTaskTitle={store.activeTask?.title}
+      nextTaskTitle={sessionNextTask?.title}
+      lang={store.user.settings.language}
       onEndSession={store.endSession}
     />
   ) : null;
 
   useEffect(() => {
-    applyTheme(store.user.settings.theme);
+    const density = resolveChromeDensity(
+      store.user.settings.chromeDensity,
+      store.user.settings.language,
+    );
+    applyTheme(store.user.settings.theme, density);
     if (store.user.settings.theme !== 'system') return;
-    return watchSystemTheme(() => applyTheme('system'));
-  }, [store.user.settings.theme]);
+    return watchSystemTheme(() => applyTheme('system', density));
+  }, [store.user.settings.theme, store.user.settings.chromeDensity, store.user.settings.language]);
+
+  useEffect(() => {
+    if (persistWorkspaceV2CanaryFromUrl()) reportWorkspaceCanaryCohort();
+  }, []);
+
+  /** Warm the workspace + secondary chunks after first paint to keep flows snappy. */
+  useEffect(() => {
+    const warm = () => {
+      prefetchWorkspaceEntry();
+      preloadCriticalChunks();
+    };
+    if (typeof requestIdleCallback === 'function') {
+      const id = requestIdleCallback(warm, { timeout: 4000 });
+      return () => cancelIdleCallback(id);
+    }
+    const t = window.setTimeout(warm, 1500);
+    return () => window.clearTimeout(t);
+  }, []);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -502,30 +879,105 @@ export default function App() {
     });
   }, [store.user.settings.authToken, store.refreshAuthPlan]);
 
-  // Shareable demo deep-link: `?demo=1` opens the seeded Study Workspace directly.
-  const demoDeepLinkFired = useRef(false);
   useEffect(() => {
-    if (demoDeepLinkFired.current) return;
     const params = new URLSearchParams(window.location.search);
-    if (params.get('demo') !== '1') return;
+    if (params.get('demo') !== '1' || demoDeepLinkFired.current) return;
     demoDeepLinkFired.current = true;
     handleSeeDemo();
   }, [handleSeeDemo]);
 
-  // Shareable view deep-link: `?view=<name>` opens a specific page directly
-  // (seeds demo content when the library is empty so the page isn't blank).
-  const viewDeepLinkFired = useRef(false);
   useEffect(() => {
-    if (viewDeepLinkFired.current) return;
     const params = new URLSearchParams(window.location.search);
     const view = params.get('view');
-    if (!view) return;
-    const allowed: AppView[] = ['dashboard', 'library', 'tasks', 'agent', 'analytics', 'teacher', 'settings'];
+    if (!view || viewDeepLinkFired.current) return;
+    const allowed: AppView[] = ['dashboard', 'library', 'tasks', 'agent', 'analytics', 'teacher', 'student-org', 'settings'];
     if (!allowed.includes(view as AppView)) return;
     viewDeepLinkFired.current = true;
     if (!hasCourses) store.enableDemoContent();
-    store.navigate(view as AppView);
+    if (canAccessShellView(view as AppView, store.user)) {
+      store.navigate(view as AppView);
+    } else {
+      store.navigate('dashboard');
+    }
   }, [hasCourses, store]);
+
+  useEffect(() => {
+    const parsed = parseCourseDeepLink(window.location.search);
+    if (!parsed || courseDeepLinkFired.current) return;
+    if (store.courses.length === 0) return;
+    courseDeepLinkFired.current = true;
+    const course = store.courses.find((c) => c.id === parsed.courseId);
+    if (!course) {
+      store.navigate('library');
+      clearCourseDeepLinkParams();
+      return;
+    }
+    seedCourseTabFromDeepLink(parsed.courseId, parsed.tab);
+    store.openCourseReview(course);
+  }, [store.courses, store]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('saml') !== '1' || samlDeepLinkFired.current) return;
+    samlDeepLinkFired.current = true;
+    const email = params.get('saml_email');
+    const authCode = params.get('saml_auth_code');
+
+    void (async () => {
+      if (authCode) {
+        try {
+          const { completeSamlAuth } = await import('./lib/samlAuthClient');
+          const session = await completeSamlAuth(authCode, store.user.settings);
+          store.updateSettings({
+            authToken: session.token,
+            authEmail: session.email,
+            authPlan: (session.plan as typeof store.user.settings.authPlan) ?? 'free',
+          });
+        } catch {
+          /* fall back to email hint only */
+        }
+      }
+      if (email) setSamlEmailHint(email);
+      store.navigate('student-org');
+      for (const key of ['saml', 'saml_email', 'saml_auth_code', 'saml_org', 'saml_provisioned', 'relay_state']) {
+        params.delete(key);
+      }
+      const qs = params.toString();
+      window.history.replaceState({}, '', qs ? `${window.location.pathname}?${qs}` : window.location.pathname);
+    })();
+  }, [store]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('lti') !== '1' || ltiDeepLinkFired.current) return;
+    ltiDeepLinkFired.current = true;
+    const contextId = params.get('lti_context');
+    if (params.get('lti_verified') === '1' && contextId) {
+      setLtiLaunchHint({
+        contextId,
+        contextTitle: params.get('lti_context_title') ?? undefined,
+        email: params.get('lti_email') ?? undefined,
+        linkedClassId: params.get('lti_linked_class') ?? undefined,
+      });
+      store.navigate('teacher');
+    }
+    for (const key of [
+      'lti',
+      'lti_verified',
+      'lti_sub',
+      'lti_email',
+      'lti_role',
+      'lti_context',
+      'lti_context_title',
+      'lti_linked_class',
+      'lti_state',
+      'lti_error',
+    ]) {
+      params.delete(key);
+    }
+    const qs = params.toString();
+    window.history.replaceState({}, '', qs ? `${window.location.pathname}?${qs}` : window.location.pathname);
+  }, [store]);
 
   // Landing page
   if (store.currentView === 'landing') {
@@ -548,8 +1000,8 @@ export default function App() {
     );
   }
 
-  // Course detail view
-  if (store.currentView === 'course' && store.selectedCourse) {
+  // Course detail view (full page — skipped when workspace+course split is active)
+  if (store.currentView === 'course' && store.selectedCourse && !store.workspaceCourseSplit) {
     const selectedCourse = store.selectedCourse;
     return (
       <I18nContext.Provider value={i18nValue}>
@@ -559,14 +1011,26 @@ export default function App() {
             uploadedFiles={store.uploadedFiles.filter((f) => f.courseId === selectedCourse.id)}
             glossaryEntries={store.glossaryEntries.filter((g) => g.courseId === selectedCourse.id)}
             onGoToSource={store.openSourceAt}
-            onBack={() => store.navigate('library')}
-            onStartLesson={(topicTitle?: string) => openWorkspaceForConcept(topicTitle)}
+            onBack={() => {
+              clearCourseDeepLinkParams();
+              store.navigate('library');
+            }}
+            onStartLesson={(topicTitle?: string) => openCourseWorkspace(topicTitle)}
             onOpenAgent={() => store.navigate('agent')}
             onUploadMore={() => openUploadModal({ mode: 'extend', targetCourseId: selectedCourse.id })}
             onReprocessMaterial={() => store.reprocessCourseMaterial(selectedCourse.id)}
+            onSaveCourseExtractedText={(courseId, text) => store.saveCourseExtractedText(courseId, text)}
             reprocessingMaterial={store.isReprocessing}
             onRemoveFile={store.removeUploadedFile}
+            onRemoveCourse={store.removeCourse}
             tasks={store.tasks}
+            showPostUploadBanner={store.postUploadCourseId === selectedCourse.id}
+            onDismissPostUpload={store.clearPostUploadHighlight}
+            userSettings={store.user.settings}
+            onImportAudioTranscript={store.importNotebookLmAudioForCourse}
+            onUploadAudio={store.transcribeAudioForCourse}
+            onAddAudioToFsrs={store.importNotebookLmAudioToFsrs}
+            learnerModel={store.learnerModel}
           />
         </Shell>
         {overlays}
@@ -577,14 +1041,21 @@ export default function App() {
   // Main app views
   return (
     <I18nContext.Provider value={i18nValue}>
+      {/* Wave O-1 — global reduced-motion respect for every framer-motion
+          subtree (AnimatePresence + motion.*). Users with the OS-level
+          `prefers-reduced-motion: reduce` get instant transitions across the
+          whole app (Onboarding, Tasks, Library, ConfirmDialog, AppToastBanner,
+          Analytics Visual Lab, Agent mode dropdown, workspace overlays, etc.)
+          without touching each callsite individually. */}
+      <MotionConfig reducedMotion="user">
       <Shell {...shellProps}>
         {sessionBar}
         <AnimatePresence mode="wait">
-        <motion.div key={store.currentView} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}>
+        <PlatformViewTransition viewKey={store.currentView}>
           {store.currentView === 'dashboard' && (
             <Dashboard
               stats={store.dashboardStats}
-              courses={visibleCourses(store.courses, store.user.settings)}
+              courses={store.courses}
               tasks={store.tasks}
               learnerModel={store.learnerModel}
               prerequisiteRepairs={store.pedagogyMetrics.repairs}
@@ -598,22 +1069,42 @@ export default function App() {
               onStartSession={store.startSession}
               onResolveMisconception={store.resolveMisconception}
               onNavigate={(view: AppView) => store.navigate(view)}
-              onSelectCourse={(course) => { store.setSelectedCourse(course); store.navigate('course'); }}
+              onSelectCourse={(course) => store.openCourseReview(course)}
               onOpenWorkspace={openWorkspace}
               onOpenExamTimer={openExamTimerWorkspace}
               onFocusWeakArea={openWorkspaceForConcept}
-              workspaceLive={store.workspaceLive}
-              dashboardNextAction={store.dashboardNextAction}
               onUpload={() => openUploadModal()}
               onExploreDemo={!hasCourses ? handleSeeDemo : undefined}
+              workspaceLive={store.workspaceLive}
+              dashboardNextAction={store.dashboardNextAction}
+              smartCTAs={store.dashboardSmartCTAs}
+              onRunSmartCTA={store.runDashboardSmartCTA}
+              proactiveAgentAlerts={store.proactiveAgentAlerts}
+              onRunProactiveAgentAlert={store.runProactiveAgentAlert}
+              onOpenWorkspacePractice={store.openStudyWorkspaceForPractice}
               lang={store.user.settings.language}
+              theoryVsPractice={store.user.settings.theoryVsPractice}
+              postUploadCourse={
+                store.postUploadCourseId
+                  ? store.courses.find((c) => c.id === store.postUploadCourseId) ?? null
+                  : null
+              }
+              onDismissPostUpload={store.clearPostUploadHighlight}
+              onOpenTasksReview={() => store.openTasksWithFilter('review')}
+              settingsExamDate={store.user.settings.examDate}
+              personalStudyDates={store.user.settings.personalStudyDates ?? []}
+              onExamDateChange={(examDate) => store.updateSettings({ examDate })}
+              onPersonalStudyDatesChange={(personalStudyDates) => store.updateSettings({ personalStudyDates })}
+              dashboardWallpaperDataUrl={store.user.settings.dashboardWallpaperDataUrl}
+              onDashboardWallpaperChange={(dataUrl) => store.updateSettings({ dashboardWallpaperDataUrl: dataUrl })}
             />
           )}
           {store.currentView === 'library' && (
             <Library
               courses={visibleCourses(store.courses, store.user.settings)}
               uploadedFiles={store.uploadedFiles}
-              onSelectCourse={(course) => { store.setSelectedCourse(course); store.navigate('course'); }}
+              onSelectCourse={(course) => store.openCourseReview(course)}
+              onRemoveCourse={store.removeCourse}
               onUpload={() => openUploadModal()}
               onRemoveFile={store.removeUploadedFile}
               onReprocessCourse={store.reprocessCourseMaterial}
@@ -621,11 +1112,50 @@ export default function App() {
               userSettings={store.user.settings}
               tasks={store.tasks}
               glossaryEntries={store.glossaryEntries}
+              postUploadCourseId={store.postUploadCourseId}
+              onOpenWorkspace={openCourseWorkspace}
+              onDismissPostUpload={store.clearPostUploadHighlight}
+              onImportNotebookLm={store.importNotebookLm}
+              onAddNotebookLmToFsrs={store.importNotebookLmQuizToFsrs}
+              onOpenNotebookShell={store.openNotebookShell}
+              onOpenConcept={openWorkspaceForConcept}
+              syncConflicts={store.librarySyncConflict?.conflicts ?? []}
+              onKeepRemoteLibrary={() => store.resolveLibrarySyncConflict('keep-remote')}
+              onRestoreLocalLibrary={() => store.resolveLibrarySyncConflict('restore-local')}
+              onDismissLibrarySyncConflict={store.dismissLibrarySyncConflict}
             />
           )}
+          {store.currentView === 'note-analysis' && (() => {
+            const analysisCourse = store.noteAnalysisCourseId
+              ? store.courses.find((c) => c.id === store.noteAnalysisCourseId) ?? shellActiveCourse
+              : shellActiveCourse;
+            if (!analysisCourse) return null;
+            return (
+              <NoteAnalysisView
+                course={analysisCourse}
+                files={store.uploadedFiles.filter((f) => f.courseId === analysisCourse.id)}
+                lang={store.user.settings.language}
+                onBack={store.closeNoteAnalysis}
+                onOpenCourse={() => store.openCourseReview(analysisCourse)}
+                onOpenWorkspace={() => {
+                  store.openCourseReview(analysisCourse);
+                  openCourseWorkspace();
+                }}
+                onUpload={() => {
+                  store.setShowUploadModal(true);
+                }}
+                onReprocess={() => {
+                  store.reprocessCourseMaterial(analysisCourse.id);
+                }}
+              />
+            );
+          })()}
           {store.currentView === 'tasks' && (
             <Tasks
               tasks={store.tasks}
+              lang={store.user.settings.language}
+              focusCourseId={store.selectedCourse?.id}
+              focusCourseName={store.selectedCourse?.title}
               onComplete={store.completeTask}
               onReviewRating={store.submitReviewRating}
               onStartTask={store.startTask}
@@ -635,7 +1165,23 @@ export default function App() {
               onExpandedTaskChange={store.setExpandedTaskId}
               openMistakes={store.pedagogyMetrics.openMistakes}
               onResolveMistake={store.resolveMistake}
-              onUpload={() => openUploadModal()}
+              filterPreset={store.tasksFilterPreset}
+              onFilterPresetConsumed={store.clearTasksFilterPreset}
+              studyPlan={store.dailyPlan.studyPlanBlocks}
+              weakAreas={store.learnerModel.weakAreas}
+              almostKnown={store.learnerModel.almostKnown}
+              antiPassiveAlert={store.dashboardExtras.antiPassive}
+              spacingReviews={store.learnerModel.spacingIntervals}
+              streak={store.dashboardStats.streak}
+              onFocusWeakArea={openWorkspaceForConcept}
+              onOpenAgent={() => store.navigate('agent')}
+              onStartQuiz={() => store.startSession('10min')}
+              courseNameById={Object.fromEntries(store.courses.map((c) => [c.id, c.title]))}
+              activeSessionType={store.activeSessionType}
+              sessionCurrentIndex={sessionCurrentIndex}
+              sessionTotal={store.sessionTotal}
+              sessionQueueIds={store.sessionQueue}
+              activeTaskId={store.activeTaskId}
             />
           )}
           {store.currentView === 'agent' && !agentSplitActive && (
@@ -651,10 +1197,12 @@ export default function App() {
               courses={store.courses}
               activities={store.activities}
               prerequisiteRepairs={store.pedagogyMetrics.repairs}
+              daysToExam={store.dashboardExtras.daysToExam}
             />
             </LazyOverlay>
           )}
           {store.currentView === 'teacher' && (
+            canAccessShellView('teacher', store.user) ? (
             <LazyOverlay>
             <TeacherDashboard
               settings={store.user.settings}
@@ -662,15 +1210,41 @@ export default function App() {
               localCourses={store.courses}
               activities={store.activities}
               learnerModel={store.learnerModel}
+              ltiLaunchHint={ltiLaunchHint}
               onOpenCourse={(id) => {
                 const course = store.courses.find((c) => c.id === id);
-                if (course) {
-                  store.setSelectedCourse(course);
-                  store.navigate('course');
-                }
+                if (course) store.openCourseReview(course);
               }}
+              onOpenSettings={() => store.navigate('settings')}
             />
             </LazyOverlay>
+            ) : (
+              <NavAccessDenied
+                onGoDashboard={() => store.navigate('dashboard')}
+                onOpenSettings={() => store.navigate('settings')}
+              />
+            )
+          )}
+          {store.currentView === 'student-org' && (
+            canAccessShellView('student-org', store.user) ? (
+            <LazyOverlay>
+            <StudentOrgView
+              settings={store.user.settings}
+              lang={store.user.settings.language}
+              samlEmailHint={samlEmailHint}
+              onOpenCourse={(id) => {
+                const course = store.courses.find((c) => c.id === id);
+                if (course) store.openCourseReview(course);
+              }}
+              onOpenSettings={() => store.navigate('settings')}
+            />
+            </LazyOverlay>
+            ) : (
+              <NavAccessDenied
+                onGoDashboard={() => store.navigate('dashboard')}
+                onOpenSettings={() => store.navigate('settings')}
+              />
+            )
           )}
           {store.currentView === 'settings' && (
             <Settings
@@ -681,13 +1255,16 @@ export default function App() {
               onPushSession={store.pushSessionToServer}
               onSyncAccount={store.syncAccountOnLogin}
               onRefreshPlan={store.refreshAuthPlan}
+              onReplayProductTour={replayProductTour}
+              tasks={store.tasks}
+              onApplyCalendarSync={store.applyTaskCalendarSync}
             />
           )}
-        </motion.div>
+        </PlatformViewTransition>
       </AnimatePresence>
       </Shell>
-      <AppToastBanner toast={store.appToast} onDismiss={store.dismissAppToast} />
       {overlays}
+      </MotionConfig>
     </I18nContext.Provider>
   );
 }
