@@ -18,7 +18,7 @@
 
 import { test, expect, type Page } from '@playwright/test';
 import { skipOnboardingToLibrary } from './helpers/onboarding';
-import { armChunkAbortAfterShell } from './helpers/chunkBlock';
+import { armChunkAbortAfterShell, urlMatchesModuleFile } from './helpers/chunkBlock';
 
 const TRY_AGAIN = /try again|δοκιμάστε ξανά/i;
 const RELOAD = /^reload$|επαναφόρτωση/i;
@@ -38,8 +38,8 @@ async function trackNavigations(page: Page): Promise<() => number> {
 
 interface FlowCase {
   name: string;
-  needle: string;
-  excludes?: string[];
+  /** Exact module file base (not a substring of *Analytics.ts libs). */
+  moduleFile: string;
   trigger: (page: Page) => Promise<void>;
   mountedTestId: string;
 }
@@ -47,8 +47,7 @@ interface FlowCase {
 const FLOWS: FlowCase[] = [
   {
     name: 'Analytics',
-    needle: 'Analytics',
-    excludes: ['analytics.spec'],
+    moduleFile: 'Analytics',
     trigger: async (page) => {
       await page.getByTestId('nav-analytics').click();
     },
@@ -56,7 +55,7 @@ const FLOWS: FlowCase[] = [
   },
   {
     name: 'LessonView',
-    needle: 'LessonView',
+    moduleFile: 'LessonView',
     trigger: async (page) => {
       // Open the first available course / continue → triggers LessonView lazy chunk.
       const continueBtn = page.getByTestId('library-continue').first();
@@ -71,8 +70,7 @@ const FLOWS: FlowCase[] = [
   },
   {
     name: 'StudyWorkspace (WorkspaceDock)',
-    needle: 'StudyWorkspace',
-    excludes: ['StudyWorkspaceLazy', 'StudyWorkspaceGate'],
+    moduleFile: 'StudyWorkspace',
     trigger: async (page) => {
       const openWorkspace = page.getByTestId('dashboard-open-workspace').first();
       if (await openWorkspace.isVisible().catch(() => false)) {
@@ -96,10 +94,9 @@ for (const flow of FLOWS) {
     await skipOnboardingToLibrary(page);
 
     // Prefetch may already have resolved this chunk — re-arm via reload.
-    const { setBlocking } = await armChunkAbortAfterShell(page, (url) => {
-      const hit = url.includes(flow.needle) && !(flow.excludes ?? []).some((e) => url.includes(e));
-      return hit;
-    });
+    const { setBlocking } = await armChunkAbortAfterShell(page, (url) =>
+      urlMatchesModuleFile(url, flow.moduleFile),
+    );
 
     const navBeforeTrigger = await readNavCount();
     await flow.trigger(page);
@@ -136,9 +133,8 @@ test('global ErrorBoundary surfaces fallback on lazy render failure and recovers
   await page.goto('/');
   await skipOnboardingToLibrary(page);
 
-  const { setBlocking } = await armChunkAbortAfterShell(
-    page,
-    (url) => url.includes('Analytics') && !url.includes('analytics.spec'),
+  const { setBlocking } = await armChunkAbortAfterShell(page, (url) =>
+    urlMatchesModuleFile(url, 'Analytics'),
   );
 
   await page.getByTestId('nav-analytics').click();

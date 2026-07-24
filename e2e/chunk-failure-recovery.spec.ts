@@ -12,12 +12,7 @@
 
 import { test, expect } from '@playwright/test';
 import { skipOnboardingToLibrary } from './helpers/onboarding';
-import { armChunkAbortAfterShell } from './helpers/chunkBlock';
-
-/** Match any URL whose path contains a needle (chunk, source module, dep). */
-function urlContains(url: string, needle: string): boolean {
-  return url.includes(needle);
-}
+import { armChunkAbortAfterShell, urlMatchesModuleFile } from './helpers/chunkBlock';
 
 test.describe('chunk-failure recovery', () => {
   test('study workspace recovers after a chunk-load failure', async ({ page }) => {
@@ -25,12 +20,8 @@ test.describe('chunk-failure recovery', () => {
     await page.goto('/');
     await skipOnboardingToLibrary(page);
 
-    const { setBlocking } = await armChunkAbortAfterShell(
-      page,
-      (url) =>
-        urlContains(url, 'StudyWorkspace')
-        && !urlContains(url, 'StudyWorkspaceLazy')
-        && !urlContains(url, 'StudyWorkspaceGate'),
+    const { setBlocking } = await armChunkAbortAfterShell(page, (url) =>
+      urlMatchesModuleFile(url, 'StudyWorkspace'),
     );
 
     // Force-open a workspace via deep link button if available, else use the dock.
@@ -61,9 +52,8 @@ test.describe('chunk-failure recovery', () => {
     await page.goto('/');
     await skipOnboardingToLibrary(page);
 
-    const { setBlocking } = await armChunkAbortAfterShell(
-      page,
-      (url) => urlContains(url, 'Analytics') && !urlContains(url, 'analytics.spec'),
+    const { setBlocking } = await armChunkAbortAfterShell(page, (url) =>
+      urlMatchesModuleFile(url, 'Analytics'),
     );
 
     await page.getByTestId('nav-analytics').click();
