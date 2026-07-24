@@ -77,3 +77,15 @@ Exhaustive remapped hash compare of `artifacts/synapse/src/{components,styles,in
 ### Conclusion (UI)
 
 After this pass there are **no remaining high-value portable UI cherry-picks** from `replit-redesign`. Tip remains SSoT for aesthetics (Minimal/Primer, K74/K75, OPT-AI affordances).
+
+## Actions taken on tip (cumulative)
+
+1. Pulled `main` (noop — already current).
+2. Ported **debateCounterArgs** Unicode/kind model + ArgumentMap consumers + tests.
+3. Ported **Reader ask-ai-inline** (LLM-gated).
+4. Ported **Reader complexity heatmap** (`estimateDifficulty` 3-tier) + larger annotation swatches with `aria-label`.
+5. Documented both AI/platform and frontend/UI audit passes.
+
+## Recommendation going forward
+
+Treat `replit-redesign` as a **feature/idea source**, not a merge source. Continue tip as SSoT. If Replit hosting is required later, add an optional adapter package — do not replace the mainline tree.
