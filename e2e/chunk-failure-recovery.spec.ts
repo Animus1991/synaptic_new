@@ -10,8 +10,9 @@
  *      Try again / Reload, both keep the rest of the app responsive.
  */
 
-import { test, expect, type Route } from '@playwright/test';
+import { test, expect } from '@playwright/test';
 import { skipOnboardingToLibrary } from './helpers/onboarding';
+import { armChunkAbortAfterShell } from './helpers/chunkBlock';
 
 /** Match any URL whose path contains a needle (chunk, source module, dep). */
 function urlContains(url: string, needle: string): boolean {
@@ -20,18 +21,17 @@ function urlContains(url: string, needle: string): boolean {
 
 test.describe('chunk-failure recovery', () => {
   test('study workspace recovers after a chunk-load failure', async ({ page }) => {
-    // Fail any request that loads the StudyWorkspace module graph.
-    let blocking = true;
-    await page.route('**/*', (route: Route) => {
-      const url = route.request().url();
-      if (blocking && urlContains(url, 'StudyWorkspace') && !urlContains(url, 'StudyWorkspaceLazy') && !urlContains(url, 'StudyWorkspaceGate')) {
-        return route.abort('failed');
-      }
-      return route.continue();
-    });
-
+    test.setTimeout(90_000);
     await page.goto('/');
     await skipOnboardingToLibrary(page);
+
+    const { setBlocking } = await armChunkAbortAfterShell(
+      page,
+      (url) =>
+        urlContains(url, 'StudyWorkspace')
+        && !urlContains(url, 'StudyWorkspaceLazy')
+        && !urlContains(url, 'StudyWorkspaceGate'),
+    );
 
     // Force-open a workspace via deep link button if available, else use the dock.
     await page.getByTestId('nav-dashboard').click().catch(() => {});
@@ -41,6 +41,7 @@ test.describe('chunk-failure recovery', () => {
       await openWorkspace.click();
     } else {
       await page.getByTestId('nav-library').click();
+      await page.getByTestId('library-continue').first().click().catch(() => {});
     }
 
     // Boot shell must show an error card with a Try again button.
@@ -50,23 +51,20 @@ test.describe('chunk-failure recovery', () => {
     await expect(tryAgain).toBeVisible({ timeout: 20_000 });
 
     // Unblock and retry — workspace should mount.
-    blocking = false;
+    setBlocking(false);
     await tryAgain.click();
     await expect(page.getByTestId('study-workspace')).toBeVisible({ timeout: 30_000 });
   });
 
   test('lazy overlay shows recoverable fallback when its chunk fails', async ({ page }) => {
+    test.setTimeout(90_000);
     await page.goto('/');
     await skipOnboardingToLibrary(page);
 
-    let blocking = true;
-    await page.route('**/*', (route: Route) => {
-      const url = route.request().url();
-      if (blocking && urlContains(url, 'Analytics') && !urlContains(url, 'analytics.spec')) {
-        return route.abort('failed');
-      }
-      return route.continue();
-    });
+    const { setBlocking } = await armChunkAbortAfterShell(
+      page,
+      (url) => urlContains(url, 'Analytics') && !urlContains(url, 'analytics.spec'),
+    );
 
     await page.getByTestId('nav-analytics').click();
 
@@ -76,7 +74,7 @@ test.describe('chunk-failure recovery', () => {
     await expect(page.getByRole('button', { name: /^reload$|επαναφόρτωση/i })).toBeVisible();
 
     // Unblock — Try again must re-mount Analytics without a full reload.
-    blocking = false;
+    setBlocking(false);
     await tryAgain.click();
     // Heuristic: the fallback message disappears once children remount.
     await expect(tryAgain).toBeHidden({ timeout: 20_000 });

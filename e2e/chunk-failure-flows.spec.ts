@@ -16,8 +16,9 @@
  * and retry restores the subtree.
  */
 
-import { test, expect, type Page, type Route } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
 import { skipOnboardingToLibrary } from './helpers/onboarding';
+import { armChunkAbortAfterShell } from './helpers/chunkBlock';
 
 const TRY_AGAIN = /try again|δοκιμάστε ξανά/i;
 const RELOAD = /^reload$|επαναφόρτωση/i;
@@ -94,13 +95,10 @@ for (const flow of FLOWS) {
     await page.goto('/');
     await skipOnboardingToLibrary(page);
 
-    // Install abort after shell is up — blocking Analytics during landing can stall onboarding.
-    let blocking = true;
-    await page.route('**/*', (route: Route) => {
-      const url = route.request().url();
+    // Prefetch may already have resolved this chunk — re-arm via reload.
+    const { setBlocking } = await armChunkAbortAfterShell(page, (url) => {
       const hit = url.includes(flow.needle) && !(flow.excludes ?? []).some((e) => url.includes(e));
-      if (blocking && hit) return route.abort('failed');
-      return route.continue();
+      return hit;
     });
 
     const navBeforeTrigger = await readNavCount();
@@ -114,7 +112,7 @@ for (const flow of FLOWS) {
     const navBeforeRetry = await readNavCount();
 
     // Unblock and retry — must remount in-place, NO full navigation.
-    blocking = false;
+    setBlocking(false);
     await tryAgain.click();
 
     await expect(page.getByTestId(flow.mountedTestId)).toBeVisible({ timeout: 30_000 });
@@ -138,12 +136,10 @@ test('global ErrorBoundary surfaces fallback on lazy render failure and recovers
   await page.goto('/');
   await skipOnboardingToLibrary(page);
 
-  let blocking = true;
-  await page.route('**/*', (route: Route) => {
-    const url = route.request().url();
-    if (blocking && url.includes('Analytics')) return route.abort('failed');
-    return route.continue();
-  });
+  const { setBlocking } = await armChunkAbortAfterShell(
+    page,
+    (url) => url.includes('Analytics') && !url.includes('analytics.spec'),
+  );
 
   await page.getByTestId('nav-analytics').click();
 
@@ -152,7 +148,7 @@ test('global ErrorBoundary surfaces fallback on lazy render failure and recovers
   await expect(page.getByRole('button', { name: RELOAD }).first()).toBeVisible();
 
   const before = await readNavCount();
-  blocking = false;
+  setBlocking(false);
   await tryAgain.click();
   await expect(tryAgain).toBeHidden({ timeout: 25_000 });
   const after = await readNavCount();
