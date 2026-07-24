@@ -1,5 +1,4 @@
-import { expect, type Page, type Route } from '@playwright/test';
-import { dismissBlockingShellOverlays } from './onboarding';
+import type { Page, Route } from '@playwright/test';
 
 /**
  * Match a Vite/dev lazy module file without catching sibling libs
@@ -7,28 +6,29 @@ import { dismissBlockingShellOverlays } from './onboarding';
  */
 export function urlMatchesModuleFile(url: string, fileBase: string): boolean {
   const u = url.replace(/\\/g, '/');
-  return new RegExp(
-    `/${fileBase}(?:\\.[tj]sx?(?:\\?|$)|-[A-Za-z0-9_-]+\\.js(?:\\?|$))`,
-  ).test(u);
+  // /components/Analytics.tsx(?query) — slash before the file base is required
+  if (new RegExp(`/${fileBase}\\.[tj]sx?(?:\\?|$)`, 'i').test(u)) return true;
+  // production hashed chunk: Analytics-a1b2c3de.js
+  if (new RegExp(`/${fileBase}-[A-Za-z0-9_-]+\\.js(?:\\?|$)`).test(u)) return true;
+  return false;
 }
 
 /**
- * Idle prefetch (preloadCriticalChunks) can resolve lazy modules before a
- * Playwright route abort is installed. Arm the abort, then reload so the next
- * import()/prefetch hits a failed network fetch and surfaces ErrorBoundary UI.
+ * Install abort + session guards *before* first navigation so idle prefetch
+ * cannot cache the target module. Prefer this over reload-after-shell.
  */
-export async function armChunkAbortAfterShell(
+export async function installChunkAbort(
   page: Page,
   shouldAbort: (url: string) => boolean,
 ): Promise<{ setBlocking: (value: boolean) => void }> {
   let blocking = true;
-  await page.route('**/*', (route: Route) => {
-    if (blocking && shouldAbort(route.request().url())) return route.abort('failed');
-    return route.continue();
-  });
-  // Prevent lazyWithRetry from treating our intentional abort as a stale-chunk
-  // hard-reload (which would loop / hide ErrorBoundary + boot-shell UI).
   await page.addInitScript(() => {
+    try {
+      // Skip product tour so overlays never block nav clicks in these suites.
+      localStorage.setItem('synapse:product-tour-complete-v1', 'true');
+    } catch {
+      /* ignore */
+    }
     const flows = [
       'study-workspace',
       'study-workspace-body',
@@ -48,9 +48,10 @@ export async function armChunkAbortAfterShell(
       }
     }
   });
-  await page.reload({ waitUntil: 'domcontentloaded' });
-  await expect(page.getByTestId('platform-main')).toBeVisible({ timeout: 20_000 });
-  await dismissBlockingShellOverlays(page);
+  await page.route('**/*', (route: Route) => {
+    if (blocking && shouldAbort(route.request().url())) return route.abort('failed');
+    return route.continue();
+  });
   return {
     setBlocking: (value: boolean) => {
       blocking = value;
