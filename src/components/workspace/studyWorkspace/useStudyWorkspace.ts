@@ -70,7 +70,6 @@ import {
 } from '../../../lib/artifactStaleness';
 import {
   buildSelectionAgentPrompt,
-  buildSelectionFlashcard,
   type WorkspaceSelectionActionId,
   type WorkspaceSelectionContext,
 } from '../../../lib/workspaceSelectionActions';
@@ -118,6 +117,13 @@ import {
 import { analyzeTextHygiene } from '../../../lib/textQualityMetrics';
 import type { AgentMode } from '../../../types';
 import { buildAgentWorkspaceContext } from '../../../lib/agentWorkspaceContext';
+import { pathFocusFromQuizMiss, pathFocusFromWeakArea, type PathFocus } from '../../../lib/pathFocus';
+import { buildSmartFlashcard } from '../../../lib/smartFlashcard';
+import { buildPathTryChips } from '../../../lib/pathFocus';
+import type { QuizErrorDiagnosis } from '../../../lib/quizErrorDiagnosis';
+import { buildCompareSourceDiff } from '../../../lib/compareDebateAi';
+import { buildDebateCounter } from '../../../lib/compareDebateAi';
+import { buildScratchpadStepHint } from '../../../lib/scratchpadStepHint';
 import {
   selectNextBestAction,
   selectWeakConcepts,
@@ -319,6 +325,8 @@ export function useStudyWorkspace({
   const [stepMarks, setStepMarks] = useState<Record<number, 'understood' | 'confusing'>>({});
   const [mobileToolDrawerOpen, setMobileToolDrawerOpen] = useState(false);
   const [localFocus, setLocalFocus] = useState<WorkspaceFocus>({});
+  /** OPT-AI-A — sync weak/quiz focus into Agent Try chips. */
+  const [pathFocus, setPathFocus] = useState<PathFocus | null>(null);
   const [reprocessWizardOpen, setReprocessWizardOpen] = useState(false);
   const [reprocessApplied, setReprocessApplied] = useState(false);
   
@@ -1085,10 +1093,12 @@ export function useStudyWorkspace({
       pipelineVersion: noteBundle.pipelineVersion,
       handwrittenSource: readerHandwritingRecognized,
       selectionExcerpt,
+      pathFocus: pathFocus ?? undefined,
     });
   }, [
     currentStep, STEPS, effectiveCourseId, courseName, quizConcept, activeTool, lang,
     sourceQualityScore, showReuploadHint, noteBundle.pipelineVersion, readerHandwritingRecognized,
+    pathFocus,
   ]);
 
   const handleOpenAgent = useCallback(() => {
@@ -1205,19 +1215,29 @@ export function useStudyWorkspace({
         break;
       }
       case 'make-card': {
-        const card = buildSelectionFlashcard(excerpt, term, glossaryDef);
-        const cardSource =
-          ctx.originTool === 'concept-map' ? 'concept-map'
-          : ctx.originTool === 'compare' ? 'compare'
-          : ctx.originTool === 'debate' ? 'debate'
-          : ctx.originTool === 'quiz' ? 'quiz-selection'
-          : 'reader-selection';
-        setCustomLeitnerCards(appendCustomLeitnerCard(progressKey, {
-          ...card,
-          source: cardSource,
-        }));
-        emitFocus('leitner', 'focus');
-        openWorkspaceTool('leitner');
+        void (async () => {
+          const smart = await buildSmartFlashcard({
+            text: excerpt,
+            concept: term,
+            glossaryDefinition: glossaryDef,
+            lang,
+            settings: userSettings,
+          });
+          const cardSource =
+            ctx.originTool === 'concept-map' ? 'concept-map'
+            : ctx.originTool === 'compare' ? 'compare'
+            : ctx.originTool === 'debate' ? 'debate'
+            : ctx.originTool === 'quiz' ? 'quiz-selection'
+            : 'reader-selection';
+          setCustomLeitnerCards(appendCustomLeitnerCard(progressKey, {
+            front: smart.data.front,
+            back: smart.data.back,
+            cardType: smart.data.cardType === 'cloze' ? 'cloze' : smart.data.cardType === 'mistake' ? 'mistake' : smart.data.cardType,
+            source: cardSource,
+          }));
+          emitFocus('leitner', 'focus');
+          openWorkspaceTool('leitner');
+        })();
         break;
       }
       case 'make-occlusion': {
@@ -1261,7 +1281,7 @@ export function useStudyWorkspace({
   }, [
     quizConcept, scopedGlossary, focusOnTerm, noteConceptActivity, lang, STEPS, currentStep,
     openAgentForTool, progressKey, openWorkspaceTool, openReaderAtSearch, openReaderForTerm,
-    courseSourceFiles, noteBundle.sourceFullText, noteBundle.sourceName,
+    courseSourceFiles, noteBundle.sourceFullText, noteBundle.sourceName, userSettings,
   ]);
 
   const handleQuizRemediateWrong = useCallback((
@@ -1269,6 +1289,7 @@ export function useStudyWorkspace({
     item: QuizSessionItem,
   ) => {
     noteConceptActivity(quizConcept, 'quiz', 'quiz-wrong');
+    setPathFocus(pathFocusFromQuizMiss(quizConcept));
     if (kind === 'make-card') {
       const card = buildQuizMistakeFlashcard(item, quizConcept);
       setCustomLeitnerCards(appendCustomLeitnerCard(progressKey, {
@@ -1285,6 +1306,13 @@ export function useStudyWorkspace({
     quizConcept, noteConceptActivity, progressKey, openWorkspaceTool, lang,
     openAgentForTool,
   ]);
+
+  const handleQuizDiagnosisReady = useCallback((
+    _diagnosis: QuizErrorDiagnosis,
+    _item: QuizSessionItem,
+  ) => {
+    setPathFocus(pathFocusFromQuizMiss(quizConcept));
+  }, [quizConcept]);
 
   const handleQuizRemediateWrongCluster = useCallback((items: QuizSessionItem[]) => {
     if (items.length === 0) return;
@@ -1327,6 +1355,7 @@ export function useStudyWorkspace({
       courseId: effectiveCourseId,
     });
     internalSetFocus(focus);
+    setPathFocus(pathFocusFromWeakArea(concept));
     openReaderForTerm(concept, 'reader');
     const source = noteBundle.sourceFullText?.trim();
     const stepIdx = resolveWorkspaceStepForConcept(concept, STEPS, source);
@@ -1341,6 +1370,66 @@ export function useStudyWorkspace({
     STEPS,
     selectWorkspaceStep,
   ]);
+
+  const handleTryWeakSpot = useCallback((
+    concept: string,
+    action: 'explain' | 'quiz' | 'cards',
+  ) => {
+    setPathFocus(pathFocusFromWeakArea(concept));
+    const chips = buildPathTryChips(pathFocusFromWeakArea(concept), lang);
+    const chip = action === 'explain' ? chips[0] : action === 'quiz' ? chips[1] : chips[2];
+    if (!chip) return;
+    if (action === 'quiz') {
+      focusOnTerm(concept, 'quiz');
+      openWorkspaceTool('quiz');
+    } else if (action === 'cards') {
+      focusOnTerm(concept, 'leitner');
+      openWorkspaceTool('leitner');
+    }
+    openAgentForTool(chip.tool ?? 'reader', chip.prompt, 'remediation', concept);
+  }, [lang, focusOnTerm, openWorkspaceTool, openAgentForTool]);
+
+  const handleScratchpadStepHint = useCallback(async (text: string) => {
+    const result = await buildScratchpadStepHint({
+      text,
+      sectionTitle: STEPS[currentStep]?.title,
+      lang,
+      settings: userSettings,
+    });
+    if (result.agentHandoff && !result.usedLlm) {
+      openAgentForTool('scratchpad', result.agentHandoff.prompt, 'formula');
+      return result.data.hint;
+    }
+    return result.data.hint;
+  }, [STEPS, currentStep, lang, userSettings, openAgentForTool]);
+
+  const handleCompareAiDiff = useCallback(async (left: string, right: string) => {
+    const result = await buildCompareSourceDiff({
+      left,
+      right,
+      concept: quizConcept,
+      lang,
+      settings: userSettings,
+      sourceExcerpt: noteBundle.sourceFullText?.slice(0, 800),
+    });
+    if (result.agentHandoff) {
+      openAgentForTool('compare', result.agentHandoff.prompt, 'compare-row');
+    }
+    return result.data;
+  }, [quizConcept, lang, userSettings, noteBundle.sourceFullText, openAgentForTool]);
+
+  const handleDebateAiCounter = useCallback(async (claim: string) => {
+    const result = await buildDebateCounter({
+      claim,
+      lang,
+      settings: userSettings,
+      sourceExcerpt: noteBundle.sourceFullText?.slice(0, 800),
+    });
+    if (result.agentHandoff) {
+      openAgentForTool('debate', result.agentHandoff.prompt, 'selection', undefined, claim);
+    }
+    return result.data;
+  }, [lang, userSettings, noteBundle.sourceFullText, openAgentForTool]);
 
   useEffect(() => {
     if (!workspaceFocus) return;
@@ -2398,11 +2487,17 @@ export function useStudyWorkspace({
     handleWorkspaceSelectionAction,
     handleQuizRemediateWrong,
     handleQuizRemediateWrongCluster,
+    handleQuizDiagnosisReady,
     handleQuizSessionComplete,
     quizAttemptHistory,
     handleCrossLinkAgent,
     handleCrossLinkReader,
     focusWeakArea,
+    handleTryWeakSpot,
+    handleScratchpadStepHint,
+    handleCompareAiDiff,
+    handleDebateAiCounter,
+    pathFocus,
     workspaceCorrelation,
     quizDef,
     quizIrtDisplay,

@@ -18,6 +18,7 @@ import {
   buildLowRetrievalClarification,
 } from '../lib/agentCommands';
 import { buildAgentRetrievalQuery, buildAgentContextSystemBlock, type AgentWorkspaceContext } from '../lib/agentWorkspaceContext';
+import { buildPathTryChips, type PathTryChip } from '../lib/pathFocus';
 import { isMultiDocSynthesizeAction, runMultiDocSynthesize } from '../lib/agentMultiDocSynthesize';
 import { spanFromCitation } from '../lib/conceptProvenance';
 import { applyAgentGroundingGate } from '../lib/grounding';
@@ -141,16 +142,26 @@ export function Agent({
     [agentContent],
   );
   const { quickActions, contextualPrompts, ui, sourceModes } = agentContent;
+  const pathTryChips = useMemo(
+    () => buildPathTryChips(workspaceContext?.pathFocus, lang),
+    [workspaceContext?.pathFocus, lang],
+  );
   const contextualSuggestions = useMemo(() => {
     const suggestions: string[] = [];
+    for (const chip of pathTryChips) {
+      if (suggestions.length >= 5) break;
+      suggestions.push(chip.prompt);
+    }
     if (dashboardNextAction) {
       suggestions.push(contextualPrompts.fromNextAction(dashboardNextAction.label, dashboardNextAction.reason));
     }
     if (activeTaskTitle) {
       suggestions.push(contextualPrompts.fromTask(activeTaskTitle));
     }
-    const weakConcept = weakAreas[0]?.concept ?? dashboardNextAction?.concept;
-    if (weakConcept) {
+    const weakConcept = workspaceContext?.pathFocus?.concept
+      ?? weakAreas[0]?.concept
+      ?? dashboardNextAction?.concept;
+    if (weakConcept && !pathTryChips.length) {
       suggestions.push(contextualPrompts.fromWeakArea(weakConcept));
     }
     for (const action of quickActions) {
@@ -158,7 +169,15 @@ export function Agent({
       if (!suggestions.includes(action)) suggestions.push(action);
     }
     return suggestions.slice(0, 5);
-  }, [dashboardNextAction, activeTaskTitle, weakAreas, quickActions, contextualPrompts]);
+  }, [
+    pathTryChips,
+    dashboardNextAction,
+    activeTaskTitle,
+    weakAreas,
+    quickActions,
+    contextualPrompts,
+    workspaceContext?.pathFocus?.concept,
+  ]);
   const analyzedFiles = useMemo(
     () => uploadedFiles.filter((f) => f.status === 'analyzed' && f.extractedText?.trim()),
     [uploadedFiles],
@@ -398,6 +417,11 @@ export function Agent({
 
   const handleQuickAction = (action: string) => {
     void handleSend(action);
+  };
+
+  const handlePathTryChip = (chip: PathTryChip) => {
+    onChangeMode(chip.mode);
+    void handleSend(chip.prompt);
   };
 
   const handleSearchSources = () => {
@@ -862,17 +886,29 @@ export function Agent({
                 <p className="text-xs text-text-secondary px-4">
                   {llmReady ? ui.inputPlaceholder : ui.offlineMode}
                 </p>
-                <div className="flex flex-wrap justify-center gap-2 pt-2">
-                  {contextualSuggestions.slice(0, 2).map((action) => (
-                    <button
-                      key={action}
-                      type="button"
-                      onClick={() => handleQuickAction(action)}
-                      className="ux-agent-chip"
-                    >
-                      {action}
-                    </button>
-                  ))}
+                <div className="flex flex-wrap justify-center gap-2 pt-2" data-testid="agent-try-chips">
+                  {pathTryChips.length > 0
+                    ? pathTryChips.slice(0, 3).map((chip) => (
+                      <button
+                        key={chip.id}
+                        type="button"
+                        data-testid={`agent-path-try-${chip.id}`}
+                        onClick={() => handlePathTryChip(chip)}
+                        className="ux-agent-chip"
+                      >
+                        {chip.label}
+                      </button>
+                    ))
+                    : contextualSuggestions.slice(0, 2).map((action) => (
+                      <button
+                        key={action}
+                        type="button"
+                        onClick={() => handleQuickAction(action)}
+                        className="ux-agent-chip"
+                      >
+                        {action}
+                      </button>
+                    ))}
                 </div>
               </div>
             ) : (
@@ -881,25 +917,43 @@ export function Agent({
                 title={ui.title}
                 description={llmReady ? ui.inputPlaceholder : ui.offlineMode}
                 icon={Sparkles}
-                actionLabel={contextualSuggestions[0]}
-                onAction={() => contextualSuggestions[0] && handleQuickAction(contextualSuggestions[0])}
-                secondaryActionLabel={contextualSuggestions[1]}
-                onSecondaryAction={() => contextualSuggestions[1] && handleQuickAction(contextualSuggestions[1])}
+                actionLabel={pathTryChips[0]?.label ?? contextualSuggestions[0]}
+                onAction={() => {
+                  if (pathTryChips[0]) handlePathTryChip(pathTryChips[0]);
+                  else if (contextualSuggestions[0]) handleQuickAction(contextualSuggestions[0]);
+                }}
+                secondaryActionLabel={pathTryChips[1]?.label ?? contextualSuggestions[1]}
+                onSecondaryAction={() => {
+                  if (pathTryChips[1]) handlePathTryChip(pathTryChips[1]);
+                  else if (contextualSuggestions[1]) handleQuickAction(contextualSuggestions[1]);
+                }}
               />
-              {contextualSuggestions.length > 0 && (
-                <div className="max-w-xl mx-auto">
+              {(pathTryChips.length > 0 || contextualSuggestions.length > 0) && (
+                <div className="max-w-xl mx-auto" data-testid="agent-try-chips">
                   <p className="text-xs text-text-tertiary mb-3 text-center">{contextualPrompts.emptySuggestionsHeading}</p>
                   <div className="flex flex-wrap justify-center gap-2">
-                    {contextualSuggestions.map((action) => (
-                      <button
-                        key={action}
-                        type="button"
-                        onClick={() => handleQuickAction(action)}
-                        className="ux-agent-chip text-left"
-                      >
-                        {action}
-                      </button>
-                    ))}
+                    {pathTryChips.length > 0
+                      ? pathTryChips.map((chip) => (
+                        <button
+                          key={chip.id}
+                          type="button"
+                          data-testid={`agent-path-try-${chip.id}`}
+                          onClick={() => handlePathTryChip(chip)}
+                          className="ux-agent-chip text-left"
+                        >
+                          {chip.label}
+                        </button>
+                      ))
+                      : contextualSuggestions.map((action) => (
+                        <button
+                          key={action}
+                          type="button"
+                          onClick={() => handleQuickAction(action)}
+                          className="ux-agent-chip text-left"
+                        >
+                          {action}
+                        </button>
+                      ))}
                   </div>
                 </div>
               )}

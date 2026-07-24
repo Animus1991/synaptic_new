@@ -24,6 +24,8 @@ type Props = {
   onAskAgent?: (claimText?: string) => void;
   onSelectionAction?: (action: WorkspaceSelectionActionId, ctx: WorkspaceSelectionContext) => void;
   onRebuttalPersisted?: (rebuttalText: string) => void;
+  /** OPT-AI-B — generate / hand off a counter-argument for the selected claim. */
+  onAiCounter?: (claimText: string) => void;
 };
 
 export function DebatePanel({
@@ -38,6 +40,7 @@ export function DebatePanel({
   onAskAgent,
   onSelectionAction,
   onRebuttalPersisted,
+  onAiCounter,
 }: Props) {
   const [filterQuery, setFilterQuery] = useState('');
   const [selectedClaim, setSelectedClaim] = useState<string | null>(null);
@@ -173,6 +176,18 @@ export function DebatePanel({
             className="mt-3 rounded-md border border-brand-500/25"
             data-testid="debate-selection-actions"
           />
+        )}
+        {selectedClaim && onAiCounter && (
+          <div className="mt-2">
+            <button
+              type="button"
+              data-testid="debate-ai-counter"
+              onClick={() => onAiCounter(selectedClaim)}
+              className="rounded-full border border-border-default bg-surface-tertiary px-2.5 py-1 text-[10px] font-medium text-text-primary hover:bg-surface-hover"
+            >
+              {t('debateAiCounter')}
+            </button>
+          </div>
         )}
       </div>
 

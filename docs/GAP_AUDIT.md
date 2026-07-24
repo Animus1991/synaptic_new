@@ -200,6 +200,7 @@ Goal: every tool **fully functional for its learning purpose**, not demo stubs.
 | AI-03 | One-click quiz / mindmap Studio actions | P1 | **shipped** | See STU-05/06 |
 | AI-04 | Agent chips on Feynman / Compare / Debate | P2 | **shipped** | See XTL-02 |
 | AI-05 | `VITE_SHOW_NOTEBOOKLM_PARITY` default strategy | P2 | **shipped** | override → env → DEV on / prod off; Settings Developer toggle |
+| AI-06 | Tool AI intelligence layer (Phase A/B) | P1 | **in progress** | `toolAiAction` router; quiz error diagnosis; PathFocus Try chips; smart flashcards; scratchpad step hint; compare/debate AI micro-actions; hybrid local→LLM→Agent |
 
 ### 4. Collaboration depth
 

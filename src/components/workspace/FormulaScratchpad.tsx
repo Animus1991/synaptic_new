@@ -48,6 +48,8 @@ interface Props {
   /** Send active formula (+ steps) to the whiteboard for LaTeX preview and insertion. */
   onSendToWhiteboard?: (payload: ScratchpadExport) => void;
   onAskAgent?: (formulaText: string) => void;
+  /** OPT-AI-B — next-step hint without full solution. */
+  onStepHint?: (text: string) => Promise<string> | string;
   lang?: 'en' | 'el';
   concept?: string;
   sectionLabel?: string;
@@ -71,6 +73,7 @@ export function FormulaScratchpad({
   scopeKey,
   onSendToWhiteboard,
   onAskAgent,
+  onStepHint,
   lang = 'en',
   concept,
   sectionLabel,
@@ -85,6 +88,8 @@ export function FormulaScratchpad({
   const { t } = useI18n();
   const scope = scopeKey ?? '__global';
   const [panel, setPanel] = useState<'formulas' | 'notes'>('formulas');
+  const [stepHint, setStepHint] = useState<string | null>(null);
+  const [stepHintLoading, setStepHintLoading] = useState(false);
   const persisted = loadScratchpadFormulas<PersistedScratch>(scope);
   const initialFormulas: SavedFormula[] = noteFormulas.map((f) => ({
     ...f,
@@ -388,6 +393,25 @@ export function FormulaScratchpad({
                     Agent
                   </button>
                 )}
+                {onStepHint && activeFormula && (
+                  <button
+                    type="button"
+                    data-testid="scratchpad-step-hint"
+                    disabled={stepHintLoading}
+                    onClick={() => {
+                      setStepHintLoading(true);
+                      void Promise.resolve(
+                        onStepHint(`${activeFormula.name}: ${activeFormula.formula}\n${derivationDraft}`),
+                      ).then((hint) => {
+                        setStepHint(hint);
+                        setStepHintLoading(false);
+                      }).catch(() => setStepHintLoading(false));
+                    }}
+                    className="flex items-center gap-1 px-3 py-2.5 rounded-xl border border-border-default bg-surface-tertiary text-text-primary text-xs font-medium hover:bg-surface-hover disabled:opacity-60"
+                  >
+                    {stepHintLoading ? t('scratchStepHintLoading') : t('scratchStepHint')}
+                  </button>
+                )}
                 {onSendToWhiteboard && (
                   <button
                     type="button"
@@ -410,6 +434,15 @@ export function FormulaScratchpad({
                   <RotateCcw className="w-4 h-4" />
                 </button>
               </div>
+
+              {stepHint && (
+                <p
+                  className="mx-3 mb-2 rounded-lg border border-border-subtle bg-surface-tertiary/60 px-2.5 py-1.5 text-[10px] text-text-primary"
+                  data-testid="scratchpad-step-hint-text"
+                >
+                  {stepHint}
+                </p>
+              )}
 
               {showGraph && plotPath && plotSpec && (
                 <div
