@@ -25,6 +25,12 @@ describe('workspaceSelectionActions', () => {
     expect(getSelectionActionDefs('en', 'concept-map', { occlusionAvailable: true }).some((d) => d.id === 'make-occlusion')).toBe(false);
   });
 
+  it('shows ask-ai-inline only in Reader when LLM available', () => {
+    expect(getSelectionActionDefs('en', 'reader').some((d) => d.id === 'ask-ai-inline')).toBe(false);
+    expect(getSelectionActionDefs('en', 'reader', { askAiInlineAvailable: true }).some((d) => d.id === 'ask-ai-inline')).toBe(true);
+    expect(getSelectionActionDefs('en', 'concept-map', { askAiInlineAvailable: true }).some((d) => d.id === 'ask-ai-inline')).toBe(false);
+  });
+
   it('hides quiz action when origin is Quiz', () => {
     const defs = getSelectionActionDefs('en', 'quiz');
     expect(defs.some((d) => d.id === 'quiz')).toBe(false);

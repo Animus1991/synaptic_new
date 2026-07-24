@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useCallback, useMemo } from 'react';
-import { Sparkles, Type, Volume2, Highlighter, Download, StickyNote, X, Languages, BookOpen, AlertTriangle } from '@/lib/lucide-shim';
+import { Sparkles, Type, Volume2, Highlighter, Download, StickyNote, X, Languages, BookOpen, AlertTriangle, Loader2 } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
 import { prepareWorkspaceDisplayText } from '../../lib/workspaceDisplayText';
 import { reanchorOcrCorrections } from '../../lib/readerOcrCorrectionStore';
@@ -47,7 +47,7 @@ import {
 import type { OcrStoredRegion } from '../../lib/readerOcrOverlay';
 import { canMakeOcclusionFromSelection } from '../../lib/readerOcclusionFromSelection';
 import { OcrCorrectionPanel } from './OcrCorrectionPanel';
-import { isLlmAvailable } from '../../lib/llmClient';
+import { isLlmAvailable, chatCompletion } from '../../lib/llmClient';
 import {
   buildReaderSegments,
   readerSegmentsToParagraphs,
@@ -202,6 +202,9 @@ export function CognitiveReader({
   const [ocrCorrectionRevision, setOcrCorrectionRevision] = useState(0);
   const [activeSectionLabel, setActiveSectionLabel] = useState<string | null>(null);
   const [textSelection, setTextSelection] = useState<string | null>(null);
+  const [inlineAiExcerpt, setInlineAiExcerpt] = useState<string | null>(null);
+  const [inlineAiResult, setInlineAiResult] = useState<string | null>(null);
+  const [inlineAiLoading, setInlineAiLoading] = useState(false);
   const rawDisplayText = fullSource ? (sourceFullText?.trim() || text) : text;
   const glossaryTerms = useMemo(() => glossary?.map((g) => g.term) ?? [], [glossary]);
   const prevRawTextRef = useRef<string | null>(null);
@@ -524,6 +527,36 @@ export function CognitiveReader({
       dismissTextSelection();
       return;
     }
+    if (action === 'ask-ai-inline') {
+      const excerpt = textSelection;
+      const isEl = lang === 'el';
+      setInlineAiExcerpt(excerpt);
+      setInlineAiResult(null);
+      setInlineAiLoading(true);
+      dismissTextSelection();
+      void chatCompletion(
+        [
+          {
+            role: 'system',
+            content: isEl
+              ? 'Είσαι AI tutor. Εξήγησε σύντομα και με σαφήνεια το επιλεγμένο απόσπασμα. 2-3 προτάσεις. Χρησιμοποίησε απλή γλώσσα.'
+              : 'You are an AI tutor. Briefly and clearly explain the selected passage. 2-3 sentences. Use plain language.',
+          },
+          {
+            role: 'user',
+            content: `Explain this passage: "${excerpt.slice(0, 600)}"${concept ? `\n\nContext concept: ${concept}` : ''}`,
+          },
+        ],
+        userSettings,
+      ).then((result) => {
+        setInlineAiResult(result);
+      }).catch(() => {
+        setInlineAiResult(isEl ? 'Σφάλμα AI — δοκίμασε ξανά.' : 'AI error — try again.');
+      }).finally(() => {
+        setInlineAiLoading(false);
+      });
+      return;
+    }
     const ctx: WorkspaceSelectionContext = {
       text: textSelection,
       term: (focusTerm ?? concept ?? textSelection).trim().slice(0, 80),
@@ -537,7 +570,7 @@ export function CognitiveReader({
     }
     dismissTextSelection();
   }, [
-    textSelection, displayText, focusTerm, concept, activeSectionLabel,
+    textSelection, displayText, focusTerm, concept, lang, activeSectionLabel, userSettings,
     onSelectionAction, onAskAgentAboutSelection, dismissTextSelection,
   ]);
 
@@ -1231,6 +1264,7 @@ export function CognitiveReader({
             onAction={handleReaderSelectionAction}
             onDismiss={dismissTextSelection}
             occlusionAvailable={occlusionSelectionAvailable}
+            askAiInlineAvailable={llmReady}
             data-testid="reader-selection-actions"
           />
         ) : (
@@ -1259,6 +1293,41 @@ export function CognitiveReader({
           </button>
         </div>
         )
+      )}
+
+      {(inlineAiLoading || inlineAiResult) && (
+        <div
+          data-testid="reader-inline-ai-result"
+          className="shrink-0 border-b border-brand-500/20 bg-brand-500/6 px-4 py-3 space-y-1.5"
+        >
+          <div className="flex items-center justify-between">
+            <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-brand-300">
+              <Sparkles className="w-3 h-3" />
+              {lang === 'el' ? 'AI Εξήγηση' : 'AI Explanation'}
+            </span>
+            <button
+              type="button"
+              onClick={() => { setInlineAiResult(null); setInlineAiExcerpt(null); }}
+              className="rounded p-0.5 text-text-muted hover:text-text-primary"
+              aria-label={t('readerDismiss')}
+            >
+              <X className="w-3 h-3" />
+            </button>
+          </div>
+          {inlineAiExcerpt && (
+            <p className="text-[9px] italic text-text-muted truncate">
+              &ldquo;{inlineAiExcerpt.slice(0, 90)}{inlineAiExcerpt.length > 90 ? '…' : ''}&rdquo;
+            </p>
+          )}
+          {inlineAiLoading ? (
+            <div className="flex items-center gap-1.5 text-[10px] text-text-muted">
+              <Loader2 className="w-3 h-3 animate-spin" />
+              {lang === 'el' ? 'Αναλύω…' : 'Thinking…'}
+            </div>
+          ) : (
+            <p className="text-[11px] text-text-secondary leading-relaxed">{inlineAiResult}</p>
+          )}
+        </div>
       )}
 
       {ocrOverlayOn && overlayRegions.length > 0 && annotationScopeKey && (
