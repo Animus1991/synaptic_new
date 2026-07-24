@@ -144,6 +144,8 @@ export type AgentWorkspaceContextJson = {
 export type AgentContextBannerView = {
   heading: string;
   line: string;
+  /** Phone/embedded chip — tool + step only; full `line` stays in tooltip/popover. */
+  compactLine: string;
   caution?: string;
   groundingNote?: string;
   contextJson?: AgentWorkspaceContextJson;
@@ -230,6 +232,13 @@ export function buildAgentContextBanner(
       : null,
   ].filter(Boolean);
 
+  /** Prefer tool + step on narrow chips; fall back to section + step (skip quality/pipeline noise). */
+  const compactBits = [tool ?? section, stepPart].filter(Boolean);
+  const compactLine =
+    compactBits.length > 0
+      ? compactBits.join(' · ')
+      : bits.slice(0, 2).join(' · ');
+
   let caution: string | undefined;
   if (ctx.oldPipeline || (typeof ctx.sourceQuality === 'number' && ctx.sourceQuality < 50)) {
     caution = t('agentCautionLowQuality', lang);
@@ -244,6 +253,7 @@ export function buildAgentContextBanner(
   return {
     heading: t('agentContextHeading', lang),
     line: bits.join(' · '),
+    compactLine,
     caution,
     groundingNote,
     contextJson: toAgentWorkspaceContextJson(ctx) ?? undefined,

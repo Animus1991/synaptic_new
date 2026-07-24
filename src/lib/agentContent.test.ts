@@ -20,6 +20,13 @@ describe('agentContent', () => {
       expect(getAgentContent('el').modes[mode].label).toBeTruthy();
     }
   });
+
+  it('OPT-K74 — grounding badges stay short (no emoji width on phone)', () => {
+    const en = getAgentContent('en').ui;
+    expect(en.badgeSourceGrounded).toBe('Source grounded');
+    expect(en.badgeAiInference).toBe('AI inference');
+    expect(en.badgeSourceGrounded).not.toMatch(/📖|🧠/);
+  });
 });
 
 describe('onboardingContent', () => {
