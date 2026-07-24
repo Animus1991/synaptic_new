@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 
-import { Layers, RotateCcw, Download } from 'lucide-react';
+import { Layers, RotateCcw, Download, Sparkles, Loader2 } from 'lucide-react';
 
 import { cn } from '../../utils/cn';
 
@@ -17,6 +17,7 @@ import { leitnerCardSourceLabel } from '../../lib/leitnerCardSources';
 import type { LeitnerCard } from '../../lib/leitnerSessionModel';
 
 import { saveDeckState, syncDeckState } from '../../lib/leitnerDeckSync';
+import { chatCompletion } from '../../lib/llmClient';
 
 import { WorkspaceEmptyState } from './WorkspaceEmptyState';
 import { LeitnerStaleArtifactBanner } from './LeitnerStaleArtifactBanner';
@@ -97,6 +98,9 @@ export function LeitnerBox({
 
   const [finished, setFinished] = useState(false);
 
+  const [aiHint, setAiHint] = useState<string | null>(null);
+  const [aiHintLoading, setAiHintLoading] = useState(false);
+
 
 
   useEffect(() => {
@@ -158,6 +162,7 @@ export function LeitnerBox({
     const nextCounts = boxCounts.map((c, i) => (i === boxIdx ? c + 1 : c));
 
     setBoxCounts(nextCounts);
+    setAiHint(null); // clear hint on card advance
 
     onRate?.(rating);
 
@@ -180,6 +185,36 @@ export function LeitnerBox({
     persistProgress(nextIndex, nextCounts);
 
   }, [finished, card, onRate, completeOnRate, boxCounts, index, persistProgress]);
+
+  const generateAiHint = useCallback(async () => {
+    if (!card || aiHintLoading) return;
+    setAiHintLoading(true);
+    setAiHint(null);
+    try {
+      const isEl = lang === 'el';
+      const hint = await chatCompletion(
+        [
+          {
+            role: 'system',
+            content: isEl
+              ? 'Είσαι coach μνήμης. Για την κάρτα που σου δίνω, δώσε: 1) μια μνημονική τεχνική ή αναλογία, 2) μια απλή εξήγηση 2 προτάσεων. Απάντα στα ελληνικά, σύντομα.'
+              : 'You are a memory coach. For the given flashcard, provide: 1) a mnemonic device or analogy, 2) a simple 2-sentence explanation. Be concise.',
+          },
+          {
+            role: 'user',
+            content: `Term: ${card.front}\nDefinition: ${card.back}`,
+          },
+        ],
+        undefined,
+        { temperature: 0.7, maxTokens: 200 },
+      );
+      setAiHint(hint);
+    } catch {
+      setAiHint(lang === 'el' ? 'Σφάλμα AI — δοκίμασε ξανά.' : 'AI error — try again.');
+    } finally {
+      setAiHintLoading(false);
+    }
+  }, [card, lang, aiHintLoading]);
 
 
 
@@ -416,6 +451,34 @@ export function LeitnerBox({
         >
           {lang === 'el' ? 'Κουίζ αυτής της κάρτας →' : 'Quiz this card →'}
         </button>
+      )}
+
+      {flipped && !finished && card && (
+        <button
+          type="button"
+          data-testid="leitner-ai-hint"
+          onClick={() => void generateAiHint()}
+          disabled={aiHintLoading}
+          className="mt-2 w-full inline-flex items-center justify-center gap-1.5 rounded-lg border border-brand-500/30 bg-brand-500/8 py-1.5 text-[10px] font-medium text-brand-300 hover:bg-brand-500/15 disabled:opacity-50 transition-colors"
+        >
+          {aiHintLoading
+            ? <><Loader2 className="w-3 h-3 animate-spin" />{lang === 'el' ? 'Φορτώνει…' : 'Loading…'}</>
+            : <><Sparkles className="w-3 h-3" />{lang === 'el' ? 'AI Βοήθεια / Μνημονικό' : 'AI Hint / Mnemonic'}</>
+          }
+        </button>
+      )}
+
+      {aiHint && flipped && !finished && (
+        <div
+          data-testid="leitner-ai-hint-result"
+          className="mt-2 rounded-xl border border-brand-500/20 bg-brand-500/6 px-3 py-2.5 text-[11px] text-text-secondary leading-relaxed whitespace-pre-wrap"
+        >
+          <span className="inline-flex items-center gap-1 text-brand-300 font-semibold text-[10px] mb-1 block">
+            <Sparkles className="w-3 h-3" />
+            {lang === 'el' ? 'AI Βοήθεια' : 'AI Hint'}
+          </span>
+          {aiHint}
+        </div>
       )}
 
       {flipped && !finished && (

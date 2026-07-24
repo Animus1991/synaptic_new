@@ -9,6 +9,14 @@ const DEFAULT_MODEL = 'gpt-4o-mini';
 const DEFAULT_BASE = 'https://api.openai.com/v1';
 const DEFAULT_EMBED_MODEL = 'text-embedding-3-small';
 
+/**
+ * Built-in Synapse AI proxy — served by the monorepo api-server.
+ * Requests route here when the user has no personal API key or custom proxy.
+ * The api-server injects the Replit AI integration key server-side, so the
+ * browser never holds a secret. This makes LLM available to every user by default.
+ */
+const BUILTIN_PROXY = '/api/ai';
+
 export function resolveApiKey(settings?: UserSettings): string | null {
   const fromSettings = settings?.openaiApiKey?.trim();
   if (fromSettings) return fromSettings;
@@ -26,23 +34,32 @@ function proxyUrl(settings?: UserSettings): string | null {
   return p ? p.replace(/\/$/, '') : null;
 }
 
+/**
+ * LLM is always available via the built-in proxy unless explicitly disabled.
+ * Priority: useLlm=false → disabled; personal API key → direct; custom proxy → proxy;
+ * otherwise → BUILTIN_PROXY (/api/ai via api-server + Replit AI integration).
+ */
 export function isLlmAvailable(settings?: UserSettings): boolean {
   if (settings?.useLlm === false) return false;
-  return !!resolveApiKey(settings) || !!proxyUrl(settings);
+  return true; // Built-in proxy always available
 }
 
 function baseUrl(settings?: UserSettings): string {
-  return proxyUrl(settings) || settings?.llmBaseUrl?.replace(/\/$/, '') || DEFAULT_BASE;
+  // Explicit proxy > personal API base > built-in proxy
+  return proxyUrl(settings)
+    || settings?.llmBaseUrl?.replace(/\/$/, '')
+    || (resolveApiKey(settings) ? DEFAULT_BASE : BUILTIN_PROXY);
 }
 
-/** Auth header — proxy JWT when logged in, else direct API key. */
+/** Auth header — JWT for managed proxy, API key for direct, nothing for built-in proxy. */
 function authHeaders(settings?: UserSettings): Record<string, string> {
   if (settings?.authToken?.trim()) {
     return { Authorization: `Bearer ${settings.authToken.trim()}` };
   }
-  if (proxyUrl(settings)) return {};
+  if (proxyUrl(settings)) return {}; // explicit proxy injects auth server-side
   const key = resolveApiKey(settings);
-  return key ? { Authorization: `Bearer ${key}` } : {};
+  if (key) return { Authorization: `Bearer ${key}` };
+  return {}; // built-in proxy — no client-side auth needed
 }
 
 /**

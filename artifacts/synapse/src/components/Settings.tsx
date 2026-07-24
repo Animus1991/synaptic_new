@@ -247,12 +247,24 @@ export function Settings({
           />
           <p className="ws-caption text-text-muted mt-1.5">When set, chat & embeddings route here with no browser key — the proxy injects the secret server-side and can meter managed (paid) usage.</p>
         </div>
+        {/* Built-in AI status badge */}
+        <div className="flex items-start gap-2 rounded-xl border border-accent-emerald/25 bg-accent-emerald/8 px-3 py-2.5">
+          <span className="mt-0.5 text-accent-emerald text-sm">✅</span>
+          <div>
+            <p className="text-xs font-semibold text-accent-emerald">Synapse AI Ενεργό / Built-in AI Active</p>
+            <p className="ws-caption text-text-muted mt-0.5">
+              Χρησιμοποιεί ενσωματωμένο proxy — δεν χρειάζεται δικό σου API key. Λειτουργούν: Agent (15 modes), Feynman Coach, AI Hints, Translation, Course Generation.
+              {' '}Uses the built-in Synapse proxy — no personal API key required.
+            </p>
+          </div>
+        </div>
         <ToggleRow label="Use LLM for Agent & Feynman" options={[
           { value: 'true', label: 'Enabled' },
           { value: 'false', label: 'Offline only' },
         ]} value={settings.useLlm !== false ? 'true' : 'false'} onChange={v => onUpdate({ useLlm: v === 'true' })} />
         <p className="text-xs text-text-muted mt-1 px-1">
-          Without a key, Agent and Feynman use offline templates. Keys never leave your browser except to your chosen API endpoint.
+          Αν θέλεις δικό σου OpenAI key, συμπλήρωσε το παραπάνω — διαφορετικά η πλατφόρμα χρησιμοποιεί τον built-in proxy αυτόματα.
+          Keys never leave your browser except to your chosen endpoint.
         </p>
       </SettingsSection>
 
