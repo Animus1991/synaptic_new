@@ -327,6 +327,8 @@ export function useAppStore() {
   const [agentMode, setAgentMode] = useState<AgentMode>('socratic');
   const [agentDraftPrompt, setAgentDraftPrompt] = useState<string | null>(null);
   const [agentAutoSend, setAgentAutoSend] = useState(false);
+  /** OPT-AI-C — one-shot pin request consumed by Agent on open. */
+  const [agentPinnedFileId, setAgentPinnedFileId] = useState<string | null>(null);
   const [agentWorkspaceContext, setAgentWorkspaceContext] = useState<
     import('../lib/agentWorkspaceContext').AgentWorkspaceContext | null
   >(null);
@@ -1126,6 +1128,7 @@ export function useAppStore() {
     if (opts?.mode) setAgentMode(opts.mode);
     setAgentDraftPrompt(opts?.prompt?.trim() || null);
     setAgentAutoSend(opts?.autoSend ?? false);
+    setAgentPinnedFileId(opts?.pinnedFileId?.trim() || null);
     setAgentWorkspaceContext(merged);
 
     if (studyWorkspaceOpenRef.current && !opts?.fullPage) {
@@ -2642,6 +2645,7 @@ export function useAppStore() {
     openMistakes, resolveMistake, resolveMisconception, completeOnboarding, enableDemoContent, exitDemoSandbox,
     agentMessages, addAgentMessage, updateAgentMessage, agentMode, setAgentMode, bindAgentToTask,
     agentDraftPrompt, setAgentDraftPrompt, agentAutoSend, setAgentAutoSend,
+    agentPinnedFileId, setAgentPinnedFileId,
     agentWorkspaceContext, setAgentWorkspaceContext, openAgentFromWorkspace, agentContextForView,
     workspaceLive, syncWorkspaceLive, workspaceContext,
     workspaceAgentSplit, setWorkspaceAgentSplit, exitWorkspaceAgentSplit,

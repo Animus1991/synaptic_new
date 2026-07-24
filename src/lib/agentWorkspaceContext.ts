@@ -41,6 +41,8 @@ export type OpenAgentFromWorkspaceOpts = {
   context?: AgentWorkspaceContext;
   /** Leave workspace and open the full Agent page (default: stay in workspace chat panel). */
   fullPage?: boolean;
+  /** OPT-AI-C — pin a library file as Agent retrieval scope on open. */
+  pinnedFileId?: string;
 };
 
 /**

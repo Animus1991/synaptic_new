@@ -4,6 +4,17 @@ import { diagnoseQuizError, quizErrorKindLabel } from './quizErrorDiagnosis';
 import { buildPathTryChips, pathFocusFromQuizMiss, pathFocusFromWeakArea } from './pathFocus';
 import { buildSmartFlashcard } from './smartFlashcard';
 import { buildScratchpadStepHint } from './scratchpadStepHint';
+import { buildInsightsAskPrompt } from './analyticsAskPrompt';
+import { buildLibraryAskPrompt } from './libraryAskPrompt';
+import {
+  buildCohortWeakConceptsDraft,
+  flattenTopicMasteryHeatmap,
+} from './teacherWeakConceptsDraft';
+import {
+  inferModelTier,
+  resolveBaseUrlPreset,
+  resolveModelTierPreset,
+} from './aiEconomicsPresets';
 import type { QuizSessionItem } from './quizSession';
 
 const mcItem: QuizSessionItem = {
@@ -114,5 +125,49 @@ describe('scratchpadStepHint offline', () => {
     });
     expect(result.usedLlm).toBe(false);
     expect(result.data.hint.toLowerCase()).toMatch(/isolate|unknown|substitut/);
+  });
+});
+
+describe('OPT-AI-C library / analytics / teacher prompts', () => {
+  it('builds library ask prompt with course', () => {
+    const en = buildLibraryAskPrompt({ fileName: 'notes.pdf', courseTitle: 'Macro' }, 'en');
+    expect(en).toMatch(/notes\.pdf/);
+    expect(en).toMatch(/Macro/);
+    const el = buildLibraryAskPrompt({ fileName: 'σημειώσεις.pdf' }, 'el');
+    expect(el).toMatch(/σημειώσεις/);
+  });
+
+  it('builds insights ask prompt from weak actions', () => {
+    const prompt = buildInsightsAskPrompt({
+      observations: ['Mastery dipped this week'],
+      actions: [{ concept: 'Tariffs' }, { concept: 'Elasticity' }],
+    }, 'en');
+    expect(prompt).toMatch(/Tariffs/);
+    expect(prompt).toMatch(/study next/i);
+  });
+
+  it('drafts cohort weak announcement from heatmap', () => {
+    const topics = flattenTopicMasteryHeatmap([
+      {
+        classId: 'c1',
+        topics: [
+          { topicId: 't1', topicLabel: 'Tariffs', avgScore: 40, masteryLevel: 0.4 },
+          { topicId: 't2', topicLabel: 'GDP', avgScore: 90, masteryLevel: 0.9 },
+        ],
+      },
+    ]);
+    const draft = buildCohortWeakConceptsDraft(topics, 'c1', 'en');
+    expect(draft?.weakCount).toBe(1);
+    expect(draft?.body).toMatch(/Tariffs/);
+    expect(draft?.body).not.toMatch(/GDP/);
+  });
+});
+
+describe('OPT-AI-D economics presets', () => {
+  it('resolves model and base URL presets', () => {
+    expect(resolveModelTierPreset('quality').model).toBe('gpt-4o');
+    expect(resolveBaseUrlPreset('ollama').baseUrl).toMatch(/11434/);
+    expect(inferModelTier('gpt-4o-mini')).toBe('economy');
+    expect(inferModelTier('gpt-4o')).toBe('quality');
   });
 });

@@ -59,6 +59,9 @@ interface AgentProps {
   onConsumeDraftPrompt?: () => void;
   autoSendDraft?: boolean;
   onConsumeAutoSend?: () => void;
+  /** OPT-AI-C — pin a library file once when opening Agent from Library Ask. */
+  initialPinnedFileId?: string | null;
+  onConsumePinnedFileId?: () => void;
   workspaceContext?: AgentWorkspaceContext | null;
   /** Compact panel for workspace center column (NotebookLM chat). */
   embedded?: boolean;
@@ -108,6 +111,8 @@ export function Agent({
   onConsumeDraftPrompt,
   autoSendDraft,
   onConsumeAutoSend,
+  initialPinnedFileId,
+  onConsumePinnedFileId,
   workspaceContext,
   embedded = false,
   autoFocusInput = false,
@@ -414,6 +419,16 @@ export function Agent({
     onConsumeDraftPrompt?.();
     inputRef.current?.focus();
   }, [draftPrompt, autoSendDraft, onConsumeDraftPrompt, onConsumeAutoSend]);
+
+  useEffect(() => {
+    const fileId = initialPinnedFileId?.trim();
+    if (!fileId) return;
+    const file = analyzedFiles.find((f) => f.id === fileId);
+    setPinnedFileId(fileId);
+    setAttachSource(true);
+    if (file?.courseId) setSelectedSource(file.courseId);
+    onConsumePinnedFileId?.();
+  }, [initialPinnedFileId, analyzedFiles, onConsumePinnedFileId]);
 
   const handleQuickAction = (action: string) => {
     void handleSend(action);
