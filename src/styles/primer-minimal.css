@@ -57,7 +57,8 @@
   /* OPT-K31 + OPT-K73 — secondary > tertiary > muted; tertiary ≥4.5:1 on hover (#eaeef2) too */
   --color-text-secondary: #4d5560;
   --color-text-tertiary: #59636e;
-  --color-text-muted: #6a737d;
+  /* Slightly darker than Primer muted so card meta stays ≥4.5:1 even under light wash */
+  --color-text-muted: #5f6872;
 
   /* OPT-K45 — brand-* = CTAs/focus only; accent-cyan = non-CTA status/viz */
   --color-accent-teal: #7aa0a6;

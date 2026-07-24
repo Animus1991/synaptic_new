@@ -1065,6 +1065,15 @@
   color: var(--color-text-primary);
   font-weight: 600;
 }
+/* Eyebrows mix teal+secondary below AA — use secondary ink on Minimal. */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .ux-section-eyebrow {
+  color: var(--color-text-secondary);
+}
+/* Framer entrance opacity can wash muted below AA during axe scans. */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell [data-testid="library-course-card"] {
+  opacity: 1 !important;
+  transform: none !important;
+}
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell [data-testid="demo-sandbox-banner"][data-quiet-demo="true"] {
   border-bottom-color: color-mix(in srgb, var(--color-border-subtle) 70%, transparent);
