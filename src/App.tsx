@@ -61,6 +61,7 @@ import { useProductTour } from './hooks/useProductTour';
 import { isProductTourComplete } from './lib/productTour';
 import { TakeBreathModal } from './components/examPrep/TakeBreathModal';
 import { subscribeTakeBreathPrompt } from './lib/examPrep/takeBreathEvents';
+import { buildLibraryAskPrompt } from './lib/libraryAskPrompt';
 
 const Agent = lazyWithRetry(() => import('./components/Agent').then((m) => ({ default: m.Agent })), 'agent');
 const Analytics = lazyWithRetry(() => import('./components/Analytics').then((m) => ({ default: m.Analytics })), 'analytics');
@@ -361,6 +362,8 @@ export default function App() {
     onConsumeDraftPrompt: () => store.setAgentDraftPrompt(null),
     autoSendDraft: store.agentAutoSend,
     onConsumeAutoSend: () => store.setAgentAutoSend(false),
+    initialPinnedFileId: store.agentPinnedFileId,
+    onConsumePinnedFileId: () => store.setAgentPinnedFileId(null),
     workspaceContext: store.agentContextForView,
     onChangeSourceMode: (sourceMode: import('./types').UserSettings['sourceMode']) => store.updateSettings({ sourceMode }),
     dashboardNextAction: store.dashboardNextAction,
@@ -1119,6 +1122,22 @@ export default function App() {
               onAddNotebookLmToFsrs={store.importNotebookLmQuizToFsrs}
               onOpenNotebookShell={store.openNotebookShell}
               onOpenConcept={openWorkspaceForConcept}
+              onAskSource={(file, course) => {
+                const lang = store.user.settings.language === 'el' ? 'el' : 'en';
+                store.openAgentFromWorkspace({
+                  fullPage: true,
+                  pinnedFileId: file.id,
+                  prompt: buildLibraryAskPrompt({
+                    fileName: file.name,
+                    courseTitle: course?.title,
+                  }, lang),
+                  context: {
+                    courseId: file.courseId,
+                    courseName: course?.title,
+                    concept: course?.title,
+                  },
+                });
+              }}
               syncConflicts={store.librarySyncConflict?.conflicts ?? []}
               onKeepRemoteLibrary={() => store.resolveLibrarySyncConflict('keep-remote')}
               onRestoreLocalLibrary={() => store.resolveLibrarySyncConflict('restore-local')}

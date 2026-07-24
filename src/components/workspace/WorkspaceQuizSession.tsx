@@ -12,13 +12,18 @@ import {
 } from '../../lib/quizSession';
 import { buildQuizSessionSummaryCopy } from '../../lib/quizSessionSummaryCopy';
 import { quizItemQuestion } from '../../lib/quizSessionModel';
-import type { Course } from '../../types';
+import type { Course, UserSettings } from '../../types';
 import { buildGroundedQuizFeedback, type GroundedQuizFeedback } from '../../lib/quizGroundedFeedback';
 import { quizCorrectAnswerText } from '../../lib/quizRemediation';
 import {
   buildQuizWrongItemSummaries,
   quizWrongAnswerHint,
 } from '../../lib/quizSelectionRemediationQA';
+import {
+  diagnoseQuizError,
+  quizErrorKindLabel,
+  type QuizErrorDiagnosis,
+} from '../../lib/quizErrorDiagnosis';
 import { WorkspaceQuiz } from './WorkspaceQuiz';
 import { useI18n } from '../../lib/i18n';
 import { SourceCitationChip } from './SourceCitationChip';
@@ -52,6 +57,9 @@ type Props = {
   onQuestionSelect?: (question: string) => void;
   course?: Course | null;
   onGroundedFeedbackFocus?: (feedback: GroundedQuizFeedback) => void;
+  /** OPT-AI-A — settings for optional LLM diagnosis (offline heuristic always). */
+  userSettings?: UserSettings;
+  onDiagnosisReady?: (diagnosis: QuizErrorDiagnosis, item: QuizSessionItem) => void;
 };
 
 export function WorkspaceQuizSession({
@@ -75,6 +83,8 @@ export function WorkspaceQuizSession({
   onQuestionSelect,
   course = null,
   onGroundedFeedbackFocus,
+  userSettings,
+  onDiagnosisReady,
 }: Props) {
   const { t } = useI18n();
   const [session, setSession] = useState<QuizSessionState>(() => {
@@ -84,6 +94,8 @@ export function WorkspaceQuizSession({
   });
   const [confidence, setConfidence] = useState(3);
   const [lastCorrect, setLastCorrect] = useState<boolean | null>(null);
+  const [diagnosis, setDiagnosis] = useState<QuizErrorDiagnosis | null>(null);
+  const [diagnosisLoading, setDiagnosisLoading] = useState(false);
 
   useEffect(() => {
     if (items.length === 0) return;
@@ -107,12 +119,53 @@ export function WorkspaceQuizSession({
       : null;
   const done = Boolean(session.completedAt) || session.currentIndex >= session.items.length;
 
+  useEffect(() => {
+    if (lastCorrect !== false || !groundedFeedback || !onGroundedFeedbackFocus) return;
+    onGroundedFeedbackFocus(groundedFeedback);
+  }, [lastCorrect, groundedFeedback, onGroundedFeedbackFocus]);
+
+  useEffect(() => {
+    if (lastCorrect !== false || !current) {
+      setDiagnosis(null);
+      return;
+    }
+    let cancelled = false;
+    setDiagnosisLoading(true);
+    void diagnoseQuizError({
+      item: current,
+      concept,
+      learnerConfidence: confidence,
+      lang,
+      settings: userSettings,
+      sourceExcerpt: groundedFeedback?.sourceExcerpt,
+    }).then((result) => {
+      if (cancelled) return;
+      setDiagnosis(result.data);
+      setDiagnosisLoading(false);
+      onDiagnosisReady?.(result.data, current);
+    }).catch(() => {
+      if (!cancelled) setDiagnosisLoading(false);
+    });
+    return () => { cancelled = true; };
+  }, [lastCorrect, current, concept, confidence, lang, userSettings, groundedFeedback?.sourceExcerpt, onDiagnosisReady]);
+
+  useEffect(() => {
+    if (lastCorrect !== false || !current || !onSelectPassage) return;
+    onSelectPassage(quizItemQuestion(current), concept);
+  }, [lastCorrect, current, concept, onSelectPassage]);
+
+  useEffect(() => {
+    if (lastCorrect !== false || !groundedFeedback || !onGroundedFeedbackFocus) return;
+    onGroundedFeedbackFocus(groundedFeedback);
+  }, [lastCorrect, groundedFeedback, onGroundedFeedbackFocus]);
+
   const confirmAndAdvance = () => {
     if (lastCorrect === null) return;
     const next = recordSessionAnswer(session, lastCorrect, confidence);
     setSession(next);
     setLastCorrect(null);
     setConfidence(3);
+    setDiagnosis(null);
     onClearSelection?.();
     if (next.completedAt) {
       const wrongCount = next.correctFlags.filter((c) => c === false).length;
@@ -124,16 +177,6 @@ export function WorkspaceQuizSession({
       });
     }
   };
-
-  useEffect(() => {
-    if (lastCorrect !== false || !current || !onSelectPassage) return;
-    onSelectPassage(quizItemQuestion(current), concept);
-  }, [lastCorrect, current, concept, onSelectPassage]);
-
-  useEffect(() => {
-    if (lastCorrect !== false || !groundedFeedback || !onGroundedFeedbackFocus) return;
-    onGroundedFeedbackFocus(groundedFeedback);
-  }, [lastCorrect, groundedFeedback, onGroundedFeedbackFocus]);
 
   if (items.length === 0) {
     return (
@@ -337,6 +380,26 @@ export function WorkspaceQuizSession({
                       {t('quizGroundedViewSource')}
                     </button>
                   )}
+                </div>
+              )}
+              {(diagnosis || diagnosisLoading) && (
+                <div
+                  className="rounded-lg border border-border-subtle bg-surface-secondary/40 px-2.5 py-2 space-y-1"
+                  data-testid="quiz-error-diagnosis"
+                >
+                  <p className="text-[10px] font-semibold text-text-primary">
+                    {t('quizErrorDiagnosisTitle')}
+                    {diagnosis ? (
+                      <span className="ml-1.5 font-normal text-text-secondary">
+                        · {quizErrorKindLabel(diagnosis.kind, lang)}
+                      </span>
+                    ) : null}
+                  </p>
+                  <p className="text-[10px] text-text-secondary">
+                    {diagnosisLoading && !diagnosis
+                      ? t('quizErrorDiagnosisLoading')
+                      : diagnosis?.summary}
+                  </p>
                 </div>
               )}
               {onRemediateWrong && (

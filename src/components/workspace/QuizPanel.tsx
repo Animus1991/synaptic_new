@@ -46,6 +46,8 @@ type Props = {
   onGroundedFeedbackFocus?: (feedback: GroundedQuizFeedback) => void;
   artifactStale?: boolean;
   onAcknowledgeStale?: () => void;
+  userSettings?: import('../../types').UserSettings;
+  onDiagnosisReady?: (diagnosis: import('../../lib/quizErrorDiagnosis').QuizErrorDiagnosis, item: QuizSessionItem) => void;
 };
 
 export function QuizPanel({
@@ -69,6 +71,8 @@ export function QuizPanel({
   course = null,
   artifactStale = false,
   onAcknowledgeStale,
+  userSettings,
+  onDiagnosisReady,
 }: Props) {
   const [filterQuery, setFilterQuery] = useState('');
   const [selectedPassage, setSelectedPassage] = useState<{ text: string; term: string } | null>(null);
@@ -247,6 +251,8 @@ export function QuizPanel({
           onQuestionSelect={onSelectionAction ? (question) => selectPassage(question, concept) : undefined}
           course={course}
           onGroundedFeedbackFocus={onGroundedFeedbackFocus}
+          userSettings={userSettings}
+          onDiagnosisReady={onDiagnosisReady}
         />
       </div>
     </div>

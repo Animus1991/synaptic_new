@@ -26,6 +26,11 @@ import {
   setNotebookLmParityOverride,
 } from '../lib/notebookLmParity';
 import { useMinimalTheme } from '../lib/useMinimalTheme';
+import {
+  AI_BASE_URL_PRESETS,
+  AI_MODEL_TIER_PRESETS,
+  inferModelTier,
+} from '../lib/aiEconomicsPresets';
 
 import { type TaskCalendarSyncUpdate } from '../lib/taskCalendarSync';
 
@@ -283,6 +288,16 @@ export function Settings({
       </SettingsSection>
 
       <SettingsSection id="settings-ai" title={c.sectionAiLlm} icon={<Brain className="w-5 h-5 text-brand-400" />} delay={0.32}>
+        <div className="rounded-xl border border-border-subtle/70 bg-surface-hover/40 px-3 py-2 space-y-1" data-testid="ai-economics-panel">
+          <p className="text-xs font-semibold text-text-primary">{c.aiEconomicsTitle}</p>
+          <p className="text-[11px] text-text-muted leading-relaxed">{c.aiEconomicsBody}</p>
+          <p className="text-[10px] text-text-muted">{c.proxyMeteringNote}</p>
+          {settings.authToken && (
+            <p className="text-[10px] text-brand-700" data-testid="ai-economics-plan">
+              {c.planLabel} <strong>{settings.authPlan ?? 'free'}</strong>
+            </p>
+          )}
+        </div>
         <div>
           <label className="text-xs text-text-secondary block mb-2">{c.labelOpenAiKey}</label>
           <input
@@ -294,6 +309,35 @@ export function Settings({
           />
         </div>
         <div>
+          <p className="text-xs text-text-secondary mb-2">{c.modelTierLabel}</p>
+          <div className="flex flex-wrap gap-2" data-testid="ai-model-tier-presets">
+            {AI_MODEL_TIER_PRESETS.map((preset) => {
+              const active = inferModelTier(settings.llmModel) === preset.id;
+              const label =
+                preset.id === 'economy' ? c.modelTierEconomy
+                  : preset.id === 'quality' ? c.modelTierQuality
+                    : c.modelTierBalanced;
+              return (
+                <button
+                  key={preset.id}
+                  type="button"
+                  data-testid={`ai-model-tier-${preset.id}`}
+                  onClick={() => onUpdate({ llmModel: preset.model })}
+                  className={cn(
+                    'px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors',
+                    active
+                      ? 'bg-brand-600/20 text-brand-300 border-brand-500/40'
+                      : 'border-border-subtle text-text-tertiary hover:border-brand-500/30',
+                  )}
+                >
+                  {label}
+                  <span className="ml-1 text-[10px] opacity-70">{preset.model}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+        <div>
           <label className="text-xs text-text-secondary block mb-2">{c.labelModel}</label>
           <input
             type="text"
@@ -303,6 +347,36 @@ export function Settings({
           />
         </div>
         <div>
+          <p className="text-xs text-text-secondary mb-2">{c.baseUrlPresetsLabel}</p>
+          <div className="flex flex-wrap gap-2 mb-2" data-testid="ai-base-url-presets">
+            {AI_BASE_URL_PRESETS.map((preset) => {
+              const label =
+                preset.id === 'openai' ? c.presetOpenAi
+                  : preset.id === 'ollama' ? c.presetOllama
+                    : preset.id === 'groq' ? c.presetGroq
+                      : c.presetClearBaseUrl;
+              const active = (settings.llmBaseUrl ?? '') === preset.baseUrl;
+              return (
+                <button
+                  key={preset.id}
+                  type="button"
+                  data-testid={`ai-base-url-${preset.id}`}
+                  onClick={() => onUpdate({
+                    llmBaseUrl: preset.baseUrl || undefined,
+                    ...(preset.id === 'ollama' ? { llmModel: settings.llmModel?.includes('gpt') ? 'llama3.2' : (settings.llmModel ?? 'llama3.2') } : {}),
+                  })}
+                  className={cn(
+                    'px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors',
+                    active
+                      ? 'bg-brand-600/20 text-brand-300 border-brand-500/40'
+                      : 'border-border-subtle text-text-tertiary hover:border-brand-500/30',
+                  )}
+                >
+                  {label}
+                </button>
+              );
+            })}
+          </div>
           <label className="text-xs text-text-secondary block mb-2">{c.labelApiBaseUrl}</label>
           <input
             type="url"
@@ -330,6 +404,9 @@ export function Settings({
         <ToggleRow label={c.labelUseVisionOcr} options={c.visionOcrOptions} value={settings.useVisionOcr !== false ? 'true' : 'false'} onChange={v => onUpdate({ useVisionOcr: v === 'true' })} />
         <p className="text-xs text-text-muted mt-1 px-1">
           {c.visionOcrHint}
+        </p>
+        <p className="text-[11px] text-accent-amber mt-1 px-1" data-testid="ai-vision-cost-note">
+          {c.visionCostNote}
         </p>
       </SettingsSection>
 

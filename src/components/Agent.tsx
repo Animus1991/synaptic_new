@@ -18,6 +18,7 @@ import {
   buildLowRetrievalClarification,
 } from '../lib/agentCommands';
 import { buildAgentRetrievalQuery, buildAgentContextSystemBlock, type AgentWorkspaceContext } from '../lib/agentWorkspaceContext';
+import { buildPathTryChips, type PathTryChip } from '../lib/pathFocus';
 import { isMultiDocSynthesizeAction, runMultiDocSynthesize } from '../lib/agentMultiDocSynthesize';
 import { spanFromCitation } from '../lib/conceptProvenance';
 import { applyAgentGroundingGate } from '../lib/grounding';
@@ -58,6 +59,9 @@ interface AgentProps {
   onConsumeDraftPrompt?: () => void;
   autoSendDraft?: boolean;
   onConsumeAutoSend?: () => void;
+  /** OPT-AI-C — pin a library file once when opening Agent from Library Ask. */
+  initialPinnedFileId?: string | null;
+  onConsumePinnedFileId?: () => void;
   workspaceContext?: AgentWorkspaceContext | null;
   /** Compact panel for workspace center column (NotebookLM chat). */
   embedded?: boolean;
@@ -107,6 +111,8 @@ export function Agent({
   onConsumeDraftPrompt,
   autoSendDraft,
   onConsumeAutoSend,
+  initialPinnedFileId,
+  onConsumePinnedFileId,
   workspaceContext,
   embedded = false,
   autoFocusInput = false,
@@ -129,6 +135,7 @@ export function Agent({
   const [isThinking, setIsThinking] = useState(false);
   const sourceSelectRef = useRef<HTMLSelectElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const threadRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const llmReady = isLlmAvailable(settings);
   const agentContent = useMemo(() => getAgentContent(lang), [lang]);
@@ -141,16 +148,26 @@ export function Agent({
     [agentContent],
   );
   const { quickActions, contextualPrompts, ui, sourceModes } = agentContent;
+  const pathTryChips = useMemo(
+    () => buildPathTryChips(workspaceContext?.pathFocus, lang),
+    [workspaceContext?.pathFocus, lang],
+  );
   const contextualSuggestions = useMemo(() => {
     const suggestions: string[] = [];
+    for (const chip of pathTryChips) {
+      if (suggestions.length >= 5) break;
+      suggestions.push(chip.prompt);
+    }
     if (dashboardNextAction) {
       suggestions.push(contextualPrompts.fromNextAction(dashboardNextAction.label, dashboardNextAction.reason));
     }
     if (activeTaskTitle) {
       suggestions.push(contextualPrompts.fromTask(activeTaskTitle));
     }
-    const weakConcept = weakAreas[0]?.concept ?? dashboardNextAction?.concept;
-    if (weakConcept) {
+    const weakConcept = workspaceContext?.pathFocus?.concept
+      ?? weakAreas[0]?.concept
+      ?? dashboardNextAction?.concept;
+    if (weakConcept && !pathTryChips.length) {
       suggestions.push(contextualPrompts.fromWeakArea(weakConcept));
     }
     for (const action of quickActions) {
@@ -158,7 +175,15 @@ export function Agent({
       if (!suggestions.includes(action)) suggestions.push(action);
     }
     return suggestions.slice(0, 5);
-  }, [dashboardNextAction, activeTaskTitle, weakAreas, quickActions, contextualPrompts]);
+  }, [
+    pathTryChips,
+    dashboardNextAction,
+    activeTaskTitle,
+    weakAreas,
+    quickActions,
+    contextualPrompts,
+    workspaceContext?.pathFocus?.concept,
+  ]);
   const analyzedFiles = useMemo(
     () => uploadedFiles.filter((f) => f.status === 'analyzed' && f.extractedText?.trim()),
     [uploadedFiles],
@@ -177,6 +202,12 @@ export function Agent({
     : undefined;
 
   useEffect(() => {
+    const thread = threadRef.current;
+    if (thread) {
+      // Scroll the thread pane only — avoid scrollIntoView pulling ancestors under workspace chrome.
+      thread.scrollTo({ top: thread.scrollHeight, behavior: 'smooth' });
+      return;
+    }
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
@@ -396,8 +427,23 @@ export function Agent({
     inputRef.current?.focus();
   }, [draftPrompt, autoSendDraft, onConsumeDraftPrompt, onConsumeAutoSend]);
 
+  useEffect(() => {
+    const fileId = initialPinnedFileId?.trim();
+    if (!fileId) return;
+    const file = analyzedFiles.find((f) => f.id === fileId);
+    setPinnedFileId(fileId);
+    setAttachSource(true);
+    if (file?.courseId) setSelectedSource(file.courseId);
+    onConsumePinnedFileId?.();
+  }, [initialPinnedFileId, analyzedFiles, onConsumePinnedFileId]);
+
   const handleQuickAction = (action: string) => {
     void handleSend(action);
+  };
+
+  const handlePathTryChip = (chip: PathTryChip) => {
+    onChangeMode(chip.mode);
+    void handleSend(chip.prompt);
   };
 
   const handleSearchSources = () => {
@@ -625,7 +671,7 @@ export function Agent({
             type="button"
             onClick={() => setShowModes(!showModes)}
             className={cn(
-              'flex items-center gap-1 rounded-md border border-border-subtle bg-surface-card px-1.5 py-0.5 text-[11px] font-medium text-text-secondary transition-colors',
+              'flex items-center gap-1 rounded-md border border-border-subtle bg-surface-card px-1.5 py-0.5 text-[11px] font-medium text-text-primary transition-colors',
               quietModes ? 'hover:border-border-default' : 'hover:border-brand-200',
             )}
           >
@@ -642,7 +688,7 @@ export function Agent({
               aria-haspopup="listbox"
               data-testid="agent-embedded-source-picker"
               className={cn(
-                'flex items-center gap-1 rounded-md border border-border-subtle bg-surface-card px-1.5 py-0.5 text-[11px] font-medium text-text-secondary transition-colors max-w-[140px]',
+                'flex items-center gap-1 rounded-md border border-border-subtle bg-surface-card px-1.5 py-0.5 text-[11px] font-medium text-text-primary transition-colors max-w-[140px]',
                 quietModes ? 'hover:border-border-default' : 'hover:border-brand-200',
                 showEmbeddedSource &&
                   (quietModes ? 'border-border-default text-text-primary' : 'border-brand-500/40 text-brand-500'),
@@ -849,8 +895,15 @@ export function Agent({
       </AnimatePresence>
 
       {/* Messages — OPT-C1 centered conversation column */}
-      <div className="agent-thread flex-1 overflow-y-auto" data-testid="agent-thread">
-        <div className={cn('agent-chat-column w-full min-w-0 py-4 space-y-4', embedded ? 'px-2.5' : 'px-4 sm:px-6')}>
+      <div
+        ref={threadRef}
+        className="agent-thread flex-1 overflow-y-auto"
+        data-testid="agent-thread"
+      >
+        <div className={cn(
+          'agent-chat-column w-full min-w-0 py-4 space-y-4',
+          embedded ? 'px-2.5 pb-6' : 'px-4 sm:px-6',
+        )}>
           {messages.length === 0 && !isThinking && (
             embedded ? (
               <div className="py-8 text-center space-y-2" data-testid="agent-empty-invite">
@@ -862,17 +915,29 @@ export function Agent({
                 <p className="text-xs text-text-secondary px-4">
                   {llmReady ? ui.inputPlaceholder : ui.offlineMode}
                 </p>
-                <div className="flex flex-wrap justify-center gap-2 pt-2">
-                  {contextualSuggestions.slice(0, 2).map((action) => (
-                    <button
-                      key={action}
-                      type="button"
-                      onClick={() => handleQuickAction(action)}
-                      className="ux-agent-chip"
-                    >
-                      {action}
-                    </button>
-                  ))}
+                <div className="flex flex-wrap justify-center gap-2 pt-2" data-testid="agent-try-chips">
+                  {pathTryChips.length > 0
+                    ? pathTryChips.slice(0, 3).map((chip) => (
+                      <button
+                        key={chip.id}
+                        type="button"
+                        data-testid={`agent-path-try-${chip.id}`}
+                        onClick={() => handlePathTryChip(chip)}
+                        className="ux-agent-chip"
+                      >
+                        {chip.label}
+                      </button>
+                    ))
+                    : contextualSuggestions.slice(0, 2).map((action) => (
+                      <button
+                        key={action}
+                        type="button"
+                        onClick={() => handleQuickAction(action)}
+                        className="ux-agent-chip"
+                      >
+                        {action}
+                      </button>
+                    ))}
                 </div>
               </div>
             ) : (
@@ -881,25 +946,43 @@ export function Agent({
                 title={ui.title}
                 description={llmReady ? ui.inputPlaceholder : ui.offlineMode}
                 icon={Sparkles}
-                actionLabel={contextualSuggestions[0]}
-                onAction={() => contextualSuggestions[0] && handleQuickAction(contextualSuggestions[0])}
-                secondaryActionLabel={contextualSuggestions[1]}
-                onSecondaryAction={() => contextualSuggestions[1] && handleQuickAction(contextualSuggestions[1])}
+                actionLabel={pathTryChips[0]?.label ?? contextualSuggestions[0]}
+                onAction={() => {
+                  if (pathTryChips[0]) handlePathTryChip(pathTryChips[0]);
+                  else if (contextualSuggestions[0]) handleQuickAction(contextualSuggestions[0]);
+                }}
+                secondaryActionLabel={pathTryChips[1]?.label ?? contextualSuggestions[1]}
+                onSecondaryAction={() => {
+                  if (pathTryChips[1]) handlePathTryChip(pathTryChips[1]);
+                  else if (contextualSuggestions[1]) handleQuickAction(contextualSuggestions[1]);
+                }}
               />
-              {contextualSuggestions.length > 0 && (
-                <div className="max-w-xl mx-auto">
+              {(pathTryChips.length > 0 || contextualSuggestions.length > 0) && (
+                <div className="max-w-xl mx-auto" data-testid="agent-try-chips">
                   <p className="text-xs text-text-tertiary mb-3 text-center">{contextualPrompts.emptySuggestionsHeading}</p>
                   <div className="flex flex-wrap justify-center gap-2">
-                    {contextualSuggestions.map((action) => (
-                      <button
-                        key={action}
-                        type="button"
-                        onClick={() => handleQuickAction(action)}
-                        className="ux-agent-chip text-left"
-                      >
-                        {action}
-                      </button>
-                    ))}
+                    {pathTryChips.length > 0
+                      ? pathTryChips.map((chip) => (
+                        <button
+                          key={chip.id}
+                          type="button"
+                          data-testid={`agent-path-try-${chip.id}`}
+                          onClick={() => handlePathTryChip(chip)}
+                          className="ux-agent-chip text-left"
+                        >
+                          {chip.label}
+                        </button>
+                      ))
+                      : contextualSuggestions.map((action) => (
+                        <button
+                          key={action}
+                          type="button"
+                          onClick={() => handleQuickAction(action)}
+                          className="ux-agent-chip text-left"
+                        >
+                          {action}
+                        </button>
+                      ))}
                   </div>
                 </div>
               )}
@@ -973,67 +1056,68 @@ export function Agent({
                 rows={1}
                 disabled={isThinking}
                 className={cn(
-                  'w-full pr-12 rounded-xl bg-surface-input border border-border-subtle text-sm text-text-primary placeholder:text-text-muted focus:outline-none resize-none',
+                  'w-full rounded-xl bg-surface-input border border-border-subtle text-sm text-text-primary placeholder:text-text-tertiary focus:outline-none resize-none',
                   embedded ? 'px-3 py-2' : 'px-4 py-3',
                   quietModes ? 'focus:border-border-default' : 'focus:border-brand-500/50',
                 )}
                 style={{ minHeight: embedded ? '38px' : '46px', maxHeight: '120px' }}
               />
-              <div className="absolute right-2 bottom-2 flex items-center gap-1">
+            </div>
+            {/* OPT-K75 — tools beside field (never absolute-over placeholder on phone) */}
+            <div className="agent-composer-tools flex items-center gap-0.5 shrink-0 self-end pb-0.5" data-testid="agent-composer-tools">
+              <button
+                type="button"
+                aria-label={t('agentSearchSources')}
+                onClick={handleSearchSources}
+                className={cn(
+                  'p-1.5 rounded-lg hover:bg-surface-hover text-text-secondary',
+                  attachSource && (quietModes ? 'text-text-primary' : 'text-brand-400'),
+                )}
+              >
+                <Search className="w-4 h-4" aria-hidden="true" />
+              </button>
+              <div className="relative">
                 <button
                   type="button"
-                  aria-label={t('agentSearchSources')}
-                  onClick={handleSearchSources}
+                  aria-label={t('agentAttachFile')}
+                  aria-expanded={showAttachPicker}
+                  onClick={() => {
+                    setShowAttachPicker((v) => !v);
+                    setShowSourceSettings(false);
+                  }}
                   className={cn(
-                    'p-1.5 rounded-lg hover:bg-surface-hover text-text-muted',
-                    attachSource && (quietModes ? 'text-text-primary' : 'text-brand-400'),
+                    'p-1.5 rounded-lg hover:bg-surface-hover text-text-secondary',
+                    pinnedFileId && (quietModes ? 'text-text-primary' : 'text-brand-400'),
                   )}
                 >
-                  <Search className="w-4 h-4" aria-hidden="true" />
+                  <FileText className="w-4 h-4" aria-hidden="true" />
                 </button>
-                <div className="relative">
-                  <button
-                    type="button"
-                    aria-label={t('agentAttachFile')}
-                    aria-expanded={showAttachPicker}
-                    onClick={() => {
-                      setShowAttachPicker((v) => !v);
-                      setShowSourceSettings(false);
-                    }}
-                    className={cn(
-                      'p-1.5 rounded-lg hover:bg-surface-hover text-text-muted',
-                      pinnedFileId && (quietModes ? 'text-text-primary' : 'text-brand-400'),
+                {showAttachPicker && (
+                  <div className="absolute right-0 bottom-full mb-1 z-20 w-64 max-h-48 overflow-y-auto rounded-xl border border-border-subtle bg-surface-card shadow-lg p-2 text-xs">
+                    <p className="px-2 py-1 font-medium text-text-secondary">{ui.attachFileTitle}</p>
+                    {analyzedFiles.length === 0 ? (
+                      <p className="px-2 py-2 text-text-muted">{ui.noAnalyzedFiles}</p>
+                    ) : (
+                      analyzedFiles.map((file) => (
+                        <button
+                          key={file.id}
+                          type="button"
+                          onClick={() => handlePinFile(file.id)}
+                          className={cn(
+                            'w-full text-left px-2 py-1.5 rounded-lg hover:bg-surface-hover truncate',
+                            pinnedFileId === file.id
+                              ? quietModes
+                                ? 'text-text-primary bg-surface-secondary'
+                                : 'text-brand-300 bg-brand-500/10'
+                              : 'text-text-secondary',
+                          )}
+                        >
+                          {file.name}
+                        </button>
+                      ))
                     )}
-                  >
-                    <FileText className="w-4 h-4" aria-hidden="true" />
-                  </button>
-                  {showAttachPicker && (
-                    <div className="absolute right-0 bottom-full mb-1 z-20 w-64 max-h-48 overflow-y-auto rounded-xl border border-border-subtle bg-surface-card shadow-lg p-2 text-xs">
-                      <p className="px-2 py-1 font-medium text-text-secondary">{ui.attachFileTitle}</p>
-                      {analyzedFiles.length === 0 ? (
-                        <p className="px-2 py-2 text-text-muted">{ui.noAnalyzedFiles}</p>
-                      ) : (
-                        analyzedFiles.map((file) => (
-                          <button
-                            key={file.id}
-                            type="button"
-                            onClick={() => handlePinFile(file.id)}
-                            className={cn(
-                              'w-full text-left px-2 py-1.5 rounded-lg hover:bg-surface-hover truncate',
-                              pinnedFileId === file.id
-                                ? quietModes
-                                  ? 'text-text-primary bg-surface-secondary'
-                                  : 'text-brand-300 bg-brand-500/10'
-                                : 'text-text-secondary',
-                            )}
-                          >
-                            {file.name}
-                          </button>
-                        ))
-                      )}
-                    </div>
-                  )}
-                </div>
+                  </div>
+                )}
               </div>
             </div>
             <button
@@ -1043,7 +1127,7 @@ export function Agent({
               aria-label={t('agentSendMessage')}
               data-testid="agent-send"
               className={cn(
-                'agent-composer-send rounded-xl transition-all shrink-0',
+                'agent-composer-send rounded-xl transition-all shrink-0 self-end',
                 embedded ? 'p-2' : 'p-3',
                 input.trim() && !isThinking
                   ? quietModes
@@ -1164,7 +1248,10 @@ function MessageBubble({
   if (isSystem) {
     return (
       <div className="text-center">
-        <span className="text-xs text-text-muted px-3 py-1 rounded-full bg-surface-hover inline-block">
+        <span
+          className="agent-system-status text-xs px-3 py-1.5 rounded-full inline-block max-w-full border border-border-default bg-surface-tertiary text-text-primary font-medium"
+          data-testid="agent-system-status"
+        >
           {message.content}
         </span>
       </div>
@@ -1304,9 +1391,9 @@ function MessageBubble({
           </div>
         )}
 
-        {/* Source attribution labels — OPT-K16: rainbow washes quiet under Minimal via .agent-meta-badge */}
+        {/* Source attribution labels — OPT-K16 quiet under Minimal; OPT-K74 phone wrap clear of composer */}
         {!isUser && message.metadata && (
-          <div className="agent-meta-badge-row mt-2 pt-2 border-t border-border-subtle flex items-center gap-2 flex-wrap">
+          <div className="agent-meta-badge-row mt-2 pt-2 border-t border-border-subtle flex items-center gap-1.5 flex-wrap pb-0.5">
             {message.metadata.sourceGrounded && (
               <span className="agent-meta-badge text-[10px] px-1.5 py-0.5 rounded bg-accent-emerald/10 text-accent-emerald font-medium">{ui.badgeSourceGrounded}</span>
             )}

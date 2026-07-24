@@ -200,6 +200,7 @@ Goal: every tool **fully functional for its learning purpose**, not demo stubs.
 | AI-03 | One-click quiz / mindmap Studio actions | P1 | **shipped** | See STU-05/06 |
 | AI-04 | Agent chips on Feynman / Compare / Debate | P2 | **shipped** | See XTL-02 |
 | AI-05 | `VITE_SHOW_NOTEBOOKLM_PARITY` default strategy | P2 | **shipped** | override → env → DEV on / prod off; Settings Developer toggle |
+| AI-06 | Tool AI intelligence layer (Phase A–D) | P1 | **in progress** | A/B: router, quiz diagnosis, PathFocus, smart cards, scratchpad/compare/debate. C: Library Ask-on-source + pin, Analytics Ask Agent, Teacher weak-topic announcement draft. D: Settings model/base-URL presets, hybrid economics + vision cost notes |
 
 ### 4. Collaboration depth
 
@@ -392,10 +393,12 @@ Constraints for all OPT-R*: no typography/button/modal scale-up; no functional r
 | OPT-K66 | Coarse pointer floors | P2 | **shipped** | Nav/composer/Continue ≥40–44px |
 | OPT-K67 | Workspace phone &lt;768 | P2 | **shipped** | `isWorkspacePhoneWidth`; tablet gets desktop chrome; aligns OPT-N1 |
 | OPT-K68 | Tour contrast | P2 | **shipped** | Skip/step secondary; close hit 40px |
-| OPT-K69 | Engineering clarity contracts | P2 | **shipped** | `minimalClarityContracts.test.ts` — K52/K56/K62/K65/K67/K68/K71/K72 gates; visual Human Pass remains user-owned |
+| OPT-K69 | Engineering clarity contracts | P2 | **shipped** | `minimalClarityContracts.test.ts` — K52/K56/K62/K65/K67/K68/K71/K72/K73/K74 gates; visual Human Pass remains user-owned |
 | OPT-K71 | Vista clarity micro | P2 | **shipped** | Soft grouping/selection/titleband/scrollbars — no Aero blur/glass clone |
 | OPT-K72 | Windows 8 clarity micro | P2 | **shipped** | Flatter than Vista; solid titleband; safe-area gutters; flat select — no Metro clone; no control/type size inflation |
 | OPT-K73 | Minimal contrast pass | P2 | **shipped** | Light tertiary/muted AA ladder; dark muted on tert surfaces; brand-300→secondary; drop hero opacity wash |
+| OPT-K74 | Mobile notebook clarity | P1 | **shipped** | Full step `Step n of m` + wrapping intel pills; context `tool·step` chip; thread-local scroll + badge padding; dark `ws-pill` AA; phone overflow menu |
+| OPT-K75 | Dark workspace chip/composer contrast | P1 | **shipped** | Status pill + `ws-pill` primary ink on tertiary fill (no white-wash); embedded mode/source `text-primary`; composer tools beside field |
 
 ### Primer-inspired minimal (OPT-M) — zero feature removal
 
