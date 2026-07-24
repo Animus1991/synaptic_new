@@ -25,7 +25,7 @@
     "@opentelemetry/resources": "^2.9.0",
     "@opentelemetry/sdk-metrics": "^2.9.0",
     "@opentelemetry/sdk-node": "^0.220.0",
-    "@opentelemetry/semantic-conventions": "^1.42.0",
+    "@opentelemetry/semantic-conventions": "^1.43.0",
     "@xmldom/xmldom": "^0.9.10",
     "bullmq": "^5.34.5",
     "cors": "^2.8.5",
