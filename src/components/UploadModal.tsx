@@ -118,7 +118,8 @@ export function UploadModal({
   const previewLang = userSettings?.language === 'el' ? 'el' : 'en';
   /** OPT-R10 — prompt-first create chrome under Minimal. */
   const createPrompt = useMinimalTheme();
-  const moreSourcesOpen = Boolean(pastedContent.trim() || youtubeUrl.trim());
+  // OPT-R10 — under Minimal, keep paste/YouTube disclosed (prompt-first create).
+  const moreSourcesOpen = createPrompt || Boolean(pastedContent.trim() || youtubeUrl.trim());
 
   const extendableCourses = courses.filter((c) => !isDemoCourse(c.id));
 

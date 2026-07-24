@@ -54,9 +54,9 @@
   --color-border-strong: #afb8c1;
 
   --color-text-primary: #1f2328;
-  /* OPT-K31 + OPT-K73 — secondary > tertiary > muted, all ≥4.5:1 on white/sec */
+  /* OPT-K31 + OPT-K73 — secondary > tertiary > muted; tertiary ≥4.5:1 on hover (#eaeef2) too */
   --color-text-secondary: #4d5560;
-  --color-text-tertiary: #656d76;
+  --color-text-tertiary: #59636e;
   --color-text-muted: #6a737d;
 
   /* OPT-K45 — brand-* = CTAs/focus only; accent-cyan = non-CTA status/viz */

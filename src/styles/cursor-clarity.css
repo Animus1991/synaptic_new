@@ -1043,6 +1043,29 @@
   color: var(--color-text-secondary);
 }
 
+/* OPT-K74 CI — trust pills + callout titles must hit WCAG AA on Minimal (no pastel ink). */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell :is(
+  .ux-trust-badge,
+  .ux-trust-badge-grounded,
+  .ux-trust-badge-enrichment,
+  .ux-trust-badge-offline,
+  .ux-trust-badge-pwa
+) {
+  background: var(--color-surface-secondary);
+  border-color: var(--color-border-default);
+  color: var(--color-text-primary);
+  font-weight: 600;
+}
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell :is(
+  .ux-callout-title,
+  .ux-callout-trust .ux-callout-title,
+  .ux-callout-next .ux-callout-title,
+  .ux-callout-info .ux-callout-title
+) {
+  color: var(--color-text-primary);
+  font-weight: 600;
+}
+
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell [data-testid="demo-sandbox-banner"][data-quiet-demo="true"] {
   border-bottom-color: color-mix(in srgb, var(--color-border-subtle) 70%, transparent);
 }

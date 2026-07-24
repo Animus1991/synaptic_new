@@ -56,6 +56,9 @@ test.describe('chunk-failure recovery', () => {
   });
 
   test('lazy overlay shows recoverable fallback when its chunk fails', async ({ page }) => {
+    await page.goto('/');
+    await skipOnboardingToLibrary(page);
+
     let blocking = true;
     await page.route('**/*', (route: Route) => {
       const url = route.request().url();
@@ -65,8 +68,6 @@ test.describe('chunk-failure recovery', () => {
       return route.continue();
     });
 
-    await page.goto('/');
-    await skipOnboardingToLibrary(page);
     await page.getByTestId('nav-analytics').click();
 
     // ErrorBoundary fallback exposes Try again + Reload.

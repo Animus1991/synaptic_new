@@ -86,7 +86,7 @@ describe('OPT-K69 engineering clarity contracts', () => {
   it('K73 — Minimal text tokens meet AA contrast (≥4.5:1) on primary surfaces', () => {
     const primer = read('src/styles/primer-minimal.css');
     expect(primer).toMatch(/OPT-K73/);
-    expect(primer).toMatch(/--color-text-tertiary:\s*#656d76/);
+    expect(primer).toMatch(/--color-text-tertiary:\s*#59636e/);
     expect(primer).toMatch(/--color-text-muted:\s*#6a737d/);
     expect(primer).toMatch(/--color-text-muted:\s*#848d97/);
 
@@ -111,7 +111,8 @@ describe('OPT-K69 engineering clarity contracts', () => {
       return (hi + 0.05) / (lo + 0.05);
     };
 
-    expect(contrast('#656d76', '#ffffff')).toBeGreaterThanOrEqual(4.5);
+    expect(contrast('#59636e', '#ffffff')).toBeGreaterThanOrEqual(4.5);
+    expect(contrast('#59636e', '#eaeef2')).toBeGreaterThanOrEqual(4.5);
     expect(contrast('#6a737d', '#ffffff')).toBeGreaterThanOrEqual(4.5);
     expect(contrast('#6a737d', '#f6f8fa')).toBeGreaterThanOrEqual(4.5);
     expect(contrast('#848d97', '#0d1117')).toBeGreaterThanOrEqual(4.5);

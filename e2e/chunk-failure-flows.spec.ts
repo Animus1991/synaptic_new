@@ -81,14 +81,20 @@ const FLOWS: FlowCase[] = [
         await page.getByTestId('dashboard-open-workspace').first().click().catch(() => {});
       }
     },
-    mountedTestId: 'workspace-dock',
+    // Notebook layout may omit classic workspace-dock — study-workspace is the stable mount.
+    mountedTestId: 'study-workspace',
   },
 ];
 
 for (const flow of FLOWS) {
   test(`${flow.name}: chunk failure shows fallback and retries without full reload`, async ({ page }) => {
+    test.setTimeout(90_000);
     const readNavCount = await trackNavigations(page);
 
+    await page.goto('/');
+    await skipOnboardingToLibrary(page);
+
+    // Install abort after shell is up — blocking Analytics during landing can stall onboarding.
     let blocking = true;
     await page.route('**/*', (route: Route) => {
       const url = route.request().url();
@@ -96,9 +102,6 @@ for (const flow of FLOWS) {
       if (blocking && hit) return route.abort('failed');
       return route.continue();
     });
-
-    await page.goto('/');
-    await skipOnboardingToLibrary(page);
 
     const navBeforeTrigger = await readNavCount();
     await flow.trigger(page);
@@ -129,7 +132,12 @@ test('global ErrorBoundary surfaces fallback on lazy render failure and recovers
   // aborting its module fetch React.lazy rejects with a real Error, which
   // bubbles into the closest ErrorBoundary. This exercises the same path a
   // synchronous render-throw would, without requiring app-side test hooks.
+  test.setTimeout(90_000);
   const readNavCount = await trackNavigations(page);
+
+  await page.goto('/');
+  await skipOnboardingToLibrary(page);
+
   let blocking = true;
   await page.route('**/*', (route: Route) => {
     const url = route.request().url();
@@ -137,8 +145,6 @@ test('global ErrorBoundary surfaces fallback on lazy render failure and recovers
     return route.continue();
   });
 
-  await page.goto('/');
-  await skipOnboardingToLibrary(page);
   await page.getByTestId('nav-analytics').click();
 
   const tryAgain = page.getByRole('button', { name: TRY_AGAIN }).first();

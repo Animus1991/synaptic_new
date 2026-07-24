@@ -47,7 +47,10 @@ export async function openWorkspaceFromLibrary(page: Page) {
   await openWs.click();
 
   await expect(page.getByTestId('study-workspace')).toBeVisible({ timeout: 45_000 });
-  await expect(page.getByTestId('workspace-dock')).toBeVisible({ timeout: 45_000 });
+  // Notebook layout may omit classic `workspace-dock` — either chrome is valid.
+  const classicDock = page.getByTestId('workspace-dock');
+  const notebookLayout = page.getByTestId('notebook-workspace-layout');
+  await expect(classicDock.or(notebookLayout).first()).toBeVisible({ timeout: 45_000 });
 }
 
 /** Library → course review → study workspace (demo course). */
