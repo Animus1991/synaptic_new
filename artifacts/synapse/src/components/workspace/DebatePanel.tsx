@@ -1,5 +1,6 @@
-import { useMemo, useState } from 'react';
-import { AlertTriangle, BookOpen, Search } from 'lucide-react';
+import { useMemo, useState, useCallback } from 'react';
+import { AlertTriangle, BookOpen, Search, Sparkles, Loader2, X } from 'lucide-react';
+import { chatCompletion } from '../../lib/llmClient';
 import { ArgumentMap } from './ArgumentMap';
 import { WorkspaceEmptyState } from './WorkspaceEmptyState';
 import { WorkspaceSelectionActionBar } from './WorkspaceSelectionActionBar';
@@ -39,6 +40,9 @@ export function DebatePanel({
 }: Props) {
   const [filterQuery, setFilterQuery] = useState('');
   const [selectedClaim, setSelectedClaim] = useState<string | null>(null);
+  const [aiCounter, setAiCounter] = useState<string | null>(null);
+  const [aiCounterLoading, setAiCounterLoading] = useState(false);
+  const [aiCounterClaim, setAiCounterClaim] = useState<string | null>(null);
   const isEl = lang === 'el';
 
   const filterMatches = useMemo(() => {
@@ -57,6 +61,36 @@ export function DebatePanel({
     });
     setSelectedClaim(null);
   };
+
+  const generateAiCounter = useCallback(async (claim: string) => {
+    if (aiCounterLoading) return;
+    setAiCounterLoading(true);
+    setAiCounter(null);
+    setAiCounterClaim(claim);
+    try {
+      const source = session.sourceExcerpt?.slice(0, 900) ?? '';
+      const counter = await chatCompletion(
+        [
+          {
+            role: 'system',
+            content: isEl
+              ? 'Είσαι critical thinking coach. Δώσε ένα ακαδημαϊκό, grounded counter-argument στον ισχυρισμό. Χρησιμοποίησε τις σημειώσεις αν παρέχονται. 3-4 προτάσεις, χωρίς να είσαι απλώς αντίθετος — ψάξε nuance.'
+              : 'You are a critical thinking coach. Provide a well-reasoned academic counter-argument to the claim. Use the source notes if provided. 3-4 sentences — seek nuance, not mere opposition.',
+          },
+          {
+            role: 'user',
+            content: `Claim: "${claim}"\nConcept: ${concept}${source ? `\nSource notes:\n${source}` : ''}`,
+          },
+        ],
+        undefined,
+      );
+      setAiCounter(counter);
+    } catch {
+      setAiCounter(isEl ? 'Σφάλμα AI — δοκίμασε ξανά.' : 'AI error — try again.');
+    } finally {
+      setAiCounterLoading(false);
+    }
+  }, [aiCounterLoading, concept, isEl, session.sourceExcerpt]);
 
   const selectClaim = (text: string) => {
     if (onSelectionAction) {
@@ -153,10 +187,54 @@ export function DebatePanel({
             excerpt={selectedClaim}
             originTool="debate"
             onAction={handleSelectionAction}
-            onDismiss={() => setSelectedClaim(null)}
+            onDismiss={() => { setSelectedClaim(null); setAiCounter(null); setAiCounterClaim(null); }}
             className="mt-3 rounded-xl border border-accent-cyan/20"
             data-testid="debate-selection-actions"
           />
+        )}
+
+        {/* AI Counter-argument — shown for any selected/clicked claim */}
+        {(selectedClaim || aiCounterClaim) && (
+          <div className="mt-3 space-y-2" data-testid="debate-ai-counter-area">
+            <button
+              type="button"
+              data-testid="debate-ai-counter-btn"
+              onClick={() => void generateAiCounter(selectedClaim ?? aiCounterClaim ?? '')}
+              disabled={aiCounterLoading || !(selectedClaim ?? aiCounterClaim)}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-brand-500/30 bg-brand-500/8 px-3 py-1.5 text-[10px] font-medium text-brand-300 hover:bg-brand-500/15 disabled:opacity-50 transition-colors"
+            >
+              {aiCounterLoading
+                ? <><Loader2 className="w-3 h-3 animate-spin" />{isEl ? 'Φορτώνει…' : 'Generating…'}</>
+                : <><Sparkles className="w-3 h-3" />{isEl ? 'AI Αντεπιχείρημα' : 'AI Counter-argument'}</>
+              }
+            </button>
+
+            {aiCounter && (
+              <div
+                data-testid="debate-ai-counter-result"
+                className="rounded-xl border border-brand-500/20 bg-brand-500/6 px-3 py-2.5 text-[10px] text-text-secondary leading-relaxed"
+              >
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="inline-flex items-center gap-1 text-brand-300 font-semibold text-[10px]">
+                    <Sparkles className="w-3 h-3" />
+                    {isEl ? 'AI Αντεπιχείρημα' : 'AI Counter-argument'}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => { setAiCounter(null); setAiCounterClaim(null); }}
+                    className="rounded p-0.5 text-text-muted hover:text-text-primary"
+                    aria-label="Dismiss"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </div>
+                <p className="italic text-[9px] text-text-muted mb-1.5 truncate">
+                  "{(aiCounterClaim ?? '').slice(0, 80)}{(aiCounterClaim ?? '').length > 80 ? '…' : ''}"
+                </p>
+                {aiCounter}
+              </div>
+            )}
+          </div>
         )}
       </div>
 

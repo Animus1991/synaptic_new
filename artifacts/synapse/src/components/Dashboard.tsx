@@ -1,10 +1,12 @@
 import { motion } from 'framer-motion';
+import { useState, useEffect, useCallback } from 'react';
 import {
   Flame, Zap, Target, Clock, BookOpen, AlertTriangle,
   ChevronRight, TrendingUp, Brain, Calendar, ArrowRight, Play,
   Shield, Lightbulb, RotateCcw, Eye, Layout, LayoutDashboard, CheckCircle2,
-  Upload, Sparkles, FileText, Check
+  Upload, Sparkles, FileText, Check, Loader2, RefreshCw, X
 } from 'lucide-react';
+import { chatCompletion } from '../lib/llmClient';
 import type { Course, DashboardStats, LearnerModel, Task } from '../types';
 import { cn } from '../utils/cn';
 import { Page, PageHeader, Card, SectionHeading, CardLink, StatTile } from './ui/primitives';
@@ -58,6 +60,66 @@ interface DashboardProps {
 
 export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onSelectCourse, onOpenWorkspace, onOpenExamTimer, onUpload, onExploreDemo, prerequisiteRepairs = [], calibration, conceptMastery = [], activities = [], masteryDelta = 0, daysToExam = null, antiPassiveAlert = false, onStartTask, onStartSession, onResolveMisconception, onFocusWeakArea, workspaceLive = null, workspaceBooting = false, dashboardNextAction = null, lang = 'en' }: DashboardProps) {
   const { t } = useI18n();
+
+  // AI Daily Brief — generated once per session, cached in sessionStorage
+  const [dailyBrief, setDailyBrief] = useState<string | null>(null);
+  const [dailyBriefLoading, setDailyBriefLoading] = useState(false);
+  const [briefDismissed, setBriefDismissed] = useState(false);
+
+  const generateDailyBrief = useCallback(async () => {
+    if (dailyBriefLoading) return;
+    setDailyBriefLoading(true);
+    setDailyBrief(null);
+    try {
+      const isEl = lang === 'el';
+      const weak = learnerModel.weakAreas.slice(0, 3).map(a => `${a.concept} (${a.mastery}%)`).join(', ');
+      const almost = learnerModel.almostKnown.slice(0, 2).join(', ');
+      const daysLine = daysToExam != null ? `${daysToExam} days to exam.` : '';
+      const brief = await chatCompletion(
+        [
+          {
+            role: 'system',
+            content: isEl
+              ? 'Είσαι AI learning coach σε μια εκπαιδευτική πλατφόρμα. Δώσε ένα σύντομο, motivating daily brief (3 προτάσεις): 1) τι πήγε καλά, 2) τι πρέπει να εστιάσει σήμερα (βάσει weak areas), 3) μια συγκεκριμένη actionable σύσταση. Σύντομα, φιλικά, χωρίς πλατειασμούς.'
+              : 'You are an AI learning coach. Give a concise, motivating daily brief (3 sentences): 1) what\'s going well, 2) where to focus today (based on weak areas), 3) one specific actionable recommendation. Short, encouraging, no fluff.',
+          },
+          {
+            role: 'user',
+            content: [
+              `Streak: ${stats.streak} days. Mastery: ${learnerModel.overallMastery}%. Reviews due: ${stats.reviewsDue}.`,
+              `Study time today: ${stats.studyTimeToday}m.`,
+              weak ? `Weakest areas: ${weak}.` : '',
+              almost ? `Almost mastered: ${almost}.` : '',
+              daysLine,
+            ].filter(Boolean).join(' '),
+          },
+        ],
+        undefined,
+      );
+      setDailyBrief(brief);
+      sessionStorage.setItem('synapse-daily-brief', JSON.stringify({ text: brief, date: new Date().toDateString() }));
+    } catch {
+      // silently fail — brief is optional
+    } finally {
+      setDailyBriefLoading(false);
+    }
+  }, [dailyBriefLoading, lang, learnerModel, stats, daysToExam]);
+
+  useEffect(() => {
+    if (courses.length === 0) return; // no data yet
+    const cached = sessionStorage.getItem('synapse-daily-brief');
+    if (cached) {
+      try {
+        const { text, date } = JSON.parse(cached) as { text: string; date: string };
+        if (date === new Date().toDateString()) {
+          setDailyBrief(text);
+          return;
+        }
+      } catch { /* ignore */ }
+    }
+    void generateDailyBrief();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [courses.length]);
   const pendingTasks = tasks.filter(t => t.status === 'pending');
   const criticalTasks = pendingTasks.filter(t => t.priority === 'critical' || t.priority === 'high');
   const fixTasks = pendingTasks.filter(t => t.category === 'fix');
@@ -262,6 +324,52 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
         <StatTile icon={<Brain className="w-5 h-5 text-accent-cyan" />} label="Concepts Mastered" value={`${stats.conceptsMastered}/${stats.totalConcepts}`} />
         <StatTile icon={<Clock className="w-5 h-5 text-accent-emerald" />} label="Study Today" value={`${stats.studyTimeToday}m`} />
       </motion.div>
+
+      {/* AI Daily Brief */}
+      {!briefDismissed && (dailyBrief || dailyBriefLoading) && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.08 }}
+          className="p-4 rounded-2xl border border-brand-500/25 bg-gradient-to-r from-brand-600/8 to-brand-500/4 flex items-start gap-3"
+          data-testid="dashboard-ai-brief"
+        >
+          <Sparkles className="w-4 h-4 text-brand-400 shrink-0 mt-0.5" />
+          <div className="flex-1 min-w-0">
+            <p className="text-xs font-semibold text-brand-300 mb-1">
+              {isEl ? 'AI Ημερήσια Σύνοψη' : 'AI Daily Brief'}
+            </p>
+            {dailyBriefLoading ? (
+              <div className="flex items-center gap-2 text-xs text-text-muted">
+                <Loader2 className="w-3 h-3 animate-spin" />
+                {isEl ? 'Αναλύω την πρόοδό σου…' : 'Analysing your progress…'}
+              </div>
+            ) : (
+              <p className="text-xs text-text-secondary leading-relaxed">{dailyBrief}</p>
+            )}
+          </div>
+          <div className="flex items-center gap-1 shrink-0">
+            {!dailyBriefLoading && (
+              <button
+                type="button"
+                title={isEl ? 'Ανανέωση' : 'Refresh'}
+                onClick={() => void generateDailyBrief()}
+                className="rounded p-1 text-text-muted hover:text-brand-300 transition-colors"
+              >
+                <RefreshCw className="w-3 h-3" />
+              </button>
+            )}
+            <button
+              type="button"
+              title={isEl ? 'Κλείσιμο' : 'Dismiss'}
+              onClick={() => setBriefDismissed(true)}
+              className="rounded p-1 text-text-muted hover:text-text-primary transition-colors"
+            >
+              <X className="w-3 h-3" />
+            </button>
+          </div>
+        </motion.div>
+      )}
 
       {/* Exam countdown */}
       {daysToExam !== null && (

@@ -8,6 +8,7 @@ import type { WorkspaceToolId } from './taskFlows';
 export type WorkspaceSelectionActionId =
   | 'annotate'
   | 'ask-agent'
+  | 'ask-ai-inline'
   | 'make-card'
   | 'quiz'
   | 'compare'
@@ -37,6 +38,7 @@ export type SelectionActionDef = {
 const EN: Record<WorkspaceSelectionActionId, Omit<SelectionActionDef, 'id'>> = {
   annotate: { label: 'Annotate', hint: 'Highlight on source text' },
   'ask-agent': { label: 'Ask Agent', hint: 'Contextual tutor for this passage' },
+  'ask-ai-inline': { label: 'Ask AI', hint: 'Quick inline AI answer — stays in Reader' },
   'make-card': { label: 'Make card', hint: 'Add to Leitner deck' },
   quiz: { label: 'Quiz', hint: 'Test this passage', hideOnQuiz: true },
   compare: { label: 'Compare', hint: 'Side-by-side with related concept' },
@@ -48,6 +50,7 @@ const EN: Record<WorkspaceSelectionActionId, Omit<SelectionActionDef, 'id'>> = {
 const EL: Record<WorkspaceSelectionActionId, Omit<SelectionActionDef, 'id'>> = {
   annotate: { label: 'Επισήμανση', hint: 'Επισήμανση στο κείμενο πηγής' },
   'ask-agent': { label: 'Ρώτα Agent', hint: 'Tutor για αυτό το απόσπασμα' },
+  'ask-ai-inline': { label: 'Ρώτα AI', hint: 'Γρήγορη AI απάντηση — μένει στο Reader' },
   'make-card': { label: 'Κάρτα', hint: 'Προσθήκη στο Leitner' },
   quiz: { label: 'Κουίζ', hint: 'Έλεγχος για αυτό το απόσπασμα', hideOnQuiz: true },
   compare: { label: 'Σύγκριση', hint: 'Παράλληλα με σχετική έννοια' },
@@ -58,6 +61,7 @@ const EL: Record<WorkspaceSelectionActionId, Omit<SelectionActionDef, 'id'>> = {
 
 export const SELECTION_ACTION_ORDER: WorkspaceSelectionActionId[] = [
   'annotate',
+  'ask-ai-inline',
   'ask-agent',
   'make-card',
   'quiz',

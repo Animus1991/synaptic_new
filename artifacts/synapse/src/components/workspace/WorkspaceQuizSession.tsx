@@ -1,5 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { Sparkles, Loader2 } from 'lucide-react';
 import { cn } from '../../utils/cn';
+import { chatCompletion } from '../../lib/llmClient';
 import type { QuizIrtDisplay } from '../../lib/quizIrt';
 import type { QuizSessionItem, QuizSessionState } from '../../lib/quizSession';
 import {
@@ -62,6 +64,8 @@ export function WorkspaceQuizSession({
   });
   const [confidence, setConfidence] = useState(3);
   const [lastCorrect, setLastCorrect] = useState<boolean | null>(null);
+  const [aiExplanation, setAiExplanation] = useState<string | null>(null);
+  const [aiExplanationLoading, setAiExplanationLoading] = useState(false);
 
   useEffect(() => {
     if (items.length === 0) return;
@@ -79,6 +83,41 @@ export function WorkspaceQuizSession({
   }, [scopeKey, concept, items]);
 
   const current = session.items[session.currentIndex];
+
+  const generateAiExplanation = useCallback(async () => {
+    if (!current || aiExplanationLoading) return;
+    setAiExplanationLoading(true);
+    setAiExplanation(null);
+    try {
+      const isEl = lang === 'el';
+      const q = typeof current.quiz === 'object' && 'question' in current.quiz
+        ? (current.quiz as { question: string }).question
+        : String(current.quiz);
+      const correct = typeof current.quiz === 'object' && 'options' in current.quiz && 'correctIndex' in current.quiz
+        ? (current.quiz as { options: string[]; correctIndex: number }).options[(current.quiz as { correctIndex: number }).correctIndex]
+        : '';
+      const explanation = await chatCompletion(
+        [
+          {
+            role: 'system',
+            content: isEl
+              ? 'Είσαι tutor. Εξήγησε γιατί η σωστή απάντηση είναι σωστή, γιατί συχνά οι μαθητές κάνουν λάθος εδώ, και δώσε ένα mnemonic ή αναλογία. Σύντομα, 3-4 προτάσεις.'
+              : 'You are a tutor. Explain why the correct answer is right, why students commonly miss this, and give one mnemonic or analogy. Keep it to 3-4 sentences.',
+          },
+          {
+            role: 'user',
+            content: `Question: ${q}${correct ? `\nCorrect answer: ${correct}` : ''}\nConcept: ${concept}`,
+          },
+        ],
+        undefined,
+      );
+      setAiExplanation(explanation);
+    } catch {
+      setAiExplanation(lang === 'el' ? 'Σφάλμα AI — δοκίμασε ξανά.' : 'AI error — try again.');
+    } finally {
+      setAiExplanationLoading(false);
+    }
+  }, [current, concept, lang, aiExplanationLoading]);
   const done = Boolean(session.completedAt) || session.currentIndex >= session.items.length;
 
   const confirmAndAdvance = () => {
@@ -251,6 +290,34 @@ export function WorkspaceQuizSession({
               <p className="text-[10px] text-text-secondary" data-testid="quiz-wrong-answer-hint">
                 {quizWrongAnswerHint(current, concept, lang)}
               </p>
+
+              {/* AI Explanation button */}
+              <button
+                type="button"
+                data-testid="quiz-ai-explanation-btn"
+                onClick={() => void generateAiExplanation()}
+                disabled={aiExplanationLoading}
+                className="inline-flex items-center gap-1.5 rounded-lg border border-brand-500/30 bg-brand-500/8 px-3 py-1.5 text-[10px] font-medium text-brand-300 hover:bg-brand-500/15 disabled:opacity-50 transition-colors"
+              >
+                {aiExplanationLoading
+                  ? <><Loader2 className="w-3 h-3 animate-spin" />{lang === 'el' ? 'Φορτώνει…' : 'Loading…'}</>
+                  : <><Sparkles className="w-3 h-3" />{lang === 'el' ? 'AI Εξήγηση' : 'AI Explain this'}</>
+                }
+              </button>
+
+              {aiExplanation && (
+                <div
+                  data-testid="quiz-ai-explanation-result"
+                  className="rounded-xl border border-brand-500/20 bg-brand-500/6 px-3 py-2 text-[10px] text-text-secondary leading-relaxed"
+                >
+                  <span className="inline-flex items-center gap-1 text-brand-300 font-semibold mb-1 block">
+                    <Sparkles className="w-3 h-3" />
+                    {lang === 'el' ? 'AI Εξήγηση' : 'AI Explanation'}
+                  </span>
+                  {aiExplanation}
+                </div>
+              )}
+
               {onRemediateWrong && (
                 <div className="flex flex-wrap gap-2">
                   <button

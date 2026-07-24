@@ -15,7 +15,7 @@ export const aiRouter = Router();
  *   stream     – defaults to true; pass false for a single JSON response
  *   temperature / max_tokens – accepted but silently ignored for gpt-5 models
  */
-aiRouter.post('/ai/chat', async (req, res) => {
+aiRouter.post('/ai/chat/completions', async (req, res) => {
   const body = req.body as {
     messages?: { role: 'system' | 'user' | 'assistant'; content: string }[];
     stream?: boolean;
@@ -80,6 +80,40 @@ aiRouter.post('/ai/chat', async (req, res) => {
  * GET /api/ai/status
  * Quick health-check so the frontend can confirm the proxy is live.
  */
+/**
+ * GET /api/ai/status
+ * Quick health-check — also handles the `/api/ai/chat/completions` path probe.
+ */
 aiRouter.get('/ai/status', (_req, res) => {
   res.json({ available: true, model: 'gpt-5.6-luna' });
+});
+
+/** Alias so tests and old clients still work against /api/ai/chat */
+aiRouter.post('/ai/chat', async (req, res) => {
+  req.url = '/api/ai/chat/completions';
+  // just re-handle inline
+  const body = req.body as {
+    messages?: { role: 'system' | 'user' | 'assistant'; content: string }[];
+    stream?: boolean;
+    max_tokens?: number;
+  };
+  const messages = Array.isArray(body.messages) ? body.messages : [];
+  if (messages.length === 0) { res.status(400).json({ error: 'messages array required' }); return; }
+  const wantsStream = body.stream !== false;
+  if (wantsStream) {
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+    res.flushHeaders?.();
+    try {
+      const stream = await openai.chat.completions.create({ model: 'gpt-5.6-luna', max_completion_tokens: Math.min(body.max_tokens ?? 1200, 2000), messages, stream: true });
+      for await (const chunk of stream) res.write(`data: ${JSON.stringify(chunk)}\n\n`);
+      res.write('data: [DONE]\n\n');
+    } catch (err) { res.write(`data: ${JSON.stringify({ error: String(err) })}\n\n`); }
+    res.end(); return;
+  }
+  try {
+    const completion = await openai.chat.completions.create({ model: 'gpt-5.6-luna', max_completion_tokens: Math.min(body.max_tokens ?? 1200, 2000), messages, stream: false });
+    res.json(completion);
+  } catch (err) { res.status(502).json({ error: String(err) }); }
 });
