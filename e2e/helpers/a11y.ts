@@ -10,14 +10,16 @@ export type AppTheme = 'dark' | 'light' | 'spectrum' | 'minimal' | 'minimal-dark
 export async function settleMotionForAxe(page: Page) {
   await page.evaluate(() => {
     document.documentElement.setAttribute('data-a11y-settle', '1');
-    document.querySelectorAll<HTMLElement>('[data-testid="library-course-card"]').forEach((el) => {
+    // Parent library list wrappers also fade in — wash hits every descendant.
+    document.querySelectorAll<HTMLElement>('.app-shell [style*="opacity"]').forEach((el) => {
       el.style.setProperty('opacity', '1', 'important');
       el.style.setProperty('transform', 'none', 'important');
     });
   });
   await page.addStyleTag({
     content: `
-      html[data-a11y-settle="1"] [data-testid="library-course-card"] {
+      html[data-a11y-settle="1"] .app-shell [style*="opacity"],
+      html[data-a11y-settle="1"] .app-shell [data-testid="library-course-card"] {
         opacity: 1 !important;
         transform: none !important;
       }

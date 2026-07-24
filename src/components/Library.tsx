@@ -503,7 +503,7 @@ export function Library({
         {tab === 'courses' && (
           <motion.div
             key="courses"
-            initial={{ opacity: 0 }}
+            initial={isMinimal ? false : { opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={emphasizedTransition}
@@ -663,7 +663,7 @@ export function Library({
         {tab === 'files' && (
           <motion.div
             key="files"
-            initial={{ opacity: 0 }}
+            initial={isMinimal ? false : { opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={emphasizedTransition}
