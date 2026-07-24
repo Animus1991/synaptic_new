@@ -4,10 +4,12 @@ import { join } from 'node:path';
 import { skipOnboardingToLibrary, dismissBlockingShellOverlays } from './helpers/onboarding';
 import { uploadCourseFromPaste } from './helpers/libraryLifecycle';
 
+// processUpload requires ≥80 source chars (outline preview is more lenient).
 const NOTES = `
 # Performance Budget Fixture
 
-Intertemporal choice and present bias.
+Intertemporal choice and present bias shape study habits.
+Spaced review beats cramming for long-term retention.
 `.trim();
 
 const IS_PROD_PERF = Boolean(process.env.PLAYWRIGHT_PROD_PERF);
