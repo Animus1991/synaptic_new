@@ -44,6 +44,10 @@ Thumbs.db
 .cursor/rules/nx-rules.mdc
 .github/instructions/nx.instructions.md
 
-# Replit
+# Replit – platform-specific files (never push to GitHub)
 .cache/
 .local/
+.replit
+.replitignore
+replit.md
+.agents/
