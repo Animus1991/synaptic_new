@@ -49,6 +49,31 @@ and tip `cursor/ai-tool-intelligence-2ff7`.
 3. Ported **Reader ask-ai-inline** via selection contract + `CognitiveReader`, gated by `isLlmAvailable(userSettings)` and passing settings into `chatCompletion`.
 4. Documented this audit; left Replit platform adapter items out of mainline.
 
-## Recommendation going forward
+## Frontend / UI / UX / aesthetic pass (follow-up)
 
-Treat `replit-redesign` as a **feature/idea source**, not a merge source. Continue tip as SSoT. If Replit hosting is required later, add an optional adapter package — do not replace the mainline tree.
+Exhaustive remapped hash compare of `artifacts/synapse/src/{components,styles,index.css,App.tsx}` vs tip:
+
+| Metric | Result |
+| --- | --- |
+| Compared UI files | 299 |
+| Byte-identical | 265 |
+| Content differ | 34 |
+| Only on replit | **0** |
+
+### Differing files — UI decision matrix
+
+| Surface | Replit Δ | Decision |
+| --- | --- | --- |
+| Landing / Shell / `components/ui/*` | Identical (1 test casing) | nothing |
+| `StudyWorkspaceChrome` / Agent K74–K75 / CSS | Tip **ahead** | keep tip |
+| Dashboard empty 3-step Cards + Daily Brief | denser marketing + AI strip | **SKIP** (clutter / tip density) |
+| Debate/Compare/Leitner/Simulator/Timer/Scratchpad/Feynman/ConceptMap | ad-hoc Sparkles AI CTAs | **SKIP** (OPT-AI supersedes; some remove tip chrome) |
+| Whiteboard learner-coverage UI | present in coach but **unwired** in replit `WhiteboardPanel` | **SKIP** (dead UI) |
+| CourseView / Tasks | noop `setTab` rewrite | **SKIP** |
+| Reader complexity heatmap | `estimateDifficulty` 3-tier vs word-count>25 | **PORTED** |
+| Reader annotation swatches | `h-5` + `aria-label` | **PORTED** |
+| ask-ai-inline / Unicode debate counters | — | already ported earlier |
+
+### Conclusion (UI)
+
+After this pass there are **no remaining high-value portable UI cherry-picks** from `replit-redesign`. Tip remains SSoT for aesthetics (Minimal/Primer, K74/K75, OPT-AI affordances).

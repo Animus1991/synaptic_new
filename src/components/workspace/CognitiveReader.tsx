@@ -68,6 +68,7 @@ import {
 } from '../../lib/readerLearningHeatmap';
 import type { ReaderStepHeatSyncSummary } from '../../lib/readerHeatmapStepSyncQA';
 import { ReaderStepHeatSyncStrip } from './ReaderStepHeatSyncStrip';
+import { estimateDifficulty } from '../../lib/contentAnalysis';
 
 type ReaderHeatmapMode = 'off' | 'learning' | 'complexity';
 
@@ -77,7 +78,6 @@ const ANN_COLORS = [...ANNOTATION_PALETTE];
 
 interface Props {
   text?: string;
-  complexityThreshold?: number;
   emptyMessage?: string;
   hasSource?: boolean;
   onUpload?: () => void;
@@ -141,7 +141,6 @@ function downloadBlob(filename: string, content: string, mime: string) {
 
 export function CognitiveReader({
   text = '',
-  complexityThreshold = 25,
   emptyMessage,
   hasSource = false,
   onUpload,
@@ -726,8 +725,15 @@ export function CognitiveReader({
   }
 
   const renderParagraphWords = (paragraph: string, rangeStart: number, bodyIndex: number, segmentIndex?: number) => {
-    const wordCount = paragraph.split(/\s+/).filter(Boolean).length;
-    const isComplex = wordCount > complexityThreshold;
+    // Deterministic readability per paragraph (sentence length, long-word ratio,
+    // formula density) — replaces the old raw word-count > 25 heuristic.
+    const difficulty = heatmapMode === 'complexity' ? estimateDifficulty(paragraph) : 'beginner';
+    const complexityClass =
+      difficulty === 'advanced'
+        ? 'border-l-2 border-accent-rose bg-accent-rose/10 text-text-primary'
+        : difficulty === 'intermediate'
+          ? 'border-l-2 border-accent-amber bg-accent-amber/10 text-text-primary'
+          : 'text-text-secondary';
     const learningHeat = segmentIndex != null ? learningHeatBySegment.get(segmentIndex) : undefined;
     const words = paragraph.split(/(\s+)/);
     let charInPara = 0;
@@ -738,7 +744,7 @@ export function CognitiveReader({
           'rounded-lg p-2 text-[15px] transition-colors',
           dyslexia ? 'leading-loose tracking-wide' : 'leading-relaxed',
           heatmapMode === 'complexity'
-            ? isComplex ? 'border-l-2 border-accent-rose bg-accent-rose/10 text-text-primary' : 'text-text-secondary'
+            ? complexityClass
             : heatmapMode === 'learning' && learningHeat
               ? readerHeatmapLevelClass(learningHeat.level)
               : 'text-text-primary',
@@ -1180,7 +1186,14 @@ export function CognitiveReader({
         <div className="flex shrink-0 items-center gap-2 border-b border-border-subtle bg-surface-secondary/40 px-4 py-1.5">
           <span className="text-[10px] text-text-muted">{t('readerColorColon')}</span>
           {ANN_COLORS.map((c) => (
-            <button key={c} type="button" onClick={() => setActiveColor(c)} className={cn('h-4 w-4 rounded-full border-2', activeColor === c ? 'border-white' : 'border-transparent')} style={{ backgroundColor: c }} />
+            <button
+              key={c}
+              type="button"
+              aria-label={lang === 'el' ? `Χρώμα ${c}` : `Color ${c}`}
+              onClick={() => setActiveColor(c)}
+              className={cn('h-5 w-5 rounded-full border-2', activeColor === c ? 'border-white' : 'border-transparent')}
+              style={{ backgroundColor: c }}
+            />
           ))}
           <span className="text-[10px] text-text-muted ml-2">{t('readerSelectToAnnotate')}</span>
         </div>
