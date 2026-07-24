@@ -1,11 +1,12 @@
-import { useMemo, useState } from 'react';
-import { AlertTriangle, BookOpen, Layers, Search } from 'lucide-react';
+import { useMemo, useState, useCallback } from 'react';
+import { AlertTriangle, BookOpen, Layers, Search, Sparkles, Loader2 } from 'lucide-react';
 import type { TimerSessionContent } from '../../lib/timerSessionModel';
 import { filterTimerSessionLogs } from '../../lib/timerSessionModel';
 import { examPracticeLabel } from '../../lib/examPracticePresets';
 import type { ExamPracticePresetId } from '../../lib/examPracticePresets';
 import { auditTimerExamCountdownDashboard } from '../../lib/timerExamCountdownDashboardQA';
 import { loadTimerSessions } from '../../lib/workspacePersistence';
+import { chatCompletion } from '../../lib/llmClient';
 import { WorkspaceEmptyState } from './WorkspaceEmptyState';
 import { StudyTimer } from './StudyTimer';
 import { TimerExamCountdownDashboardStrip } from './TimerExamCountdownDashboardStrip';
@@ -54,7 +55,24 @@ export function TimerPanel({
   courseExamDate,
 }: Props) {
   const [filterQuery, setFilterQuery] = useState('');
+  const [aiPlan, setAiPlan] = useState<string | null>(null);
+  const [aiPlanLoading, setAiPlanLoading] = useState(false);
   const isEl = lang === 'el';
+
+  const generateAiPlan = useCallback(async () => {
+    setAiPlanLoading(true);
+    setAiPlan(null);
+    const daysInfo = session.daysToExam !== null ? `${session.daysToExam} days to exam` : 'no exam date set';
+    const prompt = lang === 'el'
+      ? `Δημιούργησε ένα βέλτιστο πρόγραμμα Pomodoro για τη σημερινή συνεδρία μελέτης της έννοιας «${concept}». Κατοχή: ${conceptMastery ?? 50}%. ${daysInfo}. Πρότεινε: διάρκεια, αριθμό κύκλων, και συγκεκριμένες εστιάσεις.`
+      : `Create an optimal Pomodoro study plan for today's session on "${concept}". Mastery: ${conceptMastery ?? 50}%. ${daysInfo}. Suggest: duration, number of rounds, and specific focus areas.`;
+    try {
+      const result = await chatCompletion([{ role: 'user', content: prompt }], undefined);
+      setAiPlan(result);
+    } finally {
+      setAiPlanLoading(false);
+    }
+  }, [concept, conceptMastery, session.daysToExam, lang]);
 
   const countdownReport = useMemo(
     () => auditTimerExamCountdownDashboard({
@@ -147,6 +165,16 @@ export function TimerPanel({
               {isEl ? 'Διάλειμμα → Κάρτες' : 'Break → Flashcards'}
             </button>
           )}
+          <button
+            type="button"
+            onClick={generateAiPlan}
+            disabled={aiPlanLoading}
+            data-testid="timer-ai-plan"
+            className="inline-flex items-center gap-1 rounded-lg border border-brand-500/30 bg-brand-500/10 px-2 py-0.5 text-[9px] font-medium text-brand-300 hover:bg-brand-500/15 disabled:opacity-50"
+          >
+            {aiPlanLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}
+            {isEl ? 'AI Πλάνο' : 'AI Plan'}
+          </button>
           {onOpenInReader && (
             <button
               type="button"
@@ -159,6 +187,16 @@ export function TimerPanel({
             </button>
           )}
         </div>
+
+        {aiPlan && (
+          <div className="mt-2 rounded-xl border border-brand-500/20 bg-brand-500/5 p-3" data-testid="timer-ai-plan-result">
+            <p className="text-[10px] font-semibold text-brand-300 flex items-center gap-1 mb-1.5">
+              <Sparkles className="w-3 h-3" />
+              {isEl ? 'AI Πλάνο Μελέτης' : 'AI Study Plan'}
+            </p>
+            <p className="text-[11px] text-text-secondary whitespace-pre-wrap leading-relaxed">{aiPlan}</p>
+          </div>
+        )}
 
         {session.recentSessionCount > 0 && (
           <div className="relative max-w-xs">

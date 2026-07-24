@@ -1,5 +1,5 @@
-import { useMemo, useState } from 'react';
-import { AlertTriangle, BookOpen, Search } from 'lucide-react';
+import { useMemo, useState, useCallback, useEffect } from 'react';
+import { AlertTriangle, BookOpen, Search, Sparkles, Loader2, X } from 'lucide-react';
 import { ComparisonTable } from '../visuals/DiagramGenerator';
 import { WorkspaceEmptyState } from './WorkspaceEmptyState';
 import { WorkspaceSelectionActionBar } from './WorkspaceSelectionActionBar';
@@ -15,6 +15,8 @@ import type {
   WorkspaceSelectionActionId,
   WorkspaceSelectionContext,
 } from '../../lib/workspaceSelectionActions';
+import { chatCompletion } from '../../lib/llmClient';
+import { buildCompareDifferencePrompt } from '../../lib/compareExplainDifference';
 
 type Props = {
   session: CompareSessionContent;
@@ -45,7 +47,25 @@ export function ComparePanel({
 }: Props) {
   const [filterQuery, setFilterQuery] = useState('');
   const [selectedRow, setSelectedRow] = useState<CompareRow | null>(null);
+  const [aiDiffResult, setAiDiffResult] = useState<string | null>(null);
+  const [aiDiffLoading, setAiDiffLoading] = useState(false);
   const isEl = lang === 'el';
+
+  useEffect(() => { setAiDiffResult(null); }, [selectedRow]);
+
+  const generateAiDiff = useCallback(async () => {
+    if (!selectedRow) return;
+    const rowText = buildCompareSelectionContext(selectedRow, concept, session.sectionLabel).text;
+    const prompt = buildCompareDifferencePrompt(rowText, concept, lang);
+    setAiDiffLoading(true);
+    setAiDiffResult(null);
+    try {
+      const result = await chatCompletion([{ role: 'user', content: prompt }], undefined);
+      setAiDiffResult(result);
+    } finally {
+      setAiDiffLoading(false);
+    }
+  }, [selectedRow, concept, lang, session.sectionLabel]);
 
   const visibleRows = useMemo(
     () => filterCompareRows(session.rows, filterQuery),
@@ -170,18 +190,47 @@ export function ComparePanel({
         )}
       </div>
 
-      {selectedRow && onExplainDifference && (
-        <button
-          type="button"
-          data-testid="compare-explain-difference"
-          onClick={() => onExplainDifference({
-            term: selectedRow[0],
-            text: buildCompareSelectionContext(selectedRow, concept, session.sectionLabel).text,
-          })}
-          className="mb-2 inline-flex items-center gap-1 rounded-lg border border-accent-cyan/30 bg-accent-cyan/10 px-3 py-1.5 text-[10px] font-medium text-accent-cyan hover:bg-accent-cyan/15"
-        >
-          {isEl ? 'Εξήγησε τη διαφορά (Agent)' : 'Explain difference (Agent)'}
-        </button>
+      {selectedRow && (
+        <div className="mb-2 flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            data-testid="compare-explain-difference-ai"
+            onClick={generateAiDiff}
+            disabled={aiDiffLoading}
+            className="inline-flex items-center gap-1 rounded-lg border border-brand-500/30 bg-brand-500/10 px-3 py-1.5 text-[10px] font-medium text-brand-300 hover:bg-brand-500/15 disabled:opacity-50"
+          >
+            {aiDiffLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}
+            {isEl ? 'AI Εξήγηση' : 'AI Explain'}
+          </button>
+          {onExplainDifference && (
+            <button
+              type="button"
+              data-testid="compare-explain-difference"
+              onClick={() => onExplainDifference({
+                term: selectedRow[0],
+                text: buildCompareSelectionContext(selectedRow, concept, session.sectionLabel).text,
+              })}
+              className="inline-flex items-center gap-1 rounded-lg border border-accent-cyan/30 bg-accent-cyan/10 px-3 py-1.5 text-[10px] font-medium text-accent-cyan hover:bg-accent-cyan/15"
+            >
+              {isEl ? 'Εξήγηση (Agent)' : 'Explain (Agent)'}
+            </button>
+          )}
+        </div>
+      )}
+
+      {aiDiffResult && (
+        <div className="mb-2 rounded-xl border border-brand-500/20 bg-brand-500/5 p-3" data-testid="compare-ai-diff-result">
+          <div className="flex items-start justify-between gap-2 mb-1.5">
+            <p className="text-[10px] font-semibold text-brand-300 flex items-center gap-1">
+              <Sparkles className="w-3 h-3" />
+              {isEl ? 'AI Εξήγηση Διαφοράς' : 'AI Difference Explanation'}
+            </p>
+            <button type="button" onClick={() => setAiDiffResult(null)} className="text-text-muted hover:text-text-secondary">
+              <X className="w-3 h-3" />
+            </button>
+          </div>
+          <p className="text-[11px] text-text-secondary whitespace-pre-wrap leading-relaxed">{aiDiffResult}</p>
+        </div>
       )}
 
       {selectedRow && onSelectionAction && (

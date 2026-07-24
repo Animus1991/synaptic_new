@@ -3,7 +3,7 @@ import { Sparkles, Bot, Loader2, Download, Printer, Mic, MicOff, BookOpen, Alert
 import { computeRubric, weakestDimensions, type RubricDimension } from '../../lib/feynmanRubric';
 import { detectFeynmanGaps } from '../../lib/feynmanGapDetect';
 import { startFeynmanVoiceInput } from '../../lib/feynmanVoice';
-import { generateFeynmanCoachFeedbackAsync, isLlmAvailable } from '../../lib/llmClient';
+import { generateFeynmanCoachFeedbackAsync, isLlmAvailable, chatCompletion } from '../../lib/llmClient';
 import type { CoachFeedback } from '../../lib/feynmanCoach';
 import { useI18n, type I18nKey } from '../../lib/i18n';
 import { cn } from '../../utils/cn';
@@ -122,6 +122,8 @@ export function FeynmanCheck({
   const [voiceActive, setVoiceActive] = useState(false);
   const voiceStopRef = useRef<(() => void) | null>(null);
   const [coachLoading, setCoachLoading] = useState(false);
+  const [followUpQs, setFollowUpQs] = useState<string[]>([]);
+  const [followUpLoading, setFollowUpLoading] = useState(false);
   const wordCount = text.trim().split(/\s+/).filter(Boolean).length;
   const outline = outlineProp ?? DEFAULT_OUTLINE(concept, lang);
   const placeholder = placeholderProp ?? (
@@ -181,6 +183,7 @@ export function FeynmanCheck({
     if (!rubric) return;
     setCoachLoading(true);
     setCoachFeedback(null);
+    setFollowUpQs([]);
     const { feedback, usedLlm } = await generateFeynmanCoachFeedbackAsync(
       text,
       rubric.scores,
@@ -193,6 +196,18 @@ export function FeynmanCheck({
     setCoachUsedLlm(usedLlm);
     setCoachLoading(false);
     onExplanationSubmitted?.(text, feedback.overallScore);
+    // Generate targeted follow-up questions based on weak dimensions
+    setFollowUpLoading(true);
+    try {
+      const weakList = rubric.weak.length > 0 ? rubric.weak.join(', ') : 'overall understanding';
+      const fqPrompt = lang === 'el'
+        ? `Ο/η μαθητής/τρια εξήγησε: "${text.slice(0, 400)}". Αδύναμα: ${weakList}. Δημιούργησε 2-3 στοχευμένες ερωτήσεις follow-up για να βαθύνει την κατανόηση της έννοιας «${concept}». Μόνο ερωτήσεις, χωρίς εισαγωγή.`
+        : `Learner wrote: "${text.slice(0, 400)}". Weak areas: ${weakList}. Generate 2-3 targeted follow-up questions to deepen understanding of "${concept}". Return only numbered questions, no intro.`;
+      const raw = await chatCompletion([{ role: 'user', content: fqPrompt }], undefined);
+      setFollowUpQs(raw.split('\n').map((l) => l.replace(/^[\d.\-•*\s]+/, '').trim()).filter(Boolean).slice(0, 3));
+    } finally {
+      setFollowUpLoading(false);
+    }
   };
   const rubricDims: RubricDimension[] = ['accuracy', 'completeness', 'simplicity', 'structure'];
   const coachEngineLabel = coachUsedLlm
@@ -371,6 +386,24 @@ export function FeynmanCheck({
                   <p className="text-[11px] text-text-secondary whitespace-pre-wrap border-t border-border-subtle pt-2">{coachFeedback.rewrite}</p>
                 )}
                 <p className="text-[10px] text-brand-400 font-medium">{coachFeedback.nextStep}</p>
+              </div>
+            )}
+
+            {(followUpLoading || followUpQs.length > 0) && coachFeedback && (
+              <div className="rounded-xl border border-accent-cyan/20 bg-accent-cyan/5 p-3" data-testid="feynman-follow-ups">
+                <p className="text-[10px] font-semibold text-accent-cyan mb-2 flex items-center gap-1">
+                  <Sparkles className="w-3 h-3" />
+                  {lang === 'el' ? 'AI Follow-up Ερωτήσεις' : 'AI Follow-up Questions'}
+                </p>
+                {followUpLoading ? (
+                  <Loader2 className="w-4 h-4 animate-spin text-accent-cyan" />
+                ) : (
+                  <ul className="space-y-1.5">
+                    {followUpQs.map((q, i) => (
+                      <li key={i} className="text-[11px] text-text-secondary">❓ {q}</li>
+                    ))}
+                  </ul>
+                )}
               </div>
             )}
 

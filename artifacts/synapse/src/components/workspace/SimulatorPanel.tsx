@@ -1,10 +1,11 @@
-import { useMemo, useState } from 'react';
-import { AlertTriangle, BookOpen, Search, Timer } from 'lucide-react';
+import { useMemo, useState, useCallback } from 'react';
+import { AlertTriangle, BookOpen, Search, Timer, Sparkles, Loader2 } from 'lucide-react';
 import type { SimulatorSessionContent } from '../../lib/simulatorSessionModel';
 import { filterNumericCues } from '../../lib/simulatorSessionModel';
 import { examPracticeLabel } from '../../lib/examPracticePresets';
 import type { ExamPracticePresetId, SimulatorScenarioId } from '../../lib/examPracticePresets';
 import { auditSimulatorTimerPresetSync } from '../../lib/simulatorTimerPresetSyncQA';
+import { chatCompletion } from '../../lib/llmClient';
 import { WorkspaceEmptyState } from './WorkspaceEmptyState';
 import { InteractiveSimulator } from './InteractiveSimulator';
 import { ArtifactStaleBanner } from './ArtifactStaleBanner';
@@ -42,7 +43,24 @@ export function SimulatorPanel({
   scopeKey = '',
 }: Props) {
   const [filterQuery, setFilterQuery] = useState('');
+  const [aiInsight, setAiInsight] = useState<string | null>(null);
+  const [aiInsightLoading, setAiInsightLoading] = useState(false);
   const isEl = lang === 'el';
+
+  const generateAiInsight = useCallback(async () => {
+    setAiInsightLoading(true);
+    setAiInsight(null);
+    const params = session.numericCues.slice(0, 6).map((c) => `${c.label}: ${c.baseline}${c.unit ? ' ' + c.unit : ''}`).join(', ');
+    const prompt = isEl
+      ? `Εξήγησε τι σημαίνουν αυτές οι παράμετροι για «${concept}» και τι αποκαλύπτει η ανάλυση ευαισθησίας: ${params}.`
+      : `Explain what these simulation parameters reveal for "${concept}" and what the sensitivity analysis shows: ${params}.`;
+    try {
+      const result = await chatCompletion([{ role: 'user', content: prompt }], undefined);
+      setAiInsight(result);
+    } finally {
+      setAiInsightLoading(false);
+    }
+  }, [concept, session.numericCues, isEl]);
 
   const syncReport = useMemo(
     () => auditSimulatorTimerPresetSync({
@@ -164,6 +182,31 @@ export function SimulatorPanel({
             </button>
           )}
         </div>
+
+        <div className="mt-2 flex items-center gap-2 flex-wrap">
+          <button
+            type="button"
+            onClick={generateAiInsight}
+            disabled={aiInsightLoading}
+            data-testid="simulator-ai-insights"
+            className="inline-flex items-center gap-1 rounded-lg border border-brand-500/30 bg-brand-500/10 px-2 py-1 text-[10px] font-medium text-brand-300 hover:bg-brand-500/15 disabled:opacity-50"
+          >
+            {aiInsightLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}
+            {isEl ? '✨ AI Ανάλυση' : '✨ AI Insights'}
+          </button>
+          {aiInsight && (
+            <button type="button" onClick={() => setAiInsight(null)} className="text-[9px] text-text-muted hover:text-text-secondary">✕ {isEl ? 'Κλείσιμο' : 'Dismiss'}</button>
+          )}
+        </div>
+        {aiInsight && (
+          <div className="mt-2 rounded-xl border border-brand-500/20 bg-brand-500/5 p-3" data-testid="simulator-ai-insight-result">
+            <p className="text-[10px] font-semibold text-brand-300 flex items-center gap-1 mb-1.5">
+              <Sparkles className="w-3 h-3" />
+              {isEl ? 'AI Ανάλυση Παραμέτρων' : 'AI Parameter Analysis'}
+            </p>
+            <p className="text-[11px] text-text-secondary whitespace-pre-wrap leading-relaxed">{aiInsight}</p>
+          </div>
+        )}
 
         {filterQuery.trim() && filterMatches.length > 0 && (
           <div className="mt-2 flex flex-wrap gap-1.5" data-testid="simulator-filter-matches">

@@ -19,6 +19,8 @@ import { WorkspaceEmptyState } from './WorkspaceEmptyState';
 import { WorkspaceSelectionActionBar } from './WorkspaceSelectionActionBar';
 import type { WorkspaceSelectionActionId, WorkspaceSelectionContext } from '../../lib/workspaceSelectionActions';
 import { cn } from '../../utils/cn';
+import { Sparkles, Loader2 } from 'lucide-react';
+import { chatCompletion } from '../../lib/llmClient';
 import {
   connectConceptMapCursors,
   notifyCursorStream,
@@ -95,7 +97,24 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
   const [isPanning, setIsPanning] = useState(false);
   const [remoteCursors, setRemoteCursors] = useState<ConceptMapCursor[]>([]);
   const [filterQuery, setFilterQuery] = useState('');
+  const [aiSuggest, setAiSuggest] = useState<string | null>(null);
+  const [aiSuggestLoading, setAiSuggestLoading] = useState(false);
   const panStart = useRef({ x: 0, y: 0, px: 0, py: 0 });
+
+  const generateEdgeSuggestions = useCallback(async (nodeLabel: string) => {
+    setAiSuggestLoading(true);
+    setAiSuggest(null);
+    const others = nodes.filter((n) => n.label !== nodeLabel).map((n) => n.label).slice(0, 8).join(', ');
+    const prompt = lang === 'el'
+      ? `Στον εννοιολογικό χάρτη, η έννοια «${nodeLabel}» συνυπάρχει με: ${others}. Πρότεινε 2-3 νέες συνδέσεις που λείπουν (μορφή: «Α → προαπαιτούμενο → Β» ή «Α ~ σχετικό ~ Β» ή «Α ≠ αντίθετο ≠ Β»).`
+      : `In a concept map, "${nodeLabel}" coexists with: ${others}. Suggest 2-3 missing connections (format: "A → prerequisite → B" or "A ~ related ~ B" or "A ≠ contrasts ≠ B").`;
+    try {
+      const result = await chatCompletion([{ role: 'user', content: prompt }], undefined);
+      setAiSuggest(result);
+    } finally {
+      setAiSuggestLoading(false);
+    }
+  }, [nodes, lang]);
   const dragging = useRef<string | null>(null);
   const dragOffset = useRef({ x: 0, y: 0 });
   const svgRef = useRef<SVGSVGElement>(null);
@@ -528,10 +547,28 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
             <button onClick={() => startNote(selectedNode.id)} className="px-2.5 py-1.5 rounded-lg text-[10px] font-medium bg-brand-600/20 text-brand-300 border border-brand-500/30 hover:bg-brand-600/30">
               {selectedNode.note ? `✏️ ${t('editNote')}` : `📝 ${t('addNote')}`}
             </button>
+            <button
+              type="button"
+              onClick={() => generateEdgeSuggestions(selectedNode.label)}
+              disabled={aiSuggestLoading}
+              title={lang === 'el' ? 'AI Προτάσεις Συνδέσεων' : 'AI Edge Suggestions'}
+              className="px-2.5 py-1.5 rounded-lg text-[10px] font-medium bg-brand-600/20 text-brand-300 border border-brand-500/30 hover:bg-brand-600/30 disabled:opacity-50 flex items-center gap-1"
+            >
+              {aiSuggestLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}
+            </button>
             <button onClick={() => setSelected(null)} className="text-text-muted hover:text-text-secondary text-xs">✕</button>
           </div>
           {selectedNode.note && (
             <p className="px-3 pb-2 text-xs text-text-secondary bg-surface-hover/50 mx-3 rounded-lg p-2 mb-2">{selectedNode.note}</p>
+          )}
+          {aiSuggest && (
+            <div className="mx-3 mb-2 rounded-lg border border-brand-500/20 bg-brand-500/5 p-2.5" data-testid="concept-map-ai-suggestions">
+              <p className="text-[9px] font-semibold text-brand-300 mb-1 flex items-center gap-1">
+                <Sparkles className="w-3 h-3" />
+                {lang === 'el' ? 'AI Προτάσεις Συνδέσεων' : 'AI Edge Suggestions'}
+              </p>
+              <p className="text-[10px] text-text-secondary whitespace-pre-wrap leading-relaxed">{aiSuggest}</p>
+            </div>
           )}
           {onSelectionAction && (
             <WorkspaceSelectionActionBar

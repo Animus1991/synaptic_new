@@ -1,9 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Save, Trash2, CheckCircle2, Circle, Sparkles, Highlighter, Layers,
+  Save, Trash2, CheckCircle2, Circle, Sparkles, Highlighter, Layers, Loader2, X,
 } from 'lucide-react';
 import { cn } from '../../utils/cn';
+import { chatCompletion } from '../../lib/llmClient';
 import {
   type ScratchpadMode,
   type ScratchpadEntry,
@@ -56,6 +57,24 @@ export function ScratchpadNotesPanel({
   const [draft, setDraft] = useState(draftProp ?? '');
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [savedFlash, setSavedFlash] = useState(false);
+  const [aiSummary, setAiSummary] = useState<string | null>(null);
+  const [aiSummaryLoading, setAiSummaryLoading] = useState(false);
+
+  const generateAiSummary = useCallback(async () => {
+    const text = draft.trim();
+    if (!text) return;
+    setAiSummaryLoading(true);
+    setAiSummary(null);
+    const prompt = lang === 'el'
+      ? `Συνόψισε τις παρακάτω σημειώσεις σε 2-3 βασικά σημεία και πρότεινε 1-2 smart tags:\n\n${text}`
+      : `Summarize these notes in 2-3 key points and suggest 1-2 smart tags:\n\n${text}`;
+    try {
+      const result = await chatCompletion([{ role: 'user', content: prompt }], undefined);
+      setAiSummary(result);
+    } finally {
+      setAiSummaryLoading(false);
+    }
+  }, [draft, lang]);
 
   useEffect(() => {
     setEntries(loadScratchpadEntries(scopeKey));
@@ -178,7 +197,34 @@ export function ScratchpadNotesPanel({
               Agent
             </button>
           )}
+          {draft.trim() && (
+            <button
+              type="button"
+              onClick={generateAiSummary}
+              disabled={aiSummaryLoading}
+              data-testid="scratchpad-ai-summarize"
+              className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-brand-500/30 bg-brand-500/10 text-brand-300 text-xs disabled:opacity-50"
+            >
+              {aiSummaryLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
+              {lang === 'el' ? 'AI Σύνοψη' : 'AI Summarize'}
+            </button>
+          )}
         </div>
+
+        {aiSummary && (
+          <div className="rounded-xl border border-brand-500/20 bg-brand-500/5 p-3" data-testid="scratchpad-ai-summary-result">
+            <div className="flex items-start justify-between gap-2 mb-1.5">
+              <p className="text-[10px] font-semibold text-brand-300 flex items-center gap-1">
+                <Sparkles className="w-3 h-3" />
+                {lang === 'el' ? 'AI Σύνοψη' : 'AI Summary'}
+              </p>
+              <button type="button" onClick={() => setAiSummary(null)} className="text-text-muted hover:text-text-secondary">
+                <X className="w-3 h-3" />
+              </button>
+            </div>
+            <p className="text-[11px] text-text-secondary whitespace-pre-wrap leading-relaxed">{aiSummary}</p>
+          </div>
+        )}
 
         {entries.length > 0 && (
           <div className="pt-2 space-y-1.5">
