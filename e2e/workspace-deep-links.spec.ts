@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { skipOnboardingToLibrary } from './helpers/onboarding';
+import { openGroundedStudyWorkspace } from './helpers/libraryLifecycle';
 
 const NOTES = `
 # Microeconomics — Supply and Demand
@@ -22,26 +23,14 @@ Linear model example: y = m * x + b
 | Inelastic demand | Small shift | Low |
 `.trim();
 
-async function openGroundedStudyWorkspace(page: import('@playwright/test').Page) {
-  await page.getByTestId('nav-library').click();
-  await page.getByTestId('library-upload').click();
-  await page.getByTestId('upload-paste').fill(NOTES);
-  await page.getByTestId('upload-continue').click();
-  await page.getByTestId('upload-generate').click();
-  await expect(page.getByTestId('course-generation-diagnostics')).toBeVisible({ timeout: 45_000 });
-  await page.getByTestId('course-open-workspace').click();
-  await expect(page.getByTestId('study-workspace')).toBeVisible({ timeout: 45_000 });
-  await expect(page.locator('[data-testid="study-workspace"][data-grounded="true"]')).toBeVisible({ timeout: 60_000 });
-  await expect(page.getByText(/supply|demand|elasticity/i).first()).toBeVisible({ timeout: 15_000 });
-}
-
 test.describe('Study Workspace deep links (W2)', () => {
   test.describe.configure({ timeout: 120_000 });
 
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
     await skipOnboardingToLibrary(page);
-    await openGroundedStudyWorkspace(page);
+    await openGroundedStudyWorkspace(page, NOTES);
+    await expect(page.getByText(/supply|demand|elasticity/i).first()).toBeVisible({ timeout: 15_000 });
   });
 
   test('lesson rail opens reader via deep link', async ({ page }) => {

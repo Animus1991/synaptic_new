@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { skipOnboardingToLibrary } from './helpers/onboarding';
+import { openGroundedStudyWorkspace } from './helpers/libraryLifecycle';
 
 const NOTES = `
 # Microeconomics — Supply and Demand
@@ -12,22 +13,7 @@ Market equilibrium occurs where the supply curve intersects the demand curve.
 async function openNotebookWorkspace(page: import('@playwright/test').Page) {
   await page.goto('/');
   await skipOnboardingToLibrary(page);
-
-  const mobileLibrary = page.getByTestId('nav-mobile-library');
-  if (await mobileLibrary.isVisible().catch(() => false)) {
-    await mobileLibrary.click();
-  } else {
-    await page.getByTestId('nav-library').click();
-  }
-  await page.getByTestId('library-upload').click();
-  await page.getByTestId('upload-paste').fill(NOTES);
-  await page.getByTestId('upload-continue').click();
-  await expect(page.getByTestId('upload-outline-preview')).toBeVisible({ timeout: 15_000 });
-  await page.getByTestId('upload-generate').click();
-  await expect(page.getByTestId('app-toast')).toBeVisible({ timeout: 45_000 });
-  await expect(page.getByTestId('course-generation-diagnostics')).toBeVisible({ timeout: 45_000 });
-  await page.getByTestId('course-open-workspace').click();
-  await expect(page.getByTestId('study-workspace')).toBeVisible({ timeout: 45_000 });
+  await openGroundedStudyWorkspace(page, NOTES);
 }
 
 test.describe('NotebookLM workspace layout', () => {

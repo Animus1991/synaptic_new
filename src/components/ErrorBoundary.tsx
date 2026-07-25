@@ -56,6 +56,7 @@ export class ErrorBoundary extends Component<Props, State> {
             <div className="flex flex-wrap gap-2">
               <button
                 type="button"
+                data-testid="error-boundary-try-again"
                 onClick={this.handleRetry}
                 className="px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-sm font-medium"
               >

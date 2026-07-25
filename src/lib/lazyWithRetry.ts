@@ -6,15 +6,27 @@
  *   1. Transient network glitches → exponential-backoff retry (300/600/1200ms).
  *   2. Stale chunks after redeploy → detect chunk-load errors and hard-reload
  *      *once* per session to pull the new index.html, then continue retrying.
- *   3. Permanent failure → propagate the error so React.lazy + ErrorBoundary
- *      can render the "Try again / Reload" fallback UI.
+ *   3. Permanent failure → propagate the error so ErrorBoundary can render
+ *      the "Try again / Reload" fallback UI.
  *
  * Every failure is reported via `reportChunkError` so we can pinpoint which
  * flow broke in production.
+ *
+ * Important: we do **not** use `React.lazy` for the public helper. React.lazy
+ * caches a rejected payload forever, so ErrorBoundary "Try again" remounts
+ * would never re-fetch the chunk. The wrapper below re-runs the importer on
+ * every fresh mount (ErrorBoundary childGeneration bump).
  */
 
-import { lazy, type ComponentType, type LazyExoticComponent } from 'react';
-import { isChunkLoadError, reportChunkError } from './chunkErrorReporter';
+import {
+  createElement,
+  useEffect,
+  useState,
+  type ComponentProps,
+  type ComponentType,
+  type LazyExoticComponent,
+} from 'react';
+import { extractImportUrl, isChunkLoadError, reportChunkError } from './chunkErrorReporter';
 
 const HARD_RELOAD_FLAG = 'synapse:chunk-hard-reload';
 const DEFAULT_RETRIES = 3;
@@ -51,23 +63,47 @@ function writeReloadFlag(flow: string): void {
   }
 }
 
+function e2eChunkAbortArmed(): boolean {
+  try {
+    return typeof sessionStorage !== 'undefined' && sessionStorage.getItem('synapse:e2e-chunk-abort') === '1';
+  } catch {
+    return false;
+  }
+}
+
 /** Wraps any dynamic import with retry + reporting + optional stale-chunk reload. */
 export async function importWithRetry<T>(
   importer: () => Promise<T>,
   options: RetryOptions,
 ): Promise<T> {
-  const retries = Math.max(1, options.retries ?? DEFAULT_RETRIES);
+  const fastFail = e2eChunkAbortArmed();
+  const retries = fastFail ? 1 : Math.max(1, options.retries ?? DEFAULT_RETRIES);
   const baseDelay = Math.max(50, options.baseDelay ?? BASE_DELAY_MS);
-  const reloadOnStale = options.reloadOnStaleChunk ?? true;
+  const reloadOnStale = fastFail ? false : (options.reloadOnStaleChunk ?? true);
+
+  const importOnce = async (): Promise<T> => {
+    if (!fastFail) return importer();
+    return Promise.race([
+      importer(),
+      delay(4_000).then(() => {
+        throw new Error(`Failed to fetch dynamically imported module (${options.flow})`);
+      }),
+    ]);
+  };
 
   let lastErr: unknown;
   for (let attempt = 1; attempt <= retries; attempt++) {
     try {
-      return await importer();
+      return await importOnce();
     } catch (err) {
       lastErr = err;
       const stale = isChunkLoadError(err);
-      const willReload = stale && reloadOnStale && typeof window !== 'undefined' && !readReloadFlag(options.flow) && attempt === retries;
+      const willReload =
+        stale &&
+        reloadOnStale &&
+        typeof window !== 'undefined' &&
+        !readReloadFlag(options.flow) &&
+        attempt === retries;
 
       reportChunkError(err, {
         flow: options.flow,
@@ -98,14 +134,78 @@ export async function importWithRetry<T>(
   throw lastErr;
 }
 
-/** React.lazy with retry semantics. Use everywhere we currently call React.lazy. */
+/**
+ * Browsers cache failed dynamic-import URLs for the page lifetime. After an
+ * ErrorBoundary remount we must bust the query string so the network is hit again.
+ */
+async function importDefaultWithCacheBust<T extends ComponentType<unknown>>(
+  importer: () => Promise<{ default: T }>,
+): Promise<{ default: T }> {
+  try {
+    return await importer();
+  } catch (err) {
+    const url = extractImportUrl(err);
+    if (!url || typeof window === 'undefined') throw err;
+    const busted = new URL(url, window.location.href);
+    busted.searchParams.set('synapse_retry', String(Date.now()));
+    const mod = (await import(/* @vite-ignore */ busted.href)) as Record<string, unknown> & {
+      default?: T;
+    };
+    if (mod.default) return { default: mod.default };
+    const named = Object.values(mod).find(
+      (v) => typeof v === 'function' || (typeof v === 'object' && v !== null),
+    ) as T | undefined;
+    if (named) return { default: named };
+    throw err;
+  }
+}
+
+/**
+ * Lazy-load a default-export component with retry.
+ * Uses mount-time import (not React.lazy) so ErrorBoundary remount re-fetches.
+ */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function lazyWithRetry<T extends ComponentType<any>>(
   importer: () => Promise<{ default: T }>,
   flow: string,
   options: Omit<RetryOptions, 'flow'> = {},
 ): LazyExoticComponent<T> {
-  return lazy(() => importWithRetry(importer, { flow, ...options }));
+  function LazyRetry(props: ComponentProps<T>) {
+    const [mod, setMod] = useState<T | null>(null);
+    const [error, setError] = useState<Error | null>(null);
+
+    useEffect(() => {
+      let cancelled = false;
+      setMod(null);
+      setError(null);
+      void importWithRetry(() => importDefaultWithCacheBust(importer), { flow, ...options })
+        .then((m) => {
+          if (!cancelled) setMod(() => m.default);
+        })
+        .catch((err: unknown) => {
+          if (!cancelled) {
+            setError(err instanceof Error ? err : new Error(String(err)));
+          }
+        });
+      return () => {
+        cancelled = true;
+      };
+      // Stable per call-site module binding
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    if (error) throw error;
+    if (!mod) {
+      return createElement('div', {
+        'data-testid': `lazy-chunk-loading-${flow}`,
+        'aria-busy': true,
+        className: 'min-h-[12rem]',
+      });
+    }
+    return createElement(mod, props);
+  }
+
+  return LazyRetry as unknown as LazyExoticComponent<T>;
 }
 
 /** Clears the hard-reload guards once the app has booted successfully. */

@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { skipOnboardingToLibrary } from './helpers/onboarding';
+import { openGroundedStudyWorkspace } from './helpers/libraryLifecycle';
 import { openReaderInWorkspace, openToolInWorkspace } from './helpers/workspace';
 
 const GREEK_SYLLABUS = `
@@ -30,7 +31,12 @@ test.describe('Greek syllabus paste → workspace reader (P1)', () => {
     await page.getByTestId('nav-library').click();
     await page.getByTestId('library-upload').click();
 
-    await page.getByTestId('upload-paste').fill(GREEK_SYLLABUS);
+    const paste = page.getByTestId('upload-paste');
+    if (!(await paste.isVisible().catch(() => false))) {
+      const more = page.getByTestId('upload-more-sources-toggle');
+      if (await more.isVisible().catch(() => false)) await more.click();
+    }
+    await paste.fill(GREEK_SYLLABUS);
     await page.getByTestId('upload-continue').click();
     await expect(page.getByTestId('upload-outline-preview')).toBeVisible({ timeout: 15_000 });
 
@@ -40,10 +46,9 @@ test.describe('Greek syllabus paste → workspace reader (P1)', () => {
     }
 
     await page.getByTestId('upload-generate').click();
-    await expect(page.getByTestId('app-toast')).toBeVisible({ timeout: 45_000 });
-
-    await expect(page.getByTestId('course-generation-diagnostics')).toBeVisible({ timeout: 45_000 });
-    await page.getByTestId('course-open-workspace').click();
+    await expect(page.getByTestId('upload-modal')).toBeHidden({ timeout: 120_000 });
+    await expect(page.getByTestId('post-upload-banner')).toBeVisible({ timeout: 30_000 });
+    await page.getByTestId('post-upload-open-workspace').click();
     await expect(page.getByTestId('study-workspace')).toBeVisible({ timeout: 45_000 });
 
     await expect(page.getByText('Study concept')).not.toBeVisible();
@@ -69,16 +74,8 @@ test.describe('Greek syllabus paste → workspace reader (P1)', () => {
   test('Greek reader body visual regression (v2.2.0 repair ROI)', async ({ page }) => {
     await page.goto('/');
     await skipOnboardingToLibrary(page);
-
     await page.getByTestId('nav-library').click();
-    await page.getByTestId('library-upload').click();
-    await page.getByTestId('upload-paste').fill(GREEK_SYLLABUS);
-    await page.getByTestId('upload-continue').click();
-    await expect(page.getByTestId('upload-outline-preview')).toBeVisible({ timeout: 15_000 });
-    await page.getByTestId('upload-generate').click();
-    await expect(page.getByTestId('app-toast')).toBeVisible({ timeout: 45_000 });
-    await page.getByTestId('course-open-workspace').click();
-    await expect(page.getByTestId('study-workspace')).toBeVisible({ timeout: 45_000 });
+    await openGroundedStudyWorkspace(page, GREEK_SYLLABUS);
     await openReaderInWorkspace(page);
 
     const body = page.getByTestId('reader-structured-body');

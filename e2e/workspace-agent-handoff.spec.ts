@@ -1,26 +1,18 @@
 import { test, expect } from '@playwright/test';
 import { skipOnboardingToLibrary } from './helpers/onboarding';
 import { openReaderInWorkspace } from './helpers/workspace';
+import { openGroundedStudyWorkspace } from './helpers/libraryLifecycle';
 
 const GREEK_SYLLABUS = `
 ΔΙΑΛΕΞΗ 2 ΘΕΩΡΙΑ ΣΥΓΚΡΙΤΙΚΩΝ ΠΛΕΟΝΕΚΤΗΜΑΤΩΝ
 Α π ό λ υ τ α π λ ε ο ν ε κ τ ή μ α τ α και διεθνές εμπόριο.
+Συγκριτικά πλεονεκτήματα εξηγούν τα οφέλη του διεθνούς εμπορίου μεταξύ χωρών.
 `.trim();
 
 async function openGreekReaderWorkspace(page: import('@playwright/test').Page) {
   await page.goto('/');
   await skipOnboardingToLibrary(page);
-
-  await page.getByTestId('nav-library').click();
-  await page.getByTestId('library-upload').click();
-  await page.getByTestId('upload-paste').fill(GREEK_SYLLABUS);
-  await page.getByTestId('upload-continue').click();
-  await expect(page.getByTestId('upload-outline-preview')).toBeVisible({ timeout: 15_000 });
-  await page.getByTestId('upload-generate').click();
-  await expect(page.getByTestId('app-toast')).toBeVisible({ timeout: 45_000 });
-  await expect(page.getByTestId('course-generation-diagnostics')).toBeVisible({ timeout: 45_000 });
-  await page.getByTestId('course-open-workspace').click();
-  await expect(page.getByTestId('study-workspace')).toBeVisible({ timeout: 45_000 });
+  await openGroundedStudyWorkspace(page, GREEK_SYLLABUS);
   await openReaderInWorkspace(page);
 }
 

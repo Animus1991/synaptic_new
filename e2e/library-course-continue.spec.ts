@@ -1,11 +1,13 @@
 import { test, expect } from '@playwright/test';
 import { skipOnboardingToLibrary } from './helpers/onboarding';
+import { uploadAndOpenCourseView } from './helpers/libraryLifecycle';
 
 const NOTES = `
 # Behavioral Economics
 
 Waiting costs shape intertemporal choice.
 Present bias can explain why people prefer smaller sooner rewards.
+Spaced review and retrieval practice strengthen long-term retention.
 `.trim();
 
 test.describe('Library course review Continue', () => {
@@ -14,12 +16,8 @@ test.describe('Library course review Continue', () => {
     await page.goto('/');
     await skipOnboardingToLibrary(page);
 
-    await page.getByTestId('library-upload').click();
-    await page.getByTestId('upload-paste').fill(NOTES);
-    await page.getByTestId('upload-continue').click();
-    await expect(page.getByTestId('upload-outline-preview')).toBeVisible({ timeout: 15_000 });
-    await page.getByTestId('upload-generate').click();
-    await expect(page.getByTestId('course-generation-diagnostics')).toBeVisible({ timeout: 45_000 });
+    await uploadAndOpenCourseView(page, NOTES);
+    await expect(page.getByTestId('course-open-workspace')).toBeVisible();
 
     await page.getByTestId('course-back').click();
     await expect(page.getByTestId('library-course-card').first()).toBeVisible();

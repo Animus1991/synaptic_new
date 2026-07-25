@@ -1,5 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { skipOnboardingToLibrary } from './helpers/onboarding';
+import { openGroundedStudyWorkspace } from './helpers/libraryLifecycle';
+import { openReaderInWorkspace } from './helpers/workspace';
 
 const GREEK_SYLLABUS = `
 ΕΘΝΙΚΟ ΚΑΙ ΚΑΠΟΔΙΣΤΡΙΑΚΟ ΠΑΝΕΠΙΣΤΗΜΙΟ ΑΘΗΝΩΝ
@@ -14,15 +16,8 @@ const GREEK_SYLLABUS = `
 `.trim();
 
 async function openGreekWorkspace(page: import('@playwright/test').Page) {
-  await page.getByTestId('nav-library').click();
-  await page.getByTestId('library-upload').click();
-  await page.getByTestId('upload-paste').fill(GREEK_SYLLABUS);
-  await page.getByTestId('upload-continue').click();
-  await page.getByTestId('upload-generate').click();
-  await expect(page.getByTestId('course-generation-diagnostics')).toBeVisible({ timeout: 45_000 });
-  await page.getByTestId('course-open-workspace').click();
-  await expect(page.getByTestId('study-workspace')).toBeVisible({ timeout: 45_000 });
-  await expect(page.getByTestId('cognitive-reader')).toBeVisible({ timeout: 15_000 });
+  await openGroundedStudyWorkspace(page, GREEK_SYLLABUS);
+  await openReaderInWorkspace(page);
   await expect(page.getByTestId('reader-section-nav')).toBeVisible({ timeout: 15_000 });
 }
 
