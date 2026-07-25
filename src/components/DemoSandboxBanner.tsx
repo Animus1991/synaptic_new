@@ -123,6 +123,7 @@ export function DemoSandboxBanner() {
                   type="button"
                   data-testid="demo-sandbox-google-sign-in"
                   onClick={googleSignIn}
+                  aria-label={t('demoSandboxGoogleSignIn')}
                   className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-medium text-text-secondary hover:text-text-primary hover:bg-surface-hover transition-colors"
                 >
                   <LogIn className="w-3 h-3" aria-hidden />
@@ -133,6 +134,7 @@ export function DemoSandboxBanner() {
                 type="button"
                 onClick={() => setShowUploadModal(true)}
                 data-testid="demo-sandbox-upload"
+                aria-label={t('demoSandboxUpload')}
                 className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-medium text-text-secondary hover:text-text-primary hover:bg-surface-hover transition-colors"
               >
                 <Upload className="w-3 h-3" aria-hidden />
@@ -144,6 +146,7 @@ export function DemoSandboxBanner() {
             type="button"
             onClick={() => exitDemoSandbox()}
             data-testid="demo-sandbox-exit"
+            aria-label={t('demoSandboxExit')}
             className={cn(
               'inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-medium transition-colors',
               quiet

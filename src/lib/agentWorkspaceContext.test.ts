@@ -57,8 +57,24 @@ describe('buildAgentContextBanner', () => {
     expect(banner?.line).toContain('Βήμα 4/8');
     expect(banner?.line).toContain('Ανάγνωση');
     expect(banner?.line).toContain('37/100');
+    expect(banner?.compactLine).toBe('Ανάγνωση · Βήμα 4/8');
     expect(banner?.caution).toBeTruthy();
     expect(banner?.contextJson?.stepTitle).toBe('Αγαθά Αναγκαία');
+  });
+
+  it('keeps compactLine free of quality / selection noise', () => {
+    const banner = buildAgentContextBanner({
+      stepTitle: 'Lecture 3 — Trade policy instruments and welfare',
+      stepIndex: 0,
+      stepCount: 7,
+      activeToolLabel: 'Reader',
+      sourceQuality: 32,
+      selectionExcerpt: 'the lower price of imported goods',
+    }, 'en');
+    expect(banner?.compactLine).toBe('Reader · Step 1/7');
+    expect(banner?.compactLine).not.toContain('Quality');
+    expect(banner?.compactLine).not.toContain('selection');
+    expect(banner?.line).toContain('Quality');
   });
 
   it('surfaces a handwriting caution and bit when source was handwritten', () => {

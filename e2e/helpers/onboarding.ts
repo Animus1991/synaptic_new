@@ -9,11 +9,19 @@ export async function clearAppStorage(page: Page) {
 
 /** Open onboarding from landing (no-op if draft already routed to onboarding). */
 export async function startOnboardingFromLanding(page: Page) {
-  const onLanding = await page.getByTestId('landing-get-started').isVisible().catch(() => false);
-  if (onLanding) {
-    await page.getByTestId('landing-get-started').click();
-  }
-  await expect(page.getByTestId('onboarding-continue')).toBeVisible({ timeout: 10_000 });
+  const continueBtn = page.getByTestId('onboarding-continue');
+  if (await continueBtn.isVisible().catch(() => false)) return;
+  // Already past onboarding (e.g. demo seed / resumed session).
+  if (await page.getByTestId('platform-main').isVisible().catch(() => false)) return;
+
+  const getStarted = page
+    .getByTestId('landing-get-started')
+    .or(page.getByTestId('landing-get-started-primary'));
+  await expect(getStarted.first()).toBeVisible({ timeout: 20_000 });
+  await getStarted.first().click();
+  await expect(continueBtn.or(page.getByTestId('platform-main')).first()).toBeVisible({
+    timeout: 25_000,
+  });
 }
 
 /** Walk wizard steps through schedule and open the shared UploadModal. */
@@ -32,12 +40,14 @@ export async function completeOnboardingScheduleWithUpload(page: Page) {
 /** Skip onboarding and land on Library (explore demo, no auto-workspace). */
 export async function skipOnboardingToLibrary(page: Page) {
   await startOnboardingFromLanding(page);
-  await page.getByTestId('onboarding-continue').click();
-  await page.getByTestId('onboarding-role-selflearner').click();
-  await page.getByTestId('onboarding-next').click();
-  await page.getByTestId('onboarding-goal-understand').click();
-  await page.getByTestId('onboarding-next').click();
-  await page.getByTestId('onboarding-explore-demo').click();
+  if (!(await page.getByTestId('platform-main').isVisible().catch(() => false))) {
+    await page.getByTestId('onboarding-continue').click();
+    await page.getByTestId('onboarding-role-selflearner').click();
+    await page.getByTestId('onboarding-next').click();
+    await page.getByTestId('onboarding-goal-understand').click();
+    await page.getByTestId('onboarding-next').click();
+    await page.getByTestId('onboarding-explore-demo').click();
+  }
   await expect(page.getByTestId('platform-main')).toBeVisible({ timeout: 15_000 });
   // OPT-R18 — demo courses are in-memory; wait briefly so Library can paint cards.
   await page

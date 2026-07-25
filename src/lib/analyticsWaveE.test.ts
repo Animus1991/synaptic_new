@@ -7,7 +7,7 @@ import { buildSubjectMasteryTiles } from './subjectMasteryAnalytics';
 import { buildStudyBehaviorModel } from './studyBehaviorCharts';
 import type { ActivityItem, Course } from '../types';
 
-const now = Date.parse('2026-07-15T12:00:00.000Z');
+const now = Date.now();
 
 const act = (daysAgo: number, type: ActivityItem['type'] = 'quiz_passed'): ActivityItem => ({
   id: `a-${daysAgo}-${type}`,

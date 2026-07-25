@@ -30,6 +30,8 @@ type Props = {
   onAskAgent?: () => void;
   onSelectionAction?: (action: WorkspaceSelectionActionId, ctx: WorkspaceSelectionContext) => void;
   onExplainDifference?: (row: { term: string; text: string }) => void;
+  /** OPT-AI-B — source-grounded compare micro-diff (may hand off to Agent). */
+  onAiDiff?: (left: string, right: string) => void;
 };
 
 export function ComparePanel({
@@ -44,6 +46,7 @@ export function ComparePanel({
   onAskAgent,
   onSelectionAction,
   onExplainDifference,
+  onAiDiff,
 }: Props) {
   const { t } = useI18n();
   const [filterQuery, setFilterQuery] = useState('');
@@ -194,6 +197,19 @@ export function ComparePanel({
         >
           {t('compareOcrWarning')}
         </p>
+      )}
+
+      {selectedRow && onAiDiff && (
+        <div className="mb-2 px-1">
+          <button
+            type="button"
+            data-testid="compare-ai-diff"
+            onClick={() => onAiDiff(selectedRow[0], selectedRow[1] || concept)}
+            className="rounded-full border border-border-default bg-surface-tertiary px-2.5 py-1 text-[10px] font-medium text-text-primary hover:bg-surface-hover"
+          >
+            {t('compareAiDiff')}
+          </button>
+        </div>
       )}
 
       <div className="flex-1 overflow-y-auto min-h-0">

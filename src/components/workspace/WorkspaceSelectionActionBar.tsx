@@ -16,6 +16,7 @@ type Props = {
   onDismiss: () => void;
   className?: string;
   occlusionAvailable?: boolean;
+  askAiInlineAvailable?: boolean;
   'data-testid'?: string;
 };
 
@@ -28,9 +29,10 @@ export function WorkspaceSelectionActionBar({
   onDismiss,
   className,
   occlusionAvailable = false,
+  askAiInlineAvailable = false,
   'data-testid': testId = 'workspace-selection-actions',
 }: Props) {
-  const actions = getSelectionActionDefs(lang, originTool, { occlusionAvailable });
+  const actions = getSelectionActionDefs(lang, originTool, { occlusionAvailable, askAiInlineAvailable });
   const preview = selectionExcerptPreview(excerpt);
 
   return (
@@ -66,7 +68,7 @@ export function WorkspaceSelectionActionBar({
             onClick={() => onAction(action.id)}
             className={cn(
               'inline-flex items-center rounded-lg border px-2 py-0.5 text-[10px] font-medium transition-colors',
-              action.id === 'ask-agent'
+              action.id === 'ask-agent' || action.id === 'ask-ai-inline'
                 ? 'ws-chip-brand hover:bg-accent-cyan/20'
                 : 'border-white/10 bg-surface-card/80 text-text-secondary hover:border-brand-500/30 hover:text-brand-800',
             )}

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useCallback, useMemo } from 'react';
-import { Sparkles, Type, Volume2, Highlighter, Download, StickyNote, X, Languages, BookOpen, AlertTriangle } from '@/lib/lucide-shim';
+import { Sparkles, Type, Volume2, Highlighter, Download, StickyNote, X, Languages, BookOpen, AlertTriangle, Loader2 } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
 import { prepareWorkspaceDisplayText } from '../../lib/workspaceDisplayText';
 import { reanchorOcrCorrections } from '../../lib/readerOcrCorrectionStore';
@@ -47,7 +47,7 @@ import {
 import type { OcrStoredRegion } from '../../lib/readerOcrOverlay';
 import { canMakeOcclusionFromSelection } from '../../lib/readerOcclusionFromSelection';
 import { OcrCorrectionPanel } from './OcrCorrectionPanel';
-import { isLlmAvailable } from '../../lib/llmClient';
+import { isLlmAvailable, chatCompletion } from '../../lib/llmClient';
 import {
   buildReaderSegments,
   readerSegmentsToParagraphs,
@@ -68,6 +68,7 @@ import {
 } from '../../lib/readerLearningHeatmap';
 import type { ReaderStepHeatSyncSummary } from '../../lib/readerHeatmapStepSyncQA';
 import { ReaderStepHeatSyncStrip } from './ReaderStepHeatSyncStrip';
+import { estimateDifficulty } from '../../lib/contentAnalysis';
 
 type ReaderHeatmapMode = 'off' | 'learning' | 'complexity';
 
@@ -77,7 +78,6 @@ const ANN_COLORS = [...ANNOTATION_PALETTE];
 
 interface Props {
   text?: string;
-  complexityThreshold?: number;
   emptyMessage?: string;
   hasSource?: boolean;
   onUpload?: () => void;
@@ -141,7 +141,6 @@ function downloadBlob(filename: string, content: string, mime: string) {
 
 export function CognitiveReader({
   text = '',
-  complexityThreshold = 25,
   emptyMessage,
   hasSource = false,
   onUpload,
@@ -202,6 +201,9 @@ export function CognitiveReader({
   const [ocrCorrectionRevision, setOcrCorrectionRevision] = useState(0);
   const [activeSectionLabel, setActiveSectionLabel] = useState<string | null>(null);
   const [textSelection, setTextSelection] = useState<string | null>(null);
+  const [inlineAiExcerpt, setInlineAiExcerpt] = useState<string | null>(null);
+  const [inlineAiResult, setInlineAiResult] = useState<string | null>(null);
+  const [inlineAiLoading, setInlineAiLoading] = useState(false);
   const rawDisplayText = fullSource ? (sourceFullText?.trim() || text) : text;
   const glossaryTerms = useMemo(() => glossary?.map((g) => g.term) ?? [], [glossary]);
   const prevRawTextRef = useRef<string | null>(null);
@@ -524,6 +526,36 @@ export function CognitiveReader({
       dismissTextSelection();
       return;
     }
+    if (action === 'ask-ai-inline') {
+      const excerpt = textSelection;
+      const isEl = lang === 'el';
+      setInlineAiExcerpt(excerpt);
+      setInlineAiResult(null);
+      setInlineAiLoading(true);
+      dismissTextSelection();
+      void chatCompletion(
+        [
+          {
+            role: 'system',
+            content: isEl
+              ? 'Είσαι AI tutor. Εξήγησε σύντομα και με σαφήνεια το επιλεγμένο απόσπασμα. 2-3 προτάσεις. Χρησιμοποίησε απλή γλώσσα.'
+              : 'You are an AI tutor. Briefly and clearly explain the selected passage. 2-3 sentences. Use plain language.',
+          },
+          {
+            role: 'user',
+            content: `Explain this passage: "${excerpt.slice(0, 600)}"${concept ? `\n\nContext concept: ${concept}` : ''}`,
+          },
+        ],
+        userSettings,
+      ).then((result) => {
+        setInlineAiResult(result);
+      }).catch(() => {
+        setInlineAiResult(isEl ? 'Σφάλμα AI — δοκίμασε ξανά.' : 'AI error — try again.');
+      }).finally(() => {
+        setInlineAiLoading(false);
+      });
+      return;
+    }
     const ctx: WorkspaceSelectionContext = {
       text: textSelection,
       term: (focusTerm ?? concept ?? textSelection).trim().slice(0, 80),
@@ -537,7 +569,7 @@ export function CognitiveReader({
     }
     dismissTextSelection();
   }, [
-    textSelection, displayText, focusTerm, concept, activeSectionLabel,
+    textSelection, displayText, focusTerm, concept, lang, activeSectionLabel, userSettings,
     onSelectionAction, onAskAgentAboutSelection, dismissTextSelection,
   ]);
 
@@ -693,8 +725,15 @@ export function CognitiveReader({
   }
 
   const renderParagraphWords = (paragraph: string, rangeStart: number, bodyIndex: number, segmentIndex?: number) => {
-    const wordCount = paragraph.split(/\s+/).filter(Boolean).length;
-    const isComplex = wordCount > complexityThreshold;
+    // Deterministic readability per paragraph (sentence length, long-word ratio,
+    // formula density) — replaces the old raw word-count > 25 heuristic.
+    const difficulty = heatmapMode === 'complexity' ? estimateDifficulty(paragraph) : 'beginner';
+    const complexityClass =
+      difficulty === 'advanced'
+        ? 'border-l-2 border-accent-rose bg-accent-rose/10 text-text-primary'
+        : difficulty === 'intermediate'
+          ? 'border-l-2 border-accent-amber bg-accent-amber/10 text-text-primary'
+          : 'text-text-secondary';
     const learningHeat = segmentIndex != null ? learningHeatBySegment.get(segmentIndex) : undefined;
     const words = paragraph.split(/(\s+)/);
     let charInPara = 0;
@@ -705,7 +744,7 @@ export function CognitiveReader({
           'rounded-lg p-2 text-[15px] transition-colors',
           dyslexia ? 'leading-loose tracking-wide' : 'leading-relaxed',
           heatmapMode === 'complexity'
-            ? isComplex ? 'border-l-2 border-accent-rose bg-accent-rose/10 text-text-primary' : 'text-text-secondary'
+            ? complexityClass
             : heatmapMode === 'learning' && learningHeat
               ? readerHeatmapLevelClass(learningHeat.level)
               : 'text-text-primary',
@@ -1147,7 +1186,14 @@ export function CognitiveReader({
         <div className="flex shrink-0 items-center gap-2 border-b border-border-subtle bg-surface-secondary/40 px-4 py-1.5">
           <span className="text-[10px] text-text-muted">{t('readerColorColon')}</span>
           {ANN_COLORS.map((c) => (
-            <button key={c} type="button" onClick={() => setActiveColor(c)} className={cn('h-4 w-4 rounded-full border-2', activeColor === c ? 'border-white' : 'border-transparent')} style={{ backgroundColor: c }} />
+            <button
+              key={c}
+              type="button"
+              aria-label={lang === 'el' ? `Χρώμα ${c}` : `Color ${c}`}
+              onClick={() => setActiveColor(c)}
+              className={cn('h-5 w-5 rounded-full border-2', activeColor === c ? 'border-white' : 'border-transparent')}
+              style={{ backgroundColor: c }}
+            />
           ))}
           <span className="text-[10px] text-text-muted ml-2">{t('readerSelectToAnnotate')}</span>
         </div>
@@ -1231,6 +1277,7 @@ export function CognitiveReader({
             onAction={handleReaderSelectionAction}
             onDismiss={dismissTextSelection}
             occlusionAvailable={occlusionSelectionAvailable}
+            askAiInlineAvailable={llmReady}
             data-testid="reader-selection-actions"
           />
         ) : (
@@ -1259,6 +1306,41 @@ export function CognitiveReader({
           </button>
         </div>
         )
+      )}
+
+      {(inlineAiLoading || inlineAiResult) && (
+        <div
+          data-testid="reader-inline-ai-result"
+          className="shrink-0 border-b border-brand-500/20 bg-brand-500/6 px-4 py-3 space-y-1.5"
+        >
+          <div className="flex items-center justify-between">
+            <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-brand-300">
+              <Sparkles className="w-3 h-3" />
+              {lang === 'el' ? 'AI Εξήγηση' : 'AI Explanation'}
+            </span>
+            <button
+              type="button"
+              onClick={() => { setInlineAiResult(null); setInlineAiExcerpt(null); }}
+              className="rounded p-0.5 text-text-muted hover:text-text-primary"
+              aria-label={t('readerDismiss')}
+            >
+              <X className="w-3 h-3" />
+            </button>
+          </div>
+          {inlineAiExcerpt && (
+            <p className="text-[9px] italic text-text-muted truncate">
+              &ldquo;{inlineAiExcerpt.slice(0, 90)}{inlineAiExcerpt.length > 90 ? '…' : ''}&rdquo;
+            </p>
+          )}
+          {inlineAiLoading ? (
+            <div className="flex items-center gap-1.5 text-[10px] text-text-muted">
+              <Loader2 className="w-3 h-3 animate-spin" />
+              {lang === 'el' ? 'Αναλύω…' : 'Thinking…'}
+            </div>
+          ) : (
+            <p className="text-[11px] text-text-secondary leading-relaxed">{inlineAiResult}</p>
+          )}
+        </div>
       )}
 
       {ocrOverlayOn && overlayRegions.length > 0 && annotationScopeKey && (

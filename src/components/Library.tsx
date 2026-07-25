@@ -4,7 +4,7 @@ import { emphasizedTransition, expandHeight } from '../lib/motion';
 import {
   Search, Upload, BookOpen, FileText, ChevronRight, ChevronDown,
   Clock, BarChart3, Sparkles, Grid3X3, List, Loader2,
-  File, Image, Code, Presentation, Table2, Trash2, RefreshCw, ExternalLink, X,
+  File, Image, Code, Presentation, Table2, Trash2, RefreshCw, ExternalLink, X, MessageSquare,
 } from '@/lib/lucide-shim';
 import type { Course, UploadedFile, UserSettings, Task, GlossaryEntry } from '../types';
 import { cn } from '../utils/cn';
@@ -90,6 +90,8 @@ interface LibraryProps {
   onAddNotebookLmToFsrs?: (result: NotebookLmImportResult) => void;
   onOpenNotebookShell?: (courseId: string) => void;
   onOpenConcept?: (concept: string) => void;
+  /** OPT-AI-C — Ask Agent about an analyzed library source (pins file). */
+  onAskSource?: (file: UploadedFile, course?: Course) => void;
   /** OPT-L5 — signed-in pull conflict (remote already applied). */
   syncConflicts?: LibrarySyncConflictItem[];
   onKeepRemoteLibrary?: () => void;
@@ -127,6 +129,7 @@ export function Library({
   onAddNotebookLmToFsrs,
   onOpenNotebookShell,
   onOpenConcept,
+  onAskSource,
   syncConflicts = [],
   onKeepRemoteLibrary,
   onRestoreLocalLibrary,
@@ -500,7 +503,7 @@ export function Library({
         {tab === 'courses' && (
           <motion.div
             key="courses"
-            initial={{ opacity: 0 }}
+            initial={isMinimal ? false : { opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={emphasizedTransition}
@@ -660,7 +663,7 @@ export function Library({
         {tab === 'files' && (
           <motion.div
             key="files"
-            initial={{ opacity: 0 }}
+            initial={isMinimal ? false : { opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={emphasizedTransition}
@@ -690,6 +693,7 @@ export function Library({
                     onRemoveFile={onRemoveFile}
                     onReprocessCourse={onReprocessCourse}
                     reprocessingMaterial={reprocessingMaterial}
+                    onAskSource={onAskSource}
                   />
                 ))}
               </div>
@@ -761,7 +765,8 @@ function CourseCard({
   return (
     <BlueprintSurface
       as={motion.div}
-      initial={{ opacity: 0, y: 10 }}
+      // Skip fade-in — opacity wash fails WCAG contrast mid-animation (a11y CI).
+      initial={false}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.05 }}
       onClick={() => {
@@ -1046,7 +1051,7 @@ function CourseListItem({
   return (
     <BlueprintSurface
       as={motion.div}
-      initial={{ opacity: 0, x: -10 }}
+      initial={false}
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: index * 0.03 }}
       onClick={onClick}
@@ -1149,6 +1154,7 @@ function FileItem({
   onRemoveFile,
   onReprocessCourse,
   reprocessingMaterial = false,
+  onAskSource,
 }: {
   file: UploadedFile;
   index: number;
@@ -1161,6 +1167,7 @@ function FileItem({
   onRemoveFile?: (fileId: string) => void;
   onReprocessCourse?: (courseId: string) => void;
   reprocessingMaterial?: boolean;
+  onAskSource?: (file: UploadedFile, course?: Course) => void;
 }) {
   const Icon = fileTypeIcons[file.type] || FileText;
   const pathDense = useMinimalTheme();
@@ -1284,6 +1291,18 @@ function FileItem({
               title={t('libOpenNotebookLmTitle', userLanguage)}
             >
               <ExternalLink className="w-4 h-4" />
+            </button>
+          )}
+          {file.status === 'analyzed' && onAskSource && (
+            <button
+              type="button"
+              onClick={() => onAskSource(file, course)}
+              data-testid={`library-ask-source-${file.id}`}
+              className="p-1.5 rounded-lg border border-brand-500/30 text-brand-600 hover:bg-brand-500/10 transition-colors"
+              title={t('libAskSourceTitle', userLanguage)}
+              aria-label={t('libAskSourceTitle', userLanguage)}
+            >
+              <MessageSquare className="w-4 h-4" />
             </button>
           )}
           {canReprocess && (

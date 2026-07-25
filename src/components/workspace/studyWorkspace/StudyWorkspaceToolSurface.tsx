@@ -115,11 +115,16 @@ export function StudyWorkspaceToolSurface({ model }: StudyWorkspaceToolSurfacePr
     handleWorkspaceSelectionAction,
     handleQuizRemediateWrong,
     handleQuizRemediateWrongCluster,
+    handleQuizDiagnosisReady,
     handleQuizSessionComplete,
     quizAttemptHistory,
     handleCrossLinkAgent,
     handleCrossLinkReader,
     focusWeakArea,
+    handleTryWeakSpot,
+    handleScratchpadStepHint,
+    handleCompareAiDiff,
+    handleDebateAiCounter,
     workspaceCorrelation,
     quizDef,
     quizSession,
@@ -355,6 +360,7 @@ export function StudyWorkspaceToolSurface({ model }: StudyWorkspaceToolSurfacePr
                               'formula',
                             );
                           }}
+                          onStepHint={handleScratchpadStepHint}
                           lang={lang}
                         />
                         </WorkspaceToolSuspense>
@@ -523,6 +529,9 @@ export function StudyWorkspaceToolSurface({ model }: StudyWorkspaceToolSurfacePr
                           onAskAgent={() => {
                             openAgentForTool('compare', buildCompareToolAgentPrompt(quizConcept, lang));
                           }}
+                          onAiDiff={(left, right) => {
+                            void handleCompareAiDiff(left, right);
+                          }}
                         />
                         </WorkspaceToolSuspense>
                       )}
@@ -547,6 +556,9 @@ export function StudyWorkspaceToolSurface({ model }: StudyWorkspaceToolSurfacePr
                           onSelectionAction={handleWorkspaceSelectionAction}
                           onRebuttalPersisted={() => {
                             noteConceptActivity(quizConcept, 'debate', 'noted');
+                          }}
+                          onAiCounter={(claim) => {
+                            void handleDebateAiCounter(claim);
                           }}
                         />
                         </WorkspaceToolSuspense>
@@ -680,6 +692,8 @@ export function StudyWorkspaceToolSurface({ model }: StudyWorkspaceToolSurfacePr
                           onGroundedFeedbackFocus={syncQuizGroundedFocus}
                           artifactStale={quizArtifactStale}
                           onAcknowledgeStale={() => acknowledgePracticeStale('quiz')}
+                          userSettings={userSettings}
+                          onDiagnosisReady={handleQuizDiagnosisReady}
                         />
                         </WorkspaceToolSuspense>
                       )}
@@ -752,6 +766,7 @@ export function StudyWorkspaceToolSurface({ model }: StudyWorkspaceToolSurfacePr
                   expanded
                   onToggle={() => setIntelTab(null)}
                   onFocusWeakSpot={focusWeakArea}
+                  onTryWeakSpot={handleTryWeakSpot}
                   emptyActions={resolveEmptyActions('weak-areas')}
                 />
               </WorkspaceToolSuspense>

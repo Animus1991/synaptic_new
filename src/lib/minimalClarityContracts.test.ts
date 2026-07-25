@@ -86,8 +86,8 @@ describe('OPT-K69 engineering clarity contracts', () => {
   it('K73 — Minimal text tokens meet AA contrast (≥4.5:1) on primary surfaces', () => {
     const primer = read('src/styles/primer-minimal.css');
     expect(primer).toMatch(/OPT-K73/);
-    expect(primer).toMatch(/--color-text-tertiary:\s*#656d76/);
-    expect(primer).toMatch(/--color-text-muted:\s*#6a737d/);
+    expect(primer).toMatch(/--color-text-tertiary:\s*#59636e/);
+    expect(primer).toMatch(/--color-text-muted:\s*#59636e/);
     expect(primer).toMatch(/--color-text-muted:\s*#848d97/);
 
     const clarity = read('src/styles/cursor-clarity.css');
@@ -111,11 +111,49 @@ describe('OPT-K69 engineering clarity contracts', () => {
       return (hi + 0.05) / (lo + 0.05);
     };
 
-    expect(contrast('#656d76', '#ffffff')).toBeGreaterThanOrEqual(4.5);
-    expect(contrast('#6a737d', '#ffffff')).toBeGreaterThanOrEqual(4.5);
-    expect(contrast('#6a737d', '#f6f8fa')).toBeGreaterThanOrEqual(4.5);
+    expect(contrast('#59636e', '#ffffff')).toBeGreaterThanOrEqual(4.5);
+    expect(contrast('#59636e', '#eaeef2')).toBeGreaterThanOrEqual(4.5);
+    expect(contrast('#59636e', '#f6f8fa')).toBeGreaterThanOrEqual(4.5);
     expect(contrast('#848d97', '#0d1117')).toBeGreaterThanOrEqual(4.5);
     expect(contrast('#848d97', '#161b22')).toBeGreaterThanOrEqual(4.5);
     expect(contrast('#848d97', '#21262d')).toBeGreaterThanOrEqual(4.5);
+  });
+
+  it('K74/K75 — mobile notebook clarity: step rail, dark pill ink, thread scroll pad', () => {
+    const chrome = read('src/components/workspace/studyWorkspace/StudyWorkspaceChrome.tsx');
+    expect(chrome).toMatch(/OPT-K74/);
+    expect(chrome).toMatch(/workspace-mobile-step-progress/);
+    expect(chrome).toMatch(/workspace-mobile-chrome-menu/);
+    expect(chrome).toMatch(/wsStepOf/);
+    expect(chrome).toMatch(/bg-surface-tertiary text-text-primary/);
+    expect(chrome).toMatch(/notebook Studio owns tools/);
+
+    const primer = read('src/styles/primer-minimal.css');
+    expect(primer).toMatch(/OPT-K74/);
+    expect(primer).toMatch(/minimal-dark[\s\S]{0,120}\.ws-pill/);
+    expect(primer).toMatch(/--color-text-primary/);
+    expect(primer).toMatch(/OPT-K75/);
+    expect(primer).toMatch(/agent-system-status/);
+
+    const indexCss = read('src/index.css');
+    expect(indexCss).toMatch(/OPT-K75/);
+    expect(indexCss).toMatch(/button\.ws-pill/);
+
+    const calm = read('src/styles/chatgpt-calm.css');
+    expect(calm).toMatch(/OPT-K74/);
+    expect(calm).toMatch(/scroll-padding-bottom/);
+
+    const ctx = read('src/lib/agentWorkspaceContext.ts');
+    expect(ctx).toMatch(/compactLine/);
+
+    const agent = read('src/components/Agent.tsx');
+    expect(agent).toMatch(/agent-system-status/);
+    expect(agent).toMatch(/agent-composer-tools/);
+    expect(agent).not.toMatch(/absolute right-2 bottom-2 flex items-center gap-1/);
+    expect(agent).toMatch(/text-text-primary/);
+
+    // Hydrating pills must not use animate-pulse (washes ink on dark)
+    expect(chrome).not.toMatch(/ws-pill['"].*animate-pulse|animate-pulse['"].*ws-pill/);
+    expect(indexCss).toMatch(/study-workspace.*ws-pill|ws-pill[\s\S]{0,80}study-workspace/);
   });
 });

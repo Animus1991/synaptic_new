@@ -4457,6 +4457,52 @@ input[type="range"]::-webkit-slider-thumb {
   color: #faf8f5;
   border-color: var(--color-brand-600);
 }
+/* OPT-K75 — dark themes: never use white-wash pills (secondary ink on wash fails AA) */
+:is([data-theme="minimal-dark"], [data-theme="blueprint"], [data-theme="dark"]) .ws-pill,
+:is([data-theme="minimal-dark"], [data-theme="blueprint"], [data-theme="dark"]) button.ws-pill {
+  background: var(--color-surface-tertiary);
+  border-color: var(--color-border-default);
+  color: var(--color-text-primary);
+}
+:is([data-theme="minimal-dark"], [data-theme="blueprint"], [data-theme="dark"]) .ws-pill[data-active="true"],
+:is([data-theme="minimal-dark"], [data-theme="blueprint"], [data-theme="dark"]) button.ws-pill[data-active="true"] {
+  background: var(--color-text-primary);
+  border-color: var(--color-text-primary);
+  color: var(--color-surface-primary);
+}
+
+/* OPT-K75 — workspace scope: force readable pill ink (beat any wash / pulse residue) */
+[data-testid="study-workspace"] .ws-pill,
+[data-testid="study-workspace"] button.ws-pill {
+  color: var(--color-text-primary) !important;
+  background: var(--color-surface-tertiary) !important;
+  border: 1px solid var(--color-border-default) !important;
+  opacity: 1 !important;
+  animation: none !important;
+}
+[data-theme="minimal"] [data-testid="study-workspace"] .ws-pill,
+[data-theme="minimal"] [data-testid="study-workspace"] button.ws-pill,
+[data-theme="light"] [data-testid="study-workspace"] .ws-pill,
+[data-theme="light"] [data-testid="study-workspace"] button.ws-pill {
+  color: var(--color-text-primary) !important;
+  background: var(--color-surface-secondary) !important;
+}
+[data-testid="study-workspace"] .ws-pill[data-active="true"],
+[data-testid="study-workspace"] button.ws-pill[data-active="true"] {
+  background: var(--color-brand-600) !important;
+  border-color: var(--color-brand-600) !important;
+  color: #ffffff !important;
+}
+[data-theme="minimal-dark"] [data-testid="study-workspace"] .ws-pill[data-active="true"],
+[data-theme="blueprint"] [data-testid="study-workspace"] .ws-pill[data-active="true"] {
+  background: var(--color-text-primary) !important;
+  border-color: var(--color-text-primary) !important;
+  color: var(--color-surface-primary) !important;
+}
+[data-testid="study-workspace"] .ws-pill[data-hydrating="true"] {
+  border-style: dashed !important;
+  opacity: 1 !important;
+}
 .ws-fab {
   background: var(--color-brand-600);
   color: #faf8f5;

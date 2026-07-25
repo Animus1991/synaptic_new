@@ -13,6 +13,7 @@ export function WeakAreasFocusRail({
   expanded,
   onToggle,
   onFocusWeakSpot,
+  onTryWeakSpot,
   emptyMessage,
   emptyActions = [],
 }: {
@@ -22,6 +23,8 @@ export function WeakAreasFocusRail({
   expanded: boolean;
   onToggle: () => void;
   onFocusWeakSpot: (concept: string) => void;
+  /** OPT-AI-A — Explain / Quiz / Cards try actions for a weak concept. */
+  onTryWeakSpot?: (concept: string, action: 'explain' | 'quiz' | 'cards') => void;
   emptyMessage?: string;
   emptyActions?: WorkspaceEmptyAction[];
 }) {
@@ -122,6 +125,31 @@ export function WeakAreasFocusRail({
                   <p className="mt-1 text-[10px] text-text-muted">
                     {t('lowMasteryReview', lang)}
                   </p>
+                )}
+                {onTryWeakSpot && (
+                  <div className="mt-1.5 flex flex-wrap gap-1" data-testid={`weak-area-try-${normalizeChipKey(spot.concept)}`}>
+                    <button
+                      type="button"
+                      className="rounded-full border border-border-default bg-surface-tertiary px-2 py-0.5 text-[10px] font-medium text-text-primary hover:bg-surface-hover"
+                      onClick={() => onTryWeakSpot(spot.concept, 'explain')}
+                    >
+                      {t('weakTryExplain', lang)}
+                    </button>
+                    <button
+                      type="button"
+                      className="rounded-full border border-border-default bg-surface-tertiary px-2 py-0.5 text-[10px] font-medium text-text-primary hover:bg-surface-hover"
+                      onClick={() => onTryWeakSpot(spot.concept, 'quiz')}
+                    >
+                      {t('weakTryQuiz', lang)}
+                    </button>
+                    <button
+                      type="button"
+                      className="rounded-full border border-border-default bg-surface-tertiary px-2 py-0.5 text-[10px] font-medium text-text-primary hover:bg-surface-hover"
+                      onClick={() => onTryWeakSpot(spot.concept, 'cards')}
+                    >
+                      {t('weakTryCards', lang)}
+                    </button>
+                  </div>
                 )}
               </div>
             ))}

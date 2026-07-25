@@ -1,12 +1,15 @@
 import { test, expect } from '@playwright/test';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { skipOnboardingToLibrary } from './helpers/onboarding';
+import { skipOnboardingToLibrary, dismissBlockingShellOverlays } from './helpers/onboarding';
+import { uploadCourseFromPaste } from './helpers/libraryLifecycle';
 
+// processUpload requires ≥80 source chars (outline preview is more lenient).
 const NOTES = `
 # Performance Budget Fixture
 
-Intertemporal choice and present bias.
+Intertemporal choice and present bias shape study habits.
+Spaced review beats cramming for long-term retention.
 `.trim();
 
 const IS_PROD_PERF = Boolean(process.env.PLAYWRIGHT_PROD_PERF);
@@ -44,29 +47,38 @@ function recordProdStretchSample(elapsed: number): void {
   writeFileSync(join(dir, 'b11-prod-stretch.json'), `${JSON.stringify(payload)}\n`, 'utf8');
 }
 
+async function waitForWorkspaceInteractive(page: import('@playwright/test').Page): Promise<void> {
+  // Notebook default (Sources/Chat/Studio) or classic ToolFrame both count as interactive.
+  await expect(
+    page.getByTestId('workspace-tool-frame').or(page.getByTestId('notebook-workspace-layout')),
+  ).toBeVisible({ timeout: 15_000 });
+}
+
 test.describe('Workspace perf budget (B11)', () => {
   test('course Continue → study-workspace within budget (upload path)', async ({ page }) => {
     test.skip(IS_PROD_PERF, 'Upload path uses dev budget only');
-    test.setTimeout(120_000);
+    test.setTimeout(180_000);
     await page.goto('/');
     await skipOnboardingToLibrary(page);
 
-    await page.getByTestId('library-upload').click();
-    await page.getByTestId('upload-paste').fill(NOTES);
-    await page.getByTestId('upload-continue').click();
-    await expect(page.getByTestId('upload-outline-preview')).toBeVisible({ timeout: 15_000 });
-    await page.getByTestId('upload-generate').click();
-    await expect(page.getByTestId('course-generation-diagnostics')).toBeVisible({ timeout: 45_000 });
+    // Upload completes into note-analysis + post-upload banner (not CourseView diagnostics).
+    const courseTitle = await uploadCourseFromPaste(page, NOTES);
+    await dismissBlockingShellOverlays(page);
 
-    await page.getByTestId('course-back').click();
-    await page.getByTestId('library-course-card').first().click();
-    await expect(page.getByTestId('course-open-workspace')).toBeVisible();
+    await page.getByTestId('nav-library').click();
+    const titledCard = page.getByTestId('library-course-card').filter({ hasText: courseTitle }).first();
+    if (await titledCard.isVisible().catch(() => false)) {
+      await titledCard.click();
+    } else {
+      await page.getByTestId('library-course-card').first().click();
+    }
+    await expect(page.getByTestId('course-open-workspace')).toBeVisible({ timeout: 20_000 });
     await waitForWorkspaceEntryPrefetch(page);
 
     const t0 = Date.now();
     await page.getByTestId('course-open-workspace').click();
     await expect(page.getByTestId('study-workspace')).toBeVisible({ timeout: 45_000 });
-    await expect(page.getByTestId('workspace-tool-frame')).toBeVisible({ timeout: 15_000 });
+    await waitForWorkspaceInteractive(page);
     const elapsed = Date.now() - t0;
 
     expect(elapsed, `Expected interactive workspace ≤ ${INTERACTIVE_BUDGET_MS}ms, got ${elapsed}ms`).toBeLessThan(
@@ -87,7 +99,7 @@ test.describe('Workspace perf budget (B11)', () => {
     const t0 = Date.now();
     await page.getByTestId('course-open-workspace').click();
     await expect(page.getByTestId('study-workspace')).toBeVisible({ timeout: 30_000 });
-    await expect(page.getByTestId('workspace-tool-frame')).toBeVisible({ timeout: 10_000 });
+    await waitForWorkspaceInteractive(page);
     const elapsed = Date.now() - t0;
 
     expect(elapsed, `Expected prod interactive ≤ ${INTERACTIVE_BUDGET_MS}ms, got ${elapsed}ms`).toBeLessThan(

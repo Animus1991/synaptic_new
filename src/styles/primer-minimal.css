@@ -54,10 +54,11 @@
   --color-border-strong: #afb8c1;
 
   --color-text-primary: #1f2328;
-  /* OPT-K31 + OPT-K73 — secondary > tertiary > muted, all ≥4.5:1 on white/sec */
+  /* OPT-K31 + OPT-K73 — secondary > tertiary > muted; tertiary ≥4.5:1 on hover (#eaeef2) too */
   --color-text-secondary: #4d5560;
-  --color-text-tertiary: #656d76;
-  --color-text-muted: #6a737d;
+  --color-text-tertiary: #59636e;
+  /* Match tertiary floor — card meta must stay ≥4.5:1 on white */
+  --color-text-muted: #59636e;
 
   /* OPT-K45 — brand-* = CTAs/focus only; accent-cyan = non-CTA status/viz */
   --color-accent-teal: #7aa0a6;
@@ -225,6 +226,56 @@
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .ws-pill,
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .platform-pill {
   border-radius: var(--radius-pill) !important;
+}
+
+/* OPT-K74 — ws-pill: no white wash (illegible on minimal-dark); solid tertiary fill + primary ink */
+:is([data-theme="minimal"]) .ws-pill,
+:is([data-theme="minimal"]) button.ws-pill {
+  background: var(--color-surface-secondary) !important;
+  border-color: var(--color-border-default) !important;
+  color: var(--color-text-secondary) !important;
+}
+
+:is([data-theme="minimal-dark"]) .ws-pill,
+:is([data-theme="minimal-dark"]) button.ws-pill {
+  background: var(--color-surface-tertiary) !important;
+  border-color: var(--color-border-default) !important;
+  color: var(--color-text-primary) !important;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .ws-pill[data-active="true"],
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) button.ws-pill[data-active="true"] {
+  background: var(--color-brand-600) !important;
+  border-color: var(--color-brand-600) !important;
+  color: #ffffff !important;
+}
+
+:is([data-theme="minimal-dark"]) .ws-pill[data-active="true"],
+:is([data-theme="minimal-dark"]) button.ws-pill[data-active="true"] {
+  background: var(--color-text-primary) !important;
+  border-color: var(--color-text-primary) !important;
+  color: var(--color-surface-primary) !important;
+}
+
+/* OPT-K75 — system status / embedded chrome button ink ≥ AA on dark */
+:is([data-theme="minimal-dark"], [data-theme="blueprint"], [data-theme="dark"]) .agent-system-status {
+  background: var(--color-surface-tertiary) !important;
+  border-color: var(--color-border-default) !important;
+  color: var(--color-text-primary) !important;
+}
+
+:is([data-theme="minimal-dark"], [data-theme="blueprint"]) .agent-calm[data-testid="agent-embedded"] [data-testid="agent-embedded-chrome"] button {
+  color: var(--color-text-primary);
+}
+
+:is([data-theme="minimal-dark"], [data-theme="blueprint"]) .agent-calm .agent-composer textarea::placeholder {
+  color: var(--color-text-tertiary);
+  opacity: 1;
+}
+
+/* Composer tools sit beside the field — keep hit target readable on dark */
+:is([data-theme="minimal-dark"], [data-theme="blueprint"]) .agent-calm .agent-composer-tools button {
+  color: var(--color-text-primary);
 }
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .ux-primary-cta {

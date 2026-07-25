@@ -12,7 +12,8 @@ afterEach(() => cleanup());
 describe('Wave A mockup primitives', () => {
   it('SectionLabel renders label text', () => {
     render(<SectionLabel icon={BookOpen}>Active courses</SectionLabel>);
-    expect(screen.getByText('Active courses')).toBeTruthy();
+    // AllCapsLabel uppercases for display (Greek tonos strip); match case-insensitively.
+    expect(screen.getByText(/active courses/i)).toBeTruthy();
   });
 
   it('CompactProgressBar exposes progressbar semantics', () => {

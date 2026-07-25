@@ -7,6 +7,7 @@ import { selectionExcerptPreview } from './workspaceSelectionActions';
 import { formatGraphRelationSystemBlock } from './courseConceptGraph';
 
 import type { GraphRelationContext } from './courseConceptGraph';
+import type { PathFocus } from './pathFocus';
 
 /** Workspace handoff context for Agent RAG + system grounding. */
 export type AgentWorkspaceContext = {
@@ -29,6 +30,8 @@ export type AgentWorkspaceContext = {
   selectionExcerpt?: string;
   /** Sprint I — typed knowledge-graph relation for explain-relation prompts. */
   graphRelation?: GraphRelationContext;
+  /** OPT-AI-A — canvas↔chat PathFocus for Try chips (weak / quiz-miss / selection). */
+  pathFocus?: PathFocus;
 };
 
 export type OpenAgentFromWorkspaceOpts = {
@@ -38,6 +41,8 @@ export type OpenAgentFromWorkspaceOpts = {
   context?: AgentWorkspaceContext;
   /** Leave workspace and open the full Agent page (default: stay in workspace chat panel). */
   fullPage?: boolean;
+  /** OPT-AI-C — pin a library file as Agent retrieval scope on open. */
+  pinnedFileId?: string;
 };
 
 /**
@@ -91,6 +96,7 @@ export function buildAgentWorkspaceContext(opts: {
   pipelineVersion?: string;
   handwrittenSource?: boolean;
   selectionExcerpt?: string;
+  pathFocus?: PathFocus;
 }): AgentWorkspaceContext {
   const rawTitle = opts.stepTitle?.trim() || opts.concept;
   return {
@@ -109,6 +115,7 @@ export function buildAgentWorkspaceContext(opts: {
     lowConfidenceSection: isLowConfidenceStepTitle(rawTitle, opts.concept),
     handwrittenSource: opts.handwrittenSource,
     selectionExcerpt: opts.selectionExcerpt?.trim() || undefined,
+    pathFocus: opts.pathFocus,
   };
 }
 
@@ -130,11 +137,15 @@ export type AgentWorkspaceContextJson = {
   handwrittenSource?: boolean;
   selectionExcerpt?: string;
   graphRelation?: import('./courseConceptGraph').GraphRelationContext;
+  pathFocusConcept?: string;
+  pathFocusSource?: string;
 };
 
 export type AgentContextBannerView = {
   heading: string;
   line: string;
+  /** Phone/embedded chip — tool + step only; full `line` stays in tooltip/popover. */
+  compactLine: string;
   caution?: string;
   groundingNote?: string;
   contextJson?: AgentWorkspaceContextJson;
@@ -162,6 +173,10 @@ export function toAgentWorkspaceContextJson(
   if (ctx.handwrittenSource != null) out.handwrittenSource = ctx.handwrittenSource;
   if (ctx.selectionExcerpt) out.selectionExcerpt = ctx.selectionExcerpt;
   if (ctx.graphRelation) out.graphRelation = ctx.graphRelation;
+  if (ctx.pathFocus?.concept) {
+    out.pathFocusConcept = ctx.pathFocus.concept;
+    out.pathFocusSource = ctx.pathFocus.source;
+  }
   return Object.keys(out).length > 0 ? out : null;
 }
 
@@ -217,6 +232,13 @@ export function buildAgentContextBanner(
       : null,
   ].filter(Boolean);
 
+  /** Prefer tool + step on narrow chips; fall back to section + step (skip quality/pipeline noise). */
+  const compactBits = [tool ?? section, stepPart].filter(Boolean);
+  const compactLine =
+    compactBits.length > 0
+      ? compactBits.join(' · ')
+      : bits.slice(0, 2).join(' · ');
+
   let caution: string | undefined;
   if (ctx.oldPipeline || (typeof ctx.sourceQuality === 'number' && ctx.sourceQuality < 50)) {
     caution = t('agentCautionLowQuality', lang);
@@ -231,6 +253,7 @@ export function buildAgentContextBanner(
   return {
     heading: t('agentContextHeading', lang),
     line: bits.join(' · '),
+    compactLine,
     caution,
     groundingNote,
     contextJson: toAgentWorkspaceContextJson(ctx) ?? undefined,

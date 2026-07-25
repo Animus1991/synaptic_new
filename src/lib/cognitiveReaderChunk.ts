@@ -19,7 +19,14 @@ export function loadReaderModule(): Promise<CognitiveReaderModule> {
 }
 
 export function preloadReaderModule(): void {
-  void loadReaderModule().catch(() => {
-    /* surfaced again when LazyCognitiveReader mounts */
-  });
+  void importWithRetry(
+    () => import('../components/workspace/CognitiveReader'),
+    { flow: 'prefetch:cognitive-reader', retries: 2, reloadOnStaleChunk: false },
+  )
+    .then((mod) => {
+      readerModulePromise ??= Promise.resolve(mod);
+    })
+    .catch(() => {
+      /* surfaced again when LazyCognitiveReader mounts */
+    });
 }

@@ -54,15 +54,13 @@ export class ErrorBoundary extends Component<Props, State> {
             </p>
             <p className="text-xs text-text-muted font-mono break-all">{this.state.error.message}</p>
             <div className="flex flex-wrap gap-2">
-              {this.props.onRetry && (
-                <button
-                  type="button"
-                  onClick={this.handleRetry}
-                  className="px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-sm font-medium"
-                >
-                  Try again
-                </button>
-              )}
+              <button
+                type="button"
+                onClick={this.handleRetry}
+                className="px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-sm font-medium"
+              >
+                Try again
+              </button>
               {onRecover && (
                 <button
                   type="button"
@@ -75,7 +73,7 @@ export class ErrorBoundary extends Component<Props, State> {
               <button
                 type="button"
                 onClick={() => window.location.reload()}
-                className="px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-sm font-medium"
+                className="px-4 py-2 rounded-xl border border-border-subtle text-sm font-medium hover:bg-surface-hover"
               >
                 Reload
               </button>

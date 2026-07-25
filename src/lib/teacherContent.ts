@@ -77,6 +77,10 @@ export type TeacherContent = {
   createAnnouncement: string;
   removeAnnouncement: string;
   noAnnouncements: string;
+  draftWeakAnnouncement: string;
+  draftWeakAnnouncementHint: string;
+  draftWeakAnnouncementEmpty: string;
+  polishAnnouncementAgent: string;
   discussionToggle: string;
   discussionHint: string;
   discussionPlaceholder: string;
@@ -189,6 +193,10 @@ const EN: TeacherContent = {
   createAnnouncement: 'Post announcement',
   removeAnnouncement: 'Remove',
   noAnnouncements: 'No announcements for this class yet.',
+  draftWeakAnnouncement: 'Draft from weak topics',
+  draftWeakAnnouncementHint: 'Fills title/body from the cohort topic-mastery heatmap for this class (offline).',
+  draftWeakAnnouncementEmpty: 'No weak topics (<50% mastery) found for this class heatmap.',
+  polishAnnouncementAgent: 'Polish with Agent',
   discussionToggle: 'Q&A',
   discussionHint: 'Per-assignment questions and answers',
   discussionPlaceholder: 'Reply to the class…',
@@ -301,6 +309,10 @@ const EL: TeacherContent = {
   createAnnouncement: 'Δημοσίευση',
   removeAnnouncement: 'Αφαίρεση',
   noAnnouncements: 'Δεν υπάρχουν ανακοινώσεις για αυτή την τάξη.',
+  draftWeakAnnouncement: 'Πρόχειρο από αδύναμα θέματα',
+  draftWeakAnnouncementHint: 'Συμπληρώνει τίτλο/σώμα από το cohort topic-mastery heatmap αυτής της τάξης (offline).',
+  draftWeakAnnouncementEmpty: 'Δεν βρέθηκαν αδύναμα θέματα (<50% mastery) στο heatmap αυτής της τάξης.',
+  polishAnnouncementAgent: 'Βελτίωση με Agent',
   discussionToggle: 'Q&A',
   discussionHint: 'Ερωτήσεις και απαντήσεις ανά εργασία',
   discussionPlaceholder: 'Απάντηση στην τάξη…',

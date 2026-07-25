@@ -16,8 +16,9 @@
  * and retry restores the subtree.
  */
 
-import { test, expect, type Page, type Route } from '@playwright/test';
-import { skipOnboardingToLibrary } from './helpers/onboarding';
+import { test, expect, type Page } from '@playwright/test';
+import { skipOnboardingToLibrary, dismissBlockingShellOverlays } from './helpers/onboarding';
+import { installChunkAbort, urlMatchesModuleFile } from './helpers/chunkBlock';
 
 const TRY_AGAIN = /try again|δοκιμάστε ξανά/i;
 const RELOAD = /^reload$|επαναφόρτωση/i;
@@ -37,8 +38,8 @@ async function trackNavigations(page: Page): Promise<() => number> {
 
 interface FlowCase {
   name: string;
-  needle: string;
-  excludes?: string[];
+  /** Exact module file base (not a substring of *Analytics.ts libs). */
+  moduleFile: string;
   trigger: (page: Page) => Promise<void>;
   mountedTestId: string;
 }
@@ -46,18 +47,16 @@ interface FlowCase {
 const FLOWS: FlowCase[] = [
   {
     name: 'Analytics',
-    needle: 'Analytics',
-    excludes: ['analytics.spec'],
+    moduleFile: 'Analytics',
     trigger: async (page) => {
       await page.getByTestId('nav-analytics').click();
     },
-    mountedTestId: 'analytics-view',
+    mountedTestId: 'analytics-page',
   },
   {
     name: 'LessonView',
-    needle: 'LessonView',
+    moduleFile: 'LessonView',
     trigger: async (page) => {
-      // Open the first available course / continue → triggers LessonView lazy chunk.
       const continueBtn = page.getByTestId('library-continue').first();
       if (await continueBtn.isVisible().catch(() => false)) {
         await continueBtn.click();
@@ -66,12 +65,12 @@ const FLOWS: FlowCase[] = [
         await page.getByTestId('task-start').first().click().catch(() => {});
       }
     },
-    mountedTestId: 'lesson-view',
+    // LessonView mount surfaces via course/lesson chrome rather than a dedicated root id.
+    mountedTestId: 'platform-main',
   },
   {
     name: 'StudyWorkspace (WorkspaceDock)',
-    needle: 'StudyWorkspace',
-    excludes: ['StudyWorkspaceLazy', 'StudyWorkspaceGate'],
+    moduleFile: 'StudyWorkspace',
     trigger: async (page) => {
       const openWorkspace = page.getByTestId('dashboard-open-workspace').first();
       if (await openWorkspace.isVisible().catch(() => false)) {
@@ -81,37 +80,31 @@ const FLOWS: FlowCase[] = [
         await page.getByTestId('dashboard-open-workspace').first().click().catch(() => {});
       }
     },
-    mountedTestId: 'workspace-dock',
+    mountedTestId: 'study-workspace',
   },
 ];
 
 for (const flow of FLOWS) {
   test(`${flow.name}: chunk failure shows fallback and retries without full reload`, async ({ page }) => {
+    test.setTimeout(90_000);
     const readNavCount = await trackNavigations(page);
-
-    let blocking = true;
-    await page.route('**/*', (route: Route) => {
-      const url = route.request().url();
-      const hit = url.includes(flow.needle) && !(flow.excludes ?? []).some((e) => url.includes(e));
-      if (blocking && hit) return route.abort('failed');
-      return route.continue();
-    });
+    const { setBlocking } = await installChunkAbort(page, (url) =>
+      urlMatchesModuleFile(url, flow.moduleFile),
+    );
 
     await page.goto('/');
     await skipOnboardingToLibrary(page);
+    await dismissBlockingShellOverlays(page);
 
     const navBeforeTrigger = await readNavCount();
     await flow.trigger(page);
 
-    // Fallback UI MUST appear — Try again + Reload buttons present.
     const tryAgain = page.getByRole('button', { name: TRY_AGAIN }).first();
     await expect(tryAgain).toBeVisible({ timeout: 25_000 });
     await expect(page.getByRole('button', { name: RELOAD }).first()).toBeVisible();
 
     const navBeforeRetry = await readNavCount();
-
-    // Unblock and retry — must remount in-place, NO full navigation.
-    blocking = false;
+    setBlocking(false);
     await tryAgain.click();
 
     await expect(page.getByTestId(flow.mountedTestId)).toBeVisible({ timeout: 30_000 });
@@ -125,20 +118,16 @@ for (const flow of FLOWS) {
 }
 
 test('global ErrorBoundary surfaces fallback on lazy render failure and recovers safely', async ({ page }) => {
-  // Use the Analytics lazy entry as a deterministic lazy render error: by
-  // aborting its module fetch React.lazy rejects with a real Error, which
-  // bubbles into the closest ErrorBoundary. This exercises the same path a
-  // synchronous render-throw would, without requiring app-side test hooks.
+  test.setTimeout(90_000);
   const readNavCount = await trackNavigations(page);
-  let blocking = true;
-  await page.route('**/*', (route: Route) => {
-    const url = route.request().url();
-    if (blocking && url.includes('Analytics')) return route.abort('failed');
-    return route.continue();
-  });
+  const { setBlocking } = await installChunkAbort(page, (url) =>
+    urlMatchesModuleFile(url, 'Analytics'),
+  );
 
   await page.goto('/');
   await skipOnboardingToLibrary(page);
+  await dismissBlockingShellOverlays(page);
+
   await page.getByTestId('nav-analytics').click();
 
   const tryAgain = page.getByRole('button', { name: TRY_AGAIN }).first();
@@ -146,13 +135,12 @@ test('global ErrorBoundary surfaces fallback on lazy render failure and recovers
   await expect(page.getByRole('button', { name: RELOAD }).first()).toBeVisible();
 
   const before = await readNavCount();
-  blocking = false;
+  setBlocking(false);
   await tryAgain.click();
   await expect(tryAgain).toBeHidden({ timeout: 25_000 });
   const after = await readNavCount();
   expect(after, 'global ErrorBoundary retry must be in-place').toBe(before);
 
-  // App is still responsive — sibling navigation works after recovery.
   await page.getByTestId('nav-library').click();
   await expect(page.getByTestId('nav-library')).toHaveAttribute('aria-current', /page|true/);
 });

@@ -57,6 +57,20 @@ export type SettingsContent = {
   labelUseVisionOcr: string;
   visionOcrOptions: ToggleOption[];
   visionOcrHint: string;
+  /** OPT-AI-D */
+  aiEconomicsTitle: string;
+  aiEconomicsBody: string;
+  modelTierLabel: string;
+  modelTierEconomy: string;
+  modelTierBalanced: string;
+  modelTierQuality: string;
+  baseUrlPresetsLabel: string;
+  presetOpenAi: string;
+  presetOllama: string;
+  presetGroq: string;
+  presetClearBaseUrl: string;
+  visionCostNote: string;
+  proxyMeteringNote: string;
   sectionAccountSync: string;
   planLabel: string;
   upgradePro: string;
@@ -238,6 +252,22 @@ const EN: SettingsContent = {
   ],
   visionOcrHint:
     'When enabled, scanned pages and handwritten Greek notes are transcribed by a vision-capable LLM (via your key or local OCR proxy) for far higher accuracy. Falls back to offline Tesseract when unavailable.',
+  aiEconomicsTitle: 'AI economics (hybrid)',
+  aiEconomicsBody:
+    'You do not need a browser API key. Prefer managed proxy metering, OpenAI-compatible local endpoints (Ollama), or offline heuristics (FSRS/IRT, Agent templates). Vision OCR costs more tokens when a cloud model is used.',
+  modelTierLabel: 'Model tier presets',
+  modelTierEconomy: 'Economy',
+  modelTierBalanced: 'Balanced',
+  modelTierQuality: 'Quality',
+  baseUrlPresetsLabel: 'Compatible endpoint presets',
+  presetOpenAi: 'OpenAI',
+  presetOllama: 'Ollama (local)',
+  presetGroq: 'Groq',
+  presetClearBaseUrl: 'Clear',
+  visionCostNote:
+    'Vision OCR: disable to stay on free offline Tesseract/TrOCR path; enable only when handwriting accuracy justifies paid/proxy vision tokens.',
+  proxyMeteringNote:
+    'Signed-in proxy plans meter chat/embeddings server-side. Free plan stays local-first; Pro/Team unlock managed quota (see Teacher LLM usage).',
   sectionAccountSync: 'Account & Sync',
   planLabel: 'Plan:',
   upgradePro: 'Upgrade to Pro',
@@ -437,6 +467,22 @@ const EL: SettingsContent = {
   ],
   visionOcrHint:
     'Όταν είναι ενεργό, σαρωμένες σελίδες και χειρόγραφες ελληνικές σημειώσεις μεταγράφονται από vision LLM (μέσω του key σου ή του τοπικού OCR proxy) για πολύ μεγαλύτερη ακρίβεια. Επιστρέφει σε offline Tesseract όταν δεν είναι διαθέσιμο.',
+  aiEconomicsTitle: 'Οικονομία AI (υβριδικό)',
+  aiEconomicsBody:
+    'Δεν χρειάζεσαι απαραίτητα browser API key. Προτίμησε managed proxy metering, OpenAI-compatible τοπικά endpoints (Ollama), ή offline heuristics (FSRS/IRT, Agent templates). Το Vision OCR κοστίζει περισσότερα tokens όταν χρησιμοποιείται cloud μοντέλο.',
+  modelTierLabel: 'Presets επιπέδου μοντέλου',
+  modelTierEconomy: 'Οικονομικό',
+  modelTierBalanced: 'Ισορροπημένο',
+  modelTierQuality: 'Ποιότητα',
+  baseUrlPresetsLabel: 'Presets συμβατού endpoint',
+  presetOpenAi: 'OpenAI',
+  presetOllama: 'Ollama (τοπικό)',
+  presetGroq: 'Groq',
+  presetClearBaseUrl: 'Καθαρισμός',
+  visionCostNote:
+    'Vision OCR: απενεργοποίησέ το για δωρεάν offline Tesseract/TrOCR· ενεργοποίησέ το μόνο όταν η ακρίβεια χειρογράφου δικαιολογεί πληρωμένα/proxy vision tokens.',
+  proxyMeteringNote:
+    'Συνδεδεμένα proxy plans μετρούν chat/embeddings server-side. Το Free μένει local-first· Pro/Team ξεκλειδώνουν managed quota (βλ. Teacher LLM usage).',
   sectionAccountSync: 'Λογαριασμός & Συγχρονισμός',
   planLabel: 'Πλάνο:',
   upgradePro: 'Αναβάθμιση σε Pro',

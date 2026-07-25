@@ -205,7 +205,7 @@ export function ArgumentMap({
     const suggestions = sourceText.trim()
       ? suggestCounterArguments(sourceText, focusTerm ?? concept ?? '', claim)
       : [];
-    addNode(parentId, 'refutation', suggestions[0] ?? undefined);
+    addNode(parentId, 'refutation', suggestions[0]?.text ?? undefined);
   };
 
   const counterSuggestions = useMemo(() => {
@@ -362,9 +362,10 @@ export function ArgumentMap({
               key={i}
               type="button"
               className="ml-1 underline hover:text-accent-rose"
-              onClick={() => addNode(root.id, 'refutation', s)}
+              onClick={() => addNode(root.id, 'refutation', s.text)}
+              title={s.source}
             >
-              {s.slice(0, 48)}{s.length > 48 ? '…' : ''}
+              {s.text.slice(0, 48)}{s.text.length > 48 ? '…' : ''}
             </button>
           ))}
         </div>

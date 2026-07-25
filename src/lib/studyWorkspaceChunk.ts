@@ -20,7 +20,15 @@ export function loadStudyWorkspaceModule(): Promise<StudyWorkspaceModule> {
 }
 
 export function preloadStudyWorkspace(): void {
-  void loadStudyWorkspaceModule().catch(() => {
-    /* swallow — surfaced again when StudyWorkspaceLazy retries */
-  });
+  // Prefetch must never hard-reload the page on failure (unlike open-time load).
+  void importWithRetry(
+    () => import('../components/workspace/StudyWorkspace'),
+    { flow: 'prefetch:study-workspace', retries: 2, reloadOnStaleChunk: false },
+  )
+    .then((mod) => {
+      studyWorkspaceModulePromise ??= Promise.resolve(mod);
+    })
+    .catch(() => {
+      /* swallow — surfaced again when StudyWorkspaceLazy retries */
+    });
 }

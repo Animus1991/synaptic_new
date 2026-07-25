@@ -9,6 +9,8 @@ import { useI18n } from '../../lib/i18n';
 import { configuredProxyBase } from '../../lib/authClient';
 import { useAppStore } from '../../store/useStore';
 import { cn } from '../../utils/cn';
+import { buildInsightsAskPrompt } from '../../lib/analyticsAskPrompt';
+import { pathFocusFromWeakArea } from '../../lib/pathFocus';
 
 export type AnalyticsInsightAction = {
   id: string;
@@ -79,6 +81,7 @@ export function AIInsightsPanel({
   const { lang } = useI18n();
   const store = useAppStore();
   const openStudyWorkspaceForConcept = store.openStudyWorkspaceForConcept;
+  const openAgentFromWorkspace = store.openAgentFromWorkspace;
   const userSettings = store.user.settings;
   const scoped = useMemo(() => filterActivitiesByRange(activities, range), [activities, range]);
   const local = useMemo(
@@ -130,11 +133,30 @@ export function AIInsightsPanel({
       <SectionLabel
         icon={Lightbulb}
         action={(
-          <span className="text-[10px] text-text-muted">
-            {payload.source === 'api'
-              ? (lang === 'el' ? 'API' : 'API')
-              : (lang === 'el' ? 'τοπικά' : 'local')}
-          </span>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              data-testid="ai-insights-ask-agent"
+              className="text-[10px] font-medium text-brand-700 hover:text-brand-800"
+              onClick={() => {
+                const weak = payload.actions.find((a) => a.concept?.trim())?.concept;
+                openAgentFromWorkspace({
+                  fullPage: true,
+                  prompt: buildInsightsAskPrompt(payload, lang),
+                  context: weak
+                    ? { concept: weak, pathFocus: pathFocusFromWeakArea(weak) }
+                    : undefined,
+                });
+              }}
+            >
+              {lang === 'el' ? 'Ρώτα Agent' : 'Ask Agent'}
+            </button>
+            <span className="text-[10px] text-text-muted">
+              {payload.source === 'api'
+                ? (lang === 'el' ? 'API' : 'API')
+                : (lang === 'el' ? 'τοπικά' : 'local')}
+            </span>
+          </div>
         )}
       >
         {lang === 'el' ? 'AI Insights' : 'AI Insights'}
@@ -162,21 +184,50 @@ export function AIInsightsPanel({
       {payload.actions.length > 0 && (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2" data-testid="ai-insights-actions">
           {payload.actions.map((action) => (
-            <button
+            <div
               key={action.id}
-              type="button"
-              className="rounded-xl border border-brand-500/25 bg-brand-600/5 p-3 text-left hover:bg-brand-600/10 transition-colors"
-              onClick={() => {
-                if (action.concept) openStudyWorkspaceForConcept(action.concept);
-              }}
+              className="rounded-xl border border-brand-500/25 bg-brand-600/5 p-3 text-left"
               data-testid={`ai-insight-action-${action.id}`}
             >
-              <p className="text-xs font-semibold text-brand-800 flex items-center gap-1">
-                {action.title}
-                <ArrowRight className="h-3 w-3" aria-hidden />
-              </p>
-              <p className="text-[10px] text-text-tertiary mt-1 leading-relaxed">{action.detail}</p>
-            </button>
+              <button
+                type="button"
+                className="w-full text-left hover:opacity-90 transition-opacity"
+                onClick={() => {
+                  if (action.concept) openStudyWorkspaceForConcept(action.concept);
+                  else {
+                    openAgentFromWorkspace({
+                      fullPage: true,
+                      prompt: buildInsightsAskPrompt(payload, lang),
+                    });
+                  }
+                }}
+              >
+                <p className="text-xs font-semibold text-brand-800 flex items-center gap-1">
+                  {action.title}
+                  <ArrowRight className="h-3 w-3" aria-hidden />
+                </p>
+                <p className="text-[10px] text-text-tertiary mt-1 leading-relaxed">{action.detail}</p>
+              </button>
+              {action.concept && (
+                <button
+                  type="button"
+                  className="mt-2 text-[10px] font-medium text-brand-700 hover:underline"
+                  data-testid={`ai-insight-ask-${action.id}`}
+                  onClick={() => {
+                    openAgentFromWorkspace({
+                      fullPage: true,
+                      prompt: buildInsightsAskPrompt(payload, lang),
+                      context: {
+                        concept: action.concept,
+                        pathFocus: pathFocusFromWeakArea(action.concept!),
+                      },
+                    });
+                  }}
+                >
+                  {lang === 'el' ? 'Ρώτα Agent για αυτό' : 'Ask Agent about this'}
+                </button>
+              )}
+            </div>
           ))}
         </div>
       )}

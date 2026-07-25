@@ -26,6 +26,12 @@ import { listLearningEvents, countLearningEventsByType } from '../lib/learningEv
 import type { TeacherDashboardResponse } from '../lib/teacherDashboardTypes';
 import { getTeacherContent } from '../lib/teacherContent';
 import { fetchOrgs, fetchOrgAnalytics, downloadGradebookCsv, linkLtiClassContext, ltiPassbackClassGrades, syncLtiClassRoster, type OrgAnalytics } from '../lib/orgClient';
+import {
+  buildCohortDraftPolishPrompt,
+  buildCohortWeakConceptsDraft,
+  flattenTopicMasteryHeatmap,
+} from '../lib/teacherWeakConceptsDraft';
+import { useAppStore } from '../store/useStore';
 import { CohortHeatmap } from './CohortHeatmap';
 import { CohortNotebookLmHeatmap } from './CohortNotebookLmHeatmap';
 import { CohortTopicMasteryHeatmap } from './CohortTopicMasteryHeatmap';
@@ -66,6 +72,7 @@ export function TeacherDashboard({
 }: Props) {
   const ui = getTeacherContent(lang);
   const isMinimal = useMinimalTheme();
+  const { openAgentFromWorkspace } = useAppStore();
   const [data, setData] = useState<TeacherDashboardResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -694,6 +701,50 @@ export function TeacherDashboard({
               <div className="space-y-3 pt-4 border-t border-border-subtle" data-testid="teacher-announcements">
                 <h3 className="text-sm font-semibold">{ui.announcements}</h3>
                 <p className="text-[11px] text-text-muted">{ui.announcementsHint}</p>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    data-testid="teacher-draft-weak-announcement"
+                    disabled={!selectedClassId || !orgAnalytics?.topicMasteryHeatmap?.length}
+                    onClick={() => {
+                      const draft = buildCohortWeakConceptsDraft(
+                        flattenTopicMasteryHeatmap(orgAnalytics?.topicMasteryHeatmap),
+                        selectedClassId,
+                        lang,
+                      );
+                      if (!draft) {
+                        setError(ui.draftWeakAnnouncementEmpty);
+                        return;
+                      }
+                      setAnnouncementTitle(draft.title);
+                      setAnnouncementBody(draft.body);
+                      setError(null);
+                    }}
+                    className="px-3 py-1.5 rounded-xl border border-brand-500/30 text-xs font-medium text-brand-700 hover:bg-brand-500/10 disabled:opacity-50"
+                  >
+                    {ui.draftWeakAnnouncement}
+                  </button>
+                  <button
+                    type="button"
+                    data-testid="teacher-polish-announcement-agent"
+                    disabled={!announcementTitle.trim() && !announcementBody.trim()}
+                    onClick={() => {
+                      const draft = {
+                        title: announcementTitle.trim() || (lang === 'el' ? 'Ανακοίνωση' : 'Announcement'),
+                        body: announcementBody.trim() || announcementTitle.trim(),
+                        weakCount: 0,
+                      };
+                      openAgentFromWorkspace({
+                        fullPage: true,
+                        prompt: buildCohortDraftPolishPrompt(draft, lang),
+                      });
+                    }}
+                    className="px-3 py-1.5 rounded-xl border border-border-subtle text-xs font-medium text-text-secondary hover:border-brand-500/30 disabled:opacity-50"
+                  >
+                    {ui.polishAnnouncementAgent}
+                  </button>
+                </div>
+                <p className="text-[10px] text-text-muted">{ui.draftWeakAnnouncementHint}</p>
                 <div className="space-y-2">
                   <input
                     type="text"

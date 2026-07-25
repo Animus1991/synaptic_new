@@ -19,5 +19,12 @@ export function loadStudyWorkspaceBodyModule(): Promise<StudyWorkspaceBodyModule
 }
 
 export function preloadStudyWorkspaceBody(): void {
-  void loadStudyWorkspaceBodyModule().catch(() => undefined);
+  void importWithRetry(
+    () => import('../components/workspace/StudyWorkspaceBody'),
+    { flow: 'prefetch:study-workspace-body', retries: 2, reloadOnStaleChunk: false },
+  )
+    .then((mod) => {
+      bodyModulePromise ??= Promise.resolve(mod);
+    })
+    .catch(() => undefined);
 }
