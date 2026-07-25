@@ -27,3 +27,4 @@ public/pyodide/
 .DS_Store
 scripts/pdf-probe-dumps/
 scripts/pdf-probe-output.json
+*.tsbuildinfo
