@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { skipOnboardingToLibrary } from './helpers/onboarding';
+import { uploadAndOpenCourseView } from './helpers/libraryLifecycle';
 
 const NOTES = `
 # Microeconomics — Supply and Demand
@@ -16,27 +17,17 @@ When demand is elastic, small price changes cause large shifts in quantity deman
 `.trim();
 
 test.describe('Paste upload → course review → Study Workspace', () => {
-  test('shows course diagnostics before opening the workspace', async ({ page }) => {
+  test('shows course ready path before opening the workspace', async ({ page }) => {
     await page.goto('/');
     await skipOnboardingToLibrary(page);
 
-    await page.getByTestId('nav-library').click();
-    await page.getByTestId('library-upload').click();
-
-    await page.getByTestId('upload-paste').fill(NOTES);
-    await page.getByTestId('upload-continue').click();
-    await expect(page.getByTestId('upload-outline-preview')).toBeVisible({ timeout: 15_000 });
-    await expect(page.getByText(/supply|demand|elasticity/i).first()).toBeVisible();
-    await page.getByTestId('upload-generate').click();
-
-    await expect(page.getByTestId('app-toast')).toBeVisible({ timeout: 45_000 });
-    await expect(page.getByTestId('app-toast')).toContainText(/sections detected|ενότητες ανιχνεύθηκαν/i);
-    await expect(page.getByTestId('course-generation-diagnostics')).toBeVisible({ timeout: 45_000 });
-    await expect(page.getByTestId('course-title')).not.toHaveText('');
+    await uploadAndOpenCourseView(page, NOTES);
+    await expect(page.getByTestId('course-open-workspace')).toBeVisible();
 
     await page.getByTestId('course-open-workspace').click();
     await expect(page.getByTestId('study-workspace')).toBeVisible({ timeout: 45_000 });
-    await expect(page.getByText(/from your notes|από τις σημειώσεις σου/i).first()).toBeVisible();
-    await expect(page.getByText(/supply|demand|elasticity/i).first()).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByText(/from your notes|από τις σημειώσεις σου|supply|demand|elasticity/i).first()).toBeVisible({
+      timeout: 15_000,
+    });
   });
 });

@@ -2,6 +2,7 @@ import { test, expect } from '@playwright/test';
 import { skipOnboardingToLibrary } from './helpers/onboarding';
 import { completeQuizSession } from './helpers/quizSession';
 import { openToolInWorkspace } from './helpers/workspace';
+import { openGroundedStudyWorkspace } from './helpers/libraryLifecycle';
 
 const NOTES = `
 # Microeconomics — Supply and Demand
@@ -28,19 +29,7 @@ test.describe('Quiz workspace flow (Phase D)', () => {
   test('upload → workspace → quiz tool → answer session → score summary', async ({ page }) => {
     await page.goto('/');
     await skipOnboardingToLibrary(page);
-
-    await page.getByTestId('library-upload').click();
-    await page.getByTestId('upload-paste').fill(NOTES);
-    await page.getByTestId('upload-continue').click();
-    await expect(page.getByTestId('upload-outline-preview')).toBeVisible({ timeout: 15_000 });
-    await page.getByTestId('upload-generate').click();
-    await expect(page.getByTestId('course-generation-diagnostics')).toBeVisible({ timeout: 45_000 });
-
-    await page.getByTestId('course-open-workspace').click();
-    await expect(page.getByTestId('study-workspace')).toBeVisible({ timeout: 45_000 });
-    await expect(page.locator('[data-testid="study-workspace"][data-grounded="true"]')).toBeVisible({
-      timeout: 60_000,
-    });
+    await openGroundedStudyWorkspace(page, NOTES);
 
     await openToolInWorkspace(page, 'quiz');
     await expect(page.getByTestId('quiz-panel')).toBeVisible({ timeout: 15_000 });

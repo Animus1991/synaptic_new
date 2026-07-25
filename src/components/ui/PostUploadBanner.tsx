@@ -45,7 +45,7 @@ export function PostUploadBanner({ courseTitle, onOpenWorkspace, onViewCourse, o
           <Play className="w-4 h-4" />
           {t('postUploadOpenWorkspace')}
         </PrimaryCTA>
-        <SecondaryCTA onClick={onViewCourse ?? onDismiss}>
+        <SecondaryCTA data-testid="post-upload-view-course" onClick={onViewCourse ?? onDismiss}>
           <BookOpen className="w-3.5 h-3.5" />
           {t('postUploadBrowseModules')}
         </SecondaryCTA>

@@ -73,17 +73,24 @@ export function WorkspaceBootShell({
                 </p>
                 <p className="relative z-10 max-w-md text-xs font-mono text-text-muted break-all">{error}</p>
                 <div className="relative z-10 flex flex-wrap items-center justify-center gap-2 pt-1">
-                  {onRetry && (
-                    <button
-                      type="button"
-                      onClick={onRetry}
-                      className="rounded-md border border-brand-500/40 bg-brand-600/15 px-3 py-1.5 text-xs font-medium text-brand-200 hover:bg-brand-600/25"
-                    >
-                      {t('tryAgain', lang)}
-                    </button>
-                  )}
                   <button
                     type="button"
+                    data-testid="workspace-boot-try-again"
+                    onClick={() => {
+                      if (onRetry) {
+                        onRetry();
+                        return;
+                      }
+                      try { sessionStorage.removeItem('sw-chunk-reload-attempt'); } catch { /* ignore */ }
+                      window.location.reload();
+                    }}
+                    className="rounded-md border border-brand-500/40 bg-brand-600/15 px-3 py-1.5 text-xs font-medium text-brand-200 hover:bg-brand-600/25"
+                  >
+                    {t('tryAgain', lang)}
+                  </button>
+                  <button
+                    type="button"
+                    data-testid="workspace-boot-reload"
                     onClick={() => {
                       try { sessionStorage.removeItem('sw-chunk-reload-attempt'); } catch { /* ignore */ }
                       window.location.reload();

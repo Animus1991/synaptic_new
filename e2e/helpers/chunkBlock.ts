@@ -6,16 +6,23 @@ import type { Page, Route } from '@playwright/test';
  */
 export function urlMatchesModuleFile(url: string, fileBase: string): boolean {
   const u = url.replace(/\\/g, '/');
-  // /components/Analytics.tsx(?query) — slash before the file base is required
-  if (new RegExp(`/${fileBase}\\.[tj]sx?(?:\\?|$)`, 'i').test(u)) return true;
-  // production hashed chunk: Analytics-a1b2c3de.js
-  if (new RegExp(`/${fileBase}-[A-Za-z0-9_-]+\\.js(?:\\?|$)`).test(u)) return true;
+  // Avoid false positives like activityAnalytics.ts when matching Analytics.
+  const leaf = u.split('/').pop()?.split('?')[0] ?? '';
+  if (new RegExp(`^${fileBase}\\.[tj]sx?$`, 'i').test(leaf)) return true;
+  if (new RegExp(`^${fileBase}-[A-Za-z0-9_-]+\\.js$`, 'i').test(leaf)) return true;
+  // Vite may serve as /@id/... or keep path + ?import / &t=
+  if (new RegExp(`(?:^|/)(?:src/)?(?:components/)?(?:workspace/)?${fileBase}\\.[tj]sx?(?:\\?|&|$)`, 'i').test(u)) {
+    return !new RegExp(`[A-Za-z0-9_]${fileBase}\\.`, 'i').test(u);
+  }
   return false;
 }
 
 /**
- * Install abort + session guards *before* first navigation so idle prefetch
+ * Install chunk block + session guards *before* first navigation so idle prefetch
  * cannot cache the target module. Prefer this over reload-after-shell.
+ *
+ * Uses HTTP 500 fulfill (not abort): Chromium/Vite can leave `import()` pending
+ * forever on `route.abort()`, which strands Suspense on a Loading fallback.
  */
 export async function installChunkAbort(
   page: Page,
@@ -26,6 +33,8 @@ export async function installChunkAbort(
     try {
       // Skip product tour so overlays never block nav clicks in these suites.
       localStorage.setItem('synapse:product-tour-complete-v1', 'true');
+      // Fast-fail chunk retries so ErrorBoundary / boot shell appears promptly.
+      sessionStorage.setItem('synapse:e2e-chunk-abort', '1');
     } catch {
       /* ignore */
     }
@@ -48,8 +57,14 @@ export async function installChunkAbort(
       }
     }
   });
-  await page.route('**/*', (route: Route) => {
-    if (blocking && shouldAbort(route.request().url())) return route.abort('failed');
+  await page.route('**/*', async (route: Route) => {
+    if (blocking && shouldAbort(route.request().url())) {
+      return route.fulfill({
+        status: 500,
+        contentType: 'text/plain',
+        body: 'e2e-chunk-block',
+      });
+    }
     return route.continue();
   });
   return {

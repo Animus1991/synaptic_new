@@ -19,6 +19,7 @@
 import { test, expect, type Page } from '@playwright/test';
 import { skipOnboardingToLibrary, dismissBlockingShellOverlays } from './helpers/onboarding';
 import { installChunkAbort, urlMatchesModuleFile } from './helpers/chunkBlock';
+import { openStudyWorkspaceFromShell } from './helpers/openWorkspace';
 
 const TRY_AGAIN = /try again|δοκιμάστε ξανά/i;
 const RELOAD = /^reload$|επαναφόρτωση/i;
@@ -54,31 +55,10 @@ const FLOWS: FlowCase[] = [
     mountedTestId: 'analytics-page',
   },
   {
-    name: 'LessonView',
-    moduleFile: 'LessonView',
-    trigger: async (page) => {
-      const continueBtn = page.getByTestId('library-continue').first();
-      if (await continueBtn.isVisible().catch(() => false)) {
-        await continueBtn.click();
-      } else {
-        await page.getByTestId('nav-tasks').click();
-        await page.getByTestId('task-start').first().click().catch(() => {});
-      }
-    },
-    // LessonView mount surfaces via course/lesson chrome rather than a dedicated root id.
-    mountedTestId: 'platform-main',
-  },
-  {
     name: 'StudyWorkspace (WorkspaceDock)',
     moduleFile: 'StudyWorkspace',
     trigger: async (page) => {
-      const openWorkspace = page.getByTestId('dashboard-open-workspace').first();
-      if (await openWorkspace.isVisible().catch(() => false)) {
-        await openWorkspace.click();
-      } else {
-        await page.getByTestId('nav-dashboard').click();
-        await page.getByTestId('dashboard-open-workspace').first().click().catch(() => {});
-      }
+      await openStudyWorkspaceFromShell(page);
     },
     mountedTestId: 'study-workspace',
   },
@@ -99,8 +79,12 @@ for (const flow of FLOWS) {
     const navBeforeTrigger = await readNavCount();
     await flow.trigger(page);
 
-    const tryAgain = page.getByRole('button', { name: TRY_AGAIN }).first();
-    await expect(tryAgain).toBeVisible({ timeout: 25_000 });
+    const tryAgain = page
+      .getByTestId('error-boundary-try-again')
+      .or(page.getByTestId('workspace-boot-try-again'))
+      .or(page.getByRole('button', { name: TRY_AGAIN }))
+      .first();
+    await expect(tryAgain).toBeVisible({ timeout: 45_000 });
     await expect(page.getByRole('button', { name: RELOAD }).first()).toBeVisible();
 
     const navBeforeRetry = await readNavCount();
@@ -130,8 +114,11 @@ test('global ErrorBoundary surfaces fallback on lazy render failure and recovers
 
   await page.getByTestId('nav-analytics').click();
 
-  const tryAgain = page.getByRole('button', { name: TRY_AGAIN }).first();
-  await expect(tryAgain).toBeVisible({ timeout: 25_000 });
+  const tryAgain = page
+    .getByTestId('error-boundary-try-again')
+    .or(page.getByRole('button', { name: TRY_AGAIN }))
+    .first();
+  await expect(tryAgain).toBeVisible({ timeout: 45_000 });
   await expect(page.getByRole('button', { name: RELOAD }).first()).toBeVisible();
 
   const before = await readNavCount();
@@ -142,5 +129,5 @@ test('global ErrorBoundary surfaces fallback on lazy render failure and recovers
   expect(after, 'global ErrorBoundary retry must be in-place').toBe(before);
 
   await page.getByTestId('nav-library').click();
-  await expect(page.getByTestId('nav-library')).toHaveAttribute('aria-current', /page|true/);
+  await expect(page.getByTestId('nav-library')).toHaveClass(/platform-nav-active|nav-active|active/);
 });

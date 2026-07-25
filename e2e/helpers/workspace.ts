@@ -43,18 +43,23 @@ export async function useClassicWorkspaceLayout(page: Page) {
   const chromeMenu = page.getByTestId('notebook-chrome-menu');
   if (await chromeMenu.isVisible().catch(() => false)) {
     await chromeMenu.click();
-    await page.getByRole('button', { name: /Classic view|Κλασική προβολή/i }).click({ force: true });
-  } else {
+    const classic = page.getByRole('button', { name: /Classic view|Κλασική προβολή/i });
+    if (await classic.isVisible().catch(() => false)) {
+      await classic.click({ force: true });
+    }
+  }
+  if (await notebook.isVisible().catch(() => false)) {
     const toggle = page.getByTestId('workspace-notebook-toggle');
     if (await toggle.isVisible().catch(() => false)) {
       await toggle.click();
-    } else {
-      await page.evaluate(() => {
-        localStorage.setItem('synapse:workspace-notebook-mode', JSON.stringify(false));
-      });
-      await page.reload();
-      await expect(page.getByTestId('study-workspace')).toBeVisible({ timeout: 45_000 });
     }
+  }
+  if (await notebook.isVisible().catch(() => false)) {
+    await page.evaluate(() => {
+      localStorage.setItem('synapse:workspace-notebook-mode', JSON.stringify(false));
+    });
+    await page.reload();
+    await expect(page.getByTestId('study-workspace')).toBeVisible({ timeout: 45_000 });
   }
   await expect(page.getByTestId('notebook-workspace-layout')).toHaveCount(0, { timeout: 15_000 });
 }
