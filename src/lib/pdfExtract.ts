@@ -2,10 +2,6 @@
 
 
 
-import mammoth from 'mammoth';
-
-import JSZip from 'jszip';
-
 import type { UserSettings } from '../types';
 import { importChatGptExportFile, isChatGptExportFile, isLikelyChatGptExportJson } from './chatGptImport';
 
@@ -319,6 +315,8 @@ export async function extractTextFromDocx(file: File): Promise<string> {
 
   const arrayBuffer = await file.arrayBuffer();
 
+  const mammoth = (await import('mammoth')).default;
+
   const result = await mammoth.extractRawText({ arrayBuffer });
 
   return result.value;
@@ -328,6 +326,8 @@ export async function extractTextFromDocx(file: File): Promise<string> {
 
 
 export async function extractTextFromPptx(file: File): Promise<{ text: string; pageCount: number }> {
+
+  const JSZip = (await import('jszip')).default;
 
   const zip = await JSZip.loadAsync(await file.arrayBuffer());
 

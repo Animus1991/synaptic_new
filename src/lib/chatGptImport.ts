@@ -3,8 +3,6 @@
  * Ported from AI Organizer ChatGPTParser + chatgpt-organizer-java ChatGptParserService.
  */
 
-import JSZip from 'jszip';
-
 export interface ChatGptMessage {
   role: 'user' | 'assistant' | 'system' | 'tool';
   content: string;
@@ -224,6 +222,7 @@ export function parseChatGptExportJson(jsonText: string): ChatGptImportResult {
 }
 
 async function extractJsonFromZip(file: File): Promise<string> {
+  const JSZip = (await import('jszip')).default;
   const zip = await JSZip.loadAsync(file);
   const names = Object.keys(zip.files).filter((n) => !zip.files[n]!.dir);
   const preferred =

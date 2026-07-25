@@ -1,5 +1,5 @@
-import JSZip from 'jszip';
-import initSqlJs, { type Database, type SqlJsStatic } from 'sql.js';
+import type JSZip from 'jszip';
+import type { Database, SqlJsStatic } from 'sql.js';
 import browserWasmUrl from 'sql.js/dist/sql-wasm.wasm?url';
 
 import type { AnkiExportCard } from './ankiExport';
@@ -36,6 +36,7 @@ async function wasmLocateFile(file: string): Promise<string> {
 async function getSql(): Promise<SqlJsStatic> {
   if (!sqlInit) {
     const locateFile = await wasmLocateFile('sql-wasm.wasm');
+    const { default: initSqlJs } = await import('sql.js');
     sqlInit = initSqlJs({ locateFile: () => locateFile });
   }
   return sqlInit;
@@ -73,6 +74,7 @@ function readNoteDeckMap(db: Database): Map<number, number> {
 }
 
 export async function parseApkgBuffer(buffer: ArrayBuffer): Promise<ParsedApkgCard[]> {
+  const { default: JSZip } = await import('jszip');
   const zip = await JSZip.loadAsync(buffer);
   const dbEntry = findCollectionDbFile(zip);
   if (!dbEntry) {
@@ -333,6 +335,7 @@ export async function buildApkgBlob(
   const db = buildCollectionDatabase(SQL, cards, deckName);
   try {
     const dbBytes = db.export();
+    const { default: JSZip } = await import('jszip');
     const zip = new JSZip();
     zip.file('collection.anki2', dbBytes);
     zip.file('media', '{}');

@@ -196,6 +196,12 @@ export default defineConfig({
           if (id.includes('codemirror') || id.includes('@codemirror')) return 'codemirror';
           if (id.includes('framer-motion')) return 'motion';
           if (id.includes('react-dom') || id.includes('react/') || id.includes('scheduler')) return 'react-vendor';
+          // Dynamically-imported-only libs: dedicated chunks so they stay out of the eager 'vendor' bundle.
+          if (id.includes('jszip')) return 'jszip';
+          if (id.includes('mammoth')) return 'mammoth';
+          if (id.includes('sql.js') && !id.includes('.wasm')) return 'sqljs';
+          if (id.includes('tesseract.js')) return 'tesseract';
+          if (id.includes('@huggingface')) return 'transformers';
           return 'vendor';
         },
       },
