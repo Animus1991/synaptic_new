@@ -33,6 +33,7 @@ type Props = {
   onReprocess?: () => void;
 };
 
+/* OPT-K100 — markup debt: Agent/Reader/tools decorative brand type -> ink */
 export function ConceptBusPanel({
   rows,
   activeTool,
@@ -62,7 +63,7 @@ export function ConceptBusPanel({
         className="flex w-full items-center justify-between gap-2 px-3 py-2 text-left hover:bg-white/[0.03] transition-colors"
       >
         <div className="flex items-center gap-2 min-w-0">
-          <GitBranch className="w-3.5 h-3.5 text-brand-700 shrink-0" />
+          <GitBranch className="w-3.5 h-3.5 text-text-primary shrink-0" />
           <div className="min-w-0">
             <p className="text-[11px] font-semibold text-text-primary truncate">
               {t('busTitle')}
@@ -161,7 +162,7 @@ export function ConceptBusPanel({
         <div className="px-3 pb-3 space-y-2 border-t border-white/6 pt-2 max-h-48 overflow-y-auto">
           {activeLens && activeLens.activeConcept && (
             <div className="rounded-xl border border-accent-cyan/25 bg-accent-cyan/5 px-2.5 py-2 mb-2" data-testid="concept-bus-active-lens">
-              <p className="text-[10px] font-semibold text-brand-800 truncate">{activeLens.activeConcept}</p>
+              <p className="text-[10px] font-semibold text-text-primary truncate">{activeLens.activeConcept}</p>
               {(activeLens.prerequisites.length > 0 || activeLens.related.length > 0) && (
                 <div className="mt-1 flex flex-wrap gap-1">
                   {activeLens.prerequisites.slice(0, 2).map((r) => (
@@ -169,7 +170,7 @@ export function ConceptBusPanel({
                       key={`pre-${r.label}`}
                       type="button"
                       onClick={() => onFocusTerm(r.label)}
-                      className="rounded px-1.5 py-0.5 text-[10px] border border-white/10 text-text-muted hover:text-brand-800"
+                      className="rounded px-1.5 py-0.5 text-[10px] border border-white/10 text-text-muted hover:text-text-primary"
                     >
                       ← {r.label}
                     </button>
@@ -179,7 +180,7 @@ export function ConceptBusPanel({
                       key={`rel-${r.label}`}
                       type="button"
                       onClick={() => onFocusTerm(r.label)}
-                      className="rounded px-1.5 py-0.5 text-[10px] border border-white/10 text-text-muted hover:text-brand-800"
+                      className="rounded px-1.5 py-0.5 text-[10px] border border-white/10 text-text-muted hover:text-text-primary"
                     >
                       ~ {r.label}
                     </button>
@@ -190,7 +191,7 @@ export function ConceptBusPanel({
                 <button
                   type="button"
                   onClick={onOpenReaderSection}
-                  className="mt-1 text-[10px] text-brand-800 hover:underline"
+                  className="mt-1 text-[10px] text-text-primary hover:underline"
                   data-testid="concept-bus-reader-link"
                 >
                   {t('busOpenInReader')} · {activeLens.sourceSections[0]}
@@ -210,7 +211,7 @@ export function ConceptBusPanel({
                 <button
                   type="button"
                   onClick={() => onFocusTerm(row.concept)}
-                  className="text-[11px] font-semibold text-text-primary hover:text-brand-800 truncate max-w-[200px]"
+                  className="text-[11px] font-semibold text-text-primary hover:text-text-primary truncate max-w-[200px]"
                 >
                   {row.concept}
                 </button>
@@ -239,8 +240,8 @@ export function ConceptBusPanel({
                     className={cn(
                       'rounded-full border px-1.5 py-0.5 text-[10px] font-medium transition-colors',
                       tool === activeTool
-                        ? 'border-brand-500/50 bg-brand-500/15 text-brand-800'
-                        : 'border-white/10 bg-white/[0.04] text-text-secondary hover:border-brand-600/35 hover:text-brand-800',
+                        ? 'border-brand-500/50 bg-surface-secondary text-text-primary border border-border-subtle'
+                        : 'border-white/10 bg-white/[0.04] text-text-secondary hover:border-border-default hover:text-text-primary',
                     )}
                   >
                     {TOOL_LABELS[tool][lang]}
@@ -309,7 +310,7 @@ function ConceptBusChip({
             onClick={() => onJumpTool(tool)}
             className={cn(
               'rounded px-1 py-0.5 text-[10px] font-medium',
-              tool === activeTool ? 'bg-brand-500/20 text-brand-800' : 'bg-white/6 text-text-muted hover:text-brand-800',
+              tool === activeTool ? 'bg-surface-secondary text-text-primary border border-border-subtle' : 'bg-white/6 text-text-muted hover:text-text-primary',
             )}
           >
             {TOOL_LABELS[tool][lang]}

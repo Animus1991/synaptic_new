@@ -18,6 +18,7 @@ type Props = {
   conceptBusOpen?: boolean;
 };
 
+/* OPT-K100 — markup debt: Agent/Reader/tools decorative brand type -> ink */
 export function WorkspaceContextStrip({
   context,
   lang: _lang,
@@ -68,7 +69,7 @@ export function WorkspaceContextStrip({
             </>
           )}
           <span aria-hidden className="shrink-0 hidden xs:inline">·</span>
-          <span className="truncate shrink-0 font-medium text-brand-800 hidden xs:inline" data-testid="workspace-context-tool">
+          <span className="truncate shrink-0 font-medium text-text-primary hidden xs:inline" data-testid="workspace-context-tool">
             {context.toolLabel}
           </span>
         </div>

@@ -3,6 +3,7 @@ import { X } from '@/lib/lucide-shim';
 import { t, type Lang } from '../../lib/i18n';
 
 /** Instant visual feedback while StudyWorkspace chunk loads. */
+/* OPT-K100 — markup debt: Agent/Reader/tools decorative brand type -> ink */
 export function WorkspaceBootShell({
   compact = false,
   onClose,
@@ -84,7 +85,7 @@ export function WorkspaceBootShell({
                       try { sessionStorage.removeItem('sw-chunk-reload-attempt'); } catch { /* ignore */ }
                       window.location.reload();
                     }}
-                    className="rounded-md border border-brand-500/40 bg-brand-600/15 px-3 py-1.5 text-xs font-medium text-brand-200 hover:bg-brand-600/25"
+                    className="rounded-md border border-brand-500/40 bg-brand-600/15 px-3 py-1.5 text-xs font-medium text-text-primary hover:bg-brand-600/25"
                   >
                     {t('tryAgain', lang)}
                   </button>

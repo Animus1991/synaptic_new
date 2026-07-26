@@ -79,7 +79,8 @@ export function PageHeader({
         <div className="flex items-center gap-2">
           {/* OPT-K7 — Minimal is text-first: no leading icon tile. Blueprint keeps brand square. */}
           {Icon && !isMinimal && (
-            <span className="ux-page-header-icon grid h-7 w-7 shrink-0 place-items-center rounded-lg border border-brand-500/25 bg-brand-500/10 text-brand-600">
+            {/* OPT-K100 — page header icon: ink chrome, not brand type */}
+            <span className="ux-page-header-icon grid h-7 w-7 shrink-0 place-items-center rounded-lg border border-border-subtle bg-surface-secondary text-text-secondary">
               <Icon className="h-3.5 w-3.5" />
             </span>
           )}
@@ -234,7 +235,6 @@ export function SectionHeading({
   size?: 'sm' | 'lg';
   className?: string;
 }) {
-  const isMinimal = useMinimalTheme();
   return (
     <div className={cn('flex items-center justify-between gap-3', className)}>
       <h2
@@ -246,8 +246,7 @@ export function SectionHeading({
         {Icon && (
           <Icon
             className={cn(
-              'ux-card-title-icon shrink-0',
-              isMinimal ? 'text-text-secondary' : 'text-brand-600',
+              'ux-card-title-icon shrink-0 text-text-secondary',
               size === 'lg' ? 'h-5 w-5' : 'h-4 w-4',
               iconClassName,
             )}
@@ -270,16 +269,13 @@ export function CardLink({
   onClick?: () => void;
   className?: string;
 }) {
-  const isMinimal = useMinimalTheme();
   return (
     <button
       type="button"
       onClick={onClick}
       className={cn(
         'ux-card-link inline-flex shrink-0 items-center gap-1 text-sm font-semibold transition-colors',
-        isMinimal
-          ? 'text-text-secondary hover:text-text-primary'
-          : 'text-brand-600 hover:text-brand-700',
+        'text-text-secondary hover:text-text-primary',
         className,
       )}
     >
@@ -450,7 +446,7 @@ export const SecondaryCTA = forwardRef<
       type="button"
       className={cn(
         'ux-secondary-cta inline-flex items-center justify-center gap-2 rounded-xl font-medium transition-all duration-300 platform-pill',
-        'border border-border-subtle text-text-secondary hover:border-brand-500/35 hover:text-brand-700',
+        'border border-border-subtle text-text-secondary hover:border-border-default hover:text-text-primary',
         'disabled:opacity-60 disabled:pointer-events-none',
         size === 'sm' ? 'px-3 py-2 text-xs min-h-[var(--btn-height-sm,2rem)]' : 'px-4 text-sm min-h-[var(--btn-height)]',
         className,

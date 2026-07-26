@@ -483,6 +483,39 @@ describe('OPT-K69 engineering clarity contracts', () => {
     expect(workspace).not.toMatch(/text-brand-\d+/);
   });
 
+  it('K100 — broader markup debt (Agent / Reader / tools)', () => {
+    const indexCss = read('src/index.css');
+    expect(indexCss).toMatch(/OPT-K100/);
+    expect(indexCss).toMatch(/Broader markup debt/);
+    expect(indexCss).toMatch(/--opt-k100-markup-debt/);
+
+    const agent = read('src/components/Agent.tsx');
+    expect(agent).toMatch(/OPT-K100/);
+    expect(agent).toMatch(/bg-brand-600 hover:bg-brand-500 text-white/);
+    expect(agent).not.toMatch(/text-brand-\d+/);
+
+    const reader = read('src/components/workspace/CognitiveReader.tsx');
+    expect(reader).toMatch(/OPT-K100/);
+    expect(reader).toMatch(/fullSource \? 'ws-chip-brand'/);
+    expect(reader).toMatch(/annotateMode \? 'ws-chip-warn'/);
+    expect(reader).not.toMatch(/text-brand-\d+/);
+
+    const formula = read('src/components/workspace/FormulaScratchpad.tsx');
+    expect(formula).toMatch(/OPT-K100/);
+    expect(formula).not.toMatch(/text-brand-\d+/);
+
+    const leitner = read('src/components/workspace/LeitnerPanel.tsx');
+    expect(leitner).toMatch(/OPT-K100/);
+    expect(leitner).not.toMatch(/text-brand-\d+/);
+
+    const primitives = read('src/components/ui/primitives.tsx');
+    expect(primitives).toMatch(/OPT-K100/);
+    expect(primitives).toMatch(/ux-page-header-icon.*bg-surface-secondary text-text-secondary|bg-surface-secondary text-text-secondary/);
+    expect(primitives).toMatch(/hover:border-border-default hover:text-text-primary/);
+    expect(primitives).toMatch(/bg-brand-600 hover:bg-brand-700/);
+    expect(primitives).not.toMatch(/hover:text-brand-\d+/);
+  });
+
   it('K93 — cross-pollinate sweetness ↔ clarity', () => {
     const indexCss = read('src/index.css');
     expect(indexCss).toMatch(/OPT-K93/);

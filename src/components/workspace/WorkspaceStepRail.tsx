@@ -4,6 +4,7 @@ import { displayWorkspaceStepTitle } from '../../lib/workspaceContextModel';
 import { stepHeatDotClass, type ReaderHeatmapStepSyncReport } from '../../lib/readerHeatmapStepSyncQA';
 import type { ReaderHeatmapLevel } from '../../lib/readerLearningHeatmap';
 
+/* OPT-K100 — markup debt: Agent/Reader/tools decorative brand type -> ink */
 export type StepRailItem = { title: string; type?: string };
 
 const MAX_VISIBLE = 14;
@@ -54,7 +55,7 @@ export function WorkspaceStepRail({
         className={cn(
           'flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-medium shrink-0 transition-all',
           currentStep === i
-            ? 'bg-accent-cyan/15 text-brand-800'
+            ? 'bg-accent-cyan/15 text-text-primary'
             : i < currentStep
               ? 'text-accent-emerald hover:bg-surface-hover'
               : 'text-text-muted hover:text-text-secondary hover:bg-surface-hover',
@@ -64,7 +65,7 @@ export function WorkspaceStepRail({
           className={cn(
             'w-4 h-4 rounded-full border text-[10px] flex items-center justify-center relative',
             currentStep === i
-              ? 'border-accent-cyan text-brand-800 bg-accent-cyan/10'
+              ? 'border-accent-cyan text-text-primary bg-accent-cyan/10'
               : i < currentStep
                 ? 'border-accent-emerald text-accent-emerald bg-accent-emerald/10'
                 : 'border-text-muted/30',

@@ -44,6 +44,7 @@ const BAND = (v: number, t: (k: I18nKey) => string) => {
   return { label: t(keys[band]), color: bandColorVar(band) };
 };
 
+/* OPT-K100 — markup debt: Agent/Reader/tools decorative brand type -> ink */
 export function MiniDashboard({
   readiness,
   streak,
@@ -109,7 +110,7 @@ export function MiniDashboard({
               {(['overview', 'weak', 'next'] as const).map((tab) => (
                 <button key={tab} type="button" onClick={() => setActiveTab(tab)}
                   className={cn('flex-1 py-1.5 text-[10px] font-medium capitalize transition-all inline-flex items-center justify-center gap-0.5',
-                    activeTab === tab ? 'text-brand-600 border-b border-brand-500' : 'text-text-muted hover:text-text-secondary')}>
+                    activeTab === tab ? 'text-text-secondary border-b border-brand-500' : 'text-text-muted hover:text-text-secondary')}>
                   {tab === 'overview' ? (
                     <><Target className="w-3 h-3" /> {t('status')}</>
                   ) : tab === 'weak' ? (
@@ -145,12 +146,12 @@ export function MiniDashboard({
                 <div className="grid grid-cols-3 gap-1.5">
                   <StatPill icon={<Zap className="w-3 h-3 text-accent-amber" />} label={t('streak')} value={`${streak}d`} />
                   <StatPill icon={<RotateCcw className="w-3 h-3 text-accent-teal" />} label={t('due')} value={`${reviewsDue}`} />
-                  <StatPill icon={<Brain className="w-3 h-3 text-brand-700" />} label={t('weak')} value={`${weakSpots.length}`} />
+                  <StatPill icon={<Brain className="w-3 h-3 text-text-primary" />} label={t('weak')} value={`${weakSpots.length}`} />
                 </div>
 
                 <div className="grid grid-cols-2 gap-1.5">
                   <StatPill icon={<Clock className="w-3 h-3 text-accent-emerald" />} label={t('studyToday')} value={`${studyTimeToday}m`} />
-                  <StatPill icon={<Clock className="w-3 h-3 text-brand-800" />} label={t('studyThisWeek')} value={`${studyTimeWeek}m`} />
+                  <StatPill icon={<Clock className="w-3 h-3 text-text-primary" />} label={t('studyThisWeek')} value={`${studyTimeWeek}m`} />
                 </div>
 
                 {recentStudyDays.length > 0 && (
@@ -195,7 +196,7 @@ export function MiniDashboard({
                               key={tool}
                               type="button"
                               onClick={() => onOpenToolActivity(tool as WorkspaceToolId)}
-                              className="inline-flex items-center gap-0.5 rounded-full border border-white/10 bg-surface-card/60 px-1.5 py-0.5 text-[10px] text-text-secondary hover:border-brand-600/35 hover:text-brand-800"
+                              className="inline-flex items-center gap-0.5 rounded-full border border-white/10 bg-surface-card/60 px-1.5 py-0.5 text-[10px] text-text-secondary hover:border-border-default hover:text-text-primary"
                               data-testid={`progress-tool-${tool}`}
                             >
                               {chip}
@@ -272,7 +273,7 @@ export function MiniDashboard({
                               type="button"
                               title={action.hint}
                               onClick={() => onRemediateWeakSpot(concept, action.id)}
-                              className="rounded-full border border-brand-500/30 bg-brand-500/10 px-1.5 py-0.5 text-[10px] font-medium text-brand-800 hover:bg-brand-500/20"
+                              className="rounded-full border border-brand-500/30 bg-brand-500/10 px-1.5 py-0.5 text-[10px] font-medium text-text-primary hover:bg-brand-500/20"
                             >
                               {action.label}
                             </button>
@@ -299,7 +300,7 @@ export function MiniDashboard({
                     <div className="w-5 h-5 rounded-md bg-surface-hover flex items-center justify-center shrink-0">
                       {a.type === 'review' ? <RotateCcw className="w-3 h-3 text-accent-amber" />
                         : a.type === 'practice' ? <Target className="w-3 h-3 text-accent-teal" />
-                        : <BookOpen className="w-3 h-3 text-brand-700" />}
+                        : <BookOpen className="w-3 h-3 text-text-primary" />}
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-[10px] font-medium truncate">{a.label}</p>

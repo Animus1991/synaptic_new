@@ -65,6 +65,7 @@ interface Props {
 const SCRATCHPAD_SHELL =
   'ux-tier-b-tool ux-tier-b-scratchpad ux-tier-b-shell workspace-glass-panel flex flex-col h-full overflow-hidden';
 
+/* OPT-K100 — markup debt: Agent/Reader/tools decorative brand type -> ink */
 export function FormulaScratchpad({
   noteFormulas = [],
   emptyMessage,
@@ -314,7 +315,7 @@ export function FormulaScratchpad({
             {formulas.map(f => (
               <button key={f.id} onClick={() => selectFormula(f.id)}
                 className={cn('w-full text-left px-3 py-2 text-xs transition-all',
-                  active === f.id ? 'bg-brand-600/15 text-brand-800 border-l-2 border-brand-500' : 'text-text-secondary hover:bg-surface-hover')}>
+                  active === f.id ? 'bg-surface-secondary text-text-primary border border-border-subtle border-l-2 border-brand-500' : 'text-text-secondary hover:bg-surface-hover')}>
                 {f.name}
               </button>
             ))}
@@ -337,7 +338,7 @@ export function FormulaScratchpad({
                 <p className="text-[10px] text-text-muted font-medium">Variables</p>
                 {vars.map((v, i) => (
                   <div key={i} className="flex items-center gap-2">
-                    <span className="font-mono font-bold text-brand-700 text-sm w-12 shrink-0 text-right">{v.symbol}</span>
+                    <span className="font-mono font-bold text-text-primary text-sm w-12 shrink-0 text-right">{v.symbol}</span>
                     <span className="text-text-muted text-xs">=</span>
                     <input
                       type="text" value={v.value} onChange={e => updateVar(i, e.target.value)}
@@ -387,7 +388,7 @@ export function FormulaScratchpad({
                     type="button"
                     data-testid="scratchpad-ask-agent"
                     onClick={() => onAskAgent(`${activeFormula.name}: ${activeFormula.formula}`)}
-                    className="flex items-center gap-1 px-3 py-2.5 rounded-xl border border-accent-cyan/30 bg-accent-cyan/10 text-brand-800 text-xs font-medium hover:bg-accent-cyan/20"
+                    className="flex items-center gap-1 px-3 py-2.5 rounded-xl border border-accent-cyan/30 bg-accent-cyan/10 text-text-primary text-xs font-medium hover:bg-accent-cyan/20"
                   >
                     <Sparkles className="w-3.5 h-3.5" />
                     Agent
@@ -417,7 +418,7 @@ export function FormulaScratchpad({
                     type="button"
                     onClick={sendToWhiteboard}
                     title={t('scratchOpenWhiteboard')}
-                    className="flex items-center gap-1 px-3 py-2.5 rounded-xl border border-accent-cyan/30 bg-accent-cyan/10 text-brand-800 text-xs font-medium hover:bg-accent-cyan/20"
+                    className="flex items-center gap-1 px-3 py-2.5 rounded-xl border border-accent-cyan/30 bg-accent-cyan/10 text-text-primary text-xs font-medium hover:bg-accent-cyan/20"
                   >
                     <PenSquare className="w-3.5 h-3.5" />
                     <span className="hidden sm:inline">{t('scratchBoard')}</span>
@@ -499,7 +500,7 @@ export function FormulaScratchpad({
                       data-testid="scratchpad-simplify-sympy"
                       disabled={simplifyLoading || !activeFormula}
                       onClick={() => { void simplifyWithSympy(); }}
-                      className="inline-flex items-center gap-1 rounded-lg border border-brand-500/30 bg-brand-500/10 px-2.5 py-1 text-[10px] font-medium text-brand-700 hover:bg-brand-500/15 disabled:opacity-40"
+                      className="inline-flex items-center gap-1 rounded-lg border border-brand-500/30 bg-brand-500/10 px-2.5 py-1 text-[10px] font-medium text-text-primary hover:bg-brand-500/15 disabled:opacity-40"
                     >
                       {simplifyLoading
                         ? <Loader2 className="w-3 h-3 animate-spin" />
@@ -614,7 +615,7 @@ function ScratchpadHeader({
           onClick={() => setPanel('formulas')}
           className={cn(
             'px-2 py-1 rounded-md text-[10px] font-medium inline-flex items-center gap-1',
-            panel === 'formulas' ? 'bg-brand-600/20 text-brand-600' : 'text-text-muted',
+            panel === 'formulas' ? 'bg-surface-secondary text-text-primary border border-border-subtle' : 'text-text-muted',
           )}
         >
           <Calculator className="w-3 h-3" />
@@ -626,7 +627,7 @@ function ScratchpadHeader({
           onClick={() => setPanel('notes')}
           className={cn(
             'px-2 py-1 rounded-md text-[10px] font-medium inline-flex items-center gap-1',
-            panel === 'notes' ? 'bg-brand-600/20 text-brand-600' : 'text-text-muted',
+            panel === 'notes' ? 'bg-surface-secondary text-text-primary border border-border-subtle' : 'text-text-muted',
           )}
         >
           <PenSquare className="w-3 h-3" />

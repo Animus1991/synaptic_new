@@ -45,6 +45,7 @@ type Props = {
   pinLabel: string;
 };
 
+/* OPT-K100 — markup debt: Agent/Reader/tools decorative brand type -> ink */
 export function AnnotationToolbar({
   lang,
   sourceName,
@@ -75,7 +76,7 @@ export function AnnotationToolbar({
   return (
     <div className="ws-panel-toolbar" data-testid="annotation-toolbar">
       <div className="ws-panel-toolbar-row">
-        <FileText className="h-3 w-3 shrink-0 text-brand-700" aria-hidden />
+        <FileText className="h-3 w-3 shrink-0 text-text-primary" aria-hidden />
         <span className="ws-eyebrow shrink-0 text-text-secondary"><AllCapsLabel>{sourceViewerLabel}</AllCapsLabel></span>
         {sharedCount > 0 && (
           <span className="ws-chip-warn rounded px-1 py-0.5 text-[10px]">
@@ -100,7 +101,7 @@ export function AnnotationToolbar({
           <button
             type="button"
             onClick={onExportMd}
-            className="ws-panel-tool-btn shrink-0 text-text-muted hover:text-brand-700"
+            className="ws-panel-tool-btn shrink-0 text-text-muted hover:text-text-primary"
             title={t('exportLabel')}
             aria-label={t('exportLabel')}
           >

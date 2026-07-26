@@ -32,6 +32,7 @@ type Props = {
   onAcknowledgeStale?: () => void;
 };
 
+/* OPT-K100 — markup debt: Agent/Reader/tools decorative brand type -> ink */
 export function LeitnerPanel({
   session,
   concept,
@@ -144,7 +145,7 @@ export function LeitnerPanel({
             <button
               type="button"
               onClick={() => onOpenInReader(concept)}
-              className="inline-flex items-center gap-1 rounded-lg border border-white/10 px-2 py-1 text-[10px] text-text-secondary hover:border-brand-600/35 hover:text-brand-800"
+              className="inline-flex items-center gap-1 rounded-lg border border-white/10 px-2 py-1 text-[10px] text-text-secondary hover:border-border-default hover:text-text-primary"
               data-testid="leitner-open-reader"
             >
               <BookOpen className="w-3 h-3" />
@@ -156,7 +157,7 @@ export function LeitnerPanel({
             onClick={() => setInterleaved((v) => !v)}
             className={`rounded-lg border px-2 py-1 text-[10px] font-medium transition-colors ${
               interleaved
-                ? 'border-accent-cyan/40 bg-accent-cyan/15 text-brand-800'
+                ? 'border-accent-cyan/40 bg-accent-cyan/15 text-text-primary'
                 : 'border-border-subtle text-text-muted hover:text-text-secondary'
             }`}
             data-testid="leitner-interleave-toggle"
@@ -171,7 +172,7 @@ export function LeitnerPanel({
             onClick={() => setTypeFilter('all')}
             className={`rounded-full border px-2 py-0.5 text-[10px] font-medium transition-colors ${
               typeFilter === 'all'
-                ? 'border-accent-cyan/40 bg-accent-cyan/15 text-brand-800'
+                ? 'border-accent-cyan/40 bg-accent-cyan/15 text-text-primary'
                 : 'border-border-subtle text-text-muted hover:text-text-secondary'
             }`}
           >
@@ -187,7 +188,7 @@ export function LeitnerPanel({
                 onClick={() => setTypeFilter(type)}
                 className={`rounded-full border px-2 py-0.5 text-[10px] font-medium transition-colors ${
                   typeFilter === type
-                    ? 'border-brand-500/40 bg-brand-600/12 text-brand-800'
+                    ? 'border-brand-500/40 bg-surface-secondary text-text-primary border border-border-subtle'
                     : 'border-border-subtle text-text-muted hover:text-text-secondary'
                 }`}
                 data-testid={`leitner-type-${type}`}
@@ -205,7 +206,7 @@ export function LeitnerPanel({
                 key={card.front}
                 type="button"
                 onClick={() => onOpenInReader?.(card.front)}
-                className="rounded-full border border-accent-cyan/25 bg-accent-cyan/8 px-2 py-0.5 text-[10px] text-brand-800 hover:opacity-90"
+                className="rounded-full border border-accent-cyan/25 bg-accent-cyan/8 px-2 py-0.5 text-[10px] text-text-primary hover:opacity-90"
               >
                 {card.front.slice(0, 48)}{card.front.length > 48 ? '…' : ''}
               </button>

@@ -33,6 +33,7 @@ type Props = {
   onOpenReaderSection?: () => void;
 };
 
+/* OPT-K100 — markup debt: Agent/Reader/tools decorative brand type -> ink */
 export function ConceptLensPanel({
   lens,
   activity,
@@ -72,13 +73,13 @@ export function ConceptLensPanel({
         'concept-lens-chip flex items-center gap-2 w-full rounded-full border border-white/10 bg-surface-secondary/85 backdrop-blur px-2.5 py-1 shadow-[0_8px_30px_rgba(2,6,23,0.45)]',
         isStrip && 'shadow-none max-w-full',
       )}>
-        <Aperture className="w-3.5 h-3.5 text-brand-800 shrink-0" />
+        <Aperture className="w-3.5 h-3.5 text-text-primary shrink-0" />
         <button
           type="button"
           onClick={() => onFocus(label)}
           title={t('lensFocusAllTools')}
           className={cn(
-            'text-[11px] font-semibold truncate text-text-primary hover:text-brand-800 transition-colors',
+            'text-[11px] font-semibold truncate text-text-primary hover:text-text-primary transition-colors',
             isStrip ? 'max-w-[min(200px,40vw)]' : 'max-w-[140px]',
           )}
         >
@@ -115,7 +116,7 @@ export function ConceptLensPanel({
                 key={tl}
                 type="button"
                 onClick={() => onJumpTool(tl)}
-                className="rounded-full border border-white/10 bg-white/[0.04] px-1.5 py-0.5 text-[10px] font-medium text-text-secondary hover:border-accent-cyan/40 hover:text-brand-800 transition-colors"
+                className="rounded-full border border-white/10 bg-white/[0.04] px-1.5 py-0.5 text-[10px] font-medium text-text-secondary hover:border-accent-cyan/40 hover:text-text-primary transition-colors"
               >
                 {TOOL_LABELS[tl][lang]}
               </button>
@@ -165,7 +166,7 @@ export function ConceptLensPanel({
                   key={section}
                   type="button"
                   onClick={onOpenReaderSection}
-                  className="rounded-full border border-white/10 bg-white/[0.04] px-2 py-0.5 text-[10px] text-text-secondary hover:border-brand-600/35 hover:text-brand-800 truncate max-w-[160px]"
+                  className="rounded-full border border-white/10 bg-white/[0.04] px-2 py-0.5 text-[10px] text-text-secondary hover:border-border-default hover:text-text-primary truncate max-w-[160px]"
                   data-testid="concept-lens-section"
                 >
                   {section}
@@ -219,7 +220,7 @@ export function ConceptLensPanel({
                 key={action}
                 type="button"
                 onClick={() => onAction(action)}
-                className="rounded-full border border-brand-500/30 bg-brand-600/10 px-2 py-0.5 text-[10px] font-medium text-brand-800 hover:bg-brand-600/20 transition-colors"
+                className="rounded-full border border-brand-500/30 bg-brand-600/10 px-2 py-0.5 text-[10px] font-medium text-text-primary hover:bg-brand-600/20 transition-colors"
                 data-testid={`concept-lens-action-${action}`}
               >
                 {ACTION_LABELS[action][lang]}
@@ -255,7 +256,7 @@ function ConceptRefRow({
             <button
               type="button"
               onClick={() => onSelect(ref.label)}
-              className="rounded-full border border-white/10 bg-white/[0.04] px-2 py-0.5 text-[10px] text-text-secondary hover:border-brand-600/35 hover:text-brand-800 truncate max-w-[140px]"
+              className="rounded-full border border-white/10 bg-white/[0.04] px-2 py-0.5 text-[10px] text-text-secondary hover:border-border-default hover:text-text-primary truncate max-w-[140px]"
               data-testid={`concept-ref-${ref.label.slice(0, 12).toLowerCase().replace(/\s+/g, '-')}`}
             >
               {ref.label}
@@ -267,7 +268,7 @@ function ConceptRefRow({
               <button
                 type="button"
                 onClick={() => onExplainRelation(ref.label)}
-                className="rounded-full border border-brand-500/25 bg-brand-600/8 px-1.5 py-0.5 text-[10px] font-medium text-brand-800 hover:bg-brand-600/15"
+                className="rounded-full border border-brand-500/25 bg-brand-600/8 px-1.5 py-0.5 text-[10px] font-medium text-text-primary hover:bg-brand-600/15"
                 data-testid={`concept-ref-explain-${ref.label.slice(0, 12).toLowerCase().replace(/\s+/g, '-')}`}
                 title={explainLabel}
               >

@@ -53,6 +53,7 @@ interface LessonContentProps {
   pedagogyLens?: WorkspacePedagogyLens;
 }
 
+/* OPT-K100 — markup debt: Agent/Reader/tools decorative brand type -> ink */
 export function LessonContent({
   step,
   stepCount,
@@ -146,13 +147,13 @@ export function LessonContent({
         {learningBar}
         {theoryRecap && (
           <div className="p-3 rounded-xl bg-surface-card border border-border-subtle space-y-2">
-            <span className="text-[10px] text-brand-800 font-semibold">{t('wsLensTheoryHint')}</span>
+            <span className="text-[10px] text-text-primary font-semibold">{t('wsLensTheoryHint')}</span>
             <div className="text-sm text-text-secondary leading-relaxed">
               <RichText text={theoryRecap} />
             </div>
           </div>
         )}
-        <span className="text-[10px] text-brand-800 font-semibold">{t('quiz')}</span>
+        <span className="text-[10px] text-text-primary font-semibold">{t('quiz')}</span>
         <h2 className="text-xl font-bold">{t('knowledgeCheck')}</h2>
         <div className="p-3 rounded-xl bg-surface-card border border-border-subtle">
           {quizSessionItems && quizSessionItems.length > 0 && quizSessionScopeKey ? (
@@ -186,7 +187,7 @@ export function LessonContent({
     return (
       <div className="space-y-4">
         {learningBar}
-        <span className="text-[10px] text-brand-800 font-semibold">
+        <span className="text-[10px] text-text-primary font-semibold">
           {t('wbFromNotes')}
         </span>
         <h2 className="text-xl font-bold">{stepTitle ?? concept}</h2>
@@ -203,7 +204,7 @@ export function LessonContent({
           <button
             type="button"
             onClick={() => onOpenTool('quiz')}
-            className="inline-flex items-center gap-1 rounded-lg border border-brand-400/45 bg-brand-100/80 px-3 py-1.5 text-xs font-semibold text-brand-800 hover:bg-brand-100 transition-colors"
+            className="inline-flex items-center gap-1 rounded-lg border border-brand-400/45 bg-brand-100/80 px-3 py-1.5 text-xs font-semibold text-text-primary hover:bg-brand-100 transition-colors"
             data-testid="lesson-practice-cta"
           >
             {t('wsPracticePanelCta')}
@@ -220,7 +221,7 @@ export function LessonContent({
           />
         )}
         {genStatus === 'loading' && (
-          <span className="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded bg-brand-500/10 text-brand-800 font-medium animate-pulse">
+          <span className="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded bg-surface-secondary text-text-primary border border-border-subtle font-medium animate-pulse">
             <Sparkles className="w-2.5 h-2.5" /> {t('generatingFromSources')}
           </span>
         )}

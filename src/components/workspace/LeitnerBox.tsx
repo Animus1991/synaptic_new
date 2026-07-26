@@ -65,6 +65,7 @@ interface LeitnerBoxProps {
 
 
 
+/* OPT-K100 — markup debt: Agent/Reader/tools decorative brand type -> ink */
 export function LeitnerBox({
 
   cards = [],
@@ -368,7 +369,7 @@ export function LeitnerBox({
             type="button"
             data-testid="leitner-open-quiz"
             onClick={onOpenQuiz}
-            className="ml-auto flex items-center gap-1 text-[10px] font-medium text-brand-800 hover:opacity-80 border border-accent-cyan/30 rounded-lg px-2 py-0.5 mr-1"
+            className="ml-auto flex items-center gap-1 text-[10px] font-medium text-text-primary hover:opacity-80 border border-accent-cyan/30 rounded-lg px-2 py-0.5 mr-1"
           >
             {t('quiz')}
           </button>
@@ -377,7 +378,7 @@ export function LeitnerBox({
         {deck.length > 0 && (
           <details className="relative group">
             <summary
-              className="flex items-center gap-1 text-[10px] font-medium text-brand-700 hover:text-brand-800 border border-brand-500/30 rounded-lg px-2 py-0.5 cursor-pointer list-none [&::-webkit-details-marker]:hidden"
+              className="flex items-center gap-1 text-[10px] font-medium text-text-secondary hover:text-text-primary border border-brand-500/30 rounded-lg px-2 py-0.5 cursor-pointer list-none [&::-webkit-details-marker]:hidden"
               title={t('leitnerExportAnki')}
               data-testid="leitner-export-anki"
             >
@@ -504,7 +505,7 @@ export function LeitnerBox({
         <div className="mb-2 flex flex-wrap items-center gap-1.5">
           {card && (
             <span
-              className="inline-block rounded-full border border-accent-cyan/25 bg-accent-cyan/10 px-2 py-0.5 text-[10px] font-medium text-brand-800"
+              className="inline-block rounded-full border border-accent-cyan/25 bg-accent-cyan/10 px-2 py-0.5 text-[10px] font-medium text-text-primary"
               data-testid="leitner-card-type"
             >
               {leitnerCardTypeLabel(inferLeitnerCardType(card), lang)}
@@ -512,7 +513,7 @@ export function LeitnerBox({
           )}
           {card?.source && (
             <span
-              className="inline-block rounded-full border border-brand-500/25 bg-brand-600/10 px-2 py-0.5 text-[10px] font-medium text-brand-800"
+              className="inline-block rounded-full border border-brand-500/25 bg-brand-600/10 px-2 py-0.5 text-[10px] font-medium text-text-primary"
               data-testid="leitner-card-source"
             >
               {leitnerCardSourceLabel(card.source, lang)}
@@ -554,7 +555,7 @@ export function LeitnerBox({
           type="button"
           data-testid="leitner-quiz-this-card"
           onClick={() => onQuizCard(card.front)}
-          className="mt-2 w-full rounded-lg border border-accent-cyan/30 bg-accent-cyan/10 py-1.5 text-[10px] font-medium text-brand-800 hover:opacity-90"
+          className="mt-2 w-full rounded-lg border border-accent-cyan/30 bg-accent-cyan/10 py-1.5 text-[10px] font-medium text-text-primary hover:opacity-90"
         >
           {t('leitnerQuizThisCard')}
         </button>

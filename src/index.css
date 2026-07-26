@@ -6449,3 +6449,13 @@ body { letter-spacing: -0.005em; }
 .platform-empty-state h3.ws-serif {
   letter-spacing: -0.01em;
 }
+
+/* ========== OPT-K100 - Broader markup debt (Agent / Reader / tools) ========== */
+/*
+ * High-dwell study surfaces: decorative text-brand-* removed at source.
+ * Soft selected chips use surface + ink; solid brand CTAs untouched.
+ * Shared primitives (page header icon, CardLink, SecondaryCTA hover) follow ink.
+ */
+:root {
+  --opt-k100-markup-debt: 1;
+}

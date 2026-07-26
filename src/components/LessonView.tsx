@@ -39,6 +39,7 @@ interface LessonViewProps {
   onUpload?: () => void;
 }
 
+/* OPT-K100 — markup debt: Agent/Reader/tools decorative brand type -> ink */
 export function LessonView({
   onClose,
   onOpenAgent,
@@ -210,7 +211,7 @@ export function LessonView({
             aria-label={t('agentBtn')}
             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium border border-border-subtle hover:border-brand-500/40 hover:bg-surface-hover transition-colors min-h-9"
           >
-            <Sparkles className="w-3.5 h-3.5 text-brand-400" />
+            <Sparkles className="w-3.5 h-3.5 text-text-secondary" />
             <span className="hidden xs:inline">{t('agentBtn')}</span>
           </button>
           <span
@@ -251,7 +252,7 @@ export function LessonView({
               aria-label={`${stepCountLabel} ${i + 1}: ${s.label}`}
               className={cn(
                 'inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded text-[11px] font-medium tracking-wide transition-colors shrink-0 min-h-8',
-                current && 'bg-brand-600/15 text-brand-200 border border-brand-500/30',
+                current && 'bg-surface-secondary text-text-primary border border-border-subtle',
                 !current && completed && 'text-accent-emerald hover:bg-surface-hover',
                 !current && !completed && 'text-text-muted',
                 !accessible && 'cursor-not-allowed opacity-60',
@@ -355,7 +356,7 @@ export function LessonView({
             className={cn(
               'inline-flex items-center gap-1 px-3 py-2 rounded-md text-sm font-medium transition-colors min-h-10',
               canAdvance()
-                ? 'text-brand-200 bg-brand-600/15 border border-brand-500/30 hover:bg-brand-600/25'
+                ? 'text-text-primary bg-surface-secondary border border-brand-500/30 hover:bg-brand-600/25'
                 : 'text-text-muted cursor-not-allowed border border-border-subtle/40',
             )}
           >
@@ -369,7 +370,7 @@ export function LessonView({
             <button
               type="button"
               onClick={onStartNextTask}
-              className="w-full py-2.5 rounded-md text-sm font-medium border border-brand-500/30 text-brand-200 hover:bg-brand-600/10 transition-colors min-h-11"
+              className="w-full py-2.5 rounded-md text-sm font-medium border border-brand-500/30 text-text-primary hover:bg-brand-600/10 transition-colors min-h-11"
             >
               {t('lessonViewNextTask')}
             </button>

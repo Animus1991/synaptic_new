@@ -139,6 +139,7 @@ function downloadBlob(filename: string, content: string, mime: string) {
   URL.revokeObjectURL(url);
 }
 
+/* OPT-K100 — markup debt: Agent/Reader/tools decorative brand type -> ink */
 export function CognitiveReader({
   text = '',
   emptyMessage,
@@ -693,7 +694,7 @@ export function CognitiveReader({
         className={cn(
           'inline rounded px-0.5 transition-colors',
           glossaryHit && 'underline decoration-accent-cyan/40 decoration-dotted',
-          focused && 'bg-brand-500/25 text-brand-200 ring-1 ring-brand-400/30',
+          focused && 'bg-surface-secondary text-text-primary ring-1 ring-border-default',
           clickable && !focused && 'hover:bg-surface-hover cursor-pointer',
         )}
       >
@@ -780,7 +781,7 @@ export function CognitiveReader({
                     ? readerHeatmapLevelClass(learningHeat.level)
                     : suspicious
                       ? 'border-accent-amber/40 text-accent-amber'
-                      : 'border-border-subtle/60 text-brand-800',
+                      : 'border-border-subtle/60 text-text-primary',
                 )}
                 title={heatmapMode === 'learning' && learningHeat?.reasons.length ? learningHeat.reasons.join(' · ') : undefined}
                 data-suspicious-fragment={suspicious ? 'true' : undefined}
@@ -865,7 +866,7 @@ export function CognitiveReader({
                   <thead>
                     <tr className="border-b border-border-subtle/60 bg-surface-secondary/50">
                       {headers.map((h, hi) => (
-                        <th key={hi} className="px-3 py-2 font-semibold text-brand-200">{h}</th>
+                        <th key={hi} className="px-3 py-2 font-semibold text-text-primary">{h}</th>
                       ))}
                     </tr>
                   </thead>
@@ -1144,7 +1145,7 @@ export function CognitiveReader({
           onMouseLeave={scheduleCloseGlossaryPopover}
         >
           <div className="min-w-0">
-            <p className="text-[11px] font-semibold text-brand-800">{glossaryPopover.term}</p>
+            <p className="text-[11px] font-semibold text-text-primary">{glossaryPopover.term}</p>
             <p className="text-[10px] text-text-secondary mt-0.5">
               {glossaryPopover.definition || t('readerNoGlossaryDef')}
             </p>
@@ -1154,7 +1155,7 @@ export function CognitiveReader({
               type="button"
               data-testid="reader-define-btn"
               aria-pressed="true"
-              className="rounded-lg border border-brand-500/40 bg-brand-600/20 px-2 py-1 text-[10px] font-medium text-brand-800"
+              className="rounded-lg border border-border-subtle bg-surface-secondary px-2 py-1 text-[10px] font-medium text-text-primary"
             >
               {t('readerDefine')}
             </button>
@@ -1166,7 +1167,7 @@ export function CognitiveReader({
                   onTermFocus(glossaryPopover.term);
                   setGlossaryPopover(null);
                 }}
-                className="rounded-lg border border-brand-500/30 bg-brand-600/10 px-2 py-1 text-[10px] font-medium text-brand-800"
+                className="rounded-lg border border-border-subtle bg-surface-secondary px-2 py-1 text-[10px] font-medium text-text-primary"
               >
                 {t('readerFocusInText')}
               </button>
@@ -1224,7 +1225,7 @@ export function CognitiveReader({
                 'shrink-0 max-w-[140px] truncate rounded-full border px-2.5 py-1 text-[10px] transition-colors',
                 isActive
                   ? 'ws-chip-brand font-medium'
-                  : 'border-border-subtle bg-surface-card text-text-secondary hover:border-brand-600/35 hover:text-brand-800',
+                  : 'border-border-subtle bg-surface-card text-text-secondary hover:border-border-default hover:text-text-primary',
               )}
               title={item.label}
               aria-current={isActive ? 'true' : undefined}
@@ -1292,7 +1293,7 @@ export function CognitiveReader({
           <button
             type="button"
             onClick={() => handleReaderSelectionAction('ask-agent')}
-            className="shrink-0 inline-flex items-center gap-1 rounded-lg border border-accent-cyan/40 bg-accent-cyan/15 px-2 py-1 text-[10px] font-medium text-brand-800"
+            className="shrink-0 inline-flex items-center gap-1 rounded-lg border border-accent-cyan/40 bg-accent-cyan/15 px-2 py-1 text-[10px] font-medium text-text-primary"
           >
             <Sparkles className="h-3 w-3" />
             {t('readerAskAgentChip')}
@@ -1315,7 +1316,7 @@ export function CognitiveReader({
           className="shrink-0 border-b border-brand-500/20 bg-brand-500/6 px-4 py-3 space-y-1.5"
         >
           <div className="flex items-center justify-between">
-            <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-brand-300">
+            <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-text-secondary">
               <Sparkles className="w-3 h-3" />
               {lang === 'el' ? 'AI Εξήγηση' : 'AI Explanation'}
             </span>
@@ -1406,7 +1407,7 @@ export function CognitiveReader({
               onScroll={onCompanionScroll}
               className="min-h-0 overflow-y-auto bg-surface-secondary/40 p-4 md:p-6"
             >
-              <p className="sticky top-0 z-10 mb-2 bg-surface-primary/90 py-1 text-[10px] font-semibold text-brand-800 backdrop-blur-sm">
+              <p className="sticky top-0 z-10 mb-2 bg-surface-primary/90 py-1 text-[10px] font-semibold text-text-primary backdrop-blur-sm">
                 {translationMode === 'full'
                   ? t('readerTranslationCol')
                   : t('readerGlossaryCompanion')}
@@ -1507,7 +1508,7 @@ export function CognitiveReader({
                 {ann.note && <p className="text-text-primary mt-1">{ann.note}</p>}
               </div>
             ))}
-            <button type="button" onClick={exportJson} className="w-full text-[10px] text-brand-700 hover:text-brand-800 py-1">
+            <button type="button" onClick={exportJson} className="w-full text-[10px] text-text-secondary hover:text-text-primary py-1">
               JSON export
             </button>
           </aside>
@@ -1526,7 +1527,7 @@ export function CognitiveReader({
           />
           <div className="flex gap-2 justify-end">
             <button type="button" onClick={() => setPendingNote(null)} className="text-xs text-text-muted">{t('cancel')}</button>
-            <button type="button" onClick={confirmAnnotation} className="text-xs font-medium text-brand-800">{t('save')}</button>
+            <button type="button" onClick={confirmAnnotation} className="text-xs font-medium text-text-primary">{t('save')}</button>
           </div>
         </div>
       )}

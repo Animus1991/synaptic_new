@@ -35,6 +35,7 @@ const TOOL_ICONS: Record<WorkspaceToolId, typeof Map> = {
   dashboard: LayoutDashboard,
 };
 
+/* OPT-K100 — markup debt: Agent/Reader/tools decorative brand type -> ink */
 export function LessonStepToolBar({
   step,
   stepIndex,
@@ -87,8 +88,8 @@ export function LessonStepToolBar({
                 className={cn(
                   'inline-flex items-center gap-1 rounded-lg border px-2 py-1.5 text-[10px] font-medium transition-all',
                   action.recommended
-                    ? 'border-brand-600/30 bg-brand-100/70 text-brand-800'
-                    : 'border-border-subtle text-text-secondary hover:border-brand-500/30 hover:text-brand-800',
+                    ? 'border-brand-600/30 bg-surface-secondary text-text-primary border border-border-subtle'
+                    : 'border-border-subtle text-text-secondary hover:border-brand-500/30 hover:text-text-primary',
                 )}
               >
                 <Icon className="w-3 h-3 shrink-0" />
@@ -116,8 +117,8 @@ export function LessonStepToolBar({
               isRecommended
                 ? 'border-accent-emerald/35 bg-accent-emerald/10 text-accent-emerald'
                 : isActive
-                  ? 'border-brand-600/30 bg-brand-100/70 text-brand-800'
-                  : 'border-border-subtle text-text-muted hover:border-brand-500/30 hover:text-brand-800',
+                  ? 'border-brand-600/30 bg-surface-secondary text-text-primary border border-border-subtle'
+                  : 'border-border-subtle text-text-muted hover:border-brand-500/30 hover:text-text-primary',
             )}
             data-testid={`lesson-open-tool-${tool}`}
             data-recommended={isRecommended ? 'true' : undefined}

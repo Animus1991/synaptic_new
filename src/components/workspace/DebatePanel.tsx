@@ -28,6 +28,7 @@ type Props = {
   onAiCounter?: (claimText: string) => void;
 };
 
+/* OPT-K100 — markup debt: Agent/Reader/tools decorative brand type -> ink */
 export function DebatePanel({
   session,
   concept,
@@ -142,7 +143,7 @@ export function DebatePanel({
             <button
               type="button"
               onClick={() => onOpenInReader(concept)}
-              className="ws-eyebrow inline-flex items-center gap-1.5 rounded-md border border-border-subtle px-2 py-1 text-text-secondary hover:border-brand-400/40 hover:text-brand-800 transition-colors"
+              className="ws-eyebrow inline-flex items-center gap-1.5 rounded-md border border-border-subtle px-2 py-1 text-text-secondary hover:border-brand-400/40 hover:text-text-primary transition-colors"
               data-testid="debate-open-reader"
             >
               <BookOpen className="w-3 h-3" aria-hidden />
@@ -158,7 +159,7 @@ export function DebatePanel({
                 key={`${i}-${text.slice(0, 24)}`}
                 type="button"
                 onClick={() => selectClaim(text)}
-                className="rounded-md border border-brand-500/25 bg-brand-500/5 px-2 py-0.5 text-[10px] text-brand-200 hover:bg-brand-500/10 hover:border-brand-500/40 transition-colors"
+                className="rounded-md border border-brand-500/25 bg-brand-500/5 px-2 py-0.5 text-[10px] text-text-primary hover:bg-brand-500/10 hover:border-brand-500/40 transition-colors"
               >
                 {text.slice(0, 56)}{text.length > 56 ? '…' : ''}
               </button>

@@ -9,6 +9,7 @@ import { BLUEPRINT_MOTION, useBlueprintTheme } from '../../lib/useBlueprintTheme
 import { OverflowChipRow } from './OverflowChipRow';
 import { AllCapsLabel } from './AllCapsLabel';
 
+/* OPT-K100 — markup debt: Agent/Reader/tools decorative brand type -> ink */
 export { BlueprintSurface } from './BlueprintSurface';
 
 /** In-page section chrome — Option-B eyebrow / title / subtitle (distinct from PageHeader). */
@@ -165,7 +166,7 @@ export function SessionLauncherCard({
     >
       {recommended && recommendedLabel ? (
         <span
-          className="absolute -top-1.5 right-2 rounded-md border border-brand-500/30 bg-brand-600/15 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-brand-700"
+          className="absolute -top-1.5 right-2 rounded-md border border-brand-500/30 bg-brand-600/15 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-text-primary"
           data-testid="session-recommended-badge"
         >
           <AllCapsLabel>{recommendedLabel}</AllCapsLabel>
@@ -432,7 +433,7 @@ export function MiniAlert({
           type="button"
           onClick={onAction}
           data-testid="mini-alert-action"
-          className="mt-2 text-sm font-semibold text-brand-800 hover:underline"
+          className="mt-2 text-sm font-semibold text-text-primary hover:underline"
         >
           {actionLabel}
         </button>

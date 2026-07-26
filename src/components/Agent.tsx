@@ -93,6 +93,7 @@ const AGENT_MODE_META: { mode: AgentMode; icon: typeof Brain; color: string }[] 
   { mode: 'motivation', icon: Sparkles, color: 'text-text-secondary' },
 ];
 
+/* OPT-K100 — markup debt: Agent/Reader/tools decorative brand type -> ink */
 export function Agent({
   messages,
   mode,
@@ -590,7 +591,7 @@ export function Agent({
               <span
                 className={cn(
                   'text-[10px] truncate max-w-[120px]',
-                  quietModes ? 'text-text-secondary' : 'text-brand-300',
+                  quietModes ? 'text-text-secondary' : 'text-text-secondary',
                 )}
               >
                 {ui.pinnedFileLabel}: {analyzedFiles.find((f) => f.id === pinnedFileId)?.name ?? '…'}
@@ -606,7 +607,7 @@ export function Agent({
               }}
               className={cn(
                 'p-1.5 rounded-lg hover:bg-surface-hover text-text-tertiary',
-                showSourceSettings && (quietModes ? 'bg-surface-hover text-text-primary' : 'bg-surface-hover text-brand-300'),
+                showSourceSettings && (quietModes ? 'bg-surface-hover text-text-primary' : 'bg-surface-hover text-text-secondary'),
               )}
             >
               <Settings2 className="w-4 h-4" aria-hidden="true" />
@@ -649,7 +650,7 @@ export function Agent({
                           activeSourceMode === opt.id
                             ? quietModes
                               ? 'text-text-primary bg-surface-secondary'
-                              : 'text-brand-300 bg-brand-500/10'
+                              : 'text-text-primary bg-surface-secondary'
                             : 'text-text-secondary',
                         )}
                       >
@@ -694,7 +695,7 @@ export function Agent({
                 'flex items-center gap-1 rounded-md border border-border-subtle bg-surface-card px-1.5 py-0.5 text-[11px] font-medium text-text-primary transition-colors max-w-[140px]',
                 quietModes ? 'hover:border-border-default' : 'hover:border-brand-200',
                 showEmbeddedSource &&
-                  (quietModes ? 'border-border-default text-text-primary' : 'border-brand-500/40 text-brand-500'),
+                  (quietModes ? 'border-border-default text-text-primary' : 'border-border-default text-text-primary'),
               )}
               title={ui.allSources}
             >
@@ -727,7 +728,7 @@ export function Agent({
                     selectedSource === 'all'
                       ? quietModes
                         ? 'text-text-primary'
-                        : 'text-brand-500'
+                        : 'text-text-secondary0'
                       : 'text-text-secondary',
                   )}
                 >
@@ -750,7 +751,7 @@ export function Agent({
                       selectedSource === c.id
                         ? quietModes
                           ? 'text-text-primary'
-                          : 'text-brand-500'
+                          : 'text-text-secondary0'
                         : 'text-text-secondary',
                     )}
                   >
@@ -766,7 +767,7 @@ export function Agent({
                 onClick={onOpenFullPage}
                 className={cn(
                   'text-[10px] font-medium text-text-muted px-1.5 py-0.5 rounded-md hover:bg-surface-hover transition-colors',
-                  quietModes ? 'hover:text-text-primary' : 'hover:text-brand-700',
+                  quietModes ? 'hover:text-text-primary' : 'hover:text-text-primary',
                 )}
                 data-testid="agent-open-full-page"
               >
@@ -805,7 +806,7 @@ export function Agent({
               <p
                 className={cn(
                   'text-xs font-semibold truncate',
-                  quietModes ? 'text-text-primary' : 'text-brand-300',
+                  quietModes ? 'text-text-primary' : 'text-text-secondary',
                 )}
               >
                 {activeTaskTitle}
@@ -883,7 +884,7 @@ export function Agent({
                           activeSourceMode === opt.id
                             ? quietModes
                               ? 'bg-surface-secondary text-text-primary border border-border-default'
-                              : 'bg-brand-500/10 text-brand-300 border border-brand-500/25'
+                              : 'bg-surface-secondary text-text-primary border border-border-subtle'
                             : 'text-text-secondary hover:bg-surface-hover',
                         )}
                       >
@@ -912,7 +913,7 @@ export function Agent({
             embedded ? (
               <div className="py-8 text-center space-y-2" data-testid="agent-empty-invite">
                 <Sparkles
-                  className={cn('w-6 h-6 mx-auto', quietModes ? 'text-text-secondary' : 'text-brand-600')}
+                  className={cn('w-6 h-6 mx-auto', quietModes ? 'text-text-secondary' : 'text-text-secondary')}
                   aria-hidden
                 />
                 <p className="text-sm font-medium text-text-primary">{ui.title}</p>
@@ -1001,7 +1002,7 @@ export function Agent({
               <Sparkles
                 className={cn(
                   'w-4 h-4 animate-pulse shrink-0 mt-0.5',
-                  quietModes ? 'text-text-tertiary' : 'text-brand-400',
+                  quietModes ? 'text-text-tertiary' : 'text-text-secondary',
                 )}
               />
               <span>{ui.thinking}</span>
@@ -1075,7 +1076,7 @@ export function Agent({
                 onClick={handleSearchSources}
                 className={cn(
                   'p-1.5 rounded-lg hover:bg-surface-hover text-text-secondary',
-                  attachSource && (quietModes ? 'text-text-primary' : 'text-brand-400'),
+                  attachSource && (quietModes ? 'text-text-primary' : 'text-text-secondary'),
                 )}
               >
                 <Search className="w-4 h-4" aria-hidden="true" />
@@ -1091,7 +1092,7 @@ export function Agent({
                   }}
                   className={cn(
                     'p-1.5 rounded-lg hover:bg-surface-hover text-text-secondary',
-                    pinnedFileId && (quietModes ? 'text-text-primary' : 'text-brand-400'),
+                    pinnedFileId && (quietModes ? 'text-text-primary' : 'text-text-secondary'),
                   )}
                 >
                   <FileText className="w-4 h-4" aria-hidden="true" />
@@ -1112,7 +1113,7 @@ export function Agent({
                             pinnedFileId === file.id
                               ? quietModes
                                 ? 'text-text-primary bg-surface-secondary'
-                                : 'text-brand-300 bg-brand-500/10'
+                                : 'text-text-primary bg-surface-secondary'
                               : 'text-text-secondary',
                           )}
                         >
@@ -1159,7 +1160,7 @@ export function Agent({
                   'transition-colors disabled:opacity-50',
                   quietModes
                     ? 'text-text-secondary hover:text-text-primary'
-                    : 'text-brand-400 hover:text-brand-300',
+                    : 'text-text-secondary hover:text-text-primary',
                 )}
               >
                 {ui.noAnswerHint}
@@ -1204,7 +1205,7 @@ function CitationList({
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="flex items-center gap-1.5 text-xs text-text-tertiary hover:text-brand-300 transition-colors"
+        className="flex items-center gap-1.5 text-xs text-text-tertiary hover:text-text-primary transition-colors"
       >
         <FileText className="w-3 h-3" />
         {citations.length} {citations.length === 1 ? ui.citationSingular : ui.citationPlural} · {ui.citationToggle}
@@ -1215,7 +1216,7 @@ function CitationList({
           {citations.map((c) => (
             <div key={c.chunkId} className="rounded-lg border border-border-subtle bg-surface-primary/40 px-2.5 py-1.5">
               <div className="flex items-center justify-between gap-2">
-                <div className="flex items-center gap-1.5 text-[10px] text-brand-300 font-medium min-w-0">
+                <div className="flex items-center gap-1.5 text-[10px] text-text-secondary font-medium min-w-0">
                   <FileText className="w-3 h-3 shrink-0" />
                   <span className="truncate">{c.fileName}</span>
                   <span className="text-text-muted">· {c.locator}</span>
@@ -1363,7 +1364,7 @@ function MessageBubble({
                   {detail.source && onGoToSource && (
                     <button
                       type="button"
-                      className="text-brand-700 hover:text-brand-800 font-medium shrink-0"
+                      className="text-text-secondary hover:text-text-primary font-medium shrink-0"
                       onClick={() => onGoToSource(detail.source!)}
                     >
                       {ui.viewSourceForClaim}
@@ -1390,7 +1391,7 @@ function MessageBubble({
             {onGoToSource && message.citations?.[0] && (
               <button
                 type="button"
-                className="mt-2 text-[10px] text-brand-700 hover:text-brand-800 font-medium"
+                className="mt-2 text-[10px] text-text-secondary hover:text-text-primary font-medium"
                 onClick={() => onGoToSource(spanFromCitation(message.citations![0]!))}
               >
                 {ui.citationToggle}
@@ -1413,7 +1414,7 @@ function MessageBubble({
               <span className="agent-meta-badge text-[10px] px-1.5 py-0.5 rounded bg-accent-emerald/10 text-accent-emerald font-medium">{ui.badgeSourceGrounded}</span>
             )}
             {message.metadata.inferenceUsed && (
-              <span className="agent-meta-badge text-[10px] px-1.5 py-0.5 rounded bg-brand-500/10 text-brand-300 font-medium">{ui.badgeAiInference}</span>
+              <span className="agent-meta-badge text-[10px] px-1.5 py-0.5 rounded bg-surface-secondary text-text-primary border border-border-subtle font-medium">{ui.badgeAiInference}</span>
             )}
             {message.metadata.enrichmentUsed && (
               <span className="agent-meta-badge text-[10px] px-1.5 py-0.5 rounded bg-accent-amber/10 text-accent-amber font-medium">{ui.badgeEnrichment}</span>
@@ -1422,7 +1423,7 @@ function MessageBubble({
               <span className="agent-meta-badge text-[10px] px-1.5 py-0.5 rounded bg-accent-cyan/10 text-accent-cyan font-medium">{ui.badgeGlobalRag}</span>
             )}
             {message.metadata.graphRag && (
-              <span className="agent-meta-badge text-[10px] px-1.5 py-0.5 rounded bg-brand-500/10 text-brand-200 font-medium">{ui.badgeGraphRag}</span>
+              <span className="agent-meta-badge text-[10px] px-1.5 py-0.5 rounded bg-surface-secondary text-text-primary border border-border-subtle font-medium">{ui.badgeGraphRag}</span>
             )}
             {message.metadata.globalRag === false && message.metadata.sourceGrounded && (
               <span className="agent-meta-badge text-[10px] px-1.5 py-0.5 rounded bg-surface-hover text-text-muted font-medium">{ui.badgeLocalRag}</span>

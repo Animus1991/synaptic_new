@@ -6,6 +6,7 @@ import { isWeakSpotFocused } from '../../lib/workspaceWeakAreas';
 import type { WorkspaceEmptyAction } from '../../lib/workspaceEmptyState';
 import { WorkspaceToolEmptyState } from './WorkspaceToolEmptyState';
 
+/* OPT-K100 — markup debt: Agent/Reader/tools decorative brand type -> ink */
 export function WeakAreasFocusRail({
   spots,
   focusTerm,
@@ -98,7 +99,7 @@ export function WeakAreasFocusRail({
                 <button
                   type="button"
                   onClick={() => onFocusWeakSpot(spot.concept)}
-                  className="text-[11px] font-semibold text-text-primary hover:text-brand-800 truncate block max-w-full text-left"
+                  className="text-[11px] font-semibold text-text-primary hover:text-text-primary truncate block max-w-full text-left"
                 >
                   {spot.concept}
                   <span className="ml-1.5 font-normal text-text-muted">{spot.mastery}%</span>

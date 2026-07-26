@@ -96,6 +96,7 @@ interface Props {
   onDismissAnnotationConflicts?: () => void;
 }
 
+/* OPT-K100 — markup debt: Agent/Reader/tools decorative brand type -> ink */
 export function AnnotationOverlay({
   onAskAgent,
   onSelectionAction,
@@ -629,7 +630,7 @@ export function AnnotationOverlay({
                   isEmpty && 'h-3',
                 )}
               >
-                {pinHere && <Pin className="absolute -left-1 w-2.5 h-2.5 text-brand-500" aria-hidden />}
+                {pinHere && <Pin className="absolute -left-1 w-2.5 h-2.5 text-text-secondary0" aria-hidden />}
                 <span data-annotation-line-text className="whitespace-pre-wrap">
                   {renderLineText(line, lineAnns)}
                 </span>
@@ -637,7 +638,7 @@ export function AnnotationOverlay({
                   <button
                     type="button"
                     onClick={(e) => { e.stopPropagation(); onOpenInReader(line.trim()); }}
-                    className="absolute right-1 top-0.5 hidden p-0.5 rounded text-brand-800 hover:bg-surface-hover [@media(hover:hover)]:group-hover:block"
+                    className="absolute right-1 top-0.5 hidden p-0.5 rounded text-text-primary hover:bg-surface-hover [@media(hover:hover)]:group-hover:block"
                     title={t('panelOpenReader')}
                     aria-label={t('panelOpenReader')}
                   >
@@ -645,7 +646,7 @@ export function AnnotationOverlay({
                   </button>
                 )}
                 {lineAnns.some((a) => a.focusTerm) && (
-                  <span className="ml-1 text-[10px] text-brand-700 opacity-80">
+                  <span className="ml-1 text-[10px] text-text-primary opacity-80">
                     #{lineAnns.find((a) => a.focusTerm)?.focusTerm}
                   </span>
                 )}
@@ -656,7 +657,7 @@ export function AnnotationOverlay({
                 )}
                 {lineAnns.some((a) => a.category === 'exam-relevant') && (
                   <span className="ml-1 inline-flex" title={categoryLabel('exam-relevant', lang)}>
-                    <FileText className="w-2.5 h-2.5 text-brand-800" aria-hidden />
+                    <FileText className="w-2.5 h-2.5 text-text-primary" aria-hidden />
                   </span>
                 )}
               </div>
@@ -703,9 +704,9 @@ export function AnnotationOverlay({
             className="absolute bottom-0 left-0 right-0 p-3 glass-strong border-t border-border-subtle z-10"
           >
             <p className="text-xs font-semibold mb-2 inline-flex items-center gap-1.5">
-              <MessageSquare className="w-3.5 h-3.5 text-brand-500" />
+              <MessageSquare className="w-3.5 h-3.5 text-text-secondary0" />
               {t('addComment')} (line {addingAt + 1})
-              {tagDraft && <span className="text-brand-800 font-normal ml-1">· #{tagDraft}</span>}
+              {tagDraft && <span className="text-text-primary font-normal ml-1">· #{tagDraft}</span>}
             </p>
             <div className="flex gap-2">
               <input

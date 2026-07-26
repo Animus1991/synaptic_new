@@ -8,6 +8,7 @@ type Props = {
   className?: string;
 };
 
+/* OPT-K100 — markup debt: Agent/Reader/tools decorative brand type -> ink */
 export function SourceCitationChip({ citation, onOpenInReader, className = '' }: Props) {
   const { t } = useI18n();
   if (!onOpenInReader) return null;
@@ -23,7 +24,7 @@ export function SourceCitationChip({ citation, onOpenInReader, className = '' }:
         e.stopPropagation();
         onOpenInReader(query);
       }}
-      className={`inline-flex items-center gap-1 rounded-full border border-brand-500/30 bg-brand-500/10 px-2 py-0.5 text-[10px] font-medium text-brand-800 hover:opacity-90 ${className}`}
+      className={`inline-flex items-center gap-1 rounded-full border border-brand-500/30 bg-brand-500/10 px-2 py-0.5 text-[10px] font-medium text-text-primary hover:opacity-90 ${className}`}
       title={citation.fileName ?? citation.fileId}
     >
       <BookOpen className="h-3 w-3" />
