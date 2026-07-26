@@ -165,14 +165,44 @@ describe('OPT-K69 engineering clarity contracts', () => {
     expect(primer).toMatch(/calc\(var\(--ux-type-hero\) \* 0\.97\)/);
     expect(primer).toMatch(/dashboard-readiness-ring/);
     expect(primer).toMatch(/dash-horizon/);
-    expect(primer).toMatch(/0\.9506/);
-
     const shell = read('src/components/Shell.tsx');
     expect(shell).toMatch(/min-h-8 max-h-8/);
 
     const ring = read('src/components/visuals/ReadinessRing.tsx');
-    expect(ring).toMatch(/size = 175/);
     expect(ring).toMatch(/dashboard-readiness-ring/);
+  });
+
+  it('K80 — Execute height match + panel title/action density', () => {
+    const primer = read('src/styles/primer-minimal.css');
+    expect(primer).toMatch(/OPT-K80/);
+    expect(primer).toMatch(/dashboard-execute-cta[\s\S]{0,200}min-height:\s*2rem/);
+    expect(primer).toMatch(/dashboard-panel-title/);
+    expect(primer).toMatch(/dashboard-panel-action/);
+    expect(primer).toMatch(/0\.9221/);
+
+    const dash = read('src/components/Dashboard.tsx');
+    expect(dash).toMatch(/size="sm"/);
+    expect(dash).toMatch(/dashboard-panel-title/);
+    expect(dash).toMatch(/dashboard-panel-action/);
+    expect(dash).toMatch(/dashboard-panel-empty/);
+  });
+
+  it('K81 — panel denser type + ring −3% + breath gaps / one primary', () => {
+    const primer = read('src/styles/primer-minimal.css');
+    expect(primer).toMatch(/OPT-K81/);
+    expect(primer).toMatch(/--space-2:\s*0\.5rem/);
+    expect(primer).toMatch(/--space-3:\s*0\.75rem/);
+    expect(primer).toMatch(/--space-4:\s*1rem/);
+    expect(primer).toMatch(/0\.9409/);
+    expect(primer).toMatch(/0\.9604/);
+    expect(primer).toMatch(/0\.9127/);
+    expect(primer).toMatch(/dashboard-breath-stack/);
+
+    const dash = read('src/components/Dashboard.tsx');
+    expect(dash).toMatch(/dashboard-breath-stack/);
+
+    const ring = read('src/components/visuals/ReadinessRing.tsx');
+    expect(ring).toMatch(/size = 165/);
   });
 
   it('K79 — Minimal accent chroma/hue rebalance (semantic + categorical)', () => {

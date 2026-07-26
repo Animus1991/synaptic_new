@@ -10,7 +10,7 @@ interface ReadinessRingProps {
   showBand?: boolean;
 }
 
-export function ReadinessRing({ value, size = 175, strokeWidth = 11.5, label = 'Exam Readiness', sublabel, showBand = true }: ReadinessRingProps) {
+export function ReadinessRing({ value, size = 165, strokeWidth = 10.9, label = 'Exam Readiness', sublabel, showBand = true }: ReadinessRingProps) {
   const band = readinessBandMeta(value);
   const r = (size - strokeWidth) / 2;
   const c = 2 * Math.PI * r;

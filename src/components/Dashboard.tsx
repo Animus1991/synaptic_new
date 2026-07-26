@@ -391,7 +391,12 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
         />
       </MotionSection>
 
-      <div className="mt-3 sm:mt-4 px-4 sm:px-6 lg:px-8 space-y-2.5 sm:space-y-3">
+      <div
+        className={cn(
+          'mt-3 sm:mt-4 px-4 sm:px-6 lg:px-8',
+          isMinimal ? 'dashboard-breath-stack flex flex-col' : 'space-y-2.5 sm:space-y-3',
+        )}
+      >
       {postUploadCourse && (
         <MotionSection initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
           <PostUploadBanner
@@ -510,8 +515,9 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
             dataTone="next"
             action={
               <PrimaryCTA
+                size="sm"
                 onClick={handleDashboardNextAction}
-                className="shrink-0 text-xs px-4 py-2.5 dashboard-continue-hero"
+                className="shrink-0 text-xs px-3 h-8 min-h-8 max-h-8 py-0 dashboard-continue-hero"
                 data-testid="dashboard-execute-cta"
               >
                 {t('dashExecute')} <ArrowRight className="w-3.5 h-3.5" />
@@ -707,10 +713,10 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
           {/* Priority tasks */}
           <BlueprintSurface className="p-3.5" data-dashboard-col="b">
             <div className="flex items-center justify-between mb-2.5">
-              <h2 className="text-lg font-semibold ws-serif font-medium flex items-center gap-2">
+              <h2 className="dashboard-panel-title text-lg font-semibold ws-serif font-medium flex items-center gap-2">
                 <AlertTriangle className="w-5 h-5 text-accent-amber" /> {t('dashPriorityTasks')}
               </h2>
-              <button onClick={() => onNavigate('tasks')} className="text-sm text-brand-400 hover:text-brand-700 flex items-center gap-1">{t('dashViewAll')} <ChevronRight className="w-4 h-4" /></button>
+              <button onClick={() => onNavigate('tasks')} className="dashboard-panel-action text-sm text-brand-400 hover:text-brand-700 flex items-center gap-1">{t('dashViewAll')} <ChevronRight className="w-4 h-4" /></button>
             </div>
             <div className="space-y-2">
               {criticalTasks.slice(0, 5).map((task, i) => (
@@ -745,7 +751,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                   </div>
                 </MotionSection>
               ))}
-              {criticalTasks.length === 0 && <p className="text-sm text-text-tertiary text-center py-6 flex items-center justify-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-accent-emerald" /> {t('dashAllCaughtUp')}</p>}
+              {criticalTasks.length === 0 && <p className="dashboard-panel-empty text-sm text-text-tertiary text-center py-6 flex items-center justify-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-accent-emerald" /> {t('dashAllCaughtUp')}</p>}
             </div>
           </BlueprintSurface>
 
@@ -774,8 +780,8 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
           {/* Active Courses */}
           <BlueprintSurface className="p-3.5">
             <div className="flex items-center justify-between mb-2.5">
-              <h2 className="text-lg font-semibold ws-serif font-medium flex items-center gap-2"><BookOpen className="w-5 h-5 text-brand-400" />{t('dashActiveCourses')}</h2>
-              <button onClick={() => onNavigate('library')} className="text-sm text-brand-400 hover:text-brand-700 flex items-center gap-1">{t('dashLibrary')} <ChevronRight className="w-4 h-4" /></button>
+              <h2 className="dashboard-panel-title text-lg font-semibold ws-serif font-medium flex items-center gap-2"><BookOpen className="w-5 h-5 text-brand-400" />{t('dashActiveCourses')}</h2>
+              <button onClick={() => onNavigate('library')} className="dashboard-panel-action text-sm text-brand-400 hover:text-brand-700 flex items-center gap-1">{t('dashLibrary')} <ChevronRight className="w-4 h-4" /></button>
             </div>
             {activeCourses.length > 0 ? (
               <div

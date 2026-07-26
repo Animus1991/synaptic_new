@@ -831,20 +831,104 @@
   }
 }
 
-/* Readiness ring % numeral −3% (ring geometry is size=175 ≈ 180×0.97) */
+/* Readiness ring % numeral (geometry size=165 ≈ 180×0.97³) */
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-readiness-ring .dashboard-readiness-pct {
-  font-size: calc(2.25rem * 0.97) !important; /* text-4xl baseline */
+  font-size: calc(2.25rem * 0.9127) !important; /* text-4xl ×0.97³ */
 }
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-readiness-ring .text-xs {
-  font-size: calc(0.75rem * 0.97) !important;
+  font-size: calc(0.75rem * 0.9127) !important;
 }
 
-/* FSRS horizon KPIs (ΣΗΜΕΡΑ / ΑΥΡΙΟ / ΣΕ 3 ΗΜ.) −3% then −2% more (×0.9506) */
+/* FSRS horizon KPIs −3% then −2% then −3% more (×0.9221) */
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell [data-testid^="dash-horizon"] .ux-kpi-value {
-  font-size: calc(1.25rem * 0.9506) !important;
+  font-size: calc(1.25rem * 0.9221) !important;
 }
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell [data-testid^="dash-horizon"] :is(.text-\[10px\], .ux-kpi-label) {
-  font-size: calc(var(--type-caption) * 0.9506) !important;
+  font-size: calc(var(--type-caption) * 0.9221) !important;
+}
+
+/* ========== OPT-K80 — Execute height + panel type density ==========
+   Εκτέλεση = h-8 like Έναρξη συνεδρίας; panel titles −3%; actions/empty −2%. */
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell [data-testid="dashboard-execute-cta"].ux-primary-cta,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell [data-testid="dashboard-execute-cta"] {
+  height: 2rem !important;
+  min-height: 2rem !important;
+  max-height: 2rem !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  box-sizing: border-box !important;
+}
+
+/* Panel / hub section titles (Εργασίες προτεραιότητας, Ενεργά μαθήματα, …) −3% ×2 */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm :is(
+  .dashboard-panel-title,
+  .hub-section-title
+) {
+  font-size: calc(1.125rem * 0.9409) !important; /* text-lg ×0.97² */
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm .hub-section-title {
+  font-size: calc(var(--type-meta, 0.8125rem) * 0.9409) !important;
+}
+
+/* Panel actions + empty comfort (Όλες, Βιβλιοθήκη, Όλα εντάξει!) −2% ×2 */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm :is(
+  .dashboard-panel-action,
+  .dashboard-panel-empty
+) {
+  font-size: calc(0.875rem * 0.9604) !important; /* text-sm ×0.98² */
+}
+
+/* ========== OPT-K81 — Breathing rhythm + quieter empty + one primary ==========
+   Gaps 8/12/16; demote secondary panels; soft empty; keep chrome hits ≥44px. */
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) {
+  --space-2: 0.5rem;   /* 8px */
+  --space-3: 0.75rem;  /* 12px */
+  --space-4: 1rem;     /* 16px */
+}
+
+/* Outer dashboard vertical rhythm → 12px, 16px from sm */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm .dashboard-breath-stack {
+  gap: var(--space-3);
+}
+
+@media (min-width: 640px) {
+  :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm .dashboard-breath-stack {
+    gap: var(--space-4);
+  }
+}
+
+/* Secondary panels breathe: softer border, no competing fill weight */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm [data-dashboard-col="b"],
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm .blueprint-surface:not([data-dashboard-col="a"]) {
+  border-color: color-mix(in srgb, var(--color-border-subtle) 82%, transparent);
+  background: color-mix(in srgb, var(--color-surface-primary) 92%, var(--color-surface-secondary));
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm .dashboard-panel-empty {
+  color: var(--color-text-muted) !important;
+  font-weight: 500;
+}
+
+/* One solid primary in viewport: when Execute strip is present, quiet other brand CTAs */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm:has([data-testid="dashboard-execute-cta"])
+  .ux-primary-cta:not([data-testid="dashboard-execute-cta"]):not([data-testid="shell-start-session"]) {
+  background: transparent !important;
+  color: var(--color-text-primary) !important;
+  border: 1px solid var(--color-border-default) !important;
+  font-weight: 500 !important;
+  box-shadow: none !important;
+}
+
+@media (max-width: 1023px) {
+  :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm .dashboard-panel-action {
+    min-height: 2.75rem;
+    min-width: 2.75rem;
+    display: inline-flex;
+    align-items: center;
+  }
 }
