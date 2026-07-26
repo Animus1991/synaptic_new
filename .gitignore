@@ -28,3 +28,5 @@ public/pyodide/
 scripts/pdf-probe-dumps/
 scripts/pdf-probe-output.json
 *.tsbuildinfo
+
+docs/theme-overview-frames/

@@ -156,4 +156,22 @@ describe('OPT-K69 engineering clarity contracts', () => {
     expect(chrome).not.toMatch(/ws-pill['"].*animate-pulse|animate-pulse['"].*ws-pill/);
     expect(indexCss).toMatch(/study-workspace.*ws-pill|ws-pill[\s\S]{0,80}study-workspace/);
   });
+
+  it('K76 — micro-harmony: tokenized radii/type + overlay remaps; progress stays stadium', () => {
+    const primer = read('src/styles/primer-minimal.css');
+    expect(primer).toMatch(/OPT-K76/);
+    expect(primer).toMatch(/--type-body-lh:\s*1\.55/);
+    expect(primer).toMatch(/workspace-boot-shell/);
+    expect(primer).toMatch(/\.agent-message-bubble/);
+    expect(primer).toMatch(/border-radius:\s*var\(--radius-panel\)/);
+    expect(primer).toMatch(/border-radius:\s*var\(--radius-md\)/);
+
+    const clarity = read('src/styles/cursor-clarity.css');
+    expect(clarity).toMatch(/border-radius:\s*var\(--radius-md\)/);
+    expect(clarity).toMatch(/border-radius:\s*var\(--radius-panel\)/);
+    expect(clarity).toMatch(/font-size:\s*var\(--type-meta\)/);
+    // OPT-K63 — progress / usage tracks remain fully capped (not Primer soft-pill)
+    expect(clarity).toMatch(/\.usage-bar[\s\S]{0,120}border-radius:\s*999px/);
+    expect(clarity).toMatch(/border-radius:\s*9999px/);
+  });
 });

@@ -548,3 +548,80 @@
   font-size: 0.875rem !important;
   line-height: 1.5;
 }
+
+/* ========== OPT-K76 — Micro-harmony pass (video + token audit) ==========
+   Soften eye strain without redesign: tokenize radii, unify overlays/modals,
+   keep Primer soft corners (~8px panels, soft pills — not stadium chrome).
+   Progress tracks stay fully capped (OPT-K63). */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) {
+  /* Slightly calmer body line-height for long study sessions */
+  --type-body-lh: 1.55;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell {
+  line-height: var(--type-body-lh, 1.55);
+}
+
+/* Overlays / boot / error cards sit outside .app-shell — still remap soft radii */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) :is(
+  [role="dialog"],
+  .ux-modal-panel,
+  [data-testid="workspace-boot-shell"],
+  [data-testid="confirm-dialog"],
+  [data-testid="reprocess-preview-modal"]
+) :is(.rounded-2xl, .rounded-xl, .rounded-3xl) {
+  border-radius: var(--radius-panel) !important;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) :is(
+  .ux-modal-panel,
+  [role="dialog"] .max-w-md,
+  [role="dialog"] .max-w-2xl
+) {
+  border-radius: var(--radius-panel) !important;
+}
+
+/* Primary / secondary CTAs: soft md corners (not stadium) */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) :is(.ux-primary-cta, .ux-secondary-cta) {
+  border-radius: var(--radius-md) !important;
+}
+
+/* Chat bubbles: friendly soft panel radius (video: ~12px feel → 0.5rem Primer) */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .agent-message-bubble {
+  border-radius: var(--radius-panel) !important;
+}
+
+/* Inputs / composer: soft md — eye-rest vs sharp squares */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell :is(
+  input:not([type="checkbox"]):not([type="radio"]),
+  textarea,
+  select,
+  .agent-composer textarea,
+  .ux-prompt-bar-surface
+) {
+  border-radius: var(--radius-md);
+}
+
+/* Mobile / tablet — slightly larger caption floor + tap comfort */
+@media (max-width: 1023px) {
+  :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell {
+    --type-caption: 0.8125rem;
+    --type-body-sm: 0.8125rem;
+  }
+
+  :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell :is(
+    .ux-primary-cta,
+    .ux-secondary-cta,
+    .ws-chrome-btn,
+    button.platform-nav-item
+  ) {
+    min-height: 2.75rem;
+  }
+}
+
+/* Dark Minimal — nudge tertiary one step lighter for glare comfort; keep muted quieter */
+@media (prefers-contrast: no-preference) {
+  [data-theme="minimal-dark"] {
+    --color-text-tertiary: #9199a4;
+  }
+}
