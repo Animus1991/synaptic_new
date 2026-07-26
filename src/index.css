@@ -25,14 +25,14 @@
   --color-brand-900: #2d3b4b;
   --color-brand-950: #1a2430;
 
-  /* OPT-K82/K88 — dark accents: Minimal mid-chroma, slightly more vivid (not neon) */
-  --color-accent-teal: #5f8f8a;
-  --color-accent-cyan: #689eb0;
+  /* OPT-K82 / OPT-K91 — dark accents = Minimal-dark semantic set (brand stays steel) */
+  --color-accent-teal: #6aa898;
+  --color-accent-cyan: #5a9eb0;
   --color-accent-emerald: #449e80;
-  --color-accent-amber: #b89438;
-  --color-accent-rose: #c96874;
-  --color-accent-orange: #c47d4a;
-  --color-accent-violet: #7a7598;
+  --color-accent-amber: #b89440;
+  --color-accent-rose: #c87882;
+  --color-accent-orange: #c49060;
+  --color-accent-violet: #9a8fb8;
 
   /* Dark theme (default) — neutral charcoal (no purple cast).
      Surfaces lifted ~3–4% vs pure black so panels read with less eye strain. */
@@ -107,18 +107,18 @@
 
   --viz-grid-line: #1c1c1f;
 
-  /* Mastery + viz palette (dark) — OPT-K88: Minimal mid-chroma, slightly more vivid */
-  --mastery-weak: #c96874;
-  --mastery-developing: #689eb0;
-  --mastery-proficient: #b89438;
+  /* Mastery + viz (dark) — OPT-K91 aligned to Minimal-dark */
+  --mastery-weak: #c87882;
+  --mastery-developing: #5a9eb0;
+  --mastery-proficient: #b89440;
   --mastery-strong: #449e80;
-  --palette-purple: #7a7598;
-  --palette-cyan: #689eb0;
-  --palette-teal: #5f8f8a;
+  --palette-purple: #9a8fb8;
+  --palette-cyan: #5a9eb0;
+  --palette-teal: #6aa898;
   --palette-green: #449e80;
-  --palette-amber: #b89438;
-  --palette-rose: #c96874;
-  --palette-orange: #c47d4a;
+  --palette-amber: #b89440;
+  --palette-rose: #c87882;
+  --palette-orange: #c49060;
 
   /* Light theme is the typography SoT for every theme (optical size parity). */
   --font-sans: 'Nunito Sans', 'Noto Sans', 'Noto Sans Greek', system-ui, -apple-system, sans-serif;
@@ -281,18 +281,18 @@
   --color-banner-warn-ink: color-mix(in srgb, var(--palette-amber) 55%, #352c23);
   --color-banner-warn-border: color-mix(in srgb, var(--color-banner-warn-ink) 58%, var(--color-border-subtle));
 
-  /* OPT-K90 — light accents: Minimal mid-chroma (earth family; ink owns type) */
-  --mastery-weak: #c07070;
-  --mastery-developing: #6a949e;
-  --mastery-proficient: #b89438;
-  --mastery-strong: #449e80;
-  --palette-purple: #7a6a8e;
-  --palette-cyan: #6a949e;
-  --palette-teal: #4a7a6e;
-  --palette-green: #449e80;
-  --palette-amber: #b89438;
-  --palette-rose: #c07070;
-  --palette-orange: #b87840;
+  /* OPT-K91 — light accents/mastery = Minimal-light semantic set */
+  --mastery-weak: #c45c6a;
+  --mastery-developing: #7aacc4;
+  --mastery-proficient: #b0892e;
+  --mastery-strong: #3d9a78;
+  --palette-purple: #7d7a9e;
+  --palette-cyan: #4a8fa3;
+  --palette-teal: #5f8f8a;
+  --palette-green: #3d9a78;
+  --palette-amber: #b0892e;
+  --palette-rose: #c45c6a;
+  --palette-orange: #c47d4a;
 
   --color-accent-emerald: var(--palette-green);
   --color-accent-amber: var(--palette-amber);
@@ -375,18 +375,18 @@
   --color-banner-warn-ink: color-mix(in srgb, #9d7c4c 55%, #352c23);
   --color-banner-warn-border: color-mix(in srgb, var(--color-banner-warn-ink) 58%, var(--color-border-subtle));
 
-  /* OPT-K88 — warm-sand mastery: Minimal mid-chroma, earth-aligned, slightly more vivid */
-  --mastery-weak: #c07070;
-  --mastery-developing: #6a949e;
-  --mastery-proficient: #b89438;
-  --mastery-strong: #449e80;
-  --palette-purple: #7a6a8e;
-  --palette-cyan: #6a949e;
-  --palette-teal: #4a7a6e;
-  --palette-green: #449e80;
-  --palette-amber: #b89438;
-  --palette-rose: #c07070;
-  --palette-orange: #b87840;
+  /* OPT-K91 — warm-sand mastery = Minimal-light (brand browns stay central) */
+  --mastery-weak: #c45c6a;
+  --mastery-developing: #7aacc4;
+  --mastery-proficient: #b0892e;
+  --mastery-strong: #3d9a78;
+  --palette-purple: #7d7a9e;
+  --palette-cyan: #4a8fa3;
+  --palette-teal: #5f8f8a;
+  --palette-green: #3d9a78;
+  --palette-amber: #b0892e;
+  --palette-rose: #c45c6a;
+  --palette-orange: #c47d4a;
   --color-accent-emerald: var(--palette-green);
   --color-accent-amber: var(--palette-amber);
   --color-accent-orange: var(--palette-orange);
@@ -650,18 +650,18 @@
 
   color-scheme: light;
 
-  /* OPT-K90 — spectrum accents: violet brand kept; semantic mid-chroma (not neon) */
-  --mastery-weak: #c07070;
-  --mastery-developing: #6a949e;
-  --mastery-proficient: #b89438;
-  --mastery-strong: #449e80;
+  /* OPT-K91 — spectrum: Minimal-light semantics; violet brand kept on palette-purple */
+  --mastery-weak: #c45c6a;
+  --mastery-developing: #7aacc4;
+  --mastery-proficient: #b0892e;
+  --mastery-strong: #3d9a78;
   --palette-purple: #6f6299;
-  --palette-cyan: #6a949e;
-  --palette-teal: #4a8a82;
-  --palette-green: #449e80;
-  --palette-amber: #b89438;
-  --palette-rose: #c07070;
-  --palette-orange: #c48850;
+  --palette-cyan: #4a8fa3;
+  --palette-teal: #5f8f8a;
+  --palette-green: #3d9a78;
+  --palette-amber: #b0892e;
+  --palette-rose: #c45c6a;
+  --palette-orange: #c47d4a;
 
   --color-accent-emerald: var(--palette-green);
   --color-accent-amber: var(--palette-amber);
@@ -869,31 +869,31 @@
   --color-brand-900: #164e63;
   --color-brand-950: #083344;
 
-  /* Complements — cyan-glass family; OPT-K88 mid-chroma (steel, not neon bars) */
-  --color-accent-teal: #4a908a;
+  /* Complements — OPT-K91 Minimal-dark semantics (cyan brand stays on --color-brand-*) */
+  --color-accent-teal: #6aa898;
   --color-accent-cyan: #5a9eb0;
-  --color-accent-emerald: #4a9e88;
+  --color-accent-emerald: #449e80;
   --color-accent-amber: #b89440;
-  --color-accent-rose: #c07078;
-  --color-accent-orange: #b88860;
-  --color-accent-violet: #858db0;
+  --color-accent-rose: #c87882;
+  --color-accent-orange: #c49060;
+  --color-accent-violet: #9a8fb8;
 
   --viz-track: color-mix(in srgb, #ffffff 8%, #182033);
   --viz-node-fill: #182033;
   --viz-canvas-bg: color-mix(in srgb, #ffffff 3%, #0b1020);
   --viz-grid-line: color-mix(in srgb, #ffffff 6%, #0b1020);
 
-  --mastery-weak: #c07078;
+  --mastery-weak: #c87882;
   --mastery-developing: #5a9eb0;
   --mastery-proficient: #b89440;
-  --mastery-strong: #4a9e88;
-  --palette-purple: #858db0;
+  --mastery-strong: #449e80;
+  --palette-purple: #9a8fb8;
   --palette-cyan: #5a9eb0;
-  --palette-teal: #4a908a;
-  --palette-green: #4a9e88;
+  --palette-teal: #6aa898;
+  --palette-green: #449e80;
   --palette-amber: #b89440;
-  --palette-rose: #c07078;
-  --palette-orange: #b88860;
+  --palette-rose: #c87882;
+  --palette-orange: #c49060;
   /* Warn outlines on cyan-glass: bright amber alone washes out — mix with cyan brand. */
   --color-banner-warn-ink: color-mix(in srgb, var(--palette-amber) 55%, #e2e8f0);
   --color-banner-warn-border: color-mix(in srgb, var(--palette-amber) 42%, var(--color-brand-400));
@@ -5618,137 +5618,52 @@ body { letter-spacing: -0.005em; }
   box-sizing: border-box !important;
 }
 
-/* ========== OPT-K86 — soft accent washes (superseded text rules → OPT-K90) ========== */
+/* ========== OPT-K91 — neutral panel washes (kill multi-hue fragmentation) ========== */
 /*
- * Soft washes 10–14%; solid slabs mid-mixed into card.
- * Glass/glow (Blueprint/Spectrum) stays intact. Ink ownership: OPT-K90.
+ * Verdict: colored component fills (rose/amber/cyan/orange/brand washes on
+ * cards) fragment attention more than residual hex drift vs Minimal.
+ * Match Minimal method: panel washes → surface-secondary; chroma stays on
+ * thin bars / solid status fills only. Brand CTAs untouched.
  */
 :is(
   [data-theme="dark"],
   [data-theme="blueprint"],
   [data-theme="light"],
   [data-theme="spectrum"],
-  [data-theme="warm-sand"],
-  [data-theme="minimal"],
-  [data-theme="minimal-dark"]
+  [data-theme="warm-sand"]
 )
-  .app-shell .bg-accent-amber\/5,
-:is(
-  [data-theme="dark"],
-  [data-theme="blueprint"],
-  [data-theme="light"],
-  [data-theme="spectrum"],
-  [data-theme="warm-sand"],
-  [data-theme="minimal"],
-  [data-theme="minimal-dark"]
-)
-  .app-shell .bg-accent-amber\/10 {
-  background-color: color-mix(in srgb, var(--color-accent-amber) 12%, var(--color-surface-secondary)) !important;
+  .app-shell :is(
+    .bg-accent-teal\/5,
+    .bg-accent-teal\/10,
+    .bg-accent-amber\/5,
+    .bg-accent-amber\/10,
+    .bg-accent-amber\/15,
+    .bg-accent-rose\/5,
+    .bg-accent-rose\/10,
+    .bg-accent-rose\/15,
+    .bg-accent-cyan\/5,
+    .bg-accent-cyan\/10,
+    .bg-accent-cyan\/15,
+    .bg-accent-emerald\/5,
+    .bg-accent-emerald\/10,
+    .bg-accent-emerald\/15,
+    .bg-accent-violet\/5,
+    .bg-accent-violet\/10,
+    .bg-accent-violet\/15,
+    .bg-accent-orange\/5,
+    .bg-accent-orange\/10,
+    .bg-accent-orange\/15,
+    .bg-brand-500\/5,
+    .bg-brand-500\/10,
+    .bg-brand-600\/5,
+    .bg-brand-600\/10,
+    .bg-brand-600\/12,
+    .bg-brand-600\/15
+  ):not(.ux-primary-cta):not(.ux-chip-solid-brand):not(.dashboard-exam-cta):not([data-testid="shell-start-session"]) {
+  background-color: var(--color-surface-secondary) !important;
 }
 
-:is(
-  [data-theme="dark"],
-  [data-theme="blueprint"],
-  [data-theme="light"],
-  [data-theme="spectrum"],
-  [data-theme="warm-sand"],
-  [data-theme="minimal"],
-  [data-theme="minimal-dark"]
-)
-  .app-shell .bg-accent-rose\/5,
-:is(
-  [data-theme="dark"],
-  [data-theme="blueprint"],
-  [data-theme="light"],
-  [data-theme="spectrum"],
-  [data-theme="warm-sand"],
-  [data-theme="minimal"],
-  [data-theme="minimal-dark"]
-)
-  .app-shell .bg-accent-rose\/10 {
-  background-color: color-mix(in srgb, var(--color-accent-rose) 12%, var(--color-surface-secondary)) !important;
-}
-
-:is(
-  [data-theme="dark"],
-  [data-theme="blueprint"],
-  [data-theme="light"],
-  [data-theme="spectrum"],
-  [data-theme="warm-sand"],
-  [data-theme="minimal"],
-  [data-theme="minimal-dark"]
-)
-  .app-shell .bg-accent-orange\/5,
-:is(
-  [data-theme="dark"],
-  [data-theme="blueprint"],
-  [data-theme="light"],
-  [data-theme="spectrum"],
-  [data-theme="warm-sand"],
-  [data-theme="minimal"],
-  [data-theme="minimal-dark"]
-)
-  .app-shell .bg-accent-orange\/10 {
-  background-color: color-mix(in srgb, var(--color-accent-orange) 12%, var(--color-surface-secondary)) !important;
-}
-
-:is(
-  [data-theme="dark"],
-  [data-theme="blueprint"],
-  [data-theme="light"],
-  [data-theme="spectrum"],
-  [data-theme="warm-sand"],
-  [data-theme="minimal"],
-  [data-theme="minimal-dark"]
-)
-  .app-shell .bg-accent-emerald\/5,
-:is(
-  [data-theme="dark"],
-  [data-theme="blueprint"],
-  [data-theme="light"],
-  [data-theme="spectrum"],
-  [data-theme="warm-sand"],
-  [data-theme="minimal"],
-  [data-theme="minimal-dark"]
-)
-  .app-shell .bg-accent-emerald\/10 {
-  background-color: color-mix(in srgb, var(--color-accent-emerald) 12%, var(--color-surface-secondary)) !important;
-}
-
-:is(
-  [data-theme="dark"],
-  [data-theme="blueprint"],
-  [data-theme="light"],
-  [data-theme="spectrum"],
-  [data-theme="warm-sand"],
-  [data-theme="minimal"],
-  [data-theme="minimal-dark"]
-)
-  .app-shell .bg-accent-teal\/5,
-:is(
-  [data-theme="dark"],
-  [data-theme="blueprint"],
-  [data-theme="light"],
-  [data-theme="spectrum"],
-  [data-theme="warm-sand"],
-  [data-theme="minimal"],
-  [data-theme="minimal-dark"]
-)
-  .app-shell .bg-accent-cyan\/5,
-:is(
-  [data-theme="dark"],
-  [data-theme="blueprint"],
-  [data-theme="light"],
-  [data-theme="spectrum"],
-  [data-theme="warm-sand"],
-  [data-theme="minimal"],
-  [data-theme="minimal-dark"]
-)
-  .app-shell .bg-accent-violet\/5 {
-  background-color: color-mix(in srgb, var(--color-accent-cyan) 10%, var(--color-surface-secondary)) !important;
-}
-
-/* Solid status bars — mid chroma, not neon slabs */
+/* OPT-K86 remnant — solid status bars: mid chroma, not neon slabs */
 :is(
   [data-theme="dark"],
   [data-theme="blueprint"],
@@ -6083,4 +5998,233 @@ body { letter-spacing: -0.005em; }
 )
   .app-shell :is(.platform-banner-danger, .ux-callout-danger) .ink-allow-accent {
   color: color-mix(in srgb, var(--color-accent-rose) 42%, var(--color-text-primary)) !important;
+}
+
+/* ========== OPT-K93 - Cross-pollinate sweetness <-> clarity ========== */
+/*
+ * Non-Minimal -> Minimal (sweetness without chroma fatigue):
+ *   brand whisper in gradient-text, soft CTA press, warm hub wash ~3-4%
+ * Minimal -> Non-Minimal (clarity without killing identity):
+ *   ink chrome links, quiet spark/orbs, border-over-shadow row hover,
+ *   brand reserved for CTAs / focus / greeting signal only
+ */
+
+/* A1 - Minimal: soft brand wash under action hub (paper warmth, not glow) */
+:is([data-theme="minimal"]) .app-shell .dashboard-calm [data-testid="dashboard-action-hub"] {
+  background: color-mix(in srgb, var(--color-brand-600) 3.5%, var(--color-surface-primary));
+}
+
+:is([data-theme="minimal-dark"]) .app-shell .dashboard-calm [data-testid="dashboard-action-hub"] {
+  background: color-mix(in srgb, var(--color-brand-400) 4.5%, var(--color-surface-primary));
+}
+
+/* A2 - Minimal: tactile press (sweetness from non-Minimal CTAs, no shadow lift) */
+@media (prefers-reduced-motion: no-preference) {
+  :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .ux-primary-cta:active:not(:disabled),
+  :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-hub-chip:active,
+  :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-continue-hero:active:not(:disabled) {
+    transform: scale(0.985);
+  }
+}
+
+/* B1 - Non-Minimal: dim hero orbs in app shell (atmosphere, not attention trap) */
+:is([data-theme="dark"], [data-theme="blueprint"], [data-theme="light"], [data-theme="spectrum"], [data-theme="warm-sand"])
+  .app-shell .platform-hero-glow-orbs,
+:is([data-theme="dark"], [data-theme="blueprint"], [data-theme="light"], [data-theme="spectrum"], [data-theme="warm-sand"])
+  .app-shell .platform-blueprint-orbs {
+  opacity: 0.28 !important;
+}
+
+/* B2 - Non-Minimal: spark next-action -> calm surface (match Minimal callout) */
+:is([data-theme="dark"], [data-theme="blueprint"], [data-theme="light"], [data-theme="spectrum"], [data-theme="warm-sand"])
+  .app-shell .ux-spark-panel.ux-callout-next {
+  background: var(--color-surface-secondary) !important;
+  border-color: var(--color-border-subtle) !important;
+  box-shadow: none !important;
+}
+
+/* B3 - Non-Minimal: row hover = surface only (no elev-popover distraction) */
+:is([data-theme="dark"], [data-theme="blueprint"], [data-theme="light"], [data-theme="spectrum"], [data-theme="warm-sand"])
+  .app-shell .ux-row-elev-hover:hover {
+  box-shadow: none;
+  background-color: var(--color-surface-hover);
+}
+
+/* B4 - Non-Minimal dashboard: decorative brand type -> ink (Minimal K57 parity) */
+:is([data-theme="dark"], [data-theme="blueprint"], [data-theme="light"], [data-theme="spectrum"], [data-theme="warm-sand"])
+  .app-shell [data-testid="dashboard-page"] :is(
+    .dashboard-panel-action,
+    a.text-brand-400,
+    a.text-brand-300,
+    button.text-brand-400,
+    .text-brand-400:not(.ux-primary-cta):not(.ux-chip-solid-brand):not(.dashboard-exam-cta)
+  ) {
+  color: var(--color-text-secondary) !important;
+}
+
+:is([data-theme="dark"], [data-theme="blueprint"], [data-theme="light"], [data-theme="spectrum"], [data-theme="warm-sand"])
+  .app-shell [data-testid="dashboard-page"] :is(
+    a.text-brand-400:hover,
+    a.text-brand-700:hover,
+    button.text-brand-400:hover,
+    .dashboard-panel-action:hover
+  ) {
+  color: var(--color-text-primary) !important;
+}
+
+/* B5 - Non-Minimal: soften rainbow gradient-text toward ink+brand whisper */
+:is([data-theme="dark"], [data-theme="blueprint"], [data-theme="light"], [data-theme="spectrum"], [data-theme="warm-sand"])
+  .app-shell [data-testid="dashboard-page"] .gradient-text {
+  background: none !important;
+  -webkit-text-fill-color: unset !important;
+  color: color-mix(in srgb, var(--color-brand-600) 24%, var(--color-text-primary)) !important;
+}
+
+/* ========== OPT-K94 - Shell bridge: sweetness <-> clarity ========== */
+/*
+ * Minimal <- non-Minimal: brand whisper on glyph + soft nav hover (cursor-clarity)
+ * Non-Minimal <- Minimal: calm topbar, ink chrome, quiet popovers
+ */
+
+/* Calm topbar on non-Minimal (same class as Minimal) */
+:is([data-theme="dark"], [data-theme="blueprint"], [data-theme="light"], [data-theme="spectrum"], [data-theme="warm-sand"])
+  .app-shell .shell-topbar-calm {
+  background: color-mix(in srgb, var(--color-surface-primary) 92%, transparent);
+  border-bottom-color: var(--color-border-subtle);
+}
+
+:is([data-theme="light"], [data-theme="spectrum"], [data-theme="warm-sand"])
+  .app-shell .shell-topbar-calm {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  background: var(--color-surface-primary);
+}
+
+/* Quiet header popovers: border-over-shadow */
+:is([data-theme="dark"], [data-theme="blueprint"], [data-theme="light"], [data-theme="spectrum"], [data-theme="warm-sand"])
+  .app-shell .ux-elev-popover {
+  box-shadow: none !important;
+  border-color: var(--color-border-subtle) !important;
+}
+
+/* Agent chrome: decorative brand type -> ink (solid CTAs untouched) */
+:is([data-theme="dark"], [data-theme="blueprint"], [data-theme="light"], [data-theme="spectrum"], [data-theme="warm-sand"])
+  .app-shell .agent-calm [class*="text-brand-"]:not(.ux-primary-cta):not(.ux-chip-solid-brand) {
+  color: var(--color-text-secondary) !important;
+}
+
+/* ========== OPT-K95 - Platform audit bridge: sweetness <-> clarity ========== */
+/*
+ * Audit gaps (after K90-K94):
+ *  Non-Minimal still paints Library/Tasks/Upload/modals with brand-as-type + soft washes.
+ *  Minimal is clear but can feel cold in lists/modals (missing soft selection/warmth).
+ *
+ * Policy (scientific, role-based):
+ *  Ink = readable copy/icons  |  Brand = solid CTAs + focus + rare allowlist
+ *  Accents = progress/mastery fills only  |  Atmosphere = <=8% brand wash, never type
+ */
+
+/* --- B) Minimal clarity -> all themes: decorative brand TYPE -> ink --- */
+:is(
+  [data-theme="dark"],
+  [data-theme="blueprint"],
+  [data-theme="light"],
+  [data-theme="spectrum"],
+  [data-theme="warm-sand"],
+  [data-theme="minimal"],
+  [data-theme="minimal-dark"]
+)
+  .app-shell [class*="text-brand-"]:not(.ux-primary-cta):not(.ux-chip-solid-brand):not(.dashboard-exam-cta):not(.ink-allow-brand) {
+  color: var(--color-text-secondary) !important;
+}
+
+/* Soft brand washes (opacity utilities) -> neutral surface; keep solid bg-brand-600/700 CTAs */
+:is(
+  [data-theme="dark"],
+  [data-theme="blueprint"],
+  [data-theme="light"],
+  [data-theme="spectrum"],
+  [data-theme="warm-sand"]
+)
+  .app-shell [class*="bg-brand-"][class*="/"]:not(.ux-primary-cta):not(.ux-chip-solid-brand) {
+  background-color: var(--color-surface-secondary) !important;
+}
+
+/* Soft brand borders -> grey hairline; selected chips keep a quiet brand whisper */
+:is(
+  [data-theme="dark"],
+  [data-theme="blueprint"],
+  [data-theme="light"],
+  [data-theme="spectrum"],
+  [data-theme="warm-sand"]
+)
+  .app-shell [class*="border-brand-"][class*="/"]:not(.ux-primary-cta) {
+  border-color: var(--color-border-subtle) !important;
+}
+
+:is(
+  [data-theme="dark"],
+  [data-theme="blueprint"],
+  [data-theme="light"],
+  [data-theme="spectrum"],
+  [data-theme="warm-sand"]
+)
+  .app-shell [class*="border-brand-500/50"],
+:is(
+  [data-theme="dark"],
+  [data-theme="blueprint"],
+  [data-theme="light"],
+  [data-theme="spectrum"],
+  [data-theme="warm-sand"]
+)
+  .app-shell [class*="border-brand-500/40"] {
+  border-color: color-mix(in srgb, var(--color-brand-600) 32%, var(--color-border-subtle)) !important;
+  background-color: color-mix(in srgb, var(--color-brand-600) 6%, var(--color-surface-secondary)) !important;
+}
+
+/* Modals: border-over-shadow (findability without glare) */
+:is(
+  [data-theme="dark"],
+  [data-theme="blueprint"],
+  [data-theme="light"],
+  [data-theme="spectrum"],
+  [data-theme="warm-sand"]
+)
+  .app-shell .ux-modal-panel {
+  box-shadow:
+    0 0 0 1px var(--color-border-subtle),
+    0 12px 40px color-mix(in srgb, #000000 18%, transparent) !important;
+}
+
+:is([data-theme="light"], [data-theme="spectrum"], [data-theme="warm-sand"])
+  .app-shell .ux-modal-panel {
+  box-shadow:
+    0 0 0 1px var(--color-border-subtle),
+    0 8px 28px color-mix(in srgb, var(--color-text-primary) 8%, transparent) !important;
+}
+
+/* --- A) Non-Minimal sweetness -> Minimal: soft selection + warm list hover --- */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell ::selection {
+  background: color-mix(in srgb, var(--color-brand-600) 18%, var(--color-surface-secondary));
+  color: var(--color-text-primary);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .ux-modal-panel {
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, #ffffff 55%, transparent),
+    0 1px 2px color-mix(in srgb, var(--color-text-primary) 6%, transparent),
+    0 8px 24px color-mix(in srgb, var(--color-text-primary) 8%, transparent);
+}
+
+:is([data-theme="minimal-dark"]) .app-shell .ux-modal-panel {
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, #ffffff 6%, transparent),
+    0 1px 2px color-mix(in srgb, #000000 35%, transparent),
+    0 8px 24px color-mix(in srgb, #000000 40%, transparent);
+}
+
+/* Soft row comfort on key list surfaces */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell [data-testid="library-page"] .group:hover,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell [data-testid="tasks-page"] .group:hover {
+  background-color: color-mix(in srgb, var(--color-brand-600) 4%, var(--color-surface-hover));
 }

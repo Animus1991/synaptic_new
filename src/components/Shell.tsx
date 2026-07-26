@@ -285,7 +285,8 @@ export function Shell({
         data-rail-collapsed={iconRail ? 'true' : undefined}
         className={cn(
           'hidden lg:flex flex-col border-r border-border-subtle bg-surface-secondary/50 fixed inset-y-0 left-0 z-30',
-          iconRail ? 'w-14 shell-rail-collapsed' : quietNav ? 'w-56' : 'w-64',
+          /* Expanded rail width matches Minimal (w-56) on every theme */
+          iconRail ? 'w-14 shell-rail-collapsed' : 'w-56',
         )}
       >
         <div className={cn('border-b border-border-subtle', iconRail ? 'p-2 space-y-1.5' : 'p-4')}>
@@ -449,14 +450,14 @@ export function Shell({
                 aria-label={`${activeCourse.title} — ${shellUx.continueCourse}`}
                 className={cn(shellNavClass(false, quietNav, true), 'mt-2')}
               >
-                <BookOpen className="w-5 h-5 shrink-0 text-brand-400" />
+                <BookOpen className="w-5 h-5 shrink-0 text-text-secondary" />
                 <span className="sr-only">{activeCourse.title}</span>
               </button>
             ) : (
             <div className="mt-4 mx-1 p-3 rounded-xl border border-border-subtle bg-surface-hover/60" data-testid="active-course-card">
               <div className="flex items-center gap-2 mb-2">
-                <div className="w-5 h-5 rounded-md bg-brand-600/20 flex items-center justify-center shrink-0">
-                  <BookOpen className="w-3 h-3 text-brand-400" />
+                <div className="w-5 h-5 rounded-md bg-surface-secondary border border-border-subtle flex items-center justify-center shrink-0">
+                  <BookOpen className="w-3 h-3 text-text-secondary" />
                 </div>
                 <p className="text-xs font-medium text-text-primary leading-tight truncate">{activeCourse.title}</p>
               </div>
@@ -478,7 +479,7 @@ export function Shell({
                 <button
                   type="button"
                   onClick={onContinueCourse}
-                  className="text-xs text-brand-400 hover:text-brand-300 flex items-center gap-1"
+                  className="text-xs text-text-secondary hover:text-text-primary flex items-center gap-1"
                 >
                   {shellUx.continueCourse}
                   <ChevronRight className="w-3 h-3" />
@@ -647,16 +648,17 @@ export function Shell({
         className={cn(
           /* OPT-K85 — full remaining column beside fixed sidebar; never sit under the rail */
           'flex-1 min-h-screen flex flex-col w-full min-w-0 max-w-none',
-          iconRail ? 'lg:ml-14' : quietNav ? 'lg:ml-56' : 'lg:ml-64',
+          iconRail ? 'lg:ml-14' : 'lg:ml-56',
         )}
         data-testid="shell-main-offset"
-        data-rail-state={iconRail ? 'compact' : quietNav ? 'expanded' : 'blueprint-expanded'}
+        data-rail-state={iconRail ? 'compact' : 'expanded'}
       >
         {/* Top bar — Wave J-D05 dense utility chrome */}
         <header
           className={cn(
             'sticky top-0 z-20 glass-strong border-b border-border-subtle',
-            quietNav && 'shell-topbar-calm',
+            /* OPT-K94 — calm topbar on every theme (Minimal clarity → non-Minimal) */
+            'shell-topbar-calm',
           )}
           data-testid="shell-topbar"
           data-chrome-calm={quietNav ? 'true' : undefined}
@@ -704,9 +706,7 @@ export function Shell({
                   className={cn(
                     'inline-flex h-8 w-8 items-center justify-center rounded-lg transition-colors',
                     currentView === 'analytics'
-                      ? quietNav
-                        ? 'bg-surface-secondary text-text-primary'
-                        : 'bg-brand-500/15 text-brand-700'
+                      ? 'bg-surface-secondary text-text-primary'
                       : 'text-text-secondary hover:bg-surface-hover hover:text-text-primary',
                   )}
                   aria-label={t('analytics')}
@@ -721,9 +721,7 @@ export function Shell({
                   className={cn(
                     'inline-flex h-8 w-8 items-center justify-center rounded-lg transition-colors',
                     currentView === 'tasks'
-                      ? quietNav
-                        ? 'bg-surface-secondary text-text-primary'
-                        : 'bg-brand-500/15 text-brand-700'
+                      ? 'bg-surface-secondary text-text-primary'
                       : 'text-text-secondary hover:bg-surface-hover hover:text-text-primary',
                   )}
                   aria-label={t('tasks')}
@@ -914,7 +912,7 @@ export function Shell({
                   data-testid="shell-study-workspace"
                   data-tour="dashboard-workspace-cta"
                   {...workspaceEntryPrefetchHandlers()}
-                  className="hidden md:inline-flex h-8 items-center gap-1.5 px-2.5 rounded-lg border border-brand-500/35 text-[11px] font-medium leading-none text-brand-800 hover:bg-brand-600/10 transition-colors whitespace-nowrap"
+                  className="hidden md:inline-flex h-8 items-center gap-1.5 px-2.5 rounded-lg border border-border-subtle text-[11px] font-medium leading-none text-text-secondary hover:bg-surface-hover hover:text-text-primary transition-colors whitespace-nowrap"
                 >
                   <Layout className="w-3.5 h-3.5 shrink-0" />
                   {t('navStudyWorkspace')}
@@ -1003,7 +1001,7 @@ export function Shell({
                   className={cn(
                     'platform-nav-mobile-item relative flex flex-col items-center gap-0.5 p-2 rounded-xl transition-all min-w-[52px] max-w-[80px] min-h-[44px]',
                     active ? 'platform-nav-mobile-active' : 'text-text-tertiary',
-                    item.kind === 'workspace' && !active && 'text-brand-600',
+                    item.kind === 'workspace' && !active && 'text-text-secondary',
                   )}
                   title={item.kind === 'workspace' ? `${label} — ${workspaceHint}` : label}
                 >

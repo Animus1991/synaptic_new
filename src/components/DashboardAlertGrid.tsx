@@ -117,11 +117,11 @@ export function DashboardAlertGrid({
         misconception: 'dashboard-urgency-signal',
       }
     : {
-        /* OPT-K87 — soft fills stay; outline matches neutral grey cards */
-        exam: 'border-border-subtle bg-brand-600/5',
-        quiz: 'border-border-subtle bg-accent-cyan/5',
-        forget: 'border-border-subtle bg-accent-rose/5',
-        misconception: 'border-border-subtle bg-accent-amber/5',
+        /* OPT-K91 — neutral card fills (no multi-hue wash fragmentation) */
+        exam: 'border-border-subtle bg-surface-secondary',
+        quiz: 'border-border-subtle bg-surface-secondary',
+        forget: 'border-border-subtle bg-surface-secondary',
+        misconception: 'border-border-subtle bg-surface-secondary',
       };
   const iconClass: Record<Slot['tone'], string> = quiet
     ? {

@@ -3,7 +3,7 @@ import {
   Flame, Lightning as Zap, Target, Clock, BookOpen, Warning as AlertTriangle,
   CaretRight as ChevronRight, TrendUp as TrendingUp, Brain, Calendar, ArrowRight,
   Shield, Lightbulb, ArrowCounterClockwise as RotateCcw, Eye, CheckCircle as CheckCircle2, UploadSimple as Upload, Sparkle as Sparkles,
-  Sun, Moon, CloudSun, Columns, Rows,
+  Sun, Moon, CloudSun,
 } from '@phosphor-icons/react';
 import type { Course, DashboardStats, LearnerModel, PersonalStudyDate, Task } from '../types';
 import { cn } from '../utils/cn';
@@ -55,7 +55,7 @@ import { buildGlobalFsrsDueQueue, summarizeFsrsHorizon } from '../lib/leitnerDue
 import {
   loadDashboardLayoutMode,
   saveDashboardLayoutMode,
-  toggleDashboardLayoutMode,
+  dashboardColumnCount,
   type DashboardLayoutMode,
 } from '../lib/dashboardLayoutPrefs';
 import { HubSection, UtilityRow } from './ui/UtilityPrimitives';
@@ -138,11 +138,12 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
   const { t } = useI18n();
   const isMinimal = useMinimalTheme();
   const warmSandPage = useWarmSandPageScope();
-  /* Minimal defaults to canvas (paired 2-col); Blueprint keeps stacked (2-col masonry). */
+  /* OPT-K92 — 1/2/3 columns on every theme (Minimal defaults dual; others stacked). */
   const [layoutMode, setLayoutMode] = useState<DashboardLayoutMode>(() =>
-    loadDashboardLayoutMode(isMinimal ? 'canvas' : 'stacked'),
+    loadDashboardLayoutMode(isMinimal ? 'dual' : 'stacked'),
   );
-  const isCanvasLayout = layoutMode === 'canvas';
+  const columnCount = dashboardColumnCount(layoutMode);
+  const isMultiCol = columnCount > 1;
   const pageView = useMemo(
     () => selectDashboardPageViewModel({ stats, courses, tasks, learnerModel }),
     [stats, courses, tasks, learnerModel],
@@ -240,11 +241,18 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
     );
   }
 
-  const toggleLayout = () => {
-    const next = toggleDashboardLayoutMode(layoutMode);
+  const setDashboardLayout = (next: DashboardLayoutMode) => {
+    if (next === layoutMode) return;
     setLayoutMode(next);
     saveDashboardLayoutMode(next);
   };
+
+  const layoutLabelKey =
+    layoutMode === 'triple'
+      ? 'dashLayoutTriple'
+      : layoutMode === 'dual'
+        ? 'dashLayoutDual'
+        : 'dashLayoutStacked';
 
   return (
     <div
@@ -307,32 +315,48 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
               {showWorkspaceResume && workspaceLive?.snapshot.activeConcept && !workspaceLive.snapshot.genericConcept && (
                 <span
                   data-testid="dashboard-active-topic-pill"
-                  className="inline-flex max-w-[14rem] items-center truncate rounded-md border border-brand-500/30 bg-brand-500/10 px-2.5 py-1 text-[10px] font-semibold text-brand-800"
+                  className="inline-flex max-w-[14rem] items-center truncate rounded-md border border-border-subtle bg-surface-secondary px-2.5 py-1 text-[10px] font-semibold text-text-secondary"
                   title={workspaceLive.snapshot.activeConcept}
                 >
                   {t('dashboardActiveTopic').replace('{topic}', workspaceLive.snapshot.activeConcept)}
                 </span>
               )}
-              <button
-                type="button"
-                onClick={toggleLayout}
+              <div
+                role="group"
+                aria-label={t('dashLayoutGroup')}
+                title={t(layoutLabelKey)}
                 data-testid="dashboard-layout-toggle"
-                aria-pressed={isCanvasLayout}
-                aria-label={isCanvasLayout ? t('dashLayoutStacked') : t('dashLayoutCanvas')}
-                title={isCanvasLayout ? t('dashLayoutStacked') : t('dashLayoutCanvas')}
-                className={cn(
-                  'inline-flex h-8 w-8 items-center justify-center rounded-lg border transition-colors',
-                  isCanvasLayout
-                    ? 'border-brand-500/40 bg-brand-500/10 text-brand-700'
-                    : 'border-border-subtle text-text-secondary hover:border-brand-500/30 hover:text-brand-300',
-                )}
+                className="inline-flex h-8 items-center rounded-lg border border-border-subtle bg-surface-primary p-0.5"
               >
-                {isCanvasLayout ? (
-                  <Columns className="w-3.5 h-3.5" aria-hidden />
-                ) : (
-                  <Rows className="w-3.5 h-3.5" aria-hidden />
-                )}
-              </button>
+                {(
+                  [
+                    { mode: 'stacked' as const, label: t('dashLayoutStacked'), digit: '1' },
+                    { mode: 'dual' as const, label: t('dashLayoutDual'), digit: '2' },
+                    { mode: 'triple' as const, label: t('dashLayoutTriple'), digit: '3' },
+                  ] as const
+                ).map(({ mode, label, digit }) => {
+                  const active = layoutMode === mode;
+                  return (
+                    <button
+                      key={mode}
+                      type="button"
+                      onClick={() => setDashboardLayout(mode)}
+                      data-testid={`dashboard-layout-${mode}`}
+                      aria-pressed={active}
+                      aria-label={label}
+                      title={label}
+                      className={cn(
+                        'inline-flex h-7 min-w-7 items-center justify-center rounded-md px-1.5 text-[11px] font-semibold tabular-nums transition-colors',
+                        active
+                          ? 'bg-surface-secondary text-text-primary'
+                          : 'text-text-tertiary hover:text-text-secondary',
+                      )}
+                    >
+                      {digit}
+                    </button>
+                  );
+                })}
+              </div>
             </>
           }
           statsSlot={
@@ -447,7 +471,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
             <div
               className={cn(
                 'dashboard-multi-col grid gap-3',
-                daysToExam !== null && (antiPassiveAlert || stats.antiPassiveAlert) && isCanvasLayout
+                daysToExam !== null && (antiPassiveAlert || stats.antiPassiveAlert) && isMultiCol
                   ? 'grid-cols-1 sm:grid-cols-2'
                   : 'grid-cols-1',
               )}
@@ -512,7 +536,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
           <UxCallout
             variant="next-action"
             className={cn(
-              !isMinimal && 'ux-spark-panel',
+              /* OPT-K93 — next-action stays calm on all themes (no spark wash) */
               isMinimal && 'dashboard-one-step-strip',
             )}
             title={dashboardNextAction.reason || t('dashboardSuggestedNext')}
@@ -538,20 +562,17 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
         </MotionSection>
       )}
 
-      {/* OPT-K6 Minimal: vertical hub section stack. Blueprint: masonry columns. */}
+      {/* OPT-K92 — 1/2/3 column body on Minimal and non-Minimal alike. */}
       <div
         className={cn(
-          isMinimal
-            ? 'hub-section-stack'
-            : cn(
-                'space-y-2.5 xl:space-y-0',
-                isCanvasLayout
-                  ? 'xl:columns-3 xl:gap-3 [&>*]:mb-2.5 [&>*]:break-inside-avoid'
-                  : 'xl:columns-2 xl:gap-3 [&>*]:mb-2.5 [&>*]:break-inside-avoid',
-              ),
+          isMinimal ? 'hub-section-stack' : 'space-y-2.5 xl:space-y-0',
+          columnCount === 2 && 'xl:columns-2 xl:gap-3 [&>*]:mb-2.5 [&>*]:break-inside-avoid',
+          columnCount === 3 && 'xl:columns-3 xl:gap-3 [&>*]:mb-2.5 [&>*]:break-inside-avoid',
+          columnCount > 1 && isMinimal && 'hub-section-stack--columns',
         )}
         data-testid="dashboard-masonry"
         data-dashboard-layout-body={layoutMode}
+        data-dashboard-columns={columnCount}
       >
           {/* Readiness + coverage as separate masonry items (I-D05) */}
           {isMinimal ? (
@@ -559,7 +580,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
               <div
                 className={cn(
                   'dashboard-readiness-row flex items-start gap-3',
-                  isCanvasLayout ? 'flex-col sm:flex-row' : 'flex-col',
+                  isMultiCol ? 'flex-col sm:flex-row' : 'flex-col',
                 )}
               >
                 <ReadinessRing
@@ -722,7 +743,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
               <h2 className="dashboard-panel-title text-lg font-semibold ws-serif font-medium flex items-center gap-2">
                 <AlertTriangle className="w-5 h-5 text-text-secondary" /> {t('dashPriorityTasks')}
               </h2>
-              <button onClick={() => onNavigate('tasks')} className="dashboard-panel-action text-sm text-brand-400 hover:text-brand-700 flex items-center gap-1">{t('dashViewAll')} <ChevronRight className="w-4 h-4" /></button>
+              <button onClick={() => onNavigate('tasks')} className="dashboard-panel-action text-sm text-text-secondary hover:text-text-primary flex items-center gap-1">{t('dashViewAll')} <ChevronRight className="w-4 h-4" /></button>
             </div>
             <div className="space-y-2">
               {criticalTasks.slice(0, 5).map((task, i) => (
@@ -738,12 +759,12 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                   }}
                   /* Wave P-3 D02 — soft elev-popover on hover for Priority Task rows
                       (dark theme especially); no spring — CSS class only. */
-                  className="ux-row-elev-hover flex items-center gap-3 p-3 rounded-xl hover:bg-surface-hover transition-colors cursor-pointer group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60">
-                  <CourseIcon icon={task.courseIcon} size="sm" colorClassName="text-brand-500 shrink-0" />
+                  className="flex items-center gap-3 p-3 rounded-xl hover:bg-surface-hover transition-colors cursor-pointer group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60">
+                  <CourseIcon icon={task.courseIcon} size="sm" colorClassName="text-text-secondary shrink-0" />
                   <TaskActionIcon task={task} size="xs" />
                   <div className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: resolveCourseColor(task.courseColor) }} />
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate group-hover:text-brand-300 transition-colors">{task.title}</p>
+                    <p className="text-sm font-medium truncate group-hover:text-text-primary transition-colors">{task.title}</p>
                     <p className="text-xs text-text-tertiary mt-0.5">{task.courseName} · {taskDurationLabel(task.estimatedMinutes, t)}</p>
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
@@ -761,9 +782,9 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
             </div>
           </BlueprintSurface>
 
-          {/* Needs fixing — OPT-K86 soft wash (not solid orange panel) */}
+          {/* OPT-K91 — neutral panel; urgency via content/bars, not orange wash */}
           {fixTasks.length > 0 && (
-            <div className="rounded-panel border border-border-subtle bg-accent-orange/5 p-5">
+            <div className="rounded-panel border border-border-subtle bg-surface-secondary p-5">
               <SectionLabel icon={Shield}>{t('dashNeedsFixing')}</SectionLabel>
               <div className="space-y-2">
                 {fixTasks.slice(0, 3).map(task => (
@@ -773,10 +794,10 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                     onClick={() => onStartTask?.(task.id)}
                     className="w-full flex items-center gap-3 p-2.5 rounded-lg bg-surface-card/50 hover:bg-surface-hover cursor-pointer transition-all group text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60"
                   >
-                    <CourseIcon icon={task.courseIcon} size="sm" colorClassName="text-brand-500 shrink-0" />
-                    <span className="text-sm flex-1 truncate group-hover:text-brand-300 transition-colors">{task.title}</span>
+                    <CourseIcon icon={task.courseIcon} size="sm" colorClassName="text-text-secondary shrink-0" />
+                    <span className="text-sm flex-1 truncate group-hover:text-text-primary transition-colors">{task.title}</span>
                     <span className="text-xs text-text-tertiary">{taskDurationLabel(task.estimatedMinutes, t)}</span>
-                    <ChevronRight className="w-3.5 h-3.5 text-text-muted group-hover:text-brand-400" />
+                    <ChevronRight className="w-3.5 h-3.5 text-text-muted group-hover:text-text-secondary" />
                   </button>
                 ))}
               </div>
@@ -786,14 +807,14 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
           {/* Active Courses */}
           <BlueprintSurface className="p-3.5">
             <div className="flex items-center justify-between mb-2.5">
-              <h2 className="dashboard-panel-title text-lg font-semibold ws-serif font-medium flex items-center gap-2"><BookOpen className="w-5 h-5 text-brand-400" />{t('dashActiveCourses')}</h2>
-              <button onClick={() => onNavigate('library')} className="dashboard-panel-action text-sm text-brand-400 hover:text-brand-700 flex items-center gap-1">{t('dashLibrary')} <ChevronRight className="w-4 h-4" /></button>
+              <h2 className="dashboard-panel-title text-lg font-semibold ws-serif font-medium flex items-center gap-2"><BookOpen className="w-5 h-5 text-text-secondary" />{t('dashActiveCourses')}</h2>
+              <button onClick={() => onNavigate('library')} className="dashboard-panel-action text-sm text-text-secondary hover:text-text-primary flex items-center gap-1">{t('dashLibrary')} <ChevronRight className="w-4 h-4" /></button>
             </div>
             {activeCourses.length > 0 ? (
               <div
                 className={cn(
                   'dashboard-course-grid grid gap-3',
-                  isCanvasLayout ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1',
+                  isMultiCol ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1',
                 )}
               >
                 {activeCourses.map((course, i) => {
@@ -813,13 +834,13 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                         onSelectCourse(course);
                       }
                     }}
-                    className="p-3 sm:p-3.5 rounded-xl border border-border-subtle hover:border-brand-500/30 bg-surface-primary/50 cursor-pointer transition-all group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60"
+                    className="p-3 sm:p-3.5 rounded-xl border border-border-subtle hover:border-border-default bg-surface-primary/50 cursor-pointer transition-all group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60"
                   >
                     <div className="proximity-row mb-3">
-                      <CourseIcon icon={course.icon} size="lg" colorClassName="text-brand-600" />
+                      <CourseIcon icon={course.icon} size="lg" colorClassName="text-text-secondary" />
                       <MasteryRing mastery={courseMastery} size={38} />
                     </div>
-                    <h3 className="font-semibold text-sm mb-1 group-hover:text-brand-300 transition-colors">{course.title}</h3>
+                    <h3 className="font-semibold text-sm mb-1 group-hover:text-text-primary transition-colors">{course.title}</h3>
                     <div className="flex items-center gap-2 text-xs text-text-tertiary mb-3">
                       <span>{t('dashLessonsCount').replace('{done}', String(course.completedLessons)).replace('{total}', String(course.totalLessons))}</span>
                       <span>·</span>
@@ -840,7 +861,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                 <button
                   type="button"
                   onClick={() => onNavigate('library')}
-                  className="mt-3 inline-flex items-center gap-1 text-xs text-brand-400 hover:text-brand-700"
+                  className="mt-3 inline-flex items-center gap-1 text-xs text-text-secondary hover:text-text-primary"
                 >
                   {t('dashLibrary')} <ChevronRight className="w-3.5 h-3.5" />
                 </button>
@@ -910,7 +931,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                   className="w-full space-y-1 text-left hover:bg-surface-hover rounded-lg p-1 -m-1 transition-all group"
                 >
                   <div className="proximity-row">
-                    <span className="proximity-row-label text-xs font-medium group-hover:text-brand-300 transition-colors truncate">{area.concept}</span>
+                    <span className="proximity-row-label text-xs font-medium group-hover:text-text-primary transition-colors truncate">{area.concept}</span>
                     <span className="text-xs text-text-tertiary shrink-0 tabular-nums">{area.mastery}%</span>
                   </div>
                   {area.reasons[0] && (
@@ -936,7 +957,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                 if (first && onFocusWeakArea) onFocusWeakArea(first.concept);
                 else onNavigate('agent');
               }}
-              className="mt-2.5 w-full text-xs text-brand-400 hover:text-brand-700 flex items-center justify-center gap-1"
+              className="mt-2.5 w-full text-xs text-text-secondary hover:text-text-primary flex items-center justify-center gap-1"
             >
               {t('dashPracticeWeak')} <ArrowRight className="w-3 h-3" />
             </button>
@@ -981,7 +1002,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                   className="w-full space-y-1 text-left hover:bg-surface-hover rounded-lg p-1 -m-1 transition-all group"
                 >
                   <div className="proximity-row">
-                    <span className="proximity-row-label text-xs font-medium group-hover:text-brand-300 transition-colors truncate">{area.concept}</span>
+                    <span className="proximity-row-label text-xs font-medium group-hover:text-text-primary transition-colors truncate">{area.concept}</span>
                     <span className="text-xs text-text-tertiary shrink-0 tabular-nums">{area.mastery}%</span>
                   </div>
                   {area.reasons[0] && (
@@ -1002,7 +1023,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                 if (first && onFocusWeakArea) onFocusWeakArea(first.concept);
                 else onNavigate('agent');
               }}
-              className="mt-2.5 w-full text-xs text-brand-400 hover:text-brand-700 flex items-center justify-center gap-1"
+              className="mt-2.5 w-full text-xs text-text-secondary hover:text-text-primary flex items-center justify-center gap-1"
             >
               {t('dashPracticeWeak')} <ArrowRight className="w-3 h-3" />
             </button>
@@ -1030,7 +1051,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                 ))}
               </div>
             ) : (
-              <div className="ux-banner-warn rounded-panel border border-accent-amber/20 bg-accent-amber/5 p-3">
+              <div className="ux-banner-warn rounded-panel border border-border-subtle bg-surface-secondary p-3">
                 <SectionLabel icon={Lightbulb}>{t('dashAlmostThere')}</SectionLabel>
                 <p className="text-xs text-text-tertiary mb-2">{t('dashAlmostThereHint')}</p>
                 <div className="proximity-track space-y-1.5">
@@ -1091,7 +1112,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
             </div>
           ) : (
             courses.some(c => c.examDate) && (
-              <div className="rounded-panel border border-accent-rose/20 bg-accent-rose/5 p-3">
+              <div className="rounded-panel border border-border-subtle bg-surface-secondary p-3">
                 <SectionLabel icon={Calendar}>{t('dashUpcomingExam')}</SectionLabel>
                 {courses.filter(c => c.examDate).map(course => {
                   const daysLeft = Math.max(0, Math.ceil((new Date(course.examDate!).getTime() - Date.now()) / 86400000));
@@ -1163,7 +1184,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                           </div>
                         );
                       })}
-                      <button onClick={() => onNavigate('analytics')} className="mt-2 w-full text-xs text-brand-400 hover:text-brand-700 flex items-center justify-center gap-1">
+                      <button onClick={() => onNavigate('analytics')} className="mt-2 w-full text-xs text-text-secondary hover:text-text-primary flex items-center justify-center gap-1">
                         {t('dashFullAnalytics')} <ArrowRight className="w-3 h-3" />
                       </button>
                     </div>
@@ -1207,13 +1228,13 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                     </div>
                   );
                 })}
-                <button onClick={() => onNavigate('analytics')} className="mt-2 w-full text-xs text-brand-400 hover:text-brand-700 flex items-center justify-center gap-1">
+                <button onClick={() => onNavigate('analytics')} className="mt-2 w-full text-xs text-text-secondary hover:text-text-primary flex items-center justify-center gap-1">
                   {t('dashFullAnalytics')} <ArrowRight className="w-3 h-3" />
                 </button>
               </BlueprintSurface>
               )}
               {learnerModel.interactionInsights.length > 0 && (
-                <div className="rounded-panel border border-brand-500/20 bg-brand-500/5 p-3">
+                <div className="rounded-panel border border-border-subtle bg-surface-secondary p-3">
                   <SectionLabel icon={Lightbulb}>{t('dashLearningInsight')}</SectionLabel>
                   <p className="text-xs text-text-secondary leading-relaxed">{learnerModel.interactionInsights[0]}</p>
                 </div>
@@ -1250,7 +1271,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                   <button
                     type="button"
                     onClick={() => (firstReviewTask ? onStartTask?.(firstReviewTask.id) : onNavigate('tasks'))}
-                    className="p-2 rounded-lg bg-accent-amber/10 border border-accent-amber/20 hover:bg-accent-amber/15 transition-all"
+                    className="p-2 rounded-lg bg-surface-secondary border border-border-subtle hover:bg-surface-hover transition-all"
                     data-testid="dash-horizon-today"
                   >
                     <p className="ux-kpi-value text-text-primary">{fsrsHorizon.today}</p>
@@ -1308,7 +1329,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                   <button
                     type="button"
                     onClick={() => (firstReviewTask ? onStartTask?.(firstReviewTask.id) : onNavigate('tasks'))}
-                    className="p-2 rounded-lg bg-accent-amber/10 border border-accent-amber/20 hover:bg-accent-amber/15 transition-all"
+                    className="p-2 rounded-lg bg-surface-secondary border border-border-subtle hover:bg-surface-hover transition-all"
                     data-testid="dash-horizon-today"
                   >
                     <p className="ux-kpi-value text-text-primary">{fsrsHorizon.today}</p>

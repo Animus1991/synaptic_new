@@ -1,8 +1,6 @@
 import type { ReactNode } from 'react';
 import { cn } from '../../utils/cn';
 import { AllCapsLabel } from './AllCapsLabel';
-import { useMinimalTheme } from '../../lib/useMinimalTheme';
-
 type Props = {
   eyebrow?: string;
   title: string;
@@ -23,15 +21,14 @@ export function ModalHeaderStack({
   titleId,
   subtitleId,
 }: Props) {
-  const isMinimal = useMinimalTheme();
   return (
     <div className={cn('ux-modal-header-stack', className)}>
       {eyebrow ? <p className="ux-semi-mono-eyebrow ux-modal-eyebrow"><AllCapsLabel>{eyebrow}</AllCapsLabel></p> : null}
       <h2
         id={titleId}
         className={cn(
-          'ux-modal-title text-text-primary',
-          isMinimal ? 'text-base font-semibold' : 'text-lg font-bold',
+          /* OPT-K95 — same calm title weight on every theme (Minimal clarity) */
+          'ux-modal-title text-base font-semibold text-text-primary leading-snug',
           titleClassName,
         )}
       >
@@ -41,8 +38,7 @@ export function ModalHeaderStack({
         <p
           id={subtitleId}
           className={cn(
-            'ux-modal-subtitle text-text-secondary mt-0.5',
-            isMinimal ? 'text-sm leading-relaxed' : 'text-sm',
+            'ux-modal-subtitle text-text-secondary mt-0.5 text-sm leading-relaxed',
           )}
         >
           {subtitle}

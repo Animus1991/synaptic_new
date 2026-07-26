@@ -209,12 +209,11 @@ describe('OPT-K69 engineering clarity contracts', () => {
 
     const indexCss = read('src/index.css');
     expect(indexCss).toMatch(/OPT-K82/);
-    /* K88 supersedes dark emerald/amber slightly above Minimal mid-chroma */
+    /* K91 — dark = Minimal-dark emerald; light = Minimal-light amber */
     expect(indexCss).toMatch(/--color-accent-emerald:\s*#449e80/);
-    expect(indexCss).toMatch(/--color-accent-violet:\s*#7a7598/);
+    expect(indexCss).toMatch(/--color-accent-violet:\s*#9a8fb8/);
     expect(indexCss).toMatch(/--palette-green:\s*#449e80/);
-    /* K90 mid-chroma amber on light/spectrum/warm-sand */
-    expect(indexCss).toMatch(/--palette-amber:\s*#b89438/);
+    expect(indexCss).toMatch(/--palette-amber:\s*#b0892e/);
   });
 
   it('K84 — panel −2% + Minimal clarity transferred to non-Minimal themes', () => {
@@ -265,15 +264,14 @@ describe('OPT-K69 engineering clarity contracts', () => {
     expect(indexCss).toMatch(/shell-edge-balance/);
   });
 
-  it('K86 — non-Minimal accent quiet (usage + soft-fill + mid-chroma tokens)', () => {
+  it('K86 — non-Minimal accent quiet (usage + solid mid-mix bars)', () => {
     const indexCss = read('src/index.css');
     expect(indexCss).toMatch(/OPT-K86/);
-    expect(indexCss).toMatch(/--color-accent-amber:\s*#b89438/);
     expect(indexCss).toMatch(/--color-accent-amber:\s*#b89440/);
-    expect(indexCss).toMatch(/color-mix\(in srgb, var\(--color-accent-amber\) 12%/);
+    expect(indexCss).toMatch(/--palette-amber:\s*#b0892e/);
+    expect(indexCss).toMatch(/color-mix\(in srgb, var\(--color-accent-amber\) 52%, var\(--color-surface-card\)\)/);
 
     const dash = read('src/components/Dashboard.tsx');
-    expect(dash).toMatch(/OPT-K86/);
     expect(dash).toMatch(/Flame className="w-3\.5 h-3\.5 text-text-secondary"/);
     expect(dash).toMatch(/Zap className="w-3\.5 h-3\.5 text-text-secondary"/);
     expect(dash).toMatch(/Target className="w-3\.5 h-3\.5 text-text-secondary"/);
@@ -286,9 +284,8 @@ describe('OPT-K69 engineering clarity contracts', () => {
   it('K88 — mastery bar hues follow Minimal mid-chroma (all non-Minimal themes)', () => {
     const indexCss = read('src/index.css');
     expect(indexCss).toMatch(/OPT-K88/);
-    expect(indexCss).toMatch(/--mastery-developing:\s*#689eb0/);
     expect(indexCss).toMatch(/--mastery-developing:\s*#5a9eb0/);
-    expect(indexCss).toMatch(/--mastery-developing:\s*#6a949e/);
+    expect(indexCss).toMatch(/--mastery-developing:\s*#7aacc4/);
     expect(indexCss).toMatch(/--color-accent-cyan:\s*#5a9eb0/);
     expect(indexCss).not.toMatch(/--mastery-developing:\s*#62c2d1/);
     expect(indexCss).toMatch(/data-theme="spectrum"/);
@@ -304,6 +301,120 @@ describe('OPT-K69 engineering clarity contracts', () => {
     expect(bars).toMatch(/OPT-K90/);
     expect(bars).toMatch(/text-text-secondary/);
     expect(bars).not.toMatch(/style=\{\{ color: bandColor/);
+  });
+
+  it('K91 — neutral panel washes + Minimal accent parity (light/dark)', () => {
+    const indexCss = read('src/index.css');
+    expect(indexCss).toMatch(/OPT-K91/);
+    expect(indexCss).toMatch(/neutral panel washes/);
+    expect(indexCss).toMatch(/background-color:\s*var\(--color-surface-secondary\)\s*!important/);
+    expect(indexCss).toMatch(/\.bg-accent-rose\\\/5/);
+    expect(indexCss).toMatch(/\.bg-brand-600\\\/5/);
+    /* Light non-Minimal = Minimal-light developing */
+    expect(indexCss).toMatch(/--mastery-developing:\s*#7aacc4/);
+    /* Dark non-Minimal = Minimal-dark developing */
+    expect(indexCss).toMatch(/--mastery-weak:\s*#c87882/);
+    expect(indexCss).toMatch(/--mastery-weak:\s*#c45c6a/);
+
+    const alertGrid = read('src/components/DashboardAlertGrid.tsx');
+    expect(alertGrid).toMatch(/OPT-K91/);
+    expect(alertGrid).toMatch(/bg-surface-secondary/);
+    expect(alertGrid).not.toMatch(/bg-accent-cyan\/5/);
+    expect(alertGrid).not.toMatch(/bg-brand-600\/5/);
+
+    const dash = read('src/components/Dashboard.tsx');
+    expect(dash).toMatch(/OPT-K91/);
+    expect(dash).not.toMatch(/bg-accent-orange\/5/);
+  });
+
+  it('K94 — shell bridge sweetness <-> clarity', () => {
+    const indexCss = read('src/index.css');
+    expect(indexCss).toMatch(/OPT-K94/);
+    expect(indexCss).toMatch(/Shell bridge/);
+    expect(indexCss).toMatch(/shell-topbar-calm/);
+    expect(indexCss).toMatch(/ux-elev-popover/);
+    expect(indexCss).toMatch(/agent-calm/);
+
+    const clarity = read('src/styles/cursor-clarity.css');
+    expect(clarity).toMatch(/OPT-K94/);
+    expect(clarity).toMatch(/platform-brand-icon/);
+    expect(clarity).toMatch(/platform-nav-item:not\(\.platform-nav-active\):hover/);
+
+    const shell = read('src/components/Shell.tsx');
+    expect(shell).toMatch(/OPT-K94/);
+    expect(shell).toMatch(/shell-topbar-calm/);
+    expect(shell).toMatch(/BookOpen className="w-5 h-5 shrink-0 text-text-secondary"/);
+    expect(shell).toMatch(/border-border-subtle text-\[11px\].*text-text-secondary/);
+    expect(shell).not.toMatch(/bg-brand-500\/15 text-brand-700/);
+  });
+
+  it('K95 — platform audit bridge (Library/Tasks/modals + Minimal warmth)', () => {
+    const indexCss = read('src/index.css');
+    expect(indexCss).toMatch(/OPT-K95/);
+    expect(indexCss).toMatch(/Platform audit bridge/);
+    expect(indexCss).toMatch(/ink-allow-brand/);
+    expect(indexCss).toMatch(/\[class\*="text-brand-"\]/);
+    expect(indexCss).toMatch(/\[class\*="bg-brand-"\]\[class\*="\/"\]/);
+    expect(indexCss).toMatch(/ux-modal-panel/);
+    expect(indexCss).toMatch(/::selection/);
+    expect(indexCss).toMatch(/library-page.*group:hover|tasks-page.*group:hover/);
+
+    const modal = read('src/components/ui/ModalHeaderStack.tsx');
+    expect(modal).toMatch(/OPT-K95/);
+    expect(modal).toMatch(/text-base font-semibold/);
+    expect(modal).not.toMatch(/text-lg font-bold/);
+    expect(modal).not.toMatch(/useMinimalTheme/);
+  });
+
+  it('K93 — cross-pollinate sweetness ↔ clarity', () => {
+    const indexCss = read('src/index.css');
+    expect(indexCss).toMatch(/OPT-K93/);
+    expect(indexCss).toMatch(/Cross-pollinate sweetness/);
+    expect(indexCss).toMatch(/dashboard-action-hub/);
+    expect(indexCss).toMatch(/scale\(0\.985\)/);
+    expect(indexCss).toMatch(/platform-hero-glow-orbs/);
+    expect(indexCss).toMatch(/ux-spark-panel\.ux-callout-next/);
+    expect(indexCss).toMatch(/ux-row-elev-hover:hover/);
+
+    const primer = read('src/styles/primer-minimal.css');
+    expect(primer).toMatch(/OPT-K93/);
+    expect(primer).toMatch(/color-mix\(in srgb, var\(--color-brand-600\) 20%/);
+
+    const dash = read('src/components/Dashboard.tsx');
+    expect(dash).toMatch(/OPT-K93/);
+    expect(dash).toMatch(/border-border-subtle bg-surface-secondary/);
+    expect(dash).not.toMatch(/ux-spark-panel/);
+    expect(dash).toMatch(/BookOpen className="w-5 h-5 text-text-secondary"/);
+    expect(dash).toMatch(/text-brand-600/); /* greeting icon keeps brand signal */
+  });
+
+  it('K92 — 1/2/3 column layout on Minimal and non-Minimal', () => {
+    const prefs = read('src/lib/dashboardLayoutPrefs.ts');
+    expect(prefs).toMatch(/stacked' \| 'dual' \| 'triple/);
+    expect(prefs).toMatch(/dashboard-layout-mode-v3/);
+    expect(prefs).toMatch(/cycleDashboardLayoutMode/);
+
+    const dash = read('src/components/Dashboard.tsx');
+    expect(dash).toMatch(/OPT-K92/);
+    expect(dash).toMatch(/dashboard-layout-\$\{mode\}/);
+    expect(dash).toMatch(/mode: 'stacked'/);
+    expect(dash).toMatch(/mode: 'dual'/);
+    expect(dash).toMatch(/mode: 'triple'/);
+    expect(dash).toMatch(/xl:columns-2/);
+    expect(dash).toMatch(/xl:columns-3/);
+    expect(dash).toMatch(/hub-section-stack--columns/);
+    expect(dash).toMatch(/data-dashboard-columns=\{columnCount\}/);
+    /* Minimal no longer locked to single-column hub only */
+    expect(dash).not.toMatch(/isMinimal\s*\?\s*'hub-section-stack'\s*:\s*cn\(/);
+
+    const clarity = read('src/styles/cursor-clarity.css');
+    expect(clarity).toMatch(/OPT-K92/);
+    expect(clarity).toMatch(/hub-section-stack--columns/);
+
+    const i18n = read('src/lib/i18n.ts');
+    expect(i18n).toMatch(/dashLayoutDual/);
+    expect(i18n).toMatch(/dashLayoutTriple/);
+    expect(i18n).toMatch(/dashLayoutGroup/);
   });
 
   it('K90 — ink owns type across all themes (accents never paint copy)', () => {
@@ -360,10 +471,7 @@ describe('OPT-K69 engineering clarity contracts', () => {
     expect(indexCss).toMatch(/\.ux-progress-track/);
 
     const alertGrid = read('src/components/DashboardAlertGrid.tsx');
-    expect(alertGrid).toMatch(/border-border-subtle bg-brand-600\/5/);
-    expect(alertGrid).toMatch(/border-border-subtle bg-accent-cyan\/5/);
-    expect(alertGrid).toMatch(/border-border-subtle bg-accent-rose\/5/);
-    expect(alertGrid).toMatch(/border-border-subtle bg-accent-amber\/5/);
+    expect(alertGrid).toMatch(/border-border-subtle bg-surface-secondary/);
     expect(alertGrid).not.toMatch(/border-accent-rose\/25/);
   });
 

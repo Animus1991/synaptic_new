@@ -219,10 +219,15 @@
   box-shadow: none !important;
 }
 
+/* OPT-K93 — sweetness from non-Minimal: brand whisper in ink (no rainbow fill) */
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .gradient-text {
   background: none !important;
   -webkit-text-fill-color: unset !important;
-  color: var(--color-text-primary) !important;
+  color: color-mix(in srgb, var(--color-brand-600) 20%, var(--color-text-primary)) !important;
+}
+
+:is([data-theme="minimal-dark"]) .gradient-text {
+  color: color-mix(in srgb, var(--color-brand-400) 26%, var(--color-text-primary)) !important;
 }
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) :is(.ws-pill, .platform-pill, .rounded-full).ws-pill,
@@ -530,9 +535,9 @@
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell [data-testid="dashboard-layout-toggle"] {
   height: var(--btn-height-sm);
-  width: var(--btn-height-sm);
   min-height: var(--btn-height-sm);
-  min-width: var(--btn-height-sm);
+  width: auto;
+  min-width: 0;
 }
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell :focus-visible {

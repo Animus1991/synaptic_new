@@ -725,19 +725,13 @@
   width: 100%;
 }
 
-/* OPT-K29 — pair rows: canvas = 2-col (≥900px); stacked = always 1-col */
+/* OPT-K29 / K92 — pair rows stay 1-col; 2/3 density comes from masonry columns */
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm .hub-section-stack > .dashboard-pair-row {
   display: grid;
   grid-template-columns: 1fr;
   /* OPT-K44 — stable pair gap */
   gap: 1.15rem;
   align-items: start;
-}
-
-@media (min-width: 900px) {
-  :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm[data-dashboard-layout="canvas"] .hub-section-stack > .dashboard-pair-row {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  }
 }
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm .hub-section-stack > .dashboard-pair-row > * {
@@ -748,18 +742,6 @@
   margin: 0 !important;
   padding: 0 !important;
   min-width: 0;
-}
-
-@media (min-width: 900px) {
-  :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm[data-dashboard-layout="canvas"] .hub-section-stack > .dashboard-pair-row > *:first-child {
-    /* OPT-K44 — +2px breathing room vs divider */
-    padding-inline-end: 0.875rem !important;
-    border-inline-end: 1px solid color-mix(in srgb, var(--color-border-subtle) 70%, transparent) !important;
-  }
-
-  :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm[data-dashboard-layout="canvas"] .hub-section-stack > .dashboard-pair-row > *:last-child:not(:only-child) {
-    padding-inline-start: 0.875rem !important;
-  }
 }
 
 /* OPT-K29 — stacked: course / next-steps grids + readiness side-by-side → single column */
@@ -773,6 +755,39 @@
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm[data-dashboard-layout="stacked"] .dashboard-multi-col {
   grid-template-columns: 1fr !important;
+}
+
+/* OPT-K92 — Minimal multi-column masonry: leave single-well stack; quiet per-card surfaces */
+@media (min-width: 1280px) {
+  :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm .hub-section-stack.hub-section-stack--columns {
+    display: block !important;
+    border: none;
+    background: transparent;
+    overflow: visible;
+    gap: 0;
+  }
+
+  :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm .hub-section-stack.hub-section-stack--columns > * {
+    break-inside: avoid;
+    border: 1px solid var(--color-border-subtle) !important;
+    border-radius: var(--radius-panel) !important;
+    border-bottom: 1px solid var(--color-border-subtle) !important;
+    background: var(--color-surface-primary) !important;
+    box-shadow: none !important;
+    margin: 0 0 0.75rem !important;
+    padding: 0.9rem 1rem !important;
+  }
+
+  :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm .hub-section-stack.hub-section-stack--columns > .dashboard-pair-row {
+    grid-template-columns: 1fr !important;
+  }
+
+  :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm .hub-section-stack.hub-section-stack--columns > .dashboard-pair-row > * {
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    background: transparent !important;
+  }
 }
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .analytics-quiet .progress-kpi-stack .utility-row-hint {
@@ -1032,6 +1047,21 @@
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
   background: var(--color-surface-primary);
+}
+
+/* OPT-K94 — Minimal sweetness: soft brand whisper on Synapse glyph + nav hover */
+:is([data-theme="minimal"]) .app-shell #platform-sidebar-nav .platform-brand-icon {
+  background: color-mix(in srgb, var(--color-brand-600) 9%, var(--color-surface-secondary));
+  border-color: color-mix(in srgb, var(--color-brand-600) 14%, var(--color-border-subtle));
+}
+
+:is([data-theme="minimal-dark"]) .app-shell #platform-sidebar-nav .platform-brand-icon {
+  background: color-mix(in srgb, var(--color-brand-400) 12%, var(--color-surface-secondary));
+  border-color: color-mix(in srgb, var(--color-brand-400) 16%, var(--color-border-subtle));
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell #platform-sidebar-nav .platform-nav-item:not(.platform-nav-active):hover {
+  background: color-mix(in srgb, var(--color-brand-600) 5%, var(--color-surface-secondary));
 }
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell [data-testid="shell-chrome-overflow"] .header-trust-badges .ux-trust-badge {
