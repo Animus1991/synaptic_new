@@ -13,7 +13,7 @@
 }
 
 #platform-sidebar-nav.shell-rail-collapsed .platform-nav-item {
-  border-radius: 0.5rem;
+  border-radius: var(--radius-md);
 }
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) #platform-sidebar-nav [data-testid="shell-rail-collapse-toggle"] {
@@ -38,7 +38,7 @@
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .agent-modes-grouped .agent-mode-group [data-testid^="agent-mode-"],
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .agent-modes-grouped [data-testid^="agent-mode-group-"] [data-testid^="agent-mode-"] {
-  border-radius: 0.45rem;
+  border-radius: var(--radius-md);
   padding-top: 0.4rem;
   padding-bottom: 0.4rem;
 }
@@ -107,7 +107,7 @@
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .notebook-canvas [data-testid="notebook-sources-panel"],
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .notebook-canvas [data-testid="notebook-chat-panel"],
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .notebook-canvas [data-testid="notebook-studio-panel"] {
-  border-radius: 0.65rem;
+  border-radius: var(--radius-panel);
   box-shadow: none;
   background: var(--color-surface-primary, #fff);
 }
@@ -144,7 +144,7 @@
 }
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .notebook-canvas [data-testid="notebook-source-list"] > li > div {
-  border-radius: 0.4rem;
+  border-radius: var(--radius-md);
   padding-top: 0.35rem;
   padding-bottom: 0.35rem;
 }
@@ -192,7 +192,7 @@
 }
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .status-console-inbox {
-  border-radius: 0.65rem;
+  border-radius: var(--radius-panel);
   box-shadow: none;
 }
 
@@ -201,7 +201,7 @@
 }
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) [data-testid="rag-index-progress"].pipeline-console-strip {
-  border-radius: 0.4rem;
+  border-radius: var(--radius-md);
   box-shadow: none;
   padding-top: 0.45rem;
   padding-bottom: 0.45rem;
@@ -209,13 +209,13 @@
 }
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) [data-testid="workspace-source-status-bar"] {
-  border-radius: 0.4rem;
+  border-radius: var(--radius-md);
   box-shadow: none;
 }
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) [data-testid="notification-toast-stack"] .notification-toast {
   box-shadow: none;
-  border-radius: 0.5rem;
+  border-radius: var(--radius-panel);
   backdrop-filter: none;
 }
 
@@ -263,7 +263,7 @@
 }
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .library-file-row {
-  border-radius: 0.5rem;
+  border-radius: var(--radius-panel);
   box-shadow: none;
 }
 
@@ -275,7 +275,7 @@
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .library-file-icon {
   width: 1.75rem;
   height: 1.75rem;
-  border-radius: 0.35rem;
+  border-radius: var(--radius-md);
   background: color-mix(in srgb, var(--color-surface-hover, rgba(0, 0, 0, 0.04)) 70%, transparent);
 }
 
@@ -300,7 +300,7 @@
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .command-palette-dense .command-palette-item {
   gap: 0.55rem;
   padding: 0.4rem 0.65rem;
-  border-radius: 0.45rem;
+  border-radius: var(--radius-md);
 }
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .command-palette-dense .command-palette-item-icon {
@@ -343,7 +343,7 @@
 }
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .hub-quiet .dashboard-hub-chip {
-  border-radius: 0.5rem;
+  border-radius: var(--radius-panel);
   padding-top: 0.45rem;
   padding-bottom: 0.45rem;
   background: transparent;
@@ -378,13 +378,13 @@
 }
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .tasks-quiet .tasks-list-row {
-  border-radius: 0.5rem;
+  border-radius: var(--radius-panel);
   box-shadow: none;
 }
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .tasks-quiet [data-testid="tasks-kanban-strip"] .tasks-kanban-column {
   box-shadow: none;
-  border-radius: 0.4rem;
+  border-radius: var(--radius-md);
   padding: 0.4rem 0.5rem;
   background: color-mix(in srgb, var(--color-surface-secondary, #f6f8fa) 50%, transparent);
 }
@@ -406,7 +406,7 @@
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .analytics-quiet [data-testid="progress-kpi-row"] .ux-card {
   box-shadow: none;
-  border-radius: 0.45rem;
+  border-radius: var(--radius-md);
   padding: 0.5rem 0.65rem;
   background: color-mix(in srgb, var(--color-surface-secondary, #f6f8fa) 40%, transparent);
   border-color: color-mix(in srgb, var(--color-border-subtle, #d0d7de) 75%, transparent);
@@ -435,7 +435,7 @@
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .settings-ide .settings-ide-section {
   box-shadow: none;
-  border-radius: 0.45rem;
+  border-radius: var(--radius-md);
   border-color: color-mix(in srgb, var(--color-border-subtle, #d0d7de) 80%, transparent);
   background: color-mix(in srgb, var(--color-surface-secondary, #f6f8fa) 28%, transparent);
 }
@@ -462,7 +462,7 @@
   }
 
   :is([data-theme="minimal"], [data-theme="minimal-dark"]) .settings-ide .settings-ide-nav-item.is-active {
-    border-radius: 0.35rem;
+    border-radius: var(--radius-md);
   }
 }
 
@@ -502,7 +502,7 @@
 }
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) [data-testid="lazy-overlay-loading"] .ux-shimmer-panel {
-  border-radius: 0.5rem;
+  border-radius: var(--radius-panel);
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
   background: var(--color-surface-card, #ffffff);

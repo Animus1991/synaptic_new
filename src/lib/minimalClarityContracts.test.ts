@@ -173,5 +173,14 @@ describe('OPT-K69 engineering clarity contracts', () => {
     // OPT-K63 — progress / usage tracks remain fully capped (not Primer soft-pill)
     expect(clarity).toMatch(/\.usage-bar[\s\S]{0,120}border-radius:\s*999px/);
     expect(clarity).toMatch(/border-radius:\s*9999px/);
+
+    // Follow-on layers also tokenized (library / agent calm / notebook canvas)
+    const replit = read('src/styles/replit-clarity.css');
+    expect(replit).toMatch(/border-radius:\s*var\(--radius-md\)/);
+    expect(replit).toMatch(/border-radius:\s*var\(--radius-panel\)/);
+    expect(replit).not.toMatch(/border-radius:\s*0\.(35|4|45|5|65)rem/);
+
+    const calm = read('src/styles/chatgpt-calm.css');
+    expect(calm).toMatch(/border-radius:\s*var\(--radius-panel\)/);
   });
 });

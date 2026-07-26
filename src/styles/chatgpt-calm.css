@@ -211,7 +211,7 @@
 }
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) [data-testid="agent-mode-sidebar"][data-quiet-modes="true"] [data-testid^="agent-mode-"] {
-  border-radius: 0.5rem;
+  border-radius: var(--radius-panel);
 }
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) [data-testid="agent-mode-catalog"][data-quiet-modes="true"] .ux-card {
