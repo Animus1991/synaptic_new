@@ -6228,3 +6228,111 @@ body { letter-spacing: -0.005em; }
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell [data-testid="tasks-page"] .group:hover {
   background-color: color-mix(in srgb, var(--color-brand-600) 4%, var(--color-surface-hover));
 }
+
+/* ========== OPT-K96 - Study workspace bridge (Reader / Notebook / Quiz) ========== */
+/*
+ * Highest dwell ROI after K95. Gaps:
+ *  - Notebook soft brand-100 fills + tool-header icon chroma
+ *  - Reader toolbar mixed brand/amber active states + loud mark rings
+ *  - Quiz cyan chrome competing with emerald/rose outcome signals
+ *
+ * Policy:
+ *  Chrome = ink + surface-secondary
+ *  Outcome feedback = accent wash + ink-allow-accent on type (findability)
+ *  Brand solid = primary CTAs only (Finish / Next / Start)
+ *  Minimal gets soft reading warmth, not glass
+ */
+
+/* --- Cyan decorative chrome -> neutral (keep rose/emerald feedback washes) --- */
+[data-testid="study-workspace"] [class*="bg-accent-cyan/"] {
+  background-color: var(--color-surface-secondary) !important;
+}
+[data-testid="study-workspace"] [class*="border-accent-cyan/"] {
+  border-color: var(--color-border-subtle) !important;
+}
+
+/* Soft brand-50/100 wells (Notebook source rows, tool chips) -> quiet surface */
+[data-testid="study-workspace"] [class*="bg-brand-50"],
+[data-testid="study-workspace"] [class*="bg-brand-100"] {
+  background-color: color-mix(in srgb, var(--color-brand-600) 6%, var(--color-surface-secondary)) !important;
+}
+
+/* Brand rings on chrome -> hairline (reading marks handled below) */
+[data-testid="study-workspace"] [class*="ring-brand-"]:not(mark) {
+  --tw-ring-color: var(--color-border-subtle) !important;
+}
+
+/* Tool header: icon well stays calm; step index uses ink */
+[data-testid="study-workspace"] .ws-tool-header [class*="bg-brand-500/"] {
+  background-color: var(--color-surface-secondary) !important;
+  color: var(--color-text-secondary) !important;
+}
+
+/* Reader marks = signal wash, not glare (keep findability of selection) */
+[data-testid="cognitive-reader"] mark[class*="bg-brand"],
+[data-testid="study-workspace"] [data-testid="cognitive-reader"] mark {
+  background-color: color-mix(in srgb, var(--color-brand-600) 14%, transparent) !important;
+  color: var(--color-text-primary) !important;
+  box-shadow: none !important;
+  --tw-ring-shadow: 0 0 #0000 !important;
+  --tw-ring-color: transparent !important;
+}
+
+/* Quiz outcome panels: keep soft rose/emerald washes; force secondary actions calm */
+[data-testid="quiz-session"] [class*="bg-brand-600/"],
+[data-testid="quiz-session-complete"] [class*="bg-brand-600/"],
+[data-testid="quiz-session"] [class*="bg-brand-500/"],
+[data-testid="quiz-session-complete"] [class*="bg-brand-500/"] {
+  background-color: var(--color-surface-secondary) !important;
+}
+[data-testid="quiz-session"] [class*="border-brand-"][class*="/"],
+[data-testid="quiz-session-complete"] [class*="border-brand-"][class*="/"] {
+  border-color: var(--color-border-subtle) !important;
+}
+
+/* Selected confidence: quiet brand whisper (not loud type) */
+[data-testid="quiz-confidence-rating"] button[class*="bg-brand-600/"] {
+  background-color: color-mix(in srgb, var(--color-brand-600) 12%, var(--color-surface-secondary)) !important;
+  border-color: color-mix(in srgb, var(--color-brand-600) 35%, var(--color-border-subtle)) !important;
+  color: var(--color-text-primary) !important;
+}
+
+/* Restore semantic outcome TYPE only where allowlisted (learning signal) */
+[data-testid="study-workspace"] .ink-allow-accent.text-accent-emerald,
+[data-testid="study-workspace"] .ink-allow-accent[class*="text-accent-emerald"] {
+  color: color-mix(in srgb, var(--color-accent-emerald) 55%, var(--color-text-primary)) !important;
+}
+[data-testid="study-workspace"] .ink-allow-accent.text-accent-rose,
+[data-testid="study-workspace"] .ink-allow-accent[class*="text-accent-rose"] {
+  color: color-mix(in srgb, var(--color-accent-rose) 55%, var(--color-text-primary)) !important;
+}
+[data-testid="study-workspace"] .ink-allow-accent.text-accent-amber,
+[data-testid="study-workspace"] .ink-allow-accent[class*="text-accent-amber"] {
+  color: color-mix(in srgb, var(--color-accent-amber) 50%, var(--color-text-primary)) !important;
+}
+
+/* Chrome eyebrows / decorative sparkles already remapped by K95 text-brand;
+ * tighten hover brand flashes on secondary links inside workspace */
+[data-testid="study-workspace"] .hover\:text-brand-800:hover,
+[data-testid="study-workspace"] .hover\:text-brand-700:hover {
+  color: var(--color-text-primary) !important;
+}
+
+/* --- Minimal sweetness: soft reading column + toolbar breath --- */
+:is([data-theme="minimal"], [data-theme="minimal-dark"])
+  [data-testid="cognitive-reader"] .ux-tier-b-toolbar {
+  background: color-mix(in srgb, var(--color-brand-600) 3%, var(--color-surface-card));
+  border-bottom-color: var(--color-border-subtle);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"])
+  [data-testid="study-workspace"] .ws-tool-header {
+  background: color-mix(in srgb, var(--color-brand-600) 2.5%, var(--color-surface-card));
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"])
+  [data-testid="notebook-workspace-chrome"],
+:is([data-theme="minimal"], [data-theme="minimal-dark"])
+  [data-testid="study-workspace"] [data-testid="notebook-source-list"] .rounded-xl:hover {
+  background-color: color-mix(in srgb, var(--color-brand-600) 4%, var(--color-surface-hover));
+}

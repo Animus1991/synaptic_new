@@ -940,7 +940,7 @@ export function CognitiveReader({
     <div className="ux-tier-b-tool ux-tier-b-reader flex h-full flex-col overflow-hidden" data-testid="cognitive-reader">
       <div className="ux-tier-b-toolbar flex shrink-0 flex-wrap items-center justify-between gap-2 border-b border-border-subtle bg-surface-card px-4 py-2">
         <span className="flex items-center gap-2 text-xs font-semibold">
-          <Type className="w-3.5 h-3.5 text-brand-700" />
+          <Type className="w-3.5 h-3.5 text-text-secondary" />
           {t('cognitiveReader')}
           {annotations.length > 0 && (
             <span className="text-[10px] font-normal text-text-muted">{annotations.length} notes</span>
@@ -952,7 +952,8 @@ export function CognitiveReader({
             onClick={() => setAnnotateMode(!annotateMode)}
             className={cn(
               'rounded-lg border px-2 py-1 text-[10px] font-medium flex items-center gap-1',
-              annotateMode ? 'border-accent-amber/30 bg-accent-amber/15 text-accent-amber' : 'ws-tool-toggle',
+              /* OPT-K96 — annotate = warn chip; other actives = ws-chip-brand */
+              annotateMode ? 'ws-chip-warn' : 'ws-tool-toggle',
             )}
           >
             <Highlighter className="w-3 h-3" />
@@ -960,13 +961,13 @@ export function CognitiveReader({
           </button>
           {annotations.length > 0 && (
             <>
-              <button type="button" onClick={exportMarkdown} className="rounded-lg p-1 text-text-muted hover:text-brand-800" title="Export Markdown">
+              <button type="button" onClick={exportMarkdown} className="rounded-lg p-1 text-text-muted hover:text-text-primary" title="Export Markdown">
                 <Download className="w-3.5 h-3.5" />
               </button>
               <button
                 type="button"
                 onClick={() => setShowMargin(!showMargin)}
-                className={cn('rounded-lg p-1', showMargin ? 'text-brand-800' : 'text-text-muted')}
+                className={cn('rounded-lg p-1', showMargin ? 'text-text-primary' : 'text-text-muted')}
               >
                 <StickyNote className="w-3.5 h-3.5" />
               </button>
@@ -975,7 +976,7 @@ export function CognitiveReader({
           <button type="button" onClick={() => setDyslexia(!dyslexia)} className={cn('rounded-lg border px-2 py-1 text-[10px] font-medium', dyslexia ? 'ws-chip-brand' : 'ws-tool-toggle')}>
             {t('readerDyslexia')}
           </button>
-          <button type="button" onClick={speakSelection} className="rounded-lg border border-transparent p-1 text-text-muted hover:text-brand-800" title={t('readerReadAloud')}>
+          <button type="button" onClick={speakSelection} className="rounded-lg border border-transparent p-1 text-text-muted hover:text-text-primary" title={t('readerReadAloud')}>
             <Volume2 className="w-3.5 h-3.5" />
           </button>
           <button
@@ -993,7 +994,7 @@ export function CognitiveReader({
             type="button"
             data-testid="reader-full-source-toggle"
             onClick={() => setFullSource(!fullSource)}
-            className={cn('rounded-lg border px-2 py-1 text-[10px]', fullSource ? 'border-brand-500/30 bg-brand-600/15 text-brand-800' : 'ws-tool-toggle')}
+            className={cn('rounded-lg border px-2 py-1 text-[10px]', fullSource ? 'ws-chip-brand' : 'ws-tool-toggle')}
           >
             {fullSource ? t('readerFull') : t('readerExcerpt')}
           </button>
@@ -1025,7 +1026,7 @@ export function CognitiveReader({
               {translating && '…'}
             </button>
           )}
-          <button type="button" onClick={() => setBionic(!bionic)} disabled={!!highlight} className={cn('rounded-lg border px-2 py-1 text-[10px] font-medium disabled:opacity-40', bionic ? 'border-brand-500/30 bg-brand-600/20 text-brand-800' : 'ws-tool-toggle')}>
+          <button type="button" onClick={() => setBionic(!bionic)} disabled={!!highlight} className={cn('rounded-lg border px-2 py-1 text-[10px] font-medium disabled:opacity-40', bionic ? 'ws-chip-brand' : 'ws-tool-toggle')}>
             {t('bionic')}
           </button>
           {ocrCandidate && (
@@ -1035,7 +1036,7 @@ export function CognitiveReader({
               onClick={() => setOcrOverlayOn(!ocrOverlayOn)}
               className={cn(
                 'rounded-lg border px-2 py-1 text-[10px] font-medium',
-                ocrOverlayOn ? 'border-accent-amber/30 bg-accent-amber/15 text-accent-amber' : 'ws-tool-toggle',
+                ocrOverlayOn ? 'ws-chip-warn' : 'ws-tool-toggle',
               )}
             >
               {t('readerOcrOverlay')}
@@ -1092,7 +1093,7 @@ export function CognitiveReader({
           data-testid="reader-handwriting-banner"
         >
           <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-accent-amber" aria-hidden />
-          <p className="text-[11px] text-accent-amber">{t('readerHandwritingRecognized')}</p>
+          <p className="text-[11px] text-accent-amber ink-allow-accent">{t('readerHandwritingRecognized')}</p>
         </div>
       )}
 
@@ -1102,7 +1103,7 @@ export function CognitiveReader({
           data-testid="reader-greek-ocr-banner"
         >
           <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-accent-amber" aria-hidden />
-          <p className="text-[11px] text-accent-amber">{t('readerGreekOcrReview')}</p>
+          <p className="text-[11px] text-accent-amber ink-allow-accent">{t('readerGreekOcrReview')}</p>
         </div>
       )}
 

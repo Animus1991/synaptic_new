@@ -148,7 +148,7 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
                         data-testid="workspace-mobile-open-agent"
                         className="p-2 rounded-full bg-surface-secondary hover:bg-surface-hover text-text-secondary transition-colors min-h-[40px] min-w-[40px] flex items-center justify-center"
                       >
-                        <Sparkles className="w-4 h-4 text-brand-600" />
+                        <Sparkles className="w-4 h-4 text-text-secondary" />
                       </button>
                       <button
                         type="button"
@@ -201,7 +201,8 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
                   </div>
                   {!notebookMode && (
                     <div className="space-y-1">
-                      <p className="ws-eyebrow type-micro text-brand-800 font-semibold truncate">
+                      {/* OPT-K96 — course eyebrow as ink (brand reserved for CTAs) */}
+                      <p className="ws-eyebrow type-micro text-text-secondary font-semibold truncate">
                         <AllCapsLabel>{courseName ?? linkedCourse?.title ?? t('courseEyebrow')}</AllCapsLabel>
                       </p>
                       <h1
@@ -446,7 +447,7 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
                     data-testid="workspace-zen-toggle"
                     aria-pressed={layout === 'zen'}
                   >
-                    {layout === 'zen' ? <Minimize2 className="w-4 h-4 text-brand-800" /> : <Maximize2 className="w-4 h-4" />}
+                    {layout === 'zen' ? <Minimize2 className="w-4 h-4 text-text-secondary" /> : <Maximize2 className="w-4 h-4" />}
                     <span className="hidden xl:inline type-micro font-medium">{t('wsZenShort')}</span>
                   </button>
                   {!useClassicOverflow && themeToggle && (
@@ -455,8 +456,8 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
                     </div>
                   )}
                   {!useClassicOverflow && (
-                    <button onClick={handleOpenAgent} className="flex items-center gap-1 px-2.5 py-1.5 rounded-full type-micro font-medium border border-border-subtle bg-surface-card hover:border-brand-200 hover:bg-surface-hover text-text-secondary hover:text-text-primary shrink-0 transition-colors">
-                      <Sparkles className="w-3.5 h-3.5 text-brand-800" /> {t('agentBtn')}
+                    <button onClick={handleOpenAgent} className="flex items-center gap-1 px-2.5 py-1.5 rounded-full type-micro font-medium border border-border-subtle bg-surface-card hover:border-border-default hover:bg-surface-hover text-text-secondary hover:text-text-primary shrink-0 transition-colors">
+                      <Sparkles className="w-3.5 h-3.5 text-text-secondary" /> {t('agentBtn')}
                     </button>
                   )}
                   {useClassicOverflow && (

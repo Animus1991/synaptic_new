@@ -243,7 +243,7 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
             className="mb-2 flex w-full items-center justify-between gap-2 rounded-xl border border-border-subtle bg-surface-secondary/60 px-3 py-2.5 text-left hover:bg-surface-hover transition-colors"
           >
             <span className="flex items-center gap-2 min-w-0">
-              <Sparkles className="h-4 w-4 shrink-0 text-brand-800" />
+              <Sparkles className="h-4 w-4 shrink-0 text-text-secondary" />
               <span className="text-xs font-medium text-text-primary truncate">
                 {tx('Οδηγός πηγής', 'Source guide')}
               </span>
@@ -260,10 +260,11 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
                 <div
                   className={cn(
                     'rounded-xl px-2.5 py-2 transition-colors',
+                    /* OPT-K96 — active source = surface + ink, not brand wash */
                     isReaderActive
-                      ? 'bg-brand-100/80 text-brand-800'
+                      ? 'bg-surface-secondary text-text-primary ring-1 ring-border-default'
                       : isPinned
-                        ? 'bg-surface-secondary/80 text-text-primary ring-1 ring-brand-200/60'
+                        ? 'bg-surface-secondary/80 text-text-primary ring-1 ring-border-subtle'
                         : 'text-text-secondary',
                   )}
                 >
@@ -280,7 +281,7 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
                   >
                     {isPinned && (
                       <Pin
-                        className="h-3 w-3 shrink-0 text-brand-700"
+                        className="h-3 w-3 shrink-0 text-text-tertiary"
                         aria-hidden
                         data-testid={`notebook-source-pinned-${source.key}`}
                       />
@@ -298,7 +299,7 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
                       type="button"
                       onClick={() => openReprocessWizard()}
                       data-testid="source-thumbnail-reprocess-hint"
-                      className="mt-0.5 ml-11 block type-micro font-medium text-brand-700 hover:text-brand-800 hover:underline text-left"
+                      className="mt-0.5 ml-11 block type-micro font-medium text-text-secondary hover:text-text-primary hover:underline text-left"
                     >
                       {tx('Επανεπεξεργασία για προεπισκόπηση', 'Reprocess for preview')}
                     </button>
@@ -353,7 +354,7 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
         type="button"
         onClick={openSourceCheck}
         title={tx('Άνοιγμα ανάλυσης πηγής', 'Open source analysis')}
-        className="ws-pill hover:bg-brand-100/60 hover:text-brand-800 transition-colors cursor-pointer text-left"
+        className="ws-pill hover:bg-surface-hover hover:text-text-primary transition-colors cursor-pointer text-left"
         data-testid="notebook-source-quality"
       >
         {showPre24Greek
@@ -367,7 +368,7 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
         onClick={openReprocessWizard}
         disabled={reprocessingMaterial}
         data-testid="notebook-source-reprocess"
-        className="flex items-center gap-1 type-micro font-medium text-text-secondary hover:text-brand-700 transition-colors disabled:opacity-50"
+        className="flex items-center gap-1 type-micro font-medium text-text-secondary hover:text-text-primary transition-colors disabled:opacity-50"
       >
         <RefreshCw className={cn('h-3 w-3', reprocessingMaterial && 'animate-spin')} />
         {tx('Επανεπεξεργασία', 'Reprocess')}
@@ -381,7 +382,7 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
         renderCenterAgent()
       ) : (
         <div className="flex h-full flex-col items-center justify-center gap-4 px-6 text-center">
-          <Sparkles className="h-8 w-8 text-brand-600" aria-hidden />
+          <Sparkles className="h-8 w-8 text-text-tertiary" aria-hidden />
           <div className="space-y-1">
             <p className="text-sm font-semibold text-text-primary">
               {tx('Ρώτησε τον AI βοηθό', 'Ask the AI assistant')}
@@ -415,7 +416,7 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
         data-generation-state={studioGen['quiz-from-source'] ?? 'idle'}
         disabled={studioGen['quiz-from-source'] === 'running'}
         onClick={() => runStudioQuickAction('quiz-from-source', 'quiz')}
-        className="flex items-center gap-1 rounded-full border border-border-subtle bg-surface-secondary/60 px-2.5 py-1 type-micro font-medium text-text-secondary hover:border-brand-200 hover:text-brand-800 transition-colors disabled:opacity-60"
+        className="flex items-center gap-1 rounded-full border border-border-subtle bg-surface-secondary/60 px-2.5 py-1 type-micro font-medium text-text-secondary hover:border-border-default hover:text-text-primary transition-colors disabled:opacity-60"
       >
         <Sparkles className="h-3 w-3" />
         {studioGen['quiz-from-source'] === 'running'
@@ -428,7 +429,7 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
         data-generation-state={studioGen['mindmap-from-source'] ?? 'idle'}
         disabled={studioGen['mindmap-from-source'] === 'running'}
         onClick={() => runStudioQuickAction('mindmap-from-source', 'concept-map')}
-        className="flex items-center gap-1 rounded-full border border-border-subtle bg-surface-secondary/60 px-2.5 py-1 type-micro font-medium text-text-secondary hover:border-brand-200 hover:text-brand-800 transition-colors disabled:opacity-60"
+        className="flex items-center gap-1 rounded-full border border-border-subtle bg-surface-secondary/60 px-2.5 py-1 type-micro font-medium text-text-secondary hover:border-border-default hover:text-text-primary transition-colors disabled:opacity-60"
       >
         <Sparkles className="h-3 w-3" />
         {studioGen['mindmap-from-source'] === 'running'
@@ -454,7 +455,7 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
       title={tx('Ρώτα το AI', 'Ask AI')}
       aria-label={tx('Ρώτα το AI για το ενεργό εργαλείο', 'Ask AI about the active tool')}
       data-testid="notebook-studio-ask-ai-rail"
-      className="flex h-8 w-8 items-center justify-center rounded-lg text-brand-700 hover:bg-brand-100/80 transition-colors"
+      className="flex h-8 w-8 items-center justify-center rounded-lg text-text-secondary hover:bg-surface-hover hover:text-text-primary transition-colors"
     >
       <Sparkles className="h-4 w-4" />
     </button>
@@ -486,18 +487,13 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
               className={cn(
                 'flex w-full flex-col items-start gap-2 rounded-xl border px-3 py-3 text-left transition-colors min-h-[76px]',
                 studioToolOpen && activeTool === id
-                  ? 'border-brand-400/50 bg-brand-100/70 text-brand-900'
-                  : 'border-border-subtle bg-surface-secondary/50 hover:bg-surface-hover hover:border-brand-200',
+                  ? 'border-border-default bg-surface-secondary text-text-primary ring-1 ring-border-subtle'
+                  : 'border-border-subtle bg-surface-secondary/50 hover:bg-surface-hover hover:border-border-default',
               )}
             >
-              {/* OPT-K12 — distinct monochrome glyph; no shared cyan brand wash. */}
+              {/* OPT-K12 / OPT-K96 — monochrome glyph well on every theme */}
               <span
-                className={cn(
-                  'studio-tool-icon flex h-7 w-7 items-center justify-center rounded-md',
-                  notebookCalm
-                    ? 'border border-border-subtle bg-transparent text-text-secondary'
-                    : 'bg-brand-100/80 text-brand-800',
-                )}
+                className="studio-tool-icon flex h-7 w-7 items-center justify-center rounded-md border border-border-subtle bg-surface-card text-text-secondary"
                 data-tool-id={id}
                 aria-hidden
               >
@@ -507,10 +503,10 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
                 {workspaceToolLabel(id, lang)}
               </span>
               {genState === 'running' && (
-                <span className="type-micro text-brand-700">{tx('Δημιουργία…', 'Generating…')}</span>
+                <span className="type-micro text-text-secondary">{tx('Δημιουργία…', 'Generating…')}</span>
               )}
               {genState === 'done' && (
-                <span className="type-micro text-accent-emerald">{tx('Έτοιμο', 'Ready')}</span>
+                <span className="type-micro text-accent-emerald ink-allow-accent">{tx('Έτοιμο', 'Ready')}</span>
               )}
             </button>
             <button
@@ -519,7 +515,7 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
               data-testid={`studio-card-ai-${id}`}
               title={buildToolDefaultAgentPrompt(id, lang, concept, sectionTitle)}
               aria-label={`${workspaceToolLabel(id, lang)} — ${tx('Ζήτα βοήθεια από το AI', 'Ask AI for help')}`}
-              className="absolute right-1.5 top-1.5 flex h-6 w-6 items-center justify-center rounded-full text-text-muted hover:bg-brand-100/80 hover:text-brand-800 transition-colors"
+              className="absolute right-1.5 top-1.5 flex h-6 w-6 items-center justify-center rounded-full text-text-muted hover:bg-surface-hover hover:text-text-primary transition-colors"
             >
               <Sparkles className="h-3.5 w-3.5" />
             </button>
@@ -562,7 +558,7 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
           className={cn(
             'flex min-h-11 flex-1 flex-col items-center justify-center gap-0.5 py-2 text-xs font-medium transition-colors',
             mobileTab === id
-              ? 'text-brand-700 bg-brand-50/80'
+              ? 'text-text-primary bg-surface-secondary'
               : 'text-text-muted hover:text-text-primary hover:bg-surface-hover',
           )}
         >
@@ -756,7 +752,7 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
             title={tx('Πίσω στο Studio', 'Back to Studio')}
             aria-label={tx('Πίσω στο Studio', 'Back to Studio')}
             data-testid="notebook-studio-rail-back"
-            className="flex h-8 w-8 items-center justify-center rounded-lg text-text-secondary hover:bg-surface-hover hover:text-brand-800 transition-colors"
+            className="flex h-8 w-8 items-center justify-center rounded-lg text-text-secondary hover:bg-surface-hover hover:text-text-primary transition-colors"
           >
             <LayoutGrid className="h-4 w-4" />
           </button>

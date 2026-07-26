@@ -78,10 +78,10 @@ export function WorkspaceToolHeader({
       data-testid="workspace-tool-header"
       data-tool={activeTool}
     >
-      {/* Always-visible title row — compact density (WS-4) */}
+      {/* Always-visible title row — compact density (WS-4) · OPT-K96 ink chrome */}
       <div className="ws-tool-header-row flex items-start gap-2 sm:gap-2.5">
-        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md ws-chip-brand sm:h-8 sm:w-8">
-          <Icon className="h-3.5 w-3.5 text-brand-800" aria-hidden />
+        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-surface-secondary sm:h-8 sm:w-8">
+          <Icon className="h-3.5 w-3.5 text-text-secondary" aria-hidden />
         </span>
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5">
@@ -132,7 +132,7 @@ export function WorkspaceToolHeader({
                 key={i}
                 className="flex flex-1 items-start gap-1.5 rounded-lg border border-border-subtle bg-surface-primary/40 px-2 py-1.5"
               >
-                <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-brand-500/20 text-[10px] font-bold text-brand-800">
+                <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-surface-secondary text-[10px] font-bold text-text-secondary">
                   {i + 1}
                 </span>
                 <span className="ws-caption text-text-secondary">{step}</span>
@@ -171,7 +171,7 @@ export function WorkspaceToolHeader({
                   className="ws-caption inline-flex items-center gap-0.5 rounded-full border border-border-subtle bg-surface-primary/50 px-1.5 py-0.5 text-text-secondary"
                   data-testid="workspace-tool-header-concept"
                 >
-                  <CircleDot className="h-2.5 w-2.5 text-brand-800" aria-hidden />
+                  <CircleDot className="h-2.5 w-2.5 text-text-tertiary" aria-hidden />
                   {t('focusColon')}{' '}
                   <span className="max-w-[160px] truncate font-medium text-text-primary">{concept}</span>
                 </span>
@@ -196,7 +196,7 @@ export function WorkspaceToolHeader({
                 onClick={() => onJumpTool?.(link.tool)}
                 disabled={!onJumpTool}
                 data-testid={i === 0 ? 'workspace-tool-header-next' : `crosslink-jump-${link.tool}`}
-                className="ws-caption inline-flex items-center gap-1 rounded-full border border-border-subtle bg-surface-card/80 px-2.5 py-1 font-medium text-text-secondary transition-colors hover:border-brand-500/30 hover:text-brand-800 disabled:opacity-50"
+                className="ws-caption inline-flex items-center gap-1 rounded-full border border-border-subtle bg-surface-card/80 px-2.5 py-1 font-medium text-text-secondary transition-colors hover:border-border-default hover:text-text-primary disabled:opacity-50"
               >
                 {lang === 'el' ? link.labelEl : link.labelEn}
                 <ArrowRight className="h-3 w-3 opacity-50" />
@@ -208,7 +208,7 @@ export function WorkspaceToolHeader({
                 type="button"
                 data-testid="crosslink-open-reader"
                 onClick={onOpenReader}
-                className="ws-caption inline-flex items-center gap-1.5 rounded-lg border border-border-subtle px-2.5 py-1 text-text-secondary transition-colors hover:border-brand-400/40 hover:text-brand-800"
+                className="ws-caption inline-flex items-center gap-1.5 rounded-lg border border-border-subtle px-2.5 py-1 text-text-secondary transition-colors hover:border-border-default hover:text-text-primary"
               >
                 <BookOpen className="h-3.5 w-3.5" />
                 {t('toolSource')}

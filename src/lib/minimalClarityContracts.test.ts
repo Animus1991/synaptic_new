@@ -366,6 +366,41 @@ describe('OPT-K69 engineering clarity contracts', () => {
     expect(modal).not.toMatch(/useMinimalTheme/);
   });
 
+  it('K96 — study workspace bridge (Reader / Notebook / Quiz)', () => {
+    const indexCss = read('src/index.css');
+    expect(indexCss).toMatch(/OPT-K96/);
+    expect(indexCss).toMatch(/Study workspace bridge/);
+    expect(indexCss).toMatch(/bg-accent-cyan\//);
+    expect(indexCss).toMatch(/cognitive-reader.*mark|mark\[class\*="bg-brand"\]/);
+    expect(indexCss).toMatch(/ink-allow-accent\.text-accent-emerald/);
+    expect(indexCss).toMatch(/quiz-confidence-rating/);
+
+    const toolHeader = read('src/components/workspace/WorkspaceToolHeader.tsx');
+    expect(toolHeader).toMatch(/OPT-K96/);
+    expect(toolHeader).toMatch(/text-text-secondary/);
+    expect(toolHeader).not.toMatch(/Icon className="h-3\.5 w-3\.5 text-brand-800"/);
+
+    const chrome = read('src/components/workspace/studyWorkspace/StudyWorkspaceChrome.tsx');
+    expect(chrome).toMatch(/OPT-K96/);
+    expect(chrome).toMatch(/ws-eyebrow type-micro text-text-secondary/);
+    expect(chrome).not.toMatch(/Sparkles className="w-4 h-4 text-brand-600"/);
+
+    const quiz = read('src/components/workspace/WorkspaceQuizSession.tsx');
+    expect(quiz).toMatch(/ink-allow-accent/);
+    expect(quiz).not.toMatch(/border-accent-cyan\/30 bg-accent-cyan\/10/);
+
+    const notebook = read('src/components/workspace/studyWorkspace/NotebookWorkspaceLayout.tsx');
+    expect(notebook).toMatch(/OPT-K96/);
+    expect(notebook).toMatch(/bg-surface-secondary text-text-primary ring-1 ring-border-default/);
+    expect(notebook).toMatch(/studio-tool-icon.*border-border-subtle bg-surface-card text-text-secondary|bg-surface-card text-text-secondary/);
+    expect(notebook).not.toMatch(/bg-brand-100\/80 text-brand-800/);
+    expect(notebook).not.toMatch(/border-brand-400\/50 bg-brand-100\/70/);
+
+    const reader = read('src/components/workspace/CognitiveReader.tsx');
+    expect(reader).toMatch(/fullSource \? 'ws-chip-brand'/);
+    expect(reader).toMatch(/annotateMode \? 'ws-chip-warn'/);
+  });
+
   it('K93 — cross-pollinate sweetness ↔ clarity', () => {
     const indexCss = read('src/index.css');
     expect(indexCss).toMatch(/OPT-K93/);
