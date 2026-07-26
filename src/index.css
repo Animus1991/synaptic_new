@@ -2531,8 +2531,9 @@
 [data-theme="light"] .platform-empty-state {
   box-shadow: none;
 }
+/* OPT-K99 — empty icon chrome uses tertiary ink, not brand type */
 .platform-empty-state-icon {
-  color: var(--color-brand-600);
+  color: var(--color-text-tertiary);
 }
 .ux-modal-header-stack {
   display: flex;
@@ -6420,4 +6421,31 @@ body { letter-spacing: -0.005em; }
 :is([data-theme="minimal"], [data-theme="minimal-dark"])
   [data-testid="analytics-page"] .ux-card {
   background: color-mix(in srgb, var(--color-brand-600) 2.5%, var(--color-surface-card));
+}
+
+/* ========== OPT-K98 - Markup debt (decorative brand type -> ink) ========== */
+/*
+ * High-dwell surfaces previously used text-brand-* for icons/meta/labels.
+ * Markup now uses ink tokens; this gate documents the contract and keeps
+ * soft selected chips on surface (solid brand CTAs untouched).
+ */
+:root {
+  --opt-k98-markup-debt: 1;
+}
+
+/* ========== OPT-K99 - Empty-state typography sweetness ========== */
+/*
+ * Empty states lead with serif hierarchy + relaxed body + tertiary icon well.
+ * Minimal keeps a soft atmosphere wash on the icon well only (<=8%).
+ */
+.platform-empty-state .platform-empty-state-icon,
+[data-testid="workspace-empty-state"] > div.grid {
+  color: var(--color-text-tertiary);
+}
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .platform-empty-state .platform-empty-state-icon,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) [data-testid="workspace-empty-state"] > div.grid {
+  background: color-mix(in srgb, var(--color-brand-600) 4%, var(--color-surface-secondary));
+}
+.platform-empty-state h3.ws-serif {
+  letter-spacing: -0.01em;
 }

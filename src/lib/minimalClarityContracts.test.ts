@@ -432,6 +432,57 @@ describe('OPT-K69 engineering clarity contracts', () => {
     expect(kpis).not.toMatch(/Icon className="w-3\.5 h-3\.5 text-brand-400"/);
   });
 
+  it('K98 — markup debt (decorative brand type -> ink)', () => {
+    const indexCss = read('src/index.css');
+    expect(indexCss).toMatch(/OPT-K98/);
+    expect(indexCss).toMatch(/Markup debt/);
+    expect(indexCss).toMatch(/--opt-k98-markup-debt/);
+
+    const library = read('src/components/Library.tsx');
+    expect(library).toMatch(/OPT-K98/);
+    expect(library).not.toMatch(/text-brand-\d+/);
+
+    const tasks = read('src/components/Tasks.tsx');
+    expect(tasks).toMatch(/OPT-K98/);
+    expect(tasks).not.toMatch(/text-brand-\d+/);
+
+    const settings = read('src/components/Settings.tsx');
+    expect(settings).toMatch(/OPT-K98/);
+    expect(settings).not.toMatch(/text-brand-\d+/);
+
+    const upload = read('src/components/UploadModal.tsx');
+    expect(upload).toMatch(/OPT-K98/);
+    expect(upload).toMatch(/bg-brand-600 text-white/);
+    expect(upload).not.toMatch(/text-brand-\d+/);
+
+    const hub = read('src/components/DashboardActionHub.tsx');
+    expect(hub).toMatch(/OPT-K98/);
+    expect(hub).not.toMatch(/text-brand-\d+/);
+  });
+
+  it('K99 — empty-state typography sweetness', () => {
+    const indexCss = read('src/index.css');
+    expect(indexCss).toMatch(/OPT-K99/);
+    expect(indexCss).toMatch(/Empty-state typography sweetness/);
+    expect(indexCss).toMatch(/platform-empty-state-icon/);
+    expect(indexCss).toMatch(/color:\s*var\(--color-text-tertiary\)/);
+    expect(indexCss).toMatch(/workspace-empty-state/);
+
+    const platform = read('src/components/ui/PlatformEmptyState.tsx');
+    expect(platform).toMatch(/OPT-K98\/K99|OPT-K99/);
+    expect(platform).toMatch(/text-text-tertiary/);
+    expect(platform).toMatch(/bg-surface-secondary/);
+    expect(platform).toMatch(/text-xl font-medium tracking-tight/);
+    expect(platform).not.toMatch(/text-brand-\d+/);
+
+    const workspace = read('src/components/workspace/WorkspaceEmptyState.tsx');
+    expect(workspace).toMatch(/OPT-K99/);
+    expect(workspace).toMatch(/text-text-tertiary/);
+    expect(workspace).toMatch(/bg-surface-secondary/);
+    expect(workspace).not.toMatch(/border-brand-500\/20 bg-brand-500\/10/);
+    expect(workspace).not.toMatch(/text-brand-\d+/);
+  });
+
   it('K93 — cross-pollinate sweetness ↔ clarity', () => {
     const indexCss = read('src/index.css');
     expect(indexCss).toMatch(/OPT-K93/);

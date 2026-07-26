@@ -81,6 +81,7 @@ const FLOW_STAGES = [
   { key: 'processing', labelKey: 'uploadStageCourse', hintKey: 'uploadStageCourseHint' },
 ] as const;
 
+/* OPT-K98 — markup debt: decorative brand type -> ink */
 export function UploadModal({
   isOpen,
   onClose,
@@ -455,7 +456,7 @@ export function UploadModal({
                   />
                   <Upload className={cn(
                     'w-10 h-10 mx-auto mb-3 transition-colors',
-                    dragActive ? 'text-brand-400' : 'text-text-muted'
+                    dragActive ? 'text-text-secondary' : 'text-text-muted'
                   )} />
                   <p className="text-sm font-medium mb-1">
                     {dragActive ? t('uploadDropActive', previewLang) : t('uploadDropIdle', previewLang)}
@@ -487,13 +488,13 @@ export function UploadModal({
                       return (
                       <div key={fileKey} className="flex items-center gap-3 p-3 rounded-xl bg-surface-card border border-border-subtle">
                         {isChatGpt ? (
-                          <MessageSquare className="w-4 h-4 text-brand-400 shrink-0" />
+                          <MessageSquare className="w-4 h-4 text-text-secondary shrink-0" />
                         ) : (
-                          <FileText className="w-4 h-4 text-brand-400 shrink-0" />
+                          <FileText className="w-4 h-4 text-text-secondary shrink-0" />
                         )}
                         <span className="text-sm flex-1 truncate">{file.name}</span>
                         {isChatGpt && (
-                          <span className="text-[10px] font-medium text-brand-300 shrink-0">{t('uploadChatGptExportBadge', previewLang)}</span>
+                          <span className="text-[10px] font-medium text-text-secondary shrink-0">{t('uploadChatGptExportBadge', previewLang)}</span>
                         )}
                         <span className="text-xs text-text-muted">{(file.size / 1024).toFixed(1)} KB</span>
                         <button
@@ -627,7 +628,7 @@ export function UploadModal({
                         )}
                       >
                         <div className="flex items-center gap-2 mb-1">
-                          <UiIcon id={s.icon} size="sm" className="text-brand-600" />
+                          <UiIcon id={s.icon} size="sm" className="text-text-secondary" />
                           <span className="font-medium text-sm">{t(s.labelKey, previewLang)}</span>
                         </div>
                         <p className="text-xs text-text-secondary ml-6">{t(s.descKey, previewLang)}</p>
@@ -648,7 +649,7 @@ export function UploadModal({
                         className={cn(
                           'px-3 py-1.5 rounded-lg text-xs font-medium border transition-all',
                           focusTags.includes(focus)
-                            ? 'border-brand-500/50 bg-brand-500/10 text-brand-300'
+                            ? 'border-brand-500/50 bg-brand-500/10 text-text-secondary'
                             : 'border-border-subtle hover:border-brand-500/30 hover:bg-brand-500/5',
                         )}
                       >
@@ -671,7 +672,7 @@ export function UploadModal({
 
                 <div className="p-3 rounded-xl bg-surface-hover/50 border border-border-subtle">
                   <p className="text-xs text-text-secondary flex items-start gap-2">
-                    <AlertCircle className="w-4 h-4 text-brand-400 shrink-0 mt-0.5" />
+                    <AlertCircle className="w-4 h-4 text-text-secondary shrink-0 mt-0.5" />
                     {t('uploadQualityHint', previewLang)}
                   </p>
                 </div>
@@ -698,7 +699,7 @@ export function UploadModal({
                 <div className="relative w-20 h-20 mx-auto mb-6">
                   <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-brand-500 to-accent-teal animate-pulse" />
                   <div className="absolute inset-1 rounded-xl bg-surface-secondary flex items-center justify-center">
-                    <Sparkles className="w-8 h-8 text-brand-400 animate-float" />
+                    <Sparkles className="w-8 h-8 text-text-secondary animate-float" />
                   </div>
                 </div>
                 <h3 className="text-lg font-semibold mb-2">{t('uploadProcessingTitle', previewLang)}</h3>
@@ -715,7 +716,7 @@ export function UploadModal({
                   aria-live="polite"
                   data-testid="upload-processing-status"
                 >
-                  <Loader2 className="w-4 h-4 text-brand-400 animate-spin shrink-0" aria-hidden />
+                  <Loader2 className="w-4 h-4 text-text-secondary animate-spin shrink-0" aria-hidden />
                   <span>{t('uploadProcessingIndeterminate', previewLang)}</span>
                 </div>
               </div>

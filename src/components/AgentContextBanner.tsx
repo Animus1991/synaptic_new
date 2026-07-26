@@ -26,6 +26,7 @@ function buildTooltipText(banner: AgentContextBannerView, jsonText: string | nul
 }
 
 /** Visible workspace handoff strip in the Agent panel (Prompt 3). */
+/* OPT-K98 — markup debt: decorative brand type -> ink */
 export function AgentContextBanner({ context, lang, className, compact = false }: Props) {
   const { t } = useI18n();
   const banner = buildAgentContextBanner(context, lang);
@@ -58,7 +59,7 @@ export function AgentContextBanner({ context, lang, className, compact = false }
             onFocus={() => setPopoverOpen(true)}
             onBlur={() => setPopoverOpen(false)}
           >
-            <MapPin className="h-3 w-3 shrink-0 text-brand-600" aria-hidden />
+            <MapPin className="h-3 w-3 shrink-0 text-text-secondary" aria-hidden />
             <span className="truncate text-[10px] font-medium text-text-secondary">
               <span className="text-text-muted">{banner.heading}</span>{' '}
               {banner.compactLine}
@@ -91,7 +92,7 @@ export function AgentContextBanner({ context, lang, className, compact = false }
           <button
             type="button"
             onClick={() => setJsonOpen((v) => !v)}
-            className="shrink-0 rounded-md p-1 text-text-muted hover:bg-surface-hover hover:text-brand-700 transition-colors"
+            className="shrink-0 rounded-md p-1 text-text-muted hover:bg-surface-hover hover:text-text-primary transition-colors"
             aria-expanded={jsonOpen}
             aria-label={t('agentJsonContext')}
             data-testid="agent-context-json-toggle"
@@ -122,7 +123,7 @@ export function AgentContextBanner({ context, lang, className, compact = false }
       role="status"
     >
       <div className="flex items-start gap-2 max-w-none w-full min-w-0">
-        <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0 text-brand-400" aria-hidden />
+        <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0 text-text-secondary" aria-hidden />
         <div className="min-w-0 flex-1 space-y-1">
           <p className="text-[11px] font-medium text-text-primary">
             <span className="text-text-muted">{banner.heading}</span>{' '}
@@ -142,7 +143,7 @@ export function AgentContextBanner({ context, lang, className, compact = false }
               <button
                 type="button"
                 onClick={() => setJsonOpen((v) => !v)}
-                className="inline-flex items-center gap-1 text-[10px] font-medium text-brand-300 hover:text-brand-200"
+                className="inline-flex items-center gap-1 text-[10px] font-medium text-text-secondary hover:text-text-primary"
                 data-testid="agent-context-json-toggle"
                 aria-expanded={jsonOpen}
               >

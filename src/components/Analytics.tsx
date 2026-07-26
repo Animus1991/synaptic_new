@@ -197,6 +197,7 @@ function buildMasteryGraph(
   return { nodes, edges, height };
 }
 
+/* OPT-K98 — markup debt: decorative brand type -> ink */
 export function Analytics({
   learnerModel,
   stats,
@@ -352,7 +353,7 @@ function OverviewTab({
               }
             }}
           >
-            <GitBranch className="w-4 h-4 text-brand-600 shrink-0" aria-hidden />
+            <GitBranch className="w-4 h-4 text-text-secondary shrink-0" aria-hidden />
             <span className="flex-1 text-sm font-medium text-text-primary">{t('analyticsFlowBanner')}</span>
             <ChevronRight className="w-4 h-4 text-text-muted shrink-0" aria-hidden />
           </button>
@@ -516,13 +517,13 @@ function OverviewTab({
 
         <div className="platform-panel-md">
           <h3 className="text-sm font-semibold mb-2.5 flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 text-brand-600" />
+            <CheckCircle2 className="w-4 h-4 text-text-secondary" />
             {t('analyticsCoursesColumn')}
           </h3>
           <div className="space-y-2">
             {courses.filter(c => c.status !== 'generating').slice(0, 6).map(course => (
               <div key={course.id} className="flex items-center gap-2">
-                <CourseIcon icon={course.icon} size="sm" colorClassName="text-brand-600 shrink-0" />
+                <CourseIcon icon={course.icon} size="sm" colorClassName="text-text-secondary shrink-0" />
                 <span className="text-xs text-text-secondary flex-1 truncate">{course.title}</span>
                 {/* Wave P-2 C08 — Courses column progress track uses --viz-bar-track
                     (theme-tuned ≥3:1 vs card) instead of bg-surface-hover which
@@ -756,7 +757,7 @@ function OverviewTab({
             });
           }}
         >
-          <FlaskConical className="w-4 h-4 text-brand-600 shrink-0" aria-hidden />
+          <FlaskConical className="w-4 h-4 text-text-secondary shrink-0" aria-hidden />
           <span className="min-w-0 flex-1">
             <span className="block text-sm font-medium text-text-primary">{t('analyticsVisualLabFooter')}</span>
             <span className="block text-[10px] text-text-muted truncate">{t('analyticsVisualLabFooterHint')}</span>
@@ -764,7 +765,7 @@ function OverviewTab({
           <ChevronRight
             className={cn(
               'w-4 h-4 text-text-muted shrink-0 transition-transform duration-300 ease-out motion-reduce:transition-none',
-              visualLabOpen && 'rotate-90 text-brand-600',
+              visualLabOpen && 'rotate-90 text-text-secondary',
             )}
             aria-hidden
           />
@@ -1042,14 +1043,14 @@ function InsightsTab({
       )}
 
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="rounded-panel border border-brand-500/20 bg-brand-500/5 p-5">
-        <h3 className="text-sm font-semibold flex items-center gap-2 mb-4"><Lightbulb className="w-4 h-4 text-brand-400" />{t('analyticsInsightsLearnedTitle')}</h3>
+        <h3 className="text-sm font-semibold flex items-center gap-2 mb-4"><Lightbulb className="w-4 h-4 text-text-secondary" />{t('analyticsInsightsLearnedTitle')}</h3>
         <p className="text-xs text-text-tertiary mb-4">{t('analyticsInsightsLearnedHint')}</p>
         <div className="space-y-3">
           {(learnerModel.interactionInsights.length > 0 ? learnerModel.interactionInsights : tips.slice(0, 2)).map((insight, i) => (
             <motion.div key={i} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.08 }}
               className="flex items-start gap-3 p-3 rounded-xl bg-surface-card border border-border-subtle">
               <div className="w-6 h-6 rounded-full bg-brand-500/10 flex items-center justify-center shrink-0 mt-0.5">
-                <Lightbulb className="w-3 h-3 text-brand-400" />
+                <Lightbulb className="w-3 h-3 text-text-secondary" />
               </div>
               <p className="text-sm text-text-secondary leading-relaxed">{insight}</p>
             </motion.div>
@@ -1138,7 +1139,7 @@ function ResearchTab({
 
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="platform-panel-md">
         <h3 className="text-sm font-semibold flex items-center gap-2 mb-1">
-          <FlaskConical className="w-4 h-4 text-brand-400" />
+          <FlaskConical className="w-4 h-4 text-text-secondary" />
           {t('analyticsResearchBktTitle')}
         </h3>
         <p className="text-xs text-text-tertiary mb-4">{t('analyticsResearchBktHint')}</p>

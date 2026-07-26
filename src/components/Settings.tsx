@@ -47,6 +47,7 @@ interface SettingsProps {
   onApplyCalendarSync?: (updates: TaskCalendarSyncUpdate[]) => void;
 }
 
+/* OPT-K98 — markup debt: decorative brand type -> ink */
 export function Settings({
   settings,
   onUpdate,
@@ -209,7 +210,7 @@ export function Settings({
                       'settings-ide-nav-item shrink-0 rounded-md px-2.5 py-1.5 text-left text-[11px] font-medium text-text-secondary transition-colors hover:bg-surface-hover hover:text-text-primary lg:w-full',
                       isActive && 'is-active',
                     )
-                  : 'platform-pill shrink-0 px-3 py-1.5 text-xs font-medium text-text-secondary hover:text-brand-700',
+                  : 'platform-pill shrink-0 px-3 py-1.5 text-xs font-medium text-text-secondary hover:text-text-primary',
               )}
               onClick={() => {
                 if (isMinimal) setActiveSection(section.id);
@@ -230,7 +231,7 @@ export function Settings({
             : 'lg:columns-2 lg:gap-6 [&>*]:mb-6 [&>*]:break-inside-avoid',
         )}
       >
-      <SettingsSection id="settings-teaching" title={c.sectionTeachingApproach} icon={<Brain className="w-5 h-5 text-brand-400" />} delay={0.05}>
+      <SettingsSection id="settings-teaching" title={c.sectionTeachingApproach} icon={<Brain className="w-5 h-5 text-text-secondary" />} delay={0.05}>
         <ToggleRow label={c.labelTeachingStyle} options={c.teachingStyleOptions} value={settings.teachingStyle} onChange={v => onUpdate({ teachingStyle: v as UserSettings['teachingStyle'] })} />
         <ToggleRow label={c.labelExplanationDepth} options={c.explanationDepthOptions} value={settings.explanationDepth} onChange={v => onUpdate({ explanationDepth: v as UserSettings['explanationDepth'] })} />
         <ToggleRow label={c.labelFeedbackTone} options={c.feedbackToneOptions} value={settings.feedbackTone} onChange={v => onUpdate({ feedbackTone: v as UserSettings['feedbackTone'] })} />
@@ -255,7 +256,7 @@ export function Settings({
         <ToggleRow label={c.labelRevisionLoops} options={c.revisionLoopsOptions} value={settings.revisionLoops} onChange={v => onUpdate({ revisionLoops: v as UserSettings['revisionLoops'] })} />
       </SettingsSection>
 
-      <SettingsSection id="settings-plugins" title={t('pluginMarketplaceTitle')} icon={<Zap className="w-5 h-5 text-brand-400" />} delay={0.22}>
+      <SettingsSection id="settings-plugins" title={t('pluginMarketplaceTitle')} icon={<Zap className="w-5 h-5 text-text-secondary" />} delay={0.22}>
         <PluginMarketplacePanel />
       </SettingsSection>
 
@@ -274,7 +275,7 @@ export function Settings({
               {[15, 30, 45, 60, 90].map(m => (
                 <button key={m} onClick={() => onUpdate({ dailyGoalMinutes: m })}
                   className={cn('px-3 py-1.5 rounded-lg text-xs font-medium transition-all',
-                    settings.dailyGoalMinutes === m ? 'bg-brand-600/20 text-brand-300 border border-brand-500/30' : 'border border-border-subtle text-text-tertiary'
+                    settings.dailyGoalMinutes === m ? 'bg-surface-secondary text-text-primary border border-border-default' : 'border border-border-subtle text-text-tertiary'
                   )}>{m}m</button>
               ))}
             </div>
@@ -287,13 +288,13 @@ export function Settings({
         </div>
       </SettingsSection>
 
-      <SettingsSection id="settings-ai" title={c.sectionAiLlm} icon={<Brain className="w-5 h-5 text-brand-400" />} delay={0.32}>
+      <SettingsSection id="settings-ai" title={c.sectionAiLlm} icon={<Brain className="w-5 h-5 text-text-secondary" />} delay={0.32}>
         <div className="rounded-xl border border-border-subtle/70 bg-surface-hover/40 px-3 py-2 space-y-1" data-testid="ai-economics-panel">
           <p className="text-xs font-semibold text-text-primary">{c.aiEconomicsTitle}</p>
           <p className="text-[11px] text-text-muted leading-relaxed">{c.aiEconomicsBody}</p>
           <p className="text-[10px] text-text-muted">{c.proxyMeteringNote}</p>
           {settings.authToken && (
-            <p className="text-[10px] text-brand-700" data-testid="ai-economics-plan">
+            <p className="text-[10px] text-text-secondary" data-testid="ai-economics-plan">
               {c.planLabel} <strong>{settings.authPlan ?? 'free'}</strong>
             </p>
           )}
@@ -326,7 +327,7 @@ export function Settings({
                   className={cn(
                     'px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors',
                     active
-                      ? 'bg-brand-600/20 text-brand-300 border-brand-500/40'
+                      ? 'bg-surface-secondary text-text-primary border-border-default'
                       : 'border-border-subtle text-text-tertiary hover:border-brand-500/30',
                   )}
                 >
@@ -368,7 +369,7 @@ export function Settings({
                   className={cn(
                     'px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors',
                     active
-                      ? 'bg-brand-600/20 text-brand-300 border-brand-500/40'
+                      ? 'bg-surface-secondary text-text-primary border-border-default'
                       : 'border-border-subtle text-text-tertiary hover:border-brand-500/30',
                   )}
                 >
@@ -414,7 +415,7 @@ export function Settings({
         {settings.authToken && (
           <div className="flex flex-wrap items-center gap-2 mb-3">
             <span className="text-xs px-2 py-1 rounded-lg bg-surface-hover border border-border-subtle">
-              {c.planLabel} <strong className="text-brand-300">{settings.authPlan ?? 'free'}</strong>
+              {c.planLabel} <strong className="text-text-secondary">{settings.authPlan ?? 'free'}</strong>
             </span>
             {(settings.authPlan ?? 'free') === 'free' && (
               <>
@@ -429,7 +430,7 @@ export function Settings({
                 <button
                   type="button"
                   data-testid="upgrade-team"
-                  className="px-3 py-1.5 rounded-lg text-xs font-medium border border-brand-500/40 text-brand-300"
+                  className="px-3 py-1.5 rounded-lg text-xs font-medium border border-brand-500/40 text-text-secondary"
                   onClick={() => void startCheckout('team')}
                 >
                   {c.upgradeTeam}
@@ -618,7 +619,7 @@ export function Settings({
                 href={privacyPolicyUrl()}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-brand-600 hover:underline"
+                className="text-text-secondary hover:underline"
                 data-testid="privacy-policy-link"
               >
                 Privacy policy
@@ -694,7 +695,7 @@ export function Settings({
       <SettingsSection
         id="settings-google"
         title={c.sectionGoogleWorkspace}
-        icon={<KeyRound className="w-5 h-5 text-brand-400" />}
+        icon={<KeyRound className="w-5 h-5 text-text-secondary" />}
         delay={0.32}
       >
         <GoogleIntegrationsPanel
@@ -707,7 +708,7 @@ export function Settings({
         />
       </SettingsSection>
 
-      <SettingsSection id="settings-interface" title={c.sectionInterface} icon={<Palette className="w-5 h-5 text-brand-300" />} delay={0.35}>
+      <SettingsSection id="settings-interface" title={c.sectionInterface} icon={<Palette className="w-5 h-5 text-text-secondary" />} delay={0.35}>
         <ThemePickerRow
           label={c.labelTheme}
           hint={c.themeHint}
@@ -735,7 +736,7 @@ export function Settings({
           <button
             type="button"
             onClick={() => { downloadBackup(); setBackupStatus(c.backupDownloaded); }}
-            className="px-3 py-2 rounded-xl text-xs font-medium bg-brand-600/20 text-brand-300 border border-brand-500/30 hover:bg-brand-600/30"
+            className="px-3 py-2 rounded-xl text-xs font-medium bg-surface-secondary text-text-primary border border-border-default hover:bg-brand-600/30"
           >
             {c.exportBackup}
           </button>
@@ -818,7 +819,7 @@ export function Settings({
 
       <div className={cn('platform-panel-soft', isMinimal && 'settings-ide-footer')}>
         <p className="text-xs text-text-tertiary leading-relaxed flex items-start gap-2">
-          <Zap className="w-4 h-4 text-brand-400 shrink-0 mt-0.5" />
+          <Zap className="w-4 h-4 text-text-secondary shrink-0 mt-0.5" />
           {c.footerNote}
         </p>
       </div>
@@ -879,7 +880,7 @@ function ToggleRow({ label, options, value, onChange }: { label: string; options
         {options.map(opt => (
           <button key={opt.value} onClick={() => onChange(opt.value)}
             className={cn('px-3 py-1.5 rounded-lg text-xs font-medium transition-all',
-              value === opt.value ? 'bg-brand-600/20 text-brand-300 border border-brand-500/30' : 'border border-border-subtle text-text-tertiary hover:text-text-secondary'
+              value === opt.value ? 'bg-surface-secondary text-text-primary border border-border-default' : 'border border-border-subtle text-text-tertiary hover:text-text-secondary'
             )}>{opt.label}</button>
         ))}
       </div>

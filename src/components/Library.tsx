@@ -110,6 +110,7 @@ const fileTypeIcons: Record<string, typeof FileText> = {
   code: Code,
 };
 
+/* OPT-K98 — markup debt: decorative brand type -> ink */
 export function Library({
   courses,
   uploadedFiles,
@@ -391,7 +392,7 @@ export function Library({
                   className="flex items-start justify-between gap-3 rounded-xl border border-dashed border-brand-500/35 bg-surface-card/40 px-3 py-2"
                 >
                   <p className="text-xs text-text-secondary">
-                    <span className="font-semibold text-brand-800">{t('libraryTipLabel', userLanguage)}</span>{' '}
+                    <span className="font-semibold text-text-secondary">{t('libraryTipLabel', userLanguage)}</span>{' '}
                     {t('libraryEntryHint', userLanguage)}
                   </p>
                   <button
@@ -515,7 +516,7 @@ export function Library({
                 data-testid="library-drop-zone"
                 className="ux-library-drop-zone ux-prompt-bar-surface mb-2 flex w-full flex-col items-center gap-2 px-6 py-8 text-center text-text-secondary hover:text-text-primary transition-colors"
               >
-                <Upload className="h-8 w-8 text-brand-600" aria-hidden />
+                <Upload className="h-8 w-8 text-text-secondary" aria-hidden />
                 <span className="text-sm font-medium">
                   {t('libDropZoneTitle', userLanguage)}
                 </span>
@@ -651,7 +652,7 @@ export function Library({
                     data-testid="library-drop-zone-compact"
                     className="ux-library-drop-zone ux-library-drop-zone--compact ux-prompt-bar-surface flex w-full flex-row items-center justify-center gap-3 px-4 py-2.5 text-text-secondary hover:text-text-primary transition-colors"
                   >
-                    <Upload className="h-5 w-5 text-brand-600 shrink-0" aria-hidden />
+                    <Upload className="h-5 w-5 text-text-secondary shrink-0" aria-hidden />
                     <span className="text-sm font-medium">{t('libDropZoneCompactTitle', userLanguage)}</span>
                   </button>
                 )}
@@ -794,7 +795,7 @@ function CourseCard({
           {showMisconception && (
             <span
               data-testid={`library-corner-misconception-${course.id}`}
-              className="rounded-md border border-brand-500/35 bg-brand-500/10 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-brand-700"
+              className="rounded-md border border-brand-500/35 bg-brand-500/10 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-text-secondary"
             >
               <AllCapsLabel>{t('libCornerMisconception', userLanguage)}</AllCapsLabel>
             </span>
@@ -803,7 +804,7 @@ function CourseCard({
       )}
 
       <div className="flex items-start justify-between mb-3">
-        <CourseIcon icon={course.icon} size="lg" colorClassName="text-brand-600" />
+        <CourseIcon icon={course.icon} size="lg" colorClassName="text-text-secondary" />
         <div className="flex items-center gap-1">
           {canDelete && !isGenerating && (
             <button
@@ -837,7 +838,7 @@ function CourseCard({
         </div>
       </div>
 
-      <h3 className="text-sm font-semibold mb-1 text-text-primary group-hover:text-brand-700 transition-colors" data-testid="library-course-title">{course.title}</h3>
+      <h3 className="text-sm font-semibold mb-1 text-text-primary group-hover:text-text-primary transition-colors" data-testid="library-course-title">{course.title}</h3>
       <p className="text-xs text-text-tertiary mb-3 line-clamp-2">{course.description}</p>
       {course.recognitionSummary && !isGenerating && (
         <p className="text-[10px] text-text-muted mb-2">
@@ -922,7 +923,7 @@ function CourseCard({
                 onOpenNotebookShell(course.id);
               }}
               data-testid={`library-notebook-shell-${course.id}`}
-              className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-brand-500/30 bg-brand-500/5 px-2.5 py-1.5 text-xs font-medium text-brand-700 hover:bg-brand-500/10 transition-colors"
+              className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-border-subtle bg-surface-secondary px-2.5 py-1.5 text-xs font-medium text-text-secondary hover:bg-brand-500/10 transition-colors"
             >
               <BookOpen className="w-3.5 h-3.5" />
               {t('libNotebookShellShort', userLanguage)}
@@ -954,7 +955,7 @@ function CourseCard({
                   onUpload();
                 }}
                 data-testid={`library-add-file-${course.id}`}
-                className="rounded-md border border-dashed border-brand-500/40 px-1.5 py-0.5 text-[10px] sm:text-xs font-medium text-brand-700 hover:bg-brand-500/10"
+                className="rounded-md border border-dashed border-brand-500/40 px-1.5 py-0.5 text-[10px] sm:text-xs font-medium text-text-secondary hover:bg-brand-500/10"
               >
                 {t('libAddFileChip', userLanguage)}
               </button>
@@ -1059,10 +1060,10 @@ function CourseListItem({
       {...workspaceEntryPrefetchHandlers()}
       className="flex items-center gap-4 p-4 hover:border-brand-500/35 cursor-pointer transition-all group"
     >
-      <CourseIcon icon={course.icon} size="lg" colorClassName="text-brand-600 shrink-0" />
+      <CourseIcon icon={course.icon} size="lg" colorClassName="text-text-secondary shrink-0" />
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
-          <h3 className="font-semibold text-sm group-hover:text-brand-300 transition-colors truncate" data-testid="library-course-title">{course.title}</h3>
+          <h3 className="font-semibold text-sm group-hover:text-text-primary transition-colors truncate" data-testid="library-course-title">{course.title}</h3>
           {isOldPipeline && !isGenerating && (
             <span
               className="inline-flex items-center gap-1 rounded-full border border-accent-amber/30 bg-accent-amber/10 px-1.5 py-0.5 text-[10px] font-medium text-accent-amber"
@@ -1104,7 +1105,7 @@ function CourseListItem({
           type="button"
           onClick={(e) => { e.stopPropagation(); onOpenNotebookShell(course.id); }}
           data-testid={`library-notebook-shell-list-${course.id}`}
-          className="hidden sm:inline-flex items-center gap-1 rounded-lg border border-brand-500/30 px-2 py-1 text-[10px] font-medium text-brand-700 hover:bg-brand-500/10"
+          className="hidden sm:inline-flex items-center gap-1 rounded-lg border border-brand-500/30 px-2 py-1 text-[10px] font-medium text-text-secondary hover:bg-brand-500/10"
         >
           <BookOpen className="w-3 h-3" />
           {t('libNotebookShellShort', userLanguage)}
@@ -1121,7 +1122,7 @@ function CourseListItem({
           <Trash2 className="w-4 h-4" />
         </button>
       )}
-      <ChevronRight className="w-4 h-4 text-text-tertiary group-hover:text-brand-400" />
+      <ChevronRight className="w-4 h-4 text-text-tertiary group-hover:text-text-primary" />
       {canDelete && (
         <ConfirmDialog
           open={removeDialogOpen}
@@ -1231,7 +1232,7 @@ function FileItem({
     >
       <div className="flex items-center gap-3 p-3">
         <div className="library-file-icon w-10 h-10 rounded-lg bg-surface-hover flex items-center justify-center shrink-0">
-          <Icon className="w-5 h-5 text-brand-400" />
+          <Icon className="w-5 h-5 text-text-secondary" />
         </div>
         <div className="flex-1 min-w-0">
           <p className="library-file-name text-sm font-medium truncate">
@@ -1287,7 +1288,7 @@ function FileItem({
                 lang: userLanguage,
               })}
               data-testid={`library-open-nlm-${file.id}`}
-              className="p-1.5 rounded-lg border border-brand-500/30 text-brand-600 hover:bg-brand-500/10 transition-colors"
+              className="p-1.5 rounded-lg border border-brand-500/30 text-text-secondary hover:bg-brand-500/10 transition-colors"
               title={t('libOpenNotebookLmTitle', userLanguage)}
             >
               <ExternalLink className="w-4 h-4" />
@@ -1298,7 +1299,7 @@ function FileItem({
               type="button"
               onClick={() => onAskSource(file, course)}
               data-testid={`library-ask-source-${file.id}`}
-              className="p-1.5 rounded-lg border border-brand-500/30 text-brand-600 hover:bg-brand-500/10 transition-colors"
+              className="p-1.5 rounded-lg border border-brand-500/30 text-text-secondary hover:bg-brand-500/10 transition-colors"
               title={t('libAskSourceTitle', userLanguage)}
               aria-label={t('libAskSourceTitle', userLanguage)}
             >
@@ -1311,7 +1312,7 @@ function FileItem({
               onClick={() => file.courseId && onReprocessCourse?.(file.courseId)}
               disabled={reprocessingMaterial}
               data-testid={`library-reprocess-${file.id}`}
-              className="p-1.5 rounded-lg border border-brand-500/30 text-brand-300 hover:bg-brand-500/10 disabled:opacity-60 transition-colors"
+              className="p-1.5 rounded-lg border border-brand-500/30 text-text-secondary hover:bg-brand-500/10 disabled:opacity-60 transition-colors"
               title={t('libReprocessTooltip', userLanguage)}
             >
               <RefreshCw className={cn('w-4 h-4', reprocessingMaterial && 'animate-spin')} />

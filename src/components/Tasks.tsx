@@ -32,6 +32,7 @@ import { useWarmSandPageScope, warmSandScopeProps } from '../lib/useDocumentThem
 import { useMinimalTheme } from '../lib/useMinimalTheme';
 import { AllCapsLabel } from './ui/AllCapsLabel';
 
+/* OPT-K98 — markup debt: decorative brand type -> ink */
 export type { TaskFilter } from '../lib/tasksContent';
 
 type CommandTab = 'today' | 'weak' | 'reviews' | 'mistakes';
@@ -280,7 +281,7 @@ export function Tasks({
           <button
             type="button"
             onClick={() => setShowAllCourses((v) => !v)}
-            className="text-xs font-medium text-brand-700 hover:text-brand-600 underline-offset-2 hover:underline"
+            className="text-xs font-medium text-text-secondary hover:text-text-primary underline-offset-2 hover:underline"
           >
             {courseScoped ? c.showAllCourses : c.courseScopeLabel(focusCourseName)}
           </button>
@@ -306,12 +307,12 @@ export function Tasks({
 
       {sessionActive && activeSessionType && (
         <div className="ux-card ux-chip-info border-brand-500/25 p-3 space-y-1.5" data-testid="tasks-session-status">
-          <p className="text-xs font-semibold text-brand-300">
+          <p className="text-xs font-semibold text-text-secondary">
             {c.sessionActiveBanner(sessionLabel(activeSessionType), sessionCurrentIndex, sessionTotal)}
           </p>
           {activeTask && (
             <p className="text-sm text-text-primary truncate">
-              <span className="text-[10px] uppercase tracking-wide text-brand-400 mr-2"><AllCapsLabel>{c.sessionRunningNow}</AllCapsLabel></span>
+              <span className="text-[10px] uppercase tracking-wide text-text-secondary mr-2"><AllCapsLabel>{c.sessionRunningNow}</AllCapsLabel></span>
               {activeTask.title}
             </p>
           )}
@@ -365,7 +366,7 @@ export function Tasks({
                 setSessionMode(recommendedSession);
                 onStartSession?.(recommendedSession);
               }}
-              className="w-full border-brand-500/40 bg-surface-card/60 font-semibold text-brand-800 hover:bg-brand-600/10"
+              className="w-full border-brand-500/40 bg-surface-card/60 font-semibold text-text-secondary hover:bg-brand-600/10"
             >
               {c.createPlanCta}
             </SecondaryCTA>
@@ -442,7 +443,7 @@ export function Tasks({
                     <button
                       type="button"
                       onClick={() => onFocusWeakArea(almostKnownPreview[0].concept)}
-                      className="inline-flex items-center gap-1 text-xs font-medium text-brand-700 hover:text-brand-600"
+                      className="inline-flex items-center gap-1 text-xs font-medium text-text-secondary hover:text-text-primary"
                     >
                       {c.almostThereCta} <ArrowRight className="w-3 h-3" aria-hidden />
                     </button>
@@ -452,8 +453,8 @@ export function Tasks({
               {antiPassiveAlert && (
                 <div className="rounded-xl border border-brand-500/20 bg-brand-600/5 p-3 space-y-1.5">
                   <div className="flex items-center gap-1.5">
-                    <Zap className="w-3.5 h-3.5 text-brand-600 shrink-0" aria-hidden />
-                    <p className="text-[10px] font-semibold uppercase tracking-wide text-brand-700">
+                    <Zap className="w-3.5 h-3.5 text-text-secondary shrink-0" aria-hidden />
+                    <p className="text-[10px] font-semibold uppercase tracking-wide text-text-secondary">
                       <AllCapsLabel>{c.recallReminderTitle}</AllCapsLabel>
                     </p>
                   </div>
@@ -461,7 +462,7 @@ export function Tasks({
                   <button
                     type="button"
                     onClick={() => (onStartQuiz ? onStartQuiz() : onStartSession?.('10min'))}
-                    className="inline-flex items-center gap-1 text-xs font-medium text-brand-700 hover:text-brand-600"
+                    className="inline-flex items-center gap-1 text-xs font-medium text-text-secondary hover:text-text-primary"
                   >
                     {c.recallReminderCta} <ArrowRight className="w-3 h-3" aria-hidden />
                   </button>
@@ -506,7 +507,7 @@ export function Tasks({
                       <span className={cn('tasks-kanban-status-dot shrink-0', `tasks-kanban-status-${kanbanStatus}`)} aria-hidden />
                     )}
                     <button type="button" onClick={(e) => { e.stopPropagation(); onComplete(task.id); }} className="shrink-0" data-testid={`task-complete-${task.id}`} aria-label={`Complete ${task.title}`}>
-                      <Circle className="w-5 h-5 text-text-muted hover:text-brand-400" />
+                      <Circle className="w-5 h-5 text-text-muted hover:text-text-primary" />
                     </button>
                     <div className="w-8 h-8 rounded-lg bg-brand-600/15 flex items-center justify-center shrink-0">
                       <TaskActionIcon task={task} size="sm" />
@@ -541,7 +542,7 @@ export function Tasks({
                       <button
                         type="button"
                         onClick={(e) => { e.stopPropagation(); onStartTask?.(task.id); }}
-                        className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-brand-600/15 text-brand-400 text-xs font-medium hover:bg-brand-600/25"
+                        className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-surface-secondary text-text-secondary text-xs font-medium hover:bg-brand-600/25"
                       >
                         <Play className="w-3 h-3" /> {startButtonLabel(task, lang)}
                       </button>
@@ -641,7 +642,7 @@ export function Tasks({
                     <div className="h-full rounded-full bg-accent-rose/80" style={{ width: `${area.mastery}%` }} />
                   </div>
                   <div className="flex flex-wrap gap-2">
-                    <button type="button" onClick={() => onFocusWeakArea?.(area.concept)} className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-brand-600/15 text-brand-400 text-xs font-medium">
+                    <button type="button" onClick={() => onFocusWeakArea?.(area.concept)} className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-surface-secondary text-text-secondary text-xs font-medium">
                       <Brain className="w-3 h-3" /> {c.studyNow}
                     </button>
                     {onOpenAgent && (
@@ -681,7 +682,7 @@ export function Tasks({
                   {c.intervalLabel(`${intervalDays}d`)}
                 </span>
               )}
-              <button type="button" onClick={() => onStartTask?.(task.id)} className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-brand-600/15 text-brand-400 text-xs font-medium shrink-0">
+              <button type="button" onClick={() => onStartTask?.(task.id)} className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-surface-secondary text-text-secondary text-xs font-medium shrink-0">
                 <Play className="w-3 h-3" /> {c.startReview}
               </button>
             </div>
@@ -735,7 +736,7 @@ export function Tasks({
                   )}
                   <div className="flex flex-wrap gap-2">
                     {onOpenAgent && (
-                      <button type="button" onClick={onOpenAgent} className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-brand-600/15 text-brand-400 text-xs font-medium">
+                      <button type="button" onClick={onOpenAgent} className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-surface-secondary text-text-secondary text-xs font-medium">
                         <Brain className="w-3 h-3" /> {c.deepExplanation}
                       </button>
                     )}

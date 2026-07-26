@@ -44,6 +44,7 @@ type ExamPhase = 'setup' | 'active' | 'review' | 'results';
 type ExamMode = 'standard' | 'practice';
 type AnswerState = { answer: number | null; flagged: boolean; timeSpent: number };
 
+/* OPT-K98 — markup debt: decorative brand type -> ink */
 export function ExamPrepView({
   onClose,
   onOpenAgent,
@@ -200,7 +201,7 @@ export function ExamPrepView({
             onClick={onOpenAgent}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border border-border-subtle hover:border-brand-500/30 transition-all"
           >
-            <Sparkles className="w-3.5 h-3.5 text-brand-400" /> {t('askAgentShort')}
+            <Sparkles className="w-3.5 h-3.5 text-text-secondary" /> {t('askAgentShort')}
           </button>
           <span className="text-xs text-accent-amber font-medium">+{xpReward} XP</span>
         </div>
@@ -228,7 +229,7 @@ export function ExamPrepView({
                 const Icon = item.icon;
                 return (
                   <div key={item.label} className="ux-card text-center">
-                    <Icon className="w-5 h-5 text-brand-400 mx-auto mb-2" />
+                    <Icon className="w-5 h-5 text-text-secondary mx-auto mb-2" />
                     <p className="ux-kpi-value">{item.value}</p>
                     <p className="text-xs text-text-tertiary mt-0.5">{item.label}</p>
                   </div>
@@ -315,7 +316,7 @@ export function ExamPrepView({
                           : wrong
                             ? 'bg-accent-rose/15 text-accent-rose border border-accent-rose/30'
                             : answer.answer !== null
-                              ? 'bg-brand-600/10 text-brand-300 border border-brand-500/25'
+                              ? 'bg-brand-600/10 text-text-secondary border border-brand-500/25'
                               : 'bg-surface-card text-text-tertiary border border-border-subtle',
                     )}
                   >
@@ -349,7 +350,7 @@ export function ExamPrepView({
               <div className="flex items-center justify-between gap-3 flex-wrap">
                 <div className="flex items-center gap-2 text-xs text-text-tertiary flex-wrap">
                   <span>{t('examPrepQuestionOf').replace('{current}', String(currentQ + 1)).replace('{total}', String(examQuestions.length))}</span>
-                  <span className="rounded-full bg-brand-600/10 text-brand-300 px-2 py-0.5">
+                  <span className="rounded-full bg-brand-600/10 text-text-secondary px-2 py-0.5">
                     {currentAnswer.answer !== null ? t('examPrepLegendAnswered') : t('examPrepStatusPending')}
                   </span>
                   {currentAnswer.flagged && (
@@ -394,7 +395,7 @@ export function ExamPrepView({
                   <span className="text-xs px-2 py-0.5 rounded-full bg-surface-hover text-text-secondary">
                     {t('examPrepChoices').replace('{count}', String(currentQuestion.options.length))}
                   </span>
-                  <span className="text-xs px-2 py-0.5 rounded-full bg-brand-600/10 text-brand-300 ml-auto">
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-brand-600/10 text-text-secondary ml-auto">
                     {t('examPrepTargetPace').replace('{seconds}', String(Math.round(durationSeconds / Math.max(examQuestions.length, 1))))}
                   </span>
                   {!isReview && (
@@ -432,7 +433,7 @@ export function ExamPrepView({
                             : isWrongSelected
                               ? 'border-accent-rose/40 bg-accent-rose/10'
                               : isSelected
-                                ? 'border-brand-500/40 bg-brand-600/10 text-brand-300'
+                                ? 'border-brand-500/40 bg-brand-600/10 text-text-secondary'
                                 : isReview
                                   ? 'border-border-subtle opacity-60'
                                   : 'border-border-subtle hover:border-brand-500/25',
@@ -545,7 +546,7 @@ export function ExamPrepView({
             <div className="text-center ux-card">
               <CheckCircle2 className="w-12 h-12 text-accent-emerald mx-auto mb-3" />
               <h2 className="text-xl font-bold">{t('examPrepSubmitted')}</h2>
-              <p className="text-2xl font-bold text-brand-300 mt-2 tabular-nums">
+              <p className="text-2xl font-bold text-text-secondary mt-2 tabular-nums">
                 {t('examPrepCorrectCount').replace('{score}', String(score)).replace('{total}', String(examQuestions.length))}
               </p>
               <p className="text-sm text-text-secondary mt-1">
@@ -562,9 +563,9 @@ export function ExamPrepView({
 
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
               {[
-                { label: t('examPrepStatScore'), value: `${scorePct}%`, icon: Target, tone: 'text-brand-300' },
+                { label: t('examPrepStatScore'), value: `${scorePct}%`, icon: Target, tone: 'text-text-secondary' },
                 { label: t('examPrepLegendCorrect'), value: `${score}/${examQuestions.length}`, icon: CheckCircle2, tone: 'text-accent-emerald' },
-                { label: t('examPrepStatAvgTime'), value: `${avgTime}s`, icon: Clock, tone: 'text-brand-400' },
+                { label: t('examPrepStatAvgTime'), value: `${avgTime}s`, icon: Clock, tone: 'text-text-secondary' },
                 { label: t('examPrepFlagged'), value: `${flaggedCount}`, icon: Flag, tone: 'text-accent-amber' },
               ].map((item) => {
                 const Icon = item.icon;

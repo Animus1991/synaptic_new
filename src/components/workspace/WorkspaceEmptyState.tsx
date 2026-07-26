@@ -64,19 +64,20 @@ export function WorkspaceEmptyState({
       data-tool={tool}
       role="status"
     >
+      {/* OPT-K99 — empty chrome via type + tertiary icon, not brand wash */}
       {!compact && (
-        <div className="grid h-12 w-12 place-items-center rounded-xl border border-brand-500/20 bg-brand-500/10 mb-4">
-          <Icon className="h-5 w-5 text-brand-600" aria-hidden />
+        <div className="grid h-12 w-12 place-items-center rounded-xl border border-border-subtle bg-surface-secondary mb-4">
+          <Icon className="h-5 w-5 text-text-tertiary" aria-hidden />
         </div>
       )}
-      <h3 className={cn('ws-serif text-base font-medium text-text-primary', compact ? 'text-sm' : 'mb-1')}>
+      <h3 className={cn('ws-serif font-medium tracking-tight text-text-primary', compact ? 'text-sm' : 'text-lg mb-1.5')}>
         {heading}
       </h3>
       <p className={cn('text-sm text-text-secondary leading-relaxed', compact ? 'max-w-none' : 'max-w-md')}>
         {message}
       </p>
       {(actions.length > 0 || showLegacyUpload) && (
-        <div className={cn('flex flex-col gap-2', compact ? 'mt-2 w-full' : 'mt-5 items-center')}>
+        <div className={cn('flex flex-col gap-2', compact ? 'mt-2 w-full' : 'mt-6 items-center')}>
           <p className="text-[10px] font-semibold uppercase tracking-wide text-text-muted">
             <AllCapsLabel>{t('workspaceEmptyNextStep')}</AllCapsLabel>
           </p>

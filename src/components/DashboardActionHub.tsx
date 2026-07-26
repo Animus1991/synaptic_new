@@ -61,6 +61,7 @@ interface Props {
   flushTop?: boolean;
 }
 
+/* OPT-K98 — markup debt: decorative brand type -> ink */
 export function DashboardActionHub({
   reviewsDue,
   canWorkspace,
@@ -162,7 +163,7 @@ export function DashboardActionHub({
         )}
         aria-label={t(action.chipLabelKey)}
       >
-        <Icon className={cn('h-4 w-4', onHero ? 'text-white/90' : hubQuiet ? 'text-text-tertiary' : 'text-brand-500')} aria-hidden />
+        <Icon className={cn('h-4 w-4', onHero ? 'text-white/90' : hubQuiet ? 'text-text-tertiary' : 'text-text-secondary')} aria-hidden />
         <span className={cn('truncate text-[10px] font-semibold leading-tight max-w-full', onHero ? 'text-white' : 'text-text-primary')}>
           {t(action.chipLabelKey)}
         </span>
@@ -280,7 +281,7 @@ export function DashboardActionHub({
                           ? 'border-white/20 bg-white/10 text-white hover:bg-white/15'
                           : hubQuiet
                             ? 'border-border-default bg-transparent text-text-primary hover:bg-surface-secondary'
-                            : 'border-brand-500/35 bg-brand-600/10 text-brand-800 hover:bg-brand-600/15',
+                            : 'border-brand-500/35 bg-brand-600/10 text-text-secondary hover:bg-brand-600/15',
                       )}
                     >
                       {t('dashboardResumeContinue')}
@@ -338,7 +339,7 @@ export function DashboardActionHub({
                             onClick={() => handleCardClick(action.id)}
                             className="flex w-full items-center gap-2 px-3 py-2 text-left text-xs text-text-primary hover:bg-surface-hover/50"
                           >
-                            <Icon className="h-3.5 w-3.5 shrink-0 text-brand-500" aria-hidden />
+                            <Icon className="h-3.5 w-3.5 shrink-0 text-text-secondary" aria-hidden />
                             <span className="min-w-0 flex-1 truncate">{t(action.chipLabelKey)}</span>
                             {action.badge && (
                               <span className="rounded-md bg-accent-rose/15 px-1.5 py-0.5 text-[10px] font-bold text-accent-rose">
