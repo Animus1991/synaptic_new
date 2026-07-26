@@ -475,6 +475,8 @@ export function Agent({
   const currentVisual = AGENT_MODE_VISUALS[mode];
   /** OPT-C2 — mute rainbow mode chrome under Minimal. */
   const quietModes = useMinimalTheme();
+  /* OPT-K85 — non-Minimal: scrollbar-sized L/R pad; Minimal keeps prior gutters */
+  const pagePadX = quietModes ? 'px-4 sm:px-6' : 'shell-edge-balance';
   const lastUserMessage = useMemo(
     () => [...messages].reverse().find((m) => m.role === 'user'),
     [messages],
@@ -523,7 +525,7 @@ export function Agent({
       <div className="flex flex-col flex-1 min-w-0 min-h-0">
       {/* Agent Header */}
       {!embedded && (
-      <div className="px-4 sm:px-6 py-3 border-b border-border-subtle bg-surface-secondary/30">
+      <div className={cn(pagePadX, 'py-3 border-b border-border-subtle bg-surface-secondary/30')}>
         <BlueprintSurface hint className="flex items-center justify-between max-w-none w-full min-w-0 px-4 py-3">
           <div className="flex items-center gap-3">
             <div
@@ -777,7 +779,7 @@ export function Agent({
       <AgentContextBanner context={workspaceContext} lang={lang} compact={embedded} />
 
       {!embedded && (
-        <div className="agent-chat-column w-full px-4 sm:px-6 pt-3">
+        <div className={cn('agent-chat-column w-full pt-3', pagePadX)}>
           {/* OPT-R14 — flow rail stays collapsible; Minimal defaults collapsed (M2). */}
           <CollapsibleChromeSection title={t('chromeAgentFlow')} data-testid="agent-flow-chrome" defaultOpen={false}>
             <AgentFlowRail
@@ -790,7 +792,8 @@ export function Agent({
       {activeTaskTitle && !embedded && (
         <div
           className={cn(
-            'agent-task-banner px-4 sm:px-6 py-2 border-b',
+            'agent-task-banner py-2 border-b',
+            pagePadX,
             quietModes
               ? 'border-border-subtle bg-surface-secondary/40'
               : 'border-brand-500/20 bg-brand-500/5',
@@ -852,7 +855,7 @@ export function Agent({
               !embedded && 'lg:hidden',
             )}
           >
-            <div className={cn('max-w-none w-full min-w-0', embedded ? 'px-3 py-2.5' : 'px-4 sm:px-6 py-4')}>
+            <div className={cn('max-w-none w-full min-w-0', embedded ? 'px-3 py-2.5' : cn(pagePadX, 'py-4'))}>
               <PlatformSection title={ui.agentModeHeading} padding="none" tone="muted">
                 <div className={cn(embedded ? 'pt-2' : 'pt-3')}>
                   <AgentModeCatalogGrid
@@ -902,7 +905,7 @@ export function Agent({
       >
         <div className={cn(
           'agent-chat-column w-full min-w-0 py-4 space-y-4',
-          embedded ? 'px-2.5 pb-6' : 'px-4 sm:px-6',
+          embedded ? 'px-2.5 pb-6' : pagePadX,
         )}>
           {messages.length === 0 && !isThinking && (
             embedded ? (
@@ -1038,7 +1041,7 @@ export function Agent({
         )}
         data-testid="agent-composer"
       >
-        <div className={cn('agent-chat-column w-full min-w-0', embedded ? 'px-2.5 py-2' : 'px-4 sm:px-6 py-3')}>
+        <div className={cn('agent-chat-column w-full min-w-0', embedded ? 'px-2.5 py-2' : cn(pagePadX, 'py-3'))}>
           <div className="agent-composer-shell">
             <div className="flex-1 relative min-w-0">
               <textarea

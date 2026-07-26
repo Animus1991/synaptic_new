@@ -19,6 +19,7 @@ import { cn } from '../utils/cn';
 import { CollapsibleChromeSection } from './workspace/CollapsibleChromeSection';
 import { useI18n } from '../lib/i18n';
 import { AllCapsLabel } from './ui/AllCapsLabel';
+import { useMinimalTheme } from '../lib/useMinimalTheme';
 
 interface ExamPrepViewProps {
   onClose: () => void;
@@ -56,6 +57,7 @@ export function ExamPrepView({
   questions = [],
 }: ExamPrepViewProps) {
   const { t } = useI18n();
+  const isMinimal = useMinimalTheme();
   const examTopic = quizConcept ?? t('examPrepFallbackTopic');
   const examCourse = courseName ?? t('examPrepFallbackCourse');
   const [phase, setPhase] = useState<ExamPhase>('setup');
@@ -337,7 +339,13 @@ export function ExamPrepView({
           </div>
 
           <div className="flex-1 overflow-y-auto">
-            <div className="max-w-none w-full px-4 sm:px-6 lg:px-8 py-6 space-y-5">
+            <div
+              className={cn(
+                'max-w-none w-full py-6 space-y-5',
+                /* OPT-K85 — non-Minimal full column */
+                isMinimal ? 'px-4 sm:px-6 lg:px-8' : 'shell-edge-balance',
+              )}
+            >
               <div className="flex items-center justify-between gap-3 flex-wrap">
                 <div className="flex items-center gap-2 text-xs text-text-tertiary flex-wrap">
                   <span>{t('examPrepQuestionOf').replace('{current}', String(currentQ + 1)).replace('{total}', String(examQuestions.length))}</span>

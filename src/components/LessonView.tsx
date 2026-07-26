@@ -12,6 +12,7 @@ import { isMcQuiz } from '../lib/lessonTypes';
 import { getLessonProgress, saveLessonProgress } from '../lib/lessonProgress';
 import { useI18n } from '../lib/i18n';
 import { AllCapsLabel } from './ui/AllCapsLabel';
+import { useMinimalTheme } from '../lib/useMinimalTheme';
 import { useWorkspaceNoteBundle } from '../lib/useWorkspaceNoteBundle';
 import { generateLessonPanels, canGenerateGroundedLesson } from '../lib/lessonGenerator';
 import type { WorkspacePanel } from '../lib/workspaceLessonPanels';
@@ -59,6 +60,7 @@ export function LessonView({
   onUpload,
 }: LessonViewProps) {
   const { t, lang } = useI18n();
+  const isMinimal = useMinimalTheme();
   const lessonKey = taskId ? `lesson:${taskId}` : `lesson:${quizConcept.replace(/\s+/g, '-').toLowerCase()}`;
 
   const noteBundle = useWorkspaceNoteBundle({
@@ -265,7 +267,13 @@ export function LessonView({
       </nav>
 
       <main id="lesson-main" tabIndex={-1} className="flex-1 overflow-y-auto focus:outline-none">
-        <div className="w-full min-w-0 max-w-none px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+        <div
+          className={cn(
+            'w-full min-w-0 max-w-none py-6 sm:py-8',
+            /* OPT-K85 — non-Minimal full column */
+            isMinimal ? 'px-4 sm:px-6 lg:px-8' : 'shell-edge-balance',
+          )}
+        >
           <AnimatePresence mode="wait">
             <motion.div
               key={step.key}

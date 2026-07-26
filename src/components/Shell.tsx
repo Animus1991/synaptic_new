@@ -644,7 +644,11 @@ export function Shell({
 
       {/* Main content area */}
       <div
-        className={cn('flex-1 min-h-screen flex flex-col', iconRail ? 'lg:ml-14' : quietNav ? 'lg:ml-56' : 'lg:ml-64')}
+        className={cn(
+          /* OPT-K85 — full remaining column beside fixed sidebar; never sit under the rail */
+          'flex-1 min-h-screen flex flex-col w-full min-w-0 max-w-none',
+          iconRail ? 'lg:ml-14' : quietNav ? 'lg:ml-56' : 'lg:ml-64',
+        )}
         data-testid="shell-main-offset"
         data-rail-state={iconRail ? 'compact' : quietNav ? 'expanded' : 'blueprint-expanded'}
       >
@@ -698,7 +702,7 @@ export function Shell({
                   onClick={() => onNavigate('analytics')}
                   data-testid="shell-utility-analytics"
                   className={cn(
-                    'p-1.5 rounded-lg transition-colors',
+                    'inline-flex h-8 w-8 items-center justify-center rounded-lg transition-colors',
                     currentView === 'analytics'
                       ? quietNav
                         ? 'bg-surface-secondary text-text-primary'
@@ -715,7 +719,7 @@ export function Shell({
                   onClick={() => onNavigate('tasks')}
                   data-testid="shell-utility-calendar"
                   className={cn(
-                    'p-1.5 rounded-lg transition-colors',
+                    'inline-flex h-8 w-8 items-center justify-center rounded-lg transition-colors',
                     currentView === 'tasks'
                       ? quietNav
                         ? 'bg-surface-secondary text-text-primary'
@@ -733,7 +737,7 @@ export function Shell({
                 <HeaderLangPill
                   lang={activeLang}
                   onChange={onLanguageChange}
-                  className="hidden lg:inline-flex scale-95 origin-right"
+                  className="hidden lg:inline-flex h-8 origin-right"
                 />
               )}
               {onTakeBreath && (
@@ -741,7 +745,7 @@ export function Shell({
                   type="button"
                   onClick={onTakeBreath}
                   data-testid="header-take-breath"
-                  className="p-1.5 rounded-lg text-text-secondary hover:bg-surface-hover hover:text-text-primary transition-colors"
+                  className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-text-secondary hover:bg-surface-hover hover:text-text-primary transition-colors"
                   aria-label={t('wellnessTakeBreath')}
                   title={t('wellnessBreathTitle')}
                 >
@@ -752,7 +756,7 @@ export function Shell({
                 type="button"
                 onClick={onOpenSearch}
                 data-testid="shell-search-button"
-                className="hidden sm:flex items-center gap-1.5 px-2 py-1 rounded-lg bg-surface-input border border-border-subtle text-xs text-text-tertiary hover:border-border-default transition-colors"
+                className="hidden sm:inline-flex h-8 min-h-8 max-h-8 items-center gap-1.5 px-2.5 rounded-lg bg-surface-input border border-border-subtle text-xs text-text-tertiary hover:border-border-default transition-colors"
                 title={t('shellSearchTitle').replace('{shortcut}', commandPaletteBadge())}
                 aria-label={t('shellSearchTitle').replace('{shortcut}', commandPaletteBadge())}
               >
@@ -770,7 +774,7 @@ export function Shell({
                 onClick={onOpenNotifications}
                 data-testid="shell-notifications-bell"
                 data-unread-count={notificationCount > 0 ? String(notificationCount) : '0'}
-                className="relative p-1.5 rounded-lg hover:bg-surface-hover transition-colors"
+                className="relative inline-flex h-8 w-8 items-center justify-center rounded-lg hover:bg-surface-hover transition-colors"
                 aria-label={
                   notificationCount > 0
                     ? `${t('notifications')} (${notificationCount})`
@@ -804,7 +808,7 @@ export function Shell({
                 return (
                   <button
                     onClick={onToggleTheme}
-                    className="p-1.5 rounded-lg hover:bg-surface-hover transition-colors"
+                    className="inline-flex h-8 w-8 items-center justify-center rounded-lg hover:bg-surface-hover transition-colors"
                     title={t(labelKey)}
                     aria-label={t(labelKey)}
                   >
@@ -921,7 +925,7 @@ export function Shell({
                 type="button"
                 onClick={() => onNavigate('settings')}
                 data-testid="header-profile-settings"
-                className="flex items-center gap-1.5 px-1.5 py-1 rounded-lg hover:bg-surface-hover cursor-pointer transition-colors"
+                className="inline-flex h-8 items-center gap-1.5 px-1.5 rounded-lg hover:bg-surface-hover cursor-pointer transition-colors"
               >
                 <div className="w-6 h-6 rounded-full platform-brand-icon flex items-center justify-center text-[10px] font-bold">
                   {user.name.charAt(0)}
@@ -942,7 +946,7 @@ export function Shell({
 
 
         {/* Page content */}
-        <main id="platform-main" data-testid="platform-main" tabIndex={-1} className="flex-1 min-w-0 outline-none">
+        <main id="platform-main" data-testid="platform-main" tabIndex={-1} className="flex-1 w-full min-w-0 max-w-none outline-none">
           {children}
         </main>
 

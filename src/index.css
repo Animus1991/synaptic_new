@@ -24,13 +24,13 @@
   --color-brand-900: #283646;
   --color-brand-950: #1a2430;
 
-  /* OPT-K82 — dark/blueprint accents: clearer semantic + categorical vs steel brand */
-  --color-accent-teal: #5a9088;
-  --color-accent-cyan: #5a8fa0;
+  /* OPT-K82/K86 — dark/blueprint accents: Minimal-light mid-chroma (not neon, not mud) */
+  --color-accent-teal: #5f8f8a;
+  --color-accent-cyan: #4a8fa3;
   --color-accent-emerald: #3d9a78;
-  --color-accent-amber: #c4a04a;
-  --color-accent-rose: #c07080;
-  --color-accent-orange: #c48850;
+  --color-accent-amber: #b0892e;
+  --color-accent-rose: #c45c6a;
+  --color-accent-orange: #c47d4a;
   --color-accent-violet: #7a7598;
 
   /* Dark theme (default) — neutral charcoal (no purple cast).
@@ -99,25 +99,25 @@
   /* Wave P-3 C15 — calibration over/under ink (WCAG ≥4.5:1 on card). */
   --color-calibration-over: var(--color-accent-rose);
   --color-calibration-under: var(--color-accent-cyan);
-  /* Wave P-3 C13 — warn-banner title ink (Almost There etc.). */
-  --color-banner-warn-ink: var(--palette-amber);
+  /* Wave P-3 C13 / OPT-K86 — warn title ink mixed into primary (forest + tree) */
+  --color-banner-warn-ink: color-mix(in srgb, var(--palette-amber) 42%, var(--color-text-primary));
   /* Outline for danger/warn callouts — must clear ≥3:1 vs card wash. */
-  --color-banner-warn-border: color-mix(in srgb, var(--palette-amber) 48%, var(--color-border-subtle));
+  --color-banner-warn-border: color-mix(in srgb, var(--palette-amber) 36%, var(--color-border-subtle));
 
   --viz-grid-line: #1c1c1f;
 
-  /* Mastery + viz palette (dark) — aligned to OPT-K82 accents */
-  --mastery-weak: #c07080;
-  --mastery-developing: #5a8fa0;
-  --mastery-proficient: #c4a04a;
+  /* Mastery + viz palette (dark) — OPT-K86 aligned to Minimal mid-chroma */
+  --mastery-weak: #c45c6a;
+  --mastery-developing: #4a8fa3;
+  --mastery-proficient: #b0892e;
   --mastery-strong: #3d9a78;
   --palette-purple: #7a7598;
-  --palette-cyan: #5a8fa0;
-  --palette-teal: #5a9088;
+  --palette-cyan: #4a8fa3;
+  --palette-teal: #5f8f8a;
   --palette-green: #3d9a78;
-  --palette-amber: #c4a04a;
-  --palette-rose: #c07080;
-  --palette-orange: #c48850;
+  --palette-amber: #b0892e;
+  --palette-rose: #c45c6a;
+  --palette-orange: #c47d4a;
 
   /* Light theme is the typography SoT for every theme (optical size parity). */
   --font-sans: 'Nunito Sans', 'Noto Sans', 'Noto Sans Greek', system-ui, -apple-system, sans-serif;
@@ -867,13 +867,13 @@
   --color-brand-900: #164e63;
   --color-brand-950: #083344;
 
-  /* Complements — calm cyan-glass family; +~2% chroma. Brand cyan kept. */
+  /* Complements — cyan-glass family; OPT-K86 mid-chroma amber/orange (Minimal method) */
   --color-accent-teal: #43a498;
   --color-accent-cyan: #62c2d1;
   --color-accent-emerald: #55b899;
-  --color-accent-amber: #d0ae50;
-  --color-accent-rose: #cb8181;
-  --color-accent-orange: #d09e72;
+  --color-accent-amber: #c4a04a;
+  --color-accent-rose: #c48585;
+  --color-accent-orange: #c49068;
   --color-accent-violet: #9199c1;
 
   --viz-track: color-mix(in srgb, #ffffff 8%, #182033);
@@ -881,17 +881,17 @@
   --viz-canvas-bg: color-mix(in srgb, #ffffff 3%, #0b1020);
   --viz-grid-line: color-mix(in srgb, #ffffff 6%, #0b1020);
 
-  --mastery-weak: #cb8181;
+  --mastery-weak: #c48585;
   --mastery-developing: #62c2d1;
-  --mastery-proficient: #d0ae50;
+  --mastery-proficient: #c4a04a;
   --mastery-strong: #55b899;
   --palette-purple: #9199c1;
   --palette-cyan: #62c2d1;
   --palette-teal: #43a498;
   --palette-green: #55b899;
-  --palette-amber: #d0ae50;
-  --palette-rose: #cb8181;
-  --palette-orange: #d09e72;
+  --palette-amber: #c4a04a;
+  --palette-rose: #c48585;
+  --palette-orange: #c49068;
   /* Warn outlines on cyan-glass: bright amber alone washes out — mix with cyan brand. */
   --color-banner-warn-ink: color-mix(in srgb, var(--palette-amber) 55%, #e2e8f0);
   --color-banner-warn-border: color-mix(in srgb, var(--palette-amber) 42%, var(--color-brand-400));
@@ -2761,11 +2761,15 @@
   border-radius: 1.875rem;
 }
 
-/* Header EN/ΕΛ segmented pill (Option-B) */
+/* Header EN/ΕΛ segmented pill (Option-B) — OPT-K85: match topbar h-8 */
 .platform-lang-pill {
   display: inline-flex;
   align-items: center;
   gap: 0.125rem;
+  height: 2rem;
+  min-height: 2rem;
+  max-height: 2rem;
+  box-sizing: border-box;
   padding: 0.125rem;
   border-radius: 9999px;
   border: 1px solid var(--color-border-subtle);
@@ -2778,7 +2782,11 @@
 }
 .platform-lang-pill-btn {
   min-width: 2.25rem;
-  padding: 0.25rem 0.5rem;
+  height: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 0.5rem;
   border-radius: 9999px;
   font-size: 0.625rem;
   font-weight: 600;
@@ -5504,4 +5512,191 @@ body { letter-spacing: -0.005em; }
     display: inline-flex;
     align-items: center;
   }
+}
+
+/* ========== OPT-K85 — non-Minimal hub type −2% + full main column + chrome h-8 ========== */
+
+:is([data-theme="dark"], [data-theme="blueprint"], [data-theme="light"], [data-theme="spectrum"], [data-theme="warm-sand"])
+  .app-shell {
+  /* ≈ classic scrollbar track — left inset + matching right keeps L/R columns even */
+  --shell-scroll-balance-pad: 0.75rem;
+}
+
+:is([data-theme="dark"], [data-theme="blueprint"], [data-theme="light"], [data-theme="spectrum"], [data-theme="warm-sand"])
+  .app-shell [data-testid="shell-main-offset"],
+:is([data-theme="dark"], [data-theme="blueprint"], [data-theme="light"], [data-theme="spectrum"], [data-theme="warm-sand"])
+  .app-shell #platform-main {
+  width: 100%;
+  min-width: 0;
+  max-width: none;
+  scrollbar-gutter: stable;
+}
+
+:is([data-theme="dark"], [data-theme="blueprint"], [data-theme="light"], [data-theme="spectrum"], [data-theme="warm-sand"])
+  .app-shell #platform-main .platform-page,
+:is([data-theme="dark"], [data-theme="blueprint"], [data-theme="light"], [data-theme="spectrum"], [data-theme="warm-sand"])
+  .app-shell #platform-main [data-testid="dashboard-page"] {
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+}
+
+/*
+ * Micro edge pad ≈ scrollbar width on BOTH sides so left/right components stay
+ * equal width at the same height (scrollbar-gutter reserves the track).
+ */
+:is([data-theme="dark"], [data-theme="blueprint"], [data-theme="light"], [data-theme="spectrum"], [data-theme="warm-sand"])
+  .shell-edge-balance {
+  padding-left: var(--shell-scroll-balance-pad, 0.75rem) !important;
+  padding-right: var(--shell-scroll-balance-pad, 0.75rem) !important;
+  box-sizing: border-box;
+}
+
+/* Greeting subtitle — «Όλα εντάξει…» */
+:is([data-theme="dark"], [data-theme="blueprint"], [data-theme="light"], [data-theme="spectrum"], [data-theme="warm-sand"])
+  .app-shell #dashboard-hero-greeting .ux-page-subtitle {
+  font-size: calc(0.875rem * 0.98) !important;
+}
+
+/* Exam countdown body — «N ημέρες μέχρι την εξέταση» */
+:is([data-theme="dark"], [data-theme="blueprint"], [data-theme="light"], [data-theme="spectrum"], [data-theme="warm-sand"])
+  .app-shell [data-testid="dashboard-exam-countdown"] {
+  font-size: calc(0.875rem * 0.98);
+}
+
+:is([data-theme="dark"], [data-theme="blueprint"], [data-theme="light"], [data-theme="spectrum"], [data-theme="warm-sand"])
+  .app-shell [data-testid="dashboard-exam-countdown"] :is(p, .ux-callout-body, .platform-banner-body) {
+  font-size: calc(0.875rem * 0.98) !important;
+}
+
+/* KPI strip — labels + values */
+:is([data-theme="dark"], [data-theme="blueprint"], [data-theme="light"], [data-theme="spectrum"], [data-theme="warm-sand"])
+  .app-shell [data-testid="dashboard-page-stats"] .text-\[10px\] {
+  font-size: calc(0.625rem * 0.98) !important;
+}
+
+:is([data-theme="dark"], [data-theme="blueprint"], [data-theme="light"], [data-theme="spectrum"], [data-theme="warm-sand"])
+  .app-shell [data-testid="dashboard-page-stats"] .ux-kpi-value-sm {
+  font-size: calc(0.875rem * 0.98) !important;
+}
+
+@media (min-width: 640px) {
+  :is([data-theme="dark"], [data-theme="blueprint"], [data-theme="light"], [data-theme="spectrum"], [data-theme="warm-sand"])
+    .app-shell [data-testid="dashboard-page-stats"] .ux-kpi-value-sm {
+    font-size: calc(1rem * 0.98) !important;
+  }
+}
+
+/* Active study / hub side — eyebrow + title */
+:is([data-theme="dark"], [data-theme="blueprint"], [data-theme="light"], [data-theme="spectrum"], [data-theme="warm-sand"])
+  .app-shell [data-testid="dashboard-hero-study-center"] .text-\[10px\] {
+  font-size: calc(0.625rem * 0.98) !important;
+}
+
+:is([data-theme="dark"], [data-theme="blueprint"], [data-theme="light"], [data-theme="spectrum"], [data-theme="warm-sand"])
+  .app-shell [data-testid="dashboard-hero-study-center"] .text-sm {
+  font-size: calc(0.875rem * 0.98) !important;
+}
+
+/* Topbar chrome controls → h-8 (match EN/ΕΛ, Ctrl K, study space, avatar) */
+:is([data-theme="dark"], [data-theme="blueprint"], [data-theme="light"], [data-theme="spectrum"], [data-theme="warm-sand"])
+  .app-shell [data-testid="shell-topbar"] :is(
+    [data-testid="shell-utility-analytics"],
+    [data-testid="shell-utility-calendar"],
+    [data-testid="header-take-breath"],
+    [data-testid="shell-notifications-bell"],
+    [data-testid="shell-search-button"],
+    [data-testid="shell-study-workspace"],
+    [data-testid="header-profile-settings"],
+    [data-testid="header-lang-pill"]
+  ) {
+  height: 2rem !important;
+  min-height: 2rem !important;
+  max-height: 2rem !important;
+  box-sizing: border-box !important;
+}
+
+/* ========== OPT-K86 — non-Minimal accent quiet: soft fills + status ink mix ========== */
+/*
+ * Policy: ≤2 accent hues + brand per region; mid-chroma; soft washes 10–14%;
+ * ink owns copy; brand ≠ semantic. Glass/glow (Blueprint/Spectrum) stays intact.
+ */
+
+:is([data-theme="dark"], [data-theme="blueprint"])
+  .app-shell .bg-accent-amber\/5,
+:is([data-theme="dark"], [data-theme="blueprint"])
+  .app-shell .bg-accent-amber\/10 {
+  background-color: color-mix(in srgb, var(--color-accent-amber) 12%, var(--color-surface-secondary)) !important;
+}
+
+:is([data-theme="dark"], [data-theme="blueprint"])
+  .app-shell .bg-accent-rose\/5,
+:is([data-theme="dark"], [data-theme="blueprint"])
+  .app-shell .bg-accent-rose\/10 {
+  background-color: color-mix(in srgb, var(--color-accent-rose) 12%, var(--color-surface-secondary)) !important;
+}
+
+:is([data-theme="dark"], [data-theme="blueprint"])
+  .app-shell .bg-accent-orange\/5,
+:is([data-theme="dark"], [data-theme="blueprint"])
+  .app-shell .bg-accent-orange\/10 {
+  background-color: color-mix(in srgb, var(--color-accent-orange) 12%, var(--color-surface-secondary)) !important;
+}
+
+:is([data-theme="dark"], [data-theme="blueprint"])
+  .app-shell .bg-accent-emerald\/5,
+:is([data-theme="dark"], [data-theme="blueprint"])
+  .app-shell .bg-accent-emerald\/10 {
+  background-color: color-mix(in srgb, var(--color-accent-emerald) 12%, var(--color-surface-secondary)) !important;
+}
+
+:is([data-theme="dark"], [data-theme="blueprint"])
+  .app-shell .bg-accent-teal\/5,
+:is([data-theme="dark"], [data-theme="blueprint"])
+  .app-shell .bg-accent-cyan\/5,
+:is([data-theme="dark"], [data-theme="blueprint"])
+  .app-shell .bg-accent-violet\/5 {
+  background-color: color-mix(in srgb, var(--color-accent-cyan) 10%, var(--color-surface-secondary)) !important;
+}
+
+/* Status text: tint into secondary so the forest stays readable (Minimal-dark method) */
+:is([data-theme="dark"], [data-theme="blueprint"])
+  .app-shell .text-accent-rose {
+  color: color-mix(in srgb, var(--color-accent-rose) 48%, var(--color-text-secondary)) !important;
+}
+
+:is([data-theme="dark"], [data-theme="blueprint"])
+  .app-shell .text-accent-amber {
+  color: color-mix(in srgb, var(--color-accent-amber) 48%, var(--color-text-secondary)) !important;
+}
+
+:is([data-theme="dark"], [data-theme="blueprint"])
+  .app-shell .text-accent-emerald {
+  color: color-mix(in srgb, var(--color-accent-emerald) 48%, var(--color-text-secondary)) !important;
+}
+
+:is([data-theme="dark"], [data-theme="blueprint"])
+  .app-shell .text-accent-orange {
+  color: color-mix(in srgb, var(--color-accent-orange) 45%, var(--color-text-secondary)) !important;
+}
+
+/* Solid status bars — mid chroma, not neon slabs */
+:is([data-theme="dark"], [data-theme="blueprint"])
+  .app-shell .bg-accent-rose {
+  background-color: color-mix(in srgb, var(--color-accent-rose) 55%, var(--color-surface-card)) !important;
+}
+
+:is([data-theme="dark"], [data-theme="blueprint"])
+  .app-shell .bg-accent-amber {
+  background-color: color-mix(in srgb, var(--color-accent-amber) 52%, var(--color-surface-card)) !important;
+}
+
+:is([data-theme="dark"], [data-theme="blueprint"])
+  .app-shell .bg-accent-emerald {
+  background-color: color-mix(in srgb, var(--color-accent-emerald) 52%, var(--color-surface-card)) !important;
+}
+
+:is([data-theme="dark"], [data-theme="blueprint"])
+  .app-shell .bg-accent-orange {
+  background-color: color-mix(in srgb, var(--color-accent-orange) 50%, var(--color-surface-card)) !important;
 }

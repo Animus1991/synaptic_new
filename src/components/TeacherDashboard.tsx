@@ -416,8 +416,9 @@ export function TeacherDashboard({
   return (
     <div
       className={cn(
-        'ux-flow-shell platform-page w-full max-w-none p-4 sm:p-6 lg:px-8 pb-24 space-y-6',
-        isMinimal && 'enterprise-calm teacher-wells',
+        'ux-flow-shell platform-page w-full max-w-none pb-24 space-y-6',
+        /* OPT-K85 — non-Minimal full column; Minimal keeps side gutters */
+        isMinimal ? 'p-4 sm:p-6 lg:px-8 enterprise-calm teacher-wells' : 'py-4 sm:py-6 shell-edge-balance',
       )}
       data-testid="teacher-dashboard"
     >

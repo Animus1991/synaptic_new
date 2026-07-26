@@ -26,9 +26,18 @@ export function Page({
   className?: string;
   gap?: 'sm' | 'md' | 'lg';
 }) {
+  const quiet = useMinimalTheme();
   const gapClass = gap === 'sm' ? 'space-y-3' : gap === 'lg' ? 'space-y-6' : 'space-y-4';
   return (
-    <div className={cn('platform-page w-full min-w-0 max-w-none p-3 pb-24 sm:p-5 lg:px-6 lg:pb-6', gapClass, className)}>
+    <div
+      className={cn(
+        'platform-page w-full min-w-0 max-w-none pb-24 lg:pb-6',
+        /* OPT-K85 — non-Minimal: scrollbar-sized L/R pad; Minimal keeps calm gutters */
+        quiet ? 'p-3 sm:p-5 lg:px-6' : 'py-3 sm:py-5 shell-edge-balance',
+        gapClass,
+        className,
+      )}
+    >
       {children}
     </div>
   );

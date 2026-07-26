@@ -232,6 +232,56 @@ describe('OPT-K69 engineering clarity contracts', () => {
     expect(dash).not.toMatch(/isMinimal \? 'dashboard-breath-stack/);
   });
 
+  it('K85 — non-Minimal hub type −2% + full main column + chrome h-8', () => {
+    const indexCss = read('src/index.css');
+    expect(indexCss).toMatch(/OPT-K85/);
+    expect(indexCss).toMatch(/#dashboard-hero-greeting \.ux-page-subtitle/);
+    expect(indexCss).toMatch(/dashboard-page-stats/);
+    expect(indexCss).toMatch(/dashboard-hero-study-center/);
+    expect(indexCss).toMatch(/calc\(0\.875rem \* 0\.98\)/);
+    expect(indexCss).toMatch(/shell-main-offset/);
+    expect(indexCss).toMatch(/\.platform-lang-pill \{[\s\S]*?height:\s*2rem/);
+
+    const shell = read('src/components/Shell.tsx');
+    expect(shell).toMatch(/OPT-K85/);
+    expect(shell).toMatch(/lg:ml-14/);
+    expect(shell).toMatch(/w-full min-w-0 max-w-none/);
+    expect(shell).toMatch(/shell-search-button[\s\S]{0,200}h-8 min-h-8 max-h-8/);
+    expect(shell).toMatch(/header-profile-settings[\s\S]{0,120}h-8/);
+
+    /* Scrollbar-sized L/R edge pad keeps columns balanced; Minimal keeps calm gutters */
+    const dash = read('src/components/Dashboard.tsx');
+    expect(dash).toMatch(/flushTop\s*\n/);
+    expect(dash).not.toMatch(/flushTop=\{false\}/);
+    expect(dash).toMatch(/shell-edge-balance/);
+
+    const pagePrim = read('src/components/ui/primitives.tsx');
+    expect(pagePrim).toMatch(/shell-edge-balance/);
+
+    expect(indexCss).toMatch(/--shell-scroll-balance-pad:\s*0\.75rem/);
+    expect(indexCss).toMatch(/scrollbar-gutter:\s*stable/);
+    expect(indexCss).toMatch(/shell-edge-balance/);
+  });
+
+  it('K86 — non-Minimal accent quiet (usage + soft-fill + mid-chroma tokens)', () => {
+    const indexCss = read('src/index.css');
+    expect(indexCss).toMatch(/OPT-K86/);
+    expect(indexCss).toMatch(/--color-accent-amber:\s*#b0892e/);
+    expect(indexCss).toMatch(/--color-accent-amber:\s*#c4a04a/);
+    expect(indexCss).toMatch(/color-mix\(in srgb, var\(--color-accent-amber\) 12%/);
+    expect(indexCss).toMatch(/color-mix\(in srgb, var\(--color-accent-rose\) 48%, var\(--color-text-secondary\)\)/);
+
+    const dash = read('src/components/Dashboard.tsx');
+    expect(dash).toMatch(/OPT-K86/);
+    expect(dash).toMatch(/Flame className="w-3\.5 h-3\.5 text-text-secondary"/);
+    expect(dash).toMatch(/Zap className="w-3\.5 h-3\.5 text-text-secondary"/);
+    expect(dash).toMatch(/Target className="w-3\.5 h-3\.5 text-text-secondary"/);
+    expect(dash).toMatch(/Brain className="w-3\.5 h-3\.5 text-text-secondary"/);
+    expect(dash).toMatch(/Clock className="w-3\.5 h-3\.5 text-text-secondary"/);
+    expect(dash).not.toMatch(/Flame className="w-3\.5 h-3\.5 text-accent-amber"/);
+    expect(dash).not.toMatch(/Target className="w-3\.5 h-3\.5 text-accent-teal"/);
+  });
+
   it('K79 — Minimal accent chroma/hue rebalance (semantic + categorical)', () => {
     const primer = read('src/styles/primer-minimal.css');
     expect(primer).toMatch(/OPT-K79/);

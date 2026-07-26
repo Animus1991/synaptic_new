@@ -249,14 +249,18 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
   return (
     <div
       {...warmSandScopeProps(warmSandPage)}
-      className={cn('w-full min-w-0 pb-24 lg:pb-8 ux-fade-up', isMinimal && 'dashboard-calm hub-quiet')}
+      className={cn(
+        'w-full min-w-0 max-w-none pb-24 lg:pb-8 ux-fade-up',
+        /* OPT-K85 — scrollbar-sized edge pad on both sides (L/R column balance) */
+        isMinimal ? 'dashboard-calm hub-quiet' : 'shell-edge-balance',
+      )}
       data-testid="dashboard-page"
       data-dashboard-layout={layoutMode}
     >
       <MotionSection
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="relative z-10"
+        className="relative z-10 w-full min-w-0"
         data-testid="dashboard-hero-panel"
       >
         <DashboardActionHub
@@ -373,25 +377,32 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
               </HubSection>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2.5 sm:gap-3" data-testid="dashboard-page-stats">
-                <StatCard icon={<Flame className="w-3.5 h-3.5 text-accent-amber" />} label={t('dashboardStatStreak')} value={t('dashboardStatDaysSuffix').replace('{count}', String(pageStats.streak))} data-testid="dashboard-stat-streak" />
-                <StatCard icon={<Zap className="w-3.5 h-3.5 text-brand-400" />} label={t('dashboardStatTodayXp')} value={`${pageStats.todayXp}`} data-testid="dashboard-stat-today-xp" />
+                {/* OPT-K86 — decorative KPI icons quiet (ink owns values; accents stay semantic elsewhere) */}
+                <StatCard icon={<Flame className="w-3.5 h-3.5 text-text-secondary" />} label={t('dashboardStatStreak')} value={t('dashboardStatDaysSuffix').replace('{count}', String(pageStats.streak))} data-testid="dashboard-stat-streak" />
+                <StatCard icon={<Zap className="w-3.5 h-3.5 text-text-secondary" />} label={t('dashboardStatTodayXp')} value={`${pageStats.todayXp}`} data-testid="dashboard-stat-today-xp" />
                 <StatCard
-                  icon={<Target className="w-3.5 h-3.5 text-accent-teal" />}
+                  icon={<Target className="w-3.5 h-3.5 text-text-secondary" />}
                   label={t('dashboardStatReviewsDue')}
                   value={`${pageStats.reviewsDue}`}
                   onClick={pageStats.reviewsDue > 0 ? () => (onOpenTasksReview ? onOpenTasksReview() : onNavigate('tasks')) : undefined}
                   data-testid="dashboard-stat-reviews-due"
                   id="dashboard-stat-reviews-due"
                 />
-                <StatCard icon={<Brain className="w-3.5 h-3.5 text-accent-cyan" />} label={t('dashboardStatConceptsMastered')} value={`${pageStats.conceptsMastered}/${pageStats.totalConcepts}`} data-testid="dashboard-stat-concepts-mastered" />
-                <StatCard icon={<Clock className="w-3.5 h-3.5 text-accent-emerald" />} label={t('dashboardStatStudyToday')} value={t('dashboardStatStudyMinutes').replace('{count}', String(pageStats.studyMinutesToday))} data-testid="dashboard-stat-study-today" />
+                <StatCard icon={<Brain className="w-3.5 h-3.5 text-text-secondary" />} label={t('dashboardStatConceptsMastered')} value={`${pageStats.conceptsMastered}/${pageStats.totalConcepts}`} data-testid="dashboard-stat-concepts-mastered" />
+                <StatCard icon={<Clock className="w-3.5 h-3.5 text-text-secondary" />} label={t('dashboardStatStudyToday')} value={t('dashboardStatStudyMinutes').replace('{count}', String(pageStats.studyMinutesToday))} data-testid="dashboard-stat-study-today" />
               </div>
             )
           }
         />
       </MotionSection>
 
-      <div className="mt-3 sm:mt-4 px-4 sm:px-6 lg:px-8 dashboard-breath-stack flex flex-col">
+      <div
+        className={cn(
+          /* OPT-K85 — page shell owns edge pad; Minimal keeps its calm gutters here */
+          'mt-3 sm:mt-4 w-full min-w-0 dashboard-breath-stack flex flex-col',
+          isMinimal && 'px-4 sm:px-6 lg:px-8',
+        )}
+      >
       {postUploadCourse && (
         <MotionSection initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
           <PostUploadBanner
@@ -445,7 +456,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                 <UxCallout
                   variant={isMinimal ? 'warn' : 'danger'}
                   title={t('dashExamCountdown')}
-                  icon={<Calendar className={isMinimal ? 'text-text-secondary' : 'text-accent-amber'} />}
+                  icon={<Calendar className="text-text-secondary" />}
                   testId="dashboard-exam-countdown"
                   dataTone="exam"
                   className={cn('py-2.5', isMinimal && 'dashboard-urgency-signal')}
@@ -473,7 +484,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                   data-tone="recall"
                   data-testid="dashboard-anti-passive"
                 >
-                  <Eye className={cn('w-4 h-4 shrink-0 mt-0.5', isMinimal ? 'text-text-secondary' : 'text-accent-amber')} />
+                  <Eye className="w-4 h-4 shrink-0 mt-0.5 text-text-secondary" />
                   <div className="min-w-0">
                     <p className={cn('text-xs font-semibold', isMinimal ? 'text-text-primary' : 'platform-banner-title')}>
                       {t('dashActiveRecallTitle')}
@@ -709,7 +720,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
           <BlueprintSurface className="p-3.5" data-dashboard-col="b">
             <div className="flex items-center justify-between mb-2.5">
               <h2 className="dashboard-panel-title text-lg font-semibold ws-serif font-medium flex items-center gap-2">
-                <AlertTriangle className="w-5 h-5 text-accent-amber" /> {t('dashPriorityTasks')}
+                <AlertTriangle className="w-5 h-5 text-text-secondary" /> {t('dashPriorityTasks')}
               </h2>
               <button onClick={() => onNavigate('tasks')} className="dashboard-panel-action text-sm text-brand-400 hover:text-brand-700 flex items-center gap-1">{t('dashViewAll')} <ChevronRight className="w-4 h-4" /></button>
             </div>
@@ -742,17 +753,17 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                       'text-[10px] font-semibold px-2 py-0.5 rounded-md',
                       task.priority === 'critical' ? 'ux-chip-solid-danger' : 'ux-chip-solid-warn',
                     )}>{taskPriorityLabel(task.priority, t)}</span>
-                    <span className="text-xs text-accent-amber">{taskXpLabel(task.xpReward, t)}</span>
+                    <span className="text-xs text-text-tertiary">{taskXpLabel(task.xpReward, t)}</span>
                   </div>
                 </MotionSection>
               ))}
-              {criticalTasks.length === 0 && <p className="dashboard-panel-empty text-sm text-text-tertiary text-center py-6 flex items-center justify-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-accent-emerald" /> {t('dashAllCaughtUp')}</p>}
+              {criticalTasks.length === 0 && <p className="dashboard-panel-empty text-sm text-text-tertiary text-center py-6 flex items-center justify-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-text-secondary" /> {t('dashAllCaughtUp')}</p>}
             </div>
           </BlueprintSurface>
 
-          {/* Needs fixing */}
+          {/* Needs fixing — OPT-K86 soft wash (not solid orange panel) */}
           {fixTasks.length > 0 && (
-            <div className="rounded-panel border border-accent-orange/20 bg-accent-orange/5 p-5">
+            <div className="rounded-panel border border-border-subtle bg-accent-orange/5 p-5">
               <SectionLabel icon={Shield}>{t('dashNeedsFixing')}</SectionLabel>
               <div className="space-y-2">
                 {fixTasks.slice(0, 3).map(task => (
@@ -764,7 +775,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                   >
                     <CourseIcon icon={task.courseIcon} size="sm" colorClassName="text-brand-500 shrink-0" />
                     <span className="text-sm flex-1 truncate group-hover:text-brand-300 transition-colors">{task.title}</span>
-                    <span className="text-xs text-accent-orange">{taskDurationLabel(task.estimatedMinutes, t)}</span>
+                    <span className="text-xs text-text-tertiary">{taskDurationLabel(task.estimatedMinutes, t)}</span>
                     <ChevronRight className="w-3.5 h-3.5 text-text-muted group-hover:text-brand-400" />
                   </button>
                 ))}
@@ -1217,7 +1228,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                 <div className="proximity-track-wide divide-y divide-border-subtle">
                   {unresolvedMisconceptions.slice(0, 2).map(m => (
                     <div key={m.id} className="py-2 first:pt-0 last:pb-0 text-xs">
-                      <p className="font-medium text-accent-orange">{m.concept}</p>
+                      <p className="font-medium text-text-primary">{m.concept}</p>
                       <p className="text-text-secondary mt-0.5">{m.description}</p>
                       {onResolveMisconception && (
                         <button
@@ -1241,7 +1252,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                     className="p-2 rounded-lg bg-accent-amber/10 border border-accent-amber/20 hover:bg-accent-amber/15 transition-all"
                     data-testid="dash-horizon-today"
                   >
-                    <p className="ux-kpi-value text-accent-amber">{fsrsHorizon.today}</p>
+                    <p className="ux-kpi-value text-text-primary">{fsrsHorizon.today}</p>
                     <p className="text-[10px] text-text-muted uppercase tracking-[0.04em] leading-tight"><AllCapsLabel>{t('dashHorizonToday')}</AllCapsLabel></p>
                   </button>
                   <div className="p-2 rounded-lg bg-surface-primary/50" data-testid="dash-horizon-tomorrow">
@@ -1273,7 +1284,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                   <div className="proximity-track-wide divide-y divide-border-subtle">
                     {unresolvedMisconceptions.slice(0, 2).map(m => (
                       <div key={m.id} className="py-2 first:pt-0 last:pb-0 text-xs">
-                        <p className="font-medium text-accent-orange">{m.concept}</p>
+                        <p className="font-medium text-text-primary">{m.concept}</p>
                         <p className="text-text-secondary mt-0.5">{m.description}</p>
                         {onResolveMisconception && (
                           <button
@@ -1299,7 +1310,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                     className="p-2 rounded-lg bg-accent-amber/10 border border-accent-amber/20 hover:bg-accent-amber/15 transition-all"
                     data-testid="dash-horizon-today"
                   >
-                    <p className="ux-kpi-value text-accent-amber">{fsrsHorizon.today}</p>
+                    <p className="ux-kpi-value text-text-primary">{fsrsHorizon.today}</p>
                     <p className="text-[10px] text-text-muted uppercase tracking-[0.04em] leading-tight"><AllCapsLabel>{t('dashHorizonToday')}</AllCapsLabel></p>
                   </button>
                   <div className="p-2 rounded-lg bg-surface-primary/50" data-testid="dash-horizon-tomorrow">

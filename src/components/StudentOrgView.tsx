@@ -183,8 +183,9 @@ export function StudentOrgView({
   return (
     <div
       className={cn(
-        'platform-page w-full max-w-none p-4 md:p-6 space-y-6',
-        isMinimal && 'enterprise-calm',
+        'platform-page w-full max-w-none space-y-6',
+        /* OPT-K85 — non-Minimal full column; Minimal keeps side gutters */
+        isMinimal ? 'p-4 md:p-6 enterprise-calm' : 'py-4 md:py-6 shell-edge-balance',
       )}
       data-testid="student-org-view"
     >
