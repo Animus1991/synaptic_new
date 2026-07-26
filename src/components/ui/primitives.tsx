@@ -77,9 +77,8 @@ export function PageHeader({
           </p>
         )}
         <div className="flex items-center gap-2">
-          {/* OPT-K7 — Minimal is text-first: no leading icon tile. Blueprint keeps brand square. */}
+          {/* OPT-K7/K100 — Minimal text-first; non-Minimal icon tile uses ink chrome */}
           {Icon && !isMinimal && (
-            {/* OPT-K100 — page header icon: ink chrome, not brand type */}
             <span className="ux-page-header-icon grid h-7 w-7 shrink-0 place-items-center rounded-lg border border-border-subtle bg-surface-secondary text-text-secondary">
               <Icon className="h-3.5 w-3.5" />
             </span>
