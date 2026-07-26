@@ -193,8 +193,6 @@ describe('OPT-K69 engineering clarity contracts', () => {
     expect(primer).toMatch(/--space-2:\s*0\.5rem/);
     expect(primer).toMatch(/--space-3:\s*0\.75rem/);
     expect(primer).toMatch(/--space-4:\s*1rem/);
-    expect(primer).toMatch(/0\.9409/);
-    expect(primer).toMatch(/0\.9604/);
     expect(primer).toMatch(/0\.9127/);
     expect(primer).toMatch(/dashboard-breath-stack/);
 
@@ -203,6 +201,20 @@ describe('OPT-K69 engineering clarity contracts', () => {
 
     const ring = read('src/components/visuals/ReadinessRing.tsx');
     expect(ring).toMatch(/size = 165/);
+  });
+
+  it('K82 — panel type −2% more + non-Minimal accent rebalance', () => {
+    const primer = read('src/styles/primer-minimal.css');
+    expect(primer).toMatch(/OPT-K82/);
+    expect(primer).toMatch(/0\.9221/);
+    expect(primer).toMatch(/0\.9412/);
+
+    const indexCss = read('src/index.css');
+    expect(indexCss).toMatch(/OPT-K82/);
+    expect(indexCss).toMatch(/--color-accent-emerald:\s*#3d9a78/);
+    expect(indexCss).toMatch(/--color-accent-violet:\s*#7a7598/);
+    expect(indexCss).toMatch(/--palette-green:\s*#3d8a62/);
+    expect(indexCss).toMatch(/--palette-amber:\s*#b0892e/);
   });
 
   it('K79 — Minimal accent chroma/hue rebalance (semantic + categorical)', () => {

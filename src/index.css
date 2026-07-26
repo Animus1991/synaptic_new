@@ -24,14 +24,14 @@
   --color-brand-900: #283646;
   --color-brand-950: #1a2430;
 
-  /* Complementary accents (dark SoT) — dusty, share cool-gray undertone. */
-  --color-accent-teal: #6a9e94;
-  --color-accent-cyan: #6e92a3;
-  --color-accent-emerald: #6a9a86;
-  --color-accent-amber: #b89a5c;
-  --color-accent-rose: #b08990;
-  --color-accent-orange: #b89072;
-  --color-accent-violet: #85809a;
+  /* OPT-K82 — dark/blueprint accents: clearer semantic + categorical vs steel brand */
+  --color-accent-teal: #5a9088;
+  --color-accent-cyan: #5a8fa0;
+  --color-accent-emerald: #3d9a78;
+  --color-accent-amber: #c4a04a;
+  --color-accent-rose: #c07080;
+  --color-accent-orange: #c48850;
+  --color-accent-violet: #7a7598;
 
   /* Dark theme (default) — neutral charcoal (no purple cast).
      Surfaces lifted ~3–4% vs pure black so panels read with less eye strain. */
@@ -106,18 +106,18 @@
 
   --viz-grid-line: #1c1c1f;
 
-  /* Mastery + spectrum palette (dark) — dusty complements (less candy vs steel brand). */
-  --mastery-weak: #b08990;
-  --mastery-developing: #6e92a3;
-  --mastery-proficient: #b89a5c;
-  --mastery-strong: #6a9a86;
-  --palette-purple: #85809a;
-  --palette-cyan: #6e92a3;
-  --palette-teal: #6a9e94;
-  --palette-green: #6a9a86;
-  --palette-amber: #b89a5c;
-  --palette-rose: #b08990;
-  --palette-orange: #b89072;
+  /* Mastery + viz palette (dark) — aligned to OPT-K82 accents */
+  --mastery-weak: #c07080;
+  --mastery-developing: #5a8fa0;
+  --mastery-proficient: #c4a04a;
+  --mastery-strong: #3d9a78;
+  --palette-purple: #7a7598;
+  --palette-cyan: #5a8fa0;
+  --palette-teal: #5a9088;
+  --palette-green: #3d9a78;
+  --palette-amber: #c4a04a;
+  --palette-rose: #c07080;
+  --palette-orange: #c48850;
 
   /* Light theme is the typography SoT for every theme (optical size parity). */
   --font-sans: 'Nunito Sans', 'Noto Sans', 'Noto Sans Greek', system-ui, -apple-system, sans-serif;
@@ -280,18 +280,18 @@
   --color-banner-warn-ink: color-mix(in srgb, var(--palette-amber) 55%, #352c23);
   --color-banner-warn-border: color-mix(in srgb, var(--color-banner-warn-ink) 58%, var(--color-border-subtle));
 
-  /* Earth accents — warm, near brand brown; −~1% chroma (light SoT). Brand unchanged. */
-  --mastery-weak: #9c685c;
-  --mastery-developing: #6c7d81;
-  --mastery-proficient: #9d7c4c;
-  --mastery-strong: #627e6b;
-  --palette-purple: #7c6982;
-  --palette-cyan: #6b7d83;
-  --palette-teal: #627c73;
-  --palette-green: #627e6b;
-  --palette-amber: #9d7c4c;
-  --palette-rose: #9c685c;
-  --palette-orange: #9c7454;
+  /* OPT-K82 — light (Warm Sand) accents: earth family, clearer success/warn/danger vs brown brand */
+  --mastery-weak: #b45c5c;
+  --mastery-developing: #5a7a82;
+  --mastery-proficient: #a87830;
+  --mastery-strong: #3d8a62;
+  --palette-purple: #7a6a8e;
+  --palette-cyan: #5a7a82;
+  --palette-teal: #4a7a6e;
+  --palette-green: #3d8a62;
+  --palette-amber: #a87830;
+  --palette-rose: #b45c5c;
+  --palette-orange: #b87840;
 
   --color-accent-emerald: var(--palette-green);
   --color-accent-amber: var(--palette-amber);
@@ -374,18 +374,18 @@
   --color-banner-warn-ink: color-mix(in srgb, #9d7c4c 55%, #352c23);
   --color-banner-warn-border: color-mix(in srgb, var(--color-banner-warn-ink) 58%, var(--color-border-subtle));
 
-  /* Match light complementary accents when warm-sand is root theme (−~1%) */
-  --mastery-weak: #9c685c;
-  --mastery-developing: #6c7d81;
-  --mastery-proficient: #9d7c4c;
-  --mastery-strong: #627e6b;
-  --palette-purple: #7c6982;
-  --palette-cyan: #6b7d83;
-  --palette-teal: #627c73;
-  --palette-green: #627e6b;
-  --palette-amber: #9d7c4c;
-  --palette-rose: #9c685c;
-  --palette-orange: #9c7454;
+  /* OPT-K82 — warm-sand accents (parity with light earth rebalance) */
+  --mastery-weak: #b45c5c;
+  --mastery-developing: #5a7a82;
+  --mastery-proficient: #a87830;
+  --mastery-strong: #3d8a62;
+  --palette-purple: #7a6a8e;
+  --palette-cyan: #5a7a82;
+  --palette-teal: #4a7a6e;
+  --palette-green: #3d8a62;
+  --palette-amber: #a87830;
+  --palette-rose: #b45c5c;
+  --palette-orange: #b87840;
   --color-accent-emerald: var(--palette-green);
   --color-accent-amber: var(--palette-amber);
   --color-accent-orange: var(--palette-orange);
@@ -649,18 +649,18 @@
 
   color-scheme: light;
 
-  /* Complements share violet undertone — dusty, not candy pastel. */
-  --mastery-weak: #a88990;
-  --mastery-developing: #7d8fa3;
-  --mastery-proficient: #b09a6a;
-  --mastery-strong: #6a9484;
-  --palette-purple: #7d7399;
-  --palette-cyan: #7d8fa3;
-  --palette-teal: #6a908a;
-  --palette-green: #6a9484;
-  --palette-amber: #b09a6a;
-  --palette-rose: #a88990;
-  --palette-orange: #ad8f78;
+  /* OPT-K82 — spectrum accents: violet brand kept; semantic greens/ambers clearer */
+  --mastery-weak: #c07080;
+  --mastery-developing: #5a8fa3;
+  --mastery-proficient: #b0892e;
+  --mastery-strong: #3d9a78;
+  --palette-purple: #6f6299;
+  --palette-cyan: #5a8fa3;
+  --palette-teal: #4a8a82;
+  --palette-green: #3d9a78;
+  --palette-amber: #b0892e;
+  --palette-rose: #c07080;
+  --palette-orange: #c48850;
 
   --color-accent-emerald: var(--palette-green);
   --color-accent-amber: var(--palette-amber);
