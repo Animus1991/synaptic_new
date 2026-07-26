@@ -297,13 +297,28 @@ ${context?.concept ? `Current concept: ${context.concept}.` : ''}
 ${context?.taskTitle ? `Active task: ${context.taskTitle}.` : ''}${sourceBlock}`;
 }
 
-function offlineAgentReply(input: string, mode: AgentMode): string {
-  const topic = input.length > 60 ? `${input.slice(0, 60)}…` : input;
-  const responses: Partial<Record<AgentMode, string>> = {
+function offlineAgentReply(
+  input: string,
+  mode: AgentMode,
+  lang: 'en' | 'el' = 'en',
+  topicHint?: string,
+): string {
+  // Prefer the real concept/task label over raw composed input — `input` may
+  // be an internal context block (no free-text question) when the agent is
+  // auto-invoked from a workspace step, which must never leak into the reply.
+  const base = (topicHint || input).trim();
+  const topic = base.length > 60 ? `${base.slice(0, 60)}…` : base;
+  const responsesEn: Partial<Record<AgentMode, string>> = {
     socratic: `You asked about **"${topic}"**.\n\nBefore I explain directly: **what do you already know?** What would you predict if one variable changes?\n\nName your assumptions — I'll guide you through your own reasoning.`,
     direct: `**Direct explanation** for "${topic}":\n\n1. Identify core variables\n2. Apply the relevant framework\n3. Check boundary conditions\n\nWant a practice question to verify understanding?`,
     feynman: `**Feynman check** for "${topic}":\n\nExplain it in 2–3 sentences as if teaching a friend. I'll highlight gaps in mechanism, example, and contrast.`,
   };
+  const responsesEl: Partial<Record<AgentMode, string>> = {
+    socratic: `Ρώτησες για **«${topic}»**.\n\nΠριν εξηγήσω απευθείας: **τι ξέρεις ήδη;** Τι θα προέβλεπες αν άλλαζε μία μεταβλητή;\n\nΠες μου τις παραδοχές σου — θα σε καθοδηγήσω μέσα από τη δική σου σκέψη.`,
+    direct: `**Άμεση εξήγηση** για «${topic}»:\n\n1. Εντόπισε τις βασικές μεταβλητές\n2. Εφάρμοσε το σχετικό πλαίσιο\n3. Έλεγξε τις οριακές συνθήκες\n\nΘες μια ερώτηση εξάσκησης για επιβεβαίωση κατανόησης;`,
+    feynman: `**Έλεγχος Feynman** για «${topic}»:\n\nΕξήγησέ το σε 2–3 προτάσεις σαν να διδάσκεις έναν φίλο. Θα επισημάνω κενά σε μηχανισμό, παράδειγμα και αντιπαραβολή.`,
+  };
+  const responses = lang === 'el' ? responsesEl : responsesEn;
   return responses[mode] ?? responses.direct!;
 }
 
@@ -321,8 +336,9 @@ export async function streamAgentReply(
   history: ChatMessage[] = [],
 ): Promise<{ content: string; usedLlm: boolean; sourceGrounded: boolean }> {
   const sourceGrounded = !!context?.sourceExcerpt;
+  const topicHint = context?.concept ?? context?.taskTitle;
   if (!isLlmAvailable(settings)) {
-    const content = offlineAgentReply(input, mode);
+    const content = offlineAgentReply(input, mode, settings?.language, topicHint);
     onDelta(content);
     return { content, usedLlm: false, sourceGrounded };
   }
@@ -340,7 +356,7 @@ export async function streamAgentReply(
     );
     return { content, usedLlm: true, sourceGrounded };
   } catch {
-    const content = offlineAgentReply(input, mode);
+    const content = offlineAgentReply(input, mode, settings?.language, topicHint);
     onDelta(content);
     return { content, usedLlm: false, sourceGrounded };
   }
@@ -359,8 +375,9 @@ export async function generateAgentReply(
   history: ChatMessage[] = [],
 ): Promise<{ content: string; usedLlm: boolean; sourceGrounded: boolean }> {
   const sourceGrounded = !!context?.sourceExcerpt;
+  const topicHint = context?.concept ?? context?.taskTitle;
   if (!isLlmAvailable(settings)) {
-    return { content: offlineAgentReply(input, mode), usedLlm: false, sourceGrounded };
+    return { content: offlineAgentReply(input, mode, settings?.language, topicHint), usedLlm: false, sourceGrounded };
   }
 
   const system = buildAgentSystemPrompt(mode, settings, context);
@@ -376,7 +393,7 @@ export async function generateAgentReply(
     );
     return { content, usedLlm: true, sourceGrounded };
   } catch {
-    return { content: offlineAgentReply(input, mode), usedLlm: false, sourceGrounded };
+    return { content: offlineAgentReply(input, mode, settings?.language, topicHint), usedLlm: false, sourceGrounded };
   }
 }
 

@@ -1288,6 +1288,17 @@ function MessageBubble({
           )}
         </div>
 
+        {!isUser && !message.isStreaming && message.metadata?.inferenceUsed === false && (
+          <div
+            className="mt-2 flex items-center gap-1.5 rounded-md border border-border-subtle bg-surface-secondary px-2 py-1 text-[11px] text-text-secondary"
+            data-testid="agent-offline-fallback-badge"
+            title={ui.offlineMode}
+          >
+            <AlertTriangle className="w-3 h-3 shrink-0 text-accent-amber" aria-hidden />
+            {ui.offlineMode}
+          </div>
+        )}
+
         {message.citations && message.citations.length > 0 ? (
           <CitationList citations={message.citations} onGoToSource={onGoToSource} lang={lang} ui={ui} />
         ) : message.sourceReference ? (

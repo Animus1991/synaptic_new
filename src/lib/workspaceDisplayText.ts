@@ -17,7 +17,7 @@ const LESSON_ARTIFACT_FIXES: ReadonlyArray<[RegExp, string]> = [
   [/\bbudget slide\b/gi, 'budget line'],
   [/\bdemand course\b/gi, 'demand curve'],
   [/\bmarket demand course\b/gi, 'market demand curve'],
-  [/\bwhile course\b/gi, 'while curve'],
+  [/\bwhile course\b/gi, 'whole curve'],
   [/\bprice rate\b/gi, 'price ratio'],
 ];
 

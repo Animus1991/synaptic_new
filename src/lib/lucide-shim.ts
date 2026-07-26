@@ -17,6 +17,7 @@ export {
   ArrowsDownUp as ArrowDownUp,
   ArrowLeft,
   ArrowRight,
+  ArrowUp,
   ArrowUpRight,
   ChartBar as BarChart3,
   BookBookmark as BookMarked,

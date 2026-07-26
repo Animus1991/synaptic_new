@@ -59,6 +59,7 @@ import {
   type DashboardLayoutMode,
 } from '../lib/dashboardLayoutPrefs';
 import { HubSection, UtilityRow } from './ui/UtilityPrimitives';
+import { ScrollToTopButton } from './ui/ScrollToTopButton';
 
 const DASHBOARD_WEEKDAY_KEYS: I18nKey[] = [
   'dashWeekdayMon',
@@ -1322,6 +1323,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
           </BlueprintSurface>
       </div>
     </div>
+    <ScrollToTopButton />
     </div>
   );
 }

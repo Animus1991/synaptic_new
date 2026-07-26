@@ -59,7 +59,11 @@ export function fuzzyCorrectToken(token: string, lang?: SpellLang): string | nul
     }
   }
 
-  const maxDist = isGreek ? (lower.length <= 6 ? 1 : 2) : 2;
+  // Latin is capped at edit-1 (matches the enumerated pass above): edit-2 on Latin
+  // silently rewrites legitimate out-of-vocabulary words (e.g. region→reason,
+  // force→forms, firm→for), corrupting clean course text. Greek keeps edit-2 for
+  // long tokens where OCR fragmentation is common.
+  const maxDist = isGreek ? (lower.length <= 6 ? 1 : 2) : 1;
   let best: { word: string; dist: number } | null = null;
   for (const word of dict) {
     if (Math.abs(word.length - lower.length) > maxDist) continue;
