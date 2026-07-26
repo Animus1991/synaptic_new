@@ -281,17 +281,17 @@
   --color-banner-warn-ink: color-mix(in srgb, var(--palette-amber) 55%, #352c23);
   --color-banner-warn-border: color-mix(in srgb, var(--color-banner-warn-ink) 58%, var(--color-border-subtle));
 
-  /* OPT-K82 — light (Warm Sand) accents: earth family, clearer success/warn/danger vs brown brand */
-  --mastery-weak: #b45c5c;
-  --mastery-developing: #5a7a82;
-  --mastery-proficient: #a87830;
-  --mastery-strong: #3d8a62;
+  /* OPT-K90 — light accents: Minimal mid-chroma (earth family; ink owns type) */
+  --mastery-weak: #c07070;
+  --mastery-developing: #6a949e;
+  --mastery-proficient: #b89438;
+  --mastery-strong: #449e80;
   --palette-purple: #7a6a8e;
-  --palette-cyan: #5a7a82;
+  --palette-cyan: #6a949e;
   --palette-teal: #4a7a6e;
-  --palette-green: #3d8a62;
-  --palette-amber: #a87830;
-  --palette-rose: #b45c5c;
+  --palette-green: #449e80;
+  --palette-amber: #b89438;
+  --palette-rose: #c07070;
   --palette-orange: #b87840;
 
   --color-accent-emerald: var(--palette-green);
@@ -650,17 +650,17 @@
 
   color-scheme: light;
 
-  /* OPT-K82 — spectrum accents: violet brand kept; semantic greens/ambers clearer */
-  --mastery-weak: #c07080;
-  --mastery-developing: #5a8fa3;
-  --mastery-proficient: #b0892e;
-  --mastery-strong: #3d9a78;
+  /* OPT-K90 — spectrum accents: violet brand kept; semantic mid-chroma (not neon) */
+  --mastery-weak: #c07070;
+  --mastery-developing: #6a949e;
+  --mastery-proficient: #b89438;
+  --mastery-strong: #449e80;
   --palette-purple: #6f6299;
-  --palette-cyan: #5a8fa3;
+  --palette-cyan: #6a949e;
   --palette-teal: #4a8a82;
-  --palette-green: #3d9a78;
-  --palette-amber: #b0892e;
-  --palette-rose: #c07080;
+  --palette-green: #449e80;
+  --palette-amber: #b89438;
+  --palette-rose: #c07070;
   --palette-orange: #c48850;
 
   --color-accent-emerald: var(--palette-green);
@@ -5618,87 +5618,185 @@ body { letter-spacing: -0.005em; }
   box-sizing: border-box !important;
 }
 
-/* ========== OPT-K86 — non-Minimal accent quiet: soft fills + status ink mix ========== */
+/* ========== OPT-K86 — soft accent washes (superseded text rules → OPT-K90) ========== */
 /*
- * Policy: ≤2 accent hues + brand per region; mid-chroma; soft washes 10–14%;
- * ink owns copy; brand ≠ semantic. Glass/glow (Blueprint/Spectrum) stays intact.
+ * Soft washes 10–14%; solid slabs mid-mixed into card.
+ * Glass/glow (Blueprint/Spectrum) stays intact. Ink ownership: OPT-K90.
  */
-
-:is([data-theme="dark"], [data-theme="blueprint"])
+:is(
+  [data-theme="dark"],
+  [data-theme="blueprint"],
+  [data-theme="light"],
+  [data-theme="spectrum"],
+  [data-theme="warm-sand"],
+  [data-theme="minimal"],
+  [data-theme="minimal-dark"]
+)
   .app-shell .bg-accent-amber\/5,
-:is([data-theme="dark"], [data-theme="blueprint"])
+:is(
+  [data-theme="dark"],
+  [data-theme="blueprint"],
+  [data-theme="light"],
+  [data-theme="spectrum"],
+  [data-theme="warm-sand"],
+  [data-theme="minimal"],
+  [data-theme="minimal-dark"]
+)
   .app-shell .bg-accent-amber\/10 {
   background-color: color-mix(in srgb, var(--color-accent-amber) 12%, var(--color-surface-secondary)) !important;
 }
 
-:is([data-theme="dark"], [data-theme="blueprint"])
+:is(
+  [data-theme="dark"],
+  [data-theme="blueprint"],
+  [data-theme="light"],
+  [data-theme="spectrum"],
+  [data-theme="warm-sand"],
+  [data-theme="minimal"],
+  [data-theme="minimal-dark"]
+)
   .app-shell .bg-accent-rose\/5,
-:is([data-theme="dark"], [data-theme="blueprint"])
+:is(
+  [data-theme="dark"],
+  [data-theme="blueprint"],
+  [data-theme="light"],
+  [data-theme="spectrum"],
+  [data-theme="warm-sand"],
+  [data-theme="minimal"],
+  [data-theme="minimal-dark"]
+)
   .app-shell .bg-accent-rose\/10 {
   background-color: color-mix(in srgb, var(--color-accent-rose) 12%, var(--color-surface-secondary)) !important;
 }
 
-:is([data-theme="dark"], [data-theme="blueprint"])
+:is(
+  [data-theme="dark"],
+  [data-theme="blueprint"],
+  [data-theme="light"],
+  [data-theme="spectrum"],
+  [data-theme="warm-sand"],
+  [data-theme="minimal"],
+  [data-theme="minimal-dark"]
+)
   .app-shell .bg-accent-orange\/5,
-:is([data-theme="dark"], [data-theme="blueprint"])
+:is(
+  [data-theme="dark"],
+  [data-theme="blueprint"],
+  [data-theme="light"],
+  [data-theme="spectrum"],
+  [data-theme="warm-sand"],
+  [data-theme="minimal"],
+  [data-theme="minimal-dark"]
+)
   .app-shell .bg-accent-orange\/10 {
   background-color: color-mix(in srgb, var(--color-accent-orange) 12%, var(--color-surface-secondary)) !important;
 }
 
-:is([data-theme="dark"], [data-theme="blueprint"])
+:is(
+  [data-theme="dark"],
+  [data-theme="blueprint"],
+  [data-theme="light"],
+  [data-theme="spectrum"],
+  [data-theme="warm-sand"],
+  [data-theme="minimal"],
+  [data-theme="minimal-dark"]
+)
   .app-shell .bg-accent-emerald\/5,
-:is([data-theme="dark"], [data-theme="blueprint"])
+:is(
+  [data-theme="dark"],
+  [data-theme="blueprint"],
+  [data-theme="light"],
+  [data-theme="spectrum"],
+  [data-theme="warm-sand"],
+  [data-theme="minimal"],
+  [data-theme="minimal-dark"]
+)
   .app-shell .bg-accent-emerald\/10 {
   background-color: color-mix(in srgb, var(--color-accent-emerald) 12%, var(--color-surface-secondary)) !important;
 }
 
-:is([data-theme="dark"], [data-theme="blueprint"])
+:is(
+  [data-theme="dark"],
+  [data-theme="blueprint"],
+  [data-theme="light"],
+  [data-theme="spectrum"],
+  [data-theme="warm-sand"],
+  [data-theme="minimal"],
+  [data-theme="minimal-dark"]
+)
   .app-shell .bg-accent-teal\/5,
-:is([data-theme="dark"], [data-theme="blueprint"])
+:is(
+  [data-theme="dark"],
+  [data-theme="blueprint"],
+  [data-theme="light"],
+  [data-theme="spectrum"],
+  [data-theme="warm-sand"],
+  [data-theme="minimal"],
+  [data-theme="minimal-dark"]
+)
   .app-shell .bg-accent-cyan\/5,
-:is([data-theme="dark"], [data-theme="blueprint"])
+:is(
+  [data-theme="dark"],
+  [data-theme="blueprint"],
+  [data-theme="light"],
+  [data-theme="spectrum"],
+  [data-theme="warm-sand"],
+  [data-theme="minimal"],
+  [data-theme="minimal-dark"]
+)
   .app-shell .bg-accent-violet\/5 {
   background-color: color-mix(in srgb, var(--color-accent-cyan) 10%, var(--color-surface-secondary)) !important;
 }
 
-/* Status text: tint into secondary so the forest stays readable (Minimal-dark method) */
-:is([data-theme="dark"], [data-theme="blueprint"])
-  .app-shell .text-accent-rose {
-  color: color-mix(in srgb, var(--color-accent-rose) 48%, var(--color-text-secondary)) !important;
-}
-
-:is([data-theme="dark"], [data-theme="blueprint"])
-  .app-shell .text-accent-amber {
-  color: color-mix(in srgb, var(--color-accent-amber) 48%, var(--color-text-secondary)) !important;
-}
-
-:is([data-theme="dark"], [data-theme="blueprint"])
-  .app-shell .text-accent-emerald {
-  color: color-mix(in srgb, var(--color-accent-emerald) 48%, var(--color-text-secondary)) !important;
-}
-
-:is([data-theme="dark"], [data-theme="blueprint"])
-  .app-shell .text-accent-orange {
-  color: color-mix(in srgb, var(--color-accent-orange) 45%, var(--color-text-secondary)) !important;
-}
-
 /* Solid status bars — mid chroma, not neon slabs */
-:is([data-theme="dark"], [data-theme="blueprint"])
+:is(
+  [data-theme="dark"],
+  [data-theme="blueprint"],
+  [data-theme="light"],
+  [data-theme="spectrum"],
+  [data-theme="warm-sand"],
+  [data-theme="minimal"],
+  [data-theme="minimal-dark"]
+)
   .app-shell .bg-accent-rose {
   background-color: color-mix(in srgb, var(--color-accent-rose) 55%, var(--color-surface-card)) !important;
 }
 
-:is([data-theme="dark"], [data-theme="blueprint"])
+:is(
+  [data-theme="dark"],
+  [data-theme="blueprint"],
+  [data-theme="light"],
+  [data-theme="spectrum"],
+  [data-theme="warm-sand"],
+  [data-theme="minimal"],
+  [data-theme="minimal-dark"]
+)
   .app-shell .bg-accent-amber {
   background-color: color-mix(in srgb, var(--color-accent-amber) 52%, var(--color-surface-card)) !important;
 }
 
-:is([data-theme="dark"], [data-theme="blueprint"])
+:is(
+  [data-theme="dark"],
+  [data-theme="blueprint"],
+  [data-theme="light"],
+  [data-theme="spectrum"],
+  [data-theme="warm-sand"],
+  [data-theme="minimal"],
+  [data-theme="minimal-dark"]
+)
   .app-shell .bg-accent-emerald {
   background-color: color-mix(in srgb, var(--color-accent-emerald) 52%, var(--color-surface-card)) !important;
 }
 
-:is([data-theme="dark"], [data-theme="blueprint"])
+:is(
+  [data-theme="dark"],
+  [data-theme="blueprint"],
+  [data-theme="light"],
+  [data-theme="spectrum"],
+  [data-theme="warm-sand"],
+  [data-theme="minimal"],
+  [data-theme="minimal-dark"]
+)
   .app-shell .bg-accent-orange {
   background-color: color-mix(in srgb, var(--color-accent-orange) 50%, var(--color-surface-card)) !important;
 }
@@ -5834,88 +5932,155 @@ body { letter-spacing: -0.005em; }
   box-shadow: 0 0 0 1px var(--color-border-subtle) !important;
 }
 
-/* ========== OPT-K88 — non-Minimal bar hues (Minimal mid-chroma logic) ========== */
+/* ========== OPT-K88 — bar hues (Minimal mid-chroma policy; all non-Minimal) ========== */
 /*
- * dark + blueprint + warm-sand. Bars slightly more vivid than Minimal
- * (saturate ~0.68 vs Minimal-light 0.28 / Minimal-dark 0.55), soft-mixed
- * into the card so they don't steal focus from brand / central theme colors.
+ * Same ratios everywhere; themes only change --mastery-* tokens.
+ * Minimal keeps its own stronger desat in cursor-clarity.css.
+ * Bars slightly more vivid than Minimal-light (saturate ~0.68 vs 0.28).
  */
-:is([data-theme="dark"], [data-theme="blueprint"], [data-theme="warm-sand"])
+:is([data-theme="dark"], [data-theme="blueprint"], [data-theme="light"], [data-theme="spectrum"], [data-theme="warm-sand"])
   .app-shell .concept-mastery-bars .proximity-track[data-mastery-band="weak"] .mastery-bar-fill {
   background-color: color-mix(in srgb, var(--mastery-weak) 68%, var(--color-surface-card)) !important;
   filter: saturate(0.7) brightness(0.98);
   opacity: 0.94;
 }
 
-:is([data-theme="dark"], [data-theme="blueprint"], [data-theme="warm-sand"])
+:is([data-theme="dark"], [data-theme="blueprint"], [data-theme="light"], [data-theme="spectrum"], [data-theme="warm-sand"])
   .app-shell .concept-mastery-bars .proximity-track[data-mastery-band="developing"] .mastery-bar-fill {
   background-color: color-mix(in srgb, var(--mastery-developing) 66%, var(--color-surface-card)) !important;
   filter: saturate(0.68) brightness(0.98);
   opacity: 0.94;
 }
 
-:is([data-theme="dark"], [data-theme="blueprint"], [data-theme="warm-sand"])
+:is([data-theme="dark"], [data-theme="blueprint"], [data-theme="light"], [data-theme="spectrum"], [data-theme="warm-sand"])
   .app-shell .concept-mastery-bars .proximity-track[data-mastery-band="proficient"] .mastery-bar-fill {
   background-color: color-mix(in srgb, var(--mastery-proficient) 66%, var(--color-surface-card)) !important;
   filter: saturate(0.68) brightness(0.98);
   opacity: 0.94;
 }
 
-:is([data-theme="dark"], [data-theme="blueprint"], [data-theme="warm-sand"])
+:is([data-theme="dark"], [data-theme="blueprint"], [data-theme="light"], [data-theme="spectrum"], [data-theme="warm-sand"])
   .app-shell .concept-mastery-bars .proximity-track[data-mastery-band="strong"] .mastery-bar-fill {
   background-color: color-mix(in srgb, var(--mastery-strong) 66%, var(--color-surface-card)) !important;
   filter: saturate(0.7) brightness(0.98);
   opacity: 0.94;
 }
 
-/* Band % labels — secondary ink (bars carry the quiet hue) */
-:is([data-theme="dark"], [data-theme="blueprint"], [data-theme="warm-sand"])
-  .app-shell .concept-mastery-bars .proximity-row span[style*="color"] {
-  color: var(--color-text-secondary) !important;
-  font-weight: 500;
-}
-
-/* Weak / mid / strong dashboard progress fills */
-:is([data-theme="dark"], [data-theme="blueprint"], [data-theme="warm-sand"])
+:is([data-theme="dark"], [data-theme="blueprint"], [data-theme="light"], [data-theme="spectrum"], [data-theme="warm-sand"])
   .app-shell .dashboard-progress-fill--weak {
   background: color-mix(in srgb, var(--mastery-weak) 62%, var(--color-surface-card)) !important;
   filter: saturate(0.7) brightness(0.98);
   opacity: 0.94;
 }
 
-:is([data-theme="dark"], [data-theme="blueprint"], [data-theme="warm-sand"])
+:is([data-theme="dark"], [data-theme="blueprint"], [data-theme="light"], [data-theme="spectrum"], [data-theme="warm-sand"])
   .app-shell .dashboard-progress-fill--mid {
   background: color-mix(in srgb, var(--mastery-developing) 58%, var(--color-surface-card)) !important;
   filter: saturate(0.65) brightness(0.98);
   opacity: 0.92;
 }
 
-:is([data-theme="dark"], [data-theme="blueprint"], [data-theme="warm-sand"])
+:is([data-theme="dark"], [data-theme="blueprint"], [data-theme="light"], [data-theme="spectrum"], [data-theme="warm-sand"])
   .app-shell .dashboard-progress-fill--strong {
   background: color-mix(in srgb, var(--mastery-strong) 60%, var(--color-surface-card)) !important;
   filter: saturate(0.68) brightness(0.98);
   opacity: 0.94;
 }
 
-/* Retrieval / amber signal bars — same mid-chroma restraint */
-:is([data-theme="dark"], [data-theme="blueprint"], [data-theme="warm-sand"])
+:is([data-theme="dark"], [data-theme="blueprint"], [data-theme="light"], [data-theme="spectrum"], [data-theme="warm-sand"])
   .app-shell [data-testid="dashboard-retrieval-strength-bar"] .ux-progress-track > div {
   background-color: color-mix(in srgb, var(--palette-amber) 64%, var(--color-surface-card)) !important;
   filter: saturate(0.68) brightness(0.98);
   opacity: 0.94;
 }
 
-:is([data-theme="dark"], [data-theme="blueprint"], [data-theme="warm-sand"])
+:is([data-theme="dark"], [data-theme="blueprint"], [data-theme="light"], [data-theme="spectrum"], [data-theme="warm-sand"])
   .app-shell .mastery-ring {
   filter: saturate(0.62) brightness(0.98);
 }
 
-/* Warm-sand light: slightly airier fills (cream card, not charcoal mix) */
-[data-theme="warm-sand"] .app-shell .concept-mastery-bars .mastery-bar-fill,
-[data-theme="warm-sand"] .app-shell .dashboard-progress-fill--weak,
-[data-theme="warm-sand"] .app-shell .dashboard-progress-fill--mid,
-[data-theme="warm-sand"] .app-shell .dashboard-progress-fill--strong,
-[data-theme="warm-sand"] .app-shell [data-testid="dashboard-retrieval-strength-bar"] .ux-progress-track > div {
+/* Light surfaces: airier saturate so cream/lavender cards stay calm */
+:is([data-theme="light"], [data-theme="spectrum"], [data-theme="warm-sand"])
+  .app-shell .concept-mastery-bars .mastery-bar-fill,
+:is([data-theme="light"], [data-theme="spectrum"], [data-theme="warm-sand"])
+  .app-shell .dashboard-progress-fill--weak,
+:is([data-theme="light"], [data-theme="spectrum"], [data-theme="warm-sand"])
+  .app-shell .dashboard-progress-fill--mid,
+:is([data-theme="light"], [data-theme="spectrum"], [data-theme="warm-sand"])
+  .app-shell .dashboard-progress-fill--strong,
+:is([data-theme="light"], [data-theme="spectrum"], [data-theme="warm-sand"])
+  .app-shell [data-testid="dashboard-retrieval-strength-bar"] .ux-progress-track > div {
   filter: saturate(0.55) brightness(1.02);
   opacity: 0.9;
+}
+
+/* ========== OPT-K90 — Ink owns type (platform hierarchy, all themes) ========== */
+/*
+ * Roles:
+ *  1) Ink — titles, values, labels, body (text-primary/secondary/tertiary)
+ *  2) Brand — CTAs, active nav, focus ring
+ *  3) Semantic accent — bars, soft washes 8–16%, never copy color
+ *
+ * Allowlist: add class `ink-allow-accent` only for rare critical chroma-on-type
+ * (prefer wash + ink). Primary CTA / solid-danger chips are brand/danger fills,
+ * not text-accent-*.
+ */
+:is(
+  [data-theme="dark"],
+  [data-theme="blueprint"],
+  [data-theme="light"],
+  [data-theme="spectrum"],
+  [data-theme="warm-sand"],
+  [data-theme="minimal"],
+  [data-theme="minimal-dark"]
+)
+  .app-shell [class*="text-accent-"]:not(.ink-allow-accent) {
+  color: var(--color-text-secondary) !important;
+}
+
+/* Status helper classes that mirrored accent-as-type */
+:is(
+  [data-theme="dark"],
+  [data-theme="blueprint"],
+  [data-theme="light"],
+  [data-theme="spectrum"],
+  [data-theme="warm-sand"],
+  [data-theme="minimal"],
+  [data-theme="minimal-dark"]
+)
+  .app-shell :is(
+    .dashboard-status-rose,
+    .dashboard-status-amber,
+    .dashboard-status-emerald,
+    .dashboard-status-orange
+  ) {
+  color: var(--color-text-secondary) !important;
+}
+
+/* Agent meta badges: keep soft wash; force ink on label */
+:is(
+  [data-theme="dark"],
+  [data-theme="blueprint"],
+  [data-theme="light"],
+  [data-theme="spectrum"],
+  [data-theme="warm-sand"],
+  [data-theme="minimal"],
+  [data-theme="minimal-dark"]
+)
+  .app-shell .agent-meta-badge {
+  color: var(--color-text-secondary) !important;
+}
+
+/* Intense chroma allowlist: only critical danger banner titles may whisper rose */
+:is(
+  [data-theme="dark"],
+  [data-theme="blueprint"],
+  [data-theme="light"],
+  [data-theme="spectrum"],
+  [data-theme="warm-sand"],
+  [data-theme="minimal"],
+  [data-theme="minimal-dark"]
+)
+  .app-shell :is(.platform-banner-danger, .ux-callout-danger) .ink-allow-accent {
+  color: color-mix(in srgb, var(--color-accent-rose) 42%, var(--color-text-primary)) !important;
 }

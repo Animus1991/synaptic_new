@@ -74,22 +74,23 @@ interface AgentProps {
   weakAreas?: SkillNode[];
 }
 
+/* OPT-K90 — mode icons use ink; soft washes / active brand carry identity */
 const AGENT_MODE_META: { mode: AgentMode; icon: typeof Brain; color: string }[] = [
-  { mode: 'socratic', icon: HelpCircle, color: 'text-brand-400' },
-  { mode: 'direct', icon: Lightbulb, color: 'text-accent-cyan' },
-  { mode: 'beginner', icon: Smile, color: 'text-accent-emerald' },
-  { mode: 'exam-coach', icon: GraduationCap, color: 'text-accent-amber' },
-  { mode: 'deep-theory', icon: BookOpen, color: 'text-brand-300' },
-  { mode: 'practical', icon: Code, color: 'text-accent-teal' },
-  { mode: 'error-diagnosis', icon: AlertTriangle, color: 'text-accent-rose' },
-  { mode: 'feynman', icon: MessageSquare, color: 'text-accent-orange' },
-  { mode: 'debate', icon: Target, color: 'text-brand-200' },
-  { mode: 'oral-exam', icon: Mic, color: 'text-accent-rose' },
-  { mode: 'math-tutor', icon: Zap, color: 'text-accent-amber' },
-  { mode: 'coding-tutor', icon: Code, color: 'text-accent-teal' },
-  { mode: 'writing-coach', icon: PenTool, color: 'text-brand-300' },
-  { mode: 'memory-coach', icon: RotateCcw, color: 'text-accent-emerald' },
-  { mode: 'motivation', icon: Sparkles, color: 'text-accent-amber' },
+  { mode: 'socratic', icon: HelpCircle, color: 'text-text-secondary' },
+  { mode: 'direct', icon: Lightbulb, color: 'text-text-secondary' },
+  { mode: 'beginner', icon: Smile, color: 'text-text-secondary' },
+  { mode: 'exam-coach', icon: GraduationCap, color: 'text-text-secondary' },
+  { mode: 'deep-theory', icon: BookOpen, color: 'text-text-secondary' },
+  { mode: 'practical', icon: Code, color: 'text-text-secondary' },
+  { mode: 'error-diagnosis', icon: AlertTriangle, color: 'text-text-secondary' },
+  { mode: 'feynman', icon: MessageSquare, color: 'text-text-secondary' },
+  { mode: 'debate', icon: Target, color: 'text-text-secondary' },
+  { mode: 'oral-exam', icon: Mic, color: 'text-text-secondary' },
+  { mode: 'math-tutor', icon: Zap, color: 'text-text-secondary' },
+  { mode: 'coding-tutor', icon: Code, color: 'text-text-secondary' },
+  { mode: 'writing-coach', icon: PenTool, color: 'text-text-secondary' },
+  { mode: 'memory-coach', icon: RotateCcw, color: 'text-text-secondary' },
+  { mode: 'motivation', icon: Sparkles, color: 'text-text-secondary' },
 ];
 
 export function Agent({

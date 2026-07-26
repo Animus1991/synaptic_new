@@ -212,8 +212,9 @@ describe('OPT-K69 engineering clarity contracts', () => {
     /* K88 supersedes dark emerald/amber slightly above Minimal mid-chroma */
     expect(indexCss).toMatch(/--color-accent-emerald:\s*#449e80/);
     expect(indexCss).toMatch(/--color-accent-violet:\s*#7a7598/);
-    expect(indexCss).toMatch(/--palette-green:\s*#3d8a62/);
-    expect(indexCss).toMatch(/--palette-amber:\s*#b0892e/);
+    expect(indexCss).toMatch(/--palette-green:\s*#449e80/);
+    /* K90 mid-chroma amber on light/spectrum/warm-sand */
+    expect(indexCss).toMatch(/--palette-amber:\s*#b89438/);
   });
 
   it('K84 — panel −2% + Minimal clarity transferred to non-Minimal themes', () => {
@@ -270,7 +271,6 @@ describe('OPT-K69 engineering clarity contracts', () => {
     expect(indexCss).toMatch(/--color-accent-amber:\s*#b89438/);
     expect(indexCss).toMatch(/--color-accent-amber:\s*#b89440/);
     expect(indexCss).toMatch(/color-mix\(in srgb, var\(--color-accent-amber\) 12%/);
-    expect(indexCss).toMatch(/color-mix\(in srgb, var\(--color-accent-rose\) 48%, var\(--color-text-secondary\)\)/);
 
     const dash = read('src/components/Dashboard.tsx');
     expect(dash).toMatch(/OPT-K86/);
@@ -283,7 +283,7 @@ describe('OPT-K69 engineering clarity contracts', () => {
     expect(dash).not.toMatch(/Target className="w-3\.5 h-3\.5 text-accent-teal"/);
   });
 
-  it('K88 — non-Minimal mastery bar hues follow Minimal mid-chroma (dark/blueprint/warm-sand)', () => {
+  it('K88 — mastery bar hues follow Minimal mid-chroma (all non-Minimal themes)', () => {
     const indexCss = read('src/index.css');
     expect(indexCss).toMatch(/OPT-K88/);
     expect(indexCss).toMatch(/--mastery-developing:\s*#689eb0/);
@@ -291,7 +291,7 @@ describe('OPT-K69 engineering clarity contracts', () => {
     expect(indexCss).toMatch(/--mastery-developing:\s*#6a949e/);
     expect(indexCss).toMatch(/--color-accent-cyan:\s*#5a9eb0/);
     expect(indexCss).not.toMatch(/--mastery-developing:\s*#62c2d1/);
-    expect(indexCss).toMatch(/data-theme="warm-sand"/);
+    expect(indexCss).toMatch(/data-theme="spectrum"/);
     expect(indexCss).toMatch(/data-mastery-band="weak"/);
     expect(indexCss).toMatch(/saturate\(0\.7\)/);
     expect(indexCss).toMatch(/saturate\(0\.55\)/);
@@ -301,6 +301,39 @@ describe('OPT-K69 engineering clarity contracts', () => {
     const bars = read('src/components/visuals/ConceptMasteryBars.tsx');
     expect(bars).toMatch(/data-mastery-band=\{band\}/);
     expect(bars).toMatch(/mastery-bar-fill/);
+    expect(bars).toMatch(/OPT-K90/);
+    expect(bars).toMatch(/text-text-secondary/);
+    expect(bars).not.toMatch(/style=\{\{ color: bandColor/);
+  });
+
+  it('K90 — ink owns type across all themes (accents never paint copy)', () => {
+    const indexCss = read('src/index.css');
+    expect(indexCss).toMatch(/OPT-K90/);
+    expect(indexCss).toMatch(/Ink owns type/);
+    expect(indexCss).toMatch(/\[class\*="text-accent-"\]:not\(\.ink-allow-accent\)/);
+    expect(indexCss).toMatch(/\.dashboard-status-rose/);
+    expect(indexCss).toMatch(/\.agent-meta-badge/);
+    expect(indexCss).toMatch(/data-theme="minimal-dark"/);
+
+    const dash = read('src/components/Dashboard.tsx');
+    expect(dash).toMatch(/OPT-K90/);
+    expect(dash).not.toMatch(/masteryDelta >= 0 \? 'text-accent-emerald'/);
+    expect(dash).not.toMatch(/text-\[10px\] text-accent-rose mt-2/);
+
+    const alertGrid = read('src/components/DashboardAlertGrid.tsx');
+    expect(alertGrid).toMatch(/OPT-K90/);
+    expect(alertGrid).not.toMatch(/quiz: 'text-accent-cyan'/);
+    expect(alertGrid).toMatch(/quiz: 'text-text-secondary'/);
+
+    const agent = read('src/components/Agent.tsx');
+    expect(agent).toMatch(/OPT-K90/);
+    expect(agent).not.toMatch(/color: 'text-accent-cyan'/);
+    expect(agent).toMatch(/color: 'text-text-secondary'/);
+
+    const primer = read('src/styles/primer-minimal.css');
+    expect(primer).toMatch(/OPT-K90/);
+    expect(primer).toMatch(/--mastery-developing:\s*#5a9eb0/);
+    expect(primer).not.toMatch(/--mastery-weak:\s*#e0707c/);
   });
 
   it('K89 — dark non-Minimal central brand lifted ~2.5%', () => {
@@ -342,8 +375,9 @@ describe('OPT-K69 engineering clarity contracts', () => {
     expect(primer).toMatch(/--color-accent-rose:\s*#c45c6a/);
     expect(primer).toMatch(/--color-accent-cyan:\s*#4a8fa3/);
     expect(primer).toMatch(/--color-accent-violet:\s*#7d7a9e/);
-    expect(primer).toMatch(/--color-accent-emerald:\s*#3eb87e/);
-    expect(primer).toMatch(/--color-accent-cyan:\s*#5eb8c4/);
+    /* K90 quieted minimal-dark mid-chroma */
+    expect(primer).toMatch(/--color-accent-emerald:\s*#449e80/);
+    expect(primer).toMatch(/--color-accent-cyan:\s*#5a9eb0/);
     expect(primer).toMatch(/--color-accent-violet:\s*#9a8fb8/);
     expect(primer).not.toMatch(/--color-accent-violet:\s*#9aa2b0/);
     expect(primer).not.toMatch(/--color-accent-cyan:\s*#39d0d8/);

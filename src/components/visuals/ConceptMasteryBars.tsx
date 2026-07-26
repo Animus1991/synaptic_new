@@ -25,7 +25,8 @@ export function ConceptMasteryBars({ concepts, maxItems = 8, className }: Props)
             {/* OPT-K9b — label + % sit together; bar uses same tight track */}
             <div className="proximity-row flex flex-wrap items-baseline gap-x-3 gap-y-0.5 text-xs mb-1">
               <span className="proximity-row-label text-text-secondary truncate">{c.concept}</span>
-              <span className="font-medium shrink-0 tabular-nums" style={{ color: bandColor(band) }}>
+              {/* OPT-K90 — ink owns labels; bar fill carries quiet band hue */}
+              <span className="font-medium shrink-0 tabular-nums text-text-secondary">
                 {c.mastery}% · {band}
               </span>
             </div>

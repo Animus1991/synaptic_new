@@ -154,19 +154,19 @@
   /* OPT-K30 + OPT-K73 — muted readable on primary + tertiary surfaces (≥4.5:1) */
   --color-text-muted: #848d97;
 
-  /* OPT-K79 — dark semantic/categorical rebalance (calmer cyan, clearer violet) */
+  /* OPT-K90 — dark Minimal mid-chroma (quieter than prior; ink owns type) */
   --color-accent-teal: #6aa898;
-  --color-accent-cyan: #5eb8c4;
-  --color-accent-emerald: #3eb87e;
-  --color-accent-amber: #d4b03a;
-  --color-accent-rose: #e0707c;
-  --color-accent-orange: #d4924a;
+  --color-accent-cyan: #5a9eb0;
+  --color-accent-emerald: #449e80;
+  --color-accent-amber: #b89440;
+  --color-accent-rose: #c87882;
+  --color-accent-orange: #c49060;
   --color-accent-violet: #9a8fb8;
 
-  --mastery-weak: #e0707c;
-  --mastery-developing: #6a9ec4;
-  --mastery-proficient: #d4b03a;
-  --mastery-strong: #3eb87e;
+  --mastery-weak: #c87882;
+  --mastery-developing: #5a9eb0;
+  --mastery-proficient: #b89440;
+  --mastery-strong: #449e80;
   --btn-height-sm: 2rem;
 
   --viz-track: #262e39;

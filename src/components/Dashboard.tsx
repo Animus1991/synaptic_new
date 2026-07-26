@@ -881,7 +881,8 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
             )}
             <div className="mt-2 text-center">
               <span className="ux-stat-value">{learnerModel.overallMastery}%</span>
-              <span className={cn('text-xs ml-2', masteryDelta >= 0 ? 'text-accent-emerald' : 'text-accent-rose')}>
+              {/* OPT-K90 — delta copy is ink; mastery bars carry semantic hue */}
+              <span className="text-xs ml-2 text-text-secondary">
                 {masteryDelta >= 0 ? '+' : ''}{masteryDelta}% {t('dashThisWeek')}
               </span>
             </div>
@@ -1103,7 +1104,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                         <div className="h-1.5 rounded-full bg-accent-rose transition-all" style={{ width: `${courseMastery}%` }} />
                       </div>
                       {courseMastery < 70 && daysLeft < 30 && (
-                        <p className="text-[10px] text-accent-rose mt-2 flex items-center gap-1"><AlertTriangle className="w-3 h-3" />{t('dashBelowMastery')}</p>
+                        <p className="text-[10px] text-text-secondary mt-2 flex items-center gap-1"><AlertTriangle className="w-3 h-3" />{t('dashBelowMastery')}</p>
                       )}
                       {examTask && (
                         <button
@@ -1199,7 +1200,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                       </div>
                       {overconfident && (
                         <AlertTriangle
-                          className="h-3 w-3 text-accent-rose"
+                          className="h-3 w-3 text-text-secondary"
                           aria-label={t('dashOverconfidentPrediction')}
                         />
                       )}

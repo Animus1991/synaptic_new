@@ -131,10 +131,11 @@ export function DashboardAlertGrid({
         misconception: 'text-text-secondary',
       }
     : {
-        exam: 'text-brand-600',
-        quiz: 'text-accent-cyan',
-        forget: 'text-accent-rose',
-        misconception: 'text-accent-amber',
+        /* OPT-K90 — decorative icons use ink; soft wash on card carries tone */
+        exam: 'text-text-secondary',
+        quiz: 'text-text-secondary',
+        forget: 'text-text-secondary',
+        misconception: 'text-text-secondary',
       };
   const IconFor: Record<Slot['tone'], typeof Target> = {
     exam: Target,
