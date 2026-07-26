@@ -68,7 +68,7 @@ const THEME_META_COLORS: Record<ResolvedTheme, string> = {
   spectrum: '#f7f5ff',
   blueprint: '#020617',
   minimal: '#ffffff',
-  'minimal-dark': '#0d1117',
+  'minimal-dark': '#141a22',
 };
 
 export function themeMetaColor(resolved: ResolvedTheme): string {

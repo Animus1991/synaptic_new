@@ -114,7 +114,7 @@ describe('OPT-K69 engineering clarity contracts', () => {
     expect(contrast('#59636e', '#ffffff')).toBeGreaterThanOrEqual(4.5);
     expect(contrast('#59636e', '#eaeef2')).toBeGreaterThanOrEqual(4.5);
     expect(contrast('#59636e', '#f6f8fa')).toBeGreaterThanOrEqual(4.5);
-    expect(contrast('#848d97', '#0d1117')).toBeGreaterThanOrEqual(4.5);
+    expect(contrast('#848d97', '#141a22')).toBeGreaterThanOrEqual(4.5);
     expect(contrast('#848d97', '#161b22')).toBeGreaterThanOrEqual(4.5);
     expect(contrast('#848d97', '#21262d')).toBeGreaterThanOrEqual(4.5);
   });
@@ -252,6 +252,22 @@ describe('OPT-K69 engineering clarity contracts', () => {
 
     const agent = read('src/components/Agent.tsx');
     expect(agent).not.toMatch(/from-brand-500 to-accent-teal/);
+  });
+
+  it('K83 — Minimal radii match non-Minimal Package 2 + milder minimal-dark canvas', () => {
+    const primer = read('src/styles/primer-minimal.css');
+    expect(primer).toMatch(/OPT-K83/);
+    expect(primer).toMatch(/--radius-sm:\s*0\.375rem/);
+    expect(primer).toMatch(/--radius-md:\s*0\.5rem/);
+    expect(primer).toMatch(/--radius-lg:\s*0\.75rem/);
+    expect(primer).toMatch(/--radius-xl:\s*1rem/);
+    expect(primer).toMatch(/--radius-panel:\s*1\.25rem/);
+    expect(primer).toMatch(/--radius-pill:\s*9999px/);
+    expect(primer).toMatch(/--color-surface-primary:\s*#141a22/);
+    expect(primer).toMatch(/--color-surface-secondary:\s*#1c232d/);
+
+    const theme = read('src/lib/theme.ts');
+    expect(theme).toMatch(/minimal-dark':\s*'#141a22'/);
   });
 
   it('K76 — micro-harmony: tokenized radii/type + overlay remaps; progress stays stadium', () => {
