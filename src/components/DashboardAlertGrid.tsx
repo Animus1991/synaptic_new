@@ -117,10 +117,11 @@ export function DashboardAlertGrid({
         misconception: 'dashboard-urgency-signal',
       }
     : {
-        exam: 'border-brand-500/25 bg-brand-600/5',
-        quiz: 'border-accent-cyan/25 bg-accent-cyan/5',
-        forget: 'border-accent-rose/25 bg-accent-rose/5',
-        misconception: 'border-accent-amber/25 bg-accent-amber/5',
+        /* OPT-K87 — soft fills stay; outline matches neutral grey cards */
+        exam: 'border-border-subtle bg-brand-600/5',
+        quiz: 'border-border-subtle bg-accent-cyan/5',
+        forget: 'border-border-subtle bg-accent-rose/5',
+        misconception: 'border-border-subtle bg-accent-amber/5',
       };
   const iconClass: Record<Slot['tone'], string> = quiet
     ? {

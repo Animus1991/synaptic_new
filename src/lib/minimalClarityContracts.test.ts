@@ -209,7 +209,8 @@ describe('OPT-K69 engineering clarity contracts', () => {
 
     const indexCss = read('src/index.css');
     expect(indexCss).toMatch(/OPT-K82/);
-    expect(indexCss).toMatch(/--color-accent-emerald:\s*#3d9a78/);
+    /* K88 supersedes dark emerald/amber slightly above Minimal mid-chroma */
+    expect(indexCss).toMatch(/--color-accent-emerald:\s*#449e80/);
     expect(indexCss).toMatch(/--color-accent-violet:\s*#7a7598/);
     expect(indexCss).toMatch(/--palette-green:\s*#3d8a62/);
     expect(indexCss).toMatch(/--palette-amber:\s*#b0892e/);
@@ -266,8 +267,8 @@ describe('OPT-K69 engineering clarity contracts', () => {
   it('K86 — non-Minimal accent quiet (usage + soft-fill + mid-chroma tokens)', () => {
     const indexCss = read('src/index.css');
     expect(indexCss).toMatch(/OPT-K86/);
-    expect(indexCss).toMatch(/--color-accent-amber:\s*#b0892e/);
-    expect(indexCss).toMatch(/--color-accent-amber:\s*#c4a04a/);
+    expect(indexCss).toMatch(/--color-accent-amber:\s*#b89438/);
+    expect(indexCss).toMatch(/--color-accent-amber:\s*#b89440/);
     expect(indexCss).toMatch(/color-mix\(in srgb, var\(--color-accent-amber\) 12%/);
     expect(indexCss).toMatch(/color-mix\(in srgb, var\(--color-accent-rose\) 48%, var\(--color-text-secondary\)\)/);
 
@@ -280,6 +281,57 @@ describe('OPT-K69 engineering clarity contracts', () => {
     expect(dash).toMatch(/Clock className="w-3\.5 h-3\.5 text-text-secondary"/);
     expect(dash).not.toMatch(/Flame className="w-3\.5 h-3\.5 text-accent-amber"/);
     expect(dash).not.toMatch(/Target className="w-3\.5 h-3\.5 text-accent-teal"/);
+  });
+
+  it('K88 — non-Minimal mastery bar hues follow Minimal mid-chroma (dark/blueprint/warm-sand)', () => {
+    const indexCss = read('src/index.css');
+    expect(indexCss).toMatch(/OPT-K88/);
+    expect(indexCss).toMatch(/--mastery-developing:\s*#689eb0/);
+    expect(indexCss).toMatch(/--mastery-developing:\s*#5a9eb0/);
+    expect(indexCss).toMatch(/--mastery-developing:\s*#6a949e/);
+    expect(indexCss).toMatch(/--color-accent-cyan:\s*#5a9eb0/);
+    expect(indexCss).not.toMatch(/--mastery-developing:\s*#62c2d1/);
+    expect(indexCss).toMatch(/data-theme="warm-sand"/);
+    expect(indexCss).toMatch(/data-mastery-band="weak"/);
+    expect(indexCss).toMatch(/saturate\(0\.7\)/);
+    expect(indexCss).toMatch(/saturate\(0\.55\)/);
+    expect(indexCss).toMatch(/color-mix\(in srgb, var\(--mastery-weak\) 68%, var\(--color-surface-card\)\)/);
+    expect(indexCss).toMatch(/dashboard-retrieval-strength-bar/);
+
+    const bars = read('src/components/visuals/ConceptMasteryBars.tsx');
+    expect(bars).toMatch(/data-mastery-band=\{band\}/);
+    expect(bars).toMatch(/mastery-bar-fill/);
+  });
+
+  it('K89 — dark non-Minimal central brand lifted ~2.5%', () => {
+    const indexCss = read('src/index.css');
+    expect(indexCss).toMatch(/OPT-K89/);
+    expect(indexCss).toMatch(/--color-brand-500:\s*#5e7997/);
+    expect(indexCss).toMatch(/--color-brand-600:\s*#4f6683/);
+    expect(indexCss).toMatch(/--color-brand-500:\s*#0cb8d5/);
+    expect(indexCss).toMatch(/--color-brand-600:\s*#0e94b4/);
+    expect(indexCss).not.toMatch(/--color-brand-500:\s*#5a7694/);
+    expect(indexCss).not.toMatch(/--color-brand-500:\s*#06b6d4/);
+  });
+
+  it('K87 — non-Minimal accent panel borders unify to border-subtle grey', () => {
+    const indexCss = read('src/index.css');
+    expect(indexCss).toMatch(/OPT-K87/);
+    expect(indexCss).toMatch(/--color-banner-warn-border:\s*var\(--color-border-subtle\)/);
+    expect(indexCss).toMatch(/\.ux-callout-warn/);
+    expect(indexCss).toMatch(/\.platform-banner-danger/);
+    expect(indexCss).toMatch(/border-accent-amber\\\/20/);
+    expect(indexCss).toMatch(/border-left-color:\s*var\(--color-border-subtle\)/);
+    expect(indexCss).toMatch(/\[class\*="border-accent-"\]/);
+    expect(indexCss).toMatch(/\.ux-page-header-icon/);
+    expect(indexCss).toMatch(/\.ux-progress-track/);
+
+    const alertGrid = read('src/components/DashboardAlertGrid.tsx');
+    expect(alertGrid).toMatch(/border-border-subtle bg-brand-600\/5/);
+    expect(alertGrid).toMatch(/border-border-subtle bg-accent-cyan\/5/);
+    expect(alertGrid).toMatch(/border-border-subtle bg-accent-rose\/5/);
+    expect(alertGrid).toMatch(/border-border-subtle bg-accent-amber\/5/);
+    expect(alertGrid).not.toMatch(/border-accent-rose\/25/);
   });
 
   it('K79 — Minimal accent chroma/hue rebalance (semantic + categorical)', () => {

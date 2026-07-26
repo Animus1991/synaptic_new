@@ -12,24 +12,25 @@
   /* Brand + surfaces: dark defaults; light mode overrides via [data-theme="light"] Warm Sand (F1).
      Dark brand is steel-slate blue (lower chroma than electric Tailwind blue) so CTAs
      don’t fight purple-tinted chrome. Surfaces are neutral charcoal — not indigo fog. */
+  /* OPT-K89 — dark brand lifted ~2.5% so central steel reads a touch airier */
   --color-brand-50: #eef2f6;
   --color-brand-100: #d8e0ea;
   --color-brand-200: #b4c3d4;
   --color-brand-300: #8da4bc;
-  --color-brand-400: #6b87a4;
-  --color-brand-500: #5a7694;
-  --color-brand-600: #4a6280;
-  --color-brand-700: #3d516a;
-  --color-brand-800: #324356;
-  --color-brand-900: #283646;
+  --color-brand-400: #6f8aa6;
+  --color-brand-500: #5e7997;
+  --color-brand-600: #4f6683;
+  --color-brand-700: #42556e;
+  --color-brand-800: #37485a;
+  --color-brand-900: #2d3b4b;
   --color-brand-950: #1a2430;
 
-  /* OPT-K82/K86 — dark/blueprint accents: Minimal-light mid-chroma (not neon, not mud) */
+  /* OPT-K82/K88 — dark accents: Minimal mid-chroma, slightly more vivid (not neon) */
   --color-accent-teal: #5f8f8a;
-  --color-accent-cyan: #4a8fa3;
-  --color-accent-emerald: #3d9a78;
-  --color-accent-amber: #b0892e;
-  --color-accent-rose: #c45c6a;
+  --color-accent-cyan: #689eb0;
+  --color-accent-emerald: #449e80;
+  --color-accent-amber: #b89438;
+  --color-accent-rose: #c96874;
   --color-accent-orange: #c47d4a;
   --color-accent-violet: #7a7598;
 
@@ -106,17 +107,17 @@
 
   --viz-grid-line: #1c1c1f;
 
-  /* Mastery + viz palette (dark) — OPT-K86 aligned to Minimal mid-chroma */
-  --mastery-weak: #c45c6a;
-  --mastery-developing: #4a8fa3;
-  --mastery-proficient: #b0892e;
-  --mastery-strong: #3d9a78;
+  /* Mastery + viz palette (dark) — OPT-K88: Minimal mid-chroma, slightly more vivid */
+  --mastery-weak: #c96874;
+  --mastery-developing: #689eb0;
+  --mastery-proficient: #b89438;
+  --mastery-strong: #449e80;
   --palette-purple: #7a7598;
-  --palette-cyan: #4a8fa3;
+  --palette-cyan: #689eb0;
   --palette-teal: #5f8f8a;
-  --palette-green: #3d9a78;
-  --palette-amber: #b0892e;
-  --palette-rose: #c45c6a;
+  --palette-green: #449e80;
+  --palette-amber: #b89438;
+  --palette-rose: #c96874;
   --palette-orange: #c47d4a;
 
   /* Light theme is the typography SoT for every theme (optical size parity). */
@@ -374,17 +375,17 @@
   --color-banner-warn-ink: color-mix(in srgb, #9d7c4c 55%, #352c23);
   --color-banner-warn-border: color-mix(in srgb, var(--color-banner-warn-ink) 58%, var(--color-border-subtle));
 
-  /* OPT-K82 — warm-sand accents (parity with light earth rebalance) */
-  --mastery-weak: #b45c5c;
-  --mastery-developing: #5a7a82;
-  --mastery-proficient: #a87830;
-  --mastery-strong: #3d8a62;
+  /* OPT-K88 — warm-sand mastery: Minimal mid-chroma, earth-aligned, slightly more vivid */
+  --mastery-weak: #c07070;
+  --mastery-developing: #6a949e;
+  --mastery-proficient: #b89438;
+  --mastery-strong: #449e80;
   --palette-purple: #7a6a8e;
-  --palette-cyan: #5a7a82;
+  --palette-cyan: #6a949e;
   --palette-teal: #4a7a6e;
-  --palette-green: #3d8a62;
-  --palette-amber: #a87830;
-  --palette-rose: #b45c5c;
+  --palette-green: #449e80;
+  --palette-amber: #b89438;
+  --palette-rose: #c07070;
   --palette-orange: #b87840;
   --color-accent-emerald: var(--palette-green);
   --color-accent-amber: var(--palette-amber);
@@ -855,43 +856,44 @@
   --color-text-tertiary: #bdcadd;
   --color-text-muted: #9faec1;
 
+  /* OPT-K89 — blueprint cyan brand lifted ~2.5% (central glass identity stays) */
   --color-brand-50: #ecfeff;
   --color-brand-100: #cffafe;
   --color-brand-200: #a5f3fc;
   --color-brand-300: #67e8f9;
-  --color-brand-400: #22d3ee;
-  --color-brand-500: #06b6d4;
-  --color-brand-600: #0891b2;
-  --color-brand-700: #0e7490;
-  --color-brand-800: #155e75;
+  --color-brand-400: #28d4ee;
+  --color-brand-500: #0cb8d5;
+  --color-brand-600: #0e94b4;
+  --color-brand-700: #147793;
+  --color-brand-800: #1b6278;
   --color-brand-900: #164e63;
   --color-brand-950: #083344;
 
-  /* Complements — cyan-glass family; OPT-K86 mid-chroma amber/orange (Minimal method) */
-  --color-accent-teal: #43a498;
-  --color-accent-cyan: #62c2d1;
-  --color-accent-emerald: #55b899;
-  --color-accent-amber: #c4a04a;
-  --color-accent-rose: #c48585;
-  --color-accent-orange: #c49068;
-  --color-accent-violet: #9199c1;
+  /* Complements — cyan-glass family; OPT-K88 mid-chroma (steel, not neon bars) */
+  --color-accent-teal: #4a908a;
+  --color-accent-cyan: #5a9eb0;
+  --color-accent-emerald: #4a9e88;
+  --color-accent-amber: #b89440;
+  --color-accent-rose: #c07078;
+  --color-accent-orange: #b88860;
+  --color-accent-violet: #858db0;
 
   --viz-track: color-mix(in srgb, #ffffff 8%, #182033);
   --viz-node-fill: #182033;
   --viz-canvas-bg: color-mix(in srgb, #ffffff 3%, #0b1020);
   --viz-grid-line: color-mix(in srgb, #ffffff 6%, #0b1020);
 
-  --mastery-weak: #c48585;
-  --mastery-developing: #62c2d1;
-  --mastery-proficient: #c4a04a;
-  --mastery-strong: #55b899;
-  --palette-purple: #9199c1;
-  --palette-cyan: #62c2d1;
-  --palette-teal: #43a498;
-  --palette-green: #55b899;
-  --palette-amber: #c4a04a;
-  --palette-rose: #c48585;
-  --palette-orange: #c49068;
+  --mastery-weak: #c07078;
+  --mastery-developing: #5a9eb0;
+  --mastery-proficient: #b89440;
+  --mastery-strong: #4a9e88;
+  --palette-purple: #858db0;
+  --palette-cyan: #5a9eb0;
+  --palette-teal: #4a908a;
+  --palette-green: #4a9e88;
+  --palette-amber: #b89440;
+  --palette-rose: #c07078;
+  --palette-orange: #b88860;
   /* Warn outlines on cyan-glass: bright amber alone washes out — mix with cyan brand. */
   --color-banner-warn-ink: color-mix(in srgb, var(--palette-amber) 55%, #e2e8f0);
   --color-banner-warn-border: color-mix(in srgb, var(--palette-amber) 42%, var(--color-brand-400));
@@ -5699,4 +5701,221 @@ body { letter-spacing: -0.005em; }
 :is([data-theme="dark"], [data-theme="blueprint"])
   .app-shell .bg-accent-orange {
   background-color: color-mix(in srgb, var(--color-accent-orange) 50%, var(--color-surface-card)) !important;
+}
+
+/* ========== OPT-K87 — non-Minimal accent borders → neutral grey ========== */
+/*
+ * Keep radii + soft fills; unify outlines with dark/neutral cards
+ * (same --color-border-subtle as StatCards / chrome).
+ */
+:is([data-theme="dark"], [data-theme="blueprint"], [data-theme="light"], [data-theme="spectrum"], [data-theme="warm-sand"])
+  .app-shell {
+  --color-banner-warn-border: var(--color-border-subtle);
+}
+
+:is([data-theme="dark"], [data-theme="blueprint"], [data-theme="light"], [data-theme="spectrum"], [data-theme="warm-sand"])
+  .app-shell :is(
+    .border-accent-teal\/20,
+    .border-accent-teal\/25,
+    .border-accent-teal\/30,
+    .border-accent-cyan\/20,
+    .border-accent-cyan\/25,
+    .border-accent-cyan\/30,
+    .border-accent-cyan\/35,
+    .border-accent-cyan\/40,
+    .border-accent-cyan\/45,
+    .border-accent-emerald\/20,
+    .border-accent-emerald\/25,
+    .border-accent-emerald\/30,
+    .border-accent-emerald\/35,
+    .border-accent-emerald\/40,
+    .border-accent-amber\/20,
+    .border-accent-amber\/25,
+    .border-accent-amber\/30,
+    .border-accent-amber\/40,
+    .border-accent-amber\/50,
+    .border-accent-amber\/60,
+    .border-accent-rose\/20,
+    .border-accent-rose\/30,
+    .border-accent-rose\/40,
+    .border-accent-orange\/20,
+    .border-accent-orange\/30,
+    .border-accent-violet\/20,
+    .border-accent-violet\/25,
+    .border-brand-500\/20,
+    .border-brand-500\/25,
+    .border-brand-500\/30
+  ) {
+  border-color: var(--color-border-subtle) !important;
+}
+
+:is([data-theme="dark"], [data-theme="blueprint"], [data-theme="light"], [data-theme="spectrum"], [data-theme="warm-sand"])
+  .app-shell :is(
+    .border-l-accent-amber,
+    .border-l-accent-rose,
+    .border-l-accent-emerald,
+    .border-l-accent-cyan,
+    .border-l-accent-teal,
+    .border-l-accent-orange,
+    .border-accent-amber,
+    .border-accent-rose,
+    .border-accent-emerald,
+    .border-accent-cyan,
+    .border-accent-teal,
+    .border-accent-orange
+  ) {
+  border-color: var(--color-border-subtle) !important;
+}
+
+:is([data-theme="dark"], [data-theme="blueprint"], [data-theme="light"], [data-theme="spectrum"], [data-theme="warm-sand"])
+  .app-shell :is(
+    .ux-callout-trust,
+    .ux-callout-danger,
+    .ux-callout-next,
+    .ux-callout-info,
+    .ux-callout-warn,
+    .ux-banner-warn,
+    .platform-banner-warn,
+    .platform-banner-danger,
+    .platform-banner-brand,
+    .dashboard-live-preview
+  ) {
+  border-color: var(--color-border-subtle) !important;
+}
+
+:is([data-theme="dark"], [data-theme="blueprint"], [data-theme="light"], [data-theme="spectrum"], [data-theme="warm-sand"])
+  .app-shell :is(
+    .border-l-accent-amber,
+    .border-l-accent-rose,
+    .border-l-accent-emerald,
+    .border-l-accent-cyan,
+    .border-l-accent-teal,
+    .border-l-accent-orange
+  ) {
+  border-left-color: var(--color-border-subtle) !important;
+}
+
+/* Catch remaining accent/brand border utilities (icon wells, chips, bars) */
+:is([data-theme="dark"], [data-theme="blueprint"], [data-theme="light"], [data-theme="spectrum"], [data-theme="warm-sand"])
+  .app-shell [class*="border-accent-"],
+:is([data-theme="dark"], [data-theme="blueprint"], [data-theme="light"], [data-theme="spectrum"], [data-theme="warm-sand"])
+  .app-shell [class*="border-l-accent-"],
+:is([data-theme="dark"], [data-theme="blueprint"], [data-theme="light"], [data-theme="spectrum"], [data-theme="warm-sand"])
+  .app-shell [class*="border-brand-"] {
+  border-color: var(--color-border-subtle) !important;
+}
+
+:is([data-theme="dark"], [data-theme="blueprint"], [data-theme="light"], [data-theme="spectrum"], [data-theme="warm-sand"])
+  .app-shell [class*="border-l-accent-"] {
+  border-left-color: var(--color-border-subtle) !important;
+}
+
+/* Icon wells / page-header glyph frames */
+:is([data-theme="dark"], [data-theme="blueprint"], [data-theme="light"], [data-theme="spectrum"], [data-theme="warm-sand"])
+  .app-shell :is(.ux-page-header-icon, .ux-trust-badge-grounded, .ux-trust-badge-enrichment) {
+  border-color: var(--color-border-subtle) !important;
+}
+
+/* Progress / mastery bar tracks — outline grey; fill hue may remain */
+:is([data-theme="dark"], [data-theme="blueprint"], [data-theme="light"], [data-theme="spectrum"], [data-theme="warm-sand"])
+  .app-shell :is(
+    .ux-progress-track,
+    .dashboard-progress-track,
+    .dashboard-live-preview-progress-track
+  ) {
+  border-color: var(--color-border-subtle) !important;
+  box-shadow: none;
+  outline-color: var(--color-border-subtle);
+}
+
+/* Faux 1px accent rings (box-shadow borders) → grey hairline */
+:is([data-theme="dark"], [data-theme="blueprint"], [data-theme="light"], [data-theme="spectrum"], [data-theme="warm-sand"])
+  .app-shell .ux-spark-panel.ux-callout-next {
+  box-shadow: 0 0 0 1px var(--color-border-subtle) !important;
+}
+
+/* ========== OPT-K88 — non-Minimal bar hues (Minimal mid-chroma logic) ========== */
+/*
+ * dark + blueprint + warm-sand. Bars slightly more vivid than Minimal
+ * (saturate ~0.68 vs Minimal-light 0.28 / Minimal-dark 0.55), soft-mixed
+ * into the card so they don't steal focus from brand / central theme colors.
+ */
+:is([data-theme="dark"], [data-theme="blueprint"], [data-theme="warm-sand"])
+  .app-shell .concept-mastery-bars .proximity-track[data-mastery-band="weak"] .mastery-bar-fill {
+  background-color: color-mix(in srgb, var(--mastery-weak) 68%, var(--color-surface-card)) !important;
+  filter: saturate(0.7) brightness(0.98);
+  opacity: 0.94;
+}
+
+:is([data-theme="dark"], [data-theme="blueprint"], [data-theme="warm-sand"])
+  .app-shell .concept-mastery-bars .proximity-track[data-mastery-band="developing"] .mastery-bar-fill {
+  background-color: color-mix(in srgb, var(--mastery-developing) 66%, var(--color-surface-card)) !important;
+  filter: saturate(0.68) brightness(0.98);
+  opacity: 0.94;
+}
+
+:is([data-theme="dark"], [data-theme="blueprint"], [data-theme="warm-sand"])
+  .app-shell .concept-mastery-bars .proximity-track[data-mastery-band="proficient"] .mastery-bar-fill {
+  background-color: color-mix(in srgb, var(--mastery-proficient) 66%, var(--color-surface-card)) !important;
+  filter: saturate(0.68) brightness(0.98);
+  opacity: 0.94;
+}
+
+:is([data-theme="dark"], [data-theme="blueprint"], [data-theme="warm-sand"])
+  .app-shell .concept-mastery-bars .proximity-track[data-mastery-band="strong"] .mastery-bar-fill {
+  background-color: color-mix(in srgb, var(--mastery-strong) 66%, var(--color-surface-card)) !important;
+  filter: saturate(0.7) brightness(0.98);
+  opacity: 0.94;
+}
+
+/* Band % labels — secondary ink (bars carry the quiet hue) */
+:is([data-theme="dark"], [data-theme="blueprint"], [data-theme="warm-sand"])
+  .app-shell .concept-mastery-bars .proximity-row span[style*="color"] {
+  color: var(--color-text-secondary) !important;
+  font-weight: 500;
+}
+
+/* Weak / mid / strong dashboard progress fills */
+:is([data-theme="dark"], [data-theme="blueprint"], [data-theme="warm-sand"])
+  .app-shell .dashboard-progress-fill--weak {
+  background: color-mix(in srgb, var(--mastery-weak) 62%, var(--color-surface-card)) !important;
+  filter: saturate(0.7) brightness(0.98);
+  opacity: 0.94;
+}
+
+:is([data-theme="dark"], [data-theme="blueprint"], [data-theme="warm-sand"])
+  .app-shell .dashboard-progress-fill--mid {
+  background: color-mix(in srgb, var(--mastery-developing) 58%, var(--color-surface-card)) !important;
+  filter: saturate(0.65) brightness(0.98);
+  opacity: 0.92;
+}
+
+:is([data-theme="dark"], [data-theme="blueprint"], [data-theme="warm-sand"])
+  .app-shell .dashboard-progress-fill--strong {
+  background: color-mix(in srgb, var(--mastery-strong) 60%, var(--color-surface-card)) !important;
+  filter: saturate(0.68) brightness(0.98);
+  opacity: 0.94;
+}
+
+/* Retrieval / amber signal bars — same mid-chroma restraint */
+:is([data-theme="dark"], [data-theme="blueprint"], [data-theme="warm-sand"])
+  .app-shell [data-testid="dashboard-retrieval-strength-bar"] .ux-progress-track > div {
+  background-color: color-mix(in srgb, var(--palette-amber) 64%, var(--color-surface-card)) !important;
+  filter: saturate(0.68) brightness(0.98);
+  opacity: 0.94;
+}
+
+:is([data-theme="dark"], [data-theme="blueprint"], [data-theme="warm-sand"])
+  .app-shell .mastery-ring {
+  filter: saturate(0.62) brightness(0.98);
+}
+
+/* Warm-sand light: slightly airier fills (cream card, not charcoal mix) */
+[data-theme="warm-sand"] .app-shell .concept-mastery-bars .mastery-bar-fill,
+[data-theme="warm-sand"] .app-shell .dashboard-progress-fill--weak,
+[data-theme="warm-sand"] .app-shell .dashboard-progress-fill--mid,
+[data-theme="warm-sand"] .app-shell .dashboard-progress-fill--strong,
+[data-theme="warm-sand"] .app-shell [data-testid="dashboard-retrieval-strength-bar"] .ux-progress-track > div {
+  filter: saturate(0.55) brightness(1.02);
+  opacity: 0.9;
 }
