@@ -391,12 +391,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
         />
       </MotionSection>
 
-      <div
-        className={cn(
-          'mt-3 sm:mt-4 px-4 sm:px-6 lg:px-8',
-          isMinimal ? 'dashboard-breath-stack flex flex-col' : 'space-y-2.5 sm:space-y-3',
-        )}
-      >
+      <div className="mt-3 sm:mt-4 px-4 sm:px-6 lg:px-8 dashboard-breath-stack flex flex-col">
       {postUploadCourse && (
         <MotionSection initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
           <PostUploadBanner

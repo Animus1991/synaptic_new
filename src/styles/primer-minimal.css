@@ -866,25 +866,25 @@
 }
 
 /* Panel / hub section titles (Εργασίες προτεραιότητας, Ενεργά μαθήματα, …)
-   OPT-K80/81 −3%×2 then OPT-K82 −2% more → ×0.9221 */
+   … then OPT-K84 −2% more → ×0.9037 */
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm :is(
   .dashboard-panel-title,
   .hub-section-title
 ) {
-  font-size: calc(1.125rem * 0.9221) !important; /* text-lg ×0.97² ×0.98 */
+  font-size: calc(1.125rem * 0.9037) !important;
 }
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm .hub-section-title {
-  font-size: calc(var(--type-meta, 0.8125rem) * 0.9221) !important;
+  font-size: calc(var(--type-meta, 0.8125rem) * 0.9037) !important;
 }
 
 /* Panel actions + empty comfort (Όλες, Βιβλιοθήκη, Όλα εντάξει!)
-   OPT-K80/81 −2%×2 then OPT-K82 −2% more → ×0.9412 */
+   … then OPT-K84 −2% more → ×0.9224 */
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm :is(
   .dashboard-panel-action,
   .dashboard-panel-empty
 ) {
-  font-size: calc(0.875rem * 0.9412) !important; /* text-sm ×0.98³ */
+  font-size: calc(0.875rem * 0.9224) !important;
 }
 
 /* ========== OPT-K81 — Breathing rhythm + quieter empty + one primary ==========
@@ -896,7 +896,7 @@
   --space-4: 1rem;     /* 16px */
 }
 
-/* Outer dashboard vertical rhythm → 12px, 16px from sm */
+/* Outer dashboard vertical rhythm → 12px, 16px from sm (Minimal; non-Minimal via OPT-K84) */
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm .dashboard-breath-stack {
   gap: var(--space-3);
 }
@@ -939,4 +939,7 @@
 }
 
 /* ========== OPT-K82 — Panel type −2% (all listed categories) ========== */
-/* Scales applied above (×0.9221 / ×0.9412). Marker for contracts. */
+/* Scales superseded by OPT-K84 (×0.9037 / ×0.9224). Marker kept for contracts. */
+
+/* ========== OPT-K84 — Panel type −2% more ========== */
+/* Scales applied above. */

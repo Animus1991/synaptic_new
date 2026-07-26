@@ -206,8 +206,6 @@ describe('OPT-K69 engineering clarity contracts', () => {
   it('K82 — panel type −2% more + non-Minimal accent rebalance', () => {
     const primer = read('src/styles/primer-minimal.css');
     expect(primer).toMatch(/OPT-K82/);
-    expect(primer).toMatch(/0\.9221/);
-    expect(primer).toMatch(/0\.9412/);
 
     const indexCss = read('src/index.css');
     expect(indexCss).toMatch(/OPT-K82/);
@@ -215,6 +213,23 @@ describe('OPT-K69 engineering clarity contracts', () => {
     expect(indexCss).toMatch(/--color-accent-violet:\s*#7a7598/);
     expect(indexCss).toMatch(/--palette-green:\s*#3d8a62/);
     expect(indexCss).toMatch(/--palette-amber:\s*#b0892e/);
+  });
+
+  it('K84 — panel −2% + Minimal clarity transferred to non-Minimal themes', () => {
+    const primer = read('src/styles/primer-minimal.css');
+    expect(primer).toMatch(/OPT-K84/);
+    expect(primer).toMatch(/0\.9037/);
+    expect(primer).toMatch(/0\.9224/);
+
+    const indexCss = read('src/index.css');
+    expect(indexCss).toMatch(/OPT-K84/);
+    expect(indexCss).toMatch(/dashboard-execute-cta/);
+    expect(indexCss).toMatch(/dashboard-breath-stack/);
+    expect(indexCss).toMatch(/0\.9037/);
+
+    const dash = read('src/components/Dashboard.tsx');
+    expect(dash).toMatch(/dashboard-breath-stack flex flex-col/);
+    expect(dash).not.toMatch(/isMinimal \? 'dashboard-breath-stack/);
   });
 
   it('K79 — Minimal accent chroma/hue rebalance (semantic + categorical)', () => {
