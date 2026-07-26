@@ -401,6 +401,37 @@ describe('OPT-K69 engineering clarity contracts', () => {
     expect(reader).toMatch(/annotateMode \? 'ws-chip-warn'/);
   });
 
+  it('K97 — Teacher / analytics bridge', () => {
+    const indexCss = read('src/index.css');
+    expect(indexCss).toMatch(/OPT-K97/);
+    expect(indexCss).toMatch(/Teacher \/ analytics bridge/);
+    expect(indexCss).toMatch(/teacher-dashboard/);
+    expect(indexCss).toMatch(/analytics-page/);
+    expect(indexCss).toMatch(/learning-timeline/);
+
+    const teacher = read('src/components/TeacherDashboard.tsx');
+    expect(teacher).toMatch(/OPT-K97/);
+    expect(teacher).toMatch(/text-text-secondary/);
+    expect(teacher).not.toMatch(/Users className="w-5 h-5 text-brand-400"/);
+    expect(teacher).not.toMatch(/border-brand-500\/40 bg-brand-500\/10 text-brand-300/);
+    expect(teacher).toMatch(/ink-allow-accent/);
+
+    const insights = read('src/components/analytics/AIInsightsPanel.tsx');
+    expect(insights).toMatch(/OPT-K97/);
+    expect(insights).toMatch(/bg-surface-secondary\/60/);
+    expect(insights).not.toMatch(/border-brand-500\/25 bg-brand-600\/5/);
+
+    const timeline = read('src/components/analytics/LearningTimelineChart.tsx');
+    expect(timeline).toMatch(/OPT-K97/);
+    expect(timeline).toMatch(/bg-surface-secondary\/70/);
+    expect(timeline).toMatch(/ink-allow-accent/);
+
+    const kpis = read('src/components/analytics/ProgressInsightsSections.tsx');
+    expect(kpis).toMatch(/text-text-tertiary/);
+    expect(kpis).toMatch(/ink-allow-accent/);
+    expect(kpis).not.toMatch(/Icon className="w-3\.5 h-3\.5 text-brand-400"/);
+  });
+
   it('K93 — cross-pollinate sweetness ↔ clarity', () => {
     const indexCss = read('src/index.css');
     expect(indexCss).toMatch(/OPT-K93/);

@@ -6336,3 +6336,88 @@ body { letter-spacing: -0.005em; }
   [data-testid="study-workspace"] [data-testid="notebook-source-list"] .rounded-xl:hover {
   background-color: color-mix(in srgb, var(--color-brand-600) 4%, var(--color-surface-hover));
 }
+
+/* ========== OPT-K97 - Teacher / analytics bridge ========== */
+/*
+ * Dense admin + insight pages: brand-as-icon + cyan meta + multi-hue timeline
+ * chrome compete with KPI/mastery fills. Keep chart fills; calm chrome to ink.
+ */
+:is(
+  [data-testid="teacher-dashboard"],
+  [data-testid="analytics-page"],
+  [data-testid="ai-insights-panel"]
+) {
+  /* Soft cyan chrome -> neutral */
+}
+:is(
+  [data-testid="teacher-dashboard"],
+  [data-testid="analytics-page"],
+  [data-testid="ai-insights-panel"]
+) [class*="bg-accent-cyan/"] {
+  background-color: var(--color-surface-secondary) !important;
+}
+:is(
+  [data-testid="teacher-dashboard"],
+  [data-testid="analytics-page"],
+  [data-testid="ai-insights-panel"]
+) [class*="border-accent-cyan/"] {
+  border-color: var(--color-border-subtle) !important;
+}
+
+/* Soft brand wells on admin cards -> quiet surface (solid CTAs untouched) */
+:is(
+  [data-testid="teacher-dashboard"],
+  [data-testid="analytics-page"],
+  [data-testid="ai-insights-panel"]
+) [class*="bg-brand-"][class*="/"]:not(.ux-primary-cta):not([role="progressbar"]) {
+  background-color: var(--color-surface-secondary) !important;
+}
+:is(
+  [data-testid="teacher-dashboard"],
+  [data-testid="analytics-page"],
+  [data-testid="ai-insights-panel"]
+) [class*="border-brand-"][class*="/"]:not(.ux-primary-cta) {
+  border-color: var(--color-border-subtle) !important;
+}
+
+/* Timeline categorical washes -> one calm well (delta/dot keep semantic) */
+[data-testid="learning-timeline"] button.rounded-xl.border {
+  background-color: var(--color-surface-secondary) !important;
+  border-color: var(--color-border-subtle) !important;
+  color: var(--color-text-primary) !important;
+}
+
+/* Allowlisted outcome TYPE (KPI subs, deltas, danger links) */
+:is(
+  [data-testid="teacher-dashboard"],
+  [data-testid="analytics-page"],
+  [data-testid="progress-kpi-row"],
+  [data-testid="learning-timeline"],
+  [data-testid="ai-insights-panel"]
+) .ink-allow-accent[class*="text-accent-emerald"] {
+  color: color-mix(in srgb, var(--color-accent-emerald) 55%, var(--color-text-primary)) !important;
+}
+:is(
+  [data-testid="teacher-dashboard"],
+  [data-testid="analytics-page"],
+  [data-testid="progress-kpi-row"],
+  [data-testid="learning-timeline"],
+  [data-testid="ai-insights-panel"]
+) .ink-allow-accent[class*="text-accent-rose"] {
+  color: color-mix(in srgb, var(--color-accent-rose) 55%, var(--color-text-primary)) !important;
+}
+:is(
+  [data-testid="teacher-dashboard"],
+  [data-testid="analytics-page"],
+  [data-testid="progress-kpi-row"]
+) .ink-allow-accent[class*="text-accent-amber"] {
+  color: color-mix(in srgb, var(--color-accent-amber) 50%, var(--color-text-primary)) !important;
+}
+
+/* Minimal sweetness: soft section headers on dense admin pages */
+:is([data-theme="minimal"], [data-theme="minimal-dark"])
+  [data-testid="teacher-dashboard"] .ux-flow-panel,
+:is([data-theme="minimal"], [data-theme="minimal-dark"])
+  [data-testid="analytics-page"] .ux-card {
+  background: color-mix(in srgb, var(--color-brand-600) 2.5%, var(--color-surface-card));
+}

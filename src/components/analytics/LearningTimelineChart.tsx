@@ -5,13 +5,14 @@ import { cn } from '../../utils/cn';
 import { BlueprintSurface } from '../ui/BlueprintSurface';
 import { AllCapsLabel } from '../ui/AllCapsLabel';
 
+/* OPT-K97 — event cards share calm wells; delta/dot carry semantic chroma */
 const TYPE_STYLE: Record<TimelineEventType, { border: string; bg: string; text: string }> = {
-  lesson: { border: 'border-accent-cyan/30', bg: 'bg-accent-cyan/10', text: 'text-text-primary' },
-  quiz: { border: 'border-accent-violet/30', bg: 'bg-accent-violet/10', text: 'text-text-primary' },
-  review: { border: 'border-accent-emerald/30', bg: 'bg-accent-emerald/10', text: 'text-text-primary' },
-  error: { border: 'border-accent-rose/30', bg: 'bg-accent-rose/10', text: 'text-text-primary' },
-  mastery: { border: 'border-accent-amber/30', bg: 'bg-accent-amber/10', text: 'text-text-primary' },
-  task: { border: 'border-brand-500/25', bg: 'bg-brand-500/8', text: 'text-text-primary' },
+  lesson: { border: 'border-border-subtle', bg: 'bg-surface-secondary/70', text: 'text-text-primary' },
+  quiz: { border: 'border-border-subtle', bg: 'bg-surface-secondary/70', text: 'text-text-primary' },
+  review: { border: 'border-border-subtle', bg: 'bg-surface-secondary/70', text: 'text-text-primary' },
+  error: { border: 'border-border-subtle', bg: 'bg-surface-secondary/70', text: 'text-text-primary' },
+  mastery: { border: 'border-border-subtle', bg: 'bg-surface-secondary/70', text: 'text-text-primary' },
+  task: { border: 'border-border-subtle', bg: 'bg-surface-secondary/70', text: 'text-text-primary' },
 };
 
 type Props = {
@@ -50,7 +51,7 @@ export function LearningTimelineChart({
   return (
     <BlueprintSurface data-testid="learning-timeline">
       <h3 className="text-sm font-semibold text-text-primary mb-1 flex items-center gap-2">
-        <Calendar className="w-4 h-4 text-brand-400" />
+        <Calendar className="w-4 h-4 text-text-secondary" />
         {title}
       </h3>
       <p className="text-xs text-text-tertiary mb-4">{hint}</p>
@@ -85,7 +86,7 @@ export function LearningTimelineChart({
                       {event.delta !== 0 && (
                         <span
                           className={cn(
-                            'text-xs font-bold tabular-nums',
+                            'text-xs font-bold tabular-nums ink-allow-accent',
                             event.delta > 0 ? 'text-accent-emerald' : 'text-accent-rose',
                           )}
                         >

@@ -46,12 +46,13 @@ export function ProgressKpiRow({ kpis }: { kpis: ProgressKpi[] }) {
         return (
           <div key={kpi.label} className="ux-card p-2.5">
             <div className="flex items-center gap-1.5 mb-0.5">
-              <Icon className="w-3.5 h-3.5 text-brand-400" />
+              <Icon className="w-3.5 h-3.5 text-text-tertiary" />
               <span className="text-[10px] uppercase tracking-wide text-text-tertiary truncate"><AllCapsLabel>{kpi.label}</AllCapsLabel></span>
             </div>
             <p className="text-sm font-bold tabular-nums text-text-primary sm:text-base">{kpi.value}</p>
             <p className={cn(
               'text-[10px] mt-0.5',
+              kpi.tone === 'good' || kpi.tone === 'warn' ? 'ink-allow-accent' : null,
               kpi.tone === 'good' ? 'text-accent-emerald' : kpi.tone === 'warn' ? 'text-accent-amber' : 'text-text-tertiary',
             )}>
               {kpi.sub}
@@ -109,7 +110,7 @@ export function LearningRadarChart({ dimensions, title }: { dimensions: RadarDim
   return (
     <div className="ux-card flex flex-col items-center" data-testid="learning-radar-chart">
       <h3 className="text-sm font-semibold text-text-primary mb-4 self-start flex items-center gap-2">
-        <TrendingUp className="w-4 h-4 text-brand-400" />
+        <TrendingUp className="w-4 h-4 text-text-secondary" />
         {title}
       </h3>
       <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="max-w-full">
@@ -148,7 +149,7 @@ export function LearnerInsightCards({ insights, title }: { insights: ProgressIns
   return (
     <div className="ux-card" data-testid="learner-insight-cards">
       <h3 className="text-sm font-semibold text-text-primary mb-4 flex items-center gap-2">
-        <Brain className="w-4 h-4 text-brand-400" />
+        <Brain className="w-4 h-4 text-text-secondary" />
         {title}
       </h3>
       <div className="space-y-3">

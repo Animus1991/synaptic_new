@@ -130,6 +130,7 @@ export function AIInsightsPanel({
 
   return (
     <div className={cn('space-y-3', className)} data-testid="ai-insights-panel" aria-busy={busy || undefined}>
+      {/* OPT-K97 — analytics insight chrome as ink */}
       <SectionLabel
         icon={Lightbulb}
         action={(
@@ -137,7 +138,7 @@ export function AIInsightsPanel({
             <button
               type="button"
               data-testid="ai-insights-ask-agent"
-              className="text-[10px] font-medium text-brand-700 hover:text-brand-800"
+              className="text-[10px] font-medium text-text-secondary hover:text-text-primary"
               onClick={() => {
                 const weak = payload.actions.find((a) => a.concept?.trim())?.concept;
                 openAgentFromWorkspace({
@@ -173,7 +174,7 @@ export function AIInsightsPanel({
           <ul className="space-y-1.5">
             {payload.observations.map((obs, i) => (
               <li key={i} className="flex items-start gap-2 text-xs text-text-secondary">
-                <Lightbulb className="h-3.5 w-3.5 shrink-0 text-brand-600 mt-0.5" aria-hidden />
+                <Lightbulb className="h-3.5 w-3.5 shrink-0 text-text-tertiary mt-0.5" aria-hidden />
                 <span>{obs}</span>
               </li>
             ))}
@@ -186,7 +187,7 @@ export function AIInsightsPanel({
           {payload.actions.map((action) => (
             <div
               key={action.id}
-              className="rounded-xl border border-brand-500/25 bg-brand-600/5 p-3 text-left"
+              className="rounded-xl border border-border-subtle bg-surface-secondary/60 p-3 text-left"
               data-testid={`ai-insight-action-${action.id}`}
             >
               <button
@@ -202,16 +203,16 @@ export function AIInsightsPanel({
                   }
                 }}
               >
-                <p className="text-xs font-semibold text-brand-800 flex items-center gap-1">
+                <p className="text-xs font-semibold text-text-primary flex items-center gap-1">
                   {action.title}
-                  <ArrowRight className="h-3 w-3" aria-hidden />
+                  <ArrowRight className="h-3 w-3 text-text-tertiary" aria-hidden />
                 </p>
                 <p className="text-[10px] text-text-tertiary mt-1 leading-relaxed">{action.detail}</p>
               </button>
               {action.concept && (
                 <button
                   type="button"
-                  className="mt-2 text-[10px] font-medium text-brand-700 hover:underline"
+                  className="mt-2 text-[10px] font-medium text-text-secondary hover:underline"
                   data-testid={`ai-insight-ask-${action.id}`}
                   onClick={() => {
                     openAgentFromWorkspace({

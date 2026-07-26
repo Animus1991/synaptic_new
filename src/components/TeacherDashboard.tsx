@@ -422,11 +422,12 @@ export function TeacherDashboard({
       )}
       data-testid="teacher-dashboard"
     >
+      {/* OPT-K97 — teacher chrome ink */}
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
           {/* OPT-K7/K8 — text-first title under Minimal (no leading icon tile). */}
           <h1 className={cn('text-lg font-semibold', !isMinimal && 'flex items-center gap-2')}>
-            {!isMinimal && <Users className="w-5 h-5 text-brand-400" />}
+            {!isMinimal && <Users className="w-5 h-5 text-text-secondary" />}
             {ui.title}
           </h1>
           <p className="text-sm text-text-secondary mt-1">{ui.subtitle}</p>
@@ -441,7 +442,7 @@ export function TeacherDashboard({
           onClick={() => void load()}
           disabled={loading}
           data-testid="teacher-refresh"
-          className="flex items-center gap-2 px-3 py-2 rounded-xl border border-border-subtle text-sm hover:border-brand-500/30 transition-colors"
+          className="flex items-center gap-2 px-3 py-2 rounded-xl border border-border-subtle text-sm hover:border-border-default transition-colors"
         >
           <RefreshCw className={cn('w-4 h-4', loading && 'animate-spin')} />
           {ui.refresh}
@@ -449,7 +450,7 @@ export function TeacherDashboard({
       </div>
 
       {error && (
-        <div className="rounded-xl border border-accent-rose/30 bg-accent-rose/10 px-4 py-3 text-sm text-accent-rose" role="alert">
+        <div className="rounded-xl border border-accent-rose/30 bg-accent-rose/10 px-4 py-3 text-sm text-accent-rose ink-allow-accent" role="alert">
           {error}
         </div>
       )}
@@ -499,7 +500,7 @@ export function TeacherDashboard({
 
       {!signedIn && (
         <div className="ux-flow-panel p-6 text-sm text-text-secondary flex gap-3 items-start">
-          <Shield className="w-5 h-5 text-brand-400 shrink-0" />
+          <Shield className="w-5 h-5 text-text-secondary shrink-0" />
           <div className="space-y-2">
             <p className="font-medium text-text-primary">{ui.signInRequired}</p>
             <p>{ui.signInHint}</p>
@@ -508,7 +509,7 @@ export function TeacherDashboard({
                 type="button"
                 data-testid="teacher-open-settings"
                 onClick={onOpenSettings}
-                className="text-xs font-medium text-brand-700 hover:text-brand-800"
+                className="text-xs font-medium text-text-secondary hover:text-text-primary"
               >
                 {ui.openSettingsCta}
               </button>
@@ -524,7 +525,7 @@ export function TeacherDashboard({
         >
           <div>
             <h2 className="font-semibold flex items-center gap-2">
-              <Users className="w-4 h-4 text-brand-400" />
+              <Users className="w-4 h-4 text-text-secondary" />
               {ui.classRosters}
             </h2>
             <p className="text-xs text-text-muted mt-1">{ui.classRostersHint}</p>
@@ -563,8 +564,8 @@ export function TeacherDashboard({
                   className={cn(
                     'px-3 py-1.5 rounded-lg text-xs border transition-colors',
                     selectedClassId === cls.id
-                      ? 'border-brand-500/40 bg-brand-500/10 text-brand-300'
-                      : 'border-border-subtle hover:border-brand-500/20',
+                      ? 'border-border-default bg-surface-secondary text-text-primary'
+                      : 'border-border-subtle hover:border-border-default',
                   )}
                 >
                   {cls.name}
@@ -598,7 +599,7 @@ export function TeacherDashboard({
                   onClick={() => void handleAddStudent()}
                   disabled={classBusy || !studentEmail.trim()}
                   data-testid="teacher-add-student"
-                  className="px-3 py-2 rounded-xl border border-brand-500/30 text-brand-300 text-sm font-medium disabled:opacity-50"
+                  className="px-3 py-2 rounded-xl border border-border-subtle text-text-secondary text-sm font-medium disabled:opacity-50"
                 >
                   {ui.addStudent}
                 </button>
@@ -631,7 +632,7 @@ export function TeacherDashboard({
                               onClick={() => void handleRemoveStudent(row.id)}
                               disabled={classBusy}
                               data-testid={`teacher-remove-student-${row.id}`}
-                              className="text-accent-rose hover:underline"
+                              className="text-accent-rose ink-allow-accent hover:underline"
                             >
                               {ui.removeStudent}
                             </button>
@@ -655,7 +656,7 @@ export function TeacherDashboard({
                 {ltiRosterOpen && (
                   <div className="mt-3 space-y-2">
                     {ltiLaunchHint && (
-                      <p className="text-[11px] text-accent-cyan border border-accent-cyan/30 rounded-lg px-3 py-2">
+                      <p className="text-[11px] text-text-secondary border border-border-subtle rounded-lg px-3 py-2 bg-surface-secondary/50">
                         {ui.ltiLaunchWelcome}
                         {ltiLaunchHint.contextTitle ? ` — ${ltiLaunchHint.contextTitle}` : ''}
                         {ltiLaunchHint.contextId ? ` (${ltiLaunchHint.contextId})` : ''}
@@ -676,7 +677,7 @@ export function TeacherDashboard({
                         onClick={() => void handleLinkLtiContext()}
                         disabled={classBusy || !ltiContextInput.trim()}
                         data-testid="teacher-lti-link-context"
-                        className="px-3 py-2 rounded-xl border border-brand-500/30 text-brand-300 text-sm"
+                        className="px-3 py-2 rounded-xl border border-border-subtle text-text-secondary text-sm"
                       >
                         {ui.ltiRosterLink}
                       </button>
@@ -691,7 +692,7 @@ export function TeacherDashboard({
                       </button>
                     </div>
                     {ltiRosterMsg && (
-                      <p className="text-[10px] text-accent-cyan" data-testid="teacher-lti-roster-msg">
+                      <p className="text-[10px] text-text-secondary" data-testid="teacher-lti-roster-msg">
                         {ltiRosterMsg}
                       </p>
                     )}
@@ -721,7 +722,7 @@ export function TeacherDashboard({
                       setAnnouncementBody(draft.body);
                       setError(null);
                     }}
-                    className="px-3 py-1.5 rounded-xl border border-brand-500/30 text-xs font-medium text-brand-700 hover:bg-brand-500/10 disabled:opacity-50"
+                    className="px-3 py-1.5 rounded-xl border border-border-subtle text-xs font-medium text-text-secondary hover:bg-surface-hover disabled:opacity-50"
                   >
                     {ui.draftWeakAnnouncement}
                   </button>
@@ -740,7 +741,7 @@ export function TeacherDashboard({
                         prompt: buildCohortDraftPolishPrompt(draft, lang),
                       });
                     }}
-                    className="px-3 py-1.5 rounded-xl border border-border-subtle text-xs font-medium text-text-secondary hover:border-brand-500/30 disabled:opacity-50"
+                    className="px-3 py-1.5 rounded-xl border border-border-subtle text-xs font-medium text-text-secondary hover:border-border-default disabled:opacity-50"
                   >
                     {ui.polishAnnouncementAgent}
                   </button>
@@ -795,7 +796,7 @@ export function TeacherDashboard({
                             type="button"
                             onClick={() => void handleRemoveAnnouncement(row.id)}
                             disabled={classBusy}
-                            className="text-accent-rose hover:underline shrink-0"
+                            className="text-accent-rose ink-allow-accent hover:underline shrink-0"
                           >
                             {ui.removeAnnouncement}
                           </button>
@@ -864,7 +865,7 @@ export function TeacherDashboard({
                                       setExpandedDiscussionId((prev) => (prev === row.id ? null : row.id))
                                     }
                                     data-testid={`teacher-discussion-toggle-${row.id}`}
-                                    className="text-brand-600 hover:underline text-[10px]"
+                                    className="text-text-secondary hover:underline text-[10px]"
                                   >
                                     {ui.discussionToggle}
                                   </button>
@@ -874,7 +875,7 @@ export function TeacherDashboard({
                                   onClick={() => void handleRemoveAssignment(row.id)}
                                   disabled={classBusy}
                                   data-testid={`teacher-remove-assignment-${row.id}`}
-                                  className="text-accent-rose hover:underline"
+                                  className="text-accent-rose ink-allow-accent hover:underline"
                                 >
                                   {ui.removeAssignment}
                                 </button>
@@ -914,7 +915,7 @@ export function TeacherDashboard({
                       <button
                         type="button"
                         data-testid="teacher-export-gradebook"
-                        className="text-xs text-brand-700 hover:underline"
+                        className="text-xs text-text-secondary hover:underline"
                         onClick={() => {
                           void downloadGradebookCsv(settings.authToken!, settings, selectedClassId).then((blob) => {
                             const url = URL.createObjectURL(blob);
@@ -931,7 +932,7 @@ export function TeacherDashboard({
                       <button
                         type="button"
                         data-testid="teacher-lti-passback"
-                        className="text-xs text-accent-cyan hover:underline"
+                        className="text-xs text-text-secondary hover:underline"
                         onClick={() => {
                           void ltiPassbackClassGrades(
                             settings.authToken!,
@@ -951,7 +952,7 @@ export function TeacherDashboard({
                 </div>
                 <p className="text-[11px] text-text-muted">{ui.gradebookHint}</p>
                 {ltiPassbackMsg && (
-                  <p className="text-[10px] text-accent-cyan" data-testid="teacher-lti-passback-msg">{ltiPassbackMsg}</p>
+                  <p className="text-[10px] text-text-secondary" data-testid="teacher-lti-passback-msg">{ltiPassbackMsg}</p>
                 )}
                 {roster.length === 0 || assignments.length === 0 ? (
                   <p className="text-xs text-text-muted">{ui.gradebookEmpty}</p>
@@ -1027,7 +1028,7 @@ export function TeacherDashboard({
           <div className="ux-flow-panel p-5 space-y-4">
             <div className="flex items-center justify-between flex-wrap gap-2">
               <h2 className="font-semibold flex items-center gap-2">
-                <Zap className="w-4 h-4 text-accent-amber" />
+                <Zap className="w-4 h-4 text-text-secondary" />
                 {ui.llmUsageMonth} · {data.usage.month}
               </h2>
               <span className="text-xs text-text-muted">
@@ -1055,7 +1056,7 @@ export function TeacherDashboard({
 
           <div className="ux-flow-panel p-5">
             <h2 className="font-semibold flex items-center gap-2 mb-1">
-              <BookOpen className="w-4 h-4 text-brand-400" />
+              <BookOpen className="w-4 h-4 text-text-secondary" />
               {ui.courseRoster}
             </h2>
             <p className="text-xs text-text-muted mb-4">{ui.courseRosterHint}</p>
@@ -1093,7 +1094,7 @@ export function TeacherDashboard({
                             <button
                               type="button"
                               onClick={() => onOpenCourse(course.id)}
-                              className="text-brand-400 hover:text-brand-300 font-medium"
+                              className="text-text-secondary hover:text-text-primary font-medium"
                             >
                               {ui.openCourse}
                             </button>
@@ -1109,7 +1110,7 @@ export function TeacherDashboard({
 
           <div className="ux-flow-panel p-5">
             <h2 className="font-semibold flex items-center gap-2 mb-1">
-              <PenLine className="w-4 h-4 text-accent-cyan" />
+              <PenLine className="w-4 h-4 text-text-secondary" />
               {ui.publishing}
             </h2>
             <p className="text-xs text-text-muted mb-3">{ui.publishingHint}</p>
@@ -1129,7 +1130,7 @@ export function TeacherDashboard({
                 {data.publishing.recent.map((ann) => (
                   <li key={ann.id} className="flex justify-between gap-2 border-b border-border-subtle/50 pb-1.5">
                     <span className="text-text-secondary truncate">
-                      <span className="text-brand-300 font-medium">{ann.type}</span>
+                      <span className="text-text-secondary font-medium">{ann.type}</span>
                       {' · '}
                       {ann.text || ann.fileKey}
                     </span>
@@ -1146,7 +1147,7 @@ export function TeacherDashboard({
           >
             <div className="ux-flow-panel p-5">
               <h2 className="font-semibold flex items-center gap-2 mb-3">
-                <Cpu className="w-4 h-4 text-accent-cyan" />
+                <Cpu className="w-4 h-4 text-text-secondary" />
                 {ui.serverCapabilities}
               </h2>
               <div className="flex flex-wrap gap-2">
@@ -1164,13 +1165,13 @@ export function TeacherDashboard({
       {signedIn && (
         <div className="ux-flow-panel p-5">
           <h2 className="font-semibold flex items-center gap-2 mb-1">
-            <BarChart3 className="w-4 h-4 text-brand-300" />
+            <BarChart3 className="w-4 h-4 text-text-secondary" />
             {ui.localSession}
           </h2>
           <p className="text-xs text-text-muted mb-4">{ui.localSessionHint}</p>
           {learnerModel && (
             <div className="flex flex-wrap gap-3 text-xs mb-4">
-              <span className="px-2.5 py-1 rounded-lg bg-brand-500/10 border border-brand-500/20 text-brand-300">
+              <span className="px-2.5 py-1 rounded-lg bg-surface-secondary border border-border-subtle text-text-secondary">
                 <strong>{learnerModel.streakDays}</strong> {ui.streakDays}
               </span>
               <span className="px-2.5 py-1 rounded-lg bg-surface-hover border border-border-subtle">
@@ -1228,7 +1229,7 @@ function StatCard({
 }) {
   return (
     <div className="ux-flow-panel p-4">
-      <Icon className="w-5 h-5 text-brand-400 mb-2" />
+      <Icon className="w-5 h-5 text-text-secondary mb-2" />
       <p className="ux-stat-value">{value}</p>
       <p className="text-xs text-text-muted">{label} · {sub}</p>
     </div>
@@ -1240,7 +1241,7 @@ function FeaturePill({ on, label }: { on: boolean; label: string }) {
     <span
       className={cn(
         'text-xs px-2.5 py-1 rounded-full border',
-        on ? 'border-accent-emerald/40 bg-accent-emerald/10 text-accent-emerald' : 'border-border-subtle text-text-muted',
+        on ? 'border-accent-emerald/40 bg-accent-emerald/10 text-accent-emerald ink-allow-accent' : 'border-border-subtle text-text-muted',
       )}
     >
       {on ? '✓' : '○'} {label}
