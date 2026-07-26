@@ -157,6 +157,28 @@ describe('OPT-K69 engineering clarity contracts', () => {
     expect(indexCss).toMatch(/study-workspace.*ws-pill|ws-pill[\s\S]{0,80}study-workspace/);
   });
 
+  it('K77 — contrast/type floor + upload breath + notebook why disclosure', () => {
+    const primer = read('src/styles/primer-minimal.css');
+    expect(primer).toMatch(/OPT-K77/);
+    expect(primer).toMatch(/bg-brand-500/);
+    expect(primer).toMatch(/text-\\\[10px\\\]/);
+    expect(primer).toMatch(/ux-upload-drop-zone/);
+    expect(primer).toMatch(/agent-message-avatar/);
+    expect(primer).toMatch(/ws-tool-why-outcome/);
+
+    const header = read('src/components/workspace/WorkspaceToolHeader.tsx');
+    expect(header).toMatch(/ws-tool-why-outcome/);
+    expect(header).toMatch(/OPT-K77/);
+
+    const upload = read('src/components/UploadModal.tsx');
+    expect(upload).toMatch(/border-solid/);
+    expect(upload).toMatch(/bg-brand-600 text-white/);
+    expect(upload).not.toMatch(/text-red-400/);
+
+    const agent = read('src/components/Agent.tsx');
+    expect(agent).not.toMatch(/from-brand-500 to-accent-teal/);
+  });
+
   it('K76 — micro-harmony: tokenized radii/type + overlay remaps; progress stays stadium', () => {
     const primer = read('src/styles/primer-minimal.css');
     expect(primer).toMatch(/OPT-K76/);

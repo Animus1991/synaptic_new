@@ -391,7 +391,8 @@
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .tasks-quiet [data-testid="tasks-kanban-strip"] .tasks-kanban-column-label {
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 0.6rem;
+  /* OPT-K77 — caption floor (was 0.6rem / below readable meta) */
+  font-size: var(--type-caption);
   letter-spacing: 0.04em;
 }
 

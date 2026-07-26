@@ -140,23 +140,28 @@ export function WorkspaceToolHeader({
             ))}
           </ol>
 
-          {/* Why it matters + outcome */}
-          <div className="flex flex-col gap-1 sm:flex-row sm:items-stretch">
-            <p className="ws-caption flex flex-1 items-start gap-1.5 rounded-lg ws-info-strip px-2 py-1.5 text-text-secondary">
-              <Sparkles className="mt-0.5 h-3 w-3 shrink-0 text-brand-800" aria-hidden />
-              <span>
-                <span className="font-semibold text-text-primary">{t('toolWhyLabel')}</span>
-                {why}
-              </span>
-            </p>
-            <p className="ws-caption flex flex-1 items-start gap-1.5 rounded-lg bg-brand-500/8 px-2 py-1.5 text-text-secondary">
-              <Target className="mt-0.5 h-3 w-3 shrink-0 text-brand-800" aria-hidden />
-              <span>
-                <span className="font-semibold text-text-primary">{t('toolYoullGetLabel')}</span>
-                {produces}
-              </span>
-            </p>
-          </div>
+          {/* OPT-K77 — Why/outcome nested disclosure (less chrome density by default) */}
+          <details className="ws-tool-why-outcome rounded-lg border border-border-subtle bg-surface-secondary/40 px-2">
+            <summary className="select-none">
+              {t('toolWhyLabel').replace(/[:：]\s*$/, '')} · {t('toolYoullGetLabel').replace(/[:：]\s*$/, '')}
+            </summary>
+            <div className="flex flex-col gap-1 pb-2 sm:flex-row sm:items-stretch">
+              <p className="ws-caption flex flex-1 items-start gap-1.5 rounded-lg ws-info-strip px-2 py-1.5 text-text-secondary">
+                <Sparkles className="mt-0.5 h-3 w-3 shrink-0 text-text-tertiary" aria-hidden />
+                <span>
+                  <span className="font-semibold text-text-primary">{t('toolWhyLabel')}</span>
+                  {why}
+                </span>
+              </p>
+              <p className="ws-caption flex flex-1 items-start gap-1.5 rounded-lg bg-surface-primary/60 px-2 py-1.5 text-text-secondary">
+                <Target className="mt-0.5 h-3 w-3 shrink-0 text-text-tertiary" aria-hidden />
+                <span>
+                  <span className="font-semibold text-text-primary">{t('toolYoullGetLabel')}</span>
+                  {produces}
+                </span>
+              </p>
+            </div>
+          </details>
 
           {/* Live context chips */}
           {hasSource && (concept || sourceName) && (

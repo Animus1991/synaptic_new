@@ -37,13 +37,13 @@ interface UploadModalProps {
 }
 
 const acceptedFormats = [
-  { ext: 'PDF', icon: FileText, color: 'text-red-400' },
-  { ext: 'DOCX', icon: File, color: 'text-blue-400' },
-  { ext: 'PPTX', icon: Presentation, color: 'text-orange-400' },
-  { ext: 'TXT/MD', icon: FileText, color: 'text-text-secondary' },
-  { ext: 'ChatGPT JSON/ZIP', icon: MessageSquare, color: 'text-brand-400' },
-  { ext: 'Images', icon: Image, color: 'text-accent-emerald' },
-  { ext: 'Code', icon: Code, color: 'text-accent-teal' },
+  { ext: 'PDF', icon: FileText, color: 'text-text-tertiary' },
+  { ext: 'DOCX', icon: File, color: 'text-text-tertiary' },
+  { ext: 'PPTX', icon: Presentation, color: 'text-text-tertiary' },
+  { ext: 'TXT/MD', icon: FileText, color: 'text-text-tertiary' },
+  { ext: 'ChatGPT JSON/ZIP', icon: MessageSquare, color: 'text-text-tertiary' },
+  { ext: 'Images', icon: Image, color: 'text-text-tertiary' },
+  { ext: 'Code', icon: Code, color: 'text-text-tertiary' },
 ];
 
 type SourceMode = 'strict' | 'enriched' | 'notes-only';
@@ -389,8 +389,8 @@ export function UploadModal({
             </div>
           )}
 
-          <div className="px-5 pt-4 create-prompt-flow">
-            <div className="grid gap-2 sm:grid-cols-3">
+          <div className="px-5 pt-4 pb-1 create-prompt-flow">
+            <div className="grid gap-3 sm:grid-cols-3">
               {FLOW_STAGES.map((stage, index) => {
                 const isActive = activeFlowIndex === index;
                 const isDone = activeFlowIndex > index;
@@ -410,9 +410,9 @@ export function UploadModal({
                       <div className={cn(
                         'grid h-6 w-6 place-items-center rounded-full text-[11px] font-semibold',
                         isActive
-                          ? 'bg-brand-500 text-white'
+                          ? 'bg-brand-600 text-white'
                           : isDone
-                            ? 'bg-accent-emerald text-white'
+                            ? 'bg-surface-tertiary text-text-primary'
                             : 'bg-surface-hover text-text-tertiary',
                       )}>
                         {isDone ? <CheckCircle2 className="w-3.5 h-3.5" /> : index + 1}
@@ -437,10 +437,10 @@ export function UploadModal({
                   onDrop={handleDrop}
                   onClick={() => fileInputRef.current?.click()}
                   className={cn(
-                    'ux-upload-drop-zone ux-prompt-bar-surface border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer transition-all',
+                    'ux-upload-drop-zone ux-prompt-bar-surface border border-solid rounded-2xl p-8 text-center cursor-pointer transition-colors',
                     dragActive
-                      ? 'border-brand-500 bg-brand-500/5'
-                      : 'border-border-default hover:border-brand-500/50 hover:bg-surface-hover/50'
+                      ? 'border-border-strong bg-surface-hover'
+                      : 'border-border-subtle bg-surface-secondary hover:border-border-default hover:bg-surface-hover/80'
                   )}
                   data-active={dragActive || undefined}
                 >

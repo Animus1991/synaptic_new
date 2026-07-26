@@ -625,3 +625,159 @@
     --color-text-tertiary: #9199a4;
   }
 }
+
+/* ========== OPT-K77 — Clarity + comfort (principles, not brand clones) ==========
+   P0 contrast/type · P1 hierarchy/breath · P2 tokens/touch · P3 quiet motion.
+   Zero feature removal; micro-harmony only. */
+
+/* P0 — brand-500 fill + white ink fails AA on Minimal light → use brand-600 */
+[data-theme="minimal"] :is(.bg-brand-500, button.bg-brand-500, .bg-brand-500\/90) {
+  background-color: var(--color-brand-600) !important;
+}
+
+[data-theme="minimal"] :is(.bg-brand-500, button.bg-brand-500).text-white,
+[data-theme="minimal"] .bg-brand-500 .text-white {
+  color: #ffffff !important;
+}
+
+/* P0 — accent/pastel as text (incl. overlays outside .app-shell) → readable ink */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) :is(
+  [role="dialog"],
+  .ux-modal-panel,
+  [data-testid="workspace-boot-shell"]
+) :is(
+  .text-brand-300,
+  .text-brand-400,
+  .text-brand-500,
+  .text-accent-teal,
+  .text-accent-cyan,
+  .text-accent-violet,
+  .text-accent-emerald,
+  .text-accent-amber,
+  .text-accent-orange,
+  .text-accent-rose,
+  .text-red-400,
+  .text-blue-400,
+  .text-orange-400
+) {
+  color: var(--color-text-secondary) !important;
+}
+
+/* P0 — ad-hoc 10px meta → caption floor (mono code left alone via :not) */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) :is(
+  .app-shell,
+  [role="dialog"],
+  .ux-modal-panel,
+  .notebook-canvas,
+  .study-workspace
+) :is(.text-\[10px\], .text-\[9px\]):not(code):not(pre):not(.font-mono) {
+  font-size: var(--type-caption) !important;
+  line-height: 1.4;
+}
+
+/* P1 — trust pills quieter than breadcrumbs / primary */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .header-trust-badges .ux-trust-badge,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell [data-testid="shell-chrome-status"] .ux-trust-badge {
+  opacity: 0.92;
+  font-weight: 500;
+  color: var(--color-text-tertiary) !important;
+  background: transparent !important;
+}
+
+/* P1 — danger / urgency: left-edge weight without neon wash */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) :is(
+  [data-testid="tasks-danger-zone"],
+  .dashboard-urgency-signal[data-tone="exam"]
+) {
+  border-left: 3px solid color-mix(in srgb, var(--color-accent-rose) 70%, var(--color-border-strong));
+  background: color-mix(in srgb, var(--color-surface-secondary) 88%, var(--color-accent-rose)) !important;
+}
+
+/* P1 — upload modal breath + quiet dropzone */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .create-prompt-flow {
+  margin-bottom: 0.35rem;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) [data-testid="upload-modal"] .create-prompt-flow + .p-5,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) [data-testid="upload-modal"] .space-y-5 {
+  row-gap: 1.15rem;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) [data-testid="upload-modal"] .ux-upload-drop-zone {
+  border-style: solid !important;
+  border-width: 1px !important;
+  border-color: var(--color-border-subtle) !important;
+  background: var(--color-surface-secondary) !important;
+  border-radius: var(--radius-panel) !important;
+  padding-top: 2.25rem !important;
+  padding-bottom: 2.25rem !important;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) [data-testid="upload-modal"] .ux-upload-drop-zone[data-active],
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) [data-testid="upload-modal"] .ux-upload-drop-zone:hover {
+  border-color: var(--color-border-strong) !important;
+  background: var(--color-surface-hover) !important;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) [data-testid="upload-modal"] .create-prompt-formats :is(svg, [class*="text-"]) {
+  color: var(--color-text-tertiary) !important;
+}
+
+/* P1 — flat agent avatar (no gradient) */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .agent-message-avatar {
+  background: var(--color-surface-tertiary) !important;
+  background-image: none !important;
+  color: var(--color-text-secondary) !important;
+  border: 1px solid var(--color-border-subtle);
+}
+
+/* P1 — notebook guide: quieter nested strips */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .ws-tool-header-guide .ws-info-strip,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .ws-tool-header-guide .bg-brand-500\/8 {
+  background: var(--color-surface-secondary) !important;
+  border: 1px solid var(--color-border-subtle);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .ws-tool-why-outcome > summary {
+  cursor: pointer;
+  list-style: none;
+  font-size: var(--type-caption);
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  padding: 0.35rem 0;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .ws-tool-why-outcome > summary::-webkit-details-marker {
+  display: none;
+}
+
+/* P2 — extend 44px hit floor to more chrome */
+@media (max-width: 1023px) {
+  :is([data-theme="minimal"], [data-theme="minimal-dark"]) :is(
+    .app-shell button,
+    .study-workspace button,
+    [data-testid="upload-modal"] button
+  ):not([role="switch"]):not([aria-hidden="true"]) {
+    min-height: 2.75rem;
+  }
+
+  :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .header-trust-badges {
+    display: none;
+  }
+}
+
+/* P3 — prefer bg/opacity hover; kill punchy scale on chrome */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell :is(
+  .hover\:scale-105:hover,
+  .hover\:scale-110:hover,
+  .active\:scale-95:active
+) {
+  transform: none !important;
+}
+
+/* P3 — empty / zero-progress cards: softer presence */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .tasks-quiet [data-testid="tasks-daily-goal"],
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .hub-quiet .platform-empty-state {
+  border-style: dashed;
+  background: transparent;
+}

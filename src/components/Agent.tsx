@@ -1265,7 +1265,7 @@ function MessageBubble({
       data-testid={isUser ? 'agent-message-user' : 'agent-message-assistant'}
     >
       {!isUser && (
-        <div className="agent-message-avatar w-8 h-8 rounded-lg bg-gradient-to-br from-brand-500 to-accent-teal flex items-center justify-center shrink-0 mt-1" aria-hidden>
+        <div className="agent-message-avatar w-8 h-8 rounded-lg bg-surface-tertiary border border-border-subtle flex items-center justify-center shrink-0 mt-1" aria-hidden>
           <Sparkles className="w-4 h-4 text-white" />
         </div>
       )}

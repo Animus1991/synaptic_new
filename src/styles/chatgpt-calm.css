@@ -311,9 +311,9 @@
   justify-content: center;
 }
 
-/* OPT-K60 — mobile nav labels: fit without ellipsis (EN Dashboard) */
+/* OPT-K60 + OPT-K77 — mobile nav labels: stay compact but ≥ micro floor */
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) #platform-mobile-nav .platform-nav-mobile-item .type-micro {
-  font-size: 0.625rem;
+  font-size: var(--type-micro);
   letter-spacing: -0.015em;
   line-height: 1.15;
   overflow: hidden;
