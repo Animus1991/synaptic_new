@@ -10,7 +10,7 @@ interface ReadinessRingProps {
   showBand?: boolean;
 }
 
-export function ReadinessRing({ value, size = 180, strokeWidth = 12, label = 'Exam Readiness', sublabel, showBand = true }: ReadinessRingProps) {
+export function ReadinessRing({ value, size = 175, strokeWidth = 11.5, label = 'Exam Readiness', sublabel, showBand = true }: ReadinessRingProps) {
   const band = readinessBandMeta(value);
   const r = (size - strokeWidth) / 2;
   const c = 2 * Math.PI * r;
@@ -18,7 +18,7 @@ export function ReadinessRing({ value, size = 180, strokeWidth = 12, label = 'Ex
   const center = size / 2;
 
   return (
-    <div className="flex flex-col items-center gap-3">
+    <div className="dashboard-readiness-ring flex flex-col items-center gap-2.5">
       <div className="relative" style={{ width: size, height: size }}>
         <svg width={size} height={size} className="-rotate-90">
           <circle cx={center} cy={center} r={r} fill="none" stroke="var(--viz-track)" strokeWidth={strokeWidth} />
@@ -51,7 +51,7 @@ export function ReadinessRing({ value, size = 180, strokeWidth = 12, label = 'Ex
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
           <motion.span
-            className="text-4xl font-black"
+            className="dashboard-readiness-pct text-4xl font-black"
             initial={{ opacity: 0, scale: 0.5 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.3, type: 'spring' }}
@@ -59,7 +59,7 @@ export function ReadinessRing({ value, size = 180, strokeWidth = 12, label = 'Ex
           >
             {value}%
           </motion.span>
-          <span className="text-xs text-text-tertiary font-medium">{label}</span>
+          <span className="text-xs text-text-tertiary font-medium text-center px-1 leading-snug">{label}</span>
         </div>
       </div>
       {showBand && (

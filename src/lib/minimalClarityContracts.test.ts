@@ -157,6 +157,39 @@ describe('OPT-K69 engineering clarity contracts', () => {
     expect(indexCss).toMatch(/study-workspace.*ws-pill|ws-pill[\s\S]{0,80}study-workspace/);
   });
 
+  it('K78 — start-session height match + dashboard density −2%/−3%', () => {
+    const primer = read('src/styles/primer-minimal.css');
+    expect(primer).toMatch(/OPT-K78/);
+    expect(primer).toMatch(/shell-start-session[\s\S]{0,200}min-height:\s*2rem/);
+    expect(primer).toMatch(/calc\(var\(--type-caption\) \* 0\.98\)/);
+    expect(primer).toMatch(/calc\(var\(--ux-type-hero\) \* 0\.97\)/);
+    expect(primer).toMatch(/dashboard-readiness-ring/);
+    expect(primer).toMatch(/dash-horizon/);
+    expect(primer).toMatch(/0\.9506/);
+
+    const shell = read('src/components/Shell.tsx');
+    expect(shell).toMatch(/min-h-8 max-h-8/);
+
+    const ring = read('src/components/visuals/ReadinessRing.tsx');
+    expect(ring).toMatch(/size = 175/);
+    expect(ring).toMatch(/dashboard-readiness-ring/);
+  });
+
+  it('K79 — Minimal accent chroma/hue rebalance (semantic + categorical)', () => {
+    const primer = read('src/styles/primer-minimal.css');
+    expect(primer).toMatch(/OPT-K79/);
+    expect(primer).toMatch(/--color-accent-emerald:\s*#3d9a78/);
+    expect(primer).toMatch(/--color-accent-amber:\s*#b0892e/);
+    expect(primer).toMatch(/--color-accent-rose:\s*#c45c6a/);
+    expect(primer).toMatch(/--color-accent-cyan:\s*#4a8fa3/);
+    expect(primer).toMatch(/--color-accent-violet:\s*#7d7a9e/);
+    expect(primer).toMatch(/--color-accent-emerald:\s*#3eb87e/);
+    expect(primer).toMatch(/--color-accent-cyan:\s*#5eb8c4/);
+    expect(primer).toMatch(/--color-accent-violet:\s*#9a8fb8/);
+    expect(primer).not.toMatch(/--color-accent-violet:\s*#9aa2b0/);
+    expect(primer).not.toMatch(/--color-accent-cyan:\s*#39d0d8/);
+  });
+
   it('K77 — contrast/type floor + upload breath + notebook why disclosure', () => {
     const primer = read('src/styles/primer-minimal.css');
     expect(primer).toMatch(/OPT-K77/);

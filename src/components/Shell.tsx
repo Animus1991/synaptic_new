@@ -832,7 +832,8 @@ export function Shell({
                   onClick={onStartSession}
                   data-testid="shell-start-session"
                   className={cn(
-                    'hidden sm:inline-flex h-8 items-center gap-1.5 px-2.5 rounded-lg text-[11px] font-semibold leading-none transition-colors whitespace-nowrap',
+                    /* OPT-K78 — match topbar control height (h-8), not full --btn-height */
+                    'hidden sm:inline-flex h-8 min-h-8 max-h-8 items-center gap-1.5 px-2.5 rounded-lg text-[11px] font-semibold leading-none transition-colors whitespace-nowrap',
                     quietNav
                       ? 'shell-start-session ux-primary-cta'
                       : 'bg-brand-700 text-white hover:bg-brand-800',

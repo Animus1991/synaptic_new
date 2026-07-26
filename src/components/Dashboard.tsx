@@ -550,7 +550,11 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                   isCanvasLayout ? 'flex-col sm:flex-row' : 'flex-col',
                 )}
               >
-                <ReadinessRing value={learnerModel.overallMastery} sublabel={t('dashReadinessSublabel')} />
+                <ReadinessRing
+                  value={learnerModel.overallMastery}
+                  label={t('examReadiness')}
+                  sublabel={t('dashReadinessSublabel')}
+                />
                 {/* OPT-K9b — signals use proximity UtilityRows inside a tight track */}
                 <div className="proximity-track space-y-1 min-w-0">
                   <UtilityRow label={t('dashSignalAccuracy')} value={`${Math.round(learnerModel.retentionRate * 100)}%`} barPct={Math.round(learnerModel.retentionRate * 100)} hint={t('dashSignalAccuracyDetail')} />
@@ -570,7 +574,11 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
           ) : (
           <BlueprintSurface className="ux-calm-panel p-3.5" data-dashboard-col="a">
             <div className="flex flex-col sm:flex-row items-center gap-3">
-              <ReadinessRing value={learnerModel.overallMastery} sublabel={t('dashReadinessSublabel')} />
+              <ReadinessRing
+                value={learnerModel.overallMastery}
+                label={t('examReadiness')}
+                sublabel={t('dashReadinessSublabel')}
+              />
               <div className="flex-1 space-y-2.5 w-full min-w-0">
                 <SignalBars signals={[
                   { label: t('dashSignalAccuracy'), value: Math.round(learnerModel.retentionRate * 100), icon: 'target', color: 'var(--dashboard-signal-ink)', detail: t('dashSignalAccuracyDetail') },
