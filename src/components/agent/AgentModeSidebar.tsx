@@ -1,14 +1,14 @@
 import { useEffect, useMemo, useState, type ElementType } from 'react';
 import { Sparkles, Lock, FileText, ChevronDown, ChevronRight } from '@/lib/lucide-shim';
 import type { AgentMode, UserSettings } from '../../types';
-import { AGENT_MODE_VISUALS } from '../../lib/agentCatalog';
 import {
+  AGENT_MODE_VISUALS,
   groupIdForAgentMode,
   partitionAgentModesByGroup,
   type AgentModeGroupId,
-} from '../../lib/agentModeGroups';
+  type AgentSourceModeOption,
+} from '../../features/agent';
 import { cn } from '../../utils/cn';
-import type { AgentSourceModeOption } from '../../features/agent';
 import { useMinimalTheme } from '../../lib/useMinimalTheme';
 import { useI18n } from '../../lib/i18n';
 import { AllCapsLabel } from '../ui/AllCapsLabel';
