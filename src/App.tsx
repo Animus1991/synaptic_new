@@ -62,7 +62,7 @@ import { isProductTourComplete } from './lib/productTour';
 import { TakeBreathModal } from './components/examPrep/TakeBreathModal';
 import { subscribeTakeBreathPrompt } from './lib/examPrep/takeBreathEvents';
 import { buildLibraryAskPrompt } from './lib/libraryAskPrompt';
-import { initWebVitalsRum, setRumRouteGetter } from './lib/webVitalsRum';
+import { initWebVitalsRum, setRumRouteGetter } from './features/rum/webVitalsRum';
 import { configuredProxyBase } from './lib/authClient';
 
 const Agent = lazyWithRetry(() => import('./components/Agent').then((m) => ({ default: m.Agent })), 'agent');

@@ -1035,12 +1035,12 @@
   color: var(--color-accent-emerald);
 }
 
-/* Option-B Wave E2 — inverted CTAs, glass secondary, typography, fadeUp motion */
+/* Option-B Wave E2 — solid darker-cyan CTAs (white ink), glass secondary */
 [data-theme="blueprint"] .ux-primary-cta {
   border-radius: 1rem;
-  background-color: #ffffff !important;
+  background-color: #0e7490 !important;
   background-image: none !important;
-  color: var(--color-on-brand) !important;
+  color: #ffffff !important;
   font-weight: 600;
   transition:
     background-color var(--motion-duration-ui) var(--motion-ease),
@@ -1048,8 +1048,8 @@
     box-shadow var(--motion-duration-ui) var(--motion-ease);
 }
 [data-theme="blueprint"] .ux-primary-cta:hover:not(:disabled) {
-  background-color: #ecfeff !important;
-  color: var(--color-on-brand) !important;
+  background-color: #155e75 !important;
+  color: #ffffff !important;
 }
 @media (prefers-reduced-motion: no-preference) {
   [data-theme="blueprint"] .ux-primary-cta:hover:not(:disabled) {
@@ -2644,40 +2644,44 @@
   border-radius: var(--ux-radius-hero);
 }
 
-/* Inverted glass CTAs: light fill needs dark ink. Tailwind `text-white` must not win. */
+/* Blueprint solid CTAs — darker cyan fill + white ink (readable AA).
+   Was inverted white/glass which left pale fills fighting `text-white`. */
 [data-theme="blueprint"] :is(button, a).bg-brand-600,
-[data-theme="blueprint"] :is(button, a).bg-brand-700 {
-  background-color: #ffffff;
-  color: var(--color-on-brand) !important;
+[data-theme="blueprint"] :is(button, a).bg-brand-700,
+[data-theme="blueprint"] button[data-tour="dashboard-upload"],
+[data-theme="blueprint"] button[data-testid^="library-open-course-"] {
+  background-color: #0e7490 !important;
+  background-image: none !important;
+  color: #ffffff !important;
   font-weight: 600;
   transition:
     background-color var(--motion-duration-ui) var(--motion-ease),
     transform var(--motion-duration-ui) var(--motion-ease);
 }
-[data-theme="blueprint"] :is(button, a).bg-brand-600.text-white,
-[data-theme="blueprint"] :is(button, a).bg-brand-700.text-white,
-[data-theme="blueprint"] :is(button, a).hover\:bg-brand-500:hover.text-white,
-[data-theme="blueprint"] :is(button, a).hover\:bg-brand-800:hover.text-white {
-  color: var(--color-on-brand) !important;
-}
+[data-theme="blueprint"] :is(button, a).bg-brand-600:hover,
+[data-theme="blueprint"] :is(button, a).bg-brand-700:hover,
 [data-theme="blueprint"] :is(button, a).hover\:bg-brand-500:hover,
-[data-theme="blueprint"] :is(button, a).hover\:bg-brand-800:hover {
-  background-color: #ecfeff;
-  color: var(--color-on-brand) !important;
+[data-theme="blueprint"] :is(button, a).hover\:bg-brand-600:hover,
+[data-theme="blueprint"] :is(button, a).hover\:bg-brand-800:hover,
+[data-theme="blueprint"] button[data-tour="dashboard-upload"]:hover,
+[data-theme="blueprint"] button[data-testid^="library-open-course-"]:hover {
+  background-color: #155e75 !important;
+  color: #ffffff !important;
 }
 @media (prefers-reduced-motion: no-preference) {
   [data-theme="blueprint"] :is(button, a).bg-brand-600:hover,
-  [data-theme="blueprint"] :is(button, a).bg-brand-700:hover {
+  [data-theme="blueprint"] :is(button, a).bg-brand-700:hover,
+  [data-theme="blueprint"] button[data-testid^="library-open-course-"]:hover {
     transform: translateY(-1px);
   }
 }
 [data-theme="blueprint"] .ws-fab {
-  background: #ffffff;
-  color: #020617;
+  background: #0e7490;
+  color: #ffffff;
   box-shadow: var(--elev-3);
 }
 [data-theme="blueprint"] .ws-fab:hover {
-  background: #ecfeff;
+  background: #155e75;
 }
 
 /* Blueprint — floating ambient orbs (Option-B hero atmosphere) */

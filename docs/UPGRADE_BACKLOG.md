@@ -56,8 +56,8 @@ Operational / security / quality program for `synaptic_new`. **No new product fe
 | ID | Status | Notes |
 |----|--------|-------|
 | C1 Docs history complete | **done** | INDEX + history/ + CONTRIBUTING |
-| C2 Feature-folder migration | pending | after B1; one feature / PR |
-| C3 Optional npm workspaces | pending | only if B1 proves value |
+| C2 Feature-folder migration | **started** | first slice: `src/features/rum` (web-vitals RUM) |
+| C3 Optional npm workspaces | pending | wait until more features land under `src/features/` |
 
 ## Wave D — P2 Product-ops
 

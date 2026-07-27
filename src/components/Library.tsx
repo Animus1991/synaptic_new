@@ -911,7 +911,7 @@ function CourseCard({
               onClick();
             }}
             data-testid={`library-open-course-${course.id}`}
-            className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg bg-brand-700 text-[color:var(--color-on-brand)] px-2 py-1.5 text-xs font-semibold hover:bg-brand-600 transition-colors"
+            className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg bg-brand-700 text-white px-2 py-1.5 text-xs font-semibold hover:bg-brand-600 transition-colors"
           >
             {t('libOpenCourse', userLanguage)}
           </button>

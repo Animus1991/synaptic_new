@@ -209,7 +209,8 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
               {t('dashboardEmptyHint')}
             </p>
           </div>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+          {/* ~5% smaller empty-state CTAs (Upload / Explore Demo) */}
+          <div className="flex flex-col sm:flex-row gap-3 justify-center scale-95 origin-center">
             {onUpload && (
               <button
                 type="button"
@@ -225,6 +226,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
               <button
                 type="button"
                 onClick={onExploreDemo}
+                data-tour="dashboard-explore-demo"
                 className="flex items-center justify-center gap-2 px-8 py-3.5 border border-brand-500/40 bg-brand-500/5 hover:bg-surface-secondary text-text-primary border border-border-subtle rounded-xl font-semibold text-sm transition-all"
               >
                 <Sparkles className="w-4 h-4" />
