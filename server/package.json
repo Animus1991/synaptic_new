@@ -57,7 +57,7 @@
     "testcontainers": "^10.28.0",
     "tsx": "^4.16.0",
     "typescript": "^5.5.0",
-    "vitest": "^3.2.6"
+    "vitest": "^4.1.10"
   },
   "overrides": {
     "glob": "^11.1.0"
