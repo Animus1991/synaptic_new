@@ -2,7 +2,7 @@ import type { NextFunction, Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import { config } from '../config';
 import { anonymousAccount, findByIdAsync, type Account } from '../store/accounts';
-import { consumeToken, issueToken } from '../store/tokenStore';
+import { consumeToken, issueToken, type TokenMeta } from '../store/tokenStore';
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -24,9 +24,13 @@ export function signToken(accountId: string): string {
   return signAccessToken(accountId);
 }
 
-export async function signRefreshToken(accountId: string): Promise<string> {
+export async function signRefreshToken(
+  accountId: string,
+  meta?: TokenMeta,
+): Promise<{ token: string; sessionId: string }> {
   const ttlMs = config.refreshTokenTtlDays * 24 * 60 * 60 * 1000;
-  return issueToken(accountId, 'refresh', ttlMs);
+  const issued = await issueToken(accountId, 'refresh', ttlMs, meta);
+  return { token: issued.raw, sessionId: issued.id };
 }
 
 export async function verifyRefreshToken(raw: string): Promise<string | null> {

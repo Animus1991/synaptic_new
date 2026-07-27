@@ -77,14 +77,41 @@ for (const file of libFiles) {
 // 3. Drift marker: [PARTIAL] in implementation docs must be followed by a tracker reference.
 // Planning documents (PRODUCT_SCALE_PLAN.md, EXHAUSTIVE_PRODUCT_SCALE_BLUEPRINT.md) use
 // [PARTIAL] as a status marker; those are allowed.
-const planningFiles = new Set(['PRODUCT_SCALE_PLAN.md', 'EXHAUSTIVE_PRODUCT_SCALE_BLUEPRINT.md']);
+// Historical plans may use [PARTIAL] as a status marker; stubs + history/ are allowed.
+const planningAllow = (md) =>
+  md.startsWith('docs/history/')
+  || md === 'PRODUCT_SCALE_PLAN.md'
+  || md === 'EXHAUSTIVE_PRODUCT_SCALE_BLUEPRINT.md'
+  || /^docs\/(MOCKUP_|CURSOR_|CHATGPT_|PRIMER_|REPLIT_|LIBRARY_|NOTEBOOK_|EXHAUSTIVE_)/.test(md);
 for (const md of mdFiles) {
-  if (planningFiles.has(md)) continue;
+  if (planningAllow(md)) continue;
   const text = readFileSync(join(root, md), 'utf8');
   const lines = text.split('\n');
   for (const line of lines) {
     if (line.includes('[PARTIAL]') && !/(#\d+|TODO|FIXME|issue)/i.test(line)) {
       errors.push(`Untracked [PARTIAL] marker in ${md}: ${line.trim()}`);
+    }
+  }
+}
+
+// W0 — canonical docs entry + backlog must exist and INDEX must point at live specs.
+const requiredCanonicalDocs = [
+  'docs/INDEX.md',
+  'docs/UPGRADE_BACKLOG.md',
+  'docs/runbooks/jwt-rotation.md',
+  'docs/runbooks/backup-restore.md',
+  'docs/compliance/SOC2_DPA.md',
+];
+for (const rel of requiredCanonicalDocs) {
+  if (!existsSync(join(root, rel))) {
+    errors.push(`Missing canonical doc: ${rel}`);
+  }
+}
+if (existsSync(join(root, 'docs/INDEX.md'))) {
+  const indexText = readFileSync(join(root, 'docs/INDEX.md'), 'utf8');
+  for (const must of ['UPGRADE_BACKLOG.md', 'SECURITY.md', 'ROADMAP.md', 'history/README.md']) {
+    if (!indexText.includes(must)) {
+      errors.push(`docs/INDEX.md must reference ${must}`);
     }
   }
 }

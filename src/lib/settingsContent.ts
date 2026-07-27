@@ -89,6 +89,16 @@ export type SettingsContent = {
   pullProgress: string;
   pushProgress: string;
   loggedIn: string;
+  sectionSessions: string;
+  sessionsHint: string;
+  sessionsEmpty: string;
+  sessionCurrent: string;
+  sessionOther: string;
+  revokeSession: string;
+  revokeOtherSessions: string;
+  sessionRevoked: string;
+  sessionRevokeFailed: string;
+  formatSessionsRevoked: (count: number) => string;
   sectionGoogleWorkspace: string;
   sectionInterface: string;
   labelTheme: string;
@@ -286,6 +296,16 @@ const EN: SettingsContent = {
   pullProgress: 'Pull progress',
   pushProgress: 'Push progress',
   loggedIn: 'Logged in:',
+  sectionSessions: 'Active sessions',
+  sessionsHint: 'Refresh tokens rotate on each use. Revoke a device to force re-login.',
+  sessionsEmpty: 'No active refresh sessions listed.',
+  sessionCurrent: 'This device',
+  sessionOther: 'Other device',
+  revokeSession: 'Revoke',
+  revokeOtherSessions: 'Revoke all other sessions',
+  sessionRevoked: 'Session revoked.',
+  sessionRevokeFailed: 'Could not revoke session.',
+  formatSessionsRevoked: (count) => `Revoked ${count} other session(s).`,
   sectionGoogleWorkspace: 'Google Workspace',
   sectionInterface: 'Interface',
   labelTheme: 'Theme',
@@ -501,6 +521,16 @@ const EL: SettingsContent = {
   pullProgress: 'Λήψη προόδου',
   pushProgress: 'Αποστολή προόδου',
   loggedIn: 'Συνδεδεμένος:',
+  sectionSessions: 'Ενεργές συνεδρίες',
+  sessionsHint: 'Τα refresh tokens περιστρέφονται σε κάθε χρήση. Ανάκληση συσκευής = νέο login.',
+  sessionsEmpty: 'Δεν υπάρχουν ενεργές συνεδρίες.',
+  sessionCurrent: 'Αυτή η συσκευή',
+  sessionOther: 'Άλλη συσκευή',
+  revokeSession: 'Ανάκληση',
+  revokeOtherSessions: 'Ανάκληση όλων των άλλων',
+  sessionRevoked: 'Η συνεδρία ανακλήθηκε.',
+  sessionRevokeFailed: 'Αποτυχία ανάκλησης συνεδρίας.',
+  formatSessionsRevoked: (count) => `Ανακλήθηκαν ${count} άλλες συνεδρίες.`,
   sectionGoogleWorkspace: 'Google Workspace',
   sectionInterface: 'Διεπαφή',
   labelTheme: 'Θέμα',

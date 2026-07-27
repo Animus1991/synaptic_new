@@ -19,7 +19,7 @@ export interface Account {
   id: string;
   email: string;
   plan: Plan;
-  passwordHash: string; // scrypt hash, hex
+  passwordHash: string; // legacy hex or $scrypt-v2$…
   salt: string; // hex
   createdAt: string;
   usage: UsageWindow;
@@ -41,8 +41,57 @@ function freshWindow(): UsageWindow {
   return { month: currentMonth(), requests: 0, promptTokens: 0, completionTokens: 0 };
 }
 
-function hashPassword(password: string, salt: string): string {
+function hashPasswordLegacy(password: string, salt: string): string {
   return scryptSync(password, salt, 64).toString('hex');
+}
+
+/** A5 — explicit scrypt params + version prefix (dual-read with legacy hex). */
+const SCRYPT_V2_N = 16384;
+const SCRYPT_V2_R = 8;
+const SCRYPT_V2_P = 1;
+const SCRYPT_V2_PREFIX = `$scrypt-v2$N=${SCRYPT_V2_N},r=${SCRYPT_V2_R},p=${SCRYPT_V2_P}$`;
+
+function hashPasswordV2(password: string, saltHex: string): string {
+  const derived = scryptSync(password, Buffer.from(saltHex, 'hex'), 64, {
+    N: SCRYPT_V2_N,
+    r: SCRYPT_V2_R,
+    p: SCRYPT_V2_P,
+    maxmem: 64 * 1024 * 1024,
+  });
+  return `${SCRYPT_V2_PREFIX}${saltHex}$${derived.toString('hex')}`;
+}
+
+function hashPassword(password: string, salt: string): string {
+  return hashPasswordV2(password, salt);
+}
+
+function safeEqualHex(a: string, b: string): boolean {
+  try {
+    const ba = Buffer.from(a, 'hex');
+    const bb = Buffer.from(b, 'hex');
+    return ba.length === bb.length && timingSafeEqual(ba, bb);
+  } catch {
+    return false;
+  }
+}
+
+export function needsPasswordRehash(account: Account): boolean {
+  return !account.passwordHash.startsWith('$scrypt-v2$');
+}
+
+export function verifyPassword(account: Account, password: string): boolean {
+  if (account.passwordHash.startsWith('$scrypt-v2$')) {
+    const parts = account.passwordHash.split('$');
+    // '', 'scrypt-v2', 'N=…', salt, hash
+    const saltHex = parts[3];
+    const expected = parts[4];
+    if (!saltHex || !expected) return false;
+    const candidate = hashPasswordV2(password, saltHex);
+    const candHash = candidate.split('$')[4] ?? '';
+    return safeEqualHex(candHash, expected);
+  }
+  const candidate = hashPasswordLegacy(password, account.salt);
+  return safeEqualHex(candidate, account.passwordHash);
 }
 
 function buildAccount(email: string, password: string, plan: Plan = 'free'): Account {
@@ -63,13 +112,6 @@ function buildAccount(email: string, password: string, plan: Plan = 'free'): Acc
 /** Roll the usage window when the calendar month changes. */
 function ensureMonth(account: Account): void {
   if (account.usage.month !== currentMonth()) account.usage = freshWindow();
-}
-
-export function verifyPassword(account: Account, password: string): boolean {
-  const candidate = hashPassword(password, account.salt);
-  const a = Buffer.from(candidate, 'hex');
-  const b = Buffer.from(account.passwordHash, 'hex');
-  return a.length === b.length && timingSafeEqual(a, b);
 }
 
 export function getUsage(account: Account): UsageWindow {

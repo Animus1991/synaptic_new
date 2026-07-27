@@ -120,10 +120,10 @@ googleAuthRouter.get('/google/callback', async (req, res) => {
     await saveGoogleTokens(buildTokenRecord(account.id, user, tokenRes));
 
     const accessToken = signAccessToken(account.id);
-    const refreshToken = await signRefreshToken(account.id);
+    const refresh = await signRefreshToken(account.id);
     const completionCode = issueAuthCompletion({
       token: accessToken,
-      refreshToken,
+      refreshToken: refresh.token,
       email: account.email,
       plan: account.plan,
     });

@@ -301,22 +301,54 @@ export function createAccountRepo(databaseUrl: string | undefined): AccountRepos
 
 export type StoredTokenKind = 'refresh' | 'password_reset' | 'email_verify';
 
+export type IssueTokenMeta = {
+  id: string;
+  userAgent?: string;
+  ip?: string;
+};
+
+export type SessionListRow = {
+  id: string;
+  createdAt: string;
+  expiresAt: string;
+  userAgent?: string;
+  ip?: string;
+};
+
 export interface TokenRepository {
-  issueToken(accountId: string, tokenHash: string, kind: StoredTokenKind, expiresAt: Date): Promise<void>;
+  issueToken(
+    accountId: string,
+    tokenHash: string,
+    kind: StoredTokenKind,
+    expiresAt: Date,
+    meta: IssueTokenMeta,
+  ): Promise<void>;
   consumeToken(tokenHash: string, kind: StoredTokenKind): Promise<string | null>;
   revokeTokensForAccount(accountId: string): Promise<void>;
   purgeExpiredTokens(): Promise<void>;
+  listRefreshSessions(accountId: string): Promise<SessionListRow[]>;
+  revokeSessionById(accountId: string, sessionId: string): Promise<boolean>;
+  revokeOtherRefreshSessions(accountId: string, keepSessionId: string): Promise<number>;
+  findSessionIdByHash?(tokenHash: string, kind: StoredTokenKind): Promise<string | null>;
 }
 
 export function createPostgresTokenRepo(databaseUrl: string): TokenRepository {
   const pool = new Pool({ connectionString: databaseUrl });
 
   return {
-    async issueToken(accountId, tokenHash, kind, expiresAt) {
+    async issueToken(accountId, tokenHash, kind, expiresAt, meta) {
       await pool.query(
-        `INSERT INTO auth_tokens (token_hash, account_id, kind, expires_at)
-         VALUES ($1, $2, $3, $4::timestamptz)`,
-        [tokenHash, accountId, kind, expiresAt.toISOString()],
+        `INSERT INTO auth_tokens (token_hash, account_id, kind, expires_at, id, user_agent, ip)
+         VALUES ($1, $2, $3, $4::timestamptz, $5, $6, $7)`,
+        [
+          tokenHash,
+          accountId,
+          kind,
+          expiresAt.toISOString(),
+          meta.id,
+          meta.userAgent ?? null,
+          meta.ip ?? null,
+        ],
       );
     },
 
@@ -336,6 +368,55 @@ export function createPostgresTokenRepo(databaseUrl: string): TokenRepository {
 
     async purgeExpiredTokens() {
       await pool.query('DELETE FROM auth_tokens WHERE expires_at <= NOW()');
+    },
+
+    async listRefreshSessions(accountId) {
+      const res = await pool.query<{
+        id: string;
+        created_at: Date;
+        expires_at: Date;
+        user_agent: string | null;
+        ip: string | null;
+      }>(
+        `SELECT id, created_at, expires_at, user_agent, ip
+         FROM auth_tokens
+         WHERE account_id = $1 AND kind = 'refresh' AND expires_at > NOW()
+         ORDER BY created_at DESC`,
+        [accountId],
+      );
+      return res.rows.map((r) => ({
+        id: r.id,
+        createdAt: r.created_at.toISOString(),
+        expiresAt: r.expires_at.toISOString(),
+        userAgent: r.user_agent ?? undefined,
+        ip: r.ip ?? undefined,
+      }));
+    },
+
+    async revokeSessionById(accountId, sessionId) {
+      const res = await pool.query(
+        `DELETE FROM auth_tokens WHERE account_id = $1 AND id = $2`,
+        [accountId, sessionId],
+      );
+      return (res.rowCount ?? 0) > 0;
+    },
+
+    async revokeOtherRefreshSessions(accountId, keepSessionId) {
+      const res = await pool.query(
+        `DELETE FROM auth_tokens
+         WHERE account_id = $1 AND kind = 'refresh' AND id <> $2`,
+        [accountId, keepSessionId],
+      );
+      return res.rowCount ?? 0;
+    },
+
+    async findSessionIdByHash(tokenHash, kind) {
+      const res = await pool.query<{ id: string }>(
+        `SELECT id FROM auth_tokens
+         WHERE token_hash = $1 AND kind = $2 AND expires_at > NOW()`,
+        [tokenHash, kind],
+      );
+      return res.rowCount ? res.rows[0]!.id : null;
     },
   };
 }

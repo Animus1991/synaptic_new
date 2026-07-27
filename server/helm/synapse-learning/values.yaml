@@ -47,3 +47,7 @@ otel:
   serviceName: synapse-learning-api
   # e.g. http://otel-collector.observability:4318
   exporterOtlpEndpoint: ""
+
+# A2 — pre-install/upgrade Job runs `npm run migrate`. Deployment keeps RUN_MIGRATIONS_ON_START=false.
+migrate:
+  backoffLimit: 3

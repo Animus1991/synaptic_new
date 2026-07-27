@@ -23,12 +23,15 @@ synapse-learning/
 
 Key MD references:
 
+- **Start here:** [`docs/INDEX.md`](docs/INDEX.md) (Live vs History) and
+  [`docs/UPGRADE_BACKLOG.md`](docs/UPGRADE_BACKLOG.md) (W0–D execution program).
 - `ARCHITECTURE.md`, `CONTENT_PIPELINE.md`, `STUDY_WORKSPACE.md` — what each
   layer does and how it composes.
 - `ALGORITHMS.md` — every learning/retrieval algorithm with file pointers.
 - `API.md`, `server/README.md` — server contract.
 - `PERSISTENCE.md`, `DEPLOYMENT.md`, `TESTING.md`, `SECURITY.md` — ops.
 - `ROADMAP.md`, `CHANGELOG.md` — direction + history.
+- Historical `*PLAN*` / blueprint docs live under `docs/history/` (stubs at old paths).
 
 ## Local setup
 

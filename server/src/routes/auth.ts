@@ -6,12 +6,28 @@ import {
   findByIdAsync,
   getUsage,
   markEmailVerifiedAsync,
+  needsPasswordRehash,
   updatePasswordAsync,
   verifyPassword,
 } from '../store/accounts';
-import { consumeToken, issueToken } from '../store/tokenStore';
+import {
+  consumeToken,
+  issueToken,
+  listRefreshSessions,
+  revokeOtherRefreshSessions,
+  revokeSessionById,
+} from '../store/tokenStore';
+import { sendEmailVerificationEmail, sendPasswordResetEmail } from '../lib/email';
 
 export const authRouter = Router();
+
+function clientMeta(req: { headers: Record<string, unknown>; ip?: string }) {
+  const ua = req.headers['user-agent'];
+  return {
+    userAgent: typeof ua === 'string' ? ua.slice(0, 512) : undefined,
+    ip: typeof req.ip === 'string' ? req.ip : undefined,
+  };
+}
 
 function validCredentials(body: unknown): { email: string; password: string } | null {
   if (typeof body !== 'object' || body === null) return null;
@@ -21,13 +37,17 @@ function validCredentials(body: unknown): { email: string; password: string } | 
   return { email, password };
 }
 
-async function authPayloadWithRefresh(account: { id: string; email: string; plan: string; emailVerified?: boolean }) {
+async function authPayloadWithRefresh(
+  account: { id: string; email: string; plan: string; emailVerified?: boolean },
+  meta?: { userAgent?: string; ip?: string },
+) {
   const accessToken = signAccessToken(account.id);
-  const refreshToken = await signRefreshToken(account.id);
+  const refresh = await signRefreshToken(account.id, meta);
   return {
     token: accessToken,
     accessToken,
-    refreshToken,
+    refreshToken: refresh.token,
+    sessionId: refresh.sessionId,
     account: {
       id: account.id,
       email: account.email,
@@ -45,7 +65,7 @@ authRouter.post('/register', async (req, res) => {
   }
   try {
     const account = await createAccountAsync(creds.email, creds.password);
-    res.status(201).json(await authPayloadWithRefresh(account));
+    res.status(201).json(await authPayloadWithRefresh(account, clientMeta(req)));
   } catch (err) {
     res.status(409).json({ error: (err as Error).message });
   }
@@ -62,7 +82,10 @@ authRouter.post('/login', async (req, res) => {
     res.status(401).json({ error: 'Invalid email or password' });
     return;
   }
-  res.json(await authPayloadWithRefresh(account));
+  if (needsPasswordRehash(account)) {
+    void updatePasswordAsync(account.id, creds.password).catch(() => undefined);
+  }
+  res.json(await authPayloadWithRefresh(account, clientMeta(req)));
 });
 
 authRouter.post('/refresh', async (req, res) => {
@@ -73,15 +96,63 @@ authRouter.post('/refresh', async (req, res) => {
     return;
   }
   const accessToken = signAccessToken(accountId);
+  const refresh = await signRefreshToken(accountId, clientMeta(req));
   res.json({
     token: accessToken,
     accessToken,
-    refreshToken: await signRefreshToken(accountId),
+    refreshToken: refresh.token,
+    sessionId: refresh.sessionId,
   });
 });
 
-authRouter.post('/logout', authenticate, (_req, res) => {
+authRouter.post('/logout', authenticate, async (req, res) => {
+  const sessionId = typeof req.body?.sessionId === 'string' ? req.body.sessionId : '';
+  if (sessionId && req.account && req.account.id !== 'anonymous') {
+    await revokeSessionById(req.account.id, sessionId);
+  }
   res.json({ ok: true });
+});
+
+authRouter.get('/sessions', authenticate, async (req, res) => {
+  const account = req.account!;
+  if (account.id === 'anonymous') {
+    res.status(400).json({ error: 'Anonymous accounts have no sessions' });
+    return;
+  }
+  const currentSessionId =
+    typeof req.query.currentSessionId === 'string' ? req.query.currentSessionId : undefined;
+  const sessions = await listRefreshSessions(account.id, currentSessionId);
+  res.json({ sessions });
+});
+
+authRouter.delete('/sessions/:id', authenticate, async (req, res) => {
+  const account = req.account!;
+  if (account.id === 'anonymous') {
+    res.status(400).json({ error: 'Anonymous accounts have no sessions' });
+    return;
+  }
+  const ok = await revokeSessionById(account.id, req.params.id);
+  if (!ok) {
+    res.status(404).json({ error: 'Session not found' });
+    return;
+  }
+  res.json({ ok: true });
+});
+
+authRouter.post('/sessions/revoke-others', authenticate, async (req, res) => {
+  const account = req.account!;
+  if (account.id === 'anonymous') {
+    res.status(400).json({ error: 'Anonymous accounts have no sessions' });
+    return;
+  }
+  const keepSessionId =
+    typeof req.body?.keepSessionId === 'string' ? req.body.keepSessionId : '';
+  if (!keepSessionId) {
+    res.status(400).json({ error: 'keepSessionId required' });
+    return;
+  }
+  const revoked = await revokeOtherRefreshSessions(account.id, keepSessionId);
+  res.json({ ok: true, revoked });
 });
 
 authRouter.post('/forgot-password', async (req, res) => {
@@ -92,7 +163,8 @@ authRouter.post('/forgot-password', async (req, res) => {
   }
   const account = await findByEmailAsync(email);
   if (account) {
-    const resetToken = await issueToken(account.id, 'password_reset', 60 * 60 * 1000);
+    const { raw: resetToken } = await issueToken(account.id, 'password_reset', 60 * 60 * 1000);
+    await sendPasswordResetEmail(account.email, resetToken);
     if (process.env.NODE_ENV !== 'production') {
       res.json({ ok: true, resetToken });
       return;
@@ -151,12 +223,12 @@ authRouter.post('/verify-email/request', authenticate, async (req, res) => {
     res.json({ ok: true, alreadyVerified: true });
     return;
   }
-  const verifyToken = await issueToken(fresh.id, 'email_verify', 24 * 60 * 60 * 1000);
+  const { raw: verifyToken } = await issueToken(fresh.id, 'email_verify', 24 * 60 * 60 * 1000);
+  await sendEmailVerificationEmail(fresh.email, verifyToken);
   if (process.env.NODE_ENV !== 'production') {
     res.json({ ok: true, verifyToken });
     return;
   }
-  // Production: token would be emailed — no SMTP wired yet, so acknowledge only.
   res.json({ ok: true });
 });
 

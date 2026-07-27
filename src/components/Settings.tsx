@@ -8,7 +8,7 @@ import type { LucideIcon } from '@/lib/lucide-shim';
 import type { UserSettings, Task } from '../types';
 import { cn } from '../utils/cn';
 import { clearAllSessionData, downloadBackup, importSessionData } from '../lib/sessionBackup';
-import { authLogin, authRegister, pushRemoteLibrary, createCheckoutSession, authExportAccount, authDeleteAccount, type AuthSession } from '../lib/authClient';
+import { authLogin, authRegister, pushRemoteLibrary, createCheckoutSession, authExportAccount, authDeleteAccount, authListSessions, authRevokeSession, authRevokeOtherSessions, type AuthSession, type AuthDeviceSession } from '../lib/authClient';
 import { GoogleIntegrationsPanel } from './GoogleIntegrationsPanel';
 import { googleAuthStartUrl } from '../lib/googleClient';
 import { loadLibrarySync } from '../lib/libraryStorage';
@@ -68,6 +68,8 @@ export function Settings({
   const [authPassword, setAuthPassword] = useState('');
   const [authStatus, setAuthStatus] = useState<string | null>(null);
   const [deleteConfirmEmail, setDeleteConfirmEmail] = useState('');
+  const [sessions, setSessions] = useState<AuthDeviceSession[]>([]);
+  const [sessionsStatus, setSessionsStatus] = useState<string | null>(null);
   const [parityTick, setParityTick] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const parityOverride = useMemo(() => {
@@ -80,6 +82,24 @@ export function Settings({
   }, [parityTick]);
   const parityToggleValue =
     parityOverride === true ? 'on' : parityOverride === false ? 'off' : 'default';
+
+  useEffect(() => {
+    if (!settings.authToken) {
+      setSessions([]);
+      return;
+    }
+    let cancelled = false;
+    void authListSessions(settings.authToken, settings, settings.authSessionId)
+      .then((rows) => {
+        if (!cancelled) setSessions(rows);
+      })
+      .catch(() => {
+        if (!cancelled) setSessions([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [settings.authToken, settings.authSessionId, settings.authProxyBase, settings.llmProxyUrl]);
 
   const handleImport = async (file: File) => {
     const text = await file.text();
@@ -98,6 +118,8 @@ export function Settings({
   const finishAuth = async (session: AuthSession, label: string) => {
     onUpdate({
       authToken: session.token,
+      authRefreshToken: session.refreshToken,
+      authSessionId: session.sessionId,
       authEmail: session.email,
       authPlan: session.plan ?? 'free',
       llmProxyUrl: settings.llmProxyUrl ?? `${proxyBase}/v1`,
@@ -528,7 +550,15 @@ export function Settings({
             <button
               type="button"
               className="px-4 py-2 rounded-xl text-sm font-medium border border-border-subtle"
-              onClick={() => onUpdate({ authToken: undefined, authEmail: undefined, authPlan: undefined })}
+              onClick={() =>
+                onUpdate({
+                  authToken: undefined,
+                  authRefreshToken: undefined,
+                  authSessionId: undefined,
+                  authEmail: undefined,
+                  authPlan: undefined,
+                })
+              }
             >
               {c.signOut}
             </button>
@@ -611,6 +641,76 @@ export function Settings({
           />
         )}
         {settings.authToken && (
+          <div className="mt-3 pt-3 border-t border-border-subtle space-y-2" data-testid="settings-sessions">
+            <p className="text-xs font-semibold text-text-primary">{c.sectionSessions}</p>
+            <p className="text-[11px] text-text-muted">{c.sessionsHint}</p>
+            {sessions.length === 0 ? (
+              <p className="text-[11px] text-text-muted">{c.sessionsEmpty}</p>
+            ) : (
+              <ul className="space-y-2">
+                {sessions.map((s) => (
+                  <li
+                    key={s.id}
+                    className="flex flex-wrap items-center justify-between gap-2 text-[11px] border border-border-subtle rounded-lg px-2 py-1.5"
+                    data-testid={`session-row-${s.id}`}
+                  >
+                    <div className="min-w-0">
+                      <p className="text-text-secondary truncate">
+                        {s.current ? c.sessionCurrent : c.sessionOther}
+                        {s.userAgent ? ` · ${s.userAgent.slice(0, 48)}` : ''}
+                      </p>
+                      <p className="text-text-muted">{new Date(s.createdAt).toLocaleString()}</p>
+                    </div>
+                    {!s.current && (
+                      <button
+                        type="button"
+                        data-testid={`session-revoke-${s.id}`}
+                        className="px-2 py-1 rounded-lg border border-border-subtle text-text-secondary"
+                        onClick={async () => {
+                          if (!settings.authToken) return;
+                          try {
+                            await authRevokeSession(settings.authToken, settings, s.id);
+                            setSessions((prev) => prev.filter((x) => x.id !== s.id));
+                            setSessionsStatus(c.sessionRevoked);
+                          } catch (e) {
+                            setSessionsStatus(e instanceof Error ? e.message : c.sessionRevokeFailed);
+                          }
+                        }}
+                      >
+                        {c.revokeSession}
+                      </button>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            )}
+            {settings.authSessionId && sessions.some((s) => !s.current) && (
+              <button
+                type="button"
+                data-testid="sessions-revoke-others"
+                className="px-3 py-2 rounded-xl text-xs font-medium border border-border-subtle text-text-secondary"
+                onClick={async () => {
+                  if (!settings.authToken || !settings.authSessionId) return;
+                  try {
+                    const n = await authRevokeOtherSessions(
+                      settings.authToken,
+                      settings,
+                      settings.authSessionId,
+                    );
+                    setSessions((prev) => prev.filter((s) => s.current));
+                    setSessionsStatus(c.formatSessionsRevoked(n));
+                  } catch (e) {
+                    setSessionsStatus(e instanceof Error ? e.message : c.sessionRevokeFailed);
+                  }
+                }}
+              >
+                {c.revokeOtherSessions}
+              </button>
+            )}
+            {sessionsStatus && <p className="text-[11px] text-text-muted">{sessionsStatus}</p>}
+          </div>
+        )}
+        {settings.authToken && (
           <div className="mt-3 pt-3 border-t border-border-subtle space-y-2">
             <p className="text-xs font-semibold text-text-primary">{t('gdprExportData')}</p>
             <p className="text-[11px] text-text-muted">{t('gdprExportHint')}</p>
@@ -674,6 +774,8 @@ export function Settings({
                   await authDeleteAccount(settings.authToken, settings, deleteConfirmEmail.trim());
                   onUpdate({
                     authToken: undefined,
+                    authRefreshToken: undefined,
+                    authSessionId: undefined,
                     authEmail: undefined,
                     authPlan: undefined,
                   });

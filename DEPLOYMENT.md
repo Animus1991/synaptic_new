@@ -111,6 +111,21 @@ npm run migrate:create -- new-feature
 Or set `RUN_MIGRATIONS_ON_START=true` so the server runs `runMigrations()`
 before listening.
 
+### Helm: migrate Job (multi-replica)
+
+Production chart defaults keep `RUN_MIGRATIONS_ON_START=false` so replicas do
+not race migrations. Apply schema via the pre-install/pre-upgrade Job:
+
+```bash
+helm template synapse ./server/helm/synapse-learning | findstr /C:"kind: Job" /C:"migrate"
+# Expect: Job …-migrate with command npm run migrate
+helm upgrade --install synapse ./server/helm/synapse-learning -n synapse
+```
+
+Prove multi-replica: `replicaCount: 2` in values; Job completes once; pods
+reach Ready without running migrate on start. See `docs/runbooks/jwt-rotation.md`
+and `docs/UPGRADE_BACKLOG.md` (A2).
+
 Without `DATABASE_URL`, the server falls back to in-memory repos (dev only —
 data is lost on restart).
 

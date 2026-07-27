@@ -283,14 +283,14 @@ export async function exchangeToken(body: Record<string, unknown>): Promise<Toke
     if ('error' in result) return { status: 400, body: { error: result.error } };
 
     const accessToken = signAccessToken(result.accountId);
-    const refreshToken = await signRefreshToken(result.accountId);
+    const refresh = await signRefreshToken(result.accountId);
     return {
       status: 200,
       body: {
         access_token: accessToken,
         token_type: 'Bearer',
         expires_in: ACCESS_TOKEN_EXPIRES_IN,
-        refresh_token: refreshToken,
+        refresh_token: refresh.token,
         scope: result.scope,
       },
     };
@@ -301,14 +301,14 @@ export async function exchangeToken(body: Record<string, unknown>): Promise<Toke
     const accountId = await verifyRefreshToken(raw);
     if (!accountId) return { status: 400, body: { error: 'invalid_grant' } };
     const accessToken = signAccessToken(accountId);
-    const refreshToken = await signRefreshToken(accountId);
+    const refresh = await signRefreshToken(accountId);
     return {
       status: 200,
       body: {
         access_token: accessToken,
         token_type: 'Bearer',
         expires_in: ACCESS_TOKEN_EXPIRES_IN,
-        refresh_token: refreshToken,
+        refresh_token: refresh.token,
       },
     };
   }

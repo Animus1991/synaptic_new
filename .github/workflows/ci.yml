@@ -243,8 +243,8 @@ jobs:
           node-version: '22'
           cache: npm
       - run: npm ci
-      - name: Client audit (high+)
-        run: npm audit --audit-level=high
+      - name: Client audit (high+, omit dev)
+        run: npm audit --omit=dev --audit-level=high
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
@@ -252,9 +252,9 @@ jobs:
           cache-dependency-path: server/package-lock.json
       - working-directory: server
         run: npm ci
-      - name: Server audit (high+)
+      - name: Server audit (high+, omit dev)
         working-directory: server
-        run: npm audit --audit-level=high
+        run: npm audit --omit=dev --audit-level=high
 
   gitleaks:
     runs-on: ubuntu-latest

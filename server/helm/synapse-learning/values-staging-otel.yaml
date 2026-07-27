@@ -1,0 +1,19 @@
+# Staging overrides — OTel enablement (B2)
+
+```yaml
+# helm upgrade … -f values-staging-otel.yaml
+otel:
+  enabled: true
+  serviceName: synapse-learning-api-staging
+  exporterOtlpEndpoint: "http://otel-collector.observability:4318"
+
+replicaCount: 2
+```
+
+## Done criteria
+
+- Collector receives spans for auth, proxy/LLM, and pg when instrumented.
+- Alert on 5xx spike configured in the observability stack (operator).
+- Production remains `otel.enabled: false` until dashboards exist.
+
+Anchors: `server/src/lib/telemetry.ts`, `server/helm/synapse-learning/values.yaml`.

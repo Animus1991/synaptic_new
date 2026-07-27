@@ -4,7 +4,12 @@ import { enforceQuota } from '../middleware/usage';
 import { addUsageAsync } from '../store/accounts';
 import { estimateTokens, upstreamFetch, type UpstreamUsage } from '../lib/upstream';
 import { assertModelAllowed } from '../lib/modelAllowlist';
-import { moderateChatCompletionsBody, moderateEmbeddingsBody } from '../lib/promptModeration';
+import {
+  extractAssistantText,
+  moderateChatCompletionsBodyAsync,
+  moderateCompletionOutput,
+  moderateEmbeddingsBody,
+} from '../lib/promptModeration';
 
 export const proxyRouter = Router();
 proxyRouter.use(authenticate, enforceQuota);
@@ -24,7 +29,7 @@ proxyRouter.post('/chat/completions', async (req, res) => {
     return;
   }
 
-  const moderation = moderateChatCompletionsBody(body);
+  const moderation = await moderateChatCompletionsBodyAsync(body);
   if (moderation) {
     reject(res, 400, 'Prompt rejected by moderation', moderation.reason);
     return;
@@ -51,6 +56,11 @@ proxyRouter.post('/chat/completions', async (req, res) => {
 
   if (!wantsStream) {
     const data = (await upstream.json()) as { usage?: UpstreamUsage };
+    const outHit = await moderateCompletionOutput(extractAssistantText(data));
+    if (outHit) {
+      reject(res, 400, 'Completion rejected by moderation', outHit.reason);
+      return;
+    }
     const u = data.usage ?? {};
     await addUsageAsync(account, u.prompt_tokens ?? 0, u.completion_tokens ?? 0);
     res.json(data);

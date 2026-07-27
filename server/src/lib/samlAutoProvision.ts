@@ -69,10 +69,10 @@ export async function provisionSamlUser(claims: SamlAcsSuccess): Promise<SamlPro
   }
 
   const accessToken = signAccessToken(account.id);
-  const refreshToken = await signRefreshToken(account.id);
+  const refresh = await signRefreshToken(account.id);
   const authCode = issueAuthCompletion({
     token: accessToken,
-    refreshToken,
+    refreshToken: refresh.token,
     email: account.email,
     plan: account.plan,
   });

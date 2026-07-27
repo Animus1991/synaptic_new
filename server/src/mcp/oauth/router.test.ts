@@ -8,7 +8,7 @@ vi.mock('../../store/accounts', () => ({
 }));
 vi.mock('../../middleware/auth', () => ({
   signAccessToken: vi.fn(() => 'access-jwt'),
-  signRefreshToken: vi.fn(async () => 'refresh-jwt'),
+  signRefreshToken: vi.fn(async () => ({ token: 'refresh-jwt', sessionId: 'sess-1' })),
   verifyRefreshToken: vi.fn(async (raw: string) => (raw === 'refresh-jwt' ? 'acc-1' : null)),
 }));
 

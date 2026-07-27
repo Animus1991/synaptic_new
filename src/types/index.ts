@@ -59,6 +59,10 @@ export interface UserSettings {
   llmVisionModel?: string;
   /** Managed proxy auth token from /auth/login */
   authToken?: string;
+  /** Opaque refresh token for session rotation (A4). */
+  authRefreshToken?: string;
+  /** Server session id for the current refresh token. */
+  authSessionId?: string;
   authEmail?: string;
   authProxyBase?: string;
   /** Plan tier from managed proxy (/auth/me). */

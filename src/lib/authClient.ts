@@ -21,6 +21,7 @@ import type {
 export type AuthSession = {
   token: string;
   refreshToken?: string;
+  sessionId?: string;
   email: string;
   plan?: 'free' | 'pro' | 'team';
 };
@@ -56,6 +57,7 @@ export async function authRegister(
   const data = (await res.json()) as {
     token: string;
     refreshToken?: string;
+    sessionId?: string;
     email?: string;
     plan?: string;
     account?: { email?: string; plan?: string };
@@ -64,6 +66,7 @@ export async function authRegister(
   return {
     token: data.token,
     refreshToken: data.refreshToken,
+    sessionId: data.sessionId,
     email: data.email ?? data.account?.email ?? email,
     plan: plan ?? 'free',
   };
@@ -83,6 +86,7 @@ export async function authLogin(
   const data = (await res.json()) as {
     token: string;
     refreshToken?: string;
+    sessionId?: string;
     email?: string;
     plan?: string;
     account?: { email?: string; plan?: string };
@@ -91,6 +95,7 @@ export async function authLogin(
   return {
     token: data.token,
     refreshToken: data.refreshToken,
+    sessionId: data.sessionId,
     email: data.email ?? data.account?.email ?? email,
     plan: plan ?? 'free',
   };
@@ -223,15 +228,78 @@ export async function fetchBillingStatus(settings: UserSettings): Promise<{
 export async function authRefresh(
   refreshToken: string,
   settings: UserSettings,
-): Promise<{ token: string; refreshToken?: string }> {
+): Promise<{ token: string; refreshToken?: string; sessionId?: string }> {
   const res = await fetch(`${proxyBase(settings)}/auth/refresh`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ refreshToken }),
   });
   if (!res.ok) throw new Error(await res.text());
-  const data = (await res.json()) as { token: string; refreshToken?: string };
-  return { token: data.token, refreshToken: data.refreshToken };
+  const data = (await res.json()) as {
+    token: string;
+    refreshToken?: string;
+    sessionId?: string;
+  };
+  return {
+    token: data.token,
+    refreshToken: data.refreshToken,
+    sessionId: data.sessionId,
+  };
+}
+
+export type AuthDeviceSession = {
+  id: string;
+  createdAt: string;
+  expiresAt: string;
+  userAgent?: string;
+  ip?: string;
+  current?: boolean;
+};
+
+export async function authListSessions(
+  token: string,
+  settings: UserSettings,
+  currentSessionId?: string,
+): Promise<AuthDeviceSession[]> {
+  const q = currentSessionId
+    ? `?currentSessionId=${encodeURIComponent(currentSessionId)}`
+    : '';
+  const res = await fetch(`${proxyBase(settings)}/auth/sessions${q}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error(await res.text());
+  const data = (await res.json()) as { sessions: AuthDeviceSession[] };
+  return data.sessions ?? [];
+}
+
+export async function authRevokeSession(
+  token: string,
+  settings: UserSettings,
+  sessionId: string,
+): Promise<void> {
+  const res = await fetch(`${proxyBase(settings)}/auth/sessions/${encodeURIComponent(sessionId)}`, {
+    method: 'DELETE',
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error(await res.text());
+}
+
+export async function authRevokeOtherSessions(
+  token: string,
+  settings: UserSettings,
+  keepSessionId: string,
+): Promise<number> {
+  const res = await fetch(`${proxyBase(settings)}/auth/sessions/revoke-others`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ keepSessionId }),
+  });
+  if (!res.ok) throw new Error(await res.text());
+  const data = (await res.json()) as { revoked?: number };
+  return data.revoked ?? 0;
 }
 
 export async function authForgotPassword(

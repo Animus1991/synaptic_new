@@ -1,0 +1,12 @@
+{
+  "name": "@synapse/shared",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/errorCodes.ts",
+  "exports": {
+    ".": "./src/errorCodes.ts",
+    "./errorCodes": "./src/errorCodes.ts"
+  },
+  "description": "Shared contracts for Synapse Learning (B1). Not a full workspaces monorepo yet."
+}
