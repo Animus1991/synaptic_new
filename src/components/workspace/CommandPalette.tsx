@@ -145,7 +145,7 @@ export function CommandPalette({ open, onClose, items, placeholder }: Props) {
             className="ux-elev-popover w-full max-w-xl overflow-hidden rounded-panel border border-border-subtle bg-surface-card"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center gap-3 border-b border-border-subtle px-4 py-3">
+            <div className="command-palette-search flex items-center gap-3 border-b border-border-subtle px-4 py-3">
               <Search size={18} className="text-text-muted shrink-0" />
               <input
                 ref={inputRef}
@@ -156,7 +156,8 @@ export function CommandPalette({ open, onClose, items, placeholder }: Props) {
                 }}
                 onKeyDown={onKey}
                 placeholder={placeholder ?? 'Type a command, tool, or layout…'}
-                className="flex-1 bg-transparent text-sm text-text-primary placeholder:text-text-muted focus:outline-none"
+                data-testid="command-palette-input"
+                className="command-palette-input flex-1 bg-transparent text-sm text-text-primary placeholder:text-text-muted focus:outline-none"
               />
               <button
                 type="button"

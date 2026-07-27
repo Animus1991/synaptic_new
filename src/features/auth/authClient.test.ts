@@ -1,6 +1,6 @@
 import { describe, expect, it, vi, afterEach } from 'vitest';
 import { configuredProxyBase, fetchSharedAnnotations, isProxyConfigured } from './authClient';
-import type { UserSettings } from '../types';
+import type { UserSettings } from '../../types';
 
 describe('authClient proxy helpers', () => {
   it('does not assume localhost when proxy is unset', () => {

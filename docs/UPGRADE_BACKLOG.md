@@ -24,7 +24,7 @@ Operational / security / quality program for `synaptic_new`. **No new product fe
 
 | ID | Status | Done when |
 |----|--------|-----------|
-| W0.1 Canonical docs | **done** | `docs/INDEX.md` + `docs/history/` + stubs |
+| W0.1 Canonical docs | **done** | `docs/INDEX.md` + `docs/history/` + root `*PLAN*` stubs (link stability) |
 | W0.2 Gap freeze | **done** | this file + SECURITY/ROADMAP alignment |
 | W0.3 Baseline metrics | **done** | table above |
 
@@ -56,7 +56,7 @@ Operational / security / quality program for `synaptic_new`. **No new product fe
 | ID | Status | Notes |
 |----|--------|-------|
 | C1 Docs history complete | **done** | INDEX + history/ + CONTRIBUTING |
-| C2 Feature-folder migration | **started** | first slice: `src/features/rum` (web-vitals RUM) |
+| C2 Feature-folder migration | **started** | `src/features/rum` + `src/features/auth` (deprecate re-exports from `src/lib`) |
 | C3 Optional npm workspaces | pending | wait until more features land under `src/features/` |
 
 ## Wave D — P2 Product-ops

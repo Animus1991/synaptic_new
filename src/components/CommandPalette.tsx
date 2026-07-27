@@ -230,7 +230,7 @@ export function CommandPalette({
     >
       <div className="absolute inset-0 bg-black/60" onClick={onClose} />
       <div className="ux-elev-popover relative w-full max-w-lg rounded-2xl border border-border-subtle bg-surface-secondary overflow-hidden">
-        <div className="flex items-center gap-2 px-4 py-3 border-b border-border-subtle">
+        <div className="command-palette-search flex items-center gap-2 px-4 py-3 border-b border-border-subtle">
           <Search className="w-4 h-4 text-text-muted" />
           <input
             autoFocus
@@ -242,7 +242,7 @@ export function CommandPalette({
             aria-expanded="true"
             aria-controls="command-palette-list"
             aria-autocomplete="list"
-            className="flex-1 bg-transparent text-sm outline-none placeholder:text-text-muted"
+            className="command-palette-input flex-1 bg-transparent text-sm outline-none placeholder:text-text-muted"
           />
           <kbd className="text-[10px] px-1.5 py-0.5 rounded border border-border-subtle text-text-muted">ESC</kbd>
         </div>

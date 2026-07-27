@@ -8,7 +8,7 @@ import type { LucideIcon } from '@/lib/lucide-shim';
 import type { UserSettings, Task } from '../types';
 import { cn } from '../utils/cn';
 import { clearAllSessionData, downloadBackup, importSessionData } from '../lib/sessionBackup';
-import { authLogin, authRegister, pushRemoteLibrary, createCheckoutSession, authExportAccount, authDeleteAccount, authListSessions, authRevokeSession, authRevokeOtherSessions, type AuthSession, type AuthDeviceSession } from '../lib/authClient';
+import { authLogin, authRegister, pushRemoteLibrary, createCheckoutSession, authExportAccount, authDeleteAccount, authListSessions, authRevokeSession, authRevokeOtherSessions, type AuthSession, type AuthDeviceSession } from '../features/auth';
 import { GoogleIntegrationsPanel } from './GoogleIntegrationsPanel';
 import { googleAuthStartUrl } from '../lib/googleClient';
 import { loadLibrarySync } from '../lib/libraryStorage';

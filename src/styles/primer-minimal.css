@@ -158,16 +158,25 @@
   --color-accent-teal: #6aa898;
   --color-accent-cyan: #5a9eb0;
   --color-accent-emerald: #449e80;
-  --color-accent-amber: #b89440;
+  --color-accent-amber: color-mix(in srgb, #c4a24c 85%, #ffffff);
   --color-accent-rose: #c87882;
   --color-accent-orange: #c49060;
   --color-accent-violet: #9a8fb8;
 
   --mastery-weak: #c87882;
   --mastery-developing: #5a9eb0;
-  --mastery-proficient: #b89440;
+  --mastery-proficient: #c4a24c;
   --mastery-strong: #449e80;
   --btn-height-sm: 2rem;
+
+  /* Course progress bars (resolveCourseColor) — ~15% lift vs dark @theme defaults */
+  --palette-purple: color-mix(in srgb, #9a8fb8 85%, #ffffff);
+  --palette-cyan: color-mix(in srgb, #5a9eb0 85%, #ffffff);
+  --palette-teal: color-mix(in srgb, #6aa898 85%, #ffffff);
+  --palette-green: color-mix(in srgb, #449e80 85%, #ffffff);
+  --palette-amber: color-mix(in srgb, #c4a24c 85%, #ffffff);
+  --palette-rose: color-mix(in srgb, #c87882 85%, #ffffff);
+  --palette-orange: color-mix(in srgb, #c49060 85%, #ffffff);
 
   --viz-track: #262e39;
   --viz-node-fill: #1c232d;
@@ -554,6 +563,18 @@
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell :focus-visible {
   outline: var(--focus-ring-width, 2px) solid var(--focus-ring-color);
   outline-offset: 2px;
+}
+
+/* Command palette search — rounded focus, −15% brightness vs brand focus ring */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .command-palette-input:focus-visible {
+  outline: none !important;
+  outline-offset: 0;
+}
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .command-palette-search:focus-within {
+  border-radius: var(--radius-lg, 0.75rem);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--focus-ring-color, var(--color-brand-500)) 85%, #000000);
+  margin: 0.35rem 0.5rem 0;
+  border-bottom-color: transparent;
 }
 
 /* OPT-K40 — quieter modal titles under Minimal */

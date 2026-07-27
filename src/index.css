@@ -3811,6 +3811,23 @@ input[type="range"]::-webkit-slider-thumb {
   outline-offset: var(--focus-ring-offset, 2px);
 }
 
+/* Command palette search field — rounded ring, softer than default focus (≈−15% brightness) */
+[data-testid="command-palette"] .command-palette-input:focus-visible {
+  outline: none;
+  outline-offset: 0;
+}
+[data-testid="command-palette"] .command-palette-search:focus-within {
+  border-radius: var(--radius-lg, 0.75rem);
+  box-shadow: 0 0 0 2px
+    color-mix(
+      in srgb,
+      var(--focus-ring-color, var(--color-focus-ring, var(--color-brand-400))) 85%,
+      #000000
+    );
+  margin: 0.35rem 0.5rem 0;
+  border-bottom-color: transparent;
+}
+
 /* Wave N-T07 — opt-in focus ring for custom controls (menu items, listboxes,
    floating popovers) that need the same ring even without native `:focus-visible`. */
 .ux-focus-ring:focus-visible {
