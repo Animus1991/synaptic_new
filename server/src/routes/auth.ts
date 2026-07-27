@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { parseAuthCredentials, AuthErrorCodes } from '../../../packages/shared/src/index';
 import { authenticate, signAccessToken, signRefreshToken, verifyRefreshToken } from '../middleware/auth';
 import {
   createAccountAsync,
@@ -29,14 +30,6 @@ function clientMeta(req: { headers: Record<string, unknown>; ip?: string }) {
   };
 }
 
-function validCredentials(body: unknown): { email: string; password: string } | null {
-  if (typeof body !== 'object' || body === null) return null;
-  const { email, password } = body as Record<string, unknown>;
-  if (typeof email !== 'string' || typeof password !== 'string') return null;
-  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email) || password.length < 8) return null;
-  return { email, password };
-}
-
 async function authPayloadWithRefresh(
   account: { id: string; email: string; plan: string; emailVerified?: boolean },
   meta?: { userAgent?: string; ip?: string },
@@ -58,7 +51,7 @@ async function authPayloadWithRefresh(
 }
 
 authRouter.post('/register', async (req, res) => {
-  const creds = validCredentials(req.body);
+  const creds = parseAuthCredentials(req.body);
   if (!creds) {
     res.status(400).json({ error: 'Valid email and password (min 8 chars) required' });
     return;
@@ -72,14 +65,14 @@ authRouter.post('/register', async (req, res) => {
 });
 
 authRouter.post('/login', async (req, res) => {
-  const creds = validCredentials(req.body);
+  const creds = parseAuthCredentials(req.body);
   if (!creds) {
     res.status(400).json({ error: 'Valid email and password required' });
     return;
   }
   const account = await findByEmailAsync(creds.email);
   if (!account || !verifyPassword(account, creds.password)) {
-    res.status(401).json({ error: 'Invalid email or password' });
+    res.status(401).json({ error: 'Invalid email or password', code: AuthErrorCodes.INVALID_CREDENTIALS });
     return;
   }
   if (needsPasswordRehash(account)) {

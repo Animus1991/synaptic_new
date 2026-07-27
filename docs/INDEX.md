@@ -20,6 +20,7 @@ This file is the only recommended entry point for humans and agents. Historical 
 | [GAP_AUDIT.md](./GAP_AUDIT.md) | Gap register vs scale goals |
 | [runbooks/jwt-rotation.md](./runbooks/jwt-rotation.md) | JWT / secret rotation playbook |
 | [runbooks/backup-restore.md](./runbooks/backup-restore.md) | Backup restore drill |
+| [runbooks/otel-staging.md](./runbooks/otel-staging.md) | Staging OTel enablement (B2) |
 | [BUNDLE_BUDGET.md](./BUNDLE_BUDGET.md) | Lazy/heavy-lib budgets (B4) |
 | [LIGHTHOUSE.md](./LIGHTHOUSE.md) | Lighthouse CI surfaces + floors (B5) |
 | [TESTCONTAINERS.md](./TESTCONTAINERS.md) | Postgres testcontainers gate (B6) |

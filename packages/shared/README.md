@@ -1,11 +1,11 @@
 # @synapse/shared (Wave B1)
 
-Shared **error codes** (and later Zod schemas) without moving client/server into a full npm workspaces monorepo.
+Shared **error codes** + **Zod schemas** without a full npm workspaces monorepo.
 
 ## Usage
 
 ```ts
-import { AuthErrorCodes } from '../../packages/shared/src/errorCodes';
+import { AuthErrorCodes, parseAuthCredentials, LibrarySyncSchema } from '../../packages/shared/src/index';
 ```
 
-Wire typed client fetch + server responses in follow-up PRs. Optional root workspaces only after this package proves value (Wave C3).
+Server auth routes parse credentials via `parseAuthCredentials`. Optional root workspaces only after this package proves value (Wave C3).

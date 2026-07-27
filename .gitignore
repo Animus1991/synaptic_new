@@ -1,5 +1,7 @@
 node_modules/
 ocr-server/node_modules/
+packages/*/node_modules/
+server/node_modules/
 .env
 .env.*
 !.env.example

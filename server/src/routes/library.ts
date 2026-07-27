@@ -1,8 +1,9 @@
 import { Router, type Request, type Response } from 'express';
+import { LibrarySyncSchema } from '../../../packages/shared/src/schemas';
 import { authenticate } from '../middleware/auth';
 import { requireEmailVerified } from '../middleware/requireEmailVerified';
 import { etagFromUpdatedAt, ifMatchSatisfied } from '../lib/syncEtag';
-import { getLibraryAsync, saveLibraryAsync, type StoredLibrary } from '../store/libraryStore';
+import { getLibraryAsync, saveLibraryAsync } from '../store/libraryStore';
 import { enqueueLibraryVectorIndex } from '../jobs/vectorIndexQueue';
 import { ensureLibraryVectorIndexIfNeeded } from '../lib/ensureLibraryVectorIndex';
 
@@ -35,11 +36,15 @@ libraryRouter.put('/library', authenticate, requireEmailVerified, async (req: Re
       });
       return;
     }
-    const body = req.body as Partial<StoredLibrary>;
+    const parsed = LibrarySyncSchema.safeParse(req.body ?? {});
+    if (!parsed.success) {
+      res.status(400).json({ error: 'Invalid library payload', details: parsed.error.flatten() });
+      return;
+    }
     const saved = await saveLibraryAsync(accountId, {
-      uploadedFiles: body.uploadedFiles ?? [],
-      glossaryEntries: body.glossaryEntries ?? [],
-      generatedCourses: body.generatedCourses ?? [],
+      uploadedFiles: parsed.data.uploadedFiles,
+      glossaryEntries: parsed.data.glossaryEntries,
+      generatedCourses: parsed.data.generatedCourses,
     });
     enqueueLibraryVectorIndex(accountId, saved);
     res.setHeader('ETag', etagFromUpdatedAt(saved.updatedAt));

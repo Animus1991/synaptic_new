@@ -1040,7 +1040,7 @@
   border-radius: 1rem;
   background-color: #ffffff !important;
   background-image: none !important;
-  color: #020617;
+  color: var(--color-on-brand) !important;
   font-weight: 600;
   transition:
     background-color var(--motion-duration-ui) var(--motion-ease),
@@ -1049,7 +1049,7 @@
 }
 [data-theme="blueprint"] .ux-primary-cta:hover:not(:disabled) {
   background-color: #ecfeff !important;
-  color: #020617;
+  color: var(--color-on-brand) !important;
 }
 @media (prefers-reduced-motion: no-preference) {
   [data-theme="blueprint"] .ux-primary-cta:hover:not(:disabled) {
@@ -2644,18 +2644,26 @@
   border-radius: var(--ux-radius-hero);
 }
 
+/* Inverted glass CTAs: light fill needs dark ink. Tailwind `text-white` must not win. */
 [data-theme="blueprint"] :is(button, a).bg-brand-600,
 [data-theme="blueprint"] :is(button, a).bg-brand-700 {
   background-color: #ffffff;
-  color: #020617;
+  color: var(--color-on-brand) !important;
   font-weight: 600;
   transition:
     background-color var(--motion-duration-ui) var(--motion-ease),
     transform var(--motion-duration-ui) var(--motion-ease);
 }
+[data-theme="blueprint"] :is(button, a).bg-brand-600.text-white,
+[data-theme="blueprint"] :is(button, a).bg-brand-700.text-white,
+[data-theme="blueprint"] :is(button, a).hover\:bg-brand-500:hover.text-white,
+[data-theme="blueprint"] :is(button, a).hover\:bg-brand-800:hover.text-white {
+  color: var(--color-on-brand) !important;
+}
 [data-theme="blueprint"] :is(button, a).hover\:bg-brand-500:hover,
 [data-theme="blueprint"] :is(button, a).hover\:bg-brand-800:hover {
   background-color: #ecfeff;
+  color: var(--color-on-brand) !important;
 }
 @media (prefers-reduced-motion: no-preference) {
   [data-theme="blueprint"] :is(button, a).bg-brand-600:hover,
@@ -4026,23 +4034,53 @@ input[type="range"]::-webkit-slider-thumb {
   color: var(--mastery-strong);
   background: color-mix(in srgb, var(--mastery-strong) 14%, var(--color-surface-card));
 }
+/* Enriched: never pale-on-pale (brand-300 on soft cyan wash fails AA). */
 .platform-source-badge--enriched {
-  color: var(--color-brand-300);
-  background: color-mix(in srgb, var(--color-brand-500) 18%, var(--color-surface-card));
+  color: var(--color-brand-200);
+  background: color-mix(in srgb, var(--color-brand-500) 28%, var(--color-surface-card));
+  font-weight: 600;
 }
 .platform-source-badge--notes {
   color: var(--color-text-secondary);
   background: var(--color-surface-hover);
 }
 [data-theme="light"] .platform-source-badge--enriched,
-[data-theme="spectrum"] .platform-source-badge--enriched {
-  color: var(--color-brand-800);
-  background: color-mix(in srgb, var(--color-brand-500) 12%, var(--color-surface-card));
+[data-theme="spectrum"] .platform-source-badge--enriched,
+[data-theme="minimal"] .platform-source-badge--enriched {
+  color: var(--color-brand-900);
+  background: color-mix(in srgb, var(--color-brand-600) 14%, var(--color-surface-card));
+}
+[data-theme="blueprint"] .platform-source-badge--enriched {
+  color: #083344;
+  background: color-mix(in srgb, var(--color-brand-300) 55%, #ffffff);
 }
 [data-theme="light"] .platform-source-badge--strict,
 [data-theme="spectrum"] .platform-source-badge--strict {
   color: #1a6b4f;
   background: color-mix(in srgb, var(--mastery-strong) 14%, var(--color-surface-card));
+}
+
+/* Library filter chips — readable ink on dark canvas (not muted cream). */
+.platform-pill {
+  border: 1px solid var(--color-border-subtle);
+  color: var(--color-text-primary);
+  background: transparent;
+  font-weight: 500;
+}
+.platform-pill:hover {
+  border-color: var(--color-border-default);
+  background: var(--color-surface-hover);
+  color: var(--color-text-primary);
+}
+[data-theme="dark"] .platform-pill,
+[data-theme="blueprint"] .platform-pill,
+[data-theme="minimal-dark"] .platform-pill,
+:not([data-theme]) .platform-pill {
+  color: var(--color-text-primary);
+  border-color: color-mix(in srgb, #ffffff 18%, var(--color-border-subtle));
+}
+[data-theme="blueprint"] .platform-pill:hover {
+  border-color: color-mix(in srgb, var(--color-brand-300) 35%, var(--color-border-subtle));
 }
 
 .platform-status-pill--generating {

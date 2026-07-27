@@ -453,7 +453,7 @@ export function Library({
                   aria-pressed={active}
                   data-testid={`library-filter-${f}`}
                   className={cn(
-                    'platform-pill px-3 py-1.5 rounded-md text-xs transition-colors border',
+                    'platform-pill px-3 py-1.5 rounded-md text-xs transition-colors border text-text-primary',
                     active ? 'platform-pill-active' : '',
                     f === 'attention' && active ? 'border-accent-amber/50 bg-accent-amber/10 text-accent-amber' : '',
                   )}
@@ -911,7 +911,7 @@ function CourseCard({
               onClick();
             }}
             data-testid={`library-open-course-${course.id}`}
-            className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg bg-brand-700 text-white px-2 py-1.5 text-xs font-semibold hover:bg-brand-600 transition-colors"
+            className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg bg-brand-700 text-[color:var(--color-on-brand)] px-2 py-1.5 text-xs font-semibold hover:bg-brand-600 transition-colors"
           >
             {t('libOpenCourse', userLanguage)}
           </button>

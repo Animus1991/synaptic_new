@@ -44,8 +44,8 @@ Operational / security / quality program for `synaptic_new`. **No new product fe
 
 | ID | Status | Notes |
 |----|--------|-------|
-| B1 `packages/shared` | **started** | error codes package; Zod schemas next PR |
-| B2 OTel enablement | **partial** | `values-staging-otel.yaml` + existing telemetry.ts |
+| B1 `packages/shared` | **done** | error codes + Zod auth/library schemas wired on server |
+| B2 OTel enablement | **done** | valid `values-staging-otel.yaml` + Deployment `OTEL_*` + runbook |
 | B3 Web-vitals RUM | **done** | `webVitalsRum` → `/v1/rum` + optional Sentry |
 | B4 Bundle / lazy audit | **done** | visualizer CI artifact + heavyLibLazyGuard + BUNDLE_BUDGET |
 | B5 Lighthouse CI | **done** | `lighthouserc.cjs` + `npm run test:lhci` + CI artifact |
