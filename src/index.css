@@ -2644,44 +2644,53 @@
   border-radius: var(--ux-radius-hero);
 }
 
-/* Blueprint solid CTAs — darker cyan fill + white ink (readable AA).
-   Was inverted white/glass which left pale fills fighting `text-white`. */
-[data-theme="blueprint"] :is(button, a).bg-brand-600,
-[data-theme="blueprint"] :is(button, a).bg-brand-700,
-[data-theme="blueprint"] button[data-tour="dashboard-upload"],
-[data-theme="blueprint"] button[data-testid^="library-open-course-"] {
-  background-color: #0e7490 !important;
+/* Solid brand CTAs — role tokens (dark cyan fill + on-cta ink).
+   Blueprint: pale/glass fills fought `text-white`.
+   Minimal-dark: inverted brand-600/700 pastels remapped via --color-brand-cta. */
+[data-theme="blueprint"] {
+  --color-brand-cta: #0e7490;
+  --color-brand-cta-hover: #155e75;
+  --color-on-cta: #ffffff;
+  --color-chrome-active: var(--color-brand-600);
+}
+:is([data-theme="blueprint"], [data-theme="minimal-dark"]) :is(button, a).bg-brand-600,
+:is([data-theme="blueprint"], [data-theme="minimal-dark"]) :is(button, a).bg-brand-700,
+:is([data-theme="blueprint"], [data-theme="minimal-dark"]) button[data-tour="dashboard-upload"],
+:is([data-theme="blueprint"], [data-theme="minimal-dark"]) button[data-testid^="library-open-course-"],
+:is([data-theme="blueprint"], [data-theme="minimal-dark"]) .ux-solid-brand-cta {
+  background-color: var(--color-brand-cta) !important;
   background-image: none !important;
-  color: #ffffff !important;
+  color: var(--color-on-cta, var(--color-on-brand)) !important;
   font-weight: 600;
   transition:
     background-color var(--motion-duration-ui) var(--motion-ease),
     transform var(--motion-duration-ui) var(--motion-ease);
 }
-[data-theme="blueprint"] :is(button, a).bg-brand-600:hover,
-[data-theme="blueprint"] :is(button, a).bg-brand-700:hover,
-[data-theme="blueprint"] :is(button, a).hover\:bg-brand-500:hover,
-[data-theme="blueprint"] :is(button, a).hover\:bg-brand-600:hover,
-[data-theme="blueprint"] :is(button, a).hover\:bg-brand-800:hover,
-[data-theme="blueprint"] button[data-tour="dashboard-upload"]:hover,
-[data-theme="blueprint"] button[data-testid^="library-open-course-"]:hover {
-  background-color: #155e75 !important;
-  color: #ffffff !important;
+:is([data-theme="blueprint"], [data-theme="minimal-dark"]) :is(button, a).bg-brand-600:hover,
+:is([data-theme="blueprint"], [data-theme="minimal-dark"]) :is(button, a).bg-brand-700:hover,
+:is([data-theme="blueprint"], [data-theme="minimal-dark"]) :is(button, a).hover\:bg-brand-500:hover,
+:is([data-theme="blueprint"], [data-theme="minimal-dark"]) :is(button, a).hover\:bg-brand-600:hover,
+:is([data-theme="blueprint"], [data-theme="minimal-dark"]) :is(button, a).hover\:bg-brand-800:hover,
+:is([data-theme="blueprint"], [data-theme="minimal-dark"]) button[data-tour="dashboard-upload"]:hover,
+:is([data-theme="blueprint"], [data-theme="minimal-dark"]) button[data-testid^="library-open-course-"]:hover,
+:is([data-theme="blueprint"], [data-theme="minimal-dark"]) .ux-solid-brand-cta:hover {
+  background-color: var(--color-brand-cta-hover) !important;
+  color: var(--color-on-cta, var(--color-on-brand)) !important;
 }
 @media (prefers-reduced-motion: no-preference) {
-  [data-theme="blueprint"] :is(button, a).bg-brand-600:hover,
-  [data-theme="blueprint"] :is(button, a).bg-brand-700:hover,
-  [data-theme="blueprint"] button[data-testid^="library-open-course-"]:hover {
+  :is([data-theme="blueprint"], [data-theme="minimal-dark"]) :is(button, a).bg-brand-600:hover,
+  :is([data-theme="blueprint"], [data-theme="minimal-dark"]) :is(button, a).bg-brand-700:hover,
+  :is([data-theme="blueprint"], [data-theme="minimal-dark"]) button[data-testid^="library-open-course-"]:hover {
     transform: translateY(-1px);
   }
 }
 [data-theme="blueprint"] .ws-fab {
-  background: #0e7490;
-  color: #ffffff;
+  background: var(--color-brand-cta);
+  color: var(--color-on-cta);
   box-shadow: var(--elev-3);
 }
 [data-theme="blueprint"] .ws-fab:hover {
-  background: #155e75;
+  background: var(--color-brand-cta-hover);
 }
 
 /* Blueprint — floating ambient orbs (Option-B hero atmosphere) */
@@ -3082,6 +3091,34 @@
 [data-theme="blueprint"] .descriptive-sticky-tab-active .descriptive-sticky-tab-count {
   background: color-mix(in srgb, var(--color-accent-cyan) 18%, transparent);
   color: var(--color-brand-300);
+}
+
+/*
+ * Minimal-dark — DescriptiveStickyTabBar (Library / Course / Tasks):
+ * Industry chrome pattern: neutral text steps + one brand accent on active border.
+ * CTA blue (--color-brand-cta) stays on filled actions only; warm gold is --color-accent-warm
+ * for badges/highlights, not tab labels.
+ */
+[data-theme="minimal-dark"] .descriptive-sticky-tab-label {
+  color: var(--color-text-secondary);
+}
+[data-theme="minimal-dark"] .descriptive-sticky-tab-summary {
+  color: var(--color-text-primary);
+}
+[data-theme="minimal-dark"] .descriptive-sticky-tab:hover {
+  border-color: color-mix(in srgb, var(--color-chrome-active) 40%, var(--color-border-subtle));
+}
+[data-theme="minimal-dark"] .descriptive-sticky-tab-active {
+  border-color: var(--color-chrome-active);
+  background: color-mix(in srgb, var(--color-brand-cta) 10%, var(--color-surface-card));
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-chrome-active) 18%, transparent);
+}
+[data-theme="minimal-dark"] .descriptive-sticky-tab-active .descriptive-sticky-tab-label {
+  color: var(--color-text-secondary);
+}
+[data-theme="minimal-dark"] .descriptive-sticky-tab-active .descriptive-sticky-tab-count {
+  background: color-mix(in srgb, var(--color-brand-cta) 28%, var(--color-surface-card));
+  color: var(--color-text-primary);
 }
 
 /* Option-B / OPT-L1 InfoStack — Library topic rhythm (viewport-optimal) */
@@ -4057,6 +4094,14 @@ input[type="range"]::-webkit-slider-thumb {
 [data-theme="blueprint"] .platform-source-badge--enriched {
   color: #083344;
   background: color-mix(in srgb, var(--color-brand-300) 55%, #ffffff);
+}
+/* Minimal-dark: on-brand ink on CTA-tint fill; warm accent reserved for highlights. */
+[data-theme="minimal-dark"] .platform-source-badge--enriched {
+  color: var(--color-on-brand);
+  background: color-mix(in srgb, var(--color-brand-cta) 42%, var(--color-surface-card));
+}
+[data-theme="minimal-dark"] .ux-accent-warm {
+  color: var(--color-accent-warm);
 }
 [data-theme="light"] .platform-source-badge--strict,
 [data-theme="spectrum"] .platform-source-badge--strict {

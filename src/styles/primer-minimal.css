@@ -176,6 +176,17 @@
   --viz-grid-line: #343d4a;
   --focus-ring-color: var(--color-brand-500);
   --focus-ring-width: 2px;
+
+  /*
+   * Role tokens (industry-style: brand CTA + optional warm + chrome).
+   * CTA fills use brand-cta; chrome/tabs use brand-300 + text steps — not pastel 600/700.
+   */
+  --color-on-brand: #ffffff;
+  --color-on-cta: #ffffff;
+  --color-brand-cta: #0e7490;
+  --color-brand-cta-hover: #155e75;
+  --color-chrome-active: var(--color-brand-300);
+  --color-accent-warm: #dbcfa8;
 }
 
 /* OPT-M3/M4 — shared chrome flattening (zero feature removal)
@@ -646,6 +657,44 @@
 [data-theme="minimal"] :is(.bg-brand-500, button.bg-brand-500).text-white,
 [data-theme="minimal"] .bg-brand-500 .text-white {
   color: #ffffff !important;
+}
+
+/*
+ * P0 — minimal-dark brand scale is inverted (600/700/800 = pastel cyan for text).
+ * Solid CTAs that use bg-brand-600/700 + text-white (Library «Άνοιγμα», dashboard upload)
+ * become unreadable. Remap fills to --color-brand-cta + --color-on-brand.
+ */
+[data-theme="minimal-dark"] :is(button, a, [role="button"]).bg-brand-500,
+[data-theme="minimal-dark"] :is(button, a, [role="button"]).bg-brand-600,
+[data-theme="minimal-dark"] :is(button, a, [role="button"]).bg-brand-700,
+[data-theme="minimal-dark"] :is(button, a, [role="button"]).bg-brand-800,
+[data-theme="minimal-dark"] button[data-testid^="library-open-course-"],
+[data-theme="minimal-dark"] button[data-tour="dashboard-upload"] {
+  background-color: var(--color-brand-cta) !important;
+  background-image: none !important;
+  color: var(--color-on-brand) !important;
+}
+
+[data-theme="minimal-dark"] :is(button, a, [role="button"]).hover\:bg-brand-400:hover,
+[data-theme="minimal-dark"] :is(button, a, [role="button"]).hover\:bg-brand-500:hover,
+[data-theme="minimal-dark"] :is(button, a, [role="button"]).hover\:bg-brand-600:hover,
+[data-theme="minimal-dark"] :is(button, a, [role="button"]).hover\:bg-brand-700:hover,
+[data-theme="minimal-dark"] :is(button, a, [role="button"]).hover\:bg-brand-800:hover,
+[data-theme="minimal-dark"] button[data-testid^="library-open-course-"]:hover,
+[data-theme="minimal-dark"] button[data-tour="dashboard-upload"]:hover {
+  background-color: var(--color-brand-cta-hover) !important;
+  background-image: none !important;
+  color: var(--color-on-brand) !important;
+}
+
+/* Gradient brand CTAs (empty-dashboard upload) — same dark fill */
+[data-theme="minimal-dark"] :is(button, a).from-brand-500,
+[data-theme="minimal-dark"] :is(button, a).from-brand-600,
+[data-theme="minimal-dark"] :is(button, a).to-brand-500,
+[data-theme="minimal-dark"] :is(button, a).to-brand-600 {
+  background-image: none !important;
+  background-color: var(--color-brand-cta) !important;
+  color: var(--color-on-brand) !important;
 }
 
 /* P0 — accent/pastel as text (incl. overlays outside .app-shell) → readable ink */
