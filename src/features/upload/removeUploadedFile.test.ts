@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import type { Course, UploadedFile } from '../types';
+import type { Course, UploadedFile } from '../../types';
 import { removeUploadedFileFromLibrary } from './removeUploadedFile';
-import { CONTENT_PIPELINE_VERSION } from './pipelineConstants';
+import { CONTENT_PIPELINE_VERSION } from '../../lib/pipelineConstants';
 
 const course: Course = {
   id: 'c1',

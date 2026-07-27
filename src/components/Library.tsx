@@ -9,7 +9,7 @@ import {
 import type { Course, UploadedFile, UserSettings, Task, GlossaryEntry } from '../types';
 import { cn } from '../utils/cn';
 import { prefetchWorkspaceEntry, workspaceEntryPrefetchHandlers } from '../lib/workspaceEntryPrefetch';
-import { buildMaterialOutlinePreview } from '../lib/uploadOutlinePreview';
+import { buildMaterialOutlinePreview } from '../features/upload';
 import { OutlinePreviewPanel } from './OutlinePreviewPanel';
 import { RecognitionReportPanel } from './RecognitionReportPanel';
 import { ConfirmDialog } from './ui/ConfirmDialog';

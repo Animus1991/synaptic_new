@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { captureUploadSnapshot, extendCourseTopicCount, restoreUploadSnapshot } from './uploadTransaction';
-import { mockCourses, mockDashboardStats, mockLearnerModel } from '../demo/mockData';
+import { mockCourses, mockDashboardStats, mockLearnerModel } from '../../demo/mockData';
 
 describe('uploadTransaction', () => {
   it('captureUploadSnapshot returns shallow refs (rollback uses same arrays)', () => {

@@ -89,15 +89,16 @@ import {
   recognizeDocumentModelsForUpload,
   attachDocumentSnapshots,
   type UploadPayload,
-} from '../lib/uploadPipeline';
-import { recognizeCourse } from '../lib/recognitionWorkerClient';
-import { buildConceptSpans, type SourceHighlight } from '../lib/conceptProvenance';
-import { enrichCourseWithCrossLinks } from '../lib/crossDocumentLink';
-import {
   captureUploadSnapshot,
   isUploadForceFailEnabled,
   restoreUploadSnapshot,
-} from '../lib/uploadTransaction';
+  removeUploadedFileFromLibrary,
+  formatUploadSuccessToast,
+  summarizeUploadStructure,
+} from '../features/upload';
+import { recognizeCourse } from '../lib/recognitionWorkerClient';
+import { buildConceptSpans, type SourceHighlight } from '../lib/conceptProvenance';
+import { enrichCourseWithCrossLinks } from '../lib/crossDocumentLink';
 import { applyFsrsToSpacing, quizOutcomeToFsrsRating } from '../lib/adaptiveScheduler';
 import type { TaskCalendarSyncUpdate } from '../lib/taskCalendarSync';
 import type { WorkspaceFocus } from '../lib/workspaceFocus';
@@ -115,7 +116,6 @@ import { markCourseArtifactsStale, clearCourseArtifactsStale } from '../lib/arti
 import { persistCoverThumbnailOnFile } from '../lib/sourceThumbnailPersist';
 import { cacheSourceBlobOnIngest } from '../lib/sourceBlobCache';
 import { scheduleThumbnailBackfill } from '../lib/thumbnailBackfill';
-import { removeUploadedFileFromLibrary } from '../lib/removeUploadedFile';
 import { idbDeleteText, idbDeleteThumbnail, idbDeleteSourceBlob } from '../lib/indexedDbStorage';
 import { removeCourseFromLibrary } from '../lib/removeCourse';
 import {
@@ -140,7 +140,6 @@ import {
   buildSyllabusCoverageSnapshot,
   pickPrimaryCourseForCoverage,
 } from '../lib/examPrep/syllabusCoverageTracker';
-import { formatUploadSuccessToast, summarizeUploadStructure } from '../lib/uploadStructureSummary';
 import type { BetaMastery } from '../lib/pedagogy';
 import {
   shouldShowDemo,

@@ -1,5 +1,5 @@
 import { Layers, ListTree, AlertTriangle } from '@/lib/lucide-shim';
-import type { UploadOutlinePreview } from '../lib/uploadOutlinePreview';
+import type { UploadOutlinePreview } from '../features/upload';
 import type { DocumentStructureKind } from '../lib/documentStructureReport';
 import { cn } from '../utils/cn';
 import { formatSectionFallbackLabel } from '../lib/sectionLabel';

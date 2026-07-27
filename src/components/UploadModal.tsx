@@ -7,10 +7,15 @@ import {
 } from '@/lib/lucide-shim';
 import { cn } from '../utils/cn';
 
-import type { UploadPayload } from '../lib/uploadPipeline';
+import type { UploadPayload } from '../features/upload';
 import type { Course, UserSettings } from '../types';
 import { isDemoCourse } from '../lib/demoMode';
-import { previewUploadOutline, type UploadOutlinePreview } from '../lib/uploadOutlinePreview';
+import {
+  previewUploadOutline,
+  type UploadOutlinePreview,
+  validateUploadInput,
+  createUploadJobId,
+} from '../features/upload';
 import { OutlinePreviewPanel } from './OutlinePreviewPanel';
 import { applyEditedTopicTitles, outlineTopicsWereEdited } from '../lib/outlineTopicEdit';
 import { UiIcon } from './ui/UiIcon';
@@ -18,7 +23,6 @@ import type { UiIconId } from '../lib/uiIconRegistry';
 import { t } from '../lib/i18n';
 import { ModalHeaderStack } from './ui/ModalHeaderStack';
 import { CollapsibleChromeSection } from './workspace/CollapsibleChromeSection';
-import { validateUploadInput, createUploadJobId } from '../lib/uploadValidation';
 import type { I18nKey } from '../lib/i18n';
 import { useMinimalTheme } from '../lib/useMinimalTheme';
 
