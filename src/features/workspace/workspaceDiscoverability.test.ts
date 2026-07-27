@@ -4,8 +4,8 @@ import {
   buildDiscoverabilitySummary,
   buildToolFeatureGuide,
 } from './workspaceDiscoverability';
-import { buildWorkspaceCorrelation } from './workspaceCorrelation';
-import type { WorkspaceSourceIntelligence } from './workspaceNoteContent';
+import { buildWorkspaceCorrelation } from '../../lib/workspaceCorrelation';
+import type { WorkspaceSourceIntelligence } from '../../lib/workspaceNoteContent';
 
 function sampleSourceIntel(overrides: Partial<WorkspaceSourceIntelligence> = {}): WorkspaceSourceIntelligence {
   return {

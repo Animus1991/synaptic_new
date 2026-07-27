@@ -15,7 +15,7 @@ import { getShellUxContent } from '../lib/shellUxContent';
 import { resolveTheme, themeToggleTarget } from '../lib/theme';
 import type { WorkspaceLiveSync } from '../lib/workspaceStoreSpine';
 import { workspaceLiveIsStale } from '../lib/workspaceStoreSpine';
-import { workspaceEntryPrefetchHandlers } from '../lib/workspaceEntryPrefetch';
+import { workspaceEntryPrefetchHandlers } from '../features/workspace';
 import { filterNavigationRegistry } from '../lib/navCapabilities';
 import {
   mobileOverflowNav,

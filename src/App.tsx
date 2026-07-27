@@ -53,7 +53,7 @@ import {
   buildNotebookLmExportPayload,
   exportToNotebookLm,
 } from './lib/notebooklmExport';
-import { prefetchWorkspaceEntry } from './lib/workspaceEntryPrefetch';
+import { prefetchWorkspaceEntry } from './features/workspace';
 import { preloadCriticalChunks } from './lib/preloadCriticalChunks';
 import { lazyWithRetry } from './lib/lazyWithRetry';
 import { ProductTour } from './components/ProductTour';

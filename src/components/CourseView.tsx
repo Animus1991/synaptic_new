@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
-import { prefetchWorkspaceEntry, workspaceEntryPrefetchHandlers } from '../lib/workspaceEntryPrefetch';
+import { prefetchWorkspaceEntry, workspaceEntryPrefetchHandlers } from '../features/workspace';
 import { motion } from 'framer-motion';
 import {
   ArrowLeft, ArrowRight, BookOpen, Clock, BarChart3, Calendar, FileText,

@@ -11,7 +11,7 @@ import { getNoteAnalysisContent, NOTE_ANALYSIS_STAGES } from '../lib/noteAnalysi
 import type { NoteAnalysisAction } from '../lib/noteAnalysisDiagnostics';
 import { ConceptGraph } from './visuals/ConceptGraph';
 import { Page, PageHeader } from './ui/primitives';
-import { workspaceEntryPrefetchHandlers } from '../lib/workspaceEntryPrefetch';
+import { workspaceEntryPrefetchHandlers } from '../features/workspace';
 import { LiveEngineTransparencyPanel } from './analysis/LiveEngineTransparencyPanel';
 import { CollapsibleChromeSection } from './workspace/CollapsibleChromeSection';
 import { AllCapsLabel } from './ui/AllCapsLabel';

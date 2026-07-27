@@ -1,25 +1,25 @@
 /** @vitest-environment jsdom */
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 
-vi.mock('./studyWorkspaceChunk', () => ({
+vi.mock('../../lib/studyWorkspaceChunk', () => ({
   loadStudyWorkspaceModule: vi.fn(() => Promise.resolve({})),
   preloadStudyWorkspace: vi.fn(),
 }));
 
-vi.mock('./cognitiveReaderChunk', () => ({
+vi.mock('../../lib/cognitiveReaderChunk', () => ({
   loadReaderModule: vi.fn(() => Promise.resolve({})),
   preloadReaderModule: vi.fn(),
 }));
 
-vi.mock('./workspaceWorkerClient', () => ({
+vi.mock('../../lib/workspaceWorkerClient', () => ({
   warmWorkspaceWorker: vi.fn(),
 }));
 
-vi.mock('./studyWorkspaceBodyChunk', () => ({
+vi.mock('../../lib/studyWorkspaceBodyChunk', () => ({
   loadStudyWorkspaceBodyModule: vi.fn(() => Promise.resolve({})),
 }));
 
-vi.mock('./workspaceChunkLinkPrefetch', () => ({
+vi.mock('../../lib/workspaceChunkLinkPrefetch', () => ({
   injectWorkspaceEntryLinkPrefetch: vi.fn(),
 }));
 
@@ -29,10 +29,10 @@ import {
   whenWorkspaceEntryPrefetchSettled,
   workspaceEntryPrefetchHandlers,
 } from './workspaceEntryPrefetch';
-import { loadStudyWorkspaceModule } from './studyWorkspaceChunk';
-import { loadReaderModule } from './cognitiveReaderChunk';
-import { warmWorkspaceWorker } from './workspaceWorkerClient';
-import { injectWorkspaceEntryLinkPrefetch } from './workspaceChunkLinkPrefetch';
+import { loadStudyWorkspaceModule } from '../../lib/studyWorkspaceChunk';
+import { loadReaderModule } from '../../lib/cognitiveReaderChunk';
+import { warmWorkspaceWorker } from '../../lib/workspaceWorkerClient';
+import { injectWorkspaceEntryLinkPrefetch } from '../../lib/workspaceChunkLinkPrefetch';
 
 describe('workspaceEntryPrefetch', () => {
   beforeEach(() => {

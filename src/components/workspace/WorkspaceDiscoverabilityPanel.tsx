@@ -2,8 +2,8 @@ import { ChevronDown, ChevronUp, Lightbulb, Link2, Sparkles, ArrowRight } from '
 import { cn } from '../../utils/cn';
 import type { Lang } from '../../lib/i18n';
 import { useI18n } from '../../lib/i18n';
-import type { DiscoverabilityActionId } from '../../lib/workspaceDiscoverability';
-import { buildDiscoverabilitySummary } from '../../lib/workspaceDiscoverability';
+import type { DiscoverabilityActionId } from '../../features/workspace';
+import { buildDiscoverabilitySummary } from '../../features/workspace';
 import { nextActionLabel } from '../../lib/nextActionEngine';
 import type { LearningActionId } from '../../lib/workspaceLearningActions';
 import { getLearningActions } from '../../lib/workspaceLearningActions';

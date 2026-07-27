@@ -37,7 +37,7 @@ import {
   remoteLibraryToPersisted,
   type LibrarySyncConflictItem,
 } from '../features/library';
-import { markWorkspaceContinue } from '../lib/workspacePerf';
+import { markWorkspaceContinue } from '../features/workspace';
 import {
   buildNotebookLmUploadedFile,
   parseNotebookLmExport,
@@ -50,7 +50,7 @@ import {
   type NotebookLmFsrsImportResult,
 } from '../lib/notebooklmFsrsImport';
 import { notifySuccess, notifyWarning } from '../lib/notificationBus';
-import { prefetchWorkspaceEntry } from '../lib/workspaceEntryPrefetch';
+import { prefetchWorkspaceEntry } from '../features/workspace';
 import { fetchYoutubeTranscript } from '../lib/youtubeTranscript';
 import {
   enqueueTranscribeJob,
@@ -72,7 +72,7 @@ import {
   enrichLearnerModelFromConceptBus,
   mergeDashboardReviewsDue,
 } from '../lib/conceptBusSync';
-import { loadAllConceptBuses, replaceAllConceptBuses } from '../lib/workspacePersistence';
+import { loadAllConceptBuses, replaceAllConceptBuses } from '../features/workspace';
 import { loadAllStepSchedules, replaceAllStepSchedules } from '../lib/spacedStepSchedule';
 import { loadAllDeckStates, replaceAllDeckStates } from '../lib/leitnerDeckSync';
 import { loadAllQuizAttemptHistories, replaceAllQuizAttemptHistories } from '../lib/quizAttemptHistory';
@@ -99,7 +99,7 @@ import { buildConceptSpans, type SourceHighlight } from '../lib/conceptProvenanc
 import { enrichCourseWithCrossLinks } from '../lib/crossDocumentLink';
 import { applyFsrsToSpacing, quizOutcomeToFsrsRating } from '../lib/adaptiveScheduler';
 import type { TaskCalendarSyncUpdate } from '../lib/taskCalendarSync';
-import type { WorkspaceFocus } from '../lib/workspaceFocus';
+import type { WorkspaceFocus } from '../features/workspace';
 import { CONTENT_PIPELINE_VERSION } from '../lib/pipelineConstants';
 import {
   reprocessCourseRecognition as runCourseReprocess,
@@ -108,7 +108,7 @@ import {
   summarizeReprocessTaskDelta,
 } from '../lib/pipelineReprocess';
 import { reprocessCourseAnnotations, reprocessCourseReaderAnnotations } from '../lib/annotationStore';
-import { prepareWorkspaceDisplayText } from '../lib/workspaceDisplayText';
+import { prepareWorkspaceDisplayText } from '../features/workspace';
 import { clearQuizSessions } from '../lib/quizSession';
 import { markCourseArtifactsStale, clearCourseArtifactsStale } from '../lib/artifactStaleness';
 import { persistCoverThumbnailOnFile } from '../lib/sourceThumbnailPersist';

@@ -4,7 +4,7 @@ import type { WorkspaceLiveSync } from '../lib/workspaceStoreSpine';
 import { nextActionLabel } from '../lib/nextActionEngine';
 import type { Lang, I18nKey } from '../lib/i18n';
 import { useI18n } from '../lib/i18n';
-import { workspaceEntryPrefetchHandlers } from '../lib/workspaceEntryPrefetch';
+import { workspaceEntryPrefetchHandlers } from '../features/workspace';
 import { BlueprintSurface } from './ui/BlueprintSurface';
 import { DashboardLivePreviewWatches } from './DashboardLivePreviewWatches';
 import { AllCapsLabel } from './ui/AllCapsLabel';

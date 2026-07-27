@@ -8,7 +8,7 @@ import {
 } from '@/lib/lucide-shim';
 import type { Course, UploadedFile, UserSettings, Task, GlossaryEntry } from '../types';
 import { cn } from '../utils/cn';
-import { prefetchWorkspaceEntry, workspaceEntryPrefetchHandlers } from '../lib/workspaceEntryPrefetch';
+import { prefetchWorkspaceEntry, workspaceEntryPrefetchHandlers } from '../features/workspace';
 import { buildMaterialOutlinePreview } from '../features/upload';
 import { OutlinePreviewPanel } from './OutlinePreviewPanel';
 import { RecognitionReportPanel } from './RecognitionReportPanel';
