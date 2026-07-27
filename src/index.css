@@ -2217,9 +2217,30 @@
 
 /* Option-B Wave F3 — app chrome density (page-level headings only) */
 .app-shell .ux-page-header h1 {
-  font-size: var(--ux-type-hero);
+  font-size: calc(var(--ux-type-hero) * 0.96);
   line-height: 1.25;
   letter-spacing: var(--ux-tracking-hero);
+}
+/* Page-header action peers (−4%) — all themes */
+.app-shell .ux-page-header-actions :is(
+  .ux-primary-cta,
+  .ux-secondary-cta,
+  [data-testid="audio-study-guide-btn"],
+  [data-testid="study-guide-export-btn"],
+  button
+) {
+  font-size: calc(0.875rem * 0.96);
+  min-height: calc(var(--ux-btn-height, var(--btn-height, 2.5rem)) * 0.96);
+}
+.app-shell .ux-page-header-actions :is(
+  .ux-primary-cta,
+  .ux-secondary-cta,
+  [data-testid="audio-study-guide-btn"],
+  [data-testid="study-guide-export-btn"],
+  button
+) > svg {
+  width: calc(1rem * 0.96);
+  height: calc(1rem * 0.96);
 }
 .ux-page-subtitle {
   font-size: 0.875rem;

@@ -56,7 +56,7 @@ Operational / security / quality program for `synaptic_new`. **No new product fe
 | ID | Status | Notes |
 |----|--------|-------|
 | C1 Docs history complete | **done** | INDEX + history/ + CONTRIBUTING |
-| C2 Feature-folder migration | **started** | `src/features/{rum,auth,upload}` (deprecate re-exports from `src/lib`); next: library → workspace → … |
+| C2 Feature-folder migration | **started** | `src/features/{rum,auth,upload,library}` (deprecate re-exports from `src/lib`); next: workspace → … |
 | C3 Optional npm workspaces | pending | wait until more features land under `src/features/` |
 
 ## Wave D — P2 Product-ops

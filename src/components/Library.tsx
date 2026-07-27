@@ -20,16 +20,16 @@ import { countFilesForCourse } from '../lib/deleteCascade';
 import { countGeneratedTasksForCourse } from '../lib/pipelineReprocess';
 import { courseDeleteStats } from '../lib/removeCourse';
 import { isDemoCourse, shouldShowDemo } from '../lib/demoMode';
-import { canAutoSyncLibrary } from '../lib/libraryRemoteSync';
-import { selectCourseTaskMetrics } from '../lib/coursePageSelectors';
 import {
+  canAutoSyncLibrary,
   loadLibraryViewPrefs,
   saveLibraryViewPrefs,
   type LibraryFilter,
   type LibrarySortBy,
   type LibraryViewMode,
-} from '../lib/libraryViewPrefs';
-import type { LibrarySyncConflictItem } from '../lib/librarySync';
+  type LibrarySyncConflictItem,
+} from '../features/library';
+import { selectCourseTaskMetrics } from '../lib/coursePageSelectors';
 import { CourseIcon } from './ui/CourseIcon';
 import { AllCapsLabel } from './ui/AllCapsLabel';
 import { UiIcon } from './ui/UiIcon';

@@ -5,7 +5,7 @@ import { buildPathTryChips, pathFocusFromQuizMiss, pathFocusFromWeakArea } from 
 import { buildSmartFlashcard } from './smartFlashcard';
 import { buildScratchpadStepHint } from './scratchpadStepHint';
 import { buildInsightsAskPrompt } from './analyticsAskPrompt';
-import { buildLibraryAskPrompt } from './libraryAskPrompt';
+import { buildLibraryAskPrompt } from '../features/library';
 import {
   buildCohortWeakConceptsDraft,
   flattenTopicMasteryHeatmap,

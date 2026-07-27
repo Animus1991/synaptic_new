@@ -2,7 +2,7 @@
  * OPT-L5 — resolve divergent library items after a signed-in pull (local vs remote).
  */
 import { useMemo } from 'react';
-import type { LibrarySyncConflictItem } from '../lib/librarySync';
+import type { LibrarySyncConflictItem } from '../features/library';
 import { t } from '../lib/i18n';
 import { AllCapsLabel } from './ui/AllCapsLabel';
 

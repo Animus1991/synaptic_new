@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { Course, GlossaryEntry, UploadedFile } from '../types';
+import type { Course, GlossaryEntry, UploadedFile } from '../../types';
 import {
   countPendingReviewsDue,
   detectLibrarySyncConflicts,

@@ -61,9 +61,9 @@ import { useProductTour } from './hooks/useProductTour';
 import { isProductTourComplete } from './lib/productTour';
 import { TakeBreathModal } from './components/examPrep/TakeBreathModal';
 import { subscribeTakeBreathPrompt } from './lib/examPrep/takeBreathEvents';
-import { buildLibraryAskPrompt } from './lib/libraryAskPrompt';
+import { buildLibraryAskPrompt } from './features/library';
 import { initWebVitalsRum, setRumRouteGetter } from './features/rum/webVitalsRum';
-import { configuredProxyBase } from './lib/authClient';
+import { configuredProxyBase } from './features/auth';
 
 const Agent = lazyWithRetry(() => import('./components/Agent').then((m) => ({ default: m.Agent })), 'agent');
 const Analytics = lazyWithRetry(() => import('./components/Analytics').then((m) => ({ default: m.Analytics })), 'analytics');

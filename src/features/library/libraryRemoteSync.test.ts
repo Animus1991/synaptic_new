@@ -1,7 +1,7 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
-import type { UserSettings } from '../types';
+import type { UserSettings } from '../../types';
 
-vi.mock('./authClient', () => ({
+vi.mock('../auth', () => ({
   configuredProxyBase: vi.fn(() => 'http://localhost:8787'),
   pushRemoteLibrary: vi.fn(async () => ({ updatedAt: new Date().toISOString() })),
 }));
@@ -15,7 +15,7 @@ vi.mock('./libraryStorage', () => ({
   hydrateLibrary: vi.fn(async (lib: unknown) => lib),
 }));
 
-import { configuredProxyBase, pushRemoteLibrary } from './authClient';
+import { configuredProxyBase, pushRemoteLibrary } from '../auth';
 import { canAutoSyncLibrary, flushLibraryRemoteSync, scheduleLibraryRemoteSync } from './libraryRemoteSync';
 
 describe('libraryRemoteSync', () => {

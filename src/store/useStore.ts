@@ -31,14 +31,12 @@ import {
   loadLibrarySync,
   saveLibrarySync,
   type PersistedLibrary,
-} from '../lib/libraryStorage';
-import { scheduleLibraryRemoteSync } from '../lib/libraryRemoteSync';
-import {
+  scheduleLibraryRemoteSync,
   countPendingReviewsDue,
   mergeLibrariesWithConflicts,
   remoteLibraryToPersisted,
   type LibrarySyncConflictItem,
-} from '../lib/librarySync';
+} from '../features/library';
 import { markWorkspaceContinue } from '../lib/workspacePerf';
 import {
   buildNotebookLmUploadedFile,

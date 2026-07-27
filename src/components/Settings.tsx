@@ -11,7 +11,7 @@ import { clearAllSessionData, downloadBackup, importSessionData } from '../lib/s
 import { authLogin, authRegister, pushRemoteLibrary, createCheckoutSession, authExportAccount, authDeleteAccount, authListSessions, authRevokeSession, authRevokeOtherSessions, type AuthSession, type AuthDeviceSession } from '../features/auth';
 import { GoogleIntegrationsPanel } from './GoogleIntegrationsPanel';
 import { googleAuthStartUrl } from '../lib/googleClient';
-import { loadLibrarySync } from '../lib/libraryStorage';
+import { loadLibrarySync } from '../features/library';
 import { Page, PageHeader, AnimatedCard } from './ui/primitives';
 import { WorkspaceTTIPanel } from './WorkspaceTTIPanel';
 import { useI18n } from '../lib/i18n';
