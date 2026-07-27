@@ -48,8 +48,8 @@ Operational / security / quality program for `synaptic_new`. **No new product fe
 | B2 OTel enablement | **partial** | `values-staging-otel.yaml` + existing telemetry.ts |
 | B3 Web-vitals RUM | **done** | `webVitalsRum` → `/v1/rum` + optional Sentry |
 | B4 Bundle / lazy audit | **done** | visualizer CI artifact + heavyLibLazyGuard + BUNDLE_BUDGET |
-| B5 Lighthouse CI | pending | after B4 |
-| B6 Testcontainers Postgres | pending | |
+| B5 Lighthouse CI | **done** | `lighthouserc.cjs` + `npm run test:lhci` + CI artifact |
+| B6 Testcontainers Postgres | **done** | `server` `test:pg` + `pgvector/pgvector:pg16` + CI `server-pg` |
 
 ## Wave C — P1 Structure / DX
 

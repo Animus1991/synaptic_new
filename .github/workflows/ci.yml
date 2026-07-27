@@ -64,6 +64,48 @@ jobs:
       - working-directory: server
         run: npm test
 
+  # B5 — Lighthouse CI (Landing / Dashboard / Workspace soft floors)
+  lighthouse:
+    needs: [client]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Build + LHCI
+        run: npm run test:lhci
+      - name: Upload Lighthouse reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-ci
+          path: .lighthouseci/
+          if-no-files-found: warn
+          retention-days: 14
+
+  # B6 — Postgres (+ pgvector) via Testcontainers
+  server-pg:
+    needs: [server]
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: server
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: server/package-lock.json
+      - run: npm ci
+      - name: Testcontainers Postgres
+        run: npm run test:pg
+        env:
+          CI: true
+
   docs:
     runs-on: ubuntu-latest
     steps:

@@ -21,6 +21,8 @@ This file is the only recommended entry point for humans and agents. Historical 
 | [runbooks/jwt-rotation.md](./runbooks/jwt-rotation.md) | JWT / secret rotation playbook |
 | [runbooks/backup-restore.md](./runbooks/backup-restore.md) | Backup restore drill |
 | [BUNDLE_BUDGET.md](./BUNDLE_BUDGET.md) | Lazy/heavy-lib budgets (B4) |
+| [LIGHTHOUSE.md](./LIGHTHOUSE.md) | Lighthouse CI surfaces + floors (B5) |
+| [TESTCONTAINERS.md](./TESTCONTAINERS.md) | Postgres testcontainers gate (B6) |
 | [plugins.md](./plugins.md) | Plugin API / sandbox (D7 draft) |
 | [DEPENDABOT_POLICY.md](./DEPENDABOT_POLICY.md) | Dependabot merge cadence |
 | [runbooks/pwa-chunk-recovery.md](./runbooks/pwa-chunk-recovery.md) | PWA/SW chunk recovery |
