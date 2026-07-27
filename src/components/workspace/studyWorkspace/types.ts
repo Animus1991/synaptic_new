@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import type { WorkspaceToolId } from '../../../lib/taskFlows';
 import type { Course, GlossaryEntry, LearnerModel, Task, UploadedFile, UserSettings, ActivityItem } from '../../../types';
 import type { WorkspaceFocus } from '../../../lib/workspaceFocus';
-import type { OpenAgentFromWorkspaceOpts } from '../../../lib/agentWorkspaceContext';
+import type { OpenAgentFromWorkspaceOpts } from '../../../features/agent';
 import type { WorkspaceLiveSync } from '../../../lib/workspaceStoreSpine';
 import type { SourceHighlight } from '../../../lib/conceptProvenance';
 import type { FsrsRating } from '../../../lib/pedagogy';

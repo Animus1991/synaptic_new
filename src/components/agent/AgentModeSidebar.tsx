@@ -8,7 +8,7 @@ import {
   type AgentModeGroupId,
 } from '../../lib/agentModeGroups';
 import { cn } from '../../utils/cn';
-import type { AgentSourceModeOption } from '../../lib/agentContent';
+import type { AgentSourceModeOption } from '../../features/agent';
 import { useMinimalTheme } from '../../lib/useMinimalTheme';
 import { useI18n } from '../../lib/i18n';
 import { AllCapsLabel } from '../ui/AllCapsLabel';

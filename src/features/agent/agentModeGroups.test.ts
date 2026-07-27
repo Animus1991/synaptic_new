@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { AgentMode } from '../types';
+import type { AgentMode } from '../../types';
 import {
   AGENT_MODE_GROUPS,
   groupIdForAgentMode,

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Sparkles, Loader2, ChevronDown, ChevronUp, FileText, Library } from '@/lib/lucide-shim';
 import type { Course, MessageCitation, UserSettings } from '../types';
 import { cn } from '../utils/cn';
-import { runMultiDocSynthesize } from '../lib/agentMultiDocSynthesize';
+import { runMultiDocSynthesize } from '../features/agent';
 
 type Props = {
   courses: Course[];

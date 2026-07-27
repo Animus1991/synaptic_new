@@ -6,7 +6,7 @@ import {
   serializeAgentWorkspaceContextJson,
   type AgentContextBannerView,
   type AgentWorkspaceContext,
-} from '../lib/agentWorkspaceContext';
+} from '../features/agent';
 import { useI18n } from '../lib/i18n';
 
 type Props = {

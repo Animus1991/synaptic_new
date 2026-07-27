@@ -4,7 +4,7 @@ import type { LucideIcon } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
 import type { UserSettings } from '../../types';
 import { t, type Lang } from '../../lib/i18n';
-import { getAgentContent } from '../../lib/agentContent';
+import { getAgentContent } from '../../features/agent';
 import { BLUEPRINT_MOTION, useBlueprintTheme } from '../../lib/useBlueprintTheme';
 import { OverflowChipRow } from './OverflowChipRow';
 import { AllCapsLabel } from './AllCapsLabel';

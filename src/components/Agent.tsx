@@ -11,15 +11,15 @@ import type { DashboardNextAction } from '../lib/dashboardNextAction';
 import { cn } from '../utils/cn';
 import { streamAgentReply, isLlmAvailable } from '../lib/llmClient';
 import { buildSourceExcerpt, retrieveForQueryHybrid } from '../lib/sourceContext';
-import { buildAgentChatHistory } from '../lib/agentConversation';
+import { buildAgentChatHistory } from '../features/agent';
 import {
   parseAgentCommand,
   buildNoAnswerHintPrompt,
   buildLowRetrievalClarification,
-} from '../lib/agentCommands';
-import { buildAgentRetrievalQuery, buildAgentContextSystemBlock, type AgentWorkspaceContext } from '../lib/agentWorkspaceContext';
+} from '../features/agent';
+import { buildAgentRetrievalQuery, buildAgentContextSystemBlock, type AgentWorkspaceContext } from '../features/agent';
 import { buildPathTryChips, type PathTryChip } from '../lib/pathFocus';
-import { isMultiDocSynthesizeAction, runMultiDocSynthesize } from '../lib/agentMultiDocSynthesize';
+import { isMultiDocSynthesizeAction, runMultiDocSynthesize } from '../features/agent';
 import { spanFromCitation } from '../lib/conceptProvenance';
 import { applyAgentGroundingGate } from '../lib/grounding';
 import { emitAnalyticsLearningEvent } from '../lib/emitLearningEvent';
@@ -28,8 +28,7 @@ import { GoToSourceButton } from './GoToSourceButton';
 import { AgentContextBanner } from './AgentContextBanner';
 import { AgentFlowRail } from './AgentFlowRail';
 import { RichText } from './RichText';
-import { getAgentContent, type AgentUiCopy } from '../lib/agentContent';
-import { AGENT_MODE_VISUALS } from '../lib/agentCatalog';
+import { getAgentContent, type AgentUiCopy, AGENT_MODE_VISUALS } from '../features/agent';
 import { AgentModeCatalogGrid, AgentModeSidebar } from './agent/AgentModeSidebar';
 import { useI18n } from '../lib/i18n';
 import { PlatformSection } from './ui/primitives';

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { buildAgentChatHistory, MAX_AGENT_HISTORY_TURNS } from './agentConversation';
-import type { AgentMessage } from '../types';
+import type { AgentMessage } from '../../types';
 
 function msg(partial: Partial<AgentMessage> & Pick<AgentMessage, 'role' | 'content'>): AgentMessage {
   return {

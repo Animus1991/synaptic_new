@@ -2,7 +2,7 @@
  * §2.1 Store spine — bridges workspace live state, Agent handoff, and Dashboard projections.
  */
 
-import type { AgentWorkspaceContext } from './agentWorkspaceContext';
+import type { AgentWorkspaceContext } from '../features/agent';
 import type { NextActionRecommendation } from './nextActionEngine';
 import type { WorkspaceContext } from './workspaceContextModel';
 

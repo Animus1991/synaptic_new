@@ -116,7 +116,7 @@ import {
 } from '../../../lib/workspaceLearningActions';
 import { analyzeTextHygiene } from '../../../lib/textQualityMetrics';
 import type { AgentMode } from '../../../types';
-import { buildAgentWorkspaceContext } from '../../../lib/agentWorkspaceContext';
+import { buildAgentWorkspaceContext } from '../../../features/agent';
 import { pathFocusFromQuizMiss, pathFocusFromWeakArea, type PathFocus } from '../../../lib/pathFocus';
 import { buildSmartFlashcard } from '../../../lib/smartFlashcard';
 import { buildPathTryChips } from '../../../lib/pathFocus';

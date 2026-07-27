@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import type { AgentMode } from '../types';
+import type { AgentMode } from '../../types';
 import { getAgentContent } from './agentContent';
-import { getOnboardingContent } from './onboardingContent';
+import { getOnboardingContent } from '../../lib/onboardingContent';
 
 describe('agentContent', () => {
   it('returns Greek UI strings when lang is el', () => {

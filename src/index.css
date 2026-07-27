@@ -2229,8 +2229,9 @@
   [data-testid="study-guide-export-btn"],
   button
 ) {
-  font-size: calc(0.875rem * 0.96);
-  min-height: calc(var(--ux-btn-height, var(--btn-height, 2.5rem)) * 0.96);
+  /* was ×0.96; −2% more → ×0.9408 */
+  font-size: calc(0.875rem * 0.9408);
+  min-height: calc(var(--ux-btn-height, var(--btn-height, 2.5rem)) * 0.9408);
 }
 .app-shell .ux-page-header-actions :is(
   .ux-primary-cta,
@@ -2239,8 +2240,8 @@
   [data-testid="study-guide-export-btn"],
   button
 ) > svg {
-  width: calc(1rem * 0.96);
-  height: calc(1rem * 0.96);
+  width: calc(1rem * 0.9408);
+  height: calc(1rem * 0.9408);
 }
 .ux-page-subtitle {
   font-size: 0.875rem;
