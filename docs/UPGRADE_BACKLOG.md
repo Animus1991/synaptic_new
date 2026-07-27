@@ -16,8 +16,9 @@ Operational / security / quality program for `synaptic_new`. **No new product fe
 | Migrations | 16 | `server/migrations` |
 | Gitleaks | present (`secret-scan` / ci) | CI |
 | Open Dependabot | record via GitHub Security → Dependabot | operator |
-| Bundle sizes | capture from CI `visualizer` / build log after B4 | pending B4 |
+| Bundle sizes | `dist/stats.html` via `ANALYZE=1 npm run build:analyze` | B4 |
 | E2E perf numbers | existing perf suite artifacts | pending refresh |
+| RUM | POST `/v1/rum` (LCP/INP/CLS + route) | B3 |
 
 ## Wave 0 — Orientation
 
@@ -45,8 +46,8 @@ Operational / security / quality program for `synaptic_new`. **No new product fe
 |----|--------|-------|
 | B1 `packages/shared` | **started** | error codes package; Zod schemas next PR |
 | B2 OTel enablement | **partial** | `values-staging-otel.yaml` + existing telemetry.ts |
-| B3 Web-vitals RUM | pending | |
-| B4 Bundle / lazy audit | pending | |
+| B3 Web-vitals RUM | **done** | `webVitalsRum` → `/v1/rum` + optional Sentry |
+| B4 Bundle / lazy audit | **done** | visualizer CI artifact + heavyLibLazyGuard + BUNDLE_BUDGET |
 | B5 Lighthouse CI | pending | after B4 |
 | B6 Testcontainers Postgres | pending | |
 

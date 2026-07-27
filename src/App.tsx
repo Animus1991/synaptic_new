@@ -62,6 +62,8 @@ import { isProductTourComplete } from './lib/productTour';
 import { TakeBreathModal } from './components/examPrep/TakeBreathModal';
 import { subscribeTakeBreathPrompt } from './lib/examPrep/takeBreathEvents';
 import { buildLibraryAskPrompt } from './lib/libraryAskPrompt';
+import { initWebVitalsRum, setRumRouteGetter } from './lib/webVitalsRum';
+import { configuredProxyBase } from './lib/authClient';
 
 const Agent = lazyWithRetry(() => import('./components/Agent').then((m) => ({ default: m.Agent })), 'agent');
 const Analytics = lazyWithRetry(() => import('./components/Analytics').then((m) => ({ default: m.Analytics })), 'analytics');
@@ -119,6 +121,14 @@ export default function App() {
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [store.studyWorkspaceOpen]);
+
+  useEffect(() => {
+    setRumRouteGetter(() => store.currentView);
+  }, [store.currentView]);
+
+  useEffect(() => {
+    initWebVitalsRum(configuredProxyBase(store.user.settings));
+  }, [store.user.settings.authProxyBase, store.user.settings.llmProxyUrl]);
 
   const closeLessonView = () => {
     store.setActiveLessonView(false);

@@ -30,6 +30,7 @@ import { studentRouter } from './routes/student';
 import { ocrRouter } from './routes/ocr';
 import { transcribeRouter } from './routes/transcribe';
 import { chunkErrorsRouter } from './routes/chunkErrors';
+import { rumRouter } from './routes/rum';
 import { googleAuthRouter } from './routes/googleAuth';
 import { googleIntegrationsRouter } from './routes/googleIntegrations';
 import { googleCalendarRouter } from './routes/googleCalendar';
@@ -146,6 +147,7 @@ export function createApp(): express.Application {
   app.use('/v1', accountRouter);
   app.use('/v1', studyRoomsRouter);
   app.use('/v1', analyticsRouter);
+  app.use('/v1', rumRouter);
   app.use('/v1', proxyRouter);
   app.use(wellKnownRouter);
   app.use(oauthRouter);

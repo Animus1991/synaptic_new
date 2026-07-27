@@ -29,6 +29,7 @@
     "reprocess:stale": "vitest run src/cli/bulkReprocessStale.test.ts --no-file-parallelism",
     "build": "npm run typecheck:all && vite build",
     "build:fast": "vite build",
+    "build:analyze": "vite build",
     "build:dev": "vite build --mode development",
     "cap:sync": "npm run build:fast && npx cap sync",
     "cap:ios": "npx cap open ios",
@@ -78,6 +79,7 @@
     "tailwind-merge": "3.4.0",
     "tesseract.js": "^5.1.1",
     "ts-fsrs": "^5.4.1",
+    "web-vitals": "^4.2.4",
     "yjs": "^13.6.31"
   },
   "devDependencies": {
@@ -95,6 +97,7 @@
     "@vitejs/plugin-react": "5.1.1",
     "axe-core": "^4.12.1",
     "jsdom": "^29.1.1",
+    "rollup-plugin-visualizer": "^5.14.0",
     "tailwindcss": "4.1.17",
     "typescript": "5.9.3",
     "vite": "7.3.6",

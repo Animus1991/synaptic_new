@@ -4,9 +4,11 @@ import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
 import { defineConfig, type Plugin } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
+import { visualizer } from "rollup-plugin-visualizer";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const analyze = process.env.ANALYZE === '1' || process.env.ANALYZE === 'true';
 
 /** Dev + preview ingest for chunkErrorReporter beacons (mirrors server POST /__chunk_errors). */
 function chunkErrorsBeaconMiddleware(
@@ -83,6 +85,17 @@ export default defineConfig({
     tailwindcss(),
     chunkErrorsDevPlugin(),
     workspaceEntryManifestPlugin(),
+    ...(analyze
+      ? [
+          visualizer({
+            filename: 'dist/stats.html',
+            template: 'treemap',
+            gzipSize: true,
+            brotliSize: true,
+            open: false,
+          }) as Plugin,
+        ]
+      : []),
     VitePWA({
       // W0 INFRA-CL-05: autoUpdate = skipWaiting + clientsClaim via workbox-window.
       // Rollback = redeploy previous dist; clients pick up on next navigation.
