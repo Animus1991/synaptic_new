@@ -16,6 +16,7 @@ type Props = {
 };
 
 /** Keyboard shortcut help overlay — `?` in Study Workspace (SW-P3-08) or app shell. */
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function WorkspaceKeyboardHelp({ open, onClose, lang, variant = 'workspace' }: Props) {
   const groups = variant === 'shell' ? shellShortcutGroups(lang) : workspaceShortcutGroups(lang);
 
@@ -42,7 +43,7 @@ export function WorkspaceKeyboardHelp({ open, onClose, lang, variant = 'workspac
           >
             <div className="flex items-center justify-between border-b border-border-subtle px-4 py-3">
               <div className="flex items-center gap-2">
-                <Keyboard className="h-4 w-4 text-brand-800" />
+                <Keyboard className="h-4 w-4 text-text-primary" />
                 <h2 className="text-sm font-semibold text-text-primary">
                   {t('keyboardShortcuts', lang)}
                 </h2>

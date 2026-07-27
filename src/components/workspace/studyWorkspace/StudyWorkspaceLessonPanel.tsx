@@ -17,6 +17,7 @@ interface StudyWorkspaceLessonPanelProps {
   model: StudyWorkspaceModel;
 }
 
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function StudyWorkspaceLessonPanel({ model }: StudyWorkspaceLessonPanelProps) {
   const {
     quizConcept,
@@ -243,7 +244,7 @@ export function StudyWorkspaceLessonPanel({ model }: StudyWorkspaceLessonPanelPr
                     <button
                       type="button"
                       onClick={handleStepNext}
-                      className="flex items-center gap-1 text-xs font-medium text-brand-800 hover:text-brand-700"
+                      className="flex items-center gap-1 text-xs font-medium text-text-primary hover:text-text-primary"
                     >
                       {currentStep === STEPS.length - 1 ? t('finish') : t('next')}{' '}
                       <ChevronRight className="w-3 h-3" />

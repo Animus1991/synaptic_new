@@ -29,6 +29,7 @@ interface PracticalLessonViewProps {
   onUpload?: () => void;
 }
 
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function PracticalLessonView({
   onClose,
   onOpenAgent,
@@ -178,7 +179,7 @@ export function PracticalLessonView({
           </div>
         </div>
         <div className="flex-1 flex flex-col items-center justify-center p-8 text-center max-w-lg mx-auto">
-          <Upload className="w-12 h-12 text-brand-400 mb-4" />
+          <Upload className="w-12 h-12 text-text-secondary mb-4" />
           <h2 className="text-lg font-semibold mb-2">
             {t('uploadNotesPractice')}
           </h2>
@@ -213,7 +214,7 @@ export function PracticalLessonView({
         </div>
         <div className="flex items-center gap-2 shrink-0">
           <button onClick={onOpenAgent} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border border-border-subtle hover:border-brand-500/30 transition-all">
-            <Sparkles className="w-3.5 h-3.5 text-brand-400" /> Ask Agent
+            <Sparkles className="w-3.5 h-3.5 text-text-secondary" /> Ask Agent
           </button>
           <span className="text-xs text-accent-amber font-medium">+{xpReward} XP</span>
         </div>
@@ -229,7 +230,7 @@ export function PracticalLessonView({
               <h2 className="text-xl font-bold mt-1">{exercise.title}</h2>
               <p className="text-[10px] text-text-muted mt-1">{t('exercise')} {exerciseIdx + 1} {t('of')} {exercises.length}</p>
               {isPythonExercise && (
-                <p className="text-[10px] text-brand-400 mt-0.5">
+                <p className="text-[10px] text-text-secondary mt-0.5">
                   {pyodideStatus === 'loading' && t('loadingPyodide')}
                   {pyodideStatus === 'ready' && t('pyodideReady')}
                   {pyodideStatus === 'error' && 'Pyodide unavailable — using regex fallback'}
@@ -245,7 +246,7 @@ export function PracticalLessonView({
                   onClick={() => loadExercise(i)}
                   className={cn(
                     'w-7 h-7 rounded-lg text-[10px] font-bold border',
-                    i === exerciseIdx ? 'border-brand-500 bg-brand-600/20 text-brand-300' : passedExerciseIds.has(i) ? 'border-accent-emerald/40 text-accent-emerald' : 'border-border-subtle text-text-muted',
+                    i === exerciseIdx ? 'border-brand-500 bg-surface-secondary text-text-primary border border-border-subtle' : passedExerciseIds.has(i) ? 'border-accent-emerald/40 text-accent-emerald' : 'border-border-subtle text-text-muted',
                   )}
                 >
                   {passedExerciseIds.has(i) ? '✓' : i + 1}
@@ -255,7 +256,7 @@ export function PracticalLessonView({
 
             <div className="p-4 rounded-xl bg-surface-card border border-border-subtle">
               <h4 className="text-sm font-semibold mb-2 flex items-center gap-2">
-                <Gauge className="w-4 h-4 text-brand-400" /> Learning Objective
+                <Gauge className="w-4 h-4 text-text-secondary" /> Learning Objective
               </h4>
               <p className="text-sm text-text-secondary">{exercise.objective}</p>
             </div>
@@ -289,7 +290,7 @@ export function PracticalLessonView({
                 {showSolution ? <><EyeOff className="w-3.5 h-3.5" /> Hide solution</> : <><Eye className="w-3.5 h-3.5" /> Show solution</>}
               </button>
               <button type="button" onClick={onOpenAgent} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-medium border border-border-subtle hover:border-brand-500/30 text-text-secondary transition-all">
-                <GraduationCap className="w-3.5 h-3.5 text-brand-600" />
+                <GraduationCap className="w-3.5 h-3.5 text-text-secondary" />
                 Explain like beginner
               </button>
             </div>
@@ -306,7 +307,7 @@ export function PracticalLessonView({
               <button type="button" onClick={() => void runCode()} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-accent-emerald/10 text-accent-emerald hover:bg-accent-emerald/20 transition-all">
                 <Play className="w-3 h-3" /> {t('run')}
               </button>
-              <button type="button" onClick={() => void runTests()} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-brand-500/10 text-brand-300 hover:bg-brand-500/20 transition-all">
+              <button type="button" onClick={() => void runTests()} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-surface-secondary text-text-primary border border-border-subtle hover:bg-brand-500/20 transition-all">
                 <CheckCircle2 className="w-3 h-3" /> {t('runTests')}
               </button>
               <button type="button" onClick={() => { setCode(exercise.starterCode); setOutput(''); setTestsPassed(null); }} className="p-1.5 rounded-lg hover:bg-surface-hover text-text-muted">
@@ -349,7 +350,7 @@ export function PracticalLessonView({
           </div>
           <div className="flex items-center gap-2">
             {exerciseIdx < exercises.length - 1 && testsPassed && (
-              <button type="button" onClick={() => loadExercise(exerciseIdx + 1)} className="px-4 py-2 text-sm text-brand-400 hover:text-brand-300 transition-colors flex items-center gap-1">
+              <button type="button" onClick={() => loadExercise(exerciseIdx + 1)} className="px-4 py-2 text-sm text-text-secondary hover:text-text-primary transition-colors flex items-center gap-1">
                 Next exercise <ChevronRight className="w-4 h-4" />
               </button>
             )}

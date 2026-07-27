@@ -33,6 +33,7 @@ function dismiss(key: string): void {
   }
 }
 
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function SourceQualityBanner({
   score,
   lang,
@@ -78,7 +79,7 @@ export function SourceQualityBanner({
               disabled={reprocessing}
               data-testid="source-quality-reprocess"
               className={cn(
-                'inline-flex items-center gap-1.5 rounded-lg border border-brand-500/40 bg-brand-500/15 font-medium text-brand-300 hover:bg-brand-500/20 disabled:opacity-60',
+                'inline-flex items-center gap-1.5 rounded-lg border border-border-subtle bg-surface-secondary text-text-primary hover:bg-brand-500/20 disabled:opacity-60',
                 compact ? 'px-2 py-1 text-[10px]' : 'px-3 py-1.5 text-xs',
               )}
             >

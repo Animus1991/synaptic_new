@@ -22,6 +22,7 @@ type Props = {
   onClose: () => void;
 };
 
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function AnnotationRemapPanel({
   entries,
   edgeReport,
@@ -102,7 +103,7 @@ export function AnnotationRemapPanel({
                   </span>
                   {edgeKind && (
                     <span
-                      className="text-[10px] rounded-full border border-accent-cyan/30 px-1.5 py-0.5 text-brand-800"
+                      className="text-[10px] rounded-full border border-accent-cyan/30 px-1.5 py-0.5 text-text-primary"
                       data-testid={`annotation-remap-edge-${ann.id}`}
                     >
                       {remapEdgeCaseLabel(edgeKind, lang)}
@@ -124,7 +125,7 @@ export function AnnotationRemapPanel({
                       type="button"
                       data-testid={`annotation-confirm-legacy-${ann.id}`}
                       onClick={() => onConfirmLegacy(ann.id)}
-                      className="flex w-full items-center gap-1.5 rounded-lg border border-brand-500/30 bg-brand-600/10 px-2 py-1.5 text-[10px] text-brand-800 hover:bg-brand-600/15"
+                      className="flex w-full items-center gap-1.5 rounded-lg border border-border-subtle bg-surface-secondary text-text-primary hover:bg-brand-600/15"
                     >
                       <Check className="w-3 h-3" />
                       {t('annoConfirmAtLine').replace('{line}', String(ann.lineStart + 1))}

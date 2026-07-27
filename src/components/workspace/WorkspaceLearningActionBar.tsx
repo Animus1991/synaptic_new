@@ -11,6 +11,7 @@ import {
 import { BlueprintSurface } from '../ui/BlueprintSurface';
 import { AllCapsLabel } from '../ui/AllCapsLabel';
 
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function WorkspaceLearningActionBar({
   lang,
   recommendation,
@@ -87,7 +88,7 @@ export function WorkspaceLearningActionBar({
                     : 'border border-brand-500/35 bg-brand-500/10 hover:bg-brand-500/15',
                 )}
               >
-                <span className="flex items-center gap-1.5 text-sm font-semibold text-brand-800">
+                <span className="flex items-center gap-1.5 text-sm font-semibold text-text-primary">
                   {isReprocess && <Sparkles className="h-3.5 w-3.5 shrink-0 opacity-90" aria-hidden />}
                   {nextActionLabel(recommendation.primary, lang)}
                 </span>

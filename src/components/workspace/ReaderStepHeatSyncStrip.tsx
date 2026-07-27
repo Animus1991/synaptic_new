@@ -10,6 +10,7 @@ type Props = {
   onJumpToSegment?: () => void;
 };
 
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function ReaderStepHeatSyncStrip({ summary, lang: _lang, onJumpToSegment }: Props) {
   if (!summary) return null;
   const { t } = useI18n();
@@ -19,7 +20,7 @@ export function ReaderStepHeatSyncStrip({ summary, lang: _lang, onJumpToSegment 
       className="flex shrink-0 items-center gap-2 border-b border-border-subtle bg-surface-card/70 px-3 py-1.5"
       data-testid="reader-step-heat-sync-strip"
     >
-      <Link2 className="h-3.5 w-3.5 shrink-0 text-brand-800" aria-hidden />
+      <Link2 className="h-3.5 w-3.5 shrink-0 text-text-primary" aria-hidden />
       <div className="min-w-0 flex-1 text-[10px] leading-snug text-text-secondary">
         <span className="font-medium text-text-primary">
           {t('heatStep')} {summary.stepIndex + 1}:
@@ -47,7 +48,7 @@ export function ReaderStepHeatSyncStrip({ summary, lang: _lang, onJumpToSegment 
         <button
           type="button"
           onClick={onJumpToSegment}
-          className="shrink-0 rounded border border-accent-cyan/30 px-2 py-0.5 text-[10px] font-medium text-brand-800 hover:bg-accent-cyan/10"
+          className="shrink-0 rounded border border-accent-cyan/30 px-2 py-0.5 text-[10px] font-medium text-text-primary hover:bg-accent-cyan/10"
         >
           {t('jump')}
         </button>

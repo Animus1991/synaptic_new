@@ -19,7 +19,8 @@ const sizeClass = {
 };
 
 /** Renders course/task icons with Phosphor (via lucide-shim) — never raw emoji in UI. */
-export function CourseIcon({ icon, iconId, className, size = 'md', colorClassName = 'text-brand-600' }: Props) {
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
+export function CourseIcon({ icon, iconId, className, size = 'md', colorClassName = 'text-text-secondary' }: Props) {
   const Icon = iconId ? getUiIcon(iconId) : resolveCourseIconGlyph(icon);
   return (
     <Icon

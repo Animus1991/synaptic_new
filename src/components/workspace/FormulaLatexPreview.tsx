@@ -4,6 +4,7 @@ import 'katex/dist/katex.min.css';
 import { formulaToLatex } from '../../lib/formulaLatex';
 import { cn } from '../../utils/cn';
 
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function FormulaLatexPreview({
   formula,
   display = true,
@@ -30,7 +31,7 @@ export function FormulaLatexPreview({
 
   if (!html) {
     return (
-      <code className={cn('text-sm font-mono text-brand-800', className)}>{formula}</code>
+      <code className={cn('text-sm font-mono text-text-primary', className)}>{formula}</code>
     );
   }
 

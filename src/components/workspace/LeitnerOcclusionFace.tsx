@@ -6,6 +6,7 @@ type Props = {
   flipped: boolean;
 };
 
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function LeitnerOcclusionFace({ occlusion, flipped }: Props) {
   const { t } = useI18n();
   const { region, sourceFileName, hiddenLabel } = occlusion;
@@ -34,7 +35,7 @@ export function LeitnerOcclusionFace({ occlusion, flipped }: Props) {
         )}
         {flipped && (
           <div className="absolute inset-0 flex items-center justify-center p-2">
-            <span className="text-sm font-semibold text-brand-800">{hiddenLabel}</span>
+            <span className="text-sm font-semibold text-text-primary">{hiddenLabel}</span>
           </div>
         )}
       </div>

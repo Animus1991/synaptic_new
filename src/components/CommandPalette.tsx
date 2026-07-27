@@ -14,6 +14,7 @@ import type { DashboardNextAction } from '../lib/dashboardNextAction';
 import { paletteQuickActions, type GlobalQuickActionId } from '../lib/globalActionRegistry';
 import { useMinimalTheme } from '../lib/useMinimalTheme';
 
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export type CommandAction =
   | { type: 'navigate'; view: AppView; label: string; icon: typeof Search }
   | { type: 'workspace'; label: string; icon: typeof LayoutGrid }
@@ -266,7 +267,7 @@ export function CommandPalette({
                 'hover:bg-surface-hover transition-colors',
               )}
             >
-              <a.icon className="command-palette-item-icon w-4 h-4 text-brand-400 shrink-0" />
+              <a.icon className="command-palette-item-icon w-4 h-4 text-text-secondary shrink-0" />
               <span className="min-w-0 flex-1">
                 <span className="block truncate">{a.label}</span>
                 {a.type === 'content' && a.sublabel && (

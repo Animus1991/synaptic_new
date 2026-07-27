@@ -39,6 +39,7 @@ function normalizeAnswer(s: string): string {
   return s.trim().toLowerCase().replace(/\s+/g, ' ');
 }
 
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function WorkspaceQuiz({ quizDef, lang, irt, irtResponseCount = 0, onComplete, onQuestionSelect }: Props) {
   const { t } = useI18n();
   const [mcAnswer, setMcAnswer] = useState<number | null>(null);
@@ -63,7 +64,7 @@ export function WorkspaceQuiz({ quizDef, lang, irt, irtResponseCount = 0, onComp
           className="ux-tier-b-tool ux-tier-b-quiz rounded-xl border border-dashed border-border-default bg-surface-card/50 px-4 py-6 text-center"
           data-testid="workspace-quiz-empty"
         >
-          <HelpCircle className="mx-auto mb-2 h-6 w-6 text-brand-400" aria-hidden />
+          <HelpCircle className="mx-auto mb-2 h-6 w-6 text-text-secondary" aria-hidden />
           <p className="text-sm font-medium text-text-secondary">{quizDef.question}</p>
           <p className="mx-auto mt-1.5 max-w-xs text-xs text-text-muted">{t('wsQuizEmptyHint')}</p>
         </div>

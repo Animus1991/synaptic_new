@@ -2,6 +2,7 @@ import { BookOpen } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
 import { t, type Lang } from '../../lib/i18n';
 
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function FrontMatterCard({
   title,
   items,
@@ -21,7 +22,7 @@ export function FrontMatterCard({
       data-testid="reader-front-matter"
     >
       <div className="flex items-center gap-2 mb-3">
-        <BookOpen className="w-4 h-4 text-brand-800 shrink-0" />
+        <BookOpen className="w-4 h-4 text-text-primary shrink-0" />
         <h3 className="text-sm font-semibold text-text-primary">{heading}</h3>
       </div>
       <ol className={cn('list-decimal space-y-2 pl-5 text-[14px] text-text-primary')}>

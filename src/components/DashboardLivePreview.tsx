@@ -73,6 +73,7 @@ function stepProgress(index: number, activeIndex: number, snapshot: WorkspaceLiv
   return 82;
 }
 
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function DashboardLivePreview({
   live,
   lang,
@@ -194,7 +195,7 @@ export function DashboardLivePreview({
       {live.nextAction && (
         <p className="mt-4 text-xs text-text-tertiary line-clamp-2">
           {t('dashboardNextColon')}{' '}
-          <span className="font-medium text-brand-700">
+          <span className="font-medium text-text-primary">
             {nextActionLabel(live.nextAction.primary, lang)}
           </span>
           {' — '}{live.nextAction.reason}

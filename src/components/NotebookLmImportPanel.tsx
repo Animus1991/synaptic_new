@@ -13,6 +13,7 @@ type Props = {
   className?: string;
 };
 
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function NotebookLmImportPanel({ lang, onImport, onAddToFsrs, className }: Props) {
   const [open, setOpen] = useState(false);
   const [text, setText] = useState('');
@@ -91,7 +92,7 @@ export function NotebookLmImportPanel({ lang, onImport, onAddToFsrs, className }
         onClick={() => setOpen((v) => !v)}
         className="w-full flex items-center gap-2 px-3 py-2 text-left"
       >
-        <BookOpen className="w-4 h-4 text-brand-700 dark:text-brand-300 shrink-0" />
+        <BookOpen className="w-4 h-4 text-text-primary dark:text-text-secondary shrink-0" />
         <span className="text-xs font-semibold text-text-primary flex-1">{title}</span>
         {open ? <ChevronUp className="w-4 h-4 text-text-muted" /> : <ChevronDown className="w-4 h-4 text-text-muted" />}
       </button>
@@ -102,7 +103,7 @@ export function NotebookLmImportPanel({ lang, onImport, onAddToFsrs, className }
           <button
             type="button"
             onClick={() => void openNotebookLm({ lang })}
-            className="inline-flex items-center gap-1 text-xs font-medium text-brand-700 dark:text-brand-300 hover:underline"
+            className="inline-flex items-center gap-1 text-xs font-medium text-text-primary dark:text-text-secondary hover:underline"
             data-testid="notebooklm-open-external"
           >
             <ExternalLink className="w-3 h-3" />
@@ -196,7 +197,7 @@ export function NotebookLmImportPanel({ lang, onImport, onAddToFsrs, className }
                       type="button"
                       disabled={fsrsBusy}
                       onClick={() => void handleAddToFsrs()}
-                      className="inline-flex items-center gap-1 text-brand-700 dark:text-brand-300 font-semibold hover:underline disabled:opacity-50"
+                      className="inline-flex items-center gap-1 text-text-primary dark:text-text-secondary font-semibold hover:underline disabled:opacity-50"
                       data-testid="notebooklm-add-fsrs-deck"
                     >
                       {fsrsBusy ? (
@@ -210,7 +211,7 @@ export function NotebookLmImportPanel({ lang, onImport, onAddToFsrs, className }
                   <button
                     type="button"
                     onClick={downloadQuizTsv}
-                    className="inline-flex items-center gap-1 text-brand-700 dark:text-brand-300 font-medium hover:underline"
+                    className="inline-flex items-center gap-1 text-text-primary dark:text-text-secondary font-medium hover:underline"
                     data-testid="notebooklm-download-quiz-tsv"
                   >
                     <Download className="w-3 h-3" />

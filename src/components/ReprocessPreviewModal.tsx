@@ -131,6 +131,7 @@ function StepRailPreview({
 
 
 
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function ReprocessPreviewModal({
 
   open,
@@ -443,7 +444,7 @@ export function ReprocessPreviewModal({
 
                       {id === 'edit' && manualEdits > 0 && (
 
-                        <span className="ml-1.5 rounded-full bg-brand-600/20 px-1.5 text-[10px] text-brand-800">
+                        <span className="ml-1.5 rounded-full bg-brand-600/20 px-1.5 text-[10px] text-text-primary">
 
                           {manualEdits}
 
@@ -662,7 +663,7 @@ export function ReprocessPreviewModal({
 
               {!applied && preview && manualEdits > 0 && (
 
-                <p className="text-[10px] text-brand-700">
+                <p className="text-[10px] text-text-primary">
 
                   {tr('reprocessManualEditsFooter').replace('{count}', String(manualEdits))}
 

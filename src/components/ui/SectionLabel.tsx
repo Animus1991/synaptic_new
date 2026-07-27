@@ -3,6 +3,7 @@ import { cn } from '../../utils/cn';
 import { AllCapsLabel } from './AllCapsLabel';
 
 /** Dense uppercase section label used across Dashboard / Library / Tasks / Analytics. */
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function SectionLabel({
   icon: Icon,
   children,
@@ -17,7 +18,7 @@ export function SectionLabel({
   return (
     <div className={cn('mb-2 flex items-center justify-between gap-2', className)}>
       <div className="flex min-w-0 items-center gap-1.5">
-        {Icon && <Icon className="h-3.5 w-3.5 shrink-0 text-brand-600" aria-hidden />}
+        {Icon && <Icon className="h-3.5 w-3.5 shrink-0 text-text-secondary" aria-hidden />}
         <p className="ux-section-label-title truncate text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.08em] text-text-secondary">
           <AllCapsLabel>{children}</AllCapsLabel>
         </p>

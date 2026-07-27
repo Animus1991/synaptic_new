@@ -29,6 +29,7 @@ interface Props {
   topic?: Topic;
 }
 
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function GroundedLessonContent({
   stepKey,
   stepLabel,
@@ -69,7 +70,7 @@ export function GroundedLessonContent({
   if (stepKey === 'retrieval' && quizDef && onQuizSelect && isMcQuiz(quizDef)) {
     return (
       <div className="space-y-4">
-        <span className="text-xs text-brand-400 font-medium">{t('quiz')}</span>
+        <span className="text-xs text-text-secondary font-medium">{t('quiz')}</span>
         <h2 className="text-lg font-semibold">{t('knowledgeCheck')}</h2>
         <div className="p-4 rounded-xl bg-surface-card border border-border-subtle">
           {quizDef.placeholder ? (
@@ -117,7 +118,7 @@ export function GroundedLessonContent({
     return (
       <div className="space-y-5">
         <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-xs text-brand-400 font-medium">{generatedPanel.badge}</span>
+          <span className="text-xs text-text-secondary font-medium">{generatedPanel.badge}</span>
           <span className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-accent-emerald/10 text-accent-emerald font-medium">
             <Sparkles className="w-3 h-3" />
             {t('wbFromSources')}
@@ -160,7 +161,7 @@ export function GroundedLessonContent({
         </p>
       )}
       {genStatus === 'loading' && (
-        <span className="inline-flex items-center gap-1 text-[10px] px-2 py-1 rounded-full bg-brand-500/10 text-brand-300 animate-pulse">
+        <span className="inline-flex items-center gap-1 text-[10px] px-2 py-1 rounded-full bg-surface-secondary text-text-primary border border-border-subtle animate-pulse">
           <Sparkles className="w-3 h-3" />
           {t('generatingFromSources')}
         </span>
@@ -189,7 +190,7 @@ function PanelBlock({ block, onOpenAgent }: { block: WorkspacePanelBlock; onOpen
                 card.accent === 'teal' ? 'bg-accent-teal/5 border-accent-teal/20' : 'bg-brand-500/5 border-brand-500/20',
               )}
             >
-              <h4 className={cn('text-sm font-semibold mb-2', card.accent === 'teal' ? 'text-accent-teal' : 'text-brand-300')}>
+              <h4 className={cn('text-sm font-semibold mb-2', card.accent === 'teal' ? 'text-accent-teal' : 'text-text-secondary')}>
                 {card.title}
               </h4>
               <ul className="text-xs text-text-secondary space-y-1">
@@ -203,7 +204,7 @@ function PanelBlock({ block, onOpenAgent }: { block: WorkspacePanelBlock; onOpen
       return (
         <div className="p-4 rounded-xl bg-surface-primary/60 border border-border-subtle text-center">
           <p className="text-[10px] text-text-muted mb-1">{block.label}</p>
-          <div className="text-lg font-bold text-brand-300">
+          <div className="text-lg font-bold text-text-secondary">
             <RichText text={/[$\\]/.test(block.formula) ? block.formula : `$$${block.formula}$$`} />
           </div>
         </div>
@@ -214,7 +215,7 @@ function PanelBlock({ block, onOpenAgent }: { block: WorkspacePanelBlock; onOpen
           'p-4 rounded-xl border',
           block.variant === 'warning' ? 'bg-accent-amber/5 border-accent-amber/20' : 'bg-brand-500/5 border-brand-500/20',
         )}>
-          <p className={cn('text-sm font-semibold mb-1', block.variant === 'warning' ? 'text-accent-amber' : 'text-brand-300')}>
+          <p className={cn('text-sm font-semibold mb-1', block.variant === 'warning' ? 'text-accent-amber' : 'text-text-secondary')}>
             {block.title}
           </p>
           <p className="text-xs text-text-secondary">{block.text}</p>
@@ -225,7 +226,7 @@ function PanelBlock({ block, onOpenAgent }: { block: WorkspacePanelBlock; onOpen
         <div className="space-y-2 text-sm text-text-secondary font-mono">
           {block.items.map((s) => (
             <div key={s.label}>
-              <p className={cn('text-[10px] font-sans font-semibold', s.success ? 'text-accent-emerald' : 'text-brand-300')}>{s.label}</p>
+              <p className={cn('text-[10px] font-sans font-semibold', s.success ? 'text-accent-emerald' : 'text-text-secondary')}>{s.label}</p>
               <p className="bg-surface-primary/40 px-3 py-2 rounded-lg">{s.content}</p>
             </div>
           ))}

@@ -1,6 +1,7 @@
 import { cn } from '../../utils/cn';
 import { t, type Lang } from '../../lib/i18n';
 
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export type MobileIntelTab = 'discover' | 'concept-bus' | 'weak-areas';
 
 type TabDef = { id: MobileIntelTab; labelEn: string; labelEl: string };
@@ -48,7 +49,7 @@ export function WorkspaceMobileIntelligenceTabs({ active, onChange, lang = 'en',
             className={cn(
               'shrink-0 snap-start rounded-full border px-3 py-2 min-h-11 text-[11px] font-medium transition-colors touch-manipulation',
               selected
-                ? 'border-brand-500/40 bg-brand-600/20 text-brand-200'
+                ? 'border-brand-500/40 bg-surface-secondary text-text-primary border border-border-subtle'
                 : 'border-white/10 bg-surface-card text-text-secondary hover:text-text-primary active:bg-surface-hover',
             )}
           >

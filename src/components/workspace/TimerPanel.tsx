@@ -38,6 +38,7 @@ const PRESET_LABELS: Record<TimerSessionContent['suggestedPreset'], { en: string
   deep50: { en: 'Deep 50m (strong)', el: 'Deep 50′ (ισχυρό)' },
 };
 
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function TimerPanel({
   session,
   concept,
@@ -106,7 +107,7 @@ export function TimerPanel({
 
         <div className="mb-2 flex flex-wrap items-center gap-2">
           <span
-            className="rounded-full border border-brand-500/30 bg-brand-600/10 px-2 py-0.5 text-[10px] font-medium text-brand-800"
+            className="rounded-full border border-border-subtle bg-surface-secondary text-text-primary"
             data-testid="timer-suggested-preset"
           >
             {PRESET_LABELS[session.suggestedPreset][lang]}
@@ -142,7 +143,7 @@ export function TimerPanel({
             <button
               type="button"
               onClick={() => onOpenInReader(concept)}
-              className="ml-auto inline-flex items-center gap-1 rounded-lg border border-white/10 px-2 py-1 text-[10px] text-text-secondary hover:border-brand-600/35 hover:text-brand-800"
+              className="ml-auto inline-flex items-center gap-1 rounded-lg border border-white/10 px-2 py-1 text-[10px] text-text-secondary hover:border-brand-600/35 hover:text-text-primary"
               data-testid="timer-open-reader"
             >
               <BookOpen className="w-3 h-3" />
@@ -170,7 +171,7 @@ export function TimerPanel({
             {filterMatches.slice(0, 4).map((log, i) => (
               <span
                 key={`${log.at}-${i}`}
-                className="rounded-full border border-accent-cyan/25 bg-accent-cyan/8 px-2 py-0.5 text-[10px] text-brand-800"
+                className="rounded-full border border-accent-cyan/25 bg-accent-cyan/8 px-2 py-0.5 text-[10px] text-text-primary"
               >
                 {log.label.slice(0, 40)}{log.label.length > 40 ? '…' : ''} · {log.minutes}m
               </span>

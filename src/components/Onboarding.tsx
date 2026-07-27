@@ -78,6 +78,7 @@ function validationMessage(
   }
 }
 
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function Onboarding({ onComplete }: OnboardingProps) {
   const { lang } = useI18n();
   const content = getOnboardingContent(lang);
@@ -243,7 +244,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
           {showResumeHint && (
             <p
               data-testid="onboarding-resume-hint"
-              className="mb-4 text-center text-xs text-brand-400/90"
+              className="mb-4 text-center text-xs text-text-secondary"
             >
               {content.resumeDraftHint}
             </p>
@@ -291,7 +292,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                       return (
                         <div key={feature.title} className="ux-card text-left">
                           <div className="w-9 h-9 rounded-xl bg-brand-600/10 flex items-center justify-center mb-3">
-                            <Icon className="w-4 h-4 text-brand-500" />
+                            <Icon className="w-4 h-4 text-text-primary0" />
                           </div>
                           <p className="text-sm font-medium text-text-primary">{feature.title}</p>
                           <p className="text-xs text-text-tertiary mt-1">{feature.desc}</p>
@@ -373,13 +374,13 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                         )}
                       >
                         <RoleIcon
-                          className={cn('w-6 h-6', selected ? 'text-brand-400' : 'text-text-tertiary')}
+                          className={cn('w-6 h-6', selected ? 'text-text-secondary' : 'text-text-tertiary')}
                         />
                         <div>
                           <p className="font-medium text-sm">{role.label}</p>
                           <p className="text-xs text-text-tertiary">{role.desc}</p>
                         </div>
-                        {selected && <CheckCircle2 className="w-5 h-5 text-brand-400 ml-auto" />}
+                        {selected && <CheckCircle2 className="w-5 h-5 text-text-secondary ml-auto" />}
                       </button>
                     );
                   })}
@@ -419,7 +420,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                             : 'border-border-subtle hover:border-brand-500/20',
                         )}
                       >
-                        <UiIcon id={goal.icon} size="lg" className="mb-2 text-brand-600" />
+                        <UiIcon id={goal.icon} size="lg" className="mb-2 text-text-secondary" />
                         <p className="text-sm font-medium">{goal.label}</p>
                         <p className="text-[11px] text-text-tertiary mt-1">
                           {goal.id === 'exam'
@@ -528,7 +529,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                     </div>
                   </div>
                   <div className="p-3 rounded-xl bg-surface-hover/50 text-xs text-text-muted flex items-start gap-2">
-                    <Brain className="w-4 h-4 text-brand-400 shrink-0 mt-0.5" />
+                    <Brain className="w-4 h-4 text-text-secondary shrink-0 mt-0.5" />
                     {content.adaptiveHint}
                   </div>
                 </div>
@@ -567,7 +568,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                 type="button"
                 data-testid="onboarding-open-teacher"
                 onClick={() => completeOnboarding({ openTeacher: true })}
-                className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl font-medium border border-brand-500/30 bg-brand-600/10 text-brand-800 hover:bg-brand-600/20 transition-all text-sm"
+                className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl font-medium border border-brand-500/30 bg-surface-secondary text-text-primary border border-border-subtle hover:bg-brand-600/20 transition-all text-sm"
               >
                 <Users className="w-4 h-4" /> {content.teacherDashboardCta}
               </button>

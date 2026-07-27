@@ -35,6 +35,7 @@ type StudioTile = {
 };
 
 /** L13-6 — NotebookLM-inspired 3-column shell (Synapse-native). */
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function NotebookShellView({
   course,
   sources,
@@ -148,7 +149,7 @@ export function NotebookShellView({
     >
       <header className="flex items-center justify-between gap-3 px-4 py-3 border-b border-border-subtle bg-surface-secondary/80 shrink-0">
         <div className="min-w-0">
-          <p className="type-micro text-brand-700 font-semibold">
+          <p className="type-micro text-text-primary font-semibold">
             {el ? 'Notebook Shell' : 'Notebook Shell'}
           </p>
           <h1 className="text-sm font-semibold text-text-primary truncate">{course.title}</h1>
@@ -290,7 +291,7 @@ export function NotebookShellView({
                   'hover:border-brand-300 hover:bg-surface-hover transition-colors',
                 )}
               >
-                <tile.icon className="w-4 h-4 text-brand-600 mb-2" />
+                <tile.icon className="w-4 h-4 text-text-secondary mb-2" />
                 <p className="text-xs font-semibold text-text-primary">{tile.label}</p>
                 <p className="text-[10px] text-text-muted mt-0.5">{tile.hint}</p>
               </button>

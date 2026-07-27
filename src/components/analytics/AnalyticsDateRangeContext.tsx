@@ -20,6 +20,7 @@ type Ctx = {
 
 const AnalyticsDateRangeContext = createContext<Ctx | null>(null);
 
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function AnalyticsDateRangeProvider({
   children,
   initial = '30d',
@@ -65,7 +66,7 @@ export function AnalyticsDateRangeFilter({ className }: { className?: string }) 
           className={cn(
             'rounded-md px-2.5 py-1 text-[10px] font-semibold transition-colors',
             range === r
-              ? 'bg-brand-600/15 text-brand-800'
+              ? 'bg-surface-secondary text-text-primary border border-border-subtle'
               : 'text-text-tertiary hover:text-text-secondary',
           )}
         >

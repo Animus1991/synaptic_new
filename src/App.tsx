@@ -97,6 +97,7 @@ function LazyOverlay({
   );
 }
 
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export default function App() {
   const store = useAppStore();
   const { open: paletteOpen, toggle: togglePalette, close: closePalette } = useCommandPalette();
@@ -684,11 +685,11 @@ export default function App() {
             </div>
             <div className="flex w-[42%] min-w-0 flex-col bg-surface-primary overflow-hidden">
               <div className="flex shrink-0 items-center justify-between border-b border-border-subtle bg-surface-card px-3 py-2 gap-2">
-                <span className="text-xs font-semibold text-brand-700 truncate">{store.selectedCourse.title}</span>
+                <span className="text-xs font-semibold text-text-primary truncate">{store.selectedCourse.title}</span>
                 <button
                   type="button"
                   onClick={store.exitWorkspaceCourseSplit}
-                  className="type-micro font-medium text-text-secondary hover:text-brand-700 transition-colors shrink-0"
+                  className="type-micro font-medium text-text-secondary hover:text-text-primary transition-colors shrink-0"
                 >
                   {store.user.settings.language === 'el' ? 'Πλήρες workspace' : 'Full workspace'}
                 </button>
@@ -727,11 +728,11 @@ export default function App() {
             </div>
             <div className="flex w-[42%] min-w-0 flex-col bg-surface-primary">
               <div className="flex shrink-0 items-center justify-between border-b border-border-subtle bg-surface-card px-3 py-2">
-                <span className="text-xs font-semibold text-brand-300">Synapse Agent</span>
+                <span className="text-xs font-semibold text-text-secondary">Synapse Agent</span>
                 <button
                   type="button"
                   onClick={store.exitWorkspaceAgentSplit}
-                  className="text-[10px] font-medium text-text-secondary hover:text-brand-300 transition-colors"
+                  className="text-[10px] font-medium text-text-secondary hover:text-text-primary transition-colors"
                 >
                   {store.user.settings.language === 'el' ? 'Πλήρες workspace' : 'Full workspace'}
                 </button>

@@ -96,6 +96,7 @@ function buildSourcePreviewText(file: UploadedFile, course: Course): string | nu
   return null;
 }
 
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function CourseView({
   course,
   uploadedFiles = [],
@@ -278,7 +279,7 @@ export function CourseView({
               </button>
             )}
             <SecondaryCTA onClick={onOpenAgent} data-testid="course-ask-agent">
-              <Sparkles className="w-4 h-4 text-brand-600" />
+              <Sparkles className="w-4 h-4 text-text-secondary" />
               Ask agent
             </SecondaryCTA>
             <AudioStudyGuideButton course={course} lang={lang} settings={userSettings} />
@@ -295,7 +296,7 @@ export function CourseView({
         }
       />
 
-      <UxCallout variant="info" title={t('courseSectionTitle')} icon={<MapPin className="text-brand-500" />} testId="course-entry-hint">
+      <UxCallout variant="info" title={t('courseSectionTitle')} icon={<MapPin className="text-text-primary0" />} testId="course-entry-hint">
         {t('courseEntryHint')}
       </UxCallout>
 
@@ -478,7 +479,7 @@ export function CourseView({
                 onClick={openReprocessWizard}
                 disabled={reprocessingMaterial}
                 data-testid="course-quality-reprocess"
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-brand-500/30 text-xs font-medium text-brand-300 hover:bg-brand-500/10 disabled:opacity-60"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-brand-500/30 text-xs font-medium text-text-secondary hover:bg-brand-500/10 disabled:opacity-60"
               >
                 <RefreshCw className={cn('w-3.5 h-3.5', reprocessingMaterial && 'animate-spin')} />
                 {t('courseQualityActionReprocess')}
@@ -488,7 +489,7 @@ export function CourseView({
               type="button"
               onClick={() => onStartLesson()}
               data-testid="course-quality-open-workspace"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand-600/15 text-xs font-medium text-brand-300 hover:bg-brand-600/25"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand-600/15 text-xs font-medium text-text-secondary hover:bg-brand-600/25"
             >
               <Play className="w-3.5 h-3.5" />
               {t('courseQualityActionWorkspace')}
@@ -694,7 +695,7 @@ function TopicCard({ topic, index, courseColor, course, onGoToSource, onStart }:
             {hasDetail && (
               <button
                 onClick={() => setExpanded((v) => !v)}
-                className="flex items-center gap-1 text-brand-400 hover:text-brand-300 transition-colors"
+                className="flex items-center gap-1 text-text-secondary hover:text-text-primary transition-colors"
               >
                 <ChevronRight className={cn('w-3 h-3 transition-transform', expanded && 'rotate-90')} />
                 {expanded ? 'Hide' : 'Details'}
@@ -743,7 +744,7 @@ function TopicCard({ topic, index, courseColor, course, onGoToSource, onStart }:
           {(topic.objectives?.length ?? 0) > 0 && (
             <div className="pt-4">
               <p className="text-xs font-semibold text-text-secondary mb-2 flex items-center gap-1.5">
-                <Target className="w-3.5 h-3.5 text-brand-400" /> Learning objectives
+                <Target className="w-3.5 h-3.5 text-text-secondary" /> Learning objectives
               </p>
               <ul className="space-y-1">
                 {topic.objectives!.map((o, i) => (
@@ -768,7 +769,7 @@ function TopicCard({ topic, index, courseColor, course, onGoToSource, onStart }:
                       key={i}
                       onClick={() => onGoToSource!({ fileId: span.fileId, charStart: span.charStart, charEnd: span.charEnd })}
                       title="Go to source"
-                      className="group flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-full bg-brand-500/10 border border-brand-500/30 text-brand-300 hover:bg-brand-500/20 transition-colors"
+                      className="group flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-full bg-brand-500/10 border border-brand-500/30 text-text-secondary hover:bg-brand-500/20 transition-colors"
                     >
                       {c}
                       <MapPin className="w-2.5 h-2.5 opacity-60 group-hover:opacity-100" />
@@ -939,7 +940,7 @@ function SourceFiles({
       <div className="platform-panel-lg">
         <div className="flex items-center justify-between gap-3 mb-4 flex-wrap">
           <h3 className="font-semibold flex items-center gap-2">
-            <FileText className="w-5 h-5 text-brand-400" />
+            <FileText className="w-5 h-5 text-text-secondary" />
             {t('courseSourceFiles')}
           </h3>
           {onReprocessMaterial && uploadedFiles.length > 0 && (
@@ -948,7 +949,7 @@ function SourceFiles({
               onClick={onReprocessMaterial}
               disabled={reprocessingMaterial}
               data-testid="course-reprocess-sources"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-brand-500/30 text-xs font-medium text-brand-300 hover:bg-brand-500/10 disabled:opacity-60"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-brand-500/30 text-xs font-medium text-text-secondary hover:bg-brand-500/10 disabled:opacity-60"
             >
               <RefreshCw className={cn('w-3.5 h-3.5', reprocessingMaterial && 'animate-spin')} />
               {t('courseReprocessStoredText')}
@@ -1029,7 +1030,7 @@ function SourceFiles({
               return (
                 <li key={g.term} className="flex items-start justify-between gap-2 text-sm border-b border-border-subtle/50 pb-2">
                   <div className="min-w-0">
-                    <span className="font-medium text-brand-300">{g.term}</span>
+                    <span className="font-medium text-text-secondary">{g.term}</span>
                     <p className="text-xs text-text-tertiary mt-0.5 line-clamp-2">{g.definition}</p>
                     {(g.relatedConcepts?.length ?? 0) > 0 && (
                       <div className="flex flex-wrap gap-1 mt-1.5">

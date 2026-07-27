@@ -21,6 +21,7 @@ function pluginHookLabels(plugin: SynapsePlugin, t: (key: I18nKey) => string): s
   });
 }
 
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function PluginMarketplacePanel() {
   const { t } = useI18n();
   const [tick, setTick] = useState(0);
@@ -49,7 +50,7 @@ export function PluginMarketplacePanel() {
               key={`${plugin.id}-${tick}`}
               className="flex items-start gap-3 rounded-xl border border-border-subtle bg-surface-primary/50 p-3"
             >
-              <Zap className="w-4 h-4 text-brand-400 mt-0.5 shrink-0" />
+              <Zap className="w-4 h-4 text-text-secondary mt-0.5 shrink-0" />
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-text-primary">{plugin.name}</p>
                 <p className="text-[11px] text-text-muted">{plugin.description ?? plugin.id}</p>
@@ -74,7 +75,7 @@ export function PluginMarketplacePanel() {
                 className={cn(
                   'text-[10px] font-semibold px-2 py-1 rounded-lg border transition-colors shrink-0',
                   enabled
-                    ? 'bg-brand-600/20 text-brand-300 border-brand-500/40'
+                    ? 'bg-surface-secondary text-text-primary border border-border-subtle border-brand-500/40'
                     : 'border-border-subtle text-text-secondary hover:text-text-primary',
                 )}
               >

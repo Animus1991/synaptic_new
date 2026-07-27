@@ -26,6 +26,7 @@ type Props = {
   prereqLabel: string;
 };
 
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function ConceptTreemapChart({
   blocks,
   totalWeight,
@@ -53,7 +54,7 @@ export function ConceptTreemapChart({
   return (
     <div className="ux-card blueprint-surface" data-testid="concept-treemap">
       <h3 className="text-sm font-semibold text-text-primary mb-1 flex items-center gap-2">
-        <Map className="w-4 h-4 text-brand-400" />
+        <Map className="w-4 h-4 text-text-secondary" />
         {title}
       </h3>
       <p className="text-xs text-text-tertiary mb-4">{hint}</p>

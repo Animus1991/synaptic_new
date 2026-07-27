@@ -13,6 +13,7 @@ import {
 import { DashboardLivePreview } from './DashboardLivePreview';
 import type { Lang } from '../lib/i18n';
 
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export interface DashboardHubPopupProps {
   actionId: DashboardHubActionId;
   examDate?: string;
@@ -147,7 +148,7 @@ export function DashboardHubPopupBody({
               if (item.kind === 'exam') {
                 return (
                   <li key="exam" className="text-xs rounded-lg border border-brand-500/20 bg-brand-500/5 px-3 py-2">
-                    <span className="font-medium text-brand-400">{t('dashboardHeroPopupYourExam')}</span>
+                    <span className="font-medium text-text-secondary">{t('dashboardHeroPopupYourExam')}</span>
                     <span className="text-text-muted ml-2">{item.date}</span>
                   </li>
                 );

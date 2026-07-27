@@ -11,6 +11,7 @@ type Props = {
   className?: string;
 };
 
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function CrossLibrarySynthesisPanel({ courses, settings, lang, className }: Props) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
@@ -170,7 +171,7 @@ export function CrossLibrarySynthesisPanel({ courses, settings, lang, className 
               <button
                 type="button"
                 onClick={() => setCitationsOpen((v) => !v)}
-                className="w-full flex items-center gap-1.5 px-2 py-1.5 text-xs text-text-secondary hover:text-brand-700"
+                className="w-full flex items-center gap-1.5 px-2 py-1.5 text-xs text-text-secondary hover:text-text-primary"
               >
                 <FileText className="w-3 h-3" />
                 {citations.length}{' '}
@@ -187,7 +188,7 @@ export function CrossLibrarySynthesisPanel({ courses, settings, lang, className 
                 <ul className="divide-y divide-border-subtle/60 max-h-32 overflow-y-auto">
                   {citations.map((c) => (
                     <li key={c.chunkId} className="px-2 py-1.5 text-xs">
-                      <p className="font-medium text-brand-700 truncate">
+                      <p className="font-medium text-text-primary truncate">
                         {c.fileName} · {c.locator}
                       </p>
                       <p className="text-text-secondary mt-0.5 line-clamp-2">{c.snippet}</p>

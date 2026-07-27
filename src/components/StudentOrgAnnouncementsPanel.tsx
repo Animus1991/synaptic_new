@@ -4,6 +4,7 @@ import type { StudentOrgContent } from '../lib/studentOrgContent';
 import { formatDateTime } from '../lib/localeFormat';
 import { cn } from '../utils/cn';
 
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export type StudentAnnouncementItem = {
   id: string;
   classId: string;
@@ -38,7 +39,7 @@ export function StudentOrgAnnouncementsPanel({ announcements, classOptions, ui, 
         aria-expanded={open}
       >
         <span className="flex items-center gap-2 text-lg font-medium">
-          <FileText className="w-5 h-5 text-brand-600" />
+          <FileText className="w-5 h-5 text-text-secondary" />
           {ui.announcementsTitle}
         </span>
         <ChevronDown className={cn('w-5 h-5 text-text-muted transition-transform', open && 'rotate-180')} />
@@ -57,7 +58,7 @@ export function StudentOrgAnnouncementsPanel({ announcements, classOptions, ui, 
                 className={cn(
                   'rounded-full px-3 py-1 text-[10px] font-medium border transition-colors',
                   classFilter === 'all'
-                    ? 'border-brand-500/40 bg-brand-500/10 text-brand-600'
+                    ? 'border-brand-500/40 bg-surface-secondary text-text-primary border border-border-subtle'
                     : 'border-border-subtle text-text-secondary hover:bg-surface-hover',
                 )}
               >
@@ -72,7 +73,7 @@ export function StudentOrgAnnouncementsPanel({ announcements, classOptions, ui, 
                   className={cn(
                     'rounded-full px-3 py-1 text-[10px] font-medium border transition-colors truncate max-w-[160px]',
                     classFilter === cls.id
-                      ? 'border-brand-500/40 bg-brand-500/10 text-brand-600'
+                      ? 'border-brand-500/40 bg-surface-secondary text-text-primary border border-border-subtle'
                       : 'border-border-subtle text-text-secondary hover:bg-surface-hover',
                   )}
                 >

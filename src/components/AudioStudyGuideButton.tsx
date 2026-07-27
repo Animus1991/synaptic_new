@@ -12,6 +12,7 @@ type Props = {
   className?: string;
 };
 
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function AudioStudyGuideButton({ course, lang, settings, className }: Props) {
   const [playing, setPlaying] = useState(false);
   const [neural, setNeural] = useState(false);
@@ -105,7 +106,7 @@ export function AudioStudyGuideButton({ course, lang, settings, className }: Pro
         className={cn(
           'inline-flex items-center gap-2 px-3 py-2 rounded-xl text-sm border transition-colors',
           playing
-            ? 'border-brand-500/50 bg-brand-500/10 text-brand-600'
+            ? 'border-brand-500/50 bg-surface-secondary text-text-primary border border-border-subtle'
             : 'border-border-subtle hover:bg-surface-hover text-text-secondary',
         )}
       >
@@ -123,7 +124,7 @@ export function AudioStudyGuideButton({ course, lang, settings, className }: Pro
               className={cn(
                 'text-[10px] font-medium px-1.5 py-0.5 rounded-md',
                 activeSpeaker === 'host'
-                  ? 'bg-brand-500/15 text-brand-600'
+                  ? 'bg-surface-secondary text-text-primary border border-border-subtle'
                   : 'bg-accent-emerald/15 text-accent-emerald',
               )}
               data-testid="podcast-speaker-badge"

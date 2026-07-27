@@ -136,10 +136,11 @@ function NavActiveIndicator({ quiet = false }: { quiet?: boolean }) {
 const QUICK_ACCESS_ICONS: Record<GlobalQuickActionId, { icon: typeof Network; inkClass: string; washClass: string }> = {
   'note-analysis': { icon: Network, inkClass: 'text-accent-violet', washClass: 'bg-accent-violet/15' },
   upload: { icon: Sparkles, inkClass: 'text-accent-emerald', washClass: 'bg-accent-emerald/15' },
-  workspace: { icon: BookOpen, inkClass: 'text-brand-600', washClass: 'bg-brand-500/15' },
+  workspace: { icon: BookOpen, inkClass: 'text-text-secondary', washClass: 'bg-brand-500/15' },
   exam: { icon: Zap, inkClass: 'text-accent-rose', washClass: 'bg-accent-rose/15' },
 };
 
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function Shell({
   children,
   currentView,

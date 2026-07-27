@@ -22,6 +22,7 @@ type Props = {
   compact?: boolean;
 };
 
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function SyllabusCoverageWidget({
   courses,
   settingsExamDate,
@@ -53,7 +54,7 @@ export function SyllabusCoverageWidget({
             <button
               type="button"
               onClick={() => onSelectCourse(primary)}
-              className="text-[10px] font-medium text-brand-700 hover:text-brand-600"
+              className="text-[10px] font-medium text-text-primary hover:text-text-primary"
             >
               {t('coverageTrackerOpenCourse')}
             </button>
@@ -94,7 +95,7 @@ export function SyllabusCoverageWidget({
                 <button
                   type="button"
                   onClick={() => onPracticeTopic(topic, primary.id)}
-                  className="coverage-topic-action text-brand-700 font-medium"
+                  className="coverage-topic-action text-text-primary font-medium"
                 >
                   {t('coveragePracticeTopic')}
                 </button>
@@ -112,7 +113,7 @@ export function SyllabusCoverageWidget({
       tone="brand"
       title={t('coverageTrackerTitle')}
       icon={CheckSquare}
-      iconClassName="text-brand-600"
+      iconClassName="text-text-secondary"
     >
       <div className="space-y-4">
         <div className="flex flex-wrap items-center gap-3 text-xs">
@@ -174,7 +175,7 @@ export function SyllabusCoverageWidget({
                   type="button"
                   data-testid={`coverage-practice-${topic.topicId}`}
                   onClick={() => onPracticeTopic(topic, snapshot.courseId)}
-                  className="coverage-topic-action text-brand-700 font-medium hover:underline"
+                  className="coverage-topic-action text-text-primary font-medium hover:underline"
                 >
                   {t('coveragePracticeTopic')}
                 </button>
@@ -187,7 +188,7 @@ export function SyllabusCoverageWidget({
           <button
             type="button"
             onClick={() => onSelectCourse(primary)}
-            className="text-xs text-brand-700 font-medium hover:underline"
+            className="text-xs text-text-primary font-medium hover:underline"
             data-testid="coverage-open-course"
           >
             {t('coverageTrackerOpenCourse')}

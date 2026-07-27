@@ -16,7 +16,7 @@ import {
 
 function SeverityIcon({ severity }: { severity: WorkspaceStatusSeverity }) {
   if (severity === 'ok') return <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-accent-emerald" />;
-  if (severity === 'info') return <AlertCircle className="h-3.5 w-3.5 shrink-0 text-brand-600" />;
+  if (severity === 'info') return <AlertCircle className="h-3.5 w-3.5 shrink-0 text-text-secondary" />;
   return <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-accent-amber" />;
 }
 
@@ -58,6 +58,7 @@ function StatusItemButton({
   );
 }
 
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function WorkspaceStatusPanel({ className, defaultOpen = false }: Props) {
   const { t } = useI18n();
   const bus = useWorkspaceStatusBus();

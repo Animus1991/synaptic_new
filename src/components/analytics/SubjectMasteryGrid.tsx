@@ -13,6 +13,7 @@ type Props = {
   className?: string;
 };
 
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function SubjectMasteryGrid({ tiles, onSelect, className }: Props) {
   const { lang } = useI18n();
   const title = lang === 'el' ? 'Mastery ανά μάθημα' : 'Subject mastery';
@@ -43,7 +44,7 @@ export function SubjectMasteryGrid({ tiles, onSelect, className }: Props) {
                 className="rounded-xl border border-border-subtle bg-surface-card p-3 text-left hover:border-brand-400/40 hover:bg-surface-hover transition-colors"
               >
                 <div className="flex items-start gap-2">
-                  <CourseIcon icon={tile.icon} size="sm" colorClassName="text-brand-600 shrink-0" />
+                  <CourseIcon icon={tile.icon} size="sm" colorClassName="text-text-secondary shrink-0" />
                   <div className="min-w-0 flex-1">
                     <p className="text-xs font-semibold text-text-primary truncate">{tile.title}</p>
                     <p className="text-[10px] text-text-tertiary mt-0.5">

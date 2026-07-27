@@ -14,6 +14,7 @@ type Props = {
   defaultQuery?: string;
 };
 
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function LiveEngineTransparencyPanel({
   courseId,
   files,
@@ -34,7 +35,7 @@ export function LiveEngineTransparencyPanel({
       <div className="ux-card">
         <div className="flex items-start gap-3 mb-3">
           <div className="w-9 h-9 rounded-xl bg-brand-600/15 flex items-center justify-center">
-            <Search className="w-4 h-4 text-brand-400" />
+            <Search className="w-4 h-4 text-text-secondary" />
           </div>
           <div>
             <h3 className="text-sm font-semibold text-text-primary">{c.liveTransparencyTitle}</h3>
@@ -70,7 +71,7 @@ export function LiveEngineTransparencyPanel({
       <div className="grid lg:grid-cols-2 gap-4">
         <div className="ux-card">
           <h3 className="text-sm font-semibold text-text-primary mb-3 flex items-center gap-2">
-            <FileText className="w-4 h-4 text-brand-400" />
+            <FileText className="w-4 h-4 text-text-secondary" />
             {c.liveTransparencyHits}
           </h3>
           {data.hits.length === 0 ? (
@@ -82,7 +83,7 @@ export function LiveEngineTransparencyPanel({
                 return (
                   <div key={hit.chunk.id} className="rounded-xl border border-border-subtle p-3 bg-surface-card/50">
                     <div className="flex items-center justify-between gap-3 mb-2">
-                      <span className="text-xs font-mono text-brand-400">#{index + 1} · {hit.score.toFixed(2)}</span>
+                      <span className="text-xs font-mono text-text-secondary">#{index + 1} · {hit.score.toFixed(2)}</span>
                       <span className="text-[11px] text-text-tertiary truncate">{formatCitation(citation)}</span>
                     </div>
                     <p className="text-xs text-text-secondary leading-relaxed">{citation.snippet}</p>
@@ -95,14 +96,14 @@ export function LiveEngineTransparencyPanel({
 
         <div className="ux-card">
           <h3 className="text-sm font-semibold text-text-primary mb-3 flex items-center gap-2">
-            <Brain className="w-4 h-4 text-brand-400" />
+            <Brain className="w-4 h-4 text-text-secondary" />
             {c.textRankSentences}
           </h3>
           <div className="space-y-2">
             {data.textRankSentences.slice(0, 5).map((sentence, i) => (
               <div key={`${sentence.text}-${i}`} className={cn('p-3 rounded-xl border text-xs', sentence.selected ? 'border-brand-500/30 bg-brand-600/5' : 'border-border-subtle')}>
                 <div className="flex items-center justify-between gap-2 mb-1">
-                  <span className="font-mono text-brand-400">{sentence.score.toFixed(2)}</span>
+                  <span className="font-mono text-text-secondary">{sentence.score.toFixed(2)}</span>
                   {sentence.selected && <span className="ux-chip-info px-2 py-0.5 rounded-full text-[10px]">Selected</span>}
                 </div>
                 <p className="text-text-secondary leading-relaxed">{sentence.text}</p>
@@ -115,7 +116,7 @@ export function LiveEngineTransparencyPanel({
       <div className="grid lg:grid-cols-2 gap-4">
         <div className="ux-card overflow-x-auto">
           <h3 className="text-sm font-semibold text-text-primary mb-3 flex items-center gap-2">
-            <Network className="w-4 h-4 text-brand-400" />
+            <Network className="w-4 h-4 text-text-secondary" />
             {c.bm25Ranking}
           </h3>
           <table className="w-full text-xs">
@@ -135,7 +136,7 @@ export function LiveEngineTransparencyPanel({
                   <td className="py-2 pr-4 text-text-primary">{row.term}</td>
                   <td className="py-2 pr-4 text-right font-mono">{row.tf}</td>
                   <td className="py-2 pr-4 text-right font-mono">{row.idf}</td>
-                  <td className="py-2 text-right font-mono text-brand-400">{row.score}</td>
+                  <td className="py-2 text-right font-mono text-text-secondary">{row.score}</td>
                 </tr>
               ))}
             </tbody>
@@ -152,7 +153,7 @@ export function LiveEngineTransparencyPanel({
                   <div className="ux-progress-fill h-full" style={{ width: `${Math.min(100, kp.score * 100)}%` }} />
                 </div>
                 <span className="text-xs text-text-primary min-w-[8rem] truncate">{kp.phrase}</span>
-                <span className="text-xs font-mono text-brand-400">{kp.score.toFixed(2)}</span>
+                <span className="text-xs font-mono text-text-secondary">{kp.score.toFixed(2)}</span>
               </div>
             ))}
           </div>

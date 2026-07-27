@@ -13,6 +13,7 @@ interface SessionQueueBarProps {
   onEndSession: () => void;
 }
 
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function SessionQueueBar({
   sessionType,
   currentIndex,
@@ -29,10 +30,10 @@ export function SessionQueueBar({
   return (
     <div className="sticky top-0 z-40 border-b border-brand-500/20 bg-brand-600/10 px-4 py-2">
       <div className="w-full min-w-0 px-4 sm:px-6 flex items-center gap-3">
-        <Play className="w-3.5 h-3.5 text-brand-400 shrink-0" />
+        <Play className="w-3.5 h-3.5 text-text-secondary shrink-0" />
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between gap-2 mb-1">
-            <p className="text-xs font-semibold text-brand-300 truncate">
+            <p className="text-xs font-semibold text-text-secondary truncate">
               {sessionLabel(sessionType)} · Task {currentIndex} of {total}
             </p>
             <button

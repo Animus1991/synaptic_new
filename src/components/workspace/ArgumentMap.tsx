@@ -15,6 +15,7 @@ import {
 import { DebateRebuttalPersistStrip } from './DebateRebuttalPersistStrip';
 import { WorkspaceToolEmptyState } from './WorkspaceToolEmptyState';
 
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export type ArgNodeType = 'claim' | 'premise' | 'support' | 'refutation';
 
 export interface ArgNode {
@@ -331,7 +332,7 @@ export function ArgumentMap({
     <div className="flex h-full flex-col overflow-hidden">
       <div className="flex shrink-0 items-center justify-between border-b border-border-subtle bg-surface-card px-4 py-2.5">
         <span className="flex items-center gap-2 text-sm font-semibold">
-          <GitCommit className="w-4 h-4 text-brand-800" />
+          <GitCommit className="w-4 h-4 text-text-primary" />
           Debate Tree{concept ? ` — ${concept}` : ''}
         </span>
         <div className="flex items-center gap-2">

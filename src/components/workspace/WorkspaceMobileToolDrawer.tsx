@@ -19,6 +19,7 @@ interface Props {
   lang: Lang;
 }
 
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function WorkspaceMobileToolDrawer({
   open,
   onClose,
@@ -107,11 +108,11 @@ export function WorkspaceMobileToolDrawer({
                             className={cn(
                               'flex items-start gap-2.5 rounded-md border p-3 text-left transition-colors min-h-[56px]',
                               active
-                                ? 'border-brand-600/30 bg-brand-100/70 text-brand-800'
+                                ? 'border-brand-600/30 bg-surface-secondary text-text-primary border border-border-subtle'
                                 : 'border-border-subtle bg-surface-primary/50 text-text-secondary hover:border-brand-400/30 hover:bg-surface-hover',
                             )}
                           >
-                            <Icon className={cn('h-4 w-4 shrink-0 mt-0.5', active ? 'text-brand-700' : 'text-text-muted')} aria-hidden />
+                            <Icon className={cn('h-4 w-4 shrink-0 mt-0.5', active ? 'text-text-primary' : 'text-text-muted')} aria-hidden />
                             <span className="min-w-0 flex-1">
                               <span className="block text-[13px] font-semibold leading-tight truncate">
                                 {lang === 'el' ? meta.labelEl : meta.label}

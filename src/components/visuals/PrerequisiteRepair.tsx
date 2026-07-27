@@ -6,6 +6,7 @@ interface Props {
   onStartRepair?: (repair: PrerequisiteRepair) => void;
 }
 
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function PrerequisiteRepairPanel({ repairs, onStartRepair }: Props) {
   if (repairs.length === 0) return null;
 
@@ -25,7 +26,7 @@ export function PrerequisiteRepairPanel({ repairs, onStartRepair }: Props) {
             {onStartRepair && (
               <button
                 onClick={() => onStartRepair(r)}
-                className="shrink-0 text-[10px] font-medium text-brand-400 hover:text-brand-300 whitespace-nowrap"
+                className="shrink-0 text-[10px] font-medium text-text-secondary hover:text-text-primary whitespace-nowrap"
               >
                 Start repair →
               </button>

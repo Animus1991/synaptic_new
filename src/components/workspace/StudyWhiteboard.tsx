@@ -54,6 +54,7 @@ const TOOL_DEFS: { id: Tool; icon: typeof Pen; label: string }[] = [
   { id: 'text', icon: Type, label: 'Text' },
 ];
 
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function StudyWhiteboard({
   referenceFormulas = [],
   referenceExcerpt,
@@ -536,7 +537,7 @@ export function StudyWhiteboard({
           {scratchpadImport && (
             <div className="p-3 rounded-xl border border-accent-cyan/30 bg-accent-cyan/5 space-y-2">
               <div className="flex items-center justify-between gap-2">
-                <div className="flex items-center gap-1.5 text-xs font-semibold text-brand-800">
+                <div className="flex items-center gap-1.5 text-xs font-semibold text-text-primary">
                   <Calculator className="w-3.5 h-3.5" />
                   {t('wbFromScratchpad')}
                 </div>
@@ -549,7 +550,7 @@ export function StudyWhiteboard({
                   <X className="w-3.5 h-3.5" aria-hidden />
                 </button>
               </div>
-              <p className="text-[10px] font-medium text-brand-800">{scratchpadImport.name}</p>
+              <p className="text-[10px] font-medium text-text-primary">{scratchpadImport.name}</p>
               <div className="rounded-lg bg-surface-primary/60 p-2 overflow-x-auto">
                 <FormulaLatexPreview formula={scratchpadImport.formula} />
               </div>
@@ -577,12 +578,12 @@ export function StudyWhiteboard({
             </div>
           )}
           <div className="flex items-center gap-1.5 text-xs font-semibold text-text-secondary">
-            <BookOpen className="w-3.5 h-3.5 text-brand-700" />
+            <BookOpen className="w-3.5 h-3.5 text-text-primary" />
             {t('wbFromNotes')}
           </div>
           {referenceFormulas.map((f) => (
             <div key={f.id} className="p-2 rounded-lg bg-surface-card border border-border-subtle">
-              <p className="text-[10px] font-medium text-brand-800 truncate">{f.name}</p>
+              <p className="text-[10px] font-medium text-text-primary truncate">{f.name}</p>
               <div className="mt-1 overflow-x-auto">
                 <FormulaLatexPreview formula={f.formula} display={false} />
               </div>
@@ -590,7 +591,7 @@ export function StudyWhiteboard({
               <button
                 type="button"
                 onClick={() => insertFormulaLabel(f.name, f.formula)}
-                className="mt-2 text-[10px] font-medium text-brand-700 hover:text-brand-800"
+                className="mt-2 text-[10px] font-medium text-text-secondary hover:text-text-primary"
               >
                 {t('wbInsertOnBoardArrow')}
               </button>
@@ -636,7 +637,7 @@ export function StudyWhiteboard({
             onClick={() => setTool(id)}
             className={cn(
               'flex items-center gap-1 rounded-lg px-2 py-1.5 text-[10px] font-medium transition-colors',
-              tool === id ? 'bg-brand-600/20 text-brand-800' : 'text-text-muted hover:bg-surface-hover',
+              tool === id ? 'bg-surface-secondary text-text-primary border border-border-subtle' : 'text-text-muted hover:bg-surface-hover',
               activeLayerLocked && 'opacity-40 cursor-not-allowed',
             )}
           >
@@ -653,7 +654,7 @@ export function StudyWhiteboard({
           onClick={() => setShowLayers((v) => !v)}
           className={cn(
             'rounded-lg p-1.5',
-            showLayers ? 'bg-brand-600/20 text-brand-800' : 'text-text-muted hover:bg-surface-hover',
+            showLayers ? 'bg-surface-secondary text-text-primary border border-border-subtle' : 'text-text-muted hover:bg-surface-hover',
           )}
         >
           <Layers className="w-3.5 h-3.5" aria-hidden />
@@ -666,7 +667,7 @@ export function StudyWhiteboard({
           onClick={() => setShowStamps((v) => !v)}
           className={cn(
             'rounded-lg px-2 py-1.5 text-[10px] font-medium',
-            showStamps ? 'bg-accent-cyan/20 text-brand-800' : 'text-text-muted hover:bg-surface-hover',
+            showStamps ? 'bg-accent-cyan/20 text-text-primary' : 'text-text-muted hover:bg-surface-hover',
           )}
         >
           <Calculator className="w-3.5 h-3.5 inline" aria-hidden />
@@ -731,7 +732,7 @@ export function StudyWhiteboard({
             aria-label={t('wbExplainDiagram')}
             disabled={doc.strokes.length === 0}
             onClick={handleExplainDiagram}
-            className="inline-flex items-center gap-1 rounded-lg border border-accent-cyan/30 px-2 py-1 text-[10px] font-medium text-brand-800 hover:bg-accent-cyan/10 disabled:opacity-40 disabled:cursor-not-allowed"
+            className="inline-flex items-center gap-1 rounded-lg border border-accent-cyan/30 px-2 py-1 text-[10px] font-medium text-text-primary hover:bg-accent-cyan/10 disabled:opacity-40 disabled:cursor-not-allowed"
           >
             <Bot className="w-3 h-3" aria-hidden />
             <span className="hidden sm:inline">{t('wbExplainDiagram')}</span>
@@ -754,7 +755,7 @@ export function StudyWhiteboard({
               type="button"
               aria-label={t('wbInsertStamp').replace('{label}', stamp.label)}
               onClick={() => insertLatexStamp(stamp)}
-              className="rounded-lg border border-border-subtle bg-surface-card px-2 py-1 text-[10px] text-text-secondary hover:border-accent-cyan/40 hover:text-brand-800"
+              className="rounded-lg border border-border-subtle bg-surface-card px-2 py-1 text-[10px] text-text-secondary hover:border-accent-cyan/40 hover:text-text-primary"
             >
               {stamp.label}
             </button>
@@ -787,7 +788,7 @@ export function StudyWhiteboard({
                   aria-label={t('wbActivateLayer').replace('{name}', layer.name)}
                   aria-current={active ? 'true' : undefined}
                   onClick={() => patchDoc((d) => ({ ...d, activeLayerId: layer.id }))}
-                  className="font-medium text-text-secondary hover:text-brand-800"
+                  className="font-medium text-text-secondary hover:text-text-primary"
                 >
                   {layer.name}
                   <span className="ml-1 text-text-muted">({strokeCount})</span>
@@ -819,7 +820,7 @@ export function StudyWhiteboard({
             type="button"
             data-testid="whiteboard-layer-add"
             onClick={addLayer}
-            className="inline-flex items-center gap-1 rounded-lg border border-dashed border-border-subtle px-2 py-1 text-text-muted hover:border-brand-500/30 hover:text-brand-800"
+            className="inline-flex items-center gap-1 rounded-lg border border-dashed border-border-subtle px-2 py-1 text-text-muted hover:border-brand-500/30 hover:text-text-primary"
           >
             <Plus className="w-3 h-3" />
             {t('wbAddLayer')}

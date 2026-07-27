@@ -92,6 +92,7 @@ interface Props {
   /** Open Quiz tool after rubric review (TOOL-FY-02). */
   onOpenQuiz?: () => void;
 }
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function FeynmanCheck({
   concept = 'Introduction',
   onFocusConcept,
@@ -241,7 +242,7 @@ export function FeynmanCheck({
     <div className="flex h-full flex-col overflow-hidden" data-testid="feynman-check">
       <div className="flex-1 overflow-y-auto p-4">
         <h3 className="mb-1 text-sm font-semibold flex items-center gap-2">
-          <Sparkles className="w-4 h-4 text-brand-700" />
+          <Sparkles className="w-4 h-4 text-text-primary" />
           {t('feynmanCheck')} — {concept}
         </h3>
         <p className="mb-3 text-xs text-text-tertiary">{t('feynmanHint')}</p>
@@ -278,7 +279,7 @@ export function FeynmanCheck({
                 type="button"
                 title={kt.definition}
                 onClick={() => onOpenInReader?.(kt.term)}
-                className="rounded-full border border-white/10 bg-white/[0.04] px-2 py-0.5 text-[10px] text-text-secondary hover:border-brand-600/35 hover:text-brand-800"
+                className="rounded-full border border-white/10 bg-white/[0.04] px-2 py-0.5 text-[10px] text-text-secondary hover:border-brand-600/35 hover:text-text-primary"
               >
                 {kt.term}
               </button>
@@ -330,7 +331,7 @@ export function FeynmanCheck({
                     type="button"
                     data-testid="feynman-ask-agent"
                     onClick={onAskAgent ?? onOpenAgent}
-                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium border border-accent-cyan/30 bg-accent-cyan/10 text-brand-800 hover:opacity-90"
+                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium border border-accent-cyan/30 bg-accent-cyan/10 text-text-primary hover:opacity-90"
                   >
                     <Sparkles className="w-3.5 h-3.5" />
                     {t('askAgentShort')}
@@ -365,7 +366,7 @@ export function FeynmanCheck({
           <div className="space-y-3">
             {coachFeedback && (
               <div className="rounded-xl border border-brand-500/30 bg-brand-500/5 p-3 space-y-2">
-                <p className="text-xs font-semibold text-brand-800">{coachFeedback.headline}</p>
+                <p className="text-xs font-semibold text-text-primary">{coachFeedback.headline}</p>
                 <p className="text-[10px] text-text-muted">{coachEngineLabel}</p>
                 <div>
                   <p className="text-[10px] font-semibold text-accent-emerald mb-1">Strengths</p>
@@ -382,7 +383,7 @@ export function FeynmanCheck({
                 {coachFeedback.rewrite && (
                   <p className="text-[11px] text-text-secondary whitespace-pre-wrap border-t border-border-subtle pt-2">{coachFeedback.rewrite}</p>
                 )}
-                <p className="text-[10px] text-brand-700 font-medium">{coachFeedback.nextStep}</p>
+                <p className="text-[10px] text-text-primary font-medium">{coachFeedback.nextStep}</p>
               </div>
             )}
 
@@ -399,7 +400,7 @@ export function FeynmanCheck({
                         <button
                           type="button"
                           onClick={() => onOpenInReader(g.searchTerm)}
-                          className="shrink-0 text-[10px] text-brand-800 hover:text-brand-700"
+                          className="shrink-0 text-[10px] text-text-primary hover:text-text-primary"
                         >
                           Reader →
                         </button>
@@ -442,7 +443,7 @@ export function FeynmanCheck({
                     <div key={dim}>
                       <div className="mb-0.5 flex justify-between text-[10px]">
                         <span>{t(RUBRIC_LABEL_KEYS[dim])}</span>
-                        <span className="font-mono text-brand-800">{rubric.scores[dim]}%</span>
+                        <span className="font-mono text-text-primary">{rubric.scores[dim]}%</span>
                       </div>
                       <div className="h-1.5 overflow-hidden rounded-full bg-surface-hover">
                         <div className="h-full rounded-full bg-brand-500 transition-all" style={{ width: `${rubric.scores[dim]}%` }} />
@@ -462,7 +463,7 @@ export function FeynmanCheck({
                       type="button"
                       data-testid="feynman-open-quiz"
                       onClick={onOpenQuiz}
-                      className="inline-flex items-center gap-1 rounded-lg border border-brand-500/30 bg-brand-600/10 px-2 py-1 text-[10px] font-medium text-brand-800 hover:opacity-90"
+                      className="inline-flex items-center gap-1 rounded-lg border border-border-subtle bg-surface-secondary text-text-primary hover:opacity-90"
                     >
                       {t('feynmanOpenQuiz')}
                     </button>
@@ -492,7 +493,7 @@ export function FeynmanCheck({
                         <button
                           type="button"
                           onClick={() => onOpenInReader(gapSearchTerm(dim, concept, gapTerms))}
-                          className="flex items-center gap-1 text-[10px] font-medium text-brand-800 hover:opacity-80"
+                          className="flex items-center gap-1 text-[10px] font-medium text-text-primary hover:opacity-80"
                         >
                           <BookOpen className="w-3 h-3" />
                           {t('feynmanReadInSource')}
@@ -500,7 +501,7 @@ export function FeynmanCheck({
                       )}
                       {onFocusConcept && (
                         <button type="button" onClick={() => onFocusConcept('concept-map')}
-                          className="text-[10px] font-medium text-brand-700 hover:text-brand-800">
+                          className="text-[10px] font-medium text-text-secondary hover:text-text-primary">
                           {t('feynmanConceptMapArrow')}
                         </button>
                       )}

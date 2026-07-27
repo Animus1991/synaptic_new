@@ -36,6 +36,7 @@ type Props = {
   onReprocess?: () => void;
 };
 
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function NoteAnalysisView({
   course,
   files,
@@ -92,7 +93,7 @@ export function NoteAnalysisView({
               <Play className="w-4 h-4" />
               {c.openWorkspace}
             </button>
-            <button type="button" onClick={onOpenCourse} className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-brand-600/15 text-brand-400 text-sm font-medium hover:bg-brand-600/25">
+            <button type="button" onClick={onOpenCourse} className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-surface-secondary text-text-primary border border-border-subtle text-sm font-medium hover:bg-brand-600/25">
               {c.generateCourse}
               <ArrowRight className="w-4 h-4" />
             </button>
@@ -144,7 +145,7 @@ export function NoteAnalysisView({
 
       <button
         type="button"
-        className="mb-4 text-sm text-brand-400 hover:text-brand-300"
+        className="mb-4 text-sm text-text-secondary hover:text-text-primary"
         aria-expanded={showDetails}
         data-testid="note-analysis-explore-details"
         onClick={() => setShowDetails((v) => !v)}
@@ -167,7 +168,7 @@ export function NoteAnalysisView({
               onClick={() => setActiveStage(stageId)}
               className={cn(
                 'flex items-center gap-2 px-3 py-2 rounded-xl border text-xs font-medium transition-all',
-                active ? 'border-brand-500/40 bg-brand-600/10 text-brand-300' : 'border-border-subtle text-text-tertiary hover:border-brand-500/25',
+                active ? 'border-brand-500/40 bg-surface-secondary text-text-primary border border-border-subtle' : 'border-border-subtle text-text-tertiary hover:border-brand-500/25',
               )}
             >
               <Icon className="w-3.5 h-3.5" />
@@ -201,7 +202,7 @@ export function NoteAnalysisView({
             {snapshot.extractedItems.map((item) => (
               <div key={item.label} className="ux-card flex items-center gap-3">
                 <div className="w-9 h-9 rounded-xl bg-brand-600/15 flex items-center justify-center">
-                  <Lightbulb className="w-4 h-4 text-brand-400" />
+                  <Lightbulb className="w-4 h-4 text-text-secondary" />
                 </div>
                 <div>
                   <p className="text-lg font-bold text-text-primary">{item.displayValue}</p>
@@ -228,7 +229,7 @@ export function NoteAnalysisView({
                       aria-expanded={expandedIssue === i}
                       onClick={() => setExpandedIssue(expandedIssue === i ? null : i)}
                     >
-                      <AlertTriangle className={cn('w-4 h-4 shrink-0 mt-0.5', issue.severity === 'error' ? 'text-accent-rose' : issue.severity === 'warning' ? 'text-accent-amber' : 'text-brand-400')} />
+                      <AlertTriangle className={cn('w-4 h-4 shrink-0 mt-0.5', issue.severity === 'error' ? 'text-accent-rose' : issue.severity === 'warning' ? 'text-accent-amber' : 'text-text-secondary')} />
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-text-primary">{issue.title}</p>
                         {expandedIssue === i && (
@@ -243,7 +244,7 @@ export function NoteAnalysisView({
                           type="button"
                           data-testid={`note-analysis-issue-action-${i}`}
                           onClick={() => runIssueAction(issue.action)}
-                          className="text-xs font-medium text-brand-400 hover:text-brand-300"
+                          className="text-xs font-medium text-text-secondary hover:text-text-primary"
                         >
                           → {actionLabel(issue.action)}
                         </button>
@@ -297,7 +298,7 @@ export function NoteAnalysisView({
                       <td className="py-2 pr-4 text-text-primary">{row.term}</td>
                       <td className="py-2 pr-4 text-right font-mono">{row.tf}</td>
                       <td className="py-2 pr-4 text-right font-mono">{row.idf}</td>
-                      <td className="py-2 text-right font-mono text-brand-400">{row.score}</td>
+                      <td className="py-2 text-right font-mono text-text-secondary">{row.score}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -312,7 +313,7 @@ export function NoteAnalysisView({
                 {snapshot.textRankSentences.map((s, i) => (
                   <div key={i} className={cn('p-3 rounded-xl border text-xs', s.selected ? 'border-brand-500/30 bg-brand-600/5' : 'border-border-subtle')}>
                     <div className="flex items-center justify-between gap-2 mb-1">
-                      <span className="font-mono text-brand-400">{s.score.toFixed(2)}</span>
+                      <span className="font-mono text-text-secondary">{s.score.toFixed(2)}</span>
                       {s.selected && <span className="ux-chip-info px-2 py-0.5 rounded-full text-[10px]">Selected</span>}
                     </div>
                     <p className="text-text-secondary leading-relaxed">{s.text}</p>
@@ -333,7 +334,7 @@ export function NoteAnalysisView({
                       <div className="ux-progress-fill h-full" style={{ width: `${Math.min(100, kp.score * 100)}%` }} />
                     </div>
                     <span className="text-xs text-text-primary min-w-[8rem] truncate">{kp.phrase}</span>
-                    <span className="text-xs font-mono text-brand-400">{kp.score.toFixed(2)}</span>
+                    <span className="text-xs font-mono text-text-secondary">{kp.score.toFixed(2)}</span>
                   </div>
                 ))}
               </div>

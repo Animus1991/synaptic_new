@@ -38,6 +38,7 @@ function buildReassessment(m: MistakeRecord): Reassessment | null {
   return { options, correctIndex: 0, selected: null, passed: false };
 }
 
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function MistakeRetryView({
   onClose,
   onOpenAgent,
@@ -106,7 +107,7 @@ export function MistakeRetryView({
             onClick={onOpenAgent}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border border-border-subtle hover:border-brand-500/30 transition-all"
           >
-            <Sparkles className="w-3.5 h-3.5 text-brand-400" /> Diagnose with Agent
+            <Sparkles className="w-3.5 h-3.5 text-text-secondary" /> Diagnose with Agent
           </button>
           <span className="text-xs text-accent-amber font-medium">+{xpReward} XP</span>
         </div>

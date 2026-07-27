@@ -26,6 +26,7 @@ function Metric({
   );
 }
 
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function RecognitionReportPanel({
   snapshot,
   summary: summaryProp,
@@ -54,7 +55,7 @@ export function RecognitionReportPanel({
     >
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="text-xs font-semibold text-brand-300">
+          <p className="text-xs font-semibold text-text-secondary">
             {t('recognitionReportTitle', language)}
           </p>
           <p className="text-[11px] text-text-muted mt-0.5">

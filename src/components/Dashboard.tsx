@@ -134,6 +134,7 @@ interface DashboardProps {
   onDashboardWallpaperChange?: (dataUrl: string | undefined) => void;
 }
 
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onSelectCourse, onOpenWorkspace, onOpenExamTimer, onUpload, onExploreDemo, prerequisiteRepairs = [], calibration, conceptMastery = [], activities = [], masteryDelta = 0, daysToExam = null, antiPassiveAlert = false, onStartTask, onStartSession, onResolveMisconception, onFocusWeakArea, workspaceLive = null, dashboardNextAction = null, smartCTAs = [], onRunSmartCTA, proactiveAgentAlerts = [], onRunProactiveAgentAlert, onOpenWorkspacePractice, lang = 'en', postUploadCourse = null, onDismissPostUpload, onOpenTasksReview, settingsExamDate, personalStudyDates = [], onExamDateChange, onPersonalStudyDatesChange, dashboardWallpaperDataUrl, onDashboardWallpaperChange }: DashboardProps) {
   const { t } = useI18n();
   const isMinimal = useMinimalTheme();
@@ -224,7 +225,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
               <button
                 type="button"
                 onClick={onExploreDemo}
-                className="flex items-center justify-center gap-2 px-8 py-3.5 border border-brand-500/40 bg-brand-500/5 hover:bg-brand-500/10 text-brand-700 rounded-xl font-semibold text-sm transition-all"
+                className="flex items-center justify-center gap-2 px-8 py-3.5 border border-brand-500/40 bg-brand-500/5 hover:bg-surface-secondary text-text-primary border border-border-subtle rounded-xl font-semibold text-sm transition-all"
               >
                 <Sparkles className="w-4 h-4" />
                 {t('exploreDemo')}
@@ -299,7 +300,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                 const Icon = kind === 'sun' ? Sun : kind === 'moon' ? Moon : CloudSun;
                 return (
                   <Icon
-                    className="inline-block w-5 h-5 text-brand-600 shrink-0 ml-1.5 align-middle"
+                    className="inline-block w-5 h-5 text-text-secondary shrink-0 ml-1.5 align-middle"
                     weight="duotone"
                     aria-hidden
                   />

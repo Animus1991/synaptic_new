@@ -19,6 +19,7 @@ type Props = {
 };
 
 /** Mobile intelligence as fixed bottom sheet (PLATFORM_UI_UX §2.2). */
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function WorkspaceMobileIntelligenceBottomSheet({
   active,
   onChange,
@@ -75,7 +76,7 @@ export function WorkspaceMobileIntelligenceBottomSheet({
                 <span className="h-1 w-10 rounded-full bg-border-subtle" aria-hidden />
               </div>
               <div className="flex items-center justify-between px-3 pb-2 shrink-0">
-                <p className="text-xs font-semibold text-brand-800">
+                <p className="text-xs font-semibold text-text-primary">
                   {t('studyIntelligence')}
                 </p>
                 <button

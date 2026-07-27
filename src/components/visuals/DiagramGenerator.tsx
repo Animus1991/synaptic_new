@@ -17,6 +17,7 @@ import { t as translate, useI18n, type Lang } from '../../lib/i18n';
 interface FlowNode { id: string; label: string; type: 'start' | 'step' | 'decision' | 'end' }
 interface FlowEdge { from: string; to: string; label?: string }
 
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function FlowchartDiagram({ nodes, edges, title }: { nodes: FlowNode[]; edges: FlowEdge[]; title?: string }) {
   const nodeW = 140, nodeH = 44, gapY = 70;
   const positions: Record<string, { x: number; y: number }> = {};
@@ -88,14 +89,14 @@ export function FormulaExplorer({ formula, name, symbols }: { formula: string; n
       <p className="text-xs font-semibold mb-3 text-text-secondary inline-flex items-center gap-1.5"><Calculator className="w-3.5 h-3.5" /> Formula Explorer</p>
       <div className="text-center mb-4">
         <p className="text-xs text-text-muted mb-1">{name}</p>
-        <div className="text-2xl font-mono font-bold text-brand-300 py-3 px-4 rounded-lg bg-surface-primary/60 inline-block">
+        <div className="text-2xl font-mono font-bold text-text-secondary py-3 px-4 rounded-lg bg-surface-primary/60 inline-block">
           {formula}
         </div>
       </div>
       <div className="grid grid-cols-2 gap-2">
         {symbols.map(s => (
           <div key={s.symbol} className="flex items-start gap-2 p-2 rounded-lg bg-surface-hover/50">
-            <span className="font-mono font-bold text-brand-400 text-sm w-8 shrink-0">{s.symbol}</span>
+            <span className="font-mono font-bold text-text-secondary text-sm w-8 shrink-0">{s.symbol}</span>
             <div>
               <p className="text-xs text-text-secondary">{s.meaning}</p>
               {s.unit && <p className="text-[10px] text-text-muted">Unit: {s.unit}</p>}
@@ -182,7 +183,7 @@ export function ComparisonTable({
               const rows = diffMode ? annotateDiffCells(sortedItems, baselineIndex) : sortedItems;
               downloadCompareCsv(`comparison-${lang}`, title, headers, rows, concept);
             }}
-            className="inline-flex items-center gap-1 rounded-lg border border-brand-500/30 bg-brand-600/10 px-2 py-1 text-[10px] font-medium text-brand-300 hover:bg-brand-600/20"
+            className="inline-flex items-center gap-1 rounded-lg border border-border-subtle bg-surface-secondary text-text-primary hover:bg-brand-600/20"
           >
             <Download className="w-3 h-3" />
             CSV
@@ -210,8 +211,8 @@ export function ComparisonTable({
                   data-testid={`compare-sort-col-${i}`}
                   onClick={() => toggleSort(i)}
                   className={cn(
-                    'inline-flex items-center gap-1 hover:text-brand-300 transition-colors',
-                    sortCol === i && 'text-brand-300',
+                    'inline-flex items-center gap-1 hover:text-text-primary transition-colors',
+                    sortCol === i && 'text-text-secondary',
                   )}
                 >
                   {h}
@@ -258,7 +259,7 @@ export function ComparisonTable({
                       key={j}
                       className={cn(
                         'py-2 px-3 text-text-secondary',
-                        j === 0 && focused && 'font-semibold text-brand-200',
+                        j === 0 && focused && 'font-semibold text-text-primary',
                         highlight && 'bg-accent-amber/15 text-accent-amber font-medium',
                       )}
                     >

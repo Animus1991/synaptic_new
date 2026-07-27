@@ -20,6 +20,7 @@ type Props = {
   className?: string;
 };
 
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function CourseMediaPanel({
   courseId,
   courseTitle,
@@ -104,7 +105,7 @@ export function CourseMediaPanel({
           <button
             type="button"
             onClick={() => void openNotebookLm({ sourceTitle: courseTitle, lang })}
-            className="inline-flex items-center gap-1 text-[10px] font-medium text-brand-700 dark:text-brand-300 hover:underline"
+            className="inline-flex items-center gap-1 text-[10px] font-medium text-text-primary dark:text-text-secondary hover:underline"
             data-testid="course-media-open-nlm"
           >
             <ExternalLink className="w-3 h-3" />

@@ -25,6 +25,7 @@ type Props = {
   };
 };
 
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function ConceptMasteryHeatmapChart({
   model,
   title,
@@ -59,7 +60,7 @@ export function ConceptMasteryHeatmapChart({
   return (
     <div className="ux-card blueprint-surface" data-testid="concept-mastery-heatmap">
       <h3 className="text-sm font-semibold text-text-primary mb-1 flex items-center gap-2">
-        <Grid3X3 className="w-4 h-4 text-brand-400" />
+        <Grid3X3 className="w-4 h-4 text-text-secondary" />
         {title}
       </h3>
       <p className="text-xs text-text-tertiary mb-4">{hint}</p>
@@ -72,7 +73,7 @@ export function ConceptMasteryHeatmapChart({
           />
           <span className="font-semibold text-text-primary">{hover.concept}</span>
           <span className="text-text-tertiary">{formatDayLabel(hover.daysAgo)}</span>
-          <span className="font-semibold text-brand-800">{hover.mastery}%</span>
+          <span className="font-semibold text-text-primary">{hover.mastery}%</span>
         </div>
       )}
 

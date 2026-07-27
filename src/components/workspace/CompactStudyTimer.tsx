@@ -18,6 +18,7 @@ const fmt = (s: number) => {
  * Compact inline pomodoro-style timer chip for workspace chrome.
  * Cross-pollinated from ai_tutor_studio's CompactPomodoroTimer.
  */
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function CompactStudyTimer({ lang, className }: Props) {
   const [seconds, setSeconds] = useState(0);
   const [running, setRunning] = useState(false);
@@ -38,7 +39,7 @@ export function CompactStudyTimer({ lang, className }: Props) {
     <div
       className={cn(
         'inline-flex items-center gap-1.5 px-2 py-1 rounded-lg border border-border-subtle bg-surface-card text-text-secondary text-xs font-mono tabular-nums transition-colors',
-        running && 'border-brand-500/30 text-brand-600',
+        running && 'border-brand-500/30 text-text-secondary',
         className,
       )}
       title={lang === 'el' ? 'Χρονόμετρο μελέτης' : 'Study timer'}

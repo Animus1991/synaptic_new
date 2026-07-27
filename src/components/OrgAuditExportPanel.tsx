@@ -31,6 +31,7 @@ const COPY = {
   },
 } as const;
 
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function OrgAuditExportPanel({ orgId, settings, lang }: Props) {
   const ui = COPY[lang];
   const token = settings.authToken?.trim();
@@ -68,7 +69,7 @@ export function OrgAuditExportPanel({ orgId, settings, lang }: Props) {
         data-testid="org-audit-export-toggle"
       >
         <span className="flex items-center gap-2 text-xs font-medium text-text-primary">
-          <Shield className="w-3.5 h-3.5 text-brand-500" />
+          <Shield className="w-3.5 h-3.5 text-text-primary0" />
           {ui.title}
         </span>
         <ChevronDown className={cn('w-4 h-4 text-text-muted transition-transform', open && 'rotate-180')} />

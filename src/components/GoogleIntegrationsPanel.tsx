@@ -32,6 +32,7 @@ type Props = {
   lang?: 'en' | 'el';
 };
 
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function GoogleIntegrationsPanel({
   settings,
   onUpdate,
@@ -282,7 +283,7 @@ export function GoogleIntegrationsPanel({
             type="button"
             data-testid="google-connect"
             onClick={startGoogleConnect}
-            className="inline-flex items-center gap-2 rounded-xl border border-brand-500/30 bg-brand-600/10 px-3 py-2 text-xs font-semibold text-brand-800"
+            className="inline-flex items-center gap-2 rounded-xl border border-border-subtle bg-surface-secondary text-text-primary"
           >
             <Link2 className="h-3.5 w-3.5" />
             {t('googleConnectTasksMeet')}
@@ -310,7 +311,7 @@ export function GoogleIntegrationsPanel({
       {status?.connected && status.hasCalendar && (
         <div className="rounded-xl border border-border-subtle bg-surface-primary/40 p-3 space-y-2">
           <div className="flex items-center gap-2 text-xs font-semibold text-text-primary">
-            <Calendar className="h-4 w-4 text-brand-700" />
+            <Calendar className="h-4 w-4 text-text-primary" />
             {t('googleCalendar')}
           </div>
           <p className="text-[11px] text-text-muted">{t('googleCalendarIntro')}</p>
@@ -380,7 +381,7 @@ export function GoogleIntegrationsPanel({
       {status?.connected && status.hasMeet && (
         <div className="rounded-xl border border-border-subtle bg-surface-primary/40 p-3 space-y-2">
           <div className="flex items-center gap-2 text-xs font-semibold text-text-primary">
-            <Presentation className="h-4 w-4 text-brand-700" />
+            <Presentation className="h-4 w-4 text-text-primary" />
             {t('googleGroupVideoMeet')}
           </div>
           <button
@@ -398,7 +399,7 @@ export function GoogleIntegrationsPanel({
               target="_blank"
               rel="noopener noreferrer"
               data-testid="google-meet-link"
-              className="inline-flex items-center gap-1 text-xs text-brand-800 hover:underline break-all"
+              className="inline-flex items-center gap-1 text-xs text-text-primary hover:underline break-all"
             >
               {meetUri}
               <ArrowRight className="h-3 w-3 shrink-0" />
@@ -410,7 +411,7 @@ export function GoogleIntegrationsPanel({
       {status?.connected && status.hasTasks && (
         <div className="rounded-xl border border-border-subtle bg-surface-primary/40 p-3 space-y-2">
           <div className="flex items-center gap-2 text-xs font-semibold text-text-primary">
-            <List className="h-4 w-4 text-brand-700" />
+            <List className="h-4 w-4 text-text-primary" />
             {t('googleTasks')}
           </div>
           <div className="flex gap-2">
@@ -426,7 +427,7 @@ export function GoogleIntegrationsPanel({
               data-testid="google-task-create"
               disabled={loading || !taskDraft.trim()}
               onClick={() => void handleCreateTask()}
-              className="inline-flex items-center gap-1 rounded-lg border border-brand-500/30 px-2 py-1.5 text-xs font-semibold text-brand-800"
+              className="inline-flex items-center gap-1 rounded-lg border border-brand-500/30 px-2 py-1.5 text-xs font-semibold text-text-primary"
             >
               <Plus className="h-3.5 w-3.5" />
               {t('googleAdd')}

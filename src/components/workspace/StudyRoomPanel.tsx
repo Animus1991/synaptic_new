@@ -23,6 +23,7 @@ type Props = {
   onFollowSharedTool?: (tool: string) => void;
 };
 
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function StudyRoomPanel(props: Props) {
   const { open, onClose, lang, activeTool, onFollowSharedTool } = props;
   const tr = (key: Parameters<typeof t>[0]) => t(key, lang);
@@ -81,7 +82,7 @@ export function StudyRoomPanel(props: Props) {
       >
         <header className="ws-cognitive-sheet-header">
           <div className="flex items-center gap-2 min-w-0">
-            <Users className="h-4 w-4 shrink-0 text-brand-800" aria-hidden />
+            <Users className="h-4 w-4 shrink-0 text-text-primary" aria-hidden />
             <div className="min-w-0">
               <h2 className="text-sm font-semibold truncate">{tr('studyRoomTitle')}</h2>
               {apiStatus?.localFallback && (
@@ -195,14 +196,14 @@ export function StudyRoomPanel(props: Props) {
               </ul>
               {/* Shared Study Timer (cross-pollinated from ai_tutor_studio) */}
               <div className="flex items-center gap-2 rounded-lg border border-border-subtle bg-surface-secondary/50 px-3 py-2">
-                <Clock className="h-4 w-4 shrink-0 text-brand-600" aria-hidden />
+                <Clock className="h-4 w-4 shrink-0 text-text-secondary" aria-hidden />
                 <span className="font-mono text-sm font-bold text-text-primary flex-1">
                   {Math.floor(timerSeconds / 60).toString().padStart(2, '0')}:{(timerSeconds % 60).toString().padStart(2, '0')}
                 </span>
                 <button
                   type="button"
                   onClick={() => setTimerRunning(!timerRunning)}
-                  className={`ws-chrome-btn p-1.5 rounded-lg ${timerRunning ? 'text-accent-amber' : 'text-brand-600'}`}
+                  className={`ws-chrome-btn p-1.5 rounded-lg ${timerRunning ? 'text-accent-amber' : 'text-text-secondary'}`}
                   aria-label={timerRunning ? tr('studyRoomTimerPause') : tr('studyRoomTimerStart')}
                 >
                   {timerRunning ? <Pause className="h-3.5 w-3.5" /> : <PlayIcon className="h-3.5 w-3.5" />}

@@ -15,6 +15,7 @@ type Props = {
 };
 
 /** Persistent Agent chip row for tools with dedicated coaching flows (XTL-02). */
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function WorkspaceToolAgentChipBar({ tool, lang, concept, onChip, className }: Props) {
   const { t } = useI18n();
   const chips = getToolAgentChips(tool);
@@ -36,7 +37,7 @@ export function WorkspaceToolAgentChipBar({ tool, lang, concept, onChip, classNa
           type="button"
           data-testid={`workspace-agent-chip-${tool}-${chip.id}`}
           onClick={() => onChip(chip.buildPrompt(concept, lang), chip.intent)}
-          className="ux-agent-chip gap-1 px-2.5 py-1 text-[10px] font-medium min-h-[28px] border-accent-cyan/30 bg-accent-cyan/10 text-brand-800 hover:opacity-90"
+          className="ux-agent-chip gap-1 px-2.5 py-1 text-[10px] font-medium min-h-[28px] border-accent-cyan/30 bg-accent-cyan/10 text-text-primary hover:opacity-90"
         >
           <Sparkles className="h-3 w-3" aria-hidden />
           {t(chip.labelKey)}

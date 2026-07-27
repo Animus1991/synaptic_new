@@ -23,6 +23,7 @@ const EXPORT_OPTIONS: { kind: NotebookLmExportKind; labelEn: string; labelEl: st
   { kind: 'fsrs-due', labelEn: 'FSRS due checklist', labelEl: 'FSRS due checklist' },
 ];
 
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function NotebookLmExportPanel({
   course,
   glossaryEntries = [],
@@ -78,7 +79,7 @@ export function NotebookLmExportPanel({
             type="button"
             disabled={busy != null}
             onClick={() => void handleExport(opt.kind)}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-brand-500/30 text-xs font-medium text-brand-700 dark:text-brand-300 hover:bg-brand-500/10 disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-brand-500/30 text-xs font-medium text-text-primary dark:text-text-secondary hover:bg-brand-500/10 disabled:opacity-50"
             data-testid={`notebooklm-export-${opt.kind}`}
           >
             {busy === opt.kind ? (

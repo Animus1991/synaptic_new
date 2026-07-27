@@ -14,6 +14,7 @@ import {
 import { formatDateTime } from '../lib/localeFormat';
 import { cn } from '../utils/cn';
 
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export type DiscussionUi = {
   toggle: string;
   hint: string;
@@ -86,7 +87,7 @@ function PostCard({
                 className={cn(
                   'text-[10px] px-1.5 py-0.5 rounded-full',
                   post.authorRole === 'teacher'
-                    ? 'bg-brand-600/10 text-brand-800'
+                    ? 'bg-surface-secondary text-text-primary border border-border-subtle'
                     : 'bg-surface-hover text-text-secondary',
                 )}
               >
@@ -103,7 +104,7 @@ function PostCard({
               type="button"
               onClick={() => onReply(post.id)}
               disabled={busy}
-              className="text-brand-600 hover:underline text-[10px]"
+              className="text-text-secondary hover:underline text-[10px]"
               data-testid={`discussion-reply-${post.id}`}
             >
               {ui.reply}
@@ -137,7 +138,7 @@ function PostCard({
                       className={cn(
                         'text-[10px] px-1.5 py-0.5 rounded-full',
                         reply.authorRole === 'teacher'
-                          ? 'bg-brand-600/10 text-brand-800'
+                          ? 'bg-surface-secondary text-text-primary border border-border-subtle'
                           : 'bg-surface-hover text-text-secondary',
                       )}
                     >
@@ -316,7 +317,7 @@ export function AssignmentDiscussionThread({
         <button
           type="button"
           onClick={onToggle}
-          className="inline-flex items-center gap-1 text-[10px] text-brand-600 hover:underline"
+          className="inline-flex items-center gap-1 text-[10px] text-text-secondary hover:underline"
           data-testid={`assignment-discussion-toggle-${assignmentId}`}
         >
           <MessageSquare className="w-3 h-3" />

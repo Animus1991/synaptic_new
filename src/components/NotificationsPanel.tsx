@@ -25,6 +25,7 @@ interface Props {
   onRunProactiveAlert?: (alert: ProactiveAgentAlert) => void;
 }
 
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function NotificationsPanel({
   open,
   onClose,
@@ -107,7 +108,7 @@ export function NotificationsPanel({
           <p className="text-[10px] text-text-muted mt-0.5 line-clamp-2">
             {alert.message}
           </p>
-          <span className="mt-1.5 inline-flex items-center gap-1 text-[10px] font-medium text-brand-400">
+          <span className="mt-1.5 inline-flex items-center gap-1 text-[10px] font-medium text-text-secondary">
             {t('appInboxAct')}
             <ArrowRight className="w-3 h-3" />
           </span>
@@ -173,7 +174,7 @@ export function NotificationsPanel({
                   data-testid="app-inbox-toast"
                 >
                   <div className="flex items-start gap-2">
-                    <Zap className="w-3.5 h-3.5 shrink-0 mt-0.5 text-brand-400" />
+                    <Zap className="w-3.5 h-3.5 shrink-0 mt-0.5 text-text-secondary" />
                     <div className="min-w-0 flex-1">
                       <p className="text-xs font-medium text-text-primary leading-relaxed">
                         {appToastMessage}
@@ -219,7 +220,7 @@ export function NotificationsPanel({
                     )}
                   >
                     <div className="flex items-start gap-2">
-                      <Zap className={cn('w-3.5 h-3.5 shrink-0 mt-0.5', a.xp ? 'text-accent-amber' : 'text-brand-400')} />
+                      <Zap className={cn('w-3.5 h-3.5 shrink-0 mt-0.5', a.xp ? 'text-accent-amber' : 'text-text-secondary')} />
                       <div className="min-w-0 flex-1">
                         <p className={cn('text-xs font-medium leading-relaxed', unread && 'text-text-primary')}>
                           {a.description}
@@ -233,7 +234,7 @@ export function NotificationsPanel({
                             type="button"
                             data-testid={`notification-deep-link-${a.id}`}
                             onClick={() => handleDeepLink(a.type)}
-                            className="mt-1.5 inline-flex items-center gap-1 text-[10px] font-medium text-brand-400 hover:text-brand-300"
+                            className="mt-1.5 inline-flex items-center gap-1 text-[10px] font-medium text-text-secondary hover:text-text-primary"
                           >
                             {t('notificationViewTarget')}
                             <ArrowRight className="w-3 h-3" />

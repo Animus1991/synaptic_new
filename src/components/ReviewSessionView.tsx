@@ -13,6 +13,7 @@ interface ReviewSessionViewProps {
   cards?: { front: string; back: string }[];
 }
 
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function ReviewSessionView({
   onClose,
   onOpenAgent,
@@ -46,7 +47,7 @@ export function ReviewSessionView({
             onClick={onOpenAgent}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border border-border-subtle hover:border-brand-500/30 transition-all"
           >
-            <Sparkles className="w-3.5 h-3.5 text-brand-400" /> Ask Agent
+            <Sparkles className="w-3.5 h-3.5 text-text-secondary" /> Ask Agent
           </button>
           <span className="text-xs text-accent-amber font-medium">+{xpReward} XP</span>
         </div>

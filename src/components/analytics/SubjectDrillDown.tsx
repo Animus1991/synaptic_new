@@ -11,6 +11,7 @@ type Props = {
   onStudyConcept: (concept: string) => void;
 };
 
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function SubjectDrillDown({ tile, onClose, onStudyConcept }: Props) {
   const { lang } = useI18n();
   if (!tile) return null;
@@ -70,8 +71,7 @@ export function SubjectDrillDown({ tile, onClose, onStudyConcept }: Props) {
                 <button
                   type="button"
                   className={cn(
-                    'mt-2 w-full rounded-lg border border-brand-500/30 bg-brand-600/10 px-2 py-1.5',
-                    'text-[10px] font-semibold text-brand-800 hover:bg-brand-600/20',
+                    'mt-2 w-full rounded-lg border border-border-subtle bg-surface-secondary text-text-primary hover:bg-brand-600/20',
                   )}
                   onClick={() => onStudyConcept(topic.title)}
                   data-testid={`subject-drill-study-${topic.id}`}

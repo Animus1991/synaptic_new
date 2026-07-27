@@ -19,6 +19,7 @@ const SOURCE_ICONS: Record<UserSettings['sourceMode'], ElementType> = {
   'notes-only': FileText,
 };
 
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export type AgentCatalogMode = {
   mode: AgentMode;
   label: string;
@@ -90,7 +91,7 @@ function ModeRow({
                 'text-[10px] px-1.5 py-0 rounded-full',
                 quietModes
                   ? 'border border-border-subtle text-text-tertiary bg-transparent'
-                  : 'bg-brand-500/20 text-brand-400',
+                  : 'bg-surface-secondary text-text-primary border border-border-subtle',
               )}
             >
               {visual.badge}
@@ -260,7 +261,7 @@ export function AgentModeSidebar({
                       active
                         ? quietModes
                           ? 'text-text-primary'
-                          : 'text-brand-400'
+                          : 'text-text-secondary'
                         : 'text-text-tertiary',
                     )}
                   />

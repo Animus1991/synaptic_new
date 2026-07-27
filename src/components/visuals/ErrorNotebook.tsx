@@ -7,6 +7,7 @@ interface Props {
   onResolve?: (id: string) => void;
 }
 
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function ErrorNotebook({ mistakes, onResolve }: Props) {
   if (mistakes.length === 0) return null;
 
@@ -33,7 +34,7 @@ export function ErrorNotebook({ mistakes, onResolve }: Props) {
               {onResolve && (
                 <button
                   onClick={() => onResolve(m.id)}
-                  className="shrink-0 p-1.5 rounded-lg border border-border-subtle hover:border-brand-300 bg-surface-card hover:bg-surface-hover text-text-secondary hover:text-brand-700 transition-colors"
+                  className="shrink-0 p-1.5 rounded-lg border border-border-subtle hover:border-brand-300 bg-surface-card hover:bg-surface-hover text-text-secondary hover:text-text-primary transition-colors"
                   title="Mark resolved"
                   aria-label="Mark resolved"
                 >

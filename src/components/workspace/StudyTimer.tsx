@@ -53,6 +53,7 @@ function defaultExamIso(): string {
   return d.toISOString();
 }
 
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function StudyTimer({
   concept = '',
   stepLabel,
@@ -207,7 +208,7 @@ export function StudyTimer({
             type="button"
             data-testid="timer-mode-pomodoro"
             onClick={() => { setMode('pomodoro'); setRunning(false); reset(); }}
-            className={cn('px-2 py-1', mode === 'pomodoro' ? 'bg-brand-600/20 text-brand-800' : 'text-text-muted')}
+            className={cn('px-2 py-1', mode === 'pomodoro' ? 'bg-surface-secondary text-text-primary border border-border-subtle' : 'text-text-muted')}
           >
             Pomodoro
           </button>
@@ -225,10 +226,10 @@ export function StudyTimer({
 
       {concept && (
         <div className="mb-4 flex items-start gap-2 rounded-lg border border-border-subtle bg-surface-primary/50 px-3 py-2">
-          <BookOpen className="w-3.5 h-3.5 text-brand-700 shrink-0 mt-0.5" />
+          <BookOpen className="w-3.5 h-3.5 text-text-primary shrink-0 mt-0.5" />
           <div className="min-w-0 flex-1">
             <p className="text-[10px] text-text-muted">{t('timerSession')}</p>
-            <p className="text-xs font-medium text-brand-800 truncate">{sessionLabel}</p>
+            <p className="text-xs font-medium text-text-primary truncate">{sessionLabel}</p>
             {conceptMastery !== undefined && (
               <p className="text-[10px] text-text-muted mt-0.5">
                 {t('timerMasteryColon')}: {conceptMastery}%
@@ -244,12 +245,12 @@ export function StudyTimer({
           data-testid="timer-break-leitner-suggest"
         >
           <Layers className="w-3.5 h-3.5 text-accent-cyan shrink-0" />
-          <p className="flex-1 text-[11px] text-brand-800 min-w-0">{t('timerBreakLeitnerSuggest')}</p>
+          <p className="flex-1 text-[11px] text-text-primary min-w-0">{t('timerBreakLeitnerSuggest')}</p>
           <button
             type="button"
             data-testid="timer-break-open-leitner"
             onClick={onOpenBreakTool}
-            className="shrink-0 rounded-md border border-accent-cyan/40 bg-accent-cyan/15 px-2 py-1 text-[10px] font-semibold text-brand-800 hover:bg-accent-cyan/25"
+            className="shrink-0 rounded-md border border-accent-cyan/40 bg-accent-cyan/15 px-2 py-1 text-[10px] font-semibold text-text-primary hover:bg-accent-cyan/25"
           >
             {t('timerBreakOpenLeitner')}
           </button>
@@ -274,7 +275,7 @@ export function StudyTimer({
                 onClick={() => selectPreset(i)}
                 className={cn(
                   'px-2.5 py-1 rounded-lg text-[10px] font-medium border transition-all',
-                  presetIdx === i && !examPracticeId ? 'border-brand-500/40 text-brand-800 bg-brand-600/10' : 'border-border-subtle text-text-muted',
+                  presetIdx === i && !examPracticeId ? 'border-brand-500/40 text-text-primary bg-surface-secondary' : 'border-border-subtle text-text-muted',
                 )}
               >
                 {t(p.key)}
@@ -313,7 +314,7 @@ export function StudyTimer({
                 type="button"
                 data-testid="timer-open-simulator"
                 onClick={onOpenSimulator}
-                className="mt-2 text-[10px] text-brand-800 hover:underline"
+                className="mt-2 text-[10px] text-text-primary hover:underline"
               >
                 {t('timerOpenSimulator')}
               </button>
@@ -417,7 +418,7 @@ export function StudyTimer({
                 `sessions-${scopeKey}`,
                 buildStudySessionsIcs(recentSessions, lang),
               )}
-              className="inline-flex items-center gap-1 text-[10px] text-brand-700 hover:text-brand-800"
+              className="inline-flex items-center gap-1 text-[10px] text-text-secondary hover:text-text-primary"
             >
               <Calendar className="w-3 h-3" />
               .ics

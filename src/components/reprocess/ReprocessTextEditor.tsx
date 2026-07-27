@@ -39,6 +39,7 @@ function countWords(text: string): number {
   return trimmed.split(/\s+/).length;
 }
 
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function ReprocessTextEditor({ sections, onChange, initialSectionIndex = 0 }: Props) {
   const { t } = useI18n();
   const [activeIndex, setActiveIndex] = useState(() =>
@@ -136,7 +137,7 @@ export function ReprocessTextEditor({ sections, onChange, initialSectionIndex = 
           {t('reprocessSectionSingular')} {activeIndex + 1}/{sections.length}
         </span>
         {manualEdits > 0 && (
-          <span className="rounded-full bg-brand-600/15 px-2 py-0.5 text-[9px] font-medium text-brand-700">
+          <span className="rounded-full bg-brand-600/15 px-2 py-0.5 text-[9px] font-medium text-text-primary">
             {manualEdits} {t('reprocessManualEdits')}
           </span>
         )}
@@ -147,7 +148,7 @@ export function ReprocessTextEditor({ sections, onChange, initialSectionIndex = 
             className={cn(
               'rounded-md border px-2 py-1 text-[9px] transition-colors',
               syncScroll
-                ? 'border-brand-600/40 bg-brand-600/10 text-brand-800'
+                ? 'border-brand-600/40 bg-surface-secondary text-text-primary border border-border-subtle'
                 : 'border-border-subtle text-text-muted hover:bg-surface-hover',
             )}
             title={t('reprocessSyncScrollTitle')}
@@ -193,7 +194,7 @@ export function ReprocessTextEditor({ sections, onChange, initialSectionIndex = 
               className={cn(
                 'rounded-lg px-2 py-1.5 text-left text-[9px] leading-snug transition-colors',
                 i === activeIndex
-                  ? 'bg-brand-600/15 text-brand-800 font-medium'
+                  ? 'bg-surface-secondary text-text-primary border border-border-subtle font-medium'
                   : 'text-text-secondary hover:bg-surface-hover',
                 sectionHasManualEdits(section) && i !== activeIndex && 'border-l-2 border-brand-500/60',
               )}
@@ -307,7 +308,7 @@ export function ReprocessTextEditor({ sections, onChange, initialSectionIndex = 
                 <p className="text-[9px] text-text-muted">
                   {countWords(active.editedText)} {t('words')}
                   {sectionHasManualEdits(active) && (
-                    <span className="ml-1 text-brand-700">· {t('reprocessModified')}</span>
+                    <span className="ml-1 text-text-primary">· {t('reprocessModified')}</span>
                   )}
                 </p>
                 <div className="ml-auto flex flex-wrap gap-1">

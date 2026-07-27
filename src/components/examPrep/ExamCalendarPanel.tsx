@@ -6,6 +6,7 @@ import { PlatformSection } from '../ui/primitives';
 
 type PresetFilter = 'all' | 'general' | 'panhellenic-informatics';
 
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function ExamCalendarPanel() {
   const { t } = useI18n();
   const [preset, setPreset] = useState<PresetFilter>('all');
@@ -27,7 +28,7 @@ export function ExamCalendarPanel() {
             data-testid={`exam-calendar-filter-${p}`}
             className={`rounded-full px-3 py-1 text-[10px] font-medium border transition-colors ${
               preset === p
-                ? 'border-brand-500/40 bg-brand-600/10 text-brand-800'
+                ? 'border-brand-500/40 bg-surface-secondary text-text-primary border border-border-subtle'
                 : 'border-border-subtle text-text-secondary hover:bg-surface-hover'
             }`}
           >
@@ -59,7 +60,7 @@ export function ExamCalendarPanel() {
                   href={entry.linkUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="shrink-0 inline-flex items-center gap-1 text-[10px] text-brand-700 hover:underline"
+                  className="shrink-0 inline-flex items-center gap-1 text-[10px] text-text-primary hover:underline"
                 >
                   {t(entry.linkLabelKey as never)}
                   <ArrowRight className="w-3 h-3" />

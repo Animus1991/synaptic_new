@@ -36,6 +36,7 @@ type Props = {
   initialMainTab?: MainTab;
 };
 
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function SimulatorPanel({
   session,
   concept,
@@ -70,7 +71,7 @@ export function SimulatorPanel({
         onClick={() => setMainTab('simulator')}
         className={cn(
           'rounded-lg px-3 py-1.5 text-[11px] font-medium',
-          mainTab === 'simulator' ? 'bg-brand-600/15 text-brand-800' : 'text-text-secondary hover:bg-surface-hover',
+          mainTab === 'simulator' ? 'bg-surface-secondary text-text-primary border border-border-subtle' : 'text-text-secondary hover:bg-surface-hover',
         )}
       >
         {t('toolSimulator')}
@@ -81,7 +82,7 @@ export function SimulatorPanel({
         onClick={() => setMainTab('exam-prep')}
         className={cn(
           'rounded-lg px-3 py-1.5 text-[11px] font-medium',
-          mainTab === 'exam-prep' ? 'bg-brand-600/15 text-brand-800' : 'text-text-secondary hover:bg-surface-hover',
+          mainTab === 'exam-prep' ? 'bg-surface-secondary text-text-primary border border-border-subtle' : 'text-text-secondary hover:bg-surface-hover',
         )}
       >
         {t('examPrepPanelTitle')}
@@ -209,7 +210,7 @@ export function SimulatorPanel({
             <button
               type="button"
               onClick={() => onOpenInReader(concept)}
-              className="inline-flex items-center gap-1 rounded-lg border border-white/10 px-2 py-1 text-[10px] text-text-secondary hover:border-brand-600/35 hover:text-brand-800"
+              className="inline-flex items-center gap-1 rounded-lg border border-white/10 px-2 py-1 text-[10px] text-text-secondary hover:border-brand-600/35 hover:text-text-primary"
               data-testid="simulator-open-reader"
             >
               <BookOpen className="w-3 h-3" />
@@ -225,7 +226,7 @@ export function SimulatorPanel({
                 key={cue.id}
                 type="button"
                 onClick={() => onOpenInReader?.(cue.context.slice(0, 80) || cue.label)}
-                className="rounded-full border border-accent-cyan/25 bg-accent-cyan/8 px-2 py-0.5 text-[10px] text-brand-800 hover:opacity-90"
+                className="rounded-full border border-accent-cyan/25 bg-accent-cyan/8 px-2 py-0.5 text-[10px] text-text-primary hover:opacity-90"
               >
                 {cue.label.slice(0, 48)}{cue.label.length > 48 ? '…' : ''}
               </button>

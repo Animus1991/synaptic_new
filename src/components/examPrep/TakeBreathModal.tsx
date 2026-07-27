@@ -10,6 +10,7 @@ type Props = {
   presetId?: string;
 };
 
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function TakeBreathModal({ open, onClose, presetId = 'calm-30' }: Props) {
   const { t } = useI18n();
   const preset = BREATH_PRESETS.find((p) => p.id === presetId) ?? BREATH_PRESETS[0]!;
@@ -71,7 +72,7 @@ export function TakeBreathModal({ open, onClose, presetId = 'calm-30' }: Props) 
       <div className="w-full max-w-md rounded-2xl border border-border-subtle bg-surface-primary p-6 shadow-xl">
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center gap-2">
-            <Wind className="w-5 h-5 text-brand-600" />
+            <Wind className="w-5 h-5 text-text-secondary" />
             <h2 className="text-lg font-semibold text-text-primary">{t('wellnessBreathTitle')}</h2>
           </div>
           <button type="button" onClick={onClose} className="p-1.5 rounded-lg hover:bg-surface-hover" aria-label={t('wellnessBreathClose')}>

@@ -14,7 +14,8 @@ const sizeClass = {
   lg: 'h-6 w-6',
 };
 
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function ConceptTypeIcon({ type, className, size = 'sm' }: Props) {
   const Icon = conceptTypeIcon(type);
-  return <Icon className={cn(sizeClass[size], 'text-brand-600', className)} aria-hidden />;
+  return <Icon className={cn(sizeClass[size], 'text-text-secondary', className)} aria-hidden />;
 }

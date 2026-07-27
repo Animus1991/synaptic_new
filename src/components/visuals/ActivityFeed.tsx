@@ -7,17 +7,17 @@ import { useI18n } from '../../lib/i18n';
 type ActivityVisual = { icon: typeof BookOpen; color: string; bg: string };
 
 const typeConfig: Record<ActivityType, ActivityVisual> = {
-  lesson_complete: { icon: BookOpen, color: 'text-brand-400', bg: 'bg-brand-500/10' },
+  lesson_complete: { icon: BookOpen, color: 'text-text-secondary', bg: 'bg-brand-500/10' },
   quiz_passed: { icon: CheckCircle2, color: 'text-accent-emerald', bg: 'bg-accent-emerald/10' },
   quiz_failed: { icon: AlertTriangle, color: 'text-accent-rose', bg: 'bg-accent-rose/10' },
   review_done: { icon: RotateCcw, color: 'text-accent-amber', bg: 'bg-accent-amber/10' },
   streak: { icon: Star, color: 'text-accent-amber', bg: 'bg-accent-amber/10' },
   mastery_up: { icon: Brain, color: 'text-accent-teal', bg: 'bg-accent-teal/10' },
-  xp_earned: { icon: Zap, color: 'text-brand-300', bg: 'bg-brand-500/10' },
+  xp_earned: { icon: Zap, color: 'text-text-secondary', bg: 'bg-brand-500/10' },
   mistake_fixed: { icon: Target, color: 'text-accent-emerald', bg: 'bg-accent-emerald/10' },
   task_complete: { icon: CheckCircle2, color: 'text-accent-emerald', bg: 'bg-accent-emerald/10' },
   study_time: { icon: Clock, color: 'text-accent-cyan', bg: 'bg-accent-cyan/10' },
-  upload: { icon: Upload, color: 'text-brand-300', bg: 'bg-brand-500/10' },
+  upload: { icon: Upload, color: 'text-text-secondary', bg: 'bg-brand-500/10' },
 };
 
 const FALLBACK_VISUAL: ActivityVisual = { icon: Activity, color: 'text-text-secondary', bg: 'bg-surface-hover' };
@@ -27,6 +27,7 @@ interface Props {
   maxItems?: number;
 }
 
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function ActivityFeed({ activities, maxItems = 6 }: Props) {
   const { t, lang } = useI18n();
 

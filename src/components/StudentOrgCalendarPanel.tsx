@@ -25,6 +25,7 @@ const statusToneClass: Record<ReturnType<typeof assignmentStatusTone>, string> =
   negative: 'bg-accent-rose/15 text-accent-rose',
 };
 
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function StudentOrgCalendarPanel({ assignments, ui, lang }: Props) {
   const { t } = useI18n();
   const [open, setOpen] = useState(true);
@@ -54,7 +55,7 @@ export function StudentOrgCalendarPanel({ assignments, ui, lang }: Props) {
         aria-expanded={open}
       >
         <span className="flex items-center gap-2 text-lg font-medium">
-          <Calendar className="w-5 h-5 text-brand-600" />
+          <Calendar className="w-5 h-5 text-text-secondary" />
           {ui.calendarTitle}
         </span>
         <ChevronDown className={cn('w-5 h-5 text-text-muted transition-transform', open && 'rotate-180')} />
@@ -74,7 +75,7 @@ export function StudentOrgCalendarPanel({ assignments, ui, lang }: Props) {
                 className={cn(
                   'rounded-full px-3 py-1 text-[10px] font-medium border transition-colors',
                   filter === preset
-                    ? 'border-brand-500/40 bg-brand-500/10 text-brand-600'
+                    ? 'border-brand-500/40 bg-surface-secondary text-text-primary border border-border-subtle'
                     : 'border-border-subtle text-text-secondary hover:bg-surface-hover',
                 )}
               >
@@ -107,7 +108,7 @@ export function StudentOrgCalendarPanel({ assignments, ui, lang }: Props) {
                           className={cn(
                             'text-[10px] px-1.5 py-0.5 rounded-full',
                             entry.kind === 'exam'
-                              ? 'bg-brand-600/10 text-brand-800'
+                              ? 'bg-surface-secondary text-text-primary border border-border-subtle'
                               : 'bg-surface-hover text-text-secondary',
                           )}
                         >
@@ -138,7 +139,7 @@ export function StudentOrgCalendarPanel({ assignments, ui, lang }: Props) {
                           href={entry.linkUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1 text-[10px] text-brand-600 hover:underline"
+                          className="inline-flex items-center gap-1 text-[10px] text-text-secondary hover:underline"
                         >
                           {entry.linkLabel}
                           <ArrowRight className="w-3 h-3" />

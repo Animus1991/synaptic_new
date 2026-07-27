@@ -19,6 +19,7 @@ interface StudyWorkspaceOverlaysProps {
   model: StudyWorkspaceModel;
 }
 
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function StudyWorkspaceOverlays({ model }: StudyWorkspaceOverlaysProps) {
   const {
     onReprocessMaterial,
@@ -103,7 +104,7 @@ export function StudyWorkspaceOverlays({ model }: StudyWorkspaceOverlaysProps) {
                   >
                     <div className="flex items-center justify-between px-4 py-3 border-b border-white/8">
                       <div className="flex items-center gap-2">
-                        <StickyNote className="w-4 h-4 text-brand-800" />
+                        <StickyNote className="w-4 h-4 text-text-primary" />
                         <span className="text-sm font-semibold">{t('paletteSessionNotes')}</span>
                       </div>
                       <button onClick={() => setShowNotes(false)} className="p-1.5 rounded-lg hover:bg-white/10 text-text-muted"><X className="w-4 h-4" /></button>
@@ -233,7 +234,7 @@ export function StudyWorkspaceOverlays({ model }: StudyWorkspaceOverlaysProps) {
                   aria-haspopup="dialog"
                   aria-expanded={mobileToolDrawerOpen}
                   aria-label={t('wsOverlayToolsCurrent').replace('{tool}', workspaceToolLabel(activeTool, lang))}
-                  className="ws-fab-primary w-10 h-10 rounded-full bg-surface-card text-brand-700 flex items-center justify-center shadow-inner shrink-0 hover:bg-surface-hover transition-colors min-h-[40px] min-w-[40px]"
+                  className="ws-fab-primary w-10 h-10 rounded-full bg-surface-card text-text-primary flex items-center justify-center shadow-inner shrink-0 hover:bg-surface-hover transition-colors min-h-[40px] min-w-[40px]"
                 >
                   <LayoutGrid className="h-5 w-5" aria-hidden />
                 </button>

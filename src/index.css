@@ -6459,3 +6459,14 @@ body { letter-spacing: -0.005em; }
 :root {
   --opt-k100-markup-debt: 1;
 }
+
+/* ========== OPT-K101 - Residual dwell sweep (app chrome complete) ========== */
+/*
+ * Clears remaining decorative text-brand-* at source across workspace tools,
+ * course/org surfaces, analytics chrome, and App overlays.
+ * Marketing Landing / LandingFooter keep intentional brand type for hero identity.
+ * Solid brand CTAs + semantic accent badges untouched.
+ */
+:root {
+  --opt-k101-residual-sweep: 1;
+}

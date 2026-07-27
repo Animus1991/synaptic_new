@@ -101,6 +101,7 @@ interface Props {
 
 const MASTERY_COLOR = (m: number) => (m > 0 ? masteryColorForValue(m) : 'var(--color-text-muted)');
 
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, onGraphUpdate, emptyMessage, hasSource = false, onUpload, onFocusTerm, onSelectionAction, focusConcept, lensConcept, conceptLens, onConceptSelect, cursorSync, crdt }: Props) {
   const { t, lang } = useI18n();
   const [nodes, setNodes] = useState<DragNode[]>(initialNodes);
@@ -584,7 +585,7 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
       <div className="flex items-center justify-between px-4 py-2 border-b border-border-subtle bg-surface-secondary/40 shrink-0">
         <div className="flex items-center gap-2">
           <span className="text-xs font-semibold text-text-secondary inline-flex items-center gap-1.5">
-            <Map className="w-3.5 h-3.5 text-brand-600" />
+            <Map className="w-3.5 h-3.5 text-text-secondary" />
             {t('conceptMap')}
           </span>
           <span className="text-[10px] text-text-muted">{t('dragHint')}</span>
@@ -602,7 +603,7 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
             type="button"
             data-testid="concept-map-add-node"
             onClick={addNode}
-            className="inline-flex items-center gap-1 px-2 py-1 rounded text-[10px] font-medium bg-brand-600/15 text-brand-700 border border-brand-500/30 hover:bg-brand-600/25"
+            className="inline-flex items-center gap-1 px-2 py-1 rounded text-[10px] font-medium bg-surface-secondary text-text-primary border border-border-subtle hover:bg-brand-600/25"
             title={t('conceptMapAddNode')}
           >
             <Plus className="w-3 h-3" />
@@ -618,7 +619,7 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
             disabled={!selected && !connectFrom}
             className={cn(
               'inline-flex items-center gap-1 px-2 py-1 rounded text-[10px] font-medium border',
-              connectFrom ? 'border-accent-cyan/40 bg-accent-cyan/15 text-brand-800' : 'border-border-subtle text-text-muted hover:text-text-secondary',
+              connectFrom ? 'border-accent-cyan/40 bg-accent-cyan/15 text-text-primary' : 'border-border-subtle text-text-muted hover:text-text-secondary',
             )}
             title={t('conceptMapConnectHint')}
           >
@@ -686,7 +687,7 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
             data-testid="concept-map-force-layout"
             disabled={layoutRunning || nodes.length < 2}
             onClick={runForceLayout}
-            className="ml-1 px-2 py-1 rounded text-[10px] text-brand-800 hover:opacity-80 bg-accent-cyan/10 border border-accent-cyan/30 disabled:opacity-40"
+            className="ml-1 px-2 py-1 rounded text-[10px] text-text-primary hover:opacity-80 bg-accent-cyan/10 border border-accent-cyan/30 disabled:opacity-40"
           >
             {layoutRunning ? '…' : t('conceptMapForce')}
           </button>
@@ -703,7 +704,7 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
                 setExporting(false);
               }
             }}
-            className="ml-1 px-2 py-1 rounded text-[10px] text-brand-800 hover:text-brand-800 bg-brand-600/15 border border-brand-500/30 disabled:opacity-40"
+            className="ml-1 px-2 py-1 rounded text-[10px] text-text-primary hover:text-text-primary bg-surface-secondary border border-brand-500/30 disabled:opacity-40"
           >
             {exporting ? '…' : 'PNG'}
           </button>
@@ -740,7 +741,7 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
             onClick={() => setActiveLayerDepth(null)}
             className={cn(
               'rounded-full px-2 py-0.5 text-[10px] font-medium border',
-              activeLayerDepth === null ? 'border-brand-500/40 bg-brand-600/15 text-brand-800' : 'border-border-subtle text-text-muted',
+              activeLayerDepth === null ? 'border-brand-500/40 bg-surface-secondary text-text-primary border border-border-subtle' : 'border-border-subtle text-text-muted',
             )}
           >
             {t('conceptMapAll')}
@@ -927,7 +928,7 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
       </div>
 
       {connectFrom && (
-        <div className="shrink-0 border-b border-accent-cyan/25 bg-accent-cyan/10 px-4 py-1.5 text-[10px] text-brand-800" data-testid="concept-map-connect-hint">
+        <div className="shrink-0 border-b border-accent-cyan/25 bg-accent-cyan/10 px-4 py-1.5 text-[10px] text-text-primary" data-testid="concept-map-connect-hint">
           {t('conceptMapConnectHint')}
         </div>
       )}
@@ -980,13 +981,13 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
               <button
                 type="button"
                 onClick={() => onFocusTerm(selectedNode.label)}
-                className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[10px] font-medium bg-accent-cyan/15 text-brand-800 border border-accent-cyan/30 hover:bg-accent-cyan/25"
+                className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[10px] font-medium bg-accent-cyan/15 text-text-primary border border-accent-cyan/30 hover:bg-accent-cyan/25"
               >
                 <BookOpen className="w-3 h-3" />
                 {t('cognitiveReader')}
               </button>
             )}
-            <button onClick={() => startNote(selectedNode.id)} className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[10px] font-medium bg-brand-600/20 text-brand-600 border border-brand-500/30 hover:bg-brand-600/30">
+            <button onClick={() => startNote(selectedNode.id)} className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[10px] font-medium bg-surface-secondary text-text-primary border border-border-subtle hover:bg-brand-600/30">
               {selectedNode.note ? <><Pencil className="w-3 h-3" /> {t('editNote')}</> : <><FileText className="w-3 h-3" /> {t('addNote')}</>}
             </button>
             <button
@@ -1053,7 +1054,7 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
       {editingNote && (
         <div className="absolute bottom-0 left-0 right-0 p-3 glass-strong border-t border-border-subtle">
           <p className="text-xs font-semibold mb-2 inline-flex items-center gap-1.5">
-            <FileText className="w-3.5 h-3.5 text-brand-600" />
+            <FileText className="w-3.5 h-3.5 text-text-secondary" />
             {t('noteFor')} "{nodeMap[editingNote]?.label}"
           </p>
           <textarea

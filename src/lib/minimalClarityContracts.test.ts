@@ -516,6 +516,42 @@ describe('OPT-K69 engineering clarity contracts', () => {
     expect(primitives).not.toMatch(/hover:text-brand-\d+/);
   });
 
+  it('K101 — residual dwell sweep (app chrome complete)', () => {
+    const indexCss = read('src/index.css');
+    expect(indexCss).toMatch(/OPT-K101/);
+    expect(indexCss).toMatch(/Residual dwell sweep/);
+    expect(indexCss).toMatch(/--opt-k101-residual-sweep/);
+
+    const sim = read('src/components/workspace/InteractiveSimulator.tsx');
+    expect(sim).toMatch(/OPT-K101/);
+    expect(sim).not.toMatch(/text-brand-\d+/);
+
+    const board = read('src/components/workspace/StudyWhiteboard.tsx');
+    expect(board).toMatch(/OPT-K101/);
+    expect(board).not.toMatch(/text-brand-\d+/);
+
+    const timer = read('src/components/workspace/StudyTimer.tsx');
+    expect(timer).toMatch(/OPT-K101/);
+    expect(timer).not.toMatch(/text-brand-\d+/);
+
+    const diagram = read('src/components/visuals/DiagramGenerator.tsx');
+    expect(diagram).toMatch(/OPT-K101/);
+    expect(diagram).not.toMatch(/text-brand-\d+/);
+
+    const app = read('src/App.tsx');
+    expect(app).toMatch(/OPT-K101/);
+    expect(app).not.toMatch(/text-brand-\d+/);
+
+    const shell = read('src/components/Shell.tsx');
+    expect(shell).toMatch(/OPT-K101/);
+    expect(shell).toMatch(/inkClass: 'text-text-secondary'/);
+    expect(shell).not.toMatch(/inkClass: 'text-brand-600'/);
+
+    /* Marketing Landing keeps intentional brand type */
+    const landing = read('src/components/Landing.tsx');
+    expect(landing).toMatch(/text-brand-\d+/);
+  });
+
   it('K93 — cross-pollinate sweetness ↔ clarity', () => {
     const indexCss = read('src/index.css');
     expect(indexCss).toMatch(/OPT-K93/);
@@ -535,7 +571,9 @@ describe('OPT-K69 engineering clarity contracts', () => {
     expect(dash).toMatch(/border-border-subtle bg-surface-secondary/);
     expect(dash).not.toMatch(/ux-spark-panel/);
     expect(dash).toMatch(/BookOpen className="w-5 h-5 text-text-secondary"/);
-    expect(dash).toMatch(/text-brand-600/); /* greeting icon keeps brand signal */
+    /* OPT-K101 — greeting icon also follows ink-owns-type */
+    expect(dash).toMatch(/className="inline-block w-5 h-5 text-text-secondary/);
+    expect(dash).not.toMatch(/text-brand-\d+/);
   });
 
   it('K92 — 1/2/3 column layout on Minimal and non-Minimal', () => {

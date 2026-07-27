@@ -30,6 +30,7 @@ const EXPAND_KEY = 'workspace-dock-expanded';
  * Collapsible: a calm icon-only rail by default, expandable to a labeled,
  * grouped list. Replaces the redundant top WorkspaceToolStrip on desktop.
  */
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function WorkspaceDock({ activeTool, onSelectTool, availableTools, lang = 'en', onOpenStudyRoom, studyRoomOpen = false }: Props) {
   const { t } = useI18n();
   const [expanded, setExpanded] = useState<boolean>(() => loadJson<boolean>(EXPAND_KEY, true));
@@ -104,7 +105,7 @@ export function WorkspaceDock({ activeTool, onSelectTool, availableTools, lang =
                       'focus-visible:ring-2 focus-visible:ring-brand-400/60 focus-visible:ring-inset',
                       expanded ? 'gap-2.5 px-3 py-2' : 'h-11 justify-center px-1',
                       active
-                        ? 'bg-brand-100/80 text-brand-800 font-semibold'
+                        ? 'bg-surface-secondary text-text-primary border border-border-subtle font-semibold'
                         : 'text-text-secondary hover:bg-surface-hover hover:text-text-primary',
                     )}
                   >

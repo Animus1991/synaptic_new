@@ -26,6 +26,7 @@ const KIND_BADGE_EL: Record<DocumentStructureKind, string> = {
   flat: 'Συνεχές κείμενο',
 };
 
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function OutlinePreviewPanel({
   preview,
   loading,
@@ -99,7 +100,7 @@ export function OutlinePreviewPanel({
       <div className="flex items-start justify-between gap-3 flex-wrap">
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="inline-flex items-center gap-1 rounded-full px-2 py-1 text-[10px] font-semibold bg-brand-500/15 text-brand-300">
+            <span className="inline-flex items-center gap-1 rounded-full px-2 py-1 text-[10px] font-semibold bg-surface-secondary text-text-primary border border-border-subtle">
               <ListTree className="w-3 h-3" />
               {t('outlinePreview')}
             </span>
@@ -157,7 +158,7 @@ export function OutlinePreviewPanel({
             key={`${topic.title}-${i}`}
             className="flex items-start gap-2 text-xs"
           >
-            <span className="shrink-0 w-5 h-5 rounded-md bg-surface-hover flex items-center justify-center text-[10px] font-semibold text-brand-300">
+            <span className="shrink-0 w-5 h-5 rounded-md bg-surface-hover flex items-center justify-center text-[10px] font-semibold text-text-secondary">
               {i + 1}
             </span>
             <div className="min-w-0 flex-1">

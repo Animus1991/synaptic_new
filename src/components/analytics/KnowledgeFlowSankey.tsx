@@ -12,6 +12,7 @@ type Props = {
   hasData: boolean;
 };
 
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function KnowledgeFlowSankeyChart({ links, title, hint, emptyLabel, hasData }: Props) {
   const layout = useMemo(() => sankeyNodeLayout(), []);
   const maxCol = 6;
@@ -32,7 +33,7 @@ export function KnowledgeFlowSankeyChart({ links, title, hint, emptyLabel, hasDa
   return (
     <div className="ux-card blueprint-surface" data-testid="knowledge-flow-sankey">
       <h3 className="text-sm font-semibold text-text-primary mb-1 flex items-center gap-2">
-        <GitBranch className="w-4 h-4 text-brand-400" />
+        <GitBranch className="w-4 h-4 text-text-secondary" />
         {title}
       </h3>
       <p className="text-xs text-text-tertiary mb-4">{hint}</p>

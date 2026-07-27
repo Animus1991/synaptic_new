@@ -17,6 +17,7 @@ interface PrerequisiteRepairViewProps {
   checkpoint?: { question: string; options: string[]; correctIndex: number };
 }
 
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function PrerequisiteRepairView({
   onClose,
   onOpenAgent,
@@ -79,7 +80,7 @@ export function PrerequisiteRepairView({
             onClick={onOpenAgent}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border border-border-subtle hover:border-brand-500/30 transition-all"
           >
-            <Sparkles className="w-3.5 h-3.5 text-brand-400" /> Ask Agent
+            <Sparkles className="w-3.5 h-3.5 text-text-secondary" /> Ask Agent
           </button>
           <span className="text-xs text-accent-amber font-medium">+{xpReward} XP</span>
         </div>
@@ -141,7 +142,7 @@ export function PrerequisiteRepairView({
               onClick={onOpenAgent}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border border-border-subtle hover:border-brand-500/30"
             >
-              <Sparkles className="w-3.5 h-3.5 text-brand-400" /> Diagnose with Agent
+              <Sparkles className="w-3.5 h-3.5 text-text-secondary" /> Diagnose with Agent
             </button>
           </div>
           )
@@ -174,7 +175,7 @@ export function PrerequisiteRepairView({
           ) : (
             <button
               onClick={() => setStepIndex((s) => s + 1)}
-              className="text-xs text-brand-400 font-medium"
+              className="text-xs text-text-secondary font-medium"
             >
               Continue →
             </button>

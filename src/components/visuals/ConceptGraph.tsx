@@ -38,6 +38,7 @@ const typeIcons: Record<string, string> = {
   theory: conceptTypeGlyph('theory'),
 };
 
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function ConceptGraph({
   nodes,
   edges,
@@ -185,7 +186,7 @@ export function ConceptGraph({
             <button
               type="button"
               onClick={() => onOpenConcept(nodeMap[selectedNode].label)}
-              className="mt-2 w-full rounded-lg bg-brand-600/15 px-3 py-1.5 text-[11px] font-medium text-brand-300 hover:bg-brand-600/25 transition-colors"
+              className="mt-2 w-full rounded-lg bg-brand-600/15 px-3 py-1.5 text-[11px] font-medium text-text-secondary hover:bg-brand-600/25 transition-colors"
             >
               {openConceptLabel}
             </button>
