@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { Map } from '@/lib/lucide-shim';
 import type { Lang } from '../../lib/i18n';
-import type { TreemapBlock } from '../../lib/knowledgeFlowAnalytics';
-import { treemapAdvice } from '../../lib/knowledgeFlowAnalytics';
+import type { TreemapBlock } from '../../features/analytics/knowledgeFlowAnalytics';
+import { treemapAdvice } from '../../features/analytics/knowledgeFlowAnalytics';
 import { cn } from '../../utils/cn';
 
 const TONE_CLASS: Record<TreemapBlock['tone'], string> = {

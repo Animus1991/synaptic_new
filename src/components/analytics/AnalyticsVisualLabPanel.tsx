@@ -4,7 +4,7 @@ import { BlueprintSurface } from '../ui/BlueprintSurface';
 import { SectionHeader } from '../ui/platformChrome';
 import { useI18n } from '../../lib/i18n';
 import { AllCapsLabel } from '../ui/AllCapsLabel';
-import type { SankeyLink } from '../../lib/knowledgeFlowAnalytics';
+import type { SankeyLink } from '../../features/analytics/knowledgeFlowAnalytics';
 import type { RetentionForecastPoint } from '../../lib/adaptiveScheduler';
 import type { SkillNode } from '../../types';
 import { SOURCE_VISUAL_TILES, VISUAL_LAB_MODES, type VisualLabModeId } from '../../lib/visualLabModes';

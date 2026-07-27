@@ -13,7 +13,7 @@ import {
   adaptiveRecommendations,
   retentionCurveFromActivities,
   weeklyMasteryFromActivities,
-} from '../lib/retentionAnalytics';
+} from '../features/analytics/retentionAnalytics';
 import { CalibrationCompareBar } from './visuals/CalibrationCompareBar';
 import { CalibrationChip } from './visuals/CalibrationChip';
 import { resolveCourseColor } from '../lib/masteryPalette';
@@ -35,7 +35,7 @@ import {
   computeResearchMetrics,
   buildResearchExport,
   downloadResearchExport,
-} from '../lib/researchAnalytics';
+} from '../features/analytics/researchAnalytics';
 import { inferBehaviorFromActivities } from '../lib/behaviorInference';
 import {
   buildConfidenceBuckets,
@@ -56,7 +56,7 @@ import {
   buildConceptTreemap,
   buildLearningTimeline,
   buildConceptMasteryHeatmap,
-} from '../lib/knowledgeFlowAnalytics';
+} from '../features/analytics/knowledgeFlowAnalytics';
 import { KnowledgeFlowSankeyChart, MasteryWaterfallChart } from './analytics/KnowledgeFlowSankey';
 import { ConceptTreemapChart } from './analytics/ConceptTreemapChart';
 import { ConceptMasteryHeatmapChart } from './analytics/ConceptMasteryHeatmapChart';
@@ -71,8 +71,8 @@ import { SubjectMasteryGrid } from './analytics/SubjectMasteryGrid';
 import { SubjectDrillDown } from './analytics/SubjectDrillDown';
 import { StudyBehaviorCharts } from './analytics/StudyBehaviorCharts';
 import { AIInsightsPanel } from './analytics/AIInsightsPanel';
-import { buildSubjectMasteryTiles, type SubjectMasteryTile } from '../lib/subjectMasteryAnalytics';
-import { filterActivitiesByRange } from '../lib/analyticsDateRange';
+import { buildSubjectMasteryTiles, type SubjectMasteryTile } from '../features/analytics/subjectMasteryAnalytics';
+import { filterActivitiesByRange } from '../features/analytics/analyticsDateRange';
 import { useAppStore } from '../store/useStore';
 import { SectionHeader } from './ui/platformChrome';
 import { loadVisualLabOpen, saveVisualLabOpen } from '../lib/visualLabPrefs';

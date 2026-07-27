@@ -48,7 +48,7 @@ import { LibrarySyncConflictPanel } from './LibrarySyncConflictPanel';
 import { showCrossLibrarySynthesis } from '../lib/platformFocus';
 import type { NotebookLmImportResult } from '../lib/notebooklmImport';
 import { openNotebookLm, notebookLmSourceLabel } from '../lib/notebooklmBridge';
-import { isDebugUiTopicLabel } from '../lib/knowledgeFlowAnalytics';
+import { isDebugUiTopicLabel } from '../features/analytics/knowledgeFlowAnalytics';
 import {
   buildTopicIdTitleMap,
   resolveTopicPrerequisiteTitles,

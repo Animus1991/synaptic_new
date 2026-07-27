@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { GitBranch } from '@/lib/lucide-shim';
-import type { SankeyLink } from '../../lib/knowledgeFlowAnalytics';
-import { sankeyNodeLayout, SANKEY_NODE_ORDER } from '../../lib/knowledgeFlowAnalytics';
+import type { SankeyLink } from '../../features/analytics/knowledgeFlowAnalytics';
+import { sankeyNodeLayout, SANKEY_NODE_ORDER } from '../../features/analytics/knowledgeFlowAnalytics';
 import { cn } from '../../utils/cn';
 
 type Props = {
@@ -95,7 +95,7 @@ export function MasteryWaterfallChart({
   emptyLabel,
   hasData,
 }: {
-  steps: import('../../lib/knowledgeFlowAnalytics').WaterfallStep[];
+  steps: import('../../features/analytics/knowledgeFlowAnalytics').WaterfallStep[];
   title: string;
   hint: string;
   emptyLabel: string;

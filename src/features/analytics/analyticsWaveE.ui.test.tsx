@@ -5,8 +5,8 @@ import {
   AnalyticsDateRangeFilter,
   AnalyticsDateRangeProvider,
   useAnalyticsDateRange,
-} from '../components/analytics/AnalyticsDateRangeContext';
-import { SubjectMasteryGrid } from '../components/analytics/SubjectMasteryGrid';
+} from '../../components/analytics/AnalyticsDateRangeContext';
+import { SubjectMasteryGrid } from '../../components/analytics/SubjectMasteryGrid';
 import type { SubjectMasteryTile } from './subjectMasteryAnalytics';
 
 function RangeProbe() {

@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import type { SankeyLink } from '../../lib/knowledgeFlowAnalytics';
+import type { SankeyLink } from '../../features/analytics/knowledgeFlowAnalytics';
 
 type Props = {
   links: SankeyLink[];

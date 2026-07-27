@@ -166,8 +166,8 @@ import { createEmptyLearnerModel, EMPTY_DASHBOARD_STATS } from '../lib/emptyLear
 import { applyBehaviorInference, inferBehaviorFromActivities } from '../lib/behaviorInference';
 import { readAllLearningEvents } from '../lib/learningEvents';
 import { mergeCourseTasks } from '../lib/taskGenerator';
-import { syncLearnerHeatmap, computeStreakFromHeatmap } from '../lib/activityAnalytics';
-import { computeRetentionRate, weeklyMasteryFromActivities } from '../lib/retentionAnalytics';
+import { syncLearnerHeatmap, computeStreakFromHeatmap } from '../features/analytics/activityAnalytics';
+import { computeRetentionRate, weeklyMasteryFromActivities } from '../features/analytics/retentionAnalytics';
 import {
   applySkillUpdate,
   ensureSkillNode,

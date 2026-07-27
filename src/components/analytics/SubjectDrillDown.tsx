@@ -1,6 +1,6 @@
 import { X } from '@/lib/lucide-shim';
 import { CompactProgressBar } from '../ui/CompactProgressBar';
-import type { SubjectMasteryTile } from '../../lib/subjectMasteryAnalytics';
+import type { SubjectMasteryTile } from '../../features/analytics/subjectMasteryAnalytics';
 import { useI18n } from '../../lib/i18n';
 import { cn } from '../../utils/cn';
 import { AllCapsLabel } from '../ui/AllCapsLabel';

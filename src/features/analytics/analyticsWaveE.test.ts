@@ -4,8 +4,8 @@ import {
   filterActivitiesByRange,
 } from './analyticsDateRange';
 import { buildSubjectMasteryTiles } from './subjectMasteryAnalytics';
-import { buildStudyBehaviorModel } from './studyBehaviorCharts';
-import type { ActivityItem, Course } from '../types';
+import { buildStudyBehaviorModel } from '../../lib/studyBehaviorCharts';
+import type { ActivityItem, Course } from '../../types';
 
 const now = Date.now();
 

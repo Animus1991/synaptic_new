@@ -21,16 +21,16 @@ import {
   removeClassEnrollment as apiRemoveEnrollment,
   updateGradebookCell,
 } from '../lib/authClient';
-import type { AnnouncementRow, AssignmentRow, ClassEnrollmentRow, GradebookCellRow, TeacherClassRow } from '../lib/teacherClassTypes';
+import type { AnnouncementRow, AssignmentRow, ClassEnrollmentRow, GradebookCellRow, TeacherClassRow } from '../features/teacher/teacherClassTypes';
 import { listLearningEvents, countLearningEventsByType } from '../lib/learningEvents';
-import type { TeacherDashboardResponse } from '../lib/teacherDashboardTypes';
-import { getTeacherContent } from '../lib/teacherContent';
+import type { TeacherDashboardResponse } from '../features/teacher/teacherDashboardTypes';
+import { getTeacherContent } from '../features/teacher/teacherContent';
 import { fetchOrgs, fetchOrgAnalytics, downloadGradebookCsv, linkLtiClassContext, ltiPassbackClassGrades, syncLtiClassRoster, type OrgAnalytics } from '../lib/orgClient';
 import {
   buildCohortDraftPolishPrompt,
   buildCohortWeakConceptsDraft,
   flattenTopicMasteryHeatmap,
-} from '../lib/teacherWeakConceptsDraft';
+} from '../features/teacher/teacherWeakConceptsDraft';
 import { useAppStore } from '../store/useStore';
 import { CohortHeatmap } from './CohortHeatmap';
 import { CohortNotebookLmHeatmap } from './CohortNotebookLmHeatmap';

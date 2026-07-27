@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { MessageSquare } from '@/lib/lucide-shim';
 import type { UserSettings } from '../types';
-import type { DiscussionPostRow } from '../lib/teacherClassTypes';
+import type { DiscussionPostRow } from '../features/teacher/teacherClassTypes';
 import {
   deleteAssignmentDiscussionPost,
   fetchAssignmentDiscussion,

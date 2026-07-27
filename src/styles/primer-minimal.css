@@ -899,18 +899,18 @@
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .ux-page-header :is(h1, .ux-page-title),
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .ux-page-header--text-first :is(h1, .ux-page-title) {
-  /* was ×0.97; −4% more → ×0.9312 */
-  font-size: calc(var(--type-hero-app, 1.25rem) * 0.9312);
+  /* was ×0.9312; −2% more → ×0.9126 */
+  font-size: calc(var(--type-hero-app, 1.25rem) * 0.9126);
 }
 
 @media (min-width: 640px) {
   :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .ux-page-header :is(h1, .ux-page-title),
   :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .ux-page-header--text-first :is(h1, .ux-page-title) {
-    font-size: calc(var(--type-hero-app-sm, 1.375rem) * 0.9312);
+    font-size: calc(var(--type-hero-app-sm, 1.375rem) * 0.9126);
   }
 }
 
-/* Page-header actions (Ask agent / Continue / podcast / export + peers) −4% */
+/* Page-header actions (Ask agent / Continue / podcast / export + peers) −4% then −2% then −2% */
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .ux-page-header-actions :is(
   .ux-primary-cta,
   .ux-secondary-cta,
@@ -918,10 +918,10 @@
   [data-testid="study-guide-export-btn"],
   button
 ) {
-  /* was ×0.96; −2% more → ×0.9408 */
-  font-size: calc(0.875rem * 0.9408) !important;
-  min-height: calc(var(--ux-btn-height, var(--btn-height, 2.5rem)) * 0.9408) !important;
-  gap: calc(0.5rem * 0.9408);
+  /* was ×0.9408; −2% more → ×0.9220 */
+  font-size: calc(0.875rem * 0.9220) !important;
+  min-height: calc(var(--ux-btn-height, var(--btn-height, 2.5rem)) * 0.9220) !important;
+  gap: calc(0.5rem * 0.9220);
 }
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .ux-page-header-actions :is(
   .ux-primary-cta,
@@ -930,8 +930,8 @@
   [data-testid="study-guide-export-btn"],
   button
 ) > svg {
-  width: calc(1rem * 0.9408);
-  height: calc(1rem * 0.9408);
+  width: calc(1rem * 0.9220);
+  height: calc(1rem * 0.9220);
 }
 
 /* Readiness ring % numeral (geometry size=165 ≈ 180×0.97³) */

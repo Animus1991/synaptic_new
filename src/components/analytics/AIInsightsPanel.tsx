@@ -3,13 +3,13 @@ import { Lightbulb, ArrowRight } from '@/lib/lucide-shim';
 import type { ActivityItem, Course, LearnerModel } from '../../types';
 import { buildLearnerInsights } from '../../lib/progressInsights';
 import { useAnalyticsDateRange } from './AnalyticsDateRangeContext';
-import { filterActivitiesByRange } from '../../lib/analyticsDateRange';
+import { filterActivitiesByRange } from '../../features/analytics/analyticsDateRange';
 import { SectionLabel } from '../ui/SectionLabel';
 import { useI18n } from '../../lib/i18n';
 import { configuredProxyBase } from '../../lib/authClient';
 import { useAppStore } from '../../store/useStore';
 import { cn } from '../../utils/cn';
-import { buildInsightsAskPrompt } from '../../lib/analyticsAskPrompt';
+import { buildInsightsAskPrompt } from '../../features/analytics/analyticsAskPrompt';
 import { pathFocusFromWeakArea } from '../../lib/pathFocus';
 
 export type AnalyticsInsightAction = {

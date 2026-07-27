@@ -9,7 +9,7 @@ import {
   ANALYTICS_DATE_RANGES,
   rangeLabel,
   type AnalyticsDateRange,
-} from '../../lib/analyticsDateRange';
+} from '../../features/analytics/analyticsDateRange';
 import { useI18n } from '../../lib/i18n';
 import { cn } from '../../utils/cn';
 

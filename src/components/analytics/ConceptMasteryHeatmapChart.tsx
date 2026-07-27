@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Grid3X3 } from '@/lib/lucide-shim';
-import type { ConceptMasteryHeatmapModel } from '../../lib/knowledgeFlowAnalytics';
+import type { ConceptMasteryHeatmapModel } from '../../features/analytics/knowledgeFlowAnalytics';
 import { masteryColorForValue, readinessBandMeta } from '../../lib/masteryPalette';
 import { cn } from '../../utils/cn';
 

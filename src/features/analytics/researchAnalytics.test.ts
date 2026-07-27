@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { computeResearchMetrics, buildResearchExport } from './researchAnalytics';
-import { createEmptyLearnerModel } from './emptyLearnerState';
-import type { ActivityItem } from '../types';
-import type { LearningEvent } from './learningEvents';
+import { createEmptyLearnerModel } from '../../lib/emptyLearnerState';
+import type { ActivityItem } from '../../types';
+import type { LearningEvent } from '../../lib/learningEvents';
 
 describe('computeResearchMetrics', () => {
   it('builds BKT-lite rows from quiz activities', () => {

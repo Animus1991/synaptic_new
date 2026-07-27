@@ -4,7 +4,7 @@ import { diagnoseQuizError, quizErrorKindLabel } from './quizErrorDiagnosis';
 import { buildPathTryChips, pathFocusFromQuizMiss, pathFocusFromWeakArea } from './pathFocus';
 import { buildSmartFlashcard } from './smartFlashcard';
 import { buildScratchpadStepHint } from './scratchpadStepHint';
-import { buildInsightsAskPrompt } from './analyticsAskPrompt';
+import { buildInsightsAskPrompt } from '../features/analytics/analyticsAskPrompt';
 import { buildLibraryAskPrompt } from '../features/library';
 import {
   buildCohortWeakConceptsDraft,

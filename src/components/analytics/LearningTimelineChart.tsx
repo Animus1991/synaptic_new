@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Calendar } from '@/lib/lucide-shim';
-import type { LearningTimelineEvent, TimelineEventType } from '../../lib/knowledgeFlowAnalytics';
+import type { LearningTimelineEvent, TimelineEventType } from '../../features/analytics/knowledgeFlowAnalytics';
 import { cn } from '../../utils/cn';
 import { BlueprintSurface } from '../ui/BlueprintSurface';
 import { AllCapsLabel } from '../ui/AllCapsLabel';

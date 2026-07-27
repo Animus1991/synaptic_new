@@ -2,7 +2,7 @@ import type { UserSettings } from '../../types';
 import type { LeitnerDeckState } from '../../lib/leitnerDeckSync';
 import type { QuizAttemptRecord } from '../../lib/quizAttemptHistory';
 import type { OcrStoredRegion } from '../../lib/readerOcrOverlay';
-import type { TeacherDashboardResponse } from '../../lib/teacherDashboardTypes';
+import type { TeacherDashboardResponse } from '../teacher/teacherDashboardTypes';
 import type {
   AnnouncementRow,
   AnnouncementsResponse,
@@ -16,7 +16,7 @@ import type {
   GradebookResponse,
   TeacherClassRow,
   TeacherClassesResponse,
-} from '../../lib/teacherClassTypes';
+} from '../teacher/teacherClassTypes';
 
 export type AuthSession = {
   token: string;

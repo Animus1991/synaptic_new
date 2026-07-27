@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { retentionCurveFromActivities, computeRetentionRate, weeklyMasteryFromActivities } from './retentionAnalytics';
-import { categorizeSkillNodes, skillNodeFromTopic } from './skillNodes';
-import type { ActivityItem } from '../types';
+import { categorizeSkillNodes, skillNodeFromTopic } from '../../lib/skillNodes';
+import type { ActivityItem } from '../../types';
 
 describe('retentionAnalytics', () => {
   it('computes retention rate from quiz events', () => {
