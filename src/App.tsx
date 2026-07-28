@@ -1000,6 +1000,7 @@ export default function App() {
         <Landing
           onGetStarted={() => store.navigate('onboarding')}
           onSeeDemo={handleSeeDemo}
+          onLanguageChange={(lang) => store.updateSettings({ language: lang })}
         />
       </I18nContext.Provider>
     );

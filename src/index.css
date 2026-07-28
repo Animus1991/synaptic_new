@@ -2146,11 +2146,121 @@
   min-height: var(--ux-btn-height);
   box-sizing: border-box;
 }
+/* Nav Get Started / Ξεκίνα — match EN/ΕΛ pill (h-8 / 2rem); +32% padding (×1.2 then +10%) */
+.landing-page .landing-nav .landing-nav-cta {
+  height: 2rem;
+  min-height: 2rem;
+  max-height: 2rem;
+  padding: 0 calc(0.875rem * 1.32);
+  font-size: 0.75rem;
+  line-height: 1;
+  gap: 0.375rem;
+  box-sizing: border-box;
+}
+/* EL only: Ξεκίνα +10% then +20% horizontal padding (×1.452 × 1.2) */
+.landing-page[data-lang="el"] .landing-nav .landing-nav-cta {
+  padding-left: calc(0.875rem * 1.7424);
+  padding-right: calc(0.875rem * 1.7424);
+}
+/* Hero CTAs (+1%; was ×0.9220 → ×0.93122): Start Learning / Explore demo / SANDBOX */
+.landing-page .landing-cta:not(.landing-nav-cta) {
+  font-size: calc(0.875rem * 0.93122);
+  min-height: calc(var(--ux-btn-height) * 0.93122);
+  padding: calc(var(--landing-btn-py) * 0.93122) calc(1.25rem * 0.93122);
+  gap: calc(0.75rem * 0.93122);
+}
+.landing-page .landing-cta:not(.landing-nav-cta) svg {
+  width: calc(1rem * 0.93122);
+  height: calc(1rem * 0.93122);
+}
+.landing-page .landing-demo-sandbox-badge {
+  font-size: calc(10px * 0.93122);
+  padding: calc(0.125rem * 0.93122) calc(0.5rem * 0.93122);
+  /* Light themes: tinted fill + dark ink (WCAG) */
+  border: 1px solid color-mix(in srgb, var(--color-brand-600) 35%, transparent);
+  background: color-mix(in srgb, var(--color-brand-100) 88%, var(--color-surface-card));
+  color: var(--color-brand-900);
+}
+/* Dark themes: avoid remapped light text-brand-800 on light brand-100 fills */
+:is([data-theme="dark"], [data-theme="blueprint"], [data-theme="minimal-dark"])
+  .landing-page
+  .landing-demo-sandbox-badge {
+  border-color: color-mix(in srgb, var(--color-brand-400) 55%, transparent);
+  background: color-mix(in srgb, var(--color-brand-600) 55%, var(--color-surface-primary));
+  color: #ffffff;
+}
 .landing-hero-title {
-  font-size: var(--ux-type-hero);
+  /* −2%; was ×0.8664 → ×0.8491; all themes */
+  font-size: calc(var(--ux-type-hero) * 0.8491);
   font-weight: 700;
   line-height: 1.08;
   letter-spacing: var(--ux-tracking-hero);
+}
+/* Built-for audience rows (+1%; was ×0.98 → ×0.9898) */
+.landing-page .landing-user-type-label {
+  font-size: calc(0.875rem * 0.9898); /* was text-sm ×0.98 */
+  font-weight: 500;
+}
+.landing-page .landing-user-type-desc {
+  font-size: calc(0.75rem * 0.9898); /* was text-xs ×0.98 */
+  line-height: 1.375;
+}
+
+/* English-only landing type tweaks */
+.landing-page[data-lang="en"] .landing-hero-title {
+  font-size: calc(var(--ux-type-hero) * 0.8236); /* −3% vs base ×0.8491 */
+}
+.landing-page[data-lang="en"] .landing-hero-subtitle {
+  font-size: calc(clamp(0.875rem, 1.6vw, 1.125rem) * 0.99); /* −1% */
+}
+
+/* Greek-only landing type tweaks (longer copy) */
+.landing-page[data-lang="el"] .landing-hero-title {
+  font-size: calc(var(--ux-type-hero) * 0.7220); /* −3% vs prior EL ×0.7443 */
+}
+.landing-page[data-lang="el"] .landing-hero-subtitle {
+  font-size: calc(clamp(0.875rem, 1.6vw, 1.125rem) * 0.9040); /* −1% vs prior EL ×0.9131 */
+}
+.landing-page[data-lang="el"] .landing-cta:not(.landing-nav-cta) {
+  font-size: calc(0.875rem * 0.8679); /* −1% vs prior EL ×0.8767 */
+  min-height: calc(var(--ux-btn-height) * 0.8679);
+  padding: calc(var(--landing-btn-py) * 0.8679) calc(1.25rem * 0.8679);
+  gap: calc(0.75rem * 0.8679);
+}
+.landing-page[data-lang="el"] .landing-cta:not(.landing-nav-cta) svg {
+  width: calc(1rem * 0.8679);
+  height: calc(1rem * 0.8679);
+}
+.landing-page[data-lang="el"] .landing-demo-sandbox-badge {
+  font-size: calc(10px * 0.8679);
+  padding: calc(0.125rem * 0.8679) calc(0.5rem * 0.8679);
+}
+.landing-page[data-lang="el"] .landing-user-type-label {
+  font-size: calc(0.875rem * 0.9701); /* −1% vs prior EL ×0.9799 */
+}
+.landing-page[data-lang="el"] .landing-user-type-desc {
+  font-size: calc(0.75rem * 0.9701);
+}
+
+/* ErrorBoundary fallback (−2% title / detail / actions) */
+.error-boundary-title {
+  font-size: calc(1.125rem * 0.98); /* was text-lg */
+}
+.error-boundary-body {
+  font-size: calc(0.875rem * 0.98); /* was text-sm */
+}
+.error-boundary-detail {
+  font-size: calc(0.75rem * 0.98); /* was text-xs */
+}
+.error-boundary-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.75rem;
+  font-size: calc(0.875rem * 0.98);
+  padding: calc(0.5rem * 0.98) calc(1rem * 0.98);
+  min-height: calc(2.25rem * 0.98);
+  box-sizing: border-box;
 }
 .landing-hero-subtitle {
   font-size: clamp(0.875rem, 1.6vw, 1.125rem);
@@ -2654,8 +2764,12 @@
     font-size: 1rem;
   }
   .landing-page .landing-nav .landing-nav-cta {
-    padding-left: 1rem;
-    padding-right: 1rem;
+    padding-left: calc(1rem * 1.32);
+    padding-right: calc(1rem * 1.32);
+  }
+  .landing-page[data-lang="el"] .landing-nav .landing-nav-cta {
+    padding-left: calc(1rem * 1.7424);
+    padding-right: calc(1rem * 1.7424);
   }
 }
 .ux-stat-value {

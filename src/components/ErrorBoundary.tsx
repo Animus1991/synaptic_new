@@ -47,18 +47,18 @@ export class ErrorBoundary extends Component<Props, State> {
               : 'min-h-screen flex items-center justify-center p-6 bg-surface-primary text-text-primary'
           }
         >
-          <div className="max-w-md w-full rounded-2xl border border-border-subtle bg-surface-card p-6 space-y-4">
-            <h1 className="text-lg font-semibold">Something went wrong</h1>
-            <p className="text-sm text-text-secondary">
+          <div className="error-boundary-panel max-w-md w-full rounded-2xl border border-border-subtle bg-surface-card p-6 space-y-4">
+            <h1 className="error-boundary-title font-semibold">Something went wrong</h1>
+            <p className="error-boundary-body text-text-secondary">
               The app hit an unexpected error. Your progress is stored locally in the browser.
             </p>
-            <p className="text-xs text-text-muted font-mono break-all">{this.state.error.message}</p>
+            <p className="error-boundary-detail text-text-muted font-mono break-all">{this.state.error.message}</p>
             <div className="flex flex-wrap gap-2">
               <button
                 type="button"
                 data-testid="error-boundary-try-again"
                 onClick={this.handleRetry}
-                className="px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-sm font-medium"
+                className="error-boundary-btn error-boundary-btn-primary bg-brand-600 hover:bg-brand-500 text-white font-medium"
               >
                 Try again
               </button>
@@ -66,7 +66,7 @@ export class ErrorBoundary extends Component<Props, State> {
                 <button
                   type="button"
                   onClick={onRecover}
-                  className="px-4 py-2 rounded-xl border border-border-subtle text-sm font-medium hover:bg-surface-hover"
+                  className="error-boundary-btn border border-border-subtle font-medium hover:bg-surface-hover"
                 >
                   Close
                 </button>
@@ -74,7 +74,7 @@ export class ErrorBoundary extends Component<Props, State> {
               <button
                 type="button"
                 onClick={() => window.location.reload()}
-                className="px-4 py-2 rounded-xl border border-border-subtle text-sm font-medium hover:bg-surface-hover"
+                className="error-boundary-btn border border-border-subtle font-medium hover:bg-surface-hover"
               >
                 Reload
               </button>

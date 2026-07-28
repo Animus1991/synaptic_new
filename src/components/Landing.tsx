@@ -12,14 +12,16 @@ import { LandingFAQ } from './LandingFAQ';
 import { LandingIntentChips } from './LandingIntentChips';
 import { LandingTrustStrip } from './LandingTrustStrip';
 import { LandingFooter } from './LandingFooter';
-import { HeaderTrustBadgeRow, SynapseBrandGlyph } from './ui/platformChrome';
+import { HeaderTrustBadgeRow, HeaderLangPill, SynapseBrandGlyph } from './ui/platformChrome';
 import { AllCapsLabel } from './ui/AllCapsLabel';
 import { useBlueprintTheme } from '../lib/useBlueprintTheme';
 import { cn } from '../utils/cn';
+import type { Lang } from '../lib/i18n';
 
 interface LandingProps {
   onGetStarted: () => void;
   onSeeDemo?: () => void;
+  onLanguageChange?: (lang: Lang) => void;
 }
 
 const featureIcons = [Upload, Brain, Target, Zap, Clock, BarChart3];
@@ -34,15 +36,20 @@ const PRIMARY_CTA =
   'landing-cta ux-primary-cta group bg-text-primary text-surface-primary hover:bg-text-secondary transition-colors';
 const SECONDARY_CTA =
   'landing-cta ux-secondary-cta group border border-border-default text-text-primary hover:border-brand-500 hover:text-brand-700 transition-colors';
+const SANDBOX_BADGE =
+  'landing-demo-sandbox-badge ml-1.5 rounded-full font-semibold uppercase tracking-wide';
 const LANDING_SECTION = `${LANDING_SHELL} landing-section`;
 
-export function Landing({ onGetStarted, onSeeDemo }: LandingProps) {
+export function Landing({ onGetStarted, onSeeDemo, onLanguageChange }: LandingProps) {
   const { t, lang } = useI18n();
   const content = getLandingContent(lang);
   const isBlueprint = useBlueprintTheme();
 
   return (
-    <div className="landing-page min-h-screen w-full bg-surface-primary text-text-primary overflow-x-hidden">
+    <div
+      className="landing-page min-h-screen w-full bg-surface-primary text-text-primary overflow-x-hidden"
+      data-lang={lang}
+    >
       {/* Navbar */}
       <nav className="landing-nav fixed top-0 left-0 right-0 z-50 border-b border-border-subtle bg-surface-primary/80 backdrop-blur-xl">
         <div className={LANDING_SHELL}>
@@ -61,6 +68,9 @@ export function Landing({ onGetStarted, onSeeDemo }: LandingProps) {
               {isBlueprint && (
                 <HeaderTrustBadgeRow lang={lang} className="hidden lg:flex mr-1" />
               )}
+              {onLanguageChange ? (
+                <HeaderLangPill lang={lang} onChange={onLanguageChange} className="shrink-0" />
+              ) : null}
               <ThemeToggle />
               <button
                 onClick={onGetStarted}
@@ -148,7 +158,7 @@ export function Landing({ onGetStarted, onSeeDemo }: LandingProps) {
                 className={cn(SECONDARY_CTA, 'relative')}
               >
                 {content.ctaSecondary}
-                <span className="landing-demo-sandbox-badge ml-1.5 rounded-full border border-brand-500/40 bg-brand-100/80 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-brand-800">
+                <span className={SANDBOX_BADGE}>
                   <AllCapsLabel>{t('landingDemoSandboxBadge')}</AllCapsLabel>
                 </span>
                 <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
@@ -212,8 +222,8 @@ export function Landing({ onGetStarted, onSeeDemo }: LandingProps) {
                       >
                         <Icon className="w-4 h-4 text-brand-400 shrink-0" />
                         <div>
-                          <p className="text-sm font-medium text-text-primary">{ut.label}</p>
-                          <p className="text-xs text-text-tertiary leading-snug">{ut.desc}</p>
+                          <p className="landing-user-type-label text-text-primary">{ut.label}</p>
+                          <p className="landing-user-type-desc text-text-tertiary">{ut.desc}</p>
                         </div>
                       </div>
                     );
@@ -239,7 +249,7 @@ export function Landing({ onGetStarted, onSeeDemo }: LandingProps) {
                   className="flex items-center gap-2 px-4 py-2 rounded-[25px] border border-border-subtle bg-surface-card/40 hover:border-brand-500/50 transition-colors"
                 >
                   <Icon className="w-3.5 h-3.5 text-brand-400" />
-                  <span className="text-xs text-text-secondary" style={mono}>
+                  <span className="landing-user-type-desc text-text-secondary" style={mono}>
                     {ut.label}
                   </span>
                 </motion.div>
@@ -403,7 +413,7 @@ export function Landing({ onGetStarted, onSeeDemo }: LandingProps) {
                 className={cn(SECONDARY_CTA, 'relative')}
               >
                 {content.ctaSecondary}
-                <span className="landing-demo-sandbox-badge ml-1.5 rounded-full border border-brand-500/40 bg-brand-100/80 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-brand-800">
+                <span className={SANDBOX_BADGE}>
                   <AllCapsLabel>{t('landingDemoSandboxBadge')}</AllCapsLabel>
                 </span>
                 <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
