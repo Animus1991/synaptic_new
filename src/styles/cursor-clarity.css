@@ -1337,8 +1337,9 @@
 }
 
 :is([data-theme="minimal-dark"]) .app-shell .dashboard-calm .dashboard-progress-fill--weak {
-  background: color-mix(in srgb, var(--mastery-weak) 45%, var(--color-text-secondary));
-  opacity: 0.9;
+  /* OPT-K92 — stronger fill vs track (≥3:1 non-text target) */
+  background: color-mix(in srgb, var(--mastery-weak) 78%, var(--color-surface-card));
+  opacity: 1;
 }
 
 :is([data-theme="minimal"]) .app-shell .dashboard-calm .dashboard-status-rose {
@@ -1356,8 +1357,9 @@
 }
 
 :is([data-theme="minimal-dark"]) .app-shell .dashboard-calm .concept-mastery-bars .proximity-track > div:last-child > div {
-  filter: saturate(0.55) brightness(0.98);
-  opacity: 0.9;
+  /* OPT-K92 — lift chroma so thin bars stay readable on dark tracks */
+  filter: saturate(0.88) brightness(1.1);
+  opacity: 1;
 }
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm .concept-mastery-bars .proximity-row span[style*="color"] {
@@ -1382,19 +1384,20 @@
   max-width: none;
 }
 
-/* OPT-K20 — cyan brand CTAs (not ink black/white); keep soft hierarchy */
+/* OPT-K20 / preview — brand cyan fill + pure white label (compare before rose restore) */
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm .dashboard-exam-cta.ux-chip-solid-brand {
-  background: var(--color-brand-600);
-  color: #ffffff;
+  background: var(--color-brand-cta, var(--color-brand-600));
+  color: #ffffff !important;
 }
 
 :is([data-theme="minimal-dark"]) .app-shell .dashboard-calm .dashboard-exam-cta.ux-chip-solid-brand {
-  background: var(--color-text-primary);
-  color: var(--color-surface-primary);
+  background: var(--color-brand-cta);
+  color: #ffffff !important;
 }
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm .dashboard-exam-cta.ux-chip-solid-brand:hover {
-  filter: brightness(1.06);
+  background: var(--color-brand-cta-hover, var(--color-brand-600));
+  color: #ffffff !important;
 }
 
 /* one-step Execute inherits .app-shell .ux-primary-cta cyan (OPT-K21) */

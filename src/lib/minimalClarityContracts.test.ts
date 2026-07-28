@@ -631,7 +631,10 @@ describe('OPT-K69 engineering clarity contracts', () => {
 
     const primer = read('src/styles/primer-minimal.css');
     expect(primer).toMatch(/OPT-K90/);
-    expect(primer).toMatch(/--mastery-developing:\s*#5a9eb0/);
+    expect(primer).toMatch(/OPT-K92/);
+    /* OPT-K92 — lifted mastery fills for dark track contrast */
+    expect(primer).toMatch(/--mastery-developing:\s*#6eb8c8/);
+    expect(primer).toMatch(/--mastery-weak:\s*#e08a94/);
     expect(primer).not.toMatch(/--mastery-weak:\s*#e0707c/);
   });
 

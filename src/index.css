@@ -6711,3 +6711,22 @@ body { letter-spacing: -0.005em; }
 :root {
   --opt-k101-residual-sweep: 1;
 }
+
+/* Preview: exam CTA = brand cyan + forced white label (before rose restore) */
+.app-shell button.dashboard-exam-cta.ux-chip-solid-brand,
+.app-shell .dashboard-exam-cta.ux-chip-solid-brand {
+  background: var(--color-brand-cta, #0e7490) !important;
+  background-color: var(--color-brand-cta, #0e7490) !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  text-align: center !important;
+  justify-content: center !important;
+}
+
+.app-shell button.dashboard-exam-cta.ux-chip-solid-brand:hover,
+.app-shell .dashboard-exam-cta.ux-chip-solid-brand:hover {
+  background: var(--color-brand-cta-hover, #155e75) !important;
+  background-color: var(--color-brand-cta-hover, #155e75) !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}

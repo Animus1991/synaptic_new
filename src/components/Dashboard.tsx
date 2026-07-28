@@ -1104,7 +1104,8 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                     {examTask && (
                       <button
                         onClick={() => onStartTask?.(examTask.id)}
-                        className="ux-focus-ring dashboard-exam-cta mt-3 w-full py-2 rounded-lg text-xs font-semibold ux-chip-solid-brand transition-all hover:brightness-95"
+                        className="ux-focus-ring dashboard-exam-cta mt-3 w-full py-2 rounded-lg text-xs font-semibold ux-chip-solid-brand text-white transition-all hover:brightness-95"
+                        style={{ color: '#ffffff', WebkitTextFillColor: '#ffffff' }}
                       >
                         {t('dashStartExamSim')}
                       </button>
@@ -1133,7 +1134,8 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                       {examTask && (
                         <button
                           onClick={() => onStartTask?.(examTask.id)}
-                          className="ux-focus-ring mt-3 w-full py-2 rounded-lg text-xs font-semibold ux-chip-solid-danger transition-all hover:brightness-95"
+                          className="ux-focus-ring dashboard-exam-cta mt-3 w-full py-2 rounded-lg text-xs font-semibold ux-chip-solid-brand text-white transition-all hover:brightness-95"
+                          style={{ color: '#ffffff', WebkitTextFillColor: '#ffffff' }}
                         >
                           {t('dashStartExamSim')}
                         </button>

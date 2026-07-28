@@ -163,10 +163,15 @@
   --color-accent-orange: #c49060;
   --color-accent-violet: #9a8fb8;
 
-  --mastery-weak: #c87882;
-  --mastery-developing: #5a9eb0;
-  --mastery-proficient: #c4a24c;
-  --mastery-strong: #449e80;
+  /* OPT-K92 — brighter mastery fills for ≥3:1 vs dark tracks (still mid-chroma) */
+  --mastery-weak: #e08a94;
+  --mastery-developing: #6eb8c8;
+  --mastery-proficient: #d4b055;
+  --mastery-strong: #52b890;
+  /* Dark ink on pastel badge washes (AA for Κρίσιμη / Υψηλή) */
+  --color-on-danger: #1a1214;
+  --color-on-warn: #1a1610;
+  --color-on-success: #0f1a16;
   --btn-height-sm: 2rem;
 
   /* Course progress bars (resolveCourseColor) — ~15% lift vs dark @theme defaults */
@@ -324,9 +329,10 @@
   color: #ffffff;
 }
 
+/* OPT-K92 — solid brand actions use CTA cyan (not pastel brand-600 / inverted ink) */
 :is([data-theme="minimal-dark"]) .ux-chip-solid-brand {
-  background: var(--color-text-primary);
-  color: var(--color-surface-primary);
+  background: var(--color-brand-cta);
+  color: var(--color-on-cta);
 }
 
 /* OPT-K32 + OPT-K52 clarity — light chips: ~16% wash; label leans primary */
@@ -354,22 +360,23 @@
   border: 1px solid color-mix(in srgb, var(--color-brand-600) 22%, var(--color-border-subtle));
 }
 
+/* OPT-K92 — pastel wash + dark ink (AA on small badge text; not white-on-muted) */
 :is([data-theme="minimal-dark"]) .ux-chip-solid-warn {
-  background: color-mix(in srgb, var(--color-accent-amber) 16%, var(--color-surface-secondary));
-  color: color-mix(in srgb, var(--color-accent-amber) 55%, var(--color-text-primary));
-  border: 1px solid color-mix(in srgb, var(--color-accent-amber) 28%, transparent);
+  background: color-mix(in srgb, var(--palette-amber) 72%, var(--color-surface-tertiary));
+  color: var(--color-on-warn);
+  border: 1px solid color-mix(in srgb, var(--color-accent-amber) 40%, transparent);
 }
 
 :is([data-theme="minimal-dark"]) .ux-chip-solid-danger {
-  background: color-mix(in srgb, var(--color-accent-rose) 14%, var(--color-surface-secondary));
-  color: color-mix(in srgb, var(--color-accent-rose) 55%, var(--color-text-primary));
-  border: 1px solid color-mix(in srgb, var(--color-accent-rose) 26%, transparent);
+  background: color-mix(in srgb, var(--palette-rose) 72%, var(--color-surface-tertiary));
+  color: var(--color-on-danger);
+  border: 1px solid color-mix(in srgb, var(--color-accent-rose) 40%, transparent);
 }
 
 :is([data-theme="minimal-dark"]) .ux-chip-solid-success {
-  background: color-mix(in srgb, var(--color-accent-emerald) 14%, var(--color-surface-secondary));
-  color: color-mix(in srgb, var(--color-accent-emerald) 55%, var(--color-text-primary));
-  border: 1px solid color-mix(in srgb, var(--color-accent-emerald) 26%, transparent);
+  background: color-mix(in srgb, var(--palette-green) 70%, var(--color-surface-tertiary));
+  color: var(--color-on-success);
+  border: 1px solid color-mix(in srgb, var(--color-accent-emerald) 38%, transparent);
 }
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .ux-secondary-cta {
