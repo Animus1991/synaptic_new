@@ -11,7 +11,8 @@ import type { WorkspaceToolId } from './taskFlows';
 export type ProactiveAlertKind =
   | 'forgetting-risk'
   | 'quiz-fail-streak'
-  | 'misconception';
+  | 'misconception'
+  | 'daily-checkin';
 
 export type ProactiveAlertAction =
   | { type: 'workspace'; tool: WorkspaceToolId; concept?: string; courseId?: string }

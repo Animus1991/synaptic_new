@@ -14,7 +14,9 @@ import {
   inferModelTier,
   resolveBaseUrlPreset,
   resolveModelTierPreset,
+  settingsPatchForBaseUrlPreset,
 } from './aiEconomicsPresets';
+import { isLlmAvailable, isLocalLlmBaseUrl } from './llmClient';
 import type { QuizSessionItem } from './quizSession';
 
 const mcItem: QuizSessionItem = {
@@ -169,5 +171,41 @@ describe('OPT-AI-D economics presets', () => {
     expect(resolveBaseUrlPreset('ollama').baseUrl).toMatch(/11434/);
     expect(inferModelTier('gpt-4o-mini')).toBe('economy');
     expect(inferModelTier('gpt-4o')).toBe('quality');
+  });
+
+  it('Sophea / Greek local preset sets vLLM URL, model, and non-thinking', () => {
+    const sophea = resolveBaseUrlPreset('sophea');
+    expect(sophea.baseUrl).toBe('http://127.0.0.1:8000/v1');
+    expect(sophea.defaultModel).toBe('sophea-titan-1');
+    expect(sophea.disableThinking).toBe(true);
+    expect(settingsPatchForBaseUrlPreset('sophea')).toEqual({
+      llmBaseUrl: 'http://127.0.0.1:8000/v1',
+      llmModel: 'sophea-titan-1',
+      llmDisableThinking: true,
+    });
+    expect(inferModelTier('sophea-titan-1')).toBe('quality');
+  });
+
+  it('Krikri / Greek Ollama preset points at local Ollama 8B Q4', () => {
+    const krikri = resolveBaseUrlPreset('krikri');
+    expect(krikri.baseUrl).toMatch(/11434/);
+    expect(krikri.defaultModel).toContain('krikri');
+    expect(settingsPatchForBaseUrlPreset('krikri')).toMatchObject({
+      llmBaseUrl: 'http://127.0.0.1:11434/v1',
+      llmModel: 'krikri-el',
+      llmDisableThinking: false,
+    });
+    expect(inferModelTier('krikri-el')).toBe('quality');
+    expect(inferModelTier('ilsp/llama-krikri-8b-instruct:q4_k_m')).toBe('quality');
+  });
+
+  it('treats local Sophea/Ollama base URL as LLM-available without API key', () => {
+    expect(isLocalLlmBaseUrl('http://127.0.0.1:8000/v1')).toBe(true);
+    expect(isLlmAvailable({
+      llmBaseUrl: 'http://127.0.0.1:8000/v1',
+      llmModel: 'sophea-titan-1',
+      llmDisableThinking: true,
+      useLlm: true,
+    } as never)).toBe(true);
   });
 });

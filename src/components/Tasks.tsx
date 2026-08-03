@@ -5,7 +5,7 @@ import {
   CheckCircle2, Circle, Clock, AlertTriangle, RotateCcw, Calendar,
   Play, Flame, Brain, Target, Zap,
   HelpCircle, XCircle, RefreshCw, ArrowDownRight, TrendingUp, Minus, ArrowRight,
-  SlidersHorizontal, List, LayoutGrid,
+  List, LayoutGrid,
 } from '@/lib/lucide-shim';
 import type { Task, MistakeRecord, SkillNode, SpacingData } from '../types';
 import type { Lang } from '../lib/i18n';
@@ -20,7 +20,7 @@ import {
 } from '../lib/tasksContent';
 import { getRecommendedSessionType } from '../lib/recommendedSessionType';
 import { TaskActionIcon } from './ui/TaskActionIcon';
-import { Page, PageHeader, SecondaryCTA } from './ui/primitives';
+import { Page, PageHeader, PrimaryCTA } from './ui/primitives';
 import { PlatformEmptyState } from './ui/PlatformEmptyState';
 import { HeroGlow, SectionHeader, SessionLauncherCard, UxCallout, DescriptiveStickyTabBar } from './ui/platformChrome';
 import { TasksKanbanStatusStrip, tasksKanbanCardStatus } from './TasksKanbanStatusStrip';
@@ -61,7 +61,7 @@ interface TasksProps {
   spacingReviews?: SpacingData[];
   streak?: number;
   onFocusWeakArea?: (concept: string) => void;
-  onOpenAgent?: () => void;
+  onOpenAgent?: (concept?: string) => void;
   onStartQuiz?: () => void;
   courseNameById?: Record<string, string>;
   activeSessionType?: SessionType | null;
@@ -89,6 +89,7 @@ export function Tasks({
   onResolveMistake,
   filterPreset = null,
   onFilterPresetConsumed,
+  studyPlan = [],
   focusCourseId = null,
   focusCourseName = null,
   weakAreas = [],
@@ -114,6 +115,22 @@ export function Tasks({
   const [layoutMode, setLayoutMode] = useState<TasksLayoutMode>(() => (isMinimal ? 'list' : 'board'));
   const [showAllCourses, setShowAllCourses] = useState(false);
   const [localExpanded, setLocalExpanded] = useState<string | null>(null);
+  const [entryHintDismissed, setEntryHintDismissed] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    try {
+      return sessionStorage.getItem('synapse:tasks-hint-dismiss') === '1';
+    } catch {
+      return false;
+    }
+  });
+  const [srBannerDismissed, setSrBannerDismissed] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    try {
+      return sessionStorage.getItem('synapse:tasks-sr-banner-dismiss') === '1';
+    } catch {
+      return false;
+    }
+  });
   const expandedTask = expandedTaskId ?? localExpanded;
   const setExpandedTask = (id: string | null) => {
     setLocalExpanded(id);
@@ -128,8 +145,11 @@ export function Tasks({
     if (!filterPreset) return;
     if (filterPreset === 'review') setTab('reviews');
     else if (filterPreset === 'fix') setTab('mistakes');
-    else if (filterPreset === 'completed') setTab('today');
-    else setTab('today');
+    else if (filterPreset === 'practice' || filterPreset === 'learn') setTab('weak');
+    else if (filterPreset === 'exam') {
+      setTab('today');
+      setSessionMode('cram');
+    } else setTab('today');
     onFilterPresetConsumed?.();
   }, [filterPreset, onFilterPresetConsumed]);
 
@@ -200,6 +220,30 @@ export function Tasks({
     }),
     [daysToExam, reviewTasks.length, fsrsQueue.length, scopedWeak.length, todayTasks.length],
   );
+  /* Hierarchy: recommended first — all five session types remain available */
+  const orderedSessionTypes = useMemo(() => {
+    const rec = sessionTypes.find((s) => s.type === recommendedSession);
+    if (!rec) return sessionTypes;
+    return [rec, ...sessionTypes.filter((s) => s.type !== recommendedSession)];
+  }, [sessionTypes, recommendedSession]);
+
+  const dismissEntryHint = () => {
+    try {
+      sessionStorage.setItem('synapse:tasks-hint-dismiss', '1');
+    } catch {
+      /* ignore */
+    }
+    setEntryHintDismissed(true);
+  };
+  const dismissSrBanner = () => {
+    try {
+      sessionStorage.setItem('synapse:tasks-sr-banner-dismiss', '1');
+    } catch {
+      /* ignore */
+    }
+    setSrBannerDismissed(true);
+  };
+
   const warmSandPage = useWarmSandPageScope();
   const almostKnownPreview = almostKnown.slice(0, 2);
   const showInsightStrip = almostKnownPreview.length > 0 || antiPassiveAlert;
@@ -207,9 +251,17 @@ export function Tasks({
   const tabs: { id: CommandTab; label: string; summary: string; count: number }[] = [
     { id: 'today', label: c.tabToday, summary: c.tabTodaySummary, count: todayTasks.length },
     { id: 'weak', label: c.tabWeak, summary: c.tabWeakSummary, count: scopedWeak.length },
-    { id: 'reviews', label: c.tabReviews, summary: c.tabReviewsSummary, count: reviewTasks.length || fsrsQueue.length || scopedSpacing.length },
+    {
+      id: 'reviews',
+      label: c.tabReviews,
+      summary: c.tabReviewsSummary,
+      count: reviewTasks.length + fsrsQueue.length,
+    },
     { id: 'mistakes', label: c.tabMistakes, summary: c.tabMistakesSummary, count: openMistakes.length },
   ];
+
+  const recommendedSessionTasks = filterTasksForSession(visibleTasks, recommendedSession);
+  const canStartRecommended = recommendedSessionTasks.length > 0;
 
   return (
     <HeroGlow flush>
@@ -273,7 +325,23 @@ export function Tasks({
         }
       />
 
-      <p className="text-sm text-text-secondary">{c.entryHint}</p>
+      {!entryHintDismissed && (
+        <div
+          className="flex items-start gap-2 rounded-xl border border-border-subtle bg-surface-secondary/50 px-3 py-2"
+          data-testid="tasks-entry-hint"
+        >
+          <p className="flex-1 text-sm text-text-secondary leading-snug">{c.entryHint}</p>
+          <button
+            type="button"
+            onClick={dismissEntryHint}
+            className="shrink-0 rounded-md p-1 text-text-tertiary hover:bg-surface-hover hover:text-text-primary"
+            aria-label={t('tasksEntryHintDismiss', lang)}
+            title={t('tasksEntryHintDismiss', lang)}
+          >
+            <XCircle className="h-4 w-4" aria-hidden />
+          </button>
+        </div>
+      )}
 
       {focusCourseId && focusCourseName && (
         <div className="flex flex-wrap items-center gap-2">
@@ -289,7 +357,7 @@ export function Tasks({
       )}
 
       {/* Daily progress */}
-      <BlueprintSurface hint className="p-3">
+      <BlueprintSurface hint className="p-3" data-testid="tasks-daily-goal">
         <div className="flex items-center justify-between mb-2">
           <div>
             <p className="text-sm font-semibold text-text-primary">{c.tasksComplete(doneCount, totalCount)}</p>
@@ -297,16 +365,21 @@ export function Tasks({
           </div>
           <div className="text-right">
             <p className="text-lg font-bold tabular-nums text-text-primary">{progressPct}%</p>
-            <p className="text-[10px] uppercase tracking-wide text-text-tertiary"><AllCapsLabel>{c.dailyGoal}</AllCapsLabel></p>
+            <p className="text-[11px] font-medium tracking-wide text-text-tertiary">{c.dailyGoal}</p>
           </div>
         </div>
-        <div className="ux-progress-track h-2">
+        <div className="ux-progress-track h-2.5" role="progressbar" aria-valuenow={progressPct} aria-valuemin={0} aria-valuemax={100} aria-label={c.dailyGoal}>
           <div className="ux-progress-fill" style={{ width: `${progressPct}%` }} />
         </div>
       </BlueprintSurface>
 
       {sessionActive && activeSessionType && (
-        <div className="ux-card ux-chip-info border-brand-500/25 p-3 space-y-1.5" data-testid="tasks-session-status">
+        <div
+          className="ux-card ux-chip-info border-brand-500/25 p-3 space-y-1.5"
+          data-testid="tasks-session-status"
+          role="status"
+          aria-live="polite"
+        >
           <p className="text-xs font-semibold text-text-secondary">
             {c.sessionActiveBanner(sessionLabel(activeSessionType), sessionCurrentIndex, sessionTotal)}
           </p>
@@ -332,10 +405,28 @@ export function Tasks({
               title={c.sessionSectionTitle}
               subtitle={c.sessionSectionSubtitle}
             />
+            {/* Merged Create Plan + recommended start — one primary path; cards remain alternate modes */}
+            <PrimaryCTA
+              type="button"
+              data-testid="tasks-create-plan"
+              size="sm"
+              disabled={!canStartRecommended}
+              onClick={() => {
+                setTab('today');
+                setSessionMode(recommendedSession);
+                onStartSession?.(recommendedSession);
+              }}
+              className="tasks-create-plan-cta w-full font-semibold"
+            >
+              <Play className="h-3.5 w-3.5 shrink-0" aria-hidden />
+              {c.createPlanCta}
+            </PrimaryCTA>
+            <p className="text-[11px] text-text-muted text-center sm:text-left -mt-0.5">{c.createPlanHint}</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-2">
-              {sessionTypes.map((s) => {
+              {orderedSessionTypes.map((s) => {
                 const sessionTasks = filterTasksForSession(visibleTasks, s.type);
                 const Icon = s.icon;
+                const isRecommended = recommendedSession === s.type;
                 return (
                   <SessionLauncherCard
                     key={s.type}
@@ -346,10 +437,11 @@ export function Tasks({
                     taskHint={sessionTasks.length > 0 ? c.sessionTaskCount(s.minutes, sessionTasks.length) : undefined}
                     icon={Icon}
                     active={sessionMode === s.type}
-                    recommended={recommendedSession === s.type}
+                    recommended={isRecommended}
                     recommendedLabel={t('sessionRecommendedBadge', lang)}
                     disabled={sessionTasks.length === 0}
                     onClick={() => {
+                      if (isRecommended) setTab('today');
                       setSessionMode(s.type);
                       onStartSession?.(s.type);
                     }}
@@ -357,29 +449,40 @@ export function Tasks({
                 );
               })}
             </div>
-            <SecondaryCTA
-              type="button"
-              data-testid="tasks-create-plan"
-              size="sm"
-              onClick={() => {
-                setTab('today');
-                setSessionMode(recommendedSession);
-                onStartSession?.(recommendedSession);
-              }}
-              className="w-full border-brand-500/40 bg-surface-card/60 font-semibold text-text-secondary hover:bg-brand-600/10"
-            >
-              {c.createPlanCta}
-            </SecondaryCTA>
-            <p className="text-[10px] text-text-muted text-center sm:text-left">{c.createPlanHint}</p>
           </div>
         </CollapsibleChromeSection>
       </div>
+
+      {studyPlan.length > 0 && (
+        <div className="flex flex-wrap gap-2" data-testid="tasks-study-plan-blocks">
+          <span className="text-xs font-semibold text-text-secondary self-center">{c.studyPlanTitle}</span>
+          {studyPlan.map((block) => (
+            <button
+              key={block.label}
+              type="button"
+              className="rounded-lg border border-border-subtle bg-surface-secondary/50 px-2.5 py-1.5 text-[11px] font-medium text-text-secondary hover:text-text-primary hover:bg-surface-hover"
+              onClick={() => {
+                const label = block.label.toLowerCase();
+                if (label.includes('mistake') || label.includes('λάθ')) setTab('mistakes');
+                else if (label.includes('review') || label.includes('επαναλ')) setTab('reviews');
+                else if (label.includes('weak') || label.includes('αδύναμ')) setTab('weak');
+                else setTab('today');
+              }}
+            >
+              {block.label}
+              <span className="ml-1 tabular-nums text-text-tertiary">· {block.minutes}′</span>
+            </button>
+          ))}
+        </div>
+      )}
 
       <DescriptiveStickyTabBar
         items={tabs}
         activeId={tab}
         onChange={setTab}
         testIdPrefix="tasks-tab"
+        panelIdPrefix="tasks-panel"
+        ariaLabel={lang === 'el' ? 'Κατηγορίες εργασιών' : 'Task categories'}
         trailing={
           <button
             type="button"
@@ -391,23 +494,23 @@ export function Tasks({
               document.getElementById('tasks-session-launchers')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }}
           >
-            <SlidersHorizontal className="w-4 h-4" aria-hidden />
+            <Target className="w-4 h-4" aria-hidden />
           </button>
         }
       />
 
       {/* Today's Plan */}
       {tab === 'today' && (
-        <div className="space-y-2">
+        <div className="space-y-2" id="tasks-panel-today" data-testid="tasks-panel-today" role="tabpanel" aria-labelledby="tasks-tab-today">
           {daysToExam !== null && daysToExam <= 14 && (
             <UxCallout
-              variant="danger"
+              variant={daysToExam <= 3 ? 'danger' : 'warn'}
               title={c.dangerZoneTitle}
               icon={<AlertTriangle />}
               testId="tasks-danger-zone"
-              className="mb-1 py-2.5"
+              className="mb-1 py-2 tasks-danger-zone"
             >
-              <p className="text-sm">{c.dangerZoneBody(daysToExam)}</p>
+              <p className="text-sm leading-snug text-text-secondary">{c.dangerZoneBody(daysToExam)}</p>
             </UxCallout>
           )}
           {showInsightStrip && (
@@ -423,19 +526,19 @@ export function Tasks({
               data-testid="tasks-insight-strip"
             >
               {almostKnownPreview.length > 0 && (
-                <div className="ux-banner-warn rounded-xl border bg-accent-amber/5 p-3 space-y-1.5">
+                <div className="tasks-insight-card ux-banner-warn rounded-xl border bg-accent-amber/5 p-3 space-y-1.5">
                   <div className="flex items-center gap-1.5">
                     <TrendingUp className="w-3.5 h-3.5 ux-banner-warn-accent shrink-0" aria-hidden />
-                    <p className="ux-banner-warn-accent text-[10px] font-semibold uppercase tracking-wide">
-                      <AllCapsLabel>{c.almostThereTitle}</AllCapsLabel>
+                    <p className="ux-banner-warn-accent text-xs font-semibold tracking-wide">
+                      {c.almostThereTitle}
                     </p>
                   </div>
-                  <p className="text-xs text-text-tertiary">{c.almostThereHint}</p>
+                  <p className="text-xs text-text-tertiary leading-snug">{c.almostThereHint}</p>
                   <ul className="space-y-1">
                     {almostKnownPreview.map((item) => (
                       <li key={item.concept} className="flex items-center justify-between gap-2 text-xs">
                         <span className="truncate font-medium text-text-primary">{item.concept}</span>
-                        <span className="ux-banner-warn-accent tabular-nums font-semibold shrink-0">{Math.round(item.mastery)}%</span>
+                        <span className="ux-banner-warn-accent tabular-nums font-semibold shrink-0 text-[11px]">{Math.round(item.mastery)}%</span>
                       </li>
                     ))}
                   </ul>
@@ -443,7 +546,7 @@ export function Tasks({
                     <button
                       type="button"
                       onClick={() => onFocusWeakArea(almostKnownPreview[0].concept)}
-                      className="inline-flex items-center gap-1 text-xs font-medium text-text-secondary hover:text-text-primary"
+                      className="inline-flex items-center gap-1 min-h-8 text-xs font-semibold text-text-secondary hover:text-text-primary"
                     >
                       {c.almostThereCta} <ArrowRight className="w-3 h-3" aria-hidden />
                     </button>
@@ -451,18 +554,18 @@ export function Tasks({
                 </div>
               )}
               {antiPassiveAlert && (
-                <div className="rounded-xl border border-brand-500/20 bg-brand-600/5 p-3 space-y-1.5">
+                <div className="tasks-insight-card rounded-xl border border-brand-500/20 bg-brand-600/5 p-3 space-y-1.5">
                   <div className="flex items-center gap-1.5">
                     <Zap className="w-3.5 h-3.5 text-text-secondary shrink-0" aria-hidden />
-                    <p className="text-[10px] font-semibold uppercase tracking-wide text-text-secondary">
-                      <AllCapsLabel>{c.recallReminderTitle}</AllCapsLabel>
+                    <p className="text-xs font-semibold tracking-wide text-text-secondary">
+                      {c.recallReminderTitle}
                     </p>
                   </div>
-                  <p className="text-xs text-text-secondary">{c.recallReminderBody}</p>
+                  <p className="text-xs text-text-secondary leading-snug">{c.recallReminderBody}</p>
                   <button
                     type="button"
                     onClick={() => (onStartQuiz ? onStartQuiz() : onStartSession?.('10min'))}
-                    className="inline-flex items-center gap-1 text-xs font-medium text-text-secondary hover:text-text-primary"
+                    className="inline-flex items-center gap-1 min-h-8 text-xs font-semibold text-text-secondary hover:text-text-primary"
                   >
                     {c.recallReminderCta} <ArrowRight className="w-3 h-3" aria-hidden />
                   </button>
@@ -486,7 +589,7 @@ export function Tasks({
               const isExpanded = expandedTask === task.id;
               const isInProgress = task.status === 'in-progress' || task.id === activeTaskId;
               const isRunningNow = task.id === activeTaskId && sessionActive;
-              const kanbanStatus = tasksKanbanCardStatus(task, activeTaskId);
+              const kanbanStatus = tasksKanbanCardStatus(task, activeTaskId, sessionQueueIds);
               return (
                 <motion.div
                   key={task.id}
@@ -502,11 +605,23 @@ export function Tasks({
                     task.priority === 'high' && 'border-l-[3px] border-l-accent-amber',
                   )}
                 >
-                  <div className={cn('flex items-center gap-3 cursor-pointer', layoutMode === 'list' ? 'p-3' : 'p-4')} onClick={() => setExpandedTask(isExpanded ? null : task.id)}>
+                  <div
+                    className={cn('flex items-center gap-3 cursor-pointer', layoutMode === 'list' ? 'p-3' : 'p-4')}
+                    role="button"
+                    tabIndex={0}
+                    aria-expanded={isExpanded}
+                    onClick={() => setExpandedTask(isExpanded ? null : task.id)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        setExpandedTask(isExpanded ? null : task.id);
+                      }
+                    }}
+                  >
                     {layoutMode === 'board' && (
                       <span className={cn('tasks-kanban-status-dot shrink-0', `tasks-kanban-status-${kanbanStatus}`)} aria-hidden />
                     )}
-                    <button type="button" onClick={(e) => { e.stopPropagation(); onComplete(task.id); }} className="shrink-0" data-testid={`task-complete-${task.id}`} aria-label={`Complete ${task.title}`}>
+                    <button type="button" onClick={(e) => { e.stopPropagation(); onComplete(task.id); }} className="shrink-0 rounded-md p-0.5 hover:bg-surface-hover" data-testid={`task-complete-${task.id}`} aria-label={c.completeTaskAria(task.title)}>
                       <Circle className="w-5 h-5 text-text-muted hover:text-text-primary" />
                     </button>
                     <div className="w-8 h-8 rounded-lg bg-brand-600/15 flex items-center justify-center shrink-0">
@@ -524,7 +639,7 @@ export function Tasks({
                       {isRunningNow && (
                         <span
                           data-testid={`task-running-badge-${task.id}`}
-                          className="text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-md bg-[var(--color-warm-ink)] text-white"
+                          className="text-[11px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-md bg-[var(--color-warm-ink)] text-white"
                         >
                           <AllCapsLabel>{c.sessionRunningBadge}</AllCapsLabel>
                         </span>
@@ -534,7 +649,7 @@ export function Tasks({
                            white spectrum/warm cards (replaces translucent rose). */
                         <span
                           data-testid={`task-priority-badge-${task.id}`}
-                          className="ux-chip-solid-danger text-[10px] font-bold uppercase tracking-[0.06em] px-2 py-0.5 rounded-md"
+                          className="ux-chip-solid-danger text-[11px] font-bold uppercase tracking-[0.06em] px-2 py-0.5 rounded-md"
                         >
                           <AllCapsLabel>{c.highPriority}</AllCapsLabel>
                         </span>
@@ -542,9 +657,9 @@ export function Tasks({
                       <button
                         type="button"
                         onClick={(e) => { e.stopPropagation(); onStartTask?.(task.id); }}
-                        className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-surface-secondary text-text-secondary text-xs font-medium hover:bg-brand-600/25"
+                        className="tasks-row-start-cta flex items-center gap-1.5 px-3.5 min-h-9 rounded-lg bg-surface-secondary text-text-secondary text-[13px] font-semibold hover:bg-brand-600/20 hover:text-text-primary"
                       >
-                        <Play className="w-3 h-3" /> {startButtonLabel(task, lang)}
+                        <Play className="w-3.5 h-3.5" /> {startButtonLabel(task, lang)}
                       </button>
                     </div>
                   </div>
@@ -581,7 +696,7 @@ export function Tasks({
                                     key={rating}
                                     type="button"
                                     onClick={() => onReviewRating(task.id, rating)}
-                                    className={cn('px-2.5 py-1.5 rounded-lg text-[11px] font-medium border', color)}
+                                    className={cn('tasks-fsrs-rating min-h-8 px-2.5 py-1.5 rounded-lg text-[12px] font-medium border', color)}
                                   >
                                     {label}
                                   </button>
@@ -602,7 +717,7 @@ export function Tasks({
 
       {/* Weak Areas */}
       {tab === 'weak' && (
-        <div className="space-y-3">
+        <div className="space-y-3" id="tasks-panel-weak" data-testid="tasks-panel-weak" role="tabpanel" aria-labelledby="tasks-tab-weak">
           {scopedWeak.length === 0 ? (
             <PlatformEmptyState title={c.weakAreasEmpty} description={c.emptyDescription} icon={Target} />
           ) : (
@@ -634,7 +749,7 @@ export function Tasks({
                       <TrendIcon className={cn('w-4 h-4', trendColor)} aria-hidden />
                       <div>
                         <p className={cn('text-lg font-bold tabular-nums', masteryColor)}>{Math.round(area.mastery)}%</p>
-                        <p className="text-xs text-text-tertiary">mastery</p>
+                        <p className="text-xs text-text-tertiary">{c.masteryLabel}</p>
                       </div>
                     </div>
                   </div>
@@ -642,12 +757,12 @@ export function Tasks({
                     <div className="h-full rounded-full bg-accent-rose/80" style={{ width: `${area.mastery}%` }} />
                   </div>
                   <div className="flex flex-wrap gap-2">
-                    <button type="button" onClick={() => onFocusWeakArea?.(area.concept)} className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-surface-secondary text-text-secondary text-xs font-medium">
-                      <Brain className="w-3 h-3" /> {c.studyNow}
+                    <button type="button" onClick={() => onFocusWeakArea?.(area.concept)} className="tasks-row-start-cta flex items-center gap-1.5 px-3.5 min-h-9 rounded-xl bg-surface-secondary text-text-secondary text-[13px] font-semibold hover:bg-brand-600/20 hover:text-text-primary">
+                      <Brain className="w-3.5 h-3.5" /> {c.studyNow}
                     </button>
                     {onOpenAgent && (
-                      <button type="button" onClick={onOpenAgent} className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-border-subtle text-xs text-text-secondary hover:text-text-primary">
-                        <HelpCircle className="w-3 h-3" /> {c.askAi}
+                      <button type="button" onClick={() => onOpenAgent(area.concept)} className="flex items-center gap-1.5 px-3.5 min-h-9 rounded-xl border border-border-subtle text-[13px] font-medium text-text-secondary hover:text-text-primary hover:bg-surface-hover">
+                        <HelpCircle className="w-3.5 h-3.5" /> {c.askAi}
                       </button>
                     )}
                   </div>
@@ -660,11 +775,25 @@ export function Tasks({
 
       {/* Due Reviews */}
       {tab === 'reviews' && (
-        <div className="space-y-3">
-          <div className="ux-card ux-chip-info border-brand-500/20 text-sm flex items-center gap-2 p-3">
-            <Calendar className="w-4 h-4 shrink-0" />
-            {c.spacedReviewBanner}
-          </div>
+        <div className="space-y-3" id="tasks-panel-reviews" data-testid="tasks-panel-reviews" role="tabpanel" aria-labelledby="tasks-tab-reviews">
+          {!srBannerDismissed && (reviewTasks.length > 0 || fsrsQueue.length > 0) && (
+            <div
+              className="ux-card ux-chip-info border-brand-500/20 text-sm flex items-start gap-2 p-3"
+              data-testid="tasks-sr-banner"
+            >
+              <Calendar className="w-4 h-4 shrink-0 mt-0.5" aria-hidden />
+              <p className="flex-1 leading-snug">{c.spacedReviewBanner}</p>
+              <button
+                type="button"
+                onClick={dismissSrBanner}
+                className="shrink-0 rounded-md p-1 text-text-tertiary hover:bg-surface-hover hover:text-text-primary"
+                aria-label={t('tasksSrBannerDismiss', lang)}
+                title={t('tasksSrBannerDismiss', lang)}
+              >
+                <XCircle className="h-4 w-4" aria-hidden />
+              </button>
+            </div>
+          )}
           {(reviewTasks.length > 0 ? reviewTasks : []).map((task) => {
             const spacingMatch = spacingReviews.find((s) =>
               task.title.toLowerCase().includes(s.concept.toLowerCase())
@@ -678,12 +807,16 @@ export function Tasks({
                 <p className="text-xs text-text-tertiary mt-1">{task.courseName} · {task.estimatedMinutes} min</p>
               </div>
               {typeof intervalDays === 'number' && (
-                <span className="shrink-0 rounded-md border border-border-subtle bg-surface-secondary/60 px-1.5 py-0.5 text-[10px] font-medium tabular-nums text-text-secondary">
+                <span className="shrink-0 rounded-md border border-border-subtle bg-surface-secondary/60 px-2 py-1 text-[11px] font-semibold tabular-nums text-text-secondary">
                   {c.intervalLabel(`${intervalDays}d`)}
                 </span>
               )}
-              <button type="button" onClick={() => onStartTask?.(task.id)} className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-surface-secondary text-text-secondary text-xs font-medium shrink-0">
-                <Play className="w-3 h-3" /> {c.startReview}
+              <button
+                type="button"
+                onClick={() => onStartTask?.(task.id)}
+                className="tasks-row-start-cta flex items-center gap-1.5 px-3.5 min-h-9 rounded-xl bg-surface-secondary text-text-secondary text-[13px] font-semibold shrink-0 hover:bg-brand-600/20 hover:text-text-primary"
+              >
+                <Play className="w-3.5 h-3.5" /> {c.startReview}
               </button>
             </div>
             );
@@ -692,7 +825,7 @@ export function Tasks({
             items={fsrsQueue}
             onSelect={onFocusWeakArea}
             lang={lang}
-            defaultOpen={!isMinimal}
+            defaultOpen={fsrsQueue.length > 0}
             variant="card"
           />
           {reviewTasks.length === 0 && fsrsQueue.length === 0 && (
@@ -703,11 +836,13 @@ export function Tasks({
 
       {/* Retry Mistakes */}
       {tab === 'mistakes' && (
-        <div className="space-y-4">
-          <div className="ux-card border-accent-amber/30 bg-accent-amber/5 text-sm text-accent-amber flex items-center gap-2 p-3">
-            <AlertTriangle className="w-4 h-4 shrink-0" />
-            {c.mistakeBanner}
+        <div className="space-y-4" id="tasks-panel-mistakes" data-testid="tasks-panel-mistakes" role="tabpanel" aria-labelledby="tasks-tab-mistakes">
+          {openMistakes.length > 0 && (
+          <div className="tasks-mistake-banner ux-card border-accent-amber/25 bg-accent-amber/[0.04] text-sm text-text-secondary flex items-start gap-2 p-3">
+            <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5 text-accent-amber" aria-hidden />
+            <p className="leading-snug">{c.mistakeBanner}</p>
           </div>
+          )}
           {openMistakes.length === 0 ? (
             <PlatformEmptyState title={c.emptyTitle} description={c.emptyDescription} icon={CheckCircle2} />
           ) : (
@@ -735,13 +870,20 @@ export function Tasks({
                     </div>
                   )}
                   <div className="flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      onClick={() => onFocusWeakArea?.(mistake.concept)}
+                      className="tasks-row-start-cta flex items-center gap-1.5 px-3.5 min-h-9 rounded-xl bg-surface-secondary text-text-secondary text-[13px] font-semibold hover:bg-brand-600/20 hover:text-text-primary"
+                    >
+                      <RefreshCw className="w-3.5 h-3.5" /> {c.similarPractice}
+                    </button>
                     {onOpenAgent && (
-                      <button type="button" onClick={onOpenAgent} className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-surface-secondary text-text-secondary text-xs font-medium">
-                        <Brain className="w-3 h-3" /> {c.deepExplanation}
+                      <button type="button" onClick={() => onOpenAgent(mistake.concept)} className="flex items-center gap-1.5 px-3.5 min-h-9 rounded-xl border border-border-subtle text-[13px] font-medium text-text-secondary hover:text-text-primary hover:bg-surface-hover">
+                        <Brain className="w-3.5 h-3.5" /> {c.deepExplanation}
                       </button>
                     )}
-                    <button type="button" onClick={() => onResolveMistake?.(mistake.id)} className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-border-subtle text-xs text-text-secondary hover:text-text-primary">
-                      <RefreshCw className="w-3 h-3" /> {c.similarPractice}
+                    <button type="button" onClick={() => onResolveMistake?.(mistake.id)} className="flex items-center gap-1.5 px-3.5 min-h-9 rounded-xl border border-border-subtle text-[13px] font-medium text-text-secondary hover:text-text-primary hover:bg-surface-hover">
+                      <CheckCircle2 className="w-3.5 h-3.5" /> {c.markResolved}
                     </button>
                   </div>
                 </div>

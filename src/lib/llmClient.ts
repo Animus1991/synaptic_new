@@ -2,6 +2,8 @@ import type { AgentMode, UserSettings } from '../types';
 import { agentTonePrefix } from './settingsEffects';
 import { generateFeynmanCoachFeedback, type CoachFeedback } from './feynmanCoach';
 import type { RubricDimension, RubricScores } from './feynmanRubric';
+import { buildConversationalCoachingBlock } from './agentPersonality';
+import type { DailyCheckInRecord } from './dailyLearningCheckIn';
 
 export type ChatMessage = { role: 'system' | 'user' | 'assistant'; content: string };
 
@@ -26,9 +28,22 @@ function proxyUrl(settings?: UserSettings): string | null {
   return p ? p.replace(/\/$/, '') : null;
 }
 
+/** True for loopback OpenAI-compatible servers (Ollama, vLLM / Sophea). */
+export function isLocalLlmBaseUrl(url: string | undefined): boolean {
+  if (!url?.trim()) return false;
+  try {
+    const host = new URL(url.includes('://') ? url : `http://${url}`).hostname;
+    return host === 'localhost' || host === '127.0.0.1' || host === '::1';
+  } catch {
+    return false;
+  }
+}
+
 export function isLlmAvailable(settings?: UserSettings): boolean {
   if (settings?.useLlm === false) return false;
-  return !!resolveApiKey(settings) || !!proxyUrl(settings);
+  if (resolveApiKey(settings) || proxyUrl(settings)) return true;
+  const localBase = settings?.llmBaseUrl?.replace(/\/$/, '');
+  return isLocalLlmBaseUrl(localBase);
 }
 
 function baseUrl(settings?: UserSettings): string {
@@ -42,7 +57,18 @@ function authHeaders(settings?: UserSettings): Record<string, string> {
   }
   if (proxyUrl(settings)) return {};
   const key = resolveApiKey(settings);
-  return key ? { Authorization: `Bearer ${key}` } : {};
+  if (key) return { Authorization: `Bearer ${key}` };
+  // vLLM / Ollama accept a dummy bearer when no secret is configured.
+  if (isLocalLlmBaseUrl(baseUrl(settings))) return { Authorization: 'Bearer local' };
+  return {};
+}
+
+/** Sophea/Qwen3.6: non-thinking mode for Greek quality (HF recommendation). */
+function chatTemplateExtras(settings?: UserSettings): Record<string, unknown> {
+  if (!settings?.llmDisableThinking) return {};
+  return {
+    chat_template_kwargs: { enable_thinking: false },
+  };
 }
 
 /**
@@ -88,6 +114,7 @@ export async function chatCompletion(
       messages,
       temperature: opts?.temperature ?? 0.7,
       max_tokens: opts?.maxTokens ?? 900,
+      ...chatTemplateExtras(settings),
     }),
   });
 
@@ -176,6 +203,7 @@ export async function transcribeImageWithVision(
           ],
         },
       ],
+      ...chatTemplateExtras(settings),
     }),
   });
 
@@ -210,6 +238,7 @@ export async function streamChatCompletion(
       temperature: opts?.temperature ?? 0.7,
       max_tokens: opts?.maxTokens ?? 900,
       stream: true,
+      ...chatTemplateExtras(settings),
     }),
   });
 
@@ -282,6 +311,8 @@ function buildAgentSystemPrompt(
     concept?: string;
     courses?: string[];
     sourceExcerpt?: string;
+    checkIn?: DailyCheckInRecord | null;
+    recentUserTexts?: string[];
   },
 ): string {
   const lang = settings?.language === 'el' ? 'Greek' : 'English';
@@ -290,9 +321,16 @@ function buildAgentSystemPrompt(
   const sourceBlock = context?.sourceExcerpt
     ? `\nLearner material excerpt (prioritize this${strictSources ? ' — do not invent facts beyond it' : ''}):\n---\n${context.sourceExcerpt}\n---`
     : '';
+  const coaching = buildConversationalCoachingBlock({
+    settings,
+    mode,
+    checkIn: context?.checkIn,
+    recentUserTexts: context?.recentUserTexts,
+  });
   return `${MODE_SYSTEM[mode] ?? MODE_SYSTEM.direct}
 Respond in ${lang}. ${tone}
 Keep responses under 250 words unless the user asks for depth.
+${coaching}
 ${context?.concept ? `Current concept: ${context.concept}.` : ''}
 ${context?.taskTitle ? `Active task: ${context.taskTitle}.` : ''}${sourceBlock}`;
 }
@@ -331,6 +369,8 @@ export async function streamAgentReply(
     concept?: string;
     courses?: string[];
     sourceExcerpt?: string;
+    checkIn?: DailyCheckInRecord | null;
+    recentUserTexts?: string[];
   } | undefined,
   onDelta: (fullText: string) => void,
   history: ChatMessage[] = [],

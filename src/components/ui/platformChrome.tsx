@@ -160,13 +160,14 @@ export function SessionLauncherCard({
       className={cn(
         'ux-session-card relative',
         active && 'ux-session-card-active',
-        recommended && !active && 'ring-1 ring-brand-500/35',
+        recommended && 'ux-session-card-recommended',
+        recommended && !active && 'ring-1 ring-brand-500/40',
         disabled && 'opacity-50 cursor-not-allowed',
       )}
     >
       {recommended && recommendedLabel ? (
         <span
-          className="absolute -top-1.5 right-2 rounded-md border border-brand-500/30 bg-brand-600/15 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-text-primary"
+          className="absolute -top-1.5 right-2 rounded-md border border-brand-500/35 bg-brand-600/20 px-1.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-text-primary"
           data-testid="session-recommended-badge"
         >
           <AllCapsLabel>{recommendedLabel}</AllCapsLabel>
@@ -177,12 +178,12 @@ export function SessionLauncherCard({
       </span>
       <span className="min-w-0 flex-1 text-left">
         <span className="block text-sm font-semibold text-text-primary">{label}</span>
-        <span className="mt-1 block text-[10px] uppercase tracking-[0.08em] text-text-muted">
+        <span className="mt-1 block text-[11px] uppercase tracking-[0.06em] text-text-tertiary">
           <AllCapsLabel>{durationTag}</AllCapsLabel>
         </span>
         <span className="mt-1.5 block text-xs leading-5 text-text-secondary">{desc}</span>
         {taskHint ? (
-          <span className="mt-1 block text-[10px] text-text-tertiary">{taskHint}</span>
+          <span className="mt-1 block text-[11px] text-text-tertiary">{taskHint}</span>
         ) : null}
       </span>
     </button>
@@ -224,6 +225,7 @@ export function DescriptiveStickyTabBar<T extends string>({
   testIdPrefix = 'descriptive-tab',
   panelIdPrefix,
   trailing,
+  ariaLabel = 'Section tabs',
 }: {
   items: DescriptiveTabItem<T>[];
   activeId: T;
@@ -234,6 +236,7 @@ export function DescriptiveStickyTabBar<T extends string>({
   panelIdPrefix?: string;
   /** Optional trailing control (e.g. Tasks filter icon) — kept outside the scrollable tablist. */
   trailing?: ReactNode;
+  ariaLabel?: string;
 }) {
   const focusTabAt = (index: number) => {
     const item = items[index];
@@ -266,7 +269,7 @@ export function DescriptiveStickyTabBar<T extends string>({
       <div
         className="descriptive-sticky-tabs"
         role="tablist"
-        aria-label="Section tabs"
+        aria-label={ariaLabel}
       >
         {items.map((item, index) => {
           const active = item.id === activeId;

@@ -70,11 +70,11 @@ export function ConfirmDialog({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 16, scale: 0.98 }}
             transition={{ type: 'spring', damping: 26, stiffness: 320 }}
-            className="relative w-full max-w-md ux-modal-panel rounded-2xl border border-border-subtle bg-surface-card shadow-2xl"
+            className="relative w-full max-w-md ux-modal-panel rounded-panel border border-border-subtle bg-surface-card shadow-2xl"
           >
-            <div className="flex items-start gap-3 p-5 pb-3">
+            <div className="flex items-start gap-3 p-5 sm:p-6 pb-3">
               {destructive && (
-                <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-accent-rose/25 bg-accent-rose/10">
+                <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-accent-rose/25 bg-accent-rose/10">
                   <AlertTriangle className="h-4 w-4 text-accent-rose" aria-hidden />
                 </div>
               )}
@@ -92,12 +92,12 @@ export function ConfirmDialog({
                 type="button"
                 onClick={onClose}
                 aria-label="Close"
-                className="absolute right-3 top-3 rounded-lg p-1.5 text-text-muted hover:bg-surface-hover hover:text-text-secondary"
+                className="absolute right-3 top-3 rounded-lg p-2.5 text-text-muted hover:bg-surface-hover hover:text-text-secondary min-w-11 min-h-11 inline-flex items-center justify-center"
               >
                 <X className="h-4 w-4" />
               </button>
             </div>
-            <div className="flex flex-col-reverse gap-2 border-t border-border-subtle p-4 sm:flex-row sm:justify-end">
+            <div className="flex flex-col-reverse gap-2 border-t border-border-subtle p-5 sm:p-6 sm:flex-row sm:justify-end">
               <SecondaryCTA
                 ref={cancelRef}
                 onClick={onClose}

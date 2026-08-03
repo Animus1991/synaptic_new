@@ -79,8 +79,15 @@ export function TasksKanbanStatusStrip({
   );
 }
 
-export function tasksKanbanCardStatus(task: Task, activeTaskId?: string | null): ColumnId {
+export function tasksKanbanCardStatus(
+  task: Task,
+  activeTaskId?: string | null,
+  sessionQueueIds: string[] = [],
+): ColumnId {
   if (task.status === 'completed') return 'done';
   if (task.status === 'in-progress' || task.id === activeTaskId) return 'active';
+  if (task.status === 'pending' && sessionQueueIds.includes(task.id) && task.id !== activeTaskId) {
+    return 'ready';
+  }
   return 'drafts';
 }

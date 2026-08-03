@@ -33,6 +33,7 @@ export const RADIUS_TOKENS = [
   '--radius-xl',
   '--radius-panel',
   '--radius-pill',
+  '--radius-bubble',
 ] as const;
 
 export const ELEVATION_TOKENS = [

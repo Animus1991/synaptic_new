@@ -1,9 +1,9 @@
-import { useState, useMemo, useEffect, useRef } from 'react';
+import { useState, useMemo, useEffect, useRef, type KeyboardEvent as ReactKeyboardEvent } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { emphasizedTransition, expandHeight } from '../lib/motion';
 import {
   Search, Upload, BookOpen, FileText, ChevronRight, ChevronDown,
-  Clock, BarChart3, Sparkles, Grid3X3, List, Loader2,
+  Clock, BarChart3, Sparkles, Grid3X3, List, Loader2, AlertCircle,
   File, Image, Code, Presentation, Table2, Trash2, RefreshCw, ExternalLink, X, MessageSquare,
 } from '@/lib/lucide-shim';
 import type { Course, UploadedFile, UserSettings, Task, GlossaryEntry } from '../types';
@@ -71,12 +71,25 @@ function courseStatusKind(course: Course): CourseStatusKind {
   return 'ready';
 }
 
+/** Open upload modal — omit for new course; pass extend + course id to add material. */
+export type LibraryUploadIntent = { mode: 'new' | 'extend'; targetCourseId?: string };
+
+function activateCourseOpenKey(
+  event: ReactKeyboardEvent,
+  open: () => void,
+) {
+  if (event.key === 'Enter' || event.key === ' ') {
+    event.preventDefault();
+    open();
+  }
+}
+
 interface LibraryProps {
   courses: Course[];
   uploadedFiles: UploadedFile[];
   onSelectCourse: (course: Course) => void;
   onRemoveCourse?: (courseId: string) => boolean;
-  onUpload: () => void;
+  onUpload: (intent?: LibraryUploadIntent) => void;
   onRemoveFile?: (fileId: string) => void;
   onReprocessCourse?: (courseId: string) => void;
   reprocessingMaterial?: boolean;
@@ -307,7 +320,7 @@ export function Library({
         subtitle={t('librarySubtitle', userLanguage)}
         icon={BookOpen}
         actions={
-          <PrimaryCTA onClick={onUpload} data-testid="library-upload" data-tour="library-upload" className="whitespace-nowrap">
+          <PrimaryCTA onClick={() => onUpload()} data-testid="library-upload" data-tour="library-upload" className="whitespace-nowrap">
             <Upload className="w-4 h-4" aria-hidden="true" />
             {t('libUpload', userLanguage)}
           </PrimaryCTA>
@@ -512,7 +525,7 @@ export function Library({
             {!search.trim() && filteredCourses.length === 0 && (
               <button
                 type="button"
-                onClick={onUpload}
+                onClick={() => onUpload()}
                 data-testid="library-drop-zone"
                 className="ux-library-drop-zone ux-prompt-bar-surface mb-2 flex w-full flex-col items-center gap-2 px-6 py-8 text-center text-text-secondary hover:text-text-primary transition-colors"
               >
@@ -530,7 +543,7 @@ export function Library({
                 title={search.trim() || filter !== 'all' ? t('libNoMatchingCoursesTitle', userLanguage) : t('libraryEmptyCoursesTitle', userLanguage)}
                 description={search.trim() || filter !== 'all' ? t('libNoMatchingCoursesDescription', userLanguage) : t('libraryEmptyCoursesDescription', userLanguage)}
                 actionLabel={search.trim() || filter !== 'all' ? undefined : t('libUploadMaterial', userLanguage)}
-                onAction={search.trim() || filter !== 'all' ? undefined : onUpload}
+                onAction={search.trim() || filter !== 'all' ? undefined : () => onUpload()}
                 secondaryActionLabel={search.trim() || filter !== 'all' ? t('libResetFilters', userLanguage) : uploadedFiles.length > 0 ? t('libViewFiles', userLanguage) : undefined}
                 onSecondaryAction={search.trim() || filter !== 'all' ? () => { setSearch(''); setFilter('all'); } : uploadedFiles.length > 0 ? () => setTab('files') : undefined}
               />
@@ -557,7 +570,7 @@ export function Library({
                         onClick={() => onSelectCourse(course)}
                         onRemoveCourse={onRemoveCourse}
                         onOpenNotebookShell={onOpenNotebookShell}
-                        onUpload={onUpload}
+                        onUpload={() => onUpload({ mode: 'extend', targetCourseId: course.id })}
                         onOpenTopic={onOpenConcept}
                       />
                     ) : (
@@ -588,7 +601,7 @@ export function Library({
                             title={t('libraryMiniAlertGapTitle', userLanguage)}
                             body={t('libraryMiniAlertGapBody', userLanguage)}
                             actionLabel={t('libraryMiniAlertUploadAction', userLanguage)}
-                            onAction={onUpload}
+                            onAction={() => onUpload()}
                           />
                         )}
                         {libraryQualityAlerts.outlineAdjusted && (
@@ -597,7 +610,7 @@ export function Library({
                             title={t('libraryMiniAlertContradictionTitle', userLanguage)}
                             body={t('libraryMiniAlertContradictionBody', userLanguage)}
                             actionLabel={t('libraryMiniAlertUploadAction', userLanguage)}
-                            onAction={onUpload}
+                            onAction={() => onUpload()}
                           />
                         )}
                       </div>
@@ -648,7 +661,7 @@ export function Library({
                 {!search.trim() && (
                   <button
                     type="button"
-                    onClick={onUpload}
+                    onClick={() => onUpload()}
                     data-testid="library-drop-zone-compact"
                     className="ux-library-drop-zone ux-library-drop-zone--compact ux-prompt-bar-surface flex w-full flex-row items-center justify-center gap-3 px-4 py-2.5 text-text-secondary hover:text-text-primary transition-colors"
                   >
@@ -674,7 +687,7 @@ export function Library({
                 title={search.trim() ? t('libNoMatchingFilesTitle', userLanguage) : t('libraryEmptyFilesTitle', userLanguage)}
                 description={search.trim() ? t('libNoMatchingFilesDescription', userLanguage) : t('libraryEmptyFilesDescription', userLanguage)}
                 actionLabel={search.trim() ? undefined : t('libUploadMaterial', userLanguage)}
-                onAction={search.trim() ? undefined : onUpload}
+                onAction={search.trim() ? undefined : () => onUpload()}
                 secondaryActionLabel={search.trim() ? t('libClearSearch', userLanguage) : t('libViewCourses', userLanguage)}
                 onSecondaryAction={search.trim() ? () => setSearch('') : () => setTab('courses')}
               />
@@ -762,6 +775,11 @@ function CourseCard({
   const showMisconception = Boolean(quality?.outlineAdjusted);
   const topicChips = (course.topics ?? []).filter((topic) => !isDebugUiTopicLabel(topic.title));
   const { pendingTasks, dueReviews, isStalePipeline: isOldPipeline } = selectCourseTaskMetrics(course, tasks);
+  const openCourse = () => {
+    if (isGenerating) return;
+    prefetchWorkspaceEntry();
+    onClick();
+  };
 
   return (
     <BlueprintSurface
@@ -770,16 +788,18 @@ function CourseCard({
       initial={false}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.05 }}
-      onClick={() => {
-        if (isGenerating) return;
-        prefetchWorkspaceEntry();
-        onClick();
-      }}
+      onClick={openCourse}
+      role={isGenerating ? undefined : 'button'}
+      tabIndex={isGenerating ? undefined : 0}
+      aria-label={isGenerating ? undefined : t('libOpenCourse', userLanguage)}
+      onKeyDown={isGenerating ? undefined : (event) => activateCourseOpenKey(event, openCourse)}
       data-testid="library-course-card"
       {...(isGenerating ? {} : workspaceEntryPrefetchHandlers())}
       className={cn(
         'relative p-3.5 hover:border-brand-500/35 transition-all group',
-        isGenerating ? 'cursor-default pointer-events-none opacity-90' : 'cursor-pointer',
+        isGenerating
+          ? 'cursor-default pointer-events-none opacity-90'
+          : 'cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60',
       )}
     >
       {!isGenerating && (showMaterialGap || showMisconception) && (
@@ -1048,6 +1068,11 @@ function CourseListItem({
   const quality = course.sourceQuality;
   const { pendingTasks, dueReviews, isStalePipeline: isOldPipeline } = selectCourseTaskMetrics(course, tasks);
   const isGenerating = course.status === 'generating';
+  const openCourse = () => {
+    if (isGenerating) return;
+    prefetchWorkspaceEntry();
+    onClick();
+  };
 
   return (
     <BlueprintSurface
@@ -1055,10 +1080,19 @@ function CourseListItem({
       initial={false}
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: index * 0.03 }}
-      onClick={onClick}
+      onClick={openCourse}
+      role={isGenerating ? undefined : 'button'}
+      tabIndex={isGenerating ? undefined : 0}
+      aria-label={isGenerating ? undefined : t('libOpenCourse', userLanguage)}
+      onKeyDown={isGenerating ? undefined : (event) => activateCourseOpenKey(event, openCourse)}
       data-testid="library-course-card"
-      {...workspaceEntryPrefetchHandlers()}
-      className="flex items-center gap-4 p-4 hover:border-brand-500/35 cursor-pointer transition-all group"
+      {...(isGenerating ? {} : workspaceEntryPrefetchHandlers())}
+      className={cn(
+        'flex items-center gap-4 p-4 hover:border-brand-500/35 transition-all group',
+        isGenerating
+          ? 'cursor-default opacity-90'
+          : 'cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60',
+      )}
     >
       <CourseIcon icon={course.icon} size="lg" colorClassName="text-text-secondary shrink-0" />
       <div className="flex-1 min-w-0">
@@ -1180,7 +1214,17 @@ function FileItem({
   }, [file.extractedText, file.name, file.status, userSettings]);
   const recognitionSnapshot = file.documentModelSnapshot;
   const canExpand = Boolean(outlinePreview || recognitionSnapshot);
-  const canReprocess = Boolean(file.courseId && onReprocessCourse && file.status === 'analyzed');
+  const isError = file.status === 'error';
+  const canReprocess = Boolean(
+    file.courseId
+    && onReprocessCourse
+    && (file.status === 'analyzed' || isError),
+  );
+  const canRemove = Boolean(
+    file.id
+    && onRemoveFile
+    && (file.status === 'analyzed' || isError || file.status === 'uploading' || file.status === 'processing'),
+  );
 
   const confirmRemove = () => {
     if (!file.id || !onRemoveFile) return;
@@ -1280,6 +1324,15 @@ function FileItem({
               {t('libReady', userLanguage)}
             </span>
           )}
+          {isError && (
+            <span
+              data-testid={`library-file-error-${file.id}`}
+              className="flex items-center gap-1 text-xs text-accent-rose"
+            >
+              <AlertCircle className="w-3 h-3" />
+              {t('libError', userLanguage)}
+            </span>
+          )}
           {file.status === 'analyzed' && (
             <button
               type="button"
@@ -1313,12 +1366,13 @@ function FileItem({
               disabled={reprocessingMaterial}
               data-testid={`library-reprocess-${file.id}`}
               className="p-1.5 rounded-lg border border-brand-500/30 text-text-secondary hover:bg-brand-500/10 disabled:opacity-60 transition-colors"
-              title={t('libReprocessTooltip', userLanguage)}
+              title={t(isError ? 'libRetryTooltip' : 'libReprocessTooltip', userLanguage)}
+              aria-label={t(isError ? 'libRetryTooltip' : 'libReprocessTooltip', userLanguage)}
             >
               <RefreshCw className={cn('w-4 h-4', reprocessingMaterial && 'animate-spin')} />
             </button>
           )}
-          {file.id && onRemoveFile && file.status === 'analyzed' && (
+          {canRemove && (
             <button
               type="button"
               onClick={confirmRemove}

@@ -82,6 +82,9 @@ export type TasksContent = {
   correctUnderstanding: string;
   deepExplanation: string;
   similarPractice: string;
+  markResolved: string;
+  masteryLabel: string;
+  completeTaskAria: (title: string) => string;
   daysAgo: (days: number) => string;
   yesterday: string;
   highPriority: string;
@@ -180,6 +183,9 @@ const EN: TasksContent = {
   correctUnderstanding: 'Correct understanding',
   deepExplanation: 'Deep explanation',
   similarPractice: 'Similar practice',
+  markResolved: 'Mark resolved',
+  masteryLabel: 'mastery',
+  completeTaskAria: (title) => `Complete ${title}`,
   daysAgo: (days) => `${days} days ago`,
   yesterday: 'Yesterday',
   highPriority: 'High priority',
@@ -279,6 +285,9 @@ const EL: TasksContent = {
   correctUnderstanding: 'Σωστή κατανόηση',
   deepExplanation: 'Εμβάθυνση',
   similarPractice: 'Παρόμοια άσκηση',
+  markResolved: 'Σήμανση ως λυμένο',
+  masteryLabel: 'κατάκτηση',
+  completeTaskAria: (title) => `Ολοκλήρωση ${title}`,
   daysAgo: (days) => `${days} ημέρες πριν`,
   yesterday: 'Χθες',
   highPriority: 'Υψηλή προτεραιότητα',
@@ -299,7 +308,7 @@ const EL: TasksContent = {
       ? 'Η εξέτασή σου είναι σήμερα. Ο scheduler δίνει προτεραιότητα σε αδύναμες έννοιες με τον μεγαλύτερο κίνδυνο λήθης.'
       : `Η εξέτασή σου είναι σε ${days} ${days === 1 ? 'ημέρα' : 'ημέρες'}. Ο scheduler δίνει προτεραιότητα σε αδύναμες έννοιες με τον μεγαλύτερο κίνδυνο λήθης.`,
   dangerZoneRationale: 'Τα tasks κατατάσσονται με βάση εγγύτητα εξέτασης, mastery gap, confidence mismatch και τελευταία retrieval.',
-  sessionDurationTag: (minutes) => (minutes <= 10 ? 'Fast' : minutes <= 25 ? 'Medium' : minutes <= 50 ? 'Deep' : 'Intense'),
+  sessionDurationTag: (minutes) => (minutes <= 10 ? 'Γρήγορο' : minutes <= 25 ? 'Μεσαίο' : minutes <= 50 ? 'Βαθύ' : 'Έντονο'),
   almostThereTitle: 'Σχεδόν εκεί',
   almostThereHint: '1–2 συνεδρίες για κατάκτηση',
   almostThereCta: 'Εξάσκηση',

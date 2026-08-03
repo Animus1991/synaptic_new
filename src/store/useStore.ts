@@ -134,6 +134,15 @@ import {
   proactiveAlertToWorkspaceLaunch,
   type ProactiveAgentAlert,
 } from '../lib/proactiveAgentAlerts';
+import { buildDailyCheckInAlert } from '../lib/dailyCheckInNotifications';
+import {
+  applyCheckInPatch,
+  learnerPatchFromCheckIn,
+  loadDailyCheckIn,
+  saveDailyCheckIn,
+  type DailyCheckInAnswers,
+} from '../lib/dailyLearningCheckIn';
+import { buildChatConsistencyInsight } from '../lib/studySignalsWriteBack';
 import {
   buildSyllabusCoverageSnapshot,
   pickPrimaryCourseForCoverage,
@@ -753,6 +762,11 @@ export function useAppStore() {
     setCurrentView('tasks');
     setSidebarOpen(false);
     window.scrollTo(0, 0);
+  }, []);
+
+  /** Soft write-back from chat signals — does not navigate away from Agent. */
+  const primeTasksFilterPreset = useCallback((filter: TaskFilter) => {
+    setTasksFilterPreset(filter);
   }, []);
 
   const clearTasksFilterPreset = useCallback(() => {
@@ -2573,14 +2587,61 @@ export function useAppStore() {
     [user.settings.language, dashboardNextAction, coverageSnapshot, dashboardStats, dashboardExtras.daysToExam, selectedCourse?.id, courses],
   );
 
-  const proactiveAgentAlerts = useMemo(
-    () => buildProactiveAgentAlerts({
+  const proactiveAgentAlerts = useMemo(() => {
+    const pedagogical = buildProactiveAgentAlerts({
       lang: user.settings.language,
       learnerModel,
       activities,
-    }),
-    [user.settings.language, learnerModel, activities],
-  );
+    });
+    const checkIn = buildDailyCheckInAlert(user.settings.language);
+    return checkIn ? [checkIn, ...pedagogical].slice(0, 4) : pedagogical;
+  }, [user.settings.language, learnerModel, activities]);
+
+  const applyDailyCheckInAnswers = useCallback((patch: Partial<DailyCheckInAnswers>) => {
+    const next = applyCheckInPatch(loadDailyCheckIn(), patch);
+    saveDailyCheckIn(next);
+
+    // Write-back: focus course from chat → selected course (Dashboard/Library mirror).
+    const focusId = next.answers.focusCourseId ?? patch.focusCourseId;
+    if (focusId) {
+      const course = courses.find((c) => c.id === focusId);
+      if (course) setSelectedCourse(course);
+    }
+
+    // Soft dashboard hint: preferred session length already on learner; mirror minutes into stats plan cue.
+    if (typeof next.answers.availableMinutes === 'number' && next.answers.availableMinutes > 0) {
+      setDashboardStats((prev) => ({
+        ...prev,
+        // Keep factual studyTimeToday; surface intent via antiPassive only when energy is high.
+        antiPassiveAlert: next.answers.energy === 'high' ? false : prev.antiPassiveAlert,
+      }));
+    }
+
+    const lmPatch = learnerPatchFromCheckIn(next.answers);
+    setLearnerModel((prev) => {
+      const insights = buildChatConsistencyInsight(
+        prev.interactionInsights,
+        next.answers,
+        user.settings.language,
+      );
+      const insightUnchanged = insights[0] === prev.interactionInsights?.[0];
+      if (Object.keys(lmPatch).length === 0 && insightUnchanged) {
+        return prev;
+      }
+      const merged: typeof prev = {
+        ...prev,
+        ...lmPatch,
+        averageConfidence:
+          lmPatch.averageConfidence != null
+            ? Math.round(((prev.averageConfidence * 0.7) + (lmPatch.averageConfidence * 0.3)) * 100) / 100
+            : prev.averageConfidence,
+        interactionInsights: insights,
+      };
+      persist(merged, dashboardStats, tasks, user.xp, betaMastery, firstAttemptKeys, openMistakes, activities, user.settings);
+      return merged;
+    });
+    return next;
+  }, [courses, dashboardStats, tasks, user.xp, user.settings, betaMastery, firstAttemptKeys, openMistakes, activities, persist]);
 
   const runProactiveAgentAlert = useCallback((alert: ProactiveAgentAlert) => {
     if (alert.action.type === 'workspace') {
@@ -2592,6 +2653,7 @@ export function useAppStore() {
       mode: alert.action.mode,
       prompt: alert.action.prompt,
       autoSend: false,
+      fullPage: alert.kind === 'daily-checkin' ? true : undefined,
       context: { concept: alert.action.concept ?? alert.concept },
     });
   }, [openStudyWorkspaceForPractice, openAgentFromWorkspace]);
@@ -2636,7 +2698,7 @@ export function useAppStore() {
     startTask, startSession, endSession,
     sessionQueue, sessionTotal, activeSessionType,
     activeTask, activeTaskId, setActiveTaskId, expandedTaskId, setExpandedTaskId,
-    tasksFilterPreset, openTasksWithFilter, clearTasksFilterPreset,
+    tasksFilterPreset, openTasksWithFilter, primeTasksFilterPreset, clearTasksFilterPreset,
     learnerModel, dashboardStats, pedagogyMetrics, dashboardExtras, activities,
     recordConfidence, recordQuizAttempt,
     openMistakes, resolveMistake, resolveMisconception, completeOnboarding, enableDemoContent, exitDemoSandbox,
@@ -2654,6 +2716,7 @@ export function useAppStore() {
     runDashboardSmartCTA,
     proactiveAgentAlerts,
     runProactiveAgentAlert,
+    applyDailyCheckInAnswers,
     coverageSnapshot,
     uploadedFiles, glossaryEntries, isUploading, isReprocessing, simulateUpload, processUpload,
     reprocessCourseMaterial, saveCourseExtractedText, removeUploadedFile, importNotebookLm, importNotebookLmAudioForCourse, transcribeAudioForCourse, importNotebookLmQuizToFsrs, importNotebookLmAudioToFsrs, removeCourse,

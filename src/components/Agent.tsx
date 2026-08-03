@@ -4,9 +4,9 @@ import {
   Send, Sparkles, BookOpen, Brain, GraduationCap, MessageSquare,
   Code, Lightbulb, AlertTriangle, Mic, ChevronDown,
   RotateCcw, Target, PenTool, Smile, Search, FileText,
-  HelpCircle, Zap, Settings2, Layers, Check, X
+  HelpCircle, Zap, Settings2, Layers, Check, X, Volume2, VolumeX
 } from '@/lib/lucide-shim';
-import type { AgentMessage, AgentMode, Course, UserSettings, UploadedFile, MessageCitation, SkillNode } from '../types';
+import type { AgentMessage, AgentMode, Course, UserSettings, UploadedFile, MessageCitation, SkillNode, Task, LearnerModel } from '../types';
 import type { DashboardNextAction } from '../lib/dashboardNextAction';
 import { cn } from '../utils/cn';
 import { streamAgentReply, isLlmAvailable } from '../lib/llmClient';
@@ -38,6 +38,46 @@ import { BlueprintSurface } from './ui/BlueprintSurface';
 import { CollapsibleChromeSection } from './workspace/CollapsibleChromeSection';
 import { entranceMotion, useMinimalTheme } from '../lib/useMinimalTheme';
 import { AllCapsLabel } from './ui/AllCapsLabel';
+import { startFeynmanVoiceInput } from '../lib/feynmanVoice';
+import {
+  applyCheckInPatch,
+  buildSlotPrompt,
+  buildWarmGreeting,
+  checkInContextBlock,
+  completionAck,
+  isCheckInComplete,
+  loadDailyCheckIn,
+  markGreetingSent,
+  missingRequiredSlots,
+  nextMissingSlot,
+  parseFreeTextForSlot,
+  saveDailyCheckIn,
+  skipSlot,
+  type CheckInChip,
+  type CheckInSlotId,
+  type DailyCheckInAnswers,
+  type DailyCheckInRecord,
+} from '../lib/dailyLearningCheckIn';
+import {
+  isAgentTtsSupported,
+  speakAgentText,
+  stopAgentTts,
+} from '../lib/agentTts';
+import {
+  launchAckSuffix,
+  resolveCheckInLaunch,
+  type CheckInLaunch,
+} from '../lib/checkInLaunch';
+import {
+  extractStudySignals,
+  looksLikeStudyRoutineUtterance,
+} from '../lib/extractStudySignals';
+import {
+  silentCaptureAck,
+  tasksFilterFromSignals,
+  type TasksFilterPreset,
+} from '../lib/studySignalsWriteBack';
+import { buildCalendarCheckInHint } from '../lib/calendarCheckInHint';
 
 interface AgentProps {
   messages: AgentMessage[];
@@ -71,6 +111,18 @@ interface AgentProps {
   onChangeSourceMode?: (mode: UserSettings['sourceMode']) => void;
   dashboardNextAction?: DashboardNextAction | null;
   weakAreas?: SkillNode[];
+  /** Tasks — used for review-due hints in daily check-in. */
+  tasks?: Task[];
+  learnerPreferredSessionLength?: number;
+  onApplyDailyCheckIn?: (patch: Partial<DailyCheckInAnswers>) => DailyCheckInRecord | void;
+  /** Soft-start daily check-in when the Agent opens (default true on full page). */
+  enableDailyCheckIn?: boolean;
+  /** After check-in completes — auto-start matched task/session. */
+  onLaunchFromCheckIn?: (launch: CheckInLaunch) => void;
+  /** Write-back: open Tasks with a filter inferred from chat signals. */
+  onTasksFilterFromSignals?: (filter: TasksFilterPreset) => void;
+  /** Soft CTA after check-in — open Settings Google Calendar (does not sync by itself). */
+  onOpenCalendarSync?: () => void;
 }
 
 /* OPT-K90 — mode icons use ink; soft washes / active brand carry identity */
@@ -121,6 +173,13 @@ export function Agent({
   onChangeSourceMode,
   dashboardNextAction = null,
   weakAreas = [],
+  tasks = [],
+  learnerPreferredSessionLength,
+  onApplyDailyCheckIn,
+  enableDailyCheckIn,
+  onLaunchFromCheckIn,
+  onTasksFilterFromSignals,
+  onOpenCalendarSync,
 }: AgentProps) {
   const { t } = useI18n();
   const [input, setInput] = useState('');
@@ -134,11 +193,62 @@ export function Agent({
   const [showEmbeddedSource, setShowEmbeddedSource] = useState(false);
   const [showAttachPicker, setShowAttachPicker] = useState(false);
   const [isThinking, setIsThinking] = useState(false);
+  const [voiceListening, setVoiceListening] = useState(false);
+  const [activeCheckInSlot, setActiveCheckInSlot] = useState<CheckInSlotId | null>(null);
+  const [speakingMessageId, setSpeakingMessageId] = useState<string | null>(null);
+  const lastSpokenIdRef = useRef<string | null>(null);
+  const ttsEnabled = Boolean(settings?.agentTtsEnabled) && isAgentTtsSupported();
   const sourceSelectRef = useRef<HTMLSelectElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const threadRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const voiceStopRef = useRef<(() => void) | null>(null);
+  const checkInBootstrappedRef = useRef(false);
   const llmReady = isLlmAvailable(settings);
+  const checkInEnabled = enableDailyCheckIn ?? !embedded;
+
+  const checkInCtx = useMemo(() => {
+    const reviewDueCount = tasks.filter(
+      (task) =>
+        task.status !== 'completed'
+        && (task.category === 'review' || Boolean(task.isSpacedRepetition)),
+    ).length;
+    return {
+      lang,
+      courses: courses.map((c) => ({ id: c.id, title: c.title })),
+      tasks,
+      learner: {
+        weakAreas,
+        preferredSessionLength: learnerPreferredSessionLength ?? 25,
+        bestTimeOfDay: '',
+      } satisfies Pick<LearnerModel, 'weakAreas' | 'preferredSessionLength' | 'bestTimeOfDay'>,
+      reviewDueCount,
+    };
+  }, [lang, courses, tasks, weakAreas, learnerPreferredSessionLength]);
+
+  const postCheckInPrompt = (slot: CheckInSlotId) => {
+    const built = buildSlotPrompt(slot, checkInCtx);
+    setActiveCheckInSlot(slot);
+    onSendMessage({
+      id: `checkin-${slot}-${Date.now()}`,
+      role: 'agent',
+      content: `${built.prompt}\n\n_${t('agentCheckInChipHint')}_`,
+      timestamp: new Date().toISOString(),
+      type: 'question',
+      metadata: {
+        sourceGrounded: false,
+        enrichmentUsed: false,
+        inferenceUsed: false,
+        dailyCheckIn: true,
+        checkInSlot: slot,
+        suggestionChips: built.chips.map((c: CheckInChip) => ({
+          id: c.id,
+          label: c.label,
+          value: c.value,
+        })),
+      },
+    });
+  };
   const agentContent = useMemo(() => getAgentContent(lang), [lang]);
   const agentModes = useMemo(
     () => AGENT_MODE_META.map((meta) => ({
@@ -220,11 +330,309 @@ export function Agent({
     return () => window.cancelAnimationFrame(frame);
   }, [embedded, autoFocusInput]);
 
+  useEffect(() => () => {
+    voiceStopRef.current?.();
+    voiceStopRef.current = null;
+    stopAgentTts();
+  }, []);
+
+  /** Auto-speak finished agent replies when TTS is enabled. */
+  useEffect(() => {
+    if (!ttsEnabled) return;
+    const last = [...messages].reverse().find((m) => m.role === 'agent' && !m.isStreaming && m.content.trim());
+    if (!last || last.id === lastSpokenIdRef.current) return;
+    // Skip pure chip-prompt re-asks being rapid-fired during check-in? Still OK to hear.
+    lastSpokenIdRef.current = last.id;
+    setSpeakingMessageId(last.id);
+    speakAgentText(last.content, lang, {
+      onEnd: () => setSpeakingMessageId((id) => (id === last.id ? null : id)),
+    });
+  }, [messages, ttsEnabled, lang]);
+
+  /** Soft daily check-in bootstrap — greeting + first closed question. */
+  useEffect(() => {
+    if (!checkInEnabled || checkInBootstrappedRef.current) return;
+    if (draftPrompt?.trim()) return; // let draft / notification drive the first turn
+    const record = loadDailyCheckIn();
+    if (isCheckInComplete(record)) {
+      checkInBootstrappedRef.current = true;
+      return;
+    }
+    // Avoid re-greeting if the thread already has a check-in turn today.
+    const already = messages.some((m) => m.metadata?.dailyCheckIn);
+    if (already) {
+      checkInBootstrappedRef.current = true;
+      const lastSlot = [...messages].reverse().find((m) => m.metadata?.checkInSlot)?.metadata?.checkInSlot;
+      if (lastSlot) setActiveCheckInSlot(lastSlot);
+      return;
+    }
+    checkInBootstrappedRef.current = true;
+    let next = record;
+    if (!next.greetingSent) {
+      onSendMessage({
+        id: `checkin-greet-${Date.now()}`,
+        role: 'agent',
+        content: buildWarmGreeting(checkInCtx),
+        timestamp: new Date().toISOString(),
+        type: 'text',
+        metadata: {
+          sourceGrounded: false,
+          enrichmentUsed: false,
+          inferenceUsed: false,
+          dailyCheckIn: true,
+        },
+      });
+      next = markGreetingSent(next);
+      saveDailyCheckIn(next);
+    }
+    const slot = nextMissingSlot(next) ?? 'openFeel';
+    // Defer first question slightly so greeting renders first.
+    const timer = window.setTimeout(() => postCheckInPrompt(slot), 120);
+    return () => window.clearTimeout(timer);
+    // Intentionally once on mount / when check-in becomes relevant.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [checkInEnabled]);
+
   const handleSendRef = useRef<(overrideText?: string) => Promise<void>>(async () => {});
 
-  const handleSend = async (overrideText?: string) => {
+  const advanceCheckInAfterAnswer = (record: DailyCheckInRecord) => {
+    if (isCheckInComplete(record)) {
+      setActiveCheckInSlot(null);
+      const autoStart = settings?.autoStartAfterCheckIn !== false;
+      const launch = resolveCheckInLaunch(record.answers, tasks);
+      const calendarHint = buildCalendarCheckInHint(lang, record.answers);
+      const content =
+        completionAck(lang, record.answers, { autoStart })
+        + (autoStart ? launchAckSuffix(lang, launch) : '')
+        + (calendarHint.hasSignals && onOpenCalendarSync
+          ? `\n\n${t('agentCalendarChatPlanOffer')}`
+          : '');
+      onSendMessage({
+        id: `checkin-done-${Date.now()}`,
+        role: 'agent',
+        content,
+        timestamp: new Date().toISOString(),
+        type: 'feedback',
+        metadata: {
+          sourceGrounded: false,
+          enrichmentUsed: false,
+          inferenceUsed: false,
+          dailyCheckIn: true,
+          ...(calendarHint.hasSignals && onOpenCalendarSync
+            ? {
+                suggestionChips: [
+                  {
+                    id: 'calendar-chat-plan',
+                    label: t('agentCalendarChatPlanChip'),
+                    value: '__calendar_chat_plan__',
+                  },
+                  {
+                    id: 'calendar-dismiss',
+                    label: t('agentCalendarDismissChip'),
+                    value: '__calendar_dismiss__',
+                  },
+                ],
+              }
+            : {}),
+        },
+      });
+      if (autoStart && launch.kind !== 'none') {
+        // Let the ack render, then launch without a second tap.
+        window.setTimeout(() => onLaunchFromCheckIn?.(launch), 450);
+      }
+      return;
+    }
+    const slot = nextMissingSlot(record);
+    if (slot) postCheckInPrompt(slot);
+  };
+
+  const handleToggleSpeakMessage = (message: AgentMessage) => {
+    if (speakingMessageId === message.id) {
+      stopAgentTts();
+      setSpeakingMessageId(null);
+      return;
+    }
+    if (!isAgentTtsSupported()) return;
+    setSpeakingMessageId(message.id);
+    lastSpokenIdRef.current = message.id;
+    speakAgentText(message.content, lang, {
+      onEnd: () => setSpeakingMessageId((id) => (id === message.id ? null : id)),
+    });
+  };
+
+  const resolveCheckInReply = (
+    rawText: string,
+    chipPatch?: Partial<DailyCheckInAnswers>,
+  ): DailyCheckInRecord | null => {
+    if (!checkInEnabled) return null;
+    const record = loadDailyCheckIn();
+    if (isCheckInComplete(record) && !activeCheckInSlot) return null;
+
+    const slot =
+      activeCheckInSlot
+      ?? [...messages].reverse().find((m) => m.metadata?.checkInSlot)?.metadata?.checkInSlot
+      ?? nextMissingSlot(record);
+    if (!slot) return null;
+
+    const skipRe = lang === 'el'
+      ? /παράλειψη|άστο|αργότερα|skip/i
+      : /skip|later|not now|pass/i;
+    if (skipRe.test(rawText)) {
+      const next = skipSlot(record, slot);
+      saveDailyCheckIn(next);
+      onApplyDailyCheckIn?.({});
+      return next;
+    }
+
+    const built = buildSlotPrompt(slot, checkInCtx);
+    const matchedChip = built.chips.find(
+      (c) => c.value === rawText || c.label === rawText || rawText.includes(c.value),
+    );
+    const patch =
+      chipPatch
+      ?? matchedChip?.patch
+      ?? parseFreeTextForSlot(slot, rawText, checkInCtx);
+
+    if (!patch || Object.keys(patch).length === 0) {
+      if (slot === 'openFeel') {
+        const openPatch = { openFeel: rawText.slice(0, 240) };
+        const fromStore = onApplyDailyCheckIn?.(openPatch);
+        if (fromStore) return fromStore;
+        const applied = applyCheckInPatch(markGreetingSent(record), openPatch);
+        saveDailyCheckIn(applied);
+        return applied;
+      }
+      return null;
+    }
+
+    const fromStore = onApplyDailyCheckIn?.(patch);
+    if (fromStore) return fromStore;
+    const applied = applyCheckInPatch(record, patch);
+    saveDailyCheckIn(applied);
+    return applied;
+  };
+
+  const handleSend = async (overrideText?: string, chipPatch?: Partial<DailyCheckInAnswers>) => {
     const rawText = (overrideText ?? input).trim();
     if (!rawText || isThinking) return;
+
+    // Wave AI-K — passive multi-slot extract from every casual utterance.
+    const extraction = chipPatch && Object.keys(chipPatch).length > 0
+      ? {
+          patch: chipPatch,
+          filledSlots: Object.keys(chipPatch) as CheckInSlotId[],
+          source: 'heuristic' as const,
+        }
+      : await extractStudySignals(rawText, checkInCtx, settings);
+
+    if (Object.keys(extraction.patch).length > 0) {
+      onApplyDailyCheckIn?.(extraction.patch);
+      const filter = tasksFilterFromSignals(extraction.patch);
+      if (filter) onTasksFilterFromSignals?.(filter);
+    }
+
+    const afterExtract = loadDailyCheckIn();
+    const inCheckInFlow =
+      checkInEnabled
+      && (Boolean(activeCheckInSlot) || !isCheckInComplete(afterExtract) || Boolean(chipPatch));
+
+    // Active / incomplete check-in: multi-slot merge already applied — advance or ask gaps only.
+    if (inCheckInFlow && (chipPatch || extraction.filledSlots.length > 0 || activeCheckInSlot)) {
+      // Keep slot-skip / openFeel edge cases via resolver when extract was empty.
+      if (!extraction.filledSlots.length && !chipPatch) {
+        const checkInNext = resolveCheckInReply(rawText, chipPatch);
+        if (checkInNext) {
+          onSendMessage({
+            id: `msg-${Date.now()}`,
+            role: 'user',
+            content: rawText,
+            timestamp: new Date().toISOString(),
+            type: 'text',
+          });
+          setInput('');
+          setShowQuickActions(false);
+          emitAnalyticsLearningEvent('agent_message', { isHint: false, command: '' });
+          advanceCheckInAfterAnswer(checkInNext);
+          return;
+        }
+      } else {
+        onSendMessage({
+          id: `msg-${Date.now()}`,
+          role: 'user',
+          content: rawText,
+          timestamp: new Date().toISOString(),
+          type: 'text',
+        });
+        setInput('');
+        setShowQuickActions(false);
+        emitAnalyticsLearningEvent('agent_message', { isHint: false, command: '' });
+        advanceCheckInAfterAnswer(loadDailyCheckIn());
+        return;
+      }
+    }
+
+    // Pure routine utterance outside formal check-in — silent consistency, no RAG.
+    const academicAsk = /what is|τι είναι|explain|εξήγησ|how does|πώς λειτουργ|why |γιατί /i.test(rawText);
+    if (
+      !academicAsk
+      && looksLikeStudyRoutineUtterance(rawText)
+      && extraction.filledSlots.length >= 1
+    ) {
+      onSendMessage({
+        id: `msg-${Date.now()}`,
+        role: 'user',
+        content: rawText,
+        timestamp: new Date().toISOString(),
+        type: 'text',
+      });
+      setInput('');
+      setShowQuickActions(false);
+      emitAnalyticsLearningEvent('agent_message', { isHint: false, command: '' });
+      const ack = silentCaptureAck(lang, extraction.filledSlots, extraction.patch)
+        ?? (lang === 'el'
+          ? 'Το κράτησα — συνεχίζουμε ήσυχα από εκεί.'
+          : "Got it — we'll quietly go from there.");
+      onSendMessage({
+        id: `msg-${Date.now() + 1}`,
+        role: 'agent',
+        content: ack,
+        timestamp: new Date().toISOString(),
+        type: 'feedback',
+        metadata: {
+          sourceGrounded: false,
+          enrichmentUsed: false,
+          inferenceUsed: false,
+          dailyCheckIn: true,
+        },
+      });
+      const stillMissing = missingRequiredSlots(loadDailyCheckIn());
+      if (checkInEnabled && stillMissing[0]) {
+        window.setTimeout(() => postCheckInPrompt(stillMissing[0]!), 100);
+      } else if (checkInEnabled && isCheckInComplete(loadDailyCheckIn())) {
+        advanceCheckInAfterAnswer(loadDailyCheckIn());
+      }
+      return;
+    }
+
+    // Academic question that also carried routine signals — soft note, then RAG.
+    if (extraction.filledSlots.length >= 2) {
+      const note = silentCaptureAck(lang, extraction.filledSlots, extraction.patch);
+      if (note) {
+        onSendMessage({
+          id: `msg-signal-${Date.now()}`,
+          role: 'system',
+          content: note,
+          timestamp: new Date().toISOString(),
+          type: 'text',
+          metadata: {
+            sourceGrounded: false,
+            enrichmentUsed: false,
+            inferenceUsed: false,
+            dailyCheckIn: true,
+          },
+        });
+      }
+    }
 
     if (settings?.authToken?.trim() && isMultiDocSynthesizeAction(rawText, lang)) {
       const msg: AgentMessage = {
@@ -350,8 +758,14 @@ export function Agent({
 
     setIsThinking(false);
 
+    const recentUserTexts = messages.filter((m) => m.role === 'user').map((m) => m.content).slice(-6);
+    const checkInBlock = checkInContextBlock(loadDailyCheckIn(), lang);
+    const composedWithCheckIn = checkInBlock
+      ? `${composedInput}\n\n${checkInBlock}`
+      : composedInput;
+
     const { content, usedLlm, sourceGrounded } = await streamAgentReply(
-      composedInput,
+      composedWithCheckIn,
       mode,
       settings,
       {
@@ -359,6 +773,8 @@ export function Agent({
         concept: ragConcept,
         courses: courses.map((c) => c.title),
         sourceExcerpt: queryExcerpt,
+        checkIn: loadDailyCheckIn(),
+        recentUserTexts,
       },
       (full) => onUpdateMessage(streamId, { content: full }),
       chatHistory,
@@ -414,19 +830,50 @@ export function Agent({
 
   useEffect(() => {
     if (!draftPrompt?.trim()) return;
+    const prompt = draftPrompt.trim();
+    const isCheckInDraft = /check-in|checkin|ρουτίνας|σημερινό check-in/i.test(prompt);
+    if (isCheckInDraft && checkInEnabled) {
+      onConsumeDraftPrompt?.();
+      onConsumeAutoSend?.();
+      setShowQuickActions(false);
+      checkInBootstrappedRef.current = true;
+      const record = loadDailyCheckIn();
+      if (!isCheckInComplete(record)) {
+        let next = record;
+        if (!next.greetingSent) {
+          onSendMessage({
+            id: `checkin-greet-${Date.now()}`,
+            role: 'agent',
+            content: buildWarmGreeting(checkInCtx),
+            timestamp: new Date().toISOString(),
+            type: 'text',
+            metadata: {
+              sourceGrounded: false,
+              enrichmentUsed: false,
+              inferenceUsed: false,
+              dailyCheckIn: true,
+            },
+          });
+          next = markGreetingSent(next);
+          saveDailyCheckIn(next);
+        }
+        const slot = nextMissingSlot(next) ?? 'openFeel';
+        window.setTimeout(() => postCheckInPrompt(slot), 80);
+      }
+      return;
+    }
     if (autoSendDraft) {
-      const prompt = draftPrompt.trim();
       onConsumeDraftPrompt?.();
       onConsumeAutoSend?.();
       setShowQuickActions(false);
       void handleSendRef.current(prompt);
       return;
     }
-    setInput(draftPrompt);
+    setInput(prompt);
     setShowQuickActions(false);
     onConsumeDraftPrompt?.();
     inputRef.current?.focus();
-  }, [draftPrompt, autoSendDraft, onConsumeDraftPrompt, onConsumeAutoSend]);
+  }, [draftPrompt, autoSendDraft, onConsumeDraftPrompt, onConsumeAutoSend, checkInEnabled, checkInCtx, onSendMessage]);
 
   useEffect(() => {
     const fileId = initialPinnedFileId?.trim();
@@ -440,6 +887,86 @@ export function Agent({
 
   const handleQuickAction = (action: string) => {
     void handleSend(action);
+  };
+
+  const handleSuggestionChip = (chip: { id: string; label: string; value: string }) => {
+    if (chip.id === 'calendar-chat-plan' || chip.value === '__calendar_chat_plan__') {
+      onSendMessage({
+        id: `msg-${Date.now()}`,
+        role: 'user',
+        content: chip.label,
+        timestamp: new Date().toISOString(),
+        type: 'text',
+      });
+      onOpenCalendarSync?.();
+      return;
+    }
+    if (chip.id === 'calendar-dismiss' || chip.value === '__calendar_dismiss__') {
+      onSendMessage({
+        id: `msg-${Date.now()}`,
+        role: 'user',
+        content: chip.label,
+        timestamp: new Date().toISOString(),
+        type: 'text',
+      });
+      onSendMessage({
+        id: `msg-${Date.now() + 1}`,
+        role: 'agent',
+        content: t('agentCalendarDismissAck'),
+        timestamp: new Date().toISOString(),
+        type: 'feedback',
+        metadata: {
+          sourceGrounded: false,
+          enrichmentUsed: false,
+          inferenceUsed: false,
+          dailyCheckIn: true,
+        },
+      });
+      return;
+    }
+    const slot =
+      activeCheckInSlot
+      ?? [...messages].reverse().find((m) => m.metadata?.checkInSlot)?.metadata?.checkInSlot;
+    let patch: Partial<DailyCheckInAnswers> | undefined;
+    if (slot) {
+      const built = buildSlotPrompt(slot, checkInCtx);
+      patch = built.chips.find((c) => c.id === chip.id || c.value === chip.value)?.patch;
+    }
+    void handleSend(chip.value, patch);
+  };
+
+  const handleToggleVoice = () => {
+    if (voiceListening) {
+      voiceStopRef.current?.();
+      voiceStopRef.current = null;
+      setVoiceListening(false);
+      return;
+    }
+    const stop = startFeynmanVoiceInput(
+      lang,
+      (text) => setInput(text),
+      () => {
+        setVoiceListening(false);
+        voiceStopRef.current = null;
+      },
+    );
+    if (!stop) {
+      onSendMessage({
+        id: `voice-unsupported-${Date.now()}`,
+        role: 'system',
+        content: t('agentVoiceUnsupported'),
+        timestamp: new Date().toISOString(),
+        type: 'text',
+      });
+      return;
+    }
+    voiceStopRef.current = stop;
+    setVoiceListening(true);
+  };
+
+  const handleSkipCheckInSlot = () => {
+    if (!activeCheckInSlot) return;
+    void handleSend(lang === 'el' ? 'Παράλειψη προς το παρόν' : 'Skip for now');
   };
 
   const handlePathTryChip = (chip: PathTryChip) => {
@@ -994,7 +1521,26 @@ export function Agent({
             )
           )}
           {messages.map(msg => (
-            <MessageBubble key={msg.id} message={msg} onGoToSource={onGoToSource} lang={lang} ui={ui} />
+            <MessageBubble
+              key={msg.id}
+              message={msg}
+              onGoToSource={onGoToSource}
+              lang={lang}
+              ui={ui}
+              onSuggestionChip={handleSuggestionChip}
+              chipHint={t('agentCheckInChipHint')}
+              skipLabel={t('agentCheckInSkip')}
+              onSkipCheckIn={
+                msg.metadata?.checkInSlot && msg.metadata.checkInSlot === activeCheckInSlot
+                  ? handleSkipCheckInSlot
+                  : undefined
+              }
+              ttsSupported={isAgentTtsSupported()}
+              isSpeaking={speakingMessageId === msg.id}
+              onToggleSpeak={() => handleToggleSpeakMessage(msg)}
+              speakLabel={t('agentSpeakReply')}
+              stopSpeakLabel={t('agentStopSpeak')}
+            />
           ))}
           {isThinking && (
             <div className="agent-thinking flex gap-3 px-1 py-2 text-sm text-text-muted">
@@ -1069,6 +1615,20 @@ export function Agent({
             </div>
             {/* OPT-K75 — tools beside field (never absolute-over placeholder on phone) */}
             <div className="agent-composer-tools flex items-center gap-0.5 shrink-0 self-end pb-0.5" data-testid="agent-composer-tools">
+              <button
+                type="button"
+                aria-label={voiceListening ? t('agentVoiceListening') : t('agentVoiceInput')}
+                data-testid="agent-voice-input"
+                aria-pressed={voiceListening}
+                onClick={handleToggleVoice}
+                disabled={isThinking}
+                className={cn(
+                  'p-1.5 rounded-lg hover:bg-surface-hover text-text-secondary',
+                  voiceListening && 'text-accent-rose bg-accent-rose/10',
+                )}
+              >
+                <Mic className={cn('w-4 h-4', voiceListening && 'animate-pulse')} aria-hidden="true" />
+              </button>
               <button
                 type="button"
                 aria-label={t('agentSearchSources')}
@@ -1239,15 +1799,34 @@ function MessageBubble({
   onGoToSource,
   lang = 'en',
   ui,
+  onSuggestionChip,
+  chipHint,
+  skipLabel,
+  onSkipCheckIn,
+  ttsSupported,
+  isSpeaking,
+  onToggleSpeak,
+  speakLabel,
+  stopSpeakLabel,
 }: {
   message: AgentMessage;
   onGoToSource?: (highlight: { fileId: string; charStart: number; charEnd: number }) => void;
   lang?: 'en' | 'el';
   ui: AgentUiCopy;
+  onSuggestionChip?: (chip: { id: string; label: string; value: string }) => void;
+  chipHint?: string;
+  skipLabel?: string;
+  onSkipCheckIn?: () => void;
+  ttsSupported?: boolean;
+  isSpeaking?: boolean;
+  onToggleSpeak?: () => void;
+  speakLabel?: string;
+  stopSpeakLabel?: string;
 }) {
   const isMinimal = useMinimalTheme();
   const isUser = message.role === 'user';
   const isSystem = message.role === 'system';
+  const chips = message.metadata?.suggestionChips ?? [];
 
   if (isSystem) {
     return (
@@ -1275,7 +1854,7 @@ function MessageBubble({
       )}
 
       <div className={cn(
-        'agent-message-bubble max-w-[85%] sm:max-w-[75%] rounded-2xl px-4 py-3 text-sm leading-relaxed',
+        'agent-message-bubble max-w-[85%] sm:max-w-[75%] rounded-xl px-4 py-3 text-sm leading-relaxed',
         isUser
           ? 'agent-message-bubble-user agent-user-bubble text-white rounded-tr-md'
           : 'agent-message-bubble-assistant bg-surface-card border border-border-subtle rounded-tl-md',
@@ -1404,6 +1983,54 @@ function MessageBubble({
             <AlertTriangle className="w-3 h-3" />
             <span>{ui.lowConfidence}</span>
           </div>
+        )}
+
+        {!isUser && !message.isStreaming && chips.length > 0 && onSuggestionChip && (
+          <div className="mt-3 space-y-2" data-testid="agent-suggestion-chips">
+            {chipHint && (
+              <p className="text-[10px] text-text-muted">{chipHint}</p>
+            )}
+            <div className="flex flex-wrap gap-1.5">
+              {chips.map((chip) => (
+                <button
+                  key={chip.id}
+                  type="button"
+                  data-testid={`agent-chip-${chip.id}`}
+                  onClick={() => onSuggestionChip(chip)}
+                  className="ux-agent-chip text-left font-medium"
+                >
+                  {chip.label}
+                </button>
+              ))}
+            </div>
+            {onSkipCheckIn && skipLabel && (
+              <button
+                type="button"
+                data-testid="agent-checkin-skip"
+                onClick={onSkipCheckIn}
+                className="text-[10px] text-text-tertiary hover:text-text-secondary transition-colors"
+              >
+                {skipLabel}
+              </button>
+            )}
+          </div>
+        )}
+
+        {!isUser && !message.isStreaming && ttsSupported && onToggleSpeak && message.content.trim() && (
+          <button
+            type="button"
+            data-testid="agent-tts-toggle"
+            aria-label={isSpeaking ? stopSpeakLabel : speakLabel}
+            aria-pressed={Boolean(isSpeaking)}
+            onClick={onToggleSpeak}
+            className={cn(
+              'mt-2 inline-flex items-center gap-1 text-[10px] transition-colors',
+              isSpeaking ? 'text-accent-rose' : 'text-text-tertiary hover:text-text-secondary',
+            )}
+          >
+            {isSpeaking ? <VolumeX className="w-3 h-3" aria-hidden /> : <Volume2 className="w-3 h-3" aria-hidden />}
+            {isSpeaking ? stopSpeakLabel : speakLabel}
+          </button>
         )}
 
         {/* Source attribution labels — OPT-K16 quiet under Minimal; OPT-K74 phone wrap clear of composer */}

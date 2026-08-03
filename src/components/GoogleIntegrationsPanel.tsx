@@ -19,6 +19,8 @@ import {
   type GoogleTask,
 } from '../lib/googleClient';
 import { syncTasksToGoogleCalendar, type TaskCalendarSyncUpdate } from '../lib/taskCalendarSync';
+import { buildCalendarCheckInHint } from '../lib/calendarCheckInHint';
+import { loadDailyCheckIn } from '../lib/dailyLearningCheckIn';
 import { useI18n } from '../lib/i18n';
 import { formatDateTime } from '../lib/localeFormat';
 import { AllCapsLabel } from './ui/AllCapsLabel';
@@ -45,6 +47,7 @@ export function GoogleIntegrationsPanel({
   const [status, setStatus] = useState<GoogleConnectionStatus | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const chatPlanHint = buildCalendarCheckInHint(lang, loadDailyCheckIn().answers);
   const [tasks, setTasks] = useState<GoogleTask[]>([]);
   const [calendarEvents, setCalendarEvents] = useState<CalendarEventLite[]>([]);
   const [taskDraft, setTaskDraft] = useState('');
@@ -225,15 +228,24 @@ export function GoogleIntegrationsPanel({
     }
   };
 
-  const handleCalendarSync = async (onlySpacedRepetition: boolean) => {
+  const handleCalendarSync = async (
+    onlySpacedRepetition: boolean,
+    opts?: { includeChatPlanSoftSlots?: boolean },
+  ) => {
     if (!settings.authToken) return;
     setLoading(true);
     try {
+      const hint = buildCalendarCheckInHint(lang, loadDailyCheckIn().answers);
       const updates = await syncTasksToGoogleCalendar(
         settings.authToken,
         settings,
         synapseTasks,
-        { onlySpacedRepetition },
+        {
+          onlySpacedRepetition,
+          checkInHint: hint,
+          includeChatPlanSoftSlots: opts?.includeChatPlanSoftSlots === true,
+          maxSoftSlots: 2,
+        },
       );
       onCalendarSync?.(updates);
       onAuthComplete?.(t('googleCalendarSynced').replace('{count}', String(updates.length)));
@@ -314,23 +326,42 @@ export function GoogleIntegrationsPanel({
             <Calendar className="h-4 w-4 text-text-primary" />
             {t('googleCalendar')}
           </div>
-          <p className="text-[11px] text-text-muted">{t('googleCalendarIntro')}</p>
+          <p className="type-caption text-text-muted">{t('googleCalendarIntro')}</p>
+          <div
+            className="rounded-lg border border-border-subtle/80 bg-surface-card/50 px-2.5 py-2"
+            data-testid="google-calendar-chat-plan-hint"
+          >
+            <p className="type-caption font-medium text-text-secondary">
+              <AllCapsLabel>{t('googleCalendarChatPlanHint')}</AllCapsLabel>
+            </p>
+            <p className="type-caption text-text-muted mt-0.5">{chatPlanHint.summary}</p>
+            <p className="type-caption text-text-muted mt-1">{t('googleSyncChatPlanHint')}</p>
+          </div>
           <div className="flex flex-wrap gap-2">
             <button
               type="button"
               data-testid="google-calendar-sync-reviews"
               disabled={loading}
               onClick={() => void handleCalendarSync(true)}
-              className="ws-empty-cta-primary text-xs"
+              className="ws-empty-cta-primary text-xs min-h-11"
             >
               {t('googleSyncDueReviews')}
+            </button>
+            <button
+              type="button"
+              data-testid="google-calendar-sync-chat-plan"
+              disabled={loading || !chatPlanHint.hasSignals}
+              onClick={() => void handleCalendarSync(false, { includeChatPlanSoftSlots: true })}
+              className="inline-flex items-center gap-1 rounded-lg border border-brand-500/30 bg-brand-500/5 px-2 py-1.5 text-xs text-text-primary hover:border-brand-500/50 min-h-11 disabled:opacity-50"
+            >
+              {t('googleSyncChatPlan')}
             </button>
             <button
               type="button"
               data-testid="google-calendar-sync-all"
               disabled={loading}
               onClick={() => void handleCalendarSync(false)}
-              className="inline-flex items-center gap-1 rounded-lg border border-border-subtle px-2 py-1.5 text-xs text-text-secondary hover:border-brand-500/30"
+              className="inline-flex items-center gap-1 rounded-lg border border-border-subtle px-2 py-1.5 text-xs text-text-secondary hover:border-brand-500/30 min-h-11"
             >
               {t('googleSyncAllScheduled')}
             </button>
@@ -339,7 +370,7 @@ export function GoogleIntegrationsPanel({
               data-testid="google-calendar-refresh"
               disabled={loading}
               onClick={() => void loadCalendarEvents()}
-              className="inline-flex items-center gap-1 rounded-lg border border-border-subtle px-2 py-1.5 text-xs text-text-secondary hover:border-brand-500/30"
+              className="inline-flex items-center gap-1 rounded-lg border border-border-subtle px-2 py-1.5 text-xs text-text-secondary hover:border-brand-500/30 min-h-11"
             >
               {t('googleRefreshCalendar')}
             </button>

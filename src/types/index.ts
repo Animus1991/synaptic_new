@@ -46,6 +46,11 @@ export interface UserSettings {
   openaiApiKey?: string;
   llmModel?: string;
   llmBaseUrl?: string;
+  /**
+   * When true, chat/completions include chat_template_kwargs.enable_thinking=false
+   * (Sophea-Titan-1 / Qwen3.6 Greek quality). Set by the Sophea preset.
+   */
+  llmDisableThinking?: boolean;
   /** Managed/self-hosted LLM proxy URL (holds the key server-side). */
   llmProxyUrl?: string;
   useLlm?: boolean;
@@ -75,6 +80,17 @@ export interface UserSettings {
   dashboardWallpaperDataUrl?: string;
   /** User-defined study milestones shown in hero calendar. */
   personalStudyDates?: PersonalStudyDate[];
+  /** Read Agent replies aloud (Web Speech / OS voices). Default off. */
+  agentTtsEnabled?: boolean;
+  /** Schedule a soft daily check-in local notification. Default on when unset. */
+  dailyCheckInNotifications?: boolean;
+  /** Local hour (0–23) for the daily check-in reminder. Default 9. */
+  dailyCheckInReminderHour?: number;
+  /**
+   * After chat check-in completes, auto-start the matched task/session
+   * without a second tap. Default on when unset.
+   */
+  autoStartAfterCheckIn?: boolean;
 }
 
 export type PersonalStudyDate = {
@@ -489,6 +505,23 @@ export interface AgentMessage {
     agentCommand?: 'quiz' | 'explain' | 'compare' | 'summarize';
     /** Low-confidence retrieval — agent should clarify before answering. */
     lowRetrieval?: boolean;
+    /**
+     * Closed-style answer chips for chat-first daily check-in / soft prompts.
+     * Tapping a chip sends `value` as the user message.
+     */
+    suggestionChips?: Array<{ id: string; label: string; value: string }>;
+    /** Active daily check-in slot this agent message is collecting. */
+    checkInSlot?:
+      | 'openFeel'
+      | 'energy'
+      | 'availableMinutes'
+      | 'sessionIntent'
+      | 'focusCourse'
+      | 'confidence'
+      | 'blocker'
+      | 'studiedToday';
+    /** Marks a warm greeting / check-in turn (skip heavy RAG). */
+    dailyCheckIn?: boolean;
   };
 }
 

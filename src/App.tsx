@@ -4,6 +4,7 @@ import { useAppStore } from './store/useStore';
 import { applyTheme, watchSystemTheme, resolveChromeDensity } from './lib/theme';
 import { I18nContext, t as translate, type I18nKey } from './lib/i18n';
 import { getTaskConcept, getWorkspaceTool, getMistakesForTask, getExamDurationSeconds, findPendingTask } from './lib/taskFlows';
+import { recommendSessionFromAppState } from './lib/recommendedSessionType';
 import { executeDashboardNextAction } from './lib/dashboardNextAction';
 import {
   buildTaskFlowContext,
@@ -190,6 +191,73 @@ export default function App() {
 
   useEffect(() => subscribeTakeBreathPrompt(() => setTakeBreathOpen(true)), []);
 
+  /** Once per day: soft toast nudging chat-first study check-in. */
+  useEffect(() => {
+    if (store.currentView === 'landing' || store.currentView === 'onboarding') return;
+    let cancelled = false;
+    void import('./lib/dailyCheckInNotifications').then(({ maybeDailyCheckInReminder }) => {
+      if (cancelled) return;
+      const alert = maybeDailyCheckInReminder(store.user.settings.language);
+      if (!alert) return;
+      void import('./lib/notificationBus').then(({ notifyInfo }) => {
+        if (cancelled) return;
+        notifyInfo(
+          store.user.settings.language === 'el'
+            ? 'Ήπιο check-in μελέτης'
+            : 'Gentle study check-in',
+          alert.message,
+        );
+      });
+    });
+    return () => { cancelled = true; };
+  }, [store.currentView, store.user.settings.language]);
+
+  /** Capacitor / Web local notification schedule for daily check-in. */
+  useEffect(() => {
+    if (store.currentView === 'landing' || store.currentView === 'onboarding') return;
+    let cancelled = false;
+    let cleanup: (() => void) | undefined;
+    void import('./lib/dailyCheckInLocalNotifications').then(async ({
+      syncDailyCheckInLocalNotifications,
+      saveCheckInNotifPrefs,
+      bindDailyCheckInNotificationOpen,
+    }) => {
+      if (cancelled) return;
+      const prefs = saveCheckInNotifPrefs({
+        enabled: store.user.settings.dailyCheckInNotifications !== false,
+        hour: store.user.settings.dailyCheckInReminderHour ?? 9,
+        minute: 0,
+      });
+      await syncDailyCheckInLocalNotifications(store.user.settings.language, prefs);
+      if (cancelled) return;
+      const unbind = bindDailyCheckInNotificationOpen(() => {
+        store.openAgentFromWorkspace({
+          mode: 'motivation',
+          prompt: store.user.settings.language === 'el'
+            ? 'Ας κάνουμε ήσυχα το σημερινό check-in μελέτης — ρώτα με ένα-ένα με έτοιμες επιλογές.'
+            : "Let's gently do today's study check-in — ask me one thing at a time with ready options.",
+          autoSend: false,
+          fullPage: true,
+        });
+      });
+      if (cancelled) {
+        unbind();
+        return;
+      }
+      cleanup = unbind;
+    });
+    return () => {
+      cancelled = true;
+      cleanup?.();
+    };
+  }, [
+    store.currentView,
+    store.user.settings.language,
+    store.user.settings.dailyCheckInNotifications,
+    store.user.settings.dailyCheckInReminderHour,
+    store,
+  ]);
+
   const runDashboardNextAction = useCallback(() => {
     const action = store.dashboardNextAction;
     if (!action) return;
@@ -208,7 +276,13 @@ export default function App() {
       onOpenExamTimer: openExamTimerWorkspace,
       onOpenWorkspace: openWorkspace,
       onFocusWeakArea: openWorkspaceForConcept,
-      onStartSession: () => store.startSession('25min'),
+      onStartSession: () => {
+        store.startSession(recommendSessionFromAppState(store.tasks, {
+          daysToExam: store.dashboardExtras.daysToExam,
+          spacingIntervalCount: store.learnerModel.spacingIntervals?.length ?? 0,
+          weakAreaCount: store.learnerModel.weakAreas?.length ?? 0,
+        }));
+      },
       onOpenWorkspacePractice: store.openStudyWorkspaceForPractice,
     });
   }, [store, openExamTimerWorkspace, openWorkspace, openWorkspaceForConcept]);
@@ -278,7 +352,12 @@ export default function App() {
   };
 
   const openUploadModal = (intent?: { mode: 'new' | 'extend'; targetCourseId?: string }) => {
-    setUploadIntent(intent ?? { mode: 'new' });
+    const safe =
+      intent
+      && (intent.mode === 'new' || intent.mode === 'extend')
+        ? intent
+        : { mode: 'new' as const };
+    setUploadIntent(safe);
     store.setShowUploadModal(true);
   };
 
@@ -379,6 +458,29 @@ export default function App() {
     onChangeSourceMode: (sourceMode: import('./types').UserSettings['sourceMode']) => store.updateSettings({ sourceMode }),
     dashboardNextAction: store.dashboardNextAction,
     weakAreas: store.learnerModel.weakAreas,
+    tasks: store.tasks,
+    learnerPreferredSessionLength: store.learnerModel.preferredSessionLength,
+    onApplyDailyCheckIn: store.applyDailyCheckInAnswers,
+    /** Full-page Agent owns the soft daily routine; embedded workspace chat stays task-focused. */
+    enableDailyCheckIn: store.currentView === 'agent' && !store.workspaceInlineAgentOpen,
+    onLaunchFromCheckIn: (launch: import('./lib/checkInLaunch').CheckInLaunch) => {
+      if (launch.kind === 'none') return;
+      if (launch.kind === 'session') {
+        store.startSession(launch.sessionType);
+        return;
+      }
+      store.startTask(launch.taskId);
+    },
+    onTasksFilterFromSignals: (filter: import('./lib/studySignalsWriteBack').TasksFilterPreset) => {
+      if (!filter) return;
+      store.primeTasksFilterPreset(filter);
+    },
+    onOpenCalendarSync: () => {
+      store.navigate('settings');
+      window.setTimeout(() => {
+        document.getElementById('settings-google')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 120);
+    },
   };
 
   const studyWorkspaceElement = (
@@ -505,7 +607,12 @@ export default function App() {
     workspaceLive: store.workspaceLive,
     onOpenWorkspace: openWorkspace,
     onStartSession: () => {
-      store.startSession('25min');
+      const session = recommendSessionFromAppState(store.tasks, {
+        daysToExam: store.dashboardExtras.daysToExam,
+        spacingIntervalCount: store.learnerModel.spacingIntervals?.length ?? 0,
+        weakAreaCount: store.learnerModel.weakAreas?.length ?? 0,
+      });
+      store.startSession(session);
       store.navigate('tasks');
     },
     studyWorkspaceOpen: store.studyWorkspaceOpen,
@@ -1120,7 +1227,7 @@ export default function App() {
               uploadedFiles={store.uploadedFiles}
               onSelectCourse={(course) => store.openCourseReview(course)}
               onRemoveCourse={store.removeCourse}
-              onUpload={() => openUploadModal()}
+              onUpload={(intent) => openUploadModal(intent)}
               onRemoveFile={store.removeUploadedFile}
               onReprocessCourse={store.reprocessCourseMaterial}
               reprocessingMaterial={store.isReprocessing}
@@ -1205,7 +1312,20 @@ export default function App() {
               spacingReviews={store.learnerModel.spacingIntervals}
               streak={store.dashboardStats.streak}
               onFocusWeakArea={openWorkspaceForConcept}
-              onOpenAgent={() => store.navigate('agent')}
+              onOpenAgent={(concept) => {
+                if (concept) {
+                  const el = store.user.settings.language === 'el';
+                  store.openAgentFromWorkspace({
+                    prompt: el
+                      ? `Βοήθησέ με να κατανοήσω: ${concept}`
+                      : `Help me understand: ${concept}`,
+                    mode: 'socratic',
+                    fullPage: true,
+                  });
+                } else {
+                  store.navigate('agent');
+                }
+              }}
               onStartQuiz={() => store.startSession('10min')}
               courseNameById={Object.fromEntries(store.courses.map((c) => [c.id, c.title]))}
               activeSessionType={store.activeSessionType}

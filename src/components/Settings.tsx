@@ -30,6 +30,8 @@ import {
   AI_BASE_URL_PRESETS,
   AI_MODEL_TIER_PRESETS,
   inferModelTier,
+  settingsPatchForBaseUrlPreset,
+  type AiBaseUrlPresetId,
 } from '../lib/aiEconomicsPresets';
 
 import { type TaskCalendarSyncUpdate } from '../lib/taskCalendarSync';
@@ -376,18 +378,32 @@ export function Settings({
               const label =
                 preset.id === 'openai' ? c.presetOpenAi
                   : preset.id === 'ollama' ? c.presetOllama
-                    : preset.id === 'groq' ? c.presetGroq
-                      : c.presetClearBaseUrl;
-              const active = (settings.llmBaseUrl ?? '') === preset.baseUrl;
+                    : preset.id === 'krikri' ? c.presetKrikri
+                      : preset.id === 'sophea' ? c.presetSophea
+                        : preset.id === 'groq' ? c.presetGroq
+                          : c.presetClearBaseUrl;
+              const modelMatches = !preset.defaultModel
+                || (settings.llmModel ?? '') === preset.defaultModel
+                || (preset.id === 'ollama' && !(settings.llmModel ?? '').includes('krikri') && !(settings.llmModel ?? '').includes('sophea'));
+              const active = (settings.llmBaseUrl ?? '') === preset.baseUrl
+                && (preset.id !== 'sophea' || settings.llmDisableThinking === true)
+                && (preset.id === 'krikri' ? (settings.llmModel ?? '').includes('krikri') : modelMatches);
               return (
                 <button
                   key={preset.id}
                   type="button"
                   data-testid={`ai-base-url-${preset.id}`}
-                  onClick={() => onUpdate({
-                    llmBaseUrl: preset.baseUrl || undefined,
-                    ...(preset.id === 'ollama' ? { llmModel: settings.llmModel?.includes('gpt') ? 'llama3.2' : (settings.llmModel ?? 'llama3.2') } : {}),
-                  })}
+                  onClick={() => {
+                    const id = preset.id as AiBaseUrlPresetId;
+                    if (id === 'ollama' && settings.llmModel && !settings.llmModel.includes('gpt') && !settings.llmModel.includes('krikri')) {
+                      onUpdate({
+                        ...settingsPatchForBaseUrlPreset(id),
+                        llmModel: settings.llmModel,
+                      });
+                      return;
+                    }
+                    onUpdate(settingsPatchForBaseUrlPreset(id));
+                  }}
                   className={cn(
                     'px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors',
                     active
@@ -400,6 +416,11 @@ export function Settings({
               );
             })}
           </div>
+          {(settings.llmBaseUrl ?? '') === 'http://127.0.0.1:8000/v1' && (
+            <p className="text-[11px] text-text-muted mb-2 leading-relaxed" data-testid="ai-sophea-hint">
+              {c.sopheaPresetHint}
+            </p>
+          )}
           <label className="text-xs text-text-secondary block mb-2">{c.labelApiBaseUrl}</label>
           <input
             type="url"
@@ -408,6 +429,15 @@ export function Settings({
             placeholder={c.placeholderApiBaseUrl}
             className="w-full px-4 py-2 rounded-xl bg-surface-input border border-border-subtle text-sm text-text-primary focus:outline-none focus:border-brand-500/50"
           />
+        </div>
+        <div>
+          <ToggleRow
+            label={c.labelDisableThinking}
+            options={c.disableThinkingOptions}
+            value={settings.llmDisableThinking ? 'true' : 'false'}
+            onChange={(v) => onUpdate({ llmDisableThinking: v === 'true' })}
+          />
+          <p className="text-[11px] text-text-muted mt-1 leading-relaxed">{c.disableThinkingHint}</p>
         </div>
         <div>
           <label className="text-xs text-text-secondary block mb-2">{c.labelManagedProxyUrl}</label>
@@ -424,6 +454,40 @@ export function Settings({
         <p className="text-xs text-text-muted mt-1 px-1">
           {c.llmOfflineHint}
         </p>
+        <ToggleRow
+          label={c.labelAgentTts}
+          options={c.agentTtsOptions}
+          value={settings.agentTtsEnabled ? 'true' : 'false'}
+          onChange={(v) => onUpdate({ agentTtsEnabled: v === 'true' })}
+        />
+        <p className="text-xs text-text-muted mt-1 px-1">{c.agentTtsHint}</p>
+        <ToggleRow
+          label={c.labelDailyCheckInNotif}
+          options={c.dailyCheckInNotifOptions}
+          value={settings.dailyCheckInNotifications !== false ? 'true' : 'false'}
+          onChange={(v) => onUpdate({ dailyCheckInNotifications: v === 'true' })}
+        />
+        <p className="text-xs text-text-muted mt-1 px-1">{c.dailyCheckInNotifHint}</p>
+        <div className="mt-2">
+          <label className="text-xs text-text-secondary block mb-1.5">{c.labelDailyCheckInHour}</label>
+          <select
+            data-testid="settings-checkin-hour"
+            value={settings.dailyCheckInReminderHour ?? 9}
+            onChange={(e) => onUpdate({ dailyCheckInReminderHour: Number(e.target.value) })}
+            className="w-full px-3 py-2 rounded-xl bg-surface-input border border-border-subtle text-sm text-text-primary"
+          >
+            {Array.from({ length: 24 }, (_, h) => (
+              <option key={h} value={h}>{`${String(h).padStart(2, '0')}:00`}</option>
+            ))}
+          </select>
+        </div>
+        <ToggleRow
+          label={c.labelAutoStartCheckIn}
+          options={c.autoStartCheckInOptions}
+          value={settings.autoStartAfterCheckIn !== false ? 'true' : 'false'}
+          onChange={(v) => onUpdate({ autoStartAfterCheckIn: v === 'true' })}
+        />
+        <p className="text-xs text-text-muted mt-1 px-1">{c.autoStartCheckInHint}</p>
         <ToggleRow label={c.labelUseVisionOcr} options={c.visionOcrOptions} value={settings.useVisionOcr !== false ? 'true' : 'false'} onChange={v => onUpdate({ useVisionOcr: v === 'true' })} />
         <p className="text-xs text-text-muted mt-1 px-1">
           {c.visionOcrHint}

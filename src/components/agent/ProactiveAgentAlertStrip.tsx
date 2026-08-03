@@ -1,4 +1,4 @@
-import { ArrowRight, Brain, Warning as AlertTriangle } from '@phosphor-icons/react';
+import { ArrowRight, Brain, ChatCircle, Warning as AlertTriangle } from '@phosphor-icons/react';
 import type { ProactiveAgentAlert } from '../../lib/proactiveAgentAlerts';
 import { useI18n } from '../../lib/i18n';
 import { MotionSection } from '../ui/MotionSection';
@@ -15,6 +15,7 @@ const KIND_ICON = {
   'forgetting-risk': Brain,
   'quiz-fail-streak': AlertTriangle,
   misconception: AlertTriangle,
+  'daily-checkin': ChatCircle,
 } as const;
 
 export function ProactiveAgentAlertStrip({ alerts, onRun }: Props) {

@@ -140,6 +140,7 @@ export {
   UploadSimple as Upload,
   Users,
   SpeakerHigh as Volume2,
+  SpeakerSlash as VolumeX,
   MagicWand as Wand2,
   X,
   XCircle,

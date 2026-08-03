@@ -41,20 +41,20 @@ export function NotificationToastStack() {
             key={n.id}
             role="status"
             className={cn(
-              'notification-toast pointer-events-auto rounded-xl border backdrop-blur px-3 py-2.5 shadow-lg',
+              'notification-toast pointer-events-auto rounded-lg border backdrop-blur px-3 py-2.5 shadow-lg',
               LEVEL_STYLES[n.level],
             )}
           >
             <div className="flex items-start gap-2">
               <div className="min-w-0 flex-1">
                 <p className="text-sm font-medium text-text-primary">{n.title}</p>
-                {n.body && <p className="text-xs text-text-secondary mt-0.5">{n.body}</p>}
+                {n.body && <p className="type-caption text-text-secondary mt-0.5">{n.body}</p>}
               </div>
               <button
                 type="button"
                 aria-label="Dismiss notification"
                 onClick={() => dismissNotification(n.id)}
-                className="p-0.5 rounded hover:bg-surface-hover shrink-0"
+                className="p-2.5 rounded-lg hover:bg-surface-hover shrink-0 min-w-11 min-h-11 inline-flex items-center justify-center"
               >
                 <X className="w-3.5 h-3.5 text-text-muted" />
               </button>

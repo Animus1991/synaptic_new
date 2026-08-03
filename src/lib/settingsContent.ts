@@ -53,6 +53,16 @@ export type SettingsContent = {
   managedProxyHint: string;
   labelUseLlm: string;
   useLlmOptions: ToggleOption[];
+  labelAgentTts: string;
+  agentTtsOptions: ToggleOption[];
+  agentTtsHint: string;
+  labelDailyCheckInNotif: string;
+  dailyCheckInNotifOptions: ToggleOption[];
+  dailyCheckInNotifHint: string;
+  labelDailyCheckInHour: string;
+  labelAutoStartCheckIn: string;
+  autoStartCheckInOptions: ToggleOption[];
+  autoStartCheckInHint: string;
   llmOfflineHint: string;
   labelUseVisionOcr: string;
   visionOcrOptions: ToggleOption[];
@@ -67,8 +77,14 @@ export type SettingsContent = {
   baseUrlPresetsLabel: string;
   presetOpenAi: string;
   presetOllama: string;
+  presetKrikri: string;
+  presetSophea: string;
   presetGroq: string;
   presetClearBaseUrl: string;
+  sopheaPresetHint: string;
+  labelDisableThinking: string;
+  disableThinkingOptions: Array<{ value: string; label: string }>;
+  disableThinkingHint: string;
   visionCostNote: string;
   proxyMeteringNote: string;
   sectionAccountSync: string;
@@ -253,6 +269,27 @@ const EN: SettingsContent = {
     { value: 'true', label: 'Enabled' },
     { value: 'false', label: 'Offline only' },
   ],
+  labelAgentTts: 'Read Agent replies aloud',
+  agentTtsOptions: [
+    { value: 'true', label: 'Enabled' },
+    { value: 'false', label: 'Off' },
+  ],
+  agentTtsHint: 'Uses your device voices (Greek/English). Tap the speaker on any reply to replay or stop.',
+  labelDailyCheckInNotif: 'Daily check-in reminder',
+  dailyCheckInNotifOptions: [
+    { value: 'true', label: 'On' },
+    { value: 'false', label: 'Off' },
+  ],
+  dailyCheckInNotifHint:
+    'Soft local notification each morning. On native apps this uses Capacitor; in the browser it uses Web Notifications when allowed.',
+  labelDailyCheckInHour: 'Reminder hour',
+  labelAutoStartCheckIn: 'Auto-start after check-in',
+  autoStartCheckInOptions: [
+    { value: 'true', label: 'Start immediately' },
+    { value: 'false', label: 'Ask in chat only' },
+  ],
+  autoStartCheckInHint:
+    'When the daily chat check-in finishes, open the matched task/session without a second tap.',
   llmOfflineHint:
     'Without a key, Agent and Feynman use offline templates. Keys never leave your browser except to your chosen API endpoint.',
   labelUseVisionOcr: 'Vision OCR for Greek handwriting & scans',
@@ -272,8 +309,19 @@ const EN: SettingsContent = {
   baseUrlPresetsLabel: 'Compatible endpoint presets',
   presetOpenAi: 'OpenAI',
   presetOllama: 'Ollama (local)',
+  presetKrikri: 'Krikri / Greek Ollama',
+  presetSophea: 'Sophea / Greek local',
   presetGroq: 'Groq',
   presetClearBaseUrl: 'Clear',
+  sopheaPresetHint:
+    'Points at local vLLM (http://127.0.0.1:8000/v1) with model sophea-titan-1 and non-thinking mode for Greek quality. Serve KIEFERSA/Sophea-Titan-1 first.',
+  labelDisableThinking: 'Non-thinking mode (Sophea / Qwen3.6)',
+  disableThinkingOptions: [
+    { value: 'true', label: 'On (Sophea)' },
+    { value: 'false', label: 'Off' },
+  ],
+  disableThinkingHint:
+    'Sends enable_thinking=false on chat requests. Keep on for Sophea-Titan-1 Greek output; leave off for OpenAI/Groq.',
   visionCostNote:
     'Vision OCR: disable to stay on free offline Tesseract/TrOCR path; enable only when handwriting accuracy justifies paid/proxy vision tokens.',
   proxyMeteringNote:
@@ -478,6 +526,27 @@ const EL: SettingsContent = {
     { value: 'true', label: 'Ενεργό' },
     { value: 'false', label: 'Μόνο offline' },
   ],
+  labelAgentTts: 'Εκφώνηση απαντήσεων Agent',
+  agentTtsOptions: [
+    { value: 'true', label: 'Ενεργό' },
+    { value: 'false', label: 'Κλειστό' },
+  ],
+  agentTtsHint: 'Χρησιμοποιεί τις φωνές της συσκευής (Ελληνικά/Αγγλικά). Πάτα το ηχείο σε κάθε απάντηση για επανάληψη ή διακοπή.',
+  labelDailyCheckInNotif: 'Υπενθύμιση ημερήσιου check-in',
+  dailyCheckInNotifOptions: [
+    { value: 'true', label: 'Ναι' },
+    { value: 'false', label: 'Όχι' },
+  ],
+  dailyCheckInNotifHint:
+    'Ήπια τοπική ειδοποίηση κάθε πρωί. Σε native apps χρησιμοποιεί Capacitor· στον browser Web Notifications όταν επιτρέπονται.',
+  labelDailyCheckInHour: 'Ώρα υπενθύμισης',
+  labelAutoStartCheckIn: 'Αυτόματη εκκίνηση μετά το check-in',
+  autoStartCheckInOptions: [
+    { value: 'true', label: 'Άμεση εκκίνηση' },
+    { value: 'false', label: 'Μόνο στο chat' },
+  ],
+  autoStartCheckInHint:
+    'Όταν ολοκληρωθεί το ημερήσιο check-in στο chat, ανοίγει το matched task/session χωρίς δεύτερο tap.',
   llmOfflineHint:
     'Χωρίς key, Agent και Feynman χρησιμοποιούν offline templates. Τα keys δεν φεύγουν από τον browser εκτός από το API endpoint που επιλέγεις.',
   labelUseVisionOcr: 'Vision OCR για ελληνικό χειρόγραφο & σαρώσεις',
@@ -497,8 +566,19 @@ const EL: SettingsContent = {
   baseUrlPresetsLabel: 'Presets συμβατού endpoint',
   presetOpenAi: 'OpenAI',
   presetOllama: 'Ollama (τοπικό)',
+  presetKrikri: 'Krikri / Ελληνικά Ollama',
+  presetSophea: 'Sophea / Ελληνικά local',
   presetGroq: 'Groq',
   presetClearBaseUrl: 'Καθαρισμός',
+  sopheaPresetHint:
+    'Δείχνει σε τοπικό vLLM (http://127.0.0.1:8000/v1) με μοντέλο sophea-titan-1 και non-thinking για ποιότητα ελληνικών. Ξεκίνα πρώτα το KIEFERSA/Sophea-Titan-1.',
+  labelDisableThinking: 'Non-thinking mode (Sophea / Qwen3.6)',
+  disableThinkingOptions: [
+    { value: 'true', label: 'On (Sophea)' },
+    { value: 'false', label: 'Off' },
+  ],
+  disableThinkingHint:
+    'Στέλνει enable_thinking=false στα chat requests. Κράτα το ενεργό για Sophea-Titan-1· άφησέ το off για OpenAI/Groq.',
   visionCostNote:
     'Vision OCR: απενεργοποίησέ το για δωρεάν offline Tesseract/TrOCR· ενεργοποίησέ το μόνο όταν η ακρίβεια χειρογράφου δικαιολογεί πληρωμένα/proxy vision tokens.',
   proxyMeteringNote:

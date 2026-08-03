@@ -828,18 +828,21 @@ export function Shell({
                 );
               })()}
 
-              {/* OPT-K10/K23 — solid primary CTA; Minimal light = cyan via CSS */}
+              {/* OPT-K10/K23 — solid primary CTA; on Tasks view, quieter outline so page CTAs lead */}
               {onStartSession && (
                 <button
                   type="button"
                   onClick={onStartSession}
                   data-testid="shell-start-session"
+                  data-on-tasks={currentView === 'tasks' ? '1' : '0'}
                   className={cn(
                     /* OPT-K78 — match topbar control height (h-8), not full --btn-height */
                     'hidden sm:inline-flex h-8 min-h-8 max-h-8 items-center gap-1.5 px-2.5 rounded-lg text-[11px] font-semibold leading-none transition-colors whitespace-nowrap',
-                    quietNav
-                      ? 'shell-start-session ux-primary-cta'
-                      : 'bg-brand-700 text-white hover:bg-brand-800',
+                    currentView === 'tasks'
+                      ? 'shell-start-session shell-start-session-on-tasks border border-border-subtle bg-transparent text-text-secondary hover:bg-surface-hover hover:text-text-primary'
+                      : quietNav
+                        ? 'shell-start-session ux-primary-cta'
+                        : 'bg-brand-700 text-white hover:bg-brand-800',
                   )}
                 >
                   <Play className="w-3.5 h-3.5 shrink-0" weight="fill" />
