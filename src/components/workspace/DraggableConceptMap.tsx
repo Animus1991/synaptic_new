@@ -66,8 +66,10 @@ function nextRelation(r: DragEdge['relation']): DragEdge['relation'] {
 }
 
 function nodeMasteryOpacity(mastery: number): number {
-  if (mastery < 40) return 0.48;
-  if (mastery < 55) return 0.72;
+  // Weak nodes stay readable — the ring/arc already encodes mastery, so
+  // dimming below ~0.7 only punishes label legibility (eye-strain audit).
+  if (mastery < 40) return 0.7;
+  if (mastery < 55) return 0.85;
   return 1;
 }
 
@@ -849,7 +851,7 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
           <g transform={`translate(${pan.x},${pan.y}) scale(${zoom})`}>
             <defs>
               <marker id="dm-arrow" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
-                <polygon points="0 0, 10 3.5, 0 7" fill="#4d4870" />
+                <polygon points="0 0, 10 3.5, 0 7" fill="var(--color-border-strong)" />
               </marker>
             </defs>
 
@@ -888,17 +890,18 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
                   />
                   <line
                     x1={from.x} y1={from.y} x2={to.x} y2={to.y}
-                    stroke={isEdgeSel ? accentHighlightVar() : lit ? accentHighlightVar() : 'var(--color-border-subtle)'}
-                    strokeWidth={isEdgeSel ? 3 : lit ? 2.5 : 1.5}
+                    stroke={isEdgeSel ? accentHighlightVar() : lit ? accentHighlightVar() : 'var(--color-border-strong, var(--color-text-muted))'}
+                    strokeWidth={isEdgeSel ? 3 : lit ? 2.5 : 1.75}
                     strokeDasharray={dash} markerEnd="url(#dm-arrow)"
                     pointerEvents="none"
+                    opacity={isEdgeSel || lit ? 1 : 0.85}
                   />
                   <text
                     x={midX}
                     y={midY - 4}
                     textAnchor="middle"
-                    fontSize={9}
-                    fill={isEdgeSel ? '#a5b4fc' : lit ? '#a5b4fc' : '#6b6494'}
+                    fontSize={11}
+                    fill={isEdgeSel || lit ? accentHighlightVar() : 'var(--color-text-secondary)'}
                     data-testid="concept-map-edge-label"
                     data-pmi={edge.pmi != null ? formatPmiScore(edge.pmi) : undefined}
                     pointerEvents="none"
@@ -927,17 +930,24 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
                     <circle cx={node.x} cy={node.y} r={r + 6} fill="none" stroke="var(--palette-cyan)" strokeWidth={1.5} opacity={0.45} data-testid="concept-map-lens-highlight" />
                   )}
                   {isSel && <circle cx={node.x} cy={node.y} r={r + 8} fill="none" stroke={color} strokeWidth={2} opacity={0.35} />}
-                  <circle cx={node.x} cy={node.y} r={r} fill="#0f0a1e" stroke={color} strokeWidth={isSel ? 3 : 2} />
+                  {/* Theme-aware disc: soft tint of the band color over the card surface,
+                      colored ring carries the mastery signal on light AND dark themes
+                      (was hardcoded #0f0a1e — black discs + invisible labels on light). */}
+                  <circle
+                    cx={node.x} cy={node.y} r={r}
+                    fill={`color-mix(in srgb, ${color} 12%, var(--color-surface-card))`}
+                    stroke={color} strokeWidth={isSel ? 3 : 2}
+                  />
                   {/* mastery arc */}
-                  <circle cx={node.x} cy={node.y} r={r} fill="none" stroke={color} strokeWidth={3} opacity={0.4}
+                  <circle cx={node.x} cy={node.y} r={r} fill="none" stroke={color} strokeWidth={3} opacity={0.55}
                     strokeDasharray={`${(node.mastery / 100) * 2 * Math.PI * r} ${2 * Math.PI * r}`}
                     transform={`rotate(-90 ${node.x} ${node.y})`}
                   />
-                  <text x={node.x} y={node.y - 4} textAnchor="middle" dominantBaseline="central" fontSize={12} fill={MASTERY_COLOR(node.mastery)} fontWeight="600">{conceptTypeGlyph(node.type)}</text>
-                  <text x={node.x} y={node.y + 15} textAnchor="middle" fontSize={10} fill={color} fontWeight="700">{node.mastery}%</text>
-                  {/* Wave E4 — stronger label ink (was #a8a3c4 on near-black → low contrast) */}
-                  <text x={node.x} y={node.y + r + 14} textAnchor="middle" fontSize={12} fill={isSel ? '#f8f7fc' : '#d8d4ea'} fontWeight={isSel ? '600' : '500'}>
-                    {node.label.length > 16 ? node.label.slice(0, 14) + '…' : node.label}
+                  <text x={node.x} y={node.y - 4} textAnchor="middle" dominantBaseline="central" fontSize={12} fill="var(--color-text-secondary)" fontWeight="600">{conceptTypeGlyph(node.type)}</text>
+                  <text x={node.x} y={node.y + 15} textAnchor="middle" fontSize={12} fill="var(--color-text-primary)" fontWeight="700">{node.mastery}%</text>
+                  {/* Label under node — primary/secondary ink on card canvas (was #d8d4ea on black disc). */}
+                  <text x={node.x} y={node.y + r + 16} textAnchor="middle" fontSize={13} fill="var(--color-text-primary)" fontWeight={isSel ? '600' : '500'}>
+                    {node.label.length > 18 ? node.label.slice(0, 16) + '…' : node.label}
                   </text>
                   {node.note && <circle cx={node.x + r - 4} cy={node.y - r + 4} r={5} fill="var(--palette-amber)" />}
                 </g>

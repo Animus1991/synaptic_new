@@ -229,13 +229,13 @@ export function DashboardPanel({
         {/* Wave E12 β€” KPI strip + one focus action; exports demoted to menu */}
         <div className="mb-2 flex flex-wrap items-center gap-2" data-testid="dashboard-kpi-row">
           {session.weakSpotCount > 0 && (
-            <span className="rounded-lg border border-accent-rose/30 bg-accent-rose/10 px-2 py-1 type-caption font-medium text-accent-rose">
+            <span className="rounded-lg border border-accent-rose/40 bg-accent-rose/12 px-2 py-1 type-caption font-semibold text-text-primary">
               {session.weakSpotCount} {t('panelWeakCount')}
             </span>
           )}
           {session.toolActivityCount > 0 && (
-            <span className="type-caption text-text-muted">
-              {session.engagedToolCount} {t('panelTools')} Β· {session.toolActivityCount} {t('panelActions')}
+            <span className="type-caption text-text-secondary">
+              {session.engagedToolCount} {t('panelTools')} · {session.toolActivityCount} {t('panelActions')}
             </span>
           )}
           {!nextAction && session.suggestFocusTool && suggestLabel && onOpenSuggestedTool && (

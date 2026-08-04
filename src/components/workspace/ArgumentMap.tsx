@@ -28,11 +28,32 @@ export interface ArgNode {
   children?: ArgNode[];
 }
 
+/**
+ * Theme-aware soft fills — dark jewel nodes (#1e1b4b / #064e3b) were AA on
+ * themselves but jarring against the light notebook canvas and washed out
+ * under dark themes. Signal lives in the border; body ink stays primary.
+ */
 const NODE_COLORS: Record<ArgNodeType, { bg: string; border: string; text: string }> = {
-  claim: { bg: '#1e1b4b', border: '#818cf8', text: '#e0e7ff' },
-  premise: { bg: '#162032', border: '#67e8f9', text: '#cffafe' },
-  support: { bg: '#064e3b', border: '#34d399', text: '#d1fae5' },
-  refutation: { bg: '#4c1d2e', border: '#fb7185', text: '#ffe4e6' },
+  claim: {
+    bg: 'color-mix(in srgb, var(--color-brand-600) 14%, var(--color-surface-card))',
+    border: 'color-mix(in srgb, var(--color-brand-600) 48%, var(--color-border-subtle))',
+    text: 'var(--color-text-primary)',
+  },
+  premise: {
+    bg: 'color-mix(in srgb, var(--palette-cyan, #22d3ee) 12%, var(--color-surface-card))',
+    border: 'color-mix(in srgb, var(--palette-cyan, #22d3ee) 42%, var(--color-border-subtle))',
+    text: 'var(--color-text-primary)',
+  },
+  support: {
+    bg: 'color-mix(in srgb, var(--mastery-strong) 14%, var(--color-surface-card))',
+    border: 'color-mix(in srgb, var(--mastery-strong) 48%, var(--color-border-subtle))',
+    text: 'var(--color-text-primary)',
+  },
+  refutation: {
+    bg: 'color-mix(in srgb, var(--color-accent-rose) 12%, var(--color-surface-card))',
+    border: 'color-mix(in srgb, var(--color-accent-rose) 48%, var(--color-border-subtle))',
+    text: 'var(--color-text-primary)',
+  },
 };
 
 const TYPE_LABEL_KEYS: Record<ArgNodeType, I18nKey> = {
@@ -223,7 +244,13 @@ export function ArgumentMap({
       <g key={`edge-${node.id}-${child.id}`}>
         <motion.line
           x1={node.x} y1={node.y + 40} x2={child.x} y2={child.y - 40}
-          stroke={child.type === 'refutation' ? '#fb7185' : child.type === 'support' ? '#34d399' : '#6b6494'}
+          stroke={
+            child.type === 'refutation'
+              ? 'var(--color-accent-rose)'
+              : child.type === 'support'
+                ? 'var(--mastery-strong)'
+                : 'var(--color-border-strong, var(--color-text-muted))'
+          }
           strokeWidth={2} strokeLinecap="round"
           strokeDasharray={child.type === 'refutation' ? '4 4' : 'none'}
           initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 0.5 }}
@@ -244,8 +271,8 @@ export function ArgumentMap({
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           className={cn(
-            'absolute group flex flex-col items-center justify-center rounded-xl border-2 p-3 text-center text-xs font-medium shadow-lg',
-            isSelected && 'ring-2 ring-accent-cyan/50',
+            'absolute group flex flex-col items-center justify-center rounded-xl border-2 p-3 text-center type-caption font-medium shadow-sm',
+            isSelected && 'ring-2 ring-brand-500/40',
           )}
           style={{
             width: 150, minHeight: 84, left: node.x - 75, top: node.y - 42,
@@ -355,14 +382,14 @@ export function ArgumentMap({
         </div>
       </div>
       {counterSuggestions.length > 0 && (
-        <div className="shrink-0 border-b border-border-subtle bg-accent-rose/5 px-4 py-2 type-caption text-text-secondary">
-          <span className="font-semibold text-accent-rose">{t('debateSuggestedCounters')}</span>
+        <div className="shrink-0 border-b border-border-subtle bg-accent-rose/8 px-4 py-2 type-caption text-text-primary">
+          <span className="font-semibold text-text-primary">{t('debateSuggestedCounters')}</span>
           {' '}
           {counterSuggestions.map((s, i) => (
             <button
               key={i}
               type="button"
-              className="ml-1 underline hover:text-accent-rose"
+              className="ml-1 underline text-text-secondary decoration-accent-rose/50 hover:text-text-primary"
               onClick={() => addNode(root.id, 'refutation', s.text)}
               title={s.source}
             >
@@ -389,8 +416,8 @@ export function ArgumentMap({
                 className={cn(
                   'rounded-lg border px-2.5 py-1.5 type-caption font-medium leading-snug',
                   e.kind === 'rebuts'
-                    ? 'border-accent-rose/40 text-accent-rose bg-accent-rose/10'
-                    : 'border-accent-emerald/40 text-accent-emerald bg-accent-emerald/10',
+                    ? 'border-accent-rose/45 bg-accent-rose/10 text-text-primary'
+                    : 'border-accent-emerald/45 bg-accent-emerald/10 text-text-primary',
                 )}
               >
                 <span className="font-semibold">{e.label ?? e.kind}</span>
@@ -398,7 +425,7 @@ export function ArgumentMap({
                   <span className="text-text-secondary"> — {fromText.slice(0, 96)}{fromText.length > 96 ? '…' : ''}</span>
                 ) : null}
                 {toText ? (
-                  <span className="block mt-0.5 text-text-muted">→ {toText.slice(0, 96)}{toText.length > 96 ? '…' : ''}</span>
+                  <span className="block mt-0.5 text-text-secondary">→ {toText.slice(0, 96)}{toText.length > 96 ? '…' : ''}</span>
                 ) : null}
               </li>
             );

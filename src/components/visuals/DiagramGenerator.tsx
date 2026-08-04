@@ -267,7 +267,8 @@ export function ComparisonTable({
                       className={cn(
                         'py-2 px-3 text-text-secondary',
                         j === 0 && focused && 'font-semibold text-text-primary',
-                        highlight && 'bg-accent-amber/15 text-accent-amber font-medium',
+                        // Wash carries the "diff" signal; ink stays primary for AA on light themes.
+                        highlight && 'bg-accent-amber/22 text-text-primary font-semibold',
                       )}
                     >
                       {cell}

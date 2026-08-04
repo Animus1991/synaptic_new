@@ -375,50 +375,57 @@ export function InteractiveSimulator({
           </div>
         </div>
 
-        <svg width={w} height={h} className="mb-3 block overflow-visible">
-          <line x1={pad} y1={pad - 10} x2={pad} y2={h - pad} stroke="#6b6494" strokeWidth={2} />
-          <line x1={pad} y1={h - pad} x2={w - pad + 10} y2={h - pad} stroke="#6b6494" strokeWidth={2} />
-          <text x={pad - 15} y={pad} fill="#b8b3d4" fontSize={11} fontWeight="bold">P</text>
-          <text x={w - pad} y={h - pad + 15} fill="#b8b3d4" fontSize={11} fontWeight="bold">Q</text>
+        <svg width={w} height={h} className="mb-3 block overflow-visible" data-testid="simulator-sd-graph">
+          <line x1={pad} y1={pad - 10} x2={pad} y2={h - pad} stroke="var(--color-border-strong, var(--color-text-muted))" strokeWidth={2} />
+          <line x1={pad} y1={h - pad} x2={w - pad + 10} y2={h - pad} stroke="var(--color-border-strong, var(--color-text-muted))" strokeWidth={2} />
+          <text x={pad - 15} y={pad} fill="var(--color-text-secondary)" fontSize={12} fontWeight="bold">P</text>
+          <text x={w - pad} y={h - pad + 15} fill="var(--color-text-secondary)" fontSize={12} fontWeight="bold">Q</text>
 
           <motion.polygon
             points={`${toX(0)},${toY(dQ0)} ${toX(eqQ)},${toY(eqP)} ${toX(0)},${toY(eqP)}`}
-            fill="#34d399" opacity={0.15}
+            fill="var(--mastery-strong)" opacity={0.28}
             animate={{ points: `${toX(0)},${toY(dQ0)} ${toX(eqQ)},${toY(eqP)} ${toX(0)},${toY(eqP)}` }}
             transition={{ type: 'spring', bounce: 0, duration: 0.4 }}
           />
           <motion.polygon
             points={`${toX(0)},${toY(eqP)} ${toX(eqQ)},${toY(eqP)} ${toX(0)},${toY(Math.max(0, sP_Q0))}`}
-            fill="#818cf8" opacity={0.15}
+            fill="var(--color-brand-600)" opacity={0.22}
             animate={{ points: `${toX(0)},${toY(eqP)} ${toX(eqQ)},${toY(eqP)} ${toX(0)},${toY(Math.max(0, sP_Q0))}` }}
             transition={{ type: 'spring', bounce: 0, duration: 0.4 }}
           />
           <motion.line
             x1={toX(0)} y1={toY(dQ0)} x2={toX(dP0)} y2={toY(0)}
-            stroke="#34d399" strokeWidth={3} strokeLinecap="round"
+            stroke="var(--mastery-strong)" strokeWidth={3} strokeLinecap="round"
             animate={{ x1: toX(0), y1: toY(dQ0), x2: toX(dP0), y2: toY(0) }}
             transition={{ type: 'spring', bounce: 0, duration: 0.4 }}
           />
-          <text x={toX(dP0) - 10} y={toY(0) - 10} fill="#34d399" fontSize={12} fontWeight="bold">D</text>
+          <text x={toX(dP0) - 10} y={toY(0) - 10} fill="var(--color-text-primary)" fontSize={13} fontWeight="bold">D</text>
           <motion.line
             x1={toX(sQ1)} y1={toY(sP1)} x2={toX(sQ2)} y2={toY(sP2)}
-            stroke="#818cf8" strokeWidth={3} strokeLinecap="round"
+            stroke="var(--color-brand-600)" strokeWidth={3} strokeLinecap="round"
             animate={{ x1: toX(sQ1), y1: toY(sP1), x2: toX(sQ2), y2: toY(sP2) }}
             transition={{ type: 'spring', bounce: 0, duration: 0.4 }}
           />
-          <text x={toX(sQ2) - 10} y={toY(sP2) + 15} fill="#818cf8" fontSize={12} fontWeight="bold">S</text>
-          <line x1={pad} y1={toY(eqP)} x2={toX(eqQ)} y2={toY(eqP)} stroke="#fbbf24" strokeWidth={1} strokeDasharray="4 4" opacity={0.5} />
-          <line x1={toX(eqQ)} y1={h - pad} x2={toX(eqQ)} y2={toY(eqP)} stroke="#fbbf24" strokeWidth={1} strokeDasharray="4 4" opacity={0.5} />
-          <circle cx={toX(eqQ)} cy={toY(eqP)} r={6} fill="#fbbf24" />
+          <text x={toX(sQ2) - 10} y={toY(sP2) + 15} fill="var(--color-text-primary)" fontSize={13} fontWeight="bold">S</text>
+          <line x1={pad} y1={toY(eqP)} x2={toX(eqQ)} y2={toY(eqP)} stroke="var(--palette-amber)" strokeWidth={1.5} strokeDasharray="4 4" opacity={0.85} />
+          <line x1={toX(eqQ)} y1={h - pad} x2={toX(eqQ)} y2={toY(eqP)} stroke="var(--palette-amber)" strokeWidth={1.5} strokeDasharray="4 4" opacity={0.85} />
+          <circle cx={toX(eqQ)} cy={toY(eqP)} r={6} fill="var(--palette-amber)" stroke="var(--color-surface-card)" strokeWidth={1.5} />
         </svg>
 
-        <div className="mb-4 flex gap-4 text-xs font-medium">
-          <span className="flex items-center gap-1.5 text-accent-emerald">
-            <span className="h-3.5 w-3.5 rounded-sm border border-accent-emerald bg-accent-emerald/25" />
+        <div className="mb-4 flex gap-4 type-caption font-medium">
+          <span className="flex items-center gap-1.5 text-text-primary">
+            <span
+              className="h-3.5 w-3.5 rounded-sm border"
+              style={{
+                borderColor: 'color-mix(in srgb, var(--mastery-strong) 55%, var(--color-border-subtle))',
+                backgroundColor: 'color-mix(in srgb, var(--mastery-strong) 28%, transparent)',
+              }}
+              aria-hidden
+            />
             {t('consumerSurplus')}
           </span>
           <span className="flex items-center gap-1.5 text-text-primary">
-            <span className="h-3.5 w-3.5 rounded-sm border border-brand-400 bg-brand-500/25" />
+            <span className="h-3.5 w-3.5 rounded-sm border border-brand-500/50 bg-brand-600/25" aria-hidden />
             {t('producerSurplus')}
           </span>
         </div>

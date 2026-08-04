@@ -83,18 +83,18 @@ Perf root causes fixed (E0): per-tool intel gates; noteBundle pipeline decoupled
 |----|-------|----------------------------------|
 | E0 | Perf (**done**) | Open ≈ interactive immediately; switches instant post warm-up. Dev longtask/profiler/pipeline console diagnostics removed at E14 |
 | E1 | Design tokens foundation | **done** — workspace type floor + `workspaceOpticalTokens` module with contract tests (`workspaceOpticalTokens.test.ts`); platform-wide sweep: all `text-[9/10/11px]` → `type-micro`/`type-caption` (122+ files); global floor lifted micro 10→11px, caption 11→12px (workspace stays 12/13) |
-| E2 | Shared tool chrome | **partial** — `WorkspaceToolHeader` + `InfoHint` exist; still demote meta chrome (GUIDE duplication, chip vs button semantics) across panels |
+| E2 | Shared tool chrome | **partial** — `WorkspaceToolHeader` + `InfoHint` + global `.ws-panel-toolbar` (all themes); remaining: demote GUIDE duplication / chip-vs-button semantics |
 | E3 | Whiteboard | **done** — canvas-first; coach collapsed by default; chrome/filters collapsible; grouped draw/shape toolbar + overflow for layers/export |
-| E4 | Concept Map | **done** — single toolbar; Force/Hierarchy/PNG/Reset overflow; layers collapsible; stronger node labels; legend + InfoHint |
+| E4 | Concept Map | **done** — theme-aware soft discs + primary label ink (was black discs / pale labels); stronger edges; legend InfoHint |
 | E5 | Flashcards | **partial** — code: filters/queues collapsed + overflow menu; hard-refresh to verify (screenshots still showed pre-fix chrome) |
 | E6 | Quiz | **partial** — code: one meta strip + progress; hard-refresh to verify (screenshots still showed calibrating stack) |
 | E7 | Feynman | **done** — primary Coach CTA (brand solid); Ask Agent secondary; Voice kept; Export/PDF in overflow; outline uses type-caption |
-| E8 | Compare | **done** — concept + Contrast headers; Diff legend when active; quieter type tokens |
-| E9 | Debate | **done** — human persist/status copy; readable rebuttal list (not 24-char chips) |
-| E10 | Simulator + Timer | **done** — shared sync strip + one preset status chip; pomodoro segmented; exam blocks as select; quieter Timed Block CTA |
-| E11 | Annotations | **done** — always-visible tool/category labels via i18n; named color swatches; category counts |
-| E12 | Progress | **done** — KPI row; single next-action card (suggest demoted when nextAction present); exports overflow menu |
-| E13 | Tutor column + files rail | **partial** — offline strip + breadcrumb + faithfulness strip + Files quality hint + Pages brand selection; composer captions now always visible (not `hidden sm:block`, which hid them in the narrow AI column) |
+| E8 | Compare | **done** — Diff cells: amber wash + primary ink (AA); concept + Contrast headers |
+| E9 | Debate | **done** — soft theme-aware claim/premise/support/refutation nodes (was dark jewel fills); AA rebuttal list + counters |
+| E10 | Simulator + Timer | **done** — S/D graph theme tokens + stronger surplus fills; exam-block clear persists |
+| E11 | Annotations | **done** — `.ws-panel-toolbar` global (was light/warm-only → run-together labels on minimal); named swatches |
+| E12 | Progress | **done** — KPI row + AA weak chip; ReadinessRing band AA; single next-action card |
+| E13 | Tutor column + files rail | **partial** — offline strip uses `platform-banner-warn` + banner-warn-ink (all themes); Files quality + Pages selection |
 | E14 | Exit gate | **done** — diagnostics removed; `test:a11y` + `test:e2e:perf` + contrast unit tests green; LHCI a11y ≥0.95 asserted (`npm run test:lhci`, landing/dashboard/demo). Fixes: ReadinessRing band AA ink; Shell Tasks/Search accessible names; Dashboard layout toggle labels |)
 
 ## Explicitly out of scope

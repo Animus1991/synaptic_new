@@ -1340,12 +1340,12 @@ export function Agent({
       {/* Wave E13 β€” one session status strip (avoid repeating offline under every message). */}
       {embedded && !llmReady && (
         <div
-          className="flex items-center gap-2 border-b border-accent-amber/30 bg-accent-amber/10 px-3 py-1.5 shrink-0"
+          className="platform-banner-warn flex items-center gap-2 border-b px-3 py-1.5 shrink-0"
           data-testid="agent-session-offline-strip"
           role="status"
         >
-          <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-accent-amber" aria-hidden />
-          <p className="type-caption text-text-primary min-w-0">{t('agentSessionOfflineStrip')}</p>
+          <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-[var(--color-banner-warn-ink)]" aria-hidden />
+          <p className="platform-banner-title type-caption min-w-0">{t('agentSessionOfflineStrip')}</p>
         </div>
       )}
       <AgentContextBanner context={workspaceContext} lang={lang} compact={embedded} />
