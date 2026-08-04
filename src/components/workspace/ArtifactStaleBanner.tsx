@@ -26,7 +26,7 @@ export function ArtifactStaleBanner({ lang, tool, onDismiss }: Props) {
         <button
           type="button"
           onClick={onDismiss}
-          className="ws-empty-cta-secondary shrink-0 self-end px-2.5 py-1 text-[10px] sm:self-auto"
+          className="ws-empty-cta-secondary shrink-0 self-end px-2.5 py-1 type-caption sm:self-auto"
           data-testid={`artifact-stale-dismiss-${tool}`}
         >
           {t('gotItContinue', lang)}

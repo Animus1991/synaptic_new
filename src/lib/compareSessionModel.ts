@@ -37,10 +37,11 @@ export function buildCompareSessionContent(opts: {
 }): CompareSessionContent {
   const { concept, text, glossary, sectionLabel, hasSource, lang } = opts;
   const isEl = lang === 'el';
+  const conceptTitle = (concept.trim() || (isEl ? 'Έννοια' : 'Concept')).slice(0, 40);
   const headers: [string, string, string] = [
     isEl ? 'Διάσταση' : 'Dimension',
-    isEl ? 'Α' : 'A',
-    isEl ? 'Β' : 'B',
+    conceptTitle,
+    isEl ? 'Αντίθεση' : 'Contrast',
   ];
 
   if (!hasSource) {

@@ -53,7 +53,7 @@ export function WorkspaceStepRail({
         data-testid={`workspace-step-rail-${i}`}
         aria-current={currentStep === i ? 'step' : undefined}
         className={cn(
-          'flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-medium shrink-0 transition-all',
+          'flex items-center gap-1.5 px-2.5 py-1 rounded-full type-caption font-medium shrink-0 transition-all',
           currentStep === i
             ? 'bg-accent-cyan/15 text-text-primary'
             : i < currentStep
@@ -63,7 +63,7 @@ export function WorkspaceStepRail({
       >
         <span
           className={cn(
-            'w-4 h-4 rounded-full border text-[10px] flex items-center justify-center relative',
+            'w-4 h-4 rounded-full border type-caption flex items-center justify-center relative',
             currentStep === i
               ? 'border-accent-cyan text-text-primary bg-accent-cyan/10'
               : i < currentStep
@@ -91,7 +91,7 @@ export function WorkspaceStepRail({
         <button
           type="button"
           onClick={() => onSelectStep(0, { focusReader: true })}
-          className="px-2 py-1 rounded-full text-[10px] text-text-muted hover:text-text-secondary shrink-0"
+          className="px-2 py-1 rounded-full type-caption text-text-muted hover:text-text-secondary shrink-0"
           aria-label="First step"
         >
           1…
@@ -102,7 +102,7 @@ export function WorkspaceStepRail({
         <button
           type="button"
           onClick={() => onSelectStep(total - 1, { focusReader: true })}
-          className="px-2 py-1 rounded-full text-[10px] text-text-muted hover:text-text-secondary shrink-0"
+          className="px-2 py-1 rounded-full type-caption text-text-muted hover:text-text-secondary shrink-0"
           aria-label="Last step"
         >
           …{total}

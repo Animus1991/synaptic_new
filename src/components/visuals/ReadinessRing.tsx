@@ -64,16 +64,15 @@ export function ReadinessRing({ value, size = 165, strokeWidth = 10.9, label = '
       </div>
       {showBand && (
         <span
-          className="text-xs font-semibold px-3 py-1 rounded-full"
+          className="text-xs font-semibold px-3 py-1 rounded-full border text-text-primary bg-surface-secondary"
           style={{
-            color: band.color,
-            backgroundColor: `color-mix(in srgb, ${band.color} 14%, transparent)`,
+            borderColor: `color-mix(in srgb, ${band.color} 45%, var(--color-border-subtle))`,
           }}
         >
           {band.label}
         </span>
       )}
-      {sublabel && <p className="text-[10px] text-text-muted text-center max-w-[200px]">{sublabel}</p>}
+      {sublabel && <p className="type-caption text-text-secondary text-center max-w-[200px]">{sublabel}</p>}
     </div>
   );
 }

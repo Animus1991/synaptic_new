@@ -78,7 +78,7 @@ export function WorkspaceEmptyState({
       </p>
       {(actions.length > 0 || showLegacyUpload) && (
         <div className={cn('flex flex-col gap-2', compact ? 'mt-2 w-full' : 'mt-6 items-center')}>
-          <p className="text-[10px] font-semibold uppercase tracking-wide text-text-muted">
+          <p className="type-caption font-semibold uppercase tracking-wide text-text-muted">
             <AllCapsLabel>{t('workspaceEmptyNextStep')}</AllCapsLabel>
           </p>
           <div className={cn('flex flex-wrap gap-2', compact ? '' : 'items-center justify-center')}>

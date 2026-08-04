@@ -90,35 +90,40 @@ export function PdfPageThumbnailStrip({
 
   if (count <= 1) return null;
 
+  const pagesLabel = lang === 'el' ? 'Σελίδες' : 'Pages';
+
   return (
     <div
       className={cn('flex gap-1.5 overflow-x-auto pb-1', className)}
       role="listbox"
-      aria-label={lang === 'el' ? 'Σελίδες PDF' : 'PDF pages'}
+      aria-label={pagesLabel}
       data-testid="pdf-page-thumbnail-strip"
     >
-      {thumbs.map((t) => {
-        const selected = t.pageIndex === activePageIndex;
+      {thumbs.map((thumb) => {
+        const selected = thumb.pageIndex === activePageIndex;
         return (
           <button
-            key={t.pageIndex}
+            key={thumb.pageIndex}
             type="button"
             role="option"
             aria-selected={selected}
-            data-testid={`pdf-page-thumb-${t.pageIndex}`}
+            aria-label={`${pagesLabel} ${thumb.pageIndex + 1}`}
+            data-testid={`pdf-page-thumb-${thumb.pageIndex}`}
             className={cn(
               /* OPT-N1 — ≥40px touch target on phone; larger selectable thumbs */
-              'shrink-0 h-11 w-10 min-h-11 min-w-10 sm:h-14 sm:w-11 rounded-md border overflow-hidden bg-surface-secondary',
-              selected ? 'border-accent-cyan ring-1 ring-accent-cyan/40' : 'border-border-subtle/60',
+              'shrink-0 h-11 w-10 min-h-11 min-w-10 sm:h-14 sm:w-11 rounded-lg border overflow-hidden bg-surface-secondary',
+              selected
+                ? 'border-brand-500 ring-2 ring-brand-500/35'
+                : 'border-border-subtle/60',
               onSelectPage && 'cursor-pointer hover:border-brand-400',
             )}
-            onClick={() => onSelectPage?.(t.pageIndex)}
+            onClick={() => onSelectPage?.(thumb.pageIndex)}
           >
-            {t.url ? (
-              <img src={t.url} alt="" className="h-full w-full object-cover object-top" />
+            {thumb.url ? (
+              <img src={thumb.url} alt="" className="h-full w-full object-cover object-top" />
             ) : (
-              <span className="flex h-full w-full items-center justify-center text-xs text-text-muted">
-                {t.loading && pdfBytes ? '…' : t.pageIndex + 1}
+              <span className="flex h-full w-full items-center justify-center type-caption font-medium text-text-secondary">
+                {thumb.loading && pdfBytes ? '…' : thumb.pageIndex + 1}
               </span>
             )}
           </button>

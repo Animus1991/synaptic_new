@@ -79,7 +79,7 @@ export function WeakAreasFocusRail({
                   onClick={() => onFocusWeakSpot(spot.concept)}
                   title={`${spot.concept} · ${spot.mastery}%`}
                   className={cn(
-                    'shrink-0 max-w-[150px] truncate rounded-full border px-2.5 py-1 text-[10px] transition-colors',
+                    'shrink-0 max-w-[150px] truncate rounded-full border px-2.5 py-1 type-caption transition-colors',
                     active ? 'ws-chip-danger' : 'ws-chip-neutral hover:opacity-90',
                   )}
                 >
@@ -110,7 +110,7 @@ export function WeakAreasFocusRail({
                       <span
                         key={reason.id}
                         className={cn(
-                          'rounded-full border px-1.5 py-0.5 text-[10px]',
+                          'rounded-full border px-1.5 py-0.5 type-caption',
                           reason.severity === 'high'
                             ? 'ws-chip-danger'
                             : reason.severity === 'medium'
@@ -123,7 +123,7 @@ export function WeakAreasFocusRail({
                     ))}
                   </div>
                 ) : (
-                  <p className="mt-1 text-[10px] text-text-muted">
+                  <p className="mt-1 type-caption text-text-muted">
                     {t('lowMasteryReview', lang)}
                   </p>
                 )}
@@ -131,21 +131,21 @@ export function WeakAreasFocusRail({
                   <div className="mt-1.5 flex flex-wrap gap-1" data-testid={`weak-area-try-${normalizeChipKey(spot.concept)}`}>
                     <button
                       type="button"
-                      className="rounded-full border border-border-default bg-surface-tertiary px-2 py-0.5 text-[10px] font-medium text-text-primary hover:bg-surface-hover"
+                      className="rounded-full border border-border-default bg-surface-tertiary px-2 py-0.5 type-caption font-medium text-text-primary hover:bg-surface-hover"
                       onClick={() => onTryWeakSpot(spot.concept, 'explain')}
                     >
                       {t('weakTryExplain', lang)}
                     </button>
                     <button
                       type="button"
-                      className="rounded-full border border-border-default bg-surface-tertiary px-2 py-0.5 text-[10px] font-medium text-text-primary hover:bg-surface-hover"
+                      className="rounded-full border border-border-default bg-surface-tertiary px-2 py-0.5 type-caption font-medium text-text-primary hover:bg-surface-hover"
                       onClick={() => onTryWeakSpot(spot.concept, 'quiz')}
                     >
                       {t('weakTryQuiz', lang)}
                     </button>
                     <button
                       type="button"
-                      className="rounded-full border border-border-default bg-surface-tertiary px-2 py-0.5 text-[10px] font-medium text-text-primary hover:bg-surface-hover"
+                      className="rounded-full border border-border-default bg-surface-tertiary px-2 py-0.5 type-caption font-medium text-text-primary hover:bg-surface-hover"
                       onClick={() => onTryWeakSpot(spot.concept, 'cards')}
                     >
                       {t('weakTryCards', lang)}

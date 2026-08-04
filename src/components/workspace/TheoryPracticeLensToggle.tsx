@@ -36,7 +36,7 @@ export function TheoryPracticeLensToggle({ lens, onChange, lang, className }: Pr
             onClick={() => onChange(opt.id)}
             data-testid={`workspace-lens-${opt.id}`}
             className={cn(
-              'rounded-full px-2.5 py-1 text-[10px] font-medium transition-colors',
+              'rounded-full px-2.5 py-1 type-caption font-medium transition-colors',
               active
                 ? 'bg-brand-600 text-white shadow-sm'
                 : 'text-text-secondary hover:text-text-primary hover:bg-surface-hover',

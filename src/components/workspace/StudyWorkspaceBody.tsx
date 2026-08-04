@@ -59,6 +59,8 @@ export function StudyWorkspaceBody(props: StudyWorkspaceProps) {
         data-grounded={model.noteBundle.hasSource ? 'true' : 'false'}
       >
         <StudyWorkspaceChrome model={model} />
+        {/* Study Room co-view strip mounts here (shared Study Hub viewport chrome). */}
+        <div id="synapse-study-room-coview-root" className="shrink-0 empty:hidden" />
         {model.notebookMode
           ? <NotebookWorkspaceLayout model={model} />
           : <StudyWorkspaceMainLayout model={model} />}

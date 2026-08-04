@@ -1,11 +1,11 @@
-﻿import { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   BookOpen, CheckSquare, Robot as Bot, SquaresFour as LayoutDashboard, Gear as Settings,
   Sparkle as Sparkles, List as Menu, X, UploadSimple as Upload, Bell, MagnifyingGlass as Search, CaretRight as ChevronRight,
   CaretLeft as ChevronLeft, CaretDoubleRight, ChartBar as BarChart3, Sun, Moon, Users, Fire as Flame, SquaresFour as Layout, Wind, GraduationCap,
   TreeStructure as Network, Lightning as Zap, Clock, Stack as Layers, DotsThreeOutline, Minus, Square,
-  CalendarBlank, Play,
+  CalendarBlank, Play, UsersThree,
 } from '@phosphor-icons/react';
 import type { AppView, User, DashboardStats, UserSettings } from '../types';
 import { cn } from '../utils/cn';
@@ -77,6 +77,7 @@ const SHELL_NAV_ICONS: Record<ShellNavView, typeof BookOpen> = {
   library: BookOpen,
   tasks: CheckSquare,
   agent: Bot,
+  'study-room': UsersThree,
   analytics: BarChart3,
   teacher: Users,
   'student-org': GraduationCap,
@@ -346,7 +347,11 @@ export function Shell({
                       {...navButtonProps(item.view)}
                       onClick={() => onNavigate(item.view)}
                       title={tip}
-                      aria-label={tip}
+                      aria-label={
+                        item.view === 'tasks' && stats.reviewsDue > 0
+                          ? `${tip} (${stats.reviewsDue})`
+                          : tip
+                      }
                       className={shellNavClass(currentView === item.view && !studyWorkspaceOpen, quietNav, iconRail)}
                     >
                       {currentView === item.view && !studyWorkspaceOpen && (
@@ -364,10 +369,11 @@ export function Shell({
                       {item.view === 'tasks' && stats.reviewsDue > 0 && (
                         <span
                           title={tasksReviewBadgeHint}
+                          aria-hidden
                           className={cn(
                             'text-xs ws-chip-danger font-semibold',
                             iconRail
-                              ? 'absolute -right-0.5 -top-0.5 z-[2] min-w-[1rem] rounded-full px-1 py-0 text-[10px] leading-tight'
+                              ? 'absolute -right-0.5 -top-0.5 z-[2] min-w-[1rem] rounded-full px-1 py-0 type-caption leading-tight'
                               : 'ml-auto px-2 py-0.5 rounded-full',
                           )}
                         >
@@ -757,13 +763,14 @@ export function Shell({
                 data-testid="shell-search-button"
                 className="hidden sm:inline-flex h-8 min-h-8 max-h-8 items-center gap-1.5 px-2.5 rounded-lg bg-surface-input border border-border-subtle text-xs text-text-tertiary hover:border-border-default transition-colors"
                 title={t('shellSearchTitle').replace('{shortcut}', commandPaletteBadge())}
-                aria-label={t('shellSearchTitle').replace('{shortcut}', commandPaletteBadge())}
+                aria-label={`${t('search')} ${commandPaletteBadge()}`}
               >
-                <Search className="w-3.5 h-3.5" />
+                <Search className="w-3.5 h-3.5" aria-hidden />
                 <span className="hidden xl:inline">{t('search')}</span>
                 <kbd
-                  className="text-[10px] bg-surface-hover px-1 py-0.5 rounded border border-border-subtle font-mono"
+                  className="type-caption bg-surface-secondary px-1 py-0.5 rounded border border-border-subtle font-mono text-text-primary"
                   data-testid="shell-search-shortcut"
+                  aria-hidden
                 >
                   {commandPaletteBadge()}
                 </kbd>

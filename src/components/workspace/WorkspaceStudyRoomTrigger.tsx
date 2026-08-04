@@ -48,7 +48,7 @@ export function WorkspaceStudyRoomTrigger({
       aria-label={t('studyRoomTitle')}
       data-testid="workspace-study-room-open"
       className={cn(
-        'ws-eyebrow shrink-0 inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px]',
+        'ws-eyebrow shrink-0 inline-flex items-center gap-1 rounded-full border px-2 py-0.5 type-caption',
         open ? 'ws-chip-brand' : 'ws-chip-neutral',
         className,
       )}

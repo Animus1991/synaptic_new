@@ -123,7 +123,7 @@ export function ComparePanel({
   return (
     <div className="flex h-full flex-col overflow-hidden p-4" data-testid="compare-panel">
       {session.sectionLabel && (
-        <p className="mb-2 text-[10px] text-text-muted" data-testid="compare-section-label">
+        <p className="mb-2 type-caption text-text-muted" data-testid="compare-section-label">
           {t('compareSection')}{' '}
           <span className="text-text-secondary">{session.sectionLabel}</span>
         </p>
@@ -149,14 +149,14 @@ export function ComparePanel({
             data-testid="compare-filter"
           />
         </div>
-        <span className="text-[10px] text-text-muted">
+        <span className="type-caption text-text-muted">
           {visibleRows.length}/{session.rows.length} {t('compareRows')}
         </span>
         {onOpenInReader && (
           <button
             type="button"
             onClick={() => onOpenInReader(concept)}
-            className="inline-flex items-center gap-1 rounded-lg border border-white/10 px-2 py-1 text-[10px] text-text-secondary hover:border-border-default hover:text-text-primary"
+            className="inline-flex items-center gap-1 rounded-lg border border-border-subtle px-2.5 py-1.5 type-caption text-text-secondary hover:border-border-default hover:text-text-primary"
             data-testid="compare-open-reader"
           >
             <BookOpen className="w-3 h-3" />
@@ -173,7 +173,7 @@ export function ComparePanel({
             term: selectedRow[0],
             text: buildCompareSelectionContext(selectedRow, concept, session.sectionLabel).text,
           })}
-          className="mb-2 inline-flex items-center gap-1 rounded-lg border border-accent-cyan/30 bg-accent-cyan/10 px-3 py-1.5 text-[10px] font-medium text-text-primary hover:opacity-90"
+          className="mb-2 inline-flex items-center gap-1 rounded-lg border border-accent-cyan/30 bg-accent-cyan/10 px-3 py-1.5 type-caption font-medium text-text-primary hover:opacity-90"
         >
           {t('compareExplainDiff')}
         </button>
@@ -193,7 +193,7 @@ export function ComparePanel({
 
       {selectedRow && ocrNoisyTerms.has(selectedRow[0]) && (
         <p
-          className="mb-2 text-[10px] text-accent-amber px-1"
+          className="mb-2 type-caption text-accent-amber px-1"
           data-testid="compare-row-ocr-warning"
         >
           {t('compareOcrWarning')}
@@ -206,7 +206,7 @@ export function ComparePanel({
             type="button"
             data-testid="compare-ai-diff"
             onClick={() => onAiDiff(selectedRow[0], selectedRow[1] || concept)}
-            className="rounded-full border border-border-default bg-surface-tertiary px-2.5 py-1 text-[10px] font-medium text-text-primary hover:bg-surface-hover"
+            className="rounded-full border border-border-default bg-surface-tertiary px-2.5 py-1 type-caption font-medium text-text-primary hover:bg-surface-hover"
           >
             {t('compareAiDiff')}
           </button>

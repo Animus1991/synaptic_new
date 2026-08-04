@@ -14,7 +14,7 @@ import { repairGreekDocumentText, repairGreekPhraseCleanup } from './greekTextRe
 import { repairSpacedLatinText } from './latinTextRepair';
 import { flattenReaderPresentation, stripPresentationMarkup } from './presentationSanitizer';
 import { applySpellGateDocument } from './spellGate';
-import { extendSpellLexicon, resetSpellLexiconForTests } from './spellLexicon';
+import { setSpellLexiconExtensions } from './spellLexicon';
 import { analyzeTextHygiene, type TextHygieneReport } from './textQualityMetrics';
 import { sanitizeUnicode } from './textSanitizer';
 import { repairUtf8Mojibake } from './utf8MojibakeRepair';
@@ -49,14 +49,31 @@ function structuralNormalize(text: string): string {
     .trim();
 }
 
+/**
+ * PERF (workspace freeze root cause): callers across the workspace (segmentation
+ * ×6, reader step sync, reader layout, display prep) re-ran this WHOLE pipeline
+ * — including the fuzzy spell gate — on the same full source text with no
+ * memoization, freezing the main thread for seconds per commit. Deterministic
+ * (text, glossary, skipSpellGate) → result, so an LRU cache is safe.
+ */
+const pipelineCache = new Map<string, DocumentTextPipelineResult>();
+const PIPELINE_CACHE_MAX = 12;
+
 /** Full ingestion pipeline for stored extractedText / OCR output. */
 export function runDocumentTextPipeline(
   raw: string,
   opts: DocumentTextPipelineOptions = {},
 ): DocumentTextPipelineResult {
   const glossary = opts.glossaryTerms ?? [];
-  resetSpellLexiconForTests();
-  if (glossary.length > 0) extendSpellLexicon(glossary);
+  const cacheKey = `${opts.skipSpellGate ? 1 : 0}\u0000${glossary.join('\u0001')}\u0000${raw}`;
+  const cached = pipelineCache.get(cacheKey);
+  if (cached) {
+    // LRU refresh: re-insert as most recently used.
+    pipelineCache.delete(cacheKey);
+    pipelineCache.set(cacheKey, cached);
+    return cached;
+  }
+  setSpellLexiconExtensions(glossary);
 
   const hygieneBefore = analyzeTextHygiene(raw);
 
@@ -75,13 +92,19 @@ export function runDocumentTextPipeline(
   text = flattenReaderPresentation(text);
 
   const hygiene = analyzeTextHygiene(text);
-  return {
+  const result: DocumentTextPipelineResult = {
     text,
     hygiene: {
       ...hygiene,
       flags: [...new Set([...hygieneBefore.flags, ...hygiene.flags])],
     },
   };
+  if (pipelineCache.size >= PIPELINE_CACHE_MAX) {
+    const oldest = pipelineCache.keys().next().value;
+    if (oldest !== undefined) pipelineCache.delete(oldest);
+  }
+  pipelineCache.set(cacheKey, result);
+  return result;
 }
 
 /** Reader display path — same core repair, lighter spell pass acceptable. */

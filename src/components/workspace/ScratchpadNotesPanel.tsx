@@ -114,7 +114,7 @@ export function ScratchpadNotesPanel({
   return (
     <div className="flex flex-col h-full" data-testid="scratchpad-notes-panel">
       {(sectionLabel || concept) && (
-        <div className="px-4 py-1.5 border-b border-border-subtle bg-surface-primary/30 text-[10px] text-text-muted shrink-0">
+        <div className="px-4 py-1.5 border-b border-border-subtle bg-surface-primary/30 type-caption text-text-muted shrink-0">
           {t('scratchAttachedTo')}
           {sectionLabel && <span className="ml-1 font-medium text-text-primary">{sectionLabel}</span>}
           {concept && sectionLabel !== concept && <span className="ml-1 text-text-primary">· {concept}</span>}
@@ -129,7 +129,7 @@ export function ScratchpadNotesPanel({
             data-testid={`scratchpad-mode-${m}`}
             onClick={() => setMode(m)}
             className={cn(
-              'px-2 py-0.5 rounded text-[10px] font-medium border transition-all',
+              'px-2 py-0.5 rounded type-caption font-medium border transition-all',
               mode === m
                 ? 'border-brand-400/50 bg-surface-secondary text-text-primary border border-border-subtle'
                 : 'border-transparent text-text-muted hover:text-text-secondary',
@@ -175,7 +175,7 @@ export function ScratchpadNotesPanel({
 
         {entries.length > 0 && (
           <div className="pt-2 space-y-1.5">
-            <p className="text-[10px] font-semibold text-text-muted">
+            <p className="type-caption font-semibold text-text-muted">
               {t('scratchSavedEntries')} ({entries.length})
             </p>
             <AnimatePresence>
@@ -193,7 +193,7 @@ export function ScratchpadNotesPanel({
                   onClick={() => setSelectedId(selectedId === entry.id ? null : entry.id)}
                 >
                   <div className="flex items-center justify-between gap-2 mb-1">
-                    <span className="text-[10px] text-text-primary font-medium">
+                    <span className="type-caption text-text-primary font-medium">
                       {SCRATCHPAD_MODE_LABELS[entry.mode][lang]}
                       {entry.sectionLabel && <span className="text-text-muted ml-1">· {entry.sectionLabel}</span>}
                     </span>
@@ -223,7 +223,7 @@ export function ScratchpadNotesPanel({
                           type="button"
                           data-testid="scratchpad-to-flashcard"
                           onClick={() => onConvertToFlashcard(buildFlashcardFromEntry(entry), entry)}
-                          className="flex items-center gap-1 text-[10px] text-accent-amber hover:text-accent-amber/80"
+                          className="flex items-center gap-1 type-caption text-accent-amber hover:text-accent-amber/80"
                         >
                           <Layers className="w-3 h-3" />
                           {t('scratchToFlashcard')}
@@ -234,7 +234,7 @@ export function ScratchpadNotesPanel({
                           type="button"
                           data-testid="scratchpad-to-annotation"
                           onClick={() => onConvertToAnnotation(entry)}
-                          className="flex items-center gap-1 text-[10px] text-text-primary hover:opacity-80"
+                          className="flex items-center gap-1 type-caption text-text-primary hover:opacity-80"
                         >
                           <Highlighter className="w-3 h-3" />
                           {t('scratchToAnnotation')}
@@ -244,7 +244,7 @@ export function ScratchpadNotesPanel({
                         <button
                           type="button"
                           onClick={() => onAskAgent(entry.body, entry.mode)}
-                          className="flex items-center gap-1 text-[10px] text-text-primary"
+                          className="flex items-center gap-1 type-caption text-text-primary"
                         >
                           <Sparkles className="w-3 h-3" />
                           Agent
@@ -260,7 +260,7 @@ export function ScratchpadNotesPanel({
       </div>
 
       {selected && (
-        <div className="px-3 py-1 border-t border-border-subtle text-[10px] text-text-muted shrink-0">
+        <div className="px-3 py-1 border-t border-border-subtle type-caption text-text-muted shrink-0">
           {t('scratchSelectedEntry')} · {selected.updatedAt.slice(0, 10)}
         </div>
       )}

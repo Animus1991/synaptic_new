@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { emphasizedTransition, fadeUp } from '../../lib/motion';
 import { MessageSquare, Pin, X, Tag, Wand2, BookOpen, AlertTriangle, FileText } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
-import { useI18n } from '../../lib/i18n';
+import { useI18n, type I18nKey } from '../../lib/i18n';
 import {
   exportAnnotationsJson,
   exportAnnotationsMarkdown,
@@ -48,10 +48,10 @@ import {
 import { UiIcon } from '../ui/UiIcon';
 import type { AnnotationConflict } from '../../lib/annotationRealtimeSync';
 
-function categoryLabel(cat: AnnotationCategory, lang: 'en' | 'el'): string {
+function categoryLabel(cat: AnnotationCategory, translate: (key: I18nKey) => string): string {
   const row = SEMANTIC_CATEGORIES.find((c) => c.cat === cat);
   if (!row) return cat;
-  return lang === 'el' ? row.labelEl : row.labelEn;
+  return translate(row.labelKey);
 }
 
 function downloadBlob(filename: string, content: string, mime: string) {
@@ -169,6 +169,15 @@ export function AnnotationOverlay({
     if (focusTerm) terms.add(focusTerm);
     return [...terms];
   }, [annotations, focusTerm]);
+
+  const categoryCounts = useMemo(() => {
+    const counts: Partial<Record<AnnotationCategory | 'general', number>> = {};
+    for (const a of annotations) {
+      const cat: AnnotationCategory | 'general' = a.category ?? 'general';
+      counts[cat] = (counts[cat] ?? 0) + 1;
+    }
+    return counts;
+  }, [annotations]);
 
   const allAnnotations = useMemo(() => {
     const teacherAsLocal: StoredAnnotation[] = sharedAnnotations.map((s) => ({
@@ -435,6 +444,7 @@ export function AnnotationOverlay({
         onColorChange={setActiveColor}
         activeCategory={activeCategory}
         onCategoryChange={setActiveCategory}
+        categoryCounts={categoryCounts}
         sharedCount={sharedAnnotations.length}
         syncLive={annotationSyncLive}
         syncMode={annotationSyncMode}
@@ -459,7 +469,7 @@ export function AnnotationOverlay({
       )}
 
       {tool === 'highlight' && (
-        <p className="shrink-0 border-b border-border-subtle px-3 py-1 text-[10px] text-text-muted" data-testid="annotation-span-hint">
+        <p className="shrink-0 border-b border-border-subtle px-3 py-1 type-caption text-text-muted" data-testid="annotation-span-hint">
           {t('annoSelectSpan')}
         </p>
       )}
@@ -467,14 +477,14 @@ export function AnnotationOverlay({
       {needsReviewCount > 0 && (
         <WorkspacePanelWarnStrip
           testId="annotation-reprocess-banner"
-          className="rounded-none border-x-0 border-t-0 px-3 py-1.5 text-[10px]"
+          className="rounded-none border-x-0 border-t-0 px-3 py-1.5 type-caption"
           trailing={(
             <div className="flex shrink-0 flex-wrap gap-1">
               <button
                 type="button"
                 data-testid="annotation-banner-auto-remap"
                 onClick={handleAutoRemap}
-                className="ws-chip-ok inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[10px] font-semibold"
+                className="ws-chip-ok inline-flex items-center gap-1 rounded-md px-2 py-0.5 type-caption font-semibold"
               >
                 <Wand2 className="h-3 w-3" />
                 {t('annoAutoRemap')}
@@ -483,7 +493,7 @@ export function AnnotationOverlay({
                 type="button"
                 data-testid="annotation-banner-review"
                 onClick={openRemapReview}
-                className="ws-chip-warn rounded-md px-2 py-0.5 text-[10px] font-semibold"
+                className="ws-chip-warn rounded-md px-2 py-0.5 type-caption font-semibold"
               >
                 {t('annoReviewFlaggedBtn')}
               </button>
@@ -543,7 +553,7 @@ export function AnnotationOverlay({
             type="button"
             onClick={() => setFilterTerm(null)}
             className={cn(
-              'shrink-0 rounded px-1.5 py-0.5 text-[10px] font-medium',
+              'shrink-0 rounded px-1.5 py-0.5 type-caption font-medium',
               !filterTerm ? 'ws-chip-brand' : 'text-text-muted',
             )}
           >
@@ -555,32 +565,32 @@ export function AnnotationOverlay({
               type="button"
               onClick={() => setFilterTerm(filterTerm === term ? null : term)}
               className={cn(
-                'shrink-0 rounded border px-1.5 py-0.5 text-[10px] font-medium',
+                'shrink-0 rounded border px-1.5 py-0.5 type-caption font-medium',
                 filterTerm === term ? 'ws-chip-brand' : 'border-border-subtle text-text-muted',
               )}
             >
               {term}
             </button>
           ))}
-          {SEMANTIC_CATEGORIES.map(({ cat, iconId, labelEn, labelEl }) => (
+          {SEMANTIC_CATEGORIES.map(({ cat, iconId, labelKey }) => (
             <button
               key={`filter-${cat}`}
               type="button"
               onClick={() => setFilterCategory(filterCategory === cat ? null : cat)}
               className={cn(
-                'inline-flex shrink-0 items-center gap-0.5 rounded border px-1.5 py-0.5 text-[10px] font-medium',
+                'inline-flex shrink-0 items-center gap-0.5 rounded border px-1.5 py-0.5 type-caption font-medium',
                 filterCategory === cat ? 'ws-chip-brand' : 'border-border-subtle text-text-muted',
               )}
             >
               <UiIcon id={iconId} size="xs" />
-              {lang === 'el' ? labelEl : labelEn}
+              {t(labelKey)}
             </button>
           ))}
           <input
             value={tagDraft}
             onChange={(e) => setTagDraft(e.target.value)}
             placeholder={t('annoTagPlaceholder')}
-            className="ml-auto w-16 shrink-0 rounded border border-border-subtle bg-surface-input px-1 py-0.5 text-[10px] sm:w-20"
+            className="ml-auto w-16 shrink-0 rounded border border-border-subtle bg-surface-input px-1 py-0.5 type-caption sm:w-20"
           />
         </div>
       )}
@@ -646,17 +656,17 @@ export function AnnotationOverlay({
                   </button>
                 )}
                 {lineAnns.some((a) => a.focusTerm) && (
-                  <span className="ml-1 text-[10px] text-text-primary opacity-80">
+                  <span className="ml-1 type-caption text-text-primary opacity-80">
                     #{lineAnns.find((a) => a.focusTerm)?.focusTerm}
                   </span>
                 )}
                 {lineAnns.some((a) => a.category === 'confusing') && (
-                  <span className="ml-1 inline-flex" title={categoryLabel('confusing', lang)}>
+                  <span className="ml-1 inline-flex" title={categoryLabel('confusing', t)}>
                     <AlertTriangle className="w-2.5 h-2.5 text-accent-amber" aria-hidden />
                   </span>
                 )}
                 {lineAnns.some((a) => a.category === 'exam-relevant') && (
-                  <span className="ml-1 inline-flex" title={categoryLabel('exam-relevant', lang)}>
+                  <span className="ml-1 inline-flex" title={categoryLabel('exam-relevant', t)}>
                     <FileText className="w-2.5 h-2.5 text-text-primary" aria-hidden />
                   </span>
                 )}

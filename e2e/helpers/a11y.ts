@@ -36,10 +36,37 @@ export function blockingViolations(results: Awaited<ReturnType<AxeBuilder['analy
   return results.violations.filter((v) => ['serious', 'critical'].includes(v.impact ?? ''));
 }
 
+/**
+ * Persist theme before React boots (and re-apply after). DOM-only setAttribute is
+ * overwritten by App's applyTheme(store.user.settings.theme) on the next effect.
+ */
+export async function persistAppTheme(page: Page, theme: AppTheme) {
+  await page.addInitScript((t) => {
+    localStorage.setItem('synapse:theme-preference', JSON.stringify(t));
+  }, theme);
+}
+
 export async function setAppTheme(page: Page, theme: AppTheme) {
   await page.evaluate((t) => {
+    localStorage.setItem('synapse:theme-preference', JSON.stringify(t));
+    try {
+      const raw = localStorage.getItem('synapse:session-v2');
+      if (raw) {
+        const session = JSON.parse(raw) as { userSettings?: Record<string, unknown> };
+        session.userSettings = { ...(session.userSettings ?? {}), theme: t };
+        localStorage.setItem('synapse:session-v2', JSON.stringify(session));
+      }
+    } catch {
+      /* ignore corrupt session */
+    }
     document.documentElement.setAttribute('data-theme', t);
+    document.documentElement.style.colorScheme =
+      t === 'light' || t === 'spectrum' || t === 'minimal' ? 'light' : 'dark';
   }, theme);
+  await page.reload({ waitUntil: 'domcontentloaded' });
+  await expect
+    .poll(async () => page.locator('html').getAttribute('data-theme'), { timeout: 10_000 })
+    .toBe(theme);
 }
 
 export async function waitForLibraryReady(page: Page) {

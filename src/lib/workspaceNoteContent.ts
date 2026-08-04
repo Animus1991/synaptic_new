@@ -524,3 +524,56 @@ export function buildWorkspaceNoteBundle(opts: BuildWorkspaceNoteBundleOpts): Wo
   const gathered = gatherWorkspaceNoteInputs(opts);
   return buildWorkspaceNoteBundleFromGathered(gathered, opts, opts.lightweight ?? false);
 }
+
+function contentEqual(a: unknown, b: unknown): boolean {
+  if (a === b) return true;
+  if (a == null || b == null) return false;
+  try {
+    return JSON.stringify(a) === JSON.stringify(b);
+  } catch {
+    return false;
+  }
+}
+
+/** Bundle fields holding objects/arrays whose identity churns on every rebuild. */
+const STABLE_BUNDLE_FIELDS = [
+  'workspaceSteps',
+  'conceptMap',
+  'leitnerCards',
+  'compareRows',
+  'formulas',
+  'numericCues',
+  'feynmanOutline',
+  'feynmanGaps',
+  'feynmanGapTerms',
+  'quiz',
+  'debateTree',
+  'matchingTopic',
+  'sourceIntelligence',
+  'documentStructure',
+] as const satisfies readonly (keyof WorkspaceNoteBundle)[];
+
+/**
+ * Structural sharing between successive bundle builds: reuse the previous
+ * field identity whenever the content is unchanged so downstream useMemo
+ * consumers (STEPS chain, tool sessions) keep their cached results instead
+ * of rebuilding on every worker refresh. Returns `prev` unchanged when the
+ * whole bundle is content-identical, which skips the re-render entirely.
+ */
+export function stabilizeWorkspaceNoteBundle(
+  prev: WorkspaceNoteBundle | null | undefined,
+  next: WorkspaceNoteBundle,
+): WorkspaceNoteBundle {
+  if (!prev || prev === next) return next;
+  const out: WorkspaceNoteBundle = { ...next };
+  const record = out as unknown as Record<string, unknown>;
+  for (const key of STABLE_BUNDLE_FIELDS) {
+    if (contentEqual(prev[key], next[key])) {
+      record[key] = prev[key];
+    }
+  }
+  for (const key of Object.keys(out) as (keyof WorkspaceNoteBundle)[]) {
+    if (out[key] !== prev[key]) return out;
+  }
+  return prev;
+}

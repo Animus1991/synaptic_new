@@ -72,7 +72,7 @@ export function LessonStepToolBar({
     <div className="space-y-2 pt-2 border-t border-border-subtle/60 mt-3">
       {onLearningAction && (
         <div className="flex flex-wrap items-center gap-1.5" data-testid="lesson-step-unified-actions">
-          <span className="text-[10px] font-semibold text-text-muted w-full sm:w-auto">
+          <span className="type-caption font-semibold text-text-muted w-full sm:w-auto">
             {t('stepActions')}
           </span>
           {unifiedActions.map((action) => {
@@ -86,7 +86,7 @@ export function LessonStepToolBar({
                 data-recommended={action.recommended ? 'true' : undefined}
                 onClick={() => onLearningAction(action.id)}
                 className={cn(
-                  'inline-flex items-center gap-1 rounded-lg border px-2 py-1.5 text-[10px] font-medium transition-all',
+                  'inline-flex items-center gap-1 rounded-lg border px-2 py-1.5 type-caption font-medium transition-all',
                   action.recommended
                     ? 'border-brand-600/30 bg-surface-secondary text-text-primary border border-border-subtle'
                     : 'border-border-subtle text-text-secondary hover:border-brand-500/30 hover:text-text-primary',
@@ -100,7 +100,7 @@ export function LessonStepToolBar({
         </div>
       )}
       <div className="flex flex-wrap items-center gap-1.5">
-        <span className="text-[10px] font-semibold text-text-muted w-full sm:w-auto">
+        <span className="type-caption font-semibold text-text-muted w-full sm:w-auto">
           {t('openTool')}
         </span>
       {tools.map((tool) => {
@@ -113,7 +113,7 @@ export function LessonStepToolBar({
             type="button"
             onClick={() => onOpenTool(tool)}
             className={cn(
-              'inline-flex items-center gap-1 rounded-lg border px-2 py-1 text-[10px] font-medium transition-all',
+              'inline-flex items-center gap-1 rounded-lg border px-2 py-1 type-caption font-medium transition-all',
               isRecommended
                 ? 'border-accent-emerald/35 bg-accent-emerald/10 text-accent-emerald'
                 : isActive
@@ -126,7 +126,7 @@ export function LessonStepToolBar({
             <Icon className="w-3 h-3" />
             {stepToolActionLabel(tool, lang)}
             {isRecommended && (
-              <span className="rounded bg-accent-emerald/15 px-1 text-[10px] font-semibold">
+              <span className="rounded bg-accent-emerald/15 px-1 type-caption font-semibold">
                 {t('next')}
               </span>
             )}

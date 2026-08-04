@@ -39,6 +39,7 @@ import { Dashboard } from './components/Dashboard';
 import { Library } from './components/Library';
 import { Tasks } from './components/Tasks';
 import { NoteAnalysisView } from './components/NoteAnalysisView';
+import { StudyRoom } from './components/StudyRoom';
 import { CourseView } from './components/CourseView';
 import { Settings } from './components/Settings';
 import { UploadModal } from './components/UploadModal';
@@ -547,6 +548,8 @@ export default function App() {
         onConsumeWorkspaceOpenTool={store.consumeWorkspaceOpenTool}
         workspaceOpenSimulatorTab={store.workspaceOpenSimulatorTab}
         onConsumeWorkspaceOpenSimulatorTab={store.consumeWorkspaceOpenSimulatorTab}
+        workspaceAutoOpenStudyRoom={store.workspaceAutoOpenStudyRoom}
+        onConsumeWorkspaceAutoOpenStudyRoom={store.consumeWorkspaceAutoOpenStudyRoom}
         renderCenterAgent={
           store.workspaceInlineAgentOpen
             ? () => (
@@ -1011,7 +1014,7 @@ export default function App() {
     const params = new URLSearchParams(window.location.search);
     const view = params.get('view');
     if (!view || viewDeepLinkFired.current) return;
-    const allowed: AppView[] = ['dashboard', 'library', 'tasks', 'agent', 'analytics', 'teacher', 'student-org', 'settings'];
+    const allowed: AppView[] = ['dashboard', 'library', 'tasks', 'agent', 'study-room', 'analytics', 'teacher', 'student-org', 'settings'];
     if (!allowed.includes(view as AppView)) return;
     viewDeepLinkFired.current = true;
     if (!hasCourses) store.enableDemoContent();
@@ -1339,6 +1342,12 @@ export default function App() {
             <LazyOverlay>
             <Agent {...agentPanelProps} />
             </LazyOverlay>
+          )}
+          {store.currentView === 'study-room' && (
+            <StudyRoom
+              userSettings={store.user.settings}
+              onOpenWorkspace={store.openStudyWorkspaceWithStudyRoom}
+            />
           )}
           {store.currentView === 'analytics' && (
             <LazyOverlay>

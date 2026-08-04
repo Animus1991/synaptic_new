@@ -7,6 +7,7 @@ export type ShellNavView =
   | 'library'
   | 'tasks'
   | 'agent'
+  | 'study-room'
   | 'analytics'
   | 'teacher'
   | 'student-org'
@@ -57,6 +58,14 @@ export const NAVIGATION_REGISTRY: NavRegistryEntry[] = [
     paletteLabelKey: 'navAgent',
     subtitleKey: 'navSubtitleAgent',
     requiresAgentNav: true,
+    mobilePriority: 'overflow',
+    showInPalette: true,
+  },
+  {
+    view: 'study-room',
+    labelKey: 'navStudyRoom',
+    paletteLabelKey: 'navStudyRoom',
+    subtitleKey: 'navSubtitleStudyRoom',
     mobilePriority: 'overflow',
     showInPalette: true,
   },

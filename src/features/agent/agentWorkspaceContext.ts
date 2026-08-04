@@ -36,7 +36,7 @@ export type AgentWorkspaceContext = {
 
 export type OpenAgentFromWorkspaceOpts = {
   prompt?: string;
-  mode?: import('../types').AgentMode;
+  mode?: import('../../types').AgentMode;
   autoSend?: boolean;
   context?: AgentWorkspaceContext;
   /** Leave workspace and open the full Agent page (default: stay in workspace chat panel). */
@@ -136,7 +136,7 @@ export type AgentWorkspaceContextJson = {
   lowConfidenceSection?: boolean;
   handwrittenSource?: boolean;
   selectionExcerpt?: string;
-  graphRelation?: import('./courseConceptGraph').GraphRelationContext;
+  graphRelation?: import('../../lib/courseConceptGraph').GraphRelationContext;
   pathFocusConcept?: string;
   pathFocusSource?: string;
 };
@@ -232,8 +232,8 @@ export function buildAgentContextBanner(
       : null,
   ].filter(Boolean);
 
-  /** Prefer tool + step on narrow chips; fall back to section + step (skip quality/pipeline noise). */
-  const compactBits = [tool ?? section, stepPart].filter(Boolean);
+  /** Wave E13 — breadcrumb: Step · section (tool is secondary; skip quality/pipeline noise). */
+  const compactBits = [stepPart, section ?? tool].filter(Boolean);
   const compactLine =
     compactBits.length > 0
       ? compactBits.join(' · ')

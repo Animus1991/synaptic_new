@@ -24,7 +24,7 @@ export function SourceCitationChip({ citation, onOpenInReader, className = '' }:
         e.stopPropagation();
         onOpenInReader(query);
       }}
-      className={`inline-flex items-center gap-1 rounded-full border border-brand-500/30 bg-brand-500/10 px-2 py-0.5 text-[10px] font-medium text-text-primary hover:opacity-90 ${className}`}
+      className={`inline-flex items-center gap-1 rounded-full border border-brand-500/30 bg-brand-500/10 px-2 py-0.5 type-caption font-medium text-text-primary hover:opacity-90 ${className}`}
       title={citation.fileName ?? citation.fileId}
     >
       <BookOpen className="h-3 w-3" />

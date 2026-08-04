@@ -151,7 +151,7 @@ export function QuizPanel({
   return (
     <div className="flex h-full flex-col overflow-hidden p-4" data-testid="quiz-panel">
       {session.sectionLabel && (
-        <p className="mb-2 text-[10px] text-text-muted" data-testid="quiz-section-label">
+        <p className="mb-2 type-caption text-text-muted" data-testid="quiz-section-label">
           {t('wsSectionColon')}{' '}
           <span className="text-text-secondary">{session.sectionLabel}</span>
         </p>
@@ -179,18 +179,18 @@ export function QuizPanel({
             value={filterQuery}
             onChange={(e) => setFilterQuery(e.target.value)}
             placeholder={t('panelSearchQuestions')}
-            className="w-full rounded-lg border border-border-subtle bg-surface-card py-1.5 pl-7 pr-2 text-[11px] text-text-secondary placeholder:text-text-muted focus:border-accent-cyan/40 focus:outline-none"
+            className="w-full rounded-lg border border-border-subtle bg-surface-card py-1.5 pl-7 pr-2 type-caption text-text-secondary placeholder:text-text-muted focus:border-accent-cyan/40 focus:outline-none"
             data-testid="quiz-filter"
           />
         </div>
-        <span className="text-[10px] text-text-muted">
+        <span className="type-caption text-text-muted">
           {session.items.length} {t('panelQuestions')}
         </span>
         {onOpenInReader && (
           <button
             type="button"
             onClick={() => onOpenInReader(concept)}
-            className="inline-flex items-center gap-1 rounded-lg border border-white/10 px-2 py-1 text-[10px] text-text-secondary hover:border-border-default hover:text-text-primary"
+            className="inline-flex min-h-[28px] items-center gap-1 rounded-lg border border-border-subtle px-2.5 py-1.5 type-caption text-text-secondary hover:border-border-default hover:text-text-primary"
             data-testid="quiz-open-reader"
           >
             <BookOpen className="w-3 h-3" />
@@ -206,7 +206,7 @@ export function QuizPanel({
               key={item.id}
               type="button"
               onClick={() => (onSelectionAction ? selectQuestion(item) : onOpenInReader?.(quizItemQuestion(item)))}
-              className="rounded-full border border-accent-cyan/25 bg-accent-cyan/8 px-2 py-0.5 text-[10px] text-text-primary hover:opacity-90"
+              className="rounded-full border border-accent-cyan/25 bg-accent-cyan/8 px-2.5 py-1 type-caption text-text-primary hover:opacity-90"
             >
               {quizItemQuestion(item).slice(0, 56)}
               {quizItemQuestion(item).length > 56 ? '…' : ''}

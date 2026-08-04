@@ -73,6 +73,30 @@ Operational / security / quality program for `synaptic_new`. **No new product fe
 | D8 Admin cost/abuse dashboard | pending | |
 | D9 Design clarity regression | keep | `minimalClarityContracts` mandatory |
 
+## Wave E — Workspace interaction speed + UI/UX excellence (audited 2026-08-04, 12 panel screenshots)
+
+Perf root causes fixed (E0): per-tool intel gates; noteBundle pipeline decoupled from store churn (sourceKey-only + debounced worker refresh + structural sharing); staggered intel activation (1 tool/idle slice, transitions); tool switches via `useTransition` + intent-time chunk prefetch; all panel chunks warmed post-stagger. **Primary root cause (CDP profiler, 60KB fixture):** `runDocumentTextPipeline` (incl. SymSpell fuzzy gate) re-ran uncached from segmentation ×6 / reader step sync / reader layout / display prep — `fuzzyCorrectToken` rebuilt the full lexicon Set per token and levenshtein-scanned the whole dictionary per unknown token. Fixed via versioned lexicon (`spellLexiconVersion`), dict/length-bucket/token caches in `miniSymSpell`, and LRU result cache in `documentTextPipeline`. Measured: worker bundle 33.9s→0.54s, intel commit 19s→94ms, max main-thread block 22.3s→1.2s, switch commits 9.5s→≤275ms. Dev diagnostics: `[ws-profiler]`, `[ws-pipeline]`, `[ws-longtask]` **removed at E14**.
+
+**Order:** E1 → E2 → panels in pairs (E3…E13) → E14 exit gate. One panel-pair per PR. No functionality loss — transform, don't delete.
+
+| ID | Scope | Findings (screenshots) → outcome |
+|----|-------|----------------------------------|
+| E0 | Perf (**done**) | Open ≈ interactive immediately; switches instant post warm-up. Dev longtask/profiler/pipeline console diagnostics removed at E14 |
+| E1 | Design tokens foundation | **partial** — workspace type floor + bulk `text-[10px]`→`type-caption` in workspace panels. Remaining: `workspaceOpticalTokens` module + contract tests; sweep non-workspace leftovers |
+| E2 | Shared tool chrome | **partial** — `WorkspaceToolHeader` + `InfoHint` exist; still demote meta chrome (GUIDE duplication, chip vs button semantics) across panels |
+| E3 | Whiteboard | **done** — canvas-first; coach collapsed by default; chrome/filters collapsible; grouped draw/shape toolbar + overflow for layers/export |
+| E4 | Concept Map | **done** — single toolbar; Force/Hierarchy/PNG/Reset overflow; layers collapsible; stronger node labels; legend + InfoHint |
+| E5 | Flashcards | **partial** — code: filters/queues collapsed + overflow menu; hard-refresh to verify (screenshots still showed pre-fix chrome) |
+| E6 | Quiz | **partial** — code: one meta strip + progress; hard-refresh to verify (screenshots still showed calibrating stack) |
+| E7 | Feynman | **done** — primary Coach CTA (brand solid); Ask Agent secondary; Voice kept; Export/PDF in overflow; outline uses type-caption |
+| E8 | Compare | **done** — concept + Contrast headers; Diff legend when active; quieter type tokens |
+| E9 | Debate | **done** — human persist/status copy; readable rebuttal list (not 24-char chips) |
+| E10 | Simulator + Timer | **done** — shared sync strip + one preset status chip; pomodoro segmented; exam blocks as select; quieter Timed Block CTA |
+| E11 | Annotations | **done** — always-visible tool/category labels via i18n; named color swatches; category counts |
+| E12 | Progress | **done** — KPI row; single next-action card (suggest demoted when nextAction present); exports overflow menu |
+| E13 | Tutor column + files rail | **partial** — offline strip + breadcrumb + faithfulness strip + Files quality hint + Pages brand selection; composer captions now always visible (not `hidden sm:block`, which hid them in the narrow AI column) |
+| E14 | Exit gate | **done** — diagnostics removed; `test:a11y` + `test:e2e:perf` + contrast unit tests green; LHCI a11y ≥0.95 asserted (`npm run test:lhci`, landing/dashboard/demo). Fixes: ReadinessRing band AA ink; Shell Tasks/Search accessible names; Dashboard layout toggle labels |)
+
 ## Explicitly out of scope
 
 - Rewrite to Next/Remix  

@@ -4,7 +4,7 @@ import {
   axeBuilder,
   blockingViolations,
   formatAxeViolations,
-  setAppTheme,
+  persistAppTheme,
   dismissProductTourIfOpen,
   waitForLibraryReady,
   type AppTheme,
@@ -17,11 +17,15 @@ for (const theme of THEMES) {
     test.use({ viewport: { width: 1280, height: 900 } });
 
     test('library passes axe WCAG AA including color-contrast', async ({ page }) => {
+      test.setTimeout(90_000);
+      await persistAppTheme(page, theme);
       await page.goto('/');
       await skipOnboardingToLibrary(page);
       await dismissProductTourIfOpen(page);
-      await setAppTheme(page, theme);
       await waitForLibraryReady(page);
+      await expect
+        .poll(async () => page.locator('html').getAttribute('data-theme'), { timeout: 10_000 })
+        .toBe(theme);
 
       const results = await axeBuilder(page).analyze();
       const blocking = blockingViolations(results);

@@ -107,7 +107,7 @@ export function WorkspaceSourceStatusBar({
             )}
           </span>
           {!expanded && (
-            <span className="mt-0.5 block truncate text-[10px] text-text-muted">
+            <span className="mt-0.5 block truncate type-caption text-text-muted">
               {showMigration || showPre24Greek
                 ? t('sourcePipelineReprocessRecommended')
                 : t('sourceLowRecognitionQuality')}
@@ -124,7 +124,7 @@ export function WorkspaceSourceStatusBar({
           <div className="flex flex-wrap items-center gap-2 px-3.5 pt-2 pb-0 ws-eyebrow text-text-muted">
             {pipelineBadge && (
               <span
-                className="ws-chip-warn rounded-sm px-1.5 py-0.5 font-mono normal-case tracking-normal text-[10px]"
+                className="ws-chip-warn rounded-sm px-1.5 py-0.5 font-mono normal-case tracking-normal type-caption"
                 data-testid="source-status-pipeline-badge"
               >
                 {pipelineBadge}
@@ -132,7 +132,7 @@ export function WorkspaceSourceStatusBar({
             )}
             {showHygiene && (
               <span
-                className="ws-chip-neutral rounded-sm px-1.5 py-0.5 font-mono normal-case tracking-normal text-[10px]"
+                className="ws-chip-neutral rounded-sm px-1.5 py-0.5 font-mono normal-case tracking-normal type-caption"
                 data-testid="source-status-hygiene"
               >
                 {t('sourceHygiene')}{' '}
@@ -147,7 +147,7 @@ export function WorkspaceSourceStatusBar({
             )}
             {spellGateHint && (
               <span
-                className="ws-chip-brand rounded-sm px-1.5 py-0.5 font-mono normal-case tracking-normal text-[10px]"
+                className="ws-chip-brand rounded-sm px-1.5 py-0.5 font-mono normal-case tracking-normal type-caption"
                 data-testid="source-status-spell-gate"
                 title={t('sourceSpellGateTitle')}
               >
@@ -161,7 +161,7 @@ export function WorkspaceSourceStatusBar({
               {textHygieneFlags.map((flag) => (
                 <span
                   key={flag}
-                  className="ws-chip-warn rounded-sm px-1.5 py-0.5 text-[10px]"
+                  className="ws-chip-warn rounded-sm px-1.5 py-0.5 type-caption"
                 >
                   {hygieneFlagLabel(flag, lang)}
                 </span>

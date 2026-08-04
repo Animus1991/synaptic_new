@@ -238,7 +238,7 @@ export function StudyWorkspaceLessonPanel({ model }: StudyWorkspaceLessonPanelPr
                     >
                       ← {t('previous')}
                     </button>
-                    <span className="text-[10px] text-text-muted">
+                    <span className="type-caption text-text-muted">
                       {currentStep + 1}/{STEPS.length}
                     </span>
                     <button

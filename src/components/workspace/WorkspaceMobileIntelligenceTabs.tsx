@@ -55,7 +55,7 @@ export function WorkspaceMobileIntelligenceTabs({ active, onChange, lang = 'en',
           >
             {label}
             {count != null && count > 0 && (
-              <span className="ml-1 rounded-full bg-accent-rose/20 px-1.5 py-0.5 text-[10px] text-accent-rose">
+              <span className="ml-1 rounded-full bg-accent-rose/20 px-1.5 py-0.5 type-caption text-accent-rose">
                 {count}
               </span>
             )}

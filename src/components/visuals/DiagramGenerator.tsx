@@ -99,7 +99,7 @@ export function FormulaExplorer({ formula, name, symbols }: { formula: string; n
             <span className="font-mono font-bold text-text-secondary text-sm w-8 shrink-0">{s.symbol}</span>
             <div>
               <p className="text-xs text-text-secondary">{s.meaning}</p>
-              {s.unit && <p className="text-[10px] text-text-muted">Unit: {s.unit}</p>}
+              {s.unit && <p className="type-caption text-text-muted">Unit: {s.unit}</p>}
             </div>
           </div>
         ))}
@@ -169,8 +169,10 @@ export function ComparisonTable({
             type="button"
             data-testid="compare-diff-toggle"
             onClick={() => setDiffMode((v) => !v)}
+            aria-pressed={diffMode}
+            title={translate('compareDiffLegend', lang as Lang)}
             className={cn(
-              'rounded-lg border px-2 py-1 text-[10px] font-medium',
+              'rounded-lg border px-2 py-1 type-caption font-medium',
               diffMode ? 'border-accent-amber/40 bg-accent-amber/10 text-accent-amber' : 'border-border-subtle text-text-muted',
             )}
           >
@@ -193,7 +195,7 @@ export function ComparisonTable({
               type="button"
               data-testid="compare-ask-agent"
               onClick={onAskAgent}
-              className="inline-flex items-center gap-1 rounded-lg border border-accent-cyan/30 bg-accent-cyan/10 px-2 py-1 text-[10px] font-medium text-accent-cyan hover:bg-accent-cyan/15"
+              className="inline-flex items-center gap-1 rounded-lg border border-accent-cyan/30 bg-accent-cyan/10 px-2 py-1 type-caption font-medium text-accent-cyan hover:bg-accent-cyan/15"
             >
               <Sparkles className="w-3 h-3" />
               Agent
@@ -201,6 +203,11 @@ export function ComparisonTable({
           )}
         </div>
       </div>
+      {diffMode && (
+        <p className="mb-2 type-caption text-accent-amber" data-testid="compare-diff-legend">
+          {translate('compareDiffLegend', lang as Lang)}
+        </p>
+      )}
       <table className="w-full text-xs">
         <thead>
           <tr className="border-b border-border-subtle">
@@ -218,7 +225,7 @@ export function ComparisonTable({
                   {h}
                   <ArrowDownUp className="w-3 h-3 opacity-60" />
                   {sortCol === i && (
-                    <span className="text-[10px] font-mono">{sortDir === 'asc' ? '↑' : '↓'}</span>
+                    <span className="type-caption font-mono">{sortDir === 'asc' ? '↑' : '↓'}</span>
                   )}
                 </button>
               </th>
@@ -302,8 +309,8 @@ export function ProgressTimeline({ milestones, title }: { milestones: Milestone[
             </div>
             <div className="pb-6">
               <p className={`text-xs font-medium ${m.completed ? 'text-text-primary' : 'text-text-tertiary'}`}>{m.label}</p>
-              {m.date && <p className="text-[10px] text-text-muted mt-0.5">{m.date}</p>}
-              {m.xp && m.completed && <p className="text-[10px] text-accent-amber mt-0.5">+{m.xp} XP</p>}
+              {m.date && <p className="type-caption text-text-muted mt-0.5">{m.date}</p>}
+              {m.xp && m.completed && <p className="type-caption text-accent-amber mt-0.5">+{m.xp} XP</p>}
             </div>
           </motion.div>
         ))}
@@ -336,7 +343,7 @@ export function RetentionCurve({ dataPoints }: { dataPoints: { day: number; rete
       <p className="text-[11px] font-semibold mb-0.5 text-text-secondary inline-flex items-center gap-1.5">
         <TrendingUp className="w-3.5 h-3.5 rotate-180" /> {t('analyticsRetentionCurveTitle')}
       </p>
-      <p className="text-[10px] text-text-muted mb-2">{t('analyticsRetentionCurveSubtitle')}</p>
+      <p className="type-caption text-text-muted mb-2">{t('analyticsRetentionCurveSubtitle')}</p>
       <svg width={w} height={h} className="block mx-auto max-w-full" viewBox={`0 0 ${w} ${h}`}>
         {[0, 25, 50, 75, 100].map(v => (
           <g key={v}>
@@ -389,7 +396,7 @@ export function RetentionCurve({ dataPoints }: { dataPoints: { day: number; rete
           );
         })}
       </svg>
-      <p className="text-[10px] text-text-muted text-center mt-1">{t('analyticsRetentionCurveHint')}</p>
+      <p className="type-caption text-text-muted text-center mt-1">{t('analyticsRetentionCurveHint')}</p>
     </div>
   );
 }

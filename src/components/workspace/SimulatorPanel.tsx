@@ -11,7 +11,6 @@ import { ArtifactStaleBanner } from './ArtifactStaleBanner';
 import { WorkspacePanelWarnStrip } from './WorkspacePanelWarnStrip';
 import { SimulatorTimerPresetSyncStrip } from './SimulatorTimerPresetSyncStrip';
 import { useI18n } from '../../lib/i18n';
-import { AllCapsLabel } from '../ui/AllCapsLabel';
 import { ExamPrepPanel } from './ExamPrepPanel';
 import { cn } from '../../utils/cn';
 
@@ -155,7 +154,7 @@ export function SimulatorPanel({
       <div className="flex-1 flex flex-col overflow-hidden min-h-0">
       <div className="shrink-0 border-b border-border-subtle px-4 py-3">
         {session.sectionLabel && (
-          <p className="mb-2 text-[10px] text-text-muted" data-testid="simulator-section-label">
+          <p className="mb-2 type-caption text-text-muted" data-testid="simulator-section-label">
             {t('wsSectionColon')}{' '}
             <span className="text-text-secondary">{session.sectionLabel}</span>
           </p>
@@ -189,7 +188,7 @@ export function SimulatorPanel({
               />
             </div>
           )}
-          <span className="text-[10px] text-text-muted">
+          <span className="type-caption text-text-muted">
             {session.numericCues.length} {t('panelParameters')}
             {session.economicsMode && (
               <> · {t('panelEconMode')}</>
@@ -200,17 +199,17 @@ export function SimulatorPanel({
               type="button"
               data-testid="simulator-start-timed-practice"
               onClick={() => onStartTimedPractice(session.suggestedExamPractice)}
-              className="ws-eyebrow ws-chip-warn inline-flex items-center gap-1 rounded-lg px-2 py-1 text-[10px] font-medium hover:opacity-90"
+              className="inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-accent-amber/35 bg-accent-amber/10 px-2.5 py-1 type-caption font-medium text-accent-amber hover:bg-accent-amber/15"
             >
-              <Timer className="w-3 h-3" />
-              <AllCapsLabel>{t('panelTimedBlock')} · {examPracticeLabel(session.suggestedExamPractice, lang)}</AllCapsLabel>
+              <Timer className="w-3.5 h-3.5" aria-hidden />
+              {t('panelTimedBlock')}: {examPracticeLabel(session.suggestedExamPractice, lang)}
             </button>
           )}
           {onOpenInReader && (
             <button
               type="button"
               onClick={() => onOpenInReader(concept)}
-              className="inline-flex items-center gap-1 rounded-lg border border-white/10 px-2 py-1 text-[10px] text-text-secondary hover:border-brand-600/35 hover:text-text-primary"
+              className="inline-flex min-h-9 items-center gap-1 rounded-lg border border-border-subtle px-2.5 py-1.5 type-caption text-text-secondary hover:border-brand-600/45 hover:text-text-primary"
               data-testid="simulator-open-reader"
             >
               <BookOpen className="w-3 h-3" />
@@ -226,7 +225,7 @@ export function SimulatorPanel({
                 key={cue.id}
                 type="button"
                 onClick={() => onOpenInReader?.(cue.context.slice(0, 80) || cue.label)}
-                className="rounded-full border border-accent-cyan/25 bg-accent-cyan/8 px-2 py-0.5 text-[10px] text-text-primary hover:opacity-90"
+                className="rounded-full border border-accent-cyan/25 bg-accent-cyan/8 px-2 py-0.5 type-caption text-text-primary hover:opacity-90"
               >
                 {cue.label.slice(0, 48)}{cue.label.length > 48 ? '…' : ''}
               </button>

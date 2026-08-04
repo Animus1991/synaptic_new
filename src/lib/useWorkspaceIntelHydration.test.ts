@@ -12,16 +12,17 @@ describe('useWorkspaceIntelHydration', () => {
     vi.unstubAllGlobals();
   });
 
-  it('starts false then becomes true after paint', async () => {
+  it('starts false then becomes true after paint + short settle delay', async () => {
+    vi.useFakeTimers();
     const { result } = renderHook(() => useWorkspaceIntelHydration());
     expect(result.current).toBe(false);
 
     await act(async () => {
-      await new Promise<void>((resolve) => {
-        requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
-      });
+      await Promise.resolve();
+      vi.runAllTimers();
     });
 
     expect(result.current).toBe(true);
+    vi.useRealTimers();
   });
 });

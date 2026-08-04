@@ -55,7 +55,7 @@ export function AnnotationRemapPanel({
             type="button"
             data-testid="annotation-auto-remap"
             onClick={onAutoRemap}
-            className="inline-flex items-center gap-1 rounded-lg border border-accent-emerald/30 bg-accent-emerald/10 px-2 py-1 text-[10px] font-medium text-accent-emerald hover:bg-accent-emerald/15"
+            className="inline-flex items-center gap-1 rounded-lg border border-accent-emerald/30 bg-accent-emerald/10 px-2 py-1 type-caption font-medium text-accent-emerald hover:bg-accent-emerald/15"
           >
             <Wand2 className="w-3 h-3" />
             {t('annoAutoRemap')}
@@ -63,7 +63,7 @@ export function AnnotationRemapPanel({
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg border border-border-subtle px-2 py-1 text-[10px] text-text-muted hover:text-text-secondary"
+            className="rounded-lg border border-border-subtle px-2 py-1 type-caption text-text-muted hover:text-text-secondary"
           >
             {t('close')}
           </button>
@@ -95,26 +95,26 @@ export function AnnotationRemapPanel({
               >
                 <div className="flex items-center gap-2 mb-1">
                   <MapPin className="w-3 h-3 text-accent-amber shrink-0" />
-                  <span className="text-[10px] font-medium text-text-secondary capitalize">{ann.type}</span>
-                  <span className="text-[10px] rounded-full border border-accent-amber/30 px-1.5 py-0.5 text-accent-amber">
+                  <span className="type-caption font-medium text-text-secondary capitalize">{ann.type}</span>
+                  <span className="type-caption rounded-full border border-accent-amber/30 px-1.5 py-0.5 text-accent-amber">
                     {isLegacy
                       ? t('annoLegacy')
                       : t('annoNeedsReview')}
                   </span>
                   {edgeKind && (
                     <span
-                      className="text-[10px] rounded-full border border-accent-cyan/30 px-1.5 py-0.5 text-text-primary"
+                      className="type-caption rounded-full border border-accent-cyan/30 px-1.5 py-0.5 text-text-primary"
                       data-testid={`annotation-remap-edge-${ann.id}`}
                     >
                       {remapEdgeCaseLabel(edgeKind, lang)}
                     </span>
                   )}
                 </div>
-                <p className="text-[10px] text-text-muted line-clamp-2">
+                <p className="type-caption text-text-muted line-clamp-2">
                   {currentPreview || t('annoNoExcerpt')}
                 </p>
                 {edgeHint && (
-                  <p className="mt-1 text-[10px] text-text-secondary">{edgeHint}</p>
+                  <p className="mt-1 type-caption text-text-secondary">{edgeHint}</p>
                 )}
               </button>
 
@@ -134,7 +134,7 @@ export function AnnotationRemapPanel({
 
                   {candidates.length > 0 ? (
                     <div className="space-y-1">
-                      <p className="text-[10px] font-semibold text-text-muted">
+                      <p className="type-caption font-semibold text-text-muted">
                         {t('annoSuggestedLines')}
                       </p>
                       {candidates.map((c) => (
@@ -144,7 +144,7 @@ export function AnnotationRemapPanel({
                           data-testid={`annotation-remap-candidate-${ann.id}-${c.lineIndex}`}
                           onClick={() => onRemap(ann.id, c.lineIndex)}
                           className={cn(
-                            'flex w-full items-start gap-2 rounded-lg border px-2 py-1.5 text-left text-[10px] hover:bg-surface-hover',
+                            'flex w-full items-start gap-2 rounded-lg border px-2 py-1.5 text-left type-caption hover:bg-surface-hover',
                             c.confidence === 'high'
                               ? 'border-accent-emerald/30 text-accent-emerald'
                               : c.confidence === 'medium'
@@ -158,7 +158,7 @@ export function AnnotationRemapPanel({
                       ))}
                     </div>
                   ) : (
-                    <p className="text-[10px] text-accent-rose">
+                    <p className="type-caption text-accent-rose">
                       {t('annoNoMatchFound')}
                     </p>
                   )}
@@ -166,7 +166,7 @@ export function AnnotationRemapPanel({
                   <button
                     type="button"
                     onClick={() => onDelete(ann.id)}
-                    className="inline-flex items-center gap-1 text-[10px] text-accent-rose hover:underline"
+                    className="inline-flex items-center gap-1 type-caption text-accent-rose hover:underline"
                   >
                     <Trash2 className="w-3 h-3" />
                     {t('annoDeleteAnnotation')}

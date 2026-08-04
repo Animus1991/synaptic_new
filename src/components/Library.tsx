@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useRef, type KeyboardEvent as ReactKeyboardEvent } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { emphasizedTransition, expandHeight } from '../lib/motion';
 import {
@@ -73,16 +73,6 @@ function courseStatusKind(course: Course): CourseStatusKind {
 
 /** Open upload modal — omit for new course; pass extend + course id to add material. */
 export type LibraryUploadIntent = { mode: 'new' | 'extend'; targetCourseId?: string };
-
-function activateCourseOpenKey(
-  event: ReactKeyboardEvent,
-  open: () => void,
-) {
-  if (event.key === 'Enter' || event.key === ' ') {
-    event.preventDefault();
-    open();
-  }
-}
 
 interface LibraryProps {
   courses: Course[];
@@ -788,18 +778,15 @@ function CourseCard({
       initial={false}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.05 }}
-      onClick={openCourse}
-      role={isGenerating ? undefined : 'button'}
-      tabIndex={isGenerating ? undefined : 0}
-      aria-label={isGenerating ? undefined : t('libOpenCourse', userLanguage)}
-      onKeyDown={isGenerating ? undefined : (event) => activateCourseOpenKey(event, openCourse)}
+      // Wave E14 — no role=button on card (nested Open/Notebook/Delete buttons).
+      onClick={isGenerating ? undefined : openCourse}
       data-testid="library-course-card"
       {...(isGenerating ? {} : workspaceEntryPrefetchHandlers())}
       className={cn(
         'relative p-3.5 hover:border-brand-500/35 transition-all group',
         isGenerating
           ? 'cursor-default pointer-events-none opacity-90'
-          : 'cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60',
+          : 'cursor-pointer',
       )}
     >
       {!isGenerating && (showMaterialGap || showMisconception) && (
@@ -1080,66 +1067,75 @@ function CourseListItem({
       initial={false}
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: index * 0.03 }}
-      onClick={openCourse}
-      role={isGenerating ? undefined : 'button'}
-      tabIndex={isGenerating ? undefined : 0}
-      aria-label={isGenerating ? undefined : t('libOpenCourse', userLanguage)}
-      onKeyDown={isGenerating ? undefined : (event) => activateCourseOpenKey(event, openCourse)}
+      // Wave E14 — primary open control; actions stay siblings (no nested-interactive).
       data-testid="library-course-card"
-      {...(isGenerating ? {} : workspaceEntryPrefetchHandlers())}
       className={cn(
-        'flex items-center gap-4 p-4 hover:border-brand-500/35 transition-all group',
-        isGenerating
-          ? 'cursor-default opacity-90'
-          : 'cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60',
+        'flex items-center gap-2 p-4 hover:border-brand-500/35 transition-all group',
+        isGenerating ? 'opacity-90' : '',
       )}
     >
-      <CourseIcon icon={course.icon} size="lg" colorClassName="text-text-secondary shrink-0" />
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2">
-          <h3 className="font-semibold text-sm group-hover:text-text-primary transition-colors truncate" data-testid="library-course-title">{course.title}</h3>
-          {isOldPipeline && !isGenerating && (
-            <span
-              className="inline-flex items-center gap-1 rounded-full border border-accent-amber/30 bg-accent-amber/10 px-1.5 py-0.5 text-[10px] font-medium text-accent-amber"
-              title={t('libOldPipelineHint', userLanguage)}
-            >
-              <RefreshCw className="w-3 h-3" />
-              {t('libOldPipeline', userLanguage)}
-            </span>
+      <button
+        type="button"
+        onClick={openCourse}
+        disabled={isGenerating}
+        aria-label={t('libOpenCourse', userLanguage)}
+        data-testid={`library-open-course-list-${course.id}`}
+        {...(isGenerating ? {} : workspaceEntryPrefetchHandlers())}
+        className={cn(
+          'flex min-w-0 flex-1 items-center gap-4 rounded-lg bg-transparent text-left text-text-primary',
+          isGenerating
+            ? 'cursor-default'
+            : 'cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60',
+        )}
+      >
+        <CourseIcon icon={course.icon} size="lg" colorClassName="text-text-secondary shrink-0" />
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2">
+            <h3 className="font-semibold text-sm text-text-primary transition-colors truncate" data-testid="library-course-title">{course.title}</h3>
+            {isOldPipeline && !isGenerating && (
+              <span
+                className="inline-flex items-center gap-1 rounded-full border border-accent-amber/30 bg-accent-amber/10 px-1.5 py-0.5 type-caption font-medium text-accent-amber"
+                title={t('libOldPipelineHint', userLanguage)}
+              >
+                <RefreshCw className="w-3 h-3" />
+                {t('libOldPipeline', userLanguage)}
+              </span>
+            )}
+          </div>
+          <p className="mt-0.5 text-xs font-medium text-text-primary">{course.subject} · {course.totalLessons} {t('libLessons', userLanguage)} · {course.estimatedHours}h{pendingTasks > 0 ? ` · ${pendingTasks} ${t('libCardTasks', userLanguage)}` : ''}{dueReviews > 0 ? ` · ${dueReviews} ${t('libCardReviews', userLanguage)}` : ''}</p>
+          {quality && (
+            <p className={cn(
+              'text-[11px] mt-1 truncate',
+              quality.needsMoreMaterial ? 'text-accent-amber' : 'text-text-secondary',
+            )}>
+              {quality.needsMoreMaterial
+                ? (quality.warnings[0] ?? t('libNeedsMoreHint', userLanguage))
+                : t('libSourceQualityList', userLanguage)
+                    .replace('{score}', String(quality.score))
+                    .replace('{modules}', String(quality.finalTopicCount))}
+            </p>
           )}
         </div>
-        <p className="text-xs text-text-tertiary mt-0.5">{course.subject} · {course.totalLessons} {t('libLessons', userLanguage)} · {course.estimatedHours}h{pendingTasks > 0 ? ` · ${pendingTasks} ${t('libCardTasks', userLanguage)}` : ''}{dueReviews > 0 ? ` · ${dueReviews} ${t('libCardReviews', userLanguage)}` : ''}</p>
-        {quality && (
-          <p className={cn(
-            'text-[11px] mt-1 truncate',
-            quality.needsMoreMaterial ? 'text-accent-amber' : 'text-text-muted',
-          )}>
-            {quality.needsMoreMaterial
-              ? (quality.warnings[0] ?? t('libNeedsMoreHint', userLanguage))
-              : t('libSourceQualityList', userLanguage)
-                  .replace('{score}', String(quality.score))
-                  .replace('{modules}', String(quality.finalTopicCount))}
-          </p>
-        )}
-      </div>
-      <div className="hidden sm:flex items-center gap-4">
-        <div className="w-24">
-          {/* Wave P-2 C08 — library list-view mastery track uses --viz-bar-track. */}
-          <div className="w-full rounded-full h-1.5" style={{ backgroundColor: 'var(--viz-bar-track)' }}>
-            <div
-              className="h-1.5 rounded-full transition-all"
-              style={{ width: `${progress}%`, backgroundColor: resolveCourseColor(course.color) }}
-            />
+        <div className="hidden sm:flex items-center gap-4">
+          <div className="w-24">
+            {/* Wave P-2 C08 — library list-view mastery track uses --viz-bar-track. */}
+            <div className="w-full rounded-full h-1.5" style={{ backgroundColor: 'var(--viz-bar-track)' }}>
+              <div
+                className="h-1.5 rounded-full transition-all"
+                style={{ width: `${progress}%`, backgroundColor: resolveCourseColor(course.color) }}
+              />
+            </div>
           </div>
+          <span className="text-sm font-medium w-12 text-right text-text-primary">{course.mastery}%</span>
         </div>
-        <span className="text-sm font-medium w-12 text-right">{course.mastery}%</span>
-      </div>
+        <ChevronRight className="w-4 h-4 shrink-0 text-text-secondary" />
+      </button>
       {onOpenNotebookShell && (
         <button
           type="button"
-          onClick={(e) => { e.stopPropagation(); onOpenNotebookShell(course.id); }}
+          onClick={() => onOpenNotebookShell(course.id)}
           data-testid={`library-notebook-shell-list-${course.id}`}
-          className="hidden sm:inline-flex items-center gap-1 rounded-lg border border-brand-500/30 px-2 py-1 text-[10px] font-medium text-text-secondary hover:bg-brand-500/10"
+          className="hidden sm:inline-flex items-center gap-1 rounded-lg border border-brand-500/30 px-2 py-1 type-caption font-medium text-text-secondary hover:bg-brand-500/10"
         >
           <BookOpen className="w-3 h-3" />
           {t('libNotebookShellShort', userLanguage)}
@@ -1148,7 +1144,7 @@ function CourseListItem({
       {canDelete && (
         <button
           type="button"
-          onClick={(e) => { e.stopPropagation(); setRemoveDialogOpen(true); }}
+          onClick={() => setRemoveDialogOpen(true)}
           data-testid="library-course-delete"
           className="rounded-lg p-1.5 text-text-tertiary opacity-80 transition-all hover:bg-accent-rose/10 hover:text-accent-rose hover:opacity-100"
           aria-label={t('libDeleteCourseAria', userLanguage)}
@@ -1156,7 +1152,6 @@ function CourseListItem({
           <Trash2 className="w-4 h-4" />
         </button>
       )}
-      <ChevronRight className="w-4 h-4 text-text-tertiary group-hover:text-text-primary" />
       {canDelete && (
         <ConfirmDialog
           open={removeDialogOpen}

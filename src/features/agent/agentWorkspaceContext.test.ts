@@ -57,7 +57,7 @@ describe('buildAgentContextBanner', () => {
     expect(banner?.line).toContain('Βήμα 4/8');
     expect(banner?.line).toContain('Ανάγνωση');
     expect(banner?.line).toContain('37/100');
-    expect(banner?.compactLine).toBe('Ανάγνωση · Βήμα 4/8');
+    expect(banner?.compactLine).toBe('Βήμα 4/8 · Αγαθά Αναγκαία');
     expect(banner?.caution).toBeTruthy();
     expect(banner?.contextJson?.stepTitle).toBe('Αγαθά Αναγκαία');
   });
@@ -71,7 +71,7 @@ describe('buildAgentContextBanner', () => {
       sourceQuality: 32,
       selectionExcerpt: 'the lower price of imported goods',
     }, 'en');
-    expect(banner?.compactLine).toBe('Reader · Step 1/7');
+    expect(banner?.compactLine).toBe('Step 1/7 · Lecture 3 — Trade policy instruments and welfare');
     expect(banner?.compactLine).not.toContain('Quality');
     expect(banner?.compactLine).not.toContain('selection');
     expect(banner?.line).toContain('Quality');

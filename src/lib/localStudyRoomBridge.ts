@@ -18,12 +18,16 @@ export type LocalStudyRoomSnapshot = {
     displayName: string;
     tool?: string;
     concept?: string;
+    stepIndex?: number;
+    leading?: boolean;
     cursorX?: number;
     cursorY?: number;
     lastSeen: number;
   }[];
   sharedTool?: string;
   sharedConcept?: string;
+  sharedStep?: number;
+  leaderId?: string;
   whiteboardVersion?: number;
   version: number;
   createdAt: string;
@@ -121,23 +125,55 @@ export function localJoin(
 export function localPresence(
   roomId: string,
   memberId: string,
-  patch: { tool?: string; concept?: string; cursorX?: number; cursorY?: number },
+  patch: {
+    tool?: string;
+    concept?: string;
+    stepIndex?: number;
+    leading?: boolean;
+    cursorX?: number;
+    cursorY?: number;
+  },
 ): LocalStudyRoomSnapshot | undefined {
   const room = rooms.get(roomId);
   if (!room) return undefined;
+  let leaderId = room.leaderId;
   const members = room.members.map((m) => {
-    if (m.id !== memberId) return m;
+    if (m.id !== memberId) {
+      if (patch.leading === true) return { ...m, leading: false };
+      return m;
+    }
     return {
       ...m,
-      ...patch,
+      tool: patch.tool ?? m.tool,
+      concept: patch.concept ?? m.concept,
+      stepIndex: typeof patch.stepIndex === 'number' ? patch.stepIndex : m.stepIndex,
+      leading: patch.leading ?? m.leading,
+      cursorX: patch.cursorX ?? m.cursorX,
+      cursorY: patch.cursorY ?? m.cursorY,
       lastSeen: Date.now(),
     };
   });
+  let sharedTool = room.sharedTool;
+  let sharedConcept = room.sharedConcept;
+  let sharedStep = room.sharedStep;
+  const publish =
+    patch.leading === true
+    || (!leaderId && (patch.tool !== undefined || patch.concept !== undefined || patch.stepIndex !== undefined))
+    || (leaderId === memberId && patch.leading !== false);
+  if (patch.leading === true) leaderId = memberId;
+  if (patch.leading === false && leaderId === memberId) leaderId = undefined;
+  if (publish) {
+    if (patch.tool !== undefined) sharedTool = patch.tool;
+    if (patch.concept !== undefined) sharedConcept = patch.concept;
+    if (typeof patch.stepIndex === 'number') sharedStep = patch.stepIndex;
+  }
   const next: LocalStudyRoomSnapshot = {
     ...room,
     members,
-    sharedTool: patch.tool ?? room.sharedTool,
-    sharedConcept: patch.concept ?? room.sharedConcept,
+    sharedTool,
+    sharedConcept,
+    sharedStep,
+    leaderId,
     version: room.version + 1,
   };
   rooms.set(roomId, next);

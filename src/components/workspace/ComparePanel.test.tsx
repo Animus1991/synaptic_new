@@ -11,7 +11,7 @@ const session: CompareSessionContent = {
     ['Elasticity', 'Price sensitivity', 'Responsiveness'],
     ['Supply', 'Producer side', 'Quantity offered'],
   ],
-  headers: ['Dimension', 'A', 'B'],
+  headers: ['Dimension', 'Trade', 'Contrast'],
   sectionLabel: 'Markets',
   weakExtraction: false,
   passageGrounded: false,

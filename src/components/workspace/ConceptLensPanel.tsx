@@ -99,12 +99,12 @@ export function ConceptLensPanel({
         </div>
 
         {struggling && (
-          <span className="hidden sm:inline-flex items-center gap-1 rounded-full bg-accent-amber/15 px-1.5 py-0.5 text-[10px] font-semibold text-accent-amber">
+          <span className="hidden sm:inline-flex items-center gap-1 rounded-full bg-accent-amber/15 px-1.5 py-0.5 type-caption font-semibold text-accent-amber">
             <AlertTriangle className="w-2.5 h-2.5" />
           </span>
         )}
         {confident && !struggling && (
-          <span className="hidden sm:inline-flex items-center gap-1 rounded-full bg-accent-emerald/15 px-1.5 py-0.5 text-[10px] font-semibold text-accent-emerald">
+          <span className="hidden sm:inline-flex items-center gap-1 rounded-full bg-accent-emerald/15 px-1.5 py-0.5 type-caption font-semibold text-accent-emerald">
             <CheckCircle2 className="w-2.5 h-2.5" />
           </span>
         )}
@@ -116,7 +116,7 @@ export function ConceptLensPanel({
                 key={tl}
                 type="button"
                 onClick={() => onJumpTool(tl)}
-                className="rounded-full border border-white/10 bg-white/[0.04] px-1.5 py-0.5 text-[10px] font-medium text-text-secondary hover:border-accent-cyan/40 hover:text-text-primary transition-colors"
+                className="rounded-full border border-white/10 bg-white/[0.04] px-1.5 py-0.5 type-caption font-medium text-text-secondary hover:border-accent-cyan/40 hover:text-text-primary transition-colors"
               >
                 {TOOL_LABELS[tl][lang]}
               </button>
@@ -147,13 +147,13 @@ export function ConceptLensPanel({
           data-testid="concept-lens-detail"
         >
           {lens.emptyReason === 'weak-extraction' && (
-            <p className="text-[10px] text-accent-amber">
+            <p className="type-caption text-accent-amber">
               {t('lensWeakConceptExtraction')}
             </p>
           )}
 
           {(lens.definition || lens.note) && (
-            <p className="text-[10px] text-text-secondary line-clamp-3">
+            <p className="type-caption text-text-secondary line-clamp-3">
               {lens.definition ?? lens.note}
             </p>
           )}
@@ -166,7 +166,7 @@ export function ConceptLensPanel({
                   key={section}
                   type="button"
                   onClick={onOpenReaderSection}
-                  className="rounded-full border border-white/10 bg-white/[0.04] px-2 py-0.5 text-[10px] text-text-secondary hover:border-border-default hover:text-text-primary truncate max-w-[160px]"
+                  className="rounded-full border border-white/10 bg-white/[0.04] px-2 py-0.5 type-caption text-text-secondary hover:border-border-default hover:text-text-primary truncate max-w-[160px]"
                   data-testid="concept-lens-section"
                 >
                   {section}
@@ -199,13 +199,13 @@ export function ConceptLensPanel({
 
           {lens.toolHits.length > 0 && (
             <div className="flex flex-wrap gap-1">
-              <span className="text-[10px] text-text-muted w-full">
+              <span className="type-caption text-text-muted w-full">
                 {t('lensToolActivity')}
               </span>
               {lens.toolHits.map(({ tool, count }) => (
                 <span
                   key={tool}
-                  className="rounded-full border border-white/10 px-1.5 py-0.5 text-[10px] text-text-secondary"
+                  className="rounded-full border border-white/10 px-1.5 py-0.5 type-caption text-text-secondary"
                   data-testid={`concept-lens-hit-${tool}`}
                 >
                   {TOOL_LABELS[tool][lang]} ×{count}
@@ -220,7 +220,7 @@ export function ConceptLensPanel({
                 key={action}
                 type="button"
                 onClick={() => onAction(action)}
-                className="rounded-full border border-brand-500/30 bg-brand-600/10 px-2 py-0.5 text-[10px] font-medium text-text-primary hover:bg-brand-600/20 transition-colors"
+                className="rounded-full border border-brand-500/30 bg-brand-600/10 px-2 py-0.5 type-caption font-medium text-text-primary hover:bg-brand-600/20 transition-colors"
                 data-testid={`concept-lens-action-${action}`}
               >
                 {ACTION_LABELS[action][lang]}
@@ -249,14 +249,14 @@ function ConceptRefRow({
   if (refs.length === 0) return null;
   return (
     <div>
-      <p className="text-[10px] font-semibold text-text-muted mb-0.5">{title}</p>
+      <p className="type-caption font-semibold text-text-muted mb-0.5">{title}</p>
       <div className="flex flex-wrap gap-1">
         {refs.map((ref) => (
           <span key={ref.label} className="inline-flex items-center gap-0.5">
             <button
               type="button"
               onClick={() => onSelect(ref.label)}
-              className="rounded-full border border-white/10 bg-white/[0.04] px-2 py-0.5 text-[10px] text-text-secondary hover:border-border-default hover:text-text-primary truncate max-w-[140px]"
+              className="rounded-full border border-white/10 bg-white/[0.04] px-2 py-0.5 type-caption text-text-secondary hover:border-border-default hover:text-text-primary truncate max-w-[140px]"
               data-testid={`concept-ref-${ref.label.slice(0, 12).toLowerCase().replace(/\s+/g, '-')}`}
             >
               {ref.label}
@@ -268,7 +268,7 @@ function ConceptRefRow({
               <button
                 type="button"
                 onClick={() => onExplainRelation(ref.label)}
-                className="rounded-full border border-brand-500/25 bg-brand-600/8 px-1.5 py-0.5 text-[10px] font-medium text-text-primary hover:bg-brand-600/15"
+                className="rounded-full border border-brand-500/25 bg-brand-600/8 px-1.5 py-0.5 type-caption font-medium text-text-primary hover:bg-brand-600/15"
                 data-testid={`concept-ref-explain-${ref.label.slice(0, 12).toLowerCase().replace(/\s+/g, '-')}`}
                 title={explainLabel}
               >

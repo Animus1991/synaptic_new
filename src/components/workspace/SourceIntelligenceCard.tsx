@@ -33,14 +33,14 @@ export function SourceIntelligenceCard({
       <div className="flex items-start justify-between gap-3 flex-wrap">
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="inline-flex items-center rounded-full px-2 py-1 text-[10px] font-semibold bg-accent-cyan/12 text-text-primary">
+            <span className="inline-flex items-center rounded-full px-2 py-1 type-caption font-semibold bg-accent-cyan/12 text-text-primary">
               Source Intelligence
             </span>
             <span className={`text-[11px] font-semibold ${bandColor}`}>
               {report.score}/100 · {report.band}
             </span>
             {structure && structure.sectionCount >= 2 && (
-              <span className="inline-flex items-center gap-1 rounded-full px-2 py-1 text-[10px] font-medium bg-white/[0.06] text-text-secondary">
+              <span className="inline-flex items-center gap-1 rounded-full px-2 py-1 type-caption font-medium bg-white/[0.06] text-text-secondary">
                 <Layers className="w-3 h-3" />
                 {structure.sectionCount} {KIND_BADGE[structure.kind]}
               </span>
@@ -58,7 +58,7 @@ export function SourceIntelligenceCard({
                 <span
                   key={i}
                   title={sec.preview}
-                  className="inline-block max-w-[180px] truncate rounded-lg border border-white/10 bg-surface-card/80 px-2 py-1 text-[10px] text-text-secondary"
+                  className="inline-block max-w-[180px] truncate rounded-lg border border-white/10 bg-surface-card/80 px-2 py-1 type-caption text-text-secondary"
                 >
                   {label.slice(0, 40)}
                 </span>

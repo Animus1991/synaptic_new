@@ -764,6 +764,32 @@ export function Agent({
       ? `${composedInput}\n\n${checkInBlock}`
       : composedInput;
 
+    // Perf (product-scale): coalesce per-token stream updates into animation
+    // frames. Without this, a streamed reply calls onUpdateMessage on every SSE
+    // token, and because the app store is a single useState-based hook, each
+    // token re-renders the entire App tree — including the whole Study
+    // Workspace and every Studio panel — which freezes the UI while streaming.
+    // The final content is always committed synchronously below.
+    let streamPending: string | null = null;
+    let streamRaf: number | null = null;
+    const canRaf =
+      typeof window !== 'undefined' && typeof window.requestAnimationFrame === 'function';
+    const flushStream = () => {
+      streamRaf = null;
+      if (streamPending !== null) {
+        onUpdateMessage(streamId, { content: streamPending });
+        streamPending = null;
+      }
+    };
+    const pushStreamContent = (full: string) => {
+      if (!canRaf) {
+        onUpdateMessage(streamId, { content: full });
+        return;
+      }
+      streamPending = full;
+      if (streamRaf === null) streamRaf = window.requestAnimationFrame(flushStream);
+    };
+
     const { content, usedLlm, sourceGrounded } = await streamAgentReply(
       composedWithCheckIn,
       mode,
@@ -776,9 +802,16 @@ export function Agent({
         checkIn: loadDailyCheckIn(),
         recentUserTexts,
       },
-      (full) => onUpdateMessage(streamId, { content: full }),
+      pushStreamContent,
       chatHistory,
     );
+
+    // Drop any queued intermediate frame — the gated final content wins.
+    if (streamRaf !== null) {
+      window.cancelAnimationFrame(streamRaf);
+      streamRaf = null;
+    }
+    streamPending = null;
 
     const citationLine = retrieval.citations.length > 0
       ? retrieval.citations.slice(0, 3).map(formatCitation).join('  ·  ')
@@ -1304,6 +1337,17 @@ export function Agent({
         </div>
       )}
 
+      {/* Wave E13 — one session status strip (avoid repeating offline under every message). */}
+      {embedded && !llmReady && (
+        <div
+          className="flex items-center gap-2 border-b border-accent-amber/30 bg-accent-amber/10 px-3 py-1.5 shrink-0"
+          data-testid="agent-session-offline-strip"
+          role="status"
+        >
+          <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-accent-amber" aria-hidden />
+          <p className="type-caption text-text-primary min-w-0">{t('agentSessionOfflineStrip')}</p>
+        </div>
+      )}
       <AgentContextBanner context={workspaceContext} lang={lang} compact={embedded} />
 
       {!embedded && (
@@ -1527,6 +1571,7 @@ export function Agent({
               onGoToSource={onGoToSource}
               lang={lang}
               ui={ui}
+              suppressOfflineBadge={embedded && !llmReady}
               onSuggestionChip={handleSuggestionChip}
               chipHint={t('agentCheckInChipHint')}
               skipLabel={t('agentCheckInSkip')}
@@ -1614,7 +1659,7 @@ export function Agent({
               />
             </div>
             {/* OPT-K75 — tools beside field (never absolute-over placeholder on phone) */}
-            <div className="agent-composer-tools flex items-center gap-0.5 shrink-0 self-end pb-0.5" data-testid="agent-composer-tools">
+            <div className="agent-composer-tools flex items-end gap-0.5 shrink-0 self-end pb-0.5" data-testid="agent-composer-tools">
               <button
                 type="button"
                 aria-label={voiceListening ? t('agentVoiceListening') : t('agentVoiceInput')}
@@ -1622,39 +1667,52 @@ export function Agent({
                 aria-pressed={voiceListening}
                 onClick={handleToggleVoice}
                 disabled={isThinking}
+                title={voiceListening ? t('agentVoiceListening') : t('agentVoiceInput')}
                 className={cn(
-                  'p-1.5 rounded-lg hover:bg-surface-hover text-text-secondary',
+                  'inline-flex min-h-11 min-w-11 flex-col items-center justify-center gap-0.5 rounded-lg px-1.5 py-1 hover:bg-surface-hover text-text-secondary',
                   voiceListening && 'text-accent-rose bg-accent-rose/10',
                 )}
               >
                 <Mic className={cn('w-4 h-4', voiceListening && 'animate-pulse')} aria-hidden="true" />
+                {/* Wave E13 — always show captions: notebook AI column is often <sm */}
+                <span className="type-caption leading-none text-text-muted">
+                  {t('agentComposerVoice')}
+                </span>
               </button>
               <button
                 type="button"
                 aria-label={t('agentSearchSources')}
                 onClick={handleSearchSources}
+                title={t('agentSearchSources')}
                 className={cn(
-                  'p-1.5 rounded-lg hover:bg-surface-hover text-text-secondary',
-                  attachSource && (quietModes ? 'text-text-primary' : 'text-text-secondary'),
+                  'inline-flex min-h-11 min-w-11 flex-col items-center justify-center gap-0.5 rounded-lg px-1.5 py-1 hover:bg-surface-hover text-text-secondary',
+                  attachSource && 'text-text-primary',
                 )}
               >
                 <Search className="w-4 h-4" aria-hidden="true" />
+                <span className="type-caption leading-none text-text-muted">
+                  {t('agentComposerSources')}
+                </span>
               </button>
               <div className="relative">
                 <button
                   type="button"
                   aria-label={t('agentAttachFile')}
                   aria-expanded={showAttachPicker}
+                  title={t('agentAttachFile')}
                   onClick={() => {
                     setShowAttachPicker((v) => !v);
                     setShowSourceSettings(false);
                   }}
                   className={cn(
-                    'p-1.5 rounded-lg hover:bg-surface-hover text-text-secondary',
-                    pinnedFileId && (quietModes ? 'text-text-primary' : 'text-text-secondary'),
+                    'inline-flex min-h-11 min-w-11 flex-col items-center justify-center gap-0.5 rounded-lg px-1.5 py-1 hover:bg-surface-hover text-text-secondary',
+                    pinnedFileId && 'text-text-primary',
                   )}
                 >
                   <FileText className="w-4 h-4" aria-hidden="true" />
+                  <span className="type-caption leading-none text-text-muted">
+                    {t('agentComposerFile')}
+                  </span>
                 </button>
                 {showAttachPicker && (
                   <div className="absolute right-0 bottom-full mb-1 z-20 w-64 max-h-48 overflow-y-auto rounded-xl border border-border-subtle bg-surface-card shadow-lg p-2 text-xs">
@@ -1799,6 +1857,7 @@ function MessageBubble({
   onGoToSource,
   lang = 'en',
   ui,
+  suppressOfflineBadge = false,
   onSuggestionChip,
   chipHint,
   skipLabel,
@@ -1813,6 +1872,8 @@ function MessageBubble({
   onGoToSource?: (highlight: { fileId: string; charStart: number; charEnd: number }) => void;
   lang?: 'en' | 'el';
   ui: AgentUiCopy;
+  /** Session already shows offline strip — hide per-message offline chip. */
+  suppressOfflineBadge?: boolean;
   onSuggestionChip?: (chip: { id: string; label: string; value: string }) => void;
   chipHint?: string;
   skipLabel?: string;
@@ -1823,10 +1884,16 @@ function MessageBubble({
   speakLabel?: string;
   stopSpeakLabel?: string;
 }) {
+  const { t } = useI18n();
   const isMinimal = useMinimalTheme();
   const isUser = message.role === 'user';
   const isSystem = message.role === 'system';
   const chips = message.metadata?.suggestionChips ?? [];
+  const showOfflineMeta = message.metadata?.inferenceUsed === false && !suppressOfflineBadge;
+  const showGroundingMeta =
+    message.metadata?.groundingFaithfulness !== undefined
+    || message.metadata?.groundingVerified != null;
+  const showStatusStrip = !isUser && !message.isStreaming && (showOfflineMeta || showGroundingMeta);
 
   if (isSystem) {
     return (
@@ -1857,7 +1924,7 @@ function MessageBubble({
         'agent-message-bubble max-w-[85%] sm:max-w-[75%] rounded-xl px-4 py-3 text-sm leading-relaxed',
         isUser
           ? 'agent-message-bubble-user agent-user-bubble text-white rounded-tr-md'
-          : 'agent-message-bubble-assistant bg-surface-card border border-border-subtle rounded-tl-md',
+          : 'agent-message-bubble-assistant bg-surface-card border border-border-subtle text-text-primary rounded-tl-md',
         isUser ? 'ml-auto' : 'mr-auto',
       )}>
         <div>
@@ -1871,14 +1938,45 @@ function MessageBubble({
           )}
         </div>
 
-        {!isUser && !message.isStreaming && message.metadata?.inferenceUsed === false && (
+        {/* Wave E13 — one meta strip: offline (unless session strip) + faithfulness + verified */}
+        {showStatusStrip && (
           <div
-            className="mt-2 flex items-center gap-1.5 rounded-md border border-border-subtle bg-surface-secondary px-2 py-1 text-[11px] text-text-secondary"
-            data-testid="agent-offline-fallback-badge"
-            title={ui.offlineMode}
+            className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 rounded-lg border border-border-subtle bg-surface-secondary/50 px-2.5 py-1.5"
+            data-testid="agent-message-status-strip"
           >
-            <AlertTriangle className="w-3 h-3 shrink-0 text-accent-amber" aria-hidden />
-            {ui.offlineMode}
+            {showOfflineMeta && (
+              <span
+                className="inline-flex items-center gap-1 type-caption text-accent-amber"
+                data-testid="agent-offline-fallback-badge"
+                title={ui.offlineMode}
+              >
+                <AlertTriangle className="w-3 h-3 shrink-0" aria-hidden />
+                {ui.offlineMode}
+              </span>
+            )}
+            {message.metadata?.groundingFaithfulness !== undefined && (
+              <span
+                className={cn(
+                  'type-caption font-medium',
+                  message.metadata.groundingVerified ? 'text-accent-emerald' : 'text-text-secondary',
+                )}
+                data-testid="agent-faithfulness-score"
+              >
+                {t('agentGroundingMetaCollapsed').replace(
+                  '{pct}',
+                  String(Math.round(message.metadata.groundingFaithfulness * 100)),
+                )}
+              </span>
+            )}
+            {message.metadata?.groundingVerified === true && (
+              <span className="type-caption text-accent-emerald">{t('agentGroundingMetaVerified')}</span>
+            )}
+            {message.metadata?.groundingVerified === false && (
+              <span className="inline-flex items-center gap-1 type-caption text-accent-amber">
+                <AlertTriangle className="w-3 h-3" aria-hidden />
+                {ui.groundingWarning}
+              </span>
+            )}
           </div>
         )}
 
@@ -1894,41 +1992,20 @@ function MessageBubble({
           </div>
         ) : null}
 
-        {message.metadata?.groundingFaithfulness !== undefined && (
-          <p
-            className={cn(
-              'mt-1.5 text-[10px]',
-              message.metadata.groundingVerified ? 'text-accent-emerald' : 'text-text-muted',
-            )}
-            data-testid="agent-faithfulness-score"
-          >
-            {ui.faithfulnessScore.replace(
-              '{pct}',
-              String(Math.round(message.metadata.groundingFaithfulness * 100)),
-            )}
-          </p>
-        )}
-
-        {message.metadata?.groundingVerified === true && (
-          <p className="mt-1.5 text-[10px] text-accent-emerald">{ui.groundingVerified}</p>
-        )}
-        {message.metadata?.groundingVerified === false && (
-          <p className="mt-1.5 text-[10px] text-accent-amber flex items-center gap-1">
-            <AlertTriangle className="w-3 h-3" />
-            {ui.groundingWarning}
-          </p>
-        )}
-
         {(message.metadata?.groundingClaims?.length ?? 0) > 0 && (
-          <div
-            className="mt-2 rounded-lg border border-border-subtle bg-surface-primary/40 px-2.5 py-2 space-y-2"
+          <details
+            className="mt-2 rounded-lg border border-border-subtle bg-surface-primary/40 px-2.5 py-2"
             data-testid="agent-grounding-claims"
           >
+            <summary className="cursor-pointer type-caption font-medium text-text-secondary hover:text-text-primary">
+              {ui.citationToggle}
+            </summary>
+            <div className="mt-2 space-y-2">
             {message.metadata!.groundingClaims!.map((detail) => (
               <div
                 key={detail.claim.slice(0, 64)}
                 className={cn(
-                  'rounded-md border px-2 py-1.5 text-[10px]',
+                  'rounded-md border px-2 py-1.5 type-caption',
                   detail.grounded
                     ? 'border-accent-emerald/25 bg-accent-emerald/5 text-text-secondary'
                     : 'border-accent-amber/30 bg-accent-amber/5 text-text-secondary',
@@ -1951,7 +2028,8 @@ function MessageBubble({
                 </div>
               </div>
             ))}
-          </div>
+            </div>
+          </details>
         )}
 
         {message.metadata?.ungroundedClaims && message.metadata.ungroundedClaims.length > 0
@@ -2037,25 +2115,25 @@ function MessageBubble({
         {!isUser && message.metadata && (
           <div className="agent-meta-badge-row mt-2 pt-2 border-t border-border-subtle flex items-center gap-1.5 flex-wrap pb-0.5">
             {message.metadata.sourceGrounded && (
-              <span className="agent-meta-badge text-[10px] px-1.5 py-0.5 rounded bg-accent-emerald/10 text-accent-emerald font-medium">{ui.badgeSourceGrounded}</span>
+              <span className="agent-meta-badge type-caption px-1.5 py-0.5 rounded border border-accent-emerald/45 bg-surface-secondary text-text-primary font-medium">{ui.badgeSourceGrounded}</span>
             )}
             {message.metadata.inferenceUsed && (
-              <span className="agent-meta-badge text-[10px] px-1.5 py-0.5 rounded bg-surface-secondary text-text-primary border border-border-subtle font-medium">{ui.badgeAiInference}</span>
+              <span className="agent-meta-badge type-caption px-1.5 py-0.5 rounded bg-surface-secondary text-text-primary border border-border-subtle font-medium">{ui.badgeAiInference}</span>
             )}
             {message.metadata.enrichmentUsed && (
-              <span className="agent-meta-badge text-[10px] px-1.5 py-0.5 rounded bg-accent-amber/10 text-accent-amber font-medium">{ui.badgeEnrichment}</span>
+              <span className="agent-meta-badge type-caption px-1.5 py-0.5 rounded border border-accent-amber/45 bg-surface-secondary text-text-primary font-medium">{ui.badgeEnrichment}</span>
             )}
             {message.metadata.globalRag && (
-              <span className="agent-meta-badge text-[10px] px-1.5 py-0.5 rounded bg-accent-cyan/10 text-accent-cyan font-medium">{ui.badgeGlobalRag}</span>
+              <span className="agent-meta-badge type-caption px-1.5 py-0.5 rounded border border-accent-cyan/45 bg-surface-secondary text-text-primary font-medium">{ui.badgeGlobalRag}</span>
             )}
             {message.metadata.graphRag && (
-              <span className="agent-meta-badge text-[10px] px-1.5 py-0.5 rounded bg-surface-secondary text-text-primary border border-border-subtle font-medium">{ui.badgeGraphRag}</span>
+              <span className="agent-meta-badge type-caption px-1.5 py-0.5 rounded bg-surface-secondary text-text-primary border border-border-subtle font-medium">{ui.badgeGraphRag}</span>
             )}
             {message.metadata.globalRag === false && message.metadata.sourceGrounded && (
-              <span className="agent-meta-badge text-[10px] px-1.5 py-0.5 rounded bg-surface-hover text-text-muted font-medium">{ui.badgeLocalRag}</span>
+              <span className="agent-meta-badge type-caption px-1.5 py-0.5 rounded bg-surface-secondary text-text-primary border border-border-subtle font-medium">{ui.badgeLocalRag}</span>
             )}
             {message.metadata.lowRetrieval && (
-              <span className="agent-meta-badge agent-meta-badge--warn text-[10px] px-1.5 py-0.5 rounded bg-accent-rose/10 text-accent-rose font-medium">{ui.badgeLowRetrieval}</span>
+              <span className="agent-meta-badge agent-meta-badge--warn type-caption px-1.5 py-0.5 rounded border border-accent-rose/45 bg-surface-secondary text-text-primary font-medium">{ui.badgeLowRetrieval}</span>
             )}
           </div>
         )}

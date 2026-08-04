@@ -16,19 +16,25 @@ export function useWorkspaceIntelHydration(): boolean {
 
     const ric = window.requestIdleCallback;
     if (typeof ric === 'function') {
-      const id = ric(activate, { timeout: 100 });
+      // Longer timeout: avoid kicking heavy useMemo chains while the body chunk is still settling.
+      const id = ric(activate, { timeout: 800 });
       return () => {
         cancelled = true;
         window.cancelIdleCallback?.(id);
       };
     }
 
-    const id = window.requestAnimationFrame(() => {
-      window.requestAnimationFrame(activate);
+    // Fallback: wait a couple frames + short delay so first interactions stay responsive.
+    let timeoutId = 0;
+    const frame = window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(() => {
+        timeoutId = window.setTimeout(activate, 250);
+      });
     });
     return () => {
       cancelled = true;
-      window.cancelAnimationFrame(id);
+      window.cancelAnimationFrame(frame);
+      if (timeoutId) window.clearTimeout(timeoutId);
     };
   }, []);
 

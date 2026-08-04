@@ -2,7 +2,36 @@
  * Wave 8B-β — Minimal SymSpell-style fuzzy correction (edit distance ≤ 2) against offline lexicon.
  */
 
-import { allLexiconWords, detectTokenLang, type SpellLang } from './spellLexicon';
+import { allLexiconWords, detectTokenLang, spellLexiconVersion, type SpellLang } from './spellLexicon';
+
+/**
+ * PERF (workspace freeze root cause — profiler: 12.5s in levenshtein/fuzzyCorrectToken
+ * on a 60KB source): the original implementation rebuilt a full-lexicon Set PER
+ * TOKEN and linearly levenshtein-scanned the whole dictionary for every unknown
+ * token, with no memoization across repeated tokens. All three fixed below;
+ * correction results are identical.
+ */
+const dictCache = new Map<string, { version: number; set: Set<string>; byLen: Map<number, string[]> }>();
+const tokenCache = new Map<string, string | null>();
+const TOKEN_CACHE_MAX = 50_000;
+let tokenCacheVersion = -1;
+
+function lexiconFor(lang: SpellLang): { set: Set<string>; byLen: Map<number, string[]> } {
+  const version = spellLexiconVersion();
+  const cached = dictCache.get(lang);
+  if (cached && cached.version === version) return cached;
+  const words = allLexiconWords(lang);
+  const set = new Set(words);
+  const byLen = new Map<number, string[]>();
+  for (const w of words) {
+    const bucket = byLen.get(w.length);
+    if (bucket) bucket.push(w);
+    else byLen.set(w.length, [w]);
+  }
+  const entry = { version, set, byLen };
+  dictCache.set(lang, entry);
+  return entry;
+}
 
 function edits1(word: string): string[] {
   const out: string[] = [];
@@ -48,14 +77,31 @@ export function fuzzyCorrectToken(token: string, lang?: SpellLang): string | nul
   const lower = isGreek
     ? bare.normalize('NFD').replace(/\p{M}/gu, '').toLowerCase()
     : bare.toLowerCase();
-  const dict = new Set(allLexiconWords(resolved === 'mixed' ? 'mixed' : resolved));
+
+  const version = spellLexiconVersion();
+  if (tokenCacheVersion !== version) {
+    tokenCache.clear();
+    tokenCacheVersion = version;
+  }
+  const cacheKey = `${resolved}|${lower}`;
+  const hit = tokenCache.get(cacheKey);
+  if (hit !== undefined) return hit === null ? null : preserveCase(bare, hit);
+
+  const corrected = fuzzyCorrectLower(lower, resolved, isGreek);
+  if (tokenCache.size >= TOKEN_CACHE_MAX) tokenCache.clear();
+  tokenCache.set(cacheKey, corrected);
+  return corrected === null ? null : preserveCase(bare, corrected);
+}
+
+function fuzzyCorrectLower(lower: string, resolved: SpellLang, isGreek: boolean): string | null {
+  const { set: dict, byLen } = lexiconFor(resolved === 'mixed' ? 'mixed' : resolved);
 
   if (dict.has(lower)) return null;
 
   // Latin edit-1 only; Greek OCR fragments need stricter distance to avoid ραθα→κατα.
   if (!isGreek) {
     for (const candidate of edits1(lower)) {
-      if (dict.has(candidate)) return preserveCase(bare, candidate);
+      if (dict.has(candidate)) return candidate;
     }
   }
 
@@ -65,14 +111,17 @@ export function fuzzyCorrectToken(token: string, lang?: SpellLang): string | nul
   // long tokens where OCR fragmentation is common.
   const maxDist = isGreek ? (lower.length <= 6 ? 1 : 2) : 1;
   let best: { word: string; dist: number } | null = null;
-  for (const word of dict) {
-    if (Math.abs(word.length - lower.length) > maxDist) continue;
-    const dist = levenshtein(lower, word);
-    if (dist > maxDist) continue;
-    if (!best || dist < best.dist) best = { word, dist };
+  for (let len = lower.length - maxDist; len <= lower.length + maxDist; len++) {
+    const bucket = byLen.get(len);
+    if (!bucket) continue;
+    for (const word of bucket) {
+      const dist = levenshtein(lower, word);
+      if (dist > maxDist) continue;
+      if (!best || dist < best.dist) best = { word, dist };
+    }
   }
 
-  return best ? preserveCase(bare, best.word) : null;
+  return best ? best.word : null;
 }
 
 function preserveCase(original: string, corrected: string): string {

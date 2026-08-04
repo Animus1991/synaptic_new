@@ -143,7 +143,8 @@ describe('OPT-K69 engineering clarity contracts', () => {
     expect(calm).toMatch(/OPT-K74/);
     expect(calm).toMatch(/scroll-padding-bottom/);
 
-    const ctx = read('src/lib/agentWorkspaceContext.ts');
+    // Wave C2 moved this module to src/features/agent (src/lib is now a re-export shim).
+    const ctx = read('src/features/agent/agentWorkspaceContext.ts');
     expect(ctx).toMatch(/compactLine/);
 
     const agent = read('src/components/Agent.tsx');

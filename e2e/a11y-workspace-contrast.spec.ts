@@ -4,7 +4,7 @@ import {
   blockingViolations,
   enterStudyWorkspace,
   formatAxeViolations,
-  setAppTheme,
+  persistAppTheme,
   type AppTheme,
 } from './helpers/a11y';
 
@@ -16,8 +16,11 @@ for (const theme of THEMES) {
 
     test('study workspace passes axe WCAG AA including color-contrast', async ({ page }) => {
       test.setTimeout(120_000);
+      await persistAppTheme(page, theme);
       await enterStudyWorkspace(page);
-      await setAppTheme(page, theme);
+      await expect
+        .poll(async () => page.locator('html').getAttribute('data-theme'), { timeout: 10_000 })
+        .toBe(theme);
       await page.waitForTimeout(300);
 
       const results = await axeBuilder(page)

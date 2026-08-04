@@ -1138,6 +1138,14 @@
 .agent-message-bubble {
   border-radius: var(--radius-bubble);
 }
+/* Wave E14 — assistant ink always theme primary (prevents dark-theme #eee leak on light cards). */
+.agent-message-bubble-assistant {
+  color: var(--color-text-primary);
+}
+.agent-message-bubble-assistant .rich-text,
+.agent-message-bubble-assistant .whitespace-pre-wrap {
+  color: inherit;
+}
 [data-testid="agent-suggestion-chips"] > .flex {
   max-height: 5.75rem;
   overflow: auto;
@@ -3245,11 +3253,12 @@
   box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-brand-500) 12%, transparent);
 }
 .descriptive-sticky-tab-active .descriptive-sticky-tab-label {
-  color: var(--color-brand-700);
+  /* Wave E14 — AA ink on all themes; active state stays via brand border/background */
+  color: var(--color-text-primary);
 }
 .descriptive-sticky-tab-active .descriptive-sticky-tab-count {
   background: color-mix(in srgb, var(--color-brand-500) 15%, transparent);
-  color: var(--color-brand-700);
+  color: var(--color-text-primary);
 }
 [data-theme="blueprint"] .descriptive-sticky-tab {
   border-color: color-mix(in srgb, #ffffff 10%, transparent);
@@ -3720,6 +3729,13 @@ html[data-density="compact"] .app-shell {
 .elev-4 { box-shadow: var(--elev-4); }
 .elev-drawer { box-shadow: var(--elev-drawer); }
 .rounded-panel { border-radius: var(--radius-panel); }
+/* Global radius harmonization (state-of-the-art scale): Tailwind's bare `rounded`
+   utility ships a legacy 4px, while this design system's smallest step is 6px
+   (--radius-sm). Aligning them softens every dense control (toolbars, chips,
+   inputs, badges) app-wide with zero layout/color impact. Unlayered so it wins
+   over Tailwind's layered utility; directional utilities (rounded-t-*, etc.)
+   still override their specific corners. */
+.rounded { border-radius: var(--radius-sm); }
 .space-stack-sm > * + * { margin-top: var(--space-4); }
 .space-stack-md > * + * { margin-top: var(--space-6); }
 .space-stack-lg > * + * { margin-top: var(--space-8); }
@@ -4286,8 +4302,10 @@ input[type="range"]::-webkit-slider-thumb {
   line-height: var(--leading-micro);
 }
 .platform-source-badge--strict {
-  color: var(--mastery-strong);
+  /* Wave E14 — mastery-strong alone was 4.42:1 on dark cards; mix toward white for AA */
+  color: color-mix(in srgb, var(--mastery-strong) 62%, #ffffff);
   background: color-mix(in srgb, var(--mastery-strong) 14%, var(--color-surface-card));
+  font-weight: 600;
 }
 /* Enriched: never pale-on-pale (brand-300 on soft cyan wash fails AA). */
 .platform-source-badge--enriched {
@@ -5321,18 +5339,17 @@ input[type="range"]::-webkit-slider-thumb {
   background: color-mix(in srgb, var(--color-surface-secondary) 75%, #faf8f5);
 }
 
-/* Cognitive overlays — portal-friendly (carry data-ws-theme="warm" on node) */
-[data-theme="light"] [data-ws-theme="warm"].ws-cognitive-backdrop,
-[data-theme="light"] [data-ws-theme="warm"] .ws-cognitive-backdrop {
+/* Cognitive overlays — portal to body; layout must NOT depend on data-theme="light"
+   (default theme is minimal — light-only selectors made Study Room appear broken). */
+[data-ws-theme="warm"].ws-cognitive-backdrop {
   position: fixed;
   inset: 0;
   z-index: 190;
-  background: color-mix(in srgb, #1f160c 28%, transparent);
+  background: color-mix(in srgb, #1f160c 35%, transparent);
   border: none;
   cursor: default;
 }
-[data-theme="light"] [data-ws-theme="warm"].ws-cognitive-sheet,
-[data-theme="light"] [data-ws-theme="warm"] .ws-cognitive-sheet {
+[data-ws-theme="warm"].ws-cognitive-sheet {
   position: fixed;
   top: 0;
   right: 0;
@@ -5342,25 +5359,33 @@ input[type="range"]::-webkit-slider-thumb {
   display: flex;
   flex-direction: column;
   border-left: 1px solid var(--color-border-subtle);
-  background: color-mix(in srgb, var(--color-surface-secondary) 98%, #faf8f5);
+  background: var(--color-surface-secondary);
   backdrop-filter: blur(12px);
-  box-shadow: -8px 0 32px color-mix(in srgb, #1f160c 12%, transparent);
+  box-shadow: -8px 0 32px color-mix(in srgb, #1f160c 18%, transparent);
   font-family: var(--font-sans);
   color: var(--color-text-primary);
 }
-[data-theme="light"] [data-ws-theme="warm"] .ws-cognitive-sheet-header {
+[data-ws-theme="warm"] .ws-cognitive-sheet-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
   padding: 0.875rem 1rem;
   border-bottom: 1px solid var(--color-border-subtle);
-  shrink: 0;
+  flex-shrink: 0;
 }
-[data-theme="light"] [data-ws-theme="warm"] .ws-cognitive-sheet-body {
+[data-ws-theme="warm"] .ws-cognitive-sheet-body {
   flex: 1;
   overflow-y: auto;
   padding: 1rem;
+}
+/* Warm sand tint when parent theme is light/minimal */
+:is([data-theme="light"], [data-theme="minimal"]) [data-ws-theme="warm"].ws-cognitive-backdrop {
+  background: color-mix(in srgb, #1f160c 28%, transparent);
+}
+:is([data-theme="light"], [data-theme="minimal"]) [data-ws-theme="warm"].ws-cognitive-sheet {
+  background: color-mix(in srgb, var(--color-surface-secondary) 98%, #faf8f5);
+  box-shadow: -8px 0 32px color-mix(in srgb, #1f160c 12%, transparent);
 }
 [data-theme="light"] [data-ws-theme="warm"] .ws-field-label {
   display: block;
@@ -6555,6 +6580,68 @@ body { letter-spacing: -0.005em; }
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell [data-testid="library-page"] .group:hover,
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell [data-testid="tasks-page"] .group:hover {
   background-color: color-mix(in srgb, var(--color-brand-600) 4%, var(--color-surface-hover));
+}
+
+/* ========== Wave E1 — Study Workspace optical foundation ========== */
+/*
+ * Scoped to study-workspace so shell/marketing stay on global tokens.
+ * Goals (from UPGRADE_BACKLOG Wave E + 12-panel audit):
+ *  - Type floor ≥12px in workspace (micro was 10px → eye strain)
+ *  - Radius: chip/btn 8 · card 12 · modal/panel 16
+ *  - Muted ink one step darker for WCAG AA on white/sand surfaces
+ *  - Touch targets ≥44px on phone
+ */
+[data-testid="study-workspace"] {
+  --type-micro: 0.75rem;      /* 12 */
+  --type-caption: 0.8125rem;  /* 13 */
+  --type-body-sm: 0.875rem;   /* 14 */
+  --type-meta: 0.875rem;      /* 14 */
+  --type-body: 1rem;          /* 16 */
+  --type-title: 1.125rem;     /* 18 */
+  --type-display-sm: 1.25rem; /* 20 */
+  --type-display: 1.5rem;     /* 24 */
+  --radius-sm: 0.5rem;        /* 8 — chips / dense controls */
+  --radius-md: 0.5rem;        /* 8 — buttons */
+  --radius-lg: 0.75rem;       /* 12 — cards / tool wells */
+  --radius-xl: 1rem;          /* 16 */
+  --radius-panel: 1rem;       /* 16 — sheets / modals / notebook columns */
+  --radius-bubble: 1rem;
+  --btn-height: 2.75rem;
+  --btn-height-sm: 2.5rem;
+  /* Slightly stronger muted ink — gray-on-white was the top screenshot complaint */
+  --color-text-muted: color-mix(in srgb, var(--color-text-secondary) 82%, var(--color-text-primary));
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  [data-testid="study-workspace"] {
+    --type-body: 0.9375rem; /* 15 — tablet middle ground */
+    --type-title: 1.0625rem;
+  }
+}
+
+@media (max-width: 767px) {
+  [data-testid="study-workspace"] {
+    --type-micro: 0.8125rem;
+    --type-caption: 0.875rem;
+    --type-body-sm: 0.9375rem;
+    --type-body: 1rem;
+  }
+  [data-testid="study-workspace"] .ws-chrome-btn,
+  [data-testid="study-workspace"] button.rounded-full,
+  [data-testid="study-workspace"] [data-testid="workspace-study-room-open"] {
+    min-height: 2.75rem;
+    min-width: 2.75rem;
+  }
+}
+
+:is([data-theme="minimal"], [data-theme="light"]) [data-testid="study-workspace"] {
+  --color-text-muted: #5c6570;
+  --color-text-secondary: #3d4450;
+}
+
+:is([data-theme="minimal-dark"], [data-theme="dark"], [data-theme="blueprint"]) [data-testid="study-workspace"] {
+  --color-text-muted: #9aa3ad;
+  --color-text-secondary: #c2c8d0;
 }
 
 /* ========== OPT-K96 - Study workspace bridge (Reader / Notebook / Quiz) ========== */

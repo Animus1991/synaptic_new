@@ -203,7 +203,7 @@ export function StudyTimer({
           <Timer className="w-4 h-4 text-accent-teal" />
           {t('studyTimer')}
         </h3>
-        <div className="flex rounded-lg border border-border-subtle overflow-hidden text-[10px]">
+        <div className="flex rounded-lg border border-border-subtle overflow-hidden type-caption">
           <button
             type="button"
             data-testid="timer-mode-pomodoro"
@@ -228,10 +228,10 @@ export function StudyTimer({
         <div className="mb-4 flex items-start gap-2 rounded-lg border border-border-subtle bg-surface-primary/50 px-3 py-2">
           <BookOpen className="w-3.5 h-3.5 text-text-primary shrink-0 mt-0.5" />
           <div className="min-w-0 flex-1">
-            <p className="text-[10px] text-text-muted">{t('timerSession')}</p>
+            <p className="type-caption text-text-muted">{t('timerSession')}</p>
             <p className="text-xs font-medium text-text-primary truncate">{sessionLabel}</p>
             {conceptMastery !== undefined && (
-              <p className="text-[10px] text-text-muted mt-0.5">
+              <p className="type-caption text-text-muted mt-0.5">
                 {t('timerMasteryColon')}: {conceptMastery}%
               </p>
             )}
@@ -250,7 +250,7 @@ export function StudyTimer({
             type="button"
             data-testid="timer-break-open-leitner"
             onClick={onOpenBreakTool}
-            className="shrink-0 rounded-md border border-accent-cyan/40 bg-accent-cyan/15 px-2 py-1 text-[10px] font-semibold text-text-primary hover:bg-accent-cyan/25"
+            className="shrink-0 rounded-md border border-accent-cyan/40 bg-accent-cyan/15 px-2 py-1 type-caption font-semibold text-text-primary hover:bg-accent-cyan/25"
           >
             {t('timerBreakOpenLeitner')}
           </button>
@@ -258,7 +258,7 @@ export function StudyTimer({
             type="button"
             aria-label={t('dismiss')}
             onClick={() => setLeitnerBreakDismissed(true)}
-            className="shrink-0 text-[10px] text-text-muted hover:text-text-secondary px-1"
+            className="shrink-0 type-caption text-text-muted hover:text-text-secondary px-1"
           >
             ×
           </button>
@@ -267,54 +267,66 @@ export function StudyTimer({
 
       {mode === 'pomodoro' && (
         <>
-          <div className="ux-pomodoro-preset-pills flex gap-2 mb-3 self-start flex-wrap xl:hidden">
+          {/* Wave E10 — segmented pomodoro modes; exam blocks in compact select */}
+          <div
+            className="ux-pomodoro-preset-pills mb-3 inline-flex self-start rounded-lg border border-border-subtle p-0.5 xl:hidden"
+            role="group"
+            aria-label={t('studyTimer')}
+          >
             {PRESET_DEFS.map((p, i) => (
               <button
                 key={p.key}
                 type="button"
                 onClick={() => selectPreset(i)}
                 className={cn(
-                  'px-2.5 py-1 rounded-lg text-[10px] font-medium border transition-all',
-                  presetIdx === i && !examPracticeId ? 'border-brand-500/40 text-text-primary bg-surface-secondary' : 'border-border-subtle text-text-muted',
+                  'px-2.5 py-1.5 rounded-md type-caption font-medium transition-all',
+                  presetIdx === i && !examPracticeId
+                    ? 'bg-surface-secondary text-text-primary'
+                    : 'text-text-muted hover:text-text-secondary',
                 )}
               >
                 {t(p.key)}
               </button>
             ))}
           </div>
-          <div className="mb-6 w-full max-w-md">
-            <p className="mb-1.5 text-[10px] font-semibold text-text-muted">
+          <div className="mb-4 w-full max-w-md">
+            <label className="mb-1.5 block type-caption font-semibold text-text-muted" htmlFor="timer-exam-practice-select">
               {t('timerExamPracticeBlocks')}
-            </p>
-            <div className="flex flex-wrap gap-1.5" data-testid="timer-exam-practice-presets">
+            </label>
+            <select
+              id="timer-exam-practice-select"
+              data-testid="timer-exam-practice-presets"
+              value={examPracticeId ?? ''}
+              onChange={(e) => {
+                const id = e.target.value as ExamPracticePresetId | '';
+                if (!id) {
+                  setExamPracticeId(null);
+                  setPhase('work');
+                  setSecondsLeft(PRESET_DEFS[presetIdx].work);
+                  setRunning(false);
+                  return;
+                }
+                setExamPracticeId(id);
+                setPhase('work');
+                setSecondsLeft(workSecondsForExamPractice(id));
+                setRunning(false);
+                saveExamPracticePreset(scopeKey, id);
+              }}
+              className="w-full rounded-lg border border-border-subtle bg-surface-input px-2.5 py-2 type-caption text-text-primary"
+            >
+              <option value="">{t(PRESET_DEFS[presetIdx].key)} (Pomodoro)</option>
               {EXAM_PRACTICE_PRESETS.map((block) => (
-                <button
-                  key={block.id}
-                  type="button"
-                  onClick={() => {
-                    setExamPracticeId(block.id);
-                    setPhase('work');
-                    setSecondsLeft(workSecondsForExamPractice(block.id));
-                    setRunning(false);
-                    saveExamPracticePreset(scopeKey, block.id);
-                  }}
-                  className={cn(
-                    'rounded-full border px-2.5 py-1 text-[10px] font-medium transition-all',
-                    examPracticeId === block.id
-                      ? 'border-accent-amber/40 bg-accent-amber/15 text-accent-amber'
-                      : 'border-border-subtle text-text-muted hover:border-accent-amber/30',
-                  )}
-                >
+                <option key={block.id} value={block.id}>
                   {examPracticeLabel(block.id, lang)}
-                </button>
+                </option>
               ))}
-            </div>
+            </select>
             {examPracticeId && onOpenSimulator && getExamPracticePreset(examPracticeId).simulatorScenarioId && (
               <button
                 type="button"
                 data-testid="timer-open-simulator"
                 onClick={onOpenSimulator}
-                className="mt-2 text-[10px] text-text-primary hover:underline"
+                className="mt-2 type-caption text-text-primary hover:underline"
               >
                 {t('timerOpenSimulator')}
               </button>
@@ -325,7 +337,7 @@ export function StudyTimer({
 
       {mode === 'exam' && (
         <div className="mb-4 space-y-2">
-          <label className="text-[10px] text-text-muted">{t('timerExamDate')}</label>
+          <label className="type-caption text-text-muted">{t('timerExamDate')}</label>
           <input
             type="datetime-local"
             data-testid="exam-target-input"
@@ -344,7 +356,7 @@ export function StudyTimer({
               `exam-${concept || scopeKey}`,
               buildExamIcs(examTarget, concept || 'Study exam', lang),
             )}
-            className="inline-flex items-center gap-1 rounded-lg border border-accent-amber/30 bg-accent-amber/10 px-2 py-1 text-[10px] font-medium text-accent-amber hover:bg-accent-amber/20"
+            className="inline-flex items-center gap-1 rounded-lg border border-accent-amber/30 bg-accent-amber/10 px-2 py-1 type-caption font-medium text-accent-amber hover:bg-accent-amber/20"
           >
             <Calendar className="w-3 h-3" />
             {t('timerExportIcs')}
@@ -404,13 +416,13 @@ export function StudyTimer({
       </div>
 
       {loggedWork > 0 && mode === 'pomodoro' && (
-        <p className="text-[10px] text-text-muted mt-2 text-center">{t('loggedStudyTime').replace('{n}', String(loggedWork))}</p>
+        <p className="type-caption text-text-muted mt-2 text-center">{t('loggedStudyTime').replace('{n}', String(loggedWork))}</p>
       )}
 
       {recentSessions.length > 0 && (
         <div className="mt-4 border-t border-border-subtle pt-3 shrink-0">
           <div className="mb-2 flex items-center justify-between gap-2">
-            <p className="text-[10px] font-semibold text-text-muted">{t('timerRecentSessions')}</p>
+            <p className="type-caption font-semibold text-text-muted">{t('timerRecentSessions')}</p>
             <button
               type="button"
               data-testid="timer-export-sessions-calendar"
@@ -418,7 +430,7 @@ export function StudyTimer({
                 `sessions-${scopeKey}`,
                 buildStudySessionsIcs(recentSessions, lang),
               )}
-              className="inline-flex items-center gap-1 text-[10px] text-text-secondary hover:text-text-primary"
+              className="inline-flex items-center gap-1 type-caption text-text-secondary hover:text-text-primary"
             >
               <Calendar className="w-3 h-3" />
               .ics
@@ -426,7 +438,7 @@ export function StudyTimer({
           </div>
           <ul className="space-y-1 max-h-24 overflow-y-auto">
             {recentSessions.slice(-4).reverse().map((s, i) => (
-              <li key={`${s.at}-${i}`} className="text-[10px] text-text-tertiary flex justify-between gap-2">
+              <li key={`${s.at}-${i}`} className="type-caption text-text-tertiary flex justify-between gap-2">
                 <span className="truncate">{s.label}</span>
                 <span className="shrink-0 font-mono">{s.minutes}m</span>
               </li>

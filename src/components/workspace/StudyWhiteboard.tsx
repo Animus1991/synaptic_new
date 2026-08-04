@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type KeyboardEvent, type MutableRefObject } from 'react';
 import {
-  ArrowRight, Bot, Circle, Eraser, Eye, EyeOff, Highlighter, Layers, Lock, Minus, Pen,
-  Plus, Redo2, Ruler, Save, Square, Trash2, Type, Undo2, BookOpen, Calculator, X, Unlock, Download,
+  ArrowRight, Bot, Calculator, Circle, Eraser, Eye, EyeOff, Highlighter, Lock, Minus, MoreHorizontal, Pen,
+  Plus, Redo2, Ruler, Square, Type, Undo2, BookOpen, X, Unlock,
 } from '@/lib/lucide-shim';
 import { buildWhiteboardSvg, downloadWhiteboardPng, downloadWhiteboardSvg } from '../../lib/whiteboardExport';
 import { cn } from '../../utils/cn';
@@ -41,18 +41,23 @@ function emptyDoc(lang: 'en' | 'el'): WhiteboardDocument {
   return migrateWhiteboardPayload([], lang);
 }
 
-const TOOL_DEFS: { id: Tool; icon: typeof Pen; label: string }[] = [
+const DRAW_TOOLS: { id: Tool; icon: typeof Pen; label: string }[] = [
   { id: 'pen', icon: Pen, label: 'Pen' },
   { id: 'marker', icon: Highlighter, label: 'Marker' },
   { id: 'highlighter', icon: Highlighter, label: 'Highlight' },
   { id: 'eraser', icon: Eraser, label: 'Eraser' },
+  { id: 'text', icon: Type, label: 'Text' },
+];
+
+const SHAPE_TOOLS: { id: Tool; icon: typeof Pen; label: string }[] = [
   { id: 'line', icon: Minus, label: 'Line' },
   { id: 'rect', icon: Square, label: 'Rect' },
   { id: 'ellipse', icon: Circle, label: 'Ellipse' },
   { id: 'arrow', icon: ArrowRight, label: 'Arrow' },
   { id: 'ruler', icon: Ruler, label: 'Ruler' },
-  { id: 'text', icon: Type, label: 'Text' },
 ];
+
+const TOOL_DEFS = [...DRAW_TOOLS, ...SHAPE_TOOLS];
 
 /* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function StudyWhiteboard({
@@ -550,19 +555,19 @@ export function StudyWhiteboard({
                   <X className="w-3.5 h-3.5" aria-hidden />
                 </button>
               </div>
-              <p className="text-[10px] font-medium text-text-primary">{scratchpadImport.name}</p>
+              <p className="type-caption font-medium text-text-primary">{scratchpadImport.name}</p>
               <div className="rounded-lg bg-surface-primary/60 p-2 overflow-x-auto">
                 <FormulaLatexPreview formula={scratchpadImport.formula} />
               </div>
               {scratchpadImport.variables && scratchpadImport.variables.length > 0 && (
-                <div className="text-[10px] text-text-muted space-y-0.5">
+                <div className="type-caption text-text-muted space-y-0.5">
                   {scratchpadImport.variables.map((v) => (
                     <p key={v.symbol}>{v.symbol} = {v.value}{v.unit ? ` ${v.unit}` : ''}</p>
                   ))}
                 </div>
               )}
               {scratchpadImport.steps && scratchpadImport.steps.length > 0 && (
-                <div className="text-[10px] font-mono text-text-tertiary space-y-0.5 max-h-24 overflow-y-auto">
+                <div className="type-caption font-mono text-text-tertiary space-y-0.5 max-h-24 overflow-y-auto">
                   {scratchpadImport.steps.map((s, i) => (
                     <p key={i}>{s}</p>
                   ))}
@@ -571,7 +576,7 @@ export function StudyWhiteboard({
               <button
                 type="button"
                 onClick={insertScratchpadImport}
-                className="w-full py-1.5 rounded-lg text-[10px] font-semibold bg-brand-600 text-white hover:bg-brand-500"
+                className="w-full py-1.5 rounded-lg type-caption font-semibold bg-brand-600 text-white hover:bg-brand-500"
               >
                 {t('wbInsertOnBoard')}
               </button>
@@ -583,22 +588,22 @@ export function StudyWhiteboard({
           </div>
           {referenceFormulas.map((f) => (
             <div key={f.id} className="p-2 rounded-lg bg-surface-card border border-border-subtle">
-              <p className="text-[10px] font-medium text-text-primary truncate">{f.name}</p>
+              <p className="type-caption font-medium text-text-primary truncate">{f.name}</p>
               <div className="mt-1 overflow-x-auto">
                 <FormulaLatexPreview formula={f.formula} display={false} />
               </div>
-              <p className="text-[10px] font-mono text-text-muted mt-1 break-all opacity-70">{f.formula}</p>
+              <p className="type-caption font-mono text-text-muted mt-1 break-all opacity-70">{f.formula}</p>
               <button
                 type="button"
                 onClick={() => insertFormulaLabel(f.name, f.formula)}
-                className="mt-2 text-[10px] font-medium text-text-secondary hover:text-text-primary"
+                className="mt-2 type-caption font-medium text-text-secondary hover:text-text-primary"
               >
                 {t('wbInsertOnBoardArrow')}
               </button>
             </div>
           ))}
           {referenceExcerpt && referenceFormulas.length === 0 && (
-            <p className="text-[10px] text-text-tertiary leading-relaxed line-clamp-6">{referenceExcerpt.slice(0, 280)}…</p>
+            <p className="type-caption text-text-tertiary leading-relaxed line-clamp-6">{referenceExcerpt.slice(0, 280)}…</p>
           )}
         </aside>
       )}
@@ -610,7 +615,7 @@ export function StudyWhiteboard({
           {crdt && (
             <span
               className={cn(
-                'rounded-full px-2 py-0.5 text-[10px] font-semibold border',
+                'rounded-full px-2 py-0.5 type-caption font-semibold border',
                 crdt.synced
                   ? 'border-accent-emerald/40 bg-accent-emerald/10 text-accent-emerald'
                   : 'border-border-subtle bg-surface-hover text-text-muted',
@@ -621,126 +626,149 @@ export function StudyWhiteboard({
             </span>
           )}
         </div>
-        <p className="text-[10px] text-text-tertiary">
+        <p className="type-caption text-text-tertiary">
           {t('wbHintLocalSave')}
         </p>
       </div>
 
-      <div className="flex shrink-0 flex-wrap items-center gap-2 border-b border-border-subtle px-3 py-2">
-        {TOOL_DEFS.map(({ id, icon: Icon, label }) => (
+      {/* Wave E3 — single grouped toolbar; secondary actions in overflow */}
+      <div className="flex shrink-0 flex-wrap items-center gap-1.5 border-b border-border-subtle px-3 py-2">
+        {DRAW_TOOLS.map(({ id, icon: Icon, label }) => (
           <button
             key={id}
             type="button"
             aria-label={label}
+            title={label}
             aria-pressed={tool === id}
             disabled={activeLayerLocked}
             onClick={() => setTool(id)}
             className={cn(
-              'flex items-center gap-1 rounded-lg px-2 py-1.5 text-[10px] font-medium transition-colors',
+              'inline-flex min-h-9 items-center gap-1 rounded-lg px-2 py-1.5 type-caption font-medium transition-colors',
               tool === id ? 'bg-surface-secondary text-text-primary border border-border-subtle' : 'text-text-muted hover:bg-surface-hover',
               activeLayerLocked && 'opacity-40 cursor-not-allowed',
             )}
           >
             <Icon className="w-3.5 h-3.5" aria-hidden />
-            <span className="hidden sm:inline">{label}</span>
+            <span>{label}</span>
           </button>
         ))}
-        <div className="mx-1 h-5 w-px bg-border-subtle" />
-        <button
-          type="button"
-          data-testid="whiteboard-layers-toggle"
-          aria-label={t('wbToggleLayersPanel')}
-          aria-pressed={showLayers}
-          onClick={() => setShowLayers((v) => !v)}
-          className={cn(
-            'rounded-lg p-1.5',
-            showLayers ? 'bg-surface-secondary text-text-primary border border-border-subtle' : 'text-text-muted hover:bg-surface-hover',
-          )}
-        >
-          <Layers className="w-3.5 h-3.5" aria-hidden />
-        </button>
-        <button
-          type="button"
-          data-testid="whiteboard-latex-stamps"
-          aria-label={t('wbToggleLatexPanel')}
-          aria-pressed={showStamps}
-          onClick={() => setShowStamps((v) => !v)}
-          className={cn(
-            'rounded-lg px-2 py-1.5 text-[10px] font-medium',
-            showStamps ? 'bg-accent-cyan/20 text-text-primary' : 'text-text-muted hover:bg-surface-hover',
-          )}
-        >
-          <Calculator className="w-3.5 h-3.5 inline" aria-hidden />
-          <span className="hidden sm:inline ml-1">LaTeX</span>
-        </button>
+        <div className="mx-0.5 h-5 w-px bg-border-subtle" aria-hidden />
+        {SHAPE_TOOLS.map(({ id, icon: Icon, label }) => (
+          <button
+            key={id}
+            type="button"
+            aria-label={label}
+            title={label}
+            aria-pressed={tool === id}
+            disabled={activeLayerLocked}
+            onClick={() => setTool(id)}
+            className={cn(
+              'inline-flex min-h-9 items-center gap-1 rounded-lg px-2 py-1.5 type-caption font-medium transition-colors',
+              tool === id ? 'bg-surface-secondary text-text-primary border border-border-subtle' : 'text-text-muted hover:bg-surface-hover',
+              activeLayerLocked && 'opacity-40 cursor-not-allowed',
+            )}
+          >
+            <Icon className="w-3.5 h-3.5" aria-hidden />
+            <span>{label}</span>
+          </button>
+        ))}
+        <div className="mx-0.5 h-5 w-px bg-border-subtle" aria-hidden />
         <button
           type="button"
           aria-label={t('wbUndo')}
+          title={t('wbUndo')}
           onClick={undo}
           disabled={doc.strokes.length === 0}
-          className="rounded-lg p-1.5 text-text-muted hover:bg-surface-hover disabled:opacity-40 disabled:cursor-not-allowed"
+          className="inline-flex min-h-9 min-w-9 items-center justify-center rounded-lg text-text-muted hover:bg-surface-hover disabled:opacity-40 disabled:cursor-not-allowed"
         >
           <Undo2 className="w-3.5 h-3.5" aria-hidden />
         </button>
         <button
           type="button"
           aria-label={t('wbRedo')}
+          title={t('wbRedo')}
           onClick={redo}
           disabled={redoStack.length === 0}
-          className="rounded-lg p-1.5 text-text-muted hover:bg-surface-hover disabled:opacity-40 disabled:cursor-not-allowed"
+          className="inline-flex min-h-9 min-w-9 items-center justify-center rounded-lg text-text-muted hover:bg-surface-hover disabled:opacity-40 disabled:cursor-not-allowed"
         >
           <Redo2 className="w-3.5 h-3.5" aria-hidden />
-        </button>
-        <button
-          type="button"
-          aria-label={t('wbClearActiveLayer')}
-          onClick={clearActiveLayer}
-          className="rounded-lg p-1.5 text-text-muted hover:bg-surface-hover"
-        >
-          <Trash2 className="w-3.5 h-3.5" aria-hidden />
-        </button>
-        <button
-          type="button"
-          aria-label={t('wbSaveBoard')}
-          onClick={save}
-          className="rounded-lg p-1.5 text-text-muted hover:bg-surface-hover"
-        >
-          <Save className="w-3.5 h-3.5" aria-hidden />
-        </button>
-        <button
-          type="button"
-          data-testid="whiteboard-export-png"
-          aria-label={t('wbExportPng')}
-          onClick={exportPng}
-          className="rounded-lg p-1.5 text-text-muted hover:bg-surface-hover"
-        >
-          <Download className="w-3.5 h-3.5" aria-hidden />
-        </button>
-        <button
-          type="button"
-          data-testid="whiteboard-export-svg"
-          aria-label={t('wbExportSvg')}
-          onClick={exportSvg}
-          className="rounded-lg px-1.5 py-1 text-[10px] font-medium text-text-muted hover:bg-surface-hover"
-        >
-          SVG
         </button>
         {onAskAgent && coachPlan && (
           <button
             type="button"
             data-testid="whiteboard-explain-diagram"
             aria-label={t('wbExplainDiagram')}
+            title={t('wbExplainDiagram')}
             disabled={doc.strokes.length === 0}
             onClick={handleExplainDiagram}
-            className="inline-flex items-center gap-1 rounded-lg border border-accent-cyan/30 px-2 py-1 text-[10px] font-medium text-text-primary hover:bg-accent-cyan/10 disabled:opacity-40 disabled:cursor-not-allowed"
+            className="inline-flex min-h-9 items-center gap-1 rounded-lg border border-accent-cyan/30 px-2 py-1 type-caption font-medium text-text-primary hover:bg-accent-cyan/10 disabled:opacity-40 disabled:cursor-not-allowed"
           >
             <Bot className="w-3 h-3" aria-hidden />
-            <span className="hidden sm:inline">{t('wbExplainDiagram')}</span>
+            <span>{t('wbExplainDiagram')}</span>
           </button>
         )}
-        {savedMsg && <span className="text-[10px] text-accent-emerald">{t('wbSaved')}</span>}
+        <details className="relative ml-auto">
+          <summary
+            className="flex min-h-9 min-w-9 cursor-pointer list-none items-center justify-center rounded-lg border border-border-subtle text-text-secondary hover:bg-surface-hover hover:text-text-primary [&::-webkit-details-marker]:hidden"
+            aria-label={t('wbMoreTools')}
+            data-testid="whiteboard-more-menu"
+          >
+            <MoreHorizontal className="h-4 w-4" aria-hidden />
+          </summary>
+          <div className="absolute right-0 top-full z-20 mt-1 min-w-[11rem] rounded-lg border border-border-subtle bg-surface-elevated py-1 shadow-lg">
+            <button
+              type="button"
+              data-testid="whiteboard-layers-toggle"
+              aria-pressed={showLayers}
+              onClick={() => setShowLayers((v) => !v)}
+              className="block w-full px-3 py-2 text-left type-caption font-medium text-text-primary hover:bg-surface-muted"
+            >
+              {t('wbToggleLayersPanel')}
+            </button>
+            <button
+              type="button"
+              data-testid="whiteboard-latex-stamps"
+              aria-pressed={showStamps}
+              onClick={() => setShowStamps((v) => !v)}
+              className="block w-full px-3 py-2 text-left type-caption font-medium text-text-primary hover:bg-surface-muted"
+            >
+              LaTeX
+            </button>
+            <button
+              type="button"
+              onClick={clearActiveLayer}
+              className="block w-full px-3 py-2 text-left type-caption font-medium text-text-primary hover:bg-surface-muted"
+            >
+              {t('wbClearActiveLayer')}
+            </button>
+            <button
+              type="button"
+              onClick={save}
+              className="block w-full px-3 py-2 text-left type-caption font-medium text-text-primary hover:bg-surface-muted"
+            >
+              {t('wbSaveBoard')}
+            </button>
+            <button
+              type="button"
+              data-testid="whiteboard-export-png"
+              onClick={exportPng}
+              className="block w-full px-3 py-2 text-left type-caption font-medium text-text-primary hover:bg-surface-muted"
+            >
+              {t('wbExportPng')}
+            </button>
+            <button
+              type="button"
+              data-testid="whiteboard-export-svg"
+              onClick={exportSvg}
+              className="block w-full px-3 py-2 text-left type-caption font-medium text-text-primary hover:bg-surface-muted"
+            >
+              {t('wbExportSvg')}
+            </button>
+          </div>
+        </details>
+        {savedMsg && <span className="type-caption text-accent-emerald">{t('wbSaved')}</span>}
         {activeLayerLocked && (
-          <span className="text-[10px] text-accent-amber">{t('wbLayerLocked')}</span>
+          <span className="type-caption text-accent-amber">{t('wbLayerLocked')}</span>
         )}
       </div>
 
@@ -755,7 +783,7 @@ export function StudyWhiteboard({
               type="button"
               aria-label={t('wbInsertStamp').replace('{label}', stamp.label)}
               onClick={() => insertLatexStamp(stamp)}
-              className="rounded-lg border border-border-subtle bg-surface-card px-2 py-1 text-[10px] text-text-secondary hover:border-accent-cyan/40 hover:text-text-primary"
+              className="rounded-lg border border-border-subtle bg-surface-card px-2 py-1 type-caption text-text-secondary hover:border-accent-cyan/40 hover:text-text-primary"
             >
               {stamp.label}
             </button>
@@ -765,7 +793,7 @@ export function StudyWhiteboard({
 
       {showLayers && (
         <div
-          className="flex shrink-0 flex-wrap items-center gap-2 border-b border-border-subtle px-3 py-2 text-[10px]"
+          className="flex shrink-0 flex-wrap items-center gap-2 border-b border-border-subtle px-3 py-2 type-caption"
           data-testid="whiteboard-layers"
         >
           <span className="text-text-tertiary font-semibold">
@@ -828,7 +856,7 @@ export function StudyWhiteboard({
         </div>
       )}
 
-      <div className="flex shrink-0 flex-wrap items-center gap-3 border-b border-border-subtle px-3 py-2 text-[10px]">
+      <div className="flex shrink-0 flex-wrap items-center gap-3 border-b border-border-subtle px-3 py-2 type-caption">
         <span className="text-text-tertiary">Color</span>
         {COLORS.map((c) => (
           <button

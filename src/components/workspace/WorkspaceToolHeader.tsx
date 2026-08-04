@@ -85,17 +85,17 @@ export function WorkspaceToolHeader({
         </span>
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5">
-            <h2 className="ws-display-title min-w-0 break-words text-[0.875rem] leading-tight text-text-primary sm:text-[1rem] sm:leading-snug sm:truncate">
+            <h2 className="ws-display-title type-title min-w-0 break-words font-semibold leading-snug text-text-primary sm:truncate">
               {name}
             </h2>
             {s20.readiness !== 'launch-ready' && (
-              <span className="ws-eyebrow ws-chip-warn rounded-sm px-1 py-0.5 text-[10px]">
+              <span className="ws-eyebrow ws-chip-warn rounded-md px-1.5 py-0.5 type-caption">
                 <AllCapsLabel>{t('toolPolishing')}</AllCapsLabel>
               </span>
             )}
           </div>
           <p
-            className="ws-purpose-line mt-0.5 line-clamp-2 leading-snug sm:line-clamp-1 sm:truncate"
+            className="ws-purpose-line type-caption mt-0.5 line-clamp-2 leading-snug text-text-secondary sm:line-clamp-1 sm:truncate"
             title={purpose}
           >
             {purpose}
@@ -108,7 +108,7 @@ export function WorkspaceToolHeader({
           aria-expanded={!collapsed}
           aria-label={t('toolGuideAria')}
           className={cn(
-            'inline-flex shrink-0 items-center gap-0.5 rounded-md border px-1.5 py-1 text-[10px] transition-colors ws-eyebrow min-h-[32px] sm:gap-1 sm:px-2',
+            'inline-flex shrink-0 items-center gap-0.5 rounded-md border px-2 py-1.5 type-caption transition-colors ws-eyebrow min-h-11 sm:gap-1 sm:px-2.5',
             collapsed
               ? 'ws-chip-neutral hover:opacity-90'
               : 'ws-chip-brand',
@@ -132,7 +132,7 @@ export function WorkspaceToolHeader({
                 key={i}
                 className="flex flex-1 items-start gap-1.5 rounded-lg border border-border-subtle bg-surface-primary/40 px-2 py-1.5"
               >
-                <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-surface-secondary text-[10px] font-bold text-text-secondary">
+                <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-surface-secondary type-caption font-bold text-text-secondary">
                   {i + 1}
                 </span>
                 <span className="ws-caption text-text-secondary">{step}</span>

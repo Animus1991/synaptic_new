@@ -12,6 +12,11 @@ type Props = {
   children: ReactNode;
   /** When true, section starts expanded even on minimal. Default collapsed. */
   defaultOpen?: boolean;
+  /**
+   * Collapse on every theme (not only Primer-minimal). Use for tool chrome that
+   * must stay out of the way (Wave E5 filters / queues).
+   */
+  alwaysCollapse?: boolean;
   className?: string;
   'data-testid'?: string;
 };
@@ -20,13 +25,14 @@ export function CollapsibleChromeSection({
   title,
   children,
   defaultOpen = false,
+  alwaysCollapse = false,
   className,
   'data-testid': testId = 'collapsible-chrome-section',
 }: Props) {
   const minimal = useMinimalTheme();
   const [open, setOpen] = useState(defaultOpen);
 
-  if (!minimal) {
+  if (!alwaysCollapse && !minimal) {
     return <>{children}</>;
   }
 

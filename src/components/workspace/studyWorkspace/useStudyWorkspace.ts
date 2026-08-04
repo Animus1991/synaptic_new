@@ -191,8 +191,12 @@ import {
   stubConceptLensView,
   stubWorkspaceCorrelation,
 } from '../../../lib/workspaceIntelStubs';
+import {
+  prefetchWorkspaceToolChunk,
+  prefetchAllWorkspaceToolChunks,
+} from '../../../lib/workspaceToolLazyRegistry';
 
-import { useState, useRef, useCallback, useEffect, useMemo, useDeferredValue } from 'react';
+import { useState, useRef, useCallback, useEffect, useMemo, useDeferredValue, useTransition, startTransition } from 'react';
 import type { CommandItem } from '../CommandPalette';
 import type { MobileIntelTab } from '../WorkspaceMobileIntelligenceTabs';
 import {
@@ -201,6 +205,34 @@ import {
   type StudyWorkspaceProps,
   type WorkspaceTool,
 } from './types';
+
+/**
+ * PERF (freeze fix, layer 3) — staggered intel activation. Flipping every
+ * per-tool gate in the same commit made the post-hydration render compute all
+ * tool sessions (each parsing the full source text) in one uninterruptible
+ * block. Tools are activated one per idle slice instead, so each heavy memo
+ * runs in its own small commit; the active tool always computes immediately.
+ */
+const STAGGERED_INTEL_TOOLS: readonly WorkspaceTool[] = [
+  'reader', 'dashboard', 'quiz', 'leitner', 'concept-map', 'feynman',
+  'compare', 'debate', 'simulator', 'whiteboard', 'timer',
+];
+
+const EMPTY_TOOL_SET: ReadonlySet<WorkspaceTool> = new Set();
+
+function scheduleIntelSlice(cb: () => void): () => void {
+  if (typeof window === 'undefined') {
+    cb();
+    return () => undefined;
+  }
+  const ric = window.requestIdleCallback;
+  if (typeof ric === 'function') {
+    const id = ric(cb, { timeout: 200 });
+    return () => window.cancelIdleCallback?.(id);
+  }
+  const id = window.setTimeout(cb, 32);
+  return () => window.clearTimeout(id);
+}
 
 export function useStudyWorkspace({
   onClose,
@@ -244,6 +276,8 @@ export function useStudyWorkspace({
   onConsumeWorkspaceOpenTool,
   workspaceOpenSimulatorTab = null,
   onConsumeWorkspaceOpenSimulatorTab,
+  workspaceAutoOpenStudyRoom = false,
+  onConsumeWorkspaceAutoOpenStudyRoom,
   renderCenterAgent,
   onCloseInlineAgent,
 }: StudyWorkspaceProps) {
@@ -255,7 +289,111 @@ export function useStudyWorkspace({
     if (intelReady) markWorkspaceIntelReady();
   }, [intelReady]);
 
-  const [activeTool, setActiveTool] = useState<WorkspaceTool>(initialTool);
+  const [activeTool, setActiveToolState] = useState<WorkspaceTool>(initialTool);
+  /**
+   * PERF (switch speed) — tool switches are concurrent transitions: the click
+   * paints immediately (button/press feedback) and the panel swap renders
+   * interruptibly; if the target chunk is still loading, the current panel
+   * stays visible instead of blocking. Chunk prefetch starts at intent time.
+   */
+  const [isToolSwitchPending, startToolSwitch] = useTransition();
+  const setActiveTool = useCallback(
+    (tool: WorkspaceTool | ((prev: WorkspaceTool) => WorkspaceTool)) => {
+      if (typeof tool === 'string') prefetchWorkspaceToolChunk(tool);
+      startToolSwitch(() => setActiveToolState(tool));
+    },
+    [],
+  );
+  /**
+   * PERF (freeze fix) — stable per-tool intel gates. `workspaceIntelActive` is
+   * `true` for EVERY tool once hydration completes, so memos that depended on
+   * the raw `intelReady, activeTool` pair were invalidated by every tool switch
+   * and synchronously rebuilt ALL tool sessions (each re-parsing the source
+   * text) in one blocking render — the workspace freeze on open / panel clicks /
+   * panel switches. These booleans keep identical gating semantics but only
+   * change identity when the gate outcome actually flips, and activation is
+   * staggered across idle slices (one tool per commit) after hydration.
+   */
+  const [stagedIntelTools, setStagedIntelTools] = useState<ReadonlySet<WorkspaceTool>>(EMPTY_TOOL_SET);
+  // Synchronous mirror of the staged set: state updaters run deferred (at
+  // render time), so the idle loop below must read completion from a ref —
+  // reading a flag set inside the updater never terminates the schedule.
+  const stagedIntelToolsRef = useRef<Set<WorkspaceTool>>(new Set());
+
+  const stageIntelTool = useCallback((tool: WorkspaceTool) => {
+    if (stagedIntelToolsRef.current.has(tool)) return;
+    stagedIntelToolsRef.current.add(tool);
+    startTransition(() => {
+      setStagedIntelTools((prev) => {
+        if (prev.has(tool)) return prev;
+        const grown = new Set(prev);
+        grown.add(tool);
+        return grown;
+      });
+    });
+  }, []);
+
+  // The tool the user is looking at joins the staged set immediately (and
+  // permanently), so switching during the stagger window never flip-flops.
+  useEffect(() => {
+    if (!intelReady) return;
+    stageIntelTool(activeTool);
+  }, [intelReady, activeTool, stageIntelTool]);
+
+  // Remaining tools activate one per idle slice — each heavy session memo
+  // computes in its own small commit instead of all of them in one render.
+  useEffect(() => {
+    if (!intelReady) return undefined;
+    let disposed = false;
+    let cancelSlice: (() => void) | undefined;
+    const step = () => {
+      if (disposed) return;
+      // Transition inside stageIntelTool: each activation renders
+      // interruptibly, so typing/clicking during warm-up is never blocked.
+      const nextTool = STAGGERED_INTEL_TOOLS.find(
+        (tool) => !stagedIntelToolsRef.current.has(tool),
+      );
+      if (!nextTool) return;
+      stageIntelTool(nextTool);
+      if (STAGGERED_INTEL_TOOLS.some((tool) => !stagedIntelToolsRef.current.has(tool))) {
+        cancelSlice = scheduleIntelSlice(step);
+      }
+    };
+    cancelSlice = scheduleIntelSlice(step);
+    return () => {
+      disposed = true;
+      cancelSlice?.();
+    };
+  }, [intelReady, stageIntelTool]);
+
+  // Warm every panel chunk so the first switch to any tool pays only the mount
+  // render — never the dynamic import. Sequenced AFTER intel staging completes
+  // (plus a settle delay) so chunk evaluation never competes with the open-time
+  // session builds for main-thread idle slices.
+  const intelStagingComplete = stagedIntelTools.size >= STAGGERED_INTEL_TOOLS.length;
+  useEffect(() => {
+    if (!intelReady || !intelStagingComplete) return undefined;
+    let disposePrefetch: (() => void) | undefined;
+    const settleId = window.setTimeout(() => {
+      disposePrefetch = prefetchAllWorkspaceToolChunks();
+    }, 1200);
+    return () => {
+      window.clearTimeout(settleId);
+      disposePrefetch?.();
+    };
+  }, [intelReady, intelStagingComplete]);
+
+  const readerIntelActive = workspaceIntelActive(intelReady && stagedIntelTools.has('reader'), activeTool, 'reader');
+  const quizIntelActive = workspaceIntelActive(intelReady && stagedIntelTools.has('quiz'), activeTool, 'quiz');
+  const leitnerIntelActive = workspaceIntelActive(intelReady && stagedIntelTools.has('leitner'), activeTool, 'leitner');
+  const feynmanIntelActive = workspaceIntelActive(intelReady && stagedIntelTools.has('feynman'), activeTool, 'feynman');
+  const compareIntelActive = workspaceIntelActive(intelReady && stagedIntelTools.has('compare'), activeTool, 'compare');
+  const debateIntelActive = workspaceIntelActive(intelReady && stagedIntelTools.has('debate'), activeTool, 'debate');
+  const simulatorIntelActive = workspaceIntelActive(intelReady && stagedIntelTools.has('simulator'), activeTool, 'simulator');
+  const whiteboardIntelActive = workspaceIntelActive(intelReady && stagedIntelTools.has('whiteboard'), activeTool, 'whiteboard');
+  const timerIntelActive = workspaceIntelActive(intelReady && stagedIntelTools.has('timer'), activeTool, 'timer');
+  const dashboardIntelActive = workspaceIntelActive(intelReady && stagedIntelTools.has('dashboard'), activeTool, 'dashboard');
+  const conceptMapIntelActive = workspaceIntelActive(intelReady && stagedIntelTools.has('concept-map'), activeTool, 'concept-map');
   const toolTimeRef = useRef<ToolTimeState>(createToolTimeState());
   const [toolTimeEpoch, setToolTimeEpoch] = useState(0);
 
@@ -663,6 +801,13 @@ export function useStudyWorkspace({
     onConsumeWorkspaceOpenTool?.();
   }, [workspaceOpenTool, onConsumeWorkspaceOpenTool, openWorkspaceTool]);
 
+  // Study Room lobby → workspace handoff: auto-open the co-view panel on entry.
+  useEffect(() => {
+    if (!workspaceAutoOpenStudyRoom) return;
+    setStudyRoomOpen(true);
+    onConsumeWorkspaceAutoOpenStudyRoom?.();
+  }, [workspaceAutoOpenStudyRoom, onConsumeWorkspaceAutoOpenStudyRoom]);
+
   useEffect(() => {
     if (!workspaceOpenSimulatorTab) return;
     setSimulatorMainTab(workspaceOpenSimulatorTab);
@@ -978,7 +1123,7 @@ export function useStudyWorkspace({
 
   const leitnerSession = useMemo(
     () => {
-      if (!workspaceIntelActive(intelReady, activeTool, 'leitner')) return EMPTY_LEITNER_SESSION;
+      if (!leitnerIntelActive) return EMPTY_LEITNER_SESSION;
       return buildLeitnerSessionContent({
         text: noteBundle.sourceFullText,
         concept: deferredConcept,
@@ -992,35 +1137,35 @@ export function useStudyWorkspace({
       });
     },
     [
-      intelReady, activeTool, noteBundle.sourceFullText, noteBundle.hasSource, deferredConcept, scopedGlossary,
+      leitnerIntelActive, noteBundle.sourceFullText, noteBundle.hasSource, deferredConcept, scopedGlossary,
       lang, STEPS, deferredStep, learnerModel?.spacingIntervals, customLeitnerCards, courseSourceFiles,
     ],
   );
 
   const leitnerDueCount = useMemo(() => {
-    if (!intelReady && activeTool !== 'leitner' && activeTool !== 'dashboard') return 0;
+    if (!leitnerIntelActive && !dashboardIntelActive) return 0;
     if (!noteBundle.hasSource || leitnerSession.cards.length === 0) return 0;
     return orderDeckByDueQueue(
       leitnerSession.cards,
       learnerModel?.spacingIntervals ?? [],
       quizConcept,
     ).dueCount;
-  }, [intelReady, activeTool, leitnerSession.cards, noteBundle.hasSource, learnerModel?.spacingIntervals, quizConcept]);
+  }, [leitnerIntelActive, dashboardIntelActive, leitnerSession.cards, noteBundle.hasSource, learnerModel?.spacingIntervals, quizConcept]);
 
   const readerStepToSegmentIndex = useMemo(() => {
-    if (!intelReady && activeTool !== 'reader') return {};
+    if (!readerIntelActive) return {};
     const source = noteBundle.sourceFullText?.trim();
     if (!source || !noteBundle.hasSource) return {};
     return buildStepToSegmentMap(STEPS, source);
-  }, [intelReady, activeTool, noteBundle.sourceFullText, noteBundle.hasSource, STEPS]);
+  }, [readerIntelActive, noteBundle.sourceFullText, noteBundle.hasSource, STEPS]);
 
   const readerStepSegmentIndex = useMemo(() => {
-    if (!intelReady && activeTool !== 'reader') return null;
+    if (!readerIntelActive) return null;
     if (readerStepToSegmentIndex[currentStep] != null) return readerStepToSegmentIndex[currentStep]!;
     const source = noteBundle.sourceFullText?.trim();
     if (!source || !noteBundle.hasSource) return null;
     return resolveStepToReaderSegment(currentStep, STEPS, source);
-  }, [intelReady, activeTool, readerStepToSegmentIndex, currentStep, noteBundle.sourceFullText, noteBundle.hasSource, STEPS]);
+  }, [readerIntelActive, readerStepToSegmentIndex, currentStep, noteBundle.sourceFullText, noteBundle.hasSource, STEPS]);
 
   const readerHeatSyncReport = useMemo(
     () => (intelReady
@@ -1512,7 +1657,7 @@ export function useStudyWorkspace({
   );
 
   const quizDef = useMemo(() => {
-    if (!workspaceIntelActive(intelReady, activeTool, 'quiz')) {
+    if (!quizIntelActive) {
       return {
         question: t('wsQuizUploadPrompt').replace('{concept}', quizConcept),
         options: ['- - -', '- - -', '- - -', '- - -'],
@@ -1538,17 +1683,17 @@ export function useStudyWorkspace({
       correctIndex: 0,
       placeholder: true,
     };
-  }, [intelReady, activeTool, noteBundle.hasSource, noteBundle.annotationText, noteBundle.quiz, quizConcept, scopedGlossary, lang, quizIrtState.ability, conceptMastery, t]);
+  }, [quizIntelActive, noteBundle.hasSource, noteBundle.annotationText, noteBundle.quiz, quizConcept, scopedGlossary, lang, quizIrtState.ability, conceptMastery, t]);
 
   const quizIrtDisplay = useMemo(() => {
-    if (!workspaceIntelActive(intelReady, activeTool, 'quiz')) return undefined;
+    if (!quizIntelActive) return undefined;
     if (!noteBundle.hasSource) return undefined;
     return buildQuizIrtDisplay(quizDef, quizConcept, quizIrtState.ability, conceptMastery);
-  }, [intelReady, activeTool, noteBundle.hasSource, quizDef, quizConcept, quizIrtState.ability, conceptMastery]);
+  }, [quizIntelActive, noteBundle.hasSource, quizDef, quizConcept, quizIrtState.ability, conceptMastery]);
 
   const quizSession = useMemo(
     () => {
-      if (!workspaceIntelActive(intelReady, activeTool, 'quiz')) {
+      if (!quizIntelActive) {
         return EMPTY_QUIZ_SESSION;
       }
       return buildQuizSessionContent({
@@ -1565,17 +1710,17 @@ export function useStudyWorkspace({
       });
     },
     [
-      intelReady, activeTool, noteBundle.hasSource, noteBundle.annotationText, quizConcept, scopedGlossary,
+      quizIntelActive, noteBundle.hasSource, noteBundle.annotationText, quizConcept, scopedGlossary,
       lang, quizIrtState.ability, conceptMastery, STEPS, currentStep, courseSourceFiles,
     ],
   );
 
   const quizSessionIrt = useMemo(() => {
-    if (!workspaceIntelActive(intelReady, activeTool, 'quiz')) return undefined;
+    if (!quizIntelActive) return undefined;
     const first = quizSession.items[0];
     if (!first || !noteBundle.hasSource) return undefined;
     return buildQuizIrtDisplay(first.quiz, quizConcept, quizIrtState.ability, conceptMastery);
-  }, [intelReady, activeTool, quizSession.items, noteBundle.hasSource, quizConcept, quizIrtState.ability, conceptMastery]);
+  }, [quizIntelActive, quizSession.items, noteBundle.hasSource, quizConcept, quizIrtState.ability, conceptMastery]);
 
   const discoverabilityActions = useMemo(() => ({
     'open-reader-focus': () => openReaderForTerm(effectiveFocus?.term ?? quizConcept, 'reader'),
@@ -1636,7 +1781,7 @@ export function useStudyWorkspace({
 
   const conceptNodes = useMemo(() => {
     if (!noteBundle.hasSource) return [];
-    if (!workspaceIntelActive(intelReady, activeTool, 'concept-map')) {
+    if (!conceptMapIntelActive) {
       const fallback = quizConcept
         ? [{ id: '1', label: quizConcept, type: 'concept' as const, x: 200, y: 150, mastery: 0 }]
         : [];
@@ -1649,17 +1794,17 @@ export function useStudyWorkspace({
     const saved = loadConceptMapGraph(progressKey);
     const merged = mergeConceptMapGraph(fallback, noteBundle.conceptMap.edges, saved);
     return loadConceptMapPositions(merged.nodes, progressKey);
-  }, [intelReady, activeTool, noteBundle.conceptMap.nodes, noteBundle.conceptMap.edges, quizConcept, progressKey]);
+  }, [conceptMapIntelActive, noteBundle.conceptMap.nodes, noteBundle.conceptMap.edges, quizConcept, progressKey]);
 
   const conceptEdges = useMemo(() => {
     if (!noteBundle.hasSource) return [];
-    if (!workspaceIntelActive(intelReady, activeTool, 'concept-map')) {
+    if (!conceptMapIntelActive) {
       return noteBundle.conceptMap.edges;
     }
     const saved = loadConceptMapGraph(progressKey);
     const merged = mergeConceptMapGraph(noteBundle.conceptMap.nodes, noteBundle.conceptMap.edges, saved);
     return merged.edges;
-  }, [intelReady, activeTool, noteBundle.conceptMap.nodes, noteBundle.conceptMap.edges, progressKey]);
+  }, [conceptMapIntelActive, noteBundle.conceptMap.nodes, noteBundle.conceptMap.edges, progressKey]);
 
   const workspaceContext = useMemo(
     () => selectWorkspaceContext({
@@ -1855,7 +2000,7 @@ export function useStudyWorkspace({
 
   const feynmanSession = useMemo(
     () => {
-      if (!workspaceIntelActive(intelReady, activeTool, 'feynman')) {
+      if (!feynmanIntelActive) {
         return buildFeynmanSessionContent({
           concept: quizConcept,
           text: '',
@@ -1875,14 +2020,14 @@ export function useStudyWorkspace({
       });
     },
     [
-      intelReady, activeTool, quizConcept, noteBundle.sourceFullText, noteBundle.matchingTopic,
+      feynmanIntelActive, quizConcept, noteBundle.sourceFullText, noteBundle.matchingTopic,
       noteBundle.hasSource, scopedGlossary, lang, STEPS, currentStep,
     ],
   );
 
   const compareSession = useMemo(
     () => {
-      if (!workspaceIntelActive(intelReady, activeTool, 'compare')) {
+      if (!compareIntelActive) {
         return buildCompareSessionContent({
           concept: quizConcept,
           text: '',
@@ -1901,14 +2046,14 @@ export function useStudyWorkspace({
       });
     },
     [
-      intelReady, activeTool, quizConcept, noteBundle.sourceFullText, noteBundle.hasSource,
+      compareIntelActive, quizConcept, noteBundle.sourceFullText, noteBundle.hasSource,
       scopedGlossary, STEPS, currentStep, lang,
     ],
   );
 
   const debateSession = useMemo(
     () => {
-      if (!workspaceIntelActive(intelReady, activeTool, 'debate')) {
+      if (!debateIntelActive) {
         return buildDebateSessionContent({
           concept: quizConcept,
           text: '',
@@ -1922,12 +2067,12 @@ export function useStudyWorkspace({
         hasSource: noteBundle.hasSource,
       });
     },
-    [intelReady, activeTool, quizConcept, noteBundle.sourceFullText, noteBundle.hasSource, STEPS, currentStep],
+    [debateIntelActive, quizConcept, noteBundle.sourceFullText, noteBundle.hasSource, STEPS, currentStep],
   );
 
   const simulatorSession = useMemo(
     () => {
-      if (!workspaceIntelActive(intelReady, activeTool, 'simulator')) {
+      if (!simulatorIntelActive) {
         return buildSimulatorSessionContent({
           concept: quizConcept,
           text: '',
@@ -1949,12 +2094,12 @@ export function useStudyWorkspace({
         daysToExam: workspaceDaysToExam,
       });
     },
-    [intelReady, activeTool, quizConcept, noteBundle.sourceFullText, noteBundle.hasSource, lang, STEPS, currentStep, progressKey, workspaceCorrelation.conceptMastery, workspaceDaysToExam],
+    [simulatorIntelActive, quizConcept, noteBundle.sourceFullText, noteBundle.hasSource, lang, STEPS, currentStep, progressKey, workspaceCorrelation.conceptMastery, workspaceDaysToExam],
   );
 
   const whiteboardSession = useMemo(
     () => {
-      if (!workspaceIntelActive(intelReady, activeTool, 'whiteboard')) {
+      if (!whiteboardIntelActive) {
         return buildWhiteboardSessionContent({
           concept: quizConcept,
           text: '',
@@ -1971,12 +2116,12 @@ export function useStudyWorkspace({
         preExtractedFormulas: noteBundle.formulas,
       });
     },
-    [intelReady, activeTool, quizConcept, noteBundle.sourceFullText, noteBundle.hasSource, noteBundle.formulas, lang, STEPS, currentStep],
+    [whiteboardIntelActive, quizConcept, noteBundle.sourceFullText, noteBundle.hasSource, noteBundle.formulas, lang, STEPS, currentStep],
   );
 
   const timerSession = useMemo(
     () => {
-      if (!workspaceIntelActive(intelReady, activeTool, 'timer')) {
+      if (!timerIntelActive) {
         return buildTimerSessionContent({
           concept: quizConcept,
           stepLabel: STEPS[currentStep]?.title,
@@ -2003,7 +2148,7 @@ export function useStudyWorkspace({
       });
     },
     [
-      intelReady, activeTool, quizConcept, STEPS, currentStep, lang, noteBundle.hasSource,
+      timerIntelActive, quizConcept, STEPS, currentStep, lang, noteBundle.hasSource,
       workspaceCorrelation.conceptMastery, progressKey, leitnerDueCount,
       userSettings?.examDate, linkedCourse?.examDate,
     ],
@@ -2011,7 +2156,7 @@ export function useStudyWorkspace({
 
   const dashboardSession = useMemo(
     () => {
-      if (!workspaceIntelActive(intelReady, activeTool, 'dashboard')) {
+      if (!dashboardIntelActive) {
         return buildDashboardSessionContent({
           concept: quizConcept,
           hasSource: noteBundle.hasSource,
@@ -2034,7 +2179,7 @@ export function useStudyWorkspace({
       });
     },
     [
-      intelReady, activeTool, quizConcept, STEPS, currentStep, noteBundle.hasSource, conceptMastery,
+      dashboardIntelActive, quizConcept, STEPS, currentStep, noteBundle.hasSource, conceptMastery,
       weakAreaSpots.length, leitnerDueCount, dashboardStats.reviewsDue,
       spacedStepsDue, conceptBus,
     ],
@@ -2049,7 +2194,7 @@ export function useStudyWorkspace({
     const withTime = (rows: ReturnType<typeof buildToolActivityBreakdown>) =>
       attachToolTimeToActivity(rows, snapshotToolTimeMs(toolTimeRef.current));
 
-    if (!workspaceIntelActive(intelReady, activeTool, 'dashboard')) {
+    if (!dashboardIntelActive) {
       return {
         readiness: Math.round(conceptMastery),
         streak: dashboardStats.streak,
@@ -2101,7 +2246,7 @@ export function useStudyWorkspace({
       toolActivity: withTime(base.toolActivity ?? buildToolActivityBreakdown(conceptBus)),
     };
   }, [
-    intelReady, activeTool, learnerModel, dashboardStats, tasks, onStartTask, courseName,
+    dashboardIntelActive, learnerModel, dashboardStats, tasks, onStartTask, courseName,
     conceptBusInsights, spacedStepsDue, conceptBus, conceptMastery,
     dashboardWeakSpotsDetail, toolTimeEpoch,
   ]);
@@ -2369,6 +2514,7 @@ export function useStudyWorkspace({
     progressKey,
     intelReady,
     activeTool,
+    isToolSwitchPending,
     isMobile,
     shellNavClearance,
     layout,

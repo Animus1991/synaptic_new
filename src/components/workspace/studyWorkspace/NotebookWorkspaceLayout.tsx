@@ -21,6 +21,8 @@ import type { WorkspaceTool } from './types';
 import { useMinimalTheme } from '../../../lib/useMinimalTheme';
 import { isWorkspacePhoneWidth } from '../../../lib/workspaceViewport';
 import { AllCapsLabel } from '../../ui/AllCapsLabel';
+import { InfoHint } from '../../ui/InfoHint';
+import { useI18n } from '../../../lib/i18n';
 import { useAppStore } from '../../../store/useStore';
 
 interface NotebookWorkspaceLayoutProps {
@@ -75,6 +77,7 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
   } = model;
 
   const { openNoteAnalysis, closeStudyWorkspace } = useAppStore();
+  const { t } = useI18n();
 
   const tx = useCallback(
     (el: string, en: string) => (lang === 'el' ? el : en),
@@ -314,7 +317,10 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
             const pages = pinned?.pageCount ?? 0;
             if (!pinned || pinned.type !== 'pdf' || pages <= 1) return null;
             return (
-              <div className="mt-2 px-0.5" data-testid="notebook-pdf-page-strip">
+              <div className="mt-2 px-0.5 space-y-1" data-testid="notebook-pdf-page-strip">
+                <p className="type-caption font-medium text-text-secondary px-0.5">
+                  {t('agentPdfPagesLabel')}
+                </p>
                 <PdfPageThumbnailStrip
                   pageCount={pages}
                   activePageIndex={pdfPageIndex}
@@ -350,27 +356,36 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
 
   const sourcesFooter = showQualityStrip ? (
     <footer className="flex items-center justify-between gap-2 border-t border-border-subtle px-3 py-2 shrink-0">
-      <button
-        type="button"
-        onClick={openSourceCheck}
-        title={tx('Άνοιγμα ανάλυσης πηγής', 'Open source analysis')}
-        className="ws-pill hover:bg-surface-hover hover:text-text-primary transition-colors cursor-pointer text-left"
-        data-testid="notebook-source-quality"
-      >
-        {showPre24Greek
-          ? tx('Προ-v2.4 ελληνικά', 'Pre-v2.4 Greek')
-          : sourceQualityScore != null
-            ? `${sourceQualityScore}% ${tx('ποιότητα πηγής', 'source quality')}`
-            : tx('Έλεγχος πηγής', 'Source check')}
-      </button>
+      <div className="flex min-w-0 items-center gap-1">
+        <button
+          type="button"
+          onClick={openSourceCheck}
+          title={tx('Άνοιγμα ανάλυσης πηγής', 'Open source analysis')}
+          className="ws-pill hover:bg-surface-hover hover:text-text-primary transition-colors cursor-pointer text-left"
+          data-testid="notebook-source-quality"
+        >
+          {showPre24Greek
+            ? tx('Προ-v2.4 ελληνικά', 'Pre-v2.4 Greek')
+            : sourceQualityScore != null
+              ? `${sourceQualityScore}% ${tx('ποιότητα πηγής', 'source quality')}`
+              : tx('Έλεγχος πηγής', 'Source check')}
+        </button>
+        <InfoHint
+          label={t('agentSourceQualityHint')}
+          triggerAriaLabel={tx('Τι σημαίνει ποιότητα πηγής', 'What source quality means')}
+          data-testid="notebook-source-quality-hint"
+          maxWidth={280}
+        />
+      </div>
       <button
         type="button"
         onClick={openReprocessWizard}
         disabled={reprocessingMaterial}
         data-testid="notebook-source-reprocess"
-        className="flex items-center gap-1 type-micro font-medium text-text-secondary hover:text-text-primary transition-colors disabled:opacity-50"
+        title={t('agentSourceQualityHint')}
+        className="flex min-h-9 items-center gap-1 type-caption font-medium text-text-secondary hover:text-text-primary transition-colors disabled:opacity-50 px-1"
       >
-        <RefreshCw className={cn('h-3 w-3', reprocessingMaterial && 'animate-spin')} />
+        <RefreshCw className={cn('h-3.5 w-3.5', reprocessingMaterial && 'animate-spin')} aria-hidden />
         {tx('Επανεπεξεργασία', 'Reprocess')}
       </button>
     </footer>

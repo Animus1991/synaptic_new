@@ -41,7 +41,7 @@ export function LeitnerFsrsBoxRail({ counts, total, activeIndex = null, onSelect
                 <span className="font-semibold text-text-primary">{t(meta.key)}</span>
                 <span className="text-xs text-text-muted">{count}</span>
               </span>
-              <span className="mt-0.5 block text-[10px] text-text-muted">{t(meta.scheduleKey)}</span>
+              <span className="mt-0.5 block type-caption text-text-muted">{t(meta.scheduleKey)}</span>
             </span>
             <span className="leitner-box-rail-meter" aria-hidden>
               <span

@@ -39,7 +39,7 @@ describe('compareSessionModel', () => {
       lang: 'el',
     });
 
-    expect(session.headers).toEqual(['Διάσταση', 'Α', 'Β']);
+    expect(session.headers).toEqual(['Διάσταση', 'Εμπόριο', 'Αντίθεση']);
   });
 
   it('returns empty session when no source uploaded', () => {

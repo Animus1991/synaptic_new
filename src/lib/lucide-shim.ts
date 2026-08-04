@@ -88,6 +88,7 @@ export {
   Minus,
   Monitor,
   Moon,
+  DotsThree as MoreHorizontal,
   Network,
   Palette,
   SidebarSimple as PanelLeftClose,

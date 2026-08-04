@@ -243,7 +243,7 @@ export function InteractiveSimulator({
                 <div className="mb-2 flex justify-between items-start gap-2">
                   <div>
                     <p className="text-xs font-semibold text-text-primary">{cue.label}</p>
-                    <p className="text-[10px] text-text-muted mt-0.5 line-clamp-2">{cue.context}</p>
+                    <p className="type-caption text-text-muted mt-0.5 line-clamp-2">{cue.context}</p>
                   </div>
                   <span className="font-mono text-sm text-text-secondary shrink-0">
                     {(cueValues[cue.id] ?? cue.baseline).toFixed(cue.unit === '%' ? 0 : 1)}
@@ -263,7 +263,7 @@ export function InteractiveSimulator({
                   className="w-full"
                   style={{ accentColor: '#818cf8' }}
                 />
-                <div className="flex justify-between text-[10px] text-text-muted mt-1">
+                <div className="flex justify-between type-caption text-text-muted mt-1">
                   <span>{cue.min}</span>
                   <span>{t('baselineLabel')}: {cue.baseline}</span>
                   <span>{cue.max}</span>
@@ -276,20 +276,20 @@ export function InteractiveSimulator({
             </div>
             {sensitivityCells.length > 0 && (
               <div className="rounded-xl border border-border-subtle bg-surface-card p-3" data-testid="sandbox-sensitivity-heatmap">
-                <p className="mb-2 text-[10px] font-semibold text-text-muted">
+                <p className="mb-2 type-caption font-semibold text-text-muted">
                   {t('paramSensitivity')}
                 </p>
                 <div className="space-y-2">
                   {sensitivityCells.map((cell) => (
                     <div key={cell.cueId} className="flex items-center gap-2">
-                      <span className="w-24 truncate text-[10px] text-text-secondary">{cell.label}</span>
+                      <span className="w-24 truncate type-caption text-text-secondary">{cell.label}</span>
                       <div className="flex-1 h-2 rounded-full bg-surface-primary overflow-hidden">
                         <div
                           className="h-full rounded-full bg-accent-cyan/80"
                           style={{ width: `${Math.round(cell.intensity * 100)}%` }}
                         />
                       </div>
-                      <span className="text-[10px] font-mono text-text-muted w-8 text-right">
+                      <span className="type-caption font-mono text-text-muted w-8 text-right">
                         {(cell.intensity * 100).toFixed(0)}%
                       </span>
                     </div>
@@ -475,7 +475,7 @@ export function InteractiveSimulator({
         </div>
 
         <div className="mt-4 w-full max-w-sm rounded-xl border border-border-subtle bg-surface-card p-3" data-testid="sandbox-sensitivity-heatmap">
-          <p className="mb-2 text-[10px] font-semibold text-text-muted">
+          <p className="mb-2 type-caption font-semibold text-text-muted">
             {t('pStarSensitivity')}
           </p>
           <div className="grid grid-cols-2 gap-2">
@@ -484,7 +484,7 @@ export function InteractiveSimulator({
               const peak = Math.max(...cells.map((c) => c.intensity), 0.01);
               return (
                 <div key={axis} className="rounded-lg bg-surface-primary/50 p-2">
-                  <p className="text-[10px] font-medium text-text-secondary mb-1 capitalize">{axis}</p>
+                  <p className="type-caption font-medium text-text-secondary mb-1 capitalize">{axis}</p>
                   <div className="flex gap-0.5 h-6 items-end">
                     {cells.slice(0, 5).map((cell, i) => (
                       <div

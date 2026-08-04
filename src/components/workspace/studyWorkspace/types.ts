@@ -54,6 +54,9 @@ export interface StudyWorkspaceProps {
   onConsumeWorkspaceOpenTool?: () => void;
   workspaceOpenSimulatorTab?: 'simulator' | 'exam-prep' | null;
   onConsumeWorkspaceOpenSimulatorTab?: () => void;
+  /** One-shot: auto-open the Study Room co-view panel on workspace entry (from the Study Room lobby). */
+  workspaceAutoOpenStudyRoom?: boolean;
+  onConsumeWorkspaceAutoOpenStudyRoom?: () => void;
   /**
    * Optional render-prop for the embedded AI chat used by the NotebookLM-style
    * layout's center panel. When provided, the notebook view renders this in the

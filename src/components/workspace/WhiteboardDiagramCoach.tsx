@@ -25,7 +25,8 @@ export function WhiteboardDiagramCoach({
   onAskAgent,
   onStepFocus,
 }: Props) {
-  const [expanded, setExpanded] = useState(true);
+  /** Wave E3 — canvas-first: coach starts collapsed */
+  const [expanded, setExpanded] = useState(false);
   const [activeStepId, setActiveStepId] = useState<string | null>(plan.steps[0]?.id ?? null);
   const { t } = useI18n();
 
@@ -60,9 +61,9 @@ export function WhiteboardDiagramCoach({
       {expanded && (
         <div className="px-4 pb-3 space-y-2">
           <WhiteboardBlueprintCoverageStrip report={coverageReport} lang={lang} />
-          <p className="text-[10px] text-text-muted leading-relaxed">{plan.summary}</p>
+          <p className="type-caption text-text-muted leading-relaxed">{plan.summary}</p>
           {plan.weakFocus && (
-            <p className="text-[10px] text-accent-amber" data-testid="whiteboard-coach-weak-focus">
+            <p className="type-caption text-accent-amber" data-testid="whiteboard-coach-weak-focus">
               {t('focusColon')} {plan.weakFocus}
             </p>
           )}
@@ -72,7 +73,7 @@ export function WhiteboardDiagramCoach({
               type="button"
               data-testid="whiteboard-coach-insert-labels"
               onClick={() => onInsertLabels(plan.nodeLabels)}
-              className="inline-flex items-center gap-1 ws-chip-brand rounded-lg border px-2 py-1 text-[10px] font-medium hover:bg-brand-600/15"
+              className="inline-flex items-center gap-1 ws-chip-brand rounded-lg border px-2 py-1 type-caption font-medium hover:bg-brand-600/15"
             >
               <PenLine className="w-3 h-3" />
               {t('wbInsertLabels')}
@@ -81,7 +82,7 @@ export function WhiteboardDiagramCoach({
               type="button"
               data-testid="whiteboard-coach-ask-guide"
               onClick={() => onAskAgent('guide')}
-              className="inline-flex items-center gap-1 ws-chip-brand rounded-lg border px-2 py-1 text-[10px] font-medium hover:opacity-90"
+              className="inline-flex items-center gap-1 ws-chip-brand rounded-lg border px-2 py-1 type-caption font-medium hover:opacity-90"
             >
               <Sparkles className="w-3 h-3" />
               {t('wbAgentGuide')}
@@ -90,7 +91,7 @@ export function WhiteboardDiagramCoach({
               type="button"
               data-testid="whiteboard-coach-ask-critique"
               onClick={() => onAskAgent('critique')}
-              className="inline-flex items-center gap-1 rounded-lg border border-border-subtle px-2 py-1 text-[10px] text-text-muted hover:text-text-secondary"
+              className="inline-flex items-center gap-1 rounded-lg border border-border-subtle px-2 py-1 type-caption text-text-muted hover:text-text-secondary"
             >
               <Bot className="w-3 h-3" />
               {t('wbCritiqueSketch')}
@@ -107,7 +108,7 @@ export function WhiteboardDiagramCoach({
                     data-testid={`whiteboard-coach-step-${step.order}`}
                     onClick={() => selectStep(step)}
                     className={cn(
-                      'flex w-full items-start gap-2 rounded-lg border px-2 py-1.5 text-left text-[10px] transition-colors',
+                      'flex w-full items-start gap-2 rounded-lg border px-2 py-1.5 text-left type-caption transition-colors',
                       isActive
                         ? 'border-accent-cyan/40 bg-accent-cyan/8 text-text-secondary'
                         : 'border-border-subtle text-text-muted hover:bg-surface-hover/50',
@@ -117,7 +118,7 @@ export function WhiteboardDiagramCoach({
                     <span>
                       <span className="font-medium text-text-secondary">{step.label}</span>
                       <span
-                        className="ml-1 rounded border border-brand-500/25 px-1 py-0 text-[10px] text-text-primary"
+                        className="ml-1 rounded border border-brand-500/25 px-1 py-0 type-caption text-text-primary"
                         data-testid={`whiteboard-coach-tool-${step.order}`}
                       >
                         {step.toolHint}
@@ -137,7 +138,7 @@ export function WhiteboardDiagramCoach({
                 <button
                   type="button"
                   onClick={() => onInsertLabels([activeStep.boardLabel!])}
-                  className="rounded-lg border border-border-subtle px-2 py-0.5 text-[10px] text-text-muted hover:text-text-primary"
+                  className="rounded-lg border border-border-subtle px-2 py-0.5 type-caption text-text-muted hover:text-text-primary"
                 >
                   {t('wbLabel')}: {activeStep.boardLabel}
                 </button>
@@ -146,7 +147,7 @@ export function WhiteboardDiagramCoach({
                 type="button"
                 data-testid="whiteboard-coach-ask-step"
                 onClick={() => onAskAgent('step', activeStep)}
-                className="inline-flex items-center gap-1 rounded-lg border border-accent-cyan/25 px-2 py-0.5 text-[10px] text-text-primary hover:bg-accent-cyan/10"
+                className="inline-flex items-center gap-1 rounded-lg border border-accent-cyan/25 px-2 py-0.5 type-caption text-text-primary hover:bg-accent-cyan/10"
               >
                 <Sparkles className="w-3 h-3" />
                 {t('wbAgentStep').replace('{order}', String(activeStep.order))}

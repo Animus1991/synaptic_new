@@ -82,21 +82,82 @@ function buildSet(words: string[], normalizer: (w: string) => string): Set<strin
   return set;
 }
 
-let elLexicon = buildSet(GREEK_DOMAIN, normalizeEl);
-let enLexicon = buildSet(ENGLISH_DOMAIN, normalizeEn);
+const BASE_EL = buildSet(GREEK_DOMAIN, normalizeEl);
+const BASE_EN = buildSet(ENGLISH_DOMAIN, normalizeEn);
 
-export function extendSpellLexicon(terms: string[]): void {
+// PERF (workspace freeze root cause): the lexicon is versioned so downstream
+// fuzzy-correction caches (dict sets, length buckets, per-token results) can
+// key on content identity instead of being rebuilt on every call.
+let extraEl = new Set<string>();
+let extraEn = new Set<string>();
+let lexiconVersion = 0;
+
+let elLexicon = new Set(BASE_EL);
+let enLexicon = new Set(BASE_EN);
+
+function rebuildMerged(): void {
+  elLexicon = extraEl.size ? new Set([...BASE_EL, ...extraEl]) : new Set(BASE_EL);
+  enLexicon = extraEn.size ? new Set([...BASE_EN, ...extraEn]) : new Set(BASE_EN);
+}
+
+/** Monotonic content version — bumps only when the effective word set changes. */
+export function spellLexiconVersion(): number {
+  return lexiconVersion;
+}
+
+function classifyExtras(terms: string[]): { el: Set<string>; en: Set<string> } {
+  const el = new Set<string>();
+  const en = new Set<string>();
   for (const t of terms) {
     const w = t.trim();
     if (!w) continue;
-    if (/\p{Script=Greek}/u.test(w)) elLexicon.add(normalizeEl(w));
-    else if (/[A-Za-z]/.test(w)) enLexicon.add(normalizeEn(w));
+    if (/\p{Script=Greek}/u.test(w)) {
+      const n = normalizeEl(w);
+      if (n.length >= 2) el.add(n);
+    } else if (/[A-Za-z]/.test(w)) {
+      const n = normalizeEn(w);
+      if (n.length >= 2) en.add(n);
+    }
   }
+  return { el, en };
+}
+
+function sameSet(a: Set<string>, b: Set<string>): boolean {
+  if (a.size !== b.size) return false;
+  for (const w of a) if (!b.has(w)) return false;
+  return true;
+}
+
+/** Replace domain extensions atomically; no version churn for identical content. */
+export function setSpellLexiconExtensions(terms: string[]): void {
+  const next = classifyExtras(terms);
+  if (sameSet(next.el, extraEl) && sameSet(next.en, extraEn)) return;
+  extraEl = next.el;
+  extraEn = next.en;
+  lexiconVersion += 1;
+  rebuildMerged();
+}
+
+export function extendSpellLexicon(terms: string[]): void {
+  const next = classifyExtras(terms);
+  let changed = false;
+  for (const w of next.el) {
+    if (!extraEl.has(w)) { extraEl.add(w); changed = true; }
+  }
+  for (const w of next.en) {
+    if (!extraEn.has(w)) { extraEn.add(w); changed = true; }
+  }
+  if (!changed) return;
+  lexiconVersion += 1;
+  rebuildMerged();
 }
 
 export function resetSpellLexiconForTests(): void {
-  elLexicon = buildSet(GREEK_DOMAIN, normalizeEl);
-  enLexicon = buildSet(ENGLISH_DOMAIN, normalizeEn);
+  if (extraEl.size === 0 && extraEn.size === 0) return;
+  extraEl = new Set();
+  extraEn = new Set();
+  lexiconVersion += 1;
+  rebuildMerged();
 }
 
 export function detectTokenLang(token: string): SpellLang {

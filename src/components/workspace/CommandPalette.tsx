@@ -176,7 +176,7 @@ export function CommandPalette({ open, onClose, items, placeholder }: Props) {
                 grouped.map(([group, list]) => (
                   <div key={group || 'default'} className="mb-1 last:mb-0">
                     {group && (
-                      <div className="px-2 pb-1 pt-2 text-[10px] font-semibold text-text-muted">
+                      <div className="px-2 pb-1 pt-2 type-caption font-semibold text-text-muted">
                         {group}
                       </div>
                     )}
@@ -203,7 +203,7 @@ export function CommandPalette({ open, onClose, items, placeholder }: Props) {
                             )}
                           </div>
                           {it.shortcut && (
-                            <span className="shrink-0 rounded border border-border-subtle bg-surface-hover px-1.5 py-0.5 font-mono text-[10px] text-text-muted">
+                            <span className="shrink-0 rounded border border-border-subtle bg-surface-hover px-1.5 py-0.5 font-mono type-caption text-text-muted">
                               {it.shortcut}
                             </span>
                           )}
@@ -215,7 +215,7 @@ export function CommandPalette({ open, onClose, items, placeholder }: Props) {
               )}
             </div>
 
-            <div className="border-t border-border-subtle px-4 py-2 text-[10px] text-text-muted">
+            <div className="border-t border-border-subtle px-4 py-2 type-caption text-text-muted">
               ↑ ↓ navigate · Enter run · Esc close
             </div>
           </motion.div>

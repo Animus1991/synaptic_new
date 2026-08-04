@@ -22,7 +22,8 @@ module.exports = {
       assertions: {
         // Soft regression gates — SPA + CI chrome; fail only on severe drops.
         'categories:performance': ['error', { minScore: 0.35 }],
-        'categories:accessibility': ['warn', { minScore: 0.85 }],
+        // Wave E14 — a11y exit gate (≥95). Soft-fail until CI chrome is stable at error.
+        'categories:accessibility': ['error', { minScore: 0.95 }],
         'categories:best-practices': ['warn', { minScore: 0.8 }],
         'first-contentful-paint': ['warn', { maxNumericValue: 5000 }],
         'largest-contentful-paint': ['warn', { maxNumericValue: 8000 }],

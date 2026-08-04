@@ -341,13 +341,13 @@ export function ArgumentMap({
               type="button"
               data-testid="debate-ask-agent"
               onClick={() => onAskAgent(root.text)}
-              className="inline-flex items-center gap-1 ws-chip-brand rounded-lg border px-2 py-1 text-[10px] font-medium hover:opacity-90"
+              className="inline-flex items-center gap-1 ws-chip-brand rounded-lg border px-2 py-1 type-caption font-medium hover:opacity-90"
             >
               <Sparkles className="w-3 h-3" />
               {t('askAgentShort')}
             </button>
           )}
-          <span className="text-[10px] text-text-muted inline-flex items-center gap-2">
+          <span className="type-caption text-text-muted inline-flex items-center gap-2">
             {t('debateEditSupport')}
             <Shield className="w-3 h-3 inline" />
             {t('debateCounterLabel')}
@@ -355,7 +355,7 @@ export function ArgumentMap({
         </div>
       </div>
       {counterSuggestions.length > 0 && (
-        <div className="shrink-0 border-b border-border-subtle bg-accent-rose/5 px-4 py-2 text-[10px] text-text-secondary">
+        <div className="shrink-0 border-b border-border-subtle bg-accent-rose/5 px-4 py-2 type-caption text-text-secondary">
           <span className="font-semibold text-accent-rose">{t('debateSuggestedCounters')}</span>
           {' '}
           {counterSuggestions.map((s, i) => (
@@ -366,7 +366,7 @@ export function ArgumentMap({
               onClick={() => addNode(root.id, 'refutation', s.text)}
               title={s.source}
             >
-              {s.text.slice(0, 48)}{s.text.length > 48 ? '…' : ''}
+              {s.text.slice(0, 72)}{s.text.length > 72 ? '…' : ''}
             </button>
           ))}
         </div>
@@ -376,22 +376,34 @@ export function ArgumentMap({
         className="mx-4 mb-2 rounded-xl border border-border-subtle bg-surface-card p-3"
         data-testid="debate-rebuttal-graph"
       >
-        <p className="text-[10px] font-semibold text-text-muted mb-2">
+        <p className="type-caption font-semibold text-text-muted mb-2">
           {t('debateRebuttalGraph')} · {rebuttalGraph.edges.length} {t('debateEdges')}
         </p>
-        <div className="flex flex-wrap gap-1.5 max-h-20 overflow-y-auto">
-          {rebuttalGraph.edges.map((e, i) => (
-            <span
-              key={i}
-              className={cn(
-                'rounded-full px-2 py-0.5 text-[10px] font-medium border',
-                e.kind === 'rebuts' ? 'border-accent-rose/40 text-accent-rose bg-accent-rose/10' : 'border-accent-emerald/40 text-accent-emerald bg-accent-emerald/10',
-              )}
-            >
-              {e.label}: {rebuttalGraph.nodes.find((n) => n.id === e.fromId)?.text.slice(0, 24)}…
-            </span>
-          ))}
-        </div>
+        <ul className="space-y-1.5 max-h-28 overflow-y-auto" data-testid="debate-rebuttal-list">
+          {rebuttalGraph.edges.map((e, i) => {
+            const fromText = rebuttalGraph.nodes.find((n) => n.id === e.fromId)?.text?.trim() ?? '';
+            const toText = rebuttalGraph.nodes.find((n) => n.id === e.toId)?.text?.trim() ?? '';
+            return (
+              <li
+                key={i}
+                className={cn(
+                  'rounded-lg border px-2.5 py-1.5 type-caption font-medium leading-snug',
+                  e.kind === 'rebuts'
+                    ? 'border-accent-rose/40 text-accent-rose bg-accent-rose/10'
+                    : 'border-accent-emerald/40 text-accent-emerald bg-accent-emerald/10',
+                )}
+              >
+                <span className="font-semibold">{e.label ?? e.kind}</span>
+                {fromText ? (
+                  <span className="text-text-secondary"> — {fromText.slice(0, 96)}{fromText.length > 96 ? '…' : ''}</span>
+                ) : null}
+                {toText ? (
+                  <span className="block mt-0.5 text-text-muted">→ {toText.slice(0, 96)}{toText.length > 96 ? '…' : ''}</span>
+                ) : null}
+              </li>
+            );
+          })}
+        </ul>
       </div>
       <div className="relative flex-1 cursor-grab overflow-auto bg-surface-primary active:cursor-grabbing">
         <div className="relative h-[600px] w-[800px]">

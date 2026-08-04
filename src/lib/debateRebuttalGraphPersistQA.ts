@@ -224,23 +224,23 @@ export function formatDebatePersistBanner(input: {
 
 export function debatePersistEdgeLabel(kind: DebatePersistEdgeKind, lang: Lang): string {
   const en: Record<DebatePersistEdgeKind, string> = {
-    'seed-stable': 'Seed stable',
-    'seed-refreshed': 'Seed refreshed',
-    'orphan-reattach': 'Orphan reattached',
-    'no-rebuttals': 'No rebuttals yet',
-    'graph-sync-ok': 'Graph synced',
-    'graph-sync-gap': 'Graph gap',
-    'legacy-envelope': 'Legacy envelope',
+    'seed-stable': 'Claim matches your notes',
+    'seed-refreshed': 'Claim updated from notes',
+    'orphan-reattach': 'Counter moved under main claim',
+    'no-rebuttals': 'No counters yet — add one from notes',
+    'graph-sync-ok': 'Argument map looks consistent',
+    'graph-sync-gap': 'Some counters need a clearer link',
+    'legacy-envelope': 'Older saved tree — still usable',
     'empty-tree': 'Empty',
   };
   const el: Record<DebatePersistEdgeKind, string> = {
-    'seed-stable': 'Σταθερό seed',
-    'seed-refreshed': 'Νέο seed',
-    'orphan-reattach': 'Ορφανό → root',
-    'no-rebuttals': 'Χωρίς rebuttals',
-    'graph-sync-ok': 'Graph OK',
-    'graph-sync-gap': 'Graph gap',
-    'legacy-envelope': 'Legacy envelope',
+    'seed-stable': 'Ο ισχυρισμός ταιριάζει με τις σημειώσεις',
+    'seed-refreshed': 'Ο ισχυρισμός ενημερώθηκε από τις σημειώσεις',
+    'orphan-reattach': 'Αντεπιχείρημα κάτω από τον κύριο ισχυρισμό',
+    'no-rebuttals': 'Χωρίς αντεπιχειρήματα — πρόσθεσε από τις σημειώσεις',
+    'graph-sync-ok': 'Ο χάρτης επιχειρημάτων φαίνεται συνεπής',
+    'graph-sync-gap': 'Κάποια αντεπιχειρήματα χρειάζονται σαφέστερη σύνδεση',
+    'legacy-envelope': 'Παλαιότερο αποθηκευμένο δέντρο — ακόμα χρησιμοποιήσιμο',
     'empty-tree': 'Κενό',
   };
   return (lang === 'el' ? el : en)[kind];

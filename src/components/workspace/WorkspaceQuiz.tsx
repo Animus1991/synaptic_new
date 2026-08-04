@@ -12,6 +12,11 @@ type Props = {
   lang: Lang;
   irt?: QuizIrtDisplay;
   irtResponseCount?: number;
+  /**
+   * Wave E6 — when false, skip the IRT badge (parent session already shows one meta strip).
+   * Default true for standalone quiz surfaces.
+   */
+  showIrtBadge?: boolean;
   onComplete: (correct: boolean) => void;
   onQuestionSelect?: (question: string) => void;
 };
@@ -40,7 +45,15 @@ function normalizeAnswer(s: string): string {
 }
 
 /* OPT-K101 — residual markup debt: decorative brand type -> ink */
-export function WorkspaceQuiz({ quizDef, lang, irt, irtResponseCount = 0, onComplete, onQuestionSelect }: Props) {
+export function WorkspaceQuiz({
+  quizDef,
+  lang,
+  irt,
+  irtResponseCount = 0,
+  showIrtBadge = true,
+  onComplete,
+  onQuestionSelect,
+}: Props) {
   const { t } = useI18n();
   const [mcAnswer, setMcAnswer] = useState<number | null>(null);
   const [shortText, setShortText] = useState('');
@@ -73,7 +86,9 @@ export function WorkspaceQuiz({ quizDef, lang, irt, irtResponseCount = 0, onComp
     const passed = mcAnswer !== null && mcAnswer === quizDef.correctIndex;
     return (
       <div className="ux-tier-b-tool ux-tier-b-quiz space-y-3" data-testid="workspace-quiz">
-        {irt && <QuizIrtBadge irt={irt} lang={lang} responseCount={irtResponseCount} />}
+        {showIrtBadge && irt && (
+          <QuizIrtBadge irt={irt} lang={lang} responseCount={irtResponseCount} />
+        )}
         <p {...questionProps(quizDef.question, onQuestionSelect)}>{quizDef.question}</p>
         {quizDef.options.map((opt, i) => (
           <button
@@ -84,18 +99,20 @@ export function WorkspaceQuiz({ quizDef, lang, irt, irtResponseCount = 0, onComp
               onComplete(i === quizDef.correctIndex);
             }}
             className={cn(
-              'ux-quiz-option w-full text-left p-2.5 rounded-lg border text-sm mb-1.5 transition-all flex items-center gap-2',
+              'ux-quiz-option w-full text-left p-2.5 sm:p-3 rounded-lg border text-sm mb-1.5 transition-all flex items-start gap-2.5',
               mcAnswer === i
                 ? i === quizDef.correctIndex
                   ? 'border-accent-emerald/50 bg-accent-emerald/10 text-accent-emerald'
                   : 'border-accent-rose/50 bg-accent-rose/10 text-accent-rose'
-                : 'border-border-subtle hover:border-white/20 hover:bg-white/[0.03]',
+                : 'border-border-subtle hover:border-border-default hover:bg-surface-hover',
             )}
           >
-            <span className="w-5 h-5 rounded-full border border-current/30 flex items-center justify-center text-[10px] shrink-0">
+            <span className="mt-0.5 w-5 h-5 rounded-full border border-current/30 flex items-center justify-center type-caption shrink-0">
               {String.fromCharCode(65 + i)}
             </span>
-            {opt}
+            <span className="min-w-0 flex-1 whitespace-normal break-words leading-snug">
+              {opt}
+            </span>
           </button>
         ))}
         {mcAnswer !== null && (
@@ -118,7 +135,9 @@ export function WorkspaceQuiz({ quizDef, lang, irt, irtResponseCount = 0, onComp
     };
     return (
       <div className="ux-tier-b-tool ux-tier-b-quiz space-y-3" data-testid="workspace-quiz">
-        {irt && <QuizIrtBadge irt={irt} lang={lang} responseCount={irtResponseCount} compact />}
+        {showIrtBadge && irt && (
+          <QuizIrtBadge irt={irt} lang={lang} responseCount={irtResponseCount} />
+        )}
         <p {...questionProps(sa.question, onQuestionSelect)}>{sa.question}</p>
         {sa.hint && <p className="text-xs text-text-muted">{sa.hint}</p>}
         <input

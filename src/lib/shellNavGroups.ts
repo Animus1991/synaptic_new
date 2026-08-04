@@ -15,6 +15,7 @@ const VIEW_GROUP: Record<ShellNavView, ShellNavGroupId> = {
   library: 'study',
   tasks: 'study',
   agent: 'study',
+  'study-room': 'study',
   analytics: 'insights',
   teacher: 'organization',
   'student-org': 'organization',

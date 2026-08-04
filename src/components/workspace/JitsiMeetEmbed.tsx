@@ -201,7 +201,7 @@ export function JitsiMeetEmbed({ roomName, lang: _lang = 'en', className }: Prop
       >
         {toolbar}
         {popupBlocked && (
-          <p className="mt-1.5 text-[10px] text-semantic-danger">
+          <p className="mt-1.5 type-caption text-semantic-danger">
             {t('jitsiPopupBlocked')}
           </p>
         )}
@@ -211,7 +211,7 @@ export function JitsiMeetEmbed({ roomName, lang: _lang = 'en', className }: Prop
           </div>
         )}
         {layout === 'float' && (
-          <p className="mt-2 text-[10px] text-text-muted">
+          <p className="mt-2 type-caption text-text-muted">
             {t('jitsiFloatingPanelHint')}
           </p>
         )}

@@ -46,10 +46,8 @@ function sinceContinue(): number | undefined {
 function publish(): void {
   if (typeof document === 'undefined') return;
   const m = getWorkspaceTTIMetrics();
+  // Dataset only — consumed by e2e perf budget + Settings TTI panel (no console noise).
   document.documentElement.dataset.workspaceTti = JSON.stringify(m);
-  if (import.meta.env.DEV) {
-    console.debug('[workspace-tti]', m);
-  }
 }
 
 export function markWorkspaceContinue(): void {

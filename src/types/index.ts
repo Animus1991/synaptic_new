@@ -586,4 +586,4 @@ export interface ConceptNode {
   connections: { to: string; relation: string }[];
 }
 
-export type AppView = 'landing' | 'onboarding' | 'dashboard' | 'library' | 'tasks' | 'agent' | 'course' | 'lesson' | 'settings' | 'analytics' | 'teacher' | 'student-org' | 'note-analysis';
+export type AppView = 'landing' | 'onboarding' | 'dashboard' | 'library' | 'tasks' | 'agent' | 'course' | 'lesson' | 'settings' | 'analytics' | 'teacher' | 'student-org' | 'note-analysis' | 'study-room';

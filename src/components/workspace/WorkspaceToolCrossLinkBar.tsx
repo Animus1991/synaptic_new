@@ -56,7 +56,7 @@ export function WorkspaceToolCrossLinkBar({
         </span>
         {stepTitle && (
           <span
-            className="hidden sm:inline truncate text-[10px] text-text-muted max-w-[220px]"
+            className="hidden sm:inline truncate type-caption text-text-muted max-w-[220px]"
             title={stepTitle}
           >
             · {concept?.slice(0, 32) || stepTitle.slice(0, 32)}
@@ -69,7 +69,7 @@ export function WorkspaceToolCrossLinkBar({
             data-testid="crosslink-open-reader"
             onClick={onOpenReader}
             aria-label={t('crossLinkOpenSourceAria')}
-            className="ws-eyebrow inline-flex items-center gap-1 rounded-md border border-border-subtle bg-surface-card/80 px-2 py-1 text-[10px] text-text-secondary hover:border-brand-400/40 hover:text-text-primary transition-colors min-h-[32px]"
+            className="ws-eyebrow inline-flex items-center gap-1 rounded-md border border-border-subtle bg-surface-card/80 px-2 py-1 type-caption text-text-secondary hover:border-brand-400/40 hover:text-text-primary transition-colors min-h-[32px]"
           >
             <BookOpen className="h-3 w-3" aria-hidden />
             <AllCapsLabel>{t('toolSource')}</AllCapsLabel>
@@ -81,7 +81,7 @@ export function WorkspaceToolCrossLinkBar({
             data-testid="crosslink-ask-agent"
             onClick={onAskAgent}
             aria-label={t('askAgentShort')}
-            className="ws-eyebrow inline-flex items-center gap-1 rounded-md border border-accent-cyan/30 bg-accent-cyan/10 px-2 py-1 text-[10px] text-text-primary hover:opacity-90 transition-colors min-h-[32px]"
+            className="ws-eyebrow inline-flex items-center gap-1 rounded-md border border-accent-cyan/30 bg-accent-cyan/10 px-2 py-1 type-caption text-text-primary hover:opacity-90 transition-colors min-h-[32px]"
           >
             <Sparkles className="h-3 w-3" aria-hidden />
             <AllCapsLabel>Agent</AllCapsLabel>
@@ -91,7 +91,7 @@ export function WorkspaceToolCrossLinkBar({
 
       {/* Purpose hint */}
       <p
-        className="mt-1 line-clamp-1 text-[10px] text-text-muted sm:line-clamp-1"
+        className="mt-1 line-clamp-1 type-caption text-text-muted sm:line-clamp-1"
         title={purpose}
       >
         {purpose}

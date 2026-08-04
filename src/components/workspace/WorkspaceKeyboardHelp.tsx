@@ -61,7 +61,7 @@ export function WorkspaceKeyboardHelp({ open, onClose, lang, variant = 'workspac
             <div className="max-h-[60vh] overflow-y-auto p-4 space-y-4">
               {groups.map(({ group, items }) => (
                 <div key={group}>
-                  <p className="mb-1.5 text-[10px] font-semibold text-text-muted">
+                  <p className="mb-1.5 type-caption font-semibold text-text-muted">
                     {group}
                   </p>
                   <ul className="space-y-1">
@@ -73,7 +73,7 @@ export function WorkspaceKeyboardHelp({ open, onClose, lang, variant = 'workspac
                         <span className="text-text-secondary">
                           {lang === 'el' ? item.labelEl : item.labelEn}
                         </span>
-                        <kbd className="shrink-0 rounded border border-border-subtle bg-surface-input px-1.5 py-0.5 font-mono text-[10px] text-text-muted">
+                        <kbd className="shrink-0 rounded border border-border-subtle bg-surface-input px-1.5 py-0.5 font-mono type-caption text-text-muted">
                           {displayShortcutKeys(item.keys)}
                         </kbd>
                       </li>
@@ -83,7 +83,7 @@ export function WorkspaceKeyboardHelp({ open, onClose, lang, variant = 'workspac
               ))}
             </div>
 
-            <div className="border-t border-border-subtle px-4 py-2 text-[10px] text-text-muted">
+            <div className="border-t border-border-subtle px-4 py-2 type-caption text-text-muted">
               {t('keyboardHelpFooter', lang)}
             </div>
           </motion.div>

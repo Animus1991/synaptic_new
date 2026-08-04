@@ -45,7 +45,7 @@ function schedulePrefetch(entry: { flow: string; load: () => Promise<unknown> },
     return;
   }
   if (typeof requestIdleCallback === 'function') {
-    requestIdleCallback(trigger, { timeout: 1200 + delayMs });
+    requestIdleCallback(trigger, { timeout: 4000 + delayMs });
   } else {
     window.setTimeout(trigger, delayMs);
   }
@@ -56,7 +56,8 @@ export function preloadPrimaryWorkspaceTools(): void {
   if (primaryStarted || typeof window === 'undefined') return;
   primaryStarted = true;
   preloadReaderModule();
-  schedulePrefetch({ flow: 'concept-map', load: CONCEPT_MAP_LOAD }, 120);
+  // Defer concept-map so it does not fight body-chunk parse / first click.
+  schedulePrefetch({ flow: 'concept-map', load: CONCEPT_MAP_LOAD }, 900);
 }
 
 /** Idle prefetch for high-traffic secondary tools. */
@@ -67,7 +68,7 @@ export function preloadWorkspaceToolChunks(): void {
   preloadPrimaryWorkspaceTools();
 
   SECONDARY_TOOLS.forEach((entry, i) => {
-    schedulePrefetch(entry, 600 + i * 350);
+    schedulePrefetch(entry, 1800 + i * 700);
   });
 }
 

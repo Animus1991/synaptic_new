@@ -13,6 +13,8 @@ import {
 } from '../lib/orgClient';
 import { formatDateTime } from '../lib/localeFormat';
 import { cn } from '../utils/cn';
+import { AssignmentCanonPanel } from './AssignmentCanonPanel';
+import { hashContent } from '../lib/contributionLedger';
 
 /* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export type DiscussionUi = {
@@ -221,6 +223,9 @@ export function AssignmentDiscussionThread({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const token = settings.authToken?.trim() ?? '';
+  const actorName = settings.authEmail?.trim() || (lang === 'el' ? 'Μέλος' : 'Member');
+  const actorId = settings.authEmail?.trim()
+    || (token ? `user-${hashContent(token).slice(-10)}` : `anon-${classId.slice(0, 6)}`);
 
   const load = useCallback(async () => {
     if (!token || !open) return;
@@ -383,6 +388,16 @@ export function AssignmentDiscussionThread({
               {ui.post}
             </button>
           </div>
+
+          <AssignmentCanonPanel
+            lang={lang}
+            classId={classId}
+            assignmentId={assignmentId}
+            assignmentTitle={assignmentTitle}
+            actorId={actorId}
+            actorName={actorName}
+            role={role}
+          />
         </div>
       )}
     </div>

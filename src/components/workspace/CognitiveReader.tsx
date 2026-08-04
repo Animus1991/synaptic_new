@@ -792,7 +792,7 @@ export function CognitiveReader({
                 )}
                 {seg.content}
                 {suspicious && (
-                  <span className="ml-2 block text-[10px] font-normal normal-case tracking-normal text-accent-amber/80">
+                  <span className="ml-2 block type-caption font-normal normal-case tracking-normal text-accent-amber/80">
                     {t('readerExtractionError')}
                   </span>
                 )}
@@ -944,7 +944,7 @@ export function CognitiveReader({
           <Type className="w-3.5 h-3.5 text-text-secondary" />
           {t('cognitiveReader')}
           {annotations.length > 0 && (
-            <span className="text-[10px] font-normal text-text-muted">{annotations.length} notes</span>
+            <span className="type-caption font-normal text-text-muted">{annotations.length} notes</span>
           )}
         </span>
         <div className="flex flex-wrap items-center gap-1.5">
@@ -952,7 +952,7 @@ export function CognitiveReader({
             type="button"
             onClick={() => setAnnotateMode(!annotateMode)}
             className={cn(
-              'rounded-lg border px-2 py-1 text-[10px] font-medium flex items-center gap-1',
+              'rounded-lg border px-2 py-1 type-caption font-medium flex items-center gap-1',
               /* OPT-K96 — annotate = warn chip; other actives = ws-chip-brand */
               annotateMode ? 'ws-chip-warn' : 'ws-tool-toggle',
             )}
@@ -974,7 +974,7 @@ export function CognitiveReader({
               </button>
             </>
           )}
-          <button type="button" onClick={() => setDyslexia(!dyslexia)} className={cn('rounded-lg border px-2 py-1 text-[10px] font-medium', dyslexia ? 'ws-chip-brand' : 'ws-tool-toggle')}>
+          <button type="button" onClick={() => setDyslexia(!dyslexia)} className={cn('rounded-lg border px-2 py-1 type-caption font-medium', dyslexia ? 'ws-chip-brand' : 'ws-tool-toggle')}>
             {t('readerDyslexia')}
           </button>
           <button type="button" onClick={speakSelection} className="rounded-lg border border-transparent p-1 text-text-muted hover:text-text-primary" title={t('readerReadAloud')}>
@@ -985,7 +985,7 @@ export function CognitiveReader({
             data-testid="reader-tts-paragraphs"
             onClick={readAllParagraphs}
             className={cn(
-              'rounded-lg border px-2 py-1 text-[10px] font-medium',
+              'rounded-lg border px-2 py-1 type-caption font-medium',
               ttsActiveIndex !== null ? 'ws-chip-brand' : 'ws-tool-toggle',
             )}
           >
@@ -995,7 +995,7 @@ export function CognitiveReader({
             type="button"
             data-testid="reader-full-source-toggle"
             onClick={() => setFullSource(!fullSource)}
-            className={cn('rounded-lg border px-2 py-1 text-[10px]', fullSource ? 'ws-chip-brand' : 'ws-tool-toggle')}
+            className={cn('rounded-lg border px-2 py-1 type-caption', fullSource ? 'ws-chip-brand' : 'ws-tool-toggle')}
           >
             {fullSource ? t('readerFull') : t('readerExcerpt')}
           </button>
@@ -1011,7 +1011,7 @@ export function CognitiveReader({
                 });
               }}
               className={cn(
-                'rounded-lg border px-2 py-1 text-[10px] font-medium flex items-center gap-1',
+                'rounded-lg border px-2 py-1 type-caption font-medium flex items-center gap-1',
                 translationMode !== 'off'
                   ? 'ws-chip-brand'
                   : 'ws-tool-toggle',
@@ -1027,7 +1027,7 @@ export function CognitiveReader({
               {translating && '…'}
             </button>
           )}
-          <button type="button" onClick={() => setBionic(!bionic)} disabled={!!highlight} className={cn('rounded-lg border px-2 py-1 text-[10px] font-medium disabled:opacity-40', bionic ? 'ws-chip-brand' : 'ws-tool-toggle')}>
+          <button type="button" onClick={() => setBionic(!bionic)} disabled={!!highlight} className={cn('rounded-lg border px-2 py-1 type-caption font-medium disabled:opacity-40', bionic ? 'ws-chip-brand' : 'ws-tool-toggle')}>
             {t('bionic')}
           </button>
           {ocrCandidate && (
@@ -1036,7 +1036,7 @@ export function CognitiveReader({
               data-testid="reader-ocr-overlay-toggle"
               onClick={() => setOcrOverlayOn(!ocrOverlayOn)}
               className={cn(
-                'rounded-lg border px-2 py-1 text-[10px] font-medium',
+                'rounded-lg border px-2 py-1 type-caption font-medium',
                 ocrOverlayOn ? 'ws-chip-warn' : 'ws-tool-toggle',
               )}
             >
@@ -1049,7 +1049,7 @@ export function CognitiveReader({
             onClick={cycleHeatmapMode}
             disabled={!!highlight}
             className={cn(
-              'rounded-lg border px-2 py-1 text-[10px] font-medium disabled:opacity-40',
+              'rounded-lg border px-2 py-1 type-caption font-medium disabled:opacity-40',
               heatmapActive
                 ? heatmapMode === 'learning'
                   ? 'border-accent-rose/30 bg-accent-rose/20 text-accent-rose'
@@ -1128,7 +1128,7 @@ export function CognitiveReader({
                 type="button"
                 data-testid={`reader-suspicious-jump-${seg.index}`}
                 onClick={() => scrollToSection(seg.index)}
-                className="rounded-full border border-accent-amber/40 bg-accent-amber/10 px-2 py-0.5 text-[10px] text-accent-amber hover:bg-accent-amber/20"
+                className="rounded-full border border-accent-amber/40 bg-accent-amber/10 px-2 py-0.5 type-caption text-accent-amber hover:bg-accent-amber/20"
               >
                 {seg.label.slice(0, 48)}{seg.label.length > 48 ? '…' : ''}
               </button>
@@ -1146,7 +1146,7 @@ export function CognitiveReader({
         >
           <div className="min-w-0">
             <p className="text-[11px] font-semibold text-text-primary">{glossaryPopover.term}</p>
-            <p className="text-[10px] text-text-secondary mt-0.5">
+            <p className="type-caption text-text-secondary mt-0.5">
               {glossaryPopover.definition || t('readerNoGlossaryDef')}
             </p>
           </div>
@@ -1155,7 +1155,7 @@ export function CognitiveReader({
               type="button"
               data-testid="reader-define-btn"
               aria-pressed="true"
-              className="rounded-lg border border-border-subtle bg-surface-secondary px-2 py-1 text-[10px] font-medium text-text-primary"
+              className="rounded-lg border border-border-subtle bg-surface-secondary px-2 py-1 type-caption font-medium text-text-primary"
             >
               {t('readerDefine')}
             </button>
@@ -1167,7 +1167,7 @@ export function CognitiveReader({
                   onTermFocus(glossaryPopover.term);
                   setGlossaryPopover(null);
                 }}
-                className="rounded-lg border border-border-subtle bg-surface-secondary px-2 py-1 text-[10px] font-medium text-text-primary"
+                className="rounded-lg border border-border-subtle bg-surface-secondary px-2 py-1 type-caption font-medium text-text-primary"
               >
                 {t('readerFocusInText')}
               </button>
@@ -1186,7 +1186,7 @@ export function CognitiveReader({
 
       {annotateMode && (
         <div className="flex shrink-0 items-center gap-2 border-b border-border-subtle bg-surface-secondary/40 px-4 py-1.5">
-          <span className="text-[10px] text-text-muted">{t('readerColorColon')}</span>
+          <span className="type-caption text-text-muted">{t('readerColorColon')}</span>
           {ANN_COLORS.map((c) => (
             <button
               key={c}
@@ -1197,7 +1197,7 @@ export function CognitiveReader({
               style={{ backgroundColor: c }}
             />
           ))}
-          <span className="text-[10px] text-text-muted ml-2">{t('readerSelectToAnnotate')}</span>
+          <span className="type-caption text-text-muted ml-2">{t('readerSelectToAnnotate')}</span>
         </div>
       )}
 
@@ -1206,7 +1206,7 @@ export function CognitiveReader({
           className="ux-tier-b-nav flex shrink-0 gap-1.5 overflow-x-auto border-b border-border-subtle bg-surface-secondary/40 px-3 py-2 hide-scrollbar"
           data-testid="reader-section-nav"
         >
-          <span className="shrink-0 self-center text-[10px] font-semibold text-text-muted">
+          <span className="shrink-0 self-center type-caption font-semibold text-text-muted">
             {sectionNavRailLabel(sectionNav, lang)}
           </span>
           {sectionNav.map((item) => {
@@ -1222,7 +1222,7 @@ export function CognitiveReader({
                 onSectionNavSelect?.(item.label);
               }}
               className={cn(
-                'shrink-0 max-w-[140px] truncate rounded-full border px-2.5 py-1 text-[10px] transition-colors',
+                'shrink-0 max-w-[140px] truncate rounded-full border px-2.5 py-1 type-caption transition-colors',
                 isActive
                   ? 'ws-chip-brand font-medium'
                   : 'border-border-subtle bg-surface-card text-text-secondary hover:border-border-default hover:text-text-primary',
@@ -1242,7 +1242,7 @@ export function CognitiveReader({
           className="flex shrink-0 flex-wrap items-center gap-2 border-b border-border-subtle bg-surface-secondary/30 px-3 py-1.5"
           data-testid="reader-section-actions"
         >
-          <span className="max-w-[180px] truncate text-[10px] text-text-muted" title={activeSectionLabel}>
+          <span className="max-w-[180px] truncate type-caption text-text-muted" title={activeSectionLabel}>
             {activeSectionLabel.slice(0, 40)}
           </span>
           {onSectionStudy && (
@@ -1250,7 +1250,7 @@ export function CognitiveReader({
               type="button"
               data-testid="reader-section-study"
               onClick={() => onSectionStudy(activeSectionLabel)}
-              className="inline-flex items-center gap-1 ws-chip-brand rounded-lg border px-2 py-1 text-[10px] font-medium hover:bg-brand-600/15"
+              className="inline-flex items-center gap-1 ws-chip-brand rounded-lg border px-2 py-1 type-caption font-medium hover:bg-brand-600/15"
             >
               <BookOpen className="h-3 w-3" />
               {t('readerSectionStudy')}
@@ -1261,7 +1261,7 @@ export function CognitiveReader({
               type="button"
               data-testid="reader-section-ask-agent"
               onClick={() => onSectionAskAgent(activeSectionLabel)}
-              className="inline-flex items-center gap-1 ws-chip-brand rounded-lg border px-2 py-1 text-[10px] font-medium hover:opacity-90"
+              className="inline-flex items-center gap-1 ws-chip-brand rounded-lg border px-2 py-1 type-caption font-medium hover:opacity-90"
             >
               <Sparkles className="h-3 w-3" />
               {t('readerAskAgentBtn')}
@@ -1293,7 +1293,7 @@ export function CognitiveReader({
           <button
             type="button"
             onClick={() => handleReaderSelectionAction('ask-agent')}
-            className="shrink-0 inline-flex items-center gap-1 rounded-lg border border-accent-cyan/40 bg-accent-cyan/15 px-2 py-1 text-[10px] font-medium text-text-primary"
+            className="shrink-0 inline-flex items-center gap-1 rounded-lg border border-accent-cyan/40 bg-accent-cyan/15 px-2 py-1 type-caption font-medium text-text-primary"
           >
             <Sparkles className="h-3 w-3" />
             {t('readerAskAgentChip')}
@@ -1316,7 +1316,7 @@ export function CognitiveReader({
           className="shrink-0 border-b border-brand-500/20 bg-brand-500/6 px-4 py-3 space-y-1.5"
         >
           <div className="flex items-center justify-between">
-            <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-text-secondary">
+            <span className="inline-flex items-center gap-1 type-caption font-semibold text-text-secondary">
               <Sparkles className="w-3 h-3" />
               {lang === 'el' ? 'AI Εξήγηση' : 'AI Explanation'}
             </span>
@@ -1330,12 +1330,12 @@ export function CognitiveReader({
             </button>
           </div>
           {inlineAiExcerpt && (
-            <p className="text-[9px] italic text-text-muted truncate">
+            <p className="type-micro italic text-text-muted truncate">
               &ldquo;{inlineAiExcerpt.slice(0, 90)}{inlineAiExcerpt.length > 90 ? '…' : ''}&rdquo;
             </p>
           )}
           {inlineAiLoading ? (
-            <div className="flex items-center gap-1.5 text-[10px] text-text-muted">
+            <div className="flex items-center gap-1.5 type-caption text-text-muted">
               <Loader2 className="w-3 h-3 animate-spin" />
               {lang === 'el' ? 'Αναλύω…' : 'Thinking…'}
             </div>
@@ -1377,7 +1377,7 @@ export function CognitiveReader({
               onScroll={onSourceScroll}
               className="min-h-0 overflow-y-auto border-r border-border-subtle/60 bg-surface-primary p-4 md:p-6"
             >
-              <p className="sticky top-0 z-10 mb-2 bg-surface-primary/90 py-1 text-[10px] font-semibold text-text-muted backdrop-blur-sm">
+              <p className="sticky top-0 z-10 mb-2 bg-surface-primary/90 py-1 type-caption font-semibold text-text-muted backdrop-blur-sm">
                 {t('toolSource')}
               </p>
               <div className="space-y-4">
@@ -1407,7 +1407,7 @@ export function CognitiveReader({
               onScroll={onCompanionScroll}
               className="min-h-0 overflow-y-auto bg-surface-secondary/40 p-4 md:p-6"
             >
-              <p className="sticky top-0 z-10 mb-2 bg-surface-primary/90 py-1 text-[10px] font-semibold text-text-primary backdrop-blur-sm">
+              <p className="sticky top-0 z-10 mb-2 bg-surface-primary/90 py-1 type-caption font-semibold text-text-primary backdrop-blur-sm">
                 {translationMode === 'full'
                   ? t('readerTranslationCol')
                   : t('readerGlossaryCompanion')}
@@ -1429,7 +1429,7 @@ export function CognitiveReader({
                   >
                     {pair.companion}
                     {pair.glossHits.length > 0 && (
-                      <span className="mt-1 block text-[10px] text-text-muted">
+                      <span className="mt-1 block type-caption text-text-muted">
                         {pair.glossHits.slice(0, 4).join(' · ')}
                       </span>
                     )}
@@ -1496,9 +1496,9 @@ export function CognitiveReader({
 
         {showMargin && annotations.length > 0 && (
           <aside className="hidden sm:block w-44 shrink-0 border-l border-border-subtle overflow-y-auto p-2 space-y-2 bg-surface-card/50">
-            <p className="text-[10px] font-semibold text-text-muted px-1">{t('readerMargin')}</p>
+            <p className="type-caption font-semibold text-text-muted px-1">{t('readerMargin')}</p>
             {annotations.map((ann) => (
-              <div key={ann.id} className="rounded-lg border border-border-subtle p-2 text-[10px] group relative" style={{ borderLeftColor: ann.color, borderLeftWidth: 3 }}>
+              <div key={ann.id} className="rounded-lg border border-border-subtle p-2 type-caption group relative" style={{ borderLeftColor: ann.color, borderLeftWidth: 3 }}>
                 <button type="button" onClick={() => removeAnnotation(ann.id)} className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 text-text-muted">
                   <X className="w-3 h-3" />
                 </button>
@@ -1508,7 +1508,7 @@ export function CognitiveReader({
                 {ann.note && <p className="text-text-primary mt-1">{ann.note}</p>}
               </div>
             ))}
-            <button type="button" onClick={exportJson} className="w-full text-[10px] text-text-secondary hover:text-text-primary py-1">
+            <button type="button" onClick={exportJson} className="w-full type-caption text-text-secondary hover:text-text-primary py-1">
               JSON export
             </button>
           </aside>
@@ -1517,7 +1517,7 @@ export function CognitiveReader({
 
       {pendingNote && (
         <div className="shrink-0 border-t border-border-subtle bg-surface-card p-3 space-y-2">
-          <p className="text-[10px] text-text-muted">{t('readerSelectedColon')} <span className="ws-excerpt">"{pendingNote.excerpt.slice(0, 80)}"</span></p>
+          <p className="type-caption text-text-muted">{t('readerSelectedColon')} <span className="ws-excerpt">"{pendingNote.excerpt.slice(0, 80)}"</span></p>
           <input
             value={noteDraft}
             onChange={(e) => setNoteDraft(e.target.value)}

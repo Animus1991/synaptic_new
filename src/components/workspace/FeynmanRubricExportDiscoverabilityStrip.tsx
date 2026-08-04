@@ -1,4 +1,4 @@
-﻿import { CheckCircle2, Download, FileText, Printer } from '@/lib/lucide-shim';
+import { CheckCircle2, Download, FileText, Printer } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
 import type { FeynmanRubricExportDiscoverabilityReport } from '../../lib/feynmanRubricExportDiscoverabilityQA';
 import { useI18n } from '../../lib/i18n';
@@ -47,7 +47,7 @@ export function FeynmanRubricExportDiscoverabilityStrip({
               type="button"
               data-testid="feynman-strip-export-download"
               onClick={onExportDownload}
-              className="ws-chip-brand inline-flex items-center gap-1 rounded-lg px-2 py-1 text-[10px] font-medium hover:opacity-90"
+              className="ws-chip-brand inline-flex items-center gap-1 rounded-lg px-2 py-1 type-caption font-medium hover:opacity-90"
             >
               <Download className="h-3 w-3" />
               HTML
@@ -58,7 +58,7 @@ export function FeynmanRubricExportDiscoverabilityStrip({
               type="button"
               data-testid="feynman-strip-export-print"
               onClick={onExportPrint}
-              className="ws-chip-brand inline-flex items-center gap-1 rounded-lg px-2 py-1 text-[10px] font-medium hover:opacity-90"
+              className="ws-chip-brand inline-flex items-center gap-1 rounded-lg px-2 py-1 type-caption font-medium hover:opacity-90"
             >
               <Printer className="h-3 w-3" />
               PDF
@@ -69,7 +69,7 @@ export function FeynmanRubricExportDiscoverabilityStrip({
               type="button"
               data-testid="feynman-strip-open-dashboard"
               onClick={onOpenDashboard}
-              className="inline-flex items-center gap-1 rounded-lg border border-border-subtle px-2 py-1 text-[10px] font-medium text-text-secondary hover:text-text-primary"
+              className="inline-flex items-center gap-1 rounded-lg border border-border-subtle px-2 py-1 type-caption font-medium text-text-secondary hover:text-text-primary"
             >
               {t('stripDashboardExport')}
             </button>

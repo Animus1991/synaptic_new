@@ -346,7 +346,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                       onClick={() => setDashboardLayout(mode)}
                       data-testid={`dashboard-layout-${mode}`}
                       aria-pressed={active}
-                      aria-label={label}
+                      aria-label={`${digit} — ${label}`}
                       title={label}
                       className={cn(
                         'inline-flex h-7 min-w-7 items-center justify-center rounded-md px-1.5 text-[11px] font-semibold tabular-nums transition-colors',

@@ -73,10 +73,10 @@ export function WorkspaceContextStrip({
             {context.toolLabel}
           </span>
         </div>
-        <p className="mt-0.5 hidden text-[10px] text-text-muted sm:block truncate" title={context.toolDescription}>
+        <p className="mt-0.5 hidden type-caption text-text-muted sm:block truncate" title={context.toolDescription}>
           {context.toolDescription}
           {typeof sourceQuality === 'number' && (
-            <span className="ml-2 ws-chip-warn inline-flex rounded-full px-1.5 py-px text-[10px]">
+            <span className="ml-2 ws-chip-warn inline-flex rounded-full px-1.5 py-px type-caption">
               · {t('contextQualityLabel')} {sourceQuality}/100
             </span>
           )}
@@ -87,7 +87,7 @@ export function WorkspaceContextStrip({
           <button
             type="button"
             onClick={onNextAction}
-            className="ws-eyebrow ws-chip-brand inline-flex shrink-0 items-center gap-1 rounded-md px-2 py-1 text-[10px] hover:opacity-90"
+            className="ws-eyebrow ws-chip-brand inline-flex shrink-0 items-center gap-1 rounded-md px-2 py-1 type-caption hover:opacity-90"
             data-testid="workspace-next-action"
           >
             <AllCapsLabel>{nextActionLabelProp ?? t('next')}</AllCapsLabel>
@@ -98,7 +98,7 @@ export function WorkspaceContextStrip({
             type="button"
             onClick={onWeakAreas}
             aria-pressed={weakPanelOpen}
-            className={`ws-eyebrow shrink-0 rounded-md px-2 py-1 text-[10px] ${
+            className={`ws-eyebrow shrink-0 rounded-md px-2 py-1 type-caption ${
               weakPanelOpen ? 'ws-chip-danger' : 'ws-chip-neutral hover:opacity-90'
             }`}
             data-testid="workspace-weak-areas-toggle"
@@ -111,7 +111,7 @@ export function WorkspaceContextStrip({
             type="button"
             onClick={onConceptBus}
             aria-pressed={conceptBusOpen}
-            className={`ws-eyebrow shrink-0 rounded-md px-2 py-1 text-[10px] ${
+            className={`ws-eyebrow shrink-0 rounded-md px-2 py-1 type-caption ${
               conceptBusOpen ? 'ws-chip-brand' : 'ws-chip-neutral hover:opacity-90'
             }`}
             data-testid="workspace-concept-bus-toggle"

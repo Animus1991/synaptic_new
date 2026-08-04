@@ -318,6 +318,12 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
                   </h1>
                 </div>
                 <div className="relative shrink-0 flex items-center gap-1">
+                  <WorkspaceStudyRoomTrigger
+                    lang={lang}
+                    open={studyRoomOpen}
+                    onClick={() => setStudyRoomOpen((v) => !v)}
+                    variant="chrome"
+                  />
                   {themeToggle && (
                     <div className="[&>button]:p-1.5 [&>button]:rounded-lg [&>button]:hover:bg-surface-hover">
                       {themeToggle}

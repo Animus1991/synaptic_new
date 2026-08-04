@@ -149,13 +149,13 @@ describe('debateRebuttalGraphPersistQA', () => {
       seedChanged: true,
       lang: 'en',
     });
-    expect(banner).toContain('4 edges');
-    expect(banner).toContain('2 rebuttals');
-    expect(banner).toContain('seed refreshed');
+    expect(banner).toContain('4 links');
+    expect(banner).toContain('2 counters');
+    expect(banner).toContain('claim updated from notes');
   });
 
   it('labels edge kinds in both locales', () => {
-    expect(debatePersistEdgeLabel('graph-sync-ok', 'en')).toBe('Graph synced');
-    expect(debatePersistEdgeLabel('orphan-reattach', 'el')).toBe('Ορφανό → root');
+    expect(debatePersistEdgeLabel('graph-sync-ok', 'en')).toBe('Argument map looks consistent');
+    expect(debatePersistEdgeLabel('orphan-reattach', 'el')).toBe('Αντεπιχείρημα κάτω από τον κύριο ισχυρισμό');
   });
 });

@@ -57,7 +57,7 @@ export function WorkspaceLearningActionBar({
         aria-expanded={expanded}
         data-testid="learning-actions-toggle"
       >
-        <span className="ws-eyebrow text-[10px] text-text-muted">
+        <span className="ws-eyebrow type-caption text-text-muted">
           <AllCapsLabel>{t('nextAction')}</AllCapsLabel>
         </span>
         {expanded ? (
@@ -68,7 +68,7 @@ export function WorkspaceLearningActionBar({
       </button>
 
       {!expanded && recommendation && (
-        <p className="truncate text-[10px] text-text-secondary">
+        <p className="truncate type-caption text-text-secondary">
           {nextActionLabel(recommendation.primary, lang)}
         </p>
       )}
@@ -92,7 +92,7 @@ export function WorkspaceLearningActionBar({
                   {isReprocess && <Sparkles className="h-3.5 w-3.5 shrink-0 opacity-90" aria-hidden />}
                   {nextActionLabel(recommendation.primary, lang)}
                 </span>
-                <span className="mt-1 block text-[10px] font-normal leading-relaxed text-text-muted">
+                <span className="mt-1 block type-caption font-normal leading-relaxed text-text-muted">
                   {recommendation.reason}
                 </span>
               </button>
@@ -123,7 +123,7 @@ export function WorkspaceLearningActionBar({
               )}
             </>
           ) : (
-            <p className="text-[10px] text-text-muted">
+            <p className="type-caption text-text-muted">
               {t('uploadForSuggestions')}
             </p>
           )}

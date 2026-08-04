@@ -79,19 +79,20 @@ describe('Library P0', () => {
     expect(onUpload.mock.calls[0]).toEqual([]);
   });
 
-  it('course cards open via keyboard Enter', () => {
+  it('course cards open via dedicated open control (no nested role=button)', () => {
     const { onSelectCourse } = renderLibrary();
     const cards = screen.getAllByTestId('library-course-card');
-    expect(cards[0].getAttribute('role')).toBe('button');
-    fireEvent.keyDown(cards[0], { key: 'Enter' });
+    expect(cards[0].getAttribute('role')).not.toBe('button');
+    fireEvent.click(screen.getByTestId('library-open-course-c1'));
     expect(onSelectCourse).toHaveBeenCalledWith(expect.objectContaining({ id: 'c1' }));
   });
 
-  it('list rows are keyboard-openable', () => {
+  it('list rows are keyboard-openable via primary control', () => {
     const { onSelectCourse } = renderLibrary();
     fireEvent.click(screen.getByLabelText(/list view/i));
-    const rows = screen.getAllByTestId('library-course-card');
-    fireEvent.keyDown(rows[0], { key: ' ' });
+    const open = screen.getByTestId('library-open-course-list-c1');
+    fireEvent.keyDown(open, { key: 'Enter' });
+    fireEvent.click(open);
     expect(onSelectCourse).toHaveBeenCalledWith(expect.objectContaining({ id: 'c1' }));
   });
 });

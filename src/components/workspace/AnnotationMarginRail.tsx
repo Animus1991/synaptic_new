@@ -11,13 +11,13 @@ import type {
 } from '../../lib/workspaceSelectionActions';
 import { WorkspaceSelectionActionBar } from './WorkspaceSelectionActionBar';
 import { SEMANTIC_CATEGORIES } from './AnnotationToolbar';
-import { useI18n } from '../../lib/i18n';
+import { useI18n, type I18nKey } from '../../lib/i18n';
 import { AllCapsLabel } from '../ui/AllCapsLabel';
 
-function categoryLabel(cat: AnnotationCategory, lang: 'en' | 'el'): string {
+function categoryLabel(cat: AnnotationCategory, translate: (key: I18nKey) => string): string {
   const row = SEMANTIC_CATEGORIES.find((c) => c.cat === cat);
   if (!row) return cat;
-  return lang === 'el' ? row.labelEl : row.labelEn;
+  return translate(row.labelKey);
 }
 
 type Props = {
@@ -93,7 +93,7 @@ export function AnnotationMarginRail({
               <button
                 type="button"
                 onClick={onExportJson}
-                className="text-[10px] font-medium text-text-primary hover:underline"
+                className="type-caption font-medium text-text-primary hover:underline"
               >
                 JSON
               </button>
@@ -162,14 +162,14 @@ export function AnnotationMarginRail({
 
                   <div className="mt-0.5 flex flex-wrap gap-0.5">
                     {ann.focusTerm && (
-                      <span className="rounded bg-brand-600/12 px-1 py-px text-[10px] text-text-primary">
+                      <span className="rounded bg-brand-600/12 px-1 py-px type-caption text-text-primary">
                         #{ann.focusTerm}
                       </span>
                     )}
                     {ann.category && ann.category !== 'general' && (
                       <span
                         className={cn(
-                          'inline-flex items-center gap-0.5 rounded px-1 py-px text-[10px]',
+                          'inline-flex items-center gap-0.5 rounded px-1 py-px type-caption',
                           ann.category === 'confusing'
                             ? 'bg-accent-amber/12 text-accent-amber'
                             : 'bg-surface-secondary text-text-primary border border-border-subtle',
@@ -180,7 +180,7 @@ export function AnnotationMarginRail({
                         ) : (
                           <FileText className="h-2 w-2" aria-hidden />
                         )}
-                        {categoryLabel(ann.category, lang)}
+                        {categoryLabel(ann.category, t)}
                       </span>
                     )}
                     {ann.anchorStatus && ann.anchorStatus !== 'ok' && (
@@ -205,7 +205,7 @@ export function AnnotationMarginRail({
                           e.stopPropagation();
                           onOpenInReader(lines[ann.lineStart]?.trim() || ann.focusTerm || '');
                         }}
-                        className="inline-flex items-center gap-0.5 text-[10px] font-medium text-text-primary hover:underline"
+                        className="inline-flex items-center gap-0.5 type-caption font-medium text-text-primary hover:underline"
                       >
                         <BookOpen className="h-2.5 w-2.5" />
                         {t('annoReaderShort')}
@@ -218,7 +218,7 @@ export function AnnotationMarginRail({
                           e.stopPropagation();
                           onPublishShared(ann);
                         }}
-                        className="text-[10px] font-medium text-accent-amber hover:underline"
+                        className="type-caption font-medium text-accent-amber hover:underline"
                       >
                         {t('shareShort')}
                       </button>
@@ -230,7 +230,7 @@ export function AnnotationMarginRail({
                           e.stopPropagation();
                           onAskAgent(lines[ann.lineStart] || '');
                         }}
-                        className="inline-flex items-center gap-0.5 text-[10px] font-medium text-text-primary hover:underline"
+                        className="inline-flex items-center gap-0.5 type-caption font-medium text-text-primary hover:underline"
                       >
                         <Sparkles className="h-2.5 w-2.5" />
                         {askAgentLabel}

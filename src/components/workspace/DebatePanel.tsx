@@ -159,7 +159,7 @@ export function DebatePanel({
                 key={`${i}-${text.slice(0, 24)}`}
                 type="button"
                 onClick={() => selectClaim(text)}
-                className="rounded-md border border-brand-500/25 bg-brand-500/5 px-2 py-0.5 text-[10px] text-text-primary hover:bg-brand-500/10 hover:border-brand-500/40 transition-colors"
+                className="rounded-md border border-brand-500/25 bg-brand-500/5 px-2 py-0.5 type-caption text-text-primary hover:bg-brand-500/10 hover:border-brand-500/40 transition-colors"
               >
                 {text.slice(0, 56)}{text.length > 56 ? '…' : ''}
               </button>
@@ -184,7 +184,7 @@ export function DebatePanel({
               type="button"
               data-testid="debate-ai-counter"
               onClick={() => onAiCounter(selectedClaim)}
-              className="rounded-full border border-border-default bg-surface-tertiary px-2.5 py-1 text-[10px] font-medium text-text-primary hover:bg-surface-hover"
+              className="rounded-full border border-border-default bg-surface-tertiary px-2.5 py-1 type-caption font-medium text-text-primary hover:bg-surface-hover"
             >
               {t('debateAiCounter')}
             </button>

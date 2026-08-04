@@ -3,11 +3,17 @@ import {
   gatherWorkspaceNoteInputs,
   buildPendingWorkspaceNoteGathered,
   buildWorkspaceNoteBundleFromGathered,
+  stabilizeWorkspaceNoteBundle,
   type BuildWorkspaceNoteBundleOpts,
   type WorkspaceNoteBundle,
+  type WorkspaceNoteGathered,
 } from './workspaceNoteContent';
+import { findMatchingTopic } from './noteContentExtractors';
 import { buildNoteBundleInWorker, warmWorkspaceWorker } from './workspaceWorkerClient';
 import { markNoteBundleShellReady } from './workspacePerf';
+
+/** Debounce for mastery/concept-driven worker refreshes (collapses store churn bursts). */
+const BUNDLE_REFRESH_DEBOUNCE_MS = 350;
 
 const buildOptsFrom = (opts: BuildWorkspaceNoteBundleOpts) => ({
   concept: opts.concept,
@@ -32,57 +38,73 @@ function scheduleGather(cb: () => void): () => void {
 
 /**
  * Hybrid note bundle: instant pending shell → deferred gather → worker full bundle (1C).
+ *
+ * Freeze fix (perf): the full pipeline (pending reset → main-thread gather →
+ * shell build → worker build = 3 bundle identities, each cascading through
+ * every downstream memo) now runs ONLY when the source content key changes
+ * (course / files / lang). Concept, conceptBars and learnerModel changes —
+ * which churn constantly while the tutor streams or panels log activity —
+ * trigger a debounced worker-only refresh that keeps the current bundle
+ * on screen and commits through stabilizeWorkspaceNoteBundle, so unchanged
+ * fields keep their identity and downstream memos stay cached.
  */
 export function useWorkspaceNoteBundle(opts: BuildWorkspaceNoteBundleOpts): WorkspaceNoteBundle {
-  const optsKey = useMemo(
+  const sourceKey = useMemo(
     () => JSON.stringify({
       courseId: opts.courseId,
-      concept: opts.concept,
       lang: opts.lang,
       fileIds: opts.uploadedFiles.map((f) => f.id).join(','),
     }),
-    [opts.courseId, opts.concept, opts.lang, opts.uploadedFiles],
+    [opts.courseId, opts.lang, opts.uploadedFiles],
   );
 
   const buildOpts = useMemo(
     () => buildOptsFrom(opts),
-    [optsKey, opts.concept, opts.conceptBars, opts.lang, opts.learnerModel],
+    [opts.concept, opts.conceptBars, opts.lang, opts.learnerModel],
   );
 
-  const pendingGathered = useMemo(
-    () => buildPendingWorkspaceNoteGathered(opts),
-    [optsKey, opts],
-  );
+  const latestRef = useRef({ opts, buildOpts });
+  latestRef.current = { opts, buildOpts };
 
   const [bundle, setBundle] = useState<WorkspaceNoteBundle>(() =>
-    buildWorkspaceNoteBundleFromGathered(pendingGathered, buildOpts, true),
+    buildWorkspaceNoteBundleFromGathered(buildPendingWorkspaceNoteGathered(opts), buildOpts, true),
   );
   const reqGen = useRef(0);
+  const gatheredRef = useRef<WorkspaceNoteGathered | null>(null);
 
   useEffect(() => {
     warmWorkspaceWorker();
   }, []);
 
-  // Phase 1 — defer text join off the Continue click critical path
+  // Full pipeline — source identity changed (or first mount). Never re-runs on
+  // conceptBars/learnerModel/concept identity churn.
   useEffect(() => {
-    setBundle(buildWorkspaceNoteBundleFromGathered(pendingGathered, buildOpts, true));
+    setBundle((prev) => stabilizeWorkspaceNoteBundle(
+      prev,
+      buildWorkspaceNoteBundleFromGathered(
+        buildPendingWorkspaceNoteGathered(latestRef.current.opts),
+        latestRef.current.buildOpts,
+        true,
+      ),
+    ));
 
     let cancelled = false;
     const cancelSchedule = scheduleGather(() => {
       if (cancelled) return;
-      const fullGathered = gatherWorkspaceNoteInputs(opts);
+      const fullGathered = gatherWorkspaceNoteInputs(latestRef.current.opts);
+      gatheredRef.current = fullGathered;
       if (cancelled) return;
-      const shell = buildWorkspaceNoteBundleFromGathered(fullGathered, buildOpts, true);
+      const shell = buildWorkspaceNoteBundleFromGathered(fullGathered, latestRef.current.buildOpts, true);
       startTransition(() => {
-        setBundle(shell);
+        setBundle((prev) => stabilizeWorkspaceNoteBundle(prev, shell));
         markNoteBundleShellReady(fullGathered.text.length);
       });
 
       const gen = ++reqGen.current;
-      buildNoteBundleInWorker(fullGathered, buildOpts)
+      buildNoteBundleInWorker(fullGathered, latestRef.current.buildOpts)
         .then((full) => {
           if (cancelled || gen !== reqGen.current) return;
-          startTransition(() => setBundle(full));
+          startTransition(() => setBundle((prev) => stabilizeWorkspaceNoteBundle(prev, full)));
         })
         .catch(() => undefined);
     });
@@ -91,7 +113,40 @@ export function useWorkspaceNoteBundle(opts: BuildWorkspaceNoteBundleOpts): Work
       cancelled = true;
       cancelSchedule();
     };
-  }, [optsKey, opts, pendingGathered, buildOpts]);
+  }, [sourceKey]);
+
+  // Mastery / learner-model / concept refresh — debounced, worker-only, keeps
+  // the current bundle rendered (no pending reset, no synchronous rebuild).
+  const refreshInitRef = useRef(true);
+  useEffect(() => {
+    if (refreshInitRef.current) {
+      refreshInitRef.current = false;
+      return undefined;
+    }
+    let cancelled = false;
+    const timer = window.setTimeout(() => {
+      if (cancelled) return;
+      const base = gatheredRef.current;
+      if (!base) return;
+      const nextBuild = latestRef.current.buildOpts;
+      const gathered: WorkspaceNoteGathered = {
+        ...base,
+        matchingTopic: findMatchingTopic(base.topics, nextBuild.concept),
+      };
+      gatheredRef.current = gathered;
+      const gen = ++reqGen.current;
+      buildNoteBundleInWorker(gathered, nextBuild)
+        .then((full) => {
+          if (cancelled || gen !== reqGen.current) return;
+          startTransition(() => setBundle((prev) => stabilizeWorkspaceNoteBundle(prev, full)));
+        })
+        .catch(() => undefined);
+    }, BUNDLE_REFRESH_DEBOUNCE_MS);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+    };
+  }, [buildOpts]);
 
   return bundle;
 }

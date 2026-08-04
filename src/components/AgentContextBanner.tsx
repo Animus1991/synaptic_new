@@ -1,109 +1,77 @@
 import { useState } from 'react';
-import { AlertTriangle, ChevronDown, ChevronUp, HelpCircle, MapPin } from '@/lib/lucide-shim';
+import { AlertTriangle, ChevronDown, ChevronUp, MapPin } from '@/lib/lucide-shim';
 import { cn } from '../utils/cn';
 import {
   buildAgentContextBanner,
   serializeAgentWorkspaceContextJson,
-  type AgentContextBannerView,
   type AgentWorkspaceContext,
 } from '../features/agent';
 import { useI18n } from '../lib/i18n';
+import { InfoHint } from './ui/InfoHint';
 
 type Props = {
   context: AgentWorkspaceContext | null | undefined;
   lang: 'en' | 'el';
   className?: string;
-  /** Single-line chip; full context on hover/focus popover (embedded chat). */
+  /** Single-line breadcrumb; details via InfoHint (embedded chat). */
   compact?: boolean;
 };
 
-function buildTooltipText(banner: AgentContextBannerView, jsonText: string | null): string {
-  const parts = [`${banner.heading} ${banner.line}`];
-  if (banner.caution) parts.push(banner.caution);
-  if (banner.groundingNote) parts.push(banner.groundingNote);
-  if (jsonText) parts.push(jsonText);
-  return parts.join('\n\n');
-}
-
-/** Visible workspace handoff strip in the Agent panel (Prompt 3). */
-/* OPT-K98 — markup debt: decorative brand type -> ink */
+/** Visible workspace handoff strip in the Agent panel (Prompt 3 · Wave E13). */
 export function AgentContextBanner({ context, lang, className, compact = false }: Props) {
   const { t } = useI18n();
   const banner = buildAgentContextBanner(context, lang);
   const [jsonOpen, setJsonOpen] = useState(false);
-  const [popoverOpen, setPopoverOpen] = useState(false);
   if (!banner) return null;
 
   const jsonText = serializeAgentWorkspaceContextJson(context);
-  const tooltip = buildTooltipText(banner, jsonText);
+  const detailParts = [banner.line, banner.caution, banner.groundingNote].filter(Boolean) as string[];
 
   if (compact) {
     return (
       <div
         className={cn(
-          'relative flex items-center gap-2 border-b border-border-subtle/60 px-3 py-1 shrink-0 bg-surface-secondary/15',
+          'relative flex items-center gap-2 border-b border-border-subtle px-3 py-1.5 shrink-0 bg-surface-secondary/25',
           className,
         )}
         data-testid="agent-context-banner"
         role="status"
       >
-        <div className="relative min-w-0 flex-1">
-          <button
-            type="button"
-            className="flex max-w-full items-center gap-1.5 rounded-md px-1 py-0.5 text-left hover:bg-surface-hover transition-colors"
-            title={tooltip}
-            aria-label={tooltip}
+        <MapPin className="h-3.5 w-3.5 shrink-0 text-text-secondary" aria-hidden />
+        <div className="min-w-0 flex-1">
+          <p className="type-caption text-text-muted leading-none mb-0.5">{banner.heading}</p>
+          <p
+            className="truncate type-caption font-medium text-text-primary"
             data-testid="agent-context-compact-chip"
-            onMouseEnter={() => setPopoverOpen(true)}
-            onMouseLeave={() => setPopoverOpen(false)}
-            onFocus={() => setPopoverOpen(true)}
-            onBlur={() => setPopoverOpen(false)}
+            title={banner.line}
           >
-            <MapPin className="h-3 w-3 shrink-0 text-text-secondary" aria-hidden />
-            <span className="truncate text-[10px] font-medium text-text-secondary">
-              <span className="text-text-muted">{banner.heading}</span>{' '}
-              {banner.compactLine}
-            </span>
-            {banner.caution && (
-              <AlertTriangle className="h-3 w-3 shrink-0 text-accent-amber" aria-hidden />
-            )}
-          </button>
-          {popoverOpen && (
-            <div
-              className="absolute left-0 top-full z-30 mt-1 w-72 max-w-[min(18rem,calc(100vw-2rem))] rounded-xl border border-border-subtle bg-surface-card p-3 shadow-lg text-[10px] leading-relaxed text-text-secondary whitespace-pre-wrap"
-              data-testid="agent-context-popover"
-            >
-              <p className="font-medium text-text-primary">{banner.line}</p>
-              {banner.caution && (
-                <p className="mt-1.5 text-accent-amber">{banner.caution}</p>
-              )}
-              {banner.groundingNote && (
-                <p className="mt-1.5 text-text-muted">{banner.groundingNote}</p>
-              )}
-              {jsonText && (
-                <pre className="mt-2 max-h-28 overflow-auto rounded-lg border border-border-subtle bg-surface-input/80 p-2 font-mono text-[10px]">
-                  {jsonText}
-                </pre>
-              )}
-            </div>
-          )}
+            {banner.compactLine}
+          </p>
         </div>
+        {banner.caution && (
+          <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-accent-amber" aria-hidden />
+        )}
+        <InfoHint
+          label={detailParts.join('\n\n')}
+          triggerAriaLabel={t('agentJsonContext')}
+          data-testid="agent-context-detail-hint"
+          maxWidth={300}
+        />
         {jsonText && (
           <button
             type="button"
             onClick={() => setJsonOpen((v) => !v)}
-            className="shrink-0 rounded-md p-1 text-text-muted hover:bg-surface-hover hover:text-text-primary transition-colors"
+            className="shrink-0 rounded-md px-1.5 py-1 type-caption text-text-muted hover:bg-surface-hover hover:text-text-primary transition-colors min-h-9"
             aria-expanded={jsonOpen}
             aria-label={t('agentJsonContext')}
             data-testid="agent-context-json-toggle"
-            title={t('agentJsonContext')}
           >
-            <HelpCircle className="h-3.5 w-3.5" />
+            {jsonOpen ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
           </button>
         )}
         {jsonOpen && jsonText && (
           <pre
-            className="absolute left-3 right-3 top-full z-40 mt-1 max-h-32 overflow-auto rounded-lg border border-border-subtle bg-surface-card p-2 font-mono text-[10px] leading-relaxed text-text-secondary shadow-lg"
+            className="absolute left-3 right-3 top-full z-40 mt-1 max-h-32 overflow-auto rounded-lg border border-border-subtle bg-surface-card p-2 font-mono type-caption leading-relaxed text-text-secondary shadow-lg"
             data-testid="agent-context-json"
           >
             {jsonText}
@@ -116,7 +84,7 @@ export function AgentContextBanner({ context, lang, className, compact = false }
   return (
     <div
       className={cn(
-        'border-b border-brand-500/20 bg-brand-500/5 px-4 sm:px-6 py-2.5',
+        'border-b border-border-subtle bg-surface-secondary/40 px-4 sm:px-6 py-2.5',
         className,
       )}
       data-testid="agent-context-banner"
@@ -125,25 +93,26 @@ export function AgentContextBanner({ context, lang, className, compact = false }
       <div className="flex items-start gap-2 max-w-none w-full min-w-0">
         <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0 text-text-secondary" aria-hidden />
         <div className="min-w-0 flex-1 space-y-1">
-          <p className="text-[11px] font-medium text-text-primary">
-            <span className="text-text-muted">{banner.heading}</span>{' '}
+          <p className="type-caption font-medium text-text-primary">
+            <span className="text-text-muted">{banner.heading}</span>
+            {' · '}
             {banner.line}
           </p>
           {banner.caution && (
-            <p className="flex items-start gap-1 text-[10px] text-accent-amber">
+            <p className="flex items-start gap-1 type-caption text-accent-amber">
               <AlertTriangle className="mt-0.5 h-3 w-3 shrink-0" aria-hidden />
               {banner.caution}
             </p>
           )}
           {banner.groundingNote && (
-            <p className="text-[10px] text-text-muted">{banner.groundingNote}</p>
+            <p className="type-caption text-text-secondary">{banner.groundingNote}</p>
           )}
           {jsonText && (
             <div className="pt-0.5">
               <button
                 type="button"
                 onClick={() => setJsonOpen((v) => !v)}
-                className="inline-flex items-center gap-1 text-[10px] font-medium text-text-secondary hover:text-text-primary"
+                className="inline-flex items-center gap-1 type-caption font-medium text-text-secondary hover:text-text-primary min-h-9"
                 data-testid="agent-context-json-toggle"
                 aria-expanded={jsonOpen}
               >
@@ -152,7 +121,7 @@ export function AgentContextBanner({ context, lang, className, compact = false }
               </button>
               {jsonOpen && (
                 <pre
-                  className="mt-1 max-h-40 overflow-auto rounded-lg border border-border-subtle bg-surface-input/80 p-2 font-mono text-[10px] leading-relaxed text-text-secondary"
+                  className="mt-1 max-h-40 overflow-auto rounded-lg border border-border-subtle bg-surface-input/80 p-2 font-mono type-caption leading-relaxed text-text-secondary"
                   data-testid="agent-context-json"
                 >
                   {jsonText}

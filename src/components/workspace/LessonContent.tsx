@@ -147,13 +147,13 @@ export function LessonContent({
         {learningBar}
         {theoryRecap && (
           <div className="p-3 rounded-xl bg-surface-card border border-border-subtle space-y-2">
-            <span className="text-[10px] text-text-primary font-semibold">{t('wsLensTheoryHint')}</span>
+            <span className="type-caption text-text-primary font-semibold">{t('wsLensTheoryHint')}</span>
             <div className="text-sm text-text-secondary leading-relaxed">
               <RichText text={theoryRecap} />
             </div>
           </div>
         )}
-        <span className="text-[10px] text-text-primary font-semibold">{t('quiz')}</span>
+        <span className="type-caption text-text-primary font-semibold">{t('quiz')}</span>
         <h2 className="text-xl font-bold">{t('knowledgeCheck')}</h2>
         <div className="p-3 rounded-xl bg-surface-card border border-border-subtle">
           {quizSessionItems && quizSessionItems.length > 0 && quizSessionScopeKey ? (
@@ -187,12 +187,12 @@ export function LessonContent({
     return (
       <div className="space-y-4">
         {learningBar}
-        <span className="text-[10px] text-text-primary font-semibold">
+        <span className="type-caption text-text-primary font-semibold">
           {t('wbFromNotes')}
         </span>
         <h2 className="text-xl font-bold">{stepTitle ?? concept}</h2>
         {stepType && (
-          <span className="text-[10px] text-text-muted">{stepType}</span>
+          <span className="type-caption text-text-muted">{stepType}</span>
         )}
         <div
           className="text-sm text-text-secondary leading-relaxed"
@@ -221,7 +221,7 @@ export function LessonContent({
           />
         )}
         {genStatus === 'loading' && (
-          <span className="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded bg-surface-secondary text-text-primary border border-border-subtle font-medium animate-pulse">
+          <span className="inline-flex items-center gap-1 type-caption px-1.5 py-0.5 rounded bg-surface-secondary text-text-primary border border-border-subtle font-medium animate-pulse">
             <Sparkles className="w-2.5 h-2.5" /> {t('generatingFromSources')}
           </span>
         )}

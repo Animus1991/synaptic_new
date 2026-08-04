@@ -4,7 +4,10 @@ import { workspaceToolLabel } from '../../../lib/workspaceToolRegistry';
 import { WorkspaceCommandPaletteMount } from '../WorkspaceCommandPaletteMount';
 import { ReprocessPreviewModal } from '../../ReprocessPreviewModal';
 import { WorkspaceIntelSideSheet } from '../WorkspaceIntelSideSheet';
-import { StudyRoomPanel } from '../StudyRoomPanel';
+import { useCallback, useState } from 'react';
+import { createPortal } from 'react-dom';
+import { StudyRoomPanelLazy, type StudyRoomCoViewBridge } from '../StudyRoomPanelLazy';
+import { StudyRoomCoViewBanner } from '../StudyRoomCoViewBanner';
 import { WorkspaceKeyboardHelp } from '../WorkspaceKeyboardHelp';
 import { WorkspaceMobileToolDrawer } from '../WorkspaceMobileToolDrawer';
 import { ProductTour } from '../../ProductTour';
@@ -21,6 +24,21 @@ interface StudyWorkspaceOverlaysProps {
 
 /* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function StudyWorkspaceOverlays({ model }: StudyWorkspaceOverlaysProps) {
+  const [coViewBridge, setCoViewBridge] = useState<StudyRoomCoViewBridge | null>(null);
+  const handleCoViewBridge = useCallback((bridge: StudyRoomCoViewBridge | null) => {
+    setCoViewBridge((prev) => {
+      if (!bridge) return null;
+      if (
+        prev
+        && prev.active === bridge.active
+        && prev.status === bridge.status
+        && prev.mode === bridge.mode
+      ) {
+        return prev;
+      }
+      return bridge;
+    });
+  }, []);
   const {
     onReprocessMaterial,
     reprocessingMaterial,
@@ -31,6 +49,7 @@ export function StudyWorkspaceOverlays({ model }: StudyWorkspaceOverlaysProps) {
     layout,
     setLayout,
     currentStep,
+    selectWorkspaceStep,
     chromeHidden,
     notebookMode,
     showPalette,
@@ -86,8 +105,28 @@ export function StudyWorkspaceOverlays({ model }: StudyWorkspaceOverlaysProps) {
     onClose: () => setWorkspaceTourOpen(false),
   });
 
+  const coViewMount =
+    typeof document !== 'undefined'
+      ? document.getElementById('synapse-study-room-coview-root')
+      : null;
+
   return (
     <>
+            {coViewMount
+              ? createPortal(
+                  <StudyRoomCoViewBanner
+                    lang={lang}
+                    visible={Boolean(coViewBridge?.active)}
+                    status={coViewBridge?.status ?? ''}
+                    mode={coViewBridge?.mode ?? 'solo'}
+                    onOpenRoom={() => setStudyRoomOpen(true)}
+                    onClaimLead={coViewBridge?.claimLead}
+                    onFollowLead={coViewBridge?.followLead}
+                  />,
+                  coViewMount,
+                )
+              : null}
+
             {/* Session notes slide-over */}
             <AnimatePresence>
               {showNotes && (
@@ -115,7 +154,7 @@ export function StudyWorkspaceOverlays({ model }: StudyWorkspaceOverlaysProps) {
                       placeholder={t('wsOverlayNotesPlaceholder')}
                       className="flex-1 w-full resize-none bg-transparent px-4 py-3 text-sm leading-relaxed text-text-primary focus:outline-none"
                     />
-                    <div className="flex items-center justify-between px-4 py-2 border-t border-white/8 text-[10px] text-text-muted">
+                    <div className="flex items-center justify-between px-4 py-2 border-t border-white/8 type-caption text-text-muted">
                       <span>{t('wsOverlayAutoSaved')}</span>
                       <span>{notes.trim().split(/\s+/).filter(Boolean).length} {t('words')}</span>
                     </div>
@@ -164,16 +203,22 @@ export function StudyWorkspaceOverlays({ model }: StudyWorkspaceOverlaysProps) {
               weakAreasEmptyActions={resolveEmptyActions('weak-areas')}
             />
       
-            <StudyRoomPanel
+            <StudyRoomPanelLazy
               open={studyRoomOpen}
+              keepAlive={Boolean(coViewBridge?.active)}
               onClose={() => setStudyRoomOpen(false)}
               lang={lang}
               courseId={effectiveCourseId ?? progressKey}
               courseName={courseName ?? linkedCourse?.title}
               activeTool={activeTool}
               focusConcept={effectiveFocus?.term ?? quizConcept}
+              currentStep={currentStep}
               userSettings={userSettings}
               onFollowSharedTool={(tool) => openWorkspaceTool(tool as WorkspaceTool)}
+              /* Co-view must not force reader — that overrides the leader's shared tool. */
+              onFollowSharedStep={(stepIndex) => selectWorkspaceStep(stepIndex)}
+              onFollowSharedConcept={(concept) => focusOnTerm(concept, activeTool)}
+              onCoViewBridge={handleCoViewBridge}
             />
       
             <WorkspaceCommandPaletteMount

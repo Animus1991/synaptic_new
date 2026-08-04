@@ -57,6 +57,7 @@ const PALETTE_NAV_ICONS: Record<ShellNavView, typeof LayoutDashboard> = {
   library: BookOpen,
   tasks: CheckSquare,
   agent: Bot,
+  'study-room': Users,
   analytics: BarChart3,
   teacher: Users,
   'student-org': GraduationCap,

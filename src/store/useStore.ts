@@ -378,6 +378,8 @@ export function useAppStore() {
   /** One-shot tool focus when opening workspace from dashboard exam countdown. */
   const [workspaceOpenTool, setWorkspaceOpenTool] = useState<WorkspaceToolId | null>(null);
   const [workspaceOpenSimulatorTab, setWorkspaceOpenSimulatorTab] = useState<'simulator' | 'exam-prep' | null>(null);
+  /** One-shot: auto-open the Study Room co-view panel when the workspace mounts (Study Room lobby handoff). */
+  const [workspaceAutoOpenStudyRoom, setWorkspaceAutoOpenStudyRoom] = useState(false);
   const studyConceptOverrideRef = useRef<string | null>(null);
   /** Bumped on open to cancel an in-flight async close (flush) that would otherwise race. */
   const workspaceCloseGenRef = useRef(0);
@@ -505,6 +507,16 @@ export function useAppStore() {
   const consumeWorkspaceOpenTool = useCallback(() => {
     setWorkspaceOpenTool(null);
   }, []);
+
+  const consumeWorkspaceAutoOpenStudyRoom = useCallback(() => {
+    setWorkspaceAutoOpenStudyRoom(false);
+  }, []);
+
+  /** Study Room lobby CTA: open the Study Hub and auto-open the Study Room co-view panel. */
+  const openStudyWorkspaceWithStudyRoom = useCallback(() => {
+    setWorkspaceAutoOpenStudyRoom(true);
+    openStudyWorkspace();
+  }, [openStudyWorkspace]);
 
   const consumeWorkspaceOpenSimulatorTab = useCallback(() => {
     setWorkspaceOpenSimulatorTab(null);
@@ -2734,6 +2746,7 @@ export function useAppStore() {
     openStudyWorkspaceForPractice,
     workspaceOpenTool, consumeWorkspaceOpenTool,
     workspaceOpenSimulatorTab, consumeWorkspaceOpenSimulatorTab,
+    workspaceAutoOpenStudyRoom, consumeWorkspaceAutoOpenStudyRoom, openStudyWorkspaceWithStudyRoom,
     workspaceFocus, setWorkspaceFocus,
     sourceHighlight, openSourceAt, clearSourceHighlight: () => setSourceHighlight(null),
     reviewSessionOpen, setReviewSessionOpen,

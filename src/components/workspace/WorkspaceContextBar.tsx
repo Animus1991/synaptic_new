@@ -87,7 +87,7 @@ export function WorkspaceContextBar({
           type="button"
           onClick={onOpenIntelSheet}
           className={cn(
-            'ws-eyebrow shrink-0 rounded-full border px-2 py-0.5 text-[10px] font-mono normal-case tracking-normal',
+            'ws-eyebrow shrink-0 rounded-full border px-2 py-0.5 type-caption font-mono normal-case tracking-normal',
             bandClass[band],
           )}
           data-testid="context-bar-quality-chip"
@@ -110,7 +110,7 @@ export function WorkspaceContextBar({
         <button
           type="button"
           onClick={onNextAction}
-          className="ws-eyebrow inline-flex shrink-0 items-center gap-1 rounded-full border border-brand-500/35 bg-brand-500/10 px-2 py-0.5 text-[10px] text-text-primary hover:bg-brand-500/15"
+          className="ws-eyebrow inline-flex shrink-0 items-center gap-1 rounded-full border border-brand-500/35 bg-brand-500/10 px-2 py-0.5 type-caption text-text-primary hover:bg-brand-500/15"
           data-testid="context-bar-next-action"
         >
           <Sparkles className="h-3 w-3" aria-hidden />
@@ -124,7 +124,7 @@ export function WorkspaceContextBar({
           onClick={onToggleWeak}
           aria-pressed={weakOpen}
           className={cn(
-            'ws-eyebrow shrink-0 rounded-full border px-2 py-0.5 text-[10px]',
+            'ws-eyebrow shrink-0 rounded-full border px-2 py-0.5 type-caption',
             weakOpen ? 'ws-chip-danger' : 'ws-chip-neutral',
           )}
           data-testid="context-bar-weak-chip"
@@ -139,7 +139,7 @@ export function WorkspaceContextBar({
           onClick={onToggleConcepts}
           aria-pressed={conceptsOpen}
           className={cn(
-            'ws-eyebrow shrink-0 rounded-full border px-2 py-0.5 text-[10px]',
+            'ws-eyebrow shrink-0 rounded-full border px-2 py-0.5 type-caption',
             conceptsOpen ? 'ws-chip-brand' : 'ws-chip-neutral',
           )}
           data-testid="context-bar-concepts-chip"
@@ -179,7 +179,7 @@ export function WorkspaceContextBar({
       data-testid="workspace-context-bar"
       data-status-inbox={statusInbox || undefined}
     >
-      <div className="hidden min-w-0 max-w-[28%] truncate text-[10px] text-text-muted sm:block" title={context.sectionLabel}>
+      <div className="hidden min-w-0 max-w-[28%] truncate type-caption text-text-muted sm:block" title={context.sectionLabel}>
         <span className="font-medium text-text-secondary">{context.courseLabel}</span>
         <span className="mx-1">/</span>
         <span className="text-text-primary">{context.sectionLabel}</span>
@@ -187,7 +187,7 @@ export function WorkspaceContextBar({
 
       {focusConcept && (
         <span
-          className="ws-eyebrow max-w-[8rem] truncate shrink rounded-full border border-brand-500/30 bg-brand-500/10 px-2 py-0.5 text-[10px] text-text-primary"
+          className="ws-eyebrow max-w-[8rem] truncate shrink rounded-full border border-brand-500/30 bg-brand-500/10 px-2 py-0.5 type-caption text-text-primary"
           data-testid="context-bar-focus-chip"
           title={focusConcept}
         >
@@ -199,7 +199,7 @@ export function WorkspaceContextBar({
         <div className="ml-auto flex min-w-0 flex-1 flex-col items-stretch sm:max-w-[70%]">
           <button
             type="button"
-            className="inline-flex w-fit items-center gap-1 self-end rounded-md border border-border-default px-2 py-0.5 text-[10px] font-medium text-text-secondary hover:bg-surface-hover hover:text-text-primary"
+            className="inline-flex w-fit items-center gap-1 self-end rounded-md border border-border-default px-2 py-0.5 type-caption font-medium text-text-secondary hover:bg-surface-hover hover:text-text-primary"
             aria-expanded={inboxOpen}
             data-testid="workspace-status-inbox-toggle"
             onClick={() => setInboxOpen((v) => !v)}

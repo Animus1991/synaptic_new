@@ -91,6 +91,8 @@ studyRoomsRouter.post('/study-rooms/:roomId/presence', (req, res) => {
   const room = updateStudyRoomPresence(req.params.roomId, memberId, {
     tool: typeof req.body?.tool === 'string' ? req.body.tool : undefined,
     concept: typeof req.body?.concept === 'string' ? req.body.concept : undefined,
+    stepIndex: typeof req.body?.stepIndex === 'number' ? req.body.stepIndex : undefined,
+    leading: typeof req.body?.leading === 'boolean' ? req.body.leading : undefined,
     displayName: typeof req.body?.displayName === 'string' ? req.body.displayName : undefined,
     cursorX: typeof req.body?.cursorX === 'number' ? req.body.cursorX : undefined,
     cursorY: typeof req.body?.cursorY === 'number' ? req.body.cursorY : undefined,

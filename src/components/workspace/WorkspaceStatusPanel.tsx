@@ -128,7 +128,7 @@ export function WorkspaceStatusPanel({ className, defaultOpen = false }: Props) 
             <>
               {errorItems.length > 0 ? (
                 <div data-testid="workspace-status-console-errors">
-                  <p className="status-console-section-label px-1 pb-1 text-[10px] font-semibold uppercase tracking-wide text-text-muted">
+                  <p className="status-console-section-label px-1 pb-1 type-caption font-semibold uppercase tracking-wide text-text-muted">
                     <AllCapsLabel>{t('appInboxErrors')}</AllCapsLabel>
                   </p>
                   <ul className="space-y-1">
@@ -146,7 +146,7 @@ export function WorkspaceStatusPanel({ className, defaultOpen = false }: Props) 
               ) : null}
               {activityItems.length > 0 ? (
                 <div data-testid="workspace-status-console-activity">
-                  <p className="status-console-section-label px-1 pb-1 text-[10px] font-semibold uppercase tracking-wide text-text-muted">
+                  <p className="status-console-section-label px-1 pb-1 type-caption font-semibold uppercase tracking-wide text-text-muted">
                     <AllCapsLabel>{t('appInboxActivity')}</AllCapsLabel>
                   </p>
                   <ul className="space-y-1">

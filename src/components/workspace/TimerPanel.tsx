@@ -5,13 +5,14 @@ import { filterTimerSessionLogs } from '../../lib/timerSessionModel';
 import { examPracticeLabel } from '../../lib/examPracticePresets';
 import type { ExamPracticePresetId } from '../../lib/examPracticePresets';
 import { auditTimerExamCountdownDashboard } from '../../lib/timerExamCountdownDashboardQA';
+import { auditSimulatorTimerPresetSync } from '../../lib/simulatorTimerPresetSyncQA';
 import { loadTimerSessions } from '../../lib/workspacePersistence';
 import { WorkspaceToolEmptyState } from './WorkspaceToolEmptyState';
 import { StudyTimer } from './StudyTimer';
 import { TimerExamCountdownDashboardStrip } from './TimerExamCountdownDashboardStrip';
+import { SimulatorTimerPresetSyncStrip } from './SimulatorTimerPresetSyncStrip';
 import { WorkspacePanelWarnStrip } from './WorkspacePanelWarnStrip';
 import { useI18n } from '../../lib/i18n';
-import { AllCapsLabel } from '../ui/AllCapsLabel';
 
 type Props = {
   session: TimerSessionContent;
@@ -70,6 +71,16 @@ export function TimerPanel({
     [scopeKey, settingsExamDate, courseExamDate, lang],
   );
 
+  const examPractice = activeExamPractice ?? session.suggestedExamPractice;
+  const presetSyncReport = useMemo(
+    () => auditSimulatorTimerPresetSync({
+      scopeKey,
+      suggestedExamPractice: examPractice,
+      lang,
+    }),
+    [scopeKey, examPractice, lang],
+  );
+
   const filterMatches = useMemo(() => {
     if (!filterQuery.trim()) return [];
     return filterTimerSessionLogs(loadTimerSessions(scopeKey), filterQuery);
@@ -91,7 +102,7 @@ export function TimerPanel({
     <div className="flex h-full flex-col overflow-hidden" data-testid="timer-panel">
       <div className="shrink-0 border-b border-border-subtle px-4 py-3">
         {session.sectionLabel && (
-          <p className="mb-2 text-[10px] text-text-muted" data-testid="timer-section-label">
+          <p className="mb-2 type-caption text-text-muted" data-testid="timer-section-label">
             {t('wsSectionColon')}{' '}
             <span className="text-text-secondary">{session.sectionLabel}</span>
           </p>
@@ -104,27 +115,28 @@ export function TimerPanel({
         )}
 
         <TimerExamCountdownDashboardStrip report={countdownReport} lang={lang} />
+        <SimulatorTimerPresetSyncStrip report={presetSyncReport} lang={lang} />
 
+        {/* Wave E10 — one shared preset status chip (not pomodoro + exam soup) */}
         <div className="mb-2 flex flex-wrap items-center gap-2">
           <span
-            className="rounded-full border border-border-subtle bg-surface-secondary text-text-primary"
+            className="rounded-lg border border-border-subtle bg-surface-secondary px-2.5 py-1 type-caption font-medium text-text-primary"
             data-testid="timer-suggested-preset"
+            title={`${PRESET_LABELS[session.suggestedPreset][lang]} · ${examPracticeLabel(examPractice, lang)}`}
           >
-            {PRESET_LABELS[session.suggestedPreset][lang]}
+            {t('timerSharedPresetHint')}: {examPracticeLabel(examPractice, lang)}
+            <span className="text-text-muted"> · {PRESET_LABELS[session.suggestedPreset][lang]}</span>
           </span>
-          <span
-            className="ws-eyebrow ws-chip-warn rounded-full px-2 py-0.5 text-[10px] font-medium"
-            data-testid="timer-suggested-exam-practice"
-          >
-            <AllCapsLabel>{examPracticeLabel(activeExamPractice ?? session.suggestedExamPractice, lang)}</AllCapsLabel>
+          <span className="sr-only" data-testid="timer-suggested-exam-practice">
+            {examPracticeLabel(examPractice, lang)}
           </span>
           {session.daysToExam !== null && (
-            <span className="text-[10px] text-text-muted">
+            <span className="type-caption text-text-muted">
               {t('panelDaysToExam').replace('{days}', String(session.daysToExam))}
             </span>
           )}
           {session.recentSessionCount > 0 && (
-            <span className="text-[10px] text-text-muted">
+            <span className="type-caption text-text-muted">
               {session.recentSessionCount} {t('panelSessions')}
             </span>
           )}
@@ -132,7 +144,7 @@ export function TimerPanel({
             <button
               type="button"
               onClick={onOpenBreakTool}
-              className="inline-flex items-center gap-1 rounded-lg border border-accent-emerald/30 bg-accent-emerald/10 px-2 py-0.5 text-[10px] font-medium text-accent-emerald hover:bg-accent-emerald/15"
+              className="inline-flex items-center gap-1 rounded-lg border border-accent-emerald/30 bg-accent-emerald/10 px-2 py-1 type-caption font-medium text-accent-emerald hover:bg-accent-emerald/15"
               data-testid="timer-break-leitner"
             >
               <Layers className="w-3 h-3" />
@@ -143,7 +155,7 @@ export function TimerPanel({
             <button
               type="button"
               onClick={() => onOpenInReader(concept)}
-              className="ml-auto inline-flex items-center gap-1 rounded-lg border border-white/10 px-2 py-1 text-[10px] text-text-secondary hover:border-brand-600/35 hover:text-text-primary"
+              className="ml-auto inline-flex min-h-9 items-center gap-1 rounded-lg border border-border-subtle px-2.5 py-1.5 type-caption text-text-secondary hover:border-brand-600/45 hover:text-text-primary"
               data-testid="timer-open-reader"
             >
               <BookOpen className="w-3 h-3" />
@@ -171,7 +183,7 @@ export function TimerPanel({
             {filterMatches.slice(0, 4).map((log, i) => (
               <span
                 key={`${log.at}-${i}`}
-                className="rounded-full border border-accent-cyan/25 bg-accent-cyan/8 px-2 py-0.5 text-[10px] text-text-primary"
+                className="rounded-full border border-accent-cyan/25 bg-accent-cyan/8 px-2 py-0.5 type-caption text-text-primary"
               >
                 {log.label.slice(0, 40)}{log.label.length > 40 ? '…' : ''} · {log.minutes}m
               </span>

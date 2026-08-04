@@ -48,6 +48,45 @@ function chunkErrorsDevPlugin(): Plugin {
   };
 }
 
+/**
+ * Dev + preview sink for web-vitals RUM beacons (`POST /v1/rum` from
+ * `src/features/rum/webVitalsRum.ts`). Without this, the `/v1` proxy forwards
+ * RUM beacons to the API backend (127.0.0.1:8787); when that backend is offline
+ * in local dev the proxy answers 500, spamming the console. We intercept
+ * `/v1/rum` *before* the proxy, drain the body, and return 204 — RUM stays
+ * best-effort and silent locally, while real `/v1/*` API calls still proxy.
+ */
+function rumBeaconMiddleware(
+  req: import('http').IncomingMessage,
+  res: import('http').ServerResponse,
+  next: () => void,
+) {
+  if (req.method !== 'POST' || !req.url?.startsWith('/v1/rum')) {
+    next();
+    return;
+  }
+  // Drain the request body so the socket closes cleanly, then ack.
+  req.on('data', () => {});
+  const ack = () => {
+    res.statusCode = 204;
+    res.end();
+  };
+  req.on('end', ack);
+  req.on('error', ack);
+}
+
+function rumBeaconDevPlugin(): Plugin {
+  return {
+    name: 'synapse-rum-beacon-sink',
+    configureServer(server) {
+      server.middlewares.use(rumBeaconMiddleware);
+    },
+    configurePreviewServer(server) {
+      server.middlewares.use(rumBeaconMiddleware);
+    },
+  };
+}
+
 /** B11 — emit hashed entry-chunk URLs for runtime `<link rel="prefetch">`. */
 function workspaceEntryManifestPlugin(): Plugin {
   return {
@@ -84,6 +123,7 @@ export default defineConfig({
     react(),
     tailwindcss(),
     chunkErrorsDevPlugin(),
+    rumBeaconDevPlugin(),
     workspaceEntryManifestPlugin(),
     ...(analyze
       ? [

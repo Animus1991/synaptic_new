@@ -68,7 +68,7 @@ export function WorkspaceSelectionActionBar({
             data-testid={`selection-action-${action.id}`}
             onClick={() => onAction(action.id)}
             className={cn(
-              'inline-flex items-center rounded-lg border px-2 py-0.5 text-[10px] font-medium transition-colors',
+              'inline-flex items-center rounded-lg border px-2 py-0.5 type-caption font-medium transition-colors',
               action.id === 'ask-agent' || action.id === 'ask-ai-inline'
                 ? 'ws-chip-brand hover:bg-accent-cyan/20'
                 : 'border-white/10 bg-surface-card/80 text-text-secondary hover:border-brand-500/30 hover:text-text-primary',

@@ -1,5 +1,5 @@
 import { useMemo, useState, useCallback } from 'react';
-import { ArrowRight, BookOpen, Download, Lightbulb, Printer, Search, Target } from '@/lib/lucide-shim';
+import { ArrowRight, BookOpen, Download, Lightbulb, MoreHorizontal, Printer, Search, Target } from '@/lib/lucide-shim';
 import type { DashboardSessionContent } from '../../lib/dashboardSessionModel';
 import {
   filterDashboardToolActivity,
@@ -183,7 +183,7 @@ export function DashboardPanel({
     <div className="flex h-full flex-col overflow-hidden" data-testid="dashboard-panel">
       <div className="shrink-0 border-b border-border-subtle px-4 py-3">
         {session.sectionLabel && (
-          <p className="mb-2 text-[10px] text-text-muted" data-testid="dashboard-section-label">
+          <p className="mb-2 type-caption text-text-muted" data-testid="dashboard-section-label">
             {t('wsSectionColon')}{' '}
             <span className="text-text-secondary">{session.sectionLabel}</span>
           </p>
@@ -221,27 +221,28 @@ export function DashboardPanel({
               </button>
             }
           >
-            <p className="text-[11px] text-text-tertiary">{t('dashboardSuggestedNextSubtitle')}</p>
+            <p className="type-caption text-text-tertiary">{t('dashboardSuggestedNextSubtitle')}</p>
             <p className="mt-1 text-xs line-clamp-2">{nextAction.reason}</p>
           </UxCallout>
         )}
 
-        <div className="mb-2 flex flex-wrap items-center gap-2">
+        {/* Wave E12 — KPI strip + one focus action; exports demoted to menu */}
+        <div className="mb-2 flex flex-wrap items-center gap-2" data-testid="dashboard-kpi-row">
           {session.weakSpotCount > 0 && (
-            <span className="rounded-full border border-accent-rose/30 bg-accent-rose/10 px-2 py-0.5 text-[10px] font-medium text-accent-rose">
+            <span className="rounded-lg border border-accent-rose/30 bg-accent-rose/10 px-2 py-1 type-caption font-medium text-accent-rose">
               {session.weakSpotCount} {t('panelWeakCount')}
             </span>
           )}
           {session.toolActivityCount > 0 && (
-            <span className="text-[10px] text-text-muted">
+            <span className="type-caption text-text-muted">
               {session.engagedToolCount} {t('panelTools')} · {session.toolActivityCount} {t('panelActions')}
             </span>
           )}
-          {session.suggestFocusTool && suggestLabel && onOpenSuggestedTool && (
+          {!nextAction && session.suggestFocusTool && suggestLabel && onOpenSuggestedTool && (
             <button
               type="button"
               onClick={onOpenSuggestedTool}
-              className="inline-flex items-center gap-1 rounded-lg border border-border-subtle bg-surface-secondary text-text-primary hover:bg-brand-600/15"
+              className="inline-flex items-center gap-1 rounded-lg border border-border-subtle bg-surface-secondary px-2.5 py-1 type-caption font-medium text-text-primary hover:bg-brand-600/15"
               data-testid="dashboard-suggest-tool"
             >
               <Target className="w-3 h-3" />
@@ -252,44 +253,50 @@ export function DashboardPanel({
             <button
               type="button"
               onClick={() => onOpenInReader(concept)}
-              className="inline-flex items-center gap-1 rounded-lg border border-white/10 px-2 py-1 text-[10px] text-text-secondary hover:border-brand-600/35 hover:text-text-primary"
+              className="inline-flex min-h-9 items-center gap-1 rounded-lg border border-border-subtle px-2.5 py-1.5 type-caption text-text-secondary hover:border-brand-600/45 hover:text-text-primary"
               data-testid="dashboard-open-reader"
             >
               <BookOpen className="w-3 h-3" />
               Reader
             </button>
           )}
-          <div className="inline-flex items-center gap-1 rounded-lg border border-white/10 p-0.5" data-testid="dashboard-export-actions">
-            <button
-              type="button"
-              onClick={handleExportHtml}
-              title={t('dashDownloadHtml')}
-              className="inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[10px] text-text-secondary hover:bg-white/[0.06] hover:text-text-primary"
-              data-testid="dashboard-export-html"
+          <details className="relative ml-auto" data-testid="dashboard-export-actions">
+            <summary
+              className="flex min-h-9 cursor-pointer list-none items-center gap-1 rounded-lg border border-border-subtle px-2.5 py-1 type-caption font-medium text-text-secondary hover:bg-surface-hover hover:text-text-primary [&::-webkit-details-marker]:hidden"
+              aria-label={t('dashExportMenu')}
             >
-              <Download className="w-3 h-3" />
-              HTML
-            </button>
-            <button
-              type="button"
-              onClick={handlePrintPdf}
-              title={t('dashPrintPdf')}
-              className="inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[10px] text-text-secondary hover:bg-white/[0.06] hover:text-text-primary"
-              data-testid="dashboard-export-pdf"
-            >
-              <Printer className="w-3 h-3" />
-              PDF
-            </button>
-            <button
-              type="button"
-              onClick={handleExportJson}
-              title={t('dashSessionJson')}
-              className="inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[10px] text-text-secondary hover:bg-white/[0.06] hover:text-text-primary"
-              data-testid="dashboard-export-json"
-            >
-              JSON
-            </button>
-          </div>
+              <MoreHorizontal className="h-3.5 w-3.5" aria-hidden />
+              {t('dashExportMenu')}
+            </summary>
+            <div className="absolute right-0 top-full z-20 mt-1 min-w-[10.5rem] rounded-lg border border-border-subtle bg-surface-elevated py-1 shadow-lg">
+              <button
+                type="button"
+                onClick={handleExportHtml}
+                className="flex w-full items-center gap-2 px-3 py-2 text-left type-caption font-medium text-text-primary hover:bg-surface-muted"
+                data-testid="dashboard-export-html"
+              >
+                <Download className="w-3 h-3" />
+                HTML
+              </button>
+              <button
+                type="button"
+                onClick={handlePrintPdf}
+                className="flex w-full items-center gap-2 px-3 py-2 text-left type-caption font-medium text-text-primary hover:bg-surface-muted"
+                data-testid="dashboard-export-pdf"
+              >
+                <Printer className="w-3 h-3" />
+                PDF
+              </button>
+              <button
+                type="button"
+                onClick={handleExportJson}
+                className="flex w-full items-center gap-2 px-3 py-2 text-left type-caption font-medium text-text-primary hover:bg-surface-muted"
+                data-testid="dashboard-export-json"
+              >
+                JSON
+              </button>
+            </div>
+          </details>
         </div>
 
         {(session.weakSpotCount > 0 || (miniProps.toolActivity?.length ?? 0) > 0) && (

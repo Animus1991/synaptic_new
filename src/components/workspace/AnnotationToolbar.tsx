@@ -7,22 +7,30 @@ import type { UiIconId } from '../../lib/uiIconRegistry';
 import { UiIcon } from '../ui/UiIcon';
 
 import { ANNOTATION_PALETTE } from '../../lib/masteryPalette';
-import { useI18n } from '../../lib/i18n';
-import { AllCapsLabel } from '../ui/AllCapsLabel';
+import { useI18n, type I18nKey } from '../../lib/i18n';
 
 const COLORS = [...ANNOTATION_PALETTE];
+
+const COLOR_LABEL_KEYS: I18nKey[] = [
+  'annoColorPurple',
+  'annoColorAmber',
+  'annoColorGreen',
+  'annoColorRose',
+  'annoColorCyan',
+];
 
 const SEMANTIC_CATEGORIES: {
   cat: AnnotationCategory;
   iconId: UiIconId;
-  labelEn: string;
-  labelEl: string;
+  labelKey: I18nKey;
 }[] = [
-  { cat: 'confusing', iconId: 'warning', labelEn: 'Confusing', labelEl: 'Μπερδεμένο' },
-  { cat: 'exam-relevant', iconId: 'notes', labelEn: 'Exam', labelEl: 'Εξέταση' },
+  { cat: 'confusing', iconId: 'warning', labelKey: 'annoConfusing' },
+  { cat: 'exam-relevant', iconId: 'notes', labelKey: 'annoExam' },
 ];
 
 type Tool = 'highlight' | 'comment' | 'pin';
+
+export type AnnotationCategoryCounts = Partial<Record<AnnotationCategory | 'general', number>>;
 
 type Props = {
   lang: 'en' | 'el';
@@ -33,6 +41,7 @@ type Props = {
   onColorChange: (color: string) => void;
   activeCategory: AnnotationCategory | 'general';
   onCategoryChange: (cat: AnnotationCategory | 'general') => void;
+  categoryCounts?: AnnotationCategoryCounts;
   sharedCount: number;
   syncLive: boolean;
   syncMode: 'stream' | 'poll' | 'off';
@@ -47,7 +56,7 @@ type Props = {
 
 /* OPT-K100 — markup debt: Agent/Reader/tools decorative brand type -> ink */
 export function AnnotationToolbar({
-  lang,
+  lang: _lang,
   sourceName,
   tool,
   onToolChange,
@@ -55,6 +64,7 @@ export function AnnotationToolbar({
   onColorChange,
   activeCategory,
   onCategoryChange,
+  categoryCounts,
   sharedCount,
   syncLive,
   syncMode,
@@ -73,27 +83,29 @@ export function AnnotationToolbar({
     { id: 'pin', icon: Pin, label: pinLabel },
   ];
 
+  const countFor = (cat: AnnotationCategory | 'general') => categoryCounts?.[cat] ?? 0;
+
   return (
     <div className="ws-panel-toolbar" data-testid="annotation-toolbar">
       <div className="ws-panel-toolbar-row">
-        <FileText className="h-3 w-3 shrink-0 text-text-primary" aria-hidden />
-        <span className="ws-eyebrow shrink-0 text-text-secondary"><AllCapsLabel>{sourceViewerLabel}</AllCapsLabel></span>
+        <FileText className="h-3.5 w-3.5 shrink-0 text-text-primary" aria-hidden />
+        <span className="type-caption shrink-0 font-semibold text-text-secondary">{sourceViewerLabel}</span>
         {sharedCount > 0 && (
-          <span className="ws-chip-warn rounded px-1 py-0.5 text-[10px]">
+          <span className="ws-chip-warn rounded px-1.5 py-0.5 type-caption">
             {sharedCount} {t('annoTeacherShort')}
           </span>
         )}
         {syncLive && (
           <span
             data-testid="annotation-sync-live"
-            className="ws-chip-ok rounded px-1 py-0.5 text-[10px]"
+            className="ws-chip-ok rounded px-1.5 py-0.5 type-caption"
             title={t('annoSyncVersion').replace('{version}', String(syncVersion))}
           >
             {syncMode === 'stream' ? t('annoStream') : t('annoLive')}
           </span>
         )}
         {sourceName && (
-          <span className="min-w-0 flex-1 truncate text-[10px] text-text-muted" title={sourceName}>
+          <span className="min-w-0 flex-1 truncate type-caption text-text-muted" title={sourceName}>
             {sourceName}
           </span>
         )}
@@ -105,7 +117,7 @@ export function AnnotationToolbar({
             title={t('exportLabel')}
             aria-label={t('exportLabel')}
           >
-            <Download className="h-3 w-3" />
+            <Download className="h-3.5 w-3.5" />
           </button>
         )}
       </div>
@@ -122,28 +134,32 @@ export function AnnotationToolbar({
             aria-pressed={tool === b.id}
             title={b.label}
           >
-            <b.icon className="h-3 w-3 shrink-0" aria-hidden />
-            <span className="hidden sm:inline">{b.label}</span>
+            <b.icon className="h-3.5 w-3.5 shrink-0" aria-hidden />
+            <span>{b.label}</span>
           </button>
         ))}
 
-        <div className="hidden h-3 w-px bg-border-subtle sm:block" aria-hidden />
+        <div className="h-3 w-px bg-border-subtle" aria-hidden />
 
-        <div className="flex items-center gap-0.5">
-          {COLORS.map((c) => (
-            <button
-              key={c}
-              type="button"
-              onClick={() => onColorChange(c)}
-              aria-label={t('annoHighlightColor')}
-              aria-pressed={activeColor === c}
-              className={cn(
-                'h-3 w-3 rounded-full border transition-transform',
-                activeColor === c ? 'scale-110 border-brand-800' : 'border-transparent opacity-65',
-              )}
-              style={{ backgroundColor: c }}
-            />
-          ))}
+        <div className="flex items-center gap-1" data-testid="annotation-color-swatches">
+          {COLORS.map((c, i) => {
+            const colorLabel = t(COLOR_LABEL_KEYS[i] ?? 'annoHighlightColor');
+            return (
+              <button
+                key={c}
+                type="button"
+                onClick={() => onColorChange(c)}
+                aria-label={colorLabel}
+                title={colorLabel}
+                aria-pressed={activeColor === c}
+                className={cn(
+                  'h-4 w-4 rounded-full border transition-transform',
+                  activeColor === c ? 'scale-110 border-brand-800 ring-1 ring-brand-500/40' : 'border-border-subtle opacity-80',
+                )}
+                style={{ backgroundColor: c }}
+              />
+            );
+          })}
         </div>
 
         <div className="ws-panel-toolbar-actions">
@@ -155,8 +171,11 @@ export function AnnotationToolbar({
             aria-pressed={activeCategory === 'general'}
           >
             {t('annoGeneral')}
+            {countFor('general') > 0 && (
+              <span className="ws-num opacity-80">{countFor('general')}</span>
+            )}
           </button>
-          {SEMANTIC_CATEGORIES.map(({ cat, iconId, labelEn, labelEl }) => (
+          {SEMANTIC_CATEGORIES.map(({ cat, iconId, labelKey }) => (
             <button
               key={cat}
               type="button"
@@ -171,7 +190,10 @@ export function AnnotationToolbar({
               aria-pressed={activeCategory === cat}
             >
               <UiIcon id={iconId} size="xs" />
-              <span className="hidden md:inline">{lang === 'el' ? labelEl : labelEn}</span>
+              <span>{t(labelKey)}</span>
+              {countFor(cat) > 0 && (
+                <span className="ws-num opacity-80">{countFor(cat)}</span>
+              )}
             </button>
           ))}
         </div>

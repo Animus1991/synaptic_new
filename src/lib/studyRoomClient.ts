@@ -20,16 +20,30 @@ export type StudyRoomSnapshot = {
     displayName: string;
     tool?: string;
     concept?: string;
+    stepIndex?: number;
+    leading?: boolean;
     cursorX?: number;
     cursorY?: number;
     lastSeen: number;
   }[];
   sharedTool?: string;
   sharedConcept?: string;
+  sharedStep?: number;
+  leaderId?: string;
   whiteboardVersion?: number;
   version: number;
   createdAt: string;
   localOnly?: boolean;
+};
+
+export type StudyRoomPresencePatch = {
+  tool?: string;
+  concept?: string;
+  stepIndex?: number;
+  leading?: boolean;
+  cursorX?: number;
+  cursorY?: number;
+  heartbeat?: boolean;
 };
 
 export type StudyRoomApiStatus = {
@@ -236,7 +250,7 @@ export async function joinStudyRoomByInvite(
 export async function updateStudyRoomPresence(
   roomId: string,
   memberId: string,
-  patch: { tool?: string; concept?: string; cursorX?: number; cursorY?: number; heartbeat?: boolean },
+  patch: StudyRoomPresencePatch,
   settings?: UserSettings,
 ): Promise<StudyRoomSnapshot> {
   if (preferLocal) {

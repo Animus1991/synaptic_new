@@ -55,7 +55,7 @@ export function OcrCorrectionPanel({ regions, scopeKey, sourceText, lang = 'en',
       className="shrink-0 border-b border-accent-amber/20 bg-accent-amber/5 px-3 py-2"
       data-testid="reader-ocr-correction-panel"
     >
-      <p className="text-[10px] font-semibold text-accent-amber mb-1.5">
+      <p className="type-caption font-semibold text-accent-amber mb-1.5">
         {translate('ocrCorrectionTitle', lang)}
       </p>
       <ul className="space-y-1.5 max-h-28 overflow-y-auto">
@@ -65,7 +65,7 @@ export function OcrCorrectionPanel({ regions, scopeKey, sourceText, lang = 'en',
           return (
             <li
               key={region.id}
-              className="rounded-lg border border-white/10 bg-surface-card/80 px-2 py-1.5 text-[10px]"
+              className="rounded-lg border border-white/10 bg-surface-card/80 px-2 py-1.5 type-caption"
             >
               {!isEditing ? (
                 <div className="flex items-start gap-2">
@@ -92,7 +92,7 @@ export function OcrCorrectionPanel({ regions, scopeKey, sourceText, lang = 'en',
                     onChange={(e) => setDraft(e.target.value)}
                     rows={2}
                     className={cn(
-                      'w-full rounded border border-white/15 bg-surface-primary px-2 py-1 text-[10px] text-text-primary',
+                      'w-full rounded border border-white/15 bg-surface-primary px-2 py-1 type-caption text-text-primary',
                     )}
                     data-testid={`reader-ocr-edit-input-${blockIndex}`}
                   />

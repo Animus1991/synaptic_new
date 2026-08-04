@@ -80,7 +80,7 @@ export function WorkspaceDiscoverabilityPanel({
           <Link2 className="w-3.5 h-3.5 text-text-primary shrink-0" />
           <div className="min-w-0">
             <p className="text-[11px] font-semibold text-text-primary truncate">{headline}</p>
-            <p className="text-[10px] text-text-tertiary truncate">{subline}</p>
+            <p className="type-caption text-text-tertiary truncate">{subline}</p>
           </div>
         </div>
         {expanded ? <ChevronUp className="w-4 h-4 text-text-muted shrink-0" /> : <ChevronDown className="w-4 h-4 text-text-muted shrink-0" />}
@@ -91,7 +91,7 @@ export function WorkspaceDiscoverabilityPanel({
           <span
             key={chip.id}
             className={cn(
-              'inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-medium',
+              'inline-flex items-center gap-1 rounded-full border px-2 py-0.5 type-caption font-medium',
               chip.active
                 ? 'border-accent-cyan/45 bg-accent-cyan/15 text-text-primary'
                 : 'border-white/12 bg-white/[0.05] text-text-secondary',
@@ -116,13 +116,13 @@ export function WorkspaceDiscoverabilityPanel({
                     type="button"
                     data-testid="discoverability-next-action-primary"
                     onClick={onRunNextAction}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-medium ws-empty-cta-secondary shrink-0"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl type-caption font-medium ws-empty-cta-secondary shrink-0"
                   >
                     {nextActionLabel(nextAction.primary, lang)} <ArrowRight className="w-3 h-3" />
                   </button>
                 }
               >
-                <span className="text-[10px] leading-relaxed text-text-muted">{nextAction.reason}</span>
+                <span className="type-caption leading-relaxed text-text-muted">{nextAction.reason}</span>
               </UxCallout>
               {secondaryActions.length > 0 && (
                 <div className="mt-1.5 flex flex-wrap gap-1" data-testid="discoverability-next-action-secondary">
@@ -138,7 +138,7 @@ export function WorkspaceDiscoverabilityPanel({
                         data-testid={`discoverability-learning-${action.id}`}
                         onClick={() => onLearningAction?.(action.id)}
                         className={cn(
-                          'rounded-lg border px-2 py-0.5 text-[10px] font-medium transition-colors',
+                          'rounded-lg border px-2 py-0.5 type-caption font-medium transition-colors',
                           'border-white/10 text-text-secondary hover:border-brand-500/30 hover:text-text-primary',
                           active && action.id === 'mark-understood' && 'border-accent-emerald/40 bg-accent-emerald/10 text-accent-emerald',
                           active && action.id === 'mark-confusing' && 'border-accent-amber/40 bg-accent-amber/10 text-accent-amber',
@@ -154,7 +154,7 @@ export function WorkspaceDiscoverabilityPanel({
           )}
 
           <div>
-            <p className="text-[10px] font-semibold text-text-primary0 mb-1">
+            <p className="type-caption font-semibold text-text-primary0 mb-1">
               {toolGuide.title}
             </p>
             <p className="text-[11px] text-text-secondary leading-relaxed">{toolGuide.summary}</p>
@@ -174,7 +174,7 @@ export function WorkspaceDiscoverabilityPanel({
                 type="button"
                 data-testid="discoverability-recommended-tool"
                 onClick={onOpenRecommendedTool}
-                className="inline-flex items-center gap-1 rounded-lg border border-accent-cyan/40 bg-accent-cyan/12 px-2.5 py-1 text-[10px] font-medium text-text-primary hover:bg-accent-cyan/20"
+                className="inline-flex items-center gap-1 rounded-lg border border-accent-cyan/40 bg-accent-cyan/12 px-2.5 py-1 type-caption font-medium text-text-primary hover:bg-accent-cyan/20"
               >
                 <Sparkles className="w-3 h-3" />
                 {t('discoverRecommendedTool')}
@@ -190,7 +190,7 @@ export function WorkspaceDiscoverabilityPanel({
                   type="button"
                   data-testid={`discoverability-action-${id}`}
                   onClick={run}
-                  className="rounded-lg border border-white/10 bg-white/[0.04] px-2.5 py-1 text-[10px] font-medium text-text-secondary hover:border-brand-500/40 hover:text-text-primary"
+                  className="rounded-lg border border-white/10 bg-white/[0.04] px-2.5 py-1 type-caption font-medium text-text-secondary hover:border-brand-500/40 hover:text-text-primary"
                 >
                   {label}
                 </button>
@@ -201,7 +201,7 @@ export function WorkspaceDiscoverabilityPanel({
                 type="button"
                 data-testid="discoverability-action-open-command-palette"
                 onClick={actions['open-command-palette']}
-                className="rounded-lg border border-white/10 bg-white/[0.04] px-2.5 py-1 text-[10px] font-medium text-text-secondary hover:text-text-primary"
+                className="rounded-lg border border-white/10 bg-white/[0.04] px-2.5 py-1 type-caption font-medium text-text-secondary hover:text-text-primary"
               >
                 {actionLabelFor('open-command-palette')}
               </button>

@@ -68,7 +68,7 @@ function PatternCards() {
               )}
             >
               <p className="text-sm font-medium">{t(p.titleKey as never)}</p>
-              <p className="text-[10px] text-text-muted">{p.tags.join(' · ')}</p>
+              <p className="type-caption text-text-muted">{p.tags.join(' · ')}</p>
             </button>
           </li>
         ))}
@@ -77,7 +77,7 @@ function PatternCards() {
         <div className="rounded-xl border border-border-subtle bg-surface-card/40 p-4">
           <p className="text-sm font-semibold mb-2">{t(pattern.titleKey as never)}</p>
           <p className="text-xs text-text-secondary mb-4">{t(pattern.summaryKey as never)}</p>
-          <pre className="text-[10px] font-mono whitespace-pre-wrap bg-surface-primary rounded-lg p-3 border border-border-subtle">
+          <pre className="type-caption font-mono whitespace-pre-wrap bg-surface-primary rounded-lg p-3 border border-border-subtle">
             {t(pattern.templateKey as never)}
           </pre>
         </div>
@@ -136,13 +136,13 @@ function AlgorithmStepper() {
                   {item}
                 </div>
               ))}
-              <p className="text-[10px] text-text-muted">STACK</p>
+              <p className="type-caption text-text-muted">STACK</p>
             </div>
           )}
 
           {step.queueContents && (
             <div className="flex items-center gap-1 flex-wrap">
-              <p className="text-[10px] text-text-muted w-full">QUEUE</p>
+              <p className="type-caption text-text-muted w-full">QUEUE</p>
               {step.queueContents.map((item, i) => (
                 <div key={i} className="px-3 py-1 rounded border border-border-subtle bg-surface-card text-xs font-mono">
                   {item}
@@ -152,7 +152,7 @@ function AlgorithmStepper() {
           )}
 
           {step.variables && (
-            <div className="flex gap-3 text-[10px] font-mono text-text-secondary">
+            <div className="flex gap-3 type-caption font-mono text-text-secondary">
               {Object.entries(step.variables).map(([k, v]) => (
                 <span key={k}>{k}={String(v)}</span>
               ))}
@@ -270,7 +270,7 @@ function ExerciseArchetypes() {
             onClick={() => setSelected(a.id)}
             data-testid={`archetype-${a.id}`}
             className={cn(
-              'rounded-full px-3 py-1 text-[10px] font-medium border',
+              'rounded-full px-3 py-1 type-caption font-medium border',
               selected === a.id
                 ? 'border-brand-500/40 bg-surface-secondary text-text-primary border border-border-subtle'
                 : 'border-border-subtle text-text-secondary',
@@ -286,7 +286,7 @@ function ExerciseArchetypes() {
           <p className="text-sm font-semibold">{t(archetype.labelKey as never)}</p>
           <p className="text-xs text-text-secondary">{t(archetype.descriptionKey as never)}</p>
           <div>
-            <p className="text-[10px] font-medium text-text-muted mb-1">{t('examPrepRubricLabel')}</p>
+            <p className="type-caption font-medium text-text-muted mb-1">{t('examPrepRubricLabel')}</p>
             <ul className="list-disc list-inside text-xs text-text-secondary space-y-0.5">
               {archetype.rubricKeys.map((k) => (
                 <li key={k}>{t(k as never)}</li>
@@ -294,7 +294,7 @@ function ExerciseArchetypes() {
             </ul>
           </div>
           <div>
-            <p className="text-[10px] font-medium text-text-muted mb-1">{t('examPrepStepsLabel')}</p>
+            <p className="type-caption font-medium text-text-muted mb-1">{t('examPrepStepsLabel')}</p>
             <ol className="list-decimal list-inside text-xs text-text-secondary space-y-0.5">
               {archetype.solutionStepKeys.map((k) => (
                 <li key={k}>{t(k as never)}</li>

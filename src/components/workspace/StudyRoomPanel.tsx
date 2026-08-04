@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { Users, Copy, Video, LogOut, Plus, X, Clock, Pause, Play as PlayIcon } from '@/lib/lucide-shim';
+import { Users, Copy, Video, LogOut, Plus, X, Clock, Pause, Play as PlayIcon, Eye } from '@/lib/lucide-shim';
 import type { UserSettings } from '../../types';
 import type { WorkspaceToolId } from '../../lib/taskFlows';
 import { workspaceToolLabel } from '../../lib/workspaceToolRegistry';
@@ -8,8 +8,17 @@ import { t, type Lang } from '../../lib/i18n';
 import { useStudyRoomSession } from '../../hooks/useStudyRoomSession';
 import { JitsiMeetEmbed } from './JitsiMeetEmbed';
 import { StudyRoomSharedNotes } from './StudyRoomSharedNotes';
+import { CoReadingHubPanel } from './CoReadingHubPanel';
 import { resolveCollabWebSocketUrl } from '../../lib/studyRoomCollab';
 import { AllCapsLabel } from '../ui/AllCapsLabel';
+
+export type StudyRoomCoViewBridge = {
+  active: boolean;
+  status: string;
+  mode: 'leading' | 'following' | 'solo';
+  claimLead: () => void;
+  followLead: () => void;
+};
 
 type Props = {
   open: boolean;
@@ -19,13 +28,17 @@ type Props = {
   courseName?: string;
   activeTool: WorkspaceToolId;
   focusConcept?: string;
+  currentStep?: number;
   userSettings?: UserSettings;
   onFollowSharedTool?: (tool: string) => void;
+  onFollowSharedStep?: (stepIndex: number) => void;
+  onFollowSharedConcept?: (concept: string) => void;
+  onCoViewBridge?: (bridge: StudyRoomCoViewBridge | null) => void;
 };
 
 /* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function StudyRoomPanel(props: Props) {
-  const { open, onClose, lang, activeTool, onFollowSharedTool } = props;
+  const { open, onClose, lang, activeTool, onFollowSharedTool, onCoViewBridge } = props;
   const tr = (key: Parameters<typeof t>[0]) => t(key, lang);
   const [showVideo, setShowVideo] = useState(true);
   const [timerSeconds, setTimerSeconds] = useState(0);
@@ -50,7 +63,40 @@ export function StudyRoomPanel(props: Props) {
     handleCreate,
     handleJoin,
     handleLeave,
-  } = useStudyRoomSession({ ...props, onFollowSharedTool });
+    claimLead,
+    followLead,
+    coViewStatus,
+    coViewMode,
+  } = useStudyRoomSession({
+    // Panel can close while co-view stays alive; restore whenever we mount or reopen.
+    open,
+    lang: props.lang,
+    courseId: props.courseId,
+    courseName: props.courseName,
+    activeTool: props.activeTool,
+    focusConcept: props.focusConcept,
+    currentStep: props.currentStep,
+    userSettings: props.userSettings,
+    onFollowSharedTool,
+    onFollowSharedStep: props.onFollowSharedStep,
+    onFollowSharedConcept: props.onFollowSharedConcept,
+  });
+
+  useEffect(() => {
+    if (!onCoViewBridge) return;
+    if (!room || coViewMode === 'solo') {
+      onCoViewBridge(null);
+      return;
+    }
+    onCoViewBridge({
+      active: true,
+      status: coViewStatus,
+      mode: coViewMode,
+      claimLead,
+      followLead,
+    });
+    return () => onCoViewBridge(null);
+  }, [room, coViewStatus, coViewMode, claimLead, followLead, onCoViewBridge]);
 
   const copyInvite = async () => {
     if (!room?.inviteCode) return;
@@ -67,26 +113,26 @@ export function StudyRoomPanel(props: Props) {
     <>
       <button
         type="button"
-        className="ws-cognitive-backdrop"
+        className="ws-cognitive-backdrop fixed inset-0 z-[190] border-0 bg-black/35 cursor-default"
         data-ws-theme="warm"
         aria-label={tr('close')}
         onClick={onClose}
       />
       <div
-        className="ws-cognitive-sheet"
+        className="ws-cognitive-sheet fixed top-0 right-0 bottom-0 z-[200] flex w-full max-w-sm flex-col border-l border-border-subtle bg-surface-secondary shadow-2xl"
         data-ws-theme="warm"
         role="dialog"
         aria-modal
         aria-label={tr('studyRoomAria')}
         data-testid="study-room-panel"
       >
-        <header className="ws-cognitive-sheet-header">
+        <header className="ws-cognitive-sheet-header flex shrink-0 items-center justify-between gap-3 border-b border-border-subtle px-4 py-3.5">
           <div className="flex items-center gap-2 min-w-0">
             <Users className="h-4 w-4 shrink-0 text-text-primary" aria-hidden />
             <div className="min-w-0">
               <h2 className="text-sm font-semibold truncate">{tr('studyRoomTitle')}</h2>
               {apiStatus?.localFallback && (
-                <p className="text-[10px] text-text-muted truncate">
+                <p className="type-caption text-text-muted truncate">
                   {tr('studyRoomLocalMode')}
                 </p>
               )}
@@ -103,7 +149,7 @@ export function StudyRoomPanel(props: Props) {
           </div>
         )}
 
-        <div className="ws-cognitive-sheet-body">
+        <div className="ws-cognitive-sheet-body flex-1 overflow-y-auto p-4">
           {!room ? (
             <form
               className="space-y-4"
@@ -113,7 +159,7 @@ export function StudyRoomPanel(props: Props) {
               }}
             >
               <p className="text-xs leading-relaxed text-text-secondary">
-                {tr('studyRoomIntro')}
+                {tr('studyRoomIntroCoView')}
               </p>
               <label className="block">
                 <span className="ws-field-label"><AllCapsLabel>{tr('studyRoomDisplayName')}</AllCapsLabel></span>
@@ -130,7 +176,7 @@ export function StudyRoomPanel(props: Props) {
                 <Plus className="h-4 w-4" aria-hidden />
                 {busy ? tr('studyRoomCreating') : tr('studyRoomNewRoom')}
               </button>
-              <div className="relative py-1 text-center text-[10px] text-text-muted">
+              <div className="relative py-1 text-center type-caption text-text-muted">
                 <span className="relative z-10 bg-surface-secondary px-2">{tr('studyRoomOr')}</span>
                 <div className="absolute inset-x-0 top-1/2 border-t border-border-subtle" />
               </div>
@@ -163,11 +209,53 @@ export function StudyRoomPanel(props: Props) {
                   {room.localOnly ? tr('studyRoomLocalSuffix') : ''}
                 </span>
               </div>
-              <div className="flex items-center gap-2">
-                <code className="ws-field-input flex-1 py-1.5 text-xs font-mono">{room.inviteCode}</code>
-                <button type="button" onClick={() => void copyInvite()} className="ws-chrome-btn p-2" title={tr('studyRoomCopy')}>
-                  <Copy className="h-4 w-4" />
-                </button>
+              <div
+                className="rounded-lg border border-border-subtle bg-surface-secondary/60 px-3 py-2 space-y-2"
+                data-testid="study-room-coview-controls"
+              >
+                <p className="flex items-center gap-1.5 text-xs font-semibold text-text-primary">
+                  <Eye className="h-3.5 w-3.5 text-brand-500" aria-hidden />
+                  {tr('studyRoomCoViewHeading')}
+                </p>
+                <p className="text-[11px] leading-snug text-text-muted">
+                  {coViewMode === 'leading'
+                    ? tr('studyRoomCoViewExplainLeading')
+                    : coViewMode === 'following'
+                      ? tr('studyRoomCoViewExplainFollowing')
+                      : tr('studyRoomCoViewExplainSolo')}
+                </p>
+                <p className="text-[11px] text-text-secondary leading-snug">{coViewStatus}</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {coViewMode === 'following' ? (
+                    <button
+                      type="button"
+                      className="ws-chrome-btn type-caption px-2 py-1 min-h-9"
+                      data-testid="study-room-panel-claim-lead"
+                      onClick={claimLead}
+                    >
+                      {tr('studyRoomClaimLead')}
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      className="ws-chrome-btn type-caption px-2 py-1 min-h-9"
+                      data-testid="study-room-panel-follow-lead"
+                      onClick={followLead}
+                    >
+                      {tr('studyRoomFollowLead')}
+                    </button>
+                  )}
+                </div>
+              </div>
+              <div className="space-y-1.5">
+                <p className="text-xs font-semibold text-text-primary">{tr('studyRoomInviteHeading')}</p>
+                <p className="text-[11px] leading-snug text-text-muted">{tr('studyRoomInviteExplain')}</p>
+                <div className="flex items-center gap-2">
+                  <code className="ws-field-input flex-1 py-1.5 text-xs font-mono">{room.inviteCode}</code>
+                  <button type="button" onClick={() => void copyInvite()} className="ws-chrome-btn p-2" title={tr('studyRoomCopy')} aria-label={tr('studyRoomCopy')}>
+                    <Copy className="h-4 w-4" />
+                  </button>
+                </div>
               </div>
               {room.sharedTool && room.sharedTool !== activeTool && (
                 <button
@@ -179,22 +267,35 @@ export function StudyRoomPanel(props: Props) {
                   {workspaceToolLabel(room.sharedTool as WorkspaceToolId, lang)}
                 </button>
               )}
+              <div className="space-y-1.5">
+              <p className="text-xs font-semibold text-text-primary">{tr('studyRoomMembersHeading')}</p>
+              <p className="text-[11px] leading-snug text-text-muted">{tr('studyRoomMembersExplain')}</p>
               <ul className="space-y-1.5" data-testid="study-room-members">
                 {room.members.map((m) => (
                   <li key={m.id} className={`rounded-lg border px-3 py-2 text-xs ${m.id === memberId ? 'ws-chip-brand' : 'ws-chip-neutral'}`}>
                     <span className="font-medium">{m.displayName}</span>
                     {m.id === memberId && <span className="text-text-muted"> ({tr('studyRoomYou')})</span>}
-                    {(m.tool || m.concept) && (
+                    {m.leading && <span className="text-text-muted"> · {tr('studyRoomLeadingBadge')}</span>}
+                    {(m.tool || m.concept || typeof m.stepIndex === 'number') && (
                       <p className="text-text-muted mt-0.5 truncate">
                         {m.tool ? workspaceToolLabel(m.tool as WorkspaceToolId, lang) : ''}
-                        {m.tool && m.concept ? ' · ' : ''}
+                        {m.tool && (m.concept || typeof m.stepIndex === 'number') ? ' · ' : ''}
+                        {typeof m.stepIndex === 'number' ? `§${m.stepIndex + 1}` : ''}
+                        {typeof m.stepIndex === 'number' && m.concept ? ' · ' : ''}
                         {m.concept ?? ''}
                       </p>
                     )}
                   </li>
                 ))}
               </ul>
+              </div>
               {/* Shared Study Timer (cross-pollinated from ai_tutor_studio) */}
+              <div className="space-y-1.5">
+              <p className="flex items-center gap-1.5 text-xs font-semibold text-text-primary">
+                <Clock className="h-3.5 w-3.5 text-brand-500" aria-hidden />
+                {tr('studyRoomTimerHeading')}
+              </p>
+              <p className="text-[11px] leading-snug text-text-muted">{tr('studyRoomTimerExplain')}</p>
               <div className="flex items-center gap-2 rounded-lg border border-border-subtle bg-surface-secondary/50 px-3 py-2">
                 <Clock className="h-4 w-4 shrink-0 text-text-secondary" aria-hidden />
                 <span className="font-mono text-sm font-bold text-text-primary flex-1">
@@ -219,13 +320,25 @@ export function StudyRoomPanel(props: Props) {
                   </button>
                 )}
               </div>
+              </div>
               <StudyRoomSharedNotes
                 lang={lang}
                 roomId={room.id}
                 inviteCode={room.inviteCode}
                 wsUrl={resolveCollabWebSocketUrl(props.userSettings, apiStatus?.collabWebSocketUrl)}
                 localOnly={room.localOnly}
+                memberId={memberId}
+                displayName={displayName}
               />
+              {/* Device-local until collab review sync — banner inside panel (P1). */}
+              {memberId && !room.localOnly ? (
+                <CoReadingHubPanel
+                  lang={lang}
+                  roomId={room.id}
+                  memberId={memberId}
+                  displayName={displayName}
+                />
+              ) : null}
               <div className="space-y-2">
                 <p className="ws-field-label"><AllCapsLabel>{tr('studyRoomVideoCall')}</AllCapsLabel></p>
                 {showVideo ? (
@@ -237,7 +350,7 @@ export function StudyRoomPanel(props: Props) {
                   </button>
                 )}
                 {showVideo && (
-                  <button type="button" onClick={() => setShowVideo(false)} className="ws-chrome-btn text-[10px]">
+                  <button type="button" onClick={() => setShowVideo(false)} className="ws-chrome-btn type-caption">
                     {tr('studyRoomHideVideo')}
                   </button>
                 )}

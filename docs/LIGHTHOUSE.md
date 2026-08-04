@@ -20,7 +20,7 @@ CI job: `lighthouse` in `.github/workflows/ci.yml` (uploads `.lighthouseci/`).
 ## Assertions
 
 See `lighthouserc.cjs`. Performance floor is intentionally moderate for SPA + CI Chrome;
-raise after B4/B5 baselines stabilize. Fail on severe regressions only.
+fail on severe regressions only. Wave E14 raises **accessibility** to `error` / minScore **0.95**.
 
 ## Rollback
 

@@ -18,17 +18,24 @@ const TIER_MARKER: Record<Band['tier'], string> = {
 type Props = {
   band: Band;
   className?: string;
+  /** When true, only the bar is shown (labels live in the parent meta strip). */
+  hideLabels?: boolean;
 };
 
-export function QuizIrtConfidenceBand({ band, className }: Props) {
+export function QuizIrtConfidenceBand({ band, className, hideLabels = false }: Props) {
   const width = Math.max(4, band.highPct - band.lowPct);
   return (
     <div className={cn('space-y-1', className)} data-testid="quiz-irt-confidence-band">
-      <div className="flex items-center justify-between gap-2 text-[10px]">
-        <span className="text-text-secondary font-medium">{band.bandLabel}</span>
-        <span className="font-mono text-text-muted shrink-0">{band.rangeLabel}</span>
-      </div>
-      <div className="relative h-2 rounded-full bg-surface-secondary overflow-hidden">
+      {!hideLabels && (
+        <div className="flex items-center justify-between gap-2 type-caption">
+          <span className="text-text-secondary font-medium">{band.bandLabel}</span>
+          <span className="font-mono text-text-muted shrink-0">{band.rangeLabel}</span>
+        </div>
+      )}
+      <div
+        className="relative h-2 rounded-full bg-surface-secondary overflow-hidden"
+        aria-label={hideLabels ? `${band.bandLabel} ${band.rangeLabel}` : undefined}
+      >
         <div
           className={cn('absolute inset-y-0 rounded-full transition-all duration-500', TIER_BAR[band.tier])}
           style={{ left: `${band.lowPct}%`, width: `${width}%` }}

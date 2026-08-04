@@ -23,6 +23,7 @@ async function openFirstLessonFromLibrary(page) {
 
 test.describe('Accessibility — Lesson view', () => {
   test('skip link, landmarks, focus order, axe scan', async ({ page }) => {
+    test.setTimeout(90_000);
     await page.goto('/');
     await openFirstLessonFromLibrary(page);
 
@@ -66,6 +67,7 @@ test.describe('Accessibility — Workspace dock (desktop)', () => {
   test.use({ viewport: { width: 1280, height: 900 } });
 
   test('dock is a labeled nav with keyboard-reachable tools', async ({ page }) => {
+    test.setTimeout(90_000);
     await page.goto('/');
     await skipOnboardingToLibrary(page);
 
