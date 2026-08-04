@@ -159,8 +159,9 @@
   --elev-drawer: -8px 0 32px color-mix(in srgb, #0a0a0c 14%, transparent);
 
   /* Package 2 — shared type scale (platform + workspace) */
-  --type-micro: 0.625rem;
-  --type-caption: 0.6875rem;
+  /* Wave E1 sweep — platform floor lifted for eye comfort (was 10/11) */
+  --type-micro: 0.6875rem;
+  --type-caption: 0.75rem;
   --type-body-sm: 0.75rem;
   --type-meta: 0.8125rem;
   --type-body: 0.875rem;
@@ -4335,8 +4336,11 @@ input[type="range"]::-webkit-slider-thumb {
 [data-theme="minimal-dark"] .ux-accent-warm {
   color: var(--color-accent-warm);
 }
+/* All light-surface themes need dark ink — the white-mix base rule is for dark cards only. */
 [data-theme="light"] .platform-source-badge--strict,
-[data-theme="spectrum"] .platform-source-badge--strict {
+[data-theme="spectrum"] .platform-source-badge--strict,
+[data-theme="minimal"] .platform-source-badge--strict,
+[data-theme="warm-sand"] .platform-source-badge--strict {
   color: #1a6b4f;
   background: color-mix(in srgb, var(--mastery-strong) 14%, var(--color-surface-card));
 }

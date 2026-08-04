@@ -57,11 +57,11 @@ interface Props {
   headerActions?: ReactNode;
   /** KPI strip between greeting and workspace (Wave J-D02 mockup order). */
   statsSlot?: ReactNode;
-  /** Flush to shell top — no side/top gap under demo banner. */
+  /** Flush to shell top β€” no side/top gap under demo banner. */
   flushTop?: boolean;
 }
 
-/* OPT-K98 — markup debt: decorative brand type -> ink */
+/* OPT-K98 β€” markup debt: decorative brand type -> ink */
 export function DashboardActionHub({
   reviewsDue,
   canWorkspace,
@@ -136,7 +136,7 @@ export function DashboardActionHub({
   };
 
   const onHero = Boolean(wallpaperDataUrl);
-  /* OPT-K72 — Minimal: flat overlay (no Aero/blur); other themes keep soft glass */
+  /* OPT-K72 β€” Minimal: flat overlay (no Aero/blur); other themes keep soft glass */
   const glassCard = onHero
     ? hubQuiet
       ? 'bg-surface-card/90 border-white/10'
@@ -164,11 +164,11 @@ export function DashboardActionHub({
         aria-label={t(action.chipLabelKey)}
       >
         <Icon className={cn('h-4 w-4', onHero ? 'text-white/90' : hubQuiet ? 'text-text-tertiary' : 'text-text-secondary')} aria-hidden />
-        <span className={cn('truncate text-[10px] font-semibold leading-tight max-w-full', onHero ? 'text-white' : 'text-text-primary')}>
+        <span className={cn('truncate type-micro font-semibold leading-tight max-w-full', onHero ? 'text-white' : 'text-text-primary')}>
           {t(action.chipLabelKey)}
         </span>
         {action.badge && (
-          <span className="absolute -right-1 -top-1 min-w-[1.1rem] rounded-md bg-accent-rose px-1 py-0.5 text-[10px] font-bold leading-none text-white">
+          <span className="absolute -right-1 -top-1 min-w-[1.1rem] rounded-md bg-accent-rose px-1 py-0.5 type-micro font-bold leading-none text-white">
             {action.badge}
           </span>
         )}
@@ -181,7 +181,7 @@ export function DashboardActionHub({
       <div
         id="dashboard-action-hub"
         className={cn(
-          /* overflow-visible so «Περισσότερα» menu is not clipped; raise stack when open */
+          /* overflow-visible so Β«Ξ ΞµΟΞΉΟƒΟƒΟΟ„ΞµΟΞ±Β» menu is not clipped; raise stack when open */
           'relative overflow-visible border border-border-subtle bg-surface-secondary/35',
           hubQuiet && 'hub-quiet-surface',
           overflowOpen && 'z-40',
@@ -253,14 +253,14 @@ export function DashboardActionHub({
                 <div
                   className={cn(
                     'flex w-full flex-col gap-2.5 sm:gap-3',
-                    /* OPT-K18 — full-span row; Continue anchors to the trailing edge */
+                    /* OPT-K18 β€” full-span row; Continue anchors to the trailing edge */
                     hubQuiet
                       ? 'sm:flex-row sm:items-center sm:justify-between'
                       : 'sm:flex-row sm:items-center sm:justify-between sm:gap-4',
                   )}
                 >
                   <div className="min-w-0 flex-1">
-                    <p className={cn('text-[10px] font-semibold uppercase tracking-[0.08em]', onHero ? 'text-white/80' : 'text-text-secondary')}>
+                    <p className={cn('type-micro font-semibold uppercase tracking-[0.08em]', onHero ? 'text-white/80' : 'text-text-secondary')}>
                       <AllCapsLabel>{t('dashboardLivePreviewEyebrow')}</AllCapsLabel>
                     </p>
                     <p className={cn('mt-1 text-sm font-medium', onHero ? 'text-white' : 'text-text-primary')}>
@@ -291,7 +291,7 @@ export function DashboardActionHub({
               </BlueprintSurface>
             )}
 
-            {/* OPT-K62 — 2×2 on mobile (no mid-word chip ellipsis); 4-col from sm */}
+            {/* OPT-K62 β€” 2Γ—2 on mobile (no mid-word chip ellipsis); 4-col from sm */}
             <div className="flex items-stretch gap-2 sm:gap-2.5">
               <div
                 className="grid min-w-0 flex-1 grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-2.5"
@@ -310,7 +310,7 @@ export function DashboardActionHub({
                     aria-label={t('dashboardHeroHubMoreAria')}
                     onClick={() => setOverflowOpen((v) => !v)}
                     className={cn(
-                      'inline-flex h-full min-h-[3.25rem] flex-col items-center justify-center gap-1 rounded-xl border border-border-subtle px-2.5 py-2 text-[10px] font-semibold transition-colors',
+                      'inline-flex h-full min-h-[3.25rem] flex-col items-center justify-center gap-1 rounded-xl border border-border-subtle px-2.5 py-2 type-micro font-semibold transition-colors',
                       'hover:bg-surface-hover/40',
                       glassCard,
                       onHero ? 'text-white/90' : 'text-text-secondary',
@@ -342,7 +342,7 @@ export function DashboardActionHub({
                             <Icon className="h-3.5 w-3.5 shrink-0 text-text-secondary" aria-hidden />
                             <span className="min-w-0 flex-1 truncate">{t(action.chipLabelKey)}</span>
                             {action.badge && (
-                              <span className="rounded-md bg-accent-rose/15 px-1.5 py-0.5 text-[10px] font-bold text-accent-rose">
+                              <span className="rounded-md bg-accent-rose/15 px-1.5 py-0.5 type-micro font-bold text-accent-rose">
                                 {action.badge}
                               </span>
                             )}

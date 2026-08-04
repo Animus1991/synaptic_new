@@ -417,22 +417,22 @@ export function TeacherDashboard({
     <div
       className={cn(
         'ux-flow-shell platform-page w-full max-w-none pb-24 space-y-6',
-        /* OPT-K85 — non-Minimal full column; Minimal keeps side gutters */
+        /* OPT-K85 β€” non-Minimal full column; Minimal keeps side gutters */
         isMinimal ? 'p-4 sm:p-6 lg:px-8 enterprise-calm teacher-wells' : 'py-4 sm:py-6 shell-edge-balance',
       )}
       data-testid="teacher-dashboard"
     >
-      {/* OPT-K97 — teacher chrome ink */}
+      {/* OPT-K97 β€” teacher chrome ink */}
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
-          {/* OPT-K7/K8 — text-first title under Minimal (no leading icon tile). */}
+          {/* OPT-K7/K8 β€” text-first title under Minimal (no leading icon tile). */}
           <h1 className={cn('text-lg font-semibold', !isMinimal && 'flex items-center gap-2')}>
             {!isMinimal && <Users className="w-5 h-5 text-text-secondary" />}
             {ui.title}
           </h1>
           <p className="text-sm text-text-secondary mt-1">{ui.subtitle}</p>
           {data?.syncedAt && (
-            <p className="text-[10px] text-text-muted mt-1">
+            <p className="type-micro text-text-muted mt-1">
               {ui.lastSynced}: {formatDateTime(data.syncedAt, lang)}
             </p>
           )}
@@ -465,25 +465,25 @@ export function TeacherDashboard({
             <>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2 border-t border-border-subtle/50" data-testid="teacher-cohort-analytics">
               <div>
-                <p className="text-[10px] text-text-muted">{ui.cohortStudents}</p>
+                <p className="type-micro text-text-muted">{ui.cohortStudents}</p>
                 <p className="text-sm font-semibold text-text-primary">{orgAnalytics.totalStudents}</p>
               </div>
               <div>
-                <p className="text-[10px] text-text-muted">{ui.cohortCompletion}</p>
+                <p className="type-micro text-text-muted">{ui.cohortCompletion}</p>
                 <p className="text-sm font-semibold text-text-primary">
-                  {orgAnalytics.completionRate != null ? `${Math.round(orgAnalytics.completionRate * 100)}%` : '—'}
+                  {orgAnalytics.completionRate != null ? `${Math.round(orgAnalytics.completionRate * 100)}%` : 'β€”'}
                 </p>
               </div>
               <div>
-                <p className="text-[10px] text-text-muted">{ui.cohortAvgMastery}</p>
+                <p className="type-micro text-text-muted">{ui.cohortAvgMastery}</p>
                 <p className="text-sm font-semibold text-text-primary">
-                  {orgAnalytics.avgMastery != null ? `${Math.round(orgAnalytics.avgMastery)}%` : '—'}
+                  {orgAnalytics.avgMastery != null ? `${Math.round(orgAnalytics.avgMastery)}%` : 'β€”'}
                 </p>
               </div>
               <div>
-                <p className="text-[10px] text-text-muted">{ui.cohortAvgScore}</p>
+                <p className="type-micro text-text-muted">{ui.cohortAvgScore}</p>
                 <p className="text-sm font-semibold text-text-primary">
-                  {orgAnalytics.avgScore != null ? `${Math.round(orgAnalytics.avgScore)}%` : '—'}
+                  {orgAnalytics.avgScore != null ? `${Math.round(orgAnalytics.avgScore)}%` : 'β€”'}
                 </p>
               </div>
               </div>
@@ -493,7 +493,7 @@ export function TeacherDashboard({
               <OrgAuditExportPanel orgId={orgAnalytics.orgId} settings={settings} lang={lang} />
             </>
           ) : (
-            <p className="text-[10px] text-text-muted">{ui.noOrgAnalytics}</p>
+            <p className="type-micro text-text-muted">{ui.noOrgAnalytics}</p>
           )}
         </div>
       )}
@@ -622,9 +622,9 @@ export function TeacherDashboard({
                     <tbody>
                       {roster.map((row) => (
                         <tr key={row.id} className="border-b border-border-subtle/50" data-testid={`teacher-roster-row-${row.id}`}>
-                          <td className="py-2 pr-3">{row.displayName ?? '—'}</td>
+                          <td className="py-2 pr-3">{row.displayName ?? 'β€”'}</td>
                           <td className="py-2 pr-3">{row.studentEmail}</td>
-                          <td className="py-2 pr-3">{row.mastery != null ? `${row.mastery}%` : '—'}</td>
+                          <td className="py-2 pr-3">{row.mastery != null ? `${row.mastery}%` : 'β€”'}</td>
                           <td className="py-2 pr-3 text-text-muted">{formatShortDate(row.enrolledAt, lang)}</td>
                           <td className="py-2 text-right">
                             <button
@@ -651,18 +651,18 @@ export function TeacherDashboard({
                   onClick={() => setLtiRosterOpen((v) => !v)}
                 >
                   <span>{ui.ltiRosterTitle}</span>
-                  <span className="text-[10px] text-text-muted">{ltiRosterOpen ? '−' : '+'}</span>
+                  <span className="type-micro text-text-muted">{ltiRosterOpen ? 'β’' : '+'}</span>
                 </button>
                 {ltiRosterOpen && (
                   <div className="mt-3 space-y-2">
                     {ltiLaunchHint && (
-                      <p className="text-[11px] text-text-secondary border border-border-subtle rounded-lg px-3 py-2 bg-surface-secondary/50">
+                      <p className="type-caption text-text-secondary border border-border-subtle rounded-lg px-3 py-2 bg-surface-secondary/50">
                         {ui.ltiLaunchWelcome}
-                        {ltiLaunchHint.contextTitle ? ` — ${ltiLaunchHint.contextTitle}` : ''}
+                        {ltiLaunchHint.contextTitle ? ` β€” ${ltiLaunchHint.contextTitle}` : ''}
                         {ltiLaunchHint.contextId ? ` (${ltiLaunchHint.contextId})` : ''}
                       </p>
                     )}
-                    <p className="text-[11px] text-text-muted">{ui.ltiRosterHint}</p>
+                    <p className="type-caption text-text-muted">{ui.ltiRosterHint}</p>
                     <div className="flex flex-wrap gap-2 items-end">
                       <input
                         type="text"
@@ -692,7 +692,7 @@ export function TeacherDashboard({
                       </button>
                     </div>
                     {ltiRosterMsg && (
-                      <p className="text-[10px] text-text-secondary" data-testid="teacher-lti-roster-msg">
+                      <p className="type-micro text-text-secondary" data-testid="teacher-lti-roster-msg">
                         {ltiRosterMsg}
                       </p>
                     )}
@@ -702,7 +702,7 @@ export function TeacherDashboard({
 
               <div className="space-y-3 pt-4 border-t border-border-subtle" data-testid="teacher-announcements">
                 <h3 className="text-sm font-semibold">{ui.announcements}</h3>
-                <p className="text-[11px] text-text-muted">{ui.announcementsHint}</p>
+                <p className="type-caption text-text-muted">{ui.announcementsHint}</p>
                 <div className="flex flex-wrap gap-2">
                   <button
                     type="button"
@@ -732,7 +732,7 @@ export function TeacherDashboard({
                     disabled={!announcementTitle.trim() && !announcementBody.trim()}
                     onClick={() => {
                       const draft = {
-                        title: announcementTitle.trim() || (lang === 'el' ? 'Ανακοίνωση' : 'Announcement'),
+                        title: announcementTitle.trim() || (lang === 'el' ? 'Ξ‘Ξ½Ξ±ΞΊΞΏΞ―Ξ½Ο‰ΟƒΞ·' : 'Announcement'),
                         body: announcementBody.trim() || announcementTitle.trim(),
                         weakCount: 0,
                       };
@@ -746,7 +746,7 @@ export function TeacherDashboard({
                     {ui.polishAnnouncementAgent}
                   </button>
                 </div>
-                <p className="text-[10px] text-text-muted">{ui.draftWeakAnnouncementHint}</p>
+                <p className="type-micro text-text-muted">{ui.draftWeakAnnouncementHint}</p>
                 <div className="space-y-2">
                   <input
                     type="text"
@@ -788,7 +788,7 @@ export function TeacherDashboard({
                           <div className="min-w-0 space-y-1">
                             <p className="font-medium">{row.title}</p>
                             <p className="text-text-muted whitespace-pre-wrap">{row.body}</p>
-                            <p className="text-[10px] text-text-muted">
+                            <p className="type-micro text-text-muted">
                               {formatDateTime(row.createdAt, lang)}
                             </p>
                           </div>
@@ -809,7 +809,7 @@ export function TeacherDashboard({
 
               <div className="space-y-3 pt-4 border-t border-border-subtle" data-testid="teacher-assignments">
                 <h3 className="text-sm font-semibold">{ui.assignments}</h3>
-                <p className="text-[11px] text-text-muted">{ui.assignmentsHint}</p>
+                <p className="type-caption text-text-muted">{ui.assignmentsHint}</p>
                 <div className="flex flex-wrap gap-2 items-end">
                   <input
                     type="text"
@@ -855,7 +855,7 @@ export function TeacherDashboard({
                             <tr className="border-b border-border-subtle/50" data-testid={`teacher-assignment-row-${row.id}`}>
                               <td className="py-2 pr-3 font-medium">{row.title}</td>
                               <td className="py-2 pr-3 text-text-muted">
-                                {row.dueAt ? formatShortDate(row.dueAt, lang) : '—'}
+                                {row.dueAt ? formatShortDate(row.dueAt, lang) : 'β€”'}
                               </td>
                               <td className="py-2 text-right space-x-2">
                                 {selectedClassId && (
@@ -865,7 +865,7 @@ export function TeacherDashboard({
                                       setExpandedDiscussionId((prev) => (prev === row.id ? null : row.id))
                                     }
                                     data-testid={`teacher-discussion-toggle-${row.id}`}
-                                    className="text-text-secondary hover:underline text-[10px]"
+                                    className="text-text-secondary hover:underline type-micro"
                                   >
                                     {ui.discussionToggle}
                                   </button>
@@ -950,9 +950,9 @@ export function TeacherDashboard({
                     </div>
                   )}
                 </div>
-                <p className="text-[11px] text-text-muted">{ui.gradebookHint}</p>
+                <p className="type-caption text-text-muted">{ui.gradebookHint}</p>
                 {ltiPassbackMsg && (
-                  <p className="text-[10px] text-text-secondary" data-testid="teacher-lti-passback-msg">{ltiPassbackMsg}</p>
+                  <p className="type-micro text-text-secondary" data-testid="teacher-lti-passback-msg">{ltiPassbackMsg}</p>
                 )}
                 {roster.length === 0 || assignments.length === 0 ? (
                   <p className="text-xs text-text-muted">{ui.gradebookEmpty}</p>
@@ -965,7 +965,7 @@ export function TeacherDashboard({
                           <th className="text-left py-2 pr-3">{ui.colOverallMastery}</th>
                           {assignments.map((asg) => (
                             <th key={asg.id} className="text-left py-2 pr-3 min-w-[72px]" title={asg.title}>
-                              {asg.title.length > 14 ? `${asg.title.slice(0, 14)}…` : asg.title}
+                              {asg.title.length > 14 ? `${asg.title.slice(0, 14)}β€¦` : asg.title}
                             </th>
                           ))}
                         </tr>
@@ -977,7 +977,7 @@ export function TeacherDashboard({
                               {student.displayName ?? student.studentEmail}
                             </td>
                             <td className="py-2 pr-3 text-text-muted">
-                              {student.mastery != null ? `${student.mastery}%` : '—'}
+                              {student.mastery != null ? `${student.mastery}%` : 'β€”'}
                             </td>
                             {assignments.map((asg) => {
                               const score = gradebookCellScore(student.id, asg.id);
@@ -1029,13 +1029,13 @@ export function TeacherDashboard({
             <div className="flex items-center justify-between flex-wrap gap-2">
               <h2 className="font-semibold flex items-center gap-2">
                 <Zap className="w-4 h-4 text-text-secondary" />
-                {ui.llmUsageMonth} · {data.usage.month}
+                {ui.llmUsageMonth} Β· {data.usage.month}
               </h2>
               <span className="text-xs text-text-muted">
-                {data.account.email} · {data.account.plan} {ui.planLabel}
+                {data.account.email} Β· {data.account.plan} {ui.planLabel}
               </span>
             </div>
-            {/* Wave P-2 C08 — plan usage track uses --viz-bar-track. */}
+            {/* Wave P-2 C08 β€” plan usage track uses --viz-bar-track. */}
             <div className="h-2 rounded-full overflow-hidden" style={{ backgroundColor: 'var(--viz-bar-track)' }}>
               <div
                 className={cn('h-full rounded-full transition-all', usagePct > 85 ? 'bg-accent-rose' : 'bg-brand-500')}
@@ -1083,11 +1083,11 @@ export function TeacherDashboard({
                         <td className="py-2.5 pr-3 text-text-secondary">{course.topicCount}</td>
                         <td className="py-2.5 pr-3 text-text-secondary">{course.fileCount}</td>
                         <td className="py-2.5 pr-3 text-text-secondary">
-                          {course.mastery != null ? `${course.mastery}%` : '—'}
+                          {course.mastery != null ? `${course.mastery}%` : 'β€”'}
                         </td>
-                        <td className="py-2.5 pr-3 text-text-muted hidden sm:table-cell">{course.status ?? '—'}</td>
+                        <td className="py-2.5 pr-3 text-text-muted hidden sm:table-cell">{course.status ?? 'β€”'}</td>
                         <td className="py-2.5 pr-3 text-text-muted hidden md:table-cell">
-                          {course.examDate ? formatShortDate(course.examDate, lang) : '—'}
+                          {course.examDate ? formatShortDate(course.examDate, lang) : 'β€”'}
                         </td>
                         <td className="py-2.5">
                           {localCourseIds.has(course.id) && onOpenCourse && (
@@ -1126,12 +1126,12 @@ export function TeacherDashboard({
               <p className="text-sm text-text-muted">{ui.noAnnotations}</p>
             ) : (
               <ul className="space-y-2 text-xs">
-                <li className="text-[10px] text-text-muted font-medium">{ui.recentAnnotations}</li>
+                <li className="type-micro text-text-muted font-medium">{ui.recentAnnotations}</li>
                 {data.publishing.recent.map((ann) => (
                   <li key={ann.id} className="flex justify-between gap-2 border-b border-border-subtle/50 pb-1.5">
                     <span className="text-text-secondary truncate">
                       <span className="text-text-secondary font-medium">{ann.type}</span>
-                      {' · '}
+                      {' Β· '}
                       {ann.text || ann.fileKey}
                     </span>
                     <span className="text-text-muted shrink-0">{formatDateTime(ann.createdAt, lang)}</span>
@@ -1206,7 +1206,7 @@ export function TeacherDashboard({
       )}
 
       {import.meta.env.DEV && (
-        <div className="text-[10px] text-text-muted flex items-center gap-1.5">
+        <div className="type-micro text-text-muted flex items-center gap-1.5">
           <Database className="w-3 h-3" />
           <Sparkles className="w-3 h-3" />
           {ui.syncFooter}
@@ -1231,7 +1231,7 @@ function StatCard({
     <div className="ux-flow-panel p-4">
       <Icon className="w-5 h-5 text-text-secondary mb-2" />
       <p className="ux-stat-value">{value}</p>
-      <p className="text-xs text-text-muted">{label} · {sub}</p>
+      <p className="text-xs text-text-muted">{label} Β· {sub}</p>
     </div>
   );
 }
@@ -1244,7 +1244,7 @@ function FeaturePill({ on, label }: { on: boolean; label: string }) {
         on ? 'border-accent-emerald/40 bg-accent-emerald/10 text-accent-emerald ink-allow-accent' : 'border-border-subtle text-text-muted',
       )}
     >
-      {on ? '✓' : '○'} {label}
+      {on ? 'β“' : 'β—‹'} {label}
     </span>
   );
 }

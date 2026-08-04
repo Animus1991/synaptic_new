@@ -85,7 +85,7 @@ const FLOW_STAGES = [
   { key: 'processing', labelKey: 'uploadStageCourse', hintKey: 'uploadStageCourseHint' },
 ] as const;
 
-/* OPT-K98 — markup debt: decorative brand type -> ink */
+/* OPT-K98 β€” markup debt: decorative brand type -> ink */
 export function UploadModal({
   isOpen,
   onClose,
@@ -121,9 +121,9 @@ export function UploadModal({
   const dialogRef = useRef<HTMLDivElement>(null);
   const wasOpenRef = useRef(false);
   const previewLang = userSettings?.language === 'el' ? 'el' : 'en';
-  /** OPT-R10 — prompt-first create chrome under Minimal. */
+  /** OPT-R10 β€” prompt-first create chrome under Minimal. */
   const createPrompt = useMinimalTheme();
-  // OPT-R10 — under Minimal, keep paste/YouTube disclosed (prompt-first create).
+  // OPT-R10 β€” under Minimal, keep paste/YouTube disclosed (prompt-first create).
   const moreSourcesOpen = createPrompt || Boolean(pastedContent.trim() || youtubeUrl.trim());
 
   const extendableCourses = courses.filter((c) => !isDemoCourse(c.id));
@@ -413,7 +413,7 @@ export function UploadModal({
                   >
                     <div className="flex items-center gap-2 mb-1">
                       <div className={cn(
-                        'grid h-6 w-6 place-items-center rounded-full text-[11px] font-semibold',
+                        'grid h-6 w-6 place-items-center rounded-full type-caption font-semibold',
                         isActive
                           ? 'bg-brand-600 text-white'
                           : isDone
@@ -498,7 +498,7 @@ export function UploadModal({
                         )}
                         <span className="text-sm flex-1 truncate">{file.name}</span>
                         {isChatGpt && (
-                          <span className="text-[10px] font-medium text-text-secondary shrink-0">{t('uploadChatGptExportBadge', previewLang)}</span>
+                          <span className="type-micro font-medium text-text-secondary shrink-0">{t('uploadChatGptExportBadge', previewLang)}</span>
                         )}
                         <span className="text-xs text-text-muted">{(file.size / 1024).toFixed(1)} KB</span>
                         <button
@@ -516,7 +516,7 @@ export function UploadModal({
                   <p className="text-xs text-text-secondary">{t('uploadNextStepHint', previewLang)}</p>
                 </div>
 
-                {/* OPT-R10 — paste/YouTube disclosed under Minimal; always present */}
+                {/* OPT-R10 β€” paste/YouTube disclosed under Minimal; always present */}
                 <CollapsibleChromeSection
                   title={t('uploadMoreSources', previewLang)}
                   defaultOpen={moreSourcesOpen}
@@ -712,7 +712,7 @@ export function UploadModal({
                 </p>
                 <p className="text-xs text-text-tertiary mb-5">{t('uploadProcessingSummary', previewLang)}</p>
                 {uploadJobId && (
-                  <p className="text-[10px] text-text-muted mb-3 font-mono" data-testid="upload-job-id">{uploadJobId.slice(0, 8)}</p>
+                  <p className="type-micro text-text-muted mb-3 font-mono" data-testid="upload-job-id">{uploadJobId.slice(0, 8)}</p>
                 )}
                 <div
                   className="flex items-center justify-center gap-2 text-sm text-text-secondary"

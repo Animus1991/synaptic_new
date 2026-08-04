@@ -673,7 +673,7 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
           <details className="relative">
             <summary
               className="flex min-h-9 min-w-9 cursor-pointer list-none items-center justify-center rounded-lg border border-border-subtle text-text-secondary hover:bg-surface-hover hover:text-text-primary [&::-webkit-details-marker]:hidden"
-              aria-label={t('conceptMapForce')}
+              aria-label={t('wsMore')}
               data-testid="concept-map-more-menu"
             >
               <MoreHorizontal className="h-4 w-4" aria-hidden />

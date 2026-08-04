@@ -20,13 +20,13 @@ function Metric({
 }) {
   return (
     <div className="rounded-lg border border-border-subtle bg-surface-hover/50 px-3 py-2">
-      <p className="text-[10px] uppercase tracking-wide text-text-muted"><AllCapsLabel>{label}</AllCapsLabel></p>
+      <p className="type-micro uppercase tracking-wide text-text-muted"><AllCapsLabel>{label}</AllCapsLabel></p>
       <p className="text-sm font-semibold text-text-primary tabular-nums">{value}</p>
     </div>
   );
 }
 
-/* OPT-K101 — residual markup debt: decorative brand type -> ink */
+/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
 export function RecognitionReportPanel({
   snapshot,
   summary: summaryProp,
@@ -58,16 +58,16 @@ export function RecognitionReportPanel({
           <p className="text-xs font-semibold text-text-secondary">
             {t('recognitionReportTitle', language)}
           </p>
-          <p className="text-[11px] text-text-muted mt-0.5">
+          <p className="type-caption text-text-muted mt-0.5">
             {summary.subject}
             {summary.hasEmbeddingClusters && (
               <span className="ml-2 text-accent-emerald">
-                · {t('recognitionReportOfflineClusters', language)}
+                Β· {t('recognitionReportOfflineClusters', language)}
               </span>
             )}
           </p>
         </div>
-        <span className="text-[10px] text-text-muted shrink-0">
+        <span className="type-micro text-text-muted shrink-0">
           {new Date(summary.createdAt).toLocaleDateString(language === 'el' ? 'el-GR' : 'en-US')}
         </span>
       </div>
@@ -83,14 +83,14 @@ export function RecognitionReportPanel({
 
       {topConcepts.length > 0 && (
         <div>
-          <p className="text-[10px] uppercase tracking-wide text-text-muted mb-1.5">
+          <p className="type-micro uppercase tracking-wide text-text-muted mb-1.5">
             <AllCapsLabel>{t('recognitionKeyConcepts', language)}</AllCapsLabel>
           </p>
           <div className="flex flex-wrap gap-1">
             {topConcepts.map((c) => (
               <span
                 key={c}
-                className="platform-meta-chip px-2 py-0.5 rounded text-[11px] truncate max-w-[140px]"
+                className="platform-meta-chip px-2 py-0.5 rounded type-caption truncate max-w-[140px]"
               >
                 {c}
               </span>
@@ -100,7 +100,7 @@ export function RecognitionReportPanel({
       )}
 
       {relationTypes.length > 0 && !compact && (
-        <p className="text-[11px] text-text-muted">
+        <p className="type-caption text-text-muted">
           {t('recognitionRelationTypes', language)}{' '}
           {relationTypes.join(', ')}
         </p>

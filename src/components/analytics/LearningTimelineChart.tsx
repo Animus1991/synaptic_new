@@ -5,7 +5,7 @@ import { cn } from '../../utils/cn';
 import { BlueprintSurface } from '../ui/BlueprintSurface';
 import { AllCapsLabel } from '../ui/AllCapsLabel';
 
-/* OPT-K97 — event cards share calm wells; delta/dot carry semantic chroma */
+/* OPT-K97 β€” event cards share calm wells; delta/dot carry semantic chroma */
 const TYPE_STYLE: Record<TimelineEventType, { border: string; bg: string; text: string }> = {
   lesson: { border: 'border-border-subtle', bg: 'bg-surface-secondary/70', text: 'text-text-primary' },
   quiz: { border: 'border-border-subtle', bg: 'bg-surface-secondary/70', text: 'text-text-primary' },
@@ -94,7 +94,7 @@ export function LearningTimelineChart({
                           {event.delta}
                         </span>
                       )}
-                      <span className="text-[10px] uppercase tracking-wider text-text-muted">
+                      <span className="type-micro uppercase tracking-wider text-text-muted">
                         <AllCapsLabel>{dayLabel(event.daysAgo)}</AllCapsLabel>
                       </span>
                     </div>
@@ -104,7 +104,7 @@ export function LearningTimelineChart({
                       <p className="text-xs text-text-secondary leading-relaxed">{event.detail}</p>
                       {event.delta !== 0 && (
                         <div className="flex items-center gap-2">
-                          <span className="text-[10px] text-text-muted">{deltaLabel}</span>
+                          <span className="type-micro text-text-muted">{deltaLabel}</span>
                           <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-surface-hover">
                             <div
                               className={cn(

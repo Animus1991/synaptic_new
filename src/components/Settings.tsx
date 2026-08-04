@@ -49,7 +49,7 @@ interface SettingsProps {
   onApplyCalendarSync?: (updates: TaskCalendarSyncUpdate[]) => void;
 }
 
-/* OPT-K98 — markup debt: decorative brand type -> ink */
+/* OPT-K98 β€” markup debt: decorative brand type -> ink */
 export function Settings({
   settings,
   onUpdate,
@@ -175,7 +175,7 @@ export function Settings({
   );
   const [activeSection, setActiveSection] = useState(settingsSections[0]?.id ?? 'settings-teaching');
 
-  // OPT-R16 — highlight the section nearest the viewport top while scrolling (Minimal IDE nav).
+  // OPT-R16 β€” highlight the section nearest the viewport top while scrolling (Minimal IDE nav).
   useEffect(() => {
     if (!isMinimal) return;
     const elements = settingsSections
@@ -231,7 +231,7 @@ export function Settings({
               className={cn(
                 isMinimal
                   ? cn(
-                      'settings-ide-nav-item shrink-0 rounded-md px-2.5 py-1.5 text-left text-[11px] font-medium text-text-secondary transition-colors hover:bg-surface-hover hover:text-text-primary lg:w-full',
+                      'settings-ide-nav-item shrink-0 rounded-md px-2.5 py-1.5 text-left type-caption font-medium text-text-secondary transition-colors hover:bg-surface-hover hover:text-text-primary lg:w-full',
                       isActive && 'is-active',
                     )
                   : 'platform-pill shrink-0 px-3 py-1.5 text-xs font-medium text-text-secondary hover:text-text-primary',
@@ -246,7 +246,7 @@ export function Settings({
         })}
       </nav>
 
-      {/* Wave P-L01 — masonry column flow (Blueprint). OPT-R16 Minimal uses a single
+      {/* Wave P-L01 β€” masonry column flow (Blueprint). OPT-R16 Minimal uses a single
           IDE-like content column beside the section rail instead of multi-column cards. */}
       <div
         className={cn(
@@ -315,10 +315,10 @@ export function Settings({
       <SettingsSection id="settings-ai" title={c.sectionAiLlm} icon={<Brain className="w-5 h-5 text-text-secondary" />} delay={0.32}>
         <div className="rounded-xl border border-border-subtle/70 bg-surface-hover/40 px-3 py-2 space-y-1" data-testid="ai-economics-panel">
           <p className="text-xs font-semibold text-text-primary">{c.aiEconomicsTitle}</p>
-          <p className="text-[11px] text-text-muted leading-relaxed">{c.aiEconomicsBody}</p>
-          <p className="text-[10px] text-text-muted">{c.proxyMeteringNote}</p>
+          <p className="type-caption text-text-muted leading-relaxed">{c.aiEconomicsBody}</p>
+          <p className="type-micro text-text-muted">{c.proxyMeteringNote}</p>
           {settings.authToken && (
-            <p className="text-[10px] text-text-secondary" data-testid="ai-economics-plan">
+            <p className="type-micro text-text-secondary" data-testid="ai-economics-plan">
               {c.planLabel} <strong>{settings.authPlan ?? 'free'}</strong>
             </p>
           )}
@@ -356,7 +356,7 @@ export function Settings({
                   )}
                 >
                   {label}
-                  <span className="ml-1 text-[10px] opacity-70">{preset.model}</span>
+                  <span className="ml-1 type-micro opacity-70">{preset.model}</span>
                 </button>
               );
             })}
@@ -417,7 +417,7 @@ export function Settings({
             })}
           </div>
           {(settings.llmBaseUrl ?? '') === 'http://127.0.0.1:8000/v1' && (
-            <p className="text-[11px] text-text-muted mb-2 leading-relaxed" data-testid="ai-sophea-hint">
+            <p className="type-caption text-text-muted mb-2 leading-relaxed" data-testid="ai-sophea-hint">
               {c.sopheaPresetHint}
             </p>
           )}
@@ -437,7 +437,7 @@ export function Settings({
             value={settings.llmDisableThinking ? 'true' : 'false'}
             onChange={(v) => onUpdate({ llmDisableThinking: v === 'true' })}
           />
-          <p className="text-[11px] text-text-muted mt-1 leading-relaxed">{c.disableThinkingHint}</p>
+          <p className="type-caption text-text-muted mt-1 leading-relaxed">{c.disableThinkingHint}</p>
         </div>
         <div>
           <label className="text-xs text-text-secondary block mb-2">{c.labelManagedProxyUrl}</label>
@@ -448,7 +448,7 @@ export function Settings({
             placeholder={c.placeholderManagedProxyUrl}
             className="w-full px-4 py-2 rounded-xl bg-surface-input border border-border-subtle text-sm text-text-primary focus:outline-none focus:border-brand-500/50"
           />
-          <p className="text-[11px] text-text-muted mt-1.5">{c.managedProxyHint}</p>
+          <p className="type-caption text-text-muted mt-1.5">{c.managedProxyHint}</p>
         </div>
         <ToggleRow label={c.labelUseLlm} options={c.useLlmOptions} value={settings.useLlm !== false ? 'true' : 'false'} onChange={v => onUpdate({ useLlm: v === 'true' })} />
         <p className="text-xs text-text-muted mt-1 px-1">
@@ -492,7 +492,7 @@ export function Settings({
         <p className="text-xs text-text-muted mt-1 px-1">
           {c.visionOcrHint}
         </p>
-        <p className="text-[11px] text-accent-amber mt-1 px-1" data-testid="ai-vision-cost-note">
+        <p className="type-caption text-accent-amber mt-1 px-1" data-testid="ai-vision-cost-note">
           {c.visionCostNote}
         </p>
       </SettingsSection>
@@ -707,21 +707,21 @@ export function Settings({
         {settings.authToken && (
           <div className="mt-3 pt-3 border-t border-border-subtle space-y-2" data-testid="settings-sessions">
             <p className="text-xs font-semibold text-text-primary">{c.sectionSessions}</p>
-            <p className="text-[11px] text-text-muted">{c.sessionsHint}</p>
+            <p className="type-caption text-text-muted">{c.sessionsHint}</p>
             {sessions.length === 0 ? (
-              <p className="text-[11px] text-text-muted">{c.sessionsEmpty}</p>
+              <p className="type-caption text-text-muted">{c.sessionsEmpty}</p>
             ) : (
               <ul className="space-y-2">
                 {sessions.map((s) => (
                   <li
                     key={s.id}
-                    className="flex flex-wrap items-center justify-between gap-2 text-[11px] border border-border-subtle rounded-lg px-2 py-1.5"
+                    className="flex flex-wrap items-center justify-between gap-2 type-caption border border-border-subtle rounded-lg px-2 py-1.5"
                     data-testid={`session-row-${s.id}`}
                   >
                     <div className="min-w-0">
                       <p className="text-text-secondary truncate">
                         {s.current ? c.sessionCurrent : c.sessionOther}
-                        {s.userAgent ? ` · ${s.userAgent.slice(0, 48)}` : ''}
+                        {s.userAgent ? ` Β· ${s.userAgent.slice(0, 48)}` : ''}
                       </p>
                       <p className="text-text-muted">{new Date(s.createdAt).toLocaleString()}</p>
                     </div>
@@ -771,14 +771,14 @@ export function Settings({
                 {c.revokeOtherSessions}
               </button>
             )}
-            {sessionsStatus && <p className="text-[11px] text-text-muted">{sessionsStatus}</p>}
+            {sessionsStatus && <p className="type-caption text-text-muted">{sessionsStatus}</p>}
           </div>
         )}
         {settings.authToken && (
           <div className="mt-3 pt-3 border-t border-border-subtle space-y-2">
             <p className="text-xs font-semibold text-text-primary">{t('gdprExportData')}</p>
-            <p className="text-[11px] text-text-muted">{t('gdprExportHint')}</p>
-            <p className="text-[11px]">
+            <p className="type-caption text-text-muted">{t('gdprExportHint')}</p>
+            <p className="type-caption">
               <a
                 href={privacyPolicyUrl()}
                 target="_blank"
@@ -813,8 +813,8 @@ export function Settings({
                 {t('gdprExportData')}
               </button>
             </div>
-            <p className="text-[11px] text-text-muted pt-1">{t('gdprDeleteHint')}</p>
-            <label className="text-[11px] text-text-secondary block">{t('gdprDeleteConfirm')}</label>
+            <p className="type-caption text-text-muted pt-1">{t('gdprDeleteHint')}</p>
+            <label className="type-caption text-text-secondary block">{t('gdprDeleteConfirm')}</label>
             <input
               type="email"
               value={deleteConfirmEmail}
@@ -897,7 +897,7 @@ export function Settings({
 
       <SettingsSection id="settings-data" title={c.sectionDataProgress} icon={<Database className="w-5 h-5 text-accent-cyan" />} delay={0.38}>
         <ToggleRow label={c.labelDemoContent} options={c.demoContentOptions} value={settings.showDemoContent ? 'on' : 'off'} onChange={v => onUpdate({ showDemoContent: v === 'on' })} />
-        <p className="text-[11px] text-text-muted">{c.demoContentHint}</p>
+        <p className="type-caption text-text-muted">{c.demoContentHint}</p>
         <div className="flex flex-wrap gap-2">
           <button
             type="button"
@@ -961,7 +961,7 @@ export function Settings({
               setParityTick((n) => n + 1);
             }}
           />
-          <p className="text-[11px] text-text-muted">
+          <p className="type-caption text-text-muted">
             {t('settingsNotebookLmParityHint')}{' '}
             ({parityEffective ? t('settingsNotebookLmParityOn') : t('settingsNotebookLmParityOff')})
           </p>
@@ -1018,7 +1018,7 @@ function SettingsSection({ id, title, icon, children, delay }: { id: string; tit
 
 function ToggleRow({ label, options, value, onChange }: { label: string; options: { value: string; label: string }[]; value: string; onChange: (v: string) => void }) {
   const isMinimal = useMinimalTheme();
-  // OPT-K8 — Spending-like label ↔ control row under Minimal.
+  // OPT-K8 β€” Spending-like label β†” control row under Minimal.
   if (isMinimal) {
     return (
       <div className="settings-pref-row">
@@ -1089,8 +1089,8 @@ function ThemePickerRow({
           isMinimal
             ? cn('settings-pref-chip inline-flex items-center gap-1.5', active && 'is-active')
             : cn(
-                'inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-[11px] font-medium transition-all',
-                /* Wave P-3 C12 — .ux-theme-chip-active uses brand-700 ink on light
+                'inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 type-caption font-medium transition-all',
+                /* Wave P-3 C12 β€” .ux-theme-chip-active uses brand-700 ink on light
                    themes (brand-300 collapsed to ~2:1 on warm-light white cards). */
                 active
                   ? 'ux-theme-chip-active'
@@ -1111,7 +1111,7 @@ function ThemePickerRow({
         <div className="settings-pref-label">
           <span>{label}</span>
           {hint && (
-            <p className="mt-1 text-[11px] font-normal leading-snug text-text-tertiary" data-testid="settings-theme-hint">
+            <p className="mt-1 type-caption font-normal leading-snug text-text-tertiary" data-testid="settings-theme-hint">
               {hint}
             </p>
           )}
@@ -1125,7 +1125,7 @@ function ThemePickerRow({
     <div data-testid="settings-theme-picker">
       <label className="text-xs text-text-secondary block mb-2">{label}</label>
       {hint && (
-        <p className="text-[11px] leading-snug mb-2" data-testid="settings-theme-hint">
+        <p className="type-caption leading-snug mb-2" data-testid="settings-theme-hint">
           {hint}
         </p>
       )}
@@ -1141,7 +1141,7 @@ function SliderRow({ label, leftLabel, rightLabel, value, onChange, min = 0, max
       <div className="settings-pref-row">
         <span className="settings-pref-label">{label}</span>
         <div className="settings-pref-control items-center !flex-nowrap">
-          <span className="text-[10px] text-text-muted shrink-0">{leftLabel}</span>
+          <span className="type-micro text-text-muted shrink-0">{leftLabel}</span>
           <input
             type="range"
             min={min}
@@ -1151,7 +1151,7 @@ function SliderRow({ label, leftLabel, rightLabel, value, onChange, min = 0, max
             className="min-w-[7rem] flex-1"
             aria-label={label}
           />
-          <span className="text-[10px] text-text-muted shrink-0">{rightLabel}</span>
+          <span className="type-micro text-text-muted shrink-0">{rightLabel}</span>
         </div>
       </div>
     );
@@ -1160,9 +1160,9 @@ function SliderRow({ label, leftLabel, rightLabel, value, onChange, min = 0, max
     <div>
       <label className="text-xs text-text-secondary block mb-2">{label}</label>
       <div className="flex items-center gap-3">
-        <span className="text-[10px] text-text-muted w-20 text-right">{leftLabel}</span>
+        <span className="type-micro text-text-muted w-20 text-right">{leftLabel}</span>
         <input type="range" min={min} max={max} value={value} onChange={e => onChange(Number(e.target.value))} className="flex-1" />
-        <span className="text-[10px] text-text-muted w-20">{rightLabel}</span>
+        <span className="type-micro text-text-muted w-20">{rightLabel}</span>
       </div>
     </div>
   );

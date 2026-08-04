@@ -345,7 +345,7 @@ describe('OPT-K69 engineering clarity contracts', () => {
     expect(shell).toMatch(/OPT-K94/);
     expect(shell).toMatch(/shell-topbar-calm/);
     expect(shell).toMatch(/BookOpen className="w-5 h-5 shrink-0 text-text-secondary"/);
-    expect(shell).toMatch(/border-border-subtle text-\[11px\].*text-text-secondary/);
+    expect(shell).toMatch(/border-border-subtle type-caption.*text-text-secondary/);
     expect(shell).not.toMatch(/bg-brand-500\/15 text-brand-700/);
   });
 

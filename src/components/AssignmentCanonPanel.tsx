@@ -1,5 +1,5 @@
 /**
- * Wave CH-2/4 UI — Assignment Canon revision tree, proposals, credits, export.
+ * Wave CH-2/4 UI Ξ²β‚¬β€ Assignment Canon revision tree, proposals, credits, export.
  */
 import { useEffect, useMemo, useState } from 'react';
 import { t, type Lang } from '../lib/i18n';
@@ -105,14 +105,14 @@ export function AssignmentCanonPanel({
           <p className="text-xs font-semibold text-text-primary">
             <AllCapsLabel>{tr('collabCanonTitle')}</AllCapsLabel>
           </p>
-          <p className="text-[10px] text-text-muted mt-0.5">{tr('collabCanonHint')}</p>
+          <p className="type-micro text-text-muted mt-0.5">{tr('collabCanonHint')}</p>
         </div>
-        <span className="text-[10px] text-text-muted" data-testid="assignment-canon-verify">
+        <span className="type-micro text-text-muted" data-testid="assignment-canon-verify">
           {badge.label}
         </span>
       </div>
 
-      <p className="text-[10px] text-text-muted">
+      <p className="type-micro text-text-muted">
         {tr('collabSteward')}: {doc.stewardName}
         {doc.stewardId === actorId ? ` (${tr('collabYou')})` : ''}
       </p>
@@ -123,7 +123,7 @@ export function AssignmentCanonPanel({
             key={node.sectionId}
             type="button"
             onClick={() => setActiveSectionId(node.sectionId)}
-            className={`rounded-lg border px-2 py-1.5 text-[10px] min-h-11 ${
+            className={`rounded-lg border px-2 py-1.5 type-micro min-h-11 ${
               activeSectionId === node.sectionId
                 ? 'border-brand-500/40 bg-brand-500/10 text-text-primary'
                 : 'border-border-subtle text-text-secondary'
@@ -131,8 +131,8 @@ export function AssignmentCanonPanel({
             data-testid={`assignment-tree-node-${node.sectionId}`}
           >
             {node.title}
-            {node.pendingCount > 0 ? ` · ${node.pendingCount}` : ''}
-            <span className="block text-[9px] text-text-muted">{node.status}</span>
+            {node.pendingCount > 0 ? ` Ξ’Β· ${node.pendingCount}` : ''}
+            <span className="block type-micro text-text-muted">{node.status}</span>
           </button>
         ))}
       </div>
@@ -168,7 +168,7 @@ export function AssignmentCanonPanel({
             className="ws-field-input text-xs"
             placeholder={tr('collabProposalSummary')}
           />
-          <label className="flex items-center gap-2 text-[10px] text-text-secondary">
+          <label className="flex items-center gap-2 type-micro text-text-secondary">
             <input type="checkbox" checked={aiAssisted} onChange={(e) => setAiAssisted(e.target.checked)} />
             {tr('collabAiAssisted')}
           </label>
@@ -197,22 +197,22 @@ export function AssignmentCanonPanel({
 
           {sectionPending.map((p) => (
             <div key={p.id} className="rounded-md border border-border-subtle/60 p-2 space-y-1" data-testid={`assignment-proposal-${p.id}`}>
-              <p className="text-[10px] text-text-muted">
-                {p.authorName} · {p.aiAssisted ? tr('collabAiAssistedBadge') : tr('collabHumanBadge')}
+              <p className="type-micro text-text-muted">
+                {p.authorName} Ξ’Β· {p.aiAssisted ? tr('collabAiAssistedBadge') : tr('collabHumanBadge')}
               </p>
-              <pre className="text-[11px] whitespace-pre-wrap max-h-28 overflow-auto">{p.proposedText}</pre>
+              <pre className="type-caption whitespace-pre-wrap max-h-28 overflow-auto">{p.proposedText}</pre>
               {isSteward && (
                 <div className="flex flex-wrap gap-1.5">
-                  <button type="button" className="ws-chrome-btn text-[10px] px-2 py-1" data-testid={`assignment-accept-${p.id}`} onClick={() => persist(resolveSectionProposal(doc, p.id, 'accepted', { id: doc.stewardId, name: doc.stewardName }))}>
+                  <button type="button" className="ws-chrome-btn type-micro px-2 py-1" data-testid={`assignment-accept-${p.id}`} onClick={() => persist(resolveSectionProposal(doc, p.id, 'accepted', { id: doc.stewardId, name: doc.stewardName }))}>
                     {tr('collabAccept')}
                   </button>
-                  <button type="button" className="ws-chrome-btn text-[10px] px-2 py-1" onClick={() => persist(resolveSectionProposal(doc, p.id, 'changes_requested', { id: doc.stewardId, name: doc.stewardName }))}>
+                  <button type="button" className="ws-chrome-btn type-micro px-2 py-1" onClick={() => persist(resolveSectionProposal(doc, p.id, 'changes_requested', { id: doc.stewardId, name: doc.stewardName }))}>
                     {tr('collabRequestChanges')}
                   </button>
-                  <button type="button" className="ws-chrome-btn text-[10px] px-2 py-1" onClick={() => persist(resolveSectionProposal(doc, p.id, 'rejected', { id: doc.stewardId, name: doc.stewardName }))}>
+                  <button type="button" className="ws-chrome-btn type-micro px-2 py-1" onClick={() => persist(resolveSectionProposal(doc, p.id, 'rejected', { id: doc.stewardId, name: doc.stewardName }))}>
                     {tr('collabReject')}
                   </button>
-                  <button type="button" className="ws-chrome-btn text-[10px] px-2 py-1" data-testid={`assignment-exemplar-${p.id}`} onClick={() => persist(markExemplarProposal(doc, p.id, { id: actorId, name: actorName || tr('collabAnonymous') }))}>
+                  <button type="button" className="ws-chrome-btn type-micro px-2 py-1" data-testid={`assignment-exemplar-${p.id}`} onClick={() => persist(markExemplarProposal(doc, p.id, { id: actorId, name: actorName || tr('collabAnonymous') }))}>
                     {tr('collabMarkExemplar')}
                   </button>
                 </div>
@@ -223,12 +223,12 @@ export function AssignmentCanonPanel({
       )}
 
       <div data-testid="assignment-canon-credits">
-        <p className="text-[10px] font-medium text-text-secondary">{tr('collabAttribution')}</p>
+        <p className="type-micro font-medium text-text-secondary">{tr('collabAttribution')}</p>
         <ul className="mt-1 space-y-0.5">
           {credits.map((c) => (
-            <li key={c.authorId} className="text-[10px] text-text-muted">
+            <li key={c.authorId} className="type-micro text-text-muted">
               {c.authorName}: {c.sharePercent}%
-              {c.acceptedProposals ? ` · ${c.acceptedProposals} ${tr('collabMerged')}` : ''}
+              {c.acceptedProposals ? ` Ξ’Β· ${c.acceptedProposals} ${tr('collabMerged')}` : ''}
             </li>
           ))}
         </ul>
@@ -264,7 +264,7 @@ export function AssignmentCanonPanel({
           />
           <button
             type="button"
-            className="ws-chrome-btn text-[10px] px-2 py-1 min-h-11"
+            className="ws-chrome-btn type-micro px-2 py-1 min-h-11"
             data-testid="assignment-steward-transfer"
             disabled={!successorName.trim()}
             onClick={() => {
@@ -281,7 +281,7 @@ export function AssignmentCanonPanel({
       )}
 
       {exportPreview && (
-        <pre className="text-[10px] whitespace-pre-wrap max-h-40 overflow-auto rounded border border-border-subtle p-2" data-testid="assignment-canon-export-preview">
+        <pre className="type-micro whitespace-pre-wrap max-h-40 overflow-auto rounded border border-border-subtle p-2" data-testid="assignment-canon-export-preview">
           {exportPreview}
         </pre>
       )}

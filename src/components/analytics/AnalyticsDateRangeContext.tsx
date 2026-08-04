@@ -20,7 +20,7 @@ type Ctx = {
 
 const AnalyticsDateRangeContext = createContext<Ctx | null>(null);
 
-/* OPT-K101 — residual markup debt: decorative brand type -> ink */
+/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
 export function AnalyticsDateRangeProvider({
   children,
   initial = '30d',
@@ -53,7 +53,7 @@ export function AnalyticsDateRangeFilter({ className }: { className?: string }) 
     <div
       className={cn('inline-flex items-center gap-1 rounded-lg border border-border-subtle bg-surface-card p-0.5', className)}
       role="group"
-      aria-label={lang === 'el' ? 'Εύρος ημερομηνιών' : 'Date range'}
+      aria-label={lang === 'el' ? 'Ξ•ΟΟΞΏΟ‚ Ξ·ΞΌΞµΟΞΏΞΌΞ·Ξ½ΞΉΟΞ½' : 'Date range'}
       data-testid="analytics-date-range-filter"
     >
       {ANALYTICS_DATE_RANGES.map((r) => (
@@ -64,7 +64,7 @@ export function AnalyticsDateRangeFilter({ className }: { className?: string }) 
           aria-pressed={range === r}
           onClick={() => setRange(r)}
           className={cn(
-            'rounded-md px-2.5 py-1 text-[10px] font-semibold transition-colors',
+            'rounded-md px-2.5 py-1 type-micro font-semibold transition-colors',
             range === r
               ? 'bg-surface-secondary text-text-primary border border-border-subtle'
               : 'text-text-tertiary hover:text-text-secondary',

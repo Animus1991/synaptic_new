@@ -32,7 +32,7 @@ import { useWarmSandPageScope, warmSandScopeProps } from '../lib/useDocumentThem
 import { useMinimalTheme } from '../lib/useMinimalTheme';
 import { AllCapsLabel } from './ui/AllCapsLabel';
 
-/* OPT-K98 — markup debt: decorative brand type -> ink */
+/* OPT-K98 β€” markup debt: decorative brand type -> ink */
 export type { TaskFilter } from '../lib/tasksContent';
 
 type CommandTab = 'today' | 'weak' | 'reviews' | 'mistakes';
@@ -206,8 +206,8 @@ export function Tasks({
     const examPart = daysToExam === null
       ? ''
       : daysToExam === 0
-        ? ` · ${c.examToday}`
-        : ` · ${c.examInDays(daysToExam)}`;
+        ? ` Β· ${c.examToday}`
+        : ` Β· ${c.examInDays(daysToExam)}`;
     return `${dateStr}${examPart}`;
   }, [lang, daysToExam, c]);
 
@@ -220,7 +220,7 @@ export function Tasks({
     }),
     [daysToExam, reviewTasks.length, fsrsQueue.length, scopedWeak.length, todayTasks.length],
   );
-  /* Hierarchy: recommended first — all five session types remain available */
+  /* Hierarchy: recommended first β€” all five session types remain available */
   const orderedSessionTypes = useMemo(() => {
     const rec = sessionTypes.find((s) => s.type === recommendedSession);
     if (!rec) return sessionTypes;
@@ -361,11 +361,11 @@ export function Tasks({
         <div className="flex items-center justify-between mb-2">
           <div>
             <p className="text-sm font-semibold text-text-primary">{c.tasksComplete(doneCount, totalCount)}</p>
-            <p className="text-xs text-text-tertiary">{c.totalMinutes(totalMin)} · {c.minRemaining(remainingMin)}</p>
+            <p className="text-xs text-text-tertiary">{c.totalMinutes(totalMin)} Β· {c.minRemaining(remainingMin)}</p>
           </div>
           <div className="text-right">
             <p className="text-lg font-bold tabular-nums text-text-primary">{progressPct}%</p>
-            <p className="text-[11px] font-medium tracking-wide text-text-tertiary">{c.dailyGoal}</p>
+            <p className="type-caption font-medium tracking-wide text-text-tertiary">{c.dailyGoal}</p>
           </div>
         </div>
         <div className="ux-progress-track h-2.5" role="progressbar" aria-valuenow={progressPct} aria-valuemin={0} aria-valuemax={100} aria-label={c.dailyGoal}>
@@ -385,18 +385,18 @@ export function Tasks({
           </p>
           {activeTask && (
             <p className="text-sm text-text-primary truncate">
-              <span className="text-[10px] uppercase tracking-wide text-text-secondary mr-2"><AllCapsLabel>{c.sessionRunningNow}</AllCapsLabel></span>
+              <span className="type-micro uppercase tracking-wide text-text-secondary mr-2"><AllCapsLabel>{c.sessionRunningNow}</AllCapsLabel></span>
               {activeTask.title}
             </p>
           )}
           {nextQueuedTask && nextQueuedTask.id !== activeTaskId && (
             <p className="text-xs text-text-tertiary truncate">{c.sessionUpNext(nextQueuedTask.title)}</p>
           )}
-          <p className="text-[10px] text-text-muted">{c.sessionAutoAdvanceHint}</p>
+          <p className="type-micro text-text-muted">{c.sessionAutoAdvanceHint}</p>
         </div>
       )}
 
-      {/* Session launchers — quieter under Minimal (OPT-R15); Wave I-T01 order kept */}
+      {/* Session launchers β€” quieter under Minimal (OPT-R15); Wave I-T01 order kept */}
       <div id="tasks-session-launchers" data-testid="tasks-session-launchers">
         <CollapsibleChromeSection title={t('chromeSessions', lang)} data-testid="tasks-sessions-chrome">
           <div className="space-y-2 pb-1">
@@ -405,7 +405,7 @@ export function Tasks({
               title={c.sessionSectionTitle}
               subtitle={c.sessionSectionSubtitle}
             />
-            {/* Merged Create Plan + recommended start — one primary path; cards remain alternate modes */}
+            {/* Merged Create Plan + recommended start β€” one primary path; cards remain alternate modes */}
             <PrimaryCTA
               type="button"
               data-testid="tasks-create-plan"
@@ -421,7 +421,7 @@ export function Tasks({
               <Play className="h-3.5 w-3.5 shrink-0" aria-hidden />
               {c.createPlanCta}
             </PrimaryCTA>
-            <p className="text-[11px] text-text-muted text-center sm:text-left -mt-0.5">{c.createPlanHint}</p>
+            <p className="type-caption text-text-muted text-center sm:text-left -mt-0.5">{c.createPlanHint}</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-2">
               {orderedSessionTypes.map((s) => {
                 const sessionTasks = filterTasksForSession(visibleTasks, s.type);
@@ -460,17 +460,17 @@ export function Tasks({
             <button
               key={block.label}
               type="button"
-              className="rounded-lg border border-border-subtle bg-surface-secondary/50 px-2.5 py-1.5 text-[11px] font-medium text-text-secondary hover:text-text-primary hover:bg-surface-hover"
+              className="rounded-lg border border-border-subtle bg-surface-secondary/50 px-2.5 py-1.5 type-caption font-medium text-text-secondary hover:text-text-primary hover:bg-surface-hover"
               onClick={() => {
                 const label = block.label.toLowerCase();
-                if (label.includes('mistake') || label.includes('λάθ')) setTab('mistakes');
-                else if (label.includes('review') || label.includes('επαναλ')) setTab('reviews');
-                else if (label.includes('weak') || label.includes('αδύναμ')) setTab('weak');
+                if (label.includes('mistake') || label.includes('Ξ»Ξ¬ΞΈ')) setTab('mistakes');
+                else if (label.includes('review') || label.includes('ΞµΟ€Ξ±Ξ½Ξ±Ξ»')) setTab('reviews');
+                else if (label.includes('weak') || label.includes('Ξ±Ξ΄ΟΞ½Ξ±ΞΌ')) setTab('weak');
                 else setTab('today');
               }}
             >
               {block.label}
-              <span className="ml-1 tabular-nums text-text-tertiary">· {block.minutes}′</span>
+              <span className="ml-1 tabular-nums text-text-tertiary">Β· {block.minutes}β€²</span>
             </button>
           ))}
         </div>
@@ -482,7 +482,7 @@ export function Tasks({
         onChange={setTab}
         testIdPrefix="tasks-tab"
         panelIdPrefix="tasks-panel"
-        ariaLabel={lang === 'el' ? 'Κατηγορίες εργασιών' : 'Task categories'}
+        ariaLabel={lang === 'el' ? 'ΞΞ±Ο„Ξ·Ξ³ΞΏΟΞ―ΞµΟ‚ ΞµΟΞ³Ξ±ΟƒΞΉΟΞ½' : 'Task categories'}
         trailing={
           <button
             type="button"
@@ -514,7 +514,7 @@ export function Tasks({
             </UxCallout>
           )}
           {showInsightStrip && (
-            /* Wave P-3 L04 — only use 2-col grid when both insight cards are
+            /* Wave P-3 L04 β€” only use 2-col grid when both insight cards are
                present; a single card previously left a large empty right column. */
             <div
               className={cn(
@@ -538,7 +538,7 @@ export function Tasks({
                     {almostKnownPreview.map((item) => (
                       <li key={item.concept} className="flex items-center justify-between gap-2 text-xs">
                         <span className="truncate font-medium text-text-primary">{item.concept}</span>
-                        <span className="ux-banner-warn-accent tabular-nums font-semibold shrink-0 text-[11px]">{Math.round(item.mastery)}%</span>
+                        <span className="ux-banner-warn-accent tabular-nums font-semibold shrink-0 type-caption">{Math.round(item.mastery)}%</span>
                       </li>
                     ))}
                   </ul>
@@ -631,7 +631,7 @@ export function Tasks({
                       <p className="text-sm font-medium text-text-primary truncate">{task.title}</p>
                       <div className="flex items-center gap-2 mt-0.5 text-xs text-text-tertiary flex-wrap">
                         <span>{task.courseName}</span>
-                        <span>·</span>
+                        <span>Β·</span>
                         <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{task.estimatedMinutes} min</span>
                       </div>
                     </div>
@@ -639,17 +639,17 @@ export function Tasks({
                       {isRunningNow && (
                         <span
                           data-testid={`task-running-badge-${task.id}`}
-                          className="text-[11px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-md bg-[var(--color-warm-ink)] text-white"
+                          className="type-caption font-bold uppercase tracking-wide px-2 py-0.5 rounded-md bg-[var(--color-warm-ink)] text-white"
                         >
                           <AllCapsLabel>{c.sessionRunningBadge}</AllCapsLabel>
                         </span>
                       )}
                       {(task.priority === 'critical' || task.priority === 'high') && (
-                        /* Wave P-3 C14 — solid danger chip for HIGH PRIORITY on
+                        /* Wave P-3 C14 β€” solid danger chip for HIGH PRIORITY on
                            white spectrum/warm cards (replaces translucent rose). */
                         <span
                           data-testid={`task-priority-badge-${task.id}`}
-                          className="ux-chip-solid-danger text-[11px] font-bold uppercase tracking-[0.06em] px-2 py-0.5 rounded-md"
+                          className="ux-chip-solid-danger type-caption font-bold uppercase tracking-[0.06em] px-2 py-0.5 rounded-md"
                         >
                           <AllCapsLabel>{c.highPriority}</AllCapsLabel>
                         </span>
@@ -682,14 +682,14 @@ export function Tasks({
                           data-testid={`task-expand-${task.id}`}
                         >
                           {(task.priority === 'high' || task.priority === 'critical') && (
-                            <p className="text-[10px] font-bold uppercase tracking-[0.08em] text-accent-rose">
+                            <p className="type-micro font-bold uppercase tracking-[0.08em] text-accent-rose">
                               <AllCapsLabel>{c.highPriority}</AllCapsLabel>
                             </p>
                           )}
                           <p className="text-sm text-text-secondary leading-relaxed">{task.description}</p>
                           {task.isSpacedRepetition && task.category === 'review' && onReviewRating && (
                             <div className="space-y-2 pt-0.5">
-                              <p className="text-[11px] text-text-muted">{c.fsrsReviewHint}</p>
+                              <p className="type-caption text-text-muted">{c.fsrsReviewHint}</p>
                               <div className="flex flex-wrap gap-1.5">
                                 {fsrsRatings.map(({ rating, label, color }) => (
                                   <button
@@ -742,7 +742,7 @@ export function Tasks({
                     <div>
                       <p className="text-sm font-semibold text-text-primary">{area.concept}</p>
                       <p className="text-xs text-text-tertiary mt-0.5">
-                        {courseNameById[area.courseId] ?? area.courseId} · {c.recentErrors(errors)}
+                        {courseNameById[area.courseId] ?? area.courseId} Β· {c.recentErrors(errors)}
                       </p>
                     </div>
                     <div className="text-right flex items-center gap-2">
@@ -804,10 +804,10 @@ export function Tasks({
             <div key={task.id} className="ux-card flex items-center gap-4">
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-text-primary">{task.title}</p>
-                <p className="text-xs text-text-tertiary mt-1">{task.courseName} · {task.estimatedMinutes} min</p>
+                <p className="text-xs text-text-tertiary mt-1">{task.courseName} Β· {task.estimatedMinutes} min</p>
               </div>
               {typeof intervalDays === 'number' && (
-                <span className="shrink-0 rounded-md border border-border-subtle bg-surface-secondary/60 px-2 py-1 text-[11px] font-semibold tabular-nums text-text-secondary">
+                <span className="shrink-0 rounded-md border border-border-subtle bg-surface-secondary/60 px-2 py-1 type-caption font-semibold tabular-nums text-text-secondary">
                   {c.intervalLabel(`${intervalDays}d`)}
                 </span>
               )}

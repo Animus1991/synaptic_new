@@ -25,7 +25,7 @@ type Props = {
 const fieldClass =
   'w-full rounded-lg border border-border-subtle bg-surface-secondary px-3 py-2 text-sm text-text-primary placeholder:text-text-muted focus:border-brand-500 focus:outline-none';
 
-/** Study Room lobby — create/join a collaborative co-reading session, then enter the Study Hub. */
+/** Study Room lobby β€” create/join a collaborative co-reading session, then enter the Study Hub. */
 export function StudyRoom({ userSettings, onOpenWorkspace }: Props) {
   const { t } = useI18n();
   const [apiStatus, setApiStatus] = useState<StudyRoomApiStatus | null>(null);
@@ -174,7 +174,7 @@ export function StudyRoom({ userSettings, onOpenWorkspace }: Props) {
             <SectionHeading title={t('studyRoomHubWhatTitle')} icon={Users} size="lg" />
             <p className="mt-3 text-sm leading-relaxed text-text-secondary">{t('studyRoomHubWhatBody')}</p>
             <span
-              className={`mt-4 inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-medium ${
+              className={`mt-4 inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 type-caption font-medium ${
                 isLocal
                   ? 'border-accent-amber/30 bg-accent-amber/10 text-accent-amber'
                   : 'border-accent-teal/30 bg-accent-teal/10 text-accent-teal'
@@ -247,7 +247,7 @@ export function StudyRoom({ userSettings, onOpenWorkspace }: Props) {
 
                 <div>
                   <p className="text-sm font-semibold text-text-primary">{t('studyRoomHubInviteTitle')}</p>
-                  <p className="mb-2 text-[11px] leading-relaxed text-text-muted">
+                  <p className="mb-2 type-caption leading-relaxed text-text-muted">
                     {copied ? t('studyRoomCopied') : t('studyRoomInviteExplain')}
                   </p>
                   <div className="flex items-center gap-2">
@@ -280,7 +280,7 @@ export function StudyRoom({ userSettings, onOpenWorkspace }: Props) {
                       >
                         <span className="font-medium">{m.displayName}</span>
                         {m.id === memberId && <span className="text-text-muted"> ({t('studyRoomYou')})</span>}
-                        {m.leading && <span className="text-text-muted"> · {t('studyRoomLeadingBadge')}</span>}
+                        {m.leading && <span className="text-text-muted"> Β· {t('studyRoomLeadingBadge')}</span>}
                       </li>
                     ))}
                   </ul>
@@ -295,12 +295,12 @@ export function StudyRoom({ userSettings, onOpenWorkspace }: Props) {
                     {t('studyRoomHubOpenWorkspace')}
                     <ArrowRight className="h-4 w-4" />
                   </PrimaryCTA>
-                  <p className="text-center text-[11px] text-text-muted">{t('studyRoomHubOpenWorkspaceHint')}</p>
+                  <p className="text-center type-caption text-text-muted">{t('studyRoomHubOpenWorkspaceHint')}</p>
                   <SecondaryCTA onClick={handleLeave} className="w-full" size="sm">
                     <LogOut className="h-3.5 w-3.5" />
                     {t('studyRoomLeave')}
                   </SecondaryCTA>
-                  <p className="text-center text-[11px] text-text-muted">{t('studyRoomHubLeaveHint')}</p>
+                  <p className="text-center type-caption text-text-muted">{t('studyRoomHubLeaveHint')}</p>
                 </div>
               </Card>
             ) : (
@@ -309,7 +309,7 @@ export function StudyRoom({ userSettings, onOpenWorkspace }: Props) {
                 <div>
                   <SectionHeading title={t('studyRoomHubStep1Title')} icon={Users} />
                   <label className="mt-2 block">
-                    <span className="mb-1 block text-[11px] font-medium uppercase tracking-wide text-text-muted">
+                    <span className="mb-1 block type-caption font-medium uppercase tracking-wide text-text-muted">
                       {t('studyRoomHubNameLabel')}
                     </span>
                     <input
@@ -321,7 +321,7 @@ export function StudyRoom({ userSettings, onOpenWorkspace }: Props) {
                       data-testid="study-room-hub-name"
                     />
                   </label>
-                  <p className="mt-1 text-[11px] leading-relaxed text-text-muted">{t('studyRoomHubNameHelp')}</p>
+                  <p className="mt-1 type-caption leading-relaxed text-text-muted">{t('studyRoomHubNameHelp')}</p>
                 </div>
 
                 {/* Step 2a: create */}
@@ -342,10 +342,10 @@ export function StudyRoom({ userSettings, onOpenWorkspace }: Props) {
                     <Plus className="h-4 w-4" />
                     {busy ? t('studyRoomCreating') : t('studyRoomNewRoom')}
                   </PrimaryCTA>
-                  <p className="mt-1 text-[11px] leading-relaxed text-text-muted">{t('studyRoomHubCreateHint')}</p>
+                  <p className="mt-1 type-caption leading-relaxed text-text-muted">{t('studyRoomHubCreateHint')}</p>
                 </form>
 
-                <div className="relative py-1 text-center text-[10px] text-text-muted">
+                <div className="relative py-1 text-center type-micro text-text-muted">
                   <span className="relative z-10 bg-surface-card px-2">{t('studyRoomOr')}</span>
                   <div className="absolute inset-x-0 top-1/2 border-t border-border-subtle" />
                 </div>
@@ -354,7 +354,7 @@ export function StudyRoom({ userSettings, onOpenWorkspace }: Props) {
                 <div>
                   <p className="mb-2 text-sm font-semibold text-text-primary">{t('studyRoomHubJoinTitle')}</p>
                   <label className="block">
-                    <span className="mb-1 block text-[11px] font-medium uppercase tracking-wide text-text-muted">
+                    <span className="mb-1 block type-caption font-medium uppercase tracking-wide text-text-muted">
                       {t('studyRoomInviteCode')}
                     </span>
                     <input
@@ -365,7 +365,7 @@ export function StudyRoom({ userSettings, onOpenWorkspace }: Props) {
                       data-testid="study-room-hub-invite"
                     />
                   </label>
-                  <p className="mt-1 mb-2 text-[11px] leading-relaxed text-text-muted">{t('studyRoomHubJoinHelp')}</p>
+                  <p className="mt-1 mb-2 type-caption leading-relaxed text-text-muted">{t('studyRoomHubJoinHelp')}</p>
                   <SecondaryCTA
                     onClick={() => void handleJoin()}
                     disabled={busy}

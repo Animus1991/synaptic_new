@@ -73,7 +73,7 @@ function stepProgress(index: number, activeIndex: number, snapshot: WorkspaceLiv
   return 82;
 }
 
-/* OPT-K101 — residual markup debt: decorative brand type -> ink */
+/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
 export function DashboardLivePreview({
   live,
   lang,
@@ -83,7 +83,7 @@ export function DashboardLivePreview({
   live: WorkspaceLiveSync;
   lang: Lang;
   onOpenWorkspace?: () => void;
-  /** Dense mockup strip (Wave J-D03) — eyebrow + title + Continue. */
+  /** Dense mockup strip (Wave J-D03) β€” eyebrow + title + Continue. */
   compact?: boolean;
 }) {
   const { t } = useI18n();
@@ -91,7 +91,7 @@ export function DashboardLivePreview({
   const activeIndex = activeStepIndex(steps, live.snapshot);
   const concept = live.snapshot.activeConcept?.trim();
   const course = live.snapshot.courseLabel?.trim();
-  const headline = [concept, course].filter(Boolean).join(' · ')
+  const headline = [concept, course].filter(Boolean).join(' Β· ')
     || course
     || concept
     || t('dashboardResumeTitle');
@@ -111,11 +111,11 @@ export function DashboardLivePreview({
       >
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="min-w-0 flex-1">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-text-secondary">
+            <p className="type-micro font-semibold uppercase tracking-[0.08em] text-text-secondary">
               <AllCapsLabel>{t('dashboardLivePreviewEyebrow')}</AllCapsLabel>
             </p>
             <h2 className="mt-1 truncate text-sm font-semibold text-text-primary">{headline}</h2>
-            <p className="mt-0.5 text-[11px] text-text-tertiary line-clamp-1">{meta}</p>
+            <p className="mt-0.5 type-caption text-text-tertiary line-clamp-1">{meta}</p>
           </div>
           {onOpenWorkspace && (
             <button
@@ -198,7 +198,7 @@ export function DashboardLivePreview({
           <span className="font-medium text-text-primary">
             {nextActionLabel(live.nextAction.primary, lang)}
           </span>
-          {' — '}{live.nextAction.reason}
+          {' β€” '}{live.nextAction.reason}
         </p>
       )}
 

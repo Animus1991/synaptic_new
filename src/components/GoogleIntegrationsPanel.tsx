@@ -34,7 +34,7 @@ type Props = {
   lang?: 'en' | 'el';
 };
 
-/* OPT-K101 — residual markup debt: decorative brand type -> ink */
+/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
 export function GoogleIntegrationsPanel({
   settings,
   onUpdate,
@@ -113,7 +113,7 @@ export function GoogleIntegrationsPanel({
 
   const formatEventWhen = (ev: CalendarEventLite): string => {
     const raw = ev.start?.dateTime ?? ev.start?.date;
-    if (!raw) return '—';
+    if (!raw) return 'β€”';
     return formatDateTime(raw, lang);
   };
 
@@ -303,7 +303,7 @@ export function GoogleIntegrationsPanel({
         )}
         {status?.connected && (
           <>
-            <span className="ws-chip-ok inline-flex items-center rounded-full px-2 py-1 text-[10px]">
+            <span className="ws-chip-ok inline-flex items-center rounded-full px-2 py-1 type-micro">
               {status.email ?? t('googleConnected')}
             </span>
             <button
@@ -311,7 +311,7 @@ export function GoogleIntegrationsPanel({
               data-testid="google-disconnect"
               onClick={() => void handleDisconnect()}
               disabled={loading}
-              className="inline-flex items-center gap-1 rounded-lg border border-border-subtle px-2 py-1 text-[10px] text-text-muted hover:text-text-secondary"
+              className="inline-flex items-center gap-1 rounded-lg border border-border-subtle px-2 py-1 type-micro text-text-muted hover:text-text-secondary"
             >
               <XCircle className="h-3 w-3" />
               {t('googleDisconnect')}
@@ -376,10 +376,10 @@ export function GoogleIntegrationsPanel({
             </button>
           </div>
           <div className="space-y-1 pt-2 border-t border-border-subtle/60">
-            <p className="text-[10px] font-semibold text-text-muted uppercase tracking-wide">
+            <p className="type-micro font-semibold text-text-muted uppercase tracking-wide">
               <AllCapsLabel>{t('googleUpcomingEvents')}</AllCapsLabel>
             </p>
-            <ul className="max-h-40 space-y-1 overflow-y-auto text-[11px] text-text-secondary" data-testid="google-calendar-events">
+            <ul className="max-h-40 space-y-1 overflow-y-auto type-caption text-text-secondary" data-testid="google-calendar-events">
               {calendarEvents.map((ev) => (
                 <li
                   key={ev.id}
@@ -388,14 +388,14 @@ export function GoogleIntegrationsPanel({
                 >
                   <div className="min-w-0 flex-1">
                     <p className="truncate font-medium text-text-primary">{ev.summary ?? ev.id}</p>
-                    <p className="text-[10px] text-text-muted">{formatEventWhen(ev)}</p>
+                    <p className="type-micro text-text-muted">{formatEventWhen(ev)}</p>
                   </div>
                   <button
                     type="button"
                     disabled={loading}
                     onClick={() => void handleDeleteCalendarEvent(ev.id)}
                     data-testid={`google-calendar-delete-${ev.id}`}
-                    className="shrink-0 text-[10px] text-accent-rose hover:underline"
+                    className="shrink-0 type-micro text-accent-rose hover:underline"
                   >
                     {t('googleDeleteEvent')}
                   </button>
@@ -464,7 +464,7 @@ export function GoogleIntegrationsPanel({
               {t('googleAdd')}
             </button>
           </div>
-          <ul className="max-h-40 space-y-1 overflow-y-auto text-[11px] text-text-secondary">
+          <ul className="max-h-40 space-y-1 overflow-y-auto type-caption text-text-secondary">
             {tasks.map((task) => (
               <li key={task.id ?? task.title} className="truncate rounded bg-surface-card/60 px-2 py-1">
                 {task.title}

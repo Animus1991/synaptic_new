@@ -29,14 +29,14 @@ interface Props {
 /**
  * Lightweight, dependency-free command palette.
  *
- * - Opens via parent shortcut (⌘K / Ctrl+K) — keyboard handling lives at
+ * - Opens via parent shortcut (βK / Ctrl+K) β€” keyboard handling lives at
  *   parent level so the palette can be reused from any host.
  * - Filters by token-AND match across `label` + `group` + `hint` so users
- *   can type partial words ("focus tool", "swap pane", …).
+ *   can type partial words ("focus tool", "swap pane", β€¦).
  * - Up/Down/Enter for keyboard nav; Escape closes.
  *
  * Why custom (instead of e.g. cmdk): we already ship a tiny bundle and
- * adding another React tree just for this widget is unjustified — the
+ * adding another React tree just for this widget is unjustified β€” the
  * surface here is < 90 lines.
  */
 export function CommandPalette({ open, onClose, items, placeholder }: Props) {
@@ -155,7 +155,7 @@ export function CommandPalette({ open, onClose, items, placeholder }: Props) {
                   setActive(0);
                 }}
                 onKeyDown={onKey}
-                placeholder={placeholder ?? 'Type a command, tool, or layout…'}
+                placeholder={placeholder ?? 'Type a command, tool, or layoutβ€¦'}
                 data-testid="command-palette-input"
                 className="command-palette-input flex-1 bg-transparent text-sm text-text-primary placeholder:text-text-muted focus:outline-none"
               />
@@ -199,7 +199,7 @@ export function CommandPalette({ open, onClose, items, placeholder }: Props) {
                           <div className="min-w-0 flex-1">
                             <div className="truncate">{it.label}</div>
                             {it.hint && (
-                              <div className="command-palette-path truncate text-[11px] text-text-muted">{it.hint}</div>
+                              <div className="command-palette-path truncate type-caption text-text-muted">{it.hint}</div>
                             )}
                           </div>
                           {it.shortcut && (
@@ -216,7 +216,7 @@ export function CommandPalette({ open, onClose, items, placeholder }: Props) {
             </div>
 
             <div className="border-t border-border-subtle px-4 py-2 type-caption text-text-muted">
-              ↑ ↓ navigate · Enter run · Esc close
+              β†‘ β†“ navigate Β· Enter run Β· Esc close
             </div>
           </motion.div>
         </motion.div>

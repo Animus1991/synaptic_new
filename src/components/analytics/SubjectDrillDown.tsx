@@ -11,14 +11,14 @@ type Props = {
   onStudyConcept: (concept: string) => void;
 };
 
-/* OPT-K101 — residual markup debt: decorative brand type -> ink */
+/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
 export function SubjectDrillDown({ tile, onClose, onStudyConcept }: Props) {
   const { lang } = useI18n();
   if (!tile) return null;
 
-  const title = lang === 'el' ? 'Έννοιες μαθήματος' : 'Course concepts';
-  const study = lang === 'el' ? 'Μελέτη' : 'Study';
-  const closeLabel = lang === 'el' ? 'Κλείσιμο' : 'Close';
+  const title = lang === 'el' ? 'ΞΞ½Ξ½ΞΏΞΉΞµΟ‚ ΞΌΞ±ΞΈΞ®ΞΌΞ±Ο„ΞΏΟ‚' : 'Course concepts';
+  const study = lang === 'el' ? 'ΞΞµΞ»Ξ­Ο„Ξ·' : 'Study';
+  const closeLabel = lang === 'el' ? 'ΞΞ»ΞµΞ―ΟƒΞΉΞΌΞΏ' : 'Close';
 
   const topics = [...tile.topics].sort((a, b) => a.mastery - b.mastery);
 
@@ -37,7 +37,7 @@ export function SubjectDrillDown({ tile, onClose, onStudyConcept }: Props) {
       >
         <div className="flex items-start justify-between gap-2 border-b border-border-subtle px-4 py-3">
           <div className="min-w-0">
-            <p className="text-[10px] font-semibold uppercase tracking-wide text-text-tertiary"><AllCapsLabel>{title}</AllCapsLabel></p>
+            <p className="type-micro font-semibold uppercase tracking-wide text-text-tertiary"><AllCapsLabel>{title}</AllCapsLabel></p>
             <h3 className="text-sm font-semibold text-text-primary truncate">{tile.title}</h3>
             <p className="text-xs text-text-secondary mt-0.5 tabular-nums">{tile.mastery}% mastery</p>
           </div>
@@ -54,7 +54,7 @@ export function SubjectDrillDown({ tile, onClose, onStudyConcept }: Props) {
         <ul className="overflow-y-auto p-3 space-y-2">
           {topics.length === 0 ? (
             <li className="text-xs text-text-tertiary px-1">
-              {lang === 'el' ? 'Δεν υπάρχουν θέματα ακόμα.' : 'No topics yet.'}
+              {lang === 'el' ? 'Ξ”ΞµΞ½ Ο…Ο€Ξ¬ΟΟ‡ΞΏΟ…Ξ½ ΞΈΞ­ΞΌΞ±Ο„Ξ± Ξ±ΞΊΟΞΌΞ±.' : 'No topics yet.'}
             </li>
           ) : (
             topics.map((topic) => (
@@ -65,7 +65,7 @@ export function SubjectDrillDown({ tile, onClose, onStudyConcept }: Props) {
               >
                 <div className="flex items-center justify-between gap-2 mb-1.5">
                   <p className="text-xs font-medium text-text-primary truncate">{topic.title}</p>
-                  <span className="text-[10px] tabular-nums text-text-secondary shrink-0">{Math.round(topic.mastery)}%</span>
+                  <span className="type-micro tabular-nums text-text-secondary shrink-0">{Math.round(topic.mastery)}%</span>
                 </div>
                 <CompactProgressBar pct={topic.mastery} />
                 <button

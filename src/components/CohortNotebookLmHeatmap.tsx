@@ -18,34 +18,34 @@ export function CohortNotebookLmHeatmap({ analytics, lang }: Props) {
   if (heatmaps.length === 0) return null;
 
   const el = lang === 'el';
-  const title = el ? 'NotebookLM bridge — cohort' : 'NotebookLM bridge — cohort';
+  const title = el ? 'NotebookLM bridge β€” cohort' : 'NotebookLM bridge β€” cohort';
 
   return (
     <div className="space-y-3 pt-3 border-t border-border-subtle/50" data-testid="notebooklm-cohort-heatmap">
       <div>
         <p className="text-xs font-medium text-text-primary">{title}</p>
-        <p className="text-[10px] text-text-muted mt-0.5">
+        <p className="type-micro text-text-muted mt-0.5">
           {el
-            ? 'Εισαγωγές NLM ανά μαθητή (synced library).'
+            ? 'Ξ•ΞΉΟƒΞ±Ξ³Ο‰Ξ³Ξ­Ο‚ NLM Ξ±Ξ½Ξ¬ ΞΌΞ±ΞΈΞ·Ο„Ξ® (synced library).'
             : 'NLM imports per student (synced library).'}
         </p>
       </div>
       {heatmaps.map((hm) => (
         <div key={hm.classId} className="space-y-1.5">
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <p className="text-[10px] text-text-muted truncate">{hm.className}</p>
-            <p className="text-[10px] text-text-secondary">
+            <p className="type-micro text-text-muted truncate">{hm.className}</p>
+            <p className="type-micro text-text-secondary">
               {hm.studentsWithImports}/{hm.students.length}
-              {el ? ' με NLM' : ' with NLM'}
-              {' · '}
-              {hm.totalImports} {el ? 'αρχεία' : 'files'}
+              {el ? ' ΞΌΞµ NLM' : ' with NLM'}
+              {' Β· '}
+              {hm.totalImports} {el ? 'Ξ±ΟΟ‡ΞµΞ―Ξ±' : 'files'}
             </p>
           </div>
           <div className="flex flex-wrap gap-1">
             {hm.students.map((student) => {
               const tip = student.totalCount > 0
-                ? `${student.studentLabel}: ${student.importCount} import · ${student.chatCount} chat · ${student.audioCount} audio`
-                : `${student.studentLabel}: —`;
+                ? `${student.studentLabel}: ${student.importCount} import Β· ${student.chatCount} chat Β· ${student.audioCount} audio`
+                : `${student.studentLabel}: β€”`;
               return (
                 <div
                   key={student.enrollmentId}
@@ -59,21 +59,21 @@ export function CohortNotebookLmHeatmap({ analytics, lang }: Props) {
                   <p className="text-[7px] text-text-primary truncate leading-tight">
                     {student.studentLabel}
                   </p>
-                  <p className="text-[10px] font-bold text-text-primary text-center">
-                    {student.totalCount > 0 ? student.totalCount : '—'}
+                  <p className="type-micro font-bold text-text-primary text-center">
+                    {student.totalCount > 0 ? student.totalCount : 'β€”'}
                   </p>
                 </div>
               );
             })}
           </div>
           {(hm.artifactTotals.import + hm.artifactTotals.chat + hm.artifactTotals.audio) > 0 && (
-            <p className="text-[10px] text-text-muted">
-              {el ? 'Σύνολο' : 'Totals'}:
+            <p className="type-micro text-text-muted">
+              {el ? 'Ξ£ΟΞ½ΞΏΞ»ΞΏ' : 'Totals'}:
               {' '}
-              {hm.artifactTotals.import} {el ? 'εισαγωγές' : 'imports'}
-              {' · '}
+              {hm.artifactTotals.import} {el ? 'ΞµΞΉΟƒΞ±Ξ³Ο‰Ξ³Ξ­Ο‚' : 'imports'}
+              {' Β· '}
               {hm.artifactTotals.chat} chat
-              {' · '}
+              {' Β· '}
               {hm.artifactTotals.audio} audio
             </p>
           )}

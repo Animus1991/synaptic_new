@@ -278,14 +278,6 @@ export function LeitnerBox({
               className="flex w-full items-center gap-1.5 px-3 py-2 text-left type-caption font-medium text-text-secondary hover:bg-surface-muted hover:text-text-primary"
             >
               <Download className="h-3.5 w-3.5" aria-hidden />
-              {t('leitnerExportAnki')}
-            </button>
-            <button
-              type="button"
-              data-testid="leitner-export-anki-apkg"
-              onClick={() => void handleAnkiExportApkg()}
-              className="block w-full px-3 py-1.5 text-left type-caption text-text-muted hover:bg-surface-muted hover:text-text-primary"
-            >
               {t('leitnerExportAnkiApkg')}
             </button>
             <button

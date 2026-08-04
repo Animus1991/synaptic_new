@@ -22,7 +22,7 @@ type Props = {
   onClose: () => void;
 };
 
-/* OPT-K101 — residual markup debt: decorative brand type -> ink */
+/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
 export function AnnotationRemapPanel({
   entries,
   edgeReport,
@@ -45,9 +45,9 @@ export function AnnotationRemapPanel({
       data-testid="annotation-remap-panel"
     >
       <div className="sticky top-0 z-10 flex flex-wrap items-center justify-between gap-2 border-b border-border-subtle bg-surface-card px-4 py-2">
-        <p className="text-[11px] font-semibold text-accent-amber">
+        <p className="type-caption font-semibold text-accent-amber">
           {t('annoAnchorRemap')}
-          {' · '}
+          {' Β· '}
           {entries.length}
         </p>
         <div className="flex flex-wrap gap-1.5">

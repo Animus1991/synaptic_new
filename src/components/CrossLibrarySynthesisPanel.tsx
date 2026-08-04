@@ -11,7 +11,7 @@ type Props = {
   className?: string;
 };
 
-/* OPT-K101 — residual markup debt: decorative brand type -> ink */
+/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
 export function CrossLibrarySynthesisPanel({ courses, settings, lang, className }: Props) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
@@ -25,12 +25,12 @@ export function CrossLibrarySynthesisPanel({ courses, settings, lang, className 
   const token = settings?.authToken?.trim();
   const defaultQuery =
     lang === 'el'
-      ? 'Ποια είναι τα κύρια θέματα και οι σχέσεις μεταξύ των εγγράφων μου;'
+      ? 'Ξ ΞΏΞΉΞ± ΞµΞ―Ξ½Ξ±ΞΉ Ο„Ξ± ΞΊΟΟΞΉΞ± ΞΈΞ­ΞΌΞ±Ο„Ξ± ΞΊΞ±ΞΉ ΞΏΞΉ ΟƒΟ‡Ξ­ΟƒΞµΞΉΟ‚ ΞΌΞµΟ„Ξ±ΞΎΟ Ο„Ο‰Ξ½ ΞµΞ³Ξ³ΟΞ¬Ο†Ο‰Ξ½ ΞΌΞΏΟ…;'
       : 'What are the main themes and connections across my documents?';
 
   const runSynthesis = async () => {
     if (!token || !settings) {
-      setError(lang === 'el' ? 'Απαιτείται σύνδεση στο proxy.' : 'Proxy sign-in required.');
+      setError(lang === 'el' ? 'Ξ‘Ο€Ξ±ΞΉΟ„ΞµΞ―Ο„Ξ±ΞΉ ΟƒΟΞ½Ξ΄ΞµΟƒΞ· ΟƒΟ„ΞΏ proxy.' : 'Proxy sign-in required.');
       return;
     }
     setBusy(true);
@@ -56,15 +56,15 @@ export function CrossLibrarySynthesisPanel({ courses, settings, lang, className 
     }
   };
 
-  const title = lang === 'el' ? 'Συνδυαστική μελέτη' : 'Combined study';
+  const title = lang === 'el' ? 'Ξ£Ο…Ξ½Ξ΄Ο…Ξ±ΟƒΟ„ΞΉΞΊΞ® ΞΌΞµΞ»Ξ­Ο„Ξ·' : 'Combined study';
   const promo =
     lang === 'el'
-      ? 'Δημιουργήστε συνθετικές κάρτες και ερωτήσεις συνδυάζοντας ύλη από 2+ μαθήματα.'
+      ? 'Ξ”Ξ·ΞΌΞΉΞΏΟ…ΟΞ³Ξ®ΟƒΟ„Ξµ ΟƒΟ…Ξ½ΞΈΞµΟ„ΞΉΞΊΞ­Ο‚ ΞΊΞ¬ΟΟ„ΞµΟ‚ ΞΊΞ±ΞΉ ΞµΟΟ‰Ο„Ξ®ΟƒΞµΞΉΟ‚ ΟƒΟ…Ξ½Ξ΄Ο…Ξ¬Ξ¶ΞΏΞ½Ο„Ξ±Ο‚ ΟΞ»Ξ· Ξ±Ο€Ο 2+ ΞΌΞ±ΞΈΞ®ΞΌΞ±Ο„Ξ±.'
       : 'Create synthetic cards and questions by combining material from 2+ courses.';
-  const selectLabel = lang === 'el' ? 'Επιλογή' : 'Select';
+  const selectLabel = lang === 'el' ? 'Ξ•Ο€ΞΉΞ»ΞΏΞ³Ξ®' : 'Select';
   const subtitle =
     lang === 'el'
-      ? 'Σύνθεση θεμάτων με πηγές από όλα τα έγγραφα της βιβλιοθήκης.'
+      ? 'Ξ£ΟΞ½ΞΈΞµΟƒΞ· ΞΈΞµΞΌΞ¬Ο„Ο‰Ξ½ ΞΌΞµ Ο€Ξ·Ξ³Ξ­Ο‚ Ξ±Ο€Ο ΟΞ»Ξ± Ο„Ξ± Ξ­Ξ³Ξ³ΟΞ±Ο†Ξ± Ο„Ξ·Ο‚ Ξ²ΞΉΞ²Ξ»ΞΉΞΏΞΈΞ®ΞΊΞ·Ο‚.'
       : 'Theme digest with citations across your library documents.';
 
   return (
@@ -84,13 +84,13 @@ export function CrossLibrarySynthesisPanel({ courses, settings, lang, className 
         <span className="min-w-0 flex-1">
           <span className="block text-xs font-semibold text-text-primary">{title}</span>
           {/* Promo ink uses theme secondary (warm sepia / spectrum ink / blueprint slate)
-              — hardcoded violet-300 was ~1.5:1 on light cards. */}
-          <span className="ux-combined-study-promo block text-[10px] line-clamp-1">{promo}</span>
+              β€” hardcoded violet-300 was ~1.5:1 on light cards. */}
+          <span className="ux-combined-study-promo block type-micro line-clamp-1">{promo}</span>
         </span>
         <button
           type="button"
           onClick={() => setOpen((v) => !v)}
-          className="ux-combined-study-action shrink-0 inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-semibold border"
+          className="ux-combined-study-action shrink-0 inline-flex items-center gap-1 px-2.5 py-1 rounded-lg type-micro font-semibold border"
           data-testid="cross-library-synthesis-select"
         >
           {selectLabel}
@@ -103,7 +103,7 @@ export function CrossLibrarySynthesisPanel({ courses, settings, lang, className 
           {!token && (
             <p className="text-xs text-text-muted" data-testid="cross-library-synthesis-demo-hint">
               {lang === 'el'
-                ? 'Συνδέσου στο proxy για σύνθεση μεταξύ μαθημάτων. Τα demo μένουν τοπικά μέχρι τότε.'
+                ? 'Ξ£Ο…Ξ½Ξ΄Ξ­ΟƒΞΏΟ… ΟƒΟ„ΞΏ proxy Ξ³ΞΉΞ± ΟƒΟΞ½ΞΈΞµΟƒΞ· ΞΌΞµΟ„Ξ±ΞΎΟ ΞΌΞ±ΞΈΞ·ΞΌΞ¬Ο„Ο‰Ξ½. Ξ¤Ξ± demo ΞΌΞ­Ξ½ΞΏΟ…Ξ½ Ο„ΞΏΟ€ΞΉΞΊΞ¬ ΞΌΞ­Ο‡ΟΞΉ Ο„ΟΟ„Ξµ.'
                 : 'Sign in to the proxy to synthesize across courses. Demo libraries stay local until then.'}
             </p>
           )}
@@ -128,7 +128,7 @@ export function CrossLibrarySynthesisPanel({ courses, settings, lang, className 
               className="w-full rounded-lg border border-brand-500/25 bg-surface-primary px-2 py-1 text-xs text-text-primary"
               data-testid="cross-library-synthesis-scope"
             >
-              <option value="all">{lang === 'el' ? 'Όλα τα μαθήματα' : 'All courses'}</option>
+              <option value="all">{lang === 'el' ? 'ΞΞ»Ξ± Ο„Ξ± ΞΌΞ±ΞΈΞ®ΞΌΞ±Ο„Ξ±' : 'All courses'}</option>
               {courses.map((c) => (
                 <option key={c.id} value={c.id}>
                   {c.title}
@@ -142,15 +142,15 @@ export function CrossLibrarySynthesisPanel({ courses, settings, lang, className 
             onClick={() => void runSynthesis()}
             className="ux-combined-study-cta inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold border disabled:opacity-55"
             data-testid="cross-library-synthesis-run"
-            title={!token ? (lang === 'el' ? 'Απαιτείται σύνδεση' : 'Sign-in required') : undefined}
+            title={!token ? (lang === 'el' ? 'Ξ‘Ο€Ξ±ΞΉΟ„ΞµΞ―Ο„Ξ±ΞΉ ΟƒΟΞ½Ξ΄ΞµΟƒΞ·' : 'Sign-in required') : undefined}
           >
             {busy ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}
             {busy
               ? lang === 'el'
-                ? 'Σύνθεση…'
-                : 'Synthesizing…'
+                ? 'Ξ£ΟΞ½ΞΈΞµΟƒΞ·β€¦'
+                : 'Synthesizingβ€¦'
               : lang === 'el'
-                ? 'Σύνθεση'
+                ? 'Ξ£ΟΞ½ΞΈΞµΟƒΞ·'
                 : 'Synthesize'}
           </button>
           {error && (
@@ -177,8 +177,8 @@ export function CrossLibrarySynthesisPanel({ courses, settings, lang, className 
                 {citations.length}{' '}
                 {lang === 'el'
                   ? citations.length === 1
-                    ? 'πηγή'
-                    : 'πηγές'
+                    ? 'Ο€Ξ·Ξ³Ξ®'
+                    : 'Ο€Ξ·Ξ³Ξ­Ο‚'
                   : citations.length === 1
                     ? 'source'
                     : 'sources'}
@@ -189,7 +189,7 @@ export function CrossLibrarySynthesisPanel({ courses, settings, lang, className 
                   {citations.map((c) => (
                     <li key={c.chunkId} className="px-2 py-1.5 text-xs">
                       <p className="font-medium text-text-primary truncate">
-                        {c.fileName} · {c.locator}
+                        {c.fileName} Β· {c.locator}
                       </p>
                       <p className="text-text-secondary mt-0.5 line-clamp-2">{c.snippet}</p>
                     </li>

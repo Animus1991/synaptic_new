@@ -34,7 +34,7 @@ export function StudentUpcomingPanel({ upcoming, ui, lang }: Props) {
               <p className="font-medium text-text-primary truncate">{row.title}</p>
               <p className="text-xs text-text-muted truncate">
                 {row.className}
-                {row.dueAt ? ` · ${formatShortDate(row.dueAt, lang)}` : ''}
+                {row.dueAt ? ` Β· ${formatShortDate(row.dueAt, lang)}` : ''}
               </p>
             </div>
             <div className="flex items-center gap-2 shrink-0">
@@ -43,7 +43,7 @@ export function StudentUpcomingPanel({ upcoming, ui, lang }: Props) {
               )}
               <span
                 className={cn(
-                  'text-[10px] px-2 py-0.5 rounded-full border capitalize',
+                  'type-micro px-2 py-0.5 rounded-full border capitalize',
                   toneClass[assignmentStatusTone(row.status)],
                 )}
               >

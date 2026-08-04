@@ -82,7 +82,7 @@ Perf root causes fixed (E0): per-tool intel gates; noteBundle pipeline decoupled
 | ID | Scope | Findings (screenshots) → outcome |
 |----|-------|----------------------------------|
 | E0 | Perf (**done**) | Open ≈ interactive immediately; switches instant post warm-up. Dev longtask/profiler/pipeline console diagnostics removed at E14 |
-| E1 | Design tokens foundation | **partial** — workspace type floor + bulk `text-[10px]`→`type-caption` in workspace panels. Remaining: `workspaceOpticalTokens` module + contract tests; sweep non-workspace leftovers |
+| E1 | Design tokens foundation | **done** — workspace type floor + `workspaceOpticalTokens` module with contract tests (`workspaceOpticalTokens.test.ts`); platform-wide sweep: all `text-[9/10/11px]` → `type-micro`/`type-caption` (122+ files); global floor lifted micro 10→11px, caption 11→12px (workspace stays 12/13) |
 | E2 | Shared tool chrome | **partial** — `WorkspaceToolHeader` + `InfoHint` exist; still demote meta chrome (GUIDE duplication, chip vs button semantics) across panels |
 | E3 | Whiteboard | **done** — canvas-first; coach collapsed by default; chrome/filters collapsible; grouped draw/shape toolbar + overflow for layers/export |
 | E4 | Concept Map | **done** — single toolbar; Force/Hierarchy/PNG/Reset overflow; layers collapsible; stronger node labels; legend + InfoHint |

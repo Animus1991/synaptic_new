@@ -33,7 +33,7 @@ type Props = {
   onReprocess?: () => void;
 };
 
-/* OPT-K100 — markup debt: Agent/Reader/tools decorative brand type -> ink */
+/* OPT-K100 β€” markup debt: Agent/Reader/tools decorative brand type -> ink */
 export function ConceptBusPanel({
   rows,
   activeTool,
@@ -65,7 +65,7 @@ export function ConceptBusPanel({
         <div className="flex items-center gap-2 min-w-0">
           <GitBranch className="w-3.5 h-3.5 text-text-primary shrink-0" />
           <div className="min-w-0">
-            <p className="text-[11px] font-semibold text-text-primary truncate">
+            <p className="type-caption font-semibold text-text-primary truncate">
               {t('busTitle')}
             </p>
             <p className="type-caption text-text-tertiary truncate">
@@ -172,7 +172,7 @@ export function ConceptBusPanel({
                       onClick={() => onFocusTerm(r.label)}
                       className="rounded px-1.5 py-0.5 type-caption border border-border-subtle text-text-muted hover:text-text-primary"
                     >
-                      ← {r.label}
+                      β† {r.label}
                     </button>
                   ))}
                   {activeLens.related.slice(0, 2).map((r) => (
@@ -194,7 +194,7 @@ export function ConceptBusPanel({
                   className="mt-1 type-caption text-text-primary hover:underline"
                   data-testid="concept-bus-reader-link"
                 >
-                  {t('busOpenInReader')} · {activeLens.sourceSections[0]}
+                  {t('busOpenInReader')} Β· {activeLens.sourceSections[0]}
                 </button>
               )}
             </div>
@@ -211,7 +211,7 @@ export function ConceptBusPanel({
                 <button
                   type="button"
                   onClick={() => onFocusTerm(row.concept)}
-                  className="text-[11px] font-semibold text-text-primary hover:text-text-primary truncate max-w-[200px]"
+                  className="type-caption font-semibold text-text-primary hover:text-text-primary truncate max-w-[200px]"
                 >
                   {row.concept}
                 </button>
@@ -250,7 +250,7 @@ export function ConceptBusPanel({
               </div>
               {row.signals.length > 0 && (
                 <p className="mt-1 type-caption text-text-muted truncate">
-                  {row.signals.map((s) => SIGNAL_LABELS[s][lang]).join(' → ')}
+                  {row.signals.map((s) => SIGNAL_LABELS[s][lang]).join(' β†’ ')}
                 </p>
               )}
               {onRemediate && (row.struggling || row.signals.some((s) => s === 'quiz-wrong' || s === 'leitner-hard' || s === 'annotated-confusing')) && (

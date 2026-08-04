@@ -30,11 +30,11 @@ type Props = {
   onAskAgent?: () => void;
   onSelectionAction?: (action: WorkspaceSelectionActionId, ctx: WorkspaceSelectionContext) => void;
   onExplainDifference?: (row: { term: string; text: string }) => void;
-  /** OPT-AI-B — source-grounded compare micro-diff (may hand off to Agent). */
+  /** OPT-AI-B β€” source-grounded compare micro-diff (may hand off to Agent). */
   onAiDiff?: (left: string, right: string) => void;
 };
 
-/* OPT-K100 — markup debt: Agent/Reader/tools decorative brand type -> ink */
+/* OPT-K100 β€” markup debt: Agent/Reader/tools decorative brand type -> ink */
 export function ComparePanel({
   session,
   concept,
@@ -145,7 +145,7 @@ export function ComparePanel({
             value={filterQuery}
             onChange={(e) => setFilterQuery(e.target.value)}
             placeholder={t('compareFilterPlaceholder')}
-            className="w-full rounded-lg border border-border-subtle bg-surface-card py-1.5 pl-7 pr-2 text-[11px] text-text-secondary placeholder:text-text-muted focus:border-accent-cyan/40 focus:outline-none"
+            className="w-full rounded-lg border border-border-subtle bg-surface-card py-1.5 pl-7 pr-2 type-caption text-text-secondary placeholder:text-text-muted focus:border-accent-cyan/40 focus:outline-none"
             data-testid="compare-filter"
           />
         </div>
@@ -215,7 +215,7 @@ export function ComparePanel({
 
       <div className="flex-1 overflow-y-auto min-h-0">
         {visibleRows.length === 0 ? (
-          <p className="text-[11px] text-text-muted px-1">
+          <p className="type-caption text-text-muted px-1">
             {t('compareNoFilterMatch')}
           </p>
         ) : (

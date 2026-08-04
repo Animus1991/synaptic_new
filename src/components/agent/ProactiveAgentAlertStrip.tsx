@@ -62,7 +62,7 @@ export function ProactiveAgentAlertStrip({ alerts, onRun }: Props) {
                       {alert.title}
                       <ArrowRight className="w-3 h-3 opacity-70 group-hover:translate-x-0.5 transition-transform" />
                     </span>
-                    <span className="block text-[10px] text-text-muted line-clamp-2 mt-0.5">{alert.message}</span>
+                    <span className="block type-micro text-text-muted line-clamp-2 mt-0.5">{alert.message}</span>
                   </span>
                 </button>
               );

@@ -14,25 +14,25 @@ export function StudentOrgSummary({ dashboard, ui }: Props) {
       data-testid="student-org-summary"
     >
       <div className="rounded-xl border border-border-subtle bg-surface-card/60 p-3">
-        <p className="text-[10px] text-text-muted">{ui.statClasses}</p>
+        <p className="type-micro text-text-muted">{ui.statClasses}</p>
         <p className="text-lg font-semibold text-text-primary">{dashboard.classCount}</p>
       </div>
       <div className="rounded-xl border border-border-subtle bg-surface-card/60 p-3">
-        <p className="text-[10px] text-text-muted">{ui.statAvgScore}</p>
+        <p className="type-micro text-text-muted">{ui.statAvgScore}</p>
         <p className="text-lg font-semibold text-text-primary">
-          {dashboard.avgScore != null ? `${Math.round(dashboard.avgScore)}%` : '—'}
+          {dashboard.avgScore != null ? `${Math.round(dashboard.avgScore)}%` : 'β€”'}
         </p>
       </div>
       <div className="rounded-xl border border-border-subtle bg-surface-card/60 p-3">
-        <p className="text-[10px] text-text-muted">{ui.statCompletion}</p>
+        <p className="type-micro text-text-muted">{ui.statCompletion}</p>
         <p className="text-lg font-semibold text-text-primary">
           {dashboard.completionRate != null
             ? `${Math.round(dashboard.completionRate * 100)}%`
-            : '—'}
+            : 'β€”'}
         </p>
       </div>
       <div className="rounded-xl border border-border-subtle bg-surface-card/60 p-3">
-        <p className="text-[10px] text-text-muted">{ui.statOverdue}</p>
+        <p className="type-micro text-text-muted">{ui.statOverdue}</p>
         <p
           className={cn(
             'text-lg font-semibold',

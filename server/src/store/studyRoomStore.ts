@@ -96,6 +96,8 @@ function purgeStale(room: InternalRoom): void {
     if (m.lastSeen < cutoff) room.memberIndex.delete(id);
   }
   room.members = [...room.memberIndex.values()];
+  // Co-view: a departed/stale leader must not pin followers to a dead viewport.
+  if (room.leaderId && !room.memberIndex.has(room.leaderId)) room.leaderId = undefined;
 }
 
 function snapshot(room: InternalRoom): StudyRoomSnapshot {
@@ -214,6 +216,7 @@ export function leaveStudyRoom(roomId: string, memberId: string): StudyRoomSnaps
   if (!room) return undefined;
   room.memberIndex.delete(memberId);
   room.members = [...room.memberIndex.values()];
+  if (room.leaderId === memberId) room.leaderId = undefined;
   room.version += 1;
   return snapshot(room);
 }

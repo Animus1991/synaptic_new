@@ -39,7 +39,7 @@ interface LessonViewProps {
   onUpload?: () => void;
 }
 
-/* OPT-K100 — markup debt: Agent/Reader/tools decorative brand type -> ink */
+/* OPT-K100 β€” markup debt: Agent/Reader/tools decorative brand type -> ink */
 export function LessonView({
   onClose,
   onOpenAgent,
@@ -83,7 +83,7 @@ export function LessonView({
 
   const quizDef = noteBundle.quiz ?? {
     question: t('lessonViewUploadForQuiz'),
-    options: ['—', '—', '—', '—'],
+    options: ['β€”', 'β€”', 'β€”', 'β€”'],
     correctIndex: 0,
   };
 
@@ -197,7 +197,7 @@ export function LessonView({
               <AllCapsLabel>{lessonCourse}</AllCapsLabel>
               {noteBundle.hasSource && (
                 <span className="ml-1.5 text-accent-emerald normal-case tracking-normal">
-                  · {t('lessonViewFromYourNotes')}
+                  Β· {t('lessonViewFromYourNotes')}
                 </span>
               )}
             </p>
@@ -251,7 +251,7 @@ export function LessonView({
               aria-current={current ? 'step' : undefined}
               aria-label={`${stepCountLabel} ${i + 1}: ${s.label}`}
               className={cn(
-                'inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded text-[11px] font-medium tracking-wide transition-colors shrink-0 min-h-8',
+                'inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded type-caption font-medium tracking-wide transition-colors shrink-0 min-h-8',
                 current && 'bg-surface-secondary text-text-primary border border-border-subtle',
                 !current && completed && 'text-accent-emerald hover:bg-surface-hover',
                 !current && !completed && 'text-text-muted',
@@ -271,7 +271,7 @@ export function LessonView({
         <div
           className={cn(
             'w-full min-w-0 max-w-none py-6 sm:py-8',
-            /* OPT-K85 — non-Minimal full column */
+            /* OPT-K85 β€” non-Minimal full column */
             isMinimal ? 'px-4 sm:px-6 lg:px-8' : 'shell-edge-balance',
           )}
         >
@@ -339,12 +339,12 @@ export function LessonView({
             <span className="hidden xs:inline">{t('previous')}</span>
           </button>
           <div className="text-center min-w-0">
-            <p className="ws-num text-[11px] text-text-secondary">
+            <p className="ws-num type-caption text-text-secondary">
               {currentStep + 1} <span className="text-text-muted">/ {dynamicSteps.length}</span>
             </p>
             {noteBundle.hasSource && (
-              <p className="ws-num text-[10px] text-text-muted mt-0.5">
-                {overallMastery}% · {streak}d
+              <p className="ws-num type-micro text-text-muted mt-0.5">
+                {overallMastery}% Β· {streak}d
               </p>
             )}
           </div>

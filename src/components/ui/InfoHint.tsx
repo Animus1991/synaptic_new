@@ -112,7 +112,10 @@ export function InfoHint({
         onClick={(e) => {
           e.stopPropagation();
           e.preventDefault();
-          setOpen((v) => !v);
+          // Open-only: on touch, the tap already fired mouseenter/focus (open),
+          // so a toggle here would close the hint before it is ever seen.
+          // Dismissal is handled by mouseleave / blur / Escape / outside tap.
+          setOpen(true);
         }}
         className={cn(
           'inline-flex h-6 w-6 min-h-[24px] min-w-[24px] shrink-0 items-center justify-center rounded-full text-text-tertiary transition-colors hover:text-text-primary hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60',

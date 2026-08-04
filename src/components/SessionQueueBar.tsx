@@ -13,7 +13,7 @@ interface SessionQueueBarProps {
   onEndSession: () => void;
 }
 
-/* OPT-K101 — residual markup debt: decorative brand type -> ink */
+/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
 export function SessionQueueBar({
   sessionType,
   currentIndex,
@@ -34,11 +34,11 @@ export function SessionQueueBar({
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between gap-2 mb-1">
             <p className="text-xs font-semibold text-text-secondary truncate">
-              {sessionLabel(sessionType)} · Task {currentIndex} of {total}
+              {sessionLabel(sessionType)} Β· Task {currentIndex} of {total}
             </p>
             <button
               onClick={onEndSession}
-              className="text-[10px] text-text-tertiary hover:text-text-secondary shrink-0"
+              className="type-micro text-text-tertiary hover:text-text-secondary shrink-0"
             >
               {translate('sessionQueueEnd', lang)}
             </button>
@@ -46,19 +46,19 @@ export function SessionQueueBar({
           {(currentTaskTitle || nextTaskTitle) && (
             <div className="space-y-0.5 mb-1">
               {currentTaskTitle && (
-                <p className="text-[11px] text-text-primary truncate">
+                <p className="type-caption text-text-primary truncate">
                   {translate('sessionQueueCurrentTask', lang).replace('{title}', currentTaskTitle)}
                 </p>
               )}
               {nextTaskTitle && (
-                <p className="text-[10px] text-text-tertiary truncate">
+                <p className="type-micro text-text-tertiary truncate">
                   {translate('sessionQueueNextTask', lang).replace('{title}', nextTaskTitle)}
                 </p>
               )}
             </div>
           )}
-          <p className="text-[10px] text-text-muted mb-1">{translate('sessionQueueAutoAdvance', lang)}</p>
-          {/* Wave P-2 C08 — session queue auto-advance progress uses --viz-bar-track. */}
+          <p className="type-micro text-text-muted mb-1">{translate('sessionQueueAutoAdvance', lang)}</p>
+          {/* Wave P-2 C08 β€” session queue auto-advance progress uses --viz-bar-track. */}
           <div className="h-1 rounded-full overflow-hidden" style={{ backgroundColor: 'var(--viz-bar-track)' }}>
             <div
               className="h-full bg-brand-500 transition-all duration-300"

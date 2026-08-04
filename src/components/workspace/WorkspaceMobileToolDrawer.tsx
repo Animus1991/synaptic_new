@@ -19,7 +19,7 @@ interface Props {
   lang: Lang;
 }
 
-/* OPT-K101 — residual markup debt: decorative brand type -> ink */
+/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
 export function WorkspaceMobileToolDrawer({
   open,
   onClose,
@@ -117,7 +117,7 @@ export function WorkspaceMobileToolDrawer({
                               <span className="block text-[13px] font-semibold leading-tight truncate">
                                 {lang === 'el' ? meta.labelEl : meta.label}
                               </span>
-                              <span className="mt-0.5 block text-[11px] leading-snug text-text-muted line-clamp-2">
+                              <span className="mt-0.5 block type-caption leading-snug text-text-muted line-clamp-2">
                                 {lang === 'el' ? meta.descEl : meta.desc}
                               </span>
                             </span>

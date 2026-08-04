@@ -33,7 +33,7 @@ export function StudyRoomSharedNotes({
 
   if (localOnly) {
     return (
-      <p className="text-[11px] text-text-muted">{tr('studyRoomCollabOffline')}</p>
+      <p className="type-caption text-text-muted">{tr('studyRoomCollabOffline')}</p>
     );
   }
 

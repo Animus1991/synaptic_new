@@ -18,20 +18,20 @@ export function CohortTopicMasteryHeatmap({ analytics, lang }: Props) {
   const heatmaps = analytics.topicMasteryHeatmap ?? [];
   if (heatmaps.length === 0) return null;
 
-  const title = lang === 'el' ? 'Mastery ανά θέμα' : 'Topic mastery heatmap';
+  const title = lang === 'el' ? 'Mastery Ξ±Ξ½Ξ¬ ΞΈΞ­ΞΌΞ±' : 'Topic mastery heatmap';
 
   return (
     <div className="space-y-3 pt-3 border-t border-border-subtle/50" data-testid="topic-mastery-heatmap">
       <p className="text-xs font-medium text-text-primary">{title}</p>
       {heatmaps.map((hm) => (
         <div key={hm.classId} className="space-y-1">
-          <p className="text-[10px] text-text-muted truncate">{hm.className}</p>
+          <p className="type-micro text-text-muted truncate">{hm.className}</p>
           <div className="flex flex-wrap gap-1">
             {hm.topics.map((topic) => {
               const tip =
                 topic.avgScore != null
                   ? `${topic.topicLabel}: ${Math.round(topic.avgScore)}% (${topic.gradedCount})`
-                  : `${topic.topicLabel}: —`;
+                  : `${topic.topicLabel}: β€”`;
               return (
                 <div
                   key={`${hm.classId}-${topic.topicId}`}
@@ -42,8 +42,8 @@ export function CohortTopicMasteryHeatmap({ analytics, lang }: Props) {
                   )}
                 >
                   <p className="text-[7px] text-text-primary truncate leading-tight">{topic.topicLabel}</p>
-                  <p className="text-[10px] font-bold text-text-primary text-center">
-                    {topic.avgScore != null ? `${Math.round(topic.avgScore)}%` : '—'}
+                  <p className="type-micro font-bold text-text-primary text-center">
+                    {topic.avgScore != null ? `${Math.round(topic.avgScore)}%` : 'β€”'}
                   </p>
                 </div>
               );

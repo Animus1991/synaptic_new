@@ -6,7 +6,7 @@ import { isWeakSpotFocused } from '../../lib/workspaceWeakAreas';
 import type { WorkspaceEmptyAction } from '../../lib/workspaceEmptyState';
 import { WorkspaceToolEmptyState } from './WorkspaceToolEmptyState';
 
-/* OPT-K100 — markup debt: Agent/Reader/tools decorative brand type -> ink */
+/* OPT-K100 β€” markup debt: Agent/Reader/tools decorative brand type -> ink */
 export function WeakAreasFocusRail({
   spots,
   focusTerm,
@@ -24,7 +24,7 @@ export function WeakAreasFocusRail({
   expanded: boolean;
   onToggle: () => void;
   onFocusWeakSpot: (concept: string) => void;
-  /** OPT-AI-A — Explain / Quiz / Cards try actions for a weak concept. */
+  /** OPT-AI-A β€” Explain / Quiz / Cards try actions for a weak concept. */
   onTryWeakSpot?: (concept: string, action: 'explain' | 'quiz' | 'cards') => void;
   emptyMessage?: string;
   emptyActions?: WorkspaceEmptyAction[];
@@ -56,7 +56,7 @@ export function WeakAreasFocusRail({
       >
         <div className="flex items-center gap-2 min-w-0">
           <AlertTriangle className="h-3.5 w-3.5 shrink-0 opacity-80" aria-hidden />
-          <p className="text-[11px] font-semibold text-text-primary truncate">
+          <p className="type-caption font-semibold text-text-primary truncate">
             {t('weakAreasTitle', lang)}
             <span className="ml-1.5 font-normal text-text-tertiary">({spots.length})</span>
           </p>
@@ -77,7 +77,7 @@ export function WeakAreasFocusRail({
                   type="button"
                   data-testid={`weak-area-chip-${normalizeChipKey(spot.concept)}`}
                   onClick={() => onFocusWeakSpot(spot.concept)}
-                  title={`${spot.concept} · ${spot.mastery}%`}
+                  title={`${spot.concept} Β· ${spot.mastery}%`}
                   className={cn(
                     'shrink-0 max-w-[150px] truncate rounded-full border px-2.5 py-1 type-caption transition-colors',
                     active ? 'ws-chip-danger' : 'ws-chip-neutral hover:opacity-90',
@@ -99,7 +99,7 @@ export function WeakAreasFocusRail({
                 <button
                   type="button"
                   onClick={() => onFocusWeakSpot(spot.concept)}
-                  className="text-[11px] font-semibold text-text-primary hover:text-text-primary truncate block max-w-full text-left"
+                  className="type-caption font-semibold text-text-primary hover:text-text-primary truncate block max-w-full text-left"
                 >
                   {spot.concept}
                   <span className="ml-1.5 font-normal text-text-muted">{spot.mastery}%</span>

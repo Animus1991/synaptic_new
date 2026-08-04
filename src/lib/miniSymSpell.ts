@@ -8,8 +8,10 @@ import { allLexiconWords, detectTokenLang, spellLexiconVersion, type SpellLang }
  * PERF (workspace freeze root cause — profiler: 12.5s in levenshtein/fuzzyCorrectToken
  * on a 60KB source): the original implementation rebuilt a full-lexicon Set PER
  * TOKEN and linearly levenshtein-scanned the whole dictionary for every unknown
- * token, with no memoization across repeated tokens. All three fixed below;
- * correction results are identical.
+ * token, with no memoization across repeated tokens. All three fixed below.
+ * Correction results match the old scan except for equal-distance ties: buckets
+ * are visited shortest-length-first, so the shortest tied candidate now wins
+ * (deterministic, and still within maxDist).
  */
 const dictCache = new Map<string, { version: number; set: Set<string>; byLen: Map<number, string[]> }>();
 const tokenCache = new Map<string, string | null>();

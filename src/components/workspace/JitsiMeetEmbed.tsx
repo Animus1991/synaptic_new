@@ -153,7 +153,7 @@ export function JitsiMeetEmbed({ roomName, lang: _lang = 'en', className }: Prop
           <button type="button" className="ws-link-action" onClick={focusPopup}>
             {t('jitsiFocusWindow')}
           </button>
-          {' · '}
+          {' Β· '}
           <button type="button" className="ws-link-action" onClick={returnInline}>
             {t('jitsiReturnHere')}
           </button>
@@ -177,7 +177,7 @@ export function JitsiMeetEmbed({ roomName, lang: _lang = 'en', className }: Prop
         onPointerUp={onDragEnd}
         onPointerCancel={onDragEnd}
       >
-        <span className="text-[11px] font-semibold truncate">{t('jitsiVideoCall')}</span>
+        <span className="type-caption font-semibold truncate">{t('jitsiVideoCall')}</span>
         <div className="flex items-center gap-0.5 shrink-0">
           <button type="button" className="ws-jitsi-tool-btn p-1" onClick={() => void toggleFullscreen()} aria-label={t('jitsiFullscreen')}>
             <Maximize2 className="h-3.5 w-3.5" />

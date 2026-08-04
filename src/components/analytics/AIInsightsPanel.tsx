@@ -45,9 +45,9 @@ function buildLocalInsights(
   if (weak) {
     actions.push({
       id: `study-${weak.concept}`,
-      title: lang === 'el' ? `Μελέτη: ${weak.concept}` : `Study: ${weak.concept}`,
+      title: lang === 'el' ? `ΞΞµΞ»Ξ­Ο„Ξ·: ${weak.concept}` : `Study: ${weak.concept}`,
       detail: lang === 'el'
-        ? 'Άνοιξε το workspace στο αδύναμο concept.'
+        ? 'Ξ†Ξ½ΞΏΞΉΞΎΞµ Ο„ΞΏ workspace ΟƒΟ„ΞΏ Ξ±Ξ΄ΟΞ½Ξ±ΞΌΞΏ concept.'
         : 'Open the workspace focused on this weak concept.',
       concept: weak.concept,
     });
@@ -56,10 +56,10 @@ function buildLocalInsights(
   if (almost && almost.concept !== weak?.concept) {
     actions.push({
       id: `push-${almost.concept}`,
-      title: lang === 'el' ? `Ολοκλήρωσε: ${almost.concept}` : `Finish: ${almost.concept}`,
+      title: lang === 'el' ? `ΞΞ»ΞΏΞΊΞ»Ξ®ΟΟ‰ΟƒΞµ: ${almost.concept}` : `Finish: ${almost.concept}`,
       detail: lang === 'el'
-        ? 'Είσαι κοντά — μια σύντομη επανάληψη αρκεί.'
-        : 'You are close — a short review should lock it in.',
+        ? 'Ξ•Ξ―ΟƒΞ±ΞΉ ΞΊΞΏΞ½Ο„Ξ¬ β€” ΞΌΞΉΞ± ΟƒΟΞ½Ο„ΞΏΞΌΞ· ΞµΟ€Ξ±Ξ½Ξ¬Ξ»Ξ·ΟΞ· Ξ±ΟΞΊΞµΞ―.'
+        : 'You are close β€” a short review should lock it in.',
       concept: almost.concept,
     });
   }
@@ -130,7 +130,7 @@ export function AIInsightsPanel({
 
   return (
     <div className={cn('space-y-3', className)} data-testid="ai-insights-panel" aria-busy={busy || undefined}>
-      {/* OPT-K97 — analytics insight chrome as ink */}
+      {/* OPT-K97 β€” analytics insight chrome as ink */}
       <SectionLabel
         icon={Lightbulb}
         action={(
@@ -138,7 +138,7 @@ export function AIInsightsPanel({
             <button
               type="button"
               data-testid="ai-insights-ask-agent"
-              className="text-[10px] font-medium text-text-secondary hover:text-text-primary"
+              className="type-micro font-medium text-text-secondary hover:text-text-primary"
               onClick={() => {
                 const weak = payload.actions.find((a) => a.concept?.trim())?.concept;
                 openAgentFromWorkspace({
@@ -150,12 +150,12 @@ export function AIInsightsPanel({
                 });
               }}
             >
-              {lang === 'el' ? 'Ρώτα Agent' : 'Ask Agent'}
+              {lang === 'el' ? 'Ξ΅ΟΟ„Ξ± Agent' : 'Ask Agent'}
             </button>
-            <span className="text-[10px] text-text-muted">
+            <span className="type-micro text-text-muted">
               {payload.source === 'api'
                 ? (lang === 'el' ? 'API' : 'API')
-                : (lang === 'el' ? 'τοπικά' : 'local')}
+                : (lang === 'el' ? 'Ο„ΞΏΟ€ΞΉΞΊΞ¬' : 'local')}
             </span>
           </div>
         )}
@@ -167,7 +167,7 @@ export function AIInsightsPanel({
         {payload.observations.length === 0 ? (
           <p className="text-xs text-text-tertiary">
             {lang === 'el'
-              ? 'Συνέχισε τη μελέτη για πιο πλούσια insights.'
+              ? 'Ξ£Ο…Ξ½Ξ­Ο‡ΞΉΟƒΞµ Ο„Ξ· ΞΌΞµΞ»Ξ­Ο„Ξ· Ξ³ΞΉΞ± Ο€ΞΉΞΏ Ο€Ξ»ΞΏΟΟƒΞΉΞ± insights.'
               : 'Keep studying to unlock richer insights.'}
           </p>
         ) : (
@@ -207,12 +207,12 @@ export function AIInsightsPanel({
                   {action.title}
                   <ArrowRight className="h-3 w-3 text-text-tertiary" aria-hidden />
                 </p>
-                <p className="text-[10px] text-text-tertiary mt-1 leading-relaxed">{action.detail}</p>
+                <p className="type-micro text-text-tertiary mt-1 leading-relaxed">{action.detail}</p>
               </button>
               {action.concept && (
                 <button
                   type="button"
-                  className="mt-2 text-[10px] font-medium text-text-secondary hover:underline"
+                  className="mt-2 type-micro font-medium text-text-secondary hover:underline"
                   data-testid={`ai-insight-ask-${action.id}`}
                   onClick={() => {
                     openAgentFromWorkspace({
@@ -225,7 +225,7 @@ export function AIInsightsPanel({
                     });
                   }}
                 >
-                  {lang === 'el' ? 'Ρώτα Agent για αυτό' : 'Ask Agent about this'}
+                  {lang === 'el' ? 'Ξ΅ΟΟ„Ξ± Agent Ξ³ΞΉΞ± Ξ±Ο…Ο„Ο' : 'Ask Agent about this'}
                 </button>
               )}
             </div>

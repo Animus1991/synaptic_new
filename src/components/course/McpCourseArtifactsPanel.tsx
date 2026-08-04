@@ -36,10 +36,10 @@ export function McpCourseArtifactsPanel({ course, lang = 'en' }: Props) {
   const notes = course.mcpAnnotations ?? [];
   const empty = cards.length === 0 && notes.length === 0;
 
-  const title = lang === 'el' ? 'MCP αντικείμενα' : 'MCP artifacts';
+  const title = lang === 'el' ? 'MCP Ξ±Ξ½Ο„ΞΉΞΊΞµΞ―ΞΌΞµΞ½Ξ±' : 'MCP artifacts';
   const subtitle =
     lang === 'el'
-      ? 'Flashcards και σημειώσεις που δημιούργησαν εξωτερικοί MCP clients.'
+      ? 'Flashcards ΞΊΞ±ΞΉ ΟƒΞ·ΞΌΞµΞΉΟΟƒΞµΞΉΟ‚ Ο€ΞΏΟ… Ξ΄Ξ·ΞΌΞΉΞΏΟΟΞ³Ξ·ΟƒΞ±Ξ½ ΞµΞΎΟ‰Ο„ΞµΟΞΉΞΊΞΏΞ― MCP clients.'
       : 'Flashcards and notes created by external MCP clients.';
 
   return (
@@ -52,13 +52,13 @@ export function McpCourseArtifactsPanel({ course, lang = 'en' }: Props) {
       {empty ? (
         <p className="text-xs text-text-muted" data-testid="mcp-artifacts-empty">
           {lang === 'el'
-            ? 'Δεν υπάρχουν ακόμα MCP flashcards ή annotations για αυτό το μάθημα.'
+            ? 'Ξ”ΞµΞ½ Ο…Ο€Ξ¬ΟΟ‡ΞΏΟ…Ξ½ Ξ±ΞΊΟΞΌΞ± MCP flashcards Ξ® annotations Ξ³ΞΉΞ± Ξ±Ο…Ο„Ο Ο„ΞΏ ΞΌΞ¬ΞΈΞ·ΞΌΞ±.'
             : 'No MCP flashcards or annotations on this course yet.'}
         </p>
       ) : (
         <div className="grid gap-4 md:grid-cols-2">
           <section aria-label="MCP flashcards">
-            <h4 className="text-[11px] font-semibold uppercase tracking-wide text-text-muted mb-2">
+            <h4 className="type-caption font-semibold uppercase tracking-wide text-text-muted mb-2">
               <AllCapsLabel>Flashcards ({cards.length})</AllCapsLabel>
             </h4>
             <ul className="space-y-2" data-testid="mcp-flashcards-list">
@@ -69,13 +69,13 @@ export function McpCourseArtifactsPanel({ course, lang = 'en' }: Props) {
                   data-testid="mcp-flashcard-row"
                 >
                   <p className="text-xs font-medium text-text-primary">{c.front}</p>
-                  <p className="text-[11px] text-text-secondary mt-1">{c.back}</p>
+                  <p className="type-caption text-text-secondary mt-1">{c.back}</p>
                 </li>
               ))}
             </ul>
           </section>
           <section aria-label="MCP annotations">
-            <h4 className="text-[11px] font-semibold uppercase tracking-wide text-text-muted mb-2">
+            <h4 className="type-caption font-semibold uppercase tracking-wide text-text-muted mb-2">
               <AllCapsLabel>Annotations ({notes.length})</AllCapsLabel>
             </h4>
             <ul className="space-y-2" data-testid="mcp-annotations-list">
@@ -86,7 +86,7 @@ export function McpCourseArtifactsPanel({ course, lang = 'en' }: Props) {
                   data-testid="mcp-annotation-row"
                 >
                   <p className="text-xs text-text-primary">{a.text}</p>
-                  {a.note ? <p className="text-[11px] text-text-secondary mt-1">{a.note}</p> : null}
+                  {a.note ? <p className="type-caption text-text-secondary mt-1">{a.note}</p> : null}
                 </li>
               ))}
             </ul>

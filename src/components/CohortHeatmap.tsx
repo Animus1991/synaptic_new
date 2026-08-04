@@ -20,16 +20,16 @@ export function CohortHeatmap({ analytics, lang }: Props) {
     ...heatmaps.flatMap((h) => h.days.map((d) => d.gradedCount)),
   );
 
-  const title = lang === 'el' ? 'Cohort heatmap (14 ημέρες)' : 'Cohort heatmap (14 days)';
-  const gradedLabel = lang === 'el' ? 'βαθμοί' : 'grades';
-  const activeLabel = lang === 'el' ? 'ενεργοί' : 'active';
+  const title = lang === 'el' ? 'Cohort heatmap (14 Ξ·ΞΌΞ­ΟΞµΟ‚)' : 'Cohort heatmap (14 days)';
+  const gradedLabel = lang === 'el' ? 'Ξ²Ξ±ΞΈΞΌΞΏΞ―' : 'grades';
+  const activeLabel = lang === 'el' ? 'ΞµΞ½ΞµΟΞ³ΞΏΞ―' : 'active';
 
   return (
     <div className="space-y-3 pt-3 border-t border-border-subtle/50" data-testid="cohort-heatmap">
       <p className="text-xs font-medium text-text-primary">{title}</p>
       {heatmaps.map((hm) => (
         <div key={hm.classId} className="space-y-1">
-          <p className="text-[10px] text-text-muted truncate">{hm.className}</p>
+          <p className="type-micro text-text-muted truncate">{hm.className}</p>
           <div className="flex gap-0.5 flex-wrap">
             {hm.days.map((day) => {
               const intensity = cellIntensity(day.gradedCount, maxGraded);

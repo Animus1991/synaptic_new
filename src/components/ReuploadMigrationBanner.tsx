@@ -8,7 +8,7 @@ import {
 } from '../lib/pipelineMigration';
 import { useI18n } from '../lib/i18n';
 
-/* OPT-K101 — residual markup debt: decorative brand type -> ink */
+/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
 export function ReuploadMigrationBanner({
   courseId,
   lang,
@@ -55,7 +55,7 @@ export function ReuploadMigrationBanner({
               disabled={reprocessing}
               className={cn(
                 'inline-flex items-center gap-1.5 rounded-lg border border-border-subtle bg-surface-secondary text-text-primary hover:bg-brand-500/20 disabled:opacity-60',
-                compact ? 'px-2 py-1 text-[10px]' : 'px-3 py-1.5 text-xs',
+                compact ? 'px-2 py-1 type-micro' : 'px-3 py-1.5 text-xs',
               )}
               data-testid="reprocess-migration-action"
             >
@@ -68,7 +68,7 @@ export function ReuploadMigrationBanner({
             onClick={onReupload}
             className={cn(
               'inline-flex items-center gap-1.5 rounded-lg border border-accent-amber/40 bg-accent-amber/15 font-medium text-accent-amber hover:bg-accent-amber/20',
-              compact ? 'px-2 py-1 text-[10px]' : 'px-3 py-1.5 text-xs',
+              compact ? 'px-2 py-1 type-micro' : 'px-3 py-1.5 text-xs',
             )}
             data-testid="reupload-migration-action"
           >

@@ -34,7 +34,7 @@ const COG_KEYS: Record<ColorCodingEntryId, I18nKey> = {
   inferred: 'colorRefInferredCog',
 };
 
-/** Semantic mastery & trust color reference — Option-B Wave E15. */
+/** Semantic mastery & trust color reference β€” Option-B Wave E15. */
 export function ColorCodingReferencePanel({ className }: { className?: string }) {
   const { t } = useI18n();
 
@@ -60,7 +60,7 @@ export function ColorCodingReferencePanel({ className }: { className?: string })
               />
               <div className="min-w-0">
                 <div className="text-sm font-semibold text-text-primary">{t(NAME_KEYS[entry.id])}</div>
-                <div className="text-[10px] text-text-muted">{t(entry.wcagKey)}</div>
+                <div className="type-micro text-text-muted">{t(entry.wcagKey)}</div>
               </div>
             </div>
             <p className="mt-3 text-sm leading-6 text-text-secondary">{t(USE_KEYS[entry.id])}</p>

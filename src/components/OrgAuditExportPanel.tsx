@@ -17,21 +17,21 @@ const COPY = {
     toggle: 'Show export options',
     csv: 'Download CSV',
     json: 'Download JSON',
-    exporting: 'Preparing…',
-    error: 'Export failed — verify org_admin role.',
+    exporting: 'Preparingβ€¦',
+    error: 'Export failed β€” verify org_admin role.',
   },
   el: {
-    title: 'Συμμόρφωση & εξαγωγή audit',
-    hint: 'Πακέτο audit SOC2/FERPA για org administrators. Περιλαμβάνει ενέργειες, IP και χρονικές σφραγίδες.',
-    toggle: 'Εμφάνιση επιλογών εξαγωγής',
-    csv: 'Λήψη CSV',
-    json: 'Λήψη JSON',
-    exporting: 'Προετοιμασία…',
-    error: 'Η εξαγωγή απέτυχε — επιβεβαιώστε ρόλο org_admin.',
+    title: 'Ξ£Ο…ΞΌΞΌΟΟΟ†Ο‰ΟƒΞ· & ΞµΞΎΞ±Ξ³Ο‰Ξ³Ξ® audit',
+    hint: 'Ξ Ξ±ΞΊΞ­Ο„ΞΏ audit SOC2/FERPA Ξ³ΞΉΞ± org administrators. Ξ ΞµΟΞΉΞ»Ξ±ΞΌΞ²Ξ¬Ξ½ΞµΞΉ ΞµΞ½Ξ­ΟΞ³ΞµΞΉΞµΟ‚, IP ΞΊΞ±ΞΉ Ο‡ΟΞΏΞ½ΞΉΞΊΞ­Ο‚ ΟƒΟ†ΟΞ±Ξ³Ξ―Ξ΄ΞµΟ‚.',
+    toggle: 'Ξ•ΞΌΟ†Ξ¬Ξ½ΞΉΟƒΞ· ΞµΟ€ΞΉΞ»ΞΏΞ³ΟΞ½ ΞµΞΎΞ±Ξ³Ο‰Ξ³Ξ®Ο‚',
+    csv: 'Ξ›Ξ®ΟΞ· CSV',
+    json: 'Ξ›Ξ®ΟΞ· JSON',
+    exporting: 'Ξ ΟΞΏΞµΟ„ΞΏΞΉΞΌΞ±ΟƒΞ―Ξ±β€¦',
+    error: 'Ξ— ΞµΞΎΞ±Ξ³Ο‰Ξ³Ξ® Ξ±Ο€Ξ­Ο„Ο…Ο‡Ξµ β€” ΞµΟ€ΞΉΞ²ΞµΞ²Ξ±ΞΉΟΟƒΟ„Ξµ ΟΟΞ»ΞΏ org_admin.',
   },
 } as const;
 
-/* OPT-K101 — residual markup debt: decorative brand type -> ink */
+/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
 export function OrgAuditExportPanel({ orgId, settings, lang }: Props) {
   const ui = COPY[lang];
   const token = settings.authToken?.trim();
@@ -76,14 +76,14 @@ export function OrgAuditExportPanel({ orgId, settings, lang }: Props) {
       </button>
       {open && (
         <div className="mt-2 space-y-2 pl-5">
-          <p className="text-[10px] text-text-muted">{ui.hint}</p>
+          <p className="type-micro text-text-muted">{ui.hint}</p>
           <div className="flex flex-wrap gap-2">
             <button
               type="button"
               disabled={busy != null}
               onClick={() => void handleExport('csv')}
               data-testid="org-audit-export-csv"
-              className="inline-flex items-center gap-1.5 rounded-lg border border-border-subtle px-2.5 py-1.5 text-[11px] hover:border-brand-500/40 disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-border-subtle px-2.5 py-1.5 type-caption hover:border-brand-500/40 disabled:opacity-50"
             >
               <Download className="w-3 h-3" />
               {busy === 'csv' ? ui.exporting : ui.csv}
@@ -93,14 +93,14 @@ export function OrgAuditExportPanel({ orgId, settings, lang }: Props) {
               disabled={busy != null}
               onClick={() => void handleExport('json')}
               data-testid="org-audit-export-json"
-              className="inline-flex items-center gap-1.5 rounded-lg border border-border-subtle px-2.5 py-1.5 text-[11px] hover:border-brand-500/40 disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-border-subtle px-2.5 py-1.5 type-caption hover:border-brand-500/40 disabled:opacity-50"
             >
               <Download className="w-3 h-3" />
               {busy === 'json' ? ui.exporting : ui.json}
             </button>
           </div>
           {error && (
-            <p className="text-[10px] text-accent-rose" role="alert">
+            <p className="type-micro text-accent-rose" role="alert">
               {error}
             </p>
           )}

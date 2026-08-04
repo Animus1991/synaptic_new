@@ -65,7 +65,7 @@ type Props = {
   conceptBusRows?: ConceptBusRow[];
 };
 
-/* OPT-K101 — residual markup debt: decorative brand type -> ink */
+/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
 export function DashboardPanel({
   session,
   concept,
@@ -226,7 +226,7 @@ export function DashboardPanel({
           </UxCallout>
         )}
 
-        {/* Wave E12 — KPI strip + one focus action; exports demoted to menu */}
+        {/* Wave E12 β€” KPI strip + one focus action; exports demoted to menu */}
         <div className="mb-2 flex flex-wrap items-center gap-2" data-testid="dashboard-kpi-row">
           {session.weakSpotCount > 0 && (
             <span className="rounded-lg border border-accent-rose/30 bg-accent-rose/10 px-2 py-1 type-caption font-medium text-accent-rose">
@@ -235,7 +235,7 @@ export function DashboardPanel({
           )}
           {session.toolActivityCount > 0 && (
             <span className="type-caption text-text-muted">
-              {session.engagedToolCount} {t('panelTools')} · {session.toolActivityCount} {t('panelActions')}
+              {session.engagedToolCount} {t('panelTools')} Β· {session.toolActivityCount} {t('panelActions')}
             </span>
           )}
           {!nextAction && session.suggestFocusTool && suggestLabel && onOpenSuggestedTool && (
@@ -307,7 +307,7 @@ export function DashboardPanel({
               value={filterQuery}
               onChange={(e) => setFilterQuery(e.target.value)}
               placeholder={t('dashFilterPlaceholder')}
-              className="w-full rounded-lg border border-border-subtle bg-surface-card py-1.5 pl-7 pr-2 text-[11px] text-text-secondary placeholder:text-text-muted focus:border-accent-cyan/40 focus:outline-none"
+              className="w-full rounded-lg border border-border-subtle bg-surface-card py-1.5 pl-7 pr-2 type-caption text-text-secondary placeholder:text-text-muted focus:border-accent-cyan/40 focus:outline-none"
               data-testid="dashboard-filter"
             />
           </div>

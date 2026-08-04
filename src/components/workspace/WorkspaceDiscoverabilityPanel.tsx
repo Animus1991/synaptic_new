@@ -16,13 +16,13 @@ type DiscoverabilitySummary = ReturnType<typeof buildDiscoverabilitySummary>;
 type ActionHandlers = Partial<Record<DiscoverabilityActionId, () => void>>;
 
 const ACTION_LABELS: Record<DiscoverabilityActionId, { en: string; el: string }> = {
-  'open-recommended-tool': { en: 'Open recommended tool', el: 'Άνοιγμα προτεινόμενου' },
-  'open-reader-focus': { en: 'Read focus term', el: 'Ανάγνωση εστίασης' },
-  'open-leitner-due': { en: 'Review due cards', el: 'Ληξιπρόθεσμα Leitner' },
-  'jump-quiz': { en: 'Knowledge check', el: 'Έλεγχος γνώσεων' },
-  'open-compare': { en: 'Open compare', el: 'Άνοιγμα σύγκρισης' },
-  'open-command-palette': { en: 'Command palette', el: 'Παλέτα εντολών' },
-  'jump-spaced-step': { en: 'Next spaced step', el: 'Επόμενο spaced βήμα' },
+  'open-recommended-tool': { en: 'Open recommended tool', el: 'Ξ†Ξ½ΞΏΞΉΞ³ΞΌΞ± Ο€ΟΞΏΟ„ΞµΞΉΞ½ΟΞΌΞµΞ½ΞΏΟ…' },
+  'open-reader-focus': { en: 'Read focus term', el: 'Ξ‘Ξ½Ξ¬Ξ³Ξ½Ο‰ΟƒΞ· ΞµΟƒΟ„Ξ―Ξ±ΟƒΞ·Ο‚' },
+  'open-leitner-due': { en: 'Review due cards', el: 'Ξ›Ξ·ΞΎΞΉΟ€ΟΟΞΈΞµΟƒΞΌΞ± Leitner' },
+  'jump-quiz': { en: 'Knowledge check', el: 'ΞΞ»ΞµΞ³Ο‡ΞΏΟ‚ Ξ³Ξ½ΟΟƒΞµΟ‰Ξ½' },
+  'open-compare': { en: 'Open compare', el: 'Ξ†Ξ½ΞΏΞΉΞ³ΞΌΞ± ΟƒΟΞ³ΞΊΟΞΉΟƒΞ·Ο‚' },
+  'open-command-palette': { en: 'Command palette', el: 'Ξ Ξ±Ξ»Ξ­Ο„Ξ± ΞµΞ½Ο„ΞΏΞ»ΟΞ½' },
+  'jump-spaced-step': { en: 'Next spaced step', el: 'Ξ•Ο€ΟΞΌΞµΞ½ΞΏ spaced Ξ²Ξ®ΞΌΞ±' },
 };
 
 type Props = {
@@ -40,7 +40,7 @@ type Props = {
   emptyActions?: WorkspaceEmptyAction[];
 };
 
-/* OPT-K101 — residual markup debt: decorative brand type -> ink */
+/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
 export function WorkspaceDiscoverabilityPanel({
   summary,
   lang,
@@ -79,7 +79,7 @@ export function WorkspaceDiscoverabilityPanel({
         <div className="flex items-center gap-2 min-w-0">
           <Link2 className="w-3.5 h-3.5 text-text-primary shrink-0" />
           <div className="min-w-0">
-            <p className="text-[11px] font-semibold text-text-primary truncate">{headline}</p>
+            <p className="type-caption font-semibold text-text-primary truncate">{headline}</p>
             <p className="type-caption text-text-tertiary truncate">{subline}</p>
           </div>
         </div>
@@ -157,11 +157,11 @@ export function WorkspaceDiscoverabilityPanel({
             <p className="type-caption font-semibold text-text-primary0 mb-1">
               {toolGuide.title}
             </p>
-            <p className="text-[11px] text-text-secondary leading-relaxed">{toolGuide.summary}</p>
+            <p className="type-caption text-text-secondary leading-relaxed">{toolGuide.summary}</p>
             <ul className="mt-2 space-y-1">
               {toolGuide.features.map((f) => (
-                <li key={f} className="text-[11px] text-text-secondary flex items-start gap-1.5">
-                  <span className="text-accent-emerald mt-0.5">✓</span>
+                <li key={f} className="type-caption text-text-secondary flex items-start gap-1.5">
+                  <span className="text-accent-emerald mt-0.5">β“</span>
                   {f}
                 </li>
               ))}

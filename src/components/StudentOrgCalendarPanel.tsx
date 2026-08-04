@@ -25,7 +25,7 @@ const statusToneClass: Record<ReturnType<typeof assignmentStatusTone>, string> =
   negative: 'bg-accent-rose/15 text-accent-rose',
 };
 
-/* OPT-K101 — residual markup debt: decorative brand type -> ink */
+/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
 export function StudentOrgCalendarPanel({ assignments, ui, lang }: Props) {
   const { t } = useI18n();
   const [open, setOpen] = useState(true);
@@ -73,7 +73,7 @@ export function StudentOrgCalendarPanel({ assignments, ui, lang }: Props) {
                 data-testid={`student-calendar-filter-${preset}`}
                 onClick={() => setFilter(preset)}
                 className={cn(
-                  'rounded-full px-3 py-1 text-[10px] font-medium border transition-colors',
+                  'rounded-full px-3 py-1 type-micro font-medium border transition-colors',
                   filter === preset
                     ? 'border-brand-500/40 bg-surface-secondary text-text-primary border border-border-subtle'
                     : 'border-border-subtle text-text-secondary hover:bg-surface-hover',
@@ -101,12 +101,12 @@ export function StudentOrgCalendarPanel({ assignments, ui, lang }: Props) {
                   <div className="flex flex-wrap items-start justify-between gap-2">
                     <div className="min-w-0 space-y-1">
                       <div className="flex flex-wrap items-center gap-2">
-                        <span className="text-[10px] text-text-muted">
+                        <span className="type-micro text-text-muted">
                           {formatShortDate(entry.date, lang)}
                         </span>
                         <span
                           className={cn(
-                            'text-[10px] px-1.5 py-0.5 rounded-full',
+                            'type-micro px-1.5 py-0.5 rounded-full',
                             entry.kind === 'exam'
                               ? 'bg-surface-secondary text-text-primary border border-border-subtle'
                               : 'bg-surface-hover text-text-secondary',
@@ -127,7 +127,7 @@ export function StudentOrgCalendarPanel({ assignments, ui, lang }: Props) {
                       {entry.status && (
                         <span
                           className={cn(
-                            'text-[10px] px-2 py-0.5 rounded-full capitalize',
+                            'type-micro px-2 py-0.5 rounded-full capitalize',
                             statusToneClass[assignmentStatusTone(entry.status)],
                           )}
                         >
@@ -139,7 +139,7 @@ export function StudentOrgCalendarPanel({ assignments, ui, lang }: Props) {
                           href={entry.linkUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1 text-[10px] text-text-secondary hover:underline"
+                          className="inline-flex items-center gap-1 type-micro text-text-secondary hover:underline"
                         >
                           {entry.linkLabel}
                           <ArrowRight className="w-3 h-3" />

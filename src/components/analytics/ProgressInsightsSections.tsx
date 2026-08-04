@@ -16,7 +16,7 @@ function parseTrailingPct(value: string): number | undefined {
 export function ProgressKpiRow({ kpis }: { kpis: ProgressKpi[] }) {
   const isMinimal = useMinimalTheme();
 
-  // OPT-K5/K6 — Spending-like stacked rows under Minimal; Blueprint keeps KPI cards.
+  // OPT-K5/K6 β€” Spending-like stacked rows under Minimal; Blueprint keeps KPI cards.
   if (isMinimal) {
     return (
       <HubSection className="progress-kpi-stack" data-testid="progress-kpi-row">
@@ -47,11 +47,11 @@ export function ProgressKpiRow({ kpis }: { kpis: ProgressKpi[] }) {
           <div key={kpi.label} className="ux-card p-2.5">
             <div className="flex items-center gap-1.5 mb-0.5">
               <Icon className="w-3.5 h-3.5 text-text-tertiary" />
-              <span className="text-[10px] uppercase tracking-wide text-text-tertiary truncate"><AllCapsLabel>{kpi.label}</AllCapsLabel></span>
+              <span className="type-micro uppercase tracking-wide text-text-tertiary truncate"><AllCapsLabel>{kpi.label}</AllCapsLabel></span>
             </div>
             <p className="text-sm font-bold tabular-nums text-text-primary sm:text-base">{kpi.value}</p>
             <p className={cn(
-              'text-[10px] mt-0.5',
+              'type-micro mt-0.5',
               kpi.tone === 'good' || kpi.tone === 'warn' ? 'ink-allow-accent' : null,
               kpi.tone === 'good' ? 'text-accent-emerald' : kpi.tone === 'warn' ? 'text-accent-amber' : 'text-text-tertiary',
             )}>
@@ -67,7 +67,7 @@ export function ProgressKpiRow({ kpis }: { kpis: ProgressKpi[] }) {
 export function ConfidenceBucketChart({ buckets, title }: { buckets: ConfidenceBucket[]; title: string }) {
   return (
     <div className="ux-card p-3" data-testid="confidence-bucket-chart">
-      <h3 className="text-[11px] font-semibold uppercase tracking-[0.06em] text-text-secondary mb-3"><AllCapsLabel>{title}</AllCapsLabel></h3>
+      <h3 className="type-caption font-semibold uppercase tracking-[0.06em] text-text-secondary mb-3"><AllCapsLabel>{title}</AllCapsLabel></h3>
       {/* K-A01: dense horizontal 5-bin calibration (mockup) */}
       <div className="grid grid-cols-5 gap-1.5 sm:gap-2">
         {buckets.map((bucket) => (
@@ -76,10 +76,10 @@ export function ConfidenceBucketChart({ buckets, title }: { buckets: ConfidenceB
             className="min-w-0 rounded-lg border border-border-subtle/80 bg-surface-card/50 px-1 py-2 text-center"
           >
             <p className="text-sm font-bold tabular-nums text-text-primary sm:text-base">
-              {bucket.sampleCount === 0 ? '—' : `${bucket.correctPct}%`}
+              {bucket.sampleCount === 0 ? 'β€”' : `${bucket.correctPct}%`}
             </p>
-            <p className="mt-0.5 text-[10px] text-text-muted tabular-nums truncate">{bucket.rangeLabel}</p>
-            <p className="mt-0.5 text-[10px] text-text-tertiary tabular-nums">n={bucket.sampleCount}</p>
+            <p className="mt-0.5 type-micro text-text-muted tabular-nums truncate">{bucket.rangeLabel}</p>
+            <p className="mt-0.5 type-micro text-text-tertiary tabular-nums">n={bucket.sampleCount}</p>
           </div>
         ))}
       </div>

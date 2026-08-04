@@ -39,7 +39,7 @@ function countWords(text: string): number {
   return trimmed.split(/\s+/).length;
 }
 
-/* OPT-K101 — residual markup debt: decorative brand type -> ink */
+/* OPT-K101 Ξ²β‚¬β€ residual markup debt: decorative brand type -> ink */
 export function ReprocessTextEditor({ sections, onChange, initialSectionIndex = 0 }: Props) {
   const { t } = useI18n();
   const [activeIndex, setActiveIndex] = useState(() =>
@@ -133,11 +133,11 @@ export function ReprocessTextEditor({ sections, onChange, initialSectionIndex = 
   return (
     <div className="space-y-3" data-testid="reprocess-text-editor">
       <div className="flex flex-wrap items-center gap-2 rounded-xl border border-border-subtle bg-surface-primary/50 px-3 py-2">
-        <span className="text-[10px] font-medium text-text-muted">
+        <span className="type-micro font-medium text-text-muted">
           {t('reprocessSectionSingular')} {activeIndex + 1}/{sections.length}
         </span>
         {manualEdits > 0 && (
-          <span className="rounded-full bg-brand-600/15 px-2 py-0.5 text-[9px] font-medium text-text-primary">
+          <span className="rounded-full bg-brand-600/15 px-2 py-0.5 type-micro font-medium text-text-primary">
             {manualEdits} {t('reprocessManualEdits')}
           </span>
         )}
@@ -146,7 +146,7 @@ export function ReprocessTextEditor({ sections, onChange, initialSectionIndex = 
             type="button"
             onClick={() => setSyncScroll((v) => !v)}
             className={cn(
-              'rounded-md border px-2 py-1 text-[9px] transition-colors',
+              'rounded-md border px-2 py-1 type-micro transition-colors',
               syncScroll
                 ? 'border-brand-600/40 bg-surface-secondary text-text-primary border border-border-subtle'
                 : 'border-border-subtle text-text-muted hover:bg-surface-hover',
@@ -159,7 +159,7 @@ export function ReprocessTextEditor({ sections, onChange, initialSectionIndex = 
           <button
             type="button"
             onClick={cyclePaneHeight}
-            className="rounded-md border border-border-subtle px-2 py-1 text-[9px] text-text-muted hover:bg-surface-hover"
+            className="rounded-md border border-border-subtle px-2 py-1 type-micro text-text-muted hover:bg-surface-hover"
             title={t('reprocessPaneResizeTitle')}
             data-testid="reprocess-pane-resize"
           >
@@ -192,7 +192,7 @@ export function ReprocessTextEditor({ sections, onChange, initialSectionIndex = 
               data-section-index={i}
               onClick={() => goToSection(i)}
               className={cn(
-                'rounded-lg px-2 py-1.5 text-left text-[9px] leading-snug transition-colors',
+                'rounded-lg px-2 py-1.5 text-left type-micro leading-snug transition-colors',
                 i === activeIndex
                   ? 'bg-surface-secondary text-text-primary border border-border-subtle font-medium'
                   : 'text-text-secondary hover:bg-surface-hover',
@@ -235,7 +235,7 @@ export function ReprocessTextEditor({ sections, onChange, initialSectionIndex = 
           <div className="grid gap-3 sm:grid-cols-2">
             <div>
               <div className="mb-1.5 flex items-center justify-between">
-                <p className="text-[10px] font-semibold text-accent-rose">
+                <p className="type-micro font-semibold text-accent-rose">
                   {t('reprocessReaderBeforeReadonly')}
                 </p>
                 <button
@@ -251,19 +251,19 @@ export function ReprocessTextEditor({ sections, onChange, initialSectionIndex = 
                 ref={beforeRef}
                 onScroll={() => handleSyncScroll('before')}
                 style={{ height: heightPx }}
-                className="reprocess-editor-pane overflow-y-auto rounded-xl border border-accent-rose/25 bg-surface-primary/60 p-3 text-[11px] leading-relaxed text-text-secondary whitespace-pre-wrap font-mono"
+                className="reprocess-editor-pane overflow-y-auto rounded-xl border border-accent-rose/25 bg-surface-primary/60 p-3 type-caption leading-relaxed text-text-secondary whitespace-pre-wrap font-mono"
                 data-testid="reprocess-before-pane"
               >
-                {active.beforeText || '—'}
+                {active.beforeText || 'Ξ²β‚¬β€'}
               </div>
-              <p className="mt-1 text-[9px] text-text-muted">
+              <p className="mt-1 type-micro text-text-muted">
                 {countWords(active.beforeText)} {t('words')}
               </p>
             </div>
 
             <div>
               <div className="mb-1.5 flex items-center justify-between gap-2">
-                <p className="text-[10px] font-semibold text-accent-emerald">
+                <p className="type-micro font-semibold text-accent-emerald">
                   {t('reprocessReaderAfterEditable')}
                 </p>
                 <div className="flex items-center gap-0.5">
@@ -296,7 +296,7 @@ export function ReprocessTextEditor({ sections, onChange, initialSectionIndex = 
                 style={{ height: heightPx }}
                 spellCheck
                 className={cn(
-                  'reprocess-editor-pane w-full resize-y overflow-y-auto rounded-xl border bg-surface-primary/60 p-3 text-[11px] leading-relaxed text-text-primary font-mono',
+                  'reprocess-editor-pane w-full resize-y overflow-y-auto rounded-xl border bg-surface-primary/60 p-3 type-caption leading-relaxed text-text-primary font-mono',
                   sectionHasManualEdits(active)
                     ? 'border-brand-600/50 ring-1 ring-brand-600/20'
                     : 'border-accent-emerald/30 focus:border-accent-emerald/50',
@@ -305,10 +305,10 @@ export function ReprocessTextEditor({ sections, onChange, initialSectionIndex = 
                 aria-label={t('reprocessEditSectionAria')}
               />
               <div className="mt-1 flex flex-wrap items-center gap-2">
-                <p className="text-[9px] text-text-muted">
+                <p className="type-micro text-text-muted">
                   {countWords(active.editedText)} {t('words')}
                   {sectionHasManualEdits(active) && (
-                    <span className="ml-1 text-text-primary">· {t('reprocessModified')}</span>
+                    <span className="ml-1 text-text-primary">Ξ’Β· {t('reprocessModified')}</span>
                   )}
                 </p>
                 <div className="ml-auto flex flex-wrap gap-1">
@@ -317,7 +317,7 @@ export function ReprocessTextEditor({ sections, onChange, initialSectionIndex = 
                     onClick={() => updateSection(activeIndex, {
                       editedText: normalizeSectionText(active.editedText),
                     })}
-                    className="inline-flex items-center gap-1 rounded-md border border-border-subtle px-2 py-0.5 text-[9px] text-text-secondary hover:bg-surface-hover"
+                    className="inline-flex items-center gap-1 rounded-md border border-border-subtle px-2 py-0.5 type-micro text-text-secondary hover:bg-surface-hover"
                   >
                     <Sparkles className="h-3 w-3" />
                     {t('reprocessNormalize')}
@@ -325,7 +325,7 @@ export function ReprocessTextEditor({ sections, onChange, initialSectionIndex = 
                   <button
                     type="button"
                     onClick={() => updateSection(activeIndex, { editedText: active.pipelineText })}
-                    className="inline-flex items-center gap-1 rounded-md border border-border-subtle px-2 py-0.5 text-[9px] text-text-muted hover:bg-surface-hover"
+                    className="inline-flex items-center gap-1 rounded-md border border-border-subtle px-2 py-0.5 type-micro text-text-muted hover:bg-surface-hover"
                   >
                     <RotateCcw className="h-3 w-3" />
                     {t('reprocessResetPipeline')}
@@ -335,7 +335,7 @@ export function ReprocessTextEditor({ sections, onChange, initialSectionIndex = 
             </div>
           </div>
 
-          <p className="text-[9px] text-text-muted">{t('reprocessKeyboardHint')}</p>
+          <p className="type-micro text-text-muted">{t('reprocessKeyboardHint')}</p>
         </div>
       </div>
     </div>

@@ -42,7 +42,7 @@ interface StudyTimerProps {
   suggestedExamPractice?: ExamPracticePresetId;
   onSessionComplete?: (minutes: number, label: string) => void;
   onOpenSimulator?: () => void;
-  /** TOOL-TM-02 — open Leitner (or other break tool) during Pomodoro break */
+  /** TOOL-TM-02 β€” open Leitner (or other break tool) during Pomodoro break */
   onOpenBreakTool?: () => void;
 }
 
@@ -53,7 +53,7 @@ function defaultExamIso(): string {
   return d.toISOString();
 }
 
-/* OPT-K101 — residual markup debt: decorative brand type -> ink */
+/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
 export function StudyTimer({
   concept = '',
   stepLabel,
@@ -152,7 +152,7 @@ export function StudyTimer({
               at: new Date().toISOString(),
               minutes: mins,
               label: examPracticeId
-                ? `${sessionLabel} · ${examPracticeLabel(examPracticeId, lang)}`
+                ? `${sessionLabel} Β· ${examPracticeLabel(examPracticeId, lang)}`
                 : sessionLabel,
               preset: preset.key,
             };
@@ -245,7 +245,7 @@ export function StudyTimer({
           data-testid="timer-break-leitner-suggest"
         >
           <Layers className="w-3.5 h-3.5 text-accent-cyan shrink-0" />
-          <p className="flex-1 text-[11px] text-text-primary min-w-0">{t('timerBreakLeitnerSuggest')}</p>
+          <p className="flex-1 type-caption text-text-primary min-w-0">{t('timerBreakLeitnerSuggest')}</p>
           <button
             type="button"
             data-testid="timer-break-open-leitner"
@@ -260,14 +260,14 @@ export function StudyTimer({
             onClick={() => setLeitnerBreakDismissed(true)}
             className="shrink-0 type-caption text-text-muted hover:text-text-secondary px-1"
           >
-            ×
+            Γ—
           </button>
         </div>
       )}
 
       {mode === 'pomodoro' && (
         <>
-          {/* Wave E10 — segmented pomodoro modes; exam blocks in compact select */}
+          {/* Wave E10 β€” segmented pomodoro modes; exam blocks in compact select */}
           <div
             className="ux-pomodoro-preset-pills mb-3 inline-flex self-start rounded-lg border border-border-subtle p-0.5 xl:hidden"
             role="group"
@@ -304,6 +304,8 @@ export function StudyTimer({
                   setPhase('work');
                   setSecondsLeft(PRESET_DEFS[presetIdx].work);
                   setRunning(false);
+                  // Clear the persisted preset too, or the workspace re-applies it on remount.
+                  saveExamPracticePreset(scopeKey, null);
                   return;
                 }
                 setExamPracticeId(id);

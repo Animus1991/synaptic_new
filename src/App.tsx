@@ -101,7 +101,7 @@ function LazyOverlay({
   );
 }
 
-/* OPT-K101 — residual markup debt: decorative brand type -> ink */
+/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
 export default function App() {
   const store = useAppStore();
   const { open: paletteOpen, toggle: togglePalette, close: closePalette } = useCommandPalette();
@@ -172,7 +172,7 @@ export default function App() {
     store.openStudyWorkspaceForConcept(concept);
   }, [store]);
 
-  /** Course / library Continue — store marks TTI + prefetches chunk. */
+  /** Course / library Continue β€” store marks TTI + prefetches chunk. */
   const openCourseWorkspace = useCallback((topicTitle?: string) => {
     if (topicTitle?.trim()) {
       store.openStudyWorkspaceForConcept(topicTitle.trim());
@@ -204,7 +204,7 @@ export default function App() {
         if (cancelled) return;
         notifyInfo(
           store.user.settings.language === 'el'
-            ? 'Ήπιο check-in μελέτης'
+            ? 'Ξ‰Ο€ΞΉΞΏ check-in ΞΌΞµΞ»Ξ­Ο„Ξ·Ο‚'
             : 'Gentle study check-in',
           alert.message,
         );
@@ -235,8 +235,8 @@ export default function App() {
         store.openAgentFromWorkspace({
           mode: 'motivation',
           prompt: store.user.settings.language === 'el'
-            ? 'Ας κάνουμε ήσυχα το σημερινό check-in μελέτης — ρώτα με ένα-ένα με έτοιμες επιλογές.'
-            : "Let's gently do today's study check-in — ask me one thing at a time with ready options.",
+            ? 'Ξ‘Ο‚ ΞΊΞ¬Ξ½ΞΏΟ…ΞΌΞµ Ξ®ΟƒΟ…Ο‡Ξ± Ο„ΞΏ ΟƒΞ·ΞΌΞµΟΞΉΞ½Ο check-in ΞΌΞµΞ»Ξ­Ο„Ξ·Ο‚ β€” ΟΟΟ„Ξ± ΞΌΞµ Ξ­Ξ½Ξ±-Ξ­Ξ½Ξ± ΞΌΞµ Ξ­Ο„ΞΏΞΉΞΌΞµΟ‚ ΞµΟ€ΞΉΞ»ΞΏΞ³Ξ­Ο‚.'
+            : "Let's gently do today's study check-in β€” ask me one thing at a time with ready options.",
           autoSend: false,
           fullPage: true,
         });
@@ -297,7 +297,7 @@ export default function App() {
   const handleOnboardingComplete = useCallback((
     data: Parameters<typeof store.completeOnboarding>[0],
   ) => {
-    // OPT-R18 — exploreDemoMode seeds demo courses atomically inside completeOnboarding.
+    // OPT-R18 β€” exploreDemoMode seeds demo courses atomically inside completeOnboarding.
     store.completeOnboarding(data);
     if (data.exploreDemoMode) {
       return;
@@ -811,7 +811,7 @@ export default function App() {
                   onClick={store.exitWorkspaceCourseSplit}
                   className="type-micro font-medium text-text-secondary hover:text-text-primary transition-colors shrink-0"
                 >
-                  {store.user.settings.language === 'el' ? 'Πλήρες workspace' : 'Full workspace'}
+                  {store.user.settings.language === 'el' ? 'Ξ Ξ»Ξ®ΟΞµΟ‚ workspace' : 'Full workspace'}
                 </button>
               </div>
               <div className="min-h-0 flex-1 overflow-y-auto">
@@ -852,9 +852,9 @@ export default function App() {
                 <button
                   type="button"
                   onClick={store.exitWorkspaceAgentSplit}
-                  className="text-[10px] font-medium text-text-secondary hover:text-text-primary transition-colors"
+                  className="type-micro font-medium text-text-secondary hover:text-text-primary transition-colors"
                 >
-                  {store.user.settings.language === 'el' ? 'Πλήρες workspace' : 'Full workspace'}
+                  {store.user.settings.language === 'el' ? 'Ξ Ξ»Ξ®ΟΞµΟ‚ workspace' : 'Full workspace'}
                 </button>
               </div>
               <div className="min-h-0 flex-1 overflow-hidden">
@@ -1125,7 +1125,7 @@ export default function App() {
     );
   }
 
-  // Course detail view (full page — skipped when workspace+course split is active)
+  // Course detail view (full page β€” skipped when workspace+course split is active)
   if (store.currentView === 'course' && store.selectedCourse && !store.workspaceCourseSplit) {
     const selectedCourse = store.selectedCourse;
     return (
@@ -1166,7 +1166,7 @@ export default function App() {
   // Main app views
   return (
     <I18nContext.Provider value={i18nValue}>
-      {/* Wave O-1 — global reduced-motion respect for every framer-motion
+      {/* Wave O-1 β€” global reduced-motion respect for every framer-motion
           subtree (AnimatePresence + motion.*). Users with the OS-level
           `prefers-reduced-motion: reduce` get instant transitions across the
           whole app (Onboarding, Tasks, Library, ConfirmDialog, AppToastBanner,
@@ -1320,7 +1320,7 @@ export default function App() {
                   const el = store.user.settings.language === 'el';
                   store.openAgentFromWorkspace({
                     prompt: el
-                      ? `Βοήθησέ με να κατανοήσω: ${concept}`
+                      ? `Ξ’ΞΏΞ®ΞΈΞ·ΟƒΞ­ ΞΌΞµ Ξ½Ξ± ΞΊΞ±Ο„Ξ±Ξ½ΞΏΞ®ΟƒΟ‰: ${concept}`
                       : `Help me understand: ${concept}`,
                     mode: 'socratic',
                     fullPage: true,

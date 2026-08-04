@@ -86,17 +86,17 @@ type CourseTab = CourseTabId;
 function buildSourcePreviewText(file: UploadedFile, course: Course): string | null {
   if (file.extractedText?.trim()) {
     const text = file.extractedText.replace(/\s+/g, ' ').trim();
-    return text.length > 160 ? `${text.slice(0, 157)}…` : text;
+    return text.length > 160 ? `${text.slice(0, 157)}β€¦` : text;
   }
   const span = course.conceptSpans?.find((s) => s.fileId === file.id && s.sentence?.trim());
   if (span?.sentence) {
     const sentence = span.sentence.replace(/\s+/g, ' ').trim();
-    return sentence.length > 160 ? `${sentence.slice(0, 157)}…` : sentence;
+    return sentence.length > 160 ? `${sentence.slice(0, 157)}β€¦` : sentence;
   }
   return null;
 }
 
-/* OPT-K101 — residual markup debt: decorative brand type -> ink */
+/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
 export function CourseView({
   course,
   uploadedFiles = [],
@@ -208,7 +208,7 @@ export function CourseView({
     if (ok !== false) setReprocessApplied(true);
   };
 
-  /** B10/B11 — warm workspace + reader chunks while viewing course overview. */
+  /** B10/B11 β€” warm workspace + reader chunks while viewing course overview. */
   useEffect(() => {
     prefetchWorkspaceEntry();
   }, [course.id]);
@@ -413,7 +413,7 @@ export function CourseView({
             <div>
               <div className="flex items-center gap-2 flex-wrap">
                 <span className={cn(
-                  'inline-flex items-center gap-1 rounded-full px-2 py-1 text-[10px] font-semibold',
+                  'inline-flex items-center gap-1 rounded-full px-2 py-1 type-micro font-semibold',
                   quality.band === 'strong'
                     ? 'bg-accent-emerald/12 text-accent-emerald'
                     : quality.band === 'moderate'
@@ -508,7 +508,7 @@ export function CourseView({
           <span className="text-sm font-medium">Course Progress</span>
           <span className="text-sm text-text-secondary">{course.completedLessons}/{course.totalLessons} lessons</span>
         </div>
-        {/* Wave P-2 C08 — Course Progress top-of-page track uses --viz-bar-track. */}
+        {/* Wave P-2 C08 β€” Course Progress top-of-page track uses --viz-bar-track. */}
         <div className="w-full rounded-full h-3" style={{ backgroundColor: 'var(--viz-bar-track)' }}>
           <div
             className="h-3 rounded-full transition-all duration-700"
@@ -520,10 +520,10 @@ export function CourseView({
           <span>~{Math.round(course.estimatedHours * (1 - progress / 100))}h remaining</span>
         </div>
         <div className="grid grid-cols-4 gap-3 mt-4 pt-4 border-t border-border-subtle">
-          <div className="text-center"><p className="ux-kpi-value">{course.conceptCount}</p><p className="text-[10px] text-text-muted">Concepts</p></div>
-          <div className="text-center"><p className="ux-kpi-value">{course.glossaryCount}</p><p className="text-[10px] text-text-muted">Glossary</p></div>
-          <div className="text-center"><p className="ux-kpi-value">{course.exerciseCount}</p><p className="text-[10px] text-text-muted">Exercises</p></div>
-          <div className="text-center"><p className="text-xs font-semibold capitalize">{course.sourceMode}</p><p className="text-[10px] text-text-muted">Source Mode</p></div>
+          <div className="text-center"><p className="ux-kpi-value">{course.conceptCount}</p><p className="type-micro text-text-muted">Concepts</p></div>
+          <div className="text-center"><p className="ux-kpi-value">{course.glossaryCount}</p><p className="type-micro text-text-muted">Glossary</p></div>
+          <div className="text-center"><p className="ux-kpi-value">{course.exerciseCount}</p><p className="type-micro text-text-muted">Exercises</p></div>
+          <div className="text-center"><p className="text-xs font-semibold capitalize">{course.sourceMode}</p><p className="type-micro text-text-muted">Source Mode</p></div>
         </div>
       </AnimatedCard>
 
@@ -676,7 +676,7 @@ function TopicCard({ topic, index, courseColor, course, onGoToSource, onStart }:
               <Circle className="w-5 h-5 text-text-muted" />
             </div>
           )}
-          <span className="absolute -top-1 -left-1 text-[10px] font-bold text-text-muted">{index + 1}</span>
+          <span className="absolute -top-1 -left-1 type-micro font-bold text-text-muted">{index + 1}</span>
         </div>
 
         <div className="flex-1 min-w-0">
@@ -712,7 +712,7 @@ function TopicCard({ topic, index, courseColor, course, onGoToSource, onStart }:
                   <span className="text-text-muted">Mastery</span>
                   <span className="font-medium">{topic.mastery}%</span>
                 </div>
-                {/* Wave P-2 C08 — Topic mastery track uses --viz-bar-track. */}
+                {/* Wave P-2 C08 β€” Topic mastery track uses --viz-bar-track. */}
                 <div className="w-full rounded-full h-1.5" style={{ backgroundColor: 'var(--viz-bar-track)' }}>
                   <div
                     className="h-1.5 rounded-full transition-all"
@@ -769,13 +769,13 @@ function TopicCard({ topic, index, courseColor, course, onGoToSource, onStart }:
                       key={i}
                       onClick={() => onGoToSource!({ fileId: span.fileId, charStart: span.charStart, charEnd: span.charEnd })}
                       title="Go to source"
-                      className="group flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-full bg-brand-500/10 border border-brand-500/30 text-text-secondary hover:bg-brand-500/20 transition-colors"
+                      className="group flex items-center gap-1 type-caption px-2 py-0.5 rounded-full bg-brand-500/10 border border-brand-500/30 text-text-secondary hover:bg-brand-500/20 transition-colors"
                     >
                       {c}
                       <MapPin className="w-2.5 h-2.5 opacity-60 group-hover:opacity-100" />
                     </button>
                   ) : (
-                    <span key={i} className="text-[11px] px-2 py-0.5 rounded-full bg-surface-hover border border-border-subtle text-text-secondary">
+                    <span key={i} className="type-caption px-2 py-0.5 rounded-full bg-surface-hover border border-border-subtle text-text-secondary">
                       {c}
                     </span>
                   );
@@ -976,7 +976,7 @@ function SourceFiles({
               <div className="flex-1 min-w-0">
                 <span className="text-sm font-medium block truncate">{file.name}</span>
                 {'pipelineVersion' in file && file.pipelineVersion && (
-                  <span className="text-[10px] text-text-muted">pipeline v{file.pipelineVersion}</span>
+                  <span className="type-micro text-text-muted">pipeline v{file.pipelineVersion}</span>
                 )}
                 {file.id && (
                   <p className="mt-2 text-xs text-text-secondary leading-relaxed">
@@ -986,10 +986,10 @@ function SourceFiles({
                 )}
               </div>
               {'ocrUsed' in file && file.ocrUsed && (
-                <span className="text-[10px] px-1.5 py-0.5 rounded bg-accent-cyan/10 text-accent-cyan">OCR</span>
+                <span className="type-micro px-1.5 py-0.5 rounded bg-accent-cyan/10 text-accent-cyan">OCR</span>
               )}
               {'ingestMethod' in file && file.ingestMethod && (
-                <span className="text-[10px] text-text-muted">{file.ingestMethod}</span>
+                <span className="type-micro text-text-muted">{file.ingestMethod}</span>
               )}
               <span className="text-xs text-text-muted">{t('courseAnalyzed')}</span>
               {file.id && (
@@ -1012,8 +1012,8 @@ function SourceFiles({
           )}
         </div>
         {course.pipelineMeta && (
-          <p className="mt-3 text-[10px] text-text-muted">
-            Pipeline v{course.pipelineMeta.version} · {course.pipelineMeta.outlineSource} · {new Date(course.pipelineMeta.generatedAt).toLocaleString()}
+          <p className="mt-3 type-micro text-text-muted">
+            Pipeline v{course.pipelineMeta.version} Β· {course.pipelineMeta.outlineSource} Β· {new Date(course.pipelineMeta.generatedAt).toLocaleString()}
           </p>
         )}
       </div>
@@ -1035,7 +1035,7 @@ function SourceFiles({
                     {(g.relatedConcepts?.length ?? 0) > 0 && (
                       <div className="flex flex-wrap gap-1 mt-1.5">
                         {g.relatedConcepts!.slice(0, 4).map((rc) => (
-                          <span key={rc} className="text-[10px] px-1.5 py-0.5 rounded-full bg-surface-hover border border-border-subtle/60 text-text-muted">
+                          <span key={rc} className="type-micro px-1.5 py-0.5 rounded-full bg-surface-hover border border-border-subtle/60 text-text-muted">
                             {rc}
                           </span>
                         ))}
@@ -1063,10 +1063,10 @@ function SourceFiles({
             Source Analysis Report
           </p>
           <ul className="text-xs text-text-secondary space-y-1">
-            <li>• {provenanceCount} concept spans linked to source sentences</li>
-            <li>• All content is source-grounded from your uploaded materials</li>
+            <li>β€Ά {provenanceCount} concept spans linked to source sentences</li>
+            <li>β€Ά All content is source-grounded from your uploaded materials</li>
             {course.sourceQuality?.warnings.slice(0, 2).map((w) => (
-              <li key={w}>• {w}</li>
+              <li key={w}>β€Ά {w}</li>
             ))}
           </ul>
         </div>
@@ -1108,23 +1108,23 @@ function CourseAnalytics({ course, masteryPercent }: { course: Course; masteryPe
       <div className="platform-panel-md sm:col-span-2" data-testid="course-analytics-mastery">
         <p className="text-xs text-text-tertiary">{t('analyticsCourseMastery')}</p>
         <p className="mt-1 ux-kpi-value">{masteryPercent}%</p>
-        <p className="mt-1 text-[11px] text-text-muted">{t('courseMasterySublabel')}</p>
+        <p className="mt-1 type-caption text-text-muted">{t('courseMasterySublabel')}</p>
       </div>
       <div className="platform-panel-md">
         <h4 className="text-sm font-semibold mb-3">Study Time Distribution</h4>
-        <p className="text-[11px] text-text-tertiary mb-3">Estimated minutes per module, from the generated outline</p>
+        <p className="type-caption text-text-tertiary mb-3">Estimated minutes per module, from the generated outline</p>
         <div className="space-y-2">
           {course.topics.slice(0, 6).map(topic => (
             <div key={topic.id} className="flex items-center gap-2">
               <span className="text-xs text-text-secondary w-24 truncate">{topic.title}</span>
-              {/* Wave P-2 C08 — Study Time Distribution track uses --viz-bar-track. */}
+              {/* Wave P-2 C08 β€” Study Time Distribution track uses --viz-bar-track. */}
               <div className="flex-1 rounded-full h-2" style={{ backgroundColor: 'var(--viz-bar-track)' }}>
                 <div
                   className="h-2 rounded-full bg-brand-500 transition-all"
                   style={{ width: `${Math.max(8, ((topic.estimatedMinutes || 0) / maxMinutes) * 100)}%` }}
                 />
               </div>
-              <span className="text-[10px] text-text-muted w-10 text-right">{topic.estimatedMinutes}m</span>
+              <span className="type-micro text-text-muted w-10 text-right">{topic.estimatedMinutes}m</span>
             </div>
           ))}
         </div>
@@ -1159,7 +1159,7 @@ function CourseAnalytics({ course, masteryPercent }: { course: Course; masteryPe
             </div>
             {velocity > 0 && (
               <div>
-                <div className={cn('ux-kpi-value', velocity >= 1 ? 'text-accent-emerald' : 'text-accent-amber')}>{velocity.toFixed(2)}×</div>
+                <div className={cn('ux-kpi-value', velocity >= 1 ? 'text-accent-emerald' : 'text-accent-amber')}>{velocity.toFixed(2)}Γ—</div>
                 <p className="text-xs text-text-tertiary mt-1">
                   {velocity >= 1.05 ? 'Ahead of the expected pace' : velocity <= 0.95 ? 'Behind the expected pace' : 'On the expected pace'}
                 </p>

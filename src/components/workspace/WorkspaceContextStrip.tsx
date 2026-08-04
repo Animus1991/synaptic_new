@@ -18,7 +18,7 @@ type Props = {
   conceptBusOpen?: boolean;
 };
 
-/* OPT-K100 — markup debt: Agent/Reader/tools decorative brand type -> ink */
+/* OPT-K100 β€” markup debt: Agent/Reader/tools decorative brand type -> ink */
 export function WorkspaceContextStrip({
   context,
   lang: _lang,
@@ -41,7 +41,7 @@ export function WorkspaceContextStrip({
       data-testid="workspace-context-strip"
     >
       <div className="min-w-0 flex-1 overflow-hidden">
-        <div className="flex min-w-0 flex-nowrap items-center gap-x-1.5 overflow-hidden text-[11px] text-text-muted whitespace-nowrap">
+        <div className="flex min-w-0 flex-nowrap items-center gap-x-1.5 overflow-hidden type-caption text-text-muted whitespace-nowrap">
           {context.courseLabel && (
             <>
               <span className="truncate shrink min-w-0 font-medium text-text-secondary" title={context.courseLabel}>
@@ -60,15 +60,15 @@ export function WorkspaceContextStrip({
             )}
             {context.sectionLabel}
           </span>
-          <span aria-hidden className="shrink-0">·</span>
+          <span aria-hidden className="shrink-0">Β·</span>
           <span className="shrink-0" data-testid="workspace-context-step">{context.stepLabel}</span>
           {context.stepType && (
             <>
-              <span aria-hidden className="shrink-0">·</span>
+              <span aria-hidden className="shrink-0">Β·</span>
               <span className="truncate shrink min-w-0 hidden sm:inline">{context.stepType}</span>
             </>
           )}
-          <span aria-hidden className="shrink-0 hidden xs:inline">·</span>
+          <span aria-hidden className="shrink-0 hidden xs:inline">Β·</span>
           <span className="truncate shrink-0 font-medium text-text-primary hidden xs:inline" data-testid="workspace-context-tool">
             {context.toolLabel}
           </span>
@@ -77,7 +77,7 @@ export function WorkspaceContextStrip({
           {context.toolDescription}
           {typeof sourceQuality === 'number' && (
             <span className="ml-2 ws-chip-warn inline-flex rounded-full px-1.5 py-px type-caption">
-              · {t('contextQualityLabel')} {sourceQuality}/100
+              Β· {t('contextQualityLabel')} {sourceQuality}/100
             </span>
           )}
         </p>

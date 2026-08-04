@@ -14,7 +14,7 @@ import type { DashboardNextAction } from '../lib/dashboardNextAction';
 import { paletteQuickActions, type GlobalQuickActionId } from '../lib/globalActionRegistry';
 import { useMinimalTheme } from '../lib/useMinimalTheme';
 
-/* OPT-K101 — residual markup debt: decorative brand type -> ink */
+/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
 export type CommandAction =
   | { type: 'navigate'; view: AppView; label: string; icon: typeof Search }
   | { type: 'workspace'; label: string; icon: typeof LayoutGrid }
@@ -245,7 +245,7 @@ export function CommandPalette({
             aria-autocomplete="list"
             className="command-palette-input flex-1 bg-transparent text-sm outline-none placeholder:text-text-muted"
           />
-          <kbd className="text-[10px] px-1.5 py-0.5 rounded border border-border-subtle text-text-muted">ESC</kbd>
+          <kbd className="type-micro px-1.5 py-0.5 rounded border border-border-subtle text-text-muted">ESC</kbd>
         </div>
         <div id="command-palette-list" role="listbox" className="max-h-72 overflow-y-auto p-2">
           {orderedActions.length === 0 ? (
@@ -272,13 +272,13 @@ export function CommandPalette({
               <span className="min-w-0 flex-1">
                 <span className="block truncate">{a.label}</span>
                 {a.type === 'content' && a.sublabel && (
-                  <span className="command-palette-path block truncate text-[10px] text-text-muted">{a.sublabel}</span>
+                  <span className="command-palette-path block truncate type-micro text-text-muted">{a.sublabel}</span>
                 )}
                 {a.type === 'next-action' && a.sublabel && (
-                  <span className="command-palette-path block truncate text-[10px] text-text-muted">{a.sublabel}</span>
+                  <span className="command-palette-path block truncate type-micro text-text-muted">{a.sublabel}</span>
                 )}
                 {a.type === 'nlm-bridge' && a.sublabel && (
-                  <span className="command-palette-path block truncate text-[10px] text-text-muted">{a.sublabel}</span>
+                  <span className="command-palette-path block truncate type-micro text-text-muted">{a.sublabel}</span>
                 )}
               </span>
             </button>
@@ -306,7 +306,7 @@ export function useCommandPalette() {
   return { open, toggle, close, setOpen };
 }
 
-/** B9 — Global palette: defer mount until idle; mount immediately when opened. */
+/** B9 β€” Global palette: defer mount until idle; mount immediately when opened. */
 export function AppCommandPaletteMount(props: Props) {
   const { open } = props;
   const [mounted, setMounted] = useState(open);

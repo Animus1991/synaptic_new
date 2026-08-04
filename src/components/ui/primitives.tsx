@@ -13,7 +13,7 @@ import { AllCapsLabel } from './AllCapsLabel';
 
 /**
  * Shared page-level layout primitives for Synapse top-level views.
- * Warm Sand bento surfaces + shared display headings (Lora — light typography SoT).
+ * Warm Sand bento surfaces + shared display headings (Lora β€” light typography SoT).
  */
 
 /** Outer page wrapper: full remaining width beside the sidebar (no artificial max-width). */
@@ -32,7 +32,7 @@ export function Page({
     <div
       className={cn(
         'platform-page w-full min-w-0 max-w-none pb-24 lg:pb-6',
-        /* OPT-K85 — non-Minimal: scrollbar-sized L/R pad; Minimal keeps calm gutters */
+        /* OPT-K85 β€” non-Minimal: scrollbar-sized L/R pad; Minimal keeps calm gutters */
         quiet ? 'p-3 sm:p-5 lg:px-6' : 'py-3 sm:py-5 shell-edge-balance',
         gapClass,
         className,
@@ -72,12 +72,12 @@ export function PageHeader({
     )}>
       <div className="min-w-0">
         {eyebrow && (
-          <p className={cn('ws-eyebrow mb-1 text-text-secondary', isMinimal && 'text-[11px] uppercase tracking-[0.08em] text-text-muted')}>
+          <p className={cn('ws-eyebrow mb-1 text-text-secondary', isMinimal && 'type-caption uppercase tracking-[0.08em] text-text-muted')}>
             <AllCapsLabel>{eyebrow}</AllCapsLabel>
           </p>
         )}
         <div className="flex items-center gap-2">
-          {/* OPT-K7 + OPT-K100 — Minimal text-first; non-Minimal icon tile uses ink chrome */}
+          {/* OPT-K7 + OPT-K100 β€” Minimal text-first; non-Minimal icon tile uses ink chrome */}
           {Icon && !isMinimal && (
             <span className="ux-page-header-icon grid h-7 w-7 shrink-0 place-items-center rounded-lg border border-border-subtle bg-surface-secondary text-text-secondary">
               <Icon className="h-3.5 w-3.5" />
@@ -117,7 +117,7 @@ export function PageHeader({
   );
 
   if (!animate) return content;
-  // OPT-R17 — Minimal: opacity-only (no float). Blueprint keeps fadeUp.
+  // OPT-R17 β€” Minimal: opacity-only (no float). Blueprint keeps fadeUp.
   const motionProps = isMinimal
     ? { ...MINIMAL_MOTION }
     : isBlueprint
@@ -147,23 +147,26 @@ const CARD_PAD = {
   lg: 'p-6',
 } as const;
 
-/** Bento surface card — Warm Sand editorial panel. */
+/** Bento surface card β€” Warm Sand editorial panel. */
 export function Card({
   children,
   className,
   tone = 'default',
   padding = 'md',
   interactive = false,
+  'data-testid': testId,
 }: {
   children: ReactNode;
   className?: string;
   tone?: keyof typeof CARD_TONE;
   padding?: keyof typeof CARD_PAD;
   interactive?: boolean;
+  'data-testid'?: string;
 }) {
   return (
     <BlueprintSurface
       hint={tone === 'muted'}
+      data-testid={testId}
       className={cn(
         tone !== 'default' && tone !== 'muted' && 'rounded-panel border',
         CARD_TONE[tone],
@@ -178,7 +181,7 @@ export function Card({
 }
 
 /**
- * Platform section chrome — mirrors workspace ToolFrame (header + body) for top-level pages.
+ * Platform section chrome β€” mirrors workspace ToolFrame (header + body) for top-level pages.
  */
 export function PlatformSection({
   title,
@@ -283,7 +286,7 @@ export function CardLink({
   );
 }
 
-/** Small KPI tile (streak, XP, reviews due, …). */
+/** Small KPI tile (streak, XP, reviews due, β€¦). */
 export function StatTile({
   icon,
   label,
@@ -319,7 +322,7 @@ export type PlatformTabItem = {
   testId?: string;
 };
 
-/** Shared platform tab bar — matches Tasks / Analytics / Course affordances. */
+/** Shared platform tab bar β€” matches Tasks / Analytics / Course affordances. */
 export function TabBar({
   tabs,
   activeKey,
@@ -384,7 +387,7 @@ export function AnimatedCard({
     </Card>
   );
   if (!animate) return card;
-  // OPT-R17 — Minimal: opacity-only entrance (no y float).
+  // OPT-R17 β€” Minimal: opacity-only entrance (no y float).
   const motionInitial = isMinimal
     ? MINIMAL_MOTION.initial
     : isBlueprint
@@ -412,7 +415,7 @@ export function AnimatedCard({
   );
 }
 
-/** Primary call-to-action — solid brand fill, WCAG-friendly white label. */
+/** Primary call-to-action β€” solid brand fill, WCAG-friendly white label. */
 export const PrimaryCTA = forwardRef<
   HTMLButtonElement,
   ButtonHTMLAttributes<HTMLButtonElement> & { size?: 'sm' | 'md' }
@@ -434,7 +437,7 @@ export const PrimaryCTA = forwardRef<
   );
 });
 
-/** Secondary call-to-action — bordered pill for non-destructive alternate actions. */
+/** Secondary call-to-action β€” bordered pill for non-destructive alternate actions. */
 export const SecondaryCTA = forwardRef<
   HTMLButtonElement,
   ButtonHTMLAttributes<HTMLButtonElement> & { size?: 'sm' | 'md' }

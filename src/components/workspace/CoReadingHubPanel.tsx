@@ -1,5 +1,5 @@
 /**
- * Wave CH-3/4 UI — Co-reading explanation challenges + protected peer votes.
+ * Wave CH-3/4 UI β€” Co-reading explanation challenges + protected peer votes.
  * Storage is device-local until collab review sync ships (see collabReviewSync).
  */
 import { useEffect, useState } from 'react';
@@ -30,10 +30,10 @@ type Props = {
 function dimensionLabel(dim: PeerDimension, lang: Lang): string {
   const el = lang === 'el';
   const map: Record<PeerDimension, [string, string]> = {
-    clarity: ['Clarity', 'Σαφήνεια'],
-    sourceGrounding: ['Source grounding', 'Στήριξη σε πηγή'],
-    completeness: ['Completeness', 'Πληρότητα'],
-    examUsefulness: ['Exam usefulness', 'Χρησιμότητα εξετάσεων'],
+    clarity: ['Clarity', 'Ξ£Ξ±Ο†Ξ®Ξ½ΞµΞΉΞ±'],
+    sourceGrounding: ['Source grounding', 'Ξ£Ο„Ξ®ΟΞΉΞΎΞ· ΟƒΞµ Ο€Ξ·Ξ³Ξ®'],
+    completeness: ['Completeness', 'Ξ Ξ»Ξ·ΟΟΟ„Ξ·Ο„Ξ±'],
+    examUsefulness: ['Exam usefulness', 'Ξ§ΟΞ·ΟƒΞΉΞΌΟΟ„Ξ·Ο„Ξ± ΞµΞΎΞµΟ„Ξ¬ΟƒΞµΟ‰Ξ½'],
   };
   return el ? map[dim][1] : map[dim][0];
 }
@@ -44,7 +44,8 @@ export function CoReadingHubPanel({ lang, roomId, memberId, displayName }: Props
   const [excerpt, setExcerpt] = useState('');
   const [sourceRef, setSourceRef] = useState('');
   const [explainDraft, setExplainDraft] = useState<Record<string, string>>({});
-  const [aiAssisted, setAiAssisted] = useState(false);
+  // Keyed per challenge: the human/AI attribution badge feeds ranking + steward flows.
+  const [aiAssisted, setAiAssisted] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     setStore(loadCoReadingHub(roomId));
@@ -103,7 +104,7 @@ export function CoReadingHubPanel({ lang, roomId, memberId, displayName }: Props
           const ranked = rankExplanations(ch);
           return (
             <div key={ch.id} className="rounded-md border border-border-subtle/60 p-2 space-y-2" data-testid={`co-reading-challenge-${ch.id}`}>
-              <p className="text-[11px] text-text-secondary whitespace-pre-wrap">{ch.sourceExcerpt}</p>
+              <p className="type-caption text-text-secondary whitespace-pre-wrap">{ch.sourceExcerpt}</p>
               {ch.sourceRef ? <p className="type-caption text-text-muted">{ch.sourceRef}</p> : null}
 
               <textarea
@@ -117,8 +118,8 @@ export function CoReadingHubPanel({ lang, roomId, memberId, displayName }: Props
               <label className="flex items-center gap-2 type-caption text-text-secondary">
                 <input
                   type="checkbox"
-                  checked={aiAssisted}
-                  onChange={(e) => setAiAssisted(e.target.checked)}
+                  checked={aiAssisted[ch.id] ?? false}
+                  onChange={(e) => setAiAssisted((m) => ({ ...m, [ch.id]: e.target.checked }))}
                 />
                 {tr('collabAiAssisted')}
               </label>
@@ -133,9 +134,10 @@ export function CoReadingHubPanel({ lang, roomId, memberId, displayName }: Props
                     authorId: memberId,
                     authorName: displayName || tr('collabAnonymous'),
                     text,
-                    aiAssisted,
+                    aiAssisted: aiAssisted[ch.id] ?? false,
                   }));
                   setExplainDraft((d) => ({ ...d, [ch.id]: '' }));
+                  setAiAssisted((m) => ({ ...m, [ch.id]: false }));
                 }}
               >
                 {tr('collabSubmitExplanation')}
@@ -160,7 +162,7 @@ export function CoReadingHubPanel({ lang, roomId, memberId, displayName }: Props
                         </span>
                       )}
                     </div>
-                    <p className="text-[11px] text-text-primary whitespace-pre-wrap">{ex.text}</p>
+                    <p className="type-caption text-text-primary whitespace-pre-wrap">{ex.text}</p>
                     <div className="flex flex-wrap gap-1">
                       {PEER_DIMENSIONS.map((dim) => (
                         <button

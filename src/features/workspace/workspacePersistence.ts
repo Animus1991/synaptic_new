@@ -174,9 +174,10 @@ export function loadExamPracticePreset(scope: string): string | null {
   return loadJson<Record<string, string>>(EXAM_PRACTICE_PRESET_KEY, {})[scope] ?? null;
 }
 
-export function saveExamPracticePreset(scope: string, presetId: string): void {
+export function saveExamPracticePreset(scope: string, presetId: string | null): void {
   const all = loadJson<Record<string, string>>(EXAM_PRACTICE_PRESET_KEY, {});
-  all[scope] = presetId;
+  if (presetId === null) delete all[scope];
+  else all[scope] = presetId;
   saveJson(EXAM_PRACTICE_PRESET_KEY, all);
 }
 

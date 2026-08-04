@@ -34,7 +34,7 @@ const statusToneClass: Record<ReturnType<typeof assignmentStatusTone>, string> =
   negative: 'bg-accent-rose/15 text-accent-rose',
 };
 
-/* OPT-K100 — markup debt: Agent/Reader/tools decorative brand type -> ink */
+/* OPT-K100 β€” markup debt: Agent/Reader/tools decorative brand type -> ink */
 export function StudentOrgView({
   settings,
   lang = settings.language ?? 'en',
@@ -185,7 +185,7 @@ export function StudentOrgView({
     <div
       className={cn(
         'platform-page w-full max-w-none space-y-6',
-        /* OPT-K85 — non-Minimal full column; Minimal keeps side gutters */
+        /* OPT-K85 β€” non-Minimal full column; Minimal keeps side gutters */
         isMinimal ? 'p-4 md:p-6 enterprise-calm' : 'py-4 md:py-6 shell-edge-balance',
       )}
       data-testid="student-org-view"
@@ -318,14 +318,14 @@ export function StudentOrgView({
                       </div>
                       {completionPct != null && (
                         <div className="flex items-center gap-2 pt-1 max-w-xs">
-                          {/* Wave P-2 C08 — student completion track uses --viz-bar-track. */}
+                          {/* Wave P-2 C08 β€” student completion track uses --viz-bar-track. */}
                           <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: 'var(--viz-bar-track)' }}>
                             <div
                               className="h-full bg-brand-500 rounded-full"
                               style={{ width: `${completionPct}%` }}
                             />
                           </div>
-                          <span className="text-[10px] text-text-muted">{completionPct}%</span>
+                          <span className="type-micro text-text-muted">{completionPct}%</span>
                         </div>
                       )}
                     </div>
@@ -343,7 +343,7 @@ export function StudentOrgView({
                     <div className="overflow-x-auto rounded-lg border border-border-subtle/60">
                       <table className="w-full text-sm">
                         <thead>
-                          <tr className="text-left text-[10px] text-text-muted border-b border-border-subtle/50">
+                          <tr className="text-left type-micro text-text-muted border-b border-border-subtle/50">
                             <th className="p-2">{ui.colAssignments}</th>
                             <th className="p-2">{ui.colDue}</th>
                             <th className="p-2 text-right">Score</th>
@@ -363,7 +363,7 @@ export function StudentOrgView({
                                 <tr className="border-b border-border-subtle/30 last:border-0">
                                   <td className="p-2 text-text-secondary">{a.title}</td>
                                   <td className="p-2 text-text-muted whitespace-nowrap">
-                                    {a.dueAt ? formatShortDate(a.dueAt, lang) : '—'}
+                                    {a.dueAt ? formatShortDate(a.dueAt, lang) : 'β€”'}
                                   </td>
                                   <td className="p-2 text-right">
                                     <span className="inline-flex items-center gap-2 justify-end flex-wrap">
@@ -375,7 +375,7 @@ export function StudentOrgView({
                                           )
                                         }
                                         data-testid={`student-discussion-toggle-${a.id}`}
-                                        className="text-[10px] text-text-secondary hover:underline"
+                                        className="type-micro text-text-secondary hover:underline"
                                       >
                                         {ui.discussionToggle}
                                       </button>
@@ -384,7 +384,7 @@ export function StudentOrgView({
                                       )}
                                       <span
                                         className={cn(
-                                          'text-[10px] px-1.5 py-0.5 rounded-full',
+                                          'type-micro px-1.5 py-0.5 rounded-full',
                                           statusToneClass[assignmentStatusTone(status)],
                                         )}
                                       >
@@ -445,7 +445,7 @@ export function StudentOrgView({
                 {orgs.map(({ org, membership }) => (
                   <tr key={org.id} className="border-b border-border-subtle/50">
                     <td className="p-3">{org.name}</td>
-                    <td className="p-3 capitalize">{membership?.role ?? '—'}</td>
+                    <td className="p-3 capitalize">{membership?.role ?? 'β€”'}</td>
                   </tr>
                 ))}
               </tbody>

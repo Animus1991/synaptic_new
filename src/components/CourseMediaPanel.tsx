@@ -20,7 +20,7 @@ type Props = {
   className?: string;
 };
 
-/* OPT-K101 — residual markup debt: decorative brand type -> ink */
+/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
 export function CourseMediaPanel({
   courseId,
   courseTitle,
@@ -90,26 +90,26 @@ export function CourseMediaPanel({
       >
         <Volume2 className="w-4 h-4 text-accent-violet shrink-0" />
         <span className="text-sm font-semibold text-text-primary flex-1">
-          {el ? 'Media — NotebookLM audio' : 'Media — NotebookLM audio'}
+          {el ? 'Media β€” NotebookLM audio' : 'Media β€” NotebookLM audio'}
         </span>
         {open ? <ChevronUp className="w-4 h-4 text-text-muted" /> : <ChevronDown className="w-4 h-4 text-text-muted" />}
       </button>
 
       {open && (
         <div className="space-y-3">
-          <p className="text-[10px] text-text-secondary">
+          <p className="type-micro text-text-secondary">
             {el
-              ? 'Επικόλλησε το transcript από το Studio Audio Overview του NotebookLM — εμφανίζεται εδώ με κεφάλαια.'
-              : 'Paste the transcript from NotebookLM Studio Audio Overview — appears here with chapter navigation.'}
+              ? 'Ξ•Ο€ΞΉΞΊΟΞ»Ξ»Ξ·ΟƒΞµ Ο„ΞΏ transcript Ξ±Ο€Ο Ο„ΞΏ Studio Audio Overview Ο„ΞΏΟ… NotebookLM β€” ΞµΞΌΟ†Ξ±Ξ½Ξ―Ξ¶ΞµΟ„Ξ±ΞΉ ΞµΞ΄Ο ΞΌΞµ ΞΊΞµΟ†Ξ¬Ξ»Ξ±ΞΉΞ±.'
+              : 'Paste the transcript from NotebookLM Studio Audio Overview β€” appears here with chapter navigation.'}
           </p>
           <button
             type="button"
             onClick={() => void openNotebookLm({ sourceTitle: courseTitle, lang })}
-            className="inline-flex items-center gap-1 text-[10px] font-medium text-text-primary dark:text-text-secondary hover:underline"
+            className="inline-flex items-center gap-1 type-micro font-medium text-text-primary dark:text-text-secondary hover:underline"
             data-testid="course-media-open-nlm"
           >
             <ExternalLink className="w-3 h-3" />
-            {el ? 'Άνοιγμα NotebookLM' : 'Open NotebookLM'}
+            {el ? 'Ξ†Ξ½ΞΏΞΉΞ³ΞΌΞ± NotebookLM' : 'Open NotebookLM'}
           </button>
           <textarea
             value={text}
@@ -117,8 +117,8 @@ export function CourseMediaPanel({
             rows={4}
             placeholder={
               el
-                ? '[0:00] Εισαγωγή\nΚείμενο…\n\n[2:15] Θέμα 1\n…'
-                : '[0:00] Introduction\nText…\n\n[2:15] Topic one\n…'
+                ? '[0:00] Ξ•ΞΉΟƒΞ±Ξ³Ο‰Ξ³Ξ®\nΞΞµΞ―ΞΌΞµΞ½ΞΏβ€¦\n\n[2:15] ΞΞ­ΞΌΞ± 1\nβ€¦'
+                : '[0:00] Introduction\nTextβ€¦\n\n[2:15] Topic one\nβ€¦'
             }
             className="w-full rounded-lg border border-border-subtle bg-surface-input px-2 py-1.5 text-xs text-text-primary placeholder:text-text-muted resize-y min-h-[72px]"
             data-testid="course-media-import-text"
@@ -130,15 +130,15 @@ export function CourseMediaPanel({
             className="px-3 py-1.5 rounded-lg bg-accent-violet/90 text-white text-xs font-medium disabled:opacity-50"
             data-testid="course-media-import-submit"
           >
-            {busy ? <Loader2 className="w-3.5 h-3.5 animate-spin inline" /> : el ? 'Εισαγωγή transcript' : 'Import transcript'}
+            {busy ? <Loader2 className="w-3.5 h-3.5 animate-spin inline" /> : el ? 'Ξ•ΞΉΟƒΞ±Ξ³Ο‰Ξ³Ξ® transcript' : 'Import transcript'}
           </button>
 
           {onUploadAudio && (
             <div className="pt-2 border-t border-border-subtle/60 space-y-2">
-              <p className="text-[10px] text-text-secondary">
+              <p className="type-micro text-text-secondary">
                 {el
-                  ? 'Ή ανέβασε αρχείο ήχου — Whisper transcript στο media panel (απαιτείται σύνδεση).'
-                  : 'Or upload an audio file — Whisper transcript lands in this panel (sign-in required).'}
+                  ? 'Ξ‰ Ξ±Ξ½Ξ­Ξ²Ξ±ΟƒΞµ Ξ±ΟΟ‡ΞµΞ―ΞΏ Ξ®Ο‡ΞΏΟ… β€” Whisper transcript ΟƒΟ„ΞΏ media panel (Ξ±Ο€Ξ±ΞΉΟ„ΞµΞ―Ο„Ξ±ΞΉ ΟƒΟΞ½Ξ΄ΞµΟƒΞ·).'
+                  : 'Or upload an audio file β€” Whisper transcript lands in this panel (sign-in required).'}
               </p>
               <input
                 ref={audioInputRef}
@@ -158,7 +158,7 @@ export function CourseMediaPanel({
                 onClick={() => audioInputRef.current?.click()}
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-accent-violet/30 text-xs font-medium text-accent-violet hover:bg-accent-violet/10 disabled:opacity-50"
                 data-testid="course-media-upload-audio"
-                title={canUploadAudio ? undefined : el ? 'Σύνδεση απαιτείται' : 'Sign-in required'}
+                title={canUploadAudio ? undefined : el ? 'Ξ£ΟΞ½Ξ΄ΞµΟƒΞ· Ξ±Ο€Ξ±ΞΉΟ„ΞµΞ―Ο„Ξ±ΞΉ' : 'Sign-in required'}
               >
                 {uploadBusy ? (
                   <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -166,15 +166,15 @@ export function CourseMediaPanel({
                   <Upload className="w-3.5 h-3.5" />
                 )}
                 {uploadBusy
-                  ? el ? 'Μεταγραφή…' : 'Transcribing…'
-                  : el ? 'Ανέβασμα ήχου' : 'Upload audio'}
+                  ? el ? 'ΞΞµΟ„Ξ±Ξ³ΟΞ±Ο†Ξ®β€¦' : 'Transcribingβ€¦'
+                  : el ? 'Ξ‘Ξ½Ξ­Ξ²Ξ±ΟƒΞΌΞ± Ξ®Ο‡ΞΏΟ…' : 'Upload audio'}
               </button>
             </div>
           )}
 
           {audioFiles.length > 0 && (
             <div className="space-y-2 pt-1 border-t border-border-subtle/60">
-              <p className="text-[10px] font-semibold uppercase tracking-wide text-text-muted">
+              <p className="type-micro font-semibold uppercase tracking-wide text-text-muted">
                 <AllCapsLabel>{el ? 'Transcripts' : 'Transcripts'} ({audioFiles.length})</AllCapsLabel>
               </p>
               <div className="flex flex-wrap gap-1.5">
@@ -187,7 +187,7 @@ export function CourseMediaPanel({
                       setActiveSegment(null);
                     }}
                     className={cn(
-                      'px-2 py-1 rounded-lg text-[10px] border transition-colors',
+                      'px-2 py-1 rounded-lg type-micro border transition-colors',
                       activeFile?.id === file.id
                         ? 'border-accent-violet/40 bg-accent-violet/10 text-text-primary'
                         : 'border-border-subtle text-text-secondary hover:bg-surface-hover',
@@ -213,7 +213,7 @@ export function CourseMediaPanel({
                       >
                         <Brain className="w-3.5 h-3.5" />
                         {el
-                          ? `FSRS deck (${segments.length} κεφάλαια)`
+                          ? `FSRS deck (${segments.length} ΞΊΞµΟ†Ξ¬Ξ»Ξ±ΞΉΞ±)`
                           : `FSRS deck (${segments.length} chapters)`}
                       </button>
                     </div>
@@ -225,7 +225,7 @@ export function CourseMediaPanel({
                           type="button"
                           onClick={() => setActiveSegment(segment.index)}
                           className={cn(
-                            'w-full text-left px-2 py-1.5 text-[10px] hover:bg-surface-secondary/50 transition-colors',
+                            'w-full text-left px-2 py-1.5 type-micro hover:bg-surface-secondary/50 transition-colors',
                             activeSegment === segment.index && 'bg-accent-violet/10',
                           )}
                           data-testid={`course-media-segment-${segment.index}`}
@@ -241,7 +241,7 @@ export function CourseMediaPanel({
                     ))}
                   </ul>
                   {activeSegment != null && segments[activeSegment] && (
-                    <p className="text-[10px] text-text-secondary p-2 border-t border-border-subtle/60 whitespace-pre-wrap max-h-32 overflow-y-auto">
+                    <p className="type-micro text-text-secondary p-2 border-t border-border-subtle/60 whitespace-pre-wrap max-h-32 overflow-y-auto">
                       {segments[activeSegment].text}
                     </p>
                   )}

@@ -61,6 +61,8 @@ export function useStudyRoomSession({
   /** Creator leads by default; joiners follow until they claim lead. */
   const [leading, setLeading] = useState(false);
   const lastFollowKey = useRef('');
+  /** When we last claimed lead locally — grace window before trusting snapshots that demote us. */
+  const leadClaimedAt = useRef(0);
 
   const effectiveCourseId = courseId ?? 'workspace-session';
 
@@ -77,7 +79,9 @@ export function useStudyRoomSession({
       const result = await joinStudyRoomByInvite(session.inviteCode, displayName, userSettings, session.memberId);
       setRoom(result.room);
       setMemberId(result.memberId);
-      setLeading(result.room.leaderId === result.memberId || !result.room.leaderId);
+      // Never self-promote on restore: an unset leaderId means "no leader",
+      // not "this device leads" (two restoring devices would both claim lead).
+      setLeading(result.room.leaderId === result.memberId);
       saveStudyRoomSession({
         roomId: result.room.id,
         memberId: result.memberId,
@@ -98,6 +102,17 @@ export function useStudyRoomSession({
     if (!room?.id) return;
     return subscribeStudyRoomStream(room.id, userSettings, setRoom);
   }, [room?.id, userSettings]);
+
+  // Reconcile local lead state with the room: when another member claims lead,
+  // demote ourselves instead of re-broadcasting `leading: true` on the next
+  // heartbeat (which would ping-pong leaderId between devices). A short grace
+  // window protects our own just-sent claim until the server reflects it.
+  useEffect(() => {
+    if (!room || !memberId || !leading) return;
+    if (!room.leaderId || room.leaderId === memberId) return;
+    if (Date.now() - leadClaimedAt.current < 5_000) return;
+    setLeading(false);
+  }, [room, memberId, leading]);
 
   useEffect(() => {
     if (!room?.id || !memberId) return;
@@ -163,6 +178,7 @@ export function useStudyRoomSession({
   const persistJoin = (result: { room: StudyRoomSnapshot; memberId: string }, asLeader: boolean) => {
     setRoom(result.room);
     setMemberId(result.memberId);
+    if (asLeader) leadClaimedAt.current = Date.now();
     setLeading(asLeader);
     saveStudyRoomSession({
       roomId: result.room.id,
@@ -227,7 +243,10 @@ export function useStudyRoomSession({
     saveStudyRoomSession(null);
   };
 
-  const claimLead = useCallback(() => setLeading(true), []);
+  const claimLead = useCallback(() => {
+    leadClaimedAt.current = Date.now();
+    setLeading(true);
+  }, []);
   const followLead = useCallback(() => setLeading(false), []);
 
   const coViewViewport: CoViewViewport = useMemo(() => {

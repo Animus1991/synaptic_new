@@ -10,7 +10,7 @@ type Props = {
   presetId?: string;
 };
 
-/* OPT-K101 — residual markup debt: decorative brand type -> ink */
+/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
 export function TakeBreathModal({ open, onClose, presetId = 'calm-30' }: Props) {
   const { t } = useI18n();
   const preset = BREATH_PRESETS.find((p) => p.id === presetId) ?? BREATH_PRESETS[0]!;
@@ -97,7 +97,7 @@ export function TakeBreathModal({ open, onClose, presetId = 'calm-30' }: Props) 
               <p className="text-xs text-text-muted mt-1">{t(phaseLabelKey(currentPhase) as never)}</p>
             </div>
           </div>
-          <p className="text-[10px] text-text-muted mt-4">
+          <p className="type-micro text-text-muted mt-4">
             {t('wellnessBreathCycle').replace('{n}', String(cycle + 1))}
           </p>
         </div>

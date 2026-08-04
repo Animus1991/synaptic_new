@@ -36,7 +36,7 @@ type Props = {
   onReprocess?: () => void;
 };
 
-/* OPT-K101 — residual markup debt: decorative brand type -> ink */
+/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
 export function NoteAnalysisView({
   course,
   files,
@@ -111,7 +111,7 @@ export function NoteAnalysisView({
             <p className="text-lg font-bold font-mono text-text-primary mt-1" data-testid="note-analysis-readiness">
               {snapshot.readiness.score != null ? `${snapshot.readiness.score}%` : c.readinessInsufficient}
             </p>
-            <p className="text-[11px] text-text-muted mt-1">{snapshot.readiness.explanation}</p>
+            <p className="type-caption text-text-muted mt-1">{snapshot.readiness.explanation}</p>
           </div>
         </div>
         <div className="ux-card">
@@ -121,7 +121,7 @@ export function NoteAnalysisView({
           <div className="mt-3 grid grid-cols-2 gap-2">
             {snapshot.extractedItems.slice(0, 4).map((item) => (
               <div key={item.label}>
-                <p className="text-[10px] text-text-muted">{item.label}</p>
+                <p className="type-micro text-text-muted">{item.label}</p>
                 <p className="text-sm font-semibold" data-testid={`note-analysis-metric-${item.label.toLowerCase().replace(/\s+/g, '-')}`}>
                   {item.displayValue}
                 </p>
@@ -178,7 +178,7 @@ export function NoteAnalysisView({
         })}
       </div>
 
-      {/* Stage 1 — File Processing */}
+      {/* Stage 1 β€” File Processing */}
       {activeStage === 1 && (
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {[
@@ -195,7 +195,7 @@ export function NoteAnalysisView({
         </div>
       )}
 
-      {/* Stage 2 — Content Diagnosis */}
+      {/* Stage 2 β€” Content Diagnosis */}
       {activeStage === 2 && (
         <div className="space-y-4">
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -246,7 +246,7 @@ export function NoteAnalysisView({
                           onClick={() => runIssueAction(issue.action)}
                           className="text-xs font-medium text-text-secondary hover:text-text-primary"
                         >
-                          → {actionLabel(issue.action)}
+                          β†’ {actionLabel(issue.action)}
                         </button>
                       </div>
                     )}
@@ -258,7 +258,7 @@ export function NoteAnalysisView({
         </div>
       )}
 
-      {/* Stage 2.5 — Algorithm Transparency */}
+      {/* Stage 2.5 β€” Algorithm Transparency */}
       {activeStage === 2.5 && (
         <div className="space-y-4">
           <p className="text-sm text-text-secondary">{c.algorithmTransparency}</p>
@@ -314,7 +314,7 @@ export function NoteAnalysisView({
                   <div key={i} className={cn('p-3 rounded-xl border text-xs', s.selected ? 'border-brand-500/30 bg-brand-600/5' : 'border-border-subtle')}>
                     <div className="flex items-center justify-between gap-2 mb-1">
                       <span className="font-mono text-text-secondary">{s.score.toFixed(2)}</span>
-                      {s.selected && <span className="ux-chip-info px-2 py-0.5 rounded-full text-[10px]">Selected</span>}
+                      {s.selected && <span className="ux-chip-info px-2 py-0.5 rounded-full type-micro">Selected</span>}
                     </div>
                     <p className="text-text-secondary leading-relaxed">{s.text}</p>
                   </div>
@@ -343,7 +343,7 @@ export function NoteAnalysisView({
         </div>
       )}
 
-      {/* Stage 3 — Knowledge Graph */}
+      {/* Stage 3 β€” Knowledge Graph */}
       {activeStage === 3 && (
         <div className="ux-card">
           <h3 className="text-sm font-semibold text-text-primary mb-4">{c.knowledgeGraph}</h3>
@@ -355,7 +355,7 @@ export function NoteAnalysisView({
         </div>
       )}
 
-      {/* Stage 4 — Course Architecture */}
+      {/* Stage 4 β€” Course Architecture */}
       {activeStage === 4 && (
         <div className="space-y-3">
           <h3 className="text-sm font-semibold text-text-primary">{c.courseArchitecture}</h3>
@@ -369,7 +369,7 @@ export function NoteAnalysisView({
                 <div>
                   <p className="text-sm font-semibold text-text-primary">{mod.title}</p>
                   <p className="text-xs text-text-tertiary mt-0.5">
-                    {mod.lessonCount} lessons · {mod.minutes} min · {mod.concepts} concepts
+                    {mod.lessonCount} lessons Β· {mod.minutes} min Β· {mod.concepts} concepts
                   </p>
                 </div>
                 <ArrowRight className={cn('w-4 h-4 text-text-muted transition-transform', expandedModule === mod.id && 'rotate-90')} />
@@ -377,7 +377,7 @@ export function NoteAnalysisView({
               {expandedModule === mod.id && (
                 <ul className="mt-3 pt-3 border-t border-border-subtle space-y-1">
                   {mod.lessons.map((lesson) => (
-                    <li key={lesson} className="text-xs text-text-secondary">· {lesson}</li>
+                    <li key={lesson} className="text-xs text-text-secondary">Β· {lesson}</li>
                   ))}
                 </ul>
               )}
@@ -386,7 +386,7 @@ export function NoteAnalysisView({
         </div>
       )}
 
-      {/* Stage 5 — Quality Assurance */}
+      {/* Stage 5 β€” Quality Assurance */}
       {activeStage === 5 && (
         <div className="space-y-4">
           {snapshot.qaMetrics.length === 0 ? (

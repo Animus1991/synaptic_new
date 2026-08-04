@@ -42,7 +42,7 @@ interface Props {
   onSendToWhiteboard?: (payload: ScratchpadExport) => void;
 }
 
-/* OPT-K101 — residual markup debt: decorative brand type -> ink */
+/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
 export function InteractiveSimulator({
   insight,
   economicsMode = false,
@@ -424,9 +424,9 @@ export function InteractiveSimulator({
         </div>
 
         <div className="mb-3 w-full max-w-sm rounded-xl border border-border-subtle bg-surface-primary/50 p-3">
-          <p className="mb-1 text-[11px] font-semibold text-text-primary">{t('equilibriumFormulas')}</p>
-          <p className="font-mono text-sm text-text-secondary">P* = (100 + ΔD − ΔS) / 2</p>
-          <p className="font-mono text-sm text-text-secondary">Q* = P* + ΔS</p>
+          <p className="mb-1 type-caption font-semibold text-text-primary">{t('equilibriumFormulas')}</p>
+          <p className="font-mono text-sm text-text-secondary">P* = (100 + Ξ”D β’ Ξ”S) / 2</p>
+          <p className="font-mono text-sm text-text-secondary">Q* = P* + Ξ”S</p>
         </div>
 
         <div className="w-full max-w-sm space-y-4 rounded-xl border border-border-subtle bg-surface-card p-4">

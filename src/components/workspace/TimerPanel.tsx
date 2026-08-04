@@ -34,12 +34,12 @@ type Props = {
 };
 
 const PRESET_LABELS: Record<TimerSessionContent['suggestedPreset'], { en: string; el: string }> = {
-  focus25: { en: 'Focus 25m', el: 'Εστίαση 25′' },
-  sprint10: { en: 'Sprint 10m (weak area)', el: 'Sprint 10′ (αδύναμο)' },
-  deep50: { en: 'Deep 50m (strong)', el: 'Deep 50′ (ισχυρό)' },
+  focus25: { en: 'Focus 25m', el: 'Ξ•ΟƒΟ„Ξ―Ξ±ΟƒΞ· 25β€²' },
+  sprint10: { en: 'Sprint 10m (weak area)', el: 'Sprint 10β€² (Ξ±Ξ΄ΟΞ½Ξ±ΞΌΞΏ)' },
+  deep50: { en: 'Deep 50m (strong)', el: 'Deep 50β€² (ΞΉΟƒΟ‡Ο…ΟΟ)' },
 };
 
-/* OPT-K101 — residual markup debt: decorative brand type -> ink */
+/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
 export function TimerPanel({
   session,
   concept,
@@ -117,15 +117,15 @@ export function TimerPanel({
         <TimerExamCountdownDashboardStrip report={countdownReport} lang={lang} />
         <SimulatorTimerPresetSyncStrip report={presetSyncReport} lang={lang} />
 
-        {/* Wave E10 — one shared preset status chip (not pomodoro + exam soup) */}
+        {/* Wave E10 β€” one shared preset status chip (not pomodoro + exam soup) */}
         <div className="mb-2 flex flex-wrap items-center gap-2">
           <span
             className="rounded-lg border border-border-subtle bg-surface-secondary px-2.5 py-1 type-caption font-medium text-text-primary"
             data-testid="timer-suggested-preset"
-            title={`${PRESET_LABELS[session.suggestedPreset][lang]} · ${examPracticeLabel(examPractice, lang)}`}
+            title={`${PRESET_LABELS[session.suggestedPreset][lang]} Β· ${examPracticeLabel(examPractice, lang)}`}
           >
             {t('timerSharedPresetHint')}: {examPracticeLabel(examPractice, lang)}
-            <span className="text-text-muted"> · {PRESET_LABELS[session.suggestedPreset][lang]}</span>
+            <span className="text-text-muted"> Β· {PRESET_LABELS[session.suggestedPreset][lang]}</span>
           </span>
           <span className="sr-only" data-testid="timer-suggested-exam-practice">
             {examPracticeLabel(examPractice, lang)}
@@ -172,7 +172,7 @@ export function TimerPanel({
               value={filterQuery}
               onChange={(e) => setFilterQuery(e.target.value)}
               placeholder={t('panelSearchSessions')}
-              className="w-full rounded-lg border border-border-subtle bg-surface-card py-1.5 pl-7 pr-2 text-[11px] text-text-secondary placeholder:text-text-muted focus:border-accent-cyan/40 focus:outline-none"
+              className="w-full rounded-lg border border-border-subtle bg-surface-card py-1.5 pl-7 pr-2 type-caption text-text-secondary placeholder:text-text-muted focus:border-accent-cyan/40 focus:outline-none"
               data-testid="timer-filter"
             />
           </div>
@@ -185,7 +185,7 @@ export function TimerPanel({
                 key={`${log.at}-${i}`}
                 className="rounded-full border border-accent-cyan/25 bg-accent-cyan/8 px-2 py-0.5 type-caption text-text-primary"
               >
-                {log.label.slice(0, 40)}{log.label.length > 40 ? '…' : ''} · {log.minutes}m
+                {log.label.slice(0, 40)}{log.label.length > 40 ? 'β€¦' : ''} Β· {log.minutes}m
               </span>
             ))}
           </div>

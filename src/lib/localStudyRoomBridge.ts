@@ -156,9 +156,13 @@ export function localPresence(
   let sharedTool = room.sharedTool;
   let sharedConcept = room.sharedConcept;
   let sharedStep = room.sharedStep;
+  // Mirrors the server store: an explicit `leading: false` member never seeds
+  // the shared viewport, even while no leader is set.
   const publish =
     patch.leading === true
-    || (!leaderId && (patch.tool !== undefined || patch.concept !== undefined || patch.stepIndex !== undefined))
+    || (!leaderId
+      && patch.leading === undefined
+      && (patch.tool !== undefined || patch.concept !== undefined || patch.stepIndex !== undefined))
     || (leaderId === memberId && patch.leading !== false);
   if (patch.leading === true) leaderId = memberId;
   if (patch.leading === false && leaderId === memberId) leaderId = undefined;

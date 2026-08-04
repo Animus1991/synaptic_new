@@ -19,12 +19,12 @@ type Props = {
   className?: string;
 };
 
-/** Semantic status pill — stale, weak, due, exam, etc. */
+/** Semantic status pill β€” stale, weak, due, exam, etc. */
 export function StatusChip({ children, variant = 'info', className }: Props) {
   return (
     <span
       className={cn(
-        'ux-status-badge inline-flex items-center rounded-md px-2 py-0.5 text-[10px] font-semibold',
+        'ux-status-badge inline-flex items-center rounded-md px-2 py-0.5 type-micro font-semibold',
         VARIANT_CLASS[variant],
         className,
       )}

@@ -13,12 +13,12 @@ type Props = {
   className?: string;
 };
 
-/* OPT-K101 — residual markup debt: decorative brand type -> ink */
+/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
 export function SubjectMasteryGrid({ tiles, onSelect, className }: Props) {
   const { lang } = useI18n();
-  const title = lang === 'el' ? 'Mastery ανά μάθημα' : 'Subject mastery';
-  const empty = lang === 'el' ? 'Δεν υπάρχουν έτοιμα μαθήματα ακόμα.' : 'No ready courses yet.';
-  const pending = lang === 'el' ? 'εκκρεμείς έννοιες' : 'pending concepts';
+  const title = lang === 'el' ? 'Mastery Ξ±Ξ½Ξ¬ ΞΌΞ¬ΞΈΞ·ΞΌΞ±' : 'Subject mastery';
+  const empty = lang === 'el' ? 'Ξ”ΞµΞ½ Ο…Ο€Ξ¬ΟΟ‡ΞΏΟ…Ξ½ Ξ­Ο„ΞΏΞΉΞΌΞ± ΞΌΞ±ΞΈΞ®ΞΌΞ±Ο„Ξ± Ξ±ΞΊΟΞΌΞ±.' : 'No ready courses yet.';
+  const pending = lang === 'el' ? 'ΞµΞΊΞΊΟΞµΞΌΞµΞ―Ο‚ Ξ­Ξ½Ξ½ΞΏΞΉΞµΟ‚' : 'pending concepts';
 
   return (
     <div className={cn('space-y-2', className)} data-testid="subject-mastery-grid">
@@ -47,11 +47,11 @@ export function SubjectMasteryGrid({ tiles, onSelect, className }: Props) {
                   <CourseIcon icon={tile.icon} size="sm" colorClassName="text-text-secondary shrink-0" />
                   <div className="min-w-0 flex-1">
                     <p className="text-xs font-semibold text-text-primary truncate">{tile.title}</p>
-                    <p className="text-[10px] text-text-tertiary mt-0.5">
+                    <p className="type-micro text-text-tertiary mt-0.5">
                       {tile.pendingConcepts} {pending}
                     </p>
                   </div>
-                  <span className={cn('inline-flex items-center gap-0.5 text-[10px] font-semibold', trendTone)}>
+                  <span className={cn('inline-flex items-center gap-0.5 type-micro font-semibold', trendTone)}>
                     <TrendIcon className="h-3 w-3" aria-hidden />
                     {tile.mastery}%
                   </span>

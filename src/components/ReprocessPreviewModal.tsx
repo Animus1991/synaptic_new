@@ -69,7 +69,7 @@ function StepRailPreview({
 
     return (
 
-      <p className="text-[10px] text-text-muted">
+      <p className="type-micro text-text-muted">
 
         {tr('reprocessNoSteps')}
 
@@ -97,7 +97,7 @@ function StepRailPreview({
 
           className={cn(
 
-            'inline-flex max-w-[160px] truncate rounded-full border px-2 py-0.5 text-[10px] transition-colors',
+            'inline-flex max-w-[160px] truncate rounded-full border px-2 py-0.5 type-micro transition-colors',
 
             onSelectIndex && 'hover:ring-1 hover:ring-brand-500/30 cursor-pointer',
 
@@ -117,7 +117,7 @@ function StepRailPreview({
 
         >
 
-          {step.title.length > 22 ? `${step.title.slice(0, 20)}…` : step.title}
+          {step.title.length > 22 ? `${step.title.slice(0, 20)}β€¦` : step.title}
 
         </button>
 
@@ -131,7 +131,7 @@ function StepRailPreview({
 
 
 
-/* OPT-K101 — residual markup debt: decorative brand type -> ink */
+/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
 export function ReprocessPreviewModal({
 
   open,
@@ -398,7 +398,7 @@ export function ReprocessPreviewModal({
 
                 <div>
 
-                  <p className="mb-2 text-[10px] font-medium text-text-muted">
+                  <p className="mb-2 type-micro font-medium text-text-muted">
 
                     {tr('reprocessUpdatedSteps')}
 
@@ -444,7 +444,7 @@ export function ReprocessPreviewModal({
 
                       {id === 'edit' && manualEdits > 0 && (
 
-                        <span className="ml-1.5 rounded-full bg-brand-600/20 px-1.5 text-[10px] text-text-primary">
+                        <span className="ml-1.5 rounded-full bg-brand-600/20 px-1.5 type-micro text-text-primary">
 
                           {manualEdits}
 
@@ -472,7 +472,7 @@ export function ReprocessPreviewModal({
 
                     <div className="text-center">
 
-                      <p className="text-[10px] text-text-muted">{tr('reprocessBefore')}</p>
+                      <p className="type-micro text-text-muted">{tr('reprocessBefore')}</p>
 
                       <p className="text-xl font-semibold text-accent-rose tabular-nums">{preview.beforeScore}</p>
 
@@ -482,23 +482,23 @@ export function ReprocessPreviewModal({
 
                     <div className="text-center">
 
-                      <p className="text-[10px] text-text-muted">{tr('reprocessAfter')}</p>
+                      <p className="type-micro text-text-muted">{tr('reprocessAfter')}</p>
 
                       <p className="text-xl font-semibold text-accent-emerald tabular-nums">{preview.afterScore}</p>
 
                     </div>
 
-                    <div className="ml-auto text-right text-[10px] text-text-muted">
+                    <div className="ml-auto text-right type-micro text-text-muted">
 
                       <p>
 
-                        {tr('reprocessSections')}: {preview.sectionCountBefore} → {preview.sectionCountAfter}
+                        {tr('reprocessSections')}: {preview.sectionCountBefore} β†’ {preview.sectionCountAfter}
 
                       </p>
 
                       <p>
 
-                        {tr('reprocessTopics')}: {preview.topicCountBefore} → {preview.topicCountAfter}
+                        {tr('reprocessTopics')}: {preview.topicCountBefore} β†’ {preview.topicCountAfter}
 
                       </p>
 
@@ -518,7 +518,7 @@ export function ReprocessPreviewModal({
 
                   {preview.warnings.length > 0 && (
                     <ul
-                      className="space-y-1 rounded-lg border border-accent-amber/30 bg-accent-amber/8 px-3 py-2 text-[10px] text-accent-amber"
+                      className="space-y-1 rounded-lg border border-accent-amber/30 bg-accent-amber/8 px-3 py-2 type-micro text-accent-amber"
                       data-testid="reprocess-preview-warnings"
                     >
                       {preview.warnings.map((warning) => (
@@ -551,7 +551,7 @@ export function ReprocessPreviewModal({
 
                         <div>
 
-                          <p className="mb-2 text-[10px] font-semibold text-accent-rose">
+                          <p className="mb-2 type-micro font-semibold text-accent-rose">
 
                             {tr('reprocessReaderBefore')}
 
@@ -559,13 +559,13 @@ export function ReprocessPreviewModal({
 
                           <pre
 
-                            className="max-h-40 overflow-auto rounded-xl border border-accent-rose/20 bg-surface-primary/60 p-3 text-[10px] leading-relaxed text-text-secondary whitespace-pre-wrap font-mono"
+                            className="max-h-40 overflow-auto rounded-xl border border-accent-rose/20 bg-surface-primary/60 p-3 type-micro leading-relaxed text-text-secondary whitespace-pre-wrap font-mono"
 
                             data-testid="reprocess-snippet-before"
 
                           >
 
-                            {preview.beforeSnippet || '—'}
+                            {preview.beforeSnippet || 'β€”'}
 
                           </pre>
 
@@ -573,7 +573,7 @@ export function ReprocessPreviewModal({
 
                         <div>
 
-                          <p className="mb-2 text-[10px] font-semibold text-accent-emerald">
+                          <p className="mb-2 type-micro font-semibold text-accent-emerald">
 
                             {tr('reprocessReaderAfter')}
 
@@ -581,13 +581,13 @@ export function ReprocessPreviewModal({
 
                           <pre
 
-                            className="max-h-40 overflow-auto rounded-xl border border-accent-emerald/25 bg-surface-primary/60 p-3 text-[10px] leading-relaxed text-text-secondary whitespace-pre-wrap font-mono"
+                            className="max-h-40 overflow-auto rounded-xl border border-accent-emerald/25 bg-surface-primary/60 p-3 type-micro leading-relaxed text-text-secondary whitespace-pre-wrap font-mono"
 
                             data-testid="reprocess-snippet-after"
 
                           >
 
-                            {preview.afterSnippet || '—'}
+                            {preview.afterSnippet || 'β€”'}
 
                           </pre>
 
@@ -601,7 +601,7 @@ export function ReprocessPreviewModal({
 
                         <div>
 
-                          <p className="mb-2 text-[10px] font-semibold text-text-muted">
+                          <p className="mb-2 type-micro font-semibold text-text-muted">
 
                             {tr('reprocessStepRailBefore')}
 
@@ -613,7 +613,7 @@ export function ReprocessPreviewModal({
 
                         <div>
 
-                          <p className="mb-2 text-[10px] font-semibold text-text-muted">
+                          <p className="mb-2 type-micro font-semibold text-text-muted">
 
                             {tr('reprocessStepRailAfter')}
 
@@ -643,7 +643,7 @@ export function ReprocessPreviewModal({
 
                   {!preview.hasMaterialChanges && (
 
-                    <p className="rounded-lg border border-accent-amber/30 bg-accent-amber/8 px-3 py-2 text-[10px] text-accent-amber">
+                    <p className="rounded-lg border border-accent-amber/30 bg-accent-amber/8 px-3 py-2 type-micro text-accent-amber">
 
                       {tr('reprocessLittleChange')}
 
@@ -663,7 +663,7 @@ export function ReprocessPreviewModal({
 
               {!applied && preview && manualEdits > 0 && (
 
-                <p className="text-[10px] text-text-primary">
+                <p className="type-micro text-text-primary">
 
                   {tr('reprocessManualEditsFooter').replace('{count}', String(manualEdits))}
 

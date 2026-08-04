@@ -1264,6 +1264,7 @@ const EN = {
   agentOldPipeline: 'Old pipeline (v{version})',
   agentHandwrittenSource: 'Handwritten source',
   agentContextHeading: 'Studying',
+  agentContextDetailHint: 'Context details',
   agentSourceQualityHint:
     'Source quality estimates how cleanly text was extracted from your file (OCR, layout, language). Reprocess if previews or answers look wrong.',
   agentPdfPagesLabel: 'Pages',
@@ -3543,6 +3544,7 @@ const EL: Record<I18nKey, string> = {
   agentOldPipeline: 'Παλαιό pipeline (v{version})',
   agentHandwrittenSource: 'Χειρόγραφη πηγή',
   agentContextHeading: 'Μελέτη',
+  agentContextDetailHint: 'Λεπτομέρειες πλαισίου',
   agentSourceQualityHint:
     'Η ποιότητα πηγής εκτιμά πόσο καθαρά εξήχθη το κείμενο (OCR, διάταξη, γλώσσα). Κάνε επανεπεξεργασία αν η προεπισκόπηση ή οι απαντήσεις φαίνονται λάθος.',
   agentPdfPagesLabel: 'Σελίδες',

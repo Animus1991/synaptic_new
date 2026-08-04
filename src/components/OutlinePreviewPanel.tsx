@@ -19,14 +19,14 @@ const KIND_BADGE: Record<DocumentStructureKind, string> = {
 const KIND_BADGE_EL: Record<DocumentStructureKind, string> = {
   conversation: 'Chat / Q&A',
   faq: 'FAQ',
-  slides: 'Διαφάνειες',
-  headings: 'Ενότητες',
-  dialogue: 'Διάλογος',
-  journal: 'Ημερολόγιο',
-  flat: 'Συνεχές κείμενο',
+  slides: 'Ξ”ΞΉΞ±Ο†Ξ¬Ξ½ΞµΞΉΞµΟ‚',
+  headings: 'Ξ•Ξ½ΟΟ„Ξ·Ο„ΞµΟ‚',
+  dialogue: 'Ξ”ΞΉΞ¬Ξ»ΞΏΞ³ΞΏΟ‚',
+  journal: 'Ξ—ΞΌΞµΟΞΏΞ»ΟΞ³ΞΉΞΏ',
+  flat: 'Ξ£Ο…Ξ½ΞµΟ‡Ξ­Ο‚ ΞΊΞµΞ―ΞΌΞµΞ½ΞΏ',
 };
 
-/* OPT-K101 — residual markup debt: decorative brand type -> ink */
+/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
 export function OutlinePreviewPanel({
   preview,
   loading,
@@ -100,15 +100,15 @@ export function OutlinePreviewPanel({
       <div className="flex items-start justify-between gap-3 flex-wrap">
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="inline-flex items-center gap-1 rounded-full px-2 py-1 text-[10px] font-semibold bg-surface-secondary text-text-primary border border-border-subtle">
+            <span className="inline-flex items-center gap-1 rounded-full px-2 py-1 type-micro font-semibold bg-surface-secondary text-text-primary border border-border-subtle">
               <ListTree className="w-3 h-3" />
               {t('outlinePreview')}
             </span>
-            <span className={cn('text-[11px] font-semibold', bandColor)}>
-              {quality.score}/100 · {quality.band}
+            <span className={cn('type-caption font-semibold', bandColor)}>
+              {quality.score}/100 Β· {quality.band}
             </span>
             {structure.sectionCount >= 1 && (
-              <span className="inline-flex items-center gap-1 rounded-full px-2 py-1 text-[10px] font-medium bg-surface-hover text-text-secondary">
+              <span className="inline-flex items-center gap-1 rounded-full px-2 py-1 type-micro font-medium bg-surface-hover text-text-secondary">
                 <Layers className="w-3 h-3" />
                 {structure.sectionCount} {kindBadge[structure.kind]}
               </span>
@@ -125,7 +125,7 @@ export function OutlinePreviewPanel({
           )}
         </div>
         <div className="text-right shrink-0">
-          <p className="text-[10px] text-text-tertiary">
+          <p className="type-micro text-text-tertiary">
             {t('outlineProposedModules')}
           </p>
           <p className="text-lg font-bold text-text-primary">{outline.topics.length}</p>
@@ -141,7 +141,7 @@ export function OutlinePreviewPanel({
               <span
                 key={i}
                 title={sec.preview}
-                className="inline-block max-w-[200px] truncate rounded-lg border border-border-subtle bg-surface-card px-2 py-1 text-[10px] text-text-secondary"
+                className="inline-block max-w-[200px] truncate rounded-lg border border-border-subtle bg-surface-card px-2 py-1 type-micro text-text-secondary"
               >
                 {label.slice(0, 48)}
               </span>
@@ -158,7 +158,7 @@ export function OutlinePreviewPanel({
             key={`${topic.title}-${i}`}
             className="flex items-start gap-2 text-xs"
           >
-            <span className="shrink-0 w-5 h-5 rounded-md bg-surface-hover flex items-center justify-center text-[10px] font-semibold text-text-secondary">
+            <span className="shrink-0 w-5 h-5 rounded-md bg-surface-hover flex items-center justify-center type-micro font-semibold text-text-secondary">
               {i + 1}
             </span>
             <div className="min-w-0 flex-1">
@@ -181,7 +181,7 @@ export function OutlinePreviewPanel({
           );
         })}
         {outline.topics.length > topicLimit && (
-          <li className="text-[10px] text-text-muted pl-7">
+          <li className="type-micro text-text-muted pl-7">
             +{outline.topics.length - topicLimit} {t('outlineMore')}
           </li>
         )}
@@ -190,7 +190,7 @@ export function OutlinePreviewPanel({
       {warnings.length > 0 && (
         <div className="mt-3 space-y-1">
           {warnings.slice(0, compact ? 1 : 2).map((w) => (
-            <p key={w} className="text-[11px] text-accent-amber/90 flex items-start gap-1.5">
+            <p key={w} className="type-caption text-accent-amber/90 flex items-start gap-1.5">
               <AlertTriangle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
               {w}
             </p>
@@ -199,7 +199,7 @@ export function OutlinePreviewPanel({
       )}
 
       {!compact && quality.strengths[0] && (
-        <p className="mt-2 text-[11px] text-accent-emerald/90">{quality.strengths[0]}</p>
+        <p className="mt-2 type-caption text-accent-emerald/90">{quality.strengths[0]}</p>
       )}
     </div>
   );

@@ -2,7 +2,7 @@ import { cn } from '../../utils/cn';
 import { useI18n } from '../../lib/i18n';
 import { asAllCapsLabel } from '../../lib/greekTypography';
 
-/* OPT-K101 — residual markup debt: decorative brand type -> ink */
+/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
 export type CourseStatusKind =
   | 'ready'
   | 'in_progress'
@@ -42,7 +42,7 @@ export function CourseStatusBadge({
   return (
     <span
       className={cn(
-        'ux-status-badge inline-flex items-center rounded-md border px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide',
+        'ux-status-badge inline-flex items-center rounded-md border px-1.5 py-0.5 type-micro font-semibold uppercase tracking-wide',
         KIND_CLASS[kind],
         className,
       )}

@@ -27,7 +27,7 @@ interface Props {
   maxItems?: number;
 }
 
-/* OPT-K101 — residual markup debt: decorative brand type -> ink */
+/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
 export function ActivityFeed({ activities, maxItems = 6 }: Props) {
   const { t, lang } = useI18n();
 
@@ -53,8 +53,8 @@ export function ActivityFeed({ activities, maxItems = 6 }: Props) {
             </div>
             <p className="text-xs text-text-secondary flex-1 truncate">{item.description}</p>
             <div className="flex items-center gap-2 shrink-0">
-              {item.xp != null && <span className="text-[10px] text-accent-amber font-medium">+{item.xp}</span>}
-              <span className="text-[10px] text-text-muted">{formatRelativeTime(item.timestamp, lang)}</span>
+              {item.xp != null && <span className="type-micro text-accent-amber font-medium">+{item.xp}</span>}
+              <span className="type-micro text-text-muted">{formatRelativeTime(item.timestamp, lang)}</span>
             </div>
           </motion.div>
         );

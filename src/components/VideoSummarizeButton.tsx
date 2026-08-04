@@ -55,7 +55,7 @@ export function VideoSummarizeButton({ file, settings, lang, className }: Props)
 
   const runFromBlob = async (blob: Blob, filename: string, action: 'summarize' | 'chapters') => {
     if (!token || !settings) {
-      setError(lang === 'el' ? 'Απαιτείται σύνδεση στο proxy.' : 'Proxy sign-in required.');
+      setError(lang === 'el' ? 'Ξ‘Ο€Ξ±ΞΉΟ„ΞµΞ―Ο„Ξ±ΞΉ ΟƒΟΞ½Ξ΄ΞµΟƒΞ· ΟƒΟ„ΞΏ proxy.' : 'Proxy sign-in required.');
       return;
     }
     setBusy(true);
@@ -100,9 +100,9 @@ export function VideoSummarizeButton({ file, settings, lang, className }: Props)
     inputRef.current?.click();
   };
 
-  const summarizeLabel = lang === 'el' ? 'Σύνοψη βίντεο/ήχου' : 'Summarize media';
-  const chaptersLabel = lang === 'el' ? 'Κεφάλαια' : 'Chapters';
-  const signInHint = lang === 'el' ? 'Σύνδεση απαιτείται για Whisper' : 'Sign in for Whisper jobs';
+  const summarizeLabel = lang === 'el' ? 'Ξ£ΟΞ½ΞΏΟΞ· Ξ²Ξ―Ξ½Ο„ΞµΞΏ/Ξ®Ο‡ΞΏΟ…' : 'Summarize media';
+  const chaptersLabel = lang === 'el' ? 'ΞΞµΟ†Ξ¬Ξ»Ξ±ΞΉΞ±' : 'Chapters';
+  const signInHint = lang === 'el' ? 'Ξ£ΟΞ½Ξ΄ΞµΟƒΞ· Ξ±Ο€Ξ±ΞΉΟ„ΞµΞ―Ο„Ξ±ΞΉ Ξ³ΞΉΞ± Whisper' : 'Sign in for Whisper jobs';
 
   return (
     <div className={cn('flex flex-col gap-2 min-w-[10rem]', className)}>
@@ -125,7 +125,7 @@ export function VideoSummarizeButton({ file, settings, lang, className }: Props)
           disabled={busy}
           aria-busy={busy && busyAction === 'summarize' ? true : undefined}
           onClick={() => void transcribeAndRun('summarize')}
-          className="inline-flex items-center gap-1.5 px-2 py-1 rounded-lg text-[10px] font-medium border border-accent-cyan/30 text-accent-cyan hover:bg-accent-cyan/10 disabled:opacity-60"
+          className="inline-flex items-center gap-1.5 px-2 py-1 rounded-lg type-micro font-medium border border-accent-cyan/30 text-accent-cyan hover:bg-accent-cyan/10 disabled:opacity-60"
           title={canTranscribe ? summarizeLabel : signInHint}
         >
           {busy && busyAction === 'summarize' ? (
@@ -135,8 +135,8 @@ export function VideoSummarizeButton({ file, settings, lang, className }: Props)
           )}
           {busy && busyAction === 'summarize'
             ? lang === 'el'
-              ? 'Σύνοψη…'
-              : 'Summarizing…'
+              ? 'Ξ£ΟΞ½ΞΏΟΞ·β€¦'
+              : 'Summarizingβ€¦'
             : summarizeLabel}
         </button>
         <button
@@ -151,7 +151,7 @@ export function VideoSummarizeButton({ file, settings, lang, className }: Props)
             }
             void transcribeAndRun('chapters');
           }}
-          className="inline-flex items-center gap-1.5 px-2 py-1 rounded-lg text-[10px] font-medium border border-accent-violet/30 text-accent-violet hover:bg-accent-violet/10 disabled:opacity-60"
+          className="inline-flex items-center gap-1.5 px-2 py-1 rounded-lg type-micro font-medium border border-accent-violet/30 text-accent-violet hover:bg-accent-violet/10 disabled:opacity-60"
           title={canTranscribe ? chaptersLabel : signInHint}
         >
           {busy && busyAction === 'chapters' ? (
@@ -161,14 +161,14 @@ export function VideoSummarizeButton({ file, settings, lang, className }: Props)
           )}
           {busy && busyAction === 'chapters'
             ? lang === 'el'
-              ? 'Κεφάλαια…'
-              : 'Chapters…'
+              ? 'ΞΞµΟ†Ξ¬Ξ»Ξ±ΞΉΞ±β€¦'
+              : 'Chaptersβ€¦'
             : chaptersLabel}
           {chapters.length > 0 &&
             (chaptersOpen ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />)}
         </button>
       </div>
-      {error && <p className="text-[10px] text-accent-rose">{error}</p>}
+      {error && <p className="type-micro text-accent-rose">{error}</p>}
       {chaptersOpen && chapters.length > 0 && (
         <div
           className="rounded-lg border border-border-subtle bg-surface-primary/60 overflow-hidden"
@@ -182,7 +182,7 @@ export function VideoSummarizeButton({ file, settings, lang, className }: Props)
                   data-testid={`video-chapter-${file.id}-${chapter.index}`}
                   onClick={() => setActiveChapter(chapter.index)}
                   className={cn(
-                    'w-full text-left px-2 py-1.5 text-[10px] hover:bg-surface-secondary/50 transition-colors',
+                    'w-full text-left px-2 py-1.5 type-micro hover:bg-surface-secondary/50 transition-colors',
                     activeChapter === chapter.index && 'bg-accent-violet/10',
                   )}
                 >
@@ -195,14 +195,14 @@ export function VideoSummarizeButton({ file, settings, lang, className }: Props)
             ))}
           </ul>
           {activeChapter !== null && chapters[activeChapter] && (
-            <p className="text-[10px] text-text-secondary p-2 border-t border-border-subtle/60 whitespace-pre-wrap">
+            <p className="type-micro text-text-secondary p-2 border-t border-border-subtle/60 whitespace-pre-wrap">
               {chapters[activeChapter].preview}
             </p>
           )}
         </div>
       )}
       {summary && (
-        <pre className="text-[10px] text-text-secondary whitespace-pre-wrap max-h-32 overflow-y-auto p-2 rounded-lg bg-surface-primary/60 border border-border-subtle">
+        <pre className="type-micro text-text-secondary whitespace-pre-wrap max-h-32 overflow-y-auto p-2 rounded-lg bg-surface-primary/60 border border-border-subtle">
           {summary}
         </pre>
       )}

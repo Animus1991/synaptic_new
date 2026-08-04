@@ -25,7 +25,7 @@ type Props = {
   };
 };
 
-/* OPT-K101 — residual markup debt: decorative brand type -> ink */
+/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
 export function ConceptMasteryHeatmapChart({
   model,
   title,
@@ -82,8 +82,8 @@ export function ConceptMasteryHeatmapChart({
           <div className="mb-2 flex">
             <div className="w-28 shrink-0" />
             {dayLabels.map((daysAgo) => (
-              <div key={daysAgo} className="flex-1 text-center text-[10px] text-text-muted">
-                {daysAgo === 0 ? '·' : daysAgo % 7 === 0 ? daysAgo : ''}
+              <div key={daysAgo} className="flex-1 text-center type-micro text-text-muted">
+                {daysAgo === 0 ? 'Β·' : daysAgo % 7 === 0 ? daysAgo : ''}
               </div>
             ))}
           </div>
@@ -115,7 +115,7 @@ export function ConceptMasteryHeatmapChart({
               })}
             </div>
           ))}
-          <div className="mt-3 flex flex-wrap items-center gap-4 text-[10px] text-text-muted">
+          <div className="mt-3 flex flex-wrap items-center gap-4 type-micro text-text-muted">
             {legend.map(({ label, band }) => (
               <span key={label} className="flex items-center gap-1">
                 <span className="inline-block h-3 w-3 rounded" style={{ backgroundColor: band.color }} />

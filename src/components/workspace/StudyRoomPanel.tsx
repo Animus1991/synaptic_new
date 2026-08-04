@@ -36,7 +36,7 @@ type Props = {
   onCoViewBridge?: (bridge: StudyRoomCoViewBridge | null) => void;
 };
 
-/* OPT-K101 — residual markup debt: decorative brand type -> ink */
+/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
 export function StudyRoomPanel(props: Props) {
   const { open, onClose, lang, activeTool, onFollowSharedTool, onCoViewBridge } = props;
   const tr = (key: Parameters<typeof t>[0]) => t(key, lang);
@@ -205,7 +205,7 @@ export function StudyRoomPanel(props: Props) {
                 <span className="font-semibold">{room.name}</span>
                 <span className="text-text-muted">
                   {' '}
-                  · {room.members.length} {tr('studyRoomMembersOnline')}
+                  Β· {room.members.length} {tr('studyRoomMembersOnline')}
                   {room.localOnly ? tr('studyRoomLocalSuffix') : ''}
                 </span>
               </div>
@@ -217,14 +217,14 @@ export function StudyRoomPanel(props: Props) {
                   <Eye className="h-3.5 w-3.5 text-brand-500" aria-hidden />
                   {tr('studyRoomCoViewHeading')}
                 </p>
-                <p className="text-[11px] leading-snug text-text-muted">
+                <p className="type-caption leading-snug text-text-muted">
                   {coViewMode === 'leading'
                     ? tr('studyRoomCoViewExplainLeading')
                     : coViewMode === 'following'
                       ? tr('studyRoomCoViewExplainFollowing')
                       : tr('studyRoomCoViewExplainSolo')}
                 </p>
-                <p className="text-[11px] text-text-secondary leading-snug">{coViewStatus}</p>
+                <p className="type-caption text-text-secondary leading-snug">{coViewStatus}</p>
                 <div className="flex flex-wrap gap-1.5">
                   {coViewMode === 'following' ? (
                     <button
@@ -249,7 +249,7 @@ export function StudyRoomPanel(props: Props) {
               </div>
               <div className="space-y-1.5">
                 <p className="text-xs font-semibold text-text-primary">{tr('studyRoomInviteHeading')}</p>
-                <p className="text-[11px] leading-snug text-text-muted">{tr('studyRoomInviteExplain')}</p>
+                <p className="type-caption leading-snug text-text-muted">{tr('studyRoomInviteExplain')}</p>
                 <div className="flex items-center gap-2">
                   <code className="ws-field-input flex-1 py-1.5 text-xs font-mono">{room.inviteCode}</code>
                   <button type="button" onClick={() => void copyInvite()} className="ws-chrome-btn p-2" title={tr('studyRoomCopy')} aria-label={tr('studyRoomCopy')}>
@@ -269,19 +269,19 @@ export function StudyRoomPanel(props: Props) {
               )}
               <div className="space-y-1.5">
               <p className="text-xs font-semibold text-text-primary">{tr('studyRoomMembersHeading')}</p>
-              <p className="text-[11px] leading-snug text-text-muted">{tr('studyRoomMembersExplain')}</p>
+              <p className="type-caption leading-snug text-text-muted">{tr('studyRoomMembersExplain')}</p>
               <ul className="space-y-1.5" data-testid="study-room-members">
                 {room.members.map((m) => (
                   <li key={m.id} className={`rounded-lg border px-3 py-2 text-xs ${m.id === memberId ? 'ws-chip-brand' : 'ws-chip-neutral'}`}>
                     <span className="font-medium">{m.displayName}</span>
                     {m.id === memberId && <span className="text-text-muted"> ({tr('studyRoomYou')})</span>}
-                    {m.leading && <span className="text-text-muted"> · {tr('studyRoomLeadingBadge')}</span>}
+                    {m.leading && <span className="text-text-muted"> Β· {tr('studyRoomLeadingBadge')}</span>}
                     {(m.tool || m.concept || typeof m.stepIndex === 'number') && (
                       <p className="text-text-muted mt-0.5 truncate">
                         {m.tool ? workspaceToolLabel(m.tool as WorkspaceToolId, lang) : ''}
-                        {m.tool && (m.concept || typeof m.stepIndex === 'number') ? ' · ' : ''}
-                        {typeof m.stepIndex === 'number' ? `§${m.stepIndex + 1}` : ''}
-                        {typeof m.stepIndex === 'number' && m.concept ? ' · ' : ''}
+                        {m.tool && (m.concept || typeof m.stepIndex === 'number') ? ' Β· ' : ''}
+                        {typeof m.stepIndex === 'number' ? `Β§${m.stepIndex + 1}` : ''}
+                        {typeof m.stepIndex === 'number' && m.concept ? ' Β· ' : ''}
                         {m.concept ?? ''}
                       </p>
                     )}
@@ -295,7 +295,7 @@ export function StudyRoomPanel(props: Props) {
                 <Clock className="h-3.5 w-3.5 text-brand-500" aria-hidden />
                 {tr('studyRoomTimerHeading')}
               </p>
-              <p className="text-[11px] leading-snug text-text-muted">{tr('studyRoomTimerExplain')}</p>
+              <p className="type-caption leading-snug text-text-muted">{tr('studyRoomTimerExplain')}</p>
               <div className="flex items-center gap-2 rounded-lg border border-border-subtle bg-surface-secondary/50 px-3 py-2">
                 <Clock className="h-4 w-4 shrink-0 text-text-secondary" aria-hidden />
                 <span className="font-mono text-sm font-bold text-text-primary flex-1">
@@ -330,7 +330,7 @@ export function StudyRoomPanel(props: Props) {
                 memberId={memberId}
                 displayName={displayName}
               />
-              {/* Device-local until collab review sync — banner inside panel (P1). */}
+              {/* Device-local until collab review sync β€” banner inside panel (P1). */}
               {memberId && !room.localOnly ? (
                 <CoReadingHubPanel
                   lang={lang}

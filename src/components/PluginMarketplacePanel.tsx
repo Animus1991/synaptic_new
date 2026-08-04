@@ -21,7 +21,7 @@ function pluginHookLabels(plugin: SynapsePlugin, t: (key: I18nKey) => string): s
   });
 }
 
-/* OPT-K101 — residual markup debt: decorative brand type -> ink */
+/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
 export function PluginMarketplacePanel() {
   const { t } = useI18n();
   const [tick, setTick] = useState(0);
@@ -53,17 +53,17 @@ export function PluginMarketplacePanel() {
               <Zap className="w-4 h-4 text-text-secondary mt-0.5 shrink-0" />
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-text-primary">{plugin.name}</p>
-                <p className="text-[11px] text-text-muted">{plugin.description ?? plugin.id}</p>
+                <p className="type-caption text-text-muted">{plugin.description ?? plugin.id}</p>
                 <div className="mt-1.5 flex flex-wrap gap-1">
                   {hooks.map((label) => (
                     <span
                       key={label}
-                      className="rounded-md border border-border-subtle bg-surface-card px-1.5 py-0.5 text-[10px] font-medium text-text-tertiary"
+                      className="rounded-md border border-border-subtle bg-surface-card px-1.5 py-0.5 type-micro font-medium text-text-tertiary"
                     >
                       {label}
                     </span>
                   ))}
-                  <span className="rounded-md border border-border-subtle/60 px-1.5 py-0.5 text-[10px] text-text-muted">
+                  <span className="rounded-md border border-border-subtle/60 px-1.5 py-0.5 type-micro text-text-muted">
                     v{plugin.version}
                   </span>
                 </div>
@@ -73,7 +73,7 @@ export function PluginMarketplacePanel() {
                 data-testid={`plugin-toggle-${plugin.id}`}
                 onClick={() => toggle(plugin.id, !enabled)}
                 className={cn(
-                  'text-[10px] font-semibold px-2 py-1 rounded-lg border transition-colors shrink-0',
+                  'type-micro font-semibold px-2 py-1 rounded-lg border transition-colors shrink-0',
                   enabled
                     ? 'bg-surface-secondary text-text-primary border border-border-subtle border-brand-500/40'
                     : 'border-border-subtle text-text-secondary hover:text-text-primary',

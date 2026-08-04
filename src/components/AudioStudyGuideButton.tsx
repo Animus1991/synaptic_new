@@ -12,7 +12,7 @@ type Props = {
   className?: string;
 };
 
-/* OPT-K101 — residual markup debt: decorative brand type -> ink */
+/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
 export function AudioStudyGuideButton({ course, lang, settings, className }: Props) {
   const [playing, setPlaying] = useState(false);
   const [neural, setNeural] = useState(false);
@@ -88,9 +88,9 @@ export function AudioStudyGuideButton({ course, lang, settings, className }: Pro
     lang === 'el'
       ? playing
         ? neural
-          ? 'Διακοπή podcast'
-          : 'Διακοπή οδηγού'
-        : 'Podcast μελέτης (2 φωνές)'
+          ? 'Ξ”ΞΉΞ±ΞΊΞΏΟ€Ξ® podcast'
+          : 'Ξ”ΞΉΞ±ΞΊΞΏΟ€Ξ® ΞΏΞ΄Ξ·Ξ³ΞΏΟ'
+        : 'Podcast ΞΌΞµΞ»Ξ­Ο„Ξ·Ο‚ (2 Ο†Ο‰Ξ½Ξ­Ο‚)'
       : playing
         ? neural
           ? 'Stop podcast'
@@ -122,7 +122,7 @@ export function AudioStudyGuideButton({ course, lang, settings, className }: Pro
           {neural && activeSpeaker && (
             <span
               className={cn(
-                'text-[10px] font-medium px-1.5 py-0.5 rounded-md',
+                'type-micro font-medium px-1.5 py-0.5 rounded-md',
                 activeSpeaker === 'host'
                   ? 'bg-surface-secondary text-text-primary border border-border-subtle'
                   : 'bg-accent-emerald/15 text-accent-emerald',
@@ -133,7 +133,7 @@ export function AudioStudyGuideButton({ course, lang, settings, className }: Pro
             </span>
           )}
           {sectionTitle && (
-            <span className="text-[10px] text-text-muted truncate">{sectionTitle}</span>
+            <span className="type-micro text-text-muted truncate">{sectionTitle}</span>
           )}
         </div>
       )}

@@ -33,7 +33,7 @@ type Props = {
   onOpenReaderSection?: () => void;
 };
 
-/* OPT-K100 — markup debt: Agent/Reader/tools decorative brand type -> ink */
+/* OPT-K100 β€” markup debt: Agent/Reader/tools decorative brand type -> ink */
 export function ConceptLensPanel({
   lens,
   activity,
@@ -79,7 +79,7 @@ export function ConceptLensPanel({
           onClick={() => onFocus(label)}
           title={t('lensFocusAllTools')}
           className={cn(
-            'text-[11px] font-semibold truncate text-text-primary hover:text-text-primary transition-colors',
+            'type-caption font-semibold truncate text-text-primary hover:text-text-primary transition-colors',
             isStrip ? 'max-w-[min(200px,40vw)]' : 'max-w-[140px]',
           )}
         >
@@ -208,7 +208,7 @@ export function ConceptLensPanel({
                   className="rounded-full border border-white/10 px-1.5 py-0.5 type-caption text-text-secondary"
                   data-testid={`concept-lens-hit-${tool}`}
                 >
-                  {TOOL_LABELS[tool][lang]} ×{count}
+                  {TOOL_LABELS[tool][lang]} Γ—{count}
                 </span>
               ))}
             </div>

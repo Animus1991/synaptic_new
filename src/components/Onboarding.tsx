@@ -78,7 +78,7 @@ function validationMessage(
   }
 }
 
-/* OPT-K101 — residual markup debt: decorative brand type -> ink */
+/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
 export function Onboarding({ onComplete }: OnboardingProps) {
   const { lang } = useI18n();
   const content = getOnboardingContent(lang);
@@ -422,7 +422,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                       >
                         <UiIcon id={goal.icon} size="lg" className="mb-2 text-text-secondary" />
                         <p className="text-sm font-medium">{goal.label}</p>
-                        <p className="text-[11px] text-text-tertiary mt-1">
+                        <p className="type-caption text-text-tertiary mt-1">
                           {goal.id === 'exam'
                             ? content.examDateHint
                             : goal.id === 'understand'
@@ -499,7 +499,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                       aria-invalid={validationError === 'examDateRequired' || validationError === 'examDatePast'}
                       className="px-4 py-2 rounded-xl bg-surface-input border border-border-subtle text-sm text-text-primary focus:outline-none focus:border-brand-500/50 w-full"
                     />
-                    <p className="text-[11px] text-text-tertiary mt-2">
+                    <p className="type-caption text-text-tertiary mt-2">
                       {hasExamGoal ? content.examDateHint : content.examOnlyHint}
                     </p>
                   </div>
@@ -509,13 +509,13 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                       <div className="flex justify-between gap-4">
                         <span className="text-text-tertiary">{content.summaryProfile}</span>
                         <span className="text-text-primary font-medium text-right">
-                          {selectedRoleMeta?.label ?? '—'}
+                          {selectedRoleMeta?.label ?? 'β€”'}
                         </span>
                       </div>
                       <div className="flex justify-between gap-4">
                         <span className="text-text-tertiary">{content.summaryGoals}</span>
                         <span className="text-text-primary font-medium text-right">
-                          {selectedGoalLabels.length > 0 ? selectedGoalLabels.join(', ') : '—'}
+                          {selectedGoalLabels.length > 0 ? selectedGoalLabels.join(', ') : 'β€”'}
                         </span>
                       </div>
                       <div className="flex justify-between gap-4">

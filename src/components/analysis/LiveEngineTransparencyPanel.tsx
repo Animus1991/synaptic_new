@@ -14,7 +14,7 @@ type Props = {
   defaultQuery?: string;
 };
 
-/* OPT-K101 — residual markup debt: decorative brand type -> ink */
+/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
 export function LiveEngineTransparencyPanel({
   courseId,
   files,
@@ -63,8 +63,8 @@ export function LiveEngineTransparencyPanel({
             {c.liveTransparencyRun}
           </button>
         </div>
-        <p className="text-[11px] text-text-tertiary mt-2">
-          {data.wordCount.toLocaleString()} words indexed · {files.filter((f) => f.courseId === courseId).length} files
+        <p className="type-caption text-text-tertiary mt-2">
+          {data.wordCount.toLocaleString()} words indexed Β· {files.filter((f) => f.courseId === courseId).length} files
         </p>
       </div>
 
@@ -83,8 +83,8 @@ export function LiveEngineTransparencyPanel({
                 return (
                   <div key={hit.chunk.id} className="rounded-xl border border-border-subtle p-3 bg-surface-card/50">
                     <div className="flex items-center justify-between gap-3 mb-2">
-                      <span className="text-xs font-mono text-text-secondary">#{index + 1} · {hit.score.toFixed(2)}</span>
-                      <span className="text-[11px] text-text-tertiary truncate">{formatCitation(citation)}</span>
+                      <span className="text-xs font-mono text-text-secondary">#{index + 1} Β· {hit.score.toFixed(2)}</span>
+                      <span className="type-caption text-text-tertiary truncate">{formatCitation(citation)}</span>
                     </div>
                     <p className="text-xs text-text-secondary leading-relaxed">{citation.snippet}</p>
                   </div>
@@ -104,7 +104,7 @@ export function LiveEngineTransparencyPanel({
               <div key={`${sentence.text}-${i}`} className={cn('p-3 rounded-xl border text-xs', sentence.selected ? 'border-brand-500/30 bg-brand-600/5' : 'border-border-subtle')}>
                 <div className="flex items-center justify-between gap-2 mb-1">
                   <span className="font-mono text-text-secondary">{sentence.score.toFixed(2)}</span>
-                  {sentence.selected && <span className="ux-chip-info px-2 py-0.5 rounded-full text-[10px]">Selected</span>}
+                  {sentence.selected && <span className="ux-chip-info px-2 py-0.5 rounded-full type-micro">Selected</span>}
                 </div>
                 <p className="text-text-secondary leading-relaxed">{sentence.text}</p>
               </div>

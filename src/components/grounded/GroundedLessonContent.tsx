@@ -29,7 +29,7 @@ interface Props {
   topic?: Topic;
 }
 
-/* OPT-K101 — residual markup debt: decorative brand type -> ink */
+/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
 export function GroundedLessonContent({
   stepKey,
   stepLabel,
@@ -119,7 +119,7 @@ export function GroundedLessonContent({
       <div className="space-y-5">
         <div className="flex items-center gap-2 flex-wrap">
           <span className="text-xs text-text-secondary font-medium">{generatedPanel.badge}</span>
-          <span className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-accent-emerald/10 text-accent-emerald font-medium">
+          <span className="inline-flex items-center gap-1 type-micro px-2 py-0.5 rounded-full bg-accent-emerald/10 text-accent-emerald font-medium">
             <Sparkles className="w-3 h-3" />
             {t('wbFromSources')}
           </span>
@@ -156,12 +156,12 @@ export function GroundedLessonContent({
         </p>
       )}
       {sourceName && (
-        <p className="text-[10px] text-text-muted flex items-center gap-1.5 pt-2 border-t border-border-subtle">
+        <p className="type-micro text-text-muted flex items-center gap-1.5 pt-2 border-t border-border-subtle">
           {t('sourceColon')} {sourceName}
         </p>
       )}
       {genStatus === 'loading' && (
-        <span className="inline-flex items-center gap-1 text-[10px] px-2 py-1 rounded-full bg-surface-secondary text-text-primary border border-border-subtle animate-pulse">
+        <span className="inline-flex items-center gap-1 type-micro px-2 py-1 rounded-full bg-surface-secondary text-text-primary border border-border-subtle animate-pulse">
           <Sparkles className="w-3 h-3" />
           {t('generatingFromSources')}
         </span>
@@ -194,7 +194,7 @@ function PanelBlock({ block, onOpenAgent }: { block: WorkspacePanelBlock; onOpen
                 {card.title}
               </h4>
               <ul className="text-xs text-text-secondary space-y-1">
-                {card.bullets.map((b) => <li key={b}>• {b}</li>)}
+                {card.bullets.map((b) => <li key={b}>β€Ά {b}</li>)}
               </ul>
             </div>
           ))}
@@ -203,7 +203,7 @@ function PanelBlock({ block, onOpenAgent }: { block: WorkspacePanelBlock; onOpen
     case 'formula':
       return (
         <div className="p-4 rounded-xl bg-surface-primary/60 border border-border-subtle text-center">
-          <p className="text-[10px] text-text-muted mb-1">{block.label}</p>
+          <p className="type-micro text-text-muted mb-1">{block.label}</p>
           <div className="text-lg font-bold text-text-secondary">
             <RichText text={/[$\\]/.test(block.formula) ? block.formula : `$$${block.formula}$$`} />
           </div>
@@ -226,7 +226,7 @@ function PanelBlock({ block, onOpenAgent }: { block: WorkspacePanelBlock; onOpen
         <div className="space-y-2 text-sm text-text-secondary font-mono">
           {block.items.map((s) => (
             <div key={s.label}>
-              <p className={cn('text-[10px] font-sans font-semibold', s.success ? 'text-accent-emerald' : 'text-text-secondary')}>{s.label}</p>
+              <p className={cn('type-micro font-sans font-semibold', s.success ? 'text-accent-emerald' : 'text-text-secondary')}>{s.label}</p>
               <p className="bg-surface-primary/40 px-3 py-2 rounded-lg">{s.content}</p>
             </div>
           ))}
@@ -248,7 +248,7 @@ function PanelBlock({ block, onOpenAgent }: { block: WorkspacePanelBlock; onOpen
         </div>
       );
     case 'source':
-      return <p className="text-[10px] text-text-muted">{block.text}</p>;
+      return <p className="type-micro text-text-muted">{block.text}</p>;
     default:
       return null;
   }

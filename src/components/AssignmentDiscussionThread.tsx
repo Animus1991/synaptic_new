@@ -16,7 +16,7 @@ import { cn } from '../utils/cn';
 import { AssignmentCanonPanel } from './AssignmentCanonPanel';
 import { hashContent } from '../lib/contributionLedger';
 
-/* OPT-K101 — residual markup debt: decorative brand type -> ink */
+/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
 export type DiscussionUi = {
   toggle: string;
   hint: string;
@@ -87,7 +87,7 @@ function PostCard({
             <div className="flex flex-wrap items-center gap-2">
               <span
                 className={cn(
-                  'text-[10px] px-1.5 py-0.5 rounded-full',
+                  'type-micro px-1.5 py-0.5 rounded-full',
                   post.authorRole === 'teacher'
                     ? 'bg-surface-secondary text-text-primary border border-border-subtle'
                     : 'bg-surface-hover text-text-secondary',
@@ -95,7 +95,7 @@ function PostCard({
               >
                 {post.authorRole === 'teacher' ? ui.roleTeacher : ui.roleStudent}
               </span>
-              <span className="text-[10px] text-text-muted">
+              <span className="type-micro text-text-muted">
                 {formatDateTime(post.createdAt, lang)}
               </span>
             </div>
@@ -106,7 +106,7 @@ function PostCard({
               type="button"
               onClick={() => onReply(post.id)}
               disabled={busy}
-              className="text-text-secondary hover:underline text-[10px]"
+              className="text-text-secondary hover:underline type-micro"
               data-testid={`discussion-reply-${post.id}`}
             >
               {ui.reply}
@@ -116,7 +116,7 @@ function PostCard({
                 type="button"
                 onClick={() => void onRemove(post)}
                 disabled={busy}
-                className="text-accent-rose hover:underline text-[10px]"
+                className="text-accent-rose hover:underline type-micro"
               >
                 {ui.remove}
               </button>
@@ -138,7 +138,7 @@ function PostCard({
                   <div className="flex flex-wrap items-center gap-2">
                     <span
                       className={cn(
-                        'text-[10px] px-1.5 py-0.5 rounded-full',
+                        'type-micro px-1.5 py-0.5 rounded-full',
                         reply.authorRole === 'teacher'
                           ? 'bg-surface-secondary text-text-primary border border-border-subtle'
                           : 'bg-surface-hover text-text-secondary',
@@ -146,7 +146,7 @@ function PostCard({
                     >
                       {reply.authorRole === 'teacher' ? ui.roleTeacher : ui.roleStudent}
                     </span>
-                    <span className="text-[10px] text-text-muted">
+                    <span className="type-micro text-text-muted">
                       {formatDateTime(reply.createdAt, lang)}
                     </span>
                   </div>
@@ -159,7 +159,7 @@ function PostCard({
                       type="button"
                       onClick={() => void onRemove(reply)}
                       disabled={busy}
-                      className="text-accent-rose hover:underline shrink-0 text-[10px]"
+                      className="text-accent-rose hover:underline shrink-0 type-micro"
                     >
                       {ui.remove}
                     </button>
@@ -185,7 +185,7 @@ function PostCard({
             onClick={() => void onSubmitReply(post.id)}
             disabled={busy || !replyDraft.trim()}
             data-testid={`assignment-discussion-reply-post-${post.id}`}
-            className="px-2 py-1.5 rounded-lg bg-brand-600 text-white text-[10px] font-medium disabled:opacity-50"
+            className="px-2 py-1.5 rounded-lg bg-brand-600 text-white type-micro font-medium disabled:opacity-50"
           >
             {ui.post}
           </button>
@@ -193,9 +193,9 @@ function PostCard({
             type="button"
             onClick={onCancelReply}
             disabled={busy}
-            className="px-2 py-1.5 rounded-lg border border-border-subtle text-[10px]"
+            className="px-2 py-1.5 rounded-lg border border-border-subtle type-micro"
           >
-            ×
+            Γ—
           </button>
         </div>
       )}
@@ -223,7 +223,7 @@ export function AssignmentDiscussionThread({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const token = settings.authToken?.trim() ?? '';
-  const actorName = settings.authEmail?.trim() || (lang === 'el' ? 'Μέλος' : 'Member');
+  const actorName = settings.authEmail?.trim() || (lang === 'el' ? 'ΞΞ­Ξ»ΞΏΟ‚' : 'Member');
   const actorId = settings.authEmail?.trim()
     || (token ? `user-${hashContent(token).slice(-10)}` : `anon-${classId.slice(0, 6)}`);
 
@@ -322,7 +322,7 @@ export function AssignmentDiscussionThread({
         <button
           type="button"
           onClick={onToggle}
-          className="inline-flex items-center gap-1 text-[10px] text-text-secondary hover:underline"
+          className="inline-flex items-center gap-1 type-micro text-text-secondary hover:underline"
           data-testid={`assignment-discussion-toggle-${assignmentId}`}
         >
           <MessageSquare className="w-3 h-3" />
@@ -333,14 +333,14 @@ export function AssignmentDiscussionThread({
 
       {open && (
         <div className="mt-2 rounded-xl border border-border-subtle/60 bg-surface-card/40 p-3 space-y-2 text-xs">
-          <p className="text-[10px] text-text-muted">
-            {ui.hint} — {assignmentTitle}
+          <p className="type-micro text-text-muted">
+            {ui.hint} β€” {assignmentTitle}
           </p>
-          {error && <p className="text-accent-rose text-[10px]">{error}</p>}
+          {error && <p className="text-accent-rose type-micro">{error}</p>}
           {loading ? (
-            <p className="text-text-muted text-[10px]">…</p>
+            <p className="text-text-muted type-micro">β€¦</p>
           ) : rootPosts.length === 0 ? (
-            <p className="text-text-muted text-[10px]">{ui.empty}</p>
+            <p className="text-text-muted type-micro">{ui.empty}</p>
           ) : (
             <ul className="space-y-3 max-h-52 overflow-y-auto">
               {rootPosts.map((post) => (
@@ -383,7 +383,7 @@ export function AssignmentDiscussionThread({
               onClick={() => void submitPost(rootDraft)}
               disabled={busy || !rootDraft.trim()}
               data-testid={`assignment-discussion-post-${assignmentId}`}
-              className="px-2 py-1.5 rounded-lg bg-brand-600 text-white text-[10px] font-medium disabled:opacity-50"
+              className="px-2 py-1.5 rounded-lg bg-brand-600 text-white type-micro font-medium disabled:opacity-50"
             >
               {ui.post}
             </button>

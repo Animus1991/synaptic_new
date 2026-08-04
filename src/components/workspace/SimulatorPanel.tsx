@@ -35,7 +35,7 @@ type Props = {
   initialMainTab?: MainTab;
 };
 
-/* OPT-K101 — residual markup debt: decorative brand type -> ink */
+/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
 export function SimulatorPanel({
   session,
   concept,
@@ -69,7 +69,7 @@ export function SimulatorPanel({
         data-testid="simulator-tab-simulator"
         onClick={() => setMainTab('simulator')}
         className={cn(
-          'rounded-lg px-3 py-1.5 text-[11px] font-medium',
+          'rounded-lg px-3 py-1.5 type-caption font-medium',
           mainTab === 'simulator' ? 'bg-surface-secondary text-text-primary border border-border-subtle' : 'text-text-secondary hover:bg-surface-hover',
         )}
       >
@@ -80,7 +80,7 @@ export function SimulatorPanel({
         data-testid="simulator-tab-exam-prep"
         onClick={() => setMainTab('exam-prep')}
         className={cn(
-          'rounded-lg px-3 py-1.5 text-[11px] font-medium',
+          'rounded-lg px-3 py-1.5 type-caption font-medium',
           mainTab === 'exam-prep' ? 'bg-surface-secondary text-text-primary border border-border-subtle' : 'text-text-secondary hover:bg-surface-hover',
         )}
       >
@@ -139,7 +139,7 @@ export function SimulatorPanel({
           hasSource
         />
         {session.sandboxInsight && (
-          <div className="mt-4 rounded-xl border border-accent-cyan/25 bg-accent-cyan/5 p-3 text-[11px] text-text-secondary">
+          <div className="mt-4 rounded-xl border border-accent-cyan/25 bg-accent-cyan/5 p-3 type-caption text-text-secondary">
             {session.sandboxInsight}
           </div>
         )}
@@ -183,7 +183,7 @@ export function SimulatorPanel({
                 value={filterQuery}
                 onChange={(e) => setFilterQuery(e.target.value)}
                 placeholder={t('panelSearchParameters')}
-                className="w-full rounded-lg border border-border-subtle bg-surface-card py-1.5 pl-7 pr-2 text-[11px] text-text-secondary placeholder:text-text-muted focus:border-accent-cyan/40 focus:outline-none"
+                className="w-full rounded-lg border border-border-subtle bg-surface-card py-1.5 pl-7 pr-2 type-caption text-text-secondary placeholder:text-text-muted focus:border-accent-cyan/40 focus:outline-none"
                 data-testid="simulator-filter"
               />
             </div>
@@ -191,7 +191,7 @@ export function SimulatorPanel({
           <span className="type-caption text-text-muted">
             {session.numericCues.length} {t('panelParameters')}
             {session.economicsMode && (
-              <> · {t('panelEconMode')}</>
+              <> Β· {t('panelEconMode')}</>
             )}
           </span>
           {onStartTimedPractice && (
@@ -227,7 +227,7 @@ export function SimulatorPanel({
                 onClick={() => onOpenInReader?.(cue.context.slice(0, 80) || cue.label)}
                 className="rounded-full border border-accent-cyan/25 bg-accent-cyan/8 px-2 py-0.5 type-caption text-text-primary hover:opacity-90"
               >
-                {cue.label.slice(0, 48)}{cue.label.length > 48 ? '…' : ''}
+                {cue.label.slice(0, 48)}{cue.label.length > 48 ? 'β€¦' : ''}
               </button>
             ))}
           </div>

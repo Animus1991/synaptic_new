@@ -26,7 +26,7 @@ type Props = {
   prereqLabel: string;
 };
 
-/* OPT-K101 — residual markup debt: decorative brand type -> ink */
+/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
 export function ConceptTreemapChart({
   blocks,
   totalWeight,
@@ -76,8 +76,8 @@ export function ConceptTreemapChart({
               style={{ flexBasis: `${Math.max(28, pct * 1.4)}%`, flexGrow: 1 }}
             >
               <div className="text-sm font-semibold text-text-primary line-clamp-2">{block.label}</div>
-              <div className="mt-1 text-[10px] text-text-tertiary">
-                {masteryLabel} {block.mastery}% · {weightLabel} {Math.round(pct)}%
+              <div className="mt-1 type-micro text-text-tertiary">
+                {masteryLabel} {block.mastery}% Β· {weightLabel} {Math.round(pct)}%
               </div>
               <div className="mt-2 ux-progress-track h-1">
                 <div
@@ -88,7 +88,7 @@ export function ConceptTreemapChart({
               {block.prereqs.length > 0 && (
                 <div className="mt-2 flex flex-wrap gap-1">
                   {block.prereqs.map((p) => (
-                    <span key={p} className="rounded-full bg-surface-hover px-2 py-0.5 text-[10px] text-text-muted">
+                    <span key={p} className="rounded-full bg-surface-hover px-2 py-0.5 type-micro text-text-muted">
                       {p}
                     </span>
                   ))}
@@ -102,7 +102,7 @@ export function ConceptTreemapChart({
       {active && (
         <div className="mt-3 rounded-xl border border-border-subtle bg-surface-secondary/50 p-3 text-sm text-text-secondary">
           <span className="font-semibold text-text-primary">{active.label}</span>
-          {' — '}
+          {' β€” '}
           {weightLabel} {Math.round((active.value / totalWeight) * 100)}%, {masteryLabel.toLowerCase()} {active.mastery}%.
           <span className="block mt-1">{treemapAdvice(active.mastery, lang)}</span>
           {active.prereqs.length > 0 && (

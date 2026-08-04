@@ -10,7 +10,7 @@ import { useMinimalTheme } from '../lib/useMinimalTheme';
 
 /**
  * Compact status strip while demo sandbox content is active (B1 demo isolation).
- * OPT-K10 — under Minimal: quieter strip; secondary actions in overflow; Exit stays one-click.
+ * OPT-K10 β€” under Minimal: quieter strip; secondary actions in overflow; Exit stays one-click.
  */
 export function DemoSandboxBanner() {
   const { t } = useI18n();
@@ -56,12 +56,12 @@ export function DemoSandboxBanner() {
       <div className="flex items-center justify-between gap-3 w-full min-h-7">
         <div className="flex items-center gap-1.5 min-w-0">
           <FlaskConical className="w-3.5 h-3.5 text-text-tertiary shrink-0" aria-hidden />
-          <p className="text-[11px] font-medium text-text-secondary truncate">
+          <p className="type-caption font-medium text-text-secondary truncate">
             {t('demoSandboxBannerTitle')}
           </p>
           {!quiet && (
-            <span className="hidden md:inline text-[11px] text-text-tertiary truncate">
-              — {t('demoSandboxBannerHint')}
+            <span className="hidden md:inline type-caption text-text-tertiary truncate">
+              β€” {t('demoSandboxBannerHint')}
             </span>
           )}
         </div>
@@ -94,7 +94,7 @@ export function DemoSandboxBanner() {
                         setMoreOpen(false);
                         googleSignIn();
                       }}
-                      className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-[11px] text-text-primary hover:bg-surface-hover"
+                      className="flex w-full items-center gap-2 px-3 py-1.5 text-left type-caption text-text-primary hover:bg-surface-hover"
                     >
                       <LogIn className="w-3.5 h-3.5 text-text-tertiary" aria-hidden />
                       {t('demoSandboxGoogleSignIn')}
@@ -108,7 +108,7 @@ export function DemoSandboxBanner() {
                       setMoreOpen(false);
                       setShowUploadModal(true);
                     }}
-                    className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-[11px] text-text-primary hover:bg-surface-hover"
+                    className="flex w-full items-center gap-2 px-3 py-1.5 text-left type-caption text-text-primary hover:bg-surface-hover"
                   >
                     <Upload className="w-3.5 h-3.5 text-text-tertiary" aria-hidden />
                     {t('demoSandboxUpload')}
@@ -124,7 +124,7 @@ export function DemoSandboxBanner() {
                   data-testid="demo-sandbox-google-sign-in"
                   onClick={googleSignIn}
                   aria-label={t('demoSandboxGoogleSignIn')}
-                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-medium text-text-secondary hover:text-text-primary hover:bg-surface-hover transition-colors"
+                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md type-caption font-medium text-text-secondary hover:text-text-primary hover:bg-surface-hover transition-colors"
                 >
                   <LogIn className="w-3 h-3" aria-hidden />
                   <span className="hidden sm:inline">{t('demoSandboxGoogleSignIn')}</span>
@@ -135,7 +135,7 @@ export function DemoSandboxBanner() {
                 onClick={() => setShowUploadModal(true)}
                 data-testid="demo-sandbox-upload"
                 aria-label={t('demoSandboxUpload')}
-                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-medium text-text-secondary hover:text-text-primary hover:bg-surface-hover transition-colors"
+                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md type-caption font-medium text-text-secondary hover:text-text-primary hover:bg-surface-hover transition-colors"
               >
                 <Upload className="w-3 h-3" aria-hidden />
                 <span className="hidden sm:inline">{t('demoSandboxUpload')}</span>
@@ -148,7 +148,7 @@ export function DemoSandboxBanner() {
             data-testid="demo-sandbox-exit"
             aria-label={t('demoSandboxExit')}
             className={cn(
-              'inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-medium transition-colors',
+              'inline-flex items-center gap-1 px-2 py-0.5 rounded-md type-caption font-medium transition-colors',
               quiet
                 ? 'text-text-secondary hover:text-text-primary hover:bg-surface-hover'
                 : 'text-text-secondary hover:text-text-primary hover:bg-surface-hover',

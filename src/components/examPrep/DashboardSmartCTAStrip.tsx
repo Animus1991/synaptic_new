@@ -9,7 +9,7 @@ type Props = {
   onRun: (cta: DashboardSmartCTA) => void;
 };
 
-/* OPT-K101 — residual markup debt: decorative brand type -> ink */
+/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
 export function DashboardSmartCTAStrip({ ctas, onRun }: Props) {
   const { t } = useI18n();
   if (ctas.length === 0) return null;
@@ -40,7 +40,7 @@ export function DashboardSmartCTAStrip({ ctas, onRun }: Props) {
                 <ArrowRight className="w-3 h-3 opacity-70 group-hover:translate-x-0.5 transition-transform" />
               </span>
               {cta.hint && (
-                <span className="text-[10px] text-text-muted line-clamp-2">{cta.hint}</span>
+                <span className="type-micro text-text-muted line-clamp-2">{cta.hint}</span>
               )}
             </button>
           ))}

@@ -14,7 +14,7 @@ const KIND_BADGE: Record<DocumentStructureKind, string> = {
   flat: 'Plain text',
 };
 
-/* OPT-K101 — residual markup debt: decorative brand type -> ink */
+/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
 export function SourceIntelligenceCard({
   report,
   toolLabel,
@@ -36,8 +36,8 @@ export function SourceIntelligenceCard({
             <span className="inline-flex items-center rounded-full px-2 py-1 type-caption font-semibold bg-accent-cyan/12 text-text-primary">
               Source Intelligence
             </span>
-            <span className={`text-[11px] font-semibold ${bandColor}`}>
-              {report.score}/100 · {report.band}
+            <span className={`type-caption font-semibold ${bandColor}`}>
+              {report.score}/100 Β· {report.band}
             </span>
             {structure && structure.sectionCount >= 2 && (
               <span className="inline-flex items-center gap-1 rounded-full px-2 py-1 type-caption font-medium bg-white/[0.06] text-text-secondary">
@@ -66,14 +66,14 @@ export function SourceIntelligenceCard({
             </div>
           )}
           {report.strengths[0] && (
-            <p className="mt-2 text-[11px] text-accent-emerald/90">{report.strengths[0]}</p>
+            <p className="mt-2 type-caption text-accent-emerald/90">{report.strengths[0]}</p>
           )}
         </div>
         <div className="flex items-center gap-2 shrink-0">
           <button
             type="button"
             onClick={onOpenRecommendedTool}
-            className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.06] px-3 py-1.5 text-[11px] font-medium text-text-secondary hover:border-accent-cyan/40 hover:text-text-primary transition-colors"
+            className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.06] px-3 py-1.5 type-caption font-medium text-text-secondary hover:border-accent-cyan/40 hover:text-text-primary transition-colors"
           >
             <Sparkles className="w-3.5 h-3.5 text-text-primary" />
             Open {toolLabel}

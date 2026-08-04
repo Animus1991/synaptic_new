@@ -4,7 +4,7 @@ import type { StudentOrgContent } from '../lib/studentOrgContent';
 import { formatDateTime } from '../lib/localeFormat';
 import { cn } from '../utils/cn';
 
-/* OPT-K101 — residual markup debt: decorative brand type -> ink */
+/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
 export type StudentAnnouncementItem = {
   id: string;
   classId: string;
@@ -56,7 +56,7 @@ export function StudentOrgAnnouncementsPanel({ announcements, classOptions, ui, 
                 data-testid="student-announcements-filter-all"
                 onClick={() => setClassFilter('all')}
                 className={cn(
-                  'rounded-full px-3 py-1 text-[10px] font-medium border transition-colors',
+                  'rounded-full px-3 py-1 type-micro font-medium border transition-colors',
                   classFilter === 'all'
                     ? 'border-brand-500/40 bg-surface-secondary text-text-primary border border-border-subtle'
                     : 'border-border-subtle text-text-secondary hover:bg-surface-hover',
@@ -71,7 +71,7 @@ export function StudentOrgAnnouncementsPanel({ announcements, classOptions, ui, 
                   data-testid={`student-announcements-filter-${cls.id}`}
                   onClick={() => setClassFilter(cls.id)}
                   className={cn(
-                    'rounded-full px-3 py-1 text-[10px] font-medium border transition-colors truncate max-w-[160px]',
+                    'rounded-full px-3 py-1 type-micro font-medium border transition-colors truncate max-w-[160px]',
                     classFilter === cls.id
                       ? 'border-brand-500/40 bg-surface-secondary text-text-primary border border-border-subtle'
                       : 'border-border-subtle text-text-secondary hover:bg-surface-hover',
@@ -96,10 +96,10 @@ export function StudentOrgAnnouncementsPanel({ announcements, classOptions, ui, 
                   <div className="flex flex-wrap items-start justify-between gap-2">
                     <div className="min-w-0 space-y-1">
                       <div className="flex flex-wrap items-center gap-2">
-                        <span className="text-[10px] text-text-muted">
+                        <span className="type-micro text-text-muted">
                           {formatDateTime(item.createdAt, lang)}
                         </span>
-                        <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-surface-hover text-text-secondary">
+                        <span className="type-micro px-1.5 py-0.5 rounded-full bg-surface-hover text-text-secondary">
                           {item.className}
                         </span>
                       </div>

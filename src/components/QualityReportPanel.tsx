@@ -60,12 +60,12 @@ export function QualityReportPanel({ report, lang, compact = false, className }:
                 )}
               />
               <div className="min-w-0">
-                <p className="text-[11px] font-semibold text-text-primary">
+                <p className="type-caption font-semibold text-text-primary">
                   {t(GATE_LABEL_KEYS[gate.id], lang)}
                 </p>
-                <p className="text-[10px] text-text-muted truncate">{gate.detail}</p>
+                <p className="type-micro text-text-muted truncate">{gate.detail}</p>
               </div>
-              <span className="ml-auto text-[10px] text-text-tertiary">{gate.score}</span>
+              <span className="ml-auto type-micro text-text-tertiary">{gate.score}</span>
             </div>
           );
         })}

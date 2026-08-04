@@ -39,7 +39,7 @@ const MODES: ScratchpadMode[] = [
   'exam-draft',
 ];
 
-/* OPT-K100 — markup debt: Agent/Reader/tools decorative brand type -> ink */
+/* OPT-K100 β€” markup debt: Agent/Reader/tools decorative brand type -> ink */
 export function ScratchpadNotesPanel({
   scopeKey,
   concept,
@@ -117,7 +117,7 @@ export function ScratchpadNotesPanel({
         <div className="px-4 py-1.5 border-b border-border-subtle bg-surface-primary/30 type-caption text-text-muted shrink-0">
           {t('scratchAttachedTo')}
           {sectionLabel && <span className="ml-1 font-medium text-text-primary">{sectionLabel}</span>}
-          {concept && sectionLabel !== concept && <span className="ml-1 text-text-primary">· {concept}</span>}
+          {concept && sectionLabel !== concept && <span className="ml-1 text-text-primary">Β· {concept}</span>}
         </div>
       )}
 
@@ -186,7 +186,7 @@ export function ScratchpadNotesPanel({
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0 }}
                   className={cn(
-                    'p-2 rounded-lg border text-[11px] cursor-pointer transition-all',
+                    'p-2 rounded-lg border type-caption cursor-pointer transition-all',
                     selectedId === entry.id ? 'border-brand-400/40 bg-brand-500/8' : 'border-border-subtle hover:border-brand-500/20',
                     entry.resolved && 'opacity-60',
                   )}
@@ -195,7 +195,7 @@ export function ScratchpadNotesPanel({
                   <div className="flex items-center justify-between gap-2 mb-1">
                     <span className="type-caption text-text-primary font-medium">
                       {SCRATCHPAD_MODE_LABELS[entry.mode][lang]}
-                      {entry.sectionLabel && <span className="text-text-muted ml-1">· {entry.sectionLabel}</span>}
+                      {entry.sectionLabel && <span className="text-text-muted ml-1">Β· {entry.sectionLabel}</span>}
                     </span>
                     <div className="flex items-center gap-1">
                       <button
@@ -261,7 +261,7 @@ export function ScratchpadNotesPanel({
 
       {selected && (
         <div className="px-3 py-1 border-t border-border-subtle type-caption text-text-muted shrink-0">
-          {t('scratchSelectedEntry')} · {selected.updatedAt.slice(0, 10)}
+          {t('scratchSelectedEntry')} Β· {selected.updatedAt.slice(0, 10)}
         </div>
       )}
     </div>

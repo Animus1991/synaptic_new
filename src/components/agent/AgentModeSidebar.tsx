@@ -19,7 +19,7 @@ const SOURCE_ICONS: Record<UserSettings['sourceMode'], ElementType> = {
   'notes-only': FileText,
 };
 
-/* OPT-K101 — residual markup debt: decorative brand type -> ink */
+/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
 export type AgentCatalogMode = {
   mode: AgentMode;
   label: string;
@@ -88,7 +88,7 @@ function ModeRow({
           {visual.badge && (
             <span
               className={cn(
-                'text-[10px] px-1.5 py-0 rounded-full',
+                'type-micro px-1.5 py-0 rounded-full',
                 quietModes
                   ? 'border border-border-subtle text-text-tertiary bg-transparent'
                   : 'bg-surface-secondary text-text-primary border border-border-subtle',
@@ -99,7 +99,7 @@ function ModeRow({
           )}
         </div>
         {!quietModes && (
-          <p className="text-[10px] text-text-tertiary leading-tight mt-0.5 hidden xl:block">
+          <p className="type-micro text-text-tertiary leading-tight mt-0.5 hidden xl:block">
             {m.desc}
           </p>
         )}
@@ -127,7 +127,7 @@ export function AgentModeSidebar({
   sourceModeHeading,
   className,
 }: AgentModeSidebarProps) {
-  /** OPT-C2 / OPT-R14 — quiet + grouped under Minimal; every mode stays reachable. */
+  /** OPT-C2 / OPT-R14 β€” quiet + grouped under Minimal; every mode stays reachable. */
   const quietModes = useMinimalTheme();
   const { t } = useI18n();
   const groups = useMemo(() => partitionAgentModesByGroup(modes), [modes]);
@@ -197,10 +197,10 @@ export function AgentModeSidebar({
                       ) : (
                         <ChevronRight className="w-3 h-3 text-text-tertiary shrink-0" aria-hidden />
                       )}
-                      <span className="flex-1 text-[10px] font-semibold uppercase tracking-wider text-text-tertiary truncate">
+                      <span className="flex-1 type-micro font-semibold uppercase tracking-wider text-text-tertiary truncate">
                         <AllCapsLabel>{t(group.labelKey)}</AllCapsLabel>
                       </span>
-                      <span className="text-[10px] tabular-nums text-text-muted">{count}</span>
+                      <span className="type-micro tabular-nums text-text-muted">{count}</span>
                     </button>
                     {open && (
                       <div className="space-y-0.5 px-1 pb-1.5">
@@ -267,7 +267,7 @@ export function AgentModeSidebar({
                   />
                   <div>
                     <p className="text-xs font-medium text-text-primary">{opt.label}</p>
-                    <p className="text-[10px] text-text-tertiary">{opt.desc}</p>
+                    <p className="type-micro text-text-tertiary">{opt.desc}</p>
                   </div>
                 </button>
               );
@@ -323,7 +323,7 @@ export function AgentModeCatalogGrid({
                 <Icon className="w-3.5 h-3.5" style={{ color: visual.color }} />
               </div>
               <p className="text-xs font-medium text-text-primary">{m.label}</p>
-              <p className="text-[10px] text-text-tertiary line-clamp-2">{m.desc}</p>
+              <p className="type-micro text-text-tertiary line-clamp-2">{m.desc}</p>
             </button>
           );
         })}
@@ -340,7 +340,7 @@ export function AgentModeCatalogGrid({
     >
       {groups.map((group) => (
         <div key={group.id} data-testid={`agent-mode-group-${group.id}`}>
-          <p className="agent-mode-group-label mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-text-tertiary">
+          <p className="agent-mode-group-label mb-1.5 type-micro font-semibold uppercase tracking-wider text-text-tertiary">
             <AllCapsLabel>{t(group.labelKey)}</AllCapsLabel>
           </p>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">

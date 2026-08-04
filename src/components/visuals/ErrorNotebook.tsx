@@ -7,7 +7,7 @@ interface Props {
   onResolve?: (id: string) => void;
 }
 
-/* OPT-K101 — residual markup debt: decorative brand type -> ink */
+/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
 export function ErrorNotebook({ mistakes, onResolve }: Props) {
   if (mistakes.length === 0) return null;
 
@@ -15,7 +15,7 @@ export function ErrorNotebook({ mistakes, onResolve }: Props) {
     <BlueprintSurface className="p-5 platform-banner-danger">
       <h3 className="text-sm font-semibold flex items-center gap-2 mb-4 platform-banner-title">
         <BookX className="w-4 h-4 shrink-0" />
-        Error notebook — {mistakes.length} open mistake{mistakes.length !== 1 ? 's' : ''}
+        Error notebook β€” {mistakes.length} open mistake{mistakes.length !== 1 ? 's' : ''}
       </h3>
       <div className="space-y-3">
         {mistakes.slice(0, 5).map((m) => (
@@ -25,10 +25,10 @@ export function ErrorNotebook({ mistakes, onResolve }: Props) {
                 <p className="text-xs font-semibold text-text-primary">{m.concept}</p>
                 <p className="text-xs text-text-secondary mt-1 leading-relaxed">{m.questionSummary}</p>
                 {m.wrongAnswer && (
-                  <p className="text-[10px] text-accent-rose mt-1.5 font-medium">Your answer: {m.wrongAnswer}</p>
+                  <p className="type-micro text-accent-rose mt-1.5 font-medium">Your answer: {m.wrongAnswer}</p>
                 )}
                 {m.correctAnswer && (
-                  <p className="text-[10px] text-accent-emerald mt-0.5 font-medium">Correct: {m.correctAnswer}</p>
+                  <p className="type-micro text-accent-emerald mt-0.5 font-medium">Correct: {m.correctAnswer}</p>
                 )}
               </div>
               {onResolve && (

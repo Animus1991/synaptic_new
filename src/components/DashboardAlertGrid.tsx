@@ -27,7 +27,7 @@ type Slot = {
 };
 
 /**
- * Mockup 2×2 semantic alert grid (exam / quiz / forgetting / misconception).
+ * Mockup 2Γ—2 semantic alert grid (exam / quiz / forgetting / misconception).
  * Maps production smart CTAs + proactive alerts without removing handlers.
  */
 export function DashboardAlertGrid({
@@ -108,7 +108,7 @@ export function DashboardAlertGrid({
 
   if (slots.length === 0) return null;
 
-  /* OPT-K17 — Minimal: hairline + left urgency line (status tone only). Blueprint keeps washes. */
+  /* OPT-K17 β€” Minimal: hairline + left urgency line (status tone only). Blueprint keeps washes. */
   const toneClass: Record<Slot['tone'], string> = quiet
     ? {
         exam: 'dashboard-urgency-signal',
@@ -117,7 +117,7 @@ export function DashboardAlertGrid({
         misconception: 'dashboard-urgency-signal',
       }
     : {
-        /* OPT-K91 — neutral card fills (no multi-hue wash fragmentation) */
+        /* OPT-K91 β€” neutral card fills (no multi-hue wash fragmentation) */
         exam: 'border-border-subtle bg-surface-secondary',
         quiz: 'border-border-subtle bg-surface-secondary',
         forget: 'border-border-subtle bg-surface-secondary',
@@ -131,7 +131,7 @@ export function DashboardAlertGrid({
         misconception: 'text-text-secondary',
       }
     : {
-        /* OPT-K90 — decorative icons use ink; soft wash on card carries tone */
+        /* OPT-K90 β€” decorative icons use ink; soft wash on card carries tone */
         exam: 'text-text-secondary',
         quiz: 'text-text-secondary',
         forget: 'text-text-secondary',
@@ -173,7 +173,7 @@ export function DashboardAlertGrid({
                 aria-hidden
               />
               <div className="min-w-0 flex-1">
-                <p className="text-[10px] font-semibold uppercase tracking-wide text-text-secondary">
+                <p className="type-micro font-semibold uppercase tracking-wide text-text-secondary">
                   <AllCapsLabel>{slot.title}</AllCapsLabel>
                 </p>
                 <p className="text-xs text-text-primary mt-0.5 line-clamp-2">{slot.body}</p>

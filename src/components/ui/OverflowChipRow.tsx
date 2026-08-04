@@ -19,12 +19,12 @@ type Props = {
   moreTestId?: string;
   moreAriaLabel?: (hiddenCount: number) => string;
   lessAriaLabel?: string;
-  /** Optional trailing control (e.g. “+ File”) always after chips. */
+  /** Optional trailing control (e.g. β€+ Fileβ€) always after chips. */
   trailing?: ReactNode;
 };
 
 /**
- * OPT-K14 — densify chip walls: show a short row + “+N”, expand to reach every tag.
+ * OPT-K14 β€” densify chip walls: show a short row + β€+Nβ€, expand to reach every tag.
  * Zero feature removal: overflow never drops items.
  */
 export function OverflowChipRow({
@@ -74,7 +74,7 @@ export function OverflowChipRow({
     >
       {visible.map((item) => {
         const shared = cn(
-          'overflow-chip max-w-[7.5rem] truncate rounded-md border border-border-subtle bg-surface-secondary/50 px-1.5 py-0.5 text-[10px] text-text-secondary',
+          'overflow-chip max-w-[7.5rem] truncate rounded-md border border-border-subtle bg-surface-secondary/50 px-1.5 py-0.5 type-micro text-text-secondary',
           chipClassName,
         );
         if (item.onClick) {
@@ -116,11 +116,11 @@ export function OverflowChipRow({
           }
           title={expanded ? lessAriaLabel : `+${hiddenCount}`}
           className={cn(
-            'overflow-chip-more rounded-md border border-border-subtle bg-transparent px-1.5 py-0.5 text-[10px] font-medium text-text-secondary hover:border-border-default hover:text-text-primary transition-colors',
+            'overflow-chip-more rounded-md border border-border-subtle bg-transparent px-1.5 py-0.5 type-micro font-medium text-text-secondary hover:border-border-default hover:text-text-primary transition-colors',
             moreClassName,
           )}
         >
-          {expanded ? '−' : `+${hiddenCount}`}
+          {expanded ? 'β’' : `+${hiddenCount}`}
         </button>
       )}
       {expanded && hiddenCount > 0 && (

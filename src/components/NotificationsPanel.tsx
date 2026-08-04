@@ -17,15 +17,15 @@ interface Props {
   onMarkAllRead: () => void;
   onNavigate: (view: AppView) => void;
   onOpenTasks?: (filter?: 'review' | 'exam') => void;
-  /** OPT-M17 — live app toast surfaced in inbox */
+  /** OPT-M17 β€” live app toast surfaced in inbox */
   appToastMessage?: string | null;
   onDismissAppToast?: () => void;
-  /** OPT-M17 — proactive study alerts (same actions as Dashboard strip) */
+  /** OPT-M17 β€” proactive study alerts (same actions as Dashboard strip) */
   proactiveAlerts?: ProactiveAgentAlert[];
   onRunProactiveAlert?: (alert: ProactiveAgentAlert) => void;
 }
 
-/* OPT-K101 — residual markup debt: decorative brand type -> ink */
+/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
 export function NotificationsPanel({
   open,
   onClose,
@@ -105,10 +105,10 @@ export function NotificationsPanel({
           <p className="text-xs font-medium text-text-primary leading-relaxed">
             {alert.title}
           </p>
-          <p className="text-[10px] text-text-muted mt-0.5 line-clamp-2">
+          <p className="type-micro text-text-muted mt-0.5 line-clamp-2">
             {alert.message}
           </p>
-          <span className="mt-1.5 inline-flex items-center gap-1 text-[10px] font-medium text-text-secondary">
+          <span className="mt-1.5 inline-flex items-center gap-1 type-micro font-medium text-text-secondary">
             {t('appInboxAct')}
             <ArrowRight className="w-3 h-3" />
           </span>
@@ -152,7 +152,7 @@ export function NotificationsPanel({
               className="border-b border-border-subtle bg-surface-card/40"
               data-testid="app-inbox-errors"
             >
-              <p className="status-console-section-label px-4 pt-3 pb-1 text-[10px] font-semibold uppercase tracking-wide text-text-muted">
+              <p className="status-console-section-label px-4 pt-3 pb-1 type-micro font-semibold uppercase tracking-wide text-text-muted">
                 <AllCapsLabel>{t('appInboxErrors')}</AllCapsLabel>
               </p>
               {errorAlerts.map(renderAlert)}
@@ -164,7 +164,7 @@ export function NotificationsPanel({
               className="border-b border-border-subtle bg-surface-card/40"
               data-testid="app-inbox-status"
             >
-              <p className="status-console-section-label px-4 pt-3 pb-1 text-[10px] font-semibold uppercase tracking-wide text-text-muted">
+              <p className="status-console-section-label px-4 pt-3 pb-1 type-micro font-semibold uppercase tracking-wide text-text-muted">
                 <AllCapsLabel>{consoleMode && !hasErrors ? t('appInboxErrors') : t('appInboxStatus')}</AllCapsLabel>
               </p>
 
@@ -184,7 +184,7 @@ export function NotificationsPanel({
                           type="button"
                           data-testid="app-inbox-toast-dismiss"
                           onClick={onDismissAppToast}
-                          className="mt-1.5 text-[10px] font-medium text-text-muted hover:text-text-secondary"
+                          className="mt-1.5 type-micro font-medium text-text-muted hover:text-text-secondary"
                         >
                           {t('dismiss')}
                         </button>
@@ -200,7 +200,7 @@ export function NotificationsPanel({
 
           <div data-testid="app-inbox-activity">
             {(hasStatus || hasErrors) && (
-              <p className="status-console-section-label px-4 pt-3 pb-1 text-[10px] font-semibold uppercase tracking-wide text-text-muted">
+              <p className="status-console-section-label px-4 pt-3 pb-1 type-micro font-semibold uppercase tracking-wide text-text-muted">
                 <AllCapsLabel>{t('appInboxActivity')}</AllCapsLabel>
               </p>
             )}
@@ -225,16 +225,16 @@ export function NotificationsPanel({
                         <p className={cn('text-xs font-medium leading-relaxed', unread && 'text-text-primary')}>
                           {a.description}
                         </p>
-                        <p className="text-[10px] text-text-muted mt-0.5 font-mono">
+                        <p className="type-micro text-text-muted mt-0.5 font-mono">
                           {formatDateTime(a.timestamp, lang)}
-                          {a.xp ? ` · +${a.xp} XP` : ''}
+                          {a.xp ? ` Β· +${a.xp} XP` : ''}
                         </p>
                         {deepLink && (
                           <button
                             type="button"
                             data-testid={`notification-deep-link-${a.id}`}
                             onClick={() => handleDeepLink(a.type)}
-                            className="mt-1.5 inline-flex items-center gap-1 text-[10px] font-medium text-text-secondary hover:text-text-primary"
+                            className="mt-1.5 inline-flex items-center gap-1 type-micro font-medium text-text-secondary hover:text-text-primary"
                           >
                             {t('notificationViewTarget')}
                             <ArrowRight className="w-3 h-3" />

@@ -12,7 +12,7 @@ type Props = {
   hasData: boolean;
 };
 
-/* OPT-K101 — residual markup debt: decorative brand type -> ink */
+/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
 export function KnowledgeFlowSankeyChart({ links, title, hint, emptyLabel, hasData }: Props) {
   const layout = useMemo(() => sankeyNodeLayout(), []);
   const maxCol = 6;
@@ -76,7 +76,7 @@ export function KnowledgeFlowSankeyChart({ links, title, hint, emptyLabel, hasDa
               <g key={name}>
                 <circle cx={cx} cy={cy} r={14} fill={tone} opacity={0.16} />
                 <circle cx={cx} cy={cy} r={7} fill={tone} opacity={0.9} />
-                <text x={cx} y={cy + 24} textAnchor="middle" className="fill-text-secondary text-[10px] font-medium">
+                <text x={cx} y={cy + 24} textAnchor="middle" className="fill-text-secondary type-micro font-medium">
                   {name}
                 </text>
               </g>
@@ -169,8 +169,8 @@ export function MasteryWaterfallChart({
                   {isGain && step.delta > 0 ? '+' : ''}
                   {step.delta}
                 </text>
-                <text x={x + w / 2} y={252} textAnchor="middle" className="fill-text-muted text-[10px]">
-                  {step.label.length > 14 ? `${step.label.slice(0, 12)}…` : step.label}
+                <text x={x + w / 2} y={252} textAnchor="middle" className="fill-text-muted type-micro">
+                  {step.label.length > 14 ? `${step.label.slice(0, 12)}β€¦` : step.label}
                 </text>
                 {i > 0 && (
                   <line
@@ -201,7 +201,7 @@ export function MasteryWaterfallChart({
           >
             <div className="font-semibold text-text-primary">
               {s.delta >= 0 ? '+' : ''}
-              {s.delta} — {s.label}
+              {s.delta} β€” {s.label}
             </div>
             <div className="mt-1 text-text-tertiary leading-relaxed">{s.note}</div>
           </div>

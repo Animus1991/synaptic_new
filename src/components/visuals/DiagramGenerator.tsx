@@ -17,7 +17,7 @@ import { t as translate, useI18n, type Lang } from '../../lib/i18n';
 interface FlowNode { id: string; label: string; type: 'start' | 'step' | 'decision' | 'end' }
 interface FlowEdge { from: string; to: string; label?: string }
 
-/* OPT-K101 — residual markup debt: decorative brand type -> ink */
+/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
 export function FlowchartDiagram({ nodes, edges, title }: { nodes: FlowNode[]; edges: FlowEdge[]; title?: string }) {
   const nodeW = 140, nodeH = 44, gapY = 70;
   const positions: Record<string, { x: number; y: number }> = {};
@@ -70,7 +70,7 @@ export function FlowchartDiagram({ nodes, edges, title }: { nodes: FlowNode[]; e
             <motion.g key={node.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.12 }}>
               {getShape(node, pos.x, pos.y)}
               <text x={pos.x} y={pos.y + 4} textAnchor="middle" fill="#f1f0f7" fontSize={10} fontWeight="500">
-                {node.label.length > 20 ? node.label.slice(0, 18) + '…' : node.label}
+                {node.label.length > 20 ? node.label.slice(0, 18) + 'β€¦' : node.label}
               </text>
             </motion.g>
           );
@@ -225,7 +225,7 @@ export function ComparisonTable({
                   {h}
                   <ArrowDownUp className="w-3 h-3 opacity-60" />
                   {sortCol === i && (
-                    <span className="type-caption font-mono">{sortDir === 'asc' ? '↑' : '↓'}</span>
+                    <span className="type-caption font-mono">{sortDir === 'asc' ? 'β†‘' : 'β†“'}</span>
                   )}
                 </button>
               </th>
@@ -253,7 +253,7 @@ export function ComparisonTable({
                   (onRowFocus || onRowSelect) && 'cursor-pointer hover:bg-surface-hover',
                 )}
                 onClick={() => {
-                  const rowText = row.filter(Boolean).join(' · ');
+                  const rowText = row.filter(Boolean).join(' Β· ');
                   if (onRowSelect) onRowSelect(dim, rowText);
                   else onRowFocus?.(dim);
                 }}
@@ -340,7 +340,7 @@ export function RetentionCurve({ dataPoints }: { dataPoints: { day: number; rete
 
   return (
     <div className="rounded-xl border border-border-subtle bg-surface-card p-3" data-testid="retention-curve">
-      <p className="text-[11px] font-semibold mb-0.5 text-text-secondary inline-flex items-center gap-1.5">
+      <p className="type-caption font-semibold mb-0.5 text-text-secondary inline-flex items-center gap-1.5">
         <TrendingUp className="w-3.5 h-3.5 rotate-180" /> {t('analyticsRetentionCurveTitle')}
       </p>
       <p className="type-caption text-text-muted mb-2">{t('analyticsRetentionCurveSubtitle')}</p>
@@ -373,7 +373,7 @@ export function RetentionCurve({ dataPoints }: { dataPoints: { day: number; rete
           />
         ))}
 
-        {/* Mockup day markers: Σήμερα … +14ημ. */}
+        {/* Mockup day markers: Ξ£Ξ®ΞΌΞµΟΞ± β€¦ +14Ξ·ΞΌ. */}
         {markers.map((p) => {
           const label = p.day === 0
             ? t('analyticsTimelineDayToday')

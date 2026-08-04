@@ -9,7 +9,7 @@ import { cn } from '../../utils/cn';
 
 type ExamPrepTab = 'patterns' | 'algorithms' | 'glossa' | 'exercises';
 
-/* OPT-K101 — residual markup debt: decorative brand type -> ink */
+/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
 export function ExamPrepPanel() {
   const { t } = useI18n();
   const [tab, setTab] = useState<ExamPrepTab>('patterns');
@@ -24,7 +24,7 @@ export function ExamPrepPanel() {
             data-testid={`exam-prep-tab-${id}`}
             onClick={() => setTab(id)}
             className={cn(
-              'rounded-lg px-3 py-1.5 text-[11px] font-medium whitespace-nowrap transition-colors',
+              'rounded-lg px-3 py-1.5 type-caption font-medium whitespace-nowrap transition-colors',
               tab === id
                 ? 'bg-surface-secondary text-text-primary border border-border-subtle'
                 : 'text-text-secondary hover:bg-surface-hover',
@@ -68,7 +68,7 @@ function PatternCards() {
               )}
             >
               <p className="text-sm font-medium">{t(p.titleKey as never)}</p>
-              <p className="type-caption text-text-muted">{p.tags.join(' · ')}</p>
+              <p className="type-caption text-text-muted">{p.tags.join(' Β· ')}</p>
             </button>
           </li>
         ))}

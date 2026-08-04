@@ -31,7 +31,7 @@ export function SignalBars({ signals }: SignalBarsProps) {
             </span>
             <span className="text-xs font-bold" style={{ color: s.color }}>{s.value}%</span>
           </div>
-          {/* Wave P-2 C08 — SignalBars (Accuracy / Self-Reliance / Practice Volume /
+          {/* Wave P-2 C08 β€” SignalBars (Accuracy / Self-Reliance / Practice Volume /
               Retrieval Strength on Dashboard readiness card) track uses --viz-bar-track
               so the 25/50/75 tick marks read visibly on all 5 themes. */}
           <div
@@ -53,7 +53,7 @@ export function SignalBars({ signals }: SignalBarsProps) {
               />
             ))}
           </div>
-          {s.detail && <p className="text-[10px] text-text-muted mt-0.5">{s.detail}</p>}
+          {s.detail && <p className="type-micro text-text-muted mt-0.5">{s.detail}</p>}
         </motion.div>
       ))}
     </div>

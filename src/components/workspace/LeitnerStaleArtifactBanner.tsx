@@ -32,7 +32,7 @@ export function LeitnerStaleArtifactBanner({ lang, placement, onDismiss }: Props
           onClick={onDismiss}
           style={{ minHeight: LEITNER_STALE_MIN_TOUCH_PX }}
           className={cn(
-            'ws-empty-cta-secondary shrink-0 px-3 text-[11px] touch-manipulation',
+            'ws-empty-cta-secondary shrink-0 px-3 type-caption touch-manipulation',
             compact ? 'w-full' : 'self-end sm:self-auto',
           )}
           data-testid={`artifact-stale-dismiss-leitner${compact ? '-mobile' : ''}`}
@@ -41,7 +41,7 @@ export function LeitnerStaleArtifactBanner({ lang, placement, onDismiss }: Props
         </button>
       }
     >
-      <p className="text-[11px] leading-relaxed font-normal" aria-live="polite">
+      <p className="type-caption leading-relaxed font-normal" aria-live="polite">
         {copy}
       </p>
     </WorkspacePanelWarnStrip>

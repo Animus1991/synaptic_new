@@ -13,7 +13,7 @@ type Props = {
   score: number | null;
   sectionCount?: number;
   showMigration: boolean;
-  /** TOOL-RD-03 — pre-v2.4 column/Greek corruption path */
+  /** TOOL-RD-03 β€” pre-v2.4 column/Greek corruption path */
   showPre24Greek?: boolean;
   showQualityWarning: boolean;
   reprocessing?: boolean;
@@ -62,7 +62,7 @@ export function WorkspaceSourceStatusBar({
 
   const pipelineBadge = (showMigration || showPre24Greek)
     ? (storedPipelineVersion
-      ? `Pipeline v${storedPipelineVersion} → v${CONTENT_PIPELINE_VERSION}`
+      ? `Pipeline v${storedPipelineVersion} β†’ v${CONTENT_PIPELINE_VERSION}`
       : `Pipeline v${CONTENT_PIPELINE_VERSION}`)
     : undefined;
 
@@ -91,7 +91,7 @@ export function WorkspaceSourceStatusBar({
       >
         <AlertTriangle className="h-4 w-4 shrink-0 text-accent-amber" aria-hidden />
         <span className="ws-source-alert-header-text min-w-0 flex-1 text-left">
-          <span className="block text-[11px] font-medium text-text-primary" data-testid="source-status-score">
+          <span className="block type-caption font-medium text-text-primary" data-testid="source-status-score">
             {t('sourceQualityLabel')}
             {typeof score === 'number' && (
               <>
@@ -100,7 +100,7 @@ export function WorkspaceSourceStatusBar({
                 {typeof sectionCount === 'number' && (
                   <span className="font-normal text-text-muted">
                     {' '}
-                    · <span className="ws-num">{sectionCount}</span> {t('sourceSectionsWord')}
+                    Β· <span className="ws-num">{sectionCount}</span> {t('sourceSectionsWord')}
                   </span>
                 )}
               </>
@@ -136,10 +136,10 @@ export function WorkspaceSourceStatusBar({
                 data-testid="source-status-hygiene"
               >
                 {t('sourceHygiene')}{' '}
-                <span className="ws-num text-text-primary">{textHygieneScore ?? '—'}</span>
+                <span className="ws-num text-text-primary">{textHygieneScore ?? 'β€”'}</span>
                 {typeof textCorruptionScore === 'number' && (
                   <span className="ml-1 text-text-muted">
-                    · {t('sourceCorruption')}{' '}
+                    Β· {t('sourceCorruption')}{' '}
                     <span className="ws-num">{textCorruptionScore}</span>
                   </span>
                 )}
@@ -169,10 +169,10 @@ export function WorkspaceSourceStatusBar({
             </div>
           )}
 
-          <p className="mt-2 px-3.5 text-[11px] leading-relaxed text-text-secondary">{message}</p>
+          <p className="mt-2 px-3.5 type-caption leading-relaxed text-text-secondary">{message}</p>
 
           {(showMigration || showPre24Greek) && (
-            <div className="mt-2 px-3.5 text-[11px] text-text-secondary" data-testid="source-status-migration-affected">
+            <div className="mt-2 px-3.5 type-caption text-text-secondary" data-testid="source-status-migration-affected">
               <p className="font-medium text-text-primary">{t('sourceMigrationAffectedTitle')}</p>
               <ul className="mt-1 list-disc space-y-0.5 pl-4 text-text-muted">
                 <li>{t('sourceMigrationAffectedOcr')}</li>

@@ -9,7 +9,7 @@ interface Props {
   lang?: 'en' | 'el';
 }
 
-/* OPT-K101 — residual markup debt: decorative brand type -> ink */
+/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
 export function GoToSourceButton({ onClick, label, className }: Props) {
   const { t } = useI18n();
   const text = label ?? t('goToSource');
@@ -18,7 +18,7 @@ export function GoToSourceButton({ onClick, label, className }: Props) {
       type="button"
       onClick={onClick}
       className={cn(
-        'inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[10px] font-medium',
+        'inline-flex items-center gap-1 rounded-md px-2 py-0.5 type-micro font-medium',
         'text-text-secondary hover:text-text-primary hover:bg-brand-500/10 transition-colors',
         className,
       )}

@@ -8,7 +8,7 @@ import { cn } from '../utils/cn';
 type Props = {
   settings: UserSettings;
   onPatchSettings: (partial: Partial<UserSettings>) => void;
-  /** OPT-K10 — under Minimal, never compete with Start session as a second solid CTA. */
+  /** OPT-K10 β€” under Minimal, never compete with Start session as a second solid CTA. */
   quiet?: boolean;
 };
 
@@ -28,7 +28,7 @@ export function HeaderAccountAuth({ settings, onPatchSettings, quiet = false }: 
             authPlan: undefined,
           })
         }
-        className="hidden sm:inline-flex h-8 items-center gap-1.5 px-2.5 rounded-lg text-[11px] font-medium leading-none border border-border-subtle text-text-secondary hover:text-text-primary hover:bg-surface-hover transition-colors"
+        className="hidden sm:inline-flex h-8 items-center gap-1.5 px-2.5 rounded-lg type-caption font-medium leading-none border border-border-subtle text-text-secondary hover:text-text-primary hover:bg-surface-hover transition-colors"
         title={c.signOut}
       >
         <SignOut className="w-3.5 h-3.5 shrink-0" aria-hidden />
@@ -50,7 +50,7 @@ export function HeaderAccountAuth({ settings, onPatchSettings, quiet = false }: 
         );
       }}
       className={cn(
-        'inline-flex h-8 items-center gap-1.5 px-2.5 rounded-lg text-[11px] font-semibold leading-none whitespace-nowrap transition-colors',
+        'inline-flex h-8 items-center gap-1.5 px-2.5 rounded-lg type-caption font-semibold leading-none whitespace-nowrap transition-colors',
         quiet
           ? 'border border-border-subtle bg-transparent text-text-secondary hover:text-text-primary hover:bg-surface-hover'
           : 'bg-brand-600 text-white hover:bg-brand-500',

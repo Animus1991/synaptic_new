@@ -24,11 +24,11 @@ type Props = {
   onAskAgent?: (claimText?: string) => void;
   onSelectionAction?: (action: WorkspaceSelectionActionId, ctx: WorkspaceSelectionContext) => void;
   onRebuttalPersisted?: (rebuttalText: string) => void;
-  /** OPT-AI-B — generate / hand off a counter-argument for the selected claim. */
+  /** OPT-AI-B β€” generate / hand off a counter-argument for the selected claim. */
   onAiCounter?: (claimText: string) => void;
 };
 
-/* OPT-K100 — markup debt: Agent/Reader/tools decorative brand type -> ink */
+/* OPT-K100 β€” markup debt: Agent/Reader/tools decorative brand type -> ink */
 export function DebatePanel({
   session,
   concept,
@@ -103,7 +103,7 @@ export function DebatePanel({
         {session.sectionLabel && (
           <p className="mb-2 ws-eyebrow text-text-muted" data-testid="debate-section-label">
             <span><AllCapsLabel>{t('wsSectionLabel')}</AllCapsLabel></span>
-            <span className="ml-2 normal-case tracking-normal text-text-secondary font-sans text-[11px]">
+            <span className="ml-2 normal-case tracking-normal text-text-secondary font-sans type-caption">
               {session.sectionLabel}
             </span>
           </p>
@@ -111,7 +111,7 @@ export function DebatePanel({
 
         {(session.weakExtraction || session.passageGrounded) && session.seedTree && (
           <div
-            className="mb-3 flex items-start gap-2 rounded-md border-l-2 border-accent-amber/60 border-y border-r border-border-subtle bg-accent-amber/5 px-3 py-2 text-[11px] text-accent-amber"
+            className="mb-3 flex items-start gap-2 rounded-md border-l-2 border-accent-amber/60 border-y border-r border-border-subtle bg-accent-amber/5 px-3 py-2 type-caption text-accent-amber"
             data-testid="debate-weak-extraction"
           >
             <AlertTriangle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
@@ -161,7 +161,7 @@ export function DebatePanel({
                 onClick={() => selectClaim(text)}
                 className="rounded-md border border-brand-500/25 bg-brand-500/5 px-2 py-0.5 type-caption text-text-primary hover:bg-brand-500/10 hover:border-brand-500/40 transition-colors"
               >
-                {text.slice(0, 56)}{text.length > 56 ? '…' : ''}
+                {text.slice(0, 56)}{text.length > 56 ? 'β€¦' : ''}
               </button>
             ))}
           </div>

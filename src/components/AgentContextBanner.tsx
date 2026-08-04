@@ -53,7 +53,7 @@ export function AgentContextBanner({ context, lang, className, compact = false }
         )}
         <InfoHint
           label={detailParts.join('\n\n')}
-          triggerAriaLabel={t('agentJsonContext')}
+          triggerAriaLabel={t('agentContextDetailHint')}
           data-testid="agent-context-detail-hint"
           maxWidth={300}
         />

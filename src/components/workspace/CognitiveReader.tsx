@@ -90,16 +90,16 @@ interface Props {
   glossary?: GlossaryEntry[];
   concept?: string;
   userSettings?: UserSettings;
-  /** Full analyzed source — preserves paragraphs/sections (default Reader view). */
+  /** Full analyzed source β€” preserves paragraphs/sections (default Reader view). */
   sourceFullText?: string;
-  /** Lesson rail → scroll to matching heading segment */
+  /** Lesson rail β†’ scroll to matching heading segment */
   scrollToSegmentIndex?: number | null;
   scrollToSegmentStepIndex?: number;
-  /** Reader section nav → highlight matching lesson step */
+  /** Reader section nav β†’ highlight matching lesson step */
   onSectionNavSelect?: (label: string) => void;
   onSectionStudy?: (label: string) => void;
   onSectionAskAgent?: (label: string) => void;
-  /** §13.5 unified selection-action contract (replaces ask-agent-only bar). */
+  /** Β§13.5 unified selection-action contract (replaces ask-agent-only bar). */
   onSelectionAction?: (action: WorkspaceSelectionActionId, ctx: WorkspaceSelectionContext) => void;
   /** @deprecated Use onSelectionAction */
   onAskAgentAboutSelection?: (text: string, sectionLabel?: string) => void;
@@ -113,7 +113,7 @@ interface Props {
   stepMarks?: Record<number, 'understood' | 'confusing'>;
   stepTitles?: string[];
   stepToSegmentIndex?: Record<number, number>;
-  /** Wave 6.8a — active lesson step ↔ reader segment ↔ heat sync */
+  /** Wave 6.8a β€” active lesson step β†” reader segment β†” heat sync */
   stepHeatSync?: ReaderStepHeatSyncSummary | null;
   course?: Course | null;
 }
@@ -139,7 +139,7 @@ function downloadBlob(filename: string, content: string, mime: string) {
   URL.revokeObjectURL(url);
 }
 
-/* OPT-K100 — markup debt: Agent/Reader/tools decorative brand type -> ink */
+/* OPT-K100 β€” markup debt: Agent/Reader/tools decorative brand type -> ink */
 export function CognitiveReader({
   text = '',
   emptyMessage,
@@ -215,7 +215,7 @@ export function CognitiveReader({
     const prev = prevRawTextRef.current;
     prevRawTextRef.current = next;
     if (prev == null || prev === next || !next.trim()) return;
-    // Source reprocessed — re-bind OCR corrections to new paragraph blocks (TOOL-RD-04).
+    // Source reprocessed β€” re-bind OCR corrections to new paragraph blocks (TOOL-RD-04).
     const { remapped, dropped } = reanchorOcrCorrections(scope, next);
     if (remapped > 0 || dropped > 0) {
       setOcrCorrectionRevision((v) => v + 1);
@@ -539,7 +539,7 @@ export function CognitiveReader({
           {
             role: 'system',
             content: isEl
-              ? 'Είσαι AI tutor. Εξήγησε σύντομα και με σαφήνεια το επιλεγμένο απόσπασμα. 2-3 προτάσεις. Χρησιμοποίησε απλή γλώσσα.'
+              ? 'Ξ•Ξ―ΟƒΞ±ΞΉ AI tutor. Ξ•ΞΎΞ®Ξ³Ξ·ΟƒΞµ ΟƒΟΞ½Ο„ΞΏΞΌΞ± ΞΊΞ±ΞΉ ΞΌΞµ ΟƒΞ±Ο†Ξ®Ξ½ΞµΞΉΞ± Ο„ΞΏ ΞµΟ€ΞΉΞ»ΞµΞ³ΞΌΞ­Ξ½ΞΏ Ξ±Ο€ΟΟƒΟ€Ξ±ΟƒΞΌΞ±. 2-3 Ο€ΟΞΏΟ„Ξ¬ΟƒΞµΞΉΟ‚. Ξ§ΟΞ·ΟƒΞΉΞΌΞΏΟ€ΞΏΞ―Ξ·ΟƒΞµ Ξ±Ο€Ξ»Ξ® Ξ³Ξ»ΟΟƒΟƒΞ±.'
               : 'You are an AI tutor. Briefly and clearly explain the selected passage. 2-3 sentences. Use plain language.',
           },
           {
@@ -551,7 +551,7 @@ export function CognitiveReader({
       ).then((result) => {
         setInlineAiResult(result);
       }).catch(() => {
-        setInlineAiResult(isEl ? 'Σφάλμα AI — δοκίμασε ξανά.' : 'AI error — try again.');
+        setInlineAiResult(isEl ? 'Ξ£Ο†Ξ¬Ξ»ΞΌΞ± AI β€” Ξ΄ΞΏΞΊΞ―ΞΌΞ±ΟƒΞµ ΞΎΞ±Ξ½Ξ¬.' : 'AI error β€” try again.');
       }).finally(() => {
         setInlineAiLoading(false);
       });
@@ -727,7 +727,7 @@ export function CognitiveReader({
 
   const renderParagraphWords = (paragraph: string, rangeStart: number, bodyIndex: number, segmentIndex?: number) => {
     // Deterministic readability per paragraph (sentence length, long-word ratio,
-    // formula density) — replaces the old raw word-count > 25 heuristic.
+    // formula density) β€” replaces the old raw word-count > 25 heuristic.
     const difficulty = heatmapMode === 'complexity' ? estimateDifficulty(paragraph) : 'beginner';
     const complexityClass =
       difficulty === 'advanced'
@@ -751,7 +751,7 @@ export function CognitiveReader({
               : 'text-text-primary',
           ttsActiveIndex === bodyIndex && 'ws-focus-line',
         )}
-        title={heatmapMode === 'learning' && learningHeat?.reasons.length ? learningHeat.reasons.join(' · ') : undefined}
+        title={heatmapMode === 'learning' && learningHeat?.reasons.length ? learningHeat.reasons.join(' Β· ') : undefined}
       >
         {words.map((w, j) => {
           const pos = charInPara;
@@ -783,7 +783,7 @@ export function CognitiveReader({
                       ? 'border-accent-amber/40 text-accent-amber'
                       : 'border-border-subtle/60 text-text-primary',
                 )}
-                title={heatmapMode === 'learning' && learningHeat?.reasons.length ? learningHeat.reasons.join(' · ') : undefined}
+                title={heatmapMode === 'learning' && learningHeat?.reasons.length ? learningHeat.reasons.join(' Β· ') : undefined}
                 data-suspicious-fragment={suspicious ? 'true' : undefined}
                 data-reader-heat={learningHeat?.level ?? 'none'}
               >
@@ -858,7 +858,7 @@ export function CognitiveReader({
                 data-testid="reader-table-segment"
               >
                 {title && (
-                  <p className="border-b border-border-subtle/40 px-3 py-2 text-[11px] font-semibold text-text-secondary">
+                  <p className="border-b border-border-subtle/40 px-3 py-2 type-caption font-semibold text-text-secondary">
                     {title}
                   </p>
                 )}
@@ -953,7 +953,7 @@ export function CognitiveReader({
             onClick={() => setAnnotateMode(!annotateMode)}
             className={cn(
               'rounded-lg border px-2 py-1 type-caption font-medium flex items-center gap-1',
-              /* OPT-K96 — annotate = warn chip; other actives = ws-chip-brand */
+              /* OPT-K96 β€” annotate = warn chip; other actives = ws-chip-brand */
               annotateMode ? 'ws-chip-warn' : 'ws-tool-toggle',
             )}
           >
@@ -1024,7 +1024,7 @@ export function CognitiveReader({
                 : translationMode === 'glossary'
                   ? t('readerGlossaryMode')
                   : t('readerFull')}
-              {translating && '…'}
+              {translating && 'β€¦'}
             </button>
           )}
           <button type="button" onClick={() => setBionic(!bionic)} disabled={!!highlight} className={cn('rounded-lg border px-2 py-1 type-caption font-medium disabled:opacity-40', bionic ? 'ws-chip-brand' : 'ws-tool-toggle')}>
@@ -1094,7 +1094,7 @@ export function CognitiveReader({
           data-testid="reader-handwriting-banner"
         >
           <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-accent-amber" aria-hidden />
-          <p className="text-[11px] text-accent-amber ink-allow-accent">{t('readerHandwritingRecognized')}</p>
+          <p className="type-caption text-accent-amber ink-allow-accent">{t('readerHandwritingRecognized')}</p>
         </div>
       )}
 
@@ -1104,7 +1104,7 @@ export function CognitiveReader({
           data-testid="reader-greek-ocr-banner"
         >
           <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-accent-amber" aria-hidden />
-          <p className="text-[11px] text-accent-amber ink-allow-accent">{t('readerGreekOcrReview')}</p>
+          <p className="type-caption text-accent-amber ink-allow-accent">{t('readerGreekOcrReview')}</p>
         </div>
       )}
 
@@ -1115,7 +1115,7 @@ export function CognitiveReader({
         >
           <div className="flex items-start gap-2">
             <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-accent-amber" />
-            <p className="text-[11px] text-accent-amber">
+            <p className="type-caption text-accent-amber">
               {suspiciousSegments.length === 1
                 ? t('readerSuspiciousOne')
                 : t('readerSuspiciousMany').replace('{count}', String(suspiciousSegments.length))}
@@ -1130,7 +1130,7 @@ export function CognitiveReader({
                 onClick={() => scrollToSection(seg.index)}
                 className="rounded-full border border-accent-amber/40 bg-accent-amber/10 px-2 py-0.5 type-caption text-accent-amber hover:bg-accent-amber/20"
               >
-                {seg.label.slice(0, 48)}{seg.label.length > 48 ? '…' : ''}
+                {seg.label.slice(0, 48)}{seg.label.length > 48 ? 'β€¦' : ''}
               </button>
             ))}
           </div>
@@ -1145,7 +1145,7 @@ export function CognitiveReader({
           onMouseLeave={scheduleCloseGlossaryPopover}
         >
           <div className="min-w-0">
-            <p className="text-[11px] font-semibold text-text-primary">{glossaryPopover.term}</p>
+            <p className="type-caption font-semibold text-text-primary">{glossaryPopover.term}</p>
             <p className="type-caption text-text-secondary mt-0.5">
               {glossaryPopover.definition || t('readerNoGlossaryDef')}
             </p>
@@ -1191,7 +1191,7 @@ export function CognitiveReader({
             <button
               key={c}
               type="button"
-              aria-label={lang === 'el' ? `Χρώμα ${c}` : `Color ${c}`}
+              aria-label={lang === 'el' ? `Ξ§ΟΟΞΌΞ± ${c}` : `Color ${c}`}
               onClick={() => setActiveColor(c)}
               className={cn('h-5 w-5 rounded-full border-2', activeColor === c ? 'border-white' : 'border-transparent')}
               style={{ backgroundColor: c }}
@@ -1288,7 +1288,7 @@ export function CognitiveReader({
           data-testid="reader-selection-ask-agent"
         >
           <span className="ws-excerpt flex-1 truncate">
-            "{textSelection.slice(0, 72)}{textSelection.length > 72 ? '…' : ''}"
+            "{textSelection.slice(0, 72)}{textSelection.length > 72 ? 'β€¦' : ''}"
           </span>
           <button
             type="button"
@@ -1318,7 +1318,7 @@ export function CognitiveReader({
           <div className="flex items-center justify-between">
             <span className="inline-flex items-center gap-1 type-caption font-semibold text-text-secondary">
               <Sparkles className="w-3 h-3" />
-              {lang === 'el' ? 'AI Εξήγηση' : 'AI Explanation'}
+              {lang === 'el' ? 'AI Ξ•ΞΎΞ®Ξ³Ξ·ΟƒΞ·' : 'AI Explanation'}
             </span>
             <button
               type="button"
@@ -1331,16 +1331,16 @@ export function CognitiveReader({
           </div>
           {inlineAiExcerpt && (
             <p className="type-micro italic text-text-muted truncate">
-              &ldquo;{inlineAiExcerpt.slice(0, 90)}{inlineAiExcerpt.length > 90 ? '…' : ''}&rdquo;
+              &ldquo;{inlineAiExcerpt.slice(0, 90)}{inlineAiExcerpt.length > 90 ? 'β€¦' : ''}&rdquo;
             </p>
           )}
           {inlineAiLoading ? (
             <div className="flex items-center gap-1.5 type-caption text-text-muted">
               <Loader2 className="w-3 h-3 animate-spin" />
-              {lang === 'el' ? 'Αναλύω…' : 'Thinking…'}
+              {lang === 'el' ? 'Ξ‘Ξ½Ξ±Ξ»ΟΟ‰β€¦' : 'Thinkingβ€¦'}
             </div>
           ) : (
-            <p className="text-[11px] text-text-secondary leading-relaxed">{inlineAiResult}</p>
+            <p className="type-caption text-text-secondary leading-relaxed">{inlineAiResult}</p>
           )}
         </div>
       )}
@@ -1430,7 +1430,7 @@ export function CognitiveReader({
                     {pair.companion}
                     {pair.glossHits.length > 0 && (
                       <span className="mt-1 block type-caption text-text-muted">
-                        {pair.glossHits.slice(0, 4).join(' · ')}
+                        {pair.glossHits.slice(0, 4).join(' Β· ')}
                       </span>
                     )}
                   </p>
@@ -1503,7 +1503,7 @@ export function CognitiveReader({
                   <X className="w-3 h-3" />
                 </button>
                 <p className="ws-excerpt line-clamp-2">
-                  "{text.slice(ann.charStart, ann.charEnd).slice(0, 60)}{ann.charEnd - ann.charStart > 60 ? '…' : ''}"
+                  "{text.slice(ann.charStart, ann.charEnd).slice(0, 60)}{ann.charEnd - ann.charStart > 60 ? 'β€¦' : ''}"
                 </p>
                 {ann.note && <p className="text-text-primary mt-1">{ann.note}</p>}
               </div>
