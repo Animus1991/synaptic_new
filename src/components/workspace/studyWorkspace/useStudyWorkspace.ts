@@ -2194,6 +2194,9 @@ export function useStudyWorkspace({
     const withTime = (rows: ReturnType<typeof buildToolActivityBreakdown>) =>
       attachToolTimeToActivity(rows, snapshotToolTimeMs(toolTimeRef.current));
 
+    const heatmapDays =
+      learnerModel?.heatmapData?.slice(-7).map((d) => d.minutes) ?? ([] as number[]);
+
     if (!dashboardIntelActive) {
       return {
         readiness: Math.round(conceptMastery),
@@ -2201,7 +2204,8 @@ export function useStudyWorkspace({
         reviewsDue: dashboardStats.reviewsDue,
         studyTimeToday: dashboardStats.studyTimeToday ?? 0,
         studyTimeWeek: dashboardStats.studyTimeWeek ?? 0,
-        recentStudyDays: [] as number[],
+        // Keep daily series even when intel is gated — Progress «This week» must not be a blank well
+        recentStudyDays: heatmapDays,
         weakSpots: [] as { concept: string; mastery: number; course: string }[],
         weakSpotsDetail: [],
         nextActions: [] as { label: string; type: string; minutes: number; xp: number; taskId?: string }[],
@@ -2232,7 +2236,7 @@ export function useStudyWorkspace({
         reviewsDue: dashboardStats.reviewsDue + spacedStepsDue,
         studyTimeToday: dashboardStats.studyTimeToday ?? 0,
         studyTimeWeek: dashboardStats.studyTimeWeek ?? 0,
-        recentStudyDays: [] as number[],
+        recentStudyDays: heatmapDays,
         weakSpots: enrichedWeak,
         nextActions: [] as { label: string; type: string; minutes: number; xp: number; taskId?: string }[],
         conceptsMastered: 0,

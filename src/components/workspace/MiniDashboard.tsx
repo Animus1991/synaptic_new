@@ -154,39 +154,40 @@ export function MiniDashboard({
                   <StatPill icon={<Clock className="w-3 h-3 text-text-primary" />} label={t('studyThisWeek')} value={`${studyTimeWeek}m`} />
                 </div>
 
-                {(recentStudyDays.length > 0 || studyTimeWeek === 0) && (
-                  <div
-                    className="rounded-lg border border-border-subtle bg-surface-primary/40 p-2"
-                    data-testid="progress-study-week-chart"
-                  >
-                    <p className="type-caption text-text-secondary mb-1.5">{t('studyThisWeek')}</p>
-                    {recentStudyDays.length === 0 || recentStudyDays.every((m) => m <= 0) ? (
-                      <p className="type-caption text-text-secondary" data-testid="progress-study-week-empty">
-                        {t('noActivity')}
-                      </p>
-                    ) : (
-                      <div className="flex h-10 items-end gap-1">
-                        {(() => {
-                          const maxMins = Math.max(...recentStudyDays, 1);
-                          return recentStudyDays.map((mins, i) => (
-                            <div key={i} className="flex h-full flex-1 flex-col items-center justify-end">
-                              <div
-                                className="w-full rounded-t bg-[var(--color-text-secondary)]"
-                                style={{
-                                  height: mins <= 0
-                                    ? '2px'
-                                    : `${Math.max(18, Math.round((mins / maxMins) * 100))}%`,
-                                  opacity: mins <= 0 ? 0.35 : 1,
-                                }}
-                                title={`${mins}m`}
-                              />
-                            </div>
-                          ));
-                        })()}
-                      </div>
-                    )}
-                  </div>
-                )}
+                {/* Always show — empty well was screenshot P0 when week>0 but daily series missing */}
+                <div
+                  className="rounded-lg border border-border-subtle bg-surface-primary/40 p-2"
+                  data-testid="progress-study-week-chart"
+                >
+                  <p className="type-caption text-text-secondary mb-1.5">{t('studyThisWeek')}</p>
+                  {recentStudyDays.length > 0 && recentStudyDays.some((m) => m > 0) ? (
+                    <div className="flex h-10 items-end gap-1">
+                      {(() => {
+                        const maxMins = Math.max(...recentStudyDays, 1);
+                        return recentStudyDays.map((mins, i) => (
+                          <div key={i} className="flex h-full flex-1 flex-col items-center justify-end">
+                            <div
+                              className="w-full rounded-t bg-[var(--color-text-secondary)]"
+                              style={{
+                                height: mins <= 0
+                                  ? '2px'
+                                  : `${Math.max(18, Math.round((mins / maxMins) * 100))}%`,
+                                opacity: mins <= 0 ? 0.35 : 1,
+                              }}
+                              title={`${mins}m`}
+                            />
+                          </div>
+                        ));
+                      })()}
+                    </div>
+                  ) : (
+                    <p className="type-caption text-text-secondary" data-testid="progress-study-week-empty">
+                      {studyTimeWeek > 0
+                        ? `${studyTimeWeek}m · ${t('noActivity')}`
+                        : t('noActivity')}
+                    </p>
+                  )}
+                </div>
 
                 {toolActivity.length > 0 && (
                   <div

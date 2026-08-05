@@ -304,8 +304,7 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
                 <div className="flex items-center gap-2 min-w-0">
                   <button
                     onClick={onClose}
-                    title={t('wsCloseWorkspace')}
-                    aria-label={t('close')}
+                    aria-label={t('wsCloseWorkspace')}
                     className="p-1.5 rounded-lg hover:bg-surface-hover text-text-secondary hover:text-text-primary transition-colors shrink-0"
                   >
                     <X className="w-4 h-4" />
@@ -365,7 +364,7 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
             {!chromeHidden && !isMobile && !notebookMode && (
               <div className="relative z-10 flex items-center justify-between gap-2 px-3 py-2 border-b border-border-subtle bg-surface-secondary/85 backdrop-blur-xl shrink-0">
                 <div className="flex items-center gap-3 min-w-0">
-                  <button onClick={onClose} title={t('wsCloseWorkspace')} aria-label={t('close')} className="p-1.5 rounded-lg hover:bg-surface-hover text-text-secondary hover:text-text-primary transition-colors shrink-0">
+                  <button onClick={onClose} aria-label={t('wsCloseWorkspace')} className="p-1.5 rounded-lg hover:bg-surface-hover text-text-secondary hover:text-text-primary transition-colors shrink-0">
                     <X className="w-4 h-4" />
                   </button>
                   <div className="min-w-0">

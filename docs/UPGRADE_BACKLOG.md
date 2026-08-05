@@ -94,7 +94,8 @@ Perf root causes fixed (E0): per-tool intel gates; noteBundle pipeline decoupled
 | E10 | Simulator + Timer | **done** — S/D graph theme tokens + stronger surplus fills; exam-block clear persists |
 | E11 | Annotations | **done** — `.ws-panel-toolbar` global (was light/warm-only → run-together labels on minimal); named swatches |
 | E12 | Progress | **done** — KPI row + AA weak chip; ReadinessRing band AA; single next-action card; This-week bars use secondary ink + empty `noActivity` copy |
-| E13 | Tutor column + files rail | **partial** — offline strip uses `platform-banner-warn` + banner-warn-ink (all themes); Files quality + Pages selection |
+| E13 | Tutor column + files rail | **partial** — offline banner AA done; Files meta/reprocess/quality pill lifted to caption + secondary ink; remaining: composer touch ≤1023, Listen caption |
+| F | Wave F eye-harmony follow-up | **in progress** — audit canvas `workspace-panel-visual-audit.canvas.tsx`; F1 Progress This-week always+heatmap; F2 close titles removed; F3 Files ink; next F4–F8 |
 | E14 | Exit gate | **done** — diagnostics removed; `test:a11y` + `test:e2e:perf` + contrast unit tests green; LHCI a11y ≥0.95 asserted (`npm run test:lhci`, landing/dashboard/demo). Fixes: ReadinessRing band AA ink; Shell Tasks/Search accessible names; Dashboard layout toggle labels |)
 
 ## Explicitly out of scope

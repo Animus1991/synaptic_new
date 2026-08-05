@@ -293,7 +293,7 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
                     <span className="min-w-0 flex-1">
                       <span className="block truncate text-xs font-medium">{source.label}</span>
                       {source.meta && (
-                        <span className="block type-micro text-text-muted">{source.meta}</span>
+                        <span className="block type-caption text-text-secondary">{source.meta}</span>
                       )}
                     </span>
                   </button>
@@ -302,7 +302,7 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
                       type="button"
                       onClick={() => openReprocessWizard()}
                       data-testid="source-thumbnail-reprocess-hint"
-                      className="mt-0.5 ml-11 block type-micro font-medium text-text-secondary hover:text-text-primary hover:underline text-left"
+                      className="mt-0.5 ml-11 block type-caption font-medium text-text-secondary hover:text-text-primary hover:underline text-left"
                     >
                       {tx('Επανεπεξεργασία για προεπισκόπηση', 'Reprocess for preview')}
                     </button>
@@ -361,7 +361,7 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
           type="button"
           onClick={openSourceCheck}
           title={tx('Άνοιγμα ανάλυσης πηγής', 'Open source analysis')}
-          className="ws-pill hover:bg-surface-hover hover:text-text-primary transition-colors cursor-pointer text-left"
+          className="ws-pill type-caption font-medium text-text-secondary hover:bg-surface-hover hover:text-text-primary transition-colors cursor-pointer text-left"
           data-testid="notebook-source-quality"
         >
           {showPre24Greek
